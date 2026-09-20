@@ -1,12 +1,15 @@
+import {brandCopy} from './brand.js';
+import {exampleHTML} from './examples.js';
+import {TOOLS} from './tool-registry.js';
 import {INTENTS} from './intents.js';
 import {t} from './i18n.js';
 import {esc} from './ui.js';
 
-export const labels={
- en:{related:'Related tools',how:'How it works',formats:'Supported formats',features:'What this tool does',limits:'Before you export',faq:'Frequently asked questions',about:'About',privacy:'Privacy',terms:'Terms',contact:'Contact',home:'Open FileForge',ad:'Advertisement',language:'Language',saved:'Keep your original file. Export your result before reloading or closing this tab.',uploadQ:'Are my files uploaded?',uploadA:'FileForge processes selected files on your device and has no file-upload API. Optional engines and models are downloaded from third parties; those requests expose connection information such as your IP address.',resultQ:'Will my work be saved automatically?',resultA:'No. Files and editing results stay in this tab’s memory. Changing language preserves your work; reloading, closing the tab, or following a link to another page can clear it.'},
- ko:{related:'관련 도구',how:'사용 방법',formats:'지원 형식',features:'이 도구로 할 수 있는 일',limits:'저장 전에 확인하세요',faq:'자주 묻는 질문',about:'소개',privacy:'개인정보처리방침',terms:'이용약관',contact:'문의',home:'FileForge 열기',ad:'광고',language:'언어',saved:'원본 파일은 따로 보관하고, 새로고침하거나 탭을 닫기 전에 결과를 저장하세요.',uploadQ:'파일이 서버에 업로드되나요?',uploadA:'선택한 파일은 사용자 기기에서 처리하며, FileForge에는 파일 업로드 API가 없습니다. 일부 엔진과 모델은 외부에서 내려받으므로 IP 주소 등 연결 정보가 해당 서비스에 전달됩니다.',resultQ:'작업이 자동 저장되나요?',resultA:'아니요. 파일과 편집 결과는 이 탭의 메모리에만 있습니다. 언어를 바꿔도 작업은 유지되지만 새로고침, 탭 닫기, 다른 페이지로 이동하면 사라질 수 있습니다.'},
- ja:{related:'関連ツール',how:'使い方',formats:'対応形式',features:'このツールでできること',limits:'書き出す前に',faq:'よくある質問',about:'FileForgeについて',privacy:'プライバシー',terms:'利用規約',contact:'お問い合わせ',home:'FileForgeを開く',ad:'広告',language:'言語',saved:'元のファイルは保管し、再読み込みやタブを閉じる前に結果を書き出してください。',uploadQ:'ファイルはアップロードされますか？',uploadA:'選択したファイルはお使いの端末で処理します。FileForgeにファイル送信用APIはありません。一部のエンジンやモデルは外部から取得するため、IPアドレスなどの接続情報は配信元に伝わります。',resultQ:'作業は自動保存されますか？',resultA:'いいえ。ファイルと編集結果はこのタブのメモリに保持されます。言語を変えても作業は残りますが、再読み込み、タブを閉じる操作、別のページへの移動で失われることがあります。'}
-};
+export const labels=brandCopy({
+ en:{related:'Related tools',how:'How it works',formats:'Supported formats',features:'What this tool does',limits:'Before you export',faq:'Frequently asked questions',about:'About',privacy:'Privacy',terms:'Terms',contact:'Contact',home:'Open {brand}',ad:'Advertisement',language:'Language',saved:'Keep your original file. Export your result before reloading or closing this tab.',uploadQ:'Are my files uploaded?',uploadA:'{brand} processes selected files on your device and has no file-upload API. Optional engines and models are downloaded from third parties; those requests expose connection information such as your IP address.',resultQ:'Will my work be saved automatically?',resultA:'No. Files and editing results stay in this tab’s memory. Changing language preserves your work; reloading, closing the tab, or following a link to another page can clear it.'},
+ ko:{related:'관련 도구',how:'사용 방법',formats:'지원 형식',features:'이 도구로 할 수 있는 일',limits:'저장 전에 확인하세요',faq:'자주 묻는 질문',about:'소개',privacy:'개인정보처리방침',terms:'이용약관',contact:'문의',home:'{brand} 열기',ad:'광고',language:'언어',saved:'원본 파일은 따로 보관하고, 새로고침하거나 탭을 닫기 전에 결과를 저장하세요.',uploadQ:'파일이 서버에 업로드되나요?',uploadA:'선택한 파일은 사용자 기기에서 처리하며, {brand}에는 파일 업로드 API가 없습니다. 일부 엔진과 모델은 외부에서 내려받으므로 IP 주소 등 연결 정보가 해당 서비스에 전달됩니다.',resultQ:'작업이 자동 저장되나요?',resultA:'아니요. 파일과 편집 결과는 이 탭의 메모리에만 있습니다. 언어를 바꿔도 작업은 유지되지만 새로고침, 탭 닫기, 다른 페이지로 이동하면 사라질 수 있습니다.'},
+ ja:{related:'関連ツール',how:'使い方',formats:'対応形式',features:'このツールでできること',limits:'書き出す前に',faq:'よくある質問',about:'{brand}について',privacy:'プライバシー',terms:'利用規約',contact:'お問い合わせ',home:'{brand}を開く',ad:'広告',language:'言語',saved:'元のファイルは保管し、再読み込みやタブを閉じる前に結果を書き出してください。',uploadQ:'ファイルはアップロードされますか？',uploadA:'選択したファイルはお使いの端末で処理します。{brand}にファイル送信用APIはありません。一部のエンジンやモデルは外部から取得するため、IPアドレスなどの接続情報は配信元に伝わります。',resultQ:'作業は自動保存されますか？',resultA:'いいえ。ファイルと編集結果はこのタブのメモリに保持されます。言語を変えても作業は残りますが、再読み込み、タブを閉じる操作、別のページへの移動で失われることがあります。'}
+});
 
 // Each tuple is [steps separated by |, feature, limitation, specific question, answer].
 // Copy describes the actual Canvas / PDF / MediaRecorder implementations.
@@ -101,8 +104,14 @@ export const guides={
  ['動画を開く|短い区間と小さめの出力幅を選ぶ|WebMで録画し実際の容量を比較','解像度を下げ、出力サイズに応じたビットレートで録画します。','目標容量は保証しません。MP4ではなくWebMで、小さい元動画より容量が増える場合もあります。','さらに小さくするには？','幅や区間を減らし、結果を確認してください。細部が失われる場合があります。']]
 };
 
-export function guide(id,locale){return guides[id][{en:0,ko:1,ja:2}[locale]];}
+export function guide(id,locale){
+ if(TOOLS[id]){const d=TOOLS[id],i={ko:0,en:1,ja:2}[locale];return [
+  ["이미지 넣기|필요한 설정을 조정하고 결과 확인|다운로드로 새 파일 저장","Add images|Adjust settings and review the result|Download a new file","画像を追加|設定を調整して結果を確認|新しいファイルを保存"][i],d.description[i],d.limit[i],
+  ["이 도구의 한계는 무엇인가요?","What are this tool’s limitations?","このツールにはどのような制限がありますか？"][i],d.limit[i]];}
+ return guides[id][{en:0,ko:1,ja:2}[locale]];
+}
 export function formats(id,locale){
+ if(TOOLS[id]){const output={refiner:'PNG / ZIP','palette-swap':'PNG','logo-bg':'PNG','texture-map':'PNG','mask-packer':'PNG','margin-crop':'PNG','marketplace-pack':'JPG + JSON (ZIP)','print-pack':'JPG + JSON (ZIP)','bitmap-font':'PNG + FNT + JSON (ZIP)','favicon-pack':'ICO + PNG + HTML + Webmanifest (ZIP)'}[id]||'PNG + JSON (ZIP)';return 'PNG / JPG / WebP / AVIF / HEIC → '+output+' — '+{ko:'입력 디코딩은 브라우저 지원과 추가 엔진 사용 여부에 따라 다릅니다.',en:'Input decoding depends on browser support and optional engines.',ja:'入力のデコードはブラウザ対応と追加エンジンに依存します。'}[locale];}
  const editor=INTENTS[id].editor;
  const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'WebM','video-compress':'WebM',media:'WebM / GIF / PNG / WAV / MP3'};
  const values=editor==='pdf'?(id==='jpg-to-pdf'?'JPG / PNG / WebP → PDF':id==='pdf-to-jpg'?'PDF → JPG / PNG':id==='pdf'?'PDF / JPG / PNG / WebP → PDF / JPG / PNG':'PDF → PDF'):editor==='media'?`MP4 / WebM / MOV${['media','video-mp3'].includes(id)?' / MP3 / WAV / OGG / M4A':''} → ${mediaOutput[id]}`:id==='home'?'PNG / JPG / WebP / PDF / MP4 / WebM / WAV':id==='heic'?'HEIC / HEIF → JPG / PNG / WebP':`PNG / JPG / WebP / AVIF / HEIC → ${['pixel','upscale','crop','resize','remove-bg'].includes(id)?'PNG':'PNG / JPG / WebP'}`;
@@ -113,5 +122,5 @@ export function footer(locale){const l=labels[locale];return `<footer class="sit
 export function toolContent(id,locale){
  const l=labels[locale],g=guide(id,locale),related=INTENTS[id].next.length?INTENTS[id].next:['upscale','pdf-merge','pixel','media'];
  const faq=[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
- return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article><h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p></article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
+ return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article>${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p></article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
 }

@@ -1,3 +1,4 @@
+import {BRAND} from '../src/brand.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -32,7 +33,7 @@ test('abort errors localize',async()=>{setLocale('en');const c=new AbortControll
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 for(const locale of LOCALES)for(const route of ['',...ROUTES])test(`static HTML ${locale}/${route}`,()=>{
  const output=entry(html,`${locale}${route?'/'+route:''}`),id=intentFor(route),title=t(`intent.${id}.title`,{},locale);
- assert(output.includes(`<html lang="${locale}">`));assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · FileForge</title>`));
+ assert(output.includes(`<html lang="${locale}">`));assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · ${BRAND.name}</title>`));
  assert(output.includes(`id="emptyTitle">${t(`intent.${id}.headline`,{},locale)}</h2>`));assert(output.includes('id="emptySubtitle"'));assert(output.includes('id="languageSelect"'));assert(output.includes('data-action="open"'));
  assert(output.includes('<base href="'+'../'.repeat(route?route.split('/').length+1:1)+'">'));
 });

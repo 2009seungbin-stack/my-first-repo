@@ -1,0 +1,26 @@
+/* Recipe UI is progressive; the catalog appears only on explicit request. */
+.kit-explore{display:grid;place-items:center;min-width:44px;min-height:44px;border-radius:12px;background:#edf3fc;color:#356fae}
+.home-empty .workspace-footer{display:none}.recipe-active .tool-dock{justify-content:center}
+.kit-settings{overflow-wrap:anywhere}.kit-settings input,.kit-settings select,.kit-settings textarea{max-width:100%;min-width:0;box-sizing:border-box}
+.kit-settings details{margin:12px 0;padding:8px 0;border-top:1px solid #e7edf5}.kit-settings summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:12px;font-weight:700}
+.kit-settings details[open]>summary{margin-bottom:8px}.kit-button{min-height:44px;padding:8px 12px;border:1px solid #dce5f0;border-radius:9px;font-size:12px;background:#f5f8fc;color:#365e92}
+.kit-mini-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.kit-mini-actions .kit-button{flex:1;font-size:10px}
+.kit-frame-list{max-height:220px;overflow:auto;border:1px solid #e5eaf2;border-radius:10px}.kit-frame-row{display:flex;align-items:center;gap:8px;padding:0 8px}.kit-frame-row>input{width:20px;height:20px}.kit-frame-row>button{min-height:44px;flex:1;text-align:left;font-size:12px;padding:8px}.kit-frame-row>button[aria-pressed=true]{background:#e9f2ff;color:#2675d7}
+.kit-rect{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kit-rect label{min-width:0;font-size:11px}.kit-rect input{width:100%;min-height:44px}
+.kit-inputs{max-height:250px;overflow:auto}.kit-inputs>div{display:flex;align-items:center;gap:4px}.kit-inputs>div>span{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.kit-inputs .icon-button{flex-shrink:0;min-width:44px;min-height:44px}
+.kit-palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:15px}.kit-palette button{background:var(--swatch);min-height:44px;border-radius:9px;border:2px solid #dce3ec}
+.kit-output-note{text-align:center;margin:8px 0 0;font-size:11px}
+#frameOverlay{position:absolute;inset:0;pointer-events:none}#frameOverlay>span{position:absolute;outline:1px solid #00a36c}#frameOverlay>span.selected{outline:2px solid #ed6b23}#frameOverlay b{background:#173d36;color:white;font-size:9px;line-height:14px;position:absolute;top:0;left:0;padding:0 3px}
+#toolsDialog{width:min(650px,calc(100vw - 28px));max-height:85dvh;padding:22px;border:1px solid #dce5f0;border-radius:20px;color:#273d59;background:#fff}#toolsDialog::backdrop{background:#15294066}
+#toolSearch{width:100%;min-height:48px;border:1px solid #c6d7ea;border-radius:11px;padding:10px 14px;font-size:15px;box-sizing:border-box}
+.kit-categories{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0}.kit-categories button{min-height:44px;padding:6px 12px;border-radius:9px;font-size:12px}.kit-categories button[aria-pressed=true]{background:#eaf3ff;color:#2878dc}
+#toolResults{max-height:55dvh;overflow:auto}#toolResults h3{font-size:12px;color:#7c8da3;margin:15px 0 4px}.kit-tool-row{display:flex;gap:8px;border-bottom:1px solid #eef2f6}.kit-tool-row>button:first-child{display:flex;align-items:center;gap:12px;min-width:0;flex:1;padding:12px 4px;text-align:left}.kit-tool-row svg{flex-shrink:0;color:#3784db}.kit-tool-row strong{font-size:13px;display:block}.kit-tool-row small{display:block;font-size:11px;color:#75869c;line-height:1.5;margin-top:4px}.kit-star{align-self:center;min-width:44px;min-height:44px;font-size:24px;color:#8ca0b9}.kit-star[aria-pressed=true]{color:#b77b1a}
+#toolsDialog .dialog-heading{margin-bottom:14px}#toolsDialog .dialog-heading h2{font-size:18px}.kit-button:focus-visible,#toolsDialog button:focus-visible,.kit-palette button:focus-visible{outline:3px solid #458be0;outline-offset:2px}
+.recipe-active .compare-toggle button{min-height:44px}.recipe-active #preview{image-rendering:auto}.recipe-active #panel{max-width:310px}
+@media(max-width:680px){.header-end{gap:5px}.kit-explore{min-width:44px}.recipe-active #panel{max-width:none}.kit-settings .field input,.kit-settings .field select{min-height:44px}.kit-tool-row small{font-size:10px}#toolsDialog{padding:15px}.kit-categories{gap:2px}.kit-categories button{padding:6px 9px}.recipe-active .intent-primary{min-width:150px}.recipe-active .kit-output-note{font-size:10px}.recipe-active #toolDock .icon-button{min-height:44px;min-width:44px}}
+@media(max-width:400px){.header-end .local-pill{display:none}}
+
+.kit-frame-row>input{width:44px;height:44px;flex-shrink:0}
+.recipe-active .stage.pixel-mode #preview{image-rendering:pixelated}
+
+@media(max-width:680px){.recipe-active #panel{inset:auto 0 0;max-height:65%;width:100%;border-left:0;border-top:1px solid #dce6f1;border-radius:16px 16px 0 0;box-shadow:0 -8px 25px #1a395210}}

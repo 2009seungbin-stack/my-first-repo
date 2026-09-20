@@ -1,3 +1,5 @@
+import {brandCopy} from './brand.js';
+import {TOOL_MESSAGES} from './tool-messages.js';
 /** Plain-text catalog: [source id, en, ja] or [id, ko, en, ja]. */
 const records = [
   ["이미지 편집","Image editor","画像編集"],
@@ -272,7 +274,7 @@ const records = [
   ["language.label","언어","Language","言語"],
   ["language.auto","자동 감지","Auto-detect","自動検出"],
   ["language.session","언어를 바꿨어요. 이 브라우저에서는 선택을 저장할 수 없어 이번 방문에만 적용됩니다.","Language changed for this visit. This browser could not save your preference.","言語を変更しました。このブラウザでは設定を保存できないため、今回の訪問にのみ適用されます。"],
-  ["shell.home","FileForge 홈","FileForge home","FileForge ホーム"],
+  ["shell.home","{brand} 홈","{brand} home","{brand} ホーム"],
   ["shell.local","내 기기에서 처리","Processed on your device","この端末で処理"],
   ["shell.help","도구 이름과 도움말","Tool names and help","ツール名とヘルプ"],
   ["shell.editors","편집기 선택","Choose an editor","エディターを選択"],
@@ -422,4 +424,4 @@ const records = [
   ["intent.video-compress.description","해상도를 낮춘 WebM으로 저장. 원본보다 작아진다는 보장은 없어요.","Export lower-resolution WebM. A smaller file is not guaranteed.","解像度を下げたWebMで保存。容量の削減は保証されません。"],
   ["intent.video-compress.action","WebM 만들기","Create WebM","WebMを作成"]
 ];
-export const MESSAGES=Object.fromEntries(records.map(([key,...values])=>[key,values.length===2?[key,...values]:values]));
+export const MESSAGES=brandCopy({...Object.fromEntries(records.map(([key,...values])=>[key,values.length===2?[key,...values]:values])),...TOOL_MESSAGES});

@@ -1,4 +1,4 @@
-name: FileForge validation
+name: Nerulio validation
 on:
   push:
     branches: [main]
@@ -12,18 +12,23 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate syntax
-        run: npm run check
-      - name: Run unit and structural tests
-        run: npm test
-      - name: Build static site
-        run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Full syntax, unit, build and real HTTP regression
+        run: python tools/regression.py
       - name: Archive the exact tested source
         if: always()
         run: git archive --format=tar --output=source.tar HEAD
@@ -35,4 +40,5 @@ jobs:
           path: |
             source.tar
             dist/
+            test-results/
           retention-days: 7

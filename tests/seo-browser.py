@@ -44,7 +44,7 @@ def run_mode(browser,mode,index):
             ok(mode+' direct '+route,response.status==200)
             lang=route.split('/')[1] if route.split('/')[1] in ['ko','en','ja'] else 'en'
             ok(mode+' locale '+route,page.locator('html').get_attribute('lang')==lang)
-            ok(mode+' title and h1 '+route,page.title()==page.locator('h1').inner_text()+' · FileForge')
+            ok(mode+' title and h1 '+route,page.title()==page.locator('h1').inner_text()+' · Nerulio')
             ok(mode+' description '+route,len(page.locator('meta[name="description"]').get_attribute('content'))>10)
             ok(mode+' guide and FAQ '+route,page.locator('.reading-content ol li').count()==3 and page.locator('.faq details').count()==3)
             if mode=='disabled':

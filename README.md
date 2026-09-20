@@ -1,4 +1,4 @@
-# FileForge Studio · v1.1
+# Nerulio Studio · v1.2
 
 **한 파일로 이어서 작업하는 로컬 편집기.** 이미지 편집, PDF 편집, 도트화, 미디어 편집을 네 개의 작업실로 묶었습니다.
 
@@ -7,7 +7,7 @@
 - `/image/upscale/`은 업스케일 안내와 배율 선택부터 시작합니다. 배경제거, 압축, 변환, 자르기, PDF 합치기 등도 각 목적에 맞는 입구를 사용하고 내부 편집 엔진을 공유합니다.
 - 파일 선택 → 실행 → 실제 결과 확인 → 다운로드 → 관련 작업으로 이어집니다. 결과 확인 전에 파일을 자동 다운로드하지 않습니다.
 - **한국어 / English / 日本語** 및 자동 감지를 지원합니다. 우선순위는 `?lang=` → URL 언어 접두사 → 저장된 선택 → 브라우저 선호 언어 → 영어입니다.
-- 언어 변경은 파일을 다시 불러오지 않으며, 편집 결과와 입력 중인 설정을 유지합니다. 기기에는 선택한 언어만 저장합니다.
+- 언어 변경은 파일을 다시 불러오지 않으며, 편집 결과와 입력 중인 설정을 유지합니다. 기기에는 선택한 언어, 즐겨찾기 도구 ID, 최근 도구 ID 3개를 저장합니다. 파일명이나 파일 내용은 저장하지 않습니다.
 - 홈에서 업스케일·배경제거·압축·PDF 합치기를 바로 찾을 수 있고, 보조 기능은 아이콘·툴팁으로 유지합니다.
 
 예시: `/en/image/upscale/?scale=4`, `/ja/pdf/merge/`, `/ko/pixel/?n=48`, `/png-to-webp/`.
@@ -25,7 +25,7 @@ npm run build
 # dist/ 전체를 정적 호스팅에 배포
 ```
 
-빌드는 도구와 About/Privacy/Terms/Contact의 자동 감지용 주소 및 ko/en/ja 주소를 합쳐 **128개 정적 HTML 진입 파일**을 만듭니다. `SITE_URL`을 지정할 때 canonical/hreflang/Open Graph URL과 sitemap 절대주소를 추가합니다. 주소가 없으면 도메인을 만들지 않고 빈 sitemap과 기본 robots를 생성합니다. 기능 수를 뜻하는 숫자가 아닙니다.
+빌드는 도구와 About/Privacy/Terms/Contact의 자동 감지용 주소 및 ko/en/ja 주소를 합쳐 **208개 정적 HTML 진입 파일**을 만듭니다. `SITE_URL`을 지정할 때 canonical/hreflang/Open Graph URL과 sitemap 절대주소를 추가합니다. 주소가 없으면 도메인을 만들지 않고 빈 sitemap과 기본 robots를 생성합니다. 기능 수를 뜻하는 숫자가 아닙니다.
 
 **[Cloudflare Pages 배포·커스텀 도메인·Search Console·AdSense 설정 가이드](DEPLOYMENT.md)**
 
@@ -51,7 +51,7 @@ PDF·HEIC·MP3·AI는 외부 엔진이나 모델을 추가 다운로드합니다
 
 ## 검증 범위
 
-이번 작업의 실행 결과와 재현 명령은 [테스트 기록](docs/TESTING.md)에 구분해 기록합니다. Node 검사 숫자는 번역 항목·라우팅·HTML·빌드 설정 등의 테스트 케이스 수이며 기능 수가 아닙니다. 브라우저 검사는 실제 로컬 HTTP에서 수행합니다. 광고 테스트는 Google 요청을 가로채며 실제 광고 게재·동의 시스템·공개 Cloudflare HTTPS·Search Console 색인·AdSense 승인은 별도 운영 검증이 필요합니다.
+이번 확장의 실행 결과와 재현 명령은 [최신 테스트 기록](TESTING.md)에 구분해 기록합니다. 이전 릴리스의 기록은 [기존 테스트 기록](docs/TESTING.md)에 보존합니다. Node 검사 숫자는 번역 항목·라우팅·HTML·빌드 설정 등의 테스트 케이스 수이며 기능 수가 아닙니다. 브라우저 검사는 HTTP 실행 모드와 제한된 환경용 in-memory 실행 모드를 구분하며, 실제 실행 모드는 최신 테스트 기록에 명시합니다. 광고 테스트는 Google 요청을 가로채며 실제 광고 게재·동의 시스템·공개 Cloudflare HTTPS·Search Console 색인·AdSense 승인은 별도 운영 검증이 필요합니다.
 
 ## 개발 문서
 
@@ -60,3 +60,30 @@ PDF·HEIC·MP3·AI는 외부 엔진이나 모델을 추가 다운로드합니다
 - [선택 기능의 의존성·라이선스](docs/DEPENDENCIES.md)
 
 핵심 파일은 `src/experience.js`(유입 흐름), `src/i18n.js`와 `src/messages.js`(언어), `src/intents.js`(경로·기본값), `src/app.js`(공통 편집기)입니다. 기존 저장소의 첫 README는 `docs/original-README.md`에 보존되어 있습니다.
+
+
+## 전문 도구 확장 · 2026-09-20
+
+기존 네 작업실과 기존 주소를 유지하면서 **16개 실제 출력 워크플로**를 추가했습니다. 홈에는 여전히 업로드와 4개 추천만 표시하며, 전체 도구는 상단 검색 아이콘 또는 Ctrl/⌘+K로 엽니다. 고급 옵션은 필요한 도구의 설정 안에만 표시합니다.
+
+게임 에셋 다듬기, 스프라이트 감지·자르기, 프레임 정렬, 시트 생성, 팔레트 교체, 고정 폭 비트맵 폰트, 타일 분리, 아틀라스 여백, RGBA 마스크, 높이 기울기 노멀 맵, Etsy/Shopify 상품 이미지 팩, 인쇄 비율 팩, 로고 배경제거, 파비콘 팩, 스캔 **이미지** 분리, 이미지 여백 자르기를 제공합니다. 결과는 다운로드 전에 검토합니다. 공유 카드에만 작은 브랜드가 들어가며 원본 작업 결과에는 워터마크가 없습니다.
+
+**이번 릴리스에 없는 기능:** 새 PDF 소책자/RTL 판짜기, PDF 스캔 분리, PDF 자동 여백 자르기, 무음 제거·말 사이 간격 단축, 충돌 폴리곤, 심리스 블렌딩, 기울기 보정, Amazon/Instagram 프리셋. 미완성 버튼이나 해당 기능용 SEO 페이지를 공개하지 않습니다. 기존 PDF·미디어 기능은 유지합니다.
+
+- [Primitive → Recipe 구조](ARCHITECTURE.md)
+- [도구별 입력·출력·한계 및 새 URL](TOOLS.md)
+- [화면·언어·접근성 설계](UX.md)
+- [실행한 테스트와 미검증 범위](TESTING.md)
+
+
+## Nerulio 검색·공유 업데이트
+
+브랜드는 `src/brand.js`에서 변경합니다. 기존 FileForge 저장소/호스팅 주소와 로컬 저장 키는 유지합니다. 16개 전문 도구와 7개 호환 별칭, 3개 언어, 236개 정적 HTML 엔트리를 제공합니다. 검색 콘텐츠는 편집기 아래에만 표시하며 실제 처리 엔진으로 만든 Before/After 24쌍과 도구·언어별 소셜 PNG 114개가 포함됩니다.
+
+- [Growth 구조, 이벤트와 실험](docs/GROWTH.md)
+- [SEO, Search Console, Bing/IndexNow 설정](docs/SEO.md)
+- [광고 영역과 제외 구역](docs/ADS.md)
+
+`GOOGLE_SITE_VERIFICATION`과 `INDEXNOW_KEY`는 선택적 빌드 환경변수입니다. 발급받은 값 없이 등록·제출을 흉내 내지 않습니다. 광고와 외부 분석 전송은 기본 비활성화입니다.
+
+전체 회귀 검사는 Playwright/Pillow/Chromium 및 ffmpeg가 설치된 개발 환경에서 `python tools/regression.py`로 실행합니다. 스크립트는 자체 서버만 종료합니다. 브랜드를 바꾸거나 예제 처리 알고리즘이 달라지면 `tools/generate-examples.py`로 커밋된 이미지를 재생성하세요.
