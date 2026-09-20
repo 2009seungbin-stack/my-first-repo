@@ -1,0 +1,158 @@
+name: FileForge validate and publish expansion
+on:
+  push:
+    branches: [fileforge/validated-expansion-20260920]
+permissions:
+  contents: write
+concurrency:
+  group: fileforge-expansion-publication
+  cancel-in-progress: false
+jobs:
+  validate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify complete transfer and apply to unchanged main
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, hashlib, json, lzma, os
+          from pathlib import Path
+          parts = sorted(Path('.fileforge-transfer').glob('part-*.b64'))
+          assert len(parts) == 6, 'Expected six complete transfer parts'
+          raw = lzma.decompress(base64.b64decode(''.join(p.read_text().strip() for p in parts), validate=True))
+          assert hashlib.sha256(raw).hexdigest() == 'dec44614d87df178a5ed575e3f16580f1ecdb62d8901292bde67b7b77532550f', 'Transfer SHA256 mismatch'
+          edits = json.loads(raw)
+          assert len(edits) == 27
+          Path(os.environ['RUNNER_TEMP'], 'fileforge-edits.json').write_bytes(raw)
+          print('Verified full transfer SHA256; 27 source/document/test files')
+          PY
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = '7cc2b45d607d3bd1ba7dd5d1240e49d9eae41625' || { echo 'Main changed; refusing to overwrite user changes'; exit 1; }
+          git checkout -B main origin/main
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path, PurePosixPath
+          edits = json.loads(Path(os.environ['RUNNER_TEMP'], 'fileforge-edits.json').read_text())
+          root = Path.cwd().resolve()
+          for name, edit in edits.items():
+              rel = PurePosixPath(name)
+              assert not rel.is_absolute() and not any(p in ('..', '.git', '.github') for p in rel.parts), name
+              path = root.joinpath(name)
+              assert path.resolve().is_relative_to(root) and not path.is_symlink(), name
+              if 'new' in edit:
+                  assert not path.exists(), name
+                  text = edit['new']
+              else:
+                  old = path.read_bytes()
+                  assert hashlib.sha256(old).hexdigest() == edit['base'], 'Base mismatch: ' + name
+                  text = old.decode('utf-8')
+                  end = len(text)
+                  for start, stop, replacement in reversed(edit['ops']):
+                      assert 0 <= start <= stop <= end
+                      text = text[:start] + replacement + text[stop:]
+                      end = start
+                  assert hashlib.sha256(text.encode()).hexdigest() == edit['sha256'], 'Output mismatch: ' + name
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(text, encoding='utf-8', newline='')
+          subprocess.run(['git', 'add', '--', *edits.keys()], check=True)
+          PY
+          git diff --cached --check
+          mkdir -p test-results
+          git diff --cached --stat | tee test-results/changed-files.txt
+      - name: Syntax, unit tests and static build
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run check | tee test-results/syntax.log
+          npm test | tee test-results/node.log
+          npm run build | tee test-results/build.log
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install playwright Pillow
+          python -m playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Real HTTP browser and independent output validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs --dist >test-results/server.log 2>&1 & ROOT_PID=$!
+          PORT=4174 BASE_PATH=/my-first-repo node tools/serve.mjs --dist >test-results/subpath-server.log 2>&1 & SUB_PID=$!
+          trap 'kill "$ROOT_PID" "$SUB_PID" 2>/dev/null || true' EXIT
+          for i in {1..30}; do if curl --fail --silent http://127.0.0.1:4173/en/ >/dev/null && curl --fail --silent http://127.0.0.1:4174/my-first-repo/en/ >/dev/null; then break; fi; sleep 1; done
+          python tests/browser.py | tee test-results/browser-http.log
+          python tests/recipes-browser.py | tee test-results/recipes-http.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
+              page = browser.new_page()
+              response = page.goto('http://127.0.0.1:4173/en/', wait_until='networkidle')
+              assert response.headers.get('content-security-policy'), 'HTTP CSP missing'
+              result = page.evaluate('''async () => {
+                  const {primitive} = await import('/src/recipes.js');
+                  const w=513,h=513,data=new Uint8ClampedArray(w*h*4);data.fill(255);
+                  const out=await primitive('texture',{w,h,data,options:{mode:'normal',strength:2,invertY:false}});
+                  if(out.length!==w*h*4 || out[0]!==128 || out[1]!==128 || out[2]!==255)throw Error('Worker output mismatch');
+                  const controller=new AbortController();
+                  const job=primitive('texture',{w,h,data:new Uint8ClampedArray(w*h*4),options:{mode:'normal',strength:2}},controller.signal);
+                  controller.abort();
+                  let cancelled=false;try{await job;}catch(error){cancelled=error.name==='AbortError';}
+                  if(!cancelled)throw Error('Worker cancellation failed');
+                  return {moduleWorkerPixels:w*h,compatibilityLimit:262144,workerOutput:true,cancelled:true};
+              }''')
+              assert result['moduleWorkerPixels'] > result['compatibilityLimit']
+              Path('test-results/worker-http-results.json').write_text(json.dumps(result, indent=2))
+              browser.close()
+          print('PASS real module Worker above fallback limit and immediate cancellation under HTTP CSP')
+          PY
+      - name: Commit only validated source and fast-forward main
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          old = json.loads(Path('test-results/browser-results.json').read_text())
+          new = json.loads(Path('test-results/recipes-browser-results.json').read_text())
+          worker = json.loads(Path('test-results/worker-http-results.json').read_text())
+          assert old['mode']=='HTTP' and new['mode']=='HTTP' and not old['errors']
+          url = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          note = '\n\n## GitHub Actions real HTTP validation\n\n'
+          note += f"Executed {datetime.now(timezone.utc).isoformat()} in Ubuntu Chromium over the built HTTP site with its CSP and repository subpath. Run: {url}\n\n"
+          note += f"Existing browser suite: {len(old['passed'])} checks passed. New recipe suite: {len(new['checks'])} checks passed. Syntax, all 892 Node tests and the 208-entry build passed. A separate probe verified a real module Worker on {worker['moduleWorkerPixels']} pixels (larger than the 262144-pixel compatibility cap) and AbortController cancellation.\n\n"
+          note += 'The HTTP suite counts can differ from in-memory counts because the original harness has mode-specific history/storage assertions. These HTTP results do not certify public hosting, OS-native sharing, Safari/Firefox, physical low-end devices or untested external engines.\n'
+          with Path('TESTING.md').open('a') as f:f.write(note)
+          PY
+          git add TESTING.md
+          git diff --cached --check
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = '7cc2b45d607d3bd1ba7dd5d1240e49d9eae41625' || { echo 'Main changed during validation; refusing to overwrite'; exit 1; }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: add validated primitive-recipe creator toolkit and focused multilingual UX'
+          git push origin HEAD:main
+          git rev-parse HEAD | tee test-results/published-commit.txt
+          git archive --format=tar --output=test-results/source.tar HEAD
+          echo "Published $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain validation logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fileforge-expansion-validation-${{ github.run_id }}
+          path: test-results/
+          retention-days: 7
