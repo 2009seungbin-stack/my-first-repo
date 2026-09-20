@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f5f7fa"><meta name="description" content="이미지 편집, PDF 페이지 편집, 도트 에셋, 짧은 미디어 편집. 파일을 서버에 업로드하지 않는 FileForge."><base href="./"><title>FileForge — 내 파일의 작은 작업실</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="styles.css"><script type="module" src="src/app.js"></script>
+</head>
+<body>
+<header class="app-header"><a class="brand" href="./" aria-label="FileForge 홈"><span class="brand-mark">f<span>↗</span></span><strong>FileForge<span class="brand-dot">.</span></strong></a><div class="header-end"><span class="local-pill"><span></span> 내 기기에서 처리</span><button class="icon-button" data-action="help" data-tip="도구 이름과 도움말" aria-label="도움말" id="helpButton"></button></div></header>
+<div class="app-layout"><nav class="nav-rail" aria-label="편집기 선택" id="navigation"></nav>
+<main class="workspace" id="workspace" aria-busy="false"><div class="workspace-header"><div class="workspace-title"><span class="eyebrow" id="editorKicker">YOUR LOCAL STUDIO</span><h1 id="editorTitle">이미지 편집</h1></div><div class="top-actions" id="topActions"></div></div>
+<div class="work-body"><section class="stage" id="stage" aria-label="파일 작업 영역"><div id="emptyState" class="empty-state"><button id="dropButton" class="drop-button" data-action="open" aria-label="파일 선택"><span class="stack-back"></span><span class="stack-front"><svg viewBox="0 0 80 64" aria-hidden="true"><rect x="1" y="1" width="78" height="62" rx="11" fill="#eaf1ff"/><circle cx="23" cy="20" r="6" fill="#7cafff"/><path d="M0 50 24 29 43 43 59 24 80 43V64H0" fill="#a7c8ff"/><path d="m0 59 30-28 40 33H0" fill="#4388f7"/></svg><span class="add-dot">+</span></span></button><h2 id="emptyTitle">파일을 놓으면, 시작돼요.</h2><p id="emptySubtitle">이미지 · PDF · 영상</p><button class="sample-button" data-action="sample">샘플로 둘러보기 <span>↗</span></button></div>
+<div id="canvasWrap" class="canvas-wrap" hidden><canvas id="preview" aria-label="편집 미리보기"></canvas><div id="cropBox" hidden></div></div><video id="video" controls playsinline preload="metadata" hidden></video><div class="stage-badge" id="stageBadge" hidden></div><div class="drop-overlay" id="dropOverlay" hidden>여기에 놓으세요 <span>↙</span></div></section><aside id="panel" class="property-panel" aria-label="작업 설정" hidden></aside></div>
+<div id="fileStrip" class="file-strip" aria-label="파일과 페이지 목록" hidden></div>
+<footer class="workspace-footer"><div id="toolDock" class="tool-dock" aria-label="현재 편집 도구"></div><div id="documentInfo" class="document-info">원본은 그대로, 작업은 내 기기에서.</div></footer></main></div>
+<div class="bottom-line"><span>ONE FILE. MORE POSSIBILITIES.</span><button data-action="privacy">개인정보 · 지원 범위</button><span>v1.0</span></div>
+<div id="message" class="message" role="alert" hidden></div><div id="progress" class="progress-card" role="status" hidden><span class="spinner"></span><span id="progressText">처리 중…</span><button class="icon-button" data-action="cancel" aria-label="작업 취소">✕</button></div>
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+<input id="fileInput" type="file" multiple hidden><input id="overlayInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+<dialog id="helpDialog"><div class="dialog-heading"><h2 id="dialogTitle">필요한 것만, 간단하게.</h2><button class="icon-button" data-action="close-dialog" aria-label="닫기">✕</button></div><div id="dialogBody"></div></dialog>
+</body></html>
