@@ -1,10 +1,11 @@
+import {track} from './analytics.js';
 import {t, getLocale} from './i18n.js';
 import {LIMITS,dimensions,fit,clamp,quantize,removeConnected,addOutline,gif} from './core.js';
 export function canvas(w,h){dimensions(w,h);const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 export const copy=c=>{const o=canvas(c.width,c.height);o.getContext('2d').drawImage(c,0,0);return o;};
 export const release=c=>{if(c){c.width=1;c.height=1;}};
 export function blobOf(c,type='image/png',quality=.92){return new Promise((resolve,reject)=>c.toBlob(b=>b&&b.type===type?resolve(b):reject(Error(t("브라우저가 이 출력 형식을 지원하지 않습니다. PNG 또는 JPG를 선택하세요."))),type,quality));}
-export function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30_000);}
+export function download(blob,name,{measure=true}={}){if(measure)track('download');const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30_000);}
 const scriptLoads=new Map();
 export function script(url){if(scriptLoads.has(url))return scriptLoads.get(url);const p=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.crossOrigin='anonymous';const timer=setTimeout(()=>{s.remove();scriptLoads.delete(url);reject(Error(t("추가 기능 다운로드 시간 초과. 연결을 확인한 뒤 다시 시도하세요.")));},45_000);s.onload=()=>{clearTimeout(timer);resolve();};s.onerror=()=>{clearTimeout(timer);s.remove();scriptLoads.delete(url);reject(Error(t("추가 기능을 불러오지 못했습니다. 인터넷 연결이나 콘텐츠 차단 설정을 확인하세요.")));};document.head.append(s);});scriptLoads.set(url,p);return p;}
 function headerSize(b){const v=new DataView(b.buffer,b.byteOffset,b.byteLength),str=(a,n)=>String.fromCharCode(...b.slice(a,a+n));if(b.length>24&&str(1,3)==='PNG')return [v.getUint32(16),v.getUint32(20)];if(b.length>30&&str(0,4)==='RIFF'&&str(8,4)==='WEBP'){const t=str(12,4);if(t==='VP8X')return [1+b[24]+(b[25]<<8)+(b[26]<<16),1+b[27]+(b[28]<<8)+(b[29]<<16)];if(t==='VP8 ')return [v.getUint16(26,true)&16383,v.getUint16(28,true)&16383];if(t==='VP8L'){const n=v.getUint32(21,true);return [(n&16383)+1,((n>>>14)&16383)+1];}}if(b[0]===255&&b[1]===216){let i=2;while(i+8<b.length){if(b[i]!==255){i++;continue;}const m=b[i+1];if(m===218||m===217)break;const len=v.getUint16(i+2);if(len<2)break;if([192,193,194,195,197,198,199,201,202,203,205,206,207].includes(m))return [v.getUint16(i+7),v.getUint16(i+5)];i+=len+2;}}return null;}

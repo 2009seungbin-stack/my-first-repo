@@ -1,5 +1,6 @@
+import {BRAND} from './brand.js';
 import {MESSAGES} from './messages.js';
-export const LOCALES = Object.freeze(['ko','en','ja']);
+export const LOCALES = BRAND.supportedLanguages;
 export const LANGUAGE_NAMES = Object.freeze({ko:'한국어',en:'English',ja:'日本語'});
 export const STORAGE_KEY = 'fileforge.language.v1';
 let current = 'en';
@@ -11,13 +12,13 @@ export function normalizeLocale(value){
  const base=tag.split('-')[0];return LOCALES.includes(base)?base:null;
 }
 export function chooseLocale({query,pathname,saved,languages=[]}={}){
- return [query,pathname,saved,...(Array.isArray(languages)?languages:[])].map(normalizeLocale).find(Boolean)||'en';
+ return [query,pathname,saved,...(Array.isArray(languages)?languages:[])].map(normalizeLocale).find(Boolean)||BRAND.defaultLanguage;
 }
 export const getLocale=()=>current;
-export function setLocale(value){current=normalizeLocale(value)||'en';return current;}
+export function setLocale(value){current=normalizeLocale(value)||BRAND.defaultLanguage;return current;}
 /** Translation never processes user filenames, annotations or HTML. */
 export function t(key,params={},locale=current){
- const list=MESSAGES[key],i=LOCALES.indexOf(normalizeLocale(locale)||'en');
+ const list=MESSAGES[key],i=LOCALES.indexOf(normalizeLocale(locale)||BRAND.defaultLanguage);
  const text=list?.[i]??list?.[1]??key;
  return String(text).replace(/\{([\w]+)\}/g,(token,name)=>Object.hasOwn(params,name)?String(params[name]):token);
 }

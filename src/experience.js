@@ -1,3 +1,7 @@
+import {PDFWorkspace} from './pdf.js';
+import {BRAND} from './brand.js';
+import {track,setAnalyticsContext,trafficSource} from './analytics.js';
+import {Toolkit} from './toolkit.js';
 import {t,getLocale,setLocale,normalizeLocale,LOCALES,LANGUAGE_NAMES,readPreference,savePreference,locationParts,localizedURL,localeFromEnvironment,translateStatic} from './i18n.js';
 import {INTENTS,intentFor,intentDefaults,isFocused,accepts} from './intents.js';
 import {bytes,integer,parsePages,stem,zip} from './core.js';
@@ -15,7 +19,8 @@ const actions={upscale:'image:upscale',background:'image:remove',compress:'image
 export class Experience {
  constructor(adapter){
   this.a=adapter;this.root=adapter.root;this.s=adapter.state;this.result=null;this.original=false;this.panelValues=[];this.lastURL=location.href;
-  this.applyLocation();
+  this.kit=new Toolkit(this);
+  this.applyLocation();this.landingIntent=this.id;this.source=trafficSource(document.referrer,location.origin);this.visit();if(new URL(location.href).searchParams.get('explore')==='1')queueMicrotask(()=>this.kit.openSearch());
   $('#languageSelect').addEventListener('change',e=>this.changeLanguage(e.target.value));
   $('#panel').addEventListener('input',()=>this.settingsChanged());
   $('#panel').addEventListener('change',()=>this.settingsChanged());
@@ -25,6 +30,7 @@ export class Experience {
   if(!this.result||this.s.busy)return;
   const values=fields();this.invalidate();this.render();restoreFields(values);this.a.paint().catch(e=>this.a.message(e.message,true));
  }
+ visit(){setAnalyticsContext({intent:this.id,landing_intent:this.landingIntent,language:getLocale(),device_class:matchMedia('(max-width: 640px)').matches?'mobile':'desktop',traffic_source:this.source});track('page_view');track('tool_open');}
  get config(){return INTENTS[this.id];}
  get focused(){return isFocused(this.id);}
  applyLocation(){
@@ -34,40 +40,43 @@ export class Experience {
   this.configure(intentFor(parts.path),parts.path,url.search);this.lastURL=url.href;
  }
  configure(id,path=INTENTS[id].path,query=''){
-  this.invalidate();this.id=id;this.path=path;this.defaults=intentDefaults(id,path,query);const d=this.defaults,s=this.s;
+  this.invalidate();this.kit.configure(id,query);this.id=id;this.path=path;this.defaults=intentDefaults(id,path,query);const d=this.defaults,s=this.s;
   s.editor=this.config.editor;s.tool='';
-  Object.assign(s.export,{format:d.format,kb:d.kb,width:0,quality:92,shrink:false,all:false});
-  Object.assign(s.pix,{n:d.n});Object.assign(s.pdfExport,{format:d.pdfFormat,range:d.range,raster:false});
+  Object.assign(s.export,{format:d.format,kb:d.kb,width:0,quality:d.quality,shrink:d.shrink,all:false});
+  Object.assign(s.pix,{n:d.n,colors:d.colors,dither:d.dither,outline:d.outline,fit:d.fit,trim:d.trim});Object.assign(s.pdfExport,{format:d.pdfFormat,range:d.range,raster:false});
   Object.assign(s.mediaExport,{format:d.mediaFormat,start:0,end:s.media?Math.min(d.mediaFormat==='gif'?4:10,s.media.duration):0});
-  this.options={scale:d.scale,scaleMode:'smooth',background:d.background,color:'#ffffff',tolerance:40,width:d.width,height:d.height};
+  this.options={scale:d.scale,scaleMode:d.scaleMode,background:d.background,color:d.color,tolerance:d.tolerance,width:d.width,height:d.height};
   this.panelValues=[];if(this.a.ready()&&['crop','resize','pdf-split','pdf-compress','pdf-to-jpg','video-trim','video-mp3','video-gif','video-compress'].includes(id))s.tool=this.config.tool;
  }
  url(id=this.id,explicit=false,query=''){return localizedURL(INTENTS[id].path,explicit||!this.auto?getLocale():null,this.root,query);}
  query(){
+  if(this.kit.active)return this.kit.query();
   const q=new URLSearchParams();const s=this.s;
-  if(s.editor==='image'){q.set('format',s.export.format);if(s.export.kb)q.set('kb',s.export.kb);}
-  if(this.id==='upscale')q.set('scale',this.options.scale);
+  if(s.editor==='image'){q.set('format',s.export.format);q.set('quality',s.export.quality);q.set('shrink',s.export.shrink?'1':'0');if(s.export.kb)q.set('kb',s.export.kb);}
+  if(this.id==='upscale'){q.set('scale',this.options.scale);q.set('scaleMode',this.options.scaleMode);}
   if(this.id==='resize'){q.set('w',this.options.width||s.c?.width||1080);q.set('h',this.options.height||s.c?.height||1080);}
-  if(this.id==='pixel')q.set('n',s.pix.n);
-  if(this.id==='remove-bg'&&this.options.background==='portrait')q.set('mode','portrait');
+  if(this.id==='pixel')for(const key of ['n','colors','dither','outline','fit','trim'])q.set(key,typeof s.pix[key]==='boolean'?(s.pix[key]?'1':'0'):s.pix[key]);
+  if(this.id==='remove-bg'){q.set('mode',this.options.background);q.set('color',this.options.color);q.set('tolerance',this.options.tolerance);}
   if(s.editor==='pdf'&&s.pdfExport.range)q.set('pages',s.pdfExport.range);
   return q;
  }
  async enter(id,{push=true,consume=false}={}){
   if(!INTENTS[id]||this.s.busy)return;
-  if(consume&&this.result?.canvas){const c=Im.copy(this.result.canvas);this.invalidate();await this.a.task(t('이미지 편집기로 보내는 중…'),()=>this.a.applyImage(c));}
+  if(consume&&this.result?.canvas&&this.result.kind==='image'){const c=Im.copy(this.result.canvas);this.invalidate();await this.a.task(t('이미지 편집기로 보내는 중…'),()=>this.a.applyImage(c));}
+  if(consume&&this.result?.kind==='pdf'&&INTENTS[id].editor==='pdf'){const next=new PDFWorkspace(),blob=this.result.blob;let loaded=false;await this.a.task(t('intent.preparing'),async(progress,signal)=>{try{await next.add([new File([blob],'result.pdf',{type:'application/pdf'})],progress,signal);this.a.check(signal);await this.s.pdf.clear();this.s.pdf=next;loaded=true;}finally{if(!loaded)await next.clear();}});if(!loaded)return;}
   this.configure(id);if(push){history.pushState({},'',this.url(id));this.lastURL=location.href;}
-  this.a.refresh();await this.a.paint();
+  this.visit();this.a.refresh();await this.a.paint();
  }
  invalidate(){if(this.result?.canvas)Im.release(this.result.canvas);this.result=null;this.original=false;}
  preview(){return this.original?null:this.result?.canvas||null;}
  acceptsFiles(files){if(!this.focused)return true;const kinds=files.map(this.a.typeOf);if(accepts(this.id,kinds))return true;this.a.message(t('intent.wrongInput',{type:t('intent.type.'+this.config.accept)}),true);return false;}
  afterInput(){
-  this.invalidate();if(this.s.editor!==this.config.editor||this.id==='home'){const id=generic[this.s.editor];this.configure(id);history.replaceState({},'',this.url(id));this.lastURL=location.href;}
+  this.invalidate();if(this.s.editor!==this.config.editor||this.id==='home'){const id=generic[this.s.editor];this.configure(id);history.replaceState({},'',this.url(id));this.lastURL=location.href;this.visit();}
   if(this.s.c){this.options.width||=this.s.c.width;this.options.height||=this.s.c.height;}
   if(['crop','resize','pdf-split','pdf-compress','pdf-to-jpg','video-trim','video-mp3','video-gif','video-compress'].includes(this.id))this.s.tool=this.config.tool;
  }
  readOptions(){
+  if(this.kit.active){this.kit.read();return;}
   const s=this.s,v=id=>document.getElementById(id);
   if(s.tool==='upscale'){this.options.scale=Number(v('scale')?.value||this.options.scale);this.options.scaleMode=v('scaleMode')?.value||this.options.scaleMode;}
   if(s.tool==='background'){this.options.color=v('removeColor')?.value||this.options.color;this.options.tolerance=Number(v('tolerance')?.value??this.options.tolerance);}
@@ -84,7 +93,7 @@ export class Experience {
   const url=new URL(location.href);url.searchParams.delete('lang');
   setLocale(this.auto?localeFromEnvironment(new URL(this.root.href),this.root,{languages:browserLanguages()}):value);
   const next=localizedURL(this.path,this.auto?null:getLocale(),this.root,url.search);
-  history.replaceState({},'',next);this.lastURL=next.href;
+  history.replaceState({},'',next);this.lastURL=next.href;this.visit();track('language_change');
   $('#tooltip').hidden=true;$('#message').hidden=true;
   this.a.refresh();restoreFields(captured);$('#panel').scrollTop=scroll;
   if(focus)document.getElementById(focus)?.focus({preventScroll:true});
@@ -93,9 +102,10 @@ export class Experience {
  }
  async popstate(){
   if(this.s.busy){history.replaceState({},'',this.lastURL);this.a.message(t('진행 중인 작업을 먼저 취소하세요.'));return;}
-  this.applyLocation();this.a.refresh();await this.a.paint();
+  this.applyLocation();this.visit();this.a.refresh();await this.a.paint();
  }
  renderPresets(){
+  if(this.kit.active)return this.kit.presets();
   const chip=(key,value,label,on)=>`<button class="chip ${on?'selected':''}" data-action="preset:${key}:${value}" aria-pressed="${on}">${esc(label)}</button>`;
   if(this.id==='upscale')return [2,4].map(n=>chip('scale',n,n+'×',this.options.scale===n)).join('');
   if(this.id==='remove-bg')return ['solid','portrait'].map(v=>chip('background',v,t(v==='solid'?'intent.solid':'intent.portrait'),this.options.background===v)).join('');
@@ -110,7 +120,7 @@ export class Experience {
   $('#languageSelect').value=this.auto?'auto':getLocale();$('#languageSelect').disabled=s.busy;
   const title=t(`intent.${this.id}.title`),description=t(`intent.${this.id}.description`);
   updateSiteContent(this.id,getLocale());
-  $('#editorTitle').textContent=title;document.title=title+' · FileForge';$('meta[name="description"]').content=description;
+  $('#editorTitle').textContent=title;document.title=title+' · '+BRAND.name;$('meta[name="description"]').content=description;
   $('meta[property="og:title"]').content=document.title;$('meta[property="og:description"]').content=description;
   $('#emptyTitle').textContent=t(`intent.${this.id}.headline`);$('#emptySubtitle').textContent=description;
   $('#intentIcon').innerHTML=icon(c.icon,32);$('#intentIcon').hidden=!this.focused;
@@ -125,7 +135,7 @@ export class Experience {
   if(has&&this.focused){
    const result=this.result;
    const summary=result?this.resultSummary():this.id==='upscale'?`${s.c.width} × ${s.c.height} → ${s.c.width*this.options.scale} × ${s.c.height*this.options.scale}`:'';
-   controls.innerHTML=`<div class="intent-controls-top"><div class="intent-summary" role="status">${result?icon('check',17):''}<span>${esc(summary)}</span></div>${result?.canvas?`<div class="compare-toggle">${['original','result'].map(v=>`<button data-action="compare:${v}" aria-pressed="${this.original===(v==='original')}">${esc(t('intent.'+v))}</button>`).join('')}</div>`:''}</div><div class="intent-action-row"><div class="intent-presets">${this.renderPresets()}</div>${button('intent-settings','sliders',t('intent.settings'))}<button class="intent-primary" data-action="${result?'intent-download':'intent-run'}">${icon(result?'download':c.icon,18)}<span>${esc(result?t('intent.download'):this.id==='upscale'?t('intent.factor',{scale:this.options.scale}):t(`intent.${this.id}.action`))}</span></button></div>${result?.larger?`<p class="result-warning">${esc(t('intent.warningLarger'))}</p>`:''}${result?`<div class="next-steps"><span>${esc(t('intent.next'))}</span>${c.next.map(id=>`<button data-action="next:${id}">${icon(INTENTS[id].icon,16)}${esc(t(`intent.${id}.title`))}</button>`).join('')}</div>`:''}`;
+   controls.innerHTML=`<div class="intent-controls-top"><div class="intent-summary" role="status">${result?icon('check',17):''}<span>${esc(summary)}</span></div>${result?.canvas?`<div class="compare-toggle">${['original','result'].map(v=>`<button data-action="compare:${v}" aria-pressed="${this.original===(v==='original')}">${esc(t('intent.'+v))}</button>`).join('')}</div>`:''}</div><div class="intent-action-row"><div class="intent-presets">${this.renderPresets()}</div>${button('intent-settings','sliders',t('intent.settings'))}<button class="intent-primary" data-action="${result?'intent-download':'intent-run'}">${icon(result?'download':c.icon,18)}<span>${esc(result?t('intent.download'):this.id==='upscale'?t('intent.factor',{scale:this.options.scale}):t(`intent.${this.id}.action`))}</span></button></div>${result?.larger?`<p class="result-warning">${esc(t('intent.warningLarger'))}</p>`:''}${result?`<div class="next-steps"><span>${esc(t('intent.next'))}</span>${c.next.slice(0,3).map(id=>`<a href="${this.url(id)}" data-action="next:${id}">${icon(INTENTS[id].icon,16)}${esc(t(`intent.${id}.title`))}</a>`).join('')}</div>`:''}`;
   }
   // The focused flow has one primary action. Keep the underlying editor accessible.
   const primary=actions[c.action];if(this.focused&&primary)$('#panel').querySelectorAll(`[data-action="${primary}"]`).forEach(b=>b.hidden=true);
@@ -133,11 +143,13 @@ export class Experience {
   if(this.focused&&s.tool==='background'){$('#removeColor').value=this.options.color;$('#tolerance').value=this.options.tolerance;}
   if(this.focused&&s.tool==='resize'){$('#resizeW').value=this.options.width||s.c?.width||1080;$('#resizeH').value=this.options.height||s.c?.height||1080;}
   if(!has&&this.focused)$('#panel').hidden=true;
+  this.kit.render();
  }
  resultSummary(){const r=this.result;if(r.kind==='image')return ['compress','convert','heic'].includes(this.id)?`${bytes(r.beforeSize)} → ${bytes(r.blob.size)} · ${r.width} × ${r.height}`:`${r.beforeW} × ${r.beforeH} → ${r.width} × ${r.height} · ${bytes(r.blob.size)}`;if(r.kind==='pdf')return t('intent.pdfMerged',{files:r.files,pages:r.pages})+' · '+bytes(r.blob.size);return t('intent.actual',{size:bytes(r.blob.size)});}
  async run(){
+  if(this.kit.active)return this.kit.run();
   if(!this.a.ready()){this.a.message(t('intent.selectFirst'));return;}
-  this.readOptions();const s=this.s,c=this.config,source=s.c;
+  this.readOptions();const s=this.s,c=this.config,source=s.c;this.s.runIntent=this.id;track('tool_run');
   if(s.editor==='image'&&s.export.all&&['compress','convert'].includes(c.action)){await this.a.task(t('저장 파일을 만드는 중…'),this.a.saveImages);return;}
   this.invalidate();await this.a.task(t('intent.preparing'),async(progress,signal)=>{
    let canvas=null,blob=null,name='',width=0,height=0,kind='file',larger=false;
@@ -159,8 +171,8 @@ export class Experience {
      blob||=await Im.blobOf(canvas);width=canvas.width;height=canvas.height;kind='image';name=`${stem(this.a.file().name)}-${this.id}.${format==='jpeg'?'jpg':format}`;
     }else if(c.action==='pdf'||c.action==='pdfImages'){
      if(s.pdfExport.format==='pdf'){
-      blob=await s.pdf.export(s.pdfExport,progress,signal);name='fileforge-edited.pdf';kind='pdf';larger=this.id==='pdf-compress'&&blob.size>s.pdf.inputBytes;
-     }else{const entries=await s.pdf.imageExports(s.pdfExport,progress,signal);blob=entries.length===1?entries[0].blob:await zip(entries);name=entries.length===1?entries[0].name:'fileforge-pages.zip';}
+      blob=await s.pdf.export(s.pdfExport,progress,signal);name=BRAND.name.toLowerCase()+'-edited.pdf';kind='pdf';larger=this.id==='pdf-compress'&&blob.size>s.pdf.inputBytes;
+     }else{const entries=await s.pdf.imageExports(s.pdfExport,progress,signal);blob=entries.length===1?entries[0].blob:await zip(entries);name=entries.length===1?entries[0].name:BRAND.name.toLowerCase()+'-pages.zip';}
     }else if(c.action==='frame'){
      canvas=await Media.frame($('#video'),$('#video').currentTime,signal);blob=await Im.blobOf(canvas);name=`${stem(s.media.file.name)}-frame.png`;Im.release(canvas);canvas=null;
     }else if(c.action==='media'){
@@ -173,14 +185,15 @@ export class Experience {
   });
  }
  async action(action){
+  if(await this.kit.action(action))return true;
   if(action==='undo'&&this.result){this.invalidate();this.a.refresh();await this.a.paint();return true;}
   if(action.startsWith('select:'))this.invalidate();
   if(action==='intent-run'){await this.run();return true;}
-  if(action==='intent-download'){if(this.result)Im.download(this.result.blob,this.result.name);return true;}
+  if(action==='intent-download'){if(this.result){Im.download(this.result.blob,this.result.name);}return true;}
   if(action==='intent-settings'){
    this.readOptions();this.s.tool=this.s.tool?'':this.config.tool||'export';this.a.refresh();await this.a.paint();return true;
   }
-  if(action.startsWith('intent:')||action.startsWith('next:')){await this.enter(action.split(':')[1],{consume:action.startsWith('next:')});return true;}
+  if(action.startsWith('intent:')||action.startsWith('next:')){if(action.startsWith('next:'))track('related_tool_click',{target_intent:action.split(':')[1]});await this.enter(action.split(':')[1],{consume:action.startsWith('next:')});return true;}
   if(action.startsWith('compare:')){this.original=action==='compare:original';this.a.refresh();await this.a.paint();return true;}
   if(action.startsWith('preset:')){
    this.readOptions();const[,key,value]=action.split(':');this.invalidate();
@@ -197,9 +210,9 @@ export class Experience {
   if(this.focused&&action===actions[this.config.action]){await this.run();return true;}
   if(this.focused&&this.id==='remove-bg'&&action==='image:portrait'){this.options.background='portrait';await this.run();return true;}
   if(action==='export'&&this.result){Im.download(this.result.blob,this.result.name);return true;}
-  if(action==='share'){
-   this.readOptions();const url=this.url(this.id,true,this.query());
-   try{await navigator.clipboard.writeText(url.href);this.a.message(t('파일이 아닌 도구·설정 링크를 복사했어요.'));}catch{this.a.dialog(t('링크 복사'),`<p>${esc(t('share.noFiles'))}</p><input readonly style="width:100%" value="${esc(url.href)}">`);}return true;
+  if(action==='share'||action==='copy-tool-link'){
+   this.readOptions();const url=this.url(this.id,true,action==='copy-tool-link'?'':this.query());
+   try{await navigator.clipboard.writeText(url.href);track('share_preset',{method:'copy'});this.a.message(t('파일이 아닌 도구·설정 링크를 복사했어요.'));}catch{track('share_preset',{method:'dialog'});this.a.dialog(t('링크 복사'),`<p>${esc(t('share.noFiles'))}</p><input readonly style="width:100%" value="${esc(url.href)}">`);}return true;
   }
   if(this.result?.canvas&&['rotate','image:flip','image:trim','image:outline','image:fill','image:to-pdf'].includes(action)){const c=Im.copy(this.result.canvas);this.invalidate();await this.a.task(t('이미지 편집기로 보내는 중…'),()=>this.a.applyImage(c));}
   return false;
