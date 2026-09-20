@@ -1,0 +1,38 @@
+name: FileForge validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax
+        run: npm run check
+      - name: Run unit and structural tests
+        run: npm test
+      - name: Build static site
+        run: npm run build
+      - name: Archive the exact tested source
+        if: always()
+        run: git archive --format=tar --output=source.tar HEAD
+      - name: Upload reproducible validation inputs and site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fileforge-validation-${{ github.sha }}
+          path: |
+            source.tar
+            dist/
+          retention-days: 7
