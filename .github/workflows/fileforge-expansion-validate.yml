@@ -130,7 +130,7 @@ jobs:
           old = json.loads(Path('test-results/browser-results.json').read_text())
           new = json.loads(Path('test-results/recipes-browser-results.json').read_text())
           worker = json.loads(Path('test-results/worker-http-results.json').read_text())
-          assert old['mode']=='HTTP' and new['mode']=='HTTP' and not old['errors']
+          assert old['mode']=='HTTP' and new['mode']=='http' and not old['errors'] and not new['page_errors']
           url = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
           note = '\n\n## GitHub Actions real HTTP validation\n\n'
           note += f"Executed {datetime.now(timezone.utc).isoformat()} in Ubuntu Chromium over the built HTTP site with its CSP and repository subpath. Run: {url}\n\n"
