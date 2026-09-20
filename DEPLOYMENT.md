@@ -4,7 +4,17 @@
 
 ### 현재 공개 배포 (2026-09-20)
 
-공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages의 **Direct Upload**로 생성했으며 GitHub 자동 빌드는 연결되지 않았다. 현재 운영 빌드는 아래 환경 변수로 만들고 `dist` 내용 전체를 ZIP으로 묶어 프로젝트의 **Create deployment → Production**에 업로드한다. ZIP 최상위에 `index.html`과 `ads.txt`가 있어야 한다.
+공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages 프로젝트 `fileforge-studio`에 `2009seungbin-stack/my-first-repo`를 연결했다. **`main`에 push하면 Cloudflare가 자동으로 빌드·배포한다.** 수동 ZIP 업로드는 운영 업데이트 절차로 사용하지 않는다.
+
+프로젝트 **Settings → Build**에서 `npm run build`, 출력 `dist`, 루트 디렉터리 비움, 운영 브랜치 `main`, Automatic deployments Enabled, Build system Version 3으로 설정했다. GitHub 앱 접근 범위는 이 저장소 하나다. 운영 환경 변수는 아래와 같으며, `ADSENSE_CLIENT`·광고 슬롯·`ADSENSE_CMP_READY`는 아직 설정하지 않았다.
+
+| Production 변수 | 값 |
+| --- | --- |
+| `SITE_URL` | `https://fileforge-studio.pages.dev` |
+| `ADSENSE_VERIFICATION_CLIENT` | `ca-pub-8363911006404719` |
+| `SKIP_DEPENDENCY_INSTALL` | `true` |
+
+로컬에서 같은 빌드를 확인할 때:
 
 ```powershell
 $env:SITE_URL='https://fileforge-studio.pages.dev'
@@ -12,9 +22,11 @@ $env:ADSENSE_VERIFICATION_CLIENT='ca-pub-8363911006404719'
 npm run build
 ```
 
-확인용 게시자 값은 로그인된 AdSense 계정에서 발급된 공개 ID다. 광고 스크립트·광고 단위·광고용 Worker는 활성화하지 않는다. 배포 성공과 AdSense 심사 승인은 별개다. 아래 Git 연동 절차는 향후 자동 배포용 프로젝트를 구성할 때 적용한다.
+확인용 게시자 값은 로그인된 AdSense 계정에서 발급된 공개 ID다. 광고 스크립트·광고 단위·광고용 Worker는 활성화하지 않는다. 배포 성공과 AdSense 심사 승인은 별개다. 업데이트 후 **Deployments**에서 최신 Git 커밋과 성공 상태를 확인한다. 빌드가 실패하면 해당 배포의 로그를 확인하고 코드를 수정해 다시 push한다.
 
-현재 운영 배포 ID는 `67a95ae7-108f-417d-951f-d91eca586a01`이다. AdSense에서 ads.txt 소유권 확인 성공 후 검토 요청을 제출했고, 화면 상태는 **준비 중 / 사이트의 광고 게재 가능 여부 검토 중**이었다. 자동 광고와 자동 최적화는 모두 사용 안 함으로 확인했다. Google CMP의 동의·동의하지 않음·옵션 관리 3개 선택사항을 설정했지만, 실제 지역별 동의 동작과 광고 게재는 아직 검증하지 않았으므로 `ADSENSE_CMP_READY`는 설정하지 않는다. 승인 후 실제 광고 단위와 CMP 검증을 완료하고 광고 빌드로 전환한다.
+AdSense에서 ads.txt 소유권 확인 성공 후 검토 요청을 제출했고, 화면 상태는 **준비 중 / 사이트의 광고 게재 가능 여부 검토 중**이었다. 자동 광고와 자동 최적화는 모두 사용 안 함으로 확인했다. Google CMP의 동의·동의하지 않음·옵션 관리 3개 선택사항을 설정했지만, 실제 지역별 동의 동작과 광고 게재는 아직 검증하지 않았으므로 `ADSENSE_CMP_READY`는 설정하지 않는다. 승인 후 실제 광고 단위와 CMP 검증을 완료하고 광고 빌드로 전환한다.
+
+Git 연결 복구: 설치된 Cloudflare GitHub 앱이 계정 목록에 나타나지 않아 사용자 승인 후 앱을 해제하고, Pages의 GitHub 연결 흐름에서 이 저장소만 선택해 다시 설치·인증했다. 이후 기존 프로젝트 **Settings → Build → Git repository → Connect**에서 연결했다. 작업 시점의 대시보드는 이 전환을 지원했으며 기존 `pages.dev` 주소를 유지했다. 이전 Direct Upload 빌드 `67a95ae7-108f-417d-951f-d91eca586a01`은 과거 배포 기록이다.
 
 ## 1. Cloudflare Pages 만들기
 
