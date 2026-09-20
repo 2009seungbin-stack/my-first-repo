@@ -1,0 +1,117 @@
+import {INTENTS} from './intents.js';
+import {t} from './i18n.js';
+import {esc} from './ui.js';
+
+export const labels={
+ en:{related:'Related tools',how:'How it works',formats:'Supported formats',features:'What this tool does',limits:'Before you export',faq:'Frequently asked questions',about:'About',privacy:'Privacy',terms:'Terms',contact:'Contact',home:'Open FileForge',ad:'Advertisement',language:'Language',saved:'Keep your original file. Export your result before reloading or closing this tab.',uploadQ:'Are my files uploaded?',uploadA:'FileForge processes selected files on your device and has no file-upload API. Optional engines and models are downloaded from third parties; those requests expose connection information such as your IP address.',resultQ:'Will my work be saved automatically?',resultA:'No. Files and editing results stay in this tab’s memory. Changing language preserves your work; reloading, closing the tab, or following a link to another page can clear it.'},
+ ko:{related:'관련 도구',how:'사용 방법',formats:'지원 형식',features:'이 도구로 할 수 있는 일',limits:'저장 전에 확인하세요',faq:'자주 묻는 질문',about:'소개',privacy:'개인정보처리방침',terms:'이용약관',contact:'문의',home:'FileForge 열기',ad:'광고',language:'언어',saved:'원본 파일은 따로 보관하고, 새로고침하거나 탭을 닫기 전에 결과를 저장하세요.',uploadQ:'파일이 서버에 업로드되나요?',uploadA:'선택한 파일은 사용자 기기에서 처리하며, FileForge에는 파일 업로드 API가 없습니다. 일부 엔진과 모델은 외부에서 내려받으므로 IP 주소 등 연결 정보가 해당 서비스에 전달됩니다.',resultQ:'작업이 자동 저장되나요?',resultA:'아니요. 파일과 편집 결과는 이 탭의 메모리에만 있습니다. 언어를 바꿔도 작업은 유지되지만 새로고침, 탭 닫기, 다른 페이지로 이동하면 사라질 수 있습니다.'},
+ ja:{related:'関連ツール',how:'使い方',formats:'対応形式',features:'このツールでできること',limits:'書き出す前に',faq:'よくある質問',about:'FileForgeについて',privacy:'プライバシー',terms:'利用規約',contact:'お問い合わせ',home:'FileForgeを開く',ad:'広告',language:'言語',saved:'元のファイルは保管し、再読み込みやタブを閉じる前に結果を書き出してください。',uploadQ:'ファイルはアップロードされますか？',uploadA:'選択したファイルはお使いの端末で処理します。FileForgeにファイル送信用APIはありません。一部のエンジンやモデルは外部から取得するため、IPアドレスなどの接続情報は配信元に伝わります。',resultQ:'作業は自動保存されますか？',resultA:'いいえ。ファイルと編集結果はこのタブのメモリに保持されます。言語を変えても作業は残りますが、再読み込み、タブを閉じる操作、別のページへの移動で失われることがあります。'}
+};
+
+// Each tuple is [steps separated by |, feature, limitation, specific question, answer].
+// Copy describes the actual Canvas / PDF / MediaRecorder implementations.
+export const guides={
+ home:[
+ ['Choose Image, PDF, Pixelize or Media|Open a file or try the image sample|Edit, check the preview and export','Four editors share one simple workspace without an account.','Optional PDF, HEIC, MP3 and portrait tools need an internet connection.','Which tool should I start with?','Use Image for photos, PDF for pages, Pixelize for small PNG assets and Media for short clips.'],
+ ['이미지·PDF·도트화·미디어 중 도구 선택|파일을 열거나 이미지 샘플로 시작|편집 후 미리보기를 확인하고 저장','계정 없이 네 가지 편집기를 한 작업실에서 사용합니다.','PDF·HEIC·MP3·인물 제거는 외부 엔진이나 모델 다운로드가 필요합니다.','어떤 도구를 고르면 되나요?','사진은 이미지, 문서는 PDF, 작은 PNG 에셋은 도트화, 짧은 영상은 미디어 편집기로 시작하세요.'],
+ ['画像・PDF・ピクセル化・メディアを選ぶ|ファイルを開くか画像サンプルを試す|プレビューを確認して書き出す','アカウントなしで使える、4つの編集ツールです。','PDF・HEIC・MP3・人物切り抜きには外部データの取得が必要です。','どのツールから始めればよいですか？','写真は画像、文書はPDF、小さなPNG素材はピクセル化、短い動画はメディアを選んでください。']],
+ image:[
+ ['Open an image|Choose crop, resize, rotate or background tools|Select an export format and save','Combine several edits before exporting a new copy.','Images are limited to 32 MB each; dimensions cannot exceed 8192 per side or 16 million pixels.','Does editing overwrite my original?','No. Export creates a new file. Keep the original for future edits.'],
+ ['이미지 열기|자르기·크기·회전·배경 도구 선택|저장 형식을 정하고 내보내기','여러 편집을 이어서 적용한 뒤 새 파일로 저장합니다.','이미지당 32MB, 한 변 8192px, 총 1,600만 픽셀 이하를 지원합니다.','원본 파일이 덮어써지나요?','아니요. 새 파일로 내보냅니다. 이후 편집을 위해 원본을 보관하세요.'],
+ ['画像を開く|切り抜き・サイズ・回転・背景のツールを選ぶ|保存形式を選んで書き出す','複数の編集を組み合わせ、新しいファイルとして保存できます。','画像は1枚32MB、各辺8192px、合計1600万画素までです。','元のファイルは上書きされますか？','いいえ。別のファイルとして書き出します。再編集に備えて元画像も保管してください。']],
+ upscale:[
+ ['Open a small image|Choose 2× or 4× and smooth or pixel scaling|Enlarge, compare with the original and download','Canvas resampling increases the pixel dimensions; pixel mode keeps hard edges.','This is not AI restoration. It cannot reconstruct missing detail; output is capped at 16 million pixels.','Will a blurry face become sharp?','Not reliably. Enlargement adds pixels, not recovered detail. Compare the preview before downloading.'],
+ ['작은 이미지 열기|2배·4배와 부드럽게·픽셀 유지 방식 선택|확대 후 원본과 비교하고 다운로드','Canvas 리샘플링으로 크기를 늘리며, 픽셀 유지 방식은 경계를 또렷하게 확대합니다.','AI 복원이 아니며 사라진 디테일을 되살리지 않습니다. 출력은 1,600만 픽셀 이하입니다.','흐릿한 얼굴도 선명해지나요?','보장할 수 없습니다. 픽셀 수를 늘리는 기능이므로 원본과 결과를 비교하세요.'],
+ ['小さな画像を開く|2倍・4倍と補間方法を選ぶ|拡大して元画像と比較し、ダウンロード','Canvasで画素数を増やします。ピクセルモードは輪郭をくっきり保ちます。','AI復元ではなく、失われた細部は復元できません。出力は1600万画素までです。','ぼやけた顔も鮮明になりますか？','保証できません。画素数を増やす機能なので、元画像と比較して判断してください。']],
+ 'remove-bg':[
+ ['Open an image|Choose solid background or experimental portrait mode|Adjust tolerance if needed, preview and save PNG','Solid mode removes matching color regions connected to the image border. Portrait mode runs a downloaded model locally.','Portrait mode targets people, not arbitrary objects, and accepts at most 4 million pixels. Hair and transparent objects may need another editor.','Why does white inside the subject remain?','Solid mode follows connected regions from the border, helping preserve enclosed areas. Similar-colored subject edges can still be removed.'],
+ ['이미지 열기|단색 배경 또는 실험적 인물 모드 선택|필요하면 허용 오차를 조정하고 PNG 저장','단색 모드는 가장자리와 연결된 유사 색상을 지웁니다. 인물 모드는 모델을 내려받아 기기에서 실행합니다.','인물 모드는 일반 물체용이 아니며 400만 픽셀 이하입니다. 머리카락·반투명 물체는 추가 보정이 필요할 수 있습니다.','피사체 안의 흰색이 남는 이유는 무엇인가요?','가장자리에서 연결된 영역만 따라 지워 내부를 보호합니다. 다만 피사체 가장자리 색이 배경과 비슷하면 함께 지워질 수 있습니다.'],
+ ['画像を開く|単色背景または実験的な人物モードを選ぶ|必要に応じて許容差を調整しPNGで保存','単色モードは画像の端につながる近い色を消します。人物モードはモデルを取得し端末で実行します。','人物モードは一般物体向けではなく、400万画素までです。髪や半透明部分は追加の修正が必要な場合があります。','被写体の中の白色が残るのはなぜですか？','端からつながる領域だけを消すためです。ただし背景に近い色の輪郭は一緒に消えることがあります。']],
+ compress:[
+ ['Open an image|Choose a target size and JPG or WebP; adjust export settings if needed|Compress, inspect the measured size and download','A bounded quality search attempts to meet your selected size. Optional shrinking can reduce dimensions.','Not every target is reachable. PNG ignores lossy quality settings; already compressed files may become larger.','Why can I not reach 200 KB?','Try WebP or JPG, reduce dimensions, or allow shrinking. Check small text and edges for quality loss.'],
+ ['이미지 열기|목표 용량과 JPG·WebP를 고르고 저장 설정 확인|압축 후 실제 크기를 확인하고 다운로드','품질을 단계적으로 조정해 목표 용량을 시도하며, 선택하면 해상도도 줄입니다.','모든 목표를 달성할 수는 없습니다. PNG에는 손실 품질 조절이 적용되지 않고 결과가 더 커질 수도 있습니다.','200KB까지 줄어들지 않는 이유는 무엇인가요?','WebP·JPG로 바꾸거나 해상도를 낮추고 크기 축소를 허용해 보세요. 작은 글자와 경계의 손상도 확인하세요.'],
+ ['画像を開く|目標容量とJPG・WebPを選び、保存設定を確認|圧縮後の実際の容量を確認して保存','品質を段階的に調整して目標容量を試します。任意で画像サイズも縮小できます。','すべての目標に届くわけではありません。PNGには非可逆圧縮の品質設定が効かず、容量が増える場合もあります。','200KBまで小さくならないのはなぜですか？','WebP・JPGへの変更やサイズ縮小を試してください。細かい文字や輪郭の劣化も確認しましょう。']],
+ convert:[
+ ['Open an image|Select PNG, JPG or WebP|Convert and download the new file','Re-encodes the image into the selected format rather than renaming its extension.','JPG has no transparency. Canvas export does not promise preservation of metadata, color profiles or animation.','Which format keeps a transparent background?','Choose PNG or WebP. JPG flattens transparency onto the selected background color.'],
+ ['이미지 열기|PNG·JPG·WebP 중 선택|변환 후 새 파일 다운로드','확장자만 바꾸지 않고 선택한 형식으로 다시 인코딩합니다.','JPG는 투명도를 지원하지 않습니다. 메타데이터·색상 프로필·애니메이션 보존도 보장하지 않습니다.','투명 배경을 유지하려면 어떤 형식이 좋나요?','PNG 또는 WebP를 선택하세요. JPG는 선택한 배경색으로 투명 영역을 채웁니다.'],
+ ['画像を開く|PNG・JPG・WebPから選ぶ|変換したファイルを保存','拡張子を変えるだけでなく、選んだ形式で再エンコードします。','JPGは透過非対応です。メタデータ・カラープロファイル・アニメーションの保持は保証しません。','透明な背景を残すには？','PNGまたはWebPを選んでください。JPGでは透明部分が指定した背景色になります。']],
+ heic:[
+ ['Open a single-photo HEIC or HEIF file|Keep JPG selected or choose another output|Convert and download','Uses browser decoding when available, otherwise downloads the HEIC decoder.','Multi-image HEIC files are not supported. HDR appearance and metadata may change.','Does HEIC conversion need the internet?','It may need a first-time decoder download from jsDelivr. The photo is decoded on your device.'],
+ ['사진 한 장이 담긴 HEIC·HEIF 열기|JPG 기본값을 쓰거나 다른 형식 선택|변환 후 다운로드','브라우저 디코딩을 먼저 시도하고 필요하면 HEIC 디코더를 내려받습니다.','여러 사진이 담긴 HEIC는 지원하지 않습니다. HDR 표현과 메타데이터가 달라질 수 있습니다.','HEIC 변환에 인터넷이 필요한가요?','jsDelivr에서 디코더를 처음 내려받아야 할 수 있습니다. 사진 디코딩은 기기에서 진행합니다.'],
+ ['写真1枚のHEIC・HEIFを開く|JPGのまま、または別の形式を選ぶ|変換して保存','ブラウザで読めない場合はHEICデコーダーを取得します。','複数画像入りHEICは非対応です。HDRの見え方やメタデータが変わる場合があります。','ネット接続は必要ですか？','初回にjsDelivrからデコーダーを取得する場合があります。写真の処理は端末内で行います。']],
+ crop:[
+ ['Open an image|Drag the crop area around what you want to keep|Apply the crop and download','Removes outer parts of an image without changing the pixels inside the chosen area.','Cropping reduces dimensions and cannot reveal content outside the original image.','Can I adjust the crop again?','Use the original comparison or undo before making another crop. Keep the source file for later changes.'],
+ ['이미지 열기|남길 부분을 드래그로 지정|자르기를 적용하고 다운로드','선택 영역 바깥을 잘라내며 안쪽 픽셀은 그대로 사용합니다.','자른 만큼 해상도가 줄어듭니다. 원본 바깥의 내용을 만들어 주는 기능은 아닙니다.','다시 자를 수 있나요?','원본 비교나 되돌리기를 사용한 뒤 영역을 다시 지정하세요. 나중을 위해 원본 파일도 보관하세요.'],
+ ['画像を開く|残したい範囲をドラッグで指定|切り抜きを適用して保存','選んだ範囲内の画素を保ち、外側を取り除きます。','切り抜いた分だけ画像サイズが小さくなります。元画像の外側は生成できません。','範囲をやり直せますか？','元画像の比較や取り消しを使い、もう一度範囲を指定してください。元ファイルも保管しましょう。']],
+ resize:[
+ ['Open an image|Enter width and height; keep aspect ratio when appropriate|Resize, check dimensions and download','Sets exact output dimensions for thumbnails and size-constrained forms.','Changing the aspect ratio can stretch the picture. Maximum output is 8192 per side and 16 million pixels.','Why does the height change when I type a width?','The aspect-ratio lock keeps the proportions of the source image. Turn it off only for deliberate stretching.'],
+ ['이미지 열기|너비·높이를 입력하고 필요하면 비율 유지|크기를 바꾼 뒤 치수를 확인하고 저장','썸네일이나 제출 양식에 맞는 출력 치수를 지정합니다.','비율을 바꾸면 이미지가 늘어날 수 있습니다. 한 변 8192px, 총 1,600만 픽셀까지입니다.','너비를 바꾸면 높이도 바뀌는 이유는 무엇인가요?','비율 잠금이 원본 비율을 유지하기 때문입니다. 의도적으로 늘릴 때만 해제하세요.'],
+ ['画像を開く|幅と高さを入力し、必要に応じて比率を固定|変更後の寸法を確認して保存','サムネイルや提出フォーム向けに出力寸法を指定できます。','比率を変えると画像が伸びます。各辺8192px、合計1600万画素までです。','幅を入力すると高さも変わるのはなぜですか？','縦横比の固定が元画像の比率を保つためです。意図的に変形するときだけ解除してください。']],
+ pixel:[
+ ['Open an image|Choose a grid size, palette and dithering|Generate and download the native PNG','Produces a real N×N asset, with optional transparent trim and outline.','Small grids discard detail. This is an automatic pixel conversion, not hand-drawn pixel art.','Is the large preview the downloaded resolution?','No. The preview is enlarged with sharp pixels; the native asset uses the selected 8–512 grid size.'],
+ ['이미지 열기|격자 크기·팔레트·디더링 선택|생성 후 원본 크기 PNG 다운로드','실제 N×N 에셋을 만들고 투명 여백 정리와 외곽선을 선택할 수 있습니다.','작은 격자는 세부 정보를 잃습니다. 손으로 그린 도트가 아닌 자동 변환입니다.','큰 미리보기 크기로 저장되나요?','아니요. 미리보기만 또렷하게 확대하며 실제 에셋은 선택한 8~512 격자 크기입니다.'],
+ ['画像を開く|グリッド・色数・ディザを選ぶ|生成して実寸のPNGを保存','実際のN×N素材を作り、透明余白の整理や輪郭線を追加できます。','小さなグリッドでは細部が失われます。手描きではなく自動変換です。','大きなプレビューと同じ解像度で保存されますか？','いいえ。表示だけをくっきり拡大しています。実寸は選んだ8〜512のグリッドです。']],
+ pdf:[
+ ['Add PDF files or images|Arrange pages and add text, drawings or image overlays|Choose pages and export PDF','Page-level editing and visual annotations share one workspace.','No existing-text editing, OCR, secure redaction or certificate signing. Forms are flattened and signatures are not preserved.','Can I hide confidential text with a rectangle?','No. An overlay is not secure redaction; underlying text may remain in the PDF. Use a dedicated redaction tool.'],
+ ['PDF 또는 이미지 추가|페이지 정리 후 글자·그림·이미지 덧붙이기|페이지 범위를 골라 PDF 저장','페이지 편집과 시각적 주석을 한곳에서 작업합니다.','기존 본문 수정·OCR·보안 마스킹·인증서 서명은 지원하지 않습니다. 양식은 평면화되고 서명은 보존되지 않습니다.','사각형으로 개인정보를 가려도 되나요?','아니요. 덧붙인 도형 아래 원문이 남을 수 있습니다. 보안 삭제 전용 도구를 사용하세요.'],
+ ['PDFまたは画像を追加|ページを整理して文字・図・画像を重ねる|ページ範囲を選びPDFで保存','ページ編集と見た目の注釈を一つの作業画面で行えます。','既存本文の編集・OCR・安全な墨消し・証明書署名は非対応です。フォームは平面化し、署名は保持しません。','四角形で機密情報を隠せますか？','安全な墨消しにはなりません。下の原文が残る場合があるため、専用ツールを使ってください。']],
+ 'pdf-merge':[
+ ['Add the PDFs to combine|Check and reorder the page thumbnails|Export all pages as one PDF','Combines pages from several documents in the order shown.','Up to 100 pages, 32 MB per file and 128 MB total. Form fields become static; signatures are not preserved.','Can I change the order after adding files?','Yes. Move pages with the controls or drag thumbnails, then check the order before exporting.'],
+ ['합칠 PDF 추가|페이지 썸네일을 확인하고 순서 정리|전체 페이지를 하나의 PDF로 저장','여러 문서의 페이지를 화면에 보이는 순서대로 합칩니다.','100페이지, 파일당 32MB, 총 128MB까지입니다. 양식은 정적 표시로 바뀌고 서명은 보존되지 않습니다.','추가 후 순서를 바꿀 수 있나요?','네. 페이지 이동 버튼이나 썸네일 드래그로 정리한 뒤 저장 전에 순서를 확인하세요.'],
+ ['結合するPDFを追加|サムネイルでページ順を確認・変更|全ページを一つのPDFとして保存','複数文書のページを画面の順にまとめます。','100ページ、1ファイル32MB、合計128MBまで。フォームは静的な表示となり署名は保持しません。','追加した後に順番を変えられますか？','はい。移動ボタンやサムネイルのドラッグで並べ替え、保存前に確認してください。']],
+ 'pdf-split':[
+ ['Open a PDF|Enter page numbers such as 1,3-5|Export the selection as a new PDF','Extracts a selected set of pages into one new document.','This does not automatically create one file per page. The original remains unchanged.','How do I make two separate PDFs?','Export one range, then change the range and export again. Page numbers refer to the current arranged document.'],
+ ['PDF 열기|1,3-5처럼 페이지 범위 입력|선택한 페이지를 새 PDF로 저장','원하는 페이지 묶음을 하나의 문서로 추출합니다.','페이지마다 개별 파일을 자동 생성하지 않습니다. 원본은 바뀌지 않습니다.','PDF 두 개로 나누려면 어떻게 하나요?','첫 범위를 저장한 뒤 범위를 바꿔 다시 저장하세요. 번호는 현재 정리된 문서 기준입니다.'],
+ ['PDFを開く|1,3-5のようにページ範囲を入力|選択ページを新しいPDFで保存','必要なページの組み合わせを一つの文書に取り出します。','1ページずつ自動で別ファイルにはしません。元ファイルは変更しません。','二つのPDFに分けるには？','一つ目の範囲を保存し、範囲を変えてもう一度保存します。番号は現在の並び順に対応します。']],
+ 'pdf-compress':[
+ ['Open a PDF|Open export settings and explicitly choose image-based output if appropriate|Export and compare size and readability','Can rebuild pages as compressed images when you choose raster output.','Default page copying may not shrink the file. Raster output loses selectable text and may reduce quality or even increase size.','Why is compression not enabled automatically?','Image-based output changes document properties. Choose it only after deciding that loss of text search is acceptable.'],
+ ['PDF 열기|저장 설정에서 필요할 때 이미지 기반 출력을 직접 선택|저장 후 용량과 가독성 비교','직접 선택하면 페이지를 압축 이미지로 다시 구성합니다.','기본 페이지 복사는 용량을 줄이지 못할 수 있습니다. 이미지 출력은 글자 선택·검색을 잃고 품질 저하나 용량 증가도 가능합니다.','압축이 자동 적용되지 않는 이유는 무엇인가요?','문서 성질이 바뀌기 때문입니다. 글자 검색을 잃어도 되는지 판단한 뒤 선택하세요.'],
+ ['PDFを開く|必要な場合のみ保存設定で画像化を選ぶ|保存後の容量と読みやすさを比較','選択した場合、ページを圧縮画像として再構成します。','通常のページコピーでは小さくならない場合があります。画像化すると文字選択・検索を失い、画質低下や容量増加も起こり得ます。','なぜ自動で画像化しないのですか？','文書の性質が変わるためです。文字検索が不要かを判断してから選んでください。']],
+ 'jpg-to-pdf':[
+ ['Add photos|Arrange the pages|Export as PDF','Places each image on an A4-sized page with margins while keeping its proportions.','It does not recognize text in scanned photos. Images can be scaled down to fit the page.','Will the photo fill the whole page?','No. The image is fitted inside margins without stretching or cropping.'],
+ ['사진 추가|페이지 순서 정리|PDF로 저장','사진 비율을 유지하며 여백이 있는 A4 페이지에 한 장씩 배치합니다.','스캔 사진 속 글자를 인식하지 않습니다. 페이지에 맞게 이미지가 축소될 수 있습니다.','사진이 페이지 전체를 채우나요?','아니요. 늘리거나 자르지 않고 여백 안에 맞춥니다.'],
+ ['写真を追加|ページ順を整理|PDFとして保存','写真の比率を保ち、余白付きのA4ページに1枚ずつ配置します。','写真内の文字認識はしません。ページに合わせて縮小する場合があります。','写真はページ全体を埋めますか？','いいえ。引き伸ばしや切り抜きをせず、余白の内側に収めます。']],
+ 'pdf-to-jpg':[
+ ['Open a PDF|Select pages and JPG or PNG output|Export the rendered page images','Renders pages, including visible annotations, as images.','Rendered images do not retain selectable text or vector detail at arbitrary zoom.','Can I choose only a few pages?','Yes. Enter a range such as 2-4 in export settings before saving.'],
+ ['PDF 열기|페이지 범위와 JPG·PNG 선택|렌더링된 페이지 이미지 저장','보이는 주석을 포함한 페이지를 이미지로 만듭니다.','선택 가능한 글자나 확대해도 선명한 벡터 특성은 유지되지 않습니다.','일부 페이지만 고를 수 있나요?','네. 저장 설정에 2-4 같은 범위를 입력하세요.'],
+ ['PDFを開く|ページ範囲とJPG・PNGを選ぶ|描画したページ画像を保存','表示されている注釈も含めてページを画像にします。','選択可能な文字や、自由に拡大できるベクター情報は残りません。','一部のページだけ選べますか？','はい。保存設定で2-4のように範囲を指定してください。']],
+ media:[
+ ['Open a supported video or audio file|Choose a frame, GIF, audio or WebM export|Set a short interval and save','Uses browser codecs to process short media clips on your device.','Input is limited to 128 MB and 10 minutes; codec support depends on your browser.','Can I export MP4?','No. Video recording exports WebM. Audio can be WAV or MP3; animated images use GIF.'],
+ ['지원되는 영상·음성 열기|프레임·GIF·오디오·WebM 저장 선택|짧은 구간을 지정하고 저장','브라우저 코덱으로 짧은 미디어를 기기에서 처리합니다.','입력은 128MB·10분 이하이며 코덱 지원은 브라우저마다 다릅니다.','MP4로 저장할 수 있나요?','아니요. 영상은 WebM, 음성은 WAV·MP3, 움직이는 이미지는 GIF로 저장합니다.'],
+ ['対応する動画・音声を開く|フレーム・GIF・音声・WebMを選ぶ|短い区間を指定して保存','ブラウザのコーデックを使い、短いメディアを端末で処理します。','入力は128MB・10分まで。コーデック対応はブラウザによって異なります。','MP4で保存できますか？','いいえ。動画はWebM、音声はWAV・MP3、アニメーション画像はGIFで保存します。']],
+ 'video-trim':[
+ ['Open a video|Set start and end times|Keep the tab visible while saving WebM','Records the selected interval with browser MediaRecorder.','At most 120 seconds per export. This is real-time recording, not frame-accurate cutting or lossless remuxing.','Why did export stop when I changed tabs?','Recording stops on hidden tabs to avoid inaccurate output. Keep this tab visible until it finishes.'],
+ ['영상 열기|시작·끝 시간 지정|탭을 보이는 상태로 두고 WebM 저장','브라우저 MediaRecorder로 선택 구간을 녹화합니다.','한 번에 120초까지이며 실시간 녹화입니다. 프레임 단위 정밀 컷이나 무손실 재포장이 아닙니다.','탭을 바꾸니 저장이 중단되는 이유는 무엇인가요?','부정확한 결과를 막기 위해 숨겨진 탭에서는 녹화를 멈춥니다. 완료될 때까지 탭을 유지하세요.'],
+ ['動画を開く|開始・終了時刻を指定|タブを表示したままWebMで保存','ブラウザのMediaRecorderで選択区間を録画します。','1回120秒までの実時間録画です。フレーム単位の精密カットや無劣化の再格納ではありません。','タブを変えると保存が止まるのはなぜですか？','不正確な出力を避けるためです。完了するまでこのタブを表示してください。']],
+ 'video-frame':[
+ ['Open a video|Move playback to the desired moment|Save the current frame as PNG','Extracts a still image from a browser-decoded frame.','The longest output side is limited to 1920 pixels. Audio-only files have no video frame.','Is this the original full-resolution frame?','Only when within the output limit. Larger frames are scaled down while keeping their proportions.'],
+ ['영상 열기|원하는 시점으로 재생 위치 이동|현재 장면을 PNG로 저장','브라우저가 읽은 영상 프레임을 정지 이미지로 꺼냅니다.','긴 변은 최대 1920px입니다. 음성 전용 파일에는 영상 프레임이 없습니다.','원본 해상도로 추출되나요?','제한 안에서는 그렇습니다. 더 큰 프레임은 비율을 유지해 축소합니다.'],
+ ['動画を開く|必要な場面に再生位置を合わせる|現在のフレームをPNGで保存','ブラウザが読み込んだフレームを静止画として取り出します。','長辺は最大1920pxです。音声のみのファイルにはフレームがありません。','元の解像度で取り出せますか？','出力上限内なら可能です。それより大きい場合は比率を保って縮小します。']],
+ 'video-mp3':[
+ ['Open a video with audio or an audio file|Choose a start and end time|Export MP3 and download','Decodes the audio locally and encodes up to two channels as 128 kbps MP3.','Audio extraction accepts sources up to 64 MB and intervals up to 120 seconds. The browser must decode the source codec.','Can a silent video produce an MP3?','No. There must be a decodable audio track. MP3 export downloads the encoder from jsDelivr.'],
+ ['소리가 있는 영상 또는 음성 파일 열기|시작·끝 시간 선택|MP3로 변환하고 다운로드','기기에서 음성을 읽고 최대 2채널 128kbps MP3로 인코딩합니다.','원본 64MB, 구간 120초까지입니다. 브라우저가 원본 오디오 코덱을 지원해야 합니다.','소리 없는 영상도 MP3가 되나요?','아니요. 읽을 수 있는 오디오 트랙이 필요합니다. MP3 인코더는 jsDelivr에서 내려받습니다.'],
+ ['音声付き動画または音声を開く|開始・終了時刻を選ぶ|MP3に変換して保存','音声を端末で読み込み、最大2チャンネルの128kbps MP3にします。','元ファイル64MB、区間120秒まで。ブラウザが元の音声コーデックに対応する必要があります。','無音の動画からもMP3を作れますか？','いいえ。読み取れる音声トラックが必要です。MP3エンコーダーはjsDelivrから取得します。']],
+ 'video-gif':[
+ ['Open a video|Choose a segment of 8 seconds or less|Create the GIF and download','Samples eight frames per second with a maximum long side of 320 pixels.','GIF has a limited palette and no audio. This simple encoder may produce a larger file than the source clip.','Why is the animation less smooth than my video?','Output is fixed at 8 fps to bound memory use. Use a video export if you need smoother motion.'],
+ ['영상 열기|8초 이하 구간 선택|GIF를 만들고 다운로드','초당 8프레임, 긴 변 최대 320px로 장면을 추출합니다.','GIF는 색상이 제한되고 소리가 없습니다. 단순 인코더여서 원본 영상보다 커질 수 있습니다.','원본보다 움직임이 끊겨 보이는 이유는 무엇인가요?','메모리 사용을 제한하려고 8fps로 출력합니다. 부드러운 움직임이 필요하면 영상으로 저장하세요.'],
+ ['動画を開く|8秒以内の区間を選ぶ|GIFを作成して保存','毎秒8フレーム、長辺最大320pxで場面を取り出します。','GIFは色数に制限があり、音声はありません。単純なエンコーダーのため元動画より大きくなる場合があります。','動きが元動画より滑らかでないのはなぜですか？','メモリ使用を抑えるため8fpsに固定しています。滑らかな動きには動画出力を使ってください。']],
+ 'video-compress':[
+ ['Open a video|Select a short interval and smaller output width|Record WebM and compare the actual size','Reduces output dimensions and uses a resolution-based recording bitrate.','No target-size guarantee. Export is WebM, not MP4, and a small original can become larger.','How can I make the output smaller?','Reduce the width or interval length, then inspect the result. More compression can remove fine detail.'],
+ ['영상 열기|짧은 구간과 작은 출력 너비 선택|WebM 녹화 후 실제 용량 비교','출력 해상도를 줄이고 해상도에 따른 비트레이트로 녹화합니다.','목표 용량은 보장하지 않습니다. MP4가 아닌 WebM이며 작은 원본은 더 커질 수도 있습니다.','더 작게 만들려면 어떻게 하나요?','너비나 구간 길이를 줄이고 결과를 확인하세요. 세부 묘사가 손상될 수 있습니다.'],
+ ['動画を開く|短い区間と小さめの出力幅を選ぶ|WebMで録画し実際の容量を比較','解像度を下げ、出力サイズに応じたビットレートで録画します。','目標容量は保証しません。MP4ではなくWebMで、小さい元動画より容量が増える場合もあります。','さらに小さくするには？','幅や区間を減らし、結果を確認してください。細部が失われる場合があります。']]
+};
+
+export function guide(id,locale){return guides[id][{en:0,ko:1,ja:2}[locale]];}
+export function formats(id,locale){
+ const editor=INTENTS[id].editor;
+ const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'WebM','video-compress':'WebM',media:'WebM / GIF / PNG / WAV / MP3'};
+ const values=editor==='pdf'?(id==='jpg-to-pdf'?'JPG / PNG / WebP → PDF':id==='pdf-to-jpg'?'PDF → JPG / PNG':id==='pdf'?'PDF / JPG / PNG / WebP → PDF / JPG / PNG':'PDF → PDF'):editor==='media'?`MP4 / WebM / MOV${['media','video-mp3'].includes(id)?' / MP3 / WAV / OGG / M4A':''} → ${mediaOutput[id]}`:id==='home'?'PNG / JPG / WebP / PDF / MP4 / WebM / WAV':id==='heic'?'HEIC / HEIF → JPG / PNG / WebP':`PNG / JPG / WebP / AVIF / HEIC → ${['pixel','upscale','crop','resize','remove-bg'].includes(id)?'PNG':'PNG / JPG / WebP'}`;
+ const note={en:'Input decoding and output encoding depend on browser support.',ko:'입력·출력 지원은 브라우저에 따라 다릅니다.',ja:'読み込み・書き出しはブラウザの対応状況によります。'}[locale];
+ return values+' — '+note+(editor==='image'||editor==='pixel'?' '+{en:'Animated images are treated as still images.',ko:'움직이는 이미지는 정지 이미지로 처리합니다.',ja:'アニメーション画像は静止画として扱います。'}[locale]:'');
+}
+export function footer(locale){const l=labels[locale];return `<footer class="site-footer"><nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}</nav><p>${esc(l.saved)}</p></footer>`;}
+export function toolContent(id,locale){
+ const l=labels[locale],g=guide(id,locale),related=INTENTS[id].next.length?INTENTS[id].next:['upscale','pdf-merge','pixel','media'];
+ const faq=[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
+ return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article><h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p></article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
+}

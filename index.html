@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f5f7fa"><meta name="description" content="이미지 편집, PDF 페이지 편집, 도트 에셋, 짧은 미디어 편집. 파일을 서버에 업로드하지 않는 FileForge."><meta property="og:title" content="FileForge"><meta property="og:description" content="Local file tools"><base href="./"><title>FileForge — 내 파일의 작은 작업실</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="experience.css"><script type="module" src="src/app.js"></script>
+<link rel="stylesheet" href="content.css">
 </head>
 <body>
 <header class="app-header"><a class="brand" href="./" aria-label="FileForge 홈" data-i18n-aria="shell.home"><span class="brand-mark">f<span>↗</span></span><strong>FileForge<span class="brand-dot">.</span></strong></a><div class="header-end"><label class="language-control"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><select id="languageSelect" aria-label="Language" data-i18n-aria="language.label"><option value="auto">Auto-detect</option><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label><span class="local-pill"><span></span><span data-i18n="shell.local">Processed on your device</span></span><button class="icon-button" data-action="help" data-tip="Tool names and help" data-i18n-tip="shell.help" aria-label="도움말" data-i18n-aria="shell.help" id="helpButton"></button></div></header>
@@ -13,6 +14,7 @@
 <div id="fileStrip" class="file-strip" aria-label="파일과 페이지 목록" data-i18n-aria="shell.files" hidden></div>
 <footer class="workspace-footer"><div id="toolDock" class="tool-dock" aria-label="현재 편집 도구" data-i18n-aria="shell.tools"></div><div id="documentInfo" class="document-info" data-i18n="원본은 그대로, 작업은 내 기기에서.">Originals untouched. Processing on your device.</div></footer></main></div>
 <div class="bottom-line"><span data-i18n="shell.tagline">ONE FILE. MORE POSSIBILITIES.</span><button data-action="privacy" data-i18n="shell.privacy">Privacy &amp; limits</button><span>v1.1</span></div>
+<div id="siteContent"><!--site-content--></div>
 <div id="message" class="message" role="alert" hidden></div><div id="progress" class="progress-card" role="status" hidden><span class="spinner"></span><span id="progressText" data-i18n="shell.working">Working…</span><button class="icon-button" data-action="cancel" aria-label="작업 취소" data-i18n-aria="shell.cancel">✕</button></div>
 <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 <input id="fileInput" type="file" multiple hidden><input id="overlayInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>

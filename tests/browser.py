@@ -4,18 +4,19 @@ Normal mode uses http://127.0.0.1:4173 (run npm run dev first).
 --in-memory mounts the same modules as Blob URLs when policy blocks HTTP.
 Only module URLs, location/history and Storage are adapted in that mode.
 It does NOT validate deployed HTTP/CSP, actual storage persistence, or CDN engines.
-Requires Python Playwright, Pillow and /usr/bin/chromium.
+Requires Python Playwright, Pillow and `python -m playwright install chromium`.
+HTTP subpath checks additionally need a server on port 4174 with BASE_PATH=/my-first-repo.
 """
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from PIL import Image
-import argparse, re, json, io, hashlib, shutil, subprocess
+import argparse, re, json, io, hashlib, shutil, subprocess, os
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 p=argparse.ArgumentParser();p.add_argument('--in-memory',action='store_true');args=p.parse_args()
 checks=[];errors=[]
-MODULES=['messages','i18n','intents','core','worker','audio-worker','image','pdf','media','ui','experience','app']
-SOURCES={n:(ROOT/'src'/f'{n}.js').read_text() for n in MODULES}
+MODULES=['messages','i18n','intents','core','worker','audio-worker','image','pdf','media','ui','content','seo','site-content','experience','app']
+SOURCES={n:(ROOT/'src'/f'{n}.js').read_text(encoding='utf-8') for n in MODULES}
 def ok(name,condition=True):
  assert condition,name
  checks.append(name);print('PASS',name,flush=True)
@@ -29,14 +30,15 @@ def lang(page,value):
 def mount(context,path='/',saved=None,blocked=False,base='/'):
  page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
  if not args.in_memory:
-  page.goto('http://127.0.0.1:4173'+path,wait_until='networkidle')
+  page.add_init_script('try { localStorage.removeItem("fileforge.language.v1"); } catch {}' if not saved else 'try { localStorage.setItem("fileforge.language.v1",'+json.dumps(saved)+'); } catch {}')
+  page.goto(('http://127.0.0.1:4174' if base!="/" else os.environ.get('TEST_URL','http://127.0.0.1:4173'))+path,wait_until='networkidle')
   return page
  local_path=path.split('?')[0].removeprefix(base).strip('/')
  # Built HTML verifies the actual localized static document, not a test template.
  html_path=ROOT/'dist'/local_path/'index.html'
  if not html_path.exists():html_path=ROOT/'index.html'
- html=html_path.read_text();html=re.sub(r'<script[^>]*>.*?</script>','',html);html=re.sub(r'<link[^>]*>','',html);html=re.sub(r'<base[^>]*>','',html)
- page.set_content(html);page.add_style_tag(content=(ROOT/'styles.css').read_text()+(ROOT/'experience.css').read_text())
+ html=html_path.read_text(encoding='utf-8');html=re.sub(r'<script[^>]*>.*?</script>','',html);html=re.sub(r'<link[^>]*>','',html);html=re.sub(r'<base[^>]*>','',html)
+ page.set_content(html);page.add_style_tag(content=''.join((ROOT/f).read_text(encoding='utf-8') for f in ['styles.css','experience.css','content.css']))
  page.evaluate('''async ({sources,path,saved,blocked,base})=>{
   window.__testURL='https://fileforge.test'+path;
   const stack=[window.__testURL];let position=0;
@@ -76,7 +78,7 @@ def download(page,name):
  with page.expect_download() as event:click(page,'intent-download')
  path=OUT/name;event.value.save_as(path);return path
 with sync_playwright() as pw:
- browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+ browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
  en=browser.new_context(locale='en-US',viewport={'width':1440,'height':1000},accept_downloads=True)
  ja=browser.new_context(locale='ja-JP',viewport={'width':1440,'height':1000},accept_downloads=True)
  ko=browser.new_context(locale='ko-KR',viewport={'width':1440,'height':1000},accept_downloads=True)

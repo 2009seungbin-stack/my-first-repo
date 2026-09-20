@@ -4,6 +4,7 @@ import {bytes,integer,parsePages,stem,zip} from './core.js';
 import * as Im from './image.js';
 import * as Media from './media.js';
 import {icon,esc,button} from './ui.js';
+import {updateSiteContent} from './site-content.js';
 const $=s=>document.querySelector(s);
 const storage=()=>{try{return window.localStorage;}catch{return null;}};
 const browserLanguages=()=>navigator.languages?.length?navigator.languages:[navigator.language];
@@ -108,6 +109,7 @@ export class Experience {
   $('#languageSelect').innerHTML=`<option value="auto">${esc(t('language.auto'))}</option>`+LOCALES.map(l=>`<option value="${l}" lang="${l}">${LANGUAGE_NAMES[l]}</option>`).join('');
   $('#languageSelect').value=this.auto?'auto':getLocale();$('#languageSelect').disabled=s.busy;
   const title=t(`intent.${this.id}.title`),description=t(`intent.${this.id}.description`);
+  updateSiteContent(this.id,getLocale());
   $('#editorTitle').textContent=title;document.title=title+' · FileForge';$('meta[name="description"]').content=description;
   $('meta[property="og:title"]').content=document.title;$('meta[property="og:description"]').content=description;
   $('#emptyTitle').textContent=t(`intent.${this.id}.headline`);$('#emptySubtitle').textContent=description;

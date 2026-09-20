@@ -2,6 +2,7 @@ node_modules/
 dist/
 test-results/
 __pycache__/
+.wrangler/
 .DS_Store
 .env
 .env.*
