@@ -3,16 +3,20 @@ import {esc} from '../src/ui.js';
 export function configuration(env=process.env){
  const preview=env.SITE_ENV==='preview'||!!(env.CF_PAGES_BRANCH&&env.CF_PAGES_BRANCH!=='main');
  const siteURL=normalizeSiteURL(env.SITE_URL||'');
- const raw=env.ADSENSE_CLIENT||'';
- if(raw&&!/^ca-pub-\d{16}$/.test(raw))throw Error('ADSENSE_CLIENT must be ca-pub- followed by exactly 16 digits; leave unset until issued by Google');
+ const raw=env.ADSENSE_CLIENT||'',verification=env.ADSENSE_VERIFICATION_CLIENT||'';
+ for(const [name,value]of [['ADSENSE_CLIENT',raw],['ADSENSE_VERIFICATION_CLIENT',verification]]){
+  if(value&&!/^ca-pub-\d{16}$/.test(value))throw Error(`${name} must be ca-pub- followed by exactly 16 digits; leave unset until issued by Google`);
+ }
+ if(raw&&verification&&raw!==verification)throw Error('AdSense verification and advertising must use the same publisher');
+ const verificationClient=preview?'':verification||raw;
  const client=preview?'':raw,slots={};
  for(const [position,name]of [['content-1','ADSENSE_SLOT_CONTENT_1'],['content-2','ADSENSE_SLOT_CONTENT_2']]){
   const value=env[name]||'';if(value&&!/^\d{10}$/.test(value))throw Error(`${name} must be the 10-digit ad unit ID issued by Google`);
   if(client&&value)slots[position]=value;
  }
- if(client&&(!siteURL||!siteURL.startsWith('https://')))throw Error('AdSense requires an explicit HTTPS SITE_URL');
+ if(verificationClient&&(!siteURL||!siteURL.startsWith('https://')))throw Error('AdSense requires an explicit HTTPS SITE_URL');
  if(client&&Object.keys(slots).length&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
- return {siteURL,preview,client,slots};
+ return {siteURL,preview,client,slots,verificationClient};
 }
 export function adHead({client='',slots={}}={}){
  if(!client)return '';

@@ -60,8 +60,8 @@ export async function build(options={}){
  await writeFile(path.join(dist,'404.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="robots" content="noindex"><title>FileForge · Not found</title></head><body><h1>404 · Page not found</h1><p>Check the address.</p><a href="/en/">Open FileForge</a><p lang="ko">페이지를 찾을 수 없습니다. <a href="/ko/">홈으로</a></p><p lang="ja">ページが見つかりません。<a href="/ja/">ホームへ</a></p></body></html>');
  await writeFile(path.join(dist,'sitemap.xml'),sitemap(config.preview?'':siteURL));
  await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL('sitemap.xml',siteURL).href+'\n':''}`);
+ if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
-  await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.client.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
   await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
  }

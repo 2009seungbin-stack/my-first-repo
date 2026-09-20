@@ -22,6 +22,9 @@ test('configuration rejects malformed domain and ad values before building',()=>
  assert.throws(()=>configuration({ADSENSE_CLIENT:client,SITE_URL:'http://localhost/'}));
  assert.throws(()=>configuration({ADSENSE_CLIENT:client,SITE_URL:origin,ADSENSE_SLOT_CONTENT_1:'1234567890'}));
  assert.throws(()=>configuration({ADSENSE_SLOT_CONTENT_1:'wrong'}));
+ assert.throws(()=>configuration({ADSENSE_VERIFICATION_CLIENT:'invalid',SITE_URL:origin}));
+ assert.throws(()=>configuration({ADSENSE_VERIFICATION_CLIENT:client}));
+ assert.throws(()=>configuration({ADSENSE_VERIFICATION_CLIENT:client,ADSENSE_CLIENT:'ca-pub-1234567890123456',SITE_URL:origin}));
  assert.equal(normalizeSiteURL('https://host.test'),'https://host.test/');
 });
 test('preview blocks inherited production advertising',()=>{
@@ -90,6 +93,16 @@ test('build matrix: no domain, production domain, ads, then clean disabled rebui
   await build({outDir,env:{SITE_URL:origin}});
   assert((await read('robots.txt')).includes(`Sitemap: ${origin}sitemap.xml`));
   assert((await read('en/image/upscale/index.html')).includes(`property="og:url" content="${origin}en/image/upscale/"`));
+  await build({outDir,env:{SITE_URL:origin,ADSENSE_VERIFICATION_CLIENT:client}});
+  assert.equal(await read('ads.txt'),`google.com, ${client.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
+  for(const route of ALL_ROUTES){
+   const verified=await read(path.join(route,'index.html'));
+   assert(!verified.includes('adsbygoogle.js'));assert(!verified.includes('src/ads.js'));assert(!verified.includes('Google AdSense is enabled'));
+  }
+  await assert.rejects(read('_worker.js'));await assert.rejects(read('_routes.json'));
+  assert.equal(await read('_headers'),headers(await readFile(new URL('../_headers',import.meta.url),'utf8'),{}));
+  await build({outDir,env:{SITE_URL:origin,ADSENSE_VERIFICATION_CLIENT:client,SITE_ENV:'preview'}});
+  await assert.rejects(read('ads.txt'));
   await build({outDir,env:{SITE_URL:origin,ADSENSE_CLIENT:client,ADSENSE_SLOT_CONTENT_1:'1234567890',ADSENSE_SLOT_CONTENT_2:'9876543210',ADSENSE_CMP_READY:'true'}});
   const enabled=await read('en/image/upscale/index.html');assert(enabled.includes(`adsbygoogle.js?client=${client}`));assert(enabled.includes('src/ads.js'));
   assert.equal(await read('ads.txt'),`google.com, ${client.slice(3)}, DIRECT, f08c47fec0942fa0\n`);

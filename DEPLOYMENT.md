@@ -2,6 +2,20 @@
 
 현재 기본 빌드는 **광고 없는 정적 사이트**다. 이 저장소의 커밋/검사 통과는 Cloudflare 배포 성공, Google 색인 또는 AdSense 승인을 의미하지 않는다. 실제 도메인·Google 계정·광고 단위는 운영자가 설정한다.
 
+### 현재 공개 배포 (2026-09-20)
+
+공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages의 **Direct Upload**로 생성했으며 GitHub 자동 빌드는 연결되지 않았다. 현재 운영 빌드는 아래 환경 변수로 만들고 `dist` 내용 전체를 ZIP으로 묶어 프로젝트의 **Create deployment → Production**에 업로드한다. ZIP 최상위에 `index.html`과 `ads.txt`가 있어야 한다.
+
+```powershell
+$env:SITE_URL='https://fileforge-studio.pages.dev'
+$env:ADSENSE_VERIFICATION_CLIENT='ca-pub-8363911006404719'
+npm run build
+```
+
+확인용 게시자 값은 로그인된 AdSense 계정에서 발급된 공개 ID다. 광고 스크립트·광고 단위·광고용 Worker는 활성화하지 않는다. 배포 성공과 AdSense 심사 승인은 별개다. 아래 Git 연동 절차는 향후 자동 배포용 프로젝트를 구성할 때 적용한다.
+
+현재 운영 배포 ID는 `67a95ae7-108f-417d-951f-d91eca586a01`이다. AdSense에서 ads.txt 소유권 확인 성공 후 검토 요청을 제출했고, 화면 상태는 **준비 중 / 사이트의 광고 게재 가능 여부 검토 중**이었다. 자동 광고와 자동 최적화는 모두 사용 안 함으로 확인했다. Google CMP의 동의·동의하지 않음·옵션 관리 3개 선택사항을 설정했지만, 실제 지역별 동의 동작과 광고 게재는 아직 검증하지 않았으므로 `ADSENSE_CMP_READY`는 설정하지 않는다. 승인 후 실제 광고 단위와 CMP 검증을 완료하고 광고 빌드로 전환한다.
+
 ## 1. Cloudflare Pages 만들기
 
 1. Cloudflare Dashboard → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**(Git 저장소 가져오기)를 선택한다. Workers 배포가 아니라 Pages의 Git 연동을 선택한다.
@@ -61,7 +75,7 @@ Remove-Item Env:SITE_URL
 
 ## 4. AdSense 신청과 단계별 활성화
 
-**기본값: 꺼짐.** `ADSENSE_CLIENT`가 없으면 광고 스크립트/광고 DOM/빈 광고 공간/Google 광고 요청/`ads.txt`/광고용 Pages Worker가 없다. 소스에 테스트 계정이나 임의 게시자 값을 넣어 운영하지 않는다.
+**기본값: 꺼짐.** `ADSENSE_CLIENT`가 없으면 광고 스크립트/광고 DOM/빈 광고 공간/Google 광고 요청/광고용 Pages Worker가 없다. `ads.txt`도 기본적으로 없지만, `ADSENSE_VERIFICATION_CLIENT`에 실제 게시자 ID를 넣으면 광고 실행 없이 소유권 확인용 파일만 생성한다. 이 확인 모드도 HTTPS `SITE_URL`이 필요하고 프리뷰에서는 파일을 생성하지 않는다. 두 게시자 변수를 함께 쓰면 동일한 ID여야 한다. 소스에 테스트 계정이나 임의 게시자 값을 넣어 운영하지 않는다.
 
 1. 실제 사이트와 정책·문의 페이지를 공개하고 모바일 동작을 확인한다. AdSense에 사이트를 추가한다. 승인 여부와 시기는 Google 판단이며 이 구현이 승인을 보장하지 않는다.
 2. Google에서 발급한 실제 Publisher ID(`ca-pub-` 뒤 숫자 16자리)를 받는다. 신청 과정에서 이미 발급될 수 있다. AdSense **Auto ads는 OFF**로 유지한다. 자동/앵커/전면 광고로 편집기 안에 임의 삽입하지 않도록 한다.
@@ -78,7 +92,7 @@ Remove-Item Env:SITE_URL
 
 슬롯 변수가 있는데 CMP 확인이 없으면 빌드를 실패시킨다. 광고는 **편집기 → 관련 도구 → 기능 설명 → 광고 1 → FAQ → 광고 2** 순서다. 정책 페이지에는 수동 광고를 배치하지 않는다. 언어에 맞게 광고/Advertisement/広告를 표시한다. 언어나 내부 도구 변경 시 설명 부분만 교체하고 기존 광고 노드와 iframe은 DOM에 붙어 있는 상태로 유지해 새 요청을 만들지 않는다. 자동 갱신, 광고 클릭 유도, 광고 시청 조건 다운로드는 없다. 광고 차단 또는 로드 실패가 편집/저장 기능을 막지 않는다.
 
-`dist/ads.txt`는 실제 `ADSENSE_CLIENT`의 `ca-`를 제거한 게시자 ID로 Google 직접 계정 형식을 생성한다. Google이 계정에 표시하는 원문과 반드시 대조한다. 계정/판매 관계가 다른 경우에는 운영자가 제공받은 레코드에 맞게 수정한다. ID가 없거나 프리뷰 빌드이면 파일을 만들지 않는다. 환경 변수를 삭제하고 재배포하면 오래된 ads.txt와 광고용 Worker도 제거된다.
+`dist/ads.txt`는 실제 `ADSENSE_VERIFICATION_CLIENT` 또는 `ADSENSE_CLIENT`의 `ca-`를 제거한 게시자 ID로 Google 직접 계정 형식을 생성한다. Google이 계정에 표시하는 원문과 반드시 대조한다. 계정/판매 관계가 다른 경우에는 운영자가 제공받은 레코드에 맞게 수정한다. 두 ID가 모두 없거나 프리뷰 빌드이면 파일을 만들지 않는다. 두 환경 변수를 삭제하고 재배포하면 오래된 ads.txt와 광고용 Worker도 제거된다.
 
 공식 참고: [광고 배치 정책](https://support.google.com/adsense/answer/1346295?hl=en), [인증 CMP 요구사항](https://support.google.com/adsense/answer/13554116?hl=en), [ads.txt 가이드](https://support.google.com/adsense/answer/12171612?hl=en).
 
