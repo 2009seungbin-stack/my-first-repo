@@ -57,6 +57,12 @@ export async function build(options={}){
  // Only clear the known output tree; custom test outputs must be named dist too.
  if(path.basename(dist)!=='dist'||dist===path.resolve(ROOT))throw Error('Output directory must be a dedicated dist directory');
  await rm(dist,{recursive:true,force:true});await mkdir(dist,{recursive:true});
+ if(config.redirectTo){
+  // Every path and query moves permanently to the same location on the new origin.
+  await writeFile(path.join(dist,'_redirects'),`/* ${config.redirectTo}/:splat 301\n`);
+  console.log(`Built redirect-only site → ${config.redirectTo}`);
+  return;
+ }
  for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="20" fill="#3182f6"/><text x="32" y="46" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">${escape(BRAND.name[0].toLowerCase())}</text></svg>`);

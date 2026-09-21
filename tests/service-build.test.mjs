@@ -92,3 +92,11 @@ test('tool UI never hard-codes quota classes',async()=>{
  assert(!/localStorage\.[gs]etItem\([^)]*(pro|plan)/i.test(entitlement),'entitlement never persists plan in storage');
  assert(!/FormData|Blob|arrayBuffer|readAsDataURL|\.name\b/.test(entitlement),'entitlement never touches file data');
 });
+test('REDIRECT_TO builds a redirect-only deployment for a retired address',async()=>{
+ for(const bad of ['http://nerulio.pages.dev','https://nerulio.pages.dev/path','https://nerulio.pages.dev/?q=1','nerulio.pages.dev'])assert.throws(()=>configuration({REDIRECT_TO:bad}),bad);
+ assert.equal(configuration({REDIRECT_TO:'https://nerulio.pages.dev/'}).redirectTo,'https://nerulio.pages.dev');
+ await withBuild({REDIRECT_TO:'https://nerulio.pages.dev',SITE_URL:'https://fileforge-studio.pages.dev'},async(out,read)=>{
+  assert.equal(await read('_redirects'),'/* https://nerulio.pages.dev/:splat 301\n');
+  assert.deepEqual(await readdir(out),['_redirects'],'nothing else is served from the old address');
+ });
+});
