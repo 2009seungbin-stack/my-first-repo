@@ -11,6 +11,7 @@ import {authorize} from './entitlement.js';
 import {Toolkit} from './toolkit.js';
 import {t,getLocale,setLocale,normalizeLocale,LOCALES,LANGUAGE_NAMES,readPreference,savePreference,locationParts,localizedURL,localeFromEnvironment,translateStatic} from './i18n.js';
 import {INTENTS,intentFor,intentDefaults,isFocused,accepts} from './intents.js';
+import {landingFor,landingText} from './landings.js';
 import {bytes,integer,parsePages,stem,zip} from './core.js';
 import * as Im from './image.js';
 import * as Media from './media.js';
@@ -47,7 +48,7 @@ export class Experience {
   this.configure(intentFor(parts.path),parts.path,url.search);this.lastURL=url.href;
  }
  configure(id,path=INTENTS[id].path,query=''){
-  this.invalidate();this.kit.configure(id,query);this.id=id;this.path=path;this.defaults=intentDefaults(id,path,query);const d=this.defaults,s=this.s;
+  this.invalidate();this.kit.configure(id,query);this.id=id;this.path=path;this.landing=landingFor(path)?.intent===id?path:'';this.defaults=intentDefaults(id,path,query);const d=this.defaults,s=this.s;
   s.editor=this.config.editor;s.tool='';
   Object.assign(s.export,{format:d.format,kb:d.kb,width:0,quality:d.quality,shrink:d.shrink,all:false});
   Object.assign(s.pix,{n:d.n,colors:d.colors,dither:d.dither,outline:d.outline,fit:d.fit,trim:d.trim});Object.assign(s.pdfExport,{format:d.pdfFormat,range:d.range,raster:false,optimize:id==='pdf-compress',splitMode:'single'});
@@ -55,7 +56,7 @@ export class Experience {
   this.options={scale:d.scale,scaleMode:d.scaleMode,background:d.background,color:d.color,tolerance:d.tolerance,width:d.width,height:d.height};
   this.panelValues=[];if(this.a.ready()&&['crop','resize','pdf-split','pdf-compress','pdf-to-jpg','video-trim','video-mp3','video-gif','video-compress'].includes(id))s.tool=this.config.tool;
  }
- url(id=this.id,explicit=false,query=''){return localizedURL(INTENTS[id].path,explicit||!this.auto?getLocale():null,this.root,query);}
+ url(id=this.id,explicit=false,query=''){return localizedURL(id===this.id&&this.landing?this.landing:INTENTS[id].path,explicit||!this.auto?getLocale():null,this.root,query);}
  query(){
   if(this.kit.active)return this.kit.query();
   const q=new URLSearchParams();const s=this.s;
@@ -125,11 +126,11 @@ export class Experience {
   const s=this.s;if(this.config.editor!==s.editor){this.configure(generic[s.editor]);history.replaceState({},'',this.url());this.lastURL=location.href;}const has=!!this.a.ready(),c=this.config;document.documentElement.lang=getLocale();document.documentElement.dir='ltr';translateStatic();
   $('#languageSelect').innerHTML=`<option value="auto">${esc(t('language.auto'))}</option>`+LOCALES.map(l=>`<option value="${l}" lang="${l}">${LANGUAGE_NAMES[l]}</option>`).join('');
   $('#languageSelect').value=this.auto?'auto':getLocale();$('#languageSelect').disabled=s.busy;
-  const title=t(`intent.${this.id}.title`),description=t(`intent.${this.id}.description`);
-  updateSiteContent(this.id,getLocale());
+  const land=landingText(this.landing,getLocale()),title=land?.title||t(`intent.${this.id}.title`),description=land?.description||t(`intent.${this.id}.description`);
+  updateSiteContent(this.id,getLocale(),this.landing);
   $('#editorTitle').textContent=title;document.title=title+' · '+BRAND.name;$('meta[name="description"]').content=description;
   $('meta[property="og:title"]').content=document.title;$('meta[property="og:description"]').content=description;
-  $('#emptyTitle').textContent=t(`intent.${this.id}.headline`);$('#emptySubtitle').textContent=description;
+  $('#emptyTitle').textContent=land?.headline||t(`intent.${this.id}.headline`);$('#emptySubtitle').textContent=description;
   $('#intentIcon').innerHTML=icon(c.icon,32);$('#intentIcon').hidden=!this.focused;
   $('#pickLabel').textContent=t(c.accept==='pdf'?'intent.pickPDF':c.accept==='media'?'intent.pickMedia':c.accept==='auto'?'shell.open':'intent.pick');
   $('#dropButton').setAttribute('aria-label',$('#pickLabel').textContent);

@@ -4,6 +4,7 @@ import {brandCopy} from './brand.js';
 import {exampleHTML} from './examples.js';
 import {TOOLS} from './tool-registry.js';
 import {INTENTS} from './intents.js';
+import {LANDINGS,LANDING_PATHS,landingText} from './landings.js';
 import {t} from './i18n.js';
 import {esc} from './ui.js';
 
@@ -122,9 +123,17 @@ export function formats(id,locale){
  return values+' — '+note+(editor==='image'||editor==='pixel'?' '+{en:'Animated inputs are rejected; select a still frame first.',ko:'움직이는 입력은 거부합니다. 먼저 정지 프레임을 선택하세요.',ja:'アニメーション入力は非対応です。静止フレームを選択してください。'}[locale]:'');
 }
 export function footer(locale){const l=labels[locale];return `<footer class="site-footer"><nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
-export function toolContent(id,locale){
- const capability=capabilitySummary(id,locale);
+const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作業'};
+/** Task-specific copy for a landing page, then links to sibling tasks of the same tool. */
+function landingHTML(id,locale,path){
+ const land=landingText(path,locale),tasks=LANDING_PATHS.filter(p=>LANDINGS[p].intent===id&&p!==path);
+ const intro=land?`<h2>${esc(land.title)}</h2>${land.intro.map(p=>`<p>${esc(p)}</p>`).join('')}`:'';
+ const links=tasks.length?`<nav class="landing-links" aria-label="${esc(POPULAR[locale])}"><h3>${esc(POPULAR[locale])}</h3>${tasks.map(p=>`<a href="${locale}/${p}/">${esc(landingText(p,locale).title)}</a>`).join('')}</nav>`:'';
+ return {intro,links};
+}
+export function toolContent(id,locale,path=''){
+ const capability=capabilitySummary(id,locale),landing=landingHTML(id,locale,path);
  const l=labels[locale],g=guide(id,locale),related=INTENTS[id].next.length?INTENTS[id].next:['upscale','pdf-merge','pixel','media'];
  const faq=[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
- return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article>${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(capability.title)}</h3><p data-capability="${id}">${esc(capability.text)}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p></article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
+ return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article>${landing.intro}${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(capability.title)}</h3><p data-capability="${id}">${esc(capability.text)}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p>${landing.links}</article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
 }

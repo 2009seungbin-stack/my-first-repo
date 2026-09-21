@@ -1,4 +1,5 @@
 import {RECIPE_INTENTS,RECIPE_ALIASES} from './tool-registry.js';
+import {LANDINGS,LANDING_PATHS,landingFor} from './landings.js';
 /** One source of truth for landing pages, in-app shortcuts and static entries. */
 const spec=(path,editor,tool,icon,action,accept,next=[])=>({path,editor,tool,icon,action,accept,next});
 export const INTENTS=Object.freeze({
@@ -27,12 +28,14 @@ export const INTENTS=Object.freeze({
  'video-compress':spec('video/compress','media','export','download','media','media',['video-frame','video-mp3','video-gif']),
 });
 export const ALIASES=Object.freeze({...RECIPE_ALIASES,'pixel-art-converter':'refiner','game-asset-refiner':'refiner','sprite-normalizer':'frame-normalize','favicon-maker':'favicon-pack','print-ratio-resizer':'print-pack','image/white-background-remover':'logo-bg','image/transparent-trim':'margin-crop','image/pixel':'pixel','image/target-size':'compress','png-to-webp':'convert','jpg-to-png':'convert','webp-to-jpg':'convert','image/remove-background':'remove-bg'});
-export const ROUTES=Object.freeze([...new Set([...Object.values(INTENTS).map(i=>i.path).filter(Boolean),...Object.keys(ALIASES)])]);
-export function intentFor(path){const p=String(path).replace(/^\/+|\/+$/g,'');return ALIASES[p]||Object.keys(INTENTS).find(k=>INTENTS[k].path===p)||'home';}
+export const ROUTES=Object.freeze([...new Set([...Object.values(INTENTS).map(i=>i.path).filter(Boolean),...Object.keys(ALIASES),...LANDING_PATHS])]);
+export function intentFor(path){const p=String(path).replace(/^\/+|\/+$/g,'');return LANDINGS[p]?.intent||ALIASES[p]||Object.keys(INTENTS).find(k=>INTENTS[k].path===p)||'home';}
 export const isFocused=id=>!['home','image','pdf','media'].includes(id);
 export function accepts(id,kinds){const a=INTENTS[id].accept;return kinds.length>0&&kinds.every(k=>k&&(a==='auto'||a==='pdfImage'&&(k==='pdf'||k==='image')||a===k));}
 export function intentDefaults(id,path='',search=''){
- const q=new URLSearchParams(search),number=(key,fallback,min,max)=>{const n=Number(q.get(key));return q.has(key)&&Number.isFinite(n)?Math.round(Math.min(max,Math.max(min,n))):fallback;};
+ // A landing page's preset (format, size, dimensions) applies unless the URL overrides it.
+ const land=landingFor(String(path).replace(/^\/+|\/+$/g,'')),q=new URLSearchParams(land?.intent===id?land.query:'');for(const [k,v]of new URLSearchParams(search))q.set(k,v);
+ const number=(key,fallback,min,max)=>{const n=Number(q.get(key));return q.has(key)&&Number.isFinite(n)?Math.round(Math.min(max,Math.max(min,n))):fallback;};
  const format=['auto','png','jpeg','webp','avif'].includes(q.get('format'))?q.get('format'):q.get('format')==='jpg'?'jpeg':path==='png-to-webp'?'webp':path==='jpg-to-png'?'png':path==='webp-to-jpg'||id==='heic'?'jpeg':id==='compress'?'webp':'png';
  return {scaleMode:['pixel','sr'].includes(q.get('scaleMode'))?q.get('scaleMode'):'smooth',quality:number('quality',92,25,100),shrink:q.get('shrink')==='1',colors:number('colors',16,2,256),dither:q.has('dither')&&Number.isFinite(Number(q.get('dither')))?Math.max(0,Math.min(1,Number(q.get('dither')))):0,outline:number('outline',0,0,4),fit:['contain','cover','stretch'].includes(q.get('fit'))?q.get('fit'):'contain',trim:q.get('trim')!=='0',color:/^#[a-f0-9]{6}$/i.test(q.get('color'))?q.get('color'):'#ffffff',tolerance:number('tolerance',40,0,441),format,kb:number('kb',id==='compress'?500:0,0,32768),width:number('w',0,0,65535),height:number('h',0,0,65535),scale:number('scale',2,2,4)===4?4:2,n:number('n',32,8,512),background:['portrait','general'].includes(q.get('mode'))?q.get('mode'):'solid',mediaFormat:id==='video-mp3'?'mp3':id==='video-gif'?'gif':'webm',pdfFormat:id==='pdf-to-jpg'?'jpeg':'pdf',range:/^[0-9,\s-]{1,256}$/.test(q.get('pages')||'')?q.get('pages'):''};
 }

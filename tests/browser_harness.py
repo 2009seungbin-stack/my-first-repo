@@ -15,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 p=argparse.ArgumentParser();p.add_argument('--in-memory',action='store_true');args=p.parse_args()
 checks=[];errors=[]
-MODULES=['brand','search-terms','example-data','tool-registry','tool-messages','messages','i18n','intents','analytics','core','primitives','platform-presets','worker','audio-worker','recipe-worker','image','pdf','media','ui','examples','content','seo','site-content','recipes','presets','quota','entitlement','toolkit','experience','app']
+MODULES=['brand','search-terms','example-data','tool-registry','tool-messages','messages','i18n','landings','intents','analytics','core','primitives','platform-presets','worker','audio-worker','recipe-worker','image','pdf','media','ui','examples','content','seo','site-content','recipes','presets','quota','entitlement','toolkit','experience','app']
 SOURCES={n:(ROOT/'src'/f'{n}.js').read_text(encoding='utf-8') for n in MODULES}
 def ok(name,condition=True):
  assert condition,name
