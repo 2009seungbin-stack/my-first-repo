@@ -79,8 +79,11 @@ export function mount({el,def}){
    $('#uiSide').innerHTML=`<p class="hint">${esc(T('needImageHint'))}</p>`;
    return;
   }
+  // Re-rendering the side panel must not collapse Advanced under the user's hands.
+  const open=$('#optionsAdvanced')?.open;
   $('#uiBoard').innerHTML=view.board();
   $('#uiSide').innerHTML=view.side();
+  if(open){const details=$('#optionsAdvanced');if(details)details.open=true;}
   view.paint?.();
  }
  const refresh=()=>{if(source||!needsImage(stage))paintStage();};
@@ -452,7 +455,10 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
 <tbody>${missing.slice(0,300).map(m=>`<tr><td class="ui-char">${esc(m.char)}</td><td>${m.codepoint.toString(16).toUpperCase().padStart(4,'0')}</td><td>${m.count}</td><td>${m.lines.join(', ')}</td></tr>`).join('')}</tbody></table>`
    :`<p class="ui-good">${esc(T('missingNone',{used}))}</p>`}</div>`;
   const summary=$('#glyphSummary');
-  if(summary)summary.innerHTML=`<div class="summary-big">${body?missing.length:'—'}</div><div class="summary-line">${esc(T('glyphSummaryLine',{have:have.size,used}))}</div>`;
+  if(summary){
+   summary.className=body&&missing.length?'summary warn':'summary';
+   summary.innerHTML=(body?`<div class="summary-big">${missing.length}</div>`:'')+`<div class="summary-line">${esc(T('glyphSummaryLine',{have:have.size,used}))}</div>`;
+  }
  }
  function paintSizes(host){
   const c=S.check,screen=LAY.SCREENS.find(s=>s.id===c.screen)||LAY.SCREENS[1],ratio=LAY.ASPECTS.find(a=>a.id===c.aspect).ratio;
@@ -776,6 +782,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const input=e.target;
   if(input.dataset.opt){
    const path=readOption(input);
+   // Detection settings describe how elements are found, so they have to be found again.
+   if(['atlas.merge','atlas.minArea','atlas.threshold'].includes(path))S.atlas.elements=null;
    if(['font.mode','check.tab','check.safe','font.sdf'].includes(path))refresh();
    else VIEWS[stage].paint?.();
    return;
