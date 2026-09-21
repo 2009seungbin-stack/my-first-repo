@@ -20,7 +20,9 @@ export function configuration(env=process.env){
  if(client&&Object.keys(slots).length&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
  const searchVerification=preview?'':env.GOOGLE_SITE_VERIFICATION||BRAND.searchVerification;
  if(searchVerification&&!/^[A-Za-z0-9_-]{1,256}$/.test(searchVerification))throw Error('Invalid Google verification token');
- const indexNowKey=preview?'':env.INDEXNOW_KEY||'';
+ const indexNowKey=preview?'':env.INDEXNOW_KEY||BRAND.indexNowKey||'';
+ const naverVerification=preview?'':env.NAVER_SITE_VERIFICATION||BRAND.naverVerification||'',bingVerification=preview?'':env.BING_SITE_VERIFICATION||BRAND.bingVerification||'';
+ for(const [name,value] of [['NAVER_SITE_VERIFICATION',naverVerification],['BING_SITE_VERIFICATION',bingVerification]])if(value&&!/^[A-Za-z0-9_-]{1,256}$/.test(value))throw Error(`Invalid ${name} token`);
  if(indexNowKey&&!/^[A-Za-z0-9-]{8,128}$/.test(indexNowKey))throw Error('INDEXNOW_KEY must be 8-128 letters, digits or hyphens');
  // Accounts, Free/Pro and the /api/v1 Worker are opt-in: a build without SERVICE_API=on is
  // the unchanged static site, so merging this code cannot alter production by itself.
@@ -41,7 +43,7 @@ export function configuration(env=process.env){
   if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
   redirectTo=u.origin;
  }
- return {siteURL,preview,client,slots,verificationClient,searchVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo,webAnalytics};
+ return {siteURL,preview,client,slots,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';

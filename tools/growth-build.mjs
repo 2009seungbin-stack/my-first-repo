@@ -6,7 +6,7 @@ import {LOCALES} from '../src/i18n.js';
 import {pagePath} from '../src/seo.js';
 import {esc} from '../src/ui.js';
 export function verificationHead(config={}) {
-  return config.searchVerification?`<meta name="google-site-verification" content="${esc(config.searchVerification)}">`:'';
+  return [['google-site-verification',config.searchVerification],['naver-site-verification',config.naverVerification],['msvalidate.01',config.bingVerification]].filter(([,v])=>v).map(([name,v])=>`<meta name="${name}" content="${esc(v)}">`).join('');
 }
 export function imageSitemap(siteURL) {
   const rows=siteURL?Object.entries(EXAMPLES).filter(([id])=>mayPromote(id)).flatMap(([id,e])=>LOCALES.map(l=>`<url><loc>${esc(new URL(pagePath(INTENTS[id].path,l),siteURL).href)}</loc>${['before','after'].map(k=>`<image:image><image:loc>${esc(new URL('assets/examples/'+e[k].file,siteURL).href)}</image:loc></image:image>`).join('')}</url>`)).join(''):'';
