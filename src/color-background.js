@@ -1,3 +1,11 @@
+/** The most common colour among the border pixels: what a product shot's backdrop, or a sprite
+ * sheet's colour key, nearly always is. Takes a canvas because only the four edges are read. */
+export function borderColor(c){
+ const w=c.width,h=c.height,ctx=c.getContext('2d',{willReadFrequently:true}),counts=new Map();let best=null,top=0;
+ const take=d=>{for(let i=0;i<d.length;i+=4){if(d[i+3]<8)continue;const k=(d[i]>>3<<10)|(d[i+1]>>3<<5)|(d[i+2]>>3),e=counts.get(k)||[0,0,0,0];e[0]++;e[1]+=d[i];e[2]+=d[i+1];e[3]+=d[i+2];counts.set(k,e);if(e[0]>top){top=e[0];best=e;}}};
+ take(ctx.getImageData(0,0,w,1).data);take(ctx.getImageData(0,h-1,w,1).data);take(ctx.getImageData(0,0,1,h).data);take(ctx.getImageData(w-1,0,1,h).data);
+ return best?[1,2,3].map(i=>Math.round(best[i]/best[0])):[255,255,255];
+}
 /** Border-connected scanline flood fill; bitset visitation, no full-image uint32 queue. */
 export function removeColorBackground(data,w,h,color,tolerance,{inPlace=false}={}){
  if(data.length!==w*h*4||!Number.isFinite(tolerance)||tolerance<0)throw Error('Invalid background-removal input');
