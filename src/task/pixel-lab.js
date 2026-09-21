@@ -449,6 +449,8 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   if(file.size>1_000_000){toast(T('paletteTooBig'),{error:true});return;}
   importPalette(await file.text(),file.name);
  });
+ // A colour picker fires 'input' continuously, so the undo snapshot is taken once, when it opens.
+ el.addEventListener('focusin',e=>{if(e.target.dataset?.action==='plab-edit')pushHistory();});
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('toggle',e=>{if(e.target.dataset?.panel==='io')o.showIO=e.target.open;},true);
  el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone,.frame-chip')){e.preventDefault();e.target.click();}});
