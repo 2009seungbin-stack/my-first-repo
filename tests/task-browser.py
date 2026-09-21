@@ -77,6 +77,44 @@ with sync_playwright() as pw:
     ok('social preset gives exact dimensions big',page.locator('#taskSummary .summary-big').inner_text()=='1280 × 720')
     with page.expect_download() as d:page.locator('#taskDownload').click()
     ok('social preset output is exactly 1280x720',Image.open(d.value.path()).size==(1280,720))
+    # --- PDF organiser (merge / split) ---
+    def pdf(pages,label):
+        ims=[]
+        for i in range(pages):
+            im=Image.new('RGB',(620,877),'white');px=im.load()
+            for x in range(60,560):
+                for y in range(100+i*40,110+i*40):px[x,y]=(20,40,160)
+            ims.append(im)
+        b=io.BytesIO();ims[0].save(b,'PDF',save_all=True,append_images=ims[1:]);return {'name':label+'.pdf','mimeType':'application/pdf','buffer':b.getvalue()}
+    count=lambda n:page.wait_for_function('n=>document.querySelectorAll(".pg").length===n',arg=n,timeout=90000)
+    page.goto(BASE+'/ko/pdf/merge/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[pdf(3,'b-report'),pdf(2,'a-cover'),FILES[1]]);count(6)
+    ok('merge shows every page of every file, images included',page.locator('.pg-src').all_inner_texts()[:6]==['A','A','A','B','B','C'] and page.locator('#pdfSummary .summary-big').inner_text()=='6쪽')
+    page.wait_for_function('()=>[...document.querySelectorAll(".pg img")].every(i=>i.src)',timeout=60000);ok('thumbnails render',True)
+    page.locator('.pg').nth(1).click();page.locator('.pg').nth(3).click(modifiers=['Control'])
+    ok('multi-select with Ctrl',page.locator('.pg.is-selected').count()==2)
+    page.locator('[data-action="pdf-delete"]').click();count(4);page.keyboard.press('Control+z');count(6);ok('delete and undo',True)
+    page.locator('.pg').nth(5).drag_to(page.locator('.pg').nth(0),target_position={'x':5,'y':60});page.wait_for_timeout(300)
+    ok('drag to reorder',page.locator('.pg-src').all_inner_texts()[0]=='C')
+    page.locator('[data-action="pdf-sort"]').click();page.wait_for_timeout(200)
+    ok('sort files A–Z regroups pages',page.locator('.pg').evaluate_all('ns=>ns.map(n=>n.querySelector(".pg-src").title)')[:2]==['a-cover.pdf','a-cover.pdf'])
+    page.locator('.pg').first.locator('[data-action="pg-rotate"]').click();page.wait_for_timeout(200)
+    with page.expect_download() as d:page.locator('#pdfRun').click()
+    merged=d.value.path()
+    ok('merge downloads one PDF and shows the result',d.value.suggested_filename.endswith('-merged.pdf') and os.path.getsize(merged)>1000 and page.locator('#pdfResult').is_visible())
+    facts=page.evaluate('''async b64=>{const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js'),d=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));return {pages:d.getPageCount(),rotation:d.getPage(0).getRotation().angle}}''',base64.b64encode(open(merged,'rb').read()).decode())
+    ok('merged PDF really has 6 pages and the rotation',facts=={'pages':6,'rotation':90},str(facts))
+    page.goto(BASE+'/en/pdf/split/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=[pdf(5,'book')]);count(5)
+    ok('split defaults to one file per page',page.locator('#pdfRun').inner_text().startswith('Split into 5'))
+    page.locator('[data-mode="every"]').click();page.wait_for_timeout(200);ok('every 2 pages → 3 files with visible markers',page.locator('#pdfRun').inner_text().startswith('Split into 3') and page.locator('.pg[data-part]').count()==3)
+    page.locator('[data-mode="ranges"]').click();page.fill('#pdfRanges','1-2; 9');page.wait_for_timeout(200);ok('bad ranges block the run with a reason',page.locator('#pdfRun').is_disabled())
+    page.fill('#pdfRanges','1-2; 3-5');page.wait_for_timeout(200)
+    with page.expect_download() as d:page.locator('#pdfRun').click()
+    z=zipfile.ZipFile(d.value.path());ok('split writes one PDF per range',z.namelist()==['book-split-1.pdf','book-split-2.pdf'] and all(z.read(n)[:5]==b'%PDF-' for n in z.namelist()))
+    page.locator('[data-mode="selected"]').click();ok('extract needs a selection',page.locator('#pdfRun').is_disabled())
+    page.locator('.pg').nth(4).click();
+    with page.expect_download() as d:page.locator('#pdfRun').click()
+    ok('extract selected pages as one PDF',d.value.suggested_filename=='book-split-1.pdf')
     # --- target size preset from a landing page ---
     page.goto(BASE+'/en/image/compress-to-100kb/',wait_until='networkidle')
     ok('landing preset opens advanced with its target',page.locator('#fileInput').count()==1)
