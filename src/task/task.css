@@ -134,3 +134,35 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 @media(hover:none){.frame-chip button{opacity:1}.pg-actions{opacity:1}}
 @media(max-width:860px){.pages{max-height:none;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.work{grid-template-columns:1fr}.viewer{position:static}.cmp{max-height:46vh}}
 @media(max-width:600px){.page{padding:0 16px 32px}.page-header{padding:14px 16px}.page-header .local-pill{display:none}.dropzone{padding:34px 18px}.home-drop{flex-direction:column;align-items:stretch;text-align:center}.home-drop .primary{width:100%}.field-row{grid-template-columns:1fr}.tool-grid{grid-template-columns:1fr}}
+/* Tile Lab (src/task/tile-lab.js): stage bar + pixel boards that must never smooth a tile. */
+.tl-work>.tl-stages{grid-column:1/-1}
+.tl-stages{display:flex;gap:6px;overflow-x:auto;padding:2px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.tl-stages button{flex:none;border:1px solid #e1e7ef;border-radius:11px;padding:9px 13px;font-size:13px;font-weight:750;color:#51647d;background:#fff;white-space:nowrap}
+.tl-stages button:hover{background:#f3f6fa}.tl-stages [aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.tl-stage{display:grid;place-items:center;overflow:auto;padding:10px;border-radius:14px;background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;max-height:60vh}
+.tl-stage.small{max-height:34vh}
+.tl-sheet{position:relative;max-width:100%}.tl-sheet canvas{display:block;width:100%;height:auto}
+.tl-sheet svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.tl-sheet svg rect{fill:none;stroke:#3182f6;stroke-width:1;vector-effect:non-scaling-stroke;opacity:.7}
+.tl-sheet svg .tl-cell{stroke:#12925f;opacity:.85}.tl-sheet svg .tl-bit{fill:#0b1425cc;stroke:#eef6ef;stroke-width:.5;opacity:1}
+.tl-sheet svg text{fill:#eef6ef;paint-order:stroke;stroke:#0b1425aa;stroke-width:2.2;font-weight:800;text-anchor:middle;dominant-baseline:central;font-family:ui-monospace,Consolas,monospace}
+.tl-fit{max-width:100%;height:auto}
+.tl-paint{touch-action:none;cursor:crosshair}.tl-paint:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.tl-cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px}
+.tl-cand{display:block;text-align:left;border:1px solid #e1e7ef;border-radius:12px;padding:9px 10px;background:#fff}
+.tl-cand:hover{background:#f6f9fd}.tl-cand[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.tl-cand b{display:inline-block;font-size:14px;font-weight:850;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.tl-score{float:right;font-size:11.5px;font-weight:800;color:#12925f;font-variant-numeric:tabular-nums}
+.tl-cand small{display:block;font-size:11px;color:#6b7a90;font-weight:600;margin-top:3px;line-height:1.45}
+.tl-ev{display:flex;flex-wrap:wrap;gap:4px 8px}.tl-ev i{font-style:normal;font-size:10.5px;color:#7b8798;font-variant-numeric:tabular-nums}
+.tl-ghosts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tl-ghosts figure{margin:0;width:64px;text-align:center}.tl-ghosts canvas{width:48px;height:48px;border-radius:8px;background:#f4f7fb}
+.tl-ghosts figcaption{font-size:10.5px;font-weight:700;color:#51647d;margin-top:3px;line-height:1.35;overflow-wrap:anywhere}
+.tl-ghosts figcaption small{display:block;font-size:10px;font-weight:600;color:#8b97a8}
+.tl-numbers{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;margin:12px 0 0;font-size:12px}
+.tl-numbers dt{color:#7b8798;font-weight:700}.tl-numbers dd{margin:0;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.tl-heat{display:grid;gap:8px;margin-top:12px}.tl-heat>div{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:8px}
+.tl-heat span{font-size:11.5px;font-weight:700;color:#7b8798}.tl-heat canvas{width:100%;height:12px;border-radius:4px}
+.tl-steps{margin:0 0 12px;padding-left:20px;font-size:12.5px;color:#51647d;font-weight:600;line-height:1.7}
+.tl-code{max-height:220px;overflow:auto;background:#0b1425;color:#dbe6f5;border-radius:12px;padding:12px;font:11.5px/1.55 ui-monospace,Consolas,monospace;white-space:pre;margin:0 0 10px}
+@media(max-width:600px){.tl-stage{max-height:44vh;padding:6px}.tl-cands{grid-template-columns:1fr 1fr}.tl-heat>div{grid-template-columns:1fr;gap:2px}.tl-code{max-height:160px}}
