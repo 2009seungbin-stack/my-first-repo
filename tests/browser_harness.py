@@ -21,6 +21,8 @@ def ok(name,condition=True):
  assert condition,name
  checks.append(name);print('PASS',name,flush=True)
 def idle(page):
+ # Single-task pages (src/task) have no #workspace; their checks wait on #taskDownload instead.
+ if page.locator('body.task-page').count():page.wait_for_timeout(150);return
  page.locator('#workspace[aria-busy="false"]').wait_for(timeout=30000)
 def click(page,action,scope=''):
  page.locator(f'{scope} [data-action="{action}"]:visible'.strip()).first.click()

@@ -44,6 +44,14 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .cmp-tag{position:absolute;top:10px;font-size:11px;font-weight:800;background:#000a;color:#fff;border-radius:7px;padding:3px 8px;pointer-events:none}.cmp-tag.l{left:10px}.cmp-tag.r{right:10px}
 .cmp.no-compare .cmp-bar,.cmp.no-compare .cmp-tag,.cmp.no-compare input{display:none}.hint.warning{color:#a15c07;background:#fff6e5;padding:9px 11px;border-radius:10px}
 .cmp.is-pending .cmp-bar,.cmp.is-pending .cmp-tag.r{display:none}.cmp.is-pending::after{content:"";position:absolute;right:12px;top:12px;width:18px;height:18px;border-radius:50%;border:2.5px solid #fff8;border-top-color:var(--blue);animation:spin 1s linear infinite}
+.contents{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-height:64vh;overflow:auto;padding:2px}
+.content{margin:0;display:grid;grid-template-columns:1fr auto;gap:6px 4px;align-items:center;border:1px solid #e6ebf2;border-radius:14px;padding:8px;background:#fbfcfe}
+.content-thumb{grid-column:1/-1;height:120px;border-radius:10px;display:grid;place-items:center;overflow:hidden;background:#fff conic-gradient(#eef2f7 25%,#fff 0 50%,#eef2f7 0 75%,#fff 0) 0 0/16px 16px}
+.content-thumb img{width:100%;height:100%;object-fit:scale-down}.content-thumb.is-file{background:#f4f7fb}.content-thumb.px img{image-rendering:pixelated}
+.content-ext{font-size:12px;font-weight:800;letter-spacing:.06em;color:#51607a;background:#eef2f7;border-radius:8px;padding:6px 10px}
+.content figcaption{min-width:0;display:grid;gap:1px}.content strong{font-size:12px;font-weight:700;color:#1b2536;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.content strong small{font-weight:500;color:#6b7a90}
+.content figcaption span{font-size:11px;color:#6b7a90;font-variant-numeric:tabular-nums}
+.content .icon-btn{width:30px;height:30px;border-radius:9px;color:#51607a;font-size:16px;background:none;border:0;cursor:pointer}.content .icon-btn:hover{background:#eef2f7;color:var(--ink)}
 .viewer-note{font-size:12px;color:#6b7a90;margin:10px 4px 2px;line-height:1.6;font-weight:500}
 .side{padding:18px;display:flex;flex-direction:column;gap:14px}
 .summary{background:#e3f6ee;border-radius:15px;padding:14px 16px}.summary-big{font-size:42px;font-weight:850;letter-spacing:-2px;line-height:1;color:#12925f;font-variant-numeric:tabular-nums}.summary-big.muted{color:#9fb5ab}

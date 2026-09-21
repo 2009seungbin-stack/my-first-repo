@@ -81,6 +81,9 @@ const PALETTE_NAMES={gameboy:'Game Boy',pico8:'PICO-8',sweetie16:'Sweetie 16',en
 S.ko.pixel={size:'도트 크기',colors:'색상 수',palette:'팔레트',auto:'이미지에서 자동 추출',custom:'직접 입력…',customHint:'한 줄에 색 하나 (#RRGGBB) 또는 GIMP 팔레트',exact:'정확한 크기 (px)',scale:'내보내기 배율',dither:'디더링',ditherNone:'없음',outline:'외곽선',trim:'투명 여백을 먼저 잘라내기',needPalette:'팔레트 색을 한 줄에 하나씩 입력하세요.',exported:'{w}×{h}로 저장',colorCount:'{n}색',palettes:PALETTE_NAMES};
 S.en.pixel={size:'Sprite size',colors:'Colours',palette:'Palette',auto:'Extract from the image',custom:'Custom…',customHint:'One colour per line (#RRGGBB) or a GIMP palette',exact:'Exact size (px)',scale:'Export scale',dither:'Dithering',ditherNone:'None',outline:'Outline',trim:'Trim transparent margins first',needPalette:'Enter palette colours, one per line.',exported:'saved at {w}×{h}',colorCount:'{n} colours',palettes:PALETTE_NAMES};
 S.ja.pixel={size:'ドットのサイズ',colors:'色数',palette:'パレット',auto:'画像から自動抽出',custom:'自分で入力…',customHint:'1行に1色（#RRGGBB）またはGIMPパレット',exact:'正確なサイズ (px)',scale:'書き出し倍率',dither:'ディザリング',ditherNone:'なし',outline:'アウトライン',trim:'先に透明な余白をトリム',needPalette:'パレットの色を1行に1つ入力してください。',exported:'{w}×{h}で保存',colorCount:'{n}色',palettes:PALETTE_NAMES};
+S.ko.recipe={fit:'비율이 다를 때',noOptions:'이 도구는 설정 없이 바로 결과를 만듭니다.',files:'파일 {n}개',zipNote:'ZIP 안에 파일 {n}개'};
+S.en.recipe={fit:'When the shape differs',noOptions:'This tool needs no settings.',files:'{n} files',zipNote:'{n} files inside the ZIP'};
+S.ja.recipe={fit:'比率が違うとき',noOptions:'このツールは設定なしで結果を作ります。',files:'{n}個のファイル',zipNote:'ZIP内に{n}個のファイル'};
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
