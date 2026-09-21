@@ -1,0 +1,281 @@
+{
+  "probe": {
+    "duration": 6,
+    "w": 1920,
+    "h": 1080,
+    "videoCodec": "avc",
+    "audioCodec": "aac",
+    "audio": true,
+    "container": "MP4",
+    "codecs": [
+      "avc",
+      "vp9",
+      "vp8",
+      "av1"
+    ],
+    "mp4": true,
+    "webCodecs": true,
+    "opfs": true
+  },
+  "enc": {
+    "a_aac": false,
+    "a_opus": true,
+    "a_mp3": false,
+    "a_vorbis": true,
+    "a_pcm-s16": true,
+    "a_flac": false
+  },
+  "cases": [
+    {
+      "name": "fast",
+      "options": {
+        "mode": "fast",
+        "format": "mp4",
+        "start": 1,
+        "end": 4
+      },
+      "report": {
+        "encoderMetadataRepairs": 0,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "keyframe-shrink",
+        "requestedStart": 1,
+        "requestedEnd": 4,
+        "requestedDuration": 3,
+        "durationError": 0,
+        "duration": 3,
+        "w": 1920,
+        "h": 1080,
+        "videoCodec": "avc",
+        "audioCodec": "aac",
+        "audio": true,
+        "container": "MP4",
+        "originalBytes": 11902261,
+        "outputBytes": 5963900,
+        "bitrate": 15903733,
+        "targetMB": 0,
+        "targetMet": null,
+        "storage": "opfs",
+        "elapsedMs": 164,
+        "format": "mp4"
+      },
+      "size": 5963900
+    },
+    {
+      "name": "precise",
+      "options": {
+        "mode": "precise",
+        "format": "mp4",
+        "width": 640,
+        "fps": 24,
+        "start": 1.25,
+        "end": 3.75,
+        "preset": "balanced",
+        "bitrate": 400000
+      },
+      "report": {
+        "encoderMetadataRepairs": 3,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "decode-encode",
+        "requestedStart": 1.25,
+        "requestedEnd": 3.75,
+        "requestedDuration": 2.5,
+        "durationError": 0.04166666666666652,
+        "duration": 2.5416666666666665,
+        "w": 640,
+        "h": 360,
+        "videoCodec": "avc",
+        "audioCodec": "opus",
+        "audio": true,
+        "container": "MP4",
+        "originalBytes": 11902261,
+        "outputBytes": 251840,
+        "bitrate": 792677,
+        "targetMB": 0,
+        "targetMet": null,
+        "storage": "opfs",
+        "elapsedMs": 1230,
+        "format": "mp4"
+      },
+      "size": 251840
+    },
+    {
+      "name": "target",
+      "options": {
+        "mode": "precise",
+        "format": "mp4",
+        "width": 640,
+        "fps": 30,
+        "start": 0,
+        "end": 4,
+        "targetMB": 0.35
+      },
+      "report": {
+        "encoderMetadataRepairs": 3,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "decode-encode",
+        "requestedStart": 0,
+        "requestedEnd": 4,
+        "requestedDuration": 4,
+        "durationError": 0.033333333333333215,
+        "duration": 4.033333333333333,
+        "w": 640,
+        "h": 360,
+        "videoCodec": "avc",
+        "audioCodec": "opus",
+        "audio": true,
+        "container": "MP4",
+        "originalBytes": 11902261,
+        "outputBytes": 373351,
+        "bitrate": 740531,
+        "targetMB": 0.35,
+        "targetMet": false,
+        "storage": "opfs",
+        "elapsedMs": 1573,
+        "format": "mp4"
+      },
+      "size": 373351
+    },
+    {
+      "name": "mp3",
+      "options": {
+        "format": "mp3",
+        "start": 0.5,
+        "end": 4.5,
+        "audioBitrate": 192
+      },
+      "report": {
+        "encoderMetadataRepairs": 0,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "decode-encode",
+        "requestedStart": 0.5,
+        "requestedEnd": 4.5,
+        "requestedDuration": 4,
+        "durationError": 0.03200000000000003,
+        "duration": 4.032,
+        "w": 0,
+        "h": 0,
+        "videoCodec": null,
+        "audioCodec": "mp3",
+        "audio": true,
+        "container": "MP3",
+        "originalBytes": 11902261,
+        "outputBytes": 96936,
+        "bitrate": 192333,
+        "targetMB": 0,
+        "targetMet": null,
+        "storage": "opfs",
+        "elapsedMs": 151,
+        "format": "mp3"
+      },
+      "size": 96936
+    },
+    {
+      "name": "wav",
+      "options": {
+        "format": "wav",
+        "start": 0.5,
+        "end": 4.5,
+        "sampleRate": 44100
+      },
+      "report": {
+        "encoderMetadataRepairs": 0,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "decode-encode",
+        "requestedStart": 0.5,
+        "requestedEnd": 4.5,
+        "requestedDuration": 4,
+        "durationError": 0,
+        "duration": 4,
+        "w": 0,
+        "h": 0,
+        "videoCodec": null,
+        "audioCodec": "pcm-s16",
+        "audio": true,
+        "container": "WAVE",
+        "originalBytes": 11902261,
+        "outputBytes": 352844,
+        "bitrate": 705688,
+        "targetMB": 0,
+        "targetMet": null,
+        "storage": "opfs",
+        "elapsedMs": 116,
+        "format": "wav"
+      },
+      "size": 352844
+    },
+    {
+      "name": "silent",
+      "options": {
+        "mode": "precise",
+        "format": "mp4",
+        "start": 0,
+        "end": 1,
+        "width": 1280,
+        "fps": 60
+      },
+      "report": {
+        "encoderMetadataRepairs": 4,
+        "engine": "Mediabunny 1.58.1 / WebCodecs",
+        "mode": "decode-encode",
+        "requestedStart": 0,
+        "requestedEnd": 1,
+        "requestedDuration": 1,
+        "durationError": 0.016666666666666607,
+        "duration": 1.0166666666666666,
+        "w": 1280,
+        "h": 720,
+        "videoCodec": "avc",
+        "audioCodec": null,
+        "audio": false,
+        "container": "MP4",
+        "originalBytes": 480611,
+        "outputBytes": 691526,
+        "bitrate": 5441516,
+        "targetMB": 0,
+        "targetMet": null,
+        "storage": "opfs",
+        "elapsedMs": 519,
+        "format": "mp4"
+      },
+      "size": 691526
+    },
+    {
+      "name": "frame4k",
+      "options": {
+        "time": 1,
+        "format": "png"
+      },
+      "report": {
+        "w": 3840,
+        "h": 2160,
+        "timestamp": 1,
+        "engine": "WebCodecs",
+        "format": "image/png"
+      },
+      "size": 1151586
+    },
+    {
+      "name": "gif",
+      "options": {
+        "start": 0,
+        "end": 2,
+        "width": 640,
+        "fps": 12,
+        "colors": 128,
+        "dither": 0
+      },
+      "report": {
+        "engine": "WebCodecs / gifenc",
+        "frames": 24,
+        "width": 640,
+        "fps": 12,
+        "elapsedMs": 1125,
+        "outputBytes": 391507,
+        "streamingFrames": true,
+        "streamingOutput": true,
+        "outputBackend": "opfs"
+      },
+      "size": 391507
+    }
+  ]
+}
