@@ -8,11 +8,14 @@ decoded sheet; nothing is re-uploaded between them and nothing leaves the device
 The point of the Lab is the thing an artist normally only discovers inside Godot or Tiled: *do my
 terrain rules actually work, and which tiles am I still missing?*
 
-Pure logic lives in `src/game/tile-grid.js`, `src/game/autotile.js`, `src/game/seams.js` and
-`src/game/godot-tileset.js`, `src/game/tile-collision.js` (no DOM), with `node:test` coverage in `tests/game-tile-grid.test.mjs`
-(14), `tests/game-autotile.test.mjs` (9), `tests/game-seams.test.mjs` (4),
-`tests/game-godot.test.mjs` (6) and `tests/game-collision.test.mjs` (8). Browser coverage is the Tile Lab block in `tests/task-browser.py`
-and the two ported checks in `tests/recipes-browser.py`.
+Pure logic lives in `src/game/tile-grid.js`, `src/game/autotile.js`, `src/game/seams.js`,
+`src/game/godot-tileset.js` and `src/game/tile-collision.js` — no DOM, no canvas, no application
+state — with `node:test` coverage in `tests/game-tile-grid.test.mjs` (14),
+`tests/game-autotile.test.mjs` (9), `tests/game-seams.test.mjs` (4), `tests/game-godot.test.mjs`
+(6) and `tests/game-collision.test.mjs` (8). The page module only orchestrates, and the padded
+atlas goes through the shared `src/atlas.js` engine. Browser coverage is the Tile Lab block in
+`tests/task-browser.py` (107 checks in that suite in total) and the two ported tile checks in
+`tests/recipes-browser.py`.
 
 ## Routes
 
@@ -22,8 +25,8 @@ and the two ported checks in `tests/recipes-browser.py`.
 | `game/tileset-slicer` | grid stage | slice a sheet into tiles + JSON |
 | `game/autotile-tester` | tester stage | paint terrain, rules pick tiles |
 | `game/seamless-tile-checker` | seams stage | one texture; the default tile is the whole image |
-| `game/tile-helper` (`tile-grid-slicer`) | grid stage | pre-existing id, URL unchanged |
-| `game/atlas-padding` (`atlas-edge-extrusion`) | grid stage, extrude = 2 | pre-existing id, URL unchanged |
+| `tile-grid-slicer` (id `tile-helper`) | grid stage | pre-existing id and URL, unchanged |
+| `atlas-padding` | grid stage with extrude = 2 | pre-existing id and URL, unchanged |
 
 `?stage=`, `?kind=`, `?tileWidth=`, `?tileHeight=`, `?marginX=`, `?spacingX=`, `?gridSize=` and
 `?seed=` are shareable presets. Image data is never put in a URL.
@@ -306,3 +309,7 @@ same `Builder.build()` the menu item calls.
 * Multi-terrain transitions (grass → sand → water in one set) are not modelled anywhere.
 * Unity/Tiled exports do not exist. Only the Godot 4 helper does.
 * Near-duplicate detection is a pixel threshold, not perceptual.
+* The Lab reads its URL presets but only writes `stage` back: there is no "copy a link to this
+  setup" button yet.
+* Above 4 megapixels the grid is not measured at all (the tile size is typed in); the slicer,
+  templates, tester and Godot export still work there.

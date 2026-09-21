@@ -18,8 +18,8 @@ const engines = {
  'mask-packer':'sequential row-transfer channel packing / incremental PNG', 'atlas-padding':'nine-blit nearest edge extrusion',
  'texture-map':'overlapped tiles / luminance height gradient', 'tile-helper':'exact grid region copy',
  'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO',
- 'tile-lab':'line-profile grid scoring / exact region copy / autotile rule tables',
- 'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing',
+ 'tile-lab':'folded transition-profile period scoring / exact region copy / autotile rule tables / alpha collision shapes',
+ 'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing / run-merged collision rectangles',
  'autotile-tester':'8-neighbour mask tables (3×3 minimal, 16 Wang, 47 blob) / nearest-neighbour render',
  'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend'
 };
