@@ -86,8 +86,11 @@ export function makeSeamless(data,w,h,{blendX=null,blendY=null}={}){
  const moved=offsetHalf(data,w,h);
  return blendAxis(blendAxis(moved,w,h,'x',bx),w,h,'y',by);
 }
-/** Values a heatmap can draw directly: 0..1 per line, relative to the worst line. */
-export function heatmap(profile){
+/** Values a heatmap can draw directly: 0..1 per line. The scale is a caller-supplied reference —
+ * normally the mean difference between ordinary neighbouring lines — because normalising against
+ * the worst line of the profile paints a perfectly seamless tile bright red. */
+export function heatmap(profile,{reference=null}={}){
  let max=0;for(const v of profile)if(v>max)max=v;
- return {max,values:Float64Array.from(profile,v=>max?clamp(v/max,0,1):0)};
+ const scale=reference===null?max:Math.max(reference,1e-6);
+ return {max,reference:scale,values:Float64Array.from(profile,v=>scale?clamp(v/scale,0,1):0)};
 }

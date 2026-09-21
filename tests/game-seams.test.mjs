@@ -57,8 +57,13 @@ test('edge matching answers which tile goes next to which',()=>{
  assert.throws(()=>edgeMatch(a,b,'middle'),/Unknown side/);
  assert.deepEqual([...SIDES].sort(),['bottom','left','right','top']);
 });
-test('a heatmap is normalised against its own worst line',()=>{
+test('a heatmap is drawn against a reference, not against its own worst line',()=>{
  const h=heatmap(Float64Array.from([0,5,10]));
  assert.equal(h.max,10);assert.deepEqual([...h.values],[0,.5,1]);
  assert.deepEqual([...heatmap(Float64Array.from([0,0])).values],[0,0]);
+ // A tile with a small but perfectly even seam must not light up: with the ordinary neighbour
+ // difference as the reference, "as different as any two neighbouring lines" reads as 1, not 255.
+ const even=heatmap(Float64Array.from([2,2,2]),{reference:40});
+ assert.deepEqual([...even.values],[.05,.05,.05]);assert.equal(even.reference,40);
+ assert.deepEqual([...heatmap(Float64Array.from([80,20]),{reference:40}).values],[1,.5]);
 });

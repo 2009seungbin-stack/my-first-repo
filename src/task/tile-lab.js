@@ -28,7 +28,7 @@ export function mount({el,def}){
  const o={
   tileWidth:16,tileHeight:16,marginX:0,marginY:0,spacingX:0,spacingY:0,
   lines:true,zoom:2,skipBlank:true,dedupe:'none',nearMean:2,variants:false,extrude:route.id==='atlas-padding'?2:0,
-  kind:'blob47',templateSize:32,offset:0,source:'sheet',outside:false,gridLines:true,mapZoom:3,gridSize:16,seed:1234,brush:'paint',
+  kind:'blob47',templateSize:32,offset:0,source:'template',sourcePinned:false,outside:false,gridLines:true,mapZoom:3,gridSize:16,seed:1234,brush:'paint',
   seamIndex:0,repeat:2,healed:false,blend:0,matchIndex:1,
   terrainName:'Terrain',mode:''
  };
@@ -54,7 +54,7 @@ export function mount({el,def}){
   if(!src)return;
   try{grid=tileRects({width:src.width,height:src.height,tileWidth:o.tileWidth,tileHeight:o.tileHeight,marginX:o.marginX,marginY:o.marginY,spacingX:o.spacingX,spacingY:o.spacingY});}
   catch(error){grid={error:error.message||String(error),rects:[],cols:0,rows:0,count:0};}
-  tiles.clear();hashes=null;
+  tiles.clear();hashes=null;pickSource();
  }
  /* Tile pixels are cropped on demand and cached by index, never kept as N full copies. */
  const tiles=new Map();
@@ -101,9 +101,12 @@ export function mount({el,def}){
    ctx.font=`600 ${f}px ui-monospace,Consolas,monospace`;ctx.textBaseline='top';
    ctx.fillStyle='#0b1425aa';ctx.fillRect(1,1,ctx.measureText(String(slot.index)).width+4,f+3);
    ctx.fillStyle=MARK;ctx.fillText(String(slot.index),3,2);
-   ctx.font=`500 ${Math.max(6,Math.round(size/5.6))}px ui-monospace,Consolas,monospace`;
-   const name=slot.name;ctx.fillStyle='#0b1425aa';const wd=ctx.measureText(name).width+4;
-   ctx.fillRect(size-wd-1,size-f-2,wd,f+1);ctx.fillStyle=MARK;ctx.fillText(name,size-wd+1,size-f-1);
+   // The mask name is as long as the neighbourhood is complex, so shrink it until it fits the
+   // cell instead of letting slot 46 write over slot 47.
+   let fs=Math.max(5,Math.round(size/5.6)),wd=0;
+   for(;;){ctx.font=`500 ${fs}px ui-monospace,Consolas,monospace`;wd=ctx.measureText(slot.name).width;if(wd<=size-6||fs<=5)break;fs--;}
+   ctx.fillStyle='#0b1425aa';ctx.fillRect(size-wd-4,size-fs-4,wd+3,fs+3);
+   ctx.fillStyle=MARK;ctx.fillText(slot.name,size-wd-2,size-fs-3);
   }
   ctx.restore();
  }
@@ -114,6 +117,10 @@ export function mount({el,def}){
   for(const slot of l.slots)drawSlot(ctx,slot,slot.col*size,slot.row*size,size,{labels});
   return c;
  }
+ /** The sheet can only stand in for the layout when it actually holds that many tiles; until the
+  * person chooses, a 12-tile sheet under a 47-slot rule set shows the template instead of 35
+  * red holes. */
+ function pickSource(){if(!o.sourcePinned)o.source=grid?.count>=layout().count?'sheet':'template';}
  /** Where each slot's pixels live: either in the sheet (offset into the grid) or in template art. */
  function tileArt(){
   if(art)return art;
@@ -211,17 +218,24 @@ ${report.missing.length?`<div class="view-head"><strong>${esc(T('ghost'))}</stro
 <div class="tl-ghosts">${report.missing.map(s=>`<figure><canvas class="px" data-ghost="${s.index}" width="48" height="48"></canvas><figcaption>${s.index} · ${esc(s.name)}<small>${esc(T('roles.'+s.role))}</small></figcaption></figure>`).join('')}</div>`:''}
 <div class="view-head"><strong>${esc(T('preview'))}</strong><span id="tlPreviewInfo"></span></div><div class="tl-stage small"><canvas id="tlPreview" class="px tl-fit"></canvas></div>`;
  }
+ /** The verdict and the numbers, rebuilt in place so changing the tile number does not rebuild
+  * the form under the person's cursor. */
+ function seamVerdict(r){
+  return `<div class="summary-big${r&&!r.report.seamless?' muted':''}">${r?(r.report.seamless?'✓':'✕'):'—'}</div>
+<div class="summary-line">${r?esc(r.report.seamless?T('seamlessYes'):T('seamlessNo')):esc(T('needTile'))}</div>`;
+ }
+ const seamNumbers=r=>!r?'':`<dt>${esc(T('diffH'))}</dt><dd>${num(r.report.horizontal.mean)} · ${esc(T('ratio',{n:num(r.report.horizontal.ratio)}))}</dd>
+<dt>${esc(T('diffV'))}</dt><dd>${num(r.report.vertical.mean)} · ${esc(T('ratio',{n:num(r.report.vertical.ratio)}))}</dd>
+<dt>${esc(T('neighbour'))}</dt><dd>${num(r.report.horizontal.neighbourMean)} / ${num(r.report.vertical.neighbourMean)}</dd>`;
+ const seamMatch=r=>!r?.match?'':r.match.map(m=>`<dt>${esc(T('sides.'+m.side))}</dt><dd>${num(m.mean)} · ${esc(m.fits?T('fits'):T('notFit'))}</dd>`).join('');
  function seamsSide(){
   const r=seamStats();
-  return `<div class="summary"><div class="summary-big${r&&!r.report.seamless?' muted':''}">${r?(r.report.seamless?'✓':'✕'):'—'}</div>
-<div class="summary-line">${r?esc(r.report.seamless?T('seamlessYes'):T('seamlessNo')):esc(T('needTile'))}</div></div>
+  return `<div class="summary" id="tlSeamSummary" role="status" aria-live="polite">${seamVerdict(r)}</div>
 <form class="options" autocomplete="off">${field('seamIndex',0,Math.max(0,(grid?.count||1)-1))}
 <span class="opt-label">${esc(T('repeat'))}</span>${seg('repeat',[2,3],v=>v+'×'+v)}
-${r?`<dl class="tl-numbers"><dt>${esc(T('diffH'))}</dt><dd>${num(r.report.horizontal.mean)} · ${esc(T('ratio',{n:num(r.report.horizontal.ratio)}))}</dd>
-<dt>${esc(T('diffV'))}</dt><dd>${num(r.report.vertical.mean)} · ${esc(T('ratio',{n:num(r.report.vertical.ratio)}))}</dd>
-<dt>${esc(T('neighbour'))}</dt><dd>${num(r.report.horizontal.neighbourMean)} / ${num(r.report.vertical.neighbourMean)}</dd></dl>`:''}
+<dl class="tl-numbers" id="tlSeamNumbers">${seamNumbers(r)}</dl>
 <details class="options-advanced"><summary>${esc(text('advanced'))}</summary><p class="viewer-note">${esc(T('healNote'))}</p>${field('blend',0,64)}
-${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}${r?.match?`<dl class="tl-numbers">${r.match.map(m=>`<dt>${esc(T('sides.'+m.side))}</dt><dd>${num(m.mean)} · ${esc(m.fits?T('fits'):T('notFit'))}</dd>`).join('')}</dl>`:''}</details></form>
+${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}<dl class="tl-numbers" id="tlSeamMatch">${seamMatch(r)}</dl></details></form>
 <button type="button" class="primary big" id="taskDownload" data-action="tl-heal-save" ${r?'':'disabled'}>${esc(T('healSave'))}</button><small class="local-note">${esc(text('local'))}</small>`;
  }
  function seamsBoard(){
@@ -240,8 +254,9 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
  }
  function exportBoard(){
   if(!grid?.rects.length)return `<p class="hint warning">${esc(T('needGrid'))}</p>`;
-  const pack=godotPack();
+  const pack=godotPack(),short=layout().count-pack.json.tileSet.tiles.length;
   return `<div class="board-bar"><span class="board-count">${esc(T('count',{n:pack.json.tileSet.tiles.length}))} → TileSet</span></div>
+${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().count}))}</p>`:''}
 <ol class="tl-steps">${godotReadme(pack.json).steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
 <pre class="tl-code" tabindex="0">${esc(JSON.stringify(pack.json,null,1).slice(0,2600))}</pre>
 <pre class="tl-code" tabindex="0">${esc(pack.script.slice(0,2600))}</pre>`;
@@ -381,6 +396,8 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
   const cv=q('#tlRepeat');if(!cv)return;
   const s=seamStats();
   const info=q('#tlSeamInfo');
+  for(const [sel,html] of [['#tlSeamSummary',seamVerdict(s)],['#tlSeamNumbers',seamNumbers(s)],['#tlSeamMatch',seamMatch(s)]]){const box=q(sel);if(box)box.innerHTML=html;}
+  const save=q('#taskDownload');if(save)save.disabled=!s;
   if(!s){cv.width=cv.height=1;if(info)info.textContent=T('needTile');return;}
   const {w,h}=s.tile,n=o.repeat,src2=Im.canvas(w,h);
   src2.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(s.tile.shown),w,h),0,0);
@@ -392,14 +409,17 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
   if(info)info.textContent=`#${o.seamIndex} · ${w}×${h} · ${n}×${n}`;
   for(const [id,profile,vertical] of [['#tlHeatH',s.report.horizontal.profile,true],['#tlHeatV',s.report.vertical.profile,false]]){
    const strip=q(id);if(!strip)continue;
-   const map=heatmap(profile);strip.width=profile.length;strip.height=12;
+   // Scaled against the difference between ordinary neighbouring lines inside the tile, so a
+   // seamless tile stays cool instead of glowing red at its own tiny maximum.
+   const reference=Math.max(8,(vertical?s.report.horizontal:s.report.vertical).neighbourMean*2);
+   const map=heatmap(profile,{reference});strip.width=profile.length;strip.height=12;
    const c=strip.getContext('2d');c.clearRect(0,0,strip.width,12);
    for(let i=0;i<profile.length;i++){
     const v=map.values[i];
     c.fillStyle=`rgb(${Math.round(40+215*v)},${Math.round(120-80*v)},${Math.round(110-70*v)})`;
     c.fillRect(i,0,1,12);
    }
-   strip.setAttribute('aria-label',`${vertical?T('diffH'):T('diffV')} ${num(map.max,0)}`);
+   strip.setAttribute('aria-label',`${vertical?T('diffH'):T('diffV')} ${num(map.max,0)} / ${num(map.reference,0)}`);
   }
  }
  function godotPack(){
@@ -445,8 +465,12 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
    let keep=grid.rects.filter(r=>!blank.has(r.index));
    const aliases=new Map();
    if(o.dedupe!=='none'&&data){
-    const groups=o.dedupe==='exact'||grid.count>2048?duplicateGroups(tileHashes())
-     :nearDuplicateGroups(grid.rects.map(r=>tileData(r.index)),{maxMean:o.nearMean}).map(g=>g.indices);
+    // Only tiles that are actually written can alias each other: skipped blanks are all
+    // identical, and listing them as duplicates of one another says nothing.
+    const kept=keep.map(r=>r.index),hashList=tileHashes();
+    const groups=o.dedupe==='exact'||kept.length>2048
+     ?duplicateGroups(kept.map(i=>hashList[i])).map(g=>g.map(i=>kept[i]))
+     :nearDuplicateGroups(kept.map(i=>tileData(i)),{maxMean:o.nearMean}).map(g=>g.indices.map(i=>kept[i]));
     for(const group of groups)for(const index of group.slice(1))aliases.set(index,group[0]);
     keep=keep.filter(r=>!aliases.has(r.index));
    }
@@ -556,7 +580,8 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
   if(a==='tl-set'){
    const key=b.dataset.key,value=b.dataset.value;
    o[key]=/^\d+$/.test(value)?Number(value):value;
-   if(key==='kind')o.mode='';
+   if(key==='source')o.sourcePinned=true;
+   if(key==='kind'){o.mode='';pickSource();}
    for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));
    dropArt();frame();return;
   }
@@ -632,7 +657,10 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
    if(src.width*src.height<=ANALYSIS_PIXELS)data=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,src.width,src.height).data;
    candidates=data?detectGrid(data,src.width,src.height):[];
    const preset=route.query.has('tileWidth')||route.query.has('tileHeight');
-   if(candidates.length&&!preset)Object.assign(o,{tileWidth:candidates[0].tileWidth,tileHeight:candidates[0].tileHeight,marginX:candidates[0].marginX,marginY:candidates[0].marginY,spacingX:candidates[0].spacingX,spacingY:candidates[0].spacingY});
+   // The seam checker is asked about one repeating texture, so its default tile is the whole
+   // image; everywhere else the measured grid is the default.
+   if(!preset&&route.id==='seamless-tile-checker')Object.assign(o,{tileWidth:src.width,tileHeight:src.height,marginX:0,marginY:0,spacingX:0,spacingY:0});
+   else if(candidates.length&&!preset)Object.assign(o,{tileWidth:candidates[0].tileWidth,tileHeight:candidates[0].tileHeight,marginX:candidates[0].marginX,marginY:candidates[0].marginY,spacingX:candidates[0].spacingX,spacingY:candidates[0].spacingY});
    rebuild();
    o.seamIndex=0;o.matchIndex=Math.min(1,Math.max(0,(grid?.count||1)-1));
    track('tool_run',{intent:route.id});
