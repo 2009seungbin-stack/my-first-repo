@@ -92,7 +92,7 @@ S.en.upscale={size:'How much bigger',method:'Method',ai:'AI sharpen',aiHint:'pho
 S.ja.upscale={size:'どれくらい大きく',method:'拡大方法',ai:'AIでくっきり',aiHint:'写真・イラスト',smooth:'なめらか',smoothHint:'最速',pixel:'ドットのまま',pixelHint:'ドット絵',tooLarge:'400万画素を超える画像はAIではなく、なめらかな拡大で処理しました。',noModel:'AIモデルを取得できなかったため、なめらかな拡大で処理しました。',stage:{model:'AIモデルを準備中 (5MB)',tiles:'くっきり処理中 {a}/{b}',prepare:'拡大中'}};
 const DITHER_LABELS={none:{ko:'없음',en:'None',ja:'なし'},'floyd-steinberg':{ko:'Floyd–Steinberg',en:'Floyd–Steinberg',ja:'Floyd–Steinberg'},atkinson:{ko:'Atkinson',en:'Atkinson',ja:'Atkinson'},bayer2:{ko:'Bayer 2×2',en:'Bayer 2×2',ja:'Bayer 2×2'},bayer4:{ko:'Bayer 4×4',en:'Bayer 4×4',ja:'Bayer 4×4'},bayer8:{ko:'Bayer 8×8',en:'Bayer 8×8',ja:'Bayer 8×8'}};
 const dithers=l=>Object.fromEntries(Object.entries(DITHER_LABELS).map(([k,v])=>[k,v[l]]));
-S.ko.plab={silhouetteView:'실루엣을 1×·2×로 보기',ditherCleanupNote:'디더링은 일부러 1픽셀 무늬를 만듭니다. 아래 숫자에는 그 픽셀도 포함되므로, 정리하기 전에 디더링을 “없음”으로 두세요.',exportAsHint:'아래 “팔레트 저장”이 이 형식으로 내려받습니다.',drop:'애니메이션 프레임이나 스프라이트 시트를 놓으세요',dropHint:'PNG 여러 장 한 번에 · 모든 프레임에 같은 팔레트 · 업로드 없음',stagesLabel:'Pixel Lab 단계',
+S.ko.plab={tooBig:'{w}×{h} 이미지는 이 도구에 너무 큽니다. 한 변 {max}px 이하로 줄이거나 먼저 프레임으로 잘라 주세요.',silhouetteView:'실루엣을 1×·2×로 보기',ditherCleanupNote:'디더링은 일부러 1픽셀 무늬를 만듭니다. 아래 숫자에는 그 픽셀도 포함되므로, 정리하기 전에 디더링을 “없음”으로 두세요.',exportAsHint:'아래 “팔레트 저장”이 이 형식으로 내려받습니다.',drop:'애니메이션 프레임이나 스프라이트 시트를 놓으세요',dropHint:'PNG 여러 장 한 번에 · 모든 프레임에 같은 팔레트 · 업로드 없음',stagesLabel:'Pixel Lab 단계',
  stages:{convert:'변환',palette:'팔레트',recolor:'색 바꾸기',cleanup:'정리',check:'검사',export:'내보내기'},
  frames:'프레임',frameCount:'{n}프레임',addFrames:'+ 프레임 추가',sortName:'이름순',note:'프레임을 누르면 그 프레임으로 작업합니다. 모든 단계가 같은 프레임을 공유하므로 다시 올릴 필요가 없습니다.',
  compare:'디더링 비교',colors:'색상 수',colorsShort:'색',colorCount:'{n}색',dither:'디더링',dithers:dithers('ko'),
@@ -128,7 +128,7 @@ S.ko.plab={silhouetteView:'실루엣을 1×·2×로 보기',ditherCleanupNote:'�
  silhouette:'실루엣 PNG 저장',scale:'내보내기 배율 (최근접)',checkNote:'점수가 아니라 측정값입니다. 정확한 블록 격자를 찾은 경우에만 복원을 제안합니다.',
  exportFrames:'모든 프레임 내보내기 (ZIP)',exportOne:'이 프레임 저장',exportNote:'ZIP에는 프레임별 PNG, .gpl 팔레트, 프레임 표가 담긴 pixel-lab.json이 들어갑니다.',
  exported:'{n}개 파일 · {size}',needSelection:'먼저 원본 색을 선택하세요.',needOneColor:'팔레트에는 색이 하나 이상 있어야 합니다.'};
-S.en.plab={silhouetteView:'Show the silhouette at 1× and 2×',ditherCleanupNote:'Dithering creates single-pixel patterns on purpose, so these counts include them. Set dithering to None before cleaning up.',exportAsHint:'“Save palette” below downloads in this format.',drop:'Drop your animation frames or sprite sheet here',dropHint:'Several PNGs at once · one palette for all of them · nothing is uploaded',stagesLabel:'Pixel Lab stages',
+S.en.plab={tooBig:'A {w}×{h} image is too large for this Lab. Reduce it below {max}px per side, or slice it into frames first.',silhouetteView:'Show the silhouette at 1× and 2×',ditherCleanupNote:'Dithering creates single-pixel patterns on purpose, so these counts include them. Set dithering to None before cleaning up.',exportAsHint:'“Save palette” below downloads in this format.',drop:'Drop your animation frames or sprite sheet here',dropHint:'Several PNGs at once · one palette for all of them · nothing is uploaded',stagesLabel:'Pixel Lab stages',
  stages:{convert:'Convert',palette:'Palette',recolor:'Recolour',cleanup:'Cleanup',check:'Check',export:'Export'},
  frames:'Frames',frameCount:'{n} frame(s)',addFrames:'+ Add frames',sortName:'By name',note:'Click a frame to work on it. Every stage shares these frames, so nothing is re-uploaded.',
  compare:'Compare dither modes',colors:'Colours',colorsShort:'colours',colorCount:'{n} colours',dither:'Dithering',dithers:dithers('en'),
@@ -164,7 +164,7 @@ S.en.plab={silhouetteView:'Show the silhouette at 1× and 2×',ditherCleanupNote
  silhouette:'Save silhouette PNG',scale:'Export scale (nearest)',checkNote:'Measurements, not a score. Recovery is offered only when an exact block grid was found.',
  exportFrames:'Export all frames (ZIP)',exportOne:'Save this frame',exportNote:'The ZIP holds one PNG per frame, the palette as .gpl and pixel-lab.json with the frame table.',
  exported:'{n} files · {size}',needSelection:'Select the source colours first.',needOneColor:'A palette needs at least one colour.'};
-S.ja.plab={silhouetteView:'シルエットを1×・2×で表示',ditherCleanupNote:'ディザは意図的に1ピクセルの模様を作ります。下の数値にはそれも含まれるため、整理の前にディザを「なし」にしてください。',exportAsHint:'下の「パレットを保存」がこの形式で保存します。',drop:'アニメーションのフレームやスプライトシートをドロップ',dropHint:'PNGを一度に複数 · すべてのフレームに同じパレット · アップロードなし',stagesLabel:'Pixel Labの工程',
+S.ja.plab={tooBig:'{w}×{h}の画像はこのツールには大きすぎます。1辺{max}px以下に縮小するか、先にフレームへ分割してください。',silhouetteView:'シルエットを1×・2×で表示',ditherCleanupNote:'ディザは意図的に1ピクセルの模様を作ります。下の数値にはそれも含まれるため、整理の前にディザを「なし」にしてください。',exportAsHint:'下の「パレットを保存」がこの形式で保存します。',drop:'アニメーションのフレームやスプライトシートをドロップ',dropHint:'PNGを一度に複数 · すべてのフレームに同じパレット · アップロードなし',stagesLabel:'Pixel Labの工程',
  stages:{convert:'変換',palette:'パレット',recolor:'色替え',cleanup:'整理',check:'検査',export:'書き出し'},
  frames:'フレーム',frameCount:'{n}フレーム',addFrames:'+ フレーム追加',sortName:'名前順',note:'フレームを押すとそのフレームを編集します。すべての工程が同じフレームを共有するので再アップロードは不要です。',
  compare:'ディザを比較',colors:'色数',colorsShort:'色',colorCount:'{n}色',dither:'ディザリング',dithers:dithers('ja'),

@@ -27,6 +27,10 @@ export const STAGES=Object.freeze(['convert','palette','recolor','cleanup','chec
 const STAGE_FOR=Object.freeze({'pixel-lab':'convert','palette-extractor':'palette','palette-swap-ramp':'recolor','pixel-art-cleanup':'cleanup','pixel-perfect-checker':'check'});
 const imageDataOf=c=>c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,c.width,c.height);
 function canvasOf({data,width,height}){const c=Im.canvas(width,height);c.getContext('2d').putImageData(new ImageData(data,width,height),0,0);return c;}
+// Every stage walks each pixel in Oklab on the main thread, which is right for sprite-sized art
+// and wrong for a 100-megapixel scan. A frame above this is refused with an explanation instead of
+// freezing the tab; the shared limit in core.js is far too permissive for a synchronous pipeline.
+const MAX_FRAME_PIXELS=4096*4096;
 const int=(v,min,max,fallback)=>{const n=Math.round(Number(v));return Number.isFinite(n)&&n>=min&&n<=max?n:fallback;};
 export function mount({el,def}){
  let sources=[],seq=0,at=0,stage=STAGE_FOR[route.id]||'convert',busy=false,timer=0,preview=null,report=null,candidates=null,history=[],paletteName='palette',lastExport=null;
@@ -281,7 +285,9 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   if(busy)return;busy=true;const first=!sources.length;
   try{
    for(const file of files){
-    const canvas=await Im.decode(file),thumbSize=Math.min(64,Math.max(canvas.width,canvas.height));
+    const canvas=await Im.decode(file);
+    if(canvas.width*canvas.height>MAX_FRAME_PIXELS){Im.release(canvas);throw Error(T('tooBig',{w:canvas.width,h:canvas.height,max:4096}));}
+    const thumbSize=Math.min(64,Math.max(canvas.width,canvas.height));
     const small=Im.resize(canvas,Math.max(1,Math.round(canvas.width/Math.max(canvas.width,canvas.height)*thumbSize)),Math.max(1,Math.round(canvas.height/Math.max(canvas.width,canvas.height)*thumbSize)),true);
     const thumb=URL.createObjectURL(await Im.blobOf(small));Im.release(small);
     sources.push({id:++seq,name:file.name,canvas,raw:canvas,thumb});
