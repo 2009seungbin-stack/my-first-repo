@@ -8,39 +8,48 @@ import {text,toast,download,track,onLocale,continueWith,page as route} from './s
  * document's own text, vectors and search stay intact. Coordinates are fractions of the page. */
 export const accept='application/pdf,.pdf';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TOOLS=['select','text','sign','image','whiteout','pen','highlight','rect','ellipse','line','arrow'];
-const ICON={select:'↖',text:'T',sign:'✒',image:'▣',whiteout:'▭',pen:'✎',highlight:'▬',rect:'□',ellipse:'○',line:'／',arrow:'↗'};
-const BOXED=m=>['text','image','fill','highlight','rect','ellipse','line'].includes(m.type);
+const TOOLS=['select','text','sign','image','whiteout','redact','crop','pen','highlight','rect','ellipse','line','arrow'];
+const ICON={select:'↖',text:'T',sign:'✒',image:'▣',whiteout:'▭',redact:'█',crop:'⤡',pen:'✎',highlight:'▬',rect:'□',ellipse:'○',line:'／',arrow:'↗'};
+const BOXED=m=>['text','image','fill','redact','highlight','rect','ellipse','line'].includes(m.type);
 export function mount({el,def}){
  const ws=new PDFWorkspace(),T=(k,v)=>text('edit.'+k,v);
- let current=0,zoom=1,tool='select',selected=null,color='#1a3fd6',stroke=3,fontSize=16,bold=false,busy=false,undoStack=[],redoStack=[],lastSignature=null,renderToken=0,fileName='';
+ let current=0,zoom=1,tool='select',selected=null,color='#1a3fd6',stroke=3,fontSize=16,bold=false,busy=false,undoStack=[],redoStack=[],lastSignature=null,renderToken=0,fileName='',fields=[],flattenForm=false;
  const pg=()=>ws.pages[current];
- const snap=()=>ws.pages.map(p=>({p,marks:p.marks.map(m=>({...m,points:m.points?.map(q=>[...q])}))}));
+ const snap=()=>ws.pages.map(p=>({p,angle:p.angle,crop:p.crop,marks:p.marks.map(m=>({...m,points:m.points?.map(q=>[...q])}))}));
  function record(){undoStack.push({order:snap(),current});if(undoStack.length>60)undoStack.shift();redoStack=[];}
- function restore(state){ws.pages=state.order.map(s=>{s.p.marks=s.marks;return s.p;});current=Math.min(state.current,ws.pages.length-1);selected=null;renderAll();}
+ function restore(state){ws.pages=state.order.map(s=>{s.p.marks=s.marks;if(s.p.angle!==s.angle)dropThumb(s.p);s.p.angle=s.angle;s.p.crop=s.crop;return s.p;});current=Math.min(state.current,Math.max(0,ws.pages.length-1));selected=null;renderAll();}
+ const dropThumb=p=>{if(p.thumb)URL.revokeObjectURL(p.thumb);p.thumb=undefined;};
  function empty(){el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;}
  function frame(){
   el.innerHTML=`<div class="editor"><div class="ed-bar" role="toolbar" aria-label="${esc(T('tools'))}">${TOOLS.map(id=>`<button type="button" class="ed-tool" data-tool="${id}" aria-pressed="${tool===id}" title="${esc(T('tool.'+id))}"><span aria-hidden="true">${ICON[id]}</span><em>${esc(T('tool.'+id))}</em></button>`).join('')}<span class="ed-sep"></span>
 <label class="ed-prop" title="${esc(T('color'))}"><input id="edColor" type="color" value="${color}" aria-label="${esc(T('color'))}"></label><label class="ed-prop"><span id="edSizeLabel"></span><input id="edSize" type="number" min="1" max="200" step="1" inputmode="numeric"></label><button type="button" class="ed-tool small" id="edBold" data-action="ed-bold" aria-pressed="false" title="${esc(T('bold'))}"><b>B</b></button>
-<span class="ed-sep"></span><button type="button" class="ed-tool small" data-action="ed-undo" title="${esc(T('undo'))}">↶</button><button type="button" class="ed-tool small" data-action="ed-redo" title="${esc(T('redo'))}">↷</button><button type="button" class="ed-tool small danger" data-action="ed-delete" title="${esc(T('deleteObject'))}">🗑</button></div>
+<span class="ed-group"><span class="ed-sep"></span><button type="button" class="ed-tool small" data-action="ed-undo" title="${esc(T('undo'))}">↶</button><button type="button" class="ed-tool small" data-action="ed-redo" title="${esc(T('redo'))}">↷</button><button type="button" class="ed-tool small danger" data-action="ed-delete" title="${esc(T('deleteObject'))}">🗑</button></span></div>
 <div class="ed-body"><nav class="ed-rail" id="edRail" aria-label="${esc(text('pdf.pages'))}"></nav>
-<section class="ed-stage" id="edStage"><div class="ed-page" id="edPage"><canvas id="edCanvas"></canvas><svg id="edSvg" class="ed-svg" xmlns="http://www.w3.org/2000/svg"></svg><div id="edLayer" class="ed-layer"></div><div id="edCapture" class="ed-capture" hidden></div></div></section>
-<aside class="side ed-side"><div class="summary" id="edSummary"></div><p class="hint" id="edHint"></p><button type="button" class="primary big" id="edSave" data-action="ed-save"></button><div class="result-box" id="edResult" hidden></div><nav class="next" id="edNext"></nav>
+<section class="ed-stage" id="edStage"><div class="ed-page" id="edPage"><canvas id="edCanvas"></canvas><div class="ed-rot" id="edRot"><svg id="edSvg" class="ed-svg" xmlns="http://www.w3.org/2000/svg"></svg><div id="edLayer" class="ed-layer"></div><div id="edCapture" class="ed-capture" hidden></div></div></div></section>
+<aside class="side ed-side"><div class="summary" id="edSummary"></div><p class="hint" id="edHint"></p><p class="hint warning" id="edWarn" hidden></p><button type="button" class="primary big" id="edSave" data-action="ed-save"></button><div class="result-box" id="edResult" hidden></div><nav class="next" id="edNext"></nav>
+<div class="doc-actions"><span class="opt-label">${esc(T('page'))}</span><button type="button" class="chip" data-action="ed-rot-left" title="${esc(T('rotateLeft'))}">↺</button><button type="button" class="chip" data-action="ed-rot-right" title="${esc(T('rotateRight'))}">↻</button><button type="button" class="chip" data-action="ed-duplicate">${esc(T('duplicate'))}</button><button type="button" class="chip danger" data-action="ed-delete-page">${esc(T('deletePage'))}</button></div>
+<div class="doc-actions" id="edCropActions" hidden><span class="opt-label">${esc(T('crop.title'))}</span><span class="hint" id="edCropInfo"></span><button type="button" class="chip" data-action="ed-crop-all">${esc(T('crop.all'))}</button><button type="button" class="chip" data-action="ed-crop-clear">${esc(T('crop.clear'))}</button></div>
+<div class="doc-actions" id="edFormActions" hidden><span class="opt-label">${esc(T('form.title'))}</span><button type="button" class="chip" data-action="ed-form">${esc(T('form.open'))}</button><label class="check"><input id="edFlatten" type="checkbox"> ${esc(T('form.flatten'))}</label></div>
 <div class="doc-actions"><span class="opt-label">${esc(T('whole'))}</span><button type="button" class="chip" data-action="ed-numbers">${esc(T('numbers.title'))}</button><button type="button" class="chip" data-action="ed-watermark">${esc(T('watermark.title'))}</button></div>
 <div class="list-actions"><button type="button" class="link" data-action="ed-organize">${esc(T('organize'))}</button><button type="button" class="link" data-action="ed-close">${esc(T('close'))}</button></div><small class="local-note">${esc(text('local'))}</small></aside></div>
 <div class="ed-foot"><button type="button" data-action="ed-prev" aria-label="${esc(T('prev'))}">‹</button><span id="edPageNo"></span><button type="button" data-action="ed-next" aria-label="${esc(T('next'))}">›</button><span class="ed-sep"></span><button type="button" data-action="ed-zoom-out" aria-label="${esc(T('zoomOut'))}">−</button><span id="edZoom"></span><button type="button" data-action="ed-zoom-in" aria-label="${esc(T('zoomIn'))}">+</button><button type="button" data-action="ed-fit">${esc(T('fit'))}</button></div></div>
 <dialog id="signDialog" class="sign-dialog"></dialog>`;
  }
- const fitZoom=()=>{const stage=el.querySelector('#edStage'),p=pg();return p?Math.max(.25,Math.min(2.5,(stage.clientWidth-40)/p.logicalW)):1;};
+ const fitZoom=()=>{const stage=el.querySelector('#edStage'),p=pg();if(!p)return 1;const wide=p.angle%180?p.logicalH:p.logicalW;return Math.max(.25,Math.min(2.5,(stage.clientWidth-40)/wide));};
+ /** The page box carries the rotated size; the object layer keeps the page's own unrotated
+  * coordinates and is turned with a CSS transform, so no mark has to be recomputed. */
  async function renderPage(){
-  const p=pg();if(!p)return;const token=++renderToken,box=el.querySelector('#edPage'),cv=el.querySelector('#edCanvas');
-  box.style.width=p.logicalW*zoom+'px';box.style.height=p.logicalH*zoom+'px';
+  const p=pg();if(!p)return;const token=++renderToken,box=el.querySelector('#edPage'),cv=el.querySelector('#edCanvas'),rot=el.querySelector('#edRot');
+  const w=p.logicalW*zoom,h=p.logicalH*zoom,turned=p.angle%180!==0;
+  box.style.width=(turned?h:w)+'px';box.style.height=(turned?w:h)+'px';
+  rot.style.width=w+'px';rot.style.height=h+'px';rot.style.transform=`translate(-50%,-50%) rotate(${p.angle||0}deg)`;
   el.querySelector('#edSvg').setAttribute('viewBox',`0 0 ${p.logicalW} ${p.logicalH}`);renderMarks();renderChrome();
-  let c=null;try{c=await ws.render({...p,angle:0,marks:[]},Math.max(p.logicalW,p.logicalH)*zoom*Math.min(2,devicePixelRatio||1),false);if(token!==renderToken)return;cv.width=c.width;cv.height=c.height;cv.getContext('2d').drawImage(c,0,0);}catch(e){if(token===renderToken)toast(e?.message||String(e),{error:true});}finally{release(c);}
+  let c=null;try{c=await ws.render({...p,marks:[]},Math.max(p.logicalW,p.logicalH)*zoom*Math.min(2,devicePixelRatio||1),false);if(token!==renderToken)return;cv.width=c.width;cv.height=c.height;cv.getContext('2d').drawImage(c,0,0);}catch(e){if(token===renderToken)toast(e?.message||String(e),{error:true});}finally{release(c);}
  }
  function shape(m,i){
   const p=pg(),W=p.logicalW,H=p.logicalH,sel=i===selected?' class="is-selected"':'',common=`data-index="${i}"${sel} stroke="${m.color||'#172b4d'}" stroke-width="${m.size||3}" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
   if(m.type==='pen')return `<polyline ${common} points="${m.points.map(([x,y])=>`${x*W},${y*H}`).join(' ')}"/>`;
+  if(m.type==='redact')return `<rect data-index="${i}"${sel} x="${m.x*W}" y="${m.y*H}" width="${m.w*W}" height="${m.h*H}" fill="#000"/>`;
   if(m.type==='highlight'||m.type==='fill')return `<rect data-index="${i}"${sel} x="${m.x*W}" y="${m.y*H}" width="${m.w*W}" height="${m.h*H}" fill="${m.color}" fill-opacity="${m.type==='highlight'?.3:m.opacity??1}" ${m.type==='fill'?'stroke="#c9d3e0" stroke-width=".6" stroke-dasharray="3 3"':''}/>`;
   if(m.type==='rect')return `<rect ${common} x="${m.x*W}" y="${m.y*H}" width="${m.w*W}" height="${m.h*H}" fill="transparent"/>`;
   if(m.type==='ellipse')return `<ellipse ${common} cx="${(m.x+m.w/2)*W}" cy="${(m.y+m.h/2)*H}" rx="${Math.abs(m.w*W/2)}" ry="${Math.abs(m.h*H/2)}" fill="transparent"/>`;
@@ -55,10 +64,13 @@ export function mount({el,def}){
    :m.type==='image'?`<div class="ed-img ${i===selected?'is-selected':''}" data-index="${i}" style="left:${m.x*100}%;top:${m.y*100}%;width:${m.w*100}%;height:${m.h*100}%"><img src="${m.url}" alt="" draggable="false"></div>`:'').join('');
   const m=selected!==null?p.marks[selected]:null,frameBox=BOXED(m||{})&&m.type!=='text'?`<div class="ed-selection" style="left:${Math.min(m.x,m.x+m.w)*100}%;top:${Math.min(m.y,m.y+m.h)*100}%;width:${Math.abs(m.w)*100}%;height:${Math.abs(m.h)*100}%"><span class="ed-handle" data-handle="se"></span></div>`:'';
   layer.insertAdjacentHTML('beforeend',frameBox);
+  // The crop is not applied to the preview render — the area that will be dropped is dimmed and
+  // labelled instead, so nothing claims to be cropped before the file is written.
+  if(p.crop)layer.insertAdjacentHTML('beforeend',`<div class="ed-crop" style="left:${p.crop.x*100}%;top:${p.crop.y*100}%;width:${p.crop.w*100}%;height:${p.crop.h*100}%"><em>${esc(T('crop.badge'))}</em></div>`);
  }
  function renderRail(){
   el.querySelector('#edRail').innerHTML=ws.pages.map((p,i)=>`<button type="button" class="ed-thumb ${i===current?'is-current':''}" data-page="${i}" aria-label="${esc(text('pdf.pageN',{n:i+1}))}"><img data-rail="${p.id}" alt=""><span>${i+1}</span>${p.marks.length?'<i></i>':''}</button>`).join('');
-  ws.pages.forEach(async p=>{if(!p.thumb){let c=null;try{c=await ws.render({...p,angle:0,marks:[]},150,false);p.thumb=URL.createObjectURL(await blobOf(c,'image/jpeg',.7));}catch{return;}finally{release(c);}}const img=el.querySelector(`img[data-rail="${p.id}"]`);if(img)img.src=p.thumb;});
+  ws.pages.forEach(async p=>{if(!p.thumb){let c=null;try{c=await ws.render({...p,marks:[]},150,false);p.thumb=URL.createObjectURL(await blobOf(c,'image/jpeg',.7));}catch{return;}finally{release(c);}}const img=el.querySelector(`img[data-rail="${p.id}"]`);if(img)img.src=p.thumb;});
  }
  function renderChrome(){
   const p=pg();if(!p)return;const m=selected!==null?p.marks[selected]:null,isText=(m?.type==='text')||(!m&&tool==='text');
@@ -71,13 +83,27 @@ export function mount({el,def}){
   el.querySelector('#edSummary').innerHTML=`<div class="summary-big">${esc(text('pdf.pagesN',{n:ws.pages.length}))}</div><div class="summary-line">${esc(fileName)} · ${esc(T('changes',{n:count}))}</div>`;
   el.querySelector('#edHint').textContent=T('hint.'+tool);el.querySelector('#edSave').textContent=busy?text('pdf.working'):T('save');el.querySelector('#edSave').disabled=busy;
   el.querySelector('#edCapture').hidden=['select','text','sign','image'].includes(tool);el.querySelector('#edPage').dataset.tool=tool;
+  const redacted=ws.pages.filter(x=>x.marks.some(k=>k.type==='redact')),warn=el.querySelector('#edWarn');
+  warn.hidden=!redacted.length;
+  if(redacted.length)warn.textContent=T('redactWarn',{pages:redacted.map(x=>ws.pages.indexOf(x)+1).join(', ')});
+  const cropped=ws.pages.filter(x=>x.crop).length;
+  el.querySelector('#edCropActions').hidden=!p.crop&&tool!=='crop';
+  el.querySelector('#edCropInfo').textContent=cropped?T('crop.count',{n:cropped}):T('crop.hint');
+  el.querySelector('#edFormActions').hidden=!fields.length;
+  el.querySelector('[data-action="ed-delete-page"]').disabled=ws.pages.length<2;
  }
  const renderAll=()=>{renderRail();renderPage();};
  function select(i){selected=i;renderMarks();renderChrome();}
  function addMark(m,{edit=false}={}){record();pg().marks.push(m);selected=pg().marks.length-1;tool=['pen','highlight'].includes(tool)?tool:'select';el.querySelector('#edResult').hidden=true;renderMarks();renderChrome();renderRailDot();if(edit){const n=el.querySelector(`.ed-text[data-index="${selected}"]`);if(n){n.focus();document.getSelection()?.selectAllChildren(n);}}}
  function renderRailDot(){const b=el.querySelector(`.ed-thumb[data-page="${current}"]`);if(b&&!b.querySelector('i')&&pg().marks.length)b.insertAdjacentHTML('beforeend','<i></i>');}
- /** Pointer position as page fractions; works at any zoom because the page box is measured live. */
- function at(e){const r=el.querySelector('#edPage').getBoundingClientRect();return [Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))];}
+ /** Pointer position as page fractions in the page's own unrotated space; works at any zoom and
+  * at any rotation because the object layer's live box is measured and the turn undone. */
+ function at(e){
+  const p=pg(),r=el.querySelector('#edRot').getBoundingClientRect(),clamp=v=>Math.max(0,Math.min(1,v));
+  const a=-((p?.angle||0)*Math.PI/180),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+  const w=(p?.logicalW||1)*zoom,h=(p?.logicalH||1)*zoom;
+  return [clamp((dx*Math.cos(a)-dy*Math.sin(a)+w/2)/w),clamp((dx*Math.sin(a)+dy*Math.cos(a)+h/2)/h)];
+ }
  async function placeImage(source,{signature=false}={}){
   const p=pg(),ratio=source.height/source.width,w=signature?.3:Math.min(.5,source.width/p.logicalW),h=w*p.logicalW*ratio/p.logicalH;
   addMark({type:'image',image:source,url:URL.createObjectURL(await blobOf(source)),x:(1-w)/2,y:Math.max(.02,(1-h)/2),w,h,signature});
@@ -138,17 +164,40 @@ export function mount({el,def}){
   };
   d.showModal();
  }
+ /** The document's own AcroForm fields, filled in place. pdf.js does not draw widget appearances
+  * in this preview, so the values are written by the worker and read back from the saved file. */
+ function formDialog(){
+  const d=el.querySelector('#signDialog');
+  const row=(f,i)=>{
+   const label=`<span>${esc(f.name)}</span>`;
+   if(f.kind==='check')return `<label class="check"><input type="checkbox" data-field="${i}" ${f.value?'checked':''} ${f.readOnly?'disabled':''}> ${esc(f.name)}</label>`;
+   if(['select','list','radio'].includes(f.kind))return `<label class="field">${label}<select data-field="${i}" ${f.readOnly?'disabled':''}><option value=""></option>${(f.options||[]).map(o=>`<option value="${esc(o)}" ${o===f.value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+   return `<label class="field">${label}<input type="text" data-field="${i}" value="${esc(f.value??'')}" ${f.readOnly?'disabled':''}></label>`;
+  };
+  d.innerHTML=`<h2>${esc(T('form.title'))}</h2><p class="hint">${esc(T('form.hint'))}</p>${fields.map(row).join('')}
+<label class="check"><input id="formFlatten" type="checkbox" ${flattenForm?'checked':''}> ${esc(T('form.flatten'))}</label>
+<div class="service-actions sign-actions"><button type="button" class="ghost" data-form-cancel>${esc(T('sign.cancel'))}</button><button type="button" class="primary" data-form-ok>${esc(T('apply'))}</button></div>`;
+  d.onclick=e=>{
+   if(e.target.closest('[data-form-cancel]')){d.close();return;}
+   if(!e.target.closest('[data-form-ok]'))return;
+   for(const input of d.querySelectorAll('[data-field]')){const f=fields[Number(input.dataset.field)];if(f)f.value=input.type==='checkbox'?input.checked:input.value;}
+   flattenForm=d.querySelector('#formFlatten').checked;el.querySelector('#edFlatten').checked=flattenForm;
+   d.close();el.querySelector('#edResult').hidden=true;toast(T('form.queued',{n:fields.filter(f=>f.value!==''&&f.value!==false).length}));
+  };
+  d.showModal();
+ }
  async function add(files){
   if(busy)return;const file=files[0];busy=true;
-  try{if(ws.pages.length)await closeDocument(false);frame();await ws.add([file]);fileName=file.name;current=0;selected=null;undoStack=[];redoStack=[];zoom=fitZoom();track('tool_run',{intent:route.id});renderAll();if(files.length>1)toast(T('oneFile'));}
+  try{if(ws.pages.length)await closeDocument(false);frame();await ws.add([file],()=>{},undefined,{keepForms:true});fileName=file.name;current=0;selected=null;undoStack=[];redoStack=[];fields=ws.sources.at(-1)?.fields||[];flattenForm=false;zoom=fitZoom();track('tool_run',{intent:route.id});renderAll();if(files.length>1)toast(T('oneFile'));}
   catch(error){toast(error?.message||String(error),{error:true});empty();}finally{busy=false;if(ws.pages.length)renderChrome();}
  }
  async function closeDocument(toEmpty=true){for(const p of ws.pages){if(p.thumb)URL.revokeObjectURL(p.thumb);for(const m of p.marks)if(m.url)URL.revokeObjectURL(m.url);}await ws.clear();if(toEmpty)empty();}
  async function save(){
   if(busy)return;busy=true;renderChrome();
   try{for(const p of ws.pages)p.marks=p.marks.filter(m=>m.type!=='text'||(m.text||'').trim());
-   const blob=await ws.export({},p=>{el.querySelector('#edSave').textContent=p;}),name=`${stem(fileName)}-edited.pdf`;download(blob,name);track('tool_success',{intent:route.id});
-   const box=el.querySelector('#edResult');box.hidden=false;box.innerHTML=`<strong>${esc(T('saved'))}</strong><span>${esc(bytes(blob.size))}</span><button type="button" class="ghost" data-action="ed-again">${esc(text('pdf.again'))}</button>`;box._blob=blob;box._name=name;
+   const blob=await ws.export({fields:fields.length?fields:null,flatten:flattenForm},p=>{el.querySelector('#edSave').textContent=p;}),name=`${stem(fileName)}-edited.pdf`;download(blob,name);track('tool_success',{intent:route.id});
+   const r=ws.lastReport||{},note=[bytes(blob.size),r.rasterizedPages?T('redactDone',{n:r.rasterizedPages}):''].filter(Boolean).join(' · ');
+   const box=el.querySelector('#edResult');box.hidden=false;box.innerHTML=`<strong>${esc(T('saved'))}</strong><span>${esc(note)}</span><button type="button" class="ghost" data-action="ed-again">${esc(text('pdf.again'))}</button>`;box._blob=blob;box._name=name;
    el.querySelector('#edNext').innerHTML=`<span>${esc(text('next'))}</span>${def.next.map(id=>`<button type="button" class="chip" data-action="ed-next-tool" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`;
   }catch(error){toast(error?.message||String(error),{error:true});track('tool_error',{intent:route.id,error_code:'processing_failed'});}finally{busy=false;renderMarks();renderChrome();}
  }
@@ -157,7 +206,8 @@ export function mount({el,def}){
  el.addEventListener('pointerdown',e=>{
   if(!ws.pages.length||busy)return;const cap=e.target.closest('#edCapture'),handle=e.target.closest('.ed-handle'),obj=e.target.closest('[data-index]'),inPage=e.target.closest('#edPage');
   if(cap){const [x,y]=at(e);record();const p=pg(),base={color,size:stroke};
-   const m=tool==='pen'?{type:'pen',points:[[x,y]],...base}:tool==='highlight'?{type:'highlight',x,y,w:0,h:0,color:color==='#1a3fd6'?'#ffd400':color}:tool==='whiteout'?{type:'fill',x,y,w:0,h:0,color:'#ffffff',opacity:1}:{type:tool==='arrow'?'line':tool,x,y,w:0,h:0,arrow:tool==='arrow',...base};
+   if(tool==='crop'){p.crop={x,y,w:0,h:0};drag={kind:'crop',p,x,y};cap.setPointerCapture(e.pointerId);renderMarks();e.preventDefault();return;}
+   const m=tool==='pen'?{type:'pen',points:[[x,y]],...base}:tool==='highlight'?{type:'highlight',x,y,w:0,h:0,color:color==='#1a3fd6'?'#ffd400':color}:tool==='whiteout'?{type:'fill',x,y,w:0,h:0,color:'#ffffff',opacity:1}:tool==='redact'?{type:'redact',x,y,w:0,h:0}:{type:tool==='arrow'?'line':tool,x,y,w:0,h:0,arrow:tool==='arrow',...base};
    p.marks.push(m);selected=p.marks.length-1;drag={kind:'create',m,x,y};cap.setPointerCapture(e.pointerId);renderMarks();e.preventDefault();return;}
   if(handle&&selected!==null){record();const m=pg().marks[selected];drag={kind:'resize',m,ratio:m.type==='image'?m.h/m.w:0};handle.setPointerCapture(e.pointerId);e.preventDefault();return;}
   if(obj&&tool==='select'){const i=Number(obj.dataset.index),m=pg().marks[i];if(selected!==i)select(i);
@@ -169,6 +219,7 @@ export function mount({el,def}){
  });
  el.addEventListener('pointermove',e=>{
   if(!drag)return;const [x,y]=at(e),m=drag.m;
+  if(drag.kind==='crop'){drag.p.crop={x:Math.min(x,drag.x),y:Math.min(y,drag.y),w:Math.abs(x-drag.x),h:Math.abs(y-drag.y)};renderMarks();return;}
   if(drag.kind==='create'){if(m.type==='pen'){const last=m.points.at(-1);if(Math.hypot(x-last[0],y-last[1])>.002)m.points.push([x,y]);}else{m.w=x-drag.x;m.h=y-drag.y;if(m.type!=='line'){m.x=Math.min(x,drag.x);m.y=Math.min(y,drag.y);m.w=Math.abs(m.w);m.h=Math.abs(m.h);}}}
   else if(drag.kind==='move'){const dx=x-drag.x,dy=y-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<.004)return;if(!drag.moved){record();drag.moved=true;}if(m.points)m.points=drag.start.points.map(([px,py])=>[px+dx,py+dy]);else{m.x=drag.start.x+dx;m.y=drag.start.y+dy;}}
   else if(drag.kind==='resize'){if(m.type==='line'){m.w=x-m.x;m.h=y-m.y;}else{m.w=Math.max(.01,x-m.x);m.h=drag.ratio?m.w*pg().logicalW*drag.ratio/pg().logicalH:Math.max(.01,y-m.y);}}
@@ -176,12 +227,14 @@ export function mount({el,def}){
  });
  addEventListener('pointerup',()=>{
   if(!drag)return;const {kind,m}=drag;drag=null;if(!ws.pages.length)return;
+  if(kind==='crop'){const c=pg().crop;if(!c||c.w<.03||c.h<.03){pg().crop=undefined;undoStack.pop();}else el.querySelector('#edResult').hidden=true;renderMarks();renderChrome();return;}
   if(kind==='create'){const tiny=m.type==='pen'?m.points.length<2:Math.hypot(m.w,m.h)<.006;if(tiny){pg().marks.pop();undoStack.pop();selected=null;}else{if(!['pen','highlight'].includes(tool))tool='select';el.querySelector('#edResult').hidden=true;renderRailDot();}}
   renderMarks();renderChrome();
  });
  el.addEventListener('input',e=>{
   const node=e.target.closest?.('.ed-text');if(node){const m=pg().marks[Number(node.dataset.index)];if(m){if(!node.dataset.dirty){record();node.dataset.dirty='1';}m.text=node.innerText.replace(/\n$/,'');}return;}
   const m=selected!==null?pg()?.marks[selected]:null;
+  if(e.target.id==='edFlatten'){flattenForm=e.target.checked;el.querySelector('#edResult').hidden=true;return;}
   if(e.target.id==='edColor'){color=e.target.value;if(m){record();m.color=color;renderMarks();}}
   if(e.target.id==='edSize'){const v=Math.max(1,Math.min(200,Number(e.target.value)||1));if(m?.type==='text'||(!m&&tool==='text')){fontSize=v;}else stroke=v;if(m&&'size' in m||m?.type==='text'){record();m.size=v;renderMarks();}}
  });
@@ -198,6 +251,12 @@ export function mount({el,def}){
   else if(a==='ed-redo'&&redoStack.length){undoStack.push({order:snap(),current});restore(redoStack.pop());}
   else if(a==='ed-delete'&&selected!==null){record();const [m]=pg().marks.splice(selected,1);if(m?.url)URL.revokeObjectURL(m.url);selected=null;renderMarks();renderChrome();}
   else if(a==='ed-bold'){const m=selected!==null?pg().marks[selected]:null;if(m?.type==='text'){record();m.bold=!m.bold;renderMarks();}else bold=!bold;renderChrome();}
+  else if(a==='ed-rot-left'||a==='ed-rot-right'){record();const p=pg();p.angle=((p.angle+(a==='ed-rot-left'?-90:90))%360+360)%360;dropThumb(p);zoom=fitZoom();el.querySelector('#edResult').hidden=true;renderAll();}
+  else if(a==='ed-duplicate'){record();const p=pg();ws.pages.splice(current+1,0,{...p,id:crypto.randomUUID(),thumb:undefined,marks:p.marks.map(m=>({...m,points:m.points?.map(q=>[...q])}))});current++;selected=null;el.querySelector('#edResult').hidden=true;renderAll();}
+  else if(a==='ed-delete-page'&&ws.pages.length>1){record();const [gone]=ws.pages.splice(current,1);dropThumb(gone);current=Math.min(current,ws.pages.length-1);selected=null;el.querySelector('#edResult').hidden=true;renderAll();}
+  else if(a==='ed-crop-all'){const source=pg().crop;if(!source){toast(T('crop.hint'));return;}record();for(const p of ws.pages)p.crop={...source};el.querySelector('#edResult').hidden=true;renderMarks();renderChrome();}
+  else if(a==='ed-crop-clear'){record();for(const p of ws.pages)p.crop=undefined;el.querySelector('#edResult').hidden=true;renderMarks();renderChrome();}
+  else if(a==='ed-form')formDialog();
   else if(a==='ed-numbers'||a==='ed-watermark')documentDialog(a==='ed-numbers'?'numbers':'watermark');
   else if(a==='ed-save')save();
   else if(a==='ed-again'){const box=el.querySelector('#edResult');download(box._blob,box._name);}

@@ -18,6 +18,14 @@ async function load(source){if(documents.has(source.id))return documents.get(sou
 function metadata(page){const b=page.getCropBox(),rotation=((page.getRotation().angle%360)+360)%360,userUnit=page.node.lookupMaybe(L.PDFName.of('UserUnit'),L.PDFNumber)?.asNumber()||1;return {...b,rotation,userUnit,logicalW:(rotation%180?b.height:b.width)*userUnit,logicalH:(rotation%180?b.width:b.height)*userUnit};}
 function point(p,u,v){const b=p.box,r=p.rotation;if(r===90)return {x:b.x+v*b.width,y:b.y+u*b.height};if(r===180)return {x:b.x+(1-u)*b.width,y:b.y+v*b.height};if(r===270)return {x:b.x+(1-v)*b.width,y:b.y+(1-u)*b.height};return {x:b.x+u*b.width,y:b.y+(1-v)*b.height};}
 function color(hex='#172b4d'){return L.rgb(parseInt(hex.slice(1,3),16)/255,parseInt(hex.slice(3,5),16)/255,parseInt(hex.slice(5,7),16)/255);}
+/** The crop rectangle arrives as fractions of the page as it is displayed; point() turns those
+ * into user space, so a /Rotate 90 page crops where the reader sees the selection. */
+function crop(page,p){
+ const a=point(p,p.crop.x,p.crop.y+p.crop.h),b=point(p,p.crop.x+p.crop.w,p.crop.y),media=page.getMediaBox();
+ const x=Math.max(media.x,Math.min(a.x,b.x)),y=Math.max(media.y,Math.min(a.y,b.y));
+ const width=Math.min(Math.abs(b.x-a.x),media.x+media.width-x),height=Math.min(Math.abs(b.y-a.y),media.y+media.height-y);
+ if(width>1&&height>1)page.setCropBox(x,y,width,height);
+}
 let cjkBytes;
 async function fontFor(out,text,fonts){try{fonts.latin||=await out.embedFont(L.StandardFonts.Helvetica);fonts.latin.encodeText(text);return fonts.latin;}catch{if(!fonts.cjk){await import('../assets/vendor/pdf-lib-fontkit-1.1.1/fontkit.umd.min.js');out.registerFontkit(globalThis.fontkit);if(!cjkBytes){const response=await fetch('https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/Korean/NotoSansCJKkr-Regular.otf');if(!response.ok)throw Error('Cannot download annotation font. Check the connection and retry.');cjkBytes=await response.arrayBuffer();}fonts.cjk=await out.embedFont(cjkBytes,{subset:true});}fonts.cjkCharacters||=new Set(fonts.cjk.getCharacterSet());for(const ch of text){if(ch!=='\n'&&!fonts.cjkCharacters.has(ch.codePointAt(0)))throw Error(`Annotation font does not contain ${ch}. Choose a supported character.`);}return fonts.cjk;}}
 async function marks(out,page,p,fonts){for(const m of p.marks){const size=(m.size||3)/(p.box.userUnit||1),c=color(m.color),unit=p.box.userUnit||1;
@@ -58,6 +66,36 @@ function formFields(doc){
   return null;
  }).filter(Boolean);}catch{return [];}
 }
+/** copyPages brings a page's widget annotations across but not the catalog's /AcroForm, which
+ * would leave the fields orphaned — present on the page, invisible to every form API. Re-register
+ * each widget's own field root, and bring the source form's default resources with it. */
+function adoptForm(out,source){
+ const ctx=out.context,roots=new Map();
+ for(const page of out.getPages()){
+  const annots=ctx.lookup(page.node.get(L.PDFName.of('Annots')));
+  if(!(annots instanceof L.PDFArray))continue;
+  for(let i=0;i<annots.size();i++){
+   const ref=annots.get(i),annot=ctx.lookup(ref);
+   if(!(ref instanceof L.PDFRef)||!(annot instanceof L.PDFDict)||String(ctx.lookup(annot.get(L.PDFName.of('Subtype')))||'')!=='/Widget')continue;
+   let root=ref,dict=annot;
+   for(let guard=0;guard<32;guard++){
+    const parent=dict.get(L.PDFName.of('Parent'));if(!(parent instanceof L.PDFRef))break;
+    const next=ctx.lookup(parent);if(!(next instanceof L.PDFDict))break;
+    root=parent;dict=next;
+   }
+   roots.set(String(root),root);
+  }
+ }
+ if(!roots.size)return false;
+ const acro=out.getForm().acroForm,existing=new Set(acro.getFields().map(([,ref])=>String(ref)));
+ for(const [tag,ref] of roots)if(!existing.has(tag))acro.addField(ref);
+ const from=source?.catalog?.lookupMaybe?.(L.PDFName.of('AcroForm'),L.PDFDict);
+ if(from){
+  const copier=L.PDFObjectCopier.for(source.context,ctx);
+  for(const key of ['DR','DA','Q'])if(!acro.dict.has(L.PDFName.of(key))&&from.has(L.PDFName.of(key)))acro.dict.set(L.PDFName.of(key),copier.copy(source.context.lookup(from.get(L.PDFName.of(key)))));
+ }
+ return true;
+}
 async function fillFields(doc,values,flatten){
  const form=doc.getForm();if(!form.getFields().length)return;
  for(const {name,kind,value} of values){
@@ -77,14 +115,29 @@ async function exportPages(payload,progress){
  const out=await L.PDFDocument.create(),fonts={},copied=new Map();
  for(const src of new Map(payload.pages.map(p=>[p.source.id,p.source])).values()){const indices=[...new Set(payload.pages.filter(p=>p.source.id===src.id).map(p=>p.index))],source=await load(src),pages=await out.copyPages(source,indices);indices.forEach((index,i)=>copied.set(src.id+':'+index,pages[i]));}
  for(let i=0;i<payload.pages.length;i++){
-  const p=payload.pages[i],key=p.source.id+':'+p.index;let page=copied.get(key);
+  const p=payload.pages[i],key=p.source.id+':'+p.index;
+  progress(`Writing PDF page ${i+1} / ${payload.pages.length}`);
+  // A redacted page arrives already rasterised: that is the only way the covered content is
+  // actually gone rather than merely hidden behind a black rectangle.
+  if(p.flatten){
+   copied.delete(key);
+   const page=out.addPage([p.flattenSize.width,p.flattenSize.height]);
+   const image=await out.embedJpg(await p.flatten.arrayBuffer());
+   page.drawImage(image,{x:0,y:0,width:page.getWidth(),height:page.getHeight()});
+   await tick();continue;
+  }
+  if(p.marks.some(m=>m.type==='redact'))throw Error('A redacted page must be rasterized before it is written; nothing was saved.');
+  let page=copied.get(key);
   if(page)copied.delete(key);else [page]=await out.copyPages(await load(p.source),[p.index]);
   out.addPage(page);page.setRotation(L.degrees((p.rotation+p.angle)%360));
-  if(p.crop)page.setCropBox(p.crop.x,p.crop.y,p.crop.width,p.crop.height);
-  await marks(out,page,p,fonts);progress(`Writing PDF page ${i+1} / ${payload.pages.length}`);await tick();
+  if(p.crop)crop(page,p);
+  await marks(out,page,p,fonts);await tick();
  }
- if(payload.fields)await fillFields(out,payload.fields,payload.flatten);
- const report={mode:payload.optimize?'preserve-compress':'preserve',pages:payload.pages.length,textPreserved:true,searchPreserved:true,vectorsPreserved:true};
+ // Every source was already parsed by the copy loop above, so this is a lookup, not a re-read.
+ const adopted=adoptForm(out,documents.get(payload.pages[0]?.source?.id)||null);
+ if(adopted&&payload.fields)await fillFields(out,payload.fields,payload.flatten);
+ const rasterized=payload.pages.filter(p=>p.flatten).length;
+ const report={mode:payload.optimize?'preserve-compress':'preserve',pages:payload.pages.length,rasterizedPages:rasterized,textPreserved:!rasterized,searchPreserved:!rasterized,vectorsPreserved:!rasterized};
  if(payload.optimize||payload.removeMetadata)Object.assign(report,await optimize(out,{quality:payload.quality||.62,maxSide:payload.maxSide||2000,dpi:payload.dpi||144,grayscale:!!payload.grayscale,images:!!payload.optimize,streams:!!payload.optimize,metadata:!!payload.removeMetadata},progress,encode));
  const blob=new Blob([await out.save({useObjectStreams:true,updateMetadata:!payload.removeMetadata})],{type:'application/pdf'});
  return {blob,report:{...report,outputBytes:blob.size}};
