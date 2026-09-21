@@ -75,8 +75,13 @@ and the two ported checks in `tests/recipes-browser.py`.
     written, and are recorded in `metadata.json` (`aliases`, `deduplicated`, `dedupeMode`).
   * *Variants* — 90°/180°/270°/flipX/flipY, with variants a symmetric tile turns into itself
     dropped by comparing hashes (a four-fold symmetric tile produces none).
-  * *Padded atlas* — nine blits per tile (the tile, its four edges stretched outwards, its four
-    corner pixels), the same geometry the `atlas-padding` recipe produced.
+  * *Padded atlas* — `extrudeRegions` in `src/atlas.js`: nine blits per tile (the tile, its four
+    edges stretched outwards, its four corner pixels). That is the same engine, and the same
+    layout, the `atlas-padding` recipe has always used — `extrudeAtlas` is now a one-line wrapper
+    over it that derives the rectangles from an exact division, so the quality evidence recorded
+    for `atlas-padding` in `src/capabilities.js` still describes the code this page runs. Because
+    the Lab passes its own rectangles, a sheet with a margin or separation extrudes too, which the
+    recipe could not do.
 * **Limitations** regular grids only. Near-duplicate clustering is capped at 2048 tiles.
 * **Export schema** the envelope from `docs/GAME-LABS.md` plus the tile grid:
 
@@ -242,13 +247,14 @@ Measured on this branch, not asserted from reading the code.
 | A complete 47-blob fixture reports 0 missing; one with 3 removed reports exactly those 3 | same + `tests/task-browser.py` | missing = [5, 17, 40] | VERIFIED |
 | Grid detection on 10 synthetic sheets (margin 1/spacing 2, odd 15px, non-square 16×32, strips, 8px, outlined tiles whose interiors are louder than their boundaries) | `tests/game-tile-grid.test.mjs` + scratch probe | true grid ranked first in 10/10; margin1+spacing2 scores 1.00, plain 32px 0.91, outlined 16px 0.63 | VERIFIED |
 | A sheet whose size 8, 16, 32 and 64 all divide resolves to its real 32px period | same | score(32) > score(16)+0.1 and > score(64)+0.1 | VERIFIED |
-| Every sliced tile equals its source region pixel for pixel (margin 1, spacing 2, blanks, a duplicate) | Chromium + Pillow (`scratchpad/verify.py`) | 13/13 tiles byte-identical; rect ↔ col/row consistent | VERIFIED |
+| Every sliced tile equals its source region pixel for pixel (margin 1, spacing 2, blanks, a duplicate) | Chromium + Pillow (`scratchpad/tile-verify.py`) | 13/13 tiles byte-identical; rect ↔ col/row consistent | VERIFIED |
 | Blank skipping, exact aliases, rotate/flip variants | same | 47 of 48 written, 1 blank skipped; 1 alias; 60 variants; rot90/flipX match Pillow's own transforms | VERIFIED |
 | Padded atlas geometry (the `atlas-padding` contract) | same + `tests/recipes-browser.py` | 2×1 of 1px tiles + 1px extrude → 6×3, edge pixels isolated | VERIFIED |
+| The same extrusion on a sheet the old recipe could not take (8px tiles, margin 1, separation 2) | `scratchpad/tile-verify.py` | 36×24 atlas; all 6 × 64 tile pixels and all 6 × 8 left-edge pixels equal the source | VERIFIED |
 | All four template PNGs against their layout JSON | same | 9/16/16/47 cells drawn exactly where the JSON says | VERIFIED |
 | Tester renders the tile the rule requires (pixels read back from the canvas) | `tests/task-browser.py` | filled area centre = slot for mask 255; corner = slot for E\|SE\|S; keyboard paint = slot for W | VERIFIED |
 | Seam verdicts | same + `tests/game-seams.test.mjs` | cos-wrapping tile: ratio < 1.3 → seamless; ramp: mean > 240, ratio > 20 → seam; after `makeSeamless` mean < 8 | VERIFIED |
-| Godot pack contents and peering bits recomputed from the masks | `scratchpad/verify.py` | 47 tiles, 8 bits on the full slot, 0 on the isolated slot, no `.tres`/`.meta` in the ZIP | VERIFIED |
+| Godot pack contents and peering bits recomputed from the masks | `scratchpad/tile-verify.py` | 47 tiles, 8 bits on the full slot, 0 on the isolated slot, no `.tres`/`.meta` in the ZIP | VERIFIED |
 | Collision polygons re-tested against the tile alpha they came from (full / slope / ring / one-pixel tiles) | Chromium + Pillow crossing-number test (`scratchpad/verify_collision.py`) | 4 tiles × 256 pixels × 3 modes: `rects` matches the alpha exactly, `box` and `outline` over-cover only where documented; ring → 4 rects with an empty hole, or 1 outer loop; one-pixel tile → one 4-point loop | VERIFIED |
 | Collision bound and shape quality | `tests/game-collision.test.mjs` | 34-point slope → 3–5 points at ε 1.5 keeping >85% of the area; 32×32 checkerboard (512 loops, 2048 points) → ≤256 points; comb outline exact | VERIFIED |
 | **The exported pack builds a real TileSet in Godot** | Godot **4.7.2.stable.official** (`godot --headless --path <proj> --import`, then `--script res://run_import.gd` driving the shipped `Builder`, then an independently written verifier) | see below | see below |
