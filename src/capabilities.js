@@ -25,7 +25,24 @@ const engines = {
  * engines  — those checks passed in both Chromium and Firefox on the current source.
  * Each entry names the suite and the exact check so it can be re-run (docs/QUALITY-GATES.md). */
 export const ADVANCED_CRITERIA=Object.freeze({kinds:['workflow','quality'],engines:['chromium','firefox']});
-const EVIDENCE={};
+// Recorded 2026-09-21 from `python tools/benchmark.py --browser chromium|firefox [--pdf]`
+// (Chromium 153 / Firefox 155, test-results/quality/<engine>-quick.json and -pdf.json).
+// Only checks that passed in BOTH engines and that exercise the named tool are listed.
+// Not listed on purpose: crop, pdf-merge, jpg-to-pdf, pdf-to-jpg (no tool-specific check yet);
+// media (Firefox failed "duration-based target strategy produces measured near-target output",
+// so its later checks never ran there); AI upscale/background (gates in QUALITY-GATES.md).
+const IMG='tests/quality-browser.mjs',PDF='tests/pdf-browser.mjs',BOTH=Object.freeze(['chromium','firefox']);
+const ev=(kind,suite,check)=>Object.freeze({kind,suite,check,engines:BOTH});
+const EVIDENCE={
+ image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
+ resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],
+ compress:[ev('workflow',IMG,'NASA portrait: decoded full-resolution quality and target'),ev('quality',IMG,'compression quality on illustration fixture'),ev('quality',IMG,'already-compressed source candidate avoids unnecessary growth')],
+ convert:[ev('workflow',IMG,'encoder MIME matches selected format'),ev('quality',IMG,'transparent logo: decoded full-resolution quality and target'),ev('quality',IMG,'compression preserves alpha-aware choice')],
+ 'atlas-padding':[ev('workflow',IMG,'direct atlas blits match reference padding and coordinates'),ev('quality',IMG,'single-pixel atlas 1x1 preserves edge padding')],
+ pdf:[ev('workflow',PDF,'rotation and crop preserved'),ev('quality',PDF,'native pen is at normalized source position'),ev('quality',PDF,'page 320 searchable text')],
+ 'pdf-split':[ev('workflow',PDF,'custom split groups preserve counts'),ev('quality',PDF,'page 1 searchable text')],
+ 'pdf-compress':[ev('workflow',PDF,'image optimization reduces actual PDF bytes'),ev('quality',PDF,'image object actually recompressed'),ev('quality',PDF,'page 320 searchable text')]
+};
 export function qualifies(evidence=[]){
  const kinds=new Set(evidence.map(e=>e.kind)),engines=new Set(evidence.flatMap(e=>e.engines));
  return ADVANCED_CRITERIA.kinds.every(k=>kinds.has(k))&&ADVANCED_CRITERIA.engines.every(k=>engines.has(k))&&evidence.every(e=>e.suite&&e.check&&e.engines?.length);
@@ -40,7 +57,7 @@ export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTE
   supportedFormats:pdf?['pdf','png','jpeg']:media?['mp4 (detected)','webm','gif','png','mp3','wav']:['png','jpeg','webp','avif (detected)'],
   preservesAlpha:pdf?'PDF native objects retained in preserve mode':media?'not promised for video; frame PNG depends on decoded source':'PNG/WebP/AVIF when codec supports alpha; JPEG and explicit fill flatten', preservesMetadata:false, lossless:'PNG and native page-copy do not add codec loss; resampling, compression and rasterization are mode-dependent',
   ai:id==='upscale'?'optional experimental Swin2SR (2x / 4x); explicit classical fallback':id==='remove-bg'?'optional experimental BiRefNet (people and objects)':false, hardwareAcceleration:'browser dependent',
-  streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153; Firefox 155 synthetic suite / decoded H.264 after metadata repair']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[],
+  streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153; Firefox 155 synthetic suite / decoded H.264 after metadata repair']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:[...new Set([...(pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[]),...(EVIDENCE[id]||[]).map(e=>e.suite)])],
   limitations:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder (no WebCodecs) records in real time for up to 10 minutes; compatibility audio decodes sources up to 20 minutes in memory.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.']
  })];
 })));
