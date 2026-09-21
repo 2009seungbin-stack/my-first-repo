@@ -359,6 +359,9 @@ with sync_playwright() as pw:
     phone.locator('[data-action="task-sample"]').click();ready(phone)
     ok('sample produces a real saving on a phone',int(phone.locator('#taskSummary .summary-big').inner_text()[1:-1])>=50)
     ok('no horizontal scroll with results on a phone',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    # A long progress label in the file row must not widen the page (seen only on slow machines, where it is still showing).
+    phone.evaluate("()=>{document.querySelector('#taskFiles .pill').textContent='AI 모델 받는 중 (처음 한 번) 43%'}")
+    ok('a long progress label does not cause horizontal scroll on a phone',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     browser.close()
 assert not errors,errors
 (OUT/'task-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')
