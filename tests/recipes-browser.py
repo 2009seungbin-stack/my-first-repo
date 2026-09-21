@@ -140,8 +140,12 @@ with sync_playwright() as pw:
     atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_tool(ctx,'atlas-padding',[('atlas.png',atlas)])
     options(p,{'cellW':1,'cellH':1,'padding':1});z=archive(output(p,'atlas.zip'));im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()
-    p=open_tool(ctx,'normal-map-generator',[('flat.png',png(2,2,(50,50,50,255)))])
-    im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)});p.close()
+    # normal-map-generator now opens Texture Lab at its Normal stage (src/task/texture-lab.js).
+    # The flat-normal guarantee is unchanged; the convention it writes is stated instead of implied.
+    p=open_task('normal-map-generator',[('flat.png',png(2,2,(50,50,50,255)))])
+    p.locator('#texNormalOut').wait_for(timeout=60000);p.wait_for_timeout(600)
+    im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)})
+    ok('the Normal stage states which convention it writes',p.locator('[data-action="tex-normal-set"][data-value="opengl"][aria-pressed="true"]').count()==1);p.close()
     p=open_tool(ctx,'tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);options(p,{'cellW':2,'cellH':2});z=archive(output(p,'tiles.zip'))
     ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'frames/frame-002.png').size==(2,2));p.close()
     p=open_tool(ctx,'split-scanned-images',[('spread.png',png(9,4,'white'))]);options(p,{'order':'RL'});z=archive(output(p,'spread.zip'))

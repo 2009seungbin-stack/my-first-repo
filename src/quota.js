@@ -9,6 +9,8 @@ export const QUOTA_CLASSES=Object.freeze({
  // Game-asset recipes: palette/grid/crop helpers are light; full pipelines and batch packs are heavy.
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
+ // Texture Lab and its routes are local pixel work: no metering.
+ 'texture-lab':'none','channel-unpacker':'none','normal-map-converter':'none','pbr-texture-validator':'none','texture-edge-bleed':'none',
  'pixel-lab':'none','palette-extractor':'none','palette-swap-ramp':'none','pixel-art-cleanup':'none','pixel-perfect-checker':'none',
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
  // Image

@@ -15,6 +15,8 @@ export const TASK_TOOLS=Object.freeze({
  'pdf-unlock':{module:'pdf-secure',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf']},
  'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']},
  pdf:{module:'pdf-editor',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf-split']},
+ // Texture Lab: one workspace, six stages. The legacy texture-map URL opens its Normal stage.
+ ...Object.fromEntries(['texture-lab','texture-map','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed'].map(id=>[id,{module:'texture-lab',kinds:['image'],next:['mask-packer','atlas-padding','compress']}])),
  'video-gif':{module:'media',kinds:['media'],next:['video-mp3','video-trim','video-frame']},
  'video-mp3':{module:'media',kinds:['media'],next:['video-gif','video-trim','video-frame']},
  'video-compress':{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-frame']},
@@ -39,7 +41,8 @@ export const DIRECTORY=Object.freeze([
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
- ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack','pixel-lab','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker']]
+ ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack',
+  'pixel-lab','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','texture-lab','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF','pdf-protect':'LOCK','pdf-unlock':'OPEN',pdf:'EDIT',
