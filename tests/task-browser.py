@@ -227,6 +227,87 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # --- crop (src/task/crop.js): an interactive box whose numbers are image pixels ---
+    def marker(w,h):
+        im=Image.new('RGB',(w,h));px=im.load()
+        for y in range(h):
+            for x in range(w):px[x,y]=((x*7+11)%256,(y*5+3)%256,((x^y)*3)%256)
+        b=io.BytesIO();im.save(b,'PNG');return im,{'name':f'marker {w}.png','mimeType':'image/png','buffer':b.getvalue()}
+    MARK,MARK_FILE=marker(400,260);MARK2,MARK2_FILE=marker(200,200)
+    def crop_area(x,y,w,h):
+        page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+        for sel,v in [('#cropW',w),('#cropH',h),('#cropX',x),('#cropY',y)]:page.fill(sel,str(v))
+        page.wait_for_timeout(150);ready(page)
+    def crop_open(files):
+        page.goto(BASE+'/en/image/crop/',wait_until='networkidle')
+        page.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"')
+        page.locator('#fileInput').set_input_files(files=list(files));ready(page)
+    crop_open([MARK_FILE])
+    ok('crop opens as a task page: box already placed, 8 handles, Download live, no Run button',
+       page.locator('#cropBox').is_visible() and page.locator('.crop-handle').count()==8 and page.locator('.side .primary').count()==1 and page.locator('#taskDownload').is_enabled())
+    ok('the result size is the big number',page.locator('#taskSummary .summary-big').inner_text()=='400 × 260')
+    crop_area(100,50,213,97)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('the export is exactly the framed rectangle, in image pixels',
+       im.size==(213,97) and im.tobytes()==MARK.crop((100,50,313,147)).tobytes(),str(im.size))
+    box=page.locator('#cropFrame').bounding_box()
+    page.mouse.move(box['x']+box['width']*.25,box['y']+box['height']*.25);page.mouse.down()
+    page.mouse.move(box['x']+box['width']*.75,box['y']+box['height']*.75,steps=8);page.mouse.up();page.wait_for_timeout(200)
+    shown=[int(page.locator(s).input_value()) for s in ['#cropX','#cropY','#cropW','#cropH']]
+    ok('dragging on the picture reframes it and the numbers follow',abs(shown[0]-100)<=3 and abs(shown[2]-200)<=4,str(shown))
+    page.locator('#cropBox').focus();page.keyboard.press('ArrowRight');page.keyboard.press('Shift+ArrowRight');page.wait_for_timeout(120)
+    ok('arrow keys nudge 1px and Shift+arrows 10px',int(page.locator('#cropX').input_value())==shown[0]+11)
+    crop_open([MARK_FILE])
+    page.locator('#cropRatio .chip[data-ratio="1:1"]').click();page.wait_for_timeout(150);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('a ratio chip gives the largest centred square of that ratio',
+       im.size==(260,260) and im.tobytes()==MARK.crop((70,0,330,260)).tobytes(),str(im.size))
+    crop_open([MARK_FILE])
+    page.locator('[data-action="crop-turn-right"]').click();page.locator('[data-action="crop-flip-h"]').click();page.wait_for_timeout(200);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('rotate 90° right then flip horizontally is an exact transpose of the source',
+       im.size==(260,400) and im.tobytes()==MARK.transpose(Image.Transpose.TRANSPOSE).tobytes(),str(im.size))
+    page.locator('[data-action="crop-undo"]').click();page.locator('[data-action="crop-undo"]').click();page.wait_for_timeout(150)
+    ok('undo walks back through the transforms',page.locator('#taskSummary .summary-big').inner_text()=='400 × 260')
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('#cropAngle').fill('10');page.locator('#cropAngle').dispatch_event('input');page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('straighten auto-zooms: same frame size, no empty corner, content actually rotated',
+       im.size==(400,260) and im.getpixel((0,0))[3]==255 and im.getpixel((399,259))[3]==255 and im.convert('RGB').tobytes()!=MARK.tobytes())
+    crop_open([MARK_FILE])
+    page.locator('#cropRatio .chip[data-ratio="1:1"]').click()
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true');page.locator('#cropShape').select_option('circle');page.wait_for_timeout(250);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('a circle crop is transparent outside and untouched inside',
+       im.size==(260,260) and im.getpixel((1,1))[3]==0 and im.getpixel((130,130))==MARK.getpixel((200,130))+(255,))
+    crop_open([MARK_FILE])
+    page.locator('#cropPreset').select_option('instagram-story');page.wait_for_timeout(250);ready(page)
+    ok('a social preset sets the ratio chip and the exact output size',
+       page.locator('#taskSummary .summary-big').inner_text()=='1080 × 1920' and page.locator('#cropRatio .chip[aria-pressed="true"]').get_attribute('data-ratio')=='9:16')
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    ok('the preset export is exactly the platform size',Image.open(d.value.path()).size==(1080,1920))
+    bordered=Image.new('RGB',(120,90),(255,255,255));[bordered.putpixel((x,y),(10,30,200)) for x in range(30,100) for y in range(20,70)]
+    buf=io.BytesIO();bordered.save(buf,'PNG')
+    crop_open([{'name':'scan.png','mimeType':'image/png','buffer':buf.getvalue()}])
+    page.locator('[data-action="crop-trim"]').click();page.wait_for_timeout(800);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    ok('auto-trim snaps the box to the content inside a uniform border',Image.open(d.value.path()).size==(70,50))
+    crop_open([MARK_FILE,MARK2_FILE])
+    ok('several images share one file list',page.locator('#taskFiles .file').count()==2)
+    page.locator('[data-action="crop-select"][data-index="0"]').click();page.wait_for_timeout(150)
+    crop_area(100,50,200,100)
+    page.locator('[data-action="crop-apply-all"]').click();page.wait_for_timeout(300);ready(page)
+    ok('apply-to-all reuses the same relative box on every file',page.locator('#taskFiles .pill').all_inner_texts()==['200×100','100×77'])
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    ok('download all is one ZIP with a cropped file per input',
+       sorted(Image.open(io.BytesIO(z.read(n))).size for n in z.namelist())==[(100,77),(200,100)],str(z.namelist()))
+    ok('crop offers the hand-off tools',page.locator('#taskNext .chip').evaluate_all('ns=>ns.map(n=>n.dataset.tool)')==['compress','resize','remove-bg'])
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

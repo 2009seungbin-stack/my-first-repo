@@ -90,6 +90,21 @@ S.ja.bg={quality:'AIの品質',qualityBest:'高品質 (初回のみ190MBを取�
 S.ko.upscale={size:'얼마나 크게',method:'확대 방식',ai:'AI 선명하게',aiHint:'사진·일러스트',smooth:'부드럽게',smoothHint:'가장 빠름',pixel:'도트 그대로',pixelHint:'픽셀아트',tooLarge:'400만 화소가 넘는 이미지는 AI 대신 부드러운 확대로 처리했습니다.',noModel:'AI 모델을 받지 못해 부드러운 확대로 처리했습니다.',stage:{model:'AI 모델 준비 중 (5MB)',tiles:'선명하게 만드는 중 {a}/{b}',prepare:'확대 중'}};
 S.en.upscale={size:'How much bigger',method:'Method',ai:'AI sharpen',aiHint:'photos · art',smooth:'Smooth',smoothHint:'fastest',pixel:'Keep pixels',pixelHint:'pixel art',tooLarge:'Images over 4 megapixels are enlarged with the smooth method instead of AI.',noModel:'The AI model could not be loaded, so the smooth method was used.',stage:{model:'Preparing the AI model (5 MB)',tiles:'Sharpening {a}/{b}',prepare:'Enlarging'}};
 S.ja.upscale={size:'どれくらい大きく',method:'拡大方法',ai:'AIでくっきり',aiHint:'写真・イラスト',smooth:'なめらか',smoothHint:'最速',pixel:'ドットのまま',pixelHint:'ドット絵',tooLarge:'400万画素を超える画像はAIではなく、なめらかな拡大で処理しました。',noModel:'AIモデルを取得できなかったため、なめらかな拡大で処理しました。',stage:{model:'AIモデルを準備中 (5MB)',tiles:'くっきり処理中 {a}/{b}',prepare:'拡大中'}};
+S.ko.crop={drop:'자를 이미지를 여기에 놓으세요',dropHint:'여러 장 가능 · 드래그로 영역 선택, 비율·SNS 규격 지원',ratio:'비율',free:'자유',orig:'원본 비율',preset:'SNS·플랫폼 규격',presetNone:'— 직접 지정',
+ rotateLeft:'왼쪽으로 90° 회전',rotateRight:'오른쪽으로 90° 회전',flipH:'좌우 반전',flipV:'상하 반전',autoTrim:'여백 자동 감지',trimNone:'잘라낼 여백을 찾지 못했습니다.',reset:'처음으로',undo:'되돌리기 (Ctrl+Z)',redo:'다시 실행 (Ctrl+Y)',
+ applyAll:'이 영역을 모든 파일에 적용',appliedAll:'파일 {n}개에 같은 영역을 적용했습니다',area:'자를 영역 (px)',width:'너비',height:'높이',straighten:'수평 맞추기',straightenHint:'기울인 만큼 자동으로 확대해 빈 모서리가 생기지 않습니다.',
+ shape:'모양',rect:'사각형',circle:'원형',round:'둥근 모서리',radius:'모서리 둥글기',outSize:'출력 크기',keepPixels:'자른 픽셀 그대로',exactSize:'정확한 크기로 맞추기',keep:'원본 형식 유지',quality:'JPG 화질',
+ hint:'이미지 위에서 끌어 영역을 정하고 모서리를 잡아 크기를 바꾸세요. 방향키로 1px, Shift+방향키로 10px 이동, Alt+방향키로 크기 변경.',source:'원본 {w}×{h}',scaledTo:'{a} → {b}로 조정',alphaFormat:'투명한 모양은 JPG로 저장할 수 없어 PNG로 저장합니다.',working:'자르는 중…'};
+S.en.crop={drop:'Drop the image you want to crop',dropHint:'Several images at once · drag to frame, aspect ratios and social sizes included',ratio:'Aspect ratio',free:'Free',orig:'Original',preset:'Social & platform sizes',presetNone:'— custom',
+ rotateLeft:'Rotate 90° left',rotateRight:'Rotate 90° right',flipH:'Flip horizontally',flipV:'Flip vertically',autoTrim:'Auto-trim',trimNone:'No border to trim was found.',reset:'Reset',undo:'Undo (Ctrl+Z)',redo:'Redo (Ctrl+Y)',
+ applyAll:'Apply this crop to all',appliedAll:'Same crop applied to {n} files',area:'Crop area (px)',width:'Width',height:'Height',straighten:'Straighten',straightenHint:'Zooms in as it tilts, so no empty corners appear.',
+ shape:'Shape',rect:'Rectangle',circle:'Circle',round:'Rounded corners',radius:'Corner rounding',outSize:'Output size',keepPixels:'Keep the cropped pixels',exactSize:'Scale to an exact size',keep:'Keep original format',quality:'JPG quality',
+ hint:'Drag on the image to frame it and pull a corner to resize. Arrow keys nudge 1px, Shift+arrows 10px, Alt+arrows resize.',source:'from {w}×{h}',scaledTo:'{a} → {b}',alphaFormat:'A transparent shape cannot be saved as JPG, so PNG is used.',working:'Cropping…'};
+S.ja.crop={drop:'切り抜く画像をここにドロップ',dropHint:'複数枚まとめて · ドラッグで範囲指定、比率・SNS規格に対応',ratio:'縦横比',free:'自由',orig:'元の比率',preset:'SNS・各サービスの規格',presetNone:'— 自分で指定',
+ rotateLeft:'左に90°回転',rotateRight:'右に90°回転',flipH:'左右反転',flipV:'上下反転',autoTrim:'余白を自動検出',trimNone:'切り取れる余白が見つかりませんでした。',reset:'最初から',undo:'元に戻す (Ctrl+Z)',redo:'やり直す (Ctrl+Y)',
+ applyAll:'この範囲をすべてのファイルに適用',appliedAll:'{n}個のファイルに同じ範囲を適用しました',area:'切り抜く範囲 (px)',width:'幅',height:'高さ',straighten:'水平を調整',straightenHint:'傾けた分だけ自動で拡大し、隅に余白ができません。',
+ shape:'形',rect:'長方形',circle:'円',round:'角丸',radius:'角の丸み',outSize:'出力サイズ',keepPixels:'切り抜いたピクセルのまま',exactSize:'正確なサイズに合わせる',keep:'元の形式のまま',quality:'JPGの画質',
+ hint:'画像上をドラッグして範囲を決め、角をつかんでサイズを変えます。矢印キーで1px、Shift+矢印で10px移動、Alt+矢印でサイズ変更。',source:'元 {w}×{h}',scaledTo:'{a} → {b}',alphaFormat:'透明な形はJPGで保存できないためPNGで保存します。',working:'切り抜き中…'};
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
