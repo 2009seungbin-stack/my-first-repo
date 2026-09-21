@@ -8,7 +8,10 @@ export const TASK_TOOLS=Object.freeze({
  heic:{module:'convert',kinds:['image'],next:['compress','resize','image']},
  resize:{module:'resize',kinds:['image'],next:['compress','convert','image']},
  'pdf-merge':{module:'pdf-organize',kinds:['pdf','image'],next:['pdf-compress','pdf-split','pdf']},
- 'pdf-split':{module:'pdf-organize',kinds:['pdf','image'],next:['pdf-merge','pdf-compress','pdf']}
+ 'pdf-split':{module:'pdf-organize',kinds:['pdf','image'],next:['pdf-merge','pdf-compress','pdf']},
+ 'jpg-to-pdf':{module:'pdf-organize',kinds:['image','pdf'],next:['pdf-compress','pdf-merge','pdf']},
+ 'pdf-compress':{module:'pdf-compress',kinds:['pdf'],next:['pdf-merge','pdf-split','pdf']},
+ 'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */

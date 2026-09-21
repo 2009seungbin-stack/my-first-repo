@@ -1,5 +1,5 @@
 import {PDFWorkspace} from '../pdf.js';
-import {blobOf,release} from '../image.js';
+import {blobOf,release,decode} from '../image.js';
 import {bytes,stem,zip} from '../core.js';
 import {BRAND} from '../brand.js';
 import {t} from '../i18n.js';
@@ -7,30 +7,43 @@ import {text,toast,download,track,onLocale,continueWith,page as route} from './s
 /** PDF page organiser behind Merge PDF and Split PDF: every page of every file as a
  * thumbnail you can drag, rotate, duplicate or delete; images may be mixed in as pages.
  * Native page objects are copied (text, vectors and search stay intact) — see src/pdf.js. */
-export const accept='application/pdf,.pdf,image/*';
+export const accept='application/pdf,.pdf,image/*,.heic,.heif';
+const PAGE={a4:[595.28,841.89],letter:[612,792]};
+/** One image → one PDF page. JPEG-like inputs stay JPEG (small), PNG keeps its sharp edges and
+ * transparency. decode() applies the camera orientation, which raw JPEG embedding would lose. */
+async function imagePage(file,o){
+ const L=await import('../../assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js'),c=await decode(file);
+ try{
+  const png=file.type==='image/png',bytes=await (await blobOf(c,png?'image/png':'image/jpeg',.92)).arrayBuffer(),doc=await L.PDFDocument.create(),img=png?await doc.embedPng(bytes):await doc.embedJpg(bytes);
+  let [pw,ph]=o.pageSize==='fit'?[c.width*.75+o.margin*2,c.height*.75+o.margin*2]:PAGE[o.pageSize];if(o.pageSize!=='fit'&&c.width>c.height)[pw,ph]=[ph,pw];
+  const k=Math.min((pw-o.margin*2)/c.width,(ph-o.margin*2)/c.height),w=c.width*k,h=c.height*k;doc.addPage([pw,ph]).drawImage(img,{x:(pw-w)/2,y:(ph-h)/2,width:w,height:h});
+  return new File([await doc.save()],file.name,{type:'application/pdf'});
+ }finally{release(c);}
+}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LETTER=i=>String.fromCharCode(65+i%26)+(i>=26?Math.floor(i/26):'');
 export function mount({el,def}){
- const ws=new PDFWorkspace(),split=route.id==='pdf-split',thumbs=new Map(),selected=new Set();
+ const ws=new PDFWorkspace(),split=route.id==='pdf-split',images=route.id==='jpg-to-pdf',inputs=[],thumbs=new Map(),selected=new Set();
  let anchor=null,busy=false,abort=null,result=null,dragId=null,queue=[],loading=0,observer=null;
- let options={mode:split?'each':'merge',every:2,ranges:'',optimize:false,removeMetadata:false,name:''};
+ let options={mode:split?'each':'merge',every:2,ranges:'',optimize:false,removeMetadata:false,name:'',pageSize:'a4',margin:24};
  const T=(k,v)=>text('pdf.'+k,v),pages=()=>ws.pages,indexOf=id=>pages().findIndex(p=>p.id===id);
  const sourceIndex=p=>ws.sources.filter(s=>pages().some(x=>x.source===s)).indexOf(p.source);
  function empty(){
-  el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;
+  el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T(images?'dropImages':'drop'))}</strong><span>${esc(T(images?'dropImagesHint':'dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
   el.innerHTML=`<div class="work pdf-work"><section class="board"><div class="board-bar" role="toolbar" aria-label="${esc(T('tools'))}"><span class="board-count" id="pdfSelection"></span><span class="board-tools">
 <button type="button" data-action="pdf-all">${esc(T('selectAll'))}</button><button type="button" data-action="pdf-left" title="${esc(T('rotateLeft'))}" aria-label="${esc(T('rotateLeft'))}">⟲</button><button type="button" data-action="pdf-right" title="${esc(T('rotateRight'))}" aria-label="${esc(T('rotateRight'))}">⟳</button><button type="button" data-action="pdf-back" title="${esc(T('moveBack'))}" aria-label="${esc(T('moveBack'))}">←</button><button type="button" data-action="pdf-forward" title="${esc(T('moveForward'))}" aria-label="${esc(T('moveForward'))}">→</button><button type="button" data-action="pdf-duplicate">${esc(T('duplicate'))}</button><button type="button" data-action="pdf-delete" class="danger">${esc(T('delete'))}</button><button type="button" data-action="pdf-undo">${esc(T('undo'))}</button></span></div>
 <div class="pages" id="pdfPages" role="listbox" aria-multiselectable="true" aria-label="${esc(T('pages'))}"></div><p class="viewer-note">${esc(T('hint'))}</p></section>
 <aside class="side"><div class="summary" id="pdfSummary" role="status" aria-live="polite"></div><form id="pdfOptions" class="options" autocomplete="off">${split?`<div class="segmented split-modes" role="group" id="pdfMode">${['each','every','ranges','selected','odd-even'].map(m=>`<button type="button" data-action="pdf-mode" data-mode="${m}" aria-pressed="${options.mode===m}">${esc(T('mode.'+m))}</button>`).join('')}</div><div id="pdfModeFields"></div>`:''}
+${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter','fit'].map(v=>`<button type="button" data-action="pdf-pagesize" data-size="${v}" aria-pressed="${options.pageSize===v}">${esc(T('size.'+v))}</button>`).join('')}</div><div class="segmented" role="group" id="pdfMargin" style="margin-top:8px">${[0,24,48].map(v=>`<button type="button" data-action="pdf-margin" data-margin="${v}" aria-pressed="${options.margin===v}">${esc(T('margin.'+v))}</button>`).join('')}</div>`:''}
 <details class="options-advanced"><summary>${esc(text('advanced'))}</summary><label class="field"><span>${esc(T('fileName'))}</span><input id="pdfName" type="text" maxlength="80" value="${esc(options.name)}" placeholder="${esc(defaultName())}"></label><label class="check"><input id="pdfOptimize" type="checkbox" ${options.optimize?'checked':''}> ${esc(T('optimize'))}</label><label class="check"><input id="pdfMeta" type="checkbox" ${options.removeMetadata?'checked':''}> ${esc(T('removeMeta'))}</label></details></form>
 <div class="file-list" id="pdfFiles"></div><div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(T('addFiles'))}</button>${split?'':`<button type="button" class="link" data-action="pdf-sort">${esc(T('sortAZ'))}</button>`}<button type="button" class="link" data-action="pdf-clear">${esc(text('removeAll'))}</button></div>
 <button type="button" class="primary big" id="pdfRun" data-action="pdf-run"></button><div class="result-box" id="pdfResult" hidden></div><nav class="next" id="pdfNext"></nav><small class="local-note">${esc(text('local'))}</small></aside></div>`;
   observer?.disconnect();observer=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);want(e.target.dataset.id);}},{root:null,rootMargin:'400px'});
   modeFields();
  }
- const defaultName=()=>`${stem(ws.sources[0]?.name||BRAND.name.toLowerCase())}-${split?'split':'merged'}`;
+ const defaultName=()=>images?stem(ws.sources[0]?.name||'images'):`${stem(ws.sources[0]?.name||BRAND.name.toLowerCase())}-${split?'split':'merged'}`;
  function modeFields(){
   const host=el.querySelector('#pdfModeFields');if(!host)return;
   host.innerHTML=options.mode==='every'?`<label class="field"><span>${esc(T('everyLabel'))}</span><input id="pdfEvery" type="number" min="1" max="9999" value="${options.every}" inputmode="numeric"></label>`
@@ -66,7 +79,7 @@ export function mount({el,def}){
   el.querySelector('#pdfFiles').innerHTML=used.map((s,i)=>`<div class="file"><span class="pg-src s${i%6} inline">${LETTER(i)}</span><span class="file-main static"><span><b>${esc(s.name)}</b><small>${esc(T('pagesN',{n:pages().filter(p=>p.source===s).length}))} · ${esc(bytes(s.file.size))}</small></span></span><button type="button" class="icon" data-action="pdf-file-remove" data-source="${s.id}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`).join('');
   el.querySelector('#pdfSelection').textContent=selected.size?T('selectedN',{n:selected.size}):T('noneSelected');
   const run=el.querySelector('#pdfRun'),invalid=split&&(!g||!g.length);run.disabled=busy||!n||invalid;
-  run.textContent=busy?T('working'):split?(invalid?T(options.mode==='selected'?'needSelection':'badRanges'):T('runSplit',{n:g.length})):T('runMerge');
+  run.textContent=busy?T('working'):split?(invalid?T(options.mode==='selected'?'needSelection':'badRanges'):T('runSplit',{n:g.length})):T(images?'runPdf':'runMerge');
   for(const b of el.querySelectorAll('.board-tools button'))if(!['pdf-all','pdf-undo'].includes(b.dataset.action))b.disabled=!selected.size||busy;
   el.querySelector('[data-action="pdf-undo"]').disabled=!ws.history.length||busy;
  }
@@ -85,10 +98,12 @@ export function mount({el,def}){
  }
  async function add(files){
   if(busy)return;busy=true;const first=!pages().length;if(first)frame();renderSide();
-  try{await ws.add(files,p=>{const r=el.querySelector('#pdfRun');if(r)r.textContent=p;});track('tool_run',{intent:route.id});}
+  try{inputs.push(...files);const ready=[];for(const f of files)ready.push(f.type==='application/pdf'||/.pdf$/i.test(f.name)?f:await imagePage(f,options));await ws.add(ready,p=>{const r=el.querySelector('#pdfRun');if(r)r.textContent=p;});track('tool_run',{intent:route.id});}
   catch(error){toast(error?.message||String(error),{error:true});}
   finally{busy=false;if(!pages().length){empty();}else changed();}
  }
+ /** Page size / margin apply to the image pages, so those are rebuilt from the original files. */
+ async function rebuild(){if(busy)return;const files=inputs.splice(0);await ws.clear();selected.clear();clearResult();await add(files);}
  async function run(){
   if(busy)return;busy=true;abort=new AbortController();renderSide();const base=(options.name.trim()||defaultName()).replace(/\.pdf$/i,''),progress=p=>{const r=el.querySelector('#pdfRun');if(r)r.textContent=p;};
   try{
@@ -97,7 +112,7 @@ export function mount({el,def}){
    else{const g=groups(),entries=[];for(let i=0;i<g.length;i++){progress(T('partProgress',{a:i+1,b:g.length}));entries.push({name:`${base}-${String(i+1).padStart(String(g.length).length,'0')}.pdf`,blob:await ws.export({...common,range:g[i].join(',')},()=>{},abort.signal)});}
     count=entries.length;if(count===1){blob=entries[0].blob;name=entries[0].name;}else{blob=await zip(entries,{signal:abort.signal});name=base+'.zip';}result={entries};}
    result={...(result||{}),blob,name,count};download(blob,name);track('tool_success',{intent:route.id});
-   const box=el.querySelector('#pdfResult');box.hidden=false;box.innerHTML=`<strong>${esc(T(split?'doneSplit':'doneMerge'))}</strong><span>${esc(split?T('outputs',{n:count}):T('pagesN',{n:pages().length}))} · ${esc(bytes(blob.size))}</span><button type="button" class="ghost" data-action="pdf-again">${esc(T('again'))}</button>`;
+   const box=el.querySelector('#pdfResult');box.hidden=false;box.innerHTML=`<strong>${esc(T(split?'doneSplit':images?'donePdf':'doneMerge'))}</strong><span>${esc(split?T('outputs',{n:count}):T('pagesN',{n:pages().length}))} · ${esc(bytes(blob.size))}</span><button type="button" class="ghost" data-action="pdf-again">${esc(T('again'))}</button>`;
    el.querySelector('#pdfNext').innerHTML=`<span>${esc(text('next'))}</span>${def.next.map(id=>`<button type="button" class="chip" data-action="pdf-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`;
   }catch(error){if(error?.name!=='AbortError'){toast(error?.message||String(error),{error:true});track('tool_error',{intent:route.id,error_code:'processing_failed'});}}
   finally{busy=false;abort=null;renderSide();}
@@ -118,8 +133,9 @@ export function mount({el,def}){
    else if(a==='pdf-undo'){if(ws.undo())changed();}
    else if(a==='pdf-file-remove')mutate(()=>{const keep=pages().filter(p=>p.source.id!==b.dataset.source);pages().splice(0,pages().length,...keep);});
    else if(a==='pdf-sort')mutate(()=>{const order=ws.sources.slice().sort((x,y)=>x.name.localeCompare(y.name,undefined,{numeric:true}));pages().sort((x,y)=>order.indexOf(x.source)-order.indexOf(y.source)||x.index-y.index);});
-   else if(a==='pdf-clear'){ws.clear();selected.clear();for(const u of thumbs.values())if(u)URL.revokeObjectURL(u);thumbs.clear();result=null;empty();}
+   else if(a==='pdf-clear'){inputs.length=0;ws.clear();selected.clear();for(const u of thumbs.values())if(u)URL.revokeObjectURL(u);thumbs.clear();result=null;empty();}
    else if(a==='pdf-mode'){options.mode=b.dataset.mode;for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));modeFields();clearResult();render();}
+   else if(a==='pdf-pagesize'||a==='pdf-margin'){if(a==='pdf-pagesize')options.pageSize=b.dataset.size;else options.margin=Number(b.dataset.margin);for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));rebuild();}
    else if(a==='pdf-run')run();
    else if(a==='pdf-again'&&result)download(result.blob,result.name);
    else if(a==='pdf-next'&&result)continueWith(b.dataset.tool,result.entries?result.entries.map(x=>new File([x.blob],x.name,{type:'application/pdf'})):[new File([result.blob],result.name,{type:'application/pdf'})]);
