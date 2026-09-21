@@ -9,6 +9,7 @@ import {BRAND} from './brand.js';
 import {track,setAnalyticsContext,trafficSource} from './analytics.js';
 import {authorize} from './entitlement.js';
 import {Toolkit} from './toolkit.js';
+import {isTask} from './task/registry.js';
 import {t,getLocale,setLocale,normalizeLocale,LOCALES,LANGUAGE_NAMES,readPreference,savePreference,locationParts,localizedURL,localeFromEnvironment,translateStatic} from './i18n.js';
 import {INTENTS,intentFor,intentDefaults,isFocused,accepts} from './intents.js';
 import {landingFor,landingText} from './landings.js';
@@ -70,6 +71,12 @@ export class Experience {
  }
  async enter(id,{push=true,consume=false}={}){
   if(!INTENTS[id]||this.s.busy)return;
+  // Tools with their own single-task page are real pages, not views of this editor: go there, taking
+  // along the finished result when the person chose to continue with it.
+  if(push&&isTask(id)&&this.id!==id){
+   if(consume&&this.result?.blob){try{const {stashFiles}=await import('./task/handoff.js');await stashFiles([new File([this.result.blob],this.result.name||'result',{type:this.result.blob.type})]);}catch{/* the page still opens, just empty */}}
+   location.assign(this.url(id));return;
+  }
   if(consume&&this.result?.canvas&&this.result.kind==='image'){const c=Im.copy(this.result.canvas);this.invalidate();await this.a.task(t('이미지 편집기로 보내는 중…'),()=>this.a.applyImage(c));}
   if(consume&&this.result?.kind==='pdf'&&INTENTS[id].editor==='pdf'){const next=new PDFWorkspace(),blob=this.result.blob;let loaded=false;await this.a.task(t('intent.preparing'),async(progress,signal)=>{try{await next.add([new File([blob],'result.pdf',{type:'application/pdf'})],progress,signal);this.a.check(signal);await this.s.pdf.clear();this.s.pdf=next;loaded=true;}finally{if(!loaded)await next.clear();}});if(!loaded)return;}
   this.configure(id);if(push){history.pushState({},'',this.url(id));this.lastURL=location.href;}
