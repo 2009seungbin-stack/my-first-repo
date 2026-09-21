@@ -178,3 +178,5 @@ $('#canvasWrap').addEventListener('keydown',e=>{
  if(e.altKey){S.crop.w=clamp(S.crop.w+dx,1/S.c.width,1-S.crop.x);S.crop.h=clamp(S.crop.h+dy,1/S.c.height,1-S.crop.y);}
  else{S.crop.x=clamp(S.crop.x+dx,0,1-S.crop.w);S.crop.y=clamp(S.crop.y+dy,0,1-S.crop.h);}drawCrop();
 });
+// Files carried over from the home directory or another tool (src/task/handoff.js); local only.
+import('./task/handoff.js').then(m=>m.takeFiles()).then(files=>{if(files.length)loadFiles(files);}).catch(()=>{});

@@ -1,3 +1,5 @@
+import {DIRECTORY,isTask} from '../src/task/registry.js';
+import {ui} from '../src/task/strings.js';
 import {landingText} from '../src/landings.js';
 import {BRAND} from '../src/brand.js';
 import test from 'node:test';
@@ -35,8 +37,18 @@ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 for(const locale of LOCALES)for(const route of ['',...ROUTES])test(`static HTML ${locale}/${route}`,()=>{
  // Landing pages (src/landings.js) carry their own title and headline; everything else uses the tool's.
  const output=entry(html,`${locale}${route?'/'+route:''}`),id=intentFor(route),land=landingText(route,locale),title=land?.title||t(`intent.${id}.title`,{},locale);
- assert(output.includes(`<html lang="${locale}">`));assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · ${BRAND.name}</title>`));
- assert(output.includes(`id="emptyTitle">${(land?.headline||t(`intent.${id}.headline`,{},locale)).replaceAll('&','&amp;')}</h2>`));assert(output.includes('id="emptySubtitle"'));assert(output.includes('id="languageSelect"'));assert(output.includes('data-action="open"'));
+ assert(output.includes(`<html lang="${locale}">`));assert(output.includes('id="languageSelect"'));
+ if(!route){// Home is the tool directory: every tool is a real link before JavaScript runs.
+  assert(output.includes(`<title>${BRAND.name} — ${ui(locale,'homeTitle')}</title>`));
+  for(const [,ids] of DIRECTORY)for(const tool of ids)assert(output.includes(`href="${locale}/${INTENTS[tool].path}/"`),tool);
+  assert(output.includes('id="toolQuery"')&&output.includes('data-action="pick"'));
+ }else if(isTask(id)){// Single-task page: heading, drop zone and picker are static HTML.
+  assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · ${BRAND.name}</title>`));
+  assert(output.includes(`<h1 id="taskTitle">${title.replaceAll('&','&amp;')}</h1>`));assert(output.includes('class="dropzone"')&&output.includes('data-action="pick"')&&output.includes('id="fileInput"'));
+ }else{
+  assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · ${BRAND.name}</title>`));
+  assert(output.includes(`id="emptyTitle">${(land?.headline||t(`intent.${id}.headline`,{},locale)).replaceAll('&','&amp;')}</h2>`));assert(output.includes('id="emptySubtitle"'));assert(output.includes('data-action="open"'));
+ }
  assert(output.includes('<base href="'+'../'.repeat(route?route.split('/').length+1:1)+'">'));
 });
 test('no canonical domain is invented before deployment',()=>assert(!entry(html,'en/image/upscale').includes('rel="canonical"')));

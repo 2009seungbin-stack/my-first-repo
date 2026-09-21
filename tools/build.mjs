@@ -3,6 +3,8 @@ import {imageSitemap,verificationHead,notFound} from './growth-build.mjs';
 import {BRAND} from '../src/brand.js';
 import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
+import {isTask} from '../src/task/registry.js';
+import {homePage,taskPage} from './task-build.mjs';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -27,6 +29,12 @@ export function entry(html,route='',siteURL='',config={}){
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
  const land=landingText(parts.path,locale),landing=land?parts.path:'';
  const title=(land?.title||t(`intent.${id}.title`,{},locale))+' · '+BRAND.name,description=land?.description||t(`intent.${id}.description`,{},locale);
+ // The home directory and migrated tools use the single-task UI (src/task); every other
+ // route keeps the classic editor until its task page is a superset of that flow.
+ if(!parts.path||isTask(id)){
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
+ }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
  out=out.replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(title)}</title>`);
  out=out.replace(/<meta name="description"[^>]*>/,`<meta name="description" content="${escape(description)}">`);
