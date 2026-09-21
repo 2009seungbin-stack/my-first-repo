@@ -240,6 +240,10 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .tex-channel figcaption b{font-size:13px;color:var(--ink)}
 .tex-channel-foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .tex-channel-foot small{font-size:10.5px;color:#7b889a;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.tex-inout{display:flex;align-items:center;gap:6px;min-width:0}
+.tex-inout>span{flex:1 1 0;min-width:0;display:block}
+.tex-inout>span small{display:block;font-size:10px;color:#8a97a8;text-align:center;margin-top:2px}
+.tex-inout>b{flex:none;color:#8a97a8;font-size:12px}
 .tex-tooltip{font-size:11px;color:#7b889a;line-height:1.5;margin:6px 0 0}
 .tex-conventions{list-style:none;margin:0 0 10px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
 .tex-conventions li{border:1px solid #e6ebf2;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}

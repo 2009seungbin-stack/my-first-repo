@@ -169,7 +169,9 @@ metallic, and height textures typically do not".
   uses on a non-premultiplied texture, so an undilated edge visibly darkens as it shrinks.
 * **Power-of-two resize** — nearest / down / up / fit (256…4096, optional square), resampled with
   the repo's quality resampler (`src/resample.js` via `Im.resizeQuality`), not a canvas stretch.
-* **Seam check** — the 2×2 repeat plus per-row and per-column heat strips of the difference
+* **Seam check** — implemented here in `src/game/texture-fix.js` (`seamMetrics`) because Tile Lab
+  was not on this branch; if Tile Lab grows its own seam measurement, the two should be unified on
+  one function rather than kept in parallel. The 2×2 repeat plus per-row and per-column heat strips of the difference
   between the last and the first column/row, judged against the variation one texel inside: a
   noisy tileable texture has a large absolute edge difference and no seam, a smooth gradient has a
   small one and an obvious seam. Saves the measurements as JSON.
@@ -206,6 +208,12 @@ one operation at a time and dropped in a `finally`. Previews come from an exact 
 reduction (≤512 px, at most three cached ≈ 3 MB) rather than the browser's scaler, because a
 resized `ImageBitmap` is premultiplied and would show black where a packed channel still has
 data. Exports always re-run the same pure function on the full-resolution exact pixels.
+
+## Sharing settings
+
+The Normal stage reads `strength`, `kernel`, `convention` and `wrap=1` from the URL query, so a
+link can carry a setting (never image data). There is no "copy settings link" button yet; the
+query is read, not written.
 
 ## Limitations
 
@@ -248,6 +256,7 @@ downloaded files were re-opened with Pillow/numpy — never read back from the U
 | Unreal −Y convention | chained official statements (glTF exporter + glTF spec) | labelled "inferred" in the UI | UNVERIFIED (not stated by Epic) |
 | Import into Unity / Unreal / Godot | — | not attempted | UNVERIFIED |
 | Phone layout | Chromium at 390 and 320 px, Lab and Channels stages | `scrollWidth == innerWidth`, no horizontal scroll | VERIFIED |
+| Roughness → smoothness inversion | Playwright: invert G, download, numpy compare | saved plane equals `255 − roughness` exactly, and the stage shows the in → out pair | VERIFIED |
 | Unit coverage | `node --test tests/game-texture*.test.mjs` | 27 tests, 0 failures | VERIFIED |
 | Suite integration | `tests/task-browser.py` (TEST_URL on this branch's port) | 141 checks pass, including 15 new Texture Lab checks | VERIFIED |
 | WebGL2 preview | Chromium with SwiftShader | renders; texture-unit binding verified by eye against the source maps | VERIFIED (software GL only) |

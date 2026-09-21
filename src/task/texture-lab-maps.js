@@ -141,8 +141,8 @@ export const channelStage={
   return `<div class="view-head"><strong>${esc(T('channelsTitle'))}</strong><span>${esc(entry.name)} · ${entry.width}×${entry.height}${entry.exact?'':' · '+esc(T('notExact'))}</span></div>
 <div class="tex-channels">${presetChannels(state.channels.preset).map(c=>{
    const inverted=state.channels.invert[c.channel];
-   return `<figure class="tex-channel"><figcaption><b>${c.channel.toUpperCase()}</b> <span title="${esc(c.tooltip[locale])}">${esc(c.label[locale])}</span></figcaption>
-<canvas id="texChannel-${c.channel}"></canvas>
+   return `<figure class="tex-channel${inverted?' is-inverted':''}"><figcaption><b>${c.channel.toUpperCase()}</b> <span title="${esc(c.tooltip[locale])}">${esc(c.label[locale])}</span></figcaption>
+${inverted?`<div class="tex-inout"><span><canvas id="texChannelIn-${c.channel}"></canvas><small>${esc(T('inputChannel'))}</small></span><b aria-hidden="true">→</b><span><canvas id="texChannel-${c.channel}"></canvas><small>${esc(T('outputChannel'))}</small></span></div>`:`<canvas id="texChannel-${c.channel}"></canvas>`}
 <div class="tex-channel-foot"><small id="texChannelStat-${c.channel}"></small>
 ${c.invertOf||c.role==='roughness'?`<button type="button" class="mini-button" data-action="tex-channel-invert" data-channel="${c.channel}" aria-pressed="${!!inverted}">${esc(inverted?T('inverted'):T('invert'))}</button>`:''}
 <button type="button" class="mini-button" data-action="tex-channel-save" data-channel="${c.channel}">${esc(T('savePNG'))}</button></div>
@@ -183,8 +183,13 @@ async function refreshChannels(ctx){
  const pixels=await ctx.samplePixels(entry);
  ctx.state.view.channelStep=pixels.step;
  for(const letter of CHANNELS){
-  let plane=extractChannel(pixels.data,pixels.width,pixels.height,letter);
-  if(ctx.state.channels.invert[letter])plane=invertPlane(plane);
+  const source=extractChannel(pixels.data,pixels.width,pixels.height,letter);
+  let plane=source;
+  if(ctx.state.channels.invert[letter]){
+   plane=invertPlane(source);
+   // Inversion is the roughness ↔ smoothness conversion, so both sides are shown, not just the result.
+   ctx.paint(ctx.q(`#texChannelIn-${letter}`),source,pixels.width,pixels.height);
+  }
   ctx.paint(ctx.q(`#texChannel-${letter}`),plane,pixels.width,pixels.height);
   const stats=planeStats(plane),label=ctx.q(`#texChannelStat-${letter}`);
   if(label)label.textContent=ctx.T('channelStat',{min:stats.min,max:stats.max,mean:Math.round(stats.mean),unique:stats.unique});
