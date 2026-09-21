@@ -205,7 +205,10 @@ export function mount({el,def}){
   else if(a==='ed-organize'){const blob=await ws.export({});continueWith('pdf-merge',[new File([blob],fileName,{type:'application/pdf'})]);}
   else if(a==='ed-close'){await closeDocument();}
  });
- el.addEventListener('keydown',e=>{
+ // On the document, not the workspace: a button that disables itself after its click drops focus to
+ // <body>, and shortcuts (undo, delete) pressed next would otherwise never reach the workspace.
+ document.addEventListener('keydown',e=>{
+  if(!el.isConnected||e.target.closest?.('dialog'))return;
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
   if(!ws.pages.length)return;const typing=e.target.matches('input,textarea,[contenteditable="true"]');
   if(e.key==='Escape'){if(typing)e.target.blur();tool='select';select(null);return;}

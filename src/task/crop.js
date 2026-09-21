@@ -381,7 +381,10 @@ export function mount({el,def}){
    el.querySelector('#cropPreset').value='';renderSummary();renderList();
   }
  });
- el.addEventListener('keydown',e=>{
+ // On the document, not the workspace: a button that disables itself after its click drops focus to
+ // <body>, and shortcuts (undo, delete) pressed next would otherwise never reach the workspace.
+ document.addEventListener('keydown',e=>{
+  if(!el.isConnected||e.target.closest?.('dialog'))return;
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
   const it=items[current];if(!it||busy)return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();el.querySelector(e.shiftKey?'[data-action="crop-redo"]':'[data-action="crop-undo"]').click();return;}
