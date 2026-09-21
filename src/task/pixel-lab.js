@@ -423,6 +423,16 @@ ${num('plabScale2','scale',1,8,T('scale'))}
  });
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone,.frame-chip')){e.preventDefault();e.target.click();}});
+ // Shortcuts live on the document: a button that disables itself after a click hands focus back
+ // to <body>, and a listener on the workspace element would never see the next key.
+ document.addEventListener('keydown',e=>{
+  if(!el.isConnected||!sources.length||e.target.closest?.('dialog,input,textarea,select'))return;
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  // Left/right step through the frame strip without needing to hit a 68 px thumbnail.
+  const step=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+  if(step&&sources.length>1){e.preventDefault();at=(at+step+sources.length)%sources.length;candidates=null;build();}
+ });
  el.addEventListener('click',e=>{const chip=e.target.closest?.('.frame-chip');if(!chip||e.target.closest('[data-action="plab-remove"]'))return;const i=sources.findIndex(s=>String(s.id)===chip.dataset.id);if(i>=0&&i!==at){at=i;candidates=null;build();}});
  onLocale(()=>{if(!sources.length){empty();return;}shell();build();});
  empty();
