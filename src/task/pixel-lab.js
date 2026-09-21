@@ -8,7 +8,7 @@ import * as C from '../game/pixel-cleanup.js';
 import * as K from '../game/pixel-check.js';
 import {SCHEMA_VERSION} from '../game/model.js';
 import {PALETTES} from './pixel.js';
-import {text,toast,download,track,onLocale,page as route} from './shell.js';
+import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** Pixel Lab — one workspace that takes several animation frames from "whatever the artist
  * exported" to a consistent, engine-ready pixel asset: extract ONE palette from all frames, lock
  * every frame to it, recolour ramps, clean up stray pixels and anti-aliasing, check the pixel grid
@@ -29,7 +29,7 @@ const imageDataOf=c=>c.getContext('2d',{willReadFrequently:true}).getImageData(0
 function canvasOf({data,width,height}){const c=Im.canvas(width,height);c.getContext('2d').putImageData(new ImageData(data,width,height),0,0);return c;}
 const int=(v,min,max,fallback)=>{const n=Math.round(Number(v));return Number.isFinite(n)&&n>=min&&n<=max?n:fallback;};
 export function mount({el,def}){
- let sources=[],seq=0,at=0,stage=STAGE_FOR[route.id]||'convert',busy=false,timer=0,preview=null,report=null,candidates=null,history=[],paletteName='palette';
+ let sources=[],seq=0,at=0,stage=STAGE_FOR[route.id]||'convert',busy=false,timer=0,preview=null,report=null,candidates=null,history=[],paletteName='palette',lastExport=null;
  let palette=[],locks=[],counts=[],share=[],countScope='all',selection=new Set(),targetRamp=[],recolor={kind:'none'};
  const q=new URLSearchParams(route.query);
  let o={
@@ -39,7 +39,7 @@ export function mount({el,def}){
   orphans:false,clusters:false,minArea:4,holes:false,aa:false,aaThreshold:80,alphaCut:0,outline:-1,gapFix:false,
   showIO:false,silhouetteView:false,budget:int(q.get('budget'),2,256,16),scale:int(q.get('scale'),1,8,1),hue:0,window:30,tolerance:0,to:'#4a7fd8',preset:'frozen',teams:'red,blue,green,yellow'
  };
- const T=(k,v)=>text('plab.'+k,v),TV=T;
+ const T=(k,v)=>text('plab.'+k,v);
  const frameAt=()=>sources[Math.min(at,sources.length-1)];
  /** Frame pixels one at a time: a generator keeps a single ImageData alive instead of N copies. */
  const pixelsOf=list=>(function*(){for(const s of list)yield imageDataOf(s.canvas);})();
@@ -123,7 +123,7 @@ export function mount({el,def}){
    oc.globalAlpha=.8;oc.fillStyle='#ff2d95';
    for(const c of candidates){const x=c.at%preview.width,y=(c.at-x)/preview.width;oc.fillRect(x,y,1,1);}
   }
-  el.querySelector('#plabInfo').textContent=`${preview.width} × ${preview.height}${o.scale>1?` → ${w} × ${h}`:''} · ${TV('colorCount',{n:palette.length})}`;
+  el.querySelector('#plabInfo').textContent=`${preview.width} × ${preview.height}${o.scale>1?` → ${w} × ${h}`:''} · ${T('colorCount',{n:palette.length})}`;
   if(o.compare)paintCompare();
  }
  function paintCompare(){
@@ -159,6 +159,7 @@ export function mount({el,def}){
  <div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(T('addFrames'))}</button><button type="button" class="link" data-action="plab-undo" ${history.length?'':'disabled'}>${esc(t('되돌리기'))}</button><button type="button" class="link" data-action="plab-clear">${esc(text('removeAll'))}</button></div>
  <button type="button" class="primary big" data-action="plab-export">${esc(T('exportFrames'))}</button>
  <div class="list-actions"><button type="button" class="mini-button" data-action="plab-export-one">${esc(T('exportOne'))}</button><button type="button" class="mini-button" data-action="plab-export-palette">${esc(T('exportPalette'))}</button><button type="button" class="link" data-action="plab-link">${esc(t('설정 링크 복사'))}</button></div>
+ <nav class="next" id="plabNext"></nav>
  <small class="local-note">${esc(text('local'))}</small>
 </aside></div>`;
  }
@@ -222,12 +223,12 @@ ${num('plabScale2','scale',1,8,T('scale'))}
  function renderStrip(){
   const strip=el.querySelector('#plabStrip');if(!strip)return;
   strip.innerHTML=sources.map((s,i)=>`<div class="frame-chip ${i===at?'is-current':''}" data-id="${s.id}" title="${esc(s.name)}" role="button" tabindex="0" aria-current="${i===at?'true':'false'}"><img src="${s.thumb}" alt="${esc(s.name)}" class="px"><span>${i+1}</span><button type="button" data-action="plab-remove" data-id="${s.id}" aria-label="${esc(text('remove'))}">×</button></div>`).join('');
-  el.querySelector('#plabCount').textContent=TV('frameCount',{n:sources.length});
+  el.querySelector('#plabCount').textContent=T('frameCount',{n:sources.length});
  }
  function renderSide(){
   const body=el.querySelector('#plabOptions');if(!body)return;
   const summary=el.querySelector('#plabSummary');
-  summary.innerHTML=`<div class="summary-big">${palette.length} ${esc(T('colorsShort'))}</div><div class="summary-line">${esc(TV('frameCount',{n:sources.length}))} · ${esc(preview?`${preview.width}×${preview.height}`:'—')}${preview?.changed?` · ${esc(TV('cleaned',{n:preview.changed}))}`:''}</div><div class="summary-line">${esc(T('scope.'+countScope))}</div>`;
+  summary.innerHTML=`<div class="summary-big">${palette.length} ${esc(T('colorsShort'))}</div><div class="summary-line">${esc(T('frameCount',{n:sources.length}))} · ${esc(preview?`${preview.width}×${preview.height}`:'—')}${preview?.changed?` · ${esc(T('cleaned',{n:preview.changed}))}`:''}</div><div class="summary-line">${esc(T('scope.'+countScope))}</div>`;
   if(stage==='palette'){
    const host=el.querySelector('#plabSwatches');
    host.innerHTML=palette.map((c,i)=>`<button type="button" class="plab-swatch ${selection.has(i)?'is-on':''} ${locks[i]?'is-locked':''}" data-action="plab-pick" data-index="${i}" style="--c:${P.hex(c)}" aria-pressed="${selection.has(i)}" aria-label="${esc(`${i+1} ${P.hex(c)} · ${(share[i]*100||0).toFixed(1)}%`)}" title="${esc(`${P.hex(c)} · ${counts[i]||0}px`)}"><span class="plab-chip"></span><small>${esc(P.hex(c).slice(1))}</small><em>${esc(((share[i]||0)*100).toFixed(1))}%</em></button>`).join('');
@@ -238,30 +239,30 @@ ${num('plabScale2','scale',1,8,T('scale'))}
 <button type="button" class="mini-button" data-action="plab-lock" data-index="${i}" aria-pressed="${!!locks[i]}">${esc(locks[i]?T('unlock'):T('lock'))}</button>
 <button type="button" class="mini-button" data-action="plab-remove-color" data-index="${i}">${esc(text('remove'))}</button></div>`).join(''):`<p class="hint">${esc(T('pickHint'))}</p>`;
    const audit=P.auditBudget(palette,counts,o.budget),out=el.querySelector('#plabBudget-out');
-   out.innerHTML=audit.over?`<p class="summary-line bad">${esc(TV('overBudget',{n:audit.over,target:audit.limit}))}</p><ol class="plab-offenders">${audit.offenders.map(x=>`<li><span class="plab-chip" style="--c:${P.hex(x.color)}"></span><code>${esc(P.hex(x.color))}</code> <small>${x.count}px · ${(x.share*100).toFixed(2)}%</small></li>`).join('')}</ol>`:`<p class="summary-line">${esc(TV('withinBudget',{n:palette.length,target:audit.limit}))}</p>`;
+   out.innerHTML=audit.over?`<p class="summary-line bad">${esc(T('overBudget',{n:audit.over,target:audit.limit}))}</p><ol class="plab-offenders">${audit.offenders.map(x=>`<li><span class="plab-chip" style="--c:${P.hex(x.color)}"></span><code>${esc(P.hex(x.color))}</code> <small>${x.count}px · ${(x.share*100).toFixed(2)}%</small></li>`).join('')}</ol>`:`<p class="summary-line">${esc(T('withinBudget',{n:palette.length,target:audit.limit}))}</p>`;
   }
   if(stage==='recolor'){
    const src=el.querySelector('#plabRampSource'),tgt=el.querySelector('#plabRampTarget');
    if(src)src.innerHTML=palette.map((c,i)=>`<button type="button" class="plab-swatch ${selection.has(i)?'is-on':''}" data-action="plab-pick" data-index="${i}" style="--c:${P.hex(c)}" aria-pressed="${selection.has(i)}" aria-label="${esc(`${T('source')} ${i+1} ${P.hex(c)}`)}"><span class="plab-chip"></span></button>`).join('');
    if(tgt)tgt.innerHTML=targetRamp.length?targetRamp.map((c,i)=>`<span class="plab-swatch is-static" style="--c:${P.hex(c)}" title="${esc(P.hex(c))}"><span class="plab-chip"></span><small>${esc(P.hex(c).slice(1))}</small></span>`).join(''):`<p class="hint">${esc(T('noTarget'))}</p>`;
    const mask=el.querySelector('#plabMaskOut');
-   if(mask){const hit=P.hueWindow(palette,{hue:o.hue,window:o.window,tolerance:o.tolerance});mask.innerHTML=`<p class="summary-line">${esc(TV('maskCount',{n:hit.filter(Boolean).length,total:palette.length}))}</p><div class="plab-swatches small">${palette.map((c,i)=>`<span class="plab-swatch is-static ${hit[i]?'is-on':''}" title="${esc(P.hex(c))}${hit[i]?' ✓':''}"><span class="plab-chip" style="--c:${P.hex(c)}"></span>${hit[i]?'<b aria-hidden="true">✓</b>':''}</span>`).join('')}</div>`;}
+   if(mask){const hit=P.hueWindow(palette,{hue:o.hue,window:o.window,tolerance:o.tolerance});mask.innerHTML=`<p class="summary-line">${esc(T('maskCount',{n:hit.filter(Boolean).length,total:palette.length}))}</p><div class="plab-swatches small">${palette.map((c,i)=>`<span class="plab-swatch is-static ${hit[i]?'is-on':''}" title="${esc(P.hex(c))}${hit[i]?' ✓':''}"><span class="plab-chip" style="--c:${P.hex(c)}"></span>${hit[i]?'<b aria-hidden="true">✓</b>':''}</span>`).join('')}</div>`;}
   }
   if(stage==='cleanup'&&preview){
    const f=preview.found;
-   el.querySelector('#plabCleanupOut').innerHTML=`<ul class="plab-list"><li>${esc(TV('orphanCount',{n:f.orphans.items.length}))}</li><li>${esc(TV('clusterCount',{n:f.clusters.items.length}))}</li><li>${esc(TV('holeCount',{n:f.holes.items.length}))}</li>${preview.aa?`<li>${esc(TV('aaCount',{n:preview.aa.transition,other:preview.aa.nearest}))}</li>`:''}</ul>`;
+   el.querySelector('#plabCleanupOut').innerHTML=`<ul class="plab-list"><li>${esc(T('orphanCount',{n:f.orphans.items.length}))}</li><li>${esc(T('clusterCount',{n:f.clusters.items.length}))}</li><li>${esc(T('holeCount',{n:f.holes.items.length}))}</li>${preview.aa?`<li>${esc(T('aaCount',{n:preview.aa.transition,other:preview.aa.nearest}))}</li>`:''}</ul>`;
    const outline=el.querySelector('#plabOutlineOut');
    if(outline&&o.outline>=0){const audit=C.outlineAudit({indices:preview.indices,width:preview.width,height:preview.height},o.outline);
-    outline.innerHTML=`<ul class="plab-list"><li>${esc(TV('gapCount',{n:audit.gaps.length}))}</li><li>${esc(TV('doubledCount',{n:audit.doubled.length}))}</li><li>${esc(TV('thickness',{n:audit.thickness.dominant,min:audit.thickness.min,max:audit.thickness.max}))}</li></ul>`;}
+    outline.innerHTML=`<ul class="plab-list"><li>${esc(T('gapCount',{n:audit.gaps.length}))}</li><li>${esc(T('doubledCount',{n:audit.doubled.length}))}</li><li>${esc(T('thickness',{n:audit.thickness.dominant,min:audit.thickness.min,max:audit.thickness.max}))}</li></ul>`;}
    else if(outline)outline.innerHTML='';
   }
   if(stage==='check'&&report){
    const s=report.scale,verdict=T('verdicts.'+report.verdict);
    el.querySelector('#plabReport').innerHTML=`<ul class="plab-list">
-<li><strong>${esc(verdict)}</strong>${report.verdict==='integer'?` · ${esc(TV('logical',{w:report.logical.width,h:report.logical.height,s:s.scale}))}`:report.verdict==='non-integer'?` · ${esc(TV('estimate',{n:s.estimate}))}`:''}</li>
-<li>${esc(TV('offGrid',{v:report.offGrid?T('yes'):T('no'),x:s.offset.x,y:s.offset.y}))}</li>
-<li>${esc(TV('edgeReport',{n:report.edges.intermediate,share:(report.edges.share*100).toFixed(1),alpha:report.edges.partialAlpha}))}</li>
-<li>${esc(TV('distinct',{n:report.distinct,target:o.budget}))}</li></ul>`;
+<li><strong>${esc(verdict)}</strong>${report.verdict==='integer'?` · ${esc(T('logical',{w:report.logical.width,h:report.logical.height,s:s.scale}))}`:report.verdict==='non-integer'?` · ${esc(T('estimate',{n:s.estimate}))}`:''}</li>
+<li>${esc(T('offGrid',{v:report.offGrid?T('yes'):T('no'),x:s.offset.x,y:s.offset.y}))}</li>
+<li>${esc(T('edgeReport',{n:report.edges.intermediate,share:(report.edges.share*100).toFixed(1),alpha:report.edges.partialAlpha}))}</li>
+<li>${esc(T('distinct',{n:report.distinct,target:o.budget}))}</li></ul>`;
   }
   if(stage==='check'&&o.silhouetteView&&preview){
    const flat=K.silhouette(preview.pixels);
@@ -272,7 +273,7 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    }
   }
   if(stage==='export'){
-   el.querySelector('#plabExportOut').innerHTML=`<ul class="plab-list"><li>${esc(TV('frameCount',{n:sources.length}))}</li><li>${esc(TV('colorCount',{n:palette.length}))}</li><li>${esc(T('dithers.'+o.dither))}${o.scale>1?` · ${o.scale}×`:''}</li></ul>`;
+   el.querySelector('#plabExportOut').innerHTML=`<ul class="plab-list"><li>${esc(T('frameCount',{n:sources.length}))}</li><li>${esc(T('colorCount',{n:palette.length}))}</li><li>${esc(T('dithers.'+o.dither))}${o.scale>1?` · ${o.scale}×`:''}</li></ul>`;
   }
  }
  // ── input ───────────────────────────────────────────────────────────────────────────────────
@@ -331,7 +332,10 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    files.push({name:`${paletteName||'palette'}.gpl`,blob:new Blob([P.toGPL(out,{name:paletteName,columns:Math.min(16,out.length)})],{type:'text/plain'})});
    files.push({name:'pixel-lab.json',blob:new Blob([envelope(entries)],{type:'application/json'})});
    const archive=await zip(files);download(archive,`pixel-lab-${sources.length}.zip`);
-   track('tool_success',{intent:route.id});toast(TV('exported',{n:entries.length,size:bytes(archive.size)}));
+   track('tool_success',{intent:route.id});toast(T('exported',{n:entries.length,size:bytes(archive.size)}));
+   lastExport=files[0];
+   const next=el.querySelector('#plabNext');
+   if(next)next.innerHTML=`<span>${esc(text('next'))}</span>${def.next.map(id=>`<button type="button" class="chip" data-action="plab-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`;
   }catch(error){toast(error?.message||String(error),{error:true});}finally{busy=false;}
  }
  async function exportVariants(){
@@ -348,7 +352,7 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    }
    for(const v of variants)files.push({name:`${v.name}/palette.gpl`,blob:new Blob([P.toGPL(v.colors,{name:v.name})],{type:'text/plain'})});
    const archive=await zip(files,{paths:true});download(archive,`pixel-lab-variants-${variants.length}.zip`);
-   toast(TV('exported',{n:files.length,size:bytes(archive.size)}));track('tool_success',{intent:route.id});
+   toast(T('exported',{n:files.length,size:bytes(archive.size)}));track('tool_success',{intent:route.id});
   }catch(error){toast(error?.message||String(error),{error:true});}finally{busy=false;}
  }
  async function exportOne(){
@@ -361,7 +365,7 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   try{
    const parsed=P.parsePaletteFile(textValue,filename);
    pushHistory();palette=parsed.colors;locks=palette.map(()=>false);selection=new Set();paletteName=parsed.name||stem(filename||'imported');
-   o.classic='';toast(TV('imported',{n:palette.length,format:parsed.format.toUpperCase()}));shell();build();
+   o.classic='';toast(T('imported',{n:palette.length,format:parsed.format.toUpperCase()}));shell();build();
   }catch(error){toast(error?.message||String(error),{error:true});}
  }
  el.addEventListener('click',async e=>{
@@ -377,26 +381,26 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   }
   else if(a==='plab-recolor'){recolor={kind:b.dataset.value};for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));shell();build();}
   else if(a==='plab-pick'){const i=Number(b.dataset.index);selection.has(i)?selection.delete(i):selection.add(i);renderSide();schedule();}
-  else if(a==='plab-copy'){const value=P.hex(palette[Number(b.dataset.index)]);try{await navigator.clipboard.writeText(value);toast(TV('copied',{v:value}));}catch{toast(value);}}
+  else if(a==='plab-copy'){const value=P.hex(palette[Number(b.dataset.index)]);try{await navigator.clipboard.writeText(value);toast(T('copied',{v:value}));}catch{toast(value);}}
   else if(a==='plab-lock'){const i=Number(b.dataset.index);pushHistory();locks[i]=!locks[i];renderSide();}
   else if(a==='plab-remove-color'){const i=Number(b.dataset.index);if(palette.length<2){toast(T('needOneColor'),{error:true});return;}pushHistory();palette=palette.filter((_,k)=>k!==i);locks=locks.filter((_,k)=>k!==i);selection=new Set();o.outline=-1;shell();build();}
   else if(a==='plab-add-color'){pushHistory();palette=[...palette,P.parseColor(o.to)||[255,255,255]];locks=[...locks,false];shell();build();}
   else if(a==='plab-extract'){pushHistory();const keep=palette.filter((_,i)=>locks[i]);const fresh=P.extract(pixelsOf(sources),Math.max(1,o.colors-keep.length)).colors;palette=[...keep,...fresh].slice(0,P.MAX_COLORS);locks=palette.map((_,i)=>i<keep.length);paletteName='extracted';selection=new Set();counts=[];shell();build();}
   else if(a==='plab-sort'){pushHistory();o.sort=b.dataset.mode;const sorted=P.sortPalette(palette,o.sort,counts);palette=sorted.colors;locks=sorted.order.map(i=>locks[i]);counts=sorted.order.map(i=>counts[i]);share=sorted.order.map(i=>share[i]);selection=new Set();shell();build();}
-  else if(a==='plab-merge'){const plan=P.mergePlan(palette,counts,o.budget);if(!plan.removed.length){toast(TV('withinBudget',{n:palette.length,target:o.budget}));return;}pushHistory();palette=plan.colors;locks=palette.map(()=>false);selection=new Set();o.outline=-1;toast(TV('merged',{n:plan.removed.length}));shell();build();}
+  else if(a==='plab-merge'){const plan=P.mergePlan(palette,counts,o.budget);if(!plan.removed.length){toast(T('withinBudget',{n:palette.length,target:o.budget}));return;}pushHistory();palette=plan.colors;locks=palette.map(()=>false);selection=new Set();o.outline=-1;toast(T('merged',{n:plan.removed.length}));shell();build();}
   else if(a==='plab-import-text'){const value=el.querySelector('#plabPaletteText')?.value||'';if(value.trim())importPalette(value,'pasted.txt');}
   else if(a==='plab-export-palette')exportPalette();
   else if(a==='plab-auto-ramp'){const base=P.parseColor(o.to);if(!selection.size||!base){toast(T('needSelection'),{error:true});return;}targetRamp=P.generateRamp(base,[...selection].map(i=>palette[i]));renderSide();schedule();}
   else if(a==='plab-apply-recolor'){const out=outputPalette();if(out===palette){toast(T('recolorNone'));return;}pushHistory();palette=out;recolor={kind:'none'};targetRamp=[];shell();build();}
   else if(a==='plab-variants')exportVariants();
-  else if(a==='plab-candidates'){const f=preview?.found;if(!f)return;candidates=[...f.orphans.changes,...f.clusters.changes,...f.holes.changes];if(o.outline>=0)candidates=[...candidates,...C.outlineAudit({indices:preview.indices,width:preview.width,height:preview.height},o.outline).gapFix];paint();toast(TV('candidateCount',{n:candidates.length}));}
+  else if(a==='plab-candidates'){const f=preview?.found;if(!f)return;candidates=[...f.orphans.changes,...f.clusters.changes,...f.holes.changes];if(o.outline>=0)candidates=[...candidates,...C.outlineAudit({indices:preview.indices,width:preview.width,height:preview.height},o.outline).gapFix];paint();toast(T('candidateCount',{n:candidates.length}));}
   else if(a==='plab-hide-candidates'){candidates=null;paint();}
   else if(a==='plab-recover'){
    const source=frameAt(),found=report?.scale;
    if(!report||report.verdict!=='integer'){toast(T('noRecover'),{error:true});return;}
    const recovered=canvasOf(K.recoverSource(imageDataOf(source.canvas),found.scale,found.offset));
    if(source.canvas!==source.raw)Im.release(source.canvas);
-   source.canvas=recovered;palette=[];locks=[];toast(TV('recovered',{w:recovered.width,h:recovered.height}));shell();build();
+   source.canvas=recovered;palette=[];locks=[];toast(T('recovered',{w:recovered.width,h:recovered.height}));shell();build();
   }
   else if(a==='plab-silhouette'){
    const flat=K.silhouette(preview.pixels);
@@ -408,10 +412,11 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   else if(a==='plab-undo')undo();
   else if(a==='plab-export')exportFrames();
   else if(a==='plab-export-one')exportOne();
+  else if(a==='plab-next'&&lastExport)continueWith(b.dataset.tool,[new File([lastExport.blob],lastExport.name,{type:'image/png'})]);
   else if(a==='plab-link'){
    const url=new URL(location.href);
    for(const [k,v] of Object.entries({colors:o.colors,dither:o.dither,size:o.size||'',scale:o.scale,budget:o.budget,palette:o.classic}))v?url.searchParams.set(k,String(v)):url.searchParams.delete(k);
-   try{await navigator.clipboard.writeText(url.href);toast(TV('copied',{v:url.href}));}catch{toast(url.href);}
+   try{await navigator.clipboard.writeText(url.href);toast(T('copied',{v:url.href}));}catch{toast(url.href);}
   }
  });
  el.addEventListener('input',e=>{

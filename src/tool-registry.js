@@ -20,9 +20,9 @@ export const TOOLS = Object.freeze({
       "単色背景のみ除去。AI生成や細部の復元は行いません。"
     ],
     "next": [
+      "pixel-lab",
       "sprite-sheet-maker",
-      "palette-swap",
-      "image"
+      "palette-swap"
     ]
   },
   "sprite-slicer": {
@@ -118,8 +118,9 @@ export const TOOLS = Object.freeze({
       "陰影保持は明度差を加える近似で、材質を認識する変換ではありません。"
     ],
     "next": [
-      "refiner",
-      "sprite-sheet-maker"
+      "palette-swap-ramp",
+      "pixel-lab",
+      "refiner"
     ]
   },
   "marketplace-pack": {
