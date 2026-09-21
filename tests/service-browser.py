@@ -79,7 +79,12 @@ def instrument(page,log):
             log.append({'url':r.url,'method':r.method,'body':r.post_data or '','type':r.headers.get('content-type','')})
     page.on('request',on_request)
     page.on('pageerror',lambda e:errors.append(str(e)))
-def idle(page):page.locator('#workspace[aria-busy="false"]').wait_for(timeout=60000)
+# Single-task pages (src/task) meter one job each time files are added; the classic editor meters each Run.
+READY="()=>{const b=document.querySelector('#taskDownload');return !document.querySelector('#taskFiles .file')||(b&&!b.disabled)}"
+def is_task(page):return page.locator('body.task-page').count()>0
+def idle(page):
+    if is_task(page):page.wait_for_function(READY,timeout=120000);return
+    page.locator('#workspace[aria-busy="false"]').wait_for(timeout=60000)
 def api_calls(log,path):return [r for r in log if '/api/v1/'+path in r['url']]
 SECRET_FILENAME='secret-passport-scan-7731.png'
 def png_bytes():
@@ -92,15 +97,25 @@ def open_tool(context,stack,path,log,wait_me=True):
     page.goto(stack.url+path,wait_until='domcontentloaded')
     if wait_me:page.wait_for_function('()=>document.getElementById("accountLink")&&!document.getElementById("accountLink").hidden',timeout=30000)
     return page
+def add_file(page):page.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"',timeout=30000);page.locator('#fileInput').set_input_files(files=[{'name':SECRET_FILENAME,'mimeType':'image/png','buffer':png_bytes()}])
 def load_file(page):
+    if is_task(page):return # adding the file is the metered run there; see run_intent
     page.locator('#fileInput').set_input_files(files=[{'name':SECRET_FILENAME,'mimeType':'image/png','buffer':png_bytes()}]);idle(page)
+def attempt(page):
+    # Starts one metered run without waiting for it (it may be refused).
+    if is_task(page):add_file(page);return
+    page.locator('[data-action="undo"]:visible').first.click();idle(page)
+    page.locator('[data-action="intent-run"]').click()
 def run_intent(page):
+    if is_task(page):
+        before=page.locator('#taskFiles .file').count();add_file(page)
+        page.wait_for_function('n=>document.querySelectorAll("#taskFiles .file").length>n',arg=before,timeout=30000);idle(page);return
     # A finished result turns the primary button into Download; undo returns to the source.
     if page.locator('[data-action="intent-download"]').count():page.locator('[data-action="undo"]:visible').first.click();idle(page)
     page.locator('[data-action="intent-run"]').click();page.wait_for_timeout(150);idle(page)
-def has_source(page):return page.locator('.canvas-wrap canvas').count()>0
+def has_source(page):return page.locator('#taskFiles .file' if is_task(page) else '.canvas-wrap canvas').count()>0
 def download_ok(page):
-    with page.expect_download(timeout=30000) as d:page.locator('[data-action="intent-download"]').click()
+    with page.expect_download(timeout=30000) as d:page.locator('#taskDownload' if is_task(page) else '[data-action="intent-download"]').click()
     path=d.value.path();return Path(path).stat().st_size>0
 
 def scenario_free(browser):
@@ -108,7 +123,7 @@ def scenario_free(browser):
                 {'FREE_DAILY_JOBS':'2','BILLING_PROVIDER':'sandbox','BILLING_WEBHOOK_SECRET':WEBHOOK})
     try:
         context=browser.new_context(accept_downloads=True);context._nerulio_base=stack.url;log=[]
-        page=open_tool(context,stack,'/en/image/upscale/',log)
+        page=open_tool(context,stack,'/en/image/upscale/?mode=smooth',log)
         ok('anonymous header shows Sign in',page.locator('#accountLink').inner_text()=='Sign in')
         anon=[c for c in context.cookies() if c['name']=='nerulio_anon']
         ok('anonymous cookie is HttpOnly + Lax',len(anon)==1 and anon[0]['httpOnly'] and anon[0]['sameSite']=='Lax')
@@ -122,14 +137,13 @@ def scenario_free(browser):
         ok('authorize payload is tiny JSON',auth[0]['type'].startswith('application/json') and len(auth[0]['body'])<120)
         run_intent(page);ok('Free heavy job 2 (limit 2) runs',download_ok(page))
         ok('remaining indicator shown near the limit',page.locator('#serviceToast').count()==1)
-        page.locator('[data-action="undo"]:visible').first.click();idle(page)
-        page.locator('[data-action="intent-run"]').click()
+        attempt(page)
         page.locator('#upgradeDialog').wait_for(timeout=15000)
         ok('limit reached opens the upgrade modal',page.locator('#upgradeDialog [data-upgrade]').get_attribute('target')=='_blank')
         ok('modal says work is kept',page.locator('#upgradeDialog .keep-work').is_visible())
         page.locator('#upgradeDialog [data-later]').click();page.wait_for_timeout(200)
-        ok('modal closes without navigating',page.url.endswith('/en/image/upscale/') and page.locator('#upgradeDialog').count()==0)
-        ok('current file and settings survive the refusal',has_source(page) and page.locator('[data-action="intent-run"]').is_visible())
+        ok('modal closes without navigating','/en/image/upscale/' in page.url and page.locator('#upgradeDialog').count()==0)
+        ok('current file and settings survive the refusal',has_source(page) and page.locator('#taskFiles .file').count()==2 and page.locator('#upScale [aria-pressed="true"]').inner_text()=='2×')
         ok('denied run was the only extra authorize',len(api_calls(log,'jobs/authorize'))==3)
         # Light tools never call the API and keep working after the limit.
         crop=open_tool(context,stack,'/en/image/crop/',log);before=len(api_calls(log,'jobs/authorize'))
@@ -163,7 +177,7 @@ def scenario_free(browser):
         except urllib.error.HTTPError as e:ok('unsigned webhook rejected',e.code==401)
         first=sandbox_webhook(stack,uid,event='evt-e2e-1');dup=sandbox_webhook(stack,uid,event='evt-e2e-1')
         ok('signed webhook processed once, duplicate ignored',first.get('duplicate') is False and dup.get('duplicate') is True)
-        page=open_tool(context,stack,'/en/image/upscale/',log)
+        page=open_tool(context,stack,'/en/image/upscale/?mode=smooth',log)
         ok('Pro badge in header',page.locator('#accountLink').inner_text()=='Pro')
         load_file(page)
         for i in range(4):run_intent(page)
@@ -181,11 +195,10 @@ def scenario_free(browser):
         page=open_tool(context,stack,'/en/image/crop/',log,wait_me=False);page.wait_for_timeout(1500)
         ok('header link hidden when service is down',page.locator('#accountLink').is_hidden())
         load_file(page);run_intent(page);ok('crop works during an API outage',download_ok(page))
-        up=open_tool(context,stack,'/en/image/upscale/',log,wait_me=False);load_file(up)
+        up=open_tool(context,stack,'/en/image/upscale/?mode=smooth',log,wait_me=False);load_file(up)
         for i in range(3):run_intent(up)
         ok('3 grace heavy jobs during an outage produce output',download_ok(up))
-        up.locator('[data-action="undo"]:visible').first.click();idle(up)
-        up.locator('[data-action="intent-run"]').click();up.wait_for_timeout(600);idle(up)
+        attempt(up);up.wait_for_timeout(600);idle(up)
         ok('after grace, heavy tools pause with a message',up.locator('#serviceToast').is_visible())
         context.close()
     finally:stack.close()
