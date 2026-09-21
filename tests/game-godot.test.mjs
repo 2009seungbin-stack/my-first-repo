@@ -73,12 +73,13 @@ test('the importer is a GDScript EditorScript that uses the public TileSet API',
  // No hand-written resource text: the file must not fabricate the .tres format itself.
  assert(!/\[gd_resource|\[sub_resource|ExtResource\(/.test(gd),'the helper must not write resource syntax by hand');
 });
-test('the readme states the mode, the count and that nothing was run in the engine here',()=>{
+test('the readme states the mode, the count, the headless route and where verification is recorded',()=>{
  const json=godotTileSet({layout:LAYOUTS.corner16,grid:gridFor('corner16'),image:'t.png'});
  const readme=godotReadme(json);
  assert.equal(readme.steps.length,4);
  assert(readme.text.includes('corner16')&&readme.text.includes('match_corners'));
  assert(readme.notes.some(n=>/dual grid/i.test(n)),'a dual grid layout must warn about the half-tile offset');
- assert(readme.notes.some(n=>/not installed in the browser/.test(n)));
+ assert(readme.notes.some(n=>/cannot run Godot/.test(n)&&/docs\/TILE-LAB\.md/.test(n)),'the pack must say where the engine run is recorded');
+ assert(readme.notes.some(n=>/extends SceneTree/.test(n)&&/--import/.test(n)),'the headless route needs the wrapper and the import pass');
  assert(!godotReadme(godotTileSet({layout:LAYOUTS.blob47,grid:gridFor('blob47')})).notes.some(n=>/dual grid/i.test(n)));
 });
