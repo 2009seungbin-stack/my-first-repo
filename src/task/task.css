@@ -42,6 +42,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .cmp-bar::after{content:"◂ ▸";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#192638;font-size:11px;font-weight:800;border-radius:20px;padding:6px 9px;white-space:nowrap;box-shadow:0 2px 12px #0004}
 .cmp input[type=range]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
 .cmp-tag{position:absolute;top:10px;font-size:11px;font-weight:800;background:#000a;color:#fff;border-radius:7px;padding:3px 8px;pointer-events:none}.cmp-tag.l{left:10px}.cmp-tag.r{right:10px}
+.cmp.no-compare .cmp-bar,.cmp.no-compare .cmp-tag,.cmp.no-compare input{display:none}.hint.warning{color:#a15c07;background:#fff6e5;padding:9px 11px;border-radius:10px}
 .cmp.is-pending .cmp-bar,.cmp.is-pending .cmp-tag.r{display:none}.cmp.is-pending::after{content:"";position:absolute;right:12px;top:12px;width:18px;height:18px;border-radius:50%;border:2.5px solid #fff8;border-top-color:var(--blue);animation:spin 1s linear infinite}
 .viewer-note{font-size:12px;color:#6b7a90;margin:10px 4px 2px;line-height:1.6;font-weight:500}
 .side{padding:18px;display:flex;flex-direction:column;gap:14px}

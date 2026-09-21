@@ -30,23 +30,24 @@ export function createBatch({el,def},tool){
   const host=el.querySelector('#taskFiles');if(!host)return;
   host.innerHTML=items.map((it,i)=>{
    const r=it.result,custom=it.status==='done'&&tool.pill?.(it),state=it.status==='done'?(custom?`<em class="pill good">${esc(custom)}</em>`:`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`):it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
-   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}" data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${it.status==='done'?esc(text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${it.status==='done'?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
+   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img ${it.thumb||it.thumbBroken?`src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}"`:''} data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${it.status==='done'?esc(tool.detail?.(it)??text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${it.status==='done'?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
   }).join('');
  }
  function renderSummary(){
   const box=el.querySelector('#taskSummary'),button=el.querySelector('#taskDownload');if(!box)return;
   const ok=done(),a=ok.reduce((s,i)=>s+i.file.size,0),b=ok.reduce((s,i)=>s+i.result.blob.size,0),pending=items.some(i=>['waiting','working'].includes(i.status));
   const custom=ok.length&&tool.summary?.(ok);
-  box.innerHTML=ok.length?`<div class="summary-big">${esc(custom?.big??'−'+pct(a,b)+'%')}</div><div class="summary-line">${custom?.line?esc(custom.line)+' · ':''}${esc(bytes(a))} → ${esc(bytes(b))} · ${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
+  box.innerHTML=ok.length?`<div class="summary-big">${esc(custom?.big??'−'+pct(a,b)+'%')}</div><div class="summary-line">${custom?.line?esc(custom.line)+' · ':''}${custom?.only?'':esc(bytes(a))+' → '+esc(bytes(b))+' · '}${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
   button.disabled=!ok.length||pending;button.textContent=ok.length>1?text('downloadAll',{n:ok.length}):text('download');
   const next=el.querySelector('#taskNext');
   next.innerHTML=ok.length&&!pending?`<span>${esc(text('next'))}</span>${(def.next||[]).map(id=>`<button type="button" class="chip" data-action="task-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`:'';
  }
  function renderViewer(){
   const it=items[current],cmp=el.querySelector('#cmp');if(!cmp||!it)return;
-  el.querySelector('#cmpBefore').src=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;const after=el.querySelector('#cmpAfter');
-  if(it.status==='done'){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
-  cmp.classList.toggle('is-pending',it.status!=='done');
+  const before=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;if(before)el.querySelector('#cmpBefore').src=before;else el.querySelector('#cmpBefore').removeAttribute('src');const after=el.querySelector('#cmpAfter');
+  const compare=tool.compare!==false;if(it.status==='done'&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
+  cmp.classList.toggle('is-pending',it.status!=='done');cmp.classList.toggle('no-compare',!compare);
+  if(!compare&&it.status==='done'&&it.result.preview)el.querySelector('#cmpBefore').src=it.result.preview;
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
   el.querySelector('#viewerNote').textContent=it.status==='done'?[it.result.note,it.result.warn].filter(Boolean).join(' · ')||text('compareHint'):it.status==='error'?it.error:text('working');
  }
@@ -61,6 +62,7 @@ export function createBatch({el,def},tool){
      const result=await tool.process(it.file,options,{signal:controller.signal,progress:p=>{it.progress=p;renderList();}});
      if(gen!==generation||!items.includes(it)){if(items.includes(it))it.status='waiting';continue;}
      if(it.resultURL)URL.revokeObjectURL(it.resultURL);
+     result.blob??=result.entries[0].blob;result.name??=result.entries[0].name;
      it.result=result;it.resultURL=URL.createObjectURL(result.blob);it.width=result.sourceWidth||it.width;it.height=result.sourceHeight||it.height;it.status='done';
     }catch(error){
      if(error?.name==='AbortError'||gen!==generation){if(items.includes(it))it.status='waiting';continue;}
@@ -76,7 +78,8 @@ export function createBatch({el,def},tool){
   // One Free-plan job per batch that is added; option changes re-run without charging again.
   if(!await authorize(page.id,options))return;
   if(!items.length)frame();
-  for(const file of files){const url=URL.createObjectURL(file);items.push({id:++seq,file,status:'waiting',thumb:url,thumbFull:url});}
+  for(const file of files){const url=tool.thumb?'':URL.createObjectURL(file),it={id:++seq,file,status:'waiting',thumb:url,thumbFull:url};items.push(it);
+   if(tool.thumb)tool.thumb(file).then(u=>{if(!items.includes(it)){URL.revokeObjectURL(u);return;}it.thumb=it.thumbFull=u;render();}).catch(()=>{});}
   track('tool_run',{intent:page.id});render();run();
  }
  function remove(index){
@@ -87,6 +90,8 @@ export function createBatch({el,def},tool){
  }
  async function save(){
   const ok=done();if(!ok.length)return;
+  if(ok.some(i=>i.result.entries?.length>1)){toast(text('zipping'));const many=ok.length>1;
+   return download(await zip(ok.flatMap(i=>(i.result.entries||[{name:i.result.name,blob:i.result.blob}]).map(e=>({name:many?`${stem(i.file.name)}/${e.name}`:e.name,blob:e.blob}))),{paths:many}),`${many?BRAND.name.toLowerCase()+'-'+page.id:stem(ok[0].file.name)}.zip`);}
   if(ok.length===1)return download(ok[0].result.blob,ok[0].result.name);
   toast(text('zipping'));
   const used=new Set(),entries=ok.map(i=>{let name=i.result.name,n=1;while(used.has(name))name=`${stem(i.result.name)}-${++n}${i.result.name.slice(stem(i.result.name).length)}`;used.add(name);return {name,blob:i.result.blob};});
@@ -96,11 +101,11 @@ export function createBatch({el,def},tool){
   const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,i=Number(b.dataset.index);
   if(a==='task-select'){current=i;render();}
   else if(a==='task-remove')remove(i);
-  else if(a==='task-save'){const it=items[i];if(it?.result)download(it.result.blob,it.result.name);}
+  else if(a==='task-save'){const it=items[i];if(it?.result?.entries?.length>1)download(await zip(it.result.entries),`${stem(it.file.name)}.zip`);else if(it?.result)download(it.result.blob,it.result.name);}
   else if(a==='task-clear'){generation++;controller?.abort();for(const it of items.splice(0)){URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);}current=0;empty();}
   else if(a==='task-download')save();
   else if(a==='task-sample')add([await tool.sample()]);
-  else if(a==='task-next')continueWith(b.dataset.tool,done().map(it=>new File([it.result.blob],it.result.name,{type:it.result.blob.type})));
+  else if(a==='task-next')continueWith(b.dataset.tool,done().flatMap(it=>(it.result.entries||[it.result]).map(e=>new File([e.blob],e.name,{type:e.blob.type}))));
   else if(a==='task-option'){for(const s of b.parentElement.querySelectorAll('[data-action="task-option"]'))s.setAttribute('aria-pressed',String(s===b));sync();}
  });
  el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();}});
@@ -114,7 +119,7 @@ export function createBatch({el,def},tool){
   if(e.target.closest('#taskOptions')){clearTimeout(debounce);debounce=setTimeout(sync,350);}
  });
  el.addEventListener('submit',e=>e.preventDefault());
- el.addEventListener('error',e=>{const i=e.target?.dataset?.thumb;if(i!==undefined&&items[i]&&!items[i].thumbBroken){items[i].thumbBroken=true;render();}},true);
+ el.addEventListener('error',e=>{const i=e.target?.dataset?.thumb;if(i!==undefined&&items[i]?.thumb&&!tool.thumb&&!items[i].thumbBroken){items[i].thumbBroken=true;render();}},true);
  onLocale(()=>{if(!items.length){empty();return;}const open=el.querySelector('#optionsAdvanced')?.open;frame();if(open)el.querySelector('#optionsAdvanced').open=true;render();});
  empty();
  return {add,get items(){return items;},editorURL:()=>toolURL(INTENTS[page.id]?.editor==='image'?'image':page.id)};
