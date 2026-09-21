@@ -25,6 +25,7 @@ const inflate=async(bytes,format='deflate')=>{
 export async function protectDocument(source,{password,ownerPassword='',permissions}={}){
  if(!password)throw Error('NO_PASSWORD');
  const doc=await L.PDFDocument.load(source,{updateMetadata:false});
+ await doc.flush();// any pending embedder would otherwise register its stream after the pass below
  const ctx=doc.context,security=await buildV5Security({password,ownerPassword,permissions});
  const encrypt=ctx.obj({Filter:N('Standard'),V:5,R:6,Length:256,StmF:N('StdCF'),StrF:N('StdCF'),
   CF:{StdCF:{CFM:N('AESV3'),AuthEvent:N('DocOpen'),Length:32}},P:security.permissions,EncryptMetadata:true});

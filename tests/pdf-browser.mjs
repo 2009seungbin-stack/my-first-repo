@@ -3,6 +3,7 @@ import * as L from '../assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js';
 import {canvas,blobOf,release} from '../src/image.js';
 import {md5,rc4,buildV5Security,fileKeyFor,decryptObject,encryptAESV3,permissionValue} from '../src/pdf-crypt.js';
 import {protectDocument,unlockDocument,inspect} from '../src/pdf-secure.js';
+import {encodeImage} from '../src/pdf-encode.js';
 export async function run(){const checks=[],rows=[],check=(name,ok)=>{if(!ok)throw Error(name);checks.push(name);},doc=await L.PDFDocument.create(),font=await doc.embedFont(L.StandardFonts.Helvetica),photo=await createImageBitmap(await(await fetch('/tests/fixtures/astronaut.png')).blob()),c=canvas(2400,2400);c.getContext('2d').drawImage(photo,0,0,2400,2400);photo.close();const jpg=await doc.embedJpg(await(await blobOf(c,'image/jpeg',.99)).arrayBuffer());release(c);
  for(let i=0;i<320;i++){const p=doc.addPage([600,800]);p.drawText(`Searchable source page ${i+1}`,{x:40,y:760,size:20,font});p.drawRectangle({x:20,y:20,width:200,height:100,color:L.rgb(.2,.5,.9)});if(i<3)p.drawImage(jpg,{x:50,y:200,width:500,height:500});}doc.getPage(1).setRotation(L.degrees(90));doc.getPage(2).setCropBox(20,30,500,700);
  const file=new File([await doc.save()], '320-pages.pdf',{type:'application/pdf'}),w=new PDFWorkspace();let ticks=0;const timer=setInterval(()=>ticks++,10),start=performance.now();try{await w.add([file]);check('320 pages loaded without bitmap previews',w.pages.length===320&&w.pages.every(p=>!p.thumb));rows.push({case:'320-page open',inputBytes:file.size,elapsedMs:performance.now()-start,uiTimerTicks:ticks});check('PDF parsing does not block all UI timers',ticks>0);
@@ -11,6 +12,14 @@ export async function run(){const checks=[],rows=[],check=(name,ok)=>{if(!ok)thr
  const groups=await w.split({mode:'groups',groups:'1-2; 320'});check('custom split groups preserve counts',(await L.PDFDocument.load(await groups[0].blob.arrayBuffer())).getPageCount()===2&&(await L.PDFDocument.load(await groups[1].blob.arrayBuffer())).getPageCount()===1);
  const raster=await w.export({range:'1',raster:true,maxSide:800});const rr=new PDFWorkspace();try{await rr.add([new File([raster],'raster.pdf',{type:'application/pdf'})]);const text=await(await rr.sources[0].reader.getPage(1)).getTextContent();check('aggressive mode honestly removes searchable text',text.items.length===0&&w.lastReport.textPreserved===false);}finally{await rr.clear();}
  const abort=new AbortController();abort.abort();try{await w.export({},()=>{},abort.signal);throw Error('did not cancel');}catch(e){check('PDF export cancellation',e.name==='AbortError');}
+ // ---- the resampler the Worker hands back to the page when it has no OffscreenCanvas
+ const sample=new Uint8ClampedArray(64*64*4);for(let i=0;i<sample.length;i+=4)sample.set([i%255,128,255-i%255,255],i);
+ const fromPixels=await encodeImage({rgba:sample,width:64,height:64},16,16,{quality:.7});
+ check('the shared resampler encodes decoded samples on the page thread',fromPixels?.width===16&&fromPixels.height===16&&fromPixels.bytes.length>0);
+ const grayMask=await encodeImage({rgba:sample,width:64,height:64},8,8,{type:'gray'});
+ check('a soft mask comes back as one 8-bit channel',grayMask?.bytes.length===64);
+ const fromJpeg=await encodeImage({blob:await blobOf(canvas(40,40),'image/jpeg',.8)},20,20,{quality:.7});
+ check('the shared resampler re-encodes an existing JPEG',fromJpeg?.width===20&&fromJpeg.bytes.length>0);
  // ---- standard security handler: the primitives first, then a whole document round trip
  const hex=b=>[...b].map(v=>v.toString(16).padStart(2,'0')).join(''),utf8=t=>new TextEncoder().encode(t);
  check('md5 matches RFC 1321 for the empty string',hex(md5(utf8('')))==='d41d8cd98f00b204e9800998ecf8427e');
