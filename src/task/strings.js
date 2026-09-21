@@ -121,6 +121,7 @@ S.ko.tile={drop:'타일셋 이미지를 여기에 놓으세요',dropHint:'격자
  terrainName:'지형 이름',mode:'맞춤 방식',modes:{'match_corners_and_sides':'변과 꼭짓점 모두',match_corners:'꼭짓점만',match_sides:'변만'},
  runGodot:'Godot 4 묶음 다운로드',godotNote:'PNG + 참조 JSON + TileSet를 만드는 GDScript EditorScript + 설치 안내가 들어 있습니다. 가짜 .tres는 만들지 않습니다.',
  excerpt:'{total}자 중 앞 {n}자',shortPack:'이 시트는 {total}칸 중 {n}칸에 해당하는 타일이 없습니다. 그 칸은 내보내는 TileSet에서도 비어 있습니다.',collideLabel:'타일 충돌 모양',collide:{none:'없음',box:'사각형 하나',rects:'사각형 여러 개',outline:'외곽선'},alpha:'알파 기준값',simplify:'점 줄이기',collideNote:'알파에서 측정한 모양입니다. 외곽선은 픽셀 경계를 따라가고, 점 줄이기는 정확도를 조금 버려 점 수를 줄입니다. metadata.json과 Godot 묶음에 함께 들어갑니다.',
+ showFiles:'들어 있는 파일 보기',
  needGrid:'먼저 격자를 정하세요.',needTile:'타일을 먼저 고르세요.'};
 S.en.tile={drop:'Drop a tileset image here',dropHint:'A grid tile sheet · the tile size is measured and ranked, never forced',importLayout:'Load a layout JSON',sample:'Sample tileset',
  stages:'Stages',stage:{grid:'Grid & slice',templates:'Templates',tester:'Autotile tester',rules:'Rule check',seams:'Seams',export:'Godot'},
@@ -152,6 +153,7 @@ S.en.tile={drop:'Drop a tileset image here',dropHint:'A grid tile sheet · the t
  terrainName:'Terrain name',mode:'Matching mode',modes:{'match_corners_and_sides':'Match Corners and Sides',match_corners:'Match Corners',match_sides:'Match Sides'},
  runGodot:'Download the Godot 4 pack',godotNote:'PNG + reference JSON + a GDScript EditorScript that builds the TileSet + setup notes. No fake .tres file is written.',
  excerpt:'first {n} of {total} characters',shortPack:'This sheet has no tile for {n} of the {total} slots. Those slots will be empty in the exported TileSet too.',collideLabel:'Tile collision shape',collide:{none:'None',box:'One box',rects:'Boxes',outline:'Outline'},alpha:'Alpha threshold',simplify:'Fewer points',collideNote:'Shapes measured from alpha. The outline follows pixel edges; fewer points trades a little exactness for a smaller polygon. They travel in metadata.json and in the Godot pack.',
+ showFiles:'Show the files in the pack',
  needGrid:'Choose a grid first.',needTile:'Choose a tile first.'};
 S.ja.tile={drop:'タイルセット画像をここにドロップ',dropHint:'格子タイルシート · タイルサイズを実測して候補を順位付けします',importLayout:'layout JSONを読み込む',sample:'サンプルタイルセット',
  stages:'作業ステージ',stage:{grid:'格子・分割',templates:'テンプレート',tester:'オートタイル検証',rules:'ルール点検',seams:'継ぎ目',export:'Godot'},
@@ -183,6 +185,7 @@ S.ja.tile={drop:'タイルセット画像をここにドロップ',dropHint:'格
  terrainName:'地形名',mode:'マッチ方式',modes:{'match_corners_and_sides':'辺と角の両方',match_corners:'角のみ',match_sides:'辺のみ'},
  runGodot:'Godot 4パックをダウンロード',godotNote:'PNG + 参照JSON + TileSetを構築するGDScript EditorScript + 手順が入っています。偽の.tresは作りません。',
  excerpt:'全{total}文字のうち先頭{n}文字',shortPack:'このシートは{total}枠のうち{n}枠に対応するタイルがありません。書き出すTileSetでもその枠は空になります。',collideLabel:'タイルの当たり判定',collide:{none:'なし',box:'矩形1つ',rects:'複数の矩形',outline:'輪郭'},alpha:'アルファしきい値',simplify:'点を減らす',collideNote:'アルファから測定した形状です。輪郭はピクセル境界に沿い、「点を減らす」は正確さを少し捨てて点数を減らします。metadata.jsonとGodotパックに入ります。',
+ showFiles:'パックの中身を見る',
  needGrid:'先に格子を決めてください。',needTile:'先にタイルを選んでください。'};
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;

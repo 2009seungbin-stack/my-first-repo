@@ -262,7 +262,8 @@ ${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}<dl class="tl-numbers" id
  function seamsBoard(){
   return `<div class="board-bar"><span class="board-count" id="tlSeamInfo"></span>${check('healed')}</div>
 <div class="tl-stage"><canvas id="tlRepeat" class="px tl-fit"></canvas></div>
-<div class="tl-heat"><div><span>${esc(T('diffH'))}</span><canvas id="tlHeatH" class="px" height="12"></canvas></div><div><span>${esc(T('diffV'))}</span><canvas id="tlHeatV" class="px" height="12"></canvas></div></div>`;
+<div class="tl-heat"><div><span>${esc(T('diffH'))}</span><canvas id="tlHeatH" class="px" height="12"></canvas><em id="tlHeatHNum"></em></div>
+<div><span>${esc(T('diffV'))}</span><canvas id="tlHeatV" class="px" height="12"></canvas><em id="tlHeatVNum"></em></div></div>`;
  }
  function exportSide(){
   return `<div class="summary"><div class="summary-big">${layout().count}</div><div class="summary-line">${esc(T('kinds.'+o.kind))} · ${esc(T('modes.'+(o.mode||modeFor(o.kind))))}</div></div>
@@ -280,8 +281,9 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
   return `<div class="board-bar"><span class="board-count">${esc(T('count',{n:pack.json.tileSet.tiles.length}))} → TileSet</span></div>
 ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().count}))}</p>`:''}
 <ol class="tl-steps">${godotReadme(pack.json).steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+<details class="options-advanced"><summary>${esc(T('showFiles'))}</summary>
 ${listing('nerulio-tileset.json',JSON.stringify(pack.json,null,1))}
-${listing('nerulio_tileset_import.gd',pack.script)}`;
+${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
  }
  /** A readable excerpt of a file that is in the download, labelled with what was cut. */
  function listing(name,body){
@@ -447,7 +449,9 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
     c.fillStyle=`rgb(${Math.round(40+215*v)},${Math.round(120-80*v)},${Math.round(110-70*v)})`;
     c.fillRect(i,0,1,12);
    }
-   strip.setAttribute('aria-label',`${vertical?T('diffH'):T('diffV')} ${num(map.max,0)} / ${num(map.reference,0)}`);
+   const scale=`${num(map.max,0)} / ${num(map.reference,0)}`;
+   strip.setAttribute('aria-label',`${vertical?T('diffH'):T('diffV')} ${scale}`);
+   const label=q(id+'Num');if(label)label.textContent=scale;
   }
  }
  function godotPack(){
@@ -676,6 +680,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
    data=null;tiles.clear();hashes=null;dropArt();terrain=null;
    if(src.width*src.height<=ANALYSIS_PIXELS)data=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,src.width,src.height).data;
    candidates=data?detectGrid(data,src.width,src.height):[];
+   if(!route.query.has('zoom'))o.zoom=clamp(Math.round(480/Math.max(1,src.width)),1,8);
    const preset=route.query.has('tileWidth')||route.query.has('tileHeight');
    // The seam checker is asked about one repeating texture, so its default tile is the whole
    // image; everywhere else the measured grid is the default.
