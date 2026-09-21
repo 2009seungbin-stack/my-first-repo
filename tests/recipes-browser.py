@@ -38,7 +38,7 @@ with sync_playwright() as pw:
     ctx=browser.new_context(locale='en-US',viewport={'width':1440,'height':1000},accept_downloads=True)
     fixture=png(80,60,'white',[((20,10,59,49),(255,0,0,255))])
     home=mount(ctx,'/en/')
-    ok('home does not promote unqualified engines',home.locator('#featuredIntents a').count()==0)
+    ok('home promotes only qualified engines',home.locator('#featuredIntents a').evaluate_all('ns=>ns.map(n=>n.dataset.action)')==['intent:compress'])
     home.screenshot(path=str(OUT/'expanded-home-desktop.png'),full_page=False)
     home.keyboard.press('Control+k');ok('command palette opens and focuses search',home.locator('#toolsDialog').is_visible() and home.locator('#toolSearch').evaluate('(e)=>e===document.activeElement'))
     home.locator('#toolSearch').fill('sprite');ok('search finds sprite niche tools',home.locator('#toolResults .kit-tool-row').count()>=3)

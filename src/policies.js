@@ -38,9 +38,15 @@ function sections(page,locale,service){
  const [files,account]=SERVICE_PRIVACY[locale];
  return [files,account,...policies[locale].privacy.slice(1)];
 }
-export function policyContent(page,locale,ads=false,service=false){
+/** Shown when the deployment enables Cloudflare Web Analytics (CF_WEB_ANALYTICS=on). */
+export const WEB_ANALYTICS_NOTE=brandCopy({
+ en:'This site counts visits with Cloudflare Web Analytics. It sets no cookies and uses no local storage; Cloudflare receives the page address, referrer and browser/device information and reports them only in aggregate. Your files are never sent.',
+ ko:'이 사이트는 Cloudflare Web Analytics로 방문 수를 집계합니다. 쿠키나 로컬 저장소를 쓰지 않으며, Cloudflare는 페이지 주소·유입 경로·브라우저/기기 정보를 받아 합계로만 보고합니다. 편집하는 파일은 전송되지 않습니다.',
+ ja:'このサイトはCloudflare Web Analyticsで訪問数を集計します。Cookieやローカルストレージは使わず、Cloudflareはページのアドレス・参照元・ブラウザ/端末情報を受け取り、集計値としてのみ報告します。編集中のファイルは送信されません。'
+});
+export function policyContent(page,locale,ads=false,service=false,analytics=false){
  const l=labels[locale];
  const status=ads?{en:'Google AdSense is enabled in this build. Ad delivery depends on account approval, configured units and consent.',ko:'이 빌드에는 Google AdSense가 활성화되어 있습니다. 실제 노출은 계정 승인·광고 단위·동의 설정에 따라 달라집니다.',ja:'このビルドではGoogle AdSenseが有効です。配信はアカウント承認、広告枠、同意設定によります。'}:{en:'Google AdSense is disabled in this build. No Google advertising script or ad units are loaded.',ko:'이 빌드에서는 Google AdSense가 비활성화되어 광고 스크립트와 광고 단위를 불러오지 않습니다.',ja:'このビルドではGoogle AdSenseが無効で、Google広告スクリプトや広告枠は読み込みません。'};
- return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('')}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
+ return `<a class="policy-home" href="${locale}/">← ${esc(l.home)}</a><h1>${esc(l[page])}</h1>${sections(page,locale,service).map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('')}${page==='privacy'&&analytics?`<p class="analytics-status">${esc(WEB_ANALYTICS_NOTE[locale])}</p>`:''}${page==='privacy'?`<p class="ad-status">${esc(status[locale])}</p><p><a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google · ${esc(l.privacy)}</a></p>`:''}${page==='contact'?`<p><a href="${ISSUES_URL}" target="_blank" rel="noopener">GitHub Issues ↗</a></p>`:''}`;
 }
 export {footer};

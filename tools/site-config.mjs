@@ -25,6 +25,10 @@ export function configuration(env=process.env){
  // Accounts, Free/Pro and the /api/v1 Worker are opt-in: a build without SERVICE_API=on is
  // the unchanged static site, so merging this code cannot alter production by itself.
  if(!['','on','off'].includes(env.SERVICE_API||''))throw Error('SERVICE_API must be on or off');
+ // Cloudflare Web Analytics is enabled in the Pages dashboard (it injects its beacon at the
+ // edge). This flag only widens the CSP for that beacon and updates the privacy page.
+ if(!['','on','off'].includes(env.CF_WEB_ANALYTICS||''))throw Error('CF_WEB_ANALYTICS must be on or off');
+ const webAnalytics=env.CF_WEB_ANALYTICS==='on'&&!preview;
  const service=env.SERVICE_API==='on';
  const pricing={amount:env.PRO_PRICE_AMOUNT||'',currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month'};
  if(pricing.amount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.amount))throw Error('PRO_PRICE_AMOUNT must be a plain decimal such as 4.99');
@@ -37,7 +41,7 @@ export function configuration(env=process.env){
   if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
   redirectTo=u.origin;
  }
- return {siteURL,preview,client,slots,verificationClient,searchVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo};
+ return {siteURL,preview,client,slots,verificationClient,searchVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';
@@ -47,12 +51,13 @@ export function adHead({client='',slots={},service=false}={}){
  if(service)return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script type="module" src="src/ads.js"></script>`;
  return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script async crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}"></script>${Object.keys(slots).length?'<script type="module" src="src/ads.js"></script>':''}`;
 }
-export function headers(source,{preview}){
+export const WEB_ANALYTICS=Object.freeze({script:'https://static.cloudflareinsights.com',connect:'https://cloudflareinsights.com'});
+export function headers(source,{preview,webAnalytics=false}){
  // Enabled HTML uses a per-response nonce CSP from _worker.js, not a fragile
  // list of Google's advertising domains or a reused build-time nonce.
  // Site-wide additions belong to the leading /* block, not to later path blocks.
  const [global,...rest]=source.replace(/\r\n/g,'\n').replace(/\s+$/,'').split(/\n(?=\S)/);
- let out=global+'\n  Cache-Control: public, max-age=0, must-revalidate\n';
+ let out=(webAnalytics?global.replace("script-src 'self'",`script-src 'self' ${WEB_ANALYTICS.script}`).replace("connect-src 'self'",`connect-src 'self' ${WEB_ANALYTICS.connect}`):global)+'\n  Cache-Control: public, max-age=0, must-revalidate\n';
  if(preview)out+='  X-Robots-Tag: noindex, nofollow\n';
  return out+rest.map(block=>block+'\n').join('');
 }
