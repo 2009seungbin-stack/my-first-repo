@@ -92,7 +92,7 @@ S.en.upscale={size:'How much bigger',method:'Method',ai:'AI sharpen',aiHint:'pho
 S.ja.upscale={size:'どれくらい大きく',method:'拡大方法',ai:'AIでくっきり',aiHint:'写真・イラスト',smooth:'なめらか',smoothHint:'最速',pixel:'ドットのまま',pixelHint:'ドット絵',tooLarge:'400万画素を超える画像はAIではなく、なめらかな拡大で処理しました。',noModel:'AIモデルを取得できなかったため、なめらかな拡大で処理しました。',stage:{model:'AIモデルを準備中 (5MB)',tiles:'くっきり処理中 {a}/{b}',prepare:'拡大中'}};
 const DITHER_LABELS={none:{ko:'없음',en:'None',ja:'なし'},'floyd-steinberg':{ko:'Floyd–Steinberg',en:'Floyd–Steinberg',ja:'Floyd–Steinberg'},atkinson:{ko:'Atkinson',en:'Atkinson',ja:'Atkinson'},bayer2:{ko:'Bayer 2×2',en:'Bayer 2×2',ja:'Bayer 2×2'},bayer4:{ko:'Bayer 4×4',en:'Bayer 4×4',ja:'Bayer 4×4'},bayer8:{ko:'Bayer 8×8',en:'Bayer 8×8',ja:'Bayer 8×8'}};
 const dithers=l=>Object.fromEntries(Object.entries(DITHER_LABELS).map(([k,v])=>[k,v[l]]));
-S.ko.plab={drop:'애니메이션 프레임이나 스프라이트 시트를 놓으세요',dropHint:'PNG 여러 장 한 번에 · 모든 프레임에 같은 팔레트 · 업로드 없음',stagesLabel:'Pixel Lab 단계',
+S.ko.plab={silhouetteView:'실루엣을 1×·2×로 보기',ditherCleanupNote:'디더링은 일부러 1픽셀 무늬를 만듭니다. 아래 숫자에는 그 픽셀도 포함되므로, 정리하기 전에 디더링을 “없음”으로 두세요.',exportAsHint:'아래 “팔레트 저장”이 이 형식으로 내려받습니다.',drop:'애니메이션 프레임이나 스프라이트 시트를 놓으세요',dropHint:'PNG 여러 장 한 번에 · 모든 프레임에 같은 팔레트 · 업로드 없음',stagesLabel:'Pixel Lab 단계',
  stages:{convert:'변환',palette:'팔레트',recolor:'색 바꾸기',cleanup:'정리',check:'검사',export:'내보내기'},
  frames:'프레임',frameCount:'{n}프레임',addFrames:'+ 프레임 추가',sortName:'이름순',note:'프레임을 누르면 그 프레임으로 작업합니다. 모든 단계가 같은 프레임을 공유하므로 다시 올릴 필요가 없습니다.',
  compare:'디더링 비교',colors:'색상 수',colorsShort:'색',colorCount:'{n}색',dither:'디더링',dithers:dithers('ko'),
@@ -115,7 +115,7 @@ S.ko.plab={drop:'애니메이션 프레임이나 스프라이트 시트를 놓�
  hue:'색상 각도 (0–359)',window:'색상 범위 (±°)',tolerance:'추가 허용치 (°)',maskCount:'팔레트 {total}색 중 {n}색이 범위 안에 있습니다',
  preset:'프리셋',presets:{frozen:'빙결',poison:'독',burn:'화염',ghost:'유령',flash:'피격 플래시'},presetHint:'조절 가능한 틴트 레시피입니다. 손으로 그린 연출이 아닙니다.',
  orphans:'떨어진 단독 픽셀 제거',clusters:'아래 크기보다 작은 덩어리 제거',minArea:'남길 최소 덩어리 (px)',holes:'1픽셀 구멍 채우기',
- aaTitle:'안티에일리어싱 제거',aa:'경계의 중간 색 픽셀을 팔레트로 스냅',aaThreshold:'임계값 (1–300)',alphaCut:'알파 기준값 (0이면 반투명 유지)',
+ aaTitle:'안티에일리어싱 세부 설정',aa:'경계의 중간 색 픽셀을 팔레트로 스냅',aaThreshold:'임계값 (1–300)',alphaCut:'알파 기준값 (0이면 반투명 유지)',
  aaHint:'중간 색 픽셀은 그 픽셀이 사이에 놓인 두 팔레트 색 중 가까운 쪽으로 스냅합니다. 알파 기준값을 설정할 때만 실루엣이 바뀝니다.',
  outlineTitle:'외곽선 검사',outline:'외곽선 색',outlineNone:'지정하지 않음',gapFix:'끊긴 외곽선만 메우기(보수적)',
  showCandidates:'후보 표시',hideCandidates:'표시 끄기',candidateCount:'후보 {n}픽셀을 표시했습니다',
@@ -128,7 +128,7 @@ S.ko.plab={drop:'애니메이션 프레임이나 스프라이트 시트를 놓�
  silhouette:'실루엣 PNG 저장',scale:'내보내기 배율 (최근접)',checkNote:'점수가 아니라 측정값입니다. 정확한 블록 격자를 찾은 경우에만 복원을 제안합니다.',
  exportFrames:'모든 프레임 내보내기 (ZIP)',exportOne:'이 프레임 저장',exportNote:'ZIP에는 프레임별 PNG, .gpl 팔레트, 프레임 표가 담긴 pixel-lab.json이 들어갑니다.',
  exported:'{n}개 파일 · {size}',needSelection:'먼저 원본 색을 선택하세요.',needOneColor:'팔레트에는 색이 하나 이상 있어야 합니다.'};
-S.en.plab={drop:'Drop your animation frames or sprite sheet here',dropHint:'Several PNGs at once · one palette for all of them · nothing is uploaded',stagesLabel:'Pixel Lab stages',
+S.en.plab={silhouetteView:'Show the silhouette at 1× and 2×',ditherCleanupNote:'Dithering creates single-pixel patterns on purpose, so these counts include them. Set dithering to None before cleaning up.',exportAsHint:'“Save palette” below downloads in this format.',drop:'Drop your animation frames or sprite sheet here',dropHint:'Several PNGs at once · one palette for all of them · nothing is uploaded',stagesLabel:'Pixel Lab stages',
  stages:{convert:'Convert',palette:'Palette',recolor:'Recolour',cleanup:'Cleanup',check:'Check',export:'Export'},
  frames:'Frames',frameCount:'{n} frame(s)',addFrames:'+ Add frames',sortName:'By name',note:'Click a frame to work on it. Every stage shares these frames, so nothing is re-uploaded.',
  compare:'Compare dither modes',colors:'Colours',colorsShort:'colours',colorCount:'{n} colours',dither:'Dithering',dithers:dithers('en'),
@@ -151,7 +151,7 @@ S.en.plab={drop:'Drop your animation frames or sprite sheet here',dropHint:'Seve
  hue:'Hue (0–359)',window:'Hue window (±°)',tolerance:'Extra tolerance (°)',maskCount:'{n} of {total} palette colours are inside the window',
  preset:'Preset',presets:{frozen:'Frozen',poison:'Poison',burn:'Burn',ghost:'Ghost',flash:'Damage flash'},presetHint:'These are adjustable tint recipes, not hand-painted art.',
  orphans:'Remove single stray pixels',clusters:'Remove clusters below the size below',minArea:'Smallest cluster to keep (px)',holes:'Fill single-pixel holes',
- aaTitle:'Anti-alias remover',aa:'Snap anti-aliased edge pixels to the palette',aaThreshold:'Threshold (1–300)',alphaCut:'Alpha cut-off (0 keeps soft alpha)',
+ aaTitle:'Anti-alias options',aa:'Snap anti-aliased edge pixels to the palette',aaThreshold:'Threshold (1–300)',alphaCut:'Alpha cut-off (0 keeps soft alpha)',
  aaHint:'A transition pixel is snapped to the nearer of the two palette colours it sits between. The silhouette only changes if you set an alpha cut-off.',
  outlineTitle:'Outline check',outline:'Outline colour',outlineNone:'Not set',gapFix:'Close outline gaps only (conservative)',
  showCandidates:'Highlight candidates',hideCandidates:'Hide highlights',candidateCount:'{n} candidate pixels highlighted',
@@ -164,7 +164,7 @@ S.en.plab={drop:'Drop your animation frames or sprite sheet here',dropHint:'Seve
  silhouette:'Save silhouette PNG',scale:'Export scale (nearest)',checkNote:'Measurements, not a score. Recovery is offered only when an exact block grid was found.',
  exportFrames:'Export all frames (ZIP)',exportOne:'Save this frame',exportNote:'The ZIP holds one PNG per frame, the palette as .gpl and pixel-lab.json with the frame table.',
  exported:'{n} files · {size}',needSelection:'Select the source colours first.',needOneColor:'A palette needs at least one colour.'};
-S.ja.plab={drop:'アニメーションのフレームやスプライトシートをドロップ',dropHint:'PNGを一度に複数 · すべてのフレームに同じパレット · アップロードなし',stagesLabel:'Pixel Labの工程',
+S.ja.plab={silhouetteView:'シルエットを1×・2×で表示',ditherCleanupNote:'ディザは意図的に1ピクセルの模様を作ります。下の数値にはそれも含まれるため、整理の前にディザを「なし」にしてください。',exportAsHint:'下の「パレットを保存」がこの形式で保存します。',drop:'アニメーションのフレームやスプライトシートをドロップ',dropHint:'PNGを一度に複数 · すべてのフレームに同じパレット · アップロードなし',stagesLabel:'Pixel Labの工程',
  stages:{convert:'変換',palette:'パレット',recolor:'色替え',cleanup:'整理',check:'検査',export:'書き出し'},
  frames:'フレーム',frameCount:'{n}フレーム',addFrames:'+ フレーム追加',sortName:'名前順',note:'フレームを押すとそのフレームを編集します。すべての工程が同じフレームを共有するので再アップロードは不要です。',
  compare:'ディザを比較',colors:'色数',colorsShort:'色',colorCount:'{n}色',dither:'ディザリング',dithers:dithers('ja'),
@@ -187,7 +187,7 @@ S.ja.plab={drop:'アニメーションのフレームやスプライトシート
  hue:'色相 (0–359)',window:'色相の範囲 (±°)',tolerance:'追加の許容 (°)',maskCount:'パレット{total}色のうち{n}色が範囲内です',
  preset:'プリセット',presets:{frozen:'氷結',poison:'毒',burn:'炎上',ghost:'幽霊',flash:'被弾フラッシュ'},presetHint:'調整できるティントのレシピで、描き込んだ演出ではありません。',
  orphans:'孤立した単独ピクセルを除去',clusters:'下のサイズより小さい塊を除去',minArea:'残す最小の塊 (px)',holes:'1ピクセルの穴を埋める',
- aaTitle:'アンチエイリアス除去',aa:'境界の中間色ピクセルをパレットに合わせる',aaThreshold:'しきい値 (1–300)',alphaCut:'アルファのしきい値（0は半透明を維持）',
+ aaTitle:'アンチエイリアスの詳細',aa:'境界の中間色ピクセルをパレットに合わせる',aaThreshold:'しきい値 (1–300)',alphaCut:'アルファのしきい値（0は半透明を維持）',
  aaHint:'中間色ピクセルは、それが挟まれている2色のうち近い方に合わせます。シルエットが変わるのはアルファのしきい値を設定したときだけです。',
  outlineTitle:'輪郭の検査',outline:'輪郭の色',outlineNone:'未設定',gapFix:'途切れた輪郭だけ埋める（保守的）',
  showCandidates:'候補を表示',hideCandidates:'表示をやめる',candidateCount:'候補{n}ピクセルを表示しました',

@@ -31,7 +31,10 @@ export function paletteFromHistogram(histogram,count){
  const boxes=[points];while(boxes.length<count){
   let best=-1,bestScore=0,axis=0;
   boxes.forEach((box,index)=>{if(box.length<2)return;const ranges=[0,1,2].map(k=>{let lo=Infinity,hi=-Infinity;for(const p of box){lo=Math.min(lo,p.lab[k]);hi=Math.max(hi,p.lab[k]);}return hi-lo;});const range=Math.max(...ranges),score=range*box.reduce((n,p)=>n+p.weight,0);if(score>bestScore){bestScore=score;best=index;axis=ranges.indexOf(range);}});
-  if(best<0)break;const box=boxes[best].sort((a,b)=>a.lab[axis]-b.lab[axis]),half=box.reduce((n,p)=>n+p.weight,0)/2;let mass=0,at=1;for(;at<box.length;at++){mass+=box[at-1].weight;if(mass>=half)break;}boxes.splice(best,1,box.slice(0,at),box.slice(at));
+  if(best<0)break;const box=boxes[best].sort((a,b)=>a.lab[axis]-b.lab[axis]),half=box.reduce((n,p)=>n+p.weight,0)/2;let mass=0,at=1;for(;at<box.length;at++){mass+=box[at-1].weight;if(mass>=half)break;}
+  // One heavy point can push the median past the last entry; clamping keeps both halves
+  // non-empty, because an empty box has no mass and would average to a NaN colour.
+  at=Math.min(Math.max(1,at),box.length-1);boxes.splice(best,1,box.slice(0,at),box.slice(at));
  }
  let palette=boxes.map(box=>{const mass=box.reduce((n,p)=>n+p.weight,0);return [0,1,2].map(k=>Math.round(box.reduce((n,p)=>n+p.rgb[k]*p.weight,0)/mass));});
  // Lloyd refinement in perceptual space; RGB centroids keep the palette in gamut.
@@ -40,7 +43,7 @@ export function paletteFromHistogram(histogram,count){
   for(const p of points){let best=0,d=Infinity;for(let i=0;i<labs.length;i++){const e=distance(p.lab,labs[i]);if(e<d){d=e;best=i;}}const s=sums[best];for(let k=0;k<3;k++)s[k]+=p.rgb[k]*p.weight;s[3]+=p.weight;}
   palette=palette.map((c,i)=>sums[i][3]?sums[i].slice(0,3).map(v=>Math.round(v/sums[i][3])):c);
  }
- return palette;
+ return palette.filter(c=>c.every(Number.isFinite));
 }
 export const perceptualPalette=(data,count)=>paletteFromHistogram(accumulate(data),count);
 /** Ordered dither matrices, built by the recursive Bayer rule M(2n) = [[4M, 4M+2],[4M+3, 4M+1]]. */

@@ -33,7 +33,12 @@ export function runLengths(source){
  const push=n=>{counts.set(n,(counts.get(n)||0)+1);runs++;total+=n;};
  for(let y=0;y<h;y++){let n=1;for(let x=1;x<=w;x++){if(x<w&&at(d,(y*w+x)*4)===at(d,(y*w+x-1)*4))n++;else{push(n);n=1;}}}
  for(let x=0;x<w;x++){let n=1;for(let y=1;y<=h;y++){if(y<h&&at(d,(y*w+x)*4)===at(d,((y-1)*w+x)*4))n++;else{push(n);n=1;}}}
- return {counts,runs,mean:runs?total/runs:0,min:Math.min(...counts.keys()),max:Math.max(...counts.keys())};
+ const min=Math.min(...counts.keys()),max=Math.max(...counts.keys());
+ // The shortest runs carry the scale: a long run is several same-coloured blocks in a row, so
+ // averaging everything over-estimates. Only runs within 1.5x of the shortest one are averaged.
+ let shortSum=0,shortRuns=0;
+ for(const [length,n] of counts)if(length<=min*1.5){shortSum+=length*n;shortRuns+=n;}
+ return {counts,runs,mean:runs?total/runs:0,shortMean:shortRuns?shortSum/shortRuns:0,min,max};
 }
 /** Logical pixel size of an upscaled sprite. Tries the largest integer block size that divides the
  * image and leaves every block one colour; if none fits the grid, it retries with an offset so
@@ -55,7 +60,7 @@ export function detectScale(source,{maxScale=MAX_SCALE}={}){
  const runs=runLengths(source),unit=(runs.counts.get(1)||0)/(runs.runs||1);
  // No integer block grid: either the sprite is already 1× / interpolated (runs of a single pixel
  // exist) or it was resized by a non-integer factor (every run is 2–3 px but never 1).
- return {scale:1,offset:{x:0,y:0},exact:false,divides:true,confident:false,estimate:Number(runs.mean.toFixed(3)),unitShare:Number(unit.toFixed(4)),runs,grid};
+ return {scale:1,offset:{x:0,y:0},exact:false,divides:true,confident:false,estimate:Number(runs.shortMean.toFixed(3)),unitShare:Number(unit.toFixed(4)),runs,grid};
 }
 /** Blur / interpolation evidence along edges: a pixel counts as intermediate when its colour is
  * strictly between two of its opposite neighbours in Oklab (within `tolerance` of the segment and

@@ -227,6 +227,87 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # ===== Pixel Lab (src/task/pixel-lab.js) =========================================
+    import importlib.util
+    _spec=importlib.util.spec_from_file_location('plab_fx',ROOT/'tests/pixel-lab-fixtures.py')
+    fx=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(fx)
+    def plab_files(pairs):return [{'name':n,'mimeType':'image/png','buffer':b} for n,b in pairs]
+    def plab_open(path,pairs):
+        page.goto(BASE+'/en/'+path+'/',wait_until='networkidle')
+        page.locator('#fileInput').set_input_files(files=plab_files(pairs));page.locator('#plabCanvas').wait_for();page.wait_for_timeout(700)
+    def plab_zip(entries=None):
+        with page.expect_download() as d:page.locator('[data-action="plab-export"]').click()
+        z=zipfile.ZipFile(d.value.path());meta=json.loads(z.read('pixel-lab.json'))
+        pal={tuple(int(c[i:i+2],16) for i in (1,3,5)) for c in meta['meta']['palette']}
+        union,bands=set(),[]
+        for name in sorted(x for x in z.namelist() if x.endswith('.png')):
+            im=Image.open(io.BytesIO(z.read(name))).convert('RGBA')
+            union|={p[:3] for p in im.getdata() if p[3]>0}
+            bands.append(tuple(im.crop((0,im.height-8,im.width,im.height)).getdata()))
+        return z,meta,pal,union,bands
+    # One palette for eight anti-aliased animation frames, proven from the exported PNGs.
+    plab_open('game/pixel-lab',fx.frames(8))
+    ok('pixel lab shows every frame and one palette',page.locator('.frame-chip').count()==8 and '16 colours' in page.locator('#plabSummary').inner_text())
+    z,meta,pal,union,bands=plab_zip()
+    ok('pixel lab exports one PNG per frame with the palette and the JSON envelope',
+       len([x for x in z.namelist() if x.endswith('.png')])==8 and 'pixel-lab.json' in z.namelist() and any(x.endswith('.gpl') for x in z.namelist()))
+    ok('the locked palette bounds every exported frame',union<=pal and len(pal)<=16,f'{len(union-pal)} of {len(union)} colours outside a {len(pal)}-colour palette')
+    ok('an unchanged region keeps identical pixels in all eight frames',len(set(bands))==1,f'{len(set(bands))} versions')
+    ok('the JSON envelope is the shared game schema',meta['meta']['schemaVersion']==1 and meta['meta']['engineTarget']=='generic' and len(meta['frames'])==8)
+    ok('the exported palette is a real GIMP palette',z.read([x for x in z.namelist() if x.endswith('.gpl')][0]).decode().startswith('GIMP Palette\n'))
+    # Ordered dithering is position-only, so the same unchanged region still matches everywhere.
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="bayer4"]').click();page.wait_for_timeout(700)
+    z2,_,pal2,union2,bands2=plab_zip()
+    ok('ordered Bayer dithering neither flickers nor leaves the palette',len(set(bands2))==1 and union2<=pal2)
+    page.locator('.options .hint').last.wait_for()
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="floyd-steinberg"]').click();page.wait_for_timeout(500)
+    ok('error diffusion warns that animations can flicker','flicker' in page.locator('.options .hint').last.inner_text().lower())
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="none"]').click();page.wait_for_timeout(500)
+    # Anti-alias remover: palette-only output, silhouette untouched.
+    plab_open('game/pixel-art-cleanup',fx.frames(2))
+    ok('the cleanup stage counts candidates before changing anything','Stray pixels:' in page.locator('#plabCleanupOut').inner_text())
+    page.locator('#plabAA').check();page.wait_for_timeout(800)
+    z3,_,pal3,union3,_=plab_zip()
+    after=Image.open(io.BytesIO(z3.read(sorted(x for x in z3.namelist() if x.endswith('.png'))[0]))).convert('RGBA')
+    before=Image.open(io.BytesIO(fx.frames(2)[0][1])).convert('RGBA')
+    moved=sum(1 for a,b in zip(before.split()[3].point(lambda v:255 if v else 0).getdata(),after.split()[3].point(lambda v:255 if v else 0).getdata()) if a!=b)
+    distinct_before=len({p[:3] for p in before.getdata() if p[3]>0})
+    ok('the anti-alias remover snaps every pixel into the palette',union3<=pal3 and len(union3)<=len(pal3),f'{distinct_before} distinct colours in, {len(union3)} out')
+    ok('removing anti-aliasing does not move the silhouette',moved==0,f'{moved} alpha pixels differ')
+    # Colour budget audit and one-click merge of the rarest colours.
+    plab_open('game/palette-extractor',fx.frames(4))
+    page.locator('#plabBudget').fill('8');page.wait_for_timeout(700)
+    ok('the auditor lists the colours that are over budget',page.locator('.plab-offenders li').count()==8,page.locator('#plabBudget-out').inner_text().split(chr(10))[0])
+    page.locator('[data-action="plab-merge"]').click();page.wait_for_timeout(900)
+    _,_,pal4,union4,_=plab_zip()
+    ok('merging the rarest colours really reaches the budget',len(union4)<=8 and union4<=pal4,f'{len(union4)} colours out')
+    page.keyboard.press('Control+z');page.wait_for_timeout(800)
+    ok('Ctrl+Z on the document restores the merged colours',page.locator('.plab-swatch').count()>8)
+    # Pixel-grid checks against known 1x, 3x, 2.5x-nearest and 2.5x-bilinear inputs.
+    for name,image,expected in [('flat-1x',fx.flat_sprite(),'Already 1'),('nearest-3x',fx.upscaled(3),'3\u00d7 \u00b7 logical size 16\u00d716'),
+                                ('nearest-2.5x',fx.nearest_non_integer(),'No integer grid')]:
+        plab_open('game/pixel-perfect-checker',[(name+'.png',fx.png(image))])
+        ok(f'the checker reads {name} correctly',expected in page.locator('#plabReport').inner_text(),page.locator('#plabReport').inner_text().replace(chr(10),' | ')[:120])
+    plab_open('game/pixel-perfect-checker',[('bilinear.png',fx.png(fx.bilinear()))])
+    report=page.locator('#plabReport').inner_text()
+    ok('the checker measures blurred edges instead of guessing a scale','Intermediate edge pixels' in report and 'Integer pixel grid' not in report,report.replace(chr(10),' | ')[:120])
+    plab_open('game/pixel-perfect-checker',[('up3.png',fx.png(fx.upscaled(3)))])
+    with page.expect_download() as d:
+        page.locator('[data-action="plab-recover"]').click();page.wait_for_timeout(500);page.locator('[data-action="plab-export-one"]').click()
+    ok('recovering the 1x source returns the original grid',Image.open(d.value.path()).size==(16,16))
+    for path,stage in [('game/pixel-lab','convert'),('game/palette-extractor','palette'),('game/palette-swap-ramp','recolor'),('game/pixel-art-cleanup','cleanup'),('game/pixel-perfect-checker','check')]:
+        plab_open(path,fx.frames(2))
+        ok(f'{path} opens the Lab at its own stage',page.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').get_attribute('aria-current')=='page')
+    for width in (390,320):
+        plab_phone=browser.new_context(viewport={'width':width,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
+        plab_phone.on('pageerror',lambda e:errors.append(str(e)))
+        plab_phone.goto(BASE+'/ko/game/pixel-lab/',wait_until='networkidle')
+        plab_phone.locator('#fileInput').set_input_files(files=plab_files(fx.frames(8)));plab_phone.locator('#plabCanvas').wait_for();plab_phone.wait_for_timeout(800)
+        for stage in ('palette','cleanup','check'):
+            plab_phone.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').click();plab_phone.wait_for_timeout(700)
+            ok(f'pixel lab has no horizontal scroll at {width} on {stage}',plab_phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'),str(plab_phone.evaluate('()=>document.documentElement.scrollWidth')))
+        plab_phone.close()
+    # ===== end Pixel Lab =============================================================
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

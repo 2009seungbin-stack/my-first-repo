@@ -44,6 +44,15 @@ test('one palette is extracted from ALL frames at once and never exceeds the req
  assert(Math.abs(share.reduce((a,b)=>a+b,0)-1)<1e-9);
  // The white pixel lives in one frame only; a shared histogram still gives it an entry.
  assert(colors.some(c=>c.every(v=>v>200)),'rare fourth colour survived the shared histogram');
+ // A lopsided weight split used to push the median past the last point of a box, leaving an
+ // empty box whose average was NaN — a silently wasted palette slot.
+ const lopsided=new Uint8ClampedArray(4*1*4);
+ lopsided.set([10,10,10,255],0);for(let p=1;p<4;p++)lopsided.set([240,240,240,255],p*4);
+ for(const n of [2,3,4]){
+  const skewed=extract([{data:lopsided,width:4,height:1}],n).colors;
+  assert(skewed.length>=1&&skewed.length<=n);
+  for(const c of skewed)assert(c.every(Number.isFinite),`NaN colour for ${n}: ${JSON.stringify(skewed)}`);
+ }
  // Transparent pixels never enter the histogram.
  const blank={data:new Uint8ClampedArray(4*4*4),width:4,height:4};
  assert.deepEqual(extract([blank],8).colors,[[0,0,0]]);

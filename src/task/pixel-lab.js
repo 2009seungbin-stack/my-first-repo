@@ -1,4 +1,5 @@
 import * as Im from '../image.js';
+import {pngRGBACompressed} from '../png-stream.js';
 import {stem,zip,bytes} from '../core.js';
 import {t} from '../i18n.js';
 import {DITHER_MODES} from '../pixel-engine.js';
@@ -36,7 +37,7 @@ export function mount({el,def}){
   colors:int(q.get('colors'),2,256,16),dither:DITHER_MODES.includes(q.get('dither'))?q.get('dither'):'none',amount:1,compare:false,
   classic:Object.hasOwn(PALETTES,q.get('palette'))?q.get('palette'):'',sort:'original',format:'gpl',
   orphans:false,clusters:false,minArea:4,holes:false,aa:false,aaThreshold:80,alphaCut:0,outline:-1,gapFix:false,
-  budget:int(q.get('budget'),2,256,16),scale:int(q.get('scale'),1,8,1),hue:0,window:30,tolerance:0,to:'#4a7fd8',preset:'frozen',teams:'red,blue,green,yellow'
+  showIO:false,silhouetteView:false,budget:int(q.get('budget'),2,256,16),scale:int(q.get('scale'),1,8,1),hue:0,window:30,tolerance:0,to:'#4a7fd8',preset:'frozen',teams:'red,blue,green,yellow'
  };
  const T=(k,v)=>text('plab.'+k,v),TV=T;
  const frameAt=()=>sources[Math.min(at,sources.length-1)];
@@ -91,15 +92,16 @@ export function mount({el,def}){
    const outline=o.gapFix&&o.outline>=0?C.outlineAudit(frame,o.outline).gapFix:[];
    if(changes.length||outline.length)indices=C.applyChanges(indices,[...changes,...outline]);
    const rgba=P.recolorIndexed(indices,alpha,out,{width:img.width,height:img.height});
-   let canvas=canvasOf(rgba);
-   if(o.scale>1){const big=Im.resize(canvas,canvas.width*o.scale,canvas.height*o.scale,true);Im.release(canvas);canvas=big;}
-   return {canvas,indices,alpha,width:img.width,height:img.height,found,aa,changed:changes.length+outline.length};
+   // Export encodes this exact buffer (src/png-stream.js), never a canvas: a canvas stores colour
+   // premultiplied by alpha, so an anti-aliased edge pixel would come back a shade off the palette.
+   const pixels=o.scale>1?K.nearestScale(rgba,o.scale):rgba;
+   return {pixels,indices,alpha,width:img.width,height:img.height,found,aa,changed:changes.length+outline.length};
   }finally{if(base!==source.canvas)Im.release(base);}
  }
  function build(){
   if(!sources.length)return;
   const colors=ensurePalette(),out=outputPalette();
-  Im.release(preview?.canvas);preview=null;
+  preview=null;
   try{
    preview=processFrame(frameAt(),colors,out);
    // Counting and inspecting both walk every pixel, so they run for the stage that needs them.
@@ -111,12 +113,14 @@ export function mount({el,def}){
  const schedule=()=>{clearTimeout(timer);timer=setTimeout(build,50);};
  function paint(){
   const host=el.querySelector('#plabView');if(!host||!preview)return;
-  const cv=el.querySelector('#plabCanvas'),ov=el.querySelector('#plabOverlay'),w=preview.canvas.width,h=preview.canvas.height;
-  cv.width=w;cv.height=h;const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,w,h);ctx.drawImage(preview.canvas,0,0);
+  const cv=el.querySelector('#plabCanvas'),ov=el.querySelector('#plabOverlay'),{data,width:w,height:h}=preview.pixels;
+  cv.width=w;cv.height=h;const ctx=cv.getContext('2d');ctx.putImageData(new ImageData(data,w,h),0,0);
   host.style.aspectRatio=`${w} / ${h}`;
   ov.width=preview.width;ov.height=preview.height;const oc=ov.getContext('2d');oc.clearRect(0,0,ov.width,ov.height);
   if(candidates?.length){
-   oc.fillStyle='#ff2d95';
+   // Semi-transparent so the art stays readable underneath; the count is printed too, because a
+   // colour alone must never be the only way to read a result.
+   oc.globalAlpha=.8;oc.fillStyle='#ff2d95';
    for(const c of candidates){const x=c.at%preview.width,y=(c.at-x)/preview.width;oc.fillRect(x,y,1,1);}
   }
   el.querySelector('#plabInfo').textContent=`${preview.width} × ${preview.height}${o.scale>1?` → ${w} × ${h}`:''} · ${TV('colorCount',{n:palette.length})}`;
@@ -129,8 +133,8 @@ export function mount({el,def}){
    const saved=o.dither;o.dither=mode;
    let made=null;try{made=processFrame(frameAt(),palette,outputPalette());}catch{/* leave the cell blank */}finally{o.dither=saved;}
    if(!made)continue;
-   cell.width=made.canvas.width;cell.height=made.canvas.height;
-   const ctx=cell.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(made.canvas,0,0);Im.release(made.canvas);
+   const {data,width,height}=made.pixels;cell.width=width;cell.height=height;
+   cell.getContext('2d').putImageData(new ImageData(data,width,height),0,0);
   }
  }
  // ── markup ──────────────────────────────────────────────────────────────────────────────────
@@ -154,7 +158,7 @@ export function mount({el,def}){
  <form class="options" id="plabOptions" autocomplete="off">${stageControls()}</form>
  <div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(T('addFrames'))}</button><button type="button" class="link" data-action="plab-undo" ${history.length?'':'disabled'}>${esc(t('되돌리기'))}</button><button type="button" class="link" data-action="plab-clear">${esc(text('removeAll'))}</button></div>
  <button type="button" class="primary big" data-action="plab-export">${esc(T('exportFrames'))}</button>
- <button type="button" class="ghost" data-action="plab-link">${esc(t('설정 링크 복사'))}</button>
+ <div class="list-actions"><button type="button" class="mini-button" data-action="plab-export-one">${esc(T('exportOne'))}</button><button type="button" class="mini-button" data-action="plab-export-palette">${esc(T('exportPalette'))}</button><button type="button" class="link" data-action="plab-link">${esc(t('설정 링크 복사'))}</button></div>
  <small class="local-note">${esc(text('local'))}</small>
 </aside></div>`;
  }
@@ -171,12 +175,12 @@ ${num('plabAmount','amount',0,1,T('amount'),.1)}</details>
   if(stage==='palette')return `<div id="plabSwatches" class="plab-swatches"></div><div id="plabPicked" class="plab-picked"></div>
 <span class="opt-label">${esc(T('sort'))}</span><div class="chips-row">${P.SORT_MODES.map(m=>`<button type="button" class="chip" data-action="plab-sort" data-mode="${m}" aria-pressed="${o.sort===m}">${esc(T('sorts.'+m))}</button>`).join('')}</div>
 <div class="list-actions"><button type="button" class="mini-button" data-action="plab-extract">${esc(T('extract'))}</button><button type="button" class="mini-button" data-action="plab-add-color">${esc(T('addColor'))}</button></div>
-<details class="options-advanced"><summary>${esc(T('importExport'))}</summary>
+<details class="options-advanced" data-panel="io" ${o.showIO?'open':''}><summary>${esc(T('importExport'))}</summary>
 <label class="field"><span>${esc(T('importFile'))}</span><input type="file" id="plabPaletteFile" accept=".gpl,.hex,.txt,.json,application/json,text/plain"></label>
 <label class="field"><span>${esc(T('importText'))}</span><textarea id="plabPaletteText" rows="4" spellcheck="false" placeholder="#1a1c2c&#10;#5d275d"></textarea></label>
 <button type="button" class="mini-button" data-action="plab-import-text">${esc(T('importApply'))}</button>
 <label class="field"><span>${esc(T('exportAs'))}</span><select id="plabFormat" data-key="format">${Object.entries(P.PALETTE_FORMATS).map(([k,v])=>`<option value="${k}" ${o.format===k?'selected':''}>${esc(v.label)}</option>`).join('')}</select></label>
-<button type="button" class="mini-button" data-action="plab-export-palette">${esc(T('exportPalette'))}</button></details>
+<p class="hint">${esc(T('exportAsHint'))}</p></details>
 <span class="opt-label">${esc(T('budget'))}</span>${num('plabBudget','budget',2,256,T('budgetTarget'))}<div id="plabBudget-out"></div>
 <button type="button" class="mini-button" data-action="plab-merge">${esc(T('mergeRarest'))}</button>`;
   if(stage==='recolor')return `<span class="opt-label">${esc(T('mode'))}</span><div class="segmented" role="group" id="plabRecolor">${['none','ramp','hue','status'].map(v=>`<button type="button" data-action="plab-recolor" data-value="${v}" aria-pressed="${recolor.kind===v}">${esc(T('recolors.'+v))}</button>`).join('')}</div>
@@ -185,20 +189,22 @@ ${num('plabAmount','amount',0,1,T('amount'),.1)}</details>
 <label class="field"><span>${esc(T('teams'))}</span><input id="plabTeams" data-key="teams" type="text" maxlength="80" value="${esc(o.teams)}"></label>
 <p class="hint">${esc(T('teamHint'))}</p>`;
   if(stage==='cleanup')return `${check('plabOrphans','orphans',T('orphans'))}${check('plabClusters','clusters',T('clusters'))}${num('plabMinArea','minArea',2,64,T('minArea'))}${check('plabHoles','holes',T('holes'))}
+${check('plabAA','aa',T('aa'))}
 <details class="options-advanced" ${o.aa?'open':''}><summary>${esc(T('aaTitle'))}</summary>
-${check('plabAA','aa',T('aa'))}${num('plabAAT','aaThreshold',1,300,T('aaThreshold'))}${num('plabAlphaCut','alphaCut',0,255,T('alphaCut'))}
+${num('plabAAT','aaThreshold',1,300,T('aaThreshold'))}${num('plabAlphaCut','alphaCut',0,255,T('alphaCut'))}
 <p class="hint">${esc(T('aaHint'))}</p></details>
 <details class="options-advanced"><summary>${esc(T('outlineTitle'))}</summary>
 <label class="field"><span>${esc(T('outline'))}</span><select id="plabOutline" data-key="outline"><option value="-1">${esc(T('outlineNone'))}</option>${palette.map((c,i)=>`<option value="${i}" ${o.outline===i?'selected':''}>${i+1} · ${P.hex(c)}</option>`).join('')}</select></label>
 ${check('plabGapFix','gapFix',T('gapFix'))}<div id="plabOutlineOut"></div></details>
 <div class="list-actions"><button type="button" class="mini-button" data-action="plab-candidates">${esc(T('showCandidates'))}</button><button type="button" class="mini-button" data-action="plab-hide-candidates">${esc(T('hideCandidates'))}</button></div>
-<div id="plabCleanupOut"></div>`;
+<div id="plabCleanupOut"></div>${o.dither==='none'?'':`<p class="hint">${esc(T('ditherCleanupNote'))}</p>`}`;
   if(stage==='check')return `<div id="plabReport"></div>
 ${num('plabScale','scale',1,8,T('scale'))}
+${check('plabSilOn','silhouetteView',T('silhouetteView'))}
+<div class="plab-compare" id="plabSilView" ${o.silhouetteView?'':'hidden'}>${[1,2].map(k=>`<figure><canvas class="px" data-sil="${k}"></canvas><figcaption>${k}×</figcaption></figure>`).join('')}</div>
 <div class="list-actions"><button type="button" class="mini-button" data-action="plab-recover">${esc(T('recover'))}</button><button type="button" class="mini-button" data-action="plab-silhouette">${esc(T('silhouette'))}</button></div>
 <p class="hint">${esc(T('checkNote'))}</p>`;
   return `<div id="plabExportOut"></div>
-<div class="list-actions"><button type="button" class="mini-button" data-action="plab-export-one">${esc(T('exportOne'))}</button><button type="button" class="mini-button" data-action="plab-export-palette">${esc(T('exportPalette'))}</button></div>
 ${num('plabScale2','scale',1,8,T('scale'))}
 <p class="hint">${esc(T('exportNote'))}</p>`;
  }
@@ -257,6 +263,14 @@ ${num('plabScale2','scale',1,8,T('scale'))}
 <li>${esc(TV('edgeReport',{n:report.edges.intermediate,share:(report.edges.share*100).toFixed(1),alpha:report.edges.partialAlpha}))}</li>
 <li>${esc(TV('distinct',{n:report.distinct,target:o.budget}))}</li></ul>`;
   }
+  if(stage==='check'&&o.silhouetteView&&preview){
+   const flat=K.silhouette(preview.pixels);
+   for(const k of [1,2]){
+    const cell=el.querySelector(`canvas[data-sil="${k}"]`);if(!cell)continue;
+    const {data,width,height}=k>1?K.nearestScale(flat,k):flat;
+    cell.width=width;cell.height=height;cell.getContext('2d').putImageData(new ImageData(data,width,height),0,0);
+   }
+  }
   if(stage==='export'){
    el.querySelector('#plabExportOut').innerHTML=`<ul class="plab-list"><li>${esc(TV('frameCount',{n:sources.length}))}</li><li>${esc(TV('colorCount',{n:palette.length}))}</li><li>${esc(T('dithers.'+o.dither))}${o.scale>1?` · ${o.scale}×`:''}</li></ul>`;
   }
@@ -277,7 +291,7 @@ ${num('plabScale2','scale',1,8,T('scale'))}
  }
  function clear(){
   for(const s of sources){Im.release(s.canvas);if(s.raw!==s.canvas)Im.release(s.raw);URL.revokeObjectURL(s.thumb);}
-  Im.release(preview?.canvas);sources=[];palette=[];locks=[];counts=[];share=[];selection=new Set();targetRamp=[];history=[];preview=null;report=null;candidates=null;empty();
+  sources=[];palette=[];locks=[];counts=[];share=[];selection=new Set();targetRamp=[];history=[];preview=null;report=null;candidates=null;empty();
  }
  async function sample(){
   // Eight frames with deliberately anti-aliased edges and more colours than a sprite needs,
@@ -310,9 +324,9 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   try{
    const colors=ensurePalette(),out=outputPalette(),files=[],entries=[];
    for(const s of sources){
-    const made=processFrame(s,colors,out);
-    try{files.push({name:`${stem(s.name)}.png`,blob:await Im.blobOf(made.canvas)});entries.push({name:`${stem(s.name)}.png`,width:made.canvas.width,height:made.canvas.height});}
-    finally{Im.release(made.canvas);}
+    const {pixels}=processFrame(s,colors,out);
+    files.push({name:`${stem(s.name)}.png`,blob:await pngRGBACompressed(pixels.data,pixels.width,pixels.height)});
+    entries.push({name:`${stem(s.name)}.png`,width:pixels.width,height:pixels.height});
    }
    files.push({name:`${paletteName||'palette'}.gpl`,blob:new Blob([P.toGPL(out,{name:paletteName,columns:Math.min(16,out.length)})],{type:'text/plain'})});
    files.push({name:'pixel-lab.json',blob:new Blob([envelope(entries)],{type:'application/json'})});
@@ -329,17 +343,18 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    const bases=Object.fromEntries(names.map(n=>[n,P.TEAM_COLORS[n]||P.parseColor(n)||P.TEAM_COLORS.red]));
    const variants=P.teamVariants(colors,[...selection],bases),files=[];
    for(const v of variants)for(const s of sources){
-    const made=processFrame(s,colors,v.colors);
-    try{files.push({name:`${v.name}/${stem(s.name)}.png`,blob:await Im.blobOf(made.canvas)});}finally{Im.release(made.canvas);}
+    const {pixels}=processFrame(s,colors,v.colors);
+    files.push({name:`${v.name}/${stem(s.name)}.png`,blob:await pngRGBACompressed(pixels.data,pixels.width,pixels.height)});
    }
    for(const v of variants)files.push({name:`${v.name}/palette.gpl`,blob:new Blob([P.toGPL(v.colors,{name:v.name})],{type:'text/plain'})});
-   const archive=await zip(files);download(archive,`pixel-lab-variants-${variants.length}.zip`);
+   const archive=await zip(files,{paths:true});download(archive,`pixel-lab-variants-${variants.length}.zip`);
    toast(TV('exported',{n:files.length,size:bytes(archive.size)}));track('tool_success',{intent:route.id});
   }catch(error){toast(error?.message||String(error),{error:true});}finally{busy=false;}
  }
  async function exportOne(){
   if(!preview)return;
-  try{download(await Im.blobOf(preview.canvas),`${stem(frameAt().name)}-pixel.png`);track('tool_success',{intent:route.id});}
+  const {data,width,height}=preview.pixels;
+  try{download(await pngRGBACompressed(data,width,height),`${stem(frameAt().name)}-pixel.png`);track('tool_success',{intent:route.id});}
   catch(error){toast(error?.message||String(error),{error:true});}
  }
  function importPalette(textValue,filename){
@@ -384,8 +399,8 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    source.canvas=recovered;palette=[];locks=[];toast(TV('recovered',{w:recovered.width,h:recovered.height}));shell();build();
   }
   else if(a==='plab-silhouette'){
-   const flat=canvasOf(K.silhouette(imageDataOf(preview.canvas)));
-   try{download(await Im.blobOf(flat),`${stem(frameAt().name)}-silhouette.png`);}finally{Im.release(flat);}
+   const flat=K.silhouette(preview.pixels);
+   download(await pngRGBACompressed(flat.data,flat.width,flat.height),`${stem(frameAt().name)}-silhouette.png`);
   }
   else if(a==='plab-remove'){const i=sources.findIndex(s=>String(s.id)===b.dataset.id);if(i<0)return;const [s]=sources.splice(i,1);Im.release(s.canvas);if(s.raw!==s.canvas)Im.release(s.raw);URL.revokeObjectURL(s.thumb);if(!sources.length)return clear();at=Math.min(at,sources.length-1);build();}
   else if(a==='plab-sort-frames'){sources.sort(natural);at=0;build();}
@@ -403,8 +418,10 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   const key=e.target.dataset?.key;
   if(key){
    const value=e.target.type==='checkbox'?e.target.checked:e.target.type==='number'?Number(e.target.value):e.target.value;
-   if(key==='compare'){o.compare=value;shell();build();return;}
+   if(key==='compare'||key==='silhouetteView'){o[key]=value;shell();build();return;}
    if(key==='classic'&&value!==o.classic){o.classic=value;palette=[];locks=[];selection=new Set();shell();build();return;}
+   // A checkbox is an edit, so it is undoable; typing in a number field is not snapshotted per key.
+   if(e.target.type==='checkbox')pushHistory();
    o[key]=value;
    if(key==='outline'||key==='to')renderSide();
    schedule();return;
@@ -422,11 +439,14 @@ ${num('plabScale2','scale',1,8,T('scale'))}
   importPalette(await file.text(),file.name);
  });
  el.addEventListener('submit',e=>e.preventDefault());
+ el.addEventListener('toggle',e=>{if(e.target.dataset?.panel==='io')o.showIO=e.target.open;},true);
  el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone,.frame-chip')){e.preventDefault();e.target.click();}});
  // Shortcuts live on the document: a button that disables itself after a click hands focus back
  // to <body>, and a listener on the workspace element would never see the next key.
  document.addEventListener('keydown',e=>{
-  if(!el.isConnected||!sources.length||e.target.closest?.('dialog,input,textarea,select'))return;
+  // Text, number and colour fields keep their own undo; a checkbox or a canvas does not.
+  const typing=e.target.closest?.('dialog,textarea,select,[contenteditable],input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file])');
+  if(!el.isConnected||!sources.length||typing)return;
   if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
   // Left/right step through the frame strip without needing to hit a 68 px thumbnail.

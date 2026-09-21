@@ -49,11 +49,18 @@ test('a non-integer nearest resize is reported as non-integer with a run-length 
  const scaled=resizeNearest(sprite(),2.5),found=detectScale(scaled);
  assert.equal(found.exact,false);
  assert.equal(found.confident,false);
- assert(found.estimate>2.1&&found.estimate<2.9,`estimate ${found.estimate}`);
+ assert(found.estimate>2.3&&found.estimate<2.7,`estimate ${found.estimate}`);
  assert.equal(inspect(scaled).verdict,'non-integer');
  const runs=runLengths(scaled);
  assert(runs.min>=2,'no single-pixel detail survives a 2.5x nearest resize');
  assert.equal(runs.counts.get(1)||0,0);
+ assert(runs.shortMean<=runs.mean&&runs.shortMean>=runs.min,`shortMean ${runs.shortMean}`);
+ // With a flat border added, the plain mean is dragged up while the short-run mean is not.
+ const bordered=(()=>{const w=scaled.width,h=scaled.height,data=new Uint8ClampedArray(scaled.data);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(x<8||y<8){const i=(y*w+x)*4;data[i]=9;data[i+1]=9;data[i+2]=9;data[i+3]=255;}
+  return runLengths({data,width:w,height:h});})();
+ assert(bordered.shortMean<bordered.mean,`${bordered.shortMean} vs ${bordered.mean}`);
+ assert(bordered.shortMean<3,`short-run mean stays near the real factor: ${bordered.shortMean}`);
 });
 test('grid analysis reports only the columns and rows where colour actually changes',()=>{
  const flat={data:new Uint8ClampedArray(4*4*4).fill(255),width:4,height:4};
