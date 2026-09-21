@@ -46,7 +46,7 @@ export function createBatch({el,def},tool){
   const it=items[current],cmp=el.querySelector('#cmp');if(!cmp||!it)return;
   const before=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;if(before)el.querySelector('#cmpBefore').src=before;else el.querySelector('#cmpBefore').removeAttribute('src');const after=el.querySelector('#cmpAfter');
   const compare=tool.compare!==false;if(it.status==='done'&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
-  cmp.classList.toggle('is-pending',it.status!=='done');cmp.classList.toggle('no-compare',!compare);
+  cmp.classList.toggle('is-pending',it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!tool.pixelated);
   if(!compare&&it.status==='done'&&it.result.preview)el.querySelector('#cmpBefore').src=it.result.preview;
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
   el.querySelector('#viewerNote').textContent=it.status==='done'?[it.result.note,it.result.warn].filter(Boolean).join(' · ')||text('compareHint'):it.status==='error'?it.error:text('working');
