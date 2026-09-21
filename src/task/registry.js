@@ -3,7 +3,10 @@
  * A tool moves here only when its task page is a superset of the old editor flow for that
  * job; until then its route keeps the classic editor (docs/PRODUCT-ROADMAP.md). */
 export const TASK_TOOLS=Object.freeze({
- compress:{module:'compress',kinds:['image'],next:['convert','resize','image']}
+ compress:{module:'compress',kinds:['image'],next:['convert','resize','image']},
+ convert:{module:'convert',kinds:['image'],next:['compress','resize','image']},
+ heic:{module:'convert',kinds:['image'],next:['compress','resize','image']},
+ resize:{module:'resize',kinds:['image'],next:['compress','convert','image']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
