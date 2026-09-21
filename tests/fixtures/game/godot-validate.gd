@@ -12,7 +12,20 @@ const OUT_RESOURCE := "res://sprite_frames.tres"
 
 
 func _initialize() -> void:
-	var report := {"godot": Engine.get_version_info(), "errors": [], "animations": {}, "frames": {}}
+	var report := {"godot": Engine.get_version_info(), "errors": [], "animations": {}, "frames": {}, "scripts": {}}
+	# Every script that ships to users has to at least parse in the engine, including the
+	# EditorScript, which this run cannot execute.
+	for path: String in ["res://addons/nerulio_sprite/nerulio_sprite_frames.gd",
+			"res://addons/nerulio_sprite/nerulio_sprite_import.gd",
+			"res://addons/nerulio_sprite/nerulio_sprite_import_cli.gd"]:
+		var script: GDScript = ResourceLoader.load(path, "GDScript", ResourceLoader.CACHE_MODE_IGNORE)
+		if script == null:
+			report["errors"].append("%s did not load" % path)
+			continue
+		var reloaded := script.reload()
+		if reloaded != OK:
+			report["errors"].append("%s failed to parse (error %d)" % [path, reloaded])
+		report["scripts"][path.get_file()] = script.get_instance_base_type()
 	var data: Dictionary = Builder.load_data(EXPORT_JSON)
 	if data.is_empty():
 		report["errors"].append("the export could not be read")

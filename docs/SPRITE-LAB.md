@@ -385,6 +385,19 @@ every `get_frame_duration`, every `AtlasTexture.region`, every `margin`, every `
 `Image.get_pixel` against what the packer wrote. The scene path packs and saves, with the expected
 `CollisionPolygon2D` children.
 
+All three shipped scripts are also loaded and reparsed in the engine, with their base types
+checked (`RefCounted`, `EditorScript`, `SceneTree`) — that is the only way to test the
+`EditorScript`, which a headless run cannot execute. And the **shipped** headless runner is then
+run on its own, not only the builder it shares with the harness:
+
+```
+<godot> --headless --path . --script res://addons/nerulio_sprite/nerulio_sprite_import_cli.gd -- atlas.json res://from_cli.tres
+animations=["attack", "run"]
+attack frames=6 speed=8.000000 loop=false
+run frames=4 speed=15.000000 loop=true
+problems=0
+```
+
 The check was confirmed able to fail: changing the helper's margin width by 5 px made it report
 `reports size (33.0, 40.0), expected (38.0, 40.0)` and exit non-zero.
 
@@ -520,6 +533,9 @@ Timings are one run on a Windows 11 laptop, Node 24 — they say "interactive", 
 | Godot 4 import: animation names, frame counts, fps, loop, per-frame durations, regions, margins, reported frame sizes, atlas size, `filter_clip` | built by the shipped GDScript inside **Godot 4.7.2.stable.official**, saved with `ResourceSaver`, reloaded with the cache bypassed, compared to the JSON | **VERIFIED** — all match |
 | Godot 4: the atlas regions hold the right pixels | 18 pixels read out of the PNG with `Image.get_pixel` and compared with what the packer wrote | **VERIFIED** |
 | Godot 4: the scene path | `build_scene` → `PackedScene.pack` → `ResourceSaver.save`, `CollisionPolygon2D` children counted | **VERIFIED** |
+| Godot 4: the shipped scripts parse | all three loaded and reparsed in the engine, base types `RefCounted` / `EditorScript` / `SceneTree` | **VERIFIED** |
+| Godot 4: the shipped headless runner | run on its own, reports both animations with the exported frame counts, speeds and loop flags, `problems=0` | **VERIFIED** |
+| Godot 4: the `@tool EditorScript` running in the editor UI | — | parses in the engine, but **not executed** — a headless run cannot run an `EditorScript` |
 | the Godot check can fail | helper's margin sabotaged by 5px | **VERIFIED** — reported and exited non-zero |
 | no fake engine files | the bundle contains no `.tres`, `.tscn` or `.meta`, and the helper assembles no resource text | **VERIFIED** by test |
 | preview == export for forward, reverse and ping-pong | the exported `playback` block compared against `playbackOrder`/`playbackTimes` for all three | **VERIFIED** |
@@ -538,4 +554,7 @@ Timings are one run on a Windows 11 laptop, Node 24 — they say "interactive", 
 * `findDuplicates`' near-duplicate search is O(n²) over same-size pairs with a hard `maxPairs` cap
   of 4000; above that it reports `truncated: true` rather than running for minutes.
 * Concave-to-convex decomposition of collision polygons is not implemented (see §4).
+* The Godot `@tool EditorScript` parses in the engine but has never been *run* from the editor UI,
+  because a headless run cannot execute an `EditorScript`. The builder it calls, and the headless
+  runner that calls the same builder, are both verified.
 * Unity, as above: **UNVERIFIED**.

@@ -118,8 +118,16 @@ for(const [name,entry] of Object.entries(report.frames)){
   check(close,`${name} sample ${i} at ${x},${y}: Godot read ${JSON.stringify(got)}, the atlas holds ${JSON.stringify(expected)}`);
  });
 }
+check(JSON.stringify(report.scripts)===JSON.stringify({'nerulio_sprite_frames.gd':'RefCounted','nerulio_sprite_import.gd':'EditorScript','nerulio_sprite_import_cli.gd':'SceneTree'}),
+ `the shipped scripts did not all parse with the expected base types (${JSON.stringify(report.scripts)})`);
+// And the shipped headless runner itself, not only the builder it shares with this harness.
+const cli=spawnSync(godot,['--headless','--path',out,'--script','res://addons/nerulio_sprite/nerulio_sprite_import_cli.gd','--','atlas.json','res://from_cli.tres'],{encoding:'utf8',timeout:120000});
+const cliText=`${cli.stdout||''}\n${cli.stderr||''}`;
+check(cli.status===0&&/problems=0/.test(cliText),`the shipped CLI import failed:\n${cliText}`);
+for(const name of names)check(new RegExp(`${name} frames=${data.godot.animations[name].frames.length} speed=${data.godot.animations[name].speed.toFixed(6)} loop=${data.godot.animations[name].loop?'true':'false'}`).test(cliText),
+ `the shipped CLI did not report ${name} as exported`);
 console.log(`Godot ${version}`);
 console.log(`command: "${godot}" --headless --path "${out}" --script res://godot-validate.gd`);
-console.log(`checked ${names.length} animations, ${Object.keys(data.frames).length} frames, ${Object.keys(report.frames).length}×3 pixel samples`);
+console.log(`checked ${names.length} animations, ${Object.keys(data.frames).length} frames, ${Object.keys(report.frames).length}×3 pixel samples, 3 shipped scripts parsed, the shipped CLI run`);
 if(failures.length){console.error(`\nGODOT VALIDATION FAILED (${failures.length}):`);for(const f of failures)console.error(`  - ${f}`);process.exit(1);}
 console.log('GODOT VALIDATION PASSED');
