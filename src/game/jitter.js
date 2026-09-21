@@ -61,9 +61,9 @@ export function anchorSeries(src,frames,options={}){
 /** The intended path through a noisy series. The window shrinks at the ends so the first and last
  * frames are not dragged toward the middle.
  * mode 'quadratic' (default) fits a local parabola by least squares — a Savitzky-Golay filter —
- * which passes a smooth bob or arc through almost unchanged (gain ≈ 0.998 for a 16-frame sine at
- * window 5) while still averaging the noise away. mode 'mean' is a plain moving average, which
- * flattens curved motion by about a sixth at the same window. */
+ * which passes a smooth bob or arc through almost unchanged (measured gain on a 16-frame sine:
+ * 0.998 at window 5, 0.973 at 9, 0.939 at 11) while still averaging the noise away. mode 'mean' is
+ * a plain moving average, which flattens the same motion to 0.852 / 0.559 / 0.387. */
 export function smooth(values,window=5,{mode='quadratic'}={}){
  if(!Number.isSafeInteger(window)||window<1)throw Error('Smoothing window must be a positive integer');
  if(!['quadratic','mean'].includes(mode))throw Error(`Unknown smoothing mode ${mode}`);

@@ -8,11 +8,10 @@
  * sampled pixel matched. Without --godot (or GODOT_BIN) it writes the project and stops, printing
  * UNVERIFIED — it never pretends. The version tested and the exact command are recorded in
  * docs/SPRITE-LAB.md. */
-import {mkdirSync,writeFileSync,rmSync,existsSync} from 'node:fs';
+import {mkdirSync,writeFileSync,readFileSync,rmSync,existsSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {readFileSync} from 'node:fs';
 import {encodePng} from './write-png.mjs';
 import {animation,frame as makeFrame,playbackOrder,playbackTimes} from '../../../src/game/model.js';
 import {framesFromRects,normalizeFrames} from '../../../src/game/frame-ops.js';
