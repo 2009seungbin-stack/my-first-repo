@@ -349,7 +349,7 @@ const records = [
   ["intent.upscale.action","이미지 확대하기","Enlarge image","画像を拡大"],
   ["intent.remove-bg.title","배경 제거","Remove background","背景を削除"],
   ["intent.remove-bg.headline","배경을 지울 이미지를 넣으세요","Keep the subject. Lose the background.","背景を消したい画像を追加"],
-  ["intent.remove-bg.description","단색 배경을 지우거나 AI 인물 모드를 선택하세요.","Remove a solid background or choose the AI portrait mode.","単色背景の削除、またはAI人物モードを選択。"],
+  ["intent.remove-bg.description","사진을 넣으면 AI가 사람·제품·동물의 배경을 바로 지웁니다. 새 배경색과 브러시 보정까지.","Drop a photo and AI removes the background from people, products and animals. Add a new backdrop or touch up with a brush.","写真を入れるとAIが人物・商品・動物の背景をすぐに消します。新しい背景色やブラシ補正も。"],
   ["intent.remove-bg.action","배경 제거하기","Remove background","背景を削除"],
   ["intent.compress.title","이미지 압축","Compress image","画像を圧縮"],
   ["intent.compress.headline","가볍게 만들 이미지를 넣으세요","Less file size. More room.","軽くしたい画像を追加"],
