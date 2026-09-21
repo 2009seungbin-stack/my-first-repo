@@ -141,7 +141,7 @@ export function mount({el,def}){
   return `<span class="opt-label">${esc(T('detect'))}</span><div class="tl-cands">${candidates.map((c,i)=>`<button type="button" class="tl-cand" data-action="tl-cand" data-i="${i}" aria-pressed="${current(c)}">
 <b>${c.tileWidth}×${c.tileHeight}</b><span class="tl-score">${pct(c.score)}</span>
 <small>${esc(T('gridInfo',{c:c.cols,r:c.rows,w:c.tileWidth,h:c.tileHeight}))}${c.marginX||c.marginY?` · ${esc(T('marginX'))} ${c.marginX}/${c.marginY}`:''}${c.spacingX||c.spacingY?` · ${esc(T('spacingX'))} ${c.spacingX}/${c.spacingY}`:''}</small>
-<small class="tl-ev">${['separators','repeatedEdges','contentStops'].map(k=>`<i>${esc(T('evidence.'+k))} ${pct(c.evidence[k])}</i>`).join('')}</small></button>`).join('')}</div><p class="viewer-note">${esc(T('detectNote'))}</p>`;
+<small class="tl-ev">${['repeatedEdges','boundaryEdges','separators'].map(k=>`<i>${esc(T('evidence.'+k))} ${pct(c.evidence[k])}</i>`).join('')}</small></button>`).join('')}</div><p class="viewer-note">${esc(T('detectNote'))}</p>`;
  }
  function gridSide(){
   const blank=blanks(),dup=data&&grid?.rects.length?duplicateGroups(tileHashes()):[];

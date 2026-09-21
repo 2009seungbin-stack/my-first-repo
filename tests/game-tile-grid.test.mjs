@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {detectGrid,axisProfile,axisSizes,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,hashRGBA,isBlank,
+import {detectGrid,axisProfile,axisSizes,periodStrength,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,hashRGBA,isBlank,
  tileDifference,duplicateGroups,nearDuplicateGroups,transformRGBA,variantSet,COMMON_SIZES,MAX_TILES} from '../src/game/tile-grid.js';
 
 /** Deterministic tile sheets. Each tile gets its own base colour plus per-pixel noise, so tile
@@ -19,6 +19,20 @@ function sheet({tileW=32,tileH=32,cols=4,rows=4,margin=0,spacing=0,noise=10,blan
   }
  }
  return {data,w,h,tileW,tileH,cols,rows,margin,spacing};
+}
+/** Tiles that are flat inside except for an inset outline, and whose neighbours differ only
+ * slightly: the hardest honest case, because the strongest lines are not the tile boundaries. */
+function outlined({tileW=16,tileH=tileW,cols=8,rows=6,margin=0,spacing=0}={}){
+ const w=2*margin+cols*tileW+(cols-1)*spacing,h=2*margin+rows*tileH+(rows-1)*spacing;
+ const data=new Uint8ClampedArray(w*h*4);
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+  const index=row*cols+col,x0=margin+col*(tileW+spacing),y0=margin+row*(tileH+spacing);
+  for(let y=0;y<tileH;y++)for(let x=0;x<tileW;x++){
+   const p=((y0+y)*w+x0+x)*4,rim=x===2||y===2||x===tileW-3||y===tileH-3;
+   data[p]=rim?240:40+index*3;data[p+1]=rim?240:120;data[p+2]=rim?220:80;data[p+3]=255;
+  }
+ }
+ return {data,w,h};
 }
 const best=s=>detectGrid(s.data,s.w,s.h)[0];
 const shape=c=>[c.tileWidth,c.tileHeight,c.marginX,c.marginY,c.spacingX,c.spacingY,c.cols,c.rows];
@@ -51,6 +65,40 @@ test('a size several candidates divide is resolved by where the edges repeat',()
  assert(score(32)>score(8)+.1,`32 (${score(32)}) must beat 8 (${score(8)})`);
  // The evidence is reported, not hidden: half the period explains only some strong edges.
  assert(ranked[0].evidence.strongEdgesExplained>.9);
+});
+test('the period is measured, not the contrast at the boundary',()=>{
+ // Tiles whose own outline is far stronger than the difference between neighbouring tiles: the
+ // transitions inside each tile are the loudest lines in the sheet, so an outlier rule reads the
+ // outline as the grid. Folding the profile still finds the 16px period and the right phase.
+ const s=outlined({tileW:16,cols:8,rows:6});
+ assert.deepEqual([s.w,s.h],[128,96]);
+ const ranked=detectGrid(s.data,s.w,s.h,{limit:8});
+ assert.deepEqual(shape(ranked[0]),[16,16,0,0,0,0,8,6]);
+ // The 12px-tile / 4px-gap reading traces the same outline; it loses because its declared gap is
+ // neither blank nor flat, and it must not merely tie.
+ const gap=ranked.find(c=>c.spacingX===4);
+ assert(!gap||gap.score<ranked[0].score-.1,'an undeclarable gap must not outrank the real grid');
+ assert(ranked[0].evidence.repeatedEdges>.8,String(ranked[0].evidence.repeatedEdges));
+});
+test('a blank line inside every tile is separation, not part of the tile',()=>{
+ // 16px tiles with a 1px gap and a 1px margin: "17px tiles, no gap" covers the same pixels.
+ const s=outlined({tileW:16,cols:6,rows:4,margin:1,spacing:1});
+ assert.deepEqual([s.w,s.h],[103,69]);
+ const ranked=detectGrid(s.data,s.w,s.h,{limit:8});
+ assert.deepEqual(shape(ranked[0]),[16,16,1,1,1,1,6,4]);
+ const swallowed=ranked.find(c=>c.tileWidth===17&&!c.spacingX);
+ assert(!swallowed||swallowed.score<ranked[0].score,'17px tiles swallow the gap and must rank lower');
+});
+test('period strength is a variance share, adjusted for the periods it spends',()=>{
+ const s=sheet({tileW:32,tileH:32,cols:4,rows:4});
+ const per=periodStrength(axisProfile(s.data,s.w,s.h,'x'));
+ assert.equal(per.maxPeriod,64);
+ assert(per.scores[32]>.8,String(per.scores[32]));
+ assert(per.scores[32]>per.scores[20]+.5,'20 is not a period of this sheet');
+ assert(per.scores[0]===0&&per.scores[3]===0,'a tile below 4px is not scored');
+ // A sheet with nothing in it has no period at all, and says so instead of guessing.
+ const blank=periodStrength(axisProfile(new Uint8ClampedArray(32*32*4),32,32,'x'));
+ assert(blank.scores.every(v=>v===0));
 });
 test('non-square tiles and an odd sheet size are detected too',()=>{
  assert.deepEqual(shape(best(sheet({tileW:16,tileH:32,cols:5,rows:2}))),[16,32,0,0,0,0,5,2]);

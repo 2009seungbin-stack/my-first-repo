@@ -47,15 +47,58 @@ export function axisProfile(data,w,h,axis){
  const meanCross=len>1?cross.slice(1).reduce((s,v)=>s+v,0)/(len-1):0;
  return {axis,len,edge,uniform,clear,cross,strong,strongLines,meanCross};
 }
-/** Sizes worth trying on one axis: the usual suspects plus the sheet's own exact divisors, so an
- * odd sheet (105 px wide, 15 px tiles) is not silently excluded. */
+/** How much of the sheet's transition pattern repeats every `period` lines, for every period at
+ * once. The transition profile is folded into `period` buckets and the between-bucket share of
+ * its variance is measured — the same quantity a one-way ANOVA calls explained variance. A grid
+ * of 32px tiles makes the fold at 32 sharp and the fold at 20 flat, whatever the art looks like,
+ * and unlike an "is this line an outlier" threshold it survives busy tile interiors.
+ * The share is adjusted for degrees of freedom, so a huge period cannot win by having a bucket
+ * per line. Index 0..3 are unused: a tile below 4px is not a tile. */
+export function periodStrength({edge,len}){
+ const maxPeriod=Math.floor(len/2),scores=new Float64Array(Math.max(0,maxPeriod+1)),n=len-1;
+ if(n<6||maxPeriod<4)return {maxPeriod,scores};
+ let sum=0;for(let i=1;i<len;i++)sum+=edge[i];
+ const mean=sum/n;
+ let total=0;for(let i=1;i<len;i++)total+=(edge[i]-mean)**2;
+ if(total<=0)return {maxPeriod,scores,mean};
+ const bucket=new Float64Array(maxPeriod),counts=new Int32Array(maxPeriod);
+ for(let period=4;period<=maxPeriod;period++){
+  if(n<=period+1)break;
+  bucket.fill(0,0,period);counts.fill(0,0,period);
+  for(let i=1;i<len;i++){const k=i%period;bucket[k]+=edge[i];counts[k]++;}
+  let between=0;
+  for(let k=0;k<period;k++)if(counts[k])between+=(bucket[k]/counts[k]-mean)**2*counts[k];
+  scores[period]=clamp(1-(1-between/total)*(n-1)/(n-period),0,1);
+ }
+ return {maxPeriod,scores,mean,total};
+}
+/** Mean transition strength per residue class — the folded profile itself, used to place the
+ * phase: the residue a grid's tile starts fall on should be one of the peaks. */
+function foldMeans({edge,len},period){
+ const sum=new Float64Array(period),n=new Int32Array(period);
+ for(let i=1;i<len;i++){const k=i%period;sum[k]+=edge[i];n[k]++;}
+ for(let k=0;k<period;k++)if(n[k])sum[k]/=n[k];
+ return sum;
+}
+/** Periods worth scoring on one axis: the strongest measured ones, plus the usual tile sizes and
+ * the sheet's own divisors so a flat or two-tile sheet still gets offered something, plus the
+ * whole length (a single row or column is a legitimate reading of a strip). */
 export function axisSizes(len,extra=[]){
  const sizes=new Set();
  for(const s of [...COMMON_SIZES,...extra])if(isInt(s)&&s>=4&&s<=len)sizes.add(s);
  for(let count=2;count<=64;count++){const s=len/count;if(isInt(s)&&s>=4&&s<=256)sizes.add(s);}
  return [...sizes].sort((a,b)=>a-b);
 }
-function axisOption(p,tile,margin,spacing){
+function axisPeriods(p,per,extra,top=14){
+ const measured=[];
+ for(let period=4;period<=per.maxPeriod;period++)if(per.scores[period]>0)measured.push(period);
+ measured.sort((a,b)=>per.scores[b]-per.scores[a]||a-b);
+ const periods=new Set(measured.slice(0,top));
+ for(const tile of axisSizes(p.len,extra))for(const spacing of SPACINGS)if(tile+spacing<=p.len)periods.add(tile+spacing);
+ for(const margin of MARGINS)if(p.len-2*margin>=4)periods.add(p.len-2*margin);
+ return [...periods].filter(v=>v>=4&&v<=p.len).sort((a,b)=>a-b);
+}
+function axisOption(p,per,fold,tile,margin,spacing){
  const period=tile+spacing,usable=p.len-margin;
  if(tile<4||usable<tile)return null;
  const count=Math.floor((usable+spacing)/period);
@@ -70,27 +113,53 @@ function axisOption(p,tile,margin,spacing){
  const boundaries=[];
  for(let i=1;i<count;i++){boundaries.push(start(i));if(spacing)boundaries.push(start(i)-spacing);}
  const purity=separators.length?separators.reduce((s,x)=>s+(p.clear[x]?1:p.uniform[x]?.8:0),0)/separators.length:null;
- // Precision: do this layout's own boundaries land on strong transitions?
- const coverage=boundaries.length?boundaries.filter(x=>p.edge[x]>=p.strong).length/boundaries.length:null;
- // Recall: does it explain every strong transition in the sheet? Without this, half the true
- // period scores as well as the period itself on a sheet whose size several sizes divide.
+ // Is this layout's phase right? Its tile starts all share one residue class; with a separator
+ // the line where content stops shares another. Both should stand above the folded average.
+ const f=count>1?fold(period):null;
+ let contrast=null;
+ if(f){
+  const residues=[...new Set(spacing?[margin%period,(margin-spacing+period)%period]:[margin%period])];
+  let at=0,all=0;
+  for(const r of residues)at+=f[r];
+  for(let k=0;k<period;k++)all+=f[k];
+  const average=all/period;
+  contrast=average>0?clamp((at/residues.length/average-1)/3,0,1):null;
+ }
+ const periodicity=count>1?per.scores[period]??0:null;
+ // A multiple of the true period explains the sheet just as well — its boundaries are a subset.
+ // The smaller reading wins unless it is measurably worse.
+ let harmonic=false;
+ if(count>1)for(let d=4;d<=period/2;d++)if(period%d===0&&(per.scores[d]??0)>=(periodicity??0)-.02){harmonic=true;break;}
+ // Does drawn content stop at the boundaries, or run straight through them?
+ const breakage=boundaries.length&&p.meanCross>.02?clamp(1-boundaries.reduce((s,x)=>s+p.cross[x],0)/boundaries.length/p.meanCross,0,1):null;
  const owned=new Set([...separators,...boundaries]);
  if(margin)owned.add(start(0));
  if(trailing)owned.add(p.len-trailing);
  const explained=p.strongLines.length?p.strongLines.filter(x=>owned.has(x)).length/p.strongLines.length:null;
- const repeated=coverage===null?(explained===null?.45:explained*.5):explained===null?coverage:coverage+explained?2*coverage*explained/(coverage+explained):0;
- const breakage=boundaries.length&&p.meanCross>.02?clamp(1-boundaries.reduce((s,x)=>s+p.cross[x],0)/boundaries.length/p.meanCross,0,1):null;
- let score=.55*repeated+.27*(purity??.5)+.18*(breakage??.5);
+ // A gap this layout did not declare: when the first or last line of every tile is blank or flat,
+ // the real tile is smaller and that line is separation, so "17px tiles" loses to "16px + 1px".
+ const insideBlank=count>1?[margin,margin+tile-1].reduce((s,base)=>{
+  let all=base<p.len?1:0;
+  for(let i=0;i<count&&all;i++){const x=base+i*period;if(x>=p.len||!(p.clear[x]||p.uniform[x]))all=0;}
+  return s+all;},0)/2:0;
+ let score=.40*(periodicity??.35)+.26*(contrast??.35)+.20*(purity??.5)+.08*(breakage??.5)+.06*(explained??.5);
+ // Declaring a separator that is neither blank nor flat is evidence against the reading, not the
+ // absence of evidence: it is what separates "12px tiles with a 4px gap" from the real 16px grid.
+ if(purity!==null&&purity<.5)score-=.4*(.5-purity);
+ if(insideBlank)score-=.12*insideBlank;
+ if(harmonic)score-=.24;
  if(trailing&&trailing!==margin)score-=.22;
- if(margin)score-=.02;
- if(spacing)score-=.02;
- if(count===1)score-=.12;
- return {tile,margin,spacing,count,trailing,score:clamp(score,0,1),coverage,explained,repeated,purity,breakage};
+ if(count===1)score-=.14;
+ if(margin)score-=.01;
+ if(spacing)score-=.01;
+ return {tile,margin,spacing,count,trailing,score:clamp(score,0,1),periodicity,contrast,explained,purity,breakage,harmonic};
 }
 function axisRanking(p,extra){
+ const per=periodStrength(p),cache=new Map(),fold=period=>{if(!cache.has(period))cache.set(period,foldMeans(p,period));return cache.get(period);};
  const out=[];
- for(const tile of axisSizes(p.len,extra))for(const margin of MARGINS)for(const spacing of SPACINGS){
-  const o=axisOption(p,tile,margin,spacing);if(o)out.push(o);
+ for(const period of axisPeriods(p,per,extra))for(const spacing of SPACINGS){
+  if(period-spacing<4)continue;
+  for(const margin of MARGINS){const o=axisOption(p,per,fold,period-spacing,margin,spacing);if(o)out.push(o);}
  }
  return out.sort((a,b)=>b.score-a.score||a.tile-b.tile);
 }
@@ -108,8 +177,8 @@ export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24}={}){
   out.push({tileWidth:a.tile,tileHeight:b.tile,marginX:a.margin,marginY:b.margin,spacingX:a.spacing,spacingY:b.spacing,
    cols:a.count,rows:b.count,count:a.count*b.count,trailingX:a.trailing,trailingY:b.trailing,
    score:clamp((a.score+b.score)/2+(square?.06:0)+(common?.04:0),0,1),
-   evidence:{separators:pair(a.purity,b.purity),repeatedEdges:pair(a.repeated,b.repeated),
-    boundaryEdges:pair(a.coverage,b.coverage),strongEdgesExplained:pair(a.explained,b.explained),contentStops:pair(a.breakage,b.breakage)}});
+   evidence:{separators:pair(a.purity,b.purity),repeatedEdges:pair(a.periodicity,b.periodicity),
+    boundaryEdges:pair(a.contrast,b.contrast),strongEdgesExplained:pair(a.explained,b.explained),contentStops:pair(a.breakage,b.breakage)}});
  }
  return out.sort((p,q)=>q.score-p.score||p.count-q.count).slice(0,limit);
 }
