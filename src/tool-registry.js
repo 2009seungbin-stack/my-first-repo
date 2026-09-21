@@ -386,6 +386,131 @@ export const TOOLS = Object.freeze({
       "compress",
       "convert"
     ]
+  },
+  "ui-lab": {
+    "path": "game/ui-lab",
+    "category": "game",
+    "icon": "outline",
+    "title": [
+      "UI 에셋 랩",
+      "UI Lab",
+      "UIアセットラボ"
+    ],
+    "description": [
+      "9슬라이스·버튼 상태·UI 아틀라스·비트맵 폰트를 한 화면에서 만들고 실제 화면 크기로 확인하세요.",
+      "Build nine-slice panels, button states, UI atlases and bitmap fonts in one workspace, then check them at real screen sizes.",
+      "9スライス・ボタン状態・UIアトラス・ビットマップフォントを一つの画面で作り、実際の画面サイズで確認。"
+    ],
+    "limit": [
+      "PNG과 JSON, BMFont 텍스트만 만듭니다. .tres·.meta 같은 엔진 리소스 파일은 만들지 않고, 엔진 안에서의 렌더링은 확인하지 않았습니다.",
+      "Writes PNG, JSON and BMFont text only. It never writes engine resource files (.tres, .meta), and rendering inside an engine was not verified here.",
+      "出力はPNG・JSON・BMFontテキストのみ。.tresや.metaなどのエンジンリソースは生成せず、エンジン内での描画は検証していません。"
+    ],
+    "next": [
+      "9-slice-editor",
+      "bitmap-font",
+      "sprite-sheet-maker"
+    ]
+  },
+  "9-slice-editor": {
+    "path": "game/9-slice-editor",
+    "category": "game",
+    "icon": "rect",
+    "title": [
+      "9슬라이스 편집기",
+      "9-Slice Editor",
+      "9スライスエディター"
+    ],
+    "description": [
+      "패널 이미지의 네 경계선을 끌어 정하고, 여러 목표 크기로 늘린 결과를 바로 확인하세요.",
+      "Drag the four borders of a panel image and see it drawn at several target sizes at once.",
+      "パネル画像の4本の境界線をドラッグで決め、複数の目標サイズでの描画をその場で確認。"
+    ],
+    "limit": [
+      "경계선 추천은 같은 열·행이 반복되는 구간을 찾는 휴리스틱입니다. 늘리기와 타일링은 브라우저 캔버스로 그립니다.",
+      "Border suggestion is a heuristic that looks for repeated columns and rows. Stretching and tiling are drawn with the browser canvas.",
+      "境界線の提案は同一の列・行が続く区間を探すヒューリスティックです。伸縮とタイルはブラウザのCanvasで描画します。"
+    ],
+    "next": [
+      "ui-lab",
+      "button-state-generator",
+      "atlas-padding"
+    ]
+  },
+  "button-state-generator": {
+    "path": "game/button-state-generator",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "버튼 상태 만들기",
+      "Button State Generator",
+      "ボタン状態を生成"
+    ],
+    "description": [
+      "버튼 하나로 기본·호버·누름·비활성·포커스 이미지를 만들고 낱장과 묶음 시트로 저장하세요.",
+      "Turn one button image into normal, hover, pressed, disabled and focus variants, as single PNGs and one packed strip.",
+      "1枚のボタン画像から通常・ホバー・押下・無効・フォーカスを作り、個別PNGとまとめたシートで保存。"
+    ],
+    "limit": [
+      "밝기·대비·채도·색 겹치기·오프셋·외곽선 같은 정해진 픽셀 연산입니다. 없는 그림을 새로 그리지는 않습니다.",
+      "Fixed pixel operations: brightness, contrast, saturation, colour overlay, offset and outline. It does not draw artwork that is not there.",
+      "明度・コントラスト・彩度・色の重ね・オフセット・アウトラインという決まった画素処理です。ない絵を描き足すことはしません。"
+    ],
+    "next": [
+      "ui-lab",
+      "9-slice-editor",
+      "sprite-sheet-maker"
+    ]
+  },
+  "missing-glyph-checker": {
+    "path": "game/missing-glyph-checker",
+    "category": "game",
+    "icon": "text",
+    "title": [
+      "빠진 글자 검사",
+      "Missing Glyph Checker",
+      "欠け文字チェック"
+    ],
+    "description": [
+      "번역 텍스트나 .txt·.json·.csv·.po를 폰트의 글자 목록과 비교해 빠진 글자와 사용 위치를 찾으세요.",
+      "Compare localisation text or a .txt/.json/.csv/.po file against a font's glyph list and find every missing character.",
+      "翻訳テキストや.txt・.json・.csv・.poをフォントの文字一覧と比較し、欠けている文字と使用箇所を確認。"
+    ],
+    "limit": [
+      "BMFont .fnt 파일이나 이 랩에서 만든 폰트의 글자 목록과 비교합니다. TTF·OTF의 cmap 표는 읽지 않습니다.",
+      "Compares against a BMFont .fnt file or a font built in this Lab. It does not read the cmap table of a TTF or OTF.",
+      "BMFontの.fntファイル、またはこのラボで作ったフォントの文字一覧と比較します。TTF・OTFのcmapテーブルは読みません。"
+    ],
+    "next": [
+      "bitmap-font",
+      "ui-lab",
+      "ui-scale-preview"
+    ]
+  },
+  "ui-scale-preview": {
+    "path": "game/ui-scale-preview",
+    "category": "game",
+    "icon": "resize",
+    "title": [
+      "UI 해상도·배율 점검",
+      "UI Scale Preview",
+      "UI解像度・倍率プレビュー"
+    ],
+    "description": [
+      "1280×720부터 4K까지, 정수 배율과 1.25·1.5·1.75배를 나란히 보고 글자 넘침과 명암비까지 확인하세요.",
+      "See a UI element from 1280×720 to 4K, integer scales next to 1.25/1.5/1.75, plus text overflow and contrast numbers.",
+      "1280×720から4Kまで、整数倍と1.25・1.5・1.75倍を並べて確認し、文字のはみ出しとコントラスト比もチェック。"
+    ],
+    "limit": [
+      "앵커와 세이프 영역은 개념 시뮬레이션이며 엔진이 실제로 계산한 레이아웃이 아닙니다. 명암비는 WCAG 공식값으로, 디자인 판정이 아닙니다.",
+      "Anchors and safe areas are a conceptual simulation, not a layout pass any engine ran. The contrast ratio is the WCAG formula, a reference number rather than a verdict.",
+      "アンカーとセーフエリアは概念的なシミュレーションで、エンジンが実際に計算したレイアウトではありません。コントラスト比はWCAGの計算値で、デザインの合否判定ではありません。"
+    ],
+    "next": [
+      "ui-lab",
+      "9-slice-editor",
+      "missing-glyph-checker"
+    ]
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));

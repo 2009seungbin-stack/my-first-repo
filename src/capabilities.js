@@ -17,7 +17,12 @@ const engines = {
  'print-pack':'Pica tiled fit / JPEG', 'logo-bg':'border flood fill', 'bitmap-font':'fixed grid BMFont',
  'mask-packer':'sequential row-transfer channel packing / incremental PNG', 'atlas-padding':'nine-blit nearest edge extrusion',
  'texture-map':'overlapped tiles / luminance height gradient', 'tile-helper':'exact grid region copy',
- 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO'
+ 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO',
+ 'ui-lab':'nine-slice draw plan / parametric state ops / measured glyph metrics / exact EDT signed distance field',
+ '9-slice-editor':'repeated-line border suggestion / nine-slice draw plan (stretch and tile)',
+ 'button-state-generator':'brightness, contrast, saturation, overlay, offset and square outline ops / MaxRects strip',
+ 'missing-glyph-checker':'BMFont .fnt parser / per-character occurrence counts',
+ 'ui-scale-preview':'Godot-style anchor arithmetic / canvas text measurement / WCAG contrast formula'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;

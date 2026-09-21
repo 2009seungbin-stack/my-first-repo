@@ -7,4 +7,9 @@ export const SEARCH_TERMS = Object.freeze({
  'favicon-pack':['favicon maker','brand icon','파비콘','ファビコン'],
  'frame-normalize':['sprite normalizer','normalize frames','프레임 정렬'],
  'print-pack':['print ratio resizer','etsy print','인쇄 비율'],
+ 'ui-lab':['ui asset','game ui','ui 에셋','ui 아틀라스','UI素材','ゲームUI'],
+ '9-slice-editor':['9 slice','nine patch','9patch','sliced sprite border','9슬라이스','나인패치','9スライス','9パッチ'],
+ 'button-state-generator':['button states','hover pressed disabled','ui button variants','버튼 상태','호버 눌림','ボタン状態','ホバー'],
+ 'missing-glyph-checker':['missing glyph','tofu characters','font coverage','빠진 글자','글리프 확인','欠け文字','グリフ確認'],
+ 'ui-scale-preview':['ui scale','resolution preview','safe area','anchor preview','ui 배율','세이프 영역','UI倍率','セーフエリア'],
 });

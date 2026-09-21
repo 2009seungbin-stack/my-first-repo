@@ -10,6 +10,9 @@ export const QUOTA_CLASSES=Object.freeze({
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
+ // UI Lab: nine-slice draws, state variants, glyph measurement and layout previews are all
+ // small canvas work on one asset at a time, so none of them meter.
+ 'ui-lab':'none','9-slice-editor':'none','button-state-generator':'none','missing-glyph-checker':'none','ui-scale-preview':'none',
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.
