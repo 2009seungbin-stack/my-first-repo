@@ -56,7 +56,7 @@ function video(from,to){
   intro:[NOTE[from][l],to==='gif'?{ko:'GIF는 너비·초당 프레임·색상 수에 따라 용량이 크게 달라집니다. 짧은 구간과 작은 너비가 공유하기 좋습니다.',en:'GIF size depends heavily on width, frame rate and colours; short clips at a modest width share best.',ja:'GIFは幅・フレームレート・色数で容量が大きく変わります。短い区間と控えめな幅が共有に向いています。'}[l]:{ko:'오디오 트랙을 디코딩해 MP3로 인코딩합니다. 영상 파일 안의 오디오 코덱을 브라우저가 지원해야 합니다.',en:'The audio track is decoded and encoded to MP3; the browser must support the audio codec inside the file.',ja:'音声トラックをデコードしてMP3にエンコードします。ファイル内の音声コーデックにブラウザが対応している必要があります。'}[l],PRIVATE[l]]
  }))};
 }
-const SOCIAL={
+export const SOCIAL={
  'instagram-post':[{ko:'인스타그램 정사각 게시물',en:'Instagram square posts',ja:'Instagram正方形投稿'},1080,1080],
  'instagram-portrait':[{ko:'인스타그램 세로 게시물',en:'Instagram portrait posts',ja:'Instagram縦長投稿'},1080,1350],
  'instagram-story':[{ko:'인스타그램 스토리·릴스',en:'Instagram Stories and Reels',ja:'Instagramストーリーズ・リール'},1080,1920],

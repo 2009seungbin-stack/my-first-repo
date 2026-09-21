@@ -29,21 +29,22 @@ export function createBatch({el,def},tool){
  function renderList(){
   const host=el.querySelector('#taskFiles');if(!host)return;
   host.innerHTML=items.map((it,i)=>{
-   const r=it.result,state=it.status==='done'?`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`:it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
-   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img src="${it.thumb}" alt=""><span><b>${esc(it.file.name)}</b><small>${it.status==='done'?esc(text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${it.status==='done'?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
+   const r=it.result,custom=it.status==='done'&&tool.pill?.(it),state=it.status==='done'?(custom?`<em class="pill good">${esc(custom)}</em>`:`<em class="pill ${r.blob.size<it.file.size?'good':''}">${r.blob.size<it.file.size?'−'+pct(it.file.size,r.blob.size)+'%':'='}</em>`):it.status==='error'?`<em class="pill bad">${esc(text('failed'))}</em>`:`<em class="pill">${esc(it.status==='working'?(it.progress||text('working')):text('waiting'))}</em>`;
+   return `<div class="file ${i===current?'is-current':''}" data-index="${i}"><button type="button" class="file-main" data-action="task-select" data-index="${i}"><img src="${it.thumbBroken&&it.resultURL?it.resultURL:it.thumb}" data-thumb="${i}" alt=""><span><b>${esc(it.file.name)}</b><small>${it.status==='done'?esc(text('compress.saved',{a:bytes(it.file.size),b:bytes(r.blob.size)})):it.status==='error'?esc(it.error):esc(bytes(it.file.size))}</small></span>${state}</button>${it.status==='done'?`<button type="button" class="icon" data-action="task-save" data-index="${i}" title="${esc(text('saveOne'))}" aria-label="${esc(text('saveOne'))}">↓</button>`:''}<button type="button" class="icon" data-action="task-remove" data-index="${i}" title="${esc(text('remove'))}" aria-label="${esc(text('remove'))}">×</button></div>`;
   }).join('');
  }
  function renderSummary(){
   const box=el.querySelector('#taskSummary'),button=el.querySelector('#taskDownload');if(!box)return;
   const ok=done(),a=ok.reduce((s,i)=>s+i.file.size,0),b=ok.reduce((s,i)=>s+i.result.blob.size,0),pending=items.some(i=>['waiting','working'].includes(i.status));
-  box.innerHTML=ok.length?`<div class="summary-big">−${pct(a,b)}%</div><div class="summary-line">${esc(bytes(a))} → ${esc(bytes(b))} · ${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
+  const custom=ok.length&&tool.summary?.(ok);
+  box.innerHTML=ok.length?`<div class="summary-big">${esc(custom?.big??'−'+pct(a,b)+'%')}</div><div class="summary-line">${custom?.line?esc(custom.line)+' · ':''}${esc(bytes(a))} → ${esc(bytes(b))} · ${esc(text('files',{n:ok.length}))}${pending?' · '+esc(text('calculating')):''}</div>`:`<div class="summary-big muted">…</div><div class="summary-line">${esc(text('calculating'))}</div>`;
   button.disabled=!ok.length||pending;button.textContent=ok.length>1?text('downloadAll',{n:ok.length}):text('download');
   const next=el.querySelector('#taskNext');
   next.innerHTML=ok.length&&!pending?`<span>${esc(text('next'))}</span>${(def.next||[]).map(id=>`<button type="button" class="chip" data-action="task-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`:'';
  }
  function renderViewer(){
   const it=items[current],cmp=el.querySelector('#cmp');if(!cmp||!it)return;
-  el.querySelector('#cmpBefore').src=it.thumbFull;const after=el.querySelector('#cmpAfter');
+  el.querySelector('#cmpBefore').src=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;const after=el.querySelector('#cmpAfter');
   if(it.status==='done'){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
   cmp.classList.toggle('is-pending',it.status!=='done');
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
@@ -113,6 +114,7 @@ export function createBatch({el,def},tool){
   if(e.target.closest('#taskOptions')){clearTimeout(debounce);debounce=setTimeout(sync,350);}
  });
  el.addEventListener('submit',e=>e.preventDefault());
+ el.addEventListener('error',e=>{const i=e.target?.dataset?.thumb;if(i!==undefined&&items[i]&&!items[i].thumbBroken){items[i].thumbBroken=true;render();}},true);
  onLocale(()=>{if(!items.length){empty();return;}const open=el.querySelector('#optionsAdvanced')?.open;frame();if(open)el.querySelector('#optionsAdvanced').open=true;render();});
  empty();
  return {add,get items(){return items;},editorURL:()=>toolURL(INTENTS[page.id]?.editor==='image'?'image':page.id)};
