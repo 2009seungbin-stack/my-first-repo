@@ -177,7 +177,7 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       append(textFile('README.txt','Replace the manifest name with your app name. This is an icon fragment, not a complete PWA. ICO contains PNG-compressed 16/32/48 entries; legacy Windows decoders may require DIB instead. No maskable safe-zone promise. No source logo watermark.'));
     }else throw Error('Unknown recipe');
     check(signal);const blob=await zip(entries,{paths:true,signal});check(signal);
-    const result={kind:'file',canvas:preview,blob,name:`${id}.zip`,width:preview?.width,height:preview?.height,outputCount:entries.length};owned.delete(preview);return result;
+    const result={kind:'file',canvas:preview,blob,name:`${id}.zip`,width:preview?.width,height:preview?.height,outputCount:entries.length,entries:entries.map(e=>({name:e.name,blob:e.blob}))};owned.delete(preview);return result;
   }finally{for(const c of owned)Im.release(c);}
 }
 /** Modern ICO directory with real embedded PNG images; no extension renaming. */

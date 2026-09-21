@@ -12,9 +12,24 @@ def png(w,h,color=(0,0,0,0),rects=()):
     b=io.BytesIO();im.save(b,'PNG');return b.getvalue()
 def open_tool(context,path,files):
     page=mount(context,'/en/'+path+'/')
-    page.locator('#fileInput').set_input_files([{'name':name,'mimeType':'image/png','buffer':buffer} for name,buffer in files]);idle(page)
+    page.locator('#fileInput').set_input_files([{'name':name,'mimeType':'image/png','buffer':buffer} for name,buffer in files])
+    if is_task(page):page.locator('#taskFiles .file').first.wait_for(timeout=60000)
+    else:idle(page)
     return page
+def is_task(page):return page.locator('body.task-page').count()>0
+DONE="()=>{const b=document.querySelector('#taskDownload');return b&&!b.disabled}" 
 def options(page,values):
+    if is_task(page):
+        # Single-task pages (src/task/recipe.js): same option keys, as data-option fields or chips.
+        page.locator('#taskFiles .file').first.wait_for(timeout=60000);page.locator('#optionsAdvanced').evaluate('(d)=>d.open=true')
+        for key,value in values.items():
+            el=page.locator(f'[data-option="{key}"]');chip=page.locator(f'#rc-{key}-chips [data-value="{value}"]')
+            if chip.count():chip.click();continue
+            tag=el.evaluate('(e)=>e.tagName');typ=el.get_attribute('type')
+            if typ=='checkbox':el.set_checked(value)
+            elif tag=='SELECT':el.select_option(value=str(value))
+            else:el.fill(str(value))
+        page.wait_for_timeout(600);return
     if not page.locator('#panel').is_visible():click(page,'intent-settings')
     if page.locator('#kitAdvanced').count():page.locator('#kitAdvanced').evaluate('(e)=>e.open=true')
     for key,value in values.items():
@@ -26,6 +41,10 @@ def options(page,values):
         else:el.fill(str(value));el.dispatch_event('change')
     page.wait_for_timeout(40)
 def output(page,name):
+    if is_task(page):
+        page.wait_for_function(DONE,timeout=120000)
+        with page.expect_download() as event:page.locator('#taskDownload').click()
+        path=OUT/name;event.value.save_as(path);return path
     click(page,'intent-run');assert page.locator('[data-action="intent-download"]').count(),page.locator('#message').inner_text()
     return download(page,name)
 def archive(path):
@@ -51,7 +70,7 @@ with sync_playwright() as pw:
     path=output(p,'refined32.png');im=Image.open(path).convert('RGBA')
     ok('refiner outputs a true 32x32 PNG with transparent padding',im.size==(32,32) and im.getpixel((0,0))[3]==0)
     ok('refiner palette is bounded on opaque pixels',len({c for c in im.getdata() if c[3]})<=8)
-    old=path.read_bytes();lang(p,'ja');path2=download(p,'refined32-ja.png');ok('language switch preserves exact result bytes',old==path2.read_bytes());assert_no_korean(p,'Japanese recipe UI contains no Korean')
+    old=path.read_bytes();lang(p,'ja');path2=(output if is_task(p) else download)(p,'refined32-ja.png');ok('language switch preserves exact result bytes',old==path2.read_bytes());assert_no_korean(p,'Japanese recipe UI contains no Korean')
     p.screenshot(path=str(OUT/'refiner-desktop-ja.png'),full_page=False)
     options(p,{'n':47,'pack':True});z=archive(output(p,'game-pack.zip'))
     ok('game pack ZIP preserves folder paths and all requested dimensions',all(rgba_image(z,f'{n}x{n}/asset.png').size==(n,n) for n in [16,32,64,128,47]))
@@ -121,8 +140,9 @@ with sync_playwright() as pw:
         ok(locale+' recipe mobile has no horizontal overflow',p.evaluate('document.documentElement.scrollWidth<=innerWidth'))
         ok(locale+' recipe output is a real PNG',Image.open(path).size==(32,32))
         p.screenshot(path=str(OUT/f'refiner-mobile-{locale}.png'),full_page=False)
-        with p.expect_download() as event:click(p,'kit-share')
-        card=OUT/f'share-{locale}.png';event.value.save_as(card);ok(locale+' share card has exact 1200x630 dimensions',Image.open(card).size==(1200,630))
+        if not is_task(p):
+            with p.expect_download() as event:click(p,'kit-share')
+            card=OUT/f'share-{locale}.png';event.value.save_as(card);ok(locale+' share card has exact 1200x630 dimensions',Image.open(card).size==(1200,630))
         mobile.close()
     ok('no uncaught recipe browser exceptions',not errors)
     ctx.close();browser.close()

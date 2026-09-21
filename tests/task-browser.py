@@ -186,6 +186,16 @@ with sync_playwright() as pw:
     im=Image.open(d.value.path()).convert('RGBA');gb={(15,56,15),(48,98,48),(139,172,15),(155,188,15)}
     ok('Game Boy palette only, exported 8× with hard pixels',im.size==(512,512) and {c[:3] for c in list(im.getdata()) if c[3]}<=gb and im.getpixel((0,0))==im.getpixel((7,7)))
     ok('result preview is rendered with crisp pixels',page.locator('#cmpAfter.px').count()==1)
+    # --- bundle tools (src/task/recipe.js): the result is shown as what is inside the ZIP ---
+    page.goto(BASE+'/ko/favicon-generator/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=[FILES[1]]);ready(page)
+    page.locator('#viewerContents .content img').first.wait_for()
+    ok('a favicon bundle lists every file inside it instead of one enlarged preview',page.locator('#viewerContents .content').count()==10 and page.locator('#cmp').is_hidden())
+    page.wait_for_function('()=>/^16×16/.test(document.querySelector("#viewerContents [data-dim]").textContent)')
+    ok('each listed image shows its real pixel size',page.locator('#viewerContents [data-dim]').nth(5).inner_text().startswith('512×512'))
+    with page.expect_download() as d:page.locator('#viewerContents [data-entry="3"]').click()
+    ok('one file of the bundle can be saved on its own',d.value.suggested_filename=='apple-touch-icon.png' and Image.open(d.value.path()).size==(180,180))
+    page.goto(BASE+'/en/remove-white-background-from-logo/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=[FILES[1]]);ready(page)
+    ok('a single-image recipe keeps the before/after slider',page.locator('#cmp').is_visible() and page.locator('#viewerContents').is_hidden() and page.locator('[data-option="tolerance"]').is_visible())
     # --- target size preset from a landing page ---
     page.goto(BASE+'/en/image/compress-to-100kb/',wait_until='networkidle')
     ok('landing preset opens advanced with its target',page.locator('#fileInput').count()==1)

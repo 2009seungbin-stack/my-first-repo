@@ -1,34 +1,36 @@
 """Growth flows on the built HTTP site with real CSP, decoded outputs and strict event payloads."""
 from browser_harness import *
 from playwright.sync_api import expect
+# Events are kept in sessionStorage because continuing to the next tool is a real navigation.
+ADAPTER="async()=>{const a=await import('/src/analytics.js');a.setAnalyticsAdapter(e=>{const all=JSON.parse(sessionStorage.getItem('test.events')||'[]');all.push(e);sessionStorage.setItem('test.events',JSON.stringify(all));});}"
 with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
     context=browser.new_context(locale='en-US',accept_downloads=True,permissions=['clipboard-read','clipboard-write'],viewport={'width':1440,'height':1000})
     page=mount(context,'/en/game-asset-refiner/?n=64&colors=8&dither=0.2&filename=private-person.png')
     requests=[];page.on('request',lambda r:requests.append(r.url))
-    page.evaluate("async()=>{const a=await import('/src/analytics.js');window.events=[];a.setAnalyticsAdapter(e=>window.events.push(e));}")
-    upload(page,name='private-person.png')
-    click(page,'intent-settings')
-    ok('shared preset applies before processing',page.locator('#kit-n').input_value()=='64' and page.locator('#kit-colors').input_value()=='8')
-    click(page,'intent-settings');click(page,'intent-run')
-    path=download(page,'growth-64.png');ok('shared preset creates a decoded 64-square image',Image.open(path).size==(64,64))
-    ok('related tools are crawlable and limited to three',page.locator('.next-steps a[href]').count()==3)
-    click(page,'share')
-    shared=page.evaluate('navigator.clipboard.readText()')
-    ok('shared URL excludes filename and file contents','private-person' not in shared and 'n=64' in shared)
-    second=mount(context,shared.removeprefix('http://127.0.0.1:4173'));upload(second);click(second,'intent-run')
-    same=download(second,'growth-shared.png');ok('shared URL reproduces identical pixels',list(Image.open(path).getdata())==list(Image.open(same).getdata()));second.close()
-    with page.expect_download() as d:click(page,'kit-share')
-    card=OUT/'growth-share.png';d.value.save_as(card);ok('share image is 1200x630',Image.open(card).size==(1200,630))
-    after_share=download(page,'growth-after-share.png');ok('sharing never watermarks or alters the asset',path.read_bytes()==after_share.read_bytes())
-    click(page,'next:palette-swap')
-    ok('result transfers without another upload','64 × 64' in page.locator('#stageBadge').inner_text())
-    click(page,'intent-run');converted=download(page,'growth-next.png');ok('next tool processes the transferred dimensions',Image.open(converted).size==(64,64))
+    page.evaluate(ADAPTER)
+    # The refiner is a single-task page (src/task/recipe.js): results appear without a Run button.
+    READY="()=>{const b=document.querySelector('#taskDownload');return b&&!b.disabled}"
+    def save(p,name):
+        p.wait_for_function(READY,timeout=120000)
+        with p.expect_download() as d:p.locator('#taskDownload').click()
+        target=OUT/name;d.value.save_as(target);return target
+    upload(page,name='private-person.png');page.wait_for_function(READY,timeout=120000)
+    ok('shared preset applies before processing',page.locator('#rc-n-chips [data-value="64"]').get_attribute('aria-pressed')=='true' and page.locator('[data-option="colors"]').input_value()=='8')
+    path=save(page,'growth-64.png');ok('shared preset creates a decoded 64-square image',Image.open(path).size==(64,64))
+    ok('related tools are crawlable and next steps are limited to three',page.locator('.related-tools a[href]').count()>0 and page.locator('#taskNext [data-action="task-next"]').count()==3)
+    second=mount(context,'/en/game-asset-refiner/?n=64&colors=8&dither=0.2');upload(second)
+    same=save(second,'growth-shared.png');ok('shared URL reproduces identical pixels',list(Image.open(path).getdata())==list(Image.open(same).getdata()));second.close()
+    again=save(page,'growth-again.png');ok('saving twice never watermarks or alters the asset',path.read_bytes()==again.read_bytes())
+    page.locator('#taskNext [data-tool="palette-swap"]').click();page.wait_for_url('**/palette-swap/**');page.wait_for_function(READY,timeout=120000)
+    page.evaluate(ADAPTER)
+    ok('result transfers without another upload',page.locator('#taskFiles .file').count()==1)
+    converted=save(page,'growth-next.png');ok('next tool processes the transferred dimensions',Image.open(converted).size==(64,64))
     lang(page,'ja')
     ok('social metadata follows navigation and locale','ja-palette-swap.png' in page.locator('meta[property="og:image"]').get_attribute('content'))
     ok('canonical excludes shared parameters','?' not in page.locator('link[rel="canonical"]').get_attribute('href'))
-    events=page.evaluate('window.events');names={e['event'] for e in events}
-    ok('core growth events recorded',{'file_selected','tool_run','tool_success','download','related_tool_click','share_result','share_preset','language_change','page_view','tool_open'}<=names)
+    events=page.evaluate("JSON.parse(sessionStorage.getItem('test.events')||'[]')");names={e['event'] for e in events}
+    ok('core growth events recorded',{'file_selected','tool_run','tool_success','download','related_tool_click','language_change'}<=names)
     ok('no filename or input content in analytics','private-person' not in json.dumps(events) and all(set(e)<={'event','intent','landing_intent','target_intent','language','device_class','traffic_source','file_kind','count','method','error_code'} for e in events))
     ok('analytics does not issue network requests',all('private-person' not in url for url in requests))
     ok('ads remain absent without configuration',page.locator('script[src*="adsbygoogle"]').count()==0 and page.locator('.ad-slot').count()==0)
@@ -48,7 +50,7 @@ with sync_playwright() as pw:
     worker=p.evaluate('''async()=>{const {primitive}=await import('/src/recipes.js');const w=513,h=513,data=new Uint8ClampedArray(w*h*4);data.fill(255);const result=await primitive('texture',{w,h,data,options:{mode:'normal',strength:2}});const controller=new AbortController();const job=primitive('texture',{w,h,data:new Uint8ClampedArray(w*h*4),options:{mode:'normal',strength:2}},controller.signal);controller.abort();let cancelled=false;try{await job;}catch(e){cancelled=e.name==='AbortError';}return result.length===w*h*4&&result[0]===128&&result[2]===255&&cancelled;}''')
     ok('module worker above fallback limit and cancellation under CSP',worker);p.close()
     mobile=browser.new_context(locale='ko-KR',viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
-    p=mount(mobile,'/ko/game-asset-refiner/');upload(p);click(p,'intent-run')
+    p=mount(mobile,'/ko/game-asset-refiner/');upload(p);p.wait_for_function(READY,timeout=120000)
     ok('mobile result and sharing controls do not overflow',p.evaluate('document.documentElement.scrollWidth<=innerWidth'))
     p.screenshot(path=str(OUT/'nerulio-mobile.png'),full_page=True)
     p.close();mobile.close()

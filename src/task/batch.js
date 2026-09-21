@@ -19,7 +19,7 @@ export function createBatch({el,def},tool){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(text('taskDrop',{kind:def.kinds.map(k=>text('kinds.'+k)).join(' · ')}))}</strong><span>${esc(text('multi'))} · ${esc(text('paste'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button>${tool.sample?`<button type="button" class="ghost" data-action="task-sample">${esc(text('sample'))}</button>`:''}</div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
-  el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><p class="viewer-note" id="viewerNote"></p></section>
+  el.innerHTML=`<div class="work"><section class="viewer" aria-label="${esc(text('compare'))}"><div class="cmp" id="cmp"><img id="cmpBefore" alt="${esc(text('before'))}"><img id="cmpAfter" class="cmp-after" alt="${esc(text('after'))}"><div class="cmp-bar"></div><span class="cmp-tag l">${esc(text('before'))}</span><span class="cmp-tag r">${esc(text('after'))}</span><input id="cmpCut" type="range" min="0" max="100" value="50" aria-label="${esc(text('compare'))}"></div><div class="contents" id="viewerContents" hidden></div><p class="viewer-note" id="viewerNote"></p></section>
 <aside class="side"><div class="summary" id="taskSummary" role="status" aria-live="polite"></div><form id="taskOptions" class="options" autocomplete="off"><div class="options-simple" id="optionsSimple"></div><details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary><div id="optionsAdvancedBody"></div></details></form>
 <div class="file-list" id="taskFiles"></div><div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(text('add'))}</button><button type="button" class="link" data-action="task-clear">${esc(text('removeAll'))}</button></div>
 <button type="button" class="primary big" id="taskDownload" data-action="task-download" disabled></button><nav class="next" id="taskNext"></nav><small class="local-note">${esc(text('local'))}</small></aside></div>`;
@@ -42,13 +42,25 @@ export function createBatch({el,def},tool){
   const next=el.querySelector('#taskNext');
   next.innerHTML=ok.length&&!pending?`<span>${esc(text('next'))}</span>${(def.next||[]).map(id=>`<button type="button" class="chip" data-action="task-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`:'';
  }
+ /** A result that is a bundle (tool.contents) is shown as what is inside it — every file at its
+  * true size with its own save button — instead of one enlarged preview. */
+ let contentURLs=[],contentsOf=null;
+ function renderContents(it,cmp){
+  const host=el.querySelector('#viewerContents'),list=it.status==='done'&&tool.contents?.(it)||null;
+  cmp.hidden=!!list;host.hidden=!list;if(!list){if(contentsOf){contentsOf=null;host.innerHTML='';for(const u of contentURLs)URL.revokeObjectURL(u);contentURLs=[];}return;}
+  if(contentsOf===it.result)return;contentsOf=it.result;for(const u of contentURLs)URL.revokeObjectURL(u);contentURLs=[];
+  host.innerHTML=list.map((e,i)=>{const image=/^image\//.test(e.blob.type)&&!/icon$/.test(e.blob.type),url=image?URL.createObjectURL(e.blob):'';if(url)contentURLs.push(url);const slash=e.name.lastIndexOf('/');
+   return `<figure class="content"><div class="content-thumb ${image?'':'is-file'} ${tool.pixelated?'px':''}">${image?`<img src="${url}" alt="" loading="lazy">`:`<span class="content-ext">${esc((e.name.split('.').pop()||'').toUpperCase())}</span>`}</div><figcaption><strong title="${esc(e.name)}">${slash>0?`<small>${esc(e.name.slice(0,slash+1))}</small>`:''}${esc(e.name.slice(slash+1))}</strong><span data-dim>${esc(bytes(e.blob.size))}</span></figcaption><button type="button" class="icon-btn" data-action="task-content" data-entry="${i}" aria-label="${esc(text('download'))}: ${esc(e.name)}">↓</button></figure>`;}).join('');
+  for(const img of host.querySelectorAll('img'))img.addEventListener('load',()=>{const d=img.closest('.content').querySelector('[data-dim]');d.textContent=`${img.naturalWidth}×${img.naturalHeight} · ${d.textContent}`;},{once:true});
+ }
  function renderViewer(){
   const it=items[current],cmp=el.querySelector('#cmp');if(!cmp||!it)return;
   const before=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;if(before)el.querySelector('#cmpBefore').src=before;else el.querySelector('#cmpBefore').removeAttribute('src');const after=el.querySelector('#cmpAfter');
-  const compare=tool.compare!==false;if(it.status==='done'&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
+  const compare=tool.compare!==false&&(!tool.compareWhen||it.status!=='done'||tool.compareWhen(it));if(it.status==='done'&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
   cmp.classList.toggle('is-pending',it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!tool.pixelated);
   if(!compare&&it.status==='done'&&it.result.preview)el.querySelector('#cmpBefore').src=it.result.preview;
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
+  renderContents(it,cmp);
   el.querySelector('#viewerNote').textContent=it.status==='done'?[it.result.note,it.result.warn].filter(Boolean).join(' · ')||text('compareHint'):it.status==='error'?it.error:text('working');
  }
  const render=()=>{renderList();renderSummary();renderViewer();};
@@ -102,6 +114,7 @@ export function createBatch({el,def},tool){
   if(a==='task-select'){current=i;render();}
   else if(a==='task-remove')remove(i);
   else if(a==='task-save'){const it=items[i];if(it?.result?.entries?.length>1)download(await zip(it.result.entries),`${stem(it.file.name)}.zip`);else if(it?.result)download(it.result.blob,it.result.name);}
+  else if(a==='task-content'){const e=tool.contents?.(items[current])?.[Number(b.dataset.entry)];if(e)download(e.blob,e.name.split('/').pop());}
   else if(a==='task-clear'){generation++;controller?.abort();for(const it of items.splice(0)){URL.revokeObjectURL(it.thumb);if(it.resultURL)URL.revokeObjectURL(it.resultURL);}current=0;empty();}
   else if(a==='task-download')save();
   else if(a==='task-sample')add([await tool.sample()]);
