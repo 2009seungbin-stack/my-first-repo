@@ -7,6 +7,7 @@ import {KINDS,LAYOUTS,layoutOf,layoutJSON,layoutFromJSON,completeness,unrepresen
 import {seamReport,edgeMatch,bestEdge,makeSeamless,heatmap} from '../game/seams.js';
 import {tileCollision,MODES as COLLISION_MODES} from '../game/tile-collision.js';
 import {extrudeRegions} from '../atlas.js';
+import {abort,yieldUI} from '../resources.js';
 import {godotTileSet,godotScript,godotReadme,MODES,modeFor} from '../game/godot-tileset.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** Tile Lab — one workspace for a 2D tileset: measure the grid, slice it, generate autotile
@@ -24,7 +25,7 @@ const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const int=(v,a,b,fallback)=>{const n=Math.round(Number(v));return Number.isFinite(n)?clamp(n,a,b):fallback;};
 
 export function mount({el,def}){
- let src=null,data=null,candidates=[],grid=null,busy=false,ready=false;
+ let src=null,data=null,candidates=[],grid=null,busy=false,ready=false,job=null;
  let stage=STAGES.includes(route.query.get('stage'))?route.query.get('stage'):STAGE_FOR[route.id]||'grid';
  let terrain=null,cursor={x:0,y:0},painting=null,art=null;
  const o={
@@ -184,7 +185,7 @@ ${check('variants')}<p class="viewer-note">${esc(T('variantsNote'))}</p>
 ${field('extrude',0,16)}<p class="viewer-note">${esc(T('extrudeNote'))}</p>
 <span class="opt-label">${esc(T('collideLabel'))}</span>${seg('collide',COLLISION_MODES,v=>esc(T('collide.'+v)))}
 ${o.collide==='none'?'':`<div class="field-row">${field('alpha',0,254)}${field('simplify',0,8)}</div><p class="viewer-note">${esc(T('collideNote'))}</p>`}</details></form>
-<button type="button" class="primary big" id="taskDownload" data-action="tl-slice" ${grid?.error?'disabled':''}>${esc(T('run'))}</button>
+<button type="button" class="primary big" id="taskDownload" data-action="${job?'tl-stop':'tl-slice'}" ${grid?.error?'disabled':''}>${esc(job?text('cancel'):T('run'))}</button>
 <nav class="next" id="tlNext"></nav><small class="local-note">${esc(text('local'))}</small>`;
  }
  function gridBoard(){
@@ -477,8 +478,12 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   try{return await Im.blobOf(c);}finally{Im.release(c);}
  }
  async function slice(){
-  if(busy||!grid||grid.error)return;busy=true;
-  const button=q('#taskDownload');if(button)button.disabled=true;
+  if(busy||!grid||grid.error)return;
+  busy=true;job=new AbortController();
+  const signal=job.signal,button=q('#taskDownload');
+  // Thousands of tiles is thousands of PNG encodes, so the run is interruptible and yields to
+  // the browser between tiles instead of freezing the page behind a disabled button.
+  const step=(a,b)=>{if(button){button.dataset.action='tl-stop';button.textContent=`${text('cancel')} · ${a}/${b}`;}};
   try{
    const blank=new Set(o.skipBlank?blanks():[]);
    let keep=grid.rects.filter(r=>!blank.has(r.index));
@@ -495,7 +500,11 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    }
    if(!keep.length)throw Error(t('저장할 파일이 없습니다.'));
    const entries=[],list=[];
+   let done=0;
    for(const r of keep){
+    abort(signal);
+    if(keep.length>64&&done%16===0){step(done,keep.length);await yieldUI();}
+    done++;
     const name=tileName(r.index,grid.count)+'.png',pixels=tileData(r.index);
     entries.push({name:'tiles/'+name,blob:pixels?await pngOf(pixels,r.w,r.h):await regionBlob(r)});
     list.push({...r,name});
@@ -525,8 +534,12 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    toast(T('done',{size:bytes(blob.size)}));
    const next=q('#tlNext');
    if(next)next.innerHTML=`<span>${esc(text('next'))}</span>${def.next.map(id=>`<button type="button" class="chip" data-action="tl-next" data-tool="${id}">${esc(t(`intent.${id}.title`))}</button>`).join('')}`;
-  }catch(error){toast(error?.message||String(error),{error:true});}
-  finally{busy=false;const b=q('#taskDownload');if(b)b.disabled=false;}
+  }catch(error){if(error?.name!=='AbortError')toast(error?.message||String(error),{error:true});}
+  finally{
+   busy=false;job=null;
+   const b=q('#taskDownload');
+   if(b){b.disabled=!!grid?.error;b.dataset.action='tl-slice';b.textContent=T('run');}
+  }
  }
  async function regionBlob(r){
   const c=Im.canvas(r.w,r.h),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;
@@ -614,6 +627,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(a==='tl-random'){terrain=seededFill(ensureTerrain(),o.seed);o.seed=(o.seed+1)%1000000;const f=q('#tl-seed');if(f)f.value=o.seed;return drawMap();}
   if(a==='tl-reroll'){o.seed=(o.seed+1)%1000000;const f=q('#tl-seed');if(f)f.value=o.seed;return drawPreview();}
   if(a==='tl-slice')return slice();
+  if(a==='tl-stop'){job?.abort();return;}
   if(a==='tl-template')return exportTemplate();
   if(a==='tl-heal-save')return saveHealed();
   if(a==='tl-godot')return exportGodot();

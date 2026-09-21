@@ -83,6 +83,9 @@ and the two ported checks in `tests/recipes-browser.py`.
     the Lab passes its own rectangles, a sheet with a margin or separation extrudes too, which the
     recipe could not do.
 * **Limitations** regular grids only. Near-duplicate clustering is capped at 2048 tiles.
+* **Cancellation** a slice takes an `AbortSignal`: while it runs, the run button reports
+  `Cancel · done/total` and stops the job at the next tile. It yields to the browser every 16
+  tiles, so the page stays responsive instead of freezing behind a disabled button.
 * **Export schema** the envelope from `docs/GAME-LABS.md` plus the tile grid:
 
 ```json
@@ -256,6 +259,7 @@ Measured on this branch, not asserted from reading the code.
 | Seam verdicts | same + `tests/game-seams.test.mjs` | cos-wrapping tile: ratio < 1.3 → seamless; ramp: mean > 240, ratio > 20 → seam; after `makeSeamless` mean < 8 | VERIFIED |
 | Godot pack contents and peering bits recomputed from the masks | `scratchpad/tile-verify.py` | 47 tiles, 8 bits on the full slot, 0 on the isolated slot, no `.tres`/`.meta` in the ZIP | VERIFIED |
 | Collision polygons re-tested against the tile alpha they came from (full / slope / ring / one-pixel tiles) | Chromium + Pillow crossing-number test (`scratchpad/verify_collision.py`) | 4 tiles × 256 pixels × 3 modes: `rects` matches the alpha exactly, `box` and `outline` over-cover only where documented; ring → 4 rects with an empty hole, or 1 outer loop; one-pixel tile → one 4-point loop | VERIFIED |
+| A long slice can be cancelled and the page recovers | `scratchpad/tile-cancel.py` (Chromium) | 40×40 = 1600 tiles of 8px: the button becomes `Cancel · n/1600`, one click returns it to the idle label with no error toast, and a full run afterwards writes all 1600 tiles with tile 999 still byte-identical to its source region. **1600 tiles sliced, PNG-encoded and zipped in 17.4 s** | VERIFIED |
 | Collision bound and shape quality | `tests/game-collision.test.mjs` | 34-point slope → 3–5 points at ε 1.5 keeping >85% of the area; 32×32 checkerboard (512 loops, 2048 points) → ≤256 points; comb outline exact | VERIFIED |
 | **The exported pack builds a real TileSet in Godot** | Godot **4.7.2.stable.official** (`godot --headless --path <proj> --import`, then `--script res://run_import.gd` driving the shipped `Builder`, then an independently written verifier) | see below | see below |
 
