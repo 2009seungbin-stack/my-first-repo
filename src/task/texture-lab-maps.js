@@ -53,16 +53,16 @@ export const normalStage={
   const others=state.files.filter(f=>f.id!==entry?.id);
   return `<div class="summary" id="texNormalSummary" role="status" aria-live="polite"><div class="summary-big muted">…</div><div class="summary-line">${esc(T('calculating'))}</div></div>
 <form class="options" id="texOptions" autocomplete="off">
-<span class="opt-label">${esc(T('normalMode'))}</span>${seg('tex-normal-set','mode',['height','convert','combine'],v=>T('normalMode.'+v),o.mode,esc)}
+<span class="opt-label">${esc(T('normalModeLabel'))}</span>${seg('tex-normal-set','mode',['height','convert','combine'],v=>T('normalMode.'+v),o.mode,esc)}
 <p class="hint">${esc(T('normalModeHint.'+o.mode))}</p>
 ${o.mode==='height'?`<span class="opt-label">${esc(T('convention'))}</span>${seg('tex-normal-set','convention',CONVENTIONS,v=>T('conventionShort.'+v),o.convention,esc)}
 <label class="field"><span>${esc(T('strength'))} <output>${o.strength}</output></span><input type="range" data-key="strength" data-action="tex-normal-range" min="0" max="10" step="0.5" value="${o.strength}"></label>
 <details class="options-advanced"><summary>${esc(ctx.text('advanced'))}</summary>
-<label class="field"><span>${esc(T('kernel'))}</span><select data-key="kernel" data-option="normal-kernel">${KERNEL_IDS.map(id=>`<option value="${id}" ${o.kernel===id?'selected':''}>${esc(T('kernel.'+id))}</option>`).join('')}</select></label>
+<label class="field"><span>${esc(T('kernelLabel'))}</span><select data-key="kernel" data-option="normal-kernel">${KERNEL_IDS.map(id=>`<option value="${id}" ${o.kernel===id?'selected':''}>${esc(T('kernel.'+id))}</option>`).join('')}</select></label>
 <label class="check"><input type="checkbox" data-option="normal-wrap" ${o.wrap?'checked':''}> ${esc(T('wrap'))}</label>
 <label class="check"><input type="checkbox" data-option="normal-invert-x" ${o.invertX?'checked':''}> ${esc(T('invertX'))}</label>
 <label class="check"><input type="checkbox" data-option="normal-invert-y" ${o.invertY?'checked':''}> ${esc(T('invertY'))}</label>
-<label class="field"><span>${esc(T('heightSource'))}</span><select data-option="normal-source">${['luminance','alpha'].map(id=>`<option value="${id}" ${o.source===id?'selected':''}>${esc(T('heightSource.'+id))}</option>`).join('')}</select></label>
+<label class="field"><span>${esc(T('heightSourceLabel'))}</span><select data-option="normal-source">${['luminance','alpha'].map(id=>`<option value="${id}" ${o.source===id?'selected':''}>${esc(T('heightSource.'+id))}</option>`).join('')}</select></label>
 <p class="hint">${esc(T('kernelHint'))}</p></details>`:''}
 ${o.mode==='combine'?`<label class="field"><span>${esc(T('detailMap'))}</span><select data-option="normal-detail">${[`<option value="">${esc(T('pickDetail'))}</option>`,...others.map(f=>`<option value="${f.id}" ${String(o.detail)===String(f.id)?'selected':''}>${esc(f.name)}</option>`)].join('')}</select></label>
 <label class="field"><span>${esc(T('detailStrength'))} <output>${o.detailStrength}</output></span><input type="range" data-key="detailStrength" data-action="tex-normal-range" min="0" max="2" step="0.1" value="${o.detailStrength}"></label>

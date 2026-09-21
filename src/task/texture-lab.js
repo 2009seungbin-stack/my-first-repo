@@ -207,7 +207,7 @@ export function mount({el,def}){
 <div class="view-head"><strong>${esc(T('issues'))}</strong><span>${esc(T('issueCount',{n:result.issues.length}))}</span></div>
 ${sorted.length?`<ul class="tex-issues">${sorted.map(i=>`<li class="lvl-${i.level}"><em>${esc(T('level.'+i.level))}</em><span>${esc(issueText(i))}</span></li>`).join('')}</ul>`:`<p class="viewer-note">${esc(T('noIssues'))}</p>`}
 <div class="view-head"><strong>${esc(T('colorSpace'))}</strong></div><p class="viewer-note">${esc(T('colorSpaceNote'))}</p>
-<table class="tex-table"><thead><tr><th>${esc(T('file'))}</th><th>${esc(T('role'))}</th><th>${esc(T('size'))}</th><th>${esc(T('alphaCol'))}</th><th>${esc(T('spaceCol'))}</th></tr></thead><tbody>${state.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(roleLabel(f.role))}</td><td>${f.width?`${f.width}×${f.height}`:'—'}</td><td>${f.alpha?esc(f.alpha.used?T('alphaUsed',{n:f.alpha.zeroPixels}):T('alphaNone')):'—'}</td><td>${esc(T('space.'+colorSpaceOf(f.role)))}</td></tr>`).join('')}</tbody></table>`;
+<table class="tex-table"><thead><tr><th>${esc(T('file'))}</th><th>${esc(T('roleCol'))}</th><th>${esc(T('size'))}</th><th>${esc(T('alphaCol'))}</th><th>${esc(T('spaceCol'))}</th></tr></thead><tbody>${state.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(roleLabel(f.role))}</td><td>${f.width?`${f.width}×${f.height}`:'—'}</td><td>${f.alpha?esc(f.alpha.used?T('alphaUsed',{n:f.alpha.zeroPixels}):T('alphaNone')):'—'}</td><td>${esc(T('space.'+colorSpaceOf(f.role)))}</td></tr>`).join('')}</tbody></table>`;
  }
  function inspectSide(){
   const result=validation(),errors=result.issues.filter(i=>i.level==='error').length,warns=result.issues.filter(i=>i.level==='warn').length;

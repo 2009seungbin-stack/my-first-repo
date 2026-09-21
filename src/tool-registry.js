@@ -363,6 +363,131 @@ export const TOOLS = Object.freeze({
       "convert"
     ]
   },
+  "texture-lab": {
+    "path": "game/texture-lab",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "텍스처 랩",
+      "Texture Lab",
+      "テクスチャラボ"
+    ],
+    "description": [
+      "PBR 텍스처 세트를 점검하고 노멀·채널·가장자리를 정리해 엔진에 넣으세요.",
+      "Check a PBR texture set, then fix normals, channels and edges for your engine.",
+      "PBRテクスチャ一式を点検し、ノーマル・チャンネル・端を整えてエンジンへ。"
+    ],
+    "limit": [
+      "엔진 렌더러가 아닙니다. 미리보기는 광원 1개 근사이고, 색 공간은 안내만 하며 파일에서 자동 감지하지 않습니다.",
+      "Not an engine renderer: the preview is a one-light approximation, and colour space is guidance only — no profile is detected.",
+      "エンジンのレンダラーではありません。プレビューはライト1つの近似で、色空間は指針のみ（自動判定はしません）。"
+    ],
+    "next": [
+      "mask-packer",
+      "atlas-padding",
+      "compress"
+    ]
+  },
+  "channel-unpacker": {
+    "path": "game/channel-unpacker",
+    "category": "game",
+    "icon": "pack",
+    "title": [
+      "채널 분리",
+      "Channel Unpacker",
+      "チャンネル分離"
+    ],
+    "description": [
+      "ORM·마스크 텍스처의 R·G·B·A를 원래 바이트 그대로 흑백 PNG로 분리하세요.",
+      "Split an ORM or mask texture into R/G/B/A greyscale PNGs with the original bytes.",
+      "ORM・マスクテクスチャのR/G/B/Aを元のバイトのままグレーPNGに分離。"
+    ],
+    "limit": [
+      "채널의 의미는 엔진 프리셋으로 표시할 뿐이며, 파일만 보고 어떤 엔진용인지 알아내지는 못합니다.",
+      "Channel meaning comes from the engine preset you pick; a file cannot say which engine it was packed for.",
+      "チャンネルの意味は選んだエンジンプリセットによります。ファイルからは判別できません。"
+    ],
+    "next": [
+      "mask-packer",
+      "texture-lab",
+      "compress"
+    ]
+  },
+  "normal-map-converter": {
+    "path": "game/normal-map-converter",
+    "category": "game",
+    "icon": "flip",
+    "title": [
+      "노멀 맵 규격 변환",
+      "Normal Map Converter (OpenGL ↔ DirectX)",
+      "ノーマルマップ規格変換"
+    ],
+    "description": [
+      "초록 채널만 반전해 OpenGL(+Y)과 DirectX(−Y) 노멀 맵을 서로 변환하세요.",
+      "Convert a normal map between OpenGL (+Y) and DirectX (−Y) by mirroring the green channel.",
+      "グリーンチャンネルだけを反転してOpenGL(+Y)とDirectX(−Y)を相互変換。"
+    ],
+    "limit": [
+      "파일만 보고 어느 규격인지 판별할 수는 없습니다. 엔진 기준은 문서 출처와 함께 안내합니다.",
+      "A file cannot be measured to tell which convention it uses; the engine expectations are listed with their sources.",
+      "どちらの規格かはファイルから判定できません。エンジンの想定は出典付きで示します。"
+    ],
+    "next": [
+      "texture-lab",
+      "texture-map",
+      "compress"
+    ]
+  },
+  "pbr-texture-validator": {
+    "path": "game/pbr-texture-validator",
+    "category": "game",
+    "icon": "check",
+    "title": [
+      "PBR 텍스처 점검",
+      "PBR Texture Validator",
+      "PBRテクスチャ点検"
+    ],
+    "description": [
+      "텍스처 세트의 크기·누락·알파·채널·노멀을 한 번에 점검하고 보고서를 받으세요.",
+      "Check a texture set for size mismatches, missing maps, stray alpha, channel and normal problems.",
+      "サイズ不一致・不足マップ・余分なアルファ・チャンネルとノーマルの問題を一括点検。"
+    ],
+    "limit": [
+      "파일 이름과 픽셀만으로 판단합니다. ICC 프로파일이나 감마는 읽지 않고 색 공간은 안내만 합니다.",
+      "Judged from filenames and pixels only: no ICC profile or gamma is read, and colour space is guidance.",
+      "ファイル名とピクセルのみで判断します。ICCやガンマは読まず、色空間は指針です。"
+    ],
+    "next": [
+      "texture-lab",
+      "mask-packer",
+      "compress"
+    ]
+  },
+  "texture-edge-bleed": {
+    "path": "game/texture-edge-bleed",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "가장자리 번짐 채우기",
+      "Texture Edge Bleed",
+      "エッジのにじみ処理"
+    ],
+    "description": [
+      "투명한 텍셀 아래로 색을 밀어내 밉맵과 축소에서 생기는 검은 테두리를 없애세요.",
+      "Push colour outwards under transparent texels so mipmaps and downscaling stop showing a dark rim.",
+      "透明なテクセルの下へ色を広げ、ミップマップや縮小で出る暗い縁を防ぎます。"
+    ],
+    "limit": [
+      "알파는 바꾸지 않습니다. 잘못 잘린 알파나 압축으로 손상된 경계를 복원하지는 못합니다.",
+      "Alpha is never changed. It cannot repair an alpha channel that was already cut or compressed badly.",
+      "アルファは変更しません。既に切れた・圧縮で壊れたアルファは修復できません。"
+    ],
+    "next": [
+      "texture-lab",
+      "sprite-sheet-maker",
+      "compress"
+    ]
+  },
   "favicon-pack": {
     "path": "favicon-generator",
     "category": "image",

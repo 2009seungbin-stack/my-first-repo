@@ -7,4 +7,9 @@ export const SEARCH_TERMS = Object.freeze({
  'favicon-pack':['favicon maker','brand icon','파비콘','ファビコン'],
  'frame-normalize':['sprite normalizer','normalize frames','프레임 정렬'],
  'print-pack':['print ratio resizer','etsy print','인쇄 비율'],
+ 'texture-lab':['pbr texture','texture channels','orm texture','텍스처','펌리새','テクスチャ'],
+ 'channel-unpacker':['unpack channels','orm split','mask map split','채널 분리','チャンネル分離'],
+ 'normal-map-converter':['opengl directx normal','flip green channel','normal map convert','노멀 방향','ノーマル変換'],
+ 'pbr-texture-validator':['pbr check','texture set validator','power of two check','텍스처 점검','PBR点検'],
+ 'texture-edge-bleed':['alpha bleed','edge padding','dilate texture','가장자리 번짐','エッジにじみ'],
 });

@@ -49,18 +49,18 @@ export const fixStage={
   const {T,esc,state}=ctx,o=state.fixOptions;
   const controls=o.tool==='bleed'?`<span class="opt-label">${esc(T('bleedWidth'))}</span>${seg('bleed',BLEED_STEPS,v=>v+' px',o.bleed,esc)}`
    :o.tool==='mip'?`<span class="opt-label">${esc(T('mipLevels'))}</span>${seg('mipLevels',[2,3,4],v=>'1/'+2**v,o.mipLevels,esc)}`
-   :o.tool==='pot'?`<span class="opt-label">${esc(T('potMode'))}</span>${seg('potMode',['nearest','down','up','fit'],v=>T('potMode.'+v),o.potMode,esc)}
+   :o.tool==='pot'?`<span class="opt-label">${esc(T('potModeLabel'))}</span>${seg('potMode',['nearest','down','up','fit'],v=>T('potMode.'+v),o.potMode,esc)}
 ${field(esc(T('potMax')),select('fix-pot-max',POT_SIZES.filter(n=>n>=256),v=>String(v),o.potMax,esc))}
 <label class="check"><input type="checkbox" data-option="fix-square" ${o.square?'checked':''}> ${esc(T('makeSquare'))}</label>`
-   :o.tool==='height'?`<span class="opt-label">${esc(T('heightFrom'))}</span>${seg('heightMode',['luminance','edges'],v=>T('heightFrom.'+v),o.heightMode,esc)}
+   :o.tool==='height'?`<span class="opt-label">${esc(T('heightFromLabel'))}</span>${seg('heightMode',['luminance','edges'],v=>T('heightFrom.'+v),o.heightMode,esc)}
 ${field(`${esc(T('smooth'))} <output>${o.heightSmooth}</output>`,`<input type="range" data-key="heightSmooth" data-action="tex-fix-range" min="0" max="4" step="1" value="${o.heightSmooth}">`)}
 <label class="check"><input type="checkbox" data-option="fix-height-invert" ${o.heightInvert?'checked':''}> ${esc(T('invertHeight'))}</label>`
    :o.tool==='ao'?`${field(`${esc(T('radius'))} <output>${o.aoRadius}</output>`,`<input type="range" data-key="aoRadius" data-action="tex-fix-range" min="1" max="16" step="1" value="${o.aoRadius}">`)}
 ${field(`${esc(T('strength'))} <output>${o.aoStrength}</output>`,`<input type="range" data-key="aoStrength" data-action="tex-fix-range" min="0" max="2" step="0.1" value="${o.aoStrength}">`)}`
-   :o.tool==='emission'?`<span class="opt-label">${esc(T('maskMode'))}</span>${seg('emissionMode',['threshold','luminance'],v=>T('maskMode.'+v),o.emissionMode,esc)}
+   :o.tool==='emission'?`<span class="opt-label">${esc(T('maskModeLabel'))}</span>${seg('emissionMode',['threshold','luminance'],v=>T('maskMode.'+v),o.emissionMode,esc)}
 ${field(`${esc(T('threshold'))} <output>${o.emissionThreshold}</output>`,`<input type="range" data-key="emissionThreshold" data-action="tex-fix-range" min="0" max="255" step="1" value="${o.emissionThreshold}">`)}
 ${field(`${esc(T('soft'))} <output>${o.emissionSoft}</output>`,`<input type="range" data-key="emissionSoft" data-action="tex-fix-range" min="0" max="64" step="1" value="${o.emissionSoft}">`)}`
-   :o.tool==='mask'?`<span class="opt-label">${esc(T('maskSource'))}</span>${seg('maskSource',['alpha','luminance','threshold'],v=>T('maskSource.'+v),o.maskSource,esc)}
+   :o.tool==='mask'?`<span class="opt-label">${esc(T('maskSourceLabel'))}</span>${seg('maskSource',['alpha','luminance','threshold'],v=>T('maskSource.'+v),o.maskSource,esc)}
 <label class="check"><input type="checkbox" data-option="fix-mask-invert" ${o.maskInvert?'checked':''}> ${esc(T('invertMask'))}</label>`
    :'';
   return `<div class="summary" id="texFixSummary" role="status" aria-live="polite"><div class="summary-big muted">…</div><div class="summary-line">${esc(T('calculating'))}</div></div>

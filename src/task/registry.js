@@ -13,7 +13,9 @@ export const TASK_TOOLS=Object.freeze({
  'pdf-compress':{module:'pdf-compress',kinds:['pdf'],next:['pdf-merge','pdf-split','pdf']},
  'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']},
  pdf:{module:'pdf-editor',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf-split']},
- ...Object.fromEntries(Object.entries({'refiner':['sprite-sheet-maker','palette-swap','pixel'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['sprite-sheet-maker','refiner','pixel'],'texture-map':['compress','convert','resize'],'margin-crop':['resize','compress','convert'],'tile-helper':['sprite-sheet-maker','atlas-padding','pixel'],'atlas-padding':['sprite-sheet-maker','tile-helper','compress'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize'],'bitmap-font':['sprite-sheet-maker','atlas-padding','pixel']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
+ ...Object.fromEntries(Object.entries({'refiner':['sprite-sheet-maker','palette-swap','pixel'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['sprite-sheet-maker','refiner','pixel'],'margin-crop':['resize','compress','convert'],'tile-helper':['sprite-sheet-maker','atlas-padding','pixel'],'atlas-padding':['sprite-sheet-maker','tile-helper','compress'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize'],'bitmap-font':['sprite-sheet-maker','atlas-padding','pixel']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
+ // Texture Lab: one workspace, six stages. The legacy texture-map URL opens its Normal stage.
+ ...Object.fromEntries(['texture-lab','texture-map','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed'].map(id=>[id,{module:'texture-lab',kinds:['image'],next:['mask-packer','atlas-padding','compress']}])),
  upscale:{module:'upscale',kinds:['image'],next:['compress','remove-bg','convert']},
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
@@ -25,7 +27,8 @@ export const DIRECTORY=Object.freeze([
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
- ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack']]
+ ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack',
+  'texture-lab','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF',pdf:'EDIT',
