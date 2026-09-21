@@ -7,4 +7,9 @@ export const SEARCH_TERMS = Object.freeze({
  'favicon-pack':['favicon maker','brand icon','파비콘','ファビコン'],
  'frame-normalize':['sprite normalizer','normalize frames','프레임 정렬'],
  'print-pack':['print ratio resizer','etsy print','인쇄 비율'],
+ 'sprite-lab':['sprite lab','sprite sheet workflow','spritesheet editor','texturepacker alternative','스프라이트 랩','스프라이트 시트 작업','スプライトラボ','スプライトシート編集'],
+ 'sprite-animation-preview':['animation preview','sprite fps','ping pong animation','jitter fix','애니메이션 미리보기','프레임 흔들림','アニメプレビュー','ぶれ補正'],
+ 'sprite-pivot-editor':['pivot editor','sprite origin','anchor point','기준점 편집','피벗','基準点','ピボット'],
+ 'hitbox-editor':['hitbox','hurtbox','attack frames','히트박스','피격 판정','ヒットボックス','当たり判定'],
+ 'collision-polygon-generator':['collision polygon','collision shape','physics outline','충돌 다각형','충돌 영역','衝突ポリゴン','コリジョン'],
 });

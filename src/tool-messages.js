@@ -410,6 +410,106 @@ export const TOOL_MESSAGES = {
     "Create result",
     "結果を作成"
   ],
+  "intent.sprite-lab.title": [
+    "스프라이트 랩",
+    "Sprite Lab",
+    "スプライトラボ"
+  ],
+  "intent.sprite-lab.headline": [
+    "스프라이트 시트 작업 한 화면",
+    "The whole sprite-sheet workflow, one screen",
+    "スプライトシート作業をひと画面で"
+  ],
+  "intent.sprite-lab.description": [
+    "시트 한 장으로 자르기·정렬·애니메이션·기준점·히트박스·아틀라스까지 한 화면에서.",
+    "Slice, align, animate, set pivots and hitboxes and pack an atlas — one sheet, one screen.",
+    "1枚のシートで分割・整列・アニメ・基準点・ヒットボックス・アトラスまで1画面で。"
+  ],
+  "intent.sprite-lab.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.sprite-pivot-editor.title": [
+    "기준점 편집",
+    "Sprite Pivot Editor",
+    "基準点エディター"
+  ],
+  "intent.sprite-pivot-editor.headline": [
+    "기준점 편집",
+    "Sprite Pivot Editor",
+    "基準点エディター"
+  ],
+  "intent.sprite-pivot-editor.description": [
+    "프레임마다 기준점을 프리셋·드래그·숫자로 정하고 내보내기에 그대로 담으세요.",
+    "Set each frame's pivot by preset, by dragging or by number, and carry it into the export.",
+    "フレームごとの基準点をプリセット・ドラッグ・数値で決め、書き出しにそのまま含めます。"
+  ],
+  "intent.sprite-pivot-editor.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.sprite-animation-preview.title": [
+    "스프라이트 애니메이션 미리보기",
+    "Sprite Animation Preview",
+    "スプライトアニメのプレビュー"
+  ],
+  "intent.sprite-animation-preview.headline": [
+    "스프라이트 애니메이션 미리보기",
+    "Sprite Animation Preview",
+    "スプライトアニメのプレビュー"
+  ],
+  "intent.sprite-animation-preview.description": [
+    "FPS·프레임별 길이·정방향·역방향·왕복 재생을 보고 흔들림을 그래프로 확인하세요.",
+    "Play at an fps or per-frame timing, forward, reverse or ping-pong, and see jitter as a graph.",
+    "FPS・フレームごとの長さ・順再生・逆再生・往復を確認し、ぶれをグラフで見られます。"
+  ],
+  "intent.sprite-animation-preview.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.collision-polygon-generator.title": [
+    "충돌 다각형 만들기",
+    "Collision Polygon Generator",
+    "衝突ポリゴン生成"
+  ],
+  "intent.collision-polygon-generator.headline": [
+    "충돌 다각형 만들기",
+    "Collision Polygon Generator",
+    "衝突ポリゴン生成"
+  ],
+  "intent.collision-polygon-generator.description": [
+    "알파 실루엣에서 충돌 다각형을 만들고 꼭짓점 수와 오차를 숫자로 확인하세요.",
+    "Trace collision polygons from the alpha silhouette and see the vertex count and the error.",
+    "アルファのシルエットから衝突ポリゴンを作り、頂点数と誤差を数値で確認します。"
+  ],
+  "intent.collision-polygon-generator.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.hitbox-editor.title": [
+    "히트박스 편집",
+    "Hitbox Editor",
+    "ヒットボックス編集"
+  ],
+  "intent.hitbox-editor.headline": [
+    "히트박스 편집",
+    "Hitbox Editor",
+    "ヒットボックス編集"
+  ],
+  "intent.hitbox-editor.description": [
+    "히트·피격·상호작용 박스를 프레임 구간에 넣고 타임라인으로 확인하세요.",
+    "Put hit, hurt and interact boxes on a range of frames and check them on a timeline.",
+    "ヒット・被弾・インタラクトのボックスをフレーム範囲に置き、タイムラインで確認します。"
+  ],
+  "intent.hitbox-editor.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
   "intent.sprite-slicer.title": [
     "스프라이트 자동 분리",
     "Sprite Sheet Slicer",

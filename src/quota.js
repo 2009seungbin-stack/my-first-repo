@@ -10,6 +10,8 @@ export const QUOTA_CLASSES=Object.freeze({
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
+ // Sprite Lab and its stage entries: geometry, records and one atlas page at a time — no API, no metering.
+ 'sprite-lab':'none','sprite-animation-preview':'none','sprite-pivot-editor':'none','hitbox-editor':'none','collision-polygon-generator':'none',
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.

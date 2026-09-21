@@ -209,3 +209,51 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .progress-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#6b7a90}.progress-row .link{margin-left:auto}
 .result-note{flex:1 0 100%;font-size:11.5px;color:#4a6b5c}
 @media(max-width:860px){.media-work{grid-template-columns:minmax(0,1fr)}.media-stage{max-height:40vh}.transport-tools{margin-left:0}.time-span{margin-left:0}}
+/* Sprite Lab: the stage bar, the fitted frame stage, the jitter graph and the hitbox timeline */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.lab-stages{display:flex;gap:6px;overflow-x:auto;padding:0 2px 12px;margin-bottom:4px;scrollbar-width:thin}
+.lab-stages button{flex:none;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:11px;background:#f4f7fb;color:#51647d;font-size:13px;font-weight:750;white-space:nowrap}
+.lab-stages button b{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;background:#dde5ef;color:#51647d;font-size:11px}
+.lab-stages button[aria-pressed="true"]{background:var(--blue);color:#fff}.lab-stages button[aria-pressed="true"] b{background:#ffffff33;color:#fff}
+.lab-work{grid-template-columns:minmax(0,2fr) minmax(300px,1fr)}
+.lab-stage-view{position:relative;display:grid;place-items:center;min-height:200px;max-height:46vh;border-radius:12px;overflow:auto;padding:10px}
+.lab-stage-view canvas{display:block;image-rendering:pixelated}
+.lab-stage-view svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;outline:none;pointer-events:none}
+.bg-checker{background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+.bg-black{background:#101828}.bg-white{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.bg-magenta{background:#ff00ff}
+#labTools .field.inline{gap:6px}#labTools .field.inline span{flex:1 1 auto;min-width:0}#labTools .field.inline input{flex:0 0 auto;width:72px!important;min-width:56px}
+#labTools .chip small{margin-left:5px;font-weight:500;opacity:.7}
+#labAtlasStage{min-height:0}#labAtlasStage:not(.is-packed) .slicer-sheet{display:none}
+.chips-row .segmented{display:inline-flex;flex:none;gap:6px}.chips-row .segmented button{padding:7px 10px;font-size:11.5px;font-weight:700}
+.lab-graph{min-height:92px;border-radius:12px;background:#f8fafc;padding:8px}
+.lab-graph svg{display:block;width:100%;height:76px}
+.lab-axis{stroke:#cbd5e1;stroke-width:.4}
+.lab-series-x{fill:none;stroke:#2563eb;stroke-width:.8;vector-effect:non-scaling-stroke}
+.lab-series-y{fill:none;stroke:#f97316;stroke-width:.8;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
+.lab-notes{display:grid;gap:4px;margin-top:8px}.lab-notes:empty{display:none}
+.lab-note{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:650;color:#51647d}
+.lab-note .mini-button{margin-left:auto;min-width:26px;height:26px;line-height:1}
+.lab-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid #94a3b8;flex:none}
+.lab-swatch.lab-box-hit{background:repeating-linear-gradient(45deg,#f97316 0 2px,#fff 2px 4px)}
+.lab-swatch.lab-box-hurt{background:repeating-linear-gradient(0deg,#2563eb 0 1px,#fff 1px 3px),repeating-linear-gradient(90deg,#2563eb 0 1px,#fff0 1px 3px)}
+.lab-swatch.lab-box-interact{background:radial-gradient(#16a34a 30%,#fff 32%);background-size:4px 4px}
+.lab-swatch.lab-box-custom{background:repeating-linear-gradient(0deg,#7c3aed 0 1px,#fff 1px 3px)}
+.lab-box{stroke-width:1;vector-effect:non-scaling-stroke}
+.lab-box-hit{stroke:#f97316;fill:url(#labPatHit);fill-opacity:.55}
+.lab-box-hurt{stroke:#2563eb;fill:url(#labPatHurt);fill-opacity:.55}
+.lab-box-interact{stroke:#16a34a;fill:url(#labPatInteract);fill-opacity:.6}
+.lab-box-custom{stroke:#7c3aed;fill:url(#labPatCustom);fill-opacity:.55}
+.lab-box.is-selected{stroke-width:2}
+.lab-collision{fill:#22d3ee26;stroke:#0891b2;stroke-width:1;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
+.lab-pivot line{stroke:#dc2626;stroke-width:.6;vector-effect:non-scaling-stroke}.lab-pivot circle{fill:#dc2626}
+.lab-timeline{overflow-x:auto;border-radius:12px;background:#f8fafc;padding:6px}
+.lab-grid{border-collapse:collapse;font-size:10.5px;font-weight:700;color:#51647d}
+.lab-grid th,.lab-grid td{border:1px solid #e2e8f0;min-width:20px;height:22px;text-align:center;padding:0 3px;white-space:nowrap}
+.lab-grid th[scope="row"]{text-align:left;padding:0 6px;position:sticky;left:0;background:#f8fafc}
+.lab-grid td.on{cursor:pointer}
+.lab-fill-hit{background:repeating-linear-gradient(45deg,#f9731655 0 3px,#fff0 3px 6px)}
+.lab-fill-hurt{background:repeating-linear-gradient(0deg,#2563eb55 0 2px,#fff0 2px 4px)}
+.lab-fill-interact{background:radial-gradient(#16a34a99 32%,#fff0 34%);background-size:6px 6px}
+.lab-fill-custom{background:repeating-linear-gradient(90deg,#7c3aed55 0 2px,#fff0 2px 4px)}
+.lab-grid td:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+@media(max-width:860px){.lab-work{grid-template-columns:minmax(0,1fr)}.lab-stage-view{max-height:36vh}.lab-stages button{height:34px;padding:0 11px;font-size:12px}}

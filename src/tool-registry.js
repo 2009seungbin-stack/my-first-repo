@@ -25,6 +25,127 @@ export const TOOLS = Object.freeze({
       "image"
     ]
   },
+  "sprite-lab": {
+    "path": "game/sprite-lab",
+    "category": "game",
+    "icon": "pack",
+    "title": [
+      "스프라이트 랩",
+      "Sprite Lab",
+      "スプライトラボ"
+    ],
+    "description": [
+      "시트 한 장으로 자르기·정렬·애니메이션·기준점·히트박스·아틀라스까지 한 화면에서.",
+      "Slice, align, animate, set pivots and hitboxes and pack an atlas — one sheet, one screen.",
+      "1枚のシートで分割・整列・アニメ・基準点・ヒットボックス・アトラスまで1画面で。"
+    ],
+    "limit": [
+      "떨어진 조각은 거리 기준으로 합칩니다. 겹친 캐릭터를 의미적으로 구분하지 않고, 회전 패킹은 지원하지 않습니다. Unity 가져오기는 검증되지 않았습니다.",
+      "Detached parts are merged by distance. Overlapping characters are not semantically separated, rotated packing is not supported, and the Unity importer is UNVERIFIED.",
+      "離れた部品は距離で結合します。重なったキャラクターの意味的な分離や回転パッキングには非対応で、Unityの取り込みは未検証です。"
+    ],
+    "next": [
+      "sprite-sheet-maker",
+      "palette-swap",
+      "pixel"
+    ]
+  },
+  "sprite-pivot-editor": {
+    "path": "game/sprite-pivot-editor",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "기준점 편집",
+      "Sprite Pivot Editor",
+      "基準点エディター"
+    ],
+    "description": [
+      "프레임마다 기준점을 프리셋·드래그·숫자로 정하고 내보내기에 그대로 담으세요.",
+      "Set each frame's pivot by preset, by dragging or by number, and carry it into the export.",
+      "フレームごとの基準点をプリセット・ドラッグ・数値で決め、書き出しにそのまま含めます。"
+    ],
+    "limit": [
+      "경계 상자 기준입니다. 발 위치를 인식하지는 않습니다.",
+      "Bounding-box based: this is not foot detection.",
+      "境界ボックス基準です。足の位置を検出するわけではありません。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-sheet-maker"
+    ]
+  },
+  "sprite-animation-preview": {
+    "path": "game/sprite-animation-preview",
+    "category": "game",
+    "icon": "media",
+    "title": [
+      "스프라이트 애니메이션 미리보기",
+      "Sprite Animation Preview",
+      "スプライトアニメのプレビュー"
+    ],
+    "description": [
+      "FPS·프레임별 길이·정방향·역방향·왕복 재생을 보고 흔들림을 그래프로 확인하세요.",
+      "Play at an fps or per-frame timing, forward, reverse or ping-pong, and see jitter as a graph.",
+      "FPS・フレームごとの長さ・順再生・逆再生・往復を確認し、ぶれをグラフで見られます。"
+    ],
+    "limit": [
+      "흔들림 측정은 알파 기준입니다. 보정은 정수 픽셀 이동만 합니다.",
+      "Jitter is measured from alpha, and the fix only moves whole pixels.",
+      "ぶれの測定はアルファ基準で、補正は整数ピクセル移動のみです。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-slicer"
+    ]
+  },
+  "collision-polygon-generator": {
+    "path": "game/collision-polygon-generator",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "충돌 다각형 만들기",
+      "Collision Polygon Generator",
+      "衝突ポリゴン生成"
+    ],
+    "description": [
+      "알파 실루엣에서 충돌 다각형을 만들고 꼭짓점 수와 오차를 숫자로 확인하세요.",
+      "Trace collision polygons from the alpha silhouette and see the vertex count and the error.",
+      "アルファのシルエットから衝突ポリゴンを作り、頂点数と誤差を数値で確認します。"
+    ],
+    "limit": [
+      "볼록 분해는 하지 않습니다. 볼록 도형이 필요하면 볼록 외피를 쓰세요.",
+      "No convex decomposition: use the convex hull when an engine needs convex shapes.",
+      "凸分解は行いません。凸形状が必要な場合は凸包を使ってください。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-sheet-maker"
+    ]
+  },
+  "hitbox-editor": {
+    "path": "game/hitbox-editor",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "히트박스 편집",
+      "Hitbox Editor",
+      "ヒットボックス編集"
+    ],
+    "description": [
+      "히트·피격·상호작용 박스를 프레임 구간에 넣고 타임라인으로 확인하세요.",
+      "Put hit, hurt and interact boxes on a range of frames and check them on a timeline.",
+      "ヒット・被弾・インタラクトのボックスをフレーム範囲に置き、タイムラインで確認します。"
+    ],
+    "limit": [
+      "박스는 직접 정합니다. 자동으로 찾아 주지는 않습니다.",
+      "Boxes are placed by you; nothing is detected automatically.",
+      "ボックスは手動で配置します。自動検出は行いません。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-animation-preview"
+    ]
+  },
   "sprite-slicer": {
     "path": "sprite-slicer",
     "category": "game",
