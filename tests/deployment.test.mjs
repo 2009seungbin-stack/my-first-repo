@@ -116,3 +116,14 @@ test('build matrix: no domain, production domain, ads, then clean disabled rebui
   assert(!(await read('sitemap.xml')).includes('<loc>'));await assert.rejects(read('ads.txt'));
  }finally{await rm(temp,{recursive:true,force:true});}
 });
+test('isolated AI runtime page gets its own headers; site-wide additions stay in the /* block',async()=>{
+ const out=headers(await readFile(new URL('../_headers',import.meta.url),'utf8'),{preview:true});
+ const [global,runtime]=out.split(/\n(?=\/ai-runtime\/)/);
+ assert(global.startsWith('/*')&&global.includes('Cache-Control')&&global.includes("frame-ancestors 'none'"));
+ assert(!global.includes('Document-Isolation-Policy'),'the main site must not be isolated (ads, embeds)');
+ assert(runtime.includes('! Content-Security-Policy')&&runtime.includes("frame-ancestors 'self'"));
+ assert(runtime.includes('Document-Isolation-Policy: isolate-and-credentialless')&&!runtime.includes('Cache-Control'));
+ assert(adCSP('x').includes("frame-src 'self' https:"));
+ const html=await readFile(new URL('../ai-runtime/index.html',import.meta.url),'utf8');
+ assert(html.includes('noindex')&&!/<script(?![^>]*\bsrc=)/.test(html),'runtime page has no inline script under its strict CSP');
+});

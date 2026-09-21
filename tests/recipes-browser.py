@@ -4,6 +4,7 @@ Run with --in-memory where local HTTP is blocked. This mode does not test HTTP/C
 from browser_harness import *
 import zipfile
 from PIL import ImageDraw
+ENGINE=os.environ.get('BROWSER_ENGINE','chromium')  # chromium | firefox | webkit; results for non-Chromium engines get a suffix
 
 def png(w,h,color=(0,0,0,0),rects=()):
     im=Image.new('RGBA',(w,h),color);draw=ImageDraw.Draw(im)
@@ -33,7 +34,7 @@ def archive(path):
 def rgba_image(z,name):return Image.open(io.BytesIO(z.read(name))).convert('RGBA')
 
 with sync_playwright() as pw:
-    browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+    browser=(pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage']) if ENGINE=='chromium' else getattr(pw,ENGINE).launch(headless=True))
     ctx=browser.new_context(locale='en-US',viewport={'width':1440,'height':1000},accept_downloads=True)
     fixture=png(80,60,'white',[((20,10,59,49),(255,0,0,255))])
     home=mount(ctx,'/en/')
@@ -119,4 +120,4 @@ with sync_playwright() as pw:
     ok('no uncaught recipe browser exceptions',not errors)
     ctx.close();browser.close()
 report={'mode':'in-memory' if args.in_memory else 'http','checks':checks,'count':len(checks),'page_errors':errors,'decoders':['Pillow','Python zipfile','JSON'], 'http_csp_tested':not args.in_memory}
-(OUT/'recipes-browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS RECIPE TOTAL',len(checks))
+(OUT/('recipes-browser-results'+('' if ENGINE=='chromium' else '-'+ENGINE)+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS RECIPE TOTAL',len(checks))

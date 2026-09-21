@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {INTENTS} from '../src/intents.js';
-import {CAPABILITIES,MATURITY,mayPromote} from '../src/capabilities.js';
+import {CAPABILITIES,MATURITY,mayPromote,qualifies} from '../src/capabilities.js';
 import {imageMetrics} from '../src/quality.js';
 import {deviceCapabilities,imagePlan} from '../src/resources.js';
 import {blobCRC,crc32,zip} from '../src/core.js';
@@ -70,3 +70,9 @@ test('Firefox duplicated AVC parameter headers are repaired without changing val
 });
 
 test('unqualified public tools are usable but cannot be actively promoted',()=>{assert(mayPromote('home'));for(const [id,c]of Object.entries(CAPABILITIES))if(id!=='home'&&c.maturity==='basic')assert.equal(mayPromote(id),false);});
+test('Advanced needs workflow and quality evidence passing in Chromium and Firefox',()=>{
+ const w={kind:'workflow',suite:'s',check:'c',engines:['chromium','firefox']},q={kind:'quality',suite:'s',check:'q',engines:['chromium']};
+ assert.equal(qualifies([w,q]),true);assert.equal(qualifies([w]),false,'workflow alone');assert.equal(qualifies([{...w,engines:['chromium']},q]),false,'Chromium only');
+ assert.equal(qualifies([w,{...q,check:''}]),false,'every entry must name its check');assert.equal(qualifies(),false);
+ for(const [id,c] of Object.entries(CAPABILITIES)){assert.equal(c.maturity==='advanced',qualifies(c.evidence),id);assert.equal(mayPromote(id),id==='home'||qualifies(c.evidence),id);}
+});

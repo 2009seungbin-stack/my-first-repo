@@ -1,7 +1,8 @@
 """Existing intent/localization regression suite; shared mount is in browser_harness.py."""
 from browser_harness import *
+ENGINE=os.environ.get('BROWSER_ENGINE','chromium')  # chromium | firefox | webkit; results for non-Chromium engines get a suffix
 with sync_playwright() as pw:
- browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+ browser=(pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage']) if ENGINE=='chromium' else getattr(pw,ENGINE).launch(headless=True))
  en=browser.new_context(locale='en-US',viewport={'width':1440,'height':1000},accept_downloads=True)
  ja=browser.new_context(locale='ja-JP',viewport={'width':1440,'height':1000},accept_downloads=True)
  ko=browser.new_context(locale='ko-KR',viewport={'width':1440,'height':1000},accept_downloads=True)
@@ -83,4 +84,4 @@ with sync_playwright() as pw:
  for c in [en,ja,ko,es]:c.close()
  browser.close()
 report={'mode':'in-memory module/location/history/storage adaptation' if args.in_memory else 'HTTP','passed':checks,'errors':errors,'not_validated':['deployed browser HTTP and CSP in memory mode','real persistent Storage in memory mode','actual Worker success path when blocked','external PDF/HEIC/MP3/AI integrations','physical low-end devices']}
-(OUT/'browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS TOTAL',len(checks))
+(OUT/('browser-results'+('' if ENGINE=='chromium' else '-'+ENGINE)+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS TOTAL',len(checks))

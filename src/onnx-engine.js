@@ -2,13 +2,16 @@
 let runtime;
 export async function ort(){
  runtime??=await import('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.webgpu.min.mjs');
- runtime.env.wasm.numThreads=1;runtime.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/';return runtime;
+ // Threads need SharedArrayBuffer (cross-origin isolation, see ai-host.js). Measured on 16 cores:
+ // 8 threads ran a Swin2SR tile 4.3× faster than 1; 16 was no faster.
+ runtime.env.wasm.numThreads=self.crossOriginIsolated?Math.max(1,Math.min(8,(navigator.hardwareConcurrency||2)-1)):1;runtime.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/';return runtime;
 }
 /** ORT's WASM build throws raw C++ exception pointers (plain numbers); never show those as the reason. */
 export function runtimeError(error,device){
  if(typeof error==='number')return `ONNX Runtime ${device} internal failure (code ${error})${device==='webgpu'?'; the GPU device or shader compiler may be unavailable':''}`;
  return error?.message||String(error);
 }
+export const wasmThreads=()=>runtime?.env.wasm.numThreads??1;
 export async function modelBytes(spec,progress=()=>{}){
  const url=`https://huggingface.co/${spec.id}/resolve/${spec.revision}/${spec.file}`;let cache;
  try{cache=await caches.open('nerulio-models-v1');const hit=await cache.match(url);if(hit){progress('Loading cached model');return hit.arrayBuffer();}}catch{/* Cache storage is optional. */}

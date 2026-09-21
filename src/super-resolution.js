@@ -1,5 +1,6 @@
 import {canvas,release,resizeQuality} from './image.js';
 import {abort} from './resources.js';
+import {aiWorker} from './ai-host.js';
 let worker,idleTimer,busy=false;
 function terminate(){clearTimeout(idleTimer);worker?.terminate();worker=null;}
 /** One persistent session, idle expiry, transferable bitmap input/output, hard abort. */
@@ -8,7 +9,7 @@ export async function superResolve(source,scale=2,{signal,progress=()=>{},tile=1
  if(busy)throw Error('An AI image job is already running');busy=true;clearTimeout(idleTimer);
  try{
   if(typeof Worker==='undefined'||typeof OffscreenCanvas==='undefined')throw Error('Worker/OffscreenCanvas unavailable');
-  worker??=new Worker(new URL('./sr-worker.js',import.meta.url),{type:'module'});
+  worker??=await aiWorker('sr',new URL('./sr-worker.js',import.meta.url));
   const bitmap=await createImageBitmap(source);if(signal?.aborted){bitmap.close();abort(signal);}
   const result=await new Promise((resolve,reject)=>{
    const cleanup=()=>signal?.removeEventListener('abort',cancel),cancel=()=>{cleanup();terminate();reject(new DOMException('Cancelled','AbortError'));};

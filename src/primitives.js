@@ -1,5 +1,10 @@
 /** Bounded, pure RGBA primitives. No DOM, network or application state. */
 export const ANALYSIS_PIXELS = 4_000_000;
+/** Frame-producing recipes stream each frame to its own Blob, so the count is bounded by output
+ * work, not by one large allocation. */
+export const MAX_FRAMES = 4096;
+/** Zero-padded frame number; stays three digits up to 999 so existing names do not change. */
+export const frameNumber = (i, count) => String(i + 1).padStart(Math.max(3, String(count).length), '0');
 export function positive(n, max = 65535) {
   if (!Number.isSafeInteger(n) || n < 1 || n > max) throw Error('Invalid dimensions');
   return n;
@@ -17,8 +22,8 @@ export function bounds(data, w, h, threshold = 8) {
   return x1 < 0 ? null : {x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1};
 }
 /** Eight-connected alpha components are candidates, not semantic segmentation. */
-export function components(data, w, h, {threshold = 8, minArea = 4, maxFrames = 256} = {}) {
-  pixels(data, w, h); positive(minArea, w * h); positive(maxFrames, 256);
+export function components(data, w, h, {threshold = 8, minArea = 4, maxFrames = MAX_FRAMES} = {}) {
+  pixels(data, w, h); positive(minArea, w * h); positive(maxFrames, MAX_FRAMES);
   const seen = new Uint8Array(w * h), queue = new Uint32Array(w * h), result = [];
   for (let seed = 0; seed < w * h; seed++) {
     if (seen[seed] || data[seed * 4 + 3] <= threshold) continue;
@@ -48,20 +53,20 @@ export function rectangle(r, w, h) {
 export function grid(w, h, cellW, cellH) {
   positive(cellW); positive(cellH);
   if (w % cellW || h % cellH) throw Error('Tile dimensions must divide the image exactly');
-  if (w / cellW * (h / cellH) > 256) throw Error('At most 256 frames');
+  if (w / cellW * (h / cellH) > MAX_FRAMES) throw Error(`At most ${MAX_FRAMES} frames`);
   const frames = [];
   for (let y = 0; y < h; y += cellH) for (let x = 0; x < w; x += cellW) frames.push({x, y, w: cellW, h: cellH});
   return frames;
 }
 export function sheetLayout(count, frameW, frameH, columns = 4, padding = 0) {
-  positive(count, 256); positive(frameW); positive(frameH); positive(columns, 256);
+  positive(count, MAX_FRAMES); positive(frameW); positive(frameH); positive(columns, MAX_FRAMES);
   if (!Number.isInteger(padding) || padding < 0 || padding > 64) throw Error('Invalid padding');
   columns = Math.min(columns, count);
   const rows = Math.ceil(count / columns), width = columns * (frameW + padding * 2), height = rows * (frameH + padding * 2);
   positive(width); positive(height);
   if (width * height > 536870911) throw Error('Sheet exceeds safe RGBA indexing');
   return {width, height, frameWidth: frameW, frameHeight: frameH, padding, columns, rows,
-    frames: Array.from({length: count}, (_, i) => ({name: `frame-${String(i + 1).padStart(3, '0')}`, x: i % columns * (frameW + padding * 2) + padding, y: Math.floor(i / columns) * (frameH + padding * 2) + padding, w: frameW, h: frameH}))};
+    frames: Array.from({length: count}, (_, i) => ({name: `frame-${frameNumber(i, count)}`, x: i % columns * (frameW + padding * 2) + padding, y: Math.floor(i / columns) * (frameH + padding * 2) + padding, w: frameW, h: frameH}))};
 }
 export function placement(w, h, targetW, targetH, align = 'bottom', anchor = .5) {
   if (w > targetW || h > targetH) throw Error('A frame does not fit the output canvas');

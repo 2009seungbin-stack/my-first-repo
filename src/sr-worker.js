@@ -1,5 +1,5 @@
 import {AI_MODELS} from './ai-models.js';
-import {fastSRModel,runtimeError} from './onnx-engine.js';
+import {fastSRModel,runtimeError,wasmThreads} from './onnx-engine.js';
 let session,sessionKey;
 const progress=value=>self.postMessage({progress:value});
 async function getModel(spec,device){
@@ -37,7 +37,7 @@ self.onmessage=async({data:{bitmap,scale=2,tile=128,backend='auto',engine='quali
      tileCanvas.width=tileCanvas.height=alphaCanvas.width=alphaCanvas.height=1;tileCanvas=alphaCanvas=null;
      progress(`Super-resolution · tile ${++done} / ${total}`);
     }
-    const result=out.transferToImageBitmap();self.postMessage({bitmap:result,report:{engine:spec.id,revision:spec.revision,license:spec.license,backend:device,fallbackReason,tile,overlap,tiles:total,elapsedMs:performance.now()-started,scale}},[result]);return;
+    const result=out.transferToImageBitmap();self.postMessage({bitmap:result,report:{engine:spec.id,revision:spec.revision,license:spec.license,backend:device,threads:device==='wasm'?wasmThreads():null,fallbackReason,tile,overlap,tiles:total,elapsedMs:performance.now()-started,scale}},[result]);return;
    }catch(error){
     if(tileCanvas)tileCanvas.width=tileCanvas.height=1;if(alphaCanvas)alphaCanvas.width=alphaCanvas.height=1;tileCanvas=alphaCanvas=null;
     if(attempt===2)throw error;

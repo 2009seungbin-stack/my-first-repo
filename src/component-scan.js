@@ -1,6 +1,6 @@
 /** Streaming 8-connected run-length labeling. Retains only current/previous rows and active roots. */
 export class ComponentScan{
- constructor(width,{threshold=8,minArea=4,maxFrames=256}={}){this.width=width;this.threshold=threshold;this.minArea=minArea;this.maxFrames=maxFrames;this.previous=[];this.active=new Set();this.result=[];this.y=0;}
+ constructor(width,{threshold=8,minArea=4,maxFrames=4096}={}){this.width=width;this.threshold=threshold;this.minArea=minArea;this.maxFrames=maxFrames;this.previous=[];this.active=new Set();this.result=[];this.y=0;}
  root(n){let r=n;while(r.parent)r=r.parent;while(n.parent){const next=n.parent;n.parent=r;n=next;}return r;}
  merge(a,b){a=this.root(a);b=this.root(b);if(a===b)return a;if(a.area<b.area)[a,b]=[b,a];b.parent=a;a.x=Math.min(a.x,b.x);a.right=Math.max(a.right,b.right);a.y=Math.min(a.y,b.y);a.bottom=Math.max(a.bottom,b.bottom);a.area+=b.area;this.active.delete(b);return a;}
  finishNode(n){if(n.area>=this.minArea){if(this.result.length>=this.maxFrames)throw Error('Too many frame candidates; increase minimum area');this.result.push({x:n.x,y:n.y,w:n.right-n.x+1,h:n.bottom-n.y+1,area:n.area});}this.active.delete(n);}

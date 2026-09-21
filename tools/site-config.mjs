@@ -28,10 +28,11 @@ export function adHead({client='',slots={}}={}){
  return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script async crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}"></script>${Object.keys(slots).length?'<script type="module" src="src/ads.js"></script>':''}`;
 }
 export function headers(source,{preview}){
- let out=source;
  // Enabled HTML uses a per-response nonce CSP from _worker.js, not a fragile
  // list of Google's advertising domains or a reused build-time nonce.
- out+='\n  Cache-Control: public, max-age=0, must-revalidate\n';
+ // Site-wide additions belong to the leading /* block, not to later path blocks.
+ const [global,...rest]=source.replace(/\r\n/g,'\n').replace(/\s+$/,'').split(/\n(?=\S)/);
+ let out=global+'\n  Cache-Control: public, max-age=0, must-revalidate\n';
  if(preview)out+='  X-Robots-Tag: noindex, nofollow\n';
- return out;
+ return out+rest.map(block=>block+'\n').join('');
 }

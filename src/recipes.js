@@ -82,7 +82,7 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
   
   let preview=null,bytes=0;const entries=[],owned=new Set();
   const own=c=>(owned.add(c),c),release=c=>{owned.delete(c);Im.release(c);};
-  const append=entry=>{bytes+=entry.blob.size;if(bytes>LIMITS.totalBytes)throw Error(t('kit.limit'));entries.push(entry);};
+  const append=entry=>{bytes+=entry.blob.size;if(bytes>LIMITS.recipeOutputBytes)throw Error(t('kit.limit'));entries.push(entry);};
   const add=async(c,name)=>{check(signal);append({name,blob:await Im.blobOf(c,/\.jpg$/i.test(name)?'image/jpeg':'image/png',.92)});if(!preview)preview=own(Im.resize(c,Math.min(c.width,1024),Math.max(1,Math.round(c.height*Math.min(1,1024/c.width)))));progress(`${entries.length} · ${t('kit.results')}`);await tick();};
   const simple=async c=>{own(c);check(signal);const blob=await Im.blobOf(c);owned.delete(c);return {kind:'image',canvas:c,blob,name:`${stem(items[0]?.name||'image')}-${id}.png`,width:c.width,height:c.height};};
   try{
@@ -115,10 +115,10 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
         boxes=[{x:0,y:0,w:split,h:source.height},{x:split,y:0,w:source.width-split,h:source.height}];
         if(o.order==='RL')boxes.reverse();
       }
-      if(!boxes.length||boxes.length>256)throw Error(t('kit.none'));
+      if(!boxes.length)throw Error(t('kit.none'));if(boxes.length>P.MAX_FRAMES)throw Error(t('kit.tooMany',{0:P.MAX_FRAMES}));
       const frames=[];
       for(let i=0;i<boxes.length;i++){
-        const r=P.rectangle(boxes[i],source.width,source.height),c=own(cropRect(source,r)),name=`frames/frame-${String(i+1).padStart(3,'0')}.png`;
+        const r=P.rectangle(boxes[i],source.width,source.height),c=own(cropRect(source,r)),name=`frames/frame-${P.frameNumber(i,boxes.length)}.png`;
         await add(c,name);release(c);frames.push({name,...r});
       }
       append(jsonFile('metadata.json',{sourceWidth:source.width,sourceHeight:source.height,frames}));
@@ -140,7 +140,7 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       if(!presets.length)throw Error('Unknown preset');
       for(let i=0;i<items.length;i++){
         const c=own(await inputCanvas(items[i],signal));
-        for(const p of presets){check(signal);const out=own(await Im.fitQuality(c,p.width,p.height,o.fit,o.background,{signal,progress}));await add(out,`${p.name}/${String(i+1).padStart(3,'0')}-${stem(items[i].name)}.jpg`);release(out);}
+        for(const p of presets){check(signal);const out=own(await Im.fitQuality(c,p.width,p.height,o.fit,o.background,{signal,progress}));await add(out,`${p.name}/${P.frameNumber(i,items.length)}-${stem(items[i].name)}.jpg`);release(out);}
         release(c);
       }
       append(jsonFile('presets.json',presets));

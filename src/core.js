@@ -3,7 +3,7 @@ import {t} from './i18n.js';
 /** Pure algorithms. No network, DOM, or model dependencies. */
 // Legacy PDF/media limits are isolated until those engines are upgraded. Image
 // allocation is checked per operation; dimensions only enforces safe RGBA indexing.
-export const LIMITS={imageBytes:32*1024**2,totalBytes:128*1024**2,pixels:536870911,side:65535,files:24,pages:100,mediaBytes:128*1024**2};
+export const LIMITS={imageBytes:32*1024**2,totalBytes:128*1024**2,recipeOutputBytes:4*1024**3,pixels:536870911,side:65535,files:1024,pages:100,mediaBytes:128*1024**2};
 export const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 export function integer(v,min,max,name=t("값")){v=Number(v);if(!Number.isInteger(v)||v<min||v>max)throw Error(t("{0}: {1}–{2} 사이의 정수를 입력하세요.", {0: name, 1: min, 2: max}));return v;}
 export function dimensions(w,h){integer(w,1,LIMITS.side,t("너비"));integer(h,1,LIMITS.side,t("높이"));if(w*h>LIMITS.pixels)throw Error('RGBA indexing limit exceeded. Reduce the output dimensions.');return {w,h};}

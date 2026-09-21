@@ -19,18 +19,29 @@ const engines = {
  'texture-map':'overlapped tiles / luminance height gradient', 'tile-helper':'exact grid region copy',
  'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO'
 };
+/** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
+ * workflow — the real workflow produced output that was independently decoded or measured;
+ * quality  — at least one objective output property beyond "a file was produced";
+ * engines  — those checks passed in both Chromium and Firefox on the current source.
+ * Each entry names the suite and the exact check so it can be re-run (docs/QUALITY-GATES.md). */
+export const ADVANCED_CRITERIA=Object.freeze({kinds:['workflow','quality'],engines:['chromium','firefox']});
+const EVIDENCE={};
+export function qualifies(evidence=[]){
+ const kinds=new Set(evidence.map(e=>e.kind)),engines=new Set(evidence.flatMap(e=>e.engines));
+ return ADVANCED_CRITERIA.kinds.every(k=>kinds.has(k))&&ADVANCED_CRITERIA.engines.every(k=>engines.has(k))&&evidence.every(e=>e.suite&&e.check&&e.engines?.length);
+}
 export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTENTS).map(([id,intent])=>{
  const pdf=intent.editor==='pdf',media=intent.editor==='media',recipe=intent.action==='recipe';
  const modern=['image','upscale','crop','resize','compress','convert','heic'].includes(id);
  return [id,Object.freeze({
-  maturity:'basic', seoPromotable:false, qualification:'in-progress',
+  maturity:qualifies(EVIDENCE[id])?'advanced':'basic', seoPromotable:qualifies(EVIDENCE[id]), qualification:qualifies(EVIDENCE[id])?'advanced-evidence':'in-progress', evidence:Object.freeze(EVIDENCE[id]||[]),
   engine:engines[id], maxInput:media?{bytes:null,seconds:null,policy:'ranged Blob reads; demux and codec support'}:pdf?{bytes:null,pages:null,policy:'full writer parse in Worker; ranged reader; device memory'}:modern?{bytes:null,pixels:null,policy:'browser decode/allocation; tested limits are evidence, not universal guarantees'}:{bytes:null,pixels:null},
-  maxOutput:media?{seconds:null,policy:'codec, temporary storage and container limits; compatibility recorder still 120 seconds'}:pdf?{pages:null,policy:'writer memory; pages rendered sequentially only in raster modes'}:{pixels:null,bytes:recipe?134217728:null,policy:'actual canvas allocation and operation resource plan'},
+  maxOutput:media?{seconds:null,policy:'codec, temporary storage and container limits; compatibility recorder only, up to 10 minutes'}:pdf?{pages:null,policy:'writer memory; pages rendered sequentially only in raster modes'}:{pixels:null,bytes:recipe?4294967296:null,frames:recipe?4096:null,policy:'actual canvas allocation and operation resource plan'},
   supportedFormats:pdf?['pdf','png','jpeg']:media?['mp4 (detected)','webm','gif','png','mp3','wav']:['png','jpeg','webp','avif (detected)'],
   preservesAlpha:pdf?'PDF native objects retained in preserve mode':media?'not promised for video; frame PNG depends on decoded source':'PNG/WebP/AVIF when codec supports alpha; JPEG and explicit fill flatten', preservesMetadata:false, lossless:'PNG and native page-copy do not add codec loss; resampling, compression and rasterization are mode-dependent',
   ai:id==='upscale'?'optional experimental Swin2SR (2x / 4x); explicit classical fallback':id==='remove-bg'?'optional experimental BiRefNet (people and objects)':false, hardwareAcceleration:'browser dependent',
-  streaming:media?'ranged input; OPFS output when supported; GIF keeps encoded chunks':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153; Firefox 155 synthetic suite / decoded H.264 after metadata repair']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[],
-  limitations:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder remains limited; GIF encoded output is in memory.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.']
+  streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153; Firefox 155 synthetic suite / decoded H.264 after metadata repair']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[],
+  limitations:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder (no WebCodecs) records in real time for up to 10 minutes; compatibility audio decodes sources up to 20 minutes in memory.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.']
  })];
 })));
 export function capabilitySummary(id,locale='en') {
@@ -40,4 +51,4 @@ export function capabilitySummary(id,locale='en') {
  return {title,text:`${c.maturity} · ${c.engine}. ${note}`};
 }
 
-export const mayPromote=id=>id==='home'||!!CAPABILITIES[id]?.seoPromotable&&MATURITY.indexOf(CAPABILITIES[id].maturity)>=2&&CAPABILITIES[id].qualityEvidence.length>0;
+export const mayPromote=id=>id==='home'||!!CAPABILITIES[id]?.seoPromotable&&MATURITY.indexOf(CAPABILITIES[id].maturity)>=2&&qualifies(CAPABILITIES[id].evidence);

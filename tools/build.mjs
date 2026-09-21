@@ -56,7 +56,7 @@ export async function build(options={}){
  // Only clear the known output tree; custom test outputs must be named dist too.
  if(path.basename(dist)!=='dist'||dist===path.resolve(ROOT))throw Error('Output directory must be a dedicated dist directory');
  await rm(dist,{recursive:true,force:true});await mkdir(dist,{recursive:true});
- for(const f of ['styles.css','experience.css','content.css','src','assets'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
+ for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="20" fill="#3182f6"/><text x="32" y="46" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">${escape(BRAND.name[0].toLowerCase())}</text></svg>`);
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
@@ -70,7 +70,7 @@ export async function build(options={}){
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
  }
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
 }
