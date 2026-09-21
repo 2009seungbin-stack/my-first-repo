@@ -69,20 +69,39 @@ export function traceBoundaries(mask){
  const rings=[];
  for(const [,list] of out)for(const start of list){
   if(start.used)continue;
-  const points=[];let edge=start,dir=null;
+  const path=[];let edge=start;
   while(edge&&!edge.used){
-   edge.used=true;
-   if(!dir||dir[0]!==edge.dx||dir[1]!==edge.dy){points.push([edge.x,edge.y]);dir=[edge.dx,edge.dy];}
+   edge.used=true;path.push([edge.x,edge.y]);
    const nx=edge.x+edge.dx,ny=edge.y+edge.dy,candidates=out.get(ny*stride+nx)||[];
    const prefer=[[-edge.dy,edge.dx],[edge.dx,edge.dy],[edge.dy,-edge.dx],[-edge.dx,-edge.dy]];
    let next=null;
    for(const [px,py] of prefer){next=candidates.find(c=>!c.used&&c.dx===px&&c.dy===py);if(next)break;}
    edge=next;
   }
-  if(points.length>=3)rings.push(dropCollinear(points));
+  for(const loop of splitAtRepeats(path))if(loop.length>=3){const ring=dropCollinear(loop);if(ring.length>=3)rings.push(ring);}
  }
  return rings.map(points=>({points,signedArea:signedArea(points),area:polygonArea(points)}))
   .filter(r=>r.area>0).sort((a,b)=>b.area-a.area);
+}
+/** Where two regions touch only at a corner the walk passes through the same lattice point twice,
+ * which would be a figure-eight — legal as a topological boundary, useless as a collision polygon.
+ * Cutting the path at every repeated point turns it back into separate simple rings. This runs on
+ * the full lattice path, before collinear runs are merged, so a point that a straight run merely
+ * passes over is caught too. */
+export function splitAtRepeats(path){
+ const rings=[],seen=new Map(),stack=[];
+ const key=p=>`${p[0]},${p[1]}`;
+ for(const p of path){
+  const k=key(p);
+  if(seen.has(k)){
+   const loop=stack.splice(seen.get(k));
+   for(const q of loop)seen.delete(key(q));
+   if(loop.length>=3)rings.push(loop);
+  }
+  seen.set(k,stack.length);stack.push(p);
+ }
+ if(stack.length>=3)rings.push(stack);
+ return rings;
 }
 /** The trace can start in the middle of a straight run, which leaves one vertex sitting on a line
  * between its neighbours. Drop those so an untouched outline is already minimal. */
@@ -200,9 +219,12 @@ export function convexHull(points){
  const hull=[...lower.slice(0,-1),...upper.slice(0,-1)];
  return shoelace(hull)<0?hull.reverse():hull;
 }
-/** Smallest enclosing circle (Welzl, move-to-front). Exact, not an approximation. */
-export function boundingCircle(points){
- if(!points.length)return null;
+/** Smallest enclosing circle. Exact (not a centroid-plus-max-radius approximation): the circle is
+ * determined by two or three points of the convex hull, which is what this searches for. The hull
+ * is taken first because the search is cubic in the number of candidate points. */
+export function boundingCircle(input){
+ if(!input.length)return null;
+ const points=input.length>8?convexHull(input):input;
  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  const from2=(a,b)=>({cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,r:dist(a,b)/2});
  const from3=(a,b,c)=>{
@@ -249,7 +271,10 @@ export function collisionPolygons(img,{threshold=127,padding=0,tolerance=1,maxVe
  const shift=p=>[p[0]+(mask.offsetX||0),p[1]+(mask.offsetY||0)];
  const rect=boundingRect(mask),warnings=[];
  if(!rect)return {polygons:[],error:null,winding,threshold,tolerance:0,simple:true,warnings:['The image is fully transparent, so there is nothing to collide with.'],shape};
- const turn=points=>{const cw=shoelace(points)>0;return (winding==='cw')===cw?points:[...points].reverse();};
+ // Outer rings get the requested winding; holes get the opposite one, which is how every engine
+ // and every even-odd fill rule tells a hole from a shape.
+ const orient=(points,wantCw)=>(shoelace(points)>0)===wantCw?points:[...points].reverse();
+ const turn=points=>orient(points,winding==='cw'),turnHole=points=>orient(points,winding!=='cw');
  if(shape==='rect'){const r={x:rect.x+(mask.offsetX||0),y:rect.y+(mask.offsetY||0),w:rect.w,h:rect.h};
   return {polygons:[{points:turn(rectPolygon(r)),vertices:4,area:r.w*r.h,holes:[]}],rect:r,error:null,winding,threshold,tolerance:0,simple:true,warnings,shape};}
  const rings=traceBoundaries(mask);
@@ -275,7 +300,7 @@ export function collisionPolygons(img,{threshold=127,padding=0,tolerance=1,maxVe
   errors.push(error);
   polygons.push({points:turn(fit.points),vertices:fit.points.length,area:polygonArea(fit.points),tracedVertices:traced.length,
    tolerance:fit.tolerance,iterations:fit.iterations,error,
-   holes:holes?inners.filter(h=>pointInPolygon(h.points[0].map((v,i)=>v+(i?mask.offsetY||0:mask.offsetX||0)),traced)).map(h=>turn([...h.points.map(shift)].reverse())):[]});
+   holes:holes?inners.filter(h=>pointInPolygon(shift(h.points[0]),traced)).map(h=>turnHole(h.points.map(shift))):[]});
  }
  const error=errors.length?{maxDeviation:Math.max(...errors.map(e=>e.maxDeviation)),
   areaDeltaPercent:errors.reduce((s,e)=>s+e.areaOriginal*e.areaDeltaPercent,0)/Math.max(1,errors.reduce((s,e)=>s+e.areaOriginal,0)),
