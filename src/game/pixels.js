@@ -60,6 +60,33 @@ export function maskOf(img,{threshold=ALPHA_THRESHOLD}={}){
 }
 export function maskOfSource(src,rect,options){return maskOf(src.read(rect||{x:0,y:0,w:src.width,h:src.height}),options);}
 export const maskAt=(m,x,y)=>x<0||y<0||x>=m.width||y>=m.height?0:m.bits[y*m.width+x];
+export const NEIGHBOURS=Object.freeze({4:Object.freeze([[1,0],[-1,0],[0,1],[0,-1]]),8:Object.freeze([[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])});
+/** Whole-pixel distance from the set pixels of a mask, by breadth-first search and stopped at
+ * `radius` — so the cost is the band around the shape, not the whole canvas. 8-connectivity gives
+ * Chebyshev distance (a diagonal step costs 1), 4-connectivity gives Manhattan distance. Cells
+ * further than `radius` stay -1. `order` lists the reached pixels nearest first, which lets a
+ * caller propagate a value outwards in one pass. */
+export function distanceField(mask,{radius=1,connectivity=8}={}){
+ if(!Number.isSafeInteger(radius)||radius<0||radius>4096)throw Error('Radius must be 0…4096 pixels');
+ if(!NEIGHBOURS[connectivity])throw Error('Connectivity is 4 or 8');
+ const {bits,width,height}=mask,dist=new Int32Array(width*height).fill(-1),queue=new Int32Array(width*height);
+ let back=0;
+ for(let p=0;p<bits.length;p++)if(bits[p]){dist[p]=0;queue[back++]=p;}
+ const seeds=back;
+ for(let front=0;front<back;front++){
+  const p=queue[front],d=dist[p];
+  if(d>=radius)continue;
+  const x=p%width,y=(p-x)/width;
+  for(const [dx,dy] of NEIGHBOURS[connectivity]){
+   const nx=x+dx,ny=y+dy;
+   if(nx<0||ny<0||nx>=width||ny>=height)continue;
+   const n=ny*width+nx;
+   if(dist[n]>=0)continue;
+   dist[n]=d+1;queue[back++]=n;
+  }
+ }
+ return {dist,width,height,radius,connectivity,order:queue.subarray(seeds,back),seeds:queue.subarray(0,seeds)};
+}
 /** Per-row and per-column opaque-pixel counts plus the fully transparent lines. Band-read, so a
  * 8192×8192 sheet costs one band, not 256 MB. */
 export function alphaProfile(src,{threshold=ALPHA_THRESHOLD,signal}={}){

@@ -16,7 +16,9 @@ export function packRects(rects,{maxSize=4096,padding=0,pot=false,rotate=false,l
   return finish(placed,w,h);
  }
  const order=[...items].sort((a,b)=>Math.max(b.pw,b.ph)-Math.max(a.pw,a.ph)||b.pw*b.ph-a.pw*a.ph),area=items.reduce((s,r)=>s+r.pw*r.ph,0);
- let side=Math.max(Math.ceil(Math.sqrt(area)),...items.map(r=>Math.min(r.pw,r.ph)));if(pot)side=next(side);
+ // The first guess is clamped to the limit: unclamped, a set whose total area exceeds maxSize²
+ // could be packed into that oversized first guess and returned, quietly ignoring the limit.
+ let side=Math.min(maxSize,Math.max(Math.ceil(Math.sqrt(area)),...items.map(r=>Math.min(r.pw,r.ph))));if(pot)side=next(side);
  for(let w=side,h=side;;){
   const placed=tryPack(order,w,h,rotate);
   if(placed){const usedW=Math.max(...placed.map(p=>p.x+(p.rotated?p.h:p.w)+padding*2)),usedH=Math.max(...placed.map(p=>p.y+(p.rotated?p.w:p.h)+padding*2));return finish(placed.map(p=>({...p,x:p.x+padding,y:p.y+padding})),pot?w:usedW,pot?h:usedH);}

@@ -16,7 +16,7 @@
  * point is not privileged. Tolerance rises until the vertex cap is met, and any tolerance that
  * makes the outline cross itself is rejected — a self-intersecting collision polygon is a bug in
  * every physics engine that takes one. */
-import {source,maskOf,checkRect,ALPHA_THRESHOLD} from './pixels.js';
+import {source,maskOf,checkRect,distanceField,NEIGHBOURS,ALPHA_THRESHOLD} from './pixels.js';
 export const WINDINGS=Object.freeze(['cw','ccw']);
 const EPS=1e-9;
 /** Signed area × 2 (shoelace). Positive = clockwise on screen with y down. */
@@ -34,24 +34,14 @@ export function silhouette(img,{threshold=127}={}){return maskOf(img,{threshold}
  * grows diagonally (Chebyshev distance), 4-connectivity does not (Manhattan). */
 export function dilateMask(mask,radius,{connectivity=8}={}){
  if(!Number.isSafeInteger(radius)||radius<0||radius>256)throw Error('Dilation radius must be 0…256 pixels');
- if(![4,8].includes(connectivity))throw Error('Connectivity is 4 or 8');
+ if(!NEIGHBOURS[connectivity])throw Error('Connectivity is 4 or 8');
  if(!radius)return {...mask,offsetX:0,offsetY:0};
  const width=mask.width+radius*2,height=mask.height+radius*2,bits=new Uint8Array(width*height);
- const dist=new Int32Array(width*height).fill(-1),queue=new Int32Array(width*height);
- let back=0;
- for(let y=0;y<mask.height;y++)for(let x=0;x<mask.width;x++)if(mask.bits[y*mask.width+x]){
-  const p=(y+radius)*width+x+radius;dist[p]=0;bits[p]=1;queue[back++]=p;}
- const steps=connectivity===8?[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[-1,0],[0,1],[0,-1]];
- for(let front=0;front<back;front++){
-  const p=queue[front],d=dist[p];if(d>=radius)continue;
-  const x=p%width,y=(p-x)/width;
-  for(const [dx,dy] of steps){
-   const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=width||ny>=height)continue;
-   const n=ny*width+nx;if(dist[n]>=0)continue;
-   dist[n]=d+1;bits[n]=1;queue[back++]=n;
-  }
- }
- return {bits,width,height,offsetX:-radius,offsetY:-radius};
+ for(let y=0;y<mask.height;y++)for(let x=0;x<mask.width;x++)if(mask.bits[y*mask.width+x])bits[(y+radius)*width+x+radius]=1;
+ const {dist}=distanceField({bits,width,height},{radius,connectivity});
+ const grown=new Uint8Array(width*height);
+ for(let p=0;p<grown.length;p++)grown[p]=dist[p]>=0?1:0;
+ return {bits:grown,width,height,offsetX:-radius,offsetY:-radius};
 }
 /** Every closed boundary of a mask, as integer pixel-corner polygons with collinear runs merged.
  * Outer rings have a positive shoelace, holes a negative one. */
