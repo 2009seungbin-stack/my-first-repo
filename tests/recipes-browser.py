@@ -118,13 +118,31 @@ with sync_playwright() as pw:
     masks=[(f'{n}.png',png(2,2,(n,n,n,255))) for n in [10,80,220]];p=open_tool(ctx,'texture-mask-packer',masks)
     options(p,{'channel-0':'input2','channel-1':'input0','channel-2':'input1','channel-3':'zero'})
     im=Image.open(output(p,'packed-mask.png')).convert('RGBA');ok('mask PNG preserves channel bytes even under zero alpha',set(im.getdata())=={(220,10,80,0)});p.close()
-    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_tool(ctx,'atlas-padding',[('atlas.png',atlas)])
-    options(p,{'cellW':1,'cellH':1,'padding':1});z=archive(output(p,'atlas.zip'));im=rgba_image(z,'padded-atlas.png')
+    # --- Tile Lab ports: atlas-padding and tile-grid-slicer now open Tile Lab (src/task/tile-lab.js)
+    # at its grid stage, so the same properties are asserted against the Lab's ZIP. ---
+    def open_lab(path,files,query=''):
+        page=mount(ctx,'/en/'+path+'/'+query)
+        page.locator('#fileInput').set_input_files([{'name':n,'mimeType':'image/png','buffer':b} for n,b in files])
+        page.wait_for_function("()=>document.querySelector('.tl-stages')",timeout=60000);page.wait_for_timeout(200);return page
+    def lab_set(page,values):
+        for key,value in values.items():
+            el=page.locator(f'[data-option="{key}"]')
+            el.evaluate('e=>{for(let p=e.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true}')
+            if el.get_attribute('type')=='checkbox':el.set_checked(value)
+            else:el.fill(str(value))
+            page.wait_for_timeout(150)
+        page.wait_for_timeout(200)
+    def lab_zip(page,name):
+        page.wait_for_function(DONE,timeout=120000)
+        with page.expect_download() as event:page.locator('#taskDownload').click()
+        path=OUT/name;event.value.save_as(path);return archive(path)
+    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_lab('atlas-padding',[('atlas.png',atlas)])
+    lab_set(p,{'tileWidth':1,'tileHeight':1,'extrude':1});z=lab_zip(p,'atlas.zip');im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()
     p=open_tool(ctx,'normal-map-generator',[('flat.png',png(2,2,(50,50,50,255)))])
     im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)});p.close()
-    p=open_tool(ctx,'tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);options(p,{'cellW':2,'cellH':2});z=archive(output(p,'tiles.zip'))
-    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'frames/frame-002.png').size==(2,2));p.close()
+    p=open_lab('tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);lab_set(p,{'tileWidth':2,'tileHeight':2});z=lab_zip(p,'tiles.zip')
+    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'tiles/tile-001.png').size==(2,2));p.close()
     p=open_tool(ctx,'split-scanned-images',[('spread.png',png(9,4,'white'))]);options(p,{'order':'RL'});z=archive(output(p,'spread.zip'))
     ok('scan splitter respects divider rounding and right-first order',rgba_image(z,'frames/frame-001.png').size==(4,4) and rgba_image(z,'frames/frame-002.png').size==(5,4));p.close()
     p=open_tool(ctx,'auto-crop-image-margins',[('scan.png',png(10,10,'white',[((3,2,6,7),'black')]))]);options(p,{'padding':0})

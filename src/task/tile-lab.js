@@ -39,6 +39,12 @@ export function mount({el,def}){
  const T=(k,v)=>text('tile.'+k,v);
  const q=s=>el.querySelector(s);
  const layout=()=>layoutOf(o.kind);
+ /** Zoomed size, but never wider than the board it sits in: on a phone the map fits instead of
+  * scrolling sideways, and on a desktop the zoom is what it says. */
+ const fit=(node,natural,zoom,cap)=>{
+  const room=node.parentElement?.clientWidth||cap;
+  node.style.width=Math.max(48,Math.min(natural*zoom,cap,room))+'px';
+ };
 
  /* ---------- source ---------- */
  function empty(){
@@ -258,8 +264,14 @@ ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
   return `<div class="board-bar"><span class="board-count">${esc(T('count',{n:pack.json.tileSet.tiles.length}))} → TileSet</span></div>
 ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().count}))}</p>`:''}
 <ol class="tl-steps">${godotReadme(pack.json).steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
-<pre class="tl-code" tabindex="0">${esc(JSON.stringify(pack.json,null,1).slice(0,2600))}</pre>
-<pre class="tl-code" tabindex="0">${esc(pack.script.slice(0,2600))}</pre>`;
+${listing('nerulio-tileset.json',JSON.stringify(pack.json,null,1))}
+${listing('nerulio_tileset_import.gd',pack.script)}`;
+ }
+ /** A readable excerpt of a file that is in the download, labelled with what was cut. */
+ function listing(name,body){
+  const shown=body.slice(0,2400);
+  return `<div class="view-head"><strong>${esc(name)}</strong><span>${esc(T('excerpt',{n:shown.length,total:body.length}))}</span></div>
+<pre class="tl-code" tabindex="0">${esc(shown)}${body.length>shown.length?'\n…':''}</pre>`;
  }
  function frame(){
   const boards={grid:gridBoard,templates:templatesBoard,tester:testerBoard,rules:rulesBoard,seams:seamsBoard,export:exportBoard};
@@ -273,7 +285,7 @@ ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().c
   const cv=q('#tlSheet');if(!cv||!src)return;
   if(cv.width!==src.width){cv.width=src.width;cv.height=src.height;}
   const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(src,0,0);
-  const box=q('#tlSheetBox');if(box)box.style.width=Math.min(src.width*o.zoom,1000)+'px';
+  const box=q('#tlSheetBox');if(box)fit(box,src.width,o.zoom,1000);
   const svg=q('#tlGridSvg');if(!svg)return;
   svg.setAttribute('viewBox',`0 0 ${src.width} ${src.height}`);
   if(!o.lines||!grid?.rects.length){svg.innerHTML='';return;}
@@ -329,7 +341,7 @@ ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().c
   const cv=q('#tlMap');if(!cv)return;
   const g=ensureTerrain(),rendered=renderMap(o.kind,g,{outside:o.outside}),tile=tileArt();
   const missing=drawRendered(cv,rendered,tile,{lines:o.gridLines,cursorAt:cursor});
-  cv.style.width=Math.min(cv.width*o.mapZoom,900)+'px';
+  fit(cv,cv.width,o.mapZoom,900);
   const info=q('#tlMapInfo');if(info)info.textContent=`${rendered.w} × ${rendered.h} · ${T('kinds.'+o.kind)}`;
   const box=q('#tlMapSummary');
   if(box)box.innerHTML=`<div class="summary-big${missing?' muted':''}">${missing||'✓'}</div><div class="summary-line">${missing?esc(T('missingHere',{n:missing})):esc(T('complete'))}</div>`;
@@ -373,7 +385,7 @@ ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().c
   const cv=q('#tlPreview');if(!cv)return;
   const g=seededFill(terrainGrid(o.gridSize,o.gridSize),o.seed),rendered=renderMap(o.kind,g,{outside:o.outside}),tile=tileArt();
   const missing=drawRendered(cv,rendered,tile,{});
-  cv.style.width=Math.min(cv.width*2,640)+'px';
+  fit(cv,cv.width,2,640);
   const info=q('#tlPreviewInfo');if(info)info.textContent=missing?T('missingHere',{n:missing}):T('complete');
  }
  function seamTile(index){
@@ -405,7 +417,7 @@ ${short>0?`<p class="hint warning">${esc(T('shortPack',{n:short,total:layout().c
   const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
   for(let y=0;y<n;y++)for(let x=0;x<n;x++)ctx.drawImage(src2,x*w,y*h);
   Im.release(src2);
-  cv.style.width=Math.min(cv.width*Math.max(1,Math.round(320/(w*n))),640)+'px';
+  fit(cv,cv.width,Math.max(1,Math.round(320/(w*n))),640);
   if(info)info.textContent=`#${o.seamIndex} · ${w}×${h} · ${n}×${n}`;
   for(const [id,profile,vertical] of [['#tlHeatH',s.report.horizontal.profile,true],['#tlHeatV',s.report.vertical.profile,false]]){
    const strip=q(id);if(!strip)continue;
