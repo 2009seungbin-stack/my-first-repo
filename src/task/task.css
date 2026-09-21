@@ -130,6 +130,34 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .frame-chip span{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-size:10.5px;font-weight:750;color:#6b7a90}.frame-chip button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:7px;background:#fffd;color:#51647d;font-size:13px;opacity:0}.frame-chip:hover button,.frame-chip:focus-within button{opacity:1}
 .options textarea{width:100%;border:1px solid #d8e0ea;border-radius:10px;padding:9px 11px;font:12px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
 .opt-label{display:block;font-size:11px;font-weight:750;color:#7b8798;margin:12px 0 6px}.opt-label:first-child{margin-top:0}.summary-line.bad{color:#b3383f}
+/* Pixel Lab: stage bar, pixel viewer with a candidate overlay, palette swatches and reports. */
+.plab-stages{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 12px;border-bottom:1px solid var(--line);margin-bottom:12px;scrollbar-width:thin}
+.plab-stages button{flex:none;font-size:12.5px;font-weight:750;color:#51647d;background:#f3f6fa;border-radius:9px;padding:7px 12px}
+.plab-stages button:hover{background:#e6edf6;color:var(--ink)}.plab-stages button[aria-current=page]{background:var(--blue);color:#fff}
+.plab-view{position:relative;max-height:52vh;border-radius:12px;overflow:hidden;background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;margin:0 auto}
+.plab-view canvas{display:block;width:100%;height:100%;object-fit:contain}.plab-layer{position:absolute;inset:0;pointer-events:none}
+.plab-compare{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:12px}
+.plab-compare figure{margin:0;background:#f4f7fb;border-radius:10px;padding:6px;text-align:center}
+.plab-compare canvas{width:100%;height:auto;display:block;border-radius:6px;background:#fff}
+.plab-compare figcaption{font-size:10.5px;font-weight:700;color:#6b7a90;margin-top:4px;overflow-wrap:anywhere}
+.plab-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px}
+.plab-swatches.small{grid-template-columns:repeat(auto-fill,minmax(30px,1fr))}
+.plab-swatch{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 3px;border-radius:9px;background:#f4f7fb;font-size:9.5px;font-weight:700;color:#6b7a90;line-height:1.2}
+.plab-swatch:hover{background:#e6edf6}.plab-swatch[aria-pressed=true],.plab-swatch.is-on{background:var(--blue-soft);color:var(--blue);outline:2px solid var(--blue);outline-offset:-2px}
+.plab-swatch.is-locked::after{content:'F512';position:absolute;top:1px;right:3px;font-size:9px}
+.plab-swatch em{font-style:normal;font-size:9px;color:#8b98a9}.plab-swatch.is-static{cursor:default}.plab-swatch b{position:absolute;top:0;right:2px;font-size:10px;color:var(--blue)}
+.plab-chip{display:block;width:100%;aspect-ratio:1;min-height:18px;border-radius:5px;background:var(--c,#fff);box-shadow:inset 0 0 0 1px #0002}
+.plab-picked{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.plab-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f7f9fc;border-radius:10px;padding:6px 8px}
+.plab-row .plab-chip{width:20px;flex:none}.plab-row code{font-size:11.5px;font-weight:750;color:var(--ink)}.plab-row small{font-size:10.5px;color:#6b7a90}
+.plab-row input[type=color]{width:30px;height:24px;padding:0;border:1px solid #d8e0ea;border-radius:6px;background:none;margin-left:auto}
+.plab-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#51647d}
+.plab-list li{background:#f7f9fc;border-radius:8px;padding:6px 9px;overflow-wrap:anywhere}
+.plab-offenders{margin:8px 0 0;padding:0 0 0 18px;font-size:11.5px;color:#51647d;display:flex;flex-direction:column;gap:4px}
+.plab-offenders li{overflow-wrap:anywhere}.plab-offenders .plab-chip{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px}
+.frame-chip.is-current{outline:2px solid var(--blue);outline-offset:-1px;background:var(--blue-soft)}
+@media(max-width:600px){.plab-view{max-height:40vh}.plab-swatches{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))}.plab-row input[type=color]{margin-left:0}}
+
 @media(max-width:860px){.atlas-views{grid-template-columns:1fr}.anim-canvas{max-height:220px}}
 .view-head .segmented{display:inline-flex;flex:none;margin-left:auto;gap:6px}.view-head .segmented button{padding:7px 10px;font-size:11.5px;font-weight:700}
 /* sprite slicer: the sheet with the frame boxes drawn over it */
@@ -158,6 +186,8 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .mask-channel{margin:0;display:grid;gap:4px}.mask-channel canvas{display:block;width:100%;height:auto;border-radius:10px;border:1px solid #e6ebf2;background:#f6f8fb}
 .mask-channel figcaption{font-size:11px;font-weight:700;color:#51647d}
 .mask-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}.mask-row .field{margin:0}.mask-row .check{margin:0;font-size:11.5px}.mask-row .field small{font-weight:500;color:#8b97a8}
+@media(max-width:860px){.plab{grid-template-columns:minmax(0,1fr)}.plab-view{max-height:44vh}}
+@media(max-width:420px){.plab-stages button{padding:7px 9px;font-size:12px}.plab-compare{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}.plab-list li,.plab-row small{font-size:11px}}
 @media(hover:none){.frame-chip button{opacity:1}.pg-actions{opacity:1}}
 @media(max-width:860px){.pages{max-height:none;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.work{grid-template-columns:minmax(0,1fr)}.viewer{position:static}.cmp{max-height:46vh}}
 @media(max-width:600px){.page{padding:0 16px 32px}.page-header{padding:14px 16px}.page-header .local-pill{display:none}.dropzone{padding:34px 18px}.home-drop{flex-direction:column;align-items:stretch;text-align:center}.home-drop .primary{width:100%}.field-row{grid-template-columns:1fr}.tool-grid{grid-template-columns:1fr}}
