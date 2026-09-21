@@ -38,8 +38,10 @@ async function secure(action,payload,progress){
   if(!check.encrypted||check.method!=='AESV3')throw Error('The encrypted result did not verify. Nothing was saved.');
   return {blob:new Blob([bytes],{type:'application/pdf'}),report:{...report,...check}};
  }
+ const before=inspect(source);
  const {bytes,report}=await unlockDocument(source,payload.password||'');
  if(inspect(bytes).encrypted)throw Error('The result is still encrypted. Nothing was saved.');
+ report.handler=before.handler||report.handler;
  let pages=0,verified=false;
  try{pages=(await L.PDFDocument.load(bytes,{updateMetadata:false,throwOnInvalidObject:false})).getPageCount();verified=pages>0;}catch{/* reported as unverified */}
  return {blob:new Blob([bytes],{type:'application/pdf'}),report:{...report,pages,verified}};

@@ -24,7 +24,7 @@ export function mount({el,def}){
 <label class="field"><span>${esc(T('password'))}</span><input id="secPassword" type="password" autocomplete="new-password" maxlength="127" spellcheck="false" placeholder="${esc(T('passwordPlaceholder'))}"></label>
 ${locking?`<label class="field"><span>${esc(T('confirm'))}</span><input id="secConfirm" type="password" autocomplete="new-password" maxlength="127" spellcheck="false"></label>`:''}
 <label class="check"><input id="secShow" type="checkbox"> ${esc(T('show'))}</label>
-${locking?`<details class="options-advanced" id="secAdvanced"><summary>${esc(text('advanced'))}</summary><div><p class="opt-label">${esc(T('allow'))}</p>${PERMS.map(id=>`<label class="check"><input type="checkbox" data-perm="${id}" ${allow[id]?'checked':''}> ${esc(T('allow.'+id))}</label>`).join('')}<label class="field"><span>${esc(T('owner'))}</span><input id="secOwner" type="password" autocomplete="new-password" maxlength="127" spellcheck="false"></label><small>${esc(T('ownerHint'))}</small></div></details>`:''}
+${locking?`<details class="options-advanced" id="secAdvanced"><summary>${esc(text('advanced'))}</summary><div><p class="opt-label">${esc(T('allow'))}</p>${PERMS.map(id=>`<label class="check"><input type="checkbox" data-perm="${id}" ${allow[id]?'checked':''}> ${esc(T('allow'+id[0].toUpperCase()+id.slice(1)))}</label>`).join('')}<label class="field"><span>${esc(T('owner'))}</span><input id="secOwner" type="password" autocomplete="new-password" maxlength="127" spellcheck="false"></label><small>${esc(T('ownerHint'))}</small></div></details>`:''}
 </form>
 <p class="hint" id="secHint">${esc(T(locking?'keepSafe':'legal'))}</p>
 <button type="button" class="primary big" id="secRun" data-action="sec-run"></button>
@@ -34,6 +34,7 @@ ${locking?`<details class="options-advanced" id="secAdvanced"><summary>${esc(tex
  }
  const state=it=>it.error?`<em class="pill bad">${esc(it.error)}</em>`:it.blob?`<em class="pill good">${esc(T(locking?'done':'doneOpen'))}</em>`:it.working?`<em class="pill">${esc(text('working'))}</em>`:it.info?.encrypted===false&&locking?`<em class="pill">${esc(T('ready'))}</em>`:`<em class="pill">${esc(text('waiting'))}</em>`;
  function detail(it){
+  if(it.row)return it.row;
   if(it.note)return it.note;
   if(it.info?.encrypted)return T('detected',{h:it.info.handler});
   if(it.info&&!it.info.encrypted)return T('notProtected');
@@ -80,7 +81,8 @@ ${locking?`<details class="options-advanced" id="secAdvanced"><summary>${esc(tex
     it.note=locking
      ?T('protectedNote',{n:result.report.pages,size:bytes(result.blob.size)})
      :result.report.alreadyOpen?T('wasOpen'):T('unlockedNote',{n:result.report.pages,h:result.report.handler});
-    if(!locking&&!result.report.verified)it.note+=' · '+T('unverified');
+    it.row=`${text('pdf.pagesN',{n:result.report.pages||0})} · ${bytes(result.blob.size)}`;
+    if(!locking&&!result.report.verified){it.note+=' · '+T('unverified');it.row+=' · '+T('unverified');}
    }catch(error){
     const code=error?.message||String(error);
     it.error=code.includes('WRONG_PASSWORD')?T('wrongPassword'):code.includes('NO_PASSWORD')?T('needPassword')

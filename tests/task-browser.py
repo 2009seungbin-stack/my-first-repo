@@ -227,6 +227,71 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # --- PDF: compression that resolves references, then protect and unlock (nerulio/agent-pdf-depth) ---
+    page.goto(BASE+'/en/pdf/compress/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    # A 200 dpi photo page plus a text page: the photo is what a real compressor has to find.
+    pdf=page.evaluate("""async()=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const c=new OffscreenCanvas(1654,2339),x=c.getContext('2d');
+      const g=x.createLinearGradient(0,0,1654,2339);g.addColorStop(0,'#1b4f9c');g.addColorStop(1,'#e0a13b');
+      x.fillStyle=g;x.fillRect(0,0,1654,2339);
+      for(let i=0;i<4000;i++){x.fillStyle=`hsl(${i%360},70%,${30+i%40}%)`;x.fillRect(Math.random()*1654,Math.random()*2339,9,9);}
+      const jpeg=new Uint8Array(await (await c.convertToBlob({type:'image/jpeg',quality:.95})).arrayBuffer());
+      const d=await L.PDFDocument.create(),font=await d.embedFont(L.StandardFonts.Helvetica),img=await d.embedJpg(jpeg);
+      d.addPage([595,842]).drawImage(img,{x:0,y:0,width:595,height:842});
+      d.getPage(0);const text=d.addPage([595,842]);
+      for(let i=0;i<30;i++)text.drawText('Searchable compression corpus line '+i,{x:40,y:790-i*24,size:12,font});
+      const bytes=await d.save({useObjectStreams:true});
+      return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+    }""")
+    PDF=[{'name':'scan and text.pdf','type':'application/pdf','b64':pdf}]
+    drop(page,'.dropzone',PDF);ready(page)
+    saving=int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])
+    note=page.locator('#viewerNote').inner_text()
+    ok('PDF compression finds the embedded photo behind an indirect colour space',saving>=40,f'only {saving}%')
+    ok('PDF compression says text and search survived',('text and search kept' in note) and ('image(s) optimised' in note),note)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    smaller=Path(d.value.path()).read_bytes()
+    kept=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      return doc.getPageCount();
+    }""",base64.b64encode(smaller).decode())
+    ok('the compressed PDF still re-opens with both pages',kept==2,str(kept))
+    page.goto(BASE+'/en/pdf/protect/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',PDF);page.wait_for_selector('#secPassword')
+    page.fill('#secPassword','task browser pass');page.fill('#secConfirm','task browser pass')
+    page.locator('#secAdvanced summary').click();page.uncheck('[data-perm="copy"]')
+    page.locator('#secRun').click();page.wait_for_selector('#secDownload:not([hidden])',timeout=120000)
+    ok('protect reports the page count and the handler','AES-256' in page.locator('#secLead').inner_text())
+    with page.expect_download() as d:page.locator('#secDownload').click()
+    locked=Path(d.value.path()).read_bytes()
+    ok('protect writes a real AES-256 encryption dictionary',b'/Encrypt' in locked and b'/AESV3' in locked and b'/Perms' in locked)
+    refused=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      try{await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));return 'loaded';}catch(e){return e.message;}
+    }""",base64.b64encode(locked).decode())
+    ok('a reader refuses the protected file without the password','is encrypted' in refused,refused)
+    page.goto(BASE+'/en/pdf/unlock/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',[{'name':'locked.pdf','type':'application/pdf','b64':base64.b64encode(locked).decode()}])
+    page.wait_for_selector('#secPassword')
+    page.fill('#secPassword','wrong one');page.locator('#secRun').click()
+    page.wait_for_selector('#secFiles .pill.bad',timeout=120000)
+    ok('a wrong password is refused, not guessed around','Wrong password' in page.locator('#secFiles').inner_text())
+    page.fill('#secPassword','task browser pass');page.locator('#secRun').click()
+    page.wait_for_selector('#secDownload:not([hidden])',timeout=120000)
+    with page.expect_download() as d:page.locator('#secDownload').click()
+    opened=Path(d.value.path()).read_bytes()
+    ok('unlock removes the encryption dictionary',b'/Encrypt' not in opened)
+    pages=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      return doc.getPageCount();
+    }""",base64.b64encode(opened).decode())
+    ok('the unlocked PDF opens with no password and keeps its pages',pages==2,str(pages))
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

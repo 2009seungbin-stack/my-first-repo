@@ -134,3 +134,10 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 @media(hover:none){.frame-chip button{opacity:1}.pg-actions{opacity:1}}
 @media(max-width:860px){.pages{max-height:none;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.work{grid-template-columns:1fr}.viewer{position:static}.cmp{max-height:46vh}}
 @media(max-width:600px){.page{padding:0 16px 32px}.page-header{padding:14px 16px}.page-header .local-pill{display:none}.dropzone{padding:34px 18px}.home-drop{flex-direction:column;align-items:stretch;text-align:center}.home-drop .primary{width:100%}.field-row{grid-template-columns:1fr}.tool-grid{grid-template-columns:1fr}}
+.sec-viewer{display:flex;flex-direction:column;gap:14px;padding:22px}
+.sec-hero{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:26px 16px 18px}
+.sec-hero .sec-lock{font-size:40px;line-height:1}
+.sec-hero strong{font-size:18px;font-weight:800;color:#172b4d}
+.sec-hero p{margin:0;max-width:44ch;color:#61708a;font-size:13px;line-height:1.55}
+.file-main span.sec-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:8px;background:#eef2f7;flex:none;font-size:17px}
+.sec-viewer .file-list{flex:1;align-content:start}

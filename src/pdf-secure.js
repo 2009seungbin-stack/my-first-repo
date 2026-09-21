@@ -56,7 +56,7 @@ export async function protectDocument(source,{password,ownerPassword='',permissi
  ctx.trailerInfo.Encrypt=encryptRef;
  ctx.trailerInfo.ID=ctx.obj([L.PDFHexString.of(hex(random(16))),L.PDFHexString.of(hex(random(16)))]);
  const bytes=await doc.save({useObjectStreams:false,updateMetadata:false});
- return {bytes,report:{encryptedStreams:streams,encryptedStrings:strings.length,handler:'AES-256',revision:6,permissions:security.permissions}};
+ return {bytes,report:{pages:doc.getPageCount(),encryptedStreams:streams,encryptedStrings:strings.length,handler:'AES-256',revision:6,permissions:security.permissions}};
 }
 // ---- byte-level reading, used only by the unlocker
 const WS=c=>c===0||c===9||c===10||c===12||c===13||c===32;
