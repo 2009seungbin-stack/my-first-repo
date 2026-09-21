@@ -255,6 +255,7 @@ downloaded files were re-opened with Pillow/numpy — never read back from the U
 | Godot ORM channel order | `scene/resources/material.cpp` (4.4) read directly | `AO = orm_tex.r`, `ROUGHNESS = orm_tex.g`, `METALLIC = orm_tex.b` | VERIFIED against source, UNVERIFIED in-engine |
 | Unreal −Y convention | chained official statements (glTF exporter + glTF spec) | labelled "inferred" in the UI | UNVERIFIED (not stated by Epic) |
 | Import into Unity / Unreal / Godot | — | not attempted | UNVERIFIED |
+| A JPEG input still works and says it is not exact | Playwright: drop a 48×48 JPEG | the row reads "decoded by the browser (not byte-exact)", the report has `exactChannels: false` and `pngColorType: null`, and the channel ZIP is still produced | VERIFIED |
 | Phone layout | Chromium at 390 and 320 px, Lab and Channels stages | `scrollWidth == innerWidth`, no horizontal scroll | VERIFIED |
 | Roughness → smoothness inversion | Playwright: invert G, download, numpy compare | saved plane equals `255 − roughness` exactly, and the stage shows the in → out pair | VERIFIED |
 | Unit coverage | `node --test tests/game-texture*.test.mjs` | 21 tests, 0 failures | VERIFIED |
