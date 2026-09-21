@@ -1,8 +1,18 @@
 // PDF parsing, object copying, font embedding and serialization stay off the UI thread.
 import * as L from '../assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js';
+import {optimize} from './pdf-optimize.js';
+import {encodeImage} from './pdf-encode.js';
+import {protectDocument,unlockDocument,inspect} from './pdf-secure.js';
+import {permissionValue} from './pdf-crypt.js';
 const documents=new Map();
-let activeJob=0,requestSerial=0;const imageRequests=new Map();
-function encodeOnMain(blob,maxSide,quality){const requestId=++requestSerial;return new Promise((resolve,reject)=>{imageRequests.set(requestId,{resolve,reject});postMessage({id:activeJob,imageRequest:{requestId,blob,maxSide,quality}});});}
+let activeJob=0,requestSerial=0,canvasInWorker=null;const imageRequests=new Map();
+function encodeOnMain(source,tw,th,options){const requestId=++requestSerial;return new Promise((resolve,reject)=>{imageRequests.set(requestId,{resolve,reject});postMessage({id:activeJob,imageRequest:{requestId,source,tw,th,options}});});}
+/** Workers without OffscreenCanvas hand the resampling back to the page that owns them. */
+async function encode(source,tw,th,options){
+ canvasInWorker??=typeof OffscreenCanvas!=='undefined'&&await encodeImage({rgba:new Uint8ClampedArray(16),width:2,height:2},2,2,{quality:.5})!==null;
+ if(canvasInWorker)return encodeImage(source,tw,th,options);
+ try{return await encodeOnMain(source,tw,th,options);}catch{return null;}
+}
 const tick=()=>new Promise(r=>setTimeout(r,0));
 async function load(source){if(documents.has(source.id))return documents.get(source.id);const doc=await L.PDFDocument.load(await source.file.arrayBuffer(),{updateMetadata:false});documents.set(source.id,doc);return doc;}
 function metadata(page){const b=page.getCropBox(),rotation=((page.getRotation().angle%360)+360)%360,userUnit=page.node.lookupMaybe(L.PDFName.of('UserUnit'),L.PDFNumber)?.asNumber()||1;return {...b,rotation,userUnit,logicalW:(rotation%180?b.height:b.width)*userUnit,logicalH:(rotation%180?b.width:b.height)*userUnit};}
@@ -16,6 +26,66 @@ async function marks(out,page,p,fonts){for(const m of p.marks){const size=(m.siz
  if(m.type==='line'){const a=point(p,m.x,m.y),b=point(p,m.x+m.w,m.y+m.h);page.drawLine({start:a,end:b,thickness:size,color:c,lineCap:L.LineCapStyle.Round});
   if(m.arrow){const ang=Math.atan2(b.y-a.y,b.x-a.x),len=Math.max(8,size*4);for(const d of [-.45,.45])page.drawLine({start:b,end:{x:b.x-len*Math.cos(ang+d),y:b.y-len*Math.sin(ang+d)},thickness:size,color:c,lineCap:L.LineCapStyle.Round});}continue;}
  if(m.type==='pen'){for(let i=1;i<m.points.length;i++)page.drawLine({start:point(p,...m.points[i-1]),end:point(p,...m.points[i]),thickness:size,color:c,lineCap:L.LineCapStyle.Round});}else if(m.type==='rect'||m.type==='highlight'){page.drawRectangle({...point(p,m.x,m.y+m.h),width:m.w*p.logicalW/(p.box.userUnit||1),height:m.h*p.logicalH/(p.box.userUnit||1),rotate:L.degrees(p.rotation),...(m.type==='highlight'?{color:c,opacity:.3,borderWidth:0}:{borderColor:c,borderWidth:size})});}else if(m.type==='text'){let font=await fontFor(out,m.text||'',fonts);if(m.bold&&font===fonts.latin)font=fonts.bold||=await out.embedFont(L.StandardFonts.HelveticaBold);const s=(m.size||20)/(p.box.userUnit||1);for(const [i,line] of (m.text||'').split('\n').entries())page.drawText(line,{...point(p,m.x,m.y+((m.size||20)*(.85+i*1.35))/p.logicalH),size:s,font,color:c,opacity:m.opacity??1,rotate:L.degrees(p.rotation-(m.angle||0))});}else if(m.type==='image'&&m.blob){const img=await out.embedPng(await m.blob.arrayBuffer());page.drawImage(img,{...point(p,m.x,m.y+m.h),width:m.w*p.logicalW/(p.box.userUnit||1),height:m.h*p.logicalH/(p.box.userUnit||1),rotate:L.degrees(p.rotation)});}}}
-async function optimizeImages(doc,quality,maxSide,progress){let optimized=0,saved=0,skipped=[];const objects=doc.context.enumerateIndirectObjects();for(let i=0;i<objects.length;i++){const [ref,stream]=objects[i];if(!(stream instanceof L.PDFRawStream))continue;const d=stream.dict,get=k=>d.get(L.PDFName.of(k))?.toString();if(get('Subtype')!=='/Image'||get('Filter')!=='/DCTDecode'||get('ColorSpace')!=='/DeviceRGB'||get('BitsPerComponent')!=='8'||['SMask','Mask','Decode','DecodeParms'].some(k=>d.has(L.PDFName.of(k))))continue;let bitmap;try{const original=new Blob([stream.contents],{type:'image/jpeg'});let encoded;if(typeof OffscreenCanvas==='undefined')encoded=await encodeOnMain(original,maxSide,quality);else{bitmap=await createImageBitmap(original);const scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height)),c=new OffscreenCanvas(Math.max(1,Math.round(bitmap.width*scale)),Math.max(1,Math.round(bitmap.height*scale)));try{c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);encoded={blob:await c.convertToBlob({type:'image/jpeg',quality}),width:c.width,height:c.height};}finally{c.width=c.height=1;}}const {blob,width,height}=encoded;if(blob.size<stream.contents.length*.95){const dict=d.clone(doc.context);dict.set(L.PDFName.of('Width'),L.PDFNumber.of(width));dict.set(L.PDFName.of('Height'),L.PDFNumber.of(height));dict.set(L.PDFName.of('Length'),L.PDFNumber.of(blob.size));doc.context.assign(ref,L.PDFRawStream.of(dict,new Uint8Array(await blob.arrayBuffer())));saved+=stream.contents.length-blob.size;optimized++;}}catch(e){if(skipped.length<3)skipped.push(e.message);}finally{bitmap?.close();}progress(`Optimizing embedded images · ${i+1} / ${objects.length}`);await tick();}return {optimizedImages:optimized,imageBytesSaved:saved,skippedImageErrors:skipped};}
-self.onmessage=async({data:{id,action,payload}})=>{if(action==='imageEncoded'){const request=imageRequests.get(payload.requestId);imageRequests.delete(payload.requestId);if(request)payload.error?request.reject(Error(payload.error)):request.resolve(payload);return;}activeJob=id;const progress=message=>postMessage({id,progress:message});try{let result;if(action==='add'){const doc=await load(payload);if(!doc.getPageCount())throw Error('The PDF has no pages.');let flattened=false;if(doc.getForm().getFields().length){doc.getForm().flatten();flattened=true;}const file=flattened?new Blob([await doc.save()],{type:'application/pdf'}):payload.file;result={pages:doc.getPages().map(metadata),file,flattened};}else if(action==='export'){const out=await L.PDFDocument.create(),fonts={},copied=new Map();for(const src of new Map(payload.pages.map(p=>[p.source.id,p.source])).values()){const indices=[...new Set(payload.pages.filter(p=>p.source.id===src.id).map(p=>p.index))],source=await load(src),pages=await out.copyPages(source,indices);indices.forEach((index,i)=>copied.set(src.id+':'+index,pages[i]));}for(let i=0;i<payload.pages.length;i++){const p=payload.pages[i],key=p.source.id+':'+p.index;let page=copied.get(key);if(page)copied.delete(key);else [page]=await out.copyPages(await load(p.source),[p.index]);out.addPage(page);page.setRotation(L.degrees((p.rotation+p.angle)%360));await marks(out,page,p,fonts);progress(`Writing PDF page ${i+1} / ${payload.pages.length}`);await tick();}let report={mode:payload.optimize?'preserve-compress':'preserve',pages:payload.pages.length,textPreserved:true,searchPreserved:true,vectorsPreserved:true};if(payload.optimize)Object.assign(report,await optimizeImages(out,payload.quality||.8,payload.maxSide||2400,progress));if(payload.removeMetadata){out.setTitle('');out.setAuthor('');out.setSubject('');out.setKeywords([]);out.setProducer('');out.setCreator('');}const blob=new Blob([await out.save({useObjectStreams:true})],{type:'application/pdf'});result={blob,report:{...report,outputBytes:blob.size}};}else if(action==='clear'){documents.clear();cjkBytes=null;result=true;}else throw Error('Unknown PDF operation.');postMessage({id,result});}catch(e){postMessage({id,error:e.message});}};
+/** Password handling. Both directions re-open their own output before it is handed back, so the
+ * page never claims a protection or a removal it has not seen a second reader confirm. */
+async function secure(action,payload,progress){
+ const source=await payload.file.arrayBuffer();
+ if(action==='inspect')return inspect(source);
+ if(action==='protect'){
+  progress('Encrypting document');
+  const {bytes,report}=await protectDocument(source,{password:payload.password,ownerPassword:payload.ownerPassword,permissions:permissionValue(payload.allow||{})});
+  const check=inspect(bytes);
+  if(!check.encrypted||check.method!=='AESV3')throw Error('The encrypted result did not verify. Nothing was saved.');
+  return {blob:new Blob([bytes],{type:'application/pdf'}),report:{...report,...check}};
+ }
+ const {bytes,report}=await unlockDocument(source,payload.password||'');
+ if(inspect(bytes).encrypted)throw Error('The result is still encrypted. Nothing was saved.');
+ let pages=0,verified=false;
+ try{pages=(await L.PDFDocument.load(bytes,{updateMetadata:false,throwOnInvalidObject:false})).getPageCount();verified=pages>0;}catch{/* reported as unverified */}
+ return {blob:new Blob([bytes],{type:'application/pdf'}),report:{...report,pages,verified}};
+}
+/** AcroForm fields as plain data, so the page can offer them without importing pdf-lib. */
+function formFields(doc){
+ try{return doc.getForm().getFields().map(f=>{
+  const name=f.getName();
+  if(f instanceof L.PDFTextField)return {name,kind:'text',value:f.getText()||'',multiline:f.isMultiline(),readOnly:f.isReadOnly()};
+  if(f instanceof L.PDFCheckBox)return {name,kind:'check',value:f.isChecked(),readOnly:f.isReadOnly()};
+  if(f instanceof L.PDFRadioGroup)return {name,kind:'radio',value:f.getSelected()||'',options:f.getOptions(),readOnly:f.isReadOnly()};
+  if(f instanceof L.PDFDropdown)return {name,kind:'select',value:f.getSelected()?.[0]||'',options:f.getOptions(),readOnly:f.isReadOnly()};
+  if(f instanceof L.PDFOptionList)return {name,kind:'list',value:f.getSelected()?.[0]||'',options:f.getOptions(),readOnly:f.isReadOnly()};
+  return null;
+ }).filter(Boolean);}catch{return [];}
+}
+async function fillFields(doc,values,flatten){
+ const form=doc.getForm();if(!form.getFields().length)return;
+ for(const {name,kind,value} of values){
+  try{
+   if(kind==='text')form.getTextField(name).setText(String(value??''));
+   else if(kind==='check'){const box=form.getCheckBox(name);value?box.check():box.uncheck();}
+   else if(kind==='radio'&&value)form.getRadioGroup(name).select(String(value));
+   else if(kind==='select'&&value)form.getDropdown(name).select(String(value));
+   else if(kind==='list'&&value)form.getOptionList(name).select(String(value));
+  }catch{/* the writer declared a field the document cannot actually set */}
+ }
+ try{form.updateFieldAppearances(await doc.embedFont(L.StandardFonts.Helvetica));}catch{/* keep the viewer's own appearance */}
+ if(flatten)form.flatten();
+}
+/** Assemble the requested pages into a fresh document, draw the marks, then shrink what is left. */
+async function exportPages(payload,progress){
+ const out=await L.PDFDocument.create(),fonts={},copied=new Map();
+ for(const src of new Map(payload.pages.map(p=>[p.source.id,p.source])).values()){const indices=[...new Set(payload.pages.filter(p=>p.source.id===src.id).map(p=>p.index))],source=await load(src),pages=await out.copyPages(source,indices);indices.forEach((index,i)=>copied.set(src.id+':'+index,pages[i]));}
+ for(let i=0;i<payload.pages.length;i++){
+  const p=payload.pages[i],key=p.source.id+':'+p.index;let page=copied.get(key);
+  if(page)copied.delete(key);else [page]=await out.copyPages(await load(p.source),[p.index]);
+  out.addPage(page);page.setRotation(L.degrees((p.rotation+p.angle)%360));
+  if(p.crop)page.setCropBox(p.crop.x,p.crop.y,p.crop.width,p.crop.height);
+  await marks(out,page,p,fonts);progress(`Writing PDF page ${i+1} / ${payload.pages.length}`);await tick();
+ }
+ if(payload.fields)await fillFields(out,payload.fields,payload.flatten);
+ const report={mode:payload.optimize?'preserve-compress':'preserve',pages:payload.pages.length,textPreserved:true,searchPreserved:true,vectorsPreserved:true};
+ if(payload.optimize||payload.removeMetadata)Object.assign(report,await optimize(out,{quality:payload.quality||.62,maxSide:payload.maxSide||2000,dpi:payload.dpi||144,grayscale:!!payload.grayscale,images:!!payload.optimize,streams:!!payload.optimize,metadata:!!payload.removeMetadata},progress,encode));
+ const blob=new Blob([await out.save({useObjectStreams:true,updateMetadata:!payload.removeMetadata})],{type:'application/pdf'});
+ return {blob,report:{...report,outputBytes:blob.size}};
+}
+self.onmessage=async({data:{id,action,payload}})=>{if(action==='imageEncoded'){const request=imageRequests.get(payload.requestId);imageRequests.delete(payload.requestId);if(request)payload.error?request.reject(Error(payload.error)):request.resolve(payload);return;}activeJob=id;const progress=message=>postMessage({id,progress:message});try{let result;if(action==='add'){const doc=await load(payload);if(!doc.getPageCount())throw Error('The PDF has no pages.');const fields=payload.keepForms?formFields(doc):[];let flattened=false;if(!payload.keepForms&&doc.getForm().getFields().length){doc.getForm().flatten();flattened=true;}const file=flattened?new Blob([await doc.save()],{type:'application/pdf'}):payload.file;result={pages:doc.getPages().map(metadata),file,flattened,fields};}else if(action==='export'){result=await exportPages(payload,progress);}else if(['inspect','protect','unlock'].includes(action)){result=await secure(action,payload,progress);}else if(action==='clear'){documents.clear();cjkBytes=null;result=true;}else throw Error('Unknown PDF operation.');postMessage({id,result});}catch(e){postMessage({id,error:e.message});}};
 

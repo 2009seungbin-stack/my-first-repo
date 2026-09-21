@@ -13,7 +13,7 @@ export const QUOTA_CLASSES=Object.freeze({
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.
- pdf:'none','pdf-merge':'none','pdf-split':'none','pdf-compress':'heavy','jpg-to-pdf':'none','pdf-to-jpg':'none',
+ pdf:'none','pdf-merge':'none','pdf-split':'none','pdf-compress':'heavy','jpg-to-pdf':'none','pdf-to-jpg':'none','pdf-protect':'none','pdf-unlock':'none',
  // Media: every encoded export is heavy; a single still frame is not.
  media:'heavy','video-trim':'heavy','video-frame':'none','video-mp3':'heavy','video-gif':'heavy','video-compress':'heavy'
 });
