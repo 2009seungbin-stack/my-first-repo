@@ -147,7 +147,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .ns-stage{display:grid;place-items:center;padding:18px 10px;border-radius:14px;background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;overflow:auto;max-height:52vh}
 .ns-art{position:relative;flex:none;touch-action:none}
 .ns-art canvas{display:block;width:100%;height:100%}
-.ns-center{position:absolute;background:repeating-linear-gradient(45deg,#3182f655 0 3px,#3182f61a 3px 8px);outline:1px solid #3182f6;display:grid;place-items:center;pointer-events:none}
+.ns-center{position:absolute;background:repeating-linear-gradient(45deg,#3182f680 0 3px,#3182f626 3px 9px);outline:1px solid #3182f6;display:grid;place-items:center;pointer-events:none}
 .ns-center span{font-size:10px;font-weight:800;letter-spacing:.02em;color:#1b4fc0;background:#ffffffd0;border-radius:6px;padding:1px 5px;white-space:nowrap;max-width:100%;overflow:hidden}
 .ns-guide{position:absolute;padding:0;background:none;border-radius:0;touch-action:none}
 .ns-guide i{position:absolute;display:block;background:#e5484d;border-radius:2px}
@@ -156,13 +156,18 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .ns-guide.top,.ns-guide.bottom{left:-14px;right:-14px;height:18px;margin-top:-9px;cursor:ns-resize}
 .ns-guide.top i,.ns-guide.bottom i{left:0;right:0;top:8px;height:2px}
 .ns-guide:hover i{background:#12925f}
+.ns-guide b{position:absolute;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #e5484d;box-shadow:0 1px 3px #0003}
+.ns-guide.left b,.ns-guide.right b{left:2px;top:-6px}.ns-guide.top b,.ns-guide.bottom b{top:2px;left:-6px}
+.ns-guide:hover b{border-color:#12925f}
 .ns-guide:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .ns-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.ns-fields .field>span{font-size:10.5px}
-.ns-previews{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:4px}
-.ns-preview{margin:0}.ns-preview figcaption{font-size:11.5px;font-weight:700;color:#6b7a90;margin-top:5px;font-variant-numeric:tabular-nums}
+.ns-previews{display:grid;gap:12px;margin-top:4px}
+.ns-preview{margin:0;min-width:0}.ns-preview figcaption{font-size:11.5px;font-weight:650;color:#6b7a90;margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ns-preview figcaption b{color:var(--ink);font-weight:800;margin-right:2px}
 .ns-box{position:relative;border-radius:10px;overflow:hidden;background-color:#f7f9fc;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:12px 12px;background-position:0 0,0 6px,6px -6px,-6px 0}
 .ns-box canvas{display:block;width:100%;height:100%;object-fit:contain}
 .ns-resize{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 45%,var(--blue) 45%);touch-action:none}
+.summary.warn{background:#fff7e6}.summary.warn .summary-line{color:#6b5a2c;font-weight:650}
 .ui-suggest{background:#fff7e6;border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:#6b5a2c}
 .ui-suggest strong{font-size:12px;letter-spacing:.01em;text-transform:uppercase}
 .ui-suggest.weak{background:#fdecee;color:#8a4045}

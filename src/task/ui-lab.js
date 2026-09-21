@@ -48,7 +48,7 @@ export function mount({el,def}){
  const S={
   border:{left:0,right:0,top:0,bottom:0},suggestion:null,suggested:false,
   slice:{mode:'stretch',pixelated:true,scale:1,customW:420,customH:120,zoom:0},
-  states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null},
+  states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
   font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
@@ -104,7 +104,7 @@ export function mount({el,def}){
 <div class="view-head"><strong>${esc(T('editor'))}</strong><span id="nsInfo"></span>
 <label class="check mini"><input type="checkbox" data-opt="slice.pixelated" ${S.slice.pixelated?'checked':''}> ${esc(text('atlas.pixelated'))}</label></div>
 <div class="ns-stage" id="nsStage"><div class="ns-art" id="nsArt"><canvas id="nsCanvas"></canvas><div class="ns-center" id="nsCenter"><span>${esc(T('stretchArea'))}</span></div>
-${SIDES.map(side=>`<button type="button" class="ns-guide ${side}" data-guide="${side}" aria-label="${esc(T('guide.'+side))}" title="${esc(T('guide.'+side))}"><i></i></button>`).join('')}</div></div>
+${SIDES.map(side=>`<button type="button" class="ns-guide ${side}" data-guide="${side}" aria-label="${esc(T('guide.'+side))}" title="${esc(T('guide.'+side))}" role="slider" aria-valuemin="0"><i></i><b></b></button>`).join('')}</div></div>
 <p class="viewer-note">${esc(T('guideHint'))}</p>
 <div class="view-head"><strong>${esc(T('livePreview'))}</strong><span>${esc(T('previewNote'))}</span></div>
 <div class="ns-previews" id="nsPreviews"></div>`;
@@ -139,17 +139,23 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
     for(const side of SIDES){
      const guide=art.querySelector(`[data-guide="${side}"]`),horizontal=side==='left'||side==='right';
      const at=(side==='left'?b.left:side==='right'?image.width-b.right:side==='top'?b.top:image.height-b.bottom)*zoom;
-     guide.style[horizontal?'left':'top']=at+'px';guide.setAttribute('aria-valuenow',String(b[side]));
+     guide.style[horizontal?'left':'top']=at+'px';
+     guide.setAttribute('aria-valuenow',String(b[side]));guide.setAttribute('aria-valuemax',String(horizontal?image.width:image.height));
     }
     $('#nsInfo').textContent=`${image.width} × ${image.height} · ${zoom}×`;
     for(const side of SIDES){const input=$('#ns-'+side);if(input&&document.activeElement!==input)input.value=b[side];}
     $('#nsSummary').innerHTML=`<div class="summary-big">${b.left} · ${b.right} · ${b.top} · ${b.bottom}</div><div class="summary-line">${esc(T('bordersLine',{w:image.width,h:image.height}))}</div>`+
      sliceWarnings().map(w=>`<div class="summary-line bad">${esc(w)}</div>`).join('');
+    // Each preview is its target in real pixels, never upscaled; when the column is narrower
+    // than the target the caption says at what percentage it is being shown.
     const host=$('#nsPreviews');
-    host.innerHTML=previewTargets().map(([w,h],i)=>`<figure class="ns-preview${i===3?' custom':''}"><div class="ns-box" style="aspect-ratio:${w} / ${h}"><canvas data-preview="${i}"></canvas>${i===3?'<span class="ns-resize" data-action="ui-resize" aria-hidden="true"></span>':''}</div><figcaption>${w} × ${h}${i===3?' · '+esc(T('dragResize')):''}</figcaption></figure>`).join('');
+    host.innerHTML=previewTargets().map(([w,h],i)=>`<figure class="ns-preview${i===3?' custom':''}"><figcaption><b>${w} × ${h}</b><span data-shown="${i}"></span>${i===3?' · '+esc(T('dragResize')):''}</figcaption>
+<div class="ns-box" style="width:min(100%,${w}px);aspect-ratio:${w} / ${h}"><canvas data-preview="${i}"></canvas>${i===3?'<span class="ns-resize" data-action="ui-resize" aria-hidden="true"></span>':''}</div></figure>`).join('');
     for(const [i,[w,h]] of previewTargets().entries()){
      const cv=host.querySelector(`[data-preview="${i}"]`);cv.width=w;cv.height=h;cv.classList.toggle('px',S.slice.pixelated);
      drawPlan(cv,image,planFor(w,h),S.slice);
+     const shown=Math.round(cv.clientWidth/w*100);
+     if(shown&&shown<99)host.querySelector(`[data-shown="${i}"]`).textContent=T('shownAt',{n:shown});
     }
    }
   },
@@ -157,7 +163,9 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
   states:{
    board(){
     return `<div class="view-head"><strong>${esc(T('variants'))}</strong><span>${esc(T('variantsNote'))}</span></div>
-<div class="ui-states" id="stateGrid"></div><p class="viewer-note" id="stateApplied"></p>`;
+<div class="ui-states" id="stateGrid"></div><p class="viewer-note" id="stateApplied"></p>
+<div class="view-head"><strong>${esc(T('stripPreview'))}</strong><span id="stripInfo"></span></div>
+<div class="atlas-canvas" id="stripHost"></div>`;
    },
    side(){
     const name=S.states.selected,op=S.states.ops[name];
@@ -181,16 +189,23 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
     releaseStates();
     const base=rgba(source),made=S.states.ops,out={};
     const grid=$('#stateGrid');grid.innerHTML='';
+    // Small button art is shown at an integer zoom so the preview stays crisp and readable.
+    const zoom=clamp(Math.floor(150/source.width)||1,1,6);
     for(const name of ST.STATES){
      const v=ST.variant(base,source.width,source.height,made[name]);
      const canvas=fromRGBA(v.data,v.width,v.height);out[name]={canvas,applied:v.applied,pad:v.pad};
      const figure=document.createElement('figure');figure.className='ui-state'+(S.states.selected===name?' is-current':'');
      figure.innerHTML=`<button type="button" class="ui-state-pick" data-action="ui-set" data-key="states.selected" data-value="${name}" aria-pressed="${S.states.selected===name}"><span class="ui-state-art"></span><figcaption>${esc(T('state.'+name))}<small>${v.width}×${v.height}</small></figcaption></button>`;
-     const art=figure.querySelector('.ui-state-art');art.append(canvas);canvas.classList.add('px');
+     canvas.classList.add('px');canvas.style.width=v.width*zoom+'px';canvas.style.height=v.height*zoom+'px';
+     figure.querySelector('.ui-state-art').append(canvas);
      grid.append(figure);
     }
     S.states.canvases=out;
     $('#stateApplied').textContent=out[S.states.selected].applied.length?T('appliedList',{list:out[S.states.selected].applied.join(' · ')}):T('appliedNone');
+    const strip=buildStrip(),host=$('#stripHost');
+    S.states.strip=strip;strip.canvas.classList.add('px');
+    host.replaceChildren(strip.canvas);fitHost(host,strip.width,strip.height,220);
+    $('#stripInfo').textContent=`${strip.width} × ${strip.height}`;
    }
   },
   // ---------- atlas ----------
@@ -231,8 +246,8 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
    board(){
     return `<div class="view-head"><strong>${esc(T('fontSheet'))}</strong><span id="fontInfo"></span></div>
 <div class="atlas-canvas" id="fontHost"><canvas id="fontCanvas"></canvas><svg id="fontSvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
-<div class="view-head"><strong>${esc(T('fontSample'))}</strong></div>
-<div class="ui-fontsample"><canvas id="fontSampleCanvas"></canvas></div>
+<div id="fontSampleWrap"><div class="view-head"><strong>${esc(T('fontSample'))}</strong></div>
+<div class="ui-fontsample"><canvas id="fontSampleCanvas"></canvas></div></div>
 <p class="viewer-note" id="fontNote"></p>`;
    },
    side(){
@@ -296,7 +311,7 @@ ${c.safe==='custom'?`<div class="field-row"><label class="field"><span>${esc(T('
 <label class="field"><span>${esc(T('boxH'))}</span><input type="number" data-opt="check.boxH" min="10" max="1000" value="${c.boxH}" inputmode="numeric"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="check.fontSize" min="6" max="96" value="${c.fontSize}" inputmode="numeric"></label>
 <label class="field"><span>${esc(T('wrapMode'))}</span><select data-opt="check.wrapMode">${['single','wrap','truncate'].map(m=>`<option value="${m}" ${c.wrapMode===m?'selected':''}>${esc(T('wrap.'+m))}</option>`).join('')}</select></label></div>
-${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</span><input type="text" data-string="${l}" value="${esc(c.strings[l])}" maxlength="160" spellcheck="false"></label>`).join('')}
+${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</span><input type="text" data-string="${l}" value="${esc(c.strings[l])}" placeholder="${esc(T('sampleString.'+l))}" maxlength="160" spellcheck="false" lang="${l}"></label>`).join('')}
 <p class="hint">${esc(T('overflowNote'))}</p></form>`;
     return `<div class="summary" id="contrastSummary" role="status" aria-live="polite"></div>
 <form class="options" autocomplete="off">
@@ -323,7 +338,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  function packAtlas(){
   const host=$('#uiAtlasHost'),canvas=$('#uiAtlasCanvas'),list=S.atlas.elements||[];
   const summary=$('#atlasSummary');
-  if(!list.length){S.atlas.packed=null;canvas.width=canvas.height=1;summary.innerHTML=`<div class="summary-line">${esc(T('noElements'))}</div>`;return;}
+  if(!list.length){S.atlas.packed=null;canvas.width=canvas.height=1;host.hidden=true;summary.className='summary warn';summary.innerHTML=`<div class="summary-line">${esc(T('noElements'))}</div>`;return;}
+  host.hidden=false;summary.className='summary';
   const e=S.atlas.extrude;
   try{
    const packed=packRects(list.map((item,i)=>({id:String(i),w:item.rect.w+e*2,h:item.rect.h+e*2})),{padding:S.atlas.padding,maxSize:4096});
@@ -342,12 +358,12 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     return {name:item.name,rect:{x:p.x+e,y:p.y+e,w:r.w,h:r.h},sourceSize:{w:r.w,h:r.h},nineSlice:item.border||null,tag:item.parts>1?'merged':''};
    });
    S.atlas.packed={width:packed.width,height:packed.height,frames};
-   host.style.aspectRatio=`${packed.width} / ${packed.height}`;canvas.classList.add('px');
+   fitHost(host,packed.width,packed.height,300);canvas.classList.add('px');
    $('#uiAtlasSvg').setAttribute('viewBox',`0 0 ${packed.width} ${packed.height}`);
    $('#uiAtlasSvg').innerHTML=frames.map(f=>`<rect x="${f.rect.x}" y="${f.rect.y}" width="${f.rect.w}" height="${f.rect.h}"/>`).join('');
    $('#atlasInfo').textContent=`${packed.width} × ${packed.height}`;
    summary.innerHTML=`<div class="summary-big">${packed.width} × ${packed.height}</div><div class="summary-line">${esc(T('elementCount',{n:list.length}))}</div>`;
-  }catch(error){S.atlas.packed=null;summary.innerHTML=`<div class="summary-line bad">${esc(error.message)}</div>`;}
+  }catch(error){S.atlas.packed=null;summary.className='summary warn';summary.innerHTML=`<div class="summary-line">${esc(error.message)}</div>`;}
  }
  // ---------- font building ----------
  function fontChars(){return Array.from(S.font.chars).filter((c,i,a)=>a.indexOf(c)===i&&!/[\n\r]/.test(c)).join('');}
@@ -374,12 +390,15 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    }
    drawFontPreview(sheet,f.built);
    info.textContent=`${sheet.width} × ${sheet.height}`;
+   summary.className='summary';
    summary.innerHTML=`<div class="summary-big">${f.built.glyphs.length}</div><div class="summary-line">${esc(T('glyphCount',{n:f.built.glyphs.length,mode:T('fontMode.'+f.mode)}))}</div>`;
    note.textContent=T(f.mode==='grid'?'fontNoteGrid':f.mode==='measured'?'fontNoteMeasured':'fontNoteTtf');
+   $('#fontHost').hidden=false;$('#fontSampleWrap').hidden=false;
   }catch(error){
-   f.built=null;summary.innerHTML=`<div class="summary-line bad">${esc(error.message)}</div>`;info.textContent='';
+   f.built=null;summary.className='summary warn';summary.innerHTML=`<div class="summary-line">${esc(error.message)}</div>`;info.textContent='';
    const canvas=$('#fontCanvas');canvas.width=canvas.height=1;$('#fontSvg').innerHTML='';
    const sampleCanvas=$('#fontSampleCanvas');sampleCanvas.width=sampleCanvas.height=1;note.textContent='';
+   $('#fontHost').hidden=true;$('#fontSampleWrap').hidden=true;
   }
  }
  /** Renders the chosen characters into a uniform grid with a known baseline, then the tested
@@ -404,7 +423,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const canvas=$('#fontCanvas'),host=$('#fontHost');
   canvas.width=sheet.width;canvas.height=sheet.height;
   const x=canvas.getContext('2d');x.imageSmoothingEnabled=false;x.clearRect(0,0,sheet.width,sheet.height);x.drawImage(sheet,0,0);
-  canvas.classList.add('px');host.style.aspectRatio=`${sheet.width} / ${sheet.height}`;
+  canvas.classList.add('px');fitHost(host,sheet.width,sheet.height,300);
   $('#fontSvg').setAttribute('viewBox',`0 0 ${sheet.width} ${sheet.height}`);
   $('#fontSvg').innerHTML=font.glyphs.filter(g=>g.w&&g.h).map(g=>`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"/>`).join('');
   // A line of the font's own glyphs, placed with its own metrics: a wrong advance shows here.
@@ -532,21 +551,27 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    textFile('SETUP.md',setupNotes(S.border,image.width,image.height)));
   await save(entries,`${base}-nine-slice.zip`);
  }
- async function exportStates(){
+ /** The packed strip, built once and used by both the preview and the export. */
+ function buildStrip(){
   const made=S.states.canvases;if(!made)throw Error(T('needImage'));
-  const base=stem(sourceName)||'button',entries=[];
-  for(const name of ST.STATES)entries.push(await pngFile(`states/${name}.png`,made[name].canvas));
   const packed=packRects(ST.STATES.map(name=>({id:name,w:made[name].canvas.width,h:made[name].canvas.height})),{padding:S.atlas.padding,maxSize:4096});
-  const strip=Im.canvas(packed.width,packed.height),x=strip.getContext('2d');x.imageSmoothingEnabled=false;
+  const canvas=Im.canvas(packed.width,packed.height),x=canvas.getContext('2d');x.imageSmoothingEnabled=false;
   const frames=packed.placements.map(p=>{
    x.drawImage(made[p.id].canvas,p.x,p.y);
    return {name:p.id,rect:{x:p.x,y:p.y,w:p.w,h:p.h},state:p.id,pivot:{x:.5,y:.5},tag:made[p.id].applied.join(' · ')};
   });
-  entries.push(await pngFile(`${base}-states.png`,strip));
-  entries.push(jsonFile('states.json',envelope({tool:'nerulio-ui-lab-states',image:`${base}-states.png`,width:packed.width,height:packed.height,frames,
-   extra:{states:Object.fromEntries(ST.STATES.map(name=>[name,{ops:S.states.ops[name],padding:made[name].pad,size:{w:made[name].canvas.width,h:made[name].canvas.height}}]))}})));
-  entries.push(textFile('README.txt',T('statesReadme')));
-  Im.release(strip);
+  return {canvas,width:packed.width,height:packed.height,frames};
+ }
+ async function exportStates(){
+  const made=S.states.canvases;if(!made)throw Error(T('needImage'));
+  const base=stem(sourceName)||'button',entries=[];
+  for(const name of ST.STATES)entries.push(await pngFile(`states/${name}.png`,made[name].canvas));
+  // The strip on screen is the strip in the ZIP: the same canvas the preview shows.
+  const strip=S.states.strip||buildStrip();
+  entries.push(await pngFile(`${base}-states.png`,strip.canvas),
+   jsonFile('states.json',envelope({tool:'nerulio-ui-lab-states',image:`${base}-states.png`,width:strip.width,height:strip.height,frames:strip.frames,
+    extra:{states:Object.fromEntries(ST.STATES.map(name=>[name,{ops:S.states.ops[name],padding:made[name].pad,size:{w:made[name].canvas.width,h:made[name].canvas.height}}]))}})),
+   textFile('README.txt',T('statesReadme')));
   await save(entries,`${base}-states.zip`);
  }
  async function exportAtlas(){
@@ -607,7 +632,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    textFile('missing-glyphs.txt',missing.map(m=>m.char).join(''))],'missing-glyphs.zip');
  }
  async function save(entries,name){
-  const blob=await zip(entries);download(blob,name);
+  const blob=await zip(entries,{paths:true});download(blob,name);
   track('tool_success',{intent:route.id});toast(T('saved',{size:bytes(blob.size)}));
  }
  // ---------- samples ----------
@@ -658,7 +683,13 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const value=input.type==='checkbox'?input.checked:input.type==='number'?int(input.value,Number(input.min||0),Number(input.max||99999)):input.value;
   assign(path,value);return path;
  }
- function releaseStates(){if(S.states.canvases){for(const v of Object.values(S.states.canvases))Im.release(v.canvas);S.states.canvases=null;}}
+ function releaseStates(){
+  if(S.states.canvases)for(const v of Object.values(S.states.canvases))Im.release(v.canvas);
+  Im.release(S.states.strip?.canvas);S.states.canvases=null;S.states.strip=null;
+ }
+ /** Keeps a canvas host at its content's aspect ratio without letting it grow taller than
+  * `maxHeight` on a wide screen, which a plain aspect-ratio box would. */
+ const fitHost=(host,w,h,maxHeight)=>{host.style.aspectRatio=`${w} / ${h}`;host.style.maxWidth=Math.round(w/h*maxHeight)+'px';};
  function releaseFontSheet(){if(S.font.sheet){Im.release(S.font.sheet);S.font.sheet=null;}}
  function setStage(next){
   if(!STAGES.includes(next)||next===stage)return;
