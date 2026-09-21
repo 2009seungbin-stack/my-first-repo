@@ -1,5 +1,5 @@
 import {AI_MODELS} from './ai-models.js';
-import {fastSRModel} from './onnx-engine.js';
+import {fastSRModel,runtimeError} from './onnx-engine.js';
 let session,sessionKey;
 const progress=value=>self.postMessage({progress:value});
 async function getModel(spec,device){
@@ -45,6 +45,6 @@ self.onmessage=async({data:{bitmap,scale=2,tile=128,backend='auto',engine='quali
     if(attempt===1&&device==='webgpu')throw error;
    }
   }
- }catch(error){self.postMessage({error:error.message||String(error),retryBackend:device==='webgpu'?'wasm':null});}
+ }catch(error){self.postMessage({error:runtimeError(error,device),retryBackend:device==='webgpu'?'wasm':null});}
  finally{bitmap.close();if(out)out.width=out.height=1;if(tileCanvas)tileCanvas.width=tileCanvas.height=1;if(alphaCanvas)alphaCanvas.width=alphaCanvas.height=1;}
 };

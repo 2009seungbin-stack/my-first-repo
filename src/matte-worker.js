@@ -1,5 +1,5 @@
 import {AI_MODELS} from './ai-models.js';
-import {ort,modelBytes} from './onnx-engine.js';
+import {ort,modelBytes,runtimeError} from './onnx-engine.js';
 let session,deviceKey;
 const progress=value=>self.postMessage({progress:value});
 self.onmessage=async({data:{bitmap,backend='auto',refine=true,cleanup=false}})=>{
@@ -38,6 +38,6 @@ self.onmessage=async({data:{bitmap,backend='auto',refine=true,cleanup=false}})=>
    tc.putImageData(image,0,0);dest.drawImage(tile,x,y);tile.width=tile.height=1;tile=null;progress(`Refining alpha · tile ${++done} / ${total}`);
   }
   const result=out.transferToImageBitmap();self.postMessage({bitmap:result,report:{engine:spec.id,revision:spec.revision,license:spec.license,backend:device,inferenceSize:512,refinement:refine?'color-guided bilinear':'bilinear',cleanup,elapsedMs:performance.now()-started}},[result]);
- }catch(error){self.postMessage({error:error.message||String(error),retryBackend:device==='webgpu'?'wasm':null});}
+ }catch(error){self.postMessage({error:runtimeError(error,device),retryBackend:device==='webgpu'?'wasm':null});}
  finally{bitmap.close();input?.dispose();if(outputs)for(const value of Object.values(outputs))value.dispose();for(const c of [out,preview,tile])if(c)c.width=c.height=1;}
 };

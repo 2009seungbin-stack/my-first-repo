@@ -30,13 +30,15 @@ Baseline: main `739c6e2866292b5e6b691d639a93e7faa1eb324a`. This branch is an ong
 | Swin2SR 4× NASA portrait | PSNR 28.63 dB, SSIM 0.92623 vs Lanczos 25.92 / 0.86374 | Same initial runtime, WASM, ~36.6 s |
 | Compact Real-ESRGAN candidate | 2×: 27.28 dB / 0.92921; 4×: 23.13 / 0.83323 | Faster (~8.7 / 1.45 s) but worse than classical on this fixture; NOT selected as default |
 
-Swin2SR has subsequently been moved to standalone ONNX Runtime 1.30.0. The initial model-quality results above do not automatically validate the new preprocessing/runtime. Its own smoke/quality runs must pass. This also avoids adding the Transformers Node-only Sharp dependency tree (npm audit reported two inherited high advisories when tested). Browser runtime bundles do not include Sharp; no claim of a browser exploit is made. The retained legacy portrait path still uses Transformers 3.7.2 pending replacement.
+Swin2SR has subsequently been moved to standalone ONNX Runtime 1.30.0. On 2026-09-21 the standalone path reproduced the initial results exactly on WebGPU (`BENCH_GPU=1 npm run benchmark:ai`, Chrome 151, NVIDIA Pascal): 2× PSNR 34.61 dB / SSIM 0.97717 in ~18.2 s, 4× 28.63 dB / 0.92623 in ~13.8 s, both including ~12 s one-time session creation, no fallback. A 96×96 WebGPU-vs-WASM tensor comparison differed by at most 2e-6 (≤0.01% of 8-bit values). Per 128px tile: WebGPU ~0.8 s (NVIDIA) / ~3.5 s (Edge, AMD integrated) vs WASM ~10 s single-threaded.
+
+The earlier "WebGPU failed" result was a harness defect: Playwright's bundled Chromium lacks `dxil.dll`, so Dawn cannot create a D3D12 device (ORT surfaced only a numeric C++ exception). GPU benchmarks now default to an installed Chrome (`BENCH_CHANNEL` overrides), and workers translate numeric ORT exceptions into readable fallback reasons. Session creation cost (~12 s) is independent of graph optimization level. BiRefNet-lite matting also ran on WebGPU with the same landmark result as WASM (~15.9 s vs ~20.7 s end-to-end); matte IoU/edge quality remains unverified. This also avoids adding the Transformers Node-only Sharp dependency tree (npm audit reported two inherited high advisories when tested). Browser runtime bundles do not include Sharp; no claim of a browser exploit is made. The retained legacy portrait path still uses Transformers 3.7.2 pending replacement.
 
 ## Failures found and fixed
 
 - Development HTTP server joined a trailing-slash root with another separator on Windows, rejecting module files. Normalized the root.
 - The split Transformers web bundle could not resolve bare `onnxruntime-common` in a static Worker. Initial test used the bundled runtime; newer SR implementation uses standalone ORT.
-- A GPU API can exist while no adapter is available in headless Chromium. Adapter probing and explicit CPU fallback are required; WebGPU inference success has NOT been established here.
+- A GPU API can exist while no adapter is available in headless Chromium. Adapter probing and explicit CPU fallback are required. WebGPU inference has since succeeded in installed Chrome/Edge (see above); it is not verified on mobile GPUs.
 - Firefox's initial PNG round-trip changed some translucent byte values. Undo equivalence now compares replay to the same decoded source file, not to an unencoded Canvas. No tolerance was added to hide a graph error.
 
 ## Required next gates

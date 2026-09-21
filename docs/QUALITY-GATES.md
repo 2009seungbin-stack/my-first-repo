@@ -4,7 +4,7 @@ This branch contains substantive engine replacements, not completion of the full
 
 ## Not yet accepted
 
-- AI SR: actual 8K ML export, successful WebGPU inference, tile-seam/alpha goldens across photo/anime/text/pixel fixtures, efficient fallback. Current Swin2SR WASM timings are too slow for a Flagship claim.
+- AI SR: actual 8K ML export, tile-seam/alpha goldens across photo/anime/text/pixel fixtures, efficient fallback. WebGPU inference now succeeds on desktop Chrome/Edge with WASM-identical output; mobile GPUs are unverified. The WASM fallback is single-threaded because the site is not cross-origin isolated; enabling COOP/COEP is an ads/embedding compatibility decision, not yet made. Swin2SR WASM timings remain too slow for a Flagship claim.
 - Background: independently annotated ground-truth masks for hair, fur, products, dark/white objects and transparent edges; high-resolution subject fidelity. Full-resolution alpha output is not high-resolution model inference.
 - Compression: browser AVIF is conditional, no dedicated AVIF/MozJPEG/PNG optimizer yet; proxy metrics can miss fine artifacts. Large full-resolution codec benchmarking and competitor output parity remain open.
 - Pixel/game: artist-authored character/icon/tile/prop golden outputs and palette consistency across animations. Modern mask packing and atlas extrusion remove the 4MP analysis bottleneck; the legacy no-CompressionStream mask fallback retains it. recipe output archives retain 128MiB and 256-frame safeguards. These are explicitly incomplete architectural migrations.

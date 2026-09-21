@@ -29,9 +29,13 @@ with (out/'server.log').open('w') as log:
    try:urllib.request.urlopen(f'http://127.0.0.1:{port}/en/',timeout=1);break
    except OSError:time.sleep(.1)
   with sync_playwright() as pw:
-   launch_flags=['--enable-unsafe-webgpu','--use-angle=d3d11','--ignore-gpu-blocklist'] if os.environ.get('BENCH_GPU')=='1' and args.browser=='chromium' else []
-   context=getattr(pw,args.browser).launch_persistent_context(str(out/'ai-profile'),headless=True,args=launch_flags) if args.ai or args.matte else None
-   browser=context.browser if context else getattr(pw,args.browser).launch(headless=True,args=launch_flags)
+   launch_flags=['--enable-unsafe-webgpu','--ignore-gpu-blocklist'] if os.environ.get('BENCH_GPU')=='1' and args.browser=='chromium' else []
+   # Playwright's bundled Chromium lacks dxil.dll/dxcompiler.dll, so Dawn cannot create a D3D12
+   # device on Windows. GPU runs therefore default to an installed Chrome; BENCH_CHANNEL overrides.
+   channel=(os.environ.get('BENCH_CHANNEL') or 'chrome') if launch_flags else os.environ.get('BENCH_CHANNEL')
+   launch={'headless':True,'args':launch_flags,**({'channel':channel} if channel else {})}
+   context=getattr(pw,args.browser).launch_persistent_context(str(out/('ai-profile-'+(channel or 'bundled'))),**launch) if args.ai or args.matte else None
+   browser=context.browser if context else getattr(pw,args.browser).launch(**launch)
    page=context.new_page() if context else browser.new_page(viewport={'width':1440,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
    page.goto(f'http://127.0.0.1:{port}/en/');page.set_default_timeout(180000)
    if args.media:
@@ -69,9 +73,9 @@ with (out/'server.log').open('w') as log:
       probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(artifact)]));row['independentVerification']=probe;assert any(s['codec_type']=='audio' for s in probe['streams'])==row['audio']
     if '_png' in row:
      artifact=out/f'{args.browser}-{"ai" if args.ai else "matte"}-{i}.png';artifact.write_bytes(base64.b64decode(row.pop('_png').split(',')[1]));row['artifact']=str(artifact.relative_to(ROOT))
-   result.update(launchFlags=launch_flags,host={'platform':platform.platform(),'processor':platform.processor(),'logicalCPUs':os.cpu_count(),'physicalMemoryBytes':psutil.virtual_memory().total},browserVersion=browser.version,errors=errors,memory=dict(memory))
+   result.update(launchFlags=launch_flags,channel=channel or 'bundled',host={'platform':platform.platform(),'processor':platform.processor(),'logicalCPUs':os.cpu_count(),'physicalMemoryBytes':psutil.virtual_memory().total},browserVersion=browser.version,errors=errors,memory=dict(memory))
    suffix='-media-large' if args.large_media else '-media' if args.media else '-pdf' if args.pdf else '-matte' if args.matte else '-ai-'+os.environ.get('AI_ENGINE','quality')+('-smoke' if os.environ.get('AI_SMOKE')=='1' else '-photo') if args.ai else '-full' if args.full else '-quick'
-   path=out/(args.browser+suffix+('-gpu-flags' if launch_flags else '')+'.json');path.write_text(json.dumps(result,indent=2),encoding='utf-8')
+   path=out/(args.browser+suffix+('-gpu-'+channel if launch_flags else '')+'.json');path.write_text(json.dumps(result,indent=2),encoding='utf-8')
    print(json.dumps(result,indent=2));assert not errors,errors
    if context:context.close()
    browser.close()
