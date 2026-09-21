@@ -56,6 +56,12 @@ Memory: only the decoded sources, one frame's indices and the current preview ex
 pixels are read through a generator (`pixelsOf`) so extraction and counting keep a single
 `ImageData` alive instead of N copies; exports become Blobs one frame at a time.
 
+Every stage walks each pixel in Oklab **on the main thread**, which is right for sprite-sized art
+and wrong for a scan. A frame larger than 4096 × 4096 is therefore refused with an explanation
+rather than freezing the tab (the shared `LIMITS.pixels` in `src/core.js` allows 536 megapixels,
+far beyond what a synchronous per-pixel pipeline can handle). There is **no `AbortSignal`** on the
+Lab's own passes — see "Not done / weak".
+
 Undo (`Ctrl+Z`, bound on `document`, and the Undo button) stores small state snapshots — palette,
 locks, options, selection — never images. Cleanup previews are change lists of `{at,from,to}`, so
 applying and reverting cost only the pixels that actually differ.
@@ -291,6 +297,8 @@ by re-opening the downloaded file with Pillow / `zipfile` / `json`, never read f
 | URL preset `?colors=8&dither=bayer8&scale=2` | chips pressed, canvas info reads `48 × 48 → 96 × 96 · 8 colours` | VERIFIED |
 | No horizontal scroll at 390 and 320 px, on Convert / Palette / Cleanup / Check | `scrollWidth == innerWidth` in all cases | VERIFIED |
 | Engine parity of the quantiser refactor | byte-identical output for `ordered`, `floyd-steinberg` and unknown modes across 3 sizes × 3 amounts × 2 counts | VERIFIED |
+| Whole `tests/task-browser.py` suite, including the Pixel Lab block | **110 checks, 0 failures**, exit 0 | VERIFIED |
+| Screenshots reviewed at 1440 / 390 / 320 on all six stages, plus the candidate overlay | no console or page errors, no horizontal scroll | VERIFIED |
 | Firefox / WebKit | — | **UNVERIFIED** (Chromium only; `src/capabilities.js` therefore keeps these ids unpromotable and `noindex`) |
 | Godot / Unity import of `pixel-lab.json` | — | **UNVERIFIED** (no engine is installed here; the file is generic JSON, no engine project file is produced) |
 
@@ -304,3 +312,13 @@ by re-opening the downloaded file with Pillow / `zipfile` / `json`, never read f
 * **The outline fixer does not thin doubled outlines** even optionally; only gap closing is offered.
 * **No per-frame palette overrides** — the whole point is one palette, but a sprite sheet with two
   unrelated characters has to be split first.
+* **No cancellation and no worker.** The pipeline is synchronous on the main thread, so a very
+  large batch blocks the tab until it finishes; the only protection is the 4096 × 4096 per-frame
+  refusal above. The Game Labs brief asks for an `AbortSignal` on long operations and this Lab does
+  not have one. Moving the per-pixel passes into `recipe-worker.js` (or a new worker) with progress
+  and cancellation is the first thing to do next.
+* **Sprite sheets are not sliced here.** Dropping one sheet treats it as a single frame; use
+  `sprite-slicer` first. The Lab accepts "one sheet" only in the sense that it will palette-lock,
+  clean and check it as one image.
+* **`aaThreshold` is in thousandths of an Oklab distance** (default 80 = 0.08). That is an honest
+  number but not a friendly one; it has no unit label in the UI beyond its range.

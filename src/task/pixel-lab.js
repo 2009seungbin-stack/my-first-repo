@@ -190,7 +190,7 @@ ${num('plabAmount','amount',0,1,T('amount'),.1)}</details>
 <button type="button" class="mini-button" data-action="plab-merge">${esc(T('mergeRarest'))}</button>`;
   if(stage==='recolor')return `<span class="opt-label">${esc(T('mode'))}</span><div class="segmented" role="group" id="plabRecolor">${['none','ramp','hue','status'].map(v=>`<button type="button" data-action="plab-recolor" data-value="${v}" aria-pressed="${recolor.kind===v}">${esc(T('recolors.'+v))}</button>`).join('')}</div>
 <div id="plabRecolorBody">${recolorControls()}</div>
-<div class="list-actions"><button type="button" class="mini-button" data-action="plab-apply-recolor">${esc(T('applyRecolor'))}</button><button type="button" class="mini-button" data-action="plab-variants">${esc(T('teamZip'))}</button></div>
+<div class="list-actions"><button type="button" class="mini-button" data-action="plab-apply-recolor" ${recolor.kind==='none'?'disabled':''}>${esc(T('applyRecolor'))}</button><button type="button" class="mini-button" data-action="plab-variants" ${selection.size?'':'disabled'}>${esc(T('teamZip'))}</button></div>
 <label class="field"><span>${esc(T('teams'))}</span><input id="plabTeams" data-key="teams" type="text" maxlength="80" value="${esc(o.teams)}"></label>
 <p class="hint">${esc(T('teamHint'))}</p>`;
   if(stage==='cleanup')return `${check('plabOrphans','orphans',T('orphans'))}${check('plabClusters','clusters',T('clusters'))}${num('plabMinArea','minArea',2,64,T('minArea'))}${check('plabHoles','holes',T('holes'))}
