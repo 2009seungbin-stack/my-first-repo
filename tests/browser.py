@@ -1,7 +1,8 @@
 """Existing intent/localization regression suite; shared mount is in browser_harness.py."""
 from browser_harness import *
+ENGINE=os.environ.get('BROWSER_ENGINE','chromium')  # chromium | firefox | webkit; results for non-Chromium engines get a suffix
 with sync_playwright() as pw:
- browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+ browser=(pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage']) if ENGINE=='chromium' else getattr(pw,ENGINE).launch(headless=True))
  en=browser.new_context(locale='en-US',viewport={'width':1440,'height':1000},accept_downloads=True)
  ja=browser.new_context(locale='ja-JP',viewport={'width':1440,'height':1000},accept_downloads=True)
  ko=browser.new_context(locale='ko-KR',viewport={'width':1440,'height':1000},accept_downloads=True)
@@ -55,7 +56,7 @@ with sync_playwright() as pw:
  page=mount(ja,'/ja/pdf/merge/');ok('Japanese PDF intent headline',page.locator('#emptyTitle').inner_text()=='結合するPDFを追加');assert_no_korean(page,'Japanese PDF landing translated')
  upload(page);ok('wrong format rejected without changing editor',page.locator('#editorTitle').inner_text()=='PDFを結合' and page.locator('#message.error').is_visible());page.close()
  page=mount(en,'/png-to-webp/');ok('format alias preset',page.locator('#landingPresets [aria-pressed="true"]').inner_text()=='WebP');upload(page);click(page,'intent-run');actual=download(page,'converted.webp');ok('alias executes the correct converter',Image.open(actual).format=='WEBP');page.close()
- page=mount(en,'/');ok('home emphasizes four named features',page.locator('.feature-link').count()==4);click(page,'intent:upscale');ok('featured card keeps unified app',page.locator('#emptyTitle').inner_text()=='Make your image bigger');page.close()
+ page=mount(en,'/');ok('unqualified tools are not promoted on home',page.locator('.feature-link').count()==0);page.keyboard.press('Control+k');page.locator('#toolSearch').fill('upscale');click(page,'kit-open:upscale');ok('catalog keeps the existing upscale workflow',page.locator('#emptyTitle').inner_text()=='Make your image bigger');page.close()
  page=mount(en,'/my-first-repo/ja/image/upscale/?scale=4',base='/my-first-repo/')
  ok('repository subpath and language retained',page.locator('html').get_attribute('lang')=='ja');ok('4x query preset',page.locator('#landingPresets [aria-pressed="true"]').inner_text()=='4×')
  click(page,'sample');click(page,'tool:crop');ok('related tool changes intent',page.locator('#editorTitle').inner_text()=='画像を切り抜き')
@@ -76,11 +77,11 @@ with sync_playwright() as pw:
   page=mount(ja,'/ja/video/to-gif/');page.locator('#fileInput').set_input_files(str(fixture));page.wait_for_timeout(100);idle(page)
   ok('Japanese GIF intent retains decoded video',page.locator('#editorTitle').inner_text()=='動画 → GIF' and page.locator('#video').evaluate('(v)=>v.videoWidth===160'))
   page.locator('#mediaEnd').fill('1');click(page,'intent-run');output=download(page,'localized.gif');animation=Image.open(output)
-  ok('localized GIF pipeline saves actual eight-frame GIF',animation.format=='GIF' and animation.n_frames==8 and animation.size==(160,96))
+  ok('localized GIF pipeline saves actual twelve-frame GIF',animation.format=='GIF' and animation.n_frames==12 and animation.size==(160,96))
   assert_no_korean(page,'Japanese GIF result translated');page.close()
  else:print('SKIP media regression: ffmpeg unavailable')
  ok('no uncaught browser exceptions',not errors)
  for c in [en,ja,ko,es]:c.close()
  browser.close()
 report={'mode':'in-memory module/location/history/storage adaptation' if args.in_memory else 'HTTP','passed':checks,'errors':errors,'not_validated':['deployed browser HTTP and CSP in memory mode','real persistent Storage in memory mode','actual Worker success path when blocked','external PDF/HEIC/MP3/AI integrations','physical low-end devices']}
-(OUT/'browser-results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS TOTAL',len(checks))
+(OUT/('browser-results'+('' if ENGINE=='chromium' else '-'+ENGINE)+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2));print('PASS TOTAL',len(checks))

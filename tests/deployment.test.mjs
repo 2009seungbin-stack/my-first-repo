@@ -1,3 +1,4 @@
+import {mayPromote} from '../src/capabilities.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,mkdtemp,rm,stat} from 'node:fs/promises';
@@ -58,7 +59,7 @@ test('policy pages are standalone localized documents with truthful contact and 
 test('canonical aliases consolidate and query combinations never enter sitemap',()=>{
  for(const [alias,id]of Object.entries(ALIASES))assert(entry(html,`ja/${alias}`,origin).includes(`rel="canonical" href="${origin}ja/${INTENTS[id].path}/"`));
  const xml=sitemap(origin);for(const [,url]of xml.matchAll(/<loc>([^<]+)<\/loc>/g))assert(!url.includes('?'));assert(!xml.includes('/png-to-webp/'));
- assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).length+POLICY_ROUTES.length)*3);
+ assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+POLICY_ROUTES.length)*3);
  for(const l of ['en','ko','ja','x-default'])assert(xml.includes(`hreflang="${l}"`));
 });
 test('reading content follows the full workspace, and disabled ads leave no boxes',()=>{
@@ -114,4 +115,15 @@ test('build matrix: no domain, production domain, ads, then clean disabled rebui
   assert((await read('robots.txt')).includes('Disallow: /'));assert((await read('en/image/upscale/index.html')).includes('noindex,nofollow'));
   assert(!(await read('sitemap.xml')).includes('<loc>'));await assert.rejects(read('ads.txt'));
  }finally{await rm(temp,{recursive:true,force:true});}
+});
+test('isolated AI runtime page gets its own headers; site-wide additions stay in the /* block',async()=>{
+ const out=headers(await readFile(new URL('../_headers',import.meta.url),'utf8'),{preview:true});
+ const [global,runtime]=out.split(/\n(?=\/ai-runtime\/)/);
+ assert(global.startsWith('/*')&&global.includes('Cache-Control')&&global.includes("frame-ancestors 'none'"));
+ assert(!global.includes('Document-Isolation-Policy'),'the main site must not be isolated (ads, embeds)');
+ assert(runtime.includes('! Content-Security-Policy')&&runtime.includes("frame-ancestors 'self'"));
+ assert(runtime.includes('Document-Isolation-Policy: isolate-and-credentialless')&&!runtime.includes('Cache-Control'));
+ assert(adCSP('x').includes("frame-src 'self' https:"));
+ const html=await readFile(new URL('../ai-runtime/index.html',import.meta.url),'utf8');
+ assert(html.includes('noindex')&&!/<script(?![^>]*\bsrc=)/.test(html),'runtime page has no inline script under its strict CSP');
 });

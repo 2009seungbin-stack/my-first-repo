@@ -60,3 +60,13 @@ test('straight-alpha PNG independently inflates and preserves invisible RGB byte
 test('modern ICO has exact embedded lengths, offsets and PNG signatures',async()=>{
  const png=pngRGBA(new Uint8ClampedArray(16*16*4),16,16),b=new Uint8Array(await (await ico([{size:16,blob:png}])).arrayBuffer()),v=new DataView(b.buffer);assert.equal(v.getUint16(2,true),1);assert.equal(v.getUint16(4,true),1);assert.equal(v.getUint32(14,true),png.size);assert.equal(v.getUint32(18,true),22);assert.deepEqual([...b.slice(22,30)],[137,80,78,71,13,10,26,10]);
 });
+test('frame recipes accept 4096 frames and keep sortable names past 999',()=>{
+ assert.equal(P.grid(64*64,64*64,64,64).length,4096);assert.throws(()=>P.grid(4097,1,1,1),/4096/);
+ const small=P.sheetLayout(12,8,8,4);assert.equal(small.frames[0].name,'frame-001','existing three-digit names are unchanged');
+ const big=P.sheetLayout(4096,16,16,64);assert.equal(big.frames.length,4096);assert.equal(big.width,1024);assert.equal(big.height,1024);
+ const names=big.frames.map(f=>f.name);assert.equal(names[0],'frame-0001');assert.equal(names[4095],'frame-4096');assert.deepEqual([...names].sort(),names,'lexical order equals frame order');
+ assert.throws(()=>P.sheetLayout(4097,1,1,1));
+ const dots=n=>{const a=new Uint8ClampedArray(n*n*4);for(let y=0;y<n;y+=2)for(let x=0;x<n;x+=2)a[(y*n+x)*4+3]=255;return a;};
+ assert.equal(P.components(dots(128),128,128,{minArea:1}).length,4096,'4096 isolated parts, far past the old 256 cap');
+ assert.throws(()=>P.components(dots(130),130,130,{minArea:1}),/Too many/);
+});

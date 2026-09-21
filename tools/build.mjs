@@ -1,3 +1,4 @@
+import {mayPromote} from '../src/capabilities.js';
 import {imageSitemap,verificationHead,notFound} from './growth-build.mjs';
 import {BRAND} from '../src/brand.js';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
@@ -9,6 +10,7 @@ import {toolContent,labels,footer} from '../src/content.js';
 import {POLICY_ROUTES,policyContent,policies} from '../src/policies.js';
 import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigationData} from '../src/seo.js';
 import {configuration,adHead,headers} from './site-config.mjs';
+import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES].map(r=>`${l}/${r}`)])];
@@ -37,13 +39,13 @@ export function entry(html,route='',siteURL='',config={}){
  out=out.replace('</head>',head(intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL)+socialMetadata(id,locale,siteURL)+navigationData(id,locale,siteURL)+'\n</head>');
  return out;
 }
-function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+adHead(config);}
+function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+adHead(config);}
 function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
- return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><strong>${escape(BRAND.name)}.</strong><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
+ return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><strong>${escape(BRAND.name)}.</strong><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
-export function sitemap(siteURL){
- const paths=[...Object.values(INTENTS).map(i=>i.path),...POLICY_ROUTES];
+export function sitemap(siteURL,extra=[]){
+ const paths=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...POLICY_ROUTES,...extra];
  const urls=siteURL?paths.flatMap(p=>LOCALES.map(l=>`<url><loc>${escape(new URL(pagePath(p,l),siteURL).href)}</loc>${[...LOCALES,null].map(a=>`<xhtml:link rel="alternate" hreflang="${a||'x-default'}" href="${escape(new URL(pagePath(p,a),siteURL).href)}"/>`).join('')}</url>`)).join(''):'';
  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`;
 }
@@ -55,22 +57,23 @@ export async function build(options={}){
  // Only clear the known output tree; custom test outputs must be named dist too.
  if(path.basename(dist)!=='dist'||dist===path.resolve(ROOT))throw Error('Output directory must be a dedicated dist directory');
  await rm(dist,{recursive:true,force:true});await mkdir(dist,{recursive:true});
- for(const f of ['styles.css','experience.css','content.css','src','assets'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
+ for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="20" fill="#3182f6"/><text x="32" y="46" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">${escape(BRAND.name[0].toLowerCase())}</text></svg>`);
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
  for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
- await writeFile(path.join(dist,'sitemap.xml'),sitemap(config.preview?'':siteURL));
+ await writeFile(path.join(dist,'sitemap.xml'),sitemap(config.preview?'':siteURL,config.service?['pricing']:[]));
  await writeFile(path.join(dist,'sitemap-images.xml'),imageSitemap(config.preview?'':siteURL));
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
  await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL('sitemap.xml',siteURL).href+'\nSitemap: '+new URL('sitemap-images.xml',siteURL).href+'\n':''}`);
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
  }
+ if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await build();

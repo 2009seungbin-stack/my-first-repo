@@ -4,7 +4,7 @@
  */
 export function nonce(){return Array.from(crypto.getRandomValues(new Uint8Array(18)),b=>b.toString(16).padStart(2,'0')).join('');}
 export function adCSP(value){
- return `default-src 'self' https: blob: data:; script-src 'nonce-${value}' 'strict-dynamic' https: 'unsafe-eval' 'wasm-unsafe-eval'; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https:; img-src 'self' https: blob: data:; media-src 'self' blob: https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: blob: data:; frame-src https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'`;
+ return `default-src 'self' https: blob: data:; script-src 'nonce-${value}' 'strict-dynamic' https: 'unsafe-eval' 'wasm-unsafe-eval'; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https:; img-src 'self' https: blob: data:; media-src 'self' blob: https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: blob: data:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'`;
 }
 export function transformHTML(html,value){return html.replace(/<script(?=\s|>)/g,`<script nonce="${value}"`);}
 export async function secureResponse(response){

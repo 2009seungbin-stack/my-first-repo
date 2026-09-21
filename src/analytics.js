@@ -1,7 +1,7 @@
 import {INTENTS} from './intents.js';
 import {LOCALES} from './i18n.js';
 
-export const EVENTS = Object.freeze(['page_view','tool_open','file_selected','tool_run','tool_success','tool_error','download','related_tool_click','share_result','share_preset','language_change']);
+export const EVENTS = Object.freeze(['page_view','tool_open','file_selected','tool_run','tool_success','tool_error','download','related_tool_click','share_result','share_preset','language_change','account_status_loaded','quota_authorized','quota_denied','upgrade_view','checkout_started','checkout_completed','login_started','login_completed','logout','pro_active']);
 let adapter = null;
 let context = {};
 /** No network, cookies, persistent IDs or event buffer without an explicit adapter. */
@@ -29,6 +29,7 @@ export function eventPayload(name,values={}) {
   if (Number.isInteger(v.count)) out.count=Math.min(100,Math.max(0,v.count));
   if (['native','download','copy','dialog'].includes(v.method)) out.method=v.method;
   if (['processing_failed','cancelled'].includes(v.error_code)) out.error_code=v.error_code;
+  if (['free','pro'].includes(v.plan)) out.plan=v.plan;
   return Object.freeze(out);
 }
 export function track(name,values={}) {

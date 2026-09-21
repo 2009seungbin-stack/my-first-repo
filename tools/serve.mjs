@@ -3,11 +3,25 @@ import path from 'node:path';
 import {readFile,stat} from 'node:fs/promises';
 import {ROOT,ALL_ROUTES,entry} from './build.mjs';
 import {nonce,adCSP,transformHTML} from './ads-worker.mjs';
-const base=process.argv.includes('--dist')?path.resolve(process.env.DIST_DIR||path.join(ROOT,'dist')):ROOT;
+const base=process.argv.includes('--dist')?path.resolve(process.env.DIST_DIR||path.join(ROOT,'dist')):path.resolve(ROOT);
 const port=Number(process.env.PORT||4173);
 const mount=process.env.BASE_PATH||'';
 const headerText=await readFile(path.join(base,'_headers'),'utf8');
-const responseHeaders=Object.fromEntries(headerText.split(/\r?\n/).filter(l=>/^\s+[A-Za-z-]+:/.test(l)).map(l=>{const i=l.indexOf(':');return [l.slice(0,i).trim(),l.slice(i+1).trim()];}));
+// Cloudflare Pages _headers semantics: path blocks apply in order, repeated names join with a
+// comma, and "! Name" detaches a header set by an earlier matching block.
+const headerRules=[];for(const line of headerText.split(/\r?\n/)){
+ if(/^\S/.test(line))headerRules.push({match:new RegExp('^'+line.trim().replace(/[.+?^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*')+'$'),lines:[]});
+ else if(line.trim()&&headerRules.length)headerRules.at(-1).lines.push(line.trim());
+}
+function responseHeaders(pathname){
+ const out=new Map();
+ for(const rule of headerRules)if(rule.match.test(pathname))for(const line of rule.lines){
+  if(line.startsWith('!')){out.delete(line.slice(1).trim().toLowerCase());continue;}
+  const i=line.indexOf(':'),name=line.slice(0,i).trim(),value=line.slice(i+1).trim(),key=name.toLowerCase();
+  out.set(key,[name,out.has(key)?out.get(key)[1]+', '+value:value]);
+ }
+ return [...out.values()];
+}
 const adsWorker=await stat(path.join(base,'_worker.js')).then(()=>true).catch(()=>false);
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.pdf':'application/pdf','.json':'application/json','.xml':'application/xml'};
 http.createServer(async(req,res)=>{
@@ -15,9 +29,9 @@ http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(mount&&!url.pathname.startsWith(mount+'/'))throw Error('Not found');
   const p=decodeURIComponent(url.pathname.slice(mount.length)),route=p.replace(/^\/+|\/+$/g,'');
-  for(const [name,value]of Object.entries(responseHeaders))res.setHeader(name,value);
+  for(const [name,value]of responseHeaders(p))res.setHeader(name,value);
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cache-Control','no-store');
-  if(base===ROOT&&ALL_ROUTES.includes(route)){
+  if(base===path.resolve(ROOT)&&ALL_ROUTES.includes(route)){
    if(!p.endsWith('/')){res.writeHead(302,{Location:mount+p+'/'+url.search});res.end();return;}
    res.setHeader('Content-Type',mime['.html']);res.end(entry(await readFile(path.join(ROOT,'index.html'),'utf8'),route));return;
   }

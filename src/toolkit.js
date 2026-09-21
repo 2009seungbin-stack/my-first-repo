@@ -1,5 +1,7 @@
+import {imageLabel} from './image-controls.js';
 import {BRAND} from './brand.js';
 import {track} from './analytics.js';
+import {authorize} from './entitlement.js';
 import {parsePreset,serializePreset} from './presets.js';
 import {SEARCH_TERMS} from './search-terms.js';
 import {TOOLS} from './tool-registry.js';
@@ -53,12 +55,12 @@ export class Toolkit{
     const align=()=>this.select('align',['bottom','center','top'].map(v=>[v,tr(v)]));
     if(id==='refiner'){
       basic=this.num('n',8,512)+this.num('colors',2,256);
-      advanced=this.num('dither',0,1,.1)+this.num('outline',0,4)+this.num('padding',0,64)+this.checkbox('cleanup')+this.color('background')+this.num('tolerance',0,441)+this.checkbox('pack');
+      advanced=this.num('dither',0,1,.1)+this.num('outline',0,4)+this.num('padding',0,64)+this.checkbox('cleanup')+this.color('background')+this.num('tolerance',0,441)+this.checkbox('pack')+`<label class="field"><span>${esc(imageLabel('palette'))}</span><textarea data-option="palette" rows="4" maxlength="8192">${esc(this.o.palette||'')}</textarea></label><label class="field"><span>${esc(imageLabel('ditherMode'))}</span><select data-option="ditherMode"><option value="floyd-steinberg" ${this.o.ditherMode!=='ordered'?'selected':''}>Floyd–Steinberg</option><option value="ordered" ${this.o.ditherMode==='ordered'?'selected':''}>Bayer 4×4</option></select></label>`;
     }else if(id==='sprite-slicer'){
       basic=this.rects.length?`<p class="hint">${esc(tr('review'))}</p>`+this.frames():'';
       advanced=this.num('threshold',0,254)+this.num('minArea',1,4000000)+btn('kit-detect','redetect')+btn('kit-add','add');
     }else if(id==='frame-normalize'||id==='sprite-sheet-maker'){
-      basic=(id==='sprite-sheet-maker'?this.num('columns',1,24):'')+align();
+      basic=(id==='sprite-sheet-maker'?this.num('columns',1,128):'')+align();
       advanced=this.num('width',0,8192)+this.num('height',0,8192)+this.num('padding',0,64)+this.num('anchor',0,1,.05)+`<p class="hint">${esc(tr('autoSize'))}</p>`;
       basic+=this.inputOrder();
     }else if(id==='palette-swap'){
@@ -129,6 +131,7 @@ export class Toolkit{
     const u=this.u;if(!u.s.c){u.a.message(tr('inputFirst'));return;}
     this.read();this.remember(u.id);
     if(u.id==='sprite-slicer'&&!this.rects.length){await this.findFrames();return;}
+    if(u.s.busy||!await authorize(u.id,this.o))return;
     u.s.runIntent=u.id;track('tool_run');u.invalidate();await u.a.task(tr('preparing'),async(progress,signal)=>{
       let r;try{r=await runRecipe(u.id,{source:u.s.c,items:u.s.images,options:this.o,rects:this.rects,signal,progress});}catch(error){if(error.name!=='AbortError')error.message=t(error.message);throw error;}
       try{u.a.check(signal);u.result={...r,beforeW:u.s.c.width,beforeH:u.s.c.height,beforeSize:u.a.file()?.blob.size||0};u.s.tool='';}catch(e){Im.release(r.canvas);throw e;}
@@ -170,7 +173,7 @@ export class Toolkit{
     if(action.startsWith('kit-frame:')){this.read();this.frame=Number(action.split(':')[1]);u.a.refresh();await u.a.paint();return true;}
     if(['kit-add','kit-delete','kit-merge'].includes(action)||action.startsWith('kit-frame-move:')){
       this.read();u.invalidate();
-      if(action==='kit-add'&&this.rects.length<256)this.rects.push({x:0,y:0,w:Math.min(32,u.s.c.width),h:Math.min(32,u.s.c.height)}),this.frame=this.rects.length-1;
+      if(action==='kit-add'&&this.rects.length<4096)this.rects.push({x:0,y:0,w:Math.min(32,u.s.c.width),h:Math.min(32,u.s.c.height)}),this.frame=this.rects.length-1;
       if(action==='kit-delete')this.rects=this.rects.filter((_,i)=>this.selected.size?!this.selected.has(i):i!==this.frame);
       if(action==='kit-merge'&&this.selected.size>1){const chosen=this.rects.filter((_,i)=>this.selected.has(i)),x=Math.min(...chosen.map(r=>r.x)),y=Math.min(...chosen.map(r=>r.y));const box={x,y,w:Math.max(...chosen.map(r=>r.x+r.w))-x,h:Math.max(...chosen.map(r=>r.y+r.h))-y},first=Math.min(...this.selected);this.rects=this.rects.flatMap((r,i)=>i===first?[box]:this.selected.has(i)?[]:[r]);}
       if(action.startsWith('kit-frame-move:')){const to=this.frame+Number(action.split(':')[1]);if(to>=0&&to<this.rects.length){const [r]=this.rects.splice(this.frame,1);this.rects.splice(to,0,r);this.frame=to;}}

@@ -35,7 +35,7 @@ with sync_playwright() as pw:
     page.close()
     page=mount(context,'/en/?explore=1');expect(page.locator('#toolsDialog')).to_be_visible();page.locator('#toolSearch').fill('remove bg')
     ok('tool search recognizes common aliases',page.locator('[data-action="kit-open:remove-bg"]').count()==1)
-    click(page,'kit-close');ok('home exposes only four featured entries',page.locator('#featuredIntents a').count()==4)
+    click(page,'kit-close');ok('unqualified tools are excluded from featured promotion',page.locator('#featuredIntents a').count()==0)
     response=page.goto('http://127.0.0.1:4173/en/definitely-not-a-tool/')
     ok('unknown URL returns real HTTP 404',response.status==404 and 'Tool not found' in page.locator('h1').inner_text());page.close()
     static=browser.new_context(java_script_enabled=False)

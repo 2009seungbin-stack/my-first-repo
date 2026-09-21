@@ -1,6 +1,13 @@
+import {mayPromote} from './capabilities.js';
+import {parsePalette} from './pixel-engine.js';
+import {imageLabel} from './image-controls.js';
+import {chooseImagePlan} from './resource-dialog.js';
 import {PDFWorkspace} from './pdf.js';
+import {readPDFOptions} from './pdf-controls.js';
+import {readMediaOptions} from './media-controls.js';
 import {BRAND} from './brand.js';
 import {track,setAnalyticsContext,trafficSource} from './analytics.js';
+import {authorize} from './entitlement.js';
 import {Toolkit} from './toolkit.js';
 import {t,getLocale,setLocale,normalizeLocale,LOCALES,LANGUAGE_NAMES,readPreference,savePreference,locationParts,localizedURL,localeFromEnvironment,translateStatic} from './i18n.js';
 import {INTENTS,intentFor,intentDefaults,isFocused,accepts} from './intents.js';
@@ -43,8 +50,8 @@ export class Experience {
   this.invalidate();this.kit.configure(id,query);this.id=id;this.path=path;this.defaults=intentDefaults(id,path,query);const d=this.defaults,s=this.s;
   s.editor=this.config.editor;s.tool='';
   Object.assign(s.export,{format:d.format,kb:d.kb,width:0,quality:d.quality,shrink:d.shrink,all:false});
-  Object.assign(s.pix,{n:d.n,colors:d.colors,dither:d.dither,outline:d.outline,fit:d.fit,trim:d.trim});Object.assign(s.pdfExport,{format:d.pdfFormat,range:d.range,raster:false});
-  Object.assign(s.mediaExport,{format:d.mediaFormat,start:0,end:s.media?Math.min(d.mediaFormat==='gif'?4:10,s.media.duration):0});
+  Object.assign(s.pix,{n:d.n,colors:d.colors,dither:d.dither,outline:d.outline,fit:d.fit,trim:d.trim});Object.assign(s.pdfExport,{format:d.pdfFormat,range:d.range,raster:false,optimize:id==='pdf-compress',splitMode:'single'});
+  Object.assign(s.mediaExport,{mode:'precise',width:id==='video-compress'?1280:0,format:d.mediaFormat,start:0,end:s.media?Math.min(d.mediaFormat==='gif'?4:10,s.media.duration):0});
   this.options={scale:d.scale,scaleMode:d.scaleMode,background:d.background,color:d.color,tolerance:d.tolerance,width:d.width,height:d.height};
   this.panelValues=[];if(this.a.ready()&&['crop','resize','pdf-split','pdf-compress','pdf-to-jpg','video-trim','video-mp3','video-gif','video-compress'].includes(id))s.tool=this.config.tool;
  }
@@ -67,7 +74,7 @@ export class Experience {
   this.configure(id);if(push){history.pushState({},'',this.url(id));this.lastURL=location.href;}
   this.visit();this.a.refresh();await this.a.paint();
  }
- invalidate(){if(this.result?.canvas)Im.release(this.result.canvas);this.result=null;this.original=false;}
+ invalidate(){if(this.result?.blob)Media.releaseOutput(this.result.blob);if(this.result?.canvas)Im.release(this.result.canvas);this.result=null;this.original=false;}
  preview(){return this.original?null:this.result?.canvas||null;}
  acceptsFiles(files){if(!this.focused)return true;const kinds=files.map(this.a.typeOf);if(accepts(this.id,kinds))return true;this.a.message(t('intent.wrongInput',{type:t('intent.type.'+this.config.accept)}),true);return false;}
  afterInput(){
@@ -82,9 +89,9 @@ export class Experience {
   if(s.tool==='background'){this.options.color=v('removeColor')?.value||this.options.color;this.options.tolerance=Number(v('tolerance')?.value??this.options.tolerance);}
   if(s.tool==='resize'){this.options.width=Number(v('resizeW')?.value||this.options.width);this.options.height=Number(v('resizeH')?.value||this.options.height);}
   if(s.tool==='export'&&s.editor==='image'&&v('outFormat'))this.a.readExport();
-  if(s.tool==='export'&&s.editor==='pdf'&&v('pdfFormat'))Object.assign(s.pdfExport,{range:v('pdfRange').value,format:v('pdfFormat').value,raster:v('rasterPdf').checked});
-  if(s.tool==='export'&&s.editor==='media'&&v('mediaStart'))Object.assign(s.mediaExport,{start:Number(v('mediaStart').value),end:Number(v('mediaEnd').value),format:v('mediaFormat').value,width:Number(v('mediaWidth').value)});
-  if(s.tool==='pixel'&&v('pixelN'))Object.assign(s.pix,{n:integer(v('pixelN').value,8,512,'N'),colors:Number(v('pixelColors').value),dither:Number(v('pixelDither').value),fit:v('pixelFit').value,trim:v('pixelTrim').checked,outline:Number(v('pixelOutline').value)});
+  if(s.tool==='export'&&s.editor==='pdf'&&v('pdfFormat'))Object.assign(s.pdfExport,readPDFOptions());
+  if(s.tool==='export'&&s.editor==='media'&&v('mediaStart'))Object.assign(s.mediaExport,readMediaOptions());
+  if(s.tool==='pixel'&&v('pixelN'))Object.assign(s.pix,{palette:parsePalette(v('pixelPalette')?.value||''),paletteText:v('pixelPalette')?.value||'',ditherMode:v('pixelDitherMode')?.value||'floyd-steinberg',n:integer(v('pixelN').value,8,512,'N'),colors:Number(v('pixelColors').value),dither:Number(v('pixelDither').value),fit:v('pixelFit').value,trim:v('pixelTrim').checked,outline:Number(v('pixelOutline').value)});
  }
  async changeLanguage(value,persist=true){
   if(this.s.busy){$('#languageSelect').value=this.auto?'auto':getLocale();return;}
@@ -108,7 +115,7 @@ export class Experience {
   if(this.kit.active)return this.kit.presets();
   const chip=(key,value,label,on)=>`<button class="chip ${on?'selected':''}" data-action="preset:${key}:${value}" aria-pressed="${on}">${esc(label)}</button>`;
   if(this.id==='upscale')return [2,4].map(n=>chip('scale',n,n+'×',this.options.scale===n)).join('');
-  if(this.id==='remove-bg')return ['solid','portrait'].map(v=>chip('background',v,t(v==='solid'?'intent.solid':'intent.portrait'),this.options.background===v)).join('');
+  if(this.id==='remove-bg')return ['solid','general','portrait'].map(v=>chip('background',v,v==='general'?imageLabel('general'):t(v==='solid'?'intent.solid':'intent.portrait'),this.options.background===v)).join('');
   if(this.id==='compress')return [200,500,1000].map(n=>chip('kb',n,n===1000?'≤ 1 MB':`≤ ${n} KB`,this.s.export.kb===n)).join('');
   if(['convert','heic'].includes(this.id))return ['png','jpeg','webp'].map(v=>chip('format',v,v==='jpeg'?'JPG':v==='webp'?'WebP':'PNG',this.s.export.format===v)).join('');
   if(this.id==='pixel')return [16,32,64,128].map(n=>chip('n',n,n+'×'+n,this.s.pix.n===n)).join('');
@@ -128,7 +135,7 @@ export class Experience {
   $('#dropButton').setAttribute('aria-label',$('#pickLabel').textContent);
   $('#landingPresets').innerHTML=this.renderPresets();$('#landingPresets').hidden=has;
   $('#featuredIntents').hidden=has||!['home','image'].includes(this.id);
-  $('#featuredIntents').innerHTML=['upscale','remove-bg','compress','pdf-merge'].map(id=>`<a class="feature-link" href="${this.url(id)}" data-action="intent:${id}">${icon(INTENTS[id].icon,22)}<span>${esc(t(`intent.${id}.title`))}</span><span class="feature-arrow">↗</span></a>`).join('');
+  $('#featuredIntents').innerHTML=['upscale','remove-bg','compress','pdf-merge'].filter(mayPromote).map(id=>`<a class="feature-link" href="${this.url(id)}" data-action="intent:${id}">${icon(INTENTS[id].icon,22)}<span>${esc(t(`intent.${id}.title`))}</span><span class="feature-arrow">↗</span></a>`).join('');
   $('.sample-button').hidden=c.accept==='pdf'||c.accept==='media';
   document.body.classList.toggle('intent-focused',this.focused);document.body.classList.toggle('has-file',has);document.body.classList.toggle('has-result',!!this.result);
   const controls=$('#intentControls');controls.hidden=!has||!this.focused;
@@ -145,42 +152,45 @@ export class Experience {
   if(!has&&this.focused)$('#panel').hidden=true;
   this.kit.render();
  }
- resultSummary(){const r=this.result;if(r.kind==='image')return ['compress','convert','heic'].includes(this.id)?`${bytes(r.beforeSize)} → ${bytes(r.blob.size)} · ${r.width} × ${r.height}`:`${r.beforeW} × ${r.beforeH} → ${r.width} × ${r.height} · ${bytes(r.blob.size)}`;if(r.kind==='pdf')return t('intent.pdfMerged',{files:r.files,pages:r.pages})+' · '+bytes(r.blob.size);return t('intent.actual',{size:bytes(r.blob.size)});}
+ resultSummary(){const r=this.result;if(r.kind==='image')return ['compress','convert','heic'].includes(this.id)?`${bytes(r.beforeSize)} → ${bytes(r.blob.size)} · ${r.width} × ${r.height}`:`${r.beforeW} × ${r.beforeH} → ${r.width} × ${r.height} · ${bytes(r.blob.size)}${r.processingReport?' · '+r.processingReport.engine+' / '+r.processingReport.backend:''}${r.processingReport?.fallbackReason?' · Fallback: '+r.processingReport.fallbackReason:''}`;if(r.kind==='pdf')return t('intent.pdfMerged',{files:r.files,pages:r.pages})+' · '+bytes(r.pdfReport?.originalBytes||0)+' → '+bytes(r.blob.size)+(r.pdfReport?' · '+r.pdfReport.mode+' · Text/search/vector: '+(r.pdfReport.textPreserved?'✓':'—'):'');if(r.mediaReport){const m=r.mediaReport;return `${bytes(m.originalBytes||0)} → ${bytes(r.blob.size)} · ${m.w||m.width||''}${m.h?' × '+m.h:''} · ${m.videoCodec||m.engine||''} · ${m.audioCodec||''}${m.duration?' · '+m.duration.toFixed(3)+'s':''}${m.targetMet===false?' · Target exceeded':''}`;}return t('intent.actual',{size:bytes(r.blob.size)});}
  async run(){
   if(this.kit.active)return this.kit.run();
   if(!this.a.ready()){this.a.message(t('intent.selectFirst'));return;}
-  this.readOptions();const s=this.s,c=this.config,source=s.c;this.s.runIntent=this.id;track('tool_run');
+  this.readOptions();const s=this.s,c=this.config,source=s.c;
+  // Heavy tools check the Free daily limit first; a refusal leaves file, settings and result untouched.
+  if(s.busy||!await authorize(this.id,this.options))return;
+  this.s.runIntent=this.id;track('tool_run');
   if(s.editor==='image'&&s.export.all&&['compress','convert'].includes(c.action)){await this.a.task(t('저장 파일을 만드는 중…'),this.a.saveImages);return;}
   this.invalidate();await this.a.task(t('intent.preparing'),async(progress,signal)=>{
    let canvas=null,blob=null,name='',width=0,height=0,kind='file',larger=false;
    try{
     if(['upscale','background','crop','resize','compress','convert','pixel'].includes(c.action)){
-     if(c.action==='upscale')canvas=Im.resize(source,source.width*this.options.scale,source.height*this.options.scale,this.options.scaleMode==='pixel');
+     if(c.action==='upscale'){const preset=await chooseImagePlan(source,source.width*this.options.scale,source.height*this.options.scale);canvas=await Im.upscale(source,this.options.scale,this.options.scaleMode,{signal,progress,preset});}
      if(c.action==='background'){
-      if(this.options.background==='portrait'&&source.width*source.height>4_000_000)throw Error(t('AI 인물 제거는 먼저 400만 픽셀 이하로 크기를 줄여 주세요.'));
+      
       const color=[1,3,5].map(i=>parseInt(this.options.color.slice(i,i+2),16));
-      canvas=await Im.processPixels(source,this.options.background==='portrait'?'portrait':'remove',{color,tolerance:this.options.tolerance},progress,signal);
+      canvas=await Im.processPixels(source,this.options.background==='solid'?'remove':this.options.background,{color,tolerance:this.options.tolerance},progress,signal);
      }
      if(c.action==='crop')canvas=Im.crop(source,s.crop);
-     if(c.action==='resize')canvas=Im.resize(source,integer(this.options.width,1,8192,t('너비')),integer(this.options.height,1,8192,t('높이')));
+     if(c.action==='resize'){const w=integer(this.options.width,1,65535,t('너비')),h=integer(this.options.height,1,65535,t('높이')),preset=await chooseImagePlan(source,w,h);canvas=await Im.resizeQuality(source,w,h,{signal,progress,preset});}
      if(c.action==='pixel')canvas=await this.a.generatePixel(progress,signal);
      let format='png';if(c.action==='compress'||c.action==='convert'){
-      format=s.export.format;const result=await Im.encode(source,{...s.export,quality:s.export.quality/100,allowShrink:s.export.shrink},()=>this.a.check(signal));
-      if(!result.met)throw Error(t('intent.limit'));blob=result.blob;canvas=await Im.decode(blob);larger=c.action==='compress'&&blob.size>this.a.file().blob.size;
+      format=s.export.format;const result=await Im.encode(source,{...s.export,quality:s.export.quality/100,allowShrink:s.export.shrink,signal,progress,original:c.action==='compress'?this.a.file().blob:null},()=>this.a.check(signal));
+      if(!result.met)throw Error(t('intent.limit'));blob=result.blob;format=result.format;canvas=await Im.decode(blob);canvas.compressionReport=result.report;larger=c.action==='compress'&&blob.size>this.a.file().blob.size;
      }
      blob||=await Im.blobOf(canvas);width=canvas.width;height=canvas.height;kind='image';name=`${stem(this.a.file().name)}-${this.id}.${format==='jpeg'?'jpg':format}`;
     }else if(c.action==='pdf'||c.action==='pdfImages'){
-     if(s.pdfExport.format==='pdf'){
+     if(s.pdfExport.format==='pdf'&&s.pdfExport.splitMode!=='single'){const entries=await s.pdf.split({...s.pdfExport,mode:s.pdfExport.splitMode,every:s.pdfExport.splitMode==='each'?1:s.pdfExport.every},progress,signal);blob=await zip(entries,{signal});name='split-pages.zip';}else if(s.pdfExport.format==='pdf'){
       blob=await s.pdf.export(s.pdfExport,progress,signal);name=BRAND.name.toLowerCase()+'-edited.pdf';kind='pdf';larger=this.id==='pdf-compress'&&blob.size>s.pdf.inputBytes;
      }else{const entries=await s.pdf.imageExports(s.pdfExport,progress,signal);blob=entries.length===1?entries[0].blob:await zip(entries);name=entries.length===1?entries[0].name:BRAND.name.toLowerCase()+'-pages.zip';}
     }else if(c.action==='frame'){
      canvas=await Media.frame($('#video'),$('#video').currentTime,signal);blob=await Im.blobOf(canvas);name=`${stem(s.media.file.name)}-frame.png`;Im.release(canvas);canvas=null;
     }else if(c.action==='media'){
      const e=s.mediaExport;
-     blob=e.format==='gif'?await Media.exportGif($('#video'),s.media,e.start,e.end,progress,signal):['mp3','wav'].includes(e.format)?await Media.exportAudio(s.media,e.start,e.end,e.format,progress,signal):await Media.exportVideo($('#video'),s.media,e.start,e.end,e.width,progress,signal);
+     blob=e.format==='gif'?await Media.exportGif($('#video'),s.media,e.start,e.end,progress,signal,e):['mp3','wav'].includes(e.format)?await Media.exportAudio(s.media,e.start,e.end,e.format,progress,signal,e):await Media.exportVideo($('#video'),s.media,e.start,e.end,e.width,progress,signal,e);
      name=`${stem(s.media.file.name)}-clip.${e.format}`;larger=this.id==='video-compress'&&blob.size>s.media.file.size;
     }else{return this.a.onAction('export');}
-    this.a.check(signal);this.result={kind,canvas,blob,name,width,height,beforeW:source?.width,beforeH:source?.height,beforeSize:this.a.file()?.blob.size||0,larger,pages:s.editor==='pdf'?parsePages(s.pdfExport.range,s.pdf.pages.length).length:0,files:s.pdf.sources.length};canvas=null;
+    this.a.check(signal);this.result={kind,canvas,blob,name,width,height,processingReport:canvas?.processingReport,compressionReport:canvas?.compressionReport,pdfReport:s.editor==='pdf'?s.pdf.lastReport:null,mediaReport:s.editor==='media'?s.media.lastReport:null,beforeW:source?.width,beforeH:source?.height,beforeSize:this.a.file()?.blob.size||0,larger,pages:s.editor==='pdf'?parsePages(s.pdfExport.range,s.pdf.pages.length).length:0,files:s.pdf.sources.length};canvas=null;
    }finally{Im.release(canvas);}
   });
  }

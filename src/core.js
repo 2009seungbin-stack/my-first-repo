@@ -1,30 +1,96 @@
+import {quantizePerceptual} from './pixel-engine.js';
 import {t} from './i18n.js';
 /** Pure algorithms. No network, DOM, or model dependencies. */
-export const LIMITS={imageBytes:32*1024**2,totalBytes:128*1024**2,pixels:16_000_000,side:8192,files:24,pages:100,mediaBytes:128*1024**2};
+// Legacy PDF/media limits are isolated until those engines are upgraded. Image
+// allocation is checked per operation; dimensions only enforces safe RGBA indexing.
+export const LIMITS={imageBytes:32*1024**2,totalBytes:128*1024**2,recipeOutputBytes:4*1024**3,pixels:536870911,side:65535,files:1024,pages:100,mediaBytes:128*1024**2};
 export const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 export function integer(v,min,max,name=t("값")){v=Number(v);if(!Number.isInteger(v)||v<min||v>max)throw Error(t("{0}: {1}–{2} 사이의 정수를 입력하세요.", {0: name, 1: min, 2: max}));return v;}
-export function dimensions(w,h){integer(w,1,LIMITS.side,t("너비"));integer(h,1,LIMITS.side,t("높이"));if(w*h>LIMITS.pixels)throw Error(t("메모리 보호: 출력은 1,600만 픽셀 이하로 설정하세요."));return {w,h};}
+export function dimensions(w,h){integer(w,1,LIMITS.side,t("너비"));integer(h,1,LIMITS.side,t("높이"));if(w*h>LIMITS.pixels)throw Error('RGBA indexing limit exceeded. Reduce the output dimensions.');return {w,h};}
 export const bytes=n=>n<1024?`${n} B`:n<1024**2?`${(n/1024).toFixed(0)} KB`:`${(n/1024**2).toFixed(1)} MB`;
 export function safeName(s){return String(s||'file').normalize('NFC').replace(/[\\/\x00-\x1f<>:"|?*]/g,'_').replace(/[. ]+$/,'').slice(0,180)||'file';}
 export const stem=s=>safeName(s).replace(/\.[^.]+$/,'');
 export function typeOf(f){const n=f.name?.toLowerCase()||'',t=f.type||'';if(t==='application/pdf'||n.endsWith('.pdf'))return 'pdf';if(t.startsWith('video/')||t.startsWith('audio/')||/\.(mp4|webm|mov|m4v|mp3|wav|ogg|m4a)$/.test(n))return 'media';if(t.startsWith('image/')||/\.(png|jpe?g|webp|heic|heif|avif|gif|bmp)$/.test(n))return 'image';return null;}
 export function fit(w,h,tw,th,cover=false){const s=cover?Math.max(tw/w,th/h):Math.min(tw/w,th/h);return {w:w*s,h:h*s,x:(tw-w*s)/2,y:(th-h*s)/2};}
 export function parsePages(text,count){if(!text.trim())return Array.from({length:count},(_,i)=>i);const out=new Set();for(const part of text.split(',')){const m=part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);if(!m)throw Error(t("페이지는 1,3-5 형태로 입력하세요."));const a=integer(m[1],1,count,t("페이지")),b=integer(m[2]??m[1],a,count,t("페이지"));for(let i=a;i<=b;i++)out.add(i-1);}return [...out];}
-export function route(path,search=''){const p=path.toLowerCase().replace(/\/+$/,''),q=new URLSearchParams(search);let editor='image',tool='';if(/\/pdf(?:\/|$)|\/jpg-to-pdf$|\/pdf-to-jpg$/.test(p))editor='pdf';else if(/\/pixel(?:ize)?$|\/image\/pixel$/.test(p))editor='pixel';else if(/\/(?:media|video)(?:\/|$)/.test(p))editor='media';if(/compress|convert|target-size|heic-to-jpg/.test(p))tool='export';if(p.endsWith('/resize'))tool='resize';if(p.endsWith('/crop'))tool='crop';if(/remove-bg|remove-background/.test(p))tool='background';if(p.endsWith('/upscale'))tool='upscale';if(p.endsWith('/editor'))tool='';if(editor==='pdf'&&/split|pdf-to-jpg|compress/.test(p))tool='export';if(editor==='media'&&/trim|compress|to-mp3|to-gif/.test(p))tool='export';if(['export','crop','resize','background','upscale','more','pixel','text','pen'].includes(q.get('tool')))tool=q.get('tool');return {editor,tool,kb:clamp(Number(q.get('kb'))||0,0,32768),w:clamp(Number(q.get('w'))||0,0,8192),h:clamp(Number(q.get('h'))||0,0,8192),n:clamp(Number(q.get('n'))||32,8,512),format:['png','jpeg','webp'].includes(q.get('format'))?q.get('format'):/heic-to-jpg|pdf-to-jpg/.test(p)?'jpeg':'png',mediaFormat:p.endsWith('/to-mp3')?'mp3':p.endsWith('/to-gif')?'gif':'webm',pdfFormat:p.endsWith('/pdf-to-jpg')?'jpeg':'pdf',pdfRaster:p.endsWith('/pdf/compress')};}
+export function route(path,search=''){const p=path.toLowerCase().replace(/\/+$/,''),q=new URLSearchParams(search);let editor='image',tool='';if(/\/pdf(?:\/|$)|\/jpg-to-pdf$|\/pdf-to-jpg$/.test(p))editor='pdf';else if(/\/pixel(?:ize)?$|\/image\/pixel$/.test(p))editor='pixel';else if(/\/(?:media|video)(?:\/|$)/.test(p))editor='media';if(/compress|convert|target-size|heic-to-jpg/.test(p))tool='export';if(p.endsWith('/resize'))tool='resize';if(p.endsWith('/crop'))tool='crop';if(/remove-bg|remove-background/.test(p))tool='background';if(p.endsWith('/upscale'))tool='upscale';if(p.endsWith('/editor'))tool='';if(editor==='pdf'&&/split|pdf-to-jpg|compress/.test(p))tool='export';if(editor==='media'&&/trim|compress|to-mp3|to-gif/.test(p))tool='export';if(['export','crop','resize','background','upscale','more','pixel','text','pen'].includes(q.get('tool')))tool=q.get('tool');return {editor,tool,kb:clamp(Number(q.get('kb'))||0,0,32768),w:clamp(Number(q.get('w'))||0,0,LIMITS.side),h:clamp(Number(q.get('h'))||0,0,LIMITS.side),n:clamp(Number(q.get('n'))||32,8,512),format:['png','jpeg','webp'].includes(q.get('format'))?q.get('format'):/heic-to-jpg|pdf-to-jpg/.test(p)?'jpeg':'png',mediaFormat:p.endsWith('/to-mp3')?'mp3':p.endsWith('/to-gif')?'gif':'webm',pdfFormat:p.endsWith('/pdf-to-jpg')?'jpeg':'pdf',pdfRaster:p.endsWith('/pdf/compress')};}
 /** Deterministic median-cut palette, weighted by histogram occurrences. */
 export function paletteOf(data,k){const hist=new Map();for(let i=0;i<data.length;i+=4){if(data[i+3]<128)continue;const key=(data[i]>>3)<<10|(data[i+1]>>3)<<5|(data[i+2]>>3);let v=hist.get(key);if(!v)hist.set(key,v=[0,0,0,0]);v[0]+=data[i];v[1]+=data[i+1];v[2]+=data[i+2];v[3]++;}let boxes=[[...hist.values()].map(v=>[v[0]/v[3],v[1]/v[3],v[2]/v[3],v[3]])];if(!boxes[0].length)return [[0,0,0]];const span=b=>[0,1,2].map(c=>{let lo=255,hi=0;for(const p of b){lo=Math.min(lo,p[c]);hi=Math.max(hi,p[c]);}return hi-lo;});while(boxes.length<k){let best=-1,score=-1,ch=0;boxes.forEach((b,i)=>{if(b.length<2)return;const ranges=span(b),m=Math.max(...ranges),s=m*b.reduce((n,p)=>n+p[3],0);if(s>score){score=s;best=i;ch=ranges.indexOf(m);}});if(best<0)break;const b=boxes[best].sort((a,b)=>a[ch]-b[ch]),half=b.reduce((n,p)=>n+p[3],0)/2;let total=0,at=1;for(;at<b.length;at++){total+=b[at-1][3];if(total>=half)break;}boxes.splice(best,1,b.slice(0,at),b.slice(at));}return boxes.map(b=>{const sum=b.reduce((a,p)=>a.map((v,i)=>v+(i===3?p[3]:p[i]*p[3])),[0,0,0,0]);return sum.slice(0,3).map(v=>Math.round(v/sum[3]));});}
-export function quantize(data,w,h,k=16,dither=0){if(!k)return new Uint8ClampedArray(data);const palette=paletteOf(data,k),out=new Uint8ClampedArray(data),work=new Float32Array(data);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]<128){out.fill(0,i,i+4);continue;}let color=palette[0],dist=Infinity;for(const p of palette){const d=(work[i]-p[0])**2+(work[i+1]-p[1])**2+(work[i+2]-p[2])**2;if(d<dist){dist=d;color=p;}}out.set(color,i);out[i+3]=255;if(dither)for(const [dx,dy,a]of[[1,0,7/16],[-1,1,3/16],[0,1,5/16],[1,1,1/16]]){if(x+dx<0||x+dx>=w||y+dy>=h)continue;const j=((y+dy)*w+x+dx)*4;if(data[j+3]<128)continue;for(let c=0;c<3;c++)work[j+c]+=(work[i+c]-color[c])*a*dither;}}return out;}
+export const quantize=quantizePerceptual;
 /** Removes only color-connected regions seeded at the image border. */
-export function removeConnected(data,w,h,color,tolerance){const out=new Uint8ClampedArray(data),seen=new Uint8Array(w*h),queue=new Uint32Array(w*h);let head=0,tail=0;const add=i=>{if(seen[i])return;seen[i]=1;const j=i*4;if(Math.hypot(data[j]-color[0],data[j+1]-color[1],data[j+2]-color[2])<=tolerance||data[j+3]===0)queue[tail++]=i;};for(let x=0;x<w;x++){add(x);add((h-1)*w+x);}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1);}while(head<tail){const i=queue[head++],x=i%w;out[i*4+3]=0;if(x)add(i-1);if(x<w-1)add(i+1);if(i>=w)add(i-w);if(i<w*(h-1))add(i+w);}return out;}
+export {removeColorBackground as removeConnected} from './color-background.js';
 export function addOutline(data,w,h,r=1,color=[24,32,45]){const out=new Uint8ClampedArray(data);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]>=128)continue;let hit=false;for(let dy=-r;dy<=r&&!hit;dy++)for(let dx=-r;dx<=r;dx++){const nx=x+dx,ny=y+dy;if(nx>=0&&nx<w&&ny>=0&&ny<h&&data[(ny*w+nx)*4+3]>=128){hit=true;break;}}if(hit)out.set([...color,255],i);}return out;}
 export function inversePoint(x,y,angle){return angle===90?[y,1-x]:angle===180?[1-x,1-y]:angle===270?[1-y,x]:[x,y];}
-const crcTable=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;crcTable[i]=c>>>0;}
-export function crc32(b){let c=0xffffffff;for(const v of b)c=crcTable[(c^v)&255]^(c>>>8);return (c^0xffffffff)>>>0;}
+const crcTable=new Uint32Array(256*8);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;crcTable[i]=c>>>0;}
+for(let k=1;k<8;k++)for(let i=0;i<256;i++){const c=crcTable[(k-1)*256+i];crcTable[k*256+i]=(crcTable[c&255]^(c>>>8))>>>0;}
+/** Slicing-by-8 CRC-32 update (running value without final xor): ~8× the byte-at-a-time loop. */
+function crcUpdate(c,b){
+ const n=b.length,end=n-(n&7);let i=0;
+ for(;i<end;i+=8){
+  const a=(c^(b[i]|b[i+1]<<8|b[i+2]<<16|b[i+3]<<24))>>>0;
+  c=crcTable[1792+(a&255)]^crcTable[1536+(a>>>8&255)]^crcTable[1280+(a>>>16&255)]^crcTable[1024+(a>>>24)]^crcTable[768+b[i+4]]^crcTable[512+b[i+5]]^crcTable[256+b[i+6]]^crcTable[b[i+7]];
+ }
+ for(;i<n;i++)c=crcTable[(c^b[i])&255]^(c>>>8);
+ return c>>>0;
+}
+export function crc32(b){return (crcUpdate(0xffffffff,b)^0xffffffff)>>>0;}
+// Yield to the event loop by elapsed work, not per call: timers clamp to 4-15 ms, which made
+// thousands of tiny archive entries spend minutes idle.
+let lastYield=0;
+async function breathe(){const now=performance.now();if(now-lastYield<16)return;await new Promise(r=>setTimeout(r,0));lastYield=performance.now();}
+export async function blobCRC(blob,{signal,progress=()=>{}}={}){
+ let crc=0xffffffff;
+ for(let offset=0;offset<blob.size;offset+=1024**2){
+  if(signal?.aborted)throw new DOMException('Cancelled','AbortError');
+  const chunk=new Uint8Array(await blob.slice(offset,offset+1024**2).arrayBuffer());
+  crc=crcUpdate(crc,chunk);
+  progress(Math.min(offset+chunk.length,blob.size),blob.size);await breathe();
+ }
+ if(signal?.aborted)throw new DOMException('Cancelled','AbortError');return (crc^0xffffffff)>>>0;
+}
 /** Stored ZIP: no recompression of already-compressed images. */
 export function safeArchivePath(value){
  const raw=String(value);if(raw.startsWith('/')||raw.includes('\\')||raw.includes(':')||raw.split('/').some(p=>!p||p==='.'||p==='..'))throw Error('Unsafe archive path');
  return raw.split('/').map(safeName).join('/');
 }
-export async function zip(entries,{paths=false}={}){if(!entries.length)throw Error(t("저장할 파일이 없습니다."));if(entries.reduce((n,e)=>n+e.blob.size,0)>LIMITS.totalBytes)throw Error(t("ZIP은 128MB 이하로 나누어 저장하세요."));const local=[],central=[],names=new Set();let offset=0;for(const e of entries){let original=paths?safeArchivePath(e.name):safeName(e.name),name=original,idx=2;const slash=original.lastIndexOf('/'),folder=original.slice(0,slash+1),leaf=original.slice(slash+1),dot=leaf.lastIndexOf('.'),base=dot>0?leaf.slice(0,dot):leaf,ext=dot>0?leaf.slice(dot):'';while(names.has(name.toLowerCase()))name=`${folder}${base}-${idx++}${ext}`;names.add(name.toLowerCase());const n=new TextEncoder().encode(name),b=new Uint8Array(await e.blob.arrayBuffer()),crc=crc32(b),h=new Uint8Array(30+n.length),v=new DataView(h.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);v.setUint16(12,33,true);v.setUint32(14,crc,true);v.setUint32(18,b.length,true);v.setUint32(22,b.length,true);v.setUint16(26,n.length,true);h.set(n,30);const c=new Uint8Array(46+n.length),d=new DataView(c.buffer);d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(8,0x800,true);d.setUint16(14,33,true);d.setUint32(16,crc,true);d.setUint32(20,b.length,true);d.setUint32(24,b.length,true);d.setUint16(28,n.length,true);d.setUint32(42,offset,true);c.set(n,46);local.push(h,e.blob);central.push(c);offset+=h.length+b.length;}const end=new Uint8Array(22),v=new DataView(end.buffer);v.setUint32(0,0x06054b50,true);v.setUint16(8,entries.length,true);v.setUint16(10,entries.length,true);v.setUint32(12,central.reduce((n,c)=>n+c.length,0),true);v.setUint32(16,offset,true);return new Blob([...local,...central,end],{type:'application/zip'});}
+const U32=0xffffffff;
+/** Header layout for a stored archive. ZIP64 records appear only when a size, offset or the entry
+ * count exceeds ZIP32, so ordinary archives stay byte-identical to plain ZIP32 output. */
+export function zipLayout(records){
+ const local=[],central=[];let offset=0;
+ for(const {name,size,crc} of records){
+  const big=size>=U32,far=offset>=U32,zip64=big||far,localExtra=big?20:0,centralExtra=(big?16:0)+(far?8:0)+(zip64?4:0);
+  const h=new Uint8Array(30+name.length+localExtra),v=new DataView(h.buffer);
+  v.setUint32(0,0x04034b50,true);v.setUint16(4,big?45:20,true);v.setUint16(6,0x800,true);v.setUint16(12,33,true);v.setUint32(14,crc,true);
+  v.setUint32(18,big?U32:size,true);v.setUint32(22,big?U32:size,true);v.setUint16(26,name.length,true);v.setUint16(28,localExtra,true);h.set(name,30);
+  if(big){const x=30+name.length;v.setUint16(x,1,true);v.setUint16(x+2,16,true);v.setBigUint64(x+4,BigInt(size),true);v.setBigUint64(x+12,BigInt(size),true);}
+  const c=new Uint8Array(46+name.length+centralExtra),d=new DataView(c.buffer);
+  d.setUint32(0,0x02014b50,true);d.setUint16(4,zip64?45:20,true);d.setUint16(6,zip64?45:20,true);d.setUint16(8,0x800,true);d.setUint16(14,33,true);d.setUint32(16,crc,true);
+  d.setUint32(20,big?U32:size,true);d.setUint32(24,big?U32:size,true);d.setUint16(28,name.length,true);d.setUint16(30,centralExtra,true);d.setUint32(42,far?U32:offset,true);c.set(name,46);
+  if(zip64){let x=46+name.length;d.setUint16(x,1,true);d.setUint16(x+2,centralExtra-4,true);x+=4;
+   if(big){d.setBigUint64(x,BigInt(size),true);d.setBigUint64(x+8,BigInt(size),true);x+=16;}if(far)d.setBigUint64(x,BigInt(offset),true);}
+  local.push(h);central.push(c);offset+=h.length+size;
+ }
+ const centralSize=central.reduce((n,c)=>n+c.length,0),count=records.length,zip64=count>=0xffff||centralSize>=U32||offset>=U32,tail=[];
+ if(zip64){
+  const r=new Uint8Array(56),v=new DataView(r.buffer);v.setUint32(0,0x06064b50,true);v.setBigUint64(4,44n,true);v.setUint16(12,45,true);v.setUint16(14,45,true);
+  v.setBigUint64(24,BigInt(count),true);v.setBigUint64(32,BigInt(count),true);v.setBigUint64(40,BigInt(centralSize),true);v.setBigUint64(48,BigInt(offset),true);
+  const l=new Uint8Array(20),w=new DataView(l.buffer);w.setUint32(0,0x07064b50,true);w.setBigUint64(8,BigInt(offset+centralSize),true);w.setUint32(16,1,true);tail.push(r,l);
+ }
+ const end=new Uint8Array(22),v=new DataView(end.buffer);v.setUint32(0,0x06054b50,true);v.setUint16(8,Math.min(count,0xffff),true);v.setUint16(10,Math.min(count,0xffff),true);
+ v.setUint32(12,Math.min(centralSize,U32),true);v.setUint32(16,Math.min(offset,U32),true);tail.push(end);
+ return {local,central,tail};
+}
+export async function zip(entries,{paths=false,signal,progress=()=>{}}={}){
+ if(!entries.length)throw Error(t("저장할 파일이 없습니다."));
+ const records=[],names=new Set();
+ for(const e of entries){
+  let original=paths?safeArchivePath(e.name):safeName(e.name),name=original,idx=2;const slash=original.lastIndexOf('/'),folder=original.slice(0,slash+1),leaf=original.slice(slash+1),dot=leaf.lastIndexOf('.'),base=dot>0?leaf.slice(0,dot):leaf,ext=dot>0?leaf.slice(dot):'';
+  while(names.has(name.toLowerCase()))name=`${folder}${base}-${idx++}${ext}`;names.add(name.toLowerCase());
+  records.push({name:new TextEncoder().encode(name),size:e.blob.size,crc:await blobCRC(e.blob,{signal,progress:(done,total)=>progress(`${name} · ${done} / ${total} bytes`)})});
+ }
+ const {local,central,tail}=zipLayout(records);
+ return new Blob([...local.flatMap((h,i)=>[h,entries[i].blob]),...central,...tail],{type:'application/zip'});
+}
 /** Small GIF89a encoder. Clear codes bound dictionary size; output favors simplicity over compression. */
 export function gif(frames,w,h,delay=100){const a=[],word=n=>a.push(n&255,n>>8),str=s=>a.push(...new TextEncoder().encode(s));str('GIF89a');word(w);word(h);a.push(0xf7,0,0);for(let i=0;i<256;i++)a.push(Math.round((i>>5)*255/7),Math.round(((i>>2)&7)*255/7),Math.round((i&3)*255/3));a.push(0x21,0xff,11);str('NETSCAPE2.0');a.push(3,1,0,0,0);for(const frame of frames){a.push(0x21,0xf9,4,0);word(Math.round(delay/10));a.push(0,0,0x2c);word(0);word(0);word(w);word(h);a.push(0,8);const data=[];let bits=0,val=0;const code=n=>{val|=n<<bits;bits+=9;while(bits>=8){data.push(val&255);val>>>=8;bits-=8;}};for(let start=0;start<w*h;start+=200){code(256);for(let i=start;i<Math.min(start+200,w*h);i++){const j=i*4;code((frame[j]>>5)<<5|(frame[j+1]>>5)<<2|(frame[j+2]>>6));}}code(257);if(bits)data.push(val&255);for(let i=0;i<data.length;i+=255){const block=data.slice(i,i+255);a.push(block.length,...block);}a.push(0);}a.push(0x3b);return new Uint8Array(a);}

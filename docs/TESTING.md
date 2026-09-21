@@ -1,5 +1,12 @@
 # 검증 기록 · Cloudflare / SEO / AdSense 준비 · 2026-09-20
 
+## 서비스 계층 (브랜치 `nerulio/service-platform`, 2026-09-21, Windows · Node 24.15.0)
+
+- `npm test`: **964개 통과** (기존 937 + 서비스 27). `tests/service.test.mjs`(22)는 실제 SQL을 `node:sqlite` 위의 D1 형태 shim으로 실행한다: 새 DB migration·스키마, 익명 식별자, quota 0→1·29→30·30 거부·UTC 다음 날 초기화, `FREE_DAILY_JOBS`, operationId 재시도 무중복, 60개 동시 요청 중 정확히 30개 허용, 모르는/경량 도구 거부, 파일형 필드 거부, CSRF, Pro 무제한, 만료·해지 예약·past_due, 세션 해시/만료/로그아웃/재로그인, OAuth state·PKCE·nonce·aud·복귀 경로(토큰 엔드포인트 mock), webhook 서명·중복·순서 역전, billing 모드 안전장치, Paddle 서명(합성), Turnstile(Siteverify mock), 관리 API. `tests/service-build.test.mjs`(5)는 기본 빌드 무변경, Worker 번들 import 해석, `_routes.json`, `_headers`, dist 전체의 secret 누출 검사를 확인한다.
+- `python tests/service-browser.py` (`npm run test:service`): **50개 assertion 통과**. 임시 빌드 + **로컬** D1(miniflare) + `wrangler pages dev`(workerd 4.135.0) + Chromium. 익명 Free heavy 작업의 실제 결과 다운로드, 한도 도달 모달과 파일·설정 유지, 한도 후 자르기 정상·API 호출 0, 요청 가로채기로 파일명·base64·크기 미전송 확인, sandbox 체크아웃 후에도 Free → 서명 webhook 후 Pro·중복 무시, Pro 무제한·authorize 호출 0, 취소 후 Free, API 장애 시 자르기 정상·grace 3회 후 heavy만 일시 중지, 광고 빌드의 nonce CSP·Free만 AdSense 요청·Pro 요청 0/광고 DOM 0/빈 공간 0·광고 스크립트 차단 시 빈 슬롯 제거와 도구 정상.
+- 기존 회귀 `python tools/regression.py`: **통과** (existing 62, recipes 43, growth 24, SEO 402). `python tests/edge-browser.py`(workerd, 광고 전용 Worker): **13개 통과**. `npm run benchmark`, `python tools/benchmark.py --pdf`: 종료 코드 0, errors 없음.
+- **검증하지 않은 것**: 실제 Cloudflare 배포·D1 원격 DB·바인딩, 실제 Google OAuth 왕복, 실제 Turnstile 위젯(서버 검증은 mock), 실제 결제사(Paddle 어댑터는 합성 서명 테스트만), CI(Linux)에서의 `service-browser.py` 실행, 실제 AdSense/CMP.
+
 ## 현재 실행 결과
 
 - `npm run check`: 모든 `src/`와 `tools/` JavaScript 모듈 문법 검사 통과.

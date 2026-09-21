@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {integer,dimensions,safeName,fit,parsePages,route,paletteOf,quantize,removeConnected,addOutline,inversePoint,crc32,zip,gif,typeOf} from '../src/core.js';
+import {integer,dimensions,safeName,fit,parsePages,route,paletteOf,quantize,removeConnected,addOutline,inversePoint,crc32,zip,zipLayout,gif,typeOf} from '../src/core.js';
 import {ROUTES,entry} from '../tools/build.mjs';
 const data=(list)=>new Uint8ClampedArray(list.flat());
 test('integer rejects invalid sizes',()=>{for(const x of [NaN,-1,0,513,4.5])assert.throws(()=>integer(x,1,512));assert.equal(integer('32',1,512),32);});
-test('pixel and side limits',()=>{assert.throws(()=>dimensions(8193,1));assert.throws(()=>dimensions(5000,5000));assert.deepEqual(dimensions(1024,768),{w:1024,h:768});});
+test('safe dimensions include 8K and 16K strips; invalid RGBA addressing rejected',()=>{assert.throws(()=>dimensions(65536,1));assert.throws(()=>dimensions(65535,65535));assert.deepEqual(dimensions(7680,4320),{w:7680,h:4320});assert.deepEqual(dimensions(16384,1024),{w:16384,h:1024});});
 test('safe names do not create paths',()=>{assert.equal(safeName('../a/b\\c.png'),'.._a_b_c.png');assert(!safeName('<script>').includes('<'));});
 test('contain preserves ratio and pads',()=>{assert.deepEqual(fit(200,100,32,32),{w:32,h:16,x:0,y:8});});
 test('cover fills and crops',()=>{assert.deepEqual(fit(200,100,32,32,true),{w:64,h:32,x:-16,y:0});});
@@ -27,3 +27,24 @@ test('ZIP headers and case-insensitive uniqueness',async()=>{const b=await zip([
 test('empty ZIP is rejected',async()=>assert.rejects(()=>zip([])));
 test('GIF valid signature and terminator',()=>{const out=gif([data([[255,0,0,255],[0,255,0,255],[0,0,255,255],[255,255,255,255]])],2,2);assert.equal(new TextDecoder().decode(out.slice(0,6)),'GIF89a');assert.equal(out.at(-1),0x3b);});
 for(const p of ROUTES)test(`static route base ${p}`,()=>{assert(entry('<base href="./">',p).includes('../'.repeat(p.split('/').length)));});
+// Independent reader for the ZIP64 fields zipLayout must emit (APPNOTE 4.3.14–4.5.3).
+const zip64Extra=(bytes,at,length)=>{const v=new DataView(bytes.buffer,bytes.byteOffset);for(let x=at;x<at+length;x+=4+v.getUint16(x+2,true))if(v.getUint16(x,true)===1)return {view:v,at:x+4,size:v.getUint16(x+2,true)};return null;};
+test('ZIP64 is emitted only past ZIP32 limits: 5 GiB entry and an entry beyond 4 GiB',()=>{
+ const name=new TextEncoder().encode('a.bin'),big=5*1024**3,{local,central,tail}=zipLayout([{name,size:big,crc:1},{name:new TextEncoder().encode('b.txt'),size:3,crc:2}]);
+ const lh=new DataView(local[0].buffer);assert.equal(lh.getUint32(18,true),0xffffffff);assert.equal(lh.getUint16(4,true),45);
+ const lx=zip64Extra(local[0],30+name.length,lh.getUint16(28,true));assert.equal(lx.size,16);assert.equal(Number(lx.view.getBigUint64(lx.at,true)),big);
+ const second=new DataView(central[1].buffer),offset=local[0].length+big;assert.equal(second.getUint32(42,true),0xffffffff);assert.equal(second.getUint32(20,true),3);
+ const cx=zip64Extra(central[1],46+5,second.getUint16(30,true));assert.equal(cx.size,8,'small entry carries only its offset');assert.equal(Number(cx.view.getBigUint64(cx.at,true)),offset);
+ assert.equal(new DataView(local[1].buffer).getUint16(28,true),0,'small entry needs no local ZIP64 extra');
+ assert.equal(tail.length,3);const r=new DataView(tail[0].buffer),l=new DataView(tail[1].buffer),end=new DataView(tail[2].buffer);
+ const centralSize=central.reduce((n,c)=>n+c.length,0),centralOffset=offset+local[1].length+3;
+ assert.equal(r.getUint32(0,true),0x06064b50);assert.equal(Number(r.getBigUint64(32,true)),2);assert.equal(Number(r.getBigUint64(40,true)),centralSize);assert.equal(Number(r.getBigUint64(48,true)),centralOffset);
+ assert.equal(l.getUint32(0,true),0x07064b50);assert.equal(Number(l.getBigUint64(8,true)),centralOffset+centralSize);
+ assert.equal(end.getUint32(16,true),0xffffffff);assert.equal(end.getUint16(10,true),2);
+});
+test('ZIP64 end records cover 65535+ entries while small archives stay ZIP32',()=>{
+ const records=n=>Array.from({length:n},(_,i)=>({name:new TextEncoder().encode(`f${i}`),size:1,crc:0}));
+ assert.equal(zipLayout(records(65534)).tail.length,1);
+ const {tail}=zipLayout(records(70000));assert.equal(tail.length,3);
+ assert.equal(Number(new DataView(tail[0].buffer).getBigUint64(24,true)),70000);assert.equal(new DataView(tail[2].buffer).getUint16(8,true),0xffff);
+});
