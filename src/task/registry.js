@@ -13,6 +13,7 @@ export const TASK_TOOLS=Object.freeze({
  'pdf-compress':{module:'pdf-compress',kinds:['pdf'],next:['pdf-merge','pdf-split','pdf']},
  'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']},
  pdf:{module:'pdf-editor',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf-split']},
+ pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
