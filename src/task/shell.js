@@ -82,6 +82,9 @@ export async function boot(){
   track('file_selected',{count:ok.length,file_kind:def.kinds[0]});workspace.add(ok,source);
  };
  wireIntake(intake,{accept:tool.accept});
+ // The drop zone is static HTML; a file chosen before this line ran would go nowhere. Pick it up, and mark the page live.
+ const early=$('#fileInput');if(early?.files?.length){const files=[...early.files];early.value='';intake(files,'picker');}
+ document.documentElement.dataset.taskReady='1';
  const carried=await takeFiles();if(carried.length)intake(carried,'handoff');
 }
 boot();

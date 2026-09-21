@@ -62,7 +62,7 @@ export function createBatch({el,def},tool){
   const it=items[current],cmp=el.querySelector('#cmp');if(!cmp||!it)return;
   const before=it.thumbBroken&&it.resultURL?it.resultURL:it.thumbFull;if(before)el.querySelector('#cmpBefore').src=before;else el.querySelector('#cmpBefore').removeAttribute('src');const after=el.querySelector('#cmpAfter');
   const shown=usable(it),compare=tool.compare!==false&&(!tool.compareWhen||!shown||tool.compareWhen(it));if(shown&&compare){after.src=it.resultURL;after.hidden=false;}else after.hidden=true;
-  cmp.classList.toggle('is-pending',!shown);cmp.classList.toggle('is-upgrading',shown&&it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!tool.pixelated);
+  cmp.classList.toggle('is-pending',!shown);cmp.classList.toggle('is-upgrading',shown&&it.status!=='done');cmp.classList.toggle('no-compare',!compare);after.classList.toggle('px',!!(typeof tool.pixelated==='function'?tool.pixelated(it):tool.pixelated));
   if(!compare&&shown&&(it.result.preview||it.result.showResult))el.querySelector('#cmpBefore').src=it.result.preview||it.resultURL;
   el.querySelector('#viewerActions').innerHTML=it.status==='done'&&tool.viewerActions?tool.viewerActions(it):'';
   if(it.width)cmp.style.aspectRatio=`${it.width} / ${it.height}`;
