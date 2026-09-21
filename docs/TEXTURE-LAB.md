@@ -257,6 +257,6 @@ downloaded files were re-opened with Pillow/numpy — never read back from the U
 | Import into Unity / Unreal / Godot | — | not attempted | UNVERIFIED |
 | Phone layout | Chromium at 390 and 320 px, Lab and Channels stages | `scrollWidth == innerWidth`, no horizontal scroll | VERIFIED |
 | Roughness → smoothness inversion | Playwright: invert G, download, numpy compare | saved plane equals `255 − roughness` exactly, and the stage shows the in → out pair | VERIFIED |
-| Unit coverage | `node --test tests/game-texture*.test.mjs` | 27 tests, 0 failures | VERIFIED |
+| Unit coverage | `node --test tests/game-texture*.test.mjs` | 21 tests, 0 failures | VERIFIED |
 | Suite integration | `tests/task-browser.py` (TEST_URL on this branch's port) | 141 checks pass, including 15 new Texture Lab checks | VERIFIED |
 | WebGL2 preview | Chromium with SwiftShader | renders; texture-unit binding verified by eye against the source maps | VERIFIED (software GL only) |

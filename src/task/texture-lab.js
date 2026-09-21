@@ -7,7 +7,7 @@ import {alphaStats,colorSpread,luminancePlane,planeToRGBA,planeStats} from '../g
 import {validateNormalMap} from '../game/texture-normal.js';
 import {classifyTextureName,validateTextureSet,WORKFLOWS,WORKFLOW_IDS,ROLES,GRAY_ROLES,colorSpaceOf,isPowerOfTwo} from '../game/texture-set.js';
 import {ENGINE_PRESETS,PRESET_IDS,presetChannels,presetSummary} from '../game/texture-presets.js';
-import {text,toast,download,track,onLocale,continueWith,toolURL,page as route} from './shell.js';
+import {text,toast,download,track,onLocale,continueWith,toolURL,authorize,page as route} from './shell.js';
 import * as maps from './texture-lab-maps.js';
 import * as fix from './texture-lab-fix.js';
 import {previewStage} from './texture-preview.js';
@@ -318,6 +318,9 @@ ${sorted.length?`<ul class="tex-issues">${sorted.map(i=>`<li class="lvl-${i.leve
  // ---- intake -------------------------------------------------------------------------------
  async function add(files){
   if(state.busy)return;
+  // One Free-plan job per set of files that is added, like the batch workspace. Only the legacy
+  // texture-map id is metered at all; the Lab's own routes are quota class 'none'.
+  if(!await authorize(route.id,{}))return;
   const first=!state.files.length;
   await run(async()=>{
    for(const file of files){
