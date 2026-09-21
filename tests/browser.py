@@ -80,12 +80,16 @@ with sync_playwright() as pw:
   page.screenshot(path=str(OUT/f'{language}-mobile.png'),full_page=True)
   page.locator('[data-action="task-sample"]').click();page.locator('#taskOptions').wait_for();lang(page,language);ok(language+' mobile panel inside viewport',page.locator('#taskOptions').bounding_box()['x']>=0 and page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
   ok(language+' mobile primary visible',page.locator('#taskDownload').is_visible());page.close()
+ # Video → GIF is a single-task page now (src/task/media.js); the same evidence is kept on it.
  if shutil.which('ffmpeg'):
   fixture=OUT/'i18n-video.webm'
   subprocess.run(['ffmpeg','-f','lavfi','-i','testsrc2=size=160x96:rate=12:duration=2','-c:v','libvpx','-b:v','100k','-an',str(fixture),'-y'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-  page=mount(ja,'/ja/video/to-gif/');page.locator('#fileInput').set_input_files(str(fixture));page.wait_for_timeout(100);idle(page)
-  ok('Japanese GIF intent retains decoded video',page.locator('#editorTitle').inner_text()=='動画 → GIF' and page.locator('#video').evaluate('(v)=>v.videoWidth===160'))
-  page.locator('#mediaEnd').fill('1');click(page,'intent-run');output=download(page,'localized.gif');animation=Image.open(output)
+  page=mount(ja,'/ja/video/to-gif/?fps=12');page.locator('#fileInput').set_input_files(str(fixture));page.locator('#mediaRun:not([disabled])').wait_for(timeout=60000)
+  ok('Japanese GIF intent retains decoded video',page.locator('#taskTitle').inner_text()=='動画 → GIF' and page.locator('#video').evaluate('(v)=>v.videoWidth===160'))
+  page.locator('#mediaEnd').fill('1');page.wait_for_timeout(120);page.locator('#mediaRun').click()
+  page.locator('#taskDownload:not([disabled])').wait_for(timeout=120000)
+  with page.expect_download() as event:page.locator('#taskDownload').click()
+  output=OUT/'localized.gif';event.value.save_as(output);animation=Image.open(output)
   ok('localized GIF pipeline saves actual twelve-frame GIF',animation.format=='GIF' and animation.n_frames==12 and animation.size==(160,96))
   assert_no_korean(page,'Japanese GIF result translated');page.close()
  else:print('SKIP media regression: ffmpeg unavailable')

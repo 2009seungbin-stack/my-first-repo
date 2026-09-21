@@ -17,10 +17,20 @@ export const TASK_TOOLS=Object.freeze({
  // UI Lab: one workspace, five stages. Every id below opens it at the stage it names, and the
  // original bitmap-font URL keeps working as the Font stage (docs/UI-LAB.md).
  ...Object.fromEntries(['ui-lab','9-slice-editor','button-state-generator','missing-glyph-checker','ui-scale-preview','bitmap-font'].map(id=>[id,{module:'ui-lab',kinds:['image'],next:['sprite-sheet-maker','atlas-padding','compress']}])),
+ 'video-gif':{module:'media',kinds:['media'],next:['video-mp3','video-trim','video-frame']},
+ 'video-mp3':{module:'media',kinds:['media'],next:['video-gif','video-trim','video-frame']},
+ 'video-compress':{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-frame']},
+ 'video-trim':{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-compress']},
+ 'video-frame':{module:'media',kinds:['media'],next:['compress','convert','resize']},
+ media:{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-compress']},
  upscale:{module:'upscale',kinds:['image'],next:['compress','remove-bg','convert']},
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
- 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
+ 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
+ crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
+ 'sprite-slicer':{module:'sprite-slicer',kinds:['image'],next:['sprite-sheet-maker','frame-normalize','pixel']},
+ 'frame-normalize':{module:'frame-normalize',kinds:['image'],next:['sprite-sheet-maker','sprite-slicer','pixel']},
+ 'mask-packer':{module:'mask-packer',kinds:['image'],next:['compress','convert','texture-map']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */

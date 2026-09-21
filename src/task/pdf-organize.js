@@ -147,7 +147,10 @@ ${images?`<div class="segmented" role="group" id="pdfPageSize">${['a4','letter',
    else{const only=selected.size===1&&selected.has(id);selected.clear();if(!only)selected.add(id);anchor=id;}
    render();el.querySelector(`.pg[data-id="${id}"]`)?.focus();}
  });
- el.addEventListener('keydown',e=>{
+ // On the document, not the workspace: a button that disables itself after its click drops focus to
+ // <body>, and shortcuts (undo, delete) pressed next would otherwise never reach the workspace.
+ document.addEventListener('keydown',e=>{
+  if(!el.isConnected||e.target.closest?.('dialog'))return;
   if(e.target.matches('input,textarea,select'))return;
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
   if(!pages().length)return;const card=e.target.closest?.('.pg');
