@@ -30,7 +30,14 @@ export function configuration(env=process.env){
  if(pricing.amount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.amount))throw Error('PRO_PRICE_AMOUNT must be a plain decimal such as 4.99');
  if(pricing.amount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
  if(!['month','year'].includes(pricing.interval))throw Error('PRO_PRICE_INTERVAL must be month or year');
- return {siteURL,preview,client,slots,verificationClient,searchVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS)};
+ // A retired deployment (e.g. the old *.pages.dev project) builds only a permanent redirect.
+ let redirectTo='';
+ if(env.REDIRECT_TO){
+  let u;try{u=new URL(env.REDIRECT_TO);}catch{throw Error('REDIRECT_TO must be an absolute https origin');}
+  if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
+  redirectTo=u.origin;
+ }
+ return {siteURL,preview,client,slots,verificationClient,searchVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';

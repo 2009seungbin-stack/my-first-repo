@@ -4,6 +4,10 @@
 
 > **계정·Free/Pro·결제 계층(선택)**: `SERVICE_API=on`일 때만 빌드된다. 켜기 전에 [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md)의 D1·secret·OAuth 순서를 먼저 완료한다. 설계는 [docs/SERVICE-ARCHITECTURE.md](docs/SERVICE-ARCHITECTURE.md), 인증은 [docs/AUTH.md](docs/AUTH.md), 결제는 [docs/BILLING.md](docs/BILLING.md), 요금 정책은 [docs/PRICING-MODEL.md](docs/PRICING-MODEL.md). 서비스 빌드에서 AdSense는 `/api/v1/me`가 `ads:true`일 때만 런타임에 로드된다(Pro는 광고 요청 0).
 
+### 주소 이전: nerulio.pages.dev (2026-09-21)
+
+`*.pages.dev` 주소는 Pages 프로젝트 이름으로 고정되어 바꿀 수 없으므로 같은 저장소에 새 Pages 프로젝트 `nerulio`(→ https://nerulio.pages.dev)를 만든다. 설정은 아래 `fileforge-studio`와 같고 `SITE_URL`만 `https://nerulio.pages.dev`로 둔다. 새 주소 배포가 성공한 **뒤에** 기존 `fileforge-studio` 프로젝트의 Production 변수에 `REDIRECT_TO=https://nerulio.pages.dev`를 추가하고 재배포하면, 그 프로젝트는 `_redirects` 한 줄(`/* https://nerulio.pages.dev/:splat 301`)만 배포해 모든 경로·쿼리를 새 주소로 영구 이동시킨다. 순서를 바꾸면 이전 주소가 존재하지 않는 곳으로 이동하므로 주의한다. Search Console과 AdSense에는 새 주소를 새 사이트로 등록해야 한다. `*.pages.dev` 하위 도메인은 AdSense 승인이 어려울 수 있으며, 소유 도메인을 구입하면 같은 방식(`REDIRECT_TO`)으로 한 번 더 옮긴다.
+
 ### 현재 공개 배포 (2026-09-20)
 
 공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages 프로젝트 `fileforge-studio`에 `2009seungbin-stack/my-first-repo`를 연결했다. **`main`에 push하면 Cloudflare가 자동으로 빌드·배포한다.** 수동 ZIP 업로드는 운영 업데이트 절차로 사용하지 않는다.
