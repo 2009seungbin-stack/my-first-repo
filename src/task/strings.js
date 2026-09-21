@@ -90,6 +90,48 @@ S.ja.bg={quality:'AIの品質',qualityBest:'高品質 (初回のみ190MBを取�
 S.ko.upscale={size:'얼마나 크게',method:'확대 방식',ai:'AI 선명하게',aiHint:'사진·일러스트',smooth:'부드럽게',smoothHint:'가장 빠름',pixel:'도트 그대로',pixelHint:'픽셀아트',tooLarge:'400만 화소가 넘는 이미지는 AI 대신 부드러운 확대로 처리했습니다.',noModel:'AI 모델을 받지 못해 부드러운 확대로 처리했습니다.',stage:{model:'AI 모델 준비 중 (5MB)',tiles:'선명하게 만드는 중 {a}/{b}',prepare:'확대 중'}};
 S.en.upscale={size:'How much bigger',method:'Method',ai:'AI sharpen',aiHint:'photos · art',smooth:'Smooth',smoothHint:'fastest',pixel:'Keep pixels',pixelHint:'pixel art',tooLarge:'Images over 4 megapixels are enlarged with the smooth method instead of AI.',noModel:'The AI model could not be loaded, so the smooth method was used.',stage:{model:'Preparing the AI model (5 MB)',tiles:'Sharpening {a}/{b}',prepare:'Enlarging'}};
 S.ja.upscale={size:'どれくらい大きく',method:'拡大方法',ai:'AIでくっきり',aiHint:'写真・イラスト',smooth:'なめらか',smoothHint:'最速',pixel:'ドットのまま',pixelHint:'ドット絵',tooLarge:'400万画素を超える画像はAIではなく、なめらかな拡大で処理しました。',noModel:'AIモデルを取得できなかったため、なめらかな拡大で処理しました。',stage:{model:'AIモデルを準備中 (5MB)',tiles:'くっきり処理中 {a}/{b}',prepare:'拡大中'}};
+S.ko.sec={drop:'암호를 걸 PDF를 놓으세요',dropHint:'여러 파일에 같은 암호를 한 번에 · 업로드 없음',dropOpen:'암호가 걸린 PDF를 놓으세요',dropOpenHint:'알고 있는 암호를 입력하면 암호 없이 열리는 PDF가 됩니다',
+ title:'PDF 암호 설정',titleOpen:'PDF 암호 해제',head:'열 때 암호를 물어보게 만듭니다',headOpen:'암호 없이 열리는 PDF로 만듭니다',
+ lead:'암호는 이 탭 안에서만 쓰이고 어디에도 전송·저장되지 않습니다.',leadOpen:'받은 암호를 입력하세요. 암호를 추측하거나 뚫지는 않습니다.',
+ protectedHead:'{n}개 파일에 암호를 걸었습니다',unlockedHead:'{n}개 파일의 암호를 지웠습니다',
+ password:'암호',passwordPlaceholder:'열 때 입력할 암호',confirm:'암호 확인',show:'암호 보기',
+ owner:'소유자 암호(선택)',ownerHint:'비워 두면 열기 암호가 권한 변경 암호도 됩니다.',
+ allow:'암호를 아는 사람에게 허용할 작업','allow.print':'인쇄','allow.copy':'글자 복사','allow.modify':'편집·주석',
+ run:'암호 설정하기',runOpen:'암호 해제하기',done:'암호 설정됨',doneOpen:'해제됨',ready:'준비됨',
+ detected:'{h} 암호가 걸려 있습니다',notProtected:'암호가 걸려 있지 않습니다',
+ protectedNote:'{n}쪽 · AES-256 · 열 때 암호 필요 · {size}',unlockedNote:'{n}쪽 · {h} 해제 · 암호 없이 열림',wasOpen:'원래 암호가 없어 그대로 저장했습니다',
+ needPassword:'암호를 입력하세요.',mismatch:'두 암호가 다릅니다.',wrongPassword:'암호가 맞지 않습니다. 다시 확인해 주세요.',
+ alreadyProtected:'이미 암호가 걸린 PDF입니다. 먼저 암호를 해제하세요.',unsupported:'이 보안 방식은 지원하지 않습니다.',
+ unverified:'결과를 여기서 다시 열어보지 못했습니다. 원본을 지우기 전에 확인하세요.',
+ keepSafe:'암호는 저장하지 않습니다. 잊으면 복구할 수 없습니다.',legal:'열 권한이 있는 문서에만 사용하세요.'};
+S.en.sec={drop:'Drop the PDFs you want to protect',dropHint:'One password for all of them · nothing is uploaded',dropOpen:'Drop the password-protected PDFs',dropOpenHint:'Enter the password you know and get a PDF that opens without one',
+ title:'Protect PDF',titleOpen:'Unlock PDF',head:'Ask for a password to open',headOpen:'Make a PDF that opens without a password',
+ lead:'The password is used in this tab only; it is never sent or stored anywhere.',leadOpen:'Enter the password you were given. Unknown passwords are never guessed.',
+ protectedHead:'{n} file(s) protected',unlockedHead:'{n} file(s) unlocked',
+ password:'Password',passwordPlaceholder:'Needed to open the file',confirm:'Confirm password',show:'Show password',
+ owner:'Owner password (optional)',ownerHint:'Leave it empty and the open password also changes the permissions.',
+ allow:'Allowed for anyone with the password','allow.print':'Printing','allow.copy':'Copying text','allow.modify':'Editing and annotating',
+ run:'Protect the PDF',runOpen:'Remove the password',done:'Protected',doneOpen:'Unlocked',ready:'Ready',
+ detected:'Protected with {h}',notProtected:'No password on this PDF',
+ protectedNote:'{n} pages · AES-256 · the password is required to open it · {size}',unlockedNote:'{n} pages · {h} removed · opens without a password',wasOpen:'This PDF had no password; it was saved unchanged',
+ needPassword:'Enter a password.',mismatch:'The two passwords do not match.',wrongPassword:'Wrong password. Check it and try again.',
+ alreadyProtected:'This PDF is already protected. Remove its password first.',unsupported:'This security method is not supported.',
+ unverified:'The result could not be re-opened here. Check it before deleting the original.',
+ keepSafe:'The password is not stored. A forgotten one cannot be recovered.',legal:'Only use this on documents you are allowed to open.'};
+S.ja.sec={drop:'保護したいPDFをドロップ',dropHint:'複数のファイルに同じパスワードを一度に · アップロードなし',dropOpen:'パスワード付きのPDFをドロップ',dropOpenHint:'知っているパスワードを入力すると、パスワード不要のPDFになります',
+ title:'PDFにパスワード',titleOpen:'PDFのパスワード解除',head:'開くときにパスワードを要求します',headOpen:'パスワードなしで開けるPDFにします',
+ lead:'パスワードはこのタブ内だけで使い、どこにも送信・保存しません。',leadOpen:'受け取ったパスワードを入力してください。未知のパスワードを推測はしません。',
+ protectedHead:'{n}個のファイルを保護しました',unlockedHead:'{n}個のファイルを解除しました',
+ password:'パスワード',passwordPlaceholder:'開くときに必要',confirm:'パスワードの確認',show:'パスワードを表示',
+ owner:'オーナーパスワード（任意）',ownerHint:'空欄なら、開くパスワードが権限変更用も兼ねます。',
+ allow:'パスワードを知る人に許可する操作','allow.print':'印刷','allow.copy':'文字のコピー','allow.modify':'編集・注釈',
+ run:'パスワードを設定',runOpen:'パスワードを解除',done:'保護済み',doneOpen:'解除済み',ready:'準備完了',
+ detected:'{h} で保護されています',notProtected:'パスワードはかかっていません',
+ protectedNote:'{n}ページ · AES-256 · 開くにはパスワードが必要 · {size}',unlockedNote:'{n}ページ · {h} を解除 · パスワードなしで開けます',wasOpen:'元からパスワードがないため、そのまま保存しました',
+ needPassword:'パスワードを入力してください。',mismatch:'2つのパスワードが一致しません。',wrongPassword:'パスワードが違います。確認してもう一度お試しください。',
+ alreadyProtected:'このPDFはすでに保護されています。先にパスワードを解除してください。',unsupported:'このセキュリティ方式には対応していません。',
+ unverified:'結果をここで再度開けませんでした。元のファイルを消す前に確認してください。',
+ keepSafe:'パスワードは保存しません。忘れると復元できません。',legal:'開く権限のある文書にだけ使用してください。'};
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
