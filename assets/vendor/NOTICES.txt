@@ -1,0 +1,39 @@
+Nerulio optional processing engines
+
+These engines are downloaded only when used. Selected user files are processed locally.
+
+Pica 10.0.3, glur 2.0.0, multimath 3.0.0: MIT; notices in pica-10.0.3/.
+pdf-lib 1.17.1: MIT; notice in pdf-lib-1.17.1/LICENSE.md.
+PDF.js 6.3.289: Apache-2.0; notice in pdfjs-dist-6.3.289/LICENSE.
+@pdf-lib/fontkit 1.1.1: MIT. Fork: https://github.com/Hopding/fontkit
+Original fontkit: https://github.com/foliojs/fontkit (Devon Govett and contributors).
+Noto Sans CJK: SIL Open Font License 1.1; NotoSansCJK-LICENSE.
+
+Mediabunny 1.58.1: MPL-2.0. Unmodified source is supplied in mediabunny-1.58.1/src/.
+Source and build: https://github.com/Vanilagy/mediabunny/tree/v1.58.1
+@mediabunny/mp3-encoder 1.58.1: MPL-2.0. Source in mediabunny-mp3-encoder-1.58.1/src/.
+Local modification: the bundle's bare "mediabunny" import is replaced with the
+relative path of our pinned bundle. tools/vendor.mjs reproduces this modification.
+Covered library sources and this modification remain under MPL-2.0.
+
+MP3 encoding uses the LAME 3.100 encoder: https://lame.sourceforge.io/
+LAME source and LGPL terms are included in mediabunny-mp3-encoder-1.58.1/lame-3.100.tar.gz
+and LAME-COPYING. The encoder-only SIMD build disables the decoder and frontend.
+README.md in that directory documents building/replacing/relinking the library
+and C bridge with Emscripten. Users may modify or replace the LGPL component;
+no application restriction prevents debugging those modifications.
+Source archive mirror: https://deb.debian.org/debian/pool/main/l/lame/lame_3.100.orig.tar.gz
+SHA256 ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
+
+gifenc 1.0.3: MIT; notice in gifenc-1.0.3/LICENSE.md.
+
+Remote on-demand components: ONNX Runtime Web 1.30.0 (MIT), heic2any 0.0.4
+(MIT wrapper; bundled libheif/libde265 licenses are separate), legacy lamejs 1.2.1
+(LGPL-3.0, compatibility mode only).
+
+Experimental AI weights are pinned separately in src/ai-models.js:
+Swin2SR x2/x4, caidas/Xenova: Apache-2.0. Conde et al., Swin2SR (2022).
+BiRefNet lite, ZhengPeng7/studioludens: MIT. Zheng et al., BiRefNet (2024).
+Real-ESRGAN compact candidate, Xintao Wang/CoderViking: BSD-3-Clause; benchmark-only.
+See docs/DEPENDENCIES.md in the source repository for exact revisions and links.
+No model quality claim follows from its license. No noncommercial-only weights are used.

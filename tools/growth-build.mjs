@@ -1,3 +1,4 @@
+import {mayPromote} from '../src/capabilities.js';
 import {BRAND} from '../src/brand.js';
 import {EXAMPLES} from '../src/examples.js';
 import {INTENTS} from '../src/intents.js';
@@ -8,7 +9,7 @@ export function verificationHead(config={}) {
   return config.searchVerification?`<meta name="google-site-verification" content="${esc(config.searchVerification)}">`:'';
 }
 export function imageSitemap(siteURL) {
-  const rows=siteURL?Object.entries(EXAMPLES).flatMap(([id,e])=>LOCALES.map(l=>`<url><loc>${esc(new URL(pagePath(INTENTS[id].path,l),siteURL).href)}</loc>${['before','after'].map(k=>`<image:image><image:loc>${esc(new URL('assets/examples/'+e[k].file,siteURL).href)}</image:loc></image:image>`).join('')}</url>`)).join(''):'';
+  const rows=siteURL?Object.entries(EXAMPLES).filter(([id])=>mayPromote(id)).flatMap(([id,e])=>LOCALES.map(l=>`<url><loc>${esc(new URL(pagePath(INTENTS[id].path,l),siteURL).href)}</loc>${['before','after'].map(k=>`<image:image><image:loc>${esc(new URL('assets/examples/'+e[k].file,siteURL).href)}</image:loc></image:image>`).join('')}</url>`)).join(''):'';
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${rows}</urlset>`;
 }
 export function notFound(siteURL='') {

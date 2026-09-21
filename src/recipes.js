@@ -1,10 +1,15 @@
+import {extrudeAtlas} from './atlas.js';
+import {pngRGBACompressed} from './png-stream.js';
+import {imageComponents} from './image-components.js';
+import {outlineTiled} from './image-tiles.js';
+import {imageBounds} from './image-bounds.js';
 import * as Im from './image.js';
 import * as P from './primitives.js';
 import {fit, zip, stem, LIMITS, crc32} from './core.js';
 import {t} from './i18n.js';
 import {PLATFORM_PRESETS, PRINT_RATIOS, BRAND} from './platform-presets.js';
 
-export const DEFAULTS = Object.freeze({n:32, colors:16, dither:0, outline:0, cleanup:false, background:'#ffffff', tolerance:24, padding:0, pack:false,
+export const DEFAULTS = Object.freeze({n:32, colors:16, dither:0, palette:'', ditherMode:'floyd-steinberg', outline:0, cleanup:false, background:'#ffffff', tolerance:24, padding:0, pack:false,
   threshold:8, minArea:4, align:'bottom', anchor:.5, cellW:32, cellH:32, columns:4, width:0, height:0,
   from:'#ff0000', to:'#0080ff', shading:false, platform:'all', fit:'contain', longSide:2400,
   chars:'ABCDEFGHIJKLMNOPQRSTUVWXYZ', baseline:32, mapping:[0,1,2,'one'], mode:'normal', strength:2, invertY:false, divider:.5, order:'LR'});
@@ -59,22 +64,22 @@ export function fitCanvas(source,w,h,mode='contain',background=null,nearest=fals
   if(background){ctx.fillStyle=background;ctx.fillRect(0,0,w,h);}ctx.imageSmoothingEnabled=!nearest;ctx.imageSmoothingQuality='high';ctx.drawImage(source,r.x,r.y,r.w,r.h);return c;
 }
 export async function detect(source,o,signal){
-  const result=await primitive('components',{data:rgba(source),w:source.width,h:source.height,options:{threshold:o.threshold,minArea:o.minArea}},signal);check(signal);return result;
+  const result=await imageComponents(source,{threshold:o.threshold,minArea:o.minArea,signal});check(signal);return result;
 }
 function jsonFile(name,value){return {name,blob:new Blob([JSON.stringify(value,null,2)],{type:'application/json'})};}
 function textFile(name,value){return {name,blob:new Blob([value],{type:'text/plain;charset=utf-8'})};}
-function frameBounds(c){return P.bounds(rgba(c),c.width,c.height)||{x:0,y:0,w:1,h:1};}
-async function inputCanvas(item,signal){check(signal);const c=await Im.decode(item.blob);try{if(c.width*c.height>P.ANALYSIS_PIXELS)throw Error(t('kit.limit'));check(signal);return c;}catch(error){Im.release(c);throw error;}}
+async function frameBounds(c){return await imageBounds(c)||{x:0,y:0,w:1,h:1};}
+async function inputCanvas(item,signal){check(signal);const c=await Im.decode(item.blob);try{check(signal);return c;}catch(error){Im.release(c);throw error;}}
 async function normalizeInfo(items,o,signal){
   const list=[];
-  for(const item of items){const c=await inputCanvas(item,signal);try{list.push(frameBounds(c));}finally{Im.release(c);}await tick();}
+  for(const item of items){const c=await inputCanvas(item,signal);try{list.push(await frameBounds(c));}finally{Im.release(c);}await tick();}
   const width=o.width||Math.max(...list.map(r=>r.w)),height=o.height||Math.max(...list.map(r=>r.h));
   P.positive(width);P.positive(height);list.forEach(r=>P.placement(r.w,r.h,width,height,o.align,o.anchor));return {list,width,height};
 }
 /** Recipes reuse bounded primitives. Canvases are owned here until returned as the preview. */
 export async function runRecipe(id,{source,items,options:o,rects=[],signal,progress=()=>{}}){
   if(!source)throw Error(t('kit.inputFirst'));
-  if(source.width*source.height>P.ANALYSIS_PIXELS)throw Error(t('kit.limit'));
+  
   let preview=null,bytes=0;const entries=[],owned=new Set();
   const own=c=>(owned.add(c),c),release=c=>{owned.delete(c);Im.release(c);};
   const append=entry=>{bytes+=entry.blob.size;if(bytes>LIMITS.totalBytes)throw Error(t('kit.limit'));entries.push(entry);};
@@ -83,10 +88,10 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
   try{
     check(signal);
     if(id==='logo-bg')return await simple(await Im.processPixels(source,'remove',{color:rgb(o.background),tolerance:o.tolerance},progress,signal));
-    if(id==='palette-swap'){const data=await primitive('swap',{data:rgba(source),w:source.width,h:source.height,options:{from:rgb(o.from),to:rgb(o.to),tolerance:o.tolerance,shading:o.shading}},signal);return await simple(fromRGBA(data,source.width,source.height));}
-    if(id==='texture-map'){const data=await primitive('texture',{data:rgba(source),w:source.width,h:source.height,options:o},signal);return await simple(fromRGBA(data,source.width,source.height));}
+    if(id==='palette-swap')return await simple(await outlineTiled(source,{kind:'swap',options:{from:rgb(o.from),to:rgb(o.to),tolerance:o.tolerance,shading:o.shading},signal,progress}));
+    if(id==='texture-map')return await simple(await outlineTiled(source,{kind:'texture',options:o,signal,progress}));
     if(id==='margin-crop'){
-      const r=await primitive('margin',{data:rgba(source),w:source.width,h:source.height,options:o},signal);
+      let r=await imageBounds(source,{signal,progress,whiteThreshold:o.threshold});if(r){const x=Math.max(0,r.x-o.padding),y=Math.max(0,r.y-o.padding);r={x,y,w:Math.min(source.width,r.x+r.w+o.padding)-x,h:Math.min(source.height,r.y+r.h+o.padding)-y};}
       if(!r)throw Error(t('kit.empty'));return await simple(cropRect(source,r));
     }
     if(id==='refiner'){
@@ -94,11 +99,11 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       if(!Number.isInteger(o.outline)||o.outline<0||o.outline>4||!Number.isInteger(o.padding)||o.padding<0||o.padding>64)throw Error('Invalid padding');
       let cleaned=source;
       if(o.cleanup)cleaned=own(await Im.processPixels(source,'remove',{color:rgb(o.background),tolerance:o.tolerance},progress,signal));
-      const b=frameBounds(cleaned),trimmed=own(cropRect(cleaned,b));
+      const b=await frameBounds(cleaned),trimmed=own(cropRect(cleaned,b));
       for(const n of o.pack?[...new Set([16,32,64,128,o.n])]:[o.n]){
         const pad=Math.max(o.padding,o.outline);if(pad*2>=n)throw Error('Padding leaves no usable pixels');
-        const base=own(Im.canvas(n,n)),inner=own(fitCanvas(trimmed,n-pad*2,n-pad*2));base.getContext('2d').drawImage(inner,pad,pad);release(inner);
-        const out=own(await Im.processPixels(base,'pixel',{colors:o.colors,dither:o.dither,outline:o.outline},progress,signal));release(base);
+        const base=own(Im.canvas(n,n)),inner=own(await Im.fitQuality(trimmed,n-pad*2,n-pad*2,'contain',null,{signal,progress}));base.getContext('2d').drawImage(inner,pad,pad);release(inner);
+        const out=own(await Im.processPixels(base,'pixel',{colors:o.colors,dither:o.dither,outline:o.outline,palette:o.palette,ditherMode:o.ditherMode},progress,signal));release(base);
         if(!o.pack){owned.delete(out);return await simple(out);}
         await add(out,`${n}x${n}/asset.png`);release(out);
       }
@@ -135,7 +140,7 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       if(!presets.length)throw Error('Unknown preset');
       for(let i=0;i<items.length;i++){
         const c=own(await inputCanvas(items[i],signal));
-        for(const p of presets){check(signal);const out=own(fitCanvas(c,p.width,p.height,o.fit,o.background));await add(out,`${p.name}/${String(i+1).padStart(3,'0')}-${stem(items[i].name)}.jpg`);release(out);}
+        for(const p of presets){check(signal);const out=own(await Im.fitQuality(c,p.width,p.height,o.fit,o.background,{signal,progress}));await add(out,`${p.name}/${String(i+1).padStart(3,'0')}-${stem(items[i].name)}.jpg`);release(out);}
         release(c);
       }
       append(jsonFile('presets.json',presets));
@@ -146,19 +151,24 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       append(textFile('font.fnt',fnt));
       append(textFile('README.txt','Fixed-width BMFont text format and generic JSON. Keep font.png beside font.fnt. Godot: import both into your project, then assign the imported font.fnt FontFile to the Font theme override of a Label or other Control. Set the font size to the cell height. Consult https://docs.godotengine.org/en/stable/classes/class_fontfile.html . No .tres resource is synthesized. Godot runtime import was not exercised in this release. Adjust metrics in your engine if required.'));
     }else if(id==='mask-packer'){
-      const buffers=[],w=source.width,h=source.height;
+      const w=source.width,h=source.height;
+      if(typeof CompressionStream==='function'){
+        const {packMasks}=await import('./mask-packer.js'),blob=await packMasks(items,w,h,o.mapping,{signal,progress});check(signal);
+        const canvas=own(await Im.decode(blob));check(signal);owned.delete(canvas);return {kind:'image',canvas,blob,name:'packed-mask.png',width:w,height:h};
+      }
+      const buffers=[]; // Legacy PNG encoder fallback retains its bounded analysis limit.
       // Four channels need at most four sources; input order is visible in the editor.
       for(let i=0;i<Math.min(items.length,4);i++){
         const c=own(await inputCanvas(items[i],signal));if(c.width!==w||c.height!==h)throw Error(t('kit.sizeMismatch'));buffers.push(rgba(c));release(c);
       }
-      const data=await primitive('mask',{inputs:buffers,w,h,options:{mapping:o.mapping}},signal);check(signal);const blob=pngRGBA(data,w,h),canvas=own(fromRGBA(data,w,h));owned.delete(canvas);return {kind:'image',canvas,blob,name:'packed-mask.png',width:w,height:h};
+      const data=await primitive('mask',{inputs:buffers,w,h,options:{mapping:o.mapping}},signal);check(signal);const blob=typeof CompressionStream==='function'?await pngRGBACompressed(data,w,h,{signal,progress}):pngRGBA(data,w,h),canvas=own(fromRGBA(data,w,h));owned.delete(canvas);return {kind:'image',canvas,blob,name:'packed-mask.png',width:w,height:h};
     }else if(id==='atlas-padding'){
-      const out=await primitive('extrude',{data:rgba(source),w:source.width,h:source.height,options:o},signal),c=own(fromRGBA(out.data,out.width,out.height));
-      await add(c,'padded-atlas.png');release(c);const {data,...metadata}=out;append(jsonFile('metadata.json',metadata));
+      const out=await extrudeAtlas(source,o.cellW,o.cellH,o.padding,{signal,progress}),c=own(out.canvas);
+      await add(c,'padded-atlas.png');release(c);const {canvas,...metadata}=out;append(jsonFile('metadata.json',metadata));
     }else if(id==='favicon-pack'){
       const icons=[];
       for(const n of [16,32,48,180,192,512]){
-        const c=own(fitCanvas(source,n,n,'contain',null)),name=n===180?'apple-touch-icon.png':n>=192?`icon-${n}.png`:`favicon-${n}.png`;
+        const c=own(await Im.fitQuality(source,n,n,'contain',null,{signal,progress})),name=n===180?'apple-touch-icon.png':n>=192?`icon-${n}.png`:`favicon-${n}.png`;
         await add(c,name);if(n<=48)icons.push({size:n,blob:entries.at(-1).blob});release(c);
       }
       append({name:'favicon.ico',blob:await ico(icons)});
@@ -166,7 +176,7 @@ export async function runRecipe(id,{source,items,options:o,rects=[],signal,progr
       append(textFile('head.html','<link rel="icon" href="favicon.ico" sizes="any">\n<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">\n<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">\n<link rel="manifest" href="site.webmanifest">'));
       append(textFile('README.txt','Replace the manifest name with your app name. This is an icon fragment, not a complete PWA. ICO contains PNG-compressed 16/32/48 entries; legacy Windows decoders may require DIB instead. No maskable safe-zone promise. No source logo watermark.'));
     }else throw Error('Unknown recipe');
-    check(signal);const blob=await zip(entries,{paths:true});check(signal);
+    check(signal);const blob=await zip(entries,{paths:true,signal});check(signal);
     const result={kind:'file',canvas:preview,blob,name:`${id}.zip`,width:preview?.width,height:preview?.height,outputCount:entries.length};owned.delete(preview);return result;
   }finally{for(const c of owned)Im.release(c);}
 }

@@ -3,7 +3,7 @@ import {integer,dimensions,safeName,fit,parsePages,route,paletteOf,quantize,remo
 import {ROUTES,entry} from '../tools/build.mjs';
 const data=(list)=>new Uint8ClampedArray(list.flat());
 test('integer rejects invalid sizes',()=>{for(const x of [NaN,-1,0,513,4.5])assert.throws(()=>integer(x,1,512));assert.equal(integer('32',1,512),32);});
-test('pixel and side limits',()=>{assert.throws(()=>dimensions(8193,1));assert.throws(()=>dimensions(5000,5000));assert.deepEqual(dimensions(1024,768),{w:1024,h:768});});
+test('safe dimensions include 8K and 16K strips; invalid RGBA addressing rejected',()=>{assert.throws(()=>dimensions(65536,1));assert.throws(()=>dimensions(65535,65535));assert.deepEqual(dimensions(7680,4320),{w:7680,h:4320});assert.deepEqual(dimensions(16384,1024),{w:16384,h:1024});});
 test('safe names do not create paths',()=>{assert.equal(safeName('../a/b\\c.png'),'.._a_b_c.png');assert(!safeName('<script>').includes('<'));});
 test('contain preserves ratio and pads',()=>{assert.deepEqual(fit(200,100,32,32),{w:32,h:16,x:0,y:8});});
 test('cover fills and crops',()=>{assert.deepEqual(fit(200,100,32,32,true),{w:64,h:32,x:-16,y:0});});

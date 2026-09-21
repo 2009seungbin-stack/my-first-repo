@@ -266,9 +266,9 @@ export const TOOL_MESSAGES = {
     "白色しきい値"
   ],
   "kit.limit": [
-    "이 도구는 분석용 400만 픽셀, 파일 24개, 출력 합계 128MB까지 처리합니다.",
-    "This tool supports 4 million analysis pixels, 24 inputs and 128 MB total output.",
-    "分析は400万ピクセル、入力24件、合計出力128MBまで。"
+    "파일 24개·출력 합계 128MB까지입니다. 처리 크기는 기기 메모리에 따릅니다. CompressionStream이 없는 호환 마스크 인코더는 400만 픽셀까지입니다.",
+    "24 inputs and 128 MB total output. Processing capacity depends on device memory; legacy mask encoding without CompressionStream retains a 4MP safeguard.",
+    "入力24件・合計出力128MBまで。処理可能なサイズは端末メモリに依存します。CompressionStream非対応の旧マスク処理は4MPまでです。"
   ],
   "kit.share": [
     "공유 이미지",

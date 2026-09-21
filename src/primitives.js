@@ -1,6 +1,6 @@
 /** Bounded, pure RGBA primitives. No DOM, network or application state. */
 export const ANALYSIS_PIXELS = 4_000_000;
-export function positive(n, max = 8192) {
+export function positive(n, max = 65535) {
   if (!Number.isSafeInteger(n) || n < 1 || n > max) throw Error('Invalid dimensions');
   return n;
 }
@@ -59,7 +59,7 @@ export function sheetLayout(count, frameW, frameH, columns = 4, padding = 0) {
   columns = Math.min(columns, count);
   const rows = Math.ceil(count / columns), width = columns * (frameW + padding * 2), height = rows * (frameH + padding * 2);
   positive(width); positive(height);
-  if (width * height > 16_000_000) throw Error('Sheet exceeds output pixel limit');
+  if (width * height > 536870911) throw Error('Sheet exceeds safe RGBA indexing');
   return {width, height, frameWidth: frameW, frameHeight: frameH, padding, columns, rows,
     frames: Array.from({length: count}, (_, i) => ({name: `frame-${String(i + 1).padStart(3, '0')}`, x: i % columns * (frameW + padding * 2) + padding, y: Math.floor(i / columns) * (frameH + padding * 2) + padding, w: frameW, h: frameH}))};
 }

@@ -1,3 +1,4 @@
+import {mayPromote} from '../src/capabilities.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,stat} from 'node:fs/promises';
@@ -21,7 +22,7 @@ test('all canonical intent documents have reciprocal locales, distinct canonical
   assert(ALL_ROUTES.includes(route));assert(h.includes(`<html lang="${locale}">`));
   assert.match(h,/<title>[^<]+<\/title>/);assert.match(h,/<meta name="description" content="[^"]+">/);
   assert(h.includes(`rel="canonical" href="${url}"`));assert(!canonical.has(url));canonical.add(url);
-  assert(map.includes(`<loc>${url}</loc>`));
+  assert.equal(map.includes(`<loc>${url}</loc>`),mayPromote(id));if(!mayPromote(id))assert(h.includes('content="noindex,follow"'));
   for(const l of LOCALES){const alternate=origin+l+'/'+(intent.path?intent.path+'/':'');assert(h.includes(`hreflang="${l}" href="${alternate}"`));}
   assert(h.includes('hreflang="x-default"'));assert(h.includes('name="twitter:card"'));assert(h.includes(`assets/social/${locale}-${id}.png`));
   assert(h.includes('data-ad-exclude'));assert(!h.includes('adsbygoogle.js'));assert(!h.includes('{{brand}}'));assert(h.includes(BRAND.name));
@@ -30,20 +31,20 @@ test('all canonical intent documents have reciprocal locales, distinct canonical
   const base=new URL(h.match(/<base href="([^"]+)"/)[1],url);
   for(const m of h.matchAll(/<a\b[^>]*href="([^"]+)"/g)){
    const link=new URL(m[1].replaceAll('&amp;','&'),base);if(link.origin!==new URL(origin).origin)continue;
-   const local=link.pathname.slice(new URL(origin).pathname.length).replace(/\/$/,'');assert(ALL_ROUTES.includes(local),`Broken link ${route} → ${local}`);
+   const local=link.pathname.slice(new URL(origin).pathname.length).replace(/\/$/,'');assert(ALL_ROUTES.includes(local)||local==='assets/vendor/NOTICES.txt',`Broken link ${route} → ${local}`);
   }
  }
  assert.equal(canonical.size,Object.keys(INTENTS).length*3);
  for(const [alias,id] of Object.entries(ALIASES))for(const l of LOCALES){const h=entry(html,`${l}/${alias}`,origin);assert(h.includes(`rel="canonical" href="${origin}${l}/${INTENTS[id].path}/"`));}
 });
 test('crawlable examples have actual PNG dimensions and agree with image sitemap',async()=>{
- const xml=imageSitemap(origin);assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).length*3);
+ const xml=imageSitemap(origin);assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).filter(mayPromote).length*3);
  for(const [id,e] of Object.entries(EXAMPLES))for(const locale of LOCALES){
   const h=entry(html,`${locale}/${INTENTS[id].path}`,origin);
   assert(h.indexOf('class="tool-examples"')>h.indexOf('class="workspace-footer"'));
   for(const v of Object.values(e)){
    assert(h.includes(`src="assets/examples/${v.file}" width="${v.width}" height="${v.height}" alt="`));assert(h.includes('loading="lazy" decoding="async"'));
-   assert(xml.includes(origin+'assets/examples/'+v.file));
+   assert.equal(xml.includes(origin+'assets/examples/'+v.file),mayPromote(id));
    const png=await readFile(new URL('../assets/examples/'+v.file,import.meta.url));assert.equal(png.readUInt32BE(16),v.width);assert.equal(png.readUInt32BE(20),v.height);
   }
  }

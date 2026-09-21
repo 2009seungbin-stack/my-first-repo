@@ -3,7 +3,7 @@ import path from 'node:path';
 import {readFile,stat} from 'node:fs/promises';
 import {ROOT,ALL_ROUTES,entry} from './build.mjs';
 import {nonce,adCSP,transformHTML} from './ads-worker.mjs';
-const base=process.argv.includes('--dist')?path.resolve(process.env.DIST_DIR||path.join(ROOT,'dist')):ROOT;
+const base=process.argv.includes('--dist')?path.resolve(process.env.DIST_DIR||path.join(ROOT,'dist')):path.resolve(ROOT);
 const port=Number(process.env.PORT||4173);
 const mount=process.env.BASE_PATH||'';
 const headerText=await readFile(path.join(base,'_headers'),'utf8');
@@ -17,7 +17,7 @@ http.createServer(async(req,res)=>{
   const p=decodeURIComponent(url.pathname.slice(mount.length)),route=p.replace(/^\/+|\/+$/g,'');
   for(const [name,value]of Object.entries(responseHeaders))res.setHeader(name,value);
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cache-Control','no-store');
-  if(base===ROOT&&ALL_ROUTES.includes(route)){
+  if(base===path.resolve(ROOT)&&ALL_ROUTES.includes(route)){
    if(!p.endsWith('/')){res.writeHead(302,{Location:mount+p+'/'+url.search});res.end();return;}
    res.setHeader('Content-Type',mime['.html']);res.end(entry(await readFile(path.join(ROOT,'index.html'),'utf8'),route));return;
   }

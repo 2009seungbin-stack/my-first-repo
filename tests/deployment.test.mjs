@@ -1,3 +1,4 @@
+import {mayPromote} from '../src/capabilities.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,mkdtemp,rm,stat} from 'node:fs/promises';
@@ -58,7 +59,7 @@ test('policy pages are standalone localized documents with truthful contact and 
 test('canonical aliases consolidate and query combinations never enter sitemap',()=>{
  for(const [alias,id]of Object.entries(ALIASES))assert(entry(html,`ja/${alias}`,origin).includes(`rel="canonical" href="${origin}ja/${INTENTS[id].path}/"`));
  const xml=sitemap(origin);for(const [,url]of xml.matchAll(/<loc>([^<]+)<\/loc>/g))assert(!url.includes('?'));assert(!xml.includes('/png-to-webp/'));
- assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).length+POLICY_ROUTES.length)*3);
+ assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+POLICY_ROUTES.length)*3);
  for(const l of ['en','ko','ja','x-default'])assert(xml.includes(`hreflang="${l}"`));
 });
 test('reading content follows the full workspace, and disabled ads leave no boxes',()=>{

@@ -1,3 +1,4 @@
+import {CAPABILITIES,mayPromote} from './capabilities.js';
 import {BRAND} from './brand.js';
 import {LOCALES,t} from './i18n.js';
 import {INTENTS} from './intents.js';
@@ -17,7 +18,7 @@ export function seoLinks(path,locale,siteURL){
  return `<link data-site-seo rel="canonical" href="${href(locale)}"><meta data-site-seo property="og:url" content="${href(locale)}">`+LOCALES.map(l=>`<link data-site-seo rel="alternate" hreflang="${l}" href="${href(l)}">`).join('')+`<link data-site-seo rel="alternate" hreflang="x-default" href="${href(null)}">`;
 }
 export function structuredData(id,locale,siteURL){
- const app={'@context':'https://schema.org','@type':'WebApplication',name:`${t(`intent.${id}.title`,{},locale)} · ${BRAND.name}`,description:t(`intent.${id}.description`,{},locale),applicationCategory:'UtilitiesApplication',operatingSystem:'Web browser',inLanguage:locale,browserRequirements:'JavaScript, Canvas and browser-supported file codecs'};
+ const app={'@context':'https://schema.org','@type':'WebApplication',name:`${t(`intent.${id}.title`,{},locale)} · ${BRAND.name}`,description:t(`intent.${id}.description`,{},locale),featureList:[CAPABILITIES[id].engine,`Maturity: ${CAPABILITIES[id].maturity}`],applicationCategory:'UtilitiesApplication',operatingSystem:'Web browser',inLanguage:locale,browserRequirements:'JavaScript, Canvas and browser-supported file codecs'};
  if(siteURL)app.url=new URL(pagePath(INTENTS[id].path,locale),siteURL).href;
  return `<script data-site-seo type="application/ld+json">${JSON.stringify(app).replaceAll('<','\\u003c')}</script>`;
 }
@@ -32,7 +33,7 @@ export function navigationData(id,locale,siteURL){
  return `<script data-site-seo type="application/ld+json">${JSON.stringify(data).replaceAll('<','\\u003c')}</script>`;
 }
 export function updateSEO(id,locale,siteURL){
- document.querySelectorAll('[data-site-seo]').forEach(e=>e.remove());
- document.head.insertAdjacentHTML('beforeend',seoLinks(INTENTS[id].path,locale,siteURL)+structuredData(id,locale,siteURL)+socialMetadata(id,locale,siteURL)+navigationData(id,locale,siteURL));
+ document.querySelectorAll('[data-site-seo],[data-quality-robots]').forEach(e=>e.remove());
+ document.head.insertAdjacentHTML('beforeend',(!mayPromote(id)?'<meta data-quality-robots name="robots" content="noindex,follow">':'')+seoLinks(INTENTS[id].path,locale,siteURL)+structuredData(id,locale,siteURL)+socialMetadata(id,locale,siteURL)+navigationData(id,locale,siteURL));
  document.querySelectorAll('[data-ad-label]').forEach(e=>e.textContent=labels[locale].ad);
 }

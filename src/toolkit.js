@@ -1,3 +1,4 @@
+import {imageLabel} from './image-controls.js';
 import {BRAND} from './brand.js';
 import {track} from './analytics.js';
 import {parsePreset,serializePreset} from './presets.js';
@@ -53,7 +54,7 @@ export class Toolkit{
     const align=()=>this.select('align',['bottom','center','top'].map(v=>[v,tr(v)]));
     if(id==='refiner'){
       basic=this.num('n',8,512)+this.num('colors',2,256);
-      advanced=this.num('dither',0,1,.1)+this.num('outline',0,4)+this.num('padding',0,64)+this.checkbox('cleanup')+this.color('background')+this.num('tolerance',0,441)+this.checkbox('pack');
+      advanced=this.num('dither',0,1,.1)+this.num('outline',0,4)+this.num('padding',0,64)+this.checkbox('cleanup')+this.color('background')+this.num('tolerance',0,441)+this.checkbox('pack')+`<label class="field"><span>${esc(imageLabel('palette'))}</span><textarea data-option="palette" rows="4" maxlength="8192">${esc(this.o.palette||'')}</textarea></label><label class="field"><span>${esc(imageLabel('ditherMode'))}</span><select data-option="ditherMode"><option value="floyd-steinberg" ${this.o.ditherMode!=='ordered'?'selected':''}>Floyd–Steinberg</option><option value="ordered" ${this.o.ditherMode==='ordered'?'selected':''}>Bayer 4×4</option></select></label>`;
     }else if(id==='sprite-slicer'){
       basic=this.rects.length?`<p class="hint">${esc(tr('review'))}</p>`+this.frames():'';
       advanced=this.num('threshold',0,254)+this.num('minArea',1,4000000)+btn('kit-detect','redetect')+btn('kit-add','add');

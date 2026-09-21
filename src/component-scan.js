@@ -1,0 +1,9 @@
+/** Streaming 8-connected run-length labeling. Retains only current/previous rows and active roots. */
+export class ComponentScan{
+ constructor(width,{threshold=8,minArea=4,maxFrames=256}={}){this.width=width;this.threshold=threshold;this.minArea=minArea;this.maxFrames=maxFrames;this.previous=[];this.active=new Set();this.result=[];this.y=0;}
+ root(n){let r=n;while(r.parent)r=r.parent;while(n.parent){const next=n.parent;n.parent=r;n=next;}return r;}
+ merge(a,b){a=this.root(a);b=this.root(b);if(a===b)return a;if(a.area<b.area)[a,b]=[b,a];b.parent=a;a.x=Math.min(a.x,b.x);a.right=Math.max(a.right,b.right);a.y=Math.min(a.y,b.y);a.bottom=Math.max(a.bottom,b.bottom);a.area+=b.area;this.active.delete(b);return a;}
+ finishNode(n){if(n.area>=this.minArea){if(this.result.length>=this.maxFrames)throw Error('Too many frame candidates; increase minimum area');this.result.push({x:n.x,y:n.y,w:n.right-n.x+1,h:n.bottom-n.y+1,area:n.area});}this.active.delete(n);}
+ rows(data,height){if(data.length!==height*this.width*4)throw Error('Invalid RGBA strip');for(let row=0;row<height;row++,this.y++){const runs=[],y=this.y;let cursor=0;for(let x=0;x<this.width;){if(data[(row*this.width+x)*4+3]<=this.threshold){x++;continue;}const start=x;while(x<this.width&&data[(row*this.width+x)*4+3]>this.threshold)x++;const end=x-1;while(cursor<this.previous.length&&this.previous[cursor].end<start-1)cursor++;let node={x:start,right:end,y,bottom:y,area:end-start+1};this.active.add(node);for(let i=cursor;i<this.previous.length&&this.previous[i].start<=end+1;i++)node=this.merge(node,this.previous[i].node);node.bottom=y;runs.push({start,end,node});}for(const n of this.active)if(n.bottom<y)this.finishNode(n);this.previous=runs;}return this.result.length;}
+ finish(){for(const n of this.active)this.finishNode(n);return this.result.sort((a,b)=>a.y-b.y||a.x-b.x);}
+}

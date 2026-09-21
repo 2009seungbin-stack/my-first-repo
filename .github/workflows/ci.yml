@@ -29,6 +29,10 @@ jobs:
           sudo apt-get install -y ffmpeg
       - name: Full syntax, unit, build and real HTTP regression
         run: python tools/regression.py
+      - name: Decoded image quality and PDF preservation benchmarks
+        run: |
+          npm run benchmark
+          python tools/benchmark.py --pdf
       - name: Archive the exact tested source
         if: always()
         run: git archive --format=tar --output=source.tar HEAD
