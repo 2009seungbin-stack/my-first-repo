@@ -12,8 +12,11 @@ export function runtimeError(error,device){
  return error?.message||String(error);
 }
 export const wasmThreads=()=>runtime?.env.wasm.numThreads??1;
+const modelURL=spec=>`https://huggingface.co/${spec.id}/resolve/${spec.revision}/${spec.file}`;
+/** True when the weights are already in this browser, so no download stands between the person and the result. */
+export async function modelCached(spec){try{return !!await (await caches.open('nerulio-models-v1')).match(modelURL(spec));}catch{return false;}}
 export async function modelBytes(spec,progress=()=>{}){
- const url=`https://huggingface.co/${spec.id}/resolve/${spec.revision}/${spec.file}`;let cache;
+ const url=modelURL(spec);let cache;
  try{cache=await caches.open('nerulio-models-v1');const hit=await cache.match(url);if(hit){progress('Loading cached model');return hit.arrayBuffer();}}catch{/* Cache storage is optional. */}
  const response=await fetch(url);if(!response.ok)throw Error(`Model download failed (${response.status})`);
  const length=Number(response.headers.get('content-length')),reader=response.body.getReader(),chunks=[];let loaded=0;

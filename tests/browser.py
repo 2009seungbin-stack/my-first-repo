@@ -56,8 +56,11 @@ with sync_playwright() as pw:
  page.locator('#compressTarget').fill('200');page.wait_for_timeout(600);page.wait_for_function(done,timeout=120000)
  with page.expect_download() as event:page.locator('#taskDownload').click()
  compressed=OUT/'compressed.webp';event.value.save_as(compressed);ok('target size is measured, not guessed',compressed.stat().st_size<=200*1024);ok('format really is WebP',Image.open(compressed).format=='WEBP');page.close()
- page=mount(en,'/en/image/remove-bg/');upload(page);click(page,'intent-run');transparent=download(page,'removed.png');image=Image.open(transparent).convert('RGBA');ok('solid background actual alpha removed',image.getpixel((0,0))[3]==0);ok('solid background keeps subject',image.getpixel((40,30))[3]==255)
- click(page,'intent-settings');page.locator('#tolerance').fill('0');lang(page,'ja');ok('zero tolerance survives switch',page.locator('#tolerance').input_value()=='0');page.close()
+ # Background removal is a single-task page (src/task/remove-bg.js); the solid-backdrop mode needs no model download.
+ page=mount(en,'/en/image/remove-bg/?mode=solid');upload(page);page.wait_for_function("()=>{const b=document.querySelector('#taskDownload');return b&&!b.disabled}",timeout=60000)
+ with page.expect_download() as removed:page.locator('#taskDownload').click()
+ transparent=OUT/'removed.png';removed.value.save_as(transparent);image=Image.open(transparent).convert('RGBA');ok('solid background actual alpha removed',image.getpixel((0,0))[3]==0);ok('solid background keeps subject',image.getpixel((40,30))[3]==255)
+ page.locator('#bgTolerance').evaluate("e=>{e.value='0';e.dispatchEvent(new Event('input',{bubbles:true}));}");page.wait_for_timeout(600);lang(page,'ja');ok('zero tolerance survives switch',page.locator('#bgTolerance').input_value()=='0' and page.locator('#bgMode [data-mode="color"]').get_attribute('aria-pressed')=='true');page.close()
  page=mount(ja,'/ja/pdf/merge/');ok('Japanese PDF intent headline',page.locator('#taskTitle').inner_text()=='PDFを結合' and 'PDF' in page.locator('.dropzone strong').inner_text());assert_no_korean(page,'Japanese PDF landing translated')
  page.locator('#fileInput').set_input_files({'name':'notes.txt','mimeType':'text/plain','buffer':b'x'});page.wait_for_timeout(300)
  ok('wrong format rejected without changing editor',page.locator('#taskTitle').inner_text()=='PDFを結合' and page.locator('#toast.error').is_visible());page.close()

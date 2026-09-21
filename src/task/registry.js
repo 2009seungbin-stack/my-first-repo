@@ -14,6 +14,7 @@ export const TASK_TOOLS=Object.freeze({
  'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']},
  pdf:{module:'pdf-editor',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf-split']},
  ...Object.fromEntries(Object.entries({'refiner':['sprite-sheet-maker','palette-swap','pixel'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['sprite-sheet-maker','refiner','pixel'],'texture-map':['compress','convert','resize'],'margin-crop':['resize','compress','convert'],'tile-helper':['sprite-sheet-maker','atlas-padding','pixel'],'atlas-padding':['sprite-sheet-maker','tile-helper','compress'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize'],'bitmap-font':['sprite-sheet-maker','atlas-padding','pixel']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
+ 'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
 });
