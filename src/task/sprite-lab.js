@@ -307,7 +307,10 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
  }
  function drawChips(){
   const host=q('#labStrip');if(!host||!work)return;
-  if(!host.contains(document.activeElement))host.innerHTML=stripHTML();
+  // The strip is rebuilt on every render, so keyboard focus is put back on the same chip.
+  const focused=host.contains(document.activeElement)?document.activeElement.closest('.frame-chip')?.dataset.id:null;
+  host.innerHTML=stripHTML();
+  if(focused)host.querySelector(`.frame-chip[data-id="${focused}"]`)?.focus({preventScroll:true});
   for(const cv of host.querySelectorAll('canvas[data-chip]')){
    const f=frameById(cv.dataset.chip);if(!f)continue;
    const b=innerRect(f),s=Math.min(1,56/Math.max(b.w,b.h));
@@ -410,7 +413,7 @@ ${poly}${shapes}
     :(input.dataset.pivot==='x'?f.pivotX:f.pivotY).toFixed(3);
   }
   const list=q('#labBoxList');
-  if(list)list.innerHTML=f.boxes.map(b=>`<div class="lab-note"><span class="lab-swatch lab-box-${b.type}" aria-hidden="true"></span><b>${esc(T('boxTypes.'+(P.BOX_KINDS.includes(b.type)?b.type:'custom')))}</b> ${esc(T('shapes.'+b.shape))} ${esc(b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`${b.cx},${b.cy} r${b.r}`:`${b.points.length}pt`)}<button type="button" class="mini-button" data-action="lab-box-remove" data-id="${b.id}" aria-label="${esc(T('removeBoxLabel'))}" title="${esc(T('removeBoxLabel'))}">×</button></div>`).join('')
+  if(list)list.innerHTML=(f.boxes.length?'':`<p class="hint">${esc(T('noBoxes'))}</p>`)+f.boxes.map(b=>`<div class="lab-note"><span class="lab-swatch lab-box-${b.type}" aria-hidden="true"></span><b>${esc(T('boxTypes.'+(P.BOX_KINDS.includes(b.type)?b.type:'custom')))}</b> ${esc(T('shapes.'+b.shape))} ${esc(b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`${b.cx},${b.cy} r${b.r}`:`${b.points.length}pt`)}<button type="button" class="mini-button" data-action="lab-box-remove" data-id="${b.id}" aria-label="${esc(T('removeBoxLabel'))}" title="${esc(T('removeBoxLabel'))}">×</button></div>`).join('')
    +`<p class="hint" id="labCollisionCount" data-polygons="${f.collision.length}" data-vertices="${f.collision.reduce((s,p)=>s+p.length,0)}">${f.collision.length?`${esc(T('collision'))}: ${f.collision.length} · ${f.collision.reduce((s,p)=>s+p.length,0)}pt`:esc(T('collisionNone'))}</p>`;
  }
  function drawTimeline(){
@@ -614,7 +617,6 @@ ${poly}${shapes}
    for(const p of out.polygons){traced+=p.tracedVertices;simple+=p.vertices;shapes++;}
    if(out.error){dev=Math.max(dev,out.error.maxDeviation);area=Math.max(area,Math.abs(out.error.areaDeltaPercent));}
   }
-  collisionInfo={traced,simple,dev,area,shapes};
   commit(P.setFrameCollision(project,byFrame));
   const node=q('#labCollisionResult');
   if(node)node.textContent=shapes?T('collisionResult',{traced,simple,dev:dev.toFixed(2),area:area.toFixed(1)}):T('collisionNone');

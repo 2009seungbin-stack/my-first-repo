@@ -360,52 +360,270 @@ with sync_playwright() as pw:
         b=io.BytesIO();im.save(b,'PNG');return {'name':'sheet.png','mimeType':'image/png','buffer':b.getvalue()}
     def file_of(name,im):
         b=io.BytesIO();im.save(b,'PNG');return {'name':name,'mimeType':'image/png','buffer':b.getvalue()}
+    # ===== Sprite Lab (src/task/sprite-lab.js) — BEGIN =========================================
+    # One workspace, five stages, one sheet: slice -> normalize -> animate -> pivot & boxes ->
+    # pack & export. Every export below is re-opened independently (Pillow / zipfile / json) and
+    # compared with the numbers the UI showed. The old sprite-slicer and frame-normalize checks
+    # are ported here, because those URLs now open this Lab at Slice and at Normalize.
+    from PIL import ImageChops
+    LAB_FIXTURE=ROOT/'tests/fixtures/game/irregular-characters.png'
+    lab_prompt={'value':''}
+    page.on('dialog',lambda d:d.accept(lab_prompt['value']))
+    def lab_bbox(im,rect):
+        x,y,w,h=rect
+        bb=im.crop((x,y,x+w,y+h)).split()[3].point(lambda v:255 if v>8 else 0).getbbox()
+        return None if not bb else (x+bb[0],y+bb[1],bb[2]-bb[0],bb[3]-bb[1])
+    def lab_same(a,b):return a.size==b.size and ImageChops.difference(a,b).getbbox() is None
+    def lab_json(path,name='atlas.json'):return json.loads(zipfile.ZipFile(path).read(name))
+    def lab_png(path,name):return Image.open(io.BytesIO(zipfile.ZipFile(path).read(name))).convert('RGBA')
+
+    # --- Slice: one frame per character on a sheet whose parts are drawn 1-2px apart -----------
+    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(str(LAB_FIXTURE))
+    page.locator('#labSheet canvas').wait_for(timeout=60000)
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>0',timeout=60000)
+    lab_rects=page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>[+n.getAttribute("x"),+n.getAttribute("y"),+n.getAttribute("width"),+n.getAttribute("height")])')
+    ok('Sprite Lab: Auto slices an irregular sheet into one frame per character, not one per island',
+       len(lab_rects)==6,str(len(lab_rects)))
+    ok('Sprite Lab: Auto shows the merge distance it chose, why, and lets you change it',
+       '2px' in page.locator('#labMergeReason').inner_text() and page.locator('#labMerge').count()==1)
+    ok('Sprite Lab: the frame strip holds one chip per frame',page.locator('.frame-chip[data-id]').count()==6)
+    lab_sheet=Image.open(LAB_FIXTURE).convert('RGBA')
+    lab_trims=[lab_bbox(lab_sheet,r) for r in lab_rects]
+    ok('Sprite Lab: every sliced frame holds opaque pixels',all(lab_trims))
+
+    # --- Normalize ---------------------------------------------------------------------------
+    page.locator('[data-action="lab-stage"][data-stage="normalize"]').click();page.wait_for_timeout(500)
+    ok('Sprite Lab: normalize shows the common canvas before anything is applied',
+       'common canvas' in page.locator('#labNormSize').inner_text(),page.locator('#labNormSize').inner_text())
+    page.locator('#taskDownload').click();page.wait_for_timeout(600)
+
+    # --- Pivot ------------------------------------------------------------------------------
+    page.locator('[data-action="lab-stage"][data-stage="boxes"]').click();page.wait_for_timeout(500)
+    page.locator('[data-action="lab-pivot-scope"][data-scope="all"]').click()
+    page.locator('[data-action="lab-pivot-preset"][data-preset="bottom-center"]').click();page.wait_for_timeout(300)
+    page.locator('[data-action="lab-pivot-unit"][data-value="pixels"]').click();page.wait_for_timeout(300)
+    page.fill('#labPivotX','9');page.fill('#labPivotY','55');page.wait_for_timeout(400)
+    ok('Sprite Lab: a pivot can be set by preset and typed in pixels',
+       (float(page.input_value('#labPivotX')),float(page.input_value('#labPivotY')))==(9.0,55.0))
+
+    # --- Animate: a Walk animation, jitter measured, then reduced by auto-fix ------------------
+    page.locator('[data-action="lab-stage"][data-stage="animate"]').click();page.wait_for_timeout(600)
+    lab_prompt['value']='Walk'
+    page.locator('[data-action="lab-anim-rename"]').click();page.wait_for_timeout(400)
+    ok('Sprite Lab: an animation can be renamed',page.locator('#labAnimList .chip').first.inner_text().startswith('Walk'))
+    # Normalizing on the bounding-box bottom pins that anchor, so the wobble a player still sees
+    # is the one measured against the alpha centroid.
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.select_option('#labReference','alpha-centroid');page.wait_for_timeout(700)
+    lab_rms=float(page.locator('#labJitterRms').inner_text().split()[1].replace('px',''))
+    ok('Sprite Lab: jitter is a number and an x/y graph, not a feeling',
+       lab_rms>0 and page.locator('#labJitterGraph svg polyline').count()==2,str(lab_rms))
+    page.locator('[data-action="lab-autofix"]').click();page.wait_for_timeout(700)
+    ok('Sprite Lab: auto-fix reports before and after',' → ' in page.locator('#labFixText').inner_text(),
+       page.locator('#labFixText').inner_text())
+    page.locator('[data-action="lab-fix-keep"]').click();page.wait_for_timeout(700)
+    lab_rms_after=float(page.locator('#labJitterRms').inner_text().split()[1].replace('px',''))
+    ok('Sprite Lab: auto-fix really reduces the measured jitter',lab_rms_after<lab_rms*0.5,f'{lab_rms} -> {lab_rms_after}')
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('.frame-chip[data-id]').nth(1).click();page.wait_for_timeout(200)
+    page.fill('#labDuration','250');page.wait_for_timeout(400)
+
+    # --- An Attack animation with a hitbox on frames 4-6 --------------------------------------
+    page.locator('.frame-chip[data-id]').first.click()
+    page.keyboard.press('Control+a');page.wait_for_timeout(300)
+    ok('Sprite Lab: Ctrl+A selects every frame',page.locator('.frame-chip.is-selected').count()==6)
+    page.locator('[data-action="lab-anim-new"]').click();page.wait_for_timeout(400)
+    lab_prompt['value']='Attack'
+    page.locator('[data-action="lab-anim-rename"]').click();page.wait_for_timeout(400)
+    page.locator('[data-action="lab-stage"][data-stage="boxes"]').click();page.wait_for_timeout(500)
+    page.fill('#labRangeFrom','4');page.fill('#labRangeTo','6')
+    for sel,value in [('#labBoxX','3'),('#labBoxY','5'),('#labBoxW','11'),('#labBoxH','7')]:page.fill(sel,value)
+    page.wait_for_timeout(200)
+    page.locator('[data-action="lab-box-range"]').click();page.wait_for_timeout(600)
+    ok('Sprite Lab: the hitbox timeline shows the box active on frames 4-6 and nowhere else',
+       page.eval_on_selector_all('.lab-grid tbody tr:first-child td','ns=>ns.map(n=>n.textContent.trim())')==['','','','1','1','1'])
+
+    # --- Collision polygons from alpha --------------------------------------------------------
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('[data-action="lab-collision"]').click();page.wait_for_timeout(1500)
+    lab_collision_text=page.locator('#labCollisionResult').inner_text()
+    ok('Sprite Lab: collision generation reports traced vs simplified vertices and the shape error',
+       'traced' in lab_collision_text and 'deviation' in lab_collision_text,lab_collision_text)
+    page.locator('.frame-chip[data-id]').first.click();page.wait_for_timeout(300)
+    lab_ui=page.evaluate('''()=>({pivotX:+document.querySelector('#labPivotX').value,pivotY:+document.querySelector('#labPivotY').value,
+      polygons:+document.querySelector('#labCollisionCount').dataset.polygons,vertices:+document.querySelector('#labCollisionCount').dataset.vertices})''')
+    ok('Sprite Lab: the frame now carries collision polygons',lab_ui['polygons']>=1 and lab_ui['vertices']>=3,str(lab_ui))
+
+    # --- Pack, then export Generic and re-open it independently -------------------------------
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1200)
+    ok('Sprite Lab: packing reports page size and efficiency per page',
+       '%' in page.locator('#labAtlasInfo').inner_text() and page.locator('#labPages .summary-line').count()>=1)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_generic=d.value.path()
+    ok('Sprite Lab: the generic export is the atlas page plus one JSON',
+       sorted(zipfile.ZipFile(lab_generic).namelist())==['atlas.json','atlas.png'])
+    lab_data=lab_json(lab_generic);lab_atlas=lab_png(lab_generic,'atlas.png')
+    ok('Sprite Lab: the atlas PNG is the size the JSON claims',
+       lab_atlas.size==(lab_data['meta']['size']['w'],lab_data['meta']['size']['h']))
+    lab_keys=list(lab_data['frames'])
+    lab_bad=[]
+    for key,trim in zip(lab_keys,lab_trims):
+        r=lab_data['frames'][key]['rect']
+        if not lab_same(lab_atlas.crop((r['x'],r['y'],r['x']+r['w'],r['y']+r['h'])),
+                        lab_sheet.crop((trim[0],trim[1],trim[0]+trim[2],trim[1]+trim[3]))):lab_bad.append(key)
+    ok('Sprite Lab: every atlas region is byte-identical to that frame on the source sheet',not lab_bad,str(lab_bad))
+    lab_first=lab_data['frames'][lab_keys[0]]
+    ok('Sprite Lab: the JSON pivot is the pivot the UI showed (pixels vs normalised)',
+       abs(lab_first['pivot']['x']*lab_first['sourceSize']['w']-lab_ui['pivotX'])<1e-6
+       and abs(lab_first['pivot']['y']*lab_first['sourceSize']['h']-lab_ui['pivotY'])<1e-6,
+       f"{lab_first['pivot']} x {lab_first['sourceSize']} vs {lab_ui}")
+    ok('Sprite Lab: the JSON collision is the polygon and vertex count the UI showed',
+       len(lab_first['collision'])==lab_ui['polygons'] and sum(len(p) for p in lab_first['collision'])==lab_ui['vertices'])
+    lab_boxed=[k for k in lab_keys if lab_data['frames'][k]['boxes']]
+    ok('Sprite Lab: the hitbox is on exactly the three frames the timeline showed, with the typed numbers',
+       len(lab_boxed)==3 and all(b['type']=='hit' and [b['x'],b['y'],b['w'],b['h']]==[3,5,11,7]
+                                 for k in lab_boxed for b in lab_data['frames'][k]['boxes']))
+    ok('Sprite Lab: the per-frame duration typed in the UI is in the JSON and in the playback block',
+       250 in [lab_data['frames'][k]['duration'] for k in lab_keys]
+       and 250 in lab_data['animations']['Walk']['playback']['durations'])
+    ok('Sprite Lab: the exported animation order is the strip order',
+       lab_data['animations']['Walk']['frames']==lab_keys,
+       f"{lab_data['animations']['Walk']['frames']} vs {lab_keys}")
+    ok('Sprite Lab: both animations were exported',sorted(lab_data['animations'])==['Attack','Walk'])
+
+    # --- Ping-pong: the playback list must not double its ends --------------------------------
+    page.locator('[data-action="lab-stage"][data-stage="animate"]').click();page.wait_for_timeout(500)
+    page.locator('#labAnimList .chip').first.click();page.wait_for_timeout(400)
+    page.locator('[data-key="direction"][data-value="pingpong"]').click();page.wait_for_timeout(500)
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1000)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_pp=lab_json(d.value.path())['animations']['Walk']
+    ok('Sprite Lab: ping-pong playback does not double its end frames',
+       lab_pp['playback']['frames']==lab_pp['frames']+lab_pp['frames'][-2:0:-1]
+       and lab_pp['playback']['frames'].count(lab_pp['frames'][0])==1
+       and lab_pp['playback']['frames'].count(lab_pp['frames'][-1])==1,str(lab_pp['playback']['frames']))
+
+    # --- Godot 4: the validated helper, and the engine itself when GODOT_BIN is set -----------
+    page.locator('[data-key="target"][data-value="godot"]').click();page.wait_for_timeout(400)
+    ok('Sprite Lab: the Godot target says it was verified in the engine',
+       'Godot 4.7.2' in page.locator('#labTargetNote').inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_godot=OUT/'sprite-lab-godot.zip';shutil.copy(d.value.path(),lab_godot)
+    ok('Sprite Lab: the Godot ZIP ships the atlas, the JSON and the validated GDScript addon and README',
+       sorted(zipfile.ZipFile(lab_godot).namelist())==['addons/nerulio_sprite/README.md',
+         'addons/nerulio_sprite/nerulio_sprite_frames.gd','addons/nerulio_sprite/nerulio_sprite_import.gd',
+         'addons/nerulio_sprite/nerulio_sprite_import_cli.gd','atlas.json','atlas.png'],
+       str(sorted(zipfile.ZipFile(lab_godot).namelist())))
+    lab_gdata=lab_json(lab_godot)
+    ok('Sprite Lab: the Godot JSON is the same envelope with engineTarget godot-4 and relative durations',
+       lab_gdata['meta']['engineTarget']=='godot-4' and lab_gdata['animations']['Walk']['godot']['frames'][0]['duration']>0)
+    ok('Sprite Lab: no fake engine resource files are written',
+       not any(n.endswith(('.tres','.tscn','.meta','.aseprite','.tmx','.tsx')) for n in zipfile.ZipFile(lab_godot).namelist()))
+    if os.environ.get('GODOT_BIN'):
+        run=subprocess.run(['node',str(ROOT/'tests/fixtures/game/godot-validate-bundle.mjs'),str(lab_godot),
+                            '--godot',os.environ['GODOT_BIN']],capture_output=True,text=True,timeout=400)
+        ok('Sprite Lab: the exported Godot bundle really loads in Godot 4',
+           run.returncode==0 and 'LAB BUNDLE GODOT VALIDATION PASSED' in run.stdout,
+           (run.stdout+run.stderr)[-1200:])
+    else:
+        print('UNVERIFIED: the Lab-produced Godot bundle was not run in the engine (set GODOT_BIN)',flush=True)
+
+    # --- Unity: UNVERIFIED, and it says so everywhere -----------------------------------------
+    page.locator('[data-key="target"][data-value="unity"]').click();page.wait_for_timeout(400)
+    ok('Sprite Lab: the Unity target is visibly labelled UNVERIFIED in the UI',
+       'UNVERIFIED' in page.locator('#labTargetNote').inner_text() and page.locator('#labTargetNote.bad').count()==1)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_uz=zipfile.ZipFile(d.value.path())
+    ok('Sprite Lab: the Unity export carries the UNVERIFIED label in the JSON, the C# and the README, and writes no .meta',
+       json.loads(lab_uz.read('atlas.json'))['unity']['verified'] is False
+       and 'UNVERIFIED' in lab_uz.read('UNITY-README.md').decode()
+       and 'UNVERIFIED' in lab_uz.read('Editor/NerulioSpriteImporter.cs').decode()
+       and not any(n.endswith('.meta') for n in lab_uz.namelist()))
+
+    # --- Multi-page, and a limit smaller than a frame is explained ----------------------------
+    page.locator('[data-key="target"][data-value="generic"]').click()
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.fill('#labMaxSize','48');page.wait_for_timeout(1000)
+    ok('Sprite Lab: a page limit smaller than one frame is explained, not silently wrong',
+       page.locator('#labSummary .summary-line.bad').count()==1 and page.locator('#taskDownload').is_disabled())
+    page.fill('#labMaxSize','128');page.wait_for_timeout(1200)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_mz=zipfile.ZipFile(d.value.path());lab_mdata=json.loads(lab_mz.read('atlas.json'))
+    ok('Sprite Lab: a small page limit produces a real multi-page export',
+       lab_mdata['meta']['pages']>1
+       and sorted(n for n in lab_mz.namelist() if n.endswith('.png'))==sorted(lab_mdata['meta']['images'])
+       and all(p['w']<=128 and p['h']<=128 for p in lab_mdata['meta']['pageSizes']),
+       f"{lab_mdata['meta']['pages']} {lab_mdata['meta']['pageSizes']}")
+    lab_pages={n:Image.open(io.BytesIO(lab_mz.read(n))).convert('RGBA') for n in lab_mdata['meta']['images']}
+    lab_bad=[]
+    for key,trim in zip(list(lab_mdata['frames']),lab_trims):
+        f=lab_mdata['frames'][key];r=f['rect']
+        if not lab_same(lab_pages[lab_mdata['meta']['images'][f['page']]].crop((r['x'],r['y'],r['x']+r['w'],r['y']+r['h'])),
+                        lab_sheet.crop((trim[0],trim[1],trim[0]+trim[2],trim[1]+trim[3]))):lab_bad.append(key)
+    ok('Sprite Lab: every frame of a multi-page atlas still reads back as its source pixels',not lab_bad,str(lab_bad))
+
+    # --- Aliasing: identical frames are stored once, and the alias resolves -------------------
+    lab_twin=sheet_png(48,12,[((1,2,6,9),(200,40,40,255)),((17,2,22,9),(30,90,200,255)),((33,2,38,9),(200,40,40,255))])
+    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[lab_twin])
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===3',timeout=60000)
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1200)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_az=d.value.path();lab_adata=lab_json(lab_az);lab_apage=lab_png(lab_az,'atlas.png')
+    lab_aliases=[(k,f['aliasOf']) for k,f in lab_adata['frames'].items() if f['aliasOf']]
+    ok('Sprite Lab: identical frames are stored once and aliased',len(lab_aliases)==1,str(lab_aliases))
+    lab_a=lab_adata['frames'][lab_aliases[0][0]]['rect'];lab_b=lab_adata['frames'][lab_aliases[0][1]]['rect']
+    ok('Sprite Lab: an alias resolves to the region that really holds those pixels',
+       lab_a==lab_b and lab_same(lab_apage.crop((lab_a['x'],lab_a['y'],lab_a['x']+lab_a['w'],lab_a['y']+lab_a['h'])),
+                                 Image.open(io.BytesIO(lab_twin['buffer'])).convert('RGBA').crop((1,2,7,10))),
+       f'{lab_a} {lab_b}')
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    with page.expect_download() as d:page.locator('[data-action="lab-frames-zip"]').click()
+    ok('Sprite Lab: individual frame PNGs are still exportable',
+       len(zipfile.ZipFile(d.value.path()).namelist())==3)
+    with page.expect_download() as d:page.locator('[data-action="lab-gif"]').click()
+    lab_gif=Image.open(d.value.path())
+    ok('Sprite Lab: a GIF preview is still exportable',lab_gif.format=='GIF' and lab_gif.n_frames==3)
+
+    # --- The old URLs still work, at the right stage, and still prove what they proved --------
     page.goto(BASE+'/en/sprite-slicer/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
-    page.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    page.locator('#labSheet canvas').wait_for(timeout=60000)
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
-    ok('the slicer outlines the frames it found, with no Run button',
-       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>[+n.getAttribute("x"),+n.getAttribute("width")])')==[[1,5],[20,8]])
-    page.locator('.frame-chip[data-index="1"]').click();page.wait_for_timeout(150)
-    ok('selecting a frame offers resize handles and exact numbers',page.locator('.slicer-handle').count()==8 and page.locator('#slicerRectW').input_value()=='8')
-    page.fill('#slicerRectW','6');page.wait_for_timeout(300);ready(page)
-    with page.expect_download() as d:page.locator('#taskDownload').click()
-    z=zipfile.ZipFile(d.value.path());meta=json.loads(z.read('metadata.json'))
-    ok('the edited frame decides the exported PNG and the metadata',
-       Image.open(io.BytesIO(z.read('sheet_002.png'))).size==(6,12) and meta['frames'][1]['w']==6 and meta['schemaVersion']==1,str(meta['frames'][1]))
-    page.locator('[data-action="slicer-undo"]').click();page.wait_for_timeout(200)
-    ok('undo restores the previous frame rectangle',page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("width"))')==[5,8])
-    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
-    page.locator('#slicerTrim').check();page.locator('[data-key="canvas"][data-value="common"]').click()
-    page.locator('#slicerWantGif').check();page.locator('#slicerWantStrip').check();page.wait_for_timeout(500);ready(page)
-    with page.expect_download() as d:page.locator('#taskDownload').click()
-    z=zipfile.ZipFile(d.value.path())
-    a,b=[Image.open(io.BytesIO(z.read(f'sheet_00{i}.png'))).convert('RGBA') for i in (1,2)]
-    ok('one canvas for all frames gives one size and one bottom edge',a.size==b.size==(8,12) and a.getbbox()[3]==b.getbbox()[3]==12,f'{a.size} {b.size}')
-    ok('the horizontal strip PNG is the frames side by side',Image.open(io.BytesIO(z.read('sheet_strip.png'))).size==(16,12))
-    gif_out=Image.open(io.BytesIO(z.read('sheet.gif')));gif_out.seek(0)
-    ok('the animated GIF is a real GIF with a transparent cut-out',
-       gif_out.n_frames==2 and gif_out.size==(8,12) and gif_out.info.get('transparency')==0 and gif_out.convert('RGBA').getpixel((0,0))[3]==0)
-    page.locator('[data-key="mode"][data-value="grid"]').click();page.wait_for_timeout(600)
-    ok('grid mode opens on a cell size guessed from the sheet itself',
-       page.locator('#slicerCellW').input_value()=='5' and page.locator('.slicer-box').count()==2 and page.locator('#slicerSuggest .chip').count()>=1,
-       page.locator('#slicerCellW').input_value())
+    ok('the sprite-slicer URL opens the Lab at Slice with the frames already outlined, no Run button',
+       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>[+n.getAttribute("x"),+n.getAttribute("width")])')==[[1,5],[20,8]]
+       and page.locator('[data-action="lab-stage"][data-stage="slice"][aria-pressed="true"]').count()==1)
+    page.locator('.frame-chip[data-index="1"]').click();page.wait_for_timeout(200)
+    ok('selecting a frame offers resize handles and exact numbers',
+       page.locator('.slicer-handle').count()==8 and page.input_value('#labRectW')=='8')
+    page.fill('#labRectW','6');page.wait_for_timeout(500)
+    ok('the edited frame rectangle is what the overlay draws',
+       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("width"))')==[5,6])
+    page.locator('[data-action="lab-undo"]').click();page.wait_for_timeout(400)
+    ok('undo restores the previous frame rectangle',
+       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("width"))')==[5,8])
+    page.locator('[data-key="mode"][data-value="grid"]').click();page.wait_for_timeout(900)
+    ok('grid mode offers ranked suggestions, each with the evidence it was scored on',
+       page.locator('#labSuggest .chip').count()>=1
+       and len(page.locator('#labSuggest .chip').first.get_attribute('title'))>40)
     page.goto(BASE+'/en/normalize-sprite-frames/',wait_until='networkidle')
-    tall=Image.new('RGBA',(20,20),(0,0,0,0));[tall.putpixel((x,y),(255,0,0,255)) for x in range(2,6) for y in range(2,10)]
-    wide=Image.new('RGBA',(12,12),(0,0,0,0));[wide.putpixel((x,y),(0,0,255,255)) for x in range(3,9) for y in range(2,5)]
-    page.locator('#fileInput').set_input_files(files=[file_of('tall.png',tall),file_of('wide.png',wide)])
-    page.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
-    ok('the normaliser shows the common canvas before any download',page.locator('#normSummary .summary-big').inner_text()=='6 × 8')
-    ready(page)
-    with page.expect_download() as d:page.locator('#taskDownload').click()
-    z=zipfile.ZipFile(d.value.path())
-    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
-    ok('normalised frames share one canvas and one bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8,f'{a.getbbox()} {b.getbbox()}')
-    page.locator('[data-key="align"][data-value="top"]').click();page.wait_for_timeout(300);ready(page)
-    with page.expect_download() as d:page.locator('#taskDownload').click()
-    z=zipfile.ZipFile(d.value.path())
-    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
-    ok('changing the anchor really moves the pixels',a.getbbox()[1]==b.getbbox()[1]==0,f'{a.getbbox()} {b.getbbox()}')
+    page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
+    page.wait_for_function('()=>document.querySelectorAll("#labAfter canvas").length===2',timeout=60000)
+    ok('the frame-normalize URL opens the Lab at Normalize and shows the common canvas first',
+       page.locator('#labNormSize').inner_text().startswith('8×12')
+       and page.locator('[data-action="lab-stage"][data-stage="normalize"][aria-pressed="true"]').count()==1,
+       page.locator('#labNormSize').inner_text())
+    page.locator('#taskDownload').click();page.wait_for_timeout(500)
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1000)
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    with page.expect_download() as d:page.locator('[data-action="lab-frames-zip"]').click()
+    lab_nz=zipfile.ZipFile(d.value.path())
+    lab_ims=[Image.open(io.BytesIO(lab_nz.read(n))).convert('RGBA') for n in sorted(lab_nz.namelist())]
+    ok('normalised frames share one canvas and one bounding-box bottom edge',
+       lab_ims[0].size==lab_ims[1].size==(8,12) and lab_ims[0].getbbox()[3]==lab_ims[1].getbbox()[3]==12,
+       f'{lab_ims[0].size} {lab_ims[0].getbbox()} {lab_ims[1].getbbox()}')
+    # ===== Sprite Lab — END ====================================================================
     page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
     page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)

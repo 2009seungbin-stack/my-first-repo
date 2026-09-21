@@ -1,11 +1,14 @@
-# Sprite Lab — engine
+# Sprite Lab
 
-The DOM-free core of Sprite Lab: `src/game/*.js` plus `src/game/exporters/*.js`. Every function
-here takes plain data (RGBA `Uint8ClampedArray` + width/height, or the frames of
-[`src/game/model.js`](../src/game/model.js)) and returns plain data. No canvas, no worker, no
-application state — the UI modules orchestrate these, they do not contain algorithms.
+One workspace — [`src/task/sprite-lab.js`](../src/task/sprite-lab.js) — over a DOM-free engine:
+`src/game/*.js` plus `src/game/exporters/*.js`. Every engine function takes plain data (RGBA
+`Uint8ClampedArray` + width/height, or the frames of [`src/game/model.js`](../src/game/model.js))
+and returns plain data. No canvas, no worker, no application state: the page orchestrates these,
+it does not contain algorithms.
 
 Read [GAME-LABS.md](GAME-LABS.md) first for the shared asset model and the export envelope.
+[§8](#8-the-workspace--srctasksprite-labjs) is the UI: the stages, what each one does, and what is
+verified about it.
 
 ## How pixels get in, and why memory stays flat
 
@@ -92,6 +95,22 @@ rectangles with a `row` index; `framesFromRects` → `{frames, empty}` model fra
   rectangles join when their gap is at most `distance` on *both* axes, so merging chains correctly
   through a middle part. The sweep is ordered by x and breaks out of the inner loop once no further
   rectangle can be within the gap.
+* **Choosing the distance — `autoMergeDistance`.** `detectFrames(src, {distance:'auto'})` picks it
+  and says why, because "one component = one frame" is wrong far more often than it is right and
+  guessing a fixed 2px is wrong the other way. Trying 0…N one by one would do the same work N times;
+  only the distances at which *something new joins* can change the answer, and `mergeThresholds`
+  lists exactly those (for each pair, `max(gapX, gapY)`). Each candidate is then scored on
+  * **frame-size consistency** (×0.5): `1 − stdev/mean` of the group widths and heights. Seventeen
+    islands of a body, a hat and a sword score 0.41; the six characters they belong to score 0.89.
+  * **box fill** (×0.2): opaque pixels over the group rectangles' area. This is what collapses when
+    a merge glues two sprites together and their joint box is mostly empty.
+  * **stability** (×0.3): how far the next threshold is, i.e. how long this frame count survives.
+    On the fixture, 6 frames hold from 2px to 24px; 17 and 15 last one step each.
+  A single group's consistency is undefined, so its own fill stands in for it, **capped at 0.8** —
+  "everything merged into one box" can never beat a genuinely uniform set. And if the raw components
+  are already ≥85% the same size (`UNIFORM_AT_ZERO`), nothing is merged at all: ten 20×20 sprites
+  drawn 1px apart stay ten frames. The chosen distance is returned as the slider value with the
+  sentence the UI shows, so it is an adjustable default, never a hidden decision.
 * **Reading order.** Rows by vertical centre with a tolerance (`auto` = 35% of the median height,
   which keeps a tall sprite and a short one on the same row), then left to right inside a row.
   `rightToLeft` is available for sheets authored that way.
@@ -446,6 +465,137 @@ guess was not clamped to `maxSize`, so a set whose total area exceeded `maxSize�
 into that oversized guess and returned — four 78px frames at `maxSize: 128` came back as a 160px
 atlas. It now returns the limit or explains that the images do not fit.
 
+## 8. The workspace — `src/task/sprite-lab.js`
+
+**Input** one image: a sprite sheet, dropped, pasted, picked or handed off from another tool.
+**Output** a ZIP — atlas page(s) plus the chosen bundle (Generic JSON / Godot 4 / Unity) — and,
+separately, per-frame PNGs, a GIF preview and a project JSON.
+
+One page, five stages, **one decoded sheet**. Nothing is re-uploaded between stages, and nothing is
+re-decoded: the sheet is decoded once and every stage reads rectangles out of it through a lazy
+`source` (`ctx.getImageData(rect)`), which is the engine's own contract. A 100-frame project never
+holds 100 RGBA copies; the largest allocation is one atlas page.
+
+```
+Slice ──▶ Normalize ──▶ Animate ──▶ Pivot & boxes ──▶ Pack & export
+```
+
+The stage bar is the only navigation. The primary button is always "the next stage", and on the last
+stage it is the download — so the default path is five clicks with no decisions, and every decision
+is optional. Each stage shows **3–5 primary controls**; everything else is under `Advanced ▾`. On a
+phone the stage bar scrolls horizontally, the workspace becomes one column
+(`grid-template-columns:minmax(0,1fr)`), and the tool panel drops below the board.
+
+### Slice
+
+Auto (alpha components) or Grid. Auto is the default and it **chooses its own merge distance**
+([§2](#2-frames--srcgameframe-opsjs)): the slider is pre-set to what it chose and the sentence under
+it says why ("chose 2px — 6 frames of 89% equal size, and nothing else joins until 9px"). Unchecking
+"Choose the merge distance automatically" hands the slider over.
+
+Grid mode shows the ranked suggestions of [§1](#1-grid-suggestion--srcgamegrid-detectjs) as chips —
+cell size, confidence and score, with the full `reasons` list as the chip's tooltip and as
+screen-reader text — plus a custom cell size field and margin/spacing under Advanced.
+
+Editing is the old slicer's, unchanged in behaviour: click to select, Shift/Ctrl for several, drag to
+move, drag empty space to add, corner handles to resize, `Delete` to remove, arrows to nudge (Shift
+×10, Alt resizes), numeric X/Y/W/H for every one of those, plus **Merge selected**, **Delete
+selected** and **Reading order**. Drag the strip to reorder. A colour key (auto from the border, or
+picked) is available under Advanced for sheets with an opaque backdrop.
+
+### Normalize
+
+Trim, alignment (including **"Bounding-box bottom, centred"** — labelled that way, never "foot"),
+auto or explicit common canvas, and padding, with **before and after** side by side and the real
+canvas size shown before anything is applied. Pixels are only ever moved by whole pixels, and a
+canvas too small for the largest frame is refused with the size it would need.
+
+### Animate
+
+Create, rename and delete animations; tag from Idle/Walk/Run/Attack/Hit/Death or type your own;
+assign the selected frames; drag the strip to reorder; fps, per-frame duration in ms, loop on/off,
+forward / reverse / ping-pong. A sliced sheet already *is* an animation, so one is created from every
+frame in strip order the first time the stage opens — renameable and splittable from there.
+
+The preview **plays `playbackOrder`/`playbackTimes`** and nothing else, which is the same pair the
+exporters read. It fits and integer-zooms the frame (nearest-neighbour, 1×…8× or Fit) on a
+checkerboard, black, white or magenta background — a 12px sprite is never drawn as 12 pixels in a
+300px box. Onion skin (0…8 frames either side, over the *playback* list so a ping-pong shows what
+really plays next) and a difference view are under Advanced.
+
+Beside the preview: the **jitter graph** — the residual x and y series of
+[§3](#3-jitter-duplicates-and-the-loop-seam--srcgamejitterjs) drawn as two polylines (solid x, dashed
+y, so they are not told apart by colour alone), with RMS and max in pixels and the engine's warning
+text. **Auto-fix** takes the reference (declared pivot / bounding-box bottom / bounding-box centre /
+alpha centroid) and `preserveTrend`, and shows the before → after RMS as a proposal you **Keep** or
+**Discard** — the playback keeps running on the proposed frames while it is open, which is the
+side-by-side. A duplicate/blank report and the loop-seam warning sit under the strip; removal is a
+button, never automatic.
+
+**Mirror** builds real mirrored frames (`mirrorFrame`: pivot, boxes and collision flipped, polygon
+winding preserved) plus an animation that plays them. The pixels are flipped at draw time and at
+export time from the same `metadata.mirroredFrom` flag, so the preview and the atlas agree.
+
+### Pivot & boxes
+
+Pivot presets, a red crosshair on the frame, and numeric entry in **both** normalised (0–1) and
+pixels — the pixel field is per frame, so 9px is 9px on a 40-wide and on a 64-wide canvas. "Apply to"
+is Selected frames / This animation / All frames.
+
+Boxes are hit / hurt / interact / custom, as rect, circle or polygon, several per frame, each drawn
+with its own **hatch pattern and name** (never colour alone) and editable numerically for keyboard
+users. "Copy to this range" puts one box on frames *n…m* of the current animation. The **hitbox
+timeline** is a real table — playback steps across, box types down, `<th scope>` on both axes — and
+every cell is focusable and jumps to that frame.
+
+Collision polygons come from [§4](#4-collision-shapes--srcgamecontourjs): shape (polygon / convex
+hull / rect / circle), threshold, tolerance, max vertices and outward padding, and the result line
+reports **traced → simplified vertices, max deviation in pixels and area error in percent** rather
+than claiming success.
+
+### Pack & export
+
+Engine (Generic JSON / Godot 4 / Unity), spacing and max page size in front; extrude, outline width
+and colour, de-fringe, power-of-two and de-duplication under Advanced. The stage opens on a packed
+atlas and re-packs on every change, showing the page image, its size, efficiency per page, how many
+frames share a region, and the packer's warnings. A page limit smaller than a single frame is
+reported as an error with the download disabled, not silently rounded up.
+
+Outline and de-fringe are **non-destructive**: they are applied to a copy of each frame at export
+time into one extra working sheet, the frames are re-pointed at it, and pivots, boxes and collision
+move by the same integer offset. An **edge zoom** shows one real frame before and after at 1:12, so a
+one-pixel change is visible. Rotation is not offered at all (see [§6](#6-packing--srcgamepackingjs)).
+
+The Godot target says it was verified in the engine; **the Unity target says UNVERIFIED in red**, and
+the same word is in the JSON, the C# file and the README.
+
+Also on this stage: per-frame PNGs as a ZIP, a GIF preview, **Save project JSON** (coordinates,
+boxes, collision and settings — no image data, and loading one asks for the sheet again and refuses a
+sheet of a different size) and **Copy a settings link**, which puts the slicing/packing preset in the
+URL query and never an image.
+
+### State, undo and cancellation
+
+Undo/redo is a stack of **projects** — the records of [`src/game/project.js`](../src/game/project.js),
+a few KB for a 100-frame project — never image snapshots, 32 deep, on `Ctrl+Z` / `Ctrl+Shift+Z` /
+`Ctrl+Y` and as buttons. Any edit that moves a frame drops the atlas, so an export can never read
+stale rectangles. Shortcuts are bound on `document`, guarded by `el.isConnected`, and ignored inside
+a form field or a `<dialog>`. Re-detection is debounced and carries an `AbortSignal`, so changing a
+slicing option while a detect is in flight cancels it instead of racing.
+
+**Limitations**
+* Auto merging is rectangle-gap based, so two sprites whose *bounding boxes* come within the distance
+  merge even if no pixel does. The slider and manual split/merge are the answer; a uniform sheet
+  should use Grid.
+* The pivot crosshair is drawn and typed, not dragged: the overlay is `pointer-events:none` and the
+  numeric fields (and presets) are the only way to move it. Dragging it is not implemented.
+* Polygon boxes are created as a rectangle of four points and then edited numerically; there is no
+  point-by-point polygon drawing tool.
+* An outlined export builds one extra working sheet, capped at 64 megapixels; above that it refuses
+  with the size it would have needed.
+* `findDuplicates` and the jitter report run on the main thread, over the whole frame list. On the
+  100-frame fixture that is tens of milliseconds; they are not in a worker.
+* Loading a project JSON requires the same sheet dimensions. It does not try to re-find the frames.
 ---
 
 ## Verification
