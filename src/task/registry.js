@@ -24,7 +24,10 @@ export const TASK_TOOLS=Object.freeze({
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
- crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']}
+ crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
+ 'sprite-slicer':{module:'sprite-slicer',kinds:['image'],next:['sprite-sheet-maker','frame-normalize','pixel']},
+ 'frame-normalize':{module:'frame-normalize',kinds:['image'],next:['sprite-sheet-maker','sprite-slicer','pixel']},
+ 'mask-packer':{module:'mask-packer',kinds:['image'],next:['compress','convert','texture-map']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */

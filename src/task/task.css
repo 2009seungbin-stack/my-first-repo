@@ -131,6 +131,33 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .options textarea{width:100%;border:1px solid #d8e0ea;border-radius:10px;padding:9px 11px;font:12px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
 .opt-label{display:block;font-size:11px;font-weight:750;color:#7b8798;margin:12px 0 6px}.opt-label:first-child{margin-top:0}.summary-line.bad{color:#b3383f}
 @media(max-width:860px){.atlas-views{grid-template-columns:1fr}.anim-canvas{max-height:220px}}
+.view-head .segmented{display:inline-flex;flex:none;margin-left:auto;gap:6px}.view-head .segmented button{padding:7px 10px;font-size:11.5px;font-weight:700}
+/* sprite slicer: the sheet with the frame boxes drawn over it */
+.slicer-work .atlas-views{align-items:start}
+.slicer-stage{max-height:56vh;overflow:auto;border-radius:12px;background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+.slicer-sheet{position:relative;margin:0 auto;max-width:100%}.slicer-sheet canvas{display:block;width:100%;height:auto}
+.slicer-sheet svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;outline:none}
+.slicer-sheet svg:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.slicer-box rect{fill:#3182f60f;stroke:#3182f6;stroke-width:1;vector-effect:non-scaling-stroke}
+.slicer-box text{fill:#fff;paint-order:stroke;stroke:#1b2536;stroke-width:3;font-weight:800;pointer-events:none}
+.slicer-box.is-selected rect{fill:#ffb02e2e;stroke:#f97316;stroke-width:2}
+.slicer-new{fill:#3182f626;stroke:#3182f6;stroke-dasharray:4 3;vector-effect:non-scaling-stroke}
+.slicer-handle{fill:#fff;stroke:#f97316;stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:nwse-resize}
+.frame-chip.is-selected{outline:2px solid #f97316;background:#fff4e6}.frame-chip.is-more{display:grid;place-items:center;width:52px;font-size:12px;font-weight:750;color:#6b7a90}
+.frame-chip canvas{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.slicer-rect{margin:2px 2px 8px}.slicer-rect .field-row{grid-template-columns:repeat(4,1fr)}.slicer-rect .opt-label{margin-top:0}.slicer-rect .field.inline input{width:100%!important}
+/* frame normaliser: every frame on the one canvas, plus the onion skin */
+.norm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;max-height:52vh;overflow:auto;padding:2px}
+.norm-cell{margin:0;display:grid;gap:4px}.norm-hold{border-radius:10px;overflow:hidden;background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:12px 12px;background-position:0 0,0 6px,6px -6px,-6px 0;border:1px solid #e6ebf2}
+.norm-hold canvas{display:block;width:100%;height:auto}
+.norm-cell figcaption{font-size:10.5px;color:#6b7a90;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.norm-onion{max-height:52vh}.norm-onion canvas{display:block;width:100%;height:100%;object-fit:contain}
+/* mask packer: the packed texture and one preview per channel */
+.mask-main{max-height:min(40vh,340px);max-width:340px;margin:0 0 12px}.mask-main canvas{display:block;width:100%;height:100%;object-fit:contain}
+.mask-channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.mask-channel{margin:0;display:grid;gap:4px}.mask-channel canvas{display:block;width:100%;height:auto;border-radius:10px;border:1px solid #e6ebf2;background:#f6f8fb}
+.mask-channel figcaption{font-size:11px;font-weight:700;color:#51647d}
+.mask-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}.mask-row .field{margin:0}.mask-row .check{margin:0;font-size:11.5px}.mask-row .field small{font-weight:500;color:#8b97a8}
 @media(hover:none){.frame-chip button{opacity:1}.pg-actions{opacity:1}}
 @media(max-width:860px){.pages{max-height:none;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.work{grid-template-columns:minmax(0,1fr)}.viewer{position:static}.cmp{max-height:46vh}}
 @media(max-width:600px){.page{padding:0 16px 32px}.page-header{padding:14px 16px}.page-header .local-pill{display:none}.dropzone{padding:34px 18px}.home-drop{flex-direction:column;align-items:stretch;text-align:center}.home-drop .primary{width:100%}.field-row{grid-template-columns:1fr}.tool-grid{grid-template-columns:1fr}}
