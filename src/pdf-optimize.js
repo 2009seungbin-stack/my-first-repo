@@ -270,7 +270,7 @@ function dedupeStreams(doc,report){
  }
  remap(ctx,moves);
 }
-async function optimizeImages(doc,{quality,maxSide,dpi,grayscale},progress,encode,report){
+async function optimizeImages(doc,{quality,maxSide,dpi,grayscale,grayLimits},progress,encode,report){
  const ctx=doc.context,sizes=placements(doc),masks=maskRefs(doc),encoded=new Map();
  const images=ctx.enumerateIndirectObjects().filter(([,o])=>o instanceof L.PDFRawStream&&String(ctx.lookup(o.dict.get(N('Subtype')))||'')==='/Image');
  for(let i=0;i<images.length;i++){
@@ -289,14 +289,18 @@ async function optimizeImages(doc,{quality,maxSide,dpi,grayscale},progress,encod
    if(!cs){skip('colorspace');continue;}
    if(cs.kind==='cmyk'&&jpeg){skip('cmyk-jpeg');continue;}
    if(bpc===16||bpc===1&&!isMask&&cs.kind!=='indexed'&&cs.kind!=='gray'){skip(`bpc-${bpc}`);continue;}
-   // Downsample against how large the page actually draws the image, not against a pixel count:
-   // a 2339px scan on an A4 page is 200dpi, the same pixels inside a 60pt logo are 2800dpi.
+   // Two caps, both always applied. The resolution cap uses how large the page actually draws
+   // the image — a 2339px scan on an A4 page is 200dpi, the same pixels inside a 60pt logo are
+   // 2800dpi. But a page's declared size can be meaningless: every image-to-PDF converter writes
+   // a MediaBox of one point per pixel, which makes an A4 scan a 17x24 inch page at a genuine
+   // 72dpi, and the resolution cap then correctly finds nothing to do. maxSide is what actually
+   // bounds those files, so it is never allowed to be raised out of the way.
    const bound=sizes.get(tag),dots=bound?Math.max(8,dpi*Math.max(bound.w,bound.h)/72):Infinity;
    const scale=Math.min(1,maxSide/Math.max(w,h),dots/Math.max(w,h));
    const tw=Math.max(1,Math.round(w*scale)),th=Math.max(1,Math.round(h*scale));
    // A bilevel or paletted mask at its natural size has nothing left to win from a re-encode.
    if(isMask&&scale===1&&filters.length===1&&filters[0]==='/FlateDecode'){skip('mask-already-small');continue;}
-   const key=hash(stream.contents)+`|${tw}x${th}|${isMask?'m':grayscale?'g':'c'}`;
+   const key=hash(stream.contents)+`|${tw}x${th}|${isMask?'m':grayscale?'g':grayLimits?'a':'c'}`;
    let done=encoded.get(key);
    if(!done){
     let source;
@@ -308,7 +312,7 @@ async function optimizeImages(doc,{quality,maxSide,dpi,grayscale},progress,encod
      const rgba=toRGBA(samples,w,h,bpc,cs);if(!rgba){skip('samples');continue;}
      source={rgba,width:w,height:h};
     }
-    const result=await encode(source,tw,th,{type:isMask?'gray':'jpeg',quality,grayscale:grayscale&&!isMask});
+    const result=await encode(source,tw,th,{type:isMask?'gray':'jpeg',quality,grayscale:grayscale&&!isMask,limits:isMask||grayscale?null:grayLimits});
     if(!result){skip('encoder');continue;}
     done=isMask?{...result,bytes:await deflate(result.bytes)}:result;
     encoded.set(key,done);
@@ -323,6 +327,7 @@ async function optimizeImages(doc,{quality,maxSide,dpi,grayscale},progress,encod
    ctx.assign(ref,L.PDFRawStream.of(next,bytes));
    report.imageBytesSaved+=stream.contents.length-bytes.length;report.optimizedImages++;
    if(scale<1)report.downsampledImages++;
+   if(result.grayscale)report.grayscaleImages++;
    encoded.set(key,ref);
   }catch(e){skip('error');if(report.imageErrors.length<3)report.imageErrors.push(e.message);}
  }
@@ -365,9 +370,9 @@ export function sweep(doc,report){
  while(queue.length)walk(ctx.lookup(queue.pop()));
  for(const [ref] of ctx.enumerateIndirectObjects())if(!live.has(String(ref))){ctx.delete(ref);report.sweptObjects++;}
 }
-export function emptyReport(){return {optimizedImages:0,downsampledImages:0,deduplicatedImages:0,deduplicatedStreams:0,imageBytesSaved:0,subsetFonts:0,fontBytesSaved:0,fontGlyphs:[],recompressedStreams:0,streamBytesSaved:0,metadataRemoved:0,sweptObjects:0,skipped:{},imageErrors:[]};}
+export function emptyReport(){return {optimizedImages:0,downsampledImages:0,grayscaleImages:0,deduplicatedImages:0,deduplicatedStreams:0,imageBytesSaved:0,subsetFonts:0,fontBytesSaved:0,fontGlyphs:[],recompressedStreams:0,streamBytesSaved:0,metadataRemoved:0,sweptObjects:0,skipped:{},imageErrors:[]};}
 export async function optimize(doc,options,progress,encode){
- const report=emptyReport(),o={quality:.62,maxSide:2000,dpi:144,grayscale:false,images:true,streams:true,fonts:true,metadata:false,...options};
+ const report=emptyReport(),o={quality:.62,maxSide:1700,dpi:144,grayscale:false,grayLimits:null,images:true,streams:true,fonts:true,metadata:false,...options};
  dedupeStreams(doc,report);
  if(o.images)await optimizeImages(doc,o,m=>progress(`Recompressing ${m}`),encode,report);
  if(o.fonts){progress('Trimming embedded fonts');await tick();await subsetFonts(doc,report);}

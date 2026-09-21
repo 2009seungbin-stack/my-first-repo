@@ -138,7 +138,7 @@ async function exportPages(payload,progress){
  if(adopted&&payload.fields)await fillFields(out,payload.fields,payload.flatten);
  const rasterized=payload.pages.filter(p=>p.flatten).length;
  const report={mode:payload.optimize?'preserve-compress':'preserve',pages:payload.pages.length,rasterizedPages:rasterized,textPreserved:!rasterized,searchPreserved:!rasterized,vectorsPreserved:!rasterized};
- if(payload.optimize||payload.removeMetadata)Object.assign(report,await optimize(out,{quality:payload.quality||.62,maxSide:payload.maxSide||2000,dpi:payload.dpi||144,grayscale:!!payload.grayscale,images:!!payload.optimize,streams:!!payload.optimize,metadata:!!payload.removeMetadata},progress,encode));
+ if(payload.optimize||payload.removeMetadata)Object.assign(report,await optimize(out,{quality:payload.quality||.62,maxSide:payload.maxSide||1700,dpi:payload.dpi||144,grayscale:!!payload.grayscale,grayLimits:payload.grayLimits||null,images:!!payload.optimize,streams:!!payload.optimize,metadata:!!payload.removeMetadata},progress,encode));
  const blob=new Blob([await out.save({useObjectStreams:true,updateMetadata:!payload.removeMetadata})],{type:'application/pdf'});
  return {blob,report:{...report,outputBytes:blob.size}};
 }
