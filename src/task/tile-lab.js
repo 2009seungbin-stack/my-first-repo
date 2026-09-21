@@ -28,6 +28,9 @@ export function mount({el,def}){
  let src=null,data=null,candidates=[],grid=null,busy=false,ready=false,job=null;
  let stage=STAGES.includes(route.query.get('stage'))?route.query.get('stage'):STAGE_FOR[route.id]||'grid';
  let terrain=null,cursor={x:0,y:0},painting=null,art=null;
+ // Painting history is the terrain grid itself: one byte per cell, so 64 steps of a 64x64 map
+ // are 256 KB and no image is ever snapshotted.
+ const past=[],future=[];
  const o={
   tileWidth:16,tileHeight:16,marginX:0,marginY:0,spacingX:0,spacingY:0,
   lines:true,zoom:2,skipBlank:true,dedupe:'none',nearMean:2,variants:false,extrude:route.id==='atlas-padding'?2:0,
@@ -211,7 +214,8 @@ ${o.collide==='none'?'':`<div class="field-row">${field('alpha',0,254)}${field('
 <span class="opt-label">${esc(T('source'))}</span>${seg('source',['sheet','template'],v=>esc(v==='sheet'?T('sourceSheet'):T('sourceTemplate')))}
 ${o.source==='sheet'?field('offset',0,Math.max(0,(grid?.count||1)-1)):''}
 <span class="opt-label">${esc(T('paint'))}</span>${seg('brush',['paint','erase'],v=>esc(T(v)))}
-<div class="chips-row"><button type="button" class="mini-button" data-action="tl-fill">${esc(T('fillAll'))}</button><button type="button" class="mini-button" data-action="tl-clear">${esc(T('clear'))}</button><button type="button" class="mini-button" data-action="tl-random">${esc(T('randomFill'))}</button></div>
+<div class="chips-row"><button type="button" class="mini-button" data-action="tl-fill">${esc(T('fillAll'))}</button><button type="button" class="mini-button" data-action="tl-clear">${esc(T('clear'))}</button><button type="button" class="mini-button" data-action="tl-random">${esc(T('randomFill'))}</button>
+<button type="button" class="mini-button" data-action="tl-undo" id="tlUndo" title="${esc(T('undo'))}" aria-label="${esc(T('undo'))}" ${past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="tl-redo" id="tlRedo" title="${esc(T('redo'))}" aria-label="${esc(T('redo'))}" ${future.length?'':'disabled'}>${esc(T('redo'))}</button></div>
 <details class="options-advanced"><summary>${esc(text('advanced'))}</summary><div class="field-row">${field('gridSize',4,64)}${field('seed',0,999999)}</div>
 <div class="field-row">${field('mapZoom',1,12)}</div>${check('outside')}${check('gridLines')}
 <label class="field"><span>${esc(T('importLayout'))}</span><input id="tlLayoutFile" type="file" accept="application/json,.json"></label></details></form>
@@ -321,6 +325,21 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   for(let i=1;i<l.rows;i++){ctx.beginPath();ctx.moveTo(0,i*size*scale);ctx.lineTo(cv.width,i*size*scale);ctx.stroke();}
   Im.release(labelled);
  }
+ const remember=()=>{
+  const g=ensureTerrain();
+  past.push({w:g.w,h:g.h,cells:new Uint8Array(g.cells)});
+  if(past.length>64)past.shift();
+  future.length=0;
+ };
+ function timeTravel(from,to){
+  if(!from.length)return;
+  const g=ensureTerrain();
+  to.push({w:g.w,h:g.h,cells:new Uint8Array(g.cells)});
+  const step=from.pop();
+  terrain={w:step.w,h:step.h,cells:new Uint8Array(step.cells)};
+  if(step.w!==o.gridSize){o.gridSize=step.w;frame();return;}
+  drawMap();
+ }
  function ensureTerrain(){
   if(!terrain||terrain.w!==o.gridSize||terrain.h!==o.gridSize){
    terrain=terrainGrid(o.gridSize,o.gridSize);
@@ -364,6 +383,9 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   const info=q('#tlMapInfo');if(info)info.textContent=`${rendered.w} × ${rendered.h} · ${T('kinds.'+o.kind)}`;
   const box=q('#tlMapSummary');
   if(box)box.innerHTML=`<div class="summary-big${missing?' muted':''}">${missing||'✓'}</div><div class="summary-line">${missing?esc(T('missingHere',{n:missing})):esc(T('complete'))}</div>`;
+  const undo=q('#tlUndo'),redo=q('#tlRedo');
+  if(undo)undo.disabled=!past.length;
+  if(redo)redo.disabled=!future.length;
  }
  function ruleReport(){
   const l=layout(),present=[],identical=[];
@@ -622,9 +644,11 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));
    dropArt();frame();return;
   }
-  if(a==='tl-fill'){const g=ensureTerrain();g.cells.fill(1);return drawMap();}
-  if(a==='tl-clear'){const g=ensureTerrain();g.cells.fill(0);return drawMap();}
-  if(a==='tl-random'){terrain=seededFill(ensureTerrain(),o.seed);o.seed=(o.seed+1)%1000000;const f=q('#tl-seed');if(f)f.value=o.seed;return drawMap();}
+  if(a==='tl-fill'){remember();const g=ensureTerrain();g.cells.fill(1);return drawMap();}
+  if(a==='tl-clear'){remember();const g=ensureTerrain();g.cells.fill(0);return drawMap();}
+  if(a==='tl-random'){remember();terrain=seededFill(ensureTerrain(),o.seed);o.seed=(o.seed+1)%1000000;const f=q('#tl-seed');if(f)f.value=o.seed;return drawMap();}
+  if(a==='tl-undo')return timeTravel(past,future);
+  if(a==='tl-redo')return timeTravel(future,past);
   if(a==='tl-reroll'){o.seed=(o.seed+1)%1000000;const f=q('#tl-seed');if(f)f.value=o.seed;return drawPreview();}
   if(a==='tl-slice')return slice();
   if(a==='tl-stop'){job?.abort();return;}
@@ -659,7 +683,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(!e.target.matches('#tlMap'))return;
   const cell=cellFromEvent(e);if(!cell)return;
   e.preventDefault();e.target.focus();e.target.setPointerCapture?.(e.pointerId);
-  painting=o.brush==='erase'?0:1;setCell(cell.x,cell.y,painting);
+  painting=o.brush==='erase'?0:1;remember();setCell(cell.x,cell.y,painting);
  });
  el.addEventListener('pointermove',e=>{
   if(painting===null||!e.target.matches('#tlMap')||!(e.buttons&1))return;
@@ -671,9 +695,11 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(!e.target.matches('#tlMap'))return;
   const g=ensureTerrain(),step={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
   if(step){e.preventDefault();cursor={x:clamp(cursor.x+step[0],0,g.w-1),y:clamp(cursor.y+step[1],0,g.h-1)};drawMap();return;}
-  if(e.key===' '||e.key==='Enter'){e.preventDefault();setCell(cursor.x,cursor.y,cellAt(g,cursor.x,cursor.y)?0:1);return;}
-  if(e.key==='f'||e.key==='F'){e.preventDefault();g.cells.fill(1);drawMap();return;}
-  if(e.key==='Backspace'||e.key==='Delete'){e.preventDefault();terrain=floodFill(g,cursor.x,cursor.y,0);drawMap();}
+  if(e.key==='z'&&(e.ctrlKey||e.metaKey)){e.preventDefault();timeTravel(e.shiftKey?future:past,e.shiftKey?past:future);return;}
+  if((e.key==='y'&&(e.ctrlKey||e.metaKey))){e.preventDefault();timeTravel(future,past);return;}
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();remember();setCell(cursor.x,cursor.y,cellAt(g,cursor.x,cursor.y)?0:1);return;}
+  if(e.key==='f'||e.key==='F'){e.preventDefault();remember();g.cells.fill(1);drawMap();return;}
+  if(e.key==='Backspace'||e.key==='Delete'){e.preventDefault();remember();terrain=floodFill(g,cursor.x,cursor.y,0);drawMap();}
  });
 
  /* ---------- intake ---------- */
@@ -691,7 +717,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   try{
    const decoded=await Im.decode(files[0]);
    Im.release(src);src=decoded;src.name=files[0].name;
-   data=null;tiles.clear();hashes=null;dropArt();terrain=null;
+   data=null;tiles.clear();hashes=null;dropArt();terrain=null;past.length=0;future.length=0;
    if(src.width*src.height<=ANALYSIS_PIXELS)data=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,src.width,src.height).data;
    candidates=data?detectGrid(data,src.width,src.height):[];
    if(!route.query.has('zoom'))o.zoom=clamp(Math.round(480/Math.max(1,src.width)),1,8);

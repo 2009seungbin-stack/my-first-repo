@@ -135,6 +135,10 @@ Four different things people all call "autotile". They are **not** interchangeab
   slot the chosen kind requires (`sideIndex` for side sets, `reduceMask` for blob, the four corner
   samples for the dual grid). A cell whose rule has no tile is drawn as a labelled cross-hatched
   ghost and counted — that count *is* the feature.
+* **Undo/redo** the terrain grid *is* the state (one `Uint8Array`, one byte per cell), so history
+  is up to 64 grid snapshots — 256 KB for a 64×64 map — and never an image. A painted stroke is one
+  step, as are fill, clear, random fill, flood fill and a keyboard toggle. `Ctrl+Z` / `Ctrl+Shift+Z`
+  (and `Ctrl+Y`) work on the canvas.
 * **Limitations** one terrain at a time: it does not model transitions between several terrains,
   and it does not reproduce an engine's own matcher. `corner16` renders (w+1)×(h+1) cells offset by
   half a tile; Godot does not offset a layer for you, so that offset has to be baked into the art.
@@ -256,6 +260,7 @@ Measured on this branch, not asserted from reading the code.
 | The same extrusion on a sheet the old recipe could not take (8px tiles, margin 1, separation 2) | `scratchpad/tile-verify.py` | 36×24 atlas; all 6 × 64 tile pixels and all 6 × 8 left-edge pixels equal the source | VERIFIED |
 | All four template PNGs against their layout JSON | same | 9/16/16/47 cells drawn exactly where the JSON says | VERIFIED |
 | Tester renders the tile the rule requires (pixels read back from the canvas) | `tests/task-browser.py` | filled area centre = slot for mask 255; corner = slot for E\|SE\|S; keyboard paint = slot for W | VERIFIED |
+| Undo/redo restores the exact map, and a stroke is one step | `scratchpad/tile-undo.py` + `tests/task-browser.py` | 12 checks: fill → clear → undo gives the filled map back pixel-identical; redo re-empties it; a 5-cell drag undoes in one step; `Ctrl+Z` works on the canvas; the buttons disable at both ends of the history | VERIFIED |
 | Seam verdicts | same + `tests/game-seams.test.mjs` | cos-wrapping tile: ratio < 1.3 → seamless; ramp: mean > 240, ratio > 20 → seam; after `makeSeamless` mean < 8 | VERIFIED |
 | Godot pack contents and peering bits recomputed from the masks | `scratchpad/tile-verify.py` | 47 tiles, 8 bits on the full slot, 0 on the isolated slot, no `.tres`/`.meta` in the ZIP | VERIFIED |
 | Collision polygons re-tested against the tile alpha they came from (full / slope / ring / one-pixel tiles) | Chromium + Pillow crossing-number test (`scratchpad/verify_collision.py`) | 4 tiles × 256 pixels × 3 modes: `rects` matches the alpha exactly, `box` and `outline` over-cover only where documented; ring → 4 rects with an empty hole, or 1 outer loop; one-pixel tile → one 4-point loop | VERIFIED |
@@ -300,6 +305,4 @@ same `Builder.build()` the menu item calls.
 * No `boxes` (hit/hurt rectangles) — only `collision`.
 * Multi-terrain transitions (grass → sand → water in one set) are not modelled anywhere.
 * Unity/Tiled exports do not exist. Only the Godot 4 helper does.
-* The Lab has no undo for painted terrain (fill/clear/random are one click away, and the grid is
-  one byte per cell, so a snapshot stack is cheap to add later).
 * Near-duplicate detection is a pixel threshold, not perceptual.

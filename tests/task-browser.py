@@ -298,6 +298,14 @@ with sync_playwright() as pw:
     page.locator('#tlMap').press('ArrowRight');page.locator('#tlMap').press(' ');page.wait_for_timeout(250)
     ok('arrow keys plus Space paint the cell next to the one that was clicked',
        pixel('#tlMap',1,0)==slot_colour(BLOB.index(NBIT['w'])),pixel('#tlMap',1,0))
+    # Undo is the terrain grid itself (one byte per cell), so a step restores the exact map.
+    page.locator('[data-action="tl-fill"]').click();page.wait_for_timeout(250)
+    filled=pixel('#tlMap',8,8)
+    page.locator('[data-action="tl-clear"]').click();page.wait_for_timeout(250)
+    page.locator('[data-action="tl-undo"]').click();page.wait_for_timeout(250)
+    ok('undo restores the exact map that was painted before',pixel('#tlMap',8,8)==filled,pixel('#tlMap',8,8))
+    page.locator('[data-action="tl-redo"]').click();page.wait_for_timeout(250)
+    ok('redo empties it again and exhausts itself',pixel('#tlMap',8,8)[3]==0 and page.locator('#tlRedo').is_disabled())
     # --- seams: one repeating texture, measured against its own interior ---
     wrap=Image.new('RGBA',(32,32))
     for y in range(32):
