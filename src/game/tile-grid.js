@@ -205,7 +205,7 @@ export function sliceMetadata(grid,{image='tileset.png',width,height,toolVersion
   tileSet:{tileSize:{w:grid.tileWidth,h:grid.tileHeight},margins:{x:grid.marginX,y:grid.marginY},
    separation:{x:grid.spacingX,y:grid.spacingY},columns:grid.cols,rows:grid.rows,count:list.length},
   frames:Object.fromEntries(list.map(t=>[t.name,{page:0,rect:{x:t.x,y:t.y,w:t.w,h:t.h},rotated:false,aliasOf:t.aliasOf??null,
-   sourceSize:{w:t.w,h:t.h},offset:{x:0,y:0},pivot:{x:.5,y:.5},duration:null,tag:t.tag||'',boxes:[],collision:[],
+   sourceSize:{w:t.w,h:t.h},offset:{x:0,y:0},pivot:{x:.5,y:.5},duration:null,tag:t.tag||'',boxes:[],collision:t.collision||[],
    tile:{index:t.index,col:t.col,row:t.row}}]))};
 }
 /* ---- tile comparison ---- */

@@ -5,6 +5,7 @@ import {t} from '../i18n.js';
 import {detectGrid,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,isBlank,duplicateGroups,nearDuplicateGroups,variantSet,VARIANTS} from '../game/tile-grid.js';
 import {KINDS,LAYOUTS,layoutOf,layoutJSON,layoutFromJSON,completeness,unrepresentable,terrainGrid,renderMap,seededFill,floodFill,cellAt} from '../game/autotile.js';
 import {seamReport,edgeMatch,bestEdge,makeSeamless,heatmap} from '../game/seams.js';
+import {tileCollision,MODES as COLLISION_MODES} from '../game/tile-collision.js';
 import {godotTileSet,godotScript,godotReadme,MODES,modeFor} from '../game/godot-tileset.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** Tile Lab — one workspace for a 2D tileset: measure the grid, slice it, generate autotile
@@ -29,7 +30,7 @@ export function mount({el,def}){
   tileWidth:16,tileHeight:16,marginX:0,marginY:0,spacingX:0,spacingY:0,
   lines:true,zoom:2,skipBlank:true,dedupe:'none',nearMean:2,variants:false,extrude:route.id==='atlas-padding'?2:0,
   kind:'blob47',templateSize:32,offset:0,source:'template',sourcePinned:false,outside:false,gridLines:true,mapZoom:3,gridSize:16,seed:1234,brush:'paint',
-  seamIndex:0,repeat:2,healed:false,blend:0,matchIndex:1,
+  seamIndex:0,repeat:2,healed:false,blend:0,matchIndex:1,collide:'none',alpha:0,simplify:0,
   terrainName:'Terrain',mode:''
  };
  for(const [key,min,max] of [['tileWidth',1,4096],['tileHeight',1,4096],['marginX',0,256],['marginY',0,256],['spacingX',0,256],['spacingY',0,256],['templateSize',8,256],['gridSize',4,64],['seed',0,999999]]){
@@ -78,6 +79,17 @@ export function mount({el,def}){
   return hashes||[];
  };
  const blanks=()=>data&&grid?.rects.length?grid.rects.filter(r=>isBlank(data,src.width,src.height,r)).map(r=>r.index):[];
+ /** Collision polygons per tile index, in tile pixels. Empty when the option is off. */
+ function collisionShapes(){
+  if(o.collide==='none'||!data||!grid?.rects.length)return null;
+  const out=new Map();
+  for(const r of grid.rects){
+   const pixels=tileData(r.index);if(!pixels)continue;
+   const shapes=tileCollision(pixels,r.w,r.h,{mode:o.collide,threshold:o.alpha,epsilon:o.simplify});
+   if(shapes.length)out.set(r.index,shapes);
+  }
+  return out;
+ }
 
  /* ---------- template art ---------- */
  /** Guide art for one slot: the body, a rim on every side with no neighbour, and a rim block in
@@ -145,7 +157,7 @@ export function mount({el,def}){
  const seg=(key,values,label,extra='')=>`<div class="segmented" role="group" id="tl-${key}"${extra}>${values.map(v=>`<button type="button" data-action="tl-set" data-key="${key}" data-value="${esc(v)}" aria-pressed="${String(o[key])===String(v)}">${label(v)}</button>`).join('')}</div>`;
  const field=(key,min,max,step=1)=>`<label class="field"><span>${esc(T(key))}</span><input data-option="${key}" id="tl-${key}" type="number" min="${min}" max="${max}" step="${step}" value="${o[key]}" inputmode="numeric"></label>`;
  const check=key=>`<label class="check"><input data-option="${key}" id="tl-${key}" type="checkbox" ${o[key]?'checked':''}> ${esc(T(key))}</label>`;
- const stageBar=()=>`<nav class="tl-stages" aria-label="${esc(T('stage.'+stage))}">${STAGES.map(s=>`<button type="button" data-action="tl-stage" data-stage="${s}" aria-pressed="${s===stage}">${esc(T('stage.'+s))}</button>`).join('')}</nav>`;
+ const stageBar=()=>`<nav class="tl-stages" aria-label="${esc(T('stages'))}">${STAGES.map(s=>`<button type="button" data-action="tl-stage" data-stage="${s}" aria-pressed="${s===stage}">${esc(T('stage.'+s))}</button>`).join('')}</nav>`;
 
  function candidateList(){
   if(!analysable())return `<p class="hint warning">${esc(T('tooBig'))}</p>`;
@@ -168,7 +180,9 @@ export function mount({el,def}){
 ${check('skipBlank')}<span class="opt-label">${esc(T('dedupe'))}</span>${seg('dedupe',['none','exact','near'],v=>esc(T('dedupe'+v[0].toUpperCase()+v.slice(1))))}
 ${o.dedupe==='near'?`${field('nearMean',0,32)}<p class="viewer-note">${esc(T('nearNote'))}</p>`:''}
 ${check('variants')}<p class="viewer-note">${esc(T('variantsNote'))}</p>
-${field('extrude',0,16)}<p class="viewer-note">${esc(T('extrudeNote'))}</p></details></form>
+${field('extrude',0,16)}<p class="viewer-note">${esc(T('extrudeNote'))}</p>
+<span class="opt-label">${esc(T('collideLabel'))}</span>${seg('collide',COLLISION_MODES,v=>esc(T('collide.'+v)))}
+${o.collide==='none'?'':`<div class="field-row">${field('alpha',0,254)}${field('simplify',0,8)}</div><p class="viewer-note">${esc(T('collideNote'))}</p>`}</details></form>
 <button type="button" class="primary big" id="taskDownload" data-action="tl-slice" ${grid?.error?'disabled':''}>${esc(T('run'))}</button>
 <nav class="next" id="tlNext"></nav><small class="local-note">${esc(text('local'))}</small>`;
  }
@@ -254,6 +268,7 @@ ${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}<dl class="tl-numbers" id
 <form class="options" autocomplete="off"><span class="opt-label">${esc(T('kind'))}</span>${seg('kind',KINDS,v=>esc(T('kinds.'+v)))}
 <label class="field"><span>${esc(T('terrainName'))}</span><input data-option="terrainName" id="tl-terrainName" type="text" maxlength="40" value="${esc(o.terrainName)}"></label>
 <label class="field"><span>${esc(T('mode'))}</span><select data-option="mode" id="tl-mode">${MODES.map(m=>`<option value="${m}" ${(o.mode||modeFor(o.kind))===m?'selected':''}>${esc(T('modes.'+m))}</option>`).join('')}</select></label>
+<span class="opt-label">${esc(T('collideLabel'))}</span>${seg('collide',COLLISION_MODES,v=>esc(T('collide.'+v)))}
 ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
 <button type="button" class="primary big" id="taskDownload" data-action="tl-godot" ${grid?.rects.length?'':'disabled'}>${esc(T('runGodot'))}</button>
 <p class="viewer-note">${esc(T('godotNote'))}</p><small class="local-note">${esc(text('local'))}</small>`;
@@ -437,7 +452,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
  function godotPack(){
   const l=layout(),mode=o.mode||modeFor(o.kind);
   const json=godotTileSet({layout:l,grid:grid||{tileWidth:o.tileWidth,tileHeight:o.tileHeight,marginX:0,marginY:0,spacingX:0,spacingY:0,rects:[],cols:0,rows:0,count:0},
-   offset:o.offset,mode,terrainName:o.terrainName,image:(src?stem(src.name||'tileset'):'tileset')+'.png',
+   offset:o.offset,mode,terrainName:o.terrainName,collision:collisionShapes(),collisionMode:o.collide,image:(src?stem(src.name||'tileset'):'tileset')+'.png',
    width:src?src.width:l.columns*o.tileWidth,height:src?src.height:l.rows*o.tileHeight});
   return {json,script:godotScript()};
  }
@@ -498,7 +513,10 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
      list.push({index:r.index,col:r.col,row:r.row,x:r.x,y:r.y,w:v.w,h:v.h,name:vn,tag:v.kind,aliasOf:name});
     }
    }
+   const shapes=collisionShapes();
+   if(shapes)for(const item of list)if(!item.tag)item.collision=shapes.get(item.index)||[];
    const meta=sliceMetadata(grid,{image:(src.name?stem(src.name):'tileset')+'.png',width:src.width,height:src.height,tiles:list});
+   if(o.collide!=='none'){meta.tileSet.collision={mode:o.collide,alphaThreshold:o.alpha,simplify:o.simplify};}
    meta.tileSet.skippedBlank=blank.size;meta.tileSet.deduplicated=aliases.size;meta.tileSet.dedupeMode=o.dedupe;
    if(o.dedupe==='near')meta.tileSet.nearMeanThreshold=o.nearMean;
    if(aliases.size)meta.tileSet.aliases=Object.fromEntries([...aliases].map(([from,to])=>[tileName(from,grid.count)+'.png',tileName(to,grid.count)+'.png']));
@@ -579,7 +597,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
   for(const input of el.querySelectorAll('[data-option]')){
    const key=input.dataset.option;
    if(input.type==='checkbox')o[key]=input.checked;
-   else if(input.type==='number'){const spec={tileWidth:[1,4096],tileHeight:[1,4096],marginX:[0,256],marginY:[0,256],spacingX:[0,256],spacingY:[0,256],zoom:[1,8],nearMean:[0,32],extrude:[0,16],templateSize:[8,256],offset:[0,4095],gridSize:[4,64],seed:[0,999999],mapZoom:[1,12],seamIndex:[0,4095],matchIndex:[0,4095],blend:[0,64]}[key]||[0,4096];o[key]=int(input.value,spec[0],spec[1],o[key]);}
+   else if(input.type==='number'){const spec={tileWidth:[1,4096],tileHeight:[1,4096],marginX:[0,256],marginY:[0,256],spacingX:[0,256],spacingY:[0,256],zoom:[1,8],nearMean:[0,32],extrude:[0,16],templateSize:[8,256],offset:[0,4095],gridSize:[4,64],seed:[0,999999],mapZoom:[1,12],seamIndex:[0,4095],matchIndex:[0,4095],blend:[0,64],alpha:[0,254],simplify:[0,8]}[key]||[0,4096];o[key]=int(input.value,spec[0],spec[1],o[key]);}
    else o[key]=input.value;
   }
  }
@@ -611,7 +629,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
   if(!e.target.matches('[data-option]'))return;
   const key=e.target.dataset.option;readOptions();
   if(['tileWidth','tileHeight','marginX','marginY','spacingX','spacingY'].includes(key)){rebuild();frame();return;}
-  if(key==='dedupe'||key==='variants'||key==='skipBlank'||key==='extrude'||key==='nearMean'){frame();return;}
+  if(['dedupe','variants','skipBlank','extrude','nearMean','alpha','simplify'].includes(key)){frame();return;}
   if(key==='offset'||key==='source'||key==='gridSize'){dropArt();if(stage==='rules')frame();else paint();return;}
   if(key==='terrainName'||key==='mode'){if(stage==='export')frame();return;}
   paint();

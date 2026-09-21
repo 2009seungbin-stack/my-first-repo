@@ -305,7 +305,8 @@ with sync_playwright() as pw:
             v=int(128+60*math.cos(2*math.pi*x/32)+40*math.cos(2*math.pi*y/32));wrap.putpixel((x,y),(v,v,v,255))
     b=io.BytesIO();wrap.save(b,'PNG')
     open_lab('/en/game/seamless-tile-checker/',b.getvalue())
-    ok('the seam checker treats the whole image as the tile',page.locator('[data-option="tileWidth"]').input_value()=='32')
+    # The seams stage has no grid fields; the tile it measures is named in the board bar.
+    ok('the seam checker treats the whole image as the tile','32'+chr(215)+'32' in page.locator('#tlSeamInfo').inner_text(),page.locator('#tlSeamInfo').inner_text())
     ok('a tile that wraps is reported seamless','without a visible seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
     ramp=Image.new('RGBA',(32,32))
     for y in range(32):
@@ -344,7 +345,8 @@ with sync_playwright() as pw:
     # ===== end Tile Lab ==========================================================================
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
-    for path in ['/ko/','/ko/image/compress/','/ko/game/tile-lab/','/ko/game/autotile-tester/']:
+    # compress stays last: the sample check below runs on whatever this loop left open.
+    for path in ['/ko/','/ko/game/tile-lab/','/ko/game/autotile-tester/','/ko/image/compress/']:
         phone.goto(BASE+path,wait_until='networkidle')
         ok(f'no horizontal scroll on a phone {path}',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     phone.locator('[data-action="task-sample"]').click();ready(phone)

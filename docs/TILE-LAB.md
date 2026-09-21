@@ -9,9 +9,9 @@ The point of the Lab is the thing an artist normally only discovers inside Godot
 terrain rules actually work, and which tiles am I still missing?*
 
 Pure logic lives in `src/game/tile-grid.js`, `src/game/autotile.js`, `src/game/seams.js` and
-`src/game/godot-tileset.js` (no DOM), with `node:test` coverage in `tests/game-tile-grid.test.mjs`
-(14), `tests/game-autotile.test.mjs` (9), `tests/game-seams.test.mjs` (4) and
-`tests/game-godot.test.mjs` (6). Browser coverage is the Tile Lab block in `tests/task-browser.py`
+`src/game/godot-tileset.js`, `src/game/tile-collision.js` (no DOM), with `node:test` coverage in `tests/game-tile-grid.test.mjs`
+(14), `tests/game-autotile.test.mjs` (9), `tests/game-seams.test.mjs` (4),
+`tests/game-godot.test.mjs` (6) and `tests/game-collision.test.mjs` (8). Browser coverage is the Tile Lab block in `tests/task-browser.py`
 and the two ported checks in `tests/recipes-browser.py`.
 
 ## Routes
@@ -205,6 +205,30 @@ the four diagonal corners exist.
   navigation and physics layers are not written. A `corner16` dual grid needs the half-tile offset
   baked into the art. Nothing here claims Unity support.
 
+## 8. Tile collision from alpha
+
+* **Input** the sliced tiles, a mode (`box` / `rects` / `outline`), an alpha threshold and a
+  point-reduction tolerance. Under *Advanced* on the grid stage and on the Godot stage; off by
+  default.
+* **Output** `collision` per frame in `metadata.json` (and per tile in the Godot JSON, where it
+  also adds one physics layer): a list of polygons, each a list of `[x, y]` **tile pixels**,
+  origin top-left.
+* **Algorithm** (`src/game/tile-collision.js`, my own module — if `src/game/contour.js` later
+  grows a shared tracer this should defer to it)
+  * `box` — the bounding rectangle of everything above the alpha threshold.
+  * `rects` — horizontal runs per row, extended downwards while the run below has the same span:
+    a set of non-overlapping rectangles that covers exactly the solid pixels, holes included.
+  * `outline` — the rectilinear boundary traced along pixel edges, chained by preferring the turn
+    that keeps each loop closed (so two pixels touching at a corner stay two shapes), collinear
+    points merged, optionally Ramer-Douglas-Peucker simplified.
+* **Limitations** the outline is a pixel boundary, not a smoothed curve, and nothing here is an
+  SDF. Engines treat every polygon handed to them as solid, so `outline` exports **outer loops
+  only** — a tile with a hole keeps the hole solid, and `rects` is the mode that represents it
+  exactly. Total points per tile are capped at 256: the tolerance is raised first, and if the
+  shape is genuinely pixel dust (a checkerboard) the largest loops that fit are kept and the rest
+  dropped. In Godot the polygons are shifted by half a tile in the helper, because `TileData`
+  collision polygons are centred on the tile.
+
 ## Verification
 
 Measured on this branch, not asserted from reading the code.
@@ -225,6 +249,8 @@ Measured on this branch, not asserted from reading the code.
 | Tester renders the tile the rule requires (pixels read back from the canvas) | `tests/task-browser.py` | filled area centre = slot for mask 255; corner = slot for E\|SE\|S; keyboard paint = slot for W | VERIFIED |
 | Seam verdicts | same + `tests/game-seams.test.mjs` | cos-wrapping tile: ratio < 1.3 → seamless; ramp: mean > 240, ratio > 20 → seam; after `makeSeamless` mean < 8 | VERIFIED |
 | Godot pack contents and peering bits recomputed from the masks | `scratchpad/verify.py` | 47 tiles, 8 bits on the full slot, 0 on the isolated slot, no `.tres`/`.meta` in the ZIP | VERIFIED |
+| Collision polygons re-tested against the tile alpha they came from (full / slope / ring / one-pixel tiles) | Chromium + Pillow crossing-number test (`scratchpad/verify_collision.py`) | 4 tiles × 256 pixels × 3 modes: `rects` matches the alpha exactly, `box` and `outline` over-cover only where documented; ring → 4 rects with an empty hole, or 1 outer loop; one-pixel tile → one 4-point loop | VERIFIED |
+| Collision bound and shape quality | `tests/game-collision.test.mjs` | 34-point slope → 3–5 points at ε 1.5 keeping >85% of the area; 32×32 checkerboard (512 loops, 2048 points) → ≤256 points; comb outline exact | VERIFIED |
 | **The exported pack builds a real TileSet in Godot** | Godot **4.7.2.stable.official** (`godot --headless --path <proj> --import`, then `--script res://run_import.gd` driving the shipped `Builder`, then an independently written verifier) | see below | see below |
 
 ### Godot run
@@ -240,6 +266,7 @@ exported by the Lab in Chromium were run and then checked by a verifier that dec
 |---|---|---|
 | `blob47`, 16px tiles, 128×96 sheet, no margin/spacing | `Saved res://nerulio-tileset.tres: source 0, 47 tiles, 188 peering bits, mode match_corners_and_sides` | reloaded the `.tres` with `CACHE_MODE_IGNORE`; **376 peering bits compared (47 × 8), 0 mismatches**; tile size, mode, terrain name, margins, separation and tile count all matched the JSON. `RESULT PASS fails=0` |
 | `edge16`, 16px tiles, 72×72 sheet, margin 1, spacing 2 | `Saved …: source 0, 16 tiles, 32 peering bits, mode match_sides` | `RESULT PASS fails=0` — margins `(1,1)` and separation `(2,2)` reached `TileSetAtlasSource` |
+| `edge16` with `outline` collision on a 4-tile shape sheet | `Saved …: 4 tiles, 4 peering bits, 4 collision polygons, mode match_sides` | `RESULT PASS fails=0` — 1 physics layer; **4 polygons compared point by point** against the JSON after the helper's half-tile shift |
 
 Commands:
 
@@ -257,8 +284,10 @@ same `Builder.build()` the menu item calls.
 
 ## Not done
 
-* No animated tile builder (frames → strip + JSON) and no per-tile collision shapes; the export
-  envelope already carries `duration`, `boxes` and `collision` fields for them.
+* No animated tile builder (frames → fps → strip + JSON). The envelope already carries `duration`,
+  and `sprite-sheet-maker` already packs frame strips, so this belongs there or in Sprite Lab
+  rather than as a second, shallower copy here.
+* No `boxes` (hit/hurt rectangles) — only `collision`.
 * Multi-terrain transitions (grass → sand → water in one set) are not modelled anywhere.
 * Unity/Tiled exports do not exist. Only the Godot 4 helper does.
 * The Lab has no undo for painted terrain (fill/clear/random are one click away, and the grid is

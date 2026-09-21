@@ -21,7 +21,7 @@ const clean=name=>String(name||'Terrain').replace(/[^\w .-]+/g,'').trim().slice(
 /** Reference JSON: per tile its atlas coordinates, terrain and peering bits by name.
  * `layout` is an autotile layout (src/game/autotile.js), `grid` a tileRects result. */
 export function godotTileSet({layout,grid,offset=0,mode=null,terrainName='Terrain',terrainColor='#4caf50',
- image='tileset.png',width=0,height=0,toolVersion='1'}={}){
+ image='tileset.png',width=0,height=0,toolVersion='1',collision=null,collisionMode='none'}={}){
  const match=MODES.includes(mode)?mode:modeFor(layout.kind);
  const wanted=match==='match_sides'?SIDE_PEERING:match==='match_corners'?CORNER_PEERING:[...SIDE_PEERING,...CORNER_PEERING];
  const tiles=[];
@@ -34,13 +34,18 @@ export function godotTileSet({layout,grid,offset=0,mode=null,terrainName='Terrai
    const on=key.length===1?slot.edges[key]:slot.corners[key];
    if(on)peering[name]=0;
   }
+  const shapes=collision?.get(slot.index+offset);
   tiles.push({atlas:{x:rect.col,y:rect.row},terrainSet:0,terrain:0,peering,
+   ...(shapes?.length?{collision:shapes}:{}),
    slot:{index:slot.index,kind:slot.kind,key:slot.key,mask:slot.mask,name:slot.name,role:slot.role}});
  }
  return {meta:{tool:'nerulio-tile-lab',toolVersion,schemaVersion:1,engineTarget:'godot-4',image,size:{w:width,h:height}},
   tileSet:{tileSize:{w:grid.tileWidth,h:grid.tileHeight},margins:{x:grid.marginX||0,y:grid.marginY||0},
    separation:{x:grid.spacingX||0,y:grid.spacingY||0},columns:grid.cols,rows:grid.rows,
    autotile:{kind:layout.kind,slots:layout.count,dualGrid:!!layout.dual},
+   // Polygons are tile pixels, origin top-left; the helper shifts them to Godot's centred
+   // coordinates. A physics layer is only added when something actually has a shape.
+   ...(tiles.some(t=>t.collision)?{physicsLayers:[{collisionLayer:1,collisionMask:1,mode:collisionMode}]}:{}),
    terrainSets:[{mode:match,terrains:[{name:clean(terrainName),color:terrainColor}]}],tiles}};
 }
 /** The importer. It is an EditorScript so it runs inside the editor that owns the TileSet format,
@@ -150,6 +155,14 @@ class Builder extends RefCounted:
 				if terrain.has("color"):
 					tile_set.set_terrain_color(set_index, terrain_index, Color(str(terrain["color"])))
 
+		# One physics layer, only when the JSON actually carries shapes.
+		var physics: Array = spec.get("physicsLayers", [])
+		for layer: Dictionary in physics:
+			tile_set.add_physics_layer()
+			var index := tile_set.get_physics_layers_count() - 1
+			tile_set.set_physics_layer_collision_layer(index, int(layer.get("collisionLayer", 1)))
+			tile_set.set_physics_layer_collision_mask(index, int(layer.get("collisionMask", 1)))
+
 		var source := TileSetAtlasSource.new()
 		source.texture = texture
 		source.texture_region_size = tile_set.tile_size
@@ -159,6 +172,7 @@ class Builder extends RefCounted:
 
 		var made := 0
 		var bits := 0
+		var polygons := 0
 		# The atlas grid already accounts for the region size, the margins and the separation, so
 		# it is the honest bound: a coordinate outside it is a mismatch between JSON and PNG.
 		var atlas_grid := source.get_atlas_grid_size()
@@ -171,6 +185,18 @@ class Builder extends RefCounted:
 			var tile_data: TileData = source.get_tile_data(coords, 0)
 			tile_data.terrain_set = int(tile.get("terrainSet", 0))
 			tile_data.terrain = int(tile.get("terrain", 0))
+			# Collision polygons arrive in tile pixels with the origin at the tile's top-left;
+			# Godot wants them around the tile's centre.
+			var shapes: Array = tile.get("collision", [])
+			if physics.size() > 0 and shapes.size() > 0:
+				var half := Vector2(tile_set.tile_size) * 0.5
+				tile_data.set_collision_polygons_count(0, shapes.size())
+				for shape_index in range(shapes.size()):
+					var points: PackedVector2Array = []
+					for point: Array in shapes[shape_index]:
+						points.append(Vector2(float(point[0]), float(point[1])) - half)
+					tile_data.set_collision_polygon_points(0, shape_index, points)
+					polygons += 1
 			var peering: Dictionary = tile.get("peering", {})
 			for name: String in peering.keys():
 				if not NEIGHBORS.has(name):
@@ -184,8 +210,8 @@ class Builder extends RefCounted:
 		if error != OK:
 			problems.append("Could not save %s (error %d)" % [out_path, error])
 			return false
-		log_lines.append("Saved %s: source %d, %d tiles, %d peering bits, mode %s" % [
-			out_path, source_id, made, bits, str(terrain_sets[0]["mode"]) if terrain_sets.size() else "none"])
+		log_lines.append("Saved %s: source %d, %d tiles, %d peering bits, %d collision polygons, mode %s" % [
+			out_path, source_id, made, bits, polygons, str(terrain_sets[0]["mode"]) if terrain_sets.size() else "none"])
 		return true
 `;
 }
