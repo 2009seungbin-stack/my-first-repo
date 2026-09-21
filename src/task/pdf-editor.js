@@ -26,6 +26,7 @@ export function mount({el,def}){
 <div class="ed-body"><nav class="ed-rail" id="edRail" aria-label="${esc(text('pdf.pages'))}"></nav>
 <section class="ed-stage" id="edStage"><div class="ed-page" id="edPage"><canvas id="edCanvas"></canvas><svg id="edSvg" class="ed-svg" xmlns="http://www.w3.org/2000/svg"></svg><div id="edLayer" class="ed-layer"></div><div id="edCapture" class="ed-capture" hidden></div></div></section>
 <aside class="side ed-side"><div class="summary" id="edSummary"></div><p class="hint" id="edHint"></p><button type="button" class="primary big" id="edSave" data-action="ed-save"></button><div class="result-box" id="edResult" hidden></div><nav class="next" id="edNext"></nav>
+<div class="doc-actions"><span class="opt-label">${esc(T('whole'))}</span><button type="button" class="chip" data-action="ed-numbers">${esc(T('numbers.title'))}</button><button type="button" class="chip" data-action="ed-watermark">${esc(T('watermark.title'))}</button></div>
 <div class="list-actions"><button type="button" class="link" data-action="ed-organize">${esc(T('organize'))}</button><button type="button" class="link" data-action="ed-close">${esc(T('close'))}</button></div><small class="local-note">${esc(text('local'))}</small></aside></div>
 <div class="ed-foot"><button type="button" data-action="ed-prev" aria-label="${esc(T('prev'))}">‹</button><span id="edPageNo"></span><button type="button" data-action="ed-next" aria-label="${esc(T('next'))}">›</button><span class="ed-sep"></span><button type="button" data-action="ed-zoom-out" aria-label="${esc(T('zoomOut'))}">−</button><span id="edZoom"></span><button type="button" data-action="ed-zoom-in" aria-label="${esc(T('zoomIn'))}">+</button><button type="button" data-action="ed-fit">${esc(T('fit'))}</button></div></div>
 <dialog id="signDialog" class="sign-dialog"></dialog>`;
@@ -50,7 +51,7 @@ export function mount({el,def}){
  function renderMarks(){
   const p=pg();if(!p)return;const layer=el.querySelector('#edLayer');
   el.querySelector('#edSvg').innerHTML=p.marks.map((m,i)=>shape(m,i)).join('');
-  layer.innerHTML=p.marks.map((m,i)=>m.type==='text'?`<div class="ed-text ${i===selected?'is-selected':''}" data-index="${i}" contenteditable="${tool==='select'||tool==='text'}" spellcheck="false" style="left:${m.x*100}%;top:${m.y*100}%;font-size:${(m.size||16)*zoom}px;color:${m.color||'#172b4d'};font-weight:${m.bold?700:400}">${esc(m.text||'')}</div>`
+  layer.innerHTML=p.marks.map((m,i)=>m.type==='text'?`<div class="ed-text ${i===selected?'is-selected':''}" data-index="${i}" contenteditable="${tool==='select'||tool==='text'}" spellcheck="false" style="left:${m.x*100}%;top:${m.y*100}%;font-size:${(m.size||16)*zoom}px;color:${m.color||'#172b4d'};font-weight:${m.bold?700:400};opacity:${m.opacity??1};${m.angle?`transform:rotate(${m.angle}deg);transform-origin:0 ${(m.size||16)*zoom*.85}px`:''}">${esc(m.text||'')}</div>`
    :m.type==='image'?`<div class="ed-img ${i===selected?'is-selected':''}" data-index="${i}" style="left:${m.x*100}%;top:${m.y*100}%;width:${m.w*100}%;height:${m.h*100}%"><img src="${m.url}" alt="" draggable="false"></div>`:'').join('');
   const m=selected!==null?p.marks[selected]:null,frameBox=BOXED(m||{})&&m.type!=='text'?`<div class="ed-selection" style="left:${Math.min(m.x,m.x+m.w)*100}%;top:${Math.min(m.y,m.y+m.h)*100}%;width:${Math.abs(m.w)*100}%;height:${Math.abs(m.h)*100}%"><span class="ed-handle" data-handle="se"></span></div>`:'';
   layer.insertAdjacentHTML('beforeend',frameBox);
@@ -112,6 +113,31 @@ export function mount({el,def}){
   };
   show();d.showModal();
  }
+ /** Page numbers and watermarks are ordinary text objects placed on every page; applying
+  * again replaces the previous set, and they can still be moved or deleted per page. */
+ function documentDialog(kind){
+  const d=el.querySelector('#signDialog'),field=(id,label,html)=>`<label class="field"><span>${esc(label)}</span>${html}</label>`;
+  d.innerHTML=`<h2>${esc(T(kind+'.title'))}</h2>${kind==='numbers'?field('docPos',T('numbers.position'),`<select id="docPos">${['bottom-center','bottom-right','bottom-left','top-center','top-right','top-left'].map(v=>`<option value="${v}">${esc(T('numbers.pos.'+v))}</option>`).join('')}</select>`)+field('docFormat',T('numbers.format'),'<select id="docFormat"><option value="n">1</option><option value="n/N">1 / 12</option><option value="-n-">- 1 -</option></select>')+`<div class="field-row">${field('docStart',T('numbers.start'),'<input id="docStart" type="number" min="0" value="1">')}${field('docFrom',T('numbers.from'),'<input id="docFrom" type="number" min="1" value="1">')}</div>`
+   :field('docText',T('watermark.text'),`<input id="docText" type="text" maxlength="60" value="${esc(T('watermark.sample'))}">`)+`<div class="field-row">${field('docOpacity',T('watermark.opacity'),'<input id="docOpacity" type="range" min="5" max="100" value="18">')}${field('docAngle',T('watermark.angle'),'<select id="docAngle"><option value="-35">↗</option><option value="0">→</option><option value="35">↘</option></select>')}</div>`}
+<div class="field-row">${field('docSize',T('fontSize'),`<input id="docSize" type="number" min="6" max="200" value="${kind==='numbers'?11:64}">`)}${field('docColor',T('color'),`<input id="docColor" type="color" value="${kind==='numbers'?'#33415c':'#c1121f'}">`)}</div>
+<div class="service-actions sign-actions"><button type="button" class="ghost" data-doc-remove>${esc(T('removeAll'))}</button><button type="button" class="ghost" data-doc-cancel>${esc(T('sign.cancel'))}</button><button type="button" class="primary" data-doc-ok>${esc(T('apply'))}</button></div>`;
+  const v=id=>d.querySelector('#'+id)?.value,ruler=document.createElement('canvas').getContext('2d');
+  const measure=(label,size,weight)=>{ruler.font=`${weight} ${size}px Helvetica, Arial, "Noto Sans KR", sans-serif`;return ruler.measureText(label).width;};// page points, as the text is drawn at 1pt = 1px
+  d.onclick=e=>{
+   if(e.target.closest('[data-doc-cancel]')){d.close();return;}
+   const ok=e.target.closest('[data-doc-ok]'),remove=e.target.closest('[data-doc-remove]');if(!ok&&!remove)return;
+   record();for(const p of ws.pages)p.marks=p.marks.filter(m=>m.auto!==kind);
+   if(ok){const size=Math.max(6,Math.min(200,Number(v('docSize'))||11)),col=v('docColor'),N=ws.pages.length;
+    ws.pages.forEach((p,i)=>{
+     if(kind==='numbers'){const from=Math.max(1,Number(v('docFrom'))||1),start=Number(v('docStart'))||0;if(i+1<from)return;const n=start+i+1-from,last=start+N-from,label=v('docFormat')==='n/N'?`${n} / ${last}`:v('docFormat')==='-n-'?`- ${n} -`:String(n),w=measure(label,size,400)/p.logicalW,[vy,hx]=v('docPos').split('-'),margin=28;
+      p.marks.push({type:'text',auto:kind,text:label,size,color:col,x:hx==='left'?margin/p.logicalW:hx==='right'?1-margin/p.logicalW-w:.5-w/2,y:vy==='top'?margin/p.logicalH:1-(margin+size*1.2)/p.logicalH});}
+     else{const label=v('docText').trim();if(!label)return;const angle=Number(v('docAngle')),rad=angle*Math.PI/180,len=measure(label,size,700);
+      p.marks.push({type:'text',auto:kind,text:label,size,color:col,bold:true,opacity:Number(v('docOpacity'))/100,angle,x:.5-(len/2*Math.cos(rad))/p.logicalW,y:.5-(len/2*Math.sin(rad)+size*.5)/p.logicalH});}
+    });}
+   d.close();selected=null;el.querySelector('#edResult').hidden=true;renderRail();renderMarks();renderChrome();
+  };
+  d.showModal();
+ }
  async function add(files){
   if(busy)return;const file=files[0];busy=true;
   try{if(ws.pages.length)await closeDocument(false);frame();await ws.add([file]);fileName=file.name;current=0;selected=null;undoStack=[];redoStack=[];zoom=fitZoom();track('tool_run',{intent:route.id});renderAll();if(files.length>1)toast(T('oneFile'));}
@@ -172,6 +198,7 @@ export function mount({el,def}){
   else if(a==='ed-redo'&&redoStack.length){undoStack.push({order:snap(),current});restore(redoStack.pop());}
   else if(a==='ed-delete'&&selected!==null){record();const [m]=pg().marks.splice(selected,1);if(m?.url)URL.revokeObjectURL(m.url);selected=null;renderMarks();renderChrome();}
   else if(a==='ed-bold'){const m=selected!==null?pg().marks[selected]:null;if(m?.type==='text'){record();m.bold=!m.bold;renderMarks();}else bold=!bold;renderChrome();}
+  else if(a==='ed-numbers'||a==='ed-watermark')documentDialog(a==='ed-numbers'?'numbers':'watermark');
   else if(a==='ed-save')save();
   else if(a==='ed-again'){const box=el.querySelector('#edResult');download(box._blob,box._name);}
   else if(a==='ed-next-tool'){const box=el.querySelector('#edResult');continueWith(b.dataset.tool,[new File([box._blob],box._name,{type:'application/pdf'})]);}
