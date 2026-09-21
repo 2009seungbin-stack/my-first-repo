@@ -20,7 +20,7 @@ const HANDLES=[['nw',0,0],['n',.5,0],['ne',1,0],['e',1,.5],['se',1,1],['s',.5,1]
 const GIF_PIXELS=24_000_000,STRIP_CHIPS=300;
 export function mount({el,def}){
  let sheet=null,work=null,workKey=null,sourceName='sprite',frames=[],selected=new Set(),seq=0,history=[],trims=new Map();
- let components=[],suggestions=[],layout=null,anim=null,drag=null,busy=false,generation=0,error='';
+ let components=[],suggestions=[],layout=null,anim=null,drag=null,busy=false,generation=0,error='',gridTouched=false;
  let playing=true,tick=0,raf=0,last=0,timer=0;
  let o={mode:'auto',threshold:8,minArea:16,merge:0,key:'none',keyColor:'#ff00ff',tolerance:40,
   gridBy:'cell',cellW:32,cellH:32,columns:4,rows:1,offsetX:0,offsetY:0,spacingX:0,spacingY:0,skipEmpty:true,
@@ -29,6 +29,8 @@ export function mount({el,def}){
  const ctxOf=c=>c.getContext('2d',{willReadFrequently:true});
  const anchorOf=()=>F.ANCHORS[o.anchor]||F.ANCHORS['bottom-center'];
  const prefix=()=>(o.prefix.trim()||stem(sourceName)||'sprite').replace(/[^\w.-]+/g,'_')||'sprite';
+ const GRID_KEYS=new Set(['cellW','cellH','columns','rows','offsetX','offsetY','spacingX','spacingY','gridBy']);
+ const cellOf=s=>({gridBy:'cell',cellW:s.cellW,cellH:s.cellH,offsetX:s.offsetX,offsetY:s.offsetY,spacingX:s.spacingX,spacingY:s.spacingY});
  function empty(){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="slicer-sample">${esc(text('sample'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
@@ -335,12 +337,16 @@ ${seg('slicerCanvasMode','canvas',['each','common'],v=>T('canvases.'+v))}
   if(a==='slicer-sample')add([await sample()]);
   else if(a==='slicer-set'){
    const key=b.dataset.key,value=b.dataset.value;o={...o,[key]:/^\d+$/.test(value)?Number(value):value};
+   if(GRID_KEYS.has(key))gridTouched=true;
    for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));
+   // Grid opens on the best-fitting cell this sheet suggests, not on an arbitrary 32×32, until
+   // the person sets a cell themselves — the other suggestions stay one click away.
+   if(key==='mode'&&value==='grid'&&!gridTouched&&suggestions.length){o={...o,...cellOf(suggestions[0])};frame();}
    reflect();if(LAYOUT_ONLY.has(key)){relayout();render();}else schedule();
   }
   else if(a==='slicer-suggest'){
    const s=suggestions.find(x=>x.key===b.dataset.cell);if(!s)return;
-   o={...o,mode:'grid',gridBy:'cell',cellW:s.cellW,cellH:s.cellH,offsetX:s.offsetX,offsetY:s.offsetY,spacingX:s.spacingX,spacingY:s.spacingY};
+   gridTouched=true;o={...o,mode:'grid',...cellOf(s)};
    frame();reflect();detect();
   }
   else if(a==='slicer-order'){remember();frames=F.orderFrames(frames,F.rowTolerance(frames.map(f=>f.sourceRect)));commit();}
@@ -379,6 +385,7 @@ ${seg('slicerCanvasMode','canvas',['each','common'],v=>T('canvases.'+v))}
   if(e.target.id==='slicerFps'){o.fps=Number(e.target.value)||12;el.querySelector('#slicerFpsOut').textContent=o.fps;return;}
   if(!e.target.closest('#slicerOptions'))return;
   const keys=[e.target.dataset.num,e.target.dataset.check,e.target.dataset.select,e.target.dataset.color,e.target.dataset.text].filter(Boolean);
+  if(keys.some(k=>GRID_KEYS.has(k)))gridTouched=true;
   const changed=readOptions();
   if(!changed)return renderSummary();
   if(keys.every(k=>LAYOUT_ONLY.has(k))){relayout();render();}else schedule();

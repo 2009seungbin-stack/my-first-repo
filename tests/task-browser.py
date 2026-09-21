@@ -262,6 +262,10 @@ with sync_playwright() as pw:
     gif_out=Image.open(io.BytesIO(z.read('sheet.gif')));gif_out.seek(0)
     ok('the animated GIF is a real GIF with a transparent cut-out',
        gif_out.n_frames==2 and gif_out.size==(8,12) and gif_out.info.get('transparency')==0 and gif_out.convert('RGBA').getpixel((0,0))[3]==0)
+    page.locator('[data-key="mode"][data-value="grid"]').click();page.wait_for_timeout(600)
+    ok('grid mode opens on a cell size guessed from the sheet itself',
+       page.locator('#slicerCellW').input_value()=='5' and page.locator('.slicer-box').count()==2 and page.locator('#slicerSuggest .chip').count()>=1,
+       page.locator('#slicerCellW').input_value())
     page.goto(BASE+'/en/normalize-sprite-frames/',wait_until='networkidle')
     tall=Image.new('RGBA',(20,20),(0,0,0,0));[tall.putpixel((x,y),(255,0,0,255)) for x in range(2,6) for y in range(2,10)]
     wide=Image.new('RGBA',(12,12),(0,0,0,0));[wide.putpixel((x,y),(0,0,255,255)) for x in range(3,9) for y in range(2,5)]
