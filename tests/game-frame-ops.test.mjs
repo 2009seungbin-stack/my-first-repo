@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {mergeRects,readingOrder,detectFrames,framesFromRects,alignOffset,shiftFrame,normalizeFrames,applyPivot,tightenFrames,unionRect,rectGap,ALIGNMENTS} from '../src/game/frame-ops.js';
+import {mergeRects,readingOrder,detectFrames,framesFromRects,alignOffset,shiftFrame,normalizeFrames,applyPivot,tightenFrames,unionRect,rectGap,ALIGNMENTS,autoMergeDistance,mergeThresholds,mergeEvidence} from '../src/game/frame-ops.js';
 import {frame,pivotPixels} from '../src/game/model.js';
 import {innerRect} from '../src/game/pixels.js';
-import {canvas,box,disc,blit,gridSheet,irregularSheet,disconnectedSprite,walker,hundredFrames,bbox} from './game-fixtures.mjs';
+import {canvas,box,disc,blit,gridSheet,irregularSheet,disconnectedSprite,walker,hundredFrames,bbox,charactersSheet} from './game-fixtures.mjs';
 
 test('nearby components merge into one frame; distant ones stay apart',()=>{
  const sprite=disconnectedSprite(),sheet=canvas(100,60);
@@ -120,4 +120,35 @@ test('a 100-frame animation of mixed sizes normalizes onto one canvas with conte
   assert.deepEqual([tight[i].offsetX,tight[i].offsetY],[0,0]);
   assert.equal(Math.round(tight[i].pivotX*tight[i].canvasWidth),Math.round(pivotPixels(out.frames[i]).x-out.frames[i].offsetX));
  }
+});
+test('Auto chooses its own merge distance: six characters, not seventeen islands',()=>{
+ const sheet=charactersSheet(),out=detectFrames(sheet,{distance:'auto'});
+ assert.equal(out.components.length,17,'body + hat + sword per character, drawn as separate islands');
+ assert.equal(out.rects.length,6,'one frame per character');
+ assert.equal(out.distance,2,'the smallest distance at which the frame count settles');
+ assert.equal(out.auto.frames,6);
+ assert.match(out.auto.reason,/6 frames/);
+ assert.deepEqual(out.rects.map(r=>r.parts.length).sort(),[2,3,3,3,3,3],'every part landed in a character');
+ // The evidence a chip can show: the chosen distance is the best-scoring candidate, not the first.
+ const best=out.auto.candidates.reduce((a,b)=>b.score>a.score?b:a);
+ assert.equal(best.distance,2);
+ assert(out.auto.candidates[0].consistency<.5,'seventeen islands of mixed sizes are inconsistent');
+ assert(best.consistency>.85,'six characters are consistent');
+});
+test('Auto refuses to merge a sheet whose islands are already uniform',()=>{
+ const sheet=canvas(210,24);
+ for(let i=0;i<10;i++)box(sheet,i*21,2,20,20,[200,80,40,255]);// 1px apart: merging would glue all ten
+ const out=detectFrames(sheet,{distance:'auto'});
+ assert.equal(out.rects.length,10,'ten sprites stay ten frames');
+ assert.equal(out.distance,0);
+ assert.match(out.auto.reason,/the same size/);
+});
+test('autoMergeDistance explains the trivial cases instead of guessing',()=>{
+ assert.equal(autoMergeDistance([{x:0,y:0,w:4,h:4,area:16}]).distance,0);
+ const far=autoMergeDistance([{x:0,y:0,w:4,h:4,area:16},{x:90,y:0,w:9,h:30,area:270}]);
+ assert.equal(far.distance,0);
+ assert.match(far.reason,/within 16px/);
+ assert.throws(()=>autoMergeDistance([],{maxDistance:-1}),/0…512/);
+ assert.deepEqual(mergeThresholds([{x:0,y:0,w:4,h:4},{x:6,y:0,w:4,h:4},{x:20,y:0,w:4,h:4}],{maxDistance:16}),[2,10,16],'every pair gap, smallest first');
+ assert.equal(mergeEvidence([{x:0,y:0,w:4,h:4,area:16},{x:6,y:0,w:4,h:4,area:16}],8).frames,1);
 });
