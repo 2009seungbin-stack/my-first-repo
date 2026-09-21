@@ -2,6 +2,8 @@
 
 현재 기본 빌드는 **광고 없는 정적 사이트**다. 이 저장소의 커밋/검사 통과는 Cloudflare 배포 성공, Google 색인 또는 AdSense 승인을 의미하지 않는다. 실제 도메인·Google 계정·광고 단위는 운영자가 설정한다.
 
+> **계정·Free/Pro·결제 계층(선택)**: `SERVICE_API=on`일 때만 빌드된다. 켜기 전에 [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md)의 D1·secret·OAuth 순서를 먼저 완료한다. 설계는 [docs/SERVICE-ARCHITECTURE.md](docs/SERVICE-ARCHITECTURE.md), 인증은 [docs/AUTH.md](docs/AUTH.md), 결제는 [docs/BILLING.md](docs/BILLING.md), 요금 정책은 [docs/PRICING-MODEL.md](docs/PRICING-MODEL.md). 서비스 빌드에서 AdSense는 `/api/v1/me`가 `ads:true`일 때만 런타임에 로드된다(Pro는 광고 요청 0).
+
 ### 현재 공개 배포 (2026-09-20)
 
 공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages 프로젝트 `fileforge-studio`에 `2009seungbin-stack/my-first-repo`를 연결했다. **`main`에 push하면 Cloudflare가 자동으로 빌드·배포한다.** 수동 ZIP 업로드는 운영 업데이트 절차로 사용하지 않는다.

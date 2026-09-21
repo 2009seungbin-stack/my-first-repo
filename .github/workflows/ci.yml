@@ -29,6 +29,8 @@ jobs:
           sudo apt-get install -y ffmpeg
       - name: Full syntax, unit, build and real HTTP regression
         run: python tools/regression.py
+      - name: Service layer end-to-end (wrangler pages dev + local D1, no production resources)
+        run: python tests/service-browser.py
       - name: Decoded image quality and PDF preservation benchmarks
         run: |
           npm run benchmark

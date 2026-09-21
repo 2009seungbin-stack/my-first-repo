@@ -1,5 +1,5 @@
 import {randomToken,sha256,sign,unsign} from './crypto.js';
-import {cookie,parseCookies} from './http.js';
+import {cookie,clearCookie,parseCookies} from './http.js';
 import {ANON_TTL_MS,PRO_STATUSES} from './config.js';
 /** Identity model:
  *  - anonymous: signed random id in nerulio_anon (no DB row until a heavy job is authorized)
@@ -37,6 +37,8 @@ export async function resolveContext(request,cfg,db,now){
  let anonId=await readAnon(cookies[ANON_COOKIE],cfg.secret);
  if(!anonId){const issued=await issueAnon(cfg.secret,secure);anonId=issued.id;setCookies.push(issued.cookie);}
  const user=cookies[SESSION_COOKIE]?await loadSession(db,cookies[SESSION_COOKIE],now):null;
+ // An expired, revoked or malformed session cookie is removed rather than resent forever.
+ if(cookies[SESSION_COOKIE]&&!user)setCookies.push(clearCookie(SESSION_COOKIE,{secure}));
  const {plan,subscription}=user?await subscriptionFor(db,user.id,now):{plan:'free',subscription:null};
  return {url,cookies,secure,setCookies,anonId,user,plan,subscription,subject:user?`u:${user.id}`:`a:${anonId}`};
 }

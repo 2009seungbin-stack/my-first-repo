@@ -231,7 +231,9 @@ test('sessions: only a hash is stored, expiry ends the session, logout deletes i
  assert.equal(logout.status,200);
  assert(logout.setCookies.some(c=>c.startsWith('nerulio_session=;')&&c.includes('Max-Age=0')&&c.includes('HttpOnly')));
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM sessions').get().n,0);
- h.jar.nerulio_session=token;assert.equal((await h.call('GET','/api/v1/me')).json.loggedIn,false,'a replayed token is dead');
+ h.jar.nerulio_session=token;const replay=await h.call('GET','/api/v1/me');
+ assert.equal(replay.json.loggedIn,false,'a replayed token is dead');
+ assert(replay.setCookies.some(c=>c.startsWith('nerulio_session=;')&&c.includes('Max-Age=0')),'dead session cookie is cleared');
  const e=harness();await signIn(e);e.clock.now+=30*864e5+1;
  assert.equal((await e.call('GET','/api/v1/me')).json.loggedIn,false,'expired session');
  h.jar.nerulio_session='not-a-token';assert.equal((await h.call('GET','/api/v1/me')).json.loggedIn,false);
@@ -272,6 +274,7 @@ test('Google OAuth: state + PKCE + nonce, subject-keyed identity, anonymous usag
  h.setFetch(async()=>Response.json({id_token:idToken({iss:'accounts.google.com',aud:'client-1',exp:Math.floor(h.clock.now/1000)+300,nonce:l3.searchParams.get('nonce'),sub:'1098',email:'changed@example.test',email_verified:true})}));
  await h.call('GET',`/api/v1/auth/google/callback?code=x&state=${l3.searchParams.get('state')}`);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM users').get().n,1);
+ assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM sessions').get().n,1,'re-login replaces the previous session');
 });
 
 test('OAuth claim validation and return-path allowlist',()=>{

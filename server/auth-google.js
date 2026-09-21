@@ -63,6 +63,9 @@ export async function finishLogin(ctx,cfg,db,now,fetcher=fetch){
   ON CONFLICT(provider,provider_subject) DO UPDATE SET email=excluded.email,display_name=excluded.display_name RETURNING id`).bind(randomToken(16),email,name,claims.sub,now).first();
  const token=randomToken();
  const statements=[db.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?1,?2,?3,?4)').bind(await sha256(token),user.id,now,now+SESSION_TTL_MS)];
+ // Signing in again replaces this browser's previous session instead of accumulating them.
+ const previous=ctx.cookies[SESSION_COOKIE];
+ if(previous&&/^[A-Za-z0-9_-]{43}$/.test(previous))statements.push(db.prepare('DELETE FROM sessions WHERE token_hash=?1').bind(await sha256(previous)));
  if(ctx.anonId)statements.push(carryOverStatement(db,`a:${ctx.anonId}`,`u:${user.id}`,now));
  await db.batch(statements);
  const target=new URL(safeReturnPath(saved.returnTo),ctx.url.origin);target.searchParams.set('login','ok');

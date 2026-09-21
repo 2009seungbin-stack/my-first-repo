@@ -1,0 +1,23 @@
+# Operator-only config for D1 migrations. It is NOT the Pages project configuration:
+# there is intentionally no wrangler.toml at the repository root, so the Pages dashboard
+# stays authoritative for bindings, variables and secrets.
+#
+#   npx wrangler d1 migrations list  nerulio-preview --remote --config ops/d1.wrangler.toml
+#   npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml
+#   npx wrangler d1 migrations apply nerulio-prod    --remote --config ops/d1.wrangler.toml
+#
+# Fill in the database_id values printed by `wrangler d1 create`. They are identifiers,
+# not secrets. Never point automated tests at these databases.
+name = "nerulio-d1-ops"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nerulio-prod"
+database_id = "REPLACE_WITH_NERULIO_PROD_DATABASE_ID"
+migrations_dir = "../migrations"
+
+[[d1_databases]]
+binding = "DB_PREVIEW"
+database_name = "nerulio-preview"
+database_id = "REPLACE_WITH_NERULIO_PREVIEW_DATABASE_ID"
+migrations_dir = "../migrations"
