@@ -70,10 +70,16 @@ with sync_playwright() as pw:
     p=open_tool(ctx,'normalize-sprite-frames',frames);z=archive(output(p,'normalized.zip'))
     a,b=[rgba_image(z,f'frames/frame-{i:03}.png') for i in [1,2]]
     ok('frame normalization uses common canvas and identical bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8);p.close()
-    p=open_tool(ctx,'sprite-sheet-maker',frames);options(p,{'columns':2,'padding':2});p.locator('.kit-inputs').evaluate('(e)=>e.closest("details").open=true');click(p,'kit-input:1:-1')
-    z=archive(output(p,'sprite-sheet.zip'));im=rgba_image(z,'sprite-sheet.png');meta=json.loads(z.read('metadata.json'))
-    ok('sprite sheet dimensions and JSON coordinates agree',im.size==(20,12) and meta['width']==20 and meta['frames'][1]['x']==12)
-    ok('touch-accessible reorder changes actual frame order',im.getpixel((2,9))[:3]==(0,0,255));p.close()
+    # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
+    p=ctx.new_page();p.goto('http://127.0.0.1:4173/en/sprite-sheet-maker/',wait_until='networkidle')
+    p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()
+    p.locator('[data-key="layout"][data-value="grid"]').click();p.locator('[data-key="padding"][data-value="2"]').click();p.locator('#optionsAdvanced, .options-advanced').first.evaluate('d=>d.open=true');p.fill('#atlasColumns','2');p.locator('#atlasTrim').uncheck();p.wait_for_timeout(300)
+    with p.expect_download() as d:p.locator('#atlasRun').click()
+    z=archive(d.value.path());im=rgba_image(z,'atlas.png');meta=json.loads(z.read('atlas.json'));names=list(meta['frames'])
+    ok('sprite sheet dimensions and JSON coordinates agree',im.size==(meta['meta']['size']['w'],meta['meta']['size']['h']) and all(im.crop((f['frame']['x'],f['frame']['y'],f['frame']['x']+f['frame']['w'],f['frame']['y']+f['frame']['h'])).getbbox() for f in meta['frames'].values()))
+    p.locator('[data-action="atlas-reverse"]').click();p.wait_for_timeout(300)
+    with p.expect_download() as d:p.locator('#atlasRun').click()
+    ok('reorder changes actual frame order',list(json.loads(archive(d.value.path()).read('atlas.json'))['frames'])==names[::-1]);p.close()
 
     p=open_tool(ctx,'palette-swap',[('red.png',png(2,2,'red'))]);options(p,{'from':'#ff0000','to':'#00ff00','tolerance':0})
     im=Image.open(output(p,'palette-swap.png')).convert('RGBA');ok('palette swap changes actual PNG RGB bytes',set(im.getdata())=={(0,255,0,255)});p.close()
