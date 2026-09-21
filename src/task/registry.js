@@ -16,10 +16,20 @@ export const TASK_TOOLS=Object.freeze({
  ...Object.fromEntries(Object.entries({'refiner':['sprite-sheet-maker','palette-swap','pixel'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['sprite-sheet-maker','refiner','pixel'],'margin-crop':['resize','compress','convert'],'tile-helper':['sprite-sheet-maker','atlas-padding','pixel'],'atlas-padding':['sprite-sheet-maker','tile-helper','compress'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize'],'bitmap-font':['sprite-sheet-maker','atlas-padding','pixel']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
  // Texture Lab: one workspace, six stages. The legacy texture-map URL opens its Normal stage.
  ...Object.fromEntries(['texture-lab','texture-map','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed'].map(id=>[id,{module:'texture-lab',kinds:['image'],next:['mask-packer','atlas-padding','compress']}])),
+ 'video-gif':{module:'media',kinds:['media'],next:['video-mp3','video-trim','video-frame']},
+ 'video-mp3':{module:'media',kinds:['media'],next:['video-gif','video-trim','video-frame']},
+ 'video-compress':{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-frame']},
+ 'video-trim':{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-compress']},
+ 'video-frame':{module:'media',kinds:['media'],next:['compress','convert','resize']},
+ media:{module:'media',kinds:['media'],next:['video-gif','video-mp3','video-compress']},
  upscale:{module:'upscale',kinds:['image'],next:['compress','remove-bg','convert']},
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
- 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
+ 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
+ crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
+ 'sprite-slicer':{module:'sprite-slicer',kinds:['image'],next:['sprite-sheet-maker','frame-normalize','pixel']},
+ 'frame-normalize':{module:'frame-normalize',kinds:['image'],next:['sprite-sheet-maker','sprite-slicer','pixel']},
+ 'mask-packer':{module:'mask-packer',kinds:['image'],next:['compress','convert','texture-map']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */

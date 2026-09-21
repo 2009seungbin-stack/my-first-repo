@@ -2,7 +2,7 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from PIL import Image
-import io,json,os,zipfile
+import io,json,os,shutil,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173');checks=[];errors=[]
 def ok(name,cond,detail=''):
@@ -227,6 +227,201 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # --- crop (src/task/crop.js): an interactive box whose numbers are image pixels ---
+    def marker(w,h):
+        im=Image.new('RGB',(w,h));px=im.load()
+        for y in range(h):
+            for x in range(w):px[x,y]=((x*7+11)%256,(y*5+3)%256,((x^y)*3)%256)
+        b=io.BytesIO();im.save(b,'PNG');return im,{'name':f'marker {w}.png','mimeType':'image/png','buffer':b.getvalue()}
+    MARK,MARK_FILE=marker(400,260);MARK2,MARK2_FILE=marker(200,200)
+    def crop_area(x,y,w,h):
+        page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+        for sel,v in [('#cropW',w),('#cropH',h),('#cropX',x),('#cropY',y)]:page.fill(sel,str(v))
+        page.wait_for_timeout(150);ready(page)
+    def crop_open(files):
+        page.goto(BASE+'/en/image/crop/',wait_until='networkidle')
+        page.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"')
+        page.locator('#fileInput').set_input_files(files=list(files));ready(page)
+    crop_open([MARK_FILE])
+    ok('crop opens as a task page: box already placed, 8 handles, Download live, no Run button',
+       page.locator('#cropBox').is_visible() and page.locator('.crop-handle').count()==8 and page.locator('.side .primary').count()==1 and page.locator('#taskDownload').is_enabled())
+    ok('the result size is the big number',page.locator('#taskSummary .summary-big').inner_text()=='400 × 260')
+    crop_area(100,50,213,97)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('the export is exactly the framed rectangle, in image pixels',
+       im.size==(213,97) and im.tobytes()==MARK.crop((100,50,313,147)).tobytes(),str(im.size))
+    box=page.locator('#cropFrame').bounding_box()
+    page.mouse.move(box['x']+box['width']*.25,box['y']+box['height']*.25);page.mouse.down()
+    page.mouse.move(box['x']+box['width']*.75,box['y']+box['height']*.75,steps=8);page.mouse.up();page.wait_for_timeout(200)
+    shown=[int(page.locator(s).input_value()) for s in ['#cropX','#cropY','#cropW','#cropH']]
+    ok('dragging on the picture reframes it and the numbers follow',abs(shown[0]-100)<=3 and abs(shown[2]-200)<=4,str(shown))
+    page.locator('#cropBox').focus();page.keyboard.press('ArrowRight');page.keyboard.press('Shift+ArrowRight');page.wait_for_timeout(120)
+    ok('arrow keys nudge 1px and Shift+arrows 10px',int(page.locator('#cropX').input_value())==shown[0]+11)
+    crop_open([MARK_FILE])
+    page.locator('#cropRatio .chip[data-ratio="1:1"]').click();page.wait_for_timeout(150);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('a ratio chip gives the largest centred square of that ratio',
+       im.size==(260,260) and im.tobytes()==MARK.crop((70,0,330,260)).tobytes(),str(im.size))
+    crop_open([MARK_FILE])
+    page.locator('[data-action="crop-turn-right"]').click();page.locator('[data-action="crop-flip-h"]').click();page.wait_for_timeout(200);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGB')
+    ok('rotate 90° right then flip horizontally is an exact transpose of the source',
+       im.size==(260,400) and im.tobytes()==MARK.transpose(Image.Transpose.TRANSPOSE).tobytes(),str(im.size))
+    page.locator('[data-action="crop-undo"]').click();page.locator('[data-action="crop-undo"]').click();page.wait_for_timeout(150)
+    ok('undo walks back through the transforms',page.locator('#taskSummary .summary-big').inner_text()=='400 × 260')
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('#cropAngle').fill('10');page.locator('#cropAngle').dispatch_event('input');page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('straighten auto-zooms: same frame size, no empty corner, content actually rotated',
+       im.size==(400,260) and im.getpixel((0,0))[3]==255 and im.getpixel((399,259))[3]==255 and im.convert('RGB').tobytes()!=MARK.tobytes())
+    crop_open([MARK_FILE])
+    page.locator('#cropRatio .chip[data-ratio="1:1"]').click()
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true');page.locator('#cropShape').select_option('circle');page.wait_for_timeout(250);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('a circle crop is transparent outside and untouched inside',
+       im.size==(260,260) and im.getpixel((1,1))[3]==0 and im.getpixel((130,130))==MARK.getpixel((200,130))+(255,))
+    crop_open([MARK_FILE])
+    page.locator('#cropPreset').select_option('instagram-story');page.wait_for_timeout(250);ready(page)
+    ok('a social preset sets the ratio chip and the exact output size',
+       page.locator('#taskSummary .summary-big').inner_text()=='1080 × 1920' and page.locator('#cropRatio .chip[aria-pressed="true"]').get_attribute('data-ratio')=='9:16')
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    ok('the preset export is exactly the platform size',Image.open(d.value.path()).size==(1080,1920))
+    bordered=Image.new('RGB',(120,90),(255,255,255));[bordered.putpixel((x,y),(10,30,200)) for x in range(30,100) for y in range(20,70)]
+    buf=io.BytesIO();bordered.save(buf,'PNG')
+    crop_open([{'name':'scan.png','mimeType':'image/png','buffer':buf.getvalue()}])
+    page.locator('[data-action="crop-trim"]').click();page.wait_for_timeout(800);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    ok('auto-trim snaps the box to the content inside a uniform border',Image.open(d.value.path()).size==(70,50))
+    crop_open([MARK_FILE,MARK2_FILE])
+    ok('several images share one file list',page.locator('#taskFiles .file').count()==2)
+    page.locator('[data-action="crop-select"][data-index="0"]').click();page.wait_for_timeout(150)
+    crop_area(100,50,200,100)
+    page.locator('[data-action="crop-apply-all"]').click();page.wait_for_timeout(300);ready(page)
+    ok('apply-to-all reuses the same relative box on every file',page.locator('#taskFiles .pill').all_inner_texts()==['200×100','100×77'])
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    ok('download all is one ZIP with a cropped file per input',
+       sorted(Image.open(io.BytesIO(z.read(n))).size for n in z.namelist())==[(100,77),(200,100)],str(z.namelist()))
+    ok('crop offers the hand-off tools',page.locator('#taskNext .chip').evaluate_all('ns=>ns.map(n=>n.dataset.tool)')==['compress','resize','remove-bg'])
+    # --- video and audio (src/task/media.js): trim timeline, chips, one Run, measured result ---
+    if shutil.which('ffmpeg') and shutil.which('ffprobe'):
+        clip=OUT/'task-media-clip.mp4'
+        if not clip.exists():
+            subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i','testsrc2=size=640x360:rate=30','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','5','-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-g','30','-c:a','aac','-b:a','128k','-movflags','+faststart',str(clip)],check=True)
+        def media(path):
+            page.goto(BASE+path,wait_until='networkidle');page.locator('html[data-task-ready="1"]').wait_for()
+            page.locator('#fileInput').set_input_files(str(clip));page.locator('#mediaRun:not([disabled])').wait_for(timeout=60000)
+        def encode(name):
+            page.locator('#mediaRun').click();page.locator('#taskDownload:not([disabled])').wait_for(timeout=180000)
+            with page.expect_download() as got:page.locator('#taskDownload').click()
+            target=OUT/name;got.value.save_as(target);return target
+        def probe(path):return json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(path)]))
+        media('/en/video/to-gif/');page.locator('#tlStrip img').first.wait_for(timeout=60000)
+        ok('a dropped video opens in a player with a decoded timeline strip',page.locator('#video').evaluate('v=>v.videoWidth')==640 and page.locator('#tlStrip img').count()==10)
+        page.wait_for_function("()=>document.querySelector('#mediaSummary .summary-big').textContent.includes('≈')",timeout=90000)
+        ok('the GIF size is estimated before anything is encoded','B' in page.locator('#mediaSummary .summary-big').inner_text())
+        page.locator('#gifWidth [data-value="320"]').click();page.locator('#gifFps [data-value="10"]').click();page.locator('#mediaEnd').fill('1');page.wait_for_timeout(200)
+        animation=Image.open(encode('task-media.gif'))
+        ok('the GIF chips really change the output',animation.format=='GIF' and animation.size==(320,180) and animation.n_frames==10)
+        ok('the result is previewed as an image with a size line',page.locator('#mediaOut img').count()==1 and '→' in page.locator('#mediaResult').inner_text())
+        page.locator('#gifWidth [data-value="480"]').click();page.locator('#gifFps [data-value="15"]').click();page.locator('#mediaEnd').fill('3');page.fill('#gifTarget','0.2');page.wait_for_timeout(250)
+        ok('"fit under N MB" is measured, not guessed',os.path.getsize(encode('task-media-target.gif'))<=int(.2*1024*1024))
+        media('/en/video/to-mp3/');page.locator('#audioBitrate [data-value="128"]').click()
+        audio=probe(encode('task-media.mp3'))
+        ok('audio extraction writes one decodable MP3 stream of the same length',audio['streams'][0]['codec_name']=='mp3' and abs(float(audio['format']['duration'])-5)<.2)
+        ok('audio results are playable in the page',page.locator('#mediaOut audio').count()==1)
+        media('/en/video/compress/');page.locator('#videoCap [data-value="480"]').click();page.fill('#videoTarget','0.4');page.wait_for_timeout(200)
+        shrunk=encode('task-media-small.mp4');info=probe(shrunk);height=max(int(s['height']) for s in info['streams'] if s['codec_type']=='video')
+        ok('compression honours the size target and the resolution cap',os.path.getsize(shrunk)<=int(.4*1024*1024) and height<=480)
+        media('/en/video/trim/');page.locator('#mediaStart').fill('1');page.locator('#mediaEnd').fill('3');page.wait_for_timeout(200)
+        cut=probe(encode('task-media-cut.mp4'))
+        ok('trimming keeps the chosen seconds and the audio track',abs(float(cut['format']['duration'])-2)<.15 and any(s['codec_type']=='audio' for s in cut['streams']))
+        media('/en/video/frame/');page.locator('[data-action="media-next"]').click();page.wait_for_timeout(200)
+        still=Image.open(encode('task-media-frame.png'))
+        ok('a frame grab is saved at the source resolution',still.format=='PNG' and still.size==(640,360))
+        media('/ko/media/')
+        ok('the media hub offers every job on one page',page.locator('#mediaJob button').count()==5)
+        page.locator('#mediaJob [data-job="audio"]').click();ok('choosing a job relabels the one primary button','MP3' in page.locator('#mediaRun').inner_text())
+        box=page.locator('#tl').bounding_box()
+        page.mouse.move(box['x']+box['width']-2,box['y']+box['height']/2);page.mouse.down();page.mouse.move(box['x']+box['width']*.4,box['y']+box['height']/2,steps=8);page.mouse.up();page.wait_for_timeout(200)
+        ok('dragging the out handle shortens the section',float(page.locator('#mediaEnd').input_value())<2.6)
+    else:print('SKIP media task checks: ffmpeg unavailable')
+    # --- game assets: sprite slicer / frame normaliser / RGBA mask packer (src/task/*.js) ---
+    def sheet_png(w,h,boxes):
+        im=Image.new('RGBA',(w,h),(0,0,0,0))
+        for (x0,y0,x1,y1),c in boxes:
+            for x in range(x0,x1+1):
+                for y in range(y0,y1+1):im.putpixel((x,y),c)
+        b=io.BytesIO();im.save(b,'PNG');return {'name':'sheet.png','mimeType':'image/png','buffer':b.getvalue()}
+    def file_of(name,im):
+        b=io.BytesIO();im.save(b,'PNG');return {'name':name,'mimeType':'image/png','buffer':b.getvalue()}
+    page.goto(BASE+'/en/sprite-slicer/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
+    page.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
+    ok('the slicer outlines the frames it found, with no Run button',
+       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>[+n.getAttribute("x"),+n.getAttribute("width")])')==[[1,5],[20,8]])
+    page.locator('.frame-chip[data-index="1"]').click();page.wait_for_timeout(150)
+    ok('selecting a frame offers resize handles and exact numbers',page.locator('.slicer-handle').count()==8 and page.locator('#slicerRectW').input_value()=='8')
+    page.fill('#slicerRectW','6');page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path());meta=json.loads(z.read('metadata.json'))
+    ok('the edited frame decides the exported PNG and the metadata',
+       Image.open(io.BytesIO(z.read('sheet_002.png'))).size==(6,12) and meta['frames'][1]['w']==6 and meta['schemaVersion']==1,str(meta['frames'][1]))
+    page.locator('[data-action="slicer-undo"]').click();page.wait_for_timeout(200)
+    ok('undo restores the previous frame rectangle',page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("width"))')==[5,8])
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('#slicerTrim').check();page.locator('[data-key="canvas"][data-value="common"]').click()
+    page.locator('#slicerWantGif').check();page.locator('#slicerWantStrip').check();page.wait_for_timeout(500);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'sheet_00{i}.png'))).convert('RGBA') for i in (1,2)]
+    ok('one canvas for all frames gives one size and one bottom edge',a.size==b.size==(8,12) and a.getbbox()[3]==b.getbbox()[3]==12,f'{a.size} {b.size}')
+    ok('the horizontal strip PNG is the frames side by side',Image.open(io.BytesIO(z.read('sheet_strip.png'))).size==(16,12))
+    gif_out=Image.open(io.BytesIO(z.read('sheet.gif')));gif_out.seek(0)
+    ok('the animated GIF is a real GIF with a transparent cut-out',
+       gif_out.n_frames==2 and gif_out.size==(8,12) and gif_out.info.get('transparency')==0 and gif_out.convert('RGBA').getpixel((0,0))[3]==0)
+    page.locator('[data-key="mode"][data-value="grid"]').click();page.wait_for_timeout(600)
+    ok('grid mode opens on a cell size guessed from the sheet itself',
+       page.locator('#slicerCellW').input_value()=='5' and page.locator('.slicer-box').count()==2 and page.locator('#slicerSuggest .chip').count()>=1,
+       page.locator('#slicerCellW').input_value())
+    page.goto(BASE+'/en/normalize-sprite-frames/',wait_until='networkidle')
+    tall=Image.new('RGBA',(20,20),(0,0,0,0));[tall.putpixel((x,y),(255,0,0,255)) for x in range(2,6) for y in range(2,10)]
+    wide=Image.new('RGBA',(12,12),(0,0,0,0));[wide.putpixel((x,y),(0,0,255,255)) for x in range(3,9) for y in range(2,5)]
+    page.locator('#fileInput').set_input_files(files=[file_of('tall.png',tall),file_of('wide.png',wide)])
+    page.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
+    ok('the normaliser shows the common canvas before any download',page.locator('#normSummary .summary-big').inner_text()=='6 × 8')
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
+    ok('normalised frames share one canvas and one bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8,f'{a.getbbox()} {b.getbbox()}')
+    page.locator('[data-key="align"][data-value="top"]').click();page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
+    ok('changing the anchor really moves the pixels',a.getbbox()[1]==b.getbbox()[1]==0,f'{a.getbbox()} {b.getbbox()}')
+    page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
+    page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
+    ok('the packer previews the pack and every channel on its own',page.locator('#maskPreviews canvas').count()==4 and page.locator('#maskFiles .file').count()==3)
+    for channel,value in enumerate(['input2','input0','input1','zero']):page.locator(f'[data-channel="{channel}"]').select_option(value)
+    page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('the packed PNG keeps exact channel bytes under zero alpha',set(im.getdata())=={(220,10,80,0)},str(set(im.getdata())))
+    page.locator('[data-action="mask-preset"][data-value="unreal-orm"]').click();page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('the Unreal ORM preset really reorders the channels',set(im.getdata())=={(10,80,220,255)},str(set(im.getdata())))
+    page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
+    ok('a differently sized mask is explained instead of failing silently',
+       page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:
@@ -235,6 +430,9 @@ with sync_playwright() as pw:
     phone.locator('[data-action="task-sample"]').click();ready(phone)
     ok('sample produces a real saving on a phone',int(phone.locator('#taskSummary .summary-big').inner_text()[1:-1])>=50)
     ok('no horizontal scroll with results on a phone',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    # A long progress label in the file row must not widen the page (seen only on slow machines, where it is still showing).
+    phone.evaluate("()=>{document.querySelector('#taskFiles .pill').textContent='AI 모델 받는 중 (처음 한 번) 43%'}")
+    ok('a long progress label does not cause horizontal scroll on a phone',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     browser.close()
 assert not errors,errors
 (OUT/'task-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

@@ -13,6 +13,8 @@ with sync_playwright() as pw:
     data=page.evaluate('''async()=>{
       const Im=await import('/src/image.js'),R=await import('/src/recipes.js');
       const {INTENTS}=await import('/src/intents.js'),{TOOLS}=await import('/src/tool-registry.js');
+      // Catalog entries whose page is a Lab, not a recipe, have no runRecipe id: social cards only.
+      const {TASK_TOOLS}=await import('/src/task/registry.js'),recipeTool=id=>TOOLS[id]&&(TASK_TOOLS[id]?.module??'recipe')==='recipe';
       const {t}=await import('/src/i18n.js'),{BRAND}=await import('/src/brand.js');
       const source=Im.canvas(96,64),ctx=source.getContext('2d');
       ctx.fillStyle='#ef4444';ctx.fillRect(12,12,24,36);ctx.fillStyle='#2563eb';ctx.fillRect(52,20,28,32);
@@ -24,6 +26,7 @@ with sync_playwright() as pw:
         let input=Im.copy(source),out=null,recipe=null;
         if(['remove-bg','logo-bg','margin-crop'].includes(id)){const x=input.getContext('2d');x.globalCompositeOperation='destination-over';x.fillStyle='#fff';x.fillRect(0,0,96,64);x.globalCompositeOperation='source-over';}
         const blob=await Im.blobOf(input),items=[{name:'geometric-sample.png',blob}];
+        if(!recipeTool(id)&&TOOLS[id]){Im.release(input);continue;}
         if(TOOLS[id]){
           const o=R.defaults(id);o.cellW=32;o.cellH=32;o.chars='ABCDEF';o.baseline=26;o.columns=2;o.longSide=320;
           if(id==='marketplace-pack'){o.platform='custom';o.width=320;o.height=240;}

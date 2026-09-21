@@ -145,7 +145,9 @@ def scenario_free(browser):
         ok('modal closes without navigating','/en/image/upscale/' in page.url and page.locator('#upgradeDialog').count()==0)
         ok('current file and settings survive the refusal',has_source(page) and page.locator('#taskFiles .file').count()==2 and page.locator('#upScale [aria-pressed="true"]').inner_text()=='2×')
         ok('denied run was the only extra authorize',len(api_calls(log,'jobs/authorize'))==3)
-        # Light tools never call the API and keep working after the limit.
+        # Light tools never call the API and keep working after the limit. Crop is a single-task
+        # page (src/task/crop.js), so the helpers take their is_task branch: adding the file is
+        # the run and #taskDownload is the save. What is proved is unchanged.
         crop=open_tool(context,stack,'/en/image/crop/',log);before=len(api_calls(log,'jobs/authorize'))
         load_file(crop);run_intent(crop)
         ok('crop works with Free quota exhausted',download_ok(crop))
