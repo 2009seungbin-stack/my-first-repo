@@ -13,6 +13,8 @@ def ok(name,condition):
     assert condition,name
     checks.append(name); print('PASS',name,flush=True)
 def idle(page):
+    # Single-task pages (src/task) have no editor workspace; they are ready once rendered.
+    if page.locator('body.task-page').count():page.locator('#taskTitle').wait_for(timeout=30000);return
     expect(page.locator('#workspace')).to_have_attribute('aria-busy','false',timeout=30000)
 def run_mode(browser,mode,index):
     out=OUT/mode/'dist'; port=4270+index
@@ -44,7 +46,7 @@ def run_mode(browser,mode,index):
             ok(mode+' direct '+route,response.status==200)
             lang=route.split('/')[1] if route.split('/')[1] in ['ko','en','ja'] else 'en'
             ok(mode+' locale '+route,page.locator('html').get_attribute('lang')==lang)
-            ok(mode+' title and h1 '+route,page.title()==page.locator('h1').inner_text()+' · Nerulio')
+            ok(mode+' title and h1 '+route,page.title()==('Nerulio — '+page.locator('h1').inner_text() if route=='/' else page.locator('h1').inner_text()+' · Nerulio'))
             ok(mode+' description '+route,len(page.locator('meta[name="description"]').get_attribute('content'))>10)
             ok(mode+' guide and FAQ '+route,page.locator('.reading-content ol li').count()==3 and page.locator('.faq details').count()==3)
             if mode=='disabled':
@@ -54,8 +56,8 @@ def run_mode(browser,mode,index):
                 ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+('/en/' if route=='/' else route))
                 ok(mode+' hreflang '+route,page.locator('link[hreflang]').count()==4)
             if mode=='ads':
-                ok('two content-only ad slots '+route,page.locator('.ad-slot').count()==2 and page.locator('#workspace .ad-slot').count()==0)
-                first=page.locator('.ad-slot').first.bounding_box();editor=page.locator('#workspace').bounding_box()
+                ok('two content-only ad slots '+route,page.locator('.ad-slot').count()==2 and page.locator('#workspace .ad-slot, main.page .ad-slot').count()==0)
+                first=page.locator('.ad-slot').first.bounding_box();editor=page.locator('#workspace, main.page').first.bounding_box()
                 ok('ads separated from editor '+route,first['y']>editor['y']+editor['height']+100)
             else:ok(mode+' no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0)
             page.reload(wait_until='networkidle');idle(page);ok(mode+' refresh '+route,page.locator('h1').inner_text()!='')

@@ -16,7 +16,9 @@ async function score(blob,reference,w,h,signal){
   return {ssim:Math.min(a.ssim,b.ssim),mse:Math.max(a.mse,b.mse),sampleWidth:w,sampleHeight:h};
  }finally{bitmap.close();}
 }
-export async function compress(source,{format='png',quality=.92,kb=0,width=0,allowShrink=false,bg='#ffffff',signal,progress=()=>{},original}={},check=()=>{}){
+/** minSSIM (no target size): pick the SMALLEST candidate that still scores at least this
+ * similarity, instead of the most similar one — which would always be the untouched original. */
+export async function compress(source,{format='png',quality=.92,kb=0,width=0,allowShrink=false,bg='#ffffff',minSSIM=0,signal,progress=()=>{},original}={},check=()=>{}){
  const started=performance.now(),supported=await supportedFormats();check();abort(signal);
  if(format!=='auto'&&!supported.includes(format))throw Error(`The browser cannot encode ${format.toUpperCase()}. Choose ${supported.join(', ')}.`);
  const transparent=await hasAlpha(source,signal),formats=format==='auto'?supported.filter(f=>f!=='jpeg'||!transparent):[format];
@@ -25,11 +27,12 @@ export async function compress(source,{format='png',quality=.92,kb=0,width=0,all
  const factor=Math.min(1,512/Math.max(source.width,source.height)),sw=Math.max(1,Math.round(source.width*factor)),sh=Math.max(1,Math.round(source.height*factor));
  // For explicit JPEG flattening, compare against the chosen background, not transparency.
  const reference=format==='jpeg'?[sample(source,sw,sh,bg),sample(source,sw,sh,bg)]:[sample(source,sw,sh,'#000'),sample(source,sw,sh,'#fff')];
- let best=null,smallest=null,work=null,outputW=maxWidth;const candidates=[];
+ let best=null,smallest=null,work=null,outputW=maxWidth;const candidates=[],pool=[];
  const consider=async(blob,w,h,fmt,q,retained=false)=>{
   check();abort(signal);const metric=await score(blob,reference,sw,sh,signal),candidate={blob,w,h,format:fmt,quality:q,metric,retained};
   candidates.push({format:fmt,quality:q,width:w,height:h,bytes:blob.size,...metric,retained});
   if(!smallest||blob.size<smallest.blob.size)smallest=candidate;
+  if(minSSIM&&!target){candidate.pass=metric.ssim>=minSSIM;pool.push(candidate);return;}
   if((!target||blob.size<=target)&&(!best||metric.ssim>best.metric.ssim+.0001||Math.abs(metric.ssim-best.metric.ssim)<=.0001&&blob.size<best.blob.size))best=candidate;
  };
  try{
@@ -60,6 +63,14 @@ export async function compress(source,{format='png',quality=.92,kb=0,width=0,all
    if(!target||!allowShrink||outputW<=32)break;
    // Evaluate another resolution even if one fits: detail vs quantization trade-off.
    outputW=Math.max(1,Math.floor(outputW*Math.max(.55,Math.min(.85,Math.sqrt(target/levelSmallest)))));
+  }
+  if(pool.length){
+   // Quality mode: the smallest lossy result that stays above the similarity floor. Noisy or
+   // grainy pictures may never reach the floor; they still get the requested quality level
+   // (like any other compressor) rather than silently keeping the original.
+   const bySize=(a,b)=>a.blob.size-b.blob.size,lossy=pool.filter(c=>c.format!=='png'&&!c.retained),passing=lossy.filter(c=>c.pass);
+   const top=Math.max(...lossy.map(c=>c.metric.ssim)),near=lossy.filter(c=>c.metric.ssim>=top-.01);
+   best=[...(passing.length?passing:near),...pool.filter(c=>c.format==='png'||c.retained)].sort(bySize)[0];
   }
   const chosen=best||smallest;
   return {...chosen,met:!!best,report:{inputWidth:source.width,inputHeight:source.height,width:chosen.w,height:chosen.h,format:chosen.format,bytes:chosen.blob.size,
