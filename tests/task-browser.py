@@ -2,7 +2,7 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from PIL import Image
-import io,json,os,zipfile
+import io,json,os,shutil,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173');checks=[];errors=[]
 def ok(name,cond,detail=''):
@@ -308,6 +308,49 @@ with sync_playwright() as pw:
     ok('download all is one ZIP with a cropped file per input',
        sorted(Image.open(io.BytesIO(z.read(n))).size for n in z.namelist())==[(100,77),(200,100)],str(z.namelist()))
     ok('crop offers the hand-off tools',page.locator('#taskNext .chip').evaluate_all('ns=>ns.map(n=>n.dataset.tool)')==['compress','resize','remove-bg'])
+    # --- video and audio (src/task/media.js): trim timeline, chips, one Run, measured result ---
+    if shutil.which('ffmpeg') and shutil.which('ffprobe'):
+        clip=OUT/'task-media-clip.mp4'
+        if not clip.exists():
+            subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i','testsrc2=size=640x360:rate=30','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','5','-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-g','30','-c:a','aac','-b:a','128k','-movflags','+faststart',str(clip)],check=True)
+        def media(path):
+            page.goto(BASE+path,wait_until='networkidle');page.locator('html[data-task-ready="1"]').wait_for()
+            page.locator('#fileInput').set_input_files(str(clip));page.locator('#mediaRun:not([disabled])').wait_for(timeout=60000)
+        def encode(name):
+            page.locator('#mediaRun').click();page.locator('#taskDownload:not([disabled])').wait_for(timeout=180000)
+            with page.expect_download() as got:page.locator('#taskDownload').click()
+            target=OUT/name;got.value.save_as(target);return target
+        def probe(path):return json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(path)]))
+        media('/en/video/to-gif/');page.locator('#tlStrip img').first.wait_for(timeout=60000)
+        ok('a dropped video opens in a player with a decoded timeline strip',page.locator('#video').evaluate('v=>v.videoWidth')==640 and page.locator('#tlStrip img').count()==10)
+        page.wait_for_function("()=>document.querySelector('#mediaSummary .summary-big').textContent.includes('≈')",timeout=90000)
+        ok('the GIF size is estimated before anything is encoded','B' in page.locator('#mediaSummary .summary-big').inner_text())
+        page.locator('#gifWidth [data-value="320"]').click();page.locator('#gifFps [data-value="10"]').click();page.locator('#mediaEnd').fill('1');page.wait_for_timeout(200)
+        animation=Image.open(encode('task-media.gif'))
+        ok('the GIF chips really change the output',animation.format=='GIF' and animation.size==(320,180) and animation.n_frames==10)
+        ok('the result is previewed as an image with a size line',page.locator('#mediaOut img').count()==1 and '→' in page.locator('#mediaResult').inner_text())
+        page.locator('#gifWidth [data-value="480"]').click();page.locator('#gifFps [data-value="15"]').click();page.locator('#mediaEnd').fill('3');page.fill('#gifTarget','0.2');page.wait_for_timeout(250)
+        ok('"fit under N MB" is measured, not guessed',os.path.getsize(encode('task-media-target.gif'))<=int(.2*1024*1024))
+        media('/en/video/to-mp3/');page.locator('#audioBitrate [data-value="128"]').click()
+        audio=probe(encode('task-media.mp3'))
+        ok('audio extraction writes one decodable MP3 stream of the same length',audio['streams'][0]['codec_name']=='mp3' and abs(float(audio['format']['duration'])-5)<.2)
+        ok('audio results are playable in the page',page.locator('#mediaOut audio').count()==1)
+        media('/en/video/compress/');page.locator('#videoCap [data-value="480"]').click();page.fill('#videoTarget','0.4');page.wait_for_timeout(200)
+        shrunk=encode('task-media-small.mp4');info=probe(shrunk);height=max(int(s['height']) for s in info['streams'] if s['codec_type']=='video')
+        ok('compression honours the size target and the resolution cap',os.path.getsize(shrunk)<=int(.4*1024*1024) and height<=480)
+        media('/en/video/trim/');page.locator('#mediaStart').fill('1');page.locator('#mediaEnd').fill('3');page.wait_for_timeout(200)
+        cut=probe(encode('task-media-cut.mp4'))
+        ok('trimming keeps the chosen seconds and the audio track',abs(float(cut['format']['duration'])-2)<.15 and any(s['codec_type']=='audio' for s in cut['streams']))
+        media('/en/video/frame/');page.locator('[data-action="media-next"]').click();page.wait_for_timeout(200)
+        still=Image.open(encode('task-media-frame.png'))
+        ok('a frame grab is saved at the source resolution',still.format=='PNG' and still.size==(640,360))
+        media('/ko/media/')
+        ok('the media hub offers every job on one page',page.locator('#mediaJob button').count()==5)
+        page.locator('#mediaJob [data-job="audio"]').click();ok('choosing a job relabels the one primary button','MP3' in page.locator('#mediaRun').inner_text())
+        box=page.locator('#tl').bounding_box()
+        page.mouse.move(box['x']+box['width']-2,box['y']+box['height']/2);page.mouse.down();page.mouse.move(box['x']+box['width']*.4,box['y']+box['height']/2,steps=8);page.mouse.up();page.wait_for_timeout(200)
+        ok('dragging the out handle shortens the section',float(page.locator('#mediaEnd').input_value())<2.6)
+    else:print('SKIP media task checks: ffmpeg unavailable')
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:
