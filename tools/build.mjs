@@ -1,6 +1,7 @@
 import {mayPromote} from '../src/capabilities.js';
 import {imageSitemap,verificationHead,notFound} from './growth-build.mjs';
 import {BRAND} from '../src/brand.js';
+import {logoMark,faviconSVG} from '../src/logo.js';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -17,7 +18,7 @@ export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,...LOCALES.flatMap(l=>[l,
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
- html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase()));
+ html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
  siteURL=normalizeSiteURL(siteURL);
  const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
@@ -42,7 +43,7 @@ export function entry(html,route='',siteURL='',config={}){
 function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+adHead(config);}
 function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
- return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><strong>${escape(BRAND.name)}.</strong><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
+ return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
 export function sitemap(siteURL,extra=[]){
  const paths=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...POLICY_ROUTES,...extra];
@@ -65,7 +66,7 @@ export async function build(options={}){
  }
  for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
- await writeFile(path.join(dist,'favicon.svg'),`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="20" fill="#3182f6"/><text x="32" y="46" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">${escape(BRAND.name[0].toLowerCase())}</text></svg>`);
+ await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
  for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
  await writeFile(path.join(dist,'.nojekyll'),'');
