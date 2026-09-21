@@ -6,6 +6,7 @@ import {detectGrid,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,isBlank,du
 import {KINDS,LAYOUTS,layoutOf,layoutJSON,layoutFromJSON,completeness,unrepresentable,terrainGrid,renderMap,seededFill,floodFill,cellAt} from '../game/autotile.js';
 import {seamReport,edgeMatch,bestEdge,makeSeamless,heatmap} from '../game/seams.js';
 import {tileCollision,MODES as COLLISION_MODES} from '../game/tile-collision.js';
+import {extrudeRegions} from '../atlas.js';
 import {godotTileSet,godotScript,godotReadme,MODES,modeFor} from '../game/godot-tileset.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** Tile Lab — one workspace for a 2D tileset: measure the grid, slice it, generate autotile
@@ -471,19 +472,6 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
   c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(pixels),w,h),0,0);
   try{return await Im.blobOf(c);}finally{Im.release(c);}
  }
- function extrudedAtlas(pad){
-  const cell=[o.tileWidth+pad*2,o.tileHeight+pad*2],c=Im.canvas(grid.cols*cell[0],grid.rows*cell[1]),ctx=c.getContext('2d');
-  ctx.imageSmoothingEnabled=false;
-  for(const r of grid.rects){
-   const dx=r.col*cell[0]+pad,dy=r.row*cell[1]+pad;
-   // Nine blits: the tile, its four edges stretched outwards and its four corner pixels.
-   for(const [tx,ty,tw,th,sx,sy,sw,sh] of [[0,0,r.w,r.h,0,0,r.w,r.h],[-pad,0,pad,r.h,0,0,1,r.h],[r.w,0,pad,r.h,r.w-1,0,1,r.h],
-    [0,-pad,r.w,pad,0,0,r.w,1],[0,r.h,r.w,pad,0,r.h-1,r.w,1],[-pad,-pad,pad,pad,0,0,1,1],[r.w,-pad,pad,pad,r.w-1,0,1,1],
-    [-pad,r.h,pad,pad,0,r.h-1,1,1],[r.w,r.h,pad,pad,r.w-1,r.h-1,1,1]])
-    ctx.drawImage(src,r.x+sx,r.y+sy,sw,sh,dx+tx,dy+ty,tw,th);
-  }
-  return c;
- }
  async function slice(){
   if(busy||!grid||grid.error)return;busy=true;
   const button=q('#taskDownload');if(button)button.disabled=true;
@@ -522,8 +510,10 @@ ${listing('nerulio_tileset_import.gd',pack.script)}`;
    if(aliases.size)meta.tileSet.aliases=Object.fromEntries([...aliases].map(([from,to])=>[tileName(from,grid.count)+'.png',tileName(to,grid.count)+'.png']));
    entries.push({name:'metadata.json',blob:new Blob([JSON.stringify(meta,null,1)],{type:'application/json'})});
    if(o.extrude>0){
-    const atlas=extrudedAtlas(o.extrude);
-    try{entries.push({name:'padded-atlas.png',blob:await Im.blobOf(atlas)});}finally{Im.release(atlas);}
+    // The shared atlas engine, so a padded sheet from the Lab is the same sheet the
+    // atlas-padding route has always produced (tests/quality-browser.mjs measures it).
+    const atlas=await extrudeRegions(src,grid.rects,{cellW:o.tileWidth,cellH:o.tileHeight,padding:o.extrude,columns:grid.cols});
+    try{entries.push({name:'padded-atlas.png',blob:await Im.blobOf(atlas.canvas)});}finally{Im.release(atlas.canvas);}
    }
    const blob=await zip(entries,{paths:true});
    download(blob,`${src.name?stem(src.name):'tileset'}-tiles.zip`);
