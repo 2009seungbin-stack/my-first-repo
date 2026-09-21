@@ -76,17 +76,30 @@ with sync_playwright() as pw:
     ok('game pack ZIP preserves folder paths and all requested dimensions',all(rgba_image(z,f'{n}x{n}/asset.png').size==(n,n) for n in [16,32,64,128,47]))
     p.close()
 
+    # The sprite slicer is a single-task page now (src/task/sprite-slicer.js): frames are detected on
+    # drop with no Run button, edited on the sheet or by exact numbers, and exported as
+    # <prefix>_NNN.png + metadata.json. Same proof: the edited box decides the exported pixels.
+    def open_task(path,files):
+        page=mount(ctx,'/en/'+path+'/')
+        page.locator('#fileInput').set_input_files([{'name':name,'mimeType':'image/png','buffer':buffer} for name,buffer in files])
+        return page
     sheet=png(36,20,rects=[((1,2,5,8),'red'),((20,4,27,15),'green')])
-    p=open_tool(ctx,'sprite-slicer',[('sheet.png',sheet)]);click(p,'intent-run')
-    ok('sprite detection yields two editable candidates before download',p.locator('[data-action^="kit-frame:"]').count()==2 and not p.locator('[data-action="intent-download"]').count())
-    lang(p,'ko');ok('language switch preserves candidate order',p.locator('[data-action^="kit-frame:"]').count()==2)
-    click(p,'kit-frame:1');options(p,{'rect-w':6})
+    p=open_task('sprite-slicer',[('sheet.png',sheet)])
+    p.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
+    ok('sprite detection yields two editable candidates with no Run button',p.locator('.slicer-box').count()==2 and p.locator('.frame-chip[data-id]').count()==2)
+    lang(p,'ko');ok('language switch preserves candidate order',p.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("x"))')==[1,20])
+    p.locator('.frame-chip[data-index="1"]').click();p.fill('#slicerRectW','6');p.wait_for_timeout(400)
     z=archive(output(p,'sliced.zip'));meta=json.loads(z.read('metadata.json'))
-    ok('edited frame crop controls actual exported pixels',rgba_image(z,'frames/frame-002.png').size==(6,12) and meta['frames'][1]['w']==6)
+    ok('edited frame crop controls actual exported pixels',rgba_image(z,'sheet_002.png').size==(6,12) and meta['frames'][1]['w']==6)
+    ok('slicer metadata is schema-versioned and in strip order',meta['schemaVersion']==1 and [f['name'] for f in meta['frames']]==['sheet_001.png','sheet_002.png'])
     p.screenshot(path=str(OUT/'sprite-slicer-desktop.png'),full_page=False);p.close()
 
     frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
-    p=open_tool(ctx,'normalize-sprite-frames',frames);z=archive(output(p,'normalized.zip'))
+    p=open_task('normalize-sprite-frames',frames)
+    p.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
+    ok('the common canvas is shown before any download',p.locator('#normSummary .summary-big').inner_text()=='6 × 8')
+    z=archive(output(p,'normalized.zip'))
     a,b=[rgba_image(z,f'frames/frame-{i:03}.png') for i in [1,2]]
     ok('frame normalization uses common canvas and identical bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8);p.close()
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
@@ -115,9 +128,15 @@ with sync_playwright() as pw:
     p=open_tool(ctx,'bitmap-font-maker',[('font.png',png(16,8,'white'))]);options(p,{'cellW':8,'cellH':8,'chars':'Aあ','baseline':6});z=archive(output(p,'bitmap-font.zip'))
     meta=json.loads(z.read('font.json'));fnt=z.read('font.fnt').decode()
     ok('BMFont and JSON contain exact Unicode glyph coordinates','char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and rgba_image(z,'font.png').size==(16,8));p.close()
-    masks=[(f'{n}.png',png(2,2,(n,n,n,255))) for n in [10,80,220]];p=open_tool(ctx,'texture-mask-packer',masks)
-    options(p,{'channel-0':'input2','channel-1':'input0','channel-2':'input1','channel-3':'zero'})
-    im=Image.open(output(p,'packed-mask.png')).convert('RGBA');ok('mask PNG preserves channel bytes even under zero alpha',set(im.getdata())=={(220,10,80,0)});p.close()
+    # Mask packing is a single-task page now (src/task/mask-packer.js): the channel dropdowns keep
+    # their meaning and the engine still writes the PNG itself, so RGB survives alpha 0.
+    masks=[(f'{n}.png',png(2,2,(n,n,n,255))) for n in [10,80,220]];p=open_task('texture-mask-packer',masks)
+    p.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
+    for channel,value in enumerate(['input2','input0','input1','zero']):p.locator(f'[data-channel="{channel}"]').select_option(value)
+    p.wait_for_timeout(400)
+    im=Image.open(output(p,'packed-mask.png')).convert('RGBA');ok('mask PNG preserves channel bytes even under zero alpha',set(im.getdata())=={(220,10,80,0)})
+    p.locator('[data-invert="0"]').check();p.wait_for_timeout(400)
+    im=Image.open(output(p,'packed-mask-inverted.png')).convert('RGBA');ok('inverting a channel inverts the actual PNG bytes',set(im.getdata())=={(35,10,80,0)});p.close()
     atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_tool(ctx,'atlas-padding',[('atlas.png',atlas)])
     options(p,{'cellW':1,'cellH':1,'padding':1});z=archive(output(p,'atlas.zip'));im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()

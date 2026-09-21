@@ -3,6 +3,7 @@ import {stem} from '../core.js';
 import {createBatch} from './batch.js';
 import {text} from './shell.js';
 import {AI_MODELS} from '../ai-models.js';
+import {borderColor} from '../color-background.js';
 /** Background remover: drop photos and the cut-out appears — no Run button. The AI model (or the
  * solid-colour flood fill) runs once per photo; changing the new background, trimming or the file
  * format only re-composes the cached cut-out. "Touch up" opens an erase/restore brush. */
@@ -34,13 +35,8 @@ function reflect(form,o){
  form.querySelector('#bgColorField').hidden=o.bg!=='custom';form.querySelector('#bgAiFields').hidden=o.mode!=='ai';form.querySelector('#bgColorFields').hidden=o.mode!=='color';
  form.querySelector('#bgKeyColorField').hidden=o.key!=='custom';form.querySelector('#bgJpegHint').hidden=!(o.format==='jpeg'&&o.bg==='none');
 }
-/** The most common colour among the border pixels: what a product shot's backdrop nearly always is. */
-export function borderColor(c){
- const w=c.width,h=c.height,ctx=c.getContext('2d',{willReadFrequently:true}),counts=new Map();let best=null,top=0;
- const take=d=>{for(let i=0;i<d.length;i+=4){if(d[i+3]<8)continue;const k=(d[i]>>3<<10)|(d[i+1]>>3<<5)|(d[i+2]>>3),e=counts.get(k)||[0,0,0,0];e[0]++;e[1]+=d[i];e[2]+=d[i+1];e[3]+=d[i+2];counts.set(k,e);if(e[0]>top){top=e[0];best=e;}}};
- take(ctx.getImageData(0,0,w,1).data);take(ctx.getImageData(0,h-1,w,1).data);take(ctx.getImageData(0,0,1,h).data);take(ctx.getImageData(w-1,0,1,h).data);
- return best?[1,2,3].map(i=>Math.round(best[i]/best[0])):[255,255,255];
-}
+// The backdrop colour is read off the border: src/color-background.js, shared with the sprite slicer.
+export {borderColor};
 // Cut-outs are kept for the few photos someone is actively working on; older ones are recomputed.
 const cuts=new Map(),edits=new WeakMap(),KEEP=4;
 const cutKey=o=>o.mode==='ai'?`ai|${o.quality}|${o.refine}|${o.cleanup}`:`color|${o.key==='custom'?o.keyColor:'auto'}|${o.tolerance}`;

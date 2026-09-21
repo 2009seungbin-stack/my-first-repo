@@ -227,6 +227,73 @@ with sync_playwright() as pw:
     page.locator('[data-action="task-clear"]').click();ok('clear returns to the drop zone',page.locator('.dropzone').is_visible())
     txt=page.evaluate('()=>new Promise(r=>{const i=document.querySelector("#fileInput");const dt=new DataTransfer();dt.items.add(new File(["x"],"notes.txt",{type:"text/plain"}));i.files=dt.files;i.dispatchEvent(new Event("change"));setTimeout(()=>r(document.querySelector("#toast").textContent),200)})')
     ok('wrong file type is explained, not ignored',len(txt)>5)
+    # --- game assets: sprite slicer / frame normaliser / RGBA mask packer (src/task/*.js) ---
+    def sheet_png(w,h,boxes):
+        im=Image.new('RGBA',(w,h),(0,0,0,0))
+        for (x0,y0,x1,y1),c in boxes:
+            for x in range(x0,x1+1):
+                for y in range(y0,y1+1):im.putpixel((x,y),c)
+        b=io.BytesIO();im.save(b,'PNG');return {'name':'sheet.png','mimeType':'image/png','buffer':b.getvalue()}
+    def file_of(name,im):
+        b=io.BytesIO();im.save(b,'PNG');return {'name':name,'mimeType':'image/png','buffer':b.getvalue()}
+    page.goto(BASE+'/en/sprite-slicer/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
+    page.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
+    ok('the slicer outlines the frames it found, with no Run button',
+       page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>[+n.getAttribute("x"),+n.getAttribute("width")])')==[[1,5],[20,8]])
+    page.locator('.frame-chip[data-index="1"]').click();page.wait_for_timeout(150)
+    ok('selecting a frame offers resize handles and exact numbers',page.locator('.slicer-handle').count()==8 and page.locator('#slicerRectW').input_value()=='8')
+    page.fill('#slicerRectW','6');page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path());meta=json.loads(z.read('metadata.json'))
+    ok('the edited frame decides the exported PNG and the metadata',
+       Image.open(io.BytesIO(z.read('sheet_002.png'))).size==(6,12) and meta['frames'][1]['w']==6 and meta['schemaVersion']==1,str(meta['frames'][1]))
+    page.locator('[data-action="slicer-undo"]').click();page.wait_for_timeout(200)
+    ok('undo restores the previous frame rectangle',page.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("width"))')==[5,8])
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('#slicerTrim').check();page.locator('[data-key="canvas"][data-value="common"]').click()
+    page.locator('#slicerWantGif').check();page.locator('#slicerWantStrip').check();page.wait_for_timeout(500);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'sheet_00{i}.png'))).convert('RGBA') for i in (1,2)]
+    ok('one canvas for all frames gives one size and one bottom edge',a.size==b.size==(8,12) and a.getbbox()[3]==b.getbbox()[3]==12,f'{a.size} {b.size}')
+    ok('the horizontal strip PNG is the frames side by side',Image.open(io.BytesIO(z.read('sheet_strip.png'))).size==(16,12))
+    gif_out=Image.open(io.BytesIO(z.read('sheet.gif')));gif_out.seek(0)
+    ok('the animated GIF is a real GIF with a transparent cut-out',
+       gif_out.n_frames==2 and gif_out.size==(8,12) and gif_out.info.get('transparency')==0 and gif_out.convert('RGBA').getpixel((0,0))[3]==0)
+    page.goto(BASE+'/en/normalize-sprite-frames/',wait_until='networkidle')
+    tall=Image.new('RGBA',(20,20),(0,0,0,0));[tall.putpixel((x,y),(255,0,0,255)) for x in range(2,6) for y in range(2,10)]
+    wide=Image.new('RGBA',(12,12),(0,0,0,0));[wide.putpixel((x,y),(0,0,255,255)) for x in range(3,9) for y in range(2,5)]
+    page.locator('#fileInput').set_input_files(files=[file_of('tall.png',tall),file_of('wide.png',wide)])
+    page.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
+    ok('the normaliser shows the common canvas before any download',page.locator('#normSummary .summary-big').inner_text()=='6 × 8')
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
+    ok('normalised frames share one canvas and one bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8,f'{a.getbbox()} {b.getbbox()}')
+    page.locator('[data-key="align"][data-value="top"]').click();page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    a,b=[Image.open(io.BytesIO(z.read(f'frames/frame-{i:03}.png'))).convert('RGBA') for i in (1,2)]
+    ok('changing the anchor really moves the pixels',a.getbbox()[1]==b.getbbox()[1]==0,f'{a.getbbox()} {b.getbbox()}')
+    page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
+    page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
+    ok('the packer previews the pack and every channel on its own',page.locator('#maskPreviews canvas').count()==4 and page.locator('#maskFiles .file').count()==3)
+    for channel,value in enumerate(['input2','input0','input1','zero']):page.locator(f'[data-channel="{channel}"]').select_option(value)
+    page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('the packed PNG keeps exact channel bytes under zero alpha',set(im.getdata())=={(220,10,80,0)},str(set(im.getdata())))
+    page.locator('[data-action="mask-preset"][data-value="unreal-orm"]').click();page.wait_for_timeout(300);ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    im=Image.open(d.value.path()).convert('RGBA')
+    ok('the Unreal ORM preset really reorders the channels',set(im.getdata())=={(10,80,220,255)},str(set(im.getdata())))
+    page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
+    ok('a differently sized mask is explained instead of failing silently',
+       page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:
