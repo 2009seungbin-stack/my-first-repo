@@ -422,6 +422,92 @@ with sync_playwright() as pw:
     page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
     ok('a differently sized mask is explained instead of failing silently',
        page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
+    # --- Texture Lab (src/task/texture-lab*.js): one set of maps, seven stages ---------------
+    def grey(name,v,size=(64,64)):return file_of(name,Image.new('RGBA',size,(v,v,v,255)))
+    def ramp(name,size=(64,64)):
+        im=Image.new('RGBA',size,(0,0,0,255))
+        for y in range(size[1]):
+            for x in range(size[0]):im.putpixel((x,y),(y*4%256,y*4%256,y*4%256,255))
+        return file_of(name,im)
+    packed=Image.new('RGBA',(32,32))
+    for y in range(32):
+        for x in range(32):packed.putpixel((x,y),(200+x%40,60+y%60,10+(x*y)%30,0 if x<16 else 255))
+    sprite=Image.new('RGBA',(32,32),(0,0,0,0))
+    for y in range(10,22):
+        for x in range(10,22):sprite.putpixel((x,y),(210,40,30,255))
+    page.goto(BASE+'/en/game/texture-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[grey('rock_basecolor.png',180),ramp('rock_height.png'),file_of('rock_orm.png',packed)])
+    page.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===3',timeout=60000)
+    ok('filenames classify into map roles without being asked',
+       page.locator('#texFiles select').evaluate_all('els=>els.map(e=>e.value)')==['albedo','height','orm'])
+    ok('the set is checked against the workflow, slot by slot',
+       page.locator('.tex-slots li').count()>=6 and page.locator('.tex-issues li').count()>0)
+    ok('the checks name the file and the measurement, not just a code',
+       'rock_orm.png' in page.locator('.tex-issues').inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    report=json.loads(Path(d.value.path()).read_text(encoding='utf-8'))
+    orm_entry=[t for t in report['textures'] if t['name']=='rock_orm.png'][0]
+    ok('the check report is envelope JSON with real measurements',
+       report['meta']['schemaVersion']==1 and orm_entry['alpha']['zeroPixels']==16*32 and orm_entry['exactChannels'])
+    # Channels: a packed texture comes apart into exact greyscale PNGs, alpha-0 RGB included.
+    page.locator('[data-action="tex-select"]').last.click()
+    page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click()
+    page.wait_for_function('()=>document.querySelectorAll(".tex-channel canvas").length===4',timeout=60000)
+    ok('every channel is previewed with its engine meaning',
+       page.locator('.tex-channel').count()==4 and 'Ambient occlusion' in page.locator('.tex-channel figcaption').first.inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    planes={n.split('-')[-2]:Image.open(io.BytesIO(z.read(n))) for n in z.namelist()}
+    ok('the unpacker writes one single-channel PNG per channel',
+       sorted(planes)==['a','b','g','r'] and all(im.mode=='L' and im.size==(32,32) for im in planes.values()))
+    ok('channel bytes are exact, including RGB under fully transparent texels',
+       [planes['r'].getpixel((x,0)) for x in (0,15,31)]==[packed.getpixel((x,0))[0] for x in (0,15,31)]
+       and [planes['a'].getpixel((x,0)) for x in (0,31)]==[0,255])
+    # Pack: the same module as the standalone packer, reading its layouts from texture-presets.js.
+    page.locator('[data-action="tex-stage"][data-stage="pack"]').first.click()
+    page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
+    ok('the Pack stage hosts the packer and leaves one primary action on the page',
+       page.locator('#taskDownload').count()==1 and page.locator('[data-action="mask-preset"][data-value="unreal-orm"]').count()==1)
+    # Normal: the flat-normal guarantee, and a convention flip that only moves green.
+    page.locator('[data-action="tex-select"]').nth(1).click()
+    page.locator('[data-action="tex-stage"][data-stage="normal"]').first.click()
+    page.locator('#texNormalOut').wait_for(timeout=60000);page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    gl=Image.open(d.value.path()).convert('RGBA')
+    page.locator('[data-action="tex-normal-set"][data-key="convention"][data-value="directx"]').click();page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    dx=Image.open(d.value.path()).convert('RGBA')
+    a,b=list(gl.getdata()),list(dx.getdata())
+    ok('OpenGL and DirectX outputs differ in green and nowhere else',
+       gl.size==(64,64)==dx.size and [(p[0],p[2],p[3]) for p in a]==[(q[0],q[2],q[3]) for q in b]
+       and [255-p[1] for p in a]==[q[1] for q in b])
+    ok('the engine conventions are shown with the documentation behind them',
+       page.locator('.tex-conventions .tex-doc').count()>=4)
+    # Fix: edge bleed writes RGB under transparent texels and never touches alpha.
+    page.locator('#fileInput').set_input_files(files=[file_of('sprite.png',sprite)]);page.wait_for_timeout(800)
+    page.locator('[data-action="tex-select"]').last.click()
+    page.locator('[data-action="tex-stage"][data-stage="fix"]').first.click()
+    page.locator('#texFixOut').wait_for(timeout=60000);page.wait_for_timeout(600)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    bled=Image.open(d.value.path()).convert('RGBA')
+    ok('edge bleed keeps alpha and only colours transparent texels',
+       [p[3] for p in bled.getdata()]==[p[3] for p in sprite.getdata()]
+       and bled.getpixel((9,10))==(210,40,30,0) and bled.getpixel((15,15))==(210,40,30,255))
+    # Preview: WebGL2 when there is one, an explanation when there is not.
+    page.locator('[data-action="tex-stage"][data-stage="preview"]').first.click();page.wait_for_timeout(1200)
+    ok('the material preview either renders or says why it cannot',
+       page.evaluate('()=>{const c=document.querySelector("#texGL");const f=document.querySelector("#texGLFallback");return (c&&!c.hidden&&c.width>0)||(f&&!f.hidden)}'))
+    # Export: every texture, one at a time, into one ZIP.
+    page.locator('[data-action="tex-stage"][data-stage="export"]').first.click();page.wait_for_timeout(300)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    ok('the batch optimiser exports every texture in one archive',
+       sorted(z.namelist())==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png'])
+    page.set_viewport_size({'width':320,'height':720});page.wait_for_timeout(300)
+    ok('no horizontal scroll in Texture Lab at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click();page.wait_for_timeout(600)
+    ok('no horizontal scroll with four channel previews at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    page.set_viewport_size({'width':1366,'height':900})
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

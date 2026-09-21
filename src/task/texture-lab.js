@@ -218,7 +218,12 @@ export function mount({el,def}){
    // The packer renders its own #taskDownload; the hidden board and side must not keep a second one.
    for(const id of ['#texBoard','#texSide']){const node=q(id);if(node)node.innerHTML='';}
    showPack().catch(error=>toast(error?.message||String(error),{error:true}));
-  }else{renderBoard();renderSide();}
+  }else{
+   // Detached, not destroyed: the packer keeps its files and its mapping for the next visit,
+   // and the page keeps exactly one primary action.
+   packHost?.remove();
+   renderBoard();renderSide();
+  }
   renderFileStrip();
  }
  // ---- Inspect ------------------------------------------------------------------------------
