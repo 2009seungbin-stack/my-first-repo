@@ -215,7 +215,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .tex-stages button[aria-selected=true]{background:var(--blue);color:#fff}
 .tex-stages button:hover:not([aria-selected=true]){background:#e3eaf3}
 .tex-lab .side{padding:14px;position:sticky;top:12px}
-.tex-files{margin-top:16px}.tex-files .file-list{max-height:220px}
+.tex-files{margin-top:16px}.tex-files .file-list{max-height:min(46vh,420px)}
 .tex-role select{border:1px solid #d8e0ea;border-radius:9px;padding:5px 6px;font-size:11.5px;background:#fff;max-width:118px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .tex-slots{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
@@ -235,7 +235,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .tex-pair figcaption,.tex-seam figcaption,.tex-mips figcaption{font-size:11.5px;color:#6b7a90;margin-bottom:5px}
 .tex-pair canvas,.tex-seam canvas,.tex-channel canvas,.tex-mips canvas{width:100%;height:auto;display:block;border-radius:12px;background:
  repeating-conic-gradient(#eef2f7 0% 25%,#fff 0% 50%) 50%/16px 16px;border:1px solid #e6ebf2}
-.tex-channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px;margin-bottom:6px}
+.tex-channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,118px),1fr));gap:12px;margin-bottom:6px}
 .tex-channel figcaption{display:flex;gap:6px;align-items:baseline;font-size:11.5px;color:#6b7a90}
 .tex-channel figcaption b{font-size:13px;color:var(--ink)}
 .tex-channel-foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
@@ -247,6 +247,9 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .tex-conventions li b{font-size:13px}.tex-conventions li span{font-size:11.5px;color:#51647d}
 .tex-conventions li em{font-size:11px;color:#8a97a8;font-style:normal}
 .tex-doc{display:block;font-size:11px;color:var(--blue);font-weight:650;overflow-wrap:anywhere;margin-top:2px}
+.tex-strips{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.tex-seam canvas.strip-v{width:auto;height:min(46vh,300px);image-rendering:pixelated}
+.tex-seam canvas.strip-h{width:100%;height:auto;image-rendering:pixelated;flex:1 1 auto;min-width:0}
 .tex-mips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,110px),1fr));gap:10px;align-items:start}
 .tex-plan{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:15px;font-weight:800;color:var(--ink)}
 .tex-plan em{font-size:11.5px;font-weight:600;color:#6b7a90;font-style:normal}
@@ -261,10 +264,15 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .tex-gl-fallback{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#e6ebf2;font-size:13px;line-height:1.6;margin:0}
 .tex-assign{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;margin-top:12px}
 .tex-assign .field{margin:0}
+.tex-pack>div{display:block}.tex-pack .work{margin:0}
+#maskPreset{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+#maskPreset .chip[aria-pressed=true]{background:var(--blue);color:#fff}
 .tex-lab .chips-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .tex-lab .chips-row .chip.is-on{background:var(--blue);color:#fff}
 .tex-lab button.is-busy{opacity:.6}
 .tex-lab .summary.bad{background:#fdecea}.tex-lab .summary.bad .summary-big{color:#c0392b}
 @media(max-width:860px){.tex-lab .work{grid-template-columns:minmax(0,1fr)}.tex-lab .side{position:static}.tex-gl{aspect-ratio:1 / 1}}
-@media(max-width:600px){.tex-slots,.tex-conventions,.tex-pipeline,.tex-assign,.tex-channels{grid-template-columns:minmax(0,1fr)}
+@media(max-width:600px){.tex-slots,.tex-conventions,.tex-pipeline,.tex-assign{grid-template-columns:minmax(0,1fr)}
+ .tex-channels{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tex-strips{flex-direction:column}.tex-seam canvas.strip-v{height:min(30vh,220px)}
  .tex-role select{max-width:88px}.tex-table th:nth-child(4),.tex-table td:nth-child(4){display:none}}

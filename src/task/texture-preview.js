@@ -44,7 +44,7 @@ void main(){
  vec3 F0=mix(vec3(0.04),albedo,metal),F=F0+(1.0-F0)*pow(1.0-VdH,5.0);
  vec3 spec=D*G*F/(4.0*NdV*NdL+1e-4)*NdL;
  vec3 diffuse=(1.0-metal)*albedo/PI*NdL;
- vec3 ambient=albedo*0.14*ao*(1.0-metal*0.6);
+ vec3 ambient=albedo*0.22*ao*(1.0-metal*0.6);
  vec3 color=(diffuse+spec)*uLight+ambient+emission;
  color=color/(color+1.0);
  outColor=vec4(pow(color,vec3(1.0/2.2)),1.0);
@@ -96,7 +96,7 @@ function geometry(shape){
  }
  return {positions:new Float32Array(positions),normals:new Float32Array(normals),tangents:new Float32Array(tangents),uvs:new Float32Array(uvs),indices:new Uint16Array(indices)};
 }
-let gl=null,program=null,buffers=null,vao=null,textures=new Map(),shape='',pending=0,view={yaw:.6,pitch:.2,light:.8,tiling:1,shape:'sphere',normalStrength:1,greenFlip:1,roughness:.5,metallic:0,invertRough:false,exposure:2.6},assign={},ready=false;
+let gl=null,program=null,buffers=null,vao=null,textures=new Map(),shape='',pending=0,view={yaw:.6,pitch:.2,light:.8,tiling:1,shape:'sphere',normalStrength:1,greenFlip:1,roughness:.5,metallic:0,invertRough:false,exposure:3.4},assign={},ready=false;
 function compile(context,type,source){
  const shader=context.createShader(type);
  context.shaderSource(shader,source);context.compileShader(shader);
@@ -128,12 +128,17 @@ function upload(name){
  buffers.index=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,buffers.index);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
  buffers.count=indices.length;shape=name;
 }
-async function textureFor(entry){
+/** Binds the entry's texture to `unit`, creating it on first use. Creation also binds, so the
+ * unit is selected before any bind: otherwise a lazily created texture would replace whatever
+ * the previously active unit was holding, and a later role's map would be read as an earlier
+ * one's (albedo showing the roughness map, which is exactly what happened once). */
+async function textureFor(entry,unit){
  const key=String(entry.id),existing=textures.get(key);
- if(existing)return existing;
+ if(existing){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,existing);return existing;}
  const bitmap=await createImageBitmap(entry.file);
  try{
   const texture=gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0+unit);
   gl.bindTexture(gl.TEXTURE_2D,texture);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bitmap);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
@@ -190,8 +195,7 @@ async function draw(ctx){
  for(const role of ROLE_SLOTS){
   const entry=ctx.entryOf(assign[role]),[sampler,flag]=SLOT_UNIFORMS[role];
   if(!entry){gl.uniform1f(uniform(flag),0);continue;}
-  const texture=await textureFor(entry);keep.add(String(entry.id));
-  gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,texture);
+  await textureFor(entry,unit);keep.add(String(entry.id));
   gl.uniform1i(uniform(sampler),unit);
   gl.uniform1f(uniform(flag),1);
   if(role==='roughness')gl.uniform4fv(uniform('uRoughSel'),selectorFor('roughness',entry,preset));
@@ -214,6 +218,8 @@ function autoAssign(ctx){
 export const previewStage={
  board(ctx){
   const {T,esc}=ctx;
+  // Assign before the HTML is built, so the drop-downs show what the shader is actually using.
+  if(!Object.keys(assign).length)autoAssign(ctx);
   return `<div class="view-head"><strong>${esc(T('previewTitle'))}</strong><span>${esc(T('previewApprox'))}</span></div>
 <div class="tex-gl" id="texGLHost"><canvas id="texGL" tabindex="0" role="img" aria-label="${esc(T('previewCanvas'))}"></canvas><p class="tex-gl-fallback" id="texGLFallback" hidden>${esc(T('noWebGL'))}</p></div>
 <p class="viewer-note">${esc(T('previewNote'))}</p>
@@ -235,7 +241,6 @@ ${range('yaw',T('yaw'),-3.14,3.14,.02)}${range('pitch',T('pitch'),-1.4,1.4,.02)}
 <nav class="next"><span>${esc(T('nextStage'))}</span><button type="button" class="chip" data-action="tex-stage" data-stage="fix">${esc(T('stage.fix'))}</button></nav><small class="local-note">${esc(ctx.text('local'))}</small>`;
  },
  mounted(ctx){
-  if(!Object.keys(assign).length)autoAssign(ctx);
   const canvas=ctx.q('#texGL');if(!canvas)return;
   try{
    if(!gl&&!setup(canvas))throw Error('no-webgl2');

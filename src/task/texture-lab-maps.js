@@ -15,7 +15,10 @@ export const normalDefaults=query=>({
  wrap:query?.get('wrap')==='1',invertX:false,invertY:false,detail:null,detailStrength:1,source:'luminance'
 });
 export const channelDefaults=()=>({preset:'unreal-orm',invert:{r:false,g:false,b:false,a:false}});
-const clampNumber=(value,fallback,min,max)=>{const n=Number(value);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback;};
+const clampNumber=(value,fallback,min,max)=>{
+ if(value===null||value===undefined||value==='')return fallback;
+ const n=Number(value);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback;
+};
 const seg=(action,key,values,label,current,esc)=>`<div class="segmented" role="group">${values.map(v=>`<button type="button" data-action="${action}" data-key="${key}" data-value="${v}" aria-pressed="${String(current)===String(v)}">${esc(label(v))}</button>`).join('')}</div>`;
 const docLink=(doc,esc)=>`<a class="tex-doc" href="${esc(doc.url)}" target="_blank" rel="noopener nofollow">${esc(doc.title)}${doc.section?` — ${esc(doc.section)}`:''}</a>`;
 // ---- Normal ---------------------------------------------------------------------------------
@@ -100,17 +103,24 @@ let timer=0;
 const schedule=ctx=>{clearTimeout(timer);timer=setTimeout(()=>refreshNormal(ctx),90);};
 async function refreshNormal(ctx){
  const entry=ctx.activeEntry();if(!entry||ctx.state.stage!=='normal')return;
- const summary=ctx.q('#texNormalSummary'),note=ctx.q('#texNormalNote');
+ // Looked up after every await: the side panel is re-rendered while this runs, so an element
+ // captured before the first await would be the detached one.
+ const summary=()=>ctx.q('#texNormalSummary'),note=()=>ctx.q('#texNormalNote');
  try{
   const pixels=await ctx.samplePixels(entry);
   ctx.paint(ctx.q('#texNormalSource'),pixels.data,pixels.width,pixels.height);
   const result=await normalResult(ctx,pixels);
   ctx.paint(ctx.q('#texNormalOut'),result.data,result.width,result.height);
   const report=validateNormalMap(result.data,result.width,result.height),bias=greenBias(result.data,result.width,result.height);
-  if(summary)summary.innerHTML=`<div class="summary-big">${report.looksLikeNormalMap?'✓':'!'}</div><div class="summary-line">${ctx.esc(ctx.T('normalCheck',{len:report.meanLength.toFixed(3),dev:report.maxDeviation.toFixed(3)}))}</div>`;
-  if(note)note.textContent=ctx.T('normalNote',{green:bias.aboveRatio>.5?ctx.T('greenUp'):ctx.T('greenDown'),step:pixels.step});
+  const box=summary();
+  if(box)box.classList.toggle('bad',!report.looksLikeNormalMap);
+  if(box)box.innerHTML=`<div class="summary-big">${report.looksLikeNormalMap?'✓':'!'}</div><div class="summary-line">${ctx.esc(ctx.T('normalCheck',{len:report.meanLength.toFixed(3),dev:report.maxDeviation.toFixed(3)}))}</div>`;
+  const line=note();
+  if(line)line.textContent=ctx.T('normalNote',{green:bias.aboveRatio>.5?ctx.T('greenUp'):ctx.T('greenDown'),step:pixels.step});
  }catch(error){
-  if(summary)summary.innerHTML=`<div class="summary-big">!</div><div class="summary-line">${ctx.esc(error?.message||String(error))}</div>`;
+  const box=summary();
+  if(box)box.classList.add('bad');
+  if(box)box.innerHTML=`<div class="summary-big">!</div><div class="summary-line">${ctx.esc(error?.message||String(error))}</div>`;
  }
 }
 async function saveNormal(ctx){
@@ -143,7 +153,7 @@ ${c.invertOf||c.role==='roughness'?`<button type="button" class="mini-button" da
 <p class="viewer-note">${esc(preset.note?.[locale]||'')} ${docLink(preset.doc,esc)} ${preset.orderDoc?docLink(preset.orderDoc,esc):''}</p>
 <div class="view-head"><strong>${esc(T('packTitle'))}</strong></div>
 <p class="viewer-note">${esc(T('packNote'))}</p>
-<a class="chip" href="${esc(ctx.toolURL('mask-packer'))}">${esc(T('openPacker'))}</a>`;
+<div class="chips-row"><button type="button" class="chip" data-action="tex-stage" data-stage="pack">${esc(T('stage.pack'))}</button><a class="chip" href="${esc(ctx.toolURL('mask-packer'))}">${esc(T('openPacker'))}</a></div>`;
  },
  side(ctx){
   const {T,esc,state}=ctx,locale=L();

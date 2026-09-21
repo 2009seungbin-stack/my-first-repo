@@ -7,6 +7,8 @@ export const CHANNEL_LETTERS=Object.freeze(['r','g','b','a']);
 const channel=(letter,role,label,tooltip,extra={})=>({channel:letter,role,label,tooltip,colorSpace:'linear',...extra});
 export const ENGINE_PRESETS=Object.freeze({
  'unity-hdrp-mask':{
+  short:{ko:'Unity HDRP 마스크',en:'Unity HDRP mask',ja:'Unity HDRP マスク'},
+
   engine:'unity',
   label:{ko:'Unity HDRP 마스크 맵',en:'Unity HDRP Mask Map',ja:'Unity HDRP マスクマップ'},
   summary:{ko:'R 메탈릭 · G 앰비언트 오클루전 · B 디테일 마스크 · A 스무스니스',en:'R metallic · G ambient occlusion · B detail mask · A smoothness',ja:'R メタリック・G アンビエントオクルージョン・B ディテールマスク・A スムースネス'},
@@ -19,6 +21,8 @@ export const ENGINE_PRESETS=Object.freeze({
    channel('a','smoothness',{ko:'스무스니스',en:'Smoothness',ja:'スムースネス'},{ko:'러프니스의 반대값입니다. 러프니스 맵을 넣으려면 255에서 뺀 값으로 반전하세요.',en:'The inverse of roughness. A roughness map must be inverted (255 − value) before it goes here.',ja:'ラフネスの逆値。ラフネスマップは255から引いて反転してください。'},{invertOf:'roughness'})
   ]},
  'unity-urp-metallic':{
+  short:{ko:'Unity 메탈릭+스무스니스',en:'Unity metallic + smoothness',ja:'Unity メタリック+スムースネス'},
+
   engine:'unity',
   label:{ko:'Unity URP·내장 메탈릭 맵',en:'Unity URP / Built-in Metallic map',ja:'Unity URP・組み込みメタリックマップ'},
   summary:{ko:'R 메탈릭 (G·B 무시) · A 스무스니스',en:'R metallic (G and B ignored) · A smoothness',ja:'R メタリック（G・Bは無視）・A スムースネス'},
@@ -32,6 +36,8 @@ export const ENGINE_PRESETS=Object.freeze({
    channel('a','smoothness',{ko:'스무스니스',en:'Smoothness',ja:'スムースネス'},{ko:'러프니스의 반대값입니다. PNG의 알파이므로 저장할 때 알파가 눌리지 않아야 합니다.',en:'The inverse of roughness. It lives in the PNG alpha, so the file must keep its alpha intact.',ja:'ラフネスの逆値。PNGのアルファに入るため、保存時にアルファが失われない必要があります。'},{invertOf:'roughness'})
   ]},
  'unreal-orm':{
+  short:{ko:'Unreal ORM',en:'Unreal ORM',ja:'Unreal ORM'},
+
   engine:'unreal',
   label:{ko:'Unreal ORM (glTF 배치)',en:'Unreal ORM (glTF layout)',ja:'Unreal ORM（glTF配置）'},
   summary:{ko:'R 오클루전 · G 러프니스 · B 메탈릭',en:'R occlusion · G roughness · B metallic',ja:'R オクルージョン・G ラフネス・B メタリック'},
@@ -46,6 +52,8 @@ export const ENGINE_PRESETS=Object.freeze({
    channel('a','unused',{ko:'사용 안 함',en:'Unused',ja:'未使用'},{ko:'비워 둡니다. 알파를 쓰면 압축 크기만 커집니다.',en:'Left empty; an unused alpha channel only costs memory.',ja:'空のままにします。使わないアルファは容量だけ増えます。'})
   ]},
  'godot-orm':{
+  short:{ko:'Godot 4 ORM',en:'Godot 4 ORM',ja:'Godot 4 ORM'},
+
   engine:'godot',
   label:{ko:'Godot 4 ORMMaterial3D',en:'Godot 4 ORMMaterial3D',ja:'Godot 4 ORMMaterial3D'},
   summary:{ko:'R 오클루전 · G 러프니스 · B 메탈릭',en:'R occlusion · G roughness · B metallic',ja:'R オクルージョン・G ラフネス・B メタリック'},
@@ -60,6 +68,8 @@ export const ENGINE_PRESETS=Object.freeze({
    channel('a','unused',{ko:'사용 안 함',en:'Unused',ja:'未使用'},{ko:'ORM 텍스처는 알파를 쓰지 않습니다.',en:'An ORM texture does not use alpha.',ja:'ORMテクスチャはアルファを使いません。'})
   ]},
  'gltf-metallic-roughness':{
+  short:{ko:'glTF 2.0',en:'glTF 2.0',ja:'glTF 2.0'},
+
   engine:'generic',
   label:{ko:'glTF 2.0 메탈릭·러프니스',en:'glTF 2.0 metallic-roughness',ja:'glTF 2.0 メタリック・ラフネス'},
   summary:{ko:'G 러프니스 · B 메탈릭 (오클루전은 R, 같은 텍스처를 써도 됨)',en:'G roughness · B metallic (occlusion in R, may share the same texture)',ja:'G ラフネス・B メタリック（オクルージョンはR、同一テクスチャ可）'},

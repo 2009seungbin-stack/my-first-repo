@@ -214,7 +214,7 @@ S.ja.mask={drop:'グレースケールのマスクを最大4枚ドロップ',dro
  add:'+ マスクを追加',run:'PNGをダウンロード',working:'作成中…',done:'PNGで保存しました（{size}）',needInput:'先に画像をドロップしてください',needChannel:'少なくとも1枚をチャンネルに割り当ててください',sizeMismatch:'入力画像のサイズが一致しません',mismatch:'サイズ不一致',unused:'未使用',onlyFour:'チャンネルは4つなので4枚までを使用します。'};
 // Texture Lab (src/task/texture-lab*.js): PBR texture preparation and checking.
 S.en.texture={drop:'Drop your texture maps here',dropHint:'Albedo, normal, roughness, metallic, AO, ORM — several at once',
- stages:'Texture Lab stages',stage:{inspect:'Inspect',normal:'Normal',channels:'Channels',preview:'Preview',fix:'Fix',export:'Export'},
+ stages:'Texture Lab stages',stage:{inspect:'Inspect',normal:'Normal',channels:'Channels',pack:'Pack',preview:'Preview',fix:'Fix',export:'Export'},
  files:'Textures',reading:'Reading…',notExact:'decoded by the browser (not byte-exact)',assignRole:'Which map is {name}?',
  role:{albedo:'Albedo / base colour',normal:'Normal',roughness:'Roughness',smoothness:'Smoothness',metallic:'Metallic',ao:'Ambient occlusion',height:'Height',emission:'Emission',orm:'Packed (ORM / mask)',opacity:'Opacity',specular:'Specular',unknown:'Not classified'},
  setTitle:'Texture set',workflowLabel:'Target workflow',workflow:{'metallic-roughness':'Separate maps (glTF / generic)','unity-hdrp-mask':'Unity HDRP mask map','unity-urp-metallic':'Unity URP / Built-in metallic','unreal-orm':'Unreal ORM','godot-orm':'Godot 4 ORM'},
@@ -280,7 +280,7 @@ S.en.texture={drop:'Drop your texture maps here',dropHint:'Albedo, normal, rough
  mipLevels:'Smallest level',mipNote:'Plain per-channel box average. Watch the edges and the seams: what breaks here breaks in the engine at distance.',mipSummary:'{n} levels below the original',
  potModeLabel:'Fit',potMode:{nearest:'Nearest',down:'Down',up:'Up',fit:'Fit'},potMax:'Largest side',makeSquare:'Make it square',plan:'Plan',potChange:'will be resampled',potAlready:'already a power of two',
  potNote:'Many GPU formats and mipmap chains want power-of-two sides. Resampling is done with the quality resampler, not a canvas draw.',
- repeatPreview:'Repeated 2×2',edgeHeat:'Edge difference',seamNote:'The heat strip shows the difference between the last and the first column, row by row. A seam is only a seam when it stands out against the variation one texel inside.',
+ repeatPreview:'Repeated 2×2',seamVertical:'Difference between the last and the first column, row by row',seamHorizontal:'Difference between the last and the first row, column by column',edgeHeat:'Edge difference',seamNote:'The heat strip shows the difference between the last and the first column, row by row. A seam is only a seam when it stands out against the variation one texel inside.',
  seamStat:'Vertical {v} (×{rv} interior) · horizontal {h} (×{rh})',seamOk:'No seam stands out',seamBad:'The wrapped edges do not match',
  heightFromLabel:'Height from',heightFrom:{luminance:'Luminance',edges:'Edges'},smooth:'Smoothing',invertHeight:'Invert (dark is high)',
  radius:'Radius',approxNote:'Approximation, not a bake',aoNote:'Approximation from height — not ray-traced ambient occlusion',
@@ -293,7 +293,7 @@ S.en.texture={drop:'Drop your texture maps here',dropHint:'Albedo, normal, rough
  batchOrder:'Order: resize → bleed → encode.',batchResize:'Resize',batchFormat:'Format',batchBleed:'Edge bleed',keepSize:'Keep size',noBleed:'None',
  step:{resize:'Resize',format:'Encode',bleed:'Edge bleed'},runBatch:'Optimise {n} texture(s)',exportSummary:'{done} done'};
 S.ko.texture={drop:'텍스처 맵을 여기에 놓으세요',dropHint:'알베도·노멀·러프니스·메탈릭·AO·ORM — 여러 장 한 번에',
- stages:'텍스처 랩 단계',stage:{inspect:'점검',normal:'노멀',channels:'채널',preview:'미리보기',fix:'보정',export:'내보내기'},
+ stages:'텍스처 랩 단계',stage:{inspect:'점검',normal:'노멀',channels:'채널',pack:'패킹',preview:'미리보기',fix:'보정',export:'내보내기'},
  files:'텍스처',reading:'읽는 중…',notExact:'브라우저 디코딩(바이트 정확 아님)',assignRole:'{name}은(는) 어떤 맵인가요?',
  role:{albedo:'알베도·베이스 컬러',normal:'노멀',roughness:'러프니스',smoothness:'스무스니스',metallic:'메탈릭',ao:'앰비언트 오클루전',height:'하이트',emission:'에미션',orm:'패킹(ORM·마스크)',opacity:'불투명도',specular:'스페큘러',unknown:'분류 안 됨'},
  setTitle:'텍스처 세트',workflowLabel:'대상 워크플로',workflow:{'metallic-roughness':'개별 맵 (glTF·공통)','unity-hdrp-mask':'Unity HDRP 마스크 맵','unity-urp-metallic':'Unity URP·내장 메탈릭','unreal-orm':'Unreal ORM','godot-orm':'Godot 4 ORM'},
@@ -359,7 +359,7 @@ S.ko.texture={drop:'텍스처 맵을 여기에 놓으세요',dropHint:'알베도
  mipLevels:'가장 작은 레벨',mipNote:'채널별 단순 박스 평균입니다. 가장자리와 이음선을 보세요. 여기서 깨지면 엔진에서도 멀리서 깨집니다.',mipSummary:'원본 아래 {n}단계',
  potModeLabel:'맞추기',potMode:{nearest:'가까운 값',down:'내림',up:'올림',fit:'비율 유지'},potMax:'최대 변 길이',makeSquare:'정사각형으로',plan:'계획',potChange:'리샘플링 필요',potAlready:'이미 2의 거듭제곱',
  potNote:'많은 GPU 포맷과 밉맵 체인은 2의 거듭제곱 변을 요구합니다. 리샘플링은 캔버스 확대가 아니라 고품질 리샘플러로 합니다.',
- repeatPreview:'2×2 반복',edgeHeat:'경계 차이',seamNote:'열지도는 마지막 열과 첫 열의 차이를 행마다 보여줍니다. 한 텍셀 안쪽의 변화보다 두드러질 때만 이음선입니다.',
+ repeatPreview:'2×2 반복',seamVertical:'마지리 열과 첫 열의 행별 차이',seamHorizontal:'마지리 행과 첫 행의 열별 차이',edgeHeat:'경계 차이',seamNote:'열지도는 마지막 열과 첫 열의 차이를 행마다 보여줍니다. 한 텍셀 안쪽의 변화보다 두드러질 때만 이음선입니다.',
  seamStat:'세로 {v} (안쪽의 {rv}배) · 가로 {h} ({rh}배)',seamOk:'두드러지는 이음선이 없습니다',seamBad:'이어지는 경계가 맞지 않습니다',
  heightFromLabel:'높이 출처',heightFrom:{luminance:'밝기',edges:'윤곽'},smooth:'스무딩',invertHeight:'반전 (어두운 곳이 높음)',
  radius:'반경',approxNote:'베이크가 아닌 근사',aoNote:'높이 기반 근사 — 레이트레이싱 앰비언트 오클루전이 아닙니다',
@@ -372,7 +372,7 @@ S.ko.texture={drop:'텍스처 맵을 여기에 놓으세요',dropHint:'알베도
  batchOrder:'순서: 크기 변경 → 번짐 → 인코딩.',batchResize:'크기 변경',batchFormat:'형식',batchBleed:'가장자리 번짐',keepSize:'크기 유지',noBleed:'없음',
  step:{resize:'크기 변경',format:'인코딩',bleed:'가장자리 번짐'},runBatch:'텍스처 {n}개 최적화',exportSummary:'{done}개 완료'};
 S.ja.texture={drop:'テクスチャマップをここに置いてください',dropHint:'アルベド・ノーマル・ラフネス・メタリック・AO・ORM — 複数まとめて',
- stages:'テクスチャラボの段階',stage:{inspect:'点検',normal:'ノーマル',channels:'チャンネル',preview:'プレビュー',fix:'補正',export:'書き出し'},
+ stages:'テクスチャラボの段階',stage:{inspect:'点検',normal:'ノーマル',channels:'チャンネル',pack:'パック',preview:'プレビュー',fix:'補正',export:'書き出し'},
  files:'テクスチャ',reading:'読み込み中…',notExact:'ブラウザでデコード（バイト厳密ではありません）',assignRole:'{name} はどのマップですか？',
  role:{albedo:'アルベド・ベースカラー',normal:'ノーマル',roughness:'ラフネス',smoothness:'スムースネス',metallic:'メタリック',ao:'アンビエントオクルージョン',height:'ハイト',emission:'エミッション',orm:'パック済み（ORM・マスク）',opacity:'不透明度',specular:'スペキュラ',unknown:'未分類'},
  setTitle:'テクスチャセット',workflowLabel:'対象ワークフロー',workflow:{'metallic-roughness':'個別マップ（glTF・汎用）','unity-hdrp-mask':'Unity HDRP マスクマップ','unity-urp-metallic':'Unity URP・組み込みメタリック','unreal-orm':'Unreal ORM','godot-orm':'Godot 4 ORM'},
@@ -438,7 +438,7 @@ S.ja.texture={drop:'テクスチャマップをここに置いてください',d
  mipLevels:'最小レベル',mipNote:'チャンネルごとの単純な箱平均です。端と継ぎ目を見てください。ここで崩れるものはエンジンでも遠景で崩れます。',mipSummary:'元より{n}段階下まで',
  potModeLabel:'合わせ方',potMode:{nearest:'近い値',down:'切り下げ',up:'切り上げ',fit:'比率維持'},potMax:'最大の辺',makeSquare:'正方形にする',plan:'計画',potChange:'リサンプリングします',potAlready:'すでに2の累乗',
  potNote:'多くのGPUフォーマットとミップマップ連鎖は2の累乗の辺を求めます。リサンプリングはキャンバス拡大ではなく高品質リサンプラーで行います。',
- repeatPreview:'2×2で繰り返し',edgeHeat:'端の差',seamNote:'ヒートストリップは最後の列と最初の列の差を行ごとに示します。1テクセル内側の変化より目立つときだけ継ぎ目です。',
+ repeatPreview:'2×2で繰り返し',seamVertical:'最後の列と最初の列の行ごとの差',seamHorizontal:'最後の行と最初の行の列ごとの差',edgeHeat:'端の差',seamNote:'ヒートストリップは最後の列と最初の列の差を行ごとに示します。1テクセル内側の変化より目立つときだけ継ぎ目です。',
  seamStat:'縦 {v}（内側の{rv}倍）・横 {h}（{rh}倍）',seamOk:'目立つ継ぎ目はありません',seamBad:'つながる端が一致しません',
  heightFromLabel:'高さの取得元',heightFrom:{luminance:'明度',edges:'輪郭'},smooth:'スムージング',invertHeight:'反転（暗い方を高く）',
  radius:'半径',approxNote:'ベイクではなく近似',aoNote:'高さに基づく近似 — レイトレーシングのアンビエントオクルージョンではありません',

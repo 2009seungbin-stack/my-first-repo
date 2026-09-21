@@ -19,7 +19,7 @@ import {previewStage} from './texture-preview.js';
  * rather than a canvas, because canvas pixels are premultiplied and lose RGB under alpha 0. */
 export const accept='image/*';
 export const TOOL_VERSION='1';
-export const STAGES=Object.freeze(['inspect','normal','channels','preview','fix','export']);
+export const STAGES=Object.freeze(['inspect','normal','channels','pack','preview','fix','export']);
 /** Which stage an intent URL opens. The old texture-map / normal-map-generator route lands on
  * the Normal stage, so a bookmarked link still does what it used to. */
 const STAGE_FOR=Object.freeze({'texture-map':'normal','normal-map-converter':'normal','channel-unpacker':'channels','pbr-texture-validator':'inspect','texture-edge-bleed':'fix','texture-lab':'inspect'});
@@ -157,7 +157,8 @@ export function mount({el,def}){
  }
  function frame(){
   el.innerHTML=`<div class="tex-lab"><nav class="tex-stages" id="texStages" role="tablist" aria-label="${esc(T('stages'))}">${STAGES.map(id=>`<button type="button" role="tab" data-action="tex-stage" data-stage="${id}" aria-selected="${state.stage===id}">${esc(T('stage.'+id))}</button>`).join('')}</nav>
-<div class="work"><section class="board" id="texBoard"></section><aside class="side" id="texSide"></aside></div>
+<div class="work" id="texWork"><section class="board" id="texBoard"></section><aside class="side" id="texSide"></aside></div>
+<div class="tex-pack" id="texPack" hidden></div>
 <div class="tex-files"><div class="view-head"><strong>${esc(T('files'))}</strong><span id="texFileCount"></span><button type="button" class="mini-button" data-action="pick">${esc(text('add'))}</button><button type="button" class="link" data-action="tex-clear">${esc(text('removeAll'))}</button></div><div class="file-list" id="texFiles"></div></div></div>`;
  }
  function renderFileStrip(){
@@ -187,10 +188,38 @@ export function mount({el,def}){
   module?.sideMounted?.(ctx);
   syncBusy();
  }
+ /** The Pack stage is the standalone packer page (src/task/mask-packer.js), mounted once into a
+  * container this Lab keeps alive and moves in and out of the DOM. Reusing the module means the
+  * packer has one implementation, one set of engine presets (src/game/texture-presets.js) and one
+  * set of tests; the Lab only hands it the files that are already open. */
+ let packer=null,packHost=null,packedIds=new Set();
+ async function showPack(){
+  const host=q('#texPack');if(!host)return;
+  if(!packHost){
+   packHost=document.createElement('div');
+   const module=await import('./mask-packer.js');
+   packer=module.mount({el:packHost,def});
+  }
+  if(packHost.parentElement!==host)host.append(packHost);
+  // Up to four maps, greyscale roles first: the packer takes four inputs at most.
+  const order=['ao','roughness','smoothness','metallic','height','opacity'];
+  const candidates=[...state.files].sort((a,b)=>(order.indexOf(a.role)+1||99)-(order.indexOf(b.role)+1||99));
+  const fresh=candidates.filter(f=>!packedIds.has(f.id)).slice(0,4);
+  if(fresh.length){for(const f of fresh)packedIds.add(f.id);await packer.add(fresh.map(f=>f.file));}
+ }
  function render(){
   if(!state.files.length){empty();return;}
   if(!el.querySelector('.tex-lab'))frame();
-  renderStages();renderBoard();renderSide();renderFileStrip();
+  renderStages();
+  const pack=state.stage==='pack',work=q('#texWork'),host=q('#texPack');
+  if(work)work.hidden=pack;
+  if(host)host.hidden=!pack;
+  if(pack){
+   // The packer renders its own #taskDownload; the hidden board and side must not keep a second one.
+   for(const id of ['#texBoard','#texSide']){const node=q(id);if(node)node.innerHTML='';}
+   showPack().catch(error=>toast(error?.message||String(error),{error:true}));
+  }else{renderBoard();renderSide();}
+  renderFileStrip();
  }
  // ---- Inspect ------------------------------------------------------------------------------
  function inspectBoard(){
@@ -305,6 +334,7 @@ ${sorted.length?`<ul class="tex-issues">${sorted.map(i=>`<li class="lvl-${i.leve
   for(const f of state.files)forget(f.thumb);
   samples.clear();
   for(const module of Object.values(STAGE_MODULES))module?.dispose?.(ctx);
+  packHost?.remove();packHost=null;packer=null;packedIds=new Set();
   state.files=[];state.active=null;state.batch=null;empty();
  }
  /** A small four-map set built in the page, so the Lab can be tried without a texture at hand. */

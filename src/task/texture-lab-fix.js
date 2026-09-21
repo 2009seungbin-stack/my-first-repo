@@ -39,7 +39,7 @@ export const fixStage={
   const head=`<div class="view-head"><strong>${esc(T('fixTool.'+o.tool))}</strong><span>${esc(entry.name)} · ${entry.width}×${entry.height}</span></div>`;
   if(o.tool==='mip')return `${head}<div class="tex-mips" id="texMips"></div><p class="viewer-note">${esc(T('mipNote'))}</p>`;
   if(o.tool==='seam')return `${head}<div class="tex-seam"><figure><figcaption>${esc(T('repeatPreview'))}</figcaption><canvas id="texSeamTile"></canvas></figure>
-<figure><figcaption>${esc(T('edgeHeat'))}</figcaption><canvas id="texSeamHeat"></canvas><small id="texSeamStat"></small></figure></div><p class="viewer-note">${esc(T('seamNote'))}</p>`;
+<figure><figcaption>${esc(T('edgeHeat'))}</figcaption><div class="tex-strips"><canvas id="texSeamHeat" class="strip-v" aria-label="${esc(T('seamVertical'))}" role="img"></canvas><canvas id="texSeamHeatH" class="strip-h" aria-label="${esc(T('seamHorizontal'))}" role="img"></canvas></div><small id="texSeamStat"></small></figure></div><p class="viewer-note">${esc(T('seamNote'))}</p>`;
   if(o.tool==='pot')return `${head}<div class="tex-pair"><figure><figcaption>${esc(T('sourceMap'))}</figcaption><canvas id="texFixSource"></canvas></figure><figure><figcaption>${esc(T('plan'))}</figcaption><div class="tex-plan" id="texPotPlan"></div></figure></div><p class="viewer-note">${esc(T('potNote'))}</p>`;
   return `${head}<div class="tex-pair"><figure><figcaption>${esc(T('sourceMap'))}</figcaption><canvas id="texFixSource"></canvas></figure>
 <figure><figcaption>${esc(T('result'))}</figcaption><canvas id="texFixOut"></canvas></figure></div>
@@ -115,7 +115,8 @@ function paintStrip(canvas,profile,horizontal,ctx){
 }
 async function refresh(ctx){
  const entry=ctx.activeEntry();if(!entry||ctx.state.stage!=='fix')return;
- const summary=ctx.q('#texFixSummary'),o=ctx.state.fixOptions;
+ // Re-queried after each await: renderSide() replaces the panel while this runs.
+ const summary=()=>ctx.q('#texFixSummary'),o=ctx.state.fixOptions;
  try{
   const pixels=await ctx.samplePixels(entry);
   ctx.paint(ctx.q('#texFixSource'),pixels.data,pixels.width,pixels.height);
@@ -126,13 +127,13 @@ async function refresh(ctx){
     host.innerHTML=out.chain.map(m=>`<figure><figcaption>1/${2**m.level} · ${m.width}×${m.height}</figcaption><canvas data-mip="${m.level}"></canvas></figure>`).join('');
     for(const m of out.chain)ctx.paint(host.querySelector(`[data-mip="${m.level}"]`),m.data,m.width,m.height);
    }
-   if(summary)summary.innerHTML=`<div class="summary-big">${out.chain.length-1}</div><div class="summary-line">${ctx.esc(ctx.T('mipSummary',{n:out.chain.length-1}))}</div>`;
+   const box=summary();if(box)box.innerHTML=`<div class="summary-big">${out.chain.length-1}</div><div class="summary-line">${ctx.esc(ctx.T('mipSummary',{n:out.chain.length-1}))}</div>`;
    return;
   }
   if(out.plan){
    const host=ctx.q('#texPotPlan');
    if(host)host.innerHTML=`<b>${entry.width}×${entry.height}</b><span>→</span><b>${out.plan.width}×${out.plan.height}</b><em>${ctx.esc(out.plan.changed?ctx.T('potChange'):ctx.T('potAlready'))}</em>`;
-   if(summary)summary.innerHTML=`<div class="summary-big">${out.plan.width}</div><div class="summary-line">${ctx.esc(out.plan.width+'×'+out.plan.height)}</div>`;
+   const box=summary();if(box)box.innerHTML=`<div class="summary-big">${out.plan.width}</div><div class="summary-line">${ctx.esc(out.plan.width+'×'+out.plan.height)}</div>`;
    return;
   }
   if(out.seam){
@@ -147,17 +148,21 @@ async function refresh(ctx){
     ctx.paint(tile,repeated,w*size,h*size);
    }
    paintStrip(ctx.q('#texSeamHeat'),out.seam.vertical.profile,false,ctx);
+   paintStrip(ctx.q('#texSeamHeatH'),out.seam.horizontal.profile,true,ctx);
    const stat=ctx.q('#texSeamStat');
    if(stat)stat.textContent=ctx.T('seamStat',{v:out.seam.vertical.mean.toFixed(1),h:out.seam.horizontal.mean.toFixed(1),rv:Number.isFinite(out.seam.vertical.ratio)?out.seam.vertical.ratio.toFixed(1):'∞',rh:Number.isFinite(out.seam.horizontal.ratio)?out.seam.horizontal.ratio.toFixed(1):'∞'});
-   if(summary)summary.innerHTML=`<div class="summary-big">${out.seam.seamless?'✓':'!'}</div><div class="summary-line">${ctx.esc(out.seam.seamless?ctx.T('seamOk'):ctx.T('seamBad'))}</div>`;
+   const box=summary();if(box)box.classList.toggle('bad',!out.seam.seamless);
+   if(box)box.innerHTML=`<div class="summary-big">${out.seam.seamless?'✓':'!'}</div><div class="summary-line">${ctx.esc(out.seam.seamless?ctx.T('seamOk'):ctx.T('seamBad'))}</div>`;
    return;
   }
   const data=out.plane?planeToRGBA(out.plane,out.width,out.height):out.data;
   ctx.paint(ctx.q('#texFixOut'),data,out.width,out.height);
   const note=ctx.q('#texFixNote');if(note)note.textContent=[out.note,ctx.T('previewStep',{step:pixels.step})].filter(Boolean).join(' · ');
-  if(summary)summary.innerHTML=`<div class="summary-big">✓</div><div class="summary-line">${ctx.esc(ctx.T('fixReady.'+o.tool))}</div>`;
+  const box=summary();if(box)box.classList.remove('bad');
+  if(box)box.innerHTML=`<div class="summary-big">✓</div><div class="summary-line">${ctx.esc(ctx.T('fixReady.'+o.tool))}</div>`;
  }catch(error){
-  if(summary)summary.innerHTML=`<div class="summary-big">!</div><div class="summary-line">${ctx.esc(error?.message||String(error))}</div>`;
+  const box=summary();if(box)box.classList.add('bad');
+  if(box)box.innerHTML=`<div class="summary-big">!</div><div class="summary-line">${ctx.esc(error?.message||String(error))}</div>`;
  }
 }
 /** Full-resolution export of the current Fix tool. The mipmap chain saves as a ZIP of levels;
