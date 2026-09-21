@@ -292,6 +292,55 @@ with sync_playwright() as pw:
       return doc.getPageCount();
     }""",base64.b64encode(opened).decode())
     ok('the unlocked PDF opens with no password and keeps its pages',pages==2,str(pages))
+    # --- PDF editor: redaction really removes, crop sets the box, rotation and forms survive ---
+    page.goto(BASE+'/en/pdf/editor/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    form=page.evaluate("""async()=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const d=await L.PDFDocument.create(),font=await d.embedFont(L.StandardFonts.Helvetica);
+      const one=d.addPage([595,842]);
+      one.drawText('Confidential account 4929-8817-0032-5511',{x:60,y:760,size:14,font});
+      one.drawText('Keep this line',{x:60,y:700,size:14,font});
+      const two=d.addPage([595,842]);
+      for(let i=0;i<12;i++)two.drawText('Clause '+(i+1)+': processed in the browser.',{x:60,y:780-i*28,size:11,font});
+      // The field goes on page two on purpose: page one is redacted below and becomes an image.
+      const field=d.getForm().createTextField('reference');field.addToPage(two,{x:300,y:640,width:220,height:22});
+      const bytes=await d.save();return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+    }""")
+    drop(page,'.dropzone',[{'name':'confidential.pdf','type':'application/pdf','b64':form}])
+    page.wait_for_selector('#edSave');page.wait_for_timeout(900)
+    ok('the editor offers the document’s own form fields',page.locator('#edFormActions:not([hidden])').count()==1)
+    page.click('[data-action="ed-form"]');page.fill('[data-field="0"]','REF-2026-77');page.click('[data-form-ok]')
+    page.click('.ed-tool[data-tool="redact"]')
+    b=page.locator('#edRot').bounding_box()
+    page.mouse.move(b['x']+55,b['y']+b['height']*.07);page.mouse.down()
+    page.mouse.move(b['x']+b['width']*.75,b['y']+b['height']*.115,steps=6);page.mouse.up()
+    page.wait_for_timeout(250)
+    ok('the editor names the pages a redaction will rasterise','1' in page.locator('#edWarn').inner_text() and not page.locator('#edWarn').is_hidden())
+    page.click('.ed-tool[data-tool="crop"]')
+    b=page.locator('#edRot').bounding_box()
+    page.mouse.move(b['x']+b['width']*.05,b['y']+b['height']*.02);page.mouse.down()
+    page.mouse.move(b['x']+b['width']*.95,b['y']+b['height']*.5,steps=8);page.mouse.up()
+    page.wait_for_timeout(250)
+    ok('a crop is recorded for the page',page.locator('.ed-crop').count()==1)
+    page.click('.ed-thumb[data-page="1"]');page.wait_for_timeout(600)
+    page.click('[data-action="ed-rot-right"]');page.wait_for_timeout(800)
+    ok('the rotated page is shown in landscape',page.locator('#edPage').bounding_box()['width']>page.locator('#edPage').bounding_box()['height'])
+    with page.expect_download() as d:page.click('#edSave')
+    edited=Path(d.value.path()).read_bytes()
+    ok('the result says how many pages were rasterised','image' in page.locator('#edResult').inner_text())
+    ok('the redacted string is not in the saved bytes at all',b'4929-8817' not in edited)
+    shape=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      const one=doc.getPage(0),two=doc.getPage(1),box=one.getCropBox();
+      const named=doc.getForm().getFields().map(f=>f.getName());
+      return {pages:doc.getPageCount(),cropW:Math.round(box.width),cropH:Math.round(box.height),
+              rotation:two.getRotation().angle,fields:named,value:named.includes('reference')?doc.getForm().getTextField('reference').getText():null};
+    }""",base64.b64encode(edited).decode())
+    ok('the crop changed the page box, not the page count',shape['pages']==2 and shape['cropH']<600 and shape['cropW']<595,json.dumps(shape))
+    ok('the page rotated in the editor carries /Rotate 90',shape['rotation']==90,json.dumps(shape))
+    ok('the form field survives as a field and carries the typed value',shape['fields']==['reference'] and shape['value']=='REF-2026-77',json.dumps(shape))
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:
