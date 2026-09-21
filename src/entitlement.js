@@ -58,7 +58,8 @@ function graceTake(){
   localStorage.setItem(GRACE_KEY,JSON.stringify({day,used:used+1}));return true;
  }catch{if(graceMemory>=GRACE_JOBS)return false;graceMemory++;return true;}
 }
-async function notice(key,vars){(await import('./service-ui.js')).toast(key,vars);}
+// UI chunks load lazily; if one cannot load (e.g. during an outage) the decision stands anyway.
+async function notice(key,vars){try{(await import('./service-ui.js')).toast(key,vars);}catch{}}
 async function send(toolId,operationId,turnstileToken){
  const body={operationId,toolId};if(turnstileToken)body.turnstileToken=turnstileToken;
  try{return await request('jobs/authorize',{method:'POST',body});}
@@ -83,7 +84,7 @@ export async function authorize(toolId,options={}){
   const operationId=crypto.randomUUID();
   let r=status==='offline'?{ok:false,code:'OFFLINE'}:await send(id,operationId);
   if(r.code==='CHALLENGE_REQUIRED'){
-   const token=await (await import('./human-check.js')).challenge(r.data.error.siteKey,'quota',locale());
+   const token=await import('./human-check.js').then(m=>m.challenge(r.data.error.siteKey,'quota',locale())).catch(()=>'');
    if(!token)return false;
    r=await send(id,operationId,token);
   }
@@ -97,7 +98,7 @@ export async function authorize(toolId,options={}){
   if(r.code==='DAILY_LIMIT'){
    applyUsage({used:r.data.used,limit:r.data.limit,remaining:0,resetAt:r.data.resetAt});emit();
    track('quota_denied',{intent:id,plan:'free'});
-   await (await import('./upgrade-modal.js')).showLimit({resetAt:r.data.resetAt,locale:locale(),pricing:config.pricing});
+   try{await (await import('./upgrade-modal.js')).showLimit({resetAt:r.data.resetAt,locale:locale(),pricing:config.pricing});}catch{}
    return false;
   }
   if(r.code==='CHALLENGE_FAILED'){notice('challengeFailed');return false;}
