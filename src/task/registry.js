@@ -17,7 +17,9 @@ export const TASK_TOOLS=Object.freeze({
  upscale:{module:'upscale',kinds:['image'],next:['compress','remove-bg','convert']},
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
- 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
+ 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
+ // Pixel Lab: one workspace module behind the Lab id and every pixel-palette intent URL.
+ ...Object.fromEntries(Object.entries({'pixel-lab':['sprite-sheet-maker','refiner','pixel'],'palette-extractor':['pixel-lab','palette-swap-ramp','pixel'],'palette-swap-ramp':['pixel-lab','palette-extractor','palette-swap'],'pixel-art-cleanup':['pixel-lab','pixel-perfect-checker','pixel'],'pixel-perfect-checker':['pixel-lab','pixel-art-cleanup','refiner']}).map(([id,next])=>[id,{module:'pixel-lab',kinds:['image'],next}]))
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
@@ -25,7 +27,7 @@ export const DIRECTORY=Object.freeze([
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
- ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack']]
+ ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack','pixel-lab','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF',pdf:'EDIT',

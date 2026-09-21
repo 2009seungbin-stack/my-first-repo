@@ -386,6 +386,51 @@ export const TOOLS = Object.freeze({
       "compress",
       "convert"
     ]
+  },
+  "pixel-lab": {
+    "path": "game/pixel-lab",
+    "category": "game",
+    "icon": "pixel",
+    "title": ["픽셀 랩","Pixel Lab","ピクセルラボ"],
+    "description": ["여러 프레임을 하나의 팔레트로 통일하고, 정리·검사까지 한 곳에서.","Bring many frames to one palette, then clean up, audit and export in one place.","複数フレームを1つのパレットに統一し、整理・検査まで一か所で。"],
+    "limit": ["픽셀을 정리해 주지만 새 디테일을 그려 주지는 않습니다. 애니메이션에 오차 확산 디더링을 쓰면 프레임마다 색이 달라질 수 있습니다.","It prepares pixels; it does not draw new detail. Error-diffusion dithering can differ between frames, so animations should use None or an ordered matrix.","ピクセルを整えますが、新しい描き込みはしません。誤差拡散ディザはフレームごとに結果が変わるため、アニメーションには不向きです。"],
+    "next": ["sprite-sheet-maker","refiner","pixel"]
+  },
+  "palette-extractor": {
+    "path": "game/palette-extractor",
+    "category": "game",
+    "icon": "sliders",
+    "title": ["팔레트 추출","Palette Extractor","パレット抽出"],
+    "description": ["이미지 여러 장에서 색 4·8·16·32·64개를 한 번에 뽑고 .gpl·HEX·JSON으로 저장하세요.","Pull 4, 8, 16, 32 or 64 colours from several images at once and save .gpl, HEX or JSON.","複数の画像から4・8・16・32・64色をまとめて抽出し、.gpl・HEX・JSONで保存。"],
+    "limit": ["색은 채널당 5비트로 묶어 세므로 한두 픽셀만 쓰인 색은 이웃 색에 합쳐질 수 있습니다.","Colours are counted in 5-bit-per-channel buckets, so a colour used on one or two pixels can merge into a neighbour.","色はチャンネルあたり5ビットでまとめて数えるため、1〜2ピクセルだけの色は近い色に統合されることがあります。"],
+    "next": ["pixel-lab","palette-swap-ramp","pixel"]
+  },
+  "palette-swap-ramp": {
+    "path": "game/palette-swap-ramp",
+    "category": "game",
+    "icon": "background",
+    "title": ["램프 색 교체","Ramp Palette Swap","ランプ色替え"],
+    "description": ["음영 램프를 명도 순서대로 대응시켜 팀 컬러 변형을 한 번에 만드세요.","Map a shading ramp onto another by lightness order and generate team-colour variants at once.","陰影ランプを明度順に対応させ、チームカラーのバリエーションを一度に作成。"],
+    "limit": ["명도 순서로만 대응시킵니다. 어느 색이 피부나 금속인지 의미는 알지 못합니다.","It maps by lightness order only; it does not know which colour is skin, metal or cloth.","明度順で対応させるだけで、どの色が肌や金属かは判断しません。"],
+    "next": ["pixel-lab","palette-extractor","palette-swap"]
+  },
+  "pixel-art-cleanup": {
+    "path": "game/pixel-art-cleanup",
+    "category": "game",
+    "icon": "reset",
+    "title": ["픽셀 정리","Pixel Art Cleanup","ドット絵の整理"],
+    "description": ["단독 픽셀, 작은 덩어리, 1픽셀 구멍, 안티에일리어싱 잔여물을 찾아 정리하세요.","Find and clear stray pixels, tiny clusters, single-pixel holes and anti-alias leftovers.","単独ピクセル・小さな塊・1ピクセルの穴・アンチエイリアスの残りを整理。"],
+    "limit": ["후보를 먼저 보여 주고 보수적으로만 고칩니다. 두 겹 외곽선을 자동으로 얇게 만들지는 않습니다.","Candidates are shown first and fixes stay conservative: a doubled outline is never thinned automatically.","候補を先に表示し、修正は保守的です。二重の輪郭を自動で細くはしません。"],
+    "next": ["pixel-lab","pixel-perfect-checker","pixel"]
+  },
+  "pixel-perfect-checker": {
+    "path": "game/pixel-perfect-checker",
+    "category": "game",
+    "icon": "search",
+    "title": ["픽셀 격자 검사","Pixel Perfect Checker","ピクセル格子の検査"],
+    "description": ["확대된 스프라이트의 실제 도트 크기와 격자 어긋남, 흐린 경계, 색 수를 측정하세요.","Measure an upscaled sprite’s real pixel size, grid offset, blurred edges and colour count.","拡大されたスプライトの実際のドットサイズ・格子ずれ・ぼけた境界・色数を測定。"],
+    "limit": ["정수 블록 격자만 정확히 증명합니다. 비정수 배율은 런 길이로 추정해 보고만 합니다.","Only an integer block grid is proven exactly; a non-integer factor is reported as a run-length estimate, not a fact.","正確に証明できるのは整数ブロック格子のみです。非整数倍率はラン長からの推定として報告します。"],
+    "next": ["pixel-lab","pixel-art-cleanup","refiner"]
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));

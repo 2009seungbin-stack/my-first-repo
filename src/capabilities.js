@@ -17,7 +17,12 @@ const engines = {
  'print-pack':'Pica tiled fit / JPEG', 'logo-bg':'border flood fill', 'bitmap-font':'fixed grid BMFont',
  'mask-packer':'sequential row-transfer channel packing / incremental PNG', 'atlas-padding':'nine-blit nearest edge extrusion',
  'texture-map':'overlapped tiles / luminance height gradient', 'tile-helper':'exact grid region copy',
- 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO'
+ 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO',
+ 'pixel-lab':'shared Oklab histogram / locked palette indices / ordered and error-diffusion dithers / indexed recolour',
+ 'palette-extractor':'shared alpha-weighted histogram / Oklab median cut + Lloyd / .gpl, HEX and JSON round trip',
+ 'palette-swap-ramp':'OkLCh ramp position mapping / hue-window replace / index-preserving variants',
+ 'pixel-art-cleanup':'connected components on palette indices / Oklab segment anti-alias snap / outline run measurement',
+ 'pixel-perfect-checker':'colour-change residues for integer block grids / run lengths / Oklab edge interpolation count'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;
