@@ -1,0 +1,34 @@
+/* Account layer UI. Loaded by pricing/account pages, and lazily on tool pages only when a
+   toast, upgrade modal or challenge is actually shown. Uses the tokens from styles.css. */
+.service-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;background:#253347;color:#fff;max-width:min(560px,calc(100vw - 28px));padding:12px 18px;border-radius:13px;font-size:12px;line-height:1.6;box-shadow:0 8px 35px #14294520}
+.service-toast.subtle{background:#fff;color:#526379;border:1px solid var(--line)}
+.service-dialog h2{font-size:19px;letter-spacing:-.6px;margin:0 0 10px}
+.service-dialog p{font-size:13px;line-height:1.8;color:#6c7a8e;margin:6px 0}
+.service-dialog .keep-work{color:#2c8a63;font-weight:650}
+.service-dialog .pro-box{margin:18px 0;padding:16px 18px;border-radius:16px;background:#f5f8fd}
+.service-dialog .pro-box strong{display:block;margin-bottom:6px}
+.service-dialog ul,.plan-features{margin:0;padding-left:18px;line-height:1.9;font-size:13px;color:#4b5b70}
+.service-actions{display:flex;gap:10px;margin-top:18px}
+.service-actions>*{flex:1;margin:0!important;text-align:center}
+.service-actions a.primary{color:#fff}
+.challenge-frame{width:100%;height:80px;border:0;display:block}
+.service-main h1{font-size:32px;margin:24px 0 10px}
+.service-lead{font-size:15px;color:#5d6c80}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:28px 0 40px}
+.plan{background:#fff;border:1px solid #e6ebf2;border-radius:22px;padding:24px}
+.plan.featured{border-color:#b9d3fb;box-shadow:0 10px 40px #3182f614}
+.plan h2{margin:0 0 6px!important;font-size:19px!important}
+.plan-price{font-size:22px;font-weight:800;color:var(--ink);margin:0 0 14px}
+.plan-cta,.plan-action .primary,.plan-action .secondary{margin-top:18px!important}
+.policy-main a.plan-cta,.policy-main .plan-action a{text-decoration:none}
+.policy-main a.primary{color:#fff}
+.plan-note{font-size:13px;color:#7b889a}
+.service-status:not(:empty){margin:14px 0;padding:12px 16px;border-radius:12px;background:#f3f7fd;color:#35506f;font-size:13px}
+.service-status.error{background:#fff2f2;color:#a3404a}
+.account-card{background:#fff;border:1px solid #e6ebf2;border-radius:22px;padding:24px;margin:18px 0}
+.account-card dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 24px;margin:0 0 18px}
+.account-card dt{color:#7b889a}.account-card dd{margin:0;color:var(--ink);font-weight:650}
+.account-card .service-actions{max-width:420px}
+.service-note{font-size:12px;color:#8190a3}
+.service-faq h2{font-size:17px!important}
+@media(max-width:680px){.plans{grid-template-columns:1fr}.service-actions{flex-direction:column}}

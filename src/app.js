@@ -3,6 +3,8 @@ import {imageLabel} from './image-controls.js';
 import {appendOperation,retainedBlobBytes} from './image-document.js';
 import {BRAND} from './brand.js';
 import {track} from './analytics.js';
+import {authorize} from './entitlement.js';
+import {mediaExportTool} from './quota.js';
 import {Experience} from './experience.js';
 import {t} from './i18n.js';
 import {LIMITS,clamp,integer,dimensions,bytes,safeName,stem,typeOf,route,zip,inversePoint} from './core.js';
@@ -93,6 +95,8 @@ async function saveImages(progress,signal){const e=S.export,items=e.all?S.images
  check(signal);if(!entries.length)throw Error(t("목표 용량을 만족하지 못했습니다. 목표를 늘리거나 추가 축소를 허용하세요."));if(entries.length===1&&!e.all)Im.download(entries[0].blob,entries[0].name);else Im.download(await zip(entries),BRAND.name.toLowerCase()+'-images.zip');message(missed?t("{0}장 저장 · 목표 미달 {1}장은 제외했습니다.", {0: entries.length, 1: missed}):t("{0}장 저장했어요. {1}", {0: entries.length, 1: bytes(entries.reduce((n,e)=>n+e.blob.size,0))}),missed>0);}
 async function pixelPack(progress,signal){if(!S.c)throw Error(t("이미지를 먼저 추가하세요."));const entries=[];for(const n of[16,32,64,128]){check(signal);progress(t("{0} × {1} 도트 에셋 만드는 중…", {0: n, 1: n}));const c=await generatePixel(progress,signal,{...S.pix,n});try{entries.push({name:`${stem(file().name)}-${n}.png`,blob:await Im.blobOf(c)});}finally{Im.release(c);}}check(signal);Im.download(await zip(entries),BRAND.name.toLowerCase()+'-pixel-pack.zip');message(t("실제 16·32·64·128px PNG 세트를 저장했어요."));}
 function runTask(label,fn){S.runIntent=UX.id;track('tool_run');return task(label,fn);}
+/** Heavy editor actions pass the Free daily-limit check before any local work starts. */
+async function meteredTask(toolId,label,fn,options){if(S.busy||!await authorize(toolId,options))return;return runTask(label,fn);}
 async function onAction(action){if(S.busy&&action!=='cancel')return;
  if(await UX.action(action))return;
  if(action.startsWith('editor:'))return switchEditor(action.split(':')[1]);
@@ -110,9 +114,9 @@ async function onAction(action){if(S.busy&&action!=='cancel')return;
  if(action==='rotate'||action==='image:flip')return runTask(t("이미지 회전 중…"),()=>{if(!S.c)throw Error(t("이미지를 먼저 추가하세요."));return setImage(Im.rotate(S.c,action==='image:flip'),true,{type:'rotate',flip:action==='image:flip'});});
  if(action==='image:crop')return runTask(t("자르는 중…"),async()=>{if(!S.c)throw Error(t("이미지를 먼저 추가하세요."));await setImage(Im.crop(S.c,S.crop),true,{type:'crop',rect:{...S.crop}});S.tool='';});
  if(action==='image:resize'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));const w=integer($('#resizeW').value,1,65535,t("너비")),h=integer($('#resizeH').value,1,65535,t("높이"));return runTask(t("크기를 바꾸는 중…"),async(p,s)=>setImage(await Im.resizeQuality(S.c,w,h,{signal:s,progress:p}),true,{type:'resize',width:w,height:h}));}
- if(action==='image:upscale'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));const scale=Number($('#scale').value),mode=$('#scaleMode').value;return runTask(t("이미지를 확대하는 중…"),async(p,s)=>setImage(await Im.upscale(S.c,scale,mode,{signal:s,progress:p})));}
+ if(action==='image:upscale'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));const scale=Number($('#scale').value),mode=$('#scaleMode').value;return meteredTask('upscale',t("이미지를 확대하는 중…"),async(p,s)=>setImage(await Im.upscale(S.c,scale,mode,{signal:s,progress:p})));}
  if(action==='image:remove'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));const hex=$('#removeColor').value,color=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)),tolerance=Number($('#tolerance').value);return runTask(t("단색 배경을 분리하는 중…"),async(p,s)=>setImage(await Im.processPixels(S.c,'remove',{color,tolerance},p,s)));}
- if(action==='image:portrait'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));return runTask(t("인물 모델 준비 중…"),async(p,s)=>setImage(await Im.processPixels(S.c,'portrait',{},p,s)));}
+ if(action==='image:portrait'){if(!S.c)return message(t("이미지를 먼저 추가하세요."));return meteredTask('remove-bg',t("인물 모델 준비 중…"),async(p,s)=>setImage(await Im.processPixels(S.c,'portrait',{},p,s)),{background:'portrait'});}
  if(action==='image:outline'){if(!S.c)return;return runTask(t("외곽선을 만드는 중…"),async(p,s)=>setImage(await Im.processPixels(S.c,'outline',{radius:1},p,s)));}
  if(action==='image:trim'){if(!S.c)return;return runTask(t("여백을 정리하는 중…"),async(p,s)=>setImage(await Im.trimAsync(S.c,{signal:s,progress:p}),true,{type:'trim'}));}
  if(action==='image:fill'){if(!S.c)return;const color=$('#fillColor').value;return runTask(t("배경색 적용 중…"),()=>setImage(Im.background(S.c,color),true,{type:'fill',color}));}
@@ -131,7 +135,7 @@ async function onAction(action){if(S.busy&&action!=='cancel')return;
  if(action==='media:audio'||action==='media:gif'){S.mediaExport.format=action==='media:audio'?'mp3':'gif';if(action==='media:gif'&&S.media)S.mediaExport.end=Math.min(S.mediaExport.start+4,S.media.duration);S.tool='export';refresh();return;}
  if(action==='media:set-start'){if(!S.media)return;S.mediaExport.start=Number($('#video').currentTime.toFixed(1));S.mediaExport.end=Math.min(S.media.duration,S.mediaExport.start+5);renderPanel();return;}
  if(action==='media:frame')return runTask(t("장면을 저장하는 중…"),async(p,s)=>{if(!S.media)throw Error(t("영상을 먼저 추가하세요."));const c=await Media.frame($('#video'),$('#video').currentTime,s);try{Im.download(await Im.blobOf(c),`${stem(S.media.file.name)}-frame.png`);}finally{Im.release(c);}});
- if(action==='media:save'){S.mediaExport=readMediaOptions();return runTask(t("미디어를 저장하는 중…"),async(p,s)=>{if(!S.media)throw Error(t("미디어 파일을 먼저 추가하세요."));const e=S.mediaExport,blob=e.format==='gif'?await Media.exportGif($('#video'),S.media,e.start,e.end,p,s,e):['mp3','wav'].includes(e.format)?await Media.exportAudio(S.media,e.start,e.end,e.format,p,s,e):await Media.exportVideo($('#video'),S.media,e.start,e.end,e.width,p,s,e);check(s);Im.download(blob,`${stem(S.media.file.name)}-clip.${e.format}`);setTimeout(()=>Media.releaseOutput(blob),60000);message(t("{0} 저장했어요.", {0: bytes(blob.size)}));});}
+ if(action==='media:save'){S.mediaExport=readMediaOptions();return meteredTask(mediaExportTool(S.mediaExport.format),t("미디어를 저장하는 중…"),async(p,s)=>{if(!S.media)throw Error(t("미디어 파일을 먼저 추가하세요."));const e=S.mediaExport,blob=e.format==='gif'?await Media.exportGif($('#video'),S.media,e.start,e.end,p,s,e):['mp3','wav'].includes(e.format)?await Media.exportAudio(S.media,e.start,e.end,e.format,p,s,e):await Media.exportVideo($('#video'),S.media,e.start,e.end,e.width,p,s,e);check(s);Im.download(blob,`${stem(S.media.file.name)}-clip.${e.format}`);setTimeout(()=>Media.releaseOutput(blob),60000);message(t("{0} 저장했어요.", {0: bytes(blob.size)}));});}
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&!b.disabled){if(b.tagName==='A'){if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();}onAction(b.dataset.action).catch(err=>message(err.message,true));}});
 $('#fileInput').addEventListener('change',async e=>{const files=[...e.target.files];e.target.value='';await loadFiles(files);});

@@ -12,12 +12,14 @@ export function safeReturnPath(value){
  const s=String(value||'');
  return /^\/(?![\/\\])[A-Za-z0-9\-._~\/?=&%]*$/.test(s)&&s.length<=256?s:'/account/';
 }
-export const redirectURI=(ctx,cfg)=>(cfg.siteOrigin||ctx.url.origin)+CALLBACK;
+/** The host that started the flow receives the callback, so the state cookie (host-only)
+ * comes back with it. Every origin used for sign-in must be registered with Google. */
+export const redirectURI=ctx=>ctx.url.origin+CALLBACK;
 export async function startLogin(ctx,cfg,now){
  if(!cfg.google.clientId||!cfg.google.clientSecret)throw new ApiError('SERVICE_NOT_CONFIGURED','Google sign-in is not configured.');
  const state=randomToken(),verifier=randomToken(48),nonce=randomToken(),returnTo=safeReturnPath(ctx.url.searchParams.get('return'));
  const payload=base64url(new TextEncoder().encode(JSON.stringify({state,verifier,nonce,returnTo,exp:now+OAUTH_TTL_MS})));
- const params=new URLSearchParams({client_id:cfg.google.clientId,redirect_uri:redirectURI(ctx,cfg),response_type:'code',scope:'openid email profile',state,nonce,
+ const params=new URLSearchParams({client_id:cfg.google.clientId,redirect_uri:redirectURI(ctx),response_type:'code',scope:'openid email profile',state,nonce,
   code_challenge:base64url(await sha256Bytes(verifier)),code_challenge_method:'S256',prompt:'select_account'});
  return redirect(`${GOOGLE.auth}?${params}`,[...ctx.setCookies,cookie(OAUTH_COOKIE,await sign(cfg.secret,'oauth/v1',payload),{maxAge:OAUTH_TTL_MS/1000,path:'/api/v1/auth/',secure:ctx.secure})]);
 }
@@ -47,7 +49,7 @@ export async function finishLogin(ctx,cfg,db,now,fetcher=fetch){
  const code=q.get('code');if(!code||code.length>2048)return fail('code');
  let tokens;
  try{
-  const response=await fetcher(GOOGLE.token,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code,client_id:cfg.google.clientId,client_secret:cfg.google.clientSecret,redirect_uri:redirectURI(ctx,cfg),grant_type:'authorization_code',code_verifier:saved.verifier})});
+  const response=await fetcher(GOOGLE.token,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code,client_id:cfg.google.clientId,client_secret:cfg.google.clientSecret,redirect_uri:redirectURI(ctx),grant_type:'authorization_code',code_verifier:saved.verifier})});
   if(!response.ok)return fail('exchange');
   tokens=await response.json();
  }catch{return fail('exchange');}

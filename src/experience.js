@@ -7,6 +7,7 @@ import {readPDFOptions} from './pdf-controls.js';
 import {readMediaOptions} from './media-controls.js';
 import {BRAND} from './brand.js';
 import {track,setAnalyticsContext,trafficSource} from './analytics.js';
+import {authorize} from './entitlement.js';
 import {Toolkit} from './toolkit.js';
 import {t,getLocale,setLocale,normalizeLocale,LOCALES,LANGUAGE_NAMES,readPreference,savePreference,locationParts,localizedURL,localeFromEnvironment,translateStatic} from './i18n.js';
 import {INTENTS,intentFor,intentDefaults,isFocused,accepts} from './intents.js';
@@ -155,7 +156,10 @@ export class Experience {
  async run(){
   if(this.kit.active)return this.kit.run();
   if(!this.a.ready()){this.a.message(t('intent.selectFirst'));return;}
-  this.readOptions();const s=this.s,c=this.config,source=s.c;this.s.runIntent=this.id;track('tool_run');
+  this.readOptions();const s=this.s,c=this.config,source=s.c;
+  // Heavy tools check the Free daily limit first; a refusal leaves file, settings and result untouched.
+  if(s.busy||!await authorize(this.id,this.options))return;
+  this.s.runIntent=this.id;track('tool_run');
   if(s.editor==='image'&&s.export.all&&['compress','convert'].includes(c.action)){await this.a.task(t('저장 파일을 만드는 중…'),this.a.saveImages);return;}
   this.invalidate();await this.a.task(t('intent.preparing'),async(progress,signal)=>{
    let canvas=null,blob=null,name='',width=0,height=0,kind='file',larger=false;

@@ -81,7 +81,8 @@ async function checkout(request,ctx,cfg,env,deps){
   if(!body.turnstileToken)throw new ApiError('CHALLENGE_REQUIRED','Please confirm you are human.',{siteKey:cfg.turnstile.siteKey});
   if(!await verifyTurnstile({token:body.turnstileToken,secret:cfg.turnstile.secret,ip:request.headers.get('cf-connecting-ip'),expectedAction:'checkout',hostname:ctx.url.hostname},deps.fetch))throw new ApiError('CHALLENGE_FAILED');
  }
- const origin=cfg.siteOrigin||ctx.url.origin,{url}=await provider.createCheckout({user:ctx.user,cfg,env,origin,fetcher:deps.fetch});
+ // Return to the host the buyer is on (already same-origin checked), not a configured one.
+ const origin=ctx.url.origin,{url}=await provider.createCheckout({user:ctx.user,cfg,env,origin,fetcher:deps.fetch});
  const target=new URL(url,origin);
  if(target.protocol!=='https:'&&target.origin!==origin)throw new ApiError('UPSTREAM_FAILED');
  return {url:target.href,mode:cfg.billing.mode};
@@ -91,7 +92,7 @@ async function portal(ctx,cfg,db,env,deps){
  const provider=billingProvider(cfg);if(!provider)throw new ApiError('BILLING_UNAVAILABLE');
  const row=await db.prepare('SELECT external_customer_id,external_subscription_id FROM subscriptions WHERE user_id=?1 AND provider=?2 ORDER BY updated_at DESC LIMIT 1').bind(ctx.user.id,cfg.billing.provider).first();
  if(!row)throw new ApiError('BILLING_UNAVAILABLE','No subscription to manage.');
- return provider.portal({customerId:row.external_customer_id,subscriptionId:row.external_subscription_id,env,origin:cfg.siteOrigin||ctx.url.origin,fetcher:deps.fetch});
+ return provider.portal({customerId:row.external_customer_id,subscriptionId:row.external_subscription_id,env,origin:ctx.url.origin,fetcher:deps.fetch});
 }
 async function webhook(request,cfg,db,env,now){
  const provider=billingProvider(cfg);if(!provider)throw new ApiError('BILLING_UNAVAILABLE');

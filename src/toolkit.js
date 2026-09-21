@@ -1,6 +1,7 @@
 import {imageLabel} from './image-controls.js';
 import {BRAND} from './brand.js';
 import {track} from './analytics.js';
+import {authorize} from './entitlement.js';
 import {parsePreset,serializePreset} from './presets.js';
 import {SEARCH_TERMS} from './search-terms.js';
 import {TOOLS} from './tool-registry.js';
@@ -130,6 +131,7 @@ export class Toolkit{
     const u=this.u;if(!u.s.c){u.a.message(tr('inputFirst'));return;}
     this.read();this.remember(u.id);
     if(u.id==='sprite-slicer'&&!this.rects.length){await this.findFrames();return;}
+    if(u.s.busy||!await authorize(u.id,this.o))return;
     u.s.runIntent=u.id;track('tool_run');u.invalidate();await u.a.task(tr('preparing'),async(progress,signal)=>{
       let r;try{r=await runRecipe(u.id,{source:u.s.c,items:u.s.images,options:this.o,rects:this.rects,signal,progress});}catch(error){if(error.name!=='AbortError')error.message=t(error.message);throw error;}
       try{u.a.check(signal);u.result={...r,beforeW:u.s.c.width,beforeH:u.s.c.height,beforeSize:u.a.file()?.blob.size||0};u.s.tool='';}catch(e){Im.release(r.canvas);throw e;}
