@@ -292,6 +292,45 @@ with sync_playwright() as pw:
       return doc.getPageCount();
     }""",base64.b64encode(opened).decode())
     ok('the unlocked PDF opens with no password and keeps its pages',pages==2,str(pages))
+    # --- PDF compression: a page size in pixels, and automatic grayscale (nerulio/agent-pdf-depth) ---
+    # Every image-to-PDF converter writes a MediaBox of one point per pixel, which turns an A4
+    # scan into a 17x24in page at a genuine 72dpi. A resolution rule finds nothing to do there,
+    # so the pixel cap has to carry the file. `tint` paints a patch of real colour, which the
+    # automatic grayscale must refuse to throw away.
+    def pixel_page_pdf(page,tint):
+        return page.evaluate("""async tint=>{
+          const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+          const W=1240,H=1754,d=await L.PDFDocument.create();
+          for(let n=0;n<3;n++){
+            const c=new OffscreenCanvas(W,H),x=c.getContext('2d');
+            x.fillStyle='#fbfbfb';x.fillRect(0,0,W,H);
+            x.fillStyle='#181818';x.font='34px serif';
+            for(let i=0;i<34;i++)x.fillText('Scanned line '+(i+1)+' of page '+(n+1)+' - small print stays legible',90,150+i*44);
+            const g=x.getImageData(0,0,W,H);                       // paper grain, and no colour
+            for(let i=0;i<g.data.length;i+=4){const j=(Math.random()*13|0)-6;g.data[i]+=j;g.data[i+1]+=j;g.data[i+2]+=j;}
+            x.putImageData(g,0,0);
+            if(tint){x.strokeStyle='#0d1f8f';x.lineWidth=7;x.strokeRect(70,70,W-140,H-140);}
+            const jpeg=new Uint8Array(await (await c.convertToBlob({type:'image/jpeg',quality:.92})).arrayBuffer());
+            d.addPage([W,H]).drawImage(await d.embedJpg(jpeg),{x:0,y:0,width:W,height:H});
+          }
+          const bytes=await d.save({useObjectStreams:true});
+          return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+        }""",tint)
+    page.goto(BASE+'/en/pdf/compress/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',[{'name':'pixel sized scan.pdf','type':'application/pdf','b64':pixel_page_pdf(page,False)}])
+    ready(page)
+    saved=int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])
+    note=page.locator('#viewerNote').inner_text()
+    ok('a page whose box is in pixels is still downsampled by the pixel cap',saved>=55,f'{saved}% · {note}')
+    ok('a colourless scan is reported as turned grayscale','turned grayscale' in note,note)
+    page.locator('[data-action="task-clear"]').click()
+    drop(page,'.dropzone',[{'name':'scan with a blue frame.pdf','type':'application/pdf','b64':pixel_page_pdf(page,True)}])
+    ready(page)
+    tinted=page.locator('#viewerNote').inner_text()
+    ok('a scan carrying real colour keeps it','turned grayscale' not in tinted,tinted)
+    ok('that scan is still compressed',int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])>=50,tinted)
+    page.locator('[data-action="task-clear"]').click()
     # --- PDF editor: redaction really removes, crop sets the box, rotation and forms survive ---
     page.goto(BASE+'/en/pdf/editor/',wait_until='networkidle')
     page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
