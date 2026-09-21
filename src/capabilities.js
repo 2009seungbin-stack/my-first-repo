@@ -17,7 +17,11 @@ const engines = {
  'print-pack':'Pica tiled fit / JPEG', 'logo-bg':'border flood fill', 'bitmap-font':'fixed grid BMFont',
  'mask-packer':'sequential row-transfer channel packing / incremental PNG', 'atlas-padding':'nine-blit nearest edge extrusion',
  'texture-map':'overlapped tiles / luminance height gradient', 'tile-helper':'exact grid region copy',
- 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO'
+ 'scan-split':'vertical region copy', 'margin-crop':'white threshold bounds', 'favicon-pack':'raster PNG / ICO',
+ 'tile-lab':'line-profile grid scoring / exact region copy / autotile rule tables',
+ 'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing',
+ 'autotile-tester':'8-neighbour mask tables (3×3 minimal, 16 Wang, 47 blob) / nearest-neighbour render',
+ 'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;

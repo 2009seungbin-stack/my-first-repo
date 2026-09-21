@@ -17,7 +17,14 @@ export const TASK_TOOLS=Object.freeze({
  upscale:{module:'upscale',kinds:['image'],next:['compress','remove-bg','convert']},
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  pixel:{module:'pixel',kinds:['image'],next:['sprite-sheet-maker','palette-swap','compress']},
- 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']}
+ 'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
+ // Tile Lab: one workspace, opened at the stage the visited route is about (docs/TILE-LAB.md).
+ 'tile-lab':{module:'tile-lab',kinds:['image'],next:['tile-helper','atlas-padding','sprite-sheet-maker']},
+ 'tileset-slicer':{module:'tile-lab',kinds:['image'],next:['tile-lab','atlas-padding','sprite-slicer']},
+ 'autotile-tester':{module:'tile-lab',kinds:['image'],next:['tile-lab','tileset-slicer','atlas-padding']},
+ 'seamless-tile-checker':{module:'tile-lab',kinds:['image'],next:['tile-lab','texture-map','tile-helper']},
+ 'tile-helper':{module:'tile-lab',kinds:['image'],next:['tile-lab','atlas-padding','sprite-sheet-maker']},
+ 'atlas-padding':{module:'tile-lab',kinds:['image'],next:['tile-lab','tile-helper','compress']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
@@ -25,11 +32,12 @@ export const DIRECTORY=Object.freeze([
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
- ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack']]
+ ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','tile-lab','tileset-slicer','autotile-tester','seamless-tile-checker','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF',pdf:'EDIT',
- 'video-gif':'GIF','video-mp3':'MP3','video-compress':'−%','video-trim':'CUT','video-frame':'PNG',media:'EDIT',pixel:'PX','favicon-pack':'ICO','sprite-sheet-maker':'▦','bitmap-font':'FNT'});
+ 'video-gif':'GIF','video-mp3':'MP3','video-compress':'−%','video-trim':'CUT','video-frame':'PNG',media:'EDIT',pixel:'PX','favicon-pack':'ICO','sprite-sheet-maker':'▦','bitmap-font':'FNT',
+ 'tile-lab':'LAB','tileset-slicer':'▤','autotile-tester':'47','seamless-tile-checker':'∞'});
 export const CATEGORY_BADGE=Object.freeze({image:'IMG',pdf:'PDF',video:'VID',game:'GAME'});
 /** File kind → tools worth suggesting when files are dropped on the home page. */
 export const SUGGEST=Object.freeze({image:['compress','convert','resize','remove-bg','jpg-to-pdf'],pdf:['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','pdf'],media:['video-gif','video-mp3','video-compress','video-trim']});

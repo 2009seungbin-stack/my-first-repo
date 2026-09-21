@@ -7,4 +7,8 @@ export const SEARCH_TERMS = Object.freeze({
  'favicon-pack':['favicon maker','brand icon','파비콘','ファビコン'],
  'frame-normalize':['sprite normalizer','normalize frames','프레임 정렬'],
  'print-pack':['print ratio resizer','etsy print','인쇄 비율'],
+ 'tile-lab':['tileset','tilemap','autotile','wang tiles','blob tiles','tiled','타일셋','타일맵','오토타일','タイルセット','オートタイル'],
+ 'tileset-slicer':['tileset splitter','tile cutter','margin spacing','타일 분리','타일 자르기','タイル分割'],
+ 'autotile-tester':['autotile','terrain rules','47 blob','wang','3x3 minimal','godot terrain','오토타일','지형 규칙','オートタイル','地形ルール'],
+ 'seamless-tile-checker':['seamless texture','tiling test','repeat check','offset seam','이음새','심리스','継ぎ目','シームレス'],
 });

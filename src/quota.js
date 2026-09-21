@@ -10,6 +10,8 @@ export const QUOTA_CLASSES=Object.freeze({
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
+ // Tile Lab: grid measurement, slicing and rule checks are local region copies, never metered.
+ 'tile-lab':'none','tileset-slicer':'none','autotile-tester':'none','seamless-tile-checker':'none',
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.
