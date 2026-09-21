@@ -37,6 +37,12 @@ test('export formats describe the same frames',()=>{
  const xml=atlasData('xml',frames,meta);assert(xml.includes('<SubTexture name="run_0" x="2" y="2" width="30" height="40" frameX="-9" frameY="-4" frameWidth="48" frameHeight="48"/>')&&xml.includes('rotated="true"'));
  assert(atlasData('css',frames,meta).includes('.sprite-run_0{width:30px;height:40px;background-position:-2px -2px}'));
  assert.equal(JSON.parse(atlasData('unity',frames,meta)).sprites[0].rect.y,64-2-40,'Unity rects are bottom-left based');
- assert(atlasData('godot',frames,meta).includes('region = Rect2(2, 2, 30, 40)'));assert(atlasData('csv',frames,meta).split('\n').length===4);
+ const godot=JSON.parse(atlasData('godot',frames,meta));
+ assert.equal(godot.meta.engineTarget,'godot-4','the Godot option is honest JSON, not a hand-written .tres look-alike');
+ assert.equal(ATLAS_FORMATS.godot.ext,'json');
+ assert.deepEqual(godot.frames.run_0.region,{x:2,y:2,w:30,h:40});
+ assert.deepEqual(godot.frames.run_0.margin,{x:9,y:4,w:48-30,h:48-40},'AtlasTexture margin restores the trimmed frame size');
+ assert.match(godot.meta.helper,/SpriteFrames/);
+ assert(atlasData('csv',frames,meta).split('\n').length===4);
  for(const f of Object.keys(ATLAS_FORMATS))assert(atlasData(f,frames,meta).length>20,f);
 });

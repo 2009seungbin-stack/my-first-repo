@@ -46,7 +46,7 @@ function tryPack(order,W,H,rotate){
  return placed;
 }
 /** frames: [{name,x,y,w,h,rotated,trimmed,sourceW,sourceH,offsetX,offsetY}] in atlas pixels. */
-export const ATLAS_FORMATS=Object.freeze({'json-hash':{ext:'json',label:'JSON (Hash) — Phaser · PixiJS'},'json-array':{ext:'json',label:'JSON (Array) — TexturePacker'},xml:{ext:'xml',label:'XML — Starling · Sparrow'},godot:{ext:'tres.txt',label:'Godot — AtlasTexture regions'},unity:{ext:'json',label:'Unity — JSON for sprite importers'},css:{ext:'css',label:'CSS sprites'},csv:{ext:'csv',label:'CSV'}});
+export const ATLAS_FORMATS=Object.freeze({'json-hash':{ext:'json',label:'JSON (Hash) — Phaser · PixiJS'},'json-array':{ext:'json',label:'JSON (Array) — TexturePacker'},xml:{ext:'xml',label:'XML — Starling · Sparrow'},godot:{ext:'json',label:'Godot 4 — JSON + import script'},unity:{ext:'json',label:'Unity — JSON for sprite importers'},css:{ext:'css',label:'CSS sprites'},csv:{ext:'csv',label:'CSV'}});
 const xmlEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 export function atlasData(format,frames,{image='atlas.png',width,height,app='Nerulio'}={}){
  const tp=f=>({frame:{x:f.x,y:f.y,w:f.rotated?f.h:f.w,h:f.rotated?f.w:f.h},rotated:!!f.rotated,trimmed:!!f.trimmed,spriteSourceSize:{x:f.offsetX||0,y:f.offsetY||0,w:f.w,h:f.h},sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h}});
@@ -55,7 +55,16 @@ export function atlasData(format,frames,{image='atlas.png',width,height,app='Ner
  if(format==='json-array')return JSON.stringify({frames:frames.map(f=>({filename:f.name,...tp(f)})),meta},null,2);
  if(format==='unity')return JSON.stringify({texture:image,width,height,sprites:frames.map(f=>({name:f.name.replace(/\.[^.]+$/,''),rect:{x:f.x,y:height-f.y-(f.rotated?f.w:f.h),width:f.rotated?f.h:f.w,height:f.rotated?f.w:f.h},pivot:{x:.5,y:.5},rotated:!!f.rotated}))},null,2);
  if(format==='xml')return `<?xml version="1.0" encoding="UTF-8"?>\n<TextureAtlas imagePath="${xmlEsc(image)}" width="${width}" height="${height}">\n${frames.map(f=>`  <SubTexture name="${xmlEsc(f.name.replace(/\.[^.]+$/,''))}" x="${f.x}" y="${f.y}" width="${f.rotated?f.h:f.w}" height="${f.rotated?f.w:f.h}"${f.rotated?' rotated="true"':''}${f.trimmed?` frameX="${-(f.offsetX||0)}" frameY="${-(f.offsetY||0)}" frameWidth="${f.sourceW}" frameHeight="${f.sourceH}"`:''}/>`).join('\n')}\n</TextureAtlas>\n`;
- if(format==='godot')return `; Godot 4 — one AtlasTexture region per sprite. Create AtlasTexture resources with these regions\n; (atlas = ${image}). Rotated sprites are not supported by AtlasTexture: pack without rotation.\n${frames.map(f=>`[${f.name.replace(/\.[^.]+$/,'')}]\nregion = Rect2(${f.x}, ${f.y}, ${f.w}, ${f.h})\nmargin = Rect2(${f.offsetX||0}, ${f.offsetY||0}, ${(f.sourceW??f.w)-f.w}, ${(f.sourceH??f.h)-f.h})`).join('\n\n')}\n`;
+ // Godot: honest JSON, not a hand-written .tres look-alike. `margin` is in AtlasTexture's own
+ // terms (position = where the trimmed pixels sit, size = the trimmed-away slack), so a helper
+ // script can set region and margin straight from these numbers — see docs/SPRITE-LAB.md for the
+ // GDScript that builds a real SpriteFrames resource through the engine API.
+ if(format==='godot')return JSON.stringify({meta:{tool:app,toolVersion:'1',schemaVersion:1,engineTarget:'godot-4',image,size:{w:width,h:height},rotated:false,
+   helper:'Sprite Lab exports a GDScript import helper (addons/nerulio_sprite/) that builds a SpriteFrames resource from this file.',
+   notes:['AtlasTexture cannot rotate a region, so pack without rotation.','margin = Rect2(offset.x, offset.y, sourceSize.w - region.w, sourceSize.h - region.h) restores a trimmed frame to its full size.']},
+  frames:Object.fromEntries(frames.map(f=>[f.name.replace(/\.[^.]+$/,''),{region:{x:f.x,y:f.y,w:f.rotated?f.h:f.w,h:f.rotated?f.w:f.h},
+   margin:{x:f.offsetX||0,y:f.offsetY||0,w:(f.sourceW??f.w)-f.w,h:(f.sourceH??f.h)-f.h},
+   sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h},offset:{x:f.offsetX||0,y:f.offsetY||0},rotated:!!f.rotated}]))},null,2);
  if(format==='css')return `.sprite{display:inline-block;background-image:url('${image}');background-repeat:no-repeat}\n${frames.map(f=>`.sprite-${f.name.replace(/\.[^.]+$/,'').replace(/[^\w-]+/g,'-')}{width:${f.w}px;height:${f.h}px;background-position:-${f.x}px -${f.y}px}`).join('\n')}\n`;
  if(format==='csv')return `name,x,y,width,height,rotated,offsetX,offsetY,sourceWidth,sourceHeight\n${frames.map(f=>[JSON.stringify(f.name),f.x,f.y,f.w,f.h,!!f.rotated,f.offsetX||0,f.offsetY||0,f.sourceW??f.w,f.sourceH??f.h].join(',')).join('\n')}\n`;
  throw Error('Unknown atlas format');
