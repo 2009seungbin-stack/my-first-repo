@@ -11,7 +11,8 @@ export const TASK_TOOLS=Object.freeze({
  'pdf-split':{module:'pdf-organize',kinds:['pdf','image'],next:['pdf-merge','pdf-compress','pdf']},
  'jpg-to-pdf':{module:'pdf-organize',kinds:['image','pdf'],next:['pdf-compress','pdf-merge','pdf']},
  'pdf-compress':{module:'pdf-compress',kinds:['pdf'],next:['pdf-merge','pdf-split','pdf']},
- 'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']}
+ 'pdf-to-jpg':{module:'pdf-to-image',kinds:['pdf'],next:['compress','convert','resize']},
+ pdf:{module:'pdf-editor',kinds:['pdf'],next:['pdf-compress','pdf-merge','pdf-split']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
