@@ -258,13 +258,16 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .ui-statepick{margin-bottom:2px}
 /* detected UI elements */
 .ui-elements{display:grid;gap:6px;max-height:34vh;overflow:auto}
-.ui-element{display:flex;align-items:flex-end;gap:6px;background:#f7f9fc;border-radius:11px;padding:7px 8px;border:2px solid transparent}
+.ui-element{display:flex;align-items:center;gap:8px;background:#f7f9fc;border-radius:11px;padding:6px 8px;border:2px solid transparent}
+.ui-element .field{display:flex;flex-direction:column;gap:2px;margin:0}
 .ui-element.is-current{border-color:var(--blue)}
 .ui-element .field{flex:1;min-width:0}.ui-element .field>span{font-size:10.5px;font-variant-numeric:tabular-nums}
 .ui-element input{width:100%;border:1px solid #d8e0ea;border-radius:9px;padding:7px 9px;font-size:12.5px;background:#fff}
 /* font stage */
 .ui-fontsample{border-radius:10px;padding:10px;background:#101726;overflow:auto}
-.ui-fontsample canvas{display:block;image-rendering:pixelated;transform-origin:left top;transform:scale(3)}
+.ui-fontsample canvas{display:block;image-rendering:pixelated;transform-origin:left top}
+/* Glyphs are white on transparent; a checkerboard would hide them, so this host is dark. */
+#fontHost{background-color:#101726;background-image:none}
 /* checks */
 .ui-report{max-height:56vh;overflow:auto}
 .ui-table{width:100%;border-collapse:collapse;font-size:12.5px}

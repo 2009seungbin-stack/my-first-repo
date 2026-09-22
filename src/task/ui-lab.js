@@ -458,7 +458,10 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   sample.width=Math.max(1,Math.ceil(line.width));sample.height=font.lineHeight;
   const sx=sample.getContext('2d');sx.imageSmoothingEnabled=false;
   for(const item of line.items)if(item.glyph?.w)sx.drawImage(sheet,item.glyph.x,item.glyph.y,item.glyph.w,item.glyph.h,Math.round(item.x),Math.round(item.y),item.glyph.w,item.glyph.h);
-  sample.classList.add('px');
+  // A tiny pixel font is unreadable at 1:1 and a 28px font needs no zoom, so the zoom follows
+  // the line height and the box is given the room that transform alone would not reserve.
+  const zoom=clamp(Math.floor(72/Math.max(1,font.lineHeight)),1,4);
+  sample.classList.add('px');sample.style.width=sample.width*zoom+'px';sample.style.height=sample.height*zoom+'px';
  }
  // ---------- check stage ----------
  function paintCheck(){
