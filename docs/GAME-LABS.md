@@ -73,3 +73,28 @@ docs/<LAB>.md                input, output, algorithm, limits, export schema per
 
 `rect` is in atlas pixels, origin top-left, y down. `pivot` is normalised on the frame's own canvas
 (`sourceSize`); engines with a bottom-left origin convert in their helper, not in this file.
+
+## Status report (2026-09-22, after PR #24)
+
+1. **Branch audited**: `main` at PR #18; Quality Overhaul present; no unpushed work. Labs were built on `nerulio/game-foundation` and integrated one PR at a time (#21 sprite tools + engine, #22 PDF, #23 Pixel + Texture Lab, #24 Sprite + Tile + UI Lab).
+2. **Existing game tools reused**: `primitives.js` (components, grid, extrude, swap, mapTexture, fontMetadata), `atlas-pack.js` (MaxRects), `pixel-engine.js` (Oklab), `mask-packer.js`, `recipes.js`. Old ids keep their URLs and open the matching Lab stage (`sprite-slicer`, `frame-normalize`, `tile-helper`, `atlas-padding`, `texture-map`, `bitmap-font`); `pixel`, `refiner`, `palette-swap`, `sprite-sheet-maker`, `mask-packer` keep their own pages.
+3. **Shared model**: `src/game/model.js` (AssetFrame / Animation / Atlas, playback order, mirror, validation) — the single source for previews and exporters.
+4. **Sprite Lab** built (`src/task/sprite-lab.js`; engine `grid-detect`, `frame-ops`, `jitter`, `contour`, `outline`, `defringe`, `packing`, `project`). Gaps: pivot/box dragging on canvas, point-by-point polygons, Auto slicing above 4 MP, cancellation of pack/collision/export.
+5. **Pixel Lab** built (`pixel-lab.js`; `palette`, `pixel-cleanup`, `pixel-check`). Gaps: no worker/AbortSignal, no playback in the strip.
+6. **Tile Lab** built (`tile-lab.js`; `tile-grid`, `autotile`, `seams`, `tile-collision`, `godot-tileset`). Gaps: no animated-tile builder, no multi-terrain transitions, no settings-link button.
+7. **Texture Lab** built (`texture-lab.js`; `texture-png`, `texture-presets`, `texture-normal`, `texture-fix`, WebGL2 preview). Gaps: no 16-bit output, no undo (nothing edited in place), preview tested on software GL only.
+8. **UI Lab** built (`ui-lab.js`; `nine-slice`, `ui-states`, `bmfont`, `sdf`, `contrast`, `ui-layout`). Gaps: no TTF cmap parsing, no MSDF, no kerning, no undo/cancel.
+9. **Godot**: Sprite Lab bundle and Tile Lab pack VERIFIED in Godot 4.7.2.stable.official (headless: helper builds the resource, saved, reloaded, compared field by field; tile pack 376 peering bits, 0 mismatches). UNVERIFIED: the `@tool` EditorScript run from the editor GUI, `minimal9`/`corner16` in-engine, Texture Lab and UI Lab Godot notes.
+10. **Unity**: UNVERIFIED everywhere (JSON conversions unit-tested; C# importer never run; no `.meta` written).
+11. **Generic export**: envelope above with `schemaVersion:1`, `toolVersion`, `engineTarget`; per-Lab schemas in each Lab doc.
+12. **Performance**: one decoded sheet + on-demand crops; 100-frame sheet slice 130 ms / pack 84 ms / export 43 ms, 17 MB heap; 2048² sheet grid 406 ms, pack 524 ms, 48 MB heap; 1600 tiles sliced+zipped 2.2 s.
+13. **Workers**: existing workers reused (components, recipe, matte/SR); Lab per-frame passes still run on the main thread (gap).
+14. **Large assets**: 100 frames and 2048² tested; 1000 frames untested.
+15. **Visual tests**: every stage screenshotted at 1440 / 390 / 320 by the building agent and the coordinator; no horizontal overflow.
+16. **Output validation**: every export re-opened with Pillow/zipfile/JSON; atlas regions byte-identical to source frames; JSON pivots/durations/boxes equal the UI; tiles byte-identical to sheet regions; channel PNGs exact; 9-slice corners byte-identical.
+17. **Browser tests**: `tests/task-browser.py` (≈270 checks incl. all Labs), `tests/recipes-browser.py` (46), Chromium; unit tests 1,555.
+18. **Existing regression**: `tools/regression.py` and `tests/service-browser.py` (50) pass on every integration branch.
+19. **Not yet production quality**: see gaps in 4–8, plus cancellation/progress for long Lab passes and Firefox/WebKit coverage.
+20. **Engine exports UNVERIFIED**: Unity (all), Godot for Texture/UI Lab and the editor-GUI script path.
+21. **Limitations**: Chromium-only evidence, so every Lab route is `noindex` and out of the sitemap until the quality suites pass in Firefox too; grid detection is alpha-only; near-duplicate detection is a pixel threshold.
+22. **Recommended next**: canvas dragging for pivot/boxes; worker + AbortSignal for the per-frame passes; Firefox evidence for the Lab routes; GIF encoder with adaptive palette and per-frame delay; animated tiles; MSDF only if implemented properly.
