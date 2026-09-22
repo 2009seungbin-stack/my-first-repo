@@ -1,14 +1,14 @@
 import * as Im from '../image.js';
 import {bytes,stem,zip,gif} from '../core.js';
 import {yieldUI} from '../resources.js';
-import {borderColor} from '../color-background.js';
+import {detectColorKey,applyColorKey,hex as keyHex} from '../game/color-key.js';
+import './strings-trust.js';
 import {t} from '../i18n.js';
 import {text,toast,download,track,onLocale,page as route} from './shell.js';
 import {innerRect,ALPHA_THRESHOLD} from '../game/pixels.js';
-import {ANALYSIS_PIXELS} from '../primitives.js';
 import {PIVOT_PRESETS,pivotPixels} from '../game/model.js';
-import {detectGrid,gridCells} from '../game/grid-detect.js';
-import {detectFrames,framesFromRects,normalizeFrames,readingOrder,unionRect,ALIGNMENTS} from '../game/frame-ops.js';
+import {detectGridWithColour,gridCells} from '../game/grid-detect.js';
+import {detectFramesAsync,framesFromRects,normalizeFrames,readingOrder,unionRect,mergeRects,rectGap,autoVersusGrid,ALIGNMENTS} from '../game/frame-ops.js';
 import {jitterReport,autoFixJitter,findDuplicates,loopSeam,frameDifference,REFERENCES} from '../game/jitter.js';
 import {frameCollision} from '../game/contour.js';
 import {outline} from '../game/outline.js';
@@ -37,7 +37,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const HANDLES=[['nw',0,0],['n',.5,0],['ne',1,0],['e',1,.5],['se',1,1],['s',.5,1],['sw',0,1],['w',0,.5]];
 const GIF_PIXELS=24_000_000,STRIP_CHIPS=300,EXPORT_PIXELS=64_000_000;
-const DEFAULTS={mode:'auto',autoMerge:true,merge:0,threshold:ALPHA_THRESHOLD,minArea:16,key:'none',keyColor:'#ff00ff',tolerance:40,
+const DEFAULTS={mode:'auto',autoMerge:true,merge:0,threshold:ALPHA_THRESHOLD,minArea:16,key:'auto',keyColor:'#ff00ff',tolerance:40,
  cellW:32,cellH:32,offsetX:0,offsetY:0,spacingX:0,spacingY:0,skipEmpty:true,
  trim:true,canvas:'auto',canvasW:64,canvasH:64,align:'bottom-center',padding:0,
  fps:12,direction:'forward',zoom:0,bg:'checker',onionBefore:0,onionAfter:0,
@@ -55,6 +55,10 @@ export function mount({el,def}){
  let project=P.project(),past=[],future=[],selected=new Set(),busy=false,generation=0,error='',abort=null;
  let stage=STAGES.includes(def?.stage)?def.stage:'slice';
  let suggestions=[],autoMerge=null,animationId='',frameCursor=0,boxId='',advancedOpen=false;
+ // What the automatic steps decided, kept so the panel can show it and offer the way back:
+ // keyInfo — the detected background colour; islands — small islands attached or left over;
+ // gridHint — Auto's frames straddle a detected grid; anchor — the Shift+click range start.
+ let keyInfo=null,keyDeclined=false,islands=null,showIslands=true,gridHint=null,anchorId=null,progressText='',deleteArmed=0;
  let atlasResult=null,jitter=null,fixPreview=null,duplicates=null,seam=null,normalizePreview=null;
  let playing=true,raf=0,clock=0,lastFrameTime=0,timer=0,diffView=false,pivotUnit='unit',pivotScope='selected';
  let box={type:'hit',shape:'rect',x:0,y:0,w:8,h:8,cx:8,cy:8,r:4},range={from:1,to:1};
@@ -137,6 +141,7 @@ ${strip()}
 <div class="slicer-rect" id="labRect" hidden><span class="opt-label">${esc(T('exact'))}</span><div class="field-row">${['x','y','w','h'].map(k=>`<label class="field inline"><span>${k.toUpperCase()}</span><input id="labRect${k.toUpperCase()}" data-rect="${k}" type="number" min="${k==='w'||k==='h'?1:0}" max="65535" step="1" inputmode="numeric"></label>`).join('')}</div></div>
 <p class="viewer-note">${esc(T('sliceHint'))}</p>`;
    tools.innerHTML=`<form id="labOptions" class="options" autocomplete="off"><span class="opt-label">${esc(T('mode'))}</span>${seg('mode',['auto','grid'],v=>T('modes.'+v),{aria:T('mode')})}
+<div id="labAssist" class="lab-assist" aria-live="polite"></div>
 <div id="labAuto" ${o.mode==='auto'?'':'hidden'}><p class="hint">${esc(T('autoHint'))}</p>${check('autoMerge',{id:'labAutoMerge',label:'mergeAuto'})}
 <label class="field"><span>${esc(T('merge'))} <output id="labMergeOut">${o.merge}</output></span><input id="labMerge" data-num="merge" type="range" min="0" max="24" value="${Math.min(24,o.merge)}" ${o.autoMerge?'disabled':''}></label>
 <p class="hint" id="labMergeReason"></p></div>
@@ -237,11 +242,38 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
  }
 
  // ---------------------------------------------------------------- detection
+ /** A lazy band reader over any canvas (the sheet or the keyed working copy). */
+ function canvasSource(canvas){
+  const ctx=ctxOf(canvas);
+  return {width:canvas.width,height:canvas.height,read(r){const d=ctx.getImageData(r.x,r.y,r.w,r.h);return {data:d.data,width:r.w,height:r.h};}};
+ }
+ /** The working copy with the key colour made transparent, written band by band so a large
+  * sheet never needs a second full RGBA array. The colour is removed everywhere, not only where
+  * it touches the border: key pixels between a character's arms are background too. */
+ function keyedCanvas(color,tolerance){
+  const out=Im.canvas(sheet.width,sheet.height),src=ctxOf(sheet),dst=out.getContext('2d');
+  const rows=Math.max(1,Math.floor(1_048_576/sheet.width));
+  for(let y=0;y<sheet.height;y+=rows){
+   const h=Math.min(rows,sheet.height-y),band=src.getImageData(0,y,sheet.width,h);
+   const keyed=applyColorKey({data:band.data,width:band.width,height:h},color,{tolerance});
+   dst.putImageData(new ImageData(keyed.data,band.width,h),0,y);
+  }
+  return out;
+ }
  async function prepare(){
-  const want=o.key==='none'?'':`${o.key}|${o.keyColor}|${o.tolerance}`;
+  // 'auto' looks for a key colour and applies it only when the evidence is strong ('high');
+  // a weaker guess is offered in the panel, never applied behind the person's back.
+  if(o.key==='auto')keyInfo=keyInfo||detectColorKey(canvasSource(sheet));
+  const useAuto=o.key==='auto'&&keyInfo?.apply&&!keyDeclined;
+  const want=o.key==='custom'?`custom|${o.keyColor}|${o.tolerance}`:useAuto?`auto|${keyInfo.color}|${keyInfo.tolerance}`:'none';
   if(workKey===want&&work)return work;
   if(work&&work!==sheet)Im.release(work);
-  work=want?await Im.processPixels(sheet,'remove',{color:o.key==='custom'?rgb(o.keyColor):borderColor(sheet),tolerance:o.tolerance},()=>{}):sheet;
+  let color=null,tolerance=o.tolerance;
+  if(o.key==='custom')color=rgb(o.keyColor);
+  else if(useAuto){color=keyInfo.color;tolerance=keyInfo.tolerance;}
+  work=color?keyedCanvas(color,tolerance):sheet;
+  // The grid reading depends on which pixels are transparent, so it is redone for a new key.
+  if(workKey!==null&&workKey!==want)suggestions=[];
   workKey=want;reader=null;return work;
  }
  function gridSpec(){
@@ -262,15 +294,24 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
    // Grid suggestions are read off the sheet once and band by band, so they cost no full copy and
    // are ready even when component labelling refuses the sheet — which is what makes the "too
    // large for Auto" message actionable instead of a dead end.
-   if(!suggestions.length){suggestions=detectGrid(s,{custom:[o.cellW,o.cellH],limit:5,signal}).suggestions;await yieldUI();if(gen!==generation)return;}
+   if(!suggestions.length){suggestions=detectGridWithColour(s,{custom:[o.cellW,o.cellH],limit:5,signal}).suggestions;await yieldUI();if(gen!==generation)return;}
    let rects;
+   islands=null;gridHint=null;
    if(o.mode==='auto'){
-    if(s.width*s.height>ANALYSIS_PIXELS)throw Error(T('tooLargeForAuto',{w:s.width,h:s.height,mp:(ANALYSIS_PIXELS/1e6).toFixed(0)}));
-    const found=detectFrames(s,{threshold:o.threshold,minArea:Math.min(o.minArea,s.width*s.height),
-     distance:o.autoMerge?'auto':o.merge});
+    // Band by band with a turn for the page in between, so a 4096² sheet labels with a
+    // progress line instead of freezing — and with no megapixel cap below the sheet limit.
+    const found=await detectFramesAsync(s,{threshold:o.threshold,minArea:Math.min(o.minArea,s.width*s.height),
+     distance:o.autoMerge?'auto':o.merge,signal,pause:yieldUI,
+     progress:({done,total})=>{if(gen!==generation)return;progressText=T('labelling',{a:Math.round(done/total*100)});renderSummary();}});
+    progressText='';
+    if(gen!==generation)return;
     autoMerge=found.auto;
     if(o.autoMerge)o.merge=found.distance;
     rects=found.rects;
+    islands={attached:found.attached,unassigned:found.unassigned,unassignedPixels:found.unassignedPixels,
+     attachedPixels:found.attached.reduce((sum,a)=>sum+a.island.area,0),smallCount:found.smallCount};
+    showIslands=true;
+    gridHint=autoVersusGrid(found.rects,suggestions[0]);
    }else{
     const cells=gridCells(gridSpec());
     rects=readingOrder(cells);
@@ -283,7 +324,7 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
    project=P.project({frames,settings:{...o}});
    selected=new Set();animationId='';frameCursor=0;atlasResult=null;invalidate();error='';
   }catch(e){if(e?.name!=='AbortError'){project=P.project();error=e?.message||String(e);}}
-  finally{if(gen===generation){busy=false;render();}}
+  finally{if(gen===generation){busy=false;progressText='';render();}}
  }
  const schedule=()=>{clearTimeout(timer);timer=setTimeout(()=>detect(),90);};
 
@@ -306,6 +347,10 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
    return `<g class="slicer-box ${on?'is-selected':''}"><rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}"/><text x="${r.x+unit(2)}" y="${r.y+label}" font-size="${label}">${i+1}</text></g>`;
   }).join('');
   if(live)html+=`<rect class="slicer-new" x="${live.x}" y="${live.y}" width="${live.w}" height="${live.h}"/>`;
+  if(showIslands&&o.mode==='auto'&&islands?.unassigned?.length){
+   const pad=unit(2);
+   html+=islands.unassigned.slice(0,2000).map(r=>`<rect class="lab-island" x="${r.x-pad}" y="${r.y-pad}" width="${r.w+pad*2}" height="${r.h+pad*2}"/>`).join('');
+  }
   if(selected.size===1&&!drag){
    const f=currentFrame();
    if(f)html+=HANDLES.map(([name,fx,fy])=>{const s=unit(9);return `<rect class="slicer-handle" data-handle="${name}" x="${f.sourceRect.x+f.sourceRect.w*fx-s/2}" y="${f.sourceRect.y+f.sourceRect.h*fy-s/2}" width="${s}" height="${s}"/>`;}).join('');
@@ -532,8 +577,10 @@ ${poly}${shapes}
   const lines=[];
   if(stage==='animate'&&animation())lines.push(`${animation().name} · ${P.playback(project,animation()).length} · ${animation().fps}fps`);
   if(stage==='export'&&atlasResult)lines.push(`${atlasResult.atlas.width}×${atlasResult.atlas.height} · ${T('efficiency',{n:Math.round(atlasResult.result.efficiency*100)})}`);
-  box.innerHTML=error?`<div class="summary-big muted">…</div><div class="summary-line bad">${esc(error)}</div>`
-   :busy?`<div class="summary-big muted">…</div><div class="summary-line">${esc(T('working'))}</div>`
+  box.classList.toggle('is-error',!!error&&!busy);
+  box.classList.toggle('warn',!error&&!busy&&!!islands?.unassigned?.length&&stage==='slice');
+  box.innerHTML=error?`<div class="summary-big">!</div><div class="summary-line"><b>${esc(T('errorTitle'))}</b> · ${esc(error)}</div>`
+   :busy?`<div class="summary-big muted">…</div><div class="summary-line">${esc(progressText||T('working'))}</div>`
    :`<div class="summary-big">${esc(T('frameCount',{n:count}))}</div>${lines.map(l=>`<div class="summary-line">${esc(l)}</div>`).join('')}${problems.map(p=>`<div class="summary-line bad">${esc(p)}</div>`).join('')}`;
   const label={slice:T('stages.normalize'),normalize:T('runNormalize'),animate:T('stages.boxes'),boxes:T('stages.export'),
    export:T('download',{f:T('targets2.'+o.target)})}[stage];
@@ -546,7 +593,7 @@ ${poly}${shapes}
  function renderSuggest(){
   const host=q('#labSuggest');if(!host)return;
   host.innerHTML=suggestions.length?suggestions.map((s,i)=>
-   `<button type="button" class="chip" data-action="lab-suggest" data-index="${i}" title="${esc(s.reasons.join('\n'))}" aria-describedby="labSuggestReason${i}">${s.cellWidth}×${s.cellHeight}<small>${esc(s.confidence)} ${Math.round(s.score*100)}%</small><span class="sr-only" id="labSuggestReason${i}">${esc(s.reasons.join('. '))}</span></button>`).join('')
+   `<button type="button" class="chip" data-action="lab-suggest" data-index="${i}" title="${esc(s.reasons.join('\n'))}" aria-describedby="labSuggestReason${i}">${s.cellWidth}×${s.cellHeight}${s.marginX||s.marginY?` m${s.marginX}`:''}${s.spacingX||s.spacingY?` s${s.spacingX}`:''}<small>${esc(text('confidence.'+s.confidence))} ${Math.round(s.score*100)}%${s.source==='colour'?' · '+esc(T('gridColour')):''}</small><span class="sr-only" id="labSuggestReason${i}">${esc(s.reasons.join('. '))}</span></button>`).join('')
    :`<span class="hint">${esc(T('noSuggestion'))}</span>`;
  }
  function renderRect(){
@@ -555,6 +602,25 @@ ${poly}${shapes}
   host.hidden=!one;
   if(!one||host.contains(document.activeElement))return;
   for(const input of host.querySelectorAll('[data-rect]'))input.value=one.sourceRect[input.dataset.rect];
+ }
+ /** What the automatic steps did, with the way back: the background key, small islands that
+  * were attached or left over, and a grid when Auto's islands are frames that touch. */
+ function renderAssist(){
+  const host=q('#labAssist');if(!host)return;
+  const parts=[],conf=c=>text('confidence.'+c);
+  if(keyInfo&&o.key==='auto'){
+   const swatch=`<span class="lab-swatch lab-key-swatch" style="background:${esc(keyHex(keyInfo.color))}" aria-hidden="true"></span>`;
+   const why=`<details class="lab-why"><summary>${esc(T('keyWhy'))}</summary><ul>${keyInfo.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></details>`;
+   if(keyInfo.apply&&!keyDeclined)parts.push(`<div class="lab-assist-line" id="labKeyNote" data-key="${esc(keyHex(keyInfo.color))}" data-confidence="${keyInfo.confidence}" data-applied="true">${swatch}<span>${esc(T('keyApplied',{hex:keyHex(keyInfo.color),conf:conf(keyInfo.confidence)}))}</span><button type="button" class="mini-button" data-action="lab-key-off">${esc(T('keyOff'))}</button>${why}</div>`);
+   else if(keyInfo.confidence!=='low'||keyDeclined)parts.push(`<div class="lab-assist-line" id="labKeyNote" data-key="${esc(keyHex(keyInfo.color))}" data-confidence="${keyInfo.confidence}" data-applied="false">${swatch}<span>${esc(T('keySuggest',{hex:keyHex(keyInfo.color),conf:conf(keyInfo.confidence)}))}</span><button type="button" class="mini-button" data-action="lab-key-use">${esc(T('keyUse'))}</button>${why}</div>`);
+  }
+  if(o.mode==='auto'&&islands){
+   if(islands.attached.length)parts.push(`<div class="lab-assist-line" id="labIslandsAttached" data-n="${islands.attached.length}" data-px="${islands.attachedPixels}"><span>${esc(T('islandsAttached',{n:islands.attached.length,px:islands.attachedPixels}))}</span></div>`);
+   if(islands.unassignedPixels>0)parts.push(`<div class="lab-assist-line bad" id="labIslandsUnassigned" data-n="${islands.unassigned.length}" data-px="${islands.unassignedPixels}"><span>${esc(T('islandsUnassigned',{n:islands.unassigned.length,px:islands.unassignedPixels}))}</span>
+<button type="button" class="mini-button" data-action="lab-islands-toggle" aria-pressed="${showIslands}">${esc(showIslands?T('islandsHide'):T('islandsShow'))}</button><button type="button" class="mini-button" data-action="lab-islands-attach">${esc(T('islandsAttach'))}</button><button type="button" class="mini-button" data-action="lab-islands-add">${esc(T('islandsAdd'))}</button></div>`);
+  }
+  if(o.mode==='auto'&&gridHint?.recommend)parts.push(`<div class="lab-assist-line" id="labGridHint" data-grid="${gridHint.gridFrames}"><span>${esc(T('gridHint',{auto:gridHint.autoFrames,w:gridHint.cell.w,h:gridHint.cell.h,grid:gridHint.gridFrames,conf:conf(suggestions[0]?.confidence||'low')}))}</span><button type="button" class="mini-button" data-action="lab-suggest" data-index="0">${esc(T('useGrid'))}</button></div>`);
+  host.innerHTML=parts.join('');host.hidden=!parts.length;
  }
  function reflect(){
   const show=(sel,on)=>{const n=q(sel);if(n)n.hidden=!on;};
@@ -565,7 +631,8 @@ ${poly}${shapes}
   show('#labBoxRect',box.shape==='rect');show('#labBoxCircle',box.shape==='circle');
   const merge=q('#labMerge');if(merge)merge.disabled=o.autoMerge;
   const reason=q('#labMergeReason');
-  if(reason)reason.textContent=o.mode==='auto'&&autoMerge?`${T('mergeChosen',{n:o.merge})} — ${T('mergeWhy.'+(autoMerge.reasonCode||'merged'),{frames:autoMerge.frames,pct:Math.round((autoMerge.consistency||0)*100),until:autoMerge.until})}`:'';
+  if(reason)reason.textContent=o.mode==='auto'&&autoMerge?.reasonCode?`${T('mergeChosen',{n:o.merge})} — ${T('mergeWhy.'+autoMerge.reasonCode,{frames:autoMerge.frames,pct:Math.round((autoMerge.consistency||0)*100),until:autoMerge.until??''})}`:'';
+  renderAssist();
   const out=q('#labMergeOut');if(out)out.textContent=o.merge;
  }
  function render(){
@@ -789,8 +856,8 @@ ${poly}${shapes}
   if(handle){drag={kind:'resize',id:only.id,handle:handle[0],start:{...only.sourceRect},rect:{...only.sourceRect}};return;}
   const hit=[...project.frames].reverse().find(f=>inside(f.sourceRect,p));
   if(hit){
-   if(e.shiftKey||e.ctrlKey||e.metaKey)selected.has(hit.id)?selected.delete(hit.id):selected.add(hit.id);
-   else if(!selected.has(hit.id)||selected.size>1)selected=new Set([hit.id]);
+   if(e.shiftKey||e.ctrlKey||e.metaKey)select(hit.id,e);
+   else if(!selected.has(hit.id)||selected.size>1){selected=new Set([hit.id]);anchorId=hit.id;}
    drag={kind:'move',id:hit.id,from:p,start:{...hit.sourceRect},rect:{...hit.sourceRect}};
    drawOverlay();drawChips();renderRect();return;
   }
@@ -846,6 +913,36 @@ ${poly}${shapes}
   commit(P.reorderFrames(project,rects.map(r=>r.id)));
  }
 
+ /** Selection the way every editor does it: a plain click selects one, Shift+click selects the
+  * range from the last plainly clicked frame (strip order), Ctrl/⌘+click adds or removes one. */
+ function select(id,e){
+  const ids=project.frames.map(f=>f.id);
+  if(e.shiftKey&&anchorId&&ids.includes(anchorId)){
+   const a=ids.indexOf(anchorId),b=ids.indexOf(id),range=ids.slice(Math.min(a,b),Math.max(a,b)+1);
+   selected=e.ctrlKey||e.metaKey?new Set([...selected,...range]):new Set(range);
+  }else if(e.ctrlKey||e.metaKey){selected.has(id)?selected.delete(id):selected.add(id);anchorId=id;}
+  else{selected=new Set([id]);anchorId=id;}
+ }
+ /** Small islands left out of every frame: grow the nearest frame over each one. */
+ function attachIslands(){
+  if(!islands?.unassigned?.length||!project.frames.length)return;
+  const patches=new Map();
+  for(const island of islands.unassigned){
+   let best=null,gap=Infinity;
+   for(const f of project.frames){const r=patches.get(f.id)||f.sourceRect,g=rectGap(r,island),d=Math.max(g.x,g.y);if(d<gap){gap=d;best=f;}}
+   if(best)patches.set(best.id,unionRect([patches.get(best.id)||best.sourceRect,island]));
+  }
+  islands={...islands,attached:[...islands.attached,...islands.unassigned.map(island=>({island}))],attachedPixels:islands.attachedPixels+islands.unassignedPixels,unassigned:[],unassignedPixels:0};
+  setRects(patches);
+ }
+ /** …or make them frames of their own, merged with the same distance Auto used. */
+ function addIslandFrames(){
+  if(!islands?.unassigned?.length)return;
+  const groups=readingOrder(mergeRects(islands.unassigned,{distance:o.merge||0}));
+  const {frames}=framesFromRects(src(),groups,{trim:true,threshold:o.threshold,skipEmpty:false,prefix:prefix()+'_fx_'});
+  islands={...islands,unassigned:[],unassignedPixels:0};
+  commit({...project,frames:[...project.frames,...frames]});
+ }
  // ---------------------------------------------------------------- events
  el.addEventListener('click',async e=>{
   const b=e.target.closest('[data-action]');if(!b)return;
@@ -879,6 +976,10 @@ ${poly}${shapes}
     shellMarkup();detect();return;
    }
    if(a==='lab-order')return void orderFrames();
+   if(a==='lab-key-off'||a==='lab-key-use'){keyDeclined=a==='lab-key-off';if(a==='lab-key-use'&&keyInfo)keyInfo={...keyInfo,apply:true};detect();return;}
+   if(a==='lab-islands-toggle'){showIslands=!showIslands;drawOverlay();renderAssist();return;}
+   if(a==='lab-islands-attach')return void attachIslands();
+   if(a==='lab-islands-add')return void addIslandFrames();
    if(a==='lab-merge')return void mergeSelected();
    if(a==='lab-remove'){if(!selected.size)return;const ids=[...selected];selected=new Set();return void commit(P.removeFrames(project,ids));}
    if(a==='lab-chip-remove'){selected.delete(b.dataset.id);return void commit(P.removeFrames(project,[b.dataset.id]));}
@@ -974,8 +1075,7 @@ ${poly}${shapes}
  el.addEventListener('click',e=>{
   const chip=e.target.closest('.frame-chip');if(!chip?.dataset.id||e.target.closest('button'))return;
   const id=chip.dataset.id;
-  if(e.shiftKey||e.ctrlKey||e.metaKey)selected.has(id)?selected.delete(id):selected.add(id);
-  else selected=new Set([id]);
+  select(id,e);
   frameCursor=project.frames.findIndex(f=>f.id===id);
   if(stage==='slice'){drawOverlay();drawChips();renderRect();renderSummary();}
   else render();
@@ -1083,7 +1183,15 @@ ${poly}${shapes}
   if((e.ctrlKey||e.metaKey)&&lower==='a'){e.preventDefault();selected=new Set(project.frames.map(f=>f.id));render();return;}
   if(e.key==='Escape'){selected=new Set();render();return;}
   if(e.key===' '&&stage==='animate'){e.preventDefault();playing=!playing;return;}
-  if((e.key==='Delete'||e.key==='Backspace')&&selected.size){e.preventDefault();const ids=[...selected];selected=new Set();commit(P.removeFrames(project,ids));return;}
+  if(e.key===' '&&e.target.closest?.('#labSheetStage,#labOverlay,.frame-strip')){e.preventDefault();return;}
+  if((e.key==='Delete'||e.key==='Backspace')&&selected.size){
+   e.preventDefault();
+   // Slice is where frames are made and removed. Elsewhere a stray Delete must not wipe frames
+   // out of every animation: it asks for a second press, and either way Ctrl+Z brings them back.
+   if(stage!=='slice'&&Date.now()-deleteArmed>4000){deleteArmed=Date.now();toast(T('deleteAgain',{n:selected.size}));return;}
+   deleteArmed=0;
+   const ids=[...selected];selected=new Set();commit(P.removeFrames(project,ids));toast(T('deleted',{n:ids.length}));return;
+  }
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)&&selected.size===1&&stage==='slice'){
    e.preventDefault();
    const step=e.shiftKey?10:1,r=currentFrame().sourceRect;
@@ -1112,7 +1220,7 @@ ${poly}${shapes}
    if(files.length>1)toast(T('oneSheet'));
    const next=await Im.decode(file);
    if(sheet){if(work&&work!==sheet)Im.release(work);Im.release(sheet);}
-   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;
+   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;keyInfo=null;keyDeclined=false;islands=null;gridHint=null;anchorId=null;
    project=P.project();past=[];future=[];selected=new Set();suggestions=[];autoMerge=null;atlasResult=null;
    shellMarkup();cancelAnimationFrame(raf);raf=requestAnimationFrame(animate);
    track('tool_run',{intent:route.id});
@@ -1124,11 +1232,13 @@ ${poly}${shapes}
   abort?.abort();
   atlasResult?.release?.();
   if(work&&work!==sheet)Im.release(work);Im.release(sheet);
-  sheet=work=null;workKey=null;reader=null;
+  sheet=work=null;workKey=null;reader=null;keyInfo=null;keyDeclined=false;islands=null;gridHint=null;
   project=P.project();past=[];future=[];selected=new Set();suggestions=[];atlasResult=null;error='';invalidate();
   cancelAnimationFrame(raf);empty();
  }
  onLocale(()=>{if(!sheet){empty();return;}shellMarkup();render();});
+ // Work lives only in this tab: leaving it (All tools, a link, closing) asks first.
+ addEventListener('beforeunload',e=>{if(el.isConnected&&sheet&&project.frames.length){e.preventDefault();e.returnValue='';}});
  empty();
  return {add};
 }

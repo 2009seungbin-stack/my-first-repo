@@ -498,3 +498,22 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .ui-contrast-figures .chips-row{margin:8px 0}
 @media(max-width:860px){.ui-work{grid-template-columns:minmax(0,1fr)}.ns-stage{max-height:40vh}.ns-previews{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}}
 @media(max-width:600px){.ns-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-states{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}.ui-element{flex-wrap:wrap}.ui-table{font-size:12px}}
+/* ---- trust fixes: errors, automatic guesses with confidence, left-over islands ---- */
+.summary.is-error{background:#fdecea}.summary.is-error .summary-big{color:#c0392b}.summary.is-error .summary-line{color:#7f2a22}
+.lab-assist{display:grid;gap:6px;margin:10px 0 2px}.lab-assist[hidden]{display:none}
+.lab-assist-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;line-height:1.4;color:#334155;background:#f1f5f9;border-radius:10px;padding:7px 9px}
+.lab-assist-line.bad{background:#fff4e5;color:#7a4b00}.lab-assist-line>span{flex:1 1 180px;min-width:0}
+.lab-assist-line>span.lab-key-swatch{flex:0 0 14px;width:14px;height:14px;border-radius:4px;border:1px solid #0f172a55}
+.lab-why{flex-basis:100%;font-size:12px;color:#475569}.lab-why summary{cursor:pointer;font-weight:650}.lab-why ul{margin:4px 0 0 16px;padding:0}
+.lab-island{fill:none;stroke:#f97316;stroke-width:1.5;stroke-dasharray:3 2;vector-effect:non-scaling-stroke}
+.tl-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;line-height:1.4;border-radius:10px;padding:8px 10px;margin:8px 0;background:#fff4e5;color:#6b4a00}
+.tl-banner.low{background:#fdecea;color:#7f2a22}.tl-banner>span{flex:1 1 200px}
+.tl-mismatch{fill:none;stroke:#c0392b;stroke-width:2;stroke-dasharray:4 2;vector-effect:non-scaling-stroke}
+.pswap-work .pswap-palette{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.pswap-swatch{width:26px;height:26px;border-radius:6px;border:1px solid #0f172a33;cursor:pointer;padding:0}
+.pswap-swatch[aria-pressed="true"]{outline:3px solid #3182f6;outline-offset:1px}
+.pswap-rule{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:8px;margin:6px 0}
+.pswap-rule input[type=color]{width:38px;height:30px;padding:0;border:1px solid #cbd5e1;border-radius:6px}
+.pswap-views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pswap-views canvas{image-rendering:pixelated;max-width:100%;cursor:crosshair;background:repeating-conic-gradient(#e2e8f0 0 25%,#fff 0 50%) 0 0/16px 16px}
+@media(max-width:600px){.pswap-views{grid-template-columns:minmax(0,1fr)}}
