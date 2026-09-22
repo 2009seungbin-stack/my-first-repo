@@ -14,7 +14,7 @@ state — with `node:test` coverage in `tests/game-tile-grid.test.mjs` (14),
 `tests/game-autotile.test.mjs` (9), `tests/game-seams.test.mjs` (4), `tests/game-godot.test.mjs`
 (6) and `tests/game-collision.test.mjs` (8). The page module only orchestrates, and the padded
 atlas goes through the shared `src/atlas.js` engine. Browser coverage is the Tile Lab block in
-`tests/task-browser.py` (107 checks in that suite in total) and the two ported tile checks in
+`tests/task-browser.py` (109 checks in that suite in total) and the two ported tile checks in
 `tests/recipes-browser.py`.
 
 ## Routes
