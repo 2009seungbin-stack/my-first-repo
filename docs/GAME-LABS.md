@@ -36,10 +36,15 @@ src/task/registry.js         the Lab id and its intent ids all map to the Lab mo
 docs/<LAB>.md                input, output, algorithm, limits, export schema per feature
 ```
 
-* **One workspace per Lab.** A Lab is a single page module with stages (for Sprite Lab: Slice →
-  Normalize → Animate → Boxes → Pack → Export). Stages are views over the same in-memory project, so
-  nothing is re-uploaded. Intent URLs (`/game/sprite-slicer/`, `/game/sprite-pivot-editor/` …) open
-  the same Lab at the matching stage; only tools with their own search intent get a URL.
+* **One workspace per Lab.** A Lab is a single page module with stages. Stages are views over the
+  same in-memory project, so nothing is re-uploaded. Intent URLs open the same Lab at the matching
+  stage; only tools with their own search intent get a URL.
+  **Sprite Lab is built** — `src/task/sprite-lab.js`, five stages (Slice → Normalize → Animate →
+  Pivot & boxes → Pack & export) at `/game/sprite-lab/`, with `/sprite-slicer/`,
+  `/normalize-sprite-frames/`, `/game/sprite-animation-preview/`, `/game/sprite-pivot-editor/`,
+  `/game/hitbox-editor/` and `/game/collision-polygon-generator/` opening it at a stage. See
+  [SPRITE-LAB.md §8](SPRITE-LAB.md#8-the-workspace--srctasksprite-labjs) for the UI and what is
+  verified about it.
 * **Single source of truth.** Preview and export both read the model (`playbackOrder`,
   `playbackTimes`, frame rects, pivots, boxes). Pixels are cropped from the decoded sheet on demand;
   frames are never stored as per-frame RGBA copies. Undo stores model snapshots (small JSON), never images.

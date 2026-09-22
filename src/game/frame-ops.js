@@ -40,6 +40,58 @@ export function mergeRects(rects,{distance=2,maxFrames=MAX_FRAMES}={}){
  if(groups.size>maxFrames)throw Error(`${groups.size} frame candidates: raise the minimum area or the merge distance`);
  return [...groups.values()].map(parts=>({...unionRect(parts),area:parts.reduce((s,p)=>s+p.area,0),parts:parts.map(p=>p.index).sort((a,b)=>a-b)}));
 }
+const stdev=a=>{if(a.length<2)return 0;const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)*(v-m),0)/a.length);};
+const spreadOf=a=>{if(a.length<2)return 1;const m=a.reduce((s,v)=>s+v,0)/a.length;return m>0?clamp01(1-stdev(a)/m):0;};
+/** Every merge distance at which *something* new joins: for each pair, max(gapX,gapY) is the
+ * smallest distance that would join them, so the distinct values of that are the only distances
+ * where the answer can change. Trying 0…N one by one would do the same work N times over. */
+export function mergeThresholds(rects,{maxDistance=16}={}){
+ const out=new Set();
+ for(let i=0;i<rects.length;i++)for(let j=i+1;j<rects.length;j++){
+  const gap=rectGap(rects[i],rects[j]),need=Math.max(gap.x,gap.y);
+  if(need>0&&need<=maxDistance)out.add(need);
+ }
+ return [...out].sort((a,b)=>a-b);
+}
+/** How good a merge distance looks, on the two things a person judges it by: are the frames all
+ * about the same size, and does each frame's box actually hold artwork rather than empty space. */
+export function mergeEvidence(rects,distance,{maxFrames=MAX_FRAMES}={}){
+ const groups=mergeRects(rects,{distance,maxFrames});
+ const fill=clamp01(groups.reduce((s,g)=>s+g.area,0)/Math.max(1,groups.reduce((s,g)=>s+g.w*g.h,0)));
+ // A single group has no sizes to compare, so its own tightness stands in for consistency —
+ // capped, so "everything merged into one box" can never beat a genuinely uniform set of frames.
+ const consistency=groups.length>1?(spreadOf(groups.map(g=>g.w))+spreadOf(groups.map(g=>g.h)))/2:Math.min(.8,fill);
+ return {distance,frames:groups.length,parts:rects.length,consistency,fill,groups};
+}
+/** Picks the merge distance by itself. A sprite's hat, sword or cape sits 1–3px off its body, so
+ * "one component = one frame" is wrong far more often than it is right; but merging blindly glues
+ * neighbouring characters together. So: try only the distances at which something actually joins
+ * (`mergeThresholds`), and score each on frame-size consistency, box fill, and how long the answer
+ * survives before the next merge happens — the plateau the frame count settles on.
+ *
+ * If the raw components are already uniform (`UNIFORM_AT_ZERO`), nothing is merged at all: a sheet
+ * whose islands are all the same size is a sheet whose islands are the sprites.
+ * @returns {distance, frames, candidates, reason} — `reason` is UI-ready. */
+export const UNIFORM_AT_ZERO=.85;
+export function autoMergeDistance(rects,{maxDistance=16,maxFrames=MAX_FRAMES}={}){
+ if(!Number.isSafeInteger(maxDistance)||maxDistance<0||maxDistance>512)throw Error('maxDistance must be 0…512 pixels');
+ const base=mergeEvidence(rects,0,{maxFrames});
+ if(rects.length<2)return {distance:0,frames:base.frames,candidates:[scored(base,1,maxDistance)],reason:'one island, nothing to merge'};
+ const thresholds=mergeThresholds(rects,{maxDistance});
+ if(!thresholds.length)return {distance:0,frames:base.frames,candidates:[scored(base,maxDistance+1,maxDistance)],
+  reason:`no two islands are within ${maxDistance}px of each other`};
+ if(base.consistency>=UNIFORM_AT_ZERO)return {distance:0,frames:base.frames,candidates:[scored(base,thresholds[0],maxDistance)],
+  reason:`the islands are already ${Math.round(base.consistency*100)}% the same size, so each one is a frame`};
+ const all=[0,...thresholds],candidates=all.map((d,i)=>scored(mergeEvidence(rects,d,{maxFrames}),all[i+1]??maxDistance+1,maxDistance));
+ const best=candidates.reduce((a,b)=>b.score>a.score+1e-9?b:a);
+ return {distance:best.distance,frames:best.frames,candidates,
+  reason:best.distance===0?'merging nearby islands did not make the frames more consistent'
+   :`${best.frames} frames of ${Math.round(best.consistency*100)}% equal size, and nothing else joins until ${best.until}px`};
+}
+function scored(evidence,nextThreshold,maxDistance){
+ const stability=clamp01((nextThreshold-evidence.distance)/Math.max(1,maxDistance));
+ return {...evidence,groups:undefined,until:nextThreshold,stability,score:evidence.consistency*.5+evidence.fill*.2+stability*.3};
+}
 /** Sorts rectangles the way the sheet reads: rows top to bottom, then left to right inside a row.
  * `rowTolerance:'auto'` uses 35% of the median height, which keeps a tall sprite and a short one
  * on the same row but separates rows that merely overlap by a pixel. */
@@ -59,13 +111,16 @@ export function readingOrder(rects,{rowTolerance='auto',rightToLeft=false}={}){
  return out;
 }
 /** Detects frames on a sheet: alpha components → merged into frames → read in order.
+ * `distance:'auto'` lets `autoMergeDistance` choose, and reports what it chose and why.
  * Needs the sheet's pixels because `primitives.components` labels them (and inherits its
  * 4-megapixel analysis cap); everything after that works on rectangles only. */
-export function detectFrames(src,{threshold=ALPHA_THRESHOLD,minArea=4,distance=2,rowTolerance='auto',maxFrames=MAX_FRAMES,rightToLeft=false}={}){
+export function detectFrames(src,{threshold=ALPHA_THRESHOLD,minArea=4,distance='auto',rowTolerance='auto',maxFrames=MAX_FRAMES,maxDistance=16,rightToLeft=false}={}){
  const s=source(src),sheet=s.read({x:0,y:0,w:s.width,h:s.height});
  const found=components(sheet.data,sheet.width,sheet.height,{threshold,minArea,maxFrames});
- const rects=readingOrder(mergeRects(found,{distance,maxFrames}),{rowTolerance,rightToLeft});
- return {components:found,rects,rows:rects.length?rects[rects.length-1].row+1:0};
+ const auto=distance==='auto'?(found.length?autoMergeDistance(found,{maxDistance,maxFrames}):{distance:0,frames:0,candidates:[],reason:'the sheet is empty'}):null;
+ const used=auto?auto.distance:distance;
+ const rects=readingOrder(mergeRects(found,{distance:used,maxFrames}),{rowTolerance,rightToLeft});
+ return {components:found,rects,rows:rects.length?rects[rects.length-1].row+1:0,distance:used,auto};
 }
 /** Model frames for a list of sheet rectangles. `trim` records the alpha bounding box inside each
  * rectangle as `trimmedRect` (the pixels stay where they are; nothing is cropped yet). */

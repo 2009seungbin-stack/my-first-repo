@@ -76,32 +76,51 @@ with sync_playwright() as pw:
     ok('game pack ZIP preserves folder paths and all requested dimensions',all(rgba_image(z,f'{n}x{n}/asset.png').size==(n,n) for n in [16,32,64,128,47]))
     p.close()
 
-    # The sprite slicer is a single-task page now (src/task/sprite-slicer.js): frames are detected on
-    # drop with no Run button, edited on the sheet or by exact numbers, and exported as
-    # <prefix>_NNN.png + metadata.json. Same proof: the edited box decides the exported pixels.
+    # The sprite slicer and the frame normaliser are stages of the Sprite Lab now
+    # (src/task/sprite-lab.js): the old URLs open the same workspace at Slice and at Normalize,
+    # frames are detected on drop with no Run button, edited on the sheet or by exact numbers, and
+    # exported as an atlas + JSON (or per-frame PNGs). Same proofs, ported to the Lab.
     def open_task(path,files):
         page=mount(ctx,'/en/'+path+'/')
         page.locator('#fileInput').set_input_files([{'name':name,'mimeType':'image/png','buffer':buffer} for name,buffer in files])
         return page
+    def lab_download(page,action,name):
+        with page.expect_download() as event:page.locator(f'[data-action="{action}"]').click()
+        path=OUT/name;event.value.save_as(path);return path
     sheet=png(36,20,rects=[((1,2,5,8),'red'),((20,4,27,15),'green')])
     p=open_task('sprite-slicer',[('sheet.png',sheet)])
-    p.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    p.locator('#labSheet canvas').wait_for(timeout=60000)
     p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
     ok('sprite detection yields two editable candidates with no Run button',p.locator('.slicer-box').count()==2 and p.locator('.frame-chip[data-id]').count()==2)
     lang(p,'ko');ok('language switch preserves candidate order',p.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("x"))')==[1,20])
-    p.locator('.frame-chip[data-index="1"]').click();p.fill('#slicerRectW','6');p.wait_for_timeout(400)
-    z=archive(output(p,'sliced.zip'));meta=json.loads(z.read('metadata.json'))
-    ok('edited frame crop controls actual exported pixels',rgba_image(z,'sheet_002.png').size==(6,12) and meta['frames'][1]['w']==6)
-    ok('slicer metadata is schema-versioned and in strip order',meta['schemaVersion']==1 and [f['name'] for f in meta['frames']]==['sheet_001.png','sheet_002.png'])
+    p.locator('.frame-chip[data-index="1"]').click();p.fill('#labRectW','6');p.wait_for_timeout(500)
+    p.locator('[data-action="lab-stage"][data-stage="export"]').click();p.wait_for_timeout(1200)
+    z=archive(lab_download(p,'lab-primary','sliced.zip'));meta=json.loads(z.read('atlas.json'))
+    names=list(meta['frames'])
+    ok('edited frame crop controls actual exported pixels',
+       meta['frames'][names[1]]['rect']['w']==6 and meta['frames'][names[1]]['sourceSize']=={'w':6,'h':12})
+    atlas=rgba_image(z,'atlas.png');r=meta['frames'][names[1]]['rect']
+    ok('the exported atlas region really holds the edited crop',
+       atlas.crop((r['x'],r['y'],r['x']+r['w'],r['y']+r['h'])).size==(6,12))
+    ok('the export envelope is schema-versioned and in strip order',
+       meta['meta']['schemaVersion']==1 and names==['sheet_001','sheet_002'])
+    p.locator('#optionsAdvanced').evaluate('(d)=>d.open=true')
+    z=archive(lab_download(p,'lab-frames-zip','sliced-frames.zip'))
+    ok('per-frame PNGs still carry the edited crop',rgba_image(z,'sheet_002.png').size==(6,12))
+    p.locator('[data-action="lab-stage"][data-stage="slice"]').click();p.wait_for_timeout(400)
     p.screenshot(path=str(OUT/'sprite-slicer-desktop.png'),full_page=False);p.close()
 
-    frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
-    p=open_task('normalize-sprite-frames',frames)
-    p.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
-    ok('the common canvas is shown before any download',p.locator('#normSummary .summary-big').inner_text()=='6 × 8')
-    z=archive(output(p,'normalized.zip'))
-    a,b=[rgba_image(z,f'frames/frame-{i:03}.png') for i in [1,2]]
-    ok('frame normalization uses common canvas and identical bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8);p.close()
+    p=open_task('normalize-sprite-frames',[('sheet.png',png(36,20,rects=[((2,2,7,11),'red'),((20,4,25,7),'blue')]))])
+    p.wait_for_function('()=>document.querySelectorAll("#labAfter canvas").length===2',timeout=60000)
+    ok('the common canvas is shown before any download',p.locator('#labNormSize').inner_text().startswith('6×10'))
+    p.locator('#taskDownload').click();p.wait_for_timeout(600)
+    p.locator('[data-action="lab-stage"][data-stage="export"]').click();p.wait_for_timeout(1000)
+    p.locator('#optionsAdvanced').evaluate('(d)=>d.open=true')
+    z=archive(lab_download(p,'lab-frames-zip','normalized.zip'))
+    a,b=[rgba_image(z,n) for n in sorted(z.namelist())]
+    ok('frame normalization uses common canvas and identical bottom anchor',
+       a.size==b.size==(6,10) and a.getbbox()[3]==b.getbbox()[3]==10);p.close()
+
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
     p=ctx.new_page();p.goto('http://127.0.0.1:4173/en/sprite-sheet-maker/',wait_until='networkidle')
     p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()

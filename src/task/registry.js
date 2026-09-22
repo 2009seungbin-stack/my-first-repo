@@ -27,13 +27,20 @@ export const TASK_TOOLS=Object.freeze({
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
  crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
- 'sprite-slicer':{module:'sprite-slicer',kinds:['image'],next:['sprite-sheet-maker','frame-normalize','pixel']},
- 'frame-normalize':{module:'frame-normalize',kinds:['image'],next:['sprite-sheet-maker','sprite-slicer','pixel']},
- 'mask-packer':{module:'mask-packer',kinds:['image'],next:['compress','convert','texture-map']},
  ...Object.fromEntries(Object.entries({'refiner':['pixel-lab','sprite-sheet-maker','palette-swap'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['palette-swap-ramp','pixel-lab','refiner'],'margin-crop':['resize','compress','convert'],'tile-helper':['sprite-sheet-maker','atlas-padding','pixel'],'atlas-padding':['sprite-sheet-maker','tile-helper','compress'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize'],'bitmap-font':['sprite-sheet-maker','atlas-padding','pixel']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
  pixel:{module:'pixel',kinds:['image'],next:['pixel-lab','sprite-sheet-maker','palette-swap']},
  // Pixel Lab: one workspace module behind the Lab id and every pixel-palette intent URL.
- ...Object.fromEntries(Object.entries({'pixel-lab':['sprite-sheet-maker','refiner','pixel'],'palette-extractor':['pixel-lab','palette-swap-ramp','pixel'],'palette-swap-ramp':['pixel-lab','palette-extractor','palette-swap'],'pixel-art-cleanup':['pixel-lab','pixel-perfect-checker','pixel'],'pixel-perfect-checker':['pixel-lab','pixel-art-cleanup','refiner']}).map(([id,next])=>[id,{module:'pixel-lab',kinds:['image'],next}]))
+ ...Object.fromEntries(Object.entries({'pixel-lab':['sprite-sheet-maker','refiner','pixel'],'palette-extractor':['pixel-lab','palette-swap-ramp','pixel'],'palette-swap-ramp':['pixel-lab','palette-extractor','palette-swap'],'pixel-art-cleanup':['pixel-lab','pixel-perfect-checker','pixel'],'pixel-perfect-checker':['pixel-lab','pixel-art-cleanup','refiner']}).map(([id,next])=>[id,{module:'pixel-lab',kinds:['image'],next}])),
+ 'mask-packer':{module:'mask-packer',kinds:['image'],next:['compress','convert','texture-map']},
+ // Sprite Lab is one workspace; these ids are the stages it opens at, so the old slicer and
+ // normaliser URLs keep working and the focused search intents land where they belong.
+ 'sprite-lab':{module:'sprite-lab',stage:'slice',kinds:['image'],next:['sprite-sheet-maker','palette-swap','pixel']},
+ 'sprite-slicer':{module:'sprite-lab',stage:'slice',kinds:['image'],next:['sprite-lab','frame-normalize','pixel']},
+ 'frame-normalize':{module:'sprite-lab',stage:'normalize',kinds:['image'],next:['sprite-lab','sprite-slicer','pixel']},
+ 'sprite-animation-preview':{module:'sprite-lab',stage:'animate',kinds:['image'],next:['sprite-lab','sprite-slicer']},
+ 'sprite-pivot-editor':{module:'sprite-lab',stage:'boxes',kinds:['image'],next:['sprite-lab','sprite-sheet-maker']},
+ 'hitbox-editor':{module:'sprite-lab',stage:'boxes',kinds:['image'],next:['sprite-lab','sprite-animation-preview']},
+ 'collision-polygon-generator':{module:'sprite-lab',stage:'boxes',kinds:['image'],next:['sprite-lab','sprite-sheet-maker']}
 });
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
@@ -41,8 +48,7 @@ export const DIRECTORY=Object.freeze([
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
- ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack',
-  'pixel-lab','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','texture-lab','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed']]
+ ['game',['pixel','refiner','sprite-slicer','sprite-sheet-maker','frame-normalize','palette-swap','atlas-padding','tile-helper','texture-map','mask-packer','bitmap-font','favicon-pack','pixel-lab','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','texture-lab','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed','sprite-lab','sprite-animation-preview','sprite-pivot-editor','hitbox-editor','collision-polygon-generator']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF','pdf-protect':'LOCK','pdf-unlock':'OPEN',pdf:'EDIT',

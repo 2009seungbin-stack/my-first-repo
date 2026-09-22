@@ -17,4 +17,9 @@ export const SEARCH_TERMS = Object.freeze({
  'palette-swap-ramp':['palette swap ramp','team colors','recolor sprite','색 교체','チームカラー'],
  'pixel-art-cleanup':['pixel art cleanup','remove anti aliasing','stray pixels','안티에일리어싱 제거','アンチエイリアス除去'],
  'pixel-perfect-checker':['pixel perfect checker','pixel size detect','downscale pixel art','도트 크기 확인','ドットサイズ判定'],
+ 'sprite-lab':['sprite lab','sprite sheet workflow','spritesheet editor','texturepacker alternative','스프라이트 랩','스프라이트 시트 작업','スプライトラボ','スプライトシート編集'],
+ 'sprite-animation-preview':['animation preview','sprite fps','ping pong animation','jitter fix','애니메이션 미리보기','프레임 흔들림','アニメプレビュー','ぶれ補正'],
+ 'sprite-pivot-editor':['pivot editor','sprite origin','anchor point','기준점 편집','피벗','基準点','ピボット'],
+ 'hitbox-editor':['hitbox','hurtbox','attack frames','히트박스','피격 판정','ヒットボックス','当たり判定'],
+ 'collision-polygon-generator':['collision polygon','collision shape','physics outline','충돌 다각형','충돌 영역','衝突ポリゴン','コリジョン'],
 });
