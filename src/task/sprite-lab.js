@@ -565,7 +565,7 @@ ${poly}${shapes}
   show('#labBoxRect',box.shape==='rect');show('#labBoxCircle',box.shape==='circle');
   const merge=q('#labMerge');if(merge)merge.disabled=o.autoMerge;
   const reason=q('#labMergeReason');
-  if(reason)reason.textContent=o.mode==='auto'&&autoMerge?`${T('mergeChosen',{n:o.merge})} — ${autoMerge.reason}`:'';
+  if(reason)reason.textContent=o.mode==='auto'&&autoMerge?`${T('mergeChosen',{n:o.merge})} — ${T('mergeWhy.'+(autoMerge.reasonCode||'merged'),{frames:autoMerge.frames,pct:Math.round((autoMerge.consistency||0)*100),until:autoMerge.until})}`:'';
   const out=q('#labMergeOut');if(out)out.textContent=o.merge;
  }
  function render(){

@@ -81,10 +81,11 @@ export function autoMergeDistance(rects,{maxDistance=16,maxFrames=MAX_FRAMES}={}
  if(!thresholds.length)return {distance:0,frames:base.frames,candidates:[scored(base,maxDistance+1,maxDistance)],
   reason:`no two islands are within ${maxDistance}px of each other`};
  if(base.consistency>=UNIFORM_AT_ZERO)return {distance:0,frames:base.frames,candidates:[scored(base,thresholds[0],maxDistance)],
-  reason:`the islands are already ${Math.round(base.consistency*100)}% the same size, so each one is a frame`};
+  reasonCode:'uniform',consistency:base.consistency,reason:`the islands are already ${Math.round(base.consistency*100)}% the same size, so each one is a frame`};
  const all=[0,...thresholds],candidates=all.map((d,i)=>scored(mergeEvidence(rects,d,{maxFrames}),all[i+1]??maxDistance+1,maxDistance));
  const best=candidates.reduce((a,b)=>b.score>a.score+1e-9?b:a);
  return {distance:best.distance,frames:best.frames,candidates,
+  reasonCode:best.distance===0?'noGain':'merged',consistency:best.consistency,until:best.until,
   reason:best.distance===0?'merging nearby islands did not make the frames more consistent'
    :`${best.frames} frames of ${Math.round(best.consistency*100)}% equal size, and nothing else joins until ${best.until}px`};
 }
