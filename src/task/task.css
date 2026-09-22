@@ -221,7 +221,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .lab-stage-view svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;outline:none;pointer-events:none}
 .bg-checker{background-color:#fff;background-image:linear-gradient(45deg,#e7ebf1 25%,transparent 25%),linear-gradient(-45deg,#e7ebf1 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebf1 75%),linear-gradient(-45deg,transparent 75%,#e7ebf1 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
 .bg-black{background:#101828}.bg-white{background:#fff;box-shadow:inset 0 0 0 1px var(--line)}.bg-magenta{background:#ff00ff}
-#labTools .field.inline{gap:6px}#labTools .field.inline span{flex:1 1 auto;min-width:0}#labTools .field.inline input{flex:0 0 auto;width:72px!important;min-width:56px}
+#labTools .field.inline{gap:6px}#labTools .field.inline span{flex:1 1 auto;min-width:0}#labTools .field.inline input{flex:0 0 auto;width:78px!important;min-width:56px}#labTools .field.inline input[data-pivot]{width:88px!important}
 #labTools .chip small{margin-left:5px;font-weight:500;opacity:.7}
 #labAtlasStage{min-height:0}#labAtlasStage:not(.is-packed) .slicer-sheet{display:none}
 .chips-row .segmented{display:inline-flex;flex:none;gap:6px}.chips-row .segmented button{padding:7px 10px;font-size:11.5px;font-weight:700}
@@ -233,6 +233,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .lab-notes{display:grid;gap:4px;margin-top:8px}.lab-notes:empty{display:none}
 .lab-note{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:650;color:#51647d}
 .lab-note .mini-button{margin-left:auto;min-width:26px;height:26px;line-height:1}
+.lab-note[data-action]{cursor:pointer;border-radius:9px;padding:2px 4px}.lab-note.is-selected{background:#eef4ff;box-shadow:inset 0 0 0 1px var(--blue)}.lab-note[data-action]:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .lab-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid #94a3b8;flex:none}
 .lab-swatch.lab-box-hit{background:repeating-linear-gradient(45deg,#f97316 0 2px,#fff 2px 4px)}
 .lab-swatch.lab-box-hurt{background:repeating-linear-gradient(0deg,#2563eb 0 1px,#fff 1px 3px),repeating-linear-gradient(90deg,#2563eb 0 1px,#fff0 1px 3px)}

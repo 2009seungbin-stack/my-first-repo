@@ -719,6 +719,11 @@ export with Pillow, `zipfile` and `json`. Run it against your own server with
 | **the ZIP the Lab produced loads in Godot 4** | `tests/fixtures/game/godot-validate-bundle.mjs` unpacks the downloaded bundle as a Godot project, the shipped GDScript builds the `SpriteFrames`, `ResourceSaver` saves it, it is reloaded with `CACHE_MODE_IGNORE`, and every animation speed, loop flag, per-frame duration, `AtlasTexture` region, margin, reported size, `filter_clip` and page size is compared with the bundle's own JSON; then the shipped headless importer is run on its own | **VERIFIED** in **Godot 4.7.2.stable.official.ed1daf0bf** — 2 animations, 6 frames, 3 `CollisionPolygon2D` nodes in the packed scene, `problems=0` |
 | that Godot check can fail | one frame's `sourceSize.w` in the bundle raised by 5px | **VERIFIED** — `problems=2`, `MISMATCH … reports size (40.0, 64.0), expected (45.0, 64.0)`, exit 1 |
 | Unity is labelled UNVERIFIED where a person would see it | the chip note in red in the UI, `unity.verified: false` in the JSON, the word in `NerulioSpriteImporter.cs` and in `UNITY-README.md`, and no `.meta` file | **VERIFIED** that the label is there — the import itself is **UNVERIFIED** |
+| a box is drawn on the frame it belongs to, and only there | the box is added to frames 4–6; frame 4's overlay has one `hit` shape, frame 1's has none and says so; clicking the box in the list highlights it | **VERIFIED** — this is the check that caught a `ReferenceError` which only fired when the *displayed* frame had a box |
+| a mirrored frame exports really flipped pixels | an asymmetric sprite mirrored; both atlas regions compared with the source crop and its `FLIP_LEFT_RIGHT`, and neither is aliased to the other | **VERIFIED** — and the mirrored pivot is `1 − x` |
+| a 2048×2048 sheet is handled or explained | Auto refuses with the sheet size, the limit and "switch to Grid"; Grid then suggests 256×256 and slices all 64 cells | **VERIFIED** |
+| 64 byte-identical cells are stored once | the same sheet packed with de-duplication | **VERIFIED** — 64 frames, 63 `aliasOf`, one 204×204 page at 96% |
+| a settings link is a preset and carries no pixels | the page opened at `?mode=grid&cellW=48&atlasPadding=4&maxSize=512`; the controls and the slicing follow, and `settingsQuery`/`settingsFromQuery` round-trip in the page | **VERIFIED** — no `data:` in the query |
 | the old URLs still work and still prove what they proved | `sprite-slicer` and `normalize-sprite-frames` checks ported from `tests/task-browser.py` and `tests/recipes-browser.py`: detection with no Run button, handles, exact numbers, the edited rectangle deciding the exported pixels, undo, grid suggestions, one canvas and one bottom edge | **VERIFIED** — both suites |
 | no horizontal scroll, no console errors | every stage at 1440, 390 and 320 | **VERIFIED** — `scrollWidth == innerWidth` at all three, 15 stage screenshots, zero page errors |
 
@@ -749,8 +754,10 @@ The 17 MB heap for a 100-frame project is the point of the `source` contract: on
   whole sheet at once. The Lab explains it and points at Grid, but Auto on a 4096×4096 sheet is not
   possible without moving component labelling to a tiled or worker path.
 * **The pivot crosshair cannot be dragged.** Presets and the numeric fields (normalised and pixel)
-  are the only way to move it; the overlay is `pointer-events:none`. Boxes cannot be dragged either —
-  they are typed. This is the largest gap against the brief's "drag crosshair".
+  are the only way to move it; the overlay is `pointer-events:none`. Boxes can be *selected* from the
+  list (which highlights them on the frame) but not dragged or resized on the canvas — they are
+  typed. This is the largest gap against the brief's "drag crosshair", and it is a keyboard-complete
+  gap rather than a missing capability.
 * **Polygon boxes have no drawing tool.** Choosing `polygon` creates a rectangle of four points,
   editable only as numbers.
 * Cancellation covers the debounced re-detect (an `AbortController` per run, passed to `detectGrid`).

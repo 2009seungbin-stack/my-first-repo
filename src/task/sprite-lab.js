@@ -54,7 +54,7 @@ export function mount({el,def}){
  let sheet=null,work=null,workKey=null,sourceName='sprite',reader=null;
  let project=P.project(),past=[],future=[],selected=new Set(),busy=false,generation=0,error='',abort=null;
  let stage=STAGES.includes(def?.stage)?def.stage:'slice';
- let suggestions=[],autoMerge=null,animationId='',frameCursor=0;
+ let suggestions=[],autoMerge=null,animationId='',frameCursor=0,boxId='',advancedOpen=false;
  let atlasResult=null,jitter=null,fixPreview=null,duplicates=null,seam=null,normalizePreview=null;
  let playing=true,raf=0,clock=0,lastFrameTime=0,timer=0,diffView=false,pivotUnit='unit',pivotScope='selected';
  let box={type:'hit',shape:'rect',x:0,y:0,w:8,h:8,cx:8,cy:8,r:4},range={from:1,to:1};
@@ -126,6 +126,8 @@ export function mount({el,def}){
 
  function stageMarkup(){
   const board=q('#labBoard'),tools=q('#labTools');if(!board)return;
+  // Rebuilding the tools must not fold Advanced away under someone who just opened it.
+  advancedOpen=q('#optionsAdvanced')?.open??advancedOpen;
   if(stage==='animate'||stage==='boxes')ensureAnimation();
   if(stage==='slice'){
    board.innerHTML=`<div class="view-head"><strong>${esc(T('sheet'))}</strong><span id="labInfo"></span></div>
@@ -140,7 +142,7 @@ ${strip()}
 <p class="hint" id="labMergeReason"></p></div>
 <div id="labGrid" ${o.mode==='grid'?'':'hidden'}><span class="opt-label">${esc(T('suggested'))}</span><div class="chips-row" id="labSuggest"></div>
 <span class="opt-label">${esc(T('cellCustom'))}</span><div class="field-row">${num('cellW',{id:'labCellW'})}${num('cellH',{id:'labCellH'})}</div></div>
-<details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
+<details class="options-advanced" id="optionsAdvanced" ${advancedOpen?'open':''}><summary>${esc(text('advanced'))}</summary>
 <div id="labAutoAdvanced" ${o.mode==='auto'?'':'hidden'}><div class="field-row">${num('threshold')}${num('minArea')}</div></div>
 <div id="labGridAdvanced" ${o.mode==='grid'?'':'hidden'}><div class="field-row">${num('offsetX')}${num('offsetY')}</div><div class="field-row">${num('spacingX')}${num('spacingY')}</div>${check('skipEmpty')}</div>
 <label class="field"><span>${esc(T('key'))}</span><select data-select="key">${[['none','keyNone'],['auto','keyAuto'],['custom','keyCustom']].map(([v,k])=>`<option value="${v}" ${o.key===v?'selected':''}>${esc(T(k))}</option>`).join('')}</select></label>
@@ -177,7 +179,7 @@ ${strip()}
 <div class="chips-row"><button type="button" class="mini-button" data-action="lab-autofix" id="labAutoFix">${esc(T('autoFix'))}</button><button type="button" class="mini-button" data-action="lab-mirror">${esc(T('mirror'))}</button></div>
 <p class="hint" id="labFixNeedsCanvas" hidden>${esc(T('fixNeedsCanvas'))}</p>
 <div id="labFixBox" hidden><p class="hint" id="labFixText"></p><div class="chips-row"><button type="button" class="chip" data-action="lab-fix-keep" id="labFixKeep">${esc(T('keepFix'))}</button><button type="button" class="mini-button" data-action="lab-fix-drop">${esc(T('dropFix'))}</button></div></div>
-<details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
+<details class="options-advanced" id="optionsAdvanced" ${advancedOpen?'open':''}><summary>${esc(text('advanced'))}</summary>
 <label class="field"><span>${esc(T('duration'))}</span><input id="labDuration" data-duration type="number" min="1" max="60000" step="1" placeholder="${esc(T('durationAuto'))}" inputmode="numeric"></label>
 <label class="field"><span>${esc(T('tag'))}</span><select data-select-tag id="labTag"><option value=""></option>${P.TAGS.map(tg=>`<option value="${tg}">${esc(tg)}</option>`).join('')}</select></label>
 <span class="opt-label">${esc(T('onion'))}</span><div class="field-row">${num('onionBefore',{id:'labOnionBefore'})}${num('onionAfter',{id:'labOnionAfter'})}</div>
@@ -205,7 +207,7 @@ ${strip()}`;
 <div class="field-row"><label class="field inline"><span>${esc(T('rangeFrom'))}</span><input id="labRangeFrom" data-range="from" type="number" min="1" step="1" value="${range.from}"></label><label class="field inline"><span>${esc(T('rangeTo'))}</span><input id="labRangeTo" data-range="to" type="number" min="1" step="1" value="${range.to}"></label></div>
 <div class="chips-row"><button type="button" class="chip" data-action="lab-box-add" id="labBoxAdd">${esc(T('addBox'))}</button><button type="button" class="mini-button" data-action="lab-box-range" id="labBoxRange">${esc(T('copyToRange'))}</button></div>
 <div id="labBoxList" class="lab-notes"></div>
-<details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
+<details class="options-advanced" id="optionsAdvanced" ${advancedOpen?'open':''}><summary>${esc(text('advanced'))}</summary>
 <span class="opt-label">${esc(T('collision'))}</span><label class="field"><span>${esc(T('collisionShape'))}</span><select data-select="collisionShape" id="labCollisionShape">${['polygon','hull','rect','circle'].map(s=>`<option value="${s}" ${o.collisionShape===s?'selected':''}>${esc(T('collisionShapes.'+s))}</option>`).join('')}</select></label>
 <div class="field-row">${num('collisionTolerance',{id:'labCollisionTolerance'})}${num('collisionVertices',{id:'labCollisionVertices'})}</div>
 <div class="field-row">${num('collisionThreshold')}${num('collisionPadding')}</div>
@@ -223,7 +225,7 @@ ${strip()}`;
 <p class="hint ${o.target==='unity'?'bad':''}" id="labTargetNote"></p>
 <div class="field-row">${num('atlasPadding',{id:'labAtlasPadding'})}${num('maxSize',{id:'labMaxSize'})}</div>
 <div class="chips-row"><button type="button" class="chip" data-action="lab-pack" id="labPack">${esc(T('pack'))}</button></div>
-<details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
+<details class="options-advanced" id="optionsAdvanced" ${advancedOpen?'open':''}><summary>${esc(text('advanced'))}</summary>
 <div class="field-row">${num('extrude',{id:'labExtrude'})}${num('outline',{id:'labOutline'})}</div>
 <label class="field inline"><span>${esc(T('outlineColor'))}</span><input data-color="outlineColor" type="color" value="${o.outlineColor}"></label>
 ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('dedupe',{id:'labDedupe'})}
@@ -430,7 +432,7 @@ ${poly}${shapes}
     :(input.dataset.pivot==='x'?f.pivotX:f.pivotY).toFixed(3);
   }
   const list=q('#labBoxList');
-  if(list)list.innerHTML=(f.boxes.length?'':`<p class="hint">${esc(T('noBoxes'))}</p>`)+f.boxes.map(b=>`<div class="lab-note"><span class="lab-swatch lab-box-${b.type}" aria-hidden="true"></span><b>${esc(T('boxTypes.'+(P.BOX_KINDS.includes(b.type)?b.type:'custom')))}</b> ${esc(T('shapes.'+b.shape))} ${esc(b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`${b.cx},${b.cy} r${b.r}`:`${b.points.length}pt`)}<button type="button" class="mini-button" data-action="lab-box-remove" data-id="${b.id}" aria-label="${esc(T('removeBoxLabel'))}" title="${esc(T('removeBoxLabel'))}">×</button></div>`).join('')
+  if(list)list.innerHTML=(f.boxes.length?'':`<p class="hint">${esc(T('noBoxes'))}</p>`)+f.boxes.map(b=>`<div class="lab-note ${b.id===boxId?'is-selected':''}" data-action="lab-box-pick" data-id="${b.id}" tabindex="0" role="button"><span class="lab-swatch lab-box-${b.type}" aria-hidden="true"></span><b>${esc(T('boxTypes.'+(P.BOX_KINDS.includes(b.type)?b.type:'custom')))}</b> ${esc(T('shapes.'+b.shape))} ${esc(b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`${b.cx},${b.cy} r${b.r}`:`${b.points.length}pt`)}<button type="button" class="mini-button" data-action="lab-box-remove" data-id="${b.id}" aria-label="${esc(T('removeBoxLabel'))}" title="${esc(T('removeBoxLabel'))}">×</button></div>`).join('')
    +`<p class="hint" id="labCollisionCount" data-polygons="${f.collision.length}" data-vertices="${f.collision.reduce((s,p)=>s+p.length,0)}">${f.collision.length?`${esc(T('collision'))}: ${f.collision.length} · ${f.collision.reduce((s,p)=>s+p.length,0)}pt`:esc(T('collisionNone'))}</p>`;
  }
  function drawTimeline(){
@@ -939,8 +941,10 @@ ${poly}${shapes}
    }
    if(a==='lab-box-remove'){
     const f=currentFrame();if(!f)return;
+    if(boxId===b.dataset.id)boxId='';
     return void commit(P.removeBox(project,f.id,b.dataset.id));
    }
+   if(a==='lab-box-pick'){boxId=boxId===b.dataset.id?'':b.dataset.id;drawFrameStage();return;}
    if(a==='lab-timeline-cell'){
     const step=Number(b.dataset.step),list=steps();
     if(list[step]){selected=new Set([list[step].id]);frameCursor=project.frames.findIndex(f=>f.id===list[step].id);render();}
@@ -1050,6 +1054,7 @@ ${poly}${shapes}
   if(file)loadProject(file);
  });
  el.addEventListener('submit',e=>e.preventDefault());
+ el.addEventListener('toggle',e=>{if(e.target.id==='optionsAdvanced')advancedOpen=e.target.open;},true);
  let dragId=null;
  el.addEventListener('dragstart',e=>{const chip=e.target.closest?.('.frame-chip');if(!chip?.dataset.id)return;dragId=chip.dataset.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId);});
  el.addEventListener('dragover',e=>{if(dragId){e.preventDefault();e.stopPropagation();}});

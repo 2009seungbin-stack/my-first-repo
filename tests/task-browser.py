@@ -444,6 +444,17 @@ with sync_playwright() as pw:
     ok('Sprite Lab: the hitbox timeline shows the box active on frames 4-6 and nowhere else',
        page.eval_on_selector_all('.lab-grid tbody tr:first-child td','ns=>ns.map(n=>n.textContent.trim())')==['','','','1','1','1'])
 
+    page.locator('.frame-chip[data-id]').nth(3).click();page.wait_for_timeout(400)
+    ok('Sprite Lab: the box is drawn on the frame it belongs to, listed and selectable',
+       page.locator('#labFrameOverlay .lab-box-hit').count()==1
+       and page.locator('#labBoxList [data-action="lab-box-pick"]').count()==1,
+       page.locator('#labBoxList').inner_text().replace('\n',' | '))
+    page.locator('#labBoxList [data-action="lab-box-pick"]').click();page.wait_for_timeout(300)
+    ok('Sprite Lab: selecting a box in the list highlights it on the frame',
+       page.locator('#labFrameOverlay .lab-box.is-selected').count()==1)
+    page.locator('.frame-chip[data-id]').first.click();page.wait_for_timeout(300)
+    ok('Sprite Lab: a frame with no boxes says so instead of showing another frame\'s',
+       page.locator('#labFrameOverlay .lab-box').count()==0 and 'no boxes' in page.locator('#labBoxList').inner_text())
     # --- Collision polygons from alpha --------------------------------------------------------
     page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
     page.locator('[data-action="lab-collision"]').click();page.wait_for_timeout(1500)
@@ -679,6 +690,25 @@ with sync_playwright() as pw:
     ok('normalised frames share one canvas and one bounding-box bottom edge',
        lab_ims[0].size==lab_ims[1].size==(8,12) and lab_ims[0].getbbox()[3]==lab_ims[1].getbbox()[3]==12,
        f'{lab_ims[0].size} {lab_ims[0].getbbox()} {lab_ims[1].getbbox()}')
+    # --- A settings link is a preset, and carries no image data -------------------------------
+    page.goto(BASE+'/en/game/sprite-lab/?mode=grid&cellW=48&cellH=48&atlasPadding=4&maxSize=512&bg=black',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[sheet_png(96,48,[((0,0,47,47),(200,40,40,255)),((48,0,95,47),(30,90,200,255))])])
+    page.locator('#labSheet canvas').wait_for(timeout=60000)
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>0',timeout=60000)
+    ok('Sprite Lab: a settings link restores the mode and the cell size it names',
+       page.locator('[data-key="mode"][data-value="grid"][aria-pressed="true"]').count()==1
+       and page.input_value('#labCellW')=='48' and page.locator('.slicer-box').count()==2,
+       f"{page.input_value('#labCellW')} {page.locator('.slicer-box').count()}")
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1200)
+    ok('Sprite Lab: a settings link restores the packing settings too',page.input_value('#labAtlasPadding')=='4'
+       and page.input_value('#labMaxSize')=='512')
+    lab_shared=page.evaluate('''async()=>{
+      const {settingsQuery,settingsFromQuery}=await import('/src/game/project.js');
+      const q=settingsQuery({mode:'grid',cellW:48,atlasPadding:4},{mode:'auto',cellW:32,atlasPadding:2});
+      return {query:q,back:settingsFromQuery(q,{mode:'auto',cellW:32,atlasPadding:2})};}''')
+    ok('Sprite Lab: the settings query holds only settings',
+       'data:' not in lab_shared['query'] and lab_shared['back']=={'mode':'grid','cellW':48,'atlasPadding':4},
+       str(lab_shared))
     # ===== Sprite Lab — END ====================================================================
     page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
