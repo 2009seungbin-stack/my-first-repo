@@ -136,7 +136,7 @@ with sync_playwright() as pw:
     # --- PDF editor ---
     page.goto(BASE+'/en/pdf/editor/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=[pdf(2,'contract')])
     page.wait_for_function('()=>document.querySelector("#edCanvas")&&document.querySelector("#edCanvas").width>300',timeout=90000)
-    ok('editor opens with a toolbar, page rail and one primary action',page.locator('.ed-tool[data-tool]').count()>=11 and page.locator('.ed-thumb').count()==2 and page.locator('.ed-side .primary').count()==1)
+    ok('editor opens with a toolbar, page rail and one primary action',page.locator('.ed-tool[data-tool]').count()==11 and page.locator('.ed-thumb').count()==2 and page.locator('.ed-side .primary').count()==1)
     box=page.locator('#edPage').bounding_box();X=lambda u:box['x']+box['width']*u;Y=lambda v:box['y']+box['height']*v
     def draw(tool_id,a,b):
         page.click(f'[data-tool="{tool_id}"]');page.mouse.move(X(a[0]),Y(a[1]));page.mouse.down();page.mouse.move(X((a[0]+b[0])/2),Y((a[1]+b[1])/2));page.mouse.move(X(b[0]),Y(b[1]));page.mouse.up()
@@ -444,6 +444,7 @@ with sync_playwright() as pw:
        page.locator('.tex-slots li').count()>=6 and page.locator('.tex-issues li').count()>0)
     ok('the checks name the file and the measurement, not just a code',
        'rock_orm.png' in page.locator('.tex-issues').inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
     report=json.loads(Path(d.value.path()).read_text(encoding='utf-8'))
     orm_entry=[t for t in report['textures'] if t['name']=='rock_orm.png'][0]
     ok('the check report is envelope JSON with real measurements',
@@ -454,6 +455,8 @@ with sync_playwright() as pw:
     page.wait_for_function('()=>document.querySelectorAll(".tex-channel canvas").length===4',timeout=60000)
     ok('every channel is previewed with its engine meaning',
        page.locator('.tex-channel').count()==4 and 'Ambient occlusion' in page.locator('.tex-channel figcaption').first.inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
     planes={n.split('-')[-2]:Image.open(io.BytesIO(z.read(n))) for n in z.namelist()}
     ok('the unpacker writes one single-channel PNG per channel',
        sorted(planes)==['a','b','g','r'] and all(im.mode=='L' and im.size==(32,32) for im in planes.values()))
@@ -462,14 +465,17 @@ with sync_playwright() as pw:
        and [planes['a'].getpixel((x,0)) for x in (0,31)]==[0,255])
     # Pack: the same module as the standalone packer, reading its layouts from texture-presets.js.
     page.locator('[data-action="tex-stage"][data-stage="pack"]').first.click()
+    page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
     ok('the Pack stage hosts the packer and leaves one primary action on the page',
        page.locator('#taskDownload').count()==1 and page.locator('[data-action="mask-preset"][data-value="unreal-orm"]').count()==1)
     # Normal: the flat-normal guarantee, and a convention flip that only moves green.
     page.locator('[data-action="tex-select"]').nth(1).click()
     page.locator('[data-action="tex-stage"][data-stage="normal"]').first.click()
     page.locator('#texNormalOut').wait_for(timeout=60000);page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
     gl=Image.open(d.value.path()).convert('RGBA')
     page.locator('[data-action="tex-normal-set"][data-key="convention"][data-value="directx"]').click();page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
     dx=Image.open(d.value.path()).convert('RGBA')
     a,b=list(gl.getdata()),list(dx.getdata())
     ok('OpenGL and DirectX outputs differ in green and nowhere else',
@@ -482,6 +488,7 @@ with sync_playwright() as pw:
     page.locator('[data-action="tex-select"]').last.click()
     page.locator('[data-action="tex-stage"][data-stage="fix"]').first.click()
     page.locator('#texFixOut').wait_for(timeout=60000);page.wait_for_timeout(600)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
     bled=Image.open(d.value.path()).convert('RGBA')
     ok('edge bleed keeps alpha and only colours transparent texels',
        [p[3] for p in bled.getdata()]==[p[3] for p in sprite.getdata()]
@@ -492,6 +499,8 @@ with sync_playwright() as pw:
        page.evaluate('()=>{const c=document.querySelector("#texGL");const f=document.querySelector("#texGLFallback");return (c&&!c.hidden&&c.width>0)||(f&&!f.hidden)}'))
     # Export: every texture, one at a time, into one ZIP.
     page.locator('[data-action="tex-stage"][data-stage="export"]').first.click();page.wait_for_timeout(300)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
     ok('the batch optimiser exports every texture in one archive',
        sorted(z.namelist())==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png'])
     page.set_viewport_size({'width':320,'height':720});page.wait_for_timeout(300)
