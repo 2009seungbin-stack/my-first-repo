@@ -586,6 +586,62 @@ with sync_playwright() as pw:
     lab_gif=Image.open(d.value.path())
     ok('Sprite Lab: a GIF preview is still exportable',lab_gif.format=='GIF' and lab_gif.n_frames==3)
 
+    # --- Mirroring: the atlas must hold really flipped pixels, not flipped metadata ------------
+    lab_asym=sheet_png(24,14,[((2,2,9,11),(200,40,40,255)),((2,2,3,4),(255,255,255,255))])
+    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[lab_asym])
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===1',timeout=60000)
+    page.locator('[data-action="lab-stage"][data-stage="animate"]').click();page.wait_for_timeout(600)
+    page.locator('[data-action="lab-mirror"]').click();page.wait_for_timeout(700)
+    ok('Sprite Lab: mirroring adds a mirrored animation and its frames',
+       page.locator('#labAnimList .chip').count()==2 and page.locator('.frame-chip[data-id]').count()==2)
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1200)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_mirz=d.value.path();lab_mird=lab_json(lab_mirz);lab_mirp=lab_png(lab_mirz,'atlas.png')
+    lab_src=Image.open(io.BytesIO(lab_asym['buffer'])).convert('RGBA').crop((2,2,10,12))
+    lab_mkeys=list(lab_mird['frames'])
+    lab_regions=[]
+    for k in lab_mkeys:
+        r=lab_mird['frames'][k]['rect']
+        lab_regions.append(lab_mirp.crop((r['x'],r['y'],r['x']+r['w'],r['y']+r['h'])))
+    ok('Sprite Lab: the mirrored frame is stored as really flipped pixels, and is not aliased to the original',
+       len(lab_regions)==2 and lab_same(lab_regions[0],lab_src)
+       and lab_same(lab_regions[1],lab_src.transpose(Image.FLIP_LEFT_RIGHT))
+       and not any(f['aliasOf'] for f in lab_mird['frames'].values()),
+       str([r.size for r in lab_regions]))
+    ok('Sprite Lab: the mirrored frame mirrors its pivot too',
+       abs(lab_mird['frames'][lab_mkeys[1]]['pivot']['x']-(1-lab_mird['frames'][lab_mkeys[0]]['pivot']['x']))<1e-6)
+
+    # --- A sheet past the component-labelling cap says what to do instead ---------------------
+    lab_big=Image.new('RGBA',(2048,2048),(0,0,0,0))
+    lab_block=Image.new('RGBA',(200,200),(60,140,220,255))
+    for row in range(8):
+        for col in range(8):lab_big.paste(lab_block,(col*256+28,row*256+28))
+    lab_bb=io.BytesIO();lab_big.save(lab_bb,'PNG')
+    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[{'name':'big.png','mimeType':'image/png','buffer':lab_bb.getvalue()}])
+    page.locator('#labSheet canvas').wait_for(timeout=120000)
+    page.wait_for_function('()=>document.querySelector("#labSummary .summary-line.bad")||document.querySelectorAll(".slicer-box").length>1',timeout=180000)
+    ok('Sprite Lab: a 2048x2048 sheet past the Auto limit says so and points at Grid',
+       'Grid' in page.locator('#labSummary .summary-line.bad').inner_text(),
+       page.locator('#labSummary').inner_text().replace('\n',' | '))
+    page.locator('[data-key="mode"][data-value="grid"]').click()
+    page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>1',timeout=180000)
+    ok('Sprite Lab: Grid handles the same sheet and suggests the cell size that made it',
+       page.locator('#labSuggest .chip').first.inner_text().startswith('256×256'),
+       page.locator('#labSuggest .chip').first.inner_text())
+    page.locator('#labSuggest .chip').first.click();page.wait_for_timeout(4000)
+    ok('Sprite Lab: the 2048x2048 sheet slices into its 64 cells',page.locator('.slicer-box').count()==64,
+       str(page.locator('.slicer-box').count()))
+    page.locator('[data-action="lab-stage"][data-stage="export"]').click()
+    page.wait_for_function('()=>document.querySelector("#labAtlasCanvas")&&document.querySelector("#labAtlasCanvas").width>1',timeout=180000)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    lab_bigd=lab_json(d.value.path())
+    ok('Sprite Lab: 64 identical cells pack into one region with 63 aliases',
+       len(lab_bigd['frames'])==64 and sum(1 for f in lab_bigd['frames'].values() if f['aliasOf'])==63
+       and lab_bigd['meta']['pages']==1,
+       f"{lab_bigd['meta']['pageSizes']} {sum(1 for f in lab_bigd['frames'].values() if f['aliasOf'])}")
+
     # --- The old URLs still work, at the right stage, and still prove what they proved --------
     page.goto(BASE+'/en/sprite-slicer/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])

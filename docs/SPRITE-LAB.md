@@ -693,10 +693,82 @@ Timings are one run on a Windows 11 laptop, Node 24 — they say "interactive", 
 | Unity coordinate conversions | rect flip, pivot renormalisation (including the negative case), border reorder, physics-shape flip | **VERIFIED** numerically only |
 | Unity import actually works | — | **UNVERIFIED** — Unity was never run. Labelled as such in the JSON, the C# file, the README and here. |
 
+### The workspace, in a real browser
+
+`tests/task-browser.py` (Sprite Lab block) drives the page in Chromium and then re-opens every
+export with Pillow, `zipfile` and `json`. Run it against your own server with
+`TEST_URL=http://127.0.0.1:<port> GODOT_BIN=<godot> python tests/task-browser.py`.
+
+| Claim | How | Result |
+|---|---|---|
+| a sheet of six characters, each drawn as a body + a hat + a sword 1–2px apart, slices into **six** frames | `tests/fixtures/game/irregular-characters.png` dropped on the page; `.slicer-box` counted | **VERIFIED** — 17 alpha components → 6 frames, distance 2 chosen by `autoMergeDistance` |
+| the chosen distance is shown, explained and adjustable | the slider is pre-set to 2 and the line reads "chose 2px — 6 frames of 89% equal size, and nothing else joins until 9px" | **VERIFIED** |
+| ten 20×20 sprites 1px apart are **not** merged | `tests/game-frame-ops.test.mjs` | **VERIFIED** — 10 frames, distance 0, with the reason |
+| the animation preview fits the frame instead of drawing it tiny | integer zoom 1×…8× or Fit, nearest-neighbour, checkerboard / black / white / magenta | **VERIFIED** by screenshot at 1440, 390 and 320 |
+| every atlas region equals that frame's pixels on the **source sheet** | each frame's alpha bounding box computed from the fixture with Pillow, cropped, compared byte for byte with the region the JSON names | **VERIFIED** — 6/6, and 6/6 again across a 2-page atlas at `maxSize: 128` |
+| the JSON pivot is the pivot the UI showed | UI in pixel mode read from `#labPivotX/Y`, compared with `pivot × sourceSize` | **VERIFIED** — 9 / 55 px ↔ 0.225 / 0.859375 |
+| the JSON boxes are the boxes the timeline showed | hitbox typed as 3,5 11×7 and copied to frames 4–6 of Attack; the timeline row read back as `_ _ _ 1 1 1`; the JSON has it on exactly three frames with those numbers | **VERIFIED** |
+| the JSON collision is what the UI counted | `#labCollisionCount` polygons/vertices compared with `frames[].collision` | **VERIFIED** |
+| a per-frame duration reaches both the frame and the playback block | 250 ms typed on frame 2 | **VERIFIED** — `frames[].duration` and `animations.Walk.playback.durations` |
+| animation frame order equals the strip order | `animations.Walk.frames` compared with the frame keys in strip order | **VERIFIED** |
+| ping-pong playback has no doubled ends | `playback.frames` compared with `frames + frames[-2:0:-1]`, first and last counted once | **VERIFIED** |
+| jitter is measured, shown and reduced | alpha-centroid residual RMS read from `#labJitterRms` before and after auto-fix | **VERIFIED** — the check requires a drop of more than half |
+| a multi-page export really appears at a small page limit | `maxSize: 128` on 40×64 frames | **VERIFIED** — 2 pages, every page ≤128px, every image named in `meta.images` present |
+| a page limit smaller than one frame is explained | `maxSize: 48` | **VERIFIED** — the error is shown and the download is disabled |
+| aliases resolve | a sheet whose first and third sprites are identical | **VERIFIED** — one `aliasOf`, same rect, and that region holds those pixels |
+| **the ZIP the Lab produced loads in Godot 4** | `tests/fixtures/game/godot-validate-bundle.mjs` unpacks the downloaded bundle as a Godot project, the shipped GDScript builds the `SpriteFrames`, `ResourceSaver` saves it, it is reloaded with `CACHE_MODE_IGNORE`, and every animation speed, loop flag, per-frame duration, `AtlasTexture` region, margin, reported size, `filter_clip` and page size is compared with the bundle's own JSON; then the shipped headless importer is run on its own | **VERIFIED** in **Godot 4.7.2.stable.official.ed1daf0bf** — 2 animations, 6 frames, 3 `CollisionPolygon2D` nodes in the packed scene, `problems=0` |
+| that Godot check can fail | one frame's `sourceSize.w` in the bundle raised by 5px | **VERIFIED** — `problems=2`, `MISMATCH … reports size (40.0, 64.0), expected (45.0, 64.0)`, exit 1 |
+| Unity is labelled UNVERIFIED where a person would see it | the chip note in red in the UI, `unity.verified: false` in the JSON, the word in `NerulioSpriteImporter.cs` and in `UNITY-README.md`, and no `.meta` file | **VERIFIED** that the label is there — the import itself is **UNVERIFIED** |
+| the old URLs still work and still prove what they proved | `sprite-slicer` and `normalize-sprite-frames` checks ported from `tests/task-browser.py` and `tests/recipes-browser.py`: detection with no Run button, handles, exact numbers, the edited rectangle deciding the exported pixels, undo, grid suggestions, one canvas and one bottom edge | **VERIFIED** — both suites |
+| no horizontal scroll, no console errors | every stage at 1440, 390 and 320 | **VERIFIED** — `scrollWidth == innerWidth` at all three, 15 stage screenshots, zero page errors |
+
+### Measured in the browser
+
+One run each, Chromium on a Windows 11 laptop. These say "interactive", not "benchmarked". The
+timings are wall clock from the click to the stage's canvas being drawn, so they include the
+re-render, not only the engine call.
+
+| Sheet | Frames | Slice: drop → boxes drawn | Normalize | Animate | Pivot & boxes | Pack | Export ZIP | Atlas | JS heap |
+|---|---|---|---|---|---|---|---|---|---|
+| 100 sprites of mixed size on a 640×640 sheet, each with a hat drawn 2px off the body | **100** (Auto, distance 2) | **130 ms** | 47 ms | **94 ms** (incl. the first jitter report and duplicate scan over all 100) | 56 ms | 84 ms | **43 ms** | 1 page, 409×418 | **17 MB** |
+| 2048×2048, 8×8 cells of 256px holding a 200px block each | **64** (Grid) | Auto **refuses** (see below); Grid **406 ms**, and 4.0 s to slice the 64 cells | — | — | — | **524 ms** | **183 ms** | 1 page, 204×204, 96% used — the 64 identical blocks are stored once with 63 aliases | **48 MB** |
+
+A 2048×2048 sheet is 4.19 megapixels, past `primitives.ANALYSIS_PIXELS` (4 MP), which is what
+`components` needs to label alpha islands. **Auto refuses it**, and the Lab says so in words with
+the number and points at Grid — whose suggestions were already computed, because
+`detectGrid`/`runLengths`/`alphaProfile` are band-read and have no such cap. On that sheet Grid's
+top suggestion is 256×256, margin 8, `high` confidence, 82%: the grid that really made it.
+
+The 17 MB heap for a 100-frame project is the point of the `source` contract: one decoded sheet
+(640×640×4 = 1.6 MB) plus one atlas page, not 100 frame canvases.
+
 ### What is not done
 
-* No UI. The slicer page and the Sprite Lab workspace are other agents' work; this is the engine
-  plus the exporter layer only.
+**In the workspace**
+* **Auto is capped at 4 megapixels** (`primitives.ANALYSIS_PIXELS`), because `components` labels the
+  whole sheet at once. The Lab explains it and points at Grid, but Auto on a 4096×4096 sheet is not
+  possible without moving component labelling to a tiled or worker path.
+* **The pivot crosshair cannot be dragged.** Presets and the numeric fields (normalised and pixel)
+  are the only way to move it; the overlay is `pointer-events:none`. Boxes cannot be dragged either —
+  they are typed. This is the largest gap against the brief's "drag crosshair".
+* **Polygon boxes have no drawing tool.** Choosing `polygon` creates a rectangle of four points,
+  editable only as numbers.
+* Cancellation covers the debounced re-detect (an `AbortController` per run, passed to `detectGrid`).
+  Packing, the collision pass and the export are not cancellable — they are fast enough on the
+  fixtures measured above that no progress UI exists, which is a bet, not a proof.
+* `findDuplicates`, `jitterReport` and the collision pass run on the main thread over the whole
+  frame list. 100 frames is tens of milliseconds; 1000 frames has not been tried.
+* **Firefox and WebKit are untested.** Every browser number above is Chromium. The page uses nothing
+  exotic (2D canvas, `getImageData`, SVG), but that is an argument, not evidence, so
+  `src/capabilities.js` still lists the Lab as `basic` with no `seoPromotable` evidence.
+* Loading a project JSON requires a sheet of the same dimensions; it does not re-find frames.
+* Onion skin has fixed opacity falloff (0.5 per step); the brief's "prev/next opacity" is not
+  separately adjustable.
+* The GIF preview uses the site's existing 256-colour GIF encoder with one delay for the whole
+  animation (the mean of the per-frame durations), so per-frame timing is *not* preserved in the GIF.
+  It is a preview; the JSON and the engine bundles carry the real timings.
+
+**In the engine**
 * `AbortSignal` is accepted by `detectGrid`, `alphaProfile`, `runLengths` and `packFrames`. The
   per-frame loops in `jitter`, `contour`, `outline` and `defringe` do not take one yet — they run
   per frame, so the caller can cancel between frames, but a single very large frame cannot be

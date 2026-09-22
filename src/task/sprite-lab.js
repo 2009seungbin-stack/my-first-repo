@@ -5,10 +5,11 @@ import {borderColor} from '../color-background.js';
 import {t} from '../i18n.js';
 import {text,toast,download,track,onLocale,page as route} from './shell.js';
 import {innerRect,ALPHA_THRESHOLD} from '../game/pixels.js';
+import {ANALYSIS_PIXELS} from '../primitives.js';
 import {PIVOT_PRESETS,pivotPixels} from '../game/model.js';
 import {detectGrid,gridCells} from '../game/grid-detect.js';
 import {detectFrames,framesFromRects,normalizeFrames,readingOrder,unionRect,ALIGNMENTS} from '../game/frame-ops.js';
-import {jitterReport,autoFixJitter,findDuplicates,loopSeam,frameDifference,canvasImage,REFERENCES} from '../game/jitter.js';
+import {jitterReport,autoFixJitter,findDuplicates,loopSeam,frameDifference,REFERENCES} from '../game/jitter.js';
 import {frameCollision} from '../game/contour.js';
 import {outline} from '../game/outline.js';
 import {defringe} from '../game/defringe.js';
@@ -174,6 +175,7 @@ ${strip()}
 <span class="opt-label">${esc(T('direction'))}</span>${seg('direction',['forward','reverse','pingpong'],v=>T('directions.'+v),{aria:T('direction')})}
 <label class="check"><input id="labLoop" data-anim-check="loop" type="checkbox" ${a?.loop!==false?'checked':''}> ${esc(T('loop'))}</label>
 <div class="chips-row"><button type="button" class="mini-button" data-action="lab-autofix" id="labAutoFix">${esc(T('autoFix'))}</button><button type="button" class="mini-button" data-action="lab-mirror">${esc(T('mirror'))}</button></div>
+<p class="hint" id="labFixNeedsCanvas" hidden>${esc(T('fixNeedsCanvas'))}</p>
 <div id="labFixBox" hidden><p class="hint" id="labFixText"></p><div class="chips-row"><button type="button" class="chip" data-action="lab-fix-keep" id="labFixKeep">${esc(T('keepFix'))}</button><button type="button" class="mini-button" data-action="lab-fix-drop">${esc(T('dropFix'))}</button></div></div>
 <details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
 <label class="field"><span>${esc(T('duration'))}</span><input id="labDuration" data-duration type="number" min="1" max="60000" step="1" placeholder="${esc(T('durationAuto'))}" inputmode="numeric"></label>
@@ -255,8 +257,13 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
   try{
    await prepare();if(gen!==generation)return;
    const s=src();
+   // Grid suggestions are read off the sheet once and band by band, so they cost no full copy and
+   // are ready even when component labelling refuses the sheet — which is what makes the "too
+   // large for Auto" message actionable instead of a dead end.
+   if(!suggestions.length){suggestions=detectGrid(s,{custom:[o.cellW,o.cellH],limit:5,signal}).suggestions;await yieldUI();if(gen!==generation)return;}
    let rects;
    if(o.mode==='auto'){
+    if(s.width*s.height>ANALYSIS_PIXELS)throw Error(T('tooLargeForAuto',{w:s.width,h:s.height,mp:(ANALYSIS_PIXELS/1e6).toFixed(0)}));
     const found=detectFrames(s,{threshold:o.threshold,minArea:Math.min(o.minArea,s.width*s.height),
      distance:o.autoMerge?'auto':o.merge});
     autoMerge=found.auto;
@@ -273,8 +280,6 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
    past=[];future=[];
    project=P.project({frames,settings:{...o}});
    selected=new Set();animationId='';frameCursor=0;atlasResult=null;invalidate();error='';
-   // Grid suggestions are read off the sheet once, so the chips explain themselves in Grid mode.
-   if(!suggestions.length)suggestions=detectGrid(s,{custom:[o.cellW,o.cellH],limit:5,signal}).suggestions;
   }catch(e){if(e?.name!=='AbortError'){project=P.project();error=e?.message||String(e);}}
   finally{if(gen===generation){busy=false;render();}}
  }
@@ -338,6 +343,18 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
   else ctx.drawImage(work,b.x,b.y,b.w,b.h,frame.offsetX,frame.offsetY,b.w,b.h);
   ctx.restore();
  }
+ /** One frame's own canvas as RGBA, *including* the horizontal flip of a mirrored frame. The
+  * engine's `canvasImage` cannot do this — it only copies a rectangle — and a mirrored frame is
+  * exactly a frame whose metadata is already flipped while its source pixels are not. Everything
+  * that turns a frame into pixels (preview, GIF, frame PNGs, the export sheet) goes through here or
+  * through `paintFrameTo`, so none of them can disagree. */
+ function frameImage(f){
+  const c=Im.canvas(f.canvasWidth,f.canvasHeight),ctx=c.getContext('2d',{willReadFrequently:true});
+  try{paintFrameTo(ctx,f);const d=ctx.getImageData(0,0,f.canvasWidth,f.canvasHeight);return {data:d.data,width:d.width,height:d.height};}
+  finally{Im.release(c);}
+ }
+ const isMirrored=f=>!!f.metadata?.mirroredFrom;
+ const sharedCanvas=()=>project.frames.length>1&&project.frames.every(f=>f.canvasWidth===project.frames[0].canvasWidth&&f.canvasHeight===project.frames[0].canvasHeight);
  function drawAnimation(){
   const cv=q('#labAnim');if(!cv||!work)return;
   const list=fixPreview?fixPreview.project:project,a=animation();
@@ -461,6 +478,11 @@ ${poly}${shapes}
    notes.innerHTML=lines.join('');
   }
   const remove=q('#labDupRemove');if(remove)remove.disabled=!duplicates?.exact?.length&&!duplicates?.blank?.length;
+  // Aligning frames of different canvas sizes has no meaning, so the button says so before the
+  // click rather than after it.
+  const shared=sharedCanvas(),fix=q('#labAutoFix'),needs=q('#labFixNeedsCanvas');
+  if(fix)fix.disabled=!shared||!a;
+  if(needs)needs.hidden=shared||!a;
   const fixBox=q('#labFixBox');
   if(fixBox){
    fixBox.hidden=!fixPreview;
@@ -492,7 +514,7 @@ ${poly}${shapes}
   const want=o.outline>0||o.defringe,f=currentFrame();
   row.hidden=!want||!f;
   if(row.hidden)return;
-  const original=canvasImage(src(),f),processed=processFrameImage(original);
+  const original=frameImage(f),processed=processFrameImage(original);
   for(const [id,img] of [['#labEdgeBefore',original],['#labEdgeAfter',{data:processed.data,width:processed.width,height:processed.height}]]){
    const cv=q(id);if(!cv)continue;
    cv.width=img.width;cv.height=img.height;
@@ -641,12 +663,13 @@ ${poly}${shapes}
   }
   return out;
  }
- /** When outline/de-fringe are on, packing needs pixels that do not exist on the sheet. One extra
-  * sheet is built — frames side by side in a bounded grid — and the frames are re-pointed at it,
-  * with pivots, boxes and collision moved by the same integer offset. Nothing is resampled. */
+ /** When outline, de-fringe or a mirrored frame is involved, packing needs pixels that do not exist
+  * on the sheet. One extra sheet is built — frames side by side in a bounded grid — and the frames
+  * are re-pointed at it, with pivots, boxes and collision moved by the same integer offset.
+  * Nothing is resampled. Without any of those, the sheet itself is the source and no copy is made. */
  function exportSource(){
-  if(!o.outline&&!o.defringe)return {source:src(),frames:project.frames,release:()=>{}};
-  const images=project.frames.map(f=>processFrameImage(canvasImage(src(),f)));
+  if(!o.outline&&!o.defringe&&!project.frames.some(isMirrored))return {source:src(),frames:project.frames,release:()=>{}};
+  const images=project.frames.map(f=>processFrameImage(frameImage(f)));
   const cellW=Math.max(...images.map(i=>i.width)),cellH=Math.max(...images.map(i=>i.height));
   const columns=Math.max(1,Math.min(images.length,Math.floor(4096/cellW)||1));
   const rows=Math.ceil(images.length/columns),width=columns*cellW,height=rows*cellH;
