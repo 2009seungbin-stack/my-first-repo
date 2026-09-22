@@ -503,9 +503,8 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(busy||!grid||grid.error)return;
   busy=true;job=new AbortController();
   const signal=job.signal,button=q('#taskDownload');
-  // Thousands of tiles is thousands of PNG encodes, so the run is interruptible and yields to
-  // the browser between tiles instead of freezing the page behind a disabled button.
-  const step=(a,b)=>{if(button){button.dataset.action='tl-stop';button.textContent=`${text('cancel')} · ${a}/${b}`;}};
+  // Thousands of tiles is thousands of PNG encodes, so the run button becomes the cancel.
+  const step=(a,b)=>{if(button){button.dataset.action='tl-stop';button.textContent=b>8?`${text('cancel')} · ${a}/${b}`:text('cancel');}};
   try{
    const blank=new Set(o.skipBlank?blanks():[]);
    let keep=grid.rects.filter(r=>!blank.has(r.index));
@@ -525,7 +524,11 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    let done=0;
    for(const r of keep){
     abort(signal);
-    if(keep.length>64&&done%16===0){step(done,keep.length);await yieldUI();}
+    // Progress on every tile, then a yield: a canvas encode whose callback waits for the next
+    // frame stalls for a second per tile when nothing touches the page in between (a background
+    // tab does exactly that), and the write is what keeps the frame loop turning.
+    if(done<64||done%16===0)step(done,keep.length);
+    await yieldUI();
     done++;
     const name=tileName(r.index,grid.count)+'.png',pixels=tileData(r.index);
     entries.push({name:'tiles/'+name,blob:pixels?await pngOf(pixels,r.w,r.h):await regionBlob(r)});
