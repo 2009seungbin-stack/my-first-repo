@@ -1,0 +1,6653 @@
+{
+ "schemaVersion": 1,
+ "name": "nerulio-game-asset-corpus",
+ "generated": "2026-09-23",
+ "root": "C:/Users/2009s/nerulio-asset-corpus (override with --root or NERULIO_CORPUS)",
+ "fetch": "python tools/fetch-game-corpus.py",
+ "docs": "docs/GAME-CORPUS.md",
+ "truthConventions": {
+  "grid": "cellW/cellH/marginX/marginY/spacingX/spacingY/cols/rows in pixels; width == 2*margin + cols*cell + (cols-1)*spacing unless notes say otherwise",
+  "blobMask": "cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128; a corner counts only when both adjacent sides are set",
+  "normalConvention": "GL = +Y up (green high on surfaces facing up), DX = +Y down",
+  "committable": "true only for CC0 / public domain; everything else is for local tests and must never be committed"
+ },
+ "sources": {
+  "ambientcg-bricks076c": {
+   "url": "https://ambientcg.com/get?file=Bricks076C_1K-PNG.zip",
+   "page": "https://ambientcg.com/view?id=Bricks076C",
+   "type": "zip",
+   "author": "ambientCG (Lennart Demes)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://docs.ambientcg.com/license/",
+   "committable": true
+  },
+  "ambientcg-ground054": {
+   "url": "https://ambientcg.com/get?file=Ground054_1K-PNG.zip",
+   "page": "https://ambientcg.com/view?id=Ground054",
+   "type": "zip",
+   "author": "ambientCG (Lennart Demes)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://docs.ambientcg.com/license/",
+   "committable": true
+  },
+  "ambientcg-metalplates006": {
+   "url": "https://ambientcg.com/get?file=MetalPlates006_1K-PNG.zip",
+   "page": "https://ambientcg.com/view?id=MetalPlates006",
+   "type": "zip",
+   "author": "ambientCG (Lennart Demes)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://docs.ambientcg.com/license/",
+   "committable": true
+  },
+  "cozette-bmfont-fnt": {
+   "url": "https://raw.githubusercontent.com/tommyettinger/fonts/ebbe7a60c60bd2f4a4fc32b1d9676de265774ae8/Cozette-standard.fnt",
+   "page": "https://github.com/tommyettinger/fonts (Cozette by Slavfox, https://github.com/slavfox/Cozette)",
+   "type": "file",
+   "author": "Slavfox (Cozette); BMFont conversion by Tommy Ettinger",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/slavfox/Cozette/blob/main/LICENSE",
+   "committable": false
+  },
+  "cozette-bmfont-licence": {
+   "url": "https://raw.githubusercontent.com/tommyettinger/fonts/ebbe7a60c60bd2f4a4fc32b1d9676de265774ae8/Cozette-License.txt",
+   "page": "https://github.com/tommyettinger/fonts (Cozette by Slavfox, https://github.com/slavfox/Cozette)",
+   "type": "file",
+   "author": "Slavfox (Cozette); BMFont conversion by Tommy Ettinger",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/slavfox/Cozette/blob/main/LICENSE",
+   "committable": false
+  },
+  "cozette-bmfont-png": {
+   "url": "https://raw.githubusercontent.com/tommyettinger/fonts/ebbe7a60c60bd2f4a4fc32b1d9676de265774ae8/Cozette-standard.png",
+   "page": "https://github.com/tommyettinger/fonts (Cozette by Slavfox, https://github.com/slavfox/Cozette)",
+   "type": "file",
+   "author": "Slavfox (Cozette); BMFont conversion by Tommy Ettinger",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/slavfox/Cozette/blob/main/LICENSE",
+   "committable": false
+  },
+  "dual-grid-license": {
+   "url": "https://raw.githubusercontent.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript/240d552e4fabea8c16fc065a143f267afddb9184/LICENSE.md",
+   "page": "https://github.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript",
+   "type": "file",
+   "author": "GlitchedinOrbit",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript/blob/main/LICENSE.md",
+   "committable": false
+  },
+  "dual-grid-tilemap-png": {
+   "url": "https://raw.githubusercontent.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript/240d552e4fabea8c16fc065a143f267afddb9184/assets/Tilemap.png",
+   "page": "https://github.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript",
+   "type": "file",
+   "author": "GlitchedinOrbit (port of jess::codes dual-grid system)",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/GlitchedinOrbit/dual-grid-tilemap-system-godot-gdscript/blob/main/LICENSE.md",
+   "committable": false
+  },
+  "galmuri": {
+   "url": "https://github.com/quiple/galmuri/releases/download/v2.40.4/Galmuri-v2.40.4.zip",
+   "page": "https://github.com/quiple/galmuri",
+   "type": "zip",
+   "author": "Lee Minseo (quiple)",
+   "licence": "OFL-1.1",
+   "licenceUrl": "https://openfontlicense.org",
+   "committable": false
+  },
+  "kenney-1-bit-pack": {
+   "url": "https://kenney.nl/media/pages/assets/1-bit-pack/aa867a1f37-1677578516/kenney_1-bit-pack.zip",
+   "page": "https://kenney.nl/assets/1-bit-pack",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-fonts": {
+   "url": "https://kenney.nl/media/pages/assets/kenney-fonts/8d5435c213-1677661710/kenney_kenney-fonts.zip",
+   "page": "https://kenney.nl/assets/kenney-fonts",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-micro-roguelike": {
+   "url": "https://kenney.nl/media/pages/assets/micro-roguelike/bbcaf50993-1677578239/kenney_micro-roguelike.zip",
+   "page": "https://kenney.nl/assets/micro-roguelike",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-pixel-platformer": {
+   "url": "https://kenney.nl/media/pages/assets/pixel-platformer/33bb4921eb-1696667883/kenney_pixel-platformer.zip",
+   "page": "https://kenney.nl/assets/pixel-platformer",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-platformer-characters": {
+   "url": "https://kenney.nl/media/pages/assets/platformer-characters/b85f388c42-1677693768/kenney_platformer-characters.zip",
+   "page": "https://kenney.nl/assets/platformer-characters",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-roguelike-characters": {
+   "url": "https://kenney.nl/media/pages/assets/roguelike-characters/53ffff4133-1729196490/kenney_roguelike-characters.zip",
+   "page": "https://kenney.nl/assets/roguelike-characters",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-roguelike-rpg-pack": {
+   "url": "https://kenney.nl/media/pages/assets/roguelike-rpg-pack/12c03cd78b-1677697420/kenney_roguelike-rpg-pack.zip",
+   "page": "https://kenney.nl/assets/roguelike-rpg-pack",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-space-shooter-remastered": {
+   "url": "https://kenney.nl/media/pages/assets/space-shooter-remastered/2cbf3c45c8-1774771931/kenney_space-shooter-remastered.zip",
+   "page": "https://kenney.nl/assets/space-shooter-remastered",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-tiny-dungeon": {
+   "url": "https://kenney.nl/media/pages/assets/tiny-dungeon/f8422efb44-1674742415/kenney_tiny-dungeon.zip",
+   "page": "https://kenney.nl/assets/tiny-dungeon",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-toon-characters": {
+   "url": "https://kenney.nl/media/pages/assets/toon-characters/4e8a6e4e53-1774770819/kenney_toon-characters.zip",
+   "page": "https://kenney.nl/assets/toon-characters",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "License.txt inside the archive: Creative Commons Zero, CC0"
+  },
+  "kenney-ui-pack": {
+   "url": "https://kenney.nl/media/pages/assets/ui-pack/f651646eab-1718203990/kenney_ui-pack.zip",
+   "page": "https://kenney.nl/assets/ui-pack",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-ui-pack-pixel-adventure": {
+   "url": "https://kenney.nl/media/pages/assets/ui-pack-pixel-adventure/405ba5278a-1729196257/kenney_ui-pack-pixel-adventure.zip",
+   "page": "https://kenney.nl/assets/ui-pack-pixel-adventure",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "kenney-ui-pack-rpg-expansion": {
+   "url": "https://kenney.nl/media/pages/assets/ui-pack-rpg-expansion/7ec4a46657-1677661824/kenney_ui-pack-rpg-expansion.zip",
+   "page": "https://kenney.nl/assets/ui-pack-rpg-expansion",
+   "type": "zip",
+   "author": "Kenney (www.kenney.nl)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "ldtk-autolayers-1": {
+   "url": "https://raw.githubusercontent.com/deepnight/ldtk/6d69bd1d6be92f01ac30778f6a934f0da8448b16/app/extraFiles/samples/AutoLayers_1_basic.ldtk",
+   "page": "https://github.com/deepnight/ldtk/tree/master/app/extraFiles/samples",
+   "type": "file",
+   "author": "Sebastien Benard (deepnight)",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/deepnight/ldtk/blob/master/LICENSE",
+   "committable": false
+  },
+  "ldtk-cavernas-png": {
+   "url": "https://raw.githubusercontent.com/deepnight/ldtk/6d69bd1d6be92f01ac30778f6a934f0da8448b16/app/extraFiles/samples/atlas/Cavernas_by_Adam_Saltsman.png",
+   "page": "https://adamatomic.itch.io/cavernas",
+   "type": "file",
+   "author": "Adam Saltsman (Adam Atomic)",
+   "licence": "public domain (author statement: \"These assets are public domain\")",
+   "licenceUrl": "https://adamatomic.itch.io/cavernas",
+   "committable": true
+  },
+  "ldtk-license": {
+   "url": "https://raw.githubusercontent.com/deepnight/ldtk/6d69bd1d6be92f01ac30778f6a934f0da8448b16/LICENSE",
+   "page": "https://github.com/deepnight/ldtk",
+   "type": "file",
+   "author": "Sebastien Benard (deepnight)",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/deepnight/ldtk/blob/master/LICENSE",
+   "committable": false
+  },
+  "ldtk-topdown": {
+   "url": "https://raw.githubusercontent.com/deepnight/ldtk/6d69bd1d6be92f01ac30778f6a934f0da8448b16/app/extraFiles/samples/Typical_TopDown_example.ldtk",
+   "page": "https://github.com/deepnight/ldtk/tree/master/app/extraFiles/samples",
+   "type": "file",
+   "author": "Sebastien Benard (deepnight)",
+   "licence": "MIT",
+   "licenceUrl": "https://github.com/deepnight/ldtk/blob/master/LICENSE",
+   "committable": false
+  },
+  "ldtk-topdown-png": {
+   "url": "https://raw.githubusercontent.com/deepnight/ldtk/6d69bd1d6be92f01ac30778f6a934f0da8448b16/app/extraFiles/samples/atlas/TopDown_by_deepnight.png",
+   "page": "https://github.com/deepnight/ldtk/tree/master/app/extraFiles/samples/atlas",
+   "type": "file",
+   "author": "Sebastien Benard (deepnight)",
+   "licence": "MIT (LDtk repository; not separately licensed)",
+   "licenceUrl": "https://github.com/deepnight/ldtk/blob/master/LICENSE",
+   "committable": false
+  },
+  "lospec-endesga-32-gpl": {
+   "url": "https://lospec.com/palette-list/endesga-32.gpl",
+   "page": "https://lospec.com/palette-list/endesga-32",
+   "type": "file",
+   "cacheName": "lospec-endesga-32.gpl",
+   "author": "ENDESGA",
+   "licence": "Lospec palette listing (colour lists; no copyright asserted)",
+   "licenceUrl": "https://lospec.com/palette-list/endesga-32",
+   "committable": true,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+  },
+  "lospec-pico-8-gpl": {
+   "url": "https://lospec.com/palette-list/pico-8.gpl",
+   "page": "https://lospec.com/palette-list/pico-8",
+   "type": "file",
+   "cacheName": "lospec-pico-8.gpl",
+   "author": "Lexaloffle Games (PICO-8)",
+   "licence": "Lospec palette listing (colour lists; no copyright asserted)",
+   "licenceUrl": "https://lospec.com/palette-list/pico-8",
+   "committable": true,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+  },
+  "lospec-pico-8-hex": {
+   "url": "https://lospec.com/palette-list/pico-8.hex",
+   "page": "https://lospec.com/palette-list/pico-8",
+   "type": "file",
+   "cacheName": "lospec-pico-8.hex",
+   "author": "Lexaloffle Games (PICO-8)",
+   "licence": "Lospec palette listing (colour lists; no copyright asserted)",
+   "licenceUrl": "https://lospec.com/palette-list/pico-8",
+   "committable": true,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+  },
+  "lospec-sweetie-16-gpl": {
+   "url": "https://lospec.com/palette-list/sweetie-16.gpl",
+   "page": "https://lospec.com/palette-list/sweetie-16",
+   "type": "file",
+   "cacheName": "lospec-sweetie-16.gpl",
+   "author": "GrafxKid",
+   "licence": "Lospec palette listing (colour lists; no copyright asserted)",
+   "licenceUrl": "https://lospec.com/palette-list/sweetie-16",
+   "committable": true,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+  },
+  "noto-sans-jp": {
+   "url": "https://raw.githubusercontent.com/google/fonts/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+   "page": "https://fonts.google.com/noto/specimen/Noto+Sans+JP",
+   "type": "file",
+   "author": "Google / Adobe (Noto CJK, Source Han)",
+   "licence": "OFL-1.1",
+   "licenceUrl": "https://openfontlicense.org",
+   "committable": false,
+   "cacheName": "noto-sans-jp.ttf"
+  },
+  "noto-sans-jp-licence": {
+   "url": "https://raw.githubusercontent.com/google/fonts/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansjp/OFL.txt",
+   "page": "https://fonts.google.com/noto/specimen/Noto+Sans+JP",
+   "type": "file",
+   "author": "Google (Noto project)",
+   "licence": "OFL-1.1",
+   "licenceUrl": "https://openfontlicense.org",
+   "committable": false
+  },
+  "oga-ai-horror-monster": {
+   "url": "https://opengameart.org/sites/default/files/horror_monster.jpg",
+   "page": "https://opengameart.org/content/pixel-art-creatures-from-clipdrop-stable-doodle",
+   "type": "file",
+   "author": "kooow",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0. Page says the image was generated with clipdrop.co Stable Doodle.",
+   "cacheName": "oga-ai-horror-monster.jpg"
+  },
+  "oga-asteroids-diffuse": {
+   "url": "https://opengameart.org/sites/default/files/asteroids_spritesheet_diffuse.png",
+   "page": "https://opengameart.org/content/asteroids-pack-2d-diffuse-normal-seamless-animations",
+   "type": "file",
+   "author": "Jarusca",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-asteroids-normal": {
+   "url": "https://opengameart.org/sites/default/files/asteroids_spritesheet_normal.png",
+   "page": "https://opengameart.org/content/asteroids-pack-2d-diffuse-normal-seamless-animations",
+   "type": "file",
+   "author": "Jarusca",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-bitmap-font-bellanger": {
+   "url": "https://opengameart.org/sites/default/files/font.zip",
+   "page": "https://opengameart.org/content/bitmap-font",
+   "type": "zip",
+   "author": "Clint Bellanger",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-cave-platformer-47": {
+   "url": "https://opengameart.org/sites/default/files/autotile47_0.png",
+   "page": "https://opengameart.org/content/cave-platformer-tileset-47",
+   "type": "file",
+   "author": "second (OpenGameArt)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-caveman": {
+   "url": "https://opengameart.org/sites/default/files/spr_caveman_0_0.png",
+   "page": "https://opengameart.org/content/character-animations-caveman",
+   "type": "file",
+   "author": "Chasersgaming",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-caveman.png"
+  },
+  "oga-classic-hero": {
+   "url": "https://opengameart.org/sites/default/files/Old%20hero.png",
+   "page": "https://opengameart.org/content/classic-hero",
+   "type": "file",
+   "author": "GrafxKid",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-classic-hero.png"
+  },
+  "oga-coolschool": {
+   "url": "https://opengameart.org/sites/default/files/coolschool_tileset_48px.zip",
+   "page": "https://opengameart.org/content/cool-school-tileset",
+   "type": "zip",
+   "author": "NettySvit (OpenGameArt)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-gms-47-template": {
+   "url": "https://opengameart.org/sites/default/files/gms_47autotile_template.png",
+   "page": "https://opengameart.org/content/gamemaker-autotile-templates",
+   "type": "file",
+   "author": "MechanicalRage (OpenGameArt)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-hit-yellow": {
+   "url": "https://opengameart.org/sites/default/files/hit%20-%20yellow.png",
+   "page": "https://opengameart.org/content/hit-animation-frame-by-frame",
+   "type": "file",
+   "author": "Sinestesia",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-hit-yellow.png"
+  },
+  "oga-hq-trooper": {
+   "url": "https://opengameart.org/sites/default/files/HQ_Trooper_all.png",
+   "page": "https://opengameart.org/content/space-soldier-resize-64x64",
+   "type": "file",
+   "author": "drakzlin",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-hq-trooper.png"
+  },
+  "oga-intrepid-font": {
+   "url": "https://opengameart.org/sites/default/files/intrepid_0.png",
+   "page": "https://opengameart.org/content/intrepid-monochrome-8-bit-font",
+   "type": "file",
+   "author": "Hammer Forged Games",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-ninja": {
+   "url": "https://opengameart.org/sites/default/files/Ninja.zip",
+   "page": "https://opengameart.org/content/ninja-animated",
+   "type": "zip",
+   "author": "DezrasDragons",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0"
+  },
+  "oga-pixel-torch": {
+   "url": "https://opengameart.org/sites/default/files/Pixel_Torch.zip",
+   "page": "https://opengameart.org/content/animated-pixel-torch",
+   "type": "zip",
+   "author": "XLIVE99",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-samurai": {
+   "url": "https://opengameart.org/sites/default/files/samurai_sprites.zip",
+   "page": "https://opengameart.org/content/samurai-sprites",
+   "type": "zip",
+   "author": "sebshady",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0"
+  },
+  "oga-seamless-template-ii-7x7": {
+   "url": "https://opengameart.org/sites/default/files/template7x7_with_indices.png",
+   "page": "https://opengameart.org/content/seamless-tileset-template-ii",
+   "type": "file",
+   "author": "caeles (OpenGameArt)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-seamless-template-ii-8x6": {
+   "url": "https://opengameart.org/sites/default/files/template8x6_with_indices.png",
+   "page": "https://opengameart.org/content/seamless-tileset-template-ii",
+   "type": "file",
+   "author": "caeles (OpenGameArt)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-skeleton-archer": {
+   "url": "https://opengameart.org/sites/default/files/Archer%20Skeleton%20%20Animations.zip",
+   "page": "https://opengameart.org/content/skeleton-archer-0",
+   "type": "zip",
+   "author": "sonild",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0"
+  },
+  "oga-sprite-boy-32": {
+   "url": "https://opengameart.org/sites/default/files/32x32%20sprite%20sheet.png",
+   "page": "https://opengameart.org/content/super-sprite-boy-sprite-sheet-30-frames-32x32-64x64",
+   "type": "file",
+   "author": "Chris_M_The_Game_Dude.",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-sprite-boy-32.png"
+  },
+  "oga-sprite-boy-64": {
+   "url": "https://opengameart.org/sites/default/files/64x64%20Sprite%20sheet.png",
+   "page": "https://opengameart.org/content/super-sprite-boy-sprite-sheet-30-frames-32x32-64x64",
+   "type": "file",
+   "author": "Chris_M_The_Game_Dude.",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0",
+   "cacheName": "oga-sprite-boy-64.png"
+  },
+  "oga-sumo-hulk": {
+   "url": "https://opengameart.org/sites/default/files/SumoHulkBrawler_byEris.zip",
+   "page": "https://opengameart.org/content/sprite-sheet-sidescoller-cycles",
+   "type": "zip",
+   "author": "Eris",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true,
+   "licenceNote": "OGA page licence field: CC0"
+  },
+  "oga-tileset-templates": {
+   "url": "https://opengameart.org/sites/default/files/tileset_templates.zip",
+   "page": "https://opengameart.org/content/tileset-templates",
+   "type": "zip",
+   "author": "Wisp0468 (OpenGameArt), layouts after Guy cr31 / caeles / Boris the Brave",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "committable": true
+  },
+  "oga-warpgal-shooting": {
+   "url": "https://opengameart.org/sites/default/files/warpgal-shooting-sheet-alpha_0.png",
+   "page": "https://opengameart.org/content/platform-shmup-hero-warpgal",
+   "type": "file",
+   "author": "Emcee Flesher",
+   "licence": "CC0-1.0 OR OGA-BY-3.0",
+   "licenceUrl": "https://opengameart.org/content/platform-shmup-hero-warpgal",
+   "committable": false,
+   "licenceNote": "OGA page lists CC0 and OGA-BY 3.0 (dual); the image itself says \"OGA-BY 3.0+\". Treated as local-only to be safe.",
+   "cacheName": "oga-warpgal-shooting.png"
+  },
+  "phaser-rotated-atlas-json": {
+   "url": "https://raw.githubusercontent.com/phaserjs/examples/master/public/assets/atlas/rotated-atlas.json",
+   "page": "https://github.com/phaserjs/examples/tree/master/public/assets/atlas",
+   "type": "file",
+   "cacheName": "phaser-rotated-atlas.json",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://github.com/phaserjs/examples/tree/master/public/assets/atlas",
+   "committable": false,
+   "licenceNote": "phaserjs/examples repo has no licence file (GitHub API: no licence); artwork origin not stated. LOCAL TESTING ONLY, never commit."
+  },
+  "phaser-rotated-atlas-png": {
+   "url": "https://raw.githubusercontent.com/phaserjs/examples/master/public/assets/atlas/rotated-atlas.png",
+   "page": "https://github.com/phaserjs/examples/tree/master/public/assets/atlas",
+   "type": "file",
+   "cacheName": "phaser-rotated-atlas.png",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://github.com/phaserjs/examples/tree/master/public/assets/atlas",
+   "committable": false,
+   "licenceNote": "phaserjs/examples repo has no licence file (GitHub API: no licence); artwork origin not stated. LOCAL TESTING ONLY, never commit."
+  },
+  "phaser-tank-json": {
+   "url": "https://raw.githubusercontent.com/phaserjs/examples/master/public/assets/animations/aseprite/tank.json",
+   "page": "https://github.com/phaserjs/examples/tree/master/public/assets/animations/aseprite",
+   "type": "file",
+   "cacheName": "phaser-tank.json",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://github.com/phaserjs/examples/tree/master/public/assets/animations/aseprite",
+   "committable": false,
+   "licenceNote": "phaserjs/examples repo has no licence file (GitHub API: no licence); artwork origin not stated. LOCAL TESTING ONLY, never commit."
+  },
+  "phaser-tank-png": {
+   "url": "https://raw.githubusercontent.com/phaserjs/examples/master/public/assets/animations/aseprite/tank.png",
+   "page": "https://github.com/phaserjs/examples/tree/master/public/assets/animations/aseprite",
+   "type": "file",
+   "cacheName": "phaser-tank.png",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://github.com/phaserjs/examples/tree/master/public/assets/animations/aseprite",
+   "committable": false,
+   "licenceNote": "phaserjs/examples repo has no licence file (GitHub API: no licence); artwork origin not stated. LOCAL TESTING ONLY, never commit."
+  },
+  "pixi-fighter-json": {
+   "url": "https://pixijs.com/assets/spritesheet/fighter.json",
+   "page": "https://pixijs.com/8.x/examples/sprite/animated-sprite-jet",
+   "type": "file",
+   "cacheName": "pixi-fighter.json",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://pixijs.com/8.x/examples/sprite/animated-sprite-jet",
+   "committable": false,
+   "licenceNote": "Served by pixijs.com for the PixiJS examples (pixijs repo is MIT, artwork licence not stated). LOCAL TESTING ONLY, never commit."
+  },
+  "pixi-fighter-png": {
+   "url": "https://pixijs.com/assets/spritesheet/fighter.png",
+   "page": "https://pixijs.com/8.x/examples/sprite/animated-sprite-jet",
+   "type": "file",
+   "cacheName": "pixi-fighter.png",
+   "author": "unknown (bundled in an engine examples repo)",
+   "licence": "unclear",
+   "licenceUrl": "https://pixijs.com/8.x/examples/sprite/animated-sprite-jet",
+   "committable": false,
+   "licenceNote": "Served by pixijs.com for the PixiJS examples (pixijs repo is MIT, artwork licence not stated). LOCAL TESTING ONLY, never commit."
+  },
+  "polyhaven-brick-wall-001-arm": {
+   "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/brick_wall_001/brick_wall_001_arm_1k.png",
+   "page": "https://polyhaven.com/a/brick_wall_001",
+   "type": "file",
+   "author": "Poly Haven (Rob Tuytel, Dimitrios Savva)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://polyhaven.com/license",
+   "committable": true
+  },
+  "polyhaven-brick-wall-001-diffuse": {
+   "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/brick_wall_001/brick_wall_001_diffuse_1k.png",
+   "page": "https://polyhaven.com/a/brick_wall_001",
+   "type": "file",
+   "author": "Poly Haven (Rob Tuytel, Dimitrios Savva)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://polyhaven.com/license",
+   "committable": true
+  },
+  "polyhaven-brick-wall-001-nor-dx": {
+   "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/brick_wall_001/brick_wall_001_nor_dx_1k.png",
+   "page": "https://polyhaven.com/a/brick_wall_001",
+   "type": "file",
+   "author": "Poly Haven (Rob Tuytel, Dimitrios Savva)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://polyhaven.com/license",
+   "committable": true
+  },
+  "polyhaven-brick-wall-001-nor-gl": {
+   "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/1k/brick_wall_001/brick_wall_001_nor_gl_1k.png",
+   "page": "https://polyhaven.com/a/brick_wall_001",
+   "type": "file",
+   "author": "Poly Haven (Rob Tuytel, Dimitrios Savva)",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://polyhaven.com/license",
+   "committable": true
+  },
+  "tiled-desert-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/tmw_desert_spacing.png",
+   "page": "https://github.com/mapeditor/tiled/tree/master/examples",
+   "type": "file",
+   "author": "The Mana World Development Team",
+   "licence": "GPL (per Tiled AUTHORS)",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": false
+  },
+  "tiled-desert-tmx": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/desert.tmx",
+   "page": "https://github.com/mapeditor/tiled/tree/master/examples",
+   "type": "file",
+   "author": "Tiled developers",
+   "licence": "GPL-2.0-or-later (Tiled repository example)",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/COPYING",
+   "committable": false
+  },
+  "tiled-desert-tsx": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/desert.tsx",
+   "page": "https://github.com/mapeditor/tiled/tree/master/examples",
+   "type": "file",
+   "author": "Tiled developers",
+   "licence": "GPL-2.0-or-later (Tiled repository example)",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/COPYING",
+   "committable": false
+  },
+  "tiled-sticker-knight-backgroundSet-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/backgroundSet.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-block-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/block.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-buttonHelp-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/buttonHelp.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-buttonStart-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/buttonStart.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-cloud-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/cloud.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-helpBackground-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/helpBackground.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-sticker-knight-title-json": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/title.json",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": false
+  },
+  "tiled-sticker-knight-title-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/examples/sticker-knight/ui/title.png",
+   "page": "https://opengameart.org/content/sticker-knight-platformer",
+   "type": "file",
+   "author": "Ponywolf (art), Tiled developers (map)",
+   "licence": "CC0-1.0 (art, per Tiled AUTHORS); map file in the GPL Tiled repo",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true
+  },
+  "tiled-wangblob-png": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/tests/wangtiles/wangblob.png",
+   "page": "https://github.com/mapeditor/tiled/tree/master/tests/wangtiles",
+   "type": "file",
+   "author": "caeles / Guy cr31 (template), via the Tiled repository",
+   "licence": "CC0-1.0",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/AUTHORS",
+   "committable": true,
+   "notes": "Tiled AUTHORS: \"wangblob.png, CC0, https://opengameart.org/content/seamless-tileset-template-ii\""
+  },
+  "tiled-wangblob-tsx": {
+   "url": "https://raw.githubusercontent.com/mapeditor/tiled/ed0b433141a11d6c4a728de95ab50a3c90b39154/tests/wangtiles/wangblob.tsx",
+   "page": "https://github.com/mapeditor/tiled/tree/master/tests/wangtiles",
+   "type": "file",
+   "author": "Tiled developers (Thorbjorn Lindeijer et al.)",
+   "licence": "GPL-2.0-or-later (Tiled repository; data file)",
+   "licenceUrl": "https://github.com/mapeditor/tiled/blob/master/COPYING",
+   "committable": false
+  }
+ },
+ "files": [
+  {
+   "path": "sprites/kenney-toon-characters/character_femaleAdventurer_sheet.png",
+   "category": "sprite-sheet",
+   "source": "kenney-toon-characters",
+   "member": "Female adventurer/Tilesheet/character_femaleAdventurer_sheet.png",
+   "tags": [
+    "uniform-grid",
+    "non-square-cell",
+    "large-cell",
+    "antialiased"
+   ],
+   "truth": {
+    "verified": "Pillow: 9*96=864, 5*128=640 exact; all 45 cells non-empty; 36 cells have art touching the cell border; 34 alpha levels (AA edges); indexed PNG; matches the XML rects 1:1",
+    "grid": {
+     "cellW": 96,
+     "cellH": 128,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 9,
+     "rows": 5
+    },
+    "frames": 45,
+    "background": "transparent",
+    "atlas": {
+     "format": "starling-xml",
+     "file": "sprites/kenney-toon-characters/character_femaleAdventurer_sheet.xml",
+     "frames": 45
+    },
+    "animations": {
+     "climb": 2,
+     "cheer": 2,
+     "switch": 2,
+     "run": 3,
+     "attack": 3,
+     "walk": 8
+    },
+    "notes": "Animation names come from the XML frame names (name + digit suffix); single poses (idle, jump, ...) are one-frame names."
+   },
+   "sha256": "15ebb3b05e4941ca47bd704276b5718e887df22489f911ad14fc124758ebfe4d",
+   "bytes": 101149,
+   "size": {
+    "w": 864,
+    "h": 640
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-toon-characters/character_femaleAdventurer_sheet.xml",
+   "category": "sprite-atlas-data",
+   "source": "kenney-toon-characters",
+   "member": "Female adventurer/Tilesheet/character_femaleAdventurer_sheet.xml",
+   "tags": [
+    "starling-xml",
+    "uniform"
+   ],
+   "truth": {
+    "verified": "parsed: 45 SubTexture elements, no rotated/frameX attributes, every rect on the 96x128 grid",
+    "atlas": {
+     "format": "starling-xml",
+     "image": "character_femaleAdventurer_sheet.png",
+     "frames": 45,
+     "rotated": 0,
+     "trimmed": 0
+    }
+   },
+   "sha256": "e0d0402d0e649bc0d15ee7caf6f2d59056a09748749a368963be7d7d05f69480",
+   "bytes": 3119,
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-platformer-characters/adventurer_tilesheet.png",
+   "category": "sprite-sheet",
+   "source": "kenney-platformer-characters",
+   "member": "PNG/Adventurer/adventurer_tilesheet.png",
+   "tags": [
+    "uniform-grid",
+    "non-square-cell",
+    "trailing-empty-cells"
+   ],
+   "truth": {
+    "verified": "Pillow: 9*80=720, 3*110=330 exact; 24 non-empty cells, last 3 of row 3 empty; 17 alpha levels; no data file ships with it",
+    "grid": {
+     "cellW": 80,
+     "cellH": 110,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 9,
+     "rows": 3
+    },
+    "frames": 24,
+    "background": "transparent",
+    "notes": "No frame names; the Poses/ folder of the same pack has the same poses as loose files (adventurer_walk1.png, ...)."
+   },
+   "sha256": "18417b3df336fed34f1115d90d28bd11df65a24c837d3670520a4fb3f820bbeb",
+   "bytes": 103867,
+   "size": {
+    "w": 720,
+    "h": 330
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-pixel-platformer/tilemap-characters.png",
+   "category": "sprite-sheet",
+   "source": "kenney-pixel-platformer",
+   "member": "Tilemap/tilemap-characters.png",
+   "tags": [
+    "uniform-grid",
+    "spacing",
+    "24px",
+    "pixel-art"
+   ],
+   "truth": {
+    "verified": "Pillow: 9*24+8*1=224, 3*24+2*1=74 exact; spacing lines fully transparent; 27/27 cells non-empty; binary alpha; matches the pack's \"Tilesheet (Characters).txt\" (24px, 1px space, 9x3)",
+    "grid": {
+     "cellW": 24,
+     "cellH": 24,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 9,
+     "rows": 3
+    },
+    "frames": 27,
+    "background": "transparent",
+    "pixelScale": 1
+   },
+   "sha256": "b4f63a99b228021c7c8106a09af47b1c9635e1a20b9dd9e6e666c9b36cc7d259",
+   "bytes": 1996,
+   "size": {
+    "w": 224,
+    "h": 74
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-micro-roguelike/colored_tilemap.png",
+   "category": "sprite-sheet",
+   "source": "kenney-micro-roguelike",
+   "member": "Tilemap/colored_tilemap.png",
+   "tags": [
+    "uniform-grid",
+    "spacing",
+    "8px",
+    "pixel-art",
+    "opaque-cells"
+   ],
+   "truth": {
+    "verified": "Pillow: 16*8+15=143, 10*8+9=89 exact; spacing lines transparent; every cell is (almost) fully opaque (10239 of 10240 cell pixels); matches Tilesheet.txt (16x10=160 tiles, 1px space)",
+    "grid": {
+     "cellW": 8,
+     "cellH": 8,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 16,
+     "rows": 10
+    },
+    "frames": 160,
+    "background": "transparent",
+    "pixelScale": 1,
+    "notes": "Characters, items and terrain mixed in one sheet; each 8px cell paints its own dark background, so island detection sees 160 solid squares."
+   },
+   "sha256": "fe7f2f3b25135175382109ace76a1e31fb7baefdfe9724784ac11db4bbdda0e5",
+   "bytes": 3070,
+   "size": {
+    "w": 143,
+    "h": 89
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-roguelike-characters/roguelikeChar_transparent.png",
+   "category": "sprite-sheet",
+   "source": "kenney-roguelike-characters",
+   "member": "Spritesheet/roguelikeChar_transparent.png",
+   "tags": [
+    "uniform-grid",
+    "spacing",
+    "16px",
+    "trailing-spacing",
+    "paper-doll-parts"
+   ],
+   "truth": {
+    "verified": "Pillow: 54*16+53*1=917 but the image is 918 wide (one extra transparent column on the right); height 12*16+11=203 exact; all spacing lines transparent; 448 of 648 cells non-empty; spritesheetInfo.txt says 16x16 with 1px margin between tiles",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 54,
+     "rows": 12
+    },
+    "frames": 448,
+    "background": "transparent",
+    "pixelScale": 1,
+    "notes": "Width is 918 = 54 cells x 17 px (each cell followed by its 1px gap, including the last column); a margin/spacing solver must tolerate the uneven right edge. Cells are paper-doll parts (bodies, clothing, hair, weapons), not animation frames."
+   },
+   "sha256": "771d51ca84b2c5b412027ba80c6a6b8a98bb5a983b2c58ac4f0ccf08ae4d10f2",
+   "bytes": 11137,
+   "size": {
+    "w": 918,
+    "h": 203
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-roguelike-characters/roguelikeChar_magenta.png",
+   "category": "sprite-sheet",
+   "source": "kenney-roguelike-characters",
+   "member": "Spritesheet/roguelikeChar_magenta.png",
+   "tags": [
+    "colour-key",
+    "magenta",
+    "uniform-grid",
+    "spacing",
+    "16px",
+    "real-keyed",
+    "trailing-spacing"
+   ],
+   "truth": {
+    "verified": "Pillow: same 918x203 layout; every pixel that is transparent in roguelikeChar_transparent.png is exactly (255,0,255) here and no other pixel is (159627 px, identical sets); no alpha channel in use",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 54,
+     "rows": 12
+    },
+    "frames": 448,
+    "background": {
+     "key": [
+      255,
+      0,
+      255
+     ]
+    },
+    "pixelScale": 1,
+    "notes": "Real magenta-keyed sheet shipped by Kenney next to the transparent version, so the expected cut-out is known exactly. Spacing lines are also magenta; like the transparent version it is 918 wide (one extra key-coloured column on the right)."
+   },
+   "sha256": "afa364ff719d8daadf0c4368295aa44907869caecbd6d1b7bef58ff6c91e2381",
+   "bytes": 11240,
+   "size": {
+    "w": 918,
+    "h": 203
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-space-shooter-remastered/sheet.png",
+   "category": "sprite-sheet",
+   "source": "kenney-space-shooter-remastered",
+   "member": "Spritesheet/sheet.png",
+   "tags": [
+    "packed",
+    "irregular",
+    "indexed-png-with-alpha"
+   ],
+   "truth": {
+    "verified": "Pillow: 1024x1024 indexed PNG with tRNS alpha (82 alpha levels); rects from sheet.xml",
+    "frames": 294,
+    "background": "transparent",
+    "atlas": {
+     "format": "starling-xml",
+     "file": "sprites/kenney-space-shooter-remastered/sheet.xml",
+     "frames": 294
+    }
+   },
+   "sha256": "35a0d1f822b4fc08a7763fc6efce4dfba4ffec1b71e34ae15a1b6198fd9115f1",
+   "bytes": 147484,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/kenney-space-shooter-remastered/sheet.xml",
+   "category": "sprite-atlas-data",
+   "source": "kenney-space-shooter-remastered",
+   "member": "Spritesheet/sheet.xml",
+   "tags": [
+    "starling-xml",
+    "irregular"
+   ],
+   "truth": {
+    "verified": "parsed: 294 SubTexture elements with .png suffixed names, no rotated/frameX attributes",
+    "atlas": {
+     "format": "starling-xml",
+     "image": "sheet.png",
+     "frames": 294,
+     "rotated": 0,
+     "trimmed": 0
+    }
+   },
+   "sha256": "8e3f7486b9f3ac3a2467c9f417701cb5d7139377a2fd3f1ece6e9284e391bf43",
+   "bytes": 22737,
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-samurai/samurai.png",
+   "category": "sprite-sheet",
+   "source": "oga-samurai",
+   "member": "samurai.png",
+   "tags": [
+    "uniform-grid",
+    "48px",
+    "fx-islands",
+    "pixel-art"
+   ],
+   "truth": {
+    "verified": "Pillow: 6*48=288, 10*48=480 exact; 60/60 cells non-empty; binary alpha; scipy 8-connected islands per cell; looked at it",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 10
+    },
+    "frames": 60,
+    "background": "transparent",
+    "pixelScale": 1,
+    "colors": 40,
+    "fxIslands": "1-pixel blood droplets detached from the body in cells (row,col) (4,2) x2, (4,5) x2, (5,5) x1, (6,2) x2, (6,4) x1, (6,5) x3, (7,2) x2, (7,5) x2; sword-swing arcs in rows 0-3 are attached to the body (same island)",
+    "notes": "Rows are poses/directions of attack and death sequences; animation boundaries are not marked in the file."
+   },
+   "sha256": "e63f6abc231c66241929325449eea97e621997dbc1d4c1a7e757f24eaa3aabf1",
+   "bytes": 46035,
+   "size": {
+    "w": 288,
+    "h": 480
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-warpgal/warpgal-shooting-sheet.png",
+   "category": "sprite-sheet",
+   "source": "oga-warpgal-shooting",
+   "tags": [
+    "uniform-grid",
+    "48px",
+    "filler-regions",
+    "text-labels",
+    "hidden-rgb-in-transparent",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "Pillow: 15*48=720, 19*48=912 exact; per-cell classification: 226 sprite cells in cols 0-12 rows 0-17, col 1 rows 0-7 are solid blue (0,0,255) filler, cols 13-14 hold credits text + a palette swatch on blue, row 18 holds column labels; transparent pixels are (255,128,0,0); looked at it",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 15,
+     "rows": 19
+    },
+    "frames": 226,
+    "background": "transparent",
+    "pixelScale": 1,
+    "animations": {
+     "stand": 18,
+     "crouch": 10,
+     "run1": 18,
+     "run2_fall": 18,
+     "run3": 18,
+     "run4": 18,
+     "run5": 18,
+     "run6": 18,
+     "run7": 18,
+     "run8": 18,
+     "run9": 18,
+     "run10": 18,
+     "wall_cling": 18
+    },
+    "notes": "One column per pose (labels drawn in row 18: STAND, CROUCH, RUN 1, RUN 2 / FALL, RUN 3..RUN 10, WALL CLING); rows are aim/shoot variants. Muzzle flashes are attached to the gun (not separate islands). Opaque blue areas and text are NOT frames."
+   },
+   "sha256": "e6ccdd59a67acb055baab232a06e49afa3b03223f30e28e004deed2340ff3406",
+   "bytes": 74270,
+   "size": {
+    "w": 720,
+    "h": 912
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-hq-trooper/HQ_Trooper_all.png",
+   "category": "sprite-sheet",
+   "source": "oga-hq-trooper",
+   "tags": [
+    "uniform-grid",
+    "64px",
+    "row-per-animation",
+    "noisy-colours"
+   ],
+   "truth": {
+    "verified": "Pillow: 6*64=384, 13*64=832 exact; 52 non-empty cells; row frame counts read from the occupancy grid; 31916 unique colours (many near-black variants such as (0,2,0), (0,3,0)); binary alpha; looked at it",
+    "grid": {
+     "cellW": 64,
+     "cellH": 64,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 13
+    },
+    "frames": 52,
+    "background": "transparent",
+    "colors": 31916,
+    "rowFrameCounts": [
+     2,
+     2,
+     4,
+     4,
+     6,
+     6,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ],
+    "notes": "One animation per row, left-aligned, ragged row lengths. The page names 13 GIFs (walk, walk_rifle, run, run_rifle, jump, jump_rifle, crouch, crouch_rifle, attack, attack_rifle, idle, idle_rifle, killed) but which row is which is not stated in the file - names UNVERIFIED. Colours are not a clean palette (upscaled/filtered art quantised back), a real \"dirty pixel art\" case."
+   },
+   "sha256": "fdfda3c06f913af65f5a5edfa6427410b15fcf378d18f7b152204809b2f371ca",
+   "bytes": 212766,
+   "size": {
+    "w": 384,
+    "h": 832
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-hit-effect/hit-yellow.png",
+   "category": "sprite-sheet",
+   "source": "oga-hit-yellow",
+   "tags": [
+    "uniform-grid",
+    "large-4096",
+    "fx",
+    "fx-islands",
+    "soft-alpha",
+    "leading-empty-cells"
+   ],
+   "truth": {
+    "verified": "Pillow: 4*1024=4096 both ways exact; cells 0 and 1 are empty; 14 frames; 256 alpha levels with many alpha 1-3 pixels; scipy islands per cell: 1 to 48 islands per frame; looked at it",
+    "grid": {
+     "cellW": 1024,
+     "cellH": 1024,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 4,
+     "rows": 4
+    },
+    "frames": 14,
+    "background": "transparent",
+    "fxIslands": "every frame after the first ring has detached sparks: frame cells (0,3) and (1,0) have 48 islands, (3,2) and (3,3) 11-12 islands of which 2 are large; alpha of the outer glow is 1-3/255",
+    "notes": "16.7 MP, 2.1 MB PNG. Leading 2 empty cells are part of the timing (the effect starts after 2 blank frames) - a slicer that drops empty cells changes the animation."
+   },
+   "sha256": "f74635da13771d8434f21bdf250c94e27fa7272b5b44043cf953ef29e89fe762",
+   "bytes": 2168687,
+   "size": {
+    "w": 4096,
+    "h": 4096
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-caveman/spr_caveman.png",
+   "category": "sprite-sheet",
+   "source": "oga-caveman",
+   "tags": [
+    "packed",
+    "no-data",
+    "text-labels",
+    "irregular-rows",
+    "hidden-rgb-in-transparent"
+   ],
+   "truth": {
+    "verified": "Pillow: 256x544; 8 alpha levels; 7048 fully transparent pixels carry RGB (255,0,0); animation labels are drawn in blue text inside the image; frame counts per label counted by eye from a 2x preview",
+    "background": "transparent",
+    "animations": {
+     "walk": 6,
+     "run": 7,
+     "idle": 1,
+     "runstop": 1,
+     "attack": 4,
+     "climb": 6,
+     "death": 5,
+     "falling": 1,
+     "duck_crouch": 1,
+     "hurt": 2,
+     "jumping": 4,
+     "crawling": 4,
+     "pushing": 4,
+     "shimmey_right": 3,
+     "shimmey_left": 3,
+     "swimming": 4,
+     "tread_water": 3
+    },
+    "notes": "Hand-arranged sheet: rows of different heights, frames not on a grid, text labels are islands that are not frames, the club in ATTACK is part of the frame. Counts are visual (UNVERIFIED by machine)."
+   },
+   "sha256": "912bb7723297c10b94813fa5db44ed021148c3d1d83f220ced1cae544b188178",
+   "bytes": 11259,
+   "size": {
+    "w": 256,
+    "h": 544
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-classic-hero/old-hero.png",
+   "category": "sprite-sheet",
+   "source": "oga-classic-hero",
+   "tags": [
+    "uniform-grid",
+    "16px",
+    "opaque-background",
+    "margin",
+    "pixel-art",
+    "touching-frames"
+   ],
+   "truth": {
+    "verified": "Pillow: RGB (no alpha), background colour (157,142,135) everywhere outside the sprites; with that as key: 2*16+6*16=128, 2*16+5*16=112 exact; 26 non-empty cells, all touching their cell border; looked at it",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 16,
+     "marginY": 16,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 5
+    },
+    "frames": 26,
+    "background": {
+     "key": [
+      157,
+      142,
+      135
+     ]
+    },
+    "pixelScale": 1,
+    "colors": 11,
+    "notes": "The key is a muted brown-grey, not magenta/cyan/green. Neighbouring sprites touch across cell borders, so connected-component slicing merges them; the grid is the only correct slicing."
+   },
+   "sha256": "4805f1708a691879e152f6f58699b6bfd9069d72c15ebaa65dbd855cc1426a28",
+   "bytes": 2361,
+   "size": {
+    "w": 128,
+    "h": 112
+   },
+   "mode": "RGB",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-sprite-boy/sprite-boy-32.png",
+   "category": "sprite-sheet",
+   "source": "oga-sprite-boy-32",
+   "tags": [
+    "strip",
+    "32px",
+    "pixel-art"
+   ],
+   "truth": {
+    "verified": "Pillow: 30*32=960 x 32 exact; 30 non-empty cells; binary alpha; 30 colours",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 30,
+     "rows": 1
+    },
+    "frames": 30,
+    "background": "transparent",
+    "pixelScale": 1,
+    "colors": 30
+   },
+   "sha256": "58c09ff2299449d386b060542f36e2253e2a196b526af2a1e0966747192c27e3",
+   "bytes": 4503,
+   "size": {
+    "w": 960,
+    "h": 32
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-sprite-boy/sprite-boy-64.png",
+   "category": "pixel-art",
+   "source": "oga-sprite-boy-64",
+   "tags": [
+    "strip",
+    "64px",
+    "nearest-upscale",
+    "real-upscale"
+   ],
+   "truth": {
+    "verified": "Pillow: resizing sprite-boy-32.png 2x with NEAREST reproduces this file exactly (0 differing pixels)",
+    "grid": {
+     "cellW": 64,
+     "cellH": 64,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 30,
+     "rows": 1
+    },
+    "frames": 30,
+    "background": "transparent",
+    "pixelScale": 2,
+    "resampled": false,
+    "nativeSize": {
+     "w": 960,
+     "h": 32
+    }
+   },
+   "sha256": "f9abce8e1a8c7eaaea502b4cd03fcd3136a4187b378e13276ea3a9113e071c14",
+   "bytes": 11529,
+   "size": {
+    "w": 1920,
+    "h": 64
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack.png",
+   "category": "sprite-sheet",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/attack.png",
+   "tags": [
+    "large",
+    "non-uniform",
+    "hi-res",
+    "no-data"
+   ],
+   "truth": {
+    "verified": "Pillow+scipy: 3781x2140 (3781/5 is not an integer); exactly 10 8-connected islands, one per frame (boots are joined to the legs by faint pixels); island bounding boxes listed in frameBounds; 256-level alpha incl. (255,255,255,0) hidden white",
+    "frames": 10,
+    "background": "transparent",
+    "frameBounds": [
+     [
+      95,
+      2,
+      557,
+      1027
+     ],
+     [
+      827,
+      1,
+      561,
+      1029
+     ],
+     [
+      1598,
+      1,
+      553,
+      1030
+     ],
+     [
+      2362,
+      1,
+      552,
+      1031
+     ],
+     [
+      3135,
+      0,
+      542,
+      1032
+     ],
+     [
+      0,
+      1097,
+      729,
+      1043
+     ],
+     [
+      801,
+      1080,
+      691,
+      1059
+     ],
+     [
+      1614,
+      1073,
+      641,
+      1066
+     ],
+     [
+      2418,
+      1066,
+      600,
+      1072
+     ],
+     [
+      3214,
+      1082,
+      566,
+      1056
+     ]
+    ],
+    "notes": "frameBounds are [x, y, w, h] of the opaque content, row-major. The sheet is laid out 5 x 2 by eye but NOT on an integer grid; a uniform-grid slicer will cut frames."
+   },
+   "sha256": "311f178f70e67f2dedfe67d3821cf0e9e6814024e17b0859b0c0f9497a622325",
+   "bytes": 1565735,
+   "size": {
+    "w": 3781,
+    "h": 2140
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (1).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (1).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 1,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "5669d68280cf4acf217ef33ce89ddec46632a3d758ce785ef726f05c693e56dc",
+   "bytes": 75586,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (2).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (2).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 2,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "de043dc485bd74d17b6c703cc5215d0b9b0a88de5704bbeb4b1f71e91c45bd21",
+   "bytes": 73046,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (3).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (3).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 3,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "d8d8e53b9251c1baf28a15b421d3b7da41cf07e488e376f5c44e4706929a0b5c",
+   "bytes": 73680,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (4).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (4).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 4,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "878c63b1005f2b9e9aaf16f53db0575596f9586e05effbd0ec8d8eff6e6f863f",
+   "bytes": 73594,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (5).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (5).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 5,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "7cbd5864943955b5b79989a52ee273a729ce0c193497c1d4574d54e60a8d0286",
+   "bytes": 75360,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (6).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (6).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 6,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "f5057abc4c3e6284df77764984dd7cd9a6435eedc97b47c29d50633d756319ca",
+   "bytes": 72863,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (7).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (7).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 7,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "ac1724aa441b560252d1a62a33a75873b25de7ded95355d3edabd6b85d775354",
+   "bytes": 73729,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (8).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (8).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 8,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "5bc7f3a7d74272e2802423f215e44dd9a366d9941481545a90567d293882e68d",
+   "bytes": 73923,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (9).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (9).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 9,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "9c661a2915ebcd24738154f074b66480a87bab4fd703ee2e93588c72d0bfe249",
+   "bytes": 73218,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-skeleton-archer/attack-frames/attack (10).png",
+   "category": "sprite-frames",
+   "source": "oga-skeleton-archer",
+   "member": "Archer Skeleton  Animations/Attack/Separate sp/attack (10).png",
+   "tags": [
+    "loose-frames",
+    "natural-sort",
+    "archer-attack"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: 10 files attack (1..10).png, each 381x554 RGBA",
+    "sequence": {
+     "prefix": "attack (",
+     "index": 10,
+     "frames": 10,
+     "order": "natural (1,2,...,10); plain lexicographic sorting puts \"attack (10)\" second"
+    }
+   },
+   "sha256": "758fff69383b70af0b8539d1b068cdf43f5bb0e2c3b0472a94c46c8de70105b5",
+   "bytes": 72622,
+   "size": {
+    "w": 381,
+    "h": 554
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_0.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_0.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 0,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "bd5dd682d7eb922e8148d78bbc90fda3357dbd20b91ca4a3e6f66b39339c7b10",
+   "bytes": 472,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_1.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_1.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 1,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "13597a0efaa490a12ee851f74fefe9566cb2277eb4305cb7c3860eca58ed89e6",
+   "bytes": 459,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_2.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_2.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 2,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "88e24740b1f773f5c560923b97aebd0e50a249562992d141801ab6fa57ecef81",
+   "bytes": 465,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_3.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_3.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 3,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "aba909c0b082868b7325432d862db4fed0045ea4451fe20c8691b15f34d82572",
+   "bytes": 480,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_4.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_4.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 4,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "bc5a115cdc457e48f668b40205d5fdbc31d6d692b45dea9ea1a156bf4aa658b9",
+   "bytes": 478,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/oga-ninja/1x/run_5.png",
+   "category": "sprite-frames",
+   "source": "oga-ninja",
+   "member": "1x/run_5.png",
+   "tags": [
+    "loose-frames",
+    "ninja-run",
+    "pixel-art",
+    "indexed-png"
+   ],
+   "truth": {
+    "verified": "zip listing + Pillow: run_0..run_5, each 40x29 indexed PNG with transparency, one island per frame; the pack also ships the same frames at 2x-5x (3x and 4x checked: exact NEAREST upscales)",
+    "sequence": {
+     "prefix": "run_",
+     "index": 5,
+     "frames": 6
+    },
+    "pixelScale": 1
+   },
+   "sha256": "d5f01eac2e49c734f97e0b2aa6563b64ce221a0ef8223d8574c142144d406a5b",
+   "bytes": 475,
+   "size": {
+    "w": 40,
+    "h": 29
+   },
+   "mode": "P",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/phaser-examples/tank.png",
+   "category": "sprite-sheet",
+   "source": "phaser-tank-png",
+   "tags": [
+    "aseprite-export",
+    "strip",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "Pillow: 288x26 = 9 x 32x26 strip; binary alpha; rects in tank.json",
+    "grid": {
+     "cellW": 32,
+     "cellH": 26,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 9,
+     "rows": 1
+    },
+    "frames": 9,
+    "background": "transparent",
+    "atlas": {
+     "format": "aseprite-json-hash",
+     "file": "sprites/phaser-examples/tank.json",
+     "frames": 9
+    }
+   },
+   "sha256": "7274c20ce9032de7d8f7e5b09a0730c462917c9803946a3ebe96f6899bf327b3",
+   "bytes": 4725,
+   "size": {
+    "w": 288,
+    "h": 26
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/phaser-examples/tank.json",
+   "category": "sprite-atlas-data",
+   "source": "phaser-tank-json",
+   "tags": [
+    "aseprite-json-hash",
+    "frame-tags",
+    "durations",
+    "pingpong",
+    "absolute-image-path",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "parsed: Aseprite 1.1.13 hash export, 9 frames \"tank 0.ase\"..\"tank 8.ase\", per-frame durations [100,100,100,100,250,250,250,250,2000] ms, meta.frameTags Move 0-3 forward and Reverse 4-8 pingpong, meta.image is an absolute Windows path C:\\Users\\rdave\\Desktop\\tank.png",
+    "atlas": {
+     "format": "aseprite-json-hash",
+     "image": "tank.png (meta.image is an absolute path)",
+     "frames": 9,
+     "rotated": 0,
+     "trimmed": 0
+    },
+    "animations": {
+     "Move": 4,
+     "Reverse": 5
+    },
+    "tagDirections": {
+     "Move": "forward",
+     "Reverse": "pingpong"
+    },
+    "durationsMs": [
+     100,
+     100,
+     100,
+     100,
+     250,
+     250,
+     250,
+     250,
+     2000
+    ],
+    "notes": "An importer must resolve the image next to the JSON (not meta.image) and play Reverse as ping-pong (4,5,6,7,8,7,6,5)."
+   },
+   "sha256": "076d453189b84be096749971ad5563634c8fde081c61e851bbb6449bc3be7365",
+   "bytes": 2649,
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/phaser-examples/rotated-atlas.png",
+   "category": "sprite-sheet",
+   "source": "phaser-rotated-atlas-png",
+   "tags": [
+    "packed",
+    "rotated",
+    "trimmed",
+    "texturepacker",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "Pillow: 2046x1198 RGBA, 256 alpha levels; rects in rotated-atlas.json",
+    "frames": 162,
+    "background": "transparent",
+    "atlas": {
+     "format": "texturepacker-json-hash",
+     "file": "sprites/phaser-examples/rotated-atlas.json",
+     "frames": 162
+    }
+   },
+   "sha256": "9fd4d44ad74a9dd3c9f3be9fc3cdae79c66a3ca428743ace0e6dbc2a17d6ac21",
+   "bytes": 1484477,
+   "size": {
+    "w": 2046,
+    "h": 1198
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/phaser-examples/rotated-atlas.json",
+   "category": "sprite-atlas-data",
+   "source": "phaser-rotated-atlas-json",
+   "tags": [
+    "texturepacker-json-hash",
+    "rotated",
+    "trimmed",
+    "pivot",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "parsed: TexturePacker hash, 162 frames, 50 with rotated:true, 22 with trimmed:true, pivot per frame, meta.size 2046x1198",
+    "atlas": {
+     "format": "texturepacker-json-hash",
+     "image": "rotated-atlas.png",
+     "frames": 162,
+     "rotated": 50,
+     "trimmed": 22
+    },
+    "notes": "TexturePacker convention: for rotated frames, frame.w/h are the UNROTATED size, the region in the page is h x w, rotated 90 deg clockwise."
+   },
+   "sha256": "930a1341afa0e96af9d2884ebe5ce8185c43f62719d25113a44f70f6d2c920e1",
+   "bytes": 34714,
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/pixi-examples/fighter.png",
+   "category": "sprite-sheet",
+   "source": "pixi-fighter-png",
+   "tags": [
+    "packed",
+    "trimmed",
+    "texturepacker",
+    "hi-res",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "Pillow: 1024x1024 RGBA, 256 alpha levels; rects in fighter.json",
+    "frames": 30,
+    "background": "transparent",
+    "atlas": {
+     "format": "texturepacker-json-hash",
+     "file": "sprites/pixi-examples/fighter.json",
+     "frames": 30
+    }
+   },
+   "sha256": "bce77575e5642d3b092a6b5219518b15dd0ec2d25c00e1c608d198d2786e027b",
+   "bytes": 1157421,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/pixi-examples/fighter.json",
+   "category": "sprite-atlas-data",
+   "source": "pixi-fighter-json",
+   "tags": [
+    "texturepacker-json-hash",
+    "trimmed",
+    "no-animations-map",
+    "local-only"
+   ],
+   "truth": {
+    "verified": "parsed: TexturePacker hash, 30 frames rollSequence0000.png..rollSequence0029.png, all trimmed (sourceSize 175x240), none rotated, no \"animations\" key",
+    "atlas": {
+     "format": "texturepacker-json-hash",
+     "image": "fighter.png",
+     "frames": 30,
+     "rotated": 0,
+     "trimmed": 30
+    },
+    "animations": {
+     "rollSequence": 30
+    },
+    "sequence": {
+     "prefix": "rollSequence",
+     "frames": 30
+    },
+    "notes": "The animation exists only in the frame names (rollSequence0000-0029); a trim-aware importer must restore the 175x240 source size so the ship does not jitter."
+   },
+   "sha256": "5cff1d7b0976947a727d7ad8ab38ece2d388d22b3be89587aebb38cceb93b2d1",
+   "bytes": 7835,
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/derived/samurai_magenta_m4_s2.png",
+   "category": "sprite-sheet",
+   "derive": {
+    "from": "sprites/oga-samurai/samurai.png",
+    "op": "grid-repack",
+    "cell": [
+     48,
+     48
+    ],
+    "grid": [
+     6,
+     10
+    ],
+    "margin": 4,
+    "spacing": 2,
+    "background": [
+     255,
+     0,
+     255,
+     255
+    ]
+   },
+   "tags": [
+    "derived",
+    "colour-key",
+    "magenta",
+    "margin",
+    "spacing",
+    "48px"
+   ],
+   "truth": {
+    "verified": "by construction: the 6x10 grid of samurai.png re-laid with margin 4, spacing 2 on opaque magenta; 2*4+6*48+5*2=306, 2*4+10*48+9*2=506",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 4,
+     "marginY": 4,
+     "spacingX": 2,
+     "spacingY": 2,
+     "cols": 6,
+     "rows": 10
+    },
+    "frames": 60,
+    "background": {
+     "key": [
+      255,
+      0,
+      255
+     ]
+    },
+    "pixelScale": 1
+   },
+   "sha256": "80bd4619a3e8081730779f837e5b1d9613fafd059dea250a6e9cc0c8622b3ef3",
+   "bytes": 14959,
+   "size": {
+    "w": 306,
+    "h": 506
+   },
+   "mode": "RGB",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/derived/pixel-platformer-characters_cyan.png",
+   "category": "sprite-sheet",
+   "derive": {
+    "from": "sprites/kenney-pixel-platformer/tilemap-characters.png",
+    "op": "key",
+    "color": [
+     0,
+     255,
+     255
+    ]
+   },
+   "tags": [
+    "derived",
+    "colour-key",
+    "cyan",
+    "spacing",
+    "24px"
+   ],
+   "truth": {
+    "verified": "by construction: binary-alpha source flattened onto (0,255,255); spacing lines become cyan too",
+    "grid": {
+     "cellW": 24,
+     "cellH": 24,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 9,
+     "rows": 3
+    },
+    "frames": 27,
+    "background": {
+     "key": [
+      0,
+      255,
+      255
+     ]
+    },
+    "pixelScale": 1
+   },
+   "sha256": "2b11f99a6da13d024bca9a7a91f69927e6c99c748496c0a59b402868cdb565ec",
+   "bytes": 3791,
+   "size": {
+    "w": 224,
+    "h": 74
+   },
+   "mode": "RGB",
+   "part": "sprites"
+  },
+  {
+   "path": "sprites/derived/toon-femaleAdventurer_green.png",
+   "category": "sprite-sheet",
+   "derive": {
+    "from": "sprites/kenney-toon-characters/character_femaleAdventurer_sheet.png",
+    "op": "key",
+    "color": [
+     0,
+     255,
+     0
+    ],
+    "threshold": 128
+   },
+   "tags": [
+    "derived",
+    "colour-key",
+    "green",
+    "large-cell",
+    "hardened-edges"
+   ],
+   "truth": {
+    "verified": "by construction: pixels with alpha>=128 keep their RGB, the rest become (0,255,0); AA edges are therefore hard",
+    "grid": {
+     "cellW": 96,
+     "cellH": 128,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 9,
+     "rows": 5
+    },
+    "frames": 45,
+    "background": {
+     "key": [
+      0,
+      255,
+      0
+     ]
+    }
+   },
+   "sha256": "b5b1b93f5a634876ee44d6f8d76d96dc8aeb7376341be7166fe9b868059e84df",
+   "bytes": 215767,
+   "size": {
+    "w": 864,
+    "h": 640
+   },
+   "mode": "RGB",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/oga-sumo-hulk/sumoHulk_spriteSheet.png",
+   "category": "pixel-art",
+   "source": "oga-sumo-hulk",
+   "member": "SumoHulkBrawler/sumoHulk_spriteSheet.png",
+   "tags": [
+    "1x",
+    "16px",
+    "row-per-animation"
+   ],
+   "truth": {
+    "verified": "Pillow: 6*16=96, 9*16=144 exact; 36 non-empty cells; 10 colours; binary alpha; looked at it",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 9
+    },
+    "frames": 36,
+    "background": "transparent",
+    "pixelScale": 1,
+    "colors": 10,
+    "rowFrameCounts": [
+     4,
+     6,
+     3,
+     3,
+     4,
+     4,
+     3,
+     3,
+     6
+    ],
+    "notes": "One animation per row. The pack's GIFs are Climb, Fall, Idle, Jump, Kick, Punch, Talking, Walk, WalkGun, but the row order is not stated (names UNVERIFIED)."
+   },
+   "sha256": "49c662d8197859e11d255d78421242ab34ed69795ab0cdc75663d016adac5f90",
+   "bytes": 1197,
+   "size": {
+    "w": 96,
+    "h": 144
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/oga-sumo-hulk/sumoHulk_spriteSheet_x4.png",
+   "category": "pixel-art",
+   "source": "oga-sumo-hulk",
+   "member": "SumoHulkBrawler/sumoHulk_spriteSheet_x4.png",
+   "tags": [
+    "nearest-upscale",
+    "real-upscale",
+    "4x"
+   ],
+   "truth": {
+    "verified": "Pillow: NEAREST 4x of sumoHulk_spriteSheet.png reproduces it exactly; largest uniform block 4",
+    "grid": {
+     "cellW": 64,
+     "cellH": 64,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 9
+    },
+    "frames": 36,
+    "background": "transparent",
+    "pixelScale": 4,
+    "resampled": false,
+    "nativeSize": {
+     "w": 96,
+     "h": 144
+    },
+    "colors": 10
+   },
+   "sha256": "44160fabade9e0e6cfd9d33333aca2195633d7e6cfb8c41a3aa2d672aeb034cc",
+   "bytes": 4953,
+   "size": {
+    "w": 384,
+    "h": 576
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/derived/sumoHulk_x2_nearest.png",
+   "category": "pixel-art",
+   "derive": {
+    "from": "pixel/oga-sumo-hulk/sumoHulk_spriteSheet.png",
+    "op": "nearest",
+    "factor": 2
+   },
+   "tags": [
+    "derived",
+    "nearest-upscale",
+    "2x"
+   ],
+   "truth": {
+    "verified": "by construction: Pillow NEAREST x2",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 9
+    },
+    "frames": 36,
+    "background": "transparent",
+    "pixelScale": 2,
+    "resampled": false,
+    "nativeSize": {
+     "w": 96,
+     "h": 144
+    },
+    "colors": 10
+   },
+   "sha256": "b84ded7175d8ec871b660b89f165ef97dc26da87e5602a998e09b75c43f2cec5",
+   "bytes": 2487,
+   "size": {
+    "w": 192,
+    "h": 288
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/derived/sumoHulk_x3_nearest.png",
+   "category": "pixel-art",
+   "derive": {
+    "from": "pixel/oga-sumo-hulk/sumoHulk_spriteSheet.png",
+    "op": "nearest",
+    "factor": 3
+   },
+   "tags": [
+    "derived",
+    "nearest-upscale",
+    "3x"
+   ],
+   "truth": {
+    "verified": "by construction: Pillow NEAREST x3",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 6,
+     "rows": 9
+    },
+    "frames": 36,
+    "background": "transparent",
+    "pixelScale": 3,
+    "resampled": false,
+    "nativeSize": {
+     "w": 96,
+     "h": 144
+    },
+    "colors": 10
+   },
+   "sha256": "8fcc6589649952c402b2c0dc52d31f2e1083e8112ed0cae8c222e8104e466c63",
+   "bytes": 3661,
+   "size": {
+    "w": 288,
+    "h": 432
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/derived/sumoHulk_x3.78_bilinear.png",
+   "category": "pixel-art",
+   "derive": {
+    "from": "pixel/oga-sumo-hulk/sumoHulk_spriteSheet.png",
+    "op": "resample",
+    "size": [
+     363,
+     544
+    ],
+    "filter": "bilinear"
+   },
+   "tags": [
+    "derived",
+    "resampled",
+    "blurred",
+    "non-integer-scale"
+   ],
+   "truth": {
+    "verified": "by construction: Pillow BILINEAR 96x144 -> 363x544 (x3.78 horizontally, x3.778 vertically)",
+    "pixelScale": 3.78,
+    "resampled": "bilinear",
+    "nativeSize": {
+     "w": 96,
+     "h": 144
+    },
+    "background": "transparent",
+    "notes": "Blurred, off-grid upscale: a pixel-scale detector should report ~3.78 (non-integer) and recovery to 96x144 with the original 10 colours as the ideal."
+   },
+   "sha256": "7fc4d4dd90ea840e9f7ff077d3d3441f00d78cd50e77e5901060cf1f1f163429",
+   "bytes": 52756,
+   "size": {
+    "w": 363,
+    "h": 544
+   },
+   "mode": "RGBA",
+   "part": "sprites"
+  },
+  {
+   "path": "pixel/oga-ai-horror-monster/horror_monster.jpg",
+   "category": "pixel-art",
+   "source": "oga-ai-horror-monster",
+   "tags": [
+    "ai-generated",
+    "jpeg",
+    "off-grid",
+    "fake-pixel-art"
+   ],
+   "truth": {
+    "verified": "Pillow: 1024x1024 RGB JPEG, 60791 unique colours, opaque green-grey background; horizontal run lengths of flat colour: median 11 px, IQR 8-21 px; looked at a 4x crop: pseudo-pixels vary in size and are not aligned to any grid",
+    "background": {
+     "opaque": [
+      135,
+      159,
+      143
+     ]
+    },
+    "resampled": "generator+jpeg",
+    "pixelScale": null,
+    "colors": 60791,
+    "notes": "Generated image (per the OGA page) that imitates pixel art. There is no true pixel scale; ~8-11 px pseudo-pixels. Useful for \"AI-looking pixel art\" cleanup: expect a best-guess scale with LOW confidence."
+   },
+   "sha256": "f8d0472f71bc4bda4fe123eb150043de054259eaab917e7765e582c0f5f5cee0",
+   "bytes": 174099,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "part": "sprites"
+  },
+  {
+   "path": "palettes/lospec/pico-8.gpl",
+   "category": "palette",
+   "source": "lospec-pico-8-gpl",
+   "tags": [
+    "lospec",
+    "gpl"
+   ],
+   "truth": {
+    "verified": "read the file: 16 colours, CRLF line endings; header has #Palette Name, #Description containing HTML <a> tags, #Colors",
+    "palette": {
+     "colors": 16,
+     "format": "gpl"
+    }
+   },
+   "sha256": "0d3ec3b06cecf639a1be6d28c6d9db0031e1e1c596700127d3034727ad1831d8",
+   "bytes": 480,
+   "part": "sprites"
+  },
+  {
+   "path": "palettes/lospec/pico-8.hex",
+   "category": "palette",
+   "source": "lospec-pico-8-hex",
+   "tags": [
+    "lospec",
+    "hex"
+   ],
+   "truth": {
+    "verified": "read the file: 16 colours, CRLF line endings",
+    "palette": {
+     "colors": 16,
+     "format": "hex"
+    }
+   },
+   "sha256": "5814ea274522a65f52dc8f923e55db19dba57f14aed6d9d5e602e9ea4c32b3eb",
+   "bytes": 128,
+   "part": "sprites"
+  },
+  {
+   "path": "palettes/lospec/endesga-32.gpl",
+   "category": "palette",
+   "source": "lospec-endesga-32-gpl",
+   "tags": [
+    "lospec",
+    "gpl"
+   ],
+   "truth": {
+    "verified": "read the file: 32 colours, CRLF line endings; header has #Palette Name, #Description containing HTML <a> tags, #Colors",
+    "palette": {
+     "colors": 32,
+     "format": "gpl"
+    }
+   },
+   "sha256": "ef7b37b076451cf09a628c8c553b622a5e9990bf900b3c2cff33406713751a21",
+   "bytes": 727,
+   "part": "sprites"
+  },
+  {
+   "path": "palettes/lospec/sweetie-16.gpl",
+   "category": "palette",
+   "source": "lospec-sweetie-16-gpl",
+   "tags": [
+    "lospec",
+    "gpl"
+   ],
+   "truth": {
+    "verified": "read the file: 16 colours, CRLF line endings; header has #Palette Name, #Description containing HTML <a> tags, #Colors",
+    "palette": {
+     "colors": 16,
+     "format": "gpl"
+    }
+   },
+   "sha256": "15869268f41e2b4dbba6f84fcc3aca4612f653b9b777cfcd2b5280717e786ac2",
+   "bytes": 464,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-toon-characters.txt",
+   "category": "licence",
+   "source": "kenney-toon-characters",
+   "member": "License.txt",
+   "sha256": "39ed9b4ac5b411331b3b18fc68c393cdf9f909a22c62796f750b0ccee60e8c99",
+   "bytes": 603,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-platformer-characters.txt",
+   "category": "licence",
+   "source": "kenney-platformer-characters",
+   "member": "License.txt",
+   "sha256": "7295f78869ba53372f1cb96156475eb75df2483587899f2d60fd2f79776e7a6c",
+   "bytes": 492,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-pixel-platformer.txt",
+   "category": "licence",
+   "source": "kenney-pixel-platformer",
+   "member": "License.txt",
+   "sha256": "79ab2b701fe8047758bec141b4613084de4b96581279cbfd3d927414430e3dc1",
+   "bytes": 710,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-micro-roguelike.txt",
+   "category": "licence",
+   "source": "kenney-micro-roguelike",
+   "member": "License.txt",
+   "sha256": "28329ee2bea78a87124532ff0b9c313733df03456c724524ae256d885ddacbac",
+   "bytes": 574,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-roguelike-characters.txt",
+   "category": "licence",
+   "source": "kenney-roguelike-characters",
+   "member": "License.txt",
+   "sha256": "6a0679aac00618d14ffcd1d6745cc1b96cc0b9b8e2c78c0738b08812b120f677",
+   "bytes": 583,
+   "part": "sprites"
+  },
+  {
+   "path": "licences/kenney-space-shooter-remastered.txt",
+   "category": "licence",
+   "source": "kenney-space-shooter-remastered",
+   "member": "license.txt",
+   "sha256": "fffb016252fce3351324f14ff0dca457bbcd9e01f56dda97a1c8a84edf4a789c",
+   "bytes": 516,
+   "part": "sprites"
+  },
+  {
+   "path": "maps/kenney-tiny-dungeon/Tilemap/tilemap.png",
+   "category": "tileset",
+   "source": "kenney-tiny-dungeon",
+   "member": "Tilemap/tilemap.png",
+   "tags": [
+    "16px",
+    "spacing-1"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py: size formula cols*cell+(cols-1)*spacing+2*margin == image size, every gutter/margin pixel empty, non-empty tiles counted; matches Tilesheet.txt and sampleSheet.tsx",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 12,
+     "rows": 11
+    },
+    "tiles": 132,
+    "distinctTiles": 130,
+    "layout": "kenney-grid",
+    "background": "transparent"
+   },
+   "sha256": "5653222ac495d89e942f9b636300759b3f38e85b26e9b888676f2e9ab834095a",
+   "bytes": 5533,
+   "size": {
+    "w": 203,
+    "h": 186
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-tiny-dungeon/Tilemap/tilemap_packed.png",
+   "category": "tileset",
+   "source": "kenney-tiny-dungeon",
+   "member": "Tilemap/tilemap_packed.png",
+   "tags": [
+    "16px",
+    "packed"
+   ],
+   "truth": {
+    "verified": "Pillow: every 16x16 tile equals the same tile of tilemap.png (132/132)",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 12,
+     "rows": 11
+    },
+    "tiles": 132,
+    "layout": "kenney-grid",
+    "packedTwinOf": "maps/kenney-tiny-dungeon/Tilemap/tilemap.png"
+   },
+   "sha256": "d24e60a41e4ac7a745c0304dfde121143688557f40215f23221c29cfe683825f",
+   "bytes": 5294,
+   "size": {
+    "w": 192,
+    "h": 176
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-tiny-dungeon/Tiled/sampleSheet.tsx",
+   "category": "tilemap-project",
+   "source": "kenney-tiny-dungeon",
+   "member": "Tiled/sampleSheet.tsx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tsx",
+     "tileSize": [
+      16,
+      16
+     ],
+     "spacing": 1,
+     "margin": 0,
+     "columns": 12,
+     "tilecount": 132,
+     "image": "../Tilemap/tilemap.png",
+     "imageSize": [
+      203,
+      186
+     ]
+    }
+   },
+   "sha256": "02f1b90cfdb37bcccddc83d074954272aaffd297ed4fabce7bb670f2f3f4be71",
+   "bytes": 253,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-tiny-dungeon/Tiled/sampleMap.tmx",
+   "category": "tilemap-project",
+   "source": "kenney-tiny-dungeon",
+   "member": "Tiled/sampleMap.tmx",
+   "truth": {
+    "verified": "parsed; gids decoded",
+    "project": {
+     "format": "tmx",
+     "orientation": "orthogonal",
+     "tileSize": [
+      16,
+      16
+     ],
+     "mapSize": [
+      32,
+      20
+     ],
+     "layers": 3,
+     "objectGroups": 0,
+     "encodings": [
+      "csv"
+     ],
+     "tilesets": [
+      {
+       "firstgid": 1,
+       "source": "sampleSheet.tsx",
+       "external": true
+      }
+     ],
+     "externalTileset": true,
+     "embeddedTileset": false,
+     "nonEmptyCells": 697,
+     "flippedCells": 62
+    },
+    "notes": "Uses Tiled flip/rotate flag bits in gids (e.g. 1610612787, 3221225485) - importers must mask the top 3 bits."
+   },
+   "sha256": "fc545787837e2655c9d2078cc1b167df0d9ea2755f6ec3912c7987e8501339e3",
+   "bytes": 5590,
+   "part": "tiles"
+  },
+  {
+   "path": "licences/kenney-tiny-dungeon.txt",
+   "category": "licence",
+   "source": "kenney-tiny-dungeon",
+   "member": "License.txt",
+   "sha256": "9f574a2f1f636a3db8a0665ba90212f34e2b5e61ecb533d77c05237766374111",
+   "bytes": 570,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tilemap/tilemap.png",
+   "category": "tileset",
+   "source": "kenney-pixel-platformer",
+   "member": "Tilemap/tilemap.png",
+   "tags": [
+    "18px",
+    "spacing-1"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py: size formula cols*cell+(cols-1)*spacing+2*margin == image size, every gutter/margin pixel empty, non-empty tiles counted; matches \"Tilesheet (Tiles).txt\"",
+    "grid": {
+     "cellW": 18,
+     "cellH": 18,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 20,
+     "rows": 9
+    },
+    "tiles": 180,
+    "distinctTiles": 180,
+    "layout": "kenney-grid"
+   },
+   "sha256": "75c4eb86e8ceba008cd73bfd839609e91de1ab32686ccd34dff904cfd39883ed",
+   "bytes": 6180,
+   "size": {
+    "w": 379,
+    "h": 170
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tilemap/tilemap_packed.png",
+   "category": "tileset",
+   "source": "kenney-pixel-platformer",
+   "member": "Tilemap/tilemap_packed.png",
+   "tags": [
+    "18px",
+    "packed"
+   ],
+   "truth": {
+    "verified": "Pillow: 180/180 tiles equal tilemap.png",
+    "grid": {
+     "cellW": 18,
+     "cellH": 18,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 20,
+     "rows": 9
+    },
+    "tiles": 180,
+    "layout": "kenney-grid",
+    "packedTwinOf": "maps/kenney-pixel-platformer/Tilemap/tilemap.png"
+   },
+   "sha256": "a3bbff36594baa36c803a67e9152a20a80f2faeb3c22ca84ac06e0a70f56553d",
+   "bytes": 5913,
+   "size": {
+    "w": 360,
+    "h": 162
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tilemap/tilemap-characters_packed.png",
+   "category": "tileset",
+   "source": "kenney-pixel-platformer",
+   "member": "Tilemap/tilemap-characters_packed.png",
+   "tags": [
+    "24px",
+    "packed",
+    "characters"
+   ],
+   "truth": {
+    "verified": "Pillow: 27/27 tiles equal tilemap-characters.png (24px, spacing 1)",
+    "grid": {
+     "cellW": 24,
+     "cellH": 24,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 9,
+     "rows": 3
+    },
+    "tiles": 27,
+    "layout": "kenney-grid"
+   },
+   "sha256": "22622d54dfc9d85346c9b75b999c8604e6eb336e42c4708bcf8b21094d8a2dad",
+   "bytes": 1990,
+   "size": {
+    "w": 216,
+    "h": 72
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tiled/tileset-tiles.tsx",
+   "category": "tilemap-project",
+   "source": "kenney-pixel-platformer",
+   "member": "Tiled/tileset-tiles.tsx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tsx",
+     "tileSize": [
+      18,
+      18
+     ],
+     "spacing": 0,
+     "margin": 0,
+     "columns": 20,
+     "tilecount": 180,
+     "image": "../Tilemap/tilemap_packed.png",
+     "imageSize": [
+      360,
+      162
+     ]
+    }
+   },
+   "sha256": "78624f84646a46221566f03364295dc5aee4990c3ecaac110cc38248730de5ef",
+   "bytes": 254,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tiled/tileset-characters.tsx",
+   "category": "tilemap-project",
+   "source": "kenney-pixel-platformer",
+   "member": "Tiled/tileset-characters.tsx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tsx",
+     "tileSize": [
+      24,
+      24
+     ],
+     "spacing": 0,
+     "margin": 0,
+     "columns": 9,
+     "tilecount": 27,
+     "image": "../Tilemap/tilemap-characters_packed.png",
+     "imageSize": [
+      216,
+      72
+     ],
+     "tileoffset": [
+      -3,
+      0
+     ]
+    }
+   },
+   "sha256": "b31ce20bc6d9ba798c6cd4062a4f4699b17053ad3030dbcebc01760874638c35",
+   "bytes": 298,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-pixel-platformer/Tiled/tilemap-example-a.tmx",
+   "category": "tilemap-project",
+   "source": "kenney-pixel-platformer",
+   "member": "Tiled/tilemap-example-a.tmx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tmx",
+     "orientation": "orthogonal",
+     "tileSize": [
+      18,
+      18
+     ],
+     "mapSize": [
+      26,
+      15
+     ],
+     "layers": 4,
+     "objectGroups": 0,
+     "encodings": [
+      "csv"
+     ],
+     "tilesets": [
+      {
+       "firstgid": 1,
+       "source": "tileset-characters.tsx",
+       "external": true
+      },
+      {
+       "firstgid": 28,
+       "source": "tileset-tiles.tsx",
+       "external": true
+      }
+     ],
+     "externalTileset": true,
+     "embeddedTileset": false,
+     "nonEmptyCells": 313,
+     "flippedCells": 5
+    },
+    "notes": "Two external tilesets; the map is 18px but tileset-characters is 24px with tileoffset -3,0. Both .tsx point at the *_packed.png images."
+   },
+   "sha256": "f282da8d55c665707e922e5e79fdc1d91cce06001df5177f6ce7a0ff329973dd",
+   "bytes": 4576,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-roguelike-rpg-pack/Spritesheet/roguelikeSheet_transparent.png",
+   "category": "tileset",
+   "source": "kenney-roguelike-rpg-pack",
+   "member": "Spritesheet/roguelikeSheet_transparent.png",
+   "tags": [
+    "16px",
+    "spacing-1",
+    "large-sheet"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py: size formula cols*cell+(cols-1)*spacing+2*margin == image size, every gutter/margin pixel empty, non-empty tiles counted; no semi-transparent pixels",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 57,
+     "rows": 31
+    },
+    "tiles": 1704,
+    "distinctTiles": 1688,
+    "layout": "kenney-grid",
+    "notes": "spritesheetInfo.txt says \"MARGIN: 1\" but means the 1px gap BETWEEN tiles (Tiled spacing=1, margin=0) - a real-world wording trap."
+   },
+   "sha256": "808c8d734480bc949b284f3bcc252e87e1ee53b24178791a6838cce6a319c439",
+   "bytes": 94579,
+   "size": {
+    "w": 968,
+    "h": 526
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-roguelike-rpg-pack/Spritesheet/roguelikeSheet_magenta.png",
+   "category": "tileset",
+   "source": "kenney-roguelike-rpg-pack",
+   "member": "Spritesheet/roguelikeSheet_magenta.png",
+   "tags": [
+    "16px",
+    "spacing-1",
+    "colour-key",
+    "magenta"
+   ],
+   "truth": {
+    "verified": "Pillow: every pixel transparent in the _transparent twin is exactly (255,0,255) here; every opaque pixel identical",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 57,
+     "rows": 31
+    },
+    "tiles": 1704,
+    "layout": "kenney-grid",
+    "keyColor": [
+     255,
+     0,
+     255
+    ],
+    "keyTwinOf": "maps/kenney-roguelike-rpg-pack/Spritesheet/roguelikeSheet_transparent.png"
+   },
+   "sha256": "b9965d65d9214f5ee74884ae58631d66fa0488948cbcccf02f0b6efa6c05bcad",
+   "bytes": 101117,
+   "size": {
+    "w": 968,
+    "h": 526
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/kenney-roguelike-rpg-pack/Map/sample_indoor.tmx",
+   "category": "tilemap-project",
+   "source": "kenney-roguelike-rpg-pack",
+   "member": "Map/sample_indoor.tmx",
+   "truth": {
+    "verified": "parsed; gids decoded",
+    "project": {
+     "format": "tmx",
+     "orientation": "orthogonal",
+     "tileSize": [
+      16,
+      16
+     ],
+     "mapSize": [
+      100,
+      100
+     ],
+     "layers": 4,
+     "objectGroups": 0,
+     "encodings": [
+      "base64+zlib"
+     ],
+     "tilesets": [
+      {
+       "firstgid": 1,
+       "name": "roguelikeSheet_transparent",
+       "external": false,
+       "image": "../Spritesheet/roguelikeSheet_transparent.png",
+       "tileSize": [
+        16,
+        16
+       ],
+       "spacing": 1,
+       "margin": 0
+      }
+     ],
+     "externalTileset": false,
+     "embeddedTileset": true,
+     "nonEmptyCells": 336,
+     "flippedCells": 0
+    }
+   },
+   "sha256": "5199bcc2ffd0009e36996838d2c7a7316e498b85981d34f31ef3d5e8a6c90db5",
+   "bytes": 1792,
+   "part": "tiles"
+  },
+  {
+   "path": "licences/kenney-roguelike-rpg-pack.txt",
+   "category": "licence",
+   "source": "kenney-roguelike-rpg-pack",
+   "member": "License.txt",
+   "sha256": "e3158109ad8580ef266db5b00f97bbed853870a99c0721200ef23880bdfd416e",
+   "bytes": 666,
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/kenney-1-bit-pack/colored.png",
+   "category": "tileset",
+   "source": "kenney-1-bit-pack",
+   "member": "Tilesheet/colored.png",
+   "tags": [
+    "16px",
+    "spacing-1",
+    "opaque-tiles",
+    "large-sheet"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py: size formula cols*cell+(cols-1)*spacing+2*margin == image size, every gutter/margin pixel empty, non-empty tiles counted; tile background is opaque (71,45,60), only the gutters are transparent",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 49,
+     "rows": 22
+    },
+    "tiles": 1078,
+    "distinctTiles": 1076,
+    "layout": "kenney-grid",
+    "tileBackground": [
+     71,
+     45,
+     60
+    ]
+   },
+   "sha256": "06f133b865280f0aaa942f963025a85a388c5278ee6be924f2259541cf6abfe7",
+   "bytes": 27443,
+   "size": {
+    "w": 832,
+    "h": 373
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/kenney-1-bit-pack/colored-transparent_packed.png",
+   "category": "tileset",
+   "source": "kenney-1-bit-pack",
+   "member": "Tilesheet/colored-transparent_packed.png",
+   "tags": [
+    "16px",
+    "packed",
+    "large-sheet"
+   ],
+   "truth": {
+    "verified": "Pillow: 1078/1078 tiles equal colored-transparent.png (spacing 1); 1077 non-empty",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 49,
+     "rows": 22
+    },
+    "tiles": 1077,
+    "layout": "kenney-grid"
+   },
+   "sha256": "801243b8b35bcfde727bd52447bcae5c2abf36b0ae2f3ac7ee54f91791575e74",
+   "bytes": 23516,
+   "size": {
+    "w": 784,
+    "h": 352
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "licences/kenney-1-bit-pack.txt",
+   "category": "licence",
+   "source": "kenney-1-bit-pack",
+   "member": "License.txt",
+   "sha256": "d861f208cd550a54e6e59be553ef6ac93a84f4a2966d0371d21331b70e54f33d",
+   "bytes": 569,
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-seamless-template-ii/template7x7_with_indices.png",
+   "category": "tileset",
+   "source": "oga-seamless-template-ii-7x7",
+   "tags": [
+    "32px",
+    "blob47",
+    "template"
+   ],
+   "truth": {
+    "verified": "mask.py samples terrain (yellow) vs background (blue) at each side/corner; all 49 cells equal the index numbers printed on the image",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 7,
+     "rows": 7
+    },
+    "tiles": 49,
+    "layout": "blob47-caeles-7x7",
+    "masks": [
+     [
+      0,
+      4,
+      84,
+      92,
+      124,
+      116,
+      80
+     ],
+     [
+      16,
+      28,
+      117,
+      95,
+      255,
+      253,
+      113
+     ],
+     [
+      21,
+      87,
+      221,
+      127,
+      255,
+      247,
+      209
+     ],
+     [
+      29,
+      125,
+      119,
+      199,
+      215,
+      213,
+      81
+     ],
+     [
+      31,
+      255,
+      241,
+      20,
+      65,
+      17,
+      1
+     ],
+     [
+      23,
+      223,
+      245,
+      85,
+      68,
+      93,
+      112
+     ],
+     [
+      5,
+      71,
+      197,
+      69,
+      64,
+      7,
+      193
+     ]
+    ],
+    "maskConvention": "masks use cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128, corner bits only with both adjacent sides; rows top to bottom",
+    "duplicates": {
+     "255": 3
+    },
+    "notes": "47 distinct masks + 2 duplicate full tiles. Numbers are drawn on the tiles."
+   },
+   "sha256": "f63235b0b19af48a45169c638b7b150b0ab742f28f64f0f0cac347ff71bb9f62",
+   "bytes": 3218,
+   "size": {
+    "w": 224,
+    "h": 224
+   },
+   "mode": "RGB",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-seamless-template-ii/template8x6_with_indices.png",
+   "category": "tileset",
+   "source": "oga-seamless-template-ii-8x6",
+   "tags": [
+    "32px",
+    "blob47",
+    "template"
+   ],
+   "truth": {
+    "verified": "mask.py; all 48 cells equal the printed index numbers",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 8,
+     "rows": 6
+    },
+    "tiles": 48,
+    "layout": "blob47-caeles-8x6",
+    "masks": [
+     [
+      0,
+      4,
+      92,
+      112,
+      28,
+      124,
+      116,
+      64
+     ],
+     [
+      20,
+      84,
+      87,
+      221,
+      127,
+      255,
+      245,
+      80
+     ],
+     [
+      29,
+      117,
+      85,
+      95,
+      247,
+      215,
+      209,
+      1
+     ],
+     [
+      23,
+      213,
+      81,
+      31,
+      253,
+      125,
+      113,
+      16
+     ],
+     [
+      21,
+      69,
+      93,
+      119,
+      223,
+      255,
+      241,
+      17
+     ],
+     [
+      5,
+      68,
+      71,
+      193,
+      7,
+      199,
+      197,
+      65
+     ]
+    ],
+    "maskConvention": "masks use cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128, corner bits only with both adjacent sides; rows top to bottom",
+    "duplicates": {
+     "255": 2
+    }
+   },
+   "sha256": "7db9c7b7941ea01031feaf665fed303db4f996c24d0d16ae55ec784a963b4fa2",
+   "bytes": 2991,
+   "size": {
+    "w": 256,
+    "h": 192
+   },
+   "mode": "RGB",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/tiled-wangblob/wangblob.png",
+   "category": "tileset",
+   "source": "tiled-wangblob-png",
+   "tags": [
+    "32px",
+    "blob47"
+   ],
+   "truth": {
+    "verified": "mask.py measured masks == masks computed from the \"Blob\" wangset in wangblob.tsx: 49/49 tiles, 0 mismatches (wangcheck.py)",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 7,
+     "rows": 7
+    },
+    "tiles": 49,
+    "layout": "blob47-cr31-wang-7x7 (Guy cr31 \"wang blob\" order, different from caeles 7x7)",
+    "masks": [
+     [
+      0,
+      4,
+      92,
+      124,
+      116,
+      80,
+      0
+     ],
+     [
+      16,
+      20,
+      87,
+      223,
+      241,
+      21,
+      64
+     ],
+     [
+      29,
+      117,
+      85,
+      71,
+      221,
+      125,
+      112
+     ],
+     [
+      31,
+      253,
+      113,
+      28,
+      127,
+      247,
+      209
+     ],
+     [
+      23,
+      199,
+      213,
+      95,
+      255,
+      245,
+      81
+     ],
+     [
+      5,
+      84,
+      93,
+      119,
+      215,
+      193,
+      17
+     ],
+     [
+      0,
+      1,
+      7,
+      197,
+      69,
+      68,
+      65
+     ]
+    ],
+    "maskConvention": "masks use cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128, corner bits only with both adjacent sides; rows top to bottom",
+    "duplicates": {
+     "0": 3
+    },
+    "terrains": [
+     "Yellow",
+     "Blue"
+    ]
+   },
+   "sha256": "7b7e436c32eab3a1c8177e8192fe74d320017e4dcc2fc4bd5168c3eae98f737a",
+   "bytes": 1892,
+   "size": {
+    "w": 224,
+    "h": 224
+   },
+   "mode": "P",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/tiled-wangblob/wangblob.tsx",
+   "category": "tilemap-project",
+   "source": "tiled-wangblob-tsx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tsx",
+     "tileSize": [
+      32,
+      32
+     ],
+     "spacing": 0,
+     "margin": 0,
+     "columns": 7,
+     "tilecount": 49,
+     "image": "wangblob.png",
+     "imageSize": [
+      224,
+      224
+     ],
+     "wangsets": [
+      {
+       "name": "Blob",
+       "type": "mixed",
+       "colors": [
+        "Yellow",
+        "Blue"
+       ],
+       "wangtiles": 49
+      },
+      {
+       "name": "Blob (only Yellow)",
+       "type": "mixed",
+       "colors": [
+        "Yellow"
+       ],
+       "wangtiles": 46
+      },
+      {
+       "name": "Blob (only Blue)",
+       "type": "mixed",
+       "colors": [
+        "Blue"
+       ],
+       "wangtiles": 48
+      }
+     ]
+    },
+    "notes": "Tiled \"mixed\" wangsets; wangid order = top, top-right, right, bottom-right, bottom, bottom-left, left, top-left."
+   },
+   "sha256": "4cd0e6070f7067095f09f28ff01ef5408dcbbb2028313744ad1c9a1ed2aeaeea",
+   "bytes": 8145,
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-gms-autotile-templates/gms_47autotile_template.png",
+   "category": "tileset",
+   "source": "oga-gms-47-template",
+   "tags": [
+    "32px",
+    "blob47",
+    "template",
+    "gamemaker"
+   ],
+   "truth": {
+    "verified": "mask.py (dark = terrain): 47 cells, 47 distinct valid blob masks; cell 0 is the GameMaker \"unused\" slot",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 8,
+     "rows": 6
+    },
+    "tiles": 47,
+    "layout": "blob47-gamemaker (GameMaker Studio 2 47-tile autotile template order)",
+    "masks": [
+     [
+      null,
+      127,
+      253,
+      125,
+      247,
+      119,
+      245,
+      117
+     ],
+     [
+      223,
+      95,
+      221,
+      93,
+      215,
+      87,
+      213,
+      85
+     ],
+     [
+      31,
+      29,
+      23,
+      21,
+      124,
+      116,
+      92,
+      84
+     ],
+     [
+      241,
+      209,
+      113,
+      81,
+      199,
+      71,
+      197,
+      69
+     ],
+     [
+      17,
+      68,
+      28,
+      20,
+      112,
+      80,
+      193,
+      65
+     ],
+     [
+      7,
+      5,
+      16,
+      4,
+      1,
+      64,
+      0,
+      255
+     ]
+    ],
+    "maskConvention": "masks use cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128, corner bits only with both adjacent sides; rows top to bottom"
+   },
+   "sha256": "54522f952d2054081c2f2119b543ddf5cd60d9f794f98d7e75c10f0e866df4af",
+   "bytes": 2580,
+   "size": {
+    "w": 256,
+    "h": 192
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-cave-platformer-47/autotile47.png",
+   "category": "tileset",
+   "source": "oga-cave-platformer-47",
+   "tags": [
+    "64px",
+    "blob47",
+    "gamemaker",
+    "real-art"
+   ],
+   "truth": {
+    "verified": "author: \"made specifically for GameMaker Studio 2's 47 autotile system\"; visually checked that border strips appear exactly on the open sides of the GMS2 template masks (e.g. 124 top border, 31 left border, 68 top+bottom, 0 all four)",
+    "grid": {
+     "cellW": 64,
+     "cellH": 64,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 8,
+     "rows": 6
+    },
+    "tiles": 47,
+    "layout": "blob47-gamemaker",
+    "masks": [
+     [
+      null,
+      127,
+      253,
+      125,
+      247,
+      119,
+      245,
+      117
+     ],
+     [
+      223,
+      95,
+      221,
+      93,
+      215,
+      87,
+      213,
+      85
+     ],
+     [
+      31,
+      29,
+      23,
+      21,
+      124,
+      116,
+      92,
+      84
+     ],
+     [
+      241,
+      209,
+      113,
+      81,
+      199,
+      71,
+      197,
+      69
+     ],
+     [
+      17,
+      68,
+      28,
+      20,
+      112,
+      80,
+      193,
+      65
+     ],
+     [
+      7,
+      5,
+      16,
+      4,
+      1,
+      64,
+      0,
+      255
+     ]
+    ],
+    "maskConvention": "masks use cr31 weights N=1 NE=2 E=4 SE=8 S=16 SW=32 W=64 NW=128, corner bits only with both adjacent sides; rows top to bottom",
+    "notes": "Real art, not a template: interior tiles differ only in corner notches, so colour sampling cannot recover masks - use the GameMaker order. Cell (0,0) is empty/transparent. Some tiles have 1px transparent seams on their left edge."
+   },
+   "sha256": "ae00b881925fa54a93cd78e3c04d0b7de8f3cd1525aaccafc97441adfdd433de",
+   "bytes": 16151,
+   "size": {
+    "w": 512,
+    "h": 384
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-tileset-templates/Wang S-V2.png",
+   "category": "tileset",
+   "source": "oga-tileset-templates",
+   "member": "Tileset Templates/individual tilesets/Wang S-V2.png",
+   "tags": [
+    "32px",
+    "corner16",
+    "dual-grid",
+    "template"
+   ],
+   "truth": {
+    "verified": "mask.py corner mode (yellow = terrain): 16 cells, 16 distinct corner masks",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 4,
+     "rows": 4
+    },
+    "tiles": 16,
+    "layout": "wang-2corner (16 tiles; the dual-grid / marching-squares set)",
+    "masks": [
+     [
+      8,
+      6,
+      13,
+      12
+     ],
+     [
+      5,
+      14,
+      15,
+      11
+     ],
+     [
+      2,
+      3,
+      7,
+      9
+     ],
+     [
+      0,
+      4,
+      10,
+      1
+     ]
+    ],
+    "maskConvention": "corner bits NW=1 NE=2 SE=4 SW=8; terrain colour (217,194,119)"
+   },
+   "sha256": "6acf8d4656398b55d848bf0e1b1ef7324e3964cc15f3e7415387db9c46aaa7bf",
+   "bytes": 1466,
+   "size": {
+    "w": 128,
+    "h": 128
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-tileset-templates/Wang S-E2.png",
+   "category": "tileset",
+   "source": "oga-tileset-templates",
+   "member": "Tileset Templates/individual tilesets/Wang S-E2.png",
+   "tags": [
+    "32px",
+    "edge16",
+    "template"
+   ],
+   "truth": {
+    "verified": "mask.py edge mode: 16 cells, 16 distinct edge masks",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 4,
+     "rows": 4
+    },
+    "tiles": 16,
+    "layout": "edge16 (2-edge Wang)",
+    "masks": [
+     [
+      4,
+      6,
+      14,
+      12
+     ],
+     [
+      5,
+      7,
+      15,
+      13
+     ],
+     [
+      1,
+      3,
+      11,
+      9
+     ],
+     [
+      0,
+      2,
+      10,
+      8
+     ]
+    ],
+    "maskConvention": "edge bits N=1 E=2 S=4 W=8; terrain colour (217,194,119)"
+   },
+   "sha256": "9198e3b3084b011e8e022e697f9caf020cfaa3ee2afc049c954c50c2555ee764",
+   "bytes": 1070,
+   "size": {
+    "w": 128,
+    "h": 128
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-tileset-templates/README.txt",
+   "category": "licence",
+   "source": "oga-tileset-templates",
+   "member": "Tileset Templates/README.txt",
+   "sha256": "3ee8eb092dc6542089e82d8b8905955d39e28ae9b77faf54678b99fa7e1fa932",
+   "bytes": 3152,
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/dual-grid-glitchedinorbit/Tilemap.png",
+   "category": "tileset",
+   "source": "dual-grid-tilemap-png",
+   "tags": [
+    "16px",
+    "dual-grid",
+    "multi-terrain",
+    "real-art"
+   ],
+   "truth": {
+    "verified": "corner colours sampled 2px inside each corner of all 80 tiles match the neighbours_to_atlas_coord table in scripts/tilemap.gd @240d552: 80/80",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 8,
+     "rows": 12
+    },
+    "tiles": 80,
+    "layout": "dual-grid-16 x5 (five 4x4 blocks, one per terrain pair; bottom-right 4x4 empty)",
+    "terrains": [
+     "Grass",
+     "Dirt",
+     "Water",
+     "Sand"
+    ],
+    "cornerTerrains": {
+     "0,0": [
+      "Dirt",
+      "Dirt",
+      "Grass",
+      "Dirt"
+     ],
+     "1,0": [
+      "Dirt",
+      "Grass",
+      "Dirt",
+      "Grass"
+     ],
+     "2,0": [
+      "Grass",
+      "Dirt",
+      "Grass",
+      "Grass"
+     ],
+     "3,0": [
+      "Dirt",
+      "Dirt",
+      "Grass",
+      "Grass"
+     ],
+     "4,0": [
+      "Dirt",
+      "Dirt",
+      "Water",
+      "Dirt"
+     ],
+     "5,0": [
+      "Dirt",
+      "Water",
+      "Dirt",
+      "Water"
+     ],
+     "6,0": [
+      "Water",
+      "Dirt",
+      "Water",
+      "Water"
+     ],
+     "7,0": [
+      "Dirt",
+      "Dirt",
+      "Water",
+      "Water"
+     ],
+     "0,1": [
+      "Grass",
+      "Dirt",
+      "Dirt",
+      "Grass"
+     ],
+     "1,1": [
+      "Dirt",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "2,1": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "3,1": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Dirt"
+     ],
+     "4,1": [
+      "Water",
+      "Dirt",
+      "Dirt",
+      "Water"
+     ],
+     "5,1": [
+      "Dirt",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "6,1": [
+      "Water",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "7,1": [
+      "Water",
+      "Water",
+      "Water",
+      "Dirt"
+     ],
+     "0,2": [
+      "Dirt",
+      "Grass",
+      "Dirt",
+      "Dirt"
+     ],
+     "1,2": [
+      "Grass",
+      "Grass",
+      "Dirt",
+      "Dirt"
+     ],
+     "2,2": [
+      "Grass",
+      "Grass",
+      "Dirt",
+      "Grass"
+     ],
+     "3,2": [
+      "Grass",
+      "Dirt",
+      "Grass",
+      "Dirt"
+     ],
+     "4,2": [
+      "Dirt",
+      "Water",
+      "Dirt",
+      "Dirt"
+     ],
+     "5,2": [
+      "Water",
+      "Water",
+      "Dirt",
+      "Dirt"
+     ],
+     "6,2": [
+      "Water",
+      "Water",
+      "Dirt",
+      "Water"
+     ],
+     "7,2": [
+      "Water",
+      "Dirt",
+      "Water",
+      "Dirt"
+     ],
+     "0,3": [
+      "Dirt",
+      "Dirt",
+      "Dirt",
+      "Dirt"
+     ],
+     "1,3": [
+      "Dirt",
+      "Dirt",
+      "Dirt",
+      "Grass"
+     ],
+     "2,3": [
+      "Dirt",
+      "Grass",
+      "Grass",
+      "Dirt"
+     ],
+     "3,3": [
+      "Grass",
+      "Dirt",
+      "Dirt",
+      "Dirt"
+     ],
+     "4,3": [
+      "Dirt",
+      "Dirt",
+      "Dirt",
+      "Dirt"
+     ],
+     "5,3": [
+      "Dirt",
+      "Dirt",
+      "Dirt",
+      "Water"
+     ],
+     "6,3": [
+      "Dirt",
+      "Water",
+      "Water",
+      "Dirt"
+     ],
+     "7,3": [
+      "Water",
+      "Dirt",
+      "Dirt",
+      "Dirt"
+     ],
+     "0,4": [
+      "Grass",
+      "Grass",
+      "Water",
+      "Grass"
+     ],
+     "1,4": [
+      "Grass",
+      "Water",
+      "Grass",
+      "Water"
+     ],
+     "2,4": [
+      "Water",
+      "Grass",
+      "Water",
+      "Water"
+     ],
+     "3,4": [
+      "Grass",
+      "Grass",
+      "Water",
+      "Water"
+     ],
+     "4,4": [
+      "Sand",
+      "Sand",
+      "Grass",
+      "Sand"
+     ],
+     "5,4": [
+      "Sand",
+      "Grass",
+      "Sand",
+      "Grass"
+     ],
+     "6,4": [
+      "Grass",
+      "Sand",
+      "Grass",
+      "Grass"
+     ],
+     "7,4": [
+      "Sand",
+      "Sand",
+      "Grass",
+      "Grass"
+     ],
+     "0,5": [
+      "Water",
+      "Grass",
+      "Grass",
+      "Water"
+     ],
+     "1,5": [
+      "Grass",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "2,5": [
+      "Water",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "3,5": [
+      "Water",
+      "Water",
+      "Water",
+      "Grass"
+     ],
+     "4,5": [
+      "Grass",
+      "Sand",
+      "Sand",
+      "Grass"
+     ],
+     "5,5": [
+      "Sand",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "6,5": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "7,5": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Sand"
+     ],
+     "0,6": [
+      "Grass",
+      "Water",
+      "Grass",
+      "Grass"
+     ],
+     "1,6": [
+      "Water",
+      "Water",
+      "Grass",
+      "Grass"
+     ],
+     "2,6": [
+      "Water",
+      "Water",
+      "Grass",
+      "Water"
+     ],
+     "3,6": [
+      "Water",
+      "Grass",
+      "Water",
+      "Grass"
+     ],
+     "4,6": [
+      "Sand",
+      "Grass",
+      "Sand",
+      "Sand"
+     ],
+     "5,6": [
+      "Grass",
+      "Grass",
+      "Sand",
+      "Sand"
+     ],
+     "6,6": [
+      "Grass",
+      "Grass",
+      "Sand",
+      "Grass"
+     ],
+     "7,6": [
+      "Grass",
+      "Sand",
+      "Grass",
+      "Sand"
+     ],
+     "0,7": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "1,7": [
+      "Grass",
+      "Grass",
+      "Grass",
+      "Water"
+     ],
+     "2,7": [
+      "Grass",
+      "Water",
+      "Water",
+      "Grass"
+     ],
+     "3,7": [
+      "Water",
+      "Grass",
+      "Grass",
+      "Grass"
+     ],
+     "4,7": [
+      "Sand",
+      "Sand",
+      "Sand",
+      "Sand"
+     ],
+     "5,7": [
+      "Sand",
+      "Sand",
+      "Sand",
+      "Grass"
+     ],
+     "6,7": [
+      "Sand",
+      "Grass",
+      "Grass",
+      "Sand"
+     ],
+     "7,7": [
+      "Grass",
+      "Sand",
+      "Sand",
+      "Sand"
+     ],
+     "0,8": [
+      "Sand",
+      "Sand",
+      "Water",
+      "Sand"
+     ],
+     "1,8": [
+      "Sand",
+      "Water",
+      "Sand",
+      "Water"
+     ],
+     "2,8": [
+      "Water",
+      "Sand",
+      "Water",
+      "Water"
+     ],
+     "3,8": [
+      "Sand",
+      "Sand",
+      "Water",
+      "Water"
+     ],
+     "0,9": [
+      "Water",
+      "Sand",
+      "Sand",
+      "Water"
+     ],
+     "1,9": [
+      "Sand",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "2,9": [
+      "Water",
+      "Water",
+      "Water",
+      "Water"
+     ],
+     "3,9": [
+      "Water",
+      "Water",
+      "Water",
+      "Sand"
+     ],
+     "0,10": [
+      "Sand",
+      "Water",
+      "Sand",
+      "Sand"
+     ],
+     "1,10": [
+      "Water",
+      "Water",
+      "Sand",
+      "Sand"
+     ],
+     "2,10": [
+      "Water",
+      "Water",
+      "Sand",
+      "Water"
+     ],
+     "3,10": [
+      "Water",
+      "Sand",
+      "Water",
+      "Sand"
+     ],
+     "0,11": [
+      "Sand",
+      "Sand",
+      "Sand",
+      "Sand"
+     ],
+     "1,11": [
+      "Sand",
+      "Sand",
+      "Sand",
+      "Water"
+     ],
+     "2,11": [
+      "Sand",
+      "Water",
+      "Water",
+      "Sand"
+     ],
+     "3,11": [
+      "Water",
+      "Sand",
+      "Sand",
+      "Sand"
+     ]
+    },
+    "cornerOrder": "top_left, top_right, bottom_left, bottom_right",
+    "notes": "Key \"x,y\" = atlas column,row. Blocks: (0,0) Grass/Dirt, (4,0) Water/Dirt, (0,4) Water/Grass, (4,4) Sand/Grass, (0,8) Water/Sand. Display layer is offset by half a tile."
+   },
+   "sha256": "175570f440d601c192af3f48e0161d0a5d2c4846a24b2696abda6c7d94e05117",
+   "bytes": 3948,
+   "size": {
+    "w": 128,
+    "h": 192
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "licences/dual-grid-glitchedinorbit.txt",
+   "category": "licence",
+   "source": "dual-grid-license",
+   "sha256": "9489dd8721ddea0fa0ad35703980185f1594aab97146f3b0f40f8db73d0c7506",
+   "bytes": 1071,
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-coolschool/coolschool_A2.png",
+   "category": "tileset",
+   "source": "oga-coolschool",
+   "member": "CoolSchool_tileset_48px/CoolSchool_for_MV_MZ/coolschool_A2.png",
+   "tags": [
+    "48px",
+    "rpgmaker",
+    "autotile"
+   ],
+   "truth": {
+    "verified": "Pillow: 768x576 = 8x4 autotile blocks of 96x144 (2x3 tiles of 48px); opaque bbox (0,0,96,144) = only block 0 is drawn",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 16,
+     "rows": 12
+    },
+    "layout": "rpgmaker-a2 (MV/MZ)",
+    "autotileBlocks": {
+     "blockW": 96,
+     "blockH": 144,
+     "cols": 8,
+     "rows": 4,
+     "filled": [
+      0
+     ]
+    },
+    "notes": "The one filled block is a seamless floor pattern, so its edge/corner mini-tiles look alike."
+   },
+   "sha256": "a6dcbbd162460b31c9cf2907e027945ada937d04126c40e9a90eeec2a9a24a91",
+   "bytes": 5436,
+   "size": {
+    "w": 768,
+    "h": 576
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "tiles/oga-coolschool/coolschool_A4.png",
+   "category": "tileset",
+   "source": "oga-coolschool",
+   "member": "CoolSchool_tileset_48px/CoolSchool_for_MV_MZ/coolschool_A4.png",
+   "tags": [
+    "48px",
+    "rpgmaker",
+    "autotile"
+   ],
+   "truth": {
+    "verified": "Pillow: 768x720 = 8 columns x 3 pairs of (96x144 ceiling autotile + 96x96 wall autotile); opaque bbox (0,0,96,240) = column 0 of the first pair drawn",
+    "grid": {
+     "cellW": 48,
+     "cellH": 48,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 16,
+     "rows": 15
+    },
+    "layout": "rpgmaker-a4 (MV/MZ wall autotiles; the ceiling block uses the A2 mini-tile layout)",
+    "autotileBlocks": {
+     "cols": 8,
+     "pairs": 3,
+     "topH": 144,
+     "wallH": 96,
+     "filled": [
+      "ceiling col 0 pair 0",
+      "wall col 0 pair 0"
+     ]
+    }
+   },
+   "sha256": "0d12b9c0ae8d965c8fb7db3c0e1fc0c11ae3b2505fd8c8dec16ca90886a0e18a",
+   "bytes": 4453,
+   "size": {
+    "w": 768,
+    "h": 720
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "licences/oga-coolschool.txt",
+   "category": "licence",
+   "source": "oga-coolschool",
+   "member": "CoolSchool_tileset_48px/0_license_CC0.txt",
+   "sha256": "7cb4dc545532ec4122c18f1cee469d3bfc083337c4ec0bd6bc27ea499a3e8f45",
+   "bytes": 997,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-desert/tmw_desert_spacing.png",
+   "category": "tileset",
+   "source": "tiled-desert-png",
+   "tags": [
+    "32px",
+    "margin-1",
+    "spacing-1",
+    "opaque-gutter"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py: 8*32+7*1+2*1 = 265, 6*32+5+2 = 199; gutters are opaque black (0,0,0), not transparent",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 1,
+     "marginY": 1,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 8,
+     "rows": 6
+    },
+    "tiles": 48,
+    "layout": "tiled-corner-wang (see desert.tsx)",
+    "gutterColor": [
+     0,
+     0,
+     0
+    ]
+   },
+   "sha256": "efdbf909a427238667f3001ebefcd8dd3bba0ff45ac67152a0e30e5334d3377c",
+   "bytes": 37830,
+   "size": {
+    "w": 265,
+    "h": 199
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-desert/desert.tsx",
+   "category": "tilemap-project",
+   "source": "tiled-desert-tsx",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tsx",
+     "tileSize": [
+      32,
+      32
+     ],
+     "spacing": 1,
+     "margin": 1,
+     "columns": 8,
+     "tilecount": 48,
+     "image": "tmw_desert_spacing.png",
+     "imageSize": [
+      265,
+      199
+     ],
+     "wangsets": [
+      {
+       "name": "Desert",
+       "type": "corner",
+       "colors": [
+        "Desert",
+        "Brick",
+        "Cobblestone",
+        "Dirt"
+       ],
+       "wangtiles": 48
+      }
+     ]
+    }
+   },
+   "sha256": "7d765b9da4e1e0a34e2f8209f64d2d270c4b4d884c6fb85e5fee3d97db6958c2",
+   "bytes": 3404,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-desert/desert.tmx",
+   "category": "tilemap-project",
+   "source": "tiled-desert-tmx",
+   "truth": {
+    "verified": "parsed; gids decoded",
+    "project": {
+     "format": "tmx",
+     "orientation": "orthogonal",
+     "tileSize": [
+      32,
+      32
+     ],
+     "mapSize": [
+      40,
+      40
+     ],
+     "layers": 1,
+     "objectGroups": 0,
+     "encodings": [
+      "base64+zlib"
+     ],
+     "tilesets": [
+      {
+       "firstgid": 1,
+       "source": "desert.tsx",
+       "external": true
+      }
+     ],
+     "externalTileset": true,
+     "embeddedTileset": false,
+     "nonEmptyCells": 1600,
+     "flippedCells": 0
+    }
+   },
+   "sha256": "704616f981378edd51765ef98a22050145fb93833e8a58147ad37775c817d537",
+   "bytes": 817,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/title.json",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-title-json",
+   "truth": {
+    "verified": "parsed",
+    "project": {
+     "format": "tiled-json",
+     "version": "1.8",
+     "tiledversion": "1.8.2",
+     "tileSize": [
+      32,
+      32
+     ],
+     "mapSize": [
+      38,
+      26
+     ],
+     "layers": 6,
+     "layerTypes": [
+      "objectgroup"
+     ],
+     "objects": 14,
+     "externalTileset": false,
+     "embeddedTileset": true,
+     "tilesets": [
+      {
+       "name": "ui",
+       "columns": 0,
+       "imageCollection": true,
+       "images": [
+        "buttonHelp.png",
+        "buttonStart.png",
+        "helpBackground.png",
+        "title.png",
+        "backgroundSet.png",
+        "block.png",
+        "cloud.png"
+       ]
+      }
+     ]
+    }
+   },
+   "sha256": "55226d7a27b9c2b9f69dc6e23dec64bbe8592b5e5cf67bb7bd984d2a325fec22",
+   "bytes": 8234,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/buttonHelp.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-buttonHelp-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "2446f7de2b3be82d74b6b8512d33f98ec59e6c9c85fa78a9efeeabcbb31d82d6",
+   "bytes": 2567,
+   "size": {
+    "w": 192,
+    "h": 64
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/buttonStart.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-buttonStart-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "099f6fc40faff29d7e08d122a70f23e31e33dbbbfae25523e947e0bacc2467b5",
+   "bytes": 2668,
+   "size": {
+    "w": 192,
+    "h": 64
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/helpBackground.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-helpBackground-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "2ab7eb9bdfcf42e3fcd4eef79ccfd8a920b7cd3ad23b29b11f4d151c15403e8b",
+   "bytes": 47994,
+   "size": {
+    "w": 416,
+    "h": 416
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/title.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-title-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "efc7a2fcdc2ba7c9b33354fcf79584b20a88faeaafef4bcd14735ae605d974fe",
+   "bytes": 12428,
+   "size": {
+    "w": 448,
+    "h": 224
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/backgroundSet.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-backgroundSet-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "3ee54ad4468df94b83e3b21a0735631196ff936b996dcbf2d0b7a86b695a8d28",
+   "bytes": 9664,
+   "size": {
+    "w": 1232,
+    "h": 832
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/block.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-block-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "3a6e2e5a5c7ff1d3d6538055d36f33a019a8713a3a393d3307720fa2efa880b1",
+   "bytes": 137,
+   "size": {
+    "w": 64,
+    "h": 64
+   },
+   "mode": "RGB",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/tiled-sticker-knight/ui/cloud.png",
+   "category": "tilemap-project",
+   "source": "tiled-sticker-knight-cloud-png",
+   "truth": {
+    "verified": "referenced by title.json image-collection tileset"
+   },
+   "sha256": "906b8b7102baf97ae1ab6865cd6bf13aee788d141cfc0065f7ed6ead60f90667",
+   "bytes": 1674,
+   "size": {
+    "w": 384,
+    "h": 128
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/ldtk-samples/AutoLayers_1_basic.ldtk",
+   "category": "tilemap-project",
+   "source": "ldtk-autolayers-1",
+   "truth": {
+    "verified": "parsed (ldtk.py)",
+    "project": {
+     "format": "ldtk",
+     "jsonVersion": "1.5.3",
+     "defaultGridSize": 8,
+     "worldLayout": "LinearHorizontal",
+     "externalLevels": false,
+     "tilesets": [
+      {
+       "identifier": "Cavernas_by_Adam_Saltsman",
+       "relPath": "atlas/Cavernas_by_Adam_Saltsman.png",
+       "tileGridSize": 8,
+       "spacing": 0,
+       "padding": 0,
+       "px": [
+        96,
+        256
+       ]
+      }
+     ],
+     "layerDefs": [
+      {
+       "identifier": "IntGrid_layer",
+       "type": "IntGrid",
+       "gridSize": 8,
+       "rules": 11
+      }
+     ],
+     "levels": [
+      {
+       "identifier": "AutoLayer",
+       "px": [
+        296,
+        208
+       ]
+      }
+     ],
+     "level0AutoTiles": 984,
+     "level0GridTiles": 0
+    }
+   },
+   "sha256": "0a21f2a1b3b45c78a8ccac1b147ea2712d1e85e4d526a5c41f4c912e65f9a62c",
+   "bytes": 98092,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/ldtk-samples/Typical_TopDown_example.ldtk",
+   "category": "tilemap-project",
+   "source": "ldtk-topdown",
+   "truth": {
+    "verified": "parsed (ldtk.py)",
+    "project": {
+     "format": "ldtk",
+     "jsonVersion": "1.5.3",
+     "defaultGridSize": 16,
+     "worldLayout": "GridVania",
+     "externalLevels": false,
+     "tilesets": [
+      {
+       "identifier": "TopDown_by_deepnight",
+       "relPath": "atlas/TopDown_by_deepnight.png",
+       "tileGridSize": 16,
+       "spacing": 0,
+       "padding": 0,
+       "px": [
+        176,
+        176
+       ]
+      }
+     ],
+     "layerDefs": [
+      {
+       "identifier": "Entities",
+       "type": "Entities",
+       "gridSize": 16,
+       "rules": 0
+      },
+      {
+       "identifier": "Wall_tops",
+       "type": "AutoLayer",
+       "gridSize": 16,
+       "rules": 6
+      },
+      {
+       "identifier": "Collisions",
+       "type": "IntGrid",
+       "gridSize": 16,
+       "rules": 11
+      },
+      {
+       "identifier": "Custom_floor",
+       "type": "Tiles",
+       "gridSize": 16,
+       "rules": 0
+      },
+      {
+       "identifier": "Default_floor",
+       "type": "AutoLayer",
+       "gridSize": 16,
+       "rules": 1
+      }
+     ],
+     "levels": [
+      {
+       "identifier": "World_Level_0",
+       "px": [
+        512,
+        256
+       ]
+      },
+      {
+       "identifier": "World_Level_1",
+       "px": [
+        256,
+        256
+       ]
+      },
+      {
+       "identifier": "World_Level_2",
+       "px": [
+        256,
+        256
+       ]
+      }
+     ],
+     "level0AutoTiles": 1090,
+     "level0GridTiles": 210
+    },
+    "notes": "Also references LDtk's embedded Internal_Icons atlas (embedAtlas LdtkIcons), which has no file."
+   },
+   "sha256": "31bdf9ae3edbc0b06a67ee94dda60a076bcdaabf5d4fdb533f8cb473451041fc",
+   "bytes": 304143,
+   "part": "tiles"
+  },
+  {
+   "path": "maps/ldtk-samples/atlas/Cavernas_by_Adam_Saltsman.png",
+   "category": "tileset",
+   "source": "ldtk-cavernas-png",
+   "tags": [
+    "8px"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py; size matches the .ldtk tileset def",
+    "grid": {
+     "cellW": 8,
+     "cellH": 8,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 12,
+     "rows": 32
+    },
+    "tiles": 205,
+    "distinctTiles": 201,
+    "layout": "other: LDtk auto-rule atlas"
+   },
+   "sha256": "5485abcc74d16029f80ef1df31c92ff32d69d5b0cbbe6114e0ddf3597e280c16",
+   "bytes": 7307,
+   "size": {
+    "w": 96,
+    "h": 256
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "maps/ldtk-samples/atlas/TopDown_by_deepnight.png",
+   "category": "tileset",
+   "source": "ldtk-topdown-png",
+   "tags": [
+    "16px"
+   ],
+   "truth": {
+    "verified": "Pillow grid.py; size matches the .ldtk tileset def",
+    "grid": {
+     "cellW": 16,
+     "cellH": 16,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 11,
+     "rows": 11
+    },
+    "tiles": 53,
+    "distinctTiles": 53,
+    "layout": "other: LDtk auto-rule atlas"
+   },
+   "sha256": "e75afbce06d345b77ddde55aee99116cae2f5d2cd062ed784e7b570246d71a9a",
+   "bytes": 3287,
+   "size": {
+    "w": 176,
+    "h": 176
+   },
+   "mode": "RGBA",
+   "part": "tiles"
+  },
+  {
+   "path": "licences/ldtk-samples.txt",
+   "category": "licence",
+   "source": "ldtk-license",
+   "sha256": "f409a37a40e823efefddac3140d991141633d4db3cec4f8667bc23b846dcc335",
+   "bytes": 1093,
+   "part": "tiles"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_Color.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_Color.png",
+   "sha256": "fb2a2139b4d01365c014715ad62a46c31f42cb9c5135494d1a0fd7910e33fd8b",
+   "bytes": 2026044,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); seamRatio = (mean |col0-colN| + mean |row0-rowN|) / (mean adjacent-column + adjacent-row diff), RGB, Pillow/numpy; ~1 = no visible wrap seam",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "albedo"
+    },
+    "colorSpace": "sRGB",
+    "tileable": true,
+    "seamRatio": 0.91
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_NormalGL.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_NormalGL.png",
+   "sha256": "49e410808588455957f8f7c1ab560660c4cbb73f020f181ee708698f9c0c294f",
+   "bytes": 5803121,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); filename says GL, confirmed two ways: corr(green, d height/dy_down) = +0.925 against the 16-bit Displacement map (positive = +Y up = GL), and curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) (ratio 1.98)",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "normal"
+    },
+    "colorSpace": "linear",
+    "normalConvention": "GL",
+    "pairedWith": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_NormalDX.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_NormalDX.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_NormalDX.png",
+   "sha256": "7053821af0974a71333c43cd1a15d4a51221cafea520dc98f9bc8a08ff321796",
+   "bytes": 5803864,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); filename says DX, confirmed two ways: corr(green, d height/dy_down) = -0.925 against the 16-bit Displacement map (positive = +Y up = GL), and curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) (ratio 1.98)",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "normal"
+    },
+    "colorSpace": "linear",
+    "normalConvention": "DX",
+    "pairedWith": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_NormalGL.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_Roughness.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_Roughness.png",
+   "sha256": "99716ee64a94b7a263a47d56c5065ebbee2f32e7d395586c4d39d8451770e409",
+   "bytes": 560839,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "L",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "roughness"
+    },
+    "colorSpace": "linear"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_AmbientOcclusion.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_AmbientOcclusion.png",
+   "sha256": "7fa7b1fa46aa195f9874b0d65772978044db629ee577abfa8259df59dedd6d4f",
+   "bytes": 663154,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "L",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "ao"
+    },
+    "colorSpace": "linear"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_Displacement.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-bricks076c",
+   "member": "Bricks076C_1K-PNG_Displacement.png",
+   "sha256": "3d470d1d2fff33d39cd1df0df593e26d790e5d2f7591efa5645c8b6017c95976",
+   "bytes": 1696463,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "I;16",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "Bricks076C",
+     "map": "height"
+    },
+    "colorSpace": "linear",
+    "bitDepth": 16,
+    "notes": "PNG mode I;16 (16-bit greyscale); an 8-bit loader clips it"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_Color.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_Color.png",
+   "sha256": "37b50aa3635cde294572c8e96441630de28e6ca27b9b28956a1a70974a252e99",
+   "bytes": 474847,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); seamRatio = (mean |col0-colN| + mean |row0-rowN|) / (mean adjacent-column + adjacent-row diff), RGB, Pillow/numpy; ~1 = no visible wrap seam",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "albedo"
+    },
+    "colorSpace": "sRGB",
+    "tileable": true,
+    "seamRatio": 1.061
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_NormalGL.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_NormalGL.png",
+   "sha256": "e8a7bafa75388df8309ffc08f2c62d19d2d0a10264d538764300f2a9cd5a23e5",
+   "bytes": 4079408,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); filename says GL, confirmed two ways: corr(green, d height/dy_down) = +0.975 against the 16-bit Displacement map (positive = +Y up = GL), and curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) (ratio 1.30)",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "normal"
+    },
+    "colorSpace": "linear",
+    "normalConvention": "GL",
+    "pairedWith": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_NormalDX.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_NormalDX.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_NormalDX.png",
+   "sha256": "186607540f18f90ce5a5b962cedffaaf8af32aec343f5787978082b3fdb9697e",
+   "bytes": 4077313,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear); filename says DX, confirmed two ways: corr(green, d height/dy_down) = -0.975 against the 16-bit Displacement map (positive = +Y up = GL), and curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) (ratio 1.30)",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "normal"
+    },
+    "colorSpace": "linear",
+    "normalConvention": "DX",
+    "pairedWith": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_NormalGL.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_Roughness.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_Roughness.png",
+   "sha256": "36467c677bb08fe5685634b4f181a9cc7e7752fd9166f9ed1cef4dbe833e20b7",
+   "bytes": 244791,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "L",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "roughness"
+    },
+    "colorSpace": "linear"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_Metalness.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_Metalness.png",
+   "sha256": "d13865fac3a43f7ec28a2c0adace823f29ceb4732b3bbacbbed25b0370c6a078",
+   "bytes": 8055,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "L",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "metallic"
+    },
+    "colorSpace": "linear",
+    "notes": "8-bit L, 122 distinct values, mostly 0 and 255 (metal plates with non-metal gaps)"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-metalplates006/MetalPlates006_1K-PNG_Displacement.png",
+   "category": "texture-pbr",
+   "source": "ambientcg-metalplates006",
+   "member": "MetalPlates006_1K-PNG_Displacement.png",
+   "sha256": "842465a843f7f36f92fec3f399c08975a0c19e6873b7d1eff295f81f2b3d3660",
+   "bytes": 611651,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "I;16",
+   "truth": {
+    "verified": "ambientCG .mtlx in the same zip: Color colorspace=\"srgb_texture\", other maps no colorspace (raw/linear)",
+    "pbr": {
+     "set": "MetalPlates006",
+     "map": "height"
+    },
+    "colorSpace": "linear",
+    "bitDepth": 16,
+    "notes": "PNG mode I;16 (16-bit greyscale); an 8-bit loader clips it"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/ambientcg-ground054/Ground054_1K-PNG_Color.png",
+   "category": "texture-tileable",
+   "source": "ambientcg-ground054",
+   "member": "Ground054_1K-PNG_Color.png",
+   "sha256": "bb3b8b28e2a03f6a448a042880532da732e0b00bb3978b912be98001e85c2151",
+   "bytes": 2088335,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "seamRatio = (mean |col0-colN| + mean |row0-rowN|) / (mean adjacent-column + adjacent-row diff), RGB, Pillow/numpy; ~1 = no visible wrap seam; ambientCG .mtlx colorspace srgb_texture",
+    "tileable": true,
+    "seamRatio": 1.016,
+    "colorSpace": "sRGB",
+    "notes": "fine-grain sand: a 512 crop of it was ALSO seam-free by eye and by metric (1.12), so it is a poor negative; the bricks crop is used instead"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/polyhaven-brick-wall-001/brick_wall_001_diffuse_1k.png",
+   "category": "texture-pbr",
+   "source": "polyhaven-brick-wall-001-diffuse",
+   "sha256": "903f042853052b3b4dcbf9a511d688b77983f5af641a3effbb2e130d159daed0",
+   "bytes": 1782607,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "seamRatio = (mean |col0-colN| + mean |row0-rowN|) / (mean adjacent-column + adjacent-row diff), RGB, Pillow/numpy; ~1 = no visible wrap seam; Poly Haven textures are published as seamless",
+    "pbr": {
+     "set": "brick_wall_001",
+     "map": "albedo"
+    },
+    "tileable": true,
+    "seamRatio": 1.152,
+    "colorSpace": "sRGB"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/polyhaven-brick-wall-001/brick_wall_001_nor_gl_1k.png",
+   "category": "texture-pbr",
+   "source": "polyhaven-brick-wall-001-nor-gl",
+   "sha256": "0b51c30896a1706d8a5bb24448bcff791ec2e51458a90fef9498e61f74de9efe",
+   "bytes": 2562545,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "filename says GL; curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) ratio 1.83 agrees; R and B identical to the other file, G_gl + G_dx = 256.5 on average (inverted green)",
+    "pbr": {
+     "set": "brick_wall_001",
+     "map": "normal"
+    },
+    "normalConvention": "GL",
+    "colorSpace": "linear",
+    "pairedWith": "textures/polyhaven-brick-wall-001/brick_wall_001_nor_dx_1k.png",
+    "notes": "RGBA with constant alpha 255"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/polyhaven-brick-wall-001/brick_wall_001_nor_dx_1k.png",
+   "category": "texture-pbr",
+   "source": "polyhaven-brick-wall-001-nor-dx",
+   "sha256": "d1a75a84f54733a8d611ff47f3a0df575ef1f37cb8d5813f204ed123424d228c",
+   "bytes": 2562977,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "filename says DX; curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) ratio 1.83 agrees; R and B identical to the other file, G_gl + G_dx = 256.5 on average (inverted green)",
+    "pbr": {
+     "set": "brick_wall_001",
+     "map": "normal"
+    },
+    "normalConvention": "DX",
+    "colorSpace": "linear",
+    "pairedWith": "textures/polyhaven-brick-wall-001/brick_wall_001_nor_gl_1k.png",
+    "notes": "RGBA with constant alpha 255"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/polyhaven-brick-wall-001/brick_wall_001_arm_1k.png",
+   "category": "texture-pbr",
+   "source": "polyhaven-brick-wall-001-arm",
+   "sha256": "aa8a7f54060ea5d564c35b13956b6689e0b4e693a9bfd8f719dcf61db65e6795",
+   "bytes": 1084907,
+   "size": {
+    "w": 1024,
+    "h": 1024
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "channel means R 228.9 (AO), G 232.2 (roughness), B 0.0 (metal) - Poly Haven ARM packing",
+    "pbr": {
+     "set": "brick_wall_001",
+     "map": "arm"
+    },
+    "channels": {
+     "r": "ao",
+     "g": "roughness",
+     "b": "metallic"
+    },
+    "colorSpace": "linear"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "textures/derived/Bricks076C_crop_512_not_tileable.png",
+   "category": "texture-tileable",
+   "derive": {
+    "from": "textures/ambientcg-bricks076c/Bricks076C_1K-PNG_Color.png",
+    "op": "crop",
+    "box": [
+     200,
+     300,
+     512,
+     512
+    ]
+   },
+   "sha256": "9337d50df095c5bc81321ac9e3bd1489504cd77601d38d4b8e60e3ee2acb931d",
+   "bytes": 510192,
+   "size": {
+    "w": 512,
+    "h": 512
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "seamRatio = (mean |col0-colN| + mean |row0-rowN|) / (mean adjacent-column + adjacent-row diff), RGB, Pillow/numpy; ~1 = no visible wrap seam; derived crop, rolled by half and inspected",
+    "tileable": false,
+    "seamRatio": 2.722,
+    "colorSpace": "sRGB",
+    "notes": "crop (200,300,512,512) of the tileable Bricks076C colour map: mortar lines break at the wrap. Negative case for seam detectors."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "sprites-normal/oga-pixel-torch/Torch_Sheet.png",
+   "category": "sprite-normal",
+   "source": "oga-pixel-torch",
+   "member": "Torch/Torch_Sheet.png",
+   "sha256": "0ed2af425f60a9173c1d7175bf28a24d31167024e8d5b939de7ba1278a8a8d99",
+   "bytes": 644,
+   "size": {
+    "w": 96,
+    "h": 64
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "Torch_Hash.json + Pillow + looked at it: 96x64 RGBA, 3x2 grid of 32x32, 6 frames, 100 ms each",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 3,
+     "rows": 2,
+     "frames": 6
+    },
+    "pixelScale": 1,
+    "normalMap": "sprites-normal/oga-pixel-torch/Torch_Sheet_Normal.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "sprites-normal/oga-pixel-torch/Torch_Sheet_Normal.png",
+   "category": "sprite-normal",
+   "source": "oga-pixel-torch",
+   "member": "Torch/Torch_Sheet_Normal.png",
+   "sha256": "ede708a0be3bf47a876969526c82c0b3b40f463f6057384bf936d236a5338aa6",
+   "bytes": 1341,
+   "size": {
+    "w": 96,
+    "h": 64
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "alpha-edge test (blurred diffuse alpha as height): corr(green, dh/dy_down) = -0.507 over 817 edge px -> Y down; curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) gives DX too but weakly (ratio 1.15); by eye the lower handle is green-high (faces down)",
+    "normalConvention": "DX",
+    "confidence": "medium",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "cols": 3,
+     "rows": 2,
+     "frames": 6
+    },
+    "notes": "hand-painted (\"a bit messy\" per author); RGB without alpha (flat 128,128,255 outside); covers the handle only, the flame has flat normals"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "sprites-normal/oga-pixel-torch/Torch_Hash.json",
+   "category": "sprite-normal",
+   "source": "oga-pixel-torch",
+   "member": "Torch/Torch_Hash.json",
+   "sha256": "addadbbb4a7f030920df39bf7885b0c2197db8df2dfdffba16f51bd6d68955b2",
+   "bytes": 1939,
+   "truth": {
+    "verified": "read the file",
+    "atlasFormat": "aseprite-json-hash",
+    "frames": 6,
+    "frameDurationMs": 100,
+    "notes": "frame keys \"Sprite-0001 0.\" ... \"Sprite-0001 5.\" (Aseprite default {title} {frame}.{extension} with an empty extension, so each ends in \".\"); frameTags [] and slices []; 2 layers. The same zip also ships Torch_Aseprite.aseprite (owned by the aseprite-io collection, not copied here)."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "sprites-normal/oga-asteroids/asteroids_spritesheet_diffuse.png",
+   "category": "sprite-normal",
+   "source": "oga-asteroids-diffuse",
+   "sha256": "0f2bc718bdc6881dbfa034688b086ce3a4f670e4c41b30e0f4f6c7ea26e364bb",
+   "bytes": 922895,
+   "size": {
+    "w": 1725,
+    "h": 675
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "Pillow: 1725x675 RGBA = 23 x 9 cells of 75x75; looked at it: 9 asteroids, one per row, rotating loop",
+    "grid": {
+     "cellW": 75,
+     "cellH": 75,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 0,
+     "spacingY": 0,
+     "cols": 23,
+     "rows": 9,
+     "frames": 207
+    },
+    "animations": "9 rows = 9 asteroids x 23-frame seamless rotation loops",
+    "normalMap": "sprites-normal/oga-asteroids/asteroids_spritesheet_normal.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "sprites-normal/oga-asteroids/asteroids_spritesheet_normal.png",
+   "category": "sprite-normal",
+   "source": "oga-asteroids-normal",
+   "sha256": "e70ed67675fd155234c6ec031ca3a6d8fd9541f053cb3835d25e735e1e0d839a",
+   "bytes": 2824704,
+   "size": {
+    "w": 1725,
+    "h": 675
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "alpha-edge test corr(green, dh/dy_down) = +0.887 over 148k edge px, corr(red, dh/dx) = -0.912; curl test: slopes p=-nx/nz, q=±ny/nz; the Y sign with the lower mean curl^2 of (p,q) is the real one (inspect_tex.py) ratio 9.0 -> GL; by eye tops are green/cyan",
+    "normalConvention": "GL",
+    "confidence": "high",
+    "grid": {
+     "cellW": 75,
+     "cellH": 75,
+     "cols": 23,
+     "rows": 9
+    }
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-rpg-expansion/panel_beige.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "PNG/panel_beige.png",
+   "sha256": "4bfe574ccae2e09c32a667f456f714a5c705a594068dd99a4cfa49815a6c1c4f",
+   "bytes": 786,
+   "size": {
+    "w": 100,
+    "h": 100
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py) + looked at it (3x)",
+    "size": {
+     "w": 100,
+     "h": 100
+    },
+    "nineSlice": null,
+    "border": {
+     "outline": 2,
+     "frame": 4,
+     "cornerTransparentRun": {
+      "top": 7,
+      "left": 5
+     }
+    },
+    "notes": "art drawn mostly with doubled pixels (2px outline bands); edges carry small decorative notches, so no stretch band is ornament-free - any 9-slice stretches or repeats a notch. Hard case. Longest identical column run: 37 cols starting at x=55; rows: 44 starting at y=24."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-rpg-expansion/buttonLong_blue.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "PNG/buttonLong_blue.png",
+   "sha256": "968ba53d15d67ea27a4e4160a78d5786b6a3298952edeaaac836e005a6031bef",
+   "bytes": 645,
+   "size": {
+    "w": 190,
+    "h": 49
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py) + looked at it",
+    "size": {
+     "w": 190,
+     "h": 49
+    },
+    "state": "normal",
+    "nineSlice": null,
+    "pairedWith": "ui/kenney-ui-pack-rpg-expansion/buttonLong_blue_pressed.png",
+    "depth": 4,
+    "notes": "art drawn mostly with doubled pixels (2px outline bands); edges carry small decorative notches, so no stretch band is ornament-free - any 9-slice stretches or repeats a notch. Hard case. Colour is blue-grey despite the name. Raised state is 4px taller than pressed (49 vs 45) - canvas sizes differ between states."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-rpg-expansion/buttonLong_blue_pressed.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "PNG/buttonLong_blue_pressed.png",
+   "sha256": "0c0fa778ae0988885a10bbdca68921ea6b721f8f4bf18a8b9ef02ec57367f5b2",
+   "bytes": 576,
+   "size": {
+    "w": 190,
+    "h": 45
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "size": {
+     "w": 190,
+     "h": 45
+    },
+    "state": "pressed",
+    "nineSlice": null,
+    "pairedWith": "ui/kenney-ui-pack-rpg-expansion/buttonLong_blue.png",
+    "notes": "art drawn mostly with doubled pixels (2px outline bands); edges carry small decorative notches, so no stretch band is ornament-free - any 9-slice stretches or repeats a notch. Hard case."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-rpg-expansion/uipack_rpg_sheet.png",
+   "category": "ui-sheet",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "Spritesheet/uipack_rpg_sheet.png",
+   "sha256": "5d9715e8e69e35c28efa5b236ce059d4dc3eaaaaad2581701ae6be6cc071e002",
+   "bytes": 32558,
+   "size": {
+    "w": 512,
+    "h": 512
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "every XML rect cropped from the sheet and compared with the loose PNG of the same name",
+    "atlasFormat": "starling-xml",
+    "size": {
+     "w": 512,
+     "h": 512
+    },
+    "subTextures": 87,
+    "rotated": false,
+    "trimmed": false,
+    "notes": "all 87 rect sizes equal the loose PNGs; pixels match exactly for 14, the other 73 differ by <= 17/255 on 3579 visible px (the sheet looks re-quantised) - compare sheet vs loose files with a tolerance"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-rpg-expansion/uipack_rpg_sheet.xml",
+   "category": "ui-sheet",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "Spritesheet/uipack_rpg_sheet.xml",
+   "sha256": "f882613f84056f12bf9100a971c12676cd134708427f3c6fb07bb4158a8f0b35",
+   "bytes": 7358,
+   "truth": {
+    "verified": "read the file",
+    "atlasFormat": "starling-xml",
+    "subTextures": 87,
+    "attributes": [
+     "name",
+     "x",
+     "y",
+     "width",
+     "height"
+    ],
+    "notes": "imagePath=\"sheet.png\" but the image ships as uipack_rpg_sheet.png (real-world name mismatch); names keep the \".png\" suffix; no frameX/frameY (untrimmed)"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/kenney-ui-pack-rpg-expansion.txt",
+   "category": "licence",
+   "source": "kenney-ui-pack-rpg-expansion",
+   "member": "license.txt",
+   "sha256": "c3d0753e9a4a0874a9985993eb4228d57e5b0cbf44159ea6cb1c794008a13544",
+   "bytes": 489,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_button_rectangle_depth_flat.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Default/button_rectangle_depth_flat.png",
+   "sha256": "6c709a45aae0330ffff5b060d9f14cc2297839f664e0a4c9e516d90ad085ec0b",
+   "bytes": 383,
+   "size": {
+    "w": 192,
+    "h": 64
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 6,
+     "top": 5,
+     "right": 6,
+     "bottom": 9
+    },
+    "state": "normal",
+    "size": {
+     "w": 192,
+     "h": 64
+    },
+    "pairedWith": "ui/kenney-ui-pack/blue_button_rectangle_flat.png",
+    "notes": "bottom inset includes the 4px \"depth\" lip; Kenney names the raised version *_depth_* and the pressed/flat version without"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_button_rectangle_flat.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Default/button_rectangle_flat.png",
+   "sha256": "83084c953e57d7506f90600df77f36a8c6156abea0b8ea0e4b3885a596cee2c8",
+   "bytes": 315,
+   "size": {
+    "w": 192,
+    "h": 64
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 6,
+     "top": 5,
+     "right": 6,
+     "bottom": 5
+    },
+    "state": "pressed",
+    "size": {
+     "w": 192,
+     "h": 64
+    },
+    "pairedWith": "ui/kenney-ui-pack/blue_button_rectangle_depth_flat.png",
+    "notes": "same 192x64 opaque canvas as the raised state; it simply has no depth lip (bottom inset 5 vs 9)"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_button_square_depth_border.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Default/button_square_depth_border.png",
+   "sha256": "760545c09a222579967c10d098d7843fce5d18f071f546c3034de8326d2106a6",
+   "bytes": 375,
+   "size": {
+    "w": 64,
+    "h": 64
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 8,
+     "top": 8,
+     "right": 8,
+     "bottom": 12
+    },
+    "state": "normal",
+    "size": {
+     "w": 64,
+     "h": 64
+    },
+    "pairedWith": "ui/kenney-ui-pack/blue_button_square_border.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_button_square_border.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Default/button_square_border.png",
+   "sha256": "9493f244c0fde38fe52a3fd8180de0dc00ba61e913375b82907c1b13b70b5a33",
+   "bytes": 306,
+   "size": {
+    "w": 64,
+    "h": 64
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 8,
+     "top": 8,
+     "right": 8,
+     "bottom": 8
+    },
+    "state": "pressed",
+    "size": {
+     "w": 64,
+     "h": 64
+    },
+    "pairedWith": "ui/kenney-ui-pack/blue_button_square_depth_border.png"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_button_rectangle_depth_gradient.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Default/button_rectangle_depth_gradient.png",
+   "sha256": "3fc1d9bedf07da0f1a49bed143311e6edf3bebd9a937e95a6ab4b812c8448ec0",
+   "bytes": 582,
+   "size": {
+    "w": 192,
+    "h": 64
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 6,
+     "right": 6
+    },
+    "state": "normal",
+    "size": {
+     "w": 192,
+     "h": 64
+    },
+    "notes": "vertical gradient: no two interior rows are identical, so there is no exact vertical stretch band (horizontal 3-slice only, or accept gradient stretching). Hard case for 9-slice auto-detection."
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack/blue_double_button_rectangle_depth_flat.png",
+   "category": "ui-nine-slice",
+   "source": "kenney-ui-pack",
+   "member": "PNG/Blue/Double/button_rectangle_depth_flat.png",
+   "sha256": "91fbaa6c2568e832fc2f72c574535d55673e8a2a7f5df9da260ca449c5c228f2",
+   "bytes": 785,
+   "size": {
+    "w": 384,
+    "h": 128
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "nine-slice insets: the stretchable middle is the longest run of pixel-identical consecutive columns / rows (inspect_ui.py)",
+    "nineSlice": {
+     "left": 12,
+     "top": 11,
+     "right": 12,
+     "bottom": 19
+    },
+    "state": "normal",
+    "size": {
+     "w": 384,
+     "h": 128
+    },
+    "notes": "\"Double\" = the same button redrawn at 2x (not a nearest upscale: some Double variants have asymmetric antialiased insets, e.g. square_depth_border L16 R17)"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/kenney-ui-pack.txt",
+   "category": "licence",
+   "source": "kenney-ui-pack",
+   "member": "License.txt",
+   "sha256": "69f7eaa5e05913b4d09cf5848f75390b5c3c9a409ef8555777803d9ca0c171fb",
+   "bytes": 565,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "ui/kenney-ui-pack-pixel-adventure/tilemap_large_thick.png",
+   "category": "ui-sheet",
+   "source": "kenney-ui-pack-pixel-adventure",
+   "member": "Tilesheets/Large tiles/Thick outline/tilemap.png",
+   "sha256": "22c0ee4db25954315a517fc5876f7b107c7c83b731f99cb60a84fc62cb1d3a3c",
+   "bytes": 4909,
+   "size": {
+    "w": 428,
+    "h": 230
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "Tilesheet.txt in the zip + Pillow: 13*32+12 = 428, 7*32+6 = 230; spacing gutters fully transparent; 82 of 91 cells non-empty",
+    "grid": {
+     "cellW": 32,
+     "cellH": 32,
+     "marginX": 0,
+     "marginY": 0,
+     "spacingX": 1,
+     "spacingY": 1,
+     "cols": 13,
+     "rows": 7,
+     "frames": 82
+    },
+    "pixelScale": 1,
+    "notes": "palette PNG (mode P, transparency index 0); pixel-art UI panels/buttons split into 32px tiles (9-slice pieces as separate tiles)"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/kenney-ui-pack-pixel-adventure.txt",
+   "category": "licence",
+   "source": "kenney-ui-pack-pixel-adventure",
+   "member": "License.txt",
+   "sha256": "ab0032cce635dfd1c71b4ba16513b2777cb560d6b93d52265bb0731491a41dbc",
+   "bytes": 716,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/kenney-fonts/KenneyPixel.ttf",
+   "category": "font-ttf",
+   "source": "kenney-fonts",
+   "member": "Fonts/Kenney Pixel.ttf",
+   "sha256": "174093d8b71aa808d7ffff70529c9087274515493add48134528c9136f621e92",
+   "bytes": 28276,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py)",
+    "font": {
+     "format": "ttf",
+     "family": "Kenney Pixel",
+     "unitsPerEm": 1024,
+     "glyphs": 212,
+     "cmap": 209,
+     "ascii": 95,
+     "pixelSize": 16,
+     "coordQuantum": 64,
+     "crispAt": [
+      16,
+      32
+     ],
+     "blurryAt": [
+      8,
+      12,
+      20,
+      24
+     ]
+    },
+    "notes": "outline pixel font on a 64-unit grid: only multiples of 16 px render hard-edged"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/kenney-fonts/KenneyMiniSquareMono.ttf",
+   "category": "font-ttf",
+   "source": "kenney-fonts",
+   "member": "Fonts/Kenney Mini Square Mono.ttf",
+   "sha256": "2b56b47d5d4525f6e2665ec137b5bd29ced7105584147d11942b3c07110a1545",
+   "bytes": 24612,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py)",
+    "font": {
+     "format": "ttf",
+     "family": "Kenney Mini Square Mono",
+     "unitsPerEm": 1024,
+     "glyphs": 210,
+     "cmap": 209,
+     "ascii": 95,
+     "pixelSize": 8,
+     "coordQuantum": 128,
+     "monospace": true,
+     "crispAt": [
+      8,
+      16,
+      24,
+      32
+     ],
+     "blurryAt": [
+      10,
+      11,
+      12,
+      20
+     ]
+    }
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/kenney-fonts/KenneyFuture.ttf",
+   "category": "font-ttf",
+   "source": "kenney-fonts",
+   "member": "Fonts/Kenney Future.ttf",
+   "sha256": "bd36e536cc26672bdba652547494a4877f2a446329bb7141840d9cd73bceffc2",
+   "bytes": 34116,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py)",
+    "font": {
+     "format": "ttf",
+     "family": "Kenney Future",
+     "unitsPerEm": 1024,
+     "glyphs": 217,
+     "cmap": 214,
+     "ascii": 95,
+     "pixelSize": null
+    },
+    "notes": "not a pixel font (coordinate quantum 1 unit); antialiased at every size"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/kenney-fonts.txt",
+   "category": "licence",
+   "source": "kenney-fonts",
+   "member": "License.txt",
+   "sha256": "98402691e89c968502be5d2392c0de86bc787dd49f961fbb799e22c3bbb434e2",
+   "bytes": 564,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/oga-bitmap-font-bellanger/font.png",
+   "category": "font-bitmap",
+   "source": "oga-bitmap-font-bellanger",
+   "member": "font.png",
+   "sha256": "eac5d8f06c5838733f73db668d4bee2f60ae0f3d32442ef7444eb8c2621c5a43",
+   "bytes": 1850,
+   "size": {
+    "w": 128,
+    "h": 72
+   },
+   "mode": "RGBA",
+   "truth": {
+    "verified": "author formula top=(ascii-32)/16*12, left=(ascii-32)%16*8 + Pillow cell scan + looked at it",
+    "font": {
+     "format": "image-grid",
+     "cell": {
+      "w": 8,
+      "h": 12
+     },
+     "cols": 16,
+     "rows": 6,
+     "firstChar": 32,
+     "order": "ascii 32..127 row-major",
+     "glyphs": 94,
+     "emptyCells": [
+      32,
+      127
+     ],
+     "widthsFile": "fonts/oga-bitmap-font-bellanger/fontdef.txt"
+    },
+    "notes": "RGBA, white glyphs with 1px black outline (author uses -1px kerning so outlines overlap); variable advance widths 3..8 in fontdef.txt"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/oga-bitmap-font-bellanger/fontdef.txt",
+   "category": "font-bitmap",
+   "source": "oga-bitmap-font-bellanger",
+   "member": "fontdef.txt",
+   "sha256": "fffa3f2f55a0a633106d985b4acc9536f16ad77e0ab728417ff85b45b64d2797",
+   "bytes": 475,
+   "truth": {
+    "verified": "read the file",
+    "font": {
+     "format": "widths-txt",
+     "entries": 95,
+     "range": "32..126",
+     "line": "<char> <width>"
+    },
+    "notes": "first line is \"  4\" (the space character then its width), so a naive split on whitespace loses it"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/oga-intrepid-font/intrepid.png",
+   "category": "font-bitmap",
+   "source": "oga-intrepid-font",
+   "sha256": "eb5ecb074a173cdd6da3f3730abbfe7beb6515c4638eb67587218481883f4371",
+   "bytes": 1281,
+   "size": {
+    "w": 128,
+    "h": 48
+   },
+   "mode": "RGB",
+   "truth": {
+    "verified": "Pillow cell scan + looked at it",
+    "font": {
+     "format": "image-grid",
+     "cell": {
+      "w": 8,
+      "h": 8
+     },
+     "cols": 16,
+     "rows": 6,
+     "firstChar": 32,
+     "order": "ascii 32..127 row-major (127 = copyright sign)",
+     "glyphs": 95,
+     "emptyCells": [
+      32
+     ]
+    },
+    "keyColor": [
+     255,
+     255,
+     255
+    ],
+    "notes": "RGB without alpha: black glyphs on white (only values 0 and 255) - white must be keyed out"
+   },
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/cozette-bmfont/Cozette-standard.fnt",
+   "category": "font-bitmap",
+   "source": "cozette-bmfont-fnt",
+   "sha256": "79200bd38411b68e934a52ed71cd913a7000cf6af2683d211fbe9ef688acb3de",
+   "bytes": 191945,
+   "truth": {
+    "verified": "parsed the file",
+    "font": {
+     "format": "bmfont-txt",
+     "family": "CozetteVector",
+     "size": 13,
+     "chars": 2129,
+     "pages": 1,
+     "lineHeight": 10,
+     "base": 13,
+     "padding": [
+      2,
+      2,
+      2,
+      2
+     ],
+     "kernings": 0,
+     "maxId": 65131,
+     "cjk": {
+      "hangul": 0,
+      "kana": 0
+     }
+    },
+    "notes": "as shipped: base (13) > lineHeight (10) - an odd but real header; unicode=1; first char id=1 (control range present)"
+   },
+   "tags": [
+    "local-only"
+   ],
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/cozette-bmfont/Cozette-standard.png",
+   "category": "font-bitmap",
+   "source": "cozette-bmfont-png",
+   "sha256": "163ca4845f5f7fd26d4b7084053f08ff484fc6ec39846f595b2e2381d29eee56",
+   "bytes": 13256,
+   "size": {
+    "w": 512,
+    "h": 512
+   },
+   "mode": "P",
+   "truth": {
+    "verified": "Pillow",
+    "font": {
+     "format": "bmfont-page",
+     "page": 0
+    },
+    "notes": "512x512 palette PNG (mode P, transparency index 0)"
+   },
+   "tags": [
+    "local-only"
+   ],
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/cozette-bmfont.txt",
+   "category": "licence",
+   "source": "cozette-bmfont-licence",
+   "sha256": "cef7a837b15237cf9bbc74d691e1c8c479f4292413ca2319c8e3b145d6fc980b",
+   "bytes": 1065,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/galmuri/Galmuri11.ttf",
+   "category": "font-cjk",
+   "source": "galmuri",
+   "member": "Galmuri11.ttf",
+   "sha256": "e24256f42e43713d2ea086a1e1669d78b968f5b3cc547e5c157f0606ffa5def1",
+   "bytes": 5376428,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py)",
+    "font": {
+     "format": "ttf",
+     "family": "Galmuri11",
+     "unitsPerEm": 1200,
+     "glyphs": 20968,
+     "cmap": 20965,
+     "pixelSize": 12,
+     "coordQuantum": 100,
+     "crispAt": [
+      12,
+      24
+     ],
+     "blurryAt": [
+      8,
+      10,
+      11,
+      16,
+      20,
+      32
+     ],
+     "cjk": {
+      "hangul": 11172,
+      "hangulCompatJamo": 94,
+      "kana": 187,
+      "han": 6477
+     },
+     "GPOS": true
+    },
+    "notes": "named \"11\" (glyph height) but its pixel grid is 12 px per em: 11 px renders blurry. All 11,172 Hangul syllables."
+   },
+   "tags": [
+    "local-only"
+   ],
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/galmuri/Galmuri11Bitmap-Regular-2.40.4.ttf",
+   "category": "font-cjk",
+   "source": "galmuri",
+   "member": "Galmuri11Bitmap-Regular-2.40.4.ttf",
+   "sha256": "0d7e7e8652d8cf666c4501b1dfe8d4ccaee97f068edff4cc4e90f14266ed4a49",
+   "bytes": 783416,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py)",
+    "font": {
+     "format": "ttf-bitmap-only",
+     "family": "Galmuri11Bitmap",
+     "unitsPerEm": 1000,
+     "glyphs": 20971,
+     "bitmapStrikes": [
+      16
+     ],
+     "cjk": {
+      "hangul": 11172,
+      "kana": 187,
+      "han": 6477
+     }
+    },
+    "notes": "EBDT/EBLC bitmap-only TTF with a single 16 ppem strike and empty glyf outlines: FreeType (Pillow) refuses every other size (\"invalid pixel size\"). Hard case for font importers."
+   },
+   "tags": [
+    "local-only"
+   ],
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/galmuri.txt",
+   "category": "licence",
+   "source": "galmuri",
+   "member": "LICENSE.txt",
+   "sha256": "86a3ee9495f942f0243f18c103da9faca27adb88142613edb8bb852e56c892c1",
+   "bytes": 4360,
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "fonts/noto-sans-jp/NotoSansJP-wght.ttf",
+   "category": "font-cjk",
+   "source": "noto-sans-jp",
+   "sha256": "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f",
+   "bytes": 9589900,
+   "truth": {
+    "verified": "fontTools cmap/head/maxp + Pillow rendering: crisp = share of inked pixels that are fully on at that pixel size (inspect_fonts.py) + fvar",
+    "font": {
+     "format": "ttf-variable",
+     "family": "Noto Sans JP",
+     "unitsPerEm": 1000,
+     "glyphs": 17936,
+     "cmap": 16732,
+     "axes": {
+      "wght": [
+       100,
+       100,
+       900
+      ]
+     },
+     "namedInstances": 9,
+     "cjk": {
+      "hangul": 0,
+      "hangulCompatJamo": 93,
+      "kana": 189,
+      "han": 12747
+     }
+    },
+    "notes": "variable font whose DEFAULT instance is Thin (wght 100): a loader that ignores fvar renders hairlines. No Hangul syllables."
+   },
+   "tags": [
+    "local-only"
+   ],
+   "part": "tex-ui-fonts"
+  },
+  {
+   "path": "licences/noto-sans-jp.txt",
+   "category": "licence",
+   "source": "noto-sans-jp-licence",
+   "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+   "bytes": 4388,
+   "part": "tex-ui-fonts"
+  }
+ ],
+ "references": [
+  {
+   "path": "_adhoc/aseprite-io/ace-odin/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/ase-rs/",
+   "category": "aseprite",
+   "files": 4,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/asefile/",
+   "category": "aseprite",
+   "files": 44,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/aseplayer/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/aseprite-love2d/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/aseprite-sprite-library/",
+   "category": "aseprite",
+   "files": 6,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/aseprite-tests/",
+   "category": "aseprite",
+   "files": 20,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/aseprite2unity/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/asepritedotnet/",
+   "category": "aseprite",
+   "files": 8,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/askeladdk-aseprite/",
+   "category": "aseprite",
+   "files": 4,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/atlas-builder/",
+   "category": "aseprite",
+   "files": 3,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/bevy-ase/",
+   "category": "aseprite",
+   "files": 3,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/bevy-aseprite-ultra/",
+   "category": "aseprite",
+   "files": 3,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/bikeshedder-aseprite-loader/",
+   "category": "aseprite",
+   "files": 8,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/chess-sprites-1bit/",
+   "category": "aseprite",
+   "files": 8,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/cremmy-asepritereader/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/deepnight-gamebase/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/duelyst-units/",
+   "category": "aseprite",
+   "files": 10,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/elgopher-aseprite-file/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/excalibur-aseprite/",
+   "category": "aseprite",
+   "files": 9,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/flock-aseprite/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/ggez-aseprite/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/goaseprite/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/godot-aseprite-lucacicada/",
+   "category": "aseprite",
+   "files": 5,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/godot-aseprite-wizard/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/heaps-aseprite/",
+   "category": "aseprite",
+   "files": 10,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/karlll-aseprite-reader/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/kayahr-aseprite/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/ldtk/",
+   "category": "aseprite",
+   "files": 14,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/love-ase/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/mattt-aseprite-py/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/miriti-ase/",
+   "category": "aseprite",
+   "files": 5,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/monogame-aseprite/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/neikos-aseprite-reader/",
+   "category": "aseprite",
+   "files": 2,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/openfl-aseprite/",
+   "category": "aseprite",
+   "files": 4,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/peachy/",
+   "category": "aseprite",
+   "files": 5,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/pixelart-icons/",
+   "category": "aseprite",
+   "files": 14,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/pixelwheels/",
+   "category": "aseprite",
+   "files": 5,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/racinettee-asefile/",
+   "category": "aseprite",
+   "files": 1,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/raylib-aseprite/",
+   "category": "aseprite",
+   "files": 3,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/setanarut-aseprite/",
+   "category": "aseprite",
+   "files": 4,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  },
+  {
+   "path": "_adhoc/aseprite-io/xackery-aseprite/",
+   "category": "aseprite",
+   "files": 3,
+   "note": "collected by the aseprite-io agent (licences in that folder / its SOURCES.md); referenced, not fetched or hashed, by this manifest"
+  }
+ ]
+}
