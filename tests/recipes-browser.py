@@ -147,7 +147,14 @@ with sync_playwright() as pw:
     p.close()
     logo=png(9,9,'white',[((1,1,7,7),'black'),((3,3,5,5),'white')]);p=open_tool(ctx,'remove-white-background-from-logo',[('logo.png',logo)])
     im=Image.open(output(p,'logo-transparent.png')).convert('RGBA');ok('connected background removal retains enclosed white logo detail',im.getpixel((0,0))[3]==0 and im.getpixel((4,4))==(255,255,255,255));p.close()
-    p=open_tool(ctx,'bitmap-font-maker',[('font.png',png(16,8,'white'))]);options(p,{'cellW':8,'cellH':8,'chars':'Aあ','baseline':6});z=archive(output(p,'bitmap-font.zip'))
+    # The bitmap-font URL now opens UI Lab at its Font stage (src/task/ui-lab.js, docs/UI-LAB.md);
+    # the fixed-grid guarantee this check was written for is unchanged, so it is driven there.
+    p=mount(ctx,'/en/bitmap-font-maker/');p.locator('#fileInput').set_input_files([{'name':'font.png','mimeType':'image/png','buffer':png(16,8,'white')}])
+    p.locator('#rc-chars').wait_for(timeout=60000)
+    for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','6'),('#rc-chars','Aあ')]:p.locator(field).fill(value)
+    p.wait_for_timeout(500)
+    with p.expect_download() as d:p.locator('[data-action="ui-export-font"]').click()
+    z=archive(d.value.path())
     meta=json.loads(z.read('font.json'));fnt=z.read('font.fnt').decode()
     ok('BMFont and JSON contain exact Unicode glyph coordinates','char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and rgba_image(z,'font.png').size==(16,8));p.close()
     # Mask packing is a single-task page now (src/task/mask-packer.js): the channel dropdowns keep

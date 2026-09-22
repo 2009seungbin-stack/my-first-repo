@@ -38,7 +38,12 @@ const engines = {
  'tile-lab':'folded transition-profile period scoring / exact region copy / autotile rule tables / alpha collision shapes',
  'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing / run-merged collision rectangles',
  'autotile-tester':'8-neighbour mask tables (3×3 minimal, 16 Wang, 47 blob) / nearest-neighbour render',
- 'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend'
+ 'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend',
+ 'ui-lab':'nine-slice draw plan / parametric state ops / measured glyph metrics / exact EDT signed distance field',
+ '9-slice-editor':'repeated-line border suggestion / nine-slice draw plan (stretch and tile)',
+ 'button-state-generator':'brightness, contrast, saturation, overlay, offset and square outline ops / MaxRects strip',
+ 'missing-glyph-checker':'BMFont .fnt parser / per-character occurrence counts',
+ 'ui-scale-preview':'Godot-style anchor arithmetic / canvas text measurement / WCAG contrast formula'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;

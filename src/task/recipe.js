@@ -24,8 +24,7 @@ export const RECIPE_FORMS=Object.freeze({
  'scan-split':{basic:[N('divider',.01,.99,.01),S('order',[['LR','L → R'],['RL','R → L']])],advanced:[]},
  'marketplace-pack':{basic:[S('platform',[['all','Etsy + Shopify'],['etsy','Etsy'],['shopify','Shopify'],['custom','kit.custom']]),FIT()],advanced:[N('width',1,8192),N('height',1,8192),C('background')]},
  'print-pack':{basic:[N('longSide',64,4096),FIT()],advanced:[C('background')]},
- 'favicon-pack':{basic:[],advanced:[]},
- 'bitmap-font':{basic:[N('cellW',1,4096),N('cellH',1,4096),X('chars')],advanced:[N('baseline',0,4096)]}
+ 'favicon-pack':{basic:[],advanced:[]}
 });
 const optionLabel=l=>l.startsWith('kit.')?t(l):l.startsWith('ui:')?text(l.slice(3)):l,label=f=>f.title?optionLabel(f.title):t('kit.'+f.key);
 function field(f,o){
