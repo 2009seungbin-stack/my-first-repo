@@ -29,6 +29,12 @@ Memory: the Lab holds one decoded source canvas, at most one cut-out panel, five
 variants plus their packed strip, and one transient canvas per preview it is currently drawing.
 Nothing keeps an RGBA copy per element, per glyph or per preview size.
 
+**Shared settings links.** Every setting that is not asset data is a URL query key, and
+*Copy a settings link* (under Advanced in the 9-Slice stage) writes the current ones out:
+`?stage=states&l=5&r=7&t=3&b=4&mode=tile&scale=1&w=250&h=90&px=1&cw=8&ch=8&base=0&fmode=grid&pad=3&merge=4&ext=0`.
+Opening such a link starts the Lab at that stage with those numbers; the borders apply to the first
+image dropped on it. Image data is never put in a URL.
+
 ---
 
 ## 1. Nine-slice editor
@@ -211,7 +217,7 @@ requirement; anything platform-specific belongs in custom insets.
 
 Measured on this branch, Chromium (Playwright) at 1440×1000 and phones at 390/320, Windows 11.
 Unit tests: `node --test tests/*.test.mjs` (1266 pass, of which 32 are the modules above).
-Browser: 30 UI Lab checks appended to `tests/task-browser.py` (172 pass in total) and the ported
+Browser: 31 UI Lab checks appended to `tests/task-browser.py` (173 pass in total) and the ported
 bitmap-font check in `tests/recipes-browser.py` (43 pass in total), both re-opening every download
 with Pillow / zipfile / an independent BMFont parser written inside the test.
 
@@ -241,6 +247,7 @@ with Pillow / zipfile / an independent BMFont parser written inside the test.
 | 22 | Contrast | black/white exactly 21:1 with AA, AAA and UI 3:1 passing; `#767676`/white 4.54:1 | VERIFIED |
 | 23 | Phones | no horizontal scroll on all five stages at 390 px and 320 px, ko and ja | VERIFIED |
 | 24 | Console | no page errors and no console errors across all 83 scripted interactions | VERIFIED |
+| 24b | A shared settings link | `?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90` opens the States stage with those borders, tile mode and that custom size; the copied link round-trips | VERIFIED |
 | 25 | ASCII-95 @32 px measured atlas from a TTF | 28 ms to build, 350×380 sheet, 63 KB ZIP | VERIFIED |
 | 26 | The same atlas with per-glyph SDF (spread 8, 4× raster) | 1174 ms for the export, 77 KB SDF PNG | VERIFIED |
 | 27 | 1024×1024 sheet with 40 elements | 76 ms to detect, merge, pack and draw; 840×825 atlas | VERIFIED |

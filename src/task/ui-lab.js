@@ -56,6 +56,28 @@ export function mount({el,def}){
  };
  const needsImage=s=>s!=='check';
  const $=s=>el.querySelector(s);
+ /** A shared link carries settings only — borders, mode, sizes, the stage — never image data.
+  * `settingsLink()` writes the same keys back, so a link is round-trippable. */
+ const PRESET=[['stage',()=>stage,v=>{if(STAGES.includes(v))stage=v;}],
+  ['l',()=>S.border.left,v=>S.border.left=int(v,0,4096)],['r',()=>S.border.right,v=>S.border.right=int(v,0,4096)],
+  ['t',()=>S.border.top,v=>S.border.top=int(v,0,4096)],['b',()=>S.border.bottom,v=>S.border.bottom=int(v,0,4096)],
+  ['mode',()=>S.slice.mode,v=>{if(['stretch','tile'].includes(v))S.slice.mode=v;}],
+  ['scale',()=>S.slice.scale,v=>S.slice.scale=int(v,1,4)],
+  ['w',()=>S.slice.customW,v=>S.slice.customW=int(v,1,4096)],['h',()=>S.slice.customH,v=>S.slice.customH=int(v,1,4096)],
+  ['px',()=>S.slice.pixelated?1:0,v=>S.slice.pixelated=v!=='0'],
+  ['cw',()=>S.font.cellW,v=>S.font.cellW=int(v,1,4096)],['ch',()=>S.font.cellH,v=>S.font.cellH=int(v,1,4096)],
+  ['base',()=>S.font.baseline,v=>S.font.baseline=int(v,0,4096)],
+  ['fmode',()=>S.font.mode,v=>{if(['grid','measured','ttf'].includes(v))S.font.mode=v;}],
+  ['pad',()=>S.atlas.padding,v=>S.atlas.padding=int(v,0,32)],['merge',()=>S.atlas.merge,v=>S.atlas.merge=int(v,0,64)],
+  ['ext',()=>S.atlas.extrude,v=>S.atlas.extrude=int(v,0,8)]];
+ for(const [key,,apply] of PRESET){const raw=route.query.get(key);if(raw!==null)apply(raw);}
+ // Borders from a shared link belong to the first image dropped on it; a later image starts clean.
+ let presetBorder={...S.border},firstFile=true;
+ const settingsLink=()=>{
+  const url=new URL(location.href);url.search='';
+  for(const [key,read] of PRESET)url.searchParams.set(key,String(read()));
+  return url.href;
+ };
  const glyphSet=()=>{
   if(S.check.source==='fnt'&&S.check.imported)return BM.fntCodepoints(S.check.imported);
   const font=S.font.built;return new Set((font?.glyphs||[]).map(g=>g.codepoint));
@@ -128,7 +150,9 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
 <details class="options-advanced" id="optionsAdvanced"><summary>${esc(text('advanced'))}</summary>
 <div class="field-row"><label class="field"><span>${esc(T('integerScale'))}</span><select data-opt="slice.scale">${[1,2,3,4].map(n=>`<option value="${n}" ${S.slice.scale===n?'selected':''}>${n}×</option>`).join('')}</select></label>
 <label class="field"><span>${esc(T('zoom'))}</span><select data-opt="slice.zoom"><option value="0" ${!S.slice.zoom?'selected':''}>${esc(T('zoomFit'))}</option>${[1,2,4,6,8,12].map(n=>`<option value="${n}" ${S.slice.zoom===n?'selected':''}>${n}×</option>`).join('')}</select></label></div>
-<p class="hint">${esc(T('scaleHint'))}</p></details></form>
+<p class="hint">${esc(T('scaleHint'))}</p>
+<button type="button" class="mini-button" data-action="ui-copy-link">${esc(T('copyLink'))}</button>
+<p class="hint">${esc(T('copyLinkHint'))}</p></details></form>
 <button type="button" class="primary big" data-action="ui-export-slice">${esc(T('exportSlice'))}</button>
 <small class="local-note">${esc(text('local'))}</small>`;
    },
@@ -710,7 +734,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    const decoded=await Im.decode(file);
    Im.release(source);Im.release(panel);source=decoded;panel=null;sourceName=file.name;
    S.atlas.elements=null;S.atlas.editing=null;releaseStates();
-   S.suggestion=null;S.border={left:0,right:0,top:0,bottom:0};
+   S.suggestion=null;
+   S.border=firstFile?NS.clampBorders(presetBorder,decoded.width,decoded.height):{left:0,right:0,top:0,bottom:0};
+   firstFile=false;
    if(stage==='slice')suggest({silent:true});
    frame();
   }catch(error){toast(error?.message||String(error),{error:true});if(!source)empty();}
@@ -753,6 +779,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     else if(button.dataset.key==='states.selected'){for(const b of el.querySelectorAll('[data-key="states.selected"]'))b.setAttribute('aria-pressed',String(b.dataset.value===value));refresh();}
     else{for(const sibling of button.parentElement.children)sibling.setAttribute('aria-pressed',String(sibling===button));VIEWS[stage].paint?.();}
    }
+   else if(action==='ui-copy-link'){const link=settingsLink();await navigator.clipboard?.writeText(link);toast(T('copiedLink'));}
    else if(action==='ui-suggest')suggest();
    else if(action==='ui-accept')acceptSuggestion();
    else if(action==='ui-dismiss'){S.suggestion=null;refresh();}

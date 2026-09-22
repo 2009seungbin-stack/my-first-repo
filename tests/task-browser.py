@@ -524,6 +524,16 @@ with sync_playwright() as pw:
        tiled.tobytes()!=stretched.tobytes() and tiled.crop((4,0,8,4)).tobytes()==tiled.crop((8,0,12,4)).tobytes()==striped.crop((4,0,8,4)).tobytes())
     ok('stretching instead smears that middle across the span',
        stretched.crop((4,0,5,4)).tobytes()==stretched.crop((6,0,7,4)).tobytes() and tiled.crop((4,0,5,4)).tobytes()!=tiled.crop((6,0,7,4)).tobytes())
+    # A shared link carries settings only: no image data can be in a URL.
+    page.goto(BASE+'/en/game/ui-lab/?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
+    page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(300)
+    opened=page.locator('[data-action="ui-stage"][aria-selected="true"]').get_attribute('data-stage')
+    page.locator('[data-action="ui-stage"][data-stage="slice"]').click();page.wait_for_timeout(400)
+    ok('a settings link opens the named stage with its borders, edge mode and custom size',
+       opened=='states' and [page.locator(f'#ns-{s}').input_value() for s in ['left','right','top','bottom']]==['5','7','3','4']
+       and page.locator('[data-key="slice.mode"][aria-pressed="true"]').get_attribute('data-value')=='tile'
+       and page.locator('[data-opt="slice.customW"]').input_value()=='250')
     # --- button states ---
     page.goto(BASE+'/en/game/button-state-generator/',wait_until='networkidle')
     button=Image.new('RGBA',(40,16),(60,120,200,255))

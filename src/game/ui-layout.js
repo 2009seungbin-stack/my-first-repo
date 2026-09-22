@@ -54,9 +54,8 @@ export function wrap(chunks,boxWidth,{spaceWidth=0}={}){
 /** What a fixed-size button or panel does with a string: fits, wraps to more lines than it has
  * room for, or overflows on one line. The caller says which of those its UI actually allows. */
 export function textFit({width,lineHeight,boxWidth,boxHeight,chunks=null,spaceWidth=0,mode='single'}){
- const pad=0;
  if(mode==='wrap'&&chunks){
-  const w=wrap(chunks,boxWidth-pad,{spaceWidth}),needed=w.count*lineHeight;
+  const w=wrap(chunks,boxWidth,{spaceWidth}),needed=w.count*lineHeight;
   return {mode:'wrap',lines:w.count,width:Math.ceil(w.width),needed,fits:w.width<=boxWidth&&needed<=boxHeight,
    status:w.width>boxWidth?'overflow':needed>boxHeight?'clipped':w.count>1?'wrapped':'fits',overBy:Math.max(0,Math.ceil(w.width-boxWidth))};
  }
