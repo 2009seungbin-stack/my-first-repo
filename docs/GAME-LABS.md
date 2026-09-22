@@ -20,7 +20,7 @@ re-opened independently and matches what the preview showed.
 | atlas-padding | recipe, `primitives.extrude` | atlas → extruded atlas | fine; becomes a Tile/Texture Lab step | extrude | Tile |
 | texture-map | recipe, `primitives.mapTexture` | height → normal / gray / invert / alpha | one kernel, no format flip, no combine | mapTexture | Texture |
 | mask-packer | `mask-packer.js` (exact channel bytes under zero alpha) | ≤4 masks → RGBA | no unpack, no engine presets, no set validation | packMasks, packChannels | Texture |
-| bitmap-font | recipe, `primitives.fontMetadata`, BMFont text + JSON | grid image → font | fixed cell only; no glyph check, no SDF | fontMetadata | UI |
+| bitmap-font | recipe, `primitives.fontMetadata`, BMFont text + JSON | grid image → font | fixed cell only; no glyph check, no SDF (the URL now opens UI Lab's Font stage, which adds measured widths, TTF input, a character-set builder and a real SDF — see UI-LAB.md) | fontMetadata | UI |
 
 Unit coverage that existed: `tests/primitives.test.mjs` (15), `tests/atlas.test.mjs` (4); browser
 coverage in `tests/recipes-browser.py` and `tests/task-browser.py`.
