@@ -659,7 +659,7 @@ S.ko.lab={stages:LAB_STAGES.ko,aligns:LAB_ALIGNS.ko,references:LAB_REFS.ko,boxTy
  godotNote:'Godot 4.7.2에서 실제로 불러와 검증했습니다.',unityNote:'검증되지 않음 — Unity 에디터에서 실행해 본 적이 없습니다. JSON과 C# 스크립트에도 같은 표시가 있습니다.',
  outline:'외곽선 (px)',outlineColor:'외곽선 색',defringe:'경계에 남은 배경색 제거',nonDestructive:'내보낼 때만 적용됩니다. 원본 프레임은 그대로입니다.',edgeZoom:'가장자리 확대 비교',
  pack:'포장하기',download:'ZIP 다운로드 (아틀라스 + {f})',downloadFrames:'프레임 PNG ZIP',downloadGif:'GIF 미리보기',
- saveProject:'프로젝트 JSON 저장',loadProject:'프로젝트 JSON 불러오기',projectNote:'좌표와 설정만 저장합니다. 불러올 때 시트를 다시 올려야 합니다.',
+ openStudio:'스튜디오에서 열기 (베타)',saveProject:'프로젝트 JSON 저장',loadProject:'프로젝트 JSON 불러오기',projectNote:'좌표와 설정만 저장합니다. 불러올 때 시트를 다시 올려야 합니다.',
  share:'설정 링크 복사',shared:'설정 링크를 복사했습니다.',done:'ZIP으로 저장했습니다 ({size})',needPack:'먼저 포장하세요.',needAnimation:'애니메이션을 먼저 만드세요.',
  another:'+ 다른 시트 열기',oneSheet:'시트는 한 번에 한 장만 다룹니다. 첫 번째 파일을 열었습니다.',gifTooBig:'GIF로 만들기에 프레임이 너무 큽니다.'};
 S.en.lab={stages:LAB_STAGES.en,aligns:LAB_ALIGNS.en,references:LAB_REFS.en,boxTypes:LAB_BOXES.en,
@@ -696,7 +696,7 @@ S.en.lab={stages:LAB_STAGES.en,aligns:LAB_ALIGNS.en,references:LAB_REFS.en,boxTy
  godotNote:'Verified: the export was really imported by Godot 4.7.2.',unityNote:'UNVERIFIED — no part of the Unity path has ever been run in the editor. The same label is in the JSON, the C# file and the README.',
  outline:'Outline (px)',outlineColor:'Outline colour',defringe:'Remove backdrop colour left on edges',nonDestructive:'Applied to the export only; your frames are untouched.',edgeZoom:'Edge zoom, before and after',
  pack:'Pack',download:'Download ZIP (atlas + {f})',downloadFrames:'Frame PNGs (ZIP)',downloadGif:'GIF preview',
- saveProject:'Save project JSON',loadProject:'Load project JSON',projectNote:'Coordinates and settings only — loading one asks for the sheet again.',
+ openStudio:'Open in Studio (beta)',saveProject:'Save project JSON',loadProject:'Load project JSON',projectNote:'Coordinates and settings only — loading one asks for the sheet again.',
  share:'Copy a settings link',shared:'Settings link copied.',done:'Saved as ZIP ({size})',needPack:'Pack the frames first.',needAnimation:'Create an animation first.',
  another:'+ Open another sheet',oneSheet:'One sheet at a time; the first file was opened.',gifTooBig:'These frames are too large for a GIF.'};
 S.ja.lab={stages:LAB_STAGES.ja,aligns:LAB_ALIGNS.ja,references:LAB_REFS.ja,boxTypes:LAB_BOXES.ja,
@@ -733,7 +733,7 @@ S.ja.lab={stages:LAB_STAGES.ja,aligns:LAB_ALIGNS.ja,references:LAB_REFS.ja,boxTy
  godotNote:'Godot 4.7.2で実際に読み込んで検証済みです。',unityNote:'未検証 — Unityエディターで一度も実行していません。JSON・C#・READMEにも同じ表示があります。',
  outline:'アウトライン (px)',outlineColor:'アウトラインの色',defringe:'輪郭に残った背景色を除去',nonDestructive:'書き出し時のみ適用され、元のフレームは変わりません。',edgeZoom:'輪郭の拡大比較',
  pack:'パックする',download:'ZIPをダウンロード（アトラス + {f}）',downloadFrames:'フレームPNG (ZIP)',downloadGif:'GIFプレビュー',
- saveProject:'プロジェクトJSONを保存',loadProject:'プロジェクトJSONを読み込む',projectNote:'座標と設定だけを保存します。読み込むときにシートをもう一度置いてください。',
+ openStudio:'スタジオで開く（ベータ）',saveProject:'プロジェクトJSONを保存',loadProject:'プロジェクトJSONを読み込む',projectNote:'座標と設定だけを保存します。読み込むときにシートをもう一度置いてください。',
  share:'設定リンクをコピー',shared:'設定リンクをコピーしました。',done:'ZIPで保存しました（{size}）',needPack:'先にパックしてください。',needAnimation:'先にアニメーションを作ってください。',
  another:'+ 別のシートを開く',oneSheet:'シートは一度に1枚です。最初のファイルを開きました。',gifTooBig:'GIFにするにはフレームが大きすぎます。'};
 const TILE_KINDS={minimal9:'3×3 minimal · 9',edge16:'Edge Wang · 16',corner16:'Corner Wang · 16',blob47:'Blob · 47'};
