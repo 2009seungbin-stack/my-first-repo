@@ -422,6 +422,253 @@ with sync_playwright() as pw:
     page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
     ok('a differently sized mask is explained instead of failing silently',
        page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
+    # === UI Lab (src/task/ui-lab.js, docs/UI-LAB.md) =========================================
+    # Every claim here is checked against pixels or re-parsed data, never against the UI's words.
+    def ui_png(im):
+        b=io.BytesIO();im.save(b,'PNG');return {'name':'panel.png','mimeType':'image/png','buffer':b.getvalue()}
+    def ui_panel(size=24,border=6):
+        im=Image.new('RGBA',(size,size),(0,0,0,0))
+        for y in range(size):
+            for x in range(size):
+                inner=border<=x<size-border and border<=y<size-border
+                im.putpixel((x,y),(79,126,192,255) if inner else (56,83,125,255) if 2<=x<size-2 and 2<=y<size-2 else (36,52,77,255))
+        for (x,y),c in [((0,0),(229,72,77,255)),((size-1,0),(18,146,95,255)),((0,size-1),(49,130,246,255)),((size-1,size-1),(245,165,36,255))]:im.putpixel((x,y),c)
+        return im
+    def ui_striped(size=12,border=4):
+        # A pattern along each edge: without one, tiling and stretching a uniform edge look the same.
+        im=Image.new('RGBA',(size,size),(0,0,0,0))
+        for y in range(size):
+            for x in range(size):
+                edge=x<border or y<border or x>=size-border or y>=size-border
+                stripe=((x if y<border or y>=size-border else y)%4)<2
+                im.putpixel((x,y),(230,90,90,255) if edge and stripe else (40,60,95,255) if edge else (90,200,140,255) if (x+y)%4<2 else (30,110,80,255))
+        return im
+    def ui_sheet():
+        im=Image.new('RGBA',(128,64),(0,0,0,0))
+        for box,c in [((4,4,44,20),(49,130,246,255)),((56,6,80,30),(18,146,95,255)),((92,6,116,30),(229,72,77,255)),((8,36,60,56),(130,80,223,255))]:
+            for y in range(box[1],box[3]):
+                for x in range(box[0],box[2]):im.putpixel((x,y),c)
+        for y in range(8,16):
+            for x in range(20,28):im.putpixel((x,y),(0,0,0,0))
+        return im
+    def ui_fontsheet(glyphs,cell=8):
+        im=Image.new('RGBA',(cell*len(glyphs),cell),(0,0,0,0))
+        for i,ch in enumerate(glyphs):
+            if ch==' ':continue
+            for y in range(1,7):
+                for x in range(i*cell+1,min(i*cell+2+i,i*cell+cell-1)):im.putpixel((x,y),(255,255,255,255))
+        return im
+    def ui_fnt(text):
+        # An independent BMFont text parser: no code shared with the page that wrote the file.
+        out={'info':{},'common':{},'pages':{},'chars':[]}
+        for line in text.splitlines():
+            parts=line.strip().split();  # tag then key=value pairs
+            if not parts:continue
+            fields={}
+            for pair in parts[1:]:
+                if '=' not in pair:continue
+                key,value=pair.split('=',1)
+                fields[key]=value.strip('"') if value.startswith('"') else [int(v) for v in value.split(',')] if ',' in value else int(value) if value.lstrip('-').isdigit() else value
+            if parts[0] in ('info','common'):out[parts[0]]=fields
+            elif parts[0]=='page':out['pages'][fields.get('id',0)]=fields.get('file')
+            elif parts[0]=='char':out['chars'].append(fields)
+        return out
+    def ui_zip(action):
+        with page.expect_download() as d:page.locator(action).click()
+        z=zipfile.ZipFile(d.value.path());assert z.testzip() is None;return z
+    def ui_image(z,name):return Image.open(io.BytesIO(z.read(name))).convert('RGBA')
+    # --- 9-slice: suggestion, keyboard, and corners that survive every resize ---
+    page.goto(BASE+'/en/game/9-slice-editor/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
+    page.locator('#nsCanvas').wait_for(timeout=60000);page.wait_for_timeout(400)
+    ok('the 9-slice route opens the Lab at its own stage',page.locator('[data-action="ui-stage"][data-stage="slice"]').get_attribute('aria-selected')=='true')
+    ok('borders are offered as a suggestion, with the run they were found from',
+       page.locator('.ui-suggest span').first.inner_text().startswith('6 · 6 · 6 · 6') and 'identical columns' in page.locator('.ui-suggest span').first.inner_text())
+    page.locator('[data-action="ui-accept"]').click();page.wait_for_timeout(200)
+    ok('accepting the suggestion fills the four numbers',[page.locator(f'#ns-{s}').input_value() for s in ['left','right','top','bottom']]==['6']*4)
+    page.locator('.ns-guide.left').focus();page.keyboard.press('ArrowRight');page.keyboard.press('ArrowRight');page.wait_for_timeout(150)
+    ok('arrow keys are a real alternative to dragging a guide',page.locator('#ns-left').input_value()=='8')
+    page.locator('.ns-guide.left').focus();page.keyboard.press('Shift+ArrowLeft');page.wait_for_timeout(150)
+    ok('Shift+arrow moves ten pixels and clamps at the edge',page.locator('#ns-left').input_value()=='0')
+    page.fill('#ns-left','6');page.wait_for_timeout(200)
+    ok('the stretch region is marked with a pattern, not colour alone','repeating-linear-gradient' in page.locator('#nsCenter').evaluate('e=>getComputedStyle(e).backgroundImage'))
+    page.locator('[data-opt="slice.customW"]').fill('8');page.locator('[data-opt="slice.customH"]').fill('8');page.wait_for_timeout(300)
+    ok('a target narrower than its own corners is warned about',page.locator('#nsSummary .summary-line.bad').count()>=1)
+    page.locator('[data-opt="slice.customW"]').fill('420');page.locator('[data-opt="slice.customH"]').fill('120');page.wait_for_timeout(300)
+    z=ui_zip('[data-action="ui-export-slice"]')
+    ok('the nine-slice ZIP holds the source, one preview per target, the JSON and setup notes',
+       sorted(z.namelist())==sorted(['panel.png','nine-slice.json','SETUP.md','previews/100x40.png','previews/300x80.png','previews/800x200.png','previews/420x120.png']),str(z.namelist()))
+    src=ui_image(z,'panel.png');meta=json.loads(z.read('nine-slice.json'))
+    blocks=all(ui_image(z,n).crop(d).tobytes()==src.crop(s).tobytes()
+               for n in [e for e in z.namelist() if e.startswith('previews/')]
+               for d,s in [((0,0,6,6),(0,0,6,6)),
+                           ((ui_image(z,n).width-6,0,ui_image(z,n).width,6),(18,0,24,6)),
+                           ((0,ui_image(z,n).height-6,6,ui_image(z,n).height),(0,18,6,24)),
+                           ((ui_image(z,n).width-6,ui_image(z,n).height-6,ui_image(z,n).width,ui_image(z,n).height),(18,18,24,24))])
+    ok('every resized render keeps all four 6x6 corner blocks byte-identical to the source',blocks)
+    nine=meta['frames']['panel']['nineSlice']
+    ok('the JSON carries the borders in pixels, normalised and in each engine order',
+       nine['pixels']=={'left':6,'right':6,'top':6,'bottom':6} and nine['normalized']['left']==6/24
+       and nine['godot4']['patch_margin_top']==6 and nine['unity']['border']==[6,6,6,6] and meta['meta']['schemaVersion']==1)
+    setup=z.read('SETUP.md').decode('utf-8')
+    ok('the setup notes name the real engine fields, Unity order included, and say they are unverified',
+       'patch_margin_left' in setup and 'texture_margin' in setup and 'L, B, R, T' in setup and 'UNVERIFIED' in setup)
+    page.locator('#fileInput').set_input_files(files=[ui_png(ui_striped())])
+    page.locator('#nsCanvas').wait_for(timeout=60000);page.wait_for_timeout(400)
+    for side in ['left','right','top','bottom']:page.fill('#ns-'+side,'4')
+    page.wait_for_timeout(300);z_stretch=ui_zip('[data-action="ui-export-slice"]')
+    page.locator('[data-action="ui-set"][data-key="slice.mode"][data-value="tile"]').click();page.wait_for_timeout(300)
+    z_tile=ui_zip('[data-action="ui-export-slice"]')
+    tiled,stretched,striped=ui_image(z_tile,'previews/300x80.png'),ui_image(z_stretch,'previews/300x80.png'),ui_image(z_tile,'panel.png')
+    ok('tiled edges repeat the source at its natural size, and differ from stretched ones',
+       tiled.tobytes()!=stretched.tobytes() and tiled.crop((4,0,8,4)).tobytes()==tiled.crop((8,0,12,4)).tobytes()==striped.crop((4,0,8,4)).tobytes())
+    ok('stretching instead smears that middle across the span',
+       stretched.crop((4,0,5,4)).tobytes()==stretched.crop((6,0,7,4)).tobytes() and tiled.crop((4,0,5,4)).tobytes()!=tiled.crop((6,0,7,4)).tobytes())
+    # --- button states ---
+    page.goto(BASE+'/en/game/button-state-generator/',wait_until='networkidle')
+    button=Image.new('RGBA',(40,16),(60,120,200,255))
+    page.locator('#fileInput').set_input_files(files=[{'name':'button.png','mimeType':'image/png','buffer':io.BytesIO(),'buffer':ui_png(button)['buffer']}])
+    page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(400)
+    ok('five state variants are previewed at once',page.locator('.ui-state').count()==5)
+    page.locator('[data-key="states.selected"][data-value="pressed"]').first.click();page.wait_for_timeout(200)
+    page.locator('[data-state="offsetY"]').fill('3');page.wait_for_timeout(400)
+    z=ui_zip('[data-action="ui-export-states"]')
+    normal,hover,pressed,disabled,focus=[ui_image(z,f'states/{n}.png') for n in ['normal','hover','pressed','disabled','focus']]
+    ok('normal is the source byte for byte',normal.tobytes()==button.tobytes())
+    ok('hover is brighter, pressed is offset by the requested pixels and clears what it left',
+       hover.getpixel((20,8))[0]>normal.getpixel((20,8))[0] and pressed.getpixel((20,3))==pressed.getpixel((20,8))==pressed.getpixel((20,15)) and pressed.getpixel((20,0))[3]==0 and pressed.size==normal.size)
+    ok('disabled is grey and half transparent; focus grows by its outline and rings it',
+       len(set(disabled.getpixel((20,8))[:3]))==1 and disabled.getpixel((20,8))[3]==128
+       and focus.size==(44,20) and focus.getpixel((1,1))[:3]==(49,130,246) and focus.getpixel((22,10))==normal.getpixel((20,8)))
+    strip=ui_image(z,'button-states.png');states=json.loads(z.read('states.json'))
+    ok('every rect in states.json cuts exactly that state out of the packed strip',
+       all(strip.crop((f['rect']['x'],f['rect']['y'],f['rect']['x']+f['rect']['w'],f['rect']['y']+f['rect']['h'])).tobytes()==ui_image(z,f'states/{n}.png').tobytes() for n,f in states['frames'].items()))
+    ok('the JSON records the operation values each state used',states['states']['pressed']['ops']['offsetY']==3 and states['states']['disabled']['ops']['alpha']==0.5)
+    # --- UI atlas + component slicer ---
+    page.goto(BASE+'/en/game/ui-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[{'name':'ui-sheet.png','mimeType':'image/png','buffer':ui_png(ui_sheet())['buffer']}])
+    page.locator('#nsCanvas').wait_for(timeout=60000)
+    page.locator('[data-action="ui-stage"][data-stage="atlas"]').click();page.locator('.ui-element').first.wait_for(timeout=60000);page.wait_for_timeout(300)
+    ok('the four UI elements on the transparent sheet are detected as one box each',page.locator('.ui-element').count()==4,str(page.locator('.ui-element').count()))
+    page.locator('[data-element="0"]').fill('button_wide');page.wait_for_timeout(300)
+    page.locator('[data-action="ui-element-slice"][data-index="0"]').click();page.locator('#nsCanvas').wait_for(timeout=60000);page.wait_for_timeout(300)
+    for side,value in [('left','5'),('right','5'),('top','4'),('bottom','4')]:page.fill('#ns-'+side,value)
+    page.wait_for_timeout(300);page.locator('[data-action="ui-back-atlas"]').click();page.wait_for_timeout(400)
+    page.locator('[data-opt="atlas.padding"]').fill('2');page.locator('[data-opt="atlas.extrude"]').fill('1');page.wait_for_timeout(400)
+    z=ui_zip('[data-action="ui-export-atlas"]')
+    atlas=ui_image(z,'ui-atlas.png');data=json.loads(z.read('ui-atlas.json'));named=data['frames']['button_wide']
+    ok('the renamed element keeps the borders set for it in the envelope',named['nineSlice']['pixels']=={'left':5,'right':5,'top':4,'bottom':4})
+    piece=atlas.crop((named['rect']['x'],named['rect']['y'],named['rect']['x']+named['rect']['w'],named['rect']['y']+named['rect']['h']))
+    ok('the packed element is the source pixels, and extrude duplicated its edge outside the rect',
+       piece.tobytes()==ui_image(z,'ui-atlas.png').crop((named['rect']['x'],named['rect']['y'],named['rect']['x']+named['rect']['w'],named['rect']['y']+named['rect']['h'])).tobytes()
+       and atlas.getpixel((named['rect']['x']-1,named['rect']['y']))==piece.getpixel((0,0))
+       and data['packing']=={'padding':2,'extrude':1,'mergeDistance':4,'alphaThreshold':8})
+    page.locator('[data-opt="atlas.merge"]').fill('40');page.wait_for_timeout(500)
+    ok('a larger merge distance really joins neighbouring boxes',page.locator('.ui-element').count()<4)
+    # --- bitmap font: the original URL, the original guarantee, plus measured and TTF modes ---
+    page.goto(BASE+'/en/bitmap-font-maker/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[{'name':'font.png','mimeType':'image/png','buffer':ui_png(Image.new('RGBA',(16,8),(255,255,255,255)))['buffer']}])
+    page.locator('#rc-chars').wait_for(timeout=60000);page.wait_for_timeout(300)
+    ok('the original bitmap-font URL opens the Lab at its Font stage',page.locator('[data-action="ui-stage"][data-stage="font"]').get_attribute('aria-selected')=='true')
+    for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','6'),('#rc-chars','Aあ')]:page.locator(field).fill(value)
+    page.wait_for_timeout(400);z=ui_zip('[data-action="ui-export-font"]')
+    meta=json.loads(z.read('font.json'));fnt=z.read('font.fnt').decode('utf-8');parsed=ui_fnt(fnt)
+    ok('BMFont and JSON contain exact Unicode glyph coordinates',
+       'char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and ui_image(z,'font.png').size==(16,8))
+    sheet_img=ui_image(z,'font.png')
+    ok('an independent parser reads the header back and every glyph rect lies inside the atlas',
+       parsed['common']['lineHeight']==8 and parsed['common']['base']==6 and parsed['common']['scaleW']==16
+       and parsed['pages'][0]=='font.png' and parsed['info']['unicode']==1
+       and all(0<=c['x'] and c['x']+c['width']<=sheet_img.width and 0<=c['y'] and c['y']+c['height']<=sheet_img.height for c in parsed['chars'])
+       and [(c['id'],c['x'],c['y'],c['width'],c['height'],c['xadvance']) for c in parsed['chars']]==[(g['codepoint'],g['x'],g['y'],g['w'],g['h'],g['xAdvance']) for g in meta['glyphs']])
+    page.locator('#fileInput').set_input_files(files=[{'name':'font2.png','mimeType':'image/png','buffer':ui_png(ui_fontsheet('AB C'))['buffer']}])
+    page.wait_for_timeout(400);page.locator('[data-action="ui-set"][data-key="font.mode"][data-value="measured"]').click();page.wait_for_timeout(300)
+    for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','7'),('#rc-chars','AB C')]:page.locator(field).fill(value)
+    page.wait_for_timeout(400);z=ui_zip('[data-action="ui-export-font"]')
+    measured=json.loads(z.read('font.json'));sheet_img=ui_image(z,'font.png')
+    ok('measured mode trims each glyph to its ink and still advances for an empty cell',
+       all(sheet_img.crop((g['x'],g['y'],g['x']+g['w'],g['y']+g['h'])).getbbox()==(0,0,g['w'],g['h']) for g in measured['glyphs'] if g['w'])
+       and len({g['xAdvance'] for g in measured['glyphs']})>=3 and all(g['xAdvance']>0 for g in measured['glyphs']))
+    page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    page.locator('[data-opt="font.sample"]').fill('Start 시작 スタート');page.wait_for_timeout(200)
+    page.locator('[data-action="ui-charset"][data-preset="ko"]').click();page.wait_for_timeout(300)
+    korean=page.locator('#rc-chars').input_value()
+    page.locator('[data-action="ui-charset"][data-preset="ascii"]').click();page.wait_for_timeout(300)
+    ok('a character-set preset collects only what the text uses, and ASCII stays 95 characters',
+       korean=='시작' and len(page.locator('#rc-chars').input_value())==95,korean)
+    page.locator('[data-action="ui-set"][data-key="font.mode"][data-value="ttf"]').click();page.wait_for_timeout(300)
+    if os.path.exists('C:/Windows/Fonts/arial.ttf'):
+        page.locator('#fontFile').set_input_files('C:/Windows/Fonts/arial.ttf');page.wait_for_timeout(700)
+        page.locator('#rc-chars').fill('AWil j');page.locator('[data-opt="font.size"]').fill('24');page.wait_for_timeout(800)
+        z=ui_zip('[data-action="ui-export-font"]')
+        ttf=json.loads(z.read('font.json'));sheet_img=ui_image(z,'font.png');widths={g['char']:g['xAdvance'] for g in ttf['glyphs']}
+        ok('a font file becomes a real atlas: tight rects and the font\'s own advances',
+           len(ttf['glyphs'])==6 and widths['W']>widths['i'] and widths[' ']>0
+           and all(sheet_img.crop((g['x'],g['y'],g['x']+g['w'],g['y']+g['h'])).getbbox()==(0,0,g['w'],g['h']) for g in ttf['glyphs'] if g['w']))
+        page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+        page.locator('[data-opt="font.sdf"]').check();page.wait_for_timeout(500)
+        z=ui_zip('[data-action="ui-export-font"]')
+        sdf_meta=json.loads(z.read('font-sdf.json'));sdf_img=ui_image(z,'font-sdf.png');source=ui_image(z,'font.png')
+        ink=max((g for g in json.loads(z.read('font.json'))['glyphs'] if g['w']>3),key=lambda g:g['w']*g['h'])
+        inside=[(source.getpixel((x,y))[3]>127,sdf_img.getpixel((x,y))[0]) for y in range(ink['y'],ink['y']+ink['h']) for x in range(ink['x'],ink['x']+ink['w'])]
+        ok('the SDF texture is beta-labelled and positive exactly where the glyph has ink',
+           sdf_meta['beta'] is True and sdf_meta['contour']==128 and 'fwidth' in sdf_meta['shader']
+           and sum(1 for o,v in inside if o and v>=128)>=0.9*sum(1 for o,_ in inside if o)
+           and sum(1 for o,v in inside if not o and v<=128)>=0.9*sum(1 for o,_ in inside if not o))
+        page.locator('[data-opt="font.sdf"]').uncheck();page.wait_for_timeout(200)
+    # --- missing glyphs, safe areas, localisation overflow, contrast ---
+    page.goto(BASE+'/en/game/missing-glyph-checker/',wait_until='networkidle')
+    fnt_text=('info face="Test" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0\n'
+              'common lineHeight=8 base=6 scaleW=64 scaleH=8 pages=1 packed=0\npage id=0 file="font.png"\nchars count=5\n'
+              +'\n'.join(f'char id={ord(c)} x=0 y=0 width=4 height=8 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=15' for c in 'Str가')+'\n')
+    page.locator('[data-action="ui-set"][data-key="check.source"][data-value="fnt"]').click();page.wait_for_timeout(200)
+    page.locator('#fntFile').set_input_files({'name':'ui.fnt','mimeType':'text/plain','buffer':fnt_text.encode()});page.wait_for_timeout(300)
+    page.locator('#localeFile').set_input_files({'name':'ko.po','mimeType':'text/plain','buffer':'msgid "start"\nmsgstr "Start 시작"\n\nmsgid "quit"\nmsgstr "끝내기"\n'.encode()})
+    page.wait_for_timeout(600)
+    rows=page.locator('.ui-table tbody tr')
+    missing={rows.nth(i).locator('td').first.inner_text():rows.nth(i).locator('td').nth(2).inner_text() for i in range(rows.count())}
+    ok('a .po file is unwrapped and every character the .fnt lacks is listed with a count',
+       set(missing)==set('a시작끝내기') and missing['기']=='1' and '가' not in missing,json.dumps(missing,ensure_ascii=False))
+    z=ui_zip('[data-action="ui-export-missing"]')
+    report=json.loads(z.read('missing-glyphs.json'))
+    ok('the missing report names the font it compared against and each codepoint with its lines',
+       report['source']=='ui.fnt' and report['fontGlyphs']==4
+       and any(m['codepoint']=='U+'+format(ord('끝'),'04X') and m['lines']==[2] for m in report['missing']))
+    page.goto(BASE+'/en/game/ui-scale-preview/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
+    page.locator('.ui-screen canvas').wait_for(timeout=60000);page.wait_for_timeout(400)
+    page.locator('[data-key="check.screen"][data-value="4k"]').click();page.wait_for_timeout(300)
+    page.select_option('[data-opt="check.anchor"]','top-left');page.wait_for_timeout(300)
+    page.select_option('[data-opt="check.safe"]','title-safe');page.wait_for_timeout(300)
+    ok('anchors and the 90% title-safe rectangle are computed for the chosen resolution',
+       'at 64, 64' in page.locator('#sizeSummary').inner_text() and '192, 108 · 3456' in page.locator('#sizeSummary').inner_text(),
+       page.locator('#sizeSummary').inner_text())
+    ok('integer scales are marked crisp and the fractional ones are not',page.locator('.ui-scale.crisp').count()==3 and page.locator('.ui-scale').count()==7)
+    page.locator('[data-key="check.tab"][data-value="text"]').click();page.wait_for_timeout(300)
+    page.locator('[data-string="en"]').fill('Continue playing this very long label');page.locator('[data-opt="check.boxW"]').fill('120');page.wait_for_timeout(400)
+    ok('a string too long for the button is flagged per language while the others fit',
+       page.locator('.ui-overflow-row .pill').all_inner_texts()[1]=='overflows' and page.locator('.ui-overflow-row .pill').all_inner_texts()[0]=='fits',
+       str(page.locator('.ui-overflow-row .pill').all_inner_texts()))
+    page.locator('[data-key="check.tab"][data-value="contrast"]').click();page.wait_for_timeout(300)
+    for field,value in [('check.fg','#000000'),('check.bg','#ffffff')]:
+        page.locator(f'[data-opt="{field}"]').evaluate('(e,v)=>{e.value=v;e.dispatchEvent(new Event("input",{bubbles:true}))}',value)
+    page.wait_for_timeout(300)
+    ok('black on white is exactly 21:1 and passes every reference level',
+       page.locator('.ui-contrast-figures strong').inner_text()=='21:1' and page.locator('.ui-contrast-figures .pill.good').count()==3)
+    # --- the Lab on phones: every stage, both widths ---
+    for width in [390,320]:
+        lab=browser.new_context(viewport={'width':width,'height':860},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
+        lab.on('pageerror',lambda e:errors.append(str(e)))
+        lab.goto(BASE+'/ko/game/ui-lab/',wait_until='networkidle')
+        lab.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
+        lab.locator('#nsCanvas').wait_for(timeout=60000);lab.wait_for_timeout(400)
+        for stage in ['slice','states','atlas','font','check']:
+            lab.locator(f'[data-action="ui-stage"][data-stage="{stage}"]').click();lab.wait_for_timeout(500)
+            ok(f'UI Lab {stage} stage has no horizontal scroll at {width}px',
+               lab.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'),
+               str(lab.evaluate('()=>[document.documentElement.scrollWidth,window.innerWidth]')))
+        lab.close()
+    # === end UI Lab ==========================================================================
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

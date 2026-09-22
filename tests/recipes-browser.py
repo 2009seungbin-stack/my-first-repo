@@ -103,7 +103,7 @@ with sync_playwright() as pw:
     a,b=[rgba_image(z,f'frames/frame-{i:03}.png') for i in [1,2]]
     ok('frame normalization uses common canvas and identical bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8);p.close()
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
-    p=ctx.new_page();p.goto('http://127.0.0.1:4173/en/sprite-sheet-maker/',wait_until='networkidle')
+    p=ctx.new_page();p.goto(os.environ.get('TEST_URL','http://127.0.0.1:4173')+'/en/sprite-sheet-maker/',wait_until='networkidle')
     p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()
     p.locator('[data-key="layout"][data-value="grid"]').click();p.locator('[data-key="padding"][data-value="2"]').click();p.locator('#optionsAdvanced, .options-advanced').first.evaluate('d=>d.open=true');p.fill('#atlasColumns','2');p.locator('#atlasTrim').uncheck();p.wait_for_timeout(300)
     with p.expect_download() as d:p.locator('#atlasRun').click()
@@ -125,7 +125,14 @@ with sync_playwright() as pw:
     p.close()
     logo=png(9,9,'white',[((1,1,7,7),'black'),((3,3,5,5),'white')]);p=open_tool(ctx,'remove-white-background-from-logo',[('logo.png',logo)])
     im=Image.open(output(p,'logo-transparent.png')).convert('RGBA');ok('connected background removal retains enclosed white logo detail',im.getpixel((0,0))[3]==0 and im.getpixel((4,4))==(255,255,255,255));p.close()
-    p=open_tool(ctx,'bitmap-font-maker',[('font.png',png(16,8,'white'))]);options(p,{'cellW':8,'cellH':8,'chars':'Aあ','baseline':6});z=archive(output(p,'bitmap-font.zip'))
+    # The bitmap-font URL now opens UI Lab at its Font stage (src/task/ui-lab.js, docs/UI-LAB.md);
+    # the fixed-grid guarantee this check was written for is unchanged, so it is driven there.
+    p=mount(ctx,'/en/bitmap-font-maker/');p.locator('#fileInput').set_input_files([{'name':'font.png','mimeType':'image/png','buffer':png(16,8,'white')}])
+    p.locator('#rc-chars').wait_for(timeout=60000)
+    for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','6'),('#rc-chars','Aあ')]:p.locator(field).fill(value)
+    p.wait_for_timeout(500)
+    with p.expect_download() as d:p.locator('[data-action="ui-export-font"]').click()
+    z=archive(d.value.path())
     meta=json.loads(z.read('font.json'));fnt=z.read('font.fnt').decode()
     ok('BMFont and JSON contain exact Unicode glyph coordinates','char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and rgba_image(z,'font.png').size==(16,8));p.close()
     # Mask packing is a single-task page now (src/task/mask-packer.js): the channel dropdowns keep
