@@ -28,6 +28,33 @@ Reviewed 2026-09-21 against the pinned packages/model cards. Library and model l
 
 Swin2SR: Conde et al., *Swin2SR: SwinV2 Transformer for Compressed Image Super-Resolution and Restoration* (2022). BiRefNet: Zheng et al., *Bilateral Reference for High-Resolution Dichotomous Image Segmentation* (2024). No BRIA noncommercial weights were added.
 
+## PDF password handling adds no dependency (reviewed 2026-09-22)
+
+`pdf/protect` and `pdf/unlock` needed encryption, which pdf-lib cannot do. Two candidate
+dependencies were considered and both rejected: a qpdf WebAssembly build (`@neslinesli93/qpdf-wasm`
+0.3.0, `@jspawn/qpdf-wasm` 0.0.2, `qpdf-wasm` 0.1.0 — qpdf is Apache-2.0) would have added a
+multi-megabyte binary to a page whose whole optional asset budget is under 100 KB, and loading it
+from cdn.jsdelivr.net at runtime would make a core feature depend on a third-party CDN being up.
+
+Instead `src/pdf-crypt.js` implements the ISO 32000 standard security handler directly:
+algorithms 2, 2.A, 2.B and 7–13, with SHA-256/384/512 and AES-256-CBC taken from the browser's own
+`crypto.subtle`. WebCrypto always applies PKCS#7 padding, so the no-padding CBC that the
+specification needs is obtained by dropping the extra ciphertext block on encryption and, on
+decryption, by appending one block crafted to decrypt into a full pad block.
+MD5 (RFC 1321) and RC4 are implemented in the file because WebCrypto refuses both by design and
+revision 2–4 documents require them to be *read*; nothing we write uses either. They are checked
+against the RFC 1321 test suite and the published RC4 vectors in `tests/pdf-browser.mjs`.
+No new package, no new CDN origin, no change to the CSP, and no code under a new licence: the file
+is first-party and covered by this repository's own terms.
+
+`src/pdf-secure.js` writes revision 6 (AES-256) through pdf-lib and removes passwords with its own
+byte-level object rewriter, because pdf-lib cannot parse the compressed object streams that
+encrypted output from Acrobat, qpdf and MuPDF contains. Verified against pypdf 6.19.0 and
+PyMuPDF 1.28 as independent readers: protected files are refused without the password, accept the
+user and owner passwords, and carry only the permissions selected; unlocked files open with no
+password and render pixel-identically to the original. Certificate and custom security handlers,
+and object streams compressed with anything other than Flate, are refused rather than guessed at.
+
 ## Static delivery, source availability and security
 
 `npm ci --ignore-scripts` and `npm run vendor` reproduce locally served optional bundles. `assets/vendor/manifest.json` records SHA-256, version and license. Cloudflare's existing `SKIP_DEPENDENCY_INSTALL=true` build remains possible because these assets are checked in. The initial page does not import AI, PDF, video or codec bundles. Pica runtime assets total 97,445 bytes, loaded on first resampling use.

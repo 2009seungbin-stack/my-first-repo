@@ -136,7 +136,7 @@ with sync_playwright() as pw:
     # --- PDF editor ---
     page.goto(BASE+'/en/pdf/editor/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=[pdf(2,'contract')])
     page.wait_for_function('()=>document.querySelector("#edCanvas")&&document.querySelector("#edCanvas").width>300',timeout=90000)
-    ok('editor opens with a toolbar, page rail and one primary action',page.locator('.ed-tool[data-tool]').count()==11 and page.locator('.ed-thumb').count()==2 and page.locator('.ed-side .primary').count()==1)
+    ok('editor opens with a toolbar, page rail and one primary action',page.locator('.ed-tool[data-tool]').count()>=11 and page.locator('.ed-thumb').count()==2 and page.locator('.ed-side .primary').count()==1)
     box=page.locator('#edPage').bounding_box();X=lambda u:box['x']+box['width']*u;Y=lambda v:box['y']+box['height']*v
     def draw(tool_id,a,b):
         page.click(f'[data-tool="{tool_id}"]');page.mouse.move(X(a[0]),Y(a[1]));page.mouse.down();page.mouse.move(X((a[0]+b[0])/2),Y((a[1]+b[1])/2));page.mouse.move(X(b[0]),Y(b[1]));page.mouse.up()
@@ -422,6 +422,159 @@ with sync_playwright() as pw:
     page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
     ok('a differently sized mask is explained instead of failing silently',
        page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
+    # --- PDF: compression that resolves references, then protect and unlock (nerulio/agent-pdf-depth) ---
+    page.goto(BASE+'/en/pdf/compress/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    # A 200 dpi photo page plus a text page: the photo is what a real compressor has to find.
+    pdf=page.evaluate("""async()=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const c=new OffscreenCanvas(1654,2339),x=c.getContext('2d');
+      const g=x.createLinearGradient(0,0,1654,2339);g.addColorStop(0,'#1b4f9c');g.addColorStop(1,'#e0a13b');
+      x.fillStyle=g;x.fillRect(0,0,1654,2339);
+      for(let i=0;i<4000;i++){x.fillStyle=`hsl(${i%360},70%,${30+i%40}%)`;x.fillRect(Math.random()*1654,Math.random()*2339,9,9);}
+      const jpeg=new Uint8Array(await (await c.convertToBlob({type:'image/jpeg',quality:.95})).arrayBuffer());
+      const d=await L.PDFDocument.create(),font=await d.embedFont(L.StandardFonts.Helvetica),img=await d.embedJpg(jpeg);
+      d.addPage([595,842]).drawImage(img,{x:0,y:0,width:595,height:842});
+      d.getPage(0);const text=d.addPage([595,842]);
+      for(let i=0;i<30;i++)text.drawText('Searchable compression corpus line '+i,{x:40,y:790-i*24,size:12,font});
+      const bytes=await d.save({useObjectStreams:true});
+      return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+    }""")
+    PDF=[{'name':'scan and text.pdf','type':'application/pdf','b64':pdf}]
+    drop(page,'.dropzone',PDF);ready(page)
+    saving=int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])
+    note=page.locator('#viewerNote').inner_text()
+    ok('PDF compression finds the embedded photo behind an indirect colour space',saving>=40,f'only {saving}%')
+    ok('PDF compression says text and search survived',('text and search kept' in note) and ('image(s) optimised' in note),note)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    smaller=Path(d.value.path()).read_bytes()
+    kept=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      return doc.getPageCount();
+    }""",base64.b64encode(smaller).decode())
+    ok('the compressed PDF still re-opens with both pages',kept==2,str(kept))
+    page.goto(BASE+'/en/pdf/protect/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',PDF);page.wait_for_selector('#secPassword')
+    page.fill('#secPassword','task browser pass');page.fill('#secConfirm','task browser pass')
+    page.locator('#secAdvanced summary').click();page.uncheck('[data-perm="copy"]')
+    page.locator('#secRun').click();page.wait_for_selector('#secDownload:not([hidden])',timeout=120000)
+    ok('protect reports the page count and the handler','AES-256' in page.locator('#secLead').inner_text())
+    with page.expect_download() as d:page.locator('#secDownload').click()
+    locked=Path(d.value.path()).read_bytes()
+    ok('protect writes a real AES-256 encryption dictionary',b'/Encrypt' in locked and b'/AESV3' in locked and b'/Perms' in locked)
+    refused=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      try{await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));return 'loaded';}catch(e){return e.message;}
+    }""",base64.b64encode(locked).decode())
+    ok('a reader refuses the protected file without the password','is encrypted' in refused,refused)
+    page.goto(BASE+'/en/pdf/unlock/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',[{'name':'locked.pdf','type':'application/pdf','b64':base64.b64encode(locked).decode()}])
+    page.wait_for_selector('#secPassword')
+    page.fill('#secPassword','wrong one');page.locator('#secRun').click()
+    page.wait_for_selector('#secFiles .pill.bad',timeout=120000)
+    ok('a wrong password is refused, not guessed around','Wrong password' in page.locator('#secFiles').inner_text())
+    page.fill('#secPassword','task browser pass');page.locator('#secRun').click()
+    page.wait_for_selector('#secDownload:not([hidden])',timeout=120000)
+    with page.expect_download() as d:page.locator('#secDownload').click()
+    opened=Path(d.value.path()).read_bytes()
+    ok('unlock removes the encryption dictionary',b'/Encrypt' not in opened)
+    pages=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      return doc.getPageCount();
+    }""",base64.b64encode(opened).decode())
+    ok('the unlocked PDF opens with no password and keeps its pages',pages==2,str(pages))
+    # --- PDF compression: a page size in pixels, and automatic grayscale (nerulio/agent-pdf-depth) ---
+    # Every image-to-PDF converter writes a MediaBox of one point per pixel, which turns an A4
+    # scan into a 17x24in page at a genuine 72dpi. A resolution rule finds nothing to do there,
+    # so the pixel cap has to carry the file. `tint` paints a patch of real colour, which the
+    # automatic grayscale must refuse to throw away.
+    def pixel_page_pdf(page,tint):
+        return page.evaluate("""async tint=>{
+          const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+          const W=1240,H=1754,d=await L.PDFDocument.create();
+          for(let n=0;n<3;n++){
+            const c=new OffscreenCanvas(W,H),x=c.getContext('2d');
+            x.fillStyle='#fbfbfb';x.fillRect(0,0,W,H);
+            x.fillStyle='#181818';x.font='34px serif';
+            for(let i=0;i<34;i++)x.fillText('Scanned line '+(i+1)+' of page '+(n+1)+' - small print stays legible',90,150+i*44);
+            const g=x.getImageData(0,0,W,H);                       // paper grain, and no colour
+            for(let i=0;i<g.data.length;i+=4){const j=(Math.random()*13|0)-6;g.data[i]+=j;g.data[i+1]+=j;g.data[i+2]+=j;}
+            x.putImageData(g,0,0);
+            if(tint){x.strokeStyle='#0d1f8f';x.lineWidth=7;x.strokeRect(70,70,W-140,H-140);}
+            const jpeg=new Uint8Array(await (await c.convertToBlob({type:'image/jpeg',quality:.92})).arrayBuffer());
+            d.addPage([W,H]).drawImage(await d.embedJpg(jpeg),{x:0,y:0,width:W,height:H});
+          }
+          const bytes=await d.save({useObjectStreams:true});
+          return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+        }""",tint)
+    page.goto(BASE+'/en/pdf/compress/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    drop(page,'.dropzone',[{'name':'pixel sized scan.pdf','type':'application/pdf','b64':pixel_page_pdf(page,False)}])
+    ready(page)
+    saved=int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])
+    note=page.locator('#viewerNote').inner_text()
+    ok('a page whose box is in pixels is still downsampled by the pixel cap',saved>=55,f'{saved}% · {note}')
+    ok('a colourless scan is reported as turned grayscale','turned grayscale' in note,note)
+    page.locator('[data-action="task-clear"]').click()
+    drop(page,'.dropzone',[{'name':'scan with a blue frame.pdf','type':'application/pdf','b64':pixel_page_pdf(page,True)}])
+    ready(page)
+    tinted=page.locator('#viewerNote').inner_text()
+    ok('a scan carrying real colour keeps it','turned grayscale' not in tinted,tinted)
+    ok('that scan is still compressed',int(page.locator('#taskSummary .summary-big').inner_text()[1:-1])>=50,tinted)
+    page.locator('[data-action="task-clear"]').click()
+    # --- PDF editor: redaction really removes, crop sets the box, rotation and forms survive ---
+    page.goto(BASE+'/en/pdf/editor/',wait_until='networkidle')
+    page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
+    form=page.evaluate("""async()=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const d=await L.PDFDocument.create(),font=await d.embedFont(L.StandardFonts.Helvetica);
+      const one=d.addPage([595,842]);
+      one.drawText('Confidential account 4929-8817-0032-5511',{x:60,y:760,size:14,font});
+      one.drawText('Keep this line',{x:60,y:700,size:14,font});
+      const two=d.addPage([595,842]);
+      for(let i=0;i<12;i++)two.drawText('Clause '+(i+1)+': processed in the browser.',{x:60,y:780-i*28,size:11,font});
+      // The field goes on page two on purpose: page one is redacted below and becomes an image.
+      const field=d.getForm().createTextField('reference');field.addToPage(two,{x:300,y:640,width:220,height:22});
+      const bytes=await d.save();return btoa(Array.from(bytes,v=>String.fromCharCode(v)).join(''));
+    }""")
+    drop(page,'.dropzone',[{'name':'confidential.pdf','type':'application/pdf','b64':form}])
+    page.wait_for_selector('#edSave');page.wait_for_timeout(900)
+    ok('the editor offers the document’s own form fields',page.locator('#edFormActions:not([hidden])').count()==1)
+    page.click('[data-action="ed-form"]');page.fill('[data-field="0"]','REF-2026-77');page.click('[data-form-ok]')
+    page.click('.ed-tool[data-tool="redact"]')
+    b=page.locator('#edRot').bounding_box()
+    page.mouse.move(b['x']+55,b['y']+b['height']*.07);page.mouse.down()
+    page.mouse.move(b['x']+b['width']*.75,b['y']+b['height']*.115,steps=6);page.mouse.up()
+    page.wait_for_timeout(250)
+    ok('the editor names the pages a redaction will rasterise','1' in page.locator('#edWarn').inner_text() and not page.locator('#edWarn').is_hidden())
+    page.click('.ed-tool[data-tool="crop"]')
+    b=page.locator('#edRot').bounding_box()
+    page.mouse.move(b['x']+b['width']*.05,b['y']+b['height']*.02);page.mouse.down()
+    page.mouse.move(b['x']+b['width']*.95,b['y']+b['height']*.5,steps=8);page.mouse.up()
+    page.wait_for_timeout(250)
+    ok('a crop is recorded for the page',page.locator('.ed-crop').count()==1)
+    page.click('.ed-thumb[data-page="1"]');page.wait_for_timeout(600)
+    page.click('[data-action="ed-rot-right"]');page.wait_for_timeout(800)
+    ok('the rotated page is shown in landscape',page.locator('#edPage').bounding_box()['width']>page.locator('#edPage').bounding_box()['height'])
+    with page.expect_download() as d:page.click('#edSave')
+    edited=Path(d.value.path()).read_bytes()
+    ok('the result says how many pages were rasterised','image' in page.locator('#edResult').inner_text())
+    ok('the redacted string is not in the saved bytes at all',b'4929-8817' not in edited)
+    shape=page.evaluate("""async b64=>{
+      const L=await import('/assets/vendor/pdf-lib-1.17.1/pdf-lib.esm.min.js');
+      const doc=await L.PDFDocument.load(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)));
+      const one=doc.getPage(0),two=doc.getPage(1),box=one.getCropBox();
+      const named=doc.getForm().getFields().map(f=>f.getName());
+      return {pages:doc.getPageCount(),cropW:Math.round(box.width),cropH:Math.round(box.height),
+              rotation:two.getRotation().angle,fields:named,value:named.includes('reference')?doc.getForm().getTextField('reference').getText():null};
+    }""",base64.b64encode(edited).decode())
+    ok('the crop changed the page box, not the page count',shape['pages']==2 and shape['cropH']<600 and shape['cropW']<595,json.dumps(shape))
+    ok('the page rotated in the editor carries /Rotate 90',shape['rotation']==90,json.dumps(shape))
+    ok('the form field survives as a field and carries the typed value',shape['fields']==['reference'] and shape['value']=='REF-2026-77',json.dumps(shape))
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

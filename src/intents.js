@@ -18,6 +18,8 @@ export const INTENTS=Object.freeze({
  'pdf-merge':spec('pdf/merge','pdf','','plus','pdf','pdf',['pdf-compress','pdf-split','pdf-to-jpg']),
  'pdf-split':spec('pdf/split','pdf','export','scissors','pdf','pdf',['pdf-merge','pdf-compress','pdf-to-jpg']),
  'pdf-compress':spec('pdf/compress','pdf','export','download','pdf','pdf',['pdf-split','pdf-to-jpg','pdf']),
+ 'pdf-protect':spec('pdf/protect','pdf','export','pdf','pdf','pdf',['pdf-compress','pdf-merge','pdf']),
+ 'pdf-unlock':spec('pdf/unlock','pdf','export','pdf','pdf','pdf',['pdf-compress','pdf-merge','pdf']),
  'jpg-to-pdf':spec('jpg-to-pdf','pdf','','pdf','pdf','image',['pdf-merge','pdf-split','pdf-compress']),
  'pdf-to-jpg':spec('pdf-to-jpg','pdf','export','image','pdfImages','pdf',['pdf','pdf-split','pdf-compress']),
  media:spec('media','media','export','media','media','media',['video-frame','video-mp3','video-gif']),
