@@ -49,6 +49,7 @@ export function commandPalette(host,{t,list,run}){
   if(e.key==='ArrowDown'){e.preventDefault();active=Math.min(items.length-1,active+1);mark();}
   else if(e.key==='ArrowUp'){e.preventDefault();active=Math.max(0,active-1);mark();}
   else if(e.key==='Enter'){e.preventDefault();pick(active);}
+  else if(e.key==='Escape'){e.preventDefault();m.close(null);}// a search field would only clear itself
  });
  render();input.focus();
  return m;

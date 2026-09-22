@@ -131,6 +131,14 @@ test('history: drag commands merge into one step; a merge back to the start remo
  const h3=new History({x:0});h3.execute(edit('a',()=>({x:5}),{mergeKey:'k'}));const same=h3.doc;
  h3.execute(edit('b',()=>h3.entries[0].before,{mergeKey:'k'}));assert.equal(h3.entries.length,0);assert.notEqual(h3.doc,same);
 });
+test('history: abort cancels an open drag entirely (Escape), but never a closed step',()=>{
+ const h=new History({x:0});
+ h.execute(edit('a',()=>({x:1})));
+ for(let x=2;x<6;x++)h.execute(edit('drag',()=>({x}),{mergeKey:'g',open:true}));
+ assert.equal(h.entries.length,2);assert(h.abort('g'));assert.deepEqual(h.doc,{x:1});assert.equal(h.entries.length,1);
+ assert(!h.abort('g'),'nothing open any more');
+ h.execute(edit('drag',()=>({x:9}),{mergeKey:'k',open:true}));h.close('k');assert(!h.abort('k'));assert.equal(h.doc.x,9);
+});
 test('history: custom do/undo commands, limit, listeners',()=>{
  const log=[],h=new History(null,{limit:3});let events=0;h.subscribe(()=>events++);
  for(let i=0;i<5;i++)h.execute({label:'c'+i,do:()=>log.push('do'+i),undo:()=>log.push('undo'+i)});
@@ -244,6 +252,15 @@ test('studio strings exist in ko, en and ja with the same keys and placeholders'
   for(const k of en)assert(!/[가-힣]/.test(st('ja',k)),`ja has Hangul in ${k}`);
  }
  assert.equal(st('en','status.zoom',{z:'400'}),'400%');assert.equal(st('xx','menu.file'),st('en','menu.file'));
+});
+test('studio route exists in every language, is noindex, app-only and outside the sitemap',async()=>{
+ const {ALL_ROUTES,entry,sitemap}=await import('../tools/build.mjs');
+ const {readFile}=await import('node:fs/promises');const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ for(const r of ['game/studio','ko/game/studio','en/game/studio','ja/game/studio'])assert(ALL_ROUTES.includes(r),r);
+ const ko=entry(html,'ko/game/studio','https://example.test/');
+ assert(ko.includes('<html lang="ko">')&&ko.includes('noindex,nofollow')&&ko.includes('src/studio/main.js')&&ko.includes('<base href="../../../">'));
+ assert(!ko.includes('page-header')&&!ko.includes('siteContent')&&!ko.includes('adsbygoogle')&&!/<script(?![^>]*\bsrc=)/.test(ko),'no site chrome, no inline script');
+ assert(!sitemap('https://example.test/').includes('game/studio'));
 });
 test('workspace registry validates plug-ins and keeps registration order',()=>{
  const r=new WorkspaceRegistry();

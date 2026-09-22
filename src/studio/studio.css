@@ -263,6 +263,7 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
 .studio[data-mode="compact"] .st-toolbar .st-grow{display:none}
 .studio[data-mode="compact"] .st-slot-renderer,.studio[data-mode="compact"] .st-slot-memory,.studio[data-mode="compact"] .st-slot-image{display:none}
 .studio[data-mode="compact"] .st-hud{bottom:8px;right:8px}
+.studio[data-mode="compact"] .st-toast{top:calc(var(--top-h) + 8px);bottom:auto}
 .studio[data-mode="compact"] .st-hud .st-icon-btn,.studio[data-mode="compact"] .st-hud-zoom{height:34px}
 .studio[data-mode="compact"] .st-hud .st-icon-btn{width:34px}
 .studio[data-mode="compact"] .st-sheet{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:calc(var(--status-h) + 46px);height:min(62vh,520px);background:var(--bg-1);border-top:1px solid var(--line-2);border-radius:12px 12px 0 0;box-shadow:0 -12px 30px rgba(0,0,0,.45);transform:translateY(calc(100% + 80px));transition:transform .18s ease;z-index:30}

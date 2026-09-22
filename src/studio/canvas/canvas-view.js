@@ -131,7 +131,9 @@ export class ShapeLayer{
   const normal=new Path2D(),sel=new Path2D();let labels=0;
   for(const i of ids){const r=this.rects[i],p=this.selected.has(r.id)?sel:normal;const x=X(r.x),y=Y(r.y),w=X(r.x+r.w)-x,h=Y(r.y+r.h)-y;p.rect(x+.5,y+.5,Math.max(0,w-1),Math.max(0,h-1));}
   if(this.fill){ctx.fillStyle=this.fill;ctx.fill(normal);}
-  ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.45)';ctx.stroke(normal);// dark halo keeps light outlines readable on light art
+  // dark halo keeps light outlines readable on light art; with thousands on screen the boxes are a
+  // texture anyway, and the halo would double the stroke cost
+  if(ids.length<=1500){ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.45)';ctx.stroke(normal);}
   ctx.lineWidth=1;ctx.strokeStyle=this.color;ctx.stroke(normal);
   if(this.selected.size){ctx.lineWidth=Math.max(2,Math.round(2*dpr));ctx.strokeStyle='rgba(0,0,0,.6)';ctx.stroke(sel);ctx.lineWidth=Math.max(1,Math.round(dpr));ctx.strokeStyle=this.selectedColor;ctx.stroke(sel);}
   const hov=this.hover&&this.byId.get(this.hover);
