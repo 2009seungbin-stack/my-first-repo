@@ -101,8 +101,10 @@ export function glyphBounds(data,w,h,cell,threshold=8){
 export function gridFont({width,height,cellW,cellH,chars,baseline,image='font.png',face='Nerulio Grid',spacing=0}){
  const list=Array.from(chars||'');
  if(!Number.isSafeInteger(cellW)||!Number.isSafeInteger(cellH)||cellW<1||cellH<1)throw Error('Invalid cell size');
- if(width%cellW||height%cellH)throw Error('Cell size must divide the sheet exactly');
- const columns=width/cellW,cells=columns*(height/cellH);
+ // Real font sheets often end in a strip narrower than a cell (a 128px sheet of 18 7px glyphs);
+ // that strip is not a glyph, so the grid is whole cells from the top-left and the rest is ignored.
+ if(cellW>width||cellH>height)throw Error('The cell is larger than the sheet');
+ const columns=Math.floor(width/cellW),cells=columns*Math.floor(height/cellH);
  if(!list.length||list.length>cells||new Set(list).size!==list.length)throw Error('Character order must be nonempty, unique, and fit the grid');
  const base=baseline??cellH;
  if(!Number.isInteger(base)||base<0||base>cellH)throw Error('Invalid baseline');

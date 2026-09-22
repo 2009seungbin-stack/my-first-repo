@@ -34,7 +34,11 @@ test('a fixed grid font keeps the exact Unicode glyph coordinates it always had'
  assert.deepEqual([f.lineHeight,f.baseline,f.width,f.height],[8,6,16,8]);
  assert.throws(()=>gridFont({width:16,height:8,cellW:8,cellH:8,chars:'AA'}),/unique/);
  assert.throws(()=>gridFont({width:16,height:8,cellW:8,cellH:8,chars:'ABC'}),/fit the grid/);
- assert.throws(()=>gridFont({width:9,height:8,cellW:8,cellH:8,chars:'A'}),/divide/);
+ // A sheet may end in a strip narrower than a cell (a 128px sheet of 18 glyphs 7px wide, as
+ // OpenGameArt's oldschool charmap is): the grid is whole cells, the strip is ignored.
+ assert.deepEqual(gridFont({width:9,height:8,cellW:8,cellH:8,chars:'A'}).glyphs.map(g=>[g.x,g.w]),[[0,8]]);
+ assert.throws(()=>gridFont({width:9,height:8,cellW:8,cellH:8,chars:'AB'}),/fit the grid/);
+ assert.throws(()=>gridFont({width:6,height:8,cellW:8,cellH:8,chars:'A'}),/larger than the sheet/);
  assert.throws(()=>gridFont({width:16,height:8,cellW:8,cellH:8,chars:'A',baseline:9}),/baseline/);
 });
 test('a measured font takes its advances from the alpha of each cell',()=>{
