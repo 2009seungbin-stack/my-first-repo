@@ -25,6 +25,127 @@ export const TOOLS = Object.freeze({
       "palette-swap"
     ]
   },
+  "sprite-lab": {
+    "path": "game/sprite-lab",
+    "category": "game",
+    "icon": "pack",
+    "title": [
+      "스프라이트 랩",
+      "Sprite Lab",
+      "スプライトラボ"
+    ],
+    "description": [
+      "시트 한 장으로 자르기·정렬·애니메이션·기준점·히트박스·아틀라스까지 한 화면에서.",
+      "Slice, align, animate, set pivots and hitboxes and pack an atlas — one sheet, one screen.",
+      "1枚のシートで分割・整列・アニメ・基準点・ヒットボックス・アトラスまで1画面で。"
+    ],
+    "limit": [
+      "떨어진 조각은 거리 기준으로 합칩니다. 겹친 캐릭터를 의미적으로 구분하지 않고, 회전 패킹은 지원하지 않습니다. Unity 가져오기는 검증되지 않았습니다.",
+      "Detached parts are merged by distance. Overlapping characters are not semantically separated, rotated packing is not supported, and the Unity importer is UNVERIFIED.",
+      "離れた部品は距離で結合します。重なったキャラクターの意味的な分離や回転パッキングには非対応で、Unityの取り込みは未検証です。"
+    ],
+    "next": [
+      "sprite-sheet-maker",
+      "palette-swap",
+      "pixel"
+    ]
+  },
+  "sprite-pivot-editor": {
+    "path": "game/sprite-pivot-editor",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "기준점 편집",
+      "Sprite Pivot Editor",
+      "基準点エディター"
+    ],
+    "description": [
+      "프레임마다 기준점을 프리셋·드래그·숫자로 정하고 내보내기에 그대로 담으세요.",
+      "Set each frame's pivot by preset, by dragging or by number, and carry it into the export.",
+      "フレームごとの基準点をプリセット・ドラッグ・数値で決め、書き出しにそのまま含めます。"
+    ],
+    "limit": [
+      "경계 상자 기준입니다. 발 위치를 인식하지는 않습니다.",
+      "Bounding-box based: this is not foot detection.",
+      "境界ボックス基準です。足の位置を検出するわけではありません。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-sheet-maker"
+    ]
+  },
+  "sprite-animation-preview": {
+    "path": "game/sprite-animation-preview",
+    "category": "game",
+    "icon": "media",
+    "title": [
+      "스프라이트 애니메이션 미리보기",
+      "Sprite Animation Preview",
+      "スプライトアニメのプレビュー"
+    ],
+    "description": [
+      "FPS·프레임별 길이·정방향·역방향·왕복 재생을 보고 흔들림을 그래프로 확인하세요.",
+      "Play at an fps or per-frame timing, forward, reverse or ping-pong, and see jitter as a graph.",
+      "FPS・フレームごとの長さ・順再生・逆再生・往復を確認し、ぶれをグラフで見られます。"
+    ],
+    "limit": [
+      "흔들림 측정은 알파 기준입니다. 보정은 정수 픽셀 이동만 합니다.",
+      "Jitter is measured from alpha, and the fix only moves whole pixels.",
+      "ぶれの測定はアルファ基準で、補正は整数ピクセル移動のみです。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-slicer"
+    ]
+  },
+  "collision-polygon-generator": {
+    "path": "game/collision-polygon-generator",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "충돌 다각형 만들기",
+      "Collision Polygon Generator",
+      "衝突ポリゴン生成"
+    ],
+    "description": [
+      "알파 실루엣에서 충돌 다각형을 만들고 꼭짓점 수와 오차를 숫자로 확인하세요.",
+      "Trace collision polygons from the alpha silhouette and see the vertex count and the error.",
+      "アルファのシルエットから衝突ポリゴンを作り、頂点数と誤差を数値で確認します。"
+    ],
+    "limit": [
+      "볼록 분해는 하지 않습니다. 볼록 도형이 필요하면 볼록 외피를 쓰세요.",
+      "No convex decomposition: use the convex hull when an engine needs convex shapes.",
+      "凸分解は行いません。凸形状が必要な場合は凸包を使ってください。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-sheet-maker"
+    ]
+  },
+  "hitbox-editor": {
+    "path": "game/hitbox-editor",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "히트박스 편집",
+      "Hitbox Editor",
+      "ヒットボックス編集"
+    ],
+    "description": [
+      "히트·피격·상호작용 박스를 프레임 구간에 넣고 타임라인으로 확인하세요.",
+      "Put hit, hurt and interact boxes on a range of frames and check them on a timeline.",
+      "ヒット・被弾・インタラクトのボックスをフレーム範囲に置き、タイムラインで確認します。"
+    ],
+    "limit": [
+      "박스는 직접 정합니다. 자동으로 찾아 주지는 않습니다.",
+      "Boxes are placed by you; nothing is detected automatically.",
+      "ボックスは手動で配置します。自動検出は行いません。"
+    ],
+    "next": [
+      "sprite-lab",
+      "sprite-animation-preview"
+    ]
+  },
   "sprite-slicer": {
     "path": "sprite-slicer",
     "category": "game",
@@ -557,6 +678,235 @@ export const TOOLS = Object.freeze({
     "description": ["확대된 스프라이트의 실제 도트 크기와 격자 어긋남, 흐린 경계, 색 수를 측정하세요.","Measure an upscaled sprite’s real pixel size, grid offset, blurred edges and colour count.","拡大されたスプライトの実際のドットサイズ・格子ずれ・ぼけた境界・色数を測定。"],
     "limit": ["정수 블록 격자만 정확히 증명합니다. 비정수 배율은 런 길이로 추정해 보고만 합니다.","Only an integer block grid is proven exactly; a non-integer factor is reported as a run-length estimate, not a fact.","正確に証明できるのは整数ブロック格子のみです。非整数倍率はラン長からの推定として報告します。"],
     "next": ["pixel-lab","pixel-art-cleanup","refiner"]
+  },
+  "tile-lab": {
+    "path": "game/tile-lab",
+    "category": "game",
+    "icon": "crop",
+    "lab": true,
+    "title": [
+      "타일셋 작업실",
+      "Tile Lab",
+      "タイルセット工房"
+    ],
+    "description": [
+      "타일 격자 추정·분리부터 오토타일 규칙 시험과 이음새 검사까지 한 화면에서.",
+      "Measure the grid, slice tiles, test autotile rules and check seams in one workspace.",
+      "格子の推定・分割からオートタイル規則の検証・継ぎ目チェックまで1画面で。"
+    ],
+    "limit": [
+      "규칙을 시험하는 도구입니다. 타일 그림을 대신 그려 주지는 않습니다. Godot 도우미의 검증 표시를 확인하세요.",
+      "It tests rules; it does not draw tile art for you. Check the Godot helper's verification note before trusting it.",
+      "規則を検証するツールで、タイルの絵は描きません。Godotヘルパーの検証状況を確認してください。"
+    ],
+    "next": [
+      "tile-helper",
+      "atlas-padding",
+      "sprite-sheet-maker"
+    ]
+  },
+  "autotile-tester": {
+    "path": "game/autotile-tester",
+    "category": "game",
+    "icon": "pack",
+    "lab": true,
+    "title": [
+      "오토타일 규칙 시험",
+      "Autotile Tester",
+      "オートタイル検証"
+    ],
+    "description": [
+      "지형을 칠하면 3×3 최소·16장 Wang·47장 블롭 규칙이 고른 타일로 즉시 그려 봅니다.",
+      "Paint terrain and watch the 3×3 minimal, 16-tile Wang and 47-tile blob rules pick tiles live.",
+      "地形を塗ると3×3最小・16枚Wang・47枚ブロブの規則が選ぶタイルで即描画します。"
+    ],
+    "limit": [
+      "한 가지 지형만 시험합니다. 여러 지형 사이의 전환이나 엔진 내부 동작을 재현하지는 않습니다.",
+      "One terrain at a time. It does not simulate transitions between several terrains or your engine's own matching.",
+      "地形は1種類のみ。複数地形間の遷移やエンジン内部の挙動は再現しません。"
+    ],
+    "next": [
+      "tile-lab",
+      "tileset-slicer",
+      "atlas-padding"
+    ]
+  },
+  "tileset-slicer": {
+    "path": "game/tileset-slicer",
+    "category": "game",
+    "icon": "scissors",
+    "lab": true,
+    "title": [
+      "타일셋 분리",
+      "Tileset Slicer",
+      "タイルセット分割"
+    ],
+    "description": [
+      "여백·간격이 있는 타일 시트를 개별 PNG와 메타데이터 JSON으로 분리하세요.",
+      "Slice a tile sheet with margin and spacing into individual PNGs plus a metadata JSON.",
+      "余白・間隔のあるタイルシートを個別PNGとメタデータJSONに分割。"
+    ],
+    "limit": [
+      "규칙적인 격자만 다룹니다. 불규칙하게 놓인 스프라이트는 스프라이트 분리 도구를 쓰세요.",
+      "Regular grids only. Irregularly placed sprites belong in the sprite slicer.",
+      "規則的な格子のみ。不規則に配置されたスプライトはスプライト分割をご利用ください。"
+    ],
+    "next": [
+      "tile-lab",
+      "atlas-padding",
+      "sprite-slicer"
+    ]
+  },
+  "seamless-tile-checker": {
+    "path": "game/seamless-tile-checker",
+    "category": "game",
+    "icon": "image",
+    "lab": true,
+    "title": [
+      "반복 타일 이음새 검사",
+      "Seamless Tile Checker",
+      "タイルの継ぎ目チェック"
+    ],
+    "description": [
+      "2×2·3×3 반복 미리보기와 좌우·상하 경계 차이로 이음새를 확인하고 고쳐 보세요.",
+      "See a 2×2 / 3×3 repeat, measure the left↔right and top↔bottom edges, and try a seamless fix.",
+      "2×2・3×3の繰り返しと左右・上下の境界差で継ぎ目を確認し、修正も試せます。"
+    ],
+    "limit": [
+      "이음새 없애기는 그림을 실제로 바꿉니다(반 칸 이동 + 경계 혼합). 내용을 새로 만들어 채우지 않습니다.",
+      "The seamless fix alters the art (half-tile offset + cross-blend); it does not synthesise new content.",
+      "継ぎ目の修正は絵を実際に変更します（半タイル移動＋境界ブレンド）。内容の新規生成は行いません。"
+    ],
+    "next": [
+      "tile-lab",
+      "texture-map",
+      "tile-helper"
+    ]
+  },
+  "ui-lab": {
+    "path": "game/ui-lab",
+    "category": "game",
+    "icon": "outline",
+    "title": [
+      "UI 에셋 랩",
+      "UI Lab",
+      "UIアセットラボ"
+    ],
+    "description": [
+      "9슬라이스·버튼 상태·UI 아틀라스·비트맵 폰트를 한 화면에서 만들고 실제 화면 크기로 확인하세요.",
+      "Build nine-slice panels, button states, UI atlases and bitmap fonts in one workspace, then check them at real screen sizes.",
+      "9スライス・ボタン状態・UIアトラス・ビットマップフォントを一つの画面で作り、実際の画面サイズで確認。"
+    ],
+    "limit": [
+      "PNG과 JSON, BMFont 텍스트만 만듭니다. .tres·.meta 같은 엔진 리소스 파일은 만들지 않고, 엔진 안에서의 렌더링은 확인하지 않았습니다.",
+      "Writes PNG, JSON and BMFont text only. It never writes engine resource files (.tres, .meta), and rendering inside an engine was not verified here.",
+      "出力はPNG・JSON・BMFontテキストのみ。.tresや.metaなどのエンジンリソースは生成せず、エンジン内での描画は検証していません。"
+    ],
+    "next": [
+      "9-slice-editor",
+      "bitmap-font",
+      "sprite-sheet-maker"
+    ]
+  },
+  "9-slice-editor": {
+    "path": "game/9-slice-editor",
+    "category": "game",
+    "icon": "rect",
+    "title": [
+      "9슬라이스 편집기",
+      "9-Slice Editor",
+      "9スライスエディター"
+    ],
+    "description": [
+      "패널 이미지의 네 경계선을 끌어 정하고, 여러 목표 크기로 늘린 결과를 바로 확인하세요.",
+      "Drag the four borders of a panel image and see it drawn at several target sizes at once.",
+      "パネル画像の4本の境界線をドラッグで決め、複数の目標サイズでの描画をその場で確認。"
+    ],
+    "limit": [
+      "경계선 추천은 같은 열·행이 반복되는 구간을 찾는 휴리스틱입니다. 늘리기와 타일링은 브라우저 캔버스로 그립니다.",
+      "Border suggestion is a heuristic that looks for repeated columns and rows. Stretching and tiling are drawn with the browser canvas.",
+      "境界線の提案は同一の列・行が続く区間を探すヒューリスティックです。伸縮とタイルはブラウザのCanvasで描画します。"
+    ],
+    "next": [
+      "ui-lab",
+      "button-state-generator",
+      "atlas-padding"
+    ]
+  },
+  "button-state-generator": {
+    "path": "game/button-state-generator",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "버튼 상태 만들기",
+      "Button State Generator",
+      "ボタン状態を生成"
+    ],
+    "description": [
+      "버튼 하나로 기본·호버·누름·비활성·포커스 이미지를 만들고 낱장과 묶음 시트로 저장하세요.",
+      "Turn one button image into normal, hover, pressed, disabled and focus variants, as single PNGs and one packed strip.",
+      "1枚のボタン画像から通常・ホバー・押下・無効・フォーカスを作り、個別PNGとまとめたシートで保存。"
+    ],
+    "limit": [
+      "밝기·대비·채도·색 겹치기·오프셋·외곽선 같은 정해진 픽셀 연산입니다. 없는 그림을 새로 그리지는 않습니다.",
+      "Fixed pixel operations: brightness, contrast, saturation, colour overlay, offset and outline. It does not draw artwork that is not there.",
+      "明度・コントラスト・彩度・色の重ね・オフセット・アウトラインという決まった画素処理です。ない絵を描き足すことはしません。"
+    ],
+    "next": [
+      "ui-lab",
+      "9-slice-editor",
+      "sprite-sheet-maker"
+    ]
+  },
+  "missing-glyph-checker": {
+    "path": "game/missing-glyph-checker",
+    "category": "game",
+    "icon": "text",
+    "title": [
+      "빠진 글자 검사",
+      "Missing Glyph Checker",
+      "欠け文字チェック"
+    ],
+    "description": [
+      "번역 텍스트나 .txt·.json·.csv·.po를 폰트의 글자 목록과 비교해 빠진 글자와 사용 위치를 찾으세요.",
+      "Compare localisation text or a .txt/.json/.csv/.po file against a font's glyph list and find every missing character.",
+      "翻訳テキストや.txt・.json・.csv・.poをフォントの文字一覧と比較し、欠けている文字と使用箇所を確認。"
+    ],
+    "limit": [
+      "BMFont .fnt 파일이나 이 랩에서 만든 폰트의 글자 목록과 비교합니다. TTF·OTF의 cmap 표는 읽지 않습니다.",
+      "Compares against a BMFont .fnt file or a font built in this Lab. It does not read the cmap table of a TTF or OTF.",
+      "BMFontの.fntファイル、またはこのラボで作ったフォントの文字一覧と比較します。TTF・OTFのcmapテーブルは読みません。"
+    ],
+    "next": [
+      "bitmap-font",
+      "ui-lab",
+      "ui-scale-preview"
+    ]
+  },
+  "ui-scale-preview": {
+    "path": "game/ui-scale-preview",
+    "category": "game",
+    "icon": "resize",
+    "title": [
+      "UI 해상도·배율 점검",
+      "UI Scale Preview",
+      "UI解像度・倍率プレビュー"
+    ],
+    "description": [
+      "1280×720부터 4K까지, 정수 배율과 1.25·1.5·1.75배를 나란히 보고 글자 넘침과 명암비까지 확인하세요.",
+      "See a UI element from 1280×720 to 4K, integer scales next to 1.25/1.5/1.75, plus text overflow and contrast numbers.",
+      "1280×720から4Kまで、整数倍と1.25・1.5・1.75倍を並べて確認し、文字のはみ出しとコントラスト比もチェック。"
+    ],
+    "limit": [
+      "앵커와 세이프 영역은 개념 시뮬레이션이며 엔진이 실제로 계산한 레이아웃이 아닙니다. 명암비는 WCAG 공식값으로, 디자인 판정이 아닙니다.",
+      "Anchors and safe areas are a conceptual simulation, not a layout pass any engine ran. The contrast ratio is the WCAG formula, a reference number rather than a verdict.",
+      "アンカーとセーフエリアは概念的なシミュレーションで、エンジンが実際に計算したレイアウトではありません。コントラスト比はWCAGの計算値で、デザインの合否判定ではありません。"
+    ],
+    "next": [
+      "ui-lab",
+      "9-slice-editor",
+      "missing-glyph-checker"
+    ]
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));

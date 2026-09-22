@@ -117,3 +117,22 @@ export function hundredFrames(seed=11){
  for(let i=0;i<20;i++)out.push({...out[i*4],data:new Uint8ClampedArray(out[i*4].data)});
  return out;
 }
+/** The defect fixture: six characters of six different sizes, each drawn as three alpha islands —
+ * body, a hat 1–2px above it and a sword 1–2px beside it. Auto slicing must return six frames, not
+ * seventeen. The same sheet is in tests/fixtures/game/irregular-characters.png for browser checks. */
+export function charactersSheet(){
+ const sheet=canvas(320,180),chars=[
+  {x:8,y:27,w:32,h:50,gap:1,hat:[4,23,9],sword:[8,4,34]},
+  {x:55,y:102,w:34,h:61,gap:2,hat:null,sword:[18,4,37]},
+  {x:101,y:21,w:33,h:49,gap:2,hat:[4,25,8],sword:[8,4,35]},
+  {x:155,y:117,w:32,h:31,gap:2,hat:[4,24,8],sword:[8,4,17]},
+  {x:208,y:23,w:27,h:48,gap:2,hat:[4,19,8],sword:[8,4,34]},
+  {x:256,y:117,w:26,h:53,gap:2,hat:[4,18,8],sword:[8,4,39]}];
+ chars.forEach((c,i)=>{
+  const tint=[60+i*30,110+i*20,220-i*25,255];
+  box(sheet,c.x,c.y,c.w,c.h,tint);
+  if(c.hat){const [dx,w,h]=c.hat;box(sheet,c.x+dx,c.y-c.gap-h,w,h,[220,70,70,255]);}
+  const [dy,w,h]=c.sword;box(sheet,c.x+c.w+c.gap,c.y+dy,w,h,[230,230,240,255]);
+ });
+ return {...sheet,characters:chars.length};
+}

@@ -14,6 +14,11 @@ const engines = {
  'video-mp3':'ranged demux / WebCodecs / LAME WASM', 'video-gif':'WebCodecs sequential frames / gifenc adaptive palettes / measured size targets', 'video-compress':'WebCodecs bitrate and resolution control with measured size targets',
  refiner:'Oklab palette / locked colors / serpentine FS / Bayer dither',
  'sprite-slicer':'streaming run-length alpha components / box merge / margin-and-gutter grid / border colour key',
+ 'sprite-lab':'alpha components with an evidence-scored merge distance / ranked grid suggestions / integer-only normalize and jitter fix / lattice contour tracing / MaxRects multi-page packing / generic, Godot 4 and (unverified) Unity exporters',
+ 'sprite-pivot-editor':'normalised and pixel pivots carried through every integer frame shift',
+ 'sprite-animation-preview':'playbackOrder/playbackTimes stepping / Savitzky-Golay residual jitter series',
+ 'collision-polygon-generator':'pixel-lattice contour tracing / Ramer-Douglas-Peucker with a self-intersection guard / convex hull, rect and exact bounding circle fallbacks',
+ 'hitbox-editor':'per-frame box records over a playback step range',
  'frame-normalize':'streaming alpha bounds and common-canvas alignment', 'sprite-sheet-maker':'uniform grid packing',
  'palette-swap':'tiled RGB tolerance / luma offset', 'marketplace-pack':'Pica tiled fit / JPEG',
  'print-pack':'Pica tiled fit / JPEG', 'logo-bg':'border flood fill', 'bitmap-font':'fixed grid BMFont',
@@ -29,7 +34,16 @@ const engines = {
  'palette-extractor':'shared alpha-weighted histogram / Oklab median cut + Lloyd / .gpl, HEX and JSON round trip',
  'palette-swap-ramp':'OkLCh ramp position mapping / hue-window replace / index-preserving variants',
  'pixel-art-cleanup':'connected components on palette indices / Oklab segment anti-alias snap / outline run measurement',
- 'pixel-perfect-checker':'colour-change residues for integer block grids / run lengths / Oklab edge interpolation count'
+ 'pixel-perfect-checker':'colour-change residues for integer block grids / run lengths / Oklab edge interpolation count',
+ 'tile-lab':'folded transition-profile period scoring / exact region copy / autotile rule tables / alpha collision shapes',
+ 'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing / run-merged collision rectangles',
+ 'autotile-tester':'8-neighbour mask tables (3×3 minimal, 16 Wang, 47 blob) / nearest-neighbour render',
+ 'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend',
+ 'ui-lab':'nine-slice draw plan / parametric state ops / measured glyph metrics / exact EDT signed distance field',
+ '9-slice-editor':'repeated-line border suggestion / nine-slice draw plan (stretch and tile)',
+ 'button-state-generator':'brightness, contrast, saturation, overlay, offset and square outline ops / MaxRects strip',
+ 'missing-glyph-checker':'BMFont .fnt parser / per-character occurrence counts',
+ 'ui-scale-preview':'Godot-style anchor arithmetic / canvas text measurement / WCAG contrast formula'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;

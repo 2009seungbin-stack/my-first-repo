@@ -29,7 +29,8 @@ with sync_playwright() as pw:
       const files=[],examples={},wanted=only?only.split(',').filter(Boolean):null;
       const store=(c,file)=>{files.push({file,data:c.toDataURL('image/png').split(',')[1]});return {file:file.split('/').pop(),width:c.width,height:c.height};};
       for(const [id,intent] of Object.entries(INTENTS)){
-        if(wanted||id==='home'||!['image','pixel'].includes(intent.editor)||id==='heic')continue;
+        // Lab workspaces (TOOLS[id].lab) are not single-shot recipes, so they have no before/after pair.
+        if(wanted||id==='home'||!['image','pixel'].includes(intent.editor)||id==='heic'||TOOLS[id]?.lab)continue;
         let input=Im.copy(source),out=null,recipe=null;
         if(['remove-bg','logo-bg','margin-crop'].includes(id)){const x=input.getContext('2d');x.globalCompositeOperation='destination-over';x.fillStyle='#fff';x.fillRect(0,0,96,64);x.globalCompositeOperation='source-over';}
         const blob=await Im.blobOf(input),items=[{name:'geometric-sample.png',blob}];

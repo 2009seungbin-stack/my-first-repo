@@ -13,6 +13,13 @@ export const QUOTA_CLASSES=Object.freeze({
  'texture-lab':'none','channel-unpacker':'none','normal-map-converter':'none','pbr-texture-validator':'none','texture-edge-bleed':'none',
  'pixel-lab':'none','palette-extractor':'none','palette-swap-ramp':'none','pixel-art-cleanup':'none','pixel-perfect-checker':'none',
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
+ // Sprite Lab and its stage entries: geometry, records and one atlas page at a time — no API, no metering.
+ 'sprite-lab':'none','sprite-animation-preview':'none','sprite-pivot-editor':'none','hitbox-editor':'none','collision-polygon-generator':'none',
+ // Tile Lab: grid measurement, slicing and rule checks are local region copies, never metered.
+ 'tile-lab':'none','tileset-slicer':'none','autotile-tester':'none','seamless-tile-checker':'none',
+ // UI Lab: nine-slice draws, state variants, glyph measurement and layout previews are all
+ // small canvas work on one asset at a time, so none of them meter.
+ 'ui-lab':'none','9-slice-editor':'none','button-state-generator':'none','missing-glyph-checker':'none','ui-scale-preview':'none',
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.

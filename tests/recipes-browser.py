@@ -17,6 +17,7 @@ def open_tool(context,path,files):
     else:idle(page)
     return page
 def is_task(page):return page.locator('body.task-page').count()>0
+BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173')
 DONE="()=>{const b=document.querySelector('#taskDownload');return b&&!b.disabled}" 
 def options(page,values):
     if is_task(page):
@@ -76,34 +77,55 @@ with sync_playwright() as pw:
     ok('game pack ZIP preserves folder paths and all requested dimensions',all(rgba_image(z,f'{n}x{n}/asset.png').size==(n,n) for n in [16,32,64,128,47]))
     p.close()
 
-    # The sprite slicer is a single-task page now (src/task/sprite-slicer.js): frames are detected on
-    # drop with no Run button, edited on the sheet or by exact numbers, and exported as
-    # <prefix>_NNN.png + metadata.json. Same proof: the edited box decides the exported pixels.
+    # The sprite slicer and the frame normaliser are stages of the Sprite Lab now
+    # (src/task/sprite-lab.js): the old URLs open the same workspace at Slice and at Normalize,
+    # frames are detected on drop with no Run button, edited on the sheet or by exact numbers, and
+    # exported as an atlas + JSON (or per-frame PNGs). Same proofs, ported to the Lab.
     def open_task(path,files):
         page=mount(ctx,'/en/'+path+'/')
         page.locator('#fileInput').set_input_files([{'name':name,'mimeType':'image/png','buffer':buffer} for name,buffer in files])
         return page
+    def lab_download(page,action,name):
+        with page.expect_download() as event:page.locator(f'[data-action="{action}"]').click()
+        path=OUT/name;event.value.save_as(path);return path
     sheet=png(36,20,rects=[((1,2,5,8),'red'),((20,4,27,15),'green')])
     p=open_task('sprite-slicer',[('sheet.png',sheet)])
-    p.locator('#slicerSheet canvas').wait_for(timeout=60000)
+    p.locator('#labSheet canvas').wait_for(timeout=60000)
     p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
     ok('sprite detection yields two editable candidates with no Run button',p.locator('.slicer-box').count()==2 and p.locator('.frame-chip[data-id]').count()==2)
     lang(p,'ko');ok('language switch preserves candidate order',p.eval_on_selector_all('.slicer-box rect','ns=>ns.map(n=>+n.getAttribute("x"))')==[1,20])
-    p.locator('.frame-chip[data-index="1"]').click();p.fill('#slicerRectW','6');p.wait_for_timeout(400)
-    z=archive(output(p,'sliced.zip'));meta=json.loads(z.read('metadata.json'))
-    ok('edited frame crop controls actual exported pixels',rgba_image(z,'sheet_002.png').size==(6,12) and meta['frames'][1]['w']==6)
-    ok('slicer metadata is schema-versioned and in strip order',meta['schemaVersion']==1 and [f['name'] for f in meta['frames']]==['sheet_001.png','sheet_002.png'])
+    p.locator('.frame-chip[data-index="1"]').click();p.fill('#labRectW','6');p.wait_for_timeout(500)
+    p.locator('[data-action="lab-stage"][data-stage="export"]').click();p.wait_for_timeout(1200)
+    z=archive(lab_download(p,'lab-primary','sliced.zip'));meta=json.loads(z.read('atlas.json'))
+    names=list(meta['frames'])
+    ok('edited frame crop controls actual exported pixels',
+       meta['frames'][names[1]]['rect']['w']==6 and meta['frames'][names[1]]['sourceSize']=={'w':6,'h':12})
+    atlas=rgba_image(z,'atlas.png');r=meta['frames'][names[1]]['rect']
+    ok('the exported atlas region really holds the edited crop',
+       atlas.crop((r['x'],r['y'],r['x']+r['w'],r['y']+r['h'])).size==(6,12))
+    ok('the export envelope is schema-versioned and in strip order',
+       meta['meta']['schemaVersion']==1 and names==['sheet_001','sheet_002'])
+    p.locator('#optionsAdvanced').evaluate('(d)=>d.open=true')
+    z=archive(lab_download(p,'lab-frames-zip','sliced-frames.zip'))
+    ok('per-frame PNGs still carry the edited crop',rgba_image(z,'sheet_002.png').size==(6,12))
+    p.locator('[data-action="lab-stage"][data-stage="slice"]').click();p.wait_for_timeout(400)
     p.screenshot(path=str(OUT/'sprite-slicer-desktop.png'),full_page=False);p.close()
 
-    frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
-    p=open_task('normalize-sprite-frames',frames)
-    p.wait_for_function('()=>document.querySelectorAll("#normGrid canvas").length===2',timeout=60000)
-    ok('the common canvas is shown before any download',p.locator('#normSummary .summary-big').inner_text()=='6 × 8')
-    z=archive(output(p,'normalized.zip'))
-    a,b=[rgba_image(z,f'frames/frame-{i:03}.png') for i in [1,2]]
-    ok('frame normalization uses common canvas and identical bottom anchor',a.size==b.size==(6,8) and a.getbbox()[3]==b.getbbox()[3]==8);p.close()
+    p=open_task('normalize-sprite-frames',[('sheet.png',png(36,20,rects=[((2,2,7,11),'red'),((20,4,25,7),'blue')]))])
+    p.wait_for_function('()=>document.querySelectorAll("#labAfter canvas").length===2',timeout=60000)
+    ok('the common canvas is shown before any download',p.locator('#labNormSize').inner_text().startswith('6×10'))
+    p.locator('#taskDownload').click();p.wait_for_timeout(600)
+    p.locator('[data-action="lab-stage"][data-stage="export"]').click();p.wait_for_timeout(1000)
+    p.locator('#optionsAdvanced').evaluate('(d)=>d.open=true')
+    z=archive(lab_download(p,'lab-frames-zip','normalized.zip'))
+    a,b=[rgba_image(z,n) for n in sorted(z.namelist())]
+    ok('frame normalization uses common canvas and identical bottom anchor',
+       a.size==b.size==(6,10) and a.getbbox()[3]==b.getbbox()[3]==10);p.close()
+
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
-    p=ctx.new_page();p.goto('http://127.0.0.1:4173/en/sprite-sheet-maker/',wait_until='networkidle')
+    # Two separately sized frames: the normaliser above now starts from one sheet, so they are built here.
+    frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
+    p=ctx.new_page();p.goto(BASE+'/en/sprite-sheet-maker/',wait_until='networkidle')
     p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()
     p.locator('[data-key="layout"][data-value="grid"]').click();p.locator('[data-key="padding"][data-value="2"]').click();p.locator('#optionsAdvanced, .options-advanced').first.evaluate('d=>d.open=true');p.fill('#atlasColumns','2');p.locator('#atlasTrim').uncheck();p.wait_for_timeout(300)
     with p.expect_download() as d:p.locator('#atlasRun').click()
@@ -125,7 +147,14 @@ with sync_playwright() as pw:
     p.close()
     logo=png(9,9,'white',[((1,1,7,7),'black'),((3,3,5,5),'white')]);p=open_tool(ctx,'remove-white-background-from-logo',[('logo.png',logo)])
     im=Image.open(output(p,'logo-transparent.png')).convert('RGBA');ok('connected background removal retains enclosed white logo detail',im.getpixel((0,0))[3]==0 and im.getpixel((4,4))==(255,255,255,255));p.close()
-    p=open_tool(ctx,'bitmap-font-maker',[('font.png',png(16,8,'white'))]);options(p,{'cellW':8,'cellH':8,'chars':'Aあ','baseline':6});z=archive(output(p,'bitmap-font.zip'))
+    # The bitmap-font URL now opens UI Lab at its Font stage (src/task/ui-lab.js, docs/UI-LAB.md);
+    # the fixed-grid guarantee this check was written for is unchanged, so it is driven there.
+    p=mount(ctx,'/en/bitmap-font-maker/');p.locator('#fileInput').set_input_files([{'name':'font.png','mimeType':'image/png','buffer':png(16,8,'white')}])
+    p.locator('#rc-chars').wait_for(timeout=60000)
+    for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','6'),('#rc-chars','Aあ')]:p.locator(field).fill(value)
+    p.wait_for_timeout(500)
+    with p.expect_download() as d:p.locator('[data-action="ui-export-font"]').click()
+    z=archive(d.value.path())
     meta=json.loads(z.read('font.json'));fnt=z.read('font.fnt').decode()
     ok('BMFont and JSON contain exact Unicode glyph coordinates','char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and rgba_image(z,'font.png').size==(16,8));p.close()
     # Mask packing is a single-task page now (src/task/mask-packer.js): the channel dropdowns keep
@@ -137,8 +166,26 @@ with sync_playwright() as pw:
     im=Image.open(output(p,'packed-mask.png')).convert('RGBA');ok('mask PNG preserves channel bytes even under zero alpha',set(im.getdata())=={(220,10,80,0)})
     p.locator('[data-invert="0"]').check();p.wait_for_timeout(400)
     im=Image.open(output(p,'packed-mask-inverted.png')).convert('RGBA');ok('inverting a channel inverts the actual PNG bytes',set(im.getdata())=={(35,10,80,0)});p.close()
-    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_tool(ctx,'atlas-padding',[('atlas.png',atlas)])
-    options(p,{'cellW':1,'cellH':1,'padding':1});z=archive(output(p,'atlas.zip'));im=rgba_image(z,'padded-atlas.png')
+    # --- Tile Lab ports: atlas-padding and tile-grid-slicer now open Tile Lab (src/task/tile-lab.js)
+    # at its grid stage, so the same properties are asserted against the Lab's ZIP. ---
+    def open_lab(path,files,query=''):
+        page=mount(ctx,'/en/'+path+'/'+query)
+        page.locator('#fileInput').set_input_files([{'name':n,'mimeType':'image/png','buffer':b} for n,b in files])
+        page.wait_for_function("()=>document.querySelector('.tl-stages')",timeout=60000);page.wait_for_timeout(200);return page
+    def lab_set(page,values):
+        for key,value in values.items():
+            el=page.locator(f'[data-option="{key}"]')
+            el.evaluate('e=>{for(let p=e.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true}')
+            if el.get_attribute('type')=='checkbox':el.set_checked(value)
+            else:el.fill(str(value))
+            page.wait_for_timeout(150)
+        page.wait_for_timeout(200)
+    def lab_zip(page,name):
+        page.wait_for_function(DONE,timeout=120000)
+        with page.expect_download() as event:page.locator('#taskDownload').click()
+        path=OUT/name;event.value.save_as(path);return archive(path)
+    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_lab('atlas-padding',[('atlas.png',atlas)])
+    lab_set(p,{'tileWidth':1,'tileHeight':1,'extrude':1});z=lab_zip(p,'atlas.zip');im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()
     # normal-map-generator now opens Texture Lab at its Normal stage (src/task/texture-lab.js).
     # The flat-normal guarantee is unchanged; the convention it writes is stated instead of implied.
@@ -146,8 +193,8 @@ with sync_playwright() as pw:
     p.locator('#texNormalOut').wait_for(timeout=60000);p.wait_for_timeout(600)
     im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)})
     ok('the Normal stage states which convention it writes',p.locator('[data-action="tex-normal-set"][data-value="opengl"][aria-pressed="true"]').count()==1);p.close()
-    p=open_tool(ctx,'tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);options(p,{'cellW':2,'cellH':2});z=archive(output(p,'tiles.zip'))
-    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'frames/frame-002.png').size==(2,2));p.close()
+    p=open_lab('tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);lab_set(p,{'tileWidth':2,'tileHeight':2});z=lab_zip(p,'tiles.zip')
+    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'tiles/tile-001.png').size==(2,2));p.close()
     p=open_tool(ctx,'split-scanned-images',[('spread.png',png(9,4,'white'))]);options(p,{'order':'RL'});z=archive(output(p,'spread.zip'))
     ok('scan splitter respects divider rounding and right-first order',rgba_image(z,'frames/frame-001.png').size==(4,4) and rgba_image(z,'frames/frame-002.png').size==(5,4));p.close()
     p=open_tool(ctx,'auto-crop-image-margins',[('scan.png',png(10,10,'white',[((3,2,6,7),'black')]))]);options(p,{'padding':0})

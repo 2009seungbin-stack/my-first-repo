@@ -410,6 +410,106 @@ export const TOOL_MESSAGES = {
     "Create result",
     "結果を作成"
   ],
+  "intent.sprite-lab.title": [
+    "스프라이트 랩",
+    "Sprite Lab",
+    "スプライトラボ"
+  ],
+  "intent.sprite-lab.headline": [
+    "스프라이트 시트 작업 한 화면",
+    "The whole sprite-sheet workflow, one screen",
+    "スプライトシート作業をひと画面で"
+  ],
+  "intent.sprite-lab.description": [
+    "시트 한 장으로 자르기·정렬·애니메이션·기준점·히트박스·아틀라스까지 한 화면에서.",
+    "Slice, align, animate, set pivots and hitboxes and pack an atlas — one sheet, one screen.",
+    "1枚のシートで分割・整列・アニメ・基準点・ヒットボックス・アトラスまで1画面で。"
+  ],
+  "intent.sprite-lab.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.sprite-pivot-editor.title": [
+    "기준점 편집",
+    "Sprite Pivot Editor",
+    "基準点エディター"
+  ],
+  "intent.sprite-pivot-editor.headline": [
+    "기준점 편집",
+    "Sprite Pivot Editor",
+    "基準点エディター"
+  ],
+  "intent.sprite-pivot-editor.description": [
+    "프레임마다 기준점을 프리셋·드래그·숫자로 정하고 내보내기에 그대로 담으세요.",
+    "Set each frame's pivot by preset, by dragging or by number, and carry it into the export.",
+    "フレームごとの基準点をプリセット・ドラッグ・数値で決め、書き出しにそのまま含めます。"
+  ],
+  "intent.sprite-pivot-editor.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.sprite-animation-preview.title": [
+    "스프라이트 애니메이션 미리보기",
+    "Sprite Animation Preview",
+    "スプライトアニメのプレビュー"
+  ],
+  "intent.sprite-animation-preview.headline": [
+    "스프라이트 애니메이션 미리보기",
+    "Sprite Animation Preview",
+    "スプライトアニメのプレビュー"
+  ],
+  "intent.sprite-animation-preview.description": [
+    "FPS·프레임별 길이·정방향·역방향·왕복 재생을 보고 흔들림을 그래프로 확인하세요.",
+    "Play at an fps or per-frame timing, forward, reverse or ping-pong, and see jitter as a graph.",
+    "FPS・フレームごとの長さ・順再生・逆再生・往復を確認し、ぶれをグラフで見られます。"
+  ],
+  "intent.sprite-animation-preview.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.collision-polygon-generator.title": [
+    "충돌 다각형 만들기",
+    "Collision Polygon Generator",
+    "衝突ポリゴン生成"
+  ],
+  "intent.collision-polygon-generator.headline": [
+    "충돌 다각형 만들기",
+    "Collision Polygon Generator",
+    "衝突ポリゴン生成"
+  ],
+  "intent.collision-polygon-generator.description": [
+    "알파 실루엣에서 충돌 다각형을 만들고 꼭짓점 수와 오차를 숫자로 확인하세요.",
+    "Trace collision polygons from the alpha silhouette and see the vertex count and the error.",
+    "アルファのシルエットから衝突ポリゴンを作り、頂点数と誤差を数値で確認します。"
+  ],
+  "intent.collision-polygon-generator.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
+  "intent.hitbox-editor.title": [
+    "히트박스 편집",
+    "Hitbox Editor",
+    "ヒットボックス編集"
+  ],
+  "intent.hitbox-editor.headline": [
+    "히트박스 편집",
+    "Hitbox Editor",
+    "ヒットボックス編集"
+  ],
+  "intent.hitbox-editor.description": [
+    "히트·피격·상호작용 박스를 프레임 구간에 넣고 타임라인으로 확인하세요.",
+    "Put hit, hurt and interact boxes on a range of frames and check them on a timeline.",
+    "ヒット・被弾・インタラクトのボックスをフレーム範囲に置き、タイムラインで確認します。"
+  ],
+  "intent.hitbox-editor.action": [
+    "결과 만들기",
+    "Create result",
+    "結果を作成"
+  ],
   "intent.sprite-slicer.title": [
     "스프라이트 자동 분리",
     "Sprite Sheet Slicer",
@@ -712,6 +812,14 @@ export const TOOL_MESSAGES = {
   ]
 };
 
+// UI Lab (docs/UI-LAB.md): the Lab and the four UI tools that have their own search intent.
+// Title, headline and description come from the catalog so the copy exists in one place only.
+Object.assign(TOOL_MESSAGES,Object.fromEntries(Object.entries({
+ 'ui-lab':["내보내기","Export","書き出す"],'9-slice-editor':["내보내기","Export","書き出す"],
+ 'button-state-generator':["이미지 만들기","Create images","画像を作成"],
+ 'missing-glyph-checker':["검사하기","Check","チェック"],'ui-scale-preview':["미리보기","Preview","プレビュー"]
+}).flatMap(([id,action])=>[[`intent.${id}.title`,TOOLS[id].title],[`intent.${id}.headline`,TOOLS[id].title],[`intent.${id}.description`,TOOLS[id].description],[`intent.${id}.action`,action]])));
+
 Object.assign(TOOL_MESSAGES,{"kit.n":["출력 크기","Output size","出力サイズ"],"kit.cellW":["셀 너비","Cell width","セル幅"],"kit.cellH":["셀 높이","Cell height","セル高"],"kit.autoSize":["너비·높이 0은 가장 큰 프레임에 자동 맞춤입니다.","Width/height 0 automatically fit the largest frame.","幅・高さ0は最大フレームに自動調整します。"]});
 
 Object.assign(TOOL_MESSAGES,{"Invalid dimensions": ["치수는 허용 범위 안의 양의 정수여야 합니다.", "Invalid dimensions", "寸法には範囲内の正の整数を指定してください。"], "Pixel limit exceeded or invalid RGBA data": ["분석 픽셀 한도를 초과했거나 이미지 데이터가 올바르지 않습니다.", "Pixel limit exceeded or invalid RGBA data", "分析ピクセル上限を超えたか、画像データが不正です。"], "Too many frame candidates; increase minimum area": ["프레임 후보가 너무 많습니다. 최소 영역을 늘리세요.", "Too many frame candidates; increase minimum area", "フレーム候補が多すぎます。最小領域を増やしてください。"], "Frame is outside the image": ["프레임 범위가 이미지 밖이거나 크기가 올바르지 않습니다.", "Frame is outside the image", "フレームの範囲が画像外、またはサイズが不正です。"], "Tile dimensions must divide the image exactly": ["타일 크기로 이미지 너비와 높이가 나누어떨어져야 합니다.", "Tile dimensions must divide the image exactly", "画像の幅と高さを割り切れるタイル寸法を指定してください。"], "At most 256 frames": ["최대 256개 프레임까지 처리합니다.", "At most 256 frames", "フレームは最大256個です。"], "Invalid padding": ["여백 또는 외곽선 크기가 허용 범위를 벗어났습니다.", "Invalid padding", "余白または輪郭線のサイズが範囲外です。"], "Sheet exceeds output pixel limit": ["스프라이트 시트가 출력 픽셀 한도를 초과합니다.", "Sheet exceeds output pixel limit", "スプライトシートが出力ピクセル上限を超えます。"], "A frame does not fit the output canvas": ["프레임이 출력 캔버스에 들어가지 않습니다. 크기를 늘리세요.", "A frame does not fit the output canvas", "出力キャンバスにフレームが収まりません。寸法を増やしてください。"], "Invalid color": ["색상 또는 허용 오차가 올바르지 않습니다.", "Invalid color", "色または許容差が不正です。"], "Invalid texture options": ["텍스처 설정이 허용 범위를 벗어났습니다.", "Invalid texture options", "テクスチャ設定が範囲外です。"], "Four channel mappings are required": ["R·G·B·A 네 채널을 모두 지정하세요.", "Four channel mappings are required", "R・G・B・Aの4チャンネルを指定してください。"], "Missing channel input": ["채널에 지정된 입력 이미지가 없습니다.", "Missing channel input", "チャンネルに指定した入力画像がありません。"], "Atlas output exceeds analysis limit": ["아틀라스 출력이 분석 픽셀 한도를 초과합니다.", "Atlas output exceeds analysis limit", "アトラス出力が分析ピクセル上限を超えます。"], "Character order must be nonempty, unique, and fit the grid": ["중복되지 않는 문자를 격자 칸 수 이내로 입력하세요.", "Character order must be nonempty, unique, and fit the grid", "重複しない文字をグリッドのセル数以内で入力してください。"], "Invalid baseline": ["베이스라인은 0부터 셀 높이까지의 정수여야 합니다.", "Invalid baseline", "ベースラインは0からセル高までの整数です。"], "Padding leaves no usable pixels": ["여백을 줄이세요. 사용할 픽셀 영역이 없습니다.", "Padding leaves no usable pixels", "余白を減らしてください。使用できるピクセル領域がありません。"], "Unknown preset": ["지원하지 않는 출력 프리셋입니다.", "Unknown preset", "対応していない出力設定です。"], "Module worker unavailable; compatibility mode is limited to 262144 pixels": ["이 브라우저는 작업용 Worker를 시작할 수 없습니다. 호환 모드는 262,144픽셀 이하에서 지원합니다.", "Module worker unavailable; compatibility mode is limited to 262144 pixels", "このブラウザではWorkerを開始できません。互換モードは262,144ピクセル以下です。"]});
@@ -720,3 +828,9 @@ Object.assign(TOOL_MESSAGES,{"intent.pixel-lab.title":["픽셀 랩","Pixel Lab",
 
 // Texture Lab routes (docs/TEXTURE-LAB.md).
 Object.assign(TOOL_MESSAGES,{"intent.texture-lab.title":["텍스처 랩", "Texture Lab", "テクスチャラボ"],"intent.texture-lab.headline":["텍스처 랩", "Texture Lab", "テクスチャラボ"],"intent.texture-lab.description":["PBR 텍스처 세트를 점검하고 노멀·채널·가장자리를 정리해 엔진에 넣으세요.", "Check a PBR texture set, then fix normals, channels and edges for your engine.", "PBRテクスチャ一式を点検し、ノーマル・チャンネル・端を整えてエンジンへ。"],"intent.texture-lab.action":["열기", "Open", "開く"],"intent.channel-unpacker.title":["채널 분리", "Channel Unpacker", "チャンネル分離"],"intent.channel-unpacker.headline":["채널 분리", "Channel Unpacker", "チャンネル分離"],"intent.channel-unpacker.description":["ORM·마스크 텍스처의 R·G·B·A를 원래 바이트 그대로 흑백 PNG로 분리하세요.", "Split an ORM or mask texture into R/G/B/A greyscale PNGs with the original bytes.", "ORM・マスクテクスチャのR/G/B/Aを元のバイトのままグレーPNGに分離。"],"intent.channel-unpacker.action":["열기", "Open", "開く"],"intent.normal-map-converter.title":["노멀 맵 규격 변환", "Normal Map Converter (OpenGL ↔ DirectX)", "ノーマルマップ規格変換"],"intent.normal-map-converter.headline":["노멀 맵 규격 변환", "Normal Map Converter (OpenGL ↔ DirectX)", "ノーマルマップ規格変換"],"intent.normal-map-converter.description":["초록 채널만 반전해 OpenGL(+Y)과 DirectX(−Y) 노멀 맵을 서로 변환하세요.", "Convert a normal map between OpenGL (+Y) and DirectX (−Y) by mirroring the green channel.", "グリーンチャンネルだけを反転してOpenGL(+Y)とDirectX(−Y)を相互変換。"],"intent.normal-map-converter.action":["열기", "Open", "開く"],"intent.pbr-texture-validator.title":["PBR 텍스처 점검", "PBR Texture Validator", "PBRテクスチャ点検"],"intent.pbr-texture-validator.headline":["PBR 텍스처 점검", "PBR Texture Validator", "PBRテクスチャ点検"],"intent.pbr-texture-validator.description":["텍스처 세트의 크기·누락·알파·채널·노멀을 한 번에 점검하고 보고서를 받으세요.", "Check a texture set for size mismatches, missing maps, stray alpha, channel and normal problems.", "サイズ不一致・不足マップ・余分なアルファ・チャンネルとノーマルの問題を一括点検。"],"intent.pbr-texture-validator.action":["열기", "Open", "開く"],"intent.texture-edge-bleed.title":["가장자리 번짐 채우기", "Texture Edge Bleed", "エッジのにじみ処理"],"intent.texture-edge-bleed.headline":["가장자리 번짐 채우기", "Texture Edge Bleed", "エッジのにじみ処理"],"intent.texture-edge-bleed.description":["투명한 텍셀 아래로 색을 밀어내 밉맵과 축소에서 생기는 검은 테두리를 없애세요.", "Push colour outwards under transparent texels so mipmaps and downscaling stop showing a dark rim.", "透明なテクセルの下へ色を広げ、ミップマップや縮小で出る暗い縁を防ぎます。"],"intent.texture-edge-bleed.action":["열기", "Open", "開く"]});
+
+// Tile Lab (docs/TILE-LAB.md): the Lab plus the three tools that have their own search intent.
+Object.assign(TOOL_MESSAGES,Object.fromEntries(['tile-lab','autotile-tester','tileset-slicer','seamless-tile-checker'].flatMap(id=>[
+ [`intent.${id}.title`,TOOLS[id].title],[`intent.${id}.headline`,TOOLS[id].title],
+ [`intent.${id}.description`,TOOLS[id].description],
+ [`intent.${id}.action`,['열기','Open','開く']]])));
