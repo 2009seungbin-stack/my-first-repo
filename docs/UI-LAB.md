@@ -191,9 +191,9 @@ Four tabs over the same asset.
   at 1280×720 / 1920×1080 / 2560×1440 / 3840×2160 and 4:3 / 16:9 / 16:10 / 21:9, positioned by an
   anchor preset. The anchor maths are Godot 4's four `anchor_*` numbers (Unity's RectTransform
   presets are the same numbers), labelled in the UI as a conceptual simulation — no engine ran a
-  layout pass. **Safe areas**: 90% title-safe and 93%/95% action-safe, the long-published broadcast
-  television convention (see *Sources* below), plus custom insets. Console TRC and phone cut-out
-  values are device-specific and are **not** shipped as presets.
+  layout pass. **Safe areas**: 90% title-safe and 93%/95% action-safe — the long-published broadcast
+  television convention, cited for what it is under *Sources* below — plus custom insets. Console
+  TRC and phone cut-out values are device-specific and are **not** shipped as presets.
 * **Scale.** The same element at 1×, 1.25×, 1.5×, 1.75×, 2×, 2.5×, 3×, side by side, integer scales
   labelled crisp; the fractional ones are drawn the way a UI at that scale draws them, which is what
   the softness in the comparison is.
@@ -206,10 +206,12 @@ Four tabs over the same asset.
   white is 4.54:1. AA / AAA / UI 3:1 are shown as reference levels, with the large-text exception
   (≥24 px, or ≥18.66 px bold). A ratio is a number about two colours, not a verdict on a design.
 
-**Sources for the safe-area presets.** "Title-safe 90% / action-safe 93%" is the broadcast-style
-convention published for TV-safe layout (SMPTE RP 218 / EBU R 95 lineage, and the same numbers used
-by TV-safe overlays in Unity and Unreal UI templates). It is a guideline, not a platform
-requirement; anything platform-specific belongs in custom insets.
+**Sources for the safe-area presets.** 90% title-safe and 93–95% action-safe are the long-published
+broadcast television convention — the numbers TV-safe overlays in editors and broadcast style guides
+have used for decades. **No standards document was consulted while writing this release**, so treat
+them as that convention and nothing stronger; they are not a platform requirement. Console TRC and
+phone cut-out values are device-specific, are not published in a form this tool can cite, and are
+therefore not shipped as presets: those go in custom insets.
 
 ---
 
@@ -256,6 +258,15 @@ with Pillow / zipfile / an independent BMFont parser written inside the test.
 | 30 | Unity import of the PNG and the L,B,R,T border numbers | not run — no Unity here, and no `.meta` is written | **UNVERIFIED** |
 | 31 | SDF texture rendered by a real shader in an engine | not run; the encoding and the shader line are documented, the result is not proven | **UNVERIFIED** |
 | 32 | Firefox / WebKit | not run for this Lab; Chromium only | **UNVERIFIED** |
+
+### Deliberately not implemented yet
+
+* **Undo/redo.** Borders, state ops and element names are all directly editable numbers, so there is
+  no history stack; a mis-drag is corrected by typing the number back.
+* **Cancellation.** Every operation except the SDF export finishes in well under a second (see the
+  timings above), so nothing here takes an `AbortSignal` yet; the 1.2 s SDF export for 95 glyphs
+  does not report progress and cannot be cancelled.
+* **"Continue with" hand-off chips** after an export (other task pages have them).
 
 ### Not in this release
 
