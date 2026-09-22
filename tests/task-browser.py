@@ -422,6 +422,92 @@ with sync_playwright() as pw:
     page.locator('#fileInput').set_input_files(files=[file_of('odd.png',Image.new('RGBA',(4,4),(5,5,5,255)))]);page.wait_for_timeout(600)
     ok('a differently sized mask is explained instead of failing silently',
        page.locator('#taskDownload').is_disabled() and page.locator('#maskSummary .summary-line.bad').count()==1)
+    # --- Texture Lab (src/task/texture-lab*.js): one set of maps, seven stages ---------------
+    def grey(name,v,size=(64,64)):return file_of(name,Image.new('RGBA',size,(v,v,v,255)))
+    def ramp(name,size=(64,64)):
+        im=Image.new('RGBA',size,(0,0,0,255))
+        for y in range(size[1]):
+            for x in range(size[0]):im.putpixel((x,y),(y*4%256,y*4%256,y*4%256,255))
+        return file_of(name,im)
+    packed=Image.new('RGBA',(32,32))
+    for y in range(32):
+        for x in range(32):packed.putpixel((x,y),(200+x%40,60+y%60,10+(x*y)%30,0 if x<16 else 255))
+    sprite=Image.new('RGBA',(32,32),(0,0,0,0))
+    for y in range(10,22):
+        for x in range(10,22):sprite.putpixel((x,y),(210,40,30,255))
+    page.goto(BASE+'/en/game/texture-lab/',wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(files=[grey('rock_basecolor.png',180),ramp('rock_height.png'),file_of('rock_orm.png',packed)])
+    page.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===3',timeout=60000)
+    ok('filenames classify into map roles without being asked',
+       page.locator('#texFiles select').evaluate_all('els=>els.map(e=>e.value)')==['albedo','height','orm'])
+    ok('the set is checked against the workflow, slot by slot',
+       page.locator('.tex-slots li').count()>=6 and page.locator('.tex-issues li').count()>0)
+    ok('the checks name the file and the measurement, not just a code',
+       'rock_orm.png' in page.locator('.tex-issues').inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    report=json.loads(Path(d.value.path()).read_text(encoding='utf-8'))
+    orm_entry=[t for t in report['textures'] if t['name']=='rock_orm.png'][0]
+    ok('the check report is envelope JSON with real measurements',
+       report['meta']['schemaVersion']==1 and orm_entry['alpha']['zeroPixels']==16*32 and orm_entry['exactChannels'])
+    # Channels: a packed texture comes apart into exact greyscale PNGs, alpha-0 RGB included.
+    page.locator('[data-action="tex-select"]').last.click()
+    page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click()
+    page.wait_for_function('()=>document.querySelectorAll(".tex-channel canvas").length===4',timeout=60000)
+    ok('every channel is previewed with its engine meaning',
+       page.locator('.tex-channel').count()==4 and 'Ambient occlusion' in page.locator('.tex-channel figcaption').first.inner_text())
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    planes={n.split('-')[-2]:Image.open(io.BytesIO(z.read(n))) for n in z.namelist()}
+    ok('the unpacker writes one single-channel PNG per channel',
+       sorted(planes)==['a','b','g','r'] and all(im.mode=='L' and im.size==(32,32) for im in planes.values()))
+    ok('channel bytes are exact, including RGB under fully transparent texels',
+       [planes['r'].getpixel((x,0)) for x in (0,15,31)]==[packed.getpixel((x,0))[0] for x in (0,15,31)]
+       and [planes['a'].getpixel((x,0)) for x in (0,31)]==[0,255])
+    # Pack: the same module as the standalone packer, reading its layouts from texture-presets.js.
+    page.locator('[data-action="tex-stage"][data-stage="pack"]').first.click()
+    page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
+    ok('the Pack stage hosts the packer and leaves one primary action on the page',
+       page.locator('#taskDownload').count()==1 and page.locator('[data-action="mask-preset"][data-value="unreal-orm"]').count()==1)
+    # Normal: the flat-normal guarantee, and a convention flip that only moves green.
+    page.locator('[data-action="tex-select"]').nth(1).click()
+    page.locator('[data-action="tex-stage"][data-stage="normal"]').first.click()
+    page.locator('#texNormalOut').wait_for(timeout=60000);page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    gl=Image.open(d.value.path()).convert('RGBA')
+    page.locator('[data-action="tex-normal-set"][data-key="convention"][data-value="directx"]').click();page.wait_for_timeout(700)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    dx=Image.open(d.value.path()).convert('RGBA')
+    a,b=list(gl.getdata()),list(dx.getdata())
+    ok('OpenGL and DirectX outputs differ in green and nowhere else',
+       gl.size==(64,64)==dx.size and [(p[0],p[2],p[3]) for p in a]==[(q[0],q[2],q[3]) for q in b]
+       and [255-p[1] for p in a]==[q[1] for q in b])
+    ok('the engine conventions are shown with the documentation behind them',
+       page.locator('.tex-conventions .tex-doc').count()>=4)
+    # Fix: edge bleed writes RGB under transparent texels and never touches alpha.
+    page.locator('#fileInput').set_input_files(files=[file_of('sprite.png',sprite)]);page.wait_for_timeout(800)
+    page.locator('[data-action="tex-select"]').last.click()
+    page.locator('[data-action="tex-stage"][data-stage="fix"]').first.click()
+    page.locator('#texFixOut').wait_for(timeout=60000);page.wait_for_timeout(600)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    bled=Image.open(d.value.path()).convert('RGBA')
+    ok('edge bleed keeps alpha and only colours transparent texels',
+       [p[3] for p in bled.getdata()]==[p[3] for p in sprite.getdata()]
+       and bled.getpixel((9,10))==(210,40,30,0) and bled.getpixel((15,15))==(210,40,30,255))
+    # Preview: WebGL2 when there is one, an explanation when there is not.
+    page.locator('[data-action="tex-stage"][data-stage="preview"]').first.click();page.wait_for_timeout(1200)
+    ok('the material preview either renders or says why it cannot',
+       page.evaluate('()=>{const c=document.querySelector("#texGL");const f=document.querySelector("#texGLFallback");return (c&&!c.hidden&&c.width>0)||(f&&!f.hidden)}'))
+    # Export: every texture, one at a time, into one ZIP.
+    page.locator('[data-action="tex-stage"][data-stage="export"]').first.click();page.wait_for_timeout(300)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    ok('the batch optimiser exports every texture in one archive',
+       sorted(z.namelist())==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png'])
+    page.set_viewport_size({'width':320,'height':720});page.wait_for_timeout(300)
+    ok('no horizontal scroll in Texture Lab at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click();page.wait_for_timeout(600)
+    ok('no horizontal scroll with four channel previews at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
+    page.set_viewport_size({'width':1366,'height':900})
     # --- PDF: compression that resolves references, then protect and unlock (nerulio/agent-pdf-depth) ---
     page.goto(BASE+'/en/pdf/compress/',wait_until='networkidle')
     page.wait_for_function("()=>document.documentElement.dataset.taskReady==='1'")
@@ -575,6 +661,87 @@ with sync_playwright() as pw:
     ok('the crop changed the page box, not the page count',shape['pages']==2 and shape['cropH']<600 and shape['cropW']<595,json.dumps(shape))
     ok('the page rotated in the editor carries /Rotate 90',shape['rotation']==90,json.dumps(shape))
     ok('the form field survives as a field and carries the typed value',shape['fields']==['reference'] and shape['value']=='REF-2026-77',json.dumps(shape))
+    # ===== Pixel Lab (src/task/pixel-lab.js) =========================================
+    import importlib.util
+    _spec=importlib.util.spec_from_file_location('plab_fx',ROOT/'tests/pixel-lab-fixtures.py')
+    fx=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(fx)
+    def plab_files(pairs):return [{'name':n,'mimeType':'image/png','buffer':b} for n,b in pairs]
+    def plab_open(path,pairs):
+        page.goto(BASE+'/en/'+path+'/',wait_until='networkidle')
+        page.locator('#fileInput').set_input_files(files=plab_files(pairs));page.locator('#plabCanvas').wait_for();page.wait_for_timeout(700)
+    def plab_zip(entries=None):
+        with page.expect_download() as d:page.locator('[data-action="plab-export"]').click()
+        z=zipfile.ZipFile(d.value.path());meta=json.loads(z.read('pixel-lab.json'))
+        pal={tuple(int(c[i:i+2],16) for i in (1,3,5)) for c in meta['meta']['palette']}
+        union,bands=set(),[]
+        for name in sorted(x for x in z.namelist() if x.endswith('.png')):
+            im=Image.open(io.BytesIO(z.read(name))).convert('RGBA')
+            union|={p[:3] for p in im.getdata() if p[3]>0}
+            bands.append(tuple(im.crop((0,im.height-8,im.width,im.height)).getdata()))
+        return z,meta,pal,union,bands
+    # One palette for eight anti-aliased animation frames, proven from the exported PNGs.
+    plab_open('game/pixel-lab',fx.frames(8))
+    ok('pixel lab shows every frame and one palette',page.locator('.frame-chip').count()==8 and '16 colours' in page.locator('#plabSummary').inner_text())
+    z,meta,pal,union,bands=plab_zip()
+    ok('pixel lab exports one PNG per frame with the palette and the JSON envelope',
+       len([x for x in z.namelist() if x.endswith('.png')])==8 and 'pixel-lab.json' in z.namelist() and any(x.endswith('.gpl') for x in z.namelist()))
+    ok('the locked palette bounds every exported frame',union<=pal and len(pal)<=16,f'{len(union-pal)} of {len(union)} colours outside a {len(pal)}-colour palette')
+    ok('an unchanged region keeps identical pixels in all eight frames',len(set(bands))==1,f'{len(set(bands))} versions')
+    ok('the JSON envelope is the shared game schema',meta['meta']['schemaVersion']==1 and meta['meta']['engineTarget']=='generic' and len(meta['frames'])==8)
+    ok('the exported palette is a real GIMP palette',z.read([x for x in z.namelist() if x.endswith('.gpl')][0]).decode().startswith('GIMP Palette\n'))
+    # Ordered dithering is position-only, so the same unchanged region still matches everywhere.
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="bayer4"]').click();page.wait_for_timeout(700)
+    z2,_,pal2,union2,bands2=plab_zip()
+    ok('ordered Bayer dithering neither flickers nor leaves the palette',len(set(bands2))==1 and union2<=pal2)
+    page.locator('.options .hint').last.wait_for()
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="floyd-steinberg"]').click();page.wait_for_timeout(500)
+    ok('error diffusion warns that animations can flicker','flicker' in page.locator('.options .hint').last.inner_text().lower())
+    page.locator('[data-action="plab-set"][data-key="dither"][data-value="none"]').click();page.wait_for_timeout(500)
+    # Anti-alias remover: palette-only output, silhouette untouched.
+    plab_open('game/pixel-art-cleanup',fx.frames(2))
+    ok('the cleanup stage counts candidates before changing anything','Stray pixels:' in page.locator('#plabCleanupOut').inner_text())
+    page.locator('#plabAA').check();page.wait_for_timeout(800)
+    z3,_,pal3,union3,_=plab_zip()
+    after=Image.open(io.BytesIO(z3.read(sorted(x for x in z3.namelist() if x.endswith('.png'))[0]))).convert('RGBA')
+    before=Image.open(io.BytesIO(fx.frames(2)[0][1])).convert('RGBA')
+    moved=sum(1 for a,b in zip(before.split()[3].point(lambda v:255 if v else 0).getdata(),after.split()[3].point(lambda v:255 if v else 0).getdata()) if a!=b)
+    distinct_before=len({p[:3] for p in before.getdata() if p[3]>0})
+    ok('the anti-alias remover snaps every pixel into the palette',union3<=pal3 and len(union3)<=len(pal3),f'{distinct_before} distinct colours in, {len(union3)} out')
+    ok('removing anti-aliasing does not move the silhouette',moved==0,f'{moved} alpha pixels differ')
+    # Colour budget audit and one-click merge of the rarest colours.
+    plab_open('game/palette-extractor',fx.frames(4))
+    page.locator('#plabBudget').fill('8');page.wait_for_timeout(700)
+    ok('the auditor lists the colours that are over budget',page.locator('.plab-offenders li').count()==8,page.locator('#plabBudget-out').inner_text().split(chr(10))[0])
+    page.locator('[data-action="plab-merge"]').click();page.wait_for_timeout(900)
+    _,_,pal4,union4,_=plab_zip()
+    ok('merging the rarest colours really reaches the budget',len(union4)<=8 and union4<=pal4,f'{len(union4)} colours out')
+    page.keyboard.press('Control+z');page.wait_for_timeout(800)
+    ok('Ctrl+Z on the document restores the merged colours',page.locator('.plab-swatch').count()>8)
+    # Pixel-grid checks against known 1x, 3x, 2.5x-nearest and 2.5x-bilinear inputs.
+    for name,image,expected in [('flat-1x',fx.flat_sprite(),'Already 1'),('nearest-3x',fx.upscaled(3),'3\u00d7 \u00b7 logical size 16\u00d716'),
+                                ('nearest-2.5x',fx.nearest_non_integer(),'No integer grid')]:
+        plab_open('game/pixel-perfect-checker',[(name+'.png',fx.png(image))])
+        ok(f'the checker reads {name} correctly',expected in page.locator('#plabReport').inner_text(),page.locator('#plabReport').inner_text().replace(chr(10),' | ')[:120])
+    plab_open('game/pixel-perfect-checker',[('bilinear.png',fx.png(fx.bilinear()))])
+    report=page.locator('#plabReport').inner_text()
+    ok('the checker measures blurred edges instead of guessing a scale','Intermediate edge pixels' in report and 'Integer pixel grid' not in report,report.replace(chr(10),' | ')[:120])
+    plab_open('game/pixel-perfect-checker',[('up3.png',fx.png(fx.upscaled(3)))])
+    with page.expect_download() as d:
+        page.locator('[data-action="plab-recover"]').click();page.wait_for_timeout(500);page.locator('[data-action="plab-export-one"]').click()
+    ok('recovering the 1x source returns the original grid',Image.open(d.value.path()).size==(16,16))
+    for path,stage in [('game/pixel-lab','convert'),('game/palette-extractor','palette'),('game/palette-swap-ramp','recolor'),('game/pixel-art-cleanup','cleanup'),('game/pixel-perfect-checker','check')]:
+        plab_open(path,fx.frames(2))
+        ok(f'{path} opens the Lab at its own stage',page.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').get_attribute('aria-current')=='page')
+    for width in (390,320):
+        plab_phone=browser.new_context(viewport={'width':width,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
+        plab_phone.on('pageerror',lambda e:errors.append(str(e)))
+        plab_phone.goto(BASE+'/ko/game/pixel-lab/',wait_until='networkidle')
+        plab_phone.locator('#fileInput').set_input_files(files=plab_files(fx.frames(8)));plab_phone.locator('#plabCanvas').wait_for();plab_phone.wait_for_timeout(800)
+        for stage in ('palette','cleanup','check'):
+            plab_phone.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').click();plab_phone.wait_for_timeout(700)
+            ok(f'pixel lab has no horizontal scroll at {width} on {stage}',plab_phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'),str(plab_phone.evaluate('()=>document.documentElement.scrollWidth')))
+        plab_phone.close()
+    # ===== end Pixel Lab =============================================================
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     for path in ['/ko/','/ko/image/compress/']:

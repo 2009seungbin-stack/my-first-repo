@@ -20,9 +20,9 @@ export const TOOLS = Object.freeze({
       "単色背景のみ除去。AI生成や細部の復元は行いません。"
     ],
     "next": [
+      "pixel-lab",
       "sprite-sheet-maker",
-      "palette-swap",
-      "image"
+      "palette-swap"
     ]
   },
   "sprite-slicer": {
@@ -118,8 +118,9 @@ export const TOOLS = Object.freeze({
       "陰影保持は明度差を加える近似で、材質を認識する変換ではありません。"
     ],
     "next": [
-      "refiner",
-      "sprite-sheet-maker"
+      "palette-swap-ramp",
+      "pixel-lab",
+      "refiner"
     ]
   },
   "marketplace-pack": {
@@ -363,6 +364,131 @@ export const TOOLS = Object.freeze({
       "convert"
     ]
   },
+  "texture-lab": {
+    "path": "game/texture-lab",
+    "category": "game",
+    "icon": "sliders",
+    "title": [
+      "텍스처 랩",
+      "Texture Lab",
+      "テクスチャラボ"
+    ],
+    "description": [
+      "PBR 텍스처 세트를 점검하고 노멀·채널·가장자리를 정리해 엔진에 넣으세요.",
+      "Check a PBR texture set, then fix normals, channels and edges for your engine.",
+      "PBRテクスチャ一式を点検し、ノーマル・チャンネル・端を整えてエンジンへ。"
+    ],
+    "limit": [
+      "엔진 렌더러가 아닙니다. 미리보기는 광원 1개 근사이고, 색 공간은 안내만 하며 파일에서 자동 감지하지 않습니다.",
+      "Not an engine renderer: the preview is a one-light approximation, and colour space is guidance only — no profile is detected.",
+      "エンジンのレンダラーではありません。プレビューはライト1つの近似で、色空間は指針のみ（自動判定はしません）。"
+    ],
+    "next": [
+      "mask-packer",
+      "atlas-padding",
+      "compress"
+    ]
+  },
+  "channel-unpacker": {
+    "path": "game/channel-unpacker",
+    "category": "game",
+    "icon": "pack",
+    "title": [
+      "채널 분리",
+      "Channel Unpacker",
+      "チャンネル分離"
+    ],
+    "description": [
+      "ORM·마스크 텍스처의 R·G·B·A를 원래 바이트 그대로 흑백 PNG로 분리하세요.",
+      "Split an ORM or mask texture into R/G/B/A greyscale PNGs with the original bytes.",
+      "ORM・マスクテクスチャのR/G/B/Aを元のバイトのままグレーPNGに分離。"
+    ],
+    "limit": [
+      "채널의 의미는 엔진 프리셋으로 표시할 뿐이며, 파일만 보고 어떤 엔진용인지 알아내지는 못합니다.",
+      "Channel meaning comes from the engine preset you pick; a file cannot say which engine it was packed for.",
+      "チャンネルの意味は選んだエンジンプリセットによります。ファイルからは判別できません。"
+    ],
+    "next": [
+      "mask-packer",
+      "texture-lab",
+      "compress"
+    ]
+  },
+  "normal-map-converter": {
+    "path": "game/normal-map-converter",
+    "category": "game",
+    "icon": "flip",
+    "title": [
+      "노멀 맵 규격 변환",
+      "Normal Map Converter (OpenGL ↔ DirectX)",
+      "ノーマルマップ規格変換"
+    ],
+    "description": [
+      "초록 채널만 반전해 OpenGL(+Y)과 DirectX(−Y) 노멀 맵을 서로 변환하세요.",
+      "Convert a normal map between OpenGL (+Y) and DirectX (−Y) by mirroring the green channel.",
+      "グリーンチャンネルだけを反転してOpenGL(+Y)とDirectX(−Y)を相互変換。"
+    ],
+    "limit": [
+      "파일만 보고 어느 규격인지 판별할 수는 없습니다. 엔진 기준은 문서 출처와 함께 안내합니다.",
+      "A file cannot be measured to tell which convention it uses; the engine expectations are listed with their sources.",
+      "どちらの規格かはファイルから判定できません。エンジンの想定は出典付きで示します。"
+    ],
+    "next": [
+      "texture-lab",
+      "texture-map",
+      "compress"
+    ]
+  },
+  "pbr-texture-validator": {
+    "path": "game/pbr-texture-validator",
+    "category": "game",
+    "icon": "check",
+    "title": [
+      "PBR 텍스처 점검",
+      "PBR Texture Validator",
+      "PBRテクスチャ点検"
+    ],
+    "description": [
+      "텍스처 세트의 크기·누락·알파·채널·노멀을 한 번에 점검하고 보고서를 받으세요.",
+      "Check a texture set for size mismatches, missing maps, stray alpha, channel and normal problems.",
+      "サイズ不一致・不足マップ・余分なアルファ・チャンネルとノーマルの問題を一括点検。"
+    ],
+    "limit": [
+      "파일 이름과 픽셀만으로 판단합니다. ICC 프로파일이나 감마는 읽지 않고 색 공간은 안내만 합니다.",
+      "Judged from filenames and pixels only: no ICC profile or gamma is read, and colour space is guidance.",
+      "ファイル名とピクセルのみで判断します。ICCやガンマは読まず、色空間は指針です。"
+    ],
+    "next": [
+      "texture-lab",
+      "mask-packer",
+      "compress"
+    ]
+  },
+  "texture-edge-bleed": {
+    "path": "game/texture-edge-bleed",
+    "category": "game",
+    "icon": "crop",
+    "title": [
+      "가장자리 번짐 채우기",
+      "Texture Edge Bleed",
+      "エッジのにじみ処理"
+    ],
+    "description": [
+      "투명한 텍셀 아래로 색을 밀어내 밉맵과 축소에서 생기는 검은 테두리를 없애세요.",
+      "Push colour outwards under transparent texels so mipmaps and downscaling stop showing a dark rim.",
+      "透明なテクセルの下へ色を広げ、ミップマップや縮小で出る暗い縁を防ぎます。"
+    ],
+    "limit": [
+      "알파는 바꾸지 않습니다. 잘못 잘린 알파나 압축으로 손상된 경계를 복원하지는 못합니다.",
+      "Alpha is never changed. It cannot repair an alpha channel that was already cut or compressed badly.",
+      "アルファは変更しません。既に切れた・圧縮で壊れたアルファは修復できません。"
+    ],
+    "next": [
+      "texture-lab",
+      "sprite-sheet-maker",
+      "compress"
+    ]
+  },
   "favicon-pack": {
     "path": "favicon-generator",
     "category": "image",
@@ -386,6 +512,51 @@ export const TOOLS = Object.freeze({
       "compress",
       "convert"
     ]
+  },
+  "pixel-lab": {
+    "path": "game/pixel-lab",
+    "category": "game",
+    "icon": "pixel",
+    "title": ["픽셀 랩","Pixel Lab","ピクセルラボ"],
+    "description": ["여러 프레임을 하나의 팔레트로 통일하고, 정리·검사까지 한 곳에서.","Bring many frames to one palette, then clean up, audit and export in one place.","複数フレームを1つのパレットに統一し、整理・検査まで一か所で。"],
+    "limit": ["픽셀을 정리해 주지만 새 디테일을 그려 주지는 않습니다. 애니메이션에 오차 확산 디더링을 쓰면 프레임마다 색이 달라질 수 있습니다.","It prepares pixels; it does not draw new detail. Error-diffusion dithering can differ between frames, so animations should use None or an ordered matrix.","ピクセルを整えますが、新しい描き込みはしません。誤差拡散ディザはフレームごとに結果が変わるため、アニメーションには不向きです。"],
+    "next": ["sprite-sheet-maker","refiner","pixel"]
+  },
+  "palette-extractor": {
+    "path": "game/palette-extractor",
+    "category": "game",
+    "icon": "sliders",
+    "title": ["팔레트 추출","Palette Extractor","パレット抽出"],
+    "description": ["이미지 여러 장에서 색 4·8·16·32·64개를 한 번에 뽑고 .gpl·HEX·JSON으로 저장하세요.","Pull 4, 8, 16, 32 or 64 colours from several images at once and save .gpl, HEX or JSON.","複数の画像から4・8・16・32・64色をまとめて抽出し、.gpl・HEX・JSONで保存。"],
+    "limit": ["색은 채널당 5비트로 묶어 세므로 한두 픽셀만 쓰인 색은 이웃 색에 합쳐질 수 있습니다.","Colours are counted in 5-bit-per-channel buckets, so a colour used on one or two pixels can merge into a neighbour.","色はチャンネルあたり5ビットでまとめて数えるため、1〜2ピクセルだけの色は近い色に統合されることがあります。"],
+    "next": ["pixel-lab","palette-swap-ramp","pixel"]
+  },
+  "palette-swap-ramp": {
+    "path": "game/palette-swap-ramp",
+    "category": "game",
+    "icon": "background",
+    "title": ["램프 색 교체","Ramp Palette Swap","ランプ色替え"],
+    "description": ["음영 램프를 명도 순서대로 대응시켜 팀 컬러 변형을 한 번에 만드세요.","Map a shading ramp onto another by lightness order and generate team-colour variants at once.","陰影ランプを明度順に対応させ、チームカラーのバリエーションを一度に作成。"],
+    "limit": ["명도 순서로만 대응시킵니다. 어느 색이 피부나 금속인지 의미는 알지 못합니다.","It maps by lightness order only; it does not know which colour is skin, metal or cloth.","明度順で対応させるだけで、どの色が肌や金属かは判断しません。"],
+    "next": ["pixel-lab","palette-extractor","palette-swap"]
+  },
+  "pixel-art-cleanup": {
+    "path": "game/pixel-art-cleanup",
+    "category": "game",
+    "icon": "reset",
+    "title": ["픽셀 정리","Pixel Art Cleanup","ドット絵の整理"],
+    "description": ["단독 픽셀, 작은 덩어리, 1픽셀 구멍, 안티에일리어싱 잔여물을 찾아 정리하세요.","Find and clear stray pixels, tiny clusters, single-pixel holes and anti-alias leftovers.","単独ピクセル・小さな塊・1ピクセルの穴・アンチエイリアスの残りを整理。"],
+    "limit": ["후보를 먼저 보여 주고 보수적으로만 고칩니다. 두 겹 외곽선을 자동으로 얇게 만들지는 않습니다.","Candidates are shown first and fixes stay conservative: a doubled outline is never thinned automatically.","候補を先に表示し、修正は保守的です。二重の輪郭を自動で細くはしません。"],
+    "next": ["pixel-lab","pixel-perfect-checker","pixel"]
+  },
+  "pixel-perfect-checker": {
+    "path": "game/pixel-perfect-checker",
+    "category": "game",
+    "icon": "search",
+    "title": ["픽셀 격자 검사","Pixel Perfect Checker","ピクセル格子の検査"],
+    "description": ["확대된 스프라이트의 실제 도트 크기와 격자 어긋남, 흐린 경계, 색 수를 측정하세요.","Measure an upscaled sprite’s real pixel size, grid offset, blurred edges and colour count.","拡大されたスプライトの実際のドットサイズ・格子ずれ・ぼけた境界・色数を測定。"],
+    "limit": ["정수 블록 격자만 정확히 증명합니다. 비정수 배율은 런 길이로 추정해 보고만 합니다.","Only an integer block grid is proven exactly; a non-integer factor is reported as a run-length estimate, not a fact.","正確に証明できるのは整数ブロック格子のみです。非整数倍率はラン長からの推定として報告します。"],
+    "next": ["pixel-lab","pixel-art-cleanup","refiner"]
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));

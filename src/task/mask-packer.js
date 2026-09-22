@@ -2,7 +2,8 @@ import * as Im from '../image.js';
 import {bytes,stem} from '../core.js';
 import {packMasks} from '../mask-packer.js';
 import {yieldUI} from '../resources.js';
-import {t} from '../i18n.js';
+import {t,getLocale} from '../i18n.js';
+import {ENGINE_PRESETS,PRESET_IDS,presetChannels} from '../game/texture-presets.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 /** RGBA mask packer: drop up to four grayscale maps, say which channel each one goes to, and the
  * packed texture is already on screen — with a preview per channel, because a packed mask is
@@ -11,17 +12,22 @@ import {text,toast,download,track,onLocale,continueWith,page as route} from './s
 export const accept='image/*';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CHANNELS=['R','G','B','A'],MAX=4,PREVIEW=248;
-/** Channel order of the packed masks engines actually ship with. */
-const PRESETS=Object.freeze({
- 'unity-mask':{mapping:[0,1,2,3],roles:['metallic','ao','detail','smoothness']},
- 'unity-metallic':{mapping:[0,'zero','zero',1],roles:['metallic','','','smoothness']},
- 'unreal-orm':{mapping:[0,1,2,'one'],roles:['ao','roughness','metallic','']}
-});
+/** Engine channel layouts come from src/game/texture-presets.js, which carries the documentation
+ * behind each claim and is shared with Texture Lab — one source for "which channel is what".
+ * A channel the engine ignores is written as 0; an alpha the layout does not use is written as
+ * 255 so the packed file stays opaque. Inputs fill the meaningful channels in order. */
+const PRESETS=Object.freeze(Object.fromEntries(PRESET_IDS.map(id=>{
+ let input=0;
+ const channels=presetChannels(id);
+ return [id,{mapping:channels.map(c=>c.role==='ignored'?'zero':c.role==='unused'?'one':input++),channels,
+  label:ENGINE_PRESETS[id].label,short:ENGINE_PRESETS[id].short,note:ENGINE_PRESETS[id].note,doc:ENGINE_PRESETS[id].doc}];
+})));
 export function mount({el,def}){
  let inputs=[],mapping=[0,1,2,'one'],invert=[false,false,false,false],preset='custom',size=null;
  let busy=false,error='',result=null,timer=0;
  const T=(k,v)=>text('mask.'+k,v);
- const roles=()=>PRESETS[preset]?.roles||['','','',''];
+ /** Per-channel label and explanation for the chosen preset, in the current language. */
+ const roles=()=>PRESETS[preset]?.channels.map(c=>({label:c.label[getLocale()],tip:c.tooltip[getLocale()],role:c.role}))||[null,null,null,null];
  function empty(){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="mask-sample">${esc(text('sample'))}</button></div><small class="local-note">${esc(text('local'))}</small></div>`;
  }
@@ -32,8 +38,8 @@ export function mount({el,def}){
 <p class="viewer-note">${esc(T('hint'))}</p></section>
 <aside class="side"><div class="summary" id="maskSummary" role="status" aria-live="polite"></div>
 <form id="maskOptions" class="options" autocomplete="off"><span class="opt-label">${esc(T('preset'))}</span>
-<div class="segmented" role="group" id="maskPreset">${[['custom','presets.custom'],['unity-mask','presets.unity-mask'],['unity-metallic','presets.unity-metallic'],['unreal-orm','presets.unreal-orm']].map(([v,k])=>`<button type="button" data-action="mask-preset" data-value="${v}" aria-pressed="${preset===v}">${esc(T(k))}</button>`).join('')}</div>
-<span class="opt-label">${esc(T('channels'))}</span><div id="maskRows"></div></form>
+<div class="chips-row" role="group" id="maskPreset">${[['custom',T('presets.custom'),''],...PRESET_IDS.map(id=>[id,PRESETS[id].short?.[getLocale()]||PRESETS[id].label[getLocale()],PRESETS[id].label[getLocale()]])].map(([v,label,tip])=>`<button type="button" class="chip" data-action="mask-preset" data-value="${v}" aria-pressed="${preset===v}" title="${esc(tip)}">${esc(label)}</button>`).join('')}</div>
+<span class="opt-label">${esc(T('channels'))}</span><div id="maskRows"></div><p class="hint" id="maskPresetNote"></p></form>
 <div class="file-list" id="maskFiles"></div>
 <div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(T('add'))}</button><button type="button" class="link" data-action="mask-clear">${esc(text('removeAll'))}</button></div>
 <button type="button" class="primary big" id="taskDownload" data-action="mask-download" disabled></button><nav class="next" id="maskNext"></nav><small class="local-note">${esc(text('local'))}</small></aside></div>`;
@@ -44,8 +50,10 @@ export function mount({el,def}){
   host.innerHTML=CHANNELS.map((name,c)=>{
    const value=typeof mapping[c]==='number'?'input'+mapping[c]:mapping[c];
    const options=[['zero',T('zero')],['one',T('one')],...inputs.map((f,i)=>['input'+i,`${i+1}. ${f.name}`])];
-   return `<div class="mask-row"><label class="field"><span>${name}${role[c]?` <small>${esc(T('roles.'+role[c]))}</small>`:''}</span><select data-channel="${c}">${options.map(([v,l])=>`<option value="${v}" ${value===v?'selected':''}>${esc(l)}</option>`).join('')}</select></label><label class="check"><input type="checkbox" data-invert="${c}" ${invert[c]?'checked':''}> ${esc(T('invert'))}</label></div>`;
+   return `<div class="mask-row"><label class="field"><span>${name}${role[c]?` <small title="${esc(role[c].tip)}">${esc(role[c].label)}</small>`:''}</span><select data-channel="${c}">${options.map(([v,l])=>`<option value="${v}" ${value===v?'selected':''}>${esc(l)}</option>`).join('')}</select></label><label class="check"><input type="checkbox" data-invert="${c}" ${invert[c]?'checked':''}> ${esc(T('invert'))}</label></div>`;
   }).join('');
+  const note=el.querySelector('#maskPresetNote');
+  if(note)note.textContent=PRESETS[preset]?.note?.[getLocale()]||'';
  }
  function renderList(){
   const host=el.querySelector('#maskFiles');if(!host)return;
@@ -67,7 +75,8 @@ export function mount({el,def}){
   main.width=pw;main.height=ph;main.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(packed),pw,ph),0,0);
   el.querySelector('#maskMainBox').style.aspectRatio=`${size.w} / ${size.h}`;
   el.querySelector('#maskInfo').textContent=`${size.w} × ${size.h}`;
-  host.innerHTML=CHANNELS.map((name,c)=>`<figure class="mask-channel"><canvas data-preview="${c}" class="px"></canvas><figcaption>${name}${roles()[c]?` · ${esc(T('roles.'+roles()[c]))}`:''}</figcaption></figure>`).join('');
+  const role=roles();
+  host.innerHTML=CHANNELS.map((name,c)=>`<figure class="mask-channel"><canvas data-preview="${c}" class="px"></canvas><figcaption${role[c]?` title="${esc(role[c].tip)}"`:''}>${name}${role[c]?` · ${esc(role[c].label)}`:''}</figcaption></figure>`).join('');
   for(const cv of host.querySelectorAll('canvas[data-preview]')){
    const c=Number(cv.dataset.preview),gray=new Uint8ClampedArray(pw*ph*4);
    for(let i=0;i<gray.length;i+=4){const v=packed[i+c];gray[i]=gray[i+1]=gray[i+2]=v;gray[i+3]=255;}
