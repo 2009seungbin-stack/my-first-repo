@@ -53,6 +53,12 @@ export class History{
   cmd.do();
   return this.push({kind:'custom',label,cmd,mergeKey:null,open:false,time,meta:cmd.meta||null});
  }
+ /** Cancels an open (drag) entry: the document goes back to where the gesture started and the
+  * entry disappears, as if the drag never happened (Escape during a drag). */
+ abort(mergeKey){
+  const top=this.top;if(!top||top.kind!=='doc'||!top.open||(mergeKey&&top.mergeKey!==mergeKey)||this.canRedo)return false;
+  this.entries.pop();this.index--;this.doc=top.before;this.emit('abort',top);return true;
+ }
  /** Ends an open (drag) entry so the next command with the same key starts a new step. */
  close(mergeKey){const top=this.top;if(top&&(!mergeKey||top.mergeKey===mergeKey)){top.open=false;top.closed=true;}}
  push(entry){

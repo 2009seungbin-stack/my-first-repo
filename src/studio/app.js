@@ -25,7 +25,7 @@ const MAX_SIDE=32768,MAX_PIXELS=268e6;
 const BACKGROUNDS={checker:{background:'checker',checkerA:'#3a3d44',checkerB:'#2e3036'},light:{background:'checker',checkerA:'#d9dbe0',checkerB:'#bfc2c9'},black:{background:'solid',solid:'#000000'},white:{background:'solid',solid:'#ffffff'},magenta:{background:'solid',solid:'#ff00ff'},gray:{background:'solid',solid:'#7f7f7f'}};
 const mac=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent);
 
-export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}){
+export function createStudio(host,{rootURL=new URL('../../',import.meta.url),renderer='auto'}={}){
  // ------------------------------------------------------------------ locale
  const url=new URL(location.href),parts=locationParts(url.pathname,rootURL.pathname);
  let storageRef;try{storageRef=localStorage;}catch{}
@@ -68,7 +68,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}
  const openInput=h('input',{type:'file',accept:EXTENSION+',application/zip',hidden:true});
  root.append(header,h('div.st-body',{},toolbar,center,rightSplit,rightDock),status,sheet,menusHost,dropHint,toastEl,importInput,openInput);
  host.replaceChildren(root);
- const view=new CanvasView(canvasHost,{options:{...BACKGROUNDS[prefs.bg]||BACKGROUNDS.checker,pixelGrid:prefs.pixelGrid,rulers:prefs.rulers,wheel:prefs.wheel}});
+ const view=new CanvasView(canvasHost,{renderer,options:{...BACKGROUNDS[prefs.bg]||BACKGROUNDS.checker,pixelGrid:prefs.pixelGrid,rulers:prefs.rulers,wheel:prefs.wheel}});
  const menus=new Menus({host:menusHost,resolve:items=>resolveItems(items),onRun:it=>{if(it.id)runCommand(it.id);else it.run?.();}});
  const docks=new Docks({right:rightDock,bottom:bottomDock,sheet,rightSplit,bottomSplit,menus,t,onChange:()=>{}});
  // ------------------------------------------------------------------ status bar
@@ -167,10 +167,10 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}
   const fileDirty=history.dirty&&(doc().assets.length>0||history.entries.length>0);
   let key,cls;
   if(autosave.error){key='save.autosaveFailed';cls='is-error';}
-  else if(autosave.saving||autosave.pending){key='save.saving';cls='is-busy';}
   else if(!doc().assets.length&&!history.entries.length){key='save.empty';cls='';}
-  else if(fileDirty){key=autosave.lastAt?'save.autosaved':'save.unsaved';cls='is-dirty';}
-  else{key='save.saved';cls='is-clean';}
+  else if(!fileDirty){key='save.saved';cls='is-clean';}
+  else if(autosave.saving||autosave.pending){key='save.saving';cls='is-busy';}
+  else{key=autosave.lastAt?'save.autosaved':'save.unsaved';cls='is-dirty';}
   saveBadge.textContent=t(key,{time:autosave.lastAt?new Date(autosave.lastAt).toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit',second:'2-digit'}):''});
   saveBadge.className='st-save-state '+cls;saveBadge.title=t(fileDirty?'save.hintDirty':'save.hintClean');
   root.dataset.dirty=String(fileDirty);root.dataset.autosave=autosave.pending||autosave.saving?'pending':autosave.error?'error':'idle';
@@ -433,9 +433,11 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}
   if(combo==='Escape'&&view.tool?.active){e.preventDefault();view.tool.cancel(view.lastInfo);return;}
   if(combo==='Escape'&&sheet.classList.contains('is-open')){docks.openSheet(false);return;}
   // single keys in lists/tabs/menus keep their widget meaning (arrows, Home/End…)
-  const inWidget=target.closest?.('[role="listbox"],[role="tablist"],[role="menu"],[role="menubar"],.st-dock input');
+  const inList=target.closest?.('[role="listbox"],[role="tablist"]'),inMenu=target.closest?.('[role="menu"],[role="menubar"]');
+  const inWidget=inList||inMenu;
   const id=keymap.lookup(combo);
-  if(id&&(!inWidget||/^(Mod|Alt|F\d)/.test(combo)||combo==='?')){
+  const widgetKey=inMenu?!/^(Mod|Alt|F\d)/.test(combo):inList&&/^(Arrow|Home|End|Enter|Space|Delete|Backspace)/.test(combo);
+  if(id&&!widgetKey){
    const c=commands.get(id);
    if(c){e.preventDefault();if(enabled(c))runCommand(id);return;}
   }
@@ -524,6 +526,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}
   async start(){
    applyMode();relabel();showAsset(null);
    activateWorkspace(workspaces.firstReady()?.id);
+   root.dataset.ready='1';document.documentElement.dataset.studioReady='1';// interactive from here; recovery may still ask
    const [session,handoff]=await Promise.all([autosave.session().catch(()=>null),takeHandoff()]);
    if(handoff.files.length){
     const assets=await importFiles(handoff.files,{from:'handoff'});
@@ -538,7 +541,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url)}={}
      else await autosave.clearSession().catch(()=>{});
     }
    }
-   root.dataset.ready='1';document.documentElement.dataset.studioReady='1';
+   document.documentElement.dataset.studioStarted='1';
   }
  };
  history.doc&&refreshChrome();

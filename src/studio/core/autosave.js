@@ -35,7 +35,8 @@ export class Autosave{
   if(this.saving){await this.saving;if(!this.pending)return;}
   if(!this.pending)return;
   this.pending=false;
-  this.saving=this.write().then(()=>{this.error=null;this.lastAt=Date.now();this.onState('saved');},e=>{this.error=e;this.onState('error',e);}).finally(()=>{this.saving=null;});
+  this.onState('saving');
+  this.saving=this.write().then(()=>{this.saving=null;this.error=null;this.lastAt=Date.now();this.onState('saved');},e=>{this.saving=null;this.error=e;this.onState('error',e);});
   return this.saving;
  }
  async write(){

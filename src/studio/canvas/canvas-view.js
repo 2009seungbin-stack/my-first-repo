@@ -113,6 +113,8 @@ export class ShapeLayer{
   if(!this.visible)return null;
   if(this.editable&&this.handles&&this.selected.size&&this.selected.size<=64)
    for(const id of this.selected){const r=this.byId.get(id);if(r&&(r.shape||'rect')==='rect'){const h=hitHandle(r,p,handleTol);if(h)return {layer:this,id,part:'handle',handle:h};}}
+  // a selected rect wins where rects overlap, so what you just selected is what you drag
+  if(this.selected.size&&this.selected.size<=256)for(const id of this.selected){const r=this.byId.get(id);if(r&&(r.shape||'rect')==='rect'&&hitRect(r,p))return {layer:this,id,part:'body'};}
   for(let i=this.others.length-1;i>=0;i--){const it=this.others[i];
    if(it.shape==='point'&&hitPoint(it,p,handleTol))return {layer:this,id:it.id,part:'body'};
    if(it.shape==='guide'&&hitGuide(it,p,tol))return {layer:this,id:it.id,part:'body'};
@@ -185,7 +187,9 @@ export class CanvasView{
  emit(type,value){for(const fn of this.listeners[type])fn(value);}
  resize(entry){
   const dpr=devicePixelRatio||1,box=entry?.devicePixelContentBoxSize?.[0],css=this.stage.getBoundingClientRect();
-  const W=Math.max(1,box?box.inlineSize:Math.round(css.width*dpr)),H=Math.max(1,box?box.blockSize:Math.round(css.height*dpr));
+  let W=Math.max(1,box?box.inlineSize:Math.round(css.width*dpr)),H=Math.max(1,box?box.blockSize:Math.round(css.height*dpr));
+  // Emulated DPR (devtools, headless device emulation) reports CSS-sized device boxes: fall back to css × dpr.
+  if(box&&dpr!==1&&Math.abs(W-css.width)<1&&Math.abs(H-css.height)<1){W=Math.max(1,Math.round(css.width*dpr));H=Math.max(1,Math.round(css.height*dpr));}
   if(W===this.W&&H===this.H&&dpr===this.dpr)return;
   const first=!this.sized;this.sized=true;
   // keep the centre of the view where it was

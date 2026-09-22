@@ -44,6 +44,7 @@ export default {
    onChange(map,{phase,key}){
     const id=assetId;if(!id)return;
     if(phase==='end'){ctx.history.close(key);return;}
+    if(phase==='cancel'&&ctx.history.abort(key))return;
     const n=map.size,label=phase==='cancel'?t('cmd.frames.move'):n===1&&[...map.values()][0]&&asset().frames.find(f=>f.id===[...map.keys()][0])?.sourceRect.w!==[...map.values()][0].w?t('cmd.frames.resize'):t('cmd.frames.move');
     ctx.execute(ctx.edit(label,d=>P.setFrameRects(d,id,map),{mergeKey:key,open:phase==='drag'}));
     if(phase==='cancel')ctx.history.close(key);
@@ -110,7 +111,9 @@ export default {
    else d.suggestions.forEach((s,i)=>{
     const spec=specOf(s),on=g&&sameGrid(spec,g);
     const use=h('button.st-sug',{type:'button','aria-pressed':String(!!on),'data-sug':String(i)},
-     h('b',{},`${s.cellWidth}×${s.cellHeight}`),h('span.st-sug-meta',{},t('grid.cells',{c:s.columns,r:s.rows})+(s.spacingX||s.spacingY||s.marginX||s.marginY?' · '+t('grid.gaps',{m:`${s.marginX},${s.marginY}`,s:`${s.spacingX},${s.spacingY}`}):'')),
+     h('b',{},`${s.cellWidth}×${s.cellHeight}`),h('span.st-sug-meta',{},[t('grid.cells',{c:s.columns,r:s.rows}),
+      s.marginX||s.marginY?t('grid.margin',{v:s.marginX===s.marginY?s.marginX:`${s.marginX},${s.marginY}`}):'',
+      s.spacingX||s.spacingY?t('grid.gap',{v:s.spacingX===s.spacingY?s.spacingX:`${s.spacingX},${s.spacingY}`}):''].filter(Boolean).join(' · ')),
      h('span.st-conf.is-'+s.confidence,{},t('grid.conf.'+s.confidence),' ',Math.round(s.score*100)+'%'));
     use.addEventListener('click',()=>setDraft(spec));
     const why=h('details.st-why',{},h('summary',{},t('grid.why')),h('ul',{},reasonList(s).map(r=>h('li',{},r))));

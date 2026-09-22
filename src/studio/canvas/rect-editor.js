@@ -36,7 +36,7 @@ export function rectEditor({layer,bounds,selection,onSelect,onChange,onCreate=nu
     s={type:'move',ids,p0,start:startRects(ids),key,moved:false};return;
    }
    if(create()){s={type:'create',p0,key};return;}
-   s={type:'marquee',p0,base:info.shift?sel():[],key};
+   s={type:'marquee',p0,base:info.shift?sel():[],prev:sel(),key};
    if(!info.shift&&sel().length)onSelect([]);
   },
   move(info){
@@ -68,6 +68,7 @@ export function rectEditor({layer,bounds,selection,onSelect,onChange,onCreate=nu
   cancel(info){
    if(!s)return;const done=s;s=null;info?.view?.setMarquee(null);
    if((done.type==='move'||done.type==='resize')&&done.moved)onChange(done.start,{phase:'cancel',key:done.key});
+   if(done.type==='marquee')onSelect(done.prev);// Escape restores the selection a rubber band replaced
   },
   get active(){return !!s;}
  };
