@@ -149,25 +149,24 @@ class BitWriter{
  bytes(arr){this.ensure(arr.length);this.buf.set(arr,this.pos);this.pos+=arr.length;}
 }
 const rev=(c,l)=>{let r=0;for(let i=0;i<l;i++){r=(r<<1)|(c&1);c>>=1;}return r;};
-/** Length-limited Huffman code lengths from frequencies (Huffman tree, then zlib-style repair
- * of the Kraft sum when a code exceeds `limit`). */
+/** Optimal length-limited Huffman code lengths (package-merge). The result is always a complete
+ * prefix code (Kraft sum exactly 1) for two or more symbols, which real zlib insists on: it
+ * rejects incomplete literal/length and code-length codes with Z_DATA_ERROR. */
 function codeLengths(freq,limit){
  const n=freq.length,lens=new Uint8Array(n),syms=[];
  for(let i=0;i<n;i++)if(freq[i])syms.push(i);
  if(!syms.length)return lens;
  if(syms.length===1){lens[syms[0]]=1;return lens;}
- const leaves=syms.map(s=>({f:freq[s],s,l:null,r:null})).sort((a,b)=>a.f-b.f||a.s-b.s);
- const q2=[];let i=0,j=0;
- const take=()=>(j>=q2.length||(i<leaves.length&&leaves[i].f<=q2[j].f))?leaves[i++]:q2[j++];
- while(leaves.length-i+q2.length-j>1){const a=take(),b=take();q2.push({f:a.f+b.f,s:-1,l:a,r:b});}
- const stack=[[q2[q2.length-1],0]];
- while(stack.length){const [node,d]=stack.pop();if(node.s>=0)lens[node.s]=Math.max(1,d);else{stack.push([node.l,d+1],[node.r,d+1]);}}
- let over=false;for(const s of syms)if(lens[s]>limit){lens[s]=limit;over=true;}
- if(over){
-  const cap=2**limit;let kraft=syms.reduce((t,s)=>t+2**(limit-lens[s]),0);
-  const order=[...syms].sort((a,b)=>freq[a]-freq[b]);
-  while(kraft>cap){for(const s of order){if(lens[s]<limit){kraft-=2**(limit-lens[s]-1);lens[s]++;if(kraft<=cap)break;}}}
+ const leaves=syms.map(s=>({w:freq[s],s,a:null,b:null})).sort((x,y)=>x.w-y.w||x.s-y.s);
+ let list=leaves;
+ for(let level=1;level<limit;level++){
+  const packs=[];for(let i=0;i+1<list.length;i+=2)packs.push({w:list[i].w+list[i+1].w,s:-1,a:list[i],b:list[i+1]});
+  const merged=[];let i=0,j=0;
+  while(i<leaves.length||j<packs.length)merged.push(j>=packs.length||(i<leaves.length&&leaves[i].w<=packs[j].w)?leaves[i++]:packs[j++]);
+  list=merged;
  }
+ const stack=list.slice(0,2*syms.length-2);
+ while(stack.length){const it=stack.pop();if(it.s>=0)lens[it.s]++;else stack.push(it.a,it.b);}
  return lens;
 }
 function canonical(lens){
@@ -201,6 +200,8 @@ function writeBlock(w,syms,count,final){
   rle.push([v]);i++;
  }
  const cf=new Uint32Array(19);for(const [s] of rle)cf[s]++;
+ // zlib rejects an incomplete code-length code, so never let it have a single symbol.
+ if(cf.filter(Boolean).length<2)cf[cf[0]?1:0]=1;
  const cl=codeLengths(cf,7),cc=canonical(cl);
  let hclen=19;while(hclen>4&&!cl[CL_ORDER[hclen-1]])hclen--;
  w.put(final?1:0,1);w.put(2,2);w.put(hlit-257,5);w.put(hdist-1,5);w.put(hclen-4,4);
