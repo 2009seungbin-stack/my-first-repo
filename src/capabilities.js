@@ -34,7 +34,11 @@ const engines = {
  'palette-extractor':'shared alpha-weighted histogram / Oklab median cut + Lloyd / .gpl, HEX and JSON round trip',
  'palette-swap-ramp':'OkLCh ramp position mapping / hue-window replace / index-preserving variants',
  'pixel-art-cleanup':'connected components on palette indices / Oklab segment anti-alias snap / outline run measurement',
- 'pixel-perfect-checker':'colour-change residues for integer block grids / run lengths / Oklab edge interpolation count'
+ 'pixel-perfect-checker':'colour-change residues for integer block grids / run lengths / Oklab edge interpolation count',
+ 'tile-lab':'folded transition-profile period scoring / exact region copy / autotile rule tables / alpha collision shapes',
+ 'tileset-slicer':'margin and spacing grid region copy / FNV tile hashing / run-merged collision rectangles',
+ 'autotile-tester':'8-neighbour mask tables (3×3 minimal, 16 Wang, 47 blob) / nearest-neighbour render',
+ 'seamless-tile-checker':'wrap-edge channel difference against an in-tile baseline / half offset + cross blend'
 };
 /** Advanced is earned, never assigned. A tool qualifies only when its recorded evidence shows:
  * workflow — the real workflow produced output that was independently decoded or measured;

@@ -2,7 +2,7 @@
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from PIL import Image
-import io,json,os,shutil,subprocess,zipfile
+import io,json,math,os,shutil,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173');checks=[];errors=[]
 def ok(name,cond,detail=''):
@@ -1046,9 +1046,134 @@ with sync_playwright() as pw:
             ok(f'pixel lab has no horizontal scroll at {width} on {stage}',plab_phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'),str(plab_phone.evaluate('()=>document.documentElement.scrollWidth')))
         plab_phone.close()
     # ===== end Pixel Lab =============================================================
+    # ===== Tile Lab (src/task/tile-lab.js, docs/TILE-LAB.md) =====================================
+    # The blob reduction is re-derived here so the page cannot verify itself: a corner neighbour
+    # only counts behind both of its edges, which turns the 256 raw masks into exactly 47 slots.
+    NBIT=dict(n=1,ne=2,e=4,se=8,s=16,sw=32,w=64,nw=128)
+    def reduce_mask(m):
+        r=m&(NBIT['n']|NBIT['e']|NBIT['s']|NBIT['w'])
+        for corner,(a,b) in {'ne':('n','e'),'se':('s','e'),'sw':('s','w'),'nw':('n','w')}.items():
+            if m&NBIT[corner] and m&NBIT[a] and m&NBIT[b]:r|=NBIT[corner]
+        return r
+    BLOB=sorted({reduce_mask(m) for m in range(256)})
+    ok('the blob rule set has 47 classes',len(BLOB)==47 and BLOB[-1]==255)
+    TILE=16;COLS=8
+    def slot_colour(i):return ((i*5+10)%256,60+(i%3)*30,200-i*3,255)
+    def blob_sheet(blank=()):
+        # One flat, unique colour per slot: the rendered map can then be checked by reading pixels.
+        im=Image.new('RGBA',(COLS*TILE,6*TILE),(0,0,0,0))
+        for i in range(len(BLOB)):
+            if i in blank:continue
+            x0,y0=(i%COLS)*TILE,(i//COLS)*TILE
+            for y in range(TILE):
+                for x in range(TILE):im.putpixel((x0+x,y0+y),slot_colour(i))
+        b=io.BytesIO();im.save(b,'PNG');return b.getvalue()
+    def open_lab(path,buffer,query=''):
+        page.goto(BASE+path+query,wait_until='networkidle')
+        page.locator('#fileInput').set_input_files([{'name':'terrain.png','mimeType':'image/png','buffer':buffer}])
+        page.wait_for_function("()=>!!document.querySelector('.tl-stages')",timeout=60000);page.wait_for_timeout(250)
+    def pixel(selector,cx,cy,size=TILE):
+        return tuple(page.evaluate("""([sel,cx,cy,size])=>{const c=document.querySelector(sel),g=c.getContext('2d');
+          const d=g.getImageData(Math.floor(cx*size+size/2),Math.floor(cy*size+size/2),1,1).data;return [d[0],d[1],d[2],d[3]];}""",[selector,cx,cy,size]))
+    sheet=blob_sheet()
+    open_lab('/en/game/tile-lab/',sheet)
+    ok('the Lab opens as one workspace with its stages',page.locator('.tl-stages button').count()==6 and page.locator('#tlSheet').count()==1)
+    top=page.locator('.tl-cand').first.inner_text().replace('×','x')
+    ok('the grid is measured, and the measured grid is the one offered first','16x16' in top,top)
+    ok('the suggestion is applied but every number stays editable',
+       [page.locator('[data-option="'+k+'"]').input_value() for k in ['tileWidth','tileHeight','marginX','spacingX']]==['16','16','0','0'])
+    ok('each candidate shows the numbers it was ranked on',page.locator('.tl-cand .tl-ev i').count()>=3)
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path());assert z.testzip() is None
+    meta=json.loads(z.read('metadata.json'))
+    written=[n for n in z.namelist() if n.startswith('tiles/')]
+    ok('slicing writes one PNG per non-blank tile plus metadata',len(written)==47 and meta['tileSet']['skippedBlank']==1 and len(meta['frames'])==47,len(written))
+    ok('the metadata says exactly where tile 5 came from',meta['frames']['tile-005.png']['rect']=={'x':5*TILE,'y':0,'w':TILE,'h':TILE})
+    tile5=Image.open(io.BytesIO(z.read('tiles/tile-005.png'))).convert('RGBA')
+    ok('a sliced tile is the source region, not a re-render',tile5.size==(TILE,TILE) and set(tile5.getdata())=={slot_colour(5)})
+    # --- rule check: what the sheet is missing for the chosen kind ---
+    page.locator('[data-action="tl-stage"][data-stage="rules"]').click();page.wait_for_timeout(400)
+    ok('a complete 47-tile blob sheet reports nothing missing',
+       page.locator('#tlRules .summary-big').inner_text()=='0' and page.locator('[data-ghost]').count()==0)
+    open_lab('/en/game/tile-lab/',blob_sheet(blank={5,17,40}),'?stage=rules')
+    ok('a sheet with three slots painted out reports exactly those three',
+       sorted(int(v) for v in page.locator('[data-ghost]').evaluate_all('ns=>ns.map(n=>n.dataset.ghost)'))==[5,17,40],
+       page.locator('#tlRules .summary-line').inner_text())
+    # --- autotile tester: the rules choose the tile, and the pixels prove which one ---
+    open_lab('/en/game/autotile-tester/',sheet)
+    ok('the autotile route opens the Lab at its tester',page.locator('[data-action="tl-stage"][data-stage="tester"]').get_attribute('aria-pressed')=='true')
+    ok('the sheet is used as the tile art when it can cover the rule set',
+       page.locator('[data-key="source"][data-value="sheet"]').get_attribute('aria-pressed')=='true')
+    page.locator('[data-action="tl-fill"]').click();page.wait_for_timeout(300)
+    ok('a filled terrain leaves no cell without a tile',page.locator('#tlMapSummary .summary-big').inner_text()=='✓')
+    ok('the middle of a filled area draws the all-neighbours tile',pixel('#tlMap',8,8)==slot_colour(BLOB.index(255)),pixel('#tlMap',8,8))
+    ok('its top-left corner draws the tile whose only neighbours are E, SE and S',
+       pixel('#tlMap',0,0)==slot_colour(BLOB.index(NBIT['e']|NBIT['se']|NBIT['s'])),pixel('#tlMap',0,0))
+    page.locator('[data-action="tl-clear"]').click();page.wait_for_timeout(250)
+    ok('clearing the terrain empties the map',pixel('#tlMap',8,8)[3]==0)
+    # The keyboard is a real alternative to painting, not a decoration.
+    page.locator('#tlMap').click(position={'x':4,'y':4});page.wait_for_timeout(200)
+    page.locator('#tlMap').press('ArrowRight');page.locator('#tlMap').press(' ');page.wait_for_timeout(250)
+    ok('arrow keys plus Space paint the cell next to the one that was clicked',
+       pixel('#tlMap',1,0)==slot_colour(BLOB.index(NBIT['w'])),pixel('#tlMap',1,0))
+    # Undo is the terrain grid itself (one byte per cell), so a step restores the exact map.
+    page.locator('[data-action="tl-fill"]').click();page.wait_for_timeout(250)
+    filled=pixel('#tlMap',8,8)
+    page.locator('[data-action="tl-clear"]').click();page.wait_for_timeout(250)
+    page.locator('[data-action="tl-undo"]').click();page.wait_for_timeout(250)
+    ok('undo restores the exact map that was painted before',pixel('#tlMap',8,8)==filled,pixel('#tlMap',8,8))
+    page.locator('[data-action="tl-redo"]').click();page.wait_for_timeout(250)
+    ok('redo empties it again and exhausts itself',pixel('#tlMap',8,8)[3]==0 and page.locator('#tlRedo').is_disabled())
+    # --- seams: one repeating texture, measured against its own interior ---
+    wrap=Image.new('RGBA',(32,32))
+    for y in range(32):
+        for x in range(32):
+            v=int(128+60*math.cos(2*math.pi*x/32)+40*math.cos(2*math.pi*y/32));wrap.putpixel((x,y),(v,v,v,255))
+    b=io.BytesIO();wrap.save(b,'PNG')
+    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    # The seams stage has no grid fields; the tile it measures is named in the board bar.
+    ok('the seam checker treats the whole image as the tile','32'+chr(215)+'32' in page.locator('#tlSeamInfo').inner_text(),page.locator('#tlSeamInfo').inner_text())
+    ok('a tile that wraps is reported seamless','without a visible seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
+    ramp=Image.new('RGBA',(32,32))
+    for y in range(32):
+        for x in range(32):ramp.putpixel((x,y),(x*8,y*8,90,255))
+    b=io.BytesIO();ramp.save(b,'PNG')
+    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    ok('a tile that does not wrap is reported honestly','shows a seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    healed=Image.open(d.value.path()).convert('RGBA')
+    worst=max(max(abs(a-b) for a,b in zip(healed.getpixel((0,y)),healed.getpixel((31,y)))) for y in range(32))
+    ok('the seamless helper really joins the wrap it showed',healed.size==(32,32) and worst<=8,worst)
+    # --- templates: guide art whose cells are the layout table ---
+    open_lab('/en/game/tile-lab/',sheet,'?stage=templates&kind=edge16')
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path())
+    layout=json.loads(z.read('edge16-layout.json'))['layout']
+    guide=Image.open(io.BytesIO(z.read('edge16-template.png'))).convert('RGBA')
+    ok('a template PNG and its layout JSON describe the same 16 cells',
+       layout['count']==16 and len(layout['slots'])==16 and guide.size==(4*layout['tileSize']['w'],4*layout['tileSize']['h']))
+    ok('every template cell is drawn where the JSON says it is',
+       all(guide.crop((s['rect']['x'],s['rect']['y'],s['rect']['x']+s['rect']['w'],s['rect']['y']+s['rect']['h'])).getbbox() for s in layout['slots']))
+    # --- Godot pack: generic JSON plus a helper script, never a hand-written resource ---
+    open_lab('/en/game/tile-lab/',sheet,'?stage=export&kind=blob47')
+    ready(page)
+    with page.expect_download() as d:page.locator('#taskDownload').click()
+    z=zipfile.ZipFile(d.value.path());pack=set(z.namelist())
+    gj=json.loads(z.read('nerulio-tileset.json'))
+    ok('the Godot pack is JSON plus a readable helper, with no fake engine file',
+       {'nerulio-tileset.json','nerulio_tileset_import.gd','README.txt'}<=pack and not any(n.endswith(('.tres','.tscn','.meta','.import')) for n in pack),sorted(pack))
+    NAME={'n':'top_side','ne':'top_right_corner','e':'right_side','se':'bottom_right_corner','s':'bottom_side','sw':'bottom_left_corner','w':'left_side','nw':'top_left_corner'}
+    ok('every peering bit in the pack is the neighbour mask of its slot',
+       all(t['peering']=={NAME[k]:0 for k,bit in NBIT.items() if t['slot']['mask']&bit} for t in gj['tileSet']['tiles'])
+       and len(gj['tileSet']['tiles'])==47 and gj['tileSet']['terrainSets'][0]['mode']=='match_corners_and_sides')
+    # ===== end Tile Lab ==========================================================================
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
-    for path in ['/ko/','/ko/image/compress/']:
+    # compress stays last: the sample check below runs on whatever this loop left open.
+    for path in ['/ko/','/ko/game/tile-lab/','/ko/game/autotile-tester/','/ko/image/compress/']:
         phone.goto(BASE+path,wait_until='networkidle')
         ok(f'no horizontal scroll on a phone {path}',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     phone.locator('[data-action="task-sample"]').click();ready(phone)

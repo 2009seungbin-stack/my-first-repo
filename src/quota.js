@@ -15,6 +15,8 @@ export const QUOTA_CLASSES=Object.freeze({
  'atlas-padding':'none','texture-map':'heavy','tile-helper':'none','scan-split':'none','margin-crop':'none','favicon-pack':'none',
  // Sprite Lab and its stage entries: geometry, records and one atlas page at a time — no API, no metering.
  'sprite-lab':'none','sprite-animation-preview':'none','sprite-pivot-editor':'none','hitbox-editor':'none','collision-polygon-generator':'none',
+ // Tile Lab: grid measurement, slicing and rule checks are local region copies, never metered.
+ 'tile-lab':'none','tileset-slicer':'none','autotile-tester':'none','seamless-tile-checker':'none',
  // Image
  home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.

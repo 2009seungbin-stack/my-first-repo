@@ -22,4 +22,8 @@ export const SEARCH_TERMS = Object.freeze({
  'sprite-pivot-editor':['pivot editor','sprite origin','anchor point','기준점 편집','피벗','基準点','ピボット'],
  'hitbox-editor':['hitbox','hurtbox','attack frames','히트박스','피격 판정','ヒットボックス','当たり判定'],
  'collision-polygon-generator':['collision polygon','collision shape','physics outline','충돌 다각형','충돌 영역','衝突ポリゴン','コリジョン'],
+ 'tile-lab':['tileset','tilemap','autotile','wang tiles','blob tiles','tiled','타일셋','타일맵','오토타일','タイルセット','オートタイル'],
+ 'tileset-slicer':['tileset splitter','tile cutter','margin spacing','타일 분리','타일 자르기','タイル分割'],
+ 'autotile-tester':['autotile','terrain rules','47 blob','wang','3x3 minimal','godot terrain','오토타일','지형 규칙','オートタイル','地形ルール'],
+ 'seamless-tile-checker':['seamless texture','tiling test','repeat check','offset seam','이음새','심리스','継ぎ目','シームレス'],
 });

@@ -17,6 +17,7 @@ def open_tool(context,path,files):
     else:idle(page)
     return page
 def is_task(page):return page.locator('body.task-page').count()>0
+BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173')
 DONE="()=>{const b=document.querySelector('#taskDownload');return b&&!b.disabled}" 
 def options(page,values):
     if is_task(page):
@@ -122,7 +123,9 @@ with sync_playwright() as pw:
        a.size==b.size==(6,10) and a.getbbox()[3]==b.getbbox()[3]==10);p.close()
 
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
-    p=ctx.new_page();p.goto('http://127.0.0.1:4173/en/sprite-sheet-maker/',wait_until='networkidle')
+    # Two separately sized frames: the normaliser above now starts from one sheet, so they are built here.
+    frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
+    p=ctx.new_page();p.goto(BASE+'/en/sprite-sheet-maker/',wait_until='networkidle')
     p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()
     p.locator('[data-key="layout"][data-value="grid"]').click();p.locator('[data-key="padding"][data-value="2"]').click();p.locator('#optionsAdvanced, .options-advanced').first.evaluate('d=>d.open=true');p.fill('#atlasColumns','2');p.locator('#atlasTrim').uncheck();p.wait_for_timeout(300)
     with p.expect_download() as d:p.locator('#atlasRun').click()
@@ -156,8 +159,26 @@ with sync_playwright() as pw:
     im=Image.open(output(p,'packed-mask.png')).convert('RGBA');ok('mask PNG preserves channel bytes even under zero alpha',set(im.getdata())=={(220,10,80,0)})
     p.locator('[data-invert="0"]').check();p.wait_for_timeout(400)
     im=Image.open(output(p,'packed-mask-inverted.png')).convert('RGBA');ok('inverting a channel inverts the actual PNG bytes',set(im.getdata())=={(35,10,80,0)});p.close()
-    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_tool(ctx,'atlas-padding',[('atlas.png',atlas)])
-    options(p,{'cellW':1,'cellH':1,'padding':1});z=archive(output(p,'atlas.zip'));im=rgba_image(z,'padded-atlas.png')
+    # --- Tile Lab ports: atlas-padding and tile-grid-slicer now open Tile Lab (src/task/tile-lab.js)
+    # at its grid stage, so the same properties are asserted against the Lab's ZIP. ---
+    def open_lab(path,files,query=''):
+        page=mount(ctx,'/en/'+path+'/'+query)
+        page.locator('#fileInput').set_input_files([{'name':n,'mimeType':'image/png','buffer':b} for n,b in files])
+        page.wait_for_function("()=>document.querySelector('.tl-stages')",timeout=60000);page.wait_for_timeout(200);return page
+    def lab_set(page,values):
+        for key,value in values.items():
+            el=page.locator(f'[data-option="{key}"]')
+            el.evaluate('e=>{for(let p=e.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true}')
+            if el.get_attribute('type')=='checkbox':el.set_checked(value)
+            else:el.fill(str(value))
+            page.wait_for_timeout(150)
+        page.wait_for_timeout(200)
+    def lab_zip(page,name):
+        page.wait_for_function(DONE,timeout=120000)
+        with page.expect_download() as event:page.locator('#taskDownload').click()
+        path=OUT/name;event.value.save_as(path);return archive(path)
+    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_lab('atlas-padding',[('atlas.png',atlas)])
+    lab_set(p,{'tileWidth':1,'tileHeight':1,'extrude':1});z=lab_zip(p,'atlas.zip');im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()
     # normal-map-generator now opens Texture Lab at its Normal stage (src/task/texture-lab.js).
     # The flat-normal guarantee is unchanged; the convention it writes is stated instead of implied.
@@ -165,8 +186,8 @@ with sync_playwright() as pw:
     p.locator('#texNormalOut').wait_for(timeout=60000);p.wait_for_timeout(600)
     im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)})
     ok('the Normal stage states which convention it writes',p.locator('[data-action="tex-normal-set"][data-value="opengl"][aria-pressed="true"]').count()==1);p.close()
-    p=open_tool(ctx,'tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);options(p,{'cellW':2,'cellH':2});z=archive(output(p,'tiles.zip'))
-    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'frames/frame-002.png').size==(2,2));p.close()
+    p=open_lab('tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);lab_set(p,{'tileWidth':2,'tileHeight':2});z=lab_zip(p,'tiles.zip')
+    ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'tiles/tile-001.png').size==(2,2));p.close()
     p=open_tool(ctx,'split-scanned-images',[('spread.png',png(9,4,'white'))]);options(p,{'order':'RL'});z=archive(output(p,'spread.zip'))
     ok('scan splitter respects divider rounding and right-first order',rgba_image(z,'frames/frame-001.png').size==(4,4) and rgba_image(z,'frames/frame-002.png').size==(5,4));p.close()
     p=open_tool(ctx,'auto-crop-image-margins',[('scan.png',png(10,10,'white',[((3,2,6,7),'black')]))]);options(p,{'padding':0})

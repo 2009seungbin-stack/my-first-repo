@@ -678,6 +678,110 @@ export const TOOLS = Object.freeze({
     "description": ["확대된 스프라이트의 실제 도트 크기와 격자 어긋남, 흐린 경계, 색 수를 측정하세요.","Measure an upscaled sprite’s real pixel size, grid offset, blurred edges and colour count.","拡大されたスプライトの実際のドットサイズ・格子ずれ・ぼけた境界・色数を測定。"],
     "limit": ["정수 블록 격자만 정확히 증명합니다. 비정수 배율은 런 길이로 추정해 보고만 합니다.","Only an integer block grid is proven exactly; a non-integer factor is reported as a run-length estimate, not a fact.","正確に証明できるのは整数ブロック格子のみです。非整数倍率はラン長からの推定として報告します。"],
     "next": ["pixel-lab","pixel-art-cleanup","refiner"]
+  },
+  "tile-lab": {
+    "path": "game/tile-lab",
+    "category": "game",
+    "icon": "crop",
+    "lab": true,
+    "title": [
+      "타일셋 작업실",
+      "Tile Lab",
+      "タイルセット工房"
+    ],
+    "description": [
+      "타일 격자 추정·분리부터 오토타일 규칙 시험과 이음새 검사까지 한 화면에서.",
+      "Measure the grid, slice tiles, test autotile rules and check seams in one workspace.",
+      "格子の推定・分割からオートタイル規則の検証・継ぎ目チェックまで1画面で。"
+    ],
+    "limit": [
+      "규칙을 시험하는 도구입니다. 타일 그림을 대신 그려 주지는 않습니다. Godot 도우미의 검증 표시를 확인하세요.",
+      "It tests rules; it does not draw tile art for you. Check the Godot helper's verification note before trusting it.",
+      "規則を検証するツールで、タイルの絵は描きません。Godotヘルパーの検証状況を確認してください。"
+    ],
+    "next": [
+      "tile-helper",
+      "atlas-padding",
+      "sprite-sheet-maker"
+    ]
+  },
+  "autotile-tester": {
+    "path": "game/autotile-tester",
+    "category": "game",
+    "icon": "pack",
+    "lab": true,
+    "title": [
+      "오토타일 규칙 시험",
+      "Autotile Tester",
+      "オートタイル検証"
+    ],
+    "description": [
+      "지형을 칠하면 3×3 최소·16장 Wang·47장 블롭 규칙이 고른 타일로 즉시 그려 봅니다.",
+      "Paint terrain and watch the 3×3 minimal, 16-tile Wang and 47-tile blob rules pick tiles live.",
+      "地形を塗ると3×3最小・16枚Wang・47枚ブロブの規則が選ぶタイルで即描画します。"
+    ],
+    "limit": [
+      "한 가지 지형만 시험합니다. 여러 지형 사이의 전환이나 엔진 내부 동작을 재현하지는 않습니다.",
+      "One terrain at a time. It does not simulate transitions between several terrains or your engine's own matching.",
+      "地形は1種類のみ。複数地形間の遷移やエンジン内部の挙動は再現しません。"
+    ],
+    "next": [
+      "tile-lab",
+      "tileset-slicer",
+      "atlas-padding"
+    ]
+  },
+  "tileset-slicer": {
+    "path": "game/tileset-slicer",
+    "category": "game",
+    "icon": "scissors",
+    "lab": true,
+    "title": [
+      "타일셋 분리",
+      "Tileset Slicer",
+      "タイルセット分割"
+    ],
+    "description": [
+      "여백·간격이 있는 타일 시트를 개별 PNG와 메타데이터 JSON으로 분리하세요.",
+      "Slice a tile sheet with margin and spacing into individual PNGs plus a metadata JSON.",
+      "余白・間隔のあるタイルシートを個別PNGとメタデータJSONに分割。"
+    ],
+    "limit": [
+      "규칙적인 격자만 다룹니다. 불규칙하게 놓인 스프라이트는 스프라이트 분리 도구를 쓰세요.",
+      "Regular grids only. Irregularly placed sprites belong in the sprite slicer.",
+      "規則的な格子のみ。不規則に配置されたスプライトはスプライト分割をご利用ください。"
+    ],
+    "next": [
+      "tile-lab",
+      "atlas-padding",
+      "sprite-slicer"
+    ]
+  },
+  "seamless-tile-checker": {
+    "path": "game/seamless-tile-checker",
+    "category": "game",
+    "icon": "image",
+    "lab": true,
+    "title": [
+      "반복 타일 이음새 검사",
+      "Seamless Tile Checker",
+      "タイルの継ぎ目チェック"
+    ],
+    "description": [
+      "2×2·3×3 반복 미리보기와 좌우·상하 경계 차이로 이음새를 확인하고 고쳐 보세요.",
+      "See a 2×2 / 3×3 repeat, measure the left↔right and top↔bottom edges, and try a seamless fix.",
+      "2×2・3×3の繰り返しと左右・上下の境界差で継ぎ目を確認し、修正も試せます。"
+    ],
+    "limit": [
+      "이음새 없애기는 그림을 실제로 바꿉니다(반 칸 이동 + 경계 혼합). 내용을 새로 만들어 채우지 않습니다.",
+      "The seamless fix alters the art (half-tile offset + cross-blend); it does not synthesise new content.",
+      "継ぎ目の修正は絵を実際に変更します（半タイル移動＋境界ブレンド）。内容の新規生成は行いません。"
+    ],
+    "next": [
+      "tile-lab",
+      "texture-map",
+      "tile-helper"
+    ]
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));
