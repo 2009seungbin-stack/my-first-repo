@@ -1,4 +1,4 @@
-import {GAME_INTENT_PAGES,isGameIntentPage} from '../src/game-seo.js';
+import {GAME_INTENT_PAGES,isGameLanding,toolPathFor} from '../src/game-seo.js';
 import {mayPromote} from '../src/capabilities.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -41,10 +41,10 @@ test('all canonical intent documents have reciprocal locales, distinct canonical
 test('crawlable examples have actual PNG dimensions and agree with image sitemap',async()=>{
  // Game landing pages show a Studio screenshot instead of the old example pair (their classic page keeps it).
  const xml=imageSitemap(origin),game=(xml.match(/assets\/studio\//g)||[]).length;
- assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).filter(id=>mayPromote(id)&&!isGameIntentPage(id)).length*3+game);
+ assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).filter(id=>mayPromote(id)&&!isGameLanding(id)).length*3+game);
  assert(game>=(Object.keys(GAME_INTENT_PAGES).length+1)*3,'every game landing and the hub list their screenshot');
  for(const [id,e] of Object.entries(EXAMPLES))for(const locale of LOCALES){
-  const gamePage=isGameIntentPage(id),h=entry(html,`${locale}/${INTENTS[id].path}${gamePage?'/classic':''}`,origin);
+  const gamePage=isGameLanding(id),h=entry(html,`${locale}/${toolPathFor(id,INTENTS[id].path)}`,origin);
   assert(h.indexOf('class="tool-examples"')>h.indexOf('class="workspace-footer"'));
   for(const v of Object.values(e)){
    assert(h.includes(`src="assets/examples/${v.file}" width="${v.width}" height="${v.height}" alt="`));assert(h.includes('loading="lazy" decoding="async"'));

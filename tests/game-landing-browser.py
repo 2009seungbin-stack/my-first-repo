@@ -20,7 +20,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('TEST_URL', 'http://127.0.0.1:4173').rstrip('/')
-PARTS = os.environ.get('PARTS', '123')  # for debugging only; the evidence run uses all parts
+PARTS = os.environ.get('PARTS', '1234')  # for debugging only; the evidence run uses all parts
 BROWSERS = [b for b in os.environ.get('BROWSERS', 'chromium,firefox').split(',') if b]
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 OUT = ROOT / 'test-results'; OUT.mkdir(exist_ok=True)
@@ -54,17 +54,18 @@ def js(p, body, arg=None):
 
 
 def pages():
-    script = ("import {GAME_INTENT_PAGES,GAME_KEYWORD_PAGES} from './src/game-seo.js';import {INTENTS} from './src/intents.js';"
+    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES} from './src/game-seo.js';import {INTENTS} from './src/intents.js';"
               "import {mayPromote} from './src/capabilities.js';"
               "console.log(JSON.stringify({intents:Object.fromEntries(Object.entries(GAME_INTENT_PAGES).map(([k,p])=>[k,{path:INTENTS[k].path,ws:p.ws,classic:!!p.classic,promote:mayPromote(k)}])),"
-              "keywords:Object.fromEntries(Object.entries(GAME_KEYWORD_PAGES).map(([k,p])=>[k,{path:k,ws:p.ws,promote:mayPromote(p.intent)}]))}));")
+              "labs:Object.fromEntries(Object.entries(GAME_LAB_PAGES).map(([k,p])=>[k,{path:INTENTS[k].path,ws:p.ws,classic:false,promote:mayPromote(k),lab:true}])),"
+              "keywords:Object.fromEntries(Object.entries(GAME_KEYWORD_PAGES).map(([k,p])=>[k,{path:k,ws:p.ws,promote:mayPromote(p.intent),studio:['sprite','pack','tile'].includes(p.ws)}]))}));")
     import subprocess
     out = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', check=True)
     return json.loads(out.stdout)
 
 
 PAGES = pages()
-ALL = [(k, v) for k, v in PAGES['intents'].items()] + [(k, v) for k, v in PAGES['keywords'].items()]
+ALL = [(k, v) for k, v in PAGES['intents'].items()] + [(k, v) for k, v in PAGES['labs'].items()] + [(k, v) for k, v in PAGES['keywords'].items()]
 
 
 def visible(im):
@@ -150,7 +151,7 @@ def part1(browser):
             st, h = get(f'/{loc}/{v["path"]}/')
             ok('every game page answers 200 in ko/en/ja with its language', st == 200 and f'<html lang="{loc}">' in h, key + loc)
             ok('game pages are indexable exactly when their tool is qualified (mayPromote)', ('noindex' in h) == (not v['promote']), f'{loc}/{key}')
-            ok('game pages are indexable: every Studio landing is promoted', v['promote'], key)
+            if key in PAGES['intents'] or v.get('studio'):ok('game pages are indexable: every Studio landing is promoted', v['promote'], key)
             title = re.search(r'<title>([^<]+)</title>', h).group(1)
             ok('each game page has one H1 and a title no other page in its language has', h.count('<h1') == 1 and (loc, title) not in titles, f'{loc}/{key} {title}')
             titles[(loc, title)] = key
@@ -159,7 +160,10 @@ def part1(browser):
             app = next((x for x in lds if x.get('@type') == 'SoftwareApplication'), None)
             ok('SoftwareApplication JSON-LD: DeveloperApplication, Web, free offer, a feature list naming verified engines',
                app and app['applicationCategory'] == 'DeveloperApplication' and app['operatingSystem'] == 'Web' and app['offers']['price'] == '0' and len(app['featureList']) >= 5 and any('Godot' in f for f in app['featureList']), key)
-            ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile)"', h) and 'data-studio-link' in h, key)
+            if v.get('lab') or (key in PAGES['keywords'] and not v.get('studio')):
+                ok('a Lab page\'s primary action opens its Lab (<route>/app/ or the classic Lab) and the header still links the Studio', 'data-gl-drop' in h and re.search(r'data-target="lab" data-href="(?:\w\w/)?[\w/-]+/(app|classic)/"', h) and 'data-studio-link' in h, key)
+            else:
+                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile)"', h) and 'data-studio-link' in h, key)
             ok('the page shows a real Studio screenshot (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
             ok('engine badges carry their verification label', h.count('class="gl-badge') >= 4 and ('Godot' in h), key)
             if key != 'game':
@@ -330,6 +334,8 @@ def part3(browser):
     E = 'chromium'
     ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, locale='en-US')
     for key, v in PAGES['keywords'].items():
+        if not v.get('studio'):
+            continue  # Lab keyword pages: their Lab flow is covered in part 4 through the Lab landing
         files = [ASE] if 'aseprite' in key else [GIF] if 'gif-to' in key else NINJA if v['ws'] == 'pack' else [CAVE] if v['ws'] == 'tile' else [SAMURAI]
         p = land(ctx, f'/en/{key}/', files, E)
         want = {'sprite': 'sprite', 'tile': 'tile', 'pack': 'pack'}[v['ws']]
@@ -340,15 +346,264 @@ def part3(browser):
     ctx.close()
 
 
+
+# ======================================================================= part 4: Lab landings, both engines
+GS = FX / 'game-seo'
+import importlib.util
+_spec = importlib.util.spec_from_file_location('plab_fx', ROOT / 'tests' / 'pixel-lab-fixtures.py')
+pfx = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(pfx)
+
+
+def buf(name, data, mime='image/png'):
+    return {'name': name, 'mimeType': mime, 'buffer': data}
+
+
+def png_bytes(im):
+    b = io.BytesIO(); im.save(b, 'PNG'); return b.getvalue()
+
+
+def lab_open(ctx, route, files, ready_sel, engine):
+    """Landing page → its own file picker → the Lab at <route>/app/ with the files."""
+    p = ctx.new_page(); p.on('pageerror', lambda e: errors.append(f'{engine} {route}: {e}'))
+    p.goto(BASE + route, wait_until='domcontentloaded')
+    p.wait_for_function('()=>document.documentElement.dataset.glReady==="1"', timeout=30000)
+    with p.expect_navigation(url=re.compile(r'/(app|classic)/'), timeout=30000):
+        p.set_input_files('#glFiles', files)
+    p.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"', timeout=60000)
+    p.wait_for_selector(ready_sel, timeout=60000); p.wait_for_timeout(600)
+    return p
+
+
+def download(p, selector):
+    with p.expect_download(timeout=120000) as d:
+        p.locator(selector).first.click()
+    return Path(d.value.path())
+
+
+def task_ready(p):
+    p.wait_for_function('()=>{const b=document.querySelector("#taskDownload");return b&&!b.disabled}', timeout=120000)
+
+
+def plab_zip(p):
+    z = zipfile.ZipFile(download(p, '[data-action="plab-export"]'))
+    meta = json.loads(z.read('pixel-lab.json'))
+    pal = {tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in meta['meta']['palette']}
+    ims = [Image.open(io.BytesIO(z.read(n))).convert('RGBA') for n in sorted(x for x in z.namelist() if x.endswith('.png'))]
+    union = set()
+    for im in ims:
+        union |= {px[:3] for px in im.getdata() if px[3] > 0}
+    return z, meta, pal, union, ims
+
+
+def part4(browser, E):
+    ctx = browser.new_context(viewport={'width': 1366, 'height': 900}, accept_downloads=True, locale='en-US')
+    ninja = [str(f) for f in NINJA]
+    # ---------------------------------------------------------------- Pixel Lab
+    p = lab_open(ctx, '/en/game/pixel-lab/', ninja, '#plabCanvas', E)
+    ok('pixel-lab: the 6 CC0 frames chosen on the landing open in the Pixel Lab, one palette for all', p.locator('.frame-chip').count() == 6 and 'colour' in p.locator('#plabSummary').inner_text(), engine=E)
+    z, meta, pal, union, ims = plab_zip(p)
+    ok('pixel-lab: the export holds one PNG per frame, a .gpl palette and the JSON, and every exported colour lies in the locked palette',
+       len(ims) == 6 and any(n.endswith('.gpl') for n in z.namelist()) and union <= pal, f'{len(union - pal)} outside', engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/palette-extractor/', ninja, '#plabCanvas', E)
+    ok('palette-extractor: the Lab opens at its Palette stage with every colour listed', p.locator('[data-action="plab-stage"][data-stage="palette"]').get_attribute('aria-current') == 'page' and p.locator('.plab-swatch').count() >= 2, engine=E)
+    n0 = p.locator('.plab-swatch').count()
+    p.locator('#plabBudget').fill('4'); p.wait_for_timeout(700)
+    p.locator('[data-action="plab-merge"]').click(); p.wait_for_timeout(900)
+    _, _, pal4, union4, _ = plab_zip(p)
+    ok('palette-extractor: merging the rarest colours to a budget of 4 really exports at most 4 colours, all in the palette', len(union4) <= 4 and union4 <= pal4, f'{n0} → {len(union4)}', engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/palette-swap-ramp/', [buf(n, b) for n, b in pfx.frames(4)], '#plabCanvas', E)
+    ok('palette-swap-ramp: the Lab opens at its Recolour stage', p.locator('[data-action="plab-stage"][data-stage="recolor"]').get_attribute('aria-current') == 'page', engine=E)
+    _, _, palA, _, before = plab_zip(p)
+    p.locator('[data-action="plab-recolor"][data-value="status"]').click(); p.wait_for_timeout(400)
+    p.locator('[data-action="plab-apply-recolor"]').click(); p.wait_for_timeout(700)
+    _, _, palB, unionB, after = plab_zip(p)
+    alpha_same = all([a.split()[3].tobytes() == b.split()[3].tobytes() for a, b in zip(before, after)])
+    ok('palette-swap-ramp: a status recolour rewrites the palette (same number of slots), keeps every alpha pixel, and the frames stay inside the new palette',
+       len(palB) == len(palA) and palB != palA and unionB <= palB and alpha_same, engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/pixel-art-cleanup/', [buf(n, b) for n, b in pfx.frames(2)], '#plabCanvas', E)
+    ok('pixel-art-cleanup: candidates are counted before anything changes', 'Stray pixels:' in p.locator('#plabCleanupOut').inner_text(), engine=E)
+    p.locator('#plabAA').check(); p.wait_for_timeout(800)
+    _, _, pal3, union3, ims3 = plab_zip(p)
+    src = Image.open(io.BytesIO(pfx.frames(2)[0][1])).convert('RGBA')
+    moved = sum(1 for a, b in zip(src.split()[3].point(lambda v: 255 if v else 0).getdata(), ims3[0].split()[3].point(lambda v: 255 if v else 0).getdata()) if a != b)
+    ok('pixel-art-cleanup: the anti-alias remover puts every pixel in the palette and moves no silhouette pixel', union3 <= pal3 and moved == 0, f'moved {moved}', engine=E)
+    p.close()
+    up3 = pfx.upscaled(3)
+    p = lab_open(ctx, '/en/game/pixel-perfect-checker/', [buf('up3.png', png_bytes(up3))], '#plabReport', E)
+    ok('pixel-perfect-checker: a 3× nearest sprite is read as 3× with logical size 16×16', '3× · logical size 16×16' in p.locator('#plabReport').inner_text(), p.locator('#plabReport').inner_text()[:120], engine=E)
+    with p.expect_download(timeout=60000) as d:
+        p.locator('[data-action="plab-recover"]').click(); p.wait_for_timeout(500); p.locator('[data-action="plab-export-one"]').click()
+    rec = Image.open(d.value.path()).convert('RGBA')
+    ok('pixel-perfect-checker: recovering the 1× source gives back the original sprite pixel for pixel', rec.size == (16, 16) and visible(rec) == visible(pfx.flat_sprite()), engine=E)
+    p.close()
+    # ---------------------------------------------------------------- Texture Lab
+    maps = [str(GS / n) for n in ['bricks076c_color.png', 'bricks076c_roughness.png', 'bricks076c_ao.png', 'bricks076c_height.png']]
+    p = lab_open(ctx, '/en/game/texture-lab/', maps, '#texFiles .file', E)
+    p.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===4', timeout=60000)
+    roles = p.locator('#texFiles select').evaluate_all('els=>els.map(e=>e.value)')
+    ok('texture-lab: the four ambientCG maps are classified by filename into albedo, roughness, AO and height', sorted(roles) == sorted(['albedo', 'roughness', 'ao', 'height']), str(roles), engine=E)
+    task_ready(p); report = json.loads(download(p, '#taskDownload').read_text(encoding='utf-8'))
+    ok('texture-lab: the check report measures every map (128×128, exact PNG channels)', report['meta']['schemaVersion'] == 1 and len(report['textures']) == 4 and all(t.get('exactChannels') for t in report['textures']), engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/pbr-texture-validator/', maps, '#texFiles .file', E)
+    p.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===4', timeout=60000)
+    issues = p.locator('.tex-issues').inner_text()
+    ok('pbr-texture-validator: the set is checked slot by slot against the workflow', p.locator('.tex-slots li').count() >= 4, engine=E)
+    ok('pbr-texture-validator: a missing normal map is reported with the set it belongs to', 'normal' in issues.lower(), issues[:200], engine=E)
+    p.close()
+    normal = Image.open(GS / 'bricks076c_normal.png').convert('RGBA')
+    p = lab_open(ctx, '/en/game/channel-unpacker/', [str(GS / 'bricks076c_normal.png')], '.tex-channel canvas', E)
+    p.wait_for_function('()=>document.querySelectorAll(".tex-channel canvas").length===4', timeout=60000)
+    ok('channel-unpacker: the Lab opens at Channels with all four channels previewed', p.locator('.tex-channel').count() == 4, engine=E)
+    task_ready(p); z = zipfile.ZipFile(download(p, '#taskDownload'))
+    planes = {n.split('-')[-2]: Image.open(io.BytesIO(z.read(n))) for n in z.namelist()}
+    ok('channel-unpacker: each channel PNG is byte-identical to that channel of the source', all(planes[c].tobytes() == normal.getchannel(i).tobytes() for i, c in enumerate('rgba')), engine=E)
+    p.close()
+    height = str(GS / 'bricks076c_height.png')
+    p = lab_open(ctx, '/en/normal-map-generator/', [height], '#texNormalOut', E)
+    ok('texture-map: the Lab opens at its Normal stage and names the convention it writes', p.locator('[data-action="tex-normal-set"][data-value="opengl"][aria-pressed="true"]').count() == 1, engine=E)
+    task_ready(p); gl = Image.open(download(p, '#taskDownload')).convert('RGBA'); a = list(gl.getdata())
+    lengths = [((r / 255 * 2 - 1) ** 2 + (g / 255 * 2 - 1) ** 2 + (bb / 255 * 2 - 1) ** 2) ** .5 for r, g, bb, _ in a]
+    ok('texture-map: the normal map from the ambientCG height decodes to unit vectors (mean length within 2 %) with blue never below 128', gl.size == (128, 128) and abs(sum(lengths) / len(lengths) - 1) < .02 and min(px[2] for px in a) >= 128, f'{sum(lengths) / len(lengths):.4f}', engine=E)
+    p.close()
+    src_n = Image.open(GS / 'bricks076c_normal.png').convert('RGBA')
+    p = lab_open(ctx, '/en/game/normal-map-converter/', [str(GS / 'bricks076c_normal.png')], '#texNormalOut', E)
+    p.locator('[data-action="tex-normal-set"][data-key="mode"][data-value="convert"]').click(); p.wait_for_timeout(800)
+    ok('normal-map-converter: the ambientCG OpenGL normal map opens in the Normal stage, convert mode', p.locator('[data-action="tex-normal-set"][data-key="mode"][data-value="convert"][aria-pressed="true"]').count() == 1, engine=E)
+    task_ready(p); dx = Image.open(download(p, '#taskDownload')).convert('RGBA')
+    a, b = list(src_n.getdata()), list(dx.getdata())
+    ok('normal-map-converter: the converted map differs from the source in green (255 − g) and nowhere else', [(x[0], x[2], x[3]) for x in a] == [(y[0], y[2], y[3]) for y in b] and [255 - x[1] for x in a] == [y[1] for y in b], f'{sum(1 for x,y in zip(a,b) if 255-x[1]!=y[1])} green mismatches', engine=E)
+    p.close()
+    button = Image.open(GS / 'kenney-blue-button.png').convert('RGBA')
+    p = lab_open(ctx, '/en/game/texture-edge-bleed/', [str(GS / 'kenney-blue-button.png')], '#texFixOut', E)
+    ok('texture-edge-bleed: the Lab opens at its Fix stage', p.locator('[data-action="tex-stage"][data-stage="fix"][aria-selected="true"]').count() >= 1, engine=E)
+    task_ready(p); bled = Image.open(download(p, '#taskDownload')).convert('RGBA')
+    changed = [(x, y) for y in range(button.height) for x in range(button.width) if bled.getpixel((x, y)) != button.getpixel((x, y))]
+    ok('texture-edge-bleed: on the Kenney button only fully transparent texels change and no alpha byte changes', bled.split()[3].tobytes() == button.split()[3].tobytes() and all(button.getpixel(c)[3] == 0 for c in changed) and len(changed) > 0, f'{len(changed)} changed', engine=E)
+    p.close()
+    greys = [str(GS / n) for n in ['bricks076c_ao.png', 'bricks076c_roughness.png', 'bricks076c_height.png']]
+    p = lab_open(ctx, '/en/texture-mask-packer/', greys, '#maskPreviews canvas', E)
+    p.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4', timeout=60000)
+    ok('mask-packer: the three ambientCG grey maps arrive in the packer', p.locator('[data-channel="0"]').count() == 1, engine=E)
+    for ch, value in enumerate(['input0', 'input1', 'input2', 'zero']):
+        p.locator(f'[data-channel="{ch}"]').select_option(value)
+    p.wait_for_timeout(500); task_ready(p)
+    packed = Image.open(download(p, '#taskDownload')).convert('RGBA')
+    srcs = [Image.open(f).convert('L') for f in greys]
+    ok('mask-packer: each packed channel is byte-identical to the grey map mapped to it', all(packed.getchannel(i).tobytes() == srcs[i].tobytes() for i in range(3)) and set(packed.getchannel(3).getdata()) == {0}, engine=E)
+    p.close()
+    # ---------------------------------------------------------------- UI Lab
+    panel = Image.open(GS / 'kenney-blue-panel.png').convert('RGBA')
+    p = lab_open(ctx, '/en/game/9-slice-editor/', [str(GS / 'kenney-blue-panel.png')], '#nsCanvas', E)
+    ok('9-slice-editor: the Kenney panel opens at the 9-Slice stage with border suggestions', p.locator('[data-action="ui-stage"][data-stage="slice"]').get_attribute('aria-selected') == 'true', engine=E)
+    for side in ['left', 'right', 'top', 'bottom']:
+        p.fill('#ns-' + side, '12')
+    p.wait_for_timeout(300)
+    z = zipfile.ZipFile(download(p, '[data-action="ui-export-slice"]'))
+    src = Image.open(io.BytesIO(z.read('kenney-blue-panel.png' if 'kenney-blue-panel.png' in z.namelist() else [n for n in z.namelist() if n.endswith('.png') and '/' not in n][0]))).convert('RGBA')
+    good = True
+    for n in [x for x in z.namelist() if x.startswith('previews/')]:
+        im = Image.open(io.BytesIO(z.read(n))).convert('RGBA'); W, H = im.size
+        for d, s2 in [((0, 0, 12, 12), (0, 0, 12, 12)), ((W - 12, 0, W, 12), (52, 0, 64, 12)), ((0, H - 12, 12, H), (0, 52, 12, 64)), ((W - 12, H - 12, W, H), (52, 52, 64, 64))]:
+            good = good and im.crop(d).tobytes() == panel.crop(s2).tobytes()
+    ok('9-slice-editor: every exported size keeps the four 12×12 corners of the Kenney panel byte-identical', good and src.tobytes() == panel.tobytes(), engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/button-state-generator/', [str(GS / 'kenney-blue-button.png')], '.ui-state canvas', E)
+    ok('button-state-generator: five states of the Kenney button are previewed', p.locator('.ui-state').count() == 5, engine=E)
+    z = zipfile.ZipFile(download(p, '[data-action="ui-export-states"]'))
+    states = json.loads(z.read('states.json'))
+    strip = Image.open(io.BytesIO(z.read([n for n in z.namelist() if n.endswith('-states.png')][0]))).convert('RGBA')
+    normal_state = Image.open(io.BytesIO(z.read('states/normal.png'))).convert('RGBA')
+    ok('button-state-generator: normal equals the source byte for byte and every rect in states.json cuts its state from the strip',
+       normal_state.tobytes() == button.tobytes() and all(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])).tobytes() == Image.open(io.BytesIO(z.read(f'states/{k}.png'))).convert('RGBA').tobytes() for k, f in states['frames'].items()), engine=E)
+    p.close()
+    sheet = Image.new('RGBA', (300, 90), (0, 0, 0, 0)); sheet.paste(button, (4, 4)); sheet.paste(panel, (220, 10))
+    p = lab_open(ctx, '/en/game/ui-lab/', [buf('kenney-ui-sheet.png', png_bytes(sheet))], '#nsCanvas', E)
+    p.locator('[data-action="ui-stage"][data-stage="atlas"]').click(); p.locator('.ui-element').first.wait_for(timeout=60000); p.wait_for_timeout(400)
+    ok('ui-lab: the two Kenney elements on the sheet are detected as two elements', p.locator('.ui-element').count() == 2, str(p.locator('.ui-element').count()), engine=E)
+    z = zipfile.ZipFile(download(p, '[data-action="ui-export-atlas"]'))
+    atlas = Image.open(io.BytesIO(z.read('ui-atlas.png'))).convert('RGBA'); data = json.loads(z.read('ui-atlas.json'))
+    pieces = [atlas.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])).tobytes() for f in data['frames'].values()]
+    ok('ui-lab: the packed atlas holds both elements pixel for pixel', sorted(pieces) == sorted([button.crop(button.getbbox()).tobytes(), panel.crop(panel.getbbox()).tobytes()]), engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/ui-scale-preview/', [str(GS / 'kenney-blue-panel.png')], '.ui-screen canvas', E)
+    p.locator('[data-key="check.screen"][data-value="4k"]').click(); p.wait_for_timeout(300)
+    p.select_option('[data-opt="check.anchor"]', 'top-left'); p.wait_for_timeout(300)
+    p.select_option('[data-opt="check.safe"]', 'title-safe'); p.wait_for_timeout(300)
+    summary = p.locator('#sizeSummary').inner_text()
+    ok('ui-scale-preview: the Kenney panel is placed by its anchor on a simulated 4K screen', 'at 64, 64' in summary, summary[:160], engine=E)
+    ok('ui-scale-preview: the 90 % title-safe area at 3840×2160 is 192, 108 · 3456×1944', '192, 108 · 3456' in summary, summary[:160], engine=E)
+    p.close()
+    glyphs = Image.new('RGBA', (32, 8), (0, 0, 0, 0))
+    for i in range(4):
+        for y in range(1, 7):
+            for x in range(i * 8 + 1, i * 8 + 2 + i):
+                glyphs.putpixel((x, y), (255, 255, 255, 255))
+    p = lab_open(ctx, '/en/bitmap-font-maker/', [buf('glyphs.png', png_bytes(glyphs))], '#rc-chars', E)
+    for field, value in [('#rc-cellW', '8'), ('#rc-cellH', '8'), ('#rc-baseline', '6'), ('#rc-chars', 'ABCD')]:
+        p.locator(field).fill(value)
+    p.wait_for_timeout(400)
+    z = zipfile.ZipFile(download(p, '[data-action="ui-export-font"]'))
+    fnt = z.read('font.fnt').decode('utf-8'); fjson = json.loads(z.read('font.json'))
+    chars = [dict(kv.split('=', 1) for kv in line.split()[1:]) for line in fnt.splitlines() if line.startswith('char ')]
+    ok('bitmap-font: the landing opens the Font stage and exports font.png, font.fnt and font.json', len(chars) == 4 and 'font.png' in z.namelist(), engine=E)
+    ok('bitmap-font: every .fnt glyph record, read by a separate parser, equals the JSON', [(int(c['id']), int(c['x']), int(c['y']), int(c['width']), int(c['height'])) for c in chars] == [(g['codepoint'], g['x'], g['y'], g['w'], g['h']) for g in fjson['glyphs']], engine=E)
+    p.close()
+    fnt_text = ('info face="Test" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0\n'
+                'common lineHeight=8 base=6 scaleW=64 scaleH=8 pages=1 packed=0\npage id=0 file="font.png"\nchars count=4\n'
+                + '\n'.join(f'char id={ord(c)} x=0 y=0 width=4 height=8 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=15' for c in 'Str가') + '\n')
+    p = lab_open(ctx, '/en/game/missing-glyph-checker/', [str(GS / 'kenney-blue-panel.png')], '[data-key="check.source"]', E)
+    p.locator('[data-action="ui-set"][data-key="check.source"][data-value="fnt"]').click(); p.wait_for_timeout(200)
+    p.locator('#fntFile').set_input_files({'name': 'ui.fnt', 'mimeType': 'text/plain', 'buffer': fnt_text.encode()}); p.wait_for_timeout(300)
+    p.locator('#localeFile').set_input_files({'name': 'ko.po', 'mimeType': 'text/plain', 'buffer': 'msgid "start"\nmsgstr "Start 시작"\n\nmsgid "quit"\nmsgstr "끝내기"\n'.encode()}); p.wait_for_timeout(600)
+    rows = p.locator('.ui-table tbody tr')
+    missing = {rows.nth(i).locator('td').first.inner_text(): rows.nth(i).locator('td').nth(2).inner_text() for i in range(rows.count())}
+    ok('missing-glyph-checker: a .po file is compared with a .fnt', rows.count() > 0, engine=E)
+    ok('missing-glyph-checker: exactly the characters the .fnt lacks are listed, with their counts', set(missing) == set('a시작끝내기') and missing['기'] == '1', json.dumps(missing, ensure_ascii=False), engine=E)
+    p.close()
+    # ---------------------------------------------------------------- Tile Lab routes
+    ground = str(GS / 'ground054_color.png')
+    p = lab_open(ctx, '/en/game/seamless-tile-checker/', [ground], '#tlSeamSummary', E)
+    ok('seamless-tile-checker: the ambientCG ground texture is measured as one 128×128 tile', '128×128' in p.locator('#tlSeamInfo').inner_text(), engine=E)
+    ok('seamless-tile-checker: a tileable ambientCG texture is reported without a visible seam', 'without a visible seam' in p.locator('#tlSeamSummary .summary-line').inner_text(), p.locator('#tlSeamSummary .summary-line').inner_text(), engine=E)
+    p.close()
+    crop = Image.open(GS / 'bricks076c_color.png').convert('RGBA').crop((0, 0, 96, 96))
+    p = lab_open(ctx, '/en/game/seamless-tile-checker/', [buf('bricks-crop.png', png_bytes(crop))], '#tlSeamSummary', E)
+    ok('seamless-tile-checker: a crop of the brick texture (not tileable) is reported as a seam', 'shows a seam' in p.locator('#tlSeamSummary .summary-line').inner_text(), engine=E)
+    p.close()
+    dungeon = Image.open(DUNGEON).convert('RGBA')
+    for route, name in [('/en/tile-grid-slicer/', 'tile-helper'), ('/en/atlas-padding/', 'atlas-padding')]:
+        p = lab_open(ctx, route, [str(DUNGEON)], '.tl-stages', E)
+        top = p.locator('.tl-cand').first.inner_text().replace('×', 'x')
+        ok(f'{name}: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first', '16x16' in top and [p.locator(f'[data-option="{k}"]').input_value() for k in ['tileWidth', 'spacingX']] == ['16', '1'], top, engine=E)
+        task_ready(p); z = zipfile.ZipFile(download(p, '#taskDownload')); meta = json.loads(z.read('metadata.json'))
+        if name == 'tile-helper':
+            f5 = meta['frames']['tile-005.png']['rect'] if 'tile-005.png' in meta['frames'] else next(iter(meta['frames'].values()))['rect']
+            name5 = 'tile-005.png' if 'tile-005.png' in meta['frames'] else next(iter(meta['frames']))
+            tile = Image.open(io.BytesIO(z.read('tiles/' + name5))).convert('RGBA')
+            ok('tile-helper: a sliced tile is its exact region of the sheet, and every non-blank tile is written', tile.tobytes() == dungeon.crop((f5['x'], f5['y'], f5['x'] + 16, f5['y'] + 16)).tobytes() and len([n for n in z.namelist() if n.startswith('tiles/')]) + meta['tileSet'].get('skippedBlank', 0) == 132, engine=E)
+        else:
+            ok('atlas-padding: the Tile Lab opens with extrusion on and writes a padded atlas', 'padded-atlas.png' in z.namelist(), str(z.namelist()[:5]), engine=E)
+        p.close()
+    ctx.close()
+
+
 with sync_playwright() as pw:
     if 'chromium' in BROWSERS:
         b = pw.chromium.launch()
         if '1' in PARTS: part1(b)
         if '3' in PARTS: part3(b)
         if '2' in PARTS: part2(b, 'chromium')
+        if '4' in PARTS: part4(b, 'chromium')
         b.close()
     if 'firefox' in BROWSERS:
-        if '2' in PARTS: b = pw.firefox.launch(); part2(b, 'firefox'); b.close()
+        b = pw.firefox.launch()
+        if '2' in PARTS: part2(b, 'firefox')
+        if '4' in PARTS: part4(b, 'firefox')
+        b.close()
 ok('no uncaught page errors', not errors, str(errors[:3]))
 (OUT / 'game-landing-browser.json').write_text(json.dumps({'checks': results, 'errors': errors}, ensure_ascii=False, indent=1), encoding='utf-8')
 print('PASS TOTAL', sum(len(v) for v in results.values()), 'checks,', len(results), 'distinct')
