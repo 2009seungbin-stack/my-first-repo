@@ -1,5 +1,6 @@
 import {RECIPE_INTENTS,RECIPE_ALIASES} from './tool-registry.js';
 import {LANDINGS,LANDING_PATHS,landingFor} from './landings.js';
+import {GAME_INTENT_PAGES,classicPath} from './game-seo.js';
 /** One source of truth for landing pages, in-app shortcuts and static entries. */
 const spec=(path,editor,tool,icon,action,accept,next=[])=>({path,editor,tool,icon,action,accept,next});
 export const INTENTS=Object.freeze({
@@ -29,7 +30,9 @@ export const INTENTS=Object.freeze({
  'video-gif':spec('video/to-gif','media','export','media','media','media',['video-frame','video-trim','video-mp3']),
  'video-compress':spec('video/compress','media','export','download','media','media',['video-frame','video-mp3','video-gif']),
 });
-export const ALIASES=Object.freeze({...RECIPE_ALIASES,'pixel-art-converter':'refiner','game-asset-refiner':'refiner','sprite-normalizer':'frame-normalize','favicon-maker':'favicon-pack','print-ratio-resizer':'print-pack','image/white-background-remover':'logo-bg','image/transparent-trim':'margin-crop','image/pixel':'pixel','image/target-size':'compress','png-to-webp':'convert','jpg-to-png':'convert','webp-to-jpg':'convert','image/remove-background':'remove-bg'});
+export const ALIASES=Object.freeze({...RECIPE_ALIASES,'pixel-art-converter':'refiner','game-asset-refiner':'refiner','sprite-normalizer':'frame-normalize','favicon-maker':'favicon-pack','print-ratio-resizer':'print-pack','image/white-background-remover':'logo-bg','image/transparent-trim':'margin-crop','image/pixel':'pixel','image/target-size':'compress','png-to-webp':'convert','jpg-to-png':'convert','webp-to-jpg':'convert','image/remove-background':'remove-bg',
+ // Game routes that became Studio landing pages keep their old Lab UI at <route>/classic (noindex).
+ ...Object.fromEntries(Object.keys(GAME_INTENT_PAGES).map(id=>[classicPath(RECIPE_INTENTS[id].path),id]))});
 export const ROUTES=Object.freeze([...new Set([...Object.values(INTENTS).map(i=>i.path).filter(Boolean),...Object.keys(ALIASES),...LANDING_PATHS])]);
 export function intentFor(path){const p=String(path).replace(/^\/+|\/+$/g,'');return LANDINGS[p]?.intent||ALIASES[p]||Object.keys(INTENTS).find(k=>INTENTS[k].path===p)||'home';}
 export const isFocused=id=>!['home','image','pdf','media'].includes(id);

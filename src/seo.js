@@ -20,9 +20,23 @@ export function seoLinks(path,locale,siteURL){
 }
 /** `path` selects a landing page (src/landings.js); its own title, copy and canonical apply. */
 export function structuredData(id,locale,siteURL,path=''){
+ if(id==='home'&&!path)return homeStructuredData(locale,siteURL);
  const land=landingText(path,locale);
  const app={'@context':'https://schema.org','@type':'WebApplication',name:`${land?.title||t(`intent.${id}.title`,{},locale)} · ${BRAND.name}`,description:land?.description||t(`intent.${id}.description`,{},locale),featureList:[CAPABILITIES[id].engine,`Maturity: ${CAPABILITIES[id].maturity}`],applicationCategory:'UtilitiesApplication',operatingSystem:'Web browser',inLanguage:locale,browserRequirements:'JavaScript, Canvas and browser-supported file codecs'};
  if(siteURL)app.url=new URL(pagePath(land?path:INTENTS[id].path,locale),siteURL).href;
+ return `<script data-site-seo type="application/ld+json">${JSON.stringify(app).replaceAll('<','\\u003c')}</script>`;
+}
+/** The home page is the game asset studio: a free web DeveloperApplication. Every feature named
+ * here ships (docs/STUDIO-*.md); engine names are the targets whose exports were loaded there. */
+const HOME_APP={
+ en:['Nerulio — Game asset studio',['Sprite sheet slicing and animation timeline','Pivots, hitboxes and collision polygons per frame','Texture atlas packing (MaxRects, trim, extrude, multipack)','Autotile tilesets: layout recognition, terrain bits, test map','Exports for Godot 4, Unity 6, Phaser, PixiJS, Defold, LÖVE, Spine and Tiled','.aseprite read and write']],
+ ko:['Nerulio — 게임 에셋 스튜디오',['스프라이트 시트 자르기와 애니메이션 타임라인','프레임별 피벗·히트박스·충돌 폴리곤','텍스처 아틀라스 패킹(MaxRects·트림·가장자리 확장·다중 페이지)','오토타일 타일셋: 배치 인식·지형 비트·테스트 맵','Godot 4·Unity 6·Phaser·PixiJS·Defold·LÖVE·Spine·Tiled 내보내기','.aseprite 읽기·쓰기']],
+ ja:['Nerulio — ゲームアセットスタジオ',['スプライトシート分割とアニメーションのタイムライン','フレームごとのピボット・当たり判定・衝突ポリゴン','テクスチャアトラスのパック（MaxRects・トリム・縁の拡張・マルチパック）','オートタイルのタイルセット：配置の認識・地形ビット・テストマップ','Godot 4・Unity 6・Phaser・PixiJS・Defold・LÖVE・Spine・Tiledへの書き出し','.asepriteの読み書き']]
+};
+function homeStructuredData(locale,siteURL){
+ const [name,featureList]=HOME_APP[locale]||HOME_APP.en;
+ const app={'@context':'https://schema.org','@type':'SoftwareApplication',name,description:t('intent.home.description',{},locale),applicationCategory:'DeveloperApplication',applicationSubCategory:'2D game asset tool',operatingSystem:'Web',inLanguage:locale,isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList};
+ if(siteURL){app.url=new URL(pagePath('',locale),siteURL).href;app.screenshot=new URL('assets/studio/sprite-frame.webp',siteURL).href;}
  return `<script data-site-seo type="application/ld+json">${JSON.stringify(app).replaceAll('<','\\u003c')}</script>`;
 }
 export function socialMetadata(id,locale,siteURL,overrides={}){

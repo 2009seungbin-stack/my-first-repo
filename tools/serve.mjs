@@ -23,7 +23,7 @@ function responseHeaders(pathname){
  return [...out.values()];
 }
 const adsWorker=await stat(path.join(base,'_worker.js')).then(()=>true).catch(()=>false);
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.pdf':'application/pdf','.json':'application/json','.xml':'application/xml'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.pdf':'application/pdf','.json':'application/json','.xml':'application/xml','.webp':'image/webp','.woff2':'font/woff2'};
 http.createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://localhost');

@@ -16,10 +16,14 @@ import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigat
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
+import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths} from './game-landing-build.mjs';
+import {gameHead} from './game-seo-build.mjs';
+import {GAME_HUB_PATH} from '../src/game-seo.js';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH].map(r=>`${l}/${r}`)])];
+// /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
@@ -29,13 +33,21 @@ export function entry(html,route='',siteURL='',config={}){
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
  if(parts.path===STUDIO_PATH)return studioPage({locale,base});
+ // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
+ const game=gamePageFor(parts.path);
+ if(game){
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=gameHead(game,locale,siteURL,config);
+  return game.kind==='hub'?gameHubPage({locale,prefix,base,headHTML}):gameLandingPage({game,locale,prefix,base,headHTML});
+ }
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
  const land=landingText(parts.path,locale),landing=land?parts.path:'';
  const title=(land?.title||t(`intent.${id}.title`,{},locale))+' · '+BRAND.name,description=land?.description||t(`intent.${id}.description`,{},locale);
  // The home directory and migrated tools use the single-task UI (src/task); every other
  // route keeps the classic editor until its task page is a superset of that flow.
  if(!parts.path||isTask(id)){
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  // <game route>/classic: the old Lab behind a Studio landing — reachable, never indexed.
+  const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':'';
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
   return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
@@ -61,7 +73,10 @@ function policyEntry(route,locale,base,siteURL,config){
 }
 export function sitemap(siteURL,extra=[]){
  // Landing pages are listed only when their base tool is qualified for search.
- const paths=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)),...POLICY_ROUTES,...extra];
+ // Order: home, then the game pages (hub, Studio landings, game keyword pages), then everything else.
+ const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
+ const game=gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p));
+ const paths=[...new Set(['',...game,...indexable,...POLICY_ROUTES,...extra])].filter(p=>p!==''||indexable.includes(''));
  const urls=siteURL?paths.flatMap(p=>LOCALES.map(l=>`<url><loc>${escape(new URL(pagePath(p,l),siteURL).href)}</loc>${[...LOCALES,null].map(a=>`<xhtml:link rel="alternate" hreflang="${a||'x-default'}" href="${escape(new URL(pagePath(p,a),siteURL).href)}"/>`).join('')}</url>`)).join(''):'';
  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`;
 }

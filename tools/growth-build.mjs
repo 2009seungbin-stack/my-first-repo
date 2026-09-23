@@ -5,11 +5,16 @@ import {INTENTS} from '../src/intents.js';
 import {LOCALES} from '../src/i18n.js';
 import {pagePath} from '../src/seo.js';
 import {esc} from '../src/ui.js';
+import {SHOTS,isGameIntentPage} from '../src/game-seo.js';
+import {gameSitemapPaths,gamePageFor} from './game-landing-build.mjs';
 export function verificationHead(config={}) {
   return [['google-site-verification',config.searchVerification],['naver-site-verification',config.naverVerification],['msvalidate.01',config.bingVerification]].filter(([,v])=>v).map(([name,v])=>`<meta name="${name}" content="${esc(v)}">`).join('');
 }
+/** Game landing pages first, each with the Studio screenshot it shows; then the before/after
+ * examples of the other tools (a game landing shows the Studio, not its old example images). */
 export function imageSitemap(siteURL) {
-  const rows=siteURL?Object.entries(EXAMPLES).filter(([id])=>mayPromote(id)).flatMap(([id,e])=>LOCALES.map(l=>`<url><loc>${esc(new URL(pagePath(INTENTS[id].path,l),siteURL).href)}</loc>${['before','after'].map(k=>`<image:image><image:loc>${esc(new URL('assets/examples/'+e[k].file,siteURL).href)}</image:loc></image:image>`).join('')}</url>`)).join(''):'';
+  const game=siteURL?gameSitemapPaths().map(p=>gamePageFor(p)).filter(g=>g&&(g.kind==='hub'||mayPromote(g.id))).flatMap(g=>LOCALES.map(l=>{const shot=SHOTS[g.kind==='hub'?'sprite-frame':g.page.shot];return `<url><loc>${esc(new URL(pagePath(g.canonical,l),siteURL).href)}</loc><image:image><image:loc>${esc(new URL(`assets/studio/${shot.file}.webp`,siteURL).href)}</image:loc></image:image></url>`;})).join(''):'';
+  const rows=game+(siteURL?Object.entries(EXAMPLES).filter(([id])=>mayPromote(id)&&!isGameIntentPage(id)).flatMap(([id,e])=>LOCALES.map(l=>`<url><loc>${esc(new URL(pagePath(INTENTS[id].path,l),siteURL).href)}</loc>${['before','after'].map(k=>`<image:image><image:loc>${esc(new URL('assets/examples/'+e[k].file,siteURL).href)}</image:loc></image:image>`).join('')}</url>`)).join(''):'');
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${rows}</urlset>`;
 }
 export function notFound(siteURL='') {
