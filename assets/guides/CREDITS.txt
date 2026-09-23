@@ -1,0 +1,10 @@
+Screenshots and engine renders used by the guides (/guides/).
+
+Nerulio screenshots (<name>-<ko|en|ja>.webp) are captures of the real Studio and Lab UI made by
+tools/guides-shots.py. Engine renders (engine-*.webp) were drawn by the engine named in their caption.
+All art shown is CC0 1.0:
+- Samurai sprites: sebshady, https://opengameart.org/content/samurai-sprites
+- Cave platformer tileset 47: "second", https://opengameart.org/content/cave-platformer-tileset-47
+- Cool School tileset (A2/A4): NettySvit, https://opengameart.org/content/cool-school-tileset
+- Pixel Platformer, Tiny Dungeon: Kenney, https://kenney.nl
+- Bitmap font: Clint Bellanger, https://opengameart.org/content/bitmap-font
