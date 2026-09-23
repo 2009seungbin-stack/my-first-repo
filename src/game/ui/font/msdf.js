@@ -42,7 +42,7 @@
  * pixels to output pixels as out = (p + t)·scale. Internally the shape is mirrored into
  * msdfgen's y-up frame (Y = h − y) so that every sign and orientation test is msdfgen's own.
  * An empty shape yields −Infinity everywhere (no edge is at any finite distance). */
-import {WHITE,RED,GREEN,BLUE,CYAN,MAGENTA,YELLOW,BLACK,SD,edgeSignedDistance,edgeDirection,edgePoint,normalize,splitInThirds,scanline,scanlineWinding,fillRule,median} from './msdf-geometry.js';
+import {WHITE,RED,GREEN,BLUE,CYAN,MAGENTA,YELLOW,BLACK,SD,prepareEdge,edgeSignedDistance,edgeDirection,edgePoint,normalize,splitInThirds,scanline,scanlineWinding,fillRule,median} from './msdf-geometry.js';
 import {cloneShape,normalizeShape,orientContours} from './shape.js';
 export {median};
 const MAXD=Number.MAX_VALUE,DELTA_FACTOR=1.001,fr=Math.fround;
@@ -196,14 +196,13 @@ function internal(shape,h,transform){
   const E=c.edges.map(e=>{
    const p=new Float64Array(e.p.length);
    for(let i=0;i<p.length;i+=2){p[i]=(e.p[i]+tx)*sc;p[i+1]=h-(e.p[i+1]+ty)*sc;}
-   return {type:e.type,p,color:e.color};
+   return prepareEdge({type:e.type,p,color:e.color});
   });
   const n=E.length;
-  E.forEach((e,i)=>{
-   const last=2*e.type,a=edgeDirection(e,0),b=edgeDirection(e,1);
+  E.forEach(e=>{
+   const last=2*e.type,aT=normalize([e.d0x,e.d0y],true),bT=normalize([e.d1x,e.d1y],true);
    e.sx=e.p[0];e.sy=e.p[1];e.ex=e.p[last];e.ey=e.p[last+1];
-   const aT=normalize([a[0],a[1]],true),bT=normalize([b[0],b[1]],true),aF=normalize([a[0],a[1]]),bF=normalize([b[0],b[1]]);
-   e.aTx=aT[0];e.aTy=aT[1];e.bTx=bT[0];e.bTy=bT[1];e.aFx=aF[0];e.aFy=aF[1];e.bFx=bF[0];e.bFy=bF[1];
+   e.aTx=aT[0];e.aTy=aT[1];e.bTx=bT[0];e.bTy=bT[1];
   });
   E.forEach((e,i)=>{
    const prev=E[(i+n-1)%n],next=E[(i+1)%n];
@@ -267,11 +266,12 @@ class PerpChannel{
   return min;
  }
 }
-// Shared body of PerpendicularDistanceSelector::addEdge / MultiDistanceSelector::addEdge.
-function perpAdd(chs,mask,c,o,e,x,y){
+// Shared body of PerpendicularDistanceSelector::addEdge / MultiDistanceSelector::addEdge;
+// r, g, b are the channels the edge feeds (m = colour mask; the PSDF passes one channel as r).
+function perpAdd(r,g,b,m,c,o,e,x,y){
  edgeSignedDistance(e,x,y);
  const d=SD[0],dot=SD[1],param=SD[2];
- for(let k=0;k<chs.length;k++)if(mask>>k&1)chs[k].addTrue(e,d,dot,param);
+ if(m&1)r.addTrue(e,d,dot,param);if(m&2)g.addTrue(e,d,dot,param);if(m&4)b.addTrue(e,d,dot,param);
  c[o]=x;c[o+1]=y;c[o+2]=Math.abs(d);
  const apx=x-e.sx,apy=y-e.sy,bpx=x-e.ex,bpy=y-e.ey;
  const add=apx*e.aBx+apy*e.aBy,bdd=-(bpx*e.bBx+bpy*e.bBy);
@@ -279,7 +279,7 @@ function perpAdd(chs,mask,c,o,e,x,y){
   let pd=d;
   if(apx*-e.aTx+apy*-e.aTy>0){// getPerpendicularDistance(pd, ap, -aDir)
    const q=apx*-e.aTy-apy*-e.aTx;
-   if(Math.abs(q)<Math.abs(pd)){pd=-q;for(let k=0;k<chs.length;k++)if(mask>>k&1)chs[k].addPerp(pd);}
+   if(Math.abs(q)<Math.abs(pd)){pd=-q;if(m&1)r.addPerp(pd);if(m&2)g.addPerp(pd);if(m&4)b.addPerp(pd);}
   }
   c[o+5]=pd;
  }
@@ -287,34 +287,43 @@ function perpAdd(chs,mask,c,o,e,x,y){
   let pd=d;
   if(bpx*e.bTx+bpy*e.bTy>0){
    const q=bpx*e.bTy-bpy*e.bTx;
-   if(Math.abs(q)<Math.abs(pd)){pd=q;for(let k=0;k<chs.length;k++)if(mask>>k&1)chs[k].addPerp(pd);}
+   if(Math.abs(q)<Math.abs(pd)){pd=q;if(m&1)r.addPerp(pd);if(m&2)g.addPerp(pd);if(m&4)b.addPerp(pd);}
   }
   c[o+6]=pd;
  }
  c[o+3]=add;c[o+4]=bdd;
 }
 class PerpSel{
- constructor(){this.ch=[new PerpChannel()];this.x=0;this.y=0;}
- fresh(x,y){this.ch[0].init();this.x=x;this.y=y;}
- reset(x,y){this.ch[0].reset(DELTA_FACTOR*vlen(x-this.x,y-this.y));this.x=x;this.y=y;}
- addEdge(c,o,e){if(this.ch[0].relevant(c,o,DELTA_FACTOR*vlen(this.x-c[o],this.y-c[o+1])))perpAdd(this.ch,1,c,o,e,this.x,this.y);}
- merge(s){this.ch[0].merge(s.ch[0]);}
- distance(out){out[0]=this.ch[0].compute(this.x,this.y);}
+ constructor(){this.r=new PerpChannel();this.x=0;this.y=0;}
+ fresh(x,y){this.r.init();this.x=x;this.y=y;}
+ reset(x,y){this.r.reset(DELTA_FACTOR*vlen(x-this.x,y-this.y));this.x=x;this.y=y;}
+ addEdge(c,o,e){if(this.r.relevant(c,o,DELTA_FACTOR*vlen(this.x-c[o],this.y-c[o+1])))perpAdd(this.r,null,null,1,c,o,e,this.x,this.y);}
+ merge(s){this.r.merge(s.r);}
+ distance(out){out[0]=this.r.compute(this.x,this.y);}
 }
 class MultiSel{
- constructor(withTrue){this.ch=[new PerpChannel(),new PerpChannel(),new PerpChannel()];this.t=withTrue;this.x=0;this.y=0;}
- fresh(x,y){for(const c of this.ch)c.init();this.x=x;this.y=y;}
- reset(x,y){const delta=DELTA_FACTOR*vlen(x-this.x,y-this.y);for(const c of this.ch)c.reset(delta);this.x=x;this.y=y;}
+ constructor(withTrue){this.r=new PerpChannel();this.g=new PerpChannel();this.b=new PerpChannel();this.t=withTrue;this.x=0;this.y=0;}
+ fresh(x,y){this.r.init();this.g.init();this.b.init();this.x=x;this.y=y;}
+ reset(x,y){const delta=DELTA_FACTOR*vlen(x-this.x,y-this.y);this.r.reset(delta);this.g.reset(delta);this.b.reset(delta);this.x=x;this.y=y;}
  addEdge(c,o,e){
-  const delta=DELTA_FACTOR*vlen(this.x-c[o],this.y-c[o+1]),m=e.color,[r,g,b]=this.ch;
-  if((m&1&&r.relevant(c,o,delta))||(m&2&&g.relevant(c,o,delta))||(m&4&&b.relevant(c,o,delta)))perpAdd(this.ch,m,c,o,e,this.x,this.y);
+  // PerpChannel.relevant for each channel of the edge, with the channel-independent terms hoisted
+  const delta=DELTA_FACTOR*vlen(this.x-c[o],this.y-c[o+1]),m=e.color,ad=c[o+3],bd=c[o+4];
+  if(!(Math.abs(ad)<delta||Math.abs(bd)<delta)){
+   const ab=c[o+2]-delta,ap=c[o+5],bp=c[o+6],aOn=ad>0,bOn=bd>0,r=this.r,g=this.g,b=this.b;
+   if(!((m&1&&(ab<=Math.abs(r.td)||(aOn&&(ap<0?ap+delta>=r.neg:ap-delta<=r.pos))||(bOn&&(bp<0?bp+delta>=r.neg:bp-delta<=r.pos))))||
+    (m&2&&(ab<=Math.abs(g.td)||(aOn&&(ap<0?ap+delta>=g.neg:ap-delta<=g.pos))||(bOn&&(bp<0?bp+delta>=g.neg:bp-delta<=g.pos))))||
+    (m&4&&(ab<=Math.abs(b.td)||(aOn&&(ap<0?ap+delta>=b.neg:ap-delta<=b.pos))||(bOn&&(bp<0?bp+delta>=b.neg:bp-delta<=b.pos))))))return;
+  }
+  perpAdd(this.r,this.g,this.b,m,c,o,e,this.x,this.y);
  }
- merge(s){for(let k=0;k<3;k++)this.ch[k].merge(s.ch[k]);}
+ merge(s){this.r.merge(s.r);this.g.merge(s.g);this.b.merge(s.b);}
  distance(out){
-  for(let k=0;k<3;k++)out[k]=this.ch[k].compute(this.x,this.y);
+  const {r,g,b}=this;
+  out[0]=r.compute(this.x,this.y);out[1]=g.compute(this.x,this.y);out[2]=b.compute(this.x,this.y);
   if(this.t){
-   let d=this.ch[0].td,dot=this.ch[0].tdot;
-   for(let k=1;k<3;k++)if(less(this.ch[k].td,this.ch[k].tdot,d,dot)){d=this.ch[k].td;dot=this.ch[k].tdot;}
+   let d=r.td,dot=r.tdot;
+   if(less(g.td,g.tdot,d,dot)){d=g.td;dot=g.tdot;}
+   if(less(b.td,b.tdot,d,dot)){d=b.td;dot=b.tdot;}
    out[3]=d;
   }
  }
@@ -333,6 +342,7 @@ class DistanceFinder{
    this.tmp=[makeSel[mode](),makeSel[mode](),makeSel[mode]()];
    this.cd=contours.map(()=>new Float64Array(this.n));
    this.buf=[0,1,2,3].map(()=>new Float64Array(this.n));
+   this.W=Int8Array.from(contours,c=>c.winding);
   }
  }
  res(v){return this.n>=3?median(v[0],v[1],v[2]):v[0];}
@@ -342,13 +352,14 @@ class DistanceFinder{
   let o=0;
   for(let i=0;i<this.contours.length;i++){
    const s=this.sels[this.overlap?i:0];
-   for(const e of this.contours[i].order){s.addEdge(this.cache,o,e);o+=7;}
+   const E=this.contours[i].order;
+   for(let k=0;k<E.length;k++){s.addEdge(this.cache,o,E[k]);o+=7;}
   }
   if(!this.overlap){this.sels[0].distance(out);return out;}
   return this.combine(x,y,out);
  }
  combine(x,y,out){// OverlappingContourCombiner::distance
-  const n=this.contours.length,[shape,inner,outer]=this.tmp,cd=this.cd,W=this.contours.map(c=>c.winding);
+  const n=this.contours.length,shape=this.tmp[0],inner=this.tmp[1],outer=this.tmp[2],cd=this.cd,W=this.W;
   shape.fresh(x,y);inner.fresh(x,y);outer.fresh(x,y);
   for(let i=0;i<n;i++){
    const s=this.sels[i];s.distance(cd[i]);
@@ -357,7 +368,7 @@ class DistanceFinder{
    if(W[i]>0&&r>=0)inner.merge(s);
    if(W[i]<0&&r<=0)outer.merge(s);
   }
-  const [shapeD,innerD,outerD]=this.buf;
+  const shapeD=this.buf[0],innerD=this.buf[1],outerD=this.buf[2];
   shape.distance(shapeD);inner.distance(innerD);outer.distance(outerD);
   const iS=this.res(innerD),oS=this.res(outerD);
   let dist,wnd=0;
@@ -420,20 +431,32 @@ const PROTECTED=1,ERROR=2,ARTIFACT_T_EPSILON=.01,PROTECTION_RADIUS_TOLERANCE=1.0
 const F_CANDIDATE=1,F_ARTIFACT=2;
 const fmedian=(a,b,c)=>median(a,b,c);// medians of float32 values are float32 values
 const fmix=(a,b,t)=>fr((1-t)*a+t*b);
-function rangeTest(span,prot,at,bt,xt,am,bm,xm){
- if((am>.5&&bm>.5&&xm<=.5)||(am<.5&&bm<.5&&xm>=.5)||(!prot&&fmedian(am,bm,xm)!==xm)){
-  const ax=(xt-at)*span,bx=(bt-xt)*span;
+function rangeTest(cls,at,bt,xt,am,bm,xm){
+ if((am>.5&&bm>.5&&xm<=.5)||(am<.5&&bm<.5&&xm>=.5)||(!cls.prot&&fmedian(am,bm,xm)!==xm)){
+  const ax=(xt-at)*cls.span,bx=(bt-xt)*cls.span;
   if(!(xm>=am-ax&&xm<=am+ax&&xm>=bm-bx&&xm<=bm+bx))return F_CANDIDATE|F_ARTIFACT;
   return F_CANDIDATE;
  }
  return 0;
+}
+/** Artifact classifier: msdfgen BaseArtifactClassifier, or with a ShapeDistanceChecker the
+ * ShapeDistanceChecker::ArtifactClassifier. One mutable instance per pass (no allocation). */
+class Classifier{
+ constructor(checker){this.ck=checker;this.span=0;this.prot=false;this.x=0;this.y=0;this.c=0;this.dx=0;this.dy=0;}
+ dir(dx,dy,span){this.dx=dx;this.dy=dy;this.span=span;return this;}
+ evaluate(t,m,flags){
+  if(!this.ck)return (flags&F_ARTIFACT)!==0;
+  if(!(flags&F_CANDIDATE))return false;
+  if(flags&F_ARTIFACT)return true;
+  return this.ck.check(this,t);
+ }
 }
 function interpMedian2(A,a,B,b,t){return fmedian(fmix(A[a],B[b],t),fmix(A[a+1],B[b+1],t),fmix(A[a+2],B[b+2],t));}
 function linearInner(cls,am,bm,A,a,B,b,dA,dB){
  const t=dA/fr(dA-dB);
  if(t>ARTIFACT_T_EPSILON&&t<1-ARTIFACT_T_EPSILON){
   const xm=interpMedian2(A,a,B,b,t);
-  return cls.evaluate(t,xm,rangeTest(cls.span,cls.prot,0,1,t,am,bm,xm));
+  return cls.evaluate(t,xm,rangeTest(cls,0,1,t,am,bm,xm));
  }
  return false;
 }
@@ -444,20 +467,21 @@ function hasLinearArtifact(cls,am,A,a,B,b){
   linearInner(cls,am,bm,A,a,B,b,fr(A[a+2]-A[a+1]),fr(B[b+2]-B[b+1]))||
   linearInner(cls,am,bm,A,a,B,b,fr(A[a]-A[a+2]),fr(B[b]-B[b+2])));
 }
-const qroots=[0,0];
-function diagInner(cls,am,dm,a,l,q,dA,dBC,dD,tEx0,tEx1){
- const n=solveQ(qroots,fr(fr(dD-dBC)+dA),fr(fr(dBC-dA)-dA),dA),T=[qroots[0],qroots[1]];
- const im=t=>fmedian(fr(t*(t*q[0]+l[0])+a[0]),fr(t*(t*q[1]+l[1])+a[1]),fr(t*(t*q[2]+l[2])+a[2]));
+// bilinear interpolation along a diagonal: value(t) = t·(t·q + l) + a, per channel
+const qroots=[0,0],DA=new Float64Array(3),DL=new Float64Array(3),DQ=new Float64Array(3);
+const diagMedian=t=>fmedian(fr(t*(t*DQ[0]+DL[0])+DA[0]),fr(t*(t*DQ[1]+DL[1])+DA[1]),fr(t*(t*DQ[2]+DL[2])+DA[2]));
+function diagEnd(cls,t,xm,am,dm,tEx){
+ if(!(tEx>0&&tEx<1))return 0;
+ const em=diagMedian(tEx);
+ return tEx>t?rangeTest(cls,0,tEx,t,am,em,xm):rangeTest(cls,tEx,1,t,em,dm,xm);
+}
+function diagInner(cls,am,dm,dA,dBC,dD,tEx0,tEx1){
+ const n=solveQ(qroots,fr(fr(dD-dBC)+dA),fr(fr(dBC-dA)-dA),dA),t0=qroots[0],t1=qroots[1];
  for(let i=0;i<n;i++){
-  const t=T[i];
+  const t=i?t1:t0;
   if(t>ARTIFACT_T_EPSILON&&t<1-ARTIFACT_T_EPSILON){
-   const xm=im(t);
-   let flags=rangeTest(cls.span,cls.prot,0,1,t,am,dm,xm);
-   for(const tEx of [tEx0,tEx1])if(tEx>0&&tEx<1){
-    const tEnd=[0,1],em=[am,dm],k=tEx>t?1:0;
-    tEnd[k]=tEx;em[k]=im(tEx);
-    flags|=rangeTest(cls.span,cls.prot,tEnd[0],tEnd[1],t,em[0],em[1],xm);
-   }
+   const xm=diagMedian(t);
+   const flags=rangeTest(cls,0,1,t,am,dm,xm)|diagEnd(cls,t,xm,am,dm,tEx0)|diagEnd(cls,t,xm,am,dm,tEx1);
    if(cls.evaluate(t,xm,flags))return true;
   }
  }
@@ -473,14 +497,15 @@ function solveQ(out,a,b,c){// msdfgen solveQuadratic (kept local: returns the sa
 function hasDiagonalArtifact(cls,am,S,a,b,c,d){
  const dm=fmedian(S[d],S[d+1],S[d+2]);
  if(Math.abs(fr(am-.5))>=Math.abs(fr(dm-.5))){
-  const abc=[0,1,2].map(k=>fr(fr(S[a+k]-S[b+k])-S[c+k]));
-  const l=[0,1,2].map(k=>fr(-S[a+k]-abc[k])),q=[0,1,2].map(k=>fr(S[d+k]+abc[k]));
-  const tEx=[0,1,2].map(k=>-.5*l[k]/q[k]);
-  const A=[S[a],S[a+1],S[a+2]];
+  for(let k=0;k<3;k++){
+   const abc=fr(fr(S[a+k]-S[b+k])-S[c+k]);
+   DA[k]=S[a+k];DL[k]=fr(-S[a+k]-abc);DQ[k]=fr(S[d+k]+abc);
+  }
+  const x0=-.5*DL[0]/DQ[0],x1=-.5*DL[1]/DQ[1],x2=-.5*DL[2]/DQ[2];
   const dBC=(i,j)=>fr(fr(fr(S[b+i]-S[b+j])+S[c+i])-S[c+j]);
-  return diagInner(cls,am,dm,A,l,q,fr(S[a+1]-S[a]),dBC(1,0),fr(S[d+1]-S[d]),tEx[0],tEx[1])||
-   diagInner(cls,am,dm,A,l,q,fr(S[a+2]-S[a+1]),dBC(2,1),fr(S[d+2]-S[d+1]),tEx[1],tEx[2])||
-   diagInner(cls,am,dm,A,l,q,fr(S[a]-S[a+2]),dBC(0,2),fr(S[d]-S[d+2]),tEx[2],tEx[0]);
+  return diagInner(cls,am,dm,fr(S[a+1]-S[a]),dBC(1,0),fr(S[d+1]-S[d]),x0,x1)||
+   diagInner(cls,am,dm,fr(S[a+2]-S[a+1]),dBC(2,1),fr(S[d+2]-S[d+1]),x1,x2)||
+   diagInner(cls,am,dm,fr(S[a]-S[a+2]),dBC(0,2),fr(S[d]-S[d+2]),x2,x0);
  }
  return false;
 }
@@ -538,28 +563,28 @@ class ErrorCorrection{
    pair(y*w+x+1,(y+1)*w+x,radius);
   }
  }
- protectAll(){this.st.fill(PROTECTED);}
+ protectAll(){const st=this.st;for(let i=0;i<st.length;i++)st[i]|=PROTECTED;}// keeps ERROR flags
  findErrors(checker){
   const {S,w,h,N,st}=this,md=this.minDeviationRatio;
   const hSpan=md*this.unit(false),vSpan=hSpan,dSpan=md*this.unit(true);
-  const base=(span,prot)=>({span,prot,evaluate:(t,m,flags)=>(flags&F_ARTIFACT)!==0});
+  const K=new Classifier(checker);
   let dir=1;
   for(let y=0;y<h;y++){
    let x=checker&&dir<0?w-1:0;
    for(let col=0;col<w;col++,x+=checker?dir:1){
     const i=y*w+x;
     if(checker&&st[i]&ERROR)continue;
-    const c=i*N,cm=fmedian(S[c],S[c+1],S[c+2]),prot=(st[i]&PROTECTED)!==0;
-    const cls=checker?(dx,dy,span)=>checker.classifier(x,y,c,prot,dx,dy,span):(dx,dy,span)=>base(span,prot);
+    const c=i*N,cm=fmedian(S[c],S[c+1],S[c+2]);
+    K.prot=(st[i]&PROTECTED)!==0;K.x=x;K.y=y;K.c=c;
     const L=c-N,R=c+N,B=c-w*N,T=c+w*N;
-    const err=(x>0&&hasLinearArtifact(cls(-1,0,hSpan),cm,S,c,S,L))||
-     (y>0&&hasLinearArtifact(cls(0,-1,vSpan),cm,S,c,S,B))||
-     (x<w-1&&hasLinearArtifact(cls(1,0,hSpan),cm,S,c,S,R))||
-     (y<h-1&&hasLinearArtifact(cls(0,1,vSpan),cm,S,c,S,T))||
-     (x>0&&y>0&&hasDiagonalArtifact(cls(-1,-1,dSpan),cm,S,c,L,B,B-N))||
-     (x<w-1&&y>0&&hasDiagonalArtifact(cls(1,-1,dSpan),cm,S,c,R,B,B+N))||
-     (x>0&&y<h-1&&hasDiagonalArtifact(cls(-1,1,dSpan),cm,S,c,L,T,T-N))||
-     (x<w-1&&y<h-1&&hasDiagonalArtifact(cls(1,1,dSpan),cm,S,c,R,T,T+N));
+    const err=(x>0&&hasLinearArtifact(K.dir(-1,0,hSpan),cm,S,c,S,L))||
+     (y>0&&hasLinearArtifact(K.dir(0,-1,vSpan),cm,S,c,S,B))||
+     (x<w-1&&hasLinearArtifact(K.dir(1,0,hSpan),cm,S,c,S,R))||
+     (y<h-1&&hasLinearArtifact(K.dir(0,1,vSpan),cm,S,c,S,T))||
+     (x>0&&y>0&&hasDiagonalArtifact(K.dir(-1,-1,dSpan),cm,S,c,L,B,B-N))||
+     (x<w-1&&y>0&&hasDiagonalArtifact(K.dir(1,-1,dSpan),cm,S,c,R,B,B+N))||
+     (x>0&&y<h-1&&hasDiagonalArtifact(K.dir(-1,1,dSpan),cm,S,c,L,T,T-N))||
+     (x<w-1&&y<h-1&&hasDiagonalArtifact(K.dir(1,1,dSpan),cm,S,c,R,T,T+N));
     if(err)st[i]|=ERROR;
    }
    dir=-dir;
@@ -583,19 +608,15 @@ class ShapeDistanceChecker{
  constructor(ec,contours,overlap){
   this.ec=ec;this.finder=new DistanceFinder(contours,'psdf',overlap);this.d=new Float64Array(1);this.old=new Float64Array(ec.N);
  }
- classifier(x,y,c,prot,dx,dy,span){
-  const ec=this.ec,self=this;
-  return {span,prot,evaluate(t,m,flags){
-   if(!(flags&F_CANDIDATE))return false;
-   if(flags&F_ARTIFACT)return true;
-   const tx=t*dx,ty=t*dy,S=ec.S,old=interpolate(S,ec.w,ec.h,ec.N,x+.5+tx,y+.5+ty,self.old);
-   const aw=(1-Math.abs(tx))*(1-Math.abs(ty)),apsd=fmedian(S[c],S[c+1],S[c+2]);
-   const n0=fr(old[0]+aw*fr(apsd-S[c])),n1=fr(old[1]+aw*fr(apsd-S[c+1])),n2=fr(old[2]+aw*fr(apsd-S[c+2]));
-   const oldPSD=fmedian(old[0],old[1],old[2]),newPSD=fmedian(n0,n1,n2);
-   self.finder.distance(x+.5+tx,y+.5+ty,self.d);
-   const ref=fr(1/ec.range*(self.d[0]+ec.range/2));
-   return ec.minImproveRatio*Math.abs(fr(newPSD-ref))<Math.abs(fr(oldPSD-ref));
-  }};
+ check(K,t){// ShapeDistanceChecker::ArtifactClassifier::evaluate, candidate not yet an artifact
+  const ec=this.ec,S=ec.S,c=K.c,tx=t*K.dx,ty=t*K.dy,px=K.x+.5+tx,py=K.y+.5+ty;
+  const old=interpolate(S,ec.w,ec.h,ec.N,px,py,this.old);
+  const aw=(1-Math.abs(tx))*(1-Math.abs(ty)),apsd=fmedian(S[c],S[c+1],S[c+2]);
+  const n0=fr(old[0]+aw*fr(apsd-S[c])),n1=fr(old[1]+aw*fr(apsd-S[c+1])),n2=fr(old[2]+aw*fr(apsd-S[c+2]));
+  const oldPSD=fmedian(old[0],old[1],old[2]),newPSD=fmedian(n0,n1,n2);
+  this.finder.distance(px,py,this.d);
+  const ref=fr(1/ec.range*(this.d[0]+ec.range/2));
+  return ec.minImproveRatio*Math.abs(fr(newPSD-ref))<Math.abs(fr(oldPSD-ref));
  }
 }
 const EC_MODES=['disabled','indiscriminate','edge-priority','edge-only'],EC_CHECKS=['none','at-edge','always'];

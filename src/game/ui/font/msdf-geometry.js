@@ -161,41 +161,46 @@ export function quadToCubic(e){
 // SD[0] = signed distance, SD[1] = dot (tie-breaker), SD[2] = curve parameter of the closest point.
 export const SD=new Float64Array(3);
 const roots=new Float64Array(3);
-function lineDistance(p,qx,qy){
- const aqx=qx-p[0],aqy=qy-p[1],abx=p[2]-p[0],aby=p[3]-p[1];
+/** Caches the end tangents the distance functions need on the edge (raw d0/d1, and normalised
+ * aF/bF exactly as Vector2::normalize makes them). Must be redone if the points change;
+ * edgeSignedDistance does it lazily for edges that never had it. Returns e. */
+export function prepareEdge(e){
+ const a=edgeDirection(e,0,[0,0]),b=edgeDirection(e,1,[0,0]);
+ e.d0x=a[0];e.d0y=a[1];e.d1x=b[0];e.d1y=b[1];
+ normalize(a);normalize(b);
+ e.aFx=a[0];e.aFy=a[1];e.bFx=b[0];e.bFy=b[1];
+ return e;
+}
+function lineDistance(e,qx,qy){
+ const p=e.p,aqx=qx-p[0],aqy=qy-p[1],abx=p[2]-p[0],aby=p[3]-p[1];
  const param=(aqx*abx+aqy*aby)/(abx*abx+aby*aby);
  const ex=(param>.5?p[2]:p[0])-qx,ey=(param>.5?p[3]:p[1])-qy,endpointDistance=len(ex,ey);
  SD[2]=param;
  if(param>0&&param<1){
-  const l=len(abx,aby);let ox,oy;
-  if(l){ox=aby/l;oy=-abx/l;}else{ox=0;oy=-1;}
-  const ortho=ox*aqx+oy*aqy;
+  // getOrthonormal(false) = (y/l, −x/l) = (aF.y, −aF.x); a line is never zero-length here
+  const ortho=e.aFy*aqx+-e.aFx*aqy;
   if(Math.abs(ortho)<endpointDistance){SD[0]=ortho;SD[1]=0;return;}
  }
  SD[0]=nonZeroSign(aqx*aby-aqy*abx)*endpointDistance;
- let nx=abx,ny=aby,l=len(nx,ny);if(l){nx/=l;ny/=l;}else{nx=0;ny=1;}
- let mx=ex,my=ey;l=len(mx,my);if(l){mx/=l;my/=l;}else{mx=0;my=1;}
- SD[1]=Math.abs(nx*mx+ny*my);
+ let mx=ex,my=ey;const l=len(mx,my);if(l){mx/=l;my/=l;}else{mx=0;my=1;}
+ SD[1]=Math.abs(e.aFx*mx+e.aFy*my);
 }
-const dir0=[0,0],dir1=[0,0];
 function endDot(e,atStart,vx,vy){
- edgeDirection(e,atStart?0:1,dir0);normalize(dir0);
  const l=len(vx,vy);let mx=vx,my=vy;if(l){mx/=l;my/=l;}else{mx=0;my=1;}
- return Math.abs(dir0[0]*mx+dir0[1]*my);
+ return Math.abs(atStart?e.aFx*mx+e.aFy*my:e.bFx*mx+e.bFy*my);
 }
 function quadDistance(e,qx,qy){
  const p=e.p;
  const qax=p[0]-qx,qay=p[1]-qy,abx=p[2]-p[0],aby=p[3]-p[1],brx=p[4]-p[2]-abx,bry=p[5]-p[3]-aby;
  const a=brx*brx+bry*bry,b=3*(abx*brx+aby*bry),c=2*(abx*abx+aby*aby)+(qax*brx+qay*bry),d=qax*abx+qay*aby;
  const n=solveCubic(roots,a,b,c,d);
- edgeDirection(e,0,dir1);
- let ex=dir1[0],ey=dir1[1];
+ let ex=e.d0x,ey=e.d0y;
  let minDistance=nonZeroSign(ex*qay-ey*qax)*len(qax,qay);
  let param=-(qax*ex+qay*ey)/(ex*ex+ey*ey);
  {
   const bx=p[4]-qx,by=p[5]-qy,distance=len(bx,by);
   if(distance<Math.abs(minDistance)){
-   edgeDirection(e,1,dir1);ex=dir1[0];ey=dir1[1];
+   ex=e.d1x;ey=e.d1y;
    minDistance=nonZeroSign(ex*by-ey*bx)*distance;
    param=((qx-p[2])*ex+(qy-p[3])*ey)/(ex*ex+ey*ey);
   }
@@ -219,14 +224,13 @@ function cubicDistance(e,qx,qy){
  const p=e.p;
  const qax=p[0]-qx,qay=p[1]-qy,abx=p[2]-p[0],aby=p[3]-p[1],brx=p[4]-p[2]-abx,bry=p[5]-p[3]-aby;
  const asx=(p[6]-p[4])-(p[4]-p[2])-brx,asy=(p[7]-p[5])-(p[5]-p[3])-bry;
- edgeDirection(e,0,dir1);
- let ex=dir1[0],ey=dir1[1];
+ let ex=e.d0x,ey=e.d0y;
  let minDistance=nonZeroSign(ex*qay-ey*qax)*len(qax,qay);
  let param=-(qax*ex+qay*ey)/(ex*ex+ey*ey);
  {
   const bx=p[6]-qx,by=p[7]-qy,distance=len(bx,by);
   if(distance<Math.abs(minDistance)){
-   edgeDirection(e,1,dir1);ex=dir1[0];ey=dir1[1];
+   ex=e.d1x;ey=e.d1y;
    minDistance=nonZeroSign(ex*by-ey*bx)*distance;
    param=((ex-bx)*ex+(ey-by)*ey)/(ex*ex+ey*ey);
   }
@@ -258,7 +262,8 @@ function cubicDistance(e,qx,qy){
 }
 /** Signed distance from (qx,qy) to the edge; result in SD (see above). */
 export function edgeSignedDistance(e,qx,qy){
- if(e.type===1)lineDistance(e.p,qx,qy);else if(e.type===2)quadDistance(e,qx,qy);else cubicDistance(e,qx,qy);
+ if(e.d0x===undefined)prepareEdge(e);
+ if(e.type===1)lineDistance(e,qx,qy);else if(e.type===2)quadDistance(e,qx,qy);else cubicDistance(e,qx,qy);
  return SD;
 }
 

@@ -192,8 +192,8 @@ class Font{
 
  /** {tag:userValue} → normalized coordinates (fvar + avar), one per axis in fvar order. */
  normalizeCoords(user={}){
-  if(!this.axes.length)return new Float64Array(0);
-  return normalize(this._axes,this._avar,user);
+  if(!this.axes.length)return [];
+  return Array.from(normalize(this._axes,this._avar,user));
  }
  /** null for "default instance", else a normalized Float64Array. */
  _coords(coords){
@@ -202,7 +202,7 @@ class Font{
   if(Array.isArray(coords)||ArrayBuffer.isView(coords)){
    if(coords.length!==this.axes.length)fail(`Expected ${this.axes.length} normalized coordinates, got ${coords.length}`);
    n=Float64Array.from(coords,x=>Math.max(-1,Math.min(1,Number(x)||0)));
-  }else n=this.normalizeCoords(coords);
+  }else n=normalize(this._axes,this._avar,coords);
   return n.some(x=>x!==0)?n:null;
  }
  _hvarTable(){

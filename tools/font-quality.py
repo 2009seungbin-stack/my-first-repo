@@ -39,7 +39,7 @@ CLI
   python tools/font-quality.py --font F --atlas atlas.json|font.fnt [--image page.png ...]
          [--charset chars.txt] [--json out.json] [--scales 4,8] [--sample N]
          [--field msdf|mtsdf|sdf|psdf|bitmap] [--range PX] [--channel r|g|b|a|l|median] [--em-px PX]
-         [--no-register] [--degrade blur=1.0,shift=1] (negative control: degrade the page images first)
+         [--no-register] [--register-scale] [--degrade blur=1.0,shift=1] (negative control: degrade the page images first)
 """
 import argparse, json, math, os, re, sys, time
 import xml.etree.ElementTree as ET
@@ -434,8 +434,10 @@ def run_scale(jobs, font, pages, field, rng, S, chan):
     return s
 
 
-def register_bmfont(fnt, font, pages, field, rng, chan, sample_ids):
-    """Find em_px and a global sub-pixel offset. Returns (em_px, dx, dy, convention, table)."""
+def register_bmfont(fnt, font, pages, field, rng, chan, sample_ids, scale_search=False):
+    """Pick the em-size convention, then a global offset (|dx|,|dy| <= 1 px, 1/8 px steps).
+    The em size is only refined when scale_search is set (--register-scale); otherwise a blurry
+    atlas could 'win' by scaling the reference."""
     size = abs(float(fnt['info'].get('size', 0) or 0))
     cands = {}
     if size:
@@ -470,7 +472,12 @@ def register_bmfont(fnt, font, pages, field, rng, chan, sample_ids):
     for step in (0.5, 0.25, 0.125):
         for _ in range(3):
             improved = False
-            for ddx, ddy, dem in ((step, 0, 0), (-step, 0, 0), (0, step, 0), (0, -step, 0), (0, 0, step / 16), (0, 0, -step / 16)):
+            moves = [(step, 0, 0), (-step, 0, 0), (0, step, 0), (0, -step, 0)]
+            if scale_search:
+                moves += [(0, 0, step / 16), (0, 0, -step / 16)]
+            for ddx, ddy, dem in moves:
+                if abs(dx + ddx) > 1.0 or abs(dy + ddy) > 1.0:
+                    continue
                 e2 = em * (1 + dem)
                 sc = score(e2, dx + ddx, dy + ddy)
                 if sc < cur - 1e-6:
@@ -495,6 +502,7 @@ def main(argv=None):
     ap.add_argument('--channel', default='auto', choices=['auto', 'r', 'g', 'b', 'a', 'l', 'median'])
     ap.add_argument('--em-px', type=float, help='BMFont: font size as px per em (skips convention search)')
     ap.add_argument('--no-register', action='store_true', help='BMFont: no sub-pixel registration search')
+    ap.add_argument('--register-scale', action='store_true', help='BMFont: also refine the em size (+-3%%) during registration')
     ap.add_argument('--degrade', help='negative control, e.g. blur=1.0,shift=1')
     a = ap.parse_args(argv)
     t0 = time.time()
@@ -552,7 +560,7 @@ def main(argv=None):
             em, dx, dy, conv, table, sc = a.em_px, 0.0, 0.0, '--em-px', {}, None
             registration = {'method': 'fixed em px from CLI', 'em_px': em}
         else:
-            em, dx, dy, conv, table, sc = register_bmfont(fnt, font, pages, field, rng, chan, sample_ids)
+            em, dx, dy, conv, table, sc = register_bmfont(fnt, font, pages, field, rng, chan, sample_ids, a.register_scale)
             if a.no_register:
                 dx = dy = 0.0
                 em = {'em = |size|': abs(float(fnt['info'].get('size', 0)))}.get(conv, em)

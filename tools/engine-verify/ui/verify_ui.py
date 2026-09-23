@@ -39,7 +39,7 @@ GODOT = __import__('os').environ.get('GODOT_BIN', r'C:\Users\2009s\Desktop\Godot
 ALL = ['godot', 'unity', 'phaser3', 'phaser4', 'pixi8', 'css']
 
 
-def layout(cases, width=2048, gap=16):
+def layout(cases, width=2048, gap=32):
     x = y = gap
     row = 0
     W = 0
@@ -144,7 +144,13 @@ def judge_paths(engine: str, profile: U.Profile, js, data, cases, images: dict, 
             cmp = U.compare(variants, actual)
             _, pv = U.expected_for(js, data, c, plan, cache)
             pc = U.compare(pv, actual)
-            row.update(status='PASS' if cmp['ok'] else 'FAIL', stats=cmp, plan={'same': pc['ok'], 'wrong': pc['wrong']})
+            ok = cmp['ok']
+            if not ok and cmp.get('wrong') is not None and profile.residue != (0, 0.0):
+                allowed = max(profile.residue[0], profile.residue[1] * cmp['pixels'])
+                if cmp['wrong'] <= allowed:
+                    ok = True
+                    row['note'] = f'{cmp["wrong"]} px resampling residue allowed for {profile.name} (<= {allowed:g})'
+            row.update(status='PASS' if ok else 'FAIL', stats=cmp, plan={'same': pc['ok'], 'wrong': pc['wrong']})
             rows.append(row)
     return rows
 
@@ -289,7 +295,7 @@ def main(argv=None):
             print(f'  button {b.get("button")} {b.get("state")}: {b["status"]} {b.get("stats", {}).get("wrong", "")} {b.get("note", "")}')
         for f in res.get('field_checks', []) or []:
             if not f['ok']:
-                print(f'  fields {f["source"]} {f["element"]}: WRONG {f["fields"]}')
+                print(f'  fields {f.get("source", "")} {f["element"]}: WRONG {f.get("fields", f)}')
     log.close()
     out = {'bundle': str(a.bundle), 'cases': len(cases), 'engines': results}
     if a.json:

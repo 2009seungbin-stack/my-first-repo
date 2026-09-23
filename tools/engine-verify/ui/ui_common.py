@@ -82,6 +82,14 @@ class Profile:
     modes: tuple = ('stretch', 'tile', 'tile-fit')  # what the engine can express
     center_optional: bool = True     # can the engine skip the centre (drawCenter false)?
     per_axis_modes: bool = True      # can horizontal and vertical modes differ?
+    paint: bool = False              # overlapping quads are alpha-composited in draw order (geometry engines)
+    round_vertices: bool = False     # quad corners are rounded to whole device pixels (Phaser 3 roundPixels)
+    fixed_height_3slice: bool = False  # top = bottom = 0 draws the source height, whatever height is asked
+    per_edge_scale: bool = False     # CSS: top/bottom tiles scale by their own width/slice, left/right likewise;
+    #                                  the centre uses the top's horizontal and the left's vertical scale
+    snap_borders: bool = False       # border widths are floored to whole device px before drawing (Chromium)
+    residue: tuple = (0, 0.0)        # (pixels, fraction): a case still passes with at most max() of these wrong
+    slack: float = 0.0               # texel boundaries may sit up to this many device px off (resampling, see css)
     notes: str = ''
 
 
@@ -102,11 +110,20 @@ PROFILES: dict[str, Profile] = {
     'pixi8': Profile('pixi8', 'uniform', 'first', modes=('stretch',), center_optional=False, per_axis_modes=False),
     # Phaser NineSlice: nine quads drawn TL,T,TR,L,C,R,BL,B,BR, borders never squashed (a too-small
     # object overlaps its quads; the middle quad turns inside out); no tiling; centre always drawn.
-    'phaser3': Profile('phaser3', 'none', 'last', modes=('stretch',), center_optional=False, per_axis_modes=False),
-    'phaser4': Profile('phaser4', 'none', 'last', modes=('stretch',), center_optional=False, per_axis_modes=False),
+    'phaser3': Profile('phaser3', 'none', 'last', modes=('stretch',), center_optional=False, per_axis_modes=False, paint=True,
+                       round_vertices=True, fixed_height_3slice=True),
+    'phaser4': Profile('phaser4', 'none', 'last', modes=('stretch',), center_optional=False, per_axis_modes=False, paint=True,
+                       fixed_height_3slice=True),
     # CSS border-image (css-backgrounds-3): all four widths scaled by one factor when they overlap;
     # `repeat` centres the tiles in the area, `round` rounds the count, `space` distributes gaps.
-    'css': Profile('css', 'uniform', 'first', ('center', 'center'), modes=('stretch', 'tile', 'tile-fit', 'space')),
+    # Chromium's (Skia's) nearest resampling of a scaled border-image part does not sample at pixel
+    # centres: at non-integer source:destination ratios a texel boundary lands up to half a device
+    # pixel away from the centre-sampling position (measured on the calib image: a 25 px tile-fit
+    # middle of 3 tiles shows texels 23455689|234556789|23556789 where centre sampling gives
+    # 234566789|23456678|92345678). Slices, widths, tile count and centring are still checked
+    # exactly; `strictWrong` gives the count without this slack.
+    'css': Profile('css', 'uniform', 'first', ('center', 'center'), modes=('stretch', 'tile', 'tile-fit', 'space'), snap_borders=True,
+                   per_edge_scale=True, slack=0.5, residue=(4, 0.005)),
 }
 
 
@@ -167,12 +184,14 @@ def axis_segments(profile: Profile, S, b0, b1, D, k, mode, align, A=None, B=None
                 while t0 < hi - 1e-9:
                     mid.append((t0, t0 + T, lo, hi, float(b0), float(S - b1), 1))
                     t0 += T
-    if profile.priority == 'first':
-        return [begin, end] + mid
-    return [end] + mid + [begin]
+    segs = [begin, end] + mid if profile.priority == 'first' else [end] + mid + [begin]
+    if profile.round_vertices:
+        rnd = lambda v: math.floor(v + 0.5)
+        segs = [(rnd(lo), rnd(hi), min(rnd(clo), rnd(chi)), max(rnd(clo), rnd(chi)), s0, s1, r) for lo, hi, clo, chi, s0, s1, r in segs]
+    return segs
 
 
-def _eval_axis(segs, centres, S):
+def _eval_axis(segs, centres, S, bias=0.0):
     """For each pixel centre: (texel index or -1, region or -1)."""
     tex = np.full(centres.shape, -1, dtype=np.int64)
     reg = np.full(centres.shape, -1, dtype=np.int64)
@@ -184,14 +203,14 @@ def _eval_axis(segs, centres, S):
         if not inside.any():
             continue
         u = s0 + (centres[inside] - lo) / (hi - lo) * (s1 - s0)
-        tex[inside] = np.clip(np.floor(u + 1e-9), 0, S - 1).astype(np.int64)
+        tex[inside] = np.clip(np.floor(u + 1e-9 + bias), 0, S - 1).astype(np.int64)
         reg[inside] = region
         done |= inside
     return tex, reg
 
 
 def render(src: np.ndarray, border, W: int, H: int, scale: float, mode_h: str, mode_v: str, draw_center: bool,
-           profile: Profile, offset=(0.0, 0.0)) -> np.ndarray:
+           profile: Profile, offset=(0.0, 0.0), bias=0.0) -> np.ndarray:
     """Reference image (H, W, 4) uint8 of one nine-slice. `border` = (left, right, top, bottom) in source
     pixels, `scale` multiplies the border (and tile) size on screen, `offset` moves every pixel centre
     (used for tie handling)."""
@@ -201,19 +220,81 @@ def render(src: np.ndarray, border, W: int, H: int, scale: float, mode_h: str, m
     Ay, By = _squash(profile, h, T, Bm, H, scale)
     tsx = tsy = scale
     if profile.squash == 'uniform':
-        f = min(1.0, W / ((L + R) * scale) if L + R else 1.0, H / ((T + Bm) * scale) if T + Bm else 1.0)
-        Ax, Bx, Ay, By = L * scale * f, R * scale * f, T * scale * f, Bm * scale * f
+        wl, wr, wt, wb = L * scale, R * scale, T * scale, Bm * scale
+        if profile.snap_borders:  # Chromium NinePieceImageGrid: a <length> border-image-width is floored
+            wl, wr, wt, wb = (math.floor(v + 1e-9) for v in (wl, wr, wt, wb))
+        f = min(1.0, W / (wl + wr) if wl + wr else 1.0, H / (wt + wb) if wt + wb else 1.0)
+        Ax, Bx, Ay, By = wl * f, wr * f, wt * f, wb * f
+        if profile.snap_borders and f < 1:  # ...and the scaled edges rounded to whole pixels (half up)
+            r = lambda v: float(math.floor(v + 0.5))
+            Ax, Bx, Ay, By = r(Ax), W - r(W - Bx), r(Ay), H - r(H - By)
         tsx = tsy = scale * f
     sx = axis_segments(profile, w, L, R, W, scale, mode_h, profile.align[0], Ax, Bx, tsx)
     sy = axis_segments(profile, h, T, Bm, H, scale, mode_v, profile.align[1], Ay, By, tsy)
-    tx, rx = _eval_axis(sx, np.arange(W) + 0.5 + offset[0], w)
-    ty, ry = _eval_axis(sy, np.arange(H) + 0.5 + offset[1], h)
-    out = src[np.clip(ty, 0, h - 1)][:, np.clip(tx, 0, w - 1)].copy()
-    hole = (ty[:, None] < 0) | (tx[None, :] < 0)
+    if profile.fixed_height_3slice and T == 0 and Bm == 0:
+        sy = [(0.0, h * scale, 0.0, h * scale, 0.0, float(h), 1)]
+    if profile.paint:
+        return _paint(src, sx, sy, W, H, draw_center, offset, bias)
+    cx, cy = np.arange(W) + 0.5 + offset[0], np.arange(H) + 0.5 + offset[1]
+    tx, rx = _eval_axis(sx, cx, w, bias)
+    ty, ry = _eval_axis(sy, cy, h, bias)
+    TX = np.broadcast_to(tx[None, :], (H, W))
+    TY = np.broadcast_to(ty[:, None], (H, W))
+    if profile.per_edge_scale and (mode_h != 'stretch' or mode_v != 'stretch'):
+        k = lambda width, sl, dflt: width / sl if sl else dflt
+        sx_b = axis_segments(profile, w, L, R, W, scale, mode_h, profile.align[0], Ax, Bx, k(By, Bm, tsx))
+        sx_t = axis_segments(profile, w, L, R, W, scale, mode_h, profile.align[0], Ax, Bx, k(Ay, T, tsx))
+        sy_r = axis_segments(profile, h, T, Bm, H, scale, mode_v, profile.align[1], Ay, By, k(Bx, R, tsy))
+        sy_l = axis_segments(profile, h, T, Bm, H, scale, mode_v, profile.align[1], Ay, By, k(Ax, L, tsy))
+        tx_t, _ = _eval_axis(sx_t, cx, w, bias)
+        tx_b, _ = _eval_axis(sx_b, cx, w, bias)
+        ty_l, _ = _eval_axis(sy_l, cy, h, bias)
+        ty_r, _ = _eval_axis(sy_r, cy, h, bias)
+        TX = np.where((ry == 2)[:, None], tx_b[None, :], tx_t[None, :])
+        TY = np.where((rx == 2)[None, :], ty_r[:, None], ty_l[:, None])
+    out = src[np.clip(TY, 0, h - 1), np.clip(TX, 0, w - 1)].copy()
+    hole = (TY < 0) | (TX < 0)
     if not draw_center:
         hole |= (ry[:, None] == 1) & (rx[None, :] == 1)
     out[hole] = 0
     return out
+
+
+def _axis_one(seg, centres, S, bias=0.0):
+    lo, hi, clo, chi, s0, s1, region = seg
+    if chi <= clo or hi == lo:
+        return None, None
+    inside = (centres >= clo) & (centres < chi) & (centres >= min(lo, hi)) & (centres < max(lo, hi))
+    u = s0 + (centres - lo) / (hi - lo) * (s1 - s0)
+    return inside, np.clip(np.floor(u + 1e-9 + bias), 0, S - 1).astype(np.int64)
+
+
+def _paint(src, sx, sy, W, H, draw_center, offset, bias=0.0):
+    """Quads drawn in order TL,T,TR,L,C,R,BL,B,BR (row-major over the segments), each composited
+    OVER what is already there, like a batch of textured quads with ordinary alpha blending."""
+    h, w = src.shape[:2]
+    order = lambda segs: sorted(segs, key=lambda s: (s[6], s[0]))
+    cx, cy = np.arange(W) + 0.5 + offset[0], np.arange(H) + 0.5 + offset[1]
+    acc = np.zeros((H, W, 4), dtype=np.float64)
+    f = src.astype(np.float64) / 255.0
+    for syg in order(sy):
+        iy, ty = _axis_one(syg, cy, h, bias)
+        if iy is None or not iy.any():
+            continue
+        for sxg in order(sx):
+            if not draw_center and syg[6] == 1 and sxg[6] == 1:
+                continue
+            ix, tx = _axis_one(sxg, cx, w, bias)
+            if ix is None or not ix.any():
+                continue
+            m = iy[:, None] & ix[None, :]
+            s_ = f[ty][:, tx]
+            a = s_[..., 3:4]
+            outa = a + acc[..., 3:4] * (1 - a)
+            rgb = np.where(outa > 0, (s_[..., :3] * a + acc[..., :3] * acc[..., 3:4] * (1 - a)) / np.maximum(outa, 1e-9), 0)
+            new = np.concatenate([rgb, outa], axis=-1)
+            acc = np.where(m[..., None], new, acc)
+    return np.round(acc * 255).astype(np.uint8)
 
 
 def render_variants(src, border, W, H, scale, mode_h, mode_v, draw_center, profile):
@@ -222,6 +303,16 @@ def render_variants(src, border, W, H, scale, mode_h, mode_v, draw_center, profi
     vs = [base]
     for dx in (-TIE_EPS, TIE_EPS):
         for dy in (-TIE_EPS, TIE_EPS):
+            vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy)))
+    # a pixel centre ON a texel boundary: the GPU may take either texel, independently of which
+    # quad/region the rasteriser gave the pixel to (measured in Unity at 1.5x: u = 11 - eps)
+    for b in (-TIE_EPS / 10, TIE_EPS / 10):
+        for dx in (-TIE_EPS, 0.0, TIE_EPS):
+            for dy in (-TIE_EPS, 0.0, TIE_EPS):
+                vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy), b))
+    if profile.slack:
+        d = profile.slack - TIE_EPS
+        for dx, dy in ((-d, 0), (d, 0), (0, -d), (0, d), (-d, -d), (-d, d), (d, -d), (d, d)):
             vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy)))
     return base, vs
 
@@ -256,7 +347,10 @@ def compare(variants: list[np.ndarray], actual: np.ndarray, tol=2, soft_tol=8) -
         anyok |= pixel_ok(v, actual, tol, soft_tol)
     wrong = int((~anyok).sum())
     d = np.abs(_premul(base) - _premul(actual)).max(axis=-1)
-    out = {'ok': wrong == 0, 'pixels': int(base.shape[0] * base.shape[1]), 'wrong': wrong,
+    ties = strict.copy()
+    for v in variants[1:23]:
+        ties |= pixel_ok(v, actual, tol, soft_tol)
+    out = {'ok': wrong == 0, 'pixels': int(base.shape[0] * base.shape[1]), 'wrong': wrong, 'strictWrong': int((~ties).sum()),
            'tiePixels': int((anyok & ~strict).sum()), 'maxDelta': int(round(float(d[~anyok].max()))) if wrong else 0}
     if wrong:
         ys, xs = np.nonzero(~anyok)

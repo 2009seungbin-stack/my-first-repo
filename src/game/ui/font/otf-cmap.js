@@ -13,7 +13,7 @@
  * records win over other languages; Windows over Unicode over Mac. */
 import {fail} from './otf-read.js';
 
-const MAC_ROMAN_HIGH='ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ';
+const MAC_ROMAN_HIGH='ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ';
 export const macRoman=c=>c<128?c:MAC_ROMAN_HIGH.charCodeAt(c-128);
 
 const PREFERENCE=[[3,10],[0,6],[0,4],[3,1],[0,3],[0,2],[0,1],[0,0],[3,0],[1,0]];

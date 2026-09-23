@@ -141,7 +141,28 @@ export function contourWinding(contour){
  return total<0?1:total>0?-1:0;// msdfgen: sign(total) in y-up; the y-down mirror flips it
 }
 /** Fill winding at a point: +1 inside a positive contour (see header), msdfgen scanline rules. */
-export function windingAt(shape,x,y){return -scanlineWinding(scanline(shape.contours,y),x);}
+export function windingAt(shape,x,y){const w=scanlineWinding(scanline(shape.contours,y),x);return w?-w:0;}
+/** msdfgen text shape description of a pixel-space shape, mirrored into msdfgen's y-up frame
+ * with Y = height − y (so msdfgen's pixel row r from the bottom is this frame's row height−1−r).
+ * Colours are written when `colors` is set. Numbers use JS shortest round-trip form, which
+ * msdfgen's strtod/fscanf reads back to the identical double. */
+export function shapeDescription(shape,{height,colors=false}={}){
+ if(!Number.isFinite(height))throw Error('shapeDescription needs the output height');
+ const code={3:'y',5:'m',6:'c',7:'w'},pt=(e,i)=>`${e.p[2*i]}, ${height-e.p[2*i+1]}`;
+ const out=[];
+ for(const c of shape.contours){
+  if(!c.edges.length)continue;
+  const parts=[];
+  c.edges.forEach((e,k)=>{
+   parts.push(pt(e,0));
+   const col=colors&&code[e.color]?code[e.color]:'';
+   if(e.type===1){if(col)parts.push(col);}
+   else parts.push(`${col}(${e.type===2?pt(e,1):`${pt(e,1)}; ${pt(e,2)}`})`);
+  });
+  out.push(`{\n ${parts.join(';\n ')};\n #\n}`);
+ }
+ return out.join('\n')+'\n';
+}
 export const insideAt=(shape,x,y,rule='nonzero')=>fillRule(windingAt(shape,x,y),rule);
 
 /** Make windings consistent so that the NONZERO fill has positive-inside distance, in place.
