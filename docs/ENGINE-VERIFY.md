@@ -382,3 +382,31 @@ passing ones). The full per-field JSON is `baseline.json` in the output folder.
 | 49 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | godot | **PASS** | font.chars 62 present; font.glyph_shapes 62/62 glyphs match |
 | 50 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | pixi8 | **PASS** | font.chars 62 present; font.glyph_shapes 62/62 glyphs match |
 | 51 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | phaser3 | **N/A** | has no standard loader for bmfont-text (Phaser reads XML BMFont only) |
+
+## Studio Pack & Export (2026-09-23, branch nerulio/studio-pack)
+
+`baseline.py` now also runs the `sp-*` cases. They drive `/game/studio/`: Sprite import → Pack &
+Export → Export for <target>. The tally for this run is below; the per-case table and the findings
+are in `docs/STUDIO-PACK.md` ("Baseline before/after").
+
+| Rows | PASS | FAIL | N/A |
+|---|---|---|---|
+| Studio Pack & Export (49 engine runs) | 47 | 2 | — |
+| Whole run (references, Labs, Tile Lab, fonts, Studio) | 83 | 13 | 4 |
+
+**Engines in the Studio runs:** Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90/4.2, PixiJS 8.21,
+Defold bob.jar 1.13.1, LÖVE 11.5, spine-canvas 4.2, Chromium (CSS), Aseprite 1.3.18 CLI and Pillow.
+
+**The 2 Studio FAILs** are the Phaser 3.90 AtlasXML trim bug. The Phaser 3 XML preset avoids it.
+
+**New engine facts from these runs:**
+
+- **Godot `fix_alpha_border`.** The default PNG import has `process/fix_alpha_border=true`, which
+  recolours pixels under alpha 20. Bundles that need exact faint pixels must ship a `.png.import`
+  with it off.
+- **Rotated TexturePacker frames in Phaser.** Phaser 3.90 and 4.2 draw them mirrored.
+- **Spine rotated regions.** Spine stores them counter-clockwise, the opposite of TexturePacker
+  JSON, and `bounds` holds the unrotated size.
+
+**Tile Lab rows:** the six Tile Lab rows did not export in this run. The baseline's Tile Lab UI
+recipe timed out after the trust-fixes page changes, so the recipe needs an update.

@@ -110,7 +110,100 @@ for that export and shows the change next to its button before you click.
 | `tests/studio-pack.test.mjs` (node:test) | Every bin and heuristic without overlap; the layout invariants for every size mode (inside the page and border, padding respected, each sprite placed once); multipack and limit errors; determinism (layout and PNG bytes); trim / crop-keep / crop / none; alias with a byte check; clockwise and counter-clockwise rotation read-back; extrude belt; nearest @2x; premultiply; the schema of every exporter; out-of-canvas boxes; GIF/APNG containers; the WebM muxer; the document adapter; shared selection; string parity | 30 / 30 |
 | `tests/studio-pack-browser.py` (in `tools/regression.py`) | The full UI flow with real CC0 frames: live pack, undo, presets, rotation refusal, shared selection with the Sprite timeline, all 17 file exports, a byte-exact Phaser atlas from gAMA/cHRM frames, GIF/APNG exact, WebM through ffprobe and Chromium playback, multipack, @2x, Cancel, 1,000 frames, the 4096² sheet, ko/ja, 390 px, no network, no page errors | 63 / 63 |
 
-## Results
+## Head-to-head
 
-See **Baseline before/after** below. The head-to-head packer comparison is in
-`docs/STUDIO-PACK-H2H.md`.
+The packer against CodeAndWeb's free packer, GAPTools and free-tex-packer on five real frame sets
+(size, exactness, features) is in `docs/STUDIO-PACK-H2H.md`. With rotation allowed the Studio
+makes the smallest sheet on all five sets; its frames are exact on all five.
+
+## Baseline before/after (2026-09-23, real corpus, real engines)
+
+`python tools/engine-verify/baseline.py --port 4471` was run on this branch, with every case driven
+through its UI and loaded into the real engines. The Studio cases drive `/game/studio/?ws=sprite`:
+
+1. Drop the file(s).
+2. For a sheet, keep the Sprite import's plan and press Apply.
+3. Open **Pack & Export** and press **Export** next to the target.
+
+The two out-of-canvas box cases are the exception: they are built with the same modules in Node.
+
+| Rows | PASS | FAIL | N/A |
+|---|---|---|---|
+| **Before** — historical baseline (main @ c741bbe), sprite exporter rows (Sprite Lab + sprite-sheet-maker) | 5 | 25 | — |
+| Before — all exporter rows, including Tile Lab and fonts (docs/ENGINE-VERIFY.md) | 8 | 32 | 2 |
+| Today's Labs on this branch (after trust-fixes), same sprite cases | 25 | 5 | — |
+| **After — Studio Pack & Export, 49 engine runs** | **47** | **2** | — |
+| Whole run today (references, Labs, Tile Lab, fonts, Studio) | 83 | 13 | 4 |
+
+**The 2 Studio FAILs are one known engine bug.** Trimmed Starling/Sparrow XML in **Phaser 3.90**
+comes out wrong, because its `AtlasXML` parser passes the trimmed and full sizes to `setTrim` in the
+wrong order.
+
+- The same files pass in Phaser 4.2.
+- The **Sparrow XML (Phaser 3)** preset turns trim off, and it passes in Phaser 3.90 and 4.2.
+- The rows are kept to show the bug.
+
+**Other findings from today's run (not in the Studio's code):**
+
+- `sl-hit-4096-auto-godot` (Sprite Lab) fails `frames.art` in Godot. Godot's default PNG import has
+  `process/fix_alpha_border=true`, which recolours every pixel under alpha 20: faint sparks
+  `(255,204,0,10)` come back `(255,255,230,10)`. The Studio's Godot bundle ships a `.png.import`
+  with that setting off and passes. The Sprite Lab bundle does not ship one yet.
+- `ssm-*-hash-rotate` in Phaser 3/4 (sprite-sheet-maker) fail: Phaser draws rotated TexturePacker
+  frames mirrored. The Studio's Phaser preset never rotates.
+- The six Tile Lab cases timed out in the baseline's UI drive (phase 1). The Tile Lab page flow
+  changed in trust-fixes and `baseline.py`'s Tile Lab recipe needs an update. This is outside P1b;
+  the harness itself is fine.
+
+| # | Case | Asset | Export | Engine | Result | Answers (historical baseline → today's Lab) |
+|---|---|---|---|---|---|---|
+| 1 | `sp-samurai-godot` | `sprites/oga-samurai/samurai.png` | godot4 | godot | **PASS** | `sl-samurai-auto-godot` FAIL → PASS |
+| 2 | `sp-ninja-viewer-godot` | `sprites/oga-ninja/1x/` | godot4 | godot | **PASS** | `sl-samurai-grid-noanim-godot` FAIL → PASS |
+| 3 | `sp-samurai-json` | `sprites/oga-samurai/samurai.png` | json | phaser3 | **PASS** | `sl-samurai-grid-generic` FAIL → PASS |
+| 4 | `sp-samurai-json` | `sprites/oga-samurai/samurai.png` | json | phaser4 | **PASS** | `sl-samurai-grid-generic` FAIL → PASS |
+| 5 | `sp-samurai-json` | `sprites/oga-samurai/samurai.png` | json | pixi8 | **PASS** | `sl-samurai-grid-generic` FAIL → PASS |
+| 6 | `sp-samurai-unity` | `sprites/oga-samurai/samurai.png` | unity | unity | **PASS** | `sl-samurai-grid-unity` PASS → PASS |
+| 7 | `sp-toon-godot` | `sprites/kenney-toon-characters/character_femaleAdventurer_sheet.png` | godot4 | godot | **PASS** | `sl-toon-auto-godot` FAIL → PASS |
+| 8 | `sp-samurai-magenta-godot` | `sprites/derived/samurai_magenta_m4_s2.png` | godot4 | godot | **PASS** | `sl-samurai-magenta-grid-godot` FAIL → PASS |
+| 9 | `sp-rogue-magenta-godot` | `sprites/kenney-roguelike-characters/roguelikeChar_magenta.png` | godot4 | godot | **PASS** | `sl-rogue-magenta-auto-godot` FAIL → PASS |
+| 10 | `sp-hit-4096-godot` | `sprites/oga-hit-effect/hit-yellow.png` | godot4 | godot | **PASS** | `sl-hit-4096-auto-godot` - → FAIL |
+| 11 | `sp-toon-pixi` | `sprites/kenney-toon-characters/character_femaleAdventurer_sheet.png` | pixi | pixi8 | **PASS** | (new) |
+| 12 | `sp-rogue-phaser` | `sprites/kenney-roguelike-characters/roguelikeChar_magenta.png` | phaser | phaser3 | **PASS** | (new) |
+| 13 | `sp-rogue-phaser` | `sprites/kenney-roguelike-characters/roguelikeChar_magenta.png` | phaser | phaser4 | **PASS** | (new) |
+| 14 | `sp-ninja-phaser` | `sprites/oga-ninja/1x/` | phaser | phaser3 | **PASS** | `ssm-ninja-hash` FAIL → PASS |
+| 15 | `sp-ninja-phaser` | `sprites/oga-ninja/1x/` | phaser | phaser4 | **PASS** | `ssm-ninja-hash` FAIL → PASS |
+| 16 | `sp-ninja-pixi` | `sprites/oga-ninja/1x/` | pixi | pixi8 | **PASS** | `ssm-ninja-hash` FAIL → PASS; `ssm-ninja-hash-rotate` FAIL → PASS |
+| 17 | `sp-ninja-aseprite-array` | `sprites/oga-ninja/1x/` | aseprite-json-array | phaser3 | **PASS** | `ssm-ninja-array` FAIL → PASS |
+| 18 | `sp-ninja-aseprite-array` | `sprites/oga-ninja/1x/` | aseprite-json-array | phaser4 | **PASS** | `ssm-ninja-array` FAIL → PASS |
+| 19 | `sp-ninja-starling` | `sprites/oga-ninja/1x/` | starling | phaser3 | **FAIL** | `ssm-ninja-xml` FAIL → PASS |
+| 20 | `sp-ninja-starling` | `sprites/oga-ninja/1x/` | starling | phaser4 | **PASS** | `ssm-ninja-xml` FAIL → PASS |
+| 21 | `sp-ninja-sparrow-p3` | `sprites/oga-ninja/1x/` | sparrow-phaser3 | phaser3 | **PASS** | `ssm-ninja-xml` FAIL → PASS |
+| 22 | `sp-ninja-sparrow-p3` | `sprites/oga-ninja/1x/` | sparrow-phaser3 | phaser4 | **PASS** | `ssm-ninja-xml` FAIL → PASS |
+| 23 | `sp-ninja-godot` | `sprites/oga-ninja/1x/` | godot4 | godot | **PASS** | `ssm-ninja-godot` FAIL → PASS |
+| 24 | `sp-ninja-aseprite-hash` | `sprites/oga-ninja/1x/` | aseprite-json | phaser3 | **PASS** | (reference-style Aseprite JSON) |
+| 25 | `sp-ninja-aseprite-hash` | `sprites/oga-ninja/1x/` | aseprite-json | phaser4 | **PASS** | (reference-style Aseprite JSON) |
+| 26 | `sp-ninja-aseprite-hash` | `sprites/oga-ninja/1x/` | aseprite-json | pixi8 | **PASS** | (reference-style Aseprite JSON) |
+| 27 | `sp-archer-phaser` | `sprites/oga-skeleton-archer/attack-frames/` | phaser | phaser3 | **PASS** | `ssm-archer-hash` PASS → PASS; `ssm-archer-hash-rotate` FAIL → FAIL |
+| 28 | `sp-archer-phaser` | `sprites/oga-skeleton-archer/attack-frames/` | phaser | phaser4 | **PASS** | `ssm-archer-hash` PASS → PASS; `ssm-archer-hash-rotate` FAIL → FAIL |
+| 29 | `sp-archer-pixi` | `sprites/oga-skeleton-archer/attack-frames/` | pixi | pixi8 | **PASS** | `ssm-archer-hash` PASS → PASS; `ssm-archer-hash-rotate` FAIL → PASS |
+| 30 | `sp-archer-starling` | `sprites/oga-skeleton-archer/attack-frames/` | starling | phaser3 | **FAIL** | `ssm-archer-xml` FAIL → PASS |
+| 31 | `sp-archer-starling` | `sprites/oga-skeleton-archer/attack-frames/` | starling | phaser4 | **PASS** | `ssm-archer-xml` PASS → PASS |
+| 32 | `sp-archer-sparrow-p3` | `sprites/oga-skeleton-archer/attack-frames/` | sparrow-phaser3 | phaser3 | **PASS** | `ssm-archer-xml` FAIL → PASS |
+| 33 | `sp-archer-sparrow-p3` | `sprites/oga-skeleton-archer/attack-frames/` | sparrow-phaser3 | phaser4 | **PASS** | `ssm-archer-xml` PASS → PASS |
+| 34 | `sp-ninja-unity` | `sprites/oga-ninja/1x/` | unity | unity | **PASS** | (new: Unity clips) |
+| 35 | `sp-ninja-love` | `sprites/oga-ninja/1x/` | love | love | **PASS** | (new: no LÖVE exporter before) |
+| 36 | `sp-ninja-defold` | `sprites/oga-ninja/1x/` | defold | defold | **PASS** | (new: no Defold exporter before) |
+| 37 | `sp-ninja-defold` | `sprites/oga-ninja/1x/` | defold | defold | **PASS** | (new: no Defold exporter before) |
+| 38 | `sp-samurai-defold` | `sprites/oga-samurai/samurai.png` | defold | defold | **PASS** | (new) |
+| 39 | `sp-samurai-defold` | `sprites/oga-samurai/samurai.png` | defold | defold | **PASS** | (new) |
+| 40 | `sp-samurai-love` | `sprites/oga-samurai/samurai.png` | love | love | **PASS** | (new) |
+| 41 | `sp-ninja-spine` | `sprites/oga-ninja/1x/` | spine | spine | **PASS** | (new: Spine atlas, trimmed) |
+| 42 | `sp-archer-spine` | `sprites/oga-skeleton-archer/attack-frames/` | spine | spine | **PASS** | (new: Spine atlas, rotated) |
+| 43 | `sp-samurai-css` | `sprites/oga-samurai/samurai.png` | css | css | **PASS** | (new: CSS sprites drawn by Chromium) |
+| 44 | `sp-samurai-gamemaker` | `sprites/oga-samurai/samurai.png` | gamemaker | pillow | **PASS** | (new, strips decoded only: GameMaker itself UNVERIFIED) |
+| 45 | `sp-ninja-aseprite-file` | `sprites/oga-ninja/1x/` | aseprite | aseprite | **PASS** | (new: .aseprite opened by the Aseprite CLI) |
+| 46 | `sp-ninja-gif` | `sprites/oga-ninja/1x/` | gif | pillow | **PASS** | (new) |
+| 47 | `sp-ninja-apng` | `sprites/oga-ninja/1x/` | apng | pillow | **PASS** | (new) |
+| 48 | `sp-ninja-boxes-aseprite` | `sprites/oga-ninja/1x/` | aseprite | aseprite | **PASS** | (new) |
+| 49 | `sp-ninja-boxes-godot` | `sprites/oga-ninja/1x/` | godot4 | godot | **PASS** | (new) |
+
