@@ -363,9 +363,12 @@ def png_bytes(im):
 
 
 def near(a, b):
-    """UI Lab images go through a browser canvas: Firefox rounds the colour of semi-transparent
-    pixels by up to one level (premultiplied alpha), Chromium does not. Opaque and fully transparent
-    pixels, and every alpha value, must still match exactly."""
+    """UI Lab images go through a browser canvas. Firefox keeps canvas pixels premultiplied by alpha,
+    so the straight colour of a semi-transparent pixel comes back within one premultiplied level
+    (measured on the Kenney button in Firefox 155: blue 138 -> 134 at alpha 63, i.e. 34.09 -> 33.11
+    once multiplied by alpha; 3 levels at alpha 79, 2 at alpha 111). Chromium returns the bytes.
+    Every alpha value and every opaque pixel must match exactly; the colour under alpha 0 is not
+    visible and a canvas does not keep it."""
     a, b = a.convert('RGBA'), b.convert('RGBA')
     if a.size != b.size:
         return False
@@ -374,9 +377,18 @@ def near(a, b):
             return False
         if x[3] == 255 and x != y:
             return False
-        if 0 < x[3] < 255 and max(abs(x[i] - y[i]) for i in range(3)) > 1:
+        if 0 < x[3] < 255 and max(abs(x[i] - y[i]) * x[3] / 255 for i in range(3)) > 1:
             return False
     return True
+
+
+def diff_note(a, b):
+    """Short description of how two images differ, for a failing check."""
+    a, b = a.convert('RGBA'), b.convert('RGBA')
+    if a.size != b.size:
+        return f'size {a.size} != {b.size}'
+    d = [(i % a.width, i // a.width, x, y) for i, (x, y) in enumerate(zip(a.getdata(), b.getdata())) if x != y]
+    return f'{len(d)} pixels differ, first {d[:4]}'
 
 
 def lab_open(ctx, route, files, ready_sel, engine):
@@ -535,7 +547,7 @@ def part4(browser, E):
     strip = Image.open(io.BytesIO(z.read([n for n in z.namelist() if n.endswith('-states.png')][0]))).convert('RGBA')
     normal_state = Image.open(io.BytesIO(z.read('states/normal.png'))).convert('RGBA')
     ok('button-state-generator: normal equals the source (alpha and opaque pixels exact) and every rect in states.json cuts its state from the strip',
-       near(normal_state, button) and all(near(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])), Image.open(io.BytesIO(z.read(f'states/{k}.png')))) for k, f in states['frames'].items()), f"normal {normal_state.size} {[(x, y) for x, y in zip(normal_state.getdata(), button.getdata()) if x != y][:6]} {[(k, near(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])), Image.open(io.BytesIO(z.read(f'states/{k}.png'))))) for k, f in states['frames'].items()]}", engine=E)
+       near(normal_state, button) and all(near(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])), Image.open(io.BytesIO(z.read(f'states/{k}.png')))) for k, f in states['frames'].items()), diff_note(normal_state, button), engine=E)
     p.close()
     sheet = Image.new('RGBA', (300, 90), (0, 0, 0, 0)); sheet.paste(button, (4, 4)); sheet.paste(panel, (220, 10))
     p = lab_open(ctx, '/en/game/ui-lab/', [buf('kenney-ui-sheet.png', png_bytes(sheet))], '#nsCanvas', E)
