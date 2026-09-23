@@ -42,5 +42,5 @@ test('map resolver: a complete blob set leaves nothing to flag; a missing isolat
  const g2=resolveLayer(m,L,noIso,'godot');assert.deepEqual(g2.problems.map(p=>[p.x,p.y,p.kind]),[[1,1,'missing']]);
 });
 test('verification labels only claim what was run', () => {
- for(const [k,v] of Object.entries(VERIFY)){assert.match(v.status,/^(verified|unverified)$/);assert.ok(v.detail.length>10,k);}
+ for(const [k,v] of Object.entries(VERIFY)){assert.match(v.status,/^(verified|partial|unverified)$/);assert.ok(v.detail.length>10,k);}
 });

@@ -89,8 +89,10 @@ export default {
     if(detailed){
      for(const z of ['c',...MODE_IDX[ts?.mode||preview?.mode||'corners-and-sides']]){
       const val=z==='c'?p[0]:p[z+1];if(val<0)continue;const zr=zoneRect(g,z);
-      c.fillStyle=rgba(terrains[val]?.color||'#4cc2ff',alpha);
-      c.fillRect(X(rc.x+zr.x)+1,Y(rc.y+zr.y)+1,Math.max(1,X(rc.x+zr.x+zr.w)-X(rc.x+zr.x)-2),Math.max(1,Y(rc.y+zr.y+zr.h)-Y(rc.y+zr.y)-2));
+      // a mark in the middle of each zone (like Godot's terrain painter), small enough to keep the art readable
+      const zx=X(rc.x+zr.x),zy=Y(rc.y+zr.y),zw=X(rc.x+zr.x+zr.w)-zx,zh=Y(rc.y+zr.y+zr.h)-zy,ix=Math.round(zw*.22),iy=Math.round(zh*.22);
+      c.fillStyle=rgba(terrains[val]?.color||'#4cc2ff',isPrev?.55:.8);c.fillRect(zx+ix,zy+iy,Math.max(2,zw-2*ix),Math.max(2,zh-2*iy));
+      c.lineWidth=1;c.strokeStyle='rgba(0,0,0,.65)';c.strokeRect(zx+ix+.5,zy+iy+.5,Math.max(1,zw-2*ix-1),Math.max(1,zh-2*iy-1));
      }
     }else if(p[0]>=0){c.fillStyle=rgba(terrains[p[0]]?.color||'#4cc2ff',alpha);const d=Math.max(2,Math.round(w/3));c.fillRect(x+(w-d)/2,y+(hh-d)/2,d,d);}
     if(isPrev){c.setLineDash([3*dpr,3*dpr]);c.strokeStyle='rgba(255,255,255,.7)';c.strokeRect(x+1.5,y+1.5,w-3,hh-3);c.setLineDash([]);}
@@ -374,7 +376,7 @@ export default {
    if(terrainsFromBlocks){for(const b of terrainsFromBlocks.blocks){const LL=layoutById(b.layoutId);for(const cell of placeLayout(LL,b.col,b.row,b.a))patterns[key(cell.col,cell.row)]=TS.withB(cell.pattern,LL.mode,b.a,b.b);}}
    else for(const cell of placeLayout(L,c.col,c.row))patterns[key(cell.col,cell.row)]=cell.pattern;
    preview={kind:'layout',layoutId:c.layoutId,mode:L.mode,patterns,candidate:c,blocks:terrainsFromBlocks};
-   sheetLayer.view?.invalidate();renderLayout();
+   sheetLayer.view?.invalidate();renderLayout();panels['tile-layout'].querySelector('.tl-preview')?.scrollIntoView({block:'nearest'});
   }
   function applyPreview(){
    const ts=tileset();if(!ts||!preview)return;const pv=preview;
@@ -432,8 +434,8 @@ export default {
    const tmpl=h('select.st-input',{'data-tile':'template','aria-label':t('tile.layout.template')},h('option',{value:''},t('tile.layout.templatePick')),LAYOUTS.map(L=>h('option',{value:L.id},`${L.names[0]} (${L.cols}×${L.rows})`)));
    tmpl.addEventListener('change',()=>{if(!tmpl.value)return;const L=layoutById(tmpl.value);const at=selection.length?unkey(selection.slice().sort()[0]):[0,0];previewCandidate({layoutId:L.id,col:Math.min(at[0],Math.max(0,ts.grid.cols-L.cols)),row:Math.min(at[1],Math.max(0,ts.grid.rows-L.rows)),auc:0,cells:L.cols*L.rows,missing:0,extra:0});});
    put(box,
-    sec([h('span',{},t('tile.layout.found')),btn(t('tile.layout.rerun'),()=>runIdentify(true),{action:'tile-identify'})],list),
     pv,
+    sec([h('span',{},t('tile.layout.found')),btn(t('tile.layout.rerun'),()=>runIdentify(true),{action:'tile-identify'})],list),
     sec(t('tile.layout.other'),h('label.st-field',{},h('span',{},t('tile.layout.template')),tmpl),h('p.st-muted.tl-small',{},t('tile.layout.templateHint')),
      h('div.st-row',{},btn(sg?.status==='running'?t('tile.layout.suggesting'):t('tile.layout.suggest'),runSuggest,{action:'tile-suggest',disabled:sg?.status==='running'})),
      sg?.status==='done'&&!sg.measurable?h('p.st-error.tl-small',{},t('tile.layout.notMeasurable.'+(sg.reason||'x'))):null,
@@ -681,7 +683,7 @@ export default {
    if(!ts){put(box,h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
    const rows=TARGETS.map(tg=>{const v=VERIFY[tg];const cb=h('input',{type:'checkbox',checked:exportOpts.targets.has(tg),'data-target':tg});cb.addEventListener('change',()=>{cb.checked?exportOpts.targets.add(tg):exportOpts.targets.delete(tg);});
     const na=tg==='unity'&&ts.mode==='corners';
-    return h('label.tl-target'+(na?'.is-na':''),{},cb,h('span.tl-target-name',{},t('tile.export.t.'+tg)),h('span.st-conf.is-'+(na?'alt':v.status==='verified'?'high':'medium'),{title:v.detail},na?t('tile.export.na'):t('tile.export.'+v.status)));});
+    return h('label.tl-target'+(na?'.is-na':''),{},cb,h('span.tl-target-name',{},t('tile.export.t.'+tg)),h('span.st-conf.is-'+(na?'alt':v.status==='verified'?'high':v.status==='partial'?'medium':'low'),{title:v.detail},na?t('tile.export.na'):t('tile.export.'+v.status)));});
    const col=h('select.st-input',{'aria-label':t('tile.export.collision'),'data-tile':'collision'},['none','box','rects','outline'].map(m=>h('option',{value:m,selected:exportOpts.collision===m},t('tile.export.col.'+m))));
    col.addEventListener('change',()=>{exportOpts.collision=col.value;});
    const n=Object.keys(ts.tiles).filter(k=>ts.tiles[k].pattern[0]>=0).length;

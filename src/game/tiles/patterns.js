@@ -66,8 +66,10 @@ export function describe(p){
  if(p[0]<0)return '—';
  const on=i=>p[i+1]>=0;
  const s=SIDE_IDX.filter(on).map(i=>POS[i].toUpperCase()),c=CORNER_IDX.filter(on).map(i=>POS[i].toUpperCase());
- const multi=new Set(p.slice(1).filter(v=>v>=0&&v!==p[0])).size>0;
- return (s.join('')||'')+(c.length?'·'+c.join(''):'')+(multi?' *':'')||'O';
+ const multi=new Set(p.slice(1).filter(v=>v>=0&&v!==p[0])).size>0?' *':'';
+ if(!s.length&&!c.length)return 'isolated';
+ if(s.length===4&&c.length===4)return 'full'+multi;
+ return [s.join(' '),c.length?'· '+c.join(' '):''].filter(Boolean).join(' ')+multi;
 }
 /** The patterns a complete single-terrain set needs in a mode (terrain t against empty). */
 export function requiredPatterns(mode,t=0){
