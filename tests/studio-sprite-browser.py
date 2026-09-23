@@ -264,19 +264,19 @@ with sync_playwright() as pw:
     # ------------------------------------------------------------ GIF / APNG compared with Chromium's own decoder
     def decoder_matches(path,mime):
         return js(p,'''const R=await import("/src/studio/sprite/frame-render.js"),a=S.doc.assets.find(x=>x.id===S.activeAssetId);
-          const bytes=await (await fetch(arg[0])).arrayBuffer(),dec=new ImageDecoder({data:bytes,type:arg[1]});await dec.tracks.ready;const n=dec.tracks.selectedTrack.frameCount;
+          const bytes=Uint8Array.from(atob(arg[0]),c=>c.charCodeAt(0)).buffer,dec=new ImageDecoder({data:bytes,type:arg[1]});await dec.tracks.ready;const n=dec.tracks.selectedTrack.frameCount;
           if(n!==a.frames.length)return {ok:false,why:"count "+n+" vs "+a.frames.length};let bad=0,dur=[];
           for(let i=0;i<n;i++){const {image}=await dec.decode({frameIndex:i});const c=new OffscreenCanvas(image.displayWidth,image.displayHeight),x=c.getContext("2d");x.drawImage(image,0,0);
            const want=x.getImageData(0,0,c.width,c.height).data;dur.push([Math.round(image.duration/1000),a.frames[i].duration]);image.close();
            const got=(await R.frameRGBA(S.images,a,a.frames[i])).data;for(let j=0;j<want.length;j+=4){if(want[j+3]===0&&got[j+3]===0)continue;if(want[j]!==got[j]||want[j+1]!==got[j+1]||want[j+2]!==got[j+2]||want[j+3]!==got[j+3])bad++;}}
-          return {ok:bad===0&&dur.every(([x,y])=>x===y),bad,dur};''',[path,mime])
+          return {ok:bad===0&&dur.every(([x,y])=>x===y),bad,dur};''',[__import__('base64').b64encode(Path(path).read_bytes()).decode(),mime])
     import_files(p,[GIF],2)
     a=asset(p)
     ok('GIF: every frame with its delay and a looping tag named after the file',len(a['frames'])==6 and all(f['duration']==120 for f in a['frames']) and a['tags'][0]['name']=='trooper_run' and a['tags'][0]['repeat']==0)
-    m=decoder_matches('/tests/fixtures/sprite/trooper_run.gif','image/gif')
+    m=decoder_matches(GIF,'image/gif')
     ok('GIF frames are pixel-identical to Chromium ImageDecoder, same durations',m['ok'],str(m))
     import_files(p,[APNG],3)
-    m=decoder_matches('/tests/fixtures/sprite/trooper_run.apng.png','image/png')
+    m=decoder_matches(APNG,'image/png')
     ok('APNG frames are pixel-identical to Chromium ImageDecoder, same durations',len(asset(p)['frames'])==6 and m['ok'],str(m))
     ok('GIF/APNG decisions are listed in the Import panel',p.locator('.sp-dec[data-dec="frames"]').count()==1)
     shot(p,'07-gif-1440.png')
