@@ -32,7 +32,10 @@ export function godotProject(project,options={}){
  const {frames=[],animations=[]}=project;
  const names=options.names||frameNames(frames);
  const data=exportProject(project,{...options,names,engineTarget:GODOT_TARGET,
-  meta:{godot:{version:'4',addonPath:GODOT_ADDON_PATH,helper:'nerulio_sprite_frames.gd',notes:GODOT_VERSION_NOTES,...(options.meta?.godot||{})},...(options.meta||{})}});
+  meta:{godot:{version:'4',addonPath:GODOT_ADDON_PATH,helper:'nerulio_sprite_frames.gd',notes:GODOT_VERSION_NOTES,
+   // Pixel art must be sampled nearest: a new Godot 4 project's default filter is Linear, which
+   // blurs every scaled-up frame. build_scene() applies this to the node it makes.
+   textureFilter:options.textureFilter||'nearest',...(options.meta?.godot||{})},...(options.meta||{})}});
  for(const f of frames){
   const entry=data.frames[names.get(f.id)],{rect,sourceSize,offset}=entry;
   entry.godot={margin:[offset.x,offset.y,sourceSize.w-rect.w,sourceSize.h-rect.h],filterClip:true};
@@ -176,6 +179,10 @@ static func build_scene(data: Dictionary, frames: SpriteFrames, anim_name: Strin
 	var sprite := AnimatedSprite2D.new()
 	sprite.name = "Sprite"
 	sprite.sprite_frames = frames
+	# Nearest by default: pixel art stays sharp at any zoom even in a project whose default
+	# texture filter is Linear (the new-project default). "linear" in the JSON opts out.
+	var filter: String = String(data.get("meta", {}).get("godot", {}).get("textureFilter", "nearest"))
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR if filter == "linear" else CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.animation = anim_name
 	sprite.centered = false
 	var animations: Dictionary = data.get("godot", {}).get("animations", {})
@@ -316,6 +323,9 @@ Notes
 * Pivots, tags, hitboxes and collision polygons are stored as metadata under the \`nerulio\` key
   (\`sprite_frames.get_meta("nerulio")\`). \`build_scene()\` turns the collision polygons into real
   \`CollisionPolygon2D\` nodes under a \`StaticBody2D\`.
+* Pixel art: \`build_scene()\` sets the sprite's texture filter to Nearest. On nodes you make
+  yourself, set **Texture > Filter = Nearest** (or Project Settings > Rendering > Textures >
+  Default Texture Filter = Nearest); the new-project default, Linear, blurs scaled pixel art.
 * Godot 3.x is not supported: its \`SpriteFrames\` has no per-frame duration and the node is
   \`AnimatedSprite\`.
 `;
