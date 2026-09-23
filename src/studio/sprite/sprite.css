@@ -95,7 +95,10 @@
 .sp-box.is-sel,.sp-tagrow.is-sel{background:var(--bg-4)}
 .sp-box .st-muted,.sp-tagrow .st-muted{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
 .sp-jitter p{margin:4px 0}
+.sp-box-out{font-size:10px;padding:0 5px;border-radius:8px;background:var(--bg-3);color:var(--text-2);white-space:nowrap}
 /* compact (phones) */
+/* the timeline sheet is short (tabs, controls, tags, frames, one layer) so the frame stays visible while scrubbing */
+.studio[data-mode="compact"]:has(.st-sheet #panel-sp-timeline:not([hidden])){--sheet-h:clamp(236px,35vh,320px)}
 .studio[data-mode="compact"] .sp-tl{--head:84px}
 .studio[data-mode="compact"] .sp-tb{min-width:34px;height:32px}
 .studio[data-mode="compact"] .sp-fh{height:38px}

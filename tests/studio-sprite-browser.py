@@ -77,6 +77,9 @@ with sync_playwright() as pw:
     slicing=p.locator('.sp-dec[data-dec="slice"]')
     ok('slicing decision shows the 48×48 grid with a confidence and one-click alternatives',
        '48×48' in slicing.locator('.sp-dec-chosen').inner_text() and slicing.locator('.st-conf').count()==1 and slicing.locator('.sp-alt').count()>=2,slicing.inner_text())
+    keydec=p.locator('.sp-dec[data-dec="key"]')
+    ok('"No key colour" on a transparent sheet is shown as a sure decision (not a red 0%), with the key offered as an alternative',
+       'No key colour' in keydec.locator('.sp-dec-chosen').inner_text() and keydec.locator('.st-conf').get_attribute('data-conf')=='high' and keydec.locator('.sp-alt').count()==1,keydec.inner_text())
     ok('the sheet view shows the plan on the canvas (60 numbered regions)',js(p,'return S.view.layers.find(l=>l.id==="sp-plan").items.length;')==60)
     ok('plan: 60 frames, 10 animations (one per row)',p.locator('[data-sp="plan-count"]').inner_text().startswith('60 frames') and '10' in p.locator('[data-sp="plan-count"]').inner_text())
     shot(p,'02-sheet-plan-1440.png')
@@ -203,6 +206,7 @@ with sync_playwright() as pw:
     p.keyboard.press('ArrowRight');p.keyboard.press('ArrowRight');p.keyboard.press('Shift+ArrowDown');p.wait_for_timeout(100)
     hb=[[x for x in f['boxes'] if x['id']==hid][0] for f in asset(p)['frames'][:6]]
     ok('arrow keys nudge the selected box (1 px, Shift 10 px) across the scope',all((x['x'],x['y'])==(9,32) for x in hb))
+    ok('a box reaching past the frame canvas is kept but marked "past the canvas" in the box list',p.locator('.sp-box[data-box="%s"] [data-sp="box-outside"]'%hid).count()==1)
     p.select_option('[data-sp="scope"]','frame');p.select_option('[data-sp="box-type"]','interact')
     p.keyboard.press('c');c0=canvas_at(p,24,24);c1=canvas_at(p,30,24)
     p.mouse.move(c0['x'],c0['y']);p.mouse.down();p.mouse.move(c1['x'],c1['y'],steps=4);p.mouse.up();p.wait_for_timeout(100)
@@ -353,8 +357,23 @@ with sync_playwright() as pw:
     m.locator('.st-sheet [data-sp="import-apply"]').click();m.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===60')
     m.locator('.st-sheet .st-tab',has_text='Timeline').click();m.wait_for_timeout(300)
     ok('390 px: import → Apply → timeline all reachable in the panel sheet, no page scroll',m.locator('.st-sheet .sp-fh').count()==60 and js(m,'return document.scrollingElement.scrollWidth<=innerWidth+1;'))
+    m.wait_for_timeout(500)
+    def frame_on_screen(q):
+        return js(q,'''const v=S.view,st=v.stage.getBoundingClientRect(),k=st.width/v.W,im=v.image,sheet=document.querySelector(".st-sheet"),open=sheet.classList.contains("is-open");
+          const top=open?sheet.getBoundingClientRect().top:innerHeight,x0=st.left+v.view.x*k,y0=st.top+v.view.y*k,x1=x0+im.w*v.view.scale*k,y1=y0+im.h*v.view.scale*k;
+          const areaTop=st.top,areaBottom=Math.min(st.bottom,top);
+          return {inside:x0>=st.left-.5&&x1<=st.right+.5&&y0>=areaTop-.5&&y1<=areaBottom+.5,frame:[x0,y0,x1,y1].map(Math.round),area:[st.left,areaTop,st.right,areaBottom].map(Math.round),sheetH:open?Math.round(sheet.getBoundingClientRect().height):0,w:im.w,h:im.h};''')
+    fo=frame_on_screen(m)
+    ok('390 px: with the timeline open the whole frame is visible above it (stage = the unobscured area)',fo['inside'] and fo['w']==48,str(fo))
+    ok('390 px: the timeline sheet is compact (≈35% of the screen), so the frame keeps most of the room',200<=fo['sheetH']<=0.4*844,str(fo))
+    m.locator('.st-sheet .sp-fh[data-i="7"]').click();m.wait_for_timeout(300)
+    ok('390 px: scrubbing in the timeline keeps the frame visible',frame_on_screen(m)['inside'])
     shot(m,'20-timeline-390.png')
-    m.click('.st-sheet-grip');m.wait_for_timeout(300)
+    m.locator('.st-sheet .st-tab',has_text='Import').click();m.wait_for_timeout(500)
+    ok('390 px: a taller panel (Import) shrinks the canvas again and the frame is refitted into it',frame_on_screen(m)['inside'],str(frame_on_screen(m)))
+    m.locator('.st-sheet .st-tab',has_text='Timeline').click();m.wait_for_timeout(300)
+    m.click('.st-sheet-grip');m.wait_for_timeout(400)
+    ok('390 px: closing the sheet gives the canvas back and the frame stays centred and visible',frame_on_screen(m)['inside'] and frame_on_screen(m)['sheetH']==0)
     m.locator('[data-sp="hud-play"]').click();m.wait_for_timeout(500)
     ok('390 px: the canvas HUD play button starts playback by touch (frames advance)',m.locator('[data-sp="hud-play"]').get_attribute('title').startswith('Stop') and m.locator('[data-sp="view-sheet"]').count()==1)
     m.locator('[data-sp="hud-play"]').click();m.wait_for_timeout(100)

@@ -67,9 +67,16 @@ export function gridCellsOf(g,width,height){
 export function sheetPlan(analysis,choice={}){
  const decisions=[],grids=analysis.grids||[];
  // --- key colour
+ // The badge is the confidence in the CHOSEN option: "no key" on a sheet whose border is already
+ // transparent is a sure decision, even though the detector's key guess scored 0%.
  const k=analysis.key;
- if(k)decisions.push({id:'key',label:'key',chosen:k.applied?k.hex:'none',confidence:k.confidence,score:k.score,reasons:k.reasons||[],evidence:k.evidence||null,hex:k.hex,
-  alternatives:k.applied?['none']:[k.hex]});
+ if(k){
+  const byUser=k.mode==='none'||k.mode==='force';
+  const conf=byUser?'high':k.applied?k.confidence:k.confidence==='medium'?'medium':'high';
+  const score=byUser?null:k.applied?k.score:Math.max(0,1-(k.score||0));
+  decisions.push({id:'key',label:'key',chosen:k.applied?k.hex:'none',confidence:conf,score,reasons:k.reasons||[],evidence:k.evidence||null,hex:k.hex,byUser,
+   alternatives:k.applied?['none']:[k.hex]});
+ }else if('key'in analysis)decisions.push({id:'key',label:'key',chosen:'none',confidence:'high',reasons:[],clearBorder:true,alternatives:[]});
  // --- slicing
  const top=grids[0],auto=analysis.auto;
  let slice=choice.slice;

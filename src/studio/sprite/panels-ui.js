@@ -43,7 +43,10 @@ export function createPanels(W){
   if(dec.id==='slice'&&dec.auto){const a=dec.auto;
    out.push(a.code==='uniform'?t('sp.why.autoUniform',{pct:pct(a.consistency)}):a.code==='merged'?t('sp.why.autoMerged',{n:a.frames,pct:pct(a.consistency)}):t('sp.why.autoPlain',{n:a.frames}));
    if(a.attached)out.push(t('sp.why.attached',{n:a.attached}));if(a.unassigned)out.push(t('sp.why.unassigned',{n:a.unassigned}));return out;}
+  if(dec.id==='key'&&dec.clearBorder)return [t('sp.why.keyClear')];
   if(dec.id==='key'&&dec.evidence){const e=dec.evidence;
+   if(dec.byUser)out.push(t('sp.why.chosen'));
+   else if(dec.chosen==='none')out.push(e.alphaSheet?t('sp.why.keyNoneAlpha'):dec.confidence==='medium'?t('sp.why.keyNoneUnsure',{c:dec.hex}):t('sp.why.keyNoneWeak',{c:dec.hex}));
    out.push(t('sp.why.keyBorder',{pct:pct(e.borderShare),c:dec.hex||dec.chosen}),t('sp.why.keySheet',{pct:pct(e.sheetShare)}));
    if(e.fullLines)out.push(t('sp.why.keyLines',{n:e.fullLines}));if(e.conventional)out.push(t('sp.why.keyConventional'));if(e.alphaSheet)out.push(t('sp.why.keyAlpha'));return out;}
   if(dec.id==='timing')return [t('sp.why.timing')];
@@ -123,7 +126,11 @@ export function createPanels(W){
    const geo=b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`○ ${b.cx},${b.cy} r${b.r}`:`⬠ ${b.points.length}`;
    const del=h('button.st-icon-btn',{type:'button',title:t('sp.box.delete'),'aria-label':t('sp.box.delete')},'×');
    del.addEventListener('click',e=>{e.stopPropagation();W.removeBox(b.id);});
-   const row=h('div.sp-box'+(b.id===selId?'.is-sel':''),{role:'option','aria-selected':String(b.id===selId),'data-box':b.id,tabindex:'-1'},h('span.sp-swatch',{style:`background:${D.boxColor(b.type)}`}),h('b',{},b.type),h('span.st-muted',{},geo),del);
+   // a box may reach past the frame canvas (a sword's reach); it is kept as drawn — Aseprite slices
+   // and engine collision shapes carry such offsets — but it is marked so it is never a surprise
+   const out=D.boxOutside(b,f.canvasWidth,f.canvasHeight);
+   const row=h('div.sp-box'+(b.id===selId?'.is-sel':''),{role:'option','aria-selected':String(b.id===selId),'data-box':b.id,tabindex:'-1'},h('span.sp-swatch',{style:`background:${D.boxColor(b.type)}`}),h('b',{},b.type),h('span.st-muted',{},geo),
+    out?h('span.sp-box-out',{title:t('sp.box.outsideHint'),'data-sp':'box-outside'},t('sp.box.outside')):'',del);
    row.addEventListener('click',()=>W.setSelection({kind:'box',id:b.id}));list.append(row);
   }
   if(!f.boxes.length)list.append(h('p.st-muted',{},t('sp.box.none')));

@@ -183,6 +183,12 @@ export function snapBox(b){
  if(b.shape==='circle')return {...b,cx:snap(b.cx*2)/2,cy:snap(b.cy*2)/2,r:Math.max(.5,snap(b.r*2)/2)};
  return {...b,points:b.points.map(([x,y])=>[snap(x),snap(y)])};
 }
+/** Does the box reach past the frame canvas (0,0)–(w,h)? */
+export function boxOutside(b,w,h){
+ const r=b.shape==='rect'?{x0:b.x,y0:b.y,x1:b.x+b.w,y1:b.y+b.h}:b.shape==='circle'?{x0:b.cx-b.r,y0:b.cy-b.r,x1:b.cx+b.r,y1:b.cy+b.r}
+  :{x0:Math.min(...b.points.map(p=>p[0])),y0:Math.min(...b.points.map(p=>p[1])),x1:Math.max(...b.points.map(p=>p[0])),y1:Math.max(...b.points.map(p=>p[1]))};
+ return r.x0<0||r.y0<0||r.x1>w||r.y1>h;
+}
 /** Adds the same box (same id) to every listed frame. */
 export function addBox(doc,assetId,ids,spec){
  const b=makeBox({...snapBox(spec),id:spec.id||P.uid('b'),type:cleanType(spec.type)}),set=new Set(ids);

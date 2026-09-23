@@ -207,9 +207,25 @@ export default {
    const old=prev?.bmp;
    await view.setImage(bmp,w,hgt,{view:v});
    S.shown={key,bmp};if(old&&old!==bmp)old.close?.();
+   keepFrameInView({strict:false});
    syncRegions();syncPlanLayer();renderHud();
   }
   S.views=new Map();
+  /** The frame must stay on screen when the canvas area changes (a phone's panel sheet opening or
+   * closing, a dock resize, rotation): centre it when it fits at this zoom, otherwise fit it. On a
+   * phone the whole frame is kept visible; on a desktop a deliberately zoomed-in view is left alone
+   * unless the frame went fully off-screen. */
+  function keepFrameInView({strict=root()?.dataset.mode==='compact'}={}){
+   if(!view.image||!view.W||!view.H)return;
+   const v=view.view,s=v.scale,w=view.image.w*s,hh=view.image.h*s,W0=view.W,H0=view.H;
+   const inside=v.x>=0&&v.y>=0&&v.x+w<=W0&&v.y+hh<=H0,visible=v.x<W0&&v.y<H0&&v.x+w>0&&v.y+hh>0;
+   if(inside||(!strict&&visible))return;
+   if(w<=W0&&hh<=H0)view.setView({scale:s,x:Math.round((W0-w)/2),y:Math.round((H0-hh)/2)},{clamp:false});else view.fit();
+  }
+  const root=()=>view.root.closest('.studio');
+  let roRaf=0,lastBox='';
+  const ro=new ResizeObserver(()=>{cancelAnimationFrame(roRaf);roRaf=requestAnimationFrame(()=>{const box=view.W+'x'+view.H;if(box===lastBox)return;lastBox=box;keepFrameInView();});});
+  ro.observe(view.stage);
   ctx.on('view',v=>{if(S.shown)S.views.set(S.shown.key,{...v});});
   function setMode(mode){
    if(prefs.mode===mode)return;
@@ -457,7 +473,7 @@ export default {
     exec(t('sp.cmd.handoff',{n:frames.length}),d=>D.setTags(D.replaceContent(d,a.id,{frames,importInfo:{kind:'sprite-lab',decisions:[{id:'lab',label:'lab',chosen:'handoff',confidence:'high',reasons:[`${frames.length} frames from Sprite Lab`],alternatives:[]}]}}),a.id,[...groups].map(([name,pos])=>({name,frameIds:pos.map(i=>frames[i].id)}))));
     ctx.toast(t('sp.toast.handoff',{n:frames.length}));setMode('frame');
    },
-   deactivate(){stop();offSelection();previewWin.destroy();hud.remove();folderInput.remove();}
+   deactivate(){stop();offSelection();ro.disconnect();cancelAnimationFrame(roRaf);previewWin.destroy();hud.remove();folderInput.remove();}
   };
  }
 };

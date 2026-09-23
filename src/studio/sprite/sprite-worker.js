@@ -42,11 +42,11 @@ async function celFrom(rgba,width,height){
 async function analyze({key,blob,keyMode='auto',keyColor=null,tolerance=0,signal}){
  const t0=performance.now(),orig=await pixels(key,blob);
  let info=null,img=orig,keyed=null;
- if(keyMode!=='none'){
+ {// the key is always measured (so "No key colour" can say how sure it is and offer the key back)
   info=keyColor?{color:keyColor,tolerance,confidence:'high',score:1,apply:true,reasons:['chosen by you'],evidence:{}}:detectColorKey(orig);
-  const use=info&&(keyMode==='force'||keyColor||info.apply);
+  const use=info&&keyMode!=='none'&&(keyMode==='force'||keyColor||info.apply);
   if(use){img=applyColorKey(orig,info.color,{tolerance:info.tolerance});keyed=await toPNG(img);}
-  if(info)info={evidence:info.evidence?{borderShare:info.evidence.borderShare,sheetShare:info.evidence.sheetShare,fullLines:info.evidence.fullLines,alphaSheet:info.evidence.alphaSheet,conventional:info.evidence.conventional}:null,color:info.color,hex:hex(info.color),tolerance:info.tolerance,confidence:info.confidence,score:info.score,reasons:info.reasons,applied:!!use};
+  if(info)info={mode:keyMode,evidence:info.evidence?{borderShare:info.evidence.borderShare,sheetShare:info.evidence.sheetShare,fullLines:info.evidence.fullLines,alphaSheet:info.evidence.alphaSheet,conventional:info.evidence.conventional}:null,color:info.color,hex:hex(info.color),tolerance:info.tolerance,confidence:info.confidence,score:info.score,reasons:info.reasons,applied:!!use};
  }
  const grid=detectGridWithColour(img,{limit:5});
  const grids=rerankGrids(grid.suggestions,{width:img.width,height:img.height}).map(s=>({engineRank:s.engineRank,fitted:!!s.fitted,cellWidth:s.cellWidth,cellHeight:s.cellHeight,marginX:s.marginX,marginY:s.marginY,spacingX:s.spacingX,spacingY:s.spacingY,columns:s.columns,rows:s.rows,cells:s.cells,score:s.score,confidence:s.confidence,source:s.source||'alpha',
