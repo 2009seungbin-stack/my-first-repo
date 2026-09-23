@@ -69,8 +69,8 @@ test('flip and opaque bounds',()=>{
 import {readFileSync} from 'node:fs';
 import {steps,stepAt,stepIndex,onionFrames,totalMs} from '../src/studio/sprite/playback.js';
 import * as D from '../src/studio/sprite/sprite-doc.js';
-import {frameKey,groupFrameFiles,placeFrames,sheetPlan} from '../src/studio/sprite/import-plan.js';
-import {rerankGrids} from '../src/studio/sprite/grid-rerank.js';
+import {frameKey,groupFrameFiles,placeFrames,sheetPlan,customFit} from '../src/studio/sprite/import-plan.js';
+import {rerankGrids,islandGrid,islandGridSuggestion} from '../src/studio/sprite/grid-rerank.js';
 import {decodeGIF} from '../src/studio/sprite/gif-decode.js';
 import {decodeAPNG,isAPNG} from '../src/studio/sprite/apng-decode.js';
 import {asepriteContent,asepriteFromAsset} from '../src/studio/sprite/aseprite-bridge.js';
@@ -173,4 +173,46 @@ test('atlas data: Aseprite JSON hash (torch) and Starling XML → named frames',
  const {frames,decisions}=atlasFrames(a,{width:4096,height:4096});assert.ok(frames.length>=4&&frames.every(f=>f.duration>0));assert.equal(decisions[0].id,'frames');
  const x=parseAtlas('<TextureAtlas imagePath="s.png"><SubTexture name="walk_01.png" x="0" y="0" width="8" height="8"/><SubTexture name="walk_02.png" x="8" y="0" width="8" height="8" frameX="-1" frameY="-2" frameWidth="10" frameHeight="12"/></TextureAtlas>');
  const r=atlasFrames(x,{width:16,height:8});assert.equal(r.frames[1].canvasWidth,10);assert.equal(r.frames[1].offsetX,1);assert.equal(r.tags[0].name,'walk');
+});
+// ------------------------------------------------------------------ custom grid, island grid (round 2)
+/** The 1,000-frame sheet of tests/studio-pack-browser.py: one differently sized sprite per 32 px cell. */
+function thousandSheet(cols=40,rows=25,cell=32){
+ let seed=5;const rnd=(a,b)=>{seed=(seed*1103515245+12345)>>>0;return a+seed%(b-a+1);};
+ const W=cols*cell,H=rows*cell,data=new Uint8Array(W*H*4),rects=[];
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+  const w=rnd(6,cell-4),h=rnd(6,cell-4),ox=rnd(1,cell-w-1),oy=rnd(1,cell-h-1),x0=c*cell+ox,y0=r*cell+oy;rects.push({x:x0,y:y0,w,h});
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)data.set([200,40,90,255],((y0+y)*W+x0+x)*4);
+ }
+ return {img:{width:W,height:H,data},rects};
+}
+test('island grid: one sprite per 32 px cell gives 32×32, and it outranks a 128×64 reading that holds 8 sprites per cell',()=>{
+ const {img,rects}=thousandSheet();
+ assert.deepEqual(islandGrid(rects,img.width,img.height),{w:32,h:32,cells:1000});
+ const s=islandGridSuggestion(img,rects);
+ assert.equal(s.confidence,'high');assert.equal(s.evidence.filledCells,1000);assert.equal(s.evidence.outsidePixels,0);
+ const wrong={cellWidth:128,cellHeight:64,marginX:0,marginY:0,spacingX:0,spacingY:0,columns:10,rows:12,cells:120,score:.85,confidence:'high',reasons:[],
+  evidence:{splitColumns:768,splitRows:250,filledCells:120,outsidePixels:512,crossingsX:0,crossingsY:0}};
+ const r=rerankGrids([wrong,s],{width:img.width,height:img.height});
+ assert.deepEqual([r[0].cellWidth,r[0].cellHeight],[32,32]);assert.match(r[0].reasons[0],/ranked above 128×64/);
+ assert.equal(islandGrid([{x:5,y:5,w:40,h:40},{x:30,y:30,w:40,h:40},{x:60,y:0,w:10,h:10},{x:0,y:60,w:10,h:10}],80,80),null,'sprites straddling every pitch: no island grid');
+});
+test('custom grid plan: your grid (no detector confidence), not its own alternative, fit validated, no crash without a grid',()=>{
+ const analysis={width:100,height:40,key:null,grids:[{cellWidth:20,cellHeight:20,marginX:0,marginY:0,spacingX:0,spacingY:0,confidence:'high',score:.9,reasons:[]}],cells:{},auto:{rects:[],reasonCode:''}};
+ const p=sheetPlan(analysis,{slice:'custom',grid:{w:30,h:20,ox:2,oy:0,sx:1,sy:0}});
+ const d=p.decisions.find(x=>x.id==='slice');
+ assert.equal(d.confidence,'user');assert.ok(!d.alternatives.includes('custom'));assert.ok(d.alternatives.includes('grid:0'));
+ assert.deepEqual(d.fit,{cols:3,rows:2,cells:6,restX:100-(2+3*30+2),restY:0});assert.equal(p.rects.length,6);
+ assert.equal(sheetPlan(analysis,{slice:'custom'}).rects.length,10,'a custom choice without a grid uses the grid on screen');
+ const none=sheetPlan(analysis,{slice:'custom',grid:{w:30,h:20,ox:90,oy:0,sx:0,sy:0}});
+ assert.equal(none.rects.length,0);assert.equal(none.decisions.find(x=>x.id==='slice').fit.cells,0);
+ assert.deepEqual(customFit({w:16,h:16,ox:0,oy:0,sx:1,sy:1},918,203),{cols:54,rows:12,cells:648,restX:1,restY:0});
+ const q=sheetPlan(analysis).decisions.find(x=>x.id==='slice');assert.equal(q.confidence,'high');assert.ok(q.alternatives.includes('custom'));
+});
+test('key decision: "no key" on a transparent border is sure; a user choice reads as theirs',()=>{
+ const base={width:10,height:10,grids:[],cells:{},auto:{rects:[]}};
+ const low={color:[0,0,0],hex:'#000000',confidence:'low',score:0,applied:false,mode:'auto',evidence:{alphaSheet:true}};
+ assert.equal(sheetPlan({...base,key:low}).decisions[0].confidence,'high');
+ assert.equal(sheetPlan({...base,key:{...low,confidence:'medium',score:.6}}).decisions[0].confidence,'medium');
+ assert.equal(sheetPlan({...base,key:{...low,mode:'none'}}).decisions[0].confidence,'user');
+ assert.equal(sheetPlan({...base,key:null}).decisions[0].chosen,'none');
 });
