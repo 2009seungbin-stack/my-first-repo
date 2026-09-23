@@ -208,7 +208,8 @@ test('writers: Godot JSON peering, Tiled Wang IDs + TMX, LDtk rules reproduce th
  assert.match(godotImporter(), /tile_data\.probability = float/);
  assert.deepEqual(wangId(ts, P.fromBlob(P.N | P.E | P.NE)), [1, 1, 1, 0, 0, 0, 0, 0]);
  const x = tsx(ts, {imageName: 'x.png', width: 256, height: 192});
- assert.equal((x.match(/<wangtile /g) || []).length, 47);
+ // 46: the isolated tile's Wang ID is all zeros, which Tiled drops on load (so it is not written)
+ assert.equal((x.match(/<wangtile /g) || []).length, 46);
  const grid = gridFromRows(SHAPE58), sample = {w: grid.w, h: grid.h, get: getter(grid)};
  const tr = resolveTiled(ts, sample);
  assert.equal(tr.cells.filter(c => c.missing).length, 0);

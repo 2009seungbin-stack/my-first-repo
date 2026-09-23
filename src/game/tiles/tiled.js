@@ -30,7 +30,8 @@ export function tsx(ts,{imageName,width,height,name=ts.name||'tileset'}){
  for(const t of probs)lines.push(` <tile id="${t.id}" probability="${t.probability}"/>`);
  lines.push(' <wangsets>',`  <wangset name="${esc(name)}" type="${type}" tile="${full(0)?.id??-1}">`);
  ts.terrains.forEach((t,i)=>lines.push(`   <wangcolor name="${esc(t.name)}" color="${esc(t.color)}" tile="${full(i)?.id??-1}" probability="1"/>`));
- for(const t of tiles)lines.push(`   <wangtile tileid="${t.id}" wangid="${wangId(ts,t.pattern).join(',')}"/>`);
+ // Tiled drops an all-zero Wang ID on load (that tile is then not part of the set), so it is not written
+ for(const t of tiles){const w=wangId(ts,t.pattern);if(w.some(v=>v>0))lines.push(`   <wangtile tileid="${t.id}" wangid="${w.join(',')}"/>`);}
  lines.push('  </wangset>',' </wangsets>','</tileset>','');
  return lines.join('\n');
 }
@@ -40,7 +41,9 @@ export function tsx(ts,{imageName,width,height,name=ts.name||'tileset'}){
  * @returns {w,h,offset:boolean, cells:[{x,y,id|null,alternatives,missing}]} */
 export function resolveTiled(ts,grid){
  const get=(x,y)=>x<0||y<0||x>=grid.w||y>=grid.h?-1:grid.get(x,y);
- const tiles=Object.entries(ts.tiles).filter(([,v])=>v.pattern[0]>=0).map(([k,v])=>{const [c,r]=k.split(',').map(Number);return {key:k,id:tileId(ts,c,r),w:wangId(ts,v.pattern)};});
+ // An all-zero Wang ID is not part of a Tiled Wang set (Tiled drops it on load), so Tiled's brush can
+ // never place that tile — the isolated tile of a one-colour blob set: such cells are gaps under Tiled.
+ const tiles=Object.entries(ts.tiles).filter(([,v])=>v.pattern[0]>=0).map(([k,v])=>{const [c,r]=k.split(',').map(Number);return {key:k,id:tileId(ts,c,r),w:wangId(ts,v.pattern)};}).filter(t=>t.w.some(v=>v>0));
  const byWang=new Map();for(const t of tiles){const k=t.w.join();if(!byWang.has(k))byWang.set(k,[]);byWang.get(k).push(t);}
  const cells=[];
  if(ts.mode==='corners'){

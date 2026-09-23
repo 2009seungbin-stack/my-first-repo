@@ -16,7 +16,11 @@ const enc=s=>typeof s==='string'?s:s;
 export const TARGETS=Object.freeze(['godot','tiled','ldtk','unity','generic']);
 export function exportBundle(ts,{imageName='tileset.png',width,height,png,sample=null,cases=null,targets=TARGETS}={}){
  const base=imageName.replace(/\.[^.]+$/,'').replace(/[^\w.-]+/g,'_')||'tileset';
- const grid=sample||(cases?.length?{w:cases[0].grid.w,h:cases[0].grid.h,get:(x,y)=>x<0||y<0||x>=cases[0].grid.w||y>=cases[0].grid.h?-1:cases[0].grid.cells[y*cases[0].grid.w+x]}:null);
+ // A set whose tiles never border "nothing" (a multi-terrain dual grid) is shown on a multi-terrain
+ // sample; a one-terrain shape would leave most of its grid points without a tile.
+ const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
+ const pickCase=cases?.length?(!bordersEmpty&&cases.find(c=>c.name.startsWith('multi'))||cases[0]):null;
+ const grid=sample||(pickCase?{w:pickCase.grid.w,h:pickCase.grid.h,get:(x,y)=>x<0||y<0||x>=pickCase.grid.w||y>=pickCase.grid.h?-1:pickCase.grid.cells[y*pickCase.grid.w+x]}:null);
  const out={},notes={};
  if(targets.includes('godot')){
   const json=godotJSON(ts,{image:imageName,width,height});

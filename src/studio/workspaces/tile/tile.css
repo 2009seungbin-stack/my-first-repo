@@ -66,3 +66,4 @@
 .tl-srced{image-rendering:pixelated;cursor:crosshair;touch-action:none;max-width:100%}
 .studio[data-mode="compact"] .tl-bitgrid{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px)}
 .studio[data-mode="compact"] .tl-layer{grid-template-columns:32px minmax(0,1fr) 120px}
+.tl-fit{grid-column:1/-1;font-size:11px;color:#7bd88f}

@@ -13,3 +13,6 @@ for(const w of COMING)studio.register(w);
 // Exposed for tests and for power users' console scripts; nothing on the page depends on it.
 window.nerulioStudio=studio;
 studio.start();
+// ?ws=tile opens a workspace directly (links from tool pages and docs).
+const ws=new URLSearchParams(location.search).get('ws');
+if(ws&&studio.workspaces.get(ws)?.status==='ready')studio.activateWorkspace(ws);

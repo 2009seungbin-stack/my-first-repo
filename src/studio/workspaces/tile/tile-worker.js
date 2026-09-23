@@ -40,7 +40,7 @@ self.onmessage=async({data})=>{
     const cols=Math.floor((img.width-g.ox+g.sx)/(g.w+g.sx)),rows=Math.floor((img.height-g.oy+g.sy)/(g.h+g.sy));
     if(cols<2||rows<2||cols*rows>256)continue;
     const r=identifyLayout(img,g,{maxTiles:600,sources:false});const top=r.candidates[0];
-    if(top&&top.confidence==='high')fits.push({grid:g,layoutId:top.layoutId,auc:top.auc});
+    if(top&&top.confidence!=='low')fits.push({grid:g,layoutId:top.layoutId,auc:top.auc,confidence:top.confidence});
    }
    result={ms:performance.now()-t0,candidates:list.map(c=>({w:c.tileWidth,h:c.tileHeight,ox:c.marginX,oy:c.marginY,sx:c.spacingX,sy:c.spacingY,cols:c.cols,rows:c.rows,score:c.score,confidence:c.confidence,content:c.content?{reason:c.content.reason,layout:c.content.layout||null}:null})),fits,width:img.width,height:img.height};
   }else if(op==='identify'){

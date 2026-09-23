@@ -57,7 +57,7 @@ export default {
   let preview=null;// {kind:'layout'|'suggest', label, patterns:{key:pattern}, confidence}
   const detect=new Map(),ident=new Map(),blanks=new Map(),art=new Map(),suggest=new Map();
   let drafts=new Map();// assetId → draft grid before a tileset exists
-  let mapView=null,mapBitmap=null,mapCanvas=null,mapToken=0,hoverCell=null;
+  const mapViews=new Map();let mapBitmap=null,mapCanvas=null,mapToken=0,hoverCell=null;
   const S=()=>St.tileState(ctx.doc);
   const asset=()=>P.assetById(ctx.doc,assetId);
   const tileset=()=>assetId?St.tilesetForAsset(S(),assetId):null;
@@ -214,7 +214,7 @@ export default {
    mapCanvas=c;
    if(mode!=='map')return;
    const keep=!fit&&view.image&&view.image.src===c?view.view:null;
-   await view.setImage(c,W,H,{view:keep||(fit?mapView:null)});
+   await view.setImage(c,W,H,{view:keep||(fit?mapViews.get(m.id)||null:null)});
    if(token!==mapToken)return;
    mapLayer.view?.invalidate();renderMapPanel();renderCheck();
   }
@@ -261,7 +261,7 @@ export default {
   }
   // ---------------------------------------------------------------- panels
   const panels={};
-  const mk=(id,dock,order,titleKey,badge)=>{const box=h('div.tl-panel',{'data-panel':id});panels[id]=box;ctx.panel({id,title:()=>t(titleKey),dock,order,badge,render(body){body.append(box);}});return box;};
+  const mk=(id,dock,order,titleKey,badge)=>{const box=h('div.tl-panel',{'data-tile-panel':id});panels[id]=box;ctx.panel({id,title:()=>t(titleKey),dock,order,badge,render(body){body.append(box);}});return box;};
   mk('tile-set','right',10,'tile.panel.set');
   mk('tile-layout','right',20,'tile.panel.layout');
   mk('tile-tile','right',30,'tile.panel.tile');
@@ -285,14 +285,19 @@ export default {
     if(!d||d.status==='running')sug.append(h('p.st-muted',{},t('grid.detecting')));
     else if(d.status==='error')sug.append(h('p.st-error',{},d.error));
     else{
-     const fits=d.fits||[];
-     const all=[...fits.map(f=>({...f.grid,fit:f})),...d.candidates.filter(c=>!fits.some(f=>f.grid.w===c.w&&f.grid.h===c.h&&f.grid.ox===c.ox&&f.grid.sx===c.sx))];
+     // pixel-period candidates, and sizes at which a published layout fits (a layout fit ranks first:
+     // it is the strongest evidence a sheet can give)
+     const fits=d.fits||[],same=(a,b)=>a.w===b.w&&a.h===b.h&&a.ox===b.ox&&a.oy===b.oy&&a.sx===b.sx&&a.sy===b.sy;
+     const all=d.candidates.map((c,i)=>({...c,rank:i,fit:fits.find(f=>same(f.grid,c))}));
+     for(const f of fits)if(!all.some(c=>same(c,f.grid)))all.push({...f.grid,rank:99,fit:f,onlyFit:true});
+     all.sort((a,b)=>(b.fit?1:0)-(a.fit?1:0)||a.rank-b.rank);
      if(!all.length)sug.append(h('p.st-muted',{},t('tile.set.noGrid')));
      all.slice(0,6).forEach((c,i)=>{
-      const on=g&&g.w===c.w&&g.h===c.h&&g.ox===c.ox&&g.oy===c.oy&&g.sx===c.sx&&g.sy===c.sy;
+      const on=g&&same(g,c);
+      const badge=c.onlyFit?h('span.st-conf.is-'+c.fit.confidence,{},t('tile.set.layoutFit')):c.rank===0?h('span.st-conf.is-'+c.confidence,{},t('grid.conf.'+c.confidence)+' '+Math.round(c.score*100)+'%'):h('span.st-conf.is-alt',{},t('grid.alt')+' '+Math.round((c.score||0)*100)+'%');
       const b=h('button.st-sug',{type:'button','aria-pressed':String(!!on),'data-grid-sug':String(i)},h('b',{},`${c.w}×${c.h}`),
-       h('span.st-sug-meta',{},[c.ox||c.oy?t('grid.margin',{v:c.ox}):'',c.sx||c.sy?t('grid.gap',{v:c.sx}):''].filter(Boolean).join(' · ')),
-       c.fit?h('span.st-conf.is-high',{},t('tile.set.fits',{layout:layoutName(c.fit.layoutId)})):i===(fits.length)?h('span.st-conf.is-'+c.confidence,{},t('grid.conf.'+c.confidence)+' '+Math.round(c.score*100)+'%'):h('span.st-conf.is-alt',{},t('grid.alt')+' '+Math.round((c.score||0)*100)+'%'));
+       h('span.st-sug-meta',{},[c.ox||c.oy?t('grid.margin',{v:c.ox}):'',c.sx||c.sy?t('grid.gap',{v:c.sx}):''].filter(Boolean).join(' · ')),badge,
+       c.fit?h('span.tl-fit',{},t('tile.set.fits',{layout:layoutName(c.fit.layoutId),conf:t('grid.conf.'+c.fit.confidence)})):null);
       b.addEventListener('click',()=>setDraft({w:c.w,h:c.h,ox:c.ox,oy:c.oy,sx:c.sx,sy:c.sy}));sug.append(b);
      });
     }
@@ -697,8 +702,10 @@ export default {
    const png=new Uint8Array(await blobOf(a).blob.arrayBuffer());
    const imageName=(a.name.replace(/\.[^.]+$/,'')||'tileset').replace(/[^\w.-]+/g,'_')+'.png';
    // the sample map: the active map's first layer that uses this tileset, else a built-in test shape
-   const m=activeMap(),L=m?.layers.find(l=>l.tilesetId===ts.id);
-   const sample=L?{w:m.w,h:m.h,get:St.layerGet(m,L)}:{w:14,h:11,get:(x,y)=>x<0||y<0||x>=14||y>=11?-1:SHAPE[y][x]==='#'?0:-1};
+   const m=activeMap(),L=m?.layers.find(l=>l.tilesetId===ts.id&&/[a-p]/.test(l.cells));
+   const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
+   const rnd=!L&&!bordersEmpty?(()=>{const mm={w:16,h:12};const cells=St.randomCells(mm,7,ts.terrains.length,.95);return {w:16,h:12,get:(x,y)=>x<0||y<0||x>=16||y>=12?-1:St.charCell(cells[y*16+x])};})():null;
+   const sample=L?{w:m.w,h:m.h,get:St.layerGet(m,L)}:rnd||{w:14,h:11,get:(x,y)=>x<0||y<0||x>=14||y>=11?-1:SHAPE[y][x]==='#'?0:-1};
    const bundle=exportBundle(out,{imageName,width:a.width,height:a.height,png,sample,targets:[...exportOpts.targets]});
    const entries=[];
    for(const [tg,files] of Object.entries(bundle))for(const [name,content] of Object.entries(files))entries.push({name:`${tg}/${name}`,blob:new Blob([content])});
@@ -748,7 +755,7 @@ export default {
    if(ts){loadBlanks(ts.grid);runIdentify();runArt();}
    refreshAll();
   });
-  ctx.on('view',v=>{if(mode==='map')mapView=v;});
+  ctx.on('view',v=>{const m=activeMap();if(mode==='map'&&m)mapViews.set(m.id,{...v});});
   ctx.on('locale',()=>{refreshAll();});
   ctx.setTool('tile-bits');
   return {
