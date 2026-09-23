@@ -116,7 +116,11 @@ with sync_playwright() as pw:
     for k,name in [(1,'walk'),(2,'attack'),(3,'hurt')]:
         p.locator(f'.sp-tag >> nth={k}').dblclick();p.wait_for_selector('[data-sp="inline"]');p.fill('[data-sp="inline"]',name);p.keyboard.press('Enter');p.wait_for_timeout(80)
     ok('four named animations after four inline renames',[t['name'] for t in asset(p)['tags'][:4]]==['idle','walk','attack','hurt'])
-    dialogs=[];p.on('dialog',lambda d:(dialogs.append(d.type),d.dismiss()))
+    dialogs=[]
+    def on_dialog(d):
+        dialogs.append(d.type)
+        d.accept() if d.type=='beforeunload' else d.dismiss()
+    p.on('dialog',on_dialog)
     # create a tag by dragging across the tag lane (frames 12..14 are in row_3 = attack; use a new lane range on row 6)
     x0,y0=center(fh(p,30));x1,_=center(fh(p,33))
     lane=p.locator('.sp-tl-lane').bounding_box()
@@ -245,7 +249,113 @@ with sync_playwright() as pw:
     ok('jitter measured for the tag and marked on the timeline (6 marks) with a report',p.locator('.sp-jit').count()==6 and p.locator('[data-sp="jitter-report"]').count()==1)
     shot(p,'06-align-jitter-1440.png')
     print(f'--- part 2: {len(checks)} checks',flush=True)
-    if errors:print('ERRORS',errors[:5])
+    # ------------------------------------------------------------ .nerulio round trip with everything above
+    before=asset(p)
+    with p.expect_download() as dl:p.keyboard.press('Control+s')
+    tmp=Path(tempfile.mkdtemp());saved=tmp/dl.value.suggested_filename;dl.value.save_as(saved)
+    with zipfile.ZipFile(saved) as z:
+        proj=json.loads(z.read('project.json'))['project'];imgs=[n for n in z.namelist() if n.startswith('images/')]
+    ok('.nerulio holds the sprite document (tags, durations, pivots, boxes, collision, own cels) and every image once',
+       proj['version']==2 and len(proj['assets'][0]['cels'])==len(before['cels'])==len(imgs) and proj['assets'][0]['frames']==before['frames'] and proj['assets'][0]['tags']==before['tags'])
+    p.set_input_files('input[type=file][accept*=".nerulio"]',str(saved));p.wait_for_timeout(1200)
+    after=asset(p,0)
+    ok('.nerulio opens back to the identical document',after==before)
+    ok('the reopened flipped frame shows the same pixels (its own cel came back byte-exact)',frame_rgba(p,1)==post)
+    # ------------------------------------------------------------ GIF / APNG compared with Chromium's own decoder
+    def decoder_matches(path,mime):
+        return js(p,'''const R=await import("/src/studio/sprite/frame-render.js"),a=S.doc.assets.find(x=>x.id===S.activeAssetId);
+          const bytes=await (await fetch(arg[0])).arrayBuffer(),dec=new ImageDecoder({data:bytes,type:arg[1]});await dec.tracks.ready;const n=dec.tracks.selectedTrack.frameCount;
+          if(n!==a.frames.length)return {ok:false,why:"count "+n+" vs "+a.frames.length};let bad=0,dur=[];
+          for(let i=0;i<n;i++){const {image}=await dec.decode({frameIndex:i});const c=new OffscreenCanvas(image.displayWidth,image.displayHeight),x=c.getContext("2d");x.drawImage(image,0,0);
+           const want=x.getImageData(0,0,c.width,c.height).data;dur.push([Math.round(image.duration/1000),a.frames[i].duration]);image.close();
+           const got=(await R.frameRGBA(S.images,a,a.frames[i])).data;for(let j=0;j<want.length;j+=4){if(want[j+3]===0&&got[j+3]===0)continue;if(want[j]!==got[j]||want[j+1]!==got[j+1]||want[j+2]!==got[j+2]||want[j+3]!==got[j+3])bad++;}}
+          return {ok:bad===0&&dur.every(([x,y])=>x===y),bad,dur};''',[path,mime])
+    import_files(p,[GIF],2)
+    a=asset(p)
+    ok('GIF: every frame with its delay and a looping tag named after the file',len(a['frames'])==6 and all(f['duration']==120 for f in a['frames']) and a['tags'][0]['name']=='trooper_run' and a['tags'][0]['repeat']==0)
+    m=decoder_matches('/tests/fixtures/sprite/trooper_run.gif','image/gif')
+    ok('GIF frames are pixel-identical to Chromium ImageDecoder, same durations',m['ok'],str(m))
+    import_files(p,[APNG],3)
+    m=decoder_matches('/tests/fixtures/sprite/trooper_run.apng.png','image/png')
+    ok('APNG frames are pixel-identical to Chromium ImageDecoder, same durations',len(asset(p)['frames'])==6 and m['ok'],str(m))
+    ok('GIF/APNG decisions are listed in the Import panel',p.locator('.sp-dec[data-dec="frames"]').count()==1)
+    shot(p,'07-gif-1440.png')
+    # ------------------------------------------------------------ numbered frame files, natural sort, grouping by name
+    names=['walk_10.png','attack 3.png','walk_2.png','attack (1).png','walk_01.png','idle.png']
+    drop_named(p,list(zip(NINJA,names)),4)
+    a=asset(p)
+    ok('dropped frame files: one sprite, frames grouped by name in natural order (walk_01, walk_2, walk_10 …)',
+       [f['name'] for f in a['frames']]==['walk_01','walk_2','walk_10','attack (1)','attack 3','idle'] and [(t['name'],len(t['frameIds'])) for t in a['tags']]==[('walk',3),('attack',2),('idle',1)] and 'prompt' not in dialogs)
+    ok('the grouping is a decision with a confidence and alternatives (one animation / none)',p.locator('.sp-dec[data-dec="grouping"] .sp-alt').count()==2)
+    p.click('.sp-dec[data-dec="grouping"] .sp-alt[data-alt="single"]');p.wait_for_timeout(200)
+    ok('one click regroups them into one animation',len(asset(p)['tags'])==1)
+    p.keyboard.press('Control+z');p.wait_for_timeout(100)
+    import_files(p,NINJA,5)
+    a=asset(p)
+    ok('run_0 … run_5 (real CC0 ninja frames): 6 frames, tag "run", 40×29',len(a['frames'])==6 and a['tags'][0]['name']=='run' and (a['width'],a['height'])==(40,29))
+    # ------------------------------------------------------------ .aseprite in, .aseprite out
+    import_files(p,[ASE],6)
+    a=asset(p)
+    ok('.aseprite: 4 frames with durations, 4 tags with their directions and repeats, layers',len(a['frames'])==4 and len(a['tags'])==4 and {t['direction'] for t in a['tags']}>={'forward','reverse','pingpong'} and len(a['layers'])>=1,str([(t['name'],t['direction'],t['repeat']) for t in a['tags']]))
+    ok('.aseprite: slice mappings (pivot / 9-slice) are shown as decisions',p.locator('.sp-dec').count()>=2)
+    with p.expect_download() as dl:js(p,'S.runCommand("sprite.exportAseprite");')
+    out=tmp/'exported.aseprite';dl.value.save_as(out)
+    ok('Export .aseprite downloads a file',out.stat().st_size>100)
+    if Path(ASEPRITE_EXE).exists():
+        def ase_export(path,tag):
+            d=tmp/tag;d.mkdir(exist_ok=True)
+            subprocess.run([ASEPRITE_EXE,'-b',str(path),'--list-tags','--format','json-array','--data',str(d/'data.json'),'--save-as',str(d/'{frame}.png')],capture_output=True,timeout=120)
+            meta=json.loads((d/'data.json').read_text(encoding='utf-8'))
+            return meta,sorted(d.glob('*.png'))
+        from PIL import Image
+        m1,f1=ase_export(ASE,'orig');m2,f2=ase_export(out,'ours')
+        same_px=len(f1)==len(f2) and all(Image.open(x).convert('RGBA').tobytes()==Image.open(y).convert('RGBA').tobytes() or
+            all(pa[3]==0 and pb[3]==0 or pa==pb for pa,pb in zip(Image.open(x).convert('RGBA').getdata(),Image.open(y).convert('RGBA').getdata())) for x,y in zip(f1,f2))
+        tg=lambda m:[(t['name'],t['from'],t['to'],t['direction'],t.get('repeat')) for t in m['meta']['frameTags']]
+        ok('real Aseprite opens the exported file: identical tags, durations and pixels',same_px and tg(m1)==tg(m2) and [f['duration'] for f in m1['frames']]==[f['duration'] for f in m2['frames']],str((tg(m1),tg(m2))))
+    else:print('SKIP real Aseprite check (ASEPRITE_EXE not found)')
+    # ------------------------------------------------------------ Sprite Lab project JSON + atlas data
+    lab={'format':'nerulio-sprite-lab-project','version':1,'sheet':{'name':'samurai.png','width':288,'height':480},'settings':{},
+         'frames':[{'id':'a','name':'slash_0','sourceRect':{'x':0,'y':96,'w':48,'h':48},'duration':90},{'id':'b','name':'slash_1','sourceRect':{'x':48,'y':96,'w':48,'h':48},'duration':90},{'id':'c','name':'slash_2','sourceRect':{'x':96,'y':96,'w':48,'h':48},'duration':150}],
+         'animations':[{'id':'x','name':'slash','frameIds':['a','b','c'],'fps':12,'direction':'forward','loop':False}]}
+    lp=tmp/'samurai.sprite-lab.json';lp.write_text(json.dumps(lab),encoding='utf-8')
+    import_files(p,[SAMURAI,lp],7)
+    a=asset(p)
+    ok('Sprite Lab project JSON dropped with its sheet: frames, durations and the animation (plays once)',[f['name'] for f in a['frames']]==['slash_0','slash_1','slash_2'] and [f['duration'] for f in a['frames']]==[90,90,150] and a['tags'][0]['name']=='slash' and a['tags'][0]['repeat']==1)
+    import_files(p,[TORCH/'Torch_Sheet.png',TORCH/'Torch_Hash.json'],8)
+    a=asset(p);meta=json.loads((TORCH/'Torch_Hash.json').read_text(encoding='utf-8'))
+    ok('Aseprite JSON atlas + its sheet: named frames with the file\'s durations',len(a['frames'])==len(meta['frames']) and [f['duration'] for f in a['frames']]==[v['duration'] for v in meta['frames'].values()])
+    # ------------------------------------------------------------ autosave → reload → restore
+    p.wait_for_function('()=>{const a=window.nerulioStudio.autosave;return !a.pending&&!a.saving&&a.lastAt>0}',timeout=15000)
+    snapshot=js(p,'return JSON.parse(JSON.stringify(S.doc));');count=len(snapshot['assets'])
+    p.reload();ready(p);p.wait_for_selector('.st-recover',timeout=15000)
+    p.click('.st-recover [data-value="restore"]');p.wait_for_function('(n)=>window.nerulioStudio.doc.assets.length===n',arg=count,timeout=15000)
+    ok('autosave: after a reload the whole sprite project comes back identical (assets, tags, boxes, own cels)',js(p,'return JSON.parse(JSON.stringify(S.doc));')==snapshot)
+    ok('no network request left the machine while importing and editing',all(u.startswith(BASE) or u.startswith('blob:') or u.startswith('data:') for u in requests),str([u for u in requests if not u.startswith(BASE)][:3]))
+    ctx.close()
+    # ------------------------------------------------------------ languages
+    for loc,word in [('ko','타임라인'),('ja','タイムライン')]:
+        c2=browser.new_context(viewport={'width':1440,'height':900});q=c2.new_page();watch(q,loc)
+        q.goto(f'{BASE}/{loc}/game/studio/?ws=sprite');ready(q)
+        ok(f'{loc}: Sprite copy is translated ({word})',word in q.locator('.st-dock-bottom').inner_text() and q.locator('.st-ws-tab[data-ws="sprite"]').inner_text()!='Sprite' or word in q.locator('.st-dock-bottom').inner_text())
+        c2.close()
+    # ------------------------------------------------------------ 390 px phone
+    c3=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=3,is_mobile=True,has_touch=True);m=c3.new_page();watch(m,'390')
+    m.goto(BASE+'/en/game/studio/?ws=sprite');ready(m)
+    m.set_input_files('input[type=file][multiple]:not([webkitdirectory])',str(SAMURAI));m.wait_for_function('()=>window.nerulioStudio.doc.assets.length===1',timeout=30000)
+    m.wait_for_timeout(1500)
+    m.click('.st-icon-btn.st-compact-only >> nth=1');m.wait_for_timeout(300)
+    m.locator('.st-sheet .st-tab',has_text='Import').click();m.wait_for_selector('.st-sheet [data-sp="import-apply"]:not([disabled])',timeout=30000)
+    m.locator('.st-sheet [data-sp="import-apply"]').click();m.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===60')
+    m.locator('.st-sheet .st-tab',has_text='Timeline').click();m.wait_for_timeout(300)
+    ok('390 px: import → Apply → timeline all reachable in the panel sheet, no page scroll',m.locator('.st-sheet .sp-fh').count()==60 and js(m,'return document.scrollingElement.scrollWidth<=innerWidth+1;'))
+    shot(m,'20-timeline-390.png')
+    m.click('.st-sheet-grip');m.wait_for_timeout(300)
+    m.locator('[data-sp="hud-play"]').click();m.wait_for_timeout(500)
+    ok('390 px: the canvas HUD play button starts playback by touch (frames advance)',m.locator('[data-sp="hud-play"]').get_attribute('title').startswith('Stop') and m.locator('[data-sp="view-sheet"]').count()==1)
+    m.locator('[data-sp="hud-play"]').click();m.wait_for_timeout(100)
+    shot(m,'21-frame-390.png')
+    c3.close()
     browser.close()
 print(f'studio-sprite-browser: {len(checks)} checks passed')
 if errors:print('page errors:',errors[:10]);sys.exit(1)

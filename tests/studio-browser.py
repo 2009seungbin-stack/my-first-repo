@@ -65,8 +65,8 @@ with sync_playwright() as pw:
     ok('korean prefix gives a Korean app shell',p.locator('html').get_attribute('lang')=='ko' and p.locator('.st-menu-trigger').first.inner_text()=='파일')
     ok('full viewport: nothing scrolls',js(p,'return document.scrollingElement.scrollHeight<=innerHeight+1&&document.scrollingElement.scrollWidth<=innerWidth+1;'))
     ok('menu bar, tool bar, canvas, right panels, bottom panel and status bar exist',all(p.locator(s).count()==1 for s in ['.st-menubar','.st-toolbar','.cv-stage','.st-dock-right','.st-dock-bottom','.st-status']))
-    ok('workspace switcher: Viewer ready, the other five registered as coming (disabled, with phase)',
-       p.locator('.st-ws-tab[aria-selected="true"]').get_attribute('data-ws')=='viewer' and p.locator('.st-ws-tab[aria-disabled="true"]').count()==5 and p.locator('.st-ws-tab[data-ws="sprite"] small').inner_text()=='P1')
+    ok('workspace switcher: Viewer and Sprite ready, the other four registered as coming (disabled, with phase)',
+       p.locator('.st-ws-tab[aria-selected="true"]').get_attribute('data-ws')=='viewer' and p.locator('.st-ws-tab[aria-disabled="true"]').count()==4 and p.locator('.st-ws-tab[data-ws="pixel"] small').inner_text()=='P2' and p.locator('.st-ws-tab[data-ws="sprite"][aria-disabled]').count()==0)
     p.locator('.st-ws-tab[data-ws="tile"]').click(force=True);settle(p)
     ok('a coming workspace cannot be entered (no fake UI)',js(p,'return S.workspace;')=='viewer')
     p.goto(BASE+'/ja/game/studio/');ready(p)
