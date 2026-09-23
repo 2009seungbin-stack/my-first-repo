@@ -284,18 +284,18 @@ export const GAME_INTENT_PAGES=Object.freeze({
 /** New search-intent pages. `intent` = the base tool whose indexing decision they inherit. */
 const kw=(intent,ws,shot,copy,extra={})=>Object.freeze({intent,ws,shot,copy,...extra});
 export const GAME_KEYWORD_PAGES=Object.freeze({
- 'game/gif-to-sprite-sheet':kw('sprite-sheet-maker','sprite','pack',{
+ 'game/gif-to-sprite-sheet':kw('sprite-sheet-maker','pack','pack',{
   en:{title:'GIF to Sprite Sheet Converter (keeps frame timing)',description:'Convert an animated GIF or APNG into a sprite sheet with every frame and delay kept, then export PNG + JSON for Phaser, PixiJS, Godot or Unity. In your browser, no upload.',lead:'Drop a GIF: every frame is decoded with its delay and disposal, becomes a frame with that duration, and packs into a sheet with the animation data your engine reads.',
    what:['All frames with their delays and disposal (GIF and APNG); nothing is dropped or retimed.','Decoder checked against Pillow: 408 of 408 frames exact on 29 real GIFs, 132 of 132 on 16 APNGs.','Trim, dedupe identical frames and pack tightly, or keep full frames.','Export the sheet with Phaser / PixiJS JSON, Godot SpriteFrames, Unity clips, Aseprite JSON and more.'],
-   steps:['Drop the GIF or APNG.','Check the frames and durations on the timeline; name the animation.','Open Pack & Export and pick a preset.','Export the sheet and its data file.'],
+   steps:['Drop the GIF or APNG.','The Studio opens Pack & Export with every frame packed; the Sprite tab shows the timeline with each frame\'s duration.','Pick your engine\'s preset.','Export the sheet and its data file.'],
    faq:[['Does the sheet keep the GIF timing?','Yes. Each frame\'s delay is stored as its duration and written into formats that carry per-frame timing (Godot, Unity, Phaser anims, Aseprite JSON, PixiJS meta).'],['Is the GIF uploaded?','No. It is decoded in this browser tab.']]},
   ko:{title:'GIF 스프라이트 시트 변환 (프레임 시간 유지)',description:'움직이는 GIF·APNG를 모든 프레임과 지연 시간을 유지한 스프라이트 시트로 바꾸고, Phaser·PixiJS·Godot·Unity용 PNG+JSON으로 내보내세요. 브라우저에서, 업로드 없음.',lead:'GIF를 넣으면 모든 프레임을 지연·처리 방식과 함께 디코딩해 그 시간을 가진 프레임으로 만들고, 엔진이 읽는 애니메이션 데이터와 함께 시트로 패킹합니다.',
    what:['GIF·APNG의 모든 프레임과 지연·처리 방식을 그대로 가져오며 빠지거나 시간이 바뀌는 프레임이 없습니다.','Pillow와 비교해 확인한 디코더: 실제 GIF 29개 408/408프레임, APNG 16개 132/132프레임 일치.','트림하고 같은 프레임을 합쳐 촘촘히 패킹하거나 전체 프레임을 유지합니다.','Phaser·PixiJS JSON, Godot SpriteFrames, Unity 클립, Aseprite JSON 등으로 시트를 내보냅니다.'],
-   steps:['GIF나 APNG를 끌어다 놓습니다.','타임라인에서 프레임과 길이를 확인하고 애니메이션 이름을 정합니다.','패킹·내보내기를 열고 프리셋을 고릅니다.','시트와 데이터 파일을 내보냅니다.'],
+   steps:['GIF나 APNG를 끌어다 놓습니다.','Studio가 모든 프레임을 패킹한 패킹·내보내기 화면을 엽니다. 스프라이트 탭에서 프레임별 길이가 있는 타임라인을 볼 수 있습니다.','엔진 프리셋을 고릅니다.','시트와 데이터 파일을 내보냅니다.'],
    faq:[['시트가 GIF의 재생 시간을 유지하나요?','네. 프레임마다의 지연이 길이로 저장되고, 프레임별 시간을 담는 형식(Godot, Unity, Phaser anims, Aseprite JSON, PixiJS meta)에 기록됩니다.'],['GIF가 업로드되나요?','아니요. 이 브라우저 탭에서 디코딩합니다.']]},
   ja:{title:'GIFをスプライトシートに変換（フレーム時間を保持）',description:'アニメーションGIF・APNGを、全フレームと遅延を保ったスプライトシートに変換し、Phaser・PixiJS・Godot・Unity用のPNG+JSONで書き出し。ブラウザで、アップロード不要。',lead:'GIFを入れると、全フレームを遅延・破棄方法ごとデコードして、その時間を持つフレームにし、エンジンが読むアニメーションデータと一緒にシートへパックします。',
    what:['GIF・APNGの全フレームと遅延・破棄方法をそのまま取り込み、欠落や時間の変更はありません。','Pillowと照合したデコーダー：実在のGIF 29本で408/408フレーム、APNG 16本で132/132フレーム一致。','トリムして同一フレームをまとめて密にパック、またはフレーム全体を保持。','Phaser・PixiJS JSON、Godot SpriteFrames、Unityクリップ、Aseprite JSONなどでシートを書き出し。'],
-   steps:['GIFかAPNGをドロップ。','タイムラインでフレームと長さを確認し、アニメーション名を付ける。','パック＆書き出しを開いてプリセットを選ぶ。','シートとデータファイルを書き出し。'],
+   steps:['GIFかAPNGをドロップ。','Studioが全フレームをパックしたパック＆書き出し画面を開きます。スプライトタブではフレームごとの長さ付きタイムラインを確認できます。','エンジンのプリセットを選ぶ。','シートとデータファイルを書き出し。'],
    faq:[['シートはGIFのタイミングを保ちますか？','はい。各フレームの遅延が長さとして保存され、フレームごとの時間を持つ形式（Godot、Unity、Phaser anims、Aseprite JSON、PixiJS meta）に書き込まれます。'],['GIFはアップロードされますか？','いいえ。このブラウザのタブ内でデコードします。']]}
  },{related:['game/sprite-sheet-to-gif','sprite-sheet-maker','sprite-animation-preview','game/texture-packer-free']}),
  'game/sprite-sheet-to-gif':kw('sprite-animation-preview','sprite','sprite-frame',{
