@@ -59,6 +59,12 @@ export function auc(good,bad){
  return 1-(rankSum-n1*(n1+1)/2)/(n1*n0);
 }
 const on=(p,i)=>p[i+1]>=0;
+function histAUC(good,bad,ng,nb){
+ if(!ng||!nb)return null;
+ let below=0,sum=0;// P(good < bad) + ½ P(equal)
+ for(let i=0;i<good.length;i++){sum+=bad[i]*(below+good[i]/2);below+=good[i];}
+ return sum/(ng*nb);
+}
 /** What a layout claims about the boundary between A and B (A left of B: dir 'h'; A above B:
  * 'v'), per boundary segment: {start, mid, end} (start = top/left end of the shared boundary).
  * 1 = continuous, 0 = a visible break, null = no claim (both sides open). Corner segments carry
@@ -97,6 +103,7 @@ function segments(len,mode){
 }
 /** Score one assignment of patterns to tiles: entries [{tile index, pattern}] over `lines`. */
 export function scoreAssignment(mode,entries,lines,options={}){
+ if(options.quick)return scoreWith(mode,entries,lines,'rim',options);
  // Two readings of what a boundary should look like (rims everywhere vs. only where maps put
  // them); art follows one or the other, so the better separation is the layout's score.
  const r=scoreWith(mode,entries,lines,'rim',options);if(mode==='corners')return r;
@@ -104,10 +111,13 @@ export function scoreAssignment(mode,entries,lines,options={}){
  return (m.auc??0)>(r.auc??0)?m:r;
 }
 function scoreWith(mode,entries,lines,model,{maxPairs=6000,cache=null}={}){
- const good=[],bad=[];
- const n=entries.length,total=n*n*2,step=total>maxPairs?total/maxPairs:1;let k=0,next=0;
- for(let i=0;i<n;i++)for(let j=0;j<n;j++)for(const dir of ['h','v']){
-  if(k++<next)continue;next+=step;
+ // distances are 0…255: count them in quarter-level bins, AUC in one pass (no sorting)
+ const good=new Uint32Array(1025),bad=new Uint32Array(1025);let ng=0,nb=0,sg=0,sb=0;
+ const n=entries.length,total=n*n*2,sample=total>maxPairs;
+ // every pair when affordable, otherwise a fixed pseudo-random sample (same sample every run)
+ let s=0x9e3779b9;const rnd=()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return (s>>>0)/4294967296;};
+ for(let q=0,count=sample?maxPairs:total;q<count;q++){
+  const idx=sample?Math.floor(rnd()*total):q,i=Math.floor(idx/(2*n)),j=Math.floor(idx/2)%n,dir=idx%2?'v':'h';
   const A=entries[i],B=entries[j],cls=pairClass(mode,A.pattern,B.pattern,dir,model);
   const la=lines[A.tile],lb=lines[B.tile];if(!la||!lb)continue;
   const a=dir==='h'?la.right:la.bottom,b=dir==='h'?lb.left:lb.top,segs=segments(a.length/4,mode);
@@ -115,10 +125,10 @@ function scoreWith(mode,entries,lines,model,{maxPairs=6000,cache=null}={}){
    const c=cls[part];if(c==null||e<=s)continue;
    let d;const key=cache&&(A.tile*65536+B.tile)*8+(dir==='h'?0:4)+(part==='start'?0:part==='mid'?1:2);
    if(cache&&cache.has(key))d=cache.get(key);else{d=lineDistance(a.subarray(s*4,e*4),b.subarray(s*4,e*4));cache?.set(key,d);}
-   (c?good:bad).push(d);
+   const bin=Math.min(1024,Math.round(d*4));if(c){good[bin]++;ng++;sg+=d;}else{bad[bin]++;nb++;sb+=d;}
   }
  }
- return {auc:auc(good,bad),good:good.length,bad:bad.length,goodMean:mean(good),badMean:mean(bad),model};
+ return {auc:histAUC(good,bad,ng,nb),good:ng,bad:nb,goodMean:ng?sg/ng:null,badMean:nb?sb/nb:null,model};
 }
 const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
 // ------------------------------------------------------------------ layout identification
@@ -146,12 +156,18 @@ export function identifyLayout(img,grid,{maxTiles=1024,layouts=LAYOUTS,sources=t
    for(const cell of cells){const i=cell.row*g.cols+cell.col;if(blank[i])missing++;else entries.push({tile:i,pattern:cell.pattern,col:cell.col,row:cell.row});}
    for(let r=r0;r<r0+L.rows;r++)for(let c=c0;c<c0+L.cols;c++)if(L.cells[r-r0][c-c0]==null&&!blank[r*g.cols+c])extra++;
    if(entries.length<Math.max(4,cells.length*.5))continue;
-   const s=scoreAssignment(L.mode,entries,lines,{cache});if(s.auc==null)continue;
+   // quick pass on a sample of pairs; only the best few placements of each layout get the full pass
+   const s=scoreAssignment(L.mode,entries,lines,offs.length>4?{cache,maxPairs:240,quick:true}:{cache});if(s.auc==null)continue;s.entries=entries;
    // Missing tiles cost more than extras (an extra may be a decoration the layout leaves free).
    const score=s.auc-0.5*missing/cells.length-0.1*extra/cells.length;
    all.push({layoutId:L.id,family:L.family,mode:L.mode,col:c0,row:r0,cols:L.cols,rows:L.rows,score,auc:s.auc,missing,extra,cells:cells.length,model:s.model,claims:new Map(cells.map(x=>[x.row*g.cols+x.col,x.pattern.join()])),
-    covers:exact?1:(L.cols*L.rows)/count,pairs:s.good+s.bad,goodMean:s.goodMean,badMean:s.badMean});
+    covers:exact?1:(L.cols*L.rows)/count,pairs:s.good+s.bad,goodMean:s.goodMean,badMean:s.badMean,_entries:offs.length>4?entries:null});
   }
+  // full pass for the best placements of this layout
+  const mine=all.filter(x=>x.layoutId===L.id&&x._entries).sort((a,b)=>b.score-a.score);
+  for(const x of mine.slice(0,6)){const s=scoreAssignment(L.mode,x._entries,lines,{cache});if(s.auc==null)continue;x.score+=s.auc-x.auc;x.auc=s.auc;x.pairs=s.good+s.bad;x.goodMean=s.goodMean;x.badMean=s.badMean;}
+  for(const x of mine.slice(6))x.quick=true;
+  for(const x of mine)delete x._entries;
  }
  if(sources)for(const S of SOURCES){
   if(S.cols>g.cols||S.rows>g.rows)continue;

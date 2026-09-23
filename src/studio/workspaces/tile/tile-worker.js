@@ -38,7 +38,7 @@ self.onmessage=async({data})=>{
    const fits=[];
    for(const g of sizes.values()){
     const cols=Math.floor((img.width-g.ox+g.sx)/(g.w+g.sx)),rows=Math.floor((img.height-g.oy+g.sy)/(g.h+g.sy));
-    if(cols<2||rows<2||cols*rows>600)continue;
+    if(cols<2||rows<2||cols*rows>256)continue;
     const r=identifyLayout(img,g,{maxTiles:600,sources:false});const top=r.candidates[0];
     if(top&&top.confidence==='high')fits.push({grid:g,layoutId:top.layoutId,auc:top.auc});
    }
