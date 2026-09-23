@@ -337,7 +337,11 @@ with sync_playwright() as pw:
     for loc,word in [('ko','타임라인'),('ja','タイムライン')]:
         c2=browser.new_context(viewport={'width':1440,'height':900});q=c2.new_page();watch(q,loc)
         q.goto(f'{BASE}/{loc}/game/studio/?ws=sprite');ready(q)
-        ok(f'{loc}: Sprite copy is translated ({word})',word in q.locator('.st-dock-bottom').inner_text() and q.locator('.st-ws-tab[data-ws="sprite"]').inner_text()!='Sprite' or word in q.locator('.st-dock-bottom').inner_text())
+        ok(f'{loc}: Sprite copy is translated ({word})',word in q.locator('.st-dock-bottom').inner_text() and q.locator('.st-ws-tab[data-ws="sprite"]').inner_text()!='Sprite')
+        q.set_input_files('input[type=file][multiple]:not([webkitdirectory])',str(SAMURAI));q.wait_for_selector('[data-sp="plan-count"]',timeout=30000)
+        why=q.locator('.sp-dec[data-dec="slice"] .st-why li').all_text_contents()
+        import re
+        ok(f'{loc}: the Import "why" reasons are in {loc} too (rebuilt from the measured numbers)',len(why)>=3 and all(re.search('[가-힣぀-ヿ一-鿿]',x) for x in why),str(why[:2]))
         c2.close()
     # ------------------------------------------------------------ 390 px phone
     c3=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=3,is_mobile=True,has_touch=True);m=c3.new_page();watch(m,'390')

@@ -191,7 +191,7 @@ export default {
      const tg=prefs.loopTag?playTag():null;
      for(const o of onionFrames(a,S.cur,{before:prefs.onion.before,after:prefs.onion.after,opacity:prefs.onion.opacity,tag:tg}).reverse()){
       const of=a.frames[o.index],dx=Math.round(f.pivotX*f.canvasWidth-of.pivotX*of.canvasWidth),dy=Math.round(f.pivotY*f.canvasHeight-of.pivotY*of.canvasHeight);
-      await drawFrame(x,images,a,of,{dx,dy,alpha:o.alpha,tint:o.side==='prev'?[255,70,70]:[70,140,255]});
+      await drawFrame(x,images,a,of,{dx,dy,alpha:o.alpha,tint:prefs.onion.tint===false?null:o.side==='prev'?[255,70,70]:[70,140,255]});
      }
     }
     await drawFrame(x,images,a,f);bmp=c.transferToImageBitmap();

@@ -68,7 +68,7 @@ export function sheetPlan(analysis,choice={}){
  const decisions=[],grids=analysis.grids||[];
  // --- key colour
  const k=analysis.key;
- if(k)decisions.push({id:'key',label:'key',chosen:k.applied?k.hex:'none',confidence:k.confidence,score:k.score,reasons:k.reasons||[],
+ if(k)decisions.push({id:'key',label:'key',chosen:k.applied?k.hex:'none',confidence:k.confidence,score:k.score,reasons:k.reasons||[],evidence:k.evidence||null,hex:k.hex,
   alternatives:k.applied?['none']:[k.hex]});
  // --- slicing
  const top=grids[0],auto=analysis.auto;
@@ -86,6 +86,7 @@ export function sheetPlan(analysis,choice={}){
   rects=all.filter(c=>!c.empty).map(({x,y,w,h,row,col})=>({x,y,w,h,row,col}));
   const s=gi>=0?grids[gi]:null,filled=rects.length,empty=all.length-filled;
   sliceDecision={id:'slice',label:'slice',chosen:slice,value:s?gridLabel(s):`${g.w}×${g.h}`,confidence:s?s.confidence:'high',score:s?.score,
+   evidence:s?.evidence||null,reranked:!!s?.reranked,cellCount:{filled,all:all.length},
    reasons:s?[...(s.reasons||[]).slice(0,4),`${filled} of ${all.length} cells hold pixels${empty?`; ${empty} empty cells skipped`:''}`]:['typed by you'],
    alternatives:[...grids.map((x,i)=>'grid:'+i).filter(x=>x!==slice),...(auto&&auto.rects.length?['auto']:[]),'custom']};
   if(auto&&analysis.hint?.recommend===false&&analysis.hint?.spanning)sliceDecision.reasons.push(`islands found ${auto.rects.length} frames`);
@@ -94,6 +95,7 @@ export function sheetPlan(analysis,choice={}){
   const rowCounts=new Map();for(const r of rects){r.col=rowCounts.get(r.row)||0;rowCounts.set(r.row,r.col+1);}
   const conf=auto.reasonCode==='uniform'?'high':auto.reasonCode==='merged'?'medium':'low';
   sliceDecision={id:'slice',label:'slice',chosen:'auto',value:`${rects.length} islands`,confidence:top&&top.confidence==='high'?'low':conf,
+   auto:{code:auto.reasonCode,consistency:auto.consistency,frames:rects.length,attached:auto.attached||0,unassigned:auto.unassigned||0},
    reasons:[auto.reason||'',...(auto.attached?[`${auto.attached} small pieces (sparks, effects) joined to the nearest frame`]:[]),...(auto.unassigned?[`${auto.unassigned} small pieces could not be placed and are shown in red`]:[])].filter(Boolean),
    alternatives:grids.map((_,i)=>'grid:'+i).concat('custom')};
  }else sliceDecision={id:'slice',label:'slice',chosen:'none',confidence:'low',reasons:['no grid or islands were found'],alternatives:['custom']};
@@ -105,7 +107,7 @@ export function sheetPlan(analysis,choice={}){
  const anim=choice.animations||auto2;
  const varying=new Set(counts).size>1;
  const conf=anim==='rows'?(varying&&counts.every(c=>c>=2)?'high':counts.every(c=>c>=2)?'medium':'low'):anim==='single'?(rows.length<=1?'high':'medium'):'high';
- decisions.push({id:'animations',label:'animations',chosen:anim,confidence:rects.length?conf:'low',
+ decisions.push({id:'animations',label:'animations',chosen:anim,confidence:rects.length?conf:'low',rows:counts,varying,
   reasons:[`${rows.length} row(s) of frames: ${counts.slice(0,12).join(', ')}${counts.length>12?'…':''} frames per row`,...(varying?['rows hold different frame counts, as a sheet with one animation per row does']:[])],
   alternatives:['rows','single','none'].filter(x=>x!==anim)});
  let tags=[];

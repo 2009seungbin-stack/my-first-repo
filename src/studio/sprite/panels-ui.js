@@ -24,6 +24,32 @@ export function createPanels(W){
   if(dec.id==='timing')return t('sp.alt.ms',{ms:alt,fps:Math.round(1000/Number(alt))});
   const k='sp.alt.'+alt;const v=t(k);return v===k?alt:v;
  }
+ /** Reasons in the reader's language, rebuilt from the numbers the detectors measured (the
+  * detectors' own sentences are English); anything without numbers falls back to them. */
+ function reasonsOf(dec){
+  const pct=v=>Math.round((v||0)*100)+'%',out=[];
+  if(dec.id==='slice'&&dec.evidence){const e=dec.evidence,lines=(e.separatorLinesX||0)+(e.separatorLinesY||0);
+   if(dec.reranked)out.push(t('sp.why.reranked'));
+   out.push(lines?t('grid.reason.separator',{n:lines,pct:pct(Math.min(e.separatorRatioX??1,e.separatorRatioY??1))}):t('grid.reason.noSeparator'));
+   const g=W.importState()?.analysis?.grids?.find(x=>`${x.cellWidth}×${x.cellHeight}`===String(dec.value||'').split(' ')[0]);
+   if(g)out.push(t('grid.reason.period',{px:g.cellWidth+g.spacingX,py:g.cellHeight+g.spacingY,ax:(e.periodicityX||0).toFixed(2),ay:(e.periodicityY||0).toFixed(2)}));
+   out.push(t('grid.reason.bounds',{pct:pct(e.boundsConsistency)}));
+   out.push((e.crossingsX||0)+(e.crossingsY||0)?t('grid.reason.cross',{n:(e.crossingsX||0)+(e.crossingsY||0)}):t('grid.reason.noCross'));
+   if((e.splitColumns||0)+(e.splitRows||0))out.push(t('grid.reason.split'));
+   if(e.commonSize===false)out.push(t('grid.reason.uncommon'));
+   if(e.outsidePixels)out.push(t('grid.reason.outside',{n:e.outsidePixels}));
+   if(dec.cellCount)out.push(t('sp.why.cells',{filled:dec.cellCount.filled,all:dec.cellCount.all}));
+   return out;}
+  if(dec.id==='slice'&&dec.auto){const a=dec.auto;
+   out.push(a.code==='uniform'?t('sp.why.autoUniform',{pct:pct(a.consistency)}):a.code==='merged'?t('sp.why.autoMerged',{n:a.frames,pct:pct(a.consistency)}):t('sp.why.autoPlain',{n:a.frames}));
+   if(a.attached)out.push(t('sp.why.attached',{n:a.attached}));if(a.unassigned)out.push(t('sp.why.unassigned',{n:a.unassigned}));return out;}
+  if(dec.id==='key'&&dec.evidence){const e=dec.evidence;
+   out.push(t('sp.why.keyBorder',{pct:pct(e.borderShare),c:dec.hex||dec.chosen}),t('sp.why.keySheet',{pct:pct(e.sheetShare)}));
+   if(e.fullLines)out.push(t('sp.why.keyLines',{n:e.fullLines}));if(e.conventional)out.push(t('sp.why.keyConventional'));if(e.alphaSheet)out.push(t('sp.why.keyAlpha'));return out;}
+  if(dec.id==='timing')return [t('sp.why.timing')];
+  if(dec.id==='animations'&&dec.rows)return [t('sp.why.rows',{n:dec.rows.length,counts:dec.rows.slice(0,12).join(', ')}),...(dec.varying?[t('sp.why.rowsVary')]:[])];
+  return dec.reasons||[];
+ }
  const decName=dec=>dec.kind==='box-slice'||dec.kind==='pivot-slice'||dec.kind==='nine-slice'?t('sp.dec.aseSlice'):t('sp.dec.'+dec.label);
  function chosenLabel(dec){
   if(dec.id==='slice')return dec.chosen==='auto'?t('sp.alt.auto')+(dec.value?` · ${dec.value}`:''):dec.chosen==='custom'?t('sp.alt.custom')+(dec.value?` · ${dec.value}`:''):`${t('sp.imp.grid')} ${dec.value||''}`;
@@ -49,7 +75,7 @@ export function createPanels(W){
    kids.push(h('div.sp-dec',{'data-dec':dec.id},
     h('div.sp-dec-head',{},h('span.sp-dec-what',{},decName(dec)),conf),
     h('div.sp-dec-chosen',{},dec.id==='key'&&dec.chosen!=='none'?h('span.sp-swatch',{style:`background:${dec.chosen}`}):'',chosenLabel(dec)),
-    dec.reasons?.length?h('details.st-why',{},h('summary',{},t('sp.imp.why')),h('ul',{},dec.reasons.map(r=>h('li',{},r)))):'',
+    (()=>{const rs=reasonsOf(dec);return rs.length?h('details.st-why',{},h('summary',{},t('sp.imp.why')),h('ul',{},rs.map(r=>h('li',{},r)))):'';})(),
     alts.length?h('div.sp-alts',{},h('span.st-muted',{},t('sp.imp.instead')),alts):''));
   }
   if(info?.kind==='sheet'){
