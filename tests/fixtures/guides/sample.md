@@ -14,6 +14,8 @@ A second intro paragraph with *emphasis* and a [link](https://docs.godotengine.o
 
 > **Tip:** Snap 2D transforms too, see [below](#why).
 
+![The Tile workspace](shot:studio-tile-layout "Art by \"second\" (CC0)")
+
 ## Why it blurs {#why}
 
 | Setting | Default | Pixel art |

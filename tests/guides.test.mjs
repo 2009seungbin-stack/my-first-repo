@@ -115,6 +115,7 @@ test('markdown dialect: escaping, links, steps, callouts, tables, fences and the
  assert.equal(x.faq.length,2);assert.equal(x.faq[0].a,"Check the node's own texture_filter property.");
  assert(x.html.includes('<td>Mipmaps | none</td>')&&x.html.includes('style="text-align:right"'));
  assert(x.html.includes('class="guide-open" data-studio-ws="sprite" href="en/game/studio/?ws=sprite"'));
+ assert(x.html.includes('<img src="assets/guides/studio-tile-layout-en.webp" width="1280" height="800" alt="The Tile workspace"')&&x.html.includes('<figcaption>Art by &quot;second&quot; (CC0)</figcaption>'),'figures: localized file, real size, escaped quotes in captions');
  assert(x.html.includes('<li>Two with <code>code</code> and <strong>bold</strong> continued line</li>'));
  const bad=renderMarkdown('## No id\n\n[x](guide:nope) [y](tool:nope)\n\n![a](shot:nope)\n\n:::nerulio ws=nope\nx\n:::\n',{locale:'en',prefix:'',slug:'demo'});
  for(const p of ['## heading without {#id}','unknown guide link','unknown tool link','missing screenshot','unknown workspace'])assert(bad.problems.some(x=>x.startsWith(p)),p);

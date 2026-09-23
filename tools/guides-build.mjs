@@ -31,7 +31,7 @@ const fill=(s,v)=>String(s).replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);
 const HEADING=/^(#{2,3})\s+(.+?)(?:\s+\{#([a-z0-9][a-z0-9-]*)\})?\s*$/;
 const FENCE=/^```\s*([\w+-]*)\s*$/;
 const LIST=/^(\s*)(-|\d+\.)\s+(.*)$/;
-const IMAGE=/^!\[([^\]]*)\]\(shot:([a-z0-9-]+)(?:\s+"([^"]*)")?\)\s*$/;
+const IMAGE=/^!\[([^\]]*)\]\(shot:([a-z0-9-]+)(?:\s+"((?:[^"\\]|\\.)*)")?\)\s*$/;
 const slugify=s=>s.toLowerCase().replace(/<[^>]+>/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 /** `ctx` = {locale, prefix, slug, root, problems:[]} — links and images are resolved against it. */
 export function inline(text,ctx){
@@ -147,7 +147,8 @@ export function renderMarkdown(src,ctx){
     if(level===3&&section==='faq'){faqQ={q:plain(label),a:[]};faq.push(faqQ);}
     emit(`<h${level} id="${id}">${inline(label,ctx)}</h${level}>`,plain(label));continue;
    }
-   if((m=line.match(IMAGE))){i++;emit(figure(m[1],m[2],m[3],ctx));continue;}
+   if((m=line.match(IMAGE))){i++;emit(figure(m[1],m[2],m[3]?.replace(/\\(.)/g,'$1'),ctx));continue;}
+   if(/^!\[/.test(line))ctx.problems.push(`image line not understood: ${line.slice(0,80)}`);
    if(line.startsWith('>')){
     const quote=[];while(i<lines.length&&lines[i].startsWith('>'))quote.push(lines[i++].replace(/^>\s?/,''));
     emit(`<aside class="guide-note"><p>${inline(quote.join(' '),ctx)}</p></aside>`,plain(quote.join(' ')));continue;

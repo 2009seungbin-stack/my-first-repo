@@ -9,7 +9,7 @@ Every setting and number below was checked in Godot 4.7.2 with the gl_compatibil
 2. **Check the import settings.** Select the PNG in the FileSystem dock and open the **Import** dock. **Compress → Mode** should be **Lossless** (the default) and **Mipmaps → Generate** off (the default). Never use **VRAM Compressed** for pixel art. If you changed anything, click **Reimport**.
 3. **Pick a base resolution.** Under **Display → Window → Size**, set **Viewport Width** and **Viewport Height** to your game's pixel resolution, for example 320×180 or 640×360. Both scale evenly to 1280×720, 1920×1080 and 2560×1440. For a bigger window at start-up, set **Window Width Override** and **Window Height Override** (for example 1280×720).
 4. **Stretch in whole steps.** Under **Display → Window → Stretch**, set **Mode** to `viewport`, **Aspect** to `keep` (black bars) or `expand` (more of the world on wider screens), and **Scale Mode** to `integer`. The game then renders at the base resolution and is scaled up 2×, 3×, 4× and so on, never 3.125×.
-5. **Snap sprites to pixels.** Under **Rendering → 2D → Snap**, turn on **Snap 2D Transforms to Pixel**. Leave **Snap 2D Vertices to Pixel** off: the docs advise against using both. Like the stretch settings, snapping is only read when the game starts.
+5. **Snap sprites to pixels.** Under **Rendering → 2D → Snap**, turn on **Snap 2D Transforms to Pixel**. Leave **Snap 2D Vertices to Pixel** off: the docs advise against using both. Snapping is only read when the game starts, so restart the game after changing it.
 6. **Move the camera in whole pixels.** Turn off **Position Smoothing** on the Camera2D that follows the player and place the camera on the player's rounded position (script below). Smoothing always leaves the camera between pixels.
 7. **Remove stutter on high-refresh screens.** If motion looks uneven at 120/144 Hz, turn on **Physics → Common → Physics Interpolation** (Godot 4.3+ for 2D). Move your bodies in `_physics_process()`, then test the camera again.
 :::
@@ -42,8 +42,8 @@ textures/canvas_textures/default_texture_filter=0
 ## Why pixel art turns blurry {#why-blurry}
 
 - **Filtering is a property of the node, not of the image.** Every CanvasItem has a **Texture → Filter**. **Inherit**, the default, takes the parent's filter, and at the top the viewport's filter, which comes from the project setting.
-- **SubViewports have their own filter.** A new SubViewport's **Canvas Item Default Texture Filter** is **Linear**, whatever the project setting says (checked in 4.7.2). If you render the game into a SubViewport, for a CRT effect or split screen, set it to **Nearest** there too.
-- **Compression and mipmaps.** VRAM compression adds block artifacts and colour shifts. Mipmaps with **Nearest Mipmap** filters make sprites smeary when the camera zooms out. In the Import dock, the **2D** preset keeps a texture on Lossless even if something uses it in 3D. The default **2D/3D (Auto-Detect)** preset switches such textures to VRAM Compressed.
+- **SubViewports have their own filter.** A new SubViewport's **Canvas Items → Default Texture Filter** is **Linear**, whatever the project setting says (checked in 4.7.2). If you render the game into a SubViewport, for a CRT effect or split screen, set it to **Nearest** there too.
+- **Compression and mipmaps.** VRAM compression adds block artifacts and colour shifts. Mipmaps are only used by the *Mipmap* filter modes and make sprites blurrier when the camera zooms out; 2D pixel art rarely needs them. In the Import dock, the **2D** preset keeps a texture on Lossless even if something uses it in 3D. The default **2D/3D (Auto-Detect)** preset switches such textures to VRAM Compressed.
 - **The art is already soft.** No engine setting can fix a sprite that was resized with smoothing before import, or scaled by 2.5× in a paint program. Check the file itself (see [the Nerulio block](#nerulio)).
 
 ## Why pixel art jitters or shimmers {#why-jitter}
@@ -98,7 +98,7 @@ The **GUI → Theme** default-font settings only affect Godot's built-in font, n
 
 ## Version notes {#versions}
 
-- **Godot 4.0+:** **Default Texture Filter** under Canvas Textures, and **Snap 2D Transforms/Vertices to Pixel**.
+- **Godot 4.x:** filtering is a CanvasItem property (**Texture → Filter**) with a project-wide **Default Texture Filter**; in Godot 3 it was an import option. **Snap 2D Transforms/Vertices to Pixel** exist since 4.0.
 - **4.2:** **Stretch → Scale Mode** (`fractional`/`integer`) added.
 - **4.3:** built-in **Physics Interpolation** for 2D.
 - **4.4:** font import defaults detect pixel fonts ("Except Pixel Fonts" modes).
@@ -120,7 +120,7 @@ When the sprite itself is the problem, the Pixel Perfect Checker tells you. It m
 
 ### Where is the texture filter setting in Godot 4?
 
-It is no longer an import option, as it was in Godot 3. It is set per CanvasItem (**Texture → Filter**), per Viewport (**Canvas Item Default Texture Filter**), and project-wide under **Project Settings → Rendering → Textures → Canvas Textures → Default Texture Filter**.
+It is no longer an import option, as it was in Godot 3. It is set per CanvasItem (**Texture → Filter**), per Viewport (**Canvas Items → Default Texture Filter**), and project-wide under **Project Settings → Rendering → Textures → Canvas Textures → Default Texture Filter**.
 
 ### How do I get integer scaling in Godot 4?
 

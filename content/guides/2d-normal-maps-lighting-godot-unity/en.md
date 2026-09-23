@@ -167,9 +167,9 @@ In a **Sprite Atlas**, the secondary textures are packed with the sprites. Give 
 | Hand-painted normals | Key art, small pixel sprites where every pixel counts | Any paint program, with a normal palette |
 | Rendered from 3D | Pre-rendered sprites | Your 3D package's normal pass |
 
-Generated maps are a starting point: brightness is not height, so a dark eye or black outline reads as a hole. Check under a moving light and fix pixels that shade the wrong way. The Godot manual points to Laigter (free, GPL-3.0, with a 2D light preview); SpriteIlluminator adds brushes for shaping volume by hand.
+Generated maps are a starting point: brightness is not height, so a dark eye or black outline reads as a hole. Check under a moving light. The Godot manual points to Laigter (free, GPL-3.0, with a 2D light preview); SpriteIlluminator adds brushes for shaping volume by hand.
 
-When you generate from a whole sheet, leave at least one transparent pixel between frames. A 3×3 derivative kernel reads one pixel into the neighbouring frame, and a 5×5 kernel reads two.
+When you generate from a whole sheet, leave transparent pixels between frames: a 3×3 kernel reads one pixel into the neighbour, a 5×5 kernel two.
 
 :::nerulio tool=texture-lab
 Texture Lab's **Normal** stage turns a sprite or tile into a normal map in the browser, without uploading it. It reads the image as a height field and writes the normal it implies, so a sheet or atlas keeps its exact layout. It names the convention on screen and never guesses it.
@@ -177,7 +177,7 @@ Texture Lab's **Normal** stage turns a sprite or tile into a normal map in the b
 - Set **Strength** (0–10, default 2). Under *Advanced settings*, choose the **Derivative kernel** (Sobel 3×3, Scharr 3×3, Sobel 5×5), **Height from** (Luminance or Alpha channel) and **Wrap around the edges** for tileable tiles.
 - Press **Save normal map (PNG)**. You get `<name>-normal.png` at full resolution; the normal maps in the renders above came from this button.
 - Already have a DirectX map? **OpenGL ↔ DirectX** mirrors the green channel exactly.
-- Limits: one map at a time; no 2D light preview (the Preview stage is a 3D material preview); no specular map generator. Laigter covers live 2D lighting.
+- Limits: one map at a time; no 2D light preview (the Preview stage is a 3D material preview); no specular map generator.
 :::
 
 ![Nerulio Texture Lab, Normal stage: a dungeon tile as the source, its generated normal map, and the OpenGL/DirectX convention choice](shot:lab-texture-normal "Nerulio Texture Lab: Height → normal with the OpenGL +Y convention, plus the table of which engine expects which.")

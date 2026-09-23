@@ -1,55 +1,54 @@
-Use a **bitmap font** (a BMFont `.fnt` plus a PNG) when text is drawn at one known size, and always for pixel fonts: render them at whole multiples of their design size, with antialiasing off and nearest filtering. Use an **SDF** font when the same text has to scale, zoom or get outlines and glows cheaply. Use **MSDF** when you also need sharp corners at large sizes. In Godot 4.7 that is the *Multichannel Signed Distance Field* import option, Unity 6 TextMesh Pro and UI Toolkit font assets are SDF by default, and PixiJS 8 reads SDF/MSDF fonts from a BMFont file with a `distanceField` entry. Phaser's built-in BitmapText is a plain bitmap.
+Use a **bitmap font** (a BMFont `.fnt` plus a PNG) when text is drawn at one known size, and always for pixel fonts, which must be drawn at whole multiples of their design size with antialiasing off and nearest filtering. Use an **SDF** font when the same text has to scale or needs cheap outlines and glows, and **MSDF** when it must also keep sharp corners at large sizes. In Godot 4.7 that is the *Multichannel Signed Distance Field* import option; Unity 6 font assets are SDF by default; PixiJS 8 reads SDF/MSDF from a BMFont file with a `distanceField` entry; Phaser's BitmapText is plain bitmap only.
 
-The rest of this guide shows what each format stores, the exact settings in Godot, Unity, Phaser and PixiJS, and the loader quirks we hit while rendering every example below in the real engines.
+Every image below was rendered by the engine named in its caption.
 
-![Five ways to draw the same UI text in Godot 4.7.2](shot:engine-godot-font-modes "Rendered by Godot 4.7.2 (Compatibility renderer). A: pixel font imported with antialiasing, hinting and subpixel positioning off, 16 px at 3×. B: the same font at 20 px with the default import, so pixels come out uneven. C: an ordinary raster font scaled 6× goes blurry. D: a BMFont baked at 12 px, scaled 6× with nearest filtering, turns blocky. E: the same TTF with MSDF on stays sharp at 6× and takes a 2 px outline. Fonts: Kenney Pixel and Kenney Future (CC0).")
+![Five ways to draw the same UI text in Godot 4.7.2](shot:engine-godot-font-modes "Rendered by Godot 4.7.2 (Compatibility renderer). A: pixel font with antialiasing, hinting and subpixel positioning off, 16 px at 3×. B: same font at 20 px, default import: uneven pixels. C: raster font scaled 6×: blurry. D: BMFont baked at 12 px, 6× nearest: blocky. E: same TTF with MSDF: sharp at 6× with a 2 px outline. Fonts: Kenney Pixel, Kenney Future (CC0).")
 
 ## How bitmap, SDF and MSDF fonts work {#how-they-work}
 
-All three draw text from a texture atlas of glyphs. What differs is what each texel means.
+All three draw glyphs from a texture atlas. What differs is what a texel means.
 
-| Format | What a texel stores | Scaling up | Outline, glow, shadow | Texture cost |
+| Format | Texel stores | Scaled up | Outline, glow, shadow | Texture cost |
 |---|---|---|---|---|
-| Bitmap | Coverage (alpha) at one size | Blurry (linear) or blocky (nearest) | Baked into the image, or draw the text twice | One atlas per size and style |
-| SDF | Distance to the nearest edge, one channel | Smooth edges, but corners get rounded | Free in the shader: shift the threshold | One atlas for all sizes, cells need padding |
-| MSDF | Three distances in R, G and B; the median is the edge | Smooth edges **and** sharp corners | Free in the shader | Same layout as SDF, three channels |
+| Bitmap | Coverage at one size | Blurry (linear) or blocky (nearest) | Baked into the image | One atlas per size and style |
+| SDF | Distance to the edge, one channel | Smooth, but corners round off | Free in the shader | One atlas for all sizes, padded cells |
+| MSDF | Three distances (R, G, B); the median is the edge | Smooth **and** sharp corners | Free in the shader | Like SDF, three channels |
 
-A bitmap glyph is final pixels, so it is exact at the size it was baked for and wrong at any other. A signed distance field instead stores, for every texel, how far it is from the glyph outline. The shader turns that back into an edge at any scale by taking the texels where the distance crosses zero, so the edge stays smooth. A single distance channel cannot hold a sharp corner, because the distance field around a corner is round. MSDF splits the edges over three channels and takes the median, which keeps the corner.
+A bitmap glyph is final pixels: exact at its baked size, wrong at any other. A signed distance field stores how far each texel is from the outline, and the shader rebuilds the edge where that distance crosses zero, at any scale. One channel cannot describe a corner (the field around it is round), so SDF rounds corners when magnified. MSDF spreads the edges over three channels and takes their median, which keeps the corner.
 
-![Bitmap, SDF and MSDF fonts compared in PixiJS 8.21](shot:engine-pixi-sdf-msdf "Rendered by PixiJS 8.21.0 (WebGL) in Chromium. Top: a bitmap font baked at 12 px is fine at 12 px and blurry at 72 px. Middle rows: SDF and MSDF atlases built at 32 px by msdf-atlas-gen 1.4 stay smooth at 72 px. Bottom: Kenney Pixel at 240 px from 32 px atlases. SDF rounds every square corner, MSDF keeps them. Fonts: Kenney Future and Kenney Pixel (CC0).")
+![Bitmap, SDF and MSDF fonts compared in PixiJS 8.21](shot:engine-pixi-sdf-msdf "Rendered by PixiJS 8.21.0 (WebGL) in Chromium. Bitmap font baked at 12 px: fine at 12 px, blurry at 72 px. SDF and MSDF atlases built at 32 px by msdf-atlas-gen 1.4: smooth at 72 px. Bottom: Kenney Pixel at 240 px; SDF rounds the square corners, MSDF keeps them. Fonts: Kenney Future, Kenney Pixel (CC0).")
 
-## Set up sharp UI text, step by step {#set-up}
+## Set up sharp UI text {#set-up}
 
 :::steps
-1. **Write down the sizes.** Note the smallest and largest on-screen pixel size of each text style, whether the UI or camera scales, and which effects you need (outline, shadow, glow). One fixed size and no effects points to a bitmap font. Zooming, tweening scale or large titles point to SDF or MSDF.
-2. **Pick the format.** Pixel font: bitmap, or a dynamic font with antialiasing off. Body text at a few fixed sizes: bitmap or the engine's dynamic font. Scaling text with outlines: SDF. Large titles, logos, fonts with sharp corners: MSDF.
-3. **Build the atlas from the characters you really use.** Include ASCII for numbers and names that are inserted at runtime. For Korean, Japanese or Chinese, see [CJK font atlases from localisation files](guide:cjk-font-atlas-localization).
-4. **Import it with the right settings.** In Godot, select the font and set the Import dock options below, then click **Reimport**. In Unity, make a font asset in **Window > TextMesh Pro > Font Asset Creator** with the render mode you chose.
-5. **Draw at the size the atlas expects.** Bitmap fonts at their baked size or whole multiples of it, with nearest filtering for pixel fonts. SDF and MSDF fonts at any size.
-6. **Add outlines and shadows in the renderer.** Use the engine's outline and shadow settings on SDF/MSDF text. Only bake them into the image for bitmap fonts.
-7. **Check it at the real resolution.** Look at the smallest size at 100 % zoom and at 125 % and 150 % display scaling. A pixel font that is fine at 16 px can turn uneven at 20 px.
+1. **List the sizes.** Note the smallest and largest on-screen pixel size of each text style, whether the UI or camera scales, and which effects you need. One fixed size and no effects: bitmap. Zoom, scale tweens or big titles: SDF or MSDF.
+2. **Pick the format.** Pixel font: bitmap, or a dynamic font with antialiasing off. Body text at a few fixed sizes: bitmap or the engine's dynamic font. Scaling text with outlines: SDF. Large titles and fonts with sharp corners: MSDF.
+3. **Bake only the characters you use,** plus ASCII for numbers and names inserted at runtime. For Korean, Japanese or Chinese see [CJK font atlases from localisation files](guide:cjk-font-atlas-localization).
+4. **Import with the right settings.** Godot: select the font, set the Import dock options below, click **Reimport**. Unity: **Window > TextMesh Pro > Font Asset Creator** with the render mode you chose.
+5. **Draw at the size the atlas expects.** Bitmap fonts at their baked size or whole multiples of it, with nearest filtering for pixel fonts. SDF and MSDF at any size.
+6. **Put outlines and shadows in the renderer** for SDF/MSDF text; bake them into the image only for bitmap fonts.
+7. **Check the real resolution,** including 125 % and 150 % display scaling. A pixel font that is crisp at 16 px is uneven at 20 px.
 :::
 
 ## Pixel fonts: integer sizes, no antialiasing {#pixel-fonts}
 
-A pixel font is drawn on a grid of *n* font units per pixel. It is only crisp when each of those grid cells lands on exactly one screen pixel. Kenney Pixel, for example, is designed on a 16 px grid, so 16, 32 and 48 px are crisp and 20 px is not. Row B above is 20 px: some pixels come out one screen pixel wide and some two. Godot's documentation states the rule directly: the font size must be an integer multiple of the design size, and the Control must be scaled by an integer too.
+A pixel font is drawn on a grid of font units. It is crisp only when each grid cell lands on exactly one screen pixel. Kenney Pixel is designed on a 16 px grid, so 16, 32 and 48 px are crisp and 20 px is not (row B above: some pixels one screen pixel wide, some two). Godot's documentation puts it the same way: the font size must be an integer multiple of the design size, and the Control must be scaled by an integer too.
 
 In Godot 4.7, select the `.ttf` and set in the **Import** dock:
 
-- **Antialiasing:** None (the options are None, Grayscale, LCD Subpixel; the default is Grayscale).
-- **Hinting:** None.
-- **Subpixel Positioning:** Disabled.
-- **Project Settings > Rendering > Textures > Canvas Textures > Default Texture Filter:** Nearest, or set **Texture Filter** to Nearest on the Control.
+- **Antialiasing:** None (options None, Grayscale, LCD Subpixel; default Grayscale).
+- **Hinting:** None. **Subpixel Positioning:** Disabled.
+- **Project Settings > Rendering > Textures > Canvas Textures > Default Texture Filter:** Nearest (or **Texture Filter** = Nearest on the Control).
 
-Godot 4.7's defaults already help. **Hinting** defaults to *Light (Except Pixel Fonts)* and **Subpixel Positioning** to *Auto (Except Pixel Fonts)*, and both resolve to off for a font whose outlines are only horizontal and vertical lines. In our test, Godot switched both off for Kenney Pixel on its own. **Antialiasing stayed Grayscale**, though, so you still have to set it to None. The same three options exist for the project's default font under **Project Settings > GUI > Theme** (`gui/theme/default_font_antialiasing`, `default_font_hinting`, `default_font_subpixel_positioning`).
+Godot 4.7's defaults help partly: **Hinting** defaults to *Light (Except Pixel Fonts)* and **Subpixel Positioning** to *Auto (Except Pixel Fonts)*, and in our test both switched off by themselves for Kenney Pixel. **Antialiasing stayed Grayscale**, so set it to None yourself. The project's default font has the same options under **Project Settings > GUI > Theme** (`gui/theme/default_font_antialiasing` and neighbours).
 
-In Unity, a pixel font is a static TextMesh Pro asset with a non-antialiased render mode: **RASTER** or **RASTER_HINTED** in the Font Asset Creator, with **Sampling Point Size** set to the font's design size. Draw it at that size or whole multiples of it. Camera and canvas scaling are covered in [pixel art blurry in Unity](guide:unity-pixel-art-blurry-pixel-perfect). In Phaser and PixiJS, nearest filtering comes from the game-wide pixel-art settings in [crisp pixel art in Phaser and PixiJS](guide:pixel-art-crisp-in-browser-phaser-pixi).
+In Unity, use a static TextMesh Pro font asset with a non-antialiased render mode (**RASTER** or **RASTER_HINTED**) and **Sampling Point Size** = the design size; camera and canvas scaling are in [pixel art blurry in Unity](guide:unity-pixel-art-blurry-pixel-perfect). In Phaser and PixiJS, nearest filtering comes from the game-wide settings in [crisp pixel art in Phaser and PixiJS](guide:pixel-art-crisp-in-browser-phaser-pixi).
 
-## Godot 4.7: FontFile, BMFont import and MSDF {#godot}
+## Godot 4.7: BMFont import and MSDF {#godot}
 
-**Bitmap fonts.** Drop the `.fnt` and its PNG into the project. Godot reads BMFont with the *font_data_bmfont* importer and makes a `FontFile`. The size in the `.fnt` file's `info` line becomes the font's **fixed size**. Its **Scaling Mode** option decides what happens at other sizes: *Disabled*, *Enabled (Integer)* or *Enabled (Fractional)*, and the default is Enabled (Fractional). For a pixel font, pick **Enabled (Integer)** so it only grows in whole steps. Godot can also build a font straight from a glyph sheet image: set the image's **Import As** to *Font Data (Image Font)* and fill in **Columns**, **Rows** and **Character Ranges**.
+**Bitmap fonts.** Put the `.fnt` and its PNG in the project; Godot imports them as a `FontFile`. The `size` in the file's `info` line becomes the font's **fixed size**, and the import option **Scaling Mode** (*Disabled*, *Enabled (Integer)*, *Enabled (Fractional)*; default Fractional) decides what happens at other sizes. Use **Enabled (Integer)** for pixel fonts. A glyph-sheet image can be imported directly too: set **Import As** to *Font Data (Image Font)* and fill in **Columns**, **Rows** and **Character Ranges**.
 
-**MSDF.** Select a `.ttf`/`.otf`, tick **Multichannel Signed Distance Field** in the Import dock and click **Reimport**. **MSDF Size** (default 48) is the size the field is generated at, and **MSDF Pixel Range** (default 8) is the width of the distance ramp. The Godot docs give three limits. MSDF Pixel Range must be at least **twice the outline size** you use. Fonts with self-intersecting outlines render wrongly. LCD subpixel antialiasing is not available on MSDF fonts. Row E of the render is this setting with a 2 px outline:
+**MSDF.** Select a `.ttf`/`.otf`, tick **Multichannel Signed Distance Field**, click **Reimport**. **MSDF Size** (default 48) is the size the field is generated at; **MSDF Pixel Range** (default 8) is the width of the distance ramp. Godot's docs list three limits: the pixel range must be at least **twice the outline size**, fonts with self-intersecting outlines render wrongly, and LCD subpixel antialiasing is unavailable. Row E is this setting with a 2 px outline:
 
 ```gdscript
 # title_label.gd - outline on an MSDF font (MSDF Pixel Range 8 >= 2 x outline 2)
@@ -62,21 +61,21 @@ func _ready() -> void:
 	scale = Vector2(6, 6)   # MSDF: no re-rasterisation, edges stay sharp
 ```
 
-Label and RichTextLabel also have shadow overrides: **Font Shadow Color**, **Shadow Offset X/Y** and **Shadow Outline Size**.
+Label and RichTextLabel also have **Font Shadow Color**, **Shadow Offset X/Y** and **Shadow Outline Size**.
 
-## Unity 6: TextMesh Pro and UI Toolkit font assets {#unity}
+## Unity 6: TextMesh Pro and UI Toolkit {#unity}
 
-In Unity 6, TextMesh Pro is part of the uGUI package (Unity 6000.5.3f1 ships `com.unity.ugui` 2.5.0). UI Toolkit uses TextCore font assets. Both read the same settings:
+TextMesh Pro now ships inside the uGUI package (`com.unity.ugui` 2.5.0 in Unity 6000.5.3f1); UI Toolkit uses TextCore font assets. Both share these settings:
 
-- **Render mode.** Bitmap modes: *SMOOTH*, *SMOOTH_HINTED*, *RASTER*, *RASTER_HINTED* (and *COLOR* variants for colour fonts). Distance-field modes: *SDF*, *SDFAA*, *SDFAA_HINTED*, *SDF8*, *SDF16*, *SDF32*. Unity's docs describe *SDFAA* as the faster, less accurate generator and *SDF8/16/32* as progressively more oversampling. Unity's SDF modes are single-channel. TextMesh Pro has no MSDF mode.
-- **Atlas Population Mode.** *Static* bakes the characters in the editor. *Dynamic* starts empty and adds glyphs from the source font at runtime, so the font file ships with the build. *Dynamic OS* uses a font installed on the player's system.
-- **Effects.** Outline, underlay (shadow) and glow are material settings of the SDF shader, so they do not need a new atlas.
+- **Render mode.** Bitmap: *SMOOTH*, *SMOOTH_HINTED*, *RASTER*, *RASTER_HINTED* (plus *COLOR* variants). Distance field: *SDF*, *SDFAA*, *SDFAA_HINTED*, *SDF8*, *SDF16*, *SDF32* — *SDFAA* is the fast, less accurate generator, *SDF8/16/32* oversample more. All are single-channel; there is no MSDF mode.
+- **Atlas Population Mode.** *Static* bakes characters in the editor; *Dynamic* adds glyphs from the source font at runtime (the font file ships with the build); *Dynamic OS* uses a font installed on the player's system.
+- **Effects.** Outline, underlay (shadow) and glow are material settings of the SDF shader.
 
-Unity's UI Toolkit manual recommends Static with SDF16 for general labels, SDF32 for titles, Dynamic with SDFAA for text the player types, and padding of about one tenth of the sampling size. In **Unity 6.5, UI Toolkit's default Advanced Text Generator does not support static font assets**. Unity's migration page says to subset the font file and use a dynamic asset instead. TextMesh Pro (uGUI) still has all three modes.
+Unity's UI Toolkit manual suggests Static with SDF16 for labels, SDF32 for titles, Dynamic with SDFAA for player-typed text, and padding of about a tenth of the sampling size. Note that in **Unity 6.5, UI Toolkit's default Advanced Text Generator does not support static font assets**; Unity's migration page recommends subsetting the font and using a dynamic asset. TextMesh Pro keeps all three modes.
 
 ## Phaser 3.90 and 4.2: BitmapText needs XML {#phaser}
 
-Phaser's `load.bitmapFont` parses **XML BMFont only**. We loaded the same font as a text `.fnt` and as `.xml` in Phaser 3.90.0 and 4.2.1. The text file failed with "Failed to process file" in both, and the XML file loaded all 95 glyphs. If your tool exports text `.fnt` (BMFont's default, and Nerulio's), convert it:
+Phaser's `load.bitmapFont` parses **XML BMFont only**. With the same font, a text `.fnt` failed ("Failed to process file") in Phaser 3.90.0 and 4.2.1, and the `.xml` loaded all 95 glyphs. Convert text `.fnt` files (BMFont's default and Nerulio's output) like this:
 
 ```js
 // fnt-to-xml.mjs - convert a BMFont *text* .fnt into the XML flavour Phaser's load.bitmapFont reads.
@@ -121,11 +120,11 @@ create() {
 }
 ```
 
-Leave out the size argument to draw at the font's own size. A size you pass is scaled relative to the size in the file. Neither Phaser 3.90.0 nor 4.2.1 has a distance-field BitmapText (we found no SDF or MSDF code in either source tree), so for big scalable titles in Phaser use a large bitmap font or a `Text` object.
+Omit the size argument to draw at the font's own size; a size you pass is scaled relative to it. Neither version has a distance-field BitmapText (no SDF/MSDF code in either source tree), so large scalable titles in Phaser need a big bitmap font or a `Text` object.
 
 ## PixiJS 8: BitmapText with SDF and MSDF {#pixijs}
 
-PixiJS 8 loads BMFont text and XML through `Assets`, and turns on its SDF or MSDF shader when the font declares a distance field:
+PixiJS 8 loads BMFont text and XML through `Assets` and switches to its SDF or MSDF shader when the font declares a distance field:
 
 ```js
 import { Assets, BitmapText } from 'pixi.js';
@@ -140,56 +139,53 @@ const title = new BitmapText({ text: 'Hi!', style: { fontFamily: 'PixelMSDF', fo
 app.stage.addChild(hud, title);
 ```
 
-The XML file must contain `<distanceField fieldType="msdf" distanceRange="4"/>` (or `fieldType="sdf"`). One quirk showed up in PixiJS 8.21.0. A **text** `.fnt` with the line `distanceField fieldType=msdf distanceRange=4` loaded as a *plain* bitmap font. The parser only accepts lower-case record names, so the `distanceField` line is skipped. The same data as XML switched the shader on. Ship SDF/MSDF fonts to Pixi as XML, for example with the converter above. msdf-atlas-gen writes JSON rather than BMFont, and tools such as msdf-bmfont-xml and Snowb write BMFont directly.
+The XML needs `<distanceField fieldType="msdf" distanceRange="4"/>` (or `fieldType="sdf"`). In PixiJS 8.21.0 a **text** `.fnt` with `distanceField fieldType=msdf distanceRange=4` loaded as a *plain* bitmap font: the text parser only matches lower-case record names and skips that line. The same data as XML worked, so give Pixi SDF/MSDF fonts as XML (the converter above keeps the `distanceField` entry). msdf-atlas-gen writes JSON, so convert its output; msdf-bmfont-xml and Snowb write BMFont directly.
 
-## Outlines and shadows {#outlines-shadows}
+## Outlines, shadows and memory {#outlines-memory}
 
-On SDF and MSDF text, an outline is a second threshold on the same distance, and a shadow or glow is a sample at an offset or a softer threshold. None of it needs a new texture. There is one limit: the effect can only reach as far as the distance range stored in the atlas. That is why Godot asks for MSDF Pixel Range ≥ 2 × outline size, and why TextMesh Pro's padding caps how thick an outline can get. For bitmap fonts, bake the outline into the glyph image when you build the font, so the atlas cells grow by the outline width. Or draw the text twice, offset by one pixel for a pixel-art drop shadow.
+On SDF and MSDF text an outline is a second threshold on the same distance, and a shadow or glow is an offset or softer sample, so no new texture is needed. The effect can only reach as far as the distance range stored in the atlas, which is why Godot wants MSDF Pixel Range ≥ 2 × outline and why TextMesh Pro's padding limits outline thickness. For bitmap fonts, bake the outline into the glyphs when building the font, or draw the text twice for a one-pixel drop shadow.
 
-## Memory and atlas size {#memory}
-
-A bitmap atlas holds one size of one style. Three sizes plus an outlined variant means four atlases. An SDF or MSDF atlas serves every size and every effect, but each cell carries padding for the distance ramp, and MSDF needs RGB. For scale, here is the 95 printable ASCII glyphs of Kenney Future. As a bitmap font baked at 12 px (the Nerulio export) the atlas is 150×160 RGBA. With msdf-atlas-gen 1.4 at 32 px and a pixel range of 4 it is 228×228 as SDF (one channel) and 236×236 as MSDF (RGB). For Latin UI text all three are small. What eats memory is the character count, which is why CJK needs a subset or a dynamic atlas.
+Memory: a bitmap atlas holds one size of one style, so three sizes plus an outlined variant are four atlases. A distance-field atlas serves all of them but pads every cell, and MSDF needs RGB. For the 95 printable ASCII glyphs of Kenney Future: bitmap at 12 px, 150×160; msdf-atlas-gen at 32 px with pixel range 4, 228×228 SDF (one channel) and 236×236 MSDF (RGB). Latin UI text is small either way; character count is what costs memory, hence subsets or dynamic atlases for CJK.
 
 ## Pitfalls {#pitfalls}
 
-- **The size in the `.fnt` file matters.** Godot uses the `info size` as the font's fixed size, and Phaser and Pixi scale the size you ask for relative to it. Draw at that number, or whole multiples of it for pixel fonts.
-- **Text vs XML BMFont.** Phaser needs XML. PixiJS reads both, but only honours `distanceField` from XML in 8.21.
-- **Linear filtering on pixel fonts.** Nearest filtering and whole-number scale are both needed. Either one alone still blurs.
-- **MSDF on tiny text.** At very small sizes a plain bitmap hinted at that size is often more legible than any distance field.
-- **Kerning.** BMFont kerning pairs only exist if the generator wrote them. A font made from a glyph sheet has none.
+- **Mind the `size` in the `.fnt`.** Godot uses it as the fixed size; Phaser and Pixi scale your requested size relative to it.
+- **Nearest filtering and whole-number scale are both needed** for pixel fonts. Either alone still blurs.
+- **Tiny text.** At very small sizes, a bitmap hinted for that size often reads better than any distance field.
+- **Kerning** exists only if the generator wrote pairs. A font built from a glyph sheet has none.
 
 :::nerulio tool=bitmap-font
-Nerulio's UI Lab has a bitmap font stage that runs in the browser with no upload. It turns a glyph sheet or a local TTF/OTF into a BMFont, and its checker compares the font with your localisation files. The Fixed grid export (an 8×12 CC0 sheet) loaded pixel-exact in Godot 4.7.2 and PixiJS 8 in Nerulio's engine harness. The Font file mode is not in that harness yet; the Kenney Future font in this guide came from it and loaded in Godot, Phaser (after XML conversion) and PixiJS.
-- **Fixed grid**: the grid and character order are detected with a confidence level. Every glyph is its whole cell.
-- **Measured widths**: tight glyph rectangles and per-character advances from the pixels. **Font file**: renders a TTF/OTF at a chosen size and measures the result.
-- **Character-set builder**: Characters used in my text, ASCII, Latin-1, and Korean or Japanese characters taken from your pasted text.
-- **Download** gives `font.png`, `font.fnt` (BMFont text), `font.json` and a README. Tick **Also build an SDF texture (Beta)** to add a single-channel SDF (`font-sdf.png`) with the one-line shader formula it needs.
-- Limits: one atlas page, no kerning pairs and no MSDF. The SDF output has not been checked in an engine. Convert `font.fnt` to XML for Phaser.
+Nerulio's UI Lab has a bitmap font stage that runs in the browser with no upload. It turns a glyph sheet or a local TTF/OTF into a BMFont. A Fixed grid export (an 8×12 CC0 sheet) loaded pixel-exact in Godot 4.7.2 and PixiJS 8 in Nerulio's engine harness. The Font file mode is not in that harness yet; the Kenney Future font in this guide came from it and loaded in Godot, Phaser (after XML conversion) and PixiJS.
+- **Fixed grid**: grid and character order are detected with a confidence level; every glyph is its whole cell.
+- **Measured widths** and **Font file**: tight glyph rectangles and per-character advances, from the sheet's pixels or from a TTF/OTF rendered at the size you choose.
+- **Character-set builder**: characters used in my text, ASCII, Latin-1, or the Korean/Japanese characters of your pasted text.
+- **Download** gives `font.png`, `font.fnt` (BMFont text), `font.json` and a README; **Also build an SDF texture (Beta)** adds a single-channel `font-sdf.png` with the shader formula it needs.
+- Limits: one page, no kerning, no MSDF, the SDF output is not engine-tested, and Phaser needs the XML conversion above.
 :::
 
-![Nerulio UI Lab bitmap font stage](shot:lab-ui-font "Nerulio UI Lab, Font stage: an 8×12 glyph sheet detected as a 16×6 grid starting at the space character, with the line preview drawn from the font's own metrics.")
+![Nerulio UI Lab bitmap font stage](shot:lab-ui-font "Nerulio UI Lab, Font stage: an 8×12 glyph sheet detected as a 16×6 grid starting at the space character, with a line drawn from the font's own metrics.")
 
 ## FAQ {#faq}
 
 ### Is SDF or MSDF better for game UI?
 
-MSDF, when the text is drawn large or has sharp corners, because a single-channel SDF rounds corners at large sizes. For small body text and soft, rounded fonts, SDF looks the same and is simpler: Unity's TextMesh Pro only offers SDF, and it is fine for most UI.
+MSDF for large text and fonts with sharp corners, because single-channel SDF rounds corners when magnified. For body text and rounded fonts SDF looks the same and is simpler; Unity's TextMesh Pro only offers SDF.
 
 ### Why is my pixel font blurry in Godot 4?
 
-Usually one of three things. **Antialiasing** is still Grayscale in the font's Import dock. The size is not a whole multiple of the font's design size. Or the Control is drawn with linear filtering or a fractional scale. Set Antialiasing to None, Hinting to None and Subpixel Positioning to Disabled, use the design size, and set the texture filter to Nearest.
+Usually Antialiasing is still Grayscale in the Import dock, the size is not a whole multiple of the design size, or the Control uses linear filtering or a fractional scale. Set Antialiasing and Hinting to None, Subpixel Positioning to Disabled, use the design size and Nearest filtering.
 
 ### Why does Phaser fail to load my .fnt file?
 
-Phaser's `load.bitmapFont` only parses the XML variant of BMFont. A text `.fnt` (the `info face=… size=…` format) fails with "Failed to process file". Export XML from your font tool or convert the file with a script such as the one above.
+`load.bitmapFont` parses only XML BMFont. A text `.fnt` (`info face=… size=…`) fails with "Failed to process file"; export XML or convert it with a script like the one above.
 
 ### Can I use MSDF fonts in Unity?
 
-Not in TextMesh Pro or UI Toolkit: their distance-field modes (SDF, SDFAA, SDF8/16/32) are single-channel. Large text in Unity is usually fine with SDF32. If you need true MSDF, it takes a third-party solution.
+Not with TextMesh Pro or UI Toolkit: their distance-field modes are single-channel. SDF32 is usually enough for large text; true MSDF needs a third-party solution.
 
 ### Do I need a separate bitmap font for each size?
 
-Yes, if you want each size to be pixel-exact. Bake one atlas per size, or use whole multiples of one pixel font. A distance-field font covers all sizes with one atlas, at the cost of slightly softer small text.
+For pixel-exact results, yes: one atlas per size, or whole multiples of one pixel font. A distance-field font covers every size with one atlas, with slightly softer small text.
 
 ## Sources {#sources}
 
