@@ -125,9 +125,20 @@ export function asepriteJson(model,variant,{base=stemOf(model.name),layout='hash
  seq.forEach((id,i)=>{const r=byId.get(id),k=`${r.sourceW},${r.sourceH},${Math.round(r.pivotPx.x)},${Math.round(r.pivotPx.y)}`;
   if(k!==last){pivotKeys.push({frame:i,bounds:{x:0,y:0,w:r.sourceW,h:r.sourceH},pivot:{x:Math.round(r.pivotPx.x),y:Math.round(r.pivotPx.y)}});last=k;}});
  if(pivotKeys.length)slices.push({name:'pivot',color:'#0000ffff',keys:pivotKeys});
+ // Box slices: one slice per box type and slot; a key only where the box changes (Aseprite keys
+ // hold until the next key), and an empty 0×0 key where the box stops, so it does not carry over to
+ // frames that have none. Bounds are frame-canvas pixels and may lie outside the canvas (unclamped).
+ const boxAt=(f,type,slot)=>(f.boxes||[]).filter(b=>b.shape==='rect'&&(b.type||'box')===type)[slot]||null;
+ const slotNames=new Map();
+ seq.forEach(id=>{const f=byId.get(id).frame,count={};for(const b of (f.boxes||[]).filter(b=>b.shape==='rect')){const ty=b.type||'box',n=count[ty]=(count[ty]||0)+1;slotNames.set(`${ty}${n>1?'_'+(n-1):''}`,[ty,n-1]);}});
  const boxSlots=new Map();
- seq.forEach((id,i)=>{const f=byId.get(id).frame;(f.boxes||[]).filter(b=>b.shape==='rect').forEach((b,slot)=>{const name=`${b.type||'box'}${slot?'_'+slot:''}`;
-  if(!boxSlots.has(name))boxSlots.set(name,[]);boxSlots.get(name).push({frame:i,bounds:{x:Math.round(b.x*variant.scale),y:Math.round(b.y*variant.scale),w:Math.max(1,Math.round(b.w*variant.scale)),h:Math.max(1,Math.round(b.h*variant.scale))}});});});
+ for(const [name,[type,slot]] of slotNames){
+  const keys=[];let last=null;
+  seq.forEach((id,i)=>{const b=boxAt(byId.get(id).frame,type,slot),s_=variant.scale;
+   const bounds=b?{x:Math.round(b.x*s_),y:Math.round(b.y*s_),w:Math.max(1,Math.round(b.w*s_)),h:Math.max(1,Math.round(b.h*s_))}:{x:0,y:0,w:0,h:0};
+   const k=JSON.stringify(bounds);if(k!==last){keys.push({frame:i,bounds});last=k;}});
+  boxSlots.set(name,keys);
+ }
  for(const [name,keysList] of boxSlots)slices.push({name,color:name.startsWith('hurt')?'#00ff00ff':'#ff0000ff',keys:keysList});
  const meta={...metaOf(variant,image,0),frameTags,layers:[{name:'Layer 1',opacity:255,blendMode:'normal'}],slices};
  const frames=layout==='array'?entries.map(([k,v])=>({filename:k,...v})):Object.fromEntries(entries);

@@ -152,6 +152,18 @@ STUDIO_CASES = [
     studio_case('sp-ninja-gif', 'gif', files=NINJA, engines=['pillow'], before='(new)'),
     studio_case('sp-ninja-apng', 'apng', files=NINJA, engines=['pillow'], before='(new)'),
 ]
+# Boxes that reach past the frame canvas (P1a allows them, Aseprite keeps such slices). Built with
+# the Studio's own modules in Node (tools/engine-verify/studio_pack_bundle.mjs), because boxes are
+# drawn by hand in the Sprite workspace; the engines read them back.
+BOXES = [{'frame': 0, 'x': -6, 'y': -4, 'w': 52, 'h': 10}, {'frame': 2, 'type': 'hurt', 'x': 30, 'y': 20, 'w': 20, 'h': 15}]
+STUDIO_CASES += [
+    {'id': 'sp-ninja-boxes-aseprite', 'exporter': 'Studio exporters (aseprite, out-of-canvas boxes)', 'asset': 'sprites/oga-ninja/1x/', 'lab': 'studio-node',
+     'target': 'aseprite', 'files': NINJA, 'sheet': None, 'engines': ['aseprite'], 'boxes': BOXES, 'before': '(new)',
+     'expect_extra': {'slices': {'hit': [[0, -6, -4, 52, 10], [1, 0, 0, 0, 0]], 'hurt': [[0, 0, 0, 0, 0], [2, 30, 20, 20, 15], [3, 0, 0, 0, 0]]}}},
+    {'id': 'sp-ninja-boxes-godot', 'exporter': 'Studio exporters (godot4, out-of-canvas boxes)', 'asset': 'sprites/oga-ninja/1x/', 'lab': 'studio-node',
+     'target': 'godot4', 'files': NINJA, 'sheet': None, 'engines': ['godot'], 'boxes': BOXES, 'before': '(new)',
+     'expect_extra': {'boxes': {'run_0': [{'type': 'hit', 'x': -6, 'y': -4, 'w': 52, 'h': 10}], 'run_1': [], 'run_2': [{'type': 'hurt', 'x': 30, 'y': 20, 'w': 20, 'h': 15}]}}},
+]
 CASES += STUDIO_CASES
 
 
@@ -246,6 +258,13 @@ def drive(case, page, base, dest: Path) -> dict:
         return info
     if lab == 'studio-pack':
         return drive_studio(case, page, base, dest)
+    if lab == 'studio-node':
+        cmd = ['node', str(HERE / 'studio_pack_bundle.mjs'), '--target', case['target'], '--name', 'run', '--out', str(dest),
+               '--boxes', json.dumps(case['boxes']), '--files', *[str(C / f) for f in case['files']]]
+        p = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
+        if p.returncode:
+            raise RuntimeError(p.stderr[-400:])
+        return {'made': 'Studio modules in Node', 'summary': p.stdout[:300]}
     raise ValueError(lab)
 
 
@@ -317,6 +336,10 @@ def expectation(case, work: Path) -> dict:
         return {'font': {'chars': _cozette_glyphs(work / 'expected'), 'size': 13}}
     if lab == 'studio-pack':
         return studio_expectation(case, work)
+    if lab == 'studio-node':
+        e = X.sprite_frames(case['files'], work / 'expected')
+        e['sprite'].update(case.get('expect_extra') or {})
+        return e
     return {}
 
 

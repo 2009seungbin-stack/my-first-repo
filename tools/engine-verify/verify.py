@@ -107,6 +107,9 @@ def run_godot(folder: Path, item: dict, expect: dict, work: Path, godot: str) ->
         res.info['page_import'] = rep.get('pages')
         eng = godot_sprite_report(rep)
         res.check('load', bool(eng['animations']), 'a SpriteFrames .tres Godot loads, with animations', f'{len(eng["animations"])} animations')
+        for frame, want in ((expect.get('sprite') or {}).get('boxes') or {}).items():
+            got = [{k: b.get(k) for k in ('type', 'x', 'y', 'w', 'h')} for b in (((rep.get('meta_nerulio') or {}).get('frames') or {}).get(frame) or {}).get('boxes', [])]
+            res.check(f'meta.boxes[{frame}]', got == want, want, got, 'SpriteFrames metadata "nerulio", read back by Godot')
         judge.judge_sprite(res, eng, expect.get('sprite') or {})
     elif mode == 'spriteframes':
         res.check('helper.verify', not rep.get('helper_problems'), 'the shipped helper finds no mismatch', rep.get('helper_problems'))
@@ -242,6 +245,9 @@ def run_file(folder: Path, item: dict, engine: str, expect: dict, work: Path) ->
         rep = file_runners.open_aseprite(folder / item['file'], work / 'aseprite')
         res.info['version'] = rep.get('version')
         res.info['slices'] = rep.get('slices')
+        for name, want in ((expect.get('sprite') or {}).get('slices') or {}).items():
+            got = (rep.get('sliceKeys') or {}).get(name)
+            res.check(f'slice[{name}].keys', got == want, want, got, 'Aseprite keys: [frame, x, y, w, h] on the frame canvas (may lie outside it)')
     elif item['kind'] == 'gamemaker-strips':
         rep = file_runners.cut_strips(folder, item, work / 'gamemaker')
         res.info['note'] = 'strips cut as GameMaker names them (name_stripN.png); GameMaker itself is not run (UNVERIFIED in the engine)'

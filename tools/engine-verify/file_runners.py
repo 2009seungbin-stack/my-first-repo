@@ -99,4 +99,5 @@ def open_aseprite(path: Path, dest: Path) -> dict:
         anims[t['name']] = {'fps': None, 'loop': 'repeat' not in t, 'direction': t['direction'],
                             'frames': [{'name': frames[i]['name'], 'png': frames[i]['png'], 'durationMs': frames[i]['durationMs']} for i in idx]}
     return {'errors': [], 'frames': [{'name': f['name'], 'png': f['png']} for f in frames], 'animations': anims,
-            'slices': [s['name'] for s in d['meta'].get('slices', [])], 'version': aseprite_version()}
+            'slices': [s['name'] for s in d['meta'].get('slices', [])], 'version': aseprite_version(),
+            'sliceKeys': {s['name']: [[k['frame'], k['bounds']['x'], k['bounds']['y'], k['bounds']['w'], k['bounds']['h']] for k in s.get('keys', [])] for s in d['meta'].get('slices', [])}}

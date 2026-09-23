@@ -328,3 +328,19 @@ test('Pack strings: ko/en/ja have the same keys and placeholders',()=>{
   for(const k in en)assert.equal(other[k],en[k],`${l} ${k} placeholders`);}
  assert.ok(!JSON.stringify(PACK_STRINGS).match(/\bAI\b/),'no AI wording');
 });
+test('boxes that reach past the frame canvas (negative / oversize) survive every exporter unclamped',async()=>{
+ const out={id:'bx',type:'hit',shape:'rect',x:-5,y:-3,w:16,h:14};// the frame canvas is 10×8
+ const proj=()=>{const p=project();p.frames[0].boxes=[out];p.frames[1].boxes=[{...out,x:6,y:5}];return p;};
+ const build=async target=>{const {settings}=settingsFor(target,{...TARGETS[target].preset});const b=await buildBundle(target,proj(),packAtlas(FRAMES,{s:SRC},settings),{base:'hero'});
+  return Object.fromEntries(b.files.map(f=>[f.name,f.bytes]));};
+ const txt=b=>new TextDecoder().decode(b);
+ const aj=JSON.parse(txt((await build('aseprite-json'))['hero.json']));
+ const hit=aj.meta.slices.find(s=>s.name==='hit');
+ // sequence f0 f1 f2 f1 f0 f3: keys where the box changes, an empty key where it stops
+ assert.deepEqual(hit.keys.map(k=>[k.frame,k.bounds]),[[0,{x:-5,y:-3,w:16,h:14}],[1,{x:6,y:5,w:16,h:14}],[2,{x:0,y:0,w:0,h:0}],[3,{x:6,y:5,w:16,h:14}],[4,{x:-5,y:-3,w:16,h:14}],[5,{x:0,y:0,w:0,h:0}]]);
+ const g=JSON.parse(txt((await build('json'))['hero.nerulio.json']));assert.deepEqual(g.frames.cell_0.boxes[0],out);
+ const tres=txt((await build('godot4'))['hero.tres']);assert.match(tres,/"x": -5,\n"y": -3,\n"w": 16,\n"h": 14/);
+ const doc=readAseprite((await build('aseprite'))['hero.aseprite']),s=doc.slices.find(x=>x.name==='hit');
+ // the .aseprite canvas is the pivot-aligned cell, which for this project equals the 10×8 frame canvas
+ assert.deepEqual([s.keys[0].x,s.keys[0].y,s.keys[0].w,s.keys[0].h],[-5,-3,16,14]);
+});

@@ -49,6 +49,7 @@ if(opt.files.length){
   for(const [r,ids] of byRow)model.animations.push({id:`row${r}`,name:`row${r}`,frameIds:ids,fps:Number(opt.fps||10),direction:'forward',loop:true});}
 }else throw Error('--files or --sheet');
 if(opt.tags)for(const t of JSON.parse(opt.tags))model.animations.push({id:t.name,name:t.name,frameIds:t.frames.map(i=>model.frames[i].id),fps:t.fps||12,direction:t.direction||'forward',loop:t.loop!==false});
+if(opt.boxes)for(const b of JSON.parse(opt.boxes))model.frames[b.frame].boxes.push({id:b.id||`box${b.frame}`,type:b.type||'hit',shape:'rect',x:b.x,y:b.y,w:b.w,h:b.h});
 if(opt.durations){const d=JSON.parse(opt.durations);model.frames.forEach((f,i)=>{if(d[i]!=null)f.duration=d[i];});}
 if(!model.animations.length){const name=commonName(model.frames.map(f=>f.name));model.animations.push({id:'implicit',name,frameIds:model.frames.map(f=>f.id),fps:Number(opt.fps||12),direction:'forward',loop:true});model.implicitAnimation={name};}
 const base={...TARGETS[target].preset,...(opt.settings?JSON.parse(opt.settings):{})};

@@ -214,6 +214,8 @@ func _sprite_frames_tres() -> void:
 				pages.append({"name": tex.atlas.resource_path, "import": _import_settings(tex.atlas.resource_path)})
 	report["pages"] = pages
 	report["meta_keys"] = Array(frames.get_meta_list())
+	if frames.has_meta("nerulio"):
+		report["meta_nerulio"] = frames.get_meta("nerulio")
 	await _report_animations(frames)
 	var scale := int(job.get("scale", 4))
 	var names := frames.get_animation_names()
