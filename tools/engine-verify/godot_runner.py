@@ -108,4 +108,7 @@ NOT_GODOT = {
     'anim-gif': ('N/A', 'an animated preview file'),
     'apng': ('N/A', 'an animated preview file'),
     'aseprite-file': ('N/A', 'Godot 4 has no built-in .aseprite importer'),
+    'spine-atlas': ('N/A', 'Spine/libGDX atlas'),
+    'css-sprites': ('N/A', 'CSS sprites'),
+    'gamemaker-strips': ('N/A', 'GameMaker strips'),
 }

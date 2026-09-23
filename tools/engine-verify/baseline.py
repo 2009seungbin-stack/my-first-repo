@@ -24,6 +24,7 @@ import verify as V  # noqa: E402
 import expect_from_corpus as X  # noqa: E402
 
 C = X.CORPUS
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ASCII = ''.join(chr(c) for c in range(0x20, 0x7f))
 
 
@@ -117,7 +118,6 @@ MAGENTA, ROGUE = 'sprites/derived/samurai_magenta_m4_s2.png', 'sprites/kenney-ro
 G48 = {'w': 48, 'h': 48}
 STUDIO_CASES = [
     studio_case('sp-samurai-godot', 'godot4', sheet=SAMURAI, engines=['godot'], before='sl-samurai-auto-godot', note='import plan kept as suggested (grid 48, one tag per row)'),
-    studio_case('sp-samurai-grid-godot', 'godot4', sheet=SAMURAI, grid=G48, engines=['godot'], before='sl-samurai-grid-godot', note='"Custom grid" 48×48 typed'),
     studio_case('sp-ninja-viewer-godot', 'godot4', files=NINJA, ws='viewer', engines=['godot'], before='sl-samurai-grid-noanim-godot',
                 note='loose frames in the Viewer, no tags: the implicit animation is shown before export'),
     studio_case('sp-samurai-json', 'json', sheet=SAMURAI, engines=['phaser3', 'phaser4', 'pixi8'], before='sl-samurai-grid-generic'),

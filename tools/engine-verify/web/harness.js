@@ -136,10 +136,64 @@ async function pixi(p){
  out.canvas=app.renderer.extract.canvas({target:c,frame:new X.Rectangle(0,0,L.width,L.height)}).toDataURL('image/png');
 }
 
+// ------------------------------------------------------------------ Spine 4.2 (spine-canvas runtime)
+// The official spine-ts runtime parses the .atlas (TextureAtlas) and draws every region as a
+// RegionAttachment through its own SkeletonRenderer, which applies the atlas offsets and the
+// 90° rotation itself. A skeleton with one bone + slot per region is built from JSON, each slot
+// centred in its own layout slot, world y down (Skeleton.yDown, the runtime's switch for y-down
+// canvases). Unrotated, untrimmed regions coming out upright calibrate the set-up.
+async function spineRun(p){
+ const S=window.spine;out.version=(S.Skeleton&&'4.2 spine-canvas')||'';
+ const text=await (await fetch(p.files.data)).text();
+ const atlas=new S.TextureAtlas(text),base=p.files.data.replace(/[^/]*$/,'');
+ for(const page of atlas.pages){
+  const img=new Image();img.src=base+page.name;await img.decode();
+  page.setTexture(new S.CanvasTexture(img));
+ }
+ const regions=atlas.regions;out.loaded=regions.length>0;
+ const L=layout(regions.map(r=>[r.originalWidth,r.originalHeight]));
+ const json={skeleton:{spine:'4.2.00'},bones:[{name:'root'}],slots:[],skins:[{name:'default',attachments:{}}]};
+ regions.forEach((r,i)=>{const s=L.slots[i];
+  json.bones.push({name:'b'+i,parent:'root',x:s.x+r.originalWidth/2,y:s.y+r.originalHeight/2});
+  json.slots.push({name:'s'+i,bone:'b'+i,attachment:r.name});
+  json.skins[0].attachments['s'+i]={[r.name]:{width:r.originalWidth,height:r.originalHeight}};
+  out.frames.push({name:r.name,region:[r.x,r.y,r.width,r.height],sourceSize:[r.originalWidth,r.originalHeight],offset:[r.offsetX,r.offsetY],rotated:r.degrees===90,degrees:r.degrees});
+ });
+ S.Skeleton.yDown=true;
+ const data=new S.SkeletonJson(new S.AtlasAttachmentLoader(atlas)).readSkeletonData(json);
+ const sk=new S.Skeleton(data);sk.setToSetupPose();sk.updateWorldTransform(S.Physics?S.Physics.update:undefined);
+ const c=document.createElement('canvas');c.width=L.width;c.height=L.height;document.body.append(c);
+ const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;
+ const r=new S.SkeletonRenderer(ctx);r.triangleRendering=false;r.draw(sk);
+ out.slots=L.slots;out.canvas=c.toDataURL('image/png');
+}
+// ------------------------------------------------------------------ CSS sprites (the browser)
+// The exported stylesheet is linked as is; one element per `.sprite-<key>` rule is placed in its
+// own slot (the classes the exported HTML uses: base class + page class + frame class) and the
+// runner screenshots the page. Nothing here computes positions from the CSS itself.
+async function cssRun(p){
+ out.version=navigator.userAgent.match(/Chrome\/[\d.]+/)?.[0]||'browser';
+ const text=await (await fetch(p.files.data)).text();
+ const link=document.createElement('link');link.rel='stylesheet';link.href=p.files.data;
+ await new Promise((res,rej)=>{link.onload=res;link.onerror=()=>rej(Error('stylesheet did not load'));document.head.append(link);});
+ const base=(/^\.([\w-]+)\{display/m.exec(text)||[])[1]||'sprite';
+ const rules=[...text.matchAll(new RegExp(`^\\.(${base}-(?!page-)[\\w-]+)\\{width:(\\d+)px;height:(\\d+)px`,'gm'))].map(m=>({cls:m[1],w:+m[2],h:+m[3]}));
+ const html=p.files.html?await (await fetch(p.files.html)).text():'';
+ const pageOf=cls=>{const m=new RegExp(`class="${base} (${base}-page-\\d+) ${cls}"`).exec(html);return m?m[1]:`${base}-page-0`;};
+ const L=layout(rules.map(r=>[r.w,r.h]));
+ document.body.style.cssText=`margin:0;width:${L.width}px;height:${L.height}px;position:relative;background:transparent`;
+ rules.forEach((r,i)=>{const s=L.slots[i],el=document.createElement('i');el.className=`${base} ${pageOf(r.cls)} ${r.cls}`;
+  el.style.cssText=`position:absolute;left:${s.x}px;top:${s.y}px`;document.body.append(el);
+  out.frames.push({name:r.cls.slice(base.length+1),sourceSize:[r.w,r.h]});});
+ await Promise.all([...document.images].map(i=>i.decode?.()));
+ await new Promise(r=>setTimeout(r,300));
+ out.loaded=rules.length>0;out.slots=L.slots;out.screenshot={width:L.width,height:L.height};
+}
+
 (async()=>{
  try{
   const p=await plan();
-  if(ENGINE==='pixi8')await pixi(p);else await phaser(p);
+  if(ENGINE==='pixi8')await pixi(p);else if(ENGINE==='spine')await spineRun(p);else if(ENGINE==='css')await cssRun(p);else await phaser(p);
  }catch(e){out.errors.push(String(e&&e.stack||e));}
  done();
 })();

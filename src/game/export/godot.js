@@ -85,6 +85,11 @@ The PNG import defaults (Lossless, no mipmaps) are right for 2D and need no chan
 * Pivots, tags, hitboxes and collision polygons: \`sprite_frames.get_meta("nerulio")\`.
 * Godot 3.x cannot read this (no per-frame duration, different resource format).
 `;
- return {files:[{name:tres,text:out.join('\n'),type:'text/plain'},{name:`${base}${v.suffix}.tscn`,text:scene,type:'text/plain'},
+ // Import settings for each page, read by Godot's own importer (it fills in uid/dest itself):
+ // lossless, no mipmaps, and fix_alpha_border OFF — Godot's default recolours every pixel under
+ // alpha 20 with its nearest opaque neighbour (measured on the 4096² FX sheet: faint sparks
+ // (255,204,0,10) came back (255,255,230,10)), which is not the art that was packed.
+ const imports=names.map(n=>({name:`${n}.import`,type:'text/plain',text:`[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]\n\ncompress/mode=0\ncompress/high_quality=false\ncompress/lossy_quality=0.7\ncompress/hdr_compression=1\ncompress/normal_map=0\ncompress/channel_pack=0\nmipmaps/generate=false\nmipmaps/limit=-1\nroughness/mode=0\nroughness/src_normal=""\nprocess/fix_alpha_border=false\nprocess/premult_alpha=false\nprocess/normal_map_invert_y=false\nprocess/hdr_as_srgb=false\nprocess/hdr_clamp_exposure=false\nprocess/size_limit=0\ndetect_3d/compress_to=0\n`}));
+ return {files:[{name:tres,text:out.join('\n'),type:'text/plain'},{name:`${base}${v.suffix}.tscn`,text:scene,type:'text/plain'},...imports,
   {name:'README-GODOT.md',text:readme,type:'text/markdown'}],notes,images:names};
 }

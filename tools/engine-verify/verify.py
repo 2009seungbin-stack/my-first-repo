@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ev_common import Result, unpack, detect  # noqa: E402
 import godot_runner, web_runner, unity_runner, love_runner, defold_runner, file_runners, judge  # noqa: E402
 
-ALL = ['godot', 'phaser3', 'phaser4', 'pixi8', 'unity', 'love', 'defold', 'pillow', 'aseprite']
+ALL = ['godot', 'phaser3', 'phaser4', 'pixi8', 'unity', 'love', 'defold', 'pillow', 'aseprite', 'spine', 'css']
 
 
 def _resolve(expect: dict, base: Path) -> dict:
@@ -65,7 +65,9 @@ def godot_sprite_report(rep: dict) -> dict:
         filt = {0: 'inherit (project default: linear)', 1: 'nearest', 2: 'linear'}.get(sc.get('node_filter'), sc.get('node_filter'))
         scaled = {'png': str(out / sc['png']), 'scale': sc['scale'], 'base_png': anims[sc['animation']]['frames'][0]['png'],
                   'note': f'node texture_filter = {filt}; project default filter = {rep.get("project_filter")}'}
-    return {'frames': frames, 'animations': anims, 'scaled': scaled}
+    # SpriteFrames hands back textures, not frame names: frames are told apart by region+margin, so
+    # pixel-identical source frames (stored once) are one engine frame.
+    return {'frames': frames, 'animations': anims, 'scaled': scaled, 'sharedTextures': True}
 
 
 def run_godot(folder: Path, item: dict, expect: dict, work: Path, godot: str) -> Result:
@@ -253,7 +255,10 @@ def run_file(folder: Path, item: dict, engine: str, expect: dict, work: Path) ->
 
 
 def run_web(folder: Path, item: dict, engine: str, expect: dict, work: Path, port: int, browser) -> Result:
-    res = Result(engine, web_runner.loader_for(item, engine) or item['kind'], item.get('json') or item.get('xml') or item.get('fnt') or '')
+    res = Result(engine, web_runner.loader_for(item, engine) or item['kind'], item.get('json') or item.get('xml') or item.get('fnt') or item.get('atlas') or item.get('css') or '')
+    if engine in ('spine', 'css') and not web_runner.loader_for(item, engine):
+        res.na = f'{engine}: not a {engine} item ({item["kind"]})'
+        return res
     if item['kind'] in ('nerulio-tileset-godot', 'image', 'font-file', 'godot-spriteframes-tres', 'love-quads', 'defold-atlas', 'defold-tilesource',
                         'anim-gif', 'apng', 'aseprite-file'):
         res.na = f'{engine}: no standard loader for {item["kind"]}'

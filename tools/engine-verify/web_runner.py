@@ -17,6 +17,8 @@ LIBS = {
     'phaser3': WEB / 'node_modules' / 'phaser3' / 'dist' / 'phaser.min.js',
     'phaser4': WEB / 'node_modules' / 'phaser' / 'dist' / 'phaser.min.js',
     'pixi8': WEB / 'node_modules' / 'pixi.js' / 'dist' / 'pixi.min.js',
+    'spine': WEB / 'node_modules' / '@esotericsoftware' / 'spine-canvas' / 'dist' / 'iife' / 'spine-canvas.js',
+    'css': WEB / 'harness.html',  # no engine library: the browser itself draws the stylesheet
 }
 
 
@@ -53,6 +55,12 @@ def loader_for(item: dict, engine: str) -> str | None:
         # A user with a JSON file and a PNG reaches for the atlas loader; Nerulio's own envelopes are
         # tried the same way so the table shows what happens when they do.
         return 'atlas-json'
+    if kind == 'spine-atlas':
+        return 'spine' if engine == 'spine' else None
+    if kind == 'css-sprites':
+        return 'css' if engine == 'css' else None
+    if engine in ('spine', 'css'):
+        return None
     if kind == 'phaser-multiatlas':
         return 'multiatlas' if engine.startswith('phaser') else None  # Pixi links pages with meta.related_multi_packs instead
     if kind in ('aseprite-hash', 'aseprite-array'):
@@ -75,15 +83,19 @@ def run(folder: Path, item: dict, engine: str, work: Path, port: int, chars=None
     if site.exists():
         shutil.rmtree(site)
     (site / 'lib').mkdir(parents=True)
-    shutil.copy2(lib, site / 'lib' / 'engine.js')
+    if engine == 'css':
+        (site / 'lib' / 'engine.js').write_text('// the browser is the engine', encoding='utf-8')
+    else:
+        shutil.copy2(lib, site / 'lib' / 'engine.js')
     shutil.copy2(WEB / 'harness.html', site / 'harness.html')
     shutil.copy2(WEB / 'harness.js', site / 'harness.js')
     shutil.copytree(folder, site / 'b', dirs_exist_ok=True)
-    data = item.get('json') or item.get('xml') or item.get('fnt')
+    data = item.get('json') or item.get('xml') or item.get('fnt') or item.get('atlas') or item.get('css')
     # Image paths inside atlas data and .fnt files are relative to the data file's own folder.
     image = _bmfont_page(folder / item['fnt']) if loader == 'bmfont' else (item.get('images') or [None])[0]
     image = (Path(data).parent / image).as_posix() if data and image else image
-    plan = {'loader': loader, 'files': {'data': f'b/{data}', 'image': f'b/{image}' if image else None, 'imageName': Path(image).name if image else None},
+    plan = {'loader': loader, 'files': {'data': f'b/{data}', 'image': f'b/{image}' if image else None, 'imageName': Path(image).name if image else None,
+            'html': f'b/{item["html"]}' if item.get('html') else None},
             'chars': chars or []}
     if loader == 'multiatlas':
         plan['files']['path'] = 'b/' + (Path(data).parent.as_posix() + '/' if Path(data).parent.as_posix() != '.' else '')
@@ -113,6 +125,11 @@ def run(folder: Path, item: dict, engine: str, work: Path, port: int, chars=None
             page.goto(f'http://127.0.0.1:{port}/harness.html?engine={engine}')
             page.wait_for_function('()=>window.__result', timeout=120000)
             res = page.evaluate('()=>window.__result')
+            if res.get('screenshot'):
+                # CSS: what the browser painted, read back as a screenshot of the page
+                page.set_viewport_size({'width': res['screenshot']['width'], 'height': res['screenshot']['height']})
+                page.wait_for_timeout(200)
+                res['canvas'] = 'data:image/png;base64,' + base64.b64encode(page.screenshot(omit_background=True, full_page=True)).decode()
             page.close()
         res['console'] = [c for c in console if not c.startswith(('log:', 'info:', 'debug:'))][:20]
     finally:

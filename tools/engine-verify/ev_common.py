@@ -187,6 +187,12 @@ def detect(folder: Path) -> list[dict]:
                               'images': [(Path(rel(p)).parent / x).as_posix() if not x.startswith('res://') else x[6:] for x in pages]})
         elif suffix == '.lua' and p.read_text(encoding='utf-8', errors='replace').lstrip().startswith('-- ') and 'animations = {' in p.read_text(encoding='utf-8', errors='replace') and 'frames = {' in p.read_text(encoding='utf-8', errors='replace'):
             found.append({'kind': 'love-quads', 'lua': rel(p)})
+        elif suffix == '.atlas' and _spine_atlas(p):
+            found.append({'kind': 'spine-atlas', 'atlas': rel(p), 'images': _spine_atlas(p)})
+        elif suffix == '.css' and '.sprite-page-' in p.read_text(encoding='utf-8', errors='replace'):
+            html = p.with_suffix('.html')
+            found.append({'kind': 'css-sprites', 'css': rel(p), 'html': rel(html) if html.exists() else None,
+                          'images': __import__('re').findall(r'url\("([^"]+)"\)', p.read_text(encoding='utf-8'))})
         elif suffix in ('.atlas', '.tilesource') and ('images {' in p.read_text(encoding='utf-8', errors='replace') or 'tile_width:' in p.read_text(encoding='utf-8', errors='replace')):
             found.append({'kind': 'defold-' + suffix[1:], 'file': rel(p)})
     import re
@@ -208,6 +214,17 @@ def detect(folder: Path) -> list[dict]:
         if p.suffix.lower() == '.png' and p.name not in used:
             found.append({'kind': 'image', 'image': rel(p)})
     return found
+
+
+def _spine_atlas(p: Path):
+    """Page image names of a Spine/libGDX text atlas, or None: a page line is a file name followed by
+    `size:`; regions carry `bounds:` (Spine 4 / libGDX 1.10+) or `xy:` (older libGDX)."""
+    text = p.read_text(encoding='utf-8', errors='replace')
+    if 'images {' in text or not ('bounds:' in text or 'xy:' in text):
+        return None
+    lines = [l.strip() for l in text.splitlines()]
+    pages = [lines[i] for i in range(len(lines) - 1) if lines[i] and ':' not in lines[i] and lines[i + 1].startswith('size:')]
+    return pages or None
 
 
 # ---------------------------------------------------------------- pixels
