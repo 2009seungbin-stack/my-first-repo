@@ -94,9 +94,9 @@ export default {
   const timeline=createTimeline(W),panels=createPanels(W);
   ctx.minBottomHeight?.(186);
   ctx.panel({id:'sp-timeline',title:()=>t('sp.panel.timeline'),dock:'bottom',order:5,badge:()=>{const a=asset();return a?.frames.length?String(a.frames.length):'';},render(body){body.append(timeline.root);}});
-  ctx.panel({id:'sp-import',title:()=>t('sp.panel.import'),dock:'right',order:12,render(body){body.append(panels.imp);}});
-  ctx.panel({id:'sp-frame',title:()=>t('sp.panel.frame'),dock:'right',order:20,render(body){body.append(panels.fr);}});
-  ctx.panel({id:'sp-tag',title:()=>t('sp.panel.tag'),dock:'right',order:25,render(body){body.append(panels.tg);}});
+  ctx.panel({id:'sp-import',title:()=>t('sp.panel.import'),dock:'right',order:16,render(body){body.append(panels.imp);}});
+  ctx.panel({id:'sp-frame',title:()=>t('sp.panel.frame'),dock:'right',order:12,render(body){body.append(panels.fr);}});
+  ctx.panel({id:'sp-tag',title:()=>t('sp.panel.tag'),dock:'right',order:14,render(body){body.append(panels.tg);}});
   ctx.panel({id:'sp-align',title:()=>t('sp.panel.align'),dock:'right',order:40,render(body){body.append(panels.al);}});
   // canvas HUD: Frame / Sheet switch + what is showing
   const hudHost=view.root.parentElement;
@@ -108,14 +108,17 @@ export default {
    const pv=h('button.sp-hud-btn',{type:'button','aria-pressed':String(previewWin.open),'data-sp':'preview-toggle',title:t('sp.preview.title')+' (F7)','aria-label':t('sp.preview.title')},h('span',{html:SVG.preview}));pv.addEventListener('click',()=>ctx.runCommand('sprite.preview'));
    const ic=(icon,label,fn,id)=>{const b=h('button.sp-hud-btn',{type:'button',title:label,'aria-label':label,'data-sp':id},h('span',{html:SVG[icon]}));b.addEventListener('click',fn);return b;};
    const hasF=!!a?.frames.length;
+   // an unapplied sheet import: its Apply is on the canvas too (where the preview is being checked)
+   const pending=a?.import?.kind==='sheet'&&!a.import.applied&&importer.planFor(a.id);
+   if(pending){const b=h('button.sp-hud-btn.sp-hud-apply',{type:'button','data-sp':'hud-apply'},t('sp.imp.applyN',{n:pending.plan.rects.length}));b.addEventListener('click',()=>W.applyImport());hud.replaceChildren(mk('frame','frame',t('sp.hud.frame')),mk('sheet','sheet',t('sp.hud.sheet')),b);hud.hidden=false;return;}
    hud.replaceChildren(mk('frame','frame',t('sp.hud.frame')),mk('sheet','sheet',t('sp.hud.sheet')),
-    ...(hasF?[ic('prev',t('sp.tl.prev')+' (,)',()=>step(-1),'hud-prev'),ic(S.playing?'pause':'play',(S.playing?t('sp.tl.stop'):t('sp.tl.play'))+' (Enter)',()=>ctx.runCommand('sprite.play'),'hud-play'),ic('next',t('sp.tl.next')+' (.)',()=>step(1),'hud-next')]:[]),pv);
+    ...(hasF?[h('span.sp-hud-count',{'data-sp':'hud-count'},`${S.cur+1}/${a.frames.length}`),ic('prev',t('sp.tl.prev')+' (,)',()=>step(-1),'hud-prev'),ic(S.playing?'pause':'play',(S.playing?t('sp.tl.stop'):t('sp.tl.play'))+' (Enter)',()=>ctx.runCommand('sprite.play'),'hud-play'),ic('next',t('sp.tl.next')+' (.)',()=>step(1),'hud-next')]:[]),pv);
    hud.hidden=!a;
   }
   // ------------------------------------------------------------ importer
   const importer=createImporter(ctx,{onChange:id=>{if(!id||id===S.assetId)refreshImport();}});
   function refreshImport(){
-   panels.renderImport();syncPlanLayer();
+   panels.renderImport();syncPlanLayer();renderHud();
    const a=asset();
    if(a?.import?.kind==='sheet'&&!a.import.applied&&prefs.mode!=='sheet')setMode('sheet');
   }
@@ -167,7 +170,7 @@ export default {
   function status(){
    const a=asset(),f=frame();if(!a){ctx.status('selection','');return;}
    if(!f){ctx.status('selection',t('sp.status.noFrames'));return;}
-   const tg=playTag();
+   const tg=playTag(),cnt=hud.querySelector('[data-sp="hud-count"]');if(cnt)cnt.textContent=`${S.cur+1}/${a.frames.length}`;
    ctx.status('selection',t('sp.status.frame',{i:S.cur+1,n:a.frames.length,ms:f.duration??100,tag:tg?` · ${tg.name}`:'',sel:S.sel.length>1?` · ${t('sp.status.selected',{n:S.sel.length})}`:''}));
   }
   // ------------------------------------------------------------ presenting the canvas
@@ -191,7 +194,7 @@ export default {
      const tg=prefs.loopTag?playTag():null;
      for(const o of onionFrames(a,S.cur,{before:prefs.onion.before,after:prefs.onion.after,opacity:prefs.onion.opacity,tag:tg}).reverse()){
       const of=a.frames[o.index],dx=Math.round(f.pivotX*f.canvasWidth-of.pivotX*of.canvasWidth),dy=Math.round(f.pivotY*f.canvasHeight-of.pivotY*of.canvasHeight);
-      await drawFrame(x,images,a,of,{dx,dy,alpha:o.alpha,tint:o.side==='prev'?[255,70,70]:[70,140,255]});
+      await drawFrame(x,images,a,of,{dx,dy,alpha:o.alpha,tint:prefs.onion.tint===false?null:o.side==='prev'?[255,70,70]:[70,140,255]});
      }
     }
     await drawFrame(x,images,a,f);bmp=c.transferToImageBitmap();
@@ -204,9 +207,25 @@ export default {
    const old=prev?.bmp;
    await view.setImage(bmp,w,hgt,{view:v});
    S.shown={key,bmp};if(old&&old!==bmp)old.close?.();
+   keepFrameInView({strict:false});
    syncRegions();syncPlanLayer();renderHud();
   }
   S.views=new Map();
+  /** The frame must stay on screen when the canvas area changes (a phone's panel sheet opening or
+   * closing, a dock resize, rotation): centre it when it fits at this zoom, otherwise fit it. On a
+   * phone the whole frame is kept visible; on a desktop a deliberately zoomed-in view is left alone
+   * unless the frame went fully off-screen. */
+  function keepFrameInView({strict=root()?.dataset.mode==='compact'}={}){
+   if(!view.image||!view.W||!view.H)return;
+   const v=view.view,s=v.scale,w=view.image.w*s,hh=view.image.h*s,W0=view.W,H0=view.H;
+   const inside=v.x>=0&&v.y>=0&&v.x+w<=W0&&v.y+hh<=H0,visible=v.x<W0&&v.y<H0&&v.x+w>0&&v.y+hh>0;
+   if(inside||(!strict&&visible))return;
+   if(w<=W0&&hh<=H0)view.setView({scale:s,x:Math.round((W0-w)/2),y:Math.round((H0-hh)/2)},{clamp:false});else view.fit();
+  }
+  const root=()=>view.root.closest('.studio');
+  let roRaf=0,lastBox='';
+  const ro=new ResizeObserver(()=>{cancelAnimationFrame(roRaf);roRaf=requestAnimationFrame(()=>{const box=view.W+'x'+view.H;if(box===lastBox)return;lastBox=box;keepFrameInView();});});
+  ro.observe(view.stage);
   ctx.on('view',v=>{if(S.shown)S.views.set(S.shown.key,{...v});});
   function setMode(mode){
    if(prefs.mode===mode)return;
@@ -424,7 +443,7 @@ export default {
   }
   ctx.on('locale',()=>{timeline.render(true);panels.renderAll();renderHud();status();});
   // ------------------------------------------------------------ workspace hooks for the shell
-  S.assetId=null;renderHud();
+  S.assetId=null;renderHud();timeline.render(true);panels.renderAll();
   return {
    present:(a,opts)=>{if((a?.id||null)!==S.assetId)useAsset(a?.id||null);return present(opts);},
    importFiles:(files,opts)=>importer.importFiles(files,opts),
@@ -454,7 +473,7 @@ export default {
     exec(t('sp.cmd.handoff',{n:frames.length}),d=>D.setTags(D.replaceContent(d,a.id,{frames,importInfo:{kind:'sprite-lab',decisions:[{id:'lab',label:'lab',chosen:'handoff',confidence:'high',reasons:[`${frames.length} frames from Sprite Lab`],alternatives:[]}]}}),a.id,[...groups].map(([name,pos])=>({name,frameIds:pos.map(i=>frames[i].id)}))));
     ctx.toast(t('sp.toast.handoff',{n:frames.length}));setMode('frame');
    },
-   deactivate(){stop();offSelection();previewWin.destroy();hud.remove();folderInput.remove();}
+   deactivate(){stop();offSelection();ro.disconnect();cancelAnimationFrame(roRaf);previewWin.destroy();hud.remove();folderInput.remove();}
   };
  }
 };

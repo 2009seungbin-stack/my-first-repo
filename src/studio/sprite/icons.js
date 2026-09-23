@@ -8,6 +8,7 @@ export const SVG={
  play:svg('<path d="M5 3l8 5-8 5z" fill="currentColor"/>'),
  pause:svg('<path d="M5 3v10M11 3v10" stroke-width="2.4"/>'),
  loop:svg('<path d="M3 7a4 4 0 014-4h5l-2-2M13 9a4 4 0 01-4 4H4l2 2"/>'),
+ tint:svg('<circle cx="6" cy="8" r="4" fill="#ff4646" stroke="none" opacity=".8"/><circle cx="10" cy="8" r="4" fill="#468cff" stroke="none" opacity=".8"/>'),
  onion:svg('<circle cx="6" cy="8" r="4" opacity=".5"/><circle cx="10" cy="8" r="4"/>'),
  add:svg('<rect x="2.5" y="3" width="8" height="10" rx="1"/><path d="M13 5v6M10 8h6"/>'),
  blank:svg('<rect x="3" y="3" width="10" height="10" rx="1" stroke-dasharray="2 2"/>'),

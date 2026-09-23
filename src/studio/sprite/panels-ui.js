@@ -24,6 +24,35 @@ export function createPanels(W){
   if(dec.id==='timing')return t('sp.alt.ms',{ms:alt,fps:Math.round(1000/Number(alt))});
   const k='sp.alt.'+alt;const v=t(k);return v===k?alt:v;
  }
+ /** Reasons in the reader's language, rebuilt from the numbers the detectors measured (the
+  * detectors' own sentences are English); anything without numbers falls back to them. */
+ function reasonsOf(dec){
+  const pct=v=>Math.round((v||0)*100)+'%',out=[];
+  if(dec.id==='slice'&&dec.evidence){const e=dec.evidence,lines=(e.separatorLinesX||0)+(e.separatorLinesY||0);
+   if(dec.reranked)out.push(t('sp.why.reranked'));
+   out.push(lines?t('grid.reason.separator',{n:lines,pct:pct(Math.min(e.separatorRatioX??1,e.separatorRatioY??1))}):t('grid.reason.noSeparator'));
+   const g=W.importState()?.analysis?.grids?.find(x=>`${x.cellWidth}×${x.cellHeight}`===String(dec.value||'').split(' ')[0]);
+   if(g)out.push(t('grid.reason.period',{px:g.cellWidth+g.spacingX,py:g.cellHeight+g.spacingY,ax:(e.periodicityX||0).toFixed(2),ay:(e.periodicityY||0).toFixed(2)}));
+   out.push(t('grid.reason.bounds',{pct:pct(e.boundsConsistency)}));
+   out.push((e.crossingsX||0)+(e.crossingsY||0)?t('grid.reason.cross',{n:(e.crossingsX||0)+(e.crossingsY||0)}):t('grid.reason.noCross'));
+   if((e.splitColumns||0)+(e.splitRows||0))out.push(t('grid.reason.split'));
+   if(e.commonSize===false)out.push(t('grid.reason.uncommon'));
+   if(e.outsidePixels)out.push(t('grid.reason.outside',{n:e.outsidePixels}));
+   if(dec.cellCount)out.push(t('sp.why.cells',{filled:dec.cellCount.filled,all:dec.cellCount.all}));
+   return out;}
+  if(dec.id==='slice'&&dec.auto){const a=dec.auto;
+   out.push(a.code==='uniform'?t('sp.why.autoUniform',{pct:pct(a.consistency)}):a.code==='merged'?t('sp.why.autoMerged',{n:a.frames,pct:pct(a.consistency)}):t('sp.why.autoPlain',{n:a.frames}));
+   if(a.attached)out.push(t('sp.why.attached',{n:a.attached}));if(a.unassigned)out.push(t('sp.why.unassigned',{n:a.unassigned}));return out;}
+  if(dec.id==='key'&&dec.clearBorder)return [t('sp.why.keyClear')];
+  if(dec.id==='key'&&dec.evidence){const e=dec.evidence;
+   if(dec.byUser)out.push(t('sp.why.chosen'));
+   else if(dec.chosen==='none')out.push(e.alphaSheet?t('sp.why.keyNoneAlpha'):dec.confidence==='medium'?t('sp.why.keyNoneUnsure',{c:dec.hex}):t('sp.why.keyNoneWeak',{c:dec.hex}));
+   out.push(t('sp.why.keyBorder',{pct:pct(e.borderShare),c:dec.hex||dec.chosen}),t('sp.why.keySheet',{pct:pct(e.sheetShare)}));
+   if(e.fullLines)out.push(t('sp.why.keyLines',{n:e.fullLines}));if(e.conventional)out.push(t('sp.why.keyConventional'));if(e.alphaSheet)out.push(t('sp.why.keyAlpha'));return out;}
+  if(dec.id==='timing')return [t('sp.why.timing')];
+  if(dec.id==='animations'&&dec.rows)return [t('sp.why.rows',{n:dec.rows.length,counts:dec.rows.slice(0,12).join(', ')}),...(dec.varying?[t('sp.why.rowsVary')]:[])];
+  return dec.reasons||[];
+ }
  const decName=dec=>dec.kind==='box-slice'||dec.kind==='pivot-slice'||dec.kind==='nine-slice'?t('sp.dec.aseSlice'):t('sp.dec.'+dec.label);
  function chosenLabel(dec){
   if(dec.id==='slice')return dec.chosen==='auto'?t('sp.alt.auto')+(dec.value?` · ${dec.value}`:''):dec.chosen==='custom'?t('sp.alt.custom')+(dec.value?` · ${dec.value}`:''):`${t('sp.imp.grid')} ${dec.value||''}`;
@@ -40,6 +69,9 @@ export function createPanels(W){
   if(info?.kind==='sheet'&&!info.applied){
    const busy=!state?.analysis;
    kids.push(h('p.sp-imp-lead',{},busy?t('sp.imp.analyzing'):t('sp.imp.previewLead')));
+   // the primary action first: nothing to scroll for
+   const plan=state?.plan;
+   kids.push(h('div.st-row.sp-apply-row',{},button(t('sp.imp.apply'),()=>W.applyImport(),{primary:true,id:'import-apply',disabled:!plan}),plan?h('span.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})):''));
   }
   const decisions=(info?.kind==='sheet'&&state?.plan?state.plan.decisions:info?.decisions)||[];
   if(!info)kids.push(h('p.st-muted.st-pad',{},t('sp.imp.none')));
@@ -49,7 +81,7 @@ export function createPanels(W){
    kids.push(h('div.sp-dec',{'data-dec':dec.id},
     h('div.sp-dec-head',{},h('span.sp-dec-what',{},decName(dec)),conf),
     h('div.sp-dec-chosen',{},dec.id==='key'&&dec.chosen!=='none'?h('span.sp-swatch',{style:`background:${dec.chosen}`}):'',chosenLabel(dec)),
-    dec.reasons?.length?h('details.st-why',{},h('summary',{},t('sp.imp.why')),h('ul',{},dec.reasons.map(r=>h('li',{},r)))):'',
+    (()=>{const rs=reasonsOf(dec);return rs.length?h('details.st-why',{},h('summary',{},t('sp.imp.why')),h('ul',{},rs.map(r=>h('li',{},r)))):'';})(),
     alts.length?h('div.sp-alts',{},h('span.st-muted',{},t('sp.imp.instead')),alts):''));
   }
   if(info?.kind==='sheet'){
@@ -59,10 +91,12 @@ export function createPanels(W){
     const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({...g,[k]:Math.max(k==='w'||k==='h'?1:0,Math.round(v))})});
     kids.push(h('div.st-grid-fields.sp-custom-grid',{},...['w','h','ox','oy','sx','sy'].map(k=>field(t('sp.imp.'+k),f(k)))));
    }
-   if(plan)kids.push(h('p.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})));
-   if(state?.analysis?.auto?.unassigned&&plan?.decisions.find(d=>d.id==='slice')?.chosen==='auto')kids.push(h('p.st-muted',{},t('sp.imp.unassigned',{n:state.analysis.auto.unassigned})));
-   kids.push(h('div.st-row',{},button(info.applied?t('sp.imp.reapply'):t('sp.imp.apply'),()=>W.applyImport(),{primary:!info.applied,id:'import-apply',disabled:!plan})));
-   if(info.applied)kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.applied',{frames:a.frames.length,tags:a.tags.length})));
+   if(state?.analysis?.auto?.unassigned&&plan?.decisions.find(d=>d.id==='slice')?.chosen==='auto')kids.push(h('p.st-muted.st-pad',{},t('sp.imp.unassigned',{n:state.analysis.auto.unassigned})));
+   if(info.applied){
+    if(plan)kids.push(h('p.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})));
+    kids.push(h('div.st-row',{},button(t('sp.imp.reapply'),()=>W.applyImport(),{id:'import-apply',disabled:!plan})));
+    kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.applied',{frames:a.frames.length,tags:a.tags.length})));
+   }
   }else if(info)kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.summary',{frames:a.frames.length,tags:a.tags.length,layers:a.layers.length})));
   imp.replaceChildren(...kids);
  }
@@ -92,7 +126,11 @@ export function createPanels(W){
    const geo=b.shape==='rect'?`${b.x},${b.y} ${b.w}×${b.h}`:b.shape==='circle'?`○ ${b.cx},${b.cy} r${b.r}`:`⬠ ${b.points.length}`;
    const del=h('button.st-icon-btn',{type:'button',title:t('sp.box.delete'),'aria-label':t('sp.box.delete')},'×');
    del.addEventListener('click',e=>{e.stopPropagation();W.removeBox(b.id);});
-   const row=h('div.sp-box'+(b.id===selId?'.is-sel':''),{role:'option','aria-selected':String(b.id===selId),'data-box':b.id,tabindex:'-1'},h('span.sp-swatch',{style:`background:${D.boxColor(b.type)}`}),h('b',{},b.type),h('span.st-muted',{},geo),del);
+   // a box may reach past the frame canvas (a sword's reach); it is kept as drawn — Aseprite slices
+   // and engine collision shapes carry such offsets — but it is marked so it is never a surprise
+   const out=D.boxOutside(b,f.canvasWidth,f.canvasHeight);
+   const row=h('div.sp-box'+(b.id===selId?'.is-sel':''),{role:'option','aria-selected':String(b.id===selId),'data-box':b.id,tabindex:'-1'},h('span.sp-swatch',{style:`background:${D.boxColor(b.type)}`}),h('b',{},b.type),h('span.st-muted',{},geo),
+    out?h('span.sp-box-out',{title:t('sp.box.outsideHint'),'data-sp':'box-outside'},t('sp.box.outside')):'',del);
    row.addEventListener('click',()=>W.setSelection({kind:'box',id:b.id}));list.append(row);
   }
   if(!f.boxes.length)list.append(h('p.st-muted',{},t('sp.box.none')));

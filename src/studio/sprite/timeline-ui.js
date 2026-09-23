@@ -26,7 +26,9 @@ export function createTimeline(W){
   const onionBox=h('span.sp-tl-onion',{},
    btn('onion',t('sp.tl.onion')+' (F3)',()=>W.run('sprite.onion'),{id:'onion',pressed:on.on}),
    num(t('sp.tl.onionPrev'),on.before,0,8,v=>W.setPref('onion',{...W.prefs.onion,before:v}),'onion-prev'),
-   num(t('sp.tl.onionNext'),on.after,0,8,v=>W.setPref('onion',{...W.prefs.onion,after:v}),'onion-next'));
+   num(t('sp.tl.onionNext'),on.after,0,8,v=>W.setPref('onion',{...W.prefs.onion,after:v}),'onion-next'),
+   num(t('sp.tl.onionOpacity'),Math.round((on.opacity??.45)*100),5,100,v=>W.setPref('onion',{...W.prefs.onion,opacity:v/100}),'onion-opacity'),
+   btn('tint',t('sp.tl.onionTint'),()=>W.setPref('onion',{...W.prefs.onion,tint:on.tint===false}),{id:'onion-tint',pressed:on.tint!==false}));
   bar.replaceChildren(
    btn('first',t('sp.tl.first')+' (Home)',()=>W.run('sprite.first')),
    btn('prev',t('sp.tl.prev')+' (,)',()=>W.step(-1)),

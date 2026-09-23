@@ -14,6 +14,8 @@ import {asepriteContent} from './aseprite-bridge.js';
 import {opaqueBounds,cropRGBA} from './frame-image.js';
 import {rerankGrids} from './grid-rerank.js';
 let cache={key:'',img:null};
+const EVIDENCE=['separatorLinesX','separatorLinesY','separatorRatioX','separatorRatioY','periodicityX','periodicityY','boundsConsistency','crossingsX','crossingsY','splitColumns','splitRows','commonSize','outsidePixels','filledCells'];
+const pickEvidence=e=>Object.fromEntries(EVIDENCE.filter(k=>k in e).map(k=>[k,e[k]]));
 async function pixels(key,blob){
  if(cache.key===key&&cache.img)return cache.img;
  const img=await decodePNG(new Uint8Array(await blob.arrayBuffer()),{maxPixels:268e6});
@@ -40,20 +42,20 @@ async function celFrom(rgba,width,height){
 async function analyze({key,blob,keyMode='auto',keyColor=null,tolerance=0,signal}){
  const t0=performance.now(),orig=await pixels(key,blob);
  let info=null,img=orig,keyed=null;
- if(keyMode!=='none'){
+ {// the key is always measured (so "No key colour" can say how sure it is and offer the key back)
   info=keyColor?{color:keyColor,tolerance,confidence:'high',score:1,apply:true,reasons:['chosen by you'],evidence:{}}:detectColorKey(orig);
-  const use=info&&(keyMode==='force'||keyColor||info.apply);
+  const use=info&&keyMode!=='none'&&(keyMode==='force'||keyColor||info.apply);
   if(use){img=applyColorKey(orig,info.color,{tolerance:info.tolerance});keyed=await toPNG(img);}
-  if(info)info={color:info.color,hex:hex(info.color),tolerance:info.tolerance,confidence:info.confidence,score:info.score,reasons:info.reasons,applied:!!use};
+  if(info)info={mode:keyMode,evidence:info.evidence?{borderShare:info.evidence.borderShare,sheetShare:info.evidence.sheetShare,fullLines:info.evidence.fullLines,alphaSheet:info.evidence.alphaSheet,conventional:info.evidence.conventional}:null,color:info.color,hex:hex(info.color),tolerance:info.tolerance,confidence:info.confidence,score:info.score,reasons:info.reasons,applied:!!use};
  }
  const grid=detectGridWithColour(img,{limit:5});
  const grids=rerankGrids(grid.suggestions,{width:img.width,height:img.height}).map(s=>({engineRank:s.engineRank,fitted:!!s.fitted,cellWidth:s.cellWidth,cellHeight:s.cellHeight,marginX:s.marginX,marginY:s.marginY,spacingX:s.spacingX,spacingY:s.spacingY,columns:s.columns,rows:s.rows,cells:s.cells,score:s.score,confidence:s.confidence,source:s.source||'alpha',
-  reasons:s.reasons||[],filled:s.evidence?.filledCells}));
+  reasons:s.reasons||[],filled:s.evidence?.filledCells,evidence:s.evidence&&!s.source?.startsWith?.('colour')?pickEvidence(s.evidence):null,reranked:s.reasons?.[0]?.startsWith('ranked above')||!!s.fitted}));
  const cells={};grids.forEach((g,i)=>{const o=occupancy(img,g);if(o)cells[i]=o;});
  let auto=null;
  try{
   const found=detectFrames(img,{minArea:Math.min(16,img.width*img.height),distance:'auto'});
-  auto={rects:found.rects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,row:r.row})),reason:found.auto?.reason||'',reasonCode:found.auto?.reasonCode||'',distance:found.distance,
+  auto={rects:found.rects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,row:r.row})),reason:found.auto?.reason||'',reasonCode:found.auto?.reasonCode||'',consistency:found.auto?.consistency??null,distance:found.distance,
    attached:found.attached.length,unassigned:found.unassigned.length,unassignedRects:found.unassigned.slice(0,2000).map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}))};
  }catch(e){auto={rects:[],reason:String(e.message||e),reasonCode:'error',attached:0,unassigned:0,unassignedRects:[]};}
  const hint=grid.suggestions[0]&&auto.rects.length?autoVersusGrid(auto.rects,grid.suggestions[0]):null;
