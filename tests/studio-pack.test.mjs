@@ -131,6 +131,14 @@ test('pages hold exactly the stored pixels, rotated 90° clockwise where rotated
  const pl=r.variants[0].pages[0].placements[0],img=renderPage(r.variants[0].pages[0],r.variants[0].sprites);
  assert.equal(pl.rotated,true);assert.deepEqual([...img.data.subarray(((pl.y)*img.width+pl.x+39)*4,((pl.y)*img.width+pl.x+39)*4+4)],[0,0,7,255]);
 });
+test('Spine pages store rotated regions counter-clockwise and read back exactly',()=>{
+ const tall=sheet(3,40,(x,y)=>[x*50,y*6,7,255]);
+ const r=packAtlas([{id:'t',src:'a',rect:{x:0,y:0,w:3,h:40},canvasW:3,canvasH:40,offX:0,offY:0}],{a:tall},{allowRotation:true,trimMode:'none',maxWidth:64,maxHeight:8,shapePadding:0});
+ const v=r.variants[0],pl=v.pages[0].placements[0],img=renderPage(v.pages[0],v.sprites,{rotation:'ccw'});
+ assert.equal(pl.rotated,true);
+ assert.deepEqual(readSprite(img,pl,3,40,{rotation:'ccw'}),v.sprites.get('t').data);
+ assert.deepEqual([...img.data.subarray(((pl.y+2)*img.width+pl.x)*4,((pl.y+2)*img.width+pl.x)*4+4)],[0,0,7,255],'top-left pixel lands bottom-left');
+});
 test('scale variants are nearest-neighbour (@2x = every pixel doubled) and named @2x',()=>{
  const r=packAtlas(FRAMES.slice(0,2),{s:SRC},{scales:[1,2,0.5],trimMode:'none'});
  assert.deepEqual(r.variants.map(v=>v.suffix),['','@2x','@0.5x']);

@@ -86,7 +86,7 @@ def judge_sprite(res: Result, eng: dict, exp: dict) -> None:
                   f'unmatched: {missing[:8]}' if missing else '')
         if exp.get('order', True):
             in_order = all(i == k for k, i in enumerate(m)) if not shared else \
-                all(i is not None for i in m) and all(a <= b for a, b in zip(m, m[1:]))
+                all(i is not None for i in m) and [i for k, i in enumerate(m) if i not in m[:k]] == sorted(set(m))  # first uses in order
             res.check('frames.order', in_order, 'engine order == source order', 'same' if in_order else f'{m[:12]}...')
         if exp.get('placement', True):
             bad, quirk = [], 0

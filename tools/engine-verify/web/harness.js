@@ -154,7 +154,8 @@ async function spineRun(p){
  const L=layout(regions.map(r=>[r.originalWidth,r.originalHeight]));
  const json={skeleton:{spine:'4.2.00'},bones:[{name:'root'}],slots:[],skins:[{name:'default',attachments:{}}]};
  regions.forEach((r,i)=>{const s=L.slots[i];
-  json.bones.push({name:'b'+i,parent:'root',x:s.x+r.originalWidth/2,y:s.y+r.originalHeight/2});
+  // Skeleton space is y up; with Skeleton.yDown the runtime flips it onto the y-down canvas
+  json.bones.push({name:'b'+i,parent:'root',x:s.x+r.originalWidth/2,y:-(s.y+r.originalHeight/2)});
   json.slots.push({name:'s'+i,bone:'b'+i,attachment:r.name});
   json.skins[0].attachments['s'+i]={[r.name]:{width:r.originalWidth,height:r.originalHeight}};
   out.frames.push({name:r.name,region:[r.x,r.y,r.width,r.height],sourceSize:[r.originalWidth,r.originalHeight],offset:[r.offsetX,r.offsetY],rotated:r.degrees===90,degrees:r.degrees});

@@ -167,29 +167,38 @@ Frame \`ox, oy\` restore trimmed frames; \`px, py\` is the pivot (the draw posit
 }
 
 // ------------------------------------------------------------------ Spine / libGDX
-/** The libGDX/Spine 4 text atlas. `offsets` are libGDX's: x from the left, y from the BOTTOM of the
- * original frame. Rotated regions are written `rotate: 90` (stored 90° clockwise, the same pixels
- * Phaser/Pixi read). UNVERIFIED: no Spine or libGDX runtime runs in tools/engine-verify yet. */
+/** The libGDX/Spine 4 text atlas. `bounds` w,h are the UNROTATED size; `offsets` are libGDX's: x
+ * from the left, y from the BOTTOM of the original frame. Rotated regions are written `rotate:90`
+ * and stored turned 90° COUNTER-clockwise on the page (the opposite of TexturePacker JSON): the
+ * Spine runtime turns them back clockwise. Loaded and drawn by the official Spine runtime
+ * (spine-canvas 4.2) in tools/engine-verify, rotated and trimmed regions included. libGDX reads the
+ * same format but no libGDX (Java) runtime runs there. */
 export function spineFiles(model,variant,{base=stemOf(model.name),filter='Nearest',pma=false}={}){
  const keys=frameKeys(model),rows=frameRows(model,variant,{base,keys}),names=pageNames(base,variant),out=[];
  names.forEach((image,i)=>{
   if(i)out.push('');
   out.push(image,`size:${variant.pages[i].width},${variant.pages[i].height}`,`filter:${filter},${filter}`,`pma:${pma?'true':'false'}`);
   for(const r of rows.filter(q=>q.page===i)){
-   out.push(r.key,`bounds:${r.x},${r.y},${r.region.w},${r.region.h}`);
+   // bounds w,h are the UNROTATED size (spine-ts: a 90° region covers h×w on the page)
+   out.push(r.key,`bounds:${r.x},${r.y},${r.w},${r.h}`);
    if(r.trimmed)out.push(`offsets:${r.ox},${r.sourceH-r.oy-r.h},${r.sourceW},${r.sourceH}`);
    if(r.rotated)out.push('rotate:90');
   }
  });
  return {files:[{name:`${base}${variant.suffix}.atlas`,text:out.join('\n')+'\n',type:'text/plain'},
-  {name:'README-SPINE-LIBGDX.md',type:'text/markdown',text:`# Spine / libGDX texture atlas — UNVERIFIED
+  {name:'README-SPINE-LIBGDX.md',type:'text/markdown',text:`# Spine / libGDX texture atlas
 
 The Spine 4 / libGDX (1.10+) text atlas format: page lines (\`size\`, \`filter\`, \`pma\`), then one
-entry per region with \`bounds\`, \`offsets\` (x from the left, y from the bottom of the original
-frame, original width and height) and \`rotate:90\` for rotated regions. No Spine or libGDX runtime
-has loaded this file in Nerulio's verification harness yet; check one frame before relying on it.
-libGDX: \`new TextureAtlas(Gdx.files.internal("${base}${variant.suffix}.atlas"))\`.
-`}],notes:['Spine/libGDX atlas: UNVERIFIED in a runtime.'],images:names};
+entry per region with \`bounds\` (x, y and the unrotated width, height), \`offsets\` (x from the
+left, y from the bottom of the original frame, original width and height) and \`rotate:90\` for
+rotated regions (stored turned counter-clockwise, as the Spine runtime expects).
+
+* Spine: loaded and drawn by the official Spine runtime (spine-canvas 4.2) in Nerulio's engine
+  verification, rotated and trimmed regions included. Use it as the atlas of a skeleton whose
+  attachment names are these region names.
+* libGDX: \`new TextureAtlas(Gdx.files.internal("${base}${variant.suffix}.atlas"))\` reads the same
+  format; libGDX itself was not run in the verification (UNVERIFIED there).
+`}],notes:[],images:names};
 }
 
 // ------------------------------------------------------------------ Starling / Sparrow XML

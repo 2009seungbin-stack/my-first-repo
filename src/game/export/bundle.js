@@ -35,8 +35,9 @@ export async function buildBundle(target,model,packed,{base=stemOf(model.name),a
  const t=TARGETS[target];if(!t)throw Error(`Unknown export target ${target}`);
  const pub=publicResult(packed),files=[],notes=[],add=(name,data)=>files.push({name,bytes:typeof data==='string'?enc.encode(data):data});
  const pngCache=new Map();
- const pagePng=async(vi,page)=>{const k=`${vi}:${page}`;if(!pngCache.has(k)){onProgress({phase:'png',variant:vi,page});
-  pngCache.set(k,await encodePNG(renderPage(packed.variants[vi].pages[page],packed.variants[vi].sprites,{extrude:packed.settings.extrude,premultiply:packed.settings.premultiply})));}return pngCache.get(k);};
+ const rotation=t.rotation||'cw';
+ const pagePng=async(vi,page)=>{const k=`${vi}:${page}:${rotation}`;if(!pngCache.has(k)){onProgress({phase:'png',variant:vi,page});
+  pngCache.set(k,await encodePNG(renderPage(packed.variants[vi].pages[page],packed.variants[vi].sprites,{extrude:packed.settings.extrude,premultiply:packed.settings.premultiply,rotation})));}return pngCache.get(k);};
  const withPixels=vi=>({...pub.variants[vi],sprites:packed.variants[vi].sprites});
  if(t.anim){
   if(t.anim==='webm')throw Error('WebM is encoded in the page (WebCodecs); use buildWebM from webm.js.');

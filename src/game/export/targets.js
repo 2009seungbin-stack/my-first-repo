@@ -2,7 +2,8 @@
  * engine needs (`requires`, enforced at export) and the defaults its preset applies (`preset`), and
  * how it was verified. The status strings are claims the docs back with a run
  * (docs/STUDIO-PACK.md): 'verified' means loaded AND drawn by that engine in tools/engine-verify
- * on real corpus assets; 'parsed' means built/parsed by the real tool without drawing; 'unverified'
+ * on real corpus assets; 'parsed' means built by the real tool and its output read back;
+ * 'decoded' means a decoder (Pillow, ffmpeg) read the file back; 'unverified'
  * means no engine run exists here and the UI says so. */
 import {godotFiles} from './godot.js';
 import {unityFiles} from './unity.js';
@@ -30,13 +31,13 @@ export const TARGETS=Object.freeze({
  'aseprite-json-array':{group:'data',label:'Aseprite JSON (array)',verify:'verified',engine:'Phaser 3.90 + 4.2, PixiJS 8.21',build:(m,v,o)=>asepriteJsonFiles(m,v,{...o,layout:'array'}),
   requires:{allowRotation:false,multipack:false},preset:{allowRotation:false,multipack:false,trimMode:'trim'}},
  aseprite:{group:'data',label:'.aseprite file',verify:'verified',engine:'Aseprite 1.3 CLI',aseprite:true,requires:{},preset:{}},
- spine:{group:'data',label:'Spine / libGDX atlas',verify:'unverified',engine:'—',build:spineFiles,
-  requires:{},preset:{allowRotation:false,trimMode:'trim',shapePadding:2}},
+ spine:{group:'data',label:'Spine / libGDX atlas',verify:'verified',engine:'spine-canvas 4.2 (Spine runtime)',build:spineFiles,rotation:'ccw',
+  requires:{},preset:{allowRotation:true,trimMode:'trim',shapePadding:2}},
  starling:{group:'data',label:'Starling / Sparrow XML',verify:'verified',engine:'Phaser 4.2 (Phaser 3 needs trim off)',build:starlingFiles,
   requires:{allowRotation:false},preset:{allowRotation:false,trimMode:'trim',shapePadding:2}},
  'sparrow-phaser3':{group:'data',label:'Sparrow XML (Phaser 3)',verify:'verified',engine:'Phaser 3.90 + 4.2',build:starlingFiles,
   requires:{allowRotation:false,trimMode:'none'},preset:{allowRotation:false,trimMode:'none',shapePadding:2}},
- css:{group:'data',label:'CSS sprites',verify:'unverified',engine:'browsers',build:cssFiles,
+ css:{group:'data',label:'CSS sprites',verify:'verified',engine:'Chromium',build:cssFiles,
   requires:{allowRotation:false},preset:{allowRotation:false,trimMode:'none',shapePadding:2}},
  json:{group:'data',label:'Generic JSON',verify:'verified',engine:'Phaser 3.90 + 4.2, PixiJS 8.21 (as a TexturePacker hash)',build:(m,v,o)=>genericJson(m,v,o),
   requires:{},preset:{}},

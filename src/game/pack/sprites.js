@@ -105,15 +105,17 @@ export function prepareSprites(frames,sources,settings={},{scale=1}={}){
  return out;
 }
 /** Writes every placed sprite of one page, rotated 90° clockwise where the layout says so
- * (TexturePacker/Phaser/Pixi convention), then the extrude belt of copied edge pixels. */
-export function renderPage(page,spriteById,{extrude=0,premultiply=false}={}){
+ * (TexturePacker/Phaser/Pixi convention; `rotation:'ccw'` for Spine/libGDX, whose runtimes turn a
+ * rotated region back clockwise — measured with spine-canvas 4.2), then the extrude belt. */
+export function renderPage(page,spriteById,{extrude=0,premultiply=false,rotation='cw'}={}){
+ const ccw=rotation==='ccw';
  const W=page.width,H=page.height,out=new Uint8Array(W*H*4);
  for(const pl of page.placements){
   const sp=spriteById.get(pl.id);if(!sp)throw Error(`Missing pixels for ${pl.id}`);
   const rw=pl.rotated?sp.h:sp.w,rh=pl.rotated?sp.w:sp.h;
   if(pl.x<0||pl.y<0||pl.x+rw>W||pl.y+rh>H)throw Error(`${pl.id} is placed outside its page`);
   for(let y=0;y<sp.h;y++)for(let x=0;x<sp.w;x++){
-   const from=(y*sp.w+x)*4,dx=pl.rotated?pl.x+sp.h-1-y:pl.x+x,dy=pl.rotated?pl.y+x:pl.y+y,to=(dy*W+dx)*4;
+   const from=(y*sp.w+x)*4,dx=pl.rotated?(ccw?pl.x+y:pl.x+sp.h-1-y):pl.x+x,dy=pl.rotated?(ccw?pl.y+sp.w-1-x:pl.y+x):pl.y+y,to=(dy*W+dx)*4;
    out[to]=sp.data[from];out[to+1]=sp.data[from+1];out[to+2]=sp.data[from+2];out[to+3]=sp.data[from+3];
   }
   if(extrude>0){
@@ -133,10 +135,11 @@ export function renderPage(page,spriteById,{extrude=0,premultiply=false}={}){
 }
 /** A sprite's pixels read back out of a drawn page (rotation undone): the test that the data file
  * describes the image. */
-export function readSprite(pageImg,pl,w,h){
+export function readSprite(pageImg,pl,w,h,{rotation='cw'}={}){
+ const ccw=rotation==='ccw';
  const out=new Uint8Array(w*h*4),W=pageImg.width;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-  const sx=pl.rotated?pl.x+h-1-y:pl.x+x,sy=pl.rotated?pl.y+x:pl.y+y,from=(sy*W+sx)*4,to=(y*w+x)*4;
+  const sx=pl.rotated?(ccw?pl.x+y:pl.x+h-1-y):pl.x+x,sy=pl.rotated?(ccw?pl.y+w-1-x:pl.y+x):pl.y+y,from=(sy*W+sx)*4,to=(y*w+x)*4;
   out[to]=pageImg.data[from];out[to+1]=pageImg.data[from+1];out[to+2]=pageImg.data[from+2];out[to+3]=pageImg.data[from+3];
  }
  return out;
