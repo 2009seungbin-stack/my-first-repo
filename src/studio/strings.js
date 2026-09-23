@@ -2,6 +2,7 @@
  * English fallback. tests/studio.test.mjs checks that all three languages have the same keys
  * and placeholders. Heuristics are never called "AI"; guesses always say how sure they are. */
 const bgs=(a)=>({checker:a[0],light:a[1],black:a[2],white:a[3],magenta:a[4],gray:a[5]});
+import {SPRITE_STRINGS} from './sprite/strings.js';
 const S={
 en:{
  app:{title:'Studio',description:'Nerulio Studio: a full-screen editor for 2D game assets in your browser. Nothing is uploaded.',loading:'Loading Studio…',noscript:'Nerulio Studio needs JavaScript. Your files never leave this device.'},
@@ -27,14 +28,14 @@ en:{
  menu:{bar:'Main menu',more:'Menu',file:'File',edit:'Edit',view:'View',zoomLevels:'Zoom level',background:'Background',wheel:'Mouse wheel',theme:'Theme',workspace:'Workspace',help:'Help',language:'Language',frames:'Frames'},
  ws:{viewer:'Viewer',viewerSummary:'import, view, cut frames',sprite:'Sprite',spriteSummary:'timeline, tags, pivots and hitboxes, pack and engine export',pixel:'Pixel',pixelSummary:'pencil, palette and cleanup tools',tile:'Tile',tileSummary:'tilesets, autotile rules and a map painter',texture:'Texture',textureSummary:'normal maps, channels and light preview',ui:'UI',uiSummary:'9-slice, button states and bitmap fonts',coming:'{name} workspace is coming in {phase}: {what}.',comingShort:'coming ({phase})'},
  panel:{assets:'Assets',history:'History',grid:'Grid',frame:'Frame',frames:'Frames',toBottom:'Move to bottom panel',toRight:'Move to right panels',up:'Move up',down:'Move down',expand:'Expand',collapse:'Collapse',resetLayout:'Reset layout',hideBottom:'Hide bottom panel',showBottom:'Show bottom panel',options:'{name} panel options',all:'Panels'},
- assets:{empty:'No images yet. Drop PNG, JPG, WebP or GIF files anywhere.',remove:'Remove {name}',frames:'{n} frames'},
+ assets:{empty:'No images yet. Drop PNG, JPG, WebP, GIF, APNG or .aseprite files anywhere.',remove:'Remove {name}',frames:'{n} frames'},
  history:{start:'Opened project'},
  group:{file:'File',edit:'Edit',view:'View',tools:'Tools',frames:'Frames',navigate:'Navigate',app:'Studio',help:'Help',workspace:'Workspace',other:'Other',pointer:'Mouse, pen and touch'},
  keys:{title:'Keyboard shortcuts',wheel:'Zoom at the cursor (mouse wheel)',wheelKey:'Wheel',ctrlWheel:'Zoom at the cursor (any wheel or trackpad)',spaceDrag:'Pan',drag:'drag',middleDrag:'Pan',middle:'Middle-button drag',pinch:'Zoom and pan (touch, trackpad)',pinchKey:'Two-finger pinch / scroll',shiftClick:'Add or remove from selection',click:'click',escDrag:'Cancel a drag in progress'},
  palette:{placeholder:'Type a command…',title:'Command palette',none:'No matching command.'},
  about:{title:'About Nerulio Studio',body:'A browser app for 2D game assets. Images are processed on this device only; projects autosave to this browser and save to .nerulio files.',renderer:'Renderer: {r}{why}',dpr:'Device pixel ratio: {dpr} (zoom is measured in screen pixels, so pixels stay square and sharp)',memory:'Images in memory: {n} ({stored} stored, {decoded} decoded)',local:'No uploads: nothing in this app sends your files anywhere.',rendererShort:'Canvas renderer'},
  versions:{none:'No autosaved versions in this browser yet.',title:'Autosaved versions',hint:'The last 10 autosaves of each project are kept in this browser. Images are stored once for all of them.',meta:'{assets} image(s) · {frames} frames'},
- empty:{import:'Import images…',open:'Open project…',keys:'Keyboard shortcuts',title:'Drop images or a .nerulio project anywhere',formats:'PNG · JPG · WebP · GIF (first frame) · several at once',local:'Nothing is uploaded'},
+ empty:{import:'Import images…',open:'Open project…',keys:'Keyboard shortcuts',title:'Drop images or a .nerulio project anywhere',formats:'PNG · JPG · WebP · GIF · APNG · .aseprite · folders of frames · several at once',local:'Nothing is uploaded'},
  canvas:{label:'Canvas. Wheel zooms, Space or middle-drag pans, arrow keys nudge the selection.'},
  hud:{zoom:'Zoom — double-click to fit (0)'},
  drop:{hint:'Drop to import images · .nerulio to open'},
@@ -70,14 +71,14 @@ ko:{
  menu:{bar:'주 메뉴',more:'메뉴',file:'파일',edit:'편집',view:'보기',zoomLevels:'배율',background:'배경',wheel:'마우스 휠',theme:'테마',workspace:'작업 공간',help:'도움말',language:'언어',frames:'프레임'},
  ws:{viewer:'뷰어',viewerSummary:'가져오기, 보기, 프레임 자르기',sprite:'스프라이트',spriteSummary:'타임라인, 태그, 피벗·히트박스, 패킹과 엔진 내보내기',pixel:'픽셀',pixelSummary:'연필, 팔레트, 정리 도구',tile:'타일',tileSummary:'타일셋, 오토타일 규칙, 맵 페인터',texture:'텍스처',textureSummary:'노멀 맵, 채널, 조명 미리보기',ui:'UI',uiSummary:'9-슬라이스, 버튼 상태, 비트맵 폰트',coming:'{name} 작업 공간은 {phase}에서 제공됩니다: {what}.',comingShort:'준비 중 ({phase})'},
  panel:{assets:'에셋',history:'작업 기록',grid:'그리드',frame:'프레임 속성',frames:'프레임',toBottom:'아래 패널로 옮기기',toRight:'오른쪽 패널로 옮기기',up:'위로',down:'아래로',expand:'펼치기',collapse:'접기',resetLayout:'배치 초기화',hideBottom:'아래 패널 숨기기',showBottom:'아래 패널 보이기',options:'{name} 패널 옵션',all:'패널'},
- assets:{empty:'아직 이미지가 없습니다. PNG, JPG, WebP, GIF 파일을 아무 곳에나 놓으세요.',remove:'{name} 제거',frames:'프레임 {n}개'},
+ assets:{empty:'아직 이미지가 없습니다. PNG, JPG, WebP, GIF, APNG, .aseprite 파일을 아무 곳에나 놓으세요.',remove:'{name} 제거',frames:'프레임 {n}개'},
  history:{start:'프로젝트 열림'},
  group:{file:'파일',edit:'편집',view:'보기',tools:'도구',frames:'프레임',navigate:'이동',app:'스튜디오',help:'도움말',workspace:'작업 공간',other:'기타',pointer:'마우스, 펜, 터치'},
  keys:{title:'키보드 단축키',wheel:'커서 위치 기준 확대/축소 (마우스 휠)',wheelKey:'휠',ctrlWheel:'커서 위치 기준 확대/축소 (모든 휠·트랙패드)',spaceDrag:'화면 이동',drag:'드래그',middleDrag:'화면 이동',middle:'가운데 버튼 드래그',pinch:'확대/축소와 이동 (터치, 트랙패드)',pinchKey:'두 손가락 핀치 / 스크롤',shiftClick:'선택에 추가하거나 빼기',click:'클릭',escDrag:'진행 중인 드래그 취소'},
  palette:{placeholder:'명령을 입력하세요…',title:'명령 팔레트',none:'맞는 명령이 없습니다.'},
  about:{title:'Nerulio 스튜디오 정보',body:'2D 게임 에셋을 위한 브라우저 앱입니다. 이미지는 이 기기에서만 처리되고, 프로젝트는 이 브라우저에 자동 저장되며 .nerulio 파일로 저장할 수 있습니다.',renderer:'렌더러: {r}{why}',dpr:'기기 픽셀 비율: {dpr} (배율은 화면 픽셀 기준이라 픽셀이 항상 정사각형으로 선명합니다)',memory:'메모리의 이미지: {n}개 (저장 {stored}, 디코딩 {decoded})',local:'업로드 없음: 이 앱은 파일을 어디에도 보내지 않습니다.',rendererShort:'캔버스 렌더러'},
  versions:{none:'이 브라우저에 자동 저장 버전이 아직 없습니다.',title:'자동 저장 버전',hint:'프로젝트마다 최근 자동 저장 10개를 이 브라우저에 보관합니다. 이미지는 모든 버전에 대해 한 번만 저장됩니다.',meta:'이미지 {assets}개 · 프레임 {frames}개'},
- empty:{import:'이미지 가져오기…',open:'프로젝트 열기…',keys:'키보드 단축키',title:'이미지나 .nerulio 프로젝트를 아무 곳에나 놓으세요',formats:'PNG · JPG · WebP · GIF(첫 프레임) · 여러 개 한 번에',local:'업로드 없음'},
+ empty:{import:'이미지 가져오기…',open:'프로젝트 열기…',keys:'키보드 단축키',title:'이미지나 .nerulio 프로젝트를 아무 곳에나 놓으세요',formats:'PNG · JPG · WebP · GIF · APNG · .aseprite · 프레임 폴더 · 여러 개 한 번에',local:'업로드 없음'},
  canvas:{label:'캔버스. 휠로 확대/축소, Space나 가운데 버튼 드래그로 이동, 방향키로 선택 항목을 미세 이동합니다.'},
  hud:{zoom:'배율 — 두 번 클릭하면 화면에 맞춤 (0)'},
  drop:{hint:'놓으면 이미지를 가져옵니다 · .nerulio는 프로젝트로 엽니다'},
@@ -113,14 +114,14 @@ ja:{
  menu:{bar:'メインメニュー',more:'メニュー',file:'ファイル',edit:'編集',view:'表示',zoomLevels:'倍率',background:'背景',wheel:'マウスホイール',theme:'テーマ',workspace:'ワークスペース',help:'ヘルプ',language:'言語',frames:'フレーム'},
  ws:{viewer:'ビューア',viewerSummary:'読み込み、表示、フレームの切り出し',sprite:'スプライト',spriteSummary:'タイムライン、タグ、ピボット・当たり判定、パッキングとエンジン書き出し',pixel:'ピクセル',pixelSummary:'鉛筆、パレット、クリーンアップツール',tile:'タイル',tileSummary:'タイルセット、オートタイルのルール、マップペインター',texture:'テクスチャ',textureSummary:'法線マップ、チャンネル、ライトのプレビュー',ui:'UI',uiSummary:'9スライス、ボタンの状態、ビットマップフォント',coming:'{name} ワークスペースは {phase} で提供予定：{what}。',comingShort:'準備中（{phase}）'},
  panel:{assets:'アセット',history:'作業履歴',grid:'グリッド',frame:'フレーム情報',frames:'フレーム',toBottom:'下パネルへ移動',toRight:'右パネルへ移動',up:'上へ',down:'下へ',expand:'展開',collapse:'折りたたむ',resetLayout:'配置をリセット',hideBottom:'下パネルを隠す',showBottom:'下パネルを表示',options:'{name} パネルのオプション',all:'パネル'},
- assets:{empty:'まだ画像がありません。PNG、JPG、WebP、GIF をどこにでもドロップしてください。',remove:'{name} を削除',frames:'{n}フレーム'},
+ assets:{empty:'まだ画像がありません。PNG、JPG、WebP、GIF、APNG、.aseprite をどこにでもドロップしてください。',remove:'{name} を削除',frames:'{n}フレーム'},
  history:{start:'プロジェクトを開いた'},
  group:{file:'ファイル',edit:'編集',view:'表示',tools:'ツール',frames:'フレーム',navigate:'移動',app:'スタジオ',help:'ヘルプ',workspace:'ワークスペース',other:'その他',pointer:'マウス、ペン、タッチ'},
  keys:{title:'キーボードショートカット',wheel:'カーソル位置でズーム（マウスホイール）',wheelKey:'ホイール',ctrlWheel:'カーソル位置でズーム（すべてのホイール・トラックパッド）',spaceDrag:'画面の移動',drag:'ドラッグ',middleDrag:'画面の移動',middle:'中ボタンでドラッグ',pinch:'ズームと移動（タッチ、トラックパッド）',pinchKey:'2本指のピンチ／スクロール',shiftClick:'選択に追加・選択から除外',click:'クリック',escDrag:'ドラッグ中の操作を取り消す'},
  palette:{placeholder:'コマンドを入力…',title:'コマンドパレット',none:'一致するコマンドがありません。'},
  about:{title:'Nerulio スタジオについて',body:'2Dゲームアセットのためのブラウザアプリです。画像はこの端末内だけで処理され、プロジェクトはこのブラウザに自動保存され、.nerulio ファイルとして保存できます。',renderer:'レンダラー：{r}{why}',dpr:'デバイスピクセル比：{dpr}（倍率は画面のピクセル基準なので、ピクセルは常に正方形でくっきり表示されます）',memory:'メモリ内の画像：{n}枚（保存 {stored}、デコード {decoded}）',local:'アップロードなし：このアプリはファイルをどこにも送信しません。',rendererShort:'キャンバスのレンダラー'},
  versions:{none:'このブラウザにはまだ自動保存の履歴がありません。',title:'自動保存の履歴',hint:'プロジェクトごとに直近10件の自動保存をこのブラウザに保持します。画像はすべての履歴で1回だけ保存されます。',meta:'画像{assets}枚 · {frames}フレーム'},
- empty:{import:'画像を読み込む…',open:'プロジェクトを開く…',keys:'キーボードショートカット',title:'画像や .nerulio プロジェクトをどこにでもドロップ',formats:'PNG · JPG · WebP · GIF（最初のフレーム）· 複数まとめて',local:'アップロードなし'},
+ empty:{import:'画像を読み込む…',open:'プロジェクトを開く…',keys:'キーボードショートカット',title:'画像や .nerulio プロジェクトをどこにでもドロップ',formats:'PNG · JPG · WebP · GIF · APNG · .aseprite · フレームのフォルダー · 複数まとめて',local:'アップロードなし'},
  canvas:{label:'キャンバス。ホイールでズーム、Space か中ボタンのドラッグで移動、矢印キーで選択を微調整します。'},
  hud:{zoom:'倍率 — ダブルクリックで画面に合わせる (0)'},
  drop:{hint:'ドロップで画像を読み込み · .nerulio はプロジェクトとして開きます'},
@@ -132,6 +133,8 @@ ja:{
  frame:{noImage:'画像が開かれていません。',hint:'フレームをクリックして選択（{v}）。ハンドルのドラッグでサイズ変更、矢印キーで微調整。',none:'まだフレームがありません。グリッドを適用するか、フレームツール（{m}）で描いてください。',deleteN:'{n}フレームを削除',multi:'{n}フレームを選択 · 範囲 {x}, {y}, {w}×{h}',name:'名前',x:'X',y:'Y',w:'W',h:'H',index:'{n}フレーム中 {i}番'},
  strip:{empty:'グリッドを適用するかフレームを描くと、ここに表示されます。',more:'ほか{n}件'}
 }};
+// Workspace copy lives next to its workspace and is merged here, so the parity test covers it.
+for(const l of Object.keys(S))S[l].sp=SPRITE_STRINGS[l];
 export function st(locale,key,vars={}){
  const get=o=>key.split('.').reduce((a,k)=>a?.[k],o);
  const v=get(S[locale]||S.en)??get(S.en)??key;
