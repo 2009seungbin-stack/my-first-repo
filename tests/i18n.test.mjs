@@ -1,3 +1,5 @@
+import {gamePageFor} from '../tools/game-landing-build.mjs';
+import {HUB} from '../src/game-seo.js';
 import {DIRECTORY,isTask} from '../src/task/registry.js';
 import {ui} from '../src/task/strings.js';
 import {landingText} from '../src/landings.js';
@@ -42,6 +44,10 @@ for(const locale of LOCALES)for(const route of ['',...ROUTES])test(`static HTML 
   assert(output.includes(`<title>${BRAND.name} — ${ui(locale,'homeTitle')}</title>`));
   for(const [,ids] of DIRECTORY)for(const tool of ids)assert(output.includes(`href="${locale}/${INTENTS[tool].path}/"`),tool);
   assert(output.includes('id="toolQuery"')&&output.includes('data-action="pick"'));
+ }else if(gamePageFor(route)){// Game landing (src/game-seo.js): its own keyword title and H1, a drop zone that opens the Studio.
+  const g=gamePageFor(route),gt=g.kind==='hub'?HUB[locale].title:g.page.copy[locale].title;
+  assert(output.includes(`<title>${gt.replaceAll('&','&amp;').replaceAll("'",'&#39;')} · ${BRAND.name}</title>`),route);
+  assert(output.includes('<h1>')&&output.includes('data-gl-drop')&&output.includes('id="glFiles"')&&output.includes('game/studio/?ws='));
  }else if(isTask(id)){// Single-task page: heading, drop zone and picker are static HTML.
   assert(output.includes(`<title>${title.replaceAll('&','&amp;')} · ${BRAND.name}</title>`));
   assert(output.includes(`<h1 id="taskTitle">${title.replaceAll('&','&amp;')}</h1>`));assert(output.includes('class="dropzone"')&&output.includes('data-action="pick"')&&output.includes('id="fileInput"'));

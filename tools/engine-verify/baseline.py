@@ -200,7 +200,7 @@ def drive(case, page, base, dest: Path) -> dict:
                 z.write(C / f, Path(f).name)
         return {'made': 'zipped from the corpus as-is'}
     if lab == 'sprite-lab':
-        page.goto(base + '/en/game/sprite-lab/', wait_until='networkidle')
+        page.goto(base + '/en/game/sprite-lab/classic/', wait_until='networkidle')
         page.locator('#fileInput').set_input_files(str(C / case['asset']))
         page.locator('#labCanvas').wait_for(timeout=120000)
         g = case.get('grid')
@@ -226,7 +226,7 @@ def drive(case, page, base, dest: Path) -> dict:
         _download(page, '#taskDownload', dest)
         return info
     if lab == 'ssm':
-        page.goto(base + '/en/sprite-sheet-maker/', wait_until='networkidle')
+        page.goto(base + '/en/sprite-sheet-maker/classic/', wait_until='networkidle')
         page.locator('#fileInput').set_input_files([str(C / f) for f in case['frames']])
         page.locator('#atlasCanvas').wait_for(timeout=60000); page.wait_for_timeout(500)
         page.locator('[data-action="atlas-sort"]').click(); page.wait_for_timeout(300)
@@ -238,7 +238,7 @@ def drive(case, page, base, dest: Path) -> dict:
         _download(page, '#atlasRun', dest)
         return info
     if lab == 'tile-lab':
-        page.goto(base + f'/en/game/tile-lab/?stage=export&kind={case["kind"]}', wait_until='networkidle')
+        page.goto(base + f'/en/game/tile-lab/classic/?stage=export&kind={case["kind"]}', wait_until='networkidle')
         page.locator('#fileInput').set_input_files(str(C / case['asset']))
         page.wait_for_function("()=>!!document.querySelector('.tl-stages')", timeout=60000); page.wait_for_timeout(1200)
         info['grid_in_ui'] = [page.locator(f'[data-option="{k}"]').input_value() for k in ('tileWidth', 'tileHeight', 'marginX', 'spacingX')] \

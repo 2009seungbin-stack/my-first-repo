@@ -89,7 +89,7 @@ with sync_playwright() as pw:
         with page.expect_download() as event:page.locator(f'[data-action="{action}"]').click()
         path=OUT/name;event.value.save_as(path);return path
     sheet=png(36,20,rects=[((1,2,5,8),'red'),((20,4,27,15),'green')])
-    p=open_task('sprite-slicer',[('sheet.png',sheet)])
+    p=open_task('sprite-slicer/classic',[('sheet.png',sheet)])
     p.locator('#labSheet canvas').wait_for(timeout=60000)
     p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
     ok('sprite detection yields two editable candidates with no Run button',p.locator('.slicer-box').count()==2 and p.locator('.frame-chip[data-id]').count()==2)
@@ -111,7 +111,7 @@ with sync_playwright() as pw:
     p.locator('[data-action="lab-stage"][data-stage="slice"]').click();p.wait_for_timeout(400)
     p.screenshot(path=str(OUT/'sprite-slicer-desktop.png'),full_page=False);p.close()
 
-    p=open_task('normalize-sprite-frames',[('sheet.png',png(36,20,rects=[((2,2,7,11),'red'),((20,4,25,7),'blue')]))])
+    p=open_task('normalize-sprite-frames/classic',[('sheet.png',png(36,20,rects=[((2,2,7,11),'red'),((20,4,25,7),'blue')]))])
     p.wait_for_function('()=>document.querySelectorAll("#labAfter canvas").length===2',timeout=60000)
     ok('the common canvas is shown before any download',p.locator('#labNormSize').inner_text().startswith('6×10'))
     p.locator('#taskDownload').click();p.wait_for_timeout(600)
@@ -125,7 +125,7 @@ with sync_playwright() as pw:
     # The sprite sheet maker is a single-task page now (src/task/atlas.js): grid layout, 2 columns, 2px padding.
     # Two separately sized frames: the normaliser above now starts from one sheet, so they are built here.
     frames=[('tall.png',png(20,20,rects=[((2,2,5,9),'red')])),('wide.png',png(12,12,rects=[((3,2,8,4),'blue')]))]
-    p=ctx.new_page();p.goto(BASE+'/en/sprite-sheet-maker/',wait_until='networkidle')
+    p=ctx.new_page();p.goto(BASE+'/en/sprite-sheet-maker/classic/',wait_until='networkidle')
     p.locator('#fileInput').set_input_files(files=[{'name':n,'mimeType':'image/png','buffer':b} for n,b in frames]);p.locator('#atlasCanvas').wait_for()
     p.locator('[data-key="layout"][data-value="grid"]').click();p.locator('[data-key="padding"][data-value="2"]').click();p.locator('#optionsAdvanced, .options-advanced').first.evaluate('d=>d.open=true');p.fill('#atlasColumns','2');p.locator('#atlasTrim').uncheck();p.wait_for_timeout(300)
     with p.expect_download() as d:p.locator('#atlasRun').click()

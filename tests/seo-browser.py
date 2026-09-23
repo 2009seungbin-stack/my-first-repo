@@ -62,6 +62,18 @@ def run_mode(browser,mode,index):
             else:ok(mode+' no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0)
             page.reload(wait_until='networkidle');idle(page);ok(mode+' refresh '+route,page.locator('h1').inner_text()!='')
         if mode!='ads':ok(mode+' initial load has no external requests',all(u.startswith(base) or u.startswith('blob:') for u in requests))
+        # Game landing pages (tools/game-landing-build.mjs): indexable, reciprocal, ad-free, Studio-first.
+        for route in ['/ko/sprite-slicer/','/en/game/','/ja/game/texture-packer-free/']:
+            response=page.goto(base+route,wait_until='networkidle')
+            lang=route.split('/')[1]
+            ok(mode+' game page '+route,response.status==200 and page.locator('html').get_attribute('lang')==lang and page.title()==page.locator('h1').inner_text()+' · Nerulio')
+            ok(mode+' game page robots '+route,page.locator('meta[name=robots]').count()==(1 if mode=='preview' else 0))
+            ok(mode+' game page opens the Studio '+route,page.locator('.gl-drop a[href*="game/studio/?ws="]').count()==1 and page.locator('[data-studio-link]').count()==1)
+            ok(mode+' game page has no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle').count()==0)
+            if mode=='disabled':ok(mode+' game page omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0)
+            else:
+                ok(mode+' game page canonical '+route,page.locator('link[rel=canonical]').get_attribute('href')=='https://fileforge.example.test'+route)
+                ok(mode+' game page hreflang '+route,page.locator('link[hreflang]').count()==4)
         # Upscale is a single-task page; mode=smooth keeps this flow free of the optional model download.
         page.goto(base+'/en/image/upscale/?scale=4&format=png&mode=smooth',wait_until='networkidle')
         if mode!='disabled':ok(mode+' query canonical clean','?' not in page.locator('link[rel=canonical]').get_attribute('href'))

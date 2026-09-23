@@ -1,3 +1,4 @@
+import {GAME_INTENT_PAGES,isGameIntentPage} from '../src/game-seo.js';
 import {mayPromote} from '../src/capabilities.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -38,13 +39,16 @@ test('all canonical intent documents have reciprocal locales, distinct canonical
  for(const [alias,id] of Object.entries(ALIASES))for(const l of LOCALES){const h=entry(html,`${l}/${alias}`,origin);assert(h.includes(`rel="canonical" href="${origin}${l}/${INTENTS[id].path}/"`));}
 });
 test('crawlable examples have actual PNG dimensions and agree with image sitemap',async()=>{
- const xml=imageSitemap(origin);assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).filter(mayPromote).length*3);
+ // Game landing pages show a Studio screenshot instead of the old example pair (their classic page keeps it).
+ const xml=imageSitemap(origin),game=(xml.match(/assets\/studio\//g)||[]).length;
+ assert.equal((xml.match(/<url>/g)||[]).length,Object.keys(EXAMPLES).filter(id=>mayPromote(id)&&!isGameIntentPage(id)).length*3+game);
+ assert(game>=(Object.keys(GAME_INTENT_PAGES).length+1)*3,'every game landing and the hub list their screenshot');
  for(const [id,e] of Object.entries(EXAMPLES))for(const locale of LOCALES){
-  const h=entry(html,`${locale}/${INTENTS[id].path}`,origin);
+  const gamePage=isGameIntentPage(id),h=entry(html,`${locale}/${INTENTS[id].path}${gamePage?'/classic':''}`,origin);
   assert(h.indexOf('class="tool-examples"')>h.indexOf('class="workspace-footer"'));
   for(const v of Object.values(e)){
    assert(h.includes(`src="assets/examples/${v.file}" width="${v.width}" height="${v.height}" alt="`));assert(h.includes('loading="lazy" decoding="async"'));
-   assert.equal(xml.includes(origin+'assets/examples/'+v.file),mayPromote(id));
+   assert.equal(xml.includes(origin+'assets/examples/'+v.file),mayPromote(id)&&!gamePage);
    const png=await readFile(new URL('../assets/examples/'+v.file,import.meta.url));assert.equal(png.readUInt32BE(16),v.width);assert.equal(png.readUInt32BE(20),v.height);
   }
  }

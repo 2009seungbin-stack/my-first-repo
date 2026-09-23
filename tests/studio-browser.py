@@ -262,7 +262,7 @@ with sync_playwright() as pw:
     ctx.close()
     # ------------------------------------------------------------ hand-off from Sprite Lab
     ctx=fresh_context(browser);p=ctx.new_page();watch(p,'handoff');p.on('dialog',lambda d:d.accept())
-    p.goto(BASE+'/en/game/sprite-lab/');p.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"')
+    p.goto(BASE+'/en/game/sprite-lab/classic/');p.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"')
     p.set_input_files('#fileInput',str(CHARS))
     p.locator('[data-action="lab-studio"]').wait_for(timeout=20000)
     p.wait_for_function('()=>document.querySelectorAll(".frame-chip:not(.is-more)").length>0',timeout=20000)
