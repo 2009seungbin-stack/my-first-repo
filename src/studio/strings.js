@@ -2,6 +2,7 @@
  * English fallback. tests/studio.test.mjs checks that all three languages have the same keys
  * and placeholders. Heuristics are never called "AI"; guesses always say how sure they are. */
 const bgs=(a)=>({checker:a[0],light:a[1],black:a[2],white:a[3],magenta:a[4],gray:a[5]});
+import {SPRITE_STRINGS} from './sprite/strings.js';
 const S={
 en:{
  app:{title:'Studio',description:'Nerulio Studio: a full-screen editor for 2D game assets in your browser. Nothing is uploaded.',loading:'Loading Studio…',noscript:'Nerulio Studio needs JavaScript. Your files never leave this device.'},
@@ -132,6 +133,8 @@ ja:{
  frame:{noImage:'画像が開かれていません。',hint:'フレームをクリックして選択（{v}）。ハンドルのドラッグでサイズ変更、矢印キーで微調整。',none:'まだフレームがありません。グリッドを適用するか、フレームツール（{m}）で描いてください。',deleteN:'{n}フレームを削除',multi:'{n}フレームを選択 · 範囲 {x}, {y}, {w}×{h}',name:'名前',x:'X',y:'Y',w:'W',h:'H',index:'{n}フレーム中 {i}番'},
  strip:{empty:'グリッドを適用するかフレームを描くと、ここに表示されます。',more:'ほか{n}件'}
 }};
+// Workspace copy lives next to its workspace and is merged here, so the parity test covers it.
+for(const l of Object.keys(S))S[l].sp=SPRITE_STRINGS[l];
 export function st(locale,key,vars={}){
  const get=o=>key.split('.').reduce((a,k)=>a?.[k],o);
  const v=get(S[locale]||S.en)??get(S.en)??key;

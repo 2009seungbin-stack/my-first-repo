@@ -118,7 +118,8 @@ mapped into frame pivots / boxes / 9-slice metadata (each mapping listed in `ass
 
 ```
 import {kind:'sheet'|'frames'|'gif'|'apng'|'aseprite'|'atlas'|'sprite-lab',
-        decisions:[{id, label, chosen, confidence:'high'|'medium'|'low', score?, reasons[], alternatives:[{id,label}]}],
+        decisions:[{id, label, kind?, chosen, confidence:'high'|'medium'|'low', score?, reasons[], alternatives:[id…]}],
+        applied?, choice?, sliceBoxes?, pivotSlice?,   // importer state needed to re-apply / export
         sourceBlob?}   // the untouched original when the importer changed pixels (colour key)
 ```
 

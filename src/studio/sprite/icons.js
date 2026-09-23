@@ -1,0 +1,31 @@
+/** 16×16 stroke icons for the Sprite workspace (same style as src/studio/ui/icons.js). */
+const svg=body=>`<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+export const SVG={
+ first:svg('<path d="M4 3v10M12 3L6 8l6 5z"/>'),
+ last:svg('<path d="M12 3v10M4 3l6 5-6 5z"/>'),
+ prev:svg('<path d="M10 3L5 8l5 5"/>'),
+ next:svg('<path d="M6 3l5 5-5 5"/>'),
+ play:svg('<path d="M5 3l8 5-8 5z" fill="currentColor"/>'),
+ pause:svg('<path d="M5 3v10M11 3v10" stroke-width="2.4"/>'),
+ loop:svg('<path d="M3 7a4 4 0 014-4h5l-2-2M13 9a4 4 0 01-4 4H4l2 2"/>'),
+ onion:svg('<circle cx="6" cy="8" r="4" opacity=".5"/><circle cx="10" cy="8" r="4"/>'),
+ add:svg('<rect x="2.5" y="3" width="8" height="10" rx="1"/><path d="M13 5v6M10 8h6"/>'),
+ blank:svg('<rect x="3" y="3" width="10" height="10" rx="1" stroke-dasharray="2 2"/>'),
+ trash:svg('<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 9h5.6l.7-9"/>'),
+ flip:svg('<path d="M8 2v12M6 4L2 12h4zM10 4l4 8h-4z"/>'),
+ tag:svg('<path d="M2 3h6l6 6-5 5-7-7z"/><circle cx="5.5" cy="6" r="1"/>'),
+ zoomIn:svg('<path d="M3 8h10M8 3v10"/>'),
+ zoomOut:svg('<path d="M3 8h10"/>'),
+ eye:svg('<path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/>'),
+ eyeOff:svg('<path d="M2 2l12 12M6.5 4A6.5 6.5 0 0114.5 8a9 9 0 01-2 2.6M9.4 12.3A6 6 0 011.5 8 9 9 0 014 5"/>'),
+ pivot:svg('<circle cx="8" cy="8" r="3"/><path d="M8 1v4M8 11v4M1 8h4M11 8h4"/>'),
+ rect:svg('<rect x="2.5" y="3.5" width="11" height="9" rx="1"/><path d="M5 6h3" opacity=".6"/>'),
+ circle:svg('<circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r=".8" fill="currentColor"/>'),
+ polygon:svg('<path d="M3 12L2 5l6-3 6 4-2 7z"/><circle cx="3" cy="12" r="1" fill="currentColor"/>'),
+ select:svg('<path d="M3 2l9 5-4 1.2L6.8 12z"/>'),
+ region:svg('<path d="M2 4V2h2M7 2h2M12 2h2v2M14 7v2M14 12v2h-2M9 14H7M4 14H2v-2M2 9V7"/><path d="M5 11V6h5"/>'),
+ preview:svg('<rect x="2" y="2.5" width="12" height="9" rx="1"/><path d="M6 14h4M8 11.5V14"/>'),
+ sheet:svg('<path d="M2 2h12v12H2zM2 8h12M8 2v12"/>'),
+ frame:svg('<rect x="4" y="3" width="8" height="10" rx="1"/>'),
+ collision:svg('<path d="M4 13L2 7l5-5 6 3-1 8z" stroke-dasharray="2 1.5"/>')
+};
