@@ -6,8 +6,8 @@ of frames with merged undo, command palette and shortcut sheet, autosave + recov
 .nerulio save → open round trip (byte-exact images), hand-off from Sprite Lab, drop anywhere, and
 pan/zoom frame times on a 4096² sheet with 2 000 overlay rects (reported, loosely bounded).
 
-Run against a server you own:  PORT=4411 node tools/serve.mjs  then
-  TEST_URL=http://127.0.0.1:4411 python tests/studio-browser.py
+Runs inside tools/regression.py (port 4173). Standalone, against a server you own:
+  PORT=4411 node tools/serve.mjs  then  TEST_URL=http://127.0.0.1:4411 python tests/studio-browser.py
 Real assets: tests/fixtures/kenney (committed, CC0); the 4096² run also uses
 $NERULIO_CORPUS/_adhoc/nerulio-studio-shell/derived/roguelike_tiled_4096.png when present."""
 from pathlib import Path
@@ -15,7 +15,8 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 import hashlib,io,json,os,sys,tempfile,time,zipfile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
-BASE=os.environ.get('TEST_URL','http://127.0.0.1:4411').rstrip('/')
+BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173').rstrip('/')
+sys.stdout.reconfigure(encoding='utf-8',errors='replace')
 FIX=ROOT/'tests'/'fixtures'/'kenney'
 DUNGEON=FIX/'tiny-dungeon-tilemap.png'          # 203×186, 16 px cells, 1 px gaps, 12×11
 CHARS=FIX/'pixel-platformer-characters.png'     # 224×74, 24 px cells, 1 px gaps, 9×3
