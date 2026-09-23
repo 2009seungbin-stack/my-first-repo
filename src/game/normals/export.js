@@ -12,7 +12,7 @@ export const TARGETS=Object.freeze(['godot','unity','generic']);
 export const VERIFIED=Object.freeze({
  godot:{status:'verified',engine:'Godot 4.7.2 (gl_compatibility)',what:'CanvasTexture diffuse + normal on a Sprite2D region, PointLight2D with this falloff texture, CanvasModulate ambient: lit pixels compared with the Studio preview'},
  unity:{status:'unverified',engine:'Unity 6000.5.3f1',what:'importer compiles and assigns the _NormalMap secondary texture; lit pixels not compared'},
- generic:{status:'n/a',engine:'',what:'PNG files and a JSON manifest; no engine involved'}
+ generic:{status:'plain',engine:'',what:'PNG files and a JSON manifest; no engine involved'}
 });
 const str=s=>'"'+String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';
 const num=v=>{const r=Math.round(v*1e6)/1e6;return Number.isInteger(r)?`${r}.0`:String(r);};

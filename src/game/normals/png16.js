@@ -1,7 +1,7 @@
 /** 16-bit greyscale PNG in and out — for height maps, where 8 bits give 256 terraces that a
  * normal map shows as stripes. src/game/texture-png.js keeps only the high byte of 16-bit files
  * (the rest of its pipeline is 8-bit); this module keeps all 16. No DOM (CompressionStream only). */
-import {crc32} from '../core.js';
+import {crc32} from '../../core.js';
 import {pngChunks} from '../texture-png.js';
 const SIGNATURE=[137,80,78,71,13,10,26,10];
 const chunk=(type,data)=>{
