@@ -139,7 +139,8 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
  async function analyzeSheet(assetId,{keyMode}={}){
   let s=sheets.get(assetId);const a=P.assetById(ctx.doc,assetId);if(!a)return null;
   if(!s){const orig=a.import?.sourceBlob||P.primaryBlob(a);s={origId:orig,keyedId:null,analyses:{},choice:{}};sheets.set(assetId,s);}
-  const mode=keyMode||s.choice.keyMode||'auto';s.choice.keyMode=mode;
+  // an explicit key mode only prepares that analysis; the choice itself changes through changeChoice
+  const mode=keyMode||s.choice.keyMode||'auto';if(!keyMode)s.choice.keyMode=mode;
   if(!s.analyses[mode]){
    s.busy=true;onChange(assetId);
    const rec=images.get(s.origId);if(!rec)throw Error('The original image is not loaded');
@@ -150,31 +151,61 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   onChange(assetId);return s;
  }
  function sheetState(assetId){return sheets.get(assetId)||null;}
- /** A grid typed by hand: which of its cells hold pixels is measured on the (keyed) sheet. */
- async function setCustomGrid(assetId,g){
-  const s=sheets.get(assetId);if(!s)return;
-  s.choice={...s.choice,slice:'custom',grid:g,cells:null};onChange(assetId);
-  const r=s.analyses[s.choice.keyMode||'auto'],id=r?.keyedId||s.origId,rec=images.get(id);if(!rec)return;
-  const tok=s.cellToken=(s.cellToken||0)+1;
-  try{const {cells}=await work({op:'cells',key:id,blob:rec.blob,spec:g});if(tok===s.cellToken&&cells){s.choice.cells=cells;onChange(assetId);}}catch{}
+ const gridKey=g=>[g.w,g.h,g.ox,g.oy,g.sx,g.sy].join();
+ /** Which cells of a hand-made grid hold pixels, measured once per grid on the (keyed) sheet. */
+ async function measureCells(assetId,g,keyMode){
+  const s=sheets.get(assetId);if(!s)return null;s.cellCache||=new Map();
+  const k=(keyMode||s.choice.keyMode||'auto')+'|'+gridKey(g);if(s.cellCache.has(k))return s.cellCache.get(k);
+  const r=s.analyses[keyMode||s.choice.keyMode||'auto'],id=r?.keyedId||s.origId,rec=images.get(id);if(!rec)return null;
+  try{const {cells}=await work({op:'cells',key:id,blob:rec.blob,spec:g});s.cellCache.set(k,cells||null);return cells;}catch{return null;}
+ }
+ const effective=s=>{const c={...s.choice};delete c.cells;if(c.slice==='custom'&&c.grid)c.cells=s.cellCache?.get((c.keyMode||'auto')+'|'+gridKey(c.grid))||null;return c;};
+ /** Every change of an import choice is one undo step: before Apply it changes only the preview
+  * (a command with do/undo), after Apply it re-cuts the frames (a document edit). */
+ async function changeChoice(assetId,patch,label){
+  const s=sheets.get(assetId);if(!s)return;planFor(assetId);// sync with the document first
+  const prev={...s.choice},next={...s.choice,...patch};delete next.cells;
+  if(next.keyMode!==prev.keyMode)await analyzeSheet(assetId,{keyMode:next.keyMode});
+  if(next.slice==='custom'&&next.grid)await measureCells(assetId,next.grid,next.keyMode);
+  const a=P.assetById(ctx.doc,assetId);
+  if(a?.import?.applied){s.choice=next;applySheet(assetId,{label});return;}
+  ctx.execute({label,do(){s.choice=next;onChange(assetId);},undo(){s.choice=prev;onChange(assetId);}});
+ }
+ /** A grid typed or dragged by hand. Values are clamped to the sheet; zero whole cells is shown
+  * as a problem in the panel (Apply stays off), never cut. */
+ function setCustomGrid(assetId,g){
+  const a=P.assetById(ctx.doc,assetId);if(!a)return;
+  const n=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||0)));
+  const grid={w:n(g.w,1,a.width),h:n(g.h,1,a.height),ox:n(g.ox,0,a.width-1),oy:n(g.oy,0,a.height-1),sx:n(g.sx,0,a.width),sy:n(g.sy,0,a.height)};
+  return changeChoice(assetId,{slice:'custom',grid},t('sp.cmd.customGrid',{w:grid.w,h:grid.h}));
  }
  /** The plan for the current choice (for the preview), or null while analysing. */
  function planFor(assetId){
   const s=sheets.get(assetId);if(!s)return null;
   // once applied, the document is the truth (undo/redo can change which choice is applied)
   const a=P.assetById(ctx.doc,assetId);
-  if(a?.import?.applied&&a.import.choice&&s.synced!==a.import){s.synced=a.import;s.choice={...a.import.choice};}
+  if(a?.import?.applied&&a.import.choice&&s.synced!==a.import){s.synced=a.import;s.choice={...a.import.choice};delete s.choice.cells;}
   const r=s.analyses[s.choice.keyMode||'auto'];if(!r)return null;
-  return {analysis:r,plan:sheetPlan(r,s.choice)};
+  return {analysis:r,plan:sheetPlan(r,effective(s))};
+ }
+ /** The grid a Custom grid starts from: the one the preview shows now, else the best suggestion,
+  * else the islands' typical size. */
+ function seedGrid(assetId){
+  const p=planFor(assetId);if(p?.plan.grid)return {...p.plan.grid};
+  const g=p?.analysis.grids?.[0];if(g)return {w:g.cellWidth,h:g.cellHeight,ox:g.marginX,oy:g.marginY,sx:g.spacingX,sy:g.spacingY};
+  const rs=p?.analysis.auto?.rects||[],med=k=>{const v=rs.map(r=>r[k]).sort((x,y)=>x-y);return v.length?v[v.length>>1]:16;};
+  return {w:med('w'),h:med('h'),ox:0,oy:0,sx:0,sy:0};
  }
  /** Cuts the frames the plan shows: one undo step. */
- function applySheet(assetId){
+ function applySheet(assetId,{label=null}={}){
   const s=sheets.get(assetId),p=planFor(assetId);if(!p)return false;
   const {analysis:r,plan}=p,a=P.assetById(ctx.doc,assetId);
+  if(!plan.rects.length){ctx.toast(t('sp.imp.nothingToCut'),{error:true});return false;}
   const shared=r.keyedId||s.origId,frames=sheetFrames(a,plan.rects,{duration:plan.duration}),tags=buildTags(frames,plan.tags);
   const cels=a.cels.map(c=>c.frameId===P.SHARED&&c.layerId===a.layers[0].id?{...c,blob:shared}:c).filter(c=>c.frameId===P.SHARED);
-  const importInfo={kind:'sheet',decisions:plan.decisions,choice:{...s.choice},...(r.keyedId?{sourceBlob:s.origId}:{}),applied:true};
-  ctx.execute(ctx.edit(t('sp.cmd.cutFrames',{n:frames.length,tags:tags.length}),d=>D.replaceContent(d,assetId,{frames,cels,tags,grid:plan.grid,importInfo})));
+  const choice={...s.choice};delete choice.cells;
+  const importInfo={kind:'sheet',decisions:plan.decisions,choice,...(r.keyedId?{sourceBlob:s.origId}:{}),applied:true};
+  ctx.execute(ctx.edit(label?`${label} · ${t('sp.cmd.cutFrames',{n:frames.length,tags:tags.length})}`:t('sp.cmd.cutFrames',{n:frames.length,tags:tags.length}),d=>D.replaceContent(d,assetId,{frames,cels,tags,grid:plan.grid,importInfo})));
   s.synced=P.assetById(ctx.doc,assetId)?.import;
   onChange(assetId);return true;
  }
@@ -183,12 +214,13 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   const a=P.assetById(ctx.doc,assetId);if(!a?.import)return;
   const kind=a.import.kind;
   if(kind==='sheet'){
-   const s=sheets.get(assetId)||(await analyzeSheet(assetId));
-   if(decisionId==='key'){s.choice.keyMode=alt==='none'?'none':'force';await analyzeSheet(assetId,{keyMode:s.choice.keyMode});}
-   else if(decisionId==='slice'){s.choice.slice=alt;if(alt==='custom'&&!s.choice.grid){const g=planFor(assetId)?.plan.grid||{w:16,h:16,ox:0,oy:0,sx:0,sy:0};s.choice.grid=g;}}
-   else if(decisionId==='animations')s.choice.animations=alt;
-   else if(decisionId==='timing')s.choice.duration=Number(alt)||100;
-   if(a.import.applied)applySheet(assetId);else onChange(assetId);
+   if(!sheets.get(assetId))await analyzeSheet(assetId);
+   const label=t('sp.cmd.decision',{what:t('sp.dec.'+(decisionId==='key'?'key':decisionId==='slice'?'slice':decisionId)),choice:altLabel(alt)});
+   if(decisionId==='key')await changeChoice(assetId,{keyMode:alt==='none'?'none':'force'},label);
+   // Custom grid starts from the grid on screen (seeded BEFORE switching: the plan needs a grid)
+   else if(decisionId==='slice')await changeChoice(assetId,alt==='custom'?{slice:'custom',grid:sheets.get(assetId).choice.grid||seedGrid(assetId)}:{slice:alt},label);
+   else if(decisionId==='animations')await changeChoice(assetId,{animations:alt},label);
+   else if(decisionId==='timing')await changeChoice(assetId,{duration:Number(alt)||100},label);
    return;
   }
   const withDecision=(d,patch)=>P.mapAsset(d,assetId,x=>({...x,import:{...x.import,decisions:x.import.decisions.map(q=>q.id===decisionId?{...q,...patch}:q)}}));
