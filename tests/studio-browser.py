@@ -13,7 +13,7 @@ $NERULIO_CORPUS/_adhoc/nerulio-studio-shell/derived/roguelike_tiled_4096.png whe
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from PIL import Image
-import hashlib,io,json,os,sys,tempfile,time,zipfile
+import hashlib,io,json,os,sys,tempfile,time,zipfile,re
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173').rstrip('/')
 sys.stdout.reconfigure(encoding='utf-8',errors='replace')
@@ -65,9 +65,11 @@ with sync_playwright() as pw:
     ok('korean prefix gives a Korean app shell',p.locator('html').get_attribute('lang')=='ko' and p.locator('.st-menu-trigger').first.inner_text()=='파일')
     ok('full viewport: nothing scrolls',js(p,'return document.scrollingElement.scrollHeight<=innerHeight+1&&document.scrollingElement.scrollWidth<=innerWidth+1;'))
     ok('menu bar, tool bar, canvas, right panels, bottom panel and status bar exist',all(p.locator(s).count()==1 for s in ['.st-menubar','.st-toolbar','.cv-stage','.st-dock-right','.st-dock-bottom','.st-status']))
-    ok('workspace switcher: Viewer and Sprite ready, the other four registered as coming (disabled, with phase)',
-       p.locator('.st-ws-tab[aria-selected="true"]').get_attribute('data-ws')=='viewer' and p.locator('.st-ws-tab[aria-disabled="true"]').count()==4 and p.locator('.st-ws-tab[data-ws="pixel"] small').inner_text()=='P2' and p.locator('.st-ws-tab[data-ws="sprite"][aria-disabled]').count()==0)
-    p.locator('.st-ws-tab[data-ws="tile"]').click(force=True);settle(p)
+    # Workspaces land one by one (Tile is ready since P3); whatever is still coming must be disabled with its phase.
+    coming=p.locator('.st-ws-tab[aria-disabled="true"]')
+    ok('workspace switcher: Viewer ready, the rest either ready or registered as coming (disabled, with phase)',
+       p.locator('.st-ws-tab[aria-selected="true"]').get_attribute('data-ws')=='viewer' and coming.count()>=1 and all(re.match(r'P\d',coming.nth(i).locator('small').inner_text()) for i in range(coming.count())))
+    coming.first.click(force=True);settle(p)
     ok('a coming workspace cannot be entered (no fake UI)',js(p,'return S.workspace;')=='viewer')
     p.goto(BASE+'/ja/game/studio/');ready(p)
     ok('japanese prefix gives a Japanese shell',p.locator('.st-menu-trigger').first.inner_text()=='ファイル' and p.locator('html').get_attribute('lang')=='ja')
