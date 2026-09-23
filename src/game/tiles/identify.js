@@ -272,7 +272,7 @@ export function guessFullTile(tiles){
  * different the tile's boundary is from the full tile's matching boundary (small = connects). */
 function measurements(tiles,full){
  const F=tiles[full];if(!F)return null;
- const w=F.w,h=F.h,kx=Math.max(1,Math.round(w/4)),ky=Math.max(1,Math.round(h/4));
+ const w=F.w,h=F.h,kx=Math.max(1,Math.round(w/4)),ky=Math.max(1,Math.round(h/4)),cx=Math.max(2,Math.round(w/8)),cy=Math.max(2,Math.round(h/8));
  const fL=line(F,'left'),fR=line(F,'right'),fT=line(F,'top'),fB=line(F,'bottom');
  const seg=(l,a,b)=>l.subarray(a*4,b*4);
  return tiles.map(t=>{
@@ -282,20 +282,50 @@ function measurements(tiles,full){
   const side=[lineDistance(seg(T,kx,w-kx),seg(fB,kx,w-kx)),lineDistance(seg(R,ky,h-ky),seg(fL,ky,h-ky)),
    lineDistance(seg(B,kx,w-kx),seg(fT,kx,w-kx)),lineDistance(seg(L,ky,h-ky),seg(fR,ky,h-ky))];
   // corners: both short segments that meet at the corner
+  // short segments right at the corner: an inner-corner notch is small, a long segment dilutes it
   const corner=[
-   (lineDistance(seg(T,w-kx,w),seg(fB,w-kx,w))+lineDistance(seg(R,0,ky),seg(fL,0,ky)))/2,
-   (lineDistance(seg(B,w-kx,w),seg(fT,w-kx,w))+lineDistance(seg(R,h-ky,h),seg(fL,h-ky,h)))/2,
-   (lineDistance(seg(B,0,kx),seg(fT,0,kx))+lineDistance(seg(L,h-ky,h),seg(fR,h-ky,h)))/2,
-   (lineDistance(seg(T,0,kx),seg(fB,0,kx))+lineDistance(seg(L,0,ky),seg(fR,0,ky)))/2];
+   (lineDistance(seg(T,w-cx,w),seg(fB,w-cx,w))+lineDistance(seg(R,0,cy),seg(fL,0,cy)))/2,
+   (lineDistance(seg(B,w-cx,w),seg(fT,w-cx,w))+lineDistance(seg(R,h-cy,h),seg(fL,h-cy,h)))/2,
+   (lineDistance(seg(B,0,cx),seg(fT,0,cx))+lineDistance(seg(L,h-cy,h),seg(fR,h-cy,h)))/2,
+   (lineDistance(seg(T,0,cx),seg(fB,0,cx))+lineDistance(seg(L,0,cy),seg(fR,0,cy)))/2];
   return {side,corner};// side: n,e,s,w · corner: ne,se,sw,nw
  });
 }
-const SIDE_OF=[0,2,4,6],CORNER_OF=[1,3,5,7];
-/** Suggest a pattern for every tile from its pixels alone (no layout). The full tile is guessed
+/** Second way to measure the same thing, for textured art whose pixels do not line up from tile
+ * to tile (rock, grass): does the band along a boundary have the colours of the terrain's interior
+ * (connected) or of the rim (open)? Colour histograms (4 levels per channel, premultiplied, with a
+ * separate bin for transparency) compared with the full tile's centre; L1 distance × 127. */
+function histogram(t,x0,y0,x1,y1){
+ const hst=new Float32Array(65);let n=0;
+ for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const p=(y*t.w+x)*4,a=t.data[p+3];n++;if(a<32){hst[64]++;continue;}const k=(a/255);hst[((t.data[p]*k)>>6)*16+((t.data[p+1]*k)>>6)*4+((t.data[p+2]*k)>>6)]++;}
+ if(n)for(let i=0;i<65;i++)hst[i]/=n;return hst;
+}
+const histDistance=(a,b)=>{let s=0;for(let i=0;i<65;i++)s+=Math.abs(a[i]-b[i]);return s*127;};
+function bandMeasurements(tiles,full){
+ const F=tiles[full];if(!F)return null;
+ const w=F.w,h=F.h,kx=Math.max(1,Math.round(w/4)),ky=Math.max(1,Math.round(h/4)),bx=Math.max(2,Math.round(w/8)),by=Math.max(2,Math.round(h/8));
+ const ref=histogram(F,kx,ky,w-kx,h-ky);
+ return tiles.map(t=>{
+  if(!t||t.w!==w||t.h!==h)return null;
+  const d=(x0,y0,x1,y1)=>histDistance(histogram(t,x0,y0,x1,y1),ref);
+  const side=[d(kx,0,w-kx,by),d(w-bx,ky,w,h-ky),d(kx,h-by,w-kx,h),d(0,ky,bx,h-ky)];
+  const corner=[d(w-kx,0,w,ky),d(w-kx,h-ky,w,h),d(0,h-ky,kx,h),d(0,0,kx,ky)];
+  return {side,corner};
+ });
+}
+const measure=(tiles,full,method)=>method==='band'?bandMeasurements(tiles,full):measurements(tiles,full);
+const SIDE_OF=[0,2,4,6],CORNER_OF=[1,3,5,7];/** Suggest a pattern for every tile from its pixels alone (no layout). The full tile is guessed
  * unless given. Each bit carries a confidence (distance from the split, 0…1).
  * @returns {full, measurable, reason?, tiles:[{pattern, confidence:[8]}|null], sideSplit, cornerSplit} */
 export function suggestBits(tiles,{full=null,mode='corners-and-sides',terrain=0}={}){
- if(full!=null)return suggestWith(tiles,full,mode,terrain);
+ const lines=edgeLines(tiles),cache=new Map();
+ const seamOf=s=>{const entries=s.tiles.map((t,i)=>t&&{tile:i,pattern:t.pattern}).filter(Boolean);return scoreAssignment(mode,entries,lines,{cache}).auc??0;};
+ if(full!=null){
+  // both ways of measuring; the one whose bits explain the seams better wins
+  let best=null;
+  for(const method of ['line','band'])for(const scale of ['lin','log']){const s=suggestWith(tiles,full,mode,terrain,method,scale);if(!s.measurable)continue;const seam=seamOf(s);if(!best||seam>best.seam+1e-9)best={...s,seam};}
+  return best||suggestWith(tiles,full,mode,terrain,'line');
+ }
  // Which tile is the interior? On opaque templates the background tile is just as seamless as the
  // terrain tile, and measuring against it inverts every bit. The reference that explains the most
  // distinct required combinations is the terrain.
@@ -303,9 +333,9 @@ export function suggestBits(tiles,{full=null,mode='corners-and-sides',terrain=0}
  // A wrong reference can still give a tidy-looking set (a corridor tile mirrors one axis), so every
  // candidate's result is also checked against the seams: the right reading predicts which tiles
  // join cleanly.
- const lines=edgeLines(tiles),cache=new Map(),runs=[];
- for(const c of fullCandidates(tiles,64)){
-  const s=suggestWith(tiles,c,mode,terrain);if(!s.measurable)continue;
+ const runs=[];
+ for(const c of fullCandidates(tiles,64))for(const method of ['line','band'])for(const scale of ['lin','log']){
+  const s=suggestWith(tiles,c,mode,terrain,method,scale);if(!s.measurable)continue;
   const distinct=new Set(s.tiles.filter(Boolean).map(t=>t.pattern.join()).filter(k=>need.has(k))).size;
   runs.push({s,distinct});
  }
@@ -313,8 +343,7 @@ export function suggestBits(tiles,{full=null,mode='corners-and-sides',terrain=0}
  const most=Math.max(...runs.map(r=>r.distinct));
  let best=null;
  for(const r of runs.filter(r=>r.distinct>=most*.8)){
-  const entries=r.s.tiles.map((t,i)=>t&&{tile:i,pattern:t.pattern}).filter(Boolean);
-  const seam=scoreAssignment(mode,entries,lines,{cache}).auc??0;
+  const seam=seamOf(r.s);
   if(!best||seam>best.seam+1e-9||Math.abs(seam-best.seam)<=1e-9&&r.distinct>best.distinct)best={...r.s,distinct:r.distinct,seam};
  }
  return best;
@@ -329,36 +358,48 @@ function fullCandidates(tiles,n){
  });
  return out.sort((a,b)=>a.s-b.s).slice(0,n).map(x=>x.i);
 }
-function suggestWith(tiles,f,mode,terrain){
- const m=measurements(tiles,f);
- const sides=m.flatMap(x=>x?x.side:[]),corners=m.flatMap(x=>x?x.corner:[]);
- const ss=split(sides),cs=split(corners);
+function suggestWith(tiles,f,mode,terrain,method='line',scale='log'){
+ const m=measure(tiles,f,method);
+ // Split on log distances: a few extreme boundaries (a transparent seam column, a bright rim) must
+ // not pull the threshold up past every ordinary open side.
+ const L=scale==='log'?d=>Math.log1p(d):d=>d;
+ const ss=split(m.flatMap(x=>x?x.side:[]).map(L));
  if(!ss||ss.separation<0.15)return {measurable:false,reason:'sides-look-alike',full:f,tiles:tiles.map(()=>null),sideSplit:ss};
- const conf=(d,s)=>s?Math.max(0,Math.min(1,Math.abs(d-s.threshold)/Math.max(1,(s.m1-s.m0)/2))):0;
- const out=m.map(x=>{
+ const conf=(d,s)=>s?Math.max(0,Math.min(1,Math.abs(d-s.threshold)/Math.max(.05,(s.m1-s.m0)/2))):0;
+ const sidesOn=m.map(x=>x&&x.side.map(d=>L(d)<=ss.threshold));
+ // corners: only those whose two sides connect say anything (the others are hidden)
+ const cornerIdx=[[0,1],[1,2],[2,3],[3,0]];// corner k sits between sides k and k+1 (n-e, e-s, s-w, w-n)
+ const eligible=[];m.forEach((x,i)=>{if(!x)return;x.corner.forEach((d,k)=>{const [a,b]=cornerIdx[k];if(mode==='corners'||sidesOn[i][a]&&sidesOn[i][b])eligible.push(L(d));});});
+ const cs=split(eligible);
+ const out=m.map((x,ti)=>{
   if(!x)return null;
   const p=[terrain,-1,-1,-1,-1,-1,-1,-1,-1],c=new Array(8).fill(0);
-  x.side.forEach((d,k)=>{const i=SIDE_OF[k];c[i]=conf(d,ss);if(d<=ss.threshold&&MODE_IDX[mode].includes(i))p[i+1]=terrain;});
+  x.side.forEach((d,k)=>{const i=SIDE_OF[k];c[i]=conf(L(d),ss);if(sidesOn[ti][k]&&MODE_IDX[mode].includes(i))p[i+1]=terrain;});
   x.corner.forEach((d,k)=>{
    const i=CORNER_OF[k],[s1,s2]=CORNER_SIDES[i];
-   if(mode==='corners'){const sp=cs||ss;c[i]=conf(d,sp);if(d<=sp.threshold)p[i+1]=terrain;return;}
+   if(mode==='corners'){const sp=cs&&cs.separation>=0.15?cs:ss;c[i]=conf(L(d),sp);if(L(d)<=sp.threshold)p[i+1]=terrain;return;}
    if(mode!=='corners-and-sides')return;
-   // a corner only counts when both of its sides connect; otherwise it is decided by them
    if(p[s1+1]<0||p[s2+1]<0){c[i]=Math.min(c[s1],c[s2]);return;}
-   const sp=cs&&cs.separation>=0.15?cs:ss;c[i]=conf(d,sp);if(d<=sp.threshold)p[i+1]=terrain;
+   // no usable corner contrast at all: a corner behind two connected sides is assumed connected
+   if(!cs||cs.single||cs.separation<0.1){p[i+1]=terrain;c[i]=0;return;}
+   c[i]=conf(L(d),cs);if(L(d)<=cs.threshold)p[i+1]=terrain;
   });
   return {pattern:p,confidence:c};
  });
- return {measurable:true,full:f,tiles:out,sideSplit:ss,cornerSplit:cs};
-}
-/** Tiles whose art contradicts the bits they were given. Supervised: the given bits say which
+ return {measurable:true,full:f,tiles:out,sideSplit:ss,cornerSplit:cs,method,scale};
+}/** Tiles whose art contradicts the bits they were given. Supervised: the given bits say which
  * boundaries should connect; the split between the two groups is measured, and only bits clearly
  * on the wrong side (beyond the middle of the other group) are reported. Returns
  * {measurable, reason?, auc, mismatches:[{index, positions:[{pos, expected, distance}]}]}. */
 export function artCheck(tiles,patterns,{mode='corners-and-sides'}={}){
  const fullIdx=patterns.findIndex((p,i)=>p&&tiles[i]&&p[0]>=0&&MODE_IDX[mode].every(k=>p[k+1]===p[0]));
  if(fullIdx<0)return {measurable:false,reason:'no-full-tile',mismatches:[]};
- const m=measurements(tiles,fullIdx);
+ let best=null;
+ for(const method of ['line','band']){const r=artCheckWith(tiles,patterns,mode,fullIdx,method);if(!best||(r.measurable&&!best.measurable)||(r.measurable===best.measurable&&(r.side?.auc??0)>(best.side?.auc??0)))best=r;}
+ return best;
+}
+function artCheckWith(tiles,patterns,mode,fullIdx,method){
+ const m=measure(tiles,fullIdx,method);
  const groups={side:{on:[],off:[]},corner:{on:[],off:[]}};
  const items=[];
  m.forEach((x,i)=>{
@@ -375,17 +416,26 @@ export function artCheck(tiles,patterns,{mode='corners-and-sides'}={}){
   stat[k]={auc:a,on:median(g.on),off:median(g.off),n:g.on.length+g.off.length,usable:a!=null&&a>=0.8&&median(g.off)-median(g.on)>=6};
  }
  if(!stat.side.usable&&!stat.corner.usable)return {measurable:false,reason:'connected-and-open-look-alike',auc:stat.side.auc,mismatches:[]};
+ // The threshold that best separates "connects" from "open" for THIS art; only bits it gets wrong,
+ // and by a clear distance, are reported. Perfectly separable bits report nothing.
+ for(const [k,g] of Object.entries(groups)){
+  const s=stat[k];if(!s.usable)continue;
+  const all=[...g.on.map(d=>[d,1]),...g.off.map(d=>[d,0])].sort((a,b)=>a[0]-b[0]);
+  let errs=g.off.length*0+g.on.length,best={errs:Infinity,t:0};// threshold below everything: every "on" is wrong
+  errs=g.on.length;let cur=errs;best={errs:cur,t:all[0][0]-1};
+  for(let q=0;q<all.length;q++){cur+=all[q][1]?-1:1;const t=q+1<all.length?(all[q][0]+all[q+1][0])/2:all[q][0]+1;if(cur<best.errs)best={errs:cur,t};}
+  s.threshold=best.t;s.margin=Math.max(3,(s.off-s.on)*.15);
+ }
  const by=new Map();
  for(const it of items){
   const s=stat[it.kind];if(!s.usable)continue;
-  const mid=(s.on+s.off)/2;
-  // clearly wrong: past the midpoint AND closer to the other group's median than to its own
-  const wrong=it.want?it.d>mid&&Math.abs(it.d-s.off)<Math.abs(it.d-s.on):it.d<mid&&Math.abs(it.d-s.on)<Math.abs(it.d-s.off);
+  const wrong=it.want?it.d>s.threshold+s.margin:it.d<s.threshold-s.margin;
   if(!wrong)continue;
   if(!by.has(it.i))by.set(it.i,[]);
   by.get(it.i).push({pos:it.pos,expected:it.want?'connected':'open',distance:+it.d.toFixed(1)});
- }
- return {measurable:true,full:fullIdx,side:stat.side,corner:stat.corner,mismatches:[...by].map(([index,positions])=>({index,positions}))};
+ } return {measurable:true,method,full:fullIdx,side:stat.side,corner:stat.corner,mismatches:[...by].map(([index,positions])=>({index,positions}))};
 }
 const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);return s[s.length>>1];};
 export {fromBlob};
+
+export {artCheckWith as _artCheckWith};

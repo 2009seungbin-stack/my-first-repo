@@ -310,7 +310,10 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   history.entries.forEach((e,i)=>rows.push(h('div.st-hist-row'+(i<history.index?'':'.is-undone'),{role:'option','aria-selected':String(history.index===i+1),'data-index':String(i+1),tabindex:'-1'},h('span.st-hist-dot',{}),e.label)));
   historyList.replaceChildren(...rows);
   for(const r of rows)r.addEventListener('click',()=>history.jump(Number(r.dataset.index)));
-  historyList.querySelector('[aria-selected="true"]')?.scrollIntoView({block:'nearest'});
+  // keep the current step visible inside the list only: scrollIntoView would also scroll the whole
+  // right dock down to the History panel after every edit in any other panel
+  const cur=historyList.querySelector('[aria-selected="true"]'),box=historyList.closest('.st-panel-body')||historyList;
+  if(cur&&box.scrollHeight>box.clientHeight){const top=cur.offsetTop-box.offsetTop;if(top<box.scrollTop)box.scrollTop=top;else if(top+cur.offsetHeight>box.scrollTop+box.clientHeight)box.scrollTop=top+cur.offsetHeight-box.clientHeight;}
  }
  // ------------------------------------------------------------------ app commands
  const zoomTo=s=>()=>view.zoomTo(s,view.lastPointer);

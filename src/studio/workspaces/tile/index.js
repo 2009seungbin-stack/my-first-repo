@@ -42,6 +42,7 @@ const unkey=k=>k.split(',').map(Number);
 const ZONES=[[7,0,1],[6,'c',2],[5,4,3]];
 function zoneAt(g,lx,ly){const zx=Math.min(2,Math.floor(lx*3/g.w)),zy=Math.min(2,Math.floor(ly*3/g.h));return ZONES[zy][zx];}
 function zoneRect(g,z){for(let zy=0;zy<3;zy++)for(let zx=0;zx<3;zx++)if(ZONES[zy][zx]===z)return {x:Math.floor(zx*g.w/3),y:Math.floor(zy*g.h/3),w:Math.floor((zx+1)*g.w/3)-Math.floor(zx*g.w/3),h:Math.floor((zy+1)*g.h/3)-Math.floor(zy*g.h/3)};return null;}
+const put=(el,...kids)=>el.replaceChildren(...kids.flat().filter(k=>k!=null&&k!==false));
 const rgba=(hex,a)=>{const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');const n=m?parseInt(m[1],16):0x4cc2ff;return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
 /** Rotate a pattern 90° clockwise (positions move two steps round the ring). */
 const rotate=p=>[p[0],...Array.from({length:8},(_,i)=>p[1+((i+6)%8)])];
@@ -84,7 +85,7 @@ export default {
     c.lineWidth=1;c.strokeStyle='rgba(255,255,255,.14)';c.strokeRect(x+.5,y+.5,w-1,hh-1);
     if(blank.has(k)){c.fillStyle='rgba(0,0,0,.28)';c.fillRect(x,y,w,hh);continue;}
     const p=preview?.patterns?.[k]??(ts?.tiles[k]?.pattern);if(!p)continue;const isPrev=!!preview?.patterns?.[k];
-    const alpha=isPrev?.34:.5;
+    const alpha=isPrev?.3:.42;
     if(detailed){
      for(const z of ['c',...MODE_IDX[ts?.mode||preview?.mode||'corners-and-sides']]){
       const val=z==='c'?p[0]:p[z+1];if(val<0)continue;const zr=zoneRect(g,z);
@@ -274,7 +275,7 @@ export default {
   // ---- Tileset panel
   function renderSet(){
    const box=panels['tile-set'],a=asset();
-   if(!a){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.noImage')));return;}
+   if(!a){put(box,h('p.st-muted.st-pad',{},t('tile.noImage')));return;}
    const ts=tileset();
    const list=St.tilesetsOf(S());
    const listSec=list.length?sec(t('tile.set.list',{n:list.length}),h('div.tl-setlist',{},list.map(x=>{const on=x.assetId===a.id;const b=h('button.tl-setitem',{type:'button','aria-pressed':String(on),'data-tileset':x.id},h('b',{},x.name),h('small',{},`${x.grid.w}×${x.grid.h} · ${Object.keys(x.tiles).length} ${t('tile.tiles')} · ${t('tile.mode.'+x.mode)}`));b.addEventListener('click',()=>ctx.showAsset(x.assetId));return b;}))):null;
@@ -297,7 +298,7 @@ export default {
     }
     const f=(k,label,min)=>{const i=h('input.st-input.st-num',{type:'number',min:String(min),step:'1',value:g?String(g[k]):'','data-tile-grid':k,'aria-label':t(label)});i.addEventListener('change',()=>{const cur=drafts.get(a.id)||{w:16,h:16,ox:0,oy:0,sx:0,sy:0};setDraft({...cur,[k]:Math.max(min,Math.round(Number(i.value)||0))});});return h('label.st-field.st-field-inline',{},h('span',{},t(label)),i);};
     const dg=draftGrid();
-    box.replaceChildren(
+    put(box,
      sec([h('span',{},t('tile.set.setup')),btn(t('grid.detect'),()=>runDetect(true),{action:'tile-detect'})],h('p.st-muted.tl-lead',{},t('tile.set.lead')),sug),
      sec(t('grid.cellTitle'),h('div.st-grid-fields',{},f('w','grid.w',1),f('h','grid.h',1),f('ox','grid.ox',0),f('oy','grid.oy',0),f('sx','grid.sx',0),f('sy','grid.sy',0)),
       h('p.st-muted',{},dg?t('tile.set.count',{c:dg.cols,r:dg.rows,n:dg.cols*dg.rows}):t('tile.set.pick')),
@@ -310,7 +311,7 @@ export default {
    const name=h('input.st-input',{type:'text',value:ts.name,'aria-label':t('tile.set.name'),'data-tile':'name'});name.addEventListener('change',()=>editTs(t('tile.cmd.rename'),x=>({...x,name:name.value.trim().slice(0,80)||x.name})));
    const modeSel=h('select.st-input',{'data-tile':'mode','aria-label':t('tile.set.mode')},MODES.map(m=>h('option',{value:m,selected:m===ts.mode},t('tile.mode.'+m))));
    modeSel.addEventListener('change',()=>editTs(t('tile.cmd.mode'),x=>TS.setMode(x,modeSel.value)));
-   box.replaceChildren(
+   put(box,
     sec(t('tile.set.this'),h('label.st-field',{},h('span',{},t('tile.set.name')),name),
      h('p.st-muted',{},t('tile.set.summary',{w:g.w,h:g.h,c:g.cols,r:g.rows,n,blank:blank??'…',m:g.ox,s:g.sx})),
      h('label.st-field',{},h('span',{},t('tile.set.mode')),modeSel),h('p.st-muted.tl-small',{},t('tile.modeHelp.'+ts.mode)),
@@ -398,7 +399,7 @@ export default {
   }
   function renderLayout(){
    const box=panels['tile-layout'],ts=tileset();
-   if(!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
+   if(!ts){put(box,h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
    const d=ident.get(ts.id),list=h('div.st-sugs',{'data-tile':'candidates'});
    if(!d||d.status==='running')list.append(h('p.st-muted',{},t('tile.layout.running')));
    else if(d.status==='error')list.append(h('p.st-error',{},d.error));
@@ -425,7 +426,7 @@ export default {
     h('div.st-row',{},btn(t('tile.layout.apply'),applyPreview,{primary:true,action:'tile-apply-preview'}),btn(t('tile.layout.discard'),()=>{preview=null;sheetLayer.view?.invalidate();renderLayout();},{action:'tile-discard'}))):null;
    const tmpl=h('select.st-input',{'data-tile':'template','aria-label':t('tile.layout.template')},h('option',{value:''},t('tile.layout.templatePick')),LAYOUTS.map(L=>h('option',{value:L.id},`${L.names[0]} (${L.cols}×${L.rows})`)));
    tmpl.addEventListener('change',()=>{if(!tmpl.value)return;const L=layoutById(tmpl.value);const at=selection.length?unkey(selection.slice().sort()[0]):[0,0];previewCandidate({layoutId:L.id,col:Math.min(at[0],Math.max(0,ts.grid.cols-L.cols)),row:Math.min(at[1],Math.max(0,ts.grid.rows-L.rows)),auc:0,cells:L.cols*L.rows,missing:0,extra:0});});
-   box.replaceChildren(
+   put(box,
     sec([h('span',{},t('tile.layout.found')),btn(t('tile.layout.rerun'),()=>runIdentify(true),{action:'tile-identify'})],list),
     pv,
     sec(t('tile.layout.other'),h('label.st-field',{},h('span',{},t('tile.layout.template')),tmpl),h('p.st-muted.tl-small',{},t('tile.layout.templateHint')),
@@ -436,8 +437,8 @@ export default {
   // ---- Tile panel
   function renderTilePanel(){
    const box=panels['tile-tile'],ts=tileset();
-   if(!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
-   if(!selection.length){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.tile.none',{v:'V',b:'B'})));return;}
+   if(!ts){put(box,h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
+   if(!selection.length){put(box,h('p.st-muted.st-pad',{},t('tile.tile.none',{v:'V',b:'B'})));return;}
    const k=selection[0],[col,row]=unkey(k),p=ts.tiles[k]?.pattern||null;
    const grid=h('div.tl-bitgrid',{role:'group','aria-label':t('tile.tile.bits')});
    for(const rowZ of ZONES)for(const z of rowZ){
@@ -448,7 +449,7 @@ export default {
    }
    const prob=h('input.st-input.st-num',{type:'number',min:'0',step:'0.1',value:String(ts.tiles[k]?.probability??1),'aria-label':t('tile.tile.prob'),disabled:!p});
    prob.addEventListener('change',()=>editTs(t('tile.cmd.prob'),x=>{const tiles={...x.tiles};for(const kk of selection)if(tiles[kk])tiles[kk]={...tiles[kk],probability:Math.max(0,Number(prob.value)||0)};return {...x,tiles};}));
-   box.replaceChildren(sec(selection.length===1?t('tile.tile.one',{c:col,r:row}):t('tile.tile.many',{n:selection.length}),
+   put(box,sec(selection.length===1?t('tile.tile.one',{c:col,r:row}):t('tile.tile.many',{n:selection.length}),
     h('div.tl-tilerow',{},grid,h('div.tl-tileinfo',{},h('p',{},p?describe(p):t('tile.notTerrain')),h('p.st-muted.tl-small',{},t('tile.tile.help')))),
     h('label.st-field.st-field-inline',{},h('span',{},t('tile.tile.prob')),prob),
     h('div.st-row',{},btn(t('tile.tile.full'),()=>setSel(()=>{const q=[terrain,-1,-1,-1,-1,-1,-1,-1,-1];for(const i of MODE_IDX[ts.mode])q[i+1]=terrain;return q;}),{action:'tile-full'}),
@@ -473,7 +474,7 @@ export default {
    const box=panels['tile-check'];ctx.badge('tile-check');
    const ts=mode==='map'?layerTileset():tileset();
    if(mode==='map'){renderMapProblems(box);return;}
-   if(!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
+   if(!ts){put(box,h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
    const c=checkOf(ts),a=art.get(ts.id),n=Object.keys(ts.tiles).length;
    const items=[];
    if(!n)items.push(h('p.tl-state.is-none',{'data-check':'empty'},t('tile.check.empty')));
@@ -496,7 +497,7 @@ export default {
    else artEl=h('p.tl-state.is-ok',{'data-check':'art-ok'},t('tile.check.artOk',{auc:((a.side?.auc??0)*100).toFixed(0)}));
    const complete=n&&c.complete&&!c.duplicates.length&&!c.invalid.length&&a?.status==='done'&&a.measurable&&!a.mismatches.length;
    const verdict=h('p.tl-verdict'+(complete?'.is-ok':'.is-open'),{'data-verdict':complete?'complete':'open'},complete?t('tile.check.verdictOk'):t('tile.check.verdictOpen'));
-   box.replaceChildren(h('div.tl-check',{},verdict,...items,artEl?h('div.tl-check-block',{},h('div.tl-check-head',{},h('b',{},t('tile.check.art'))),artEl):null));
+   put(box,h('div.tl-check',{},verdict,...items,artEl?h('div.tl-check-block',{},h('div.tl-check-head',{},h('b',{},t('tile.check.art'))),artEl):null));
   }
   function ghost(p,ts){
    const c=h('canvas.tl-ghost',{width:24,height:24,title:describe(p)}),x=c.getContext('2d');
@@ -506,10 +507,10 @@ export default {
   }
   function renderMapProblems(box){
    const m=activeMap(),L=activeLayer(),ts=layerTileset();
-   if(!m||!L||!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.map.none')));return;}
+   if(!m||!L||!ts){put(box,h('p.st-muted.st-pad',{},t('tile.map.none')));return;}
    const r=resolveLayer(m,L,ts,m.rule),miss=r.problems.filter(p=>p.kind!=='wrong'),wrong=r.problems.filter(p=>p.kind==='wrong');
    const ok=r.painted>0&&!r.problems.length;
-   box.replaceChildren(h('div.tl-check',{},
+   put(box,h('div.tl-check',{},
     h('p.tl-verdict'+(ok?'.is-ok':'.is-open'),{'data-verdict':ok?'map-ok':'map-open','data-wrong':String(wrong.length),'data-missing':String(miss.length)},!r.painted?t('tile.map.paintFirst'):ok?t('tile.map.ok',{n:r.painted,rule:t('tile.rule.'+m.rule)}):t('tile.map.bad',{w:wrong.length,m:miss.length,rule:t('tile.rule.'+m.rule)})),
     h('p.st-muted.tl-small',{},t('tile.map.ruleHelp.'+m.rule)),
     h('div.tl-links',{},r.problems.slice(0,40).map(p=>{const b=h('button.st-link',{type:'button'},`${p.x},${p.y} ${t('tile.problem.'+p.kind)}${p.want?' → '+describe(p.want):''}`);b.addEventListener('click',()=>{view.reveal({x:p.x*ts.grid.w,y:p.y*ts.grid.h,w:ts.grid.w,h:ts.grid.h});hoverCell={x:p.x,y:p.y};mapLayer.view?.invalidate();statusCell(hoverCell);});return b;}))));
@@ -518,7 +519,7 @@ export default {
   function renderMapPanel(){
    const box=panels['tile-map'],s=S(),maps=Object.values(s.maps||{}),m=activeMap(),sets=St.tilesetsOf(s);
    const create=btn(t('tile.map.new'),()=>{const ts=tileset()||sets[0];const map=St.createMap({name:t('tile.map.defaultName',{n:maps.length+1}),tilesetId:ts?.id||null});edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');},{primary:!m,action:'tile-new-map',disabled:!sets.length});
-   if(!m){box.replaceChildren(sec(t('tile.map.title'),h('p.st-muted',{},sets.length?t('tile.map.intro'):t('tile.map.needSet')),h('div.st-row',{},create)));return;}
+   if(!m){put(box,sec(t('tile.map.title'),h('p.st-muted',{},sets.length?t('tile.map.intro'):t('tile.map.needSet')),h('div.st-row',{},create)));return;}
    const pickMap=h('select.st-input',{'aria-label':t('tile.map.title'),'data-tile':'map'},maps.map(x=>h('option',{value:x.id,selected:x.id===m.id},x.name)));
    pickMap.addEventListener('change',()=>{edit(t('tile.cmd.pickMap'),x=>({...x,activeMap:pickMap.value}));layerSel=null;renderMap(true);});
    const num=(k,label)=>{const i=h('input.st-input.st-num',{type:'number',min:'2',max:String(St.MAX_MAP),value:String(m[k]),'aria-label':t(label),'data-map':k});i.addEventListener('change',()=>edit(t('tile.cmd.resize'),x=>St.updateMap(x,m.id,mm=>St.resizeMap(mm,k==='w'?Number(i.value):mm.w,k==='h'?Number(i.value):mm.h))));return h('label.st-field.st-field-inline',{},h('span',{},t(label)),i);};
@@ -543,7 +544,7 @@ export default {
    const clear=btn(t('tile.map.clear'),()=>edit(t('tile.cmd.clearMap'),x=>St.updateMap(x,m.id,mm=>St.updateLayer(mm,L.id,ll=>({...ll,cells:'.'.repeat(mm.w*mm.h)})))),{action:'tile-clear-map'});
    const view2=btn(mode==='map'?t('tile.map.showSheet'):t('tile.map.showMap'),()=>setMode(mode==='map'?'tileset':'map'),{primary:mode!=='map',action:'tile-toggle-view',title:ctx.shortcutOf('tile.view')});
    const del=btn(t('tile.map.remove'),()=>{edit(t('tile.cmd.removeMap'),x=>St.removeMap(x,m.id));renderMap(true);});
-   box.replaceChildren(
+   put(box,
     sec([h('span',{},t('tile.map.title')),create],h('div.st-row',{},pickMap),h('div.st-grid-fields',{},num('w','tile.map.w'),num('h','tile.map.h')),h('div.st-row',{},view2,del)),
     sec(t('tile.map.rule'),rule,h('p.st-muted.tl-small',{},t('tile.map.ruleHelp.'+m.rule))),
     sec(t('tile.terrain.title'),pal,h('p.st-muted.tl-small',{},t('tile.map.paletteHint'))),
@@ -562,13 +563,13 @@ export default {
    if(link){
     const src=P.assetById(ctx.doc,link.sourceAssetId);
     const changed=src&&P.primaryBlob(src)!==link.sourceBlob;
-    box.replaceChildren(sec(t('tile.gen.linked'),h('p',{},t('tile.gen.linkedFrom',{name:src?.name||'?',kind:t('tile.source.'+link.kind)})),
+    put(box,sec(t('tile.gen.linked'),h('p',{},t('tile.gen.linkedFrom',{name:src?.name||'?',kind:t('tile.source.'+link.kind)})),
      changed?h('p.tl-state.is-warn',{},t('tile.gen.stale')):h('p.tl-state.is-ok',{},t('tile.gen.fresh')),
      h('div.st-row',{},btn(t('tile.gen.openSource'),()=>ctx.showAsset(link.sourceAssetId)),changed?btn(t('tile.gen.regen'),()=>regenerate(assetId),{primary:true,action:'tile-regen'}):null)),
      srcEditor(link));
     return;
    }
-   if(!a||!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.gen.needSet')));return;}
+   if(!a||!ts){put(box,h('p.st-muted.st-pad',{},t('tile.gen.needSet')));return;}
    const kind=h('select.st-input',{'data-tile':'gen-kind','aria-label':t('tile.gen.kind')},Object.keys(SOURCE_SIZE).map(k=>h('option',{value:k,selected:k===genState.kind},t('tile.source.'+k))));
    kind.addEventListener('change',()=>{genState.kind=kind.value;renderGen();sheetLayer.view?.invalidate();});
    const K=SOURCE_SIZE[genState.kind];
@@ -581,7 +582,7 @@ export default {
    const bgBtn=btn(t('tile.gen.bgUse'),()=>{if(selection.length!==1){ctx.toast(t('tile.gen.bgPick'),{error:true});return;}const [col,row]=unkey(selection[0]);genState.background={col,row};renderGen();});
    const bgClr=btn(t('tile.gen.bgClear'),()=>{genState.background=null;renderGen();},{disabled:!genState.background});
    const rim=genState.kind==='rim'?h('div.st-grid-fields',{},(()=>{const i=h('input.st-input.st-num',{type:'number',min:'1',max:'8',value:String(genState.rim.rim)});i.addEventListener('change',()=>{genState.rim.rim=Math.max(1,Math.min(8,Number(i.value)||2));});return h('label.st-field.st-field-inline',{},h('span',{},t('tile.gen.rimWidth')),i);})(),(()=>{const i=h('input.tl-color',{type:'color',value:genState.rim.color});i.addEventListener('change',()=>{genState.rim.color=i.value;});return h('label.st-field.st-field-inline',{},h('span',{},t('tile.gen.rimColor')),i);})()):null;
-   box.replaceChildren(sec(t('tile.gen.title'),h('p.st-muted.tl-lead',{},t('tile.gen.lead')),
+   put(box,sec(t('tile.gen.title'),h('p.st-muted.tl-lead',{},t('tile.gen.lead')),
     h('label.st-field',{},h('span',{},t('tile.gen.kind')),kind),h('p.st-muted.tl-small',{},t('tile.gen.kindHelp.'+genState.kind,{w:K[0],h:K[1]})),
     h('div.st-row',{},useSel),h('p'+(fitsSheet?'.st-muted':'.st-error')+'.tl-small',{},genState.origin&&genState.assetId===a.id?t(fitsSheet?'tile.gen.origin':'tile.gen.originBad',{c:genState.origin.col,r:genState.origin.row,w:K[0],h:K[1]}):t('tile.gen.noOrigin',{w:K[0],h:K[1]})),
     rim,
@@ -672,14 +673,14 @@ export default {
   const exportOpts={targets:new Set(['godot','tiled','ldtk','unity','generic']),collision:'none',sample:'map'};
   function renderExport(){
    const box=panels['tile-export'],ts=tileset();
-   if(!ts){box.replaceChildren(h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
+   if(!ts){put(box,h('p.st-muted.st-pad',{},t('tile.needTileset')));return;}
    const rows=TARGETS.map(tg=>{const v=VERIFY[tg];const cb=h('input',{type:'checkbox',checked:exportOpts.targets.has(tg),'data-target':tg});cb.addEventListener('change',()=>{cb.checked?exportOpts.targets.add(tg):exportOpts.targets.delete(tg);});
     const na=tg==='unity'&&ts.mode==='corners';
     return h('label.tl-target'+(na?'.is-na':''),{},cb,h('span.tl-target-name',{},t('tile.export.t.'+tg)),h('span.st-conf.is-'+(na?'alt':v.status==='verified'?'high':'medium'),{title:v.detail},na?t('tile.export.na'):t('tile.export.'+v.status)));});
    const col=h('select.st-input',{'aria-label':t('tile.export.collision'),'data-tile':'collision'},['none','box','rects','outline'].map(m=>h('option',{value:m,selected:exportOpts.collision===m},t('tile.export.col.'+m))));
    col.addEventListener('change',()=>{exportOpts.collision=col.value;});
    const n=Object.keys(ts.tiles).filter(k=>ts.tiles[k].pattern[0]>=0).length;
-   box.replaceChildren(sec(t('tile.export.title'),h('div.tl-targets',{},rows),
+   put(box,sec(t('tile.export.title'),h('div.tl-targets',{},rows),
     h('label.st-field',{},h('span',{},t('tile.export.collision')),col),h('p.st-muted.tl-small',{},t('tile.export.colHelp')),
     h('p.st-muted.tl-small',{},t('tile.export.sample')),
     h('div.st-row',{},btn(t('tile.export.go',{n}),()=>doExport(),{primary:true,disabled:!n,action:'tile-export'})),

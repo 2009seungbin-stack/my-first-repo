@@ -16,6 +16,9 @@ import {unityRules,unityJSON} from '../src/game/tiles/unity.js';
 import {godotJSON,godotImporter} from '../src/game/tiles/godot-export.js';
 import {exportBundle} from '../src/game/tiles/exports.js';
 import {standardCases,getter,gridFromRows,SHAPE58} from '../tools/engine-verify/tile/cases.mjs';
+import {decodePNG} from '../src/game/texture-png.js';
+import {tileSource} from '../src/game/tiles/identify.js';
+const fixture=async name=>{const d=await decodePNG(readFileSync(new URL('./fixtures/tile/'+name,import.meta.url)));return {data:new Uint8ClampedArray(d.data),width:d.width,height:d.height};};
 
 test('blob reduction gives exactly 47 masks; pattern ↔ mask conversions round-trip', () => {
  assert.equal(P.BLOB47.length, 47);
@@ -255,4 +258,30 @@ test('multi-block sheets: plain fills that are the same picture are the same ter
  const bt = blockTerrains(img, {w: t, h: t}, blocks);
  assert.equal(bt.terrains.length, 3);
  assert.equal(bt.blocks[0].b, bt.blocks[1].b);
+});
+
+test('real CC0 art: the cave blob-47 sheet (textured) is identified, and its bits are read from the pixels alone', async () => {
+ const img = await fixture('cave-autotile47.png'), L = layoutById('blob47-gamemaker');
+ const r = identifyLayout(img, {w: 64, h: 64});
+ assert.equal(r.candidates[0].layoutId, 'blob47-gamemaker');
+ assert.ok(r.candidates[0].auc > 0.95, 'seam score ' + r.candidates[0].auc);
+ const src = tileSource(img, {w: 64, h: 64}), tiles = [], truth = [];
+ for (let row = 0; row < 6; row++) for (let col = 0; col < 8; col++) { tiles.push(src.blank(col, row) ? null : src.tile(col, row)); truth.push(cellPattern(L, col, row)); }
+ const s = suggestBits(tiles, {mode: 'corners-and-sides'});
+ const exact = s.tiles.filter((t, i) => t && truth[i] && t.pattern.every((v, k) => v === truth[i][k])).length;
+ assert.equal(exact, 47, 'tiles whose suggested bits equal the GameMaker truth');
+ assert.equal(artCheck(tiles, truth).mismatches.length, 0);
+ const swapped = truth.slice(); const a = 32, b = 33; [swapped[a], swapped[b]] = [swapped[b], swapped[a]];
+ assert.deepEqual(artCheck(tiles, swapped).mismatches.map(m => m.index).sort((x, y) => x - y), [a, b]);
+});
+
+test('real CC0 templates: GameMaker 47 and the 2-corner Wang set are recognised with high confidence', async () => {
+ const gm = identifyLayout(await fixture('gms-47-template.png'), {w: 32, h: 32});
+ assert.equal(gm.candidates[0].layoutId, 'blob47-gamemaker'); assert.equal(gm.candidates[0].confidence, 'high');
+ const w = identifyLayout(await fixture('wang-2corner.png'), {w: 32, h: 32});
+ assert.equal(w.candidates[0].layoutId, 'corner16-cr31'); assert.equal(w.candidates[0].confidence, 'high');
+ // a seamless floor A2 sheet carries no seam information: never "high", but its size is named
+ const a2 = identifyLayout(await fixture('coolschool-A2.png'), {w: 48, h: 48});
+ assert.notEqual(a2.candidates[0]?.confidence, 'high');
+ assert.equal(a2.hints[0]?.layoutId, 'rpgmaker-a2');
 });
