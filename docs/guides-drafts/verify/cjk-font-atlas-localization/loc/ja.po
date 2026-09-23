@@ -1,0 +1,12 @@
+msgid ""
+msgstr ""
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Quest complete!"
+msgstr "クエスト達成！"
+
+msgid "The bridge to the east has collapsed. "
+"Find another way."
+msgstr "東の橋が崩れ落ちた。"
+"別の道を探そう。"

@@ -1,0 +1,31 @@
+pixel-art-crisp-in-browser-phaser-pixi -- source findings (read from tools/engine-verify/web/node_modules; NOT yet reproduced in a browser)
+Libs: phaser3 = 3.90.0 (node_modules/phaser3), phaser = 4.2.1 (node_modules/phaser), pixi.js 8.21.0
+
+PHASER (src/core/Config.js)
+- 3.90 line ~401: pixelArt default = (this.zoom !== 1) -> with scale.zoom != 1 pixelArt turns ON by itself. Docs (3.88.2 typedef) say default false. 4.2 line ~397: default false (no zoom rule). -> verify in browser.
+- Both: pixelArt -> antialias=false, antialiasGL=false, roundPixels=true.
+- 4.x only: smoothPixelArt (WebGL) -> antialias true, pixelArt false; shader keeps blocky texels with smooth edges.
+- antialias=false effects (core/CreateRenderer.js): CanvasPool.disableSmoothing(); CanvasInterpolation.setCrisp(game.canvas) sets style image-rendering through a list ending in 'pixelated' + msInterpolationMode; TextureSource ctor: setFilter(1)=NEAREST for every texture (textures/TextureSource.js ~269/281). 4.x WebGLTextureWrapper minFilter NEAREST (~328).
+- antialiasGL -> WebGL context antialias (MSAA), does not affect textures.
+- Phaser has no devicePixelRatio handling (only OS.pixelRatio read). Canvas buffer = game size; CSS size = displaySize (zoom / FIT).
+- Scale: scale.snap {width,height} -> displaySize.setSnap (floors to multiples); zoom; Phaser.Scale.MAX_ZOOM (-1) = largest integer zoom fitting parent (getMaxZoom, SnapFloor, min 1); autoRound floors style size. Modes NONE, WIDTH_CONTROLS_HEIGHT, HEIGHT_CONTROLS_WIDTH, FIT, ENVELOP, RESIZE, EXPAND (both versions).
+- Camera: CameraManager.roundPixels = game.config.roundPixels; camera.startFollow(target, roundPixels=false, ...) OVERWRITES camera.roundPixels (default false) in 3.90 and 4.2 -> pass true.
+- 3.90: Camera.renderRoundPixels = roundPixels && integer zoom; MultiPipeline floors gameObject x/y when camera.roundPixels; camera scroll floored when roundPixels.
+- 4.2: GameObject.vertexRoundMode default 'safeAuto' = round only when the final matrix is translate-only (no scale/rotation incl. camera zoom) AND camera.roundPixels. 'fullAuto' = always when camera.roundPixels; 'full' always; 'off'; setVertexRoundMode(). So scaled sprites / camera zoom != 1 are NOT rounded by default in 4.x (renderer/webgl/renderNodes/transformer/TransformerImage.js ~180).
+
+PIXI 8.21 (lib/)
+- TextureStyle.defaultOptions = {addressMode:'clamp-to-edge', scaleMode:'linear'}; TextureSource ctor spreads TextureSource.defaultOptions into new TextureStyle -> TextureSource.defaultOptions.scaleMode='nearest' works (options pass through).
+- source.scaleMode setter -> style.scaleMode (sets mag/min/mipmap filter).
+- roundPixels: AbstractRenderer default false; Sprite has own roundPixels; shader roundPixels() rounds positions to render-target pixels (device pixels when resolution=dpr).
+- autoDensity default false; with autoDensity canvas style width/height = CSS size, buffer = size*resolution (CanvasSource.resizeCanvas). resolution default expected 1 (verify).
+- Bitmap font loader: non-SDF .fnt page textures get default options (global 'nearest' applies); SDF pages forced linear. BitmapFont.install({... textureStyle:{scaleMode:'nearest'}}).
+
+CSS / DOM (MDN, fetched): image-rendering only affects scaled images; 'pixelated' spec = nearest to nearest integer multiple then smooth for remainder (MEASURE what Chromium does at a fractional factor). devicePixelContentBoxSize via ResizeObserver({box:'device-pixel-content-box'}) = exact device pixels; not Baseline.
+
+NERULIO (docs/STUDIO-PACK.md, docs/PIXEL-LAB.md, src/game/export/atlas-json.js)
+- Pack scale variants @0.5x..@4x nearest only, integer upscales exact pixel doubles, each variant its own atlas name@2x.png, Pixi meta.scale follows variant. Phaser/Pixi targets verified in Phaser 3.90+4.2 / Pixi 8.21.
+- README-PHASER.md says "create the game with pixelArt: true"; README-PIXI.md sets TextureSource.defaultOptions.scaleMode='nearest'. Phaser has no meta.scale: an @2x atlas draws at 2x size in Phaser.
+- Pixel Perfect Checker = src/game/pixel-check.js inspect(): verdict integer/resampled/unit/non-integer; usable in node on canvas captures (idea: screenshot the game canvas at DPR 1.25 and check it).
+- Reusable CC0 bitmap font: ../bitmap-font-sdf-msdf-game-ui/np16 (Nerulio export of Kenney Pixel), fnt-to-xml.mjs in ../bitmap-font-sdf-msdf-game-ui/web.
+
+PLANNED TEST MATRIX (not built): Phaser 3.90/4.2 default vs pixelArt at 4x; zoom 4 without pixelArt (3.90 auto-crisp vs 4.2 blurry); Scale.FIT fractional vs snap/MAX_ZOOM; DPR 1.25 zoom 3 (3.75 device px, uneven) vs zoom k/dpr; startFollow roundPixels overwrite. Pixi linear vs nearest, fractional position linear with/without roundPixels, DPR 1.25 resolution/autoDensity, CSS pixelated low-res canvas sized k/dpr. Measure captures with pixel-check inspect() + run lengths. Use the request-interception pattern from ../pixijs-8-spritesheet-animation/run.py.

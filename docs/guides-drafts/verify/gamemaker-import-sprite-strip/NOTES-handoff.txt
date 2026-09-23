@@ -1,0 +1,54 @@
+gamemaker-import-sprite-strip — research notes (no guide files written yet)
+
+Downloaded manual pages (raw HTML + .txt) are in docs/ next to this file.
+
+DOCS-CHECKED (manual.gamemaker.io/monthly/en, (c) 2026):
+- The_Asset_Editors/Sprite_Properties/Sprite_Strips.htm: strip = frames laid out horizontally from the left;
+  filename must end with "_stripN"; import via Sprite Editor "Import" button, drag into the IDE, or sprite_add();
+  GameMaker removes "_stripN" from the sprite name; frame width = strip width / N (250 px, 5 frames -> 50 px).
+- Quick_Start_Guide/Creating_Sprites.htm: TIP same rule (anim_strip4.png); drag files from Explorer onto IDE adds sprites.
+- The_Asset_Editors/Sprites.htm: Inspector option "Import Strip" opens the "Convert to Frames" window; Import button;
+  multiple files -> frames of one sprite; Frame Speed "Frames per second" vs "Frames per game frame"
+  (0.5 fpgf = new frame every two game steps); image_speed multiplier (10 fps * 0.5 = 5 fps);
+  origin default Top Left, presets (Middle Centre, bottom centre), click in preview or type x/y, negatives allowed;
+  collision mask Mode Automatic/Full Image/Manual, types Rectangle, Rectangle With Rotation, Ellipse, Diamond,
+  Precise (composite of all frames), Precise (per frame) (slowest); alpha tolerance; loop/ping-pong buttons
+  affect preview only, not the game; stretched frame in frame view is shown longer "as if duplicated";
+  texture group chosen in Texture Settings; frames numbered 1.. in editor, 0.. in code.
+- The_Asset_Editors/Image_Editor.htm: Image menu > "Convert to Frames" and "Import Strip Image" (same dialog);
+  "Export to PNG" writes sprite_name_stripN.png.
+- Dialog labels (from manual screenshot assets/Images/Asset_Editors/Editor_Image_ConvertStrip.png, saved in docs/):
+  title "Convert to Frames"; Number of Frames, Frames per Row, Frame Width, Frame Height, Horizontal Cell Offset,
+  Vertical Cell Offset, Horizontal Pixel Offset, Vertical Pixel Offset, "Horizonal Separation" (typo in the UI
+  screenshot), Vertical Separation; button "Convert".
+- Field meanings: current manual does not define them. GM8 manual "Strips" page (legacy, same fields), archived:
+  http://web.archive.org/web/20210814024911/https://documentation.help/Game-Maker-8/202_02_strips.html
+  cell offset = how many images to skip horizontally/vertically; pixel offset = extra space at left/top (px);
+  separation = px to skip between images; images per row = 1 selects a vertical run.
+- Setting_Up_And_Version_Information/IDE_Preferences/Sprite_Editor_Preferences.htm: defaults origin Top Left,
+  mask Rectangle, animation mode Frames per second, animation speed 30 (a strip plays at 30 fps unless changed).
+- Settings/Texture_Groups.htm: Texture Group Manager in Tools menu; Default group; GameMaker packs sprites onto
+  texture pages itself; Automatically Crop on by default; Border Size default 2; mipmaps force 8.
+- Settings/Game_Options/Windows.htm: Graphics > "Interpolate colours between pixels" on by default; off for crisp pixels.
+- GML sprite_add(fname, imgnumb, removeback, smooth, xorig, yorig): strip split into imgnum, width = strip/imgnum.
+- sprite_get_speed_type: spritespeed_framespersecond / spritespeed_framespergameframe.
+
+Community Aseprite->GameMaker tools (checked 2026-09-24):
+- ASE2GMS (github.com/EspeuteClement/ASE2GMS): WIP, written for GMS2 2.3.0.529, README warns it likely breaks on
+  other versions, Windows only; last push 2021-04.
+- AseSync23 (github.com/YAL-GameMaker-Tools/AseSync23, GUI sahaun.itch.io/asesync): watches .aseprite files,
+  updates sprites in a 2.3+ project, uses Aseprite CLI; README itself recommends GM Link for recent GameMaker.
+- GM Link (pr0te.itch.io/gm-link): Aseprite extension, slices -> sprites, tags or "strip" slice, origin/bbox,
+  name-your-own-price, Windows-only "at the moment", 1.7 Beta; author warns limited testing across versions.
+
+Nerulio side (read src/game/export/engines.js gamemakerFiles, targets.js, docs/STUDIO-PACK.md):
+- target "GameMaker", verify:'unverified'; one strip per tag: spr_<base>_<tag>_strip<N>.png, frames in PLAYBACK order
+  (ping-pong/reverse baked in, via model.js playbackOrder), common pivot-aligned cell (origin = pivot, so no jump);
+  gamemaker.json {schemaVersion, engineTarget, verified:false, sprites:[{name, animation, file, frames, width,
+  height, xorigin, yorigin, playbackSpeed (1000/ms if uniform else tag fps), playbackSpeedType 'frames per second',
+  loop, durationsMs, uniformTiming}]} + README-GAMEMAKER.md; note shown when durations differ.
+- Baseline case 44 sp-samurai-gamemaker: Pillow decode only (strips cut like GameMaker's rule and compared).
+
+Aseprite CLI test started: love-ase/player.ase (40x40, tags sword/idle/run/jump/attack/hurt, durations vary).
+NOT yet done: produce per-tag strip with `--tag <t> --sheet spr_x_<t>_stripN.png --sheet-type horizontal`,
+compare cells with Pillow; show --shape-padding breaks width/N. No en/ko/ja/meta written.

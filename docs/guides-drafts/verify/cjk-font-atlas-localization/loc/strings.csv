@@ -1,0 +1,14 @@
+key,en,ko,ja
+menu.start,Start Game,게임 시작,ゲームスタート
+menu.continue,Continue,이어하기,つづきから
+menu.options,Options,설정,オプション
+menu.quit,Quit,종료,終了
+hud.hp,HP,체력,体力
+hud.gold,Gold: {0},골드: {0},ゴールド：{0}
+dlg.shop,"Welcome, traveller! Want to see my wares?","어서 오세요, 여행자님! 물건 좀 보시겠어요?",いらっしゃい、旅の方！品物を見ていくかい？
+dlg.boss,The Dragon of Ashen Peak awakens.,잿빛 봉우리의 용이 깨어났습니다.,灰の峰の竜が目覚めた。
+item.potion,Healing Potion,회복 물약,回復薬
+item.sword,Iron Sword,철검,鉄の剣
+msg.saved,Game saved.,저장했습니다.,セーブしました。
+msg.levelup,Level up! You reached level {0}.,레벨 업! {0}레벨이 되었습니다.,レベルアップ！レベル{0}になった。
+npc.name,Ttomi the smith,대장장이 똠이,鍛冶屋の髙橋
