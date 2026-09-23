@@ -187,6 +187,8 @@ export function createTimeline(W){
  body.addEventListener('pointerup',finish);body.addEventListener('pointercancel',e=>{if(drag){drag.moved=false;drag.kind==='new-tag'&&drag.el?.remove();drag=null;body.querySelector('.sp-drop')?.remove();render(true);}});
  body.addEventListener('dblclick',e=>{
   const a=W.asset();if(!a)return;
+  // pointer capture sends the click pair to the body: find what is really under the pointer
+  const target=document.elementFromPoint(e.clientX,e.clientY)||e.target;e={target,clientX:e.clientX,clientY:e.clientY};
   const ms=e.target.closest('.sp-fh-ms');if(ms){const i=Number(ms.dataset.dur),f=a.frames[i];inlineEdit(ms,f.duration??100,v=>{const n=Math.round(Number(v));if(n>0)W.setDurations(W.selected().includes(f.id)?W.selected():[f.id],n);},{type:'number',min:1});return;}
   const tagEl=e.target.closest('.sp-tag');if(tagEl&&tagEl.dataset.tag)renameTag(tagEl.dataset.tag);
  });

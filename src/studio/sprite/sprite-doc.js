@@ -37,12 +37,14 @@ export function clickSelect({selected=[],anchor=null},id,{shift=false,mod=false}
 const sortBy=(ids,pos)=>ids.filter(i=>pos.has(i)).sort((a,b)=>pos.get(a)-pos.get(b));
 // ------------------------------------------------------------------ tags ↔ timeline order
 const descending=(tag,pos)=>tag.frameIds.length>1&&pos.get(tag.frameIds[0])>pos.get(tag.frameIds[tag.frameIds.length-1]);
-/** Re-sorts every tag's frame ids by the (new) timeline order and refreshes frame.tag. */
-export function syncTags(asset){
- const pos=new Map(asset.frames.map((f,i)=>[f.id,i]));
+/** Re-sorts every tag's frame ids by the (new) timeline order and refreshes frame.tag. Whether a
+ * tag is listed backwards is judged on the order *before* the edit (`prevFrames`), so moving a
+ * tag's frames around never flips its direction. */
+export function syncTags(asset,prevFrames=null){
+ const pos=new Map(asset.frames.map((f,i)=>[f.id,i])),before=prevFrames?new Map(prevFrames.map((f,i)=>[f.id,i])):pos;
  let changed=false;
  const tags=asset.tags.map(t=>{
-  const ids=t.frameIds.filter(id=>pos.has(id)),down=descending(t,pos);
+  const ids=t.frameIds.filter(id=>pos.has(id)),down=descending({frameIds:t.frameIds.filter(id=>before.has(id))},before);
   ids.sort((a,b)=>down?pos.get(b)-pos.get(a):pos.get(a)-pos.get(b));
   if(ids.length===t.frameIds.length&&ids.every((x,i)=>x===t.frameIds[i]))return t;
   changed=true;return {...t,frameIds:ids};
@@ -52,7 +54,8 @@ export function syncTags(asset){
  const frames=asset.frames.map(f=>{const name=inner.get(f.id)?.name||'';if(f.tag===name)return f;fchanged=true;return {...f,tag:name};});
  return changed||fchanged?{...asset,tags:changed?tags:asset.tags,frames:fchanged?frames:asset.frames}:asset;
 }
-const tidy=fn=>a=>{const next=fn(a);return next===a?a:syncTags(next);};
+const tidy=fn=>a=>{const next=fn(a);return next===a?a:syncTags(next,a.frames);};
+const resync=a=>syncTags(a);
 /** Positions (timeline order) → contiguous runs [{from,to}] — how the timeline draws tag bars. */
 export function runs(indices){
  const s=[...new Set(indices)].sort((a,b)=>a-b),out=[];
@@ -120,7 +123,7 @@ export function emptyFrame(asset,{name}={}){
  // back to the shared picture — it gets a transparent own cel from the caller (see emptyCels)
  return makeFrame({id:P.uid('f'),name:name??uniqueName(asset,'frame'),sourceRect:f?f.sourceRect:{x:0,y:0,w,h},canvasWidth:w,canvasHeight:h,duration:f?.duration??100,pivotX:f?.pivotX??.5,pivotY:f?.pivotY??1});
 }
-export function deleteFrames(doc,assetId,ids){return map(P.removeFrames(doc,assetId,ids),assetId,tidy(a=>a));}
+export function deleteFrames(doc,assetId,ids){return map(P.removeFrames(doc,assetId,ids),assetId,resync);}
 export function uniqueName(asset,base){
  const taken=new Set(asset.frames.map(f=>f.name));const stem=String(base||'frame').replace(/_copy\d*$/,'');
  if(!taken.has(stem))return stem;let n=1;while(taken.has(`${stem}_copy${n>1?n:''}`))n++;return `${stem}_copy${n>1?n:''}`;
@@ -140,7 +143,7 @@ export function tagFromRange(doc,assetId,from,to,spec={}){
  const a=P.assetById(doc,assetId),lo=Math.max(0,Math.min(from,to)),hi=Math.min(a.frames.length-1,Math.max(from,to));
  if(hi<lo)return doc;
  const frameIds=a.frames.slice(lo,hi+1).map(f=>f.id);
- return map(P.addTag(doc,assetId,{name:spec.name||'tag',frameIds,fps:spec.fps||10,direction:spec.direction||'forward',repeat:spec.repeat??0,color:spec.color,id:spec.id}),assetId,tidy(x=>x));
+ return map(P.addTag(doc,assetId,{name:spec.name||'tag',frameIds,fps:spec.fps||10,direction:spec.direction||'forward',repeat:spec.repeat??0,color:spec.color,id:spec.id}),assetId,resync);
 }
 /** A tag covers timeline positions from..to (its bar was dragged). */
 export function setTagRange(doc,assetId,tagId,from,to){
@@ -148,19 +151,19 @@ export function setTagRange(doc,assetId,tagId,from,to){
  const lo=Math.max(0,Math.min(from,to)),hi=Math.min(a.frames.length-1,Math.max(from,to));
  const pos=new Map(a.frames.map((f,i)=>[f.id,i])),down=descending(t,pos);
  let ids=a.frames.slice(lo,hi+1).map(f=>f.id);if(down)ids=ids.reverse();
- return map(P.updateTag(doc,assetId,tagId,{frameIds:ids}),assetId,tidy(x=>x));
+ return map(P.updateTag(doc,assetId,tagId,{frameIds:ids}),assetId,resync);
 }
 export function updateTag(doc,assetId,tagId,patch){
  if('name'in patch){const n=String(patch.name||'').trim().slice(0,80);const a=P.assetById(doc,assetId);if(!n)return doc;
   if(a.tags.some(t=>t.id!==tagId&&t.name===n))throw Error(`A tag called "${n}" already exists`);patch={...patch,name:n};}
- return map(P.updateTag(doc,assetId,tagId,patch),assetId,tidy(x=>x));
+ return map(P.updateTag(doc,assetId,tagId,patch),assetId,resync);
 }
-export const removeTag=(doc,assetId,tagId)=>map(P.removeTag(doc,assetId,tagId),assetId,tidy(x=>x));
+export const removeTag=(doc,assetId,tagId)=>map(P.removeTag(doc,assetId,tagId),assetId,resync);
 /** Replaces all tags at once (import, "one animation per row"). */
 export function setTags(doc,assetId,specs){
  let d=map(doc,assetId,a=>({...a,tags:[]}));
  for(const s of specs)d=P.addTag(d,assetId,s);
- return map(d,assetId,tidy(x=>x));
+ return map(d,assetId,resync);
 }
 // ------------------------------------------------------------------ pivots
 /** Pivot in frame-canvas pixels (whole or half pixels) for every listed frame. */
