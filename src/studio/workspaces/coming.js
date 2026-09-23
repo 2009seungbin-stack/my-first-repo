@@ -3,7 +3,6 @@
  * they will do) and never renders a button for a feature that does not exist. */
 export const COMING=Object.freeze([
  {id:'pixel',title:'ws.pixel',status:'coming',phase:'P2',summary:'ws.pixelSummary'},
- {id:'tile',title:'ws.tile',status:'coming',phase:'P3',summary:'ws.tileSummary'},
  {id:'texture',title:'ws.texture',status:'coming',phase:'P4',summary:'ws.textureSummary'},
  {id:'ui',title:'ws.ui',status:'coming',phase:'P5',summary:'ws.uiSummary'}
 ]);
