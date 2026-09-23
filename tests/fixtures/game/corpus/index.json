@@ -1,0 +1,67 @@
+{
+ "torch/Torch_Sheet.png": {
+  "corpusPath": "sprites-normal/oga-pixel-torch/Torch_Sheet.png",
+  "sha256": "0ed2af425f60a9173c1d7175bf28a24d31167024e8d5b939de7ba1278a8a8d99",
+  "source": "oga-pixel-torch"
+ },
+ "torch/Torch_Hash.json": {
+  "corpusPath": "sprites-normal/oga-pixel-torch/Torch_Hash.json",
+  "sha256": "addadbbb4a7f030920df39bf7885b0c2197db8df2dfdffba16f51bd6d68955b2",
+  "source": "oga-pixel-torch"
+ },
+ "ninja/run_0.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_0.png",
+  "sha256": "bd5dd682d7eb922e8148d78bbc90fda3357dbd20b91ca4a3e6f66b39339c7b10",
+  "source": "oga-ninja"
+ },
+ "ninja/run_1.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_1.png",
+  "sha256": "13597a0efaa490a12ee851f74fefe9566cb2277eb4305cb7c3860eca58ed89e6",
+  "source": "oga-ninja"
+ },
+ "ninja/run_2.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_2.png",
+  "sha256": "88e24740b1f773f5c560923b97aebd0e50a249562992d141801ab6fa57ecef81",
+  "source": "oga-ninja"
+ },
+ "ninja/run_3.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_3.png",
+  "sha256": "aba909c0b082868b7325432d862db4fed0045ea4451fe20c8691b15f34d82572",
+  "source": "oga-ninja"
+ },
+ "ninja/run_4.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_4.png",
+  "sha256": "bc5a115cdc457e48f668b40205d5fdbc31d6d692b45dea9ea1a156bf4aa658b9",
+  "source": "oga-ninja"
+ },
+ "ninja/run_5.png": {
+  "corpusPath": "sprites/oga-ninja/1x/run_5.png",
+  "sha256": "d5f01eac2e49c734f97e0b2aa6563b64ce221a0ef8223d8574c142144d406a5b",
+  "source": "oga-ninja"
+ },
+ "tiles/gms_47autotile_template.png": {
+  "corpusPath": "tiles/oga-gms-autotile-templates/gms_47autotile_template.png",
+  "sha256": "54522f952d2054081c2f2119b543ddf5cd60d9f794f98d7e75c10f0e866df4af",
+  "source": "oga-gms-47-template"
+ },
+ "tiles/wang-s-e2.png": {
+  "corpusPath": "tiles/oga-tileset-templates/Wang S-E2.png",
+  "sha256": "9198e3b3084b011e8e022e697f9caf020cfaa3ee2afc049c954c50c2555ee764",
+  "source": "oga-tileset-templates"
+ },
+ "tiles/kenney-tiny-dungeon-tilemap.png": {
+  "corpusPath": "maps/kenney-tiny-dungeon/Tilemap/tilemap.png",
+  "sha256": "5653222ac495d89e942f9b636300759b3f38e85b26e9b888676f2e9ab834095a",
+  "source": "kenney-tiny-dungeon"
+ },
+ "fonts/bellanger-font.png": {
+  "corpusPath": "fonts/oga-bitmap-font-bellanger/font.png",
+  "sha256": "eac5d8f06c5838733f73db668d4bee2f60ae0f3d32442ef7444eb8c2621c5a43",
+  "source": "oga-bitmap-font-bellanger"
+ },
+ "sprites/samurai.png": {
+  "corpusPath": "sprites/oga-samurai/samurai.png",
+  "sha256": "e63f6abc231c66241929325449eea97e621997dbc1d4c1a7e757f24eaa3aabf1",
+  "source": "oga-samurai"
+ }
+}
