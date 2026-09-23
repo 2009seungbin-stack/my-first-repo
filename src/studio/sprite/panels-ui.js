@@ -66,6 +66,9 @@ export function createPanels(W){
   if(info?.kind==='sheet'&&!info.applied){
    const busy=!state?.analysis;
    kids.push(h('p.sp-imp-lead',{},busy?t('sp.imp.analyzing'):t('sp.imp.previewLead')));
+   // the primary action first: nothing to scroll for
+   const plan=state?.plan;
+   kids.push(h('div.st-row.sp-apply-row',{},button(t('sp.imp.apply'),()=>W.applyImport(),{primary:true,id:'import-apply',disabled:!plan}),plan?h('span.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})):''));
   }
   const decisions=(info?.kind==='sheet'&&state?.plan?state.plan.decisions:info?.decisions)||[];
   if(!info)kids.push(h('p.st-muted.st-pad',{},t('sp.imp.none')));
@@ -85,10 +88,12 @@ export function createPanels(W){
     const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({...g,[k]:Math.max(k==='w'||k==='h'?1:0,Math.round(v))})});
     kids.push(h('div.st-grid-fields.sp-custom-grid',{},...['w','h','ox','oy','sx','sy'].map(k=>field(t('sp.imp.'+k),f(k)))));
    }
-   if(plan)kids.push(h('p.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})));
-   if(state?.analysis?.auto?.unassigned&&plan?.decisions.find(d=>d.id==='slice')?.chosen==='auto')kids.push(h('p.st-muted',{},t('sp.imp.unassigned',{n:state.analysis.auto.unassigned})));
-   kids.push(h('div.st-row',{},button(info.applied?t('sp.imp.reapply'):t('sp.imp.apply'),()=>W.applyImport(),{primary:!info.applied,id:'import-apply',disabled:!plan})));
-   if(info.applied)kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.applied',{frames:a.frames.length,tags:a.tags.length})));
+   if(state?.analysis?.auto?.unassigned&&plan?.decisions.find(d=>d.id==='slice')?.chosen==='auto')kids.push(h('p.st-muted.st-pad',{},t('sp.imp.unassigned',{n:state.analysis.auto.unassigned})));
+   if(info.applied){
+    if(plan)kids.push(h('p.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})));
+    kids.push(h('div.st-row',{},button(t('sp.imp.reapply'),()=>W.applyImport(),{id:'import-apply',disabled:!plan})));
+    kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.applied',{frames:a.frames.length,tags:a.tags.length})));
+   }
   }else if(info)kids.push(h('p.sp-imp-done',{'data-sp':'import-state'},t('sp.imp.summary',{frames:a.frames.length,tags:a.tags.length,layers:a.layers.length})));
   imp.replaceChildren(...kids);
  }

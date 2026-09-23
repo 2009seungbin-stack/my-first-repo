@@ -108,6 +108,9 @@ export default {
    const pv=h('button.sp-hud-btn',{type:'button','aria-pressed':String(previewWin.open),'data-sp':'preview-toggle',title:t('sp.preview.title')+' (F7)','aria-label':t('sp.preview.title')},h('span',{html:SVG.preview}));pv.addEventListener('click',()=>ctx.runCommand('sprite.preview'));
    const ic=(icon,label,fn,id)=>{const b=h('button.sp-hud-btn',{type:'button',title:label,'aria-label':label,'data-sp':id},h('span',{html:SVG[icon]}));b.addEventListener('click',fn);return b;};
    const hasF=!!a?.frames.length;
+   // an unapplied sheet import: its Apply is on the canvas too (where the preview is being checked)
+   const pending=a?.import?.kind==='sheet'&&!a.import.applied&&importer.planFor(a.id);
+   if(pending){const b=h('button.sp-hud-btn.sp-hud-apply',{type:'button','data-sp':'hud-apply'},t('sp.imp.applyN',{n:pending.plan.rects.length}));b.addEventListener('click',()=>W.applyImport());hud.replaceChildren(mk('frame','frame',t('sp.hud.frame')),mk('sheet','sheet',t('sp.hud.sheet')),b);hud.hidden=false;return;}
    hud.replaceChildren(mk('frame','frame',t('sp.hud.frame')),mk('sheet','sheet',t('sp.hud.sheet')),
     ...(hasF?[h('span.sp-hud-count',{'data-sp':'hud-count'},`${S.cur+1}/${a.frames.length}`),ic('prev',t('sp.tl.prev')+' (,)',()=>step(-1),'hud-prev'),ic(S.playing?'pause':'play',(S.playing?t('sp.tl.stop'):t('sp.tl.play'))+' (Enter)',()=>ctx.runCommand('sprite.play'),'hud-play'),ic('next',t('sp.tl.next')+' (.)',()=>step(1),'hud-next')]:[]),pv);
    hud.hidden=!a;
@@ -115,7 +118,7 @@ export default {
   // ------------------------------------------------------------ importer
   const importer=createImporter(ctx,{onChange:id=>{if(!id||id===S.assetId)refreshImport();}});
   function refreshImport(){
-   panels.renderImport();syncPlanLayer();
+   panels.renderImport();syncPlanLayer();renderHud();
    const a=asset();
    if(a?.import?.kind==='sheet'&&!a.import.applied&&prefs.mode!=='sheet')setMode('sheet');
   }
