@@ -41,7 +41,9 @@ export function playback(model,keys=frameKeys(model)){
  const byId=new Map(model.frames.map(f=>[f.id,f]));
  return model.animations.map(a=>{
   const order=playbackOrder(a);
-  return {name:a.name,fps:a.fps,loop:a.loop!==false,direction:a.direction||'forward',frameIds:a.frameIds,
+  // repeat: 0 = forever, n = play n times (Aseprite's meaning, docs/STUDIO-SPRITE.md §4)
+  const repeat=Number.isInteger(a.repeat)?a.repeat:(a.loop===false?1:0);
+  return {name:a.name,fps:a.fps,loop:repeat===0,repeat,direction:a.direction||'forward',frameIds:a.frameIds,
    keys:a.frameIds.map(id=>keys.get(id)),steps:order.map(id=>({id,key:keys.get(id),ms:durationOf(byId.get(id),model)}))};
  });
 }

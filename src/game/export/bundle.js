@@ -19,7 +19,7 @@ export function animationFrames(model,variant,{scale=1}={}){
  if(!anims.length)anims=[{name:stemOf(model.name),steps:rows.map(r=>({id:r.id,key:r.key,ms:r.durationMs}))}];
  return anims.map(a=>{
   const list=a.steps.map(s=>byKey.get(s.key)),cell=pivotCell(list);
-  return {name:a.name,loop:a.loop!==false,frames:a.steps.map((s,i)=>{
+  return {name:a.name,loop:a.loop!==false,repeat:a.repeat||0,frames:a.steps.map((s,i)=>{
    const img=compose({width:cell.w,height:cell.h,items:[{id:list[i].id,...cell.offset(list[i])}]},variant.sprites);
    return {...(scale>1?upscale(img,scale):img),delayMs:s.ms};
   })};
@@ -43,7 +43,7 @@ export async function buildBundle(target,model,packed,{base=stemOf(model.name),a
   const v=withPixels(0);
   for(const a of animationFrames(model,v,{scale:animScale})){
    const name=`${base}_${stemOf(a.name)}`;
-   const out=t.anim==='gif'?encodeGIF(a.frames,{palette:gifPalette,loop:a.loop?0:1}):await encodeAPNG(a.frames,{loop:a.loop?0:1});
+   const out=t.anim==='gif'?encodeGIF(a.frames,{palette:gifPalette,loop:a.loop?0:a.repeat>1?a.repeat-1:null}):await encodeAPNG(a.frames,{loop:a.loop?0:Math.max(1,a.repeat)});
    add(`${name}.${t.anim==='gif'?'gif':'png'}`,out.bytes);notes.push(...out.notes.map(n=>`${a.name}: ${n}`));
   }
   return {root:`${base}_${target}`,files,notes};

@@ -74,7 +74,8 @@ export function encodeGIF(frames,{palette:mode='global',loop=0}={}){
  if(mode==='global'){const counts=colorsOf(frames);const pal=medianCut(counts,255);exact=counts.size<=255;global={pal,...table(pal),map:mapper(pal)};}
  bytes.push(...new TextEncoder().encode('GIF89a'));word(W);word(H);
  if(global){bytes.push(0x80|0x70|(global.bits-1),0,0);bytes.push(...global.t);}else bytes.push(0x70,0,0);
- bytes.push(0x21,0xff,11,...new TextEncoder().encode('NETSCAPE2.0'),3,1);word(loop);bytes.push(0);
+ // NETSCAPE loop count = extra plays (0 = forever); no block at all = play once.
+ if(loop!=null){bytes.push(0x21,0xff,11,...new TextEncoder().encode('NETSCAPE2.0'),3,1);word(loop);bytes.push(0);}
  let rounded=0;
  for(const f of frames){
   let use=global;

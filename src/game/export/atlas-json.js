@@ -24,7 +24,8 @@ export function phaserFiles(model,variant,{base=stemOf(model.name),textureKey=ba
  }
  const anims=playback(model,keys).map(a=>({key:a.name,type:'frame',
   frames:(a.direction==='pingpong'?a.frameIds.map((id,i)=>({id,key:a.keys[i]})):a.steps.map(s=>({id:s.id,key:s.key}))).map(s=>({key:textureKey,frame:s.key,duration:round(durationOf(model.frames.find(f=>f.id===s.id),model),3)})),
-  frameRate:a.fps,repeat:a.loop?-1:0,yoyo:a.direction==='pingpong',skipMissedFrames:true,delay:0,repeatDelay:0,showOnStart:false,hideOnComplete:false}));
+  // Phaser's repeat counts EXTRA plays: Aseprite/Studio "play 3 times" is repeat 2.
+  frameRate:a.fps,repeat:a.loop?-1:Math.max(0,a.repeat-1),yoyo:a.direction==='pingpong',skipMissedFrames:true,delay:0,repeatDelay:0,showOnStart:false,hideOnComplete:false}));
  const animName=`${base}${variant.suffix}.anims.json`;
  if(anims.length)files.push({name:animName,text:json({anims,globalTimeScale:1}),type:'application/json'});
  else notes.push('No animations: the project has no tags, so no Phaser animations file was written.');
@@ -117,7 +118,7 @@ export function asepriteJson(model,variant,{base=stemOf(model.name),layout='hash
  const entryKey=i=>naming==='index'?String(i):`${base} ${i}.aseprite`;
  const entries=seq.map((id,i)=>{const r=byId.get(id);return [entryKey(i),{...tpFrame(r,{pivot:false}),duration:Math.round(r.durationMs)}];});
  const frameTags=tags.map(({anim:a,from,to})=>({name:a.name,from,to,direction:a.direction==='pingpong'?'pingpong':a.direction==='reverse'?'reverse':'forward',
-  color:tagColor(a.color),...(a.loop===false?{repeat:'1'}:{})}));
+  color:tagColor(a.color),...(a.repeat>0?{repeat:String(a.repeat)}:a.loop===false?{repeat:'1'}:{})}));
  // Slices: the pivot of every frame, and each box type/slot, keyed on the frames where they change.
  const slices=[];
  const pivotKeys=[];let last='';
