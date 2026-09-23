@@ -65,7 +65,7 @@ with sync_playwright() as pw:
     requests=[];p.on('request',lambda r:requests.append(r.url))
     # ------------------------------------------------------------ shell
     p.goto(BASE+'/en/game/studio/?ws=sprite');ready(p)
-    ok('Sprite is a ready workspace (4 still coming) and ?ws=sprite opens it',js(p,'return S.workspace;')=='sprite' and p.locator('.st-ws-tab[data-ws="sprite"]').get_attribute('aria-disabled') is None and p.locator('.st-ws-tab[aria-disabled="true"]').count()==4)
+    ok('Sprite is a ready workspace and ?ws=sprite opens it (other workspaces land one by one)',js(p,'return S.workspace;')=='sprite' and p.locator('.st-ws-tab[data-ws="sprite"]').get_attribute('aria-disabled') is None)
     ok('Sprite panels: timeline at the bottom, import/frame/animation/align on the right',all(p.locator(f'#panel-{x}').count()==1 for x in ['sp-timeline','sp-import','sp-frame','sp-tag','sp-align']))
     ok('Sprite tools in the tool bar with their keys',all(p.locator(f'.st-tool[data-tool="{x}"]').count()==1 for x in ['sp-select','sp-region','sp-pivot','sp-rect','sp-circle','sp-polygon']))
     shot(p,'01-empty-1440.png')
