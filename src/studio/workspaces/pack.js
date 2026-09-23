@@ -270,7 +270,11 @@ export default {
    deselect(){select([]);},
    hasSelection:()=>selection.length>0,
    step(dir){if(!model?.frames.length)return;const i=model.frames.findIndex(f=>f.id===selection[selection.length-1]);const n=Math.max(0,Math.min(model.frames.length-1,i<0?0:i+dir));select([model.frames[n].id],{reveal:true});},
-   deactivate(){clearTimeout(timer);offSel();stopWorker();for(const b of bitmaps)b.close?.();bitmaps=[];ctx.status('image','');const a=ctx.activeAsset;if(a)ctx.showAsset(a.id,{restoreView:true});else view.clearImage();}
+   // the atlas replaces the asset picture while this stage is open (app.js calls present() instead of drawing the asset)
+   present(){return showPage();},
+   deactivate(){clearTimeout(timer);offSel();stopWorker();for(const b of bitmaps)b.close?.();bitmaps=[];layer.setItems([]);ctx.status('image','');
+    // after the switch, so the NEXT workspace draws the asset (its own present() or the picture)
+    const a=ctx.activeAsset;setTimeout(()=>{if(a)ctx.showAsset(a.id,{restoreView:true});else view.clearImage();},0);}
   };
  }
 };

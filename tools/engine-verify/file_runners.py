@@ -31,6 +31,38 @@ def decode_animation(path: Path, dest: Path) -> dict:
             'animations': {path.stem.split('_', 1)[-1]: {'fps': None, 'loop': loop == 0 if loop is not None else None, 'frames': steps}}}
 
 
+def cut_strips(folder: Path, item: dict, dest: Path) -> dict:
+    """GameMaker strips cut the way GameMaker's importer does: `<name>_strip<N>.png` = N equal
+    frames side by side (the frame width is the image width / N). Every strip is one animation,
+    and gamemaker.json must name the same N and frame size. GameMaker itself does not run here."""
+    import re
+    dest.mkdir(parents=True, exist_ok=True)
+    data = item['data']
+    base = (folder / item['json']).parent
+    frames, anims, errors = [], {}, []
+    for s in data['sprites']:
+        path = base / s['file']
+        m = re.search(r'_strip(\d+)\.png$', s['file'])
+        if not m or not path.exists():
+            errors.append(f'{s["file"]}: not a name_stripN.png file in the bundle')
+            continue
+        n = int(m.group(1))
+        im = Image.open(path).convert('RGBA')
+        if im.width % n or im.width // n != s['width'] or im.height != s['height'] or n != s['frames']:
+            errors.append(f'{s["file"]}: {im.width}x{im.height} is not {n} frames of {s["width"]}x{s["height"]}')
+            continue
+        w = im.width // n
+        steps = []
+        for k in range(n):
+            p = dest / f'{Path(s["file"]).stem}_{k:03d}.png'
+            im.crop((k * w, 0, (k + 1) * w, im.height)).save(p)
+            name = f'{s["name"]}#{k}'
+            frames.append({'name': name, 'png': str(p)})
+            steps.append({'name': name, 'png': str(p), 'durationMs': s['durationsMs'][k]})
+        anims[s.get('animation') or s['name']] = {'fps': s['playbackSpeed'], 'loop': s['loop'], 'frames': steps}
+    return {'errors': errors, 'frames': frames, 'animations': anims}
+
+
 def aseprite_version() -> str | None:
     if not ASEPRITE.exists():
         return None

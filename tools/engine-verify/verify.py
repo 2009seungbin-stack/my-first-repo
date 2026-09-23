@@ -45,7 +45,11 @@ def _resolve(expect: dict, base: Path) -> dict:
 def godot_sprite_report(rep: dict) -> dict:
     out = Path(rep['_out'])
     frames, seen, anims = [], {}, {}
-    for name, a in (rep.get('animations') or {}).items():
+    # SpriteFrames.get_animation_names() is alphabetical (row_1, row_10, row_2 ...), so the unique
+    # frame list is built over animations in natural order; each animation is judged on its own.
+    import re as _re
+    natural = lambda k: [int(t) if t.isdigit() else t for t in _re.split(r'(\d+)', k)]
+    for name, a in sorted((rep.get('animations') or {}).items(), key=lambda kv: natural(kv[0])):
         steps = []
         for i, f in enumerate(a['frames']):
             png = str(out / f['png']) if f.get('png') else None
@@ -224,8 +228,8 @@ def run_defold(folder: Path, item: dict, expect: dict, work: Path) -> Result:
 
 
 def run_file(folder: Path, item: dict, engine: str, expect: dict, work: Path) -> Result:
-    res = Result(engine, item['kind'], item.get('file') or '')
-    want = {'pillow': ('anim-gif', 'apng'), 'aseprite': ('aseprite-file',)}[engine]
+    res = Result(engine, item['kind'], item.get('file') or item.get('json') or '')
+    want = {'pillow': ('anim-gif', 'apng', 'gamemaker-strips'), 'aseprite': ('aseprite-file',)}[engine]
     if item['kind'] not in want:
         res.na = f'{engine}: not a {"/".join(want)} item'
         return res
@@ -236,6 +240,9 @@ def run_file(folder: Path, item: dict, engine: str, expect: dict, work: Path) ->
         rep = file_runners.open_aseprite(folder / item['file'], work / 'aseprite')
         res.info['version'] = rep.get('version')
         res.info['slices'] = rep.get('slices')
+    elif item['kind'] == 'gamemaker-strips':
+        rep = file_runners.cut_strips(folder, item, work / 'gamemaker')
+        res.info['note'] = 'strips cut as GameMaker names them (name_stripN.png); GameMaker itself is not run (UNVERIFIED in the engine)'
     else:
         rep = file_runners.decode_animation(folder / item['file'], work / ('pillow-' + Path(item['file']).stem))
         res.info['format'] = rep.get('format')

@@ -140,6 +140,8 @@ def detect(folder: Path) -> list[dict]:
                 found.append({'kind': 'phaser-multiatlas', 'json': rel(p), 'images': [t.get('image') for t in data['textures']], 'data': data})
             elif isinstance(data.get('anims'), list):
                 continue
+            elif data.get('engineTarget') == 'gamemaker' and isinstance(data.get('sprites'), list):
+                found.append({'kind': 'gamemaker-strips', 'json': rel(p), 'images': [(Path(rel(p)).parent / s['file']).as_posix() for s in data['sprites']], 'data': data})
             elif isinstance(frames, dict) and frames and isinstance(next(iter(frames.values())), dict) and 'rect' in next(iter(frames.values())):
                 found.append({'kind': 'nerulio-envelope', 'json': rel(p), 'images': meta.get('images') or [meta.get('image')], 'data': data})
             elif isinstance(frames, (dict, list)) and frames:

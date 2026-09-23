@@ -29,7 +29,7 @@ export function gamemakerFiles(model,variant,{base=stemOf(model.name)}={}){
   const name=`spr_${ident(base)}_${ident(g.name)}`,file=`${name}_strip${n}.png`;
   composes.push({name:file,width:cell.w*n,height:cell.h,items:list.map((r,i)=>{const o=cell.offset(r);return {id:r.id,x:i*cell.w+o.x,y:o.y};})});
   const ms=g.steps.map(s=>round(s.ms,3)),uniform=ms.every(v=>Math.abs(v-ms[0])<.01);
-  sprites.push({name,file,frames:n,width:cell.w,height:cell.h,xorigin:cell.originX,yorigin:cell.originY,
+  sprites.push({name,animation:g.name,file,frames:n,width:cell.w,height:cell.h,xorigin:cell.originX,yorigin:cell.originY,
    playbackSpeed:uniform?round(1000/ms[0],3):g.fps,playbackSpeedType:'frames per second',loop:g.loop,durationsMs:ms,uniformTiming:uniform});
   if(!uniform)notes.push(`${g.name}: frames have different durations; a GameMaker sprite has one speed (${g.fps} fps is used). The exact ms are in gamemaker.json.`);
  }
