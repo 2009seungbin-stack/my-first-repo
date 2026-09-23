@@ -3,6 +3,8 @@ import {bytes,stem,zip,gif} from '../core.js';
 import {yieldUI} from '../resources.js';
 import {detectColorKey,applyColorKey,hex as keyHex} from '../game/color-key.js';
 import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
+import {encodeRGBAPNG} from '../game/texture-png.js';
 import {t} from '../i18n.js';
 import {text,toast,download,track,onLocale,page as route,pagePrefix,root} from './shell.js';
 import {stashFiles} from './handoff.js';
@@ -60,6 +62,9 @@ export function mount({el,def}){
  // keyInfo — the detected background colour; islands — small islands attached or left over;
  // gridHint — Auto's frames straddle a detected grid; anchor — the Shift+click range start.
  let keyInfo=null,keyDeclined=false,islands=null,showIslands=true,gridHint=null,anchorId=null,progressText='',deleteArmed=0;
+ // gridAligned — Auto found a high-confidence grid and framed each frame by its cell, so the art
+ // keeps its place inside the cell (the author's alignment); autoIslands — the person chose islands.
+ let gridAligned=null,autoIslands=false;
  let atlasResult=null,jitter=null,fixPreview=null,duplicates=null,seam=null,normalizePreview=null;
  let playing=true,raf=0,clock=0,lastFrameTime=0,timer=0,diffView=false,pivotUnit='unit',pivotScope='selected';
  let box={type:'hit',shape:'rect',x:0,y:0,w:8,h:8,cx:8,cy:8,r:4},range={from:1,to:1};
@@ -74,6 +79,12 @@ export function mount({el,def}){
  function src(){
   if(!work)throw Error('No sheet');
   if(reader?.canvas===work)return reader.source;
+  // The exact decoded bytes when there are any (PNG): reading back through the canvas would
+  // round the colour of every semi-transparent pixel (a faint glow at alpha 20 loses its hue).
+  if(work.exact){reader={canvas:work,source:{width:work.width,height:work.height,read(r){
+   const {data,width}=work.exact;if(r.x===0&&r.y===0&&r.w===width&&r.h===work.height)return {data,width,height:r.h};
+   const out=new Uint8ClampedArray(r.w*r.h*4);for(let y=0;y<r.h;y++)out.set(data.subarray(((r.y+y)*width+r.x)*4,((r.y+y)*width+r.x+r.w)*4),y*r.w*4);
+   return {data:out,width:r.w,height:r.h};}}};return reader.source;}
   const ctx=ctxOf(work);
   reader={canvas:work,source:{width:work.width,height:work.height,
    read(r){const d=ctx.getImageData(r.x,r.y,r.w,r.h);return {data:d.data,width:r.w,height:r.h};}}};
@@ -254,6 +265,10 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
  function keyedCanvas(color,tolerance){
   const out=Im.canvas(sheet.width,sheet.height),src=ctxOf(sheet),dst=out.getContext('2d');
   const rows=Math.max(1,Math.floor(1_048_576/sheet.width));
+  if(sheet.exact){
+   const keyed=applyColorKey(sheet.exact,color,{tolerance});
+   dst.putImageData(new ImageData(keyed.data,keyed.width,keyed.height),0,0);out.exact=keyed;return out;
+  }
   for(let y=0;y<sheet.height;y+=rows){
    const h=Math.min(rows,sheet.height-y),band=src.getImageData(0,y,sheet.width,h);
    const keyed=applyColorKey({data:band.data,width:band.width,height:h},color,{tolerance});
@@ -313,6 +328,18 @@ ${check('defringe',{id:'labDefringe'})}${check('pot',{id:'labPot'})}${check('ded
      attachedPixels:found.attached.reduce((sum,a)=>sum+a.island.area,0),smallCount:found.smallCount};
     showIslands=true;
     gridHint=autoVersusGrid(found.rects,suggestions[0]);
+    // A sheet that is evidently a grid (high confidence, nothing outside the cells) is framed by its
+    // cells: islands would trim each frame to its art and lose where the author placed it in the
+    // cell, and they split or merge frames whose sparks or poses touch. Islands stay one click away.
+    const g=suggestions[0];gridAligned=null;
+    // A medium grid is used too when the islands agree with it: none straddles a cell and there
+    // are more islands than filled cells — one sprite per cell with detached sparks or parts.
+    const agrees=g?.confidence==='medium'&&gridHint&&gridHint.spanning===0&&found.rects.length>(g.evidence?.filledCells??Infinity);
+    if(!autoIslands&&g&&(g.confidence==='high'||agrees)&&!g.source&&(g.evidence?.outsidePixels??1)===0&&(g.evidence?.filledCells??0)>=2){
+     rects=readingOrder(gridCells(g));
+     gridAligned={w:g.cellWidth,h:g.cellHeight,conf:g.confidence,n:g.evidence.filledCells};
+     islands=null;gridHint=null;
+    }
    }else{
     const cells=gridCells(gridSpec());
     rects=readingOrder(cells);
@@ -620,6 +647,7 @@ ${poly}${shapes}
    if(islands.unassignedPixels>0)parts.push(`<div class="lab-assist-line bad" id="labIslandsUnassigned" data-n="${islands.unassigned.length}" data-px="${islands.unassignedPixels}"><span>${esc(T('islandsUnassigned',{n:islands.unassigned.length,px:islands.unassignedPixels}))}</span>
 <button type="button" class="mini-button" data-action="lab-islands-toggle" aria-pressed="${showIslands}">${esc(showIslands?T('islandsHide'):T('islandsShow'))}</button><button type="button" class="mini-button" data-action="lab-islands-attach">${esc(T('islandsAttach'))}</button><button type="button" class="mini-button" data-action="lab-islands-add">${esc(T('islandsAdd'))}</button></div>`);
   }
+  if(o.mode==='auto'&&gridAligned)parts.push(`<div class="lab-assist-line" id="labGridAligned" data-cell="${gridAligned.w}x${gridAligned.h}"><span>${esc(T('gridAligned',{w:gridAligned.w,h:gridAligned.h,conf:conf(gridAligned.conf),n:gridAligned.n}))}</span><button type="button" class="mini-button" data-action="lab-use-islands">${esc(T('useIslands'))}</button></div>`);
   if(o.mode==='auto'&&gridHint?.recommend)parts.push(`<div class="lab-assist-line" id="labGridHint" data-grid="${gridHint.gridFrames}"><span>${esc(T('gridHint',{auto:gridHint.autoFrames,w:gridHint.cell.w,h:gridHint.cell.h,grid:gridHint.gridFrames,conf:conf(suggestions[0]?.confidence||'low')}))}</span><button type="button" class="mini-button" data-action="lab-suggest" data-index="0">${esc(T('useGrid'))}</button></div>`);
   host.innerHTML=parts.join('');host.hidden=!parts.length;
  }
@@ -773,12 +801,15 @@ ${poly}${shapes}
  }
  const bundleOf=data=>o.target==='godot'?godotBundle(data):o.target==='unity'?unityBundle(data):genericBundle(data);
  async function pageBlob(source,frames,atlas,index){
+  // Encoded straight from the bytes (no canvas round trip), so a semi-transparent texel in the
+  // atlas is the very texel of the sheet.
   const page=blitPage(source,frames,atlas,index);
-  const c=Im.canvas(page.width,page.height);
-  try{c.getContext('2d').putImageData(new ImageData(page.data,page.width,page.height),0,0);return await Im.blobOf(c);}
-  finally{Im.release(c);}
+  return encodeRGBAPNG(page.data,page.width,page.height);
  }
  async function exportBundle(){
+  // Frames that were never grouped still play as one animation, as the Animate stage would have
+  // made them: an export must not ship an empty SpriteFrames just because a stage was skipped.
+  if(!project.animations.length&&project.frames.length){const n=project.frames.length;ensureAnimation();atlasResult=null;toast(T('defaultAnimation',{n}));}
   if(!atlasResult){pack();if(!atlasResult)return;}
   const {atlas,result,source}=atlasResult;
   const data={frames:result.frames,animations:project.animations,atlas};
@@ -987,6 +1018,7 @@ ${poly}${shapes}
    }
    if(a==='lab-order')return void orderFrames();
    if(a==='lab-key-off'||a==='lab-key-use'){keyDeclined=a==='lab-key-off';if(a==='lab-key-use'&&keyInfo)keyInfo={...keyInfo,apply:true};detect();return;}
+   if(a==='lab-use-islands'){autoIslands=true;detect();return;}
    if(a==='lab-islands-toggle'){showIslands=!showIslands;drawOverlay();renderAssist();return;}
    if(a==='lab-islands-attach')return void attachIslands();
    if(a==='lab-islands-add')return void addIslandFrames();
@@ -1228,9 +1260,9 @@ ${poly}${shapes}
   try{
    const file=files[0];if(!file)return;
    if(files.length>1)toast(T('oneSheet'));
-   const next=await Im.decode(file);
+   const next=await decodeExact(file);
    if(sheet){if(work&&work!==sheet)Im.release(work);Im.release(sheet);}
-   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;sourceFile=file;keyInfo=null;keyDeclined=false;islands=null;gridHint=null;anchorId=null;
+   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;sourceFile=file;keyInfo=null;keyDeclined=false;islands=null;gridHint=null;anchorId=null;gridAligned=null;autoIslands=false;
    project=P.project();past=[];future=[];selected=new Set();suggestions=[];autoMerge=null;atlasResult=null;
    shellMarkup();cancelAnimationFrame(raf);raf=requestAnimationFrame(animate);
    track('tool_run',{intent:route.id});

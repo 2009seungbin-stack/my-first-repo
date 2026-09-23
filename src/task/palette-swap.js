@@ -4,6 +4,7 @@ import {t} from '../i18n.js';
 import {imagePalette,swapColors} from '../game/palette-swap.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
 import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
 /** Palette swap: the colours the sprite actually uses, picked from swatches or straight off the
  * image (eyedropper), and as many swaps as needed in one pass (src/game/palette-swap.js). Every
  * dropped image gets the same swaps; one image downloads as a PNG, several as a ZIP.
@@ -91,7 +92,7 @@ export function mount({el,def}){
   if(busy)return;busy=true;const first=!images.length;
   try{
    for(const file of files){
-    const c=await Im.decode(file);
+    const c=await decodeExact(file);
     try{const d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,c.width,c.height);images.push({name:file.name,w:c.width,h:c.height,data:d.data});}
     finally{Im.release(c);}
    }

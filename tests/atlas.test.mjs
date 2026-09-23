@@ -32,7 +32,10 @@ test('export formats describe the same frames',()=>{
  const frames=[{name:'run_0.png',x:2,y:2,w:30,h:40,rotated:false,trimmed:true,sourceW:48,sourceH:48,offsetX:9,offsetY:4},{name:'run_1.png',x:36,y:2,w:20,h:10,rotated:true,trimmed:false,sourceW:20,sourceH:10,offsetX:0,offsetY:0}],meta={image:'hero.png',width:64,height:64};
  const hash=JSON.parse(atlasData('json-hash',frames,meta));
  assert.deepEqual(hash.frames['run_0.png'],{frame:{x:2,y:2,w:30,h:40},rotated:false,trimmed:true,spriteSourceSize:{x:9,y:4,w:30,h:40},sourceSize:{w:48,h:48}});
- assert.deepEqual(hash.frames['run_1.png'].frame,{x:36,y:2,w:10,h:20},'rotated frames store the rotated rectangle');assert.deepEqual(hash.meta.size,{w:64,h:64});
+ // TexturePacker convention: a rotated frame keeps its own (unrotated) size; Phaser and PixiJS swap
+ // it for the atlas region. The atlas-orientation size this used to assert garbled every rotated
+ // frame in Phaser 3/4 and Pixi 8 (tools/engine-verify baseline, archer attack frames).
+ assert.deepEqual(hash.frames['run_1.png'].frame,{x:36,y:2,w:20,h:10},'rotated frames keep their unrotated size');assert.deepEqual(hash.meta.size,{w:64,h:64});
  assert.equal(JSON.parse(atlasData('json-array',frames,meta)).frames[1].filename,'run_1.png');
  const xml=atlasData('xml',frames,meta);assert(xml.includes('<SubTexture name="run_0" x="2" y="2" width="30" height="40" frameX="-9" frameY="-4" frameWidth="48" frameHeight="48"/>')&&xml.includes('rotated="true"'));
  assert(atlasData('css',frames,meta).includes('.sprite-run_0{width:30px;height:40px;background-position:-2px -2px}'));

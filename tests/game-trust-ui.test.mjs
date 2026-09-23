@@ -5,7 +5,8 @@ import {readFile} from 'node:fs/promises';
 import {decodePNG} from '../src/game/texture-png.js';
 import {artMismatch,sideLine,lineDifference} from '../src/game/autotile-check.js';
 import {LAYOUTS} from '../src/game/autotile.js';
-import {cropRGBA} from '../src/game/tile-grid.js';
+import {cropRGBA,detectGrid as detectTileGrid} from '../src/game/tile-grid.js';
+const detectTileGridForKind=(img,kind)=>detectTileGrid(img.data,img.width,img.height,{kind})[0];
 import {imagePalette,swapColors,parseHex} from '../src/game/palette-swap.js';
 import {animationKey,groupAnimations,naturalCompare,sharedCanvas} from '../src/game/animation-names.js';
 import {TRUST_STRINGS} from '../src/task/strings-trust.js';
@@ -64,6 +65,28 @@ test('B18: frames group into animations by name, numbers sort as numbers',()=>{
  assert(naturalCompare('a2','a10')<0);
  const shared=sharedCanvas([{w:10,h:20},{w:14,h:18}]);
  assert.deepEqual(shared,{w:14,h:20,offsets:[{x:2,y:0},{x:0,y:2}]});
+});
+test('engine baseline fixes: generic JSON is also a TexturePacker hash, Godot defaults to nearest, trim keeps faint pixels',async()=>{
+ const {genericBundle}=await import('../src/game/exporters/generic-json.js');
+ const {godotProject,GODOT_HELPER}=await import('../src/game/exporters/godot.js');
+ const {frame,animation}=await import('../src/game/model.js');
+ const {framesFromRects}=await import('../src/game/frame-ops.js');
+ const f=frame({id:'a',name:'run_0',sourceRect:{x:0,y:0,w:10,h:12},trimmedRect:{x:2,y:3,w:5,h:6}});
+ const project={frames:[f],animations:[animation({name:'run',frameIds:['a']})],atlas:{frames:{a:{x:4,y:5,w:5,h:6,page:0}},pages:1,width:16,height:16}};
+ const data=JSON.parse(genericBundle(project)[0].text).frames.run_0;
+ assert.deepEqual([data.frame,data.spriteSourceSize,data.sourceSize,data.trimmed],[{x:4,y:5,w:5,h:6},{x:2,y:3,w:5,h:6},{w:10,h:12},true]);
+ assert.equal(godotProject(project).meta.godot.textureFilter,'nearest');
+ assert.match(GODOT_HELPER,/TEXTURE_FILTER_NEAREST/);
+ const img=canvas(8,8);box(img,2,2,3,3,[255,255,255,255]);img.data.set([255,255,0,3],(6*8+6)*4);// a faint glow pixel, alpha 3
+ const t=framesFromRects(img,[{x:0,y:0,w:8,h:8}]).frames[0].trimmedRect;
+ assert.deepEqual(t,{x:2,y:2,w:5,h:5},'the alpha-3 pixel stays inside the trimmed frame');
+});
+test('the rule set is a prior for the tile grid: a 32px edge16 template is read as 4×4, not 8×8',()=>{
+ const img=canvas(128,128);
+ for(let i=0;i<16;i++){const x=(i%4)*32,y=Math.floor(i/4)*32;box(img,x,y,32,32,[118,135,171,255]);
+  for(let k=0;k<4;k++)if(i>>k&1)box(img,x+[12,20,12,0][k],y+[0,12,20,12][k],[8,12,8,12][k],[12,8,12,8][k],[230,200,120,255]);box(img,x+8,y+8,16,16,[200,220,230,255]);}
+ const top=detectTileGridForKind(img,'edge16');
+ assert.deepEqual([top.tileWidth,top.cols,top.rows],[32,4,4]);
 });
 test('the trust copy exists in ko, en and ja with the same keys',()=>{
  const keys=(o,p='')=>Object.entries(o).flatMap(([k,v])=>v&&typeof v==='object'?keys(v,p+k+'.'):[p+k]).sort();

@@ -807,7 +807,10 @@ with sync_playwright() as pw:
     with page.expect_download() as d:page.locator('#taskDownload').click()
     z=zipfile.ZipFile(d.value.path())
     ok('the batch optimiser exports every texture in one archive',
-       sorted(z.namelist())==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png'])
+       # plus the normal map generated on the Normal stage above: generated maps join the set (B13)
+       sorted(n for n in z.namelist() if not n.endswith('-normal.png'))==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png']
+       and all(n.endswith('-normal.png') for n in z.namelist() if n not in ('rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png')),
+       str(z.namelist()))
     page.set_viewport_size({'width':320,'height':720});page.wait_for_timeout(300)
     ok('no horizontal scroll in Texture Lab at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click();page.wait_for_timeout(600)
@@ -1100,7 +1103,7 @@ with sync_playwright() as pw:
     open_lab('/en/game/tile-lab/',blob_sheet(blank={5,17,40}),'?stage=rules')
     ok('a sheet with three slots painted out reports exactly those three',
        sorted(int(v) for v in page.locator('[data-ghost]').evaluate_all('ns=>ns.map(n=>n.dataset.ghost)'))==[5,17,40],
-       page.locator('#tlRules .summary-line').inner_text())
+       page.locator('#tlRules .summary-line').first.inner_text())
     # --- autotile tester: the rules choose the tile, and the pixels prove which one ---
     open_lab('/en/game/autotile-tester/',sheet)
     ok('the autotile route opens the Lab at its tester',page.locator('[data-action="tl-stage"][data-stage="tester"]').get_attribute('aria-pressed')=='true')

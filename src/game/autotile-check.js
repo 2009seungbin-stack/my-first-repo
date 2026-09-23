@@ -44,18 +44,31 @@ export function artMismatch(kind,tileAt,{margin=6,informative=10}={}){
   openRef[side]=donor?sideLine(tileAt(donor.index),side):null;
  }
  const fullRef=Object.fromEntries(SIDES.map(side=>[side,sideLine(fullArt,side)]));
- const useful=Object.fromEntries(SIDES.map(side=>[side,!!openRef[side]&&lineDifference(fullRef[side],openRef[side])>=informative]));
+ const refGap=Object.fromEntries(SIDES.map(side=>[side,openRef[side]?lineDifference(fullRef[side],openRef[side]):0]));
+ const useful=Object.fromEntries(SIDES.map(side=>[side,refGap[side]>=informative]));
  if(!SIDES.some(side=>useful[side]))return {measurable:false,reason:'connected and open sides look alike in this set',checked:0,sides:0,mismatches:[]};
- const mismatches=[];let checked=0,sides=0;
+ const mismatches=[];let checked=0,sides=0,conventional=0;
  for(const slot of layout.slots){
   const art=tileAt(slot.index);if(!art||art.w!==fullArt.w||art.h!==fullArt.h)continue;
   checked++;const wrong=[];
   for(const side of SIDES){
    if(!useful[side])continue;sides++;
    const line=sideLine(art,side),toFull=lineDifference(line,fullRef[side]),toOpen=lineDifference(line,openRef[side]),expected=slot.edges[side];
-   if(expected&&toFull>toOpen+margin||!expected&&toOpen>toFull+margin)wrong.push({side,expected:expected?'connected':'open',toFull:+toFull.toFixed(1),toOpen:+toOpen.toFixed(1)});
+   // Only a side that clearly looks like the *other* reference counts: close to it (within 40% of
+   // the gap between the two references) and far from its own. A side that resembles neither —
+   // art unlike both references — says nothing about the rule and is not reported.
+   const gap=refGap[side],right=expected?toFull:toOpen,other=expected?toOpen:toFull;
+   if(right>other+margin&&other<=gap*.4&&right>=gap*.6)wrong.push({side,expected:expected?'connected':'open',toFull:+toFull.toFixed(1),toOpen:+toOpen.toFixed(1)});
   }
   if(wrong.length)mismatches.push({slot:slot.index,index:slot.index,name:slot.name,sides:wrong});
  }
- return {measurable:true,checked,sides,mismatches};
+ // The check only means something for art built from a few edge types: most sides of the set
+ // repeat on other tiles. Tiles that each look different (a flat colour per slot) follow no side
+ // convention, so nothing can be said about them.
+ const lines=Object.fromEntries(SIDES.map(side=>[side,layout.slots.map(sl=>tileAt(sl.index)).filter(a=>a&&a.w===fullArt.w&&a.h===fullArt.h).map(a=>sideLine(a,side))]));
+ let repeated=0,total=0;
+ for(const side of SIDES){const L=lines[side];for(let i=0;i<L.length;i++){total++;for(let j=0;j<L.length;j++)if(i!==j&&lineDifference(L[i],L[j])<=1){repeated++;break;}}}
+ conventional=total?repeated/total:0;
+ if(sides&&conventional<.5)return {measurable:false,reason:'the tiles do not share side types with the reference tiles',checked,sides,mismatches:[]};
+ return {measurable:true,checked,sides,conventional,mismatches};
 }

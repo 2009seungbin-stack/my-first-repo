@@ -30,7 +30,9 @@ export function heightEntry(ctx){
  const {state}=ctx,o=state.normal,active=ctx.activeEntry();
  if(o.heightId&&ctx.entryOf(o.heightId))return ctx.entryOf(o.heightId);
  if(active?.role==='height')return active;
- return state.files.find(f=>f.role==='height')||null;
+ // An unclassified file (flat.png, rock_03.png) dropped on the height → normal page is the height
+ // the person means; a file classified as something else (albedo, roughness…) never is.
+ return state.files.find(f=>f.role==='height')||(active?.role==='unknown'?active:null);
 }
 const sourceEntry=ctx=>ctx.state.normal.mode==='height'?heightEntry(ctx):ctx.activeEntry();
 async function normalResult(ctx,pixels){
@@ -116,6 +118,7 @@ function heightPicker(ctx){
  const {T,esc,state}=ctx,chosen=heightEntry(ctx);
  const options=[`<option value="">${esc(T('heightPick'))}</option>`,...state.files.map(f=>`<option value="${f.id}" ${chosen&&String(chosen.id)===String(f.id)?'selected':''}>${esc(f.name)} · ${esc(ctx.roleLabel(f.role))}</option>`)];
  const note=!chosen?`<p class="hint bad" id="texHeightNote" data-state="missing">${esc(T('heightMissing'))}</p>`
+  :chosen.role==='unknown'?`<p class="hint" id="texHeightNote" data-state="unclassified">${esc(T('heightChosen',{name:chosen.name}))}</p>`
   :chosen.role!=='height'?`<p class="hint bad" id="texHeightNote" data-state="wrong">${esc(T('heightWrong',{name:chosen.name,role:ctx.roleLabel(chosen.role)}))}</p>`
   :`<p class="hint" id="texHeightNote" data-state="ok">${esc(T('heightAuto',{name:chosen.name}))}</p>`;
  return `<label class="field"><span>${esc(T('heightSource'))}</span><select data-option="normal-height" id="texHeightSource">${options.join('')}</select></label>${note}`;
@@ -144,7 +147,7 @@ async function refreshNormal(ctx){
   const box=summary();
   // A unit-length result proves the maths, not the input: a normal made from an albedo is still
   // unit length. So the verdict also depends on the source being the height map.
-  const wrongSource=ctx.state.normal.mode==='height'&&entry.role!=='height';
+  const wrongSource=ctx.state.normal.mode==='height'&&entry.role!=='height'&&entry.role!=='unknown';
   const good=report.looksLikeNormalMap&&!wrongSource;
   if(box)box.classList.toggle('bad',!good);
   if(box)box.innerHTML=`<div class="summary-big">${good?'✓':'!'}</div><div class="summary-line">${ctx.esc(ctx.T('normalCheck',{len:report.meanLength.toFixed(3),dev:report.maxDeviation.toFixed(3)}))}</div>${wrongSource?`<div class="summary-line bad">${ctx.esc(ctx.T('heightWrong',{name:entry.name,role:ctx.roleLabel(entry.role)}))}</div>`:''}`;
