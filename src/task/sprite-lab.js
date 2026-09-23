@@ -3,7 +3,8 @@ import {bytes,stem,zip,gif} from '../core.js';
 import {yieldUI} from '../resources.js';
 import {borderColor} from '../color-background.js';
 import {t} from '../i18n.js';
-import {text,toast,download,track,onLocale,page as route} from './shell.js';
+import {text,toast,download,track,onLocale,page as route,pagePrefix,root} from './shell.js';
+import {stashFiles} from './handoff.js';
 import {innerRect,ALPHA_THRESHOLD} from '../game/pixels.js';
 import {ANALYSIS_PIXELS} from '../primitives.js';
 import {PIVOT_PRESETS,pivotPixels} from '../game/model.js';
@@ -51,7 +52,7 @@ const CLAMP={merge:[0,256],threshold:[0,254],minArea:[1,1_000_000],tolerance:[0,
  rangeFrom:[1,4096],rangeTo:[1,4096],boxX:[-4096,4096],boxY:[-4096,4096],boxW:[1,4096],boxH:[1,4096],boxR:[1,4096]};
 
 export function mount({el,def}){
- let sheet=null,work=null,workKey=null,sourceName='sprite',reader=null;
+ let sheet=null,work=null,workKey=null,sourceName='sprite',reader=null,sourceFile=null;
  let project=P.project(),past=[],future=[],selected=new Set(),busy=false,generation=0,error='',abort=null;
  let stage=STAGES.includes(def?.stage)?def.stage:'slice';
  let suggestions=[],autoMerge=null,animationId='',frameCursor=0,boxId='',advancedOpen=false;
@@ -110,7 +111,7 @@ export function mount({el,def}){
 <div id="labTools"></div>
 <div class="list-actions"><button type="button" class="dashed" data-action="pick">${esc(T('another'))}</button><button type="button" class="link" data-action="lab-clear">${esc(text('removeAll'))}</button></div>
 <button type="button" class="primary big" id="taskDownload" data-action="lab-primary" disabled></button>
-<div class="chips-row"><button type="button" class="mini-button" data-action="lab-undo" id="labUndo">${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="lab-redo" id="labRedo">${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="lab-share">${esc(T('share'))}</button><button type="button" class="mini-button" data-action="lab-save-project">${esc(T('saveProject'))}</button><label class="mini-button" for="labProjectFile">${esc(T('loadProject'))}<input id="labProjectFile" type="file" accept="application/json,.json" hidden></label></div>
+<div class="chips-row"><button type="button" class="mini-button" data-action="lab-undo" id="labUndo">${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="lab-redo" id="labRedo">${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="lab-share">${esc(T('share'))}</button><button type="button" class="mini-button" data-action="lab-save-project">${esc(T('saveProject'))}</button><button type="button" class="mini-button" data-action="lab-studio">${esc(T('openStudio'))}</button><label class="mini-button" for="labProjectFile">${esc(T('loadProject'))}<input id="labProjectFile" type="file" accept="application/json,.json" hidden></label></div>
 <small class="local-note">${esc(text('local'))}</small></aside></div>`;
   stageMarkup();
  }
@@ -745,6 +746,14 @@ ${poly}${shapes}
    download(new Blob([gif(buffers,width,height,delay,{transparent:true})],{type:'image/gif'}),`${prefix()}.gif`);
   }finally{Im.release(c);}
  }
+ /** Hands the sheet and the frames cut so far to the Studio (/game/studio/) — in this browser only,
+  * through the same IndexedDB hand-off the other pages use; nothing is uploaded. */
+ async function openStudio(){
+  if(!sourceFile)return;
+  const frames=project.frames.map(f=>({name:f.name,sourceRect:f.sourceRect,pivotX:f.pivotX,pivotY:f.pivotY,duration:f.duration,tag:f.tag}));
+  await stashFiles([sourceFile],{from:'sprite-lab',frames});track('related_tool_click',{target_intent:'studio'});
+  location.assign(new URL(pagePrefix()+'game/studio/',root).href);
+ }
  function saveProject(){
   const data=P.projectFile({...project,settings:{...o}},{sheetWidth:work.width,sheetHeight:work.height,sheetName:sourceName});
   download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),`${prefix()}-project.json`);
@@ -864,6 +873,7 @@ ${poly}${shapes}
    if(a==='lab-redo')return void redo();
    if(a==='lab-share')return void shareSettings();
    if(a==='lab-save-project')return void saveProject();
+   if(a==='lab-studio')return void openStudio();
    if(a==='lab-set'){
     const key=b.dataset.key,value=b.dataset.value;
     o={...o,[key]:/^-?\d+$/.test(value)?Number(value):value};
@@ -1112,7 +1122,7 @@ ${poly}${shapes}
    if(files.length>1)toast(T('oneSheet'));
    const next=await Im.decode(file);
    if(sheet){if(work&&work!==sheet)Im.release(work);Im.release(sheet);}
-   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;
+   sheet=next;work=null;workKey=null;reader=null;sourceName=file.name;sourceFile=file;
    project=P.project();past=[];future=[];selected=new Set();suggestions=[];autoMerge=null;atlasResult=null;
    shellMarkup();cancelAnimationFrame(raf);raf=requestAnimationFrame(animate);
    track('tool_run',{intent:route.id});

@@ -15,9 +15,11 @@ import {POLICY_ROUTES,policyContent,policies} from '../src/policies.js';
 import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigationData} from '../src/seo.js';
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
+import {STUDIO_PATH,studioPage} from './studio-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES].map(r=>`${l}/${r}`)])];
+// The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
@@ -26,6 +28,7 @@ export function entry(html,route='',siteURL='',config={}){
  const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
+ if(parts.path===STUDIO_PATH)return studioPage({locale,base});
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
  const land=landingText(parts.path,locale),landing=land?parts.path:'';
  const title=(land?.title||t(`intent.${id}.title`,{},locale))+' · '+BRAND.name,description=land?.description||t(`intent.${id}.description`,{},locale);

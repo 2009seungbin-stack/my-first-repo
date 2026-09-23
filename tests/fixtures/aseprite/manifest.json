@@ -1,0 +1,100 @@
+[
+ {
+  "file": "blend-rgba.aseprite",
+  "frames": [
+   {
+    "frame": 0,
+    "rgba": "blend-rgba.f0.rgba.z"
+   }
+  ],
+  "expect": {
+   "layers.length": 20,
+   "layers.13.blendMode": 12,
+   "layers.3.opacity": 180
+  }
+ },
+ {
+  "file": "gray-blend.aseprite",
+  "frames": [
+   {
+    "frame": 0,
+    "rgba": "gray-blend.f0.rgba.z"
+   }
+  ],
+  "expect": {
+   "colorMode": "grayscale",
+   "layers.3.blendMode": 16
+  }
+ },
+ {
+  "file": "indexed-features.aseprite",
+  "frames": [
+   {
+    "frame": 0,
+    "rgba": "indexed-features.f0.rgba.z"
+   },
+   {
+    "frame": 1,
+    "rgba": "indexed-features.f1.rgba.z"
+   },
+   {
+    "frame": 2,
+    "rgba": "indexed-features.f2.rgba.z"
+   },
+   {
+    "frame": 3,
+    "rgba": "indexed-features.f3.rgba.z"
+   }
+  ],
+  "expect": {
+   "colorMode": "indexed",
+   "transparentIndex": 3,
+   "frames.1.duration": 150,
+   "tags.0.name": "pp",
+   "tags.0.direction": "pingpong",
+   "tags.0.repeat": 2,
+   "tags.1.name": "fwd",
+   "tags.2.direction": "reverse",
+   "tags.3.direction": "pingpong_reverse",
+   "tags.3.userData.text": "tag text",
+   "layers.1.type": "group",
+   "layers.2.parent": 1,
+   "layers.4.visible": false,
+   "frames.3.cels.5.linkedFrame": 0,
+   "userData.text": "sprite text",
+   "layers.2.userData.text": "body layer",
+   "externalFiles.0.name": "nerulio/test",
+   "userData.properties.nerulio/test.value.ext.value": 7,
+   "slices.2.keys.0.center.w": 6,
+   "slices.1.keys.0.pivot.y": 8
+  }
+ },
+ {
+  "file": "tilemap-flips.aseprite",
+  "frames": [
+   {
+    "frame": 0,
+    "rgba": "tilemap-flips.f0.rgba.z"
+   }
+  ],
+  "expect": {
+   "tilesets.0.numTiles": 4,
+   "layers.1.type": "tilemap",
+   "frames.0.cels.0.zIndex": 2
+  }
+ },
+ {
+  "file": "writer-compose-groups.aseprite",
+  "frames": [
+   {
+    "frame": 0,
+    "rgba": "writer-compose-groups.f0.rgba.z"
+   }
+  ],
+  "expect": {
+   "composeGroups": true,
+   "layers.1.opacity": 128,
+   "layers.1.blendMode": 1
+  }
+ }
+]
