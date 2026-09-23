@@ -3,6 +3,7 @@ import {extractChannel,invertPlane,planeStats,luminancePlane,CHANNELS} from '../
 import {ENGINE_PRESETS,PRESET_IDS,presetChannels,presetChannel,ENGINE_DOCS} from '../game/texture-presets.js';
 import {heightFromLuminance} from '../game/texture-fix.js';
 import {getLocale as L} from '../i18n.js';
+import './strings-trust.js';
 /** Two stages of Texture Lab that work on one texture at a time:
  *  Normal   — height → normal, OpenGL ↔ DirectX, and a Reoriented Normal Mapping combine.
  *  Channels — unpack R/G/B/A into exact single-channel PNGs, labelled by engine preset.
@@ -10,7 +11,7 @@ import {getLocale as L} from '../i18n.js';
  * shown for a packed channel is the real byte, premultiplication included nowhere. Exports
  * re-run the same pure function on the full-resolution exact pixels. */
 export const normalDefaults=query=>({
- mode:'height',strength:clampNumber(query?.get('strength'),2,0,10),kernel:KERNEL_IDS.includes(query?.get('kernel'))?query.get('kernel'):'sobel3',
+ heightId:null,mode:'height',strength:clampNumber(query?.get('strength'),2,0,10),kernel:KERNEL_IDS.includes(query?.get('kernel'))?query.get('kernel'):'sobel3',
  convention:CONVENTIONS.includes(query?.get('convention'))?query.get('convention'):'opengl',
  wrap:query?.get('wrap')==='1',invertX:false,invertY:false,detail:null,detailStrength:1,source:'luminance'
 });
@@ -22,6 +23,16 @@ const clampNumber=(value,fallback,min,max)=>{
 const seg=(action,key,values,label,current,esc)=>`<div class="segmented" role="group">${values.map(v=>`<button type="button" data-action="${action}" data-key="${key}" data-value="${v}" aria-pressed="${String(current)===String(v)}">${esc(label(v))}</button>`).join('')}</div>`;
 const docLink=(doc,esc)=>`<a class="tex-doc" href="${esc(doc.url)}" target="_blank" rel="noopener nofollow">${esc(doc.title)}${doc.section?` — ${esc(doc.section)}`:''}</a>`;
 // ---- Normal ---------------------------------------------------------------------------------
+/** Which file a height → normal reads (B12). The person's choice wins; otherwise the active file
+ * when it is the height map, otherwise the file classified as height. Nothing classified as
+ * height and nothing chosen means null: the stage asks instead of turning albedo into bumps. */
+export function heightEntry(ctx){
+ const {state}=ctx,o=state.normal,active=ctx.activeEntry();
+ if(o.heightId&&ctx.entryOf(o.heightId))return ctx.entryOf(o.heightId);
+ if(active?.role==='height')return active;
+ return state.files.find(f=>f.role==='height')||null;
+}
+const sourceEntry=ctx=>ctx.state.normal.mode==='height'?heightEntry(ctx):ctx.activeEntry();
 async function normalResult(ctx,pixels){
  const {state}=ctx,o=state.normal,{data,width,height}=pixels;
  if(o.mode==='convert')return {data:flipGreen(data,width,height),width,height};
@@ -37,7 +48,7 @@ async function normalResult(ctx,pixels){
 }
 export const normalStage={
  board(ctx){
-  const {T,esc,state}=ctx,entry=ctx.activeEntry(),o=state.normal;
+  const {T,esc,state}=ctx,o=state.normal,entry=sourceEntry(ctx)||ctx.activeEntry();
   if(!entry)return `<p class="viewer-note">${esc(T('pickTexture'))}</p>`;
   const convention=ENGINE_DOCS.normalConvention[o.mode==='convert'?'opengl':o.convention];
   return `<div class="view-head"><strong>${esc(T('normalTitle'))}</strong><span>${esc(entry.name)} · ${entry.width}×${entry.height}</span></div>
@@ -58,7 +69,7 @@ export const normalStage={
 <form class="options" id="texOptions" autocomplete="off">
 <span class="opt-label">${esc(T('normalModeLabel'))}</span>${seg('tex-normal-set','mode',['height','convert','combine'],v=>T('normalMode.'+v),o.mode,esc)}
 <p class="hint">${esc(T('normalModeHint.'+o.mode))}</p>
-${o.mode==='height'?`<span class="opt-label">${esc(T('convention'))}</span>${seg('tex-normal-set','convention',CONVENTIONS,v=>T('conventionShort.'+v),o.convention,esc)}
+${o.mode==='height'?`${heightPicker(ctx)}<span class="opt-label">${esc(T('convention'))}</span>${seg('tex-normal-set','convention',CONVENTIONS,v=>T('conventionShort.'+v),o.convention,esc)}
 <label class="field"><span>${esc(T('strength'))} <output>${o.strength}</output></span><input type="range" data-key="strength" data-action="tex-normal-range" min="0" max="10" step="0.5" value="${o.strength}"></label>
 <details class="options-advanced"><summary>${esc(ctx.text('advanced'))}</summary>
 <label class="field"><span>${esc(T('kernelLabel'))}</span><select data-key="kernel" data-option="normal-kernel">${KERNEL_IDS.map(id=>`<option value="${id}" ${o.kernel===id?'selected':''}>${esc(T('kernel.'+id))}</option>`).join('')}</select></label>
@@ -83,6 +94,7 @@ ${o.mode==='convert'?`<p class="hint">${esc(T('convertHint'))}</p>`:''}
    const out=target.closest('.field')?.querySelector('output');if(out)out.textContent=target.value;
    schedule(ctx);return;
   }
+  if(target.dataset.option==='normal-height'){o.heightId=target.value||null;ctx.render();return;}
   const map={'normal-kernel':'kernel','normal-source':'source','normal-detail':'detail'};
   if(map[target.dataset.option]){o[map[target.dataset.option]]=target.value||null;refreshNormal(ctx);return;}
   if(target.dataset.option==='normal-wrap'){o.wrap=target.checked;refreshNormal(ctx);return;}
@@ -99,10 +111,27 @@ ${o.mode==='convert'?`<p class="hint">${esc(T('convertHint'))}</p>`:''}
  },
  dispose(){clearTimeout(timer);}
 };
+/** The height source, visible and changeable: which file, and whether it really is a height map. */
+function heightPicker(ctx){
+ const {T,esc,state}=ctx,chosen=heightEntry(ctx);
+ const options=[`<option value="">${esc(T('heightPick'))}</option>`,...state.files.map(f=>`<option value="${f.id}" ${chosen&&String(chosen.id)===String(f.id)?'selected':''}>${esc(f.name)} · ${esc(ctx.roleLabel(f.role))}</option>`)];
+ const note=!chosen?`<p class="hint bad" id="texHeightNote" data-state="missing">${esc(T('heightMissing'))}</p>`
+  :chosen.role!=='height'?`<p class="hint bad" id="texHeightNote" data-state="wrong">${esc(T('heightWrong',{name:chosen.name,role:ctx.roleLabel(chosen.role)}))}</p>`
+  :`<p class="hint" id="texHeightNote" data-state="ok">${esc(T('heightAuto',{name:chosen.name}))}</p>`;
+ return `<label class="field"><span>${esc(T('heightSource'))}</span><select data-option="normal-height" id="texHeightSource">${options.join('')}</select></label>${note}`;
+}
 let timer=0;
 const schedule=ctx=>{clearTimeout(timer);timer=setTimeout(()=>refreshNormal(ctx),90);};
 async function refreshNormal(ctx){
- const entry=ctx.activeEntry();if(!entry||ctx.state.stage!=='normal')return;
+ if(ctx.state.stage!=='normal')return;
+ const entry=sourceEntry(ctx);
+ if(!entry){
+  // No height map: say so, draw nothing, and never show a check mark.
+  const box=ctx.q('#texNormalSummary');
+  if(box){box.classList.add('bad');box.innerHTML=`<div class="summary-big">!</div><div class="summary-line">${ctx.esc(ctx.T('heightMissing'))}</div>`;}
+  for(const id of ['#texNormalSource','#texNormalOut']){const c=ctx.q(id);if(c){c.width=c.height=1;}}
+  return;
+ }
  // Looked up after every await: the side panel is re-rendered while this runs, so an element
  // captured before the first await would be the detached one.
  const summary=()=>ctx.q('#texNormalSummary'),note=()=>ctx.q('#texNormalNote');
@@ -113,8 +142,12 @@ async function refreshNormal(ctx){
   ctx.paint(ctx.q('#texNormalOut'),result.data,result.width,result.height);
   const report=validateNormalMap(result.data,result.width,result.height),bias=greenBias(result.data,result.width,result.height);
   const box=summary();
-  if(box)box.classList.toggle('bad',!report.looksLikeNormalMap);
-  if(box)box.innerHTML=`<div class="summary-big">${report.looksLikeNormalMap?'✓':'!'}</div><div class="summary-line">${ctx.esc(ctx.T('normalCheck',{len:report.meanLength.toFixed(3),dev:report.maxDeviation.toFixed(3)}))}</div>`;
+  // A unit-length result proves the maths, not the input: a normal made from an albedo is still
+  // unit length. So the verdict also depends on the source being the height map.
+  const wrongSource=ctx.state.normal.mode==='height'&&entry.role!=='height';
+  const good=report.looksLikeNormalMap&&!wrongSource;
+  if(box)box.classList.toggle('bad',!good);
+  if(box)box.innerHTML=`<div class="summary-big">${good?'✓':'!'}</div><div class="summary-line">${ctx.esc(ctx.T('normalCheck',{len:report.meanLength.toFixed(3),dev:report.maxDeviation.toFixed(3)}))}</div>${wrongSource?`<div class="summary-line bad">${ctx.esc(ctx.T('heightWrong',{name:entry.name,role:ctx.roleLabel(entry.role)}))}</div>`:''}`;
   const line=note();
   if(line)line.textContent=ctx.T('normalNote',{green:bias.aboveRatio>.5?ctx.T('greenUp'):ctx.T('greenDown'),step:pixels.step});
  }catch(error){
@@ -124,13 +157,16 @@ async function refreshNormal(ctx){
  }
 }
 async function saveNormal(ctx){
- const entry=ctx.activeEntry();if(!entry)return;
+ const entry=sourceEntry(ctx);if(!entry)throw Error(ctx.T('heightMissing'));
  const pixels=await ctx.fullPixels(entry);
  try{
   const result=await normalResult(ctx,pixels);
   const suffix=ctx.state.normal.mode==='convert'?'-'+(ctx.state.normal.convention==='opengl'?'directx':'opengl'):'-normal';
-  ctx.download(await ctx.rgbaBlob(result.data,result.width,result.height),`${ctx.stem(entry.name)}${suffix}.png`);
-  ctx.toast(ctx.T('savedFull',{w:result.width,h:result.height}));
+  const name=`${ctx.stem(entry.name)}${suffix}.png`,blob=await ctx.rgbaBlob(result.data,result.width,result.height);
+  ctx.download(blob,name);
+  // The map just made is part of the set now: the Preview's normal slot uses it (B13).
+  await ctx.addGenerated?.(new File([blob],name,{type:'image/png'}),'normal');
+  ctx.toast(ctx.T('addedToSet',{name}));
  }finally{pixels.data=null;}
 }
 // ---- Channels -------------------------------------------------------------------------------

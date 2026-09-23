@@ -92,6 +92,60 @@ export function edgeQuality(source,{tolerance=.02}={}){
  }
  return {edges,intermediate,partialAlpha,share:edges?intermediate/edges:0};
 }
+/** Edge energy between neighbouring columns (axis 'x') or rows ('y'): position i is the
+ * boundary between line i-1 and line i. Alpha counts double so a silhouette edge weighs in. */
+function edgeProfile({data:d,width:w,height:h},axis,order=1){
+ const len=axis==='x'?w:h,across=axis==='x'?h:w,out=new Float64Array(len),step=axis==='x'?4:w*4;
+ for(let i=order;i<len;i++){let sum=0;
+  for(let j=0;j<across;j++){
+   const a=axis==='x'?(j*w+i)*4:(i*w+j)*4,b=a-step,c=b-step;
+   for(let k=0;k<4;k++){const v=order===1?d[a+k]-d[b+k]:d[a+k]-2*d[b+k]+d[c+k];sum+=(k===3?2:1)*Math.abs(v);}}
+  out[i]=sum;}
+ return out;
+}
+/** Phase coherence of edge positions at period s: 1 when every edge sits on one lattice
+ * {offset + k·s}, ~0 when edges are spread evenly. This is the magnitude of the profile's Fourier
+ * coefficient at frequency 1/s, normalised by the total edge energy — it works for any real s,
+ * which is what a 3.78× bilinear resize needs. */
+function coherence(profile,s){
+ let re=0,im=0,total=0;const k=2*Math.PI/s;
+ for(let i=1;i<profile.length;i++){const e=profile[i];if(!e)continue;re+=e*Math.cos(k*i);im+=e*Math.sin(k*i);total+=e;}
+ return total?Math.hypot(re,im)/total:0;
+}
+/** Scale of an image that was upscaled from pixel art by *any* factor, with or without smoothing.
+ * An integer nearest-neighbour upscale is found exactly by detectScale; this is for the rest — a
+ * 3.78× bilinear resize has no block grid and runs of one pixel, so the block and run-length
+ * checks both call it "1×". Its edges still sit on a lattice of spacing ≈3.78, and that lattice
+ * is what is measured (both axes, periods 1.5…maxScale in 0.005 steps).
+ * Harmonics: a lattice of spacing s is also a lattice of s/2, s/3 …, so the largest period that
+ * scores nearly as well as the best one is taken.
+ * @returns {scale, coherence, prominence, confidence:'high'|'medium'|'low', integer, candidates} */
+export function estimateResample(source,{minScale=1.5,maxScale=MAX_SCALE,step=.005}={}){
+ // First differences put a nearest-then-smoothed edge on the lattice; a plain bilinear resize
+ // spreads each step into a ramp, and its lattice shows in the second differences instead (the
+ // kinks where the ramps meet sit on the original sample positions). Both are measured.
+ const img=view(source),px=edgeProfile(img,'x'),py=edgeProfile(img,'y'),qx=edgeProfile(img,'x',2),qy=edgeProfile(img,'y',2);
+ const top=Math.min(maxScale,Math.max(minScale,Math.min(img.width,img.height)/3));
+ const values=[];
+ for(let s=minScale;s<=top+1e-9;s+=step){
+  const cx=Math.max(coherence(px,s),coherence(qx,s)),cy=Math.max(coherence(py,s),coherence(qy,s));
+  values.push({s:+s.toFixed(3),c:(cx+cy)/2,cx,cy});}
+ if(!values.length)return {scale:1,coherence:0,prominence:0,confidence:'low',integer:true,candidates:[]};
+ const peaks=values.filter((v,i)=>(i===0||v.c>=values[i-1].c)&&(i===values.length-1||v.c>=values[i+1].c));
+ const best=peaks.reduce((a,b)=>b.c>a.c?b:a,peaks[0]);
+ // The fundamental: the largest period that is (nearly) a whole multiple of the best one and
+ // still coheres almost as well.
+ let chosen=best;
+ for(const p of peaks){const ratio=p.s/best.s,k=Math.round(ratio);
+  if(k>=2&&Math.abs(ratio-k)<=.03*k&&p.c>=best.c*.8&&p.s>chosen.s)chosen=p;}
+ const sorted=values.map(v=>v.c).sort((a,b)=>a-b),median=sorted[sorted.length>>1]||1e-9;
+ const prominence=chosen.c/Math.max(1e-9,median);
+ const confidence=chosen.c>=.5&&prominence>=3?'high':chosen.c>=.45&&prominence>=2?'medium':'low';
+ const nearest=Math.round(chosen.s);
+ return {scale:chosen.s,coherence:+chosen.c.toFixed(3),prominence:+prominence.toFixed(2),confidence,
+  integer:Math.abs(chosen.s-nearest)<=Math.max(.02,nearest*.006),axes:{x:+chosen.cx.toFixed(3),y:+chosen.cy.toFixed(3)},
+  candidates:peaks.sort((a,b)=>b.c-a.c).slice(0,4).map(p=>({scale:p.s,coherence:+p.c.toFixed(3)}))};
+}
 /** Recover the 1× source of a clean integer upscale by reading one pixel per block. Only call it
  * when detectScale reported `exact`; otherwise the block colour is a guess, not a recovery. */
 export function recoverSource(source,scale,offset={x:0,y:0}){
@@ -131,10 +185,32 @@ export function inspect(source,{targetColors=0,maxScale=MAX_SCALE}={}){
  const {width,height}=view(source),scale=detectScale(source,{maxScale}),edges=edgeQuality(source),colors=new Set();
  const {data:d}=source;let opaque=0;
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;opaque++;colors.add(d[i]<<16|d[i+1]<<8|d[i+2]);}
- // 'integer' — a block grid was proven; 'unit' — single-pixel detail exists, so it is already 1×
- // (blurred if the edge share is high); 'non-integer' — every run is 2+ px but no grid fits.
- const verdict=scale.confident&&scale.scale>1?'integer':scale.exact||(scale.unitShare??1)>=.02?'unit':'non-integer';
- return {width,height,opaque,distinct:colors.size,scale,edges,verdict,blurred:edges.share>=.25||edges.partialAlpha>0,
+ const blurred=edges.share>=.25||edges.partialAlpha>0;
+ // 'integer'     — a block grid was proven (exact, recoverable);
+ // 'resampled'   — no block grid, but the edges sit on a lattice of spacing > 1: the art was
+ //                 scaled by a non-integer factor and/or smoothed (bilinear). Reported with the
+ //                 measured scale and a confidence; nothing is "recovered" from it;
+ // 'unit'        — single-pixel detail on no coarser lattice: already 1× (blurred if flagged);
+ // 'non-integer' — every run is 2+ px but neither a grid nor a lattice was found.
+ let verdict=scale.confident&&scale.scale>1?'integer':scale.exact||(scale.unitShare??1)>=.02?'unit':'non-integer',resample=null;
+ if(verdict==='integer')resample={kind:'integer',scale:scale.scale,integer:true,smoothed:false,confidence:'high',coherence:1};
+ else if(verdict==='non-integer'&&scale.estimate>=1.4){
+  // Every run is 2+ px and no block grid fits: a nearest-neighbour resize by a fractional factor
+  // (runs alternate 2 and 3 at 2.5×). The run lengths measure it better than a lattice would.
+  const nearest=Math.round(scale.estimate);
+  resample={kind:'resampled',scale:scale.estimate,integer:Math.abs(scale.estimate-nearest)<=.02,smoothed:false,confidence:'medium',coherence:null};
+ }else{
+  const r=estimateResample(source,{maxScale});
+  // Crisp 1× art on a sheet repeats with its cell pitch, which is a lattice too. What a resize
+  // leaves behind and a crisp sheet does not is smoothing (in-between colours, partial alpha); a
+  // crisp image needs an overwhelming lattice before it is called resampled.
+  const convincing=blurred?r.confidence!=='low':r.confidence==='high'&&r.coherence>=.6&&r.prominence>=4;
+  if(convincing&&r.scale>=1.4){
+   resample={kind:'resampled',scale:r.scale,integer:r.integer,smoothed:blurred,confidence:r.confidence,coherence:r.coherence,prominence:r.prominence,candidates:r.candidates};
+   verdict='resampled';
+  }
+ }
+ return {width,height,opaque,distinct:colors.size,scale,edges,verdict,resample,blurred,
   logical:verdict==='integer'?{width:Math.ceil((width+scale.offset.x)/scale.scale),height:Math.ceil((height+scale.offset.y)/scale.scale)}:null,
   offGrid:verdict==='integer'&&(scale.offset.x>0||scale.offset.y>0||!scale.divides),
   budget:targetColors?{target:Math.round(targetColors),actual:colors.size,over:Math.max(0,colors.size-Math.round(targetColors))}:null};
