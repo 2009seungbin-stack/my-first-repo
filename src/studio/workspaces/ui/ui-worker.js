@@ -50,8 +50,11 @@ async function pagesOut(model,pages){
  const out=[],transfer=[];
  for(const p of pages){
   const png=await encodePNG({width:p.width,height:p.height,data:p.data},{indexed:model.type==='bitmap'?'auto':'never'});
-  const bitmap=await createImageBitmap(new ImageData(new Uint8ClampedArray(p.data),p.width,p.height),{premultiplyAlpha:'none'});
-  out.push({width:p.width,height:p.height,png,bitmap});transfer.push(png.buffer,bitmap);
+  // two decodes: the exact channels for the shader preview, and a premultiplied one for the canvas
+  // (a white glyph page is (255,255,255,0) around the glyphs: shown straight it would be all white)
+  const id=new ImageData(new Uint8ClampedArray(p.data),p.width,p.height);
+  const bitmap=await createImageBitmap(id,{premultiplyAlpha:'none'}),display=await createImageBitmap(id,{premultiplyAlpha:'premultiply'});
+  out.push({width:p.width,height:p.height,png,bitmap,display});transfer.push(png.buffer,bitmap,display);
  }
  return {out,transfer};
 }

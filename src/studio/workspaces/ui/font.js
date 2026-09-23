@@ -69,8 +69,8 @@ export default function fontMode(W){
    for(const c of f.charset.sources)if(c.kind==='file')await W.sendBlob(c.blob);
    if(f.source.kind==='file'&&!info.has(f.source.blob))W.work({op:'fontInfo',blob:f.source.blob}).then(r=>{info.set(f.source.blob,r.info);renderSource();}).catch(()=>{});
    const r=await W.work({op:'font',font:payload},{onProgress:p=>{if(my!==buildSeq)return;busy=p;renderStatus();}});
-   if(my!==buildSeq){for(const p of r.pages)p.bitmap.close?.();return;}
-   for(const p of result?.pages||[])p.bitmap.close?.();
+   if(my!==buildSeq){for(const p of r.pages){p.bitmap.close?.();p.display?.close?.();}return;}
+   for(const p of result?.pages||[]){p.bitmap.close?.();p.display?.close?.();}
    r.model.keepColor=f.source.kind==='grid'&&!f.source.white;
    result=r;if(page>=r.pages.length)page=0;busy=null;
    tp.setFont(r.model,r.pages.map(p=>p.bitmap));
@@ -82,7 +82,7 @@ export default function fontMode(W){
   const pg=result?.pages[page];
   if(!pg){if(font()?.source.kind==='grid')return W.showPicture(font().source.assetId,opts);view.clearImage();return;}
   const same=view.image&&view.image.w===pg.width&&view.image.h===pg.height;
-  await view.setImage(pg.bitmap,pg.width,pg.height,{view:same||opts.restoreView?{...view.view}:null});
+  await view.setImage(pg.display||pg.bitmap,pg.width,pg.height,{view:same||opts.restoreView?{...view.view}:null});
   ctx.status('image',t('ui.font.pageStatus',{n:page+1,of:result.pages.length,w:pg.width,h:pg.height}));
  }
  const glyphsOnPage=()=>result?result.model.glyphs.filter(g=>g.page===page&&g.w):[];
@@ -324,7 +324,7 @@ export default function fontMode(W){
    {id:'ui-font-export',title:()=>t('ui.panel.fontExport'),dock:'right',order:40,render(body){body.append(xBox);}},
    {id:'ui-text-preview',title:()=>t('ui.panel.textPreview'),dock:'bottom',order:5,render(body){body.append(tpBox);}}
   ],
-  enter(){ctx.minBottomHeight?.(220);if(!W.sel.font)W.sel.font=Object.keys(W.S().fonts||{})[0]||null;renderAll();if(result)present({restoreView:true});schedule(0);},
+  enter(){ctx.minBottomHeight?.(260);if(!W.sel.font)W.sel.font=Object.keys(W.S().fonts||{})[0]||null;renderAll();if(result)present({restoreView:true});schedule(0);},
   leave(){hoverGlyph=null;clearTimeout(timer);},
   list,tool,draw,present,addFontFile,addTranslations,pickFontFile,importFnt:async()=>{throw Error(t('ui.font.fntLater'));},
   onSelect(kind){if(kind==='font'){page=0;selGlyph=null;kernSuggestions=null;result=null;renderAll();schedule(0);}},

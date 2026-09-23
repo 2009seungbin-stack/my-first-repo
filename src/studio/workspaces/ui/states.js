@@ -86,10 +86,10 @@ export default function statesMode(W){
    const parts=[h('div.ui-state-head',{},h('b',{},t('ui.state.'+st)),src)];
    if(v&&!v.element){
     const ops=v.ops||{};
-    const opRow=([k,min,max,step])=>{const inp=h('input.st-input.st-num',{type:'number',min:String(min),max:String(max),step:String(step),value:String(ops[k]??0),'data-op':k,'aria-label':t('ui.op.'+k)});
+    const opRow=([k,min,max,step])=>{const inp=h('input.st-input.st-num',{type:'number',min:String(min),max:String(max),step:String(step),value:String(ops[k]??(k==='alpha'?1:0)),'data-op':k,'aria-label':t('ui.op.'+k)});
      inp.addEventListener('change',()=>{const n=Number(inp.value);if(!Number.isFinite(n))return;setState(st,{...v,ops:{...ops,[k]:Math.max(min,Math.min(max,n))}},'op-'+st+k);});
      return h('label.st-field',{},h('span',{},t('ui.op.'+k)),inp);};
-    const col=(k,label)=>{const inp=h('input',{type:'color',value:ops[k]||'#3182f6','data-op':k,'aria-label':label});inp.addEventListener('change',()=>setState(st,{...v,ops:{...ops,[k]:inp.value}},'op-'+st+k));return h('label.st-field',{},h('span',{},label),inp);};
+    const col=(k,label)=>{const inp=h('input',{type:'color',value:ops[k]||(k==='overlayColor'?'#ffffff':'#3182f6'),'data-op':k,'aria-label':label});inp.addEventListener('change',()=>setState(st,{...v,ops:{...ops,[k]:inp.value}},'op-'+st+k));return h('label.st-field',{},h('span',{},label),inp);};
     const ov=h('input.st-input.st-num',{type:'number',min:'0',max:'1',step:'.05',value:String(ops.overlayAlpha||0),'data-op':'overlayAlpha','aria-label':t('ui.op.overlayAlpha')});
     ov.addEventListener('change',()=>setState(st,{...v,ops:{...ops,overlayAlpha:Math.max(0,Math.min(1,+ov.value||0)),overlayColor:ops.overlayColor||'#ffffff'}},'op-'+st+'ov'));
     parts.push(h('div.ui-ops',{},...OPS.map(opRow),col('outlineColor',t('ui.op.outlineColor')),col('overlayColor',t('ui.op.overlayColor')),h('label.st-field',{},h('span',{},t('ui.op.overlayAlpha')),ov)));
@@ -106,7 +106,7 @@ export default function statesMode(W){
  const liveBox=h('div.ui-live',{});
  function renderLive(){
   const b=btn(),normal=images.get('normal');if(!b||!normal){liveBox.replaceChildren(h('p.st-muted.st-pad',{},t('ui.states.pick')));return;}
-  if(!live.w){live.w=Math.max(normal.w,Math.round(normal.w*1.6));live.h=normal.h;}
+  if(!live.w){live.w=Math.max(normal.w,Math.round(normal.w*1.6));live.h=normal.h;live.scale=normal.h>=40?1:2;}
   const dpr=devicePixelRatio||1;
   const drawState=(st,cv)=>{const img=images.get(st)||normal,sc=live.scale;
    // a generated state may be larger (focus ring): its canvas grows by the same pad on each side

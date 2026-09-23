@@ -149,7 +149,11 @@ export default {
    return done;
   }
   async function isSingle(asset){
-   try{const {rects}=await (async()=>{await sendBlob(P.primaryBlob(asset));return work({op:'detect',blob:P.primaryBlob(asset),threshold:8,minArea:4,merge:3});})();return rects.length<=1;}catch{return true;}
+   // one element = one island, or islands that all sit inside the largest one (a button and its
+   // label, a panel with inner details); a sheet has separate elements side by side
+   try{await sendBlob(P.primaryBlob(asset));const {rects}=await work({op:'detect',blob:P.primaryBlob(asset),threshold:8,minArea:4,merge:0});
+    if(rects.length<=1)return true;const big=rects.reduce((a,b)=>a.w*a.h>=b.w*b.h?a:b);
+    return rects.every(r=>r.x>=big.x&&r.y>=big.y&&r.x+r.w<=big.x+big.w&&r.y+r.h<=big.y+big.h);}catch{return true;}
   }
   W.importFiles=importFiles;W.attachFile=async(file,owner='ui')=>{
    const blob=new Blob([await file.arrayBuffer()],{type:file.type&&!file.type.startsWith('image/')?file.type:'application/octet-stream'});
