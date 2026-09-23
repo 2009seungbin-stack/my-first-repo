@@ -216,7 +216,7 @@ export class CanvasView{
  get view(){return this.v;}
  setView(v,{clamp=true}={}){
   let next={scale:V.isValidZoom(v.scale)?v.scale:V.floorZoom(v.scale),x:Math.round(v.x),y:Math.round(v.y)};
-  if(clamp&&this.image)next=V.clampView(next,this.image.w,this.image.h,this.W,this.H,Math.round(48*this.dpr));
+  if(clamp&&this.image)next=V.clampView(next,this.image.w,this.image.h,this.W,this.H,Math.round(KEEP_VISIBLE*this.dpr));
   if(next.scale===this.v.scale&&next.x===this.v.x&&next.y===this.v.y)return;
   this.v=next;this.invalidate();this.emit('view',this.v);
  }
@@ -387,4 +387,6 @@ export class CanvasView{
  destroy(){this.ro.disconnect();cancelAnimationFrame(this.raf);this.renderer.destroy();this.root.remove();}
 }
 const o_checker=o=>o.checkerCss||8;
+/** CSS px of the image that must stay on screen however far it is panned. */
+export const KEEP_VISIBLE=64;
 export {HANDLE_CURSORS};

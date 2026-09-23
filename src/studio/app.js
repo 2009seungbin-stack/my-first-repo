@@ -74,12 +74,14 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  // ------------------------------------------------------------------ status bar
  const slots={};
  for(const k of ['zoom','cursor','selection','image','renderer','spacer','memory','project']){slots[k]=h('span.st-slot.st-slot-'+k,{});status.append(slots[k]);}
+ slots.zoom.addEventListener('dblclick',()=>runCommand('view.fit'));
  const setStatus=(k,v)=>{if(slots[k]&&slots[k].textContent!==v)slots[k].textContent=v;};
  const updateZoom=()=>{setStatus('zoom',view.image?t('status.zoom',{z:V.zoomPercent(view.view.scale)}):'');hudZoom.textContent=view.image?t('status.zoom',{z:V.zoomPercent(view.view.scale)}):'—';};
  const updateMemory=()=>{const u=images.usage();setStatus('memory',u.count?t('status.memory',{mb:fmtBytes(u.bytes+u.decoded)}):'');slots.memory.title=t('status.memoryHint',{stored:fmtBytes(u.bytes),decoded:fmtBytes(u.decoded)});};
  // ------------------------------------------------------------------ toast
  let toastTimer=0;
- function toast(msg,{error=false}={}){toastEl.textContent=msg;toastEl.classList.toggle('is-error',error);toastEl.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toastEl.hidden=true;},error?7000:3200);}
+ function toast(msg,{error=false}={}){toastEl.textContent=msg;toastEl.classList.toggle('is-error',error);toastEl.hidden=false;clearTimeout(toastTimer);const compact=root.dataset.mode==='compact';toastTimer=setTimeout(()=>{toastEl.hidden=true;},error?(compact?5000:7000):(compact?2200:3200));}
+ toastEl.addEventListener('click',()=>{toastEl.hidden=true;});
  // ------------------------------------------------------------------ commands
  function command(def){
   const c={group:'other',...def};if(!c.id)throw Error('command id');
@@ -134,7 +136,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   if(prev!==history.doc){
    for(const fn of listeners.doc)fn(history.doc,prev,ev);
    if(!P.assetById(history.doc,activeAssetId))showAsset(history.doc.assets[0]?.id||null);
-   else{const a=P.assetById(history.doc,activeAssetId),b=P.assetById(prev,activeAssetId);if(P.primaryBlob(a)!==P.primaryBlob(b))showAsset(a.id);}
+   else{const a=P.assetById(history.doc,activeAssetId),b=P.assetById(prev,activeAssetId);if(P.primaryBlob(a)!==P.primaryBlob(b))showAsset(a.id,{restoreView:true});}
    if(ev.type!=='reset')autosave.schedule();
    refreshChrome();
   }
@@ -142,13 +144,15 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   updateSaveState();
  }
  history.subscribe(onHistory);
- async function showAsset(id){
+ /** Shows an asset. The view is fitted and centred unless `restoreView` (recovery, reopen, an
+  * edit that replaced the pixels) asks for the view that asset had. */
+ async function showAsset(id,{restoreView=false}={}){
   const a=id?P.assetById(doc(),id):null;activeAssetId=a?.id||null;
   empty.hidden=!!a;hud.hidden=!a;root.classList.toggle('has-image',!!a);
   if(!a){view.clearImage();setStatus('image','');updateZoom();for(const fn of listeners.asset)fn(null);renderAssets();return;}
   try{
    const blob=P.primaryBlob(a),bmp=await images.bitmap(blob);if(activeAssetId!==a.id)return;
-   await view.setImage(bmp,a.width,a.height,{view:assetViews.get(a.id)||null});
+   await view.setImage(bmp,a.width,a.height,{view:restoreView?assetViews.get(a.id)||null:null});
    images.trimBitmaps(new Set([blob]));
   }catch(e){toast(errText(e),{error:true});}
   setStatus('image',t('status.image',{w:a.width,h:a.height}));updateZoom();updateMemory();
@@ -228,7 +232,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   history.reset(d,{saved:fileSaved});lastDoc=history.doc;
   for(const fn of listeners.doc)fn(history.doc,null,{type:'reset'});
   images.forget(P.referencedBlobs(d));
-  await showAsset(ui.activeAsset&&P.assetById(d,ui.activeAsset)?ui.activeAsset:d.assets[0]?.id||null);
+  await showAsset(ui.activeAsset&&P.assetById(d,ui.activeAsset)?ui.activeAsset:d.assets[0]?.id||null,{restoreView:true});
   autosave.schedule();refreshChrome();updateSaveState();renderHistory();
  }
  async function confirmReplace(){
@@ -485,7 +489,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   const keys=h('button.st-link',{type:'button'},t('empty.keys'));keys.addEventListener('click',()=>runCommand('app.shortcuts'));
   empty.replaceChildren(h('div.st-empty-card',{},h('div.st-empty-art',{'aria-hidden':'true'},h('span',{}),h('span',{}),h('span',{}),h('span',{})),h('h1',{},t('empty.title')),h('p',{},t('empty.formats')),h('div.st-empty-actions',{},imp,open),h('p.st-muted',{},t('empty.local'),' · ',keys)));
   const b=(ic,label,fn)=>{const x=h('button.st-icon-btn',{type:'button','aria-label':label,title:label});x.innerHTML=icon(ic);x.addEventListener('click',fn);return x;};
-  hudZoom.title=t('cmd.view.zoom100');hudZoom.onclick=()=>runCommand('view.zoom100');
+  hudZoom.title=t('hud.zoom');hudZoom.onclick=null;hudZoom.ondblclick=()=>runCommand('view.fit');
   hud.replaceChildren(b('minus',t('cmd.view.zoomOut'),()=>runCommand('view.zoomOut')),hudZoom,b('plus',t('cmd.view.zoomIn'),()=>runCommand('view.zoomIn')),b('fit',t('cmd.view.fit'),()=>runCommand('view.fit')));
   updateZoom();
  }

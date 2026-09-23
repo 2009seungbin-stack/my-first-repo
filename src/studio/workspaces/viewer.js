@@ -114,11 +114,18 @@ export default {
      h('b',{},`${s.cellWidth}×${s.cellHeight}`),h('span.st-sug-meta',{},[t('grid.cells',{c:s.columns,r:s.rows}),
       s.marginX||s.marginY?t('grid.margin',{v:s.marginX===s.marginY?s.marginX:`${s.marginX},${s.marginY}`}):'',
       s.spacingX||s.spacingY?t('grid.gap',{v:s.spacingX===s.spacingY?s.spacingX:`${s.spacingX},${s.spacingY}`}):''].filter(Boolean).join(' · ')),
-     h('span.st-conf.is-'+s.confidence,{},t('grid.conf.'+s.confidence),' ',Math.round(s.score*100)+'%'));
+     // Only the best candidate carries a confidence level; the rest are alternatives, so a runner-up
+     // can never look as sure as (or surer than) the suggestion the preview shows.
+     i===0?h('span.st-conf.is-'+s.confidence,{},t('grid.conf.'+s.confidence),' ',Math.round(s.score*100)+'%')
+      :h('span.st-conf.is-alt',{},t('grid.alt'),' ',Math.round(s.score*100)+'%'));
     use.addEventListener('click',()=>setDraft(spec));
     const why=h('details.st-why',{},h('summary',{},t('grid.why')),h('ul',{},reasonList(s).map(r=>h('li',{},r))));
     sug.append(h('div.st-sug-row',{},use,why));
    });
+   if(d?.status==='done'&&d.suggestions.length>1&&d.suggestions[0].score-d.suggestions[1].score<.1){
+    const [a0,a1]=d.suggestions;
+    sug.append(h('p.st-close',{'data-close':'1'},t('grid.close',{a:`${a0.cellWidth}×${a0.cellHeight}`,b:`${a1.cellWidth}×${a1.cellHeight}`})));
+   }
    const num=(k,label,min)=>{const i=h('input.st-input.st-num',{type:'number',min:String(min),step:'1',value:g?String(g[k]):'',inputmode:'numeric','data-grid':k,'aria-label':t(label)});
     i.addEventListener('change',()=>{const cur=draft()||{w:16,h:16,ox:0,oy:0,sx:0,sy:0};setDraft({...cur,[k]:Number(i.value)});});fields[k]=i;return h('label.st-field.st-field-inline',{},h('span',{},t(label)),i);};
    const show=h('input',{type:'checkbox',checked:!!view.options.gridVisible&&!!g,'data-grid':'show'});show.addEventListener('change',()=>view.set({gridVisible:show.checked}));
@@ -151,7 +158,7 @@ export default {
    if(!cells.length){ctx.toast(t('grid.noCells'),{error:true});return;}
    const id=a.id,replaced=a.frames.length;
    ctx.execute(ctx.edit(t('cmd.frames.applyGrid',{w:g.w,h:g.h,n:cells.length}),d=>{const cur=P.assetById(d,id);return P.setGrid(P.setFrames(d,id,P.framesFromCells(cur,cells)),id,g);}));
-   drafts.delete(id);select([]);renderGrid();
+   drafts.delete(id);select([]);renderGrid();view.fit();
    ctx.toast(replaced?t('toast.gridReplaced',{n:cells.length,old:replaced,undo:ctx.shortcutOf('edit.undo')}):t('toast.gridApplied',{n:cells.length}));
   }
   // ------------------------------------------------------------ frame inspector
@@ -227,7 +234,7 @@ export default {
    if(id===assetId&&id)return;
    assetId=id;selection=[];const a=asset();
    const g=a?(drafts.get(a.id)||a.grid):null;view.set({grid:g,gridVisible:!!g&&(!a.grid||!a.frames.length||view.options.gridVisible)});
-   syncLayer();renderGrid();renderInspector();renderStrip();
+   cellInfo=null;cellToken++;syncLayer();renderGrid();renderInspector();renderStrip();countCells();
    if(a)runDetect();
   });
   ctx.on('view',()=>{const show=gridBox.querySelector('[data-grid="show"]');if(show)show.checked=!!view.options.gridVisible;});
@@ -256,6 +263,6 @@ export default {
     ctx.toast(t('toast.handoffFrames',{n:frames.length}));
    }
   };
-  function listenersAsset(id){assetId=id;selection=[];const a=asset();const g=a?(drafts.get(a.id)||a.grid):null;view.set({grid:g,gridVisible:!!g});syncLayer();renderGrid();renderInspector();renderStrip();if(a)runDetect();}
+  function listenersAsset(id){assetId=id;selection=[];const a=asset();const g=a?(drafts.get(a.id)||a.grid):null;view.set({grid:g,gridVisible:!!g});cellInfo=null;cellToken++;syncLayer();renderGrid();renderInspector();renderStrip();countCells();if(a)runDetect();}
  }
 };

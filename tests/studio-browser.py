@@ -30,6 +30,16 @@ def settle(p,ms=120):p.wait_for_timeout(ms)
 def client(p,ix,iy):
     """CSS page coordinates of image point (ix, iy)."""
     return js(p,'const v=S.view,r=v.stage.getBoundingClientRect();return {x:r.left+(v.view.x+arg[0]*v.view.scale)*r.width/v.W,y:r.top+(v.view.y+arg[1]*v.view.scale)*r.height/v.H};',[ix,iy])
+def framing(p):
+    """Image rect vs canvas viewport in CSS px: {inside, centred, visible_w, visible_h}."""
+    return js(p,'''const v=S.view,r=v.stage.getBoundingClientRect(),k=r.width/v.W,im=v.image;
+      const x0=r.left+v.view.x*k,y0=r.top+v.view.y*k,x1=x0+im.w*v.view.scale*k,y1=y0+im.h*v.view.scale*k;
+      const tol=v.view.scale*k+1;
+      return {inside:x0>=r.left-0.5&&y0>=r.top-0.5&&x1<=r.right+0.5&&y1<=r.bottom+0.5,
+        centred:Math.abs((x0-r.left)-(r.right-x1))<=tol&&Math.abs((y0-r.top)-(r.bottom-y1))<=tol,
+        visible_w:Math.max(0,Math.min(x1,r.right)-Math.max(x0,r.left)),visible_h:Math.max(0,Math.min(y1,r.bottom)-Math.max(y0,r.top)),
+        scale:v.view.scale};''')
+def fitted(p):f=framing(p);return f['inside'] and f['centred']
 def image_at(p,cx,cy):return js(p,'const q=S.view.toImage(arg[0],arg[1]);return {x:q.x,y:q.y};',[cx,cy])
 def autosaved(p,since):
     p.wait_for_function('(t)=>{const a=window.nerulioStudio.autosave;return !a.pending&&!a.saving&&a.lastAt>t}',arg=since,timeout=15000)
@@ -67,7 +77,12 @@ with sync_playwright() as pw:
     p.wait_for_function('()=>!!window.nerulioStudio.view.image')
     ok('two real Kenney sheets imported as assets',[ (a['name'],a['width'],a['height']) for a in doc(p)['assets']]==[('tiny-dungeon-tilemap.png',203,186),('pixel-platformer-characters.png',224,74)])
     ok('assets panel lists both',p.locator('.st-asset').count()==2)
+    settle(p,150);ok('1440: after import the image is fitted, centred and fully inside the canvas',fitted(p),str(framing(p)))
+    js(p,'S.view.zoomTo(8);S.view.panBy(400,0);')
+    p.locator('.st-asset').nth(1).click();p.wait_for_function('()=>window.nerulioStudio.view.image&&window.nerulioStudio.view.image.w===224');settle(p,100)
+    ok('1440: switching image fits and centres it again',fitted(p),str(framing(p)))
     p.locator('.st-asset').nth(0).click();p.wait_for_function('()=>window.nerulioStudio.view.image&&window.nerulioStudio.view.image.w===203')
+    settle(p,100);ok('1440: switching back fits the first image too',fitted(p),str(framing(p)))
     ren=js(p,'return S.view.rendererKind;');perf['renderer_default']=ren
     ok('image renderer is WebGL2 (Canvas2D only as fallback)',ren=='webgl2',ren)
     v=js(p,'return S.view.view;')
@@ -100,6 +115,14 @@ with sync_playwright() as pw:
     v2=js(p,'return S.view.view;');ok('middle-button drag pans',(v2['x']-v1['x'],v2['y']-v1['y'])==(-40,-10))
     p.mouse.wheel(12,7);settle(p,60);v3=js(p,'return S.view.view;')
     ok('two-axis trackpad scroll pans instead of zooming',v3['scale']==v2['scale'] and (v3['x'],v3['y'])==(v2['x']-12,v2['y']-7),str((v2,v3)))
+    for dx,dy in [(-100000,-100000),(100000,100000),(-100000,100000)]:
+        js(p,'S.view.panBy(arg[0],arg[1]);',[dx,dy]);f=framing(p)
+        ok(f'pan is clamped: ≥ 64 px of the image stay visible after panning ({dx},{dy})',f['visible_w']>=63.5 and f['visible_h']>=63.5,str(f))
+    p.locator('.st-hud-zoom').dblclick();settle(p,80)
+    ok('double-clicking the zoom readout fits',fitted(p) and js(p,'return S.view.view;')==v)
+    js(p,'S.view.zoomTo(4);');p.locator('.st-slot-zoom').dblclick();settle(p,80)
+    ok('double-clicking the status-bar zoom fits',js(p,'return S.view.view;')==v)
+    p.keyboard.press('2');settle(p,40)
     for k in ['PageDown','End','ArrowDown','Space']:p.keyboard.press(k)
     ok('keys never scroll the page',js(p,'return document.scrollingElement.scrollTop===0&&scrollY===0;'))
     # ------------------------------------------------------------ grid suggestion: confidence + explicit Apply
@@ -109,9 +132,13 @@ with sync_playwright() as pw:
     ok('the suggestion shows its confidence and score',p.locator('.st-sug').first.locator('.st-conf').count()==1 and '%' in p.locator('.st-sug .st-conf').first.inner_text())
     ok('the suggestion is only a preview: not applied, no frames',p.locator('.st-grid-state').get_attribute('data-state')=='preview' and len(frames(p))==0)
     p.locator('.st-why').first.locator('summary').click();ok('"Why?" lists the evidence',p.locator('.st-why').first.locator('li').count()>=4)
+    confs=p.locator('.st-sug .st-conf').evaluate_all('ns=>ns.map(n=>n.className)')
+    ok('only the top candidate carries a confidence level; the rest are marked as alternatives',len(confs)>=2 and 'is-alt' not in confs[0] and all('is-alt' in c for c in confs[1:]),str(confs))
     p.wait_for_function('()=>/132 with pixels/.test(document.querySelector(".st-grid-count")?.textContent||"")',timeout=10000)
     h0=hist(p)
+    js(p,'S.view.zoomTo(8);S.view.panBy(-300,120);')
     p.locator('[data-action="grid-apply"]').click();p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===132')
+    settle(p,100);ok('1440: after Apply the image is fitted, centred and fully inside the canvas',fitted(p),str(framing(p)))
     fr=frames(p)
     ok('Apply cuts 132 frames exactly on the 16 px + 1 px grid',fr[0]=={'x':0,'y':0,'w':16,'h':16} and fr[1]=={'x':17,'y':0,'w':16,'h':16} and fr[12]=={'x':0,'y':17,'w':16,'h':16} and fr[-1]=={'x':187,'y':170,'w':16,'h':16})
     ok('Apply is one undo step',hist(p)['n']==h0['n']+1)
@@ -263,12 +290,20 @@ with sync_playwright() as pw:
     p.goto(BASE+'/ko/game/studio/');ready(p)
     if p.locator('.st-recover').count():p.locator('.st-recover button[data-value="new"]').click()
     p.set_input_files('input[type=file][multiple]',str(DUNGEON));p.wait_for_function('()=>!!window.nerulioStudio.view.image')
+    settle(p,200);ok('390 px: after import the image is fitted, centred and fully inside the canvas',fitted(p),str(framing(p)))
     ok('390 px: compact layout, no horizontal overflow',js(p,'return document.querySelector(".studio").dataset.mode;')=='compact' and js(p,'return document.scrollingElement.scrollWidth<=innerWidth;'))
     ok('390 px: tools stay on screen as a bottom bar',all(0<=b['y']<=844-22 for b in [p.locator('.st-tool').nth(i).bounding_box() for i in range(p.locator('.st-tool').count())]))
     p.locator('.st-top .st-compact-only').last.tap();settle(p,300)
     ok('390 px: panels open as a bottom sheet with tabs',p.locator('.st-sheet.is-open .st-tab').count()>=4)
     p.locator('.st-sheet .st-tab',has_text='그리드').tap();p.locator('.st-sheet .st-sug').first.wait_for(timeout=15000)
     ok('390 px: grid suggestion usable in the sheet',p.locator('.st-sheet [data-action="grid-apply"]').is_visible())
+    js(p,'S.view.zoomTo(24);S.view.panBy(500,-300);')
+    p.locator('.st-sheet [data-action="grid-apply"]').tap();p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===132')
+    p.locator('.st-sheet-grip').tap();settle(p,300)
+    ok('390 px: after Apply the image is fitted, centred and fully inside the canvas',fitted(p),str(framing(p)))
+    tb=p.locator('.st-toast').bounding_box();bar=p.locator('.st-toolbar').bounding_box();hudb=p.locator('.st-hud').bounding_box()
+    ok('390 px: toast sits above the tool bar and the zoom HUD, not over the top of the canvas',tb is not None and tb['y']+tb['height']<=hudb['y']+1 and tb['y']>844/2,str((tb,bar,hudb)))
+    p.wait_for_timeout(2600);ok('390 px: toast dismisses itself',not p.locator('.st-toast').is_visible())
     p.locator('.st-top .st-hamburger').tap();ok('390 px: menus through ☰',p.locator('.st-menu').count()==1 and '파일' in p.locator('.st-menu').inner_text())
     p.keyboard.press('Escape')
     ctx.close()
