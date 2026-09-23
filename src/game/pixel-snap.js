@@ -111,14 +111,86 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  else est=estimateLattice(P,{maxScale:Math.min(maxScale,Math.max(2,Math.min(w,h)/2))});
  if(!est||est.scale<1.4)return {kind:'unit',scale:1,scaleX:1,scaleY:1,phaseX:0,phaseY:0,confidence:est?.confidence||'low',coherence:est?.coherence||0,xs:cutsAt(w,1,0),ys:cutsAt(h,1,0),moved:0,width:w,height:h};
  if(phaseX!=null)est.phaseX=phaseX;if(phaseY!=null)est.phaseY=phaseY;
+ if(est.order===2){
+  // smooth resample: refine each axis by least squares on the lines with the most detail
+  const {x,y}=smoothLines(img);
+  const fx=fitSmoothAxis(x,w,est.scaleX,est.phaseX,{range:scale!=null?0:.02}),fy=fitSmoothAxis(y,h,est.scaleY,est.phaseY,{range:scale!=null?0:.02});
+  est={...est,scaleX:fx.s,phaseX:phaseX??fx.phase,scaleY:fy.s,phaseY:phaseY??fy.phase,scale:+((fx.s+fy.s)/2).toFixed(4)};
+  const xs=cutsAt(w,est.scaleX,est.phaseX),ys=cutsAt(h,est.scaleY,est.phaseY);
+  return {kind:'lattice',...est,xs,ys,moved:0,predicted:xs.length+ys.length-4,width:xs.length-1,height:ys.length-1};
+ }
  const bx=boundaries(P.x.d1,w,est.scaleX,est.phaseX,{elastic}),by=boundaries(P.y.d1,h,est.scaleY,est.phaseY,{elastic});
  return {kind:'lattice',...est,xs:bx.cuts,ys:by.cuts,moved:bx.moved+by.moved,predicted:bx.predicted+by.predicted,width:bx.cuts.length-1,height:by.cuts.length-1};
+}
+/** Up to `max` rows (x) and columns (y) with the most edge energy, as premultiplied intensity lines. */
+function smoothLines({data:d,width:w,height:h},max=40){
+ const v=(p)=>(d[p*4]+d[p*4+1]+d[p*4+2])*d[p*4+3]/255+d[p*4+3];
+ const pick=(n,len,get)=>{const score=[];for(let i=0;i<n;i++){let e=0;for(let j=1;j<len;j++)e+=Math.abs(get(i,j)-get(i,j-1));score.push([e,i]);}
+  return score.sort((a,b)=>b[0]-a[0]||a[1]-b[1]).slice(0,max).map(([,i])=>Float64Array.from({length:len},(_,j)=>get(i,j)));};
+ return {x:pick(h,w,(y,x)=>v(y*w+x)),y:pick(w,h,(x,y)=>v(y*w+x))};
 }
 function cutsAt(len,s,phase){const out=[0];for(let b=phase||s;b<len;b+=s)if(b>0)out.push(b);out.push(len);if(out.length>2&&out[1]<s*.5)out.splice(1,1);if(out.length>2&&len-out[out.length-2]<s*.5)out.splice(out.length-2,1);return out;}
 // ------------------------------------------------------------------ cells → pixels
 /** One pixel per grid cell. `inner` = share of the cell kept around its centre (0.5 drops the outer
  * quarter on each side, where resampling mixes neighbours). */
-export function sampleCells(img,grid,{inner=.5,alphaCut=128,modeShare=.5}={}){
+export function sampleCells(img,grid,opts={}){
+ return grid.order===2?sampleSmooth(img,grid,opts):sampleBlocks(img,grid,opts);
+}
+/** Smooth resamples (bilinear and friends): the image is modelled as a linear interpolation
+ * between the original sample centres (continuous position phase + (k+½)·s), and the 1× samples
+ * are solved for by least squares, one axis at a time (the operator is separable and its normal
+ * matrix tridiagonal, so this is exact and O(n)). Colours are premultiplied by alpha for the solve,
+ * as resamplers do. For a true bilinear upscale this inverts the resample (±1 level); for bicubic
+ * or JPEG'd input it is the closest bilinear explanation. Near-identical results are unified by the
+ * colour merge step afterwards. */
+function sampleSmooth(img,grid,{alphaCut=128}={}){
+ const {data:d,width:w,height:h}=img,W=grid.xs.length-1,H=grid.ys.length-1;
+ const centres=(cuts,n,s,phase)=>Array.from({length:n},(_,k)=>{const mid=(cuts[k]+cuts[k+1])/2,m=Math.round((mid-phase)/s-.5);return phase+(m+.5)*s;});
+ const cxs=centres(grid.xs,W,grid.scaleX,grid.phaseX),cys=centres(grid.ys,H,grid.scaleY,grid.phaseY);
+ // premultiplied float planes
+ const src=new Float64Array(w*h*4);for(let p=0;p<w*h;p++){const a=d[p*4+3]/255;src[p*4]=d[p*4]*a;src[p*4+1]=d[p*4+1]*a;src[p*4+2]=d[p*4+2]*a;src[p*4+3]=d[p*4+3];}
+ const rowsOut=new Float64Array(W*h*4),out=new Float64Array(W*H*4);
+ const solveX=taps(w,cxs),solveY=taps(h,cys);
+ for(let y=0;y<h;y++)for(let c=0;c<4;c++){const line=new Float64Array(w);for(let x=0;x<w;x++)line[x]=src[(y*w+x)*4+c];const r=solveX(line);for(let k=0;k<W;k++)rowsOut[(y*W+k)*4+c]=r[k];}
+ for(let k=0;k<W;k++)for(let c=0;c<4;c++){const line=new Float64Array(h);for(let y=0;y<h;y++)line[y]=rowsOut[(y*W+k)*4+c];const r=solveY(line);for(let j=0;j<H;j++)out[(j*W+k)*4+c]=r[j];}
+ const px=new Uint8Array(W*H*4);
+ for(let p=0;p<W*H;p++){const a=out[p*4+3];if(a<alphaCut)continue;for(let c=0;c<3;c++)px[p*4+c]=Math.max(0,Math.min(255,Math.round(out[p*4+c]*255/Math.max(1,Math.min(255,a)))));px[p*4+3]=255;}
+ return {data:px,width:W,height:H,solved:true};
+}
+/** Sample centres of the cells a lattice (s, phase) cuts a line of `len` pixels into (same rule
+ * as the cuts: an end sliver under half a cell joins its neighbour). */
+export function latticeCentres(len,s,phase){
+ const cuts=cutsAt(len,s,phase);return Array.from({length:cuts.length-1},(_,k)=>{const mid=(cuts[k]+cuts[k+1])/2,m=Math.round((mid-phase)/s-.5);return phase+(m+.5)*s;});
+}
+/** Refines (s, phase) of one axis of a smooth resample by least squares: the lattice whose linear
+ * interpolation explains `lines` (signals along that axis) with the smallest residual. */
+export function fitSmoothAxis(lines,len,s0,phase0,{range=.02}={}){
+ const cost=(s,ph)=>{const c=latticeCentres(len,s,((ph%s)+s)%s);if(c.length<2)return Infinity;const solve=taps(len,c,true);let e=0;for(const l of lines)e+=solve(l);return e;};
+ let best={s:s0,phase:phase0,e:cost(s0,phase0)};
+ for(let s=Math.max(1.4,s0-range);s<=s0+range+1e-9;s+=.002)for(let k=0;k<24;k++){const ph=phase0+(k-12)*s/48,e=cost(s,ph);if(e<best.e)best={s,phase:((ph%s)+s)%s,e};}
+ const b2=best;for(let s=b2.s-.002;s<=b2.s+.002+1e-9;s+=.0004)for(let k=-6;k<=6;k++){const ph=b2.phase+k*s/200,e=cost(s,ph);if(e<best.e)best={s:+s.toFixed(4),phase:((ph%s)+s)%s,e};}
+ return best;
+}
+/** Least-squares inverse of 1-D linear interpolation through `centres` (continuous positions) for
+ * a line of `len` pixels: returns fn(line) → samples. Pixels outside the first/last centre take the
+ * end sample (clamped, like resamplers do at borders). */
+function taps(len,centres,residual=false){
+ const n=centres.length,rows=[];
+ for(let x=0;x<len;x++){const X=x+.5;let k=0;while(k<n-1&&centres[k+1]<=X)k++;
+  if(X<=centres[0]||n===1)rows.push([0,1,0,0]);else if(k>=n-1)rows.push([n-1,1,0,0]);
+  else{const f=(X-centres[k])/(centres[k+1]-centres[k]);rows.push([k,1-f,k+1,f]);}}
+ // normal matrix (tridiagonal): diag, upper
+ const dg=new Float64Array(n).fill(1e-6),up=new Float64Array(n);
+ for(const [a,wa,b,wb]of rows){dg[a]+=wa*wa;if(wb){dg[b]+=wb*wb;up[a]+=wa*wb;}}
+ return line=>{const rhs=new Float64Array(n);rows.forEach(([a,wa,b,wb],x)=>{rhs[a]+=wa*line[x];if(wb)rhs[b]+=wb*line[x];});
+  // Thomas algorithm
+  const c=new Float64Array(n),r=new Float64Array(n);c[0]=up[0]/dg[0];r[0]=rhs[0]/dg[0];
+  for(let i=1;i<n;i++){const m=dg[i]-up[i-1]*c[i-1];c[i]=up[i]/m;r[i]=(rhs[i]-up[i-1]*r[i-1])/m;}
+  for(let i=n-2;i>=0;i--)r[i]-=c[i]*r[i+1];
+  if(!residual)return r;
+  let e=0;rows.forEach(([a,wa,b,wb],x)=>{const v=wa*r[a]+(wb?wb*r[b]:0)-line[x];e+=v*v;});return e;};
+}
+function sampleBlocks(img,grid,{inner=.5,alphaCut=128,modeShare=.5,noisy=false}={}){
  view(img);const {data:d,width:w}=img,{xs,ys}=grid,W=xs.length-1,H=ys.length-1,out=new Uint8Array(W*H*4);
  let modeCells=0,medoidCells=0;
  for(let cy=0;cy<H;cy++)for(let cx=0;cx<W;cx++){
@@ -128,7 +200,11 @@ export function sampleCells(img,grid,{inner=.5,alphaCut=128,modeShare=.5}={}){
   const o=(cy*W+cx)*4;if(!total||opaque*2<total)continue;
   let best=0,n=0;for(const [k,c]of counts)if(c>n||c===n&&k<best){best=k;n=c;}
   let k=best;
-  if(n<modeShare*opaque&&counts.size>2){k=medoid(counts);medoidCells++;}else modeCells++;
+  if(n<modeShare*opaque&&counts.size>2){k=medoid(counts);medoidCells++;
+   // noisy input: average the pixels that agree with the medoid (JPEG noise cancels, mixels stay out)
+   if(noisy){const ml=oklab(k&255,k>>>8&255,k>>>16&255);let r=0,g=0,b=0,m=0;for(const [q,c]of counts){const l=oklab(q&255,q>>>8&255,q>>>16&255);if(Math.hypot(l[0]-ml[0],l[1]-ml[1],l[2]-ml[2])<=.06){r+=(q&255)*c;g+=(q>>>8&255)*c;b+=(q>>>16&255)*c;m+=c;}}
+    if(m)k=(Math.round(r/m)|Math.round(g/m)<<8|Math.round(b/m)<<16)>>>0;}}
+  else modeCells++;
   out[o]=k&255;out[o+1]=k>>>8&255;out[o+2]=k>>>16&255;out[o+3]=255;
  }
  return {data:out,width:W,height:H,modeCells,medoidCells};
@@ -148,7 +224,7 @@ function medoid(counts){
  * `threshold` (Oklab distance) of an existing representative joins it. Then, if more than
  * `maxColors` remain, the representatives are reduced by median cut and each maps to the nearest.
  * @returns {data, palette:[[r,g,b]], merged (colours folded), before, after} */
-export function mergeColors(img,{threshold=.04,maxColors=0}={}){
+export function mergeColors(img,{threshold=.04,maxColors=0,represent='mode'}={}){
  view(img);const d=img.data,count=new Map();
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const k=(d[i]|d[i+1]<<8|d[i+2]<<16)>>>0;count.set(k,(count.get(k)||0)+1);}
  const keys=[...count].sort((a,b)=>b[1]-a[1]||a[0]-b[0]).map(e=>e[0]),rgb=k=>[k&255,k>>>8&255,k>>>16&255];
@@ -156,6 +232,10 @@ export function mergeColors(img,{threshold=.04,maxColors=0}={}){
  for(const k of keys){const c=rgb(k),l=oklab(...c);let hit=-1,bd=t2;
   for(let r=0;r<reps.length;r++){const q=repLab[r],e=(l[0]-q[0])**2+(l[1]-q[1])**2+(l[2]-q[2])**2;if(e<=bd){bd=e;hit=r;}}
   if(hit<0){reps.push(c);repLab.push(l);hit=reps.length-1;}map.set(k,hit);}
+ // each group's colour: 'mode' keeps the most frequent member (a real colour of the image); 'mean'
+ // is the count-weighted mean of the members, which for JPEG / resample noise is the noise-free centre
+ if(represent==='mean'){const members=reps.map(()=>[0,0,0,0]);for(const [k,n]of count){const m=members[map.get(k)],c=rgb(k);m[0]+=c[0]*n;m[1]+=c[1]*n;m[2]+=c[2]*n;m[3]+=n;}
+  members.forEach((m,r)=>{reps[r]=[0,1,2].map(c=>Math.round(m[c]/m[3]));repLab[r]=oklab(...reps[r]);});}
  let palette=reps,final=reps.map((_,i)=>i);
  if(maxColors>0&&reps.length>maxColors){
   const hist=new Map();for(const [k,n]of count){const c=reps[map.get(k)],key=(c[0]>>3)<<10|(c[1]>>3)<<5|(c[2]>>3);let e=hist.get(key);if(!e)hist.set(key,e=[0,0,0,0]);e[0]+=c[0]*n;e[1]+=c[1]*n;e[2]+=c[2]*n;e[3]+=n;}
@@ -168,6 +248,15 @@ export function mergeColors(img,{threshold=.04,maxColors=0}={}){
  const out=new Uint8Array(d.length);
  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const k=(d[i]|d[i+1]<<8|d[i+2]<<16)>>>0,c=palette[final[map.get(k)]];out[i]=c[0];out[i+1]=c[1];out[i+2]=c[2];out[i+3]=d[i+3];}
  return {data:out,width:img.width,height:img.height,palette,before:keys.length,after:palette.length,merged:keys.length-palette.length};
+}
+/** Is the image noisy (JPEG, AI pseudo-pixels, smooth resample leftovers) or clean pixel art?
+ * Clean art spends almost all its pixels on a few exact colours; noise spreads them over many.
+ * @returns {noisy, top (share of opaque pixels in the `top` most used colours), distinct} */
+export function colorNoise(img,{top=32,clean=.97}={}){
+ const d=img.data,count=new Map();let n=0;
+ for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;n++;const k=(d[i]|d[i+1]<<8|d[i+2]<<16)>>>0;count.set(k,(count.get(k)||0)+1);}
+ const share=n?[...count.values()].sort((a,b)=>b-a).slice(0,top).reduce((s,x)=>s+x,0)/n:1;
+ return {noisy:share<clean,share:+share.toFixed(4),distinct:count.size};
 }
 /** Solid background of an opaque image: the colour covering most of the border, when it covers
  * at least `minShare` of it (then flood-removed from the border within `tolerance`, Oklab). */

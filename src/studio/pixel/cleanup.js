@@ -16,12 +16,12 @@
  *   outline / shadow  batch, Aseprite-style
  * Returns the new frames plus a report of every number, so the UI can show before/after and why. */
 import {inspect} from '../../game/pixel-check.js';
-import {findGrid,sampleCells,mergeColors,detectBackground,removeBackground,hardAlpha,axisProfiles,addProfiles,bestShift,anchorOf} from '../../game/pixel-snap.js';
+import {findGrid,sampleCells,mergeColors,detectBackground,removeBackground,hardAlpha,axisProfiles,addProfiles,bestShift,anchorOf,colorNoise} from '../../game/pixel-snap.js';
 import {recoverSource} from '../../game/pixel-check.js';
 import {removeAntiAlias,detect,applyChanges} from '../../game/pixel-cleanup.js';
-import {matcher,keyOf} from './indexed.js';
+import {indicesFromRGBA,keyOf} from './indexed.js';
 import {planeFromRGBA,rgbaView,outline as outlinePlane,dropShadow,pack} from './raster.js';
-export const DEFAULTS=Object.freeze({scale:'auto',snap:true,background:'auto',alphaCut:128,merge:.04,maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
+export const DEFAULTS=Object.freeze({scale:'auto',snap:true,background:'auto',alphaCut:128,merge:'auto',maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
 const copy=img=>({data:new Uint8Array(img.data),width:img.width,height:img.height});
 /** What the frames are (no changes): the verdict of the first frame, the shared grid, background. */
 export function analyse(frames,opts={}){
@@ -29,13 +29,15 @@ export function analyse(frames,opts={}){
  const check=inspect(first);
  const forced=typeof o.scale==='number'&&o.scale>1?o.scale:null;
  let grid=null;
- if(forced||check.verdict!=='unit'){
-  let prof=null;if(frames.length>1)for(const f of frames)prof=addProfiles(prof,axisProfiles(f));
-  const shared=findGrid(first,{scale:forced,profiles:prof});
-  grid={...shared,perFrame:frames.map((f,i)=>i===0&&frames.length===1?shared:shared.kind==='integer'?findGrid(f,{}):findGrid(f,{scale:shared.scaleX,phaseX:null,phaseY:null}))};
- }
+ let prof=null;if(frames.length>1)for(const f of frames)prof=addProfiles(prof,axisProfiles(f));
+ const shared=findGrid(first,{scale:forced,profiles:prof});
+ // pixel-check's verdict decides, except that a clear SMOOTH lattice (second-difference kinks, which
+ // crisp 1× art does not have) counts as a resample even when that verdict says "already 1×"
+ const smooth=shared.kind==='lattice'&&shared.order===2&&(shared.confidence==='high'||shared.confidence==='medium');
+ if(forced||(check.verdict!=='unit'&&shared.kind!=='unit')||smooth)
+  grid={...shared,perFrame:frames.map((f,i)=>i===0?shared:shared.kind==='integer'?findGrid(f,{}):findGrid(f,{scale:shared.scaleX}))};
  const bg=o.background==='auto'?detectBackground(first):null;
- return {check,grid,background:bg,frames:frames.length};
+ return {check,grid,background:bg,noise:colorNoise(first),frames:frames.length};
 }
 /** Runs the pipeline. @returns {frames:[{data,width,height}], palette:[[r,g,b]], report} */
 export function runCleanup(frames,opts={},analysis=null){
@@ -45,7 +47,7 @@ export function runCleanup(frames,opts={},analysis=null){
  if(o.snap&&A.grid&&A.grid.kind!=='unit'){
   out=out.map((f,i)=>{const g=A.grid.perFrame[i]||A.grid;
    if(g.kind==='integer'){const r=recoverSource(f,g.scale,{x:(g.scale-g.phaseX)%g.scale,y:(g.scale-g.phaseY)%g.scale});return {data:new Uint8Array(r.data),width:r.width,height:r.height};}
-   return sampleCells(f,g);});
+   return sampleCells(f,g,{noisy:A.noise.noisy});});
   report.steps.push({id:'snap',kind:A.grid.kind,scale:A.grid.scale,scaleX:A.grid.scaleX,scaleY:A.grid.scaleY,confidence:A.grid.confidence,size:out.map(f=>[f.width,f.height]),moved:A.grid.moved||0});
  }
  // 2. background → transparent
@@ -56,15 +58,18 @@ export function runCleanup(frames,opts={},analysis=null){
  // 4. colours: one palette for every frame
  let palette=null;
  if(o.palette?.length){
-  const m=matcher(o.palette.map(c=>[c[0],c[1],c[2],255]),{exclude:-1});let changed=0;
-  const n=o.dither==='bayer2'?2:o.dither==='bayer8'?8:4,mat=o.dither&&o.dither!=='none'?bayerM(n):null,center=(n*n-1)/(2*n*n);
-  out=out.map(f=>{const d=new Uint8Array(f.data);for(let p=0,i=0;i<d.length;i+=4,p++){if(!d[i+3])continue;let r=d[i],g=d[i+1],b=d[i+2];if(mat){const x=p%f.width,y=(p-x)/f.width,bias=(mat[(y%n)*n+x%n]/(n*n)-center)*48;r=cl(r+bias);g=cl(g+bias);b=cl(b+bias);}
-   const k=m.nearest(r,g,b,255),c=o.palette[k];if(c[0]!==d[i]||c[1]!==d[i+1]||c[2]!==d[i+2])changed++;d[i]=c[0];d[i+1]=c[1];d[i+2]=c[2];}return {data:d,width:f.width,height:f.height};});
+  const pal=o.palette.map(c=>[c[0],c[1],c[2],255]),dither=o.dither&&o.dither!=='none'?{pattern:o.dither}:null;let changed=0;
+  out=out.map(f=>{const opaque=Uint8Array.from(f.data);for(let i=3;i<opaque.length;i+=4)if(opaque[i])opaque[i]=255;
+   const {indices}=indicesFromRGBA(opaque,f.width,f.height,pal,{transparentIndex:-1,dither}),d=new Uint8Array(f.data);
+   for(let p=0,i=0;i<d.length;i+=4,p++){if(!d[i+3])continue;const c=pal[indices[p]];if(c[0]!==d[i]||c[1]!==d[i+1]||c[2]!==d[i+2])changed++;d[i]=c[0];d[i+1]=c[1];d[i+2]=c[2];}return {data:d,width:f.width,height:f.height};});
   palette=o.palette.map(c=>[c[0],c[1],c[2]]);report.steps.push({id:'quantize',colors:palette.length,changed,dither:o.dither||'none'});
- }else if(o.merge||o.maxColors){
-  // all frames side by side → one merge, so every frame ends up on the same colours
-  const strip=stack(out),r=mergeColors(strip,{threshold:o.merge||0,maxColors:o.maxColors||0});out=unstack(r,out);palette=r.palette;
-  report.steps.push({id:'merge',before:r.before,after:r.after,threshold:o.merge,maxColors:o.maxColors});
+ }else{
+  // all frames side by side → one merge, so every frame ends up on the same colours. 'auto' merges
+  // only noisy input (clean pixel art keeps every exact colour, including close shades of a ramp)
+  const strip=stack(out),noise=colorNoise(strip),threshold=o.merge==='auto'?(noise.noisy?.04:A.grid?.order===2?.02:0):Number(o.merge)||0;
+  if(threshold||o.maxColors){const r=mergeColors(strip,{threshold,maxColors:o.maxColors||0,represent:noise.noisy&&A.grid?.order!==2?'mean':'mode'});/* least-squares output is already exact ±1: keep its dominant exact colour */out=unstack(r,out);palette=r.palette;
+   report.steps.push({id:'merge',before:r.before,after:r.after,threshold,maxColors:o.maxColors,noisy:noise.noisy,share:noise.share});}
+  else{palette=exactColors(out);report.steps.push({id:'merge',before:noise.distinct,after:noise.distinct,threshold:0,noisy:false,share:noise.share});}
  }
  // 5. fringe: anti-alias pixels between palette colours
  if(o.fringe&&palette?.length>=2){
@@ -104,4 +109,5 @@ const bayerM=n=>{if(n===1)return [0];const h=n/2,m=bayerM(h),o=new Array(n*n),c=
 function stack(frames){const W=Math.max(...frames.map(f=>f.width)),H=frames.reduce((s,f)=>s+f.height,0),d=new Uint8Array(W*H*4);let y=0;for(const f of frames){for(let r=0;r<f.height;r++)d.set(f.data.subarray(r*f.width*4,(r+1)*f.width*4),((y+r)*W)*4);y+=f.height;}return {data:d,width:W,height:H};}
 function unstack(img,frames){let y=0;return frames.map(f=>{const d=new Uint8Array(f.width*f.height*4);for(let r=0;r<f.height;r++)d.set(img.data.subarray(((y+r)*img.width)*4,((y+r)*img.width+f.width)*4),r*f.width*4);y+=f.height;return {data:d,width:f.width,height:f.height};});}
 function place(f,W,H,dx,dy){const d=new Uint8Array(W*H*4);for(let y=0;y<f.height;y++){const ty=y+dy;if(ty<0||ty>=H)continue;const x0=Math.max(0,-dx),x1=Math.min(f.width,W-dx);if(x1>x0)d.set(f.data.subarray((y*f.width+x0)*4,(y*f.width+x1)*4),(ty*W+dx+x0)*4);}return {data:d,width:W,height:H};}
+function exactColors(frames){const s=new Map();for(const f of frames)for(let i=0;i<f.data.length;i+=4)if(f.data[i+3]){const k=keyOf(f.data[i],f.data[i+1],f.data[i+2]);if(!s.has(k))s.set(k,[f.data[i],f.data[i+1],f.data[i+2]]);}return s.size<=256?[...s.values()]:null;}
 function countColors(frames){const s=new Set();for(const f of frames)for(let i=0;i<f.data.length;i+=4)if(f.data[i+3])s.add(keyOf(f.data[i],f.data[i+1],f.data[i+2],f.data[i+3]));return s.size;}

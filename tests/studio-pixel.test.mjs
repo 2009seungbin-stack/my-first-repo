@@ -259,11 +259,12 @@ function nearestUp(img,s,{offX=0,offY=0}={}){
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const sx=Math.min(img.width-1,Math.floor((x+offX)/s)),sy=Math.min(img.height-1,Math.floor((y+offY)/s));d.set(img.data.subarray((sy*img.width+sx)*4,(sy*img.width+sx)*4+4),(y*W+x)*4);}
  return {data:d,width:W,height:H};
 }
-/** Bilinear (centre-aligned, like Pillow's upscale) of straight RGBA. */
+/** Bilinear, centre-aligned and premultiplied (what Pillow and browsers do when enlarging RGBA). */
 function bilinear(img,s){
- const W=Math.round(img.width*s),H=Math.round(img.height*s),d=new Uint8Array(W*H*4),g=(x,y,c)=>img.data[(Math.max(0,Math.min(img.height-1,y))*img.width+Math.max(0,Math.min(img.width-1,x)))*4+c];
+ const W=Math.round(img.width*s),H=Math.round(img.height*s),d=new Uint8Array(W*H*4),g=(x,y,c)=>{const i=(Math.max(0,Math.min(img.height-1,y))*img.width+Math.max(0,Math.min(img.width-1,x)))*4;return c===3?img.data[i+3]:img.data[i+c]*img.data[i+3]/255;};
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const u=(x+.5)*img.width/W-.5,v=(y+.5)*img.height/H-.5,x0=Math.floor(u),y0=Math.floor(v),fx=u-x0,fy=v-y0;
-  for(let c=0;c<4;c++)d[(y*W+x)*4+c]=Math.round(g(x0,y0,c)*(1-fx)*(1-fy)+g(x0+1,y0,c)*fx*(1-fy)+g(x0,y0+1,c)*(1-fx)*fy+g(x0+1,y0+1,c)*fx*fy);}
+  const v4=[0,1,2,3].map(c=>g(x0,y0,c)*(1-fx)*(1-fy)+g(x0+1,y0,c)*fx*(1-fy)+g(x0,y0+1,c)*(1-fx)*fy+g(x0+1,y0+1,c)*fx*fy),a=v4[3];
+  for(let c=0;c<3;c++)d[(y*W+x)*4+c]=a?Math.round(v4[c]*255/a):0;d[(y*W+x)*4+3]=Math.round(a);}
  return {data:d,width:W,height:H};
 }
 const accuracy=(a,b)=>{if(a.width!==b.width||a.height!==b.height)return 0;let same=0,n=a.width*a.height;for(let p=0;p<n;p++){const i=p*4,ta=a.data[i+3]<128,tb=b.data[i+3]<128;if(ta&&tb||(!ta&&!tb&&a.data[i]===b.data[i]&&a.data[i+1]===b.data[i+1]&&a.data[i+2]===b.data[i+2]))same++;}return same/n;};
