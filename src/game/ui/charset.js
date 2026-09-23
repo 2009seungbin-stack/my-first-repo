@@ -28,13 +28,14 @@ export function decodeText(input){
  if(n>=8&&evenZero>n*.3&&oddZero<n*.05)return new TextDecoder('utf-16be').decode(b);
  return new TextDecoder('utf-8').decode(b);
 }
-export const FORMATS=Object.freeze(['po','csv','tsv','json','strings','resx','xliff','android','properties','tres','txt']);
+export const FORMATS=Object.freeze(['po','csv','tsv','json','strings','resx','xliff','android','properties','tres','unity','txt']);
 /** Format from the file name, then from the content when the extension is generic (.xml, .txt). */
 export function detectFormat(name,text=''){
  const n=String(name||'').toLowerCase(),ext=/\.([a-z0-9]+)$/.exec(n)?.[1]||'';
  const byExt={po:'po',pot:'po',csv:'csv',tsv:'tsv',json:'json',strings:'strings',resx:'resx',xlf:'xliff',xliff:'xliff',properties:'properties',tres:'tres',txt:'txt'}[ext];
  if(byExt)return byExt;
  const head=String(text).slice(0,2000);
+ if(ext==='asset'&&/m_TableData:/.test(text))return 'unity';
  if(ext==='xml'){if(/<resources[\s>]/.test(head))return 'android';if(/<xliff[\s>]/.test(head))return 'xliff';if(/<root[\s>]/.test(head)&&/<data\s/.test(text))return 'resx';}
  if(/^\s*[{[]/.test(head))return 'json';
  if(/^\s*msgid\s+"/m.test(head))return 'po';
@@ -57,11 +58,15 @@ const unescapeC=s=>s.replace(/\\(u\{[0-9a-fA-F]+\}|U[0-9a-fA-F]{8}|u[0-9a-fA-F]{
  return {n:'\n',t:'\t',r:'\r','"':'"',"'":"'",'\\':'\\',a:'',b:'',f:'',v:''}[e]??e;});
 const XML_ENT={amp:'&',lt:'<',gt:'>',quot:'"',apos:"'"};
 export const unescapeXML=s=>s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,(m,c)=>c.replace(/&/g,'\u0000amp;')).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi,(m,e)=>e[0]==='#'?String.fromCodePoint(e[1].toLowerCase()==='x'?parseInt(e.slice(2),16):parseInt(e.slice(1),10)):XML_ENT[e]??m).replace(/\u0000amp;/g,'&');
+/** XML comments hold examples (a .resx schema comment has sample <data> entries): blanked, keeping line numbers. */
+const noComments=s=>s.replace(/<!--[\s\S]*?-->/g,m=>m.replace(/[^\n]/g,' '));
 const lineAt=(text,index)=>{let n=1;for(let i=0;i<index&&i<text.length;i++)if(text.charCodeAt(i)===10)n++;return n;};
 function readPO(text){
  const out=[],lines=text.split(/\r?\n/);let cur=null,field=null;
  const flush=()=>{if(cur){const vals=Object.entries(cur.str).sort((a,b)=>a[0]-b[0]).map(e=>e[1]);const tpl=vals.every(v=>!v);
   for(const v of tpl?[cur.id,cur.plural].filter(Boolean):vals)if(v)out.push({text:v,key:cur.ctxt?cur.ctxt+'|'+cur.id:cur.id,line:cur.line,template:tpl});}cur=null;field=null;};
+ // a template (.pot: nothing translated) is read for its source strings; in a translation, an
+ // untranslated entry is not part of that language's text (the game falls back to the source)
  lines.forEach((raw,i)=>{
   const line=raw.trim();
   if(!line||line.startsWith('#')){if(!line&&cur&&Object.keys(cur.str).length)flush();return;}
@@ -79,7 +84,8 @@ function readPO(text){
  });
  flush();
  // msgid "" / msgstr "Project-Id-Version…" is the header, not text
- return out.filter(e=>!(e.key===''&&/Content-Type:|Project-Id-Version:|Language:/.test(e.text)));
+ const body=out.filter(e=>!(e.key===''&&/Content-Type:|Project-Id-Version:|Language:/.test(e.text)));
+ return body.some(e=>!e.template)?body.filter(e=>!e.template):body;
 }
 /** RFC 4180 records (quoted cells may contain separators, quotes and line breaks). */
 export function parseDelimited(text,sep){
@@ -96,13 +102,17 @@ export function parseDelimited(text,sep){
  return rows.filter(r=>r.cells.some(c=>c!==''));
 }
 const LOCALE_RE=/^[a-z]{2,3}(?:[-_][A-Za-z]{2,4})?$/;
+/** A column header's locale: "ko", "ko_KR", or Unity's "Korean(ko)". */
+const headerLocale=h=>{const t=String(h).trim();if(LOCALE_RE.test(t))return t.replace('_','-');const m=/\(([a-z]{2,3}(?:[-_][A-Za-z]{2,4})?)\)\s*$/.exec(t);return m?m[1].replace('_','-'):null;};
+const KEY_COL=/^(keys?|ids?|name|identifier|string_?id|context|shared ?comments?|comments?|notes?|description)$/i;
 function readDelimited(text,sep){
  const rows=parseDelimited(text,sep);if(!rows.length)return {entries:[],columns:[]};
  const head=rows[0].cells.map(c=>c.trim());
- const localeCols=head.map((c,i)=>LOCALE_RE.test(c)&&i>0?i:-1).filter(i=>i>=0);
- const keyish=/^(keys?|id|name|identifier|string_?id|context)$/i.test(head[0]||'');
+ const localeCols=head.map((c,i)=>headerLocale(c)&&i>0?i:-1).filter(i=>i>=0);
+ const keyish=KEY_COL.test(head[0]||'');
  const hasHeader=localeCols.length>0||keyish;
- const columns=hasHeader?head.map((name,i)=>({index:i,name,locale:LOCALE_RE.test(name)?name.replace('_','-'):null,key:i===0&&(keyish||localeCols.length>0)})):head.map((_,i)=>({index:i,name:`#${i+1}`,locale:null,key:false}));
+ // key / id / comment columns are not shipped text; the first column is the key when locales follow
+ const columns=hasHeader?head.map((name,i)=>({index:i,name,locale:headerLocale(name),key:!headerLocale(name)&&(KEY_COL.test(name)||i===0&&localeCols.length>0)})):head.map((_,i)=>({index:i,name:`#${i+1}`,locale:null,key:false}));
  const entries=[];
  for(const r of rows.slice(hasHeader?1:0))r.cells.forEach((cell,i)=>{if(cell&&!columns[i]?.key)entries.push({text:cell,key:hasHeader&&columns[0]?.key?r.cells[0]:'',line:r.line,col:i,locale:columns[i]?.locale||null});});
  return {entries,columns:columns.filter(c=>!c.key)};
@@ -145,7 +155,8 @@ function readXliff(text){
   const pick=targets.length?targets:[...m[3].matchAll(/<source\b[^>]*>([\s\S]*?)<\/source>/g)].map(x=>x[1]);
   for(const t of pick)out.push({text:unescapeXML(stripTags(t)),key:id,line:lineAt(text,m.index),locale:targets.length?lang:null,source:!targets.length});
  }
- return out;
+ // like a .po: sources only for an untranslated export; otherwise untranslated units fall back
+ return out.some(e=>!e.source)?out.filter(e=>!e.source):out;
 }
 const androidUnescape=s=>unescapeXML(s.replace(/<\/?(?:b|i|u|font|xliff:g)\b[^>]*>/g,'')).replace(/^"([\s\S]*)"$/,'$1').replace(/\\(u[0-9a-fA-F]{4}|.)/g,(m,e)=>e[0]==='u'&&e.length===5?String.fromCharCode(parseInt(e.slice(1),16)):({n:'\n',t:'\t',"'":"'",'"':'"','\\':'\\','@':'@','?':'?'}[e]??e));
 function readAndroid(text){
@@ -169,28 +180,46 @@ function readProperties(text){
  return out;
 }
 function readTres(text){
- // Godot Translation resource: messages = { "key": "value", … } (Godot 4 writes a Dictionary)
+ // Godot Translation resource: messages = {…}. Godot 4.0–4.6 write "key": "value"; 4.7 writes
+ // [&"context", &"key"]: [&"value", &"plural"…] (StringName pairs and plural forms).
  const out=[],m=/\bmessages\s*=\s*\{([\s\S]*?)\n\}/.exec(text)||/\bmessages\s*=\s*\{([\s\S]*?)\}/.exec(text);
  if(!m)throw Error('This .tres has no Translation `messages` dictionary');
- const re=/"((?:\\.|[^"\\])*)"\s*:\s*"((?:\\.|[^"\\])*)"/g;let x;
- while((x=re.exec(m[1])))out.push({text:unescapeC(x[2]),key:unescapeC(x[1]),line:lineAt(text,m.index+x.index)});
+ const S='&?"(?:\\\\.|[^"\\\\])*"',part=`(\\[[^\\]]*\\]|${S})`,re=new RegExp(`${part}\\s*:\\s*${part}`,'g');
+ const strs=s=>[...s.matchAll(/&?"((?:\\.|[^"\\])*)"/g)].map(y=>unescapeC(y[1]));let x;
+ while((x=re.exec(m[1]))){const key=strs(x[1]).filter(Boolean).join('|');for(const v of strs(x[2]))if(v)out.push({text:v,key,line:lineAt(text,m.index+x.index)});}
  const locale=/\blocale\s*=\s*"([^"]+)"/.exec(text)?.[1]||null;
  return out.map(e=>({...e,locale}));
 }
 /** One translation file → its shipped strings. `columns` lists selectable language columns for
  * CSV/TSV/JSON files that hold several languages. */
+export function readUnityAsset(text){
+ // Unity Localization StringTable (YAML): every m_Localized scalar. Double-quoted scalars may be
+ // folded over several lines (a line break is a space) and carry \uXXXX escapes.
+ const out=[],re=/^(\s*)m_Localized:[ \t]?(.*)$/gm;let m;
+ while((m=re.exec(text))){
+  let v=m[2],start=m.index;
+  if(v.startsWith('"')){let body=v.slice(1),end=re.lastIndex;
+   while(!/(^|[^\\])(\\\\)*"\s*$/.test(body)){const nl=text.indexOf('\n',end+1),line=text.slice(end+1,nl<0?text.length:nl);if(nl<0&&!line)break;body+=(line.trim()?' ':'\n')+line.trim();end=nl<0?text.length:nl;}
+   re.lastIndex=end;body=body.replace(/"\s*$/,'');v=unescapeC(body);}
+  else if(v.startsWith("'"))v=v.slice(1).replace(/'\s*$/,'').replace(/''/g,"'");
+  if(v)out.push({text:v,key:'',line:lineAt(text,start)});
+ }
+ return out;
+}
 export function readTranslations(name,input,{format=null}={}){
+ if(typeof input!=='string'){const b=input instanceof Uint8Array?input:new Uint8Array(input);if(b[0]===0x52&&b[1]===0x53&&b[2]===0x52&&b[3]===0x43)throw Error('This is a compiled Godot resource (.translation); open the CSV or PO file it was imported from');}
  const text=decodeText(input).replace(/^\uFEFF/,''),fmt=format||detectFormat(name,text);
  let entries,columns=[];
  if(fmt==='po')entries=readPO(text);
  else if(fmt==='csv'||fmt==='tsv')({entries,columns}=readDelimited(text,fmt==='tsv'?'\t':','));
  else if(fmt==='json')({entries,columns}=readJSON(text));
  else if(fmt==='strings')entries=readStrings(text);
- else if(fmt==='resx')entries=readResx(text);
- else if(fmt==='xliff')entries=readXliff(text);
- else if(fmt==='android')entries=readAndroid(text);
+ else if(fmt==='resx')entries=readResx(noComments(text));
+ else if(fmt==='xliff')entries=readXliff(noComments(text));
+ else if(fmt==='android')entries=readAndroid(noComments(text));
  else if(fmt==='properties')entries=readProperties(text);
  else if(fmt==='tres')entries=readTres(text);
+ else if(fmt==='unity')entries=readUnityAsset(text);
  else entries=text.split(/\r?\n/).map((t,i)=>({text:t,key:'',line:i+1})).filter(e=>e.text);
  const locale=localeFromName(name);
  return {name:String(name||''),format:fmt,locale,columns,entries:entries.map(e=>({...e,locale:e.locale??(columns.length?null:locale)}))};

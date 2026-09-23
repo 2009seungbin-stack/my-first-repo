@@ -45,6 +45,37 @@ function charsetOf(doc){
  const cs=buildCharset(sources,{order:doc.charset.order||'frequency',strip:doc.charset.strip!==false,exclude:doc.charset.exclude||''});
  return {cs,files:sources.filter(s=>s.kind==='file').map(s=>s.file)};
 }
+// ------------------------------------------------------------------ glyph renderer pool
+// Distance fields take milliseconds per glyph (msdfgen-equivalent maths): a 2 000-glyph Korean set
+// is split in chunks over up to 6 sub-workers, fed from one queue so fast ones take more.
+let pool=null,poolJob=0,buildGen=0;
+function getPool(){
+ if(pool)return pool;
+ const n=Math.max(1,Math.min(6,((self.navigator?.hardwareConcurrency)||4)-1));
+ pool=Array.from({length:n},()=>{const w=new Worker(new URL('./glyph-worker.js',import.meta.url),{type:'module'});w.fonts=new Set();return w;});
+ return pool;
+}
+function poolRender(id,settings,cps,onDone,gen){
+ const workers=getPool(),queue=[];for(let i=0;i<cps.length;i+=48)queue.push(cps.slice(i,i+48));
+ return new Promise((resolve,reject)=>{
+  let running=0,failed=null;const out=[],missing=[];
+  const feed=w=>{
+   if(failed)return;
+   // a newer build started: stop feeding; what finished is cached and reused by the new build
+   const chunk=gen===buildGen?queue.shift():null;
+   if(!chunk){if(!running)resolve({glyphs:out,missing});return;}
+   if(!w.fonts.has(id)){w.postMessage({op:'font',id,bytes:bytes.get(id).slice(0)});w.fonts.add(id);}
+   const job=++poolJob;running++;
+   w.onmessage=({data})=>{if(data.job!==job)return;running--;
+    if(!data.ok){failed=Error(data.error);reject(failed);return;}
+    out.push(...data.glyphs);missing.push(...data.missing);onDone(data.glyphs.length+data.missing.length);feed(w);};
+   w.onerror=e=>{failed=Error(e.message||'glyph worker failed');reject(failed);};
+   w.postMessage({op:'render',job,id,settings,codepoints:chunk});
+  };
+  if(!queue.length){resolve({glyphs:out,missing});return;}
+  for(const w of workers)feed(w);
+ });
+}
 const glyphKey=(blob,o,cp)=>`${blob}|${JSON.stringify(o.coords||null)}|${o.mode}|${o.size}|${o.range}|${o.padding}|${o.threshold}|${o.alphaOnly?1:0}|${cp}`;
 async function pagesOut(model,pages){
  const out=[],transfer=[];
@@ -68,6 +99,7 @@ async function gridModel(doc){
  return {img,model};
 }
 async function buildFont(job,doc){
+ const gen=++buildGen;
  const t0=performance.now(),src=doc.source,{cs,files:tfiles}=charsetOf(doc);
  if(src.kind==='grid'){
   const {img,model}=await gridModel(doc);
@@ -78,14 +110,19 @@ async function buildFont(job,doc){
  }
  const f=font(src.blob),o=normalizeFontSettings({...doc.render,coords:src.coords||null,file:doc.exportName||'font'});
  const want=cs.codepoints.length?cs.codepoints:[0x20];
- const glyphs=[],missingCps=[];let last=0;
- for(let i=0;i<want.length;i++){
-  const cp=want[i],k=glyphKey(src.blob,o,cp);
-  let g=glyphCache.get(k);
-  if(g===undefined){g=renderGlyph(f,cp,o);glyphCache.set(k,g);}
-  if(g)glyphs.push(g);else missingCps.push(cp);
-  const now=performance.now();if(now-last>120){last=now;post({job,progress:{phase:'render',done:i+1,total:want.length}});}
- }
+ const glyphs=[],missingCps=[];let last=0,done=0;
+ const tick=n=>{done+=n;const now=performance.now();if(now-last>120){last=now;post({job,progress:{phase:'render',done,total:want.length}});}};
+ // rendered glyphs are cached per (font, instance, settings, code point): a charset edit renders only new glyphs
+ const todo=want.filter(cp=>!glyphCache.has(glyphKey(src.blob,o,cp)));
+ done=want.length-todo.length;
+ const field=o.mode==='sdf'||o.mode==='psdf'||o.mode==='msdf'||o.mode==='mtsdf';
+ if(todo.length>(field?48:600)&&typeof Worker!=='undefined'){
+  const r=await poolRender(src.blob,o,todo,tick,gen);
+  if(gen!==buildGen){for(const g of r.glyphs)glyphCache.set(glyphKey(src.blob,o,g.id),g);return post({job,ok:false,error:'superseded'});}
+  for(const g of r.glyphs)glyphCache.set(glyphKey(src.blob,o,g.id),g);
+  for(const cp of r.missing)glyphCache.set(glyphKey(src.blob,o,cp),null);
+ }else for(const cp of todo){glyphCache.set(glyphKey(src.blob,o,cp),renderGlyph(f,cp,o));tick(1);}
+ for(const cp of want){const g=glyphCache.get(glyphKey(src.blob,o,cp));if(g)glyphs.push(g);else missingCps.push(cp);}
  if(glyphCache.size>60000)glyphCache.clear();
  // kerning pairs by hand replace or add to the font's own pairs
  post({job,progress:{phase:'pack',done:0,total:glyphs.length}});
