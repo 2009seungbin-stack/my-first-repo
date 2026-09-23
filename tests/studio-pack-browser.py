@@ -219,7 +219,8 @@ with sync_playwright() as pw:
             if f.endswith('.json'):
                 json.loads(z.read(f))
     gm = json.loads(bundles['gamemaker'].read(next(n for n in bundles['gamemaker'].namelist() if n.endswith('gamemaker.json'))))
-    ok('GameMaker is labelled UNVERIFIED in the UI and in its JSON', gm['verified'] is False and 'UNVERIFIED' in p.locator('.pk-target[data-target="gamemaker"] .pk-badge').inner_text())
+    ok('GameMaker is labelled UNVERIFIED in the UI and in its JSON', gm['verified'] is False and p.locator('.pk-target[data-target="gamemaker"] .pk-badge').get_attribute('data-verify') == 'unverified'
+       and 'UNVERIFIED' in p.locator('.pk-target[data-target="gamemaker"] .pk-badge').get_attribute('title'))
     gif = Image.open(io.BytesIO(bundles['gif'].read(next(n for n in bundles['gif'].namelist() if n.endswith('.gif')))))
     ok('the GIF has 6 frames of 100 ms', getattr(gif, 'n_frames', 1) == 6 and gif.info.get('duration') == 100)
     apng = Image.open(io.BytesIO(bundles['apng'].read(next(n for n in bundles['apng'].namelist() if n.endswith('.png')))))

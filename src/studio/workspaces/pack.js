@@ -84,7 +84,7 @@ export default {
    }else if(m.op==='export'){
     const a=h('a',{href:URL.createObjectURL(m.blob),download:m.name});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000);
     lastExport={target:exporting,name:m.name,files:m.files,notes:m.notes,changed:m.changed,size:m.blob.size};exporting=null;
-    ctx.toast(t('pack.exported',{file:m.name,n:m.files.length}));renderExport();
+    ctx.toast(t('pack.exported',{file:m.name,n:m.files.length}));renderExport();renderResult();
     window.dispatchEvent(new CustomEvent('nerulio:pack-export',{detail:{name:m.name,files:m.files,notes:m.notes}}));
    }
   }
@@ -199,6 +199,7 @@ export default {
      h('div.pk-eff',{'data-pack':'efficiency'},`${pct(pg.efficiency)}%`,h('small',{},`${pg.width}×${pg.height}`)),
      h('div.pk-meter',{},h('i',{style:{width:`${Math.min(100,pct(pg.efficiency))}%`}})),
      h('p.st-muted',{'data-pack':'totals',style:{margin:0}},t('pack.totals',{frames:v.stats.frames,unique:v.stats.unique,aliases:v.stats.aliases,pages:v.pages.length,eff:pct(v.stats.efficiency),ms:result.ms??''})),
+     h('p.pk-hint',{'data-pack':'memory'},t('pack.memory',{mb:(v.pages.reduce((n,q)=>n+q.width*q.height*4,0)/1048576).toFixed(v.pages.reduce((n,q)=>n+q.width*q.height*4,0)<1048576?2:1)})),
      combo.algorithm?h('p.pk-hint',{},t('pack.rules',{alg:t('pack.alg.'+combo.algorithm),heur:t('pack.heur.'+combo.heuristic),sort:combo.sort})):'',
      v.stats.aliases?h('p.pk-hint',{},t('pack.aliasNote',{n:v.stats.aliases})):'',
      model?.implicitAnimation?h('p.pk-note-implicit',{'data-pack':'implicit'},t('pack.implicit',{name:model.implicitAnimation.name,n:model.implicitAnimation.frames,fps:model.implicitAnimation.fps})):'',
@@ -210,24 +211,41 @@ export default {
   // ------------------------------------------------------------ export panel
   const exportBox=h('div.pk-export',{});
   ctx.panel({id:'pack-export',title:()=>t('panel.packExport'),dock:'right',order:17,render(body){body.append(exportBox);}});
-  function describeChange(c){return c.map(x=>x.key==='allowRotation'?`${t('pack.rotation')}: ${x.to?'✓':'✗'}`:x.key==='trimMode'?`${t('pack.trim')}: ${t('pack.trimMode.'+x.to)}`:x.key==='multipack'?`${t('pack.multipack')}: ${x.to?'✓':'✗'}`:`${x.key}: ${x.to}`).join(', ');}
+  function describeChange(c){return c.map(x=>t('pack.chg.'+x.key+'.'+String(x.to))).join(', ');}
+  const exportTarget=()=>{const id=prefs().target||prefs().preset;return TARGETS[id]&&!TARGETS[id].aseprite?id:(TARGETS[id]?id:'godot4');};
+  const canExport=tg=>!!result&&!busy&&!exporting&&!(tg.browserOnly&&typeof VideoEncoder==='undefined');
+  function verifyBadge(tg,{short=false}={}){
+   return h('span.pk-badge'+(tg.verify==='unverified'?'.is-unverified':''),{'data-verify':tg.verify,title:t('pack.verify.'+tg.verify,{engine:tg.engine})},
+    short?h('i.pk-dot',{'aria-hidden':'true'}):'',short?'':t('pack.verify.'+tg.verify,{engine:tg.engine}));
+  }
   function renderExport(){
    const name=h('input.st-input',{type:'text',value:prefs().exportName||exportBase(),'data-pack':'exportName','aria-label':t('pack.exportName'),maxlength:'80'});
    name.addEventListener('change',()=>setPrefs({exportName:stemOf(name.value)},{mergeKey:'pack-name'}));
+   // main card: pick a target, see what it needs and how it was verified, one big button
+   const cur=exportTarget(),tg=TARGETS[cur],{changed}=settingsFor(cur,settings());
+   const pick=h('select',{'data-pack':'target','aria-label':t('pack.exportTarget')},...Object.entries(TARGET_ORDER).map(([g,ids])=>h('optgroup',{label:t('pack.groups.'+g)},...ids.map(id=>h('option',{value:id,selected:id===cur},TARGETS[id].label)))));
+   pick.addEventListener('change',()=>setPrefs({target:pick.value},{mergeKey:'pack-target'}));
+   const main=h('button.st-btn.primary.pk-main',{type:'button','data-export-main':cur,disabled:!canExport(tg),title:tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):null},t('pack.exportFor',{name:tg.label}));
+   main.addEventListener('click',()=>runExport(cur));
+   const card=h('div.st-sec.pk-card',{},h('div.pk-fields',{},field(t('pack.exportTarget'),pick,{wide:true}),field(t('pack.exportName'),name,{wide:true})),
+    main,verifyBadge(tg),changed.length?h('p.pk-change',{'data-pack':'target-change'},t('pack.changed',{name:tg.label,what:describeChange(changed)})):'',
+    exporting?h('p.pk-hint',{'aria-live':'polite'},t('pack.exporting',{name:TARGETS[exporting].label})):'');
+   // every target, one line each: name, verification dot, Export
    const groups=Object.entries(TARGET_ORDER).map(([g,ids])=>h('div.pk-group',{},h('h3',{},t('pack.groups.'+g)),...ids.map(id=>{
-    const tg=TARGETS[id],{changed}=settingsFor(id,settings());
-    const btn=h('button.st-btn'+(prefs().preset===id||(!prefs().preset&&id==='godot4')?'.primary':''),{type:'button','data-export':id,disabled:!result||!!busy||!!exporting||(tg.browserOnly&&typeof VideoEncoder==='undefined'),title:tg.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):t('pack.exportFor',{name:tg.label})},t('pack.export'));
+    const x=TARGETS[id],ch=settingsFor(id,settings()).changed;
+    const btn=h('button.st-btn',{type:'button','data-export':id,disabled:!canExport(x),title:x.browserOnly&&typeof VideoEncoder==='undefined'?t('pack.webmOnly'):t('pack.exportFor',{name:x.label})},t('pack.export'));
     btn.addEventListener('click',()=>runExport(id));
-    const badge=h('span.pk-badge'+(tg.verify==='unverified'?'.is-unverified':''),{'data-verify':tg.verify},t('pack.verify.'+tg.verify,{engine:tg.engine}));
-    return h('div.pk-target',{'data-target':id},h('b',{},tg.label),btn,badge,changed.length?h('span.pk-change',{},t('pack.changed',{name:tg.label,what:describeChange(changed)})):'');
+    return h('div.pk-target'+(id===cur?'.is-current':''),{'data-target':id},verifyBadge(x,{short:true}),h('b',{title:t('pack.verify.'+x.verify,{engine:x.engine})},x.label),
+     ch.length?h('span.pk-change',{title:t('pack.changed',{name:x.label,what:describeChange(ch)})},describeChange(ch)):h('span',{}),btn);
    })));
    const last=lastExport?h('div.st-sec',{'data-pack':'last-export'},h('div.st-sec-head',{},h('span',{},t('pack.lastExport')),h('span',{},lastExport.name)),
-    h('p.pk-hint',{},t('pack.files',{n:lastExport.files.length})),
+    h('p.pk-hint',{},t('pack.files',{n:lastExport.files.length})+' · '+fmtSize(lastExport.size)),
     lastExport.changed?.length?h('p.pk-hint',{},t('pack.changed',{name:TARGETS[lastExport.target]?.label||'',what:describeChange(lastExport.changed)})):'',
     lastExport.notes.length?h('ul.pk-notes',{},...lastExport.notes.map(n=>h('li',{},n))):''):'';
-   const busyNote=exporting?h('p.st-pad.st-muted',{},t('pack.exporting',{name:TARGETS[exporting].label})):'';
-   exportBox.replaceChildren(h('div.st-sec',{},field(t('pack.exportName'),name,{wide:true})),busyNote,h('div.st-sec',{},...groups),last);
+   exportBox.replaceChildren(card,last,h('details.st-sec.pk-all',{open:prefs().allOpen!==false},h('summary',{},t('pack.allFormats',{n:Object.values(TARGET_ORDER).flat().length})),...groups));
+   exportBox.querySelector('.pk-all').addEventListener('toggle',e=>{if(e.target.open!==(prefs().allOpen!==false))setPrefs({allOpen:e.target.open},{mergeKey:'pack-all'});});
   }
+  const fmtSize=n=>n<1024?`${n} B`:n<1048576?`${Math.round(n/1024)} KB`:`${(n/1048576).toFixed(1)} MB`;
   function runExport(id){
    if(!result||busy||exporting)return;
    const w=ensureWorker(),jid=++job;busy={op:'export',job:jid};exporting=id;
@@ -244,6 +262,7 @@ export default {
    const rows=model.frames.slice(0,3000).map(f=>{const e=v.frames[f.id];if(!e)return null;
     const flags=[e.trimmed?t('pack.flags.trimmed'):'',e.rotated?t('pack.flags.rotated'):'',e.aliasOf?t('pack.flags.alias',{name:names.get(e.aliasOf)}):''].filter(Boolean).join(' · ');
     const row=h('div.pk-frame',{role:'option','data-frame':f.id,'aria-selected':String(selection.includes(f.id))},h('span',{},f.name),h('span',{},t('pack.frameRow',{w:e.sourceW,h:e.sourceH,sw:e.w,sh:e.h})),h('span',{},t('pack.onPage',{n:e.page+1})),h('span.pk-flag',{},flags));
+    row.addEventListener('mouseenter',()=>layer.setHover(rep(f.id)));row.addEventListener('mouseleave',()=>layer.setHover(null));
     row.addEventListener('click',ev=>select(ev.shiftKey||ev.ctrlKey||ev.metaKey?[...selection,f.id]:[f.id],{reveal:true}));return row;}).filter(Boolean);
    framesList.replaceChildren(...rows);
   }

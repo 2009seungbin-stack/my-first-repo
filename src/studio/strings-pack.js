@@ -34,7 +34,9 @@ en:{
   changed:'For {name} the export packs with {what} (its engine needs this).',
   lastExport:'Last export',files:'{n} files',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'trimmed',rotated:'rotated',alias:'same as {name}'},
   onPage:'page {n}',selectHint:'Selection is shared with the timeline.',
-  webmOnly:'WebM needs a browser with WebCodecs (Chrome, Edge).'
+  webmOnly:'WebM needs a browser with WebCodecs (Chrome, Edge).',
+  exportTarget:'Export for',allFormats:'All formats ({n})',memory:'{mb} MB of texture memory when loaded (RGBA8888)',
+  chg:{allowRotation:{false:'no rotation',true:'rotation'},trimMode:{none:'trim off',trim:'trim',"crop-keep":'crop, keep position',crop:'crop'},multipack:{false:'one page',true:'multipack'}}
  }
 },
 ko:{
@@ -67,7 +69,9 @@ ko:{
   changed:'{name}용 내보내기는 {what}(으)로 패킹합니다 (엔진에 필요).',
   lastExport:'마지막 내보내기',files:'파일 {n}개',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'트림됨',rotated:'회전됨',alias:'{name}와 동일'},
   onPage:'{n}페이지',selectHint:'선택은 타임라인과 공유됩니다.',
-  webmOnly:'WebM은 WebCodecs를 지원하는 브라우저(Chrome, Edge)가 필요합니다.'
+  webmOnly:'WebM은 WebCodecs를 지원하는 브라우저(Chrome, Edge)가 필요합니다.',
+  exportTarget:'내보낼 대상',allFormats:'모든 형식 ({n})',memory:'불러오면 텍스처 메모리 {mb} MB (RGBA8888)',
+  chg:{allowRotation:{false:'회전 없음',true:'회전'},trimMode:{none:'트림 끔',trim:'트림',"crop-keep":'잘라내기·위치 유지',crop:'잘라내기'},multipack:{false:'한 페이지',true:'멀티팩'}}
  }
 },
 ja:{
@@ -100,7 +104,9 @@ ja:{
   changed:'{name} 向けの書き出しは {what} でパックします（エンジンに必要）。',
   lastExport:'前回の書き出し',files:'{n} ファイル',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'トリム済み',rotated:'回転',alias:'{name} と同一'},
   onPage:'{n} ページ',selectHint:'選択はタイムラインと共有されます。',
-  webmOnly:'WebM には WebCodecs 対応ブラウザ（Chrome、Edge）が必要です。'
+  webmOnly:'WebM には WebCodecs 対応ブラウザ（Chrome、Edge）が必要です。',
+  exportTarget:'書き出し先',allFormats:'すべての形式（{n}）',memory:'読み込み時のテクスチャメモリ {mb} MB（RGBA8888）',
+  chg:{allowRotation:{false:'回転なし',true:'回転'},trimMode:{none:'トリムなし',trim:'トリム',"crop-keep":'切り抜き・位置保持',crop:'切り抜き'},multipack:{false:'1 ページ',true:'マルチパック'}}
  }
 }};
 const merge=(a,b)=>{for(const [k,v] of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)){a[k]=a[k]&&typeof a[k]==='object'?a[k]:{};merge(a[k],v);}else a[k]=v;}return a;};
