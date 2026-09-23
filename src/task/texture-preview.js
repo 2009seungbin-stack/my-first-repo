@@ -208,6 +208,8 @@ async function draw(ctx){
  gl.drawElements(gl.TRIANGLES,buffers.count,gl.UNSIGNED_SHORT,0);
 }
 const schedule=ctx=>{cancelAnimationFrame(pending);pending=requestAnimationFrame(()=>{draw(ctx).catch(error=>ctx.toast(error?.message||String(error),{error:true}));});};
+/** Slots the person has set by hand (including to None) are theirs; the rest follow the roles. */
+let userSet=new Set();
 /** Default assignment from the roles the Inspect stage already worked out. */
 function autoAssign(ctx){
  const pick=role=>ctx.state.files.find(f=>f.role===role)?.id||null;
@@ -220,6 +222,11 @@ export const previewStage={
   const {T,esc}=ctx;
   // Assign before the HTML is built, so the drop-downs show what the shader is actually using.
   if(!Object.keys(assign).length)autoAssign(ctx);
+  else{
+   // A map added since (a normal generated on the Normal stage) fills its empty slot.
+   const before=assign;autoAssign(ctx);
+   for(const role of ROLE_SLOTS)if(userSet.has(role)||before[role]&&ctx.entryOf(before[role]))assign[role]=before[role];
+  }
   return `<div class="view-head"><strong>${esc(T('previewTitle'))}</strong><span>${esc(T('previewApprox'))}</span></div>
 <div class="tex-gl" id="texGLHost"><canvas id="texGL" tabindex="0" role="img" aria-label="${esc(T('previewCanvas'))}"></canvas><p class="tex-gl-fallback" id="texGLFallback" hidden>${esc(T('noWebGL'))}</p></div>
 <p class="viewer-note">${esc(T('previewNote'))}</p>
@@ -270,7 +277,7 @@ ${range('yaw',T('yaw'),-3.14,3.14,.02)}${range('pitch',T('pitch'),-1.4,1.4,.02)}
    const out=target.closest('.field')?.querySelector('output');if(out)out.textContent=target.value;
    schedule(ctx);return;
   }
-  if(target.dataset.option==='assign'){assign[target.dataset.role]=target.value||null;schedule(ctx);return;}
+  if(target.dataset.option==='assign'){assign[target.dataset.role]=target.value||null;userSet.add(target.dataset.role);schedule(ctx);return;}
   if(target.dataset.option==='view-green'){view.greenFlip=target.checked?-1:1;schedule(ctx);return;}
   if(target.dataset.option==='view-invert-rough'){view.invertRough=target.checked;schedule(ctx);return;}
  },
@@ -282,5 +289,5 @@ ${range('yaw',T('yaw'),-3.14,3.14,.02)}${range('pitch',T('pitch'),-1.4,1.4,.02)}
   }
  },
  leave(){cancelAnimationFrame(pending);releaseAll();},
- dispose(){cancelAnimationFrame(pending);releaseAll();assign={};}
+ dispose(){cancelAnimationFrame(pending);releaseAll();assign={};userSet=new Set();}
 };

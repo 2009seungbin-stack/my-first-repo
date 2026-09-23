@@ -9,6 +9,7 @@ import * as K from '../game/pixel-check.js';
 import {SCHEMA_VERSION} from '../game/model.js';
 import {PALETTES} from './pixel.js';
 import {text,toast,download,track,onLocale,continueWith,page as route} from './shell.js';
+import './strings-trust.js';
 /** Pixel Lab — one workspace that takes several animation frames from "whatever the artist
  * exported" to a consistent, engine-ready pixel asset: extract ONE palette from all frames, lock
  * every frame to it, recolour ramps, clean up stray pixels and anti-aliasing, check the pixel grid
@@ -261,9 +262,13 @@ ${num('plabScale2','scale',1,8,T('scale'))}
    else if(outline)outline.innerHTML='';
   }
   if(stage==='check'&&report){
-   const s=report.scale,verdict=T('verdicts.'+report.verdict);
+   const s=report.scale,r=report.resample;
+   // A resampled upscale (3.78× bilinear, or 2.5× nearest) is named as what it is, with the scale
+   // it measured and how sure it is — never "Already 1×".
+   const verdict=report.verdict==='resampled'?T(r.integer?'resampledInteger':'verdictResampled',{s:r.scale.toFixed(2)}):T('verdicts.'+report.verdict);
+   const resampledNote=r&&r.kind==='resampled'?`<li id="plabResample" data-scale="${r.scale}" data-integer="${r.integer}" data-smoothed="${r.smoothed}" data-confidence="${r.confidence}">${esc(T('resampledNote',{kind:r.smoothed?T('smoothed'):T('notSmoothed'),conf:text('confidence.'+r.confidence),w:Math.round(report.width/r.scale),h:Math.round(report.height/r.scale)}))}</li>`:'';
    el.querySelector('#plabReport').innerHTML=`<ul class="plab-list">
-<li><strong>${esc(verdict)}</strong>${report.verdict==='integer'?` · ${esc(T('logical',{w:report.logical.width,h:report.logical.height,s:s.scale}))}`:report.verdict==='non-integer'?` · ${esc(T('estimate',{n:s.estimate}))}`:''}</li>
+<li><strong id="plabVerdict" data-verdict="${report.verdict}">${esc(verdict)}</strong>${report.verdict==='integer'?` · ${esc(T('logical',{w:report.logical.width,h:report.logical.height,s:s.scale}))}`:report.verdict==='non-integer'?` · ${esc(T('estimate',{n:s.estimate}))}`:''}</li>${resampledNote}
 <li>${esc(T('offGrid',{v:report.offGrid?T('yes'):T('no'),x:s.offset.x,y:s.offset.y}))}</li>
 <li>${esc(T('edgeReport',{n:report.edges.intermediate,share:(report.edges.share*100).toFixed(1),alpha:report.edges.partialAlpha}))}</li>
 <li>${esc(T('distinct',{n:report.distinct,target:o.budget}))}</li></ul>`;
@@ -468,6 +473,8 @@ ${num('plabScale2','scale',1,8,T('scale'))}
  });
  el.addEventListener('click',e=>{const chip=e.target.closest?.('.frame-chip');if(!chip||e.target.closest('[data-action="plab-remove"]'))return;const i=sources.findIndex(s=>String(s.id)===chip.dataset.id);if(i>=0&&i!==at){at=i;candidates=null;build();}});
  onLocale(()=>{if(!sources.length){empty();return;}shell();build();});
+ // Work lives only in this tab: leaving it with frames loaded asks first.
+ addEventListener('beforeunload',e=>{if(el.isConnected&&sources.length){e.preventDefault();e.returnValue='';}});
  empty();
  return {add};
 }

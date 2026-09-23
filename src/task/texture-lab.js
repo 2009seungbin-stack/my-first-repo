@@ -137,7 +137,7 @@ export function mount({el,def}){
  // ---- stage context handed to the stage modules -------------------------------------------
  const ctx={state,T,esc,q,el,roleLabel,entryOf,activeEntry,fullPixels,previewPixels,samplePixels,planeBlob,rgbaBlob,paint,objectURL,forget,
   toast,download:(blob,name)=>download(blob,safeName(name)),zip,text,toolURL,bytes,stem,
-  render:()=>render(),renderSide:()=>renderSide(),busy:run,validation,issueText,measure,
+  render:()=>render(),renderSide:()=>renderSide(),busy:run,validation,issueText,measure,addGenerated:(file,role)=>addGenerated(file,role),
   refreshFiles:()=>{renderFileStrip();},pixelLimit:MAX_TEXTURE_PIXELS};
  const STAGE_MODULES={normal:maps.normalStage,channels:maps.channelStage,preview:previewStage,fix:fix.fixStage,inspect:null,export:null};
  async function run(work){
@@ -338,6 +338,16 @@ ${sorted.length?`<ul class="tex-issues">${sorted.map(i=>`<li class="lvl-${i.leve
   });
   if(!state.files.length)empty();
  }
+ /** A map made inside the Lab (a generated normal) joins the set like a dropped file, with its
+  * role already known and marked as generated, so the Preview and Export see it at once. */
+ async function addGenerated(file,role){
+  const replaced=state.files.find(f=>f.generated&&f.name===file.name);
+  if(replaced){forget(replaced.thumb);state.files=state.files.filter(f=>f!==replaced);}
+  const entry={id:++state.seq,file,name:file.name,role,setName:classifyTextureName(file.name).setName,confidence:'high',thumb:objectURL(file),manualRole:true,generated:true};
+  state.files.push(entry);
+  await measure(entry);
+  renderFileStrip();
+ }
  function clear(){
   for(const f of state.files)forget(f.thumb);
   samples.clear();
@@ -410,6 +420,8 @@ ${sorted.length?`<ul class="tex-issues">${sorted.map(i=>`<li class="lvl-${i.leve
   const module=STAGE_MODULES[state.stage];module?.keydown?.(event,ctx);
  });
  onLocale(()=>{if(!state.files.length){empty();return;}frame();render();});
+ // Work lives only in this tab: leaving it with textures loaded asks first.
+ addEventListener('beforeunload',e=>{if(el.isConnected&&state.files.length){e.preventDefault();e.returnValue='';}});
  empty();
  return {add};
 }

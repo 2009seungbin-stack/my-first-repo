@@ -12,7 +12,8 @@
  * "bottom" here means the bottom of the frame's alpha bounding box — the lowest opaque pixel. It is
  * not foot detection: a trailing cape, a shadow or a dust puff below the feet lowers it. */
 import {source,boundsIn,checkRect,innerRect,ALPHA_THRESHOLD} from './pixels.js';
-import {components,frameNumber,MAX_FRAMES} from '../primitives.js';
+import {frameNumber,MAX_FRAMES} from '../primitives.js';
+import {labelIslands,labelIslandsAsync} from './islands.js';
 import {frame as makeFrame,pivotPixels} from './model.js';
 export const ALIGNMENTS=Object.freeze(['center','top','bottom','left','right','bottom-center','top-left','custom']);
 const clamp01=v=>v<0?0:v>1?1:v;
@@ -76,10 +77,10 @@ export const UNIFORM_AT_ZERO=.85;
 export function autoMergeDistance(rects,{maxDistance=16,maxFrames=MAX_FRAMES}={}){
  if(!Number.isSafeInteger(maxDistance)||maxDistance<0||maxDistance>512)throw Error('maxDistance must be 0…512 pixels');
  const base=mergeEvidence(rects,0,{maxFrames});
- if(rects.length<2)return {distance:0,frames:base.frames,candidates:[scored(base,1,maxDistance)],reason:'one island, nothing to merge'};
+ if(rects.length<2)return {distance:0,frames:base.frames,candidates:[scored(base,1,maxDistance)],reasonCode:'single',reason:'one island, nothing to merge'};
  const thresholds=mergeThresholds(rects,{maxDistance});
  if(!thresholds.length)return {distance:0,frames:base.frames,candidates:[scored(base,maxDistance+1,maxDistance)],
-  reason:`no two islands are within ${maxDistance}px of each other`};
+  reasonCode:'apart',until:maxDistance,reason:`no two islands are within ${maxDistance}px of each other`};
  if(base.consistency>=UNIFORM_AT_ZERO)return {distance:0,frames:base.frames,candidates:[scored(base,thresholds[0],maxDistance)],
   reasonCode:'uniform',consistency:base.consistency,reason:`the islands are already ${Math.round(base.consistency*100)}% the same size, so each one is a frame`};
  const all=[0,...thresholds],candidates=all.map((d,i)=>scored(mergeEvidence(rects,d,{maxFrames}),all[i+1]??maxDistance+1,maxDistance));
@@ -91,7 +92,23 @@ export function autoMergeDistance(rects,{maxDistance=16,maxFrames=MAX_FRAMES}={}
 }
 function scored(evidence,nextThreshold,maxDistance){
  const stability=clamp01((nextThreshold-evidence.distance)/Math.max(1,maxDistance));
- return {...evidence,groups:undefined,until:nextThreshold,stability,score:evidence.consistency*.5+evidence.fill*.2+stability*.3};
+ // Gluing many separate islands into a single frame is how a sheet whose frames nearly touch
+ // becomes "1 frame": nothing can join after everything has, so it looks perfectly stable. A
+ // single group from four to seven islands is only a frame when it is compact artwork; eight or
+ // more separate islands in one box is a sheet.
+ const swallowed=evidence.frames===1&&(evidence.parts>=8||evidence.parts>=4&&evidence.fill<.5);
+ return {...evidence,groups:undefined,until:nextThreshold,stability,swallowed,score:swallowed?0:evidence.consistency*.5+evidence.fill*.2+stability*.3};
+}
+/** Auto reads islands; frames drawn edge to edge touch and come back as one island. When a grid
+ * suggestion is available, this says whether Auto's frames straddle its cells — the signal to
+ * offer the grid instead of trusting the island count. Pure rectangles in, numbers out. */
+export function autoVersusGrid(rects,grid){
+ if(!grid||!rects.length)return null;
+ const cw=grid.cellWidth,ch=grid.cellHeight;
+ const spanning=rects.filter(r=>r.w>cw*1.25+(grid.spacingX||0)||r.h>ch*1.25+(grid.spacingY||0)).length;
+ const gridFrames=grid.evidence?.filledCells??grid.cells;
+ return {spanning,gridFrames,autoFrames:rects.length,cell:{w:cw,h:ch},
+  recommend:grid.confidence!=='low'&&spanning>=2&&gridFrames>rects.length};
 }
 /** Sorts rectangles the way the sheet reads: rows top to bottom, then left to right inside a row.
  * `rowTolerance:'auto'` uses 35% of the median height, which keeps a tall sprite and a short one
@@ -111,17 +128,62 @@ export function readingOrder(rects,{rowTolerance='auto',rightToLeft=false}={}){
  rows.forEach((row,index)=>{row.items.sort((a,b)=>rightToLeft?b.x-a.x||a.y-b.y:a.x-b.x||a.y-b.y).forEach(r=>out.push({...r,row:index}));});
  return out;
 }
-/** Detects frames on a sheet: alpha components → merged into frames → read in order.
- * `distance:'auto'` lets `autoMergeDistance` choose, and reports what it chose and why.
- * Needs the sheet's pixels because `primitives.components` labels them (and inherits its
- * 4-megapixel analysis cap); everything after that works on rectangles only. */
-export function detectFrames(src,{threshold=ALPHA_THRESHOLD,minArea=4,distance='auto',rowTolerance='auto',maxFrames=MAX_FRAMES,maxDistance=16,rightToLeft=false}={}){
- const s=source(src),sheet=s.read({x:0,y:0,w:s.width,h:s.height});
- const found=components(sheet.data,sheet.width,sheet.height,{threshold,minArea,maxFrames});
+/** Small islands (under `minArea`) are sparks, slash trails, dust, a detached pixel of hair. They
+ * belong to a frame far more often than they are frames, but silently dropping them loses real
+ * artwork. Each one is attached to the nearest frame when that is unambiguous — close enough,
+ * clearly closer than any other frame, and the grown frame does not run into a neighbour —
+ * and is otherwise returned as `unassigned` so the caller can show it and offer to include it.
+ * Nothing is ever dropped: every small island ends up in exactly one of the two lists.
+ * @returns {rects, attached:[{island,frame}], unassigned:[island], reach} */
+export const ATTACH_LIMIT=20_000;
+export function attachSmallIslands(rects,small,{distance=0,reach='auto'}={}){
+ const groups=rects.map(r=>({...r,parts:r.parts?[...r.parts]:[],smallParts:[]})),attached=[],unassigned=[];
+ if(!small.length||!groups.length)return {rects:groups,attached,unassigned:[...small],reach:0};
+ const limit=reach==='auto'?Math.max(distance,2,Math.round(median(groups.map(g=>Math.min(g.w,g.h)))*.5)):reach;
+ if(small.length>ATTACH_LIMIT)return {rects:groups,attached,unassigned:[...small],reach:limit};
+ const gapOf=(a,b)=>{const g=rectGap(a,b);return Math.max(g.x,g.y);};
+ const overlaps=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
+ // Nearest first, so a spark grows its frame before a farther one is judged against it.
+ const order=small.map(island=>{let best=Infinity;for(const g of groups)best=Math.min(best,gapOf(island,g));return {island,best};}).sort((a,b)=>a.best-b.best);
+ for(const {island} of order){
+  let first=-1,firstGap=Infinity,secondGap=Infinity;
+  groups.forEach((g,i)=>{const gap=gapOf(island,g);if(gap<firstGap){secondGap=firstGap;firstGap=gap;first=i;}else if(gap<secondGap)secondGap=gap;});
+  const g=groups[first];
+  const inside=island.x>=g.x&&island.y>=g.y&&island.x+island.w<=g.x+g.w&&island.y+island.h<=g.y+g.h;
+  const clear=inside||firstGap<=limit&&(secondGap===Infinity||secondGap>=firstGap*2+2);
+  const grown=inside?g:unionRect([g,island]);
+  if(!clear||!inside&&groups.some((other,i)=>i!==first&&overlaps(grown,other))){unassigned.push(island);continue;}
+  Object.assign(g,{x:grown.x,y:grown.y,w:grown.w,h:grown.h,area:g.area+island.area});g.smallParts.push(island);
+  attached.push({island,frame:first});
+ }
+ return {rects:groups,attached,unassigned,reach:limit};
+}
+/** Frames from labelled islands (src/game/islands.js): merge → attach small islands → order. */
+export function framesFromIslands(labelled,{distance='auto',rowTolerance='auto',maxFrames=MAX_FRAMES,maxDistance=16,rightToLeft=false,attach=true}={}){
+ const found=labelled.islands,small=labelled.small||[];
  const auto=distance==='auto'?(found.length?autoMergeDistance(found,{maxDistance,maxFrames}):{distance:0,frames:0,candidates:[],reason:'the sheet is empty'}):null;
  const used=auto?auto.distance:distance;
- const rects=readingOrder(mergeRects(found,{distance:used,maxFrames}),{rowTolerance,rightToLeft});
- return {components:found,rects,rows:rects.length?rects[rects.length-1].row+1:0,distance:used,auto};
+ const merged=mergeRects(found,{distance:used,maxFrames});
+ const placed=attach?attachSmallIslands(merged,small,{distance:used}):{rects:merged,attached:[],unassigned:[...small],reach:0};
+ const rects=readingOrder(placed.rects,{rowTolerance,rightToLeft});
+ const attachedPixels=placed.attached.reduce((s,a)=>s+a.island.area,0);
+ return {components:found,rects,rows:rects.length?rects[rects.length-1].row+1:0,distance:used,auto,
+  attached:placed.attached,unassigned:placed.unassigned,reach:placed.reach,
+  // Exact even when the small-island list was truncated: whatever is not attached is reported.
+  smallCount:labelled.smallCount??small.length,unassignedPixels:(labelled.smallPixels??small.reduce((s,i)=>s+i.area,0))-attachedPixels};
+}
+/** Detects frames on a sheet: alpha islands → merged into frames → small islands attached or
+ * reported → read in order. `distance:'auto'` lets `autoMergeDistance` choose, and reports what
+ * it chose and why. The sheet is read band by band (no size cap below MAX_SHEET_PIXELS); every
+ * opaque pixel ends up inside a frame rectangle or in `unassigned`. */
+export function detectFrames(src,{threshold=ALPHA_THRESHOLD,minArea=4,maxFrames=MAX_FRAMES,...options}={}){
+ return framesFromIslands(labelIslands(src,{threshold,minArea,maxIslands:maxFrames}),{maxFrames,...options});
+}
+/** detectFrames that yields between bands (`pause`, e.g. resources.yieldUI) for large sheets. */
+export async function detectFramesAsync(src,{threshold=ALPHA_THRESHOLD,minArea=4,maxFrames=MAX_FRAMES,pause,progress,signal,...options}={}){
+ const labelled=await labelIslandsAsync(src,{threshold,minArea,maxIslands:maxFrames,pause,progress,signal});
+ signal?.throwIfAborted?.();
+ return framesFromIslands(labelled,{maxFrames,...options});
 }
 /** Model frames for a list of sheet rectangles. `trim` records the alpha bounding box inside each
  * rectangle as `trimmedRect` (the pixels stay where they are; nothing is cropped yet). */
