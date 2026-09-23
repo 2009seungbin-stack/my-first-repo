@@ -70,6 +70,23 @@ export const terrainTiles=ts=>patternsList(ts).map(e=>({id:e.id,pattern:e.patter
 export function normalizeTileset(raw){
  const ts=createTileset({id:String(raw.id||uid('ts')).slice(0,60),assetId:String(raw.assetId||''),name:raw.name,grid:raw.grid,mode:raw.mode,terrains:Array.isArray(raw.terrains)&&raw.terrains.length?raw.terrains:undefined});
  const tiles={};
- for(const [k,v] of Object.entries(raw.tiles||{})){if(!/^\d+,\d+$/.test(k))continue;try{checkPattern(v.pattern);tiles[k]={pattern:inMode(v.pattern,ts.mode),...(v.probability!=null?{probability:Math.max(0,Math.min(1000,Number(v.probability)||0))}:{})};}catch{}}
+ for(const [k,v] of Object.entries(raw.tiles||{})){if(!/^\d+,\d+$/.test(k))continue;try{checkPattern(v.pattern);tiles[k]={pattern:inMode(v.pattern,ts.mode),...(v.probability!=null?{probability:Math.max(0,Math.min(1000,Number(v.probability)||0))}:{}),...(Array.isArray(v.collision)?{collision:cleanShapes(v.collision,ts.grid)}:{})};}catch{}}
  return {...ts,tiles,layoutId:typeof raw.layoutId==='string'?raw.layoutId:null,...(raw.source?{source:raw.source}:{}),...(raw.collision?{collision:raw.collision}:{})};
+}
+/** Collision polygons of a tile: [[[x,y],…],…] in tile pixels, integers clamped to the tile, at
+ * least 3 points each, at most 64 polygons of 256 points. */
+export function cleanShapes(shapes,grid){
+ const out=[];
+ for(const poly of (shapes||[]).slice(0,64)){
+  if(!Array.isArray(poly))continue;
+  const pts=poly.slice(0,256).map(p=>[Math.max(0,Math.min(grid.w,Math.round(Number(p?.[0])||0))),Math.max(0,Math.min(grid.h,Math.round(Number(p?.[1])||0)))]);
+  if(pts.length>=3)out.push(pts);
+ }
+ return out;
+}
+export function setCollision(ts,col,row,shapes){
+ const k=cellKey(col,row),cur=ts.tiles[k];if(!cur)return ts;
+ const next={...cur};const clean=shapes?cleanShapes(shapes,ts.grid):[];
+ if(clean.length)next.collision=clean;else delete next.collision;
+ return {...ts,tiles:{...ts.tiles,[k]:next}};
 }

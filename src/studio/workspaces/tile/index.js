@@ -9,6 +9,7 @@
 import './strings.js';
 import * as P from '../../core/project.js';
 import {h} from '../../ui/dom.js';
+import {ShapeLayer} from '../../canvas/canvas-view.js';
 import {ICONS} from '../../ui/icons.js';
 import {zip} from '../../../core.js';
 import * as TS from '../../../game/tiles/model.js';
@@ -27,7 +28,8 @@ Object.assign(ICONS,{
  eraser:svg('<path d="M6 13.5h7.5M3 10l6.5-6.5 4 4L7 14H5z"/><path d="M6.5 6.5l4 4"/>'),
  bucket:svg('<path d="M3 7l5-5 5.5 5.5-5 5z"/><path d="M13.5 10.5s1.5 2 1.5 3a1.5 1.5 0 01-3 0c0-1 1.5-3 1.5-3z"/>'),
  picker:svg('<path d="M9.5 2.5l4 4-1.5 1.5-4-4z"/><path d="M8 5.5L2.5 11v2.5H5L10.5 8"/>'),
- map:svg('<path d="M2 4l4-1.5 4 1.5 4-1.5v9.5L10 13l-4-1.5L2 13z"/><path d="M6 2.5v9M10 4v9"/>')
+ map:svg('<path d="M2 4l4-1.5 4 1.5 4-1.5v9.5L10 13l-4-1.5L2 13z"/><path d="M6 2.5v9M10 4v9"/>'),
+ collision:svg('<path d="M3 12.5L5 4l6 1.5 2 7z"/><circle cx="3" cy="12.5" r="1.2" fill="currentColor"/><circle cx="5" cy="4" r="1.2" fill="currentColor"/><circle cx="11" cy="5.5" r="1.2" fill="currentColor"/><circle cx="13" cy="12.5" r="1.2" fill="currentColor"/>')
 });
 let worker=null,seq=0;const waiting=new Map();
 function work(msg,transfer=[]){
@@ -70,6 +72,17 @@ export default {
   const sheetLayer={z:30,view:null,visible:true,hit:()=>null,draw(g){if(mode!=='tileset')return;drawSheet(g);}};
   const mapLayer={z:31,view:null,visible:true,hit:()=>null,draw(g){if(mode!=='map')return;drawMapOverlay(g);}};
   ctx.layer(sheetLayer);ctx.layer(mapLayer);
+  // collision polygons of the selected tiles (sheet view), editable with the collision tool
+  const colLayer=ctx.layer(new ShapeLayer({id:'tile-collision',z:33,color:'#7bd88f',selectedColor:'#ffc83d',hoverColor:'#ffffff',labels:false,handles:false,editable:true}));
+  let showCollision=false;
+  function syncCollision(){
+   const ts=tileset(),on=mode==='tileset'&&!!ts&&(currentTool==='collision'||showCollision);
+   colLayer.visible=on;
+   if(!on){colLayer.setItems([]);return;}
+   const keys=currentTool==='collision'||!showCollision?selection:Object.keys(ts.tiles),items=[];
+   for(const k of keys){const col=ts.tiles[k]?.collision;if(!col)continue;const [c,r]=unkey(k),rc=cellRect(ts.grid,c,r);col.forEach((poly,i)=>items.push({id:k+'#'+i,shape:'polygon',points:poly.map(([x,y])=>[rc.x+x,rc.y+y])}));}
+   colLayer.setItems(items);
+  }
   function drawSheet({ctx:c,view:v,dpr,visible}){
    const ts=tileset(),a=asset();if(!a)return;
    const g=ts?ts.grid:draftGrid();if(!g)return;
@@ -117,7 +130,7 @@ export default {
   }
   let dragSel=null;
   const selectTool={
-   cursor(){currentTool='select';wantMode('tileset');return 'default';},
+   cursor(){currentTool='select';wantMode('tileset');queueMicrotask(syncCollision);return 'default';},
    down(i){const c=cellAt(i);if(!c){if(!i.shift)setSelection([]);return false;}dragSel={from:c,add:i.shift||i.mod,base:i.shift||i.mod?[...selection]:[]};pickRect(c,c);return true;},
    move(i){if(!dragSel)return;const c=cellAt(i);if(c)pickRect(dragSel.from,c);},
    up(){dragSel=null;},cancel(){dragSel=null;},
@@ -126,7 +139,7 @@ export default {
   function pickRect(a,b){const out=new Set(dragSel?.base||[]);for(let r=Math.min(a.row,b.row);r<=Math.max(a.row,b.row);r++)for(let q=Math.min(a.col,b.col);q<=Math.max(a.col,b.col);q++)out.add(key(q,r));setSelection([...out]);}
   let stroke=null,strokeN=0;
   const bitsTool={
-   cursor(){currentTool='bits';wantMode('tileset');return 'crosshair';},
+   cursor(){currentTool='bits';wantMode('tileset');queueMicrotask(syncCollision);return 'crosshair';},
    down(i){
     const ts=tileset();if(!ts){ctx.toast(t('tile.needTileset'),{error:true});return false;}
     const c=cellAt(i);if(!c)return false;
@@ -148,7 +161,36 @@ export default {
    const ts=tileset();if(c.zone!=='c'&&!MODE_IDX[ts.mode].includes(c.zone))return;
    editTs(t('tile.cmd.bits'),x=>TS.toggleBit(x,c.col,c.row,c.zone,terrain,st.value),{mergeKey:st.key,open:true});
   }
+  // collision tool: drag a vertex to move it, double-click an edge to add one, Alt+click a vertex to
+  // remove it; clicking elsewhere selects the tile under the pointer
+  let colDrag=null;
+  const collisionTool={
+   cursor(){currentTool='collision';wantMode('tileset');queueMicrotask(syncCollision);return 'crosshair';},
+   down(i){
+    const ts=tileset();if(!ts)return false;const v=view.view,tol=4*view.dpr/v.scale,handleTol=7*view.dpr/v.scale;
+    const hit=colLayer.hit({x:i.x,y:i.y},{tol,handleTol});
+    if(hit){
+     const [k,pi]=hit.id.split('#'),[c,r]=unkey(k),poly=ts.tiles[k].collision[+pi].map(p=>p.slice());
+     if(hit.part==='vertex'&&i.alt){if(poly.length>3){poly.splice(hit.index,1);setShape(k,+pi,poly,t('tile.cmd.collision'));}return false;}
+     if(hit.part==='edge'&&i.event?.detail>=2){const rc=cellRect(ts.grid,c,r);poly.splice(hit.index+1,0,[Math.round(i.x-rc.x),Math.round(i.y-rc.y)]);setShape(k,+pi,poly,t('tile.cmd.collision'));return false;}
+     if(hit.part==='vertex'){colDrag={k,pi:+pi,index:hit.index,key:'col'+(++strokeN)};return true;}
+    }
+    const cc=cellAt(i);if(cc){setSelection([key(cc.col,cc.row)]);syncCollision();}
+    return false;
+   },
+   move(i){
+    if(!colDrag)return;const ts=tileset(),[c,r]=unkey(colDrag.k),rc=cellRect(ts.grid,c,r);
+    const poly=ts.tiles[colDrag.k].collision[colDrag.pi].map(p=>p.slice());
+    poly[colDrag.index]=[Math.max(0,Math.min(ts.grid.w,Math.round(i.x-rc.x))),Math.max(0,Math.min(ts.grid.h,Math.round(i.y-rc.y)))];
+    setShape(colDrag.k,colDrag.pi,poly,t('tile.cmd.collision'),{mergeKey:colDrag.key,open:true});
+   },
+   up(){if(colDrag)ctx.history.close(colDrag.key);colDrag=null;},
+   cancel(){if(colDrag&&ctx.history.abort(colDrag.key)){colDrag=null;return;}colDrag=null;},
+   hover(i){const v=view.view;const hit=colLayer.hit({x:i.x,y:i.y},{tol:4*view.dpr/v.scale,handleTol:7*view.dpr/v.scale});colLayer.setHover(hit?.id||null);statusTile(cellAt(i));}
+  };
+  function setShape(k,pi,poly,label,opts){const [c,r]=unkey(k);editTs(label,x=>{const cur=(x.tiles[k]?.collision||[]).map(p=>p);cur[pi]=poly;return TS.setCollision(x,c,r,cur);},opts);}
   ctx.tool({id:'tile-select',title:'tile.tool.select',icon:'tileSel',key:'V',order:10,hint:'tile.tool.selectHint',impl:selectTool});
+  ctx.tool({id:'tile-collision',title:'tile.tool.collision',icon:'collision',key:'C',order:12,hint:'tile.tool.collisionHint',impl:collisionTool});
   ctx.tool({id:'tile-bits',title:'tile.tool.bits',icon:'bits',key:'B',order:11,hint:'tile.tool.bitsHint',impl:bitsTool});
   // ---------------------------------------------------------------- map tools
   function mapCellAt(info){const m=activeMap(),ts=layerTileset();if(!m||!ts)return null;const x=Math.floor(info.x/ts.grid.w),y=Math.floor(info.y/ts.grid.h);return x>=0&&y>=0&&x<m.w&&y<m.h?{x,y}:null;}
@@ -193,7 +235,7 @@ export default {
    if(mode==='tileset'){view.set({grid:null});await ctx.showAsset(assetId,{restoreView:true});applyGridView();}
    else{view.set({gridVisible:false});await renderMap(true);}
    if(mode==='map'&&!['brush','eraser','bucket','picker'].includes(currentTool))ctx.setTool('tile-brush');
-   if(mode==='tileset'&&!['select','bits'].includes(currentTool))ctx.setTool('tile-bits');
+   if(mode==='tileset'&&!['select','bits','collision'].includes(currentTool))ctx.setTool('tile-bits');
    refreshAll();
   }
   const root=document.querySelector('.studio');
@@ -251,7 +293,7 @@ export default {
    ctx.status('selection',t('tile.status.cell',{x:c.x,y:c.y,tile:hit?hit.id:'—',what:hit?.pattern?describe(hit.pattern):'',problem:prob?t('tile.problem.'+prob.kind):''}));
   }
   // ---------------------------------------------------------------- selection + terrain
-  function setSelection(list){selection=list;sheetLayer.view?.invalidate();renderTilePanel();statusTile(null);}
+  function setSelection(list){selection=list;sheetLayer.view?.invalidate();renderTilePanel();statusTile(null);syncCollision();}
   function setTerrain(i){const ts=tileset()||layerTileset();const n=ts?.terrains.length||1;terrain=Math.max(0,Math.min(n-1,i));renderTerrains();renderMapPanel();}
   // ---------------------------------------------------------------- checks (cached per tileset object)
   const checks=new WeakMap();
@@ -461,7 +503,24 @@ export default {
     h('label.st-field.st-field-inline',{},h('span',{},t('tile.tile.prob')),prob),
     h('div.st-row',{},btn(t('tile.tile.full'),()=>setSel(()=>{const q=[terrain,-1,-1,-1,-1,-1,-1,-1,-1];for(const i of MODE_IDX[ts.mode])q[i+1]=terrain;return q;}),{action:'tile-full'}),
      btn(t('tile.tile.clear'),()=>setSel(()=>null),{action:'tile-clear'}),btn(t('tile.tile.rotate'),()=>setSel(q=>q&&rotate(q)),{title:'R'}),btn(t('tile.tile.mirror'),()=>setSel(q=>q&&mirror(q))),
-     btn(t('tile.tile.copy'),copyPattern,{title:ctx.shortcutOf('tile.copy')}),btn(t('tile.tile.paste'),pastePattern,{disabled:!clipboard,title:ctx.shortcutOf('tile.paste')}))));
+     btn(t('tile.tile.copy'),copyPattern,{title:ctx.shortcutOf('tile.copy')}),btn(t('tile.tile.paste'),pastePattern,{disabled:!clipboard,title:ctx.shortcutOf('tile.paste')}))),
+    collisionSec(ts,k));
+  }
+  function collisionSec(ts,k){
+   const col=ts.tiles[k]?.collision||[],pts=col.reduce((s,p)=>s+p.length,0);
+   const from=m=>btn(t('tile.export.col.'+m),()=>shapesFromAlpha(m),{action:'tile-col-'+m,disabled:!ts.tiles[k]});
+   const show=h('input',{type:'checkbox',checked:showCollision});show.addEventListener('change',()=>{showCollision=show.checked;syncCollision();});
+   return sec(t('tile.col.title'),h('p.st-muted',{'data-tile':'collision-count'},col.length?t('tile.col.count',{n:col.length,p:pts}):t('tile.col.none')),
+    h('div.st-row',{},h('span.st-muted.tl-small',{},t('tile.col.from')),from('outline'),from('rects'),from('box')),
+    h('div.st-row',{},btn(t('tile.col.edit'),()=>ctx.setTool('tile-collision'),{title:'C'}),btn(t('tile.tile.clear'),()=>{editTs(t('tile.cmd.collision'),x=>{let y=x;for(const kk of selection){const [c,r]=unkey(kk);y=TS.setCollision(y,c,r,null);}return y;});},{disabled:!col.length})),
+    h('label.st-check',{},show,' ',t('tile.col.showAll')),h('p.st-muted.tl-small',{},t('tile.col.help')));
+  }
+  async function shapesFromAlpha(m){
+   const ts=tileset(),a=asset();if(!ts||!a||!selection.length)return;const b=blobOf(a);
+   const keys=selection.filter(k=>ts.tiles[k]);
+   const r=await work({op:'collision',key:b.id,blob:b.blob,grid:gridOf(ts),keys,mode:m});
+   editTs(t('tile.cmd.collision'),x=>{let y=x;for(const k of keys){const [c,rr]=unkey(k);y=TS.setCollision(y,c,rr,r.collision[k]||null);}return y;});
+   if(currentTool!=='collision')showCollision=true;syncCollision();
   }
   function setSel(fn){const ts=tileset();if(!ts||!selection.length)return;editTs(t('tile.cmd.bits'),x=>{let y=x;for(const kk of selection){const [q,r]=unkey(kk);y=TS.setPattern(y,q,r,fn(y.tiles[kk]?.pattern||null));}return y;});}
   function copyPattern(){const ts=tileset();if(!ts||!selection.length)return;clipboard=ts.tiles[selection[0]]?.pattern||null;ctx.toast(clipboard?t('tile.toast.copied',{what:describe(clipboard)}):t('tile.notTerrain'));renderTilePanel();}
@@ -684,7 +743,7 @@ export default {
    const rows=TARGETS.map(tg=>{const v=VERIFY[tg];const cb=h('input',{type:'checkbox',checked:exportOpts.targets.has(tg),'data-target':tg});cb.addEventListener('change',()=>{cb.checked?exportOpts.targets.add(tg):exportOpts.targets.delete(tg);});
     const na=tg==='unity'&&ts.mode==='corners';
     return h('label.tl-target'+(na?'.is-na':''),{},cb,h('span.tl-target-name',{},t('tile.export.t.'+tg)),h('span.st-conf.is-'+(na?'alt':v.status==='verified'?'high':v.status==='partial'?'medium':'low'),{title:v.detail},na?t('tile.export.na'):t('tile.export.'+v.status)));});
-   const col=h('select.st-input',{'aria-label':t('tile.export.collision'),'data-tile':'collision'},['none','box','rects','outline'].map(m=>h('option',{value:m,selected:exportOpts.collision===m},t('tile.export.col.'+m))));
+   const col=h('select.st-input',{'aria-label':t('tile.export.collision'),'data-tile':'collision'},['none','edited','outline','rects','box'].map(m=>h('option',{value:m,selected:exportOpts.collision===m},t('tile.export.col.'+m))));
    col.addEventListener('change',()=>{exportOpts.collision=col.value;});
    const n=Object.keys(ts.tiles).filter(k=>ts.tiles[k].pattern[0]>=0).length;
    put(box,sec(t('tile.export.title'),h('div.tl-targets',{},rows),
@@ -696,11 +755,12 @@ export default {
   async function doExport(){
    const ts=tileset(),a=asset();if(!ts||!a)return;
    let out=ts;
+   // edited shapes always win; the chosen mode fills tiles that have none; "none" exports no physics
    if(exportOpts.collision!=='none'){
-    const b=blobOf(a),keys=Object.keys(ts.tiles).filter(k=>ts.tiles[k].pattern[0]>=0);
-    const r=await work({op:'collision',key:b.id,blob:b.blob,grid:gridOf(ts),keys,mode:exportOpts.collision});
-    out={...ts,collisionMode:exportOpts.collision,tiles:Object.fromEntries(Object.entries(ts.tiles).map(([k,v])=>[k,r.collision[k]?{...v,collision:r.collision[k]}:v]))};
-   }
+    const b=blobOf(a),keys=Object.keys(ts.tiles).filter(k=>ts.tiles[k].pattern[0]>=0&&!ts.tiles[k].collision);
+    const r=exportOpts.collision==='edited'||!keys.length?{collision:{}}:await work({op:'collision',key:b.id,blob:b.blob,grid:gridOf(ts),keys,mode:exportOpts.collision});
+    out={...ts,collisionMode:exportOpts.collision,tiles:Object.fromEntries(Object.entries(ts.tiles).map(([k,v])=>[k,v.collision?v:r.collision[k]?{...v,collision:r.collision[k]}:v]))};
+   }else out={...ts,tiles:Object.fromEntries(Object.entries(ts.tiles).map(([k,v])=>{const {collision,...rest}=v;return [k,rest];}))};
    const png=new Uint8Array(await blobOf(a).blob.arrayBuffer());
    const imageName=(a.name.replace(/\.[^.]+$/,'')||'tileset').replace(/[^\w.-]+/g,'_')+'.png';
    // the sample map: the active map's first layer that uses this tileset, else a built-in test shape
@@ -736,7 +796,7 @@ export default {
   ctx.command({id:'tile.brushSmaller',group:'tile',keys:['Shift+['],label:()=>t('tile.map.smaller'),run:()=>{brushSize=Math.max(1,brushSize-1);renderMapPanel();}});
   ctx.menu({id:'tile',title:'tile.menu',items:()=>['tile.view','-','tile.identify','tile.suggest','tile.apply','-','tile.copy','tile.paste','tile.rotate','tile.terrainPrev','tile.terrainNext','-','tile.newMap','tile.brushSmaller','tile.brushBigger','-','tile.export','-','tool.tile-select','tool.tile-bits','tool.tile-brush','tool.tile-eraser','tool.tile-bucket','tool.tile-picker']});
   // ---------------------------------------------------------------- document / asset events
-  function refreshAll(){renderSet();renderLayout();renderTilePanel();renderCheck();renderMapPanel();renderGen();renderExport();sheetLayer.view?.invalidate();}
+  function refreshAll(){syncCollision();renderSet();renderLayout();renderTilePanel();renderCheck();renderMapPanel();renderGen();renderExport();sheetLayer.view?.invalidate();}
   let lastTs=null,lastMap=null;
   ctx.on('doc',(doc,prev,ev)=>{
    const ts=tileset();
