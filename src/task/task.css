@@ -573,3 +573,5 @@ body.game-home{--gh-bg:#131518;--gh-1:#1b1d21;--gh-2:#23262b;--gh-3:#2c3036;--gh
 @media(max-width:600px){.ws-grid{grid-template-columns:1fr}.game-home h1#taskTitle{font-size:30px}.gh-cta>*{flex:1}.header-studio{padding:7px 11px}.game-home .page-header .header-link{display:none}}
 html:has(body.game-home){background:#131518}
 .more-tools{margin-top:10px}.more-tools>summary{cursor:pointer;color:var(--gh-accent,#3182f6);font-weight:750;font-size:13px;padding:8px 0;list-style:none}.more-tools>summary::-webkit-details-marker{display:none}.more-tools[open]>summary{margin-bottom:10px}
+.game-home h1,.game-home .page-lead,.game-home .ws-card,.game-home .gh-note{word-break:keep-all;overflow-wrap:anywhere}
+.game-home .language-control{background:var(--gh-1);border-color:var(--gh-line);color:var(--gh-text)}.game-home .language-control select{background:transparent;color:var(--gh-text)}.game-home .language-control select option{background:#1b1d21;color:#d9dce1}
