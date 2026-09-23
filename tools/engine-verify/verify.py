@@ -19,9 +19,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ev_common import Result, unpack, detect  # noqa: E402
-import godot_runner, web_runner, unity_runner, judge  # noqa: E402
+import godot_runner, web_runner, unity_runner, love_runner, defold_runner, file_runners, judge  # noqa: E402
 
-ALL = ['godot', 'phaser3', 'phaser4', 'pixi8', 'unity']
+ALL = ['godot', 'phaser3', 'phaser4', 'pixi8', 'unity', 'love', 'defold', 'pillow', 'aseprite']
 
 
 def _resolve(expect: dict, base: Path) -> dict:
@@ -97,7 +97,12 @@ def run_godot(folder: Path, item: dict, expect: dict, work: Path, godot: str) ->
         # A script error in the probe means part of the report is missing: never a pass.
         res.errors.extend(f'engine: {l}' for l in rep['_stderr_errors'] if l.startswith('SCRIPT ERROR'))
     mode = job['mode']
-    if mode == 'spriteframes':
+    if mode == 'spriteframes-tres':
+        res.info['page_import'] = rep.get('pages')
+        eng = godot_sprite_report(rep)
+        res.check('load', bool(eng['animations']), 'a SpriteFrames .tres Godot loads, with animations', f'{len(eng["animations"])} animations')
+        judge.judge_sprite(res, eng, expect.get('sprite') or {})
+    elif mode == 'spriteframes':
         res.check('helper.verify', not rep.get('helper_problems'), 'the shipped helper finds no mismatch', rep.get('helper_problems'))
         pages = rep.get('pages') or []
         res.info['page_import'] = pages
@@ -152,7 +157,16 @@ def run_unity(folder: Path, item: dict, expect: dict, work: Path) -> Result:
            and [round(v, 3) for v in s['rect']] != [want[s['name']]['rect'][k] for k in ('x', 'y', 'width', 'height')]]
     res.check('sprites.rects_vs_export', not bad and bool(sprites), 'Unity sprite rects == exported rects',
               f'{len(sprites) - len(bad)}/{len(sprites)}', f'differ: {bad[:5]}' if bad else '')
-    eng = {'frames': [{'name': s['name'], 'png': str(out / s['png']) if s.get('png') else None} for s in sprites]}
+    eng = {'frames': [{'name': s['name'], 'png': str(out / s['png']) if s.get('png') else None} for s in sprites], 'animations': {}}
+    # AnimationClips built by the shipped importer: SpriteRenderer.m_Sprite keys; the last key only
+    # closes the last frame's time, so durations are the gaps between consecutive keys.
+    by_name = {f['name']: f['png'] for f in eng['frames']}
+    for c in rep.get('clips') or []:
+        keys = [k for k in c['keys'] if k['property'] == 'm_Sprite' and k['type'] == 'SpriteRenderer']
+        res.info.setdefault('clips', {})[c['name']] = {'keys': len(keys), 'length': c['length'], 'loop': c['loop']}
+        steps = [{'name': k['sprite'], 'png': by_name.get(k['sprite']), 'durationMs': (keys[i + 1]['time'] - k['time']) * 1000.0}
+                 for i, k in enumerate(keys[:-1])]
+        eng['animations'][c['name']] = {'fps': None, 'loop': c['loop'], 'frames': steps}
     sp = dict(expect.get('sprite') or {})
     sp['placement'] = False  # a Unity Sprite is the trimmed rect; alignment lives in the pivot, checked below
     judge.judge_sprite(res, eng, sp)
@@ -175,9 +189,66 @@ def run_unity(folder: Path, item: dict, expect: dict, work: Path) -> Result:
     return res
 
 
+def run_love(folder: Path, item: dict, expect: dict, work: Path) -> Result:
+    res = Result('love', item['kind'], item.get('lua') or '')
+    if item['kind'] != 'love-quads':
+        res.na = f'love: no LÖVE loader for {item["kind"]} (LÖVE has no atlas format; only the Studio LÖVE export ships one)'
+        return res
+    if not love_runner.version():
+        res.errors.append(f'UNVERIFIED: no LÖVE at {love_runner.LOVE}')
+        return res
+    rep = love_runner.run(folder, item, work, (expect.get('sprite') or {}).get('scale', 4))
+    res.info['version'] = rep.get('version')
+    res.errors.extend(rep.get('errors', []))
+    eng = love_runner.normalise(rep)
+    res.check('load', bool(eng['frames']), 'the shipped helper loads the table and draws frames', f'{len(eng["frames"])} frames')
+    judge.judge_sprite(res, eng, expect.get('sprite') or {})
+    return res
+
+
+def run_defold(folder: Path, item: dict, expect: dict, work: Path) -> Result:
+    res = Result('defold', item['kind'], item.get('file') or '')
+    if item['kind'] not in ('defold-atlas', 'defold-tilesource'):
+        res.na = f'defold: no Defold check for {item["kind"]}'
+        return res
+    rep = defold_runner.run(folder, item, work)
+    res.info.update({k: rep.get(k) for k in ('version', 'built', 'animations')})
+    res.errors.extend(rep.get('errors', []))
+    res.check('build', bool(rep.get('built')), 'bob.jar builds the project with this resource', rep.get('built'))
+    for name, want in ((expect.get('defold') or {}).get('animations') or {}).items():
+        got = (rep.get('animations') or {}).get(name)
+        res.check(f'anim[{name}].frames', got is not None and got.get('frames') == want, want, got and got.get('frames'))
+    if rep.get('frames'):
+        judge.judge_sprite(res, {'frames': rep['frames'], 'animations': rep.get('engine_animations') or {}}, expect.get('sprite') or {})
+    return res
+
+
+def run_file(folder: Path, item: dict, engine: str, expect: dict, work: Path) -> Result:
+    res = Result(engine, item['kind'], item.get('file') or '')
+    want = {'pillow': ('anim-gif', 'apng'), 'aseprite': ('aseprite-file',)}[engine]
+    if item['kind'] not in want:
+        res.na = f'{engine}: not a {"/".join(want)} item'
+        return res
+    if engine == 'aseprite':
+        if not file_runners.aseprite_version():
+            res.errors.append(f'UNVERIFIED: no Aseprite CLI at {file_runners.ASEPRITE}')
+            return res
+        rep = file_runners.open_aseprite(folder / item['file'], work / 'aseprite')
+        res.info['version'] = rep.get('version')
+        res.info['slices'] = rep.get('slices')
+    else:
+        rep = file_runners.decode_animation(folder / item['file'], work / ('pillow-' + Path(item['file']).stem))
+        res.info['format'] = rep.get('format')
+    res.errors.extend(rep.get('errors', []))
+    res.check('load', bool(rep.get('frames')), 'the file opens with frames', f'{len(rep.get("frames") or [])} frames')
+    judge.judge_sprite(res, rep, expect.get('sprite') or {})
+    return res
+
+
 def run_web(folder: Path, item: dict, engine: str, expect: dict, work: Path, port: int, browser) -> Result:
     res = Result(engine, web_runner.loader_for(item, engine) or item['kind'], item.get('json') or item.get('xml') or item.get('fnt') or '')
-    if item['kind'] in ('nerulio-tileset-godot', 'image', 'font-file'):
+    if item['kind'] in ('nerulio-tileset-godot', 'image', 'font-file', 'godot-spriteframes-tres', 'love-quads', 'defold-atlas', 'defold-tilesource',
+                        'anim-gif', 'apng', 'aseprite-file'):
         res.na = f'{engine}: no standard loader for {item["kind"]}'
         return res
     chars = list((expect.get('font') or {}).get('chars', {}).keys())
@@ -222,6 +293,8 @@ def verify(bundle: str | Path, expect: dict | None = None, engines=ALL, out: Pat
             work.mkdir(exist_ok=True)
             try:
                 r = (run_godot(folder, item, expect, work, godot) if engine == 'godot' else run_unity(folder, item, expect, work) if engine == 'unity'
+                     else run_love(folder, item, expect, work) if engine == 'love' else run_defold(folder, item, expect, work)
+                     if engine == 'defold' else run_file(folder, item, engine, expect, work) if engine in ('pillow', 'aseprite')
                      else run_web(folder, item, engine, expect, work, port, browser))
             except Exception as e:  # a harness crash is a FAIL with the reason, never a silent pass
                 r = Result(engine, item['kind'], str(bundle)); r.errors.append(f'harness error: {type(e).__name__}: {e}')

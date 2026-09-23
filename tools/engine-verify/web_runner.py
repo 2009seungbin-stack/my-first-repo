@@ -53,6 +53,8 @@ def loader_for(item: dict, engine: str) -> str | None:
         # A user with a JSON file and a PNG reaches for the atlas loader; Nerulio's own envelopes are
         # tried the same way so the table shows what happens when they do.
         return 'atlas-json'
+    if kind == 'phaser-multiatlas':
+        return 'multiatlas' if engine.startswith('phaser') else None  # Pixi links pages with meta.related_multi_packs instead
     if kind in ('aseprite-hash', 'aseprite-array'):
         return 'aseprite' if engine.startswith('phaser') else 'atlas-json'
     if kind == 'starling-xml':
@@ -83,6 +85,17 @@ def run(folder: Path, item: dict, engine: str, work: Path, port: int, chars=None
     image = (Path(data).parent / image).as_posix() if data and image else image
     plan = {'loader': loader, 'files': {'data': f'b/{data}', 'image': f'b/{image}' if image else None, 'imageName': Path(image).name if image else None},
             'chars': chars or []}
+    if loader == 'multiatlas':
+        plan['files']['path'] = 'b/' + (Path(data).parent.as_posix() + '/' if Path(data).parent.as_posix() != '.' else '')
+    # A Phaser animations file shipped beside the atlas (anims.fromJSON). Its frames name the
+    # texture key the README tells the user to load the atlas under, so the atlas is loaded with it.
+    if item.get('anims') and engine.startswith('phaser'):
+        plan['files']['anims'] = f'b/{item["anims"]}'
+        try:
+            a = json.loads((folder / item['anims']).read_text(encoding='utf-8'))
+            plan['textureKey'] = a['anims'][0]['frames'][0]['key']
+        except Exception:
+            pass
     (site / 'plan.json').write_text(json.dumps(plan), encoding='utf-8')
     if loader is None:
         why = ' (Phaser reads XML BMFont only)' if item['kind'].startswith('bmfont') else ''

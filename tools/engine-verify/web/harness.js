@@ -36,8 +36,10 @@ function phaser(p){
   const scene={
    preload(){
     this.load.on('loaderror',f=>out.errors.push(`loader error: ${f.key} ${f.url}`));
-    const f=p.files;
-    if(p.loader==='atlas-json')this.load.atlas('a',f.image,f.data);
+    const f=p.files,K=p.textureKey||'a';
+    if(f.anims)this.load.json('__anims',f.anims);
+    if(p.loader==='atlas-json')this.load.atlas(K,f.image,f.data);
+    else if(p.loader==='multiatlas')this.load.multiatlas(K,f.data,f.path);
     else if(p.loader==='aseprite')this.load.aseprite('a',f.image,f.data);
     else if(p.loader==='atlas-xml')this.load.atlasXML('a',f.image,f.data);
     else if(p.loader==='spritesheet')this.load.spritesheet('a',f.image,p.grid);
@@ -47,12 +49,19 @@ function phaser(p){
    create(){
     try{
      if(p.loader==='bmfont')return phaserFont.call(this,p,resolve);
-     if(!this.textures.exists('a')){out.errors.push('the texture was not created');return resolve();}
-     const tex=this.textures.get('a'),names=tex.getFrameNames();
+     const K=(p.loader==='atlas-json'||p.loader==='multiatlas')?(p.textureKey||'a'):'a';
+     if(!this.textures.exists(K)){out.errors.push('the texture was not created');return resolve();}
+     const tex=this.textures.get(K),names=tex.getFrameNames();
      out.loaded=names.length>0;
      const frames=names.map(n=>tex.get(n));
      frames.forEach((fr,i)=>out.frames.push({name:names[i],region:[fr.cutX,fr.cutY,fr.cutWidth,fr.cutHeight],
       sourceSize:[fr.realWidth,fr.realHeight],trimmed:!!fr.customData?.trimmed||fr.trimmed||false,offset:[fr.x,fr.y],rotated:!!fr.rotated}));
+     if(p.files.anims){
+      const made=this.anims.fromJSON(this.cache.json.get('__anims'))||[];
+      if(!made.length)out.errors.push('anims.fromJSON created no animation');
+      for(const a of made)out.animations[a.key]={fps:a.frameRate,loop:a.repeat===-1,repeat:a.repeat,yoyo:!!a.yoyo,
+       frames:a.frames.map(f=>({name:String(f.textureFrame),durationMs:f.duration||a.msPerFrame,texture:f.textureKey}))};
+     }
      if(p.loader==='aseprite'){
       const made=this.anims.createFromAseprite('a')||[];
       for(const a of made)out.animations[a.key]={fps:a.frameRate,loop:a.repeat===-1,repeat:a.repeat,
@@ -60,7 +69,7 @@ function phaser(p){
      }
      const L=layout(frames.map(f=>[f.realWidth,f.realHeight]));
      this.scale.resize(L.width,L.height);
-     frames.forEach((fr,i)=>{const s=L.slots[i];this.add.image(s.x,s.y,'a',names[i]).setOrigin(0,0);});
+     frames.forEach((fr,i)=>{const s=L.slots[i];this.add.image(s.x,s.y,K,names[i]).setOrigin(0,0);});
      out.slots=L.slots;
      this.game.events.once('postrender',()=>{
       this.game.renderer.snapshot(img=>{out.canvas=img.src;resolve();});
@@ -107,17 +116,22 @@ async function pixi(p){
  try{sheet=await X.Assets.load({src:f.data,data:{imageFilename:f.imageName}});}
  catch(e){out.errors.push(`Assets.load(${f.data}): ${e&&e.message||e}`);return;}
  if(!sheet||!sheet.textures){out.errors.push(`Pixi did not produce a Spritesheet from ${f.data} (got ${sheet&&sheet.constructor&&sheet.constructor.name})`);return;}
- const names=Object.keys(sheet.textures);out.loaded=names.length>0;
+ // Pages linked with meta.related_multi_packs arrive as linkedSheets of the first one.
+ const all={...sheet.textures};for(const l of sheet.linkedSheets||[])Object.assign(all,l.textures);
+ const names=Object.keys(all);out.loaded=names.length>0;
  if(!names.length)out.errors.push(`Pixi parsed ${f.data} as ${sheet.constructor&&sheet.constructor.name} with 0 textures`);
- const tex=names.map(n=>sheet.textures[n]);
+ if((sheet.linkedSheets||[]).length)out.warnings.push(`${sheet.linkedSheets.length} linked page(s) loaded through meta.related_multi_packs`);
+ const tex=names.map(n=>all[n]);
  tex.forEach((t,i)=>out.frames.push({name:names[i],region:[t.frame.x,t.frame.y,t.frame.width,t.frame.height],
-  sourceSize:[t.orig.width,t.orig.height],trimmed:!!t.trim,offset:t.trim?[t.trim.x,t.trim.y]:[0,0],rotated:!!t.rotate}));
+  sourceSize:[t.orig.width,t.orig.height],trimmed:!!t.trim,offset:t.trim?[t.trim.x,t.trim.y]:[0,0],rotated:!!t.rotate,
+  anchor:t.defaultAnchor?[t.defaultAnchor.x,t.defaultAnchor.y]:null}));
  const byTex=new Map(tex.map((t,i)=>[t,names[i]]));
  for(const [name,list] of Object.entries(sheet.animations||{}))
   out.animations[name]={fps:null,loop:null,frames:list.map(t=>({name:byTex.get(t)||null,durationMs:null}))};
  if(sheet.data?.meta?.frameTags&&!Object.keys(sheet.animations||{}).length)out.warnings.push('meta.frameTags present but Pixi builds no animations from them');
  const L=layout(tex.map(t=>[t.orig.width,t.orig.height])),c=new X.Container();
- tex.forEach((t,i)=>{const s=new X.Sprite(t);s.position.set(L.slots[i].x,L.slots[i].y);c.addChild(s);});
+ // Drawn at the slot's top-left: a texture's default anchor (its pivot) is reported above, not applied.
+ tex.forEach((t,i)=>{const s=new X.Sprite(t);s.anchor.set(0,0);s.position.set(L.slots[i].x,L.slots[i].y);c.addChild(s);});
  out.slots=L.slots;
  out.canvas=app.renderer.extract.canvas({target:c,frame:new X.Rectangle(0,0,L.width,L.height)}).toDataURL('image/png');
 }

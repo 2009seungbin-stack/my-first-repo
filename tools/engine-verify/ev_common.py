@@ -103,7 +103,13 @@ def detect(folder: Path) -> list[dict]:
     aseprite-hash / aseprite-array             the same plus meta.frameTags
     starling-xml           <TextureAtlas><SubTexture .../>
     bmfont-text / bmfont-xml                   AngelCode BMFont .fnt
+    godot-spriteframes-tres  a native Godot 4 SpriteFrames .tres (+ the .tscn that uses it, if any)
+    phaser-multiatlas      Phaser multiatlas JSON ({textures:[{image, frames:[...]}]})
+    love-quads             a Lua table of quads (Studio LÖVE export: images/frames/animations)
+    defold-atlas           Defold .atlas / .tilesource text (built with bob.jar)
     image                  any PNG (texture)
+    Phaser animation files ({anims:[...]}) are not items: they are attached to the atlas item
+    in the same folder as `anims`.
     """
     found = []
     files = sorted(p for p in folder.rglob('*') if p.is_file() and '_verify' not in p.parts and '.godot' not in p.parts)
@@ -130,6 +136,10 @@ def detect(folder: Path) -> list[dict]:
                 cs = next((q for q in files if q.name == 'NerulioSpriteImporter.cs'), None)
                 found.append({'kind': 'nerulio-sprite-unity' if cs else 'nerulio-envelope', 'json': rel(p),
                               'images': meta.get('images') or [meta.get('image')], 'data': data})
+            elif isinstance(data.get('textures'), list) and data['textures'] and isinstance(data['textures'][0], dict) and 'frames' in data['textures'][0]:
+                found.append({'kind': 'phaser-multiatlas', 'json': rel(p), 'images': [t.get('image') for t in data['textures']], 'data': data})
+            elif isinstance(data.get('anims'), list):
+                continue
             elif isinstance(frames, dict) and frames and isinstance(next(iter(frames.values())), dict) and 'rect' in next(iter(frames.values())):
                 found.append({'kind': 'nerulio-envelope', 'json': rel(p), 'images': meta.get('images') or [meta.get('image')], 'data': data})
             elif isinstance(frames, (dict, list)) and frames:
@@ -159,8 +169,33 @@ def detect(folder: Path) -> list[dict]:
                 found.append({'kind': 'bmfont-text', 'fnt': rel(p)})
         elif suffix in ('.ttf', '.otf'):
             found.append({'kind': 'font-file', 'font': rel(p)})
+        elif suffix == '.gif':
+            found.append({'kind': 'anim-gif', 'file': rel(p)})
+        elif suffix == '.png' and b'acTL' in p.read_bytes()[:200]:
+            found.append({'kind': 'apng', 'file': rel(p), 'images': [rel(p)]})
+        elif suffix in ('.aseprite', '.ase'):
+            found.append({'kind': 'aseprite-file', 'file': rel(p)})
+        elif suffix == '.tres':
+            head = p.read_text(encoding='utf-8', errors='replace')
+            if head.startswith('[gd_resource type="SpriteFrames"'):
+                import re as _re
+                pages = _re.findall(r'\[ext_resource type="Texture2D" path="([^"]+)"', head)
+                scene = next((q for q in files if q.suffix == '.tscn' and q.parent == p.parent and f'path="{p.name}"' in q.read_text(encoding='utf-8', errors='replace')), None)
+                found.append({'kind': 'godot-spriteframes-tres', 'tres': rel(p), 'scene': rel(scene) if scene else None,
+                              'images': [(Path(rel(p)).parent / x).as_posix() if not x.startswith('res://') else x[6:] for x in pages]})
+        elif suffix == '.lua' and p.read_text(encoding='utf-8', errors='replace').lstrip().startswith('-- ') and 'animations = {' in p.read_text(encoding='utf-8', errors='replace') and 'frames = {' in p.read_text(encoding='utf-8', errors='replace'):
+            found.append({'kind': 'love-quads', 'lua': rel(p)})
+        elif suffix in ('.atlas', '.tilesource') and ('images {' in p.read_text(encoding='utf-8', errors='replace') or 'tile_width:' in p.read_text(encoding='utf-8', errors='replace')):
+            found.append({'kind': 'defold-' + suffix[1:], 'file': rel(p)})
     import re
     used = set()
+    # Phaser animation JSON beside an atlas: attach it (it is loaded with the atlas, not alone).
+    anims = [p for p in files if p.suffix.lower() == '.json' and isinstance(_json(p), dict) and isinstance(_json(p).get('anims'), list)]
+    for d in found:
+        if d['kind'] in ('texturepacker-hash', 'texturepacker-array', 'phaser-multiatlas', 'nerulio-envelope') and d.get('json'):
+            mine = next((a for a in anims if a.parent == (folder / d['json']).parent), None)
+            if mine:
+                d['anims'] = rel(mine)
     for d in found:
         used.update(Path(n).name for n in (d.get('images') or []) if n)
         if d.get('image'):

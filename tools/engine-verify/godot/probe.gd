@@ -40,6 +40,8 @@ func _run() -> void:
 	match String(job.get("mode", "")):
 		"spriteframes":
 			await _sprite_frames()
+		"spriteframes-tres":
+			await _sprite_frames_tres()
 		"tileset":
 			await _tileset()
 		"font":
@@ -125,6 +127,19 @@ func _sprite_frames() -> void:
 		var p := json_path.get_base_dir().path_join(page_name)
 		pages.append({"name": page_name, "import": _import_settings(p)})
 	report["pages"] = pages
+	await _report_animations(frames)
+	# The shipped scene path, drawn the way a new project draws it: the node as the helper builds
+	# it, the project's default texture filter, an integer zoom. Pixel art must stay sharp here.
+	var scale := int(job.get("scale", 4))
+	var names := frames.get_animation_names()
+	if names.size() > 0 and Builder.has_method("build_scene"):
+		var scene: Node2D = Builder.build_scene(data, frames, names[0])
+		await _report_scaled(scene, frames, names[0], scale)
+
+
+# Every animation's frames as the engine understood them (region, margin, relative duration) and
+# drawn by an AnimatedSprite2D at 1x.
+func _report_animations(frames: SpriteFrames) -> void:
 	var anims := {}
 	var sprite := AnimatedSprite2D.new()
 	sprite.centered = false
@@ -149,22 +164,69 @@ func _sprite_frames() -> void:
 	report["animations"] = anims
 	sprite.queue_free()
 	await process_frame
-	# The shipped scene path, drawn the way a new project draws it: the node as the helper builds
-	# it, the project's default texture filter, an integer zoom. Pixel art must stay sharp here.
+
+
+# One frame drawn at an integer zoom through a scene/node as shipped (its own texture_filter, the
+# project's default filter otherwise), with the node offset moved to the capture's top-left.
+func _report_scaled(scene: Node2D, frames: SpriteFrames, anim_name: String, scale: int) -> void:
+	var s: AnimatedSprite2D = scene as AnimatedSprite2D
+	if s == null:
+		s = scene.get_node_or_null("Sprite") as AnimatedSprite2D
+	if s == null:
+		var found := scene.find_children("*", "AnimatedSprite2D", true, false)
+		if not found.is_empty():
+			s = found[0] as AnimatedSprite2D
+	if s == null:
+		report["errors"].append("the shipped scene has no AnimatedSprite2D")
+		return
+	s.animation = anim_name
+	s.pause()
+	s.frame = 0
+	var tex := frames.get_frame_texture(anim_name, 0)
+	var holder := Node2D.new()
+	holder.add_child(scene)
+	holder.scale = Vector2(scale, scale)
+	var shift := s.offset + (s.position if s != scene else Vector2.ZERO)
+	holder.position = -shift * scale
+	root.add_child(holder)
+	report["scaled"] = {"animation": anim_name, "frame": 0, "scale": scale, "node_filter": s.texture_filter,
+		"png": await _capture(Vector2i(tex.get_width() * scale, tex.get_height() * scale), "scaled_%dx" % scale)}
+	holder.queue_free()
+	await process_frame
+
+
+# ---------------------------------------------------------------- SpriteFrames .tres (Studio bundle)
+# A native resource the bundle ships: Godot's own loader reads it, nothing is built here.
+
+func _sprite_frames_tres() -> void:
+	var path: String = job["tres"]
+	var frames: SpriteFrames = ResourceLoader.load(path, "SpriteFrames", ResourceLoader.CACHE_MODE_IGNORE) as SpriteFrames
+	if frames == null:
+		report["errors"].append("Godot did not load %s as a SpriteFrames resource" % path)
+		return
+	var pages := []
+	var seen := {}
+	for anim_name: String in frames.get_animation_names():
+		for i in frames.get_frame_count(anim_name):
+			var tex := frames.get_frame_texture(anim_name, i)
+			if tex is AtlasTexture and tex.atlas != null and not seen.has(tex.atlas.resource_path):
+				seen[tex.atlas.resource_path] = true
+				pages.append({"name": tex.atlas.resource_path, "import": _import_settings(tex.atlas.resource_path)})
+	report["pages"] = pages
+	report["meta_keys"] = Array(frames.get_meta_list())
+	await _report_animations(frames)
 	var scale := int(job.get("scale", 4))
 	var names := frames.get_animation_names()
-	if names.size() > 0 and Builder.has_method("build_scene"):
-		var scene: Node2D = Builder.build_scene(data, frames, names[0])
-		var s: AnimatedSprite2D = scene.get_node("Sprite")
-		s.pause()
-		s.frame = 0
-		var tex := frames.get_frame_texture(names[0], 0)
-		scene.scale = Vector2(scale, scale)
-		scene.position = -s.offset * scale
-		root.add_child(scene)
-		report["scaled"] = {"animation": names[0], "frame": 0, "scale": scale, "node_filter": s.texture_filter,
-			"png": await _capture(Vector2i(tex.get_width() * scale, tex.get_height() * scale), "scaled_%dx" % scale)}
-		scene.queue_free()
+	var scene_path: String = job.get("scene", "")
+	if names.size() > 0 and scene_path != "":
+		var packed: PackedScene = ResourceLoader.load(scene_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
+		if packed == null:
+			report["errors"].append("Godot did not load the shipped scene %s" % scene_path)
+			return
+		var scene := packed.instantiate() as Node2D
+		var s: AnimatedSprite2D = scene as AnimatedSprite2D
+		var anim_name: String = String(s.animation) if s != null and frames.has_animation(s.animation) else String(names[0])
+		await _report_scaled(scene, frames, anim_name, scale)
 
 
 # ---------------------------------------------------------------- TileSet (Tile Lab pack)

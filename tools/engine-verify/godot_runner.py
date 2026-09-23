@@ -76,6 +76,9 @@ def job_for(item: dict, expect: dict) -> dict | None:
     kind = item['kind']
     if kind == 'nerulio-sprite-godot':
         return {'mode': 'spriteframes', 'json': 'res://' + item['json'], 'scale': (expect.get('sprite') or {}).get('scale', 4)}
+    if kind == 'godot-spriteframes-tres':
+        return {'mode': 'spriteframes-tres', 'tres': 'res://' + item['tres'], 'scene': 'res://' + item['scene'] if item.get('scene') else '',
+                'scale': (expect.get('sprite') or {}).get('scale', 4)}
     if kind == 'nerulio-tileset-godot':
         return {'mode': 'tileset', 'json': 'res://' + item['json'], 'importer': 'res://' + item['importer'] if item.get('importer') else 'res://nerulio_tileset_import.gd',
                 'paint': (expect.get('tileset') or {}).get('paint', [])}
@@ -98,4 +101,11 @@ NOT_GODOT = {
     'starling-xml': ('N/A', 'Godot 4 has no built-in Starling XML importer'),
     'unity-json': ('N/A', 'Unity target'),
     'nerulio-sprite-unity': ('N/A', 'Sprite Lab Unity target'),
+    'phaser-multiatlas': ('N/A', 'Godot 4 has no built-in Phaser multiatlas importer'),
+    'love-quads': ('N/A', 'LÖVE target'),
+    'defold-atlas': ('N/A', 'Defold target'),
+    'defold-tilesource': ('N/A', 'Defold target'),
+    'anim-gif': ('N/A', 'an animated preview file'),
+    'apng': ('N/A', 'an animated preview file'),
+    'aseprite-file': ('N/A', 'Godot 4 has no built-in .aseprite importer'),
 }
