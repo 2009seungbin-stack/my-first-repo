@@ -65,7 +65,8 @@ with sync_playwright() as pw:
     requests=[];p.on('request',lambda r:requests.append(r.url))
     # ------------------------------------------------------------ shell
     p.goto(BASE+'/en/game/studio/?ws=sprite');ready(p)
-    ok('Sprite is a ready workspace and ?ws=sprite opens it (other workspaces land one by one)',js(p,'return S.workspace;')=='sprite' and p.locator('.st-ws-tab[data-ws="sprite"]').get_attribute('aria-disabled') is None)
+    ok('Sprite is a ready workspace and ?ws=sprite opens it (every tab still coming names its phase)',js(p,'return S.workspace;')=='sprite' and p.locator('.st-ws-tab[data-ws="sprite"]').get_attribute('aria-disabled') is None
+       and all(x.locator('small').inner_text().startswith('P') for x in p.locator('.st-ws-tab[aria-disabled="true"]').all()))
     ok('Sprite panels: timeline at the bottom, import/frame/animation/align on the right',all(p.locator(f'#panel-{x}').count()==1 for x in ['sp-timeline','sp-import','sp-frame','sp-tag','sp-align']))
     ok('Sprite tools in the tool bar with their keys',all(p.locator(f'.st-tool[data-tool="{x}"]').count()==1 for x in ['sp-select','sp-region','sp-pivot','sp-rect','sp-circle','sp-polygon']))
     shot(p,'01-empty-1440.png')
@@ -83,6 +84,36 @@ with sync_playwright() as pw:
     ok('the sheet view shows the plan on the canvas (60 numbered regions)',js(p,'return S.view.layers.find(l=>l.id==="sp-plan").items.length;')==60)
     ok('plan: 60 frames, 10 animations (one per row)',p.locator('[data-sp="plan-count"]').inner_text().startswith('60 frames') and '10' in p.locator('[data-sp="plan-count"]').inner_text())
     shot(p,'02-sheet-plan-1440.png')
+    # ------------------------------------------------------------ custom grid editor (preview, validation, canvas handles, undo)
+    def gv(k):return int(p.locator(f'[data-sp="grid-{k}"]').input_value())
+    def plan_n():return int(p.locator('[data-sp="plan-count"]').inner_text().split(' ')[0])
+    def wait_fit():p.wait_for_function('()=>{const f=document.querySelector("[data-sp=custom-fit]");return f&&!f.textContent.includes("…")}',timeout=15000)
+    n_err=len(errors);hc=hist(p)['n']
+    p.click('.sp-dec[data-dec="slice"] .sp-alt[data-alt="custom"]');p.wait_for_selector('[data-sp="custom-grid"]',timeout=10000);wait_fit()
+    card=p.locator('.sp-dec[data-dec="slice"]')
+    ok('Custom grid opens an editor seeded with the grid on screen (48×48, offset 0, gap 0) — no crash',[gv(k) for k in ['w','h','ox','oy','sx','sy']]==[48,48,0,0,0,0] and len(errors)==n_err and plan_n()==60,str(errors[n_err:]))
+    ok('your own grid is labelled "Your grid", not a detector confidence, and is not offered as its own alternative',
+       card.locator('.st-conf').get_attribute('data-conf')=='user' and 'Your grid' in card.locator('.st-conf').text_content() and card.locator('.sp-alt[data-alt="custom"]').count()==0 and card.locator('.sp-alt[data-alt^="grid:"]').count()>=1)
+    ok('the first cell of the grid is a handle on the canvas',js(p,'const l=S.view.layers.find(x=>x.id==="sp-custom-cell");return l.visible&&l.items.length===1&&l.items[0].w===48;'))
+    p.fill('[data-sp="grid-w"]','96');p.press('[data-sp="grid-w"]','Enter');wait_fit();p.wait_for_timeout(150)
+    ok('typing a cell width previews the new grid at once (96×48 → 30 frames) and is one undo step',plan_n()==30 and 'hold pixels' in p.locator('[data-sp="custom-fit"]').inner_text() and hist(p)['n']==hc+2 and 'Custom grid 96×48' in hist(p)['top'])
+    p.keyboard.press('Escape');p.keyboard.press('Control+z');p.wait_for_timeout(250)
+    ok('Ctrl+Z restores the previous grid (48 wide, 60 frames)',gv('w')==48 and plan_n()==60)
+    p.fill('[data-sp="grid-oy"]','479');p.press('[data-sp="grid-oy"]','Enter');wait_fit();p.wait_for_timeout(150)
+    ok('validation: a grid with no whole cell on the sheet says so and Apply stays off',p.locator('[data-sp="custom-fit"].is-bad').count()==1 and p.locator('[data-sp="import-apply"]').is_disabled())
+    p.keyboard.press('Escape');p.keyboard.press('Control+z');p.wait_for_timeout(250)
+    ok('undo brings the valid grid back and Apply on',gv('oy')==0 and not p.locator('[data-sp="import-apply"]').is_disabled())
+    a0=canvas_at(p,24,24);a1=canvas_at(p,28,26)
+    p.mouse.move(a0['x'],a0['y']);p.mouse.down();p.mouse.move(a1['x'],a1['y'],steps=6)
+    live=js(p,'const l=S.view.layers.find(x=>x.id==="sp-plan");return l.items[1]?l.items[1].x:null;')
+    p.mouse.up();wait_fit();p.wait_for_timeout(200)
+    ok('dragging the first cell moves the whole grid live and sets the offset (4, 2) as one step',live==52 and (gv('ox'),gv('oy'))==(4,2) and 'Custom grid' in hist(p)['top'],str((live,gv('ox'),gv('oy'))))
+    b0=canvas_at(p,52,50);b1=canvas_at(p,56,50)
+    p.mouse.move(b0['x'],b0['y']);p.mouse.down();p.mouse.move(b1['x'],b1['y'],steps=6);p.mouse.up();wait_fit();p.wait_for_timeout(200)
+    ok('dragging its corner handle resizes the cells',(gv('w'),gv('h'))==(52,48),str((gv('w'),gv('h'))))
+    shot(p,'08-custom-grid-1440.png')
+    p.click('.sp-dec[data-dec="slice"] .sp-alt[data-alt="grid:0"]');p.wait_for_timeout(300)
+    ok('one click goes back to the detected grid (with its own confidence again)',p.locator('.sp-dec[data-dec="slice"] .st-conf').get_attribute('data-conf') in ('high','medium') and plan_n()==60 and p.locator('[data-sp="custom-grid"]').count()==0)
     h0=hist(p)
     p.click('[data-sp="import-apply"]');p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===60')
     a=asset(p)
@@ -294,6 +325,9 @@ with sync_playwright() as pw:
     p.click('.sp-dec[data-dec="grouping"] .sp-alt[data-alt="single"]');p.wait_for_timeout(200)
     ok('one click regroups them into one animation',len(asset(p)['tags'])==1)
     p.keyboard.press('Control+z');p.wait_for_timeout(100)
+    before_n=len(js(p,'return S.doc.assets;'))
+    drop_named(p,[(NINJA[0],'idle.png'),(NINJA[1],'run.png')],before_n+2)
+    ok('unnumbered same-sized images dropped together stay separate sprites (not one animation)',len(js(p,'return S.doc.assets;'))==before_n+2)
     import_files(p,NINJA,5)
     a=asset(p)
     ok('run_0 … run_5 (real CC0 ninja frames): 6 frames, tag "run", 40×29',len(a['frames'])==6 and a['tags'][0]['name']=='run' and (a['width'],a['height'])==(40,29))
@@ -329,6 +363,25 @@ with sync_playwright() as pw:
     import_files(p,[TORCH/'Torch_Sheet.png',TORCH/'Torch_Hash.json'],8)
     a=asset(p);meta=json.loads((TORCH/'Torch_Hash.json').read_text(encoding='utf-8'))
     ok('Aseprite JSON atlas + its sheet: named frames with the file\'s durations',len(a['frames'])==len(meta['frames']) and [f['duration'] for f in a['frames']]==[v['duration'] for v in meta['frames'].values()])
+    # ------------------------------------------------------------ 1,000 differently sized sprites, one per 32 px cell (P1b's pack test sheet)
+    import random
+    from PIL import Image
+    def big_sheet(path,cols=40,rows=25,cell=32,seed=5):
+        rnd=random.Random(seed);im=Image.new('RGBA',(cols*cell,rows*cell));px=im.load()
+        for r in range(rows):
+            for c in range(cols):
+                w,h=rnd.randint(6,cell-4),rnd.randint(6,cell-4);ox,oy=rnd.randint(1,cell-w-1),rnd.randint(1,cell-h-1)
+                col=(rnd.randint(0,255),rnd.randint(0,255),rnd.randint(0,255),255)
+                for y in range(h):
+                    for x in range(w):px[c*cell+ox+x,r*cell+oy+y]=col if (x+y)%5 else (col[2],col[0],col[1],255)
+        im.save(path)
+    thousand=tmp/'thousand.png';big_sheet(thousand)
+    n_assets=len(js(p,'return S.doc.assets;'))
+    import_files(p,[thousand],n_assets+1);p.wait_for_selector('[data-sp="plan-count"]',timeout=60000)
+    ok('the 1,000-sprite sheet is read as its real 32×32 grid (one sprite per cell), not 128×64: 1000 frames',
+       '32×32' in p.locator('.sp-dec[data-dec="slice"] .sp-dec-chosen').inner_text() and plan_n()==1000,p.locator('.sp-dec[data-dec="slice"]').inner_text()[:200])
+    p.click('[data-sp="import-apply"]');p.wait_for_function('(n)=>window.nerulioStudio.doc.assets[n].frames.length===1000',arg=n_assets,timeout=30000)
+    ok('Apply cuts 1000 frames of 32×32',all(f['sourceRect']['w']==32 and f['sourceRect']['h']==32 for f in asset(p)['frames']))
     # ------------------------------------------------------------ autosave → reload → restore
     p.wait_for_function('()=>{const a=window.nerulioStudio.autosave;return !a.pending&&!a.saving&&a.lastAt>0}',timeout=15000)
     snapshot=js(p,'return JSON.parse(JSON.stringify(S.doc));');count=len(snapshot['assets'])

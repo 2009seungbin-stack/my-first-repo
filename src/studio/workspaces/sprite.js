@@ -26,6 +26,7 @@ import {jitterReport,autoFixJitter} from '../../game/jitter.js';
 import {frame as makeFrame} from '../../game/model.js';
 import {SVG} from '../sprite/icons.js';
 import {stem} from '../sprite/import-build.js';
+import {gridCellsOf} from '../sprite/import-plan.js';
 import {setFrameSelection,onFrameSelection,getFrameSelection} from '../core/frame-selection.js';
 const PREFS='nerulio.studio.sprite.v1';
 const DEFAULTS={mode:'frame',scope:'frame',boxType:'hit',onion:{on:false,before:1,after:1,opacity:.45},loopTag:true,cw:26,maxVertices:12,alphaThreshold:127,
@@ -74,16 +75,33 @@ export default {
    create:()=>regionDraw});
   let regionDraw=false;
   W.sheetTool=sheetEditor;
+  // the first cell of a custom grid: drag to move the grid (offset), handles to resize the cells;
+  // the whole grid previews live and the drop is one undo step
+  const customLayer=ctx.layer(new ShapeLayer({id:'sp-custom-cell',z:12,color:'#ffc83d',selectedColor:'#ffc83d',fill:'rgba(255,200,61,.14)'}));
+  let customDraft=null;
+  const customGridNow=()=>{const a=asset();const p=a&&importer.planFor(a.id);const d=p?.plan.decisions.find(x=>x.id==='slice');return d?.chosen==='custom'?p.plan.grid:null;};
+  const customEditor=rectEditor({layer:customLayer,bounds:()=>{const a=asset();return a?{x:0,y:0,w:a.width,h:a.height}:{x:0,y:0,w:0,h:0};},selection:()=>['cell0'],onSelect:()=>{},
+   onChange(map,{phase}){
+    if(phase==='drag'){const r=map.get('cell0');if(!r)return;customDraft=r;const g=customGridNow();if(g)previewGrid({...g,ox:r.x,oy:r.y,w:r.w,h:r.h});return;}
+    if(phase==='end'&&customDraft){const g=customGridNow(),r=customDraft;customDraft=null;if(g)W.setCustomGrid({...g,ox:r.x,oy:r.y,w:r.w,h:r.h});return;}
+    if(phase==='cancel'){customDraft=null;syncPlanLayer();}
+   },create:()=>false});
+  function previewGrid(g){
+   const a=asset();if(!a)return;
+   customLayer.setItems([{id:'cell0',x:g.ox,y:g.oy,w:g.w,h:g.h,label:1}]);customLayer.setSelected(['cell0']);
+   planLayer.visible=true;planLayer.setItems(gridCellsOf(g,a.width,a.height).slice(0,20000).map((r,i)=>({id:'p'+i,x:r.x,y:r.y,w:r.w,h:r.h,label:i+1})));
+  }
   // ------------------------------------------------------------ tools
   const tools=createTools(W);
+  let sheetActive=sheetEditor;
   const sheetOr=(impl,draw)=>({...impl,
-   down(i){if(prefs.mode==='sheet'){regionDraw=draw;return sheetEditor.down(i);}return impl.down(i);},
-   move(i){if(prefs.mode==='sheet')return sheetEditor.move(i);return impl.move?.(i);},
-   up(i){if(prefs.mode==='sheet')return sheetEditor.up(i);return impl.up?.(i);},
-   cancel(i){if(prefs.mode==='sheet')return sheetEditor.cancel(i);return impl.cancel?.(i);},
-   hover(i){if(prefs.mode==='sheet')return sheetEditor.hover(i);return impl.hover?.(i);},
-   cursor(i){if(prefs.mode==='sheet')return sheetEditor.cursor(i);return impl.cursor?.(i);},
-   get active(){return prefs.mode==='sheet'?sheetEditor.active:impl.active;}});
+   down(i){if(prefs.mode==='sheet'){regionDraw=draw;const hit=customLayer.visible&&!draw?i.view.hitTest(i):null;sheetActive=hit?.layer===customLayer?customEditor:sheetEditor;return sheetActive.down(i);}return impl.down(i);},
+   move(i){if(prefs.mode==='sheet')return sheetActive.move(i);return impl.move?.(i);},
+   up(i){if(prefs.mode==='sheet')return sheetActive.up(i);return impl.up?.(i);},
+   cancel(i){if(prefs.mode==='sheet')return sheetActive.cancel(i);return impl.cancel?.(i);},
+   hover(i){if(prefs.mode==='sheet'){customEditor.hover(i);return sheetEditor.hover(i);}return impl.hover?.(i);},
+   cursor(i){if(prefs.mode==='sheet'){const c=customEditor.cursor(i);return sheetActive===customEditor&&sheetActive.active||c!=='default'?c:sheetEditor.cursor(i);}return impl.cursor?.(i);},
+   get active(){return prefs.mode==='sheet'?sheetActive.active:impl.active;}});
   ctx.tool({id:'sp-select',title:'sp.tool.select',icon:'spSelect',key:'V',order:10,hint:'sp.tool.selectHint',impl:sheetOr(tools.select,false)});
   ctx.tool({id:'sp-region',title:'sp.tool.region',icon:'spRegion',key:'M',order:15,hint:'sp.tool.regionHint',impl:{...sheetOr({down(){W.hint('sp.hint.sheetView');return false;},cursor:()=>'not-allowed'},true)}});
   ctx.tool({id:'sp-pivot',title:'sp.tool.pivot',icon:'spPivot',key:'P',order:20,hint:'sp.tool.pivotHint',impl:tools.pivot});
@@ -244,6 +262,8 @@ export default {
    planLayer.setItems(p&&sheet?p.plan.rects.map((r,i)=>({id:'p'+i,x:r.x,y:r.y,w:r.w,h:r.h,label:i+1})):[]);
    const slice=p?.plan.decisions.find(d=>d.id==='slice')?.chosen;
    islandLayer.setItems(p&&sheet&&slice==='auto'?(p.analysis.auto?.unassignedRects||[]).map((r,i)=>({id:'u'+i,x:r.x-1,y:r.y-1,w:r.w+2,h:r.h+2})):[]);
+   const g=sheet&&!customDraft?customGridNow():null;
+   customLayer.visible=!!g;customLayer.setItems(g?[{id:'cell0',x:g.ox,y:g.oy,w:g.w,h:g.h,label:1}]:[]);customLayer.setSelected(g?['cell0']:[]);
   }
   // ------------------------------------------------------------ playback
   function play(){
