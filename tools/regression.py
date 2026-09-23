@@ -29,6 +29,7 @@ try:
             except OSError:time.sleep(.1)
         else:raise RuntimeError(f'Server {port} did not start')
     for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
+    run('guides-browser',[sys.executable,'tests/guides-browser.py'])
 finally:
     for server in servers:
         server.terminate()

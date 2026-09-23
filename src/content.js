@@ -130,7 +130,7 @@ export function formats(id,locale){
  const note={en:'Input decoding and output encoding depend on browser support.',ko:'입력·출력 지원은 브라우저에 따라 다릅니다.',ja:'読み込み・書き出しはブラウザの対応状況によります。'}[locale];
  return values+' — '+note+(id!=='home'&&(editor==='image'||editor==='pixel')?' '+{en:'Animated inputs are rejected; select a still frame first.',ko:'움직이는 입력은 거부합니다. 먼저 정지 프레임을 선택하세요.',ja:'アニメーション入力は非対応です。静止フレームを選択してください。'}[locale]:'');
 }
-export function footer(locale){const l=labels[locale];return `<footer class="site-footer"><nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
+export function footer(locale){const l=labels[locale];return `<footer class="site-footer"><nav aria-label="${esc(l.about)}"><a href="${locale}/guides/" data-guides-link>${esc({ko:'게임 개발 가이드',en:'Game dev guides',ja:'ゲーム開発ガイド'}[locale])}</a>${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
 const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作業'};
 /** Task-specific copy for a landing page, then links to sibling tasks of the same tool. */
 function landingHTML(id,locale,path){
