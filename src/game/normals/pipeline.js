@@ -87,6 +87,23 @@ export function normalMap(height,w,h,params,{regions=null,mask=null,rect=null,in
  }
  return out;
 }
+/** Recomputes the normals of `rect` only (a brush dab), inside the region that contains it. The
+ * patch is computed on the rect grown by the kernel's reach, so every pixel written equals what a
+ * full recompute gives, except within that reach of a region border in 'tile'/'mirror' mode
+ * (where the final recompute after the stroke fixes it). Writes into `into` (RGBA bytes). */
+export function normalPatch(height,w,h,params,{region,rect,mask=null,into}){
+ const P=normalizeParams(params),pad=3;
+ const x0=Math.max(region.x,rect.x-pad),y0=Math.max(region.y,rect.y-pad),x1=Math.min(region.x+region.w,rect.x+rect.w+pad),y1=Math.min(region.y+region.h,rect.y+rect.h+pad);
+ if(x1<=x0||y1<=y0)return null;
+ const big={x:x0,y:y0,w:x1-x0,h:y1-y0},hr=cropPlane(height,w,big),m=mask?cropPlane(mask,w,big):null;
+ // outside the patch, but inside the region, the true neighbours are used: clamp only at the region border
+ let n=normalsFromHeight(hr,big.w,big.h,{strength:P.normal.strength,kernel:P.normal.kernel,edge:'clamp',convention:P.normal.convention});
+ if(P.pixel.on)n=quantizeNormals(n,big.w*big.h,{directions:P.pixel.directions,tiers:P.pixel.tiers});
+ const bytes=encodeNormals(n,big.w,big.h,{mask:m});
+ const ix0=Math.max(region.x,rect.x),iy0=Math.max(region.y,rect.y),ix1=Math.min(region.x+region.w,rect.x+rect.w),iy1=Math.min(region.y+region.h,rect.y+rect.h);
+ for(let y=iy0;y<iy1;y++)for(let x=ix0;x<ix1;x++){const s=((y-y0)*big.w+(x-x0))*4,d=(y*w+x)*4;if(m&&!m[(y-y0)*big.w+(x-x0)])continue;into[d]=bytes[s];into[d+1]=bytes[s+1];into[d+2]=bytes[s+2];into[d+3]=255;}
+ return {x:ix0,y:iy0,w:ix1-ix0,h:iy1-iy0};
+}
 /** Occlusion (bytes), region by region, with the same edge mode as the normals. */
 export function occlusionMap(height,w,h,params,{regions=null,mask=null}={}){
  const P=normalizeParams(params),out=new Uint8Array(w*h);
