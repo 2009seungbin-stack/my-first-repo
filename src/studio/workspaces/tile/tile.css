@@ -73,3 +73,4 @@
 .tl-cand .st-sug-meta{white-space:normal;overflow:visible;text-overflow:clip;font-size:11px;color:var(--text-2)}
 .studio[data-mode="compact"] .st-sheet .st-tab{white-space:nowrap}
 .tl-part{font-size:11px;color:var(--warn)}
+.tl-verdict.is-info{background:rgba(127,211,255,.10);color:var(--info)}

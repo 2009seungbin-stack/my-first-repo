@@ -80,3 +80,15 @@ export function randomCells(map,seed,terrains=1,density=.55){
  for(let y=0;y<map.h;y++)for(let x=0;x<map.w;x++){const count=new Map();let empty=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=x+dx,ny=y+dy;const v=nx<0||ny<0||nx>=map.w||ny>=map.h?-1:cur[ny*map.w+nx];if(v<0)empty++;else count.set(v,(count.get(v)||0)+1);}let best=-1,bn=empty;for(const [v,n] of count)if(n>bn){best=v;bn=n;}next[y*map.w+x]=bn>=4?best:cur[y*map.w+x];}
  return [...next].map(cellChar).join('');
 }
+/** A readable starter shape for a new test map: an island with a lake, a two-wide peninsula and a
+ * small islet — outer and inner corners, straight edges and a strip show at once. '#' = terrain. */
+export function islandCells(w,h){
+ const cx=w*.4,cy=h/2-.5,rx=Math.max(2.5,w*.28),ry=Math.max(2.5,h*.36),out=[];
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const e=((x-cx)/rx)**2+((y-cy)/ry)**2,lake=((x-cx+.5)/(rx*.34))**2+((y-cy)/(ry*.3))**2;
+  const pen=y>=Math.floor(cy)&&y<=Math.floor(cy)+1&&x>=cx+rx-1&&x<Math.min(w-1,cx+rx+Math.max(3,w*.18));
+  const islet=x>=w-4&&x<w-2&&y>=1&&y<3;
+  out.push((e<=1&&lake>1)||pen||islet?'#':'.');
+ }
+ return out.join('');
+}

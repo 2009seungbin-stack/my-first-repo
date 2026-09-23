@@ -24,7 +24,7 @@ autosaves and is saved in `.nerulio` files without a change to the project forma
 
 Tests: `tests/tiles.test.mjs` (16, engines incl. real CC0 art and recorded Godot picks),
 `tests/studio-tile.test.mjs` (4, strings parity, map state, resolver), `tests/studio-tile-browser.py`
-(43 checks in Chromium on real CC0 sheets; part of `tools/regression.py`). Fixtures:
+(45 checks in Chromium on real CC0 sheets; part of `tools/regression.py`). Fixtures:
 `tests/fixtures/tile/` (CC0, see `SOURCES.md`).
 
 ## The workflow in the UI
@@ -48,8 +48,8 @@ Tests: `tests/tiles.test.mjs` (16, engines incl. real CC0 art and recorded Godot
 4. **Check panel** — per terrain: combinations present / expected, the missing ones drawn as ghost
    tiles, duplicates (clickable), corner bits behind open sides, and the art-vs-bits check. The
    verdict is **Complete** only when every combination has one tile, nothing is invalid, and the art
-   check was *measured* and found no contradiction. "Not measured" is said as such, never as ✓.
-5. **Test map (M)** — maps with layers (each with its tileset), brush (P) with sizes, eraser (E),
+   check was *measured* and found no contradiction. "Not measured" is said as such, never as ✓. The headline always names the first open item (missing combinations, invalid bits, duplicates, art contradictions, or "could not measure"); for a generated set it says the art check does not apply because its pixels come byte-exact from the source.
+5. **Test map (M)** — a new map starts with a painted island (lake, peninsula, islet) so the autotiling shows at once; maps with layers (each with its tileset), brush (P) with sizes, eraser (E),
    fill (G), pick (I), random fill the set can draw, clear, resize. The map is drawn with the
    **Godot rule** (one `set_cells_terrain_connect` per terrain, row-major — the port that equals
    Godot 4.7.2 cell for cell) or the **Tiled rule** (exact Wang match; corner sets on grid points,

@@ -563,7 +563,22 @@ export default {
    else if(a.mismatches.length)artEl=h('div',{'data-check':'art-bad'},h('p.tl-state.is-bad',{},t('tile.check.artBad',{n:a.mismatches.length})),h('div.tl-links',{},a.mismatches.slice(0,30).map(m=>{const b=h('button.st-link',{type:'button'},`${m.col},${m.row}: `+m.positions.map(p=>POS[p.pos].toUpperCase()+(p.expected==='connected'?'✗':'○')).join(' '));b.addEventListener('click',()=>setSelection([key(m.col,m.row)]));return b;})));
    else artEl=h('p.tl-state.is-ok',{'data-check':'art-ok'},t('tile.check.artOk',{auc:((a.side?.auc??0)*100).toFixed(0)}));
    const complete=n&&c.complete&&!c.duplicates.length&&!c.invalid.length&&a?.status==='done'&&a.measurable&&!a.mismatches.length;
-   const verdict=h('p.tl-verdict'+(complete?'.is-ok':'.is-open'),{'data-verdict':complete?'complete':'open'},complete?t('tile.check.verdictOk'):t('tile.check.verdictOpen'));
+   // The headline always names what is still open (the first blocking item), never a bare "not complete".
+   const miss=c.perTerrain.reduce((s,x)=>s+(x.used?x.missing.length:0),0);
+   const link=S().links?.[assetId],srcAsset=link&&P.assetById(ctx.doc,link.sourceAssetId);
+   const generatedExact=!!link&&!!srcAsset&&P.primaryBlob(srcAsset)===link.sourceBlob;
+   let state='open',headline;
+   if(complete){state='complete';headline=t('tile.check.verdictOk');}
+   else if(!n){headline=t('tile.check.why.empty');}
+   else if(miss)headline=t('tile.check.why.missing',{n:miss});
+   else if(c.invalid.length)headline=t('tile.check.why.invalid',{n:c.invalid.length});
+   else if(c.duplicates.length)headline=t('tile.check.why.dupes',{n:c.duplicates.length});
+   else if(!a||a.status==='running'){state='checking';headline=t('tile.check.why.running');}
+   else if(a.status==='done'&&a.mismatches.length)headline=t('tile.check.why.art',{n:a.mismatches.length});
+   else if(a.status==='done'&&!a.measurable&&generatedExact){state='generated';headline=t('tile.check.why.generated',{name:srcAsset.name});}
+   else if(a.status==='done'&&!a.measurable){state='unmeasured';headline=t('tile.check.why.unmeasured');}
+   else headline=t('tile.check.verdictOpen');
+   const verdict=h('p.tl-verdict'+(state==='complete'?'.is-ok':state==='generated'?'.is-info':'.is-open'),{'data-verdict':state},headline);
    put(box,h('div.tl-check',{},verdict,...items,artEl?h('div.tl-check-block',{},h('div.tl-check-head',{},h('b',{},t('tile.check.art'))),artEl):null));
   }
   function ghost(p,ts){
@@ -578,14 +593,22 @@ export default {
    const r=resolveLayer(m,L,ts,m.rule),miss=r.problems.filter(p=>p.kind!=='wrong'),wrong=r.problems.filter(p=>p.kind==='wrong');
    const ok=r.painted>0&&!r.problems.length;
    put(box,h('div.tl-check',{},
-    h('p.tl-verdict'+(ok?'.is-ok':'.is-open'),{'data-verdict':ok?'map-ok':'map-open','data-wrong':String(wrong.length),'data-missing':String(miss.length)},!r.painted?t('tile.map.paintFirst'):ok?t('tile.map.ok',{n:r.painted,rule:t('tile.rule.'+m.rule)}):t('tile.map.bad',{w:wrong.length,m:miss.length,rule:t('tile.rule.'+m.rule)})),
+    h('p.tl-verdict'+(ok?'.is-ok':'.is-open'),{'data-verdict':ok?'map-ok':'map-open','data-wrong':String(wrong.length),'data-missing':String(miss.length)},!r.painted?t('tile.map.paintFirst'):ok?t('tile.map.ok',{n:r.painted,rule:t('tile.rule.'+m.rule)}):t(wrong.length&&miss.length?'tile.map.bad':wrong.length?'tile.map.badWrong':'tile.map.badEmpty',{w:wrong.length,m:miss.length,rule:t('tile.rule.'+m.rule)})),
     h('p.st-muted.tl-small',{},t('tile.map.ruleHelp.'+m.rule)),
     h('div.tl-links',{},r.problems.slice(0,40).map(p=>{const b=h('button.st-link',{type:'button'},`${p.x},${p.y} ${t('tile.problem.'+p.kind)}${p.want?' → '+describe(p.want):''}`);b.addEventListener('click',()=>{view.reveal({x:p.x*ts.grid.w,y:p.y*ts.grid.h,w:ts.grid.w,h:ts.grid.h});hoverCell={x:p.x,y:p.y};mapLayer.view?.invalidate();statusCell(hoverCell);});return b;}))));
   }
   /** A random test map the set can actually draw: blobs of one terrain on empty ground; for a set
    * whose tiles never border "nothing" (a multi-terrain dual grid), blobs of a terrain over the
    * terrain it has transition tiles with (a 4-way random mix would ask for junctions no set has). */
-  function randomFor(m,ts){
+  /** The starter island in terrain(s) this set can draw (same choice as randomFor). */
+  function starterFor(m,ts){
+   const shape=St.islandCells(m.w,m.h);
+   if(!ts)return shape.replace(/#/g,'a');
+   const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
+   if(bordersEmpty||!Object.keys(ts.tiles).length)return shape.replace(/#/g,St.cellChar(Math.min(terrain,ts.terrains.length-1)));
+   const two=randomFor({...m,w:1,h:1},ts,true);return shape.replace(/#/g,two[0]).replace(/\./g,two[1]);
+  }
+  function randomFor(m,ts,pair=false){
    const seed=(Date.now()%100000)+1;
    if(!ts)return St.randomCells(m,seed,1,.55);
    const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
@@ -594,11 +617,12 @@ export default {
    for(const v of Object.values(ts.tiles)){const s=[...new Set([v.pattern[0],...MODE_IDX[ts.mode].map(i=>v.pattern[i+1])].filter(x=>x>=0))];if(s.length!==2)continue;for(const [p,q] of [[s[0],s[1]],[s[1],s[0]]]){if(!partners.has(p))partners.set(p,new Set());partners.get(p).add(q);}}
    const base=[...partners.keys()].sort((p,q)=>partners.get(q).size-partners.get(p).size)[0]??0;
    const other=partners.get(base)?.has(terrain)?terrain:[...(partners.get(base)||[base])][0];
+   if(pair)return [St.cellChar(other),St.cellChar(base)];
    return St.randomCells(m,seed,1,.5).replace(/\./g,'#').replace(/a/g,St.cellChar(other)).replace(/#/g,St.cellChar(base));
   }  // ---- Map panel
   function renderMapPanel(){
    const box=panels['tile-map'],s=S(),maps=Object.values(s.maps||{}),m=activeMap(),sets=St.tilesetsOf(s);
-   const create=btn(t('tile.map.new'),()=>{const ts=tileset()||sets[0];const map=St.createMap({name:t('tile.map.defaultName',{n:maps.length+1}),tilesetId:ts?.id||null,rule:ts?.mode==='corners'?'tiled':'godot'});edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');},{primary:!m,action:'tile-new-map',disabled:!sets.length});
+   const create=btn(t('tile.map.new'),()=>{const ts=tileset()||sets[0];const map0=St.createMap({name:t('tile.map.defaultName',{n:maps.length+1}),tilesetId:ts?.id||null,rule:ts?.mode==='corners'?'tiled':'godot'});const map={...map0,layers:[{...map0.layers[0],cells:starterFor(map0,ts)}]};edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');},{primary:!m,action:'tile-new-map',disabled:!sets.length});
    if(!m){put(box,sec(t('tile.map.title'),h('p.st-muted',{},sets.length?t('tile.map.intro'):t('tile.map.needSet')),h('div.st-row',{},create)));return;}
    const pickMap=h('select.st-input',{'aria-label':t('tile.map.title'),'data-tile':'map'},maps.map(x=>h('option',{value:x.id,selected:x.id===m.id},x.name)));
    pickMap.addEventListener('change',()=>{edit(t('tile.cmd.pickMap'),x=>({...x,activeMap:pickMap.value}));layerSel=null;renderMap(true);});
@@ -805,7 +829,7 @@ export default {
   ctx.command({id:'tile.rotate',group:'tile',keys:['R'],label:()=>t('tile.tile.rotate'),enabled:()=>mode==='tileset'&&selection.length>0,run:()=>setSel(q=>q&&rotate(q))});
   ctx.command({id:'tile.terrainNext',group:'tile',keys:[']'],label:()=>t('tile.terrain.next'),run:()=>setTerrain(terrain+1)});
   ctx.command({id:'tile.terrainPrev',group:'tile',keys:['['],label:()=>t('tile.terrain.prev'),run:()=>setTerrain(terrain-1)});
-  ctx.command({id:'tile.newMap',group:'tile',label:()=>t('tile.map.new'),enabled:()=>St.tilesetsOf(S()).length>0,run:()=>{const ts=tileset()||St.tilesetsOf(S())[0];edit(t('tile.cmd.newMap'),x=>St.putMap(x,St.createMap({name:t('tile.map.defaultName',{n:Object.keys(x.maps||{}).length+1}),tilesetId:ts?.id})));layerSel=null;setMode('map');}});
+  ctx.command({id:'tile.newMap',group:'tile',label:()=>t('tile.map.new'),enabled:()=>St.tilesetsOf(S()).length>0,run:()=>{const ts=tileset()||St.tilesetsOf(S())[0];const m0=St.createMap({name:t('tile.map.defaultName',{n:Object.keys(S().maps||{}).length+1}),tilesetId:ts?.id,rule:ts?.mode==='corners'?'tiled':'godot'});const map={...m0,layers:[{...m0.layers[0],cells:starterFor(m0,ts)}]};edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');}});
   ctx.command({id:'tile.brushBigger',group:'tile',keys:['Shift+]'],label:()=>t('tile.map.bigger'),run:()=>{brushSize=Math.min(9,brushSize+1);renderMapPanel();}});
   ctx.command({id:'tile.brushSmaller',group:'tile',keys:['Shift+['],label:()=>t('tile.map.smaller'),run:()=>{brushSize=Math.max(1,brushSize-1);renderMapPanel();}});
   ctx.menu({id:'tile',title:'tile.menu',items:()=>['tile.view','-','tile.identify','tile.suggest','tile.apply','-','tile.copy','tile.paste','tile.rotate','tile.terrainPrev','tile.terrainNext','-','tile.newMap','tile.brushSmaller','tile.brushBigger','-','tile.export','-','tool.tile-select','tool.tile-bits','tool.tile-brush','tool.tile-eraser','tool.tile-bucket','tool.tile-picker']});
