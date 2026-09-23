@@ -12,7 +12,7 @@ import {decodeAPNG} from './apng-decode.js';
 import {readAseprite} from '../../game/aseprite.js';
 import {asepriteContent} from './aseprite-bridge.js';
 import {opaqueBounds,cropRGBA} from './frame-image.js';
-import {rerankGrids} from './grid-rerank.js';
+import {rerankGrids,islandGridSuggestion} from './grid-rerank.js';
 let cache={key:'',img:null};
 const EVIDENCE=['separatorLinesX','separatorLinesY','separatorRatioX','separatorRatioY','periodicityX','periodicityY','boundsConsistency','crossingsX','crossingsY','splitColumns','splitRows','commonSize','outsidePixels','filledCells'];
 const pickEvidence=e=>Object.fromEntries(EVIDENCE.filter(k=>k in e).map(k=>[k,e[k]]));
@@ -48,16 +48,25 @@ async function analyze({key,blob,keyMode='auto',keyColor=null,tolerance=0,signal
   if(use){img=applyColorKey(orig,info.color,{tolerance:info.tolerance});keyed=await toPNG(img);}
   if(info)info={mode:keyMode,evidence:info.evidence?{borderShare:info.evidence.borderShare,sheetShare:info.evidence.sheetShare,fullLines:info.evidence.fullLines,alphaSheet:info.evidence.alphaSheet,conventional:info.evidence.conventional}:null,color:info.color,hex:hex(info.color),tolerance:info.tolerance,confidence:info.confidence,score:info.score,reasons:info.reasons,applied:!!use};
  }
- const grid=detectGridWithColour(img,{limit:5});
- const grids=rerankGrids(grid.suggestions,{width:img.width,height:img.height}).map(s=>({engineRank:s.engineRank,fitted:!!s.fitted,cellWidth:s.cellWidth,cellHeight:s.cellHeight,marginX:s.marginX,marginY:s.marginY,spacingX:s.spacingX,spacingY:s.spacingY,columns:s.columns,rows:s.rows,cells:s.cells,score:s.score,confidence:s.confidence,source:s.source||'alpha',
-  reasons:s.reasons||[],filled:s.evidence?.filledCells,evidence:s.evidence&&!s.source?.startsWith?.('colour')?pickEvidence(s.evidence):null,reranked:s.reasons?.[0]?.startsWith('ranked above')||!!s.fitted}));
- const cells={};grids.forEach((g,i)=>{const o=occupancy(img,g);if(o)cells[i]=o;});
  let auto=null;
  try{
   const found=detectFrames(img,{minArea:Math.min(16,img.width*img.height),distance:'auto'});
   auto={rects:found.rects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,row:r.row})),reason:found.auto?.reason||'',reasonCode:found.auto?.reasonCode||'',consistency:found.auto?.consistency??null,distance:found.distance,
    attached:found.attached.length,unassigned:found.unassigned.length,unassignedRects:found.unassigned.slice(0,2000).map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}))};
  }catch(e){auto={rects:[],reason:String(e.message||e),reasonCode:'error',attached:0,unassigned:0,unassignedRects:[]};}
+ const grid=detectGridWithColour(img,{limit:5});
+ let suggestions=grid.suggestions;
+ // The grid the separate sprites imply (one sprite per cell) is always offered, measured by the
+ // same detector; a sheet of differently sized sprites has little periodicity for it to read.
+ const ig=islandGridSuggestion(img,auto.rects);
+ if(ig){
+  const same=suggestions.findIndex(s=>s.cellWidth===ig.cellWidth&&s.cellHeight===ig.cellHeight&&!s.marginX&&!s.marginY&&!s.spacingX&&!s.spacingY);
+  if(same<0)suggestions=[...suggestions,ig];
+  else suggestions=suggestions.map((s,i)=>i===same?{...s,islandGrid:true,reasons:[ig.reasons[0],...(s.reasons||[])]}:s);
+ }
+ const grids=rerankGrids(suggestions,{width:img.width,height:img.height}).map(s=>({engineRank:s.engineRank,fitted:!!s.fitted,cellWidth:s.cellWidth,cellHeight:s.cellHeight,marginX:s.marginX,marginY:s.marginY,spacingX:s.spacingX,spacingY:s.spacingY,columns:s.columns,rows:s.rows,cells:s.cells,score:s.score,confidence:s.confidence,source:s.source||'alpha',
+  reasons:s.reasons||[],filled:s.evidence?.filledCells,evidence:s.evidence&&!s.source?.startsWith?.('colour')?pickEvidence(s.evidence):null,reranked:s.reasons?.[0]?.startsWith('ranked above')||!!s.fitted}));
+ const cells={};grids.forEach((g,i)=>{const o=occupancy(img,g);if(o)cells[i]=o;});
  const hint=grid.suggestions[0]&&auto.rects.length?autoVersusGrid(auto.rects,grid.suggestions[0]):null;
  return {width:img.width,height:img.height,key:info,keyed,grids,cells,auto,hint:hint?{recommend:hint.recommend,spanning:hint.spanning}:null,ms:performance.now()-t0};
 }
