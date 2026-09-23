@@ -16,10 +16,15 @@ import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigat
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
+// Editorial guides (src/guides.js): own routes and pages, see tools/guides-build.mjs.
+import {GUIDE_ROUTES} from '../src/guides.js';
+import {guideEntry} from './guides-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
 export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH].map(r=>`${l}/${r}`)])];
+// Guides: language-neutral URL (English copy, canonical /en/…) plus every language, like tool pages.
+ALL_ROUTES.push(...GUIDE_ROUTES,...LOCALES.flatMap(l=>GUIDE_ROUTES.map(r=>`${l}/${r}`)));
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
@@ -29,6 +34,7 @@ export function entry(html,route='',siteURL='',config={}){
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
  if(parts.path===STUDIO_PATH)return studioPage({locale,base});
+ const guide=guideEntry(parts.path,locale,{base,siteURL,config,neutral:!parts.locale,extraHead:verificationHead(config)});if(guide)return guide;
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
  const land=landingText(parts.path,locale),landing=land?parts.path:'';
  const title=(land?.title||t(`intent.${id}.title`,{},locale))+' · '+BRAND.name,description=land?.description||t(`intent.${id}.description`,{},locale);
