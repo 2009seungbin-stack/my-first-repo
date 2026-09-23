@@ -90,7 +90,7 @@ with sync_playwright() as pw:
     a=asset(p)
     ok('one-click alternative "One animation" re-applies as one step',len(a['tags'])==1 and len(a['tags'][0]['frameIds'])==60)
     p.keyboard.press('Control+z');p.wait_for_timeout(150)
-    ok('undo brings the per-row tags back',len(asset(p)['tags'])==10)
+    ok('undo brings the per-row tags back, and the Import panel says so (no stale choice)',len(asset(p)['tags'])==10 and 'per row' in p.locator('.sp-dec[data-dec="animations"] .sp-dec-chosen').inner_text())
     shot(p,'03-sheet-applied-1440.png')
     # ------------------------------------------------------------ timeline selection
     fh(p,2).click();fh(p,7).click(modifiers=['Shift'])

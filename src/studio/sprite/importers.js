@@ -157,7 +157,11 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
  }
  /** The plan for the current choice (for the preview), or null while analysing. */
  function planFor(assetId){
-  const s=sheets.get(assetId),r=s?.analyses[s.choice.keyMode||'auto'];if(!r)return null;
+  const s=sheets.get(assetId);if(!s)return null;
+  // once applied, the document is the truth (undo/redo can change which choice is applied)
+  const a=P.assetById(ctx.doc,assetId);
+  if(a?.import?.applied&&a.import.choice&&s.synced!==a.import){s.synced=a.import;s.choice={...a.import.choice};}
+  const r=s.analyses[s.choice.keyMode||'auto'];if(!r)return null;
   return {analysis:r,plan:sheetPlan(r,s.choice)};
  }
  /** Cuts the frames the plan shows: one undo step. */
@@ -168,6 +172,7 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   const cels=a.cels.map(c=>c.frameId===P.SHARED&&c.layerId===a.layers[0].id?{...c,blob:shared}:c).filter(c=>c.frameId===P.SHARED);
   const importInfo={kind:'sheet',decisions:plan.decisions,choice:{...s.choice},...(r.keyedId?{sourceBlob:s.origId}:{}),applied:true};
   ctx.execute(ctx.edit(t('sp.cmd.cutFrames',{n:frames.length,tags:tags.length}),d=>D.replaceContent(d,assetId,{frames,cels,tags,grid:plan.grid,importInfo})));
+  s.synced=P.assetById(ctx.doc,assetId)?.import;
   onChange(assetId);return true;
  }
  /** One-click alternative for a decision of the active asset. */
