@@ -9,7 +9,7 @@ done, and what to do next, in priority order.
 * **Worktree** `C:\Users\2009s\Desktop\SITE\.claude\worktrees\agent-a8be6c03441cb4b55`
 * **Port** 4521: `PORT=4521 node tools/serve.mjs`, then open
   `http://127.0.0.1:4521/en/game/studio/?ws=ui`. Use `&uimode=font|states|atlas|nine` to open a mode.
-* **Helper reports** from the stopped sub-agents, if they finished writing them:
+* **Helper reports** from the stopped sub-agents (read these next):
   `docs/handoff-ui-engines.md` (engine verification) and `docs/handoff-ui-h2h.md` (competitors).
 * **Scratch** (not in git): `C:\Users\2009s\AppData\Local\Temp\claude\C--Users-2009s-Desktop-SITE\6366d22b-5639-4c5c-b872-1c20b9b6adcd\scratchpad\p5\studio-ui\`.
   It holds screenshots (`shots/`), competitor outputs (`h2h/`), engine runs (`engines/`) and msdf
