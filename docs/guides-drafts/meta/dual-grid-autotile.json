@@ -1,0 +1,19 @@
+{
+  "slug": "dual-grid-autotile",
+  "section": "tiles",
+  "engines": ["godot", "tiled"],
+  "tools": ["autotile-tester", "tile-lab"],
+  "open": {"ws": "tile"},
+  "related": ["godot-4-terrain-autotile-47-blob", "tiled-wang-sets-terrain", "rpg-maker-a2-autotile-to-godot"],
+  "tested": ["Godot 4.7.2"],
+  "title": {
+    "en": "Dual-Grid Tilemaps: 16 Tiles Instead of 47 (Godot 4 Guide)",
+    "ko": "듀얼 그리드 타일맵: 47장 대신 16장 (Godot 4)",
+    "ja": "デュアルグリッドのタイルマップ:47枚ではなく16枚(Godot 4)"
+  },
+  "description": {
+    "en": "How dual-grid autotiling works, why it needs 16 corner tiles instead of 47, and a tested Godot 4 setup with two TileMapLayers and a half-tile offset.",
+    "ko": "듀얼 그리드 오토타일의 원리, 47장 대신 모서리 타일 16장이면 되는 이유, TileMapLayer 두 개와 반 타일 오프셋으로 Godot 4에서 구현하는 방법을 설명합니다.",
+    "ja": "デュアルグリッドのオートタイルのしくみ、47枚ではなく角タイル16枚で済む理由、TileMapLayer2枚と半タイルのずらしでGodot 4に実装する手順を解説します。"
+  }
+}

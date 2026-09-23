@@ -1,0 +1,19 @@
+{
+  "slug": "unity-pixel-art-blurry-pixel-perfect",
+  "section": "pixel-art",
+  "engines": ["unity"],
+  "tools": ["pixel-perfect-checker", "pixel-lab", "pixel-art-cleanup"],
+  "open": {"tool": "pixel-perfect-checker"},
+  "related": ["godot-4-pixel-art-blurry-jitter", "pixel-art-crisp-in-browser-phaser-pixi", "unity-6-slice-sprite-sheet-animation", "tile-seams-texture-bleeding-padding-extrude"],
+  "tested": ["Unity 6000.5.3f1"],
+  "title": {
+    "en": "Unity Pixel Art Blurry? Import Settings and Pixel Perfect Camera",
+    "ko": "유니티 도트 흐림 해결: 임포트 설정과 Pixel Perfect Camera",
+    "ja": "Unity ドット絵がぼやける原因と Pixel Perfect Camera"
+  },
+  "description": {
+    "en": "Fix blurry pixel art in Unity 6: Point filter, no compression, Max Size, mip maps, one Pixels Per Unit, Pixel Perfect Camera, presets and Sprite Atlas settings.",
+    "ko": "Unity 6에서 도트가 흐릿하게 보이는 원인과 해결법. Point 필터, 압축 없음, Max Size, 밉맵, PPU, Pixel Perfect Camera, 프리셋까지 실제 렌더로 확인합니다.",
+    "ja": "Unity 6 でドット絵がぼやける原因と直し方。Point フィルター、圧縮なし、Max Size、ミップマップ、PPU、Pixel Perfect Camera、プリセットを実際の描画で確認します。"
+  }
+}

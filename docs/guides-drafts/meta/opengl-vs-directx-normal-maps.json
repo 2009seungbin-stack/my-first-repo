@@ -1,0 +1,19 @@
+{
+  "slug": "opengl-vs-directx-normal-maps",
+  "section": "lighting",
+  "engines": ["godot", "unity"],
+  "tools": ["normal-map-converter", "texture-lab", "texture-map"],
+  "open": {"tool": "normal-map-converter"},
+  "related": ["2d-normal-maps-lighting-godot-unity", "tile-seams-texture-bleeding-padding-extrude", "godot-4-pixel-art-blurry-jitter"],
+  "tested": ["Godot 4.7.2", "Unity 6000.5.3f1"],
+  "title": {
+    "en": "OpenGL vs DirectX Normal Maps: Which One and How to Convert",
+    "ko": "노멀맵 OpenGL vs DirectX 차이와 그린 채널 반전",
+    "ja": "ノーマルマップのOpenGLとDirectXの違いと緑チャンネル反転"
+  },
+  "description": {
+    "en": "OpenGL (Y+) and DirectX (Y−) normal maps differ only in the green channel. Which one Godot, Unity, Unreal and Blender expect, how to tell, and how to flip it.",
+    "ko": "OpenGL(Y+)과 DirectX(Y−) 노멀맵은 그린 채널만 다릅니다. Godot·Unity·Unreal·Blender가 기대하는 규격, 구별법, 반전 방법을 정리합니다.",
+    "ja": "OpenGL(Y+)とDirectX(Y−)のノーマルマップは緑チャンネルだけが違います。Godot・Unity・Unreal・Blenderの規格、見分け方、反転方法を解説します。"
+  }
+}

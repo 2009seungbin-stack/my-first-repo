@@ -184,23 +184,23 @@ Texture Lab's **Normal** stage turns a sprite or tile into a normal map in the b
 
 ## FAQ {#faq}
 
-### Why does my normal map do nothing in Godot 4?
+### Why does my normal map do nothing in Godot 4? {#faq-godot-no-effect}
 
 The texture must be a CanvasTexture, not the plain PNG. A PointLight2D needs a Texture, and its reach is that texture's size × Texture Scale. Its Height must be above 0, or flat normal-mapped areas stay nearly black. The sprite's Light Mask must match the light's Item Cull Mask.
 
-### Why does my Unity sprite ignore the normal map?
+### Why does my Unity sprite ignore the normal map? {#faq-unity-ignored}
 
 On every new Light 2D, Normal Maps → Quality is Disabled; set it to Fast or Accurate. Also check that the project uses the 2D Renderer, that the material is Sprite-Lit-Default (or a lit Shader Graph), and that the secondary texture is named exactly `_NormalMap`.
 
-### Do Godot and Unity use OpenGL or DirectX normal maps?
+### Do Godot and Unity use OpenGL or DirectX normal maps? {#faq-convention}
 
 Both expect OpenGL-style (Y+) normal maps. If lighting looks inverted vertically, invert the green channel of the map. Godot can do it at import with *Normal Map Invert Y*, and Unity with *Flip Green Channel*.
 
-### Should normal maps for pixel art use nearest filtering?
+### Should normal maps for pixel art use nearest filtering? {#faq-nearest}
 
 Yes. In Godot the CanvasTexture samples the normal map with the same filter as the sprite, so setting the node, CanvasTexture or project default to Nearest covers both. In Unity set the normal map's own Filter Mode to Point and Compression to None.
 
-### Can I use normal maps on a TileMap or an animated sprite?
+### Can I use normal maps on a TileMap or an animated sprite? {#faq-tilemap-animation}
 
 Yes, in both engines. In Godot, use a CanvasTexture as the TileSet atlas texture, or as the atlas of the AtlasTextures in a SpriteFrames. In Unity, give each sprite sheet its `_NormalMap` secondary texture; it follows the same slices.
 

@@ -1,0 +1,19 @@
+{
+  "slug": "2d-normal-maps-lighting-godot-unity",
+  "section": "lighting",
+  "engines": ["godot", "unity"],
+  "tools": ["texture-lab", "texture-map", "normal-map-converter"],
+  "open": {"tool": "texture-lab"},
+  "related": ["opengl-vs-directx-normal-maps", "godot-4-pixel-art-blurry-jitter", "sprite-sheet-vs-texture-atlas", "unity-pixel-art-blurry-pixel-perfect"],
+  "tested": ["Godot 4.7.2", "Unity 6000.5.3f1"],
+  "title": {
+    "en": "2D Normal Maps and Lighting in Godot 4 and Unity 6",
+    "ko": "2D 노멀맵과 조명: Godot 4·Unity 6 스프라이트 라이팅",
+    "ja": "2Dノーマルマップとライティング：Godot 4・Unity 6"
+  },
+  "description": {
+    "en": "Light 2D sprites with normal maps: Godot 4 CanvasTexture, PointLight2D height and shadows, Unity 6 URP _NormalMap and Light 2D. Pixel-art settings, tested.",
+    "ko": "Godot 4 CanvasTexture·PointLight2D 높이·그림자와 Unity 6 URP _NormalMap·Light 2D로 스프라이트에 노멀맵 조명을 적용하는 방법. 도트 설정까지 실제 실행으로 확인했습니다.",
+    "ja": "Godot 4のCanvasTexture・PointLight2Dの高さ・影と、Unity 6 URPの_NormalMap・Light 2Dでスプライトにノーマルマップの光を当てる手順。ドット絵設定も実機で確認。"
+  }
+}

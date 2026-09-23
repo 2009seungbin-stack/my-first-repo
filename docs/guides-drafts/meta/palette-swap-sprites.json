@@ -1,0 +1,19 @@
+{
+  "slug": "palette-swap-sprites",
+  "section": "pixel-art",
+  "engines": ["godot", "unity", "phaser", "pixi"],
+  "tools": ["pixel-lab", "palette-swap-ramp", "palette-extractor", "palette-swap"],
+  "open": {"tool": "pixel-lab"},
+  "related": ["fix-ai-generated-pixel-art", "godot-4-pixel-art-blurry-jitter", "pixel-art-crisp-in-browser-phaser-pixi", "unity-pixel-art-blurry-pixel-perfect"],
+  "tested": ["Godot 4.7.2", "Unity 6000.5.3f1", "Phaser 3.90", "Phaser 4.2", "PixiJS 8.21"],
+  "title": {
+    "en": "Palette Swap Sprites: Index Map Shaders and Baked Variants",
+    "ko": "스프라이트 팔레트 스왑: 셰이더와 색상 변형 만들기",
+    "ja": "スプライトのパレットスワップ:シェーダーと色違いの作り方"
+  },
+  "description": {
+    "en": "Palette-swap sprites for enemy tiers and team colours: an index-map shader for Godot 4 and Unity 6, baked variants for Phaser and PixiJS, and the filtering traps.",
+    "ko": "적 등급·팀 색상용 팔레트 스왑. Godot 4와 Unity 6 인덱스 맵 셰이더, Phaser·PixiJS 색상 변형 굽기, 필터링 함정까지 실제 엔진에서 검증한 방법입니다.",
+    "ja": "敵のランク違いやチームカラーのためのパレットスワップ。Godot 4とUnity 6のインデックスマップシェーダー、Phaser・PixiJSでの色違い生成、フィルタリングの落とし穴を解説します。"
+  }
+}

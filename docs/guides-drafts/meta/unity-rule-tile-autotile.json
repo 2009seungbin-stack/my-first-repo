@@ -1,0 +1,19 @@
+{
+  "slug": "unity-rule-tile-autotile",
+  "section": "tiles",
+  "engines": ["unity"],
+  "tools": ["tile-lab", "autotile-tester", "tileset-slicer"],
+  "open": {"ws": "tile"},
+  "related": ["godot-4-terrain-autotile-47-blob", "dual-grid-autotile", "tiled-wang-sets-terrain", "tile-seams-texture-bleeding-padding-extrude"],
+  "tested": ["Unity 6000.5.3f1"],
+  "title": {
+    "en": "Unity Rule Tile and Auto Tile: 47-Tile Autotiling in Unity 6",
+    "ko": "유니티 룰 타일과 오토 타일: 47 타일 자동 타일링",
+    "ja": "Unity ルールタイルとオートタイル：47 タイルの設定"
+  },
+  "description": {
+    "en": "Set up Unity Rule Tiles and the newer Auto Tile (2D Tilemap Extras): This / Not This rules, rule order, 47 vs 16 tiles, default sprite, and a script for 47 rules.",
+    "ko": "Unity 2D Tilemap Extras의 Rule Tile과 Auto Tile 설정법. This/Not This 규칙, 규칙 순서, 47·16 타일, Default Sprite, 47개 규칙 자동 생성 스크립트까지.",
+    "ja": "Unity 2D Tilemap Extras の Rule Tile と Auto Tile の設定。This / Not This、ルールの順番、47 と 16 タイル、Default Sprite、47 ルールを作るスクリプト。"
+  }
+}

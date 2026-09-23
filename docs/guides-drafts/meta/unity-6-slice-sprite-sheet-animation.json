@@ -1,0 +1,34 @@
+{
+  "slug": "unity-6-slice-sprite-sheet-animation",
+  "section": "sprites",
+  "engines": [
+    "unity"
+  ],
+  "tools": [
+    "sprite-slicer",
+    "sprite-animation-preview",
+    "sprite-pivot-editor"
+  ],
+  "open": {
+    "ws": "sprite"
+  },
+  "related": [
+    "unity-pixel-art-blurry-pixel-perfect",
+    "aseprite-files-godot-unity-phaser",
+    "godot-4-sprite-sheet-animation",
+    "hitboxes-pivots-2d-animation"
+  ],
+  "tested": [
+    "Unity 6000.5.3f1"
+  ],
+  "title": {
+    "en": "Unity 6: Slice a Sprite Sheet and Make Animation Clips",
+    "ko": "유니티 스프라이트 시트 자르기와 애니메이션 만들기",
+    "ja": "Unity スプライトシート 分割とアニメーション作成"
+  },
+  "description": {
+    "en": "Slice a sprite sheet in Unity 6 with the Sprite Editor (cell size, padding, offset, pivot), fix the one-pixel drift and build looping Animation Clips.",
+    "ko": "Unity 6 Sprite Editor로 스프라이트 시트를 자르는 법(셀 크기, Padding, Offset, 피벗)과 1픽셀 밀림 해결, 프레임으로 애니메이션 클립 만들기까지 정리합니다.",
+    "ja": "Unity 6 の Sprite Editor でスプライトシートを分割する手順（セルサイズ、Padding、Offset、ピボット）と 1 ピクセルずれの防ぎ方、アニメーションクリップの作り方を解説します。"
+  }
+}

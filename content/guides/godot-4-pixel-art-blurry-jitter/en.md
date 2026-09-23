@@ -10,7 +10,7 @@ Every setting and number below was checked in Godot 4.7.2 with the gl_compatibil
 3. **Pick a base resolution.** Under **Display → Window → Size**, set **Viewport Width** and **Viewport Height** to your game's pixel resolution, for example 320×180 or 640×360. Both scale evenly to 1280×720, 1920×1080 and 2560×1440. For a bigger window at start-up, set **Window Width Override** and **Window Height Override** (for example 1280×720).
 4. **Stretch in whole steps.** Under **Display → Window → Stretch**, set **Mode** to `viewport`, **Aspect** to `keep` (black bars) or `expand` (more of the world on wider screens), and **Scale Mode** to `integer`. The game then renders at the base resolution and is scaled up 2×, 3×, 4× and so on, never 3.125×.
 5. **Snap sprites to pixels.** Under **Rendering → 2D → Snap**, turn on **Snap 2D Transforms to Pixel**. Leave **Snap 2D Vertices to Pixel** off: the docs advise against using both. Snapping is only read when the game starts, so restart the game after changing it.
-6. **Move the camera in whole pixels.** Turn off **Position Smoothing** on the Camera2D that follows the player and place the camera on the player's rounded position (script below). Smoothing always leaves the camera between pixels.
+6. **Move the camera in whole pixels.** Turn off **Position Smoothing** on the Camera2D that follows the player and place the camera on the player's rounded position (script below). A smoothed camera spends most frames between two pixels.
 7. **Remove stutter on high-refresh screens.** If motion looks uneven at 120/144 Hz, turn on **Physics → Common → Physics Interpolation** (Godot 4.3+ for 2D). Move your bodies in `_physics_process()`, then test the camera again.
 :::
 
@@ -114,23 +114,23 @@ When the sprite itself is the problem, the Pixel Perfect Checker tells you. It m
 
 ## FAQ {#faq}
 
-### Why is my pixel art blurry in Godot 4?
+### Why is my pixel art blurry in Godot 4? {#faq-blurry}
 
 2D nodes use Linear filtering by default, which blends neighbouring texels. Set **Rendering → Textures → Canvas Textures → Default Texture Filter** to **Nearest**, and check that SubViewports and nodes with their own **Texture → Filter** are set to Nearest too.
 
-### Where is the texture filter setting in Godot 4?
+### Where is the texture filter setting in Godot 4? {#faq-filter-setting}
 
 It is no longer an import option, as it was in Godot 3. It is set per CanvasItem (**Texture → Filter**), per Viewport (**Canvas Items → Default Texture Filter**), and project-wide under **Project Settings → Rendering → Textures → Canvas Textures → Default Texture Filter**.
 
-### How do I get integer scaling in Godot 4?
+### How do I get integer scaling in Godot 4? {#faq-integer-scaling}
 
 Set **Display → Window → Stretch → Scale Mode** to `integer` (Godot 4.2 and later), with **Stretch Mode** `viewport` or `canvas_items`. The scale is then rounded down to a whole number, and the remaining space becomes black bars.
 
-### Why does my player jitter when the camera moves?
+### Why does my player jitter when the camera moves? {#faq-camera-jitter}
 
 The camera and the player are rounded to pixels separately, or they update at different rates. Put the Camera2D on the player's rounded position without smoothing, or set its **Process Callback** to **Physics**. Enable **Physics Interpolation** if the monitor refresh rate differs from the physics tick rate.
 
-### Should I use Snap 2D Transforms or Snap 2D Vertices to Pixel?
+### Should I use Snap 2D Transforms or Snap 2D Vertices to Pixel? {#faq-snap}
 
 Use **Snap 2D Transforms to Pixel**. The Godot docs recommend enabling only that one, because using both makes movement look even less smooth.
 

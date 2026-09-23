@@ -1,0 +1,19 @@
+{
+  "slug": "pixijs-8-spritesheet-animation",
+  "section": "animation",
+  "engines": ["pixi"],
+  "tools": ["sprite-sheet-maker", "sprite-slicer", "sprite-animation-preview", "sprite-pivot-editor"],
+  "open": {"ws": "sprite"},
+  "related": ["phaser-sprite-sheet-atlas-animation", "pixel-art-crisp-in-browser-phaser-pixi", "sprite-sheet-vs-texture-atlas", "hitboxes-pivots-2d-animation"],
+  "tested": ["PixiJS 8.21.0"],
+  "title": {
+    "en": "PixiJS 8 spritesheet animation: JSON, AnimatedSprite, pixel art",
+    "ko": "PixiJS 8 스프라이트시트 애니메이션 (AnimatedSprite)",
+    "ja": "PixiJS 8 スプライトシートとAnimatedSpriteの使い方"
+  },
+  "description": {
+    "en": "Load a spritesheet JSON with Assets.load in PixiJS 8, play it with AnimatedSprite, keep pixel art sharp with scaleMode 'nearest' and get @2x meta.scale right.",
+    "ko": "PixiJS 8에서 스프라이트시트 JSON을 Assets.load로 불러와 AnimatedSprite로 재생하고, 'nearest'로 도트를 선명하게, @2x meta.scale을 바르게 쓰는 방법입니다.",
+    "ja": "PixiJS 8でスプライトシートJSONをAssets.loadで読み込み、AnimatedSpriteで再生する方法。ドット絵をnearestでくっきりさせ、@2xのmeta.scaleも正しく扱います。"
+  }
+}

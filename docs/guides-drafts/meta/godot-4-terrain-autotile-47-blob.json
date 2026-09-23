@@ -1,0 +1,19 @@
+{
+  "slug": "godot-4-terrain-autotile-47-blob",
+  "section": "tiles",
+  "engines": ["godot"],
+  "tools": ["autotile-tester", "tile-lab", "tileset-slicer"],
+  "open": {"ws": "tile"},
+  "related": ["dual-grid-autotile", "rpg-maker-a2-autotile-to-godot", "tiled-wang-sets-terrain", "unity-rule-tile-autotile"],
+  "tested": ["Godot 4.7.2"],
+  "title": {
+    "en": "Godot 4 Terrain Autotile: 47-Tile Blob Setup and Wrong-Tile Fixes",
+    "ko": "Godot 4 오토타일 터레인 설정: 47타일과 잘못 깔리는 타일 해결",
+    "ja": "Godot4 オートタイル(テレイン)設定:47タイルと誤配置の直し方"
+  },
+  "description": {
+    "en": "Set up a Godot 4 terrain for a 47-tile blob sheet, paint it with TileMapLayer, and fix wrong tiles from missing combinations, painting order and bad bits.",
+    "ko": "47타일 블롭 시트로 Godot 4 터레인 세트를 만들고 TileMapLayer로 칠하는 법, 조합 누락·칠하는 순서·피어링 비트 실수로 타일이 잘못 깔리는 원인과 해결을 설명합니다.",
+    "ja": "47タイルのブロブシートでGodot 4のテレインセットを作りTileMapLayerで塗る手順と、組み合わせ不足・塗る順番・ピアリングビットの誤りでタイルがずれる原因と直し方。"
+  }
+}

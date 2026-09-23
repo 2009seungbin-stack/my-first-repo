@@ -1,0 +1,19 @@
+{
+  "slug": "sprite-sheet-vs-texture-atlas",
+  "section": "atlas",
+  "engines": ["phaser", "pixi", "godot", "unity", "defold", "love", "gamemaker"],
+  "tools": ["sprite-sheet-maker", "atlas-padding", "sprite-slicer"],
+  "open": {"ws": "pack"},
+  "related": ["tile-seams-texture-bleeding-padding-extrude", "phaser-sprite-sheet-atlas-animation", "pixijs-8-spritesheet-animation", "godot-4-sprite-sheet-animation"],
+  "tested": ["Phaser 3.90.0", "Phaser 4.2.1", "PixiJS 8.21.0", "Spine runtime spine-canvas 4.2", "Godot 4.7.2"],
+  "title": {
+    "en": "Sprite Sheet vs Texture Atlas: Trim, Rotation, Padding",
+    "ko": "스프라이트 시트 vs 텍스처 아틀라스: 트림·회전·패딩",
+    "ja": "スプライトシートとテクスチャアトラスの違い"
+  },
+  "description": {
+    "en": "Grid sprite sheet or packed atlas? Trim offsets, which engines read rotated frames, padding and extrude, max texture size and draw calls, tested in engines.",
+    "ko": "그리드 스프라이트 시트와 패킹 아틀라스의 차이, 트림 오프셋, 회전 프레임을 읽는 엔진, 패딩·익스트루드, 최대 텍스처 크기와 드로우 콜을 실제 엔진으로 검증했습니다.",
+    "ja": "等間隔スプライトシートとパック済みアトラスの違い、トリムのオフセット、回転フレーム対応エンジン、パディング・押し出し、最大テクスチャサイズとドローコールを実機で検証しました。"
+  }
+}

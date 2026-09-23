@@ -172,35 +172,35 @@ URP 17.5에서 Light 2D의 `normalMapQuality`와 `normalMapDistance`에는 publi
 시트 전체에서 생성할 때는 프레임 사이에 투명 픽셀을 두십시오. 3×3 커널은 이웃 프레임으로 한 픽셀, 5×5 커널은 두 픽셀을 읽습니다.
 
 :::nerulio tool=texture-lab
-Texture Lab의 **Normal** 단계는 스프라이트나 타일을 브라우저 안에서 노멀맵으로 바꿉니다. 파일은 업로드되지 않습니다. 이미지를 높이 필드로 읽어 그에 해당하는 노멀을 쓰므로 시트나 아틀라스의 레이아웃이 그대로 유지됩니다. 규격은 화면에 표시하며, 추측하지 않습니다.
-- PNG를 놓고 **높이 → 노멀**을 고른 뒤, Godot·Unity용이면 **규격: OpenGL +Y**를 선택합니다.
+Texture Lab의 **노멀** 단계는 스프라이트나 타일을 브라우저 안에서 노멀맵으로 바꿉니다. 파일은 업로드되지 않습니다. 이미지를 높이 필드로 읽어 그에 해당하는 노멀을 쓰므로 시트나 아틀라스의 레이아웃이 그대로 유지됩니다. 규격은 화면에 표시하며, 추측하지 않습니다.
+- PNG를 놓고 **하이트 → 노멀**을 고른 뒤, Godot·Unity용이면 **규격: OpenGL +Y**를 선택합니다.
 - **강도**(0–10, 기본값 2)를 정합니다. *고급 설정*에서 **미분 커널**(Sobel 3×3, Scharr 3×3, Sobel 5×5), **높이 출처**(밝기 또는 알파 채널), 타일이라면 **가장자리를 이어서 샘플링**을 고릅니다.
-- **노멀맵 저장 (PNG)**을 누르면 원본 해상도의 `<이름>-normal.png`가 저장됩니다. 위 렌더링에 쓴 노멀맵도 이 버튼으로 만들었습니다.
+- **노멀 맵 저장 (PNG)**을 누르면 원본 해상도의 `<이름>-normal.png`가 저장됩니다. 위 렌더링에 쓴 노멀맵도 이 버튼으로 만들었습니다.
 - 이미 DirectX 노멀맵이 있다면 **OpenGL ↔ DirectX**가 초록 채널을 정확히 반전합니다.
 - 한계: 한 번에 한 장씩, 2D 조명 미리보기 없음(Preview 단계는 3D 머티리얼 미리보기), 스페큘러 맵 생성 없음.
 :::
 
-![Nerulio Texture Lab의 Normal 단계: 던전 타일 원본, 생성된 노멀맵, OpenGL/DirectX 규격 선택](shot:lab-texture-normal "Nerulio Texture Lab: OpenGL +Y 규격으로 높이 → 노멀, 그리고 엔진별 기대 규격 표.")
+![Nerulio Texture Lab의 노멀 단계: 던전 타일 원본, 생성된 노멀맵, OpenGL/DirectX 규격 선택](shot:lab-texture-normal "Nerulio Texture Lab: OpenGL +Y 규격으로 하이트 → 노멀, 그리고 엔진별 기대 규격 표.")
 
 ## 자주 묻는 질문 {#faq}
 
-### Godot 4에서 노멀맵이 전혀 적용되지 않아요
+### Godot 4에서 노멀맵이 전혀 적용되지 않아요 {#faq-godot-no-effect}
 
 텍스처가 일반 PNG가 아니라 CanvasTexture여야 합니다. PointLight2D에는 Texture가 필요하고, 조명이 닿는 범위는 그 텍스처 크기 × Texture Scale입니다. Height가 0보다 커야 하며, 0이면 평평한 노멀맵 영역이 거의 까맣게 남습니다. 스프라이트의 Light Mask와 조명의 Item Cull Mask도 맞아야 합니다.
 
-### Unity 스프라이트가 노멀맵을 무시해요
+### Unity 스프라이트가 노멀맵을 무시해요 {#faq-unity-ignored}
 
 새 Light 2D는 모두 Normal Maps → Quality가 Disabled입니다. Fast 또는 Accurate로 바꾸십시오. 프로젝트가 2D Renderer를 쓰는지, 머티리얼이 Sprite-Lit-Default(또는 라이트를 받는 Shader Graph)인지, 보조 텍스처 이름이 정확히 `_NormalMap`인지도 확인하십시오.
 
-### Godot와 Unity는 OpenGL과 DirectX 중 어느 노멀맵을 쓰나요?
+### Godot와 Unity는 OpenGL과 DirectX 중 어느 노멀맵을 쓰나요? {#faq-convention}
 
 둘 다 OpenGL 방식(Y+)을 기대합니다. 위아래 조명이 뒤집혀 보이면 노멀맵의 초록 채널을 반전하십시오. Godot는 임포트 옵션 *Normal Map Invert Y*로, Unity는 *Flip Green Channel*로 처리할 수 있습니다.
 
-### 도트 그래픽 노멀맵도 Nearest 필터를 써야 하나요?
+### 도트 그래픽 노멀맵도 Nearest 필터를 써야 하나요? {#faq-nearest}
 
 네. Godot의 CanvasTexture는 노멀맵을 스프라이트와 같은 필터로 샘플링하므로, 노드·CanvasTexture·프로젝트 기본값 중 하나를 Nearest로 두면 둘 다 적용됩니다. Unity에서는 노멀맵 자체의 Filter Mode를 Point, Compression을 None으로 설정하십시오.
 
-### TileMap이나 애니메이션 스프라이트에도 노멀맵을 쓸 수 있나요?
+### TileMap이나 애니메이션 스프라이트에도 노멀맵을 쓸 수 있나요? {#faq-tilemap-animation}
 
 두 엔진 모두 가능합니다. Godot에서는 TileSet 아틀라스 텍스처나 SpriteFrames 안 AtlasTexture의 아틀라스로 CanvasTexture를 쓰면 됩니다. Unity에서는 스프라이트 시트마다 `_NormalMap` 보조 텍스처를 지정하면 같은 슬라이스를 따라갑니다.
 

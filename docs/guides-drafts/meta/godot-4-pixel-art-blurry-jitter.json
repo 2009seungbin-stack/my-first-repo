@@ -1,0 +1,19 @@
+{
+  "slug": "godot-4-pixel-art-blurry-jitter",
+  "section": "pixel-art",
+  "engines": ["godot"],
+  "tools": ["pixel-perfect-checker", "pixel-lab", "sprite-animation-preview"],
+  "open": {"tool": "pixel-perfect-checker"},
+  "related": ["godot-4-sprite-sheet-animation", "unity-pixel-art-blurry-pixel-perfect", "pixel-art-crisp-in-browser-phaser-pixi", "fix-ai-generated-pixel-art"],
+  "tested": ["Godot 4.7.2"],
+  "title": {
+    "en": "Godot 4 Pixel Art Blurry or Jittering? Filter, Stretch, Snap",
+    "ko": "Godot 4 도트 흐림·떨림 해결: 필터, 스트레치, 스냅",
+    "ja": "Godot4 ドット絵がぼやける・ガタつく時の設定"
+  },
+  "description": {
+    "en": "Fix blurry, shimmering or jittering pixel art in Godot 4.7: Nearest filter, viewport stretch with integer scale, pixel snap, camera and physics interpolation, tested.",
+    "ko": "Godot 4.7에서 픽셀 아트가 흐리거나 떨릴 때: Nearest 필터, viewport 스트레치와 정수 배율, 픽셀 스냅, 카메라와 물리 보간까지 실제로 확인한 설정입니다.",
+    "ja": "Godot 4.7でドット絵がぼやける・ガタつく原因と対策。Nearestフィルター、viewportと整数倍スケール、ピクセルスナップ、カメラと物理補間を実機で確認。"
+  }
+}

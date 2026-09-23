@@ -1,0 +1,19 @@
+{
+  "slug": "godot-4-sprite-sheet-animation",
+  "section": "sprites",
+  "engines": ["godot"],
+  "tools": ["sprite-slicer", "sprite-animation-preview"],
+  "open": {"ws": "sprite"},
+  "related": ["godot-4-pixel-art-blurry-jitter", "hitboxes-pivots-2d-animation", "aseprite-files-godot-unity-phaser", "unity-6-slice-sprite-sheet-animation"],
+  "tested": ["Godot 4.7.2"],
+  "title": {
+    "en": "Godot 4 Sprite Sheet Animation: SpriteFrames and AnimatedSprite2D",
+    "ko": "Godot 4 스프라이트 시트 애니메이션 만들기",
+    "ja": "Godot4 スプライトシート アニメーションの作り方"
+  },
+  "description": {
+    "en": "Slice a sprite sheet in Godot 4.7 with Add Frames from Sprite Sheet: grid size, separation, offset, frame order, FPS, frame durations and code, tested.",
+    "ko": "Godot 4.7에서 스프라이트 시트를 잘라 AnimatedSprite2D로 재생하는 방법. 격자 크기·간격·오프셋, FPS와 프레임 길이, 코드까지 실제로 확인했습니다.",
+    "ja": "Godot 4.7でスプライトシートを分割しAnimatedSprite2Dで再生する手順。サイズ・間隔・オフセット、FPSとフレーム時間、コードまで実機で確認しました。"
+  }
+}

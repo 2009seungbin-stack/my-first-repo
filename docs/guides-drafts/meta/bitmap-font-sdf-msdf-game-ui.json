@@ -1,0 +1,19 @@
+{
+  "slug": "bitmap-font-sdf-msdf-game-ui",
+  "section": "ui",
+  "engines": ["godot", "unity", "phaser", "pixi"],
+  "tools": ["bitmap-font", "ui-lab", "missing-glyph-checker"],
+  "open": {"tool": "bitmap-font"},
+  "related": ["cjk-font-atlas-localization", "pixel-art-crisp-in-browser-phaser-pixi", "unity-pixel-art-blurry-pixel-perfect", "nine-slice-ui-godot-unity-phaser"],
+  "tested": ["Godot 4.7.2", "Phaser 3.90.0", "Phaser 4.2.1", "PixiJS 8.21.0"],
+  "title": {
+    "en": "Bitmap Font vs SDF vs MSDF for Game UI (Godot, Unity, Web)",
+    "ko": "게임 UI 폰트: 비트맵 폰트 vs SDF vs MSDF",
+    "ja": "ゲームUIフォント：ビットマップ・SDF・MSDFの違い"
+  },
+  "description": {
+    "en": "When to use a BMFont bitmap font, SDF or MSDF for game text, crisp pixel fonts, and exact settings for Godot 4.7, Unity 6, Phaser and PixiJS 8, tested in engines.",
+    "ko": "게임 텍스트에 비트맵 폰트(BMFont)·SDF·MSDF를 언제 쓰는지, 도트 폰트를 선명하게 쓰는 법, Godot 4.7·Unity 6·Phaser·PixiJS 8 설정을 실제 엔진으로 검증했습니다.",
+    "ja": "ゲームのテキストにビットマップフォント・SDF・MSDFをどう使い分けるか、ドットフォントをくっきり表示する設定を、Godot 4.7・Unity 6・Phaser・PixiJS 8で検証しました。"
+  }
+}

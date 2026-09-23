@@ -8,25 +8,25 @@ This guide builds the shader route in Godot 4 and Unity 6 (URP 2D), bakes varian
 
 | Approach | How it works | Good for | Watch out for |
 |---|---|---|---|
-| Baked variants | Recolour the PNG once, per variant, before or at load time | Few variants, any engine, no shader access | One texture per variant: more memory, more batch breaks |
-| Index map + palette texture | Red channel stores a palette index; the shader reads the colour from row *n* of a palette image | Many variants, runtime swaps, player-picked colours | Needs nearest filtering and lossless, non-sRGB import of the index map |
-| Colour-match shader | The shader compares each pixel with a list of source colours and replaces matches | Quick swaps on unchanged art | A loop per pixel; breaks as soon as filtering or compression changes a colour |
-| Gradient map | Brightness of the pixel picks a colour from a gradient | Tinting monochrome art, status effects | Unrelated parts with the same brightness get the same colour |
+| Baked variants | Recolour the PNG once per variant, before or at load time | Few variants, any engine, no shader access | One texture per variant: more memory, more batch breaks |
+| Index map + palette texture | Red channel stores a palette index; the shader reads row *n* of a palette image | Many variants, runtime swaps, player-picked colours | Needs nearest filtering and lossless, non-sRGB import |
+| Colour-match shader | The shader compares each pixel with a list of colours and replaces matches | Quick swaps on unchanged art | A loop per pixel; breaks when filtering or compression changes a colour |
+| Gradient map | The pixel's brightness picks a colour from a gradient | Monochrome art, status effects | Parts with the same brightness get the same colour |
 
-Index maps are the classic console technique and the most robust shader route. The rest of this guide starts with it.
+Index maps are the most robust shader route, so we start there.
 
 ## Palette swap with a shader in Godot 4 {#godot-shader}
 
-The example uses Kenney's green alien (two 24×24 frames). It has seven colours: an outline, a four-step body ramp, the helmet and white.
+The example is Kenney's green alien: two 24×24 frames, seven colours (outline, a four-step body ramp, helmet, white).
 
 :::steps
-1. **Order the palette.** List the sprite's colours in a fixed order: shared colours first or last, and each ramp from dark to light. Here: outline, body dark → light (4 colours), helmet, white. This order is the column index.
-2. **Paint the palette texture.** Make a PNG that is as wide as the palette and has one row per variant. Row 0 is the original colours; each further row repaints the same columns (blue, pink, red elite, gold boss). Keep the columns identical in meaning across rows.
-3. **Build the index map.** Replace every opaque pixel with `Color8(column, 0, 0, alpha)` and keep transparent pixels transparent. The `make_index_map.gd` script below does it in Godot; the result looks almost black, which is expected.
-4. **Check the import.** Select both PNGs in the FileSystem dock and keep the **Import** dock on **Compress > Mode: Lossless** (the default for 2D) with **Mipmaps > Generate** off. Never use VRAM compression on either file: it changes the index values.
+1. **Order the palette.** List the sprite's colours in a fixed order, each ramp from dark to light: outline, body (4 shades), helmet, white. The position is the column index.
+2. **Paint the palette texture.** A PNG as wide as the palette with one row per variant. Row 0 holds the original colours; the other rows repaint the same columns (blue, pink, red elite, gold boss).
+3. **Build the index map.** Replace every opaque pixel with `Color8(column, 0, 0, alpha)`; transparent pixels stay transparent. `make_index_map.gd` below does it. The result looks almost black.
+4. **Check the import.** In the **Import** dock keep both PNGs on **Compress > Mode: Lossless** (the 2D default) with **Mipmaps > Generate** off. VRAM compression changes the index values.
 5. **Create the shader.** Save `palette_swap.gdshader` (below), create a **ShaderMaterial** with it, and assign `palettes.png` to its **Palette** parameter.
-6. **Set Nearest filtering.** On each Sprite2D (or AnimatedSprite2D) set **CanvasItem > Texture > Filter** to **Nearest**, or set **Project Settings > Rendering > Textures > Canvas Textures > Default Texture Filter** to **Nearest** for the whole project.
-7. **Pick a row per node.** Give every enemy the same material and choose its variant with `set_instance_shader_parameter("palette_row", n)`. The value can change at any time.
+6. **Set Nearest filtering.** On each Sprite2D or AnimatedSprite2D set **CanvasItem > Texture > Filter** to **Nearest**, or set **Project Settings > Rendering > Textures > Canvas Textures > Default Texture Filter** to **Nearest**.
+7. **Pick a row per node.** Give every enemy the same material and choose its variant with `set_instance_shader_parameter("palette_row", n)`, at any time.
 :::
 
 ```glsl
@@ -53,9 +53,9 @@ void fragment() {
 }
 ```
 
-`texelFetch` reads one exact texel with no filtering, so the palette can never blend two neighbouring colours. The `tint` varying keeps `modulate` working, which you want for hit flashes and fades.
+`texelFetch` reads one exact texel, so neighbouring palette colours never blend. The `tint` varying keeps `modulate` working for hit flashes and fades.
 
-The converter, run once from the project folder with `godot --headless --path . --script res://make_index_map.gd`:
+The converter, run once with `godot --headless --path . --script res://make_index_map.gd`:
 
 ```gdscript
 # make_index_map.gd — reads the sprite and the palette strip (row 0 = the sprite's own colours,
@@ -86,9 +86,7 @@ func _init() -> void:
 	quit()
 ```
 
-If it reports missing colours, the sprite uses a colour the palette row does not list, usually an anti-aliased edge. Clean it up first (see [fixing off-palette pixels](guide:fix-ai-generated-pixel-art)).
-
-And the per-enemy script:
+Missing colours are usually anti-aliased edges; clean them up first (see [fixing off-palette pixels](guide:fix-ai-generated-pixel-art)). The per-enemy script:
 
 ```gdscript
 # enemy.gd — on a Sprite2D whose texture is the index map and whose material uses palette_swap.gdshader
@@ -103,11 +101,11 @@ func _ready() -> void:
 
 ### Why an instance uniform {#instance-uniform}
 
-A plain `uniform int palette_row` forces one material per variant, and every material change breaks 2D batching. In our Godot 4.7.2 test, 200 sprites that shared one material with `instance uniform` rows drew in **1** draw call. The same 200 sprites with one duplicated material each took **200** draw calls, in both the Compatibility and Forward+ renderers. Per-instance uniforms accept scalars and vectors only (no textures), and a shader can have at most 16 of them.
+A plain `uniform` forces one material per variant, and every material change breaks 2D batching. In our Godot 4.7.2 test, 200 sprites sharing one material with `instance uniform` rows drew in **1** draw call; with one duplicated material each they took **200**, in both the Compatibility and Forward+ renderers. Per-instance uniforms take scalars and vectors only, at most 16 per shader.
 
 ### Without an index map: colour matching {#color-match}
 
-If you cannot convert the art, compare colours in the shader instead. This runs on the original PNG and gave pixel-exact results in our test. It depends on the texture reaching the shader with its exact colours, though: any compression, filtering or scaling breaks the match.
+If you cannot convert the art, compare colours in the shader. This works on the original PNG (pixel-exact in our test), but any compression, filtering or resampling breaks the match.
 
 ```glsl
 // color_match.gdshader — Godot 4 (canvas_item)
@@ -139,38 +137,36 @@ void fragment() {
 }
 ```
 
-Set the arrays from GDScript with `material.set_shader_parameter("from_colors", [...])`, padding both arrays to `MAX_COLORS`.
+Set the arrays with `material.set_shader_parameter("from_colors", [...])`, padded to `MAX_COLORS`.
 
 ### Gradient maps {#gradient-map}
 
-A gradient map replaces `texelFetch` with `texture(gradient, vec2(brightness, 0.5))`, where `gradient` is a `GradientTexture1D` (set its Gradient's **Interpolation Mode** to **Constant** for hard pixel-art steps). It needs no preparation, but it only knows brightness. On the alien, the pale helmet and the body highlight landed in the same colour band. Use it for monochrome art, silhouettes and status effects, not for multi-part characters.
+A gradient map reads `texture(gradient, vec2(brightness, 0.5))` from a `GradientTexture1D` (Gradient **Interpolation Mode: Constant** for hard steps). It needs no preparation but only knows brightness: on the alien, the pale helmet and the body highlight landed in the same band. Use it for monochrome art and status effects, not multi-part characters.
 
 ## Keep ramps consistent {#ramps}
 
-A palette swap is only as good as the palette's structure:
-
-- **Same number of steps per ramp.** If the green body has four shades, every replacement ramp needs four, in the same dark-to-light order. A three-step ramp squeezed into four columns creates two identical shades and flattens the shading.
-- **Keep the lightness steps.** Replace the hue, and keep each step roughly as bright as the original step. Shading reads through brightness, so a pink ramp whose midtone is lighter than its highlight turns the sprite inside out.
-- **Separate slots for separate parts.** The outline, eyes and helmet have their own columns here, so a variant can leave them alone or change them (the gold boss changes both). Two parts that share a colour in the original can never be recoloured independently. If they should be, give them different colours in the source art first.
-- **One palette for every frame.** Extract the palette from all animation frames together, not frame by frame, or a colour that only appears in frame 7 will be missing from the index.
-- **Hue-shift the ramps.** Good ramps drift cooler in the shadows and warmer in the highlights rather than only changing lightness. Lospec's palette list is a good source of tested ramps.
+- **Same number of steps per ramp.** Four body shades need four replacement shades, dark to light. Squeezing a three-step ramp into four columns flattens the shading.
+- **Keep the lightness steps.** Change the hue and keep each step about as bright as the original. A midtone lighter than its highlight turns the shading inside out.
+- **Separate slots for separate parts.** Outline and helmet have their own columns, so a variant can keep or change them (the gold boss changes both). Parts that share one colour can never be recoloured independently.
+- **One palette for every frame.** Extract it from all frames together, or a colour that only appears in frame 7 is missing from the index.
+- **Hue-shift the ramps.** Good ramps drift cooler in the shadows and warmer in the highlights. Lospec's palette list has tested ramps.
 
 ## Filtering and import artefacts {#filtering}
 
-An index map is data, not colour, so anything that blends neighbouring texels produces wrong indices, and wrong indices produce colours from unrelated palette slots.
+An index map is data, not colour: anything that blends neighbouring texels creates wrong indices, and those pick colours from unrelated palette slots.
 
 ![Nearest vs linear filtering of the same index map in Godot](shot:engine-palette-filter-godot "Rendered by Godot 4.7.2: the same index map and palette row, left with Nearest filtering (exact), right with Linear filtering on the index map. Blended indices pick other palette columns, so the outline turns into a halo of body and helmet colours. Art: Kenney (CC0).")
 
-- **Nearest on the index map.** In the render above, switching only the index map to Linear changed 5,350 of 20,736 screen pixels in Godot 4.7.2. See also [crisp pixel art in Godot](guide:godot-4-pixel-art-blurry-jitter).
-- **Exact reads on the palette.** Use `texelFetch` (Godot, HLSL `LOAD_TEXTURE2D`) or nearest/Point sampling at the centre of the texel.
-- **No mipmaps, no lossy or GPU compression** on the index map. Lossless PNG import only.
-- **No colour-space conversion** on the index map. In Godot the sprite texture is not converted, but in Unity's Linear colour space an index map imported as sRGB is decoded before the shader sees it (see below).
-- **Indexed PNGs don't help.** Aseprite and Photoshop can save indexed PNGs, but the engine expands them to plain colours on import, so the index is gone by the time the shader runs. The index has to be written into a channel.
-- **Scale in the engine, not the file.** Resampling the index map in an image editor blends indices. Scale the node, preferably by whole numbers.
+- **Nearest on the index map.** Switching only the index map to Linear changed 5,350 of 20,736 screen pixels above. See also [crisp pixel art in Godot](guide:godot-4-pixel-art-blurry-jitter).
+- **Exact reads on the palette.** `texelFetch` / `LOAD_TEXTURE2D`, or Point sampling at texel centres.
+- **No mipmaps, no lossy or GPU compression** on the index map.
+- **No colour-space conversion** on the index map. Godot left it untouched in both renderers we tried; Unity's Linear colour space decodes an sRGB-imported index map (see below).
+- **Indexed PNGs don't help.** Engines expand them to plain colours on import; the index has to be written into a channel.
+- **Scale the node, not the file.** Resampling the index map in an image editor blends indices.
 
 ## Unity 6 (URP 2D Renderer) {#unity}
 
-The same idea works in Unity. This unlit sprite shader compiled without errors in Unity 6000.5.3f1 with URP 17.5.0, and a 2D Renderer camera drew all five variants pixel-exact in both Gamma and Linear colour space. SpriteRenderer **Color** and **Flip X** still work.
+This unlit sprite shader compiled without errors in Unity 6000.5.3f1 with URP 17.5.0, and a 2D Renderer camera drew all five variants pixel-exact in both Gamma and Linear colour space. SpriteRenderer **Color** and **Flip X** still work.
 
 ```text
 // PaletteSwap2D.shader — Unity 6, URP 2D Renderer (unlit sprite)
@@ -233,17 +229,17 @@ Shader "Custom/PaletteSwap2D"
 }
 ```
 
-Import settings matter more in Unity than the shader does:
+Import settings matter more than the shader:
 
-- **Index map:** Texture Type **Sprite (2D and UI)**, **sRGB (Color Texture)** off, **Filter Mode** Point (no filter), **Compression** None, **Generate Mipmaps** off. In a Linear-colour-space project we left sRGB on as a test, and the whole sprite came out in the outline colour: the small index values were decoded towards 0 before the shader read them.
+- **Index map:** Texture Type **Sprite (2D and UI)**, **sRGB (Color Texture)** off, **Filter Mode** Point (no filter), **Compression** None, **Generate Mipmaps** off. With sRGB left on in a Linear project, our whole sprite came out in the outline colour: the small index values were decoded towards 0.
 - **Palette texture:** Texture Type **Default**, sRGB on, Filter Mode Point, Compression None, and **Non-Power of 2** set to **None**. With the Default type's defaults (To nearest, Bilinear, Compressed), our 7×5 palette was imported rescaled to 8×4, which moves every column.
-- **One material per variant.** Make a material asset per tier and set **Palette Row** on each. A `MaterialPropertyBlock` also works, but Unity's manual lists "mustn't use MaterialPropertyBlocks" among the conditions for the SRP Batcher.
+- **One material per variant:** a material asset per tier with its **Palette Row**. A `MaterialPropertyBlock` also works, but Unity's manual lists "mustn't use MaterialPropertyBlocks" among the SRP Batcher's conditions.
 
-In Shader Graph, create **Assets > Create > Shader Graph > URP > Sprite Unlit Shader Graph**. Sample the main texture (reference name `_MainTex`), multiply its R by 255, **Round**, add 0.5 and divide by the palette width from a **Texture Size** node. That gives U. For V use `1 − (row + 0.5) / height`. Read the palette with **Sample Texture 2D LOD** (LOD 0) through a **Sampler State** node set to **Point**, and send the result to **Base Color**, with the main texture's A to **Alpha**.
+In Shader Graph (**Assets > Create > Shader Graph > URP > Sprite Unlit Shader Graph**): sample `_MainTex`, multiply R by 255, **Round**, add 0.5 and divide by the palette width from a **Texture Size** node for U; use `1 − (row + 0.5) / height` for V. Read the palette with **Sample Texture 2D LOD** (LOD 0) and a **Sampler State** set to **Point** into **Base Color**, and send the main texture's A to **Alpha**.
 
 ## Phaser and PixiJS: bake variants at load time {#web}
 
-On the web the simplest robust route is to bake: draw the loaded image to a canvas, swap colours in the pixel data, and register the result as a new texture. This ran unchanged in Phaser 3.90 and 4.2, including an animation played from the baked sheet:
+On the web the simplest robust route is baking: draw the image to a canvas, swap colours in its pixel data, and register the result as a new texture. This ran unchanged in Phaser 3.90 and 4.2, including an animation played from the baked sheet:
 
 ```js
 // palette-bake.js — works in Phaser 3.90 and 4.x
@@ -302,18 +298,18 @@ function bakePaletteTexture(texture, from, to) {
 }
 ```
 
-Cut frames from it with `new Texture({ source: baked.source, frame: new Rectangle(x, y, w, h) })`. Two limits apply to both engines. A canvas stores premultiplied colour, so semi-transparent pixels can come back a shade off; fully opaque and fully transparent pixels are exact. And each baked variant is a separate texture, so mixing variants on screen costs extra batches. With many variants, bake them into one atlas instead. For crisp scaling of the result, see [pixel art in Phaser and PixiJS](guide:pixel-art-crisp-in-browser-phaser-pixi).
+Cut frames with `new Texture({ source: baked.source, frame: new Rectangle(x, y, w, h) })`. In both engines a canvas stores premultiplied colour, so semi-transparent pixels can drift by a shade (opaque and fully transparent ones stay exact). Each variant is also its own texture and costs extra batches; with many variants, bake them into one atlas. For crisp scaling see [pixel art in Phaser and PixiJS](guide:pixel-art-crisp-in-browser-phaser-pixi).
 
 ## Baked variants vs runtime shader {#trade-offs}
 
-- **Memory.** Baking costs a full copy of the sheet per variant. The shader route costs one index map plus a palette texture a few pixels in size.
-- **Draw calls.** A shared material with per-instance rows batches (1 draw call for 200 sprites in the Godot test). Baked variants batch only if they share an atlas page.
-- **Runtime changes.** Player-chosen colours, damage flashes and poison tints are one parameter with a shader. Baked variants need a re-bake.
-- **Tooling and portability.** Baked PNGs work in every engine, editor preview and art tool. Index maps look black outside the game and need the shader everywhere they are drawn.
-- **Rule of thumb.** Up to a handful of fixed variants: bake. Many variants, runtime choice, or several characters sharing ramps: index map and palette texture.
+- **Memory:** baking stores a full sheet per variant; the shader route stores one index map plus a palette a few pixels in size.
+- **Draw calls:** a shared material with per-instance rows batches; baked variants batch only when they share an atlas page.
+- **Runtime changes:** player-chosen colours and status tints are one parameter with a shader, a re-bake without.
+- **Portability:** baked PNGs work everywhere; index maps look black outside the game and need the shader wherever they are drawn.
+- **Rule of thumb:** a handful of fixed variants, bake; many variants or runtime choice, index map and palette.
 
 :::nerulio tool=pixel-lab
-Nerulio's Pixel Lab covers the art side of a palette swap in the browser, with no upload: one palette for all frames, ramp-correct recolours and baked variants. It does not write an index map or a palette texture yet. For the shader route, use its palette export to fix the column order, then run the converter above.
+Nerulio's Pixel Lab does the art side of a palette swap in the browser, with no upload: one palette for all frames, ramp-correct recolours and baked variants. It does not write an index map or palette texture yet; for the shader route, export its palette to fix the column order and run the converter above.
 - **Palette**: extract one palette from every frame at once, sort it, lock colours, and export `.gpl`, `.hex` or JSON.
 - **Recolour > Ramp swap**: pick the source ramp; it is mapped onto the target ramp by lightness order, so the darkest shade stays darkest. **Hue range** and **Status tint** (frozen, poison, burn…) work on the whole palette.
 - **Export team variants (ZIP)**: type bases such as `red,blue,gold` or `#RRGGBB`; you get one folder per variant with every frame and that variant's `.gpl`.
@@ -331,21 +327,22 @@ Convert the sprite to an index map (palette index in the red channel), put the p
 The index map is being filtered. Linear filtering, mipmaps or lossy compression blend neighbouring indices into values that point at other palette columns. Use Nearest (Point) filtering, no mipmaps and lossless import, and read the palette with an exact texel fetch.
 
 ### Should I bake palette variants or use a shader? {#faq-bake}
-Bake when you have a few fixed variants or an engine where custom shaders are awkward. Use a shader when you need many variants, runtime colour choice or effects like hit flashes, because it keeps one texture and lets sprites with different palettes share one material.
+Bake when you have a few fixed variants or an engine where custom shaders are awkward. Use a shader when you need many variants, runtime colour choice or effects like hit flashes: it keeps one texture and lets sprites with different palettes share one material.
 
 ### Why are my palette colours wrong in Unity but fine in Godot? {#faq-unity}
-In Unity's Linear colour space an index map imported with **sRGB (Color Texture)** on is converted before the shader reads it, so the index values change. Turn sRGB off on the index map, keep it on the palette, and set the palette's **Non-Power of 2** to **None** so Unity does not rescale it.
+In Unity's Linear colour space an index map imported with **sRGB (Color Texture)** on is converted before the shader reads it, so the index values change. Turn sRGB off on the index map, keep it on for the palette, and set the palette's **Non-Power of 2** to **None** so Unity does not rescale it.
 
 ### Can I use an indexed PNG from Aseprite as the index map? {#faq-indexed-png}
-Not directly. Engines expand indexed PNGs to ordinary colours on import, so the shader never sees the index. Keep drawing in Indexed mode if you like, then write the index into the red channel with a converter such as `make_index_map.gd`.
+Not directly. Engines expand indexed PNGs to ordinary colours on import, so the shader never sees the index. Draw in Indexed mode if you like, then write the index into the red channel with a converter such as `make_index_map.gd`.
 
 ## Sources {#sources}
 
 - [Shading language — Godot Engine 4.7 documentation](https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/shading_language.html) (uniform hints `source_color` and `filter_nearest`, per-instance uniforms, uniform arrays)
-- [Built-in functions — Godot Engine 4.7 documentation](https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/shader_functions.html) (`texelFetch`, `textureSize`)
+- [Built-in functions — Godot Engine 4.7 documentation](https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/shader_functions.html) (`texelFetch`)
 - [CanvasItem shaders — Godot Engine 4.7 documentation](https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/canvas_item_shader.html) (`TEXTURE`, `UV`, `COLOR`)
 - [Importing images — Godot Engine 4.7 documentation](https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_images.html) (Lossless mode, VRAM compression and pixel art)
 - [Default texture import settings — Unity 6.5 Manual](https://docs.unity3d.com/6000.5/Documentation/Manual/texture-type-default.html) (sRGB (Color Texture), Non Power of 2, Filter Mode)
+- [SRP Batcher materials — Unity 6.5 Manual](https://docs.unity3d.com/6000.5/Documentation/Manual/SRPBatcher-Materials.html) (MaterialPropertyBlock condition)
 - [Sampler State node — Shader Graph 17.5](https://docs.unity3d.com/Packages/com.unity.shadergraph@17.5/manual/Sampler-State-Node.html) and [Sample Texture 2D LOD node](https://docs.unity3d.com/Packages/com.unity.shadergraph@17.5/manual/Sample-Texture-2D-LOD-Node.html)
 - [CanvasTexture — Phaser 4 API documentation](https://docs.phaser.io/api-documentation/class/textures-canvastexture) (`getContext`, `add`, `refresh`)
 - [Textures — PixiJS 8 guide](https://pixijs.com/8.x/guides/components/textures) (`Texture.from`, texture sources)

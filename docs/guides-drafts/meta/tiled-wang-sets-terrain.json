@@ -1,0 +1,19 @@
+{
+  "slug": "tiled-wang-sets-terrain",
+  "section": "tiles",
+  "engines": ["tiled", "phaser", "godot", "unity", "ldtk"],
+  "tools": ["autotile-tester", "tile-lab", "tileset-slicer"],
+  "open": {"ws": "tile"},
+  "related": ["godot-4-terrain-autotile-47-blob", "dual-grid-autotile", "unity-rule-tile-autotile", "phaser-sprite-sheet-atlas-animation"],
+  "tested": ["Tiled 1.12.2", "Phaser 3.90", "Phaser 4.2", "Godot 4.7.2"],
+  "title": {
+    "en": "Tiled Terrain Sets (Wang Sets): Setup and Export to Phaser/Godot",
+    "ko": "Tiled 터레인 세트(Wang 세트) 설정과 Phaser·Godot 내보내기",
+    "ja": "Tiledのテレイン(Wangセット)設定とPhaser・Godotへの書き出し"
+  },
+  "description": {
+    "en": "Set up Corner, Edge or Mixed terrain sets in Tiled 1.12, paint with the Terrain Brush, and export to Phaser (embedded tilesets), Godot 4, Unity or LDtk.",
+    "ko": "Tiled 1.12에서 Corner·Edge·Mixed 터레인 세트를 만들고 Terrain Brush로 칠한 뒤, Phaser(타일셋 임베드)·Godot 4·Unity로 내보내는 방법과 LDtk 대안을 정리합니다.",
+    "ja": "Tiled 1.12でCorner・Edge・Mixedのテレインセットを作りTerrain Brushで塗って、Phaser(タイルセット埋め込み)・Godot 4・Unityへ書き出す方法とLDtkという選択肢。"
+  }
+}
