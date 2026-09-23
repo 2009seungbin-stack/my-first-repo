@@ -38,7 +38,8 @@ export const TARGETS=Object.freeze({
  'sparrow-phaser3':{group:'data',label:'Sparrow XML (Phaser 3)',verify:'verified',engine:'Phaser 3.90 + 4.2',build:starlingFiles,
   requires:{allowRotation:false,trimMode:'none'},preset:{allowRotation:false,trimMode:'none',shapePadding:2}},
  css:{group:'data',label:'CSS sprites',verify:'verified',engine:'Chromium',build:cssFiles,
-  requires:{allowRotation:false},preset:{allowRotation:false,trimMode:'none',shapePadding:2}},
+  // an element's box is the stored rect: a trimmed frame would lose its offset, so CSS never trims
+  requires:{allowRotation:false,trimMode:'none'},preset:{allowRotation:false,trimMode:'none',shapePadding:2}},
  json:{group:'data',label:'Generic JSON',verify:'verified',engine:'Phaser 3.90 + 4.2, PixiJS 8.21 (as a TexturePacker hash)',build:(m,v,o)=>genericJson(m,v,o),
   requires:{},preset:{}},
  gif:{group:'anim',label:'Animated GIF',verify:'decoded',engine:'Pillow',anim:'gif',requires:{},preset:{}},
