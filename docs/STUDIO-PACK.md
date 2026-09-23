@@ -70,6 +70,46 @@ Studio UI. The drawn pixels were compared with the ORIGINAL corpus file (`tools/
 A target that needs a setting it cannot do without (Godot: no rotation; Aseprite JSON: one page) re-packs
 for that export and shows the change next to its button before you click.
 
+## The stage (UI)
+
+- **Opening it.** Pack & Export is the third workspace tab. Opening it packs every frame in the project, live, in a worker.
+  - A new pack starts 120–250 ms after a settings or document change.
+  - A pack still running when you change something is cancelled (the worker is terminated).
+  - A **Cancel** button shows the phase.
+- **Canvas.** The atlas page is drawn at an integer zoom with one outline per stored frame.
+  - Page tabs (PageUp/PageDown) and variant tabs (@2x …).
+  - The used % with a meter, the totals (frames, stored, identical, pages, ms), the layout rule that won, and the texture memory.
+- **Settings.** A preset per engine, the basic settings, and an Advanced section with everything else.
+  - Saved in the project (`doc.settings.pack`) as undoable edits (Ctrl+Z).
+- **Export.**
+  - A target picker, a file name and one "Export for X" button.
+  - The verification line: "Loaded in Godot 4.7.2", or UNVERIFIED in amber.
+  - When the target needs a different setting, what it changes is shown next to the button.
+  - Below that, every format is one line with its own Export button, and the last export's files and notes are listed.
+- **Frame list and selection.**
+  - The **Packed frames** panel lists canvas → stored size, page and flags (trimmed, rotated, same as …).
+  - Hovering a row outlines its region; clicking a row or a region selects it.
+  - The selection is shared with the Sprite timeline (`src/studio/core/frame-selection.js`), both ways.
+- **Implicit animation.** With no tags (loose images in the Viewer), the panel says which implicit animation the engines will get, before export.
+- **Phone (390 px).** Every panel is a tab of the bottom sheet, with touch-size buttons.
+
+## Performance (measured)
+
+| What | Where | Time |
+|---|---|---|
+| 1,000 frames (40×25 sheet of 32 px cells, random trimmed sizes), normal effort | Chromium worker | pack **2.4 s**; whole round trip in the UI 3.2 s; Godot export (1,000 AtlasTextures) 0.23 s |
+| the same, best effort | Chromium worker | long enough to cancel; Cancel stops it at once |
+| 4096² FX sheet (`hit-yellow.png`, 14 frames of 1024²) | Chromium | import + apply 1.8 s, pack 2.1 s (page 3018×1676), Godot export 1.3 s |
+| 1,000 random rects, layout only | Node | fast 0.9 s, normal 2.9 s, best 12 s |
+| spaceshooter (294 frames) | Node | 0.42 s normal, 0.9 s best |
+
+## Tests
+
+| Test | What | Result |
+|---|---|---|
+| `tests/studio-pack.test.mjs` (node:test) | Every bin and heuristic without overlap; the layout invariants for every size mode (inside the page and border, padding respected, each sprite placed once); multipack and limit errors; determinism (layout and PNG bytes); trim / crop-keep / crop / none; alias with a byte check; clockwise and counter-clockwise rotation read-back; extrude belt; nearest @2x; premultiply; the schema of every exporter; out-of-canvas boxes; GIF/APNG containers; the WebM muxer; the document adapter; shared selection; string parity | 30 / 30 |
+| `tests/studio-pack-browser.py` (in `tools/regression.py`) | The full UI flow with real CC0 frames: live pack, undo, presets, rotation refusal, shared selection with the Sprite timeline, all 17 file exports, a byte-exact Phaser atlas from gAMA/cHRM frames, GIF/APNG exact, WebM through ffprobe and Chromium playback, multipack, @2x, Cancel, 1,000 frames, the 4096² sheet, ko/ja, 390 px, no network, no page errors | 63 / 63 |
+
 ## Results
 
 See **Baseline before/after** below. The head-to-head packer comparison is in
