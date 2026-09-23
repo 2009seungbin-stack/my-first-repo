@@ -8,7 +8,7 @@
  * the numbers it was ranked on; the tool never picks silently. */
 import {MAX_FRAMES} from '../primitives.js';
 export const COMMON_SIZES=Object.freeze([8,16,24,32,48,64]);
-export const MARGINS=Object.freeze([0,1,2]);
+export const MARGINS=Object.freeze([0,1,2,3,4]);
 export const SPACINGS=Object.freeze([0,1,2,4]);
 export const MAX_TILES=MAX_FRAMES;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -95,7 +95,7 @@ function axisPeriods(p,per,extra,top=14){
  measured.sort((a,b)=>per.scores[b]-per.scores[a]||a-b);
  const periods=new Set(measured.slice(0,top));
  for(const tile of axisSizes(p.len,extra))for(const spacing of SPACINGS)if(tile+spacing<=p.len)periods.add(tile+spacing);
- for(const margin of MARGINS)if(p.len-2*margin>=4)periods.add(p.len-2*margin);
+ for(const margin of MARGINS)if(margin<=2&&p.len-2*margin>=4)periods.add(p.len-2*margin);
  return [...periods].filter(v=>v>=4&&v<=p.len).sort((a,b)=>a-b);
 }
 function axisOption(p,per,fold,tile,margin,spacing){
@@ -159,9 +159,122 @@ function axisRanking(p,extra){
  const out=[];
  for(const period of axisPeriods(p,per,extra))for(const spacing of SPACINGS){
   if(period-spacing<4)continue;
-  for(const margin of MARGINS){const o=axisOption(p,per,fold,period-spacing,margin,spacing);if(o)out.push(o);}
+  // Wide margins come with spacing (a packer's border plus gutters); on an edge-to-edge sheet a
+  // 3–4px "margin" is only a way to shift an unrelated small grid onto blank border lines.
+  for(const margin of MARGINS){if(margin>2&&!spacing)continue;const o=axisOption(p,per,fold,period-spacing,margin,spacing);if(o)out.push(o);}
  }
  return out.sort((a,b)=>b.score-a.score||a.tile-b.tile);
+}
+/** What the tiles themselves say about a grid, beyond the line profile:
+ *  blank     cells that are fully transparent — real tilesets leave unused slots empty, and an
+ *            empty cell only exists when the grid is the true one (or finer)
+ *  edges     share of cell sides whose exact 1px signature repeats on another cell: tilesets are
+ *            built from a few edge types (grass edge, rim, wall), so the true grid's sides repeat
+ *  dups      share of non-blank cells that are exact copies of another cell
+ * Cheap: at most `maxCells` cells are read, one hash per side. */
+export function contentStats(data,w,h,{tileWidth,tileHeight,marginX=0,marginY=0,spacingX=0,spacingY=0,cols,rows},{maxCells=2048}={}){
+ const n=cols*rows;if(n>maxCells||n<1)return null;
+ const sides=new Map(),cells=new Map(),blankCells=[];let solid=0,full=0,sideCount=0;
+ // A fully transparent side says nothing about edge types (every blank border matches every
+ // other), so it is left out; -1 marks it.
+ const sig=(x0,y0,dx,dy,len)=>{let hash=2166136261,any=false;for(let i=0;i<len;i++){const p=((y0+dy*i)*w+x0+dx*i)*4;if(data[p+3])any=true;for(let k=0;k<4;k++)hash=Math.imul(hash^data[p+k],FNV);}return any?hash>>>0:-1;};
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+  const x=marginX+c*(tileWidth+spacingX),y=marginY+r*(tileHeight+spacingY);
+  let opaque=0;
+  for(let yy=y;yy<y+tileHeight;yy++)for(let xx=x;xx<x+tileWidth;xx++)if(data[(yy*w+xx)*4+3])opaque++;
+  if(!opaque){blankCells.push(r*cols+c);continue;}
+  solid++;if(opaque===tileWidth*tileHeight)full++;
+  const all=[sig(x,y,1,0,tileWidth),sig(x,y+tileHeight-1,1,0,tileWidth),sig(x,y,0,1,tileHeight),sig(x+tileWidth-1,y,0,1,tileHeight)];
+  all.forEach((v,i)=>{if(v<0)return;const k=(i<2?'h':'v')+v;sides.set(k,(sides.get(k)||0)+1);sideCount++;});
+  const whole=rectHash(data,w,h,{x,y,w:tileWidth,h:tileHeight});cells.set(whole,(cells.get(whole)||0)+1);
+ }
+ let repeated=0;for(const v of sides.values())if(v>1)repeated+=v;
+ let dups=0;for(const v of cells.values())if(v>1)dups+=v-1;
+ return {cells:n,blank:blankCells.length,blankCells,solid,full,edges:sideCount?repeated/sideCount:0,sides:sideCount,dups:solid?dups/solid:0};
+}
+/** A cell that is a whole multiple of a smaller candidate is the classic wrong answer on an
+ * autotile set: 64×32 "tiles" made of eight real 16×16 ones explain the same boundaries, and a
+ * fold at the larger period always explains at least as much variance. What separates them is
+ * the lines *inside* the large cell where the small grid puts boundaries: if every one of those
+ * is as strong a transition as the large cell's own boundary, those are tile boundaries too and
+ * the small cell is the tile. If even one of them is ordinary interior (a template's quarter line
+ * that is not drawn), the large cell stands. Blank cells back the same decision on sheets of
+ * solid tiles: a tile-aligned empty block inside a large "tile" only exists when it is not one. */
+export const INTERNAL_BOUNDARY_RATIO=.6;
+/** Column × row shapes of the autotile templates people actually publish and import. */
+export const AUTOTILE_SHAPES=Object.freeze({'8x6':'blob47','6x8':'blob47','7x7':'blob47','12x4':'blob47','4x12':'blob47','11x5':'blob47','4x4':'edge16','3x3':'minimal9'});
+const autotileShape=c=>AUTOTILE_SHAPES[`${c.cols}x${c.rows}`]||null;
+function internalBoundaries(profile,big,small,margin){
+ if(big===small)return {ratio:1,checked:false};
+ const f=foldMeans(profile,big),mean=f.reduce((s,v)=>s+v,0)/big,r0=((margin%big)+big)%big,edge=f[r0];
+ if(!(edge>mean))return {ratio:0,checked:true};
+ let min=Infinity;for(let k=1;k<big/small;k++)min=Math.min(min,f[(r0+k*small)%big]);
+ return {ratio:min/edge,checked:true};
+}
+function preferSmaller(list,data,w,h,px,py){
+ const stats=new Map(),of=c=>{if(!stats.has(c))stats.set(c,contentStats(data,w,h,{tileWidth:c.tileWidth,tileHeight:c.tileHeight,marginX:c.marginX,marginY:c.marginY,spacingX:c.spacingX,spacingY:c.spacingY,cols:c.cols,rows:c.rows}));return stats.get(c);};
+ for(let pass=0;pass<4;pass++){
+  const top=list[0];if(!top||top.spacingX||top.spacingY)break;
+  const divides=c=>c!==top&&c.marginX===top.marginX&&c.marginY===top.marginY&&!c.spacingX&&!c.spacingY
+   &&top.tileWidth%c.tileWidth===0&&top.tileHeight%c.tileHeight===0&&(c.tileWidth<top.tileWidth||c.tileHeight<top.tileHeight)&&c.tileWidth>=8&&c.tileHeight>=8;
+  // Largest divisor first, so 64×32 steps to 16×16 before 8×8 is even considered.
+  const smaller=list.filter(divides).sort((a,b)=>b.tileWidth*b.tileHeight-a.tileWidth*a.tileHeight);
+  let chosen=null;
+  if(autotileShape(top))break;
+  for(const c of smaller){
+   const ix=internalBoundaries(px,top.tileWidth,c.tileWidth,top.marginX),iy=internalBoundaries(py,top.tileHeight,c.tileHeight,top.marginY);
+   const ratio=Math.min(ix.ratio,iy.ratio);
+   if(ratio>=INTERNAL_BOUNDARY_RATIO&&c.score>=top.score-.2){chosen=c;chosen.content={...of(c),reason:'boundaries',ratio:+ratio.toFixed(2),over:`${top.tileWidth}x${top.tileHeight}`};break;}
+   const small=of(c),big=of(top);
+   if(!small||!big)continue;
+   // The small reading lays the sheet out exactly like a published autotile template (8×6 or 7×7
+   // blob, 4×4 edge set, 3×3 minimal…) with at most two empty slots; the large one does not.
+   const shape=autotileShape(c);
+   if(shape&&small.blank<=2&&c.score>=top.score-.2){chosen=c;chosen.content={...small,reason:'layout',layout:shape,ratio:+ratio.toFixed(2),over:`${top.tileWidth}x${top.tileHeight}`};break;}
+   const kx=top.tileWidth/c.tileWidth,ky=top.tileHeight/c.tileHeight,bigBlank=new Set(big.blankCells);
+   const insideBlank=small.blankCells.some(i=>{const col=i%c.cols,row=Math.floor(i/c.cols),bc=Math.floor(col/kx),br=Math.floor(row/ky);return bc<top.cols&&br<top.rows&&!bigBlank.has(br*top.cols+bc);});
+   // An aligned empty block only means something when every other tile is solid; on sheets
+   // whose tiles have transparent parts, empty sub-blocks are everywhere at any size.
+   const solidTiles=small.solid&&small.full/small.solid>=.95;
+   // Tilesets are built from a few edge types, so the true tile's sides repeat across the sheet;
+   // sides cut through the middle of tiles do not. A clear lead in repeated sides is evidence.
+   if(small.sides>=16&&small.edges>=.6&&small.edges>=big.edges+.25&&c.score>=top.score-.1){chosen=c;chosen.content={...small,reason:'edges',ratio:+ratio.toFixed(2),over:`${top.tileWidth}x${top.tileHeight}`};break;}
+   if(insideBlank&&solidTiles&&ratio>=INTERNAL_BOUNDARY_RATIO/2){chosen=c;chosen.content={...small,reason:'blank',ratio:+ratio.toFixed(2),over:`${top.tileWidth}x${top.tileHeight}`};break;}
+  }
+  if(!chosen)break;
+  chosen.score=Math.max(chosen.score,top.score);
+  list.splice(list.indexOf(chosen),1);list.unshift(chosen);
+ }
+ // Not a multiple at all, but nearly as good and laid out exactly like an autotile template:
+ // that reading is the more useful default to put first (still only 'medium' unless it is sure).
+ const top=list[0];
+ if(top&&!autotileShape(top)){
+  const alt=list.find(c=>c!==top&&autotileShape(c)&&c.score>=top.score-.08&&(of(c)?.blank??9)<=2);
+  if(alt){alt.content={...of(alt),reason:'layout',layout:autotileShape(alt),over:`${top.tileWidth}x${top.tileHeight}`};alt.score=Math.max(alt.score,top.score);list.splice(list.indexOf(alt),1);list.unshift(alt);}
+ }
+ for(const c of list.slice(0,6))if(!c.content){const st=of(c);if(st)c.content={...st};}
+ for(const c of list)if(c.content)delete c.content.blankCells;
+ return list;
+}
+/** Confidence of the leading candidate: its own score and its lead over the next *different*
+ * tile size. Only 'high' is applied without asking (autoApply). */
+function withConfidence(list){
+ const top=list[0];if(!top)return list;
+ const rival=list.find(c=>c.tileWidth!==top.tileWidth||c.tileHeight!==top.tileHeight);
+ const lead=rival?top.score-rival.score:1;
+ for(const c of list)c.confidence=c.score>=.75&&(c!==top||lead>=.08)?'high':c.score>=.55?'medium':'low';
+ top.lead=lead;
+ if(top.content?.reason&&top.confidence==='low')top.confidence='medium';
+ return list;
+}
+/** The candidate a Lab may apply by itself: only a high-confidence one. Otherwise null — the
+ * person picks, and nothing downstream pretends a grid was confirmed. */
+export const autoApply=list=>list?.[0]?.confidence==='high'?list[0]:null;
+/** What a Lab may pre-fill as the working grid: high, or medium flagged `confirm` so the UI asks
+ * the person to confirm it. A low-confidence guess is never pre-filled. */
+export function suggestedGrid(list){
+ const top=list?.[0];if(!top||top.confidence==='low')return null;
+ return {...top,confirm:top.confidence!=='high'};
 }
 /** Ranked grid candidates. Nothing is applied; the caller shows them and the person chooses. */
 export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24}={}){
@@ -180,7 +293,8 @@ export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24}={}){
    evidence:{separators:pair(a.purity,b.purity),repeatedEdges:pair(a.periodicity,b.periodicity),
     boundaryEdges:pair(a.contrast,b.contrast),strongEdgesExplained:pair(a.explained,b.explained),contentStops:pair(a.breakage,b.breakage)}});
  }
- return out.sort((p,q)=>q.score-p.score||p.count-q.count).slice(0,limit);
+ out.sort((p,q)=>q.score-p.score||p.count-q.count);
+ return withConfidence(preferSmaller(out.slice(0,Math.max(limit,24)),data,w,h,px,py)).slice(0,limit);
 }
 const pair=(a,b)=>a==null&&b==null?null:((a??b)+(b??a))/2;
 /** Exact tile rectangles for a grid. Throws rather than guessing when a tile would fall outside. */
