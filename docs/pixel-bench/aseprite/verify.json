@@ -1,0 +1,64 @@
+{
+ "T5": {
+  "png_mode": "P",
+  "alpha_preserved": true,
+  "opaque_px": 5759,
+  "opaque_px_turned_transparent": 0,
+  "match_nearest_rgb_euclid_pct": 23.025,
+  "all_output_colours_in_pico8": true,
+  "colours_used": 6
+ },
+ "T8": {
+  "size": [
+   98,
+   146
+  ],
+  "outline_px": 1846,
+  "expected_4conn_px": 1846,
+  "expected_8conn_px": 2111,
+  "equals_4conn": true,
+  "equals_8conn": false,
+  "original_pixels_unchanged": true,
+  "shadow_image_size": [
+   98,
+   146
+  ],
+  "shadow_px_added": 705
+ },
+ "T7_red": {
+  "size": [
+   96,
+   144
+  ],
+  "team_px_in_truth": 2662,
+  "team_px_recoloured": 2662,
+  "other_px_unchanged": true
+ },
+ "T7_blue": {
+  "size": [
+   96,
+   144
+  ],
+  "team_px_in_truth": 2662,
+  "team_px_recoloured": 2662,
+  "other_px_unchanged": true
+ },
+ "T7_green": {
+  "size": [
+   96,
+   144
+  ],
+  "team_px_in_truth": 2662,
+  "team_px_recoloured": 2662,
+  "other_px_unchanged": true
+ },
+ "T7_indexed_palette_edit_red": {
+  "size": [
+   96,
+   144
+  ],
+  "team_px_in_truth": 2662,
+  "team_px_recoloured": 2662,
+  "other_px_unchanged": true
+ }
+}

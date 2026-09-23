@@ -1,0 +1,90 @@
+﻿#### nerulio
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 0 | 75 | 80 | 0.000 | 56.9 | 68.6 | 0.061 | 10.4 | 842 |
+| nearest-int | 20 | 0 | 100 | 100 | 0.000 | 92.2 | 94.4 | 0.000 | 0.0 | 48 |
+| nearest-frac | 9 | 0 | 78 | 78 | 0.003 | 67.1 | 69.5 | 0.059 | 0.0 | 72 |
+| smooth-resample | 14 | 0 | 93 | 93 | 0.001 | 70.5 | 78.2 | 0.031 | 22.0 | 2445 |
+| jpeg | 10 | 0 | 80 | 80 | 0.000 | 4.5 | 48.4 | 0.161 | 20.7 | 621 |
+| blur | 6 | 0 | 67 | 67 | 0.002 | 53.8 | 64.2 | 0.109 | 1.4 | 516 |
+| ai-sim | 10 | 0 | 0 | 30 | 0.443 | 12.2 | 25.9 | 0.126 | 19.4 | 1294 |
+| phase (tag) | 9 | 0 | 100 | 100 | 0.000 | 95.3 | 97.7 | 0.004 | 6.3 | 372 |
+
+ai-real (no truth): horror_monster 1024x1024/102c, gosoythoth 768x112/228c, guns 630x500/243c, bones 630x500/48c, asteroids 630x500/241c, turrets 630x500/270c, gosoythoth_f0 128x112/99c
+
+#### snapper
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 0 | 6 | 28 | 0.309 | 33.4 | 54.7 | 0.158 | 9.6 | 82 |
+| nearest-int | 20 | 0 | 0 | 15 | 0.391 | 48.0 | 50.0 | 0.201 | 2.1 | 36 |
+| nearest-frac | 9 | 0 | 0 | 0 | 0.468 | 39.2 | 42.8 | 0.230 | 2.0 | 13 |
+| smooth-resample | 14 | 0 | 7 | 29 | 0.061 | 43.9 | 52.1 | 0.151 | 32.2 | 71 |
+| jpeg | 10 | 0 | 10 | 20 | 0.356 | 2.6 | 45.1 | 0.145 | 7.9 | 113 |
+| blur | 6 | 0 | 0 | 33 | 0.027 | 46.6 | 60.5 | 0.079 | 6.9 | 74 |
+| ai-sim | 10 | 0 | 20 | 80 | 0.010 | 6.9 | 84.8 | 0.074 | 3.2 | 229 |
+| phase (tag) | 9 | 0 | 11 | 33 | 0.276 | 56.1 | 58.8 | 0.162 | 17.0 | 31 |
+
+ai-real (no truth): horror_monster 132x127/16c, gosoythoth 178x25/16c, guns 106x84/16c, bones 139x112/16c, asteroids 104x83/16c, turrets 113x86/16c, gosoythoth_f0 29x25/13c
+
+#### perfectpixel
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 15 | 30 | 43 | 0.014 | 33.9 | 55.9 | 0.083 | 11.0 | 29 |
+| nearest-int | 20 | 8 | 55 | 60 | 0.000 | 59.7 | 59.7 | 0.000 | 0.0 | 21 |
+| nearest-frac | 9 | 7 | 0 | 0 | 0.069 | 13.6 | 13.6 | 0.157 | 0.0 | 13 |
+| smooth-resample | 14 | 0 | 0 | 7 | 0.111 | 37.9 | 46.4 | 0.162 | 20.0 | 25 |
+| jpeg | 10 | 0 | 40 | 60 | 0.006 | 11.5 | 67.2 | 0.086 | 15.3 | 31 |
+| blur | 6 | 0 | 33 | 50 | 0.023 | 60.5 | 69.7 | 0.097 | 2.1 | 23 |
+| ai-sim | 10 | 0 | 40 | 80 | 0.009 | 1.3 | 79.7 | 0.045 | 14.8 | 65 |
+| phase (tag) | 9 | 3 | 44 | 44 | 0.015 | 60.2 | 61.6 | 0.027 | 3.0 | 22 |
+
+ai-real (no truth): horror_monster 129x125/5620c, gosoythoth 153x22/2094c, guns 106x78/1365c, bones 122x99/2020c, asteroids 92x73/1269c, turrets 76x61/1328c, gosoythoth_f0 25x23/348c
+
+#### unfake
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 0 | 25 | 41 | 0.028 | 38.7 | 63.1 | 0.096 | 9.4 | 68 |
+| nearest-int | 20 | 0 | 80 | 80 | 0.000 | 70.8 | 75.5 | 0.056 | 1.2 | 41 |
+| nearest-frac | 9 | 0 | 0 | 0 | 0.200 | 32.9 | 34.8 | 0.159 | 0.6 | 18 |
+| smooth-resample | 14 | 0 | 0 | 0 | 0.090 | 39.8 | 48.5 | 0.122 | 29.4 | 65 |
+| jpeg | 10 | 0 | 10 | 60 | 0.000 | 11.2 | 73.2 | 0.089 | 8.6 | 87 |
+| blur | 6 | 0 | 0 | 67 | 0.000 | 47.8 | 68.5 | 0.046 | 11.0 | 66 |
+| ai-sim | 10 | 0 | 0 | 20 | 0.014 | 0.0 | 70.8 | 0.115 | 5.9 | 150 |
+| phase (tag) | 9 | 0 | 67 | 67 | 0.000 | 66.6 | 71.3 | 0.052 | 10.0 | 38 |
+
+ai-real (no truth): horror_monster 84x85/16c, gosoythoth 95x13/15c, guns 209x166/16c, bones 210x166/16c, asteroids 30x25/15c, turrets 209x166/16c, gosoythoth_f0 11x9/11c
+
+#### unfake-auto
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 0 | 26 | 42 | 0.028 | 40.7 | 64.8 | 0.096 | 9.5 | 65 |
+| nearest-int | 20 | 0 | 85 | 85 | 0.000 | 77.7 | 82.2 | 0.048 | 1.2 | 35 |
+| nearest-frac | 9 | 0 | 0 | 0 | 0.200 | 32.9 | 34.8 | 0.158 | 0.6 | 16 |
+| smooth-resample | 14 | 0 | 0 | 0 | 0.090 | 39.8 | 48.5 | 0.123 | 29.6 | 65 |
+| jpeg | 10 | 0 | 10 | 60 | 0.000 | 11.2 | 73.2 | 0.089 | 8.7 | 84 |
+| blur | 6 | 0 | 0 | 67 | 0.000 | 47.8 | 68.5 | 0.046 | 10.9 | 66 |
+| ai-sim | 10 | 0 | 0 | 20 | 0.018 | 0.0 | 68.9 | 0.139 | 5.9 | 152 |
+| phase (tag) | 9 | 0 | 44 | 44 | 0.091 | 54.3 | 58.4 | 0.094 | 10.0 | 37 |
+
+ai-real (no truth): horror_monster 84x85/16c, gosoythoth 95x13/15c, guns 209x166/16c, bones 210x166/16c, asteroids 30x25/15c, turrets 209x166/16c, gosoythoth_f0 11x9/11c
+
+#### unfake-lib
+
+| kind | n | fail | size exact % | size ±1 % | median scale_err | mean acc % | mean acc_tol % | mean dE | fringe % | mean ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **overall** | 69 | 0 | 25 | 41 | 0.028 | 44.6 | 64.6 | 0.086 | 9.8 | 67 |
+| nearest-int | 20 | 0 | 80 | 80 | 0.000 | 78.8 | 80.1 | 0.049 | 0.2 | 31 |
+| nearest-frac | 9 | 0 | 0 | 0 | 0.200 | 34.5 | 35.0 | 0.160 | 0.3 | 15 |
+| smooth-resample | 14 | 0 | 0 | 0 | 0.090 | 42.4 | 49.4 | 0.120 | 31.6 | 59 |
+| jpeg | 10 | 0 | 10 | 60 | 0.000 | 17.6 | 74.6 | 0.092 | 9.5 | 85 |
+| blur | 6 | 0 | 0 | 67 | 0.000 | 60.0 | 71.3 | 0.045 | 4.6 | 55 |
+| ai-sim | 10 | 0 | 0 | 20 | 0.014 | 6.2 | 67.6 | 0.059 | 10.1 | 186 |
+| phase (tag) | 9 | 0 | 67 | 67 | 0.000 | 71.0 | 72.5 | 0.053 | 9.7 | 26 |
+
+ai-real (no truth): horror_monster 84x85/38c, gosoythoth 95x13/53c, guns 209x166/36c, bones 210x166/50c, asteroids 30x25/31c, turrets 209x166/35c, gosoythoth_f0 11x9/27c
+

@@ -438,7 +438,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    layer(l){view.addLayer(l);disposers.push(()=>view.removeLayer(l));return l;},
    on,
    badge:id=>docks.badge(id),
-   setTool
+   setTool,
+   get tool(){return activeTool;}
   };
   return {ctx,dispose(){while(disposers.length)disposers.pop()();}};
  }
