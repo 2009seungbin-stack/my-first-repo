@@ -48,11 +48,17 @@ function tryPack(order,W,H,rotate){
 /** frames: [{name,x,y,w,h,rotated,trimmed,sourceW,sourceH,offsetX,offsetY}] in atlas pixels. */
 export const ATLAS_FORMATS=Object.freeze({'json-hash':{ext:'json',label:'JSON (Hash) — Phaser · PixiJS'},'json-array':{ext:'json',label:'JSON (Array) — TexturePacker'},xml:{ext:'xml',label:'XML — Starling · Sparrow'},godot:{ext:'json',label:'Godot 4 — JSON + import script'},unity:{ext:'json',label:'Unity — JSON for sprite importers'},css:{ext:'css',label:'CSS sprites'},csv:{ext:'csv',label:'CSV'}});
 const xmlEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-export function atlasData(format,frames,{image='atlas.png',width,height,app='Nerulio'}={}){
- const tp=f=>({frame:{x:f.x,y:f.y,w:f.rotated?f.h:f.w,h:f.rotated?f.w:f.h},rotated:!!f.rotated,trimmed:!!f.trimmed,spriteSourceSize:{x:f.offsetX||0,y:f.offsetY||0,w:f.w,h:f.h},sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h}});
+export function atlasData(format,frames,{image='atlas.png',width,height,app='Nerulio',animations=null}={}){
+ // Animations, when given, are {name:[frame names in playback order]} — the "animations" block
+ // TexturePacker writes for Phaser/PixiJS, and the same list for the Godot JSON.
+ const anims=animations&&Object.keys(animations).length?{animations}:{};
+ // TexturePacker JSON: `frame` w/h are the sprite's own, unrotated size even when `rotated` is
+ // set — Phaser's JSON parsers and PixiJS's Spritesheet swap them for the region in the atlas.
+ // Writing the atlas orientation here made every rotated frame come out garbled in all three.
+ const tp=f=>({frame:{x:f.x,y:f.y,w:f.w,h:f.h},rotated:!!f.rotated,trimmed:!!f.trimmed,spriteSourceSize:{x:f.offsetX||0,y:f.offsetY||0,w:f.w,h:f.h},sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h}});
  const meta={app,version:'1.0',image,format:'RGBA8888',size:{w:width,h:height},scale:'1'};
- if(format==='json-hash')return JSON.stringify({frames:Object.fromEntries(frames.map(f=>[f.name,tp(f)])),meta},null,2);
- if(format==='json-array')return JSON.stringify({frames:frames.map(f=>({filename:f.name,...tp(f)})),meta},null,2);
+ if(format==='json-hash')return JSON.stringify({frames:Object.fromEntries(frames.map(f=>[f.name,tp(f)])),...anims,meta},null,2);
+ if(format==='json-array')return JSON.stringify({frames:frames.map(f=>({filename:f.name,...tp(f)})),...anims,meta},null,2);
  if(format==='unity')return JSON.stringify({texture:image,width,height,sprites:frames.map(f=>({name:f.name.replace(/\.[^.]+$/,''),rect:{x:f.x,y:height-f.y-(f.rotated?f.w:f.h),width:f.rotated?f.h:f.w,height:f.rotated?f.w:f.h},pivot:{x:.5,y:.5},rotated:!!f.rotated}))},null,2);
  if(format==='xml')return `<?xml version="1.0" encoding="UTF-8"?>\n<TextureAtlas imagePath="${xmlEsc(image)}" width="${width}" height="${height}">\n${frames.map(f=>`  <SubTexture name="${xmlEsc(f.name.replace(/\.[^.]+$/,''))}" x="${f.x}" y="${f.y}" width="${f.rotated?f.h:f.w}" height="${f.rotated?f.w:f.h}"${f.rotated?' rotated="true"':''}${f.trimmed?` frameX="${-(f.offsetX||0)}" frameY="${-(f.offsetY||0)}" frameWidth="${f.sourceW}" frameHeight="${f.sourceH}"`:''}/>`).join('\n')}\n</TextureAtlas>\n`;
  // Godot: honest JSON, not a hand-written .tres look-alike. `margin` is in AtlasTexture's own
@@ -64,7 +70,8 @@ export function atlasData(format,frames,{image='atlas.png',width,height,app='Ner
    notes:['AtlasTexture cannot rotate a region, so pack without rotation.','margin = Rect2(offset.x, offset.y, sourceSize.w - region.w, sourceSize.h - region.h) restores a trimmed frame to its full size.']},
   frames:Object.fromEntries(frames.map(f=>[f.name.replace(/\.[^.]+$/,''),{region:{x:f.x,y:f.y,w:f.rotated?f.h:f.w,h:f.rotated?f.w:f.h},
    margin:{x:f.offsetX||0,y:f.offsetY||0,w:(f.sourceW??f.w)-f.w,h:(f.sourceH??f.h)-f.h},
-   sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h},offset:{x:f.offsetX||0,y:f.offsetY||0},rotated:!!f.rotated}]))},null,2);
+   sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h},offset:{x:f.offsetX||0,y:f.offsetY||0},rotated:!!f.rotated}])),
+  ...(anims.animations?{animations:Object.fromEntries(Object.entries(anims.animations).map(([k,v])=>[k,v.map(n=>n.replace(/\.[^.]+$/,''))]))}:{})},null,2);
  if(format==='css')return `.sprite{display:inline-block;background-image:url('${image}');background-repeat:no-repeat}\n${frames.map(f=>`.sprite-${f.name.replace(/\.[^.]+$/,'').replace(/[^\w-]+/g,'-')}{width:${f.w}px;height:${f.h}px;background-position:-${f.x}px -${f.y}px}`).join('\n')}\n`;
  if(format==='csv')return `name,x,y,width,height,rotated,offsetX,offsetY,sourceWidth,sourceHeight\n${frames.map(f=>[JSON.stringify(f.name),f.x,f.y,f.w,f.h,!!f.rotated,f.offsetX||0,f.offsetY||0,f.sourceW??f.w,f.sourceH??f.h].join(',')).join('\n')}\n`;
  throw Error('Unknown atlas format');

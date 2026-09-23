@@ -12,7 +12,7 @@ export const COLOR_SPACE=Object.freeze({albedo:'srgb',emission:'srgb',specular:'
 const RULES=Object.freeze([
  ['orm',/(^|_)(orm|arm|rma|mra|maskmap|mask_map|packed|mask)(_|$)/],
  ['albedo',/(^|_)(albedo|basecolor|base_color|base_colour|diffuse|diff|col|color|colour|alb)(_|$)/],
- ['normal',/(^|_)(normal|normalmap|normal_map|nrm|norm|nor|n)(_|$)/],
+ ['normal',/(^|_)(normalgl|normaldx|normal_gl|normal_dx|normal|normalmap|normal_map|nrm|norm|nor|n)(_|$)/],
  ['roughness',/(^|_)(roughness|rough|rgh|r)(_|$)/],
  ['smoothness',/(^|_)(smoothness|smooth|gloss|glossiness)(_|$)/],
  ['metallic',/(^|_)(metallic|metalness|metal|mtl|met|m)(_|$)/],
@@ -22,6 +22,14 @@ const RULES=Object.freeze([
  ['opacity',/(^|_)(opacity|alpha|transparency|transparent|mask_alpha)(_|$)/],
  ['specular',/(^|_)(specular|spec|reflection)(_|$)/]
 ]);
+/** The normal-map convention a filename declares, if any: ambientCG and others ship both
+ * "…_NormalGL" (OpenGL, green up) and "…_NormalDX" (DirectX, green down). */
+export function normalConvention(name){
+ const stem=normalizeStem(name);
+ if(/(^|_)(normalgl|normal_gl|nrm_gl)(_|$)/.test(stem))return 'opengl';
+ if(/(^|_)(normaldx|normal_dx|nrm_dx)(_|$)/.test(stem))return 'directx';
+ return null;
+}
 export const normalizeStem=name=>String(name).replace(/\.[^.]+$/,'').toLowerCase().replace(/[\s.\-+]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
 /** Which map a filename claims to be, plus the set name left over once the role token is
  * removed — that leftover is what the naming-consistency check compares. */

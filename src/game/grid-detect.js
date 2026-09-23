@@ -10,7 +10,8 @@
  * GridSpec {cellWidth, cellHeight, marginX, marginY, spacingX, spacingY, columns, rows, cells}
  * Pixels are read through src/game/pixels.js: one horizontal band at a time, never a sheet copy. */
 import {source,alphaProfile,autocorrelationAt,eachBand,ALPHA_THRESHOLD} from './pixels.js';
-import {MAX_FRAMES} from '../primitives.js';
+import {MAX_FRAMES,ANALYSIS_PIXELS} from '../primitives.js';
+import {detectGrid as detectTileGrid} from './tile-grid.js';
 export const CELL_CANDIDATES=Object.freeze([8,16,24,32,48,64,96,128]);
 export const MAX_MARGIN=64,MAX_SPACING=16;
 const clamp01=v=>v<0?0:v>1?1:v;
@@ -49,6 +50,8 @@ export const maxSpacingFor=(cell,maxSpacing=MAX_SPACING)=>Math.min(maxSpacing,Ma
  * a sprite happens to leave inside its own cell, which is how "45px cells with 3px gaps" wins over
  * the 48px grid that actually made the sheet. */
 export const SEPARATOR_GATE=.98;
+export const CROSS_ALLOWANCE=.03;
+export const SEPARATOR_PIXEL_GATE=.995;
 /** First/last occupied line at or after/before each index, so "where does content sit inside this
  * cell" is O(1) per cell for every candidate. */
 function occupiedIndex(counts){
@@ -59,10 +62,15 @@ function occupiedIndex(counts){
 }
 /** Ranks (cell, margin, spacing) triples on one axis: separator emptiness, autocorrelation at the
  * pitch, how much of the axis the cells account for, and a dip of the profile at cell boundaries. */
-export function axisCandidates(dim,counts,empty,{candidates,common=new Set(candidates),maxMargin=MAX_MARGIN,maxSpacing=MAX_SPACING,minCells=1}={}){
+export function axisCandidates(dim,counts,empty,{candidates,common=new Set(candidates),maxMargin=MAX_MARGIN,maxSpacing=MAX_SPACING,minCells=1,across=null}={}){
  // One answer per pitch: "45px cells with 3px gaps" and "48px cells edge to edge" describe the
  // same slicing, so they compete and only the better description survives.
  const p=prefix(empty),total=counts.reduce((s,v)=>s+v,0),avg=total/dim,occ=occupiedIndex(counts),byPitch=new Map();
+ // Opaque pixels per line, summed: with the other dimension known, a separator can be judged by
+ // how many of its *pixels* are clear, so one stray pixel in one spacing row (Kenney's
+ // roguelike indoor sheet has exactly that) does not throw away the whole layout.
+ const ink=new Float64Array(dim+1);for(let i=0;i<dim;i++)ink[i+1]=ink[i]+counts[i];
+ const inkIn=(from,to)=>{const a=Math.max(0,from),b=Math.min(dim,to);return b>a?ink[b]-ink[a]:0;};
  for(const cell of candidates){
   if(cell<2||cell>dim)continue;
   for(let spacing=0;spacing<=Math.min(maxSpacingFor(cell,maxSpacing),dim-cell);spacing++){
@@ -72,11 +80,15 @@ export function axisCandidates(dim,counts,empty,{candidates,common=new Set(candi
     if(count<minCells)continue;
     const span=margin*2+count*pitch-spacing;
     if(span>dim)continue;
-    let lines=0,blank=0;
+    let lines=0,blank=0,opaque=0;
     const head=bandEmpty(p,0,margin),tail=bandEmpty(p,margin+count*pitch-spacing,dim);
-    lines+=head.lines+tail.lines;blank+=head.empty+tail.empty;
-    for(let i=1;i<count&&spacing;i++){const g=bandEmpty(p,margin+i*pitch-spacing,margin+i*pitch);lines+=g.lines;blank+=g.empty;}
-    const separator=lines?blank/lines:null;
+    lines+=head.lines+tail.lines;blank+=head.empty+tail.empty;opaque+=inkIn(0,margin)+inkIn(margin+count*pitch-spacing,dim);
+    for(let i=1;i<count&&spacing;i++){const a=margin+i*pitch-spacing,b=margin+i*pitch,g=bandEmpty(p,a,b);lines+=g.lines;blank+=g.empty;opaque+=inkIn(a,b);}
+    const lineShare=lines?blank/lines:null;
+    // Pixel share when the line length is known: nearly every separator pixel clear, and most
+    // separator lines entirely clear. Otherwise the strict all-lines rule.
+    const pixelShare=lines&&across?1-opaque/(lines*across):null;
+    const separator=lineShare===null?null:pixelShare===null?lineShare:pixelShare>=SEPARATOR_PIXEL_GATE&&lineShare>=.8?Math.max(lineShare,SEPARATOR_GATE):lineShare;
     if(separator!==null&&separator<SEPARATOR_GATE&&(spacing||margin))continue;
     const periodicity=count>1?autocorrelationAt(counts,pitch):0;
     let dip=0;
@@ -89,9 +101,20 @@ export function axisCandidates(dim,counts,empty,{candidates,common=new Set(candi
     const symmetry=pads.length?clamp01(1-mean(pads)/cell):0;
     const tiling=count*cell/dim;
     const score=clamp01(periodicity*.32+tiling*.26+symmetry*.22+dip*.20)*(common.has(cell)?1:.92);
-    const spec={cell,margin,spacing,pitch,count,separator,separatorLines:lines,periodicity,dip,tiling,symmetry,exact:span===dim,score};
+    // "Tight": content reaches the cell's own first or last line somewhere. Of two descriptions of
+    // one pitch that both keep their separators blank, the tight one is the cell the sheet was
+    // made with — "18px cells with a 2px margin" around 16px tiles is the loose re-description.
+    let tight=false;
+    for(let i=0;i<count&&!tight;i++){const a=margin+i*pitch;if(counts[a]||counts[a+cell-1])tight=true;}
+    const spec={cell,margin,spacing,pitch,count,separator,separatorLines:lines,periodicity,dip,tiling,symmetry,exact:span===dim,tight,score};
     const rival=byPitch.get(pitch);
-    if(!rival||spec.score>rival.score)byPitch.set(pitch,spec);
+    const blankGaps=v=>v.separator===null||v.separator>=SEPARATOR_GATE;
+    const tighter=rival&&spec.tight&&!rival.tight&&spec.cell<rival.cell&&blankGaps(spec)&&blankGaps(rival);
+    const looser=rival&&rival.tight&&!spec.tight&&rival.cell<spec.cell&&blankGaps(spec)&&blankGaps(rival);
+    // Between near-equal descriptions, the one whose outer margins match (the sheet ends where
+    // the layout says it does) is how packers write sheets; a symmetric inset alone is weaker.
+    const edge=rival?(spec.exact&&!rival.exact?.03:!spec.exact&&rival.exact?-.03:0):0;
+    if(!rival||tighter||!looser&&spec.score+edge>rival.score)byPitch.set(pitch,spec);
    }
   }
  }
@@ -184,14 +207,29 @@ export function detectGrid(src,{candidates=CELL_CANDIDATES,custom=[],threshold=A
  const derivedX=periodCandidates(profile.cols),derivedY=periodCandidates(profile.rows);
  // A measured pitch P means cell+spacing=P, so every cell from P down to P-maxSpacing is a real
  // candidate — that is how a 40px cell with 5px spacing is found without 40 being a preset.
- const fromPitch=peaks=>peaks.flatMap(({lag})=>{const out=[];for(let s=0;s<=maxSpacingFor(lag,maxSpacing);s++)out.push(lag-s);return out;});
- const listX=[...new Set([...candidates,...custom,...fromPitch(derivedX)])].filter(v=>Number.isSafeInteger(v)&&v>1).sort((a,b)=>a-b);
- const listY=[...new Set([...candidates,...custom,...fromPitch(derivedY)])].filter(v=>Number.isSafeInteger(v)&&v>1).sort((a,b)=>a-b);
+ // An autocorrelation peak can sit one pixel off the true pitch when neighbouring frames touch,
+ // so the pitch either side of a peak is tried too.
+ const fromPitch=peaks=>peaks.flatMap(({lag})=>{const out=[];for(const p of [lag-1,lag,lag+1])for(let s=0;s<=maxSpacingFor(p,maxSpacing);s++)out.push(p-s);return out;});
+ // Sizes that split the sheet into a whole number of edge-to-edge cells (40 in a 240px strip) are
+ // real candidates even when they are not a preset: exported sheets are made that way.
+ const divisors=len=>{const out=[];for(let n=2;n<=32;n++){const c=len/n;if(Number.isSafeInteger(c)&&c>=8)out.push(c);}return out;};
+ const listX=[...new Set([...candidates,...custom,...fromPitch(derivedX),...divisors(s.width)])].filter(v=>Number.isSafeInteger(v)&&v>1).sort((a,b)=>a-b);
+ const listY=[...new Set([...candidates,...custom,...fromPitch(derivedY),...divisors(s.height)])].filter(v=>Number.isSafeInteger(v)&&v>1).sort((a,b)=>a-b);
  const common=new Set([...candidates,...custom]);
- const axisX=axisCandidates(s.width,profile.cols,profile.emptyCols,{candidates:listX,common,maxMargin,maxSpacing,minCells}),
-       axisY=axisCandidates(s.height,profile.rows,profile.emptyRows,{candidates:listY,common,maxMargin,maxSpacing,minCells});
+ const axisX=axisCandidates(s.width,profile.cols,profile.emptyCols,{candidates:listX,common,maxMargin,maxSpacing,minCells,across:s.height}),
+       axisY=axisCandidates(s.height,profile.rows,profile.emptyRows,{candidates:listY,common,maxMargin,maxSpacing,minCells,across:s.width});
  const suggestions=[];
- for(const x of axisX.slice(0,perAxis))for(const y of axisY.slice(0,perAxis)){
+ // Each axis is ranked on its own profile, and a tall sprite's row profile is often smooth enough
+ // that small sizes win it. Square cells are the norm, so the other axis's best cells always get
+ // a place in the shortlist next to this axis's own top entries.
+ const shortlist=(own,other)=>{const cells=new Set(other.slice(0,3).map(c=>c.cell)),out=own.slice(0,perAxis);
+  for(const c of own)if(cells.has(c.cell)&&!out.includes(c)){out.push(c);cells.delete(c.cell);}
+  // "The whole sheet is one frame" must stay on the table for a single sprite.
+  const single=own.find(c=>c.count===1);if(single&&!out.includes(single))out.push(single);
+  return out;};
+ const listedX=shortlist(axisX,axisY),listedY=shortlist(axisY,axisX);
+ const strongX=derivedX.some(p=>p.value>=.6),strongY=derivedY.some(p=>p.value>=.6);
+ for(const x of listedX)for(const y of listedY){
   const spec={cellWidth:x.cell,cellHeight:y.cell,marginX:x.margin,marginY:y.margin,spacingX:x.spacing,spacingY:y.spacing,columns:x.count,rows:y.count,cells:x.count*y.count};
   if(spec.cells>MAX_FRAMES)continue;
   const ev=cellEvidence(rl,spec,profile);
@@ -199,17 +237,55 @@ export function detectGrid(src,{candidates=CELL_CANDIDATES,custom=[],threshold=A
   const periodicity=mean([x.periodicity,y.periodicity]),tiling=mean([x.tiling,y.tiling]),symmetry=mean([x.symmetry,y.symmetry]);
   const commonSize=(common.has(x.cell)?1:.92)*(common.has(y.cell)?1:.92);
   let score=clamp01(periodicity*.24+ev.consistency*.24+tiling*.20+symmetry*.12+ev.coverage*.10+(1-ev.outsideRatio)*.10);
-  score*=(1-clamp01(ev.crossRatio*8))*(1-clamp01(ev.outsideRatio))*(1-clamp01(ev.splitRatio))*commonSize;
+  // Frames drawn edge to edge touch their neighbours on a few rows; that is not the grid cutting
+  // through sprites. Only crossings beyond a small share count against a grid.
+  score*=(1-clamp01(Math.max(0,ev.crossRatio-CROSS_ALLOWANCE)*8))*(1-clamp01(ev.outsideRatio))*(1-clamp01(ev.splitRatio))*commonSize;
+  // One cell spanning a whole axis dodges every crossing by having no boundaries at all. On an
+  // axis whose content clearly repeats (a strong autocorrelation peak), that is not a reading of
+  // the sheet, it is the absence of one.
+  // Frames are rarely more than four times as long as they are wide. A 1024×8 "cell" on an FX
+  // sheet drawn at 8× is the art's own pixel grid, not its frames.
+  const aspect=Math.max(x.cell,y.cell)/Math.min(x.cell,y.cell);
+  if(aspect>4)score*=aspect>8?.6:.8;
+  if(x.count===1&&strongX)score*=.6;
+  if(y.count===1&&strongY)score*=.6;
   const evidence={separatorRatioX:x.separator,separatorRatioY:y.separator,separatorLinesX:x.separatorLines,separatorLinesY:y.separatorLines,
    periodicityX:x.periodicity,periodicityY:y.periodicity,boundaryDipX:x.dip,boundaryDipY:y.dip,boundsConsistency:ev.consistency,
    coverage:ev.coverage,filledCells:ev.filled,crossingsX:ev.crossX,crossingsY:ev.crossY,crossRatio:ev.crossRatio,
    splitColumns:ev.splitColumns,splitRows:ev.splitRows,splitRatio:ev.splitRatio,tiling,symmetry,commonSize:commonSize===1,
    outsidePixels:ev.outsidePixels,outsideRatio:ev.outsideRatio,exactFitX:x.exact,exactFitY:y.exact};
-  suggestions.push({...spec,score,confidence:score>=.75?'high':score>=.5?'medium':'low',evidence,reasons:reasonsFor(spec,evidence)});
+  suggestions.push({...spec,score,confidence:score>=.75?'high':score>=.5?'medium':'low',evidence,reasons:reasonsFor(spec,evidence),axisScore:{x:x.score,y:y.score}});
  }
  suggestions.sort((a,b)=>b.score-a.score||a.cells-b.cells);
+ preferFiner(suggestions);
  const best=suggestions.slice(0,limit);
  return {profile,runs:rl,suggestions:best,candidates:{x:axisX,y:axisY,derivedX,derivedY}};
+}
+/** Two cells in a row read as one cell is the commonest wrong grid: every boundary of the big
+ * cell is also a boundary of the small one, and averaging two sprites makes the big cells look
+ * *more* alike. So when a finer grid with the same margins and spacing — its pitch dividing the
+ * big one — was ranked at least as well on each axis on its own, and does not cut through more
+ * content, the finer grid goes first; and any leader with such a rival close behind it cannot be
+ * called 'high'. */
+function preferFiner(list){
+ const same=(a,b)=>a.marginX===b.marginX&&a.marginY===b.marginY&&a.spacingX===b.spacingX&&a.spacingY===b.spacingY;
+ const divides=(small,big)=>(big.cellWidth+big.spacingX)%(small.cellWidth+small.spacingX)===0&&(big.cellHeight+big.spacingY)%(small.cellHeight+small.spacingY)===0&&(small.cellWidth<big.cellWidth||small.cellHeight<big.cellHeight);
+ for(let pass=0;pass<3;pass++){
+  const top=list[0];if(!top)return;
+  // Ranked at least as well on each axis, or a near tie overall: either way the finer grid is
+  // the one whose every boundary is real.
+  const finer=list.find(s=>s!==top&&same(s,top)&&divides(s,top)&&(s.axisScore.x>=top.axisScore.x-.005&&s.axisScore.y>=top.axisScore.y-.005&&s.score>=top.score-.12||s.score>=top.score-.03)
+   &&s.evidence.crossRatio<=top.evidence.crossRatio+.01&&s.evidence.splitRatio<=top.evidence.splitRatio+.01);
+  if(!finer)break;
+  finer.score=Math.max(finer.score,top.score);
+  finer.reasons=[...finer.reasons,`${top.cellWidth}×${top.cellHeight} also fits, but it is ${top.cellWidth/finer.cellWidth*top.cellHeight/finer.cellHeight|0} of these cells together`];
+  list.splice(list.indexOf(finer),1);list.unshift(finer);
+ }
+ const top=list[0];if(!top)return;
+ // Only a *finer* close rival casts doubt: the leader could be two frames read as one. A coarser
+ // multiple scoring close is expected (two frames side by side look alike) and changes nothing.
+ const rival=list.find(s=>s!==top&&divides(s,top)&&s.score>=top.score-.05);
+ for(const s of list)s.confidence=s.score>=.75&&!(s===top&&rival)?'high':s.score>=.5?'medium':'low';
 }
 function reasonsFor(spec,e){
  const out=[],pct=v=>`${Math.round(v*100)}%`;
@@ -223,4 +299,22 @@ function reasonsFor(spec,e){
  if(e.outsidePixels)out.push(`${e.outsidePixels} opaque pixels fall outside the cells`);
  out.push(`${e.filledCells} of ${spec.cells} cells hold content`);
  return out;
+}
+/** Alpha evidence is blind on a packed sheet of opaque tiles (every cell full, no gaps): there the
+ * grid shows only in where the colours change. When the alpha reading is weak and the sheet is
+ * small enough to hold, the colour-transition detector (src/game/tile-grid.js) is asked too and
+ * its candidates are offered in the same shape, marked `source:'colour'` with its own reasons. */
+export function detectGridWithColour(src,options={}){
+ const out=detectGrid(src,options),top=out.suggestions[0];
+ const s=source(src);
+ if(top&&top.confidence!=='low'||s.width*s.height>ANALYSIS_PIXELS)return out;
+ const img=s.read({x:0,y:0,w:s.width,h:s.height});
+ const colour=detectTileGrid(img.data,img.width,img.height,{limit:3});
+ const extra=colour.filter(c=>c.score>=.5).map(c=>({cellWidth:c.tileWidth,cellHeight:c.tileHeight,marginX:c.marginX,marginY:c.marginY,spacingX:c.spacingX,spacingY:c.spacingY,
+  columns:c.cols,rows:c.rows,cells:c.count,score:c.score,confidence:c.confidence==='high'?'medium':c.confidence,source:'colour',evidence:{colour:c.evidence},
+  reasons:[`colour changes repeat every ${c.tileWidth}×${c.tileHeight}px (${Math.round((c.evidence.repeatedEdges??0)*100)}% of the transition pattern)`,
+   'the sheet has no transparent gaps to read, so this comes from pixel colours, not alpha']}));
+ if(!extra.length)return out;
+ const seen=new Set(extra.map(e=>[e.cellWidth,e.cellHeight,e.marginX,e.marginY,e.spacingX,e.spacingY].join()));
+ return {...out,suggestions:[...extra,...out.suggestions.filter(g=>!seen.has([g.cellWidth,g.cellHeight,g.marginX,g.marginY,g.spacingX,g.spacingY].join()))].slice(0,options.limit||6)};
 }

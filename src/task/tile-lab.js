@@ -2,7 +2,10 @@ import * as Im from '../image.js';
 import {bytes,stem,zip} from '../core.js';
 import {ANALYSIS_PIXELS} from '../primitives.js';
 import {t} from '../i18n.js';
-import {detectGrid,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,isBlank,duplicateGroups,nearDuplicateGroups,variantSet,VARIANTS} from '../game/tile-grid.js';
+import {detectGrid,suggestedGrid,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,isBlank,duplicateGroups,nearDuplicateGroups,variantSet,VARIANTS} from '../game/tile-grid.js';
+import {artMismatch} from '../game/autotile-check.js';
+import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
 import {KINDS,LAYOUTS,layoutOf,layoutJSON,layoutFromJSON,completeness,unrepresentable,terrainGrid,renderMap,seededFill,floodFill,cellAt} from '../game/autotile.js';
 import {seamReport,edgeMatch,bestEdge,makeSeamless,heatmap} from '../game/seams.js';
 import {tileCollision,MODES as COLLISION_MODES} from '../game/tile-collision.js';
@@ -28,6 +31,19 @@ export function mount({el,def}){
  let src=null,data=null,candidates=[],grid=null,busy=false,ready=false,job=null;
  let stage=STAGES.includes(route.query.get('stage'))?route.query.get('stage'):STAGE_FOR[route.id]||'grid';
  let terrain=null,cursor={x:0,y:0},painting=null,art=null;
+ // Whether the grid in use was confirmed: a high-confidence detection, a candidate the person
+ // clicked, or a size they typed. Until then the sheet's tiles are not used as autotile art.
+ let gridConfirmed=false,gridGuess=null,mismatchCache=null,exportAck=false;
+ /** What stands between this sheet and a TileSet that paints the right tiles: an unconfirmed
+  * grid, slots the sheet does not fill, and tiles whose art contradicts their slot (a sheet laid
+  * out in another template's order — GameMaker, caeles, cr31 — paints wrong tiles everywhere). */
+ function exportRisks(){
+  const out=[];
+  if(!gridConfirmed)out.push(T('whyGrid'));
+  const mm=mismatches();
+  if(mm.measurable&&mm.mismatches.length)out.push(T('exportMismatch',{n:mm.mismatches.length,kind:T('kinds.'+o.kind)}));
+  return out;
+ }
  // Painting history is the terrain grid itself: one byte per cell, so 64 steps of a 64x64 map
  // are 256 KB and no image is ever snapshotted.
  const past=[],future=[];
@@ -59,6 +75,7 @@ export function mount({el,def}){
  const analysable=()=>!!data;
  function applyCandidate(c){
   Object.assign(o,{tileWidth:c.tileWidth,tileHeight:c.tileHeight,marginX:c.marginX,marginY:c.marginY,spacingX:c.spacingX,spacingY:c.spacingY});
+  gridConfirmed=true;gridGuess=null;
   rebuild();
  }
  function rebuild(){
@@ -66,7 +83,7 @@ export function mount({el,def}){
   if(!src)return;
   try{grid=tileRects({width:src.width,height:src.height,tileWidth:o.tileWidth,tileHeight:o.tileHeight,marginX:o.marginX,marginY:o.marginY,spacingX:o.spacingX,spacingY:o.spacingY});}
   catch(error){grid={error:error.message||String(error),rects:[],cols:0,rows:0,count:0};}
-  tiles.clear();hashes=null;pickSource();
+  tiles.clear();hashes=null;mismatchCache=null;pickSource();
  }
  /* Tile pixels are cropped on demand and cached by index, never kept as N full copies. */
  const tiles=new Map();
@@ -143,7 +160,14 @@ export function mount({el,def}){
  /** The sheet can only stand in for the layout when it actually holds that many tiles; until the
   * person chooses, a 12-tile sheet under a 47-slot rule set shows the template instead of 35
   * red holes. */
- function pickSource(){if(!o.sourcePinned)o.source=grid?.count>=layout().count?'sheet':'template';}
+ function pickSource(){if(!o.sourcePinned)o.source=gridConfirmed&&grid?.count>=layout().count?'sheet':'template';}
+ /** Why the tester is not drawing with the sheet, in words (null when it is). */
+ function templateReason(){
+  if(o.source==='sheet')return null;
+  if(o.sourcePinned)return T('whyChosen');
+  if(!gridConfirmed)return T('whyGrid');
+  return T('whyShort',{n:grid?.count||0,total:layout().count});
+ }
  /** Where each slot's pixels live: either in the sheet (offset into the grid) or in template art. */
  function tileArt(){
   if(art)return art;
@@ -169,16 +193,22 @@ export function mount({el,def}){
   if(!candidates.length)return '';
   const current=c=>c.tileWidth===o.tileWidth&&c.tileHeight===o.tileHeight&&c.marginX===o.marginX&&c.marginY===o.marginY&&c.spacingX===o.spacingX&&c.spacingY===o.spacingY;
   return `<span class="opt-label">${esc(T('detect'))}</span><div class="tl-cands">${candidates.map((c,i)=>`<button type="button" class="tl-cand" data-action="tl-cand" data-i="${i}" aria-pressed="${current(c)}">
-<b>${c.tileWidth}×${c.tileHeight}</b><span class="tl-score">${pct(c.score)}</span>
+<b>${c.tileWidth}×${c.tileHeight}</b><span class="tl-score" data-confidence="${c.confidence}">${esc(text('confidence.'+c.confidence))} ${pct(c.score)}</span>
 <small>${esc(T('gridInfo',{c:c.cols,r:c.rows,w:c.tileWidth,h:c.tileHeight}))}${c.marginX||c.marginY?` · ${esc(T('marginX'))} ${c.marginX}/${c.marginY}`:''}${c.spacingX||c.spacingY?` · ${esc(T('spacingX'))} ${c.spacingX}/${c.spacingY}`:''}</small>
-<small class="tl-ev">${['repeatedEdges','boundaryEdges','separators'].map(k=>`<i>${esc(T('evidence.'+k))} ${pct(c.evidence[k])}</i>`).join('')}</small></button>`).join('')}</div><p class="viewer-note">${esc(T('detectNote'))}</p>`;
+<small class="tl-ev">${['repeatedEdges','boundaryEdges','separators'].map(k=>`<i>${esc(T('evidence.'+k))} ${pct(c.evidence[k])}</i>`).join('')}${c.content?.layout?`<i>${esc(T('layoutReason',{layout:T('kinds.'+c.content.layout)}))}</i>`:''}${c.content?.blank?`<i>${esc(T('contentBlank',{n:c.content.blank}))}</i>`:''}${c.content?.sides?`<i>${esc(T('contentEdges',{n:Math.round(c.content.edges*100)}))}</i>`:''}</small></button>`).join('')}</div><p class="viewer-note">${esc(T('detectNote'))}</p>`;
+ }
+ /** A detected grid that is not certain says so above everything else, with the way to accept it. */
+ function gridBanner(){
+  if(gridConfirmed||!src)return '';
+  if(gridGuess)return `<div class="tl-banner" id="tlGridBanner" data-state="confirm"><span>${esc(T('confirmBanner',{w:gridGuess.tileWidth,h:gridGuess.tileHeight,conf:text('confidence.'+gridGuess.confidence)}))}</span><button type="button" class="mini-button" data-action="tl-confirm">${esc(T('confirm'))}</button></div>`;
+  return `<div class="tl-banner low" id="tlGridBanner" data-state="low"><span>${esc(T('lowBanner'))}</span></div>`;
  }
  function gridSide(){
   const blank=blanks(),dup=data&&grid?.rects.length?duplicateGroups(tileHashes()):[];
   const summary=grid?.error?`<div class="summary-line bad">${esc(grid.error)}</div>`
    :`<div class="summary-big">${grid.count}</div><div class="summary-line">${esc(T('gridInfo',{c:grid.cols,r:grid.rows,w:grid.tileWidth,h:grid.tileHeight}))}${blank.length?' · '+esc(T('blankCount',{n:blank.length})):''}${dup.length?' · '+esc(T('duplicates',{n:dup.length})):''}</div>`;
   return `<div class="summary" id="tlSummary" role="status" aria-live="polite">${summary}</div>
-<form id="tlOptions" class="options" autocomplete="off">${candidateList()}
+${gridBanner()}<form id="tlOptions" class="options" autocomplete="off">${candidateList()}
 <span class="opt-label">${esc(T('manual'))}</span><div class="field-row">${field('tileWidth',1,4096)}${field('tileHeight',1,4096)}</div>
 <div class="field-row">${field('marginX',0,256)}${field('marginY',0,256)}</div><div class="field-row">${field('spacingX',0,256)}${field('spacingY',0,256)}</div>
 <details class="options-advanced" ${o.extrude?'open':''}><summary>${esc(text('advanced'))}</summary>
@@ -227,8 +257,8 @@ ${o.source==='sheet'?field('offset',0,Math.max(0,(grid?.count||1)-1)):''}
  }
  function rulesSide(){
   const report=ruleReport();
-  return `<div class="summary" id="tlRules" role="status" aria-live="polite"><div class="summary-big${report.missing.length?' muted':''}">${report.missing.length||'0'}</div>
-<div class="summary-line">${report.missing.length?esc(T('missing',{n:report.missing.length})):esc(T('complete'))}${report.identical.length?' · '+esc(T('identical',{n:report.identical.length})):''}</div></div>
+  return `<div class="summary${report.missing.length||report.mismatch.mismatches.length?' warn':''}" id="tlRules" role="status" aria-live="polite"><div class="summary-big${report.missing.length?' muted':''}">${report.missing.length||'0'}</div>
+<div class="summary-line">${report.missing.length?esc(T('missing',{n:report.missing.length})):esc(T('complete'))}${report.identical.length?' · '+esc(T('identical',{n:report.identical.length})):''}</div>${report.mismatch.mismatches.length?`<div class="summary-line bad" id="tlMismatch" data-n="${report.mismatch.mismatches.length}">${esc(T('rulesMismatch',{n:report.mismatch.mismatches.length}))}</div>${report.mismatch.mismatches.slice(0,6).map(m=>`<div class="summary-line">${esc(T('mismatchLine',{i:m.slot,sides:m.sides.map(x=>x.side.toUpperCase()).join(', ')}))}</div>`).join('')}`:''}</div>
 <form class="options" autocomplete="off"><span class="opt-label">${esc(T('kind'))}</span>${seg('kind',KINDS,v=>esc(T('kinds.'+v)))}
 ${field('offset',0,Math.max(0,(grid?.count||1)-1))}
 ${unrepresentable(o.kind).length?`<p class="viewer-note">${esc(T('unrepresentable',{n:unrepresentable(o.kind).length}))}</p>`:''}
@@ -277,7 +307,9 @@ ${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}<dl class="tl-numbers" id
 <label class="field"><span>${esc(T('mode'))}</span><select data-option="mode" id="tl-mode">${MODES.map(m=>`<option value="${m}" ${(o.mode||modeFor(o.kind))===m?'selected':''}>${esc(T('modes.'+m))}</option>`).join('')}</select></label>
 <span class="opt-label">${esc(T('collideLabel'))}</span>${seg('collide',COLLISION_MODES,v=>esc(T('collide.'+v)))}
 ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
-<button type="button" class="primary big" id="taskDownload" data-action="tl-godot" ${grid?.rects.length?'':'disabled'}>${esc(T('runGodot'))}</button>
+${(()=>{const risks=grid?.rects.length?exportRisks():[];return risks.length?`<div class="tl-banner low" id="tlExportRisk" data-n="${risks.length}"><span>${risks.map(esc).join('<br>')}</span></div>
+<label class="check"><input type="checkbox" id="tlExportAck" ${exportAck?'checked':''}> ${esc(T('exportAnyway'))}</label>`:'';})()}
+<button type="button" class="primary big" id="taskDownload" data-action="tl-godot" ${grid?.rects.length&&(exportAck||!exportRisks().length)?'':'disabled'}>${esc(T('runGodot'))}</button>
 <p class="viewer-note">${esc(T('godotNote'))}</p><small class="local-note">${esc(text('local'))}</small>`;
  }
  function exportBoard(){
@@ -382,7 +414,18 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   fit(cv,cv.width,o.mapZoom,900);
   const info=q('#tlMapInfo');if(info)info.textContent=`${rendered.w} × ${rendered.h} · ${T('kinds.'+o.kind)}`;
   const box=q('#tlMapSummary');
-  if(box)box.innerHTML=`<div class="summary-big${missing?' muted':''}">${missing||'✓'}</div><div class="summary-line">${missing?esc(T('missingHere',{n:missing})):esc(T('complete'))}</div>`;
+  if(box){
+   const why=templateReason(),report=why?null:ruleReport(),wrong=report?report.mismatch.mismatches.length:0,absent=report?report.missing.length:0;
+   const ok=!why&&!missing&&!absent&&!wrong;
+   const lines=[];
+   if(why)lines.push(T('templateArt',{why}));
+   if(missing)lines.push(T('mapMissing',{n:missing}));
+   if(absent)lines.push(T('sheetMissing',{n:absent}));
+   if(wrong)lines.push(T('mismatch',{n:wrong}));
+   box.classList.toggle('warn',!ok);
+   box.dataset.state=ok?'complete':why?'template':'incomplete';
+   box.innerHTML=`<div class="summary-big${ok?'':' muted'}">${ok?'✓':why?'!':missing||absent||wrong}</div>${(ok?[T('mapComplete')]:lines).map(l=>`<div class="summary-line">${esc(l)}</div>`).join('')}`;
+  }
   const undo=q('#tlUndo'),redo=q('#tlRedo');
   if(undo)undo.disabled=!past.length;
   if(redo)redo.disabled=!future.length;
@@ -399,19 +442,31 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
     if(hash){if(byHash.has(hash))identical.push([byHash.get(hash),slot.index]);else byHash.set(hash,slot.index);}
    }
   }
-  return {...completeness(o.kind,present),identical};
+  return {...completeness(o.kind,present),identical,mismatch:mismatches()};
+ }
+ /** Sides of sheet tiles that contradict the slot they sit in (src/game/autotile-check.js),
+  * cached per grid/kind/offset: it reads every tile's four edges. */
+ function mismatches(){
+  const key=`${o.kind}|${o.offset}|${grid?.tileWidth}|${grid?.count}`;
+  if(mismatchCache?.key===key)return mismatchCache.value;
+  let value={measurable:false,checked:0,sides:0,mismatches:[]};
+  if(data&&grid?.rects.length&&!grid.error){
+   try{value=artMismatch(o.kind,i=>{const r=grid.rects[i+o.offset];if(!r)return null;const px=tileData(i+o.offset);return px?{data:px,w:r.w,h:r.h}:null;});}catch{}
+  }
+  mismatchCache={key,value};return value;
  }
  /** Marks on the sheet: which slot each tile satisfies, its role, and the peering bits as dots
   * at the eight neighbour positions — labels and positions, never colour alone. */
  function ruleOverlay(){
   const l=layout();let out='';
+  const wrong=new Set(mismatches().mismatches.map(m=>m.slot));
   for(const slot of l.slots){
    const rect=grid.rects[slot.index+o.offset];if(!rect)continue;
    const s=Math.max(2,Math.round(Math.min(rect.w,rect.h)/9));
    const dots=[['n',.5,0],['ne',1,0],['e',1,.5],['se',1,1],['s',.5,1],['sw',0,1],['w',0,.5],['nw',0,0]]
     .filter(([k])=>k.length===1?slot.edges[k]:slot.corners[k])
     .map(([,fx,fy])=>`<rect class="tl-bit" x="${rect.x+fx*(rect.w-s)}" y="${rect.y+fy*(rect.h-s)}" width="${s}" height="${s}"/>`).join('');
-   out+=`<g class="tl-rule"><rect class="tl-cell" x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}"/>${dots}<text x="${rect.x+rect.w/2}" y="${rect.y+rect.h/2}" font-size="${Math.max(5,rect.h/3.4)}">${slot.index}</text></g>`;
+   out+=`<g class="tl-rule"><rect class="tl-cell" x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}"/>${wrong.has(slot.index)?`<rect class="tl-mismatch" x="${rect.x+.5}" y="${rect.y+.5}" width="${rect.w-1}" height="${rect.h-1}"/>`:''}${dots}<text x="${rect.x+rect.w/2}" y="${rect.y+rect.h/2}" font-size="${Math.max(5,rect.h/3.4)}">${slot.index}</text></g>`;
   }
   return out;
  }
@@ -639,11 +694,16 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(a==='tl-sample'){add(await sample(),'sample');return;}
   if(a==='tl-stage')return stageTo(b.dataset.stage);
   if(a==='tl-cand'){applyCandidate(candidates[Number(b.dataset.i)]);frame();return;}
+  if(a==='tl-confirm'){gridConfirmed=true;gridGuess=null;dropArt();pickSource();frame();return;}
   if(a==='tl-set'){
    const key=b.dataset.key,value=b.dataset.value;
    o[key]=/^\d+$/.test(value)?Number(value):value;
    if(key==='source')o.sourcePinned=true;
-   if(key==='kind'){o.mode='';pickSource();}
+   if(key==='kind'){o.mode='';exportAck=false;mismatchCache=null;
+    // The rule set is a prior for the grid: a 4×4 reading is how a 16-tile Wang sheet is laid out.
+    if(!gridConfirmed&&data){candidates=detectGrid(data,src.width,src.height,{kind:o.kind});const pick=suggestedGrid(candidates);gridGuess=pick?.confirm?pick:null;gridConfirmed=!!pick&&!pick.confirm;
+     if(pick){Object.assign(o,{tileWidth:pick.tileWidth,tileHeight:pick.tileHeight,marginX:pick.marginX,marginY:pick.marginY,spacingX:pick.spacingX,spacingY:pick.spacingY});rebuild();}}
+    pickSource();}
    for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));
    dropArt();frame();return;
   }
@@ -663,7 +723,8 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
  el.addEventListener('input',e=>{
   if(!e.target.matches('[data-option]'))return;
   const key=e.target.dataset.option;readOptions();
-  if(['tileWidth','tileHeight','marginX','marginY','spacingX','spacingY'].includes(key)){rebuild();frame();return;}
+  // A size typed by hand is the person's decision, so it counts as confirmed.
+  if(['tileWidth','tileHeight','marginX','marginY','spacingX','spacingY'].includes(key)){gridConfirmed=true;gridGuess=null;rebuild();frame();return;}
   if(['dedupe','variants','skipBlank','extrude','nearMean','alpha','simplify'].includes(key)){frame();return;}
   if(key==='offset'||key==='source'||key==='gridSize'){dropArt();if(stage==='rules')frame();else paint();return;}
   if(key==='terrainName'||key==='mode'){if(stage==='export')frame();return;}
@@ -671,6 +732,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
  });
  el.addEventListener('change',async e=>{
   if(e.target.matches('select[data-option]')){readOptions();frame();return;}
+  if(e.target.id==='tlExportAck'){exportAck=e.target.checked;const b=q('#taskDownload');if(b)b.disabled=!grid?.rects.length||!exportAck&&exportRisks().length>0;return;}
   if(e.target.id!=='tlLayoutFile')return;
   const file=e.target.files?.[0];e.target.value='';
   if(!file)return;
@@ -714,22 +776,29 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   const file=new File([await Im.blobOf(c)],'blob47-sample.png',{type:'image/png'});
   Im.release(c);return [file];
  }
- async function add(files){
+ async function add(files,origin=''){
   if(busy)return;busy=true;
   if(files.length>1)toast(text('edit.oneFile'));
   try{
-   const decoded=await Im.decode(files[0]);
+   const decoded=await decodeExact(files[0]);
    Im.release(src);src=decoded;src.name=files[0].name;
    data=null;tiles.clear();hashes=null;dropArt();terrain=null;past.length=0;future.length=0;
    if(src.width*src.height<=ANALYSIS_PIXELS)data=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,src.width,src.height).data;
-   candidates=data?detectGrid(data,src.width,src.height):[];
+   // A kind given in the link (…/tile-lab/?kind=edge16) is what the sheet is for: a prior for the grid.
+   candidates=data?detectGrid(data,src.width,src.height,{kind:route.query.has('kind')?o.kind:null}):[];exportAck=false;
    if(!route.query.has('zoom'))o.zoom=clamp(Math.round(480/Math.max(1,src.width)),1,8);
    const preset=route.query.has('tileWidth')||route.query.has('tileHeight');
    // The seam checker is asked about one repeating texture, so its default tile is the whole
    // image; everywhere else the measured grid is the default.
    if(!preset&&route.id==='seamless-tile-checker')Object.assign(o,{tileWidth:src.width,tileHeight:src.height,marginX:0,marginY:0,spacingX:0,spacingY:0});
-   else if(candidates.length&&!preset)Object.assign(o,{tileWidth:candidates[0].tileWidth,tileHeight:candidates[0].tileHeight,marginX:candidates[0].marginX,marginY:candidates[0].marginY,spacingX:candidates[0].spacingX,spacingY:candidates[0].spacingY});
+   // The Lab's own sample is a 16px blob-47 sheet it drew itself: its grid is known, not guessed.
+   const pick=preset?null:origin==='sample'?{tileWidth:16,tileHeight:16,marginX:0,marginY:0,spacingX:0,spacingY:0,confirm:false}:suggestedGrid(candidates);
+   gridConfirmed=!!preset||route.id==='seamless-tile-checker'||!!pick&&!pick.confirm;gridGuess=pick?.confirm?pick:null;
+   if(!preset&&route.id!=='seamless-tile-checker'&&pick)Object.assign(o,{tileWidth:pick.tileWidth,tileHeight:pick.tileHeight,marginX:pick.marginX,marginY:pick.marginY,spacingX:pick.spacingX,spacingY:pick.spacingY});
    rebuild();
+   // The art itself can confirm a medium grid: when every tile of the chosen rule set agrees with
+   // its slot (autotile-check), the tile size and the layout are both right.
+   if(gridGuess){const mm=mismatches();if(mm.measurable&&!mm.mismatches.length&&mm.checked>=layout().count*.9){gridConfirmed=true;gridGuess=null;pickSource();}}
    o.seamIndex=0;o.matchIndex=Math.min(1,Math.max(0,(grid?.count||1)-1));
    track('tool_run',{intent:route.id});
    ready=true;frame();
@@ -737,6 +806,8 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   finally{busy=false;}
  }
  onLocale(()=>{if(ready)frame();else empty();});
+ // Work lives only in this tab: leaving it with a sheet loaded asks first.
+ addEventListener('beforeunload',e=>{if(el.isConnected&&src){e.preventDefault();e.returnValue='';}});
  empty();
  return {add};
 }

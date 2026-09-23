@@ -27,7 +27,9 @@ export const TASK_TOOLS=Object.freeze({
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
  crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
- ...Object.fromEntries(Object.entries({'refiner':['pixel-lab','sprite-sheet-maker','palette-swap'],'logo-bg':['margin-crop','favicon-pack','compress'],'palette-swap':['palette-swap-ramp','pixel-lab','refiner'],'margin-crop':['resize','compress','convert'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
+ ...Object.fromEntries(Object.entries({'refiner':['pixel-lab','sprite-sheet-maker','palette-swap'],'logo-bg':['margin-crop','favicon-pack','compress'],'margin-crop':['resize','compress','convert'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
+ // Palette swap has its own page: the image's palette, an eyedropper and several swaps per run.
+ 'palette-swap':{module:'palette-swap',kinds:['image'],next:['palette-swap-ramp','pixel-lab','refiner']},
  pixel:{module:'pixel',kinds:['image'],next:['pixel-lab','sprite-sheet-maker','palette-swap']},
  // Pixel Lab: one workspace module behind the Lab id and every pixel-palette intent URL.
  ...Object.fromEntries(Object.entries({'pixel-lab':['sprite-sheet-maker','refiner','pixel'],'palette-extractor':['pixel-lab','palette-swap-ramp','pixel'],'palette-swap-ramp':['pixel-lab','palette-extractor','palette-swap'],'pixel-art-cleanup':['pixel-lab','pixel-perfect-checker','pixel'],'pixel-perfect-checker':['pixel-lab','pixel-art-cleanup','refiner']}).map(([id,next])=>[id,{module:'pixel-lab',kinds:['image'],next}])),

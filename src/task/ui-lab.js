@@ -11,6 +11,10 @@ import {contrastRatio,wcag,round2} from '../game/contrast.js';
 import {envelope} from '../game/exporters/ui-envelope.js';
 import {components} from '../primitives.js';
 import {packRects} from '../atlas-pack.js';
+import {detectFontGrid} from '../game/font-grid.js';
+import {detectColorKey,applyColorKey} from '../game/color-key.js';
+import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
 /** UI Lab: one workspace with five stages over one in-memory asset — 9-Slice, States, Atlas,
  * Font, Check. Stages are views, not pages: nothing is re-uploaded between them, and every
  * preview is drawn from the same plan the export writes (src/game/*.js), so what is on screen
@@ -43,6 +47,9 @@ export function mount({el,def}){
  // `source` is the dropped asset. `panel` is what the 9-slice stage edits: the source itself,
  // or one element cut out of a UI sheet in the Atlas stage. The sheet is never thrown away.
  let source=null,sourceName='panel.png',panel=null,stage=STAGE_OF[route.id]||'slice',busy=false,drag=null;
+ // Border history: one entry per finished gesture (a guide drag, a typed value, an arrow key),
+ // so Ctrl+Z steps back through what the person did, not through every pointermove (B15).
+ const borderPast=[],borderFuture=[];
  const target=()=>panel||source;
  const panelName=()=>S.atlas.editing!=null?S.atlas.elements[S.atlas.editing].name:stem(sourceName)||'panel';
  const S={
@@ -50,7 +57,8 @@ export function mount({el,def}){
   slice:{mode:'stretch',pixelated:true,scale:1,customW:420,customH:120,zoom:0},
   states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
-  font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null},
+  font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null,
+   detected:undefined,keyed:null,charsAuto:true},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
@@ -131,6 +139,7 @@ export function mount({el,def}){
 <div class="ns-stage" id="nsStage"><div class="ns-art" id="nsArt"><canvas id="nsCanvas"></canvas><div class="ns-center" id="nsCenter"><span>${esc(T('stretchArea'))}</span></div>
 ${SIDES.map(side=>`<button type="button" class="ns-guide ${side}" data-guide="${side}" aria-label="${esc(T('guide.'+side))}" title="${esc(T('guide.'+side))}" role="slider" aria-valuemin="0"><i></i><b></b></button>`).join('')}</div></div>
 <p class="viewer-note">${esc(T('guideHint'))}</p>
+<div class="chips-row"><button type="button" class="mini-button" data-action="ui-border-undo" id="nsUndo" ${borderPast.length?'':'disabled'}>${esc(T('guideUndo'))}</button><button type="button" class="mini-button" data-action="ui-border-redo" id="nsRedo" ${borderFuture.length?'':'disabled'}>${esc(T('guideRedo'))}</button></div>
 <div class="view-head"><strong>${esc(T('livePreview'))}</strong><span>${esc(T('previewNote'))}</span></div>
 <div class="ns-previews" id="nsPreviews"></div>`;
    },
@@ -279,7 +288,9 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
    },
    side(){
     const f=S.font;
+    const d=f.detected;
     return `<div class="summary" id="fontSummary" role="status" aria-live="polite"></div>
+${f.mode!=='ttf'&&d!==undefined?(d?`<p class="hint" id="fontDetected" data-cell="${d.cellW}x${d.cellH}" data-preset="${d.preset}" data-first="${d.first}" data-confidence="${d.confidence}">${esc(T('fontDetected',{cw:d.cellW,ch:d.cellH,cols:d.cols,rows:d.rows,order:fontOrder(d),conf:text('confidence.'+d.confidence)}))}${f.cellW!==d.cellW||f.cellH!==d.cellH||!f.charsAuto?` <button type="button" class="mini-button" data-action="ui-font-detected">${esc(T('fontApplyDetected'))}</button>`:''}</p>`:`<p class="hint" id="fontDetected" data-cell="">${esc(T('fontUndetected'))}</p>`):''}
 <div class="segmented" role="group">${['grid','measured','ttf'].map(m=>`<button type="button" data-action="ui-set" data-key="font.mode" data-value="${m}" aria-pressed="${f.mode===m}">${esc(T('fontMode.'+m))}</button>`).join('')}</div>
 <form class="options" autocomplete="off">
 ${f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
@@ -407,7 +418,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     if(!source)throw Error(T('needImage'));
     f.sheet=null;
    }
-   const sheet=f.sheet||source;
+   const sheet=f.sheet||f.keyed||source;
    if(f.mode==='grid'&&!f.sheet)f.built=BM.gridFont({width:sheet.width,height:sheet.height,cellW:f.cellW,cellH:f.cellH,chars,baseline:f.baseline||f.cellH,face:'Nerulio Grid'});
    else{
     const cellW=f.sheet?f.sheet.cellW:f.cellW,cellH=f.sheet?f.sheet.cellH:f.cellH;
@@ -619,7 +630,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  }
  async function exportFont(){
   const f=S.font;if(!f.built)throw Error(T('needChars'));
-  const sheet=f.sheet||source,entries=[await pngFile('font.png',sheet),
+  const sheet=f.sheet||f.keyed||source,entries=[await pngFile('font.png',sheet),
    jsonFile('font.json',f.built),textFile('font.fnt',BM.fntText(f.built)),textFile('README.txt',T('fontReadme'))];
   if(f.sdf){
    const sdfSheet=buildSDFSheet(sheet,f.built,f.spread);
@@ -701,6 +712,17 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   return make(c,'panel.png');
  }
  // ---------- state plumbing ----------
+ function rememberBorder(){
+  const last=borderPast.at(-1),now={...S.border};
+  if(last&&SIDES.every(side=>last[side]===now[side]))return;
+  borderPast.push(now);if(borderPast.length>64)borderPast.shift();borderFuture.length=0;
+ }
+ function stepBorder(from,to){
+  if(!from.length)return;
+  to.push({...S.border});S.border={...from.pop()};
+  if(S.atlas.editing!=null)S.atlas.elements[S.atlas.editing].border={...S.border};
+  refresh();
+ }
  function assign(path,value){
   const [group,key]=path.split('.');
   if(group==='border'){
@@ -724,9 +746,33 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   * `maxHeight` on a wide screen, which a plain aspect-ratio box would. */
  const fitHost=(host,w,h,maxHeight)=>{host.style.aspectRatio=`${w} / ${h}`;host.style.maxWidth=Math.round(w/h*maxHeight)+'px';};
  function releaseFontSheet(){if(S.font.sheet){Im.release(S.font.sheet);S.font.sheet=null;}}
+ /** Reads the dropped sheet as a glyph grid (src/game/font-grid.js): background key first when
+  * the sheet is opaque, then the cell size and the character order its cell count implies.
+  * Applied only while the person has not typed their own order or cell size. */
+ function detectFont(){
+  const f=S.font;if(!source||f.detected!==undefined)return;
+  if(f.keyed){Im.release(f.keyed);f.keyed=null;}
+  const img={data:rgba(source),width:source.width,height:source.height};
+  const key=detectColorKey(img);
+  let glyphs=img;
+  if(key?.apply){
+   glyphs=applyColorKey(img,key.color,{tolerance:key.tolerance});
+   f.keyed=Im.canvas(source.width,source.height);f.keyed.getContext('2d').putImageData(new ImageData(glyphs.data,source.width,source.height),0,0);
+  }
+  f.detected=detectFontGrid(glyphs)||null;
+  applyFontDetection(false);
+ }
+ function applyFontDetection(force){
+  const f=S.font,d=f.detected;if(!d)return;
+  const presetCell=route.query.has('cw')||route.query.has('ch');
+  if(force||!presetCell){f.cellW=d.cellW;f.cellH=d.cellH;}
+  if(force||f.charsAuto||!f.chars){f.chars=d.chars;f.charsAuto=true;}
+ }
+ const fontOrder=d=>T('fontOrders.'+(d.preset==='cp437'?'cp437':d.first===33?'ascii33':'ascii'));
  function setStage(next){
   if(!STAGES.includes(next)||next===stage)return;
   stage=next;track('tool_run',{intent:route.id});
+  if(stage==='font')detectFont();
   if(source||!needsImage(stage)){if(!el.querySelector('.ui-lab'))frame();else{for(const b of el.querySelectorAll('[data-action="ui-stage"]'))b.setAttribute('aria-selected',String(b.dataset.stage===stage));paintStage();}}
   else empty();
  }
@@ -734,13 +780,16 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(busy)return;busy=true;
   try{
    const file=files[0];if(!file)return;
-   const decoded=await Im.decode(file);
+   const decoded=await decodeExact(file);
    Im.release(source);Im.release(panel);source=decoded;panel=null;sourceName=file.name;
    S.atlas.elements=null;S.atlas.editing=null;releaseStates();
-   S.suggestion=null;
+   S.suggestion=null;borderPast.length=0;borderFuture.length=0;
+   if(S.font.keyed){Im.release(S.font.keyed);S.font.keyed=null;}
+   S.font.detected=undefined;S.font.charsAuto=true;
    S.border=firstFile?NS.clampBorders(presetBorder,decoded.width,decoded.height):{left:0,right:0,top:0,bottom:0};
    firstFile=false;
    if(stage==='slice')suggest({silent:true});
+   if(stage==='font')detectFont();
    frame();
   }catch(error){toast(error?.message||String(error),{error:true});if(!source)empty();}
   finally{busy=false;}
@@ -752,6 +801,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  }
  function acceptSuggestion(){
   const s=S.suggestion;if(!s)return;
+  rememberBorder();
   for(const side of SIDES)assign('border.'+side,s[side]);
   S.suggestion=null;refresh();
  }
@@ -784,6 +834,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    }
    else if(action==='ui-copy-link'){const link=settingsLink();await navigator.clipboard?.writeText(link);toast(T('copiedLink'));}
    else if(action==='ui-suggest')suggest();
+   else if(action==='ui-border-undo')stepBorder(borderPast,borderFuture);
+   else if(action==='ui-border-redo')stepBorder(borderFuture,borderPast);
+   else if(action==='ui-font-detected'){applyFontDetection(true);refresh();}
    else if(action==='ui-accept')acceptSuggestion();
    else if(action==='ui-dismiss'){S.suggestion=null;refresh();}
    else if(action==='ui-detect'){S.atlas.elements=null;VIEWS.atlas.paint();}
@@ -811,6 +864,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  el.addEventListener('input',e=>{
   const input=e.target;
   if(input.dataset.opt){
+   if(input.dataset.opt.startsWith('border.'))rememberBorder();
+   if(input.dataset.opt==='font.chars')S.font.charsAuto=false;
    const path=readOption(input);
    // Detection settings describe how elements are found, so they have to be found again.
    if(['atlas.merge','atlas.minArea','atlas.threshold'].includes(path))S.atlas.elements=null;
@@ -840,12 +895,18 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const delta={ArrowLeft:side==='left'?-step:side==='right'?step:0,ArrowRight:side==='left'?step:side==='right'?-step:0,
    ArrowUp:side==='top'?-step:side==='bottom'?step:0,ArrowDown:side==='top'?step:side==='bottom'?-step:0}[e.key];
   if(delta===undefined)return;
-  e.preventDefault();assign('border.'+side,S.border[side]+delta);VIEWS.slice.paint();
+  e.preventDefault();rememberBorder();assign('border.'+side,S.border[side]+delta);VIEWS.slice.paint();
+ });
+ document.addEventListener('keydown',e=>{
+  if(!el.isConnected||stage!=='slice'||!source||e.target.matches?.('input,textarea,select'))return;
+  const key=(e.key||'').toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&key==='z'){e.preventDefault();e.shiftKey?stepBorder(borderFuture,borderPast):stepBorder(borderPast,borderFuture);}
+  else if((e.ctrlKey||e.metaKey)&&key==='y'){e.preventDefault();stepBorder(borderFuture,borderPast);}
  });
  // Dragging a guide, and dragging the custom preview's corner, both work in source pixels.
  el.addEventListener('pointerdown',e=>{
   const guide=e.target.closest?.('.ns-guide');
-  if(guide&&source){drag={kind:'guide',side:guide.dataset.guide,zoom:sliceZoom(),rect:$('#nsArt').getBoundingClientRect()};guide.setPointerCapture?.(e.pointerId);e.preventDefault();return;}
+  if(guide&&source){rememberBorder();drag={kind:'guide',side:guide.dataset.guide,zoom:sliceZoom(),rect:$('#nsArt').getBoundingClientRect()};guide.setPointerCapture?.(e.pointerId);e.preventDefault();return;}
   const handle=e.target.closest?.('[data-action="ui-resize"]');
   if(handle){const box=handle.closest('.ns-box').getBoundingClientRect();drag={kind:'resize',x:e.clientX,y:e.clientY,w:S.slice.customW,h:S.slice.customH,scale:S.slice.customW/box.width};handle.setPointerCapture?.(e.pointerId);e.preventDefault();}
  });
@@ -862,7 +923,11 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   }
   VIEWS.slice.paint();
  });
- for(const type of ['pointerup','pointercancel'])el.addEventListener(type,()=>{drag=null;});
+ for(const type of ['pointerup','pointercancel'])el.addEventListener(type,()=>{
+  // A click on a guide that moved nothing leaves no undo step behind.
+  if(drag?.kind==='guide'){const last=borderPast.at(-1);if(last&&SIDES.every(side=>last[side]===S.border[side]))borderPast.pop();refreshUndo();}
+  drag=null;});
+ const refreshUndo=()=>{const u=$('#nsUndo'),r=$('#nsRedo');if(u)u.disabled=!borderPast.length;if(r)r.disabled=!borderFuture.length;};
  // A .fnt, a .txt or a font file can be dropped straight onto its own field; the page-level
  // intake only accepts images, so those drops must not reach it.
  el.addEventListener('drop',e=>{
@@ -874,6 +939,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  },true);
  el.addEventListener('dragover',e=>{if(e.target.closest?.('input[data-local-drop]')){e.preventDefault();e.stopPropagation();}},true);
  onLocale(()=>{if(source||!needsImage(stage))frame();else empty();});
+ // Work lives only in this tab: leaving it with an image loaded asks first.
+ addEventListener('beforeunload',e=>{if(el.isConnected&&source){e.preventDefault();e.returnValue='';}});
  if(needsImage(stage))empty();else frame();
  return {add};
 }

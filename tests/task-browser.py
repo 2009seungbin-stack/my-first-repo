@@ -557,7 +557,8 @@ with sync_playwright() as pw:
     page.locator('#optionsAdvanced').evaluate('d=>d.open=true')
     page.fill('#labMaxSize','48');page.wait_for_timeout(1000)
     ok('Sprite Lab: a page limit smaller than one frame is explained, not silently wrong',
-       page.locator('#labSummary .summary-line.bad').count()==1 and page.locator('#taskDownload').is_disabled())
+       # An error is an error card (B7: it used to be red text inside the green success card).
+       page.locator('#labSummary.is-error').count()==1 and page.locator('#labSummary .summary-big').inner_text()=='!' and page.locator('#taskDownload').is_disabled())
     page.fill('#labMaxSize','128');page.wait_for_timeout(1200)
     with page.expect_download() as d:page.locator('#taskDownload').click()
     lab_mz=zipfile.ZipFile(d.value.path());lab_mdata=json.loads(lab_mz.read('atlas.json'))
@@ -623,7 +624,7 @@ with sync_playwright() as pw:
     ok('Sprite Lab: the mirrored frame mirrors its pivot too',
        abs(lab_mird['frames'][lab_mkeys[1]]['pivot']['x']-(1-lab_mird['frames'][lab_mkeys[0]]['pivot']['x']))<1e-6)
 
-    # --- A sheet past the component-labelling cap says what to do instead ---------------------
+    # --- A sheet past the old 4 MP component-labelling cap is sliced by Auto (B7) -------------
     lab_big=Image.new('RGBA',(2048,2048),(0,0,0,0))
     lab_block=Image.new('RGBA',(200,200),(60,140,220,255))
     for row in range(8):
@@ -632,9 +633,9 @@ with sync_playwright() as pw:
     page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'big.png','mimeType':'image/png','buffer':lab_bb.getvalue()}])
     page.locator('#labSheet canvas').wait_for(timeout=120000)
-    page.wait_for_function('()=>document.querySelector("#labSummary .summary-line.bad")||document.querySelectorAll(".slicer-box").length>1',timeout=180000)
-    ok('Sprite Lab: a 2048x2048 sheet past the Auto limit says so and points at Grid',
-       'Grid' in page.locator('#labSummary .summary-line.bad').inner_text(),
+    page.wait_for_function('()=>document.querySelector("#labSummary.is-error")||document.querySelectorAll(".slicer-box").length>1',timeout=180000)
+    ok('Sprite Lab: a 2048x2048 sheet (past the old 4 MP Auto cap) is sliced by Auto into its 64 islands',
+       page.locator('.slicer-box').count()==64 and not page.locator('#labSummary.is-error').count(),
        page.locator('#labSummary').inner_text().replace('\n',' | '))
     page.locator('[data-key="mode"][data-value="grid"]').click()
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>1',timeout=180000)
@@ -806,7 +807,10 @@ with sync_playwright() as pw:
     with page.expect_download() as d:page.locator('#taskDownload').click()
     z=zipfile.ZipFile(d.value.path())
     ok('the batch optimiser exports every texture in one archive',
-       sorted(z.namelist())==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png'])
+       # plus the normal map generated on the Normal stage above: generated maps join the set (B13)
+       sorted(n for n in z.namelist() if not n.endswith('-normal.png'))==['rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png']
+       and all(n.endswith('-normal.png') for n in z.namelist() if n not in ('rock_basecolor.png','rock_height.png','rock_orm.png','sprite.png')),
+       str(z.namelist()))
     page.set_viewport_size({'width':320,'height':720});page.wait_for_timeout(300)
     ok('no horizontal scroll in Texture Lab at 320 px',page.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     page.locator('[data-action="tex-stage"][data-stage="channels"]').first.click();page.wait_for_timeout(600)
@@ -1099,7 +1103,7 @@ with sync_playwright() as pw:
     open_lab('/en/game/tile-lab/',blob_sheet(blank={5,17,40}),'?stage=rules')
     ok('a sheet with three slots painted out reports exactly those three',
        sorted(int(v) for v in page.locator('[data-ghost]').evaluate_all('ns=>ns.map(n=>n.dataset.ghost)'))==[5,17,40],
-       page.locator('#tlRules .summary-line').inner_text())
+       page.locator('#tlRules .summary-line').first.inner_text())
     # --- autotile tester: the rules choose the tile, and the pixels prove which one ---
     open_lab('/en/game/autotile-tester/',sheet)
     ok('the autotile route opens the Lab at its tester',page.locator('[data-action="tl-stage"][data-stage="tester"]').get_attribute('aria-pressed')=='true')
