@@ -15,6 +15,9 @@ import {createTileset,applyLayout,terrainTiles,patternsList,TERRAIN_COLORS} from
 import {GodotTerrainSet,resolveGodot} from '../../../src/game/tiles/godot-terrain.js';
 import {fromBlob,fromEdge,fromCorner,idealAt,samePattern} from '../../../src/game/tiles/patterns.js';
 import {exportBundle} from '../../../src/game/tiles/exports.js';
+import {assembleSource,buildSheet} from '../../../src/game/tiles/generator.js';
+import {tileSource} from '../../../src/game/tiles/identify.js';
+import {encodeRGBAPNG} from '../../../src/game/texture-png.js';
 import {standardCases,getter,godotCalls} from './cases.mjs';
 const CORPUS=process.env.NERULIO_CORPUS||'C:/Users/2009s/nerulio-asset-corpus';
 const [out,filter]=process.argv.slice(2);
@@ -36,7 +39,32 @@ for(const f of man.files){
   hints:idr.hints,blocks:idr.blocks.filter(b=>!b.source).map(b=>`${b.layoutId}@${b.col},${b.row}`)};
  writeFileSync(join(dir,'identify.json'),JSON.stringify({...idr,candidates:idr.candidates},null,1));
  summary.push(row);
- // Only sheets whose top candidate is a real layout (not a sub-tile source) get a model + exports.
+ // A sub-tile source (RPG Maker A2/A4 block…) found from the pixels, or named by the sheet size when
+ // the pixels cannot tell (a seamless floor), is assembled into a full set first, exactly as the
+ // Studio's generator does, and that generated sheet is what gets exported and checked.
+ const hint=(idr.hints||[])[0];
+ const source=top&&top.source&&top.confidence!=='low'?{kind:top.layoutId,col:top.col,row:top.row,why:'pixels'}:(!top||top.confidence==='low')&&hint?{kind:hint.layoutId==='rpgmaker-a4'?'rpgmaker-a2':hint.layoutId,col:0,row:0,why:'size'}:null;
+ if(source){
+  const src=tileSource(img,grid),set=assembleSource(source.kind,(c,r)=>src.tile(source.col+c,source.row+r),{w:grid.w,h:grid.h});
+  const sheet=buildSheet(set.tiles,set.mode==='sides'?'edge16-binary':'blob47-cr31-ascending',{w:grid.w,h:grid.h});
+  const pngBlob=await encodeRGBAPNG(sheet.image.data,sheet.image.width,sheet.image.height),png=new Uint8Array(await pngBlob.arrayBuffer());
+  let ts=createTileset({assetId:id,name:basename(f.path).replace(/\.png$/i,'')+'-generated',grid:sheet.grid,mode:set.mode});
+  for(const cell of sheet.cells)ts={...ts,tiles:{...ts.tiles,[cell.col+','+cell.row]:{pattern:cell.pattern}}};
+  ts={...ts,layoutId:sheet.layoutId};
+  writeFileSync(join(dir,'model.json'),JSON.stringify(ts,null,1));writeFileSync(join(dir,'generated.png'),png);
+  row.generatedFrom=`${source.kind}@${source.col},${source.row} (${source.why})`;
+  const imgName=basename(f.path).replace(/\.png$/i,'')+'-generated.png';
+  const cases=standardCases(1);
+  const bundle=exportBundle(ts,{imageName:imgName,width:sheet.image.width,height:sheet.image.height,cases,png});
+  for(const [target,files] of Object.entries(bundle)){const d=join(dir,target);mkdirSync(d,{recursive:true});for(const [name,content] of Object.entries(files)){const p=join(d,name);mkdirSync(join(p,'..'),{recursive:true});writeFileSync(p,content);}}
+  const set2=new GodotTerrainSet({mode:ts.mode,tiles:terrainTiles(ts)}),job={json:'res://nerulio-tileset.json',importer:'res://nerulio_tileset_import.gd',cases:[]};
+  for(const c of cases){const r=resolveGodot(set2,{w:c.grid.w,h:c.grid.h,get:getter(c.grid)});const predict={};for(const [k,v] of r.cells)predict[k]=v.alternatives.map(a=>a.split(',').map(Number));job.cases.push({name:c.name,calls:godotCalls(c.grid),predict});}
+  writeFileSync(join(dir,'godot-job.json'),JSON.stringify(job));
+  row.exported=true;row.mode=ts.mode;row.tiles=Object.keys(ts.tiles).length;
+  console.log(f.path,'→',row.generatedFrom,'→',sheet.cells.length,'tiles generated');
+  continue;
+ }
+ // Only sheets whose top candidate is a real layout get a model + exports.
  if(!top||top.source||top.confidence==='low'){row.exported=false;console.log(f.path,'→',top?`${top.layoutId} ${top.confidence}`:'none','(no export)');continue;}
  const sameLayout=idr.blocks.filter(b=>b.layoutId===top.layoutId&&!b.source);
  const multi=sameLayout.length>1;
