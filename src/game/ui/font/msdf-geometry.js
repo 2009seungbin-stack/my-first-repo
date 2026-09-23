@@ -27,7 +27,10 @@ export const CUBIC_SEARCH_STARTS=4,CUBIC_SEARCH_STEPS=4;
 const TAU=2*Math.PI;
 export const nonZeroSign=n=>n>0?1:-1;
 export const sign=n=>(0<n)-(n<0);
-export const median=(a,b,c)=>Math.max(Math.min(a,b),Math.min(Math.max(a,b),c));
+// msdfgen's min/max are `b < a ? b : a` / `a < b ? b : a`, not Math.min/max: they differ when a
+// value is NaN (e.g. interpolating a channel that is −∞ because it has no edges of its colour).
+const mn=(a,b)=>b<a?b:a,mx=(a,b)=>a<b?b:a;
+export const median=(a,b,c)=>mx(mn(a,b),mn(mx(a,b),c));
 const len=(x,y)=>Math.sqrt(x*x+y*y);
 export function makeEdge(type,points,color=WHITE){
  if(type!==1&&type!==2&&type!==3)throw Error('Edge type must be 1 (line), 2 (quadratic) or 3 (cubic)');

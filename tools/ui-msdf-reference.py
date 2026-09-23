@@ -5,9 +5,11 @@ src/game/ui/font/{shape,raster,msdf}.js against the reference implementation.
 
 Needs: the official msdfgen Windows binary (v1.13, github.com/Chlumsky/msdfgen/releases,
 msdfgen-1.13-win64.zip) unpacked under %LOCALAPPDATA%/nerulio-engine-verify/msdfgen/ (or set
-MSDFGEN=path/to/msdfgen.exe), Python with fontTools, Node >= 20, and the asset corpus fonts
-(C:/Users/2009s/nerulio-asset-corpus/fonts, or set NERULIO_CORPUS). CI needs none of this:
-the committed JSON is all the tests read.
+MSDFGEN=path/to/msdfgen.exe), Python with fontTools and Node >= 20. Every shape is synthetic or
+comes from the committed CC0 Kenney fonts in tests/fixtures/ui/fonts (the fixture must stay
+CC0). CI needs none of this: the committed JSON is all the tests read. Non-CC0 glyphs (Noto
+Sans JP kanji with overlapping contours) are checked by a local-only test that calls msdfgen
+itself and writes nothing into the repo.
 
 What it does, per case:
  1. outline commands (font units, y-up) come from the synthetic list below or from a font via
@@ -28,7 +30,6 @@ from fontTools.pens.basePen import BasePen
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'tests', 'fixtures', 'ui', 'msdf', 'reference.json')
 MSDFGEN = os.environ.get('MSDFGEN') or os.path.join(os.environ.get('LOCALAPPDATA', ''), 'nerulio-engine-verify', 'msdfgen', 'msdfgen-1.13', 'msdfgen', 'msdfgen.exe')
-CORPUS = os.environ.get('NERULIO_CORPUS', 'C:/Users/2009s/nerulio-asset-corpus/fonts')
 MSDFGEN_ARGS = ['-nopreprocess', '-overlap', '-scanline']  # + mode, -shapedesc, -dimensions, -pxrange, -format binfloat
 QUANT = 2048
 
@@ -93,18 +94,50 @@ SYNTHETIC = [
     ('overlap', [M(4, 6), L(4, 20), L(22, 20), L(22, 6), Z, M(12, 12), L(12, 27), L(27, 27), L(27, 12), Z]
      + circle_quads(9, 22, 6), 1, 32, 32),
 ]
+
+
+def band(p0, c, p1, w):
+    """A curved stroke of width w along the quadratic centre line p0-c-p1, as one closed contour
+    (orientation is whatever falls out; orientContours fixes it before msdfgen sees it)."""
+    import math
+    def nrm(a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]; l = math.hypot(dx, dy); return (-dy / l, dx / l)
+    n0, n1 = nrm(p0, c), nrm(c, p1)
+    nc = (n0[0] + n1[0], n0[1] + n1[1]); l = math.hypot(*nc); cosh = (nc[0] * n0[0] + nc[1] * n0[1]) / l
+    nc = (nc[0] / l / cosh, nc[1] / l / cosh)
+    h = w / 2
+    P = lambda p, n, s: (round(p[0] + s * h * n[0], 3), round(p[1] + s * h * n[1], 3))
+    a0, ac, a1, b1, bc, b0 = P(p0, n0, 1), P(c, nc, 1), P(p1, n1, 1), P(p1, n1, -1), P(c, nc, -1), P(p0, n0, -1)
+    return [M(*a0), Q(*ac, *a1), L(*b1), Q(*bc, *b0), Z]
+
+
+def bar(x0, y0, x1, y1): return [M(x0, y0), L(x0, y1), L(x1, y1), L(x1, y0), Z]
+
+
+# A dense, kanji-like synthetic glyph: 11 separate stroke contours that cross each other the way
+# variable-font CJK outlines do (winding 2 at every crossing), plus curved sweeps and a dot.
+DENSE = (bar(6, 30.5, 34, 32.7) + bar(8, 24.5, 32, 26.5) + bar(8, 18.5, 32, 20.5) + bar(5, 12.5, 35, 14.5)
+         + bar(18.8, 3, 21.2, 36.5) + bar(9, 9, 11, 29) + bar(29, 9, 31, 29)
+         + band((19, 19), (13, 12), (4, 4.5), 2.4) + band((21, 19), (27, 11), (36, 4), 2.6)
+         + band((12, 35), (20, 38), (27, 34), 1.8) + [M(17.5, 37), Q(20, 40.5, 22.5, 37.5), Q(20, 35.5, 17.5, 37), Z])
+SYNTHETIC.append(('dense-strokes', DENSE, 1, 40, 40))
+
+FONTS = os.path.join(ROOT, 'tests', 'fixtures', 'ui', 'fonts')  # committed CC0 Kenney fonts
 GLYPHS = [
-    # name, font (relative to corpus), char, cell size
-    ('kenney-future-A', 'kenney-fonts/KenneyFuture.ttf', 'A', 32),
-    ('kenney-future-S', 'kenney-fonts/KenneyFuture.ttf', 'S', 32),
-    ('kenney-future-g', 'kenney-fonts/KenneyFuture.ttf', 'g', 32),
-    ('kenney-future-8', 'kenney-fonts/KenneyFuture.ttf', '8', 32),
-    ('kenney-future-at', 'kenney-fonts/KenneyFuture.ttf', '@', 32),
-    ('kenney-pixel-k', 'kenney-fonts/KenneyPixel.ttf', 'k', 24),
-    ('noto-jp-ei', 'noto-sans-jp/NotoSansJP-wght.ttf', '\u6c38', 40),
-    ('noto-jp-a', 'noto-sans-jp/NotoSansJP-wght.ttf', '\u3042', 40),
+    # name, font (relative to tests/fixtures/ui/fonts), [(char, x offset in units)], cell size
+    ('kenney-future-A', 'KenneyFuture.ttf', [('A', 0)], 32),
+    ('kenney-future-S', 'KenneyFuture.ttf', [('S', 0)], 32),
+    ('kenney-future-g', 'KenneyFuture.ttf', [('g', 0)], 32),
+    ('kenney-future-8', 'KenneyFuture.ttf', [('8', 0)], 32),
+    ('kenney-future-at', 'KenneyFuture.ttf', [('@', 0)], 32),
+    ('kenney-pixel-k', 'KenneyPixel.ttf', [('k', 0)], 24),
+    # real curved outlines overlapping like a variable font's: 'O' laid over 'A' (both clockwise,
+    # the O's counter anticlockwise), so the combiner meets winding 0, 1 and 2 with holes
+    ('kenney-overlap-AO', 'KenneyFuture.ttf', [('A', 0), ('O', 330)], 40),
+    ('kenney-overlap-8g', 'KenneyFuture.ttf', [('8', 0), ('g', 260)], 40),
+    ('kenney-pixel-dense-8', 'KenneyPixel.ttf', [('8', 0)], 20),
 ]
-LICENCE = {'kenney-fonts': 'Kenney fonts, CC0 1.0 (kenney.nl)', 'noto-sans-jp': 'Noto Sans JP (default instance, overlapping contours kept), SIL OFL 1.1, (c) 2014-2021 Adobe'}
+LICENCE = 'Kenney fonts, CC0 1.0 (kenney.nl), tests/fixtures/ui/fonts/LICENSE-kenney.txt'
 RANGE = 4
 
 
@@ -118,19 +151,22 @@ def cases():
     out = []
     for name, cmds, scale, w, h in SYNTHETIC:
         out.append({'name': name, 'source': 'synthetic', 'commands': cmds, 'scale': scale, 'dx': 0, 'dy': h, 'w': w, 'h': h, 'range': RANGE})
-    for name, font, ch, size in GLYPHS:
-        f = TTFont(os.path.join(CORPUS, font))
+    for name, font, parts, size in GLYPHS:
+        f = TTFont(os.path.join(FONTS, font))
         gs = f.getGlyphSet()
-        pen = CommandPen(gs)
-        gs[f.getBestCmap()[ord(ch)]].draw(pen)
-        cmds = pen.cmds
+        cmds = []
+        for ch, ox in parts:
+            pen = CommandPen(gs)
+            gs[f.getBestCmap()[ord(ch)]].draw(pen)
+            cmds += [{k: (v + ox if k in ('x', 'x1', 'x2') else v) for k, v in c.items()} for c in pen.cmds]
         x0, y0, x1, y1 = bounds(cmds)
         pad = RANGE / 2 + 1
         scale = min((size - 2 * pad) / (x1 - x0), (size - 2 * pad) / (y1 - y0))
         scale = round(scale * 4096) / 4096
         dx = round(((size - (x1 - x0) * scale) / 2 - x0 * scale) * 64) / 64
         dy = round(((size - (y1 - y0) * scale) / 2 + y1 * scale) * 64) / 64
-        out.append({'name': name, 'source': f'{font} U+{ord(ch):04X}', 'licence': LICENCE[font.split('/')[0]],
+        src = ' + '.join(f'U+{ord(ch):04X}' + (f' shifted {ox} units' if ox else '') for ch, ox in parts)
+        out.append({'name': name, 'source': f'{font} {src}', 'licence': LICENCE,
                     'commands': cmds, 'scale': scale, 'dx': dx, 'dy': dy, 'w': size, 'h': size, 'range': RANGE})
     return out
 

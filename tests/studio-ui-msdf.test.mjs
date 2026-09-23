@@ -1,13 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync,mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
 import {inflateSync} from 'node:zlib';
 import {shapeFromCommands,shapeBounds,normalizeShape,orientContours,contourWinding,windingAt,insideAt,cloneShape,transformShape,reverseContour,edgeCount,shapeDescription,WHITE} from '../src/game/ui/font/shape.js';
 import {rasterize} from '../src/game/ui/font/raster.js';
 import * as M from '../src/game/ui/font/msdf.js';
 import {edgePoint,scanline} from '../src/game/ui/font/msdf-geometry.js';
 
-// msdfgen v1.13 output for 16 shapes (tools/ui-msdf-reference.py). Fields: px, rows top-first.
+// msdfgen v1.13 output for 18 CC0 shapes (tools/ui-msdf-reference.py). Fields: px, rows top-first.
 const REF=JSON.parse(readFileSync(new URL('./fixtures/ui/msdf/reference.json',import.meta.url),'utf8'));
 const unpack=b64=>{const b=inflateSync(Buffer.from(b64,'base64'));const q=new Int16Array(b.buffer,b.byteOffset,b.length/2);return Float64Array.from(q,v=>v/2048);};
 const bits=(b64,n)=>{const b=inflateSync(Buffer.from(b64,'base64'));return Uint8Array.from({length:n},(_,i)=>b[i>>3]>>(i&7)&1);};
@@ -20,9 +23,9 @@ function maxDiff(mine,ref){
 }
 const TOL=.002;// fixture quantisation is 1/2048 px; the implementation matches msdfgen to float32 rounding
 
-test('SDF, PSDF, MSDF and MTSDF equal msdfgen 1.13 on every reference shape',t=>{
+test('SDF, PSDF, MSDF and MTSDF equal msdfgen 1.13 on every (CC0) reference shape',t=>{
  assert.match(REF.msdfgen.version,/v1\.13/);
- assert.equal(REF.cases.length,16);
+ assert.equal(REF.cases.length,18);
  const worst={sdf:0,psdf:0,mtsdf:0,msdf:0,msdfNoScanline:0};
  for(const c of REF.cases){
   const s=shapeOf(c),{w,h,range}=c,r=c.reference;
@@ -35,6 +38,16 @@ test('SDF, PSDF, MSDF and MTSDF equal msdfgen 1.13 on every reference shape',t=>
   for(const k in d){assert.ok(d[k]<=TOL,`${c.name} ${k}: max |Δ| ${d[k]} px`);worst[k]=Math.max(worst[k],d[k]);}
  }
  t.diagnostic(`worst max |mine − msdfgen| px: ${Object.entries(worst).map(([k,v])=>`${k} ${v.toExponential(1)}`).join(', ')}`);
+ // the overlap cases really overlap: somewhere the fill winding is 2 (what variable fonts do)
+ for(const name of ['overlap','dense-strokes','kenney-overlap-AO','kenney-overlap-8g']){
+  const c=REF.cases.find(k=>k.name===name),s=shapeOf(c);let max=0;
+  for(let y=.5;y<c.h;y++)for(let x=.5;x<c.w;x++)max=Math.max(max,windingAt(s,x,y));
+  assert.ok(max>=2,`${name} has overlapping same-direction contours`);
+ }
+ // kenney-overlap-AO has texels whose blue channel is −∞ (no blue edge in any contour that
+ // wins there); error correction must treat the resulting NaNs exactly like msdfgen's min/max
+ const ao=REF.cases.find(k=>k.name==='kenney-overlap-AO');
+ assert.ok(M.generateMSDF(shapeOf(ao),ao.w,ao.h,{range:ao.range,errorCorrection:false}).some(v=>v===-Infinity));
 });
 
 test('edge colouring equals msdfgen edgeColoringSimple (incl. teardrops and 1-/2-edge splitting)',()=>{
@@ -77,7 +90,7 @@ test('decoded MSDF matches msdfgen -testrender at 4x and the exact raster at 1x,
 
 test('SDF error of the MSDF: 8x reconstruction vs exact coverage, and median vs true distance',t=>{
  const out=[];
- for(const name of ['sharp-a','kenney-future-A','kenney-future-at','noto-jp-ei','noto-jp-a','overlap']){
+ for(const name of ['sharp-a','kenney-future-A','kenney-future-at','dense-strokes','kenney-overlap-AO','kenney-overlap-8g','overlap']){
   const c=REF.cases.find(k=>k.name===name),s=shapeOf(c),{w,h,range}=c;
   const f=M.generateMSDF(s,w,h,{range}),sdf=M.generateSDF(s,w,h,{range});
   const rec=M.reconstructCoverage(M.encodeField(f,w,h,3,{range}),w,h,3,{scale:8,range});
@@ -292,7 +305,7 @@ test('generators: transform, MTSDF alpha, sign conventions and option validation
 });
 
 test('error-correction modes run and the distance-checked mode equals msdfgen (auto-mixed)',()=>{
- const c=REF.cases.find(k=>k.name==='noto-jp-a'),s=shapeOf(c),{w,h,range}=c;
+ const c=REF.cases.find(k=>k.name==='kenney-overlap-AO'),s=shapeOf(c),{w,h,range}=c;
  const raw=M.generateMSDF(s,w,h,{range,errorCorrection:false});
  const changed={};
  for(const mode of ['indiscriminate','edge-priority','edge-only']){
@@ -347,8 +360,8 @@ test('reconstructCoverage renders an SDF back to the shape (smoothstep and linea
  assert.throws(()=>M.reconstructCoverage(enc,w,h,1,{range,ramp:'cubic'}),/ramp/);
 });
 
-test('performance: a CJK glyph in a 64x64 MSDF cell',t=>{
- const c=REF.cases.find(k=>k.name==='noto-jp-ei');
+test('performance: a dense CJK-like glyph in a 64x64 MSDF cell',t=>{
+ const c=REF.cases.find(k=>k.name==='dense-strokes');
  const s=shapeFromCommands(c.commands,{scale:c.scale*1.6,dx:c.dx*1.6,dy:c.dy*1.6});
  for(let i=0;i<3;i++)M.generateMSDF(s,64,64,{range:4});
  const t0=performance.now(),N=10;
@@ -356,4 +369,38 @@ test('performance: a CJK glyph in a 64x64 MSDF cell',t=>{
  const ms=(performance.now()-t0)/N;
  t.diagnostic(`${edgeCount(s)} edges, 64x64 MSDF: ${ms.toFixed(1)} ms`);
  assert.ok(ms<500,'sanity bound only; timings are reported, not gated');
+});
+
+// ---------------------------------------------------------------- local only (never in CI)
+// Noto Sans JP (SIL OFL) kanji keep overlapping contours in the variable font's default instance.
+// Its outlines may not be committed (fixtures are CC0 only), so this test reads the font from the
+// asset corpus, runs the msdfgen binary itself into a temp dir, compares, and deletes the temp dir.
+const NOTO=join(process.env.NERULIO_CORPUS||'C:/Users/2009s/nerulio-asset-corpus/fonts','noto-sans-jp','NotoSansJP-wght.ttf');
+const MSDFGEN=process.env.MSDFGEN||join(process.env.LOCALAPPDATA||'','nerulio-engine-verify','msdfgen','msdfgen-1.13','msdfgen','msdfgen.exe');
+const LOCAL=existsSync(NOTO)&&existsSync(MSDFGEN);
+test('LOCAL: Noto Sans JP kanji with overlapping contours equal msdfgen (corpus + binary only)',{skip:LOCAL?false:'needs the asset corpus and the msdfgen binary'},async t=>{
+ const {parseFont}=await import('../src/game/ui/font/opentype.js');
+ const font=parseFont(new Uint8Array(readFileSync(NOTO))),dir=mkdtempSync(join(tmpdir(),'msdf-local-'));
+ try{
+  for(const cp of [0x6c38,0x3042,0x9b31]){// 永 あ 鬱
+   const {commands}=font.glyphPath(font.glyphId(cp));
+   const xs=[],ys=[];for(const c of commands)for(const [a,b] of [['x','y'],['x1','y1'],['x2','y2']])if(c[a]!==undefined){xs.push(c[a]);ys.push(c[b]);}
+   const size=48,range=4,pad=range/2+1,x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+   const scale=Math.min((size-2*pad)/(x1-x0),(size-2*pad)/(y1-y0));
+   const s=shapeFromCommands(commands,{scale,dx:(size-(x1-x0)*scale)/2-x0*scale,dy:(size-(y1-y0)*scale)/2+y1*scale});
+   const desc=join(dir,'g.txt');writeFileSync(desc,shapeDescription(M.prepareShape(s,{coloring:false},false),{height:size}));
+   const read=(mode,n,extra=[])=>{
+    const out=join(dir,mode+'.bin');
+    execFileSync(MSDFGEN,[mode,'-shapedesc',desc,'-dimensions',String(size),String(size),'-pxrange',String(range),'-nopreprocess','-overlap',...extra,'-format','binfloat','-o',out]);
+    const b=readFileSync(out),v=new Float32Array(b.buffer,b.byteOffset,size*size*n),o=new Float64Array(v.length);
+    for(let y=0;y<size;y++)for(let i=0;i<size*n;i++)o[y*size*n+i]=(v[(size-1-y)*size*n+i]-.5)*range;
+    return o;
+   };
+   const d={sdf:maxDiff(M.generateSDF(s,size,size,{range}),read('sdf',1,['-scanline'])),
+    mtsdf:maxDiff(M.generateMTSDF(s,size,size,{range}),read('mtsdf',4,['-scanline'])),
+    msdfNoScanline:maxDiff(M.generateMSDF(s,size,size,{range,scanlineSignFix:false}),read('msdf',3,['-noscanline']))};
+   t.diagnostic(`U+${cp.toString(16)} ${edgeCount(s)} edges: ${JSON.stringify(d)}`);
+   for(const k in d)assert.ok(d[k]<1e-5,`U+${cp.toString(16)} ${k} ${d[k]}`);
+  }
+ }finally{rmSync(dir,{recursive:true,force:true});}
 });

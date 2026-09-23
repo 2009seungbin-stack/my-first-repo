@@ -1,0 +1,2609 @@
+{
+ "generated": "2026-09-24",
+ "note": "quality = tools/font-quality.py (ink pixels); x1 for bitmap, x4/x8 for SDF",
+ "tools": {
+  "msdf-atlas-gen": {
+   "galmuri11_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00891,
+      "p95_abs_err": 0.06091,
+      "wrong_pct": 0.1383,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.00886,
+      "p95_abs_err": 0.08151,
+      "wrong_pct": 0.2287,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "972x972"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9051,
+     "used_area_bbox_over_page_area": 0.9959,
+     "inked_pixel_fraction": 0.236,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\galmuri\\Galmuri11.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type msdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_msdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_msdf.json",
+     "rc": 0,
+     "seconds": 1.44
+    }
+   },
+   "galmuri11_msdf_NEG_blur0.7": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.03056,
+      "p95_abs_err": 0.22311,
+      "wrong_pct": 0.7024,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.03279,
+      "p95_abs_err": 0.29408,
+      "wrong_pct": 2.3507,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "972x972"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9051,
+     "used_area_bbox_over_page_area": 0.9959,
+     "inked_pixel_fraction": 0.2375,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 0.7
+    },
+    "field": "msdf"
+   },
+   "galmuri11_msdf_NEG_blur1_shift1": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.50869,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 51.0069,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.53189,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 53.1346,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "972x972"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9051,
+     "used_area_bbox_over_page_area": 0.9959,
+     "inked_pixel_fraction": 0.2371,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 1.0,
+     "shift": 1.0
+    },
+    "field": "msdf"
+   },
+   "galmuri11_mtsdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00891,
+      "p95_abs_err": 0.06091,
+      "wrong_pct": 0.1383,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.00886,
+      "p95_abs_err": 0.08151,
+      "wrong_pct": 0.2287,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "972x972"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9051,
+     "used_area_bbox_over_page_area": 0.9959,
+     "inked_pixel_fraction": 0.236,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "mtsdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\galmuri\\Galmuri11.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type mtsdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_mtsdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_mtsdf.json",
+     "rc": 0,
+     "seconds": 1.78
+    }
+   },
+   "galmuri11_psdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.02142,
+      "p95_abs_err": 0.07304,
+      "wrong_pct": 1.0782,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.0222,
+      "p95_abs_err": 0.10235,
+      "wrong_pct": 1.5305,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "956x956"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9356,
+     "used_area_bbox_over_page_area": 0.9561,
+     "inked_pixel_fraction": 0.244,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "psdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\galmuri\\Galmuri11.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type psdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_psdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_psdf.json",
+     "rc": 0,
+     "seconds": 0.57
+    }
+   },
+   "galmuri11_sdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.02182,
+      "p95_abs_err": 0.07304,
+      "wrong_pct": 1.0782,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.02258,
+      "p95_abs_err": 0.10235,
+      "wrong_pct": 1.563,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "956x956"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9356,
+     "used_area_bbox_over_page_area": 0.9561,
+     "inked_pixel_fraction": 0.244,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\galmuri\\Galmuri11.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type sdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_sdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\galmuri11_sdf.json",
+     "rc": 0,
+     "seconds": 0.44
+    }
+   },
+   "kenneyfuture_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00141,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00161,
+      "p95_abs_err": 0.0001,
+      "wrong_pct": 0.008,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2715,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\kenney-fonts\\KenneyFuture.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ascii.msdf.txt -type msdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_msdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_msdf.json",
+     "rc": 0,
+     "seconds": 0.09
+    }
+   },
+   "kenneyfuture_msdf_NEG_blur0.7": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00712,
+      "p95_abs_err": 0.00592,
+      "wrong_pct": 0.2069,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00776,
+      "p95_abs_err": 0.01348,
+      "wrong_pct": 0.6502,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2727,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 0.7
+    },
+    "field": "msdf"
+   },
+   "kenneyfuture_msdf_NEG_blur1_shift1": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.38818,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 38.7828,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.40022,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 40.0398,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2797,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 1.0,
+     "shift": 1.0
+    },
+    "field": "msdf"
+   },
+   "kenneyfuture_mtsdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00141,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00161,
+      "p95_abs_err": 0.0001,
+      "wrong_pct": 0.008,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2715,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "mtsdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\kenney-fonts\\KenneyFuture.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ascii.msdf.txt -type mtsdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_mtsdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_mtsdf.json",
+     "rc": 0,
+     "seconds": 0.1
+    }
+   },
+   "kenneyfuture_psdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00999,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.7951,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.01039,
+      "p95_abs_err": 0.0001,
+      "wrong_pct": 0.8719,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "228x228"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.904,
+     "used_area_bbox_over_page_area": 0.9869,
+     "inked_pixel_fraction": 0.2909,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "psdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\kenney-fonts\\KenneyFuture.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ascii.msdf.txt -type psdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_psdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_psdf.json",
+     "rc": 0,
+     "seconds": 0.04
+    }
+   },
+   "kenneyfuture_sdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00997,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.7951,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.01038,
+      "p95_abs_err": 0.0001,
+      "wrong_pct": 0.8721,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "228x228"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.904,
+     "used_area_bbox_over_page_area": 0.9869,
+     "inked_pixel_fraction": 0.2909,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\fonts\\kenney-fonts\\KenneyFuture.ttf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ascii.msdf.txt -type sdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_sdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\kenneyfuture_sdf.json",
+     "rc": 0,
+     "seconds": 0.04
+    }
+   },
+   "kf_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00141,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00161,
+      "p95_abs_err": 0.0001,
+      "wrong_pct": 0.008,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2715,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "msdf"
+   },
+   "kf_msdf_neg_blur=1.0,shift=1": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.38818,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 38.7828,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.40022,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 40.0398,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2797,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 1.0,
+     "shift": 1.0
+    },
+    "field": "msdf"
+   },
+   "kf_msdf_neg_blur=1.0": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.01845,
+      "p95_abs_err": 0.05275,
+      "wrong_pct": 1.4311,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.01986,
+      "p95_abs_err": 0.04724,
+      "wrong_pct": 1.6901,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2797,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 1.0
+    },
+    "field": "msdf"
+   },
+   "kf_msdf_neg_shift=1": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.39136,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 39.1108,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.39738,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 39.7354,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "236x236"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8438,
+     "used_area_bbox_over_page_area": 0.9915,
+     "inked_pixel_fraction": 0.2715,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "shift": 1.0
+    },
+    "field": "msdf"
+   },
+   "notosanskr_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.01366,
+      "p95_abs_err": 0.0913,
+      "wrong_pct": 0.0227,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.00832,
+      "p95_abs_err": 0.07316,
+      "wrong_pct": 0.0483,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "912x912"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9024,
+     "used_area_bbox_over_page_area": 0.9978,
+     "inked_pixel_fraction": 0.2193,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\fonts\\NotoSansKR-Regular.otf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type msdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_msdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_msdf.json",
+     "rc": 0,
+     "seconds": 1.32
+    }
+   },
+   "notosanskr_msdf_NEG_blur0.7": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.04101,
+      "p95_abs_err": 0.27258,
+      "wrong_pct": 0.8843,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.0418,
+      "p95_abs_err": 0.33836,
+      "wrong_pct": 2.822,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "912x912"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9024,
+     "used_area_bbox_over_page_area": 0.9978,
+     "inked_pixel_fraction": 0.2188,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 0.7
+    },
+    "field": "msdf"
+   },
+   "notosanskr_msdf_NEG_blur1_shift1": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.53934,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 53.6637,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.5672,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 56.6212,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "912x912"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9024,
+     "used_area_bbox_over_page_area": 0.9978,
+     "inked_pixel_fraction": 0.2124,
+     "kerning_pairs": 0
+    },
+    "charset": {},
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": {
+     "blur": 1.0,
+     "shift": 1.0
+    },
+    "field": "msdf"
+   },
+   "notosanskr_mtsdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.01366,
+      "p95_abs_err": 0.0913,
+      "wrong_pct": 0.0227,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.00832,
+      "p95_abs_err": 0.07316,
+      "wrong_pct": 0.0483,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "912x912"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9024,
+     "used_area_bbox_over_page_area": 0.9978,
+     "inked_pixel_fraction": 0.2193,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "mtsdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\fonts\\NotoSansKR-Regular.otf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type mtsdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_mtsdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_mtsdf.json",
+     "rc": 0,
+     "seconds": 1.81
+    }
+   },
+   "notosanskr_psdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.02528,
+      "p95_abs_err": 0.11941,
+      "wrong_pct": 0.9181,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.02173,
+      "p95_abs_err": 0.09949,
+      "wrong_pct": 1.3516,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "896x896"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9349,
+     "used_area_bbox_over_page_area": 0.9543,
+     "inked_pixel_fraction": 0.2272,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "psdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\fonts\\NotoSansKR-Regular.otf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type psdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_psdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_psdf.json",
+     "rc": 0,
+     "seconds": 0.65
+    }
+   },
+   "notosanskr_sdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.02551,
+      "p95_abs_err": 0.11945,
+      "wrong_pct": 0.9438,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.02195,
+      "p95_abs_err": 0.09987,
+      "wrong_pct": 1.3746,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "896x896"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9349,
+     "used_area_bbox_over_page_area": 0.9543,
+     "inked_pixel_fraction": 0.2272,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "planeBounds (exact, no search)"
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\msdfgen\\msdf-atlas-gen-1.4\\msdf-atlas-gen\\msdf-atlas-gen.exe -font C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\fonts\\NotoSansKR-Regular.otf -charset C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game.msdf.txt -type sdf -size 32 -pxrange 4 -format png -imageout C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_sdf.png -json C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\msdf-atlas-gen\\notosanskr_sdf.json",
+     "rc": 0,
+     "seconds": 0.56
+    }
+   }
+  },
+  "bmfont": {
+   "galmuri11_12px": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.05431,
+      "p95_abs_err": 0.13333,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.11236,
+      "p95_abs_err": 0.19216,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.4057,
+     "used_area_bbox_over_page_area": 0.4893,
+     "inked_pixel_fraction": 0.238,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.12081,
+      "cell = winAscent+winDescent": 0.43622,
+      "cell = hhea ascent-descent": 0.41126,
+      "base = winAscent": 0.12081
+     },
+     "em_px": 12.0,
+     "dx_px": 0.125,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_12px.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_12px.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game_bom.txt",
+     "rc": 0,
+     "seconds": 1.09,
+     "files": [
+      "galmuri11_12px.bmfc",
+      "galmuri11_12px.fnt",
+      "galmuri11_12px_0.png"
+     ],
+     "kernings": 380,
+     "pages": 1
+    }
+   },
+   "galmuri11_12px_nosmooth": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.3384,
+     "used_area_bbox_over_page_area": 0.4191,
+     "inked_pixel_fraction": 0.128,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.61698,
+      "cell = hhea ascent-descent": 0.56452,
+      "base = winAscent": 0.0
+     },
+     "em_px": 12.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_12px_nosmooth.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_12px_nosmooth.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game_bom.txt",
+     "rc": 0,
+     "seconds": 1.32,
+     "files": [
+      "galmuri11_12px_nosmooth.bmfc",
+      "galmuri11_12px_nosmooth.fnt",
+      "galmuri11_12px_nosmooth_0.png"
+     ],
+     "kernings": 380,
+     "pages": 1
+    }
+   },
+   "galmuri11_12px_nosmooth_NEG_blur0.7": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.09127,
+      "p95_abs_err": 0.21814,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.25984,
+      "p95_abs_err": 0.47451,
+      "wrong_pct": 1.4663,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.3384,
+     "used_area_bbox_over_page_area": 0.4191,
+     "inked_pixel_fraction": 0.4022,
+     "kerning_pairs": 380
+    },
+    "charset": {},
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.25351,
+      "cell = winAscent+winDescent": 0.30946,
+      "cell = hhea ascent-descent": 0.28053,
+      "base = winAscent": 0.25351
+     },
+     "em_px": 12.0,
+     "dx_px": 0.25,
+     "dy_px": 0.375
+    },
+    "degrade": {
+     "blur": 0.7
+    },
+    "field": "bitmap"
+   },
+   "galmuri11_12px_nosmooth_NEG_shift1": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.52966,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 51.4926,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.91692,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 91.692,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.3384,
+     "used_area_bbox_over_page_area": 0.4191,
+     "inked_pixel_fraction": 0.128,
+     "kerning_pairs": 380
+    },
+    "charset": {},
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "cell = hhea ascent-descent",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.91261,
+      "cell = winAscent+winDescent": 0.5686,
+      "cell = hhea ascent-descent": 0.55365,
+      "base = winAscent": 0.91261
+     },
+     "em_px": 10.2857,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": {
+     "shift": 1.0
+    },
+    "field": "bitmap"
+   },
+   "galmuri11_24px": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.04165,
+      "p95_abs_err": 0.13333,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.07228,
+      "p95_abs_err": 0.13333,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 2,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.744,
+     "used_area_bbox_over_page_area": 0.8272,
+     "inked_pixel_fraction": 0.3724,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.07955,
+      "cell = winAscent+winDescent": 0.60344,
+      "cell = hhea ascent-descent": 0.5506,
+      "base = winAscent": 0.07955
+     },
+     "em_px": 24.0,
+     "dx_px": 0.125,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_24px.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_24px.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game_bom.txt",
+     "rc": 0,
+     "seconds": 1.13,
+     "files": [
+      "galmuri11_24px.bmfc",
+      "galmuri11_24px.fnt",
+      "galmuri11_24px_0.png",
+      "galmuri11_24px_1.png"
+     ],
+     "kernings": 380,
+     "pages": 2
+    }
+   },
+   "galmuri11_24px_nosmooth": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 2,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.6768,
+     "used_area_bbox_over_page_area": 0.7607,
+     "inked_pixel_fraction": 0.256,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.77046,
+      "cell = hhea ascent-descent": 0.66833,
+      "base = winAscent": 0.0
+     },
+     "em_px": 24.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_24px_nosmooth.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\galmuri11_24px_nosmooth.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game_bom.txt",
+     "rc": 0,
+     "seconds": 1.17,
+     "files": [
+      "galmuri11_24px_nosmooth.bmfc",
+      "galmuri11_24px_nosmooth.fnt",
+      "galmuri11_24px_nosmooth_0.png",
+      "galmuri11_24px_nosmooth_1.png"
+     ],
+     "kernings": 380,
+     "pages": 2
+    }
+   },
+   "kenneyfuture_32px": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.02947,
+      "p95_abs_err": 0.13333,
+      "wrong_pct": 0.0,
+      "glyphs": 95
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.04559,
+      "p95_abs_err": 0.13333,
+      "wrong_pct": 0.0,
+      "glyphs": 95
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.1284,
+     "used_area_bbox_over_page_area": 0.1696,
+     "inked_pixel_fraction": 0.0828,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.04107,
+      "cell = winAscent+winDescent": 0.38645,
+      "cell = hhea ascent-descent": 0.38645,
+      "base = winAscent": 0.04107
+     },
+     "em_px": 32.0,
+     "dx_px": 0.125,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\kenneyfuture_32px.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\kenneyfuture_32px.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ascii.txt",
+     "rc": 0,
+     "seconds": 0.38,
+     "files": [
+      "kenneyfuture_32px.bmfc",
+      "kenneyfuture_32px.fnt",
+      "kenneyfuture_32px_0.png"
+     ],
+     "kernings": 0,
+     "pages": 1
+    }
+   },
+   "notosanskr_32px": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.16368,
+      "p95_abs_err": 0.56973,
+      "wrong_pct": 7.8417,
+      "glyphs": 822
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.16368,
+      "p95_abs_err": 0.56973,
+      "wrong_pct": 7.8417,
+      "glyphs": 822
+     }
+    },
+    "atlas": {
+     "pages": 3,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 822,
+     "efficiency_glyph_rect_area_over_page_area": 0.714,
+     "used_area_bbox_over_page_area": 0.7914,
+     "inked_pixel_fraction": 0.2732,
+     "kerning_pairs": 491
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.17696,
+      "cell = winAscent+winDescent": 0.72813,
+      "cell = hhea ascent-descent": 0.72813,
+      "base = winAscent": 0.18269
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\bmfont\\bmfont64.exe -c C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\notosanskr_32px.bmfc -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\bmfont\\notosanskr_32px.fnt -t C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\charset_ko_game_bom.txt",
+     "rc": 0,
+     "seconds": 2.18,
+     "files": [
+      "notosanskr_32px.bmfc",
+      "notosanskr_32px.fnt",
+      "notosanskr_32px_0.png",
+      "notosanskr_32px_1.png",
+      "notosanskr_32px_2.png"
+     ],
+     "kernings": 491,
+     "pages": 3
+    }
+   }
+  },
+  "hiero": {
+   "galmuri11_12px_java": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.0328,
+     "used_area_bbox_over_page_area": 0.0506,
+     "inked_pixel_fraction": 0.0068,
+     "kerning_pairs": 366
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.59016,
+      "cell = hhea ascent-descent": 0.53532,
+      "base = winAscent": 0.53532
+     },
+     "em_px": 12.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_12px_java.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_12px_java.fnt -b",
+     "rc": 0,
+     "seconds": 5.46,
+     "files": [
+      "galmuri11_12px_java.fnt",
+      "galmuri11_12px_java.hiero",
+      "galmuri11_12px_java.png"
+     ],
+     "kernings": 366,
+     "pages": 1
+    }
+   },
+   "galmuri11_12px_native": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.46908,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 37.5607,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.8839,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 88.3902,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.059,
+     "used_area_bbox_over_page_area": 0.0699,
+     "inked_pixel_fraction": 0.0067,
+     "kerning_pairs": 366
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "cell = hhea ascent-descent",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.88136,
+      "cell = winAscent+winDescent": 0.63335,
+      "cell = hhea ascent-descent": 0.61794,
+      "base = winAscent": 0.61794
+     },
+     "em_px": 10.2857,
+     "dx_px": 0.5,
+     "dy_px": 0.875
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_12px_native.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_12px_native.fnt -b",
+     "rc": 0,
+     "seconds": 4.38,
+     "files": [
+      "galmuri11_12px_native.fnt",
+      "galmuri11_12px_native.hiero",
+      "galmuri11_12px_native.png"
+     ],
+     "kernings": 366,
+     "pages": 1
+    }
+   },
+   "galmuri11_24px_java": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.105,
+     "used_area_bbox_over_page_area": 0.1323,
+     "inked_pixel_fraction": 0.0271,
+     "kerning_pairs": 366
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.74322,
+      "cell = hhea ascent-descent": 0.6369,
+      "base = winAscent": 0.6369
+     },
+     "em_px": 24.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_24px_java.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_24px_java.fnt -b",
+     "rc": 0,
+     "seconds": 3.51,
+     "files": [
+      "galmuri11_24px_java.fnt",
+      "galmuri11_24px_java.hiero",
+      "galmuri11_24px_java.png"
+     ],
+     "kernings": 366,
+     "pages": 1
+    }
+   },
+   "galmuri11_32px_df": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.09957,
+      "p95_abs_err": 0.70614,
+      "wrong_pct": 8.059,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.1068,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 10.1293,
+      "glyphs": 94
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.09957,
+      "p95_abs_err": 0.70614,
+      "wrong_pct": 8.059,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.2111,
+     "used_area_bbox_over_page_area": 0.2476,
+     "inked_pixel_fraction": 0.0483,
+     "kerning_pairs": 366
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.07935,
+      "cell = winAscent+winDescent": 0.7312,
+      "cell = hhea ascent-descent": 0.62436,
+      "base = winAscent": 0.62436
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_32px_df.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\galmuri11_32px_df.fnt -b",
+     "rc": 0,
+     "seconds": 4.88,
+     "files": [
+      "galmuri11_32px_df.fnt",
+      "galmuri11_32px_df.hiero",
+      "galmuri11_32px_df.png"
+     ],
+     "kernings": 366,
+     "pages": 1
+    }
+   },
+   "kenneyfuture_32px_df": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00712,
+      "p95_abs_err": 0.01665,
+      "wrong_pct": 0.2841,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00877,
+      "p95_abs_err": 0.00592,
+      "wrong_pct": 0.464,
+      "glyphs": 94
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.00712,
+      "p95_abs_err": 0.01665,
+      "wrong_pct": 0.2841,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.1744,
+     "used_area_bbox_over_page_area": 0.1786,
+     "inked_pixel_fraction": 0.0563,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.00602,
+      "cell = winAscent+winDescent": 0.45483,
+      "cell = hhea ascent-descent": 0.45483,
+      "base = winAscent": 0.00602
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\kenneyfuture_32px_df.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\kenneyfuture_32px_df.fnt -b",
+     "rc": 0,
+     "seconds": 6.71,
+     "files": [
+      "kenneyfuture_32px_df.fnt",
+      "kenneyfuture_32px_df.hiero",
+      "kenneyfuture_32px_df.png"
+     ],
+     "kernings": 0,
+     "pages": 1
+    }
+   },
+   "notosanskr_32px_df": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.12681,
+      "p95_abs_err": 0.928,
+      "wrong_pct": 11.3082,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.13208,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 12.7318,
+      "glyphs": 94
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.15258,
+      "p95_abs_err": 0.952,
+      "wrong_pct": 14.3356,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.1789,
+     "used_area_bbox_over_page_area": 0.2276,
+     "inked_pixel_fraction": 0.0412,
+     "kerning_pairs": 491
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.15613,
+      "cell = winAscent+winDescent": 0.72851,
+      "cell = hhea ascent-descent": 0.72851,
+      "base = winAscent": 0.2083
+     },
+     "em_px": 32.0,
+     "dx_px": -0.25,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "sdf",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_df.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_df.fnt -b",
+     "rc": 0,
+     "seconds": 4.82,
+     "files": [
+      "notosanskr_32px_df.fnt",
+      "notosanskr_32px_df.hiero",
+      "notosanskr_32px_df.png"
+     ],
+     "kernings": 491,
+     "pages": 1
+    }
+   },
+   "notosanskr_32px_java": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.09242,
+      "p95_abs_err": 0.44366,
+      "wrong_pct": 2.6659,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.11606,
+      "p95_abs_err": 0.37065,
+      "wrong_pct": 1.0688,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.1478,
+     "used_area_bbox_over_page_area": 0.1965,
+     "inked_pixel_fraction": 0.0604,
+     "kerning_pairs": 491
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.13045,
+      "cell = winAscent+winDescent": 0.61292,
+      "cell = hhea ascent-descent": 0.61292,
+      "base = winAscent": 0.17508
+     },
+     "em_px": 32.0,
+     "dx_px": -0.25,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_java.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_java.fnt -b",
+     "rc": 0,
+     "seconds": 4.38,
+     "files": [
+      "notosanskr_32px_java.fnt",
+      "notosanskr_32px_java.hiero",
+      "notosanskr_32px_java.png"
+     ],
+     "kernings": 491,
+     "pages": 1
+    }
+   },
+   "notosanskr_32px_native": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.3293,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 28.7896,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.42104,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 40.4698,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "512x512"
+     ],
+     "glyphs_in_atlas": 97,
+     "glyph_rects_with_pixels": 95,
+     "efficiency_glyph_rect_area_over_page_area": 0.3521,
+     "used_area_bbox_over_page_area": 0.3876,
+     "inked_pixel_fraction": 0.0584,
+     "kerning_pairs": 491
+    },
+    "charset": {
+     "requested": 822,
+     "present": 95,
+     "missing": 727,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 727
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "base = winAscent",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.44488,
+      "cell = winAscent+winDescent": 0.63592,
+      "cell = hhea ascent-descent": 0.63592,
+      "base = winAscent": 0.41489
+     },
+     "em_px": 32.7586,
+     "dx_px": 0.125,
+     "dy_px": 1.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_native.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\notosanskr_32px_native.fnt -b",
+     "rc": 0,
+     "seconds": 4.72,
+     "files": [
+      "notosanskr_32px_native.fnt",
+      "notosanskr_32px_native.hiero",
+      "notosanskr_32px_native.png"
+     ],
+     "kernings": 491,
+     "pages": 1
+    }
+   },
+   "kenneyfuture_32px_freetype": {
+    "run": {
+     "cmd": "C:\\Users\\2009s\\AppData\\Local\\nerulio-engine-verify\\jdk-25\\bin\\java.exe -jar C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-ui\\tools\\hiero\\runnable-hiero.jar -i C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\kenneyfuture_32px_freetype.hiero -o C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p5\\studio-ui\\h2h\\hiero\\kenneyfuture_32px_freetype.fnt -b",
+     "rc": 0,
+     "seconds": 3.53,
+     "files": [
+      "kenneyfuture_32px_freetype.hiero"
+     ]
+    }
+   }
+  },
+  "snowb": {
+   "galmuri11_12px_default": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 821
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "388x388"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.8369,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.2229,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.59863,
+      "cell = hhea ascent-descent": 0.55189,
+      "base = winAscent": 0.55189
+     },
+     "em_px": 12.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (822 chars)",
+      "ADD FONT FILE -> pick Galmuri11.ttf",
+      "click Font Size",
+      "type 12",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 12,
+     "zip_files": [
+      "galmuri11_12px_default.fnt",
+      "galmuri11_12px_default.png"
+     ],
+     "seconds_to_render_default": 1.73,
+     "seconds_export": 5.76,
+     "packed_after_default": "Packed texture size: 388 x 388",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "galmuri11_24px_default": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 821
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.0,
+      "p95_abs_err": 0.0,
+      "wrong_pct": 0.0,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "692x691"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.8911,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.2807,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.0,
+      "cell = winAscent+winDescent": 0.7622,
+      "cell = hhea ascent-descent": 0.65733,
+      "base = winAscent": 0.65733
+     },
+     "em_px": 24.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (822 chars)",
+      "ADD FONT FILE -> pick Galmuri11.ttf",
+      "click Font Size",
+      "type 24",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 12,
+     "zip_files": [
+      "galmuri11_24px_default.fnt",
+      "galmuri11_24px_default.png"
+     ],
+     "seconds_to_render_default": 1.99,
+     "seconds_export": 5.87,
+     "packed_after_default": "Packed texture size: 692 x 691",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "galmuri11_32px_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.01676,
+      "p95_abs_err": 0.06091,
+      "wrong_pct": 1.0247,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.01762,
+      "p95_abs_err": 0.08151,
+      "wrong_pct": 1.1603,
+      "glyphs": 821
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.01676,
+      "p95_abs_err": 0.06091,
+      "wrong_pct": 1.0247,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "892x892"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9161,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.3037,
+     "kerning_pairs": 380
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.02947,
+      "cell = winAscent+winDescent": 0.71341,
+      "cell = hhea ascent-descent": 0.6425,
+      "base = winAscent": 0.6425
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (822 chars)",
+      "ADD FONT FILE -> pick Galmuri11.ttf",
+      "click Font Size",
+      "type 32",
+      "click MSDF",
+      "click Distance Range",
+      "type 4",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 15,
+     "zip_files": [
+      "galmuri11_32px_msdf.fnt",
+      "galmuri11_32px_msdf.png"
+     ],
+     "seconds_to_render_default": 2.12,
+     "seconds_to_render_mode": 8.77,
+     "seconds_export": 6.03,
+     "packed_after_default": "Packed texture size: 892 x 892",
+     "packed_after_mode": "Packed texture size: 892 x 892",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "kenneyfuture_32px_default": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.005,
+      "p95_abs_err": 0.0451,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.005,
+      "p95_abs_err": 0.0451,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "206x206"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8774,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.415,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.00486,
+      "cell = winAscent+winDescent": 0.4499,
+      "cell = hhea ascent-descent": 0.4499,
+      "base = winAscent": 0.00486
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (95 chars)",
+      "ADD FONT FILE -> pick KenneyFuture.ttf",
+      "click Font Size",
+      "type 32",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 12,
+     "zip_files": [
+      "kenneyfuture_32px_default.fnt",
+      "kenneyfuture_32px_default.png"
+     ],
+     "seconds_to_render_default": 1.04,
+     "seconds_export": 0.72,
+     "packed_after_default": "Packed texture size: 206 x 206",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "kenneyfuture_32px_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.00156,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     },
+     "x8": {
+      "mean_abs_err": 0.00182,
+      "p95_abs_err": 0.01064,
+      "wrong_pct": 0.0046,
+      "glyphs": 94
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.00156,
+      "p95_abs_err": 0.00254,
+      "wrong_pct": 0.0,
+      "glyphs": 94
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "206x206"
+     ],
+     "glyphs_in_atlas": 95,
+     "glyph_rects_with_pixels": 94,
+     "efficiency_glyph_rect_area_over_page_area": 0.8774,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.4067,
+     "kerning_pairs": 0
+    },
+    "charset": {
+     "requested": 95,
+     "present": 95,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "em = |size|",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.00127,
+      "cell = winAscent+winDescent": 0.40229,
+      "cell = hhea ascent-descent": 0.40229,
+      "base = winAscent": 0.00127
+     },
+     "em_px": 32.0,
+     "dx_px": 0.0,
+     "dy_px": 0.0
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (95 chars)",
+      "ADD FONT FILE -> pick KenneyFuture.ttf",
+      "click Font Size",
+      "type 32",
+      "click MSDF",
+      "click Distance Range",
+      "type 4",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 15,
+     "zip_files": [
+      "kenneyfuture_32px_msdf.fnt",
+      "kenneyfuture_32px_msdf.png"
+     ],
+     "seconds_to_render_default": 1.02,
+     "seconds_to_render_mode": 0.52,
+     "seconds_export": 0.64,
+     "packed_after_default": "Packed texture size: 206 x 206",
+     "packed_after_mode": "Packed texture size: 206 x 206",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "notosanskr_32px_default": {
+    "quality": {
+     "x1": {
+      "mean_abs_err": 0.12493,
+      "p95_abs_err": 0.4375,
+      "wrong_pct": 1.1828,
+      "glyphs": 821
+     },
+     "x1_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.35519,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 31.1568,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "837x834"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9161,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.3365,
+     "kerning_pairs": 557
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "base = winAscent",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.32807,
+      "cell = winAscent+winDescent": 0.6315,
+      "cell = hhea ascent-descent": 0.6315,
+      "base = winAscent": 0.31875
+     },
+     "em_px": 31.8966,
+     "dx_px": 0.0,
+     "dy_px": -0.875
+    },
+    "degrade": null,
+    "field": "bitmap",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (822 chars)",
+      "ADD FONT FILE -> pick NotoSansKR-Regular.otf",
+      "click Font Size",
+      "type 32",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 12,
+     "zip_files": [
+      "notosanskr_32px_default.fnt",
+      "notosanskr_32px_default.png"
+     ],
+     "seconds_to_render_default": 1.61,
+     "seconds_export": 46.21,
+     "packed_after_default": "Packed texture size: 837 x 834",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "notosanskr_32px_msdf": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.83019,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 82.8731,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.8511,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 85.0692,
+      "glyphs": 821
+     },
+     "x4_as_placed_em_eq_abs_size_no_offset": {
+      "mean_abs_err": 0.87619,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 87.5209,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "837x834"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9161,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.6486,
+     "kerning_pairs": 557
+    },
+    "charset": {
+     "requested": 822,
+     "present": 822,
+     "missing": 0,
+     "missing_not_in_font": 0,
+     "missing_but_font_has_glyph": 0
+    },
+    "registration": {
+     "method": "size-convention search + global sub-pixel registration on 24 glyphs",
+     "convention": "cell = winAscent+winDescent",
+     "convention_scores_mean_abs_err": {
+      "em = |size|": 0.84494,
+      "cell = winAscent+winDescent": 0.80792,
+      "cell = hhea ascent-descent": 0.80792,
+      "base = winAscent": 0.85012
+     },
+     "em_px": 22.0994,
+     "dx_px": 0.875,
+     "dy_px": 0.375
+    },
+    "degrade": null,
+    "field": "msdf",
+    "run": {
+     "steps": [
+      "open snowb.org",
+      "click Glyphs box",
+      "select all (Ctrl+A)",
+      "paste charset (822 chars)",
+      "ADD FONT FILE -> pick NotoSansKR-Regular.otf",
+      "click Font Size",
+      "type 32",
+      "click MSDF",
+      "click Distance Range",
+      "type 4",
+      "click Export",
+      "open Export Type",
+      "choose BMFont TEXT",
+      "type file name",
+      "click SAVE"
+     ],
+     "step_count": 15,
+     "zip_files": [
+      "notosanskr_32px_msdf.fnt",
+      "notosanskr_32px_msdf.png"
+     ],
+     "seconds_to_render_default": 1.63,
+     "seconds_to_render_mode": 6.26,
+     "seconds_export": 35.75,
+     "packed_after_default": "Packed texture size: 837 x 834",
+     "packed_after_mode": "Packed texture size: 837 x 834",
+     "export_types_offered": [
+      "Unnamed.fnt (BMFont TEXT)",
+      "Unnamed.txt (BMFont TEXT)",
+      "Unnamed.xml (BMFont XML)",
+      "Unnamed.fnt (BMFont XML)",
+      "Unnamed.fnt (BMFont BINARY)",
+      "Unnamed.c (BMFont C)",
+      "Unnamed.json (BMFont JSON)",
+      "Unnamed.json (BMFont MSDF-JSON)"
+     ]
+    }
+   },
+   "notosanskr_32px_msdf_INVERTED_CHECK": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.24502,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 23.3889,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.25728,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 25.3335,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "837x834"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9161,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.3514,
+     "kerning_pairs": 557
+    },
+    "charset": {},
+    "registration": {
+     "method": "fixed em px (and offset) from CLI",
+     "em_px": 31.8966,
+     "dx_px": 0.0,
+     "dy_px": -0.875
+    },
+    "degrade": null,
+    "field": "msdf"
+   },
+   "notosanskr_32px_msdf_fixedreg": {
+    "quality": {
+     "x4": {
+      "mean_abs_err": 0.92746,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 92.8893,
+      "glyphs": 821
+     },
+     "x8": {
+      "mean_abs_err": 0.94144,
+      "p95_abs_err": 1.0,
+      "wrong_pct": 94.1716,
+      "glyphs": 821
+     }
+    },
+    "atlas": {
+     "pages": 1,
+     "page_sizes": [
+      "837x834"
+     ],
+     "glyphs_in_atlas": 822,
+     "glyph_rects_with_pixels": 821,
+     "efficiency_glyph_rect_area_over_page_area": 0.9161,
+     "used_area_bbox_over_page_area": 1.0,
+     "inked_pixel_fraction": 0.6486,
+     "kerning_pairs": 557
+    },
+    "charset": {},
+    "registration": {
+     "method": "fixed em px (and offset) from CLI",
+     "em_px": 31.8966,
+     "dx_px": 0.0,
+     "dy_px": -0.875
+    },
+    "degrade": null,
+    "field": "msdf"
+   }
+  }
+ }
+}

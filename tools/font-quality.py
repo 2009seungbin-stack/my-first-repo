@@ -501,6 +501,7 @@ def main(argv=None):
     ap.add_argument('--range', type=float, help='distance range in atlas px (overrides the file)')
     ap.add_argument('--channel', default='auto', choices=['auto', 'r', 'g', 'b', 'a', 'l', 'median'])
     ap.add_argument('--em-px', type=float, help='BMFont: font size as px per em (skips convention search)')
+    ap.add_argument('--offset', help='BMFont with --em-px: fixed pen offset "dx,dy" in px')
     ap.add_argument('--no-register', action='store_true', help='BMFont: no sub-pixel registration search')
     ap.add_argument('--register-scale', action='store_true', help='BMFont: also refine the em size (+-3%%) during registration')
     ap.add_argument('--degrade', help='negative control, e.g. blur=1.0,shift=1')
@@ -557,8 +558,9 @@ def main(argv=None):
         step = max(1, len(inked) // 24)
         sample_ids = {int(c['id']) for c in inked[::step][:24]}
         if a.em_px:
-            em, dx, dy, conv, table, sc = a.em_px, 0.0, 0.0, '--em-px', {}, None
-            registration = {'method': 'fixed em px from CLI', 'em_px': em}
+            dx, dy = (float(v) for v in a.offset.split(',')) if a.offset else (0.0, 0.0)
+            em, conv, table, sc = a.em_px, '--em-px', {}, None
+            registration = {'method': 'fixed em px (and offset) from CLI', 'em_px': em, 'dx_px': dx, 'dy_px': dy}
         else:
             em, dx, dy, conv, table, sc = register_bmfont(fnt, font, pages, field, rng, chan, sample_ids, a.register_scale)
             if a.no_register:

@@ -297,24 +297,43 @@ def _paint(src, sx, sy, W, H, draw_center, offset, bias=0.0):
     return np.round(acc * 255).astype(np.uint8)
 
 
+class Variants:
+    """The reference at the pixel centre (`base`) plus, generated only when needed, the renders that
+    decide tie pixels (centre nudged by +-TIE_EPS, texel coordinate by +-TIE_EPS/10) and, for a
+    profile with `slack`, the renders nudged by up to that many device pixels."""
+
+    def __init__(self, args, profile: Profile):
+        self.args, self.profile = args, profile
+        self.base = render(*args, profile)
+        self._ties = self._slack = None
+
+    def ties(self):
+        if self._ties is None:
+            a, p = self.args, self.profile
+            self._ties = [render(*a, p, (dx, dy)) for dx in (-TIE_EPS, TIE_EPS) for dy in (-TIE_EPS, TIE_EPS)]
+            # a pixel centre ON a texel boundary: the GPU may take either texel, independently of
+            # which quad/region the rasteriser gave the pixel to (measured in Unity at 1.5x: u = 11 - eps)
+            self._ties += [render(*a, p, (dx, dy), b) for b in (-TIE_EPS / 10, TIE_EPS / 10)
+                           for dx in (-TIE_EPS, 0.0, TIE_EPS) for dy in (-TIE_EPS, 0.0, TIE_EPS)]
+        return self._ties
+
+    def slack(self):
+        if self._slack is None:
+            d = self.profile.slack - TIE_EPS
+            self._slack = [render(*self.args, self.profile, (dx, dy)) for dx, dy in
+                           ((-d, 0), (d, 0), (0, -d), (0, d), (-d, -d), (-d, d), (d, -d), (d, d))] if self.profile.slack else []
+        return self._slack
+
+    def __iter__(self):
+        return iter([self.base] + self.ties() + self.slack())
+
+    def __getitem__(self, i):
+        return list(self)[i]
+
+
 def render_variants(src, border, W, H, scale, mode_h, mode_v, draw_center, profile):
-    """The reference at the pixel centre and nudged by +-TIE_EPS (see module doc)."""
-    base = render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile)
-    vs = [base]
-    for dx in (-TIE_EPS, TIE_EPS):
-        for dy in (-TIE_EPS, TIE_EPS):
-            vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy)))
-    # a pixel centre ON a texel boundary: the GPU may take either texel, independently of which
-    # quad/region the rasteriser gave the pixel to (measured in Unity at 1.5x: u = 11 - eps)
-    for b in (-TIE_EPS / 10, TIE_EPS / 10):
-        for dx in (-TIE_EPS, 0.0, TIE_EPS):
-            for dy in (-TIE_EPS, 0.0, TIE_EPS):
-                vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy), b))
-    if profile.slack:
-        d = profile.slack - TIE_EPS
-        for dx, dy in ((-d, 0), (d, 0), (0, -d), (0, d), (-d, -d), (-d, d), (d, -d), (d, d)):
-            vs.append(render(src, border, W, H, scale, mode_h, mode_v, draw_center, profile, (dx, dy)))
-    return base, vs
+    v = Variants((src, border, W, H, scale, mode_h, mode_v, draw_center), profile)
+    return v.base, v
 
 
 # ---------------------------------------------------------------- comparison
@@ -337,21 +356,27 @@ def pixel_ok(expected: np.ndarray, actual: np.ndarray, tol=2, soft_tol=8) -> np.
     return m <= limit
 
 
-def compare(variants: list[np.ndarray], actual: np.ndarray, tol=2, soft_tol=8) -> dict:
-    base = variants[0]
+def compare(variants, actual: np.ndarray, tol=2, soft_tol=8) -> dict:
+    """`variants`: a Variants, or a list whose first item is the base reference."""
+    if isinstance(variants, Variants):
+        base, ties, slack = variants.base, variants.ties, variants.slack
+    else:
+        base, ties, slack = variants[0], (lambda: list(variants[1:])), (lambda: [])
     if actual.shape != base.shape:
         return {'ok': False, 'size': [list(base.shape[1::-1]), list(actual.shape[1::-1])], 'wrong': None}
     strict = pixel_ok(base, actual, tol, soft_tol)
     anyok = strict.copy()
-    for v in variants[1:]:
-        anyok |= pixel_ok(v, actual, tol, soft_tol)
+    if not anyok.all():
+        for v in ties():
+            anyok |= pixel_ok(v, actual, tol, soft_tol)
+    tied = anyok.copy()
+    if not anyok.all():
+        for v in slack():
+            anyok |= pixel_ok(v, actual, tol, soft_tol)
     wrong = int((~anyok).sum())
     d = np.abs(_premul(base) - _premul(actual)).max(axis=-1)
-    ties = strict.copy()
-    for v in variants[1:23]:
-        ties |= pixel_ok(v, actual, tol, soft_tol)
-    out = {'ok': wrong == 0, 'pixels': int(base.shape[0] * base.shape[1]), 'wrong': wrong, 'strictWrong': int((~ties).sum()),
-           'tiePixels': int((anyok & ~strict).sum()), 'maxDelta': int(round(float(d[~anyok].max()))) if wrong else 0}
+    out = {'ok': wrong == 0, 'pixels': int(base.shape[0] * base.shape[1]), 'wrong': wrong, 'strictWrong': int((~tied).sum()),
+           'tiePixels': int((tied & ~strict).sum()), 'maxDelta': int(round(float(d[~anyok].max()))) if wrong else 0}
     if wrong:
         ys, xs = np.nonzero(~anyok)
         out['firstWrong'] = [int(xs[0]), int(ys[0])]
