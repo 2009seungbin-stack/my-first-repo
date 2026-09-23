@@ -33,7 +33,7 @@ for(const f of man.files){
  const dir=join(out,id);mkdirSync(dir,{recursive:true});
  const bytes=readFileSync(join(CORPUS,f.path)),img=await decodePNG(bytes);
  const grid={w:g.cellW,h:g.cellH,ox:g.marginX||0,oy:g.marginY||0,sx:g.spacingX||0,sy:g.spacingY||0};
- const t0=performance.now(),idr=identifyLayout(img,grid),ms=performance.now()-t0;
+ const t0=performance.now(),idr=identifyLayout(img,grid,{maxTiles:4096}),ms=performance.now()-t0;
  const top=idr.candidates[0];
  const row={asset:f.path,truthLayout:t.layout||'',grid:`${g.cellW}x${g.cellH}`,identifyMs:Math.round(ms),
   detected:top?{layoutId:top.layoutId,col:top.col,row:top.row,auc:+top.auc.toFixed(3),confidence:top.confidence,margin:+top.margin.toFixed(3)}:null,

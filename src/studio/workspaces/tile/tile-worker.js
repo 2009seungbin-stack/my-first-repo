@@ -46,7 +46,7 @@ self.onmessage=async({data})=>{
   }else if(op==='identify'){
    const r=identifyLayout(img,data.grid,{maxTiles:4096});
    const bt=r.blocks.length>1?blockTerrains(img,data.grid,r.blocks.filter(b=>!b.source&&b.layoutId===r.candidates[0]?.layoutId)):null;
-   result={candidates:r.candidates,blocks:r.blocks,hints:r.hints,grid:r.grid,reason:r.reason||'',blockTerrains:bt};
+   result={candidates:r.candidates,blocks:r.blocks,hints:r.hints,grid:r.grid,reason:r.reason||'',blockTerrains:bt,nonBlank:r.nonBlank};
   }else if(op==='blank'){
    const {src,g}=tilesOf(img,data.grid),blank=[];for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++)if(src.blank(c,r))blank.push(c+','+r);
    result={grid:g,blank};

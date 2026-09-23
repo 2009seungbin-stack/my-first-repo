@@ -465,7 +465,8 @@ export default {
      const on=preview?.kind==='layout'&&preview.layoutId===c.layoutId&&preview.candidate?.col===c.col&&preview.candidate?.row===c.row;
      const b=h('button.tl-cand',{type:'button','aria-pressed':String(on),'data-cand':c.layoutId},
       h('div.tl-cand-head',{},h('b',{},layoutName(c.layoutId)),i===0?conf(c.confidence):h('span.st-conf.is-alt',{},t('grid.alt'))),
-      h('span.st-sug-meta',{},t('tile.layout.meta',{score:(c.auc*100).toFixed(1),col:c.col,row:c.row,cells:c.cells,missing:c.missing,extra:c.extra})+(multi?' · '+t('tile.layout.blocks',{n:d.blockTerrains.blocks.length,t:d.blockTerrains.terrains.length}):'')));
+      h('span.st-sug-meta',{},t('tile.layout.meta',{score:(c.auc*100).toFixed(1),col:c.col,row:c.row,cells:c.cells,missing:c.missing,extra:c.extra})+(multi?' · '+t('tile.layout.blocks',{n:d.blockTerrains.blocks.length,t:d.blockTerrains.terrains.length}):'')),
+      d.nonBlank&&c.cells<d.nonBlank*.9&&!multi?h('span.tl-part',{},t('tile.layout.part',{n:c.cells,total:d.nonBlank})):null);
      b.addEventListener('click',()=>previewCandidate(c,multi?d.blockTerrains:null));list.append(b);
     });
     if(d.candidates[0]&&d.candidates[0].confidence!=='high')list.append(h('p.st-close',{},t('tile.layout.unsure')));
