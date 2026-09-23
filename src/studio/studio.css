@@ -268,8 +268,10 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
 .studio[data-mode="compact"] .st-toast{bottom:calc(var(--status-h) + 46px + 52px);max-width:calc(100vw - 32px);padding:6px 10px;font-size:12px;line-height:1.3;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 .studio[data-mode="compact"] .st-hud .st-icon-btn,.studio[data-mode="compact"] .st-hud-zoom{height:34px}
 .studio[data-mode="compact"] .st-hud .st-icon-btn{width:34px}
-.studio[data-mode="compact"] .st-sheet{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:calc(var(--status-h) + 46px);height:min(62vh,520px);background:var(--bg-1);border-top:1px solid var(--line-2);border-radius:12px 12px 0 0;box-shadow:0 -12px 30px rgba(0,0,0,.45);transform:translateY(calc(100% + 80px));transition:transform .18s ease;z-index:30}
+.studio[data-mode="compact"] .st-sheet{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:calc(var(--status-h) + 46px);height:var(--sheet-h,min(62vh,520px));background:var(--bg-1);border-top:1px solid var(--line-2);border-radius:12px 12px 0 0;box-shadow:0 -12px 30px rgba(0,0,0,.45);transform:translateY(calc(100% + 80px));transition:transform .18s ease;z-index:30}
 .studio[data-mode="compact"] .st-sheet.is-open{transform:none}
+/* the canvas is only the part the open sheet leaves visible: fit, zoom and centring use that area */
+.studio[data-mode="compact"]:has(.st-sheet.is-open) .st-canvas-wrap{margin-bottom:var(--sheet-h,min(62vh,520px))}
 .st-sheet-grip{height:18px;display:grid;place-items:center;cursor:pointer;flex:none}
 .st-sheet-grip::after{content:"";width:38px;height:4px;border-radius:2px;background:var(--line-2)}
 .st-sheet-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}

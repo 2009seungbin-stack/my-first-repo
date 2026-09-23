@@ -81,12 +81,13 @@ real Kenney CC0 sheets in `tests/fixtures/kenney/`).
 
 ## Project store
 
-* **Document** (`core/project.js`): `{format:'nerulio-project', version, id, name, createdAt,
-  assets[], settings}`. An image asset is Aseprite-shaped for the long term — `layers[]`, `timeline[]`
-  (frames in time), `cels[]` (`{layerId, frameId, blob}`) — plus `frames[]` (model.js AssetFrame:
-  sheet regions with pivot/boxes/collision/duration/tag), `tags[]` (model.js Animation + colour),
-  `slices[]` (Aseprite slices with keys, 9-slice centre, pivot) and `grid`. `normalizeProject()`
-  validates anything loaded; `migrate()` is the hook for future versions.
+* **Document** (`core/project.js`, format version 2 — full contract in `docs/STUDIO-SPRITE.md`): `{format:'nerulio-project', version, id, name, createdAt,
+  assets[], settings}`. An image asset is Aseprite-shaped — `layers[]`, `frames[]` (model.js
+  AssetFrame in time order = the timeline: regions of the canvas with pivot/boxes/collision/duration/tag),
+  `cels[]` (`{layerId, frameId, blob, x, y}`; `frameId:'*'` is a layer's shared picture, e.g. a sheet),
+  `tags[]` (model.js Animation + colour + repeat), `slices[]` (Aseprite slices with keys, 9-slice
+  centre, pivot) and `grid`. `normalizeProject()` validates anything loaded; `migrate()` upgrades
+  version-1 documents (their single `timeline` entry's cels become shared pictures).
 * **Images** are stored once, by SHA-256 of the PNG bytes, outside the document. Imported PNGs are
   kept byte for byte; JPG/WebP/GIF (first frame)/BMP/AVIF are decoded once and stored as PNG.
 * **Autosave** (`core/autosave.js`): debounced 1 s after an edit or view change, IndexedDB
