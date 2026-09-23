@@ -104,10 +104,10 @@ export default {
       const val=z==='c'?p[0]:p[z+1];if(val<0)continue;const zr=zoneRect(g,z);
       // a mark in the middle of each zone (like Godot's terrain painter), small enough to keep the art readable
       const zx=X(rc.x+zr.x),zy=Y(rc.y+zr.y),zw=X(rc.x+zr.x+zr.w)-zx,zh=Y(rc.y+zr.y+zr.h)-zy,ix=Math.round(zw*.22),iy=Math.round(zh*.22);
-      c.fillStyle=rgba(terrains[val]?.color||'#4cc2ff',isPrev?.55:.8);c.fillRect(zx+ix,zy+iy,Math.max(2,zw-2*ix),Math.max(2,zh-2*iy));
+      c.fillStyle=rgba(terrains[val]?.color||TS.TERRAIN_COLORS[val%TS.TERRAIN_COLORS.length],isPrev?.55:.75);c.fillRect(zx+ix,zy+iy,Math.max(2,zw-2*ix),Math.max(2,zh-2*iy));
       c.lineWidth=1;c.strokeStyle='rgba(0,0,0,.65)';c.strokeRect(zx+ix+.5,zy+iy+.5,Math.max(1,zw-2*ix-1),Math.max(1,zh-2*iy-1));
      }
-    }else if(p[0]>=0){c.fillStyle=rgba(terrains[p[0]]?.color||'#4cc2ff',alpha);const d=Math.max(2,Math.round(w/3));c.fillRect(x+(w-d)/2,y+(hh-d)/2,d,d);}
+    }else if(p[0]>=0){c.fillStyle=rgba(terrains[p[0]]?.color||TS.TERRAIN_COLORS[p[0]%TS.TERRAIN_COLORS.length],alpha);const d=Math.max(2,Math.round(w/3));c.fillRect(x+(w-d)/2,y+(hh-d)/2,d,d);}
     if(isPrev){c.setLineDash([3*dpr,3*dpr]);c.strokeStyle='rgba(255,255,255,.7)';c.strokeRect(x+1.5,y+1.5,w-3,hh-3);c.setLineDash([]);}
     if(!isPrev&&bad.has(k)){c.lineWidth=Math.max(2,dpr*2);c.strokeStyle='#ff6b6b';c.strokeRect(x+1,y+1,w-2,hh-2);}
     else if(!isPrev&&dupes.has(k)){c.lineWidth=Math.max(1,dpr);c.setLineDash([2*dpr,2*dpr]);c.strokeStyle='#f0b43c';c.strokeRect(x+1.5,y+1.5,w-3,hh-3);c.setLineDash([]);}
@@ -581,10 +581,23 @@ export default {
     h('p.st-muted.tl-small',{},t('tile.map.ruleHelp.'+m.rule)),
     h('div.tl-links',{},r.problems.slice(0,40).map(p=>{const b=h('button.st-link',{type:'button'},`${p.x},${p.y} ${t('tile.problem.'+p.kind)}${p.want?' → '+describe(p.want):''}`);b.addEventListener('click',()=>{view.reveal({x:p.x*ts.grid.w,y:p.y*ts.grid.h,w:ts.grid.w,h:ts.grid.h});hoverCell={x:p.x,y:p.y};mapLayer.view?.invalidate();statusCell(hoverCell);});return b;}))));
   }
-  // ---- Map panel
+  /** A random test map the set can actually draw: blobs of one terrain on empty ground; for a set
+   * whose tiles never border "nothing" (a multi-terrain dual grid), blobs of a terrain over the
+   * terrain it has transition tiles with (a 4-way random mix would ask for junctions no set has). */
+  function randomFor(m,ts){
+   const seed=(Date.now()%100000)+1;
+   if(!ts)return St.randomCells(m,seed,1,.55);
+   const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
+   if(bordersEmpty){const a=Math.min(terrain,ts.terrains.length-1);return St.randomCells(m,seed,1,.55).replace(/a/g,St.cellChar(a));}
+   const partners=new Map();
+   for(const v of Object.values(ts.tiles)){const s=[...new Set([v.pattern[0],...MODE_IDX[ts.mode].map(i=>v.pattern[i+1])].filter(x=>x>=0))];if(s.length!==2)continue;for(const [p,q] of [[s[0],s[1]],[s[1],s[0]]]){if(!partners.has(p))partners.set(p,new Set());partners.get(p).add(q);}}
+   const base=[...partners.keys()].sort((p,q)=>partners.get(q).size-partners.get(p).size)[0]??0;
+   const other=partners.get(base)?.has(terrain)?terrain:[...(partners.get(base)||[base])][0];
+   return St.randomCells(m,seed,1,.5).replace(/\./g,'#').replace(/a/g,St.cellChar(other)).replace(/#/g,St.cellChar(base));
+  }  // ---- Map panel
   function renderMapPanel(){
    const box=panels['tile-map'],s=S(),maps=Object.values(s.maps||{}),m=activeMap(),sets=St.tilesetsOf(s);
-   const create=btn(t('tile.map.new'),()=>{const ts=tileset()||sets[0];const map=St.createMap({name:t('tile.map.defaultName',{n:maps.length+1}),tilesetId:ts?.id||null});edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');},{primary:!m,action:'tile-new-map',disabled:!sets.length});
+   const create=btn(t('tile.map.new'),()=>{const ts=tileset()||sets[0];const map=St.createMap({name:t('tile.map.defaultName',{n:maps.length+1}),tilesetId:ts?.id||null,rule:ts?.mode==='corners'?'tiled':'godot'});edit(t('tile.cmd.newMap'),x=>St.putMap(x,map));layerSel=null;setMode('map');},{primary:!m,action:'tile-new-map',disabled:!sets.length});
    if(!m){put(box,sec(t('tile.map.title'),h('p.st-muted',{},sets.length?t('tile.map.intro'):t('tile.map.needSet')),h('div.st-row',{},create)));return;}
    const pickMap=h('select.st-input',{'aria-label':t('tile.map.title'),'data-tile':'map'},maps.map(x=>h('option',{value:x.id,selected:x.id===m.id},x.name)));
    pickMap.addEventListener('change',()=>{edit(t('tile.cmd.pickMap'),x=>({...x,activeMap:pickMap.value}));layerSel=null;renderMap(true);});
@@ -606,7 +619,7 @@ export default {
    const pal=ts?h('div.tl-palette',{role:'radiogroup','aria-label':t('tile.terrain.title')},ts.terrains.map((tr,i)=>{const b=h('button.tl-terrain-pick',{type:'button',role:'radio','aria-checked':String(i===terrain),'data-terrain':String(i),title:tr.name},h('span.tl-swatch',{style:{background:tr.color}}),tr.name);b.addEventListener('click',()=>setTerrain(i));return b;})):h('p.st-muted',{},t('tile.map.layerNoSet'));
    const size=h('div.tl-seg',{role:'radiogroup','aria-label':t('tile.map.brush')},[1,2,3,5].map(n=>{const b=h('button.tl-segbtn',{type:'button',role:'radio','aria-checked':String(brushSize===n)},n+'×'+n);b.addEventListener('click',()=>{brushSize=n;renderMapPanel();});return b;}));
    const cellsChk=h('input',{type:'checkbox',checked:showCells});cellsChk.addEventListener('change',()=>{showCells=cellsChk.checked;mapLayer.view?.invalidate();});
-   const rand=btn(t('tile.map.random'),()=>{const n=ts?.terrains.length||1;edit(t('tile.cmd.random'),x=>St.updateMap(x,m.id,mm=>St.updateLayer(mm,L.id,ll=>({...ll,cells:St.randomCells(mm,(Date.now()%100000)+1,n,n>1?.8:.55)}))));},{action:'tile-random'});
+   const rand=btn(t('tile.map.random'),()=>{const cells=randomFor(m,ts);edit(t('tile.cmd.random'),x=>St.updateMap(x,m.id,mm=>St.updateLayer(mm,L.id,ll=>({...ll,cells}))));},{action:'tile-random'});
    const clear=btn(t('tile.map.clear'),()=>edit(t('tile.cmd.clearMap'),x=>St.updateMap(x,m.id,mm=>St.updateLayer(mm,L.id,ll=>({...ll,cells:'.'.repeat(mm.w*mm.h)})))),{action:'tile-clear-map'});
    const view2=btn(mode==='map'?t('tile.map.showSheet'):t('tile.map.showMap'),()=>setMode(mode==='map'?'tileset':'map'),{primary:mode!=='map',action:'tile-toggle-view',title:ctx.shortcutOf('tile.view')});
    const del=btn(t('tile.map.remove'),()=>{edit(t('tile.cmd.removeMap'),x=>St.removeMap(x,m.id));renderMap(true);});

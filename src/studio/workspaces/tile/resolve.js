@@ -23,7 +23,10 @@ export function resolveLayer(map,layer,ts,rule){
  let offset=false;
  if(rule==='tiled'){
   const r=resolveTiled(ts,grid);offset=r.offset;
-  for(const c of r.cells){if(c.id)cells.set(c.x+','+c.y,{id:c.id,pattern:ts.tiles[c.id]?.pattern,alternatives:c.alternatives});else problems.push({x:c.x,y:c.y,kind:'gap'});}
+  // grid points on the map's outer ring touch cells outside the map: not part of the painted area,
+  // so a missing tile there is not reported (it would be for a set that draws edges to nothing)
+  const ring=c=>r.offset&&(c.x===0||c.y===0||c.x===map.w||c.y===map.h);
+  for(const c of r.cells){if(c.id)cells.set(c.x+','+c.y,{id:c.id,pattern:ts.tiles[c.id]?.pattern,alternatives:c.alternatives});else if(!ring(c))problems.push({x:c.x,y:c.y,kind:'gap'});}
  }else{
   const r=resolveGodot(setFor(ts),grid);
   for(const [k,v] of r.cells)cells.set(k,v);

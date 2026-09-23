@@ -71,3 +71,4 @@
 .tl-cand-head b{min-width:0}
 .tl-cand .st-conf{flex:none}
 .tl-cand .st-sug-meta{white-space:normal;overflow:visible;text-overflow:clip;font-size:11px;color:var(--text-2)}
+.studio[data-mode="compact"] .st-sheet .st-tab{white-space:nowrap}
