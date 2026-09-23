@@ -174,7 +174,7 @@ export function normalizeProject(raw){
   if(a.kind!=='image')throw Error(`Unsupported asset kind ${a.kind}`);
   if(ids.has(a.id))throw Error(`Duplicate asset id ${a.id}`);ids.add(a.id);
   int(a.width,'width',1);int(a.height,'height',1);
-  const layers=(a.layers||[]).map(l=>({id:str(l.id,80),name:str(l.name),visible:l.visible!==false,opacity:Math.max(0,Math.min(255,Math.round(Number(l.opacity??255)))),blend:str(l.blend||'normal',20)}));
+  const layers=(a.layers||[]).map(l=>({id:str(l.id,80),name:str(l.name),visible:l.visible!==false,opacity:Math.max(0,Math.min(255,Math.round(Number(l.opacity??255)))),blend:str(l.blend||'normal',20),...(l.locked===true?{locked:true}:{})}));
   const layerIds=new Set(layers.map(l=>l.id));
   if(layerIds.size!==layers.length)throw Error(`Asset ${a.id}: duplicate layer id`);
   const frames=(a.frames||[]).map(f=>makeFrame(f)),fids=new Set();
@@ -194,9 +194,21 @@ export function normalizeProject(raw){
   doc.assets.push({id:str(a.id,80),kind:'image',name:str(a.name)||'image',width:a.width,height:a.height,layers,cels,frames,tags,slices,
    grid:g?{w:int(g.w,'grid.w',1),h:int(g.h,'grid.h',1),ox:int(g.ox,'grid.ox'),oy:int(g.oy,'grid.oy'),sx:int(g.sx,'grid.sx'),sy:int(g.sy,'grid.sy')}:null,
    source:a.source?{name:str(a.source.name),type:str(a.source.type,100),size:Number(a.source.size)||0,lastModified:Number(a.source.lastModified)||0}:null,
-   ...(imp?{import:imp}:{})});
+   ...(imp?{import:imp}:{}),...paletteFields(a)});
  }
  return doc;
+}
+/** Pixel workspace fields (docs/STUDIO-PIXEL.md): the sprite palette, and for an indexed sprite its
+ * colour mode and transparent index. Validated here so a hand-edited file cannot smuggle in junk. */
+function paletteFields(a){
+ const out={};const list=a.palette?.colors;
+ if(Array.isArray(list)&&list.length){
+  if(list.length>256)throw Error(`Asset ${a.id}: a palette holds at most 256 colours`);
+  out.palette={colors:list.map((c,i)=>{if(!Array.isArray(c)||c.length<3)throw Error(`Asset ${a.id}: palette colour ${i+1} is not [r,g,b,a]`);return [0,1,2,3].map(k=>Math.max(0,Math.min(255,Math.round(Number(c[k]??255)||0))));})};
+  if(Array.isArray(a.palette.names)&&a.palette.names.some(Boolean))out.palette.names=list.map((_,i)=>str(a.palette.names[i],60));
+  if(a.colorMode==='indexed'){out.colorMode='indexed';const ti=Number(a.transparentIndex??0);out.transparentIndex=Number.isInteger(ti)&&ti>=-1&&ti<list.length?ti:0;}
+ }
+ return out;
 }
 /** asset.import: plain JSON (the decisions are UI data), with its one blob reference checked. */
 function normalizeImport(x){
