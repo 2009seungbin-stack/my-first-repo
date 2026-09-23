@@ -30,6 +30,7 @@ const project = toSpriteProject(doc, {name: 'hero'});  // model.js frames/animat
 const strip = renderStrip(doc);                // the strip sheet that project.frames[i].sourceRect points into
 const out = writeAseprite(doc);                // Uint8Array; a reader document is valid writer input
 const doc2 = documentFromImages({width, height, layers, frames, palette, tags, slices, userData});
+const {doc: doc3, skipped} = documentFromSpriteProject(project, frameImages); // Lab project → .aseprite
 ```
 
 - **Errors.** `readAseprite` throws `AsepriteError` when the structure is broken or a limit is hit.
@@ -105,6 +106,26 @@ const doc2 = documentFromImages({width, height, layers, frames, palette, tags, s
   `bounds`, `center` and `borders:{left,top,right,bottom}` in the same terms as `nine-slice.js`.
 - **Everything else** goes in `project.metadata.aseprite`: layers, tag and slice raw data, user
   data, tilesets, palette, external files, colour profile and warnings.
+
+### Back out: `documentFromSpriteProject(project, images)`
+
+`images` maps each frame id to the `{width, height, rgba}` of that frame's canvas. The output is a
+one-layer document:
+- **Frames and durations** keep project order.
+- **Animations** become tags when their frames are consecutive in project order. A backwards run
+  becomes `reverse`, or `pingpong_reverse` for ping-pong. Anything else goes to `skipped` and is
+  never bent into a wrong tag.
+- **Direction and repeat** come from the metadata of an imported tag while the Lab has not
+  changed that tag.
+- **Pivots** become a `pivot` slice. Rectangle boxes become one slice per box type and slot, with
+  a key wherever they change.
+- **9-patch slices** from the import are restored.
+- **Canvases of different sizes** sit at the top left of the largest one.
+
+The full loop was checked in real Aseprite on `indexed-features.aseprite`: an Aseprite file goes
+through our reader and the Lab project and comes back out. Aseprite reads the same 4 tags
+(direction and repeat), the same durations and the pivot and hit slices, and exports
+pixel-exact frames.
 
 ## Writer (`writeAseprite`)
 

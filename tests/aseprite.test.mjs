@@ -4,7 +4,7 @@ import {readFileSync,existsSync,readdirSync,statSync} from 'node:fs';
 import {join} from 'node:path';
 import {inflateZlib,deflateZlib,ZlibError,adler32} from '../src/game/zlib.js';
 import {blendRGBA,blendGray,mul8,BLEND_MODES} from '../src/game/aseprite-blend.js';
-import {readAseprite,writeAseprite,renderFrame,renderLayer,celImage,documentFromImages,toSpriteProject,renderStrip,plainProperties,AsepriteError,TILE,DEFAULT_LIMITS} from '../src/game/aseprite.js';
+import {readAseprite,writeAseprite,renderFrame,renderLayer,celImage,documentFromImages,documentFromSpriteProject,toSpriteProject,renderStrip,plainProperties,AsepriteError,TILE,DEFAULT_LIMITS} from '../src/game/aseprite.js';
 import {playbackOrder,validateProject} from '../src/game/model.js';
 
 const FIX=new URL('./fixtures/aseprite/',import.meta.url);
@@ -175,6 +175,27 @@ test('toSpriteProject maps frames, tags, slices and keeps the rest as metadata',
  assert.deepEqual(p.frames[0].metadata.aseprite.nineSlices[0].center,{x:3,y:3,w:4,h:4});
  const strip=renderStrip(doc);assert.equal(strip.width,96);
  assert.deepEqual(px(strip.rgba,96,24+16,10),[250,250,0,255]);
+});
+
+test('a Lab project goes back out as .aseprite with tags, durations, pivot and boxes',()=>{
+ const doc=readAseprite(writeAseprite(featureDoc())),p=toSpriteProject(doc,{name:'hero'});
+ const strip=renderStrip(doc),images=new Map(p.frames.map((f,i)=>{const rgba=new Uint8Array(24*16*4);for(let y=0;y<16;y++)rgba.set(strip.rgba.subarray((y*96+i*24)*4,(y*96+i*24+24)*4),y*24*4);return [f.id,{width:24,height:16,rgba}];}));
+ // a hand-made animation that runs backwards over frames 3→1 with ping-pong, and one that skips a frame
+ p.animations.push({id:'x',name:'back',frameIds:[p.frames[3].id,p.frames[2].id,p.frames[1].id],fps:10,direction:'pingpong',loop:false});
+ p.animations.push({id:'y',name:'gappy',frameIds:[p.frames[0].id,p.frames[2].id],fps:10,direction:'forward',loop:true});
+ const {doc:out,skipped}=documentFromSpriteProject(p,images);
+ const back=readAseprite(writeAseprite(out),{strict:true});
+ assert.deepEqual(back.frames.map(f=>f.duration),[100,120,80,200]);
+ const tag=n=>back.tags.find(t=>t.name===n);
+ assert.deepEqual([tag('walk').from,tag('walk').to,tag('walk').direction,tag('walk').repeat],[0,2,'pingpong',2]);
+ assert.deepEqual([tag('idle').direction],['pingpong_reverse']);
+ assert.deepEqual([tag('back').from,tag('back').to,tag('back').direction,tag('back').repeat],[1,3,'pingpong_reverse',2]);
+ assert.deepEqual(skipped,[{animation:'gappy',reason:'frames are not consecutive in project order'}]);
+ const p2=toSpriteProject(back);
+ assert.deepEqual(p2.frames.map(f=>[f.pivotX,f.pivotY]),p.frames.map(f=>[f.pivotX,f.pivotY]));
+ assert.deepEqual(p2.frames.map(f=>f.boxes.map(b=>[b.type,b.x,b.y,b.w,b.h])),p.frames.map(f=>f.boxes.map(b=>[b.type,b.x,b.y,b.w,b.h])));
+ assert.deepEqual(back.slices.find(s=>s.name==='panel').keys[0],{frame:0,x:1,y:1,w:10,h:10,center:{x:3,y:3,w:4,h:4},pivot:null},'9-patch slice survives the trip');
+ for(let f=0;f<4;f++)assert.deepEqual(renderFrame(back,f).rgba,renderFrame(doc,f).rgba,`frame ${f}`);
 });
 
 // ---------------------------------------------------------------------------------------------

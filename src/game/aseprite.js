@@ -11,6 +11,7 @@
  *   celImage(doc,cel)                             → a cel's own pixels as RGBA
  *   toSpriteProject(doc,{name})                   → Nerulio model frames/animations + metadata
  *   documentFromImages({...})                     → AseDocument from full-canvas RGBA layers
+ *   documentFromSpriteProject(project,images)     → {doc,skipped}: a Lab project back to Aseprite
  *   writeAseprite(doc,{linkDuplicates,level})     → Uint8Array (.aseprite bytes)
  *   plainProperties(userData)                     → user-data properties as plain JS values */
 import {inflateZlib,deflateZlib,ZlibError} from './zlib.js';
@@ -722,6 +723,59 @@ export function documentFromImages({width,height,layers=[{name:'Layer 1'}],frame
  if(unmapped)throw new AsepriteError('input',colorMode==='indexed'?`${unmapped} pixels use colours that are not in the palette`:`${unmapped} pixels are not gray (r=g=b) in a grayscale sprite`);
  return {width,height,colorMode,transparentIndex:colorMode==='indexed'?transparentIndex:0,composeGroups,pixelRatio:{w:1,h:1},grid:grid||{x:0,y:0,w:16,h:16},
   layers:docLayers,frames:docFrames,palette:colors?{colors}:null,tags,slices,userData,tilesets:[]};
+}
+
+/** The way back out: a Lab project (model.js frames + animations) and one RGBA image per frame
+ * (`images.get(frame.id) → {width,height,rgba}` of that frame's canvas) → a document for
+ * writeAseprite. Frames keep project order and duration (null → the fps of the first animation
+ * using the frame). Animations become tags when their frames are consecutive in that order
+ * (forward, reverse, ping-pong; a reversed run with ping-pong becomes Aseprite's
+ * "pingpong_reverse"); anything else is listed in `skipped` instead of being bent into a wrong
+ * tag. Pivots become a "pivot" slice and rectangle boxes a slice per box type and slot, with one
+ * key per frame where they change. Canvases smaller than the largest one sit at the top left. */
+export function documentFromSpriteProject(project,images,{layerName='Layer 1',palette=null,transparentIndex=0}={}){
+ const frames=project.frames||[],skipped=[];
+ if(!frames.length)throw new AsepriteError('input','The project has no frames');
+ const W=Math.max(...frames.map(f=>f.canvasWidth)),H=Math.max(...frames.map(f=>f.canvasHeight));
+ const index=new Map(frames.map((f,i)=>[f.id,i]));
+ const fpsOf=new Map();for(const a of project.animations||[])for(const id of a.frameIds)if(!fpsOf.has(id))fpsOf.set(id,a.fps);
+ const docFrames=frames.map(f=>{
+  const img=images.get?images.get(f.id):images[f.id];
+  if(!img||img.width!==f.canvasWidth||img.height!==f.canvasHeight||img.rgba.length!==img.width*img.height*4)throw new AsepriteError('input',`Frame ${f.id}: image must be its ${f.canvasWidth}x${f.canvasHeight} canvas`);
+  let full=img.rgba;
+  if(img.width!==W||img.height!==H){full=new Uint8Array(W*H*4);for(let y=0;y<img.height;y++)full.set(img.rgba.subarray(y*img.width*4,(y+1)*img.width*4),y*W*4);}
+  return {duration:Math.max(1,Math.round(f.duration??1000/(fpsOf.get(f.id)??10))),images:{0:full}};
+ });
+ const tags=[];
+ for(const a of project.animations||[]){
+  const idx=a.frameIds.map(id=>index.get(id));
+  if(!idx.length||idx.some(i=>i==null)){skipped.push({animation:a.name,reason:'unknown or no frames'});continue;}
+  const up=idx.every((v,k)=>k===0||v===idx[k-1]+1),down=idx.every((v,k)=>k===0||v===idx[k-1]-1);
+  if(!up&&!down){skipped.push({animation:a.name,reason:'frames are not consecutive in project order'});continue;}
+  const from=Math.min(...idx),to=Math.max(...idx);
+  let direction=a.direction;
+  if(down&&idx.length>1)direction=a.direction==='forward'?'reverse':a.direction==='reverse'?'forward':'pingpong_reverse';
+  // An unchanged imported tag keeps its exact Aseprite direction (e.g. a 1-frame ping-pong reverse).
+  const orig=a.metadata?.aseprite,same=orig&&!orig.synthetic&&orig.from===from&&orig.to===to&&a.direction===(orig.direction==='pingpong_reverse'?'pingpong':orig.direction);
+  if(same)direction=orig.direction;
+  // loop:false = one cycle; for ping-pong one cycle is both directions (Aseprite repeat 2).
+  const repeat=orig&&Number.isInteger(orig.repeat)&&(orig.repeat===0)===(a.loop!==false)?orig.repeat:(a.loop===false?(a.direction==='pingpong'?2:1):0);
+  tags.push({name:a.name,from,to,direction,repeat,color:a.metadata?.aseprite?.color??null,userData:a.metadata?.aseprite?.userData??null});
+ }
+ // Slices: keys only where the value changes (Aseprite keys hold until the next key).
+ const slices=[],keyed=(name,valueAt)=>{
+  const keys=[];let last='';
+  frames.forEach((f,i)=>{const v=valueAt(f);const s=JSON.stringify(v);if(s!==last){keys.push(v?{frame:i,...v}:{frame:i,x:0,y:0,w:0,h:0});last=s;}});
+  if(keys.some(k=>k.w>0))slices.push({name,keys,userData:null});
+ };
+ keyed('pivot',f=>({x:0,y:0,w:f.canvasWidth,h:f.canvasHeight,pivot:{x:Math.round(f.pivotX*f.canvasWidth),y:Math.round(f.pivotY*f.canvasHeight)}}));
+ const slots=new Map();for(const f of frames){const count={};for(const b of f.boxes||[]){if(b.shape!=='rect'){skipped.push({frame:f.id,box:b.id,reason:`${b.shape} boxes have no Aseprite slice form`});continue;}const n=count[b.type]=(count[b.type]||0)+1;slots.set(`${b.type}${n>1?n:''}`,[b.type,n]);}}
+ for(const [name,[type,n]] of slots)keyed(name,f=>{const b=(f.boxes||[]).filter(x=>x.shape==='rect'&&x.type===type)[n-1];return b?{x:Math.round(b.x),y:Math.round(b.y),w:Math.max(1,Math.round(b.w)),h:Math.max(1,Math.round(b.h))}:null;});
+ // 9-patch slices imported from Aseprite travel in frame metadata; put them back.
+ const nineNames=new Set(frames.flatMap(f=>(f.metadata?.aseprite?.nineSlices||[]).map(n=>n.name)));
+ for(const name of nineNames)keyed(name,f=>{const n=(f.metadata?.aseprite?.nineSlices||[]).find(x=>x.name===name);return n?{...n.bounds,center:n.center}:null;});
+ const doc=documentFromImages({width:W,height:H,layers:[{name:layerName}],frames:docFrames,palette,transparentIndex,tags,slices});
+ return {doc,skipped};
 }
 
 // ---------------------------------------------------------------------------------------------
