@@ -80,7 +80,11 @@
 .sp-apply-row .sp-imp-count{margin:0}
 .sp-hud-apply{background:var(--accent)!important;color:var(--accent-ink)!important;font-weight:600}
 .sp-imp-done{margin:6px 10px;color:var(--text-2)}
-.sp-custom-grid{margin:6px 10px}
+.sp-custom-grid{margin:6px 0 2px;padding:6px;border-radius:4px;background:var(--well);border:1px solid var(--line)}
+.sp-grid-row{display:grid;grid-template-columns:52px 1fr 1fr;align-items:center;gap:6px;margin-bottom:4px}
+.sp-grid-row-label{color:var(--text-2);font-size:11px}
+.sp-grid-fit{margin:4px 0 0;font-size:11px;color:var(--text)}
+.sp-grid-fit.is-bad{color:var(--danger)}
 .sp-panel .st-row{margin:6px 10px}
 .sp-panel .st-pad .st-row{margin:6px 0 0}
 .sp-wrap{flex-wrap:wrap}
