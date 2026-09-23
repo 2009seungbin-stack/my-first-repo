@@ -362,6 +362,23 @@ def png_bytes(im):
     b = io.BytesIO(); im.save(b, 'PNG'); return b.getvalue()
 
 
+def near(a, b):
+    """UI Lab images go through a browser canvas: Firefox rounds the colour of semi-transparent
+    pixels by up to one level (premultiplied alpha), Chromium does not. Opaque and fully transparent
+    pixels, and every alpha value, must still match exactly."""
+    a, b = a.convert('RGBA'), b.convert('RGBA')
+    if a.size != b.size:
+        return False
+    for x, y in zip(a.getdata(), b.getdata()):
+        if x[3] != y[3]:
+            return False
+        if x[3] == 255 and x != y:
+            return False
+        if 0 < x[3] < 255 and max(abs(x[i] - y[i]) for i in range(3)) > 1:
+            return False
+    return True
+
+
 def lab_open(ctx, route, files, ready_sel, engine):
     """Landing page → its own file picker → the Lab at <route>/app/ with the files."""
     p = ctx.new_page(); p.on('pageerror', lambda e: errors.append(f'{engine} {route}: {e}'))
@@ -508,8 +525,8 @@ def part4(browser, E):
     for n in [x for x in z.namelist() if x.startswith('previews/')]:
         im = Image.open(io.BytesIO(z.read(n))).convert('RGBA'); W, H = im.size
         for d, s2 in [((0, 0, 12, 12), (0, 0, 12, 12)), ((W - 12, 0, W, 12), (52, 0, 64, 12)), ((0, H - 12, 12, H), (0, 52, 12, 64)), ((W - 12, H - 12, W, H), (52, 52, 64, 64))]:
-            good = good and im.crop(d).tobytes() == panel.crop(s2).tobytes()
-    ok('9-slice-editor: every exported size keeps the four 12×12 corners of the Kenney panel byte-identical', good and src.tobytes() == panel.tobytes(), engine=E)
+            good = good and near(im.crop(d), panel.crop(s2))
+    ok('9-slice-editor: every exported size keeps the four 12×12 corners of the Kenney panel (alpha and opaque pixels exact)', good and near(src, panel), engine=E)
     p.close()
     p = lab_open(ctx, '/en/game/button-state-generator/', [str(GS / 'kenney-blue-button.png')], '.ui-state canvas', E)
     ok('button-state-generator: five states of the Kenney button are previewed', p.locator('.ui-state').count() == 5, engine=E)
@@ -517,8 +534,8 @@ def part4(browser, E):
     states = json.loads(z.read('states.json'))
     strip = Image.open(io.BytesIO(z.read([n for n in z.namelist() if n.endswith('-states.png')][0]))).convert('RGBA')
     normal_state = Image.open(io.BytesIO(z.read('states/normal.png'))).convert('RGBA')
-    ok('button-state-generator: normal equals the source byte for byte and every rect in states.json cuts its state from the strip',
-       normal_state.tobytes() == button.tobytes() and all(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])).tobytes() == Image.open(io.BytesIO(z.read(f'states/{k}.png'))).convert('RGBA').tobytes() for k, f in states['frames'].items()), engine=E)
+    ok('button-state-generator: normal equals the source (alpha and opaque pixels exact) and every rect in states.json cuts its state from the strip',
+       near(normal_state, button) and all(near(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])), Image.open(io.BytesIO(z.read(f'states/{k}.png')))) for k, f in states['frames'].items()), f"normal {normal_state.size} {[(x, y) for x, y in zip(normal_state.getdata(), button.getdata()) if x != y][:6]} {[(k, near(strip.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])), Image.open(io.BytesIO(z.read(f'states/{k}.png'))))) for k, f in states['frames'].items()]}", engine=E)
     p.close()
     sheet = Image.new('RGBA', (300, 90), (0, 0, 0, 0)); sheet.paste(button, (4, 4)); sheet.paste(panel, (220, 10))
     p = lab_open(ctx, '/en/game/ui-lab/', [buf('kenney-ui-sheet.png', png_bytes(sheet))], '#nsCanvas', E)
@@ -526,8 +543,9 @@ def part4(browser, E):
     ok('ui-lab: the two Kenney elements on the sheet are detected as two elements', p.locator('.ui-element').count() == 2, str(p.locator('.ui-element').count()), engine=E)
     z = zipfile.ZipFile(download(p, '[data-action="ui-export-atlas"]'))
     atlas = Image.open(io.BytesIO(z.read('ui-atlas.png'))).convert('RGBA'); data = json.loads(z.read('ui-atlas.json'))
-    pieces = [atlas.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])).tobytes() for f in data['frames'].values()]
-    ok('ui-lab: the packed atlas holds both elements pixel for pixel', sorted(pieces) == sorted([button.crop(button.getbbox()).tobytes(), panel.crop(panel.getbbox()).tobytes()]), engine=E)
+    pieces = sorted((atlas.crop((f['rect']['x'], f['rect']['y'], f['rect']['x'] + f['rect']['w'], f['rect']['y'] + f['rect']['h'])) for f in data['frames'].values()), key=lambda im: im.size)
+    want = sorted([button.crop(button.getbbox()), panel.crop(panel.getbbox())], key=lambda im: im.size)
+    ok('ui-lab: the packed atlas holds both elements (alpha and opaque pixels exact)', len(pieces) == 2 and all(near(a, b) for a, b in zip(pieces, want)), engine=E)
     p.close()
     p = lab_open(ctx, '/en/game/ui-scale-preview/', [str(GS / 'kenney-blue-panel.png')], '.ui-screen canvas', E)
     p.locator('[data-key="check.screen"][data-value="4k"]').click(); p.wait_for_timeout(300)
