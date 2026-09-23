@@ -94,9 +94,9 @@ export default {
   const timeline=createTimeline(W),panels=createPanels(W);
   ctx.minBottomHeight?.(186);
   ctx.panel({id:'sp-timeline',title:()=>t('sp.panel.timeline'),dock:'bottom',order:5,badge:()=>{const a=asset();return a?.frames.length?String(a.frames.length):'';},render(body){body.append(timeline.root);}});
-  ctx.panel({id:'sp-import',title:()=>t('sp.panel.import'),dock:'right',order:12,render(body){body.append(panels.imp);}});
-  ctx.panel({id:'sp-frame',title:()=>t('sp.panel.frame'),dock:'right',order:20,render(body){body.append(panels.fr);}});
-  ctx.panel({id:'sp-tag',title:()=>t('sp.panel.tag'),dock:'right',order:25,render(body){body.append(panels.tg);}});
+  ctx.panel({id:'sp-import',title:()=>t('sp.panel.import'),dock:'right',order:16,render(body){body.append(panels.imp);}});
+  ctx.panel({id:'sp-frame',title:()=>t('sp.panel.frame'),dock:'right',order:12,render(body){body.append(panels.fr);}});
+  ctx.panel({id:'sp-tag',title:()=>t('sp.panel.tag'),dock:'right',order:14,render(body){body.append(panels.tg);}});
   ctx.panel({id:'sp-align',title:()=>t('sp.panel.align'),dock:'right',order:40,render(body){body.append(panels.al);}});
   // canvas HUD: Frame / Sheet switch + what is showing
   const hudHost=view.root.parentElement;
@@ -109,7 +109,7 @@ export default {
    const ic=(icon,label,fn,id)=>{const b=h('button.sp-hud-btn',{type:'button',title:label,'aria-label':label,'data-sp':id},h('span',{html:SVG[icon]}));b.addEventListener('click',fn);return b;};
    const hasF=!!a?.frames.length;
    hud.replaceChildren(mk('frame','frame',t('sp.hud.frame')),mk('sheet','sheet',t('sp.hud.sheet')),
-    ...(hasF?[ic('prev',t('sp.tl.prev')+' (,)',()=>step(-1),'hud-prev'),ic(S.playing?'pause':'play',(S.playing?t('sp.tl.stop'):t('sp.tl.play'))+' (Enter)',()=>ctx.runCommand('sprite.play'),'hud-play'),ic('next',t('sp.tl.next')+' (.)',()=>step(1),'hud-next')]:[]),pv);
+    ...(hasF?[h('span.sp-hud-count',{'data-sp':'hud-count'},`${S.cur+1}/${a.frames.length}`),ic('prev',t('sp.tl.prev')+' (,)',()=>step(-1),'hud-prev'),ic(S.playing?'pause':'play',(S.playing?t('sp.tl.stop'):t('sp.tl.play'))+' (Enter)',()=>ctx.runCommand('sprite.play'),'hud-play'),ic('next',t('sp.tl.next')+' (.)',()=>step(1),'hud-next')]:[]),pv);
    hud.hidden=!a;
   }
   // ------------------------------------------------------------ importer
@@ -167,7 +167,7 @@ export default {
   function status(){
    const a=asset(),f=frame();if(!a){ctx.status('selection','');return;}
    if(!f){ctx.status('selection',t('sp.status.noFrames'));return;}
-   const tg=playTag();
+   const tg=playTag(),cnt=hud.querySelector('[data-sp="hud-count"]');if(cnt)cnt.textContent=`${S.cur+1}/${a.frames.length}`;
    ctx.status('selection',t('sp.status.frame',{i:S.cur+1,n:a.frames.length,ms:f.duration??100,tag:tg?` · ${tg.name}`:'',sel:S.sel.length>1?` · ${t('sp.status.selected',{n:S.sel.length})}`:''}));
   }
   // ------------------------------------------------------------ presenting the canvas
@@ -424,7 +424,7 @@ export default {
   }
   ctx.on('locale',()=>{timeline.render(true);panels.renderAll();renderHud();status();});
   // ------------------------------------------------------------ workspace hooks for the shell
-  S.assetId=null;renderHud();
+  S.assetId=null;renderHud();timeline.render(true);panels.renderAll();
   return {
    present:(a,opts)=>{if((a?.id||null)!==S.assetId)useAsset(a?.id||null);return present(opts);},
    importFiles:(files,opts)=>importer.importFiles(files,opts),

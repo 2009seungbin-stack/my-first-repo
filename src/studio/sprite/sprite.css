@@ -56,6 +56,7 @@
 .sp-hud-btn:hover{background:var(--bg-3);color:var(--text)}
 .sp-hud-btn[aria-pressed="true"]{background:var(--bg-4);color:var(--text);box-shadow:inset 0 -2px 0 var(--accent)}
 .sp-hud-live{color:var(--accent);padding:0 6px}
+.sp-hud-count{min-width:44px;padding:0 4px 0 8px;color:var(--text);font-variant-numeric:tabular-nums;font-size:11px;text-align:right;border-left:1px solid var(--line-2)}
 /* floating preview */
 .sp-preview{position:absolute;right:calc(var(--right-w) + 24px);top:48px;z-index:20;min-width:120px;max-width:70vw;max-height:70vh;display:flex;flex-direction:column;background:var(--bg-1);border:1px solid var(--line-2);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
 .sp-preview[hidden]{display:none}

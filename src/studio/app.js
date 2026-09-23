@@ -334,7 +334,9 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   history.entries.forEach((e,i)=>rows.push(h('div.st-hist-row'+(i<history.index?'':'.is-undone'),{role:'option','aria-selected':String(history.index===i+1),'data-index':String(i+1),tabindex:'-1'},h('span.st-hist-dot',{}),e.label)));
   historyList.replaceChildren(...rows);
   for(const r of rows)r.addEventListener('click',()=>history.jump(Number(r.dataset.index)));
-  historyList.querySelector('[aria-selected="true"]')?.scrollIntoView({block:'nearest'});
+  // scroll the history list only: scrollIntoView would also scroll the whole right dock to it on every edit
+  const on=historyList.querySelector('[aria-selected="true"]');
+  if(on){const top=on.offsetTop-historyList.offsetTop;if(top<historyList.scrollTop)historyList.scrollTop=top;else if(top+on.offsetHeight>historyList.scrollTop+historyList.clientHeight)historyList.scrollTop=top+on.offsetHeight-historyList.clientHeight;}
  }
  // ------------------------------------------------------------------ app commands
  const zoomTo=s=>()=>view.zoomTo(s,view.lastPointer);
