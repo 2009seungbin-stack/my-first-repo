@@ -73,7 +73,10 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   if(c.images.length>1){
    const g=groupFrameFiles(c.images.map(pathOf));
    const sameSize=await sameSizes(c.images);
-   const asFrames=g.decision.chosen==='names'||g.decision.confidence!=='low'&&sameSize||c.images.some(f=>/[\\/]/.test(pathOf(f)));
+   // Same-sized files only form one animation when their names read as a sequence (most end in
+   // a frame number); idle.png + run.png + jump.png, or unrelated drops, stay separate sprites.
+   const numbered=c.images.filter(f=>frameKey(pathOf(f)).index!=null).length/c.images.length;
+   const asFrames=g.decision.chosen==='names'||numbered>=.5&&g.decision.confidence!=='low'&&sameSize||c.images.some(f=>/[\\/]/.test(pathOf(f)));
    if(asFrames)made.push(await guard(c.images[0].name,()=>importFrameFiles(c.images)));
    else for(const f of c.images)made.push(await guard(f.name,()=>importSheet(f)));
   }else if(c.images.length===1)made.push(await guard(c.images[0].name,()=>importSheet(c.images[0])));
