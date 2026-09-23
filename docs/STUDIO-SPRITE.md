@@ -133,3 +133,49 @@ one-click alternative; choosing one re-applies the import as a single undoable s
 * Never move pixels by editing `sourceRect` of a frame that has its own cels unless you mean to
   change the visible region.
 * New pixels = a new PNG blob (`images.put`) and a new cel; blobs are never mutated.
+
+## 9. The workspace (what P1a ships)
+
+Code: `src/studio/workspaces/sprite.js` + `src/studio/sprite/*`. Pure modules (unit-tested in
+`tests/studio-sprite.test.mjs`): `sprite-doc.js` (all edits), `playback.js`, `import-plan.js`,
+`grid-rerank.js`, `gif-decode.js`, `apng-decode.js`, `aseprite-bridge.js`, `import-build.js`,
+`atlas-data.js`, `frame-image.js`. Browser: `importers.js` (+ `sprite-worker.js`), `timeline-ui.js`,
+`panels-ui.js`, `preview-ui.js`, `tools.js`, `overlay.js`, `frame-render.js`. Browser suite:
+`tests/studio-sprite-browser.py` (in `tools/regression.py`).
+
+* **Import** (drop anywhere, File › Import, Sprite › Import a folder): sheet → preview + Apply with key
+  colour, grid (margin/spacing) or islands (small FX pieces attached, unplaceable ones shown red),
+  one animation per row, timing — each a decision with confidence, reasons (ko/en/ja) and one-click
+  alternatives; numbered frame files / folders (natural sort, grouped by name); GIF / APNG (all
+  frames, delays, disposal); `.aseprite` (layers kept when they compose exactly, else flattened with
+  the reason; tags, durations, slices → pivot / boxes / 9-slice as decisions); Sprite Lab JSON;
+  Aseprite JSON / TexturePacker JSON / Starling XML with their sheet.
+* **Timeline**: layers × frames cels (own ● / shared ○ / empty), tag lanes (drag to create, inline
+  rename, drag ends to resize, right-click → Animation panel), durations inline and in bulk, reorder
+  by drag, Alt+N duplicate, Alt+Shift+N empty, Alt+C delete, Shift+H flip, click / Shift / Ctrl
+  selection, jitter marks.
+* **Playback**: Enter, `,` `.`, Home/End, loop inside the tag (direction + repeat), onion skin F3
+  (before/after, opacity, tint), floating preview F7 (1:1–8×, backgrounds).
+* **Canvas** (Frame view; ` toggles Sheet view with region editing): P pivot, B box, C circle,
+  Q polygon (Enter/first point closes, Backspace removes the last point), V select/move/resize,
+  arrows nudge, scope this frame / selected / tag / all, box types hit/hurt/interact/custom,
+  collision polygon from alpha with a vertex cap, copy boxes to next frame / scope, mirror (pixels +
+  pivot + boxes) and mirrored tag copy.
+* **Align**: one canvas size with anchor (whole-pixel moves only), jitter measure / fix.
+* Sprite › Export .aseprite (layers, tags, durations, pivot/box/9-slice slices).
+* The frame selection is shared through `src/studio/core/frame-selection.js` (same file as P1b).
+
+## 10. Evidence (2026-09-23)
+
+* GIF decoder vs Pillow: 29 real GIFs, 408/408 frames exact; in Chromium equal to `ImageDecoder`.
+* APNG decoder vs Pillow: 16 files (dispose 0/1/2 × blend 0/1), 132/132 frames exact; equal to `ImageDecoder`.
+* `.aseprite` corpus (231 files): 222 imported layered (self-verified), 9 flattened (5 composition
+  differs, 4 cel z-index). Import → Studio asset → our writer → **real Aseprite 1.3.18.6**: 231/231
+  open without warnings, tags 231/231, durations 231/231, pixels 231/231 (227 compared as sheets,
+  4 per frame — Aseprite's own sheet export of their gray/indexed originals differs, per frame they match).
+* 16 real assets through the UI (sheets, keyed sheets, 4096² FX sheet, atlas data, frame files, GIFs,
+  .aseprite): frames correct 16/16 with the default choices; see the P1a report for the table.
+
+Known limits: rotated atlas frames stay rotated in the sheet (their export is UNVERIFIED); compose-groups
+files with group opacity import flattened; the grid re-rank is a documented heuristic on top of
+`src/game/grid-detect.js` (the engine itself is unchanged).
