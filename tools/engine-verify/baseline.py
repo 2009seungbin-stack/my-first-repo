@@ -102,6 +102,49 @@ CASES = [
 ]
 
 
+# ---------------------------------------------------------------- Studio Pack & Export (P1b)
+# The same corpus assets and engines as the Sprite Lab / sprite-sheet-maker rows above, driven
+# through /game/studio/: import → (Viewer grid for sheets) → Pack & Export tab → Export for <target>.
+# `before` names the baseline row(s) the case answers.
+
+def studio_case(cid, target, *, files=None, sheet=None, grid=None, engines, before='', note='', expect_anim=None):
+    return {'id': cid, 'exporter': f'Studio Pack & Export ({target})', 'asset': sheet or files[0].rsplit('/', 1)[0] + '/', 'lab': 'studio-pack',
+            'target': target, 'files': files, 'sheet': sheet, 'grid': grid, 'engines': engines, 'before': before, 'note': note, 'expect_anim': expect_anim}
+
+
+SAMURAI, TOON = 'sprites/oga-samurai/samurai.png', 'sprites/kenney-toon-characters/character_femaleAdventurer_sheet.png'
+G48 = {'w': 48, 'h': 48}
+STUDIO_CASES = [
+    studio_case('sp-samurai-godot', 'godot4', sheet=SAMURAI, grid=G48, engines=['godot'], before='sl-samurai-auto-godot, sl-samurai-grid-godot', note='Viewer grid 48, no tags (implicit animation)'),
+    studio_case('sp-samurai-noanim-godot', 'godot4', sheet=SAMURAI, grid=G48, engines=['godot'], before='sl-samurai-grid-noanim-godot', note='export straight after cutting: the implicit animation is shown before export'),
+    studio_case('sp-samurai-json', 'json', sheet=SAMURAI, grid=G48, engines=['phaser3', 'phaser4', 'pixi8'], before='sl-samurai-grid-generic'),
+    studio_case('sp-samurai-unity', 'unity', sheet=SAMURAI, grid=G48, engines=['unity'], before='sl-samurai-grid-unity'),
+    studio_case('sp-toon-godot', 'godot4', sheet=TOON, grid={'w': 96, 'h': 128}, engines=['godot'], before='sl-toon-auto-godot'),
+    studio_case('sp-samurai-magenta-godot', 'godot4', sheet='sprites/derived/samurai_magenta_m4_s2.png', grid={'w': 48, 'h': 48, 'ox': 4, 'oy': 4, 'sx': 2, 'sy': 2},
+                engines=['godot'], before='sl-samurai-magenta-grid-godot', note='margin/spacing typed; the colour key belongs to the Sprite import (P1a), not applied here'),
+    studio_case('sp-hit-4096-godot', 'godot4', sheet='sprites/oga-hit-effect/hit-yellow.png', grid={'w': 1024, 'h': 1024}, engines=['godot'], before='sl-hit-4096-auto-godot', note='4096² sheet, 1024 px cells'),
+    studio_case('sp-ninja-phaser', 'phaser', files=NINJA, engines=['phaser3', 'phaser4'], before='ssm-ninja-hash (phaser)'),
+    studio_case('sp-ninja-pixi', 'pixi', files=NINJA, engines=['pixi8'], before='ssm-ninja-hash (pixi8), ssm-ninja-hash-rotate (pixi8)', note='Pixi preset allows rotation'),
+    studio_case('sp-ninja-aseprite-array', 'aseprite-json-array', files=NINJA, engines=['phaser3', 'phaser4'], before='ssm-ninja-array'),
+    studio_case('sp-ninja-starling', 'starling', files=NINJA, engines=['phaser3', 'phaser4'], before='ssm-ninja-xml', note='trimmed XML'),
+    studio_case('sp-ninja-sparrow-p3', 'sparrow-phaser3', files=NINJA, engines=['phaser3', 'phaser4'], before='ssm-ninja-xml', note='Phaser 3 preset (trim off)'),
+    studio_case('sp-ninja-godot', 'godot4', files=NINJA, engines=['godot'], before='ssm-ninja-godot'),
+    studio_case('sp-ninja-aseprite-hash', 'aseprite-json', files=NINJA, engines=['phaser3', 'phaser4', 'pixi8'], before='(reference-style Aseprite JSON)'),
+    studio_case('sp-archer-phaser', 'phaser', files=ARCHER, engines=['phaser3', 'phaser4'], before='ssm-archer-hash, ssm-archer-hash-rotate (phaser)', note='files given in natural order'),
+    studio_case('sp-archer-pixi', 'pixi', files=ARCHER, engines=['pixi8'], before='ssm-archer-hash, ssm-archer-hash-rotate (pixi8)', note='rotation allowed'),
+    studio_case('sp-archer-starling', 'starling', files=ARCHER, engines=['phaser3', 'phaser4'], before='ssm-archer-xml'),
+    studio_case('sp-archer-sparrow-p3', 'sparrow-phaser3', files=ARCHER, engines=['phaser3', 'phaser4'], before='ssm-archer-xml'),
+    studio_case('sp-ninja-unity', 'unity', files=NINJA, engines=['unity'], before='(new: Unity clips)'),
+    studio_case('sp-ninja-love', 'love', files=NINJA, engines=['love'], before='(new: no LÖVE exporter before)'),
+    studio_case('sp-ninja-defold', 'defold', files=NINJA, engines=['defold'], before='(new: no Defold exporter before)'),
+    studio_case('sp-samurai-defold', 'defold', sheet=SAMURAI, grid=G48, engines=['defold'], before='(new)'),
+    studio_case('sp-ninja-aseprite-file', 'aseprite', files=NINJA, engines=['aseprite'], before='(new: .aseprite opened by the Aseprite CLI)'),
+    studio_case('sp-ninja-gif', 'gif', files=NINJA, engines=['pillow'], before='(new)', expect_anim={'durationsMs': [80] * 6}),
+    studio_case('sp-ninja-apng', 'apng', files=NINJA, engines=['pillow'], before='(new)', expect_anim={'durationsMs': [83] * 6}),
+]
+CASES += STUDIO_CASES
+
+
 # ---------------------------------------------------------------- phase 1: drive the Labs
 
 def start_server(port: int):
@@ -191,7 +234,45 @@ def drive(case, page, base, dest: Path) -> dict:
         page.wait_for_timeout(600)
         _download(page, '[data-action="ui-export-font"]', dest)
         return info
+    if lab == 'studio-pack':
+        return drive_studio(case, page, base, dest)
     raise ValueError(lab)
+
+
+def drive_studio(case, page, base, dest: Path) -> dict:
+    """The Studio as a user drives it: drop the file(s); for a sheet type the grid in the Viewer's
+    grid panel and press Apply; open the Pack & Export tab; press Export next to the target."""
+    info = {}
+    page.goto(base + '/en/game/studio/', wait_until='networkidle')
+    page.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"', timeout=60000)
+    files = [str(C / f) for f in (case['files'] or [case['sheet']])]
+    page.locator('input[type=file][multiple]').set_input_files(files)
+    page.wait_for_function(f'()=>document.querySelectorAll(".st-asset").length>={len(files)}', timeout=120000)
+    if case.get('grid'):
+        g = {'ox': 0, 'oy': 0, 'sx': 0, 'sy': 0, **case['grid']}
+        page.wait_for_selector('[data-grid="w"]', timeout=60000)
+        page.wait_for_timeout(800)
+        for k in ('w', 'h', 'ox', 'oy', 'sx', 'sy'):
+            page.locator(f'[data-grid="{k}"]').fill(str(g[k]))
+            page.locator(f'[data-grid="{k}"]').dispatch_event('change')
+            page.wait_for_timeout(150)
+        page.wait_for_function('()=>{const b=document.querySelector("[data-action=grid-apply]");return b&&!b.disabled}', timeout=60000)
+        page.locator('[data-action="grid-apply"]').click()
+        page.wait_for_selector('.st-grid-state[data-state="applied"]', timeout=180000)
+        info['frames_cut'] = page.locator('.st-grid-state').inner_text()[:80]
+    page.locator('[data-ws="pack"]').click()
+    page.wait_for_selector('[data-pack="efficiency"]', timeout=300000)
+    page.wait_for_function('()=>!document.querySelector("[data-action=pack-cancel]")', timeout=300000)
+    info['atlas'] = page.locator('[data-pack="totals"]').inner_text()[:200]
+    if page.locator('[data-pack="implicit"]').count():
+        info['implicit'] = page.locator('[data-pack="implicit"]').inner_text()[:200]
+    btn = page.locator(f'[data-export="{case["target"]}"]')
+    page.wait_for_function(f'()=>{{const b=document.querySelector("[data-export=\\"{case["target"]}\\"]");return b&&!b.disabled}}', timeout=300000)
+    _download(page, f'[data-export="{case["target"]}"]', dest, timeout=600000)
+    page.wait_for_timeout(300)
+    if page.locator('[data-pack="last-export"]').count():
+        info['export_notes'] = page.locator('[data-pack="last-export"]').inner_text()[:400]
+    return info
 
 
 # ---------------------------------------------------------------- phase 2: expectations + engines
@@ -213,7 +294,41 @@ def expectation(case, work: Path) -> dict:
         return X.font_grid(case['asset'], work / 'expected', ''.join(chr(c) for c in range(0x21, 0x7f)))
     if lab == 'reference' and case['asset'].endswith('.fnt'):
         return {'font': {'chars': _cozette_glyphs(work / 'expected'), 'size': 13}}
+    if lab == 'studio-pack':
+        return studio_expectation(case, work)
     return {}
+
+
+# Which (target, engine) pairs carry animations the engine itself builds.
+_ANIM = {'godot4': {'godot'}, 'unity': {'unity'}, 'phaser': {'phaser3', 'phaser4'}, 'pixi': {'pixi8'}, 'aseprite-json': {'phaser3', 'phaser4'},
+         'aseprite-json-array': {'phaser3', 'phaser4'}, 'love': {'love'}, 'defold': {'defold'}, 'aseprite': {'aseprite'}, 'gif': {'pillow'}, 'apng': {'pillow'}}
+
+
+def studio_expectation(case, work: Path) -> dict:
+    """Frames cut from the ORIGINAL asset; with no tags the Studio exports one implicit animation of
+    every frame (named after what the frame names share), which engines that read animations must play."""
+    import re
+    if case['sheet']:
+        grid = None
+        if case.get('grid'):
+            g = case['grid']
+            t = X.entry(case['sheet'])['truth']['grid']
+            grid = {**t, 'cellW': g['w'], 'cellH': g['h'], 'marginX': g.get('ox', 0), 'marginY': g.get('oy', 0), 'spacingX': g.get('sx', 0), 'spacingY': g.get('sy', 0)}
+        e = X.sprite_grid(case['sheet'], work / 'expected', grid=grid)
+        name = re.sub(r'[^\w.-]+', '_', Path(case['sheet']).stem)
+    else:
+        e = X.sprite_frames(case['files'], work / 'expected')
+        stems = [Path(f).stem for f in case['files']]
+        p = stems[0]
+        for s in stems:
+            while p and not s.startswith(p):
+                p = p[:-1]
+        name = re.sub(r'[\s_\-.(]*\d*$', '', p).rstrip(' _-.(') or 'default'
+    n = len(e['sprite']['frames'])
+    if all(eng in _ANIM.get(case['target'], set()) for eng in case['engines']):
+        e['sprite']['requireAnimations'] = True
+        e['sprite']['animations'] = {name: {'count': n, 'frames': list(range(n)), **(case.get('expect_anim') or {})}}
+    return e
 
 
 def _cozette_glyphs(out: Path) -> dict:
