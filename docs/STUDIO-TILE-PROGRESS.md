@@ -56,6 +56,11 @@ block is found as an A2 source (high).
   `unity_tile.py`, `unity/NerulioTileProbe.cs`, `make_unity_job.mjs`, and competitor notes in
   `scratchpad/p3/studio-tile/competitors/`. Review them (or delete) before committing; Tiled
   portable / a `unity-template-tile` copy may exist under `%LOCALAPPDATA%\nerulio-engine-verify`.
+  Confirmed after the pause: the Tiled/LDtk and Unity helpers wrote NO repo files. Tiled 1.12.2
+  is unpacked (not installed) at `%LOCALAPPDATA%\nerulio-engine-verify\tiled\app\PFiles\Tiled\`,
+  with `tiled.exe` and `tmxrasterizer.exe`. Unity 6000.5.3f1 ships `com.unity.2d.tilemap.extras` 8.0.3
+  inside the editor (`Editor/Data/Resources/PackageManager/Editor/com.unity.2d.tilemap.extras-8.0.3.tgz`),
+  so the package should install offline (not tried).
 
 **Exact next step on resume:** write `src/studio/workspaces/tile/index.js` (workspace definition
 using the plug-in API, wiring `tile-worker.js`) + `strings.js` (ko/en/ja, merged into
