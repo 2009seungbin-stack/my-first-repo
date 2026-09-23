@@ -47,7 +47,7 @@ export const TRUST_STRINGS={
    guideUndo:'Undo guide move',guideRedo:'Redo'
   },
   atlas:{
-   animations:'Animations',animationsFound:'{n} animation(s) from the file names',animationAll:'All frames',
+   sharedCanvas:'One canvas per animation (frames do not jump)',animations:'Animations',animationsFound:'{n} animation(s) from the file names',animationAll:'All frames',
    canvasNote:'Frames of different sizes share one {w}×{h} canvas (bottom-centred), and the data file says so, so they play without jumping.'
   },
   pswap:{
@@ -98,7 +98,7 @@ export const TRUST_STRINGS={
    guideUndo:'안내선 이동 되돌리기',guideRedo:'다시 실행'
   },
   atlas:{
-   animations:'애니메이션',animationsFound:'파일 이름에서 애니메이션 {n}개',animationAll:'모든 프레임',
+   sharedCanvas:'애니메이션마다 공통 캔버스 (프레임이 튀지 않게)',animations:'애니메이션',animationsFound:'파일 이름에서 애니메이션 {n}개',animationAll:'모든 프레임',
    canvasNote:'크기가 다른 프레임을 {w}×{h} 공통 캔버스(아래 가운데 정렬)에 두고 데이터 파일에도 그렇게 적어, 재생할 때 튀지 않습니다.'
   },
   pswap:{
@@ -149,7 +149,7 @@ export const TRUST_STRINGS={
    guideUndo:'ガイドの移動を元に戻す',guideRedo:'やり直す'
   },
   atlas:{
-   animations:'アニメーション',animationsFound:'ファイル名からアニメーション{n}個',animationAll:'すべてのフレーム',
+   sharedCanvas:'アニメーションごとに共通キャンバス（フレームがぶれない）',animations:'アニメーション',animationsFound:'ファイル名からアニメーション{n}個',animationAll:'すべてのフレーム',
    canvasNote:'サイズの違うフレームを{w}×{h}の共通キャンバス（下中央揃え）に置き、データファイルにもそう書くので、再生時にぶれません。'
   },
   pswap:{
