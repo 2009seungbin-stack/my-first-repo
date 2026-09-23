@@ -271,8 +271,10 @@ export function readAseprite(input,{limits={},strict=false}={}){
        const repeat=r.u16();r.skip(6);const R=r.u8(),G=r.u8(),B=r.u8();r.skip(1);const name=r.str();
        tags.push({name,from,to,direction:DIRECTIONS[dir],directionId:dir,repeat,color:hex(R,G,B,255),userData:null});
       }
-      doc.tags.push(...tags);
-      if(tags.length){target={kind:'tag',obj:tags[0]};pending.tags=tags;pending.tagIndex=0;}else target=null;
+      // Aseprite keeps tags sorted (doc::Tags::add) and hands the following User Data chunks to
+      // tags in that sorted order, so both the list and the user-data pairing follow it.
+      for(const t of tags)insertTag(doc.tags,t);
+      if(doc.tags.length){target={kind:'tag',obj:doc.tags[0]};pending.tags=doc.tags;pending.tagIndex=0;}else target=null;
       break;
      }
      case CHUNK.USER_DATA:{
@@ -286,6 +288,9 @@ export function readAseprite(input,{limits={},strict=false}={}){
       if(target.kind==='sprite')doc.userData=ud;
       else target.obj.userData=ud;
       if(target.kind==='tag'){
+       // Since v1.3 a tag's colour lives in its user data; the legacy RGB bytes only count
+       // when no user data chunk follows (Aseprite then shows transparent if none is set).
+       target.obj.color=ud.color??'#00000000';
        pending.tagIndex++;target=pending.tagIndex<pending.tags.length?{kind:'tag',obj:pending.tags[pending.tagIndex]}:null;
       }else if(target.kind==='tileset'){
        const ts=target.obj;ts.tileUserData=new Array(ts.numTiles).fill(null);pending.tileset=ts.numTiles?ts:null;pending.tileIndex=0;target=null;
@@ -345,6 +350,11 @@ export function readAseprite(input,{limits={},strict=false}={}){
  return doc;
 }
 
+/** doc::Tags::add: ascending `from`; for equal `from` the longer tag first; ties keep order. */
+function insertTag(list,t){
+ let i=0;for(;i<list.length;i++){const x=list[i];if(x.from>t.from||(x.from===t.from&&x.to<t.to))break;}
+ list.splice(i,0,t);return list;
+}
 function inflateInto(u,start,end,size,what,warn){
  let res;
  try{res=inflateZlib(u,{start,end,size});}
@@ -880,14 +890,16 @@ export function writeAseprite(doc,{linkDuplicates=true,level=6,deflate=null,targ
     userDataChunk(ts.userData);
     for(let i=0;i<ts.numTiles;i++)userDataChunk(ts.tileUserData?.[i]||null);
    });
-   const tags=doc.tags||[];
+   // Written in Aseprite's sorted order: Aseprite pairs each tag's User Data chunk with its
+   // sorted tag list, so any other order would give user data (and colours) to the wrong tag.
+   const tags=(doc.tags||[]).reduce((l,t)=>insertTag(l,t),[]);
    if(tags.length){
     chunk(CHUNK.TAGS,()=>{
      w.u16(tags.length);w.zero(8);
      for(const t of tags){
       const from=Math.max(0,Math.min(nframes-1,t.from|0)),to=Math.max(from,Math.min(nframes-1,t.to|0));
       const dir=typeof t.direction==='number'?t.direction:Math.max(0,DIRECTIONS.indexOf(t.direction??'forward'));
-      const col=colorBytes(t.color)||[0,0,0,255];
+      const col=colorBytes(t.userData?.color??t.color)||[0,0,0,255];
       w.u16(from);w.u16(to);w.u8(dir);w.u16(Math.min(65535,Math.max(0,t.repeat|0)));w.zero(6);w.u8(col[0]);w.u8(col[1]);w.u8(col[2]);w.u8(0);w.str(t.name??'');
      }
     });
