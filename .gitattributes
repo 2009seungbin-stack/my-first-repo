@@ -1,0 +1,8 @@
+# Corpus and Aseprite fixtures are hashed byte-for-byte: never convert their line endings.
+tests/fixtures/game/corpus/** -text
+tests/fixtures/game/corpus/index.json text
+tests/fixtures/game/corpus/LICENSES.md text
+tests/fixtures/aseprite/** -text
+tests/fixtures/aseprite/*.md text
+tests/fixtures/aseprite/*.json text
+tests/fixtures/kenney/*.png -text
