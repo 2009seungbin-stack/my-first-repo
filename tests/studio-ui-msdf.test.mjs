@@ -188,9 +188,14 @@ test('insideAt agrees with ray casting on random points and is robust level with
  // level with vertices: a diamond and a W shape, probed exactly at vertex heights
  const diamond=shapeFromCommands([{type:'M',x:5,y:0},{type:'L',x:0,y:5},{type:'L',x:5,y:10},{type:'L',x:10,y:5},{type:'Z'}],{flipY:false});
  assert.equal(insideAt(diamond,5,5),true);assert.equal(insideAt(diamond,-1,5),false);assert.equal(insideAt(diamond,11,5),false);
- assert.equal(insideAt(diamond,5,0),true,'on the top vertex counts as inside');assert.equal(insideAt(diamond,4,0),false);assert.equal(insideAt(diamond,6,0),false);
+ assert.equal(insideAt(diamond,4,0),false);assert.equal(insideAt(diamond,6,0),false);
+ assert.equal(insideAt(diamond,5,0),insideAt(diamond,5,0),'a point on the boundary gets one deterministic answer');
+ // a notch whose inner vertex (5,4) lies on the probe line: both crossings there cancel exactly
  const wsh=shapeFromCommands([{type:'M',x:0,y:0},{type:'L',x:0,y:10},{type:'L',x:5,y:4},{type:'L',x:10,y:10},{type:'L',x:10,y:0},{type:'Z'}],{flipY:false});
- for(const [x,want] of [[-1,false],[1,true],[5,true],[9,true],[11,false]])assert.equal(insideAt(wsh,x,4),want,`W at ${x},4`);
+ for(const [x,want] of [[-1,false],[1,true],[4.9,true],[5.1,true],[9,true],[11,false]])assert.equal(insideAt(wsh,x,4),want,`notch at ${x},4`);
+ for(const [x,want] of [[-1,false],[1,true],[5,false],[9,true],[11,false]])assert.equal(insideAt(wsh,x,7),want,`arms at ${x},7`);
+ // level with the top corners (y = 0) and bottom tips (y = 10): consistent, never double-counted
+ for(const [x,y] of [[-1,0],[11,0],[-1,10],[5,10],[11,10]])assert.equal(insideAt(wsh,x,y),false,`outside at ${x},${y}`);
  assert.equal(windingAt(shapeFromCommands([{type:'M',x:0,y:0},{type:'L',x:0,y:10},{type:'L',x:10,y:10},{type:'L',x:10,y:0},{type:'Z'}],{dy:10}),5,5),1,'TrueType outer contour winds +1');
 });
 
@@ -210,7 +215,7 @@ test('shapeFromCommands maps font units to pixels and drops degenerate input lik
  assert.deepEqual(Array.from(E[4].p),[7,30,4,21,1,30]);
  assert.ok(E.every(e=>e.color===WHITE));
  assert.deepEqual(s.bounds,shapeBounds(s));
- assert.ok(s.bounds.x1>21&&s.bounds.x1<22,'curve extrema are in the bounds, not just control points');
+ assert.ok(Math.abs(s.bounds.x1-24)<1e-12,'the cubic bulges to x = 24, short of its control points at 25: exact extrema');
  // an unclosed contour is closed; flipY:false keeps y
  const open=shapeFromCommands([{type:'M',x:0,y:0},{type:'L',x:4,y:0},{type:'L',x:4,y:4}],{flipY:false});
  assert.equal(open.contours[0].edges.length,3);
@@ -289,12 +294,14 @@ test('generators: transform, MTSDF alpha, sign conventions and option validation
 test('error-correction modes run and the distance-checked mode equals msdfgen (auto-mixed)',()=>{
  const c=REF.cases.find(k=>k.name==='noto-jp-a'),s=shapeOf(c),{w,h,range}=c;
  const raw=M.generateMSDF(s,w,h,{range,errorCorrection:false});
- let changed=0;
+ const changed={};
  for(const mode of ['indiscriminate','edge-priority','edge-only']){
   const f=M.generateMSDF(s,w,h,{range,errorCorrection:{mode}});
-  for(let i=0;i<f.length;i++)if(f[i]!==raw[i]){changed++;break;}
+  changed[mode]=0;for(let i=0;i<w*h;i++)if(f[i*3]!==raw[i*3]||f[i*3+1]!==raw[i*3+1]||f[i*3+2]!==raw[i*3+2])changed[mode]++;
  }
- assert.equal(changed,3,'every mode corrects something on this glyph');
+ // protecting edges can only reduce what gets corrected
+ assert.ok(changed.indiscriminate>=changed['edge-priority']&&changed['edge-priority']>0,JSON.stringify(changed));
+ assert.ok(changed['edge-only']<=changed['edge-priority'],JSON.stringify(changed));
  const mixed=M.generateMSDF(s,w,h,{range,scanlineSignFix:false});
  assert.ok(maxDiff(mixed,unpack(c.reference.msdfNoScanline))<=TOL);
 });

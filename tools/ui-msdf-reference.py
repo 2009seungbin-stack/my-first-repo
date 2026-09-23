@@ -86,8 +86,10 @@ SYNTHETIC = [
                  L(26, 28), C(20, 31, 12, 31, 9, 27), C(5, 22, 12, 17, 16, 13), C(20, 9, 15, 6, 7, 8), Z], 1, 32, 32),
     ('sharp-a', [M(3, 3), L(14.5, 29), L(17.5, 29), L(29, 3), L(24.5, 3), L(21.5, 10), L(10.5, 10), L(7.5, 3), Z,
                  M(12, 13.5), L(20, 13.5), L(16, 23), Z], 1, 32, 32),
-    ('teardrop-1edge', [M(6, 16), C(18, 34, 34, 16, 18, 6), Z], 1, 32, 32),
-    ('teardrop-2edge', [M(5, 16), Q(14, 30, 24, 22), Q(30, 10, 5, 16), Z], 1, 32, 32),
+    # one cubic leaving and returning to its start: a one-edge contour with one corner
+    ('teardrop-1edge', [M(6, 16), C(30, 34, 34, 2, 6, 16), Z], 1, 32, 32),
+    # two quadratics, smooth where they meet (24,22) and a corner at (5,16)
+    ('teardrop-2edge', [M(5, 16), Q(14, 30, 24, 22), Q(32, 15.6, 5, 16), Z], 1, 32, 32),
     ('overlap', [M(4, 6), L(4, 20), L(22, 20), L(22, 6), Z, M(12, 12), L(12, 27), L(27, 27), L(27, 12), Z]
      + circle_quads(9, 22, 6), 1, 32, 32),
 ]

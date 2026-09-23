@@ -30,7 +30,8 @@
  *  texels are collapsed to their median. distanceCheck 'none' | 'at-edge' | 'always'
  *  additionally checks candidate texels against the exact shape distance. As in msdfgen,
  *  when the scanline sign fix is on, correction runs after it with distanceCheck 'none'
- *  (msdfgen "auto-fast"); without the sign fix the default is 'at-edge' ("auto-full").
+ *  (msdfgen "auto-fast"); without the sign fix the default is 'at-edge' (msdfgen's default
+ *  "auto-mixed"); 'always' is "auto-full". All four were checked against the binary.
  * Performance: msdfgen's per-edge distance cache — pixels are visited in serpentine order and
  *  an edge is re-evaluated only if it could beat the current best given how far the sample
  *  point moved (1.001 safety factor). Exact: skipped edges provably cannot win.
