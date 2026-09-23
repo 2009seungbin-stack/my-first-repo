@@ -32,19 +32,24 @@ def _norm_key(im: Image.Image) -> bytes:
     return bytes(t.size[0].to_bytes(4, 'little') + t.size[1].to_bytes(4, 'little') + px)
 
 
-def _match(expected: list[Image.Image], actual: list[Image.Image], tolerance: int) -> list[int | None]:
-    """For each expected image, the index of an actual image with the same art (trimmed)."""
+def _match(expected: list[Image.Image], actual: list[Image.Image], tolerance: int, shared: bool = False) -> list[int | None]:
+    """For each expected image, the index of an actual image with the same art (trimmed).
+    `shared`: the engine lists each stored texture once (Godot SpriteFrames, where pixel-identical
+    source frames share one AtlasTexture), so a later identical source frame may match the same one."""
     keys = {}
     for i, im in enumerate(actual):
         keys.setdefault(_norm_key(im), []).append(i)
-    used, out = set(), []
+    used, out, seen = set(), [], {}
     for e in expected:
-        cands = [i for i in keys.get(_norm_key(e), []) if i not in used]
+        ek = _norm_key(e)
+        if shared and ek in seen:
+            out.append(seen[ek]); continue
+        cands = [i for i in keys.get(ek, []) if i not in used]
         if not cands and tolerance:
             te = trim(rgba(e))
             cands = [i for i, a in enumerate(actual) if i not in used and trim(rgba(a)).size == te.size and diff(te, trim(rgba(a)), tolerance)['ok']]
         if cands:
-            used.add(cands[0]); out.append(cands[0])
+            used.add(cands[0]); out.append(cands[0]); seen[ek] = cands[0]
         else:
             out.append(None)
     return out
@@ -65,18 +70,23 @@ def _odd_size_shift(p: dict) -> bool:
 def judge_sprite(res: Result, eng: dict, exp: dict) -> None:
     tol = exp.get('tolerance', 2)
     frames = eng.get('frames') or []
-    res.check('frames.count', len(frames) == len(exp.get('frames', [])) if exp.get('frames') else None,
-              len(exp.get('frames', [])), len(frames))
+    shared = bool(eng.get('sharedTextures'))
+    want_n = len(exp.get('frames', []))
+    if shared and exp.get('frames'):
+        want_n = len({_norm_key(rgba(Path(f['image']))) for f in exp['frames']})
+    res.check('frames.count', len(frames) == want_n if exp.get('frames') else None, want_n, len(frames),
+              'pixel-identical source frames share one engine texture' if shared and want_n != len(exp.get('frames', [])) else '')
     if exp.get('frames'):
         want = [rgba(Path(f['image'])) for f in exp['frames']]
         got = [rgba(Path(f['png'])) for f in frames if f.get('png')]
-        m = _match(want, got, tol)
+        m = _match(want, got, tol, shared)
         present = sum(1 for i in m if i is not None)
         missing = [exp['frames'][k].get('name') or k for k, i in enumerate(m) if i is None]
         res.check('frames.art', present == len(want), f'{len(want)} frames drawn exactly', f'{present} matched',
                   f'unmatched: {missing[:8]}' if missing else '')
         if exp.get('order', True):
-            in_order = all(i == k for k, i in enumerate(m))
+            in_order = all(i == k for k, i in enumerate(m)) if not shared else \
+                all(i is not None for i in m) and [i for k, i in enumerate(m) if i not in m[:k]] == sorted(set(m))  # first uses in order
             res.check('frames.order', in_order, 'engine order == source order', 'same' if in_order else f'{m[:12]}...')
         if exp.get('placement', True):
             bad, quirk = [], 0

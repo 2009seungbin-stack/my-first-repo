@@ -4,6 +4,7 @@
  "description": "Real game-engine libraries for tools/engine-verify (not part of the site build). Install with npm ci --prefix tools/engine-verify/web",
  "license": "UNLICENSED",
  "dependencies": {
+  "@esotericsoftware/spine-canvas": "4.2.120",
   "phaser": "4.2.1",
   "phaser3": "npm:phaser@3.90.0",
   "pixi.js": "8.21.0"

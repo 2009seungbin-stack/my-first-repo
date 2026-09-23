@@ -30,7 +30,8 @@ src/studio/ui/                  dom helpers, icons, menus (menubar pattern), doc
 src/studio/workspaces/
   registry.js                   PURE: workspace definitions
   viewer.js                     the Viewer/Import workspace (reference implementation of the API)
-  coming.js                     Sprite/Pixel/Tile/Texture/UI registered as "coming" (no UI of their own)
+  coming.js                     workspaces not built yet, registered as "coming" (no UI of their own)
+  tile/                         the Tile workspace (P3) — docs/STUDIO-TILE.md
 src/studio/grid-worker.js       worker: grid suggestion (src/game/grid-detect.js) and per-cell occupancy
 ```
 

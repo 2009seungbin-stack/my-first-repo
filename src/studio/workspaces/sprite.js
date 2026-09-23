@@ -26,7 +26,7 @@ import {jitterReport,autoFixJitter} from '../../game/jitter.js';
 import {frame as makeFrame} from '../../game/model.js';
 import {SVG} from '../sprite/icons.js';
 import {stem} from '../sprite/import-build.js';
-import {setFrameSelection,onFrameSelection} from '../core/frame-selection.js';
+import {setFrameSelection,onFrameSelection,getFrameSelection} from '../core/frame-selection.js';
 const PREFS='nerulio.studio.sprite.v1';
 const DEFAULTS={mode:'frame',scope:'frame',boxType:'hit',onion:{on:false,before:1,after:1,opacity:.45},loopTag:true,cw:26,maxVertices:12,alphaThreshold:127,
  align:{width:null,height:null,padding:0,anchor:'bottom-center',trim:true},jitterRef:'bottom-center',preview:false,previewZoom:2,previewBg:'checker',previewPos:null,show:{pivot:true,boxes:true,collision:true}};
@@ -436,6 +436,8 @@ export default {
    S.assetId=id;S.cur=0;S.sel=[];S.anchor=null;S.tagId=null;S.selection={kind:'none'};S.jitter=null;S.alignResult='';timeline.setJitter(null);
    const a=asset();
    if(a){if(a.frames.length)S.sel=[a.frames[0].id];
+    // start on the frames another workspace selected (e.g. picked on the Pack stage's atlas)
+    const shared=getFrameSelection().ids.filter(id=>a.frames.some(f=>f.id===id));if(shared.length){S.sel=shared;S.cur=D.indexOf(a,shared[shared.length-1]);}
     if(a.import?.kind==='sheet'&&!a.import.applied){if(prefs.mode!=='sheet')setMode('sheet');importer.analyzeSheet(a.id).catch(()=>{});}
     else if(!a.frames.length&&prefs.mode!=='sheet')setMode('sheet');
     else if(a.frames.length&&prefs.mode==='sheet'&&a.import?.kind&&a.import.kind!=='sheet')setMode('frame');}
