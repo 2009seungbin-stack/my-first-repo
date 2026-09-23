@@ -65,7 +65,22 @@ def judge(job: dict, rep: dict) -> dict:
             row['truth_right'] = right
             row['truth_wrong'] = [{'cell': k, 'godot': got.get(k), 'want': v} for k, v in truth.items() if got.get(k) not in [list(a) for a in v]][:12]
         out['cases'].append(row)
-    out['pass'] = not out['errors'] and all(c.get('match_studio') == c.get('cells') for c in out['cases'])
+    # collision polygons: the JSON's tile-pixel polygons must come back from Godot exactly, shifted to
+    # Godot's tile-centred coordinates (the shipped importer subtracts half a tile)
+    spec = job.get('collision')
+    if spec:
+        half = [spec['tile'][0] / 2, spec['tile'][1] / 2]
+        tiles = rep.get('tileset', {}).get('tiles', {})
+        want_n = sum(len(v) for v in spec['shapes'].values())
+        got_n, bad = 0, []
+        for k, shapes in spec['shapes'].items():
+            got = tiles.get(k, {}).get('polygon_points', [])
+            got_n += len(got)
+            exp = [[[x - half[0], y - half[1]] for x, y in poly] for poly in shapes]
+            if len(got) != len(exp) or any(len(a) != len(b) or any(abs(p[0] - q[0]) > 1e-4 or abs(p[1] - q[1]) > 1e-4 for p, q in zip(a, b)) for a, b in zip(got, exp)):
+                bad.append(k)
+        out['collision'] = {'polygons_expected': want_n, 'polygons_in_godot': got_n, 'tiles_differ': bad[:10], 'pass': not bad and got_n == want_n}
+    out['pass'] = not out['errors'] and all(c.get('match_studio') == c.get('cells') for c in out['cases']) and (not spec or out['collision']['pass'])
     return out
 
 

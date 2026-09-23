@@ -18,6 +18,7 @@ import {exportBundle} from '../../../src/game/tiles/exports.js';
 import {assembleSource,buildSheet} from '../../../src/game/tiles/generator.js';
 import {tileSource} from '../../../src/game/tiles/identify.js';
 import {encodeRGBAPNG} from '../../../src/game/texture-png.js';
+import {tileCollision} from '../../../src/game/tile-collision.js';
 import {standardCases,getter,godotCalls} from './cases.mjs';
 const CORPUS=process.env.NERULIO_CORPUS||'C:/Users/2009s/nerulio-asset-corpus';
 const [out,filter]=process.argv.slice(2);
@@ -97,17 +98,23 @@ for(const f of man.files){
   }
   row.modelVsTruth=`${ok}/${n} tiles' corner terrains (relabelled ${[...map].map(([a,b])=>a+'='+b).join(' ')})`;
  }
- // ---- exports
+ // ---- exports (the Godot pack also carries collision polygons traced from alpha, so the physics
+ // layer is checked in Godot too)
  const png=basename(f.path);
  const cases=standardCases(ts.terrains.length);
+ const tsrc=tileSource(img,grid),shapes={};
+ for(const k of Object.keys(ts.tiles)){const [c,r]=k.split(',').map(Number),t=tsrc.tile(c,r);if(!t)continue;const s=tileCollision(t.data,t.w,t.h,{mode:'outline'});if(s.length)shapes[k]=s;}
+ const withCol={...ts,collisionMode:'outline',tiles:Object.fromEntries(Object.entries(ts.tiles).map(([k,v])=>[k,shapes[k]?{...v,collision:shapes[k]}:v]))};
  const bundle=exportBundle(ts,{imageName:png,width:img.width,height:img.height,cases,png:bytes});
+ bundle.godot=exportBundle(withCol,{imageName:png,width:img.width,height:img.height,cases,png:bytes,targets:['godot']}).godot;
+ row.collisionPolygons=Object.values(shapes).reduce((s,x)=>s+x.length,0);
  for(const [target,files] of Object.entries(bundle)){
   const d=join(dir,target);mkdirSync(d,{recursive:true});
   for(const [name,content] of Object.entries(files)){const p=join(d,name);mkdirSync(join(p,'..'),{recursive:true});writeFileSync(p,content);}
  }
  // ---- Godot job: the Studio prediction for every case, and the truth where the manifest has masks
  const set=new GodotTerrainSet({mode:ts.mode,tiles:terrainTiles(ts)});
- const job={json:'res://nerulio-tileset.json',importer:'res://nerulio_tileset_import.gd',cases:[]};
+ const job={json:'res://nerulio-tileset.json',importer:'res://nerulio_tileset_import.gd',cases:[],collision:{tile:[grid.w,grid.h],shapes}};
  for(const c of cases){
   const r=resolveGodot(set,{w:c.grid.w,h:c.grid.h,get:getter(c.grid)});
   const predict={};for(const [k,v] of r.cells)predict[k]=v.alternatives.map(a=>a.split(',').map(Number));

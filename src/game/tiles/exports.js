@@ -18,8 +18,7 @@ export function exportBundle(ts,{imageName='tileset.png',width,height,png,sample
  const base=imageName.replace(/\.[^.]+$/,'').replace(/[^\w.-]+/g,'_')||'tileset';
  // A set whose tiles never border "nothing" (a multi-terrain dual grid) is shown on a multi-terrain
  // sample; a one-terrain shape would leave most of its grid points without a tile.
- const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
- const pickCase=cases?.length?(!bordersEmpty&&cases.find(c=>c.name.startsWith('multi'))||cases[0]):null;
+ const pickCase=sampleCase(ts,cases);
  const grid=sample||(pickCase?{w:pickCase.grid.w,h:pickCase.grid.h,get:(x,y)=>x<0||y<0||x>=pickCase.grid.w||y>=pickCase.grid.h?-1:pickCase.grid.cells[y*pickCase.grid.w+x]}:null);
  const out={},notes={};
  if(targets.includes('godot')){
@@ -48,6 +47,12 @@ export function exportBundle(ts,{imageName='tileset.png',width,height,png,sample
  if(targets.includes('generic'))out.generic={[imageName]:png,'tileset.json':JSON.stringify(genericJSON(ts,{imageName,width,height}),null,1)};
  Object.defineProperty(out,'notes',{value:notes,enumerable:false});
  return out;
+}
+/** Which of the engine-check cases a bundle's sample maps use: the first one, or the first\n * multi-terrain one for a set whose tiles never border "nothing". */
+export function sampleCase(ts,cases){
+ if(!cases?.length)return null;
+ const bordersEmpty=Object.values(ts.tiles).some(v=>v.pattern[0]>=0&&MODE_IDX[ts.mode].some(i=>v.pattern[i+1]<0));
+ return !bordersEmpty&&(cases.find(c=>c.name==='multi-full')||cases.find(c=>c.name.startsWith('multi')))||cases[0];
 }
 export function genericJSON(ts,{imageName,width,height}){
  const g=ts.grid;

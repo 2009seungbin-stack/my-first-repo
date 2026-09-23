@@ -55,7 +55,14 @@ func _initialize() -> void:
 			var corner: bool = (int(n) % 2) == 1
 			if mode == TileSet.TERRAIN_MODE_MATCH_CORNERS_AND_SIDES or (mode == TileSet.TERRAIN_MODE_MATCH_CORNERS and corner) or (mode == TileSet.TERRAIN_MODE_MATCH_SIDES and not corner):
 				bits[str(n)] = td.get_terrain_peering_bit(n)
-		tiles["%d,%d" % [c.x, c.y]] = {"terrain_set": td.terrain_set, "terrain": td.terrain, "bits": bits,
+		var polys := []
+		if ts.get_physics_layers_count() > 0:
+			for pi in td.get_collision_polygons_count(0):
+				var pts := []
+				for q: Vector2 in td.get_collision_polygon_points(0, pi):
+					pts.append([q.x, q.y])
+				polys.append(pts)
+		tiles["%d,%d" % [c.x, c.y]] = {"terrain_set": td.terrain_set, "terrain": td.terrain, "bits": bits, "polygon_points": polys,
 			"polygons": td.get_collision_polygons_count(0) if ts.get_physics_layers_count() > 0 else 0,
 			"probability": td.probability}
 	var sets := []

@@ -35,6 +35,6 @@ export function standardCases(terrains=1){
  const out=[{name:'shape58',grid:gridFromRows(SHAPE58)},
   {name:'random-a',grid:randomGrid(18,14,7)},{name:'random-sparse',grid:randomGrid(18,14,11,{density:.35,smooth:0})},
   {name:'random-dense',grid:randomGrid(18,14,23,{density:.7})}];
- if(terrains>1){out.push({name:'multi-a',grid:randomGrid(18,14,5,{terrains,density:.8})});out.push({name:'multi-b',grid:randomGrid(16,12,9,{terrains,density:.9,smooth:2})});}
+ if(terrains>1){out.push({name:'multi-full',grid:randomGrid(16,12,13,{terrains,density:1,smooth:2})});out.push({name:'multi-a',grid:randomGrid(18,14,5,{terrains,density:.8})});out.push({name:'multi-b',grid:randomGrid(16,12,9,{terrains,density:.9,smooth:2})});}
  return out;
 }
