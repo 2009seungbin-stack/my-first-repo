@@ -62,9 +62,9 @@ export function godotScene({base,albedo,normal,lightTextures,frames,tags,frameLi
  return out.join('\n');
 }
 /** Godot 4: a standalone CanvasTexture resource for your own nodes. */
-export function godotCanvasTexture({albedo,normal,specular=null,nearest=true}){
+export function godotCanvasTexture({albedo,normal,specular=null,shininess=.5,nearest=true}){
  return [`[gd_resource type="CanvasTexture" load_steps=${specular?4:3} format=3]`,'',`[ext_resource type="Texture2D" path=${str(albedo)} id="1_diffuse"]`,`[ext_resource type="Texture2D" path=${str(normal)} id="2_normal"]`,...(specular?[`[ext_resource type="Texture2D" path=${str(specular)} id="3_specular"]`]:[]),'','[resource]',
-  'diffuse_texture = ExtResource("1_diffuse")','normal_texture = ExtResource("2_normal")',...(specular?['specular_texture = ExtResource("3_specular")']:[]),...(nearest?['texture_filter = 1']:[]),''].join('\n');
+  'diffuse_texture = ExtResource("1_diffuse")','normal_texture = ExtResource("2_normal")',...(specular?['specular_texture = ExtResource("3_specular")',`specular_shininess = ${num(shininess)}`]:[]),...(nearest?['texture_filter = 1']:[]),''].join('\n');
 }
 export const UNITY_IMPORTER=`// NerulioNormalMapImporter.cs - applies a Nerulio Studio (Texture) export in Unity 6 with URP 2D.
 // Put this file in any folder called "Editor" and the PNGs + nerulio-texture.json anywhere under
@@ -235,8 +235,9 @@ export function bundleFiles({base,targets,png,width,height,frames,frameList=[],t
   add(`godot/${base}.png`,png.albedo);add(`godot/${base}_n.png`,png.normal);
   const lts=falloffs.map(f=>({falloff:f,name:`${base}_light_${f}.png`}));
   for(const lt of lts)add(`godot/${lt.name}`,png.light[lt.falloff]);
-  add(`godot/${base}_lit.tscn`,godotScene({base,albedo:`${base}.png`,normal:`${base}_n.png`,lightTextures:lts,frames:fr,frameList,tags,scene,nearest:pixelArt}),'text/plain');
-  add(`godot/${base}_canvas_texture.tres`,godotCanvasTexture({albedo:`${base}.png`,normal:`${base}_n.png`,nearest:pixelArt}),'text/plain');
+  const spec=png.specular?`${base}_s.png`:null;if(spec)add(`godot/${spec}`,png.specular);
+  add(`godot/${base}_lit.tscn`,godotScene({base,albedo:`${base}.png`,normal:`${base}_n.png`,lightTextures:lts,frames:fr,frameList,tags,scene,nearest:pixelArt,specular:spec}),'text/plain');
+  add(`godot/${base}_canvas_texture.tres`,godotCanvasTexture({albedo:`${base}.png`,normal:`${base}_n.png`,specular:spec,shininess:scene.specular?.shininess??.5,nearest:pixelArt}),'text/plain');
   add('godot/README.md',readme('godot',{base,convention,files:[]}),'text/markdown');
  }
  if(targets.includes('unity')){
@@ -250,9 +251,11 @@ export function bundleFiles({base,targets,png,width,height,frames,frameList=[],t
   add(`generic/${base}.png`,png.albedo);add(`generic/${base}_n.png`,png.normal);add(`generic/${base}_n_dx.png`,png.normalDX);
   if(png.height){add(`generic/${base}_height16.png`,png.height);files.push(`${base}_height16.png`);}
   if(png.ao){add(`generic/${base}_ao.png`,png.ao);files.push(`${base}_ao.png`);}
+  if(png.specular){add(`generic/${base}_s.png`,png.specular);files.push(`${base}_s.png`);}
   const maps={albedo:{file:`${base}.png`,colorSpace:'srgb'},normal:{file:`${base}_n.png`,colorSpace:'linear',convention:'opengl'},normalDX:{file:`${base}_n_dx.png`,colorSpace:'linear',convention:'directx'}};
   if(png.height)maps.height={file:`${base}_height16.png`,colorSpace:'linear',bitDepth:16,maxPx:Math.round(heightMax*1000)/1000};
   if(png.ao)maps.ao={file:`${base}_ao.png`,colorSpace:'linear',note:'estimated from the height field (horizon-based), not ray-traced'};
+  if(png.specular)maps.specular={file:`${base}_s.png`,colorSpace:'linear',note:'Godot CanvasTexture specular map: RGB = strength, A = 255 (shininess is specular_shininess)',shininess:scene.specular?.shininess??.5};
   add('generic/nerulio-texture.json',JSON.stringify({generator:'Nerulio Studio',schemaVersion:1,width,height,maps,
    frames:fr.map((f,i)=>({name:f.name||`frame_${i}`,x:f.rect.x,y:f.rect.y,w:f.rect.w,h:f.rect.h,durationMs:f.duration||100})),
    animations:animationsOf(frameList,tags).map(a=>({name:a.name,loop:a.loop,frames:a.indices})),
@@ -263,3 +266,9 @@ export function bundleFiles({base,targets,png,width,height,frames,frameList=[],t
 }
 /** The falloff PNGs a bundle needs (RGBA bytes; the caller encodes them). */
 export const lightTexturesFor=scene=>Object.fromEntries([...new Set((scene.lights||[]).map(normLight).filter(l=>l.enabled).map(l=>l.falloff))].map(f=>[f,falloffTexture(f,256)]));
+/** The uniform specular map Godot needs to draw the preview's specular (RGB = strength, A = 1;
+ * the shininess is CanvasTexture.specular_shininess). null when specular is off. */
+export function specularMap(scene,w,h){
+ const k=Math.max(0,Math.min(1,+scene.specular?.strength||0));if(!k)return null;
+ const v=Math.round(k*255),out=new Uint8Array(w*h*4);for(let p=0;p<w*h;p++){out[p*4]=out[p*4+1]=out[p*4+2]=v;out[p*4+3]=255;}return out;
+}

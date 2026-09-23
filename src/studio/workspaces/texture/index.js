@@ -21,7 +21,7 @@ import {createPreview3D} from './preview3d.js';
 import {suggestParams,normalizeParams,regionAt,normalPatch} from '../../../game/normals/pipeline.js';
 import {applyStroke} from '../../../game/normals/height.js';
 import {renderLit,normLight} from '../../../game/normals/lighting.js';
-import {bundleFiles,lightTexturesFor,safeBase} from '../../../game/normals/export.js';
+import {bundleFiles,lightTexturesFor,safeBase,specularMap} from '../../../game/normals/export.js';
 import {heightToUint16,heightToBytes} from '../../../game/normals/maps.js';
 import {encodeGray16PNG} from '../../../game/normals/png16.js';
 import {encodeRGBAPNG,encodeGrayPNG} from '../../../game/texture-png.js';
@@ -387,6 +387,7 @@ export default {
    if(!albedo){let rgba=pic.rgba;if(bleed)rgba=dilateEdges(rgba,pic.w,pic.h,{pixels:bleed}).data;albedo=await bytesOf(await encodeRGBAPNG(rgba,pic.w,pic.h));}
    const png={albedo,normal:await bytesOf(await encodeRGBAPNG(normal,pic.w,pic.h)),normalDX:await bytesOf(await encodeRGBAPNG(flipGreen(normal,pic.w,pic.h),pic.w,pic.h)),light:{}};
    for(const [k,v] of Object.entries(lightTexturesFor(e.scene)))png.light[k]=await bytesOf(await encodeRGBAPNG(v,256,256));
+   const spec=specularMap(e.scene,pic.w,pic.h);if(spec)png.specular=await bytesOf(await encodeRGBAPNG(spec,pic.w,pic.h));
    let heightMax=0;
    if(includeHeight&&!g.imported){const u=heightToUint16(g.height);heightMax=u.max;png.height=await encodeGray16PNG(u.samples,pic.w,pic.h);}
    if(includeAO&&!g.imported)await ensureAO();

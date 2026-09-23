@@ -1,0 +1,416 @@
+[
+ {
+  "case": "torch",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 10.0,
+    "position": [
+     6.0,
+     5.0
+    ],
+    "texture_scale": 0.375
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 6.0,
+    "position": [
+     29.0,
+     26.0
+    ],
+    "texture_scale": 0.25
+   }
+  ],
+  "animation_keys": 6,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 183,
+    "mean": 0.175,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 12.097,
+    "frame": 0,
+    "via": "region"
+   },
+   {
+    "pixels": 165,
+    "mean": 0.176,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 12.37,
+    "frame": 4,
+    "via": "region"
+   },
+   {
+    "pixels": 165,
+    "mean": 0.176,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 12.37,
+    "frame": 1004,
+    "via": "animation"
+   }
+  ]
+ },
+ {
+  "case": "torch_spec",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 10.0,
+    "position": [
+     6.0,
+     5.0
+    ],
+    "texture_scale": 0.375
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 6.0,
+    "position": [
+     29.0,
+     26.0
+    ],
+    "texture_scale": 0.25
+   }
+  ],
+  "animation_keys": 6,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 182,
+    "mean": 0.167,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 17.09,
+    "frame": 1,
+    "via": "region"
+   },
+   {
+    "pixels": 164,
+    "mean": 0.167,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 17.313,
+    "frame": 5,
+    "via": "region"
+   },
+   {
+    "pixels": 164,
+    "mean": 0.167,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 17.313,
+    "frame": 1005,
+    "via": "animation"
+   }
+  ]
+ },
+ {
+  "case": "adventurer",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 24.0,
+    "position": [
+     16.0,
+     17.0
+    ],
+    "texture_scale": 1.28906297683716
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 16.0,
+    "position": [
+     72.0,
+     88.0
+    ],
+    "texture_scale": 0.859375
+   }
+  ],
+  "animation_keys": 27,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 4060,
+    "mean": 0.137,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 13.884,
+    "frame": 0,
+    "via": "region"
+   },
+   {
+    "pixels": 3983,
+    "mean": 0.142,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 15.409,
+    "frame": 9,
+    "via": "region"
+   },
+   {
+    "pixels": 4078,
+    "mean": 0.137,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 14.346,
+    "frame": 20,
+    "via": "region"
+   },
+   {
+    "pixels": 4078,
+    "mean": 0.137,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 14.346,
+    "frame": 1020,
+    "via": "animation"
+   }
+  ]
+ },
+ {
+  "case": "samurai",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 14.0,
+    "position": [
+     10.0,
+     7.0
+    ],
+    "texture_scale": 0.5625
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 10.0,
+    "position": [
+     43.0,
+     38.0
+    ],
+    "texture_scale": 0.375
+   }
+  ],
+  "animation_keys": 60,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 726,
+    "mean": 0.142,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 10.521,
+    "frame": 0,
+    "via": "region"
+   },
+   {
+    "pixels": 554,
+    "mean": 0.171,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 10.938,
+    "frame": 13,
+    "via": "region"
+   },
+   {
+    "pixels": 554,
+    "mean": 0.171,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 10.938,
+    "frame": 1013,
+    "via": "animation"
+   }
+  ]
+ },
+ {
+  "case": "bricks",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 77.0,
+    "position": [
+     51.0,
+     38.0
+    ],
+    "texture_scale": 3.0
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 51.0,
+    "position": [
+     230.0,
+     205.0
+    ],
+    "texture_scale": 2.0
+   }
+  ],
+  "animation_keys": 0,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 65536,
+    "mean": 0.213,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 3.839,
+    "frame": 0,
+    "via": "region"
+   }
+  ]
+ },
+ {
+  "case": "bricks_dx",
+  "verdict": "PASS",
+  "godot": "4.7.2-stable (official)",
+  "renderer": {
+   "driver": "opengl3",
+   "method": "gl_compatibility"
+  },
+  "texture_class": "CanvasTexture",
+  "lights": [
+   {
+    "color": [
+     1.0,
+     0.85097998380661,
+     0.658824026584625
+    ],
+    "energy": 1.29999995231628,
+    "height": 77.0,
+    "position": [
+     51.0,
+     38.0
+    ],
+    "texture_scale": 3.0
+   },
+   {
+    "color": [
+     0.43529400229454,
+     0.658824026584625,
+     1.0
+    ],
+    "energy": 0.800000011920929,
+    "height": 51.0,
+    "position": [
+     230.0,
+     205.0
+    ],
+    "texture_scale": 2.0
+   }
+  ],
+  "animation_keys": 0,
+  "errors": [],
+  "results": [
+   {
+    "pixels": 65536,
+    "mean": 0.22,
+    "max": 1,
+    "within3": 1.0,
+    "within1": 1.0,
+    "flippedMean": 9.433,
+    "frame": 0,
+    "via": "region"
+   }
+  ]
+ }
+]
