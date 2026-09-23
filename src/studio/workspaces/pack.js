@@ -199,7 +199,7 @@ export default {
      h('div.pk-eff',{'data-pack':'efficiency'},`${pct(pg.efficiency)}%`,h('small',{},`${pg.width}×${pg.height}`)),
      h('div.pk-meter',{},h('i',{style:{width:`${Math.min(100,pct(pg.efficiency))}%`}})),
      h('p.st-muted',{'data-pack':'totals',style:{margin:0}},t('pack.totals',{frames:v.stats.frames,unique:v.stats.unique,aliases:v.stats.aliases,pages:v.pages.length,eff:pct(v.stats.efficiency),ms:result.ms??''})),
-     h('p.pk-hint',{'data-pack':'memory'},t('pack.memory',{mb:(v.pages.reduce((n,q)=>n+q.width*q.height*4,0)/1048576).toFixed(v.pages.reduce((n,q)=>n+q.width*q.height*4,0)<1048576?2:1)})),
+     h('p.pk-hint',{'data-pack':'memory'},t('pack.memory',{size:fmtSize(v.pages.reduce((n,q)=>n+q.width*q.height*4,0))})),
      combo.algorithm?h('p.pk-hint',{},t('pack.rules',{alg:t('pack.alg.'+combo.algorithm),heur:t('pack.heur.'+combo.heuristic),sort:combo.sort})):'',
      v.stats.aliases?h('p.pk-hint',{},t('pack.aliasNote',{n:v.stats.aliases})):'',
      model?.implicitAnimation?h('p.pk-note-implicit',{'data-pack':'implicit'},t('pack.implicit',{name:model.implicitAnimation.name,n:model.implicitAnimation.frames,fps:model.implicitAnimation.fps})):'',

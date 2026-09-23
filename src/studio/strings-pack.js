@@ -17,7 +17,7 @@ en:{
   rotation:'Allow rotation',rotationHint:'Turns some sprites 90° to fit tighter. Only engines that read rotated regions accept it.',
   sizeMode:'Page size',size:{auto:'Smallest','pot':'Power of two',square:'Square','pot-square':'Power of two, square',fixed:'Fixed'},
   fixedW:'Width',fixedH:'Height',multipleOf:'Size multiple of',algorithm:'Algorithm',alg:{maxrects:'MaxRects',skyline:'Skyline',guillotine:'Guillotine'},
-  heuristic:'Placement rule',heur:{best:'Try all, keep smallest',bssf:'Best short side fit',blsf:'Best long side fit',baf:'Best area fit',bl:'Bottom-left',cp:'Contact point',waste:'Min waste'},
+  heuristic:'Placement rule',heur:{best:'Best of all',bssf:'Best short side fit',blsf:'Best long side fit',baf:'Best area fit',bl:'Bottom-left',cp:'Contact point',waste:'Min waste'},
   effort:'Effort',eff:{fast:'Fast',normal:'Normal',best:'Best (slow)'},multipack:'Multipack (several pages)',maxPages:'Max pages',
   alpha:'Alpha threshold',alphaHint:'Pixels with alpha at or below this count as empty when trimming (0 = keep every visible pixel)',
   dedupe:'Store identical frames once',premultiply:'Premultiplied alpha',premultiplyHint:'Only for engines set to premultiplied textures',scales:'Scale variants',scaleHint:'Nearest-neighbour: pixel art stays sharp. Each variant is its own atlas with @2x-style names.',
@@ -35,7 +35,7 @@ en:{
   lastExport:'Last export',files:'{n} files',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'trimmed',rotated:'rotated',alias:'same as {name}'},
   onPage:'page {n}',selectHint:'Selection is shared with the timeline.',
   webmOnly:'WebM needs a browser with WebCodecs (Chrome, Edge).',
-  exportTarget:'Export for',allFormats:'All formats ({n})',memory:'{mb} MB of texture memory when loaded (RGBA8888)',
+  exportTarget:'Export for',allFormats:'All formats ({n})',memory:'{size} of texture memory when loaded (RGBA8888)',
   chg:{allowRotation:{false:'no rotation',true:'rotation'},trimMode:{none:'trim off',trim:'trim',"crop-keep":'crop, keep position',crop:'crop'},multipack:{false:'one page',true:'multipack'}}
  }
 },
@@ -52,7 +52,7 @@ ko:{
   rotation:'회전 허용',rotationHint:'일부 스프라이트를 90° 돌려 더 촘촘히 넣습니다. 회전된 영역을 읽는 엔진만 받을 수 있습니다.',
   sizeMode:'페이지 크기',size:{auto:'최소',pot:'2의 거듭제곱',square:'정사각형','pot-square':'2의 거듭제곱, 정사각형',fixed:'고정'},
   fixedW:'너비',fixedH:'높이',multipleOf:'크기 배수',algorithm:'알고리즘',alg:{maxrects:'MaxRects',skyline:'Skyline',guillotine:'Guillotine'},
-  heuristic:'배치 규칙',heur:{best:'모두 시도해 가장 작은 것',bssf:'짧은 변 최적',blsf:'긴 변 최적',baf:'면적 최적',bl:'왼쪽 아래',cp:'접촉점',waste:'최소 낭비'},
+  heuristic:'배치 규칙',heur:{best:'모두 시도 (최소)',bssf:'짧은 변 최적',blsf:'긴 변 최적',baf:'면적 최적',bl:'왼쪽 아래',cp:'접촉점',waste:'최소 낭비'},
   effort:'탐색 강도',eff:{fast:'빠르게',normal:'보통',best:'최선 (느림)'},multipack:'멀티팩 (여러 페이지)',maxPages:'최대 페이지 수',
   alpha:'알파 임계값',alphaHint:'트림할 때 알파가 이 값 이하인 픽셀은 빈 것으로 봅니다 (0 = 보이는 픽셀은 모두 유지)',
   dedupe:'같은 프레임은 한 번만 저장',premultiply:'프리멀티플라이드 알파',premultiplyHint:'엔진이 프리멀티플라이드 텍스처를 쓸 때만',scales:'배율 버전',scaleHint:'최근접 보간이라 픽셀 아트가 선명하게 유지됩니다. 버전마다 @2x 형식 이름의 별도 아틀라스가 됩니다.',
@@ -70,7 +70,7 @@ ko:{
   lastExport:'마지막 내보내기',files:'파일 {n}개',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'트림됨',rotated:'회전됨',alias:'{name}와 동일'},
   onPage:'{n}페이지',selectHint:'선택은 타임라인과 공유됩니다.',
   webmOnly:'WebM은 WebCodecs를 지원하는 브라우저(Chrome, Edge)가 필요합니다.',
-  exportTarget:'내보낼 대상',allFormats:'모든 형식 ({n})',memory:'불러오면 텍스처 메모리 {mb} MB (RGBA8888)',
+  exportTarget:'내보낼 대상',allFormats:'모든 형식 ({n})',memory:'불러오면 텍스처 메모리 {size} (RGBA8888)',
   chg:{allowRotation:{false:'회전 없음',true:'회전'},trimMode:{none:'트림 끔',trim:'트림',"crop-keep":'잘라내기·위치 유지',crop:'잘라내기'},multipack:{false:'한 페이지',true:'멀티팩'}}
  }
 },
@@ -87,7 +87,7 @@ ja:{
   rotation:'回転を許可',rotationHint:'一部のスプライトを 90° 回転して詰めます。回転領域を読めるエンジンだけが受け付けます。',
   sizeMode:'ページサイズ',size:{auto:'最小',pot:'2 のべき乗',square:'正方形','pot-square':'2 のべき乗・正方形',fixed:'固定'},
   fixedW:'幅',fixedH:'高さ',multipleOf:'サイズの倍数',algorithm:'アルゴリズム',alg:{maxrects:'MaxRects',skyline:'Skyline',guillotine:'Guillotine'},
-  heuristic:'配置ルール',heur:{best:'すべて試して最小を採用',bssf:'短辺ベストフィット',blsf:'長辺ベストフィット',baf:'面積ベストフィット',bl:'左下',cp:'接触点',waste:'最小の無駄'},
+  heuristic:'配置ルール',heur:{best:'すべて試す（最小）',bssf:'短辺ベストフィット',blsf:'長辺ベストフィット',baf:'面積ベストフィット',bl:'左下',cp:'接触点',waste:'最小の無駄'},
   effort:'探索の強さ',eff:{fast:'速い',normal:'標準',best:'最良（遅い）'},multipack:'マルチパック（複数ページ）',maxPages:'最大ページ数',
   alpha:'アルファしきい値',alphaHint:'トリム時、アルファがこの値以下のピクセルは空とみなします（0 = 見えるピクセルはすべて保持）',
   dedupe:'同一フレームは一度だけ保存',premultiply:'乗算済みアルファ',premultiplyHint:'エンジンが乗算済みテクスチャを使う場合のみ',scales:'倍率バリエーション',scaleHint:'ニアレストネイバーなのでピクセルアートはくっきりのまま。各バリエーションは @2x 形式の名前の別アトラスになります。',
@@ -105,7 +105,7 @@ ja:{
   lastExport:'前回の書き出し',files:'{n} ファイル',frameRow:'{w}×{h} → {sw}×{sh}',flags:{trimmed:'トリム済み',rotated:'回転',alias:'{name} と同一'},
   onPage:'{n} ページ',selectHint:'選択はタイムラインと共有されます。',
   webmOnly:'WebM には WebCodecs 対応ブラウザ（Chrome、Edge）が必要です。',
-  exportTarget:'書き出し先',allFormats:'すべての形式（{n}）',memory:'読み込み時のテクスチャメモリ {mb} MB（RGBA8888）',
+  exportTarget:'書き出し先',allFormats:'すべての形式（{n}）',memory:'読み込み時のテクスチャメモリ {size}（RGBA8888）',
   chg:{allowRotation:{false:'回転なし',true:'回転'},trimMode:{none:'トリムなし',trim:'トリム',"crop-keep":'切り抜き・位置保持',crop:'切り抜き'},multipack:{false:'1 ページ',true:'マルチパック'}}
  }
 }};

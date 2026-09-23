@@ -50,6 +50,13 @@ def watch(p, label):
     p.on('console', lambda m: m.type == 'error' and errors.append(f'{label}: {m.text[:300]}'))
 
 
+def fresh(browser, **kw):
+    """A new browser context (its own IndexedDB, so no autosave-recovery prompt) and page."""
+    c = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, **kw)
+    q = c.new_page(); watch(q, 'desktop'); q.on('request', lambda r: requests.append(r.url))
+    return c, q
+
+
 def open_studio(p, ws='sprite', locale='en'):
     p.goto(f'{BASE}/{locale}/game/studio/?ws={ws}')
     p.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"', timeout=30000)
@@ -134,8 +141,8 @@ def big_sheet(path, cols=40, rows=25, cell=32, seed=5):
     px = im.load()
     for r in range(rows):
         for c in range(cols):
-            w, h = rnd.randint(6, cell - 2), rnd.randint(6, cell - 2)
-            ox, oy = rnd.randint(0, cell - w), rnd.randint(0, cell - h)
+            w, h = rnd.randint(6, cell - 4), rnd.randint(6, cell - 4)  # a clear gap around every sprite
+            ox, oy = rnd.randint(1, cell - w - 1), rnd.randint(1, cell - h - 1)
             col = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255), 255)
             for y in range(h):
                 for x in range(w):
@@ -248,7 +255,7 @@ with sync_playwright() as pw:
     else:
         print('SKIP WebM: this Chromium has no VideoEncoder')
     # ------------------------------------------------------------ sheet: pages, variants, cancel
-    open_studio(p); p.evaluate('()=>window.nerulioStudio.runCommand("file.new")'); p.wait_for_timeout(300)
+    ctx.close(); ctx, p = fresh(browser); open_studio(p)
     import_files(p, [SAMURAI]); apply_sheet(p); to_pack(p)
     ok('the samurai sheet (60 cells, 10 row tags) packs to one page', totals(p).startswith('60 frames') and '1 page' in totals(p))
     set_field(p, 'maxWidth', 256)
@@ -270,11 +277,14 @@ with sync_playwright() as pw:
     shot(p, 'pack-02-samurai-1440.png')
     # cancel: the effort "best" pack of a 1,000-frame sheet takes long enough to cancel
     sheet_path = TMP / 'thousand.png'; big_sheet(sheet_path)
-    p.evaluate('()=>window.nerulioStudio.runCommand("file.new")'); p.wait_for_timeout(300)
-    p.click('.st-ws-tab[data-ws="sprite"]'); p.wait_for_timeout(300)
-    import_files(p, [sheet_path]); apply_sheet(p)
+    # The frames are cut with the known 32 px grid through the document API (one undoable edit), so
+    # this measures the packer, not the import's grid guess.
+    ctx.close(); ctx, p = fresh(browser); open_studio(p, 'viewer')
+    import_files(p, [sheet_path])
+    js(p, 'const H=await import("/src/studio/core/history.js"),P=await import("/src/studio/core/project.js");const a=S.doc.assets[0],cells=[];'
+          'for(let r=0;r<25;r++)for(let c=0;c<40;c++)cells.push({x:c*32,y:r*32,w:32,h:32});S.history.execute(H.edit("cut",d=>P.setFrames(d,a.id,P.framesFromCells(a,cells))));')
     n = js(p, 'return S.doc.assets[0].frames.length;')
-    ok('the synthetic sheet imports as 1,000 frames', n == 1000, n)
+    ok('the synthetic sheet is cut into 1,000 frames', n == 1000, n)
     t0 = time.time(); to_pack(p); timings['1000 frames, effort normal (s)'] = round(time.time() - t0, 2)
     ok('1,000 frames pack in the worker and show one page', totals(p).startswith('1000 frames'), totals(p))
     timings['1000 frames, packer ms'] = totals(p).split('·')[-1].strip()
@@ -289,8 +299,7 @@ with sync_playwright() as pw:
     ok('the 1,000-frame Godot export holds 1,000 AtlasTextures', z.read(next(n for n in z.namelist() if n.endswith('.tres'))).decode().count('[sub_resource type="AtlasTexture"') == 1000)
     # ------------------------------------------------------------ 4096² sheet (local corpus only)
     if HIT.exists():
-        p.evaluate('()=>window.nerulioStudio.runCommand("file.new")'); p.wait_for_timeout(300)
-        p.click('.st-ws-tab[data-ws="sprite"]'); p.wait_for_timeout(300)
+        ctx.close(); ctx, p = fresh(browser); open_studio(p)
         t0 = time.time(); import_files(p, [HIT]); apply_sheet(p); timings['4096² import+apply (s)'] = round(time.time() - t0, 1)
         t0 = time.time(); to_pack(p); timings['4096² pack (s)'] = round(time.time() - t0, 1)
         ok('the 4096² FX sheet packs (14 frames, trimmed onto one page)', totals(p).startswith('14 frames'), totals(p))
@@ -300,7 +309,7 @@ with sync_playwright() as pw:
     else:
         print('SKIP 4096² sheet: local corpus not found')
     # ------------------------------------------------------------ languages + phone
-    open_studio(p, 'pack', 'ko'); p.wait_for_timeout(500)
+    ctx.close(); ctx, p = fresh(browser); open_studio(p, 'pack', 'ko'); p.wait_for_timeout(500)
     ok('ko: the stage and its panels are in Korean', '패킹' in p.locator('.st-ws-tab[data-ws="pack"]').inner_text() and '내보내기' in p.locator('#panel-pack-export').evaluate('e=>e.closest(".st-panel").innerText'))
     open_studio(p, 'pack', 'ja'); p.wait_for_timeout(500)
     ok('ja: the stage is in Japanese', 'パック' in p.locator('.st-ws-tab[data-ws="pack"]').inner_text())
@@ -308,7 +317,8 @@ with sync_playwright() as pw:
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, accept_downloads=True, is_mobile=True, has_touch=True)
     m = ctx.new_page(); watch(m, 'phone')
     open_studio(m); import_files(m, NINJA)
-    m.evaluate('()=>window.nerulioStudio.activateWorkspace("pack")'); packed(m)
+    m.evaluate('()=>window.nerulioStudio.activateWorkspace("pack")'); m.wait_for_timeout(300)
+    m.evaluate('()=>window.nerulioStudio.docks.show("pack-result")'); packed(m)  # on phones panels live in a bottom sheet
     ok('390 px: no horizontal page scroll', m.evaluate('()=>document.documentElement.scrollWidth<=innerWidth'))
     m.evaluate('()=>window.nerulioStudio.docks.show("pack-export")'); m.wait_for_timeout(400)
     ok('390 px: the export list is reachable in the panel sheet with touch-size buttons', m.locator('[data-export="godot4"]').is_visible()
