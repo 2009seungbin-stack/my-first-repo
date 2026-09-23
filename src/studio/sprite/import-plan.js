@@ -53,6 +53,17 @@ export function placeFrames(sizes,{mode='auto'}={}){
 const pct=v=>Math.round((v||0)*100);
 export const gridLabel=g=>`${g.cellWidth}×${g.cellHeight}${g.marginX||g.marginY?` m${g.marginX===g.marginY?g.marginX:g.marginX+','+g.marginY}`:''}${g.spacingX||g.spacingY?` s${g.spacingX===g.spacingY?g.spacingX:g.spacingX+','+g.spacingY}`:''}`;
 export const gridSpec=g=>({w:g.cellWidth,h:g.cellHeight,ox:g.marginX,oy:g.marginY,sx:g.spacingX,sy:g.spacingY});
+export function normalizeCustom(g){
+ const n=(v,min)=>{v=Math.round(Number(v));return Number.isFinite(v)?Math.max(min,v):min;};
+ return {w:n(g.w,1),h:n(g.h,1),ox:n(g.ox,0),oy:n(g.oy,0),sx:n(g.sx,0),sy:n(g.sy,0)};
+}
+/** How a grid fits the sheet: whole cells across/down and the pixels left over on the right and
+ * bottom (0 cells = nothing to cut). */
+export function customFit(g,width,height){
+ const cols=Math.max(0,Math.floor((width-g.ox+g.sx)/(g.w+g.sx))),rows=Math.max(0,Math.floor((height-g.oy+g.sy)/(g.h+g.sy)));
+ const usedX=cols?g.ox+cols*g.w+(cols-1)*g.sx:0,usedY=rows?g.oy+rows*g.h+(rows-1)*g.sy:0;
+ return {cols,rows,cells:cols*rows,restX:cols?width-usedX:width,restY:rows?height-usedY:height};
+}
 /** Cells of a grid in reading order with row/col. */
 export function gridCellsOf(g,width,height){
  const px=g.w+g.sx,py=g.h+g.sy,cols=Math.max(0,Math.floor((width-g.ox+g.sx)/px)),rows=Math.max(0,Math.floor((height-g.oy+g.sy)/py)),out=[];
@@ -72,7 +83,7 @@ export function sheetPlan(analysis,choice={}){
  const k=analysis.key;
  if(k){
   const byUser=k.mode==='none'||k.mode==='force';
-  const conf=byUser?'high':k.applied?k.confidence:k.confidence==='medium'?'medium':'high';
+  const conf=byUser?'user':k.applied?k.confidence:k.confidence==='medium'?'medium':'high';
   const score=byUser?null:k.applied?k.score:Math.max(0,1-(k.score||0));
   decisions.push({id:'key',label:'key',chosen:k.applied?k.hex:'none',confidence:conf,score,reasons:k.reasons||[],evidence:k.evidence||null,hex:k.hex,byUser,
    alternatives:k.applied?['none']:[k.hex]});
@@ -86,16 +97,21 @@ export function sheetPlan(analysis,choice={}){
  }
  let rects=[],grid=null,sliceDecision;
  if(slice.startsWith('grid:')||slice==='custom'){
-  const gi=slice==='custom'?-1:Number(slice.slice(5)),g=slice==='custom'?choice.grid:gridSpec(grids[gi]);
+  const custom=slice==='custom',gi=custom?-1:Number(slice.slice(5));
+  // a custom choice without a grid (never seeded) falls back to the grid on screen, not a crash
+  const g=custom?normalizeCustom(choice.grid||(grids[0]?gridSpec(grids[0]):{w:16,h:16,ox:0,oy:0,sx:0,sy:0})):gridSpec(grids[gi]);
   grid=g;
-  const cells=gi>=0&&analysis.cells?.[gi]?analysis.cells[gi]:gi<0&&choice.cells?choice.cells:null;
+  const cells=gi>=0&&analysis.cells?.[gi]?analysis.cells[gi]:custom&&choice.cells?choice.cells:null;
   const all=cells||gridCellsOf(g,analysis.width,analysis.height).map(c=>({...c,empty:false}));
   rects=all.filter(c=>!c.empty).map(({x,y,w,h,row,col})=>({x,y,w,h,row,col}));
   const s=gi>=0?grids[gi]:null,filled=rects.length,empty=all.length-filled;
-  sliceDecision={id:'slice',label:'slice',chosen:slice,value:s?gridLabel(s):`${g.w}×${g.h}`,confidence:s?s.confidence:'high',score:s?.score,
-   evidence:s?.evidence||null,reranked:!!s?.reranked,cellCount:{filled,all:all.length},
-   reasons:s?[...(s.reasons||[]).slice(0,4),`${filled} of ${all.length} cells hold pixels${empty?`; ${empty} empty cells skipped`:''}`]:['typed by you'],
-   alternatives:[...grids.map((x,i)=>'grid:'+i).filter(x=>x!==slice),...(auto&&auto.rects.length?['auto']:[]),'custom']};
+  const fit=customFit(g,analysis.width,analysis.height);
+  sliceDecision={id:'slice',label:'slice',chosen:slice,value:s?gridLabel(s):gridLabel({cellWidth:g.w,cellHeight:g.h,marginX:g.ox,marginY:g.oy,spacingX:g.sx,spacingY:g.sy}),
+   // your own grid is not a guess: it carries no detector confidence
+   confidence:custom?'user':s.confidence,score:s?.score,
+   evidence:s?.evidence||null,reranked:!!s?.reranked,cellCount:{filled,all:all.length,measured:!!cells},fit:custom?fit:null,
+   reasons:s?[...(s.reasons||[]).slice(0,4),`${filled} of ${all.length} cells hold pixels${empty?`; ${empty} empty cells skipped`:''}`]:[],
+   alternatives:[...grids.map((x,i)=>'grid:'+i).filter(x=>x!==slice),...(auto&&auto.rects.length?['auto']:[]),...(custom?[]:['custom'])]};
   if(auto&&analysis.hint?.recommend===false&&analysis.hint?.spanning)sliceDecision.reasons.push(`islands found ${auto.rects.length} frames`);
  }else if(slice==='auto'){
   rects=auto.rects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,row:r.row??0,col:0}));

@@ -117,7 +117,7 @@ export function createTimeline(W){
   for(const el of body.querySelectorAll('.sp-tag'))el.classList.toggle('is-play',!!ptag&&el.dataset.tag===ptag.id);
   const fr=body.querySelector('.sp-tl-frames');if(fr)fr.setAttribute('aria-activedescendant','sp-fh-'+cur);
   const c=body.querySelector(`.sp-fh[data-i="${cur}"]`);if(c)keepVisible(c);
-  const cnt=bar.querySelector('[data-sp="counter"]');if(cnt){const f=W.frame(),tag=W.playTag();cnt.replaceChildren(`${cur+1} / ${a.frames.length}`,f?h('small',{},` · ${f.duration??100} ms`):'',tag?h('small.sp-tl-tagname',{},` · ${tag.name}`):'');}
+  const cnt=bar.querySelector('[data-sp="counter"]');if(cnt){const f=W.frame(),tag=W.playTag();cnt.replaceChildren(a.frames.length?`${cur+1} / ${a.frames.length}`:"0 / 0",f?h('small',{},` · ${f.duration??100} ms`):'',tag?h('small.sp-tl-tagname',{},` · ${tag.name}`):'');}
   const pl=bar.querySelector('[data-sp="play"]');if(pl){pl.innerHTML=W.playing()?SVG.pause:SVG.play;pl.setAttribute('aria-pressed',String(W.playing()));}
  }
  function keepVisible(el){const b=body.getBoundingClientRect(),r=el.getBoundingClientRect(),head=120;if(r.left<b.left+head)body.scrollLeft-=b.left+head-r.left+cw;else if(r.right>b.right)body.scrollLeft+=r.right-b.right+cw;}
