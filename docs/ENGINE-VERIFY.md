@@ -27,8 +27,12 @@ Windows 11, 2026-09-23. `python tools/engine-verify/engines.py` prints this list
 | Phaser 4 | 4.2.1 (npm) | **runner** | same |
 | PixiJS 8 | 8.21.0 (npm) | **runner** | same, `Assets.load` |
 | Unity 6 | 6000.5.3f1 | **runner** (for the Sprite Lab Unity bundle) | The Unity Hub is signed in here and batch mode picks up the Personal entitlement (`[Licensing::Client] Successfully resolved entitlement details`). Creating the template project took 31 s; each run takes about 1–2 minutes. On a machine without a signed-in Hub the runner reports UNVERIFIED. |
-| Defold | 1.13.1 `bob.jar` | **probed, no runner** | `bob.jar` 1.13.1 needs **Java 25** (class file version 69); the installed Java 21 refuses it. A portable Temurin JDK 25 zip (no installer, no admin) works. `java -jar bob.jar -r <proj> build` built a project with a `.atlas` (6 loose ninja frames, one 12 fps animation) into `hero.a.texturesetc` and `hero.texturec` in 1.1 s. It needs `game.project` with `[bootstrap] main_collection` and `[input] game_binding=/builtins/input/all.input_bindingc`. No Nerulio exporter targets Defold, so there is nothing to verify yet. |
-| LÖVE | 11.5 (portable zip) | **probed, no runner** | `lovec.exe <folder>` with a `main.lua` that draws a Quad into a Canvas at 4× with `setDefaultFilter("nearest")` and `ImageData:encode`s it. 2400/2400 opaque pixels matched a nearest 4× of the source. LÖVE has no atlas format, so a runner needs an exporter that writes Lua quads or JSON (with a Lua JSON parser) first. |
+| Defold | 1.13.1 `bob.jar` | **runner** (`defold_runner.py`, Studio Defold export) | `bob.jar` 1.13.1 needs **Java 25** (class file version 69), so a portable Temurin JDK 25 zip is used; no installer or admin needed. The runner builds a throw-away project (`game.project` with `[bootstrap] main_collection` and `[input] game_binding`, one Sprite component on the exported `.atlas` or `.tilesource`). It then reads the **built** files back: animation ids, start/end, fps and playback from the `.texturesetc` protobuf, and every frame cut from the built `.texturec` (raw RGBA, stored bottom-up) with the built UVs. Defold itself is not started, so this is "built and read back", not drawn. |
+| LÖVE | 11.5 (portable zip) | **runner** (`love_runner.py`, Studio LÖVE export) | `lovec.exe` runs a probe `main.lua` that `require`s the bundle's own `nerulio_atlas.lua`. It draws every frame with `atlas:draw` into a Canvas, steps every animation through the helper's player, and draws one frame at 4×. The images are read back with `ImageData:encode`. A window opens for a moment. |
+| Spine runtime | spine-canvas 4.2.120 (npm) | **runner** (web harness, `spine`) | The official spine-ts runtime parses the `.atlas` and draws every region as a RegionAttachment of a generated skeleton through its own SkeletonRenderer, with `Skeleton.yDown`. This covers trim offsets and `rotate:90`. libGDX (Java) is not run. |
+| Browser (CSS) | Chromium (Playwright) | **runner** (web harness, `css`) | The exported stylesheet is linked as-is, one element per `.sprite-<key>` rule is placed in its own slot, and the page is screenshotted. |
+| Aseprite | 1.3.18 CLI (local build) | **runner** (`file_runners.py`, `aseprite`) | `aseprite -b file.aseprite --sheet --data --list-tags --list-slices`. Aseprite renders every frame and lists tags, durations and slice keys. |
+| Pillow / ffmpeg | Pillow 10, ffmpeg 8.1 | **decoders** (`pillow`) | GIF/APNG frames and delays (Pillow), WebM frame count (ffprobe, in the Studio browser test). GameMaker strips are cut the way GameMaker's strip import cuts them (`name_stripN.png`), but GameMaker itself does not run. |
 | GameMaker | — | **not possible here** | There is no free headless import or build path: the IDE, an account login, and the paid/creator-licence runtime build chain are all needed. Not attempted. |
 
 Cached engine downloads (Unity template project, `bob.jar`, JDK 25, LÖVE) live in
@@ -45,7 +49,8 @@ npm ci --prefix tools/engine-verify/web               # Phaser 3/4 + PixiJS 8 (o
 python tools/engine-verify/engines.py                 # what can run here
 
 python tools/engine-verify/selftest.py                # the harness must pass good data and fail broken copies
-python tools/engine-verify/verify.py <bundle.zip|folder> --expect <expect.json> [--engines godot,phaser3,phaser4,pixi8,unity] [--json report.json]
+python tools/engine-verify/verify.py <bundle.zip|folder> --expect <expect.json> [--engines godot,phaser3,phaser4,pixi8,unity,love,defold,spine,css,aseprite,pillow] [--json report.json]
+node tools/engine-verify/studio_pack_bundle.mjs --target <id> --out b.zip (--files … | --sheet s.png --grid 48x48)   # a Studio bundle without a browser
 python tools/engine-verify/expect_from_corpus.py <corpus path> --out <dir> [--animations rows]
 python tools/engine-verify/baseline.py [--port 4441] [--out test-results/engine-baseline] [--only <case>] [--skip-export]
 ```
@@ -70,15 +75,29 @@ python tools/engine-verify/baseline.py [--port 4441] [--out test-results/engine-
    * Starling/Sparrow XML
    * BMFont (text, XML or binary)
    * TTF/OTF
+   * Studio bundles:
+     * Godot `.tres` SpriteFrames, with the `.tscn` that uses it
+     * Phaser multiatlas; a Phaser `anims` JSON is attached to its atlas
+     * LÖVE quads Lua
+     * Defold `.atlas` / `.tilesource`
+     * Spine/libGDX `.atlas`
+     * CSS sprites
+     * GameMaker strips + `gamemaker.json`
+     * GIF, APNG, `.aseprite`
    * loose PNG
 2. **Load in each engine through the standard or shipped path.**
 
    | Engine | Load path |
    |---|---|
-   | Godot | The helper script **the bundle ships**: the Sprite Lab `nerulio_sprite_frames.gd` or the Tile Lab `nerulio_tileset_import.gd` `Builder`. BMFont `.fnt` and TTF use Godot's own importer. The saved resource is reloaded with `CACHE_MODE_IGNORE`. |
-   | Phaser | `load.atlas`, `load.aseprite` + `anims.createFromAseprite`, `load.atlasXML`, `load.bitmapFont` |
-   | Pixi | `Assets.load` |
-   | Unity | The bundle's `NerulioSpriteImporter.Apply`, reached by reflection because its menu entry opens a file dialog that batch mode cannot show |
+   | Godot | The helper script **the bundle ships**: the Sprite Lab `nerulio_sprite_frames.gd` or the Tile Lab `nerulio_tileset_import.gd` `Builder`. BMFont `.fnt` and TTF use Godot's own importer. The saved resource is reloaded with `CACHE_MODE_IGNORE`. A Studio `.tres` SpriteFrames goes through Godot's own `ResourceLoader.load` (probe mode `spriteframes-tres`), and the shipped `.tscn` is instanced for the 4× render. |
+   | Phaser | `load.atlas`, `load.multiatlas`, `load.aseprite` + `anims.createFromAseprite`, `load.atlasXML`, `load.bitmapFont`. A Studio `.anims.json` is loaded with `load.json` + `anims.fromJSON`, under the texture key its frames name |
+   | Pixi | `Assets.load`. Pages linked with `meta.related_multi_packs` arrive as `linkedSheets`. Sprites are drawn with anchor 0 (the texture's default anchor, the pivot, is reported instead) |
+   | Unity | The bundle's `NerulioSpriteImporter.Apply` (and `CreateClips` when present), reached by reflection because its menu entry opens a file dialog that batch mode cannot show |
+   | LÖVE | The bundle's `nerulio_atlas.lua` (`Atlas.load`, `atlas:draw`, `atlas:play`) |
+   | Defold | `bob.jar build` of a project whose sprite uses the bundle's `.atlas` / `.tilesource` |
+   | Spine | spine-canvas `TextureAtlas` + `SkeletonRenderer` |
+   | CSS | the bundle's stylesheet in Chromium |
+   | Aseprite | `aseprite -b` on the bundle's `.aseprite` |
 
    A bundle that ships no loader for an engine it claims is a FAIL. An engine the bundle does not
    target is N/A.
@@ -114,6 +133,16 @@ python tools/engine-verify/baseline.py [--port 4441] [--out test-results/engine-
    | `tileset.*` | tile size, margins, separation, tile count and terrain mode against the corpus grid, and peering bits against the bundle's own JSON |
    | `terrain.paint.picks` | the tile Godot actually paints for each cell of a 58-cell test shape (holes, diagonals, 1-wide arms) against the tile the **source layout** defines for that neighbourhood. The masks come from the corpus truth (`truth.masks`). Where a layout has duplicates (the caeles sheet has three 255 tiles), any of them counts |
    | `font.chars`, `font.glyph_shapes` | every character is present, and the glyph's coverage mask (alpha ≥ 128, trimmed) equals the source glyph cell |
+   | `slice[x].keys` (Aseprite) | the slice keys Aseprite reads back, `[frame, x, y, w, h]` on the frame canvas; they may lie outside it |
+   | `meta.boxes[frame]` (Godot) | the hitboxes in the SpriteFrames `nerulio` metadata, as read back by Godot |
+   | `build` (Defold) | bob.jar built the resource |
+
+   Two engine facts the judge accounts for (the Studio rows need them):
+
+   * **Godot hands back textures, not frame names.** Pixel-identical source frames stored once share
+     one AtlasTexture. They count as one engine frame, and later identical frames may match it.
+   * **Godot lists animations alphabetically** (`row_1, row_10, row_2 …`). The unique-frame order is
+     therefore taken over animations in natural order, and each animation is still judged on its own.
    | `import.*` (Unity) | the texture is Point-filtered, uncompressed and in Multiple sprite mode |
 
 ### How pixels are compared (measured, not assumed)
@@ -182,22 +211,30 @@ Two more checks were run by hand:
   * Everything web runs in Chromium with SwiftShader WebGL. Firefox, WebKit and real GPUs are not
     covered.
 * **Unity:**
-  * Only the Sprite Lab Unity target (sprite rects, pivots, import settings) is checked.
-  * Not checked: physics-shape outlines as colliders, 9-slice borders in a UI Image, Animator
-    clips, anything the importer does not write.
+  * Checked: sprite rects, pivots and import settings (Sprite Lab and Studio targets), and the
+    Studio's AnimationClips (their keys and times).
+  * Not checked: the clips played by an Animator at runtime, physics-shape outlines as colliders,
+    9-slice borders in a UI Image, anything the importer does not write.
   * The template adds `com.unity.2d.sprite` (every Unity 2D template ships it). In a Unity *3D*
     template without it, the shipped `NerulioSpriteImporter.cs` would not compile; that case was
     not run.
-* **Defold and LÖVE:** feasibility only, no runner (no exporter).
-* **GameMaker:** not possible here.
+* **Defold:** built by bob.jar and read back from the built files; the Defold engine does not run.
+  Per-frame durations are not representable in Defold (one fps per animation).
+* **LÖVE:** only the shipped helper `nerulio_atlas.lua` is exercised, not other animation libraries
+  (anim8).
+* **Spine / libGDX:** only the spine-canvas runtime draws the atlas; libGDX (Java) is not run.
+* **GameMaker:** not possible here. The Studio GameMaker strips are only cut and compared the way
+  GameMaker's strip import cuts them, so they are labelled UNVERIFIED.
+* **Polygon atlases:** not produced (no engine here draws a mesh atlas from exported data).
 * **Textures:** PBR sets and normal-map conventions are not imported in any engine by this
   harness. The Godot probe has a `texture` mode (import settings plus a draw), but no exporter case
   uses it yet.
 * **Fonts:** TTF-mode fonts from the UI Lab, kerning, and CJK multipage BMFont are not verified.
 * **Scale:**
-  * The 4096×4096 Sprite Lab case never reached an export, so nothing large was verified in an
-    engine.
-  * The web layout would put 1024 px frames on a very large canvas; this is untested.
+  * The 4096×4096 Sprite Lab case never reached an export. The Studio case of the same 4096² sheet
+    was loaded by Godot (see "Studio Pack & Export").
+  * The web layout would put 1024 px frames on a very large canvas; this is untested for Phaser and
+    Pixi.
 
 ## Baseline (2026-09-23, main @ c741bbe)
 
@@ -345,3 +382,31 @@ passing ones). The full per-field JSON is `baseline.json` in the output folder.
 | 49 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | godot | **PASS** | font.chars 62 present; font.glyph_shapes 62/62 glyphs match |
 | 50 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | pixi8 | **PASS** | font.chars 62 present; font.glyph_shapes 62/62 glyphs match |
 | 51 | `ref-bmfont-cozette` | `Cozette-standard.fnt` | reference: BMFont text .fnt (Cozette) | phaser3 | **N/A** | has no standard loader for bmfont-text (Phaser reads XML BMFont only) |
+
+## Studio Pack & Export (2026-09-23, branch nerulio/studio-pack)
+
+`baseline.py` now also runs the `sp-*` cases. They drive `/game/studio/`: Sprite import → Pack &
+Export → Export for <target>. The tally for this run is below; the per-case table and the findings
+are in `docs/STUDIO-PACK.md` ("Baseline before/after").
+
+| Rows | PASS | FAIL | N/A |
+|---|---|---|---|
+| Studio Pack & Export (49 engine runs) | 47 | 2 | — |
+| Whole run (references, Labs, Tile Lab, fonts, Studio) | 83 | 13 | 4 |
+
+**Engines in the Studio runs:** Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90/4.2, PixiJS 8.21,
+Defold bob.jar 1.13.1, LÖVE 11.5, spine-canvas 4.2, Chromium (CSS), Aseprite 1.3.18 CLI and Pillow.
+
+**The 2 Studio FAILs** are the Phaser 3.90 AtlasXML trim bug. The Phaser 3 XML preset avoids it.
+
+**New engine facts from these runs:**
+
+- **Godot `fix_alpha_border`.** The default PNG import has `process/fix_alpha_border=true`, which
+  recolours pixels under alpha 20. Bundles that need exact faint pixels must ship a `.png.import`
+  with it off.
+- **Rotated TexturePacker frames in Phaser.** Phaser 3.90 and 4.2 draw them mirrored.
+- **Spine rotated regions.** Spine stores them counter-clockwise, the opposite of TexturePacker
+  JSON, and `bounds` holds the unrotated size.
+
+**Tile Lab rows:** the six Tile Lab rows did not export in this run. The baseline's Tile Lab UI
+recipe timed out after the trust-fixes page changes, so the recipe needs an update.

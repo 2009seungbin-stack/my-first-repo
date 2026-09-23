@@ -2,6 +2,7 @@
 import {createStudio} from './app.js';
 import viewer from './workspaces/viewer.js';
 import sprite from './workspaces/sprite.js';
+import pack from './workspaces/pack.js';
 import tile from './workspaces/tile/index.js';
 import {COMING} from './workspaces/coming.js';
 const host=document.getElementById('studio');
@@ -10,6 +11,7 @@ const renderer=new URLSearchParams(location.search).get('renderer')==='2d'?'2d':
 const studio=createStudio(host,{rootURL:new URL('../../',import.meta.url),renderer});
 studio.register(viewer);
 studio.register(sprite);
+studio.register(pack);
 studio.register(tile);
 for(const w of COMING)studio.register(w);
 // Exposed for tests and for power users' console scripts; nothing on the page depends on it.

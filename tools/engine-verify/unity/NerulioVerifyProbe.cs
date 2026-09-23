@@ -29,6 +29,7 @@ public static class NerulioVerifyProbe
         var errors = new List<string>();
         var pages = new List<string>();
         var sprites = new List<string>();
+        var clips = new List<string>();
         try
         {
             Type imp = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("NerulioSpriteImporter")).FirstOrDefault(t => t != null);
@@ -75,6 +76,24 @@ public static class NerulioVerifyProbe
                                 "],\"physicsShapes\":" + s.GetPhysicsShapeCount() + ",\"png\":" + Q(png) + "}");
                 }
             }
+            // Studio bundles also build AnimationClips (CreateClips); read back every keyframe.
+            MethodInfo createClips = imp.GetMethod("CreateClips", BindingFlags.NonPublic | BindingFlags.Static);
+            if (createClips != null)
+            {
+                string assetFolder = (string)toAsset.Invoke(null, new object[] { folder });
+                createClips.Invoke(null, new object[] { assetFolder, block });
+                foreach (string guid in AssetDatabase.FindAssets("t:AnimationClip", new[] { assetFolder }))
+                {
+                    var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetDatabase.GUIDToAssetPath(guid));
+                    var keys = new List<string>();
+                    foreach (var binding in AnimationUtility.GetObjectReferenceCurveBindings(clip))
+                        foreach (var k in AnimationUtility.GetObjectReferenceCurve(clip, binding))
+                            keys.Add("{\"time\":" + F(k.time) + ",\"sprite\":" + Q(k.value ? k.value.name : "") + ",\"path\":" + Q(binding.path) +
+                                     ",\"type\":" + Q(binding.type.Name) + ",\"property\":" + Q(binding.propertyName) + "}");
+                    clips.Add("{\"name\":" + Q(clip.name) + ",\"frameRate\":" + F(clip.frameRate) + ",\"length\":" + F(clip.length) +
+                              ",\"loop\":" + (AnimationUtility.GetAnimationClipSettings(clip).loopTime ? "true" : "false") + ",\"keys\":[" + string.Join(",", keys) + "]}");
+                }
+            }
         }
         catch (Exception e)
         {
@@ -84,7 +103,8 @@ public static class NerulioVerifyProbe
         sb.Append("{\"unity\":").Append(Q(Application.unityVersion))
           .Append(",\"errors\":[").Append(string.Join(",", errors.Select(Q))).Append("]")
           .Append(",\"pages\":[").Append(string.Join(",", pages)).Append("]")
-          .Append(",\"sprites\":[").Append(string.Join(",", sprites)).Append("]}");
+          .Append(",\"sprites\":[").Append(string.Join(",", sprites)).Append("]")
+          .Append(",\"clips\":[").Append(string.Join(",", clips)).Append("]}");
         File.WriteAllText(Path.Combine(outDir, "report.json"), sb.ToString());
         Debug.Log("NERULIO_PROBE_DONE errors=" + errors.Count);
         EditorApplication.Exit(0);
