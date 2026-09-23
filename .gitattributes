@@ -6,3 +6,5 @@ tests/fixtures/aseprite/** -text
 tests/fixtures/aseprite/*.md text
 tests/fixtures/aseprite/*.json text
 tests/fixtures/kenney/*.png -text
+# Studio UI fixtures (fonts, localisation files, Kenney UI art, msdfgen references) are read byte for byte.
+tests/fixtures/ui/** -text
