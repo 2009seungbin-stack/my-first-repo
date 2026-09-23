@@ -44,17 +44,20 @@ function wireLanguage(){
 const status=text=>{const el=$('[data-gl-status]');if(!el)return;el.textContent=text;el.hidden=!text;};
 const t=key=>({
  opening:{en:'Opening the Studio…',ko:'Studio를 여는 중…',ja:'Studioを開いています…'},
+ openingLab:{en:'Opening the tool…',ko:'도구를 여는 중…',ja:'ツールを開いています…'},
+ failedLab:{en:'This browser did not let the page hand the files over. The tool opens empty; drop the files there again.',ko:'이 브라우저가 파일 전달을 막았습니다. 빈 도구가 열리면 파일을 다시 끌어다 놓으세요.',ja:'このブラウザがファイルの受け渡しを許可しませんでした。空のツールが開くので、もう一度ドロップしてください。'},
  failed:{en:'This browser did not let the page hand the files over. The Studio opens empty; drop the files there again.',ko:'이 브라우저가 파일 전달을 막았습니다. 빈 Studio가 열리면 파일을 다시 끌어다 놓으세요.',ja:'このブラウザがファイルの受け渡しを許可しませんでした。空のStudioが開くので、もう一度ドロップしてください。'}
 }[key][document.documentElement.lang]||'');
 let sending=false;
 export async function openInStudio(files){
  files=[...files].filter(f=>f instanceof Blob&&f.size>0);if(!files.length||sending)return false;
- sending=true;status(t('opening'));
- const entry=$('[data-gl-entry]')?.value||main?.dataset.ws||'sprite',then=$('[data-gl-then]')?.value||'';
- const ok=await stashFiles(files,{from:'landing',page:main?.dataset.key||'',...(then?{workspace:then}:{})});
- if(!ok){status(t('failed'));await new Promise(r=>setTimeout(r,2500));}
+ sending=true;const lab=main?.dataset.target==='lab';status(t(lab?'openingLab':'opening'));
+ // data-href is the tool this page belongs to: /game/studio/?ws=… or, for a Lab page, the Lab itself.
+ const href=main?.dataset.href||`${prefix}game/studio/?ws=sprite`,then=main?.dataset.then||'';
+ const ok=await stashFiles(files,lab?null:{from:'landing',page:main?.dataset.key||'',...(then?{workspace:then}:{})});
+ if(!ok){status(t(lab?'failedLab':'failed'));await new Promise(r=>setTimeout(r,2500));}
  document.documentElement.dataset.glHandoff=ok?'stashed':'failed';
- location.assign(new URL(`${prefix}game/studio/?ws=${encodeURIComponent(entry)}`,root).href);
+ location.assign(new URL(href,root).href);
  return ok;
 }
 /** A dropped folder (e.g. numbered frames) is read entry by entry. */

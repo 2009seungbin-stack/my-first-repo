@@ -10,6 +10,8 @@
  * Every sentence here describes shipped behaviour. The numbers and verification labels come from
  * docs/STUDIO-SPRITE.md, docs/STUDIO-PACK.md, docs/STUDIO-PACK-H2H.md and docs/STUDIO-TILE.md; if
  * one of those changes, change the copy with it. Dependency-free (static build, browser, tests). */
+import {GAME_LAB_PAGES,LAB_KINDS} from './game-seo-labs.js';
+import {GAME_MORE_KEYWORD_PAGES} from './game-seo-more.js';
 const L=(en,ko,ja)=>({en,ko,ja});
 export const GAME_HUB_PATH='game';
 export const STUDIO_ROUTE='game/studio';
@@ -21,7 +23,13 @@ export const SHOTS=Object.freeze({
  'sprite-frame':{file:'sprite-frame',w:1440,h:900,alt:L('Studio Sprite workspace: one frame with its pivot, a hit box and a hurt box, and the timeline with animation tags','Studio 스프라이트 작업 공간: 피벗·히트박스·허트박스가 있는 프레임과 애니메이션 태그가 있는 타임라인','Studio のスプライト作業画面：ピボット・ヒットボックス・ハートボックス付きのフレームと、アニメーションタグ付きタイムライン')},
  pack:{file:'pack',w:1440,h:900,alt:L('Studio Pack & Export: the packed atlas page with every frame outlined, the used area and the export targets','Studio 패킹·내보내기: 프레임마다 윤곽이 표시된 아틀라스 페이지, 사용 면적, 내보내기 대상','Studio のパック＆書き出し：各フレームの枠が表示されたアトラスページ、使用率、書き出し先')},
  'tile-check':{file:'tile-check',w:1440,h:900,alt:L('Studio Tile workspace: a 47-tile sheet recognised as the GameMaker layout, with its terrain bits and a complete check','Studio 타일 작업 공간: GameMaker 배치로 인식한 47타일 시트와 지형 비트, 완료된 점검','Studio のタイル作業画面：GameMaker配置と認識した47タイルのシート、地形ビット、完了したチェック')},
- 'tile-map':{file:'tile-map',w:1440,h:900,alt:L('Studio Tile workspace: a test map painted with the Godot terrain rule','Studio 타일 작업 공간: Godot 지형 규칙으로 칠한 테스트 맵','Studio のタイル作業画面：Godotの地形ルールで塗ったテストマップ')}
+ 'tile-map':{file:'tile-map',w:1440,h:900,alt:L('Studio Tile workspace: a test map painted with the Godot terrain rule','Studio 타일 작업 공간: Godot 지형 규칙으로 칠한 테스트 맵','Studio のタイル作業画面：Godotの地形ルールで塗ったテストマップ')},
+ 'pixel-lab':{file:'pixel-lab',w:1440,h:900,alt:L('Pixel Lab: CC0 sprite frames locked to one extracted palette, with the palette and its pixel counts','픽셀 랩: 추출한 팔레트 하나에 고정된 CC0 스프라이트 프레임과 색별 픽셀 수','ピクセルラボ：抽出した1つのパレットに固定したCC0スプライトのフレームと色ごとのピクセル数')},
+ 'texture-lab':{file:'texture-lab',w:1440,h:900,alt:L('Texture Lab: a normal map generated from a CC0 texture, with the OpenGL/DirectX convention shown','텍스처 랩: CC0 텍스처로 만든 노멀맵과 OpenGL/DirectX 규약 표시','テクスチャラボ：CC0テクスチャから生成したノーマルマップとOpenGL/DirectXの規約表示')},
+ 'ui-lab':{file:'ui-lab',w:1440,h:900,alt:L('UI Lab: a CC0 UI panel with nine-slice guides and previews at several sizes','UI 랩: 나인 슬라이스 가이드와 여러 크기 미리보기가 있는 CC0 UI 패널','UIラボ：ナインスライスのガイドと複数サイズのプレビューがあるCC0のUIパネル')},
+ 'tile-seams':{file:'tile-seams',w:1440,h:900,alt:L('Tile Lab seam check: a CC0 texture repeated 2×2 with its wrap edges measured','타일 작업실 이음새 점검: 2×2로 반복한 CC0 텍스처와 경계 측정','タイルセット工房の継ぎ目チェック：2×2で繰り返したCC0テクスチャと境界の測定')},
+ 'tile-slice':{file:'tile-slice',w:1440,h:900,alt:L('Tile Lab: a Kenney CC0 tilemap with its measured grid (16 px tiles, 1 px spacing)','타일 작업실: 격자를 측정한 Kenney CC0 타일맵(16px 타일, 간격 1px)','タイルセット工房：グリッドを測定したKenney CC0タイルマップ（16pxタイル、間隔1px）')},
+ 'sprite-lab':{file:'sprite-lab',w:1440,h:900,alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
 });
 
 /** Verification labels, shared by every page (same words as the Studio's own export panel). */
@@ -30,7 +38,8 @@ export const STATUS=Object.freeze({
  built:L('Built','빌드 확인','ビルド確認'),
  decoded:L('Decoded','디코딩 확인','デコード確認'),
  partial:L('Partly verified','일부 검증','一部検証'),
- unverified:L('UNVERIFIED','미검증','未検証')
+ unverified:L('UNVERIFIED','미검증','未検証'),
+ measured:L('Measured','측정 확인','測定確認')
 });
 
 /** Export targets of the Sprite + Pack & Export workspaces (docs/STUDIO-PACK.md, "Exports"). */
@@ -283,7 +292,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
 
 /** New search-intent pages. `intent` = the base tool whose indexing decision they inherit. */
 const kw=(intent,ws,shot,copy,extra={})=>Object.freeze({intent,ws,shot,copy,...extra});
-export const GAME_KEYWORD_PAGES=Object.freeze({
+const BASE_KEYWORD_PAGES=Object.freeze({
  'game/gif-to-sprite-sheet':kw('sprite-sheet-maker','pack','pack',{
   en:{title:'GIF to Sprite Sheet Converter (keeps frame timing)',description:'Convert an animated GIF or APNG into a sprite sheet with every frame and delay kept, then export PNG + JSON for Phaser, PixiJS, Godot or Unity. In your browser, no upload.',lead:'Drop a GIF: every frame is decoded with its delay and disposal, becomes a frame with that duration, and packs into a sheet with the animation data your engine reads.',
    what:['All frames with their delays and disposal (GIF and APNG); nothing is dropped or retimed.','Decoder checked against Pillow: 408 of 408 frames exact on 29 real GIFs, 132 of 132 on 16 APNGs.','Trim, dedupe identical frames and pack tightly, or keep full frames.','Export the sheet with Phaser / PixiJS JSON, Godot SpriteFrames, Unity clips, Aseprite JSON and more.'],
@@ -503,14 +512,35 @@ export const HUB=Object.freeze({
  ja:{title:'ゲームアセットスタジオ · スプライトシート・アトラス・オートタイル',description:'2Dゲームアセットのための無料ブラウザスタジオ：スプライトシート分割、アニメーション、当たり判定、アトラスのパック、オートタイルのタイルセット。Godot・Unity・Phaser・PixiJS・Tiledなどで確認した書き出し。',lead:'絵とエンジンの間の工程：スプライトシートはピボットとボックス付きのタグアニメーションに、フレームはアトラスに、オートタイルシートは地形セットに — エンジン自身が読み込みを確認したファイルで書き出します。',sprite:'スプライトとアニメーション',pack:'アトラスと書き出し',tile:'タイルセットとオートタイル'}
 });
 
+/** Hub group names of the Lab kinds (src/game-seo-labs.js). */
+export const HUB_GROUPS=Object.freeze({sprite:HUB_NAMES('sprite'),pack:HUB_NAMES('pack'),tile:HUB_NAMES('tile'),
+ pixel:L('Pixel art and palettes','도트와 팔레트','ドット絵とパレット'),texture:L('Textures, normal maps and PBR','텍스처·노멀맵·PBR','テクスチャ・ノーマルマップ・PBR'),
+ ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール')});
+function HUB_NAMES(k){return {en:HUB.en[k],ko:HUB.ko[k],ja:HUB.ja[k]};}
+
+/** Keyword pages: the Studio ones above, then the ones in src/game-seo-more.js. */
+export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MORE_KEYWORD_PAGES});
+/** Lab landings (src/game-seo-labs.js), and every kind a page can belong to. */
+export {GAME_LAB_PAGES,LAB_KINDS};
+export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile']);
+export const kindOf=ws=>WORKSPACES[ws]||LAB_KINDS[ws]||null;
+export const isStudioKind=ws=>STUDIO_KINDS.includes(ws);
+
 /** Shared lookups. */
 export const isGameIntentPage=id=>Object.hasOwn(GAME_INTENT_PAGES,id);
+export const isGameLabPage=id=>Object.hasOwn(GAME_LAB_PAGES,id);
 export const CLASSIC_SUFFIX='classic';
 /** Where the old Lab UI of an intent landing lives: <intent path>/classic. */
 export const classicPath=intentPath=>`${intentPath}/${CLASSIC_SUFFIX}`;
+/** Where the Lab of a Lab landing runs until its Studio workspace ships: <intent path>/app. */
+export const APP_SUFFIX='app';
+export const appPath=intentPath=>`${intentPath}/${APP_SUFFIX}`;
 export function gameCopy(key,locale){
- const p=GAME_INTENT_PAGES[key]||GAME_KEYWORD_PAGES[key];
+ const p=GAME_INTENT_PAGES[key]||GAME_LAB_PAGES[key]||GAME_KEYWORD_PAGES[key];
  return p?p.copy[locale]||p.copy.en:null;
 }
 /** Every game page key in sitemap order: intent landings by workspace, then keyword pages. */
-export const GAME_PAGE_ORDER=Object.freeze([...Object.keys(GAME_INTENT_PAGES),...Object.keys(GAME_KEYWORD_PAGES)]);
+export const GAME_PAGE_ORDER=Object.freeze([...Object.keys(GAME_INTENT_PAGES),...Object.keys(GAME_LAB_PAGES),...Object.keys(GAME_KEYWORD_PAGES)]);
+/** Any game landing whose own tool page moved behind it (<route>/classic or <route>/app). */
+export const isGameLanding=id=>isGameIntentPage(id)||isGameLabPage(id);
+export const toolPathFor=(id,intentPath)=>isGameIntentPage(id)?classicPath(intentPath):isGameLabPage(id)?appPath(intentPath):intentPath;
