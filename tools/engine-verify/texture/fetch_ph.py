@@ -1,15 +1,21 @@
+"""Downloads Poly Haven textures (CC0) as 1k PNG nor_gl + nor_dx for the GL/DX detection accuracy run
+(convention_eval.mjs). Target: <corpus>/_adhoc/nerulio-studio-texture/polyhaven/<id>/"""
 import json, urllib.request, time
 from pathlib import Path
-OUT=Path('C:/Users/2009s/nerulio-asset-corpus/_adhoc/nerulio-studio-texture/ambientcg')  # same folder layout: one dir per set
+import os
+OUT=Path(os.environ.get('NERULIO_CORPUS','C:/Users/2009s/nerulio-asset-corpus'))/'_adhoc'/'nerulio-studio-texture'/'polyhaven'  # one dir per set
 H={'User-Agent':'Mozilla/5.0 nerulio-corpus'}
 get=lambda u:urllib.request.urlopen(urllib.request.Request(u,headers=H),timeout=120).read()
 assets=json.loads(get('https://api.polyhaven.com/assets?t=textures'))
-ids=sorted(assets,key=lambda k:-assets[k].get('download_count',0))[:40:4]
+# every 2nd of the 60 most downloaded: bricks, plaster, wood, rock, ground, metal, fabric ...
+ids=sorted(assets,key=lambda k:-assets[k].get('download_count',0))[:60:2]
 done=[]
 for i in ids:
     try:
         f=json.loads(get(f'https://api.polyhaven.com/files/{i}'))
-        d=OUT/('polyhaven_'+i);d.mkdir(parents=True,exist_ok=True)
+        d=OUT/i
+        if d.exists() and len(list(d.glob('*.png')))>=2:done.append(i);continue
+        d.mkdir(parents=True,exist_ok=True)
         for key,name in [('nor_gl','nor_gl'),('nor_dx','nor_dx')]:
             url=f[key]['1k']['png']['url'];(d/f'{i}_{name}_1k.png').write_bytes(get(url))
         done.append(i);print('ok',i,flush=True)

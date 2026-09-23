@@ -19,6 +19,8 @@ const addDir=(dir,label)=>{if(!existsSync(dir))return;for(const f of readdirSync
 for(const d of ['ambientcg-bricks076c','ambientcg-metalplates006','polyhaven-brick-wall-001'])addDir(join(CORPUS,'textures',d),d);
 const adhoc=join(CORPUS,'_adhoc','nerulio-studio-texture','ambientcg');
 if(existsSync(adhoc))for(const d of readdirSync(adhoc))addDir(join(adhoc,d),'acg/'+d);
+const ph=join(CORPUS,'_adhoc','nerulio-studio-texture','polyhaven');
+if(existsSync(ph))for(const d of readdirSync(ph))addDir(join(ph,d),'ph/'+d);
 items.push({name:'oga-asteroids/normal',file:join(CORPUS,'sprites-normal/oga-asteroids/asteroids_spritesheet_normal.png'),truth:'opengl',sprite:true});
 items.push({name:'oga-pixel-torch/normal',file:join(CORPUS,'sprites-normal/oga-pixel-torch/Torch_Sheet_Normal.png'),truth:'directx',alphaFrom:join(CORPUS,'sprites-normal/oga-pixel-torch/Torch_Sheet.png'),sprite:true});
 const rows=[];

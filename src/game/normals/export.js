@@ -114,12 +114,15 @@ public static class NerulioNormalMapImporter
         if (folder == null) { Debug.LogError("Nerulio: the export is not inside this project's Assets folder."); return null; }
         string normalPath = folder + "/" + u.normal, albedoPath = folder + "/" + u.albedo;
 
+        int size = Mathf.Clamp(Mathf.NextPowerOfTwo(Mathf.Max(u.width, u.height)), 2048, 16384);
         var n = (TextureImporter)AssetImporter.GetAtPath(normalPath);
         n.textureType = TextureImporterType.Default;
         n.sRGBTexture = false;                       // a normal map holds vectors, not colours
         n.mipmapEnabled = false;
         n.filterMode = u.pointFilter ? FilterMode.Point : FilterMode.Bilinear;
         n.textureCompression = TextureImporterCompression.Uncompressed;
+        n.npotScale = TextureImporterNPOTScale.None;  // a Default texture is otherwise resampled to a power of two (blurs the normals)
+        n.maxTextureSize = size;
         n.SaveAndReimport();
 
         var a = (TextureImporter)AssetImporter.GetAtPath(albedoPath);
@@ -129,6 +132,7 @@ public static class NerulioNormalMapImporter
         a.filterMode = u.pointFilter ? FilterMode.Point : FilterMode.Bilinear;
         a.mipmapEnabled = false;
         a.textureCompression = TextureImporterCompression.Uncompressed;
+        a.maxTextureSize = size;                      // the 2048 default would shrink a bigger sheet
         a.SaveAndReimport();
 
         var factory = new SpriteDataProviderFactories();
@@ -158,7 +162,8 @@ public static class NerulioNormalMapImporter
     }
 
     /// A SpriteRenderer with the first frame and one point Light2D per exported light. Light2D is
-    /// found by reflection so this script compiles in projects without URP.
+    /// found by reflection so this script compiles in projects without URP (Unity 6 keeps it in the
+    /// Unity.RenderPipelines.Universal.2D.Runtime assembly; older URP in ...Universal.Runtime).
     public static GameObject CreatePreview(string jsonPath)
     {
         Export export = Apply(jsonPath);
@@ -167,10 +172,11 @@ public static class NerulioNormalMapImporter
         string folder = ToAssetPath(Path.GetDirectoryName(jsonPath));
         Sprite sprite = AssetDatabase.LoadAllAssetsAtPath(folder + "/" + u.albedo).OfType<Sprite>().OrderBy(s => s.name).FirstOrDefault();
         var root = new GameObject("NerulioLitPreview");
+        Undo.RegisterCreatedObjectUndo(root, "Nerulio Lit Preview");
         var sr = new GameObject("Sprite").AddComponent<SpriteRenderer>();
         sr.transform.SetParent(root.transform, false);
         sr.sprite = sprite;
-        Type light2D = Type.GetType("UnityEngine.Rendering.Universal.Light2D, Unity.RenderPipelines.Universal.Runtime");
+        Type light2D = AppDomain.CurrentDomain.GetAssemblies().Select(asm => asm.GetType("UnityEngine.Rendering.Universal.Light2D")).FirstOrDefault(t => t != null);
         if (light2D == null) { Debug.LogWarning("Nerulio: URP is not installed; the sprite was placed without lights."); return root; }
         float ppu = u.pixelsPerUnit;
         Rect4 fr = u.frames != null && u.frames.Length > 0 ? u.frames[0].rect : new Rect4 { width = u.width, height = u.height };
@@ -178,7 +184,7 @@ public static class NerulioNormalMapImporter
         {
             var go = new GameObject("Light2D");
             go.transform.SetParent(root.transform, false);
-            // frame-local pixels (y down) → units around the sprite's centre pivot (y up)
+            // frame-local pixels (y down) -> units around the sprite's centre pivot (y up)
             go.transform.localPosition = new Vector3((l.x - fr.width / 2f) / ppu, (fr.height / 2f - l.y) / ppu, 0f);
             var c = go.AddComponent(light2D);
             ColorUtility.TryParseHtmlString(l.color, out Color color);
@@ -187,9 +193,14 @@ public static class NerulioNormalMapImporter
             light2D.GetProperty("intensity")?.SetValue(c, l.energy);
             light2D.GetProperty("pointLightOuterRadius")?.SetValue(c, l.radius / ppu);
             light2D.GetProperty("pointLightInnerRadius")?.SetValue(c, 0f);
-            light2D.GetProperty("normalMapDistance")?.SetValue(c, l.z / ppu);
+            // normalMapQuality / normalMapDistance are read-only properties: set the serialized fields
+            var so = new SerializedObject(c);
             var quality = light2D.GetNestedType("NormalMapQuality");
-            if (quality != null) light2D.GetProperty("normalMapQuality")?.SetValue(c, Enum.Parse(quality, "Accurate"));
+            SerializedProperty q = so.FindProperty("m_NormalMapQuality"), d = so.FindProperty("m_NormalMapDistance");
+            if (q != null && quality != null) q.intValue = (int)Enum.Parse(quality, "Accurate");
+            if (d != null) d.floatValue = l.z / ppu;   // the light's height above the sprite plane
+            so.ApplyModifiedPropertiesWithoutUndo();
+            if (q == null || d == null) Debug.LogWarning("Nerulio: this URP version has no m_NormalMapQuality / m_NormalMapDistance; set Normal Map quality and distance on the lights by hand.");
         }
         return root;
     }
