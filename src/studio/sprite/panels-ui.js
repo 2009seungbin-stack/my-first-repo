@@ -61,6 +61,21 @@ export function createPanels(W){
   if(dec.kind==='box-slice'||dec.kind==='pivot-slice'||dec.kind==='nine-slice')return `“${dec.label}” → ${altLabel(dec,dec.chosen)}`;
   return altLabel(dec,dec.chosen);
  }
+ /** The custom grid editor: cell size, offset (margin) and gap (spacing), each change one undo
+  * step with a live preview of the cells on the canvas; the fit line validates it against the
+  * sheet (whole cells, leftover pixels) and Apply stays off while no whole cell fits. */
+ function customEditor(dec,state){
+  const g=state.plan.grid,a=W.asset(),fit=dec.fit||{cols:0,rows:0,cells:0,restX:0,restY:0};
+  const max={w:a.width,h:a.height,ox:a.width-1,oy:a.height-1,sx:a.width,sy:a.height};
+  const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,max:max[k],id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({...g,[k]:v})});
+  const row=(label,a1,a2)=>h('div.sp-grid-row',{},h('span.sp-grid-row-label',{},label),field(t('sp.imp.axisX'),a1),field(t('sp.imp.axisY'),a2));
+  const bad=!fit.cells;
+  return h('div.sp-custom-grid',{'data-sp':'custom-grid'},
+   row(t('sp.imp.cell'),f('w'),f('h')),row(t('sp.imp.offset'),f('ox'),f('oy')),row(t('sp.imp.gap'),f('sx'),f('sy')),
+   h('p.sp-grid-fit'+(bad?'.is-bad':''),{'data-sp':'custom-fit'},bad?t('sp.imp.fitNone',{w:a.width,h:a.height}):
+    t('sp.imp.fit',{c:fit.cols,r:fit.rows,n:fit.cells,filled:dec.cellCount?.measured?dec.cellCount.filled:'…'})+(fit.restX||fit.restY?' '+t('sp.imp.fitRest',{x:fit.restX,y:fit.restY}):'')),
+   h('p.st-muted.sp-hint',{},t('sp.imp.customHint')));
+ }
  function renderImport(){
   const a=W.asset();
   if(!a){imp.replaceChildren(h('p.st-muted.st-pad',{},t('sp.noAsset')));return;}
@@ -71,26 +86,24 @@ export function createPanels(W){
    kids.push(h('p.sp-imp-lead',{},busy?t('sp.imp.analyzing'):t('sp.imp.previewLead')));
    // the primary action first: nothing to scroll for
    const plan=state?.plan;
-   kids.push(h('div.st-row.sp-apply-row',{},button(t('sp.imp.apply'),()=>W.applyImport(),{primary:true,id:'import-apply',disabled:!plan}),plan?h('span.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})):''));
+   kids.push(h('div.st-row.sp-apply-row',{},button(t('sp.imp.apply'),()=>W.applyImport(),{primary:true,id:'import-apply',disabled:!plan||!plan.rects.length}),plan?h('span.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})):''));
   }
   const decisions=(info?.kind==='sheet'&&state?.plan?state.plan.decisions:info?.decisions)||[];
   if(!info)kids.push(h('p.st-muted.st-pad',{},t('sp.imp.none')));
   for(const dec of decisions){
    const alts=(dec.alternatives||[]).map(alt=>{const b=h('button.sp-alt',{type:'button','data-alt':alt,'data-dec':dec.id},altLabel(dec,alt));b.addEventListener('click',()=>W.choose(dec.id,alt));return b;});
-   const conf=dec.confidence?h('span.st-conf.'+(CONF[dec.confidence]||''),{'data-conf':dec.confidence},t('sp.conf.'+dec.confidence)+(dec.score!=null?` ${Math.round(dec.score*100)}%`:'')):'';
+   // a choice the user made is labelled as theirs, never with a detector confidence
+   const conf=dec.confidence==='user'?h('span.st-conf.is-alt',{'data-conf':'user'},t(dec.id==='slice'?'sp.conf.yourGrid':'sp.conf.user'))
+    :dec.confidence?h('span.st-conf.'+(CONF[dec.confidence]||''),{'data-conf':dec.confidence},t('sp.conf.'+dec.confidence)+(dec.score!=null?` ${Math.round(dec.score*100)}%`:'')):'';
    kids.push(h('div.sp-dec',{'data-dec':dec.id},
     h('div.sp-dec-head',{},h('span.sp-dec-what',{},decName(dec)),conf),
     h('div.sp-dec-chosen',{},dec.id==='key'&&dec.chosen!=='none'?h('span.sp-swatch',{style:`background:${dec.chosen}`}):'',chosenLabel(dec)),
+    dec.id==='slice'&&dec.chosen==='custom'?customEditor(dec,state):'',
     (()=>{const rs=reasonsOf(dec);return rs.length?h('details.st-why',{},h('summary',{},t('sp.imp.why')),h('ul',{},rs.map(r=>h('li',{},r)))):'';})(),
     alts.length?h('div.sp-alts',{},h('span.st-muted',{},t('sp.imp.instead')),alts):''));
   }
   if(info?.kind==='sheet'){
    const plan=state?.plan;
-   if(plan&&state.choice?.slice==='custom'){
-    const g=state.choice.grid||plan.grid||{w:16,h:16,ox:0,oy:0,sx:0,sy:0};
-    const f=k=>numIn(g[k],{min:k==='w'||k==='h'?1:0,id:'grid-'+k,label:t('sp.imp.'+k),change:v=>W.setCustomGrid({...g,[k]:Math.max(k==='w'||k==='h'?1:0,Math.round(v))})});
-    kids.push(h('div.st-grid-fields.sp-custom-grid',{},...['w','h','ox','oy','sx','sy'].map(k=>field(t('sp.imp.'+k),f(k)))));
-   }
    if(state?.analysis?.auto?.unassigned&&plan?.decisions.find(d=>d.id==='slice')?.chosen==='auto')kids.push(h('p.st-muted.st-pad',{},t('sp.imp.unassigned',{n:state.analysis.auto.unassigned})));
    if(info.applied){
     if(plan)kids.push(h('p.sp-imp-count',{'data-sp':'plan-count'},t('sp.imp.planCount',{frames:plan.rects.length,tags:plan.tags.length})));
