@@ -47,6 +47,7 @@ function renderChrome(){
  const select=$('#languageSelect');if(select){select.options[0].textContent=t('language.auto');select.value=page.auto?'auto':l;}
  for(const el of document.querySelectorAll('[data-ui]'))el.textContent=text(el.dataset.ui);
  for(const a of document.querySelectorAll('[data-home-link]'))a.setAttribute('href',pagePrefix());
+ for(const a of document.querySelectorAll('[data-studio-link]'))a.setAttribute('href',pagePrefix()+'game/studio/'+(a.dataset.studioWs?'?ws='+a.dataset.studioWs:''));
  updateSiteContent(page.id,l,page.landing);
 }
 function changeLanguage(value){

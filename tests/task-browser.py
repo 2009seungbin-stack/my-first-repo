@@ -34,10 +34,17 @@ with sync_playwright() as pw:
     page.fill('#toolQuery','');page.wait_for_timeout(150)
     page.locator('#languageSelect').select_option('en');page.wait_for_timeout(200)
     ok('language switch relabels the directory and URL',page.url.endswith('/en/') and page.locator('.tool-card[data-tool="compress"] b').inner_text()=='Compress image' and page.locator('.tool-card[data-tool="compress"]').get_attribute('href').endswith('/en/image/compress/'))
-    drop(page,'body',B64);page.locator('#suggest .chip').first.wait_for()
-    ok('dropping images suggests image tools',page.locator('#suggest [data-suggest]').evaluate_all('ns=>ns.map(n=>n.dataset.suggest)')[:3]==['compress','convert','resize'])
-    page.locator('#suggest [data-suggest="compress"]').click();page.wait_for_url('**/en/image/compress/');ready(page)
-    ok('files travel from home to the tool without re-selecting',page.locator('.file').count()==2)
+    # The home is the game studio's front door: images dropped there open in the Studio (hand-off, no upload).
+    drop(page,'body',B64);page.wait_for_url('**/en/game/studio/**',timeout=20000)
+    page.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"&&window.nerulioStudio.doc.assets.length===2',timeout=30000)
+    ok('dropping images on the home opens them in the Studio without re-selecting',page.evaluate('window.nerulioStudio.workspace')=='sprite')
+    # PDFs and video still get the file-tool suggestions on the home.
+    page.goto(BASE+'/en/');page.wait_for_timeout(300)
+    drop(page,'body',[{'name':'doc.pdf','type':'application/pdf','b64':base64.b64encode(b'%PDF-1.4'+bytes([10])+b'%%EOF'+bytes([10])).decode()}]);page.locator('#suggest .chip').first.wait_for()
+    ok('dropping a PDF on the home suggests the PDF tools',page.locator('#suggest [data-suggest]').evaluate_all('ns=>ns.map(n=>n.dataset.suggest)')[:2]==['pdf-merge','pdf-split'])
+    page.goto(BASE+'/en/image/compress/');page.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"')
+    drop(page,'body',B64);ready(page)
+    ok('files dropped on a file tool are processed there',page.locator('.file').count()==2)
     ok('no file bytes left the browser',not any('/api/' in u or 'upload' in u for u in requests) and all(u.startswith(BASE) or u.startswith('blob:') for u in requests))
     # --- batch workspace ---
     summary=page.locator('#taskSummary .summary-big').inner_text()

@@ -31,6 +31,6 @@ test('migrated tools and their landing pages render the task page; others keep t
  const landing=LANDING_PATHS.find(p=>isTask(LANDINGS[p].intent)),page=entry(html,`en/${landing}`,origin);
  assert(page.includes(`data-landing="${landing}"`)&&page.includes(`rel="canonical" href="${origin}en/${landing}/"`)&&page.includes('src/task/shell.js'));
  const editor=entry(html,'en/image/editor',origin);assert(editor.includes('src/app.js')&&!editor.includes('src/task/shell.js'));
- const home=entry(html,'ja',origin);assert(home.includes('class="task-page home-page"')&&home.includes(`rel="canonical" href="${origin}ja/"`)&&!home.includes('noindex'));
+ const home=entry(html,'ja',origin);assert(home.includes('class="task-page home-page game-home"')&&home.includes(`rel="canonical" href="${origin}ja/"`)&&!home.includes('noindex'));
  assert(entry(html,'',origin).includes('href="image/compress/"'),'language-neutral home links stay language-neutral');
 });
