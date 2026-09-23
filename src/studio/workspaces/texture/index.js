@@ -148,7 +148,7 @@ export default {
   async function runDetect(rgba,w,hh,source){
    // a sprite's own alpha tells the silhouette test where the edge is
    let data=rgba;if(source==='imported'&&S.pic){data=new Uint8Array(rgba);for(let p=0;p<w*hh;p++)data[p*4+3]=S.pic.rgba[p*4+3];}
-   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});S.detect={...r,source};panels.render();}catch{}
+   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});S.detect={...r,source};panels.render();renderHud();}catch{}
   }
   async function runSeam(){
    const e=entry();if(!S.gen||!S.pic)return;
@@ -262,7 +262,7 @@ export default {
     if(i.shift||!e.scene.lights.length){
      if(e.scene.lights.length>=St.MAX_LIGHTS){ctx.toast(t('tex.light.max',{n:St.MAX_LIGHTS}),{error:true});return false;}
      const base=e.scene.lights[e.scene.lights.length-1]||defaultSceneFor().lights[0];
-     edit(t('tex.cmd.addLight'),(s,id,size)=>St.addLight(s,id,{...base,x:Math.round(p.x),y:Math.round(p.y),enabled:true},size));
+     edit(t('tex.cmd.addLight'),(s,id,size)=>St.addLight(s,id,{...base,x:Math.round(p.x*2)/2,y:Math.round(p.y*2)/2,enabled:true},size));
      const ls=entry().scene.lights;S.selLight=ls[ls.length-1]?.id;panels.render();return false;
     }
     const target=e.scene.lights.find(l=>l.id===S.selLight)||e.scene.lights[0];S.selLight=target.id;
@@ -340,6 +340,11 @@ export default {
    if(rects.length)extra.push(tog('scope',prefs.scope==='sheet',t('tex.hud.sheet'),()=>ctx.runCommand('tex.scope'),'`'));
    if(rects.length){const play=h('button.tx-hud-btn',{type:'button','data-tex':'play','aria-pressed':String(S.playing),title:(S.playing?t('tex.frames.pause'):t('tex.frames.play'))+' (Enter)','aria-label':S.playing?t('tex.frames.pause'):t('tex.frames.play')});play.innerHTML=S.playing?ICONS.texPause:ICONS.texPlay;play.addEventListener('click',()=>ctx.runCommand('tex.play'));
     extra.push(h('span.tx-hud-count',{'data-tex':'frame-count'},`${S.frame+1}/${rects.length}`),play);}
+   // an imported normal map that reads as the other convention: say so where it is seen
+   const d=S.detect?.detect;
+   if(S.detect?.source==='imported'&&d?.convention&&['high','medium'].includes(d.confidence)&&d.convention!==(e.normalDeclared||'opengl')){
+    const warn=h('button.tx-hud-btn.tx-hud-warn',{type:'button','data-tex':'conv-warn'},t('tex.hud.convWarn',{conv:t('tex.conv.'+d.convention)}));warn.addEventListener('click',()=>ctx.showPanel('tex-check'));extra.push(warn);
+   }
    if(extra.length)kids.push(h('div.tx-hud-group',{},extra));
    hud.replaceChildren(...kids);
   }

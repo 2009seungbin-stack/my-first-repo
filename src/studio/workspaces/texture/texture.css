@@ -82,3 +82,4 @@
 .studio[data-mode="compact"] .tx-slider{grid-template-columns:minmax(80px,38%) minmax(0,1fr) 54px}
 .studio[data-mode="compact"] .tx-3d{grid-template-columns:1fr}
 .studio[data-mode="compact"] .tx-segbtn{height:28px}
+.tx-hud-warn{color:var(--warn)!important;box-shadow:inset 0 -2px 0 var(--warn)}

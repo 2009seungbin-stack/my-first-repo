@@ -57,7 +57,8 @@ export function quantizeNormals(n,count,{directions=8,tiers=2,maxTilt=60}={}){
   let k=Math.round(tilt/tStep);if(k>tiers)k=tiers;
   if(!k){out[p*3+2]=1;continue;}
   const a=Math.round(Math.atan2(y,x)/step)*step,t=k*tStep,s=Math.sin(t);
-  out[p*3]=Math.cos(a)*s;out[p*3+1]=Math.sin(a)*s;out[p*3+2]=Math.cos(t);
+  // cos/sin of multiples of π/2 are off by 1e-16; snap them so one direction is one byte triple
+  const cx=Math.cos(a),sy=Math.sin(a);out[p*3]=(Math.abs(cx)<1e-9?0:cx)*s;out[p*3+1]=(Math.abs(sy)<1e-9?0:sy)*s;out[p*3+2]=Math.cos(t);
  }
  return out;
 }
