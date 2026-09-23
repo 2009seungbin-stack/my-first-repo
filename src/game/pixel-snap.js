@@ -50,11 +50,38 @@ export function latticeAt(profile,s){
  * of pixel i−1, i.e. continuous position i−½; the boundary between samples is half a cell further). */
 export function axisLattice(pa,s){
  const a=latticeAt(pa.d1,s),b=latticeAt(pa.d2,s);
- if(a.c>=b.c)return {c:a.c,phase:a.phase,order:1};
- return {c:b.c,phase:((b.phase-.5+s/2)%s+s)%s,order:2};
+ if(a.c>=b.c)return {c:a.c,phase:a.phase,order:1,raw:a.phase};
+ return {c:b.c,phase:((b.phase-.5+s/2)%s+s)%s,order:2,raw:b.phase};
+}
+/** How much of an axis's edge energy falls BETWEEN the lattice lines of period s (more than a
+ * quarter cell from the nearest one), relative to what randomly placed edges would give (so 1 =
+ * no relation to the lattice, 0 = every edge on a line). The pixel lattice scores low; a
+ * sprite-sheet cell pitch (a multiple of it) leaves every pixel edge inside its cells and scores
+ * high; a harmonic (s/2) scores as low as s itself, which is why the largest low-scoring period wins.
+ * Returns null when the lattice is too fine to judge (a quarter cell under half a pixel). */
+export function interiorShare(pa,s){
+ const l=axisLattice(pa,s),prof=l.order===1?pa.d1:pa.d2,tol=Math.max(.5,.25*s),expected=1-2*tol/s;if(expected<.3)return null;
+ let inside=0,total=0;
+ for(let i=1;i<prof.length;i++){const e=prof[i];if(!e)continue;total+=e;let d=((i-l.raw)%s+s)%s;d=Math.min(d,s-d);if(d>tol)inside+=e;}
+ return total?inside/total/expected:1;
 }
 function scan(P,from,to,step){
  const out=[];for(let s=from;s<=to+1e-9;s+=step){const x=axisLattice(P.x,s),y=axisLattice(P.y,s);out.push({s:+s.toFixed(4),c:(x.c+y.c)/2,cx:x.c,cy:y.c});}return out;
+}
+/** Distances between consecutive significant edge peaks of a profile (local maxima at least 20 %
+ * of the 95th-percentile peak, so JPEG ripples do not count). */
+export function edgeGaps(prof){
+ const pk=[];for(let i=1;i<prof.length-1;i++)if(prof[i]>0&&prof[i]>=prof[i-1]&&prof[i]>prof[i+1])pk.push(i);
+ if(pk.length<3)return [];
+ const v=pk.map(i=>prof[i]).sort((a,b)=>a-b),cut=.2*v[Math.floor(v.length*.95)],sig=pk.filter(i=>prof[i]>=cut),out=[];
+ for(let k=1;k<sig.length;k++)out.push(sig[k]-sig[k-1]);
+ return out;
+}
+/** The typical gap: mean of the gaps near the median (a missing edge makes a double gap, a JPEG
+ * ripple a short one; both are left out). Null when there is too little to measure. */
+export function typicalGap(gaps){
+ if(gaps.length<4)return null;const s=[...gaps].sort((a,b)=>a-b),med=s[s.length>>1],keep=s.filter(g=>g>=.6*med&&g<=1.5*med);
+ return keep.length?keep.reduce((a,b)=>a+b,0)/keep.length:null;
 }
 /** Lattice period (scale) of a smoothed / fractional upscale, both axes together, then each axis
  * refined. `P` = axisProfiles(img). @returns {scale, scaleX, scaleY, phaseX, phaseY, order, coherence, prominence, confidence} */
@@ -64,16 +91,28 @@ export function estimateLattice(P,{minScale=1.5,maxScale=64}={}){
  if(!coarse.length)return null;
  const peaks=coarse.filter((v,i)=>(i===0||v.c>=coarse[i-1].c)&&(i===coarse.length-1||v.c>=coarse[i+1].c));
  const best=peaks.reduce((a,b)=>b.c>a.c?b:a,peaks[0]);
- // the fundamental: the largest period that is a whole multiple of the best one and scores almost as well
- let chosen=best;
- for(const p of peaks){const r=p.s/best.s,k=Math.round(r);if(k>=2&&Math.abs(r-k)<=.03*k&&p.c>=best.c*.8&&p.s>chosen.s)chosen=p;}
+ // The pixel lattice: a lattice of period s also fits s/2, s/3… (harmonics), and a sheet's cell
+ // pitch n·s fits too, so coherence alone cannot tell them apart. The spacing of the edges
+ // themselves can: neighbouring pixel edges are one cell apart. The strong peak nearest the typical
+ // gap between consecutive edge peaks is the pixel lattice.
+ const strong=peaks.filter(p=>p.c>=best.c*.5).map(p=>{const a=interiorShare(P.x,p.s),b=interiorShare(P.y,p.s);return {...p,inner:a==null||b==null?null:(a+b)/2};});
+ const order=axisLattice(P.x,best.s).order+axisLattice(P.y,best.s).order>2?'d2':'d1',gaps=[...edgeGaps(P.x[order]),...edgeGaps(P.y[order])];
+ const gap=typicalGap(gaps);let chosen=best;
+ if(gap){const near=strong.filter(p=>Math.abs(p.s/gap-1)<=.25).sort((a,b)=>b.c-a.c)[0];
+  if(near)chosen=near;
+  else if(gap>=minScale&&gap<=top){const around=scan(P,Math.max(minScale,gap*.88),Math.min(top,gap*1.12),.01);chosen=around.reduce((a,b)=>b.c>a.c?b:a,around[0]);}}
  const fine=scan(P,Math.max(minScale,chosen.s-.03),chosen.s+.03,.001),f=fine.reduce((a,b)=>b.c>a.c?b:a,fine[0]);
  const refine=(pa,s0)=>{let b={s:s0,c:-1};for(let s=s0-.015;s<=s0+.015+1e-9;s+=.0005){const c=axisLattice(pa,s).c;if(c>b.c)b={s:+s.toFixed(4),c};}return b.s;};
  const sx=refine(P.x,f.s),sy=refine(P.y,f.s),lx=axisLattice(P.x,sx),ly=axisLattice(P.y,sy);
  const sorted=coarse.map(v=>v.c).sort((a,b)=>a-b),median=sorted[sorted.length>>1]||1e-9,prominence=f.c/Math.max(1e-9,median);
- const confidence=f.c>=.5&&prominence>=3?'high':f.c>=.35&&prominence>=2?'medium':'low';
- return {scale:f.s,scaleX:sx,scaleY:sy,phaseX:lx.phase,phaseY:ly.phase,order:Math.max(lx.order,ly.order),coherence:+f.c.toFixed(3),prominence:+prominence.toFixed(2),confidence,
-  candidates:peaks.sort((a,b)=>b.c-a.c).slice(0,4).map(p=>({scale:p.s,coherence:+p.c.toFixed(3)}))};
+ // confidence: how strongly edges sit on the lattice (coherence), how far that stands above other
+ // periods (prominence), and how little edge energy is left between its lines
+ const rel=(()=>{const a=interiorShare(P.x,f.s),b=interiorShare(P.y,f.s);return a==null||b==null?1:(a+b)/2;})();
+ // two independent measures agreeing (the lattice and the spacing of edge peaks) also counts
+ const agree=!!gap&&Math.abs(f.s/gap-1)<=.1;
+ const confidence=(f.c>=.5&&prominence>=3)||(f.c>=.35&&(rel<=.5||agree)&&prominence>=3)?'high':(f.c>=.35&&prominence>=2)||(f.c>=.2&&(rel<=.65||agree)&&prominence>=2)?'medium':'low';
+ return {scale:f.s,gap:gap?+gap.toFixed(3):null,scaleX:sx,scaleY:sy,phaseX:lx.phase,phaseY:ly.phase,order:Math.max(lx.order,ly.order),coherence:+f.c.toFixed(3),prominence:+prominence.toFixed(2),between:+rel.toFixed(3),confidence,
+  candidates:strong.sort((a,b)=>b.c-a.c).slice(0,6).map(p=>({scale:p.s,coherence:+p.c.toFixed(3),between:p.inner==null?null:+p.inner.toFixed(3)}))};
 }
 /** Cell boundaries along one axis: the lattice phase + k·s, each moved to the strongest edge within
  * ±`slack`·s when that edge stands out, then partial cells at the ends kept only when at least half
@@ -100,7 +139,12 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  if(scale==null){
   const exact=detectScale(img,{maxScale:Math.min(16,maxScale)});
   if(exact.confident&&exact.exact&&exact.scale>1){
-   const s=exact.scale,rx=exact.grid.columns.length?exact.grid.columns[0]%s:0,ry=exact.grid.rows.length?exact.grid.rows[0]%s:0;
+   // detectScale prefers a grid without an offset, so an off-grid crop of a 6× upscale can come back
+   // as 3× (every change is also on the 3-px grid). The largest multiple whose change positions all
+   // share one residue is the real block size.
+   let s=exact.scale;const cols=exact.grid.columns,rows=exact.grid.rows,same=(pos,S)=>pos.every(p=>p%S===pos[0]%S);
+   for(let m=Math.floor(Math.min(16,maxScale,w,h)/s);m>=2;m--)if(same(cols,m*s)&&same(rows,m*s)&&(cols.length>1||rows.length>1)){s=m*s;break;}
+   const rx=cols.length?cols[0]%s:0,ry=rows.length?rows[0]%s:0;
    const xs=cutsAt(w,s,rx),ys=cutsAt(h,s,ry);
    return {kind:'integer',scale:s,scaleX:s,scaleY:s,phaseX:rx,phaseY:ry,confidence:'high',coherence:1,xs,ys,moved:0,width:xs.length-1,height:ys.length-1};
   }
@@ -111,6 +155,13 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  else est=estimateLattice(P,{maxScale:Math.min(maxScale,Math.max(2,Math.min(w,h)/2))});
  if(!est||est.scale<1.4)return {kind:'unit',scale:1,scaleX:1,scaleY:1,phaseX:0,phaseY:0,confidence:est?.confidence||'low',coherence:est?.coherence||0,xs:cutsAt(w,1,0),ys:cutsAt(h,1,0),moved:0,width:w,height:h};
  if(phaseX!=null)est.phaseX=phaseX;if(phaseY!=null)est.phaseY=phaseY;
+ // Pseudo-pixels of uneven size (generated "pixel art"): no single lattice holds across the image,
+ // but the spacing of edge peaks still gives the cell size, and the cuts can follow the edges.
+ if(est.confidence==='low'&&scale==null){
+  const gx=typicalGap(edgeGaps(P.x.d1)),gy=typicalGap(edgeGaps(P.y.d1));
+  if(gx&&gy&&gx>=2&&gy>=2){const tx=trackBoundaries(P.x.d1,w,gx),ty=trackBoundaries(P.y.d1,h,gy),strength=Math.min(tx.strength,ty.strength);
+   if(strength>=2)return {kind:'tracked',scale:+((gx+gy)/2).toFixed(3),scaleX:+gx.toFixed(3),scaleY:+gy.toFixed(3),phaseX:tx.cuts[1]%gx,phaseY:ty.cuts[1]%gy,order:1,confidence:strength>=3?'medium':'low',strength:+strength.toFixed(2),coherence:est.coherence,xs:tx.cuts,ys:ty.cuts,moved:0,width:tx.cuts.length-1,height:ty.cuts.length-1,lattice:{scale:est.scale,confidence:est.confidence}};}
+ }
  if(est.order===2){
   // smooth resample: refine each axis by least squares on the lines with the most detail
   const {x,y}=smoothLines(img);
@@ -121,6 +172,20 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  }
  const bx=boundaries(P.x.d1,w,est.scaleX,est.phaseX,{elastic}),by=boundaries(P.y.d1,h,est.scaleY,est.phaseY,{elastic});
  return {kind:'lattice',...est,xs:bx.cuts,ys:by.cuts,moved:bx.moved+by.moved,predicted:bx.predicted+by.predicted,width:bx.cuts.length-1,height:by.cuts.length-1};
+}
+/** Cell boundaries that follow the edges: dynamic programming over the edge profile, every cell
+ * between 0.7 and 1.35 of the typical size `s` (end cells from 0.4), maximising the edge energy on
+ * the cuts. `strength` = mean energy on the cuts / mean energy overall (1 = no better than chance). */
+export function trackBoundaries(prof,len,s,{lo=.7,hi=1.35,end=.4}={}){
+ const a=Math.max(1,Math.round(lo*s)),b=Math.max(a,Math.round(hi*s)),e0=Math.max(1,Math.round(end*s));
+ const score=new Float64Array(len+1).fill(-Infinity),from=new Int32Array(len+1).fill(-1);
+ for(let i=e0;i<=Math.min(len-1,b);i++){score[i]=prof[i];from[i]=0;}
+ for(let i=1;i<len;i++){if(score[i]===-Infinity)continue;for(let j=i+a;j<=Math.min(len-1,i+b);j++){const v=score[i]+prof[j];if(v>score[j]){score[j]=v;from[j]=i;}}}
+ let best=-1,bv=-Infinity;for(let i=Math.max(1,len-b);i<=len-e0;i++)if(score[i]>bv){bv=score[i];best=i;}
+ if(best<0)return {cuts:[0,len],strength:0};
+ const cuts=[len];for(let i=best;i>0;i=from[i])cuts.push(i);cuts.push(0);cuts.reverse();
+ let total=0;for(let i=1;i<len;i++)total+=prof[i];const on=cuts.slice(1,-1).reduce((sum,i)=>sum+prof[i],0)/Math.max(1,cuts.length-2);
+ return {cuts,strength:total?on/(total/Math.max(1,len-1)):0};
 }
 /** Up to `max` rows (x) and columns (y) with the most edge energy, as premultiplied intensity lines. */
 function smoothLines({data:d,width:w,height:h},max=40){

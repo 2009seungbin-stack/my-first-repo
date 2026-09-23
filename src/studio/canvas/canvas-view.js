@@ -54,6 +54,16 @@ class GLRenderer{
   this.tiles=await Promise.all(jobs);
  }
  clearImage(){for(const t of this.tiles)this.gl.deleteTexture(t.tex);this.tiles=[];}
+ /** Live painting: straight RGBA of `rect` (w*h*4 bytes) replaces that part of the textures. */
+ updateRect(data,rect){
+  const gl=this.gl;gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+  for(const t of this.tiles){
+   const x0=Math.max(rect.x,t.x),y0=Math.max(rect.y,t.y),x1=Math.min(rect.x+rect.w,t.x+t.w),y1=Math.min(rect.y+rect.h,t.y+t.h);if(x1<=x0||y1<=y0)continue;
+   const w=x1-x0,h=y1-y0;let part=data;
+   if(w!==rect.w||h!==rect.h){part=new Uint8Array(w*h*4);for(let y=0;y<h;y++)part.set(data.subarray(((y0-rect.y+y)*rect.w+x0-rect.x)*4,((y0-rect.y+y)*rect.w+x0-rect.x+w)*4),y*w*4);}
+   gl.bindTexture(gl.TEXTURE_2D,t.tex);gl.texSubImage2D(gl.TEXTURE_2D,0,x0-t.x,y0-t.y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,part);
+  }
+ }
  draw(v,W,H,o){
   const gl=this.gl,[r,g,b]=hex(o.workspace);
   gl.viewport(0,0,W,H);gl.clearColor(r,g,b,1);gl.clear(gl.COLOR_BUFFER_BIT);
@@ -75,6 +85,11 @@ class Canvas2DRenderer{
  constructor(canvas){this.ctx=canvas.getContext('2d',{alpha:false});if(!this.ctx)throw Error('No 2D canvas');this.kind='2d';this.src=null;this.pattern=null;this.patternKey='';}
  async setImage(src,w,h){this.src=src;this.w=w;this.h=h;}
  clearImage(){this.src=null;}
+ updateRect(data,rect){
+  // an ImageBitmap cannot be written to: keep a canvas copy from the first live update on
+  if(!this.src.getContext){const c=new OffscreenCanvas(this.w,this.h);c.getContext('2d').drawImage(this.src,0,0);this.src=c;}
+  this.src.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(data.buffer,data.byteOffset,rect.w*rect.h*4),rect.w,rect.h),rect.x,rect.y);
+ }
  draw(v,W,H,o){
   const c=this.ctx;c.setTransform(1,0,0,1,0,0);c.fillStyle=o.workspace;c.fillRect(0,0,W,H);
   if(!this.src)return;
@@ -212,6 +227,9 @@ export class CanvasView{
   this.invalidate();
  }
  clearImage(){this.image=null;this.renderer.clearImage();this.invalidate();}
+ /** Replaces part of the shown image in place without touching the view (live painting): `data` is
+  * straight RGBA of `rect` (rect.w*rect.h*4 bytes), in image pixels. */
+ updateImage(data,rect){if(!this.image||this.lost)return;this.renderer.updateRect(data,rect);this.invalidate();}
  // ------------------------------------------------------------------ view
  get view(){return this.v;}
  setView(v,{clamp=true}={}){

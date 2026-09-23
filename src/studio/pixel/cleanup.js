@@ -31,13 +31,15 @@ export function analyse(frames,opts={}){
  let grid=null;
  let prof=null;if(frames.length>1)for(const f of frames)prof=addProfiles(prof,axisProfiles(f));
  const shared=findGrid(first,{scale:forced,profiles:prof});
- // pixel-check's verdict decides, except that a clear SMOOTH lattice (second-difference kinks, which
- // crisp 1× art does not have) counts as a resample even when that verdict says "already 1×"
- const smooth=shared.kind==='lattice'&&shared.order===2&&(shared.confidence==='high'||shared.confidence==='medium');
- if(forced||(check.verdict!=='unit'&&shared.kind!=='unit')||smooth)
-  grid={...shared,perFrame:frames.map((f,i)=>i===0?shared:shared.kind==='integer'?findGrid(f,{}):findGrid(f,{scale:shared.scaleX}))};
+ // An integer block grid is proof. A measured lattice is trusted when it is clear (high / medium
+ // confidence) — unless the image is CLEAN art (few exact colours) that pixel-check calls 1×: a
+ // crisp sprite sheet repeats with its cell pitch, which is a lattice too, but not an upscale.
+ const noise=colorNoise(first),clear=shared.confidence==='high'||shared.confidence==='medium';
+ const trusted=shared.kind==='integer'||((shared.kind==='lattice'||shared.kind==='tracked')&&clear&&(noise.noisy||check.verdict!=='unit'||shared.order===2));
+ if(forced||trusted)
+  grid={...shared,perFrame:frames.map((f,i)=>i===0?shared:shared.kind==='lattice'?findGrid(f,{scale:shared.scaleX}):findGrid(f,{}))};
  const bg=o.background==='auto'?detectBackground(first):null;
- return {check,grid,background:bg,noise:colorNoise(first),frames:frames.length};
+ return {check,grid,candidate:grid?null:shared,background:bg,noise,frames:frames.length};
 }
 /** Runs the pipeline. @returns {frames:[{data,width,height}], palette:[[r,g,b]], report} */
 export function runCleanup(frames,opts={},analysis=null){
