@@ -46,6 +46,22 @@ block is found as an A2 source (high).
 * `src/studio/workspaces/tile/tile-worker.js` — worker ops (detect with layout-aware sizes,
   identify, blank, suggest, art, collision, generate). Written, syntax-checked, **not wired, not run**.
 
+## Second checkpoint (resumed, then paused again by the owner)
+
+* Merged `origin/nerulio/trust-fixes` (08eb80e; one-line conflict in `src/task/sprite-lab.js`
+  resolved by keeping `sourceFile=file` plus trust-fixes' new `gridAligned`/`autoIslands` resets)
+  and `origin/main` (PR #26 landed). `tests/tiles.test.mjs` still 14/14.
+* Three helper agents were started and told to stop when the pause arrived; they may have left
+  UNCOMMITTED, unreviewed files: `tools/engine-verify/tile/tiled_check.py`, `ldtk_check.py`,
+  `unity_tile.py`, `unity/NerulioTileProbe.cs`, `make_unity_job.mjs`, and competitor notes in
+  `scratchpad/p3/studio-tile/competitors/`. Review them (or delete) before committing; Tiled
+  portable / a `unity-template-tile` copy may exist under `%LOCALAPPDATA%\nerulio-engine-verify`.
+
+**Exact next step on resume:** write `src/studio/workspaces/tile/index.js` (workspace definition
+using the plug-in API, wiring `tile-worker.js`) + `strings.js` (ko/en/ja, merged into
+`STUDIO_STRINGS`) + `tile.css`, register it in `src/studio/main.js` and remove `tile` from
+`src/studio/workspaces/coming.js`; then the rest of the list below.
+
 ## Next steps
 
 1. Workspace UI `src/studio/workspaces/tile/index.js` (+ `strings.js` ko/en/ja merged into
