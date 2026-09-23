@@ -269,8 +269,9 @@
    "author": "ENDESGA",
    "licence": "Lospec palette listing (colour lists; no copyright asserted)",
    "licenceUrl": "https://lospec.com/palette-list/endesga-32",
-   "committable": true,
-   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+   "committable": false,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction.",
+   "committableNote": "no explicit CC0/public-domain statement on the source page; local tests only"
   },
   "lospec-pico-8-gpl": {
    "url": "https://lospec.com/palette-list/pico-8.gpl",
@@ -280,8 +281,9 @@
    "author": "Lexaloffle Games (PICO-8)",
    "licence": "Lospec palette listing (colour lists; no copyright asserted)",
    "licenceUrl": "https://lospec.com/palette-list/pico-8",
-   "committable": true,
-   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+   "committable": false,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction.",
+   "committableNote": "no explicit CC0/public-domain statement on the source page; local tests only"
   },
   "lospec-pico-8-hex": {
    "url": "https://lospec.com/palette-list/pico-8.hex",
@@ -291,8 +293,9 @@
    "author": "Lexaloffle Games (PICO-8)",
    "licence": "Lospec palette listing (colour lists; no copyright asserted)",
    "licenceUrl": "https://lospec.com/palette-list/pico-8",
-   "committable": true,
-   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+   "committable": false,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction.",
+   "committableNote": "no explicit CC0/public-domain statement on the source page; local tests only"
   },
   "lospec-sweetie-16-gpl": {
    "url": "https://lospec.com/palette-list/sweetie-16.gpl",
@@ -302,8 +305,9 @@
    "author": "GrafxKid",
    "licence": "Lospec palette listing (colour lists; no copyright asserted)",
    "licenceUrl": "https://lospec.com/palette-list/sweetie-16",
-   "committable": true,
-   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction."
+   "committable": false,
+   "licenceNote": "Lospec palette listing (colour lists; no copyright asserted). Palette page shows no licence or usage restriction.",
+   "committableNote": "no explicit CC0/public-domain statement on the source page; local tests only"
   },
   "noto-sans-jp": {
    "url": "https://raw.githubusercontent.com/google/fonts/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
