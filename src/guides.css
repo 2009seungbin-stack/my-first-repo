@@ -8,11 +8,11 @@
 .guide-head h1{font-size:clamp(27px,4vw,40px);line-height:1.15;letter-spacing:-1.2px;margin:14px 0 12px;color:#eef0f3;font-weight:850;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere}
 .guide-meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 12px;color:var(--gh-3t);font-size:13px;font-weight:650}
 .guide-meta time{color:var(--gh-2t)}
-.guide-engines{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.guide-article .guide-engines{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .guide-engines li{font-size:12px;font-weight:750;padding:4px 10px;border-radius:999px;background:var(--gh-2);color:var(--gh-text);border:1px solid var(--gh-line)}
 .guide-tested{margin:0 0 8px;font-size:12.5px;color:var(--gh-ok);font-weight:700}
 .guide-tested::before{content:"✓ "}
-.guide-article{color:#c9ced6;font-size:16px;line-height:1.75;font-weight:450}
+.guide-article{color:#c9ced6;font-size:16px;line-height:1.75;font-weight:400}
 .guide-article p{margin:0 0 16px}
 .guide-intro{font-size:17px;color:#dde1e7;margin-top:18px}
 .guide-body h2{font-size:24px;line-height:1.3;letter-spacing:-.5px;color:#eef0f3;margin:44px 0 14px;scroll-margin-top:16px;word-break:keep-all;overflow-wrap:anywhere}
@@ -68,12 +68,19 @@
 .guide-by-engine section{scroll-margin-top:16px}.guide-by-engine h3{color:#e6e9ee;font-size:16px;margin:0 0 6px}
 .guide-by-engine ul{margin:0;padding-left:18px;color:var(--gh-2t);font-size:14px;line-height:1.6}.guide-by-engine a{color:var(--gh-text)}.guide-by-engine a:hover{color:var(--gh-accent)}
 .guide-page .site-footer{max-width:1080px}
+/* Wide screens: the table of contents becomes a sticky column next to the text. */
+@media(min-width:1200px){
+ .guide-page .page{max-width:1140px}
+ .guide-main:not(.guide-index) .guide-article{max-width:none;display:grid;grid-template-columns:minmax(0,760px) 260px;column-gap:52px;align-items:start}
+ .guide-article>*{grid-column:1;min-width:0}
+ .guide-article>.guide-toc{grid-column:2;grid-row:1/span 3;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;margin:14px 0 0;background:none;border:0;border-left:1px solid var(--gh-line);border-radius:0;padding:4px 0 4px 18px}
+ .guide-article>.guide-toc ol{columns:auto;font-size:13.5px;padding-left:22px}
+}
 @media(max-width:600px){
  .guide-article{font-size:15.5px}.guide-intro{font-size:16px}
  .guide-body h2{font-size:21px;margin-top:36px}
  .guide-steps>li{padding:12px 12px 12px 44px}.guide-steps>li::before{left:10px}
  .guide-code pre{font-size:12.5px;padding:14px}
  .guide-nerulio{padding:16px 16px 6px}
- .guide-header .header-link{display:inline}
  .guide-page .page{padding:0 16px 32px}.guide-page .page-header{padding:14px 16px}
 }

@@ -170,7 +170,7 @@ An index map is data, not colour, so anything that blends neighbouring texels pr
 
 ## Unity 6 (URP 2D Renderer) {#unity}
 
-The same idea works in Unity. This unlit sprite shader compiled without errors in Unity 6000.5.3f1 with URP 17.5.0:
+The same idea works in Unity. This unlit sprite shader compiled without errors in Unity 6000.5.3f1 with URP 17.5.0, and a 2D Renderer camera drew all five variants pixel-exact in both Gamma and Linear colour space. SpriteRenderer **Color** and **Flip X** still work.
 
 ```text
 // PaletteSwap2D.shader — Unity 6, URP 2D Renderer (unlit sprite)
@@ -235,9 +235,9 @@ Shader "Custom/PaletteSwap2D"
 
 Import settings matter more in Unity than the shader does:
 
-- **Index map:** Texture Type **Sprite (2D and UI)**, **sRGB (Color Texture)** off, **Filter Mode** Point (no filter), **Compression** None, **Generate Mipmaps** off.
-- **Palette texture:** Texture Type **Default**, sRGB on, Filter Mode Point, Compression None, and **Non-Power of 2** set to **None**. With the Default type's defaults, our 7×5 palette was imported rescaled to 8×4, which moves every column.
-- **One material per variant.** Make a material asset per tier and set **Palette Row** on each. A `MaterialPropertyBlock` also works, but per-renderer property blocks can stop sprites from batching.
+- **Index map:** Texture Type **Sprite (2D and UI)**, **sRGB (Color Texture)** off, **Filter Mode** Point (no filter), **Compression** None, **Generate Mipmaps** off. In a Linear-colour-space project we left sRGB on as a test, and the whole sprite came out in the outline colour: the small index values were decoded towards 0 before the shader read them.
+- **Palette texture:** Texture Type **Default**, sRGB on, Filter Mode Point, Compression None, and **Non-Power of 2** set to **None**. With the Default type's defaults (To nearest, Bilinear, Compressed), our 7×5 palette was imported rescaled to 8×4, which moves every column.
+- **One material per variant.** Make a material asset per tier and set **Palette Row** on each. A `MaterialPropertyBlock` also works, but Unity's manual lists "mustn't use MaterialPropertyBlocks" among the conditions for the SRP Batcher.
 
 In Shader Graph, create **Assets > Create > Shader Graph > URP > Sprite Unlit Shader Graph**. Sample the main texture (reference name `_MainTex`), multiply its R by 255, **Round**, add 0.5 and divide by the palette width from a **Texture Size** node. That gives U. For V use `1 − (row + 0.5) / height`. Read the palette with **Sample Texture 2D LOD** (LOD 0) through a **Sampler State** node set to **Point**, and send the result to **Base Color**, with the main texture's A to **Alpha**.
 

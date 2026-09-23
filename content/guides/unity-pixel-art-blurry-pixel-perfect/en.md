@@ -9,7 +9,7 @@ Everything below was checked in Unity 6000.5.3f1 (Unity 6.5) with URP 17.5 and i
 :::steps
 1. **Select the sprites.** In the Project window, select every pixel-art texture (you can select many at once and edit them together).
 2. **Use sprite import.** In the Inspector set **Texture Type** to **Sprite (2D and UI)**. Set **Pixels Per Unit** to your tile or grid size (for example 16) on every sprite, so one tile is one world unit.
-3. **Turn filtering off.** Under **Advanced**, turn **Generate Mip Maps** off. Then set **Filter Mode** to **Point (no filter)**.
+3. **Turn filtering off.** Open the **Advanced** section, set **Filter Mode** to **Point (no filter)** and turn **Generate Mip Maps** off.
 4. **Turn compression off and check Max Size.** In the platform section (the **Default** tab) set **Compression** to **None**, and set **Max Size** to a value at least as large as the texture's longest side (a 3000 px sheet needs 4096). Click **Apply**.
 5. **Add a Pixel Perfect Camera.** Select the camera, click **Add Component** and add **Pixel Perfect Camera**. Set **Assets Pixels Per Unit** to the same value as your sprites and **Reference Resolution** to your game's pixel resolution (for example 320 × 180). With URP the camera must use a 2D Renderer.
 6. **Pick how it snaps.** Set **Grid Snapping** to **Pixel Snapping** to stop sub-pixel movement, or to **Upscale Render Texture** to draw the scene at the reference resolution and scale it up, which also keeps rotated sprites on the pixel grid. Choose a **Crop Frame** for screens whose aspect ratio differs from the reference resolution.

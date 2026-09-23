@@ -116,7 +116,7 @@ test('markdown dialect: escaping, links, steps, callouts, tables, fences and the
  assert(x.html.includes('<td>Mipmaps | none</td>')&&x.html.includes('style="text-align:right"'));
  assert(x.html.includes('class="guide-open" data-studio-ws="sprite" href="en/game/studio/?ws=sprite"'));
  assert(x.html.includes('<li>Two with <code>code</code> and <strong>bold</strong> continued line</li>'));
- const bad=renderMarkdown('## No id\n\n[x](guide:nope) [y](tool:nope) ![a](shot:nope)\n\n:::nerulio ws=nope\nx\n:::\n',{locale:'en',prefix:'',slug:'demo'});
+ const bad=renderMarkdown('## No id\n\n[x](guide:nope) [y](tool:nope)\n\n![a](shot:nope)\n\n:::nerulio ws=nope\nx\n:::\n',{locale:'en',prefix:'',slug:'demo'});
  for(const p of ['## heading without {#id}','unknown guide link','unknown tool link','missing screenshot','unknown workspace'])assert(bad.problems.some(x=>x.startsWith(p)),p);
  assert.equal(wordCount('Hello, world — 2D pixel-art!','en'),4);assert.equal(wordCount('도트 흐림, 해결!','ko'),6);
 });
