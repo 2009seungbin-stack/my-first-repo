@@ -183,7 +183,7 @@ with sync_playwright() as pw:
     ok('padding 0 repacks live into a smaller page', after['w'] * after['h'] < before['w'] * before['h'], f'{before} -> {after}')
     ok('the setting is saved in the project document (doc.settings.pack)', settings(p).get('settings', {}).get('shapePadding') == 0)
     p.locator('.st-canvas-host').click(position={'x': 5, 'y': 5}); p.keyboard.press('Control+z'); p.wait_for_timeout(300); packed(p)
-    ok('Ctrl+Z undoes the setting and the pack follows', settings(p).get('settings', {}).get('shapePadding') == 2 and (page_image(p)['w'], page_image(p)['h']) == (before['w'], before['h']))
+    ok('Ctrl+Z undoes the setting and the pack follows', settings(p).get('settings', {}).get('shapePadding', 2) == 2 and (page_image(p)['w'], page_image(p)['h']) == (before['w'], before['h']))
     set_field(p, 'preset', 'pixi')
     ok('the PixiJS preset turns rotation on', p.locator('[data-pack="allowRotation"]').is_checked())
     rot = js(p, 'return document.querySelectorAll(".pk-frame .pk-flag").length;')
@@ -233,13 +233,18 @@ with sync_playwright() as pw:
     if p.locator('[data-export="webm"]').is_enabled():
         z = export(p, 'webm'); webm = TMP / 'run.webm'; webm.write_bytes(z.read(next(n for n in z.namelist() if n.endswith('.webm'))))
         ok('WebM starts with the EBML header', webm.read_bytes()[:4] == b'\x1a\x45\xdf\xa3')
-        vid = p.evaluate('async(b64)=>{const v=document.createElement("video");v.muted=true;v.src="data:video/webm;base64,"+b64;await new Promise((r,j)=>{v.onloadedmetadata=r;v.onerror=()=>j(Error("video error"))});return {w:v.videoWidth,h:v.videoHeight,d:v.duration};}',
-                         __import__('base64').b64encode(webm.read_bytes()).decode())
-        ok('Chromium plays the WebM: 4× the frame size, 0.6 s', abs(vid['d'] - 0.6) < 0.05 and vid['w'] >= 40 * 4, json.dumps(vid))
         if shutil.which('ffprobe'):
             pr = subprocess.run(['ffprobe', '-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=codec_name,nb_read_frames,width,height', '-of', 'json', str(webm)], capture_output=True, text=True)
-            st = json.loads(pr.stdout)['streams'][0]
-            ok('ffprobe reads 6 VP9/VP8 frames', int(st['nb_read_frames']) == 6 and st['codec_name'] in ('vp9', 'vp8'), json.dumps(st))
+            st = json.loads(pr.stdout or '{"streams":[{}]}')['streams'][0]
+            ok('ffprobe reads 6 VP9/VP8 frames', int(st.get('nb_read_frames') or 0) == 6 and st.get('codec_name') in ('vp9', 'vp8'), json.dumps(st) + pr.stderr[-300:])
+        # the Studio page's CSP allows no data:/blob: media, so the file is played in a blank page
+        vp = ctx.new_page(); vp.goto('about:blank')
+        vid = vp.evaluate('async(b64)=>{const v=document.createElement("video");v.muted=true;v.preload="auto";v.src="data:video/webm;base64,"+b64;document.body.append(v);'
+                          'await new Promise((r,j)=>{v.onloadedmetadata=r;v.onerror=()=>j(Error("video error "+(v.error&&v.error.code)+" "+(v.error&&v.error.message)))});'
+                          'if(!isFinite(v.duration)){v.currentTime=1e9;await new Promise(r=>v.ontimeupdate=r);}return {w:v.videoWidth,h:v.videoHeight,d:v.duration};}',
+                          __import__('base64').b64encode(webm.read_bytes()).decode())
+        vp.close()
+        ok('Chromium plays the WebM: 4× the frame size, 0.6 s', abs(vid['d'] - 0.6) < 0.05 and vid['w'] >= 40 * 4, json.dumps(vid))
     else:
         print('SKIP WebM: this Chromium has no VideoEncoder')
     # ------------------------------------------------------------ sheet: pages, variants, cancel
