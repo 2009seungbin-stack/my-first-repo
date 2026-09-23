@@ -187,11 +187,14 @@ export async function detectFramesAsync(src,{threshold=ALPHA_THRESHOLD,minArea=4
 }
 /** Model frames for a list of sheet rectangles. `trim` records the alpha bounding box inside each
  * rectangle as `trimmedRect` (the pixels stay where they are; nothing is cropped yet). */
-export function framesFromRects(src,rects,{trim=true,threshold=ALPHA_THRESHOLD,prefix='frame_',tag='',pivotX,pivotY,skipEmpty=true,names}={}){
+export function framesFromRects(src,rects,{trim=true,threshold=ALPHA_THRESHOLD,trimThreshold=0,prefix='frame_',tag='',pivotX,pivotY,skipEmpty=true,names}={}){
  const s=source(src),frames=[],empty=[];
  rects.forEach((r,i)=>{
   const sourceRect=checkRect(r,s.width,s.height,`frame ${i}`);
-  const trimmed=trim||skipEmpty?boundsIn(s,sourceRect,{threshold}):null;
+  // Trimming keeps every pixel that is not fully transparent: the alpha threshold decides what
+  // counts as an island, not what may be cut away. A faint glow (alpha 1…8) at the edge of an FX
+  // frame is art, and trimming it off changed every frame of a real 4096² hit-effect sheet.
+  const trimmed=trim||skipEmpty?boundsIn(s,sourceRect,{threshold:Math.min(threshold,trimThreshold)}):null;
   if(!trimmed&&skipEmpty){empty.push(i);return;}
   frames.push(makeFrame({name:names?.[i]??`${prefix}${frameNumber(frames.length,rects.length)}`,sourceRect,trimmedRect:trim?trimmed:null,tag,
    ...(pivotX==null?{}:{pivotX}),...(pivotY==null?{}:{pivotY}),metadata:{row:r.row??0,parts:r.parts?.length??1}}));

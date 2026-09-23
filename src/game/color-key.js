@@ -55,7 +55,12 @@ export function detectColorKey(src,{threshold=ALPHA_THRESHOLD,signal}={}){
  // Two independent ways to be sure: the border is overwhelmingly one colour, or it is mostly
  // that colour *and* whole rows/columns of it run between the cells. Either way the colour must
  // be a real part of the sheet but not all of it (a flat image is not a sheet on a background).
- const lines=fullLines>=4,body=sheetShare>=.1&&sheetShare<=.97;
+ // A backdrop surrounds the art: it shows on every side of the sheet. A colour on only one side
+ // (the left half of a sheet made of two opaque blocks) is content, not a key.
+ const side=img=>{let n=0;for(let i=0;i<img.data.length;i+=4){const r=img.data[i]-color[0],g=img.data[i+1]-color[1],b=img.data[i+2]-color[2];if(img.data[i+3]>threshold&&r*r+g*g+b*b<=limit)n++;}return n/(img.data.length/4);};
+ const sides=[side(s.read({x:0,y:0,w,h:1})),side(s.read({x:0,y:h-1,w,h:1})),side(s.read({x:0,y:0,w:1,h})),side(s.read({x:w-1,y:0,w:1,h}))];
+ const surrounds=sides.every(v=>v>=.1);
+ const lines=fullLines>=4,body=sheetShare>=.1&&sheetShare<=.97&&surrounds;
  const confidence=alphaSheet||!body?'low':borderShare>=.75||borderShare>=.4&&lines?'high':borderShare>=.4?'medium':'low';
  let score=clamp01(borderShare)*.55+clamp01(sheetShare/.35)*.25+(lines?.12:0)+(conventional?.08:0);
  if(alphaSheet||!body)score*=.3;
@@ -64,6 +69,7 @@ export function detectColorKey(src,{threshold=ALPHA_THRESHOLD,signal}={}){
  const reasons=[`${pct(borderShare)} of the border is ${hex(color)}`,`${pct(sheetShare)} of the sheet is that colour`];
  if(fullLines)reasons.push(`${fullLines} full row/column lines are that colour (spacing between cells)`);
  if(conventional)reasons.push('it is a conventional key colour');
+ if(!surrounds)reasons.push('the colour is missing from at least one side of the sheet, so it is content, not a backdrop');
  if(alphaSheet)reasons.push(`the sheet already uses transparency (${pct(borderClear/borderTotal)} of the border)`);
  if(tolerance)reasons.push(`near-key border pixels spread up to ${Math.round(spread)} levels, so the range is ${tolerance}`);
  return {color,tolerance,confidence,score,apply:confidence==='high',reasons,

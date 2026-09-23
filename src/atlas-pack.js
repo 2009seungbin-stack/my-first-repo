@@ -52,7 +52,10 @@ export function atlasData(format,frames,{image='atlas.png',width,height,app='Ner
  // Animations, when given, are {name:[frame names in playback order]} — the "animations" block
  // TexturePacker writes for Phaser/PixiJS, and the same list for the Godot JSON.
  const anims=animations&&Object.keys(animations).length?{animations}:{};
- const tp=f=>({frame:{x:f.x,y:f.y,w:f.rotated?f.h:f.w,h:f.rotated?f.w:f.h},rotated:!!f.rotated,trimmed:!!f.trimmed,spriteSourceSize:{x:f.offsetX||0,y:f.offsetY||0,w:f.w,h:f.h},sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h}});
+ // TexturePacker JSON: `frame` w/h are the sprite's own, unrotated size even when `rotated` is
+ // set — Phaser's JSON parsers and PixiJS's Spritesheet swap them for the region in the atlas.
+ // Writing the atlas orientation here made every rotated frame come out garbled in all three.
+ const tp=f=>({frame:{x:f.x,y:f.y,w:f.w,h:f.h},rotated:!!f.rotated,trimmed:!!f.trimmed,spriteSourceSize:{x:f.offsetX||0,y:f.offsetY||0,w:f.w,h:f.h},sourceSize:{w:f.sourceW??f.w,h:f.sourceH??f.h}});
  const meta={app,version:'1.0',image,format:'RGBA8888',size:{w:width,h:height},scale:'1'};
  if(format==='json-hash')return JSON.stringify({frames:Object.fromEntries(frames.map(f=>[f.name,tp(f)])),...anims,meta},null,2);
  if(format==='json-array')return JSON.stringify({frames:frames.map(f=>({filename:f.name,...tp(f)})),...anims,meta},null,2);
