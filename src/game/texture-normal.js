@@ -32,9 +32,11 @@ export function heightToNormal(height,w,h,{strength=2,kernel='sobel3',wrap=false
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   let dx=0,dy=0;
   for(let ky=0;ky<n;ky++)for(let kxi=0;kxi<n;kxi++){
-   const weight=kx[ky*n+kxi];if(!weight)continue;
+   // the vertical kernel is the transpose: its weight can be non-zero where the horizontal one is
+   // zero (the centre column), so neither may skip the sample for the other
+   const weight=kx[ky*n+kxi],wy=kx[kxi*n+ky];if(!weight&&!wy)continue;
    const value=sampleAt(x+kxi-radius,y+ky-radius);
-   dx+=weight*value;dy+=kx[kxi*n+ky]*value;
+   dx+=weight*value;dy+=wy*value;
   }
   const nx=-dx*scale*strength*xSign,ny=dy*scale*strength*ySign,norm=Math.hypot(nx,ny,1),i=(y*w+x)*4;
   out.set([encode(nx/norm),encode(ny/norm),encode(1/norm),255],i);
