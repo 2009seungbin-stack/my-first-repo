@@ -68,9 +68,29 @@ export function exportProject({frames=[],animations=[],atlas=null}={},{engineTar
  return out;
 }
 export const projectJson=(project,options)=>JSON.stringify(exportProject(project,options),null,2);
-/** Files a generic export writes beside the atlas images. */
+/** The TexturePacker "JSON (hash)" fields for one envelope frame: `frame` (the region, unrotated
+ * size), `trimmed`, `spriteSourceSize` (where the stored pixels sit on the frame canvas) and
+ * `sourceSize`. Phaser's `load.atlas` and PixiJS's `Assets.load` read exactly these and ignore the
+ * rest, so the generic file loads in both as it is. */
+export function texturePackerFrame(f){
+ return {frame:{x:f.rect.x,y:f.rect.y,w:f.rect.w,h:f.rect.h},rotated:false,
+  trimmed:f.offset.x!==0||f.offset.y!==0||f.rect.w!==f.sourceSize.w||f.rect.h!==f.sourceSize.h,
+  spriteSourceSize:{x:f.offset.x,y:f.offset.y,w:f.rect.w,h:f.rect.h},sourceSize:{w:f.sourceSize.w,h:f.sourceSize.h}};
+}
+/** Files a generic export writes beside the atlas images. The envelope is also a valid
+ * TexturePacker JSON hash (frame / spriteSourceSize / sourceSize next to rect / offset), so the
+ * web engines' standard atlas loaders take it directly. A multi-page export adds one hash file per
+ * page, because those loaders read one image per file. */
 export function genericBundle(project,options={}){
  const data=exportProject(project,{...options,engineTarget:'generic'});
+ for(const f of Object.values(data.frames))Object.assign(f,texturePackerFrame(f));
+ data.meta={...data.meta,app:data.meta.tool,format:'RGBA8888',scale:'1'};
  const stem=data.meta.image.replace(/\.[^.]*$/,'').replace(/-0$/,'');
- return [{name:`${stem}.json`,text:JSON.stringify(data,null,2),type:'application/json'}];
+ const files=[{name:`${stem}.json`,text:JSON.stringify(data,null,2),type:'application/json'}];
+ if(data.meta.pages>1)data.meta.images.forEach((image,page)=>{
+  const frames=Object.fromEntries(Object.entries(data.frames).filter(([,f])=>f.page===page).map(([k,f])=>[k,texturePackerFrame(f)]));
+  files.push({name:`${image.replace(/\.[^.]*$/,'')}.texturepacker.json`,type:'application/json',
+   text:JSON.stringify({frames,meta:{app:data.meta.tool,image,format:'RGBA8888',size:data.meta.pageSizes[page],scale:'1'}},null,2)});
+ });
+ return files;
 }

@@ -19,7 +19,8 @@ export const TRUST_STRINGS={
    gridHint:'Frames touch each other: Auto sees {auto} islands, the {w}×{h} grid ({conf}) gives {grid} frames.',useGrid:'Use the grid',
    labelling:'Finding islands… {a}%',
    deleteAgain:'Press Delete again to remove {n} frame(s) from the whole project (Ctrl+Z undoes).',deleted:'{n} frame(s) deleted — Ctrl+Z to undo',
-   errorTitle:'Could not slice',gridColour:'from pixel colours'
+   errorTitle:'Could not slice',gridColour:'from pixel colours',defaultAnimation:'No animation was set up, so all {n} frames are exported as one animation.',
+   gridAligned:'The sheet is a {w}×{h} grid ({conf}), so Auto keeps each frame in its cell: {n} frames.',useIslands:'Use islands instead'
   },
   tile:{
    confirmBanner:'Suggested grid {w}×{h} ({conf} confidence) — check the lines against the sheet.',confirm:'The grid is right',
@@ -28,7 +29,9 @@ export const TRUST_STRINGS={
    templateArt:'Showing template art, not your sheet: {why}.',whyShort:'the sheet has {n} tiles and this rule set needs {total}',whyGrid:'the grid is not confirmed yet',whyChosen:'template art is selected',
    mapMissing:'{n} cell(s) have no tile',sheetMissing:'{n} slot(s) of the rule set are missing in the sheet',mismatch:'{n} tile(s) do not look like their slot',
    mismatchLine:'Slot {i}: side {sides} does not match the rule',mapComplete:'Every cell is drawn with a tile from your sheet, and the rules find nothing missing.',
-   rulesMismatch:'{n} tile(s) look wrong for their slot'
+   rulesMismatch:'{n} tile(s) look wrong for their slot',
+   exportMismatch:'{n} tile(s) contradict their {kind} slot: this sheet is probably laid out in another template\u2019s order, and the TileSet would paint wrong tiles.',
+   exportAnyway:'I understand — export anyway'
   },
   plab:{
    verdictResampled:'Resampled ≈{s}× — not a whole-number pixel grid',resampledInteger:'≈{s}× but smoothed: the pixels were interpolated, not copied',
@@ -47,6 +50,7 @@ export const TRUST_STRINGS={
    guideUndo:'Undo guide move',guideRedo:'Redo'
   },
   atlas:{
+   rotateNote:'Rotated frames load correctly in PixiJS (verified in Pixi 8) and TexturePacker-style loaders. Phaser 3 and 4 draw rotated atlas frames wrongly — keep rotation off for Phaser. Godot exports are never rotated.',
    sharedCanvas:'One canvas per animation (frames do not jump)',animations:'Animations',animationsFound:'{n} animation(s) from the file names',animationAll:'All frames',
    canvasNote:'Frames of different sizes share one {w}×{h} canvas (bottom-centred), and the data file says so, so they play without jumping.'
   },
@@ -70,7 +74,8 @@ export const TRUST_STRINGS={
    gridHint:'프레임끼리 붙어 있습니다: 자동은 덩어리 {auto}개를 찾았고, {w}×{h} 격자(신뢰도 {conf})로는 {grid}프레임입니다.',useGrid:'격자 사용',
    labelling:'덩어리 찾는 중… {a}%',
    deleteAgain:'Delete를 한 번 더 누르면 프로젝트 전체에서 프레임 {n}개를 삭제합니다 (Ctrl+Z로 되돌리기).',deleted:'프레임 {n}개 삭제 — Ctrl+Z로 되돌리기',
-   errorTitle:'자를 수 없습니다',gridColour:'픽셀 색으로 찾음'
+   errorTitle:'자를 수 없습니다',gridColour:'픽셀 색으로 찾음',defaultAnimation:'애니메이션이 없어 프레임 {n}개 전체를 애니메이션 하나로 내보냅니다.',
+   gridAligned:'이 시트는 {w}×{h} 격자(신뢰도 {conf})이므로 자동이 각 프레임을 칸 위치 그대로 유지합니다: {n}프레임.',useIslands:'덩어리 기준으로 보기'
   },
   tile:{
    confirmBanner:'추천 격자 {w}×{h} (신뢰도 {conf}) — 선이 시트와 맞는지 확인하세요.',confirm:'격자가 맞습니다',
@@ -79,7 +84,9 @@ export const TRUST_STRINGS={
    templateArt:'내 시트가 아니라 템플릿 그림을 보여 주고 있습니다: {why}.',whyShort:'시트에는 타일이 {n}개인데 이 규칙은 {total}개가 필요',whyGrid:'격자가 아직 확인되지 않음',whyChosen:'템플릿 그림을 선택함',
    mapMissing:'타일이 없는 칸 {n}개',sheetMissing:'규칙에 필요한 슬롯 {n}개가 시트에 없습니다',mismatch:'슬롯 모양과 맞지 않는 타일 {n}개',
    mismatchLine:'슬롯 {i}: {sides} 쪽이 규칙과 맞지 않음',mapComplete:'모든 칸을 내 시트의 타일로 그렸고, 규칙 검사에서도 빠진 것이 없습니다.',
-   rulesMismatch:'슬롯과 맞지 않아 보이는 타일 {n}개'
+   rulesMismatch:'슬롯과 맞지 않아 보이는 타일 {n}개',
+   exportMismatch:'타일 {n}개가 {kind} 슬롯과 맞지 않습니다: 다른 템플릿 순서로 배치된 시트일 가능성이 높고, 이대로면 TileSet이 엉뚱한 타일을 칠합니다.',
+   exportAnyway:'알고 있습니다 — 그래도 내보내기'
   },
   plab:{
    verdictResampled:'≈{s}배로 리샘플링됨 — 정수 배율의 도트 격자가 아닙니다',resampledInteger:'≈{s}배이지만 부드럽게 보간됨: 픽셀을 복사한 것이 아니라 섞었습니다',
@@ -98,6 +105,7 @@ export const TRUST_STRINGS={
    guideUndo:'안내선 이동 되돌리기',guideRedo:'다시 실행'
   },
   atlas:{
+   rotateNote:'회전된 프레임은 PixiJS(Pixi 8에서 확인)와 TexturePacker 방식 로더에서 제대로 읽힙니다. Phaser 3·4는 회전된 아틀라스 프레임을 잘못 그리므로 Phaser용이면 회전을 끄세요. Godot 내보내기는 회전하지 않습니다.',
    sharedCanvas:'애니메이션마다 공통 캔버스 (프레임이 튀지 않게)',animations:'애니메이션',animationsFound:'파일 이름에서 애니메이션 {n}개',animationAll:'모든 프레임',
    canvasNote:'크기가 다른 프레임을 {w}×{h} 공통 캔버스(아래 가운데 정렬)에 두고 데이터 파일에도 그렇게 적어, 재생할 때 튀지 않습니다.'
   },
@@ -121,7 +129,8 @@ export const TRUST_STRINGS={
    gridHint:'フレーム同士が接しています: 自動では塊{auto}個、{w}×{h}グリッド（信頼度{conf}）では{grid}フレームです。',useGrid:'グリッドを使う',
    labelling:'塊を検出中… {a}%',
    deleteAgain:'もう一度Deleteを押すと、プロジェクト全体からフレーム{n}個を削除します（Ctrl+Zで元に戻せます）。',deleted:'フレーム{n}個を削除 — Ctrl+Zで元に戻す',
-   errorTitle:'分割できません',gridColour:'ピクセルの色から検出'
+   errorTitle:'分割できません',gridColour:'ピクセルの色から検出',defaultAnimation:'アニメーションがないため、全{n}フレームを1つのアニメーションとして書き出します。',
+   gridAligned:'このシートは{w}×{h}のグリッド（信頼度{conf}）なので、自動は各フレームをセル内の位置のまま保ちます: {n}フレーム。',useIslands:'塊で分ける'
   },
   tile:{
    confirmBanner:'おすすめのグリッド{w}×{h}（信頼度{conf}）— 線がシートと合っているか確認してください。',confirm:'グリッドは正しい',
@@ -130,7 +139,9 @@ export const TRUST_STRINGS={
    templateArt:'あなたのシートではなくテンプレートの絵を表示しています: {why}。',whyShort:'シートのタイルは{n}個、このルールには{total}個必要',whyGrid:'グリッドがまだ確認されていません',whyChosen:'テンプレートの絵を選択中',
    mapMissing:'タイルのないセル{n}個',sheetMissing:'ルールに必要なスロット{n}個がシートにありません',mismatch:'スロットの形に合わないタイル{n}個',
    mismatchLine:'スロット{i}: {sides}側がルールと合いません',mapComplete:'すべてのセルをあなたのシートのタイルで描き、ルールチェックでも不足はありません。',
-   rulesMismatch:'スロットに合わないように見えるタイル{n}個'
+   rulesMismatch:'スロットに合わないように見えるタイル{n}個',
+   exportMismatch:'タイル{n}個が{kind}のスロットと合いません: 別のテンプレートの順序で並んだシートの可能性が高く、このままではTileSetが違うタイルを塗ります。',
+   exportAnyway:'理解した上で書き出す'
   },
   plab:{
    verdictResampled:'≈{s}倍にリサンプリング — 整数倍のドット格子ではありません',resampledInteger:'≈{s}倍ですが補間されています: ピクセルをコピーではなく混ぜています',
@@ -149,6 +160,7 @@ export const TRUST_STRINGS={
    guideUndo:'ガイドの移動を元に戻す',guideRedo:'やり直す'
   },
   atlas:{
+   rotateNote:'回転したフレームはPixiJS（Pixi 8で確認）とTexturePacker形式のローダーで正しく読み込めます。Phaser 3・4は回転したアトラスフレームを正しく描けないため、Phaser向けなら回転をオフにしてください。Godotの書き出しは回転しません。',
    sharedCanvas:'アニメーションごとに共通キャンバス（フレームがぶれない）',animations:'アニメーション',animationsFound:'ファイル名からアニメーション{n}個',animationAll:'すべてのフレーム',
    canvasNote:'サイズの違うフレームを{w}×{h}の共通キャンバス（下中央揃え）に置き、データファイルにもそう書くので、再生時にぶれません。'
   },

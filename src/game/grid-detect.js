@@ -243,6 +243,10 @@ export function detectGrid(src,{candidates=CELL_CANDIDATES,custom=[],threshold=A
   // One cell spanning a whole axis dodges every crossing by having no boundaries at all. On an
   // axis whose content clearly repeats (a strong autocorrelation peak), that is not a reading of
   // the sheet, it is the absence of one.
+  // Frames are rarely more than four times as long as they are wide. A 1024×8 "cell" on an FX
+  // sheet drawn at 8× is the art's own pixel grid, not its frames.
+  const aspect=Math.max(x.cell,y.cell)/Math.min(x.cell,y.cell);
+  if(aspect>4)score*=aspect>8?.6:.8;
   if(x.count===1&&strongX)score*=.6;
   if(y.count===1&&strongY)score*=.6;
   const evidence={separatorRatioX:x.separator,separatorRatioY:y.separator,separatorLinesX:x.separatorLines,separatorLinesY:y.separatorLines,
@@ -268,15 +272,19 @@ function preferFiner(list){
  const divides=(small,big)=>(big.cellWidth+big.spacingX)%(small.cellWidth+small.spacingX)===0&&(big.cellHeight+big.spacingY)%(small.cellHeight+small.spacingY)===0&&(small.cellWidth<big.cellWidth||small.cellHeight<big.cellHeight);
  for(let pass=0;pass<3;pass++){
   const top=list[0];if(!top)return;
-  const finer=list.find(s=>s!==top&&same(s,top)&&divides(s,top)&&s.axisScore.x>=top.axisScore.x-.005&&s.axisScore.y>=top.axisScore.y-.005
-   &&s.score>=top.score-.12&&s.evidence.crossRatio<=top.evidence.crossRatio+.01&&s.evidence.splitRatio<=top.evidence.splitRatio+.01);
+  // Ranked at least as well on each axis, or a near tie overall: either way the finer grid is
+  // the one whose every boundary is real.
+  const finer=list.find(s=>s!==top&&same(s,top)&&divides(s,top)&&(s.axisScore.x>=top.axisScore.x-.005&&s.axisScore.y>=top.axisScore.y-.005&&s.score>=top.score-.12||s.score>=top.score-.03)
+   &&s.evidence.crossRatio<=top.evidence.crossRatio+.01&&s.evidence.splitRatio<=top.evidence.splitRatio+.01);
   if(!finer)break;
   finer.score=Math.max(finer.score,top.score);
   finer.reasons=[...finer.reasons,`${top.cellWidth}×${top.cellHeight} also fits, but it is ${top.cellWidth/finer.cellWidth*top.cellHeight/finer.cellHeight|0} of these cells together`];
   list.splice(list.indexOf(finer),1);list.unshift(finer);
  }
  const top=list[0];if(!top)return;
- const rival=list.find(s=>s!==top&&(divides(s,top)||divides(top,s))&&s.score>=top.score-.05);
+ // Only a *finer* close rival casts doubt: the leader could be two frames read as one. A coarser
+ // multiple scoring close is expected (two frames side by side look alike) and changes nothing.
+ const rival=list.find(s=>s!==top&&divides(s,top)&&s.score>=top.score-.05);
  for(const s of list)s.confidence=s.score>=.75&&!(s===top&&rival)?'high':s.score>=.5?'medium':'low';
 }
 function reasonsFor(spec,e){

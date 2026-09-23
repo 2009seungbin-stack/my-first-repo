@@ -211,7 +211,7 @@ function internalBoundaries(profile,big,small,margin){
  let min=Infinity;for(let k=1;k<big/small;k++)min=Math.min(min,f[(r0+k*small)%big]);
  return {ratio:min/edge,checked:true};
 }
-function preferSmaller(list,data,w,h,px,py){
+function preferSmaller(list,data,w,h,px,py,kind=null){
  const stats=new Map(),of=c=>{if(!stats.has(c))stats.set(c,contentStats(data,w,h,{tileWidth:c.tileWidth,tileHeight:c.tileHeight,marginX:c.marginX,marginY:c.marginY,spacingX:c.spacingX,spacingY:c.spacingY,cols:c.cols,rows:c.rows}));return stats.get(c);};
  for(let pass=0;pass<4;pass++){
   const top=list[0];if(!top||top.spacingX||top.spacingY)break;
@@ -248,7 +248,16 @@ function preferSmaller(list,data,w,h,px,py){
  // Not a multiple at all, but nearly as good and laid out exactly like an autotile template:
  // that reading is the more useful default to put first (still only 'medium' unless it is sure).
  const top=list[0];
- if(top&&!autotileShape(top)){
+ // When the person has said which rule set the sheet is for (the Lab's kind), a candidate laid out
+ // exactly like that kind's templates (4×4 for a 16-tile Wang set) is strong evidence: 8px tiles
+ // of a 32px edge template repeat the art's own 8px steps, not its tiles.
+ const kindShape=c=>kind&&AUTOTILE_SHAPES[`${c.cols}x${c.rows}`]===(kind==='corner16'?'edge16':kind);
+ if(top&&kind&&!kindShape(top)){
+  const alt=list.find(c=>c!==top&&kindShape(c)&&c.score>=top.score-.15&&(of(c)?.blank??9)<=2);
+  if(alt){alt.content={...of(alt),reason:'layout',layout:autotileShape(alt),over:`${top.tileWidth}x${top.tileHeight}`};alt.score=Math.max(alt.score,top.score);list.splice(list.indexOf(alt),1);list.unshift(alt);}
+ }
+ if(list[0]&&!autotileShape(list[0])){
+  const top=list[0];
   const alt=list.find(c=>c!==top&&autotileShape(c)&&c.score>=top.score-.08&&(of(c)?.blank??9)<=2);
   if(alt){alt.content={...of(alt),reason:'layout',layout:autotileShape(alt),over:`${top.tileWidth}x${top.tileHeight}`};alt.score=Math.max(alt.score,top.score);list.splice(list.indexOf(alt),1);list.unshift(alt);}
  }
@@ -277,7 +286,7 @@ export function suggestedGrid(list){
  return {...top,confirm:top.confidence!=='high'};
 }
 /** Ranked grid candidates. Nothing is applied; the caller shows them and the person chooses. */
-export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24}={}){
+export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24,kind=null}={}){
  check(data,w,h);
  const px=axisProfile(data,w,h,'x'),py=axisProfile(data,w,h,'y');
  const xs=axisRanking(px,sizes).slice(0,axisLimit),ys=axisRanking(py,sizes).slice(0,axisLimit);
@@ -294,7 +303,7 @@ export function detectGrid(data,w,h,{sizes=[],limit=8,axisLimit=24}={}){
     boundaryEdges:pair(a.contrast,b.contrast),strongEdgesExplained:pair(a.explained,b.explained),contentStops:pair(a.breakage,b.breakage)}});
  }
  out.sort((p,q)=>q.score-p.score||p.count-q.count);
- return withConfidence(preferSmaller(out.slice(0,Math.max(limit,24)),data,w,h,px,py)).slice(0,limit);
+ return withConfidence(preferSmaller(out.slice(0,Math.max(limit,24)),data,w,h,px,py,kind)).slice(0,limit);
 }
 const pair=(a,b)=>a==null&&b==null?null:((a??b)+(b??a))/2;
 /** Exact tile rectangles for a grid. Throws rather than guessing when a tile would fall outside. */

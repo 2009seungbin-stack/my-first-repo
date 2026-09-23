@@ -5,6 +5,7 @@ import {t} from '../i18n.js';
 import {detectGrid,suggestedGrid,tileRects,sliceMetadata,tileName,cropRGBA,rectHash,isBlank,duplicateGroups,nearDuplicateGroups,variantSet,VARIANTS} from '../game/tile-grid.js';
 import {artMismatch} from '../game/autotile-check.js';
 import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
 import {KINDS,LAYOUTS,layoutOf,layoutJSON,layoutFromJSON,completeness,unrepresentable,terrainGrid,renderMap,seededFill,floodFill,cellAt} from '../game/autotile.js';
 import {seamReport,edgeMatch,bestEdge,makeSeamless,heatmap} from '../game/seams.js';
 import {tileCollision,MODES as COLLISION_MODES} from '../game/tile-collision.js';
@@ -32,7 +33,17 @@ export function mount({el,def}){
  let terrain=null,cursor={x:0,y:0},painting=null,art=null;
  // Whether the grid in use was confirmed: a high-confidence detection, a candidate the person
  // clicked, or a size they typed. Until then the sheet's tiles are not used as autotile art.
- let gridConfirmed=false,gridGuess=null,mismatchCache=null;
+ let gridConfirmed=false,gridGuess=null,mismatchCache=null,exportAck=false;
+ /** What stands between this sheet and a TileSet that paints the right tiles: an unconfirmed
+  * grid, slots the sheet does not fill, and tiles whose art contradicts their slot (a sheet laid
+  * out in another template's order — GameMaker, caeles, cr31 — paints wrong tiles everywhere). */
+ function exportRisks(){
+  const out=[];
+  if(!gridConfirmed)out.push(T('whyGrid'));
+  const mm=mismatches();
+  if(mm.measurable&&mm.mismatches.length)out.push(T('exportMismatch',{n:mm.mismatches.length,kind:T('kinds.'+o.kind)}));
+  return out;
+ }
  // Painting history is the terrain grid itself: one byte per cell, so 64 steps of a 64x64 map
  // are 256 KB and no image is ever snapshotted.
  const past=[],future=[];
@@ -296,7 +307,9 @@ ${field('matchIndex',0,Math.max(0,(grid?.count||1)-1))}<dl class="tl-numbers" id
 <label class="field"><span>${esc(T('mode'))}</span><select data-option="mode" id="tl-mode">${MODES.map(m=>`<option value="${m}" ${(o.mode||modeFor(o.kind))===m?'selected':''}>${esc(T('modes.'+m))}</option>`).join('')}</select></label>
 <span class="opt-label">${esc(T('collideLabel'))}</span>${seg('collide',COLLISION_MODES,v=>esc(T('collide.'+v)))}
 ${field('offset',0,Math.max(0,(grid?.count||1)-1))}</form>
-<button type="button" class="primary big" id="taskDownload" data-action="tl-godot" ${grid?.rects.length?'':'disabled'}>${esc(T('runGodot'))}</button>
+${(()=>{const risks=grid?.rects.length?exportRisks():[];return risks.length?`<div class="tl-banner low" id="tlExportRisk" data-n="${risks.length}"><span>${risks.map(esc).join('<br>')}</span></div>
+<label class="check"><input type="checkbox" id="tlExportAck" ${exportAck?'checked':''}> ${esc(T('exportAnyway'))}</label>`:'';})()}
+<button type="button" class="primary big" id="taskDownload" data-action="tl-godot" ${grid?.rects.length&&(exportAck||!exportRisks().length)?'':'disabled'}>${esc(T('runGodot'))}</button>
 <p class="viewer-note">${esc(T('godotNote'))}</p><small class="local-note">${esc(text('local'))}</small>`;
  }
  function exportBoard(){
@@ -686,7 +699,11 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    const key=b.dataset.key,value=b.dataset.value;
    o[key]=/^\d+$/.test(value)?Number(value):value;
    if(key==='source')o.sourcePinned=true;
-   if(key==='kind'){o.mode='';pickSource();}
+   if(key==='kind'){o.mode='';exportAck=false;mismatchCache=null;
+    // The rule set is a prior for the grid: a 4×4 reading is how a 16-tile Wang sheet is laid out.
+    if(!gridConfirmed&&data){candidates=detectGrid(data,src.width,src.height,{kind:o.kind});const pick=suggestedGrid(candidates);gridGuess=pick?.confirm?pick:null;gridConfirmed=!!pick&&!pick.confirm;
+     if(pick){Object.assign(o,{tileWidth:pick.tileWidth,tileHeight:pick.tileHeight,marginX:pick.marginX,marginY:pick.marginY,spacingX:pick.spacingX,spacingY:pick.spacingY});rebuild();}}
+    pickSource();}
    for(const s of b.parentElement.children)s.setAttribute('aria-pressed',String(s===b));
    dropArt();frame();return;
   }
@@ -715,6 +732,7 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
  });
  el.addEventListener('change',async e=>{
   if(e.target.matches('select[data-option]')){readOptions();frame();return;}
+  if(e.target.id==='tlExportAck'){exportAck=e.target.checked;const b=q('#taskDownload');if(b)b.disabled=!grid?.rects.length||!exportAck&&exportRisks().length>0;return;}
   if(e.target.id!=='tlLayoutFile')return;
   const file=e.target.files?.[0];e.target.value='';
   if(!file)return;
@@ -762,11 +780,12 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
   if(busy)return;busy=true;
   if(files.length>1)toast(text('edit.oneFile'));
   try{
-   const decoded=await Im.decode(files[0]);
+   const decoded=await decodeExact(files[0]);
    Im.release(src);src=decoded;src.name=files[0].name;
    data=null;tiles.clear();hashes=null;dropArt();terrain=null;past.length=0;future.length=0;
    if(src.width*src.height<=ANALYSIS_PIXELS)data=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,src.width,src.height).data;
-   candidates=data?detectGrid(data,src.width,src.height):[];
+   // A kind given in the link (…/tile-lab/?kind=edge16) is what the sheet is for: a prior for the grid.
+   candidates=data?detectGrid(data,src.width,src.height,{kind:route.query.has('kind')?o.kind:null}):[];exportAck=false;
    if(!route.query.has('zoom'))o.zoom=clamp(Math.round(480/Math.max(1,src.width)),1,8);
    const preset=route.query.has('tileWidth')||route.query.has('tileHeight');
    // The seam checker is asked about one repeating texture, so its default tile is the whole
@@ -777,6 +796,9 @@ ${listing('nerulio_tileset_import.gd',pack.script)}</details>`;
    gridConfirmed=!!preset||route.id==='seamless-tile-checker'||!!pick&&!pick.confirm;gridGuess=pick?.confirm?pick:null;
    if(!preset&&route.id!=='seamless-tile-checker'&&pick)Object.assign(o,{tileWidth:pick.tileWidth,tileHeight:pick.tileHeight,marginX:pick.marginX,marginY:pick.marginY,spacingX:pick.spacingX,spacingY:pick.spacingY});
    rebuild();
+   // The art itself can confirm a medium grid: when every tile of the chosen rule set agrees with
+   // its slot (autotile-check), the tile size and the layout are both right.
+   if(gridGuess){const mm=mismatches();if(mm.measurable&&!mm.mismatches.length&&mm.checked>=layout().count*.9){gridConfirmed=true;gridGuess=null;pickSource();}}
    o.seamIndex=0;o.matchIndex=Math.min(1,Math.max(0,(grid?.count||1)-1));
    track('tool_run',{intent:route.id});
    ready=true;frame();

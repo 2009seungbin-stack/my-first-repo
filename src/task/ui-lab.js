@@ -14,6 +14,7 @@ import {packRects} from '../atlas-pack.js';
 import {detectFontGrid} from '../game/font-grid.js';
 import {detectColorKey,applyColorKey} from '../game/color-key.js';
 import './strings-trust.js';
+import {decodeExact} from './exact-decode.js';
 /** UI Lab: one workspace with five stages over one in-memory asset — 9-Slice, States, Atlas,
  * Font, Check. Stages are views, not pages: nothing is re-uploaded between them, and every
  * preview is drawn from the same plan the export writes (src/game/*.js), so what is on screen
@@ -779,7 +780,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(busy)return;busy=true;
   try{
    const file=files[0];if(!file)return;
-   const decoded=await Im.decode(file);
+   const decoded=await decodeExact(file);
    Im.release(source);Im.release(panel);source=decoded;panel=null;sourceName=file.name;
    S.atlas.elements=null;S.atlas.editing=null;releaseStates();
    S.suggestion=null;borderPast.length=0;borderFuture.length=0;
