@@ -342,10 +342,12 @@ def build_cff(src, cid=False):
         width = [] if widths[i] == default_width else [widths[i]]
         hints = []
         kind = i % 5
-        if kind == 0:   # one hstemhm pair + implicit vstem before hintmask → 3 stems, 1 mask byte
-            hints = [0, 40, 300, 40, 'hstemhm', 100, 30, 'hintmask', bytes([0xE0])]
-        elif kind == 1:  # 9 stems → 2 mask bytes; another hintmask inside a subroutine below
-            hints = [0, 10, 20, 10, 20, 10, 20, 10, 20, 10, 'hstemhm', 0, 10, 20, 10, 20, 10, 20, 10, 'vstemhm', 'hintmask', bytes([0xFF, 0x80])]
+        # Stem counts sit on the byte boundaries, so miscounting by one stem (or forgetting the implicit
+        # vstem before a hintmask) changes the number of mask bytes skipped and garbles the outline.
+        if kind == 0:   # 8 hstemhm + 1 implicit vstem before hintmask → 9 stems, 2 mask bytes
+            hints = [0, 10, 20, 10, 20, 10, 20, 10, 20, 10, 20, 10, 20, 10, 20, 10, 'hstemhm', 100, 30, 'hintmask', bytes([0xFF, 0x00])]
+        elif kind == 1:  # exactly 8 stems → 1 mask byte; another hintmask inside a subroutine below
+            hints = [0, 10, 20, 10, 20, 10, 20, 10, 'hstemhm', 0, 10, 20, 10, 20, 10, 20, 10, 'vstemhm', 'hintmask', bytes([0xFF])]
         elif kind == 2:
             hints = [0, 50, 'hstem', 10, 50, 'vstem', 'cntrmask', bytes([0xC0])]
         elif kind == 3:
@@ -356,7 +358,7 @@ def build_cff(src, cid=False):
             if j % 3 == 0:
                 body += grp
             elif j % 3 == 1:
-                inner = grp + (['hintmask', bytes([0xFF, 0x80])] if kind == 1 else [])
+                inner = grp + (['hintmask', bytes([0xF0])] if kind == 1 else [])
                 body += call_local(inner)
             else:
                 # nested: global subr that calls a local subr

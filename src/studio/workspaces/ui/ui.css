@@ -118,3 +118,5 @@
 .studio[data-mode="compact"] .ui-actions .st-btn{height:32px}
 .studio[data-mode="compact"] .ui-preview-bar{gap:8px}
 .studio[data-mode="compact"] .ui-pv-strip{max-height:none}
+.ui-main,.ui-nine,.ui-states,.ui-atlas,.ui-kit,.ui-font-src,.ui-charset,.ui-render,.ui-metrics,.ui-font-export{padding:8px 10px}
+.ui-nine .st-field,.ui-states .st-field,.ui-font-src .st-field,.ui-render .st-field,.ui-metrics .st-field{margin:0}

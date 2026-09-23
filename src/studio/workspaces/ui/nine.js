@@ -11,6 +11,16 @@ import {kitPanel} from './kit-export.js';
 const SIDES=['left','right','top','bottom'];
 const PREVIEW_KEY='nerulio.studio.ui.preview';
 const loadPrefs=()=>{try{return {scales:[1,2],engine:'ideal',custom:null,content:true,slices:false,...JSON.parse(localStorage.getItem(PREVIEW_KEY)||'{}')};}catch{return {scales:[1,2],engine:'ideal',custom:null,content:true,slices:false};}};
+const hatches=new Map();
+/** A hatch pattern for a stretch band: dark + light lines so it reads on light and dark art. */
+function hatch(c,mode,dpr,dir){
+ const k=`${mode}|${dpr}|${dir}`;let p=hatches.get(k);if(p)return p;
+ const n=Math.max(6,Math.round(7*dpr)),cv=new OffscreenCanvas(n,n),x=cv.getContext('2d');
+ const line=(a,b,col,w)=>{x.strokeStyle=col;x.lineWidth=w;x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke();};
+ const diag=d=>{for(const o of [-n,0,n]){const a=d>0?[o,n]:[o,0],b=d>0?[o+n,0]:[o+n,n];line(a,b,'rgba(0,0,0,.35)',Math.max(1.5,2*dpr));line(a,b,mode==='stretch'?'rgba(120,210,255,.75)':'rgba(200,170,255,.8)',Math.max(.75,dpr));}};
+ diag(dir);if(mode!=='stretch')diag(-dir);
+ p=c.createPattern(cv,'repeat');hatches.set(k,p);return p;
+}
 export default function nineMode(W){
  const {ctx,t,view}=W;
  let pix=null;          // {id, key, data, w, h} pixels of the selected element
@@ -95,8 +105,9 @@ export default function nineMode(W){
   c.fillStyle='rgba(12,13,16,.55)';c.beginPath();c.rect(0,0,CW,CH);c.rect(x0,y0,x1-x0,y1-y0);c.fill('evenodd');
   // stretch bands
   const bx0=X(r.x+n.border.left),bx1=X(r.x+r.w-n.border.right),by0=Y(r.y+n.border.top),by1=Y(r.y+r.h-n.border.bottom);
-  c.fillStyle=n.stretch.h==='stretch'?'rgba(76,194,255,.14)':'rgba(180,140,255,.18)';if(bx1>bx0)c.fillRect(bx0,y0,bx1-bx0,y1-y0);
-  c.fillStyle=n.stretch.v==='stretch'?'rgba(76,194,255,.14)':'rgba(180,140,255,.18)';if(by1>by0)c.fillRect(x0,by0,x1-x0,by1-by0);
+  // stretch bands: hatched (readable on any art colour) — diagonal for stretch, crossed for tile
+  c.fillStyle=hatch(c,n.stretch.h,dpr,1);if(bx1>bx0)c.fillRect(bx0,y0,bx1-bx0,y1-y0);
+  c.fillStyle=hatch(c,n.stretch.v,dpr,-1);if(by1>by0)c.fillRect(x0,by0,x1-x0,by1-by0);
   // bad patches: red on the offending columns / rows
   for(const is of issues){
    c.fillStyle='rgba(255,90,90,.33)';
