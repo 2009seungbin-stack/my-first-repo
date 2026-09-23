@@ -2,49 +2,60 @@
  *
  * It extends the shapes of src/game/model.js (AssetFrame, Animation) instead of inventing new ones,
  * so the exporters and algorithms under src/game keep working on what the Studio edits.
+ * The full contract (what a packer/exporter must read) is docs/STUDIO-SPRITE.md.
  *
- * Project {format:'nerulio-project', version, id, name, createdAt, assets:Asset[], settings:{}}
- * Asset (kind 'image') — one picture source, Aseprite-shaped for the long term:
- *   width, height          canvas size in pixels
- *   layers[]               {id, name, visible, opacity 0–255, blend}
- *   timeline[]             animation frames in time {id, duration ms}  (Aseprite "frames")
- *   cels[]                 {layerId, frameId, blob, x, y, opacity}: pixels of one layer at one time,
- *                          `blob` is the content id (SHA-256 hex of the PNG bytes) of an image stored
- *                          ONCE outside the document (ImageStore / IndexedDB / .nerulio images/)
- *   frames[]               model.js AssetFrame: regions cut from the picture (sheet cells) with
- *                          pivot, boxes, collision, duration, tag
- *   tags[]                 model.js Animation + {color}: named frame sequences ("walk", "idle")
+ * Project {format:'nerulio-project', version:2, id, name, createdAt, assets:Asset[], settings:{}}
+ * Asset (kind 'image') — Aseprite-shaped:
+ *   width, height          the canvas every cel is placed on
+ *   layers[]               {id, name, visible, opacity 0–255, blend}   bottom → top
+ *   frames[]               model.js AssetFrame IN TIME ORDER (this is the timeline): a region
+ *                          (sourceRect) of the composited canvas, with pivot, boxes, collision,
+ *                          duration (ms), tag
+ *   cels[]                 {layerId, frameId, blob, x, y, opacity}: pixels of one layer. `frameId`
+ *                          is a frame id (that frame's own pixels) or SHARED ('*'): the layer's
+ *                          picture used by every frame without a cel of its own (a sprite sheet).
+ *                          `blob` = SHA-256 hex of the PNG bytes, stored ONCE outside the document
+ *                          (ImageStore / IndexedDB / .nerulio images/)
+ *   tags[]                 model.js Animation + {color, repeat}: named frame sequences
  *   slices[]               Aseprite-style {id, name, color, data, keys:[{frame, bounds, center?, pivot?}]}
  *   grid                   {w, h, ox, oy, sx, sy} the grid the frames were cut with, or null
  *   source                 {name, type, size, lastModified} of the imported file (informational)
+ *   import                 optional {kind, decisions[], sourceBlob?}: what an importer decided
  *
  * Documents are immutable: every edit returns a new object and shares everything it did not touch.
  * That is what makes History's "undo = previous document" cheap and exact. */
 import {frame as makeFrame,animation as makeAnimation,newId} from '../../game/model.js';
-export const PROJECT_FORMAT='nerulio-project',PROJECT_VERSION=1;
+export const PROJECT_FORMAT='nerulio-project',PROJECT_VERSION=2;
+/** frameId of a layer's shared picture (a sheet): used by every frame without a cel of its own. */
+export const SHARED='*';
 export const TAG_COLORS=Object.freeze(['#e8a33d','#4cc2ff','#7bd88f','#ff6b8b','#b48cff','#f5e06e']);
 const BLOB_RE=/^[0-9a-f]{64}$/;
+export const isBlobId=v=>BLOB_RE.test(String(v));
 const int=(v,name,min=0)=>{if(!Number.isSafeInteger(v)||v<min)throw Error(`${name} must be an integer ≥ ${min}`);return v;};
 const str=(v,max=200)=>String(v??'').slice(0,max);
 export const uid=prefix=>`${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2,7)}`;
 export function createProject({id=uid('p'),name='Untitled',createdAt=new Date().toISOString()}={}){
  return {format:PROJECT_FORMAT,version:PROJECT_VERSION,id,name:str(name)||'Untitled',createdAt,assets:[],settings:{}};
 }
-/** A one-layer, one-cel image asset around an already stored blob. */
+/** A one-layer image asset whose picture is the layer's shared cel (a sheet with no frames yet). */
 export function imageAsset({id=uid('a'),name='image',width,height,blob,source=null}){
  int(width,'width',1);int(height,'height',1);if(!BLOB_RE.test(String(blob)))throw Error('blob must be a SHA-256 hex id');
- const layerId='l1',frameId='t1';
+ const layerId='l1';
  return {id,kind:'image',name:str(name)||'image',width,height,
   layers:[{id:layerId,name:'Layer 1',visible:true,opacity:255,blend:'normal'}],
-  timeline:[{id:frameId,duration:100}],
-  cels:[{layerId,frameId,blob,x:0,y:0,opacity:255}],
+  cels:[{layerId,frameId:SHARED,blob,x:0,y:0,opacity:255}],
   frames:[],tags:[],slices:[],grid:null,
   source:source?{name:str(source.name),type:str(source.type,100),size:Number(source.size)||0,lastModified:Number(source.lastModified)||0}:null};
 }
 export const assetById=(doc,id)=>doc.assets.find(a=>a.id===id)||null;
-/** The blob shown for an asset's first (and in P0 only) cel. */
-export const primaryBlob=asset=>asset?.cels?.[0]?.blob||null;
+/** The blob that stands for the asset as a whole (thumbnails, the Viewer): the bottom layer's
+ * shared picture when there is one, else the first cel. */
+export const primaryBlob=asset=>{
+ if(!asset?.cels?.length)return null;const lid=asset.layers?.[0]?.id;
+ return (asset.cels.find(c=>c.frameId===SHARED&&c.layerId===lid)||asset.cels.find(c=>c.frameId===SHARED)||asset.cels[0]).blob;
+};
 const mapAsset=(doc,id,fn)=>{let hit=false,changed=false;const assets=doc.assets.map(a=>{if(a.id!==id)return a;hit=true;const next=fn(a);if(next!==a)changed=true;return next;});if(!hit)throw Error(`Unknown asset ${id}`);return changed?{...doc,assets}:doc;};
+export {mapAsset};
 export const renameProject=(doc,name)=>str(name).trim()&&str(name).trim()!==doc.name?{...doc,name:str(name).trim()}:doc;
 export function addAssets(doc,assets){return assets.length?{...doc,assets:[...doc.assets,...assets]}:doc;}
 export function removeAssets(doc,ids){const gone=new Set(ids),assets=doc.assets.filter(a=>!gone.has(a.id));return assets.length===doc.assets.length?doc:{...doc,assets};}
@@ -58,7 +69,7 @@ export function moveAsset(doc,id,to){
 const stemOf=name=>String(name||'frame').replace(/\.[^.]+$/,'').replace(/[^\w.-]+/g,'_')||'frame';
 /** A frame over `rect` of the asset. Untrimmed: the frame canvas is the rect itself. */
 export function frameForRect(asset,rect,{id,name,index=asset.frames.length}={}){
- return makeFrame({id:id||uid('f'),name:name??`${stemOf(asset.name)}_${index}`,sourceRect:clampRect(rect,asset)});
+ return makeFrame({id:id||uid('f'),name:name??`${stemOf(asset.name)}_${index}`,sourceRect:clampRect(rect,asset),duration:100});
 }
 export function clampRect(r,asset){
  const x=Math.max(0,Math.min(asset.width-1,Math.round(r.x))),y=Math.max(0,Math.min(asset.height-1,Math.round(r.y)));
@@ -66,13 +77,15 @@ export function clampRect(r,asset){
 }
 export const frameRect=f=>f.sourceRect;
 const pruneTags=(tags,frames)=>{const ids=new Set(frames.map(f=>f.id));let changed=false;const out=tags.map(t=>{const frameIds=t.frameIds.filter(i=>ids.has(i));if(frameIds.length!==t.frameIds.length){changed=true;return {...t,frameIds};}return t;});return changed?out:tags;};
-export function setFrames(doc,assetId,frames){return mapAsset(doc,assetId,a=>({...a,frames,tags:pruneTags(a.tags,frames)}));}
+/** Cels of frames that no longer exist are dropped with them (shared cels always stay). */
+const pruneCels=(cels,frames)=>{const ids=new Set(frames.map(f=>f.id));const out=cels.filter(c=>c.frameId===SHARED||ids.has(c.frameId));return out.length===cels.length?cels:out;};
+export function setFrames(doc,assetId,frames){return mapAsset(doc,assetId,a=>({...a,frames,tags:pruneTags(a.tags,frames),cels:pruneCels(a.cels,frames)}));}
 export function addFrames(doc,assetId,rects){
  return mapAsset(doc,assetId,a=>{const frames=[...a.frames];for(const r of rects)frames.push(r.sourceRect?makeFrame(r):frameForRect({...a,frames},r,{index:frames.length}));return {...a,frames};});
 }
 export function removeFrames(doc,assetId,ids){
  const gone=new Set(ids);
- return mapAsset(doc,assetId,a=>{const frames=a.frames.filter(f=>!gone.has(f.id));return frames.length===a.frames.length?a:{...a,frames,tags:pruneTags(a.tags,frames)};});
+ return mapAsset(doc,assetId,a=>{const frames=a.frames.filter(f=>!gone.has(f.id));return frames.length===a.frames.length?a:{...a,frames,tags:pruneTags(a.tags,frames),cels:pruneCels(a.cels,frames)};});
 }
 /** Moves/resizes frames: `rects` maps frame id → new sourceRect. The frame stays untrimmed and its
  * pivot stays normalised, so a pivot at bottom-centre stays at bottom-centre of the new rect. */
@@ -94,15 +107,26 @@ export function setGrid(doc,assetId,grid){return mapAsset(doc,assetId,a=>JSON.st
 /** Frames for every listed grid cell, in reading order, replacing the asset's frames. */
 export function framesFromCells(asset,cells){return cells.map((r,i)=>frameForRect(asset,r,{index:i}));}
 // ------------------------------------------------------------------ tags (animations)
+/** Aseprite repeat count: 0 = forever. Documents that only have `loop` get 0 or 1. */
+export function repeatOf(spec,prev=null){
+ if(Number.isSafeInteger(spec.repeat)&&spec.repeat>=0)return Math.min(spec.repeat,65535);
+ if(prev&&Number.isSafeInteger(prev.repeat))return prev.repeat;
+ return spec.loop===false?1:0;
+}
+const tagOut=(t,frames,color)=>{const repeat=repeatOf(t);return {...makeAnimation({...t,loop:repeat===0},frames),color:str(color||TAG_COLORS[0],16),repeat,...(t.metadata&&typeof t.metadata==='object'?{metadata:t.metadata}:{})};};
 export function addTag(doc,assetId,spec={}){
  return mapAsset(doc,assetId,a=>{
   const taken=new Set(a.tags.map(t=>t.name));let name=str(spec.name||'tag').trim()||'tag';if(taken.has(name)){let n=2;while(taken.has(`${name}_${n}`))n++;name=`${name}_${n}`;}
-  const tag={...makeAnimation({...spec,id:spec.id||uid('g'),name},a.frames),color:spec.color||TAG_COLORS[a.tags.length%TAG_COLORS.length]};
+  const tag=tagOut({...spec,id:spec.id||uid('g'),name},a.frames,spec.color||TAG_COLORS[a.tags.length%TAG_COLORS.length]);
   return {...a,tags:[...a.tags,tag]};
  });
 }
 export function updateTag(doc,assetId,tagId,patch){
- return mapAsset(doc,assetId,a=>({...a,tags:a.tags.map(t=>t.id===tagId?{...makeAnimation({...t,...patch,id:t.id},a.frames),color:patch.color??t.color}:t)}));
+ return mapAsset(doc,assetId,a=>({...a,tags:a.tags.map(t=>{
+  if(t.id!==tagId)return t;
+  const next={...t,...patch};if(!('repeat'in patch)&&'loop'in patch)next.repeat=patch.loop===false?Math.max(1,t.repeat||1):0;
+  return tagOut({...next,id:t.id},a.frames,next.color??t.color);
+ })}));
 }
 export const removeTag=(doc,assetId,tagId)=>mapAsset(doc,assetId,a=>({...a,tags:a.tags.filter(t=>t.id!==tagId)}));
 // ------------------------------------------------------------------ slices
@@ -122,13 +146,22 @@ export const updateSlice=(doc,assetId,id,patch)=>mapAsset(doc,assetId,a=>({...a,
 export const removeSlice=(doc,assetId,id)=>mapAsset(doc,assetId,a=>({...a,slices:a.slices.filter(s=>s.id!==id)}));
 // ------------------------------------------------------------------ load / validate
 /** Every blob id the document points at (what autosave and the .nerulio writer must keep). */
-export function referencedBlobs(doc){const out=new Set();for(const a of doc.assets||[])for(const c of a.cels||[])out.add(c.blob);return out;}
-/** Older formats → current. Version 1 is the first; the hook exists so snapshots never strand. */
+export function referencedBlobs(doc){
+ const out=new Set();
+ for(const a of doc.assets||[]){for(const c of a.cels||[])out.add(c.blob);if(a.import?.sourceBlob)out.add(a.import.sourceBlob);}
+ return out;
+}
+/** Older formats → current. The hook exists so autosaved snapshots never strand.
+ * v1 → v2: a v1 asset had one `timeline` entry; its cels become the layers' shared pictures. */
 export function migrate(raw){
  if(!raw||raw.format!==PROJECT_FORMAT)throw Error('Not a Nerulio project');
  const v=Number(raw.version);
  if(!Number.isInteger(v)||v<1)throw Error('Unknown project version');
  if(v>PROJECT_VERSION)throw Error(`This project was saved by a newer Studio (format ${v}); update to open it`);
+ if(v===1)return {...raw,version:2,assets:(raw.assets||[]).map(a=>{
+  const {timeline,...rest}=a;
+  return {...rest,cels:(a.cels||[]).map(c=>({...c,frameId:SHARED}))};
+ })};
  return raw;
 }
 /** Parses and validates a loaded document; throws with a readable reason instead of opening a
@@ -142,25 +175,35 @@ export function normalizeProject(raw){
   if(ids.has(a.id))throw Error(`Duplicate asset id ${a.id}`);ids.add(a.id);
   int(a.width,'width',1);int(a.height,'height',1);
   const layers=(a.layers||[]).map(l=>({id:str(l.id,80),name:str(l.name),visible:l.visible!==false,opacity:Math.max(0,Math.min(255,Math.round(Number(l.opacity??255)))),blend:str(l.blend||'normal',20)}));
-  const timeline=(a.timeline||[]).map(t=>({id:str(t.id,80),duration:Math.max(1,Math.round(Number(t.duration)||100))}));
-  const layerIds=new Set(layers.map(l=>l.id)),timeIds=new Set(timeline.map(t=>t.id));
+  const layerIds=new Set(layers.map(l=>l.id));
+  if(layerIds.size!==layers.length)throw Error(`Asset ${a.id}: duplicate layer id`);
+  const frames=(a.frames||[]).map(f=>makeFrame(f)),fids=new Set();
+  for(const f of frames){if(fids.has(f.id))throw Error(`Duplicate frame id ${f.id}`);if(f.id===SHARED)throw Error('A frame cannot be called *');fids.add(f.id);
+   const r=f.sourceRect;if(r.x+r.w>a.width||r.y+r.h>a.height)throw Error(`Frame ${f.id} lies outside its image`);}
+  const celKeys=new Set();
   const cels=(a.cels||[]).map(c=>{
    if(!BLOB_RE.test(String(c.blob)))throw Error(`Asset ${a.id}: bad image reference`);
-   if(!layerIds.has(c.layerId)||!timeIds.has(c.frameId))throw Error(`Asset ${a.id}: cel points at a missing layer or frame`);
+   if(!layerIds.has(c.layerId)||(c.frameId!==SHARED&&!fids.has(c.frameId)))throw Error(`Asset ${a.id}: cel points at a missing layer or frame`);
+   const key=c.layerId+'|'+c.frameId;if(celKeys.has(key))throw Error(`Asset ${a.id}: two cels for one layer and frame`);celKeys.add(key);
    return {layerId:c.layerId,frameId:c.frameId,blob:c.blob,x:Math.round(Number(c.x)||0),y:Math.round(Number(c.y)||0),opacity:Math.max(0,Math.min(255,Math.round(Number(c.opacity??255))))};
   });
   if(!cels.length)throw Error(`Asset ${a.id} has no pixels`);
-  const frames=(a.frames||[]).map(f=>makeFrame(f)),fids=new Set();
-  for(const f of frames){if(fids.has(f.id))throw Error(`Duplicate frame id ${f.id}`);fids.add(f.id);
-   const r=f.sourceRect;if(r.x+r.w>a.width||r.y+r.h>a.height)throw Error(`Frame ${f.id} lies outside its image`);}
-  const tags=(a.tags||[]).map(t=>({...makeAnimation(t,frames),color:str(t.color||TAG_COLORS[0],16)}));
+  const tags=(a.tags||[]).map(t=>tagOut(t.metadata?{...t,metadata:JSON.parse(JSON.stringify(t.metadata))}:t,frames,t.color||TAG_COLORS[0]));
   const slices=(a.slices||[]).map(makeSlice);
-  const g=a.grid;
-  doc.assets.push({id:str(a.id,80),kind:'image',name:str(a.name)||'image',width:a.width,height:a.height,layers,timeline,cels,frames,tags,slices,
+  const g=a.grid,imp=a.import&&typeof a.import==='object'?normalizeImport(a.import):null;
+  doc.assets.push({id:str(a.id,80),kind:'image',name:str(a.name)||'image',width:a.width,height:a.height,layers,cels,frames,tags,slices,
    grid:g?{w:int(g.w,'grid.w',1),h:int(g.h,'grid.h',1),ox:int(g.ox,'grid.ox'),oy:int(g.oy,'grid.oy'),sx:int(g.sx,'grid.sx'),sy:int(g.sy,'grid.sy')}:null,
-   source:a.source?{name:str(a.source.name),type:str(a.source.type,100),size:Number(a.source.size)||0,lastModified:Number(a.source.lastModified)||0}:null});
+   source:a.source?{name:str(a.source.name),type:str(a.source.type,100),size:Number(a.source.size)||0,lastModified:Number(a.source.lastModified)||0}:null,
+   ...(imp?{import:imp}:{})});
  }
  return doc;
+}
+/** asset.import: plain JSON (the decisions are UI data), with its one blob reference checked. */
+function normalizeImport(x){
+ const out=JSON.parse(JSON.stringify(x));
+ if(out.sourceBlob!=null&&!BLOB_RE.test(String(out.sourceBlob)))throw Error('Import source is not an image reference');
+ out.kind=str(out.kind||'image',40);out.decisions=Array.isArray(out.decisions)?out.decisions.slice(0,64):[];
+ return out;
 }
 export function stats(doc){
  let frames=0,pixels=0;for(const a of doc.assets){frames+=a.frames.length;pixels+=a.width*a.height;}
