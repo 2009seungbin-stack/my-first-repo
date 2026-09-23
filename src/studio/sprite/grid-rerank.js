@@ -10,7 +10,12 @@
  *                   no splits and k× the filled cells (samurai 48×96 → 48×48).
  *  3. crossings     a candidate whose cell borders cut through content thousands of times loses to
  *                   one that cuts through (almost) nothing (hit-yellow 1024×8 → 1024×1024).
- * Pure; no pixels. */
+ *  0. island grid   the grid the separate sprites imply (`islandGrid`: every sprite alone in one
+ *                   cell) is offered by the importer and, when it cuts, splits and drops nothing,
+ *                   outranks a reading that does (a 1,000-frame sheet of differently sized sprites
+ *                   in 32 px cells read as 128×64 → 32×32).
+ * `rerankGrids` is pure (no pixels); `islandGridSuggestion` measures its candidate with the
+ * detector's own cell evidence. */
 import {runLengths,cellEvidence} from '../../game/grid-detect.js';
 import {alphaProfile,source} from '../../game/pixels.js';
 const key=s=>[s.cellWidth,s.cellHeight,s.marginX,s.marginY,s.spacingX,s.spacingY].join();

@@ -164,7 +164,8 @@ export function createImporter(ctx,{onChange=()=>{}}={}){
   * (a command with do/undo), after Apply it re-cuts the frames (a document edit). */
  async function changeChoice(assetId,patch,label){
   const s=sheets.get(assetId);if(!s)return;planFor(assetId);// sync with the document first
-  const prev={...s.choice},next={...s.choice,...patch};delete next.cells;
+  const prev={...s.choice},next={...s.choice,...patch};delete next.cells;delete prev.cells;
+  if(JSON.stringify(next)===JSON.stringify(prev))return;// the same value again (Enter then blur) is not a step
   if(next.keyMode!==prev.keyMode)await analyzeSheet(assetId,{keyMode:next.keyMode});
   if(next.slice==='custom'&&next.grid)await measureCells(assetId,next.grid,next.keyMode);
   const a=P.assetById(ctx.doc,assetId);
