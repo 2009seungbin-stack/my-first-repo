@@ -1,15 +1,16 @@
 /* Game landing pages (tools/game-landing-build.mjs). Dark, like the Studio they open. */
-.game-landing{--bg:#0f1116;--bg2:#141821;--panel:#181c26;--panel2:#1d2230;--line:#272d3b;--line2:#343c4f;--ink:#e9ecf2;--ink2:#c3cad6;--muted:#8f99ab;--accent:#4cc2ff;--accent2:#7fd3ff;--ok:#3ecf8e;--built:#b18cff;--dec:#56c7c1;--part:#e8c35a;--warn:#ff9f43;--code:#aee6ff;
+/* Same palette as the game home (src/task/task.css body.game-home --gh-*). */
+.game-landing{--bg:#131518;--bg2:#17191c;--panel:#1b1d21;--panel2:#23262b;--line:#2c3036;--line2:#3a3f46;--ink:#eef0f3;--ink2:#d9dce1;--muted:#9ea5af;--accent:#4cc2ff;--accent2:#7fd3ff;--ok:#7bd88f;--built:#b18cff;--dec:#56c7c1;--part:#e8c35a;--warn:#ff9f43;--code:#aee6ff;
  margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Hiragino Sans","Yu Gothic UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .game-landing *,.game-landing *::before,.game-landing *::after{box-sizing:border-box}
 .game-landing a{color:var(--accent2);text-decoration:none}.game-landing a:hover{color:#fff}
 .game-landing :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 /* header */
-.gl-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1240px;margin:0 auto;padding:14px 24px;border-bottom:1px solid #1c212c}
+.gl-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1240px;margin:0 auto;padding:14px 24px;border-bottom:1px solid var(--line)}
 .gl-brand{display:flex;align-items:center;gap:9px;color:var(--ink)!important}.gl-brand strong{font-size:19px;letter-spacing:-.5px;font-weight:800}.gl-brand strong span{color:var(--accent)}
 .gl-header-end{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .gl-header-link,.header-studio{font-size:13px;font-weight:700;color:var(--ink2)!important;padding:7px 10px;border-radius:8px;white-space:nowrap}.gl-header-link:hover{background:var(--panel)}
-.header-studio{background:linear-gradient(180deg,#1f3346,#172636);border:1px solid #2c4a63;color:#dff3ff!important}.header-studio:hover{border-color:var(--accent)}
+.game-landing .header-studio{background:var(--accent);color:#06121a!important;font-weight:800;padding:8px 14px;border-radius:10px}.game-landing .header-studio:hover{filter:brightness(1.08)}
 .gl-lang{display:flex;align-items:center;gap:6px;color:var(--muted);padding:0 4px 0 8px}
 .gl-lang select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px}
 /* layout */
@@ -20,8 +21,8 @@
 .gl-hero h1{font-size:clamp(28px,3.5vw,44px);line-height:1.12;letter-spacing:-1.2px;margin:12px 0 12px;font-weight:850;text-wrap:balance}
 .gl-lead{color:var(--ink2);font-size:16px;margin:0 0 22px;max-width:62ch}
 /* drop zone */
-.gl-drop{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:22px;border:1.5px dashed #3a6d8f;border-radius:14px;background:linear-gradient(180deg,#152130,#121824);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
-.gl-drop:hover,.gl-dragging .gl-drop{border-color:var(--accent);box-shadow:0 0 0 4px #4cc2ff1f;background:linear-gradient(180deg,#17283a,#131b28)}
+.gl-drop{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:22px;border:1.5px dashed #3a6d8f;border-radius:14px;background:linear-gradient(180deg,#1a2530,#16191d);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.gl-drop:hover,.gl-dragging .gl-drop{border-color:var(--accent);box-shadow:0 0 0 4px #4cc2ff1f;background:linear-gradient(180deg,#1c2b38,#171b20)}
 .gl-drop strong{font-size:16px;line-height:1.4;color:#fff}
 .gl-drop-art{display:grid;grid-template-columns:repeat(2,14px);gap:3px}.gl-drop-art i{width:14px;height:14px;background:var(--accent);border-radius:2px;opacity:.9}.gl-drop-art i:nth-child(2){background:#ff4d5e}.gl-drop-art i:nth-child(3){background:#ffd23f}.gl-drop-art i:nth-child(4){background:var(--ok)}
 .gl-drop-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -34,11 +35,11 @@
 .gl-shot img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line2);box-shadow:0 30px 80px #0009,0 0 0 1px #000;background:#16181c}
 .gl-shot figcaption{font-size:12px;color:var(--muted);margin-top:8px}
 /* engine badges */
-.gl-badges{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px;padding:14px 0 18px;border-top:1px solid #1c212c;border-bottom:1px solid #1c212c}
+.gl-badges{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px;padding:14px 0 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .gl-badge{display:flex;flex-direction:column;gap:1px;padding:7px 11px 7px 12px;border-radius:9px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ok);min-width:0}
 .gl-badge b{font-size:13px;color:#fff;font-weight:800;letter-spacing:-.1px}.gl-badge span{font-size:11.5px;color:var(--muted);font-weight:650}
 .gl-badge.is-built{border-left-color:var(--built)}.gl-badge.is-decoded{border-left-color:var(--dec)}.gl-badge.is-partial{border-left-color:var(--part)}.gl-badge.is-unverified{border-left-color:var(--warn)}.gl-badge.is-unverified span{color:var(--warn)}
-.gl-badge.is-hl{background:#18263a;border-color:#2c4a63}
+.gl-badge.is-hl{background:#1c2833;border-color:#2f4a5e}
 /* sections */
 .gl-body{max-width:1080px}
 .gl-section{padding:30px 0 6px}
@@ -50,7 +51,7 @@
 .gl-cards li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink2)}
 .gl-steps{list-style:none;counter-reset:s;padding:0;margin:0;display:grid;gap:8px}
 .gl-steps li{counter-increment:s;display:flex;gap:12px;align-items:baseline;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink2)}
-.gl-steps li::before{content:counter(s);flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;background:#1f3346;color:var(--accent2);font-weight:850;font-size:13px}
+.gl-steps li::before{content:counter(s);flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;background:#1f2e3a;color:var(--accent2);font-weight:850;font-size:13px}
 .gl-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
 .gl-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
 .gl-table th,.gl-table td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
@@ -71,7 +72,7 @@
 .gl-related a:hover,.gl-hub-list a:hover{border-color:var(--accent);color:var(--ink)}
 .gl-related b,.gl-hub-list b{display:block;font-size:14.5px;color:#fff;line-height:1.35}.gl-related small,.gl-hub-list small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:12.5px;line-height:1.5;margin-top:4px}
 /* footer (markup from src/content.js footer()) */
-.gl-footer{border-top:1px solid #1c212c;margin-top:36px}
+.gl-footer{border-top:1px solid var(--line);margin-top:36px}
 .gl-footer .site-footer{max-width:1240px;margin:0 auto;padding:22px 24px 36px;font-size:13px;color:var(--muted)}
 .gl-footer .site-footer nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px}.gl-footer .site-footer a{color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
 .gl-footer .site-footer p{margin:0}
@@ -87,3 +88,5 @@
 }
 html[lang="ko"] .game-landing{word-break:keep-all;overflow-wrap:break-word}
 .gl-table code,.gl-cards li,.gl-lead{overflow-wrap:anywhere}
+html[lang="ja"] .game-landing{font-family:"Yu Gothic UI","Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,system-ui,sans-serif}
+html[lang="ja"] .gl-hero h1,html[lang="ko"] .gl-hero h1{letter-spacing:-.4px}
