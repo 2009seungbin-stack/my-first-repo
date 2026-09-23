@@ -26,6 +26,7 @@ import {jitterReport,autoFixJitter} from '../../game/jitter.js';
 import {frame as makeFrame} from '../../game/model.js';
 import {SVG} from '../sprite/icons.js';
 import {stem} from '../sprite/import-build.js';
+import {setFrameSelection,onFrameSelection} from '../core/frame-selection.js';
 const PREFS='nerulio.studio.sprite.v1';
 const DEFAULTS={mode:'frame',scope:'frame',boxType:'hit',onion:{on:false,before:1,after:1,opacity:.45},loopTag:true,cw:26,maxVertices:12,alphaThreshold:127,
  align:{width:null,height:null,padding:0,anchor:'bottom-center',trim:true},jitterRef:'bottom-center',preview:false,previewZoom:2,previewBg:'checker',previewPos:null,show:{pivot:true,boxes:true,collision:true}};
@@ -67,7 +68,7 @@ export default {
   const planLayer=ctx.layer(new ShapeLayer({id:'sp-plan',z:9,color:'#7fd3ff',editable:false,handles:false,fill:'rgba(127,211,255,.08)'}));
   const islandLayer=ctx.layer(new ShapeLayer({id:'sp-islands',z:11,color:'#ff4d5e',editable:false,handles:false,labels:false}));
   const sheetEditor=rectEditor({layer:regions,bounds:()=>{const a=asset();return a?{x:0,y:0,w:a.width,h:a.height}:{x:0,y:0,w:0,h:0};},
-   selection:()=>S.sel,onSelect:ids=>{const a=asset();if(!a)return;S.sel=a.frames.filter(f=>ids.includes(f.id)).map(f=>f.id);if(S.sel.length)S.cur=D.indexOf(a,S.sel[S.sel.length-1]);regions.setSelected(S.sel);timeline.mark();panels.renderFrame();status();},
+   selection:()=>S.sel,onSelect:ids=>{const a=asset();if(!a)return;S.sel=a.frames.filter(f=>ids.includes(f.id)).map(f=>f.id);if(S.sel.length)S.cur=D.indexOf(a,S.sel[S.sel.length-1]);regions.setSelected(S.sel);setFrameSelection(S.sel,'sprite');timeline.mark();panels.renderFrame();status();},
    onChange(map,{phase,key}){if(phase==='end'){ctx.history.close(key);return;}if(phase==='cancel'&&ctx.history.abort(key))return;exec(t('sp.cmd.moveRegions'),d=>P.setFrameRects(d,S.assetId,map),{mergeKey:key,open:phase==='drag'});if(phase==='cancel')ctx.history.close(key);},
    onCreate(rect){const a=asset();if(!a)return;const f=P.frameForRect(a,rect,{id:P.uid('f'),index:a.frames.length});exec(t('sp.cmd.addRegion'),d=>P.addFrames(d,a.id,[f]));S.sel=[f.id];S.cur=asset().frames.length-1;refreshAll();},
    create:()=>regionDraw});
@@ -153,7 +154,13 @@ export default {
    if(prefs.scope==='tag'){const tg=playTag();return tg?[...tg.frameIds]:[f.id];}
    return [f.id];
   }
-  function onFrameChanged(){
+  // the selected frames are shared with other workspaces/panels (P1b's Pack stage highlights them)
+  const offSelection=onFrameSelection(({ids,source})=>{
+   if(source==='sprite')return;const a=asset();if(!a)return;const known=ids.filter(id=>a.frames.some(f=>f.id===id));if(!known.length)return;
+   S.sel=known;S.cur=D.indexOf(a,known[known.length-1]);onFrameChanged(false);
+  });
+  function onFrameChanged(share=true){
+   if(share)setFrameSelection(S.sel,'sprite');
    present();timeline.mark();overlay.invalidate();
    regions.setSelected(S.sel);panels.renderFrame();panels.renderTag();panels.renderAlign();status();
   }
@@ -447,7 +454,7 @@ export default {
     exec(t('sp.cmd.handoff',{n:frames.length}),d=>D.setTags(D.replaceContent(d,a.id,{frames,importInfo:{kind:'sprite-lab',decisions:[{id:'lab',label:'lab',chosen:'handoff',confidence:'high',reasons:[`${frames.length} frames from Sprite Lab`],alternatives:[]}]}}),a.id,[...groups].map(([name,pos])=>({name,frameIds:pos.map(i=>frames[i].id)}))));
     ctx.toast(t('sp.toast.handoff',{n:frames.length}));setMode('frame');
    },
-   deactivate(){stop();previewWin.destroy();hud.remove();folderInput.remove();view.set({});}
+   deactivate(){stop();offSelection();previewWin.destroy();hud.remove();folderInput.remove();}
   };
  }
 };
