@@ -64,7 +64,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  const menusHost=h('div.st-menus',{});
  const dropHint=h('div.st-drop',{'aria-hidden':'true'},h('div',{}));
  const toastEl=h('div.st-toast',{role:'status','aria-live':'polite',hidden:true});
- const importInput=h('input',{type:'file',multiple:true,accept:'image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif',hidden:true});
+ const importInput=h('input',{type:'file',multiple:true,accept:'image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,.png,.apng,.jpg,.jpeg,.webp,.gif,.bmp,.avif,.ase,.aseprite,.json,.xml',hidden:true});
  const openInput=h('input',{type:'file',accept:EXTENSION+',application/zip',hidden:true});
  root.append(header,h('div.st-body',{},toolbar,center,rightSplit,rightDock),status,sheet,menusHost,dropHint,toastEl,importInput,openInput);
  host.replaceChildren(root);
@@ -151,9 +151,14 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   empty.hidden=!!a;hud.hidden=!a;root.classList.toggle('has-image',!!a);
   if(!a){view.clearImage();setStatus('image','');updateZoom();for(const fn of listeners.asset)fn(null);renderAssets();return;}
   try{
-   const blob=P.primaryBlob(a),bmp=await images.bitmap(blob);if(activeAssetId!==a.id)return;
-   await view.setImage(bmp,a.width,a.height,{view:restoreView?assetViews.get(a.id)||null:null});
-   images.trimBitmaps(new Set([blob]));
+   // a workspace that shows something other than the asset's picture (e.g. Sprite: the current
+   // frame with onion skin) draws it itself
+   if(wsInstance?.present)await wsInstance.present(a,{restoreView,view:restoreView?assetViews.get(a.id)||null:null});
+   else{
+    const blob=P.primaryBlob(a),bmp=await images.bitmap(blob);if(activeAssetId!==a.id)return;
+    await view.setImage(bmp,a.width,a.height,{view:restoreView?assetViews.get(a.id)||null:null});
+    images.trimBitmaps(new Set([blob]));
+   }
   }catch(e){toast(errText(e),{error:true});}
   setStatus('image',t('status.image',{w:a.width,h:a.height}));updateZoom();updateMemory();
   for(const fn of listeners.asset)fn(a.id);
@@ -192,6 +197,10 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   files=[...files];
   const project=files.find(f=>/\.nerulio$/i.test(f.name||''));
   if(project){await openProjectFile(project);files=files.filter(f=>f!==project);if(!files.length)return [];}
+  // The active workspace may import files itself; files only another workspace understands
+  // (an .aseprite, an animated GIF, atlas data) switch to that workspace first.
+  if(!wsInstance?.importFiles){const claimer=workspaces.list().find(w=>w.status==='ready'&&w.id!==currentWs&&w.claims?.(files));if(claimer)activateWorkspace(claimer.id);}
+  if(wsInstance?.importFiles){busy++;root.classList.add('is-busy');try{return await wsInstance.importFiles(files,{from})||[];}catch(e){toast(errText(e),{error:true});return [];}finally{busy--;root.classList.toggle('is-busy',busy>0);setStatus('selection','');}}
   const ok=files.filter(isImportable),bad=files.filter(f=>!isImportable(f));
   if(bad.length)toast(t('error.unsupported',{names:bad.map(f=>f.name).slice(0,3).join(', ')}),{error:true});
   if(!ok.length)return [];
@@ -262,7 +271,22 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  addEventListener('dragenter',e=>{if(e.dataTransfer?.types?.includes('Files')){dragDepth++;dragOn();}});
  addEventListener('dragleave',()=>{dragDepth=Math.max(0,dragDepth-1);dragOn();});
  addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files')){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
- addEventListener('drop',e=>{dragDepth=0;dragOn();if(!e.dataTransfer?.files?.length)return;e.preventDefault();importFiles([...e.dataTransfer.files],{from:'drop'});});
+ addEventListener('drop',e=>{dragDepth=0;dragOn();if(!e.dataTransfer?.files?.length)return;e.preventDefault();
+  // folders: the entries must be taken during the event; they are read (recursively) afterwards
+  const entries=[...(e.dataTransfer.items||[])].filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  if(entries.some(x=>x.isDirectory))filesFromEntries(entries).then(f=>f.length&&importFiles(f,{from:'drop'}));
+  else importFiles([...e.dataTransfer.files],{from:'drop'});});
+ /** Files under dropped folders, each with `nerulioPath` = its path inside the drop ("walk/03.png"). */
+ async function filesFromEntries(entries){
+  const out=[],walk=async(entry,path)=>{
+   if(out.length>=4096)return;
+   if(entry.isFile){const f=await new Promise((res,rej)=>entry.file(res,rej));f.nerulioPath=path+f.name;out.push(f);return;}
+   if(!entry.isDirectory)return;const r=entry.createReader();let batch;
+   do{batch=await new Promise((res,rej)=>r.readEntries(res,rej));for(const x of batch.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})))await walk(x,path+entry.name+'/');}while(batch.length);
+  };
+  for(const x of entries)await walk(x,'');
+  return out;
+ }
  addEventListener('paste',e=>{if(isTypingTarget(document.activeElement))return;const f=[...(e.clipboardData?.files||[])];if(f.length){e.preventDefault();importFiles(f,{from:'paste'});}});
  // ------------------------------------------------------------------ panels shared by every workspace
  const assetsList=h('div.st-assets',{role:'listbox','aria-label':'assets'});
@@ -354,7 +378,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  command({id:'frame.prev',group:'navigate',enabled:()=>!!wsInstance?.step,run:()=>wsInstance.step(-1)});
  command({id:'frame.next',group:'navigate',enabled:()=>!!wsInstance?.step,run:()=>wsInstance.step(1)});
  function setPref(p){
-  Object.assign(prefs,p);storage.set(PREFS_KEY,{theme:prefs.theme,bg:prefs.bg,pixelGrid:prefs.pixelGrid,rulers:prefs.rulers,wheel:prefs.wheel});
+  Object.assign(prefs,p);storage.set(PREFS_KEY,{theme:prefs.theme,bg:prefs.bg,pixelGrid:prefs.pixelGrid,rulers:prefs.rulers,wheel:prefs.wheel,workspace:prefs.workspace});
   if('theme'in p){root.dataset.theme=prefs.theme;}
   if('bg'in p)view.set({...BACKGROUNDS.checker,...(BACKGROUNDS[prefs.bg]||{})});
   if('pixelGrid'in p)view.set({pixelGrid:prefs.pixelGrid});
@@ -404,6 +428,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    tool(def){registerTool(def,ws.id);disposers.push(()=>unregisterTool(def.id));},
    panel(def){const p=docks.add(def);disposers.push(()=>docks.remove(def.id));return p;},
    showPanel:id=>docks.show(id),
+   /** Makes the bottom dock at least `px` tall (a timeline needs more room than a strip). */
+   minBottomHeight(px){if(docks.layout.bottomHeight<px){docks.layout.bottomHeight=px;docks.applySizes();docks.save();}},
    command(def){command(def);disposers.push(()=>{commands.delete(def.id);keymap.unbind(def.id);});},
    menu(def){wsMenus.push(def);renderMenus();disposers.push(()=>{wsMenus=wsMenus.filter(m=>m!==def);renderMenus();});},
    layer(l){view.addLayer(l);disposers.push(()=>view.removeLayer(l));return l;},
@@ -417,6 +443,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   const def=workspaces.get(id);if(!def||def.status!=='ready'||id===currentWs)return;
   wsInstance?.deactivate?.();wsDispose?.();
   currentWs=id;const {ctx,dispose}=makeContext(def);wsDispose=dispose;
+  prefs.workspace=id;storage.set(PREFS_KEY,{...storage.get(PREFS_KEY,{}),workspace:id});
   wsInstance=def.activate(ctx)||{};
   if(!tools.has(activeTool)||tools.get(activeTool).owner==='app')setTool(defaultTool());
   renderWsTabs();renderMenus();root.dataset.workspace=id;
@@ -440,7 +467,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   const inList=target.closest?.('[role="listbox"],[role="tablist"]'),inMenu=target.closest?.('[role="menu"],[role="menubar"]');
   const inWidget=inList||inMenu;
   const id=keymap.lookup(combo);
-  const widgetKey=inMenu?!/^(Mod|Alt|F\d)/.test(combo):inList&&/^(Arrow|Home|End|Enter|Space|Delete|Backspace)/.test(combo);
+  // Enter on a focused button/link/select activates it, never a single-key shortcut
+  const widgetKey=inMenu?!/^(Mod|Alt|F\d)/.test(combo):inList&&/^(Arrow|Home|End|Enter|Space|Delete|Backspace)/.test(combo)||combo==='Enter'&&!!target.closest?.('button,a[href],summary,select,[role="button"],[role="tab"],[role="option"],[role="menuitem"]');
   if(id&&!widgetKey){
    const c=commands.get(id);
    if(c){e.preventDefault();if(enabled(c))runCommand(id);return;}
@@ -529,7 +557,9 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   get tool(){return activeTool;},
   async start(){
    applyMode();relabel();showAsset(null);
-   activateWorkspace(workspaces.firstReady()?.id);
+   // the workspace used last (or ?ws=sprite), else the first ready one
+   const want=new URLSearchParams(location.search).get('ws')||prefs.workspace;
+   activateWorkspace(workspaces.get(want)?.status==='ready'?want:workspaces.firstReady()?.id);
    root.dataset.ready='1';document.documentElement.dataset.studioReady='1';// interactive from here; recovery may still ask
    const [session,handoff]=await Promise.all([autosave.session().catch(()=>null),takeHandoff()]);
    if(handoff.files.length){
