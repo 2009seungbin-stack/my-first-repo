@@ -14,10 +14,15 @@ export class ImageStore{
  has(id){return this.records.has(id);}
  get(id){return this.records.get(id)||null;}
  blob(id){return this.records.get(id)?.blob||null;}
- /** Adds a PNG blob (id = its hash, computed if not given). Returns the record. */
- async put(blob,{id=null,width=0,height=0,persisted=false}={}){
+ /** Adds a PNG blob (id = its hash, computed if not given). Returns the record.
+  * A blob whose type is not an image (or `{file:true}`) is an attached file (a font): kept byte
+  * for byte with its own type, never decoded (width = height = 0). */
+ async put(blob,{id=null,width=0,height=0,persisted=false,file=false}={}){
   id=id||await sha256Hex(blob);
   let r=this.records.get(id);
+  if(!r&&(file||(blob.type&&!blob.type.startsWith('image/')))){
+   r={id,blob:new Blob([blob],{type:blob.type||'application/octet-stream'}),width:0,height:0,bitmap:null,decoding:null,persisted,file:true};this.records.set(id,r);return r;
+  }
   if(!r){
    if(!width||!height){const bmp=await createImageBitmap(blob);width=bmp.width;height=bmp.height;bmp.close();}
    r={id,blob:new Blob([blob],{type:'image/png'}),width,height,bitmap:null,decoding:null,persisted};this.records.set(id,r);

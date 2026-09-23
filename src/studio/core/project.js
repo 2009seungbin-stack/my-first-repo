@@ -145,12 +145,34 @@ export const addSlice=(doc,assetId,spec)=>mapAsset(doc,assetId,a=>({...a,slices:
 export const updateSlice=(doc,assetId,id,patch)=>mapAsset(doc,assetId,a=>({...a,slices:a.slices.map(s=>s.id===id?makeSlice({...s,...patch,id}):s)}));
 export const removeSlice=(doc,assetId,id)=>mapAsset(doc,assetId,a=>({...a,slices:a.slices.filter(s=>s.id!==id)}));
 // ------------------------------------------------------------------ load / validate
-/** Every blob id the document points at (what autosave and the .nerulio writer must keep). */
+/** Every blob id the document points at (what autosave and the .nerulio writer must keep):
+ * image cels, import sources and attached files (settings.files, see below). */
 export function referencedBlobs(doc){
  const out=new Set();
  for(const a of doc.assets||[]){for(const c of a.cels||[])out.add(c.blob);if(a.import?.sourceBlob)out.add(a.import.sourceBlob);}
+ for(const id of Object.keys(doc.settings?.files||{}))out.add(id);
  return out;
 }
+// ------------------------------------------------------------------ attached files
+/** Non-image files a workspace needs to keep with the project (a font a game font is built from),
+ * stored like images: once, by SHA-256 of their bytes, outside the document.
+ *   settings.files = {[sha256]: {name, type, size, owner}}   owner = the workspace id that uses it
+ * They travel in autosave and in .nerulio files (files/<sha256>) and are verified by hash on open. */
+export const referencedFiles=doc=>new Map(Object.entries(doc.settings?.files||{}));
+export const isFileBlob=(doc,id)=>!!doc.settings?.files?.[id];
+export function attachFile(doc,id,{name='file',type='application/octet-stream',size=0,owner=''}={}){
+ if(!BLOB_RE.test(String(id)))throw Error('A file id must be a SHA-256 hex id');
+ const cur=doc.settings?.files?.[id],meta={name:str(name,200)||'file',type:str(type,100)||'application/octet-stream',size:Number(size)||0,owner:str(owner,32)};
+ if(cur&&JSON.stringify(cur)===JSON.stringify(meta))return doc;
+ return {...doc,settings:{...(doc.settings||{}),files:{...(doc.settings?.files||{}),[id]:meta}}};
+}
+export function detachFile(doc,id){
+ if(!doc.settings?.files?.[id])return doc;
+ const files={...doc.settings.files};delete files[id];
+ return {...doc,settings:{...doc.settings,files}};
+}
+/** True when there is anything to save: images or attached files. */
+export const hasContent=doc=>(doc?.assets?.length||0)>0||Object.keys(doc?.settings?.files||{}).length>0;
 /** Older formats → current. The hook exists so autosaved snapshots never strand.
  * v1 → v2: a v1 asset had one `timeline` entry; its cels become the layers' shared pictures. */
 export function migrate(raw){
@@ -169,6 +191,13 @@ export function migrate(raw){
 export function normalizeProject(raw){
  const d=migrate(raw);
  const doc={format:PROJECT_FORMAT,version:PROJECT_VERSION,id:str(d.id,80)||uid('p'),name:str(d.name)||'Untitled',createdAt:str(d.createdAt,40),assets:[],settings:d.settings&&typeof d.settings==='object'?JSON.parse(JSON.stringify(d.settings)):{}};
+ if(doc.settings.files!=null){
+  if(typeof doc.settings.files!=='object'||Array.isArray(doc.settings.files))throw Error('settings.files must be an object');
+  for(const [id,m] of Object.entries(doc.settings.files)){
+   if(!BLOB_RE.test(id))throw Error('An attached file has a bad id');
+   doc.settings.files[id]={name:str(m?.name,200)||'file',type:str(m?.type,100)||'application/octet-stream',size:Number(m?.size)||0,owner:str(m?.owner,32)};
+  }
+ }
  const ids=new Set();
  for(const a of d.assets||[]){
   if(a.kind!=='image')throw Error(`Unsupported asset kind ${a.kind}`);

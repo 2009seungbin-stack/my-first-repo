@@ -2,17 +2,19 @@
  * PNGs) holding
  *   project.json        {format:'nerulio-project-file', fileVersion, app, savedAt, project}
  *   images/<sha256>.png every image the project references, once, named by its content hash
+ *   files/<sha256>      every attached non-image file (settings.files, e.g. a font), same rule
  * Reading verifies each image's hash against its name, so a damaged or hand-edited file is caught
  * at open time rather than exported wrong later. Round trip is exact: same document, same bytes. */
 import {zip} from '../../core.js';
 import {readZip} from './zip-read.js';
-import {normalizeProject,referencedBlobs} from './project.js';
+import {normalizeProject,referencedBlobs,referencedFiles} from './project.js';
 export const FILE_FORMAT='nerulio-project-file',FILE_VERSION=1,EXTENSION='.nerulio',MIME='application/x-nerulio-project';
 export async function sha256Hex(blob){
  const buf=await (blob.arrayBuffer?blob.arrayBuffer():blob);
  return [...new Uint8Array(await crypto.subtle.digest('SHA-256',buf))].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 export const imagePath=id=>`images/${id}.png`;
+export const filePath=id=>`files/${id}`;
 export function projectManifest(doc,{savedAt=new Date().toISOString(),app='nerulio-studio'}={}){
  return {format:FILE_FORMAT,fileVersion:FILE_VERSION,app,savedAt,project:doc};
 }
@@ -20,7 +22,8 @@ export function projectManifest(doc,{savedAt=new Date().toISOString(),app='nerul
 export async function writeProjectFile(doc,getBlob,{savedAt,signal}={}){
  const manifest=projectManifest(doc,{savedAt});
  const entries=[{name:'project.json',blob:new Blob([JSON.stringify(manifest,null,1)],{type:'application/json'})}];
- for(const id of referencedBlobs(doc)){const b=await getBlob(id);if(!b)throw Error(`Image ${id.slice(0,8)}… is missing from memory`);entries.push({name:imagePath(id),blob:b});}
+ const files=referencedFiles(doc);
+ for(const id of referencedBlobs(doc)){const b=await getBlob(id);if(!b)throw Error(`${files.has(id)?'File':'Image'} ${id.slice(0,8)}… is missing from memory`);entries.push({name:files.has(id)?filePath(id):imagePath(id),blob:b});}
  const out=await zip(entries,{paths:true,signal});
  return new Blob([out],{type:MIME});
 }
@@ -33,9 +36,11 @@ export async function readProjectFile(blob){
  if(!(manifest.fileVersion>=1))throw Error('Unknown project file version');
  if(manifest.fileVersion>FILE_VERSION)throw Error(`Saved by a newer Studio (file format ${manifest.fileVersion})`);
  const doc=normalizeProject(manifest.project),blobs=new Map();
+ const files=referencedFiles(doc);
  for(const id of referencedBlobs(doc)){
-  const path=imagePath(id);if(!z.has(path))throw Error(`The project refers to an image that is not in the file (${path})`);
-  const b=await z.blob(path,'image/png');
+  const file=files.get(id),path=file?filePath(id):imagePath(id);
+  if(!z.has(path))throw Error(`The project refers to ${file?'a file':'an image'} that is not in the file (${path})`);
+  const b=await z.blob(path,file?file.type||'application/octet-stream':'image/png');
   if(await sha256Hex(b)!==id)throw Error(`Image ${path} does not match its checksum`);
   blobs.set(id,b);
  }

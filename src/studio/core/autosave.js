@@ -75,7 +75,7 @@ export class Autosave{
  async list(projectId=null){
   const db=await this.open(),st=db.transaction('snapshots').objectStore('snapshots');
   const keys=await req(projectId?st.index('project').getAllKeys(projectId):st.getAllKeys());
-  const out=[];for(const key of keys){const s=await req(db.transaction('snapshots').objectStore('snapshots').get(key));if(s)out.push({key,projectId:s.projectId,name:s.name,at:s.at,assets:s.doc.assets.length,frames:s.doc.assets.reduce((n,a)=>n+a.frames.length,0),fileSaved:s.fileSaved});}
+  const out=[];for(const key of keys){const s=await req(db.transaction('snapshots').objectStore('snapshots').get(key));if(s)out.push({key,projectId:s.projectId,name:s.name,at:s.at,assets:s.doc.assets.length,files:Object.keys(s.doc.settings?.files||{}).length,frames:s.doc.assets.reduce((n,a)=>n+a.frames.length,0),fileSaved:s.fileSaved});}
   return out.sort((a,b)=>b.at-a.at);
  }
  /** A snapshot with its images loaded into the ImageStore. */
@@ -87,7 +87,7 @@ export class Autosave{
   for(const id of referencedBlobs(doc)){
    const b=await req(db.transaction('blobs').objectStore('blobs').get(id));
    if(!b)throw Error(`Autosave is missing image ${id.slice(0,8)}…`);
-   await this.images.put(b.blob,{id,width:b.width,height:b.height,persisted:true});this.persisted.add(id);
+   await this.images.put(b.blob,{id,width:b.width,height:b.height,persisted:true,file:!b.width});this.persisted.add(id);
   }
   this.lastDoc=doc;this.lastUI=JSON.stringify(s.ui||{});
   return {doc,ui:s.ui||{},at:s.at,fileSaved:!!s.fileSaved,fileName:s.fileName||''};

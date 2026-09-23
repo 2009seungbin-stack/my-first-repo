@@ -64,7 +64,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  const menusHost=h('div.st-menus',{});
  const dropHint=h('div.st-drop',{'aria-hidden':'true'},h('div',{}));
  const toastEl=h('div.st-toast',{role:'status','aria-live':'polite',hidden:true});
- const importInput=h('input',{type:'file',multiple:true,accept:'image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,.png,.apng,.jpg,.jpeg,.webp,.gif,.bmp,.avif,.ase,.aseprite,.json,.xml',hidden:true});
+ const importInput=h('input',{type:'file',multiple:true,accept:'image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,.png,.apng,.jpg,.jpeg,.webp,.gif,.bmp,.avif,.ase,.aseprite,.json,.xml,.ttf,.otf,.ttc,.woff,.woff2,.fnt,.po,.pot,.csv,.tsv,.strings,.resx,.tres,.xliff,.xlf,.properties,.txt',hidden:true});
  const openInput=h('input',{type:'file',accept:EXTENSION+',application/zip',hidden:true});
  root.append(header,h('div.st-body',{},toolbar,center,rightSplit,rightDock),status,sheet,menusHost,dropHint,toastEl,importInput,openInput);
  host.replaceChildren(root);
@@ -165,18 +165,18 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   renderAssets();autosave.schedule();
  }
  view.on('view',v=>{if(activeAssetId)assetViews.set(activeAssetId,{...v});updateZoom();saveViewSoon();for(const fn of listeners.view)fn(v);});
- const saveViewSoon=debounce(()=>{if(doc().assets.length)autosave.schedule();},1500);
+ const saveViewSoon=debounce(()=>{if(P.hasContent(doc()))autosave.schedule();},1500);
  view.on('cursor',px=>setStatus('cursor',px?t('status.cursor',{x:px.x,y:px.y}):''));
  // ------------------------------------------------------------------ autosave
  const autosave=new Autosave({images,delay:1000,keep:10,
-  source:()=>{const d=doc();if(!d.assets.length&&!history.entries.length)return {doc:null};
+  source:()=>{const d=doc();if(!P.hasContent(d)&&!history.entries.length)return {doc:null};
    return {doc:d,ui:{activeAsset:activeAssetId,views:Object.fromEntries(assetViews),workspace:currentWs},fileSaved:!history.dirty,fileName};},
   onState:()=>updateSaveState()});
  function updateSaveState(){
-  const fileDirty=history.dirty&&(doc().assets.length>0||history.entries.length>0);
+  const fileDirty=history.dirty&&(P.hasContent(doc())||history.entries.length>0);
   let key,cls;
   if(autosave.error){key='save.autosaveFailed';cls='is-error';}
-  else if(!doc().assets.length&&!history.entries.length){key='save.empty';cls='';}
+  else if(!P.hasContent(doc())&&!history.entries.length){key='save.empty';cls='';}
   else if(!fileDirty){key='save.saved';cls='is-clean';}
   else if(autosave.saving||autosave.pending){key='save.saving';cls='is-busy';}
   else{key=autosave.lastAt?'save.autosaved':'save.unsaved';cls='is-dirty';}
@@ -187,7 +187,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   setStatus('project','');
  }
  addEventListener('beforeunload',e=>{
-  const unsafe=(history.dirty&&doc().assets.length>0)||autosave.dirty||!!autosave.error;
+  const unsafe=(history.dirty&&P.hasContent(doc()))||autosave.dirty||!!autosave.error;
   if(unsafe){autosave.flush();e.preventDefault();e.returnValue='';return '';}
  });
  addEventListener('pagehide',()=>{autosave.flush();});
@@ -245,12 +245,12 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   autosave.schedule();refreshChrome();updateSaveState();renderHistory();
  }
  async function confirmReplace(){
-  if(!history.dirty||!doc().assets.length)return true;
+  if(!history.dirty||!P.hasContent(doc()))return true;
   return confirmDialog(root,{title:t('confirm.replaceTitle'),message:t('confirm.replace',{name:doc().name}),ok:t('confirm.continue'),cancel:t('confirm.cancel')});
  }
  const safeName=s=>String(s||'project').replace(/[\\/:*?"<>|\x00-\x1f]+/g,'_').trim()||'project';
  async function saveProject({ask=false}={}){
-  if(!doc().assets.length){toast(t('error.nothingToSave'),{error:true});return;}
+  if(!P.hasContent(doc())){toast(t('error.nothingToSave'),{error:true});return;}
   if(ask){const name=await promptText(t('dialog.saveAsTitle'),t('dialog.projectName'),doc().name);if(name==null)return;if(name.trim())history.execute(edit(t('cmd.file.rename'),d=>P.renameProject(d,name)));}
   const blob=await writeProjectFile(doc(),id=>images.blob(id));
   fileName=safeName(doc().name)+EXTENSION;
@@ -346,8 +346,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
   {id:'file.new',group:'file',run:async()=>{if(await confirmReplace())await loadDocument(P.createProject({name:t('project.untitled')}),{fileSaved:true});}},
   {id:'file.open',group:'file',run:()=>openInput.click()},
   {id:'file.import',group:'file',run:()=>importInput.click()},
-  {id:'file.save',group:'file',enabled:()=>doc().assets.length>0,run:()=>saveProject()},
-  {id:'file.saveAs',group:'file',enabled:()=>doc().assets.length>0,run:()=>saveProject({ask:true})},
+  {id:'file.save',group:'file',enabled:()=>P.hasContent(doc()),run:()=>saveProject()},
+  {id:'file.saveAs',group:'file',enabled:()=>P.hasContent(doc()),run:()=>saveProject({ask:true})},
   {id:'file.rename',group:'file',run:async()=>{const n=await promptText(t('dialog.renameProject'),t('dialog.projectName'),doc().name);if(n!=null)history.execute(edit(t('cmd.file.rename'),d=>P.renameProject(d,n)));}},
   {id:'file.versions',group:'file',run:()=>showVersions()},
   {id:'edit.undo',group:'edit',label:()=>history.canUndo?t('cmd.edit.undoX',{what:history.undoLabel}):t('cmd.edit.undo'),enabled:()=>history.canUndo,run:()=>{view.tool?.cancel?.(view.lastInfo);history.undo();}},
@@ -571,7 +571,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
     if(session)toast(t('toast.previousKept'));
    }else if(session){
     let snap=null;try{snap=(await autosave.list(session.projectId)).find(s=>s.key===session.key);}catch{}
-    if(snap&&snap.assets>0){
+    if(snap&&(snap.assets>0||snap.files>0)){
      const res=await modal(root,{title:t('recover.title'),body:h('div',{},h('p',{},t('recover.body',{name:snap.name,time:new Date(snap.at).toLocaleString(locale),assets:snap.assets,frames:snap.frames})),h('p.st-muted',{},t('recover.hint'))),
       buttons:[{label:t('recover.discard'),value:'new'},{label:t('recover.restore'),value:'restore',primary:true}],className:'st-recover'}).done;
      if(res==='restore'){try{const s=await autosave.load(session.key);await loadDocument(s.doc,{fileSaved:s.fileSaved,fileName:s.fileName,ui:s.ui});toast(t('toast.restored'));}catch(e){toast(errText(e),{error:true});}}
