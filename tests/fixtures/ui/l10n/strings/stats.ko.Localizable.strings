@@ -1,0 +1,81 @@
+//
+//  Localizable.strings
+//  Stats
+//
+//  Created by Serhiy Mytrovtsiy on 27/08/2020.
+//  Using Swift 5.0.
+//  Running on macOS 10.15.
+//
+//  Copyright © 2020 Serhiy Mytrovtsiy. All rights reserved.
+//
+
+
+// Modules
+"CPU" = "CPU";
+"Open CPU settings" = "CPU 설정 열기";
+"GPU" = "GPU";
+"Open GPU settings" = "GPU 설정 열기";
+"RAM" = "RAM";
+"Open RAM settings" = "RAM 설정 열기";
+"Disk" = "디스크";
+"Open Disk settings" = "디스크 설정 열기";
+"Sensors" = "센서";
+"Open Sensors settings" = "센서 설정 열기";
+"Network" = "네트워크";
+"Open Network settings" = "네트워크 설정 열기";
+"Battery" = "배터리";
+"Open Battery settings" = "배터리 설정 열기";
+"Bluetooth" = "블루투스";
+"Open Bluetooth settings" = "블루투스 설정 열기";
+"Clock" = "시계";
+"Open Clock settings" = "시계 설정 열기";
+
+// Words
+"Unknown" = "알 수 없음";
+"Version" = "버전";
+"Processor" = "프로세서";
+"Memory" = "메모리";
+"Graphics" = "그래픽";
+"Close" = "닫기";
+"Download" = "다운로드";
+"Install" = "설치";
+"Cancel" = "취소";
+"Unavailable" = "사용할 수 없음";
+"Yes" = "예";
+"No" = "아니요";
+"Automatic" = "자동";
+
+// Setup
+"finish_setup_message" = "모든 것이 설정되었습니다! \n Stats는 무료 오픈 소스 도구이며 앞으로도 그럴 것입니다. \n 이 애플리케이션이 마음에 드셨다면 프로젝트를 후원 하실 수 있습니다. 늘 감사합니다!";
+
+// Alerts
+"Stats was updated to v" = "Stats가 v%0 버전으로 업데이트되었습니다";
+"Support text" = "Stats를 사용해 주셔서 감사합니다!\n\n 이 오픈 소스 프로젝트를 유지 관리하고 개선하는 데는 시간과 리소스가 필요합니다. 여러분의 지원은 모든 사람에게 신뢰할 수 있는 무료 애플리케이션을 계속 제공하는 데 도움이 됩니다.\n\nStats가 도움이 된다면 기여를 고려해 주세요. 여러분의 작은 도움이 큰 힘이 됩니다!";
+
+// Dashboard
+"Number of cores" = "%0 코어";
+"Number of threads" = "%0 스레드";
+"Number of e-cores" = "%0 효율 코어";
+"Number of p-cores" = "%0 성능 코어";
+"Number of s-cores" = "%0 슈퍼 코어";
+
+// GPU
+"GPU usage is" = "GPU 사용량 %0";
+
+// RAM
+"RAM utilization is" = "RAM 사용률 %0";
+"Free RAM is" = "여유 메모리 %0";
+
+// Disk
+"Used disk memory" = "%1 중 %0 사용";
+"Free disk memory" = "%1 중 %0 여유";
+"Disk utilization is" = "디스크 사용률 %0";
+
+// Network
+"Last reset" = "마지막 초기화 이후 %0 경과";
+"Previous IP" = "이전 IP: %0"; // translategemma:4b
+"New IP" = "새로운 IP: %0"; // gemma4:31b
+
+// Battery
+"Battery remaining" = "%0% 남았습니다";
+"Battery remaining to full charge" = "완전 충전까지 %0%";

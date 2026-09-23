@@ -430,6 +430,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    status:(slot,text)=>setStatus(slot==='selection'?'selection':slot,text),
    tool(def){registerTool(def,ws.id);disposers.push(()=>unregisterTool(def.id));},
    panel(def){const p=docks.add(def);disposers.push(()=>docks.remove(def.id));return p;},
+   /** Removes a panel this workspace added (a workspace with several modes swaps its panels). */
+   removePanel:id=>docks.remove(id),
    showPanel:id=>docks.show(id),
    /** Makes the bottom dock at least `px` tall (a timeline needs more room than a strip). */
    minBottomHeight(px){if(docks.layout.bottomHeight<px){docks.layout.bottomHeight=px;docks.applySizes();docks.save();}},

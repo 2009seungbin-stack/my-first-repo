@@ -1,0 +1,194 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: pixelorama\n"
+"X-Crowdin-Project-ID: 385497\n"
+"X-Crowdin-Language: ko\n"
+"X-Crowdin-File: /master/Translations/Translations.pot\n"
+"X-Crowdin-File-ID: 5\n"
+"Project-Id-Version: pixelorama\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: Korean\n"
+"Language: ko_KR\n"
+"PO-Revision-Date: 2026-08-14 12:06\n"
+
+msgid "OK"
+msgstr "예"
+
+msgid "Cancel"
+msgstr "취소"
+
+msgid "Open"
+msgstr "열기"
+
+msgid "Save"
+msgstr "저장"
+
+msgid "Please Confirm..."
+msgstr "확인이 필요합니다..."
+
+msgid "File Name:"
+msgstr "파일 이름:"
+
+msgid "Project name:"
+msgstr ""
+
+msgid "Canvas Size"
+msgstr "캔버스 크기"
+
+msgid "Frame Size"
+msgstr "프레임 크기"
+
+msgid "Size:"
+msgstr "크기:"
+
+msgid "Width:"
+msgstr "너비:"
+
+msgid "Height:"
+msgstr "높이:"
+
+msgid "Center"
+msgstr "중심"
+
+msgid "Main Menu"
+msgstr ""
+
+msgid "File"
+msgstr "파일"
+
+msgid "Edit"
+msgstr "편집"
+
+msgid "Select"
+msgstr "선택"
+
+msgid "View"
+msgstr "보기"
+
+msgid "Window"
+msgstr "창"
+
+msgid "Image"
+msgstr "이미지"
+
+#. Noun, refers to a Pixelorama project.
+msgid "Project"
+msgstr "프로젝트"
+
+msgid "Effects"
+msgstr "효과"
+
+#. Checkbox found in the Save project dialog. If enabled, the final blended images are being stored also in the pxo, for each frame.
+msgid "Include blended images"
+msgstr ""
+
+#. Hint tooltip of the "Include blended images" checkbox found in the Save project dialog.
+msgid "If enabled, the final blended images are also being stored in the pxo, for each frame.\n"
+"This makes the pxo file larger and is useful for importing by third-party software\n"
+"or CLI exporting. Loading pxo files in Pixelorama does not need this option to be enabled."
+msgstr ""
+
+#. An option found under the Edit menu. Brings up a dialog which contains the undo history, allowing users to quickly jump between undo steps.
+msgid "Undo History"
+msgstr ""
+
+msgid "Can't load file '%s'."
+msgstr "파일 '%s'을(를) 불러올 수 없습니다."
+
+msgid "Can't load file '%s'.\n"
+"This is not a valid palette file."
+msgstr "파일 '%s'을(를) 불러올 수 없습니다.\n"
+"이 파일은 유효한 팔레트 파일이 아닙니다."
+
+msgid "If this is enabled, the last point gets added at the end of the gradient.\n"
+"Disable this if you wish to convert the gradient to have constant interpolation, so that the last color will be taken into account."
+msgstr ""
+
+msgid "Project %s has unsaved progress. How do you wish to proceed?"
+msgstr "%s 프로젝트에 저장되지 않은 작업물이 있습니다. 계속하시겠습니까?"
+
+msgid "Elliptical Selection\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "원형 선택\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Select By Color\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "색상별 선택\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Lasso / Free Select Tool\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "밧줄\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Move\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "이동\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Pan\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "팬\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Crop\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button\n\n"
+"Resize the canvas"
+msgstr ""
+
+msgid "Eraser\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button\n\n"
+"Hold %s to make a line"
+msgstr "지우개\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼\n\n"
+"%s 를 눌러 선을 만듦"
+
+msgid "Shading Tool\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr "셰이딩 툴\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼"
+
+msgid "Curve Tool\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button\n\n"
+"Draws bezier curves\n"
+"Press %s/%s to add new points\n"
+"Double-click to finish drawing the curve\n"
+"Press and drag to control the curvature\n"
+"Press %s to remove the last added point"
+msgstr ""
+
+msgid "Ellipse Tool\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button\n\n"
+"Hold %s to create a 1:1 shape\n"
+"Hold %s to center the shape on the click origin\n"
+"Hold %s to displace the shape's origin"
+msgstr "원 툴\n\n"
+"%s 은(는) 왼쪽 마우스 버튼\n"
+"%s 은(는) 오른쪽 마우스 버튼\n\n"
+"%s 를 눌러 1:1 비율로 만듦\n"
+"%s 를 눌러 도형의 클릭 원점 중앙에 놓음\n"
+"%s 를 눌러 원점을 바꿈"
+
+msgid "Text\n\n"
+"%s for left mouse button\n"
+"%s for right mouse button"
+msgstr ""

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="about_app_authors_k9">K-9 개발자들</string>
+    <string name="source_code">소스 코드</string>
+    <string name="app_license">아파치 라이선스, 버전 2.0</string>
+    <string name="about_project_title">오픈 소스 프로젝트</string>
+    <string name="about_website_title">웹사이트</string>
+    <string name="get_help_title">지원</string>
+    <string name="user_forum_title">사용자 포럼</string>
+    <string name="about_libraries">라이브러리</string>
+    <string name="license">라이선스</string>
+    <string name="changelog_title">변경 내용</string>
+    <string name="changelog_loading_error">변경 내용을 불러오지 못했습니다.</string>
+    <string name="changelog_version_title">버전 %s</string>
+    <string name="changelog_recent_changes_title">새로운 사항</string>
+    <string name="changelog_show_recent_changes">앱 업데이트 시 최근 변경 내용 표시</string>
+    <string name="changelog_snackbar_text">이 릴리즈의 새로운 기능 알아보기</string>
+    <string name="authors">제작자</string>
+    <string name="accounts_title">계정</string>
+    <string name="compose_title_compose">작성</string>
+    <string name="compose_title_reply">답장</string>
+    <string name="compose_title_reply_all">전체 답장</string>
+    <string name="compose_title_forward">전달</string>
+    <string name="compose_title_forward_as_attachment">첨부 파일 형태로 전달</string>
+    <string name="choose_folder_title">폴더 선택</string>
+    <string name="choose_folder_move_title">다음으로 이동</string>
+    <string name="choose_folder_copy_title">다음으로 복사</string>
+    <string name="send_action">전송</string>
+    <plurals name="copy_address_to_clipboard">
+        <item quantity="other">클립보드에 이메일 주소 복사</item>
+    </plurals>
+    <string name="load_more_messages_fmt">최대 <xliff:g id="messages_to_load">%d</xliff:g>개 더 불러오기</string>
+    <plurals name="notification_new_messages_title">
+        <item quantity="other">새 메시지 <xliff:g id="new_message_count">%d</xliff:g>개</item>
+    </plurals>
+    <string name="notification_additional_messages">+ <xliff:g id="account">%2$s</xliff:g>에 <xliff:g id="additional_messages">%1$d</xliff:g>개 더</string>
+    <string name="notification_certificate_error_title">계정 인증 오류 (<xliff:g id="account">%s</xliff:g>)</string>
+    <string name="notification_authentication_error_text"><xliff:g id="account">%s</xliff:g> 계정 인증 오류. 서버 설정을 업데이트하세요.</string>
+    <string name="notification_notify_error_text">새로운 메시지를 위한 시스템 알림을 만드는 중에 오류가 발생했습니다. 알림 소리가 지정되지 않아 그럴 가능성이 높습니다.\n\n여기를 눌러 알림 설정으로 이동하세요.</string>
+    <string name="notification_bg_sync_ticker">메일 확인 중: <xliff:g id="account">%1$s</xliff:g>:<xliff:g id="folder">%2$s</xliff:g></string>
+    <string name="notification_bg_send_ticker">메일 전송 중: <xliff:g id="account">%s</xliff:g></string>
+    <string name="message_to_fmt">To:<xliff:g id="counterParty">%s</xliff:g></string>
+    <string name="message_compose_reply_header_fmt"><xliff:g id="sender">%s</xliff:g>이 씀:</string>
+    <string name="message_compose_reply_header_fmt_with_date">On <xliff:g id="sent_date">%1$s</xliff:g>, <xliff:g id="sender">%2$s</xliff:g> 작성함:</string>
+    <string name="message_view_no_viewer"><xliff:g id="mimetype">%s</xliff:g>에 대한 뷰어를 찾을 수 없습니다.</string>
+    <string name="message_view_sender_label">%1$s을 통하여</string>
+    <string name="global_settings_notification_quick_delete_title">\'삭제\' 버튼 보이기</string>
+    <string name="background_ops_auto_sync_only">\'자동 동기화\' 가 선택된 경우</string>
+    <string name="send_failed_reason">전송 실패: %s</string>
+    <plurals name="dialog_confirm_delete_messages">
+        <item quantity="other">정말로 <xliff:g id="message_count">%1$d</xliff:g>개 메시지를 삭제하시겠습니까?</item>
+    </plurals>
+    <plurals name="dialog_confirm_spam_message">
+        <item quantity="other">정말로 <xliff:g id="message_count">%1$d</xliff:g>개의 메시지를 스팸 폴더로 옮기시겠습니까?</item>
+    </plurals>
+    <plurals name="remote_search_downloading">
+        <item quantity="other">%d개의 결과를 모으는 중</item>
+    </plurals>
+    <plurals name="remote_search_downloading_limited">
+        <item quantity="other">%2$d 중에 %1$d개의 결과를 모으는 중</item>
+    </plurals>
+    <string name="upgrade_database_format">계정 \"<xliff:g id="account">%s</xliff:g>\"의 데이터베이스 업그레이드 중</string>
+    <string name="toast_openpgp_provider_error">%s에 연결하는 동안 오류가 발생했습니다!</string>
+    <string name="size_format_bytes">%d B</string>
+</resources>
