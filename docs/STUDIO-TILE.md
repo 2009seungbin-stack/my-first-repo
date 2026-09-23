@@ -13,7 +13,7 @@ autosaves and is saved in `.nerulio` files without a change to the project forma
 | Where | What |
 |---|---|
 | `src/game/tiles/patterns.js` | Canonical tile description `[t, n, ne, e, se, s, sw, w, nw]` (terrain per position, -1 = none) — Godot-shaped, so every layout, painted bits and several terrains map onto it. Modes `corners-and-sides` / `sides` / `corners`; cr31 / edge / corner mask conversions; required patterns; completeness (missing, duplicates, corner bits behind open sides); `idealAt` (what a map cell wants). |
-| `src/game/tiles/layouts.js` | 11 published layouts as data (below) + sub-tile sources (RPG Maker A2, A4 wall, five-tile). |
+| `src/game/tiles/layouts.js` | 12 published layouts as data (below) + sub-tile sources (RPG Maker A2, A4 wall, five-tile). |
 | `src/game/tiles/identify.js` | Layout identification by seam continuity; multi-block / multi-terrain clustering; RPG Maker size hints; bit suggestion from pixels; art-vs-bits check. |
 | `src/game/tiles/godot-terrain.js` | Port of Godot 4's `set_cells_terrain_connect` matcher (constraints, priorities, painting order, pattern ordering, the empty pattern). |
 | `src/game/tiles/generator.js` | Quarter-exact assembly (A2, Blobsmith, A4 wall, five-tile, procedural rim) → blob-47 / edge-16; dual-grid 16 from the same quarters; A-over-B transitions; sheets in any layout; provenance. |
@@ -90,7 +90,8 @@ medium = AUC ≥ 0.88; else low.
 | edge16-cr31 / edge16-binary | 16 side tiles |
 | corner16-cr31 / corner16-binary | 16 corner tiles = cr31 2-corner = Godot 3 "2×2" = dual-grid 4×4 (jess::codes / GlitchedinOrbit) |
 | box9 | 3×3 box, sides only |
-| sources | RPG Maker MV/MZ A2 (2×3), A4 wall (2×2), five-tile (1×5) |
+| edge16-8x2 | the 16 side tiles in one 8×2 strip (Blobsmith's 16 export) |
+| sources | RPG Maker MV/MZ A2 (2×3), Blobsmith base (2×3, inner corners top-left), A4 wall (2×2), five-tile (1×5); a lone 2×3 block is named by its size |
 
 Tilesetter's output layout is not published; a Tilesetter sheet is recognised only when it matches
 one of these, otherwise bits come from the pixels or are painted.
@@ -157,13 +158,15 @@ the isolated tile of a one-colour blob set is not written and the Tiled rule fla
 Tiled brush cannot place that tile). Unity draws the RuleTile's default sprite where a combination is
 missing (Godot leaves the cell empty or substitutes the closest tile) — the painter shows both.
 
-## Competitors (same real sheets)
+## Competitors (same real CC0 sheets, 2026-09-23)
 
-See the P3 report for the head-to-head table (Sprite Fusion, Blobsmith Lite). In short: Sprite
-Fusion's rules are hand-authored per 3×3 neighbourhood and its Godot export carries no terrain data;
-Blobsmith's `.tres`/`.tsx` are paywalled and its base block order is not the RPG Maker A2 order its
-help names.
+Driven with Playwright; files and screenshots in the P3 scratchpad (`p3/studio-tile/competitors/`).
 
+| Tool | Input | Steps | Terrain rules in the engine file? | Result vs truth | Notes |
+|---|---|---|---|---|---|
+| **Nerulio Tile** | cave blob-47 sheet (64 px) | 7 actions, 4.5 s (Tile tab, import, pick file, Use this grid, first candidate, Apply, Download) | **Yes**: Godot terrain set with 47 tiles / 188 peering bits + importer, Tiled Wang set, LDtk rules, Unity RuleTiles | Godot 485/485 cells right | free, local |
+| **Sprite Fusion** (web) | same sheet | 12 setup actions; building the 47 rules by hand = 537 clicks (computed from the masks; tiles assigned via the UI put 3/47 in the wrong rule) | **No**: Godot 4 export loads with 0 terrain sets (58 baked cells), TMX has no Wang set (tileset repacked to the 24 used tiles) | 58/58 inside its editor once the rules are complete | an auto layer paints nothing until its "Default Tiles" slot is set; $14.99 desktop upsell |
+| **Blobsmith Lite 1.0.4** (web) | the cave art cut to a 2×3 base; coolschool A2 block | 4 actions for the 47 sheet (+2 for 16) | **No** in the free tier: `.tres` and `.tsx` need the $9.95 version | its 47 sheet is cr31 ascending order (Nerulio identifies it, 0.964 medium; its 16 sheet as `edge16-8x2`, 1.000 high) | vs Nerulio's generator: 46/47 (cave) and 47/47 (coolschool) tiles byte-identical; the one difference is the isolated tile (Blobsmith copies the base's island tile, Nerulio assembles four outer-corner quarters). Its help calls the base "same as RPG Maker A2" but puts the inner corners top-left — Nerulio has both orders (`rpgmaker-a2`, `blobsmith`) and tells them apart (0.964 vs 0.852) |
 ## Not done / limits
 
 * The Tiled terrain brush and the LDtk app were not driven (see above). The Godot editor's own

@@ -205,6 +205,8 @@ export function identifyLayout(img,grid,{maxTiles=1024,layouts=LAYOUTS,sources=t
  const hints=[];
  const A2={768:576,512:384},A4={768:720,512:480};
  if(A2[img.width]===img.height&&(g.w===img.width/16))hints.push({layoutId:'rpgmaker-a2',reason:'size',detail:`${img.width}×${img.height} = RPG Maker A2 sheet: 8×4 blocks of 2×3 tiles at ${g.w} px`});
+ // a lone 2×3 block (one autotile cut out of an A2 sheet, or a Blobsmith base)
+ if(g.cols===2&&g.rows===3&&img.width===2*g.w&&img.height===3*g.h&&!candidates.some(c=>c.source&&c.confidence!=='low'))hints.push({layoutId:'rpgmaker-a2',reason:'size',detail:`a 2×3 block of ${g.w} px tiles: an RPG Maker A2 autotile (or a Blobsmith base: inner corners top-left)`});
  if(A4[img.width]===img.height&&(g.w===img.width/16))hints.push({layoutId:'rpgmaker-a4',reason:'size',detail:`${img.width}×${img.height} = RPG Maker A4 sheet: 8 columns × 3 pairs of ceiling (2×3, A2 layout) + wall (2×2) blocks at ${g.w} px`});
  // every good, non-overlapping placement (several blocks on one sheet: dual-grid packs, RPG Maker)
  const blocks=[],used=new Set();

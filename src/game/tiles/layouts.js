@@ -14,6 +14,7 @@
  *   edge16-cr31 / edge16-binary          16 side (2-edge Wang) tiles
  *   corner16-cr31 / corner16-binary      16 corner tiles: cr31 2-corner Wang, Godot 3 "2×2",
  *                          and the dual-grid 4×4 (jess::codes / GlitchedinOrbit) share one order
+ *   edge16-8x2             the same 16 in one 8×2 strip (Blobsmith's 16-tile export)
  *   box9                   a 3×3 "box" (outer corners, edges, centre), sides only; it cannot
  *                          draw one-tile-wide strips (7 of 16 side combinations have no tile)
  *
@@ -44,6 +45,8 @@ export const LAYOUTS=Object.freeze([
   cells:[[4,6,14,12],[5,7,15,13],[1,3,11,9],[0,2,10,8]]}),
  def({id:'edge16-binary',family:'edge16',mode:'sides',kind:'edge',names:['16 sides in index order (N1 E2 S4 W8)'],
   cells:rows(Array.from({length:16},(_,i)=>i),4)}),
+ def({id:'edge16-8x2',family:'edge16',mode:'sides',kind:'edge',names:['16 sides in index order, 8×2 (Blobsmith 16)'],
+  cells:rows(Array.from({length:16},(_,i)=>i),8)}),
  def({id:'corner16-cr31',family:'corner16',mode:'corners',kind:'corner',names:['cr31 2-corner Wang 4×4','Godot 3 “2×2” template','dual-grid 4×4 (jess::codes)'],
   cells:[[8,6,13,12],[5,14,15,11],[2,3,7,9],[0,4,10,1]]}),
  def({id:'corner16-binary',family:'corner16',mode:'corners',kind:'corner',names:['16 corners in index order (NW1 NE2 SE4 SW8)'],
@@ -67,6 +70,7 @@ export function placeLayout(layout,col0=0,row0=0,t=0){
  * from). Identification assembles them and checks the result, see identify.js. */
 export const SOURCES=Object.freeze([
  Object.freeze({id:'rpgmaker-a2',cols:2,rows:3,names:['RPG Maker MV/MZ A2 autotile block (2×3)','Blobsmith base']}),
+ Object.freeze({id:'blobsmith',cols:2,rows:3,names:['Blobsmith base (2×3, inner corners top-left)']}),
  Object.freeze({id:'rpgmaker-a4-wall',cols:2,rows:2,names:['RPG Maker MV/MZ A4 wall block (2×2)']}),
  Object.freeze({id:'five',cols:5,rows:1,names:['5-tile base: isolated, full, inner corners, horizontal, vertical']})
 ]);
