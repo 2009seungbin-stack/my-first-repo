@@ -1,10 +1,10 @@
 """Game landing pages → Studio (tools/game-landing-build.mjs, src/game-landing.js).
 
-Part 1 (Chromium): every game landing, keyword page and the /game/ hub in ko/en/ja is indexable,
+Part 1 (Chromium): every game landing, Lab landing, keyword page and the /game/ hub in ko/en/ja is indexable,
 has its canonical + reciprocal hreflang (when the build has a SITE_URL), SoftwareApplication and
 BreadcrumbList JSON-LD, a real Studio screenshot, engine badges, and fits 390 px; classic Lab
-pages are noindex and still mount the Lab; old Lab links forward to them; the sitemap lists the
-game pages first.
+pages are noindex and still mount the Lab; old Lab links forward to them; robots.txt names the
+sitemap index and sitemap-game.xml lists every game page with a lastmod.
 Part 2 (Chromium AND Firefox): for every Studio-backed intent the file chosen on its landing page
 reaches the right Studio workspace, and the job the page promises is done and measured on committed
 CC0 fixtures (the checks src/capabilities.js cites as evidence).
@@ -161,14 +161,17 @@ def part1(browser):
             ok('each game page has a description of useful length', 40 <= len(re.search(r'<meta name="description" content="([^"]+)"', h).group(1)) <= 300, key)
             lds = [json.loads(m) for m in re.findall(r'<script data-site-seo type="application/ld\+json">(.*?)</script>', h)]
             app = next((x for x in lds if x.get('@type') == 'SoftwareApplication'), None)
+            lab = v.get('lab') or (key in PAGES['keywords'] and not v.get('studio'))
             ok('SoftwareApplication JSON-LD: DeveloperApplication, Web, free offer, a feature list naming verified engines',
-               app and app['applicationCategory'] == 'DeveloperApplication' and app['operatingSystem'] == 'Web' and app['offers']['price'] == '0' and len(app['featureList']) >= 5 and any('Godot' in f for f in app['featureList']), key)
+               app and app['applicationCategory'] == 'DeveloperApplication' and app['operatingSystem'] == 'Web' and app['offers']['price'] == '0' and len(app['featureList']) >= 5 and (lab or any('Godot' in f for f in app['featureList'])), key)
+            if lab:
+                ok("a Lab page's feature list names how each output was checked and claims no engine run", any(re.search(r': (Measured|측정 확인|測定確認)', f) for f in app['featureList']) and not any(re.search(r': (Verified|검증됨|検証済み)', f) for f in app['featureList']), key)
             if v.get('lab') or (key in PAGES['keywords'] and not v.get('studio')):
                 ok('a Lab page\'s primary action opens its Lab (<route>/app/ or the classic Lab) and the header still links the Studio', 'data-gl-drop' in h and re.search(r'data-target="lab" data-href="(?:\w\w/)?[\w/-]+/(app|classic)/"', h) and 'data-studio-link' in h, key)
             else:
                 ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile)"', h) and 'data-studio-link' in h, key)
-            ok('the page shows a real Studio screenshot (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
-            ok('engine badges carry their verification label', h.count('class="gl-badge') >= 4 and ('Godot' in h), key)
+            ok('the page shows a real screenshot of the Studio or its Lab (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
+            ok('engine badges carry their verification label', h.count('class="gl-badge') >= (2 if lab else 4) and (lab or 'Godot' in h), key)
             if key != 'game':
                 ok('a classic-tool link appears exactly where the Studio does not cover something yet', ('data-gl-classic' in h) == bool(v.get('classic')), key)
             if site:
@@ -182,14 +185,18 @@ def part1(browser):
                 sc, _ = get('/' + img[len(site):])
                 ok('the social card exists (1200×630 PNG per page and language)', sc == 200 and Image.open(ROOT / img[len(site):]).size == (1200, 630), img)
     if site:
-        st, xml = get('/sitemap.xml')
-        locs = re.findall(r'<loc>([^<]+)</loc>', xml)
-        order = [u[len(site):] for u in locs]
-        first_file = next(i for i, u in enumerate(order) if re.search(r'/(image|pdf|video)/|/media/', u))
-        game_idx = [i for i, u in enumerate(order) if u.split('/', 1)[1].rstrip('/') in {v['path'] for _, v in ALL} | {'game'}]
-        ok('sitemap: every game page in ko/en/ja, all before the file tools', len(game_idx) == (len(ALL) + 1) * 3 and max(game_idx) < first_file, str(order[:6]))
+        st, robots = get('/robots.txt')
+        ok('robots.txt lists only the sitemap index', robots.count('Sitemap:') == 1 and f'Sitemap: {site}sitemap.xml' in robots, robots)
+        st, index = get('/sitemap.xml')
+        ok('sitemap.xml is an index of the game, tools and images sitemaps', '<sitemapindex' in index and all(f'<loc>{site}sitemap-{k}.xml</loc>' in index for k in ['game', 'tools', 'images']), index[:300])
+        st, xml = get('/sitemap-game.xml')
+        order = [u[len(site):] for u in re.findall(r'<loc>([^<]+)</loc>', xml)]
+        want = {f'{loc}/{v["path"]}/' for _, v in ALL for loc in ['ko', 'en', 'ja']} | {f'{loc}/game/' for loc in ['ko', 'en', 'ja']}
+        ok('sitemap-game.xml: home, the hub and every game page in ko/en/ja, each with a lastmod; no file tool', order[:3] == ['ko/', 'en/', 'ja/'] and want <= set(order) and xml.count('<lastmod>') == xml.count('<url>') and not any(re.search(r'/(image|pdf|video)/', u) for u in order), f'{len(want - set(order))} missing')
+        st, tools = get('/sitemap-tools.xml')
+        ok('sitemap-tools.xml lists the file tools', f'<loc>{site}en/image/compress/</loc>' in tools and f'<loc>{site}en/pdf/split/</loc>' in tools)
         st, img = get('/sitemap-images.xml')
-        ok('image sitemap lists the Studio screenshots on the game pages', all(f'assets/studio/{s}.webp' in img for s in ['sprite-sheet', 'sprite-frame', 'pack', 'tile-check', 'tile-map']) and f'{site}ja/game/aseprite-to-godot/' in img)
+        ok('image sitemap lists the Studio and Lab screenshots on the game pages', all(f'assets/studio/{s}.webp' in img for s in ['sprite-sheet', 'sprite-frame', 'pack', 'tile-check', 'tile-map', 'pixel-lab', 'texture-lab', 'ui-lab', 'tile-seams', 'tile-slice', 'sprite-lab']) and f'{site}ja/game/aseprite-to-godot/' in img)
     # ---------------------------------------------------------------- in the browser: layout and assets
     for width in [1440, 390]:
         ctx = browser.new_context(viewport={'width': width, 'height': 900 if width > 500 else 844}, locale='en-US')

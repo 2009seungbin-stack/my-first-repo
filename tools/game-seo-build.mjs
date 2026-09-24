@@ -24,7 +24,7 @@ export function featureList(game,locale){
 }
 export function gameStructuredData(game,locale,siteURL){
  const m=gameMeta(game,locale);
- const app={'@context':'https://schema.org','@type':'SoftwareApplication',name:`${m.title} · ${BRAND.name}`,description:m.description,applicationCategory:'DeveloperApplication',applicationSubCategory:'2D game asset tool',operatingSystem:'Web',browserRequirements:'A current browser with JavaScript and WebGL2 or Canvas 2D',inLanguage:locale,isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:featureList(game,locale)};
+ const app={'@context':'https://schema.org','@type':'SoftwareApplication',name:`${m.title} · ${BRAND.name}`,description:m.description,applicationCategory:'DeveloperApplication',applicationSubCategory:'2D game asset tool',operatingSystem:'Web',softwareRequirements:'A current web browser with JavaScript (Canvas 2D; WebGL2 for the 3D previews)',inLanguage:locale,isAccessibleForFree:true,offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:featureList(game,locale)};
  if(siteURL){app.url=new URL(pagePath(game.canonical,locale),siteURL).href;app.screenshot=new URL(`assets/studio/${SHOTS[m.shot].file}.webp`,siteURL).href;}
  return json(app);
 }
