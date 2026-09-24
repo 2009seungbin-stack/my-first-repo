@@ -1,0 +1,332 @@
+[
+ {
+  "case": "torch/Linear NEGATIVE CONTROL (green flipped in Unity)",
+  "unity": "6000.5.3f1",
+  "colorSpace": "Linear",
+  "graphics": "Direct3D12",
+  "report": {
+   "lightRenderTextureScale": 1,
+   "pipeline": "UniversalRenderPipelineAsset",
+   "colorSpace": "Linear",
+   "graphics": "Direct3D12",
+   "secondary": [
+    {
+     "name": "_NormalMap",
+     "texture": "Assets/Bundle/torch_n.png"
+    }
+   ],
+   "normalSRGB": false,
+   "normalSize": [
+    96,
+    64
+   ],
+   "albedoSize": [
+    96,
+    64
+   ],
+   "spriteSecondaryCount": 1,
+   "spriteMode": "Multiple",
+   "sprites": 6,
+   "frame": "f0",
+   "spriteRect": [
+    0,
+    32,
+    32,
+    32
+   ],
+   "material": "Universal Render Pipeline/2D/Sprite-Lit-Default",
+   "lights": [
+    {
+     "pos": [
+      -0.1,
+      0.11
+     ],
+     "type": "Point",
+     "color": [
+      1,
+      0.8509804,
+      0.65882355
+     ],
+     "intensity": 1.3,
+     "outer": 0.48,
+     "nmd": 0.1,
+     "quality": "Accurate",
+     "layers": 1
+    },
+    {
+     "pos": [
+      0.13,
+      -0.1
+     ],
+     "type": "Point",
+     "color": [
+      0.435294122,
+      0.65882355,
+      1
+     ],
+     "intensity": 0.8,
+     "outer": 0.32,
+     "nmd": 0.06,
+     "quality": "Accurate",
+     "layers": 1
+    }
+   ],
+   "render": {
+    "w": 32,
+    "h": 32,
+    "ppu": 100,
+    "bounds": [
+     -0.16,
+     -0.16,
+     0.16,
+     0.16
+    ]
+   },
+   "unity": "6000.5.3f1",
+   "errors": []
+  },
+  "pixels": 260,
+  "meanAbs": 0.1904,
+  "p95": 0.737,
+  "flippedMeanAbs": 0.0058,
+  "flippedRatio": 0.0,
+  "perLight": [
+   {
+    "light": 0,
+    "pixels": 161,
+    "meanAbs": 0.1762,
+    "p95": 0.6981,
+    "flippedMeanAbs": 0.0053
+   },
+   {
+    "light": 1,
+    "pixels": 99,
+    "meanAbs": 0.2135,
+    "p95": 0.9236,
+    "flippedMeanAbs": 0.0067
+   }
+  ],
+  "settingsOk": true,
+  "verdict": "FAIL"
+ },
+ {
+  "case": "adventurer/Linear NEGATIVE CONTROL (green flipped in Unity)",
+  "unity": "6000.5.3f1",
+  "colorSpace": "Linear",
+  "graphics": "Direct3D12",
+  "report": {
+   "lightRenderTextureScale": 1,
+   "pipeline": "UniversalRenderPipelineAsset",
+   "colorSpace": "Linear",
+   "graphics": "Direct3D12",
+   "secondary": [
+    {
+     "name": "_NormalMap",
+     "texture": "Assets/Bundle/adventurer_n.png"
+    }
+   ],
+   "normalSRGB": false,
+   "normalSize": [
+    720,
+    330
+   ],
+   "albedoSize": [
+    720,
+    330
+   ],
+   "spriteSecondaryCount": 1,
+   "spriteMode": "Multiple",
+   "sprites": 27,
+   "frame": "f0",
+   "spriteRect": [
+    0,
+    220,
+    80,
+    110
+   ],
+   "material": "Universal Render Pipeline/2D/Sprite-Lit-Default",
+   "lights": [
+    {
+     "pos": [
+      -0.24,
+      0.38
+     ],
+     "type": "Point",
+     "color": [
+      1,
+      0.8509804,
+      0.65882355
+     ],
+     "intensity": 1.3,
+     "outer": 1.65,
+     "nmd": 0.24,
+     "quality": "Accurate",
+     "layers": 1
+    },
+    {
+     "pos": [
+      0.32,
+      -0.33
+     ],
+     "type": "Point",
+     "color": [
+      0.435294122,
+      0.65882355,
+      1
+     ],
+     "intensity": 0.8,
+     "outer": 1.1,
+     "nmd": 0.16,
+     "quality": "Accurate",
+     "layers": 1
+    }
+   ],
+   "render": {
+    "w": 80,
+    "h": 110,
+    "ppu": 100,
+    "bounds": [
+     -0.4,
+     -0.55,
+     0.4,
+     0.55
+    ]
+   },
+   "unity": "6000.5.3f1",
+   "errors": []
+  },
+  "pixels": 7286,
+  "meanAbs": 0.1033,
+  "p95": 0.4868,
+  "flippedMeanAbs": 0.0054,
+  "flippedRatio": 0.1,
+  "perLight": [
+   {
+    "light": 0,
+    "pixels": 4060,
+    "meanAbs": 0.1221,
+    "p95": 0.5199,
+    "flippedMeanAbs": 0.0049
+   },
+   {
+    "light": 1,
+    "pixels": 3226,
+    "meanAbs": 0.0797,
+    "p95": 0.4388,
+    "flippedMeanAbs": 0.006
+   }
+  ],
+  "settingsOk": true,
+  "verdict": "FAIL"
+ },
+ {
+  "case": "bricks/Linear NEGATIVE CONTROL (green flipped in Unity)",
+  "unity": "6000.5.3f1",
+  "colorSpace": "Linear",
+  "graphics": "Direct3D12",
+  "report": {
+   "lightRenderTextureScale": 1,
+   "pipeline": "UniversalRenderPipelineAsset",
+   "colorSpace": "Linear",
+   "graphics": "Direct3D12",
+   "secondary": [
+    {
+     "name": "_NormalMap",
+     "texture": "Assets/Bundle/bricks_n.png"
+    }
+   ],
+   "normalSRGB": false,
+   "normalSize": [
+    256,
+    256
+   ],
+   "albedoSize": [
+    256,
+    256
+   ],
+   "spriteSecondaryCount": 1,
+   "spriteMode": "Single",
+   "sprites": 1,
+   "frame": "bricks",
+   "spriteRect": [
+    0,
+    0,
+    256,
+    256
+   ],
+   "material": "Universal Render Pipeline/2D/Sprite-Lit-Default",
+   "lights": [
+    {
+     "pos": [
+      -0.77,
+      0.9
+     ],
+     "type": "Point",
+     "color": [
+      1,
+      0.8509804,
+      0.65882355
+     ],
+     "intensity": 1.3,
+     "outer": 3.84,
+     "nmd": 0.77,
+     "quality": "Accurate",
+     "layers": 1
+    },
+    {
+     "pos": [
+      1.02,
+      -0.77
+     ],
+     "type": "Point",
+     "color": [
+      0.435294122,
+      0.65882355,
+      1
+     ],
+     "intensity": 0.8,
+     "outer": 2.56,
+     "nmd": 0.51,
+     "quality": "Accurate",
+     "layers": 1
+    }
+   ],
+   "render": {
+    "w": 256,
+    "h": 256,
+    "ppu": 100,
+    "bounds": [
+     -1.28,
+     -1.28,
+     1.28,
+     1.28
+    ]
+   },
+   "unity": "6000.5.3f1",
+   "errors": []
+  },
+  "pixels": 59237,
+  "meanAbs": 0.0689,
+  "p95": 0.2383,
+  "flippedMeanAbs": 0.0085,
+  "flippedRatio": 0.1,
+  "perLight": [
+   {
+    "light": 0,
+    "pixels": 46442,
+    "meanAbs": 0.0701,
+    "p95": 0.2445,
+    "flippedMeanAbs": 0.008
+   },
+   {
+    "light": 1,
+    "pixels": 12795,
+    "meanAbs": 0.0646,
+    "p95": 0.2174,
+    "flippedMeanAbs": 0.0102
+   }
+  ],
+  "settingsOk": true,
+  "verdict": "FAIL"
+ }
+]
