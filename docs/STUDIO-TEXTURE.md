@@ -165,8 +165,8 @@ There are six real-asset cases:
   decoded the way URP decodes it (thresholds fixed before the first run: mean ≤ 0.02, p95 ≤ 0.05).
   The settings must also hold: `_NormalMap` secondary texture, sRGB off, texture sizes unchanged,
   Accurate quality, Normal Map Distance = z / PPU.
-* **Measured.** Mean |error| is 0.0046–0.0085 and p95 is 0.013–0.022. The same prediction with
-  green flipped is 8–41× worse.
+* **Measured.** Mean |error| is 0.0037–0.0085 and p95 is 0.013–0.022. The same prediction with
+  green flipped is 8–60× worse.
 * **Negative control** (`--negative`). The bundle's `_n.png` is green-flipped *inside Unity*. Every
   run **FAILs**: mean error 0.19 (torch), 0.10 (adventurer), 0.07 (bricks). The flipped prediction
   then fits to 0.006–0.009, which shows that the check really reads Unity's pixels.
