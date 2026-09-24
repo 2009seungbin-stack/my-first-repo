@@ -25,6 +25,13 @@ GS = FX / 'game-seo'
 DUNGEON = FX / 'kenney' / 'tiny-dungeon-tilemap.png'
 ONLY = set(sys.argv[sys.argv.index('--only') + 1].split(',')) if '--only' in sys.argv else None
 STUDIO_SHOTS = {'sprite-sheet', 'sprite-frame', 'pack', 'tile-check', 'tile-map'}
+# Shots for the page families (src/game-seo-families.js), from committed CC0 fixtures.
+GIF = FX / 'sprite' / 'trooper_run.gif'
+ASE = FX / 'aseprite' / 'indexed-features.aseprite'
+TORCH = FX / 'game' / 'corpus' / 'torch'
+TEX = FX / 'texture'
+A2 = FX / 'tile' / 'coolschool-A2.png'
+FAMILY_SHOTS = {'sprite-gif', 'sprite-aseprite', 'sprite-atlas', 'texture-lit', 'texture-check', 'tile-missing', 'tile-generator', 'tile-collision', 'pack-formats'}
 
 
 def want(*names):
@@ -125,8 +132,113 @@ def lab_shots(browser):
         save(p.screenshot(), 'sprite-lab'); p.context.close()
 
 
+def fresh(browser, ws):
+    ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, device_scale_factor=1)
+    return studio(ctx, ws)
+
+
+def tile_ready(p, sheet, verdict='[data-verdict="complete"]'):
+    p.set_input_files('input[type=file][multiple]', [str(sheet)])
+    p.wait_for_selector('[data-grid-sug="0"]', timeout=30000)
+    p.click('[data-action="tile-apply-grid"]'); p.wait_for_selector('[data-cand]', timeout=30000)
+    p.locator('[data-cand]').first.click(); p.click('[data-action="tile-apply-preview"]')
+    p.wait_for_selector(verdict, timeout=30000)
+
+
+def family_shots(browser):
+    # Sprite: an animated GIF imported as frames with its own delays on the timeline, onion skin on.
+    if want('sprite-gif'):
+        p = fresh(browser, 'sprite')
+        p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(GIF)])
+        p.wait_for_function('()=>window.nerulioStudio.doc.assets[0]?.frames.length===6', timeout=30000)
+        p.locator('.sp-fh[data-i="2"]').click(); p.wait_for_timeout(150)
+        p.keyboard.press('F3'); p.wait_for_timeout(250); quiet(p)
+        save(p.screenshot(), 'sprite-gif'); p.context.close()
+    # Sprite: an .aseprite file with its tags, durations and slices listed as import decisions.
+    if want('sprite-aseprite'):
+        p = fresh(browser, 'sprite')
+        p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(ASE)])
+        p.wait_for_function('()=>window.nerulioStudio.doc.assets[0]?.frames.length===4', timeout=30000)
+        js(p, 'S.view.zoomTo(28);S.view.reveal({x:0,y:0,w:16,h:12});'); p.wait_for_timeout(300); quiet(p)
+        save(p.screenshot(), 'sprite-aseprite'); p.context.close()
+    # Sprite: an Aseprite JSON atlas and its sheet (the CC0 torch) opened together.
+    if want('sprite-atlas'):
+        p = fresh(browser, 'sprite')
+        p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(TORCH / 'Torch_Sheet.png'), str(TORCH / 'Torch_Hash.json')])
+        p.wait_for_function('()=>window.nerulioStudio.doc.assets.some(a=>a.frames.length>1)', timeout=30000); p.wait_for_timeout(400); quiet(p)
+        save(p.screenshot(), 'sprite-atlas'); p.context.close()
+    # Texture: the CC0 torch sheet cut into its six 32 px frames in Sprite, then lit in Texture.
+    if want('texture-lit'):
+        p = fresh(browser, 'sprite')
+        p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(TEX / 'torch_sheet.png')])
+        p.wait_for_selector('[data-sp="plan-count"]', timeout=30000)
+        p.click('[data-sp="import-apply"]'); p.wait_for_function('()=>window.nerulioStudio.doc.assets[0].frames.length===6', timeout=30000)
+        p.click('.st-ws-tab[data-ws="texture"]')
+        p.wait_for_function('()=>{const T=window.nerulioTexture;return T&&T.S.gen&&!T.S.busy}', timeout=30000); p.wait_for_timeout(400)
+        js(p, 'S.view.zoomTo(14);S.view.reveal({x:0,y:0,w:32,h:32});'); p.wait_for_timeout(400); quiet(p)
+        save(p.screenshot(), 'texture-lit'); p.context.close()
+    # Texture: the ambientCG DirectX normal map read as DirectX, with its confidence, before anything is applied.
+    if want('texture-check'):
+        p = fresh(browser, 'texture')
+        p.set_input_files('input[type=file][multiple]', [str(TEX / f) for f in ['bricks_Color.png', 'bricks_NormalDX.png']])
+        p.wait_for_function('()=>{const T=window.nerulioTexture;return T&&T.S.gen&&!T.S.busy}', timeout=30000)
+        dx = js(p, 'return S.doc.assets.find(a=>a.name==="bricks_NormalDX.png").id;')
+        p.select_option('[data-k="normalFrom"]', dx); p.wait_for_selector('[data-tex="convention"]', timeout=30000)
+        p.locator('[data-tex="convention"]').scroll_into_view_if_needed(); p.wait_for_timeout(400); quiet(p)
+        save(p.screenshot(), 'texture-check'); p.context.close()
+    # Tile: one tile removed from the cave set, and a test map where Godot leaves the lone cell empty.
+    if want('tile-missing'):
+        p = fresh(browser, 'tile'); tile_ready(p, CAVE)
+        p.keyboard.press('v'); p.wait_for_timeout(100)
+        pt = canvas_at(p, 6 * 64 + 32, 5 * 64 + 32); p.mouse.click(pt['x'], pt['y']); p.wait_for_timeout(150)
+        p.keyboard.press('Delete'); p.wait_for_timeout(300)
+        p.click('[data-action="tile-new-map"]')
+        p.wait_for_function('()=>document.querySelector(".studio").dataset.tileMode==="map"', timeout=10000)
+        p.wait_for_selector('[data-verdict]', timeout=10000)
+        js(p, 'S.view.zoomTo(1);S.view.reveal({x:22*64,y:13*64,w:64,h:64});'); p.wait_for_timeout(300)
+        pt = canvas_at(p, 22 * 64 + 32, 13 * 64 + 32); p.mouse.click(pt['x'], pt['y']); p.wait_for_timeout(500)
+        js(p, 'S.view.fit();'); p.wait_for_timeout(300); quiet(p)
+        save(p.screenshot(), 'tile-missing'); p.context.close()
+    # Tile: a 47-tile set assembled from the RPG Maker A2 block of a CC0 sheet (named by its size).
+    if want('tile-generator'):
+        p = fresh(browser, 'tile')
+        p.set_input_files('input[type=file][multiple]', [str(A2)]); p.wait_for_selector('[data-grid-sug]', timeout=30000)
+        for k, v in {'w': 48, 'h': 48, 'ox': 0, 'oy': 0, 'sx': 0, 'sy': 0}.items():
+            p.fill(f'[data-tile-grid="{k}"]', str(v)); p.locator(f'[data-tile-grid="{k}"]').dispatch_event('change')
+        p.click('[data-action="tile-apply-grid"]'); p.wait_for_selector('[data-action="tile-hint"]', timeout=30000)
+        p.click('[data-action="tile-hint"]'); p.wait_for_timeout(300)
+        p.click('[data-action="tile-generate"]'); p.wait_for_function('()=>window.nerulioStudio.doc.assets.length>=2', timeout=30000)
+        p.wait_for_selector('[data-verdict="generated"],[data-verdict="complete"]', timeout=30000)
+        js(p, 'S.view.fit();'); p.wait_for_timeout(400); quiet(p)
+        save(p.screenshot(), 'tile-generator'); p.context.close()
+    # Tile: collision polygons traced from the alpha of every tile of a CC0 blob-47 set (caeles, 16 px).
+    if want('tile-collision'):
+        p = fresh(browser, 'tile'); tile_ready(p, FX / 'game' / 'cc0' / 'oga-caeles-blob47-16px.png', verdict='[data-verdict]')
+        p.keyboard.press('v'); p.wait_for_timeout(100)
+        p.keyboard.press('Control+a'); p.wait_for_timeout(200)
+        if p.locator('[data-action="tile-col-outline"]').is_disabled():
+            a = canvas_at(p, 8, 8); p.keyboard.down('Control'); p.mouse.click(a['x'], a['y']); p.keyboard.up('Control'); p.wait_for_timeout(200)
+        p.click('[data-action="tile-col-outline"]'); p.wait_for_timeout(1500)
+        p.locator('label.st-check:has-text("Show shapes of every tile") input').check(); p.wait_for_timeout(300)
+        p.keyboard.press('c'); p.wait_for_timeout(300)
+        js(p, 'S.view.fit();'); p.wait_for_timeout(400); quiet(p)
+        save(p.screenshot(), 'tile-collision'); p.context.close()
+    # Pack & Export: every export format with how it was verified.
+    if want('pack-formats'):
+        p = fresh(browser, 'sprite')
+        p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(f) for f in NINJA])
+        p.wait_for_function('()=>window.nerulioStudio.doc.assets[0]?.frames.length===6', timeout=30000)
+        p.click('.st-ws-tab[data-ws="pack"]'); p.wait_for_selector('[data-pack="efficiency"]', state='attached', timeout=60000)
+        p.wait_for_function('()=>!document.querySelector("[data-action=pack-cancel]")', timeout=60000)
+        p.evaluate('()=>{const d=[...document.querySelectorAll("details,summary")].find(e=>/All formats/.test(e.textContent||""));const el=d?.closest("details")||d;if(el&&el.tagName==="DETAILS")el.open=true;(el||document.body).scrollIntoView({block:"start"});}')
+        p.wait_for_timeout(500); quiet(p)
+        save(p.screenshot(), 'pack-formats'); p.context.close()
+
+
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
+    if want(*FAMILY_SHOTS):
+        family_shots(browser)
     if want(*STUDIO_SHOTS):
         ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, device_scale_factor=1)
         # ---------------------------------------------------------------- Sprite: the sheet and its proposed cut

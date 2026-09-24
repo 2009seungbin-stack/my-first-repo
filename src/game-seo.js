@@ -12,6 +12,7 @@
  * one of those changes, change the copy with it. Dependency-free (static build, browser, tests). */
 import {GAME_LAB_PAGES,LAB_KINDS} from './game-seo-labs.js';
 import {GAME_MORE_KEYWORD_PAGES} from './game-seo-more.js';
+import {GAME_FAMILY_PAGES,FAMILIES} from './game-seo-families.js';
 const L=(en,ko,ja)=>({en,ko,ja});
 export const GAME_HUB_PATH='game';
 export const STUDIO_ROUTE='game/studio';
@@ -29,6 +30,16 @@ export const SHOTS=Object.freeze({
  'ui-lab':{file:'ui-lab',w:1440,h:900,app:'ui',by:'Kenney',alt:L('UI Lab: a CC0 UI panel with nine-slice guides and previews at several sizes','UI 랩: 나인 슬라이스 가이드와 여러 크기 미리보기가 있는 CC0 UI 패널','UIラボ：ナインスライスのガイドと複数サイズのプレビューがあるCC0のUIパネル')},
  'tile-seams':{file:'tile-seams',w:1440,h:900,app:'tilelab',by:'ambientCG',alt:L('Tile Lab seam check: a CC0 texture repeated 2×2 with its wrap edges measured','타일 작업실 이음새 점검: 2×2로 반복한 CC0 텍스처와 경계 측정','タイルセット工房の継ぎ目チェック：2×2で繰り返したCC0テクスチャと境界の測定')},
  'tile-slice':{file:'tile-slice',w:1440,h:900,app:'tilelab',by:'Kenney',alt:L('Tile Lab: a Kenney CC0 tilemap with its measured grid (16 px tiles, 1 px spacing)','타일 작업실: 격자를 측정한 Kenney CC0 타일맵(16px 타일, 간격 1px)','タイルセット工房：グリッドを測定したKenney CC0タイルマップ（16pxタイル、間隔1px）')},
+ // Shots of the page families (tools/studio-screens.py, FAMILY_SHOTS).
+ 'sprite-gif':{file:'sprite-gif',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: an animated GIF imported as 6 frames, each keeping its 120 ms delay on the timeline, with onion skin on','Studio 스프라이트 작업 공간: 움직이는 GIF를 6프레임으로 가져와 타임라인에 프레임마다 120ms 지연이 그대로 있고 어니언 스킨이 켜진 화면','Studio のスプライト作業画面：アニメーションGIFを6フレームとして読み込み、タイムラインに各フレームの120msの遅延が残り、オニオンスキンをオンにした画面')},
+ 'sprite-aseprite':{file:'sprite-aseprite',w:1440,h:900,app:'studio',by:'Nerulio',alt:L('Studio Sprite workspace: an .aseprite file with four tags (forward, reverse, ping-pong, repeat counts), per-frame durations and a hit box from its slices','Studio 스프라이트 작업 공간: 태그 4개(정방향·역방향·핑퐁·반복 횟수), 프레임별 길이, 슬라이스에서 온 히트박스가 있는 .aseprite 파일','Studio のスプライト作業画面：4つのタグ（順・逆・ピンポン・繰り返し回数）、フレームごとの長さ、スライス由来のヒットボックスを持つ.asepriteファイル')},
+ 'sprite-atlas':{file:'sprite-atlas',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: an Aseprite JSON atlas opened with its sheet, 6 frames with their durations grouped into one animation','Studio 스프라이트 작업 공간: 시트와 함께 연 Aseprite JSON 아틀라스, 길이가 있는 6프레임이 애니메이션 하나로 묶인 화면','Studio のスプライト作業画面：シートと一緒に開いたAseprite JSONアトラス。長さ付きの6フレームがひとつのアニメーションにまとまった画面')},
+ 'texture-lit':{file:'texture-lit',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Texture workspace: a pixel-art torch cut into 6 frames, lit by a point light with its generated normal map','Studio 텍스처 작업 공간: 6프레임으로 자른 도트 횃불을 생성한 노멀맵과 점광원으로 비춘 화면','Studio のテクスチャ作業画面：6フレームに切ったドット絵のたいまつを、生成したノーマルマップと点光源で照らした画面')},
+ 'texture-check':{file:'texture-check',w:1440,h:900,app:'studio',by:'ambientCG',alt:L('Studio Texture workspace: an imported ambientCG normal map read as DirectX with high confidence; nothing changes until the convention is confirmed','Studio 텍스처 작업 공간: 가져온 ambientCG 노멀맵을 높은 신뢰도로 DirectX라고 판별했고, 규약을 확인하기 전에는 아무것도 바뀌지 않는 화면','Studio のテクスチャ作業画面：読み込んだambientCGのノーマルマップを高い信頼度でDirectXと判定。規約を確定するまで何も変わらない画面')},
+ 'tile-missing':{file:'tile-missing',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a test map painted with the Godot rule where one cell stays empty because the set has no isolated tile, flagged in the Check panel','Studio 타일 작업 공간: Godot 규칙으로 칠한 테스트 맵에서 타일셋에 고립 타일이 없어 한 칸이 비어 있고, 점검 패널이 이를 표시한 화면','Studio のタイル作業画面：Godotのルールで塗ったテストマップで、孤立タイルがないため1セルが空になり、チェックパネルがそれを示した画面')},
+ 'tile-generator':{file:'tile-generator',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a 47-tile set assembled pixel for pixel from the RPG Maker A2 block of a CC0 sheet, linked to its source','Studio 타일 작업 공간: CC0 시트의 RPG 만들기 A2 블록에서 픽셀 단위로 조립한 47타일 세트가 원본과 연결된 화면','Studio のタイル作業画面：CC0シートのRPGツクールA2ブロックからピクセル単位で組み立て、元画像とリンクした47タイルのセット')},
+ 'tile-collision':{file:'tile-collision',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a CC0 blob-47 tileset (16 px) with a collision polygon traced from the alpha of every tile','Studio 타일 작업 공간: 모든 타일의 알파에서 충돌 폴리곤을 따낸 CC0 블롭 47 타일셋(16px)','Studio のタイル作業画面：全タイルのアルファから衝突ポリゴンをトレースしたCC0のブロブ47タイルセット（16px）')},
+ 'pack-formats':{file:'pack-formats',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pack & Export: CC0 ninja frames packed on one page and the list of all 18 export formats, each with its own Export button','Studio 패킹·내보내기: 한 페이지에 패킹한 CC0 닌자 프레임과 각자 내보내기 버튼이 있는 18개 형식 목록','Studio のパック＆書き出し：1ページにパックしたCC0の忍者のフレームと、それぞれ書き出しボタンがある18形式の一覧')},
  'sprite-lab':{file:'sprite-lab',w:1440,h:900,app:'spritelab',by:'OpenGameArt',alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
 });
 
@@ -44,7 +55,8 @@ export const STATUS=Object.freeze({
  decoded:L('Decoded','디코딩 확인','デコード確認'),
  partial:L('Partly verified','일부 검증','一部検証'),
  unverified:L('UNVERIFIED','미검증','未検証'),
- measured:L('Measured','측정 확인','測定確認')
+ measured:L('Measured','측정 확인','測定確認'),
+ plain:L('Plain files','일반 파일','通常ファイル')
 });
 
 /** Export targets of the Sprite + Pack & Export workspaces (docs/STUDIO-PACK.md, "Exports"). */
@@ -71,6 +83,14 @@ export const TILE_EXPORTS=Object.freeze([
  {id:'ldtk',name:'LDtk',files:'.ldtk (1.5.3) · rules · sample level',status:'partial',engine:'LDtk 1.5.3 schema + loader',note:L('Accepted by the LDtk JSON schema and its official loader, and the rules re-run to the exported tiles; not opened in the LDtk app.','LDtk JSON 스키마와 공식 로더가 받아들이고 규칙을 다시 실행하면 내보낸 타일과 같습니다. LDtk 앱에서 열어 보지는 않았습니다.','LDtkのJSONスキーマと公式ローダーで受理され、ルールを再実行すると書き出したタイルと一致。LDtkアプリでは未確認。')}
 ]);
 
+/** Export targets of the Texture workspace (docs/STUDIO-TEXTURE.md, "Engine verification";
+ * src/game/normals/export.js VERIFIED). */
+export const TEXTURE_EXPORTS=Object.freeze([
+ {id:'godot',name:'Godot 4 2D lights',files:'_lit.tscn · CanvasTexture .tres · normal / specular PNG',status:'verified',engine:'Godot 4.7.2',note:L('Six real CC0 cases rendered by Godot (gl_compatibility): every checked frame within 1/255 of the Studio\'s lit preview. The same render with green flipped is 3.8–37 levels off, so the check can see a wrong convention.','실제 CC0 사례 6개를 Godot(gl_compatibility)가 렌더링했고, 확인한 모든 프레임이 Studio 조명 미리보기와 1/255 이내로 같았습니다. 초록을 뒤집은 같은 렌더는 3.8~37단계 어긋나므로 잘못된 규약을 잡아낼 수 있습니다.','実在のCC0ケース6件をGodot（gl_compatibility）で描画し、確認した全フレームがStudioのライティングプレビューと1/255以内で一致。緑を反転した同じ描画は3.8〜37段階ずれるため、規約の誤りを検出できます。')},
+ {id:'unity',name:'Unity 6 URP 2D',files:'PNG · nerulio-texture.json · Editor/NerulioNormalMapImporter.cs',status:'verified',engine:'Unity 6000.5.3f1 (URP 17.5)',note:L('12 of 12 runs (6 cases in Gamma and Linear colour space): the lighting URP applied matches the exported normal map (mean error 0.0037–0.0085). URP draws its own light falloff, so brightness is Unity\'s, not the preview\'s.','12회 중 12회 통과(사례 6개 × 감마·리니어 색 공간): URP가 적용한 조명이 내보낸 노멀맵과 일치합니다(평균 오차 0.0037~0.0085). 빛의 감쇠는 URP 방식이라 밝기는 미리보기가 아니라 Unity 기준입니다.','12回中12回合格（6ケース×ガンマ・リニア色空間）：URPが適用したライティングが書き出したノーマルマップと一致（平均誤差0.0037〜0.0085）。光の減衰はURP独自なので、明るさはプレビューではなくUnityの基準です。')},
+ {id:'png',name:'PNG set + JSON',files:'albedo · _n (OpenGL) · _n_dx (DirectX) · 16-bit height · AO · specular · manifest',status:'plain',engine:'',note:L('Plain files for any engine or tool; no engine run is claimed for them.','어떤 엔진이나 도구에서도 쓰는 일반 파일이며, 엔진 실행 검증은 주장하지 않습니다.','どのエンジン・ツールでも使える通常ファイルで、エンジンでの実行検証はうたっていません。')}
+]);
+
 /** Page chrome and section headings. */
 export const UI=Object.freeze({
  hub:L('Game studio','게임 스튜디오','ゲームスタジオ'),
@@ -95,7 +115,9 @@ export const UI=Object.freeze({
  allGame:L('All game tools','모든 게임 도구','すべてのゲームツール'),
  allTools:L('All tools','전체 도구','すべてのツール'),
  studio:L('Studio','스튜디오','スタジオ'),
- workspace:L('Workspace','작업 공간','作業画面')
+ workspace:L('Workspace','작업 공간','作業画面'),
+ better:L('Where {name} is the better choice','{name} 쪽이 더 나은 경우','{name}のほうが向いている場合'),
+ source:L('Source of these numbers','이 수치의 출처','この数値の出典')
 });
 
 /** What each workspace accepts, how its drop zone reads, and its limits. */
@@ -123,6 +145,17 @@ export const WORKSPACES=Object.freeze({
   limits:L(['Tiled\'s terrain brush, the LDtk app and Godot\'s editor painter were not driven; the checks use the engines\' readers and set_cells_terrain_connect.','Unity gets blob and side sets only; several terrains become several Rule Tiles with no transitions between them.','Isometric and hex tiles, animated tiles, occlusion and navigation layers are out of scope.','Suggesting bits without a known layout needs a reference "full" tile; on side-only path templates the guess can fail until you select it.'],
    ['Tiled 지형 브러시, LDtk 앱, Godot 편집기의 칠하기는 실행하지 않았습니다. 검증은 엔진의 읽기 기능과 set_cells_terrain_connect로 했습니다.','Unity로는 블롭·변 타일셋만 내보냅니다. 지형이 여러 개면 서로 이어지지 않는 Rule Tile 여러 개가 됩니다.','아이소메트릭·육각 타일, 애니메이션 타일, 오클루전·내비게이션 레이어는 지원하지 않습니다.','알려진 배치 없이 비트를 제안하려면 기준이 되는 "가득 찬" 타일이 필요합니다. 변만 있는 길 템플릿은 그 타일을 선택하기 전까지 추측이 틀릴 수 있습니다.'],
    ['Tiledの地形ブラシ、LDtkアプリ、Godotエディターでの塗りは操作していません。検証はエンジンの読み込み機能とset_cells_terrain_connectで行いました。','Unityへはブロブ・辺タイルセットのみ。地形が複数あると、互いにつながらないRule Tileが複数になります。','アイソメトリック・六角タイル、アニメーションタイル、オクルージョン・ナビゲーションレイヤーは対象外です。','既知の配置なしでビットを提案するには基準となる「塗りつぶし」タイルが必要です。辺だけの道テンプレートでは、そのタイルを選ぶまで推定を誤ることがあります。'])
+ },
+ // The Studio's Texture workspace (/game/studio/?ws=texture). Its kind is called 'normalmap' here
+ // because 'texture' is the Texture Lab's kind (src/game-seo-labs.js); `studioWs` is the ?ws= value.
+ normalmap:{
+  studioWs:'texture',
+  accept:'image/png,image/webp,image/jpeg,image/bmp,.png,.webp,.jpg,.jpeg,.bmp',
+  name:L('Texture workspace','텍스처 작업 공간','テクスチャ作業画面'),
+  drop:L('Drop a sprite, a sprite sheet or a tileable texture (PNG)','스프라이트, 스프라이트 시트 또는 반복 텍스처(PNG)를 끌어다 놓으세요','スプライト、スプライトシート、繰り返しテクスチャ（PNG）をドロップ'),
+  limits:L(['On a picture without transparent edges (a tileable texture) a flipped red channel cannot be told apart from a DirectX green; the Check panel says so and offers Flip red.','A sheet is lit as one picture until its frames are cut in the Sprite workspace; the Texture workspace does not cut frames.','The rim light is preview only, and Unity gets no specular map (Godot does).','Unity draws its own light falloff: the exported normal map is verified in Unity, the brightness curve is Unity\'s.'],
+   ['투명한 가장자리가 없는 그림(반복 텍스처)에서는 빨강이 뒤집힌 것과 DirectX 초록을 구별할 수 없습니다. 점검 패널이 이를 알리고 "빨강 뒤집기"를 제공합니다.','시트는 스프라이트 작업 공간에서 프레임을 자르기 전까지 그림 하나로 조명됩니다. 텍스처 작업 공간은 프레임을 자르지 않습니다.','림 라이트는 미리보기 전용이며, Unity로는 스페큘러 맵을 내보내지 않습니다(Godot는 내보냄).','Unity는 자체 빛 감쇠를 씁니다. 내보낸 노멀맵은 Unity에서 검증했지만 밝기 곡선은 Unity 방식입니다.'],
+   ['透明な縁がない絵（繰り返しテクスチャ）では、赤の反転とDirectXの緑を区別できません。チェックパネルがそれを伝え、「赤を反転」を用意しています。','シートはスプライト作業画面でフレームを切るまで1枚の絵としてライティングされます。テクスチャ作業画面ではフレームを切りません。','リムライトはプレビュー専用で、Unityにはスペキュラーマップを書き出しません（Godotには書き出し）。','Unityは独自の光の減衰を使います。書き出したノーマルマップはUnityで検証済みですが、明るさの曲線はUnityのものです。'])
  }
 });
 
@@ -519,14 +552,20 @@ export const HUB=Object.freeze({
 /** Hub group names of the Lab kinds (src/game-seo-labs.js). */
 export const HUB_GROUPS=Object.freeze({sprite:HUB_NAMES('sprite'),pack:HUB_NAMES('pack'),tile:HUB_NAMES('tile'),
  pixel:L('Pixel art and palettes','도트와 팔레트','ドット絵とパレット'),texture:L('Textures, normal maps and PBR','텍스처·노멀맵·PBR','テクスチャ・ノーマルマップ・PBR'),
- ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール')});
+ ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール'),
+ normalmap:L('Normal maps and 2D lighting','노멀맵과 2D 라이팅','ノーマルマップと2Dライティング'),
+ engines:L('Engine how-tos','엔진별 가이드','エンジン別の手順'),formats:L('Format conversions','형식 변환','形式の変換'),
+ fixes:L('Fix common problems','자주 생기는 문제 해결','よくある問題の解決'),compare:L('Compared with other tools','다른 도구와 비교','ほかのツールとの比較')});
 function HUB_NAMES(k){return {en:HUB.en[k],ko:HUB.ko[k],ja:HUB.ja[k]};}
 
 /** Keyword pages: the Studio ones above, then the ones in src/game-seo-more.js. */
-export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MORE_KEYWORD_PAGES});
+export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MORE_KEYWORD_PAGES,...GAME_FAMILY_PAGES});
+/** Page families of src/game-seo-families.js (broad product pages, engine how-tos, format
+ * conversions, problem fixes, comparisons): which hub group each one is listed in. */
+export {GAME_FAMILY_PAGES,FAMILIES};
 /** Lab landings (src/game-seo-labs.js), and every kind a page can belong to. */
 export {GAME_LAB_PAGES,LAB_KINDS};
-export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile']);
+export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile','normalmap']);
 export const kindOf=ws=>WORKSPACES[ws]||LAB_KINDS[ws]||null;
 export const isStudioKind=ws=>STUDIO_KINDS.includes(ws);
 

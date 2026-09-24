@@ -5,7 +5,7 @@ import {LANDINGS} from '../src/landings.js';
 import {footer} from '../src/content.js';
 import {siteHeader,footerBrand} from './game-chrome.mjs';
 import {DIRECTORY} from '../src/task/registry.js';
-import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
+import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,FAMILIES,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
 import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
 /** Static HTML of the game landing pages (src/game-seo.js) and of the /game/ hub.
  * Dark, editor-looking pages whose primary action hands the dropped files to the Studio
@@ -42,11 +42,19 @@ const descOf=(key,locale)=>gameCopy(key,locale)?.description||t(`intent.${key}.d
  * the Lab page of the base intent, until that Lab has a Studio workspace. */
 export function targetOf(game){
  const ws=game.page.ws;
- if(isStudioKind(ws))return ws==='pack'?{type:'studio',entry:'sprite',then:'pack',route:`${STUDIO_ROUTE}/?ws=sprite`,empty:`${STUDIO_ROUTE}/?ws=pack`}:{type:'studio',entry:ws,then:'',route:`${STUDIO_ROUTE}/?ws=${ws}`,empty:`${STUDIO_ROUTE}/?ws=${ws}`};
+ if(isStudioKind(ws)){
+  if(ws==='pack')return {type:'studio',entry:'sprite',then:'pack',route:`${STUDIO_ROUTE}/?ws=sprite`,empty:`${STUDIO_ROUTE}/?ws=pack`};
+  const id=kindOf(ws).studioWs||ws;// the Texture workspace is kind 'normalmap', ?ws=texture
+  // `via`: the page's files are imported in another workspace first (a sheet is cut into frames in
+  // Sprite before the Texture workspace lights it frame by frame); the empty Studio opens the page's own.
+  const via=game.page.via;
+  if(via&&via!==id)return {type:'studio',entry:via,then:id,route:`${STUDIO_ROUTE}/?ws=${via}`,empty:`${STUDIO_ROUTE}/?ws=${id}`};
+  return {type:'studio',entry:id,then:'',route:`${STUDIO_ROUTE}/?ws=${id}`,empty:`${STUDIO_ROUTE}/?ws=${id}`};
+ }
  const route=toolRoute(game.kind==='keyword'?game.page.intent:game.key)+'/';
  return {type:'lab',entry:'',then:'',route,empty:route};
 }
-export const exportsFor=ws=>ws==='tile'?TILE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports;
+export const exportsFor=ws=>ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports;
 const LAB_UI={
  open:{en:'Open the {name}',ko:'{name} 열기',ja:'{name}を開く'},
  outputs:{en:'Outputs and how each was checked',ko:'출력 파일과 검증 방법',ja:'出力ファイルと検証方法'},
@@ -88,6 +96,21 @@ const EVIDENCE={
  pack:{en:'Exports: 49 runs in the real engines on real CC0 assets, 47 pass — the 2 failures are Phaser 3.90\'s trimmed-XML bug, which the Phaser 3 preset avoids. Packer head-to-head on 5 real frame sets (CodeAndWeb free web packer, GAPTools, free-tex-packer): smallest sheet on all 5 with rotation allowed, 4 of 5 without; every frame restored pixel-exact.',ko:'내보내기: 실제 CC0 에셋으로 실제 엔진에서 49회 실행해 47회 통과. 실패 2회는 Phaser 3.90의 트림 XML 버그이며 Phaser 3 프리셋으로 피합니다. 실제 프레임 세트 5개로 패커 비교(CodeAndWeb 무료 웹 패커, GAPTools, free-tex-packer): 회전 허용 시 5개 모두 가장 작은 시트, 회전 없이는 5개 중 4개. 모든 프레임이 픽셀 단위로 복원됩니다.',ja:'書き出し：実在のCC0アセットで実際のエンジンを49回実行し47回合格。失敗2回はPhaser 3.90のトリムXMLの不具合で、Phaser 3プリセットで回避。実在の5フレームセットでパッカー比較（CodeAndWeb無料Webパッカー、GAPTools、free-tex-packer）：回転ありで5つすべて最小、回転なしで5つ中4つ。全フレームがピクセル単位で復元できます。'},
  tile:{en:'Layouts identified from the pixels alone on the tile corpus: 4 blob-47 templates and 2 Wang templates with high confidence, a real 64 px cave tileset with medium confidence — every tile\'s bits right. Godot 4.7.2 painted every test cell exactly as the Studio predicted (485/485 per blob set, 251/251 on a 4-terrain dual-grid pack); Tiled 1.12.2 read every Wang ID back; Unity 6000.5 matched on every painted cell of the blob and side sets.',ko:'타일 코퍼스에서 픽셀만으로 배치를 인식: 블롭 47 템플릿 4개와 Wang 템플릿 2개는 높은 신뢰도, 실제 64px 동굴 타일셋은 중간 신뢰도로 모든 타일의 비트가 정확. Godot 4.7.2가 모든 테스트 칸을 Studio 예측대로 칠함(블롭 세트마다 485/485, 지형 4개 듀얼 그리드 팩 251/251). Tiled 1.12.2가 모든 Wang ID를 다시 읽음. Unity 6000.5에서 블롭·변 세트의 칠한 모든 칸 일치.',ja:'タイルコーパスでピクセルだけから配置を判定：ブロブ47テンプレート4つとWangテンプレート2つは高信頼度、実在の64px洞窟タイルセットは中信頼度で全タイルのビットが正解。Godot 4.7.2は全テストセルをStudioの予測どおりに塗りました（ブロブセットごとに485/485、4地形のデュアルグリッド251/251）。Tiled 1.12.2は全Wang IDを読み戻し、Unity 6000.5はブロブ・辺セットの塗った全セルで一致。'}
 };
+// docs/STUDIO-TEXTURE.md ("GL/DX detection", "Engine verification").
+EVIDENCE.normalmap={en:'Godot 4.7.2 rendered 6 real CC0 cases (pixel art, an HD sprite, a tileable texture, an imported DirectX map): every checked frame within 1/255 of the Studio\'s preview. Unity 6000.5 URP 2D: 12 of 12 runs pass (6 cases × Gamma and Linear). OpenGL/DirectX detection on real maps of known convention: 128 full 1K maps 100 % right, and not one wrong "high" verdict in 1,562 samples (a naive "green-high means OpenGL" rule gets 46 %).',
+ ko:'Godot 4.7.2가 실제 CC0 사례 6개(도트, HD 스프라이트, 반복 텍스처, 가져온 DirectX 맵)를 렌더링했고 확인한 모든 프레임이 Studio 미리보기와 1/255 이내였습니다. Unity 6000.5 URP 2D: 12회 중 12회 통과(사례 6개 × 감마·리니어). 규약을 아는 실제 맵으로 OpenGL/DirectX 판별: 1K 전체 맵 128개 100% 정답, 표본 1,562개 중 틀린 "높음" 판정 0건(초록이 밝으면 OpenGL이라는 단순 규칙은 46%).',
+ ja:'Godot 4.7.2で実在のCC0ケース6件（ドット絵、HDスプライト、繰り返しテクスチャ、読み込んだDirectXマップ）を描画し、確認した全フレームがStudioのプレビューと1/255以内。Unity 6000.5 URP 2D：12回中12回合格（6ケース×ガンマ・リニア）。規約が分かっている実在のマップでOpenGL/DirectX判定：1Kのマップ128枚で100%正解、1,562サンプル中で誤った「高」判定は0件（「緑が明るければOpenGL」という単純な規則は46%）。'};
+/** A page's own table (engine settings, format fields, a fix's before/after): copy.table =
+ * {title, lead?, head:[…], rows:[[…]…]}. The first cell of a row is its header cell. */
+function tableHTML(tb,id){
+ return `<section class="gl-section" id="${id}"><h2>${esc(tb.title)}</h2>${tb.lead?`<p class="gl-muted">${esc(tb.lead)}</p>`:''}<div class="gl-table-wrap"><table class="gl-table gl-own"><thead><tr>${tb.head.map(h=>`<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${tb.rows.map(r=>`<tr><th scope="row">${esc(r[0])}</th>${r.slice(1).map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${tb.note?`<p class="gl-muted">${esc(tb.note)}</p>`:''}</section>`;
+}
+/** A comparison page: the head-to-head table (copy.compare, same shape as a table, plus `source`:
+ * the doc the numbers come from) and the list of what the other tool does better (copy.better). */
+function compareHTML(page,c,locale){
+ const cmp=c.compare,better=c.better||[];
+ return `${tableHTML(cmp,'compare').replace(/<\/section>$/,'')}${cmp.source?`<p class="gl-muted"><small>${esc(UI.source[locale])}: ${esc(cmp.source)}</small></p>`:''}${better.length?`<h3>${esc(UI.better[locale].replace('{name}',page.vs||''))}</h3><ul class="gl-limits gl-better">${better.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</section>`;
+}
 function faqHTML(items,locale){
  return `<section class="gl-section gl-faq gs-faq" id="faq"><h2>${esc(UI.faq[locale])}</h2>${items.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>`;
 }
@@ -121,30 +144,37 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</div></section>`;
  const what=`<section class="gl-section" id="what"><h2>${esc(UI.what[locale])}</h2><ul class="gl-cards">${c.what.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
  const how=`<section class="gl-section" id="how"><h2>${esc(UI.how[locale])}</h2><ol class="gl-steps">${c.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>`;
+ const cmp=c.compare?compareHTML(page,c,locale):'',table=c.table?tableHTML(c.table,'settings'):'';
  const exp=`<section class="gl-section" id="exports"><h2>${esc(studio?UI.exports[locale]:LAB_UI.outputs[locale])}</h2><p class="gl-muted">${esc(studio?UI.exportsLead[locale]:LAB_UI.outputsLead[locale])}</p>${exportTable(ws,locale)}<h3>${esc(UI.evidence[locale])}</h3><p class="gl-evidence">${esc((EVIDENCE[ws]||k.evidence)[locale])}</p></section>`;
  const limits=`<section class="gl-section" id="limits"><h2>${esc(UI.limits[locale])}</h2><ul class="gl-limits">${k.limits[locale].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
  const classicHTML=classic?`<section class="gl-section gl-classic" data-gl-classic><h2>${esc(UI.classic[locale])}</h2><p>${esc(page.classic[locale])}</p><a href="${classic}" rel="nofollow">${esc(UI.classicLink[locale])} →</a></section>`:'';
  const faq=faqHTML(gameFaq(game,locale),locale);
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
- const items=[['what',UI.what[locale]],['how',UI.how[locale]],['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}" data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${what}${how}<!--ad:content-1-->${exp}${limits}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
+ const items=[['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...(table?[['settings',c.table.title]]:[]),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${what}${cmp}${how}${table}<!--ad:content-1-->${exp}${limits}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
  return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];
-const GROUP_ORDER=['sprite','pack','tile','pixel','texture','ui','tilelab','spritelab'];
-/** Every game page, grouped by workflow for the hub and the sitemap: {ws: [keys…]}. */
+const GROUP_ORDER=['sprite','pack','tile','normalmap','pixel','texture','ui','tilelab','spritelab','engines','formats','fixes','compare'];
+/** The hub group of a page: its family's group (engine how-tos, formats, fixes, comparisons) or,
+ * for a broad product page and every older page, its workspace. */
+export const groupOf=p=>FAMILIES[p.family]?.group||p.ws;
+/** Every game page, grouped by workflow for the hub and the sitemap: {group: [keys…]}. A group
+ * starts with its broad product pages (the workspace's own entry point), then the tool landings. */
 export function gameGroups(){
  const groups=Object.fromEntries(GROUP_ORDER.map(g=>[g,[]]));
+ const kw=Object.entries(GAME_KEYWORD_PAGES),broad=kw.filter(([,p])=>p.family==='broad');
+ for(const [path,p] of broad)groups[groupOf(p)].push(path);
  for(const [id,p] of Object.entries(GAME_INTENT_PAGES))groups[p.ws].push(id);
  for(const [id,p] of Object.entries(GAME_LAB_PAGES))groups[p.ws].push(id);
- for(const [path,p] of Object.entries(GAME_KEYWORD_PAGES))groups[p.ws].push(path);
+ for(const [path,p] of kw)if(p.family!=='broad')groups[groupOf(p)].push(path);
  return groups;
 }
 /** Sitemap order of the game pages: hub, then each workflow group (tool landings before keyword
  * pages), then any other game tool from the home directory. The caller drops what is not indexable. */
 export function gameSitemapPaths(){
- const g=gameGroups(),grouped=GROUP_ORDER.flatMap(ws=>[...g[ws].filter(k=>INTENTS[k]),...g[ws].filter(k=>!INTENTS[k])].map(routeOf));
+ const g=gameGroups(),grouped=GROUP_ORDER.flatMap(ws=>[...g[ws].filter(k=>INTENTS[k]||GAME_KEYWORD_PAGES[k]?.family==='broad'),...g[ws].filter(k=>!INTENTS[k]&&GAME_KEYWORD_PAGES[k]?.family!=='broad')].map(routeOf));
  const others=(DIRECTORY.find(([c])=>c==='game')?.[1]||[]).map(id=>INTENTS[id]?.path).filter(Boolean);
  return [...new Set([GAME_HUB_PATH,...grouped,...others])];
 }
