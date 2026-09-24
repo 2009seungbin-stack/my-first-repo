@@ -197,7 +197,7 @@ test('exports: Godot scene has the CanvasTexture, lights and region animation; U
  const names=files.map(f=>f.name);
  for(const n of ['godot/hero_lit.tscn','godot/hero_canvas_texture.tres','godot/hero_light_linear.png','unity/Editor/NerulioNormalMapImporter.cs','unity/nerulio-texture.json','generic/hero_n_dx.png','generic/hero_height16.png','generic/nerulio-texture.json'])assert(names.includes(n),n);
  const man=JSON.parse(files.find(f=>f.name==='generic/nerulio-texture.json').data);assert.equal(man.maps.normalDX.convention,'directx');assert.equal(man.maps.height.bitDepth,16);
- assert(files.find(f=>f.name==='unity/README.md').data.includes('UNVERIFIED'));
+ const ur=files.find(f=>f.name==='unity/README.md').data;assert(ur.includes('Verified: Unity 6000.5.3f1')&&!ur.includes('UNVERIFIED'),'Unity passed tools/engine-verify/texture/unity_texture.py');
 });
 test('normalizeParams clamps a hand-edited document and never throws',()=>{
  const p=normalizeParams({kind:'nope',bevel:{width:-4,shape:'x'},normal:{strength:999,kernel:'x',edge:'y'},pixel:{directions:7,tiers:9}});

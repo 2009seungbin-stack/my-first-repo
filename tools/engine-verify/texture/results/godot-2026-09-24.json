@@ -191,41 +191,41 @@
   "results": [
    {
     "pixels": 4060,
-    "mean": 0.137,
+    "mean": 0.16,
     "max": 1,
     "within3": 1.0,
     "within1": 1.0,
-    "flippedMean": 13.884,
+    "flippedMean": 33.072,
     "frame": 0,
     "via": "region"
    },
    {
     "pixels": 3983,
-    "mean": 0.142,
+    "mean": 0.164,
     "max": 1,
     "within3": 1.0,
     "within1": 1.0,
-    "flippedMean": 15.409,
+    "flippedMean": 37.146,
     "frame": 9,
     "via": "region"
    },
    {
     "pixels": 4078,
-    "mean": 0.137,
+    "mean": 0.161,
     "max": 1,
     "within3": 1.0,
     "within1": 1.0,
-    "flippedMean": 14.346,
+    "flippedMean": 32.779,
     "frame": 20,
     "via": "region"
    },
    {
     "pixels": 4078,
-    "mean": 0.137,
+    "mean": 0.161,
     "max": 1,
     "within3": 1.0,
     "within1": 1.0,
-    "flippedMean": 14.346,
+    "flippedMean": 32.779,
     "frame": 1020,
     "via": "animation"
    }

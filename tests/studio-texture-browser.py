@@ -4,7 +4,8 @@ Sprite: the OGA pixel torch sheet → frames cut on the document (as the Sprite 
 generated normal map, suggestion shown but not stored → lit pixels read back from the WebGL2 canvas
 equal the Godot-compatible reference (src/game/normals/lighting.js) → light drag = one undo step →
 add/remove light → brush stroke stays in its frame and undoes → slider drag = one undo step →
-pixel-art quantisation → animation plays → compare split.
+pixel-art quantisation → animation plays → compare split → an imported map with red flipped is
+flagged (not a confident DirectX) and "Flip red" restores it byte for byte.
 Texture: the ambientCG bricks set → tileable suggestion, wrap test exactly 0 (and not 0 with Clamp)
 → imported DirectX normal map detected as DirectX with high confidence, NOT applied until confirmed,
 and then lit exactly like the OpenGL original → Godot ORM channel pack byte-exact → export ZIP
@@ -15,7 +16,7 @@ ko/ja → keyboard → 390 px layout. Screenshots go to SHOTS.
 """
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import io, json, os, sys, zipfile, struct
+import base64, io, json, os, sys, tempfile, zipfile, struct
 ROOT=Path(__file__).resolve().parents[1]
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173').rstrip('/')
 SHOTS=Path(os.environ.get('TEXTURE_SHOTS',ROOT/'test-results'/'studio-texture'));SHOTS.mkdir(parents=True,exist_ok=True)
@@ -119,9 +120,28 @@ with sync_playwright() as pw:
     left=js(p,'const v=S.view,lit=T.lit(),r=T.region(),pic=T.S.pic;for(let y=4;y<30;y++)for(let x=0;x<arg-1;x++){const i=((r.y+y)*pic.w+r.x+x)*4;if(pic.rgba[i+3]===255){const dx=Math.floor(v.view.x+(x+.5)*v.view.scale),dy=Math.floor(v.view.y+(y+.5)*v.view.scale);return [lit.read(dx,dy).slice(0,3),[pic.rgba[i],pic.rgba[i+1],pic.rgba[i+2]]];}}return null;',split)
     ok('C splits the view: left of the line is the flat (unlit) picture, byte for byte',split==16 and left and left[0]==left[1],str(left))
     shot(p,'03-torch-compare-1440.png');p.keyboard.press('c')
+    # ------------------------------------------------------------ an imported map with RED flipped (NormalMap-Online's default output)
+    b64=js(p,"""const {encodeRGBAPNG}=await import("/src/game/texture-png.js");const g=T.S.gen,pic=T.S.pic,o=new Uint8Array(g.normal);for(let i=0;i<o.length;i+=4)o[i]=255-o[i];
+      const b=new Uint8Array(await (await encodeRGBAPNG(o,pic.w,pic.h)).arrayBuffer());let s="";for(const c of b)s+=String.fromCharCode(c);return btoa(s);""")
+    gen_before=js(p,'return Array.from(T.S.gen.normal);')
+    tmp=Path(tempfile.mkdtemp())/'torch_redflip_n.png';tmp.write_bytes(base64.b64decode(b64))
+    p.set_input_files('input[type=file][multiple]',[str(tmp)])
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===2');js(p,'await S.showAsset(S.doc.assets[0].id);');wait_gen(p)
+    rf_id=js(p,'return S.doc.assets.find(a=>a.name==="torch_redflip_n.png").id;')
+    p.select_option('[data-k="normalFrom"]',rf_id);wait_gen(p);p.wait_for_selector('[data-tex="convention"]',timeout=20000)
+    v=p.locator('[data-tex="convention"]')
+    ok('a normal map with RED flipped is not called a confident DirectX: green reads OpenGL, red is flagged with a fix',
+       v.get_attribute('data-convention')=='opengl' and v.get_attribute('data-confidence')!='high' and p.locator('[data-action="tex-flip-red"]').count()==1 and p.get_by_text('Red also looks flipped').count()==1,
+       f"{v.get_attribute('data-convention')} {v.get_attribute('data-confidence')}")
+    shot(p,'02b-torch-red-flipped-1440.png')
+    p.click('[data-action="tex-flip-red"]');wait_gen(p)
+    ok('"Flip red (X-)" gives back the original map byte for byte',entry(p).get('normalRedFlipped') is True and js(p,'return Array.from(T.S.gen.normal);')==gen_before)
+    p.keyboard.press('Control+z');wait_gen(p)
+    ok('the flip is one undo step',not entry(p).get('normalRedFlipped') and js(p,'return Array.from(T.S.gen.normal);')!=gen_before)
+    p.select_option('[data-k="normalFrom"]','');wait_gen(p)
     # ------------------------------------------------------------ texture set
     p.set_input_files('input[type=file][multiple]',[str(FIX/f) for f in ['bricks_Color.png','bricks_NormalGL.png','bricks_NormalDX.png','bricks_Displacement.png','bricks_Roughness.png','bricks_AmbientOcclusion.png']])
-    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===7');js(p,'await S.showAsset(S.doc.assets.find(a=>a.name==="bricks_Color.png").id);');wait_gen(p)
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===8');js(p,'await S.showAsset(S.doc.assets.find(a=>a.name==="bricks_Color.png").id);');wait_gen(p)
     ok('an opaque picture is suggested as a tileable texture, with Wrap edges',p.locator('[data-k="kind-texture"][aria-checked="true"]').count()==1 and entry(p)['params']['normal']['edge']=='tile')
     p.wait_for_selector('[data-tex="seam-roll"]',timeout=20000)
     ok('seam check: the wrap test is exactly 0 on the real tileable bricks',p.locator('[data-tex="seam-roll"]').get_attribute('data-border')=='0' and p.get_by_text('Wrap-correct').count()==1)
@@ -147,7 +167,7 @@ with sync_playwright() as pw:
     # channel pack
     p.select_option('[data-k="pack.preset"]','godot-orm');settle(p)
     with p.expect_download() as dl:p.click('[data-action="tex-pack"]')
-    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===8',timeout=20000)
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===9',timeout=20000)
     packed=js(p,'''const R=await import("/src/studio/sprite/frame-render.js"),by=n=>S.doc.assets.find(a=>a.name===n);const q=await R.blobRGBA(S.images,by("bricks_Color_godot-orm.png").cels[0].blob),ao=await R.blobRGBA(S.images,by("bricks_AmbientOcclusion.png").cels[0].blob),ro=await R.blobRGBA(S.images,by("bricks_Roughness.png").cels[0].blob);
       let bad=0;for(let p=0;p<q.width*q.height;p++){if(q.data[p*4]!==ao.data[p*4]||q.data[p*4+1]!==ro.data[p*4]||q.data[p*4+2]!==0||q.data[p*4+3]!==255)bad++;}return bad;''')
     ok('Godot ORM pack: R = the AO file, G = the roughness file, B = 0, byte for byte',packed==0,str(packed))
@@ -162,7 +182,7 @@ with sync_playwright() as pw:
     ok('the height map is a 16-bit greyscale PNG',hdr[8]==16 and hdr[9]==0)
     tscn=z.read('godot/torch_sheet_lit.tscn').decode()
     ok('the Godot scene animates the 6 frames and places the light where the Studio shows it',tscn.count('Rect2(')>=7 and 'type="PointLight2D"' in tscn and 'normal_texture = ExtResource' in tscn)
-    ok('Unity is labelled UNVERIFIED in the panel and the README',p.locator('[data-target="unity"]').locator('xpath=..').get_by_text('UNVERIFIED').count()==1 and 'UNVERIFIED' in z.read('unity/README.md').decode())
+    ok('Unity is labelled verified (Unity 6000.5.3f1) in the panel and the README',p.locator('[data-target="unity"]').locator('xpath=..').get_by_text('verified in Unity 6000.5.3f1').count()==1 and 'Verified: Unity 6000.5.3f1' in z.read('unity/README.md').decode() and 'UNVERIFIED' not in z.read('unity/README.md').decode())
     shot(p,'06-export-1440.png')
     # ------------------------------------------------------------ .nerulio round trip + recovery
     js(p,'const L=T.entry();');p.keyboard.press('l')
@@ -174,11 +194,11 @@ with sync_playwright() as pw:
     p.goto(BASE+'/en/game/studio/?ws=texture')
     p.wait_for_selector('.st-recover',timeout=20000)
     p.click('.st-recover button:has-text("Restore")')
-    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===8',timeout=20000);wait_gen(p)
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===9',timeout=20000);wait_gen(p)
     ok('autosave recovery brings the texture settings back (lights, params, declared convention)',tex_state(p)==saved)
     js(p,'await S.runCommand("file.new");');settle(p,500)
     p.set_input_files('input[type=file]:not([multiple])',str(proj))
-    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===8',timeout=20000);wait_gen(p)
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.length===9',timeout=20000);wait_gen(p)
     ok('.nerulio round trip: settings.texture is identical after reopening the file',tex_state(p)==saved)
     # ------------------------------------------------------------ locales, keyboard
     js(p,'S.runCommand("help.lang.ko");');settle(p,300)

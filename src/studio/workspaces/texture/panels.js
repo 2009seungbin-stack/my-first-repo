@@ -119,7 +119,7 @@ export function createPanels(C){
    slider('light.radius',t('tex.light.radius'),sel.radius,{min:4,max:4096,step:1,unit:'px'},(v,o)=>setL(sel.id,{radius:v},o)),
    seg('light.falloff',t('tex.light.falloff'),sel.falloff,FALLOFFS.map(f=>[f,t('tex.falloff.'+f)]),v=>setL(sel.id,{falloff:v})),
    h('div.tx-xy',{},slider('light.x',t('tex.light.x'),sel.x,{min:-512,max:2048,step:.5,unit:'px'},(v,o)=>setL(sel.id,{x:v},o)),slider('light.y',t('tex.light.y'),sel.y,{min:-512,max:2048,step:.5,unit:'px'},(v,o)=>setL(sel.id,{y:v},o))))
-   :note(t('tex.light.pick'));
+   :sec(null,note(t('tex.light.pick')));
   const setS=(patch,o={})=>C.edit(t('tex.cmd.scene'),(s,id,size)=>St.setScene(s,id,patch,size),o);
   put(box,
    sec([h('span',{},t('tex.light.lights')),add],h('div.tx-lights',{},rows),note(t('tex.light.hint'))),
@@ -239,7 +239,11 @@ export function createPanels(C){
     ['opengl','directx'].map(c=>{const b=h('button.st-btn'+(declared===c?'.primary':''),{type:'button','data-action':'tex-declare-'+c,'aria-pressed':String(declared===c)},t('tex.conv.declare',{conv:t('tex.conv.'+c)}));b.addEventListener('click',()=>C.edit(t('tex.cmd.declare'),(s,id,size)=>St.setDeclared(s,id,declared===c?null:c,size)));return b;}))
     :null;
    const redFlipped=d.source==='imported'&&!!e.normalRedFlipped;
-   const redRow=v.red==='flipped'||redFlipped?[note(t(redFlipped?'tex.conv.redFixed':'tex.conv.redFlipped'),redFlipped?'is-ok':'is-warn'),d.source==='imported'?(()=>{const b=h('button.st-btn'+(redFlipped?'.primary':''),{type:'button','data-action':'tex-flip-red','aria-pressed':String(redFlipped)},t('tex.conv.flipRed'));b.addEventListener('click',()=>C.edit(t('tex.cmd.flipRed'),(s,id,size)=>St.setRedFlipped(s,id,!redFlipped,size)));return b;})():null]:null;
+   // red: measured on sprites (silhouette); on a picture without a silhouette only the handedness
+   // is known, so a flipped red would also read as DirectX - say so, and keep the manual fix at hand
+   const flipBtn=d.source==='imported'?(()=>{const b=h('button.st-btn'+(redFlipped?'.primary':''),{type:'button','data-action':'tex-flip-red','aria-pressed':String(redFlipped)},t('tex.conv.flipRed'));b.addEventListener('click',()=>C.edit(t('tex.cmd.flipRed'),(s,id,size)=>St.setRedFlipped(s,id,!redFlipped,size)));return b;})():null;
+   const redRow=[v.red==='flipped'&&!redFlipped?note(t('tex.conv.redFlipped'),'is-warn'):null,redFlipped?note(t('tex.conv.redFixed'),'is-ok'):null,
+    !v.red&&v.convention==='directx'?note(t('tex.conv.redUnknown')):null,flipBtn];
    kids.push(sec(t('tex.conv.title'),verdict,redRow,claim?note(t(claim===v.convention||!v.convention?'tex.conv.nameSays':'tex.conv.nameDisagrees',{conv:t('tex.conv.'+claim)}),claim===v.convention||!v.convention?'':'is-warn'):null,
     h('ul.tx-evidence',{},ev),decl,d.source==='imported'?note(t(declared?'tex.conv.declared':'tex.conv.notApplied',{conv:declared?t('tex.conv.'+declared):''})):note(t('tex.conv.selfHint')),
     d.valid&&!d.valid.looksLikeNormalMap?note(t('tex.conv.notNormal'),'is-warn'):null));
@@ -294,7 +298,7 @@ export function createPanels(C){
    const c=h('canvas.tx-thumb',{width:Math.min(64,r.w),height:Math.min(64,r.h)});drawThumb(c,r);
    const b=h('button.tx-frame',{type:'button',role:'option','aria-selected':String(i===S.frame),'data-frame':String(i),title:a.frames[i]?.name||String(i)},c,h('small',{},String(i+1)));
    b.addEventListener('click',()=>{C.play(false);C.setFrame(i);});return b;}));
-  put(box,h('div.tx-frames',{},h('div.tx-frames-bar',{},play,tagSel,h('span.st-muted',{},t('tex.frames.hint'))),strip));
+  put(box,h('div.tx-frames',{},h('div.tx-frames-bar',{},play,tagSel,h('span.st-muted.st-keys',{},h('kbd',{},','),' ',h('kbd',{},'.'),' ',t('tex.frames.hint'))),strip));
  }
  function drawThumb(c,r){
   const S=C.S,pic=S.pic,k=`${pic.key}:${r.x},${r.y},${r.w},${r.h}`;let img=thumbs.get(k);

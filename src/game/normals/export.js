@@ -11,7 +11,7 @@ export const TARGETS=Object.freeze(['godot','unity','generic']);
 /** Filled from the engine runs (docs/STUDIO-TEXTURE.md). 'verified' needs a PASS in that engine. */
 export const VERIFIED=Object.freeze({
  godot:{status:'verified',engine:'Godot 4.7.2 (gl_compatibility)',what:'CanvasTexture diffuse + normal on a Sprite2D region, PointLight2D with this falloff texture, CanvasModulate ambient: lit pixels compared with the Studio preview'},
- unity:{status:'unverified',engine:'Unity 6000.5.3f1',what:'importer compiles and assigns the _NormalMap secondary texture; lit pixels not compared'},
+ unity:{status:'verified',engine:'Unity 6000.5.3f1 (URP 17.5, 2D Renderer)',what:'the importer sets the sprite rects and the _NormalMap secondary texture (linear, not resampled) and adds point Light2D lights; the per-pixel N·L Unity draws equals the one predicted from the exported map (mean error ≤ 0.01, 95th percentile ≤ 0.022) in Gamma and Linear colour space. URP uses its own light falloff, so brightness is not the Studio preview\'s'},
  generic:{status:'plain',engine:'',what:'PNG files and a JSON manifest; no engine involved'}
 });
 const str=s=>'"'+String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';
@@ -73,7 +73,8 @@ export const UNITY_IMPORTER=`// NerulioNormalMapImporter.cs - applies a Nerulio 
 // the normal map as the sprite's Secondary Texture "_NormalMap" (what URP's Sprite-Lit shader and
 // Light2D read). Tools > Nerulio > Create Lit Preview puts the sprite and the exported lights in the
 // open scene (needs the Universal Render Pipeline with a 2D Renderer).
-// Status: UNVERIFIED in a render (see docs/STUDIO-TEXTURE.md in the Nerulio repository).
+// Verified in Unity 6000.5.3f1 with URP 17.5 (2D Renderer): the normal lighting Unity draws matches
+// the exported map (docs/STUDIO-TEXTURE.md in the Nerulio repository has the runs).
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -228,7 +229,11 @@ Normal maps are OpenGL (Y+), which is what Godot expects. Pixel art: the scene s
 2. Tools › Nerulio › Apply Texture JSON › nerulio-texture.json: the sprite gets its rects and the
    normal map as Secondary Texture "_NormalMap" (sRGB off).
 3. Tools › Nerulio › Create Lit Preview adds the sprite and Light2D lights (needs URP + 2D Renderer;
-   use the Sprite-Lit-Default material, which is URP's default for sprites).
+   use the Sprite-Lit-Default material, which is URP's default for sprites). The lights use Unity's
+   own falloff: positions, colours, heights (Normal Map Distance) and energy come from the Studio,
+   the brightness curve is URP's.
+4. Pixel art: URP computes 2D lighting at half resolution by default. For crisp per-pixel lighting
+   set Light Render Texture Scale to 1 on your 2D Renderer asset.
 Normal maps are OpenGL (Y+), which is what Unity expects.`,
   generic:`Files: ${files.join(', ')}. nerulio-texture.json lists every map with its colour space and the
 frames. Normal maps are given in both conventions: _n.png (OpenGL, Y+: Godot, Unity, Blender) and

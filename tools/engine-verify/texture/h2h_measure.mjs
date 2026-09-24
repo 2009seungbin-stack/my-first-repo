@@ -69,7 +69,7 @@ for(const tool of tools)for(const input of Object.keys(truths)){
  const {width:w,height:h}=src;if(out.width!==w||out.height!==h){rows.push({tool,input,error:`size ${out.width}x${out.height} != ${w}x${h}`});continue;}
  const n=w*h,mask=new Uint8Array(n);for(let p=0;p<n;p++)mask[p]=src.data[p*4+3]===255?1:0;
  const det=detectConvention(out.data.map((v,i)=>i%4===3?src.data[i]:v),w,h);
- const row={tool,input,...compare(out.data,truth.data,mask,n),detected:det.convention,confidence:det.confidence};
+ const row={tool,input,...compare(out.data,truth.data,mask,n),detected:det.convention,confidence:det.confidence,red:det.red};
  if(input.startsWith('bricks')){
   const s=seamError(out.data,w,h);row.seamRatio=s.ratio;row.seamMax=s.maxSeam;
   const rf=join(dir,'out',tool,input+'_rolled',input+'_rolled_n.png');
@@ -80,5 +80,5 @@ for(const tool of tools)for(const input of Object.keys(truths)){
 const f=v=>v==null?'-':typeof v==='number'?(Math.abs(v)>=100?v.toFixed(0):v.toFixed(2)):String(v);
 console.log('tool'.padEnd(20),'input'.padEnd(13),'deg'.padStart(6),'deg@best'.padStart(9),'scale'.padStart(6),'gCorr'.padStart(6),'lambert'.padStart(8),'detected'.padStart(18),'seam'.padStart(6),'rollB'.padStart(6),'rollMax'.padStart(7));
 for(const r of rows){if(r.error){console.log(r.tool.padEnd(20),r.input.padEnd(13),r.error);continue;}
- console.log(r.tool.padEnd(20),r.input.padEnd(13),f(r.meanDeg).padStart(6),f(r.bestScaleDeg).padStart(9),f(r.bestScale).padStart(6),f(r.greenCorr).padStart(6),f(r.lambertLevels).padStart(8),`${r.detected||'none'}/${r.confidence}`.padStart(18),f(r.seamRatio).padStart(6),f(r.rollBorder).padStart(6),f(r.rollMax).padStart(7));}
+ console.log(r.tool.padEnd(20),r.input.padEnd(13),f(r.meanDeg).padStart(6),f(r.bestScaleDeg).padStart(9),f(r.bestScale).padStart(6),f(r.greenCorr).padStart(6),f(r.lambertLevels).padStart(8),(`${r.detected||'none'}/${r.confidence}`+(r.red==='flipped'?' +R-flip':'')).padStart(18),f(r.seamRatio).padStart(6),f(r.rollBorder).padStart(6),f(r.rollMax).padStart(7));}
 if(jsonOut)writeFileSync(jsonOut,JSON.stringify({rows,timings:Object.fromEntries(Object.entries(timings).map(([k,v])=>[k,{ms:Math.round(v.ms)}]))},null,1));

@@ -1,114 +1,124 @@
 # Handoff — Studio P4 Texture workspace
 
-* Branch `nerulio/studio-texture` (from origin/main, origin/main merged once at c4635a4). Worktree:
-  `C:\Users\2009s\Desktop\SITE\.claude\worktrees\agent-ab258719b28b2c008`. Head: see `git log -1`
-  (this file is in the last commit). Port for this work: **4511**.
-* Rules: `scratchpad/STUDIO-AGENT-RULES.md` (session scratchpad
-  `C:\Users\2009s\AppData\Local\Temp\claude\C--Users-2009s-Desktop-SITE\6366d22b-5639-4c5c-b872-1c20b9b6adcd\scratchpad`).
-  Do not open/merge PRs; push the branch only; report to the coordinator.
+* Branch `nerulio/studio-texture` (from origin/main; origin/main merged at c4635a4, nothing new on main
+  since). Worktree `C:\Users\2009s\Desktop\SITE\.claude\worktrees\agent-ab258719b28b2c008`. Head: see
+  `git log -1` (this file is in the last commit). Port for this work: **4511**.
+* Rules: `C:\Users\2009s\nerulio-handoff\STUDIO-AGENT-RULES.md` + `START-HERE.md`. Do not open or
+  merge PRs. Push the branch only and report to the coordinator.
+* Scratch (case folders, head-to-head outputs, screenshots, patch scripts):
+  `C:\Users\2009s\nerulio-handoff\scratch\texture\`. It is a copy of the old session scratchpad's
+  `p4/` plus the competitor scripts.
 
-## P4 scope (from the coordinator)
-Workspace `texture` via the plug-in API (replaces "coming P4"): sprite normal maps (bevel from alpha
-distance transform, luminance detail, height brush, pixel-art quantised normals, per-frame batch,
-clamp/tile/mirror kernels with measured seams), live WebGL2 2D lighting (point lights, ambient,
-colour/height/falloff, specular, rim, animation, flat comparison, 3D sphere/plane for PBR),
-OpenGL↔DirectX with automatic detection + confidence, AO/cavity/curvature, roughness/specular
-approximations (labelled), channel pack/unpack with engine presets, edge bleed, mip preview, 16-bit
-height; exports Godot 4 (verified), Unity 6 URP 2D (verify or UNVERIFIED), PNG set + JSON; undo,
-autosave, .nerulio, ko/en/ja, 390 px. Real assets + head-to-head (Laigter, NormalMap-Online, PBR Forge).
+User and developer documentation: **`docs/STUDIO-TEXTURE.md`**. It covers the model, detection
+maths, accuracy tables, the engine runs, the head-to-head and the known gaps. This file only tracks
+status.
 
-## DONE (all committed)
-| Area | Files |
-|---|---|
-| Pure engines (no DOM) | `src/game/normals/height.js` (exact EDT Felzenszwalb, chamfer metrics, bevel profiles, masked blur, luminance height, 16-bit plane → height, brush strokes), `normal.js` (separable kernels central/sobel3/scharr/sobel5 with clamp/tile/mirror, quantiser, encode, normal bleed, normal-aware mips, seam + roll-consistency metrics), `convention.js` (GL/DX: curl/integrability test + silhouette test, block voting → confidence, never guesses), `maps.js` (horizon AO, cavity, curvature, labelled albedo approximations, height → 8/16-bit), `lighting.js` (Godot 4 canvas light model, falloff textures — CPU reference), `pipeline.js` (params, per-frame regions, generate, live `normalPatch`), `png16.js` (16-bit grey PNG in/out), `export.js` (Godot .tscn/.tres, Unity importer C# + JSON, generic manifest, specular map) |
-| Workspace | `src/studio/workspaces/texture/index.js` (tools Light L / Height brush B, HUD view switch Alt+1…6, compare C, tile 3×3 T, sheet \`, play Enter, [ ] size/light height, Ctrl+E export, generation via worker, live brush, export ZIP, add maps to project), `panels.js` (Normal map, Lighting, Maps & channels incl. PBR set roles + pack/unpack, Check = convention verdict + seams + mips, Export, Frames, 3D preview), `lit-view.js` (WebGL2 canvas between the Studio image and overlay; same view transform; Godot model in GLSL; per-cell lights on a whole sheet), `preview3d.js` (GGX sphere/plane), `state.js` (doc `settings.texture`, pure edits, working layout sheet/strip), `texture-worker.js`, `strings.js` (ko/en/ja), `texture.css`. Registered in `src/studio/main.js`; removed from `workspaces/coming.js`. |
-| Fix outside my area (separate commit d6cdd74) | `src/game/texture-normal.js` (Texture Lab): `heightToNormal` skipped the vertical kernel's centre column → green slopes were ½ (Sobel) to ⅕ (Scharr) of red. All existing tests still pass. |
-| Tests | `tests/normals.test.mjs` (21 engine tests on real CC0 fixtures), `tests/studio-texture.test.mjs` (3: strings parity, state round-trip through normalizeProject, working layout), `tests/studio-texture-browser.py` (**37 checks, all PASS** on 4511; added to `tools/regression.py`), fixtures `tests/fixtures/texture/` (CC0, `SOURCES.md`; `.gitattributes` -text). |
-| Engine verification | `tools/engine-verify/texture/make_case.mjs` (builds bundle + reference renders without a browser), `godot_texture.py` + `texture_probe.gd` (Godot 4.7.2 gl_compatibility; compares lit pixels vs `lighting.js`, plus a green-flipped negative control), `unity_texture.py` + `unity/NerulioTextureProbe.cs` (URP 2D batchmode render), `convention_eval.mjs` (GL/DX accuracy), `fetch_acg.py` / `fetch_ph.py` (CC0 downloads into the corpus `_adhoc`). Results in `tools/engine-verify/texture/results/`. |
+## Status (2026-09-24, session 2) — feature-complete, pending the coordinator's ship run
 
-## Results so far
-* **Godot 4.7.2: 6/6 PASS** (`results/godot-2026-09-24.json`): torch (pixel art, 6 frames, also via
-  the exported AnimationPlayer), torch + specular map, Kenney adventurer 80×110 (HD), OGA samurai
-  48×48, bricks tileable 256², bricks from an imported **DirectX** map converted to GL. Every case:
-  max |Δ| = 1/255, 100 % of opaque pixels within 1/255, mean 0.14–0.22; the green-flipped render is
-  4–17× worse (the check can catch a wrong convention).
-* **Studio WebGL2 preview = reference model** (browser test reads pixels back): ≤ 1/255.
-* **GL/DX detection** (`results/convention-2026-09-24.json`): 68 full 1K maps (ambientCG ×30 sets
-  downloaded + corpus ambientCG/Poly Haven + 2 sprites): verdict on 100 %, **accuracy 100 %**;
-  596 samples incl. 256² and 64² crops: 99.7 %, **0 wrong "high"**, the only 2 errors are "medium"
-  on 64² crops of Tiles107 (flat tiles). Naive "mostly green-high" rule: 53.7 %. Torch (hand-painted,
-  DX) → DirectX with *low* confidence (tests disagree), which is honest.
-* **Seams**: wrap kernels give roll-consistency error exactly 0 on the real tileable bricks (unit +
-  browser tests); clamp ≈ 1.8 mean / 16 max at the border, mirror ≈ 2.2 / 19.
-* **Unity 6000.5.3f1**: the shipped importer compiles and sets the sprite's Secondary Texture
-  `_NormalMap` with sRGB off (settingsOk = true), but the lit render comparison **FAILED**
-  (Spearman −0.46 vs flipped −0.21; `results/unity-torch-lit-2026-09-24.png`). Most likely the
-  judge's orientation (Unity ReadPixels/EncodeToPNG y-flip) or the light placement/pivot, not
-  necessarily the export. → Unity stays **UNVERIFIED** in `export.js` VERIFIED and the UI.
-* Texture Lab bug found and fixed (above).
+### DONE
 
-## IN PROGRESS (not finished)
-* Unity lit judge (`unity_texture.py`): debug the negative correlation — check whether `lit.png` is
-  upside down (compare its alpha/brightness silhouette with the albedo), whether the Light2D lands
-  where `CreatePreview` puts it (sprite pivot centre, y up), and whether URP's 2D lights need a
-  Global Light for the sprite to render at all. The URP template is cached at
-  `%LOCALAPPDATA%\nerulio-engine-verify\unity-template-urp` (built OK).
-* Poly Haven fetch (`fetch_ph.py`) not run yet; ambientCG fetch done (30 sets in
-  `C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-studio-texture\ambientcg`, `SOURCES.md` there).
+**Everything from session 1** (see git history): pure engines under `src/game/normals/`, the
+workspace under `src/studio/workspaces/texture/`, the tests, and the Godot verification.
 
-## NEXT STEPS (priority order)
-1. Unity: fix/finish the lit judge; if it passes, set `VERIFIED.unity` in `src/game/normals/export.js`
-   (and the browser test that expects "UNVERIFIED"), else keep UNVERIFIED and document why.
-2. Run `python tools/engine-verify/texture/fetch_ph.py`, rerun `convention_eval.mjs`, record numbers.
-3. Head-to-head (competitor notes: `scratchpad/competitors/TILE-TEXTURE-UI.md`, scripts
-   `scratchpad/competitors/tile/nm*.py`, `pf*.py`): NormalMap-Online roll/seam test on the same
-   bricks (feed the texture and the half-rolled texture, un-roll, compare border band — our wrap = 0);
-   PBR Forge sprite bevel + Tile edge mode + GL/DX; Laigter free build (GitHub releases of
-   azagaya/laigter, GPL-3) if downloadable — normal map of the torch, steps/clicks, features. Table:
-   steps, seam error, GL/DX correctness, detection (nobody else has it), brushes, animation, engines.
-4. `docs/STUDIO-TEXTURE.md` (model, units, per-frame consistency, detection maths + accuracy table,
-   engine results, head-to-head, known gaps); link from `docs/STUDIO.md` workspace list.
-5. Full suites: `npm test`; `python tools/regression.py` (uses fixed ports 4173/4174 — check they are
-   free first); `python tests/service-browser.py`; the studio suites again with
-   `NERULIO_CORPUS='C:\nope'` (my suites use only `tests/fixtures/texture`, so they should not change).
-6. Screenshots 1440×900 + 390×844 into `scratchpad/p4/studio-texture/` (the browser test writes them
-   with `TEXTURE_SHOTS=<dir>`); look at them.
-7. Final report to the coordinator (Korean summary for the owner), per the rules file.
+**Session 2:**
+
+1. **Unity 6000.5.3f1: VERIFIED.** `export.js` has `VERIFIED.unity.status = 'verified'`. The UI,
+   the README and both tests are updated.
+   * The old judge compared an **unlit** render. `lights: []`, because the importer's
+     `Type.GetType("…Light2D, Unity.RenderPipelines.Universal.Runtime")` fails in Unity 6: Light2D
+     now lives in `Unity.RenderPipelines.Universal.2D.Runtime`.
+   * **Three shipped-importer bugs fixed:**
+     * Light2D is now found in any loaded assembly.
+     * `m_NormalMapQuality` / `m_NormalMapDistance` are set via SerializedObject (the properties are
+       read-only).
+     * `npotScale = None` + `maxTextureSize` fitted. The Default-type normal map had been resampled
+       96×64 → 128×64, which blurred the normals.
+   * **New judge.** The probe renders each light alone, with and without its normal map. The ratio
+     is Unity's N·L, which is compared with N·L predicted from the exported `_n.png`. Thresholds:
+     mean ≤ 0.02, p95 ≤ 0.05, and the flipped prediction must be ≥ 3× worse. The settings must also
+     hold: sizes unchanged, sRGB off, Accurate quality, distance = z/PPU. It runs in Gamma **and**
+     Linear.
+   * **12/12 PASS:** mean 0.0037–0.0085, p95 ≤ 0.022, flipped 8–60× worse.
+   * **Negative control** (`--negative`, green flipped inside Unity): 3/3 FAIL, as they must (mean
+     0.07–0.19).
+   * Results: `tools/engine-verify/texture/results/unity-2026-09-24.json`, `unity-negative-2026-09-24.json`.
+2. **Godot 4.7.2 re-run** after the changes: **6/6 PASS** (max 1/255 everywhere; the adventurer
+   case was rebuilt with the new bevel).
+3. **Poly Haven.** `fetch_ph.py` downloads 30 sets (60 maps) into the corpus
+   `_adhoc/nerulio-studio-texture/polyhaven/`, and SOURCES.md there is updated.
+   `convention_eval.mjs` reads them, and also every **frame** of the two real sprite packs, plus the
+   same frames with RED flipped. Results:
+   * 128 full maps: 100 %.
+   * 1562 samples: 99.9 %, **0 wrong "high"**.
+   * 213 frames: 100 %.
+   * Red-flipped frames: green 100 %, red reported 213/213, none "high".
+4. **Red-flip detection + fix.** The curl test cannot tell R from G. The silhouette now measures red
+   separately, so NormalMap-Online's default output (red inverted) no longer reads as a confident
+   "DirectX". The Check panel shows a warning and a **Flip red (X−)** toggle (`normalRedFlipped` in
+   the state, undoable, round-trips through `.nerulio`). For textures without a silhouette, a note
+   explains the R/G ambiguity. ko/en/ja.
+5. **Size-aware default bevel** (`suggestParams` + `typicalRadius`). HD sprites get a width of about
+   0.9 × the median inscribed radius per frame. Against the 3D-rendered asteroid normals the mean
+   angle went from 36.6° to 20.0° (Laigter default 18.3°). Pixel art is unchanged.
+6. **Head-to-head** (`tools/engine-verify/texture/h2h_measure.mjs`, `results/h2h-2026-09-24.json`,
+   table in docs/STUDIO-TEXTURE.md). Tools: Laigter 1.14 CLI (GitHub build), PBR Forge (live,
+   Playwright), NormalMap-Online (live, Playwright), and Nerulio. Assets: asteroids, torch, bricks
+   albedo and bricks height, each against a real reference normal map. Runner scripts are in
+   `scratch/texture/h2h/run_nmo.py` and `run_pbrforge.py`, and Laigter is in `scratch/texture/h2h/laigter/`.
+7. `docs/STUDIO-TEXTURE.md` written and linked from `docs/STUDIO.md`.
+8. **UI polish** from the screenshots:
+   * The Frames hint rendered as ", and . step frames". It is now `<kbd>,</kbd> <kbd>.</kbd>
+     previous / next frame`.
+   * The "Select a light" note had no padding.
+9. **Browser test: 40 checks**, up from 37: red flip is flagged and not called a confident DX, Flip
+   red restores the map byte-for-byte, and the flip is one undo step. Unity is now labelled
+   verified.
+
+### Test status
+
+See the final section of the coordinator report; the last full run is recorded in the commit
+message of the head commit.
+
+## Open / next (small)
+
+* **Firefox/WebKit** not run.
+* **390 px:** the dock tab labels wrap to two lines ("Normal / map"). That is the shell's tab style
+  (shared CSS), so it is not changed here.
+* **Laigter:** its GUI brush and animation features were not checked. Only the CLI default and the
+  Tile preset were measured.
 
 ## How to build / run / test
+
 ```
-PORT=4511 node tools/serve.mjs                       # dev server (serves src/ directly)
-open http://127.0.0.1:4511/en/game/studio/?ws=texture
-node --test tests/normals.test.mjs tests/studio-texture.test.mjs
+PORT=4511 node tools/serve.mjs
 TEST_URL=http://127.0.0.1:4511 TEXTURE_SHOTS=<dir> python tests/studio-texture-browser.py
-node tools/engine-verify/texture/make_case.mjs --albedo <png> --out <case> [--grid 32x32 --frames 0,4 --pixel --kind texture --normal <png> --flip-green --specular .7 --shininess .35]
-python tools/engine-verify/texture/godot_texture.py <case>... --json out.json   # a small window opens
-python tools/engine-verify/texture/unity_texture.py <case>... --json out.json   # Unity batchmode with GPU
-node tools/engine-verify/texture/convention_eval.mjs --json out.json            # NERULIO_CORPUS overrides the corpus path
+node --test tests/normals.test.mjs tests/studio-texture.test.mjs
+node tools/engine-verify/texture/make_case.mjs --albedo <png> --out <case> [--grid 32x32 --frames 0,4 --pixel --kind texture --normal <png> --flip-green --specular .7 --shininess .35 --name x]
+python tools/engine-verify/texture/godot_texture.py <case>... --json out.json
+python tools/engine-verify/texture/unity_texture.py <case>... [--space Gamma|Linear] [--negative] --json out.json
+node tools/engine-verify/texture/convention_eval.mjs --json out.json
+node tools/engine-verify/texture/h2h_measure.mjs C:\Users\2009s\nerulio-handoff\scratch\texture\h2h --json out.json
 ```
-The 6 Godot cases: torch (`sprites-normal/oga-pixel-torch/Torch_Sheet.png --grid 32x32 --frames 0,4 --pixel`),
-torch_spec (`--frames 1,5 --specular 0.7 --shininess 0.35`), adventurer (`sprites/kenney-platformer-characters/adventurer_tilesheet.png --grid 80x110 --frames 0,9,20`),
-samurai (`sprites/oga-samurai/samurai.png --grid 48x48 --frames 0,13 --pixel`), bricks (`tests/fixtures/texture/bricks_Color.png --kind texture`),
-bricks_dx (`… --normal tests/fixtures/texture/bricks_NormalDX.png --flip-green`).
 
-## UNVERIFIED
-* Unity 6 URP 2D export (importer settings verified in batchmode; lit pixels not).
-* Rim light is preview-only (no engine draws it without a custom shader) — labelled in the UI.
-* Roughness/specular from albedo are approximations — labelled.
-* Chromium only; Firefox/WebKit not run.
+There are six cases, all under `scratch/texture/cases/`:
 
-## Known issues / notes
-* A PNG without frames (e.g. a sheet) is lit as one picture; frames come from the Sprite workspace
-  (the Frames panel says so). No grid cutting inside Texture.
-* Brush live path recomputes a padded patch; near a region border in Wrap/Mirror mode the live
-  preview can differ slightly until the worker's exact recompute replaces it (after the stroke).
-* Imported normal maps: detection is shown (HUD chip + Check panel) but applied only after the user
-  confirms "It is DirectX/OpenGL" (stored as `normalDeclared`).
-* The browser test waits for autosave idle before the recovery step (a fast reload can recover an
-  older snapshot — shell behaviour, not Texture-specific).
+| Case | make_case arguments |
+|---|---|
+| torch | `sprites-normal/oga-pixel-torch/Torch_Sheet.png --grid 32x32 --frames 0,4 --pixel --name torch` |
+| torch_spec | same sheet, `--frames 1,5 --specular 0.7 --shininess 0.35 --name torch_spec` |
+| adventurer | `sprites/kenney-platformer-characters/adventurer_tilesheet.png --grid 80x110 --frames 0,9,20 --name adventurer` |
+| samurai | `sprites/oga-samurai/samurai.png --grid 48x48 --frames 0,13 --pixel --name samurai` |
+| bricks | `tests/fixtures/texture/bricks_Color.png --kind texture --name bricks` |
+| bricks_dx | the same albedo, plus `--normal tests/fixtures/texture/bricks_NormalDX.png --flip-green --name bricks_dx` |
 
-## Conflict hotspots
-`src/studio/main.js` (register line), `src/studio/workspaces/coming.js` (texture removed),
-`tools/regression.py` (suite list), `.gitattributes` (fixture line), `src/game/texture-normal.js`
-(Lab fix). Everything else is new files under `src/game/normals/`, `src/studio/workspaces/texture/`,
-`tools/engine-verify/texture/`, `tests/`.
+## Conflict hotspots (outside the texture area)
+
+* `src/studio/main.js`: the register line.
+* `src/studio/workspaces/coming.js`: texture removed.
+* `tools/regression.py`: the suite list.
+* `.gitattributes`: the fixture line.
+* `src/game/texture-normal.js`: the Lab fix d6cdd74.
+* `docs/STUDIO.md`: one line in the code list.
+
+Everything else is new files under `src/game/normals/`, `src/studio/workspaces/texture/`,
+`tools/engine-verify/texture/`, `tests/` and `docs/STUDIO-TEXTURE.md`.
