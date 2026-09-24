@@ -55,8 +55,7 @@ Do not edit UTF-8 files with PowerShell `Get-Content`/`Set-Content` (it rewrote 
 Done: home, hub and landing redesign in ko/en/ja; shots; ads positions + tests; design suite; perf pass.
 
 Verified at e386f8a's parent (1fc7eed, same code): `npm test` 1964 pass / 0 fail / 1 skip; `npm run check` OK;
-`NERULIO_CORPUS='C:
-ope' python tools/regression.py` all 12 browser suites PASS (browser 52, recipes 47, growth 23,
+`NERULIO_CORPUS='C:\nope' python tools/regression.py` all 12 browser suites PASS (browser 52, recipes 47, growth 23,
 seo 527, landings 32, task 318, studio 103, studio-sprite 95, studio-pack 61, studio-tile 45, game-landing 3261,
 design 347); `python tests/service-browser.py` 50/50; Firefox smoke (home, landing, hub at 390/1440): no overflow,
 no errors. Performance (dist build, slow 4G + 4× CPU, median of 5): home LCP 2.40 s → 1.22 s; landing 0.84 s → 1.04 s;
