@@ -199,8 +199,17 @@ Left:
   listed in sitemap-guides.xml (the SEO build lists every GUIDE_ROUTES route in ko/en/ja).
 - Lab screenshots show the light Lab UI (it is the real page); the landings around them are dark.
 
-### 3.1 Regression rerun
-(pending — fill in)
+### 3.1 Regression status
+- Standalone on port 4491 (dist build, SITE_URL, NERULIO_CORPUS=C:
+ope), after the last fix:
+  game-landing parts 1–5 Chromium+Firefox PASS (3186 + 74 runs, 105 distinct), landings-browser 32,
+  task-browser 318, recipes-browser 46, studio 103, studio-sprite 95, studio-pack 61, studio-tile 45,
+  seo-browser 471 (own ports 4270–4273), service-browser 50/50.
+- Integrated `tools/regression.py`: run 1 stopped at recipes-browser (fixed), run 2 stopped at
+  seo-browser (footer carried a second `data-studio-link`; fixed). Run 3: see the final report / git log.
+- validator.schema.org is rate-limited from this machine (HTTP 429 then a captcha redirect); only
+  en/game/pixel-lab was validated there (0 errors; its warning fixed). The offline JSON-LD test covers
+  all 192 pages.
 
 ## 4. How to run
 
