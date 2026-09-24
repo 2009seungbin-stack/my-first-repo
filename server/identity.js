@@ -55,6 +55,9 @@ export async function subscriptionFor(db,user,now,cfg={}){
 export async function resolveContext(request,cfg,db,now){
  const url=new URL(request.url),cookies=parseCookies(request.headers.get('cookie')),secure=secureCookies(url),setCookies=[];
  let anonId=await readAnon(cookies[ANON_COOKIE],cfg.secret),newAnon=false;
+ // Secret rotation (SESSION_SECRET_PREVIOUS): an id signed with the previous secret keeps its
+ // counters and is re-signed with the current one, so a rotation is not a quota reset.
+ if(!anonId&&cfg.previousSecret){anonId=await readAnon(cookies[ANON_COOKIE],cfg.previousSecret);if(anonId)setCookies.push(cookie(ANON_COOKIE,await sign(cfg.secret,'anon/v1',anonId),{maxAge:ANON_TTL_MS/1000,secure}));}
  if(!anonId){const issued=await issueAnon(cfg.secret,secure);anonId=issued.id;newAnon=true;setCookies.push(issued.cookie);}
  const user=cookies[SESSION_COOKIE]?await loadSession(db,cookies[SESSION_COOKIE],now):null;
  // An expired, revoked or malformed session cookie is removed rather than resent forever.

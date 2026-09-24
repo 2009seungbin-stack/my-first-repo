@@ -67,6 +67,7 @@ async function counter(ctx,cfg,db,now,cls){
  if(cls==='studio'&&signInUnlocks(ctx,cfg))return {...usage,signInLimit:cfg.freeDailyStudio,signInRequired:usage.remaining===0};
  return usage;
 }
+const ANON_STUDIO='#anon-studio';
 const clientIP=request=>request.headers.get('cf-connecting-ip')||'';
 async function me(request,ctx,cfg,db,now){
  const [usage,studio]=ctx.plan==='pro'?[null,null]:await Promise.all([counter(ctx,cfg,db,now,'heavy'),counter(ctx,cfg,db,now,'studio')]);
@@ -89,10 +90,12 @@ async function me(request,ctx,cfg,db,now){
   turnstileSiteKey:cfg.turnstile.siteKey&&cfg.turnstile.secret?cfg.turnstile.siteKey:''
  };
 }
+/** A solved Turnstile check is bound to the identity that solved it (the account when signed
+ * in, else the anonymous id), so one solve cannot vouch for a row of farmed accounts. */
 async function humanFor(ctx,cfg,now){
  const value=await unsign(cfg.secret,'human/v1',ctx.cookies[HUMAN_COOKIE]);
- if(!value)return false;const [id,exp]=value.split('~');
- return id===ctx.anonId&&Number(exp)>now;
+ if(!value)return false;const i=value.lastIndexOf('~'),id=value.slice(0,i),exp=value.slice(i+1);
+ return id===ctx.subject&&Number(exp)>now;
 }
 async function rateLimit(request,ctx,env,deps,cfg,now,route,nets){
  const key=`${route}|${nets?.narrow||'a:'+ctx.anonId}`;
@@ -114,7 +117,7 @@ async function networkGate(request,ctx,cfg,db,now,deps,nets,body,cls){
   if(!body.turnstileToken)throw new ApiError('CHALLENGE_REQUIRED','Please confirm you are human.',{siteKey:cfg.turnstile.siteKey});
   const ok=await verifyTurnstile({token:body.turnstileToken,secret:cfg.turnstile.secret,ip:clientIP(request),expectedAction:'quota',hostname:ctx.url.hostname},deps.fetch);
   if(!ok)throw new ApiError('CHALLENGE_FAILED');
-  ctx.setCookies.push(cookie(HUMAN_COOKIE,await sign(cfg.secret,'human/v1',`${ctx.anonId}~${now+HUMAN_TTL_MS}`),{maxAge:HUMAN_TTL_MS/1000,secure:ctx.secure}));
+  ctx.setCookies.push(cookie(HUMAN_COOKIE,await sign(cfg.secret,'human/v1',`${ctx.subject}~${now+HUMAN_TTL_MS}`),{maxAge:HUMAN_TTL_MS/1000,secure:ctx.secure}));
  }
 }
 async function authorize(request,ctx,cfg,env,now,deps){
@@ -128,9 +131,21 @@ async function authorize(request,ctx,cfg,env,now,deps){
  const nets=await networkSubjects(clientIP(request),cfg.secret,now);
  await rateLimit(request,ctx,env,deps,cfg,now,'authorize',nets);
  await networkGate(request,ctx,cfg,db,now,deps,nets,body,cls);
+ // Anonymous Studio exports are also counted per network: once a network has used its anonymous
+ // share today, new anonymous identities there (cleared cookies, incognito) must sign in.
+ const anonStudio=cls==='studio'&&!ctx.user,buckets=nets?[nets.narrow,nets.wide]:[];
+ if(anonStudio&&nets){
+  const [n,w]=await Promise.all([networkUsage(db,nets.narrow+ANON_STUDIO,now),networkUsage(db,nets.wide+ANON_STUDIO,now)]);
+  if(n>=cfg.anonNetworkStudio||w>=cfg.anonWideStudio){
+   const own=await usageFor(db,counterSubject(ctx.subject,cls),cfg.freeAnonStudio,now);
+   await bumpEvent(db,now,'sign_in_required');
+   throw new ApiError('SIGN_IN_REQUIRED','Sign in (free) to continue exporting today.',{},{allowed:false,reason:'sign_in',kind:cls,used:own.used,limit:cfg.freeAnonStudio,signInLimit:cfg.freeDailyStudio,remaining:0,resetAt:resetAt(now)});
+  }
+  buckets.push(nets.narrow+ANON_STUDIO,nets.wide+ANON_STUDIO);
+ }
  // 'heavy' (file tools) and 'studio' (Studio exports) are separate counters of the same identity.
  const limit=cls==='studio'?studioLimitFor(ctx,cfg):limitFor(cfg,cls);
- const result=await authorizeJob(db,{subject:counterSubject(ctx.subject,cls),operationId:body.operationId.toLowerCase(),toolId:body.toolId,limit,now,networkSubjects:nets?[nets.narrow,nets.wide]:[]});
+ const result=await authorizeJob(db,{subject:counterSubject(ctx.subject,cls),operationId:body.operationId.toLowerCase(),toolId:body.toolId,limit,now,networkSubjects:buckets});
  if(deps.ctx&&deps.random()<1/500)deps.ctx.waitUntil(db.batch(cleanupStatements(db,now)).catch(()=>{}));
  if(!result.allowed){
   if(cls==='studio'&&signInUnlocks(ctx,cfg)){

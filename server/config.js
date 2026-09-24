@@ -48,7 +48,13 @@ export function runtimeConfig(env={},build=BUILD){
  const networkSoftLimit=positive(env.ANON_NETWORK_DAILY_JOBS,(freeDailyJobs+freeDailyStudio)*4,1e6);
  const networkHardLimit=Math.max(networkSoftLimit,positive(env.NETWORK_DAILY_HARD_LIMIT,networkSoftLimit*5,1e7));
  const networkWideLimit=Math.max(networkHardLimit,positive(env.NETWORK_WIDE_DAILY_HARD_LIMIT,networkHardLimit*4,1e8));
+ // Anonymous Studio exports per network per day (all anonymous identities together). Past it,
+ // clearing cookies / incognito no longer yields more: the next export asks for a free sign-in.
+ const anonNetworkStudio=between(env.ANON_NETWORK_STUDIO_EXPORTS,Math.max(freeAnonStudio*10,1),0,1e6);
  return Object.freeze({
+  anonNetworkStudio,anonWideStudio:anonNetworkStudio*4,
+  // Previous SESSION_SECRET, still accepted for anonymous cookies during a rotation.
+  previousSecret:String(env.SESSION_SECRET_PREVIOUS||'').length>=32?String(env.SESSION_SECRET_PREVIOUS):'',
   environment,environmentOverrideRefused:devRequested&&environment!=='development',siteOrigin,freeDailyJobs,freeDailyStudio,freeAnonStudio,
   configured:!!env.DB&&secret.length>=32,
   secret,
