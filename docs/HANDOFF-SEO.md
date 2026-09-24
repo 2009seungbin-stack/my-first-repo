@@ -205,8 +205,9 @@ ope), after the last fix:
   game-landing parts 1–5 Chromium+Firefox PASS (3186 + 74 runs, 105 distinct), landings-browser 32,
   task-browser 318, recipes-browser 46, studio 103, studio-sprite 95, studio-pack 61, studio-tile 45,
   seo-browser 471 (own ports 4270–4273), service-browser 50/50.
-- Integrated `tools/regression.py`: run 1 stopped at recipes-browser (fixed), run 2 stopped at
-  seo-browser (footer carried a second `data-studio-link`; fixed). Run 3: see the final report / git log.
+- Integrated `tools/regression.py` (NERULIO_CORPUS=C:\nope): runs 1–2 stopped at recipes-browser / seo-browser
+  (both fixed); **PASS** at 3abf8b4 (all suites incl. game-landing; seo-browser 489 checks).
+  service-browser 50/50 at the same state.
 - validator.schema.org is rate-limited from this machine (HTTP 429 then a captcha redirect); only
   en/game/pixel-lab was validated there (0 errors; its warning fixed). The offline JSON-LD test covers
   all 192 pages.
