@@ -91,3 +91,31 @@ test('every game page and the hub are in the game sitemap',()=>{
  for(const [key] of pages)assert(game.includes(INTENTS[key]?.path||key),key);
  assert.deepEqual(game.slice(0,2),['','game']);
 });
+const unescape=s=>s.replace(/&(amp|lt|gt|quot|#39);/g,(_,e)=>({amp:'&',lt:'<',gt:'>',quot:'"','#39':"'"}[e]));
+test('structured data: SoftwareApplication, BreadcrumbList, and FAQPage / HowTo that state exactly what the page shows',()=>{
+ let n=0;
+ for(const path of ['game',...pages.map(([k])=>INTENTS[k]?.path||k)])for(const l of L){
+  const h=entry(html,`${l}/${path}`,origin),ld=[...h.matchAll(/<script data-site-seo type="application\/ld\+json">(.*?)<\/script>/g)].map(m=>JSON.parse(m[1])),by=t=>ld.filter(x=>x['@type']===t);
+  const hub=path==='game';
+  assert.deepEqual(ld.map(x=>x['@type']),hub?['SoftwareApplication','BreadcrumbList','FAQPage']:['SoftwareApplication','BreadcrumbList','FAQPage','HowTo'],`${l}/${path}`);
+  for(const x of ld)assert.equal(x['@context'],'https://schema.org');
+  const [app]=by('SoftwareApplication');
+  assert(app.name&&app.description&&app.applicationCategory==='DeveloperApplication'&&app.operatingSystem==='Web'&&app.url===`${origin}${l}/${path}/`&&app.screenshot.startsWith(origin+'assets/studio/'),path);
+  assert.deepEqual(app.offers,{'@type':'Offer',price:'0',priceCurrency:'USD'});assert(app.featureList.length>=3&&app.featureList.every(f=>typeof f==='string'&&f.length>2),path);
+  const [crumbs]=by('BreadcrumbList');
+  assert.deepEqual(crumbs.itemListElement.map(x=>x.position),crumbs.itemListElement.map((_,i)=>i+1));
+  assert.equal(crumbs.itemListElement.at(-1).item,`${origin}${l}/${path}/`);assert(crumbs.itemListElement.every(x=>x['@type']==='ListItem'&&x.name&&x.item.startsWith(origin)));
+  const visibleFaq=[...h.matchAll(/<details><summary>([^<]*)<\/summary><p>([^<]*)<\/p><\/details>/g)].map(m=>[unescape(m[1]),unescape(m[2])]);
+  const [faq]=by('FAQPage');
+  assert(visibleFaq.length>=2,path);assert.deepEqual(faq.mainEntity.map(q=>[q.name,q.acceptedAnswer.text]),visibleFaq,`${l}/${path}: FAQPage = the visible FAQ`);
+  assert(faq.mainEntity.every(q=>q['@type']==='Question'&&q.acceptedAnswer['@type']==='Answer'));
+  if(!hub){
+   const steps=[...(h.match(/<ol class="gl-steps">([\s\S]*?)<\/ol>/)||['',''])[1].matchAll(/<li>([^<]*)<\/li>/g)].map(m=>unescape(m[1]));
+   const [how]=by('HowTo');
+   assert(steps.length>=3,path);assert.deepEqual(how.step.map(s=>s.text),steps,`${l}/${path}: HowTo = the visible steps`);
+   assert(how.name===unescape(h.match(/<h1>([^<]*)<\/h1>/)[1])&&how.step.every((s,i)=>s['@type']==='HowToStep'&&s.position===i+1&&s.url===`${origin}${l}/${path}/#how`)&&h.includes('id="how"'),path);
+  }
+  n++;
+ }
+ assert(n>=192,`${n} pages checked`);
+});

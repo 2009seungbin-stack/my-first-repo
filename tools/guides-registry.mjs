@@ -9,6 +9,7 @@ export const GUIDES=Object.freeze([...(mod.GUIDES||[])]);
 export const GUIDE_ROUTES=Object.freeze([...(mod.GUIDE_ROUTES||[])]);
 export const guideLastmod=route=>mod.guideLastmod?.(route)||null;
 export const guidePath=slug=>mod.guidePath?mod.guidePath(slug):`guides/${slug}`;
+export const GUIDE_INDEX_PATH=mod.GUIDE_INDEX||'guides';
 /** Guides about an intent or a Studio workspace, most specific first. */
 export function guidesFor({id,ws}={}){
  const byTool=GUIDES.filter(g=>id&&(g.tools||[]).includes(id)||id&&g.open?.tool===id);

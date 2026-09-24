@@ -44,6 +44,8 @@ export function contentText(html){
  const description=(html.match(/<meta name="description" content="([^"]*)"/i)||[])[1]||'';
  let main=(html.match(/<main\b[\s\S]*<\/main>/i)||[html.replace(/^[\s\S]*?<body[^>]*>/i,'')])[0];
  for(const tag of ['script','style','template','svg','footer'])main=strip(main,tag);
+ // Site navigation marked data-chrome (e.g. the "Making a game?" block) is not the page's content.
+ main=main.replace(/<(aside|nav|div)\b[^>]*\bdata-chrome\b[^>]*>[\s\S]*?<\/\1>/gi,' ');
  // Link targets are content too (a related link that now points elsewhere is a change).
  main=main.replace(/<a\b[^>]*\bhref="([^"]*)"[^>]*>/gi,' [$1] ').replace(/<[^>]+>/g,' ');
  return decode([title,description,main].join('\n')).replace(/\s+/g,' ').trim();
@@ -119,9 +121,11 @@ async function bootstrap(hashes){
  writeLedger(next);
  console.log(`lastmod ledger bootstrapped: ${fromHistory} pages dated from origin/main history, ${hashes.size-fromHistory} dated ${now} (not on main yet).`);
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+// No top-level await: tools/build.mjs imports this module, and the CLI imports tools/build.mjs; a
+// top-level await here would leave that import cycle waiting on itself.
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))(async()=>{
  const hashes=await currentHashes(),ledger=readLedger();
  if(process.argv.includes('--bootstrap'))await bootstrap(hashes);
  else if(process.argv.includes('--write'))write(hashes,ledger);
  else{const stale=staleRoutes(hashes,ledger);if(stale.length){console.error(`${stale.length} pages changed since the lastmod ledger was written, e.g. ${stale.slice(0,5).join(', ')}.\nRun: node tools/lastmod.mjs --write`);process.exit(1);}console.log(`lastmod ledger current (${hashes.size} pages).`);}
-}
+})().catch(e=>{console.error(e);process.exit(1);});

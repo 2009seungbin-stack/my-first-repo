@@ -7,6 +7,7 @@ import {INTENTS} from './intents.js';
 import {LANDINGS,LANDING_PATHS,landingText} from './landings.js';
 import {t} from './i18n.js';
 import {esc} from './ui.js';
+import {DIRECTORY} from './task/registry.js';
 
 export const labels=brandCopy({
  en:{related:'Related tools',how:'How it works',formats:'Supported formats',features:'What this tool does',limits:'Before you export',faq:'Frequently asked questions',about:'About',privacy:'Privacy',terms:'Terms',contact:'Contact',home:'Open {brand}',ad:'Advertisement',language:'Language',saved:'Keep your original file. Export your result before reloading or closing this tab.',uploadQ:'Are my files uploaded?',uploadA:'{brand} processes selected files on your device and has no file-upload API. Optional engines and models are downloaded from third parties; those requests expose connection information such as your IP address.',resultQ:'Will my work be saved automatically?',resultA:'No. Images and editing state stay in this tab; media output can use local temporary storage. Changing language preserves your work; reloading, closing the tab, or following a link to another page can clear it.'},
@@ -130,7 +131,35 @@ export function formats(id,locale){
  const note={en:'Input decoding and output encoding depend on browser support.',ko:'입력·출력 지원은 브라우저에 따라 다릅니다.',ja:'読み込み・書き出しはブラウザの対応状況によります。'}[locale];
  return values+' — '+note+(id!=='home'&&(editor==='image'||editor==='pixel')?' '+{en:'Animated inputs are rejected; select a still frame first.',ko:'움직이는 입력은 거부합니다. 먼저 정지 프레임을 선택하세요.',ja:'アニメーション入力は非対応です。静止フレームを選択してください。'}[locale]:'');
 }
-export function footer(locale){const l=labels[locale];return `<footer class="site-footer"><nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
+/** Nerulio is a game asset studio first: the footer of every page links the game workflows, and the
+ * image / PDF / video tools carry a "Making a game?" block. Short literal titles on purpose — this
+ * module is loaded in the browser, so it does not import the landing copy (src/game-seo.js). */
+const GAME_NAV=Object.freeze({
+ en:['Game studio',[['game/studio','Game studio'],['game','All game tools'],['sprite-slicer','Sprite sheet slicer'],['sprite-sheet-maker','Sprite sheet packer'],['game/tile-lab','Autotile tilesets'],['game/pixel-lab','Pixel art palettes'],['game/texture-lab','Texture maps']]],
+ ko:['게임 스튜디오',[['game/studio','게임 스튜디오'],['game','게임 도구 전체'],['sprite-slicer','스프라이트 시트 자르기'],['sprite-sheet-maker','스프라이트 시트 패커'],['game/tile-lab','오토타일 타일셋'],['game/pixel-lab','도트 팔레트'],['game/texture-lab','텍스처 맵']]],
+ ja:['ゲームスタジオ',[['game/studio','ゲームスタジオ'],['game','ゲームツール一覧'],['sprite-slicer','スプライトシート分割'],['sprite-sheet-maker','スプライトシートパッカー'],['game/tile-lab','オートタイル'],['game/pixel-lab','ドット絵パレット'],['game/texture-lab','テクスチャマップ']]]
+});
+function gameFooterNav(locale){const [label,links]=GAME_NAV[locale]||GAME_NAV.en;return `<nav class="footer-game" aria-label="${esc(label)}">${links.map(([p,name])=>`<a href="${locale}/${p}/"${p==='game/studio'?' data-studio-link':''}>${esc(name)}</a>`).join('')}</nav>`;}
+const GAME_XLINK=Object.freeze({
+ en:{h:'Making a game?',p:'Nerulio is a 2D game asset studio first: cut sprite sheets into animations, pack texture atlases, check autotile tilesets and export them for Godot, Unity, Phaser and other engines. It runs in your browser; files stay on your device.',studio:'Open the game studio',hub:'All game tools'},
+ ko:{h:'게임을 만들고 있나요?',p:'Nerulio는 무엇보다 2D 게임 에셋 스튜디오입니다. 스프라이트 시트를 애니메이션으로 자르고, 텍스처 아틀라스를 패킹하고, 오토타일 타일셋을 점검해 Godot·Unity·Phaser 등 엔진용으로 내보냅니다. 브라우저에서 동작하며 파일은 기기 밖으로 나가지 않습니다.',studio:'게임 스튜디오 열기',hub:'게임 도구 전체'},
+ ja:{h:'ゲームを作っていますか？',p:'Nerulioは何よりも2Dゲームアセットのスタジオです。スプライトシートをアニメーションに分割し、テクスチャアトラスをパックし、オートタイルのタイルセットを確認して、Godot・Unity・Phaserなどのエンジン向けに書き出します。ブラウザで動き、ファイルは端末の外に出ません。',studio:'ゲームスタジオを開く',hub:'ゲームツール一覧'}
+});
+/** The game pages closest to each file-tool family (image users slice sheets and make textures, video
+ * users turn clips and GIFs into sprite sheets). */
+const GAME_PICKS=Object.freeze({
+ image:[['sprite-slicer',{en:'Sprite sheet slicer',ko:'스프라이트 시트 자르기',ja:'スプライトシート分割'}],['game/pixel-lab',{en:'Pixel art palettes',ko:'도트 팔레트',ja:'ドット絵パレット'}],['game/texture-lab',{en:'Normal and texture maps',ko:'노멀·텍스처 맵',ja:'ノーマル・テクスチャマップ'}]],
+ pdf:[['sprite-slicer',{en:'Sprite sheet slicer',ko:'스프라이트 시트 자르기',ja:'スプライトシート分割'}],['sprite-sheet-maker',{en:'Sprite sheet packer',ko:'스프라이트 시트 패커',ja:'スプライトシートパッカー'}],['game/tile-lab',{en:'Autotile tilesets',ko:'오토타일 타일셋',ja:'オートタイル'}]],
+ video:[['game/gif-to-sprite-sheet',{en:'GIF to sprite sheet',ko:'GIF를 스프라이트 시트로',ja:'GIFをスプライトシートに'}],['game/sprite-animation-preview',{en:'Sprite animation preview',ko:'스프라이트 애니메이션 미리보기',ja:'スプライトアニメーションのプレビュー'}],['sprite-sheet-maker',{en:'Sprite sheet packer',ko:'스프라이트 시트 패커',ja:'スプライトシートパッカー'}]]
+});
+const FILE_FAMILY=new Map(DIRECTORY.filter(([c])=>c!=='game').flatMap(([c,ids])=>ids.map(id=>[id,c])));
+/** `data-chrome`: site navigation, not page content (tools/lastmod.mjs does not date pages by it). */
+function gameCrossLink(id,locale){
+ const family=FILE_FAMILY.get(id);if(!family)return '';
+ const x=GAME_XLINK[locale]||GAME_XLINK.en;
+ return `<aside class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/" data-studio-link>${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></aside>`;
+}
+export function footer(locale){const l=labels[locale];return `<footer class="site-footer">${gameFooterNav(locale)}<nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
 const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作業'};
 /** Task-specific copy for a landing page, then links to sibling tasks of the same tool. */
 function landingHTML(id,locale,path){
@@ -143,5 +172,5 @@ export function toolContent(id,locale,path=''){
  const capability=id==='home'?'':capabilitySummary(id,locale),landing=landingHTML(id,locale,path);
  const l=labels[locale],g=guide(id,locale),related=INTENTS[id].next.length?INTENTS[id].next:id==='home'?['sprite-slicer','sprite-sheet-maker','tile-lab']:['upscale','pdf-merge','pixel','media'];
  const faq=[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
- return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav><article>${landing.intro}${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(capability.title)}</h3><p data-capability="${id}">${esc(capability.text)}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p>${landing.links}</article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
+ return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav>${gameCrossLink(id,locale)}<article>${landing.intro}${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(capability.title)}</h3><p data-capability="${id}">${esc(capability.text)}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p>${landing.links}</article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
 }

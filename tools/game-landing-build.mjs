@@ -5,8 +5,8 @@ import {INTENTS,ALIASES} from '../src/intents.js';
 import {LANDINGS} from '../src/landings.js';
 import {footer} from '../src/content.js';
 import {DIRECTORY} from '../src/task/registry.js';
-import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
-import {guidesFor,guidePath} from './guides-registry.mjs';
+import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
+import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
 /** Static HTML of the game landing pages (src/game-seo.js) and of the /game/ hub.
  * Dark, editor-looking pages whose primary action hands the dropped files to the Studio
  * (src/game-landing.js → src/task/handoff.js → /game/studio/?ws=…). Everything a crawler
@@ -52,7 +52,8 @@ const LAB_UI={
  open:{en:'Open the {name}',ko:'{name} 열기',ja:'{name}を開く'},
  outputs:{en:'Outputs and how each was checked',ko:'출력 파일과 검증 방법',ja:'出力ファイルと検証方法'},
  outputsLead:{en:'"Measured" means the downloaded file was opened again outside the page (Pillow, numpy or an independent parser) and the property was measured. Loading these files in a game engine was not tested.',ko:'"측정 확인"은 내려받은 파일을 페이지 밖에서(Pillow·numpy·별도 파서) 다시 열어 그 속성을 측정했다는 뜻입니다. 게임 엔진에서 불러오는 것은 시험하지 않았습니다.',ja:'「測定確認」は、ダウンロードしたファイルをページ外（Pillow・numpy・独立したパーサー）で開き直して性質を測ったという意味です。ゲームエンジンでの読み込みは試していません。'},
- guides:{en:'Guides',ko:'가이드',ja:'ガイド'}
+ guides:{en:'Guides',ko:'가이드',ja:'ガイド'},
+ allGuides:{en:'All game dev guides',ko:'게임 개발 가이드 전체',ja:'ゲーム開発ガイド一覧'}
 };
 function header(locale,prefix){
  return `<header class="gl-header"><a class="gl-brand" href="${prefix}" aria-label="${esc(BRAND.name)}">${logoMark({size:26})}<strong>${esc(BRAND.name)}<span>.</span></strong></a><nav class="gl-header-end" aria-label="${esc(UI.hub[locale])}"><a class="header-studio" data-studio-link href="${prefix}${STUDIO_ROUTE}/">${esc(UI.studio[locale])}</a><a class="gl-header-link" href="${prefix}${GAME_HUB_PATH}/">${esc(UI.allGame[locale])}</a><a class="gl-header-link gl-hide-s" href="${prefix}">${esc(UI.allTools[locale])}</a><label class="gl-lang">${globe}<select id="languageSelect" aria-label="${esc(t('language.label',{},locale))}"><option value="auto">${esc(t('language.auto',{},locale))}</option>${LOCALES.map(l=>`<option value="${l}" lang="${l}"${prefix===l+'/'?' selected':''}>${LANGUAGE_NAMES[l]}</option>`).join('')}</select></label></nav></header>`;
@@ -63,7 +64,7 @@ function shell({locale,base,title,description,headHTML,body}){
 }
 function shot(key,locale,{priority=false}={}){
  const s=SHOTS[key];if(!s)return '';
- return `<figure class="gl-shot"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}" decoding="async"${priority?' fetchpriority="high"':' loading="lazy"'}></picture><figcaption>${esc(UI.shotCaption[locale])}</figcaption></figure>`;
+ return `<figure class="gl-shot"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}" decoding="async"${priority?' fetchpriority="high"':' loading="lazy"'}></picture><figcaption>${esc(shotCaption(s,locale))}</figcaption></figure>`;
 }
 function badges(ws,locale,highlight=[]){
  const rows=exportsFor(ws),order=[...rows.filter(r=>highlight.includes(r.id)),...rows.filter(r=>!highlight.includes(r.id))];
@@ -132,8 +133,9 @@ export function gameHubPage({locale,prefix,base,headHTML}){
  const section=ws=>groups[ws].length?`<section class="gl-section gl-hub-group" id="hub-${ws}"><h2>${esc(HUB_GROUPS[ws][locale])}</h2><ul class="gl-hub-list">${groups[ws].map(k=>`<li><a href="${prefix}${routeOf(k)}/"><b>${esc(titleOf(k,locale))}</b><small>${esc(descOf(k,locale))}</small></a></li>`).join('')}</ul></section>`:'';
  const crumb=`<nav class="gl-crumb" aria-label="Breadcrumb"><a href="${prefix}">${esc(BRAND.name)}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(UI.hub[locale])}</span></nav>`;
  const hero=`<section class="gl-hero"><div class="gl-hero-copy">${crumb}<h1>${esc(h.title)}</h1><p class="gl-lead">${esc(h.lead)}</p>${dropZone({game:HUB_GAME,locale,prefix})}</div>${shot('sprite-frame',locale,{priority:true})}</section>`;
- const nav=`<nav class="gl-hub-nav" aria-label="${esc(UI.hub[locale])}">${GROUP_ORDER.filter(ws=>groups[ws].length).map(ws=>`<a href="${prefix}${GAME_HUB_PATH}/#hub-${ws}">${esc(HUB_GROUPS[ws][locale])}</a>`).join('')}</nav>`;
- const guides=guidesFor({}).length?'':'';
+ const nav=`<nav class="gl-hub-nav" aria-label="${esc(UI.hub[locale])}">${GROUP_ORDER.filter(ws=>groups[ws].length).map(ws=>`<a href="${prefix}${GAME_HUB_PATH}/#hub-${ws}">${esc(HUB_GROUPS[ws][locale])}</a>`).join('')}${GUIDES.length?`<a href="${prefix}${GAME_HUB_PATH}/#hub-guides">${esc(LAB_UI.guides[locale])}</a>`:''}</nav>`;
+ // Every guide, once src/guides.js has any (branch nerulio/game-guides); nothing before that.
+ const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2>${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>`<li><a href="${prefix}${guidePath(g.slug)}/"><b>${esc(g.title?.[locale]||g.title?.en||g.slug)}</b><small>${esc(g.description?.[locale]||g.description?.en||'')}</small></a></li>`).join('')}</ul><p><a href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])} →</a></p></section>`:'';
  const body=`${header(locale,prefix)}<main class="gl-main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}${badges('sprite',locale)}${nav}<div class="gl-body">${GROUP_ORDER.map(section).join('')}${guides}<section class="gl-section"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale)}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}</div></main><div class="gl-footer">${footer(locale)}</div>`;
  return shell({locale,base,title,description:h.description,headHTML,body});
 }

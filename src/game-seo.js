@@ -19,20 +19,25 @@ export const STUDIO_ROUTE='game/studio';
 /** Screenshots of the real Studio (tools/studio-screens.py, CC0 fixtures). `w`/`h` are the
  * large file's pixels; every shot also has a `-780` variant for phones. */
 export const SHOTS=Object.freeze({
- 'sprite-sheet':{file:'sprite-sheet',w:1440,h:900,alt:L('Studio Sprite workspace: a 48 px samurai sheet with the detected grid, 60 frames in 10 animations, before Apply','Studio 스프라이트 작업 공간: 48px 사무라이 시트에서 감지한 격자(10개 애니메이션, 60프레임)를 적용 전에 미리 보는 화면','Studio のスプライト作業画面：48pxのサムライのシートで検出したグリッド（10アニメーション・60フレーム）を適用前にプレビュー')},
- 'sprite-frame':{file:'sprite-frame',w:1440,h:900,alt:L('Studio Sprite workspace: one frame with its pivot, a hit box and a hurt box, and the timeline with animation tags','Studio 스프라이트 작업 공간: 피벗·히트박스·허트박스가 있는 프레임과 애니메이션 태그가 있는 타임라인','Studio のスプライト作業画面：ピボット・ヒットボックス・ハートボックス付きのフレームと、アニメーションタグ付きタイムライン')},
- pack:{file:'pack',w:1440,h:900,alt:L('Studio Pack & Export: the packed atlas page with every frame outlined, the used area and the export targets','Studio 패킹·내보내기: 프레임마다 윤곽이 표시된 아틀라스 페이지, 사용 면적, 내보내기 대상','Studio のパック＆書き出し：各フレームの枠が表示されたアトラスページ、使用率、書き出し先')},
- 'tile-check':{file:'tile-check',w:1440,h:900,alt:L('Studio Tile workspace: a 47-tile sheet recognised as the GameMaker layout, with its terrain bits and a complete check','Studio 타일 작업 공간: GameMaker 배치로 인식한 47타일 시트와 지형 비트, 완료된 점검','Studio のタイル作業画面：GameMaker配置と認識した47タイルのシート、地形ビット、完了したチェック')},
- 'tile-map':{file:'tile-map',w:1440,h:900,alt:L('Studio Tile workspace: a test map painted with the Godot terrain rule','Studio 타일 작업 공간: Godot 지형 규칙으로 칠한 테스트 맵','Studio のタイル作業画面：Godotの地形ルールで塗ったテストマップ')},
- 'pixel-lab':{file:'pixel-lab',w:1440,h:900,alt:L('Pixel Lab: CC0 sprite frames locked to one extracted palette, with the palette and its pixel counts','픽셀 랩: 추출한 팔레트 하나에 고정된 CC0 스프라이트 프레임과 색별 픽셀 수','ピクセルラボ：抽出した1つのパレットに固定したCC0スプライトのフレームと色ごとのピクセル数')},
- 'texture-lab':{file:'texture-lab',w:1440,h:900,alt:L('Texture Lab: a normal map generated from a CC0 texture, with the OpenGL/DirectX convention shown','텍스처 랩: CC0 텍스처로 만든 노멀맵과 OpenGL/DirectX 규약 표시','テクスチャラボ：CC0テクスチャから生成したノーマルマップとOpenGL/DirectXの規約表示')},
- 'ui-lab':{file:'ui-lab',w:1440,h:900,alt:L('UI Lab: a CC0 UI panel with nine-slice guides and previews at several sizes','UI 랩: 나인 슬라이스 가이드와 여러 크기 미리보기가 있는 CC0 UI 패널','UIラボ：ナインスライスのガイドと複数サイズのプレビューがあるCC0のUIパネル')},
- 'tile-seams':{file:'tile-seams',w:1440,h:900,alt:L('Tile Lab seam check: a CC0 texture repeated 2×2 with its wrap edges measured','타일 작업실 이음새 점검: 2×2로 반복한 CC0 텍스처와 경계 측정','タイルセット工房の継ぎ目チェック：2×2で繰り返したCC0テクスチャと境界の測定')},
- 'tile-slice':{file:'tile-slice',w:1440,h:900,alt:L('Tile Lab: a Kenney CC0 tilemap with its measured grid (16 px tiles, 1 px spacing)','타일 작업실: 격자를 측정한 Kenney CC0 타일맵(16px 타일, 간격 1px)','タイルセット工房：グリッドを測定したKenney CC0タイルマップ（16pxタイル、間隔1px）')},
- 'sprite-lab':{file:'sprite-lab',w:1440,h:900,alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
+ 'sprite-sheet':{file:'sprite-sheet',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: a 48 px samurai sheet with the detected grid, 60 frames in 10 animations, before Apply','Studio 스프라이트 작업 공간: 48px 사무라이 시트에서 감지한 격자(10개 애니메이션, 60프레임)를 적용 전에 미리 보는 화면','Studio のスプライト作業画面：48pxのサムライのシートで検出したグリッド（10アニメーション・60フレーム）を適用前にプレビュー')},
+ 'sprite-frame':{file:'sprite-frame',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: one frame with its pivot, a hit box and a hurt box, and the timeline with animation tags','Studio 스프라이트 작업 공간: 피벗·히트박스·허트박스가 있는 프레임과 애니메이션 태그가 있는 타임라인','Studio のスプライト作業画面：ピボット・ヒットボックス・ハートボックス付きのフレームと、アニメーションタグ付きタイムライン')},
+ pack:{file:'pack',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pack & Export: the packed atlas page with every frame outlined, the used area and the export targets','Studio 패킹·내보내기: 프레임마다 윤곽이 표시된 아틀라스 페이지, 사용 면적, 내보내기 대상','Studio のパック＆書き出し：各フレームの枠が表示されたアトラスページ、使用率、書き出し先')},
+ 'tile-check':{file:'tile-check',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a 47-tile sheet recognised as the GameMaker layout, with its terrain bits and a complete check','Studio 타일 작업 공간: GameMaker 배치로 인식한 47타일 시트와 지형 비트, 완료된 점검','Studio のタイル作業画面：GameMaker配置と認識した47タイルのシート、地形ビット、完了したチェック')},
+ 'tile-map':{file:'tile-map',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a test map painted with the Godot terrain rule','Studio 타일 작업 공간: Godot 지형 규칙으로 칠한 테스트 맵','Studio のタイル作業画面：Godotの地形ルールで塗ったテストマップ')},
+ 'pixel-lab':{file:'pixel-lab',w:1440,h:900,app:'pixel',by:'OpenGameArt',alt:L('Pixel Lab: CC0 sprite frames locked to one extracted palette, with the palette and the share of the pixels in each colour','픽셀 랩: 추출한 팔레트 하나에 고정된 CC0 스프라이트 프레임과 색별 픽셀 비율','ピクセルラボ：抽出した1つのパレットに固定したCC0スプライトのフレームと色ごとのピクセルの割合')},
+ 'texture-lab':{file:'texture-lab',w:1440,h:900,app:'texture',by:'ambientCG',alt:L('Texture Lab: a normal map generated from a CC0 texture, with the OpenGL/DirectX convention shown','텍스처 랩: CC0 텍스처로 만든 노멀맵과 OpenGL/DirectX 규약 표시','テクスチャラボ：CC0テクスチャから生成したノーマルマップとOpenGL/DirectXの規約表示')},
+ 'ui-lab':{file:'ui-lab',w:1440,h:900,app:'ui',by:'Kenney',alt:L('UI Lab: a CC0 UI panel with nine-slice guides and previews at several sizes','UI 랩: 나인 슬라이스 가이드와 여러 크기 미리보기가 있는 CC0 UI 패널','UIラボ：ナインスライスのガイドと複数サイズのプレビューがあるCC0のUIパネル')},
+ 'tile-seams':{file:'tile-seams',w:1440,h:900,app:'tilelab',by:'ambientCG',alt:L('Tile Lab seam check: a CC0 texture repeated 2×2 with its wrap edges measured','타일 작업실 이음새 점검: 2×2로 반복한 CC0 텍스처와 경계 측정','タイルセット工房の継ぎ目チェック：2×2で繰り返したCC0テクスチャと境界の測定')},
+ 'tile-slice':{file:'tile-slice',w:1440,h:900,app:'tilelab',by:'Kenney',alt:L('Tile Lab: a Kenney CC0 tilemap with its measured grid (16 px tiles, 1 px spacing)','타일 작업실: 격자를 측정한 Kenney CC0 타일맵(16px 타일, 간격 1px)','タイルセット工房：グリッドを測定したKenney CC0タイルマップ（16pxタイル、間隔1px）')},
+ 'sprite-lab':{file:'sprite-lab',w:1440,h:900,app:'spritelab',by:'OpenGameArt',alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
 });
 
 /** Verification labels, shared by every page (same words as the Studio's own export panel). */
+/** Caption under a screenshot: which app it is and where its CC0 asset comes from. */
+export function shotCaption(shot,locale){
+ const app=shot.app==='studio'?'Studio':LAB_KINDS[shot.app].name[locale];
+ return {en:`The real ${app} with a CC0 asset (${shot.by}).`,ko:`CC0 에셋(${shot.by})을 연 실제 ${app} 화면입니다.`,ja:`CC0アセット（${shot.by}）を開いた実際の${app}画面です。`}[locale];
+}
 export const STATUS=Object.freeze({
  verified:L('Verified','검증됨','検証済み'),
  built:L('Built','빌드 확인','ビルド確認'),
@@ -87,7 +92,6 @@ export const UI=Object.freeze({
  classic:L('Classic tool','기존 도구','従来のツール'),
  classicLink:L('Open the classic tool','기존 도구 열기','従来のツールを開く'),
  evidence:L('Evidence','검증 근거','検証の根拠'),
- shotCaption:L('The real Studio with a CC0 asset (OpenGameArt / Kenney).','CC0 에셋(OpenGameArt / Kenney)을 연 실제 Studio 화면입니다.','CC0アセット（OpenGameArt / Kenney）を開いた実際のStudio画面です。'),
  allGame:L('All game tools','모든 게임 도구','すべてのゲームツール'),
  allTools:L('All tools','전체 도구','すべてのツール'),
  studio:L('Studio','스튜디오','スタジオ'),
