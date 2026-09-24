@@ -152,60 +152,41 @@ How they work:
 
 `tests/service-browser.py` **has not been run** on this branch yet.
 
-## 3. In progress
+## 3. Session 2 (2026-09-24): what changed, what is left
 
-### 3.1 Part 4 of `tests/game-landing-browser.py` (Lab flows)
+Done and pushed (see `git log`):
+1. **Firefox blocker — cause found.** Not alpha-0 pixels. Firefox keeps canvas pixels premultiplied:
+   on the Kenney button 4 semi-transparent pixels came back with blue 138→134 at alpha 63 (one
+   premultiplied level; 3 levels at alpha 79, 2 at alpha 111). `near()` now allows one premultiplied
+   level (|Δc|·a/255 ≤ 1); alpha and opaque pixels stay exact. Part 4 passes 44/44 in Firefox.
+2. **Part 5** (both browsers): Lospec HEX palette import, integer 4× upscale, roughness→smoothness
+   (255−v), sheet → PNG frames. **LAB_EVIDENCE** in `src/capabilities.js`: all 21 Lab intents are
+   promoted on part 4/5 checks (Chromium 153 + Firefox 155), no engine claim.
+3. **Copy corrected:** UI Lab "byte-identical" → exact in Chromium, Firefox within one premultiplied
+   step; sheet-to-PNG-frames: the ZIP has no JSON (claim removed), exactness now measured (part 5).
+4. **Screenshots** (6 Lab shots) + **social cards for all 64 pages × 3** (`tools/studio-screens.py
+   --only …`, `tools/generate-social.py --game --force`). Captions name the real app and CC0 source.
+5. **Sitemap index** (`tools/sitemaps.mjs`): sitemap.xml → sitemap-game / (guides) / tools / images;
+   hreflang alternates; **real lastmod** from `tools/lastmod-ledger.json` (`tools/lastmod.mjs`,
+   bootstrapped from origin/main first-parent history; `npm test` fails when stale → run
+   `node tools/lastmod.mjs --write`). robots.txt lists only the index. `tools/validate-sitemaps.py`
+   validates with the official XSDs (needs lxml, downloads schemas); `tests/sitemap.test.mjs` = the
+   structural checks for CI.
+6. **IndexNow**: `tools/indexnow.mjs --since <prev dist> --wait-live --submit`,
+   `.github/workflows/indexnow.yml` on push to main (builds the previous commit for the diff).
+7. **Structured data**: FAQPage + HowTo from the visible FAQ/steps (unit test compares them).
+8. **Internal links**: "Making a game?" block on file-tool pages (`data-chrome`, excluded from
+   lastmod hashing), game links in every footer, hub guides section (lights up with src/guides.js —
+   verified by copying the guides branch's registry in temporarily).
 
-- **Chromium:** passes, 44/44.
-- **Firefox:** stops at `button-state-generator`.
-  - The UI Lab goes through a canvas, and Firefox rounds semi-transparent RGB by ±1. Verified: the Kenney panel and button at alpha 159/207 give (22,…) against (21,…).
-  - A helper `near()` was added: alpha and opaque pixels must match exactly, semi-transparent RGB may differ by ±1.
-  - The button check still fails. Its detail message was temporarily widened to print the differing pixels. The first 6 diffs shown are all within `near`'s rule, so look for another pixel, e.g. alpha 0 with different RGB. `near()` does not ignore RGB when alpha = 0, and a canvas zeroes it.
-  - **Likely fix:** in `near()`, treat alpha-0 pixels as equal whatever their RGB. Then rerun `BROWSERS=firefox PARTS=4`.
-  - The checks after button-state-generator have not run in Firefox yet: ui-lab, ui-scale-preview, bitmap-font, missing-glyph, seamless, tile-helper, atlas-padding.
-- **When part 4 passes in both browsers:**
-  1. Add `LAB_EVIDENCE` to `src/capabilities.js`, mirroring `STUDIO_EVIDENCE`: a workflow check and a quality check per Lab intent, names copied verbatim from part 4.
-  2. Extend `tests/game-seo.test.mjs` so it checks the Lab intents the same way. Its current assertion that pixel-lab, texture-lab and ui-lab are **not** promotable must change.
-  3. If a Lab cannot pass in Firefox, it stays noindex. Say so.
-- **Honest copy to fix:** the UI Lab and 9-slice copy in `src/game-seo-labs.js` says "byte-identical". Qualify it: exact in Chromium; in Firefox, semi-transparent colour may differ by one level.
-
-### 3.2 Not started from the expanded brief
-
-1. **Sitemap index with real lastmod.**
-   - CI checkout (`actions/checkout@v4`) is shallow, and Cloudflare Pages history is unknown, so per-page git dates are unreliable.
-   - Planned design: a committed ledger, e.g. `src/lastmod.json` = {route: [contentHash, date]}. The hash covers `<title>`, the description and the main content of each rendered page.
-     - Hash matches the ledger → use the ledger date.
-     - Hash differs → use the HEAD commit date (`git log -1 --format=%cI` works in a shallow clone), or the build date if there is no git.
-     - A `tools/lastmod.mjs --write` command refreshes the ledger.
-     - Document this honestly.
-   - Guides: use `guideLastmod(route)` from the guides registry.
-   - Files: split into `sitemap-game.xml`, `sitemap-guides.xml` and `sitemap-tools.xml`; add `sitemap-images.xml` to the index; list only the index in `robots.txt`.
-   - Update:
-     - `tests/deployment.test.mjs` (it counts the `<url>` entries of `sitemap.xml`);
-     - `tests/growth.test.mjs`;
-     - `tests/game-seo.test.mjs`, the sitemap order test;
-     - `tools/indexnow.mjs`, which reads `dist/sitemap.xml` and must now follow the index.
-   - Validate against `sitemaps.org` XSD rules (≤50k URLs, ≤50 MB, W3C datetime) in a unit test.
-2. **FAQPage and HowTo JSON-LD** in `tools/game-seo-build.mjs`:
-   - `gameFaq(game, locale)` in `tools/game-landing-build.mjs` already returns exactly the visible Q/A pairs; `copy.steps` holds the visible steps.
-   - Add a unit test that the JSON-LD text equals the visible text, plus required-property checks.
-3. **Internal links.**
-   - A "Game studio" cross-link on file-tool pages (`src/content.js` `toolContent`) and in the footer. The coordinator owns `guides.home`; avoid those lines.
-   - A guides list on the hub.
-4. **IndexNow workflow.**
-   - A GitHub Actions workflow on push to main:
-     1. build with `SITE_URL=https://nerulio.pages.dev/`;
-     2. fetch the live sitemaps before the deploy;
-     3. poll until the live sitemap equals the new build (deployed);
-     4. `node tools/indexnow.mjs --submit` with only the URLs whose content or lastmod changed. Needs a small `--urls` or diff option.
-   - The key file `/aeb52199b8b46fbc510766f496462876.txt` is served (200, checked 2026-09-24).
-   - No Google submission API.
-5. **Screenshots.**
-   - Add six shots to `tools/studio-screens.py`, all driven from committed fixtures: `pixel-lab` (ninja frames), `texture-lab` (bricks maps), `ui-lab` (Kenney panel in 9-slice), `tile-seams` (ground054), `tile-slice` (Kenney tiny dungeon in Tile Lab), `sprite-lab` (samurai in the classic Sprite Lab).
-   - Until these exist, the Lab pages and 6 keyword pages point at missing WebP files. Part 1's "screenshot decodes" check would fail for them, which is why they must exist before promotion.
-6. **Social cards** for the Lab pages and the 16 new keyword pages: extend `game_pages()` in `tools/generate-social.py` with `GAME_LAB_PAGES`, and use `LAB_KINDS` export rows for the chips.
-7. **Screenshots at 1440 and 390** of the Lab and new keyword pages, into `scratchpad/p0/nerulio-game-seo-landings/`; look at them and fix the layout.
-8. **Full run:** `npm test`, `tools/regression.py`, `tests/service-browser.py`, and the studio suites with `NERULIO_CORPUS='C:\nope'`. Then the final report per the rules file.
+Left / to verify (update this list as you go):
+- Full runs: game-landing parts 1–5 both browsers, regression.py (NERULIO_CORPUS=C:
+ope),
+  service-browser.py (never run on this branch), screenshots 1440/390 review.
+- docs/SEO.md update (sitemap index, lastmod ledger, IndexNow workflow, validation command).
+- Guides merge: when `nerulio/game-guides` lands, run `node tools/lastmod.mjs --write` (landings gain
+  guide links → content changed) and check guide pages that are not complete in a language are not
+  listed in sitemap-guides.xml (the SEO build lists every GUIDE_ROUTES route in ko/en/ja).
 
 ## 4. How to run
 
