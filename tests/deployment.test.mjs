@@ -60,7 +60,7 @@ test('policy pages are standalone localized documents with truthful contact and 
 test('canonical aliases consolidate and query combinations never enter sitemap',()=>{
  for(const [alias,id]of Object.entries(ALIASES))assert(entry(html,`ja/${alias}`,origin).includes(`rel="canonical" href="${origin}ja/${INTENTS[id].path}/"`));
  const xml=sitemap(origin);for(const [,url]of xml.matchAll(/<loc>([^<]+)<\/loc>/g))assert(!url.includes('?'));assert(!/\/(?:ko|en|ja)\/png-to-webp\//.test(xml),'top-level aliases never enter the sitemap');
- assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)).length+POLICY_ROUTES.length+1)*3,'intents, landings, policies and the /game/ hub');
+ assert.equal((xml.match(/<url>/g)||[]).length,(Object.keys(INTENTS).filter(mayPromote).length+LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)).length+POLICY_ROUTES.length+1)*3+1,'intents, landings, policies and the /game/ hub in ko/en/ja, plus / (x-default of the home page)');
  for(const l of ['en','ko','ja','x-default'])assert(xml.includes(`hreflang="${l}"`));
 });
 test('reading content follows the full workspace, and disabled ads leave no boxes',()=>{

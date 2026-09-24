@@ -49,7 +49,7 @@ test('every page sitemap is a valid urlset within the limits, with complete reci
 });
 test('game sitemap: home, the hub, then every indexable game page; file tools only in the tools sitemap',()=>{
  const g=sitemapGroups(),game=parse(files[SITEMAP_FILES.game]).map(u=>u.loc.slice(origin.length)),tools=parse(files[SITEMAP_FILES.tools]).map(u=>u.loc.slice(origin.length));
- assert.deepEqual(game.slice(0,6),['ko/','en/','ja/',`ko/${GAME_HUB_PATH}/`,`en/${GAME_HUB_PATH}/`,`ja/${GAME_HUB_PATH}/`]);
+ assert.deepEqual(game.slice(0,7),['ko/','en/','ja/','',`ko/${GAME_HUB_PATH}/`,`en/${GAME_HUB_PATH}/`,`ja/${GAME_HUB_PATH}/`],'home in ko/en/ja and at / (its x-default), then the hub');
  for(const p of g.game.slice(2))assert(gamePageFor(p)||INTENTS[Object.keys(INTENTS).find(k=>INTENTS[k].path===p)],`${p} is a game page`);
  for(const p of ['image/compress','pdf/split','video/to-gif','about'])assert(tools.includes(`en/${p}/`)&&!game.includes(`en/${p}/`),p);
  for(const p of g.game)assert(p===''||p===GAME_HUB_PATH||mayPromote(gamePageFor(p)?.id||Object.keys(INTENTS).find(k=>INTENTS[k].path===p)),`${p} listed only when indexable`);

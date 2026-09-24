@@ -3,8 +3,8 @@
  *   sitemap-guides.xml  the how-to guides (src/guides.js), only once there are guides
  *   sitemap-tools.xml   the image / PDF / video tools, their task landings, policies and pricing
  *   sitemap-images.xml  the screenshots and before/after examples shown on those pages
- * Every <url> is a language page (ko, en, ja) with its hreflang alternates (xhtml:link, the
- * language-neutral URL as x-default) and a real <lastmod> (tools/lastmod.mjs) when one is known.
+ * Every <url> is a language page (ko, en, ja; plus / for the home page) with its hreflang alternates
+ * (xhtml:link; x-default = / for the home page, the English page elsewhere, see src/seo.js) and a real <lastmod> (tools/lastmod.mjs) when one is known.
  * Only pages whose tool is qualified (src/capabilities.js mayPromote) are listed; noindex pages
  * never are. Limits and format follow sitemaps.org (≤50,000 URLs and ≤50 MB uncompressed per file,
  * W3C datetime) — checked by tests/sitemap.test.mjs. */
@@ -13,7 +13,7 @@ import {LOCALES} from '../src/i18n.js';
 import {INTENTS} from '../src/intents.js';
 import {LANDINGS,LANDING_PATHS} from '../src/landings.js';
 import {POLICY_ROUTES} from '../src/policies.js';
-import {pagePath} from '../src/seo.js';
+import {pagePath,X_DEFAULT_LOCALE} from '../src/seo.js';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
 import {gameSitemapPaths} from './game-landing-build.mjs';
 import {GUIDE_ROUTES,guideLastmod} from './guides-registry.mjs';
@@ -40,10 +40,12 @@ export function sitemapGroups(extra=[]){
 export function urlEntries(paths,siteURL,lastmod=()=>null){
  if(!siteURL)return '';
  const href=(p,l)=>esc(new URL(pagePath(p,l),siteURL).href);
- return paths.flatMap(p=>LOCALES.map(l=>{
-  const when=lastmod(p?`${l}/${p}`:l);
+ // The home page's language-neutral URL (/) is a canonical page of its own (x-default, src/seo.js):
+ // it is listed too, dated like the English page it renders by default.
+ return paths.flatMap(p=>[...LOCALES,...(X_DEFAULT_LOCALE(p)===null?[null]:[])].map(l=>{
+  const when=lastmod(p?`${l||'en'}/${p}`:l||'en');
   if(when&&!W3C_DATETIME.test(when))throw Error(`lastmod of ${l}/${p} is not a W3C datetime: ${when}`);
-  return `<url><loc>${href(p,l)}</loc>${when?`<lastmod>${when}</lastmod>`:''}${[...LOCALES,null].map(a=>`<xhtml:link rel="alternate" hreflang="${a||'x-default'}" href="${href(p,a)}"/>`).join('')}</url>`;
+  return `<url><loc>${href(p,l)}</loc>${when?`<lastmod>${when}</lastmod>`:''}${LOCALES.map(a=>`<xhtml:link rel="alternate" hreflang="${a}" href="${href(p,a)}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${href(p,X_DEFAULT_LOCALE(p))}"/></url>`;
  })).join('');
 }
 export const urlset=body=>`<?xml version="1.0" encoding="UTF-8"?><urlset ${NS} xmlns:xhtml="http://www.w3.org/1999/xhtml">${body}</urlset>`;

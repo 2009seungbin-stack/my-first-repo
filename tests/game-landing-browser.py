@@ -178,7 +178,7 @@ def part1(browser):
                 can = re.search(r'<link data-site-seo rel="canonical" href="([^"]+)"', h).group(1)
                 ok('canonical is the page itself in its language', can == f'{site}{loc}/{v["path"]}/', f'{can}')
                 alts = dict(re.findall(r'hreflang="([\w-]+)" href="([^"]+)"', h))
-                ok('hreflang: ko, en, ja and x-default, reciprocal', alts.get('ko') == f'{site}ko/{v["path"]}/' and alts.get('ja') == f'{site}ja/{v["path"]}/' and alts.get('en') == f'{site}en/{v["path"]}/' and alts.get('x-default') == f'{site}{v["path"]}/', key)
+                ok('hreflang: ko, en, ja and x-default (the English page), reciprocal', alts.get('ko') == f'{site}ko/{v["path"]}/' and alts.get('ja') == f'{site}ja/{v["path"]}/' and alts.get('en') == f'{site}en/{v["path"]}/' and alts.get('x-default') == f'{site}en/{v["path"]}/', key)
                 crumbs = next((x for x in lds if x.get('@type') == 'BreadcrumbList'), None)
                 ok('BreadcrumbList: Nerulio › Game studio › page', crumbs and crumbs['itemListElement'][1]['item'] == f'{site}{loc}/game/' and len(crumbs['itemListElement']) == (2 if key == 'game' else 3), key)
                 img = re.search(r'<meta data-site-seo property="og:image" content="([^"]+)"', h).group(1)
