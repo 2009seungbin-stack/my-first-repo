@@ -139,7 +139,7 @@ const GAME_NAV=Object.freeze({
  ko:['게임 스튜디오',[['game/studio','게임 스튜디오'],['game','게임 도구 전체'],['sprite-slicer','스프라이트 시트 자르기'],['sprite-sheet-maker','스프라이트 시트 패커'],['game/tile-lab','오토타일 타일셋'],['game/pixel-lab','도트 팔레트'],['game/texture-lab','텍스처 맵']]],
  ja:['ゲームスタジオ',[['game/studio','ゲームスタジオ'],['game','ゲームツール一覧'],['sprite-slicer','スプライトシート分割'],['sprite-sheet-maker','スプライトシートパッカー'],['game/tile-lab','オートタイル'],['game/pixel-lab','ドット絵パレット'],['game/texture-lab','テクスチャマップ']]]
 });
-function gameFooterNav(locale){const [label,links]=GAME_NAV[locale]||GAME_NAV.en;return `<nav class="footer-game" aria-label="${esc(label)}">${links.map(([p,name])=>`<a href="${locale}/${p}/"${p==='game/studio'?' data-studio-link':''}>${esc(name)}</a>`).join('')}</nav>`;}
+function gameFooterNav(locale){const [label,links]=GAME_NAV[locale]||GAME_NAV.en;return `<nav class="footer-game" aria-label="${esc(label)}">${links.map(([p,name])=>`<a href="${locale}/${p}/">${esc(name)}</a>`).join('')}</nav>`;}
 const GAME_XLINK=Object.freeze({
  en:{h:'Making a game?',p:'Nerulio is a 2D game asset studio first: cut sprite sheets into animations, pack texture atlases, check autotile tilesets and export them for Godot, Unity, Phaser and other engines. It runs in your browser; files stay on your device.',studio:'Open the game studio',hub:'All game tools'},
  ko:{h:'게임을 만들고 있나요?',p:'Nerulio는 무엇보다 2D 게임 에셋 스튜디오입니다. 스프라이트 시트를 애니메이션으로 자르고, 텍스처 아틀라스를 패킹하고, 오토타일 타일셋을 점검해 Godot·Unity·Phaser 등 엔진용으로 내보냅니다. 브라우저에서 동작하며 파일은 기기 밖으로 나가지 않습니다.',studio:'게임 스튜디오 열기',hub:'게임 도구 전체'},
@@ -157,7 +157,7 @@ const FILE_FAMILY=new Map(DIRECTORY.filter(([c])=>c!=='game').flatMap(([c,ids])=
 function gameCrossLink(id,locale){
  const family=FILE_FAMILY.get(id);if(!family)return '';
  const x=GAME_XLINK[locale]||GAME_XLINK.en;
- return `<section class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/" data-studio-link>${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></section>`;
+ return `<section class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/">${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></section>`;
 }
 export function footer(locale){const l=labels[locale];return `<footer class="site-footer">${gameFooterNav(locale)}<nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
 const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作業'};
