@@ -149,7 +149,7 @@ with sync_playwright() as pw:
     im=Image.open(output(p,'logo-transparent.png')).convert('RGBA');ok('connected background removal retains enclosed white logo detail',im.getpixel((0,0))[3]==0 and im.getpixel((4,4))==(255,255,255,255));p.close()
     # The bitmap-font URL now opens UI Lab at its Font stage (src/task/ui-lab.js, docs/UI-LAB.md);
     # the fixed-grid guarantee this check was written for is unchanged, so it is driven there.
-    p=mount(ctx,'/en/bitmap-font-maker/');p.locator('#fileInput').set_input_files([{'name':'font.png','mimeType':'image/png','buffer':png(16,8,'white')}])
+    p=mount(ctx,'/en/bitmap-font-maker/app/');p.locator('#fileInput').set_input_files([{'name':'font.png','mimeType':'image/png','buffer':png(16,8,'white')}])
     p.locator('#rc-chars').wait_for(timeout=60000)
     for field,value in [('#rc-cellW','8'),('#rc-cellH','8'),('#rc-baseline','6'),('#rc-chars','Aあ')]:p.locator(field).fill(value)
     p.wait_for_timeout(500)
@@ -159,7 +159,7 @@ with sync_playwright() as pw:
     ok('BMFont and JSON contain exact Unicode glyph coordinates','char id=12354 x=8 y=0 width=8 height=8' in fnt and meta['glyphs'][1]['codepoint']==12354 and rgba_image(z,'font.png').size==(16,8));p.close()
     # Mask packing is a single-task page now (src/task/mask-packer.js): the channel dropdowns keep
     # their meaning and the engine still writes the PNG itself, so RGB survives alpha 0.
-    masks=[(f'{n}.png',png(2,2,(n,n,n,255))) for n in [10,80,220]];p=open_task('texture-mask-packer',masks)
+    masks=[(f'{n}.png',png(2,2,(n,n,n,255))) for n in [10,80,220]];p=open_task('texture-mask-packer/app',masks)
     p.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
     for channel,value in enumerate(['input2','input0','input1','zero']):p.locator(f'[data-channel="{channel}"]').select_option(value)
     p.wait_for_timeout(400)
@@ -184,16 +184,16 @@ with sync_playwright() as pw:
         page.wait_for_function(DONE,timeout=120000)
         with page.expect_download() as event:page.locator('#taskDownload').click()
         path=OUT/name;event.value.save_as(path);return archive(path)
-    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_lab('atlas-padding',[('atlas.png',atlas)])
+    atlas=png(2,1,rects=[((0,0,0,0),'red'),((1,0,1,0),'lime')]);p=open_lab('atlas-padding/app',[('atlas.png',atlas)])
     lab_set(p,{'tileWidth':1,'tileHeight':1,'extrude':1});z=lab_zip(p,'atlas.zip');im=rgba_image(z,'padded-atlas.png')
     ok('extruded atlas has isolated edge pixels and correct dimensions',im.size==(6,3) and im.getpixel((2,1))==(255,0,0,255) and im.getpixel((3,1))==(0,255,0,255));p.close()
     # normal-map-generator now opens Texture Lab at its Normal stage (src/task/texture-lab.js).
     # The flat-normal guarantee is unchanged; the convention it writes is stated instead of implied.
-    p=open_task('normal-map-generator',[('flat.png',png(2,2,(50,50,50,255)))])
+    p=open_task('normal-map-generator/app',[('flat.png',png(2,2,(50,50,50,255)))])
     p.locator('#texNormalOut').wait_for(timeout=60000);p.wait_for_timeout(600)
     im=Image.open(output(p,'normal.png')).convert('RGBA');ok('flat height map generates an independently decoded flat normal',set(im.getdata())=={(128,128,255,255)})
     ok('the Normal stage states which convention it writes',p.locator('[data-action="tex-normal-set"][data-value="opengl"][aria-pressed="true"]').count()==1);p.close()
-    p=open_lab('tile-grid-slicer',[('tiles.png',png(4,2,'red'))]);lab_set(p,{'tileWidth':2,'tileHeight':2});z=lab_zip(p,'tiles.zip')
+    p=open_lab('tile-grid-slicer/app',[('tiles.png',png(4,2,'red'))]);lab_set(p,{'tileWidth':2,'tileHeight':2});z=lab_zip(p,'tiles.zip')
     ok('grid tile output count and dimensions',len(json.loads(z.read('metadata.json'))['frames'])==2 and rgba_image(z,'tiles/tile-001.png').size==(2,2));p.close()
     p=open_tool(ctx,'split-scanned-images',[('spread.png',png(9,4,'white'))]);options(p,{'order':'RL'});z=archive(output(p,'spread.zip'))
     ok('scan splitter respects divider rounding and right-first order',rgba_image(z,'frames/frame-001.png').size==(4,4) and rgba_image(z,'frames/frame-002.png').size==(5,4));p.close()

@@ -45,7 +45,7 @@ export function contentText(html){
  let main=(html.match(/<main\b[\s\S]*<\/main>/i)||[html.replace(/^[\s\S]*?<body[^>]*>/i,'')])[0];
  for(const tag of ['script','style','template','svg','footer'])main=strip(main,tag);
  // Site navigation marked data-chrome (e.g. the "Making a game?" block) is not the page's content.
- main=main.replace(/<(aside|nav|div)\b[^>]*\bdata-chrome\b[^>]*>[\s\S]*?<\/\1>/gi,' ');
+ main=main.replace(/<(aside|nav|div|section)\b[^>]*\bdata-chrome\b[^>]*>[\s\S]*?<\/\1>/gi,' ');
  // Link targets are content too (a related link that now points elsewhere is a change).
  main=main.replace(/<a\b[^>]*\bhref="([^"]*)"[^>]*>/gi,' [$1] ').replace(/<[^>]+>/g,' ');
  return decode([title,description,main].join('\n')).replace(/\s+/g,' ').trim();

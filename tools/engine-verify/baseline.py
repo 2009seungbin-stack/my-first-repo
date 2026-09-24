@@ -247,7 +247,7 @@ def drive(case, page, base, dest: Path) -> dict:
         _download(page, '#taskDownload', dest)
         return info
     if lab == 'font':
-        page.goto(base + '/en/bitmap-font-maker/', wait_until='networkidle')
+        page.goto(base + '/en/bitmap-font-maker/app/', wait_until='networkidle')
         page.locator('#fileInput').set_input_files(str(C / case['asset']))
         page.locator('#rc-chars').wait_for(timeout=60000); page.wait_for_timeout(300)
         cw, ch = case['cell']

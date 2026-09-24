@@ -718,7 +718,7 @@ with sync_playwright() as pw:
        'data:' not in lab_shared['query'] and lab_shared['back']=={'mode':'grid','cellW':48,'atlasPadding':4},
        str(lab_shared))
     # ===== Sprite Lab — END ====================================================================
-    page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
+    page.goto(BASE+'/en/texture-mask-packer/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
     page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
     ok('the packer previews the pack and every channel on its own',page.locator('#maskPreviews canvas').count()==4 and page.locator('#maskFiles .file').count()==3)
@@ -747,7 +747,7 @@ with sync_playwright() as pw:
     sprite=Image.new('RGBA',(32,32),(0,0,0,0))
     for y in range(10,22):
         for x in range(10,22):sprite.putpixel((x,y),(210,40,30,255))
-    page.goto(BASE+'/en/game/texture-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/texture-lab/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[grey('rock_basecolor.png',180),ramp('rock_height.png'),file_of('rock_orm.png',packed)])
     page.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===3',timeout=60000)
     ok('filenames classify into map roles without being asked',
@@ -982,7 +982,7 @@ with sync_playwright() as pw:
     fx=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(fx)
     def plab_files(pairs):return [{'name':n,'mimeType':'image/png','buffer':b} for n,b in pairs]
     def plab_open(path,pairs):
-        page.goto(BASE+'/en/'+path+'/',wait_until='networkidle')
+        page.goto(BASE+'/en/'+path+'/app/',wait_until='networkidle')
         page.locator('#fileInput').set_input_files(files=plab_files(pairs));page.locator('#plabCanvas').wait_for();page.wait_for_timeout(700)
     def plab_zip(entries=None):
         with page.expect_download() as d:page.locator('[data-action="plab-export"]').click()
@@ -1050,7 +1050,7 @@ with sync_playwright() as pw:
     for width in (390,320):
         plab_phone=browser.new_context(viewport={'width':width,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
         plab_phone.on('pageerror',lambda e:errors.append(str(e)))
-        plab_phone.goto(BASE+'/ko/game/pixel-lab/',wait_until='networkidle')
+        plab_phone.goto(BASE+'/ko/game/pixel-lab/app/',wait_until='networkidle')
         plab_phone.locator('#fileInput').set_input_files(files=plab_files(fx.frames(8)));plab_phone.locator('#plabCanvas').wait_for();plab_phone.wait_for_timeout(800)
         for stage in ('palette','cleanup','check'):
             plab_phone.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').click();plab_phone.wait_for_timeout(700)
@@ -1142,7 +1142,7 @@ with sync_playwright() as pw:
         for x in range(32):
             v=int(128+60*math.cos(2*math.pi*x/32)+40*math.cos(2*math.pi*y/32));wrap.putpixel((x,y),(v,v,v,255))
     b=io.BytesIO();wrap.save(b,'PNG')
-    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    open_lab('/en/game/seamless-tile-checker/app/',b.getvalue())
     # The seams stage has no grid fields; the tile it measures is named in the board bar.
     ok('the seam checker treats the whole image as the tile','32'+chr(215)+'32' in page.locator('#tlSeamInfo').inner_text(),page.locator('#tlSeamInfo').inner_text())
     ok('a tile that wraps is reported seamless','without a visible seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
@@ -1150,7 +1150,7 @@ with sync_playwright() as pw:
     for y in range(32):
         for x in range(32):ramp.putpixel((x,y),(x*8,y*8,90,255))
     b=io.BytesIO();ramp.save(b,'PNG')
-    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    open_lab('/en/game/seamless-tile-checker/app/',b.getvalue())
     ok('a tile that does not wrap is reported honestly','shows a seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
     ready(page)
     with page.expect_download() as d:page.locator('#taskDownload').click()
@@ -1237,7 +1237,7 @@ with sync_playwright() as pw:
         z=zipfile.ZipFile(d.value.path());assert z.testzip() is None;return z
     def ui_image(z,name):return Image.open(io.BytesIO(z.read(name))).convert('RGBA')
     # --- 9-slice: suggestion, keyboard, and corners that survive every resize ---
-    page.goto(BASE+'/en/game/9-slice-editor/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/9-slice-editor/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('#nsCanvas').wait_for(timeout=60000);page.wait_for_timeout(400)
     ok('the 9-slice route opens the Lab at its own stage',page.locator('[data-action="ui-stage"][data-stage="slice"]').get_attribute('aria-selected')=='true')
@@ -1284,7 +1284,7 @@ with sync_playwright() as pw:
     ok('stretching instead smears that middle across the span',
        stretched.crop((4,0,5,4)).tobytes()==stretched.crop((6,0,7,4)).tobytes() and tiled.crop((4,0,5,4)).tobytes()!=tiled.crop((6,0,7,4)).tobytes())
     # A shared link carries settings only: no image data can be in a URL.
-    page.goto(BASE+'/en/game/ui-lab/?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-lab/app/?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(300)
     opened=page.locator('[data-action="ui-stage"][aria-selected="true"]').get_attribute('data-stage')
@@ -1294,7 +1294,7 @@ with sync_playwright() as pw:
        and page.locator('[data-key="slice.mode"][aria-pressed="true"]').get_attribute('data-value')=='tile'
        and page.locator('[data-opt="slice.customW"]').input_value()=='250')
     # --- button states ---
-    page.goto(BASE+'/en/game/button-state-generator/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/button-state-generator/app/',wait_until='networkidle')
     button=Image.new('RGBA',(40,16),(60,120,200,255))
     page.locator('#fileInput').set_input_files(files=[{'name':'button.png','mimeType':'image/png','buffer':io.BytesIO(),'buffer':ui_png(button)['buffer']}])
     page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(400)
@@ -1314,7 +1314,7 @@ with sync_playwright() as pw:
        all(strip.crop((f['rect']['x'],f['rect']['y'],f['rect']['x']+f['rect']['w'],f['rect']['y']+f['rect']['h'])).tobytes()==ui_image(z,f'states/{n}.png').tobytes() for n,f in states['frames'].items()))
     ok('the JSON records the operation values each state used',states['states']['pressed']['ops']['offsetY']==3 and states['states']['disabled']['ops']['alpha']==0.5)
     # --- UI atlas + component slicer ---
-    page.goto(BASE+'/en/game/ui-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-lab/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'ui-sheet.png','mimeType':'image/png','buffer':ui_png(ui_sheet())['buffer']}])
     page.locator('#nsCanvas').wait_for(timeout=60000)
     page.locator('[data-action="ui-stage"][data-stage="atlas"]').click();page.locator('.ui-element').first.wait_for(timeout=60000);page.wait_for_timeout(300)
@@ -1335,7 +1335,7 @@ with sync_playwright() as pw:
     page.locator('[data-opt="atlas.merge"]').fill('40');page.wait_for_timeout(500)
     ok('a larger merge distance really joins neighbouring boxes',page.locator('.ui-element').count()<4)
     # --- bitmap font: the original URL, the original guarantee, plus measured and TTF modes ---
-    page.goto(BASE+'/en/bitmap-font-maker/',wait_until='networkidle')
+    page.goto(BASE+'/en/bitmap-font-maker/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'font.png','mimeType':'image/png','buffer':ui_png(Image.new('RGBA',(16,8),(255,255,255,255)))['buffer']}])
     page.locator('#rc-chars').wait_for(timeout=60000);page.wait_for_timeout(300)
     ok('the original bitmap-font URL opens the Lab at its Font stage',page.locator('[data-action="ui-stage"][data-stage="font"]').get_attribute('aria-selected')=='true')
@@ -1386,7 +1386,7 @@ with sync_playwright() as pw:
            and sum(1 for o,v in inside if not o and v<=128)>=0.9*sum(1 for o,_ in inside if not o))
         page.locator('[data-opt="font.sdf"]').uncheck();page.wait_for_timeout(200)
     # --- missing glyphs, safe areas, localisation overflow, contrast ---
-    page.goto(BASE+'/en/game/missing-glyph-checker/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/missing-glyph-checker/app/',wait_until='networkidle')
     fnt_text=('info face="Test" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0\n'
               'common lineHeight=8 base=6 scaleW=64 scaleH=8 pages=1 packed=0\npage id=0 file="font.png"\nchars count=5\n'
               +'\n'.join(f'char id={ord(c)} x=0 y=0 width=4 height=8 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=15' for c in 'Str가')+'\n')
@@ -1403,7 +1403,7 @@ with sync_playwright() as pw:
     ok('the missing report names the font it compared against and each codepoint with its lines',
        report['source']=='ui.fnt' and report['fontGlyphs']==4
        and any(m['codepoint']=='U+'+format(ord('끝'),'04X') and m['lines']==[2] for m in report['missing']))
-    page.goto(BASE+'/en/game/ui-scale-preview/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-scale-preview/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('.ui-screen canvas').wait_for(timeout=60000);page.wait_for_timeout(400)
     page.locator('[data-key="check.screen"][data-value="4k"]').click();page.wait_for_timeout(300)
@@ -1428,7 +1428,7 @@ with sync_playwright() as pw:
     for width in [390,320]:
         lab=browser.new_context(viewport={'width':width,'height':860},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
         lab.on('pageerror',lambda e:errors.append(str(e)))
-        lab.goto(BASE+'/ko/game/ui-lab/',wait_until='networkidle')
+        lab.goto(BASE+'/ko/game/ui-lab/app/',wait_until='networkidle')
         lab.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
         lab.locator('#nsCanvas').wait_for(timeout=60000);lab.wait_for_timeout(400)
         for stage in ['slice','states','atlas','font','check']:

@@ -157,7 +157,7 @@ const FILE_FAMILY=new Map(DIRECTORY.filter(([c])=>c!=='game').flatMap(([c,ids])=
 function gameCrossLink(id,locale){
  const family=FILE_FAMILY.get(id);if(!family)return '';
  const x=GAME_XLINK[locale]||GAME_XLINK.en;
- return `<aside class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/" data-studio-link>${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></aside>`;
+ return `<section class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/" data-studio-link>${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></section>`;
 }
 export function footer(locale){const l=labels[locale];return `<footer class="site-footer">${gameFooterNav(locale)}<nav aria-label="${esc(l.about)}">${['about','privacy','terms','contact'].map(p=>`<a href="${locale}/${p}/" target="_blank" rel="noopener">${esc(l[p])}</a>`).join('')}<a href="assets/vendor/NOTICES.txt" target="_blank" rel="noopener">${esc({ko:'오픈소스 라이선스',en:'Open-source licenses',ja:'オープンソースライセンス'}[locale])}</a></nav><p>${esc(l.saved)}</p></footer>`;}
 const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作業'};
