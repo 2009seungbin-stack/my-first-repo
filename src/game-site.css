@@ -23,6 +23,9 @@ html{background:var(--gs-bg);-webkit-text-size-adjust:100%;scroll-padding-top:ca
 body[data-gs]{margin:0;background:var(--gs-bg);color:var(--gs-text);font:16px/1.65 var(--gs-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip;text-rendering:optimizeLegibility}
 html[lang="ko"] body[data-gs]{word-break:keep-all;overflow-wrap:anywhere}
 html[lang="ja"] body[data-gs]{line-break:strict;overflow-wrap:anywhere}
+/* Long unbreakable runs ("hover·pressed·disabled·focus", keep-all Korean) must never push a phone page
+   sideways, whatever fallback font the system has (Linux CI fonts are wider): break only when nothing else fits. */
+[data-gs] :is(h1,h2,h3,h4,p,li,dt,dd,figcaption,summary,small,b,strong,a,td,th,span){overflow-wrap:anywhere}
 [data-gs] *,[data-gs] *::before,[data-gs] *::after{box-sizing:border-box}
 [data-gs] [hidden]{display:none!important}
 [data-gs] img{max-width:100%;height:auto}
