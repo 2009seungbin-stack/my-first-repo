@@ -1,6 +1,6 @@
 # Monetization security — threat model, red-team results and hardening plan
 
-Status: **Phase 1 (design + red-team) — no fixes implemented in this document's branch.** The owner
+Status: **Phase 2 implemented (2026-09-24)** — see §7 for the before → after results. Phase 1 text below is kept as written. The owner
 approves the plan before Phase 2. Branch: `nerulio/monetization-hardening` (off
 `origin/nerulio/studio-monetization`). Live production has the account service OFF (`/api/v1/me`
 → 404) and ads OFF, so nothing here is exploitable in production yet; all work is on local builds.
@@ -323,3 +323,52 @@ The security budget is therefore spent where the money is: **billing/Pro (fully 
 must be airtight) and farming/DoS (real cost — must be bounded)**, with the Free export counter kept
 honest-but-soft and, crucially, **not fail-open into unlimited** (the P0 change), which is the one
 place the current design leaks more than local-first forces it to.
+
+## 7. Phase 2 — implemented (2026-09-24)
+
+Owner decisions: fail-closed metered exports after a small server-signed grace; free Google sign-in after
+`FREE_ANON_STUDIO_EXPORTS` (3) anonymous engine exports; chargeback → immediate Free + flag; refund → keep the
+paid period; `past_due` → 7-day grace; Pro monthly (USD 4.99) + yearly (USD 40). Setup order and variables:
+[HANDOFF-MONETIZATION-HARDENING.md](HANDOFF-MONETIZATION-HARDENING.md).
+
+### What changed (by mechanism)
+
+| Mechanism | Where | Closes |
+| --- | --- | --- |
+| Fail-closed client: `SERVICE_NOT_CONFIGURED`, `UNKNOWN_TOOL`/`NOT_METERED`, network errors are not permission | `src/entitlement.js` | B3, B3b |
+| Signed offline grace: HMAC tokens in `/me` (≤ `OFFLINE_GRACE_EXPORTS`, ≤ what is left, only after a counted job today), charged once via `POST /jobs/reconcile`; a blocked authorize with a reachable `/me` is not an outage | `server/usage.js`, `server/api.js`, `src/entitlement.js` | B2, B12 |
+| Signed answers: ECDSA P-256 over `/me`'s plan and every allowed authorize, bound to the page's nonce / operationId; verified with the build's public key | `server/tickets.js`, `src/ticket-verify.js`, `tools/ticket-keys.mjs` | B3c, B4, B5 |
+| Anonymous Studio allowance (3) → `SIGN_IN_REQUIRED` with a friendly new-tab sign-in; anonymous share per network (30) and per /24·/48 (120) | `server/api.js`, `src/studio/monetize/*` | A1, A1c, B1 |
+| Network buckets for every Free identity (narrow /32·/64, wide /24·/48, IPv6 expanded), hard cap, Turnstile bound to the solving identity | `server/api.js` | A1b, A7c, A14, A16 |
+| Logout moves the day's counters back to the browser; session cap per account | `server/auth-google.js` | A7b, A11 (cap) |
+| Replay window: an operationId older than 10 min is `OPERATION_EXPIRED`; replays are flagged | `server/usage.js` | A2c |
+| App-level burst limiter (`API_RATE_PER_MINUTE`, optional `RATE_LIMITER` binding) | `server/ratelimit.js` | A13 (stopgap) |
+| `/me` counter fix; `/me` retried before a metered action | `server/api.js`, `src/entitlement.js` | A5d, B8 |
+| `SESSION_SECRET_PREVIOUS` key ring | `server/identity.js` | A5f |
+| Billing: dispute → revoke + flag + no new checkout; canceled keeps the paid period; past_due grace; monthly/yearly/legacy price set | `server/billing/*`, `server/identity.js` | A10, A10b, A10c |
+| `NERULIO_ENV` ignored on Cloudflare Pages builds (`CF_PAGES=1`) | `server/config.js`, `tools/site-config.mjs` | A9d |
+| Admin stats: refusals by reason, flagged accounts, past_due, Pro-sharing suspects (distinct networks per account) | `server/api.js`, migration 0002 | A11 (visibility) |
+
+### Red-team before → after
+
+`node tests/redteam/api-attacks.mjs` (also in `npm test` via `tests/redteam.test.mjs`) and
+`python tests/redteam/browser-attacks.py` (opt-in `REDTEAM=1 python tools/regression.py`).
+
+| Harness | Before (Phase 1) | After (Phase 2) |
+| --- | --- | --- |
+| API (in-process, D1 shim) | 12 WORKS · 4 PARTIAL · 16 BLOCKED | **0 WORKS · 0 PARTIAL · 32 BLOCKED · 6 ACCEPTED** (38 rows; new rows A1d, A7d, A10r, A15–A17) |
+| Browser (workerd + D1 + Chromium) | 10 WORKS · 1 PARTIAL · 2 BLOCKED | **0 WORKS · 0 PARTIAL · 11 BLOCKED · 6 ACCEPTED** (17 rows; new rows B2b, B3c, B6b, B12) |
+
+### Accepted residuals (documented, cannot or should not be closed)
+
+| Row | What still works | Why accepted |
+| --- | --- | --- |
+| B6, B6b, B7, B11 | Editing the page's code (Local Overrides, an extension replacing modules, calling exporters from the console) | Local-first: the bundle is built in the browser. Only uploading files to a server export would prevent it, which breaks the product promise. Same as Photopea/Pixlr. |
+| B10b | Blocking `/me` hides the ad column | Ad blockers are accepted policy; the same block also stops engine exports. |
+| B2b | Toggling a block between loads + clearing all site data each cycle | Manual and bounded: each cycle costs one counted export from the network's anonymous share, and yields ≤ `OFFLINE_GRACE_EXPORTS`. |
+| A1d | A residential-proxy pool (every request from a different /24) gets 3 anonymous exports per network | Tying networks together would need fingerprinting, which Nerulio does not do. |
+| A2 | Replaying an operationId within 10 minutes returns the original decision (flagged `replay`) | Needed for lost-response retries; never a new count. |
+| A6b | Scripts can send Origin headers | Origin checks are CSRF protection, not bot protection. |
+| A7d | Without Turnstile keys only the hard network cap (800/day) stops farming | Turnstile keys are a required setup step. |
+| A10r | Refund + cancel keeps Pro until the paid period ends | Owner policy. |
+| A11 | One Pro session shared across networks | Sessions capped (5) and the account appears in admin stats for review. |
