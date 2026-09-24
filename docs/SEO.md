@@ -39,8 +39,23 @@ and data in `src/game-seo.js`:
   exports, GameMaker strip (UNVERIFIED), CSS sprites, background removal, sheet → PNG frames, Lospec
   palette, AI pixel-art clean-up, integer upscaler, pixel-art normal maps, roughness → smoothness,
   LDtk rules (partly verified)). 31 keyword pages in total.
+- **Page families** (2026-09-24, branch `nerulio/game-landings-2`) — `src/game-seo-{broad,engines,
+  formats,fixes,compare}.js`, registered by `src/game-seo-families.js` and merged into
+  `GAME_KEYWORD_PAGES`: broad product pages per workspace ("sprite editor", "tilemap editor", "normal map
+  generator for sprites" …), engine how-tos, format conversions, problem fixes and honest comparisons.
+  Each has its own reference table (`copy.table`) or a head-to-head table with what the other tool
+  does better (`copy.compare`, `copy.better`, `vs`), and may import through another workspace first
+  (`via`). The Texture workspace is the Studio kind `normalmap` (`?ws=texture`). The copy loads only in
+  Node (build, tests, cards, screenshots) so file-tool pages do not download it. Research, evidence
+  codes and the searches that got no page: `docs/SEO-KEYWORDS.md`. Gates:
+  `tests/game-seo-quality.test.mjs` (own copy ≥ 1500 en / 800 ko·ja characters; no page closer to any
+  other game page than the closest pre-existing pair; own table or head-to-head, steps and FAQ no other
+  page has; deep link into the workspace; 4–6 related pages; SERP-length titles and descriptions;
+  UNVERIFIED/partly-verified wording kept; no "AI" wording).
 - **Hub** — `/game/`, the breadcrumb parent ("Game studio") of every game page, grouped by workflow;
-  it lists every guide once `src/guides.js` has guides (`tools/guides-registry.mjs`).
+  the families have their own groups (engine how-tos, format conversions, fixes, comparisons; broad
+  pages open their workspace's group); the home's game-tool index links those groups. It lists every
+  guide once `src/guides.js` has guides (`tools/guides-registry.mjs`).
 
 64 game pages × ko/en/ja, all indexable today. Indexing is decided by `src/capabilities.js` as for
 every tool: an intent qualifies on a workflow and a quality check of `tests/game-landing-browser.py`
