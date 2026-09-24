@@ -69,7 +69,7 @@ test('migrations build the full schema on a fresh database',{skip},async()=>{
  const tables=db.raw.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(r=>r.name);
  for(const t of ['billing_events','daily_usage','job_authorizations','sessions','subscriptions','users'])assert(tables.includes(t),t);
  const cols=t=>db.raw.prepare(`PRAGMA table_info(${t})`).all().map(c=>c.name);
- assert.deepEqual(cols('users'),['id','email','display_name','provider','provider_subject','created_at']);
+ assert.deepEqual(cols('users'),['id','email','display_name','provider','provider_subject','created_at','flagged_at','flag_reason']);
  assert(['token_hash','user_id','created_at','expires_at'].every(c=>cols('sessions').includes(c)));
  assert(['user_id','provider','external_customer_id','external_subscription_id','plan','status','current_period_end','cancel_at_period_end','updated_at'].every(c=>cols('subscriptions').includes(c)));
  assert(['subject_id','day','used'].every(c=>cols('daily_usage').includes(c)));
@@ -77,8 +77,8 @@ test('migrations build the full schema on a fresh database',{skip},async()=>{
  assert(['provider','event_id','processed_at'].every(c=>cols('billing_events').includes(c)));
  assert(!Object.values({u:cols('users'),s:cols('sessions')}).flat().some(c=>/file|name_of|path|blob|content/.test(c)),'no file-related columns');
  // unique identity and de-duplication constraints
- db.raw.exec("INSERT INTO users VALUES('a',NULL,NULL,'google','s1',1)");
- assert.throws(()=>db.raw.exec("INSERT INTO users VALUES('b',NULL,NULL,'google','s1',1)"),/UNIQUE/);
+ db.raw.exec("INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('a',NULL,NULL,'google','s1',1)");
+ assert.throws(()=>db.raw.exec("INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('b',NULL,NULL,'google','s1',1)"),/UNIQUE/);
  db.raw.exec("INSERT INTO billing_events(provider,event_id,processed_at) VALUES('p','e',1)");
  assert.throws(()=>db.raw.exec("INSERT INTO billing_events(provider,event_id,processed_at) VALUES('p','e',2)"),/UNIQUE|PRIMARY/);
  assert.throws(()=>db.raw.exec("INSERT INTO sessions VALUES('h','missing',1,2)"),/FOREIGN KEY/);
@@ -92,7 +92,11 @@ test('anonymous identity: secure random cookie issued once, then reused',{skip},
  assert(anon,'anonymous cookie issued on first contact');
  for(const attr of ['HttpOnly','Secure','SameSite=Lax','Path=/','Max-Age='])assert(anon.includes(attr),attr);
  assert.match(h.jar.nerulio_anon,/^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}$/,'random id + HMAC');
- assert.deepEqual(first.json,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:10,remaining:10,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},billing:{mode:'off'},turnstileSiteKey:''});
+ const {grace,...rest}=first.json;
+ assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},turnstileSiteKey:''});
+ // Signed offline allowance: 3 opaque tokens per class for today, bound to this identity.
+ assert.equal(grace.day,'2026-09-21');assert.equal(grace.heavy.length,3);assert.equal(grace.studio.length,3);
+ assert(grace.studio.every(t=>/^s[1-3]\.[A-Za-z0-9_-]{22}$/.test(t)));
  const again=await h.call('GET','/api/v1/me');
  assert.equal(again.setCookies.length,0,'same identity kept');
  // A forged or tampered cookie is replaced, not trusted.
@@ -216,8 +220,13 @@ test('expired Pro falls back to Free; scheduled cancellation stays Pro until per
  h.clock.now+=3600e3+1;
  me=(await h.call('GET','/api/v1/me')).json;
  assert.equal(me.plan,'free');assert.equal(me.ads,true);assert.equal(me.usage.limit,30);
- const other=harness(),{id:u2}=await signIn(other);await grantPro(other,u2,{status:'canceled'});
- assert.equal((await other.call('GET','/api/v1/me')).json.plan,'free','canceled status is not Pro');
+ // Canceled (incl. after a voluntary refund) keeps the paid period, then Free; paused is never Pro.
+ const other=harness(),{id:u2}=await signIn(other);await grantPro(other,u2,{status:'canceled',end:other.clock.now+3600e3});
+ assert.equal((await other.call('GET','/api/v1/me')).json.plan,'pro','the paid period of a canceled subscription is honoured');
+ other.clock.now+=3600e3+1;
+ assert.equal((await other.call('GET','/api/v1/me')).json.plan,'free','canceled and past its period end is Free');
+ const third=harness(),{id:pausedUser}=await signIn(third);await grantPro(third,pausedUser,{status:'paused'});
+ assert.equal((await third.call('GET','/api/v1/me')).json.plan,'free','paused is not Pro');
  const pastDue=harness(),{id:u3}=await signIn(pastDue);await grantPro(pastDue,u3,{status:'past_due'});
  assert.equal((await pastDue.call('GET','/api/v1/me')).json.plan,'free');
 });
@@ -313,8 +322,9 @@ test('billing webhook: signature required, activation is webhook-driven and idem
  const dup=await sandboxWebhook(h,event);assert.equal(dup.json.duplicate,true);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM billing_events').get().n,1);
  // An older event delivered late cannot overwrite newer state.
- await sandboxWebhook(h,subEvent(id,{status:'canceled'}),{});// same occurredAt → applies (>=)
- assert.equal((await h.call('GET','/api/v1/me')).json.plan,'free');
+ await sandboxWebhook(h,subEvent(id,{status:'canceled',currentPeriodEnd:null}),{});// same occurredAt → applies (>=)
+ let cur=(await h.call('GET','/api/v1/me')).json;
+ assert.equal(cur.subscription.status,'canceled');assert.equal(cur.plan,'pro','canceled keeps the stored paid period');
  const newer={...subEvent(id,{status:'active'}),occurredAt:new Date(DAY0+1000).toISOString()};await sandboxWebhook(h,newer);
  const older={...subEvent(id,{status:'canceled'}),occurredAt:new Date(DAY0-1000).toISOString()};await sandboxWebhook(h,older);
  assert.equal((await h.call('GET','/api/v1/me')).json.plan,'pro','out-of-order older event ignored');
@@ -353,7 +363,7 @@ test('Paddle adapter: signature verification and normalization',async()=>{
  assert.equal(await paddle.verifyWebhook({headers,body:body+' ',env,now:DAY0}),false);
  assert.equal(await paddle.verifyWebhook({headers,body,env,now:DAY0+3600e3}),false,'replay window');
  const e=paddle.normalizeWebhook(JSON.parse(body),env);
- assert.deepEqual(e.subscription,{externalSubscriptionId:'sub_1',externalCustomerId:'ctm_1',userId:'u1',plan:'pro',status:'active',currentPeriodEnd:Date.parse('2026-10-21T10:00:00Z'),cancelAtPeriodEnd:true});
+ assert.deepEqual(e.subscription,{externalSubscriptionId:'sub_1',externalCustomerId:'ctm_1',userId:'u1',plan:'pro',priceId:'pri_pro',status:'active',currentPeriodEnd:Date.parse('2026-10-21T10:00:00Z'),cancelAtPeriodEnd:true});
  assert.equal(paddle.normalizeWebhook({...JSON.parse(body),data:{...JSON.parse(body).data,items:[{price:{id:'pri_other'}}]}},env).subscription.plan,'other');
 });
 

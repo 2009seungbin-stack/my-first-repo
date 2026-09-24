@@ -1,7 +1,7 @@
 import {normalizeSiteURL} from '../src/seo.js';
 import {esc} from '../src/ui.js';
 import {BRAND} from '../src/brand.js';
-import {freeDailyLimit,freeStudioLimit} from '../src/quota.js';
+import {freeDailyLimit,freeStudioLimit,freeAnonStudioLimit} from '../src/quota.js';
 export function configuration(env=process.env){
  const preview=env.SITE_ENV==='preview'||!!(env.CF_PAGES_BRANCH&&env.CF_PAGES_BRANCH!=='main');
  const siteURL=normalizeSiteURL(env.SITE_URL||BRAND.baseUrl);
@@ -37,8 +37,13 @@ export function configuration(env=process.env){
  if(!['','on','off'].includes(env.CF_WEB_ANALYTICS||''))throw Error('CF_WEB_ANALYTICS must be on or off');
  const webAnalytics=env.CF_WEB_ANALYTICS==='on'&&!preview;
  const service=env.SERVICE_API==='on';
- const pricing={amount:env.PRO_PRICE_AMOUNT||'',currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month'};
+ // Pro is sold monthly and yearly. PRO_PRICE_AMOUNT is the monthly price (or the only price
+ // when PRO_PRICE_INTERVAL=year), PRO_PRICE_AMOUNT_YEARLY the yearly one. Display only: what is
+ // charged is the provider price (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY).
+ const pricing={amount:env.PRO_PRICE_AMOUNT||'',currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month',yearlyAmount:env.PRO_PRICE_AMOUNT_YEARLY||''};
  if(pricing.amount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.amount))throw Error('PRO_PRICE_AMOUNT must be a plain decimal such as 4.99');
+ if(pricing.yearlyAmount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.yearlyAmount))throw Error('PRO_PRICE_AMOUNT_YEARLY must be a plain decimal such as 49.99');
+ if(pricing.yearlyAmount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
  if(pricing.amount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
  if(!['month','year'].includes(pricing.interval))throw Error('PRO_PRICE_INTERVAL must be month or year');
  // A retired deployment (e.g. the old *.pages.dev project) builds only a permanent redirect.
@@ -48,7 +53,10 @@ export function configuration(env=process.env){
   if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
   redirectTo=u.origin;
  }
- return {siteURL,preview,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),redirectTo,webAnalytics};
+ // Built by Cloudflare Pages (CF_PAGES=1) rather than locally: the Worker then ignores
+ // NERULIO_ENV=development, so the sandbox billing provider cannot be switched on in production.
+ const pagesBuild=env.CF_PAGES==='1';
+ return {siteURL,preview,pagesBuild,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';
