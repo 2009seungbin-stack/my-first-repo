@@ -32,6 +32,10 @@ body.gl-dragging .gh-dropover{opacity:1;visibility:visible}
 .gl-shot-frame{border-radius:14px;border-color:#434a55;box-shadow:0 0 0 1px #000,0 40px 120px -30px #000,0 0 120px -40px #4cc2ff4d}
 .gl-shot picture,.gl-shot img{display:block;width:100%;height:auto}
 .gl-shot figcaption{text-align:center}
+/* Lab shots are captures of the (light) Lab page: start below its own site header, which would read as a site inside the site. */
+.gl-shot.is-lab .gl-shot-frame{aspect-ratio:1440/810}
+.gl-shot.is-lab picture{height:100%}
+.gl-shot.is-lab img{height:100%;object-fit:cover;object-position:50% 100%}
 
 /* engine strip */
 .gl-strip{display:flex;align-items:center;gap:14px 20px;flex-wrap:wrap;margin:40px 0 0;padding:20px 0;border-top:1px solid var(--gs-line);border-bottom:1px solid var(--gs-line)}

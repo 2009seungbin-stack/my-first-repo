@@ -73,7 +73,7 @@ function shell({locale,base,title,description,headHTML,body,shotKey}){
 const footerHTML=(locale,prefix)=>`<div class="gs-footgrid gl-foot">${footerBrand({locale,prefix})}${footer(locale)}</div>`;
 function shot(key,locale,{priority=false}={}){
  const s=SHOTS[key];if(!s)return '';
- return `<figure class="gl-shot"><div class="gs-frame gl-shot-frame"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp" width="780" height="${Math.round(s.h*780/s.w)}"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}"${priority?' fetchpriority="high"':' loading="lazy" decoding="async"'}></picture></div><figcaption class="gs-caption">${esc(shotCaption(s,locale))}</figcaption></figure>`;
+ return `<figure class="gl-shot${s.app==='studio'?'':' is-lab'}"><div class="gs-frame gl-shot-frame"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp" width="780" height="${Math.round(s.h*780/s.w)}"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}"${priority?' fetchpriority="high"':' loading="lazy" decoding="async"'}></picture></div><figcaption class="gs-caption">${esc(shotCaption(s,locale))}</figcaption></figure>`;
 }
 function badges(ws,locale,highlight=[],{label=true}={}){
  const rows=exportsFor(ws),order=[...rows.filter(r=>highlight.includes(r.id)),...rows.filter(r=>!highlight.includes(r.id))];
