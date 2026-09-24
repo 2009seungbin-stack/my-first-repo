@@ -110,7 +110,7 @@ body.dragging .gh-dropover{opacity:1;visibility:visible}
 .gh-group h4,.gh-group h3{display:flex;align-items:center;gap:9px;margin:0 8px 10px;font:750 12.5px/1.2 var(--gs-font);letter-spacing:.07em;text-transform:uppercase;color:var(--gs-text-2)}
 html[lang="ko"] .gh-group h4,html[lang="ja"] .gh-group h4,html[lang="ko"] .gh-group h3,html[lang="ja"] .gh-group h3{letter-spacing:.02em}
 .gh-group h4::before,.gh-group h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--gs-accent)}
-.gh-group[data-group="pack"] h4::before{background:#e8a13a}.gh-group[data-group="tile"] h4::before{background:#6fcf7c}.gh-group[data-group="pixel"] h4::before{background:#f0677b}.gh-group[data-group="texture"] h4::before{background:#a98bff}.gh-group[data-group="ui"] h4::before{background:#56c7c1}.gh-group[data-group="more"] h4::before{background:var(--gs-text-3)}
+.gh-group[data-group="pack"] h3::before{background:#e8a13a}.gh-group[data-group="tile"] h3::before{background:#6fcf7c}.gh-group[data-group="pixel"] h3::before{background:#f0677b}.gh-group[data-group="texture"] h3::before{background:#a98bff}.gh-group[data-group="ui"] h3::before{background:#56c7c1}.gh-group[data-group="more"] h3::before{background:var(--gs-text-3)}
 .gh-group ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:1px}
 [data-gs] .tool-card{display:block;padding:8px 10px;border-radius:8px;color:var(--gs-text)!important;transition:background .12s}
 [data-gs] .tool-card:hover{background:#ffffff0b}
