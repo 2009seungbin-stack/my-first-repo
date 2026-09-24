@@ -1,0 +1,39 @@
+name: IndexNow after production deploy
+# Cloudflare Pages deploys main by itself; this job only tells IndexNow engines (Bing, Yandex, Naver,
+# Seznam…) which pages are new or changed once that deploy is live. There is no Google submission
+# API: Google reads the sitemap index listed in robots.txt (and Search Console, owner login).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SITE_URL: https://nerulio.pages.dev/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build this commit the way production builds it
+        run: node tools/build.mjs
+      - name: Build the commit that was live before this push
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: |
+          git fetch --no-tags --depth=1 origin ${{ github.event.before }}
+          git worktree add --detach ../previous ${{ github.event.before }}
+          cd ../previous && node tools/build.mjs
+      - name: Wait until the deploy is live, then submit the new and changed page URLs
+        run: |
+          if [ -f ../previous/dist/sitemap.xml ]; then
+            node tools/indexnow.mjs --since ../previous/dist --wait-live --submit
+          else
+            node tools/indexnow.mjs --wait-live --submit
+          fi

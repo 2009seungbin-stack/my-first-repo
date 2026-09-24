@@ -1,5 +1,7 @@
 import {mayPromote} from '../src/capabilities.js';
-import {imageSitemap,verificationHead,notFound} from './growth-build.mjs';
+import {verificationHead,notFound} from './growth-build.mjs';
+// Sitemap index + per-area sitemaps with hreflang and real lastmod (tools/sitemaps.mjs, tools/lastmod.mjs).
+import {sitemapFiles,allPagesSitemap,SITEMAP_INDEX} from './sitemaps.mjs';import {lastmodResolver,pageHashes} from './lastmod.mjs';
 import {BRAND} from '../src/brand.js';
 import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
@@ -71,15 +73,9 @@ function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
  return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service,!!config.webAnalytics)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
-export function sitemap(siteURL,extra=[]){
- // Landing pages are listed only when their base tool is qualified for search.
- // Order: home, then the game pages (hub, Studio landings, game keyword pages), then everything else.
- const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
- const game=gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p));
- const paths=[...new Set(['',...game,...indexable,...POLICY_ROUTES,...extra])].filter(p=>p!==''||indexable.includes(''));
- const urls=siteURL?paths.flatMap(p=>LOCALES.map(l=>`<url><loc>${escape(new URL(pagePath(p,l),siteURL).href)}</loc>${[...LOCALES,null].map(a=>`<xhtml:link rel="alternate" hreflang="${a||'x-default'}" href="${escape(new URL(pagePath(p,a),siteURL).href)}"/>`).join('')}</url>`)).join(''):'';
- return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`;
-}
+/** Every indexable page URL in one urlset: home, game pages, guides, then the file tools (tests,
+ * IndexNow). The published sitemap.xml is an index of per-area sitemaps (tools/sitemaps.mjs). */
+export function sitemap(siteURL,extra=[],lastmod){return allPagesSitemap(siteURL,extra,lastmod);}
 export async function build(options={}){
  const env={...(options.env||process.env)};
  if(options.siteURL!==undefined)env.SITE_URL=options.siteURL;
@@ -101,14 +97,14 @@ export async function build(options={}){
  for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
- await writeFile(path.join(dist,'sitemap.xml'),sitemap(config.preview?'':siteURL,config.service?['pricing']:[]));
- await writeFile(path.join(dist,'sitemap-images.xml'),imageSitemap(config.preview?'':siteURL));
+ const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
+ for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
- await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL('sitemap.xml',siteURL).href+'\nSitemap: '+new URL('sitemap-images.xml',siteURL).href+'\n':''}`);
+ await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL(SITEMAP_INDEX,siteURL).href+'\n':''}`);
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
  }
  if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
