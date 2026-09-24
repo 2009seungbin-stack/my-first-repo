@@ -23,7 +23,7 @@ const API=config?new URL(config.api||'api/v1/',document.baseURI).pathname:'';
 const GRACE_KEY='nerulio.grace.v2';
 let status=config?'idle':'disabled';// disabled | idle | loading | ready | unconfigured | offline
 let me=null,loading=null,inFlight=false,signInPending=false;
-const graceMemory={day:'',tokens:{heavy:[],studio:[]},spent:[],pending:[]};
+const graceMemory={day:'',tokens:{heavy:[],studio:[]},spent:[],pending:[]},graceRefreshed={};
 const listeners=new Set();
 const locale=()=>['ko','en','ja'].includes(document.documentElement.lang)?document.documentElement.lang:'en';
 const L={signIn:{ko:'로그인',en:'Sign in',ja:'ログイン'},account:{ko:'계정',en:'Account',ja:'アカウント'}};
@@ -156,6 +156,8 @@ export async function authorize(toolId,options={},ui={}){
    if(config.ticketKey&&!await verifyTicket(config.ticketKey,r.data.ticket,{kind:'job',op:operationId,tool:id,plan:r.data.unlimited?'pro':'free'})){track('ticket_rejected',{intent:id});say('paused',{kind});return false;}
    if(r.data.unlimited){if(me){me.plan='pro';me.ads=false;me.usage={unlimited:true};me.studioUsage={unlimited:true};}emit();return true;}
    applyUsage({used:r.data.used,limit:r.data.limit,remaining:r.data.remaining,resetAt:r.data.resetAt},kind);emit();
+   // Offline tokens are issued only after a counted job today: fetch them once, in the background.
+   if(!graceRefreshed[kind]&&r.data.remaining>0&&!graceRead().tokens[kind]?.length){graceRefreshed[kind]=true;setTimeout(()=>{if(!inFlight)load({force:true});},0);}
    track('quota_authorized',{intent:id,plan:'free'});
    if(r.data.remaining<=lowAt)say('remaining',{n:r.data.remaining,kind});
    return true;

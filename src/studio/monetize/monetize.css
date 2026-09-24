@@ -27,6 +27,7 @@
 /* export limit: remaining note beside a metered button, only when low */
 .st-meter-left{display:block;margin:4px 0 0;font-size:11px;color:var(--warn);font-variant-numeric:tabular-nums}
 .st-meter-left.is-out{color:var(--danger)}
+.st-meter-left.is-signin{color:var(--accent,#4ea1ff)}
 .st-limit .st-dialog-body p{margin:6px 0}
 .st-limit-safe{padding:8px 10px;border-radius:5px;background:var(--bg-2);border-left:3px solid var(--accent)}
 .st-limit-pro{margin:10px 0 2px;padding:10px 12px;border:1px solid var(--line-2);border-radius:6px;background:var(--bg-2)}

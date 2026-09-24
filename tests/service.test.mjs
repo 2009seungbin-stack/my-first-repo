@@ -92,19 +92,23 @@ test('anonymous identity: secure random cookie issued once, then reused',{skip},
  assert(anon,'anonymous cookie issued on first contact');
  for(const attr of ['HttpOnly','Secure','SameSite=Lax','Path=/','Max-Age='])assert(anon.includes(attr),attr);
  assert.match(h.jar.nerulio_anon,/^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}$/,'random id + HMAC');
+ // No database rows exist for an anonymous visitor who never ran a heavy job.
+ assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
  const {grace,...rest}=first.json;
  assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},turnstileSiteKey:''});
- // Signed offline allowance: 3 opaque tokens per class for today, bound to this identity.
- assert.equal(grace.day,'2026-09-21');assert.equal(grace.heavy.length,3);assert.equal(grace.studio.length,3);
- assert(grace.studio.every(t=>/^s[1-3]\.[A-Za-z0-9_-]{22}$/.test(t)));
+ // Signed offline allowance: none before the identity's first counted job of the day…
+ assert.equal(grace.day,'2026-09-21');assert.deepEqual([grace.heavy,grace.studio],[[],[]]);
+ await h.authorize('studio-pack-export');
+ // …then up to OFFLINE_GRACE_EXPORTS (3) opaque tokens, never more than what is left (3-1=2).
+ const later=(await h.call('GET','/api/v1/me')).json.grace;
+ assert.equal(later.heavy.length,0);assert.equal(later.studio.length,2);
+ assert(later.studio.every(t=>/^s[1-2]\.[A-Za-z0-9_-]{22}$/.test(t)));
  const again=await h.call('GET','/api/v1/me');
  assert.equal(again.setCookies.length,0,'same identity kept');
  // A forged or tampered cookie is replaced, not trusted.
  const [id]=h.jar.nerulio_anon.split('.');h.jar.nerulio_anon=id+'.AAAA';
  const forged=await h.call('GET','/api/v1/me');
  assert(forged.setCookies.some(c=>c.startsWith('nerulio_anon=')));
- // No database rows exist for an anonymous visitor who never ran a heavy job.
- assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
 });
 
 test('API responses are JSON, private, and never CORS-enabled',{skip},async()=>{

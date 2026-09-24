@@ -72,11 +72,13 @@ const ANON_STUDIO='#anon-studio';
 const clientIP=request=>request.headers.get('cf-connecting-ip')||'';
 async function me(request,ctx,cfg,db,now){
  const [usage,studio]=ctx.plan==='pro'?[null,null]:await Promise.all([counter(ctx,cfg,db,now,'heavy'),counter(ctx,cfg,db,now,'studio')]);
- // Signed offline allowance: only for Free identities, never more than what is left today.
+ // Signed offline allowance: only for Free identities, never more than what is left today, and
+ // only once the identity has done one counted job of that class today — so a fresh identity
+ // (cleared site data) cannot collect uncounted tokens without first using its network's share.
  let grace;
  if(ctx.plan!=='pro'&&cfg.graceExports>0){
-  grace={day:quotaDay(now),heavy:await graceTokens(cfg.secret,ctx.subject,'heavy',now,Math.min(cfg.graceExports,usage.remaining)),
-   studio:await graceTokens(cfg.secret,ctx.subject,'studio',now,Math.min(cfg.graceExports,studio.remaining))};
+  const n=u=>u.used>0?Math.min(cfg.graceExports,u.remaining):0;
+  grace={day:quotaDay(now),heavy:await graceTokens(cfg.secret,ctx.subject,'heavy',now,n(usage)),studio:await graceTokens(cfg.secret,ctx.subject,'studio',now,n(studio))};
  }
  // Distinct networks per signed-in account per day (aggregate sharing signal; admin stats).
  if(ctx.user){

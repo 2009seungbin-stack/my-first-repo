@@ -296,7 +296,7 @@ const codes=rs=>rs.reduce((m,r)=>(m[r]=(m[r]||0)+1,m),{});
 }
 // ---------------------------------------------------------------- A15 offline grace tokens
 {
- const h=harness(),b=h.browser();const me=(await b.me()).json;const tokens=me.grace.studio;
+ const h=harness(),b=h.browser();const before=(await b.me()).json.grace.studio.length;await b.export();const me=(await b.me()).json;const tokens=me.grace.studio;
  const forged=await b.call('POST','/api/v1/jobs/reconcile',{body:{tokens:'s1.AAAAAAAAAAAAAAAAAAAAAA,s9.BBBBBBBBBBBBBBBBBBBBBB'}});
  const other=h.browser('198.51.100.200');const stolen=await other.call('POST','/api/v1/jobs/reconcile',{body:{tokens:tokens.join(',')}});
  const first=await b.call('POST','/api/v1/jobs/reconcile',{body:{tokens:tokens.slice(0,2).join(',')}});
@@ -304,9 +304,9 @@ const codes=rs=>rs.reduce((m,r)=>(m[r]=(m[r]||0)+1,m),{});
  const after=(await b.me()).json;
  h.clock.now=Date.UTC(2026,8,25,1);const stale=await b.call('POST','/api/v1/jobs/reconcile',{body:{tokens:tokens.join(',')}});
  const freshIdentity=(await h.browser('198.51.100.201').me()).json.grace.studio.length;
- record('A15','Offline grace: forged, foreign or yesterday\'s tokens are rejected; genuine ones are charged exactly once; tokens never exceed what is left',
-  forged.json.charged===0&&forged.json.invalid===2&&stolen.json.charged===0&&first.json.charged===2&&again.json.charged===0&&after.studioUsage.used===2&&after.grace.studio.length===1&&stale.json.charged===0?'BLOCKED':'WORKS',
-  {issued:tokens.length,forged:forged.json,foreignIdentity:stolen.json,genuine:first.json,genuineAgain:again.json,usedAfter:after.studioUsage.used,tokensNowOffered:after.grace.studio.length,nextDay:stale.json,freshIdentityTokens:freshIdentity});
+ record('A15','Offline grace: none for a fresh identity; forged, foreign or yesterday\'s tokens are rejected; genuine ones are charged exactly once; never more than what is left',
+  before===0&&freshIdentity===0&&forged.json.charged===0&&forged.json.invalid===2&&stolen.json.charged===0&&first.json.charged===2&&again.json.charged===0&&after.studioUsage.used===3&&after.grace.studio.length===0&&stale.json.charged===0?'BLOCKED':'WORKS',
+  {tokensBeforeFirstJob:before,issuedAfterOneExport:tokens.length,forged:forged.json,foreignIdentity:stolen.json,genuine:first.json,genuineAgain:again.json,usedAfter:after.studioUsage.used,tokensNowOffered:after.grace.studio.length,nextDay:stale.json,freshIdentityTokens:freshIdentity});
 }
 // ---------------------------------------------------------------- A16 IPv6 representation
 {

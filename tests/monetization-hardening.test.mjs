@@ -93,9 +93,12 @@ test('logout moves the day\'s counters back to the browser; sessions are capped 
 
 test('offline grace tokens: at most what is left, charged once, bound to the identity and the day',{skip},async()=>{
  const h=harness({OFFLINE_GRACE_EXPORTS:'2'});
+ const fresh=(await h.call('GET','/api/v1/me')).json;
+ assert.deepEqual([fresh.grace.studio,fresh.grace.heavy],[[],[]],'none before a counted job today (a fresh identity collects nothing)');
+ await h.authorize();
  const me=(await h.call('GET','/api/v1/me')).json;
- assert.equal(me.grace.studio.length,2);assert.equal(me.grace.heavy.length,2);
- await h.authorize();await h.authorize();
+ assert.equal(me.grace.studio.length,2);assert.equal(me.grace.heavy.length,0,'per class');
+ await h.authorize();
  assert.equal((await h.call('GET','/api/v1/me')).json.grace.studio.length,1,'never more than remaining (3-2)');
  const r1=(await h.call('POST','/api/v1/jobs/reconcile',{body:{tokens:me.grace.studio[0]}})).json;
  const r2=(await h.call('POST','/api/v1/jobs/reconcile',{body:{tokens:me.grace.studio[0]}})).json;

@@ -31,7 +31,7 @@ export function startRemainingNotes(root,locale){
    if(!show){note?.remove();continue;}
    if(!note){note=document.createElement('small');note.className='st-meter-left';note.setAttribute('role','status');b.after(note);}
    if(note.textContent!==text)note.textContent=text;
-   note.classList.toggle('is-out',n===0);note.title=mt(l,'meter.leftTitle');note.dataset.remaining=String(n);
+   const unlock=signInUnlocks();note.classList.toggle('is-out',n===0&&!unlock);note.classList.toggle('is-signin',!!unlock);note.title=mt(l,'meter.leftTitle');note.dataset.remaining=String(n);
   }
  };
  const later=()=>{if(!scheduled){scheduled=true;queueMicrotask(decorate);}};

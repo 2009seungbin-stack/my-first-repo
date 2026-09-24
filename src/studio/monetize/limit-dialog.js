@@ -35,7 +35,7 @@ export async function showStudioSignIn(studio,root,{used,signInLimit,openSignIn}
  const buttons=[{label:t('signin.later'),value:'close'}];
  if(studio.doc.assets.length)buttons.push({label:t('limit.save'),value:'save'});
  buttons.push({label:t('signin.go'),value:'signin',primary:true});
- const dlg=modal(root,{title:t('signin.title'),body,buttons,className:'st-limit st-signin'});
+ const dlg=modal(root,{title:t('signin.title'),body,buttons,className:'st-limit.st-signin'});
  dlg.dialog.id='studioSignInDialog';
  const v=await dlg.done;
  if(v==='save')studio.runCommand('file.save');
