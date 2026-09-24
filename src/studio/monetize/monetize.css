@@ -11,7 +11,7 @@
  .studio.has-ad[data-mode="desktop"] .st-drop{right:var(--ad-col)}
  .studio.has-ad[data-mode="desktop"] .st-dialog::backdrop{right:var(--ad-col)}
 }
-.st-ad{flex-direction:column;align-items:center;min-width:0;min-height:0;overflow:hidden;padding:10px 16px 12px;background:#0e1013;border-left:1px solid var(--line-2);box-shadow:inset 1px 0 0 #000;contain:layout paint}
+.st-ad{flex-direction:column;align-items:center;min-width:0;min-height:0;overflow:hidden;padding:10px 20px 12px;background:#0e1013;border-left:1px solid var(--line-2);box-shadow:inset 1px 0 0 #000;contain:layout paint}
 .studio[data-theme="light"] .st-ad{background:#d3d6db}
 .st-ad-label{align-self:stretch;height:16px;margin:0 0 6px;font-size:10px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);text-align:center}
 .st-ad-slot{position:relative;flex:none;background:repeating-linear-gradient(135deg,transparent 0 8px,rgba(255,255,255,.015) 8px 16px)}

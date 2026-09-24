@@ -75,9 +75,9 @@ test('Studio page head: nothing extra by default; config metas only, never a Goo
 });
 test('ad column geometry: desktop-only, fixed unit chosen once by viewport',()=>{
  assert.equal(adUnitSize(390,844),null);assert.equal(adUnitSize(768,1024),null);assert.equal(adUnitSize(1279,900),null);assert.equal(adUnitSize(1440,699),null);
- assert.deepEqual(adUnitSize(1280,720),{width:160,height:600,column:192});
- assert.deepEqual(adUnitSize(1440,900),{width:160,height:600,column:192});
- assert.deepEqual(adUnitSize(1920,1080),{width:300,height:600,column:332});
+ assert.deepEqual(adUnitSize(1280,720),{width:160,height:600,column:200});
+ assert.deepEqual(adUnitSize(1440,900),{width:160,height:600,column:200});
+ assert.deepEqual(adUnitSize(1920,1080),{width:300,height:600,column:340});
  assert.equal(AD_MIN_WIDTH,1280);assert.equal(AD_MIN_HEIGHT,700);assert.equal(AD_WIDE_WIDTH,1600);
  assert.equal(rectDistance({left:0,top:0,right:10,bottom:10},{left:13,top:0,right:20,bottom:10}),3);
  assert.equal(rectDistance({left:0,top:0,right:10,bottom:10},{left:5,top:5,right:20,bottom:20}),0);
@@ -104,5 +104,5 @@ test('monetization strings: ko/en/ja parity, same placeholders, no Hangul in ja'
   assert.equal(mt(l,'limit.bullets').split('|').length,mt('en','limit.bullets').split('|').length);
  }
  assert.equal(mt('ko','ad.label'),'광고');assert.equal(mt('en','ad.label'),'Advertisement');assert.equal(mt('ja','ad.label'),'広告');
- assert.equal(mt('en','meter.left',{n:2}),'2 free Studio exports left today');
+ assert.equal(mt('en','meter.left',{n:2}),'Free Studio exports left today: 2');
 });

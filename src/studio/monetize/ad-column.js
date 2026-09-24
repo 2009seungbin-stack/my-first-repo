@@ -6,7 +6,7 @@
  *   reloaded or refreshed. Its column is a grid track laid out in the same frame as the
  *   editor, so neither the unit loading, being unfilled nor being blocked moves the editor.
  * - Labelled "Advertisement" (ko 광고 / ja 広告), separated from the dock by a border and
- *   16 px of clear space, never inside a dialog, and nothing of the editor is drawn over it
+ *   20 px of clear space, never inside a dialog, and nothing of the editor is drawn over it
  *   (the drop hint and dialog backdrops stop at the column; menus are kept left of it). */
 import {adUnitSize,clampLeftOfColumn} from './layout.js';
 import {mt} from './strings.js';

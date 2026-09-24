@@ -4,7 +4,7 @@
 export const AD_MIN_WIDTH=1280;   // below this the editor keeps every pixel (tablets, small laptops, phones)
 export const AD_MIN_HEIGHT=700;   // a 600 px unit + label must fit below the menu bar without scrolling
 export const AD_WIDE_WIDTH=1600;  // from here the 300×600 unit; below it the 160×600 skyscraper
-export const AD_GUTTER=16;        // clear space on each side of the unit inside the column
+export const AD_GUTTER=20;        // clear space on each side of the unit inside the column (Photopea: ~19 px)
 /** Unit size for a viewport, or null when the Studio shows no ad at that size. */
 export function adUnitSize(width,height){
  if(!(width>=AD_MIN_WIDTH&&height>=AD_MIN_HEIGHT))return null;

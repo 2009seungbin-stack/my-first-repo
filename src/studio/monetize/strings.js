@@ -5,7 +5,7 @@ export const MONETIZE_STRINGS={
   'ad.label':'Advertisement',
   'ad.house':'Ads keep Nerulio Studio free. Your files never leave your device.',
   'ad.removePro':'Remove ads — Nerulio Pro',
-  'meter.left':'{n} free Studio exports left today',
+  'meter.left':'Free Studio exports left today: {n}',
   'meter.none':'No free Studio exports left today',
   'meter.leftTitle':'Engine export bundles count toward the free daily limit. Saving the project, single PNG exports and all editing never count.',
   'meter.grace':'The account service did not respond, so this export used a temporary allowance.',
