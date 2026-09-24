@@ -151,11 +151,14 @@ export default {
   async function runDetect(rgba,w,hh,source){
    // a sprite's own alpha tells the silhouette test where the edge is
    let data=rgba;if(source==='imported'&&S.pic){data=new Uint8Array(rgba);for(let p=0;p<w*hh;p++)data[p*4+3]=S.pic.rgba[p*4+3];}
-   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});S.detect={...r,source};panels.render();renderHud();}catch{}
+   // the result belongs to the maps it was measured on: drop it if the picture or its maps changed meanwhile
+   const key=S.genKey;
+   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});if(S.genKey!==key)return;S.detect={...r,source};panels.render();renderHud();}catch{}
   }
   async function runSeam(){
    const e=entry();if(!S.gen||!S.pic)return;
-   try{S.seam=await work({op:'seam',key:S.pic.key,params:e.params,normal:S.gen.normal.slice()});panels.render();}catch{}
+   const key=S.genKey;
+   try{const r=await work({op:'seam',key:S.pic.key,params:e.params,normal:S.gen.normal.slice()});if(S.genKey!==key)return;S.seam=r;panels.render();}catch{}
   }
   const needAO=()=>prefs.view==='ao'||threeD.visible();
   /** Occlusion is computed when something shows or exports it (it is the slowest map). */

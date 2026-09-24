@@ -70,9 +70,12 @@ workspace under `src/studio/workspaces/texture/`, the tests, and the Godot verif
    * The Frames hint rendered as ", and . step frames". It is now `<kbd>,</kbd> <kbd>.</kbd>
      previous / next frame`.
    * The "Select a light" note had no padding.
-9. **Browser test: 40 checks**, up from 37: red flip is flagged and not called a confident DX, Flip
+9. **Browser test: 41 checks**, up from 37: red flip is flagged and not called a confident DX, Flip
    red restores the map byte-for-byte, and the flip is one undo step. Unity is now labelled
    verified.
+10. **Race fixed:** a GL/DX detection (or seam test) still running for the previous picture no
+    longer lands on the next one. It had shown a stale "reads as DirectX" chip on the torch after
+    the bricks. Guarded by `S.genKey`; the new browser check fails without the fix.
 
 ### Test status
 

@@ -178,6 +178,8 @@ with sync_playwright() as pw:
     need=['godot/torch_sheet.png','godot/torch_sheet_n.png','godot/torch_sheet_lit.tscn','godot/torch_sheet_canvas_texture.tres','unity/Editor/NerulioNormalMapImporter.cs','unity/nerulio-texture.json','generic/torch_sheet_n_dx.png','generic/torch_sheet_height16.png','generic/nerulio-texture.json']
     ok('export ZIP: Godot scene + CanvasTexture, Unity importer + JSON, generic set with both conventions',all(n in names for n in need),str(names))
     ok('the albedo in the ZIP is the imported PNG byte for byte',z.read('godot/torch_sheet.png')==(FIX/'torch_sheet.png').read_bytes())
+    settle(p,600)
+    ok('a detection still running for the previous picture does not land on this one (no stale DirectX chip)',p.locator('[data-tex="conv-warn"]').count()==0 and js(p,'return T.S.detect;') is None)
     hdr=z.read('generic/torch_sheet_height16.png')[16:26]
     ok('the height map is a 16-bit greyscale PNG',hdr[8]==16 and hdr[9]==0)
     tscn=z.read('godot/torch_sheet_lit.tscn').decode()

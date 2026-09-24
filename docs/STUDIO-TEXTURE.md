@@ -287,10 +287,11 @@ Tests:
 * `tests/normals.test.mjs`: 23 engine tests on real CC0 fixtures.
 * `tests/studio-texture.test.mjs`: 3 tests (strings parity, state round trip incl. the red flip,
   working layout).
-* `tests/studio-texture-browser.py`: 40 checks in Chromium, part of `tools/regression.py`. It
+* `tests/studio-texture-browser.py`: 41 checks in Chromium, part of `tools/regression.py`. It
   covers the lit preview ≤ 1/255, one undo step per light drag, brush and slider, wrap test 0, DX
   detection not applied until confirmed, red-flip warning and fix, ORM pack byte-exact, export
-  ZIP, autosave recovery, `.nerulio` round trip, ko/ja and 390 px.
+  ZIP, no stale detection after switching pictures, autosave recovery, `.nerulio` round trip,
+  ko/ja and 390 px.
 
 Fixtures are in `tests/fixtures/texture/` (CC0, `SOURCES.md`; `-text` in `.gitattributes`).
 
