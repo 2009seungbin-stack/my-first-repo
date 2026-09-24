@@ -1,7 +1,7 @@
 import {normalizeSiteURL} from '../src/seo.js';
 import {esc} from '../src/ui.js';
 import {BRAND} from '../src/brand.js';
-import {freeDailyLimit} from '../src/quota.js';
+import {freeDailyLimit,freeStudioLimit} from '../src/quota.js';
 export function configuration(env=process.env){
  const preview=env.SITE_ENV==='preview'||!!(env.CF_PAGES_BRANCH&&env.CF_PAGES_BRANCH!=='main');
  const siteURL=normalizeSiteURL(env.SITE_URL||BRAND.baseUrl);
@@ -16,8 +16,13 @@ export function configuration(env=process.env){
   const value=env[name]||'';if(value&&!/^\d{10}$/.test(value))throw Error(`${name} must be the 10-digit ad unit ID issued by Google`);
   if(client&&value)slots[position]=value;
  }
+ // The Studio's desktop ad column (docs/ADS.md) is its own ad unit. It is kept apart from
+ // `slots` so content pages never mount it and the Studio never mounts content units.
+ const studioSlotValue=env.ADSENSE_SLOT_STUDIO||'';
+ if(studioSlotValue&&!/^\d{10}$/.test(studioSlotValue))throw Error('ADSENSE_SLOT_STUDIO must be the 10-digit ad unit ID issued by Google');
+ const studioAd=client&&studioSlotValue?{client,slot:studioSlotValue}:null;
  if(verificationClient&&(!siteURL||!siteURL.startsWith('https://')))throw Error('AdSense requires an explicit HTTPS SITE_URL');
- if(client&&Object.keys(slots).length&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
+ if(client&&(Object.keys(slots).length||studioAd)&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
  const searchVerification=preview?'':env.GOOGLE_SITE_VERIFICATION||BRAND.searchVerification;
  if(searchVerification&&!/^[A-Za-z0-9_-]{1,256}$/.test(searchVerification))throw Error('Invalid Google verification token');
  const indexNowKey=preview?'':env.INDEXNOW_KEY||BRAND.indexNowKey||'';
@@ -43,7 +48,7 @@ export function configuration(env=process.env){
   if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
   redirectTo=u.origin;
  }
- return {siteURL,preview,client,slots,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo,webAnalytics};
+ return {siteURL,preview,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';

@@ -4,7 +4,7 @@ import os,subprocess,sys,time,urllib.request,socket,json
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
 env=os.environ.copy()
-for key in ['ADSENSE_CLIENT','ADSENSE_VERIFICATION_CLIENT','ADSENSE_SLOT_CONTENT_1','ADSENSE_SLOT_CONTENT_2','ADSENSE_CMP_READY','GOOGLE_SITE_VERIFICATION','INDEXNOW_KEY','CF_PAGES_BRANCH','SITE_ENV','PORT','BASE_PATH','DIST_DIR']:env.pop(key,None)
+for key in ['ADSENSE_CLIENT','ADSENSE_VERIFICATION_CLIENT','ADSENSE_SLOT_CONTENT_1','ADSENSE_SLOT_CONTENT_2','ADSENSE_SLOT_STUDIO','ADSENSE_CMP_READY','GOOGLE_SITE_VERIFICATION','INDEXNOW_KEY','CF_PAGES_BRANCH','SITE_ENV','PORT','BASE_PATH','DIST_DIR']:env.pop(key,None)
 env.update(SITE_URL='https://fileforge.example.test/',PYTHONIOENCODING='utf-8')
 def run(name,command):
     print('RUN',name,flush=True)
@@ -28,7 +28,7 @@ try:
             try:urllib.request.urlopen(f'http://127.0.0.1:{port}{mount}/en/',timeout=1);break
             except OSError:time.sleep(.1)
         else:raise RuntimeError(f'Server {port} did not start')
-    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','game-landing-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
+    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-monetization-browser','game-landing-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
 finally:
     for server in servers:
         server.terminate()

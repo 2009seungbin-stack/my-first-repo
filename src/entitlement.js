@@ -1,4 +1,4 @@
-import {meteredTool,quotaDay} from './quota.js';
+import {meteredTool,quotaDay,quotaClass} from './quota.js';
 import {track} from './analytics.js';
 /** Client entitlement: the only browser module that talks to /api/v1.
  * - Builds without <meta name="nerulio-service"> have no accounts: nothing is fetched,
@@ -12,9 +12,9 @@ const meta=document.querySelector('meta[name="nerulio-service"]');
 let config=null;try{config=meta?JSON.parse(meta.content):null;}catch{config=null;}
 const API=config?new URL(config.api||'api/v1/',document.baseURI).pathname:'';
 export const GRACE_JOBS=3;
-const GRACE_KEY='nerulio.grace.v1';
+const GRACE_KEY='nerulio.grace.v1';// file tools; Studio exports use GRACE_KEY+'.studio'
 let status=config?'idle':'disabled';// disabled | idle | loading | ready | unconfigured | offline
-let me=null,loading=null,inFlight=false,graceMemory=0;
+let me=null,loading=null,inFlight=false;const graceMemory={};
 const listeners=new Set();
 const locale=()=>['ko','en','ja'].includes(document.documentElement.lang)?document.documentElement.lang:'en';
 const L={signIn:{ko:'로그인',en:'Sign in',ja:'ログイン'},account:{ko:'계정',en:'Account',ja:'アカウント'}};
@@ -27,7 +27,8 @@ async function request(path,{method='GET',body,timeout=8000}={}){
  let data=null;try{data=await response.json();}catch{}
  return {ok:response.ok,status:response.status,data,code:data?.error?.code||''};
 }
-function applyUsage(usage){if(me&&usage&&!me.usage?.unlimited)me.usage={...me.usage,...usage};}
+// File-tool jobs update me.usage; Studio exports (class 'studio') update me.studioUsage.
+function applyUsage(usage,kind){const k=kind==='studio'?'studioUsage':'usage';if(me&&usage&&!me[k]?.unlimited)me[k]={...me[k],...usage};}
 export async function load({force=false}={}){
  if(!config)return null;
  if(loading&&!force)return loading;
@@ -50,13 +51,13 @@ export async function adsAllowed(){
  await load();
  return status==='unconfigured'||(status==='ready'&&me?.ads===true);
 }
-function graceTake(){
- const day=quotaDay();
+function graceTake(kind){
+ const day=quotaDay(),key=kind==='studio'?GRACE_KEY+'.studio':GRACE_KEY;
  try{
-  const saved=JSON.parse(localStorage.getItem(GRACE_KEY)||'null'),used=saved?.day===day?saved.used:0;
+  const saved=JSON.parse(localStorage.getItem(key)||'null'),used=saved?.day===day?saved.used:0;
   if(used>=GRACE_JOBS)return false;
-  localStorage.setItem(GRACE_KEY,JSON.stringify({day,used:used+1}));return true;
- }catch{if(graceMemory>=GRACE_JOBS)return false;graceMemory++;return true;}
+  localStorage.setItem(key,JSON.stringify({day,used:used+1}));return true;
+ }catch{const used=graceMemory[key]||0;if(used>=GRACE_JOBS)return false;graceMemory[key]=used+1;return true;}
 }
 // UI chunks load lazily; if one cannot load (e.g. during an outage) the decision stands anyway.
 async function notice(key,vars){try{(await import('./service-ui.js')).toast(key,vars);}catch{}}
@@ -71,10 +72,13 @@ async function send(toolId,operationId,turnstileToken){
  }
 }
 /** Resolve before starting local processing. Returns true to run, false to stop without
- * touching the current file, selection, settings or previous result. */
-export async function authorize(toolId,options={}){
+ * touching the current file, selection, settings or previous result.
+ * `ui` lets an app with its own look (the Studio) replace the site's toasts and limit modal:
+ * {notice(key,vars), limit({resetAt,used,limit,kind,pricing,locale}), lowAt}. */
+export async function authorize(toolId,options={},ui={}){
  const id=meteredTool(toolId,options);
  if(!id||!config)return true;
+ const kind=quotaClass(id),say=ui.notice||notice,lowAt=ui.lowAt??5;
  if(inFlight)return false;// a second click while the first check is pending
  inFlight=true;
  try{
@@ -89,24 +93,25 @@ export async function authorize(toolId,options={}){
    r=await send(id,operationId,token);
   }
   if(r.ok&&r.data?.allowed){
-   if(r.data.unlimited){if(me){me.plan='pro';me.ads=false;me.usage={unlimited:true};}return true;}
-   applyUsage({used:r.data.used,limit:r.data.limit,remaining:r.data.remaining,resetAt:r.data.resetAt});emit();
+   if(r.data.unlimited){if(me){me.plan='pro';me.ads=false;me.usage={unlimited:true};me.studioUsage={unlimited:true};}emit();return true;}
+   applyUsage({used:r.data.used,limit:r.data.limit,remaining:r.data.remaining,resetAt:r.data.resetAt},kind);emit();
    track('quota_authorized',{intent:id,plan:'free'});
-   if(r.data.remaining<=5)notice('remaining',{n:r.data.remaining});
+   if(r.data.remaining<=lowAt)say('remaining',{n:r.data.remaining,kind});
    return true;
   }
   if(r.code==='DAILY_LIMIT'){
-   applyUsage({used:r.data.used,limit:r.data.limit,remaining:0,resetAt:r.data.resetAt});emit();
+   applyUsage({used:r.data.used,limit:r.data.limit,remaining:0,resetAt:r.data.resetAt},kind);emit();
    track('quota_denied',{intent:id,plan:'free'});
-   try{await (await import('./upgrade-modal.js')).showLimit({resetAt:r.data.resetAt,locale:locale(),pricing:config.pricing});}catch{}
+   const info={resetAt:r.data.resetAt,used:r.data.used,limit:r.data.limit,kind,locale:locale(),pricing:config.pricing};
+   try{if(ui.limit)await ui.limit(info);else await (await import('./upgrade-modal.js')).showLimit(info);}catch{}
    return false;
   }
-  if(r.code==='CHALLENGE_FAILED'){notice('challengeFailed');return false;}
+  if(r.code==='CHALLENGE_FAILED'){say('challengeFailed',{kind});return false;}
   // Version skew between page and Worker must never block a tool.
   if(['UNKNOWN_TOOL','NOT_METERED'].includes(r.code))return true;
   // Outage (network, 5xx, unexpected): limited local grace, then pause heavy tools only.
-  if(graceTake()){notice('graceUsed');return true;}
-  notice('paused');return false;
+  if(graceTake(kind)){say('graceUsed',{kind});return true;}
+  say('paused',{kind});return false;
  }finally{inFlight=false;}
 }
 export async function logout(){
