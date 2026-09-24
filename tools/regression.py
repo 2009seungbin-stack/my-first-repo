@@ -28,7 +28,7 @@ try:
             try:urllib.request.urlopen(f'http://127.0.0.1:{port}{mount}/en/',timeout=1);break
             except OSError:time.sleep(.1)
         else:raise RuntimeError(f'Server {port} did not start')
-    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-monetization-browser','game-landing-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
+    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-monetization-browser','game-landing-browser','design-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
 finally:
     for server in servers:
         server.terminate()

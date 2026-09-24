@@ -1,95 +1,134 @@
-/* Game landing pages (tools/game-landing-build.mjs). Dark, like the Studio they open. */
-/* Same palette as the game home (src/task/task.css body.game-home --gh-*). */
-.game-landing{--bg:#131518;--bg2:#17191c;--panel:#1b1d21;--panel2:#23262b;--line:#2c3036;--line2:#3a3f46;--ink:#eef0f3;--ink2:#d9dce1;--muted:#9ea5af;--accent:#4cc2ff;--accent2:#7fd3ff;--ok:#7bd88f;--built:#b18cff;--dec:#56c7c1;--part:#e8c35a;--warn:#ff9f43;--code:#aee6ff;
- margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Hiragino Sans","Yu Gothic UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.game-landing *,.game-landing *::before,.game-landing *::after{box-sizing:border-box}
-.game-landing a{color:var(--accent2);text-decoration:none}.game-landing a:hover{color:#fff}
-.game-landing :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
-/* header */
-.gl-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1240px;margin:0 auto;padding:14px 24px;border-bottom:1px solid var(--line)}
-.gl-brand{display:flex;align-items:center;gap:9px;color:var(--ink)!important}.gl-brand strong{font-size:19px;letter-spacing:-.5px;font-weight:800}.gl-brand strong span{color:var(--accent)}
-.gl-header-end{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.gl-header-link,.header-studio{font-size:13px;font-weight:700;color:var(--ink2)!important;padding:7px 10px;border-radius:8px;white-space:nowrap}.gl-header-link:hover{background:var(--panel)}
-.game-landing .header-studio{background:var(--accent);color:#06121a!important;font-weight:800;padding:8px 14px;border-radius:10px}.game-landing .header-studio:hover{filter:brightness(1.08)}
-.gl-lang{display:flex;align-items:center;gap:6px;color:var(--muted);padding:0 4px 0 8px}
-.gl-lang select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px}
-/* layout */
-.gl-main{max-width:1240px;margin:0 auto;padding:0 24px 24px}
-.gl-hero{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:36px;align-items:center;padding:34px 0 26px;position:relative}
-.gl-hero::before{content:"";position:absolute;inset:0 -24px;z-index:-1;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:24px 24px;mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 75%)}
-.gl-crumb{display:flex;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);font-weight:600}.gl-crumb a{color:var(--muted)}.gl-crumb a:hover{color:var(--ink)}.gl-crumb [aria-current]{color:var(--accent2)}
-.gl-hero h1{font-size:clamp(28px,3.5vw,44px);line-height:1.12;letter-spacing:-1.2px;margin:12px 0 12px;font-weight:850;text-wrap:balance}
-.gl-lead{color:var(--ink2);font-size:16px;margin:0 0 22px;max-width:62ch}
-/* drop zone */
-.gl-drop{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:22px;border:1.5px dashed #3a6d8f;border-radius:14px;background:linear-gradient(180deg,#1a2530,#16191d);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
-.gl-drop:hover,.gl-dragging .gl-drop{border-color:var(--accent);box-shadow:0 0 0 4px #4cc2ff1f;background:linear-gradient(180deg,#1c2b38,#171b20)}
-.gl-drop strong{font-size:16px;line-height:1.4;color:#fff}
-.gl-drop-art{display:grid;grid-template-columns:repeat(2,14px);gap:3px}.gl-drop-art i{width:14px;height:14px;background:var(--accent);border-radius:2px;opacity:.9}.gl-drop-art i:nth-child(2){background:#ff4d5e}.gl-drop-art i:nth-child(3){background:#ffd23f}.gl-drop-art i:nth-child(4){background:var(--ok)}
-.gl-drop-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.gl-primary{font:inherit;font-weight:800;font-size:14.5px;color:#06141d;background:var(--accent);border:0;border-radius:10px;padding:11px 18px;cursor:pointer;box-shadow:0 6px 24px #4cc2ff33}.gl-primary:hover{background:var(--accent2)}
-.gl-secondary{font-weight:700;font-size:13.5px;color:var(--ink2)!important;padding:10px 12px;border-radius:10px;border:1px solid var(--line2)}.gl-secondary:hover{border-color:var(--accent);color:#fff!important}
-.gl-local{color:var(--muted);font-size:12.5px;font-weight:600}.gl-local::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ok);margin-right:7px;border-radius:1px}
-.gl-status-line{margin:0;color:var(--accent2);font-weight:700;font-size:13px}
+/* Game landings and the /game/ hub (tools/game-landing-build.mjs). Built on src/game-site.css:
+ * the same header, footer, type and colours as the home and the Studio. */
+
+/* ---------------------------------------------------------------- hero */
+.gl-hero{position:relative;padding:48px 0 0;isolation:isolate}
+.gl-hero::before{content:"";position:absolute;inset:0 0 auto;height:680px;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 50% 0%,#4cc2ff1f,transparent 70%)}
+.gl-hero::after{content:"";position:absolute;inset:0 0 auto;height:560px;z-index:-1;pointer-events:none;opacity:.5;
+ background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:32px 32px;background-position:center top;
+ -webkit-mask-image:radial-gradient(70% 80% at 50% 0%,#000 30%,transparent 80%);mask-image:radial-gradient(70% 80% at 50% 0%,#000 30%,transparent 80%)}
+.gl-hero-copy{max-width:860px;margin:0 auto;text-align:center;display:flex;flex-direction:column;align-items:center}
+.gl-crumb{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--gs-text-3);font-weight:600;margin:0 0 18px}
+.gl-crumb a{color:var(--gs-text-3)!important}.gl-crumb a:hover{color:var(--gs-head)!important}.gl-crumb [aria-current]{color:var(--gs-accent-2)}
+.gl-hero h1{font-size:clamp(32px,4.6vw,56px);line-height:1.08;letter-spacing:var(--gs-track-display);font-weight:820;margin:0 0 18px}
+html[lang="ko"] .gl-hero h1,html[lang="ja"] .gl-hero h1{line-height:1.2;font-weight:800}
+.gl-lead{font-size:clamp(16px,1.4vw,18.5px);line-height:1.62;color:var(--gs-text-2);margin:0 0 30px;max-width:64ch}
+
+/* drop zone: the page's one action */
+.gl-drop{width:min(760px,100%);display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px 24px;padding:22px 24px;border:1.5px dashed #3f6a86;border-radius:16px;background:linear-gradient(180deg,#16202a,#14171b);cursor:pointer;text-align:left;transition:border-color .15s,background .15s,box-shadow .15s}
+.gl-drop:hover,.gl-dragging .gl-drop{border-color:var(--gs-accent);box-shadow:0 0 0 4px var(--gs-accent-soft);background:linear-gradient(180deg,#182835,#15191e)}
+.gl-drop-main{display:flex;align-items:center;gap:16px;min-width:0}
+.gl-drop-art{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:12px;background:#0d1015;border:1px solid var(--gs-line-2)}
+.gl-drop strong{font-size:16px;line-height:1.45;color:var(--gs-head);font-weight:700}
+.gl-drop-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.gl-local{grid-column:1/-1;display:flex;align-items:center;gap:8px;color:var(--gs-text-3);font-size:13px;font-weight:600;padding-top:14px;border-top:1px solid #ffffff10}
+.gl-local::before{content:"";width:7px;height:7px;background:var(--gs-ok);border-radius:50%;box-shadow:0 0 0 3px #7bd88f26}
+.gl-status-line{grid-column:1/-1;margin:0;color:var(--gs-accent-2);font-weight:700;font-size:13.5px}
+body.gl-dragging .gh-dropover{opacity:1;visibility:visible}
+.gh-dropover{position:fixed;inset:0;z-index:80;background:#0b0c0f99;box-shadow:inset 0 0 0 3px var(--gs-accent);opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;pointer-events:none}
+
 /* screenshot */
-.gl-shot{margin:0;min-width:0}
-.gl-shot img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line2);box-shadow:0 30px 80px #0009,0 0 0 1px #000;background:#16181c}
-.gl-shot figcaption{font-size:12px;color:var(--muted);margin-top:8px}
-/* engine badges */
-.gl-badges{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px;padding:14px 0 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.gl-badge{display:flex;flex-direction:column;gap:1px;padding:7px 11px 7px 12px;border-radius:9px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ok);min-width:0}
-.gl-badge b{font-size:13px;color:#fff;font-weight:800;letter-spacing:-.1px}.gl-badge span{font-size:11.5px;color:var(--muted);font-weight:650}
-.gl-badge.is-built{border-left-color:var(--built)}.gl-badge.is-decoded{border-left-color:var(--dec)}.gl-badge.is-partial{border-left-color:var(--part)}.gl-badge.is-unverified{border-left-color:var(--warn)}.gl-badge.is-unverified span{color:var(--warn)}
-.gl-badge.is-hl{background:#1c2833;border-color:#2f4a5e}
-/* sections */
-.gl-body{max-width:1080px}
-.gl-section{padding:30px 0 6px}
-.gl-section h2{font-size:22px;letter-spacing:-.5px;margin:0 0 14px;color:#fff;display:flex;align-items:center;gap:10px}
-.gl-section h2::before{content:"";width:10px;height:10px;background:var(--accent);border-radius:2px;flex:none}
-.gl-section h3{font-size:15px;color:#fff;margin:22px 0 8px}
-.gl-muted{color:var(--muted);margin:0 0 14px}
-.gl-cards{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
-.gl-cards li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink2)}
-.gl-steps{list-style:none;counter-reset:s;padding:0;margin:0;display:grid;gap:8px}
-.gl-steps li{counter-increment:s;display:flex;gap:12px;align-items:baseline;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink2)}
-.gl-steps li::before{content:counter(s);flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;background:#1f2e3a;color:var(--accent2);font-weight:850;font-size:13px}
-.gl-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
-.gl-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
-.gl-table th,.gl-table td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
-.gl-table thead th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:var(--panel)}
-.gl-table tbody th{color:#fff;white-space:nowrap}.gl-table tr:last-child>*{border-bottom:0}
-.gl-table code{color:var(--code);font:12.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
-.gl-table small{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}
-.gl-status{display:inline-block;font-size:11.5px;font-weight:850;padding:2px 7px;border-radius:5px;background:#153427;color:var(--ok);text-transform:uppercase;letter-spacing:.04em}
-.gl-status.is-built{background:#2a2143;color:var(--built)}.gl-status.is-decoded{background:#133332;color:var(--dec)}.gl-status.is-partial{background:#382f14;color:var(--part)}.gl-status.is-unverified{background:#3b2410;color:var(--warn)}
-.gl-engine{font-size:12.5px;color:var(--ink2);font-weight:650}
-.gl-evidence{color:var(--ink2);background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px;margin:0}
-.gl-limits{margin:0;padding-left:20px;color:var(--ink2)}.gl-limits li{margin:6px 0}.gl-limits li::marker{color:var(--warn)}
-.gl-classic{margin-top:26px;padding:18px 20px 16px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
-.gl-classic h2{font-size:16px}.gl-classic p{margin:0 0 8px;color:var(--ink2)}.gl-classic a{font-weight:750}
-.gl-faq details{border-bottom:1px solid var(--line);padding:12px 0}.gl-faq summary{cursor:pointer;font-weight:750;color:#fff}.gl-faq p{color:var(--ink2);margin:8px 0 2px}
+.gl-shot{margin:48px 0 0;min-width:0}
+.gl-shot-frame{border-radius:14px;border-color:#434a55;box-shadow:0 0 0 1px #000,0 40px 120px -30px #000,0 0 120px -40px #4cc2ff4d}
+.gl-shot picture,.gl-shot img{display:block;width:100%;height:auto}
+.gl-shot figcaption{text-align:center}
+/* Lab shots are captures of the (light) Lab page: start below its own site header, which would read as a site inside the site. */
+.gl-shot.is-lab .gl-shot-frame{aspect-ratio:1440/810}
+.gl-shot.is-lab picture{height:100%}
+.gl-shot.is-lab img{height:100%;object-fit:cover;object-position:50% 100%}
+
+/* engine strip */
+.gl-strip{display:flex;align-items:center;gap:14px 20px;flex-wrap:wrap;margin:40px 0 0;padding:20px 0;border-top:1px solid var(--gs-line);border-bottom:1px solid var(--gs-line)}
+.gl-strip-label{margin:0;flex:none;font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--gs-text-3)}
+html[lang="ko"] .gl-strip-label,html[lang="ja"] .gl-strip-label{letter-spacing:.03em}
+.gl-badges{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;min-width:0}
+.gl-badge{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:999px;background:var(--gs-panel);border:1px solid var(--gs-line)}
+.gl-badge b{font-size:13.5px;color:var(--gs-head);font-weight:700;white-space:nowrap}
+.gl-badge .gs-status{font-size:11.5px}
+.gl-badge small{margin-left:-4px;font:500 11.5px/1 var(--gs-mono);color:var(--gs-text-3);white-space:nowrap}
+.gl-badge.is-hl{border-color:#4cc2ff66;background:#162430}
+
+/* ---------------------------------------------------------------- reading part: side rail + content */
+.gl-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:64px;align-items:start;padding-top:24px}
+.gl-toc{position:sticky;top:calc(var(--gs-header-h) + 32px);padding-top:48px;font-size:14px}
+.gl-toc p{margin:0 0 12px;font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--gs-text-3)}
+html[lang="ko"] .gl-toc p,html[lang="ja"] .gl-toc p{letter-spacing:.03em}
+.gl-toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--gs-line)}
+.gl-toc a{display:block;padding:6px 0 6px 16px;margin-left:-1px;border-left:2px solid transparent;color:var(--gs-text-2)!important;line-height:1.4}
+.gl-toc a:hover{color:var(--gs-head)!important;border-left-color:var(--gs-accent)}
+.gl-body{min-width:0;max-width:860px}
+.gl-section{padding:48px 0 0}
+.gl-section h2{font-size:clamp(24px,2.4vw,30px);line-height:1.25;letter-spacing:var(--gs-track-h);margin:0 0 18px;font-weight:780}
+.gl-section h2 small{margin-left:10px;font:600 13px/1 var(--gs-font);color:var(--gs-text-3);vertical-align:middle}
+.gl-section h3{font-size:16px;margin:28px 0 10px}
+.gl-muted{color:var(--gs-text-2);margin:0 0 18px;max-width:72ch}
+.gl-cards{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.gl-cards li{position:relative;background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:var(--gs-radius);padding:16px 18px 16px 46px;color:var(--gs-text);line-height:1.6}
+.gl-cards li::before{content:"";position:absolute;left:18px;top:22px;width:12px;height:12px;border-radius:3px;background:var(--gs-accent);box-shadow:0 0 0 4px var(--gs-accent-soft)}
+.gl-steps{list-style:none;counter-reset:s;padding:0;margin:0;display:grid;gap:10px}
+.gl-steps li{counter-increment:s;display:flex;gap:14px;align-items:baseline;background:var(--gs-bg-2);border:1px solid var(--gs-line);border-radius:var(--gs-radius);padding:14px 18px;color:var(--gs-text);line-height:1.6}
+.gl-steps li::before{content:counter(s);flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;background:#4cc2ff1f;color:var(--gs-accent-2);font-weight:800;font-size:13px;transform:translateY(-1px)}
+.gl-table-wrap{overflow-x:auto;border:1px solid var(--gs-line);border-radius:var(--gs-radius);background:var(--gs-bg-2)}
+.gl-table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.gl-table th,.gl-table td{text-align:left;vertical-align:top;padding:13px 16px;border-bottom:1px solid var(--gs-line)}
+.gl-table thead th{font-size:12px;color:var(--gs-text-3);text-transform:uppercase;letter-spacing:.06em;background:var(--gs-panel);font-weight:750}
+.gl-table tbody th{color:var(--gs-head);white-space:nowrap;font-weight:700}.gl-table tr:last-child>*{border-bottom:0}
+.gl-table code{color:#aee6ff;font:12.5px/1.55 var(--gs-mono);overflow-wrap:anywhere}
+.gl-table small{display:block;color:var(--gs-text-3);font-size:13px;margin-top:4px;line-height:1.55}
+.gl-status{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:5px;background:#153427;color:var(--gs-ok);text-transform:uppercase;letter-spacing:.04em}
+.gl-status.is-built{background:#2a2143;color:var(--gs-built)}.gl-status.is-decoded,.gl-status.is-measured{background:#133332;color:var(--gs-decoded)}.gl-status.is-partial{background:#382f14;color:var(--gs-partial)}.gl-status.is-unverified{background:#3b2410;color:var(--gs-warn)}
+.gl-engine{font-size:12.5px;color:var(--gs-text-2);font-weight:650}
+.gl-evidence{color:var(--gs-text);background:var(--gs-bg-2);border:1px solid var(--gs-line);border-left:3px solid var(--gs-accent);border-radius:10px;padding:14px 18px;margin:0;line-height:1.7}
+.gl-limits{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.gl-limits li{position:relative;padding:0 0 0 26px;color:var(--gs-text-2);line-height:1.65}
+.gl-limits li::before{content:"";position:absolute;left:4px;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--gs-warn)}
+.gl-classic{margin-top:40px;padding:22px 24px!important;border:1px solid var(--gs-line);border-radius:var(--gs-radius);background:var(--gs-bg-2)}
+.gl-classic h2{font-size:17px;margin-bottom:8px}.gl-classic a{font-weight:700}.gl-classic p{margin:0 0 10px;color:var(--gs-text-2)}
+.gl-faq.gs-faq h2{margin-bottom:20px}
 .gl-related ul,.gl-hub-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.gl-related a,.gl-hub-list a{display:block;height:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--ink)}
-.gl-related a:hover,.gl-hub-list a:hover{border-color:var(--accent);color:var(--ink)}
-.gl-related b,.gl-hub-list b{display:block;font-size:14.5px;color:#fff;line-height:1.35}.gl-related small,.gl-hub-list small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:12.5px;line-height:1.5;margin-top:4px}
-/* footer (markup from src/content.js footer()) */
-.gl-footer{border-top:1px solid var(--line);margin-top:36px}
-.gl-footer .site-footer{max-width:1240px;margin:0 auto;padding:22px 24px 36px;font-size:13px;color:var(--muted)}
-.gl-footer .site-footer nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px}.gl-footer .site-footer a{color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
-.gl-footer .site-footer p{margin:0}
-@media (max-width:1100px){.gl-hero{grid-template-columns:1fr;gap:26px}.gl-shot{max-width:880px}}
-@media (max-width:640px){
- .gl-header{padding:10px 16px;gap:8px}.gl-brand strong{font-size:17px}.gl-hide-s{display:none}.gl-header-end{gap:2px}.gl-header-link,.header-studio{padding:6px 8px;font-size:12.5px}.gl-lang{padding-left:2px}
- .gl-main{padding:0 16px 16px}.gl-hero{padding:20px 0 16px}.gl-hero::before{inset:0 -16px}
- .gl-hero h1{font-size:28px;letter-spacing:-.8px}.gl-lead{font-size:15px}
- .gl-drop{padding:16px}.gl-drop-actions{width:100%}.gl-primary{flex:1 1 auto}
- .gl-badge{padding:6px 9px 6px 10px}.gl-badge b{font-size:12.5px}
- .gl-section{padding-top:24px}.gl-section h2{font-size:19px}
- .gl-footer .site-footer{padding:20px 16px 30px}
+.gl-related a,.gl-hub-list a{display:block;height:100%;background:var(--gs-panel);border:1px solid var(--gs-line);border-radius:var(--gs-radius);padding:14px 16px;color:var(--gs-text)!important;transition:border-color .15s,background .15s}
+.gl-related a:hover,.gl-hub-list a:hover{border-color:#4cc2ff80;background:#1d2127}
+.gl-related b,.gl-hub-list b{display:block;font-size:15px;color:var(--gs-head);line-height:1.35}
+.gl-related small,.gl-hub-list small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--gs-text-3);font-size:13px;line-height:1.5;margin-top:5px}
+.gl-related h3{margin-top:28px}
+.gl-hub-group+.gl-hub-group{margin-top:8px}
+
+/* ---------------------------------------------------------------- responsive */
+@media (max-width:1100px){.gl-layout{grid-template-columns:180px minmax(0,1fr);gap:40px}}
+@media (max-width:900px){
+ .gl-layout{grid-template-columns:1fr;gap:0}
+ .gl-toc{display:none}
+ .gl-hub-nav{display:block;position:static;padding-top:32px}
+ .gl-hub-nav ol{display:flex;flex-wrap:wrap;gap:8px;border:0}
+ .gl-hub-nav a{margin:0;border:1px solid var(--gs-line);border-radius:999px;padding:7px 14px;background:var(--gs-panel)}
+ .gl-hub-nav a:hover{border-color:var(--gs-accent)}
+ .gl-drop{grid-template-columns:1fr}
+ .gl-drop-actions{justify-content:flex-start}
 }
-html[lang="ko"] .game-landing{word-break:keep-all;overflow-wrap:break-word}
-.gl-table code,.gl-cards li,.gl-lead{overflow-wrap:anywhere}
-/* Headings and prose can hold long unbreakable runs ("hover·pressed·disabled·focus", keep-all Korean);
-   with wider fallback fonts (Linux CI) they overflowed 390 px. Break them only when nothing else fits. */
-.game-landing :is(h1,h2,h3,p,li,dt,dd,figcaption,summary){overflow-wrap:anywhere}
-html[lang="ja"] .game-landing{font-family:"Yu Gothic UI","Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,system-ui,sans-serif}
-html[lang="ja"] .gl-hero h1,html[lang="ko"] .gl-hero h1{letter-spacing:-.4px}
+@media (max-width:640px){
+ .gl-hero{padding-top:28px}
+ .gl-hero-copy{text-align:left;align-items:flex-start}
+ .gl-crumb{justify-content:flex-start;margin-bottom:14px}
+ .gl-hero h1{font-size:clamp(28px,8.2vw,36px)}
+ .gl-lead{font-size:16px;margin-bottom:22px}
+ .gl-drop{padding:18px 16px;gap:14px}
+ .gl-drop-main{align-items:flex-start;gap:12px}
+ .gl-drop-art{width:44px;height:44px}
+ .gl-drop strong{font-size:15px}
+ .gl-drop-actions{width:100%;flex-direction:column}
+ .gl-drop-actions .gs-btn{width:100%;white-space:normal;text-align:center;line-height:1.3;padding-top:10px;padding-bottom:10px}
+ .gl-shot{margin-top:32px}
+ /* phones: the canvas of the screenshot, not the whole window at a third of its size */
+ .gl-shot-frame{aspect-ratio:4/3}
+ .gl-shot-frame picture{height:100%}
+ .gl-shot-frame img{height:100%;object-fit:cover;object-position:42% 45%;transform:scale(1.5);transform-origin:42% 45%}
+ .gl-shot figcaption{text-align:left}
+ .gl-strip{margin-top:28px;gap:12px}
+ .gl-badge{padding:6px 10px;gap:8px}
+ .gl-badge b{font-size:12.5px}
+ .gl-badge small{display:none}
+ .gl-section{padding-top:40px}
+ .gl-cards{grid-template-columns:1fr}
+ .gl-steps li{padding:12px 14px}
+}
+.gl-body .ad-slot{margin:48px 0 0}

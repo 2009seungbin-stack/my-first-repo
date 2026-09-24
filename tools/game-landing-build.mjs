@@ -1,9 +1,9 @@
 import {BRAND} from '../src/brand.js';
-import {logoMark} from '../src/logo.js';
-import {LOCALES,LANGUAGE_NAMES,t} from '../src/i18n.js';
+import {t} from '../src/i18n.js';
 import {INTENTS,ALIASES} from '../src/intents.js';
 import {LANDINGS} from '../src/landings.js';
 import {footer} from '../src/content.js';
+import {siteHeader,footerBrand} from './game-chrome.mjs';
 import {DIRECTORY} from '../src/task/registry.js';
 import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
 import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
@@ -12,7 +12,6 @@ import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs
  * (src/game-landing.js → src/task/handoff.js → /game/studio/?ws=…). Everything a crawler
  * needs is in the markup; the script only adds the drop/hand-off and the language switch. */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const globe='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>';
 
 /** Which game page a route is, if any. Intent aliases (e.g. sprite-normalizer) show their
  * intent's landing; <route>/classic (old Lab behind a Studio landing) and <route>/app (the Lab behind
@@ -55,20 +54,31 @@ const LAB_UI={
  guides:{en:'Guides',ko:'가이드',ja:'ガイド'},
  allGuides:{en:'All game dev guides',ko:'게임 개발 가이드 전체',ja:'ゲーム開発ガイド一覧'}
 };
+/** Design chrome of the landing template (not page copy): TOC, strip labels. */
+const DESIGN_UI={
+ onPage:{en:'On this page',ko:'이 페이지',ja:'このページ'},
+ exportsTo:{en:'Exports to',ko:'내보내기 대상',ja:'書き出し先'},
+ outputsTo:{en:'Outputs',ko:'출력',ja:'出力'},
+ guides:{en:'Guides',ko:'가이드',ja:'ガイド'}
+};
 function header(locale,prefix){
- return `<header class="gl-header"><a class="gl-brand" href="${prefix}" aria-label="${esc(BRAND.name)}">${logoMark({size:26})}<strong>${esc(BRAND.name)}<span>.</span></strong></a><nav class="gl-header-end" aria-label="${esc(UI.hub[locale])}"><a class="header-studio" data-studio-link href="${prefix}${STUDIO_ROUTE}/">${esc(UI.studio[locale])}</a><a class="gl-header-link" href="${prefix}${GAME_HUB_PATH}/">${esc(UI.allGame[locale])}</a><a class="gl-header-link gl-hide-s" href="${prefix}">${esc(UI.allTools[locale])}</a><label class="gl-lang">${globe}<select id="languageSelect" aria-label="${esc(t('language.label',{},locale))}"><option value="auto">${esc(t('language.auto',{},locale))}</option>${LOCALES.map(l=>`<option value="${l}" lang="${l}"${prefix===l+'/'?' selected':''}>${LANGUAGE_NAMES[l]}</option>`).join('')}</select></label></nav></header>`;
+ return siteHeader({locale,prefix,navLabel:UI.hub[locale],
+  links:[{href:`${prefix}${GAME_HUB_PATH}/`,label:UI.allGame[locale]},...(GUIDES.length?[{href:`${prefix}${GUIDE_INDEX_PATH}/`,label:DESIGN_UI.guides[locale]}]:[]),{href:prefix,label:UI.allTools[locale]}],
+  studio:{href:`${prefix}${STUDIO_ROUTE}/`,label:UI.studio[locale],attrs:{'data-studio-link':true}}});
 }
-function shell({locale,base,title,description,headHTML,body}){
- return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#101217"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-landing.css"><script type="module" src="src/game-landing.js"></script>${headHTML}
-</head><body class="game-landing" data-ad-exclude>${body}<input id="glFiles" type="file" multiple hidden></body></html>`;
+function shell({locale,base,title,description,headHTML,body,shotKey}){
+ return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-landing.css">${SHOTS[shotKey]?`<link rel="preload" as="image" href="assets/studio/${SHOTS[shotKey].file}-780.webp" media="(max-width: 820px)" fetchpriority="high">`:''}<script type="module" src="src/game-landing.js"></script>${headHTML}
+</head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"></div><input id="glFiles" type="file" multiple hidden></body></html>`;
 }
+const footerHTML=(locale,prefix)=>`<div class="gs-footgrid gl-foot">${footerBrand({locale,prefix})}${footer(locale)}</div>`;
 function shot(key,locale,{priority=false}={}){
  const s=SHOTS[key];if(!s)return '';
- return `<figure class="gl-shot"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}" decoding="async"${priority?' fetchpriority="high"':' loading="lazy"'}></picture><figcaption>${esc(shotCaption(s,locale))}</figcaption></figure>`;
+ return `<figure class="gl-shot${s.app==='studio'?'':' is-lab'}"><div class="gs-frame gl-shot-frame"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp" width="780" height="${Math.round(s.h*780/s.w)}"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}"${priority?' fetchpriority="high"':' loading="lazy" decoding="async"'}></picture></div><figcaption class="gs-caption">${esc(shotCaption(s,locale))}</figcaption></figure>`;
 }
-function badges(ws,locale,highlight=[]){
+function badges(ws,locale,highlight=[],{label=true}={}){
  const rows=exportsFor(ws),order=[...rows.filter(r=>highlight.includes(r.id)),...rows.filter(r=>!highlight.includes(r.id))];
- return `<ul class="gl-badges" aria-label="${esc(UI.exports[locale])}">${order.map(r=>`<li class="gl-badge is-${r.status}${highlight.includes(r.id)?' is-hl':''}" data-engine="${esc(r.id)}" title="${esc(r.note[locale])}"><b>${esc(r.name)}</b><span>${esc(STATUS[r.status][locale])}${r.engine?' · '+esc(r.engine):''}</span></li>`).join('')}</ul>`;
+ const head=label?`<div class="gl-strip-label" data-chrome>${esc((isStudioKind(ws)?DESIGN_UI.exportsTo:DESIGN_UI.outputsTo)[locale])}</div>`:'';
+ return `<div class="gl-strip">${head}<ul class="gl-badges" aria-label="${esc(UI.exports[locale])}">${order.map(r=>`<li class="gl-badge is-${r.status}${highlight.includes(r.id)?' is-hl':''}" data-engine="${esc(r.id)}" title="${esc(r.note[locale])}"><b>${esc(r.name)}</b><span class="gs-status is-${r.status}">${esc(STATUS[r.status][locale])}</span>${r.engine?`<small>· ${esc(r.engine)}</small>`:''}</li>`).join('')}</ul></div>`;
 }
 function exportTable(ws,locale){
  return `<div class="gl-table-wrap"><table class="gl-table"><thead><tr><th scope="col">${esc(UI.target[locale])}</th><th scope="col">${esc(UI.files[locale])}</th><th scope="col">${esc(UI.check[locale])}</th></tr></thead><tbody>${exportsFor(ws).map(r=>`<tr data-engine="${esc(r.id)}"><th scope="row">${esc(r.name)}</th><td><code>${esc(r.files)}</code></td><td><span class="gl-status is-${r.status}">${esc(STATUS[r.status][locale])}</span>${r.engine?` <span class="gl-engine">${esc(r.engine)}</span>`:''}<small>${esc(r.note[locale])}</small></td></tr>`).join('')}</tbody></table></div>`;
@@ -79,35 +89,46 @@ const EVIDENCE={
  tile:{en:'Layouts identified from the pixels alone on the tile corpus: 4 blob-47 templates and 2 Wang templates with high confidence, a real 64 px cave tileset with medium confidence — every tile\'s bits right. Godot 4.7.2 painted every test cell exactly as the Studio predicted (485/485 per blob set, 251/251 on a 4-terrain dual-grid pack); Tiled 1.12.2 read every Wang ID back; Unity 6000.5 matched on every painted cell of the blob and side sets.',ko:'타일 코퍼스에서 픽셀만으로 배치를 인식: 블롭 47 템플릿 4개와 Wang 템플릿 2개는 높은 신뢰도, 실제 64px 동굴 타일셋은 중간 신뢰도로 모든 타일의 비트가 정확. Godot 4.7.2가 모든 테스트 칸을 Studio 예측대로 칠함(블롭 세트마다 485/485, 지형 4개 듀얼 그리드 팩 251/251). Tiled 1.12.2가 모든 Wang ID를 다시 읽음. Unity 6000.5에서 블롭·변 세트의 칠한 모든 칸 일치.',ja:'タイルコーパスでピクセルだけから配置を判定：ブロブ47テンプレート4つとWangテンプレート2つは高信頼度、実在の64px洞窟タイルセットは中信頼度で全タイルのビットが正解。Godot 4.7.2は全テストセルをStudioの予測どおりに塗りました（ブロブセットごとに485/485、4地形のデュアルグリッド251/251）。Tiled 1.12.2は全Wang IDを読み戻し、Unity 6000.5はブロブ・辺セットの塗った全セルで一致。'}
 };
 function faqHTML(items,locale){
- return `<section class="gl-section gl-faq" id="faq"><h2>${esc(UI.faq[locale])}</h2>${items.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>`;
+ return `<section class="gl-section gl-faq gs-faq" id="faq"><h2>${esc(UI.faq[locale])}</h2>${items.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>`;
 }
 function related(keys,locale,prefix,{id,ws}={}){
  const list=keys.filter(k=>INTENTS[k]||LANDINGS[k]),guides=guidesFor({id,ws}).slice(0,3);
  if(!list.length&&!guides.length)return '';
  const item=(href,title,desc)=>`<li><a href="${href}"><b>${esc(title)}</b><small>${esc(desc)}</small></a></li>`;
- return `<nav class="gl-section gl-related" aria-label="${esc(UI.related[locale])}"><h2>${esc(UI.related[locale])}</h2><ul>${list.map(k=>item(`${prefix}${routeOf(k)}/`,titleOf(k,locale),descOf(k,locale))).join('')}</ul>${guides.length?`<h3>${esc(LAB_UI.guides[locale])}</h3><ul class="gl-guides">${guides.map(g=>item(`${prefix}${guidePath(g.slug)}/`,g.title?.[locale]||g.title?.en||g.slug,g.description?.[locale]||g.description?.en||'')).join('')}</ul>`:''}</nav>`;
+ return `<nav class="gl-section gl-related" id="related" aria-label="${esc(UI.related[locale])}"><h2>${esc(UI.related[locale])}</h2><ul>${list.map(k=>item(`${prefix}${routeOf(k)}/`,titleOf(k,locale),descOf(k,locale))).join('')}</ul>${guides.length?`<h3>${esc(LAB_UI.guides[locale])}</h3><ul class="gl-guides">${guides.map(g=>item(`${prefix}${guidePath(g.slug)}/`,g.title?.[locale]||g.title?.en||g.slug,g.description?.[locale]||g.description?.en||'')).join('')}</ul>`:''}</nav>`;
 }
+const dropIcon='<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="2" y="2" width="11" height="11" rx="2" fill="#4cc2ff"/><rect x="15" y="2" width="11" height="11" rx="2" fill="#ff5d6c"/><rect x="2" y="15" width="11" height="11" rx="2" fill="#ffd23f"/><rect x="15" y="15" width="11" height="11" rx="2" fill="#7bd88f"/></svg>';
 function dropZone({game,locale,prefix}){
  const k=kindOf(game.page.ws),target=targetOf(game);
  const emptyLabel=target.type==='studio'?UI.empty[locale]:LAB_UI.open[locale].replace('{name}',k.name[locale]);
- return `<div class="gl-drop" data-gl-drop role="button" tabindex="0" aria-describedby="glDropHint"><div class="gl-drop-art" aria-hidden="true"><i></i><i></i><i></i><i></i></div><strong>${esc(k.drop[locale])}</strong><div class="gl-drop-actions"><button type="button" class="gl-primary" data-gl-pick>${esc(UI.choose[locale])}</button><a class="gl-secondary" data-gl-empty href="${prefix}${target.empty}">${esc(emptyLabel)}</a></div><small id="glDropHint" class="gl-local">${esc(UI.local[locale])}</small><p class="gl-status-line" data-gl-status role="status" aria-live="polite" hidden></p></div>`;
+ return `<div class="gl-drop" data-gl-drop role="button" tabindex="0" aria-describedby="glDropHint"><div class="gl-drop-main"><span class="gl-drop-art">${dropIcon}</span><strong>${esc(k.drop[locale])}</strong></div><div class="gl-drop-actions"><button type="button" class="gs-btn gs-btn-primary gl-primary" data-gl-pick>${esc(UI.choose[locale])}</button><a class="gs-btn gs-btn-ghost gl-secondary" data-gl-empty href="${prefix}${target.empty}">${esc(emptyLabel)}</a></div><small id="glDropHint" class="gl-local">${esc(UI.local[locale])}</small><p class="gl-status-line" data-gl-status role="status" aria-live="polite" hidden></p></div>`;
 }
 const targetAttrs=(game,prefix)=>{const t=targetOf(game);return ` data-target="${t.type}" data-href="${esc(prefix+t.route)}" data-then="${t.then}" data-ws="${esc(game.page.ws)}"`;};
 /** A game landing page (Studio intent, Lab intent or keyword landing). */
+/** "On this page": the sections of a landing, in order, for the sticky side rail (desktop). */
+function toc(items,locale){
+ return `<nav class="gl-toc" data-chrome aria-label="${esc(DESIGN_UI.onPage[locale])}"><p>${esc(DESIGN_UI.onPage[locale])}</p><ol>${items.map(([id,label])=>`<li><a href="#${id}">${esc(label)}</a></li>`).join('')}</ol></nav>`;
+}
+/** A game landing page (Studio intent, Lab intent or keyword landing). Order: hero (keyword H1,
+ * drop zone that hands the files over, the real screenshot), the engine strip, then the reading part
+ * with a side rail. Ads (only when a build enables them, src/ads.js) sit at the two markers inside
+ * [data-ad-host]: after the how-to and between the FAQ and the related pages. */
 export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const {page,kind,key}=game,c=page.copy[locale],ws=page.ws,k=kindOf(ws),studio=isStudioKind(ws);
  const title=`${c.title} · ${BRAND.name}`,classic=kind==='intent'&&page.classic?`${prefix}${classicPath(INTENTS[key].path)}/`:'';
  const tool=kind==='keyword'?toolRoute(page.intent):toolRoute(key);
  const crumb=`<nav class="gl-crumb" aria-label="Breadcrumb"><a href="${prefix}">${esc(BRAND.name)}</a><span aria-hidden="true">/</span><a href="${prefix}${GAME_HUB_PATH}/">${esc(UI.hub[locale])}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(k.name[locale])}</span></nav>`;
- const hero=`<section class="gl-hero"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</section>`;
+ const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</div></section>`;
  const what=`<section class="gl-section" id="what"><h2>${esc(UI.what[locale])}</h2><ul class="gl-cards">${c.what.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
  const how=`<section class="gl-section" id="how"><h2>${esc(UI.how[locale])}</h2><ol class="gl-steps">${c.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>`;
  const exp=`<section class="gl-section" id="exports"><h2>${esc(studio?UI.exports[locale]:LAB_UI.outputs[locale])}</h2><p class="gl-muted">${esc(studio?UI.exportsLead[locale]:LAB_UI.outputsLead[locale])}</p>${exportTable(ws,locale)}<h3>${esc(UI.evidence[locale])}</h3><p class="gl-evidence">${esc((EVIDENCE[ws]||k.evidence)[locale])}</p></section>`;
  const limits=`<section class="gl-section" id="limits"><h2>${esc(UI.limits[locale])}</h2><ul class="gl-limits">${k.limits[locale].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
- const classicHTML=classic?`<aside class="gl-section gl-classic" data-gl-classic><h2>${esc(UI.classic[locale])}</h2><p>${esc(page.classic[locale])}</p><a href="${classic}" rel="nofollow">${esc(UI.classicLink[locale])} →</a></aside>`:'';
+ const classicHTML=classic?`<section class="gl-section gl-classic" data-gl-classic><h2>${esc(UI.classic[locale])}</h2><p>${esc(page.classic[locale])}</p><a href="${classic}" rel="nofollow">${esc(UI.classicLink[locale])} →</a></section>`:'';
  const faq=faqHTML(gameFaq(game,locale),locale);
- const body=`${header(locale,prefix)}<main class="gl-main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}" data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}${badges(ws,locale,page.highlight||[])}<div class="gl-body">${what}${how}${exp}${limits}${classicHTML}${faq}${related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws})}</div></main><div class="gl-footer">${footer(locale)}</div>`;
- return shell({locale,base,title,description:c.description,headHTML,body});
+ const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
+ const items=[['what',UI.what[locale]],['how',UI.how[locale]],['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}" data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${what}${how}<!--ad:content-1-->${exp}${limits}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
+ return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];
@@ -132,10 +153,11 @@ export function gameHubPage({locale,prefix,base,headHTML}){
  const h=HUB[locale],title=`${h.title} · ${BRAND.name}`,groups=gameGroups();
  const section=ws=>groups[ws].length?`<section class="gl-section gl-hub-group" id="hub-${ws}"><h2>${esc(HUB_GROUPS[ws][locale])}</h2><ul class="gl-hub-list">${groups[ws].map(k=>`<li><a href="${prefix}${routeOf(k)}/"><b>${esc(titleOf(k,locale))}</b><small>${esc(descOf(k,locale))}</small></a></li>`).join('')}</ul></section>`:'';
  const crumb=`<nav class="gl-crumb" aria-label="Breadcrumb"><a href="${prefix}">${esc(BRAND.name)}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(UI.hub[locale])}</span></nav>`;
- const hero=`<section class="gl-hero"><div class="gl-hero-copy">${crumb}<h1>${esc(h.title)}</h1><p class="gl-lead">${esc(h.lead)}</p>${dropZone({game:HUB_GAME,locale,prefix})}</div>${shot('sprite-frame',locale,{priority:true})}</section>`;
- const nav=`<nav class="gl-hub-nav" aria-label="${esc(UI.hub[locale])}">${GROUP_ORDER.filter(ws=>groups[ws].length).map(ws=>`<a href="${prefix}${GAME_HUB_PATH}/#hub-${ws}">${esc(HUB_GROUPS[ws][locale])}</a>`).join('')}${GUIDES.length?`<a href="${prefix}${GAME_HUB_PATH}/#hub-guides">${esc(LAB_UI.guides[locale])}</a>`:''}</nav>`;
+ const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(h.title)}</h1><p class="gl-lead">${esc(h.lead)}</p>${dropZone({game:HUB_GAME,locale,prefix})}</div>${shot('sprite-frame',locale,{priority:true})}</div></section>`;
+ const nav=`<nav class="gl-toc gl-hub-nav" aria-label="${esc(UI.hub[locale])}"><p>${esc(DESIGN_UI.onPage[locale])}</p><ol>${GROUP_ORDER.filter(ws=>groups[ws].length).map(ws=>`<li><a href="${prefix}${GAME_HUB_PATH}/#hub-${ws}">${esc(HUB_GROUPS[ws][locale])}</a></li>`).join('')}${GUIDES.length?`<li><a href="${prefix}${GAME_HUB_PATH}/#hub-guides">${esc(LAB_UI.guides[locale])}</a></li>`:''}<li><a href="${prefix}${GAME_HUB_PATH}/#exports">${esc(UI.exports[locale])}</a></li><li><a href="${prefix}${GAME_HUB_PATH}/#faq">${esc(UI.faq[locale])}</a></li></ol></nav>`;
  // Every guide, once src/guides.js has any (branch nerulio/game-guides); nothing before that.
- const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2>${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>`<li><a href="${prefix}${guidePath(g.slug)}/"><b>${esc(g.title?.[locale]||g.title?.en||g.slug)}</b><small>${esc(g.description?.[locale]||g.description?.en||'')}</small></a></li>`).join('')}</ul><p><a href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])} →</a></p></section>`:'';
- const body=`${header(locale,prefix)}<main class="gl-main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}${badges('sprite',locale)}${nav}<div class="gl-body">${GROUP_ORDER.map(section).join('')}${guides}<section class="gl-section"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale)}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}</div></main><div class="gl-footer">${footer(locale)}</div>`;
- return shell({locale,base,title,description:h.description,headHTML,body});
+ const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2>${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>`<li><a href="${prefix}${guidePath(g.slug)}/"><b>${esc(g.title?.[locale]||g.title?.en||g.slug)}</b><small>${esc(g.description?.[locale]||g.description?.en||'')}</small></a></li>`).join('')}</ul><p><a class="gs-link" href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])}</a></p></section>`:'';
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}<div class="gs-wrap">${badges('sprite',locale)}</div><div class="gs-wrap gl-layout">${nav}<div class="gl-body" data-ad-host>${GROUP_ORDER.map(section).join('')}${guides}<!--ad:content-1--><section class="gl-section" id="exports"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale,[],{label:false})}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}<!--ad:content-2--></div></div></main>${footerHTML(locale,prefix)}`;
+ return shell({locale,base,title,description:h.description,headHTML,body,shotKey:'sprite-frame'});
+
 }
