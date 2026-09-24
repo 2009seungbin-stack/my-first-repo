@@ -8,12 +8,13 @@
  *   Pro, an unreachable service or no answer in time → no Google request and no ad DOM for
  *   this page. The decision never changes during the page's life (no late layout shift).
  * - Accounts on: Studio exports are metered (meter.js) with the Studio's own limit dialog. */
-import {enabled,load,current} from '../../entitlement.js';
+import {enabled,load,current,openSignIn,onSignIn} from '../../entitlement.js';
 import {adsForSession} from './layout.js';
 import {mountAdColumn} from './ad-column.js';
 import {bindStudio} from './meter.js';
 import {startRemainingNotes} from './notes.js';
-import {showStudioLimit} from './limit-dialog.js';
+import {showStudioLimit,showStudioSignIn} from './limit-dialog.js';
+import {mt} from './strings.js';
 export const DECISION_CAP_MS=1500;
 export function studioAdConfig(doc=document){
  try{const c=JSON.parse(doc.querySelector('meta[name="nerulio-studio-ad"]')?.content||'null');return c?.client&&c?.slot?{client:String(c.client),slot:String(c.slot)}:null;}catch{return null;}
@@ -33,7 +34,10 @@ export async function prepareMonetization(){
   if(decision.ads)out.ad=mountAdColumn(root,{client:ad.client,slot:ad.slot,pricingURL});
   if(enabled){
    const refresh=startRemainingNotes(root,()=>studio.locale);
-   bindStudio(studio,{usageChanged:refresh,onLimit:info=>showStudioLimit(studio,root,{...info,pricingURL:pricingURL(studio.locale)})});
+   bindStudio(studio,{usageChanged:refresh,onLimit:info=>showStudioLimit(studio,root,{...info,pricingURL:pricingURL(studio.locale)}),
+    onSignIn:info=>showStudioSignIn(studio,root,{...info,openSignIn})});
+   // Sign-in finished in the other tab: say so quietly; the project was never touched.
+   onSignIn(()=>{refresh();studio.toast(mt(studio.locale,'meter.signedIn'));});
   }
   return out;
  }};

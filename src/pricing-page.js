@@ -13,23 +13,27 @@ function render(){
  if(me.plan==='pro'){action.innerHTML=`${note('youArePro')}<a class="secondary" href="${locale}/account/">${esc(t('account'))}</a>`;return;}
  if(me.billing.mode==='off'){action.innerHTML=note('purchasesClosed');return;}
  if(!me.loggedIn){action.innerHTML=`<a class="primary" data-signin href="${esc(apiPath(`auth/google/start?return=${encodeURIComponent(`/${locale}/pricing/`)}`))}">${esc(t('signInToUpgrade'))}</a>`;return;}
- action.innerHTML=`<button type="button" class="primary" data-checkout>${esc(t('upgrade'))}</button><p class="plan-note" data-checkout-status role="status"></p>`;
+ // Monthly always; yearly when the Worker has a yearly price (BILLING_PRICE_ID_YEARLY).
+ const yearly=me.billing.yearly?`<button type="button" class="secondary" data-checkout="year">${esc(t('upgradeYearly'))}</button>`:'';
+ action.innerHTML=`<button type="button" class="primary" data-checkout="month">${esc(t(yearly?'upgradeMonthly':'upgrade'))}</button>${yearly}<p class="plan-note" data-checkout-status role="status"></p>`;
 }
 action.addEventListener('click',async event=>{
  if(event.target.closest('[data-signin]')){track('login_started');return;}
  const button=event.target.closest('[data-checkout]');if(!button)return;
- button.disabled=true;const out=action.querySelector('[data-checkout-status]');
+ const all=[...action.querySelectorAll('[data-checkout]')];for(const b of all)b.disabled=true;const out=action.querySelector('[data-checkout-status]');
  try{
   const post=body=>fetch(apiPath('billing/checkout'),{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  let r=await post({locale}),data=await r.json().catch(()=>null);
+  const interval=button.dataset.checkout==='year'?'year':'month';
+  let r=await post({locale,interval}),data=await r.json().catch(()=>null);
   if(data?.error?.code==='CHALLENGE_REQUIRED'){
    const token=await (await import('./human-check.js')).challenge(data.error.siteKey,'checkout',locale);
-   if(!token){button.disabled=false;return;}
-   r=await post({locale,turnstileToken:token});data=await r.json().catch(()=>null);
+   if(!token){for(const b of all)b.disabled=false;return;}
+   r=await post({locale,interval,turnstileToken:token});data=await r.json().catch(()=>null);
   }
-  if(r.ok&&data?.url){track('checkout_started',{plan:'free'});location.assign(data.url);return;}
-  out.textContent=t(data?.error?.code==='CHALLENGE_FAILED'?'challengeFailed':data?.error?.code==='ALREADY_PRO'?'youArePro':'serviceDown');
+  if(r.ok&&data?.url){track('checkout_started',{plan:'free',interval});location.assign(data.url);return;}
+  const code=data?.error?.code;
+  out.textContent=t(code==='CHALLENGE_FAILED'?'challengeFailed':code==='ALREADY_PRO'?'youArePro':code==='ACCOUNT_FLAGGED'?'accountFlagged':'serviceDown');
  }catch{out.textContent=t('serviceDown');}
- button.disabled=false;
+ for(const b of all)b.disabled=false;
 });
 if(entitlement.enabled){await load();render();}else render();

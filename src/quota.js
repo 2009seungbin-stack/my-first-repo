@@ -71,6 +71,15 @@ export function nextReset(now=Date.now()){const d=new Date(now);return Date.UTC(
 const limitOr=(value,fallback)=>{const n=Number(value);return value!==undefined&&value!==null&&value!==''&&Number.isInteger(n)&&n>=1&&n<=10000?n:fallback;};
 export const freeDailyLimit=value=>limitOr(value,DEFAULT_FREE_DAILY_JOBS);
 export const freeStudioLimit=value=>limitOr(value,DEFAULT_FREE_DAILY_STUDIO_EXPORTS);
+/** Studio engine exports allowed per day WITHOUT an account (FREE_ANON_STUDIO_EXPORTS, default 3).
+ * After that a free Google sign-in unlocks the rest of FREE_DAILY_STUDIO_EXPORTS. 0 means
+ * "sign in for every engine export"; the value never exceeds the signed-in limit. */
+export const DEFAULT_FREE_ANON_STUDIO_EXPORTS=3;
+export function freeAnonStudioLimit(value,signedIn=DEFAULT_FREE_DAILY_STUDIO_EXPORTS){
+ const n=Number(value);
+ const v=value!==undefined&&value!==null&&value!==''&&Number.isInteger(n)&&n>=0&&n<=10000?n:DEFAULT_FREE_ANON_STUDIO_EXPORTS;
+ return Math.min(v,signedIn);
+}
 /** Daily counters are separate per class: the D1 subject of a Studio export is suffixed so
  * the file tools' heavy jobs and the Studio's exports never eat each other's allowance. */
 export const STUDIO_SUBJECT_SUFFIX='#studio';

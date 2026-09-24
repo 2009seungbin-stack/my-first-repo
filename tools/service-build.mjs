@@ -13,7 +13,7 @@ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 /** Public, non-secret configuration read by src/entitlement.js. */
 export function serviceMeta(config){
  if(!config.service)return '';
- return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs,freeDailyStudio:config.freeDailyStudio}))}">`;
+ return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs,freeDailyStudio:config.freeDailyStudio,freeAnonStudio:config.freeAnonStudio,...(config.ticketPublicKey?{ticketKey:config.ticketPublicKey}:{})}))}">`;
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
@@ -56,7 +56,7 @@ export async function emitService(dist,config,head){
  await cp(new URL('server/',root),path.join(worker,'server'),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});await cp(new URL('src/quota.js',root),path.join(worker,'src','quota.js'));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
- await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,siteURL:config.siteURL||''})});\n`);
+ await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,siteURL:config.siteURL||''})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
 }
