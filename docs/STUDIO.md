@@ -32,6 +32,7 @@ src/studio/workspaces/
   viewer.js                     the Viewer/Import workspace (reference implementation of the API)
   coming.js                     workspaces not built yet, registered as "coming" (no UI of their own)
   tile/                         the Tile workspace (P3) — docs/STUDIO-TILE.md
+  texture/                      the Texture workspace (P4) — docs/STUDIO-TEXTURE.md
 src/studio/grid-worker.js       worker: grid suggestion (src/game/grid-detect.js) and per-cell occupancy
 ```
 

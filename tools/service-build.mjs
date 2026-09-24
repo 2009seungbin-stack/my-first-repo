@@ -16,7 +16,7 @@ export function serviceMeta(config){
  return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs}))}">`;
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
-export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-images.xml','/ads.txt']);
+export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
 export function serviceRoutes(config){
  // Without ads only /api/* is dynamic. With ads, HTML also needs a per-response nonce.
  // /_worker.js/* is routed only so the Worker can refuse to serve its own source.

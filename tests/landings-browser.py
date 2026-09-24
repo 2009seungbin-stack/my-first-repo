@@ -37,6 +37,20 @@ with sync_playwright() as pw:
         ok(f'{path} language switch keeps the landing URL',page.url.endswith('/ko/'+path.split('/',2)[2]))
         ok(f'{path} language switch keeps landing canonical',page.locator('link[rel=canonical]').get_attribute('href').endswith('/ko/'+path.split('/',2)[2]))
         page.close()
+    # Game keyword landings (src/game-seo.js): indexable, self canonical, and their file reaches the Studio.
+    FX=ROOT/'tests'/'fixtures'
+    for path,files,ws in [('/ja/game/gif-to-sprite-sheet/',[FX/'sprite'/'trooper_run.gif'],'pack'),('/ko/game/godot-autotile/',[FX/'tile'/'cave-autotile47.png'],'tile'),('/en/game/aseprite-to-godot/',[FX/'aseprite'/'indexed-features.aseprite'],'sprite')]:
+        page=browser.new_page(accept_downloads=True);page.on('pageerror',lambda e:errors.append(str(e)))
+        page.goto(BASE+path,wait_until='networkidle')
+        ok(f'{path} game landing: self canonical, hreflang, indexable',page.locator('link[rel=canonical]').get_attribute('href').endswith(path) and page.locator('link[hreflang]').count()==4 and page.locator('meta[name=robots]').count()==0)
+        ld=[json.loads(x) for x in page.locator('script[type="application/ld+json"]').all_text_contents()]
+        ok(f'{path} SoftwareApplication (DeveloperApplication, free) + breadcrumb',any(x.get('@type')=='SoftwareApplication' and x.get('applicationCategory')=='DeveloperApplication' and x['offers']['price']=='0' for x in ld) and any(x.get('@type')=='BreadcrumbList' for x in ld))
+        page.wait_for_function('()=>document.documentElement.dataset.glReady==="1"')
+        with page.expect_navigation(url=lambda u:'/game/studio/?ws=' in u):page.locator('#glFiles').set_input_files([str(f) for f in files])
+        page.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"&&window.nerulioStudio.doc.assets.length>0',timeout=60000)
+        if ws=='pack':page.wait_for_function('()=>window.nerulioStudio.workspace==="pack"',timeout=30000)
+        ok(f'{path} primary action: the file arrives in the Studio {ws} workspace',page.evaluate('window.nerulioStudio.workspace')==ws)
+        page.close()
     base=browser.new_page();base.goto(BASE+'/en/image/compress/',wait_until='networkidle')
     ok('base tool links to its task pages',base.locator('.landing-links a[href="en/image/compress-to-100kb/"]').count()==1)
     browser.close()
