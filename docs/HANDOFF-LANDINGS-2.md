@@ -33,6 +33,32 @@
 - **Texture kind is `normalmap`** because `texture` is already the Texture Lab's kind.
 - **Pages that would compete with an existing page were not made** (see SEO-KEYWORDS.md §6).
 
-## Status
+## Status (2026-09-24)
 
-In progress — see the final report / the commit log.
+- **39 new pages × ko/en/ja = 117 URLs**, all indexable (base intents qualify): broad 6, engines 6,
+  formats 12, fixes 9, compare 6. Game pages: 64 → 103 (sitemap-game.xml 196 → 313 URLs).
+- Quality gates (`node --test tests/game-seo-quality.test.mjs` prints them): own copy en min 2496 /
+  median 3220, ko 1433 / 1800, ja 1289 / 1686 characters; closest pair to any game page Jaccard ≤ 0.219,
+  containment ≤ 0.513 (thresholds 0.30/0.35/0.31 and 0.46/0.55/0.49).
+- 9 new real Studio screenshots (family shots) + recaptured Studio landing shots and home hero/pack/tile
+  captures (Texture was shown as "coming" before). 117 new social cards.
+- Existing pages link to the new ones (30 pages got 1–2 more related links; each stays at 4–6).
+- Home: one row under the game-tool index links the hub's family groups.
+- PixiJS @2x verified (`tools/engine-verify/pixi_scale.py`, results in `tools/engine-verify/results/`).
+- Browser checks: `tests/game-landing-browser.py` part 3 hands a file to every Studio family page;
+  part 6 follows a sample page of every family into the Studio in Chromium and Firefox and measures it.
+
+Writers were sub-agents working from `briefs/COMMON.md` + `briefs/FAMILIES.md` (session scratchpad); the
+facts they were allowed to use are the numbers in docs/STUDIO-*.md. Claims they softened or left out are
+listed in the final report.
+
+## Open / next
+
+- Retarget the old Texture Lab landings `normal-map-generator` and `game/pixel-art-normal-map` to the
+  Studio's Texture workspace (their Lab evidence in part 4 would need a Studio counterpart).
+- `src/game-seo-more.js` `game/phaser-texture-atlas` still says Phaser draws rotated frames "mirrored";
+  a later run measured "sideways and clipped" — the new pages say "drawn wrongly, not turned back".
+- The older 64 pages' copy is still in the browser module graph (~390 KB); it could move to Node-only
+  loading like the families.
+- Demand we could not serve yet (docs/SEO-KEYWORDS.md §6): pixel art editor, video → sprite sheet,
+  VRChat sheets, CJK bitmap fonts (UI Lab bugs), Unity tile collision.
