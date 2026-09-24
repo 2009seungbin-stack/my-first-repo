@@ -7,9 +7,10 @@ Drives the real Studio at /game/studio/ with committed CC0 art and saves crisp c
   - pack:  Pack & Export with the same frames packed for Godot 4.
   - tile:  Tile workspace, the cave autotile-47 sheet (OpenGameArt, CC0) and a test map
            painted with the Godot 4 terrain rule.
+  - labs:  4:3 crops of the Lab screenshots in assets/studio (no browser needed).
 Licences: assets/home/art/LICENSE.md and tests/fixtures/tile/SOURCES.md.
 Needs a running server: TEST_URL (default http://127.0.0.1:4173).
-Usage: python tools/home-screens.py [--only hero,pack,tile] [--locales en,ko,ja]
+Usage: python tools/home-screens.py [--only hero,pack,tile,labs] [--locales en,ko,ja]
 """
 import io, os, re, sys
 from pathlib import Path
@@ -136,6 +137,19 @@ def tile(browser, locale):
     p.context.close()
 
 
+def labs():
+    """Lab cards: 4:3 crops of the Lab screenshots (assets/studio/*-lab.webp, tools/studio-screens.py)."""
+    for name, box in [('pixel', (183, 300, 815, 760)), ('texture', (183, 312, 813, 620)), ('ui', (183, 95, 823, 562))]:
+        im = Image.open(ROOT / 'assets' / 'studio' / f'{name}-lab.webp').convert('RGB').crop(box)
+        r = max(640 / im.width, 480 / im.height)
+        im = im.resize((round(im.width * r), round(im.height * r)), Image.LANCZOS)
+        x, y = (im.width - 640) // 2, (im.height - 480) // 2
+        im.crop((x, y, x + 640, y + 480)).save(OUT / f'lab-{name}.webp', 'WEBP', quality=80, method=6)
+        print('wrote', f'lab-{name}.webp')
+
+
+if want('labs'):
+    labs()
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     for locale in LOCALES:
