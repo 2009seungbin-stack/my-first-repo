@@ -52,7 +52,7 @@ def js(p, body, arg=None):
 def quiet(p):
     p.wait_for_timeout(350)
     p.evaluate('()=>document.querySelectorAll(".st-toast,.st-toasts>*").forEach(e=>e.remove())')
-    p.mouse.move(W - 4, H - 4); p.wait_for_timeout(200)
+    p.mouse.move(4, 300); p.wait_for_timeout(200)
 
 
 def canvas_at(p, ix, iy):
@@ -64,8 +64,8 @@ def drag(p, a, b):
     p.mouse.move(s0['x'], s0['y']); p.mouse.down(); p.mouse.move(s1['x'], s1['y'], steps=6); p.mouse.up(); p.wait_for_timeout(120)
 
 
-def studio(browser, locale, ws):
-    ctx = browser.new_context(viewport={'width': W, 'height': H}, device_scale_factor=2, locale={'en': 'en-US', 'ko': 'ko-KR', 'ja': 'ja-JP'}[locale])
+def studio(browser, locale, ws, size=(W, H)):
+    ctx = browser.new_context(viewport={'width': size[0], 'height': size[1]}, device_scale_factor=2, locale={'en': 'en-US', 'ko': 'ko-KR', 'ja': 'ja-JP'}[locale])
     p = ctx.new_page()
     p.goto(f'{BASE}/{locale}/game/studio/?ws={ws}')
     p.wait_for_function('()=>document.documentElement.dataset.studioStarted==="1"', timeout=30000)
@@ -103,23 +103,26 @@ def hero(browser, locale):
     quiet(p)
     save(p.screenshot(), f'shot-hero-{locale}', [2560, 1600, 1280])
     # Phone crop: the canvas and the timeline, no side panels.
-    save(p.screenshot(), f'shot-hero-crop-{locale}', [1040, 780], crop=(40, 30, 520, 390 + 150))
+    save(p.screenshot(), f'shot-hero-crop-{locale}', [1040, 780], crop=(330, 30, 650, 670))
     p.context.close()
 
 
+SW, SH = 1000, 640  # workflow shots: a smaller window, so the UI reads at half the page width
+
+
 def pack(browser, locale):
-    p = studio(browser, locale, 'sprite')
+    p = studio(browser, locale, 'sprite', (SW, SH))
     sprite_project(p)
     p.click('.st-ws-tab[data-ws="pack"]')
     p.wait_for_selector('[data-pack="efficiency"]', state='attached', timeout=60000)
     p.wait_for_function('()=>!document.querySelector("[data-action=pack-cancel]")', timeout=60000)
     js(p, 'S.view.fit();'); quiet(p)
-    save(p.screenshot(), f'shot-pack-{locale}', [1600, 1040], crop=(40, 30, W - 40, H - 30 - 22))
+    save(p.screenshot(), f'shot-pack-{locale}', [1600, 1040], crop=(40, 30, SW - 40, SH - 30 - 22))
     p.context.close()
 
 
 def tile(browser, locale):
-    p = studio(browser, locale, 'tile')
+    p = studio(browser, locale, 'tile', (SW, SH))
     p.set_input_files('input[type=file][multiple]', [str(CAVE)])
     p.wait_for_selector('[data-grid-sug="0"]', timeout=30000)
     p.click('[data-action="tile-apply-grid"]'); p.wait_for_selector('[data-cand]', timeout=30000)
@@ -129,7 +132,7 @@ def tile(browser, locale):
     p.wait_for_function('()=>document.querySelector(".studio").dataset.tileMode==="map"', timeout=10000)
     p.wait_for_selector('[data-verdict="map-ok"]', timeout=10000)
     js(p, 'S.view.fit();'); quiet(p)
-    save(p.screenshot(), f'shot-tile-{locale}', [1600, 1040], crop=(40, 30, W - 40, H - 30 - 22))
+    save(p.screenshot(), f'shot-tile-{locale}', [1600, 1040], crop=(40, 30, SW - 40, SH - 30 - 22))
     p.context.close()
 
 

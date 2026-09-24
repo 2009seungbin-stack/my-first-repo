@@ -43,7 +43,7 @@ export function engineRows(){
   return {name,status,engine:rows.find(r=>r.engine)?.engine||''};
  });
 }
-const SHOT={w:2560,h:1520,cw:1040,ch:1080};
+const SHOT={w:2560,h:1520,cw:1040,ch:1072};
 export const heroSrcset=locale=>[1280,1600,2560].map(w=>`assets/home/shot-hero-${locale}-${w}.webp ${w}w`).join(', ');
 export const heroCropSrcset=locale=>[780,1040].map(w=>`assets/home/shot-hero-crop-${locale}-${w}.webp ${w}w`).join(', ');
 const HERO_SIZES='(max-width: 1248px) calc(100vw - 48px), 1200px';
@@ -78,8 +78,8 @@ ${u('gh.dropOr','p','gh-drop-hint')}</div>
  const labs=[['pixel','pixel-lab'],['texture','texture-lab'],['ui','ui-lab']].map(([ws,id])=>`<a class="gh-lab" data-tool-link="${id}" href="${prefix}${INTENTS[id].path}/"><span class="gh-lab-img"><img src="assets/home/lab-${ws}.webp" width="640" height="480" alt="" loading="lazy" decoding="async"></span><span class="gh-lab-copy"><b>${u(`gh.ws.${ws}.0`)}<em data-ui="gh.lab">${esc(ui(locale,'gh.lab'))}</em></b><small data-ui="gh.ws.${ws}.1">${esc(ui(locale,`gh.ws.${ws}.1`))}</small></span></a>`).join('');
  const flow=`<section class="gs-section gh-flow" id="workflow" aria-labelledby="flowTitle"><div class="gs-wrap"><header class="gs-head">${u('gh.flow.kicker','p','gs-kicker')}<h2 class="gs-h2" id="flowTitle" data-ui="gh.flow.title">${esc(ui(locale,'gh.flow.title'))}</h2>${u('gh.flow.lead','p','gs-lead')}</header>
 ${row('sprite',demo,go('sprite','openSprite'))}
-${row('pack',shotFig('pack','packCaption',1600,914),go('pack','openPack'),{flip:true})}
-${row('tile',shotFig('tile','tileCaption',1600,914),go('tile','openTile'))}
+${row('pack',shotFig('pack','packCaption',1600,980),go('pack','openPack'),{flip:true})}
+${row('tile',shotFig('tile','tileCaption',1600,980),go('tile','openTile'))}
 <article class="gh-row gh-row-labs" id="flow-labs"><div class="gh-row-copy"><h3>${u('gh.flow.labs.0')}</h3><p>${u('gh.flow.labs.1')}</p></div><div class="gh-labs">${labs}</div></article></div></section>`;
  // 3. Proof: which engines loaded the exports, with the Studio's own honest labels.
  const engines=`<section class="gs-section gh-engines" id="engines" aria-labelledby="enginesTitle"><div class="gs-wrap"><div class="gh-engines-box"><header class="gh-engines-head"><h2 class="gs-h2" id="enginesTitle" data-ui="gh.engines">${esc(ui(locale,'gh.engines'))}</h2>${u('gh.enginesNote','p','gs-lead')}</header><ul class="gh-engine-grid engine-list">${engineRows().map(r=>`<li class="gh-engine is-${r.status}"><b>${esc(r.name)}</b><span class="gs-status is-${r.status}" data-ui="gh.status.${r.status}">${esc(ui(locale,'gh.status.'+r.status))}</span>${r.engine?`<small>${esc(r.engine)}</small>`:''}</li>`).join('')}</ul></div></div></section>`;
