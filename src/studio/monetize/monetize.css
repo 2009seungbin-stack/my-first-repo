@@ -6,7 +6,9 @@
  /* the column is a fifth grid track after the right dock; its width is fixed at mount */
  .studio.has-ad[data-mode="desktop"] .st-body{grid-template-columns:var(--tool-w) minmax(0,1fr) 4px var(--right-w) var(--ad-col)}
  .studio.has-ad.right-closed[data-mode="desktop"] .st-body{grid-template-columns:var(--tool-w) minmax(0,1fr) 0 0 var(--ad-col)}
- .studio.has-ad[data-mode="desktop"] .st-ad{display:flex}
+ /* with the dock closed its 0-wide resizer would sit right beside the column: nothing to resize, so hide it */
+ .studio.has-ad.right-closed[data-mode="desktop"] .st-split-x{display:none}
+ .studio.has-ad[data-mode="desktop"] .st-ad{display:flex;grid-column:5;grid-row:1}/* explicit: a hidden (closed) dock takes no track */
  /* nothing of the editor ever covers the ad: the drop hint and dialog backdrops stop at the column */
  .studio.has-ad[data-mode="desktop"] .st-drop{right:var(--ad-col)}
  .studio.has-ad[data-mode="desktop"] .st-dialog::backdrop{right:var(--ad-col)}
