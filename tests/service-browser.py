@@ -241,10 +241,121 @@ def scenario_ads(browser):
             context.close()
     finally:stack.close()
 
+# ------------------------------------------------------------------ Studio (/game/studio/)
+STUDIO_SHEET=ROOT/'tests'/'fixtures'/'kenney'/'tiny-dungeon-tilemap.png'
+STUDIO_SHEET2=ROOT/'tests'/'fixtures'/'kenney'/'pixel-platformer-characters.png'
+SHOTS=Path(os.environ.get('SHOTS',OUT/'studio-monetization'));SHOTS.mkdir(parents=True,exist_ok=True)
+AD_STUB="""(function(){const fill=()=>setTimeout(()=>{for(const i of document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])')){i.dataset.adStatus='filled';const d=document.createElement('div');d.style.cssText='width:'+i.style.width+';height:'+i.style.height+';background:linear-gradient(160deg,#f1ead8,#d9cfb4);color:#5a5140;font:600 13px system-ui;display:grid;place-items:center';d.textContent='Test ad';i.append(d);}},300);const q=Array.isArray(window.adsbygoogle)?window.adsbygoogle:[];window.adsbygoogle={loaded:true,push:fill};q.forEach(fill);})();"""
+STUDIO_STARTED='()=>document.documentElement.dataset.studioStarted==="1"'
+EXPORT_READY='()=>{const b=document.querySelector("[data-export-main]");return b&&!b.disabled}'
+def open_studio(context,stack,log,ws='pack'):
+    page=context.new_page();instrument(page,log)
+    page.goto(stack.url+f'/en/game/studio/?ws={ws}',wait_until='domcontentloaded')
+    page.wait_for_function(STUDIO_STARTED,timeout=60000)
+    return page
+def studio_import(page,sheet=STUDIO_SHEET,count=1):
+    page.set_input_files('input[type=file][multiple]:not([webkitdirectory])',[str(sheet)])
+    page.wait_for_function('n=>window.nerulioStudio.doc.assets.length===n',arg=count,timeout=60000)
+    page.wait_for_selector('[data-pack="efficiency"]',state='attached',timeout=120000)
+    page.wait_for_function(EXPORT_READY,timeout=120000)
+def studio_export(page):
+    with page.expect_download(timeout=60000) as d:page.click('[data-export-main]')
+    size=Path(d.value.path()).stat().st_size
+    page.wait_for_function(EXPORT_READY,timeout=60000)
+    return size>0 and d.value.suggested_filename.endswith('.zip')
+def meter_note(page):
+    loc=page.locator('[data-export-main] + .st-meter-left')
+    return loc.inner_text().strip() if loc.count() else ''
+def canvas_width(page):return page.evaluate('document.querySelector(".st-canvas-wrap").getBoundingClientRect().width')
+def me_now(page):return page.evaluate('fetch("/api/v1/me").then(r=>r.json())')
+def scenario_studio(browser):
+    stack=Stack('studio',{'SITE_URL':'https://nerulio.test','ADSENSE_CLIENT':AD_CLIENT,'ADSENSE_SLOT_STUDIO':'1234567890','ADSENSE_CMP_READY':'true','PRO_PRICE_AMOUNT':'4.99','PRO_PRICE_CURRENCY':'USD','FREE_DAILY_STUDIO_EXPORTS':'2'},
+                {'FREE_DAILY_JOBS':'5','FREE_DAILY_STUDIO_EXPORTS':'2'})
+    try:
+        # Free: labelled ad column, 2 engine exports, then the Studio's own limit dialog.
+        context=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True);context._nerulio_base=stack.url;log=[];ads=[]
+        context.route(re.compile('googlesyndication'),lambda route:(ads.append(route.request.url),route.fulfill(status=200,content_type='text/javascript',body=AD_STUB)))
+        page=open_studio(context,stack,log)
+        ok('studio free: /me decided Free before the editor was built',page.evaluate('window.nerulioMonetization.decision.reason')=='free')
+        ok('studio free: one labelled ad unit, Google script requested once',page.locator('.st-ad ins.adsbygoogle').count()==1 and len(ads)==1 and page.locator('.st-ad-label').inner_text().strip().lower()=='advertisement',ads)
+        pro_link=page.locator('.st-ad [data-pro-link]')
+        ok('studio free: "Remove ads - Nerulio Pro" opens pricing in a new tab',pro_link.get_attribute('target')=='_blank' and pro_link.get_attribute('href').endswith('/en/pricing/'))
+        free_width=canvas_width(page)
+        studio_import(page)
+        ok('studio free: remaining count shown beside Export only because it is low (2 left)',meter_note(page)=='Free Studio exports left today: 2',meter_note(page))
+        ok('studio free: Studio export 1 downloads a bundle',studio_export(page))
+        auth=api_calls(log,'jobs/authorize');body=json.loads(auth[-1]['body'])
+        ok('studio authorize payload is only operationId + toolId',sorted(body)==['operationId','toolId'] and body['toolId']=='studio-pack-export',auth[-1]['body'])
+        page.wait_for_function('()=>/: 1$/.test(document.querySelector("[data-export-main] + .st-meter-left")?.textContent||"")',timeout=5000)
+        ok('studio free: Studio export 2 (limit 2) downloads',studio_export(page))
+        page.wait_for_function('()=>document.querySelector("[data-export-main] + .st-meter-left")?.classList.contains("is-out")',timeout=5000)
+        downloads=[];page.on('download',lambda d:downloads.append(d.suggested_filename))
+        page.click('[data-export-main]');page.locator('#studioLimitDialog').wait_for(timeout=15000)
+        ok('studio: the limit dialog appears exactly at the configured count',len(api_calls(log,'jobs/authorize'))==3)
+        text=page.locator('#studioLimitDialog [data-limit-body]').inner_text()
+        ok('studio: the dialog states 2 of 2, the UTC reset and the time left','2 of 2' in text and '00:00 UTC' in text,text)
+        ok('studio: the dialog says the work is kept and shows Pro with the configured price',page.locator('#studioLimitDialog .st-limit-safe').is_visible() and '$4.99' in page.locator('#studioLimitDialog .st-limit-pro').inner_text())
+        page.screenshot(path=str(SHOTS/'studio-limit-dialog-1440.png'))
+        page.wait_for_timeout(1500)
+        ok('studio: the refused export produced no download',not [n for n in downloads if n.endswith('.zip')],downloads)
+        with page.expect_download(timeout=30000) as d:page.click('#studioLimitDialog [data-value="save"]')
+        ok('studio: "Save project" in the dialog writes the .nerulio file',d.value.suggested_filename.endswith('.nerulio') and Path(d.value.path()).stat().st_size>0)
+        ok('studio: the project and the editor are untouched by the refusal',page.evaluate('window.nerulioStudio.doc.assets.length')==1 and page.locator('#studioLimitDialog').count()==0 and page.evaluate('window.nerulioStudio.workspace')=='pack')
+        before=len(api_calls(log,'jobs/authorize'))
+        studio_import(page,STUDIO_SHEET2,2)
+        page.wait_for_function('()=>{const a=window.nerulioStudio.autosave;return !a.pending&&!a.saving&&a.lastAt>0}',timeout=15000)
+        ok('studio: after the limit, import/pack/autosave keep working and call no API',len(api_calls(log,'jobs/authorize'))==before)
+        me=me_now(page)
+        ok('studio: Studio exports did not use the file tools\' heavy-job counter',me['usage']['used']==0 and me['studioUsage']['used']==2,me)
+        page.screenshot(path=str(SHOTS/'studio-free-after-limit-1440.png'))
+        # Reset rule: counters are keyed by UTC day. Moving today's row to a past day is exactly
+        # what 00:00 UTC does; the next export is allowed again and counts from 1.
+        stack.sql("UPDATE daily_usage SET day='2000-01-01' WHERE subject_id LIKE '%#studio'")
+        page.reload(wait_until='domcontentloaded')
+        page.locator('.st-recover').wait_for(timeout=30000);page.click('.st-recover [data-value="restore"]')
+        page.wait_for_function('()=>window.nerulioStudio.doc.assets.length===2',timeout=30000)
+        ok('studio: the autosaved project comes back after a reload',True)
+        page.wait_for_function(EXPORT_READY,timeout=120000)
+        ok('studio: after the UTC day changes the export is allowed again',studio_export(page))
+        ok('studio: the new day counts from 1',me_now(page)['studioUsage']['used']==1)
+        context.close()
+
+        # Pro: no Google request, no ad DOM, the canvas has the column's width back, unlimited exports.
+        uid,token=create_user(stack,'studio-pro');stack.sql(f"INSERT INTO subscriptions(provider,external_subscription_id,user_id,plan,status,current_period_end,cancel_at_period_end,updated_at) VALUES('manual','m-{uid}','{uid}','pro','active',{int(time.time()*1000)+864e5:.0f},0,1)")
+        context=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True);context._nerulio_base=stack.url;log=[];ads=[]
+        context.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url,'httpOnly':True,'sameSite':'Lax'}])
+        context.route(re.compile('googlesyndication'),lambda route:(ads.append(route.request.url),route.abort()))
+        page=open_studio(context,stack,log);page.wait_for_timeout(1200)
+        ok('studio pro: zero Google requests',len(ads)==0 and not [r for r in log if 'googlesyndication' in r['url']])
+        ok('studio pro: no ad column, no ad DOM, no placeholder',page.locator('.st-ad,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0 and page.evaluate('!document.querySelector(".studio.has-ad")'))
+        pro_width=canvas_width(page)
+        ok('studio pro: the canvas is wider by exactly the ad column (200 px)',abs(pro_width-free_width-200)<1,(pro_width,free_width))
+        studio_import(page)
+        for i in range(3):ok(f'studio pro: export {i+1} beyond the Free limit',studio_export(page))
+        ok('studio pro: no remaining note and no authorize call',meter_note(page)=='' and len(api_calls(log,'jobs/authorize'))==0)
+        page.screenshot(path=str(SHOTS/'studio-pro-1440.png'))
+        context.close()
+
+        # Outage: /api/v1 unreachable. No ads (plan unknown), editor works, 3 grace exports then a pause.
+        context=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True);context._nerulio_base=stack.url;log=[];ads=[]
+        context.route('**/api/v1/**',lambda route:route.abort())
+        context.route(re.compile('googlesyndication'),lambda route:(ads.append(route.request.url),route.abort()))
+        page=open_studio(context,stack,log)
+        ok('studio outage: no ad and no Google request while the plan is unknown',page.locator('.st-ad').count()==0 and len(ads)==0 and page.evaluate('window.nerulioMonetization.decision.reason')=='unreachable')
+        studio_import(page)
+        for i in range(3):ok(f'studio outage: grace export {i+1}',studio_export(page))
+        page.click('[data-export-main]');page.wait_for_function('()=>{const t=document.querySelector(".st-toast");return t&&!t.hidden&&/paused/i.test(t.textContent)}',timeout=15000)
+        ok('studio outage: after the grace, exports pause with a message; the project stays',page.evaluate('window.nerulioStudio.doc.assets.length')==1)
+        context.close()
+    finally:stack.close()
+
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        scenario_free(browser);scenario_ads(browser)
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio').split(',')
+        if 'free' in only:scenario_free(browser)
+        if 'ads' in only:scenario_ads(browser)
+        if 'studio' in only:scenario_studio(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')
