@@ -1,4 +1,4 @@
-﻿"""Product shots for the home page (assets/home/shot-*.webp).
+"""Product shots for the home page (assets/home/shot-*.webp).
 
 Drives the real Studio at /game/studio/ with committed CC0 art and saves crisp captures
 (device scale 2) for the home hero and its workflow sections:

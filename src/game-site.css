@@ -11,13 +11,13 @@
  --gs-radius:12px;--gs-radius-s:8px;--gs-radius-l:18px;
  --gs-max:1200px;--gs-gutter:24px;--gs-header-h:60px;
  --gs-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -20px #000c,0 0 0 1px #00000080;
- --gs-font:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
- --gs-font-display:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+ --gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+ --gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
  --gs-mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,monospace;
  --gs-track-display:-.035em;--gs-track-h:-.02em}
 /* CJK: the language's own face before the other script's, gentler tracking, keep words whole. */
-html[lang="ko"]{--gs-font:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-font-display:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-track-display:-.025em;--gs-track-h:-.015em}
-html[lang="ja"]{--gs-font:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-font-display:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-track-display:-.01em;--gs-track-h:0em}
+html[lang="ko"]{--gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-track-display:-.025em;--gs-track-h:-.015em}
+html[lang="ja"]{--gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-track-display:-.01em;--gs-track-h:0em}
 html{background:var(--gs-bg);-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--gs-header-h) + 16px)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 body[data-gs]{margin:0;background:var(--gs-bg);color:var(--gs-text);font:16px/1.65 var(--gs-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip;text-rendering:optimizeLegibility}
@@ -33,7 +33,6 @@ html[lang="ja"] body[data-gs]{line-break:strict;overflow-wrap:anywhere}
 [data-gs] a:hover{color:#fff}
 [data-gs] :focus-visible{outline:2px solid var(--gs-accent);outline-offset:3px;border-radius:6px}
 [data-gs] h1,[data-gs] h2,[data-gs] h3{font-family:var(--gs-font-display);color:var(--gs-head);text-wrap:balance}
-[data-gs] p{text-wrap:pretty}
 .gs-wrap{width:100%;max-width:calc(var(--gs-max) + var(--gs-gutter)*2);margin:0 auto;padding:0 var(--gs-gutter)}
 .gs-skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--gs-accent);color:var(--gs-accent-ink)!important;font-weight:800;padding:10px 14px;border-radius:var(--gs-radius-s)}
 .gs-skip:focus{top:10px}

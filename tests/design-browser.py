@@ -59,6 +59,24 @@ with sync_playwright() as pw:
                     c = page.evaluate(CONTRAST)
                     ok('text tokens meet WCAG AA (4.5:1) on every surface', all(v >= 4.5 for v in c.values()), str({k: v for k, v in c.items() if v < 4.5}))
         ctx.close()
+    # Every game page, the home and the hub at 390 px with a forced wide font: Linux CI fallback fonts are
+    # wider than Windows ones, so a local pass alone does not prove phone safety.
+    import re, urllib.request
+    try:
+        xml = urllib.request.urlopen(BASE + '/sitemap-game.xml', timeout=10).read().decode()
+        paths = [re.sub(r'^https?://[^/]+/', '', u) for u in re.findall(r'<loc>([^<]+)</loc>', xml)]
+    except Exception:
+        paths = []
+    if not paths:
+        paths = [t.format(l=l) for t in PAGES for l in ['ko', 'en', 'ja']]
+    ctx = browser.new_context(viewport={'width': 390, 'height': 844}); page = ctx.new_page()
+    page.add_init_script('addEventListener("DOMContentLoaded",()=>{const s=document.createElement("style");s.textContent=\'*{font-family:"Courier New",monospace!important;letter-spacing:.6px!important}\';document.head.append(s);})')
+    wide = []
+    for path in paths:
+        page.goto(f'{BASE}/{path}', wait_until='domcontentloaded'); page.wait_for_timeout(60)
+        if not page.evaluate('document.documentElement.scrollWidth<=innerWidth'): wide.append(path)
+    ok(f'no horizontal scroll at 390 px with a forced wide font on {len(paths)} game pages, the home and the hub', not wide, str(wide[:10]))
+    ctx.close()
     # The live demo: plays, and holds one frame under reduced motion.
     for motion, playing in [('no-preference', True), ('reduce', False)]:
         ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, reduced_motion=motion); page = ctx.new_page()
