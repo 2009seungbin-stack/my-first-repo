@@ -308,6 +308,11 @@ def scenario_studio(browser):
         me=me_now(page)
         ok('studio: Studio exports did not use the file tools\' heavy-job counter',me['usage']['used']==0 and me['studioUsage']['used']==2,me)
         page.screenshot(path=str(SHOTS/'studio-free-after-limit-1440.png'))
+        acct=context.new_page();instrument(acct,log);acct.goto(stack.url+'/en/account/',wait_until='networkidle')
+        ok('studio: the account page shows Studio exports 2 / 2 next to heavy jobs',acct.locator('[data-studio-usage]').inner_text().strip()=='2 / 2' and acct.locator('[data-usage]').inner_text().strip()=='0 / 5')
+        pricing=context.new_page();instrument(pricing,log);pricing.goto(stack.url+'/en/pricing/',wait_until='networkidle')
+        ok('studio: pricing lists the configured Studio export limit and Pro as unlimited','2 Studio engine exports per day' in pricing.locator('[data-plan="free"]').inner_text() and 'Unlimited Studio engine exports' in pricing.locator('[data-plan="pro"]').inner_text())
+        pricing.screenshot(path=str(SHOTS/'pricing-1440.png'),full_page=True);acct.close();pricing.close()
         # Reset rule: counters are keyed by UTC day. Moving today's row to a past day is exactly
         # what 00:00 UTC does; the next export is allowed again and counts from 1.
         stack.sql("UPDATE daily_usage SET day='2000-01-01' WHERE subject_id LIKE '%#studio'")

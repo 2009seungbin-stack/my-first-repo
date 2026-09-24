@@ -15,12 +15,12 @@ function render(){
  if(state==='offline'||!me){body.innerHTML=`<p>${esc(t('serviceDown'))}</p>`;say('serviceDown',true);return;}
  const signIn=apiPath(`auth/google/start?return=${encodeURIComponent(`/${locale}/account/`)}`);
  if(!me.loggedIn){
-  body.innerHTML=`<p class="service-lead">${esc(t('signedOutLead'))}</p><dl><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd><dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
+  body.innerHTML=`<p class="service-lead">${esc(t('signedOutLead'))}</p><dl><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd>${me.studioUsage?`<dt>${esc(t('studioExports'))}</dt><dd data-studio-usage>${me.studioUsage.used} / ${me.studioUsage.limit}</dd>`:''}<dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
 <div class="service-actions"><a class="primary" data-signin href="${esc(signIn)}">${esc(t('signIn'))}</a><a class="secondary" href="${locale}/pricing/">${esc(t('pricing'))}</a></div>`;
  }else{
   const pro=me.plan==='pro',sub=me.subscription;
   const rows=[[t('name'),me.user.name||'—'],[t('email'),me.user.email||'—'],[t('plan'),pro?t('pro'):t('free')],
-   [t('heavyJobs'),pro?t('unlimited'):`${me.usage.used} / ${me.usage.limit}`,'data-usage'],...(!pro?[[t('reset'),duration(locale,Date.parse(me.usage.resetAt)-Date.now()),'data-reset']]:[]),[t('ads'),me.ads?t('on'):t('off'),'data-ads'],
+   [t('heavyJobs'),pro?t('unlimited'):`${me.usage.used} / ${me.usage.limit}`,'data-usage'],...(me.studioUsage?[[t('studioExports'),pro?t('unlimited'):`${me.studioUsage.used} / ${me.studioUsage.limit}`,'data-studio-usage']]:[]),...(!pro?[[t('reset'),duration(locale,Date.parse(me.usage.resetAt)-Date.now()),'data-reset']]:[]),[t('ads'),me.ads?t('on'):t('off'),'data-ads'],
    ...(pro&&sub?.currentPeriodEnd?[['',t(sub.cancelAtPeriodEnd?'endsOn':'renewsOn',{date:dateText(sub.currentPeriodEnd)})]]:[])];
   body.innerHTML=`<dl>${rows.map(([k,v,a])=>`<dt>${esc(k)}</dt><dd ${a||''}>${esc(v)}</dd>`).join('')}</dl>
 <div class="service-actions">${pro?(me.billing.mode!=='off'&&sub?.provider!=='manual'?`<button type="button" class="secondary" data-manage>${esc(t('manage'))}</button>`:''):`<a class="primary" href="${locale}/pricing/">${esc(t('upgrade'))}</a>`}<button type="button" class="secondary" data-signout>${esc(t('signOut'))}</button></div>`;

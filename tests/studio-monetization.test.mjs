@@ -106,3 +106,14 @@ test('monetization strings: ko/en/ja parity, same placeholders, no Hangul in ja'
  assert.equal(mt('ko','ad.label'),'광고');assert.equal(mt('en','ad.label'),'Advertisement');assert.equal(mt('ja','ad.label'),'広告');
  assert.equal(mt('en','meter.left',{n:2}),'Free Studio exports left today: 2');
 });
+test('pricing presents Pro as the game-studio plan with the configured limits, in every language',async()=>{
+ const {S,pricingHTML}=await import('../src/service-content.js');
+ for(const l of ['en','ko','ja']){
+  for(const k of ['freeFeatures','proFeatures','proBullets','faq'])assert.equal(S[l][k].length,S.en[k].length,`${l} ${k}`);
+  assert(S[l].studioExports,`${l} studioExports`);
+  const html=pricingHTML(l,{pricing:{amount:'',currency:'',interval:'month'},freeDailyJobs:30,freeDailyStudio:7});
+  assert(html.includes('7')&&html.includes('30')&&!html.includes('{s}')&&!html.includes('{n}'),l);
+ }
+ const en=pricingHTML('en',{pricing:{},freeDailyJobs:30,freeDailyStudio:10});
+ assert(en.includes('10 Studio engine exports per day')&&en.includes('Unlimited Studio engine exports')&&en.includes('What counts as a Studio export?'));
+});
