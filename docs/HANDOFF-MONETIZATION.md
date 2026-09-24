@@ -42,7 +42,10 @@ Shared files touched (small, isolated hooks — keep them when merging):
 
 ## Verification (this branch)
 
-See the final report of 2026-09-24 for exact counts. Commands:
+2026-09-24 at `ac43421`: `npm test` 1731 pass / 0 fail / 1 skip; `npm run check` OK;
+`NERULIO_CORPUS='C:\nope' python tools/regression.py` FULL PASS (existing 51, recipes 46, growth 22, seo 402, studio 103,
+sprite 95, pack 61, tile 45, texture 41, studio-monetization 79); `python tests/service-browser.py` 82 checks
+(free + ads + studio 32). Commands:
 `npm test`, `npm run check`, `NERULIO_CORPUS='C:\nope' python tools/regression.py`, `python tests/service-browser.py`
 (`SERVICE_SCENARIOS=studio` runs only the Studio scenario), `python tests/studio-monetization-browser.py` (standalone;
 `SHOTS=<dir>` for screenshots).
