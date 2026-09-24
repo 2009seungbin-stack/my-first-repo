@@ -88,5 +88,8 @@
 }
 html[lang="ko"] .game-landing{word-break:keep-all;overflow-wrap:break-word}
 .gl-table code,.gl-cards li,.gl-lead{overflow-wrap:anywhere}
+/* Headings and prose can hold long unbreakable runs ("hover·pressed·disabled·focus", keep-all Korean);
+   with wider fallback fonts (Linux CI) they overflowed 390 px. Break them only when nothing else fits. */
+.game-landing :is(h1,h2,h3,p,li,dt,dd,figcaption,summary){overflow-wrap:anywhere}
 html[lang="ja"] .game-landing{font-family:"Yu Gothic UI","Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,system-ui,sans-serif}
 html[lang="ja"] .gl-hero h1,html[lang="ko"] .gl-hero h1{letter-spacing:-.4px}
