@@ -83,7 +83,7 @@ html[lang="ko"] .gs-kicker,html[lang="ja"] .gs-kicker{letter-spacing:.04em}
 /* status: the verification words used by the Studio's export panel */
 .gs-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:750;color:var(--gs-ok);white-space:nowrap}
 .gs-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 22%,transparent)}
-.gs-status.is-built{color:var(--gs-built)}.gs-status.is-decoded{color:var(--gs-decoded)}.gs-status.is-partial{color:var(--gs-partial)}.gs-status.is-unverified{color:var(--gs-warn)}.gs-status.is-measured{color:var(--gs-decoded)}
+.gs-status.is-built{color:var(--gs-built)}.gs-status.is-decoded{color:var(--gs-decoded)}.gs-status.is-partial{color:var(--gs-partial)}.gs-status.is-unverified{color:var(--gs-warn)}.gs-status.is-measured{color:var(--gs-decoded)}.gs-status.is-plain{color:var(--gs-text-2)}
 
 /* FAQ (details/summary) */
 .gs-faq details{border-bottom:1px solid var(--gs-line)}
