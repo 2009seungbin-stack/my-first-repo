@@ -9,6 +9,9 @@ Part 2 (Chromium AND Firefox): for every Studio-backed intent the file chosen on
 reaches the right Studio workspace, and the job the page promises is done and measured on committed
 CC0 fixtures (the checks src/capabilities.js cites as evidence).
 Part 3 (Chromium): every keyword page hands its file to the right workspace.
+Part 4 (Chromium AND Firefox): every Lab landing hands its files to its Lab and the job is measured.
+Part 5 (Chromium AND Firefox): keyword pages whose promise is a Lab flow (Lospec palette, integer
+upscale, roughness to smoothness, sheet to PNG frames) do exactly that, measured on the download.
 
 TEST_URL (default http://127.0.0.1:4173); BROWSERS=chromium,firefox (default both).
 Results: test-results/game-landing-browser.json ({check: [engines]}).
@@ -20,7 +23,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('TEST_URL', 'http://127.0.0.1:4173').rstrip('/')
-PARTS = os.environ.get('PARTS', '1234')  # for debugging only; the evidence run uses all parts
+PARTS = os.environ.get('PARTS', '12345')  # for debugging only; the evidence run uses all parts
 BROWSERS = [b for b in os.environ.get('BROWSERS', 'chromium,firefox').split(',') if b]
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 OUT = ROOT / 'test-results'; OUT.mkdir(exist_ok=True)
@@ -608,7 +611,8 @@ def part4(browser, E):
     for route, name in [('/en/tile-grid-slicer/', 'tile-helper'), ('/en/atlas-padding/', 'atlas-padding')]:
         p = lab_open(ctx, route, [str(DUNGEON)], '.tl-stages', E)
         top = p.locator('.tl-cand').first.inner_text().replace('×', 'x')
-        ok(f'{name}: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first', '16x16' in top and [p.locator(f'[data-option="{k}"]').input_value() for k in ['tileWidth', 'spacingX']] == ['16', '1'], top, engine=E)
+        ok('tile-helper: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first' if name == 'tile-helper' else
+           'atlas-padding: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first', '16x16' in top and [p.locator(f'[data-option="{k}"]').input_value() for k in ['tileWidth', 'spacingX']] == ['16', '1'], top, engine=E)
         task_ready(p); z = zipfile.ZipFile(download(p, '#taskDownload')); meta = json.loads(z.read('metadata.json'))
         if name == 'tile-helper':
             f5 = meta['frames']['tile-005.png']['rect'] if 'tile-005.png' in meta['frames'] else next(iter(meta['frames'].values()))['rect']
@@ -621,6 +625,59 @@ def part4(browser, E):
     ctx.close()
 
 
+# ======================================================================= part 5: keyword pages whose promise is a Lab flow, both engines
+def part5(browser, E):
+    ctx = browser.new_context(viewport={'width': 1366, 'height': 900}, accept_downloads=True, locale='en-US')
+    ninja = [str(f) for f in NINJA]
+    pico8 = ['#000000', '#1d2b53', '#7e2553', '#008751', '#ab5236', '#5f574f', '#c2c3c7', '#fff1e8', '#ff004d', '#ffa300', '#ffec27', '#00e436', '#29adff', '#83769c', '#ff77a8', '#ffccaa']
+    p = lab_open(ctx, '/en/game/lospec-palette/', ninja, '#plabCanvas', E)
+    p.locator('[data-action="plab-stage"][data-stage="palette"]').click(); p.wait_for_selector('#plabPaletteText', state='attached', timeout=30000)
+    p.locator('details[data-panel="io"]').evaluate('d=>d.open=true')
+    p.fill('#plabPaletteText', ', '.join(c.upper() for c in pico8)); p.locator('[data-action="plab-import-text"]').click(); p.wait_for_timeout(1200)
+    _, _, palL, unionL, imsL = plab_zip(p)
+    want = {tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in pico8}
+    ok('lospec-palette: a pasted Lospec HEX list (PICO-8, 16 colours) becomes the palette and every colour of the 6 exported frames is one of those 16',
+       palL == want and unionL <= want and len(imsL) == 6, f'{len(palL)} colours, {len(unionL - want)} outside', engine=E)
+    p.close()
+    p = lab_open(ctx, '/en/game/pixel-art-upscaler/', [buf('sprite.png', png_bytes(pfx.flat_sprite()))], '#plabReport', E)
+    with p.expect_download(timeout=60000) as d:
+        p.locator('[data-action="plab-export-one"]').click()
+    one = Image.open(d.value.path()).convert('RGBA')
+    p.locator('#plabScale').fill('4'); p.locator('#plabScale').dispatch_event('change'); p.wait_for_timeout(900)
+    with p.expect_download(timeout=60000) as d:
+        p.locator('[data-action="plab-export-one"]').click()
+    four = Image.open(d.value.path()).convert('RGBA')
+    ok('pixel-art-upscaler: the 4× export is the 1× export with every pixel an exact 4×4 block (nearest, nothing new)',
+       one.size == (16, 16) and four.size == (64, 64) and visible(four) == visible(one.resize((64, 64), Image.NEAREST)), f'{one.size} {four.size}', engine=E)
+    p.close()
+    rough = Image.open(GS / 'bricks076c_roughness.png')
+    p = lab_open(ctx, '/en/game/roughness-to-smoothness/', [str(GS / 'bricks076c_roughness.png')], '.tex-channel canvas', E)
+    inv = p.locator('[data-action="tex-channel-invert"]').first
+    ch = inv.get_attribute('data-channel'); inv.click(); p.wait_for_timeout(800)
+    with p.expect_download(timeout=60000) as d:
+        p.locator(f'[data-action="tex-channel-save"][data-channel="{ch}"]').click()
+    smooth = Image.open(d.value.path())
+    src_plane = rough.convert('RGBA').getchannel('RGBA'.index(ch.upper()))
+    ok('roughness-to-smoothness: the inverted channel saved from the roughness map is exactly 255 − roughness at every texel',
+       smooth.size == src_plane.size and list(smooth.convert('L').getdata()) == [255 - v for v in src_plane.getdata()], f'channel {ch}, mode {smooth.mode}', engine=E)
+    p.close()
+    samurai = Image.open(SAMURAI).convert('RGBA')
+    p = lab_open(ctx, '/en/game/sprite-sheet-to-png-frames/', [str(SAMURAI)], '.slicer-box', E)
+    p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>1', timeout=60000); p.wait_for_timeout(800)
+    rects = p.eval_on_selector_all('.slicer-box rect', 'ns=>ns.map(n=>["x","y","width","height"].map(k=>Math.round(+n.getAttribute(k))))')
+    p.locator('[data-action="lab-stage"][data-stage="export"]').click(); p.wait_for_timeout(1000)
+    p.locator('#optionsAdvanced').evaluate('d=>d.open=true')
+    with p.expect_download(timeout=120000) as d:
+        p.locator('[data-action="lab-frames-zip"]').click()
+    z = zipfile.ZipFile(d.value.path()); pngs = [n for n in z.namelist() if n.endswith('.png')]
+    got = sorted(visible(Image.open(io.BytesIO(z.read(n)))) for n in pngs)
+    cut = sorted(visible(samurai.crop((x, y, x + w, y + h))) for x, y, w, h in rects)
+    ok('sprite-sheet-to-png-frames: the classic Lab writes one PNG per outlined frame and each PNG is its outlined region of the sheet, pixel for pixel',
+       len(pngs) == len(rects) > 1 and got == cut, f'{len(pngs)} PNGs, {len(rects)} boxes, {sum(1 for a, b in zip(got, cut) if a != b)} differ', engine=E)
+    p.close()
+    ctx.close()
+
+
 with sync_playwright() as pw:
     if 'chromium' in BROWSERS:
         b = pw.chromium.launch()
@@ -628,11 +685,13 @@ with sync_playwright() as pw:
         if '3' in PARTS: part3(b)
         if '2' in PARTS: part2(b, 'chromium')
         if '4' in PARTS: part4(b, 'chromium')
+        if '5' in PARTS: part5(b, 'chromium')
         b.close()
     if 'firefox' in BROWSERS:
         b = pw.firefox.launch()
         if '2' in PARTS: part2(b, 'firefox')
         if '4' in PARTS: part4(b, 'firefox')
+        if '5' in PARTS: part5(b, 'firefox')
         b.close()
 ok('no uncaught page errors', not errors, str(errors[:3]))
 (OUT / 'game-landing-browser.json').write_text(json.dumps({'checks': results, 'errors': errors}, ensure_ascii=False, indent=1), encoding='utf-8')

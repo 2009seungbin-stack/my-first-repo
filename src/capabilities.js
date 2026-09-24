@@ -1,5 +1,5 @@
 import {INTENTS} from './intents.js';
-import {GAME_INTENT_PAGES,WORKSPACES} from './game-seo.js';
+import {GAME_INTENT_PAGES,GAME_LAB_PAGES,LAB_KINDS,WORKSPACES} from './game-seo.js';
 
 /** Evidence, not a marketing score. Targets live in QUALITY-AUDIT.md, never here. */
 export const MATURITY = Object.freeze(['prototype','basic','advanced','pro','flagship']);
@@ -74,7 +74,9 @@ const SPRITE_ENGINES=engineRun('Studio Pack & Export baseline: 49 engine runs on
 const ASE_ROUNDTRIP=engineRun('.aseprite corpus: 231/231 re-written files open in Aseprite 1.3.18.6 with the same tags, durations and pixels','tests/studio-sprite-browser.py','docs/STUDIO-SPRITE.md',['Aseprite 1.3.18.6']);
 const TILE_ENGINES=engineRun('tile corpus: Godot painter = Studio on every set (485/485 per blob set, 251/251 dual grid), Tiled readers, Unity RuleTile cells','tools/engine-verify/tile/run_all.py','docs/STUDIO-TILE.md',['Godot 4.7.2','Tiled 1.12.2','Unity 6000.5.3f1 + 2D Tilemap Extras 8.0.3','LDtk 1.5.3 schema']);
 const STUDIO_EVIDENCE={
- 'sprite-slicer':[gl('workflow','sprite-slicer: Apply cuts 60 frames of 48×48 in 10 row animations'),gl('quality','sprite-slicer: every cut frame equals its cell of the source sheet, pixel for pixel'),SPRITE_ENGINES],
+ 'sprite-slicer':[gl('workflow','sprite-slicer: Apply cuts 60 frames of 48×48 in 10 row animations'),gl('quality','sprite-slicer: every cut frame equals its cell of the source sheet, pixel for pixel'),
+  // the classic Lab behind the sheet-to-PNG-frames keyword page (part 5)
+  gl('quality','sprite-sheet-to-png-frames: the classic Lab writes one PNG per outlined frame and each PNG is its outlined region of the sheet, pixel for pixel'),SPRITE_ENGINES],
  'sprite-lab':[gl('workflow','sprite-lab: the .aseprite file opens in the Sprite workspace with its 4 frames and its tags'),gl('quality','sprite-lab: frame 1 equals Aseprite\'s own render of the file, pixel for pixel'),ASE_ROUNDTRIP,SPRITE_ENGINES],
  'frame-normalize':[gl('workflow','frame-normalize: Align frames puts all 6 on one canvas size'),gl('quality','frame-normalize: aligned frames keep every source pixel (whole-pixel moves, nothing resampled)'),SPRITE_ENGINES],
  'sprite-animation-preview':[gl('workflow','sprite-animation-preview: Enter plays the animation (the current frame advances)'),gl('quality','sprite-animation-preview: each frame keeps the GIF delay as its duration and equals Pillow\'s decode of that frame'),SPRITE_ENGINES],
@@ -86,12 +88,43 @@ const STUDIO_EVIDENCE={
  'autotile-tester':[gl('workflow','autotile-tester: a new test map is painted with the Godot rule'),gl('quality','autotile-tester: every painted cell gets a correct tile under the Godot rule (no hole, no substitute)'),TILE_ENGINES],
  'tileset-slicer':[gl('workflow','tileset-slicer: Use this grid gives 12×11 tiles of 16 px with spacing 1'),gl('quality','tileset-slicer: the first grid candidate for the Kenney tilemap is 16×16 with a 1 px gap'),TILE_ENGINES]
 };
+// Lab routes behind the Lab landings (src/game-seo-labs.js GAME_LAB_PAGES). Recorded 2026-09-24:
+// tests/game-landing-browser.py parts 4 and 5 open each Lab landing (and each keyword page whose
+// promise is a Lab flow) in Chromium 153 AND Firefox 155, hand committed CC0 fixtures (Kenney UI
+// Pack, ambientCG Bricks076C / Ground054, the ninja frames, the Kenney tiny dungeon) to the Lab
+// through the page's own file picker, and measure the downloaded files with Pillow/numpy or an
+// independent parser. No Lab output was loaded in a game engine, so there is no engine entry.
+// UI Lab images pass through a canvas: Firefox rounds semi-transparent colour to one premultiplied
+// step, so those checks compare alpha and opaque pixels exactly and that colour within one step.
+const LAB_EVIDENCE={
+ 'pixel-lab':[gl('workflow','pixel-lab: the 6 CC0 frames chosen on the landing open in the Pixel Lab, one palette for all'),gl('quality','pixel-lab: the export holds one PNG per frame, a .gpl palette and the JSON, and every exported colour lies in the locked palette'),gl('quality','lospec-palette: a pasted Lospec HEX list (PICO-8, 16 colours) becomes the palette and every colour of the 6 exported frames is one of those 16')],
+ 'palette-extractor':[gl('workflow','palette-extractor: the Lab opens at its Palette stage with every colour listed'),gl('quality','palette-extractor: merging the rarest colours to a budget of 4 really exports at most 4 colours, all in the palette')],
+ 'palette-swap-ramp':[gl('workflow','palette-swap-ramp: the Lab opens at its Recolour stage'),gl('quality','palette-swap-ramp: a status recolour rewrites the palette (same number of slots), keeps every alpha pixel, and the frames stay inside the new palette')],
+ 'pixel-art-cleanup':[gl('workflow','pixel-art-cleanup: candidates are counted before anything changes'),gl('quality','pixel-art-cleanup: the anti-alias remover puts every pixel in the palette and moves no silhouette pixel')],
+ 'pixel-perfect-checker':[gl('workflow','pixel-perfect-checker: a 3× nearest sprite is read as 3× with logical size 16×16'),gl('quality','pixel-perfect-checker: recovering the 1× source gives back the original sprite pixel for pixel'),gl('quality','pixel-art-upscaler: the 4× export is the 1× export with every pixel an exact 4×4 block (nearest, nothing new)')],
+ 'texture-lab':[gl('workflow','texture-lab: the four ambientCG maps are classified by filename into albedo, roughness, AO and height'),gl('quality','texture-lab: the check report measures every map (128×128, exact PNG channels)')],
+ 'pbr-texture-validator':[gl('workflow','pbr-texture-validator: the set is checked slot by slot against the workflow'),gl('quality','pbr-texture-validator: a missing normal map is reported with the set it belongs to')],
+ 'channel-unpacker':[gl('workflow','channel-unpacker: the Lab opens at Channels with all four channels previewed'),gl('quality','channel-unpacker: each channel PNG is byte-identical to that channel of the source'),gl('quality','roughness-to-smoothness: the inverted channel saved from the roughness map is exactly 255 − roughness at every texel')],
+ 'texture-map':[gl('workflow','texture-map: the Lab opens at its Normal stage and names the convention it writes'),gl('quality','texture-map: the normal map from the ambientCG height decodes to unit vectors (mean length within 2 %) with blue never below 128')],
+ 'normal-map-converter':[gl('workflow','normal-map-converter: the ambientCG OpenGL normal map opens in the Normal stage, convert mode'),gl('quality','normal-map-converter: the converted map differs from the source in green (255 − g) and nowhere else')],
+ 'texture-edge-bleed':[gl('workflow','texture-edge-bleed: the Lab opens at its Fix stage'),gl('quality','texture-edge-bleed: on the Kenney button only fully transparent texels change and no alpha byte changes')],
+ 'mask-packer':[gl('workflow','mask-packer: the three ambientCG grey maps arrive in the packer'),gl('quality','mask-packer: each packed channel is byte-identical to the grey map mapped to it')],
+ 'ui-lab':[gl('workflow','ui-lab: the two Kenney elements on the sheet are detected as two elements'),gl('quality','ui-lab: the packed atlas holds both elements (alpha and opaque pixels exact)')],
+ '9-slice-editor':[gl('workflow','9-slice-editor: the Kenney panel opens at the 9-Slice stage with border suggestions'),gl('quality','9-slice-editor: every exported size keeps the four 12×12 corners of the Kenney panel (alpha and opaque pixels exact)')],
+ 'button-state-generator':[gl('workflow','button-state-generator: five states of the Kenney button are previewed'),gl('quality','button-state-generator: normal equals the source (alpha and opaque pixels exact) and every rect in states.json cuts its state from the strip')],
+ 'missing-glyph-checker':[gl('workflow','missing-glyph-checker: a .po file is compared with a .fnt'),gl('quality','missing-glyph-checker: exactly the characters the .fnt lacks are listed, with their counts')],
+ 'ui-scale-preview':[gl('workflow','ui-scale-preview: the Kenney panel is placed by its anchor on a simulated 4K screen'),gl('quality','ui-scale-preview: the 90 % title-safe area at 3840×2160 is 192, 108 · 3456×1944')],
+ 'bitmap-font':[gl('workflow','bitmap-font: the landing opens the Font stage and exports font.png, font.fnt and font.json'),gl('quality','bitmap-font: every .fnt glyph record, read by a separate parser, equals the JSON')],
+ 'seamless-tile-checker':[gl('workflow','seamless-tile-checker: the ambientCG ground texture is measured as one 128×128 tile'),gl('quality','seamless-tile-checker: a tileable ambientCG texture is reported without a visible seam'),gl('quality','seamless-tile-checker: a crop of the brick texture (not tileable) is reported as a seam')],
+ 'tile-helper':[gl('workflow','tile-helper: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first'),gl('quality','tile-helper: a sliced tile is its exact region of the sheet, and every non-blank tile is written')],
+ 'atlas-padding':[gl('workflow','atlas-padding: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first'),gl('workflow','atlas-padding: the Tile Lab opens with extrusion on and writes a padded atlas')]
+};
 const EVIDENCE={
  image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
  resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],
  compress:[ev('workflow',IMG,'NASA portrait: decoded full-resolution quality and target'),ev('quality',IMG,'compression quality on illustration fixture'),ev('quality',IMG,'already-compressed source candidate avoids unnecessary growth')],
  convert:[ev('workflow',IMG,'encoder MIME matches selected format'),ev('quality',IMG,'transparent logo: decoded full-resolution quality and target'),ev('quality',IMG,'compression preserves alpha-aware choice')],
- 'atlas-padding':[ev('workflow',IMG,'direct atlas blits match reference padding and coordinates'),ev('quality',IMG,'single-pixel atlas 1x1 preserves edge padding')],
+ 'atlas-padding':[ev('workflow',IMG,'direct atlas blits match reference padding and coordinates'),ev('quality',IMG,'single-pixel atlas 1x1 preserves edge padding'),...LAB_EVIDENCE['atlas-padding']],
  pdf:[ev('workflow',PDF,'rotation and crop preserved'),ev('quality',PDF,'native pen is at normalized source position'),ev('quality',PDF,'page 320 searchable text')],
  'pdf-split':[ev('workflow',PDF,'custom split groups preserve counts'),ev('quality',PDF,'page 1 searchable text')],
  'pdf-compress':[ev('workflow',PDF,'image optimization reduces actual PDF bytes'),ev('quality',PDF,'image object actually recompressed'),ev('quality',PDF,'page 320 searchable text')],
@@ -101,7 +134,8 @@ const EVIDENCE={
  'video-gif':[ev('workflow',MEDIA,'GIF exceeds legacy 320px'),ev('quality',MEDIA,'GIF size target is reached by measured passes'),ev('quality',MEDIA,'reversed, sped-up, square-cropped GIF keeps the planned frames')],
  'video-mp3':[ev('workflow',MEDIA,'mp3 duration'),ev('quality',MEDIA,'audio normalisation scales by the measured peak')],
  'video-frame':[ev('workflow',MEDIA,'actual 4K frame preserves source dimensions'),ev('quality',MEDIA,'frame format is honoured at source resolution')],
- ...STUDIO_EVIDENCE
+ ...STUDIO_EVIDENCE,
+ ...Object.fromEntries(Object.entries(LAB_EVIDENCE).filter(([id])=>id!=='atlas-padding'))
 };
 export function qualifies(evidence=[]){
  const kinds=new Set(evidence.map(e=>e.kind)),engines=new Set(evidence.flatMap(e=>e.engines));
@@ -110,6 +144,7 @@ export function qualifies(evidence=[]){
 // Studio-backed game routes: what actually runs, where it was checked, and the workspace's limits.
 const STUDIO_ENGINE={sprite:'Studio Sprite workspace: measured grid (margin, spacing) or alpha islands, colour key, previewed import decisions; GIF/APNG/.aseprite decoders; timeline, pivots, boxes, alpha contour collision',pack:'Studio Pack & Export: MaxRects/Skyline/Guillotine, trim/alias/extrude/multipack, colour-exact PNG writer, engine exporters',tile:'Studio Tile workspace: seam-continuity layout identification, terrain bits, Godot 4 terrain matcher port, quarter-exact generator, Godot/Tiled/LDtk/Unity writers'};
 const STUDIO_CAPABILITY=Object.fromEntries(Object.entries(GAME_INTENT_PAGES).map(([id,p])=>[id,{engine:STUDIO_ENGINE[p.ws],studio:Object.freeze({workspace:p.ws,route:'game/studio/?ws='+p.ws,docs:p.ws==='tile'?['docs/STUDIO-TILE.md']:['docs/STUDIO-SPRITE.md','docs/STUDIO-PACK.md','docs/STUDIO-PACK-H2H.md']}),verifiedBrowsers:['Chromium 153 and Firefox 155: landing page → Studio workflow on CC0 fixtures (tests/game-landing-browser.py)','Exports loaded in the engines themselves; the engine runs drove the Studio in Chromium'],limitations:WORKSPACES[p.ws].limits.en}]));
+const LAB_CAPABILITY=Object.fromEntries(Object.entries(GAME_LAB_PAGES).map(([id,p])=>[id,{verifiedBrowsers:['Chromium 153 and Firefox 155: landing page → Lab workflow on CC0 fixtures, downloads measured (tests/game-landing-browser.py parts 4 and 5)','No Lab output was loaded in a game engine'],limitations:LAB_KINDS[p.ws].limits.en}]));
 export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTENTS).map(([id,intent])=>{
  const pdf=intent.editor==='pdf',media=intent.editor==='media',recipe=intent.action==='recipe';
  const modern=['image','upscale','crop','resize','compress','convert','heic'].includes(id);
@@ -122,7 +157,7 @@ export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTE
   ai:id==='upscale'?'optional experimental Swin2SR (2x / 4x); explicit classical fallback':id==='remove-bg'?'optional experimental BiRefNet (people and objects)':false, hardwareAcceleration:'browser dependent',
   streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153 and Firefox 155 synthetic media suite, outputs re-decoded with FFprobe/Pillow']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:[...new Set([...(pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[]),...(EVIDENCE[id]||[]).map(e=>e.suite)])],
   limitations:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder (no WebCodecs) records in real time for up to 10 minutes; compatibility audio decodes sources up to 20 minutes in memory.','A size target is met by measuring each encode; it may lower the resolution, and if the browser encoder cannot go smaller the result is reported as not met instead of silently missing it.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.'],
-  ...(STUDIO_CAPABILITY[id]||{})
+  ...(LAB_CAPABILITY[id]||{}),...(STUDIO_CAPABILITY[id]||{})
  })];
 })));
 export function capabilitySummary(id,locale='en') {
