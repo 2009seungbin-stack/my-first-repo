@@ -48,35 +48,66 @@ def card(locale, title):
 
 
 GAME_BG, GAME_INK, GAME_MUTED, GAME_ACCENT = (15, 17, 22, 255), (233, 236, 242, 255), (143, 153, 171, 255), (76, 194, 255, 255)
-STATUS_COLOR = {'verified': (62, 207, 142, 255), 'built': (177, 140, 255, 255), 'decoded': (86, 199, 193, 255), 'partial': (232, 195, 90, 255), 'unverified': (255, 159, 67, 255)}
+STATUS_COLOR = {'verified': (62, 207, 142, 255), 'built': (177, 140, 255, 255), 'decoded': (86, 199, 193, 255), 'measured': (110, 168, 255, 255), 'partial': (232, 195, 90, 255), 'unverified': (255, 159, 67, 255)}
+# Strongest evidence first; UNVERIFIED rows come last but keep their label when shown.
+STATUS_RANK = ['verified', 'built', 'decoded', 'measured', 'partial', 'unverified']
 GAME_SUB = {'ko': '게임 에셋 스튜디오 · 브라우저에서 처리', 'en': 'Game asset studio · runs in your browser', 'ja': 'ゲームアセットスタジオ · ブラウザで処理'}
 
 
 def game_pages():
-    """Every game landing (src/game-seo.js) with its card stem, titles, screenshot and engine rows."""
-    script = ("import {GAME_INTENT_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,STATUS} from './src/game-seo.js';"
-              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:SPRITE_EXPORTS).map(r=>({name:r.name,status:r.status,label:STATUS[r.status]}));"
-              "const out=[{stem:'game',shot:SHOTS['sprite-frame'].file,title:{ko:HUB.ko.title,en:HUB.en.title,ja:HUB.ja.title},rows:rows('sprite')}];"
-              "for(const [id,p] of Object.entries(GAME_INTENT_PAGES))out.push({stem:id,shot:SHOTS[p.shot].file,title:{ko:p.copy.ko.title,en:p.copy.en.title,ja:p.copy.ja.title},rows:rows(p.ws),hl:p.highlight||[]});"
-              "for(const [k,p] of Object.entries(GAME_KEYWORD_PAGES))out.push({stem:k.replaceAll('/','-'),shot:SHOTS[p.shot].file,title:{ko:p.copy.ko.title,en:p.copy.en.title,ja:p.copy.ja.title},rows:rows(p.ws)});"
+    """Every game page with its card stem, titles, screenshot and export rows: the /game/ hub, the
+    Studio landings, the Lab landings (GAME_LAB_PAGES, rows from LAB_KINDS) and every keyword page
+    (GAME_KEYWORD_PAGES, rows of the workspace or Lab it opens). Stems follow socialStem() in
+    tools/game-seo-build.mjs; the status labels are the ones the pages show (STATUS)."""
+    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,STATUS,kindOf,isStudioKind} from './src/game-seo.js';"
+              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports).map(r=>({id:r.id,name:r.name,status:r.status,label:STATUS[r.status]}));"
+              "const title=p=>({ko:p.copy.ko.title,en:p.copy.en.title,ja:p.copy.ja.title});"
+              "const out=[{stem:'game',kind:'hub',shot:SHOTS['sprite-frame'].file,title:{ko:HUB.ko.title,en:HUB.en.title,ja:HUB.ja.title},rows:rows('sprite')}];"
+              "for(const [id,p] of Object.entries(GAME_INTENT_PAGES))out.push({stem:id,kind:'intent',shot:SHOTS[p.shot].file,title:title(p),rows:rows(p.ws),hl:p.highlight||[]});"
+              "for(const [id,p] of Object.entries(GAME_LAB_PAGES))out.push({stem:id,kind:'lab',shot:SHOTS[p.shot].file,title:title(p),rows:rows(p.ws),hl:p.highlight||[]});"
+              "for(const [k,p] of Object.entries(GAME_KEYWORD_PAGES))out.push({stem:k.replaceAll('/','-'),kind:'keyword',shot:SHOTS[p.shot].file,title:title(p),rows:rows(p.ws),hl:p.highlight||[]});"
               "console.log(JSON.stringify(out));")
     out = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', check=True)
     return json.loads(out.stdout)
 
 
+NO_START = {'·', '—', '・', '、', '。', '）', ')', '→', '↔', '」', 'ー'}
+
+
 def wrap(d, text, f, width, locale='en'):
-    """Greedy line wrap; CJK text may break between any two characters."""
-    lines, line = [], ''
-    # Latin words stay whole; CJK characters break anywhere; separators never start a line.
-    tokens = re.findall(r'\S+\s*', text) if locale == 'ko' else re.findall(r"[A-Za-z0-9.'’/+\-]+\s*|\S\s*|\s+", text)
+    """Greedy line wrap that never exceeds `width`. Korean breaks between words and after a middle
+    dot; Japanese characters may break anywhere; Latin words (with a bracket before or after) stay
+    whole. A separator never starts a line: the word before it moves down with it. A token still
+    wider than the line (a long compound) is broken between characters."""
+    if locale == 'ko':
+        tokens = re.findall(r'[^\s·]+·?\s*|·\s*|\s+', text)
+    else:
+        tokens = re.findall(r"[(（「]?[A-Za-z0-9_.'’/+\-]+[)）」]?\s*|\S\s*|\s+", text)
+    # An opening bracket never ends a line: it travels with the token after it.
+    merged = []
     for tok in tokens:
-        if d.textlength(line + tok, font=f) <= width or not line or tok.strip() in {'·', '—', '・', '、', '）', ')', '→'}:
-            line += tok
+        if merged and merged[-1].strip() in {'(', '（', '「'}:
+            merged[-1] += tok
         else:
-            lines.append(line.rstrip()); line = tok
-    if line:
-        lines.append(line.rstrip())
-    return lines
+            merged.append(tok)
+    pieces = []
+    for tok in merged:
+        pieces.extend(list(tok) if d.textlength(tok.rstrip(), font=f) > width else [tok])
+    lines, line = [], []
+    fits = lambda toks: d.textlength(''.join(toks).rstrip(), font=f) <= width
+    for tok in pieces:
+        if fits(line + [tok]) or not ''.join(line).strip():
+            line.append(tok)
+        elif tok.strip() in NO_START and len(line) > 1:
+            carry = [tok]
+            while len(line) > 1 and (carry[0].strip() in NO_START or not carry[0].strip()):
+                carry.insert(0, line.pop())
+            lines.append(line); line = carry
+        else:
+            lines.append(line); line = [tok]
+    if ''.join(line).strip():
+        lines.append(line)
+    return [''.join(l).strip() for l in lines if ''.join(l).strip()]
 
 
 def game_card(locale, page):
@@ -94,24 +125,31 @@ def game_card(locale, page):
     while True:
         f = font(FONTS[locale], size, True)
         lines = wrap(d, page['title'][locale], f, 520, locale)
-        if len(lines) <= 4 or size <= 34:
+        # Three lines keep the subtitle clear of the export chips; four only at the smallest size.
+        if len(lines) <= 3 or size <= 34:
             break
         size -= 4
     y = 150
     for line in lines[:4]:
         d.text((60, y), line, font=f, fill=GAME_INK, anchor='ls'); y += round(size * 1.22)
     d.text((60, y + 18), GAME_SUB[locale], font=font(LIGHT[locale], 22, False), fill=GAME_MUTED, anchor='ls')
-    chip = font(FONTS['en'], 17, True); x, cy = 60, 470
-    rows = sorted(page['rows'], key=lambda r: (r['name'] not in page.get('hl', []), r['status'] != 'verified'))
-    for r in rows[:6]:
-        w = d.textlength(r['name'], font=chip) + 26
+    # Export chips: name plus the page's own verification label, so a card never implies more than
+    # the page states (UNVERIFIED stays UNVERIFIED; Lab outputs say Measured, not verified in an engine).
+    chip, small = font(FONTS['en'], 16, True), font(LIGHT[locale], 15, False)
+    x, cy = 60, 452
+    rows = sorted(page['rows'], key=lambda r: (r['id'] not in page.get('hl', []), STATUS_RANK.index(r['status'])))
+    for r in rows:
+        label = ' · ' + r['label'][locale]
+        w = d.textlength(r['name'], font=chip) + d.textlength(label, font=small) + 26
         if x + w > 590:
-            x, cy = 60, cy + 40
-            if cy > 520:
+            x, cy = 60, cy + 38
+            if cy > 530:
                 break
-        d.rounded_rectangle((x, cy - 24, x + w, cy + 6), radius=7, fill=(24, 28, 38, 255), outline=(39, 45, 59, 255))
-        d.rectangle((x, cy - 24, x + 3, cy + 6), fill=STATUS_COLOR[r['status']])
-        d.text((x + 14, cy - 3), r['name'], font=chip, fill=GAME_INK, anchor='ls'); x += w + 8
+        d.rounded_rectangle((x, cy - 23, x + w, cy + 6), radius=7, fill=(24, 28, 38, 255), outline=(39, 45, 59, 255))
+        d.rectangle((x, cy - 23, x + 3, cy + 6), fill=STATUS_COLOR[r['status']])
+        d.text((x + 14, cy - 3), r['name'], font=chip, fill=GAME_INK, anchor='ls')
+        d.text((x + 14 + d.textlength(r['name'], font=chip), cy - 3), label, font=small, fill=STATUS_COLOR[r['status']], anchor='ls')
+        x += w + 8
     d.text((60, 590), 'Nerulio', font=font(FONTS['en'], 30, True), fill=GAME_ACCENT, anchor='ls')
     # Screenshots quantize well; keeps each card small in the repository.
     return im.convert('RGB').quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
