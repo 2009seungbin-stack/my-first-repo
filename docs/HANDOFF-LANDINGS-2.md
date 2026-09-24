@@ -52,6 +52,21 @@ Writers were sub-agents working from `briefs/COMMON.md` + `briefs/FAMILIES.md` (
 facts they were allowed to use are the numbers in docs/STUDIO-*.md. Claims they softened or left out are
 listed in the final report.
 
+## Verification (after merging origin/main with PR #35, 2026-09-24)
+
+| Check | Result |
+|---|---|
+| `npm test` | 2176 pass / 0 fail / 1 skip (incl. `tests/game-seo-quality.test.mjs`) |
+| `npm run check` | OK |
+| `NERULIO_CORPUS='C:\nope' python tools/regression.py` | PASSED: browser 51, recipes 46, growth 22, seo 526, landings 32, task 318, studio 103, studio-sprite 95, studio-pack 61, studio-tile 45, studio-texture 41, studio-monetization 79, game-landing 207 check runs / 119 distinct (Chromium + Firefox, 0 page errors), design 347 (forced wide font at 390 px: 313 game pages + home + hub, no overflow) |
+| `tests/game-landing-browser.py` standalone, dist build | parts 1–6 PASS: 5110 Chromium and 88 Firefox check runs |
+| `python tests/service-browser.py` | 119/119 |
+| `python tools/validate-sitemaps.py dist` | ALL PASS, 454 page URLs (sitemap-game.xml 313) |
+
+The first regression run had one failure in `studio-texture-browser.py` ("a detection still running for
+the previous picture does not land on this one") — a timing check in the Texture workspace, not touched
+here; it passed 2/2 standalone and in the next full run.
+
 ## Open / next
 
 - Retarget the old Texture Lab landings `normal-map-generator` and `game/pixel-art-normal-map` to the
