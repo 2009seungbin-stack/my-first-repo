@@ -8,8 +8,11 @@
  *    ρ = corr(∂gx/∂y, ∂gy/∂x) says which convention the map is in (+ OpenGL, − DirectX) and its size
  *    says how clearly. A surface whose mixed derivative is ~0 everywhere (straight grooves, a
  *    single ramp) carries no information either way: that is reported as "cannot tell".
- *    Assumes red is standard (X+ right): a map with a flipped red channel reads as the other
- *    convention. That is rare, and the silhouette test below checks it on sprites.
+ *    The curl test sees handedness, not which channel: a map with a flipped RED channel reads as
+ *    the other convention. On sprites the silhouette test below measures red on its own; when red
+ *    is clearly flipped (NormalMap-Online's default output is like that) the curl vote is inverted
+ *    back, the verdict is about green only, and `red: 'flipped'` says what else is wrong. Without
+ *    a silhouette (a texture) red is assumed standard.
  * 2. Silhouette test — sprites with alpha. Normals at a silhouette face outward, so at the top
  *    edge an OpenGL map has green > 128 and at the right edge red > 128. Correlating the stored
  *    normal with the outward direction of the blurred alpha gives a second, independent reading
@@ -86,12 +89,14 @@ const grade=(abs,agree,informative)=>{
  if(abs>=.04&&agree>=.6)return 'low';
  return 'none';
 };
-/** The verdict: {convention:'opengl'|'directx'|null, confidence, evidence:[…], reason}.
- * `convention` is null (never guessed) when confidence is 'none'. */
+/** The verdict: {convention:'opengl'|'directx'|null, confidence, evidence:[…], reason, red}.
+ * `convention` is null (never guessed) when confidence is 'none'. `red` is 'standard' or
+ * 'flipped' when a silhouette measured it, else null; with a flipped red the confidence is at most
+ * 'medium' (the map has two problems and the user should look at it). */
 export function detectConvention(rgba,w,h,{alphaThreshold=127}={}){
  const curl=curlStatistic(rgba,w,h,{alphaThreshold:0});
  const sil=silhouetteStatistic(rgba,w,h,{alphaThreshold});
- const evidence=[];
+ const evidence=[];let red=null;
  let curlVote=0,curlGrade='none';
  if(curl.samples>=64){
   curlGrade=grade(Math.abs(curl.rho),curl.agree,curl.informative);
@@ -100,10 +105,12 @@ export function detectConvention(rgba,w,h,{alphaThreshold=127}={}){
  }else evidence.push({test:'curl',samples:curl.samples,grade:'none',says:null});
  let silVote=0,silGrade='none';
  if(sil){
-  const abs=Math.abs(sil.rhoY),redOk=sil.rhoX>.15;
-  silGrade=!redOk?'none':abs>=.45?'high':abs>=.25?'medium':abs>=.1?'low':'none';
+  const abs=Math.abs(sil.rhoY);red=sil.rhoX>.15?'standard':sil.rhoX<-.15?'flipped':null;
+  silGrade=!red?'none':abs>=.45?'high':abs>=.25?'medium':abs>=.1?'low':'none';
   if(silGrade!=='none')silVote=Math.sign(sil.rhoY);
-  evidence.push({test:'silhouette',rhoY:round(sil.rhoY),rhoX:round(sil.rhoX),edgePixels:sil.edgePixels,grade:silGrade,redStandard:redOk,says:silVote>0?'opengl':silVote<0?'directx':null});
+  evidence.push({test:'silhouette',rhoY:round(sil.rhoY),rhoX:round(sil.rhoX),edgePixels:sil.edgePixels,grade:silGrade,redStandard:red==='standard',red,says:silVote>0?'opengl':silVote<0?'directx':null});
+  // a flipped red turns the curl's sign around: read green through it
+  if(red==='flipped'&&curlVote){curlVote=-curlVote;const c=evidence.find(x=>x.test==='curl');c.says=curlVote>0?'opengl':'directx';c.redCorrected=true;}
  }
  const rank={high:3,medium:2,low:1,none:0};
  let convention=null,confidence='none',reason='no-signal';
@@ -121,6 +128,7 @@ export function detectConvention(rgba,w,h,{alphaThreshold=127}={}){
   confidence=['none','low','medium','high'][r];reason=both?'both-agree':curlVote?'curl':'silhouette';
  }else if(curl.samples<64&&!sil)reason='too-small';
  else if(curl.samples>=64&&Math.abs(curl.rho)<.04)reason='no-mixed-slopes';
- return {convention,confidence,reason,evidence};
+ if(red==='flipped'&&confidence==='high')confidence='medium';
+ return {convention,confidence,reason,evidence,red};
 }
 const round=v=>Math.round(v*1000)/1000;

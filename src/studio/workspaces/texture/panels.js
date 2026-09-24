@@ -238,7 +238,9 @@ export function createPanels(C){
    const decl=d.source==='imported'?h('div.tx-btnrow',{},
     ['opengl','directx'].map(c=>{const b=h('button.st-btn'+(declared===c?'.primary':''),{type:'button','data-action':'tex-declare-'+c,'aria-pressed':String(declared===c)},t('tex.conv.declare',{conv:t('tex.conv.'+c)}));b.addEventListener('click',()=>C.edit(t('tex.cmd.declare'),(s,id,size)=>St.setDeclared(s,id,declared===c?null:c,size)));return b;}))
     :null;
-   kids.push(sec(t('tex.conv.title'),verdict,claim?note(t(claim===v.convention||!v.convention?'tex.conv.nameSays':'tex.conv.nameDisagrees',{conv:t('tex.conv.'+claim)}),claim===v.convention||!v.convention?'':'is-warn'):null,
+   const redFlipped=d.source==='imported'&&!!e.normalRedFlipped;
+   const redRow=v.red==='flipped'||redFlipped?[note(t(redFlipped?'tex.conv.redFixed':'tex.conv.redFlipped'),redFlipped?'is-ok':'is-warn'),d.source==='imported'?(()=>{const b=h('button.st-btn'+(redFlipped?'.primary':''),{type:'button','data-action':'tex-flip-red','aria-pressed':String(redFlipped)},t('tex.conv.flipRed'));b.addEventListener('click',()=>C.edit(t('tex.cmd.flipRed'),(s,id,size)=>St.setRedFlipped(s,id,!redFlipped,size)));return b;})():null]:null;
+   kids.push(sec(t('tex.conv.title'),verdict,redRow,claim?note(t(claim===v.convention||!v.convention?'tex.conv.nameSays':'tex.conv.nameDisagrees',{conv:t('tex.conv.'+claim)}),claim===v.convention||!v.convention?'':'is-warn'):null,
     h('ul.tx-evidence',{},ev),decl,d.source==='imported'?note(t(declared?'tex.conv.declared':'tex.conv.notApplied',{conv:declared?t('tex.conv.'+declared):''})):note(t('tex.conv.selfHint')),
     d.valid&&!d.valid.looksLikeNormalMap?note(t('tex.conv.notNormal'),'is-warn'):null));
   }else kids.push(sec(t('tex.conv.title'),note(e.normalFrom?t('tex.conv.running'):t('tex.conv.generated',{conv:t('tex.conv.'+e.params.normal.convention)}))));

@@ -6,7 +6,7 @@
  * a bevel stops at the frame's border, a blur never mixes two frames, and the kernels sample the
  * frame's own edge. Every frame gets the same parameters and the same absolute units (px), so an
  * animation keeps one consistent relief from frame to frame — nothing is normalised per frame. */
-import {alphaMask,bevelHeight,lumaHeight,heightFromPlane,applyStroke,addLayers,hasSilhouette} from './height.js';
+import {alphaMask,bevelHeight,lumaHeight,heightFromPlane,applyStroke,addLayers,hasSilhouette,insideDistance} from './height.js';
 import {normalsFromHeight,quantizeNormals,encodeNormals,bleedNormals} from './normal.js';
 import {ambientOcclusion} from './maps.js';
 export const DEFAULT_PARAMS=Object.freeze({
@@ -34,13 +34,27 @@ export function normalizeParams(p={}){
  return d;
 }
 /** Suggested starting parameters for a picture: a silhouette → sprite (bevel on, clamp); an opaque
- * picture → texture (no bevel, wrap). A suggestion only — the UI shows it and it can be changed. */
-export function suggestParams(rgba,w,h,{pixelArt=false}={}){
+ * picture → texture (no bevel, wrap). A suggestion only — the UI shows it and it can be changed.
+ * Sprites that are not pixel art get a bevel as wide as ~0.9 × the typical inscribed radius (the
+ * median over the frames of the largest distance from the edge), depth = width: a rounded "pillow"
+ * over the whole shape. Measured against the normals rendered from the 3D models of a real sprite
+ * pack (OGA asteroids, docs/STUDIO-TEXTURE.md): mean angle 36.6° with the old fixed 4 px rim,
+ * 19.9° with this rule (Laigter's default: 18.3°). Pixel art keeps the narrow 1.5 px rim that
+ * hand-painted pixel normals use. The width is absolute px for every frame, so an animation keeps
+ * one relief. */
+export function suggestParams(rgba,w,h,{pixelArt=false,regions=null}={}){
  const sprite=hasSilhouette(rgba,w,h);
  const p=normalizeParams({kind:sprite?'sprite':'texture'});
  if(!sprite){p.bevel.on=false;p.luma.depth=3;p.luma.detail=24;p.normal.edge='tile';}
  if(pixelArt){p.bevel.width=1.5;p.bevel.depth=2;p.normal.kernel='central';p.luma.detail=4;p.bevel.metric='euclidean';}
+ else if(sprite){const r=typicalRadius(rgba,w,h,regions,p.alphaThreshold);if(r>0){p.bevel.width=p.bevel.depth=Math.max(4,Math.min(64,Math.round(r*.9)));}}
  return p;
+}
+/** Median over the regions (frames) of the largest inside distance (px) of the silhouette. */
+export function typicalRadius(rgba,w,h,regions=null,threshold=127){
+ const d=insideDistance(alphaMask(rgba,w,h,threshold),w,h),maxima=[];
+ for(const r of regionsOf(w,h,regions)){let m=0;for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++){const v=d[y*w+x];if(v>m)m=v;}if(m>0)maxima.push(m);}
+ if(!maxima.length)return 0;maxima.sort((a,b)=>a-b);return maxima[maxima.length>>1];
 }
 const cropPlane=(src,W,r,ch=1)=>{const out=new src.constructor(r.w*r.h*ch);for(let y=0;y<r.h;y++)out.set(src.subarray(((r.y+y)*W+r.x)*ch,((r.y+y)*W+r.x+r.w)*ch),y*r.w*ch);return out;};
 const pastePlane=(dst,W,r,src,ch=1)=>{for(let y=0;y<r.h;y++)dst.set(src.subarray(y*r.w*ch,(y+1)*r.w*ch),((r.y+y)*W+r.x)*ch);};

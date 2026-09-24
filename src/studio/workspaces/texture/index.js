@@ -26,6 +26,9 @@ import {heightToUint16,heightToBytes} from '../../../game/normals/maps.js';
 import {encodeGray16PNG} from '../../../game/normals/png16.js';
 import {encodeRGBAPNG,encodeGrayPNG} from '../../../game/texture-png.js';
 import {flipGreen} from '../../../game/texture-normal.js';
+/** An imported map whose red is X− (confirmed by the user): red is inverted once on load, so the
+ * preview, the checks after it and every export see a standard X+ map. */
+const flipRed=rgba=>{const o=new Uint8Array(rgba);for(let i=0;i<o.length;i+=4)o[i]=255-o[i];return o;};
 import {dilateEdges} from '../../../game/texture-fix.js';
 import {classifyTextureName,normalConvention} from '../../../game/texture-set.js';
 const CSS_ID='texture-ws-css',PREFS='nerulio.studio.texture.v1';
@@ -68,7 +71,7 @@ export default {
   const entry=()=>{
    const a=asset();if(!a)return null;
    const st=St.texState(ctx.doc),e=St.entryOf(st,a.id,frameSize());
-   if(!e.has&&S.pic){e.params=suggestParams(S.pic.rgba,S.pic.w,S.pic.h,{pixelArt:isPixelArt()});if(!St.texState(ctx.doc).assets?.[a.id]?.scene)e.scene=defaultSceneFor();}
+   if(!e.has&&S.pic){e.params=suggestParams(S.pic.rgba,S.pic.w,S.pic.h,{pixelArt:isPixelArt(),regions:S.pic.layout?.regions});if(!St.texState(ctx.doc).assets?.[a.id]?.scene)e.scene=defaultSceneFor();}
    return e;
   };
   const asset=()=>S.assetId?P.assetById(ctx.doc,S.assetId):null;
@@ -107,7 +110,7 @@ export default {
   }
   // ---------------------------------------------------------------- generation
   let genTimer=0,genToken=0;
-  const genKeyOf=e=>JSON.stringify([S.pic?.key,e.params,e.strokes.length,e.strokes[e.strokes.length-1]?.pts?.slice(0,4),e.normalFrom,e.params.heightMap.assetId]);
+  const genKeyOf=e=>JSON.stringify([S.pic?.key,e.params,e.strokes.length,e.strokes[e.strokes.length-1]?.pts?.slice(0,4),e.normalFrom,e.params.heightMap.assetId,!!e.normalRedFlipped]);
   function scheduleGen(delay=60){clearTimeout(genTimer);genTimer=setTimeout(runGen,delay);}
   async function runGen(){
    const a=asset(),pic=S.pic;if(!a||!pic||pic.assetId!==a.id)return;
@@ -119,7 +122,7 @@ export default {
     const r=await work({op:'generate',key:pic.key,regions:pic.layout.regions,params:e.params,strokes:e.strokes,heightPlane,ao:needAO()});
     if(token!==genToken)return;
     let normal=r.normal,imported=null;
-    if(e.normalFrom){imported=await importedNormal(e.normalFrom,pic);if(token!==genToken)return;if(imported)normal=imported.data;}
+    if(e.normalFrom){imported=await importedNormal(e.normalFrom,pic);if(token!==genToken)return;if(imported)normal=e.normalRedFlipped?flipRed(imported.data):imported.data;}
     S.gen={...r,normal,imported:!!imported,importedName:imported?.name||'',w:pic.w,h:pic.h};S.genKey=key;S.error='';S.maps={};S.mips=null;
     if(lit){lit.upload('nrm',normal,pic.w,pic.h);}
     uploadMap();present2d();

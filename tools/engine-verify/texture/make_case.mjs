@@ -19,7 +19,7 @@ const albedoBytes=new Uint8Array(readFileSync(args.albedo)),img=await decodePNG(
 let frames=[];
 if(args.grid){const [cw,ch]=String(args.grid).split('x').map(Number);for(let y=0;y+ch<=h;y+=ch)for(let x=0;x+cw<=w;x+=cw)frames.push({rect:{x,y,w:cw,h:ch},duration:100,name:`f${frames.length}`});}
 const regions=frames.map(f=>f.rect);
-let params=suggestParams(data,w,h,{pixelArt:!!args.pixel});
+let params=suggestParams(data,w,h,{pixelArt:!!args.pixel,regions:regions.length?regions:null});
 if(args.kind)params=normalizeParams({...params,kind:args.kind,bevel:{...params.bevel,on:args.kind==='sprite'},normal:{...params.normal,edge:args.kind==='texture'?'tile':'clamp'}});
 let normal;
 if(args.normal){const n=await decodePNG(new Uint8Array(readFileSync(args.normal)));normal=args['flip-green']?flipGreen(n.data,w,h):n.data;}

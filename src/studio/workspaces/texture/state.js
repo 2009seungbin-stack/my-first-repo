@@ -11,6 +11,7 @@
  *                          lights in FRAME-LOCAL pixels, so every frame of an animation is lit alike
  *       normalFrom: assetId | null      use an imported normal map instead of generating one
  *       normalDeclared: 'opengl'|'directx'|null   what the user confirmed an imported map is
+ *       normalRedFlipped: true|undefined          the user confirmed the imported map's red is X− (flipped on load)
  *     } },
  *     roles: { [assetId]: role }        PBR role overrides ('albedo','normal','roughness',…)
  *   } */
@@ -35,6 +36,7 @@ export function entryOf(state,assetId,{w=64,h=64}={}){
    specular:{strength:clamp(+scene.specular?.strength||0,0,4),shininess:clamp(Number.isFinite(+scene.specular?.shininess)?+scene.specular.shininess:.5,0,1)}},
   normalFrom:e.normalFrom?String(e.normalFrom):null,
   normalDeclared:['opengl','directx'].includes(e.normalDeclared)?e.normalDeclared:null,
+  ...(e.normalRedFlipped===true?{normalRedFlipped:true}:{}),
   has:!!state.assets?.[assetId]
  };
 }
@@ -61,6 +63,7 @@ export function addLight(state,id,light,size){
 export const removeLight=(state,id,lightId,size)=>updateEntry(state,id,e=>({...e,scene:{...e.scene,lights:e.scene.lights.filter(l=>l.id!==lightId)}}),size);
 export const setNormalFrom=(state,id,from,size)=>updateEntry(state,id,e=>({...e,normalFrom:from||null}),size);
 export const setDeclared=(state,id,conv,size)=>updateEntry(state,id,e=>({...e,normalDeclared:conv||null}),size);
+export const setRedFlipped=(state,id,on,size)=>updateEntry(state,id,e=>{const {normalRedFlipped,...rest}=e;return on?{...rest,normalRedFlipped:true}:rest;},size);
 export function setRole(state,assetId,role){const roles={...(state.roles||{})};if(role)roles[assetId]=role;else delete roles[assetId];return {...state,roles};}
 /** Entries whose asset no longer exists are dropped (after an asset is removed). */
 export function prune(state,assetIds){

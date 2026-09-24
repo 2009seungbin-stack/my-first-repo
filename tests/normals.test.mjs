@@ -8,9 +8,9 @@ import {gradients,normalsFromHeight,encodeNormals,quantizeNormals,normalMipChain
 import {detectConvention,curlStatistic} from '../src/game/normals/convention.js';
 import {ambientOcclusion,curvature,heightToUint16} from '../src/game/normals/maps.js';
 import {shade,renderLit,falloff,falloffTexture,normLight} from '../src/game/normals/lighting.js';
-import {generate,normalizeParams,suggestParams,normalPatch,paintStrokes,regionsOf} from '../src/game/normals/pipeline.js';
+import {generate,normalizeParams,suggestParams,normalPatch,paintStrokes,regionsOf,typicalRadius} from '../src/game/normals/pipeline.js';
 import {encodeGray16PNG,decodeGrayPNG} from '../src/game/normals/png16.js';
-import {bundleFiles,godotScene,animationsOf,unityBlock} from '../src/game/normals/export.js';
+import {bundleFiles,godotScene,animationsOf,unityBlock,UNITY_IMPORTER} from '../src/game/normals/export.js';
 import {decodePNG} from '../src/game/texture-png.js';
 import {flipGreen,heightToNormal} from '../src/game/texture-normal.js';
 import {packPlanes,extractChannel} from '../src/game/texture-channels.js';
@@ -128,6 +128,25 @@ test('GL/DX detection on a generated sprite map: both tests agree (silhouette + 
  const withAlpha=Uint8Array.from(n,(v,i)=>i%4===3?t.data[i]:v);
  const gl=detectConvention(withAlpha,w,h),dx=detectConvention(flipGreen(withAlpha,w,h),w,h);
  assert.equal(gl.convention,'opengl');assert.equal(dx.convention,'directx');assert.equal(gl.reason,'both-agree');
+ assert.equal(gl.red,'standard');
+ // a map with RED flipped (NormalMap-Online's default output) must not read as a confident
+ // "DirectX": the silhouette measures red on its own, the verdict stays about green
+ const redFlip=Uint8Array.from(withAlpha,(v,i)=>i%4===0?255-v:v),rf=detectConvention(redFlip,w,h);
+ assert.equal(rf.red,'flipped');assert.equal(rf.convention,'opengl');assert.notEqual(rf.confidence,'high');
+ const both=detectConvention(flipGreen(redFlip,w,h),w,h);assert.equal(both.red,'flipped');assert.equal(both.convention,'directx');
+});
+test('suggested bevel: pixel art keeps a 1.5 px rim; an HD sprite gets ~0.9 x its typical inscribed radius',async()=>{
+ const t=await load('torch_sheet.png');assert.equal(suggestParams(t.data,t.width,t.height,{pixelArt:true}).bevel.width,1.5);
+ const w=120,h=60,disc=new Uint8Array(w*h*4);// two discs, radius 20 and 12, in two 60x60 frames
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;disc[i]=disc[i+1]=disc[i+2]=200;disc[i+3]=Math.hypot(x-30,y-30)<20||Math.hypot(x-90,y-30)<12?255:0;}
+ const regions=[{x:0,y:0,w:60,h:60},{x:60,y:0,w:60,h:60}];
+ const r=typicalRadius(disc,w,h,regions);assert(r>=12&&r<=20,`median of the frame maxima, got ${r}`);
+ const p=suggestParams(disc,w,h,{regions});assert.equal(p.kind,'sprite');assert.equal(p.bevel.width,Math.round(r*.9));assert.equal(p.bevel.depth,p.bevel.width);
+ assert.equal(suggestParams(new Uint8Array(4*16).fill(255),4,4).bevel.on,false,'an opaque picture is a texture');
+});
+test('Unity importer: finds Light2D in any assembly (Unity 6 moved it), sets the read-only normal-map fields, never resamples',()=>{
+ for(const s of ['GetType("UnityEngine.Rendering.Universal.Light2D")','m_NormalMapQuality','m_NormalMapDistance','TextureImporterNPOTScale.None','maxTextureSize = size','sRGBTexture = false','"_NormalMap"'])assert(UNITY_IMPORTER.includes(s),s);
+ assert(!/GetProperty\("normalMapDistance"\)\?\.SetValue/.test(UNITY_IMPORTER),'normalMapDistance has no setter in URP 17');
 });
 test('light model = Godot canvas: a flat normal under a light straight above adds colour·energy·falloff; the green flip matters',()=>{
  const albedo=[.5,.5,.5,1],flat=[128,128,255];

@@ -36,6 +36,11 @@ test('state: edits are immutable, create the entry with defaults, and survive no
  assert.equal(bad.strokes.length,1);assert.equal(bad.scene.ambient,'#3a3f4d');assert.equal(bad.scene.lights[0].x,0);
  assert.deepEqual(Object.keys(St.prune(St.texState(d4),[]).assets),[]);
  assert.equal(St.texState(St.withTexState(d4,s=>St.setRole(s,'a1','albedo'))).roles.a1,'albedo');
+ // the confirmed red flip of an imported map: on, round-trips, off removes the key again
+ const d5=St.withTexState(d4,s=>St.setRedFlipped(s,'a1',true,size));
+ assert.equal(St.entryOf(St.texState(normalizeProject(JSON.parse(JSON.stringify(d5)))),'a1').normalRedFlipped,true);
+ const d6=St.withTexState(d5,s=>St.setRedFlipped(s,'a1',false,size));
+ assert.equal('normalRedFlipped' in St.texState(d6).assets.a1,false);assert.deepEqual(St.texState(d6).assets.a1,St.texState(d4).assets.a1);
 });
 test('working layout: a sheet keeps its frames as regions; frames with their own pixels become a grid',()=>{
  const a=imageAsset({id:'a1',name:'s.png',width:96,height:64,blob:BLOB});
