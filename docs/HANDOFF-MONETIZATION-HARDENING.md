@@ -63,7 +63,14 @@ Preview first, then Production, each with its own values (never share secrets be
 
 ## Verification
 
-See the final report in the session; commands: `npm test`, `npm run check`,
+2026-09-24 (head after `7a55271`): `npm test` 2014 tests, 2013 pass / 0 fail / 1 skip (incl. `tests/redteam.test.mjs`,
+`tests/monetization-hardening.test.mjs`); `npm run check` OK; `NERULIO_CORPUS='C:
+ope' python tools/regression.py`
+FULL PASS (existing 51, recipes 46, growth 22, seo 526, all studio suites incl. studio-monetization);
+`SERVICE_PORT=4551 python tests/service-browser.py` 119 checks (free + ads + studio + signin);
+red-team API 32 BLOCKED / 6 ACCEPTED / 0 WORKS; red-team browser 11 BLOCKED / 6 ACCEPTED / 0 WORKS.
+
+Commands: `npm test`, `npm run check`,
 `NERULIO_CORPUS='C:\nope' python tools/regression.py`, `SERVICE_PORT=4551 python tests/service-browser.py`
 (scenarios `free,ads,studio,signin`; `SERVICE_SCENARIOS=signin` for one), `node tests/redteam/api-attacks.mjs`,
 `python tests/redteam/browser-attacks.py`. Screenshots: `test-results/studio-monetization/`
