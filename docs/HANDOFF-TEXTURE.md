@@ -79,8 +79,19 @@ workspace under `src/studio/workspaces/texture/`, the tests, and the Godot verif
 
 ### Test status
 
-See the final section of the coordinator report; the last full run is recorded in the commit
-message of the head commit.
+Last full run on a140df3 (2026-09-24). Everything passed:
+
+* `npm test`: 1719 pass / 0 fail / 1 skip.
+* `npm run check`: OK.
+* `NERULIO_CORPUS='C:
+ope' python tools/regression.py`: FULL HTTP REGRESSION PASSED, all suites
+  including studio-texture-browser (existing 51, recipes 46, growth 22, seo 402).
+* `python tools/regression.py` with the corpus: the same, all PASS.
+* `python tests/service-browser.py`: 50 checks PASS.
+* `tests/studio-texture-browser.py` on 4511: 41/41.
+* Godot 4.7.2: 6/6. Unity 6000.5.3f1: 12/12, plus the negative control 3/3 FAIL (as it must).
+
+There is nothing left to do on this branch except the coordinator's ship procedure.
 
 ## Open / next (small)
 
