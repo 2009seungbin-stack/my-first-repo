@@ -133,7 +133,8 @@ def run(browser,stack):
     cyc=[]
     for c in range(2):
         net={'down':False}
-        log=[];ads=[];ctx=context(browser,stack,log,ads,routes=[('**/api/v1/**',lambda r,net=net:r.abort() if net['down'] else r.continue_())],ip='198.51.100.21');page=open_studio(ctx)
+        toggle=(lambda n:lambda r:r.abort() if n['down'] else r.continue_())(net)
+        log=[];ads=[];ctx=context(browser,stack,log,ads,routes=[('**/api/v1/**',toggle)],ip='198.51.100.21');page=open_studio(ctx)
         online=try_export(page)
         try:page.wait_for_function("()=>(JSON.parse(localStorage.getItem('nerulio.grace.v2')||'{}').tokens?.studio||[]).length>0",timeout=15000)
         except Exception:pass
