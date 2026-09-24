@@ -12,6 +12,7 @@
  * one of those changes, change the copy with it. Dependency-free (static build, browser, tests). */
 import {GAME_LAB_PAGES,LAB_KINDS} from './game-seo-labs.js';
 import {GAME_MORE_KEYWORD_PAGES} from './game-seo-more.js';
+import {GAME_FAMILY_PAGES,FAMILIES} from './game-seo-families.js';
 const L=(en,ko,ja)=>({en,ko,ja});
 export const GAME_HUB_PATH='game';
 export const STUDIO_ROUTE='game/studio';
@@ -29,6 +30,16 @@ export const SHOTS=Object.freeze({
  'ui-lab':{file:'ui-lab',w:1440,h:900,app:'ui',by:'Kenney',alt:L('UI Lab: a CC0 UI panel with nine-slice guides and previews at several sizes','UI 랩: 나인 슬라이스 가이드와 여러 크기 미리보기가 있는 CC0 UI 패널','UIラボ：ナインスライスのガイドと複数サイズのプレビューがあるCC0のUIパネル')},
  'tile-seams':{file:'tile-seams',w:1440,h:900,app:'tilelab',by:'ambientCG',alt:L('Tile Lab seam check: a CC0 texture repeated 2×2 with its wrap edges measured','타일 작업실 이음새 점검: 2×2로 반복한 CC0 텍스처와 경계 측정','タイルセット工房の継ぎ目チェック：2×2で繰り返したCC0テクスチャと境界の測定')},
  'tile-slice':{file:'tile-slice',w:1440,h:900,app:'tilelab',by:'Kenney',alt:L('Tile Lab: a Kenney CC0 tilemap with its measured grid (16 px tiles, 1 px spacing)','타일 작업실: 격자를 측정한 Kenney CC0 타일맵(16px 타일, 간격 1px)','タイルセット工房：グリッドを測定したKenney CC0タイルマップ（16pxタイル、間隔1px）')},
+ // Shots of the page families (tools/studio-screens.py, FAMILY_SHOTS).
+ 'sprite-gif':{file:'sprite-gif',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: an animated GIF imported as 6 frames, each keeping its 120 ms delay on the timeline, with onion skin on','Studio 스프라이트 작업 공간: 움직이는 GIF를 6프레임으로 가져와 타임라인에 프레임마다 120ms 지연이 그대로 있고 어니언 스킨이 켜진 화면','Studio のスプライト作業画面：アニメーションGIFを6フレームとして読み込み、タイムラインに各フレームの120msの遅延が残り、オニオンスキンをオンにした画面')},
+ 'sprite-aseprite':{file:'sprite-aseprite',w:1440,h:900,app:'studio',by:'Nerulio',alt:L('Studio Sprite workspace: an .aseprite file with four tags (forward, reverse, ping-pong, repeat counts), per-frame durations and a hit box from its slices','Studio 스프라이트 작업 공간: 태그 4개(정방향·역방향·핑퐁·반복 횟수), 프레임별 길이, 슬라이스에서 온 히트박스가 있는 .aseprite 파일','Studio のスプライト作業画面：4つのタグ（順・逆・ピンポン・繰り返し回数）、フレームごとの長さ、スライス由来のヒットボックスを持つ.asepriteファイル')},
+ 'sprite-atlas':{file:'sprite-atlas',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Sprite workspace: an Aseprite JSON atlas opened with its sheet, 6 frames with their durations grouped into one animation','Studio 스프라이트 작업 공간: 시트와 함께 연 Aseprite JSON 아틀라스, 길이가 있는 6프레임이 애니메이션 하나로 묶인 화면','Studio のスプライト作業画面：シートと一緒に開いたAseprite JSONアトラス。長さ付きの6フレームがひとつのアニメーションにまとまった画面')},
+ 'texture-lit':{file:'texture-lit',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Texture workspace: a pixel-art torch cut into 6 frames, lit by a point light with its generated normal map','Studio 텍스처 작업 공간: 6프레임으로 자른 도트 횃불을 생성한 노멀맵과 점광원으로 비춘 화면','Studio のテクスチャ作業画面：6フレームに切ったドット絵のたいまつを、生成したノーマルマップと点光源で照らした画面')},
+ 'texture-check':{file:'texture-check',w:1440,h:900,app:'studio',by:'ambientCG',alt:L('Studio Texture workspace: an imported ambientCG normal map read as DirectX with high confidence; nothing changes until the convention is confirmed','Studio 텍스처 작업 공간: 가져온 ambientCG 노멀맵을 높은 신뢰도로 DirectX라고 판별했고, 규약을 확인하기 전에는 아무것도 바뀌지 않는 화면','Studio のテクスチャ作業画面：読み込んだambientCGのノーマルマップを高い信頼度でDirectXと判定。規約を確定するまで何も変わらない画面')},
+ 'tile-missing':{file:'tile-missing',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a test map painted with the Godot rule where one cell stays empty because the set has no isolated tile, flagged in the Check panel','Studio 타일 작업 공간: Godot 규칙으로 칠한 테스트 맵에서 타일셋에 고립 타일이 없어 한 칸이 비어 있고, 점검 패널이 이를 표시한 화면','Studio のタイル作業画面：Godotのルールで塗ったテストマップで、孤立タイルがないため1セルが空になり、チェックパネルがそれを示した画面')},
+ 'tile-generator':{file:'tile-generator',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a 47-tile set assembled pixel for pixel from the RPG Maker A2 block of a CC0 sheet, linked to its source','Studio 타일 작업 공간: CC0 시트의 RPG 만들기 A2 블록에서 픽셀 단위로 조립한 47타일 세트가 원본과 연결된 화면','Studio のタイル作業画面：CC0シートのRPGツクールA2ブロックからピクセル単位で組み立て、元画像とリンクした47タイルのセット')},
+ 'tile-collision':{file:'tile-collision',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a CC0 blob-47 tileset (16 px) with a collision polygon traced from the alpha of every tile','Studio 타일 작업 공간: 모든 타일의 알파에서 충돌 폴리곤을 따낸 CC0 블롭 47 타일셋(16px)','Studio のタイル作業画面：全タイルのアルファから衝突ポリゴンをトレースしたCC0のブロブ47タイルセット（16px）')},
+ 'pack-formats':{file:'pack-formats',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pack & Export: CC0 ninja frames packed on one page and the list of all 18 export formats, each with its own Export button','Studio 패킹·내보내기: 한 페이지에 패킹한 CC0 닌자 프레임과 각자 내보내기 버튼이 있는 18개 형식 목록','Studio のパック＆書き出し：1ページにパックしたCC0の忍者のフレームと、それぞれ書き出しボタンがある18形式の一覧')},
  'sprite-lab':{file:'sprite-lab',w:1440,h:900,app:'spritelab',by:'OpenGameArt',alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
 });
 
@@ -44,7 +55,8 @@ export const STATUS=Object.freeze({
  decoded:L('Decoded','디코딩 확인','デコード確認'),
  partial:L('Partly verified','일부 검증','一部検証'),
  unverified:L('UNVERIFIED','미검증','未検証'),
- measured:L('Measured','측정 확인','測定確認')
+ measured:L('Measured','측정 확인','測定確認'),
+ plain:L('Plain files','일반 파일','通常ファイル')
 });
 
 /** Export targets of the Sprite + Pack & Export workspaces (docs/STUDIO-PACK.md, "Exports"). */
@@ -71,6 +83,14 @@ export const TILE_EXPORTS=Object.freeze([
  {id:'ldtk',name:'LDtk',files:'.ldtk (1.5.3) · rules · sample level',status:'partial',engine:'LDtk 1.5.3 schema + loader',note:L('Accepted by the LDtk JSON schema and its official loader, and the rules re-run to the exported tiles; not opened in the LDtk app.','LDtk JSON 스키마와 공식 로더가 받아들이고 규칙을 다시 실행하면 내보낸 타일과 같습니다. LDtk 앱에서 열어 보지는 않았습니다.','LDtkのJSONスキーマと公式ローダーで受理され、ルールを再実行すると書き出したタイルと一致。LDtkアプリでは未確認。')}
 ]);
 
+/** Export targets of the Texture workspace (docs/STUDIO-TEXTURE.md, "Engine verification";
+ * src/game/normals/export.js VERIFIED). */
+export const TEXTURE_EXPORTS=Object.freeze([
+ {id:'godot',name:'Godot 4 2D lights',files:'_lit.tscn · CanvasTexture .tres · normal / specular PNG',status:'verified',engine:'Godot 4.7.2',note:L('Six real CC0 cases rendered by Godot (gl_compatibility): every checked frame within 1/255 of the Studio\'s lit preview. The same render with green flipped is 3.8–37 levels off, so the check can see a wrong convention.','실제 CC0 사례 6개를 Godot(gl_compatibility)가 렌더링했고, 확인한 모든 프레임이 Studio 조명 미리보기와 1/255 이내로 같았습니다. 초록을 뒤집은 같은 렌더는 3.8~37단계 어긋나므로 잘못된 규약을 잡아낼 수 있습니다.','実在のCC0ケース6件をGodot（gl_compatibility）で描画し、確認した全フレームがStudioのライティングプレビューと1/255以内で一致。緑を反転した同じ描画は3.8〜37段階ずれるため、規約の誤りを検出できます。')},
+ {id:'unity',name:'Unity 6 URP 2D',files:'PNG · nerulio-texture.json · Editor/NerulioNormalMapImporter.cs',status:'verified',engine:'Unity 6000.5.3f1 (URP 17.5)',note:L('12 of 12 runs (6 cases in Gamma and Linear colour space): the lighting URP applied matches the exported normal map (mean error 0.0037–0.0085). URP draws its own light falloff, so brightness is Unity\'s, not the preview\'s.','12회 중 12회 통과(사례 6개 × 감마·리니어 색 공간): URP가 적용한 조명이 내보낸 노멀맵과 일치합니다(평균 오차 0.0037~0.0085). 빛의 감쇠는 URP 방식이라 밝기는 미리보기가 아니라 Unity 기준입니다.','12回中12回合格（6ケース×ガンマ・リニア色空間）：URPが適用したライティングが書き出したノーマルマップと一致（平均誤差0.0037〜0.0085）。光の減衰はURP独自なので、明るさはプレビューではなくUnityの基準です。')},
+ {id:'png',name:'PNG set + JSON',files:'albedo · _n (OpenGL) · _n_dx (DirectX) · 16-bit height · AO · specular · manifest',status:'plain',engine:'',note:L('Plain files for any engine or tool; no engine run is claimed for them.','어떤 엔진이나 도구에서도 쓰는 일반 파일이며, 엔진 실행 검증은 주장하지 않습니다.','どのエンジン・ツールでも使える通常ファイルで、エンジンでの実行検証はうたっていません。')}
+]);
+
 /** Page chrome and section headings. */
 export const UI=Object.freeze({
  hub:L('Game studio','게임 스튜디오','ゲームスタジオ'),
@@ -95,7 +115,9 @@ export const UI=Object.freeze({
  allGame:L('All game tools','모든 게임 도구','すべてのゲームツール'),
  allTools:L('All tools','전체 도구','すべてのツール'),
  studio:L('Studio','스튜디오','スタジオ'),
- workspace:L('Workspace','작업 공간','作業画面')
+ workspace:L('Workspace','작업 공간','作業画面'),
+ better:L('Where {name} is the better choice','{name} 쪽이 더 나은 경우','{name}のほうが向いている場合'),
+ source:L('Source of these numbers','이 수치의 출처','この数値の出典')
 });
 
 /** What each workspace accepts, how its drop zone reads, and its limits. */
@@ -123,6 +145,17 @@ export const WORKSPACES=Object.freeze({
   limits:L(['Tiled\'s terrain brush, the LDtk app and Godot\'s editor painter were not driven; the checks use the engines\' readers and set_cells_terrain_connect.','Unity gets blob and side sets only; several terrains become several Rule Tiles with no transitions between them.','Isometric and hex tiles, animated tiles, occlusion and navigation layers are out of scope.','Suggesting bits without a known layout needs a reference "full" tile; on side-only path templates the guess can fail until you select it.'],
    ['Tiled 지형 브러시, LDtk 앱, Godot 편집기의 칠하기는 실행하지 않았습니다. 검증은 엔진의 읽기 기능과 set_cells_terrain_connect로 했습니다.','Unity로는 블롭·변 타일셋만 내보냅니다. 지형이 여러 개면 서로 이어지지 않는 Rule Tile 여러 개가 됩니다.','아이소메트릭·육각 타일, 애니메이션 타일, 오클루전·내비게이션 레이어는 지원하지 않습니다.','알려진 배치 없이 비트를 제안하려면 기준이 되는 "가득 찬" 타일이 필요합니다. 변만 있는 길 템플릿은 그 타일을 선택하기 전까지 추측이 틀릴 수 있습니다.'],
    ['Tiledの地形ブラシ、LDtkアプリ、Godotエディターでの塗りは操作していません。検証はエンジンの読み込み機能とset_cells_terrain_connectで行いました。','Unityへはブロブ・辺タイルセットのみ。地形が複数あると、互いにつながらないRule Tileが複数になります。','アイソメトリック・六角タイル、アニメーションタイル、オクルージョン・ナビゲーションレイヤーは対象外です。','既知の配置なしでビットを提案するには基準となる「塗りつぶし」タイルが必要です。辺だけの道テンプレートでは、そのタイルを選ぶまで推定を誤ることがあります。'])
+ },
+ // The Studio's Texture workspace (/game/studio/?ws=texture). Its kind is called 'normalmap' here
+ // because 'texture' is the Texture Lab's kind (src/game-seo-labs.js); `studioWs` is the ?ws= value.
+ normalmap:{
+  studioWs:'texture',
+  accept:'image/png,image/webp,image/jpeg,image/bmp,.png,.webp,.jpg,.jpeg,.bmp',
+  name:L('Texture workspace','텍스처 작업 공간','テクスチャ作業画面'),
+  drop:L('Drop a sprite, a sprite sheet or a tileable texture (PNG)','스프라이트, 스프라이트 시트 또는 반복 텍스처(PNG)를 끌어다 놓으세요','スプライト、スプライトシート、繰り返しテクスチャ（PNG）をドロップ'),
+  limits:L(['On a picture without transparent edges (a tileable texture) a flipped red channel cannot be told apart from a DirectX green; the Check panel says so and offers Flip red.','A sheet is lit as one picture until its frames are cut in the Sprite workspace; the Texture workspace does not cut frames.','The rim light is preview only, and Unity gets no specular map (Godot does).','Unity draws its own light falloff: the exported normal map is verified in Unity, the brightness curve is Unity\'s.'],
+   ['투명한 가장자리가 없는 그림(반복 텍스처)에서는 빨강이 뒤집힌 것과 DirectX 초록을 구별할 수 없습니다. 점검 패널이 이를 알리고 "빨강 뒤집기"를 제공합니다.','시트는 스프라이트 작업 공간에서 프레임을 자르기 전까지 그림 하나로 조명됩니다. 텍스처 작업 공간은 프레임을 자르지 않습니다.','림 라이트는 미리보기 전용이며, Unity로는 스페큘러 맵을 내보내지 않습니다(Godot는 내보냄).','Unity는 자체 빛 감쇠를 씁니다. 내보낸 노멀맵은 Unity에서 검증했지만 밝기 곡선은 Unity 방식입니다.'],
+   ['透明な縁がない絵（繰り返しテクスチャ）では、赤の反転とDirectXの緑を区別できません。チェックパネルがそれを伝え、「赤を反転」を用意しています。','シートはスプライト作業画面でフレームを切るまで1枚の絵としてライティングされます。テクスチャ作業画面ではフレームを切りません。','リムライトはプレビュー専用で、Unityにはスペキュラーマップを書き出しません（Godotには書き出し）。','Unityは独自の光の減衰を使います。書き出したノーマルマップはUnityで検証済みですが、明るさの曲線はUnityのものです。'])
  }
 });
 
@@ -151,7 +184,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['余白・間隔を含むグリッド候補を、絵のすき間をどれだけ説明できるかで順位づけして表示。','不規則なシートは島モードで分割。小さなエフェクト片は本体にくっつき、どこにも属さない片は赤で表示。','マゼンタや単色の背景を透明に（元画像は取り消し用に保持）。','行ごとに1アニメーションと再生時間を決定。ワンクリックで変更できます。'],
    steps:['このページにシートをドロップ（または選択）。','フレーム数・グリッド・背景色・アニメーションのプレビューと信頼度を確認。','「適用」を押す（取り消しは1回）。必要ならフレーム範囲をドラッグで修正。','パック＆書き出しで使うエンジン向けに書き出し。'],
    faq:[['グリッドの推定が違っていたら？','一覧の別の候補を選ぶか、セルサイズ・余白・間隔を入力してください。切る前にプレビューが更新されます。'],['フレームを1枚ずつPNGで保存できますか？','Studioではまだできません。下のリンクの従来のスプライトラボでフレームPNGのZIPを保存できます。']]}
- },{classic:L('Separate PNG files per frame (ZIP), outline and de-fringe are still in the classic Sprite Lab.','프레임별 PNG 파일(ZIP), 외곽선, 가장자리 정리는 아직 기존 스프라이트 랩에 있습니다.','フレームごとのPNG（ZIP）、アウトライン、フチの除去は従来のスプライトラボにあります。'),related:['game/godot-sprite-sheet','game/unity-sprite-sheet','sprite-animation-preview','sprite-sheet-maker']}),
+ },{classic:L('Separate PNG files per frame (ZIP), outline and de-fringe are still in the classic Sprite Lab.','프레임별 PNG 파일(ZIP), 외곽선, 가장자리 정리는 아직 기존 스프라이트 랩에 있습니다.','フレームごとのPNG（ZIP）、アウトライン、フチの除去は従来のスプライトラボにあります。'),related:['game/godot-sprite-sheet','game/unity-sprite-sheet','sprite-animation-preview','sprite-sheet-maker','game/sprite-sheet-slicing-off','game/sprite-sheet-frame-size']}),
  'sprite-lab':page('sprite','sprite-frame',{
   en:{title:'Sprite Sheet Editor — Slice, Animate, Export to Engines',description:'Browser sprite editor for game frames: slice sheets, tag animations, set per-frame timing, pivots and hitboxes, then export verified Godot, Unity, Phaser, PixiJS and LÖVE files.',lead:'One workspace for the whole sprite pipeline: import any sheet, GIF or .aseprite file, turn it into tagged animations with per-frame durations, pivots and boxes, and export files that were loaded in the engines themselves.',
    what:['Imports sheets, numbered frame files, GIF and APNG (every frame and delay), .aseprite (layers, tags, durations, slices), Aseprite JSON, TexturePacker JSON and Starling XML.','An Aseprite-style timeline: tags with direction and repeat, per-frame durations, reorder, duplicate, flip.','Playback with loop, ping-pong and repeat, onion skin and a floating preview at 1×–8×.','Pivots, hit / hurt / custom boxes and collision polygons per frame, tag or selection.'],
@@ -165,7 +198,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['シート、連番フレーム、GIF・APNG（全フレームと遅延）、.aseprite（レイヤー・タグ・長さ・スライス）、Aseprite JSON、TexturePacker JSON、Starling XMLを読み込み。','Aseprite式タイムライン：方向・繰り返し付きタグ、フレームごとの長さ、並べ替え、複製、反転。','ループ・ピンポン再生、オニオンスキン、1×〜8×のフローティングプレビュー。','フレーム・タグ・選択範囲ごとのピボット、ヒット・ハート・任意のボックス、衝突ポリゴン。'],
    steps:['シート・フレーム・.asepriteファイルをここにドロップ。','読み込みを適用（または提示された代替案を選択）。','タイムラインでアニメーション名・長さ・ピボット・ボックスを設定。','パック＆書き出しでエンジンを選んで書き出し。'],
    faq:[['Asepriteとの違いは？','ドットを描くツールではありません。絵とエンジンの間の工程（分割・タイミング・ピボット・ボックス・パック・エンジン用ファイル）を担当し、.asepriteの読み書きもできます。'],['Asepriteのタグと長さは保たれますか？','はい。231ファイルの.asepriteテストコーパスで、Studioが書いたファイルをAseprite 1.3.18で開くと、タグと長さは231/231一致しました。']]}
- },{classic:L('Outline, de-fringe and a ZIP of frame PNGs are still in the classic Sprite Lab.','외곽선, 가장자리 정리, 프레임 PNG ZIP은 아직 기존 스프라이트 랩에 있습니다.','アウトライン、フチの除去、フレームPNGのZIPは従来のスプライトラボにあります。'),related:['game/aseprite-to-godot','game/sprite-sheet-to-gif','hitbox-editor','sprite-sheet-maker']}),
+ },{classic:L('Outline, de-fringe and a ZIP of frame PNGs are still in the classic Sprite Lab.','외곽선, 가장자리 정리, 프레임 PNG ZIP은 아직 기존 스프라이트 랩에 있습니다.','アウトライン、フチの除去、フレームPNGのZIPは従来のスプライトラボにあります。'),related:['game/aseprite-to-godot','game/sprite-sheet-to-gif','hitbox-editor','sprite-sheet-maker','game/sprite-editor','game/aseprite-viewer']}),
  'frame-normalize':page('sprite','sprite-frame',{
   en:{title:'Align Sprite Frames — Fix Animation Jitter',description:'Put every animation frame on one canvas size with a shared anchor, then measure and fix frame-to-frame wobble. Whole-pixel moves only, never rescaled. Free, in your browser.',lead:'Frames cut from different sheets or trimmed separately wobble when played. The Align panel puts them on one canvas with a common anchor and measures how far each frame drifts off a smooth path.',
    what:['One canvas size for the frames of a tag, a selection or the whole sprite, with padding and an anchor (bottom-centre, centre, top-left …).','Each frame\'s opaque bounds are measured first; art moves by whole pixels and is never scaled.','Jitter is measured against a smooth path and marked on the timeline, in pixels (max and RMS).','Fix keeps the intended motion, or pins every frame to the first one.'],
@@ -179,7 +212,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['タグ・選択・全フレームに同じキャンバスサイズ、余白、基準点（下中央・中央・左上など）を適用。','まず各フレームの不透明範囲を測定。絵は整数ピクセルでのみ移動し、拡大縮小しません。','滑らかな軌道に対するブレをピクセル単位（最大・RMS）で測定し、タイムラインに表示。','意図した動きを保って補正するか、全フレームを最初のフレームに固定できます。'],
    steps:['フレームやシートを入れて読み込みを適用。','タイムラインでアニメーションを選び、整列パネルを開く。','「フレームを整列」を押し、「測定」でブレをピクセル単位で確認。','補正してループ再生で確かめ、書き出し。'],
    faq:[['揃えるとドット絵がぼやけますか？','いいえ。フレームは整数ピクセルで移動するだけで、サイズは変わらず、リサンプリングもしません。'],['ピボットは変わりますか？','ピボットは絵と一緒に移動するので、キャラクターとピボットの関係は変わりません。']]}
- },{related:['sprite-animation-preview','sprite-pivot-editor','sprite-slicer','sprite-lab']}),
+ },{related:['sprite-animation-preview','sprite-pivot-editor','sprite-slicer','sprite-lab','game/sprite-jitter-after-trim']}),
  'sprite-animation-preview':page('sprite','sprite-frame',{
   en:{title:'Sprite Animation Preview — Frames, Tags and Timing',description:'Play sprite animations in the browser with per-frame durations, loop, ping-pong and repeat, onion skin and a pixel-sharp preview window, then export GIF, APNG or engine files.',lead:'Check an animation before it reaches the engine: play each tag with its real per-frame timing, step frame by frame, compare neighbours with onion skin and watch it at 1×–8× in a floating preview.',
    what:['Per-frame durations in milliseconds (Aseprite default 100 ms); set them one by one or for a selection.','Tags with forward, reverse or ping-pong direction and a repeat count (0 = loop forever).','Onion skin with opacity and red/blue tint; a floating preview at integer zoom on a chosen background.','Export the animation as GIF (adaptive palette, per-frame delays) or exact APNG, or as engine animation data.'],
@@ -193,7 +226,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['フレームごとの長さ（ms、Asepriteの既定は100ms）を1枚ずつまたは選択単位で設定。','順方向・逆方向・ピンポンと繰り返し回数（0＝無限ループ）を持つタグ。','不透明度・赤青の色付けができるオニオンスキン、好きな背景で整数倍表示するプレビュー窓。','アニメーションをGIF（適応パレット・フレームごとの遅延）、完全一致のAPNG、エンジン用アニメーションデータで書き出し。'],
    steps:['シート・フレーム・GIF・.asepriteを入れて読み込みを適用。','タイムラインでタグを選び、Enterで再生。「,」「.」でコマ送り。','自然になるまで長さと方向を調整。F3でオニオンスキン、F7でプレビュー。','パック＆書き出しから書き出し。'],
    faq:[['GIFのタイミングは保たれますか？','はい。GIFの各フレームの遅延がそのフレームの長さになります。実在のGIF 29本・408フレームでデコード結果がPillowと全一致しました。'],['シートを切らずにプレビューできますか？','シートは先にフレームが必要です。読み込み時に切り方が表示され、ワンクリックで適用できます。']]}
- },{related:['game/sprite-sheet-to-gif','game/gif-to-sprite-sheet','frame-normalize','sprite-lab']}),
+ },{related:['game/sprite-sheet-to-gif','game/gif-to-sprite-sheet','frame-normalize','sprite-lab','game/sprite-animator','game/godot-animation-frame-duration']}),
  'sprite-pivot-editor':page('sprite','sprite-frame',{
   en:{title:'Sprite Pivot Editor — Origin Points per Frame',description:'Set the pivot (origin) of every sprite frame on the pixel grid and export it to Godot, Unity, PixiJS anchors, Aseprite slices and GameMaker origins. Free, in your browser, nothing uploaded.',lead:'Click once to place a frame\'s pivot on the pixel grid, or set it for a whole tag at once. The pivot travels with the frame into each engine\'s own origin field.',
    what:['Pivot tool (P): a click snaps the pivot to the pixel grid of the current frame.','Scope: this frame, the selected frames, the tag or every frame.','Pivots stay attached to the art through alignment and mirroring.','Exports: Godot scene offset, Unity sprite pivot, PixiJS anchor, Aseprite slice pivot, GameMaker origin.'],
@@ -249,7 +282,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['MaxRects（5種のルール）、Skyline、Guillotine。「すべて試す」で最小のページを採用。','オフセットを保つトリム、同一フレームの重複除去、縁の拡張、外枠・図形の余白、POT・正方形・固定サイズ、最大64ページ。','ニアレストネイバーで@0.5x〜@4xの倍率違い、乗算済みアルファも選択可。','色が正確なPNG：フレームをCanvasを通さずJavaScriptでデコードするので、色とアルファがずれません（インターレースPNGはブラウザのデコーダーを使い、その旨を表示）。'],
    steps:['フレーム（連番PNGのフォルダーも可）やGIF・.asepriteを入れる。','エンジンのプリセットを選ぶと、アトラスがその場で再パック。','使用率・ページ数・フレーム一覧を確認し、必要ならトリム・余白・サイズを変更。','エンジン向けに書き出し。'],
    faq:[['行×列の単純なグリッドシートも作れますか？','Studioは密にパックします。セルサイズ固定の均一グリッドは、下のリンクの従来のスプライトシート作成で作れます。'],['フレームはピクセル単位で正確ですか？','はい。実在の5つのフレームセットで、アトラスから復元した全フレームが元ファイルとピクセル単位で一致しました。']]}
- },{classic:L('A plain uniform grid sheet (fixed cells, rows × columns) is still made by the classic sprite sheet maker.','칸이 고정된 균일 격자 시트(행×열)는 아직 기존 스프라이트 시트 만들기에서 만듭니다.','セル固定の均一グリッドシート（行×列）は従来のスプライトシート作成で作れます。'),related:['game/texture-packer-free','game/gif-to-sprite-sheet','atlas-padding','sprite-slicer']}),
+ },{classic:L('A plain uniform grid sheet (fixed cells, rows × columns) is still made by the classic sprite sheet maker.','칸이 고정된 균일 격자 시트(행×열)는 아직 기존 스프라이트 시트 만들기에서 만듭니다.','セル固定の均一グリッドシート（行×列）は従来のスプライトシート作成で作れます。'),related:['game/texture-packer-free','game/gif-to-sprite-sheet','atlas-padding','sprite-slicer','game/sprite-sheet-packers-compared','game/aseprite-to-sprite-sheet']}),
  'tile-lab':page('tile','tile-check',{
   en:{title:'Autotile Tileset Editor — Terrain Bits for Godot, Tiled, Unity',description:'Recognise an autotile sheet\'s layout from its pixels, set terrain bits, check which combinations are missing and export a Godot 4 TileSet, Tiled Wang set, Unity Rule Tile or LDtk rules.',lead:'Stop setting peering bits by hand: import a sheet, let the Studio recognise which of 12 published layouts it is, check that every combination exists, paint a test map with Godot\'s own rule and export files the engines loaded.',
    what:['Layout recognition by seam continuity: blob-47 (cr31, wang blob 7×7, caeles, GameMaker, Godot 3 12×4), 16-side, 16-corner / dual grid, 3×3 box, RPG Maker A2 / A4 sources.','Bits tool, 3×3 bit editor, rotate / mirror, copy / paste bits, collision shapes from alpha.','A check that says Complete only after measuring: missing combinations as ghost tiles, duplicates, contradictions between art and bits.','A generator that assembles a blob-47 or dual-grid set from an RPG Maker A2, A4 or 2×3 base block.'],
@@ -263,7 +296,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['継ぎ目の連続性で配置を認識：ブロブ47（cr31、wang blob 7×7、caeles、GameMaker、Godot 3 12×4）、辺16、角16・デュアルグリッド、3×3ボックス、RPGツクールA2・A4素材。','ビットツール、3×3ビットエディター、回転・反転、ビットのコピー・貼り付け、アルファからの衝突形状。','測定してから「完了」と言うチェック：足りない組み合わせを半透明タイルで表示、重複、絵とビットの矛盾。','RPGツクールA2・A4や2×3の基本ブロックからブロブ47・デュアルグリッドを組み立てるジェネレーター。'],
    steps:['タイルセットをドロップ。','提案されたグリッドを使い、最良の配置候補を適用（Enter）。','チェックパネルを読み、足りないものを直すか生成。テストマップ（M）を塗って確認。','Godot 4・Tiled・Unity・LDtkへ書き出し（Ctrl+E）。'],
    faq:[['既知の配置ではないシートも使えますか？','はい。ビットツールで塗るか、Studioにピクセルからビットを提案させ（プレビュー）、受け入れてください。'],['Godotの書き出しに地形ピアリングビットは入りますか？','はい。同梱のインポートスクリプトが全タイルの地形ピアリングビット付きTileSetを作成し、その結果をGodot 4.7.2で塗って確認しました。']]}
- },{classic:L('Seamless-texture checks, edge extrusion of a finished tileset and a ZIP of single tile PNGs are still in the classic Tile Lab.','심리스 텍스처 점검, 완성된 타일셋의 가장자리 확장, 타일 PNG ZIP은 아직 기존 타일 작업실에 있습니다.','シームレス確認、完成タイルセットの縁の拡張、タイルPNGのZIPは従来のタイルセット工房にあります。'),related:['game/godot-autotile','game/blob-47-tileset','autotile-tester','tileset-slicer']}),
+ },{classic:L('Seamless-texture checks, edge extrusion of a finished tileset and a ZIP of single tile PNGs are still in the classic Tile Lab.','심리스 텍스처 점검, 완성된 타일셋의 가장자리 확장, 타일 PNG ZIP은 아직 기존 타일 작업실에 있습니다.','シームレス確認、完成タイルセットの縁の拡張、タイルPNGのZIPは従来のタイルセット工房にあります。'),related:['game/godot-autotile','game/blob-47-tileset','autotile-tester','tileset-slicer','game/tileset-generator','game/godot-tileset-collision']}),
  'autotile-tester':page('tile','tile-map',{
   en:{title:'Autotile Tester — Paint a Test Map with Godot\'s Rule',description:'Paint a test map with your autotile set and see exactly what Godot 4 or Tiled will draw: holes and substituted tiles are outlined and explained, cell by cell. Free, in the browser.',lead:'A new test map starts with an island, a lake and a peninsula so the autotiling shows at once. It is drawn with a port of Godot 4\'s terrain matcher — or Tiled\'s exact Wang match — so what you see is what the engine will place.',
    what:['Godot rule: a port of set_cells_terrain_connect that matched Godot 4.7.2 cell for cell on the test corpus.','Tiled rule: exact Wang matching, corner sets on grid points half a tile off.','Cells where the engine leaves a hole or substitutes a tile are outlined and listed; hover a cell to see which tile and why.','Brush with sizes, eraser, fill, pick, random fill, map layers with their own tileset.'],
@@ -277,7 +310,7 @@ export const GAME_INTENT_PAGES=Object.freeze({
    what:['Godotルール：テストコーパスでGodot 4.7.2とセル単位で一致したset_cells_terrain_connectの移植。','Tiledルール：厳密なWangマッチ。角セットは半タイルずれた格子点が基準。','エンジンが空ける・別タイルに置き換えるセルは枠と一覧で表示。セルにカーソルを合わせると、どのタイルかと理由が見えます。','サイズ可変ブラシ、消しゴム、塗りつぶし、スポイト、ランダム塗り、タイルセット別のマップレイヤー。'],
    steps:['タイルセットを入れて配置を適用（またはビットを塗る）。','Mでマップを開き、Pで塗り、Eで消し、Gで塗りつぶし。','GodotルールとTiledルールを切り替えて比較。','タイルセットの足りないタイルを直してから書き出し。'],
    faq:[['Godotが違うタイルを置くのはなぜ？','組み合わせが足りないと、Godotは最も近いタイルで代用します。テスターはそのセルを示し、足りない組み合わせを教えるので、描くべきタイルがわかります。'],['塗る順番で結果は変わりますか？','Godotのマッチングは順番に依存します。テスターは地形ごとに1回ずつ行順に塗った結果（スクリプトやエンジン検証と同じ方法）を表示します。']]}
- },{related:['game/godot-autotile','game/tiled-wang-set','tile-lab','game/dual-grid-tileset']}),
+ },{related:['game/godot-autotile','game/tiled-wang-set','tile-lab','game/dual-grid-tileset','game/tilemap-editor','game/godot-terrain-wrong-tiles']}),
  'tileset-slicer':page('tile','tile-check',{
   en:{title:'Tileset Slicer — Detect Tile Size, Margin and Spacing',description:'Find a tileset\'s tile size, margin and spacing from its pixels, count blank tiles, and turn it into a Godot 4 TileSet, Tiled tileset, Unity tiles or LDtk project. Free, no upload.',lead:'Drop a tileset and the Studio measures candidate grids from the pixels — including the sizes where a known autotile layout fits exactly — and shows the best one as a dashed preview until you use it.',
    what:['Grid candidates with tile size, margin and gap, each with a confidence; published autotile layouts that fit are named.','Blank tiles are counted and dimmed; several tilesets per project (one per sheet).','Type the grid yourself when you already know it.','The tileset exports with its grid to Godot 4, Tiled, Unity and LDtk, together with any terrain bits.'],
@@ -310,7 +343,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['GIF・APNGの全フレームと遅延・破棄方法をそのまま取り込み、欠落や時間の変更はありません。','Pillowと照合したデコーダー：実在のGIF 29本で408/408フレーム、APNG 16本で132/132フレーム一致。','トリムして同一フレームをまとめて密にパック、またはフレーム全体を保持。','Phaser・PixiJS JSON、Godot SpriteFrames、Unityクリップ、Aseprite JSONなどでシートを書き出し。'],
    steps:['GIFかAPNGをドロップ。','Studioが全フレームをパックしたパック＆書き出し画面を開きます。スプライトタブではフレームごとの長さ付きタイムラインを確認できます。','エンジンのプリセットを選ぶ。','シートとデータファイルを書き出し。'],
    faq:[['シートはGIFのタイミングを保ちますか？','はい。各フレームの遅延が長さとして保存され、フレームごとの時間を持つ形式（Godot、Unity、Phaser anims、Aseprite JSON、PixiJS meta）に書き込まれます。'],['GIFはアップロードされますか？','いいえ。このブラウザのタブ内でデコードします。']]}
- },{related:['game/sprite-sheet-to-gif','sprite-sheet-maker','sprite-animation-preview','game/texture-packer-free']}),
+ },{related:['game/sprite-sheet-to-gif','sprite-sheet-maker','sprite-animation-preview','game/texture-packer-free','game/sprite-animator']}),
  'game/sprite-sheet-to-gif':kw('sprite-animation-preview','sprite','sprite-frame',{
   en:{title:'Sprite Sheet to GIF — One Animated GIF per Animation',description:'Turn a sprite sheet into animated GIFs: cut the frames, set per-frame timing, and export one GIF (or exact APNG) per animation with transparency. Free, pixel-sharp, no upload.',lead:'Cut the sheet into frames, split them into animations with their own timing, and export one GIF per animation — each frame at its own delay, with 1-bit transparency — or an APNG that keeps every pixel.',
    what:['The sheet is cut by its measured grid or by islands; each row can become its own animation.','Per-frame durations, direction (forward, reverse, ping-pong) and repeat count.','GIF with an adaptive palette (global or per frame) and 1-bit transparency; APNG exact.','Also: WebM video at 4× nearest on a solid background, for sharing.'],
@@ -324,7 +357,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['測定したグリッドや島でシートを分割。行ごとにアニメーションにできます。','フレームごとの長さ、方向（順・逆・ピンポン）、繰り返し回数。','適応パレット（全体またはフレームごと）と1ビット透過のGIF、完全一致のAPNG。','共有用に、単色背景へ4倍ニアレストネイバーで拡大したWebM動画も作成。'],
    steps:['スプライトシートを入れて「適用」を押す。','タイムラインでアニメーションと時間を確認。','パック＆書き出しを開く。','「Animated GIF」（またはAPNG）で書き出し。'],
    faq:[['GIFの半透明の縁が硬いのはなぜ？','GIFの透過はオン・オフの2段階だけです。柔らかいアルファを保つならAPNGで書き出してください。'],['ドットはくっきりしたままですか？','フレームは1:1で書き出し、スムージングしません。WebMはニアレストネイバーで4倍に拡大します。']]}
- },{related:['game/gif-to-sprite-sheet','sprite-animation-preview','sprite-slicer','sprite-lab']}),
+ },{related:['game/gif-to-sprite-sheet','sprite-animation-preview','sprite-slicer','sprite-lab','game/sprite-sheet-to-video','game/aseprite-to-gif']}),
  'game/aseprite-to-godot':kw('sprite-lab','sprite','sprite-frame',{
   en:{title:'Aseprite to Godot 4 — .aseprite to SpriteFrames, No Plugin',description:'Open an .aseprite file in the browser and export a Godot 4 SpriteFrames .tres, an AnimatedSprite2D scene and pixel-art import settings. Tags, durations and pivots kept. No Aseprite install.',lead:'No Aseprite binary on the PATH, no editor plugin: drop the .aseprite file, check its tags, and export a bundle that Godot 4.7.2 loaded and drew frame by frame in the verification run.',
    what:['Reads .aseprite in the browser: layers, tags (direction, repeat), per-frame durations, slices → pivots, boxes and 9-slice.','SpriteFrames .tres with AtlasTexture regions, trim margins, relative durations and loop.','An AnimatedSprite2D .tscn with texture_filter = Nearest and the pivot offset.','A .png.import with lossless compression, no mipmaps and fix_alpha_border off, so faint pixels keep their colour.'],
@@ -338,7 +371,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['ブラウザで.asepriteを読み込み：レイヤー、タグ（方向・繰り返し）、フレームごとの長さ、スライス→ピボット・ボックス・9スライス。','AtlasTexture範囲、トリム余白、相対的な長さ、ループ入りのSpriteFrames .tres。','texture_filter = Nearestとピボットオフセット付きのAnimatedSprite2D .tscn。','可逆圧縮・ミップマップなし・fix_alpha_borderオフの.png.import（薄いピクセルの色が変わりません）。'],
    steps:['.asepriteファイルをドロップ。','タイムラインでタグと長さを確認（正確に合成できるレイヤーはレイヤーのまま）。','パック＆書き出しでGodot 4を選ぶ。','バンドルをGodotプロジェクトに展開してシーンを開く。'],
    faq:[['Asepriteのインストールは必要？','不要です。ファイルはブラウザで解析します。231ファイルの.asepriteコーパスで、222件はレイヤーごと、9件は理由を表示して統合して読み込みました。'],['.png.importを同梱する理由は？','Godotの既定のインポートはアルファ20未満のピクセルの色を変えます（fix_alpha_border）。バンドルの設定でこれを切り、その設定でテストのエフェクトシートがGodotで合格しました。']]}
- },{related:['game/aseprite-to-unity','game/aseprite-to-phaser','game/godot-sprite-sheet','sprite-lab'],highlight:['godot4','aseprite']}),
+ },{related:['game/aseprite-to-unity','game/aseprite-to-phaser','game/godot-sprite-sheet','sprite-lab','game/aseprite-viewer','game/godot-animation-frame-duration'],highlight:['godot4','aseprite']}),
  'game/aseprite-to-unity':kw('sprite-lab','sprite','sprite-frame',{
   en:{title:'Aseprite to Unity 6 — Sprites and Animation Clips',description:'Convert an .aseprite file into Unity 6 sprites and AnimationClips in the browser: Point filtering, no compression, per-frame pivots, one clip per tag. Checked in Unity 6000.5 batch mode.',lead:'Drop the .aseprite file and export a Unity bundle: the atlas, a JSON description and a small editor script that slices the sprites (Point, uncompressed) and creates one AnimationClip per tag with its frame timing.',
    what:['Tags become AnimationClips with each frame\'s duration; pivots come from Aseprite slices or the Studio\'s pivot tool.','Sprite Mode Multiple, Point filter, no compression — the settings pixel art needs.','Rects, pivots, pixels, clip keys and durations were checked in Unity 6000.5.3f1 batch mode.','No Unity package or Aseprite importer needed on your side.'],
@@ -352,21 +385,21 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['タグはフレームごとの長さを持つAnimationClipに。ピボットはAsepriteのスライスかStudioのピボットツールから。','Sprite Mode Multiple、Pointフィルター、圧縮なし — ドット絵に必要な設定です。','範囲・ピボット・ピクセル・クリップのキーと長さをUnity 6000.5.3f1のバッチモードで確認。','Unityパッケージやインポーターは不要です。'],
    steps:['.asepriteをドロップしてタグを確認。','パック＆書き出しでUnity 6を選ぶ。','バンドルをAssets/にコピー（Editorフォルダーごと）。','Unityがシートを取り込み、スプライトとクリップを作成。'],
    faq:[['Unity純正のAsepriteインポーターとの違いは？','そちらを使っても構いません。この方法は同じタイミングでパック済みアトラスとクリップを作り、インポーターパッケージがない環境でも動きます。'],['フレームごとのピボットは保たれますか？','はい。各スプライト範囲にそのフレームのピボットが入ります（共通の基準点なら共通）。']]}
- },{related:['game/aseprite-to-godot','game/unity-sprite-sheet','game/aseprite-to-phaser','sprite-lab'],highlight:['unity','aseprite']}),
+ },{related:['game/aseprite-to-godot','game/unity-sprite-sheet','game/aseprite-to-phaser','sprite-lab','game/texturepacker-to-unity'],highlight:['unity','aseprite']}),
  'game/aseprite-to-phaser':kw('sprite-lab','sprite','pack',{
   en:{title:'Aseprite to Phaser 3 / 4 — Atlas and Animations JSON',description:'Export .aseprite animations for Phaser 3 and 4: a TexturePacker atlas with anims.json for anims.fromJSON, or Aseprite JSON for load.aseprite and createFromAseprite. Verified in 3.90 and 4.2.',lead:'Two routes from one .aseprite file: an atlas plus an animations file you load with anims.fromJSON, or Aseprite JSON that Phaser\'s own load.aseprite / createFromAseprite reads — both drawn by Phaser 3.90 and 4.2.',
-   what:['Atlas JSON hash (multiatlas when there are several pages) and .anims.json with each frame\'s duration.','Aseprite JSON hash or array with frameTags (direction, repeat) and slices; frame keys "0".."n" as createFromAseprite needs.','Rotation stays off for Phaser: both versions draw rotated TexturePacker frames mirrored.','PixiJS 8 gets its own spritesheet JSON with animations and anchors.'],
+   what:['Atlas JSON hash (multiatlas when there are several pages) and .anims.json with each frame\'s duration.','Aseprite JSON hash or array with frameTags (direction, repeat) and slices; frame keys "0".."n" as createFromAseprite needs.','Rotation stays off for Phaser: both versions drew rotated TexturePacker frames wrongly (not turned back) in our runs.','PixiJS 8 gets its own spritesheet JSON with animations and anchors.'],
    steps:['Drop the .aseprite file.','Check the tags on the timeline.','Open Pack & Export; choose Phaser 3 / 4 or Aseprite JSON.','Load it with this.load.atlas / multiatlas + anims.fromJSON, or this.load.aseprite.'],
    faq:[['Which one should I use?','Aseprite JSON keeps Phaser\'s own Aseprite workflow. The atlas route packs several sprites into one texture and multi-page atlases.'],['What about Sparrow / Starling XML (FNF)?','Also exported. Use the "Sparrow XML (Phaser 3)" preset for Phaser 3.90: its XML parser draws trimmed frames wrongly.']]},
   ko:{title:'Aseprite를 Phaser 3·4로 · 아틀라스와 애니메이션 JSON',description:'.aseprite 애니메이션을 Phaser 3·4용으로 내보내세요. anims.fromJSON용 anims.json이 있는 TexturePacker 아틀라스 또는 load.aseprite·createFromAseprite용 Aseprite JSON. 3.90·4.2에서 검증.',lead:'.aseprite 파일 하나로 두 가지: anims.fromJSON으로 불러오는 아틀라스+애니메이션 파일, 또는 Phaser의 load.aseprite·createFromAseprite가 읽는 Aseprite JSON. 둘 다 Phaser 3.90·4.2에서 그려 확인했습니다.',
-   what:['아틀라스 JSON 해시(페이지가 여럿이면 multiatlas)와 프레임별 길이가 든 .anims.json.','frameTags(방향·반복)와 슬라이스가 있는 Aseprite JSON 해시·배열. createFromAseprite에 필요한 "0".."n" 프레임 키.','Phaser용은 회전을 끕니다. 두 버전 모두 회전된 TexturePacker 프레임을 뒤집어 그리기 때문입니다.','PixiJS 8용은 animations와 anchor가 있는 전용 spritesheet JSON을 받습니다.'],
+   what:['아틀라스 JSON 해시(페이지가 여럿이면 multiatlas)와 프레임별 길이가 든 .anims.json.','frameTags(방향·반복)와 슬라이스가 있는 Aseprite JSON 해시·배열. createFromAseprite에 필요한 "0".."n" 프레임 키.','Phaser용은 회전을 끕니다. 두 버전 모두 회전된 TexturePacker 프레임을 제대로 되돌려 그리지 못했기 때문입니다.','PixiJS 8용은 animations와 anchor가 있는 전용 spritesheet JSON을 받습니다.'],
    steps:['.aseprite 파일을 끌어다 놓습니다.','타임라인에서 태그를 확인합니다.','패킹·내보내기에서 Phaser 3/4 또는 Aseprite JSON을 고릅니다.','this.load.atlas·multiatlas + anims.fromJSON 또는 this.load.aseprite로 불러옵니다.'],
    faq:[['어느 쪽을 써야 하나요?','Aseprite JSON은 Phaser의 Aseprite 흐름을 그대로 씁니다. 아틀라스 방식은 여러 스프라이트를 한 텍스처와 여러 페이지로 묶습니다.'],['Sparrow·Starling XML(FNF)은요?','내보낼 수 있습니다. Phaser 3.90에서는 XML 파서가 트림된 프레임을 잘못 그리므로 "Sparrow XML (Phaser 3)" 프리셋을 쓰세요.']]},
   ja:{title:'AsepriteをPhaser 3・4へ · アトラスとアニメーションJSON',description:'.asepriteのアニメーションをPhaser 3・4向けに書き出し。anims.fromJSON用のanims.json付きTexturePackerアトラス、またはload.aseprite・createFromAseprite用のAseprite JSON。3.90・4.2で検証。',lead:'1つの.asepriteから2通り：anims.fromJSONで読むアトラス＋アニメーションファイル、またはPhaserのload.aseprite・createFromAsepriteが読むAseprite JSON。どちらもPhaser 3.90・4.2で描画を確認しました。',
-   what:['アトラスJSONハッシュ（複数ページならmultiatlas）と、フレームごとの長さ入り.anims.json。','frameTags（方向・繰り返し）とスライス付きのAseprite JSON（ハッシュ・配列）。createFromAsepriteが必要とする"0".."n"のフレームキー。','Phaser向けは回転をオフ。両バージョンとも回転したTexturePackerフレームを反転して描くためです。','PixiJS 8向けにはanimationsとanchor付きの専用spritesheet JSON。'],
+   what:['アトラスJSONハッシュ（複数ページならmultiatlas）と、フレームごとの長さ入り.anims.json。','frameTags（方向・繰り返し）とスライス付きのAseprite JSON（ハッシュ・配列）。createFromAsepriteが必要とする"0".."n"のフレームキー。','Phaser向けは回転をオフ。両バージョンとも回転したTexturePackerフレームの向きを正しく戻して描けなかったためです。','PixiJS 8向けにはanimationsとanchor付きの専用spritesheet JSON。'],
    steps:['.asepriteファイルをドロップ。','タイムラインでタグを確認。','パック＆書き出しでPhaser 3/4かAseprite JSONを選ぶ。','this.load.atlas・multiatlas＋anims.fromJSON、またはthis.load.asepriteで読み込み。'],
    faq:[['どちらを使えばいい？','Aseprite JSONはPhaserのAseprite用の流れをそのまま使えます。アトラス方式は複数スプライトを1枚のテクスチャや複数ページにまとめます。'],['Sparrow・Starling XML（FNF）は？','書き出せます。Phaser 3.90ではXMLパーサーがトリムしたフレームを誤描画するので「Sparrow XML (Phaser 3)」プリセットを使ってください。']]}
- },{related:['game/aseprite-to-godot','game/aseprite-to-unity','game/texture-packer-free','sprite-lab'],highlight:['phaser','aseprite-json','starling']}),
+ },{related:['game/aseprite-to-godot','game/aseprite-to-unity','game/texture-packer-free','sprite-lab','game/aseprite-json-to-pixi','game/phaser-atlas-frames-wrong'],highlight:['phaser','aseprite-json','starling']}),
  'game/texture-packer-free':kw('sprite-sheet-maker','pack','pack',{
   en:{title:'Free Texture Packer — a TexturePacker Alternative in the Browser',description:'Free texture packer with MaxRects, trim, rotation, alias, extrude, multipack and scale variants, and engine exports each labelled with how it was checked. No licence limits, no watermark, no upload.',lead:'A free packer that goes past "MaxRects + trim": the smallest sheet among the free packers tested on all five real frame sets (rotation allowed), frames restored pixel-exact, and exports that Godot, Unity, Phaser, PixiJS, Spine and LÖVE actually loaded.',
    what:['MaxRects (BSSF, BLSF, BAF, BL, CP), Skyline and Guillotine with a best-of search; rotation where the engine reads it.','Trim / crop-keep / crop with an alpha threshold, alias of identical frames (hash + byte check), extrude, border and shape padding.','POT, square, fixed and multiple-of sizes, multipack up to 64 pages, @0.5x–@4x variants, premultiplied alpha.','Head-to-head on 5 real CC0 frame sets vs CodeAndWeb\'s free web packer, GAPTools and free-tex-packer: smallest sheet on all 5 with rotation allowed; every frame exact.'],
@@ -380,7 +413,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['MaxRects（BSSF・BLSF・BAF・BL・CP）、Skyline、Guillotineと最良探索。エンジンが読める場合だけ回転。','アルファしきい値付きのトリム・クロップ保持・クロップ、同一フレームの重複除去（ハッシュ＋バイト確認）、縁の拡張、外枠・図形の余白。','POT・正方形・固定・倍数サイズ、最大64ページ、@0.5x〜@4x、乗算済みアルファ。','実在のCC0フレームセット5つでCodeAndWebの無料Webパッカー・GAPTools・free-tex-packerと比較：回転ありなら5つすべてで最小、全フレームが正確。'],
    steps:['フレーム（またはGIF・.aseprite）をドロップ。','エンジンのプリセットを選び、トリム・余白・サイズを調整。','使用率とフレーム一覧を確認。','書き出し — 押す前に各書き出し先の検証方法が表示されます。'],
    faq:[['商用利用できますか？','はい。ライセンスの区分はなく、透かしや色の変更もありません。'],['ポリゴンパッキングはできますか？','いいえ。検証に使ったエンジンのどれも書き出しデータからメッシュアトラスを描画しないため確認できず、矩形のみ対応です。']]}
- },{related:['sprite-sheet-maker','game/gif-to-sprite-sheet','game/aseprite-to-phaser','atlas-padding']}),
+ },{related:['sprite-sheet-maker','game/gif-to-sprite-sheet','game/aseprite-to-phaser','atlas-padding','game/sprite-sheet-packers-compared']}),
  'game/godot-sprite-sheet':kw('sprite-slicer','sprite','sprite-sheet',{
   en:{title:'Godot 4 Sprite Sheet Import — SpriteFrames without Hand Slicing',description:'Import a sprite sheet into Godot 4 without guessing hframes and vframes: the grid is measured, rows become animations with timing, and you get a SpriteFrames .tres and scene that Godot loaded.',lead:'Godot\'s SpriteFrames editor starts at 4×4 and remembers no grid. Here the grid is measured from the pixels, each row becomes a named animation, and the export is a SpriteFrames resource plus a ready AnimatedSprite2D scene.',
    what:['Grid, margin and spacing measured from the art, shown with a confidence before anything is cut.','Animations per row (or by hand on the timeline) with per-frame durations — Godot gets relative durations and loop.','Trim keeps each frame\'s offset through AtlasTexture margins, so frames do not jump.','The scene uses Nearest filtering and the bundle ships lossless, mipmap-free import settings.'],
@@ -394,7 +427,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['絵からグリッド・余白・間隔を測定し、切る前に信頼度つきで表示。','行ごと（またはタイムラインで手動）にフレームごとの長さ付きアニメーション。Godotには相対的な長さとループが入ります。','トリムしてもAtlasTextureの余白で各フレームのオフセットを保つので、フレームが跳ねません。','シーンはNearestフィルター、バンドルには可逆・ミップマップなしのインポート設定入り。'],
    steps:['シートを入れて「適用」を押す。','アニメーション名と時間を調整。','パック＆書き出しでGodot 4を選ぶ。','フォルダーをプロジェクトにコピーし、.tscnを開く。'],
    faq:[['Godot 3でも使えますか？','書き出しはGodot 4向けです（4.7.2で検証）。Godot 3は試していません。'],['PNGはそのままで範囲だけ欲しい','トリムを切ってシートをそのままパックすれば、AtlasTextureの範囲が元のセルを指します。']]}
- },{related:['game/aseprite-to-godot','game/godot-pixel-art-blurry','sprite-slicer','game/godot-autotile'],highlight:['godot4']}),
+ },{related:['game/aseprite-to-godot','game/godot-pixel-art-blurry','sprite-slicer','game/godot-autotile','game/texturepacker-to-godot','game/godot-animation-frame-duration'],highlight:['godot4']}),
  'game/unity-sprite-sheet':kw('sprite-slicer','sprite','sprite-sheet',{
   en:{title:'Unity Sprite Sheet Slicer — Sprites and Clips for Unity 6',description:'Slice a sprite sheet for Unity 6 without the off-by-one grid: measured cells, per-frame pivots, Point filter and no compression, and one AnimationClip per animation. Checked in Unity 6000.5.',lead:'Measure the grid instead of guessing it in the Sprite Editor, name the animations on a timeline, and export a bundle whose editor script creates the sprites with their pivots and one AnimationClip per animation.',
    what:['Cells, margin and spacing measured from the art; empty cells are left out.','Per-frame pivots (click or type) that land in each sprite rect.','Sprite Mode Multiple, Point filter, Compression None set by the script.','One AnimationClip per tag with the frame durations; checked in Unity 6000.5.3f1 batch mode.'],
@@ -408,7 +441,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['絵からセル・余白・間隔を測定し、空のセルは除外。','クリックや入力で決めたフレームごとのピボットが各スプライト範囲に入ります。','スクリプトがSprite Mode Multiple、Pointフィルター、Compression Noneを設定。','タグごとにフレームの長さ入りのAnimationClip。Unity 6000.5.3f1のバッチモードで確認。'],
    steps:['シートを入れて「適用」を押す。','アニメーション名・時間・ピボットを設定。','パック＆書き出しでUnity 6を選ぶ。','バンドルをEditorフォルダーごとAssets/にコピー。'],
    faq:[['対応するUnityのバージョンは？','バンドルはUnity 6000.5.3f1で確認しました。古いバージョンは試していません。'],['元のシートの配置を保てますか？','トリムと回転を切ると、パックしたページでフレームがそのまま保たれ、スプライト範囲はパック後の配置に従います。']]}
- },{related:['game/aseprite-to-unity','game/unity-rule-tile','sprite-slicer','sprite-pivot-editor'],highlight:['unity']}),
+ },{related:['game/aseprite-to-unity','game/unity-rule-tile','sprite-slicer','sprite-pivot-editor','game/unity-pixel-art-blurry','game/texturepacker-to-unity'],highlight:['unity']}),
  'game/godot-pixel-art-blurry':kw('sprite-lab','pack','pack',{
   en:{title:'Godot Pixel Art Blurry? Import Settings That Keep Sprites Sharp',description:'Why pixel art looks blurry or recoloured in Godot 4 and what the Studio\'s Godot bundle sets for you: Nearest filtering, lossless import, no mipmaps, fix_alpha_border off. Checked in Godot 4.7.2.',lead:'Blurry pixel art in Godot usually comes from linear filtering, lossy or mipmapped import, or non-integer scaling. The Studio\'s Godot bundle fixes the parts that live in the files; the rest are project settings, listed below.',
    what:['The .tscn sets texture_filter = Nearest on the AnimatedSprite2D, so the sprite is sharp even when the project default is linear.','The .png.import uses lossless compression and no mipmaps.','fix_alpha_border is off: Godot\'s default recolours pixels under alpha 20 (measured on a real 4096² FX sheet); with the bundle\'s settings that sheet passed.','In the verification run Godot drew the shipped scene at 4× and it stayed sharp.'],
@@ -422,7 +455,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['.tscnがAnimatedSprite2Dにtexture_filter = Nearestを設定。プロジェクトの既定がリニアでもスプライトはくっきり。','.png.importは可逆圧縮・ミップマップなし。','fix_alpha_borderをオフに。Godotの既定はアルファ20未満のピクセルの色を変えます（実際の4096²エフェクトシートで測定）。バンドルの設定ではそのシートが合格しました。','検証ではGodotが同梱シーンを4倍で描画し、くっきりしたままでした。'],
    steps:['シート・フレーム・.asepriteを入れて読み込みを適用。','パック＆書き出しでGodot 4を選ぶ。','バンドルのフォルダー（.png.import入り）をプロジェクトにコピー。','ゲーム全体では Rendering › Textures › Canvas Textures › Default Texture Filter を Nearest にし、整数倍で拡大。'],
    faq:[['動かすとまだチラつくのはなぜ？','インポートではなくサブピクセル移動が原因です。2Dのピクセルスナップを有効にし、カメラとウィンドウの倍率を整数に保ってください。これらはバンドルが変えないプロジェクト設定です。'],['プロジェクトの何かが上書きされますか？','コピーしたバンドルフォルダー内のファイルだけです。プロジェクト設定はそのままです。']]}
- },{related:['game/godot-sprite-sheet','game/aseprite-to-godot','sprite-sheet-maker','game/godot-autotile'],highlight:['godot4']}),
+ },{related:['game/godot-sprite-sheet','game/aseprite-to-godot','sprite-sheet-maker','game/godot-autotile','game/unity-pixel-art-blurry'],highlight:['godot4']}),
  'game/godot-autotile':kw('tile-lab','tile','tile-map',{
   en:{title:'Godot 4 Autotile & Terrain Set Generator — Peering Bits Set for You',description:'Turn an autotile sheet into a Godot 4 TileSet with terrain peering bits already set: the layout is recognised from the pixels, missing tiles are listed, and a test map uses Godot\'s own matching rule.',lead:'Setting 47 × 8 peering bits by hand is where Godot 4 terrains go wrong. The Studio recognises the sheet\'s layout, writes the bits, shows which combinations are missing, and paints a test map exactly as set_cells_terrain_connect will.',
    what:['Recognises blob-47 (five published orders), 16-side, 16-corner / dual grid and 3×3 layouts from seam continuity, with a confidence.','Match modes corners-and-sides, sides and corners; several terrains per set.','The Check panel lists missing combinations — the tiles Godot would otherwise silently substitute.','Export: PNG + JSON + nerulio_tileset_import.gd, which builds the TileSet with terrains in Godot (verified in 4.7.2).'],
@@ -436,7 +469,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['継ぎ目の連続性で、ブロブ47（公開された5種の並び）、辺16、角16・デュアルグリッド、3×3の配置を信頼度つきで認識。','角＋辺・辺・角のマッチモード、1セットに複数の地形。','チェックパネルが足りない組み合わせ、つまりGodotが黙って別タイルで代用するセルを示します。','書き出し：PNG＋JSON＋nerulio_tileset_import.gd。スクリプトがGodot内で地形付きTileSetを作成（4.7.2で検証）。'],
    steps:['オートタイルシートをドロップ。','グリッドを使い、最良の配置候補を適用。','チェックし、Godotルールでテストマップを塗る。','Godot 4向けに書き出し、エディターでインポートスクリプトを実行。'],
    faq:[['.tresファイルで書き出しますか？','いいえ。PNG、JSON、Godot内でTileSetを作るGDScriptを出力します。リソースはGodot自身が書き、この流れ全体をGodot 4.7.2で検証しました。'],['Godotとセル単位で一致しますか？','テストコーパスで、Godot 4.7.2で塗った全セルがStudioのプレビューと一致しました（各ブロブセット485/485、デュアルグリッド251/251）。']]}
- },{related:['tile-lab','autotile-tester','game/blob-47-tileset','game/rpg-maker-autotile-to-godot'],highlight:['godot']}),
+ },{related:['tile-lab','autotile-tester','game/blob-47-tileset','game/rpg-maker-autotile-to-godot','game/godot-terrain-wrong-tiles','game/godot-tileset-collision'],highlight:['godot']}),
  'game/rpg-maker-autotile-to-godot':kw('tile-lab','tile','tile-check',{
   en:{title:'RPG Maker Autotile to Godot, Tiled and Unity (A2 → 47 tiles)',description:'Assemble a full 47-tile blob set from an RPG Maker MV/MZ A2 or A4 autotile block, byte-exact from its quarter tiles, then export Godot 4 terrains, a Tiled Wang set or Unity Rule Tiles.',lead:'An RPG Maker A2 block is not a tileset any other engine understands. The Studio assembles the 47 blob tiles from its quarter tiles — pixels copied, never redrawn — and exports them with their terrain rules.',
    what:['Sources: RPG Maker MV/MZ A2 (2×3 blocks), A4 walls, and the 2×3 base with inner corners top-left; a lone 2×3 block is named by its size.','Quarter-exact assembly into blob-47 or edge-16, or dual-grid 16 from the same quarters; optional A-over-B transitions.','A linked pixel editor over the source block: every stroke re-assembles the set in one undo step.','The generated set exports to Godot 4 (verified), Tiled (verified), Unity Rule Tile (verified) and LDtk (partly verified).'],
@@ -450,7 +483,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['素材：RPGツクールMV/MZのA2（2×3ブロック）、A4の壁、内角が左上にある2×3の基本ブロック。単独の2×3ブロックはサイズから判定。','4分割パーツのままブロブ47・辺16、または同じパーツでデュアルグリッド16を組み立て。AからBへの遷移も可能。','素材ブロック上のリンクされたピクセルエディター：1ストロークごとにセットを組み直し、取り消しは1回単位。','生成したセットはGodot 4（検証済み）、Tiled（検証済み）、Unity Rule Tile（検証済み）、LDtk（一部検証）へ書き出し。'],
    steps:['A2（またはA4）シートをドロップ。','使うブロックで「このブロックから組み立て」を選ぶ。','ブロブ47かデュアルグリッドを選び、必要なら遷移用の2つ目の地形を指定。','エンジン向けに書き出し。'],
    faq:[['生成したタイルは描き直されますか？','いいえ。各タイルは素材ブロックからコピーした4分割パーツなので、ピクセルはバイト単位で一致します。そのため絵のチェックは対象外です。'],['ツクールの動く水（A1）は？','対応していません。A1のアニメーションオートタイルは対象外です。']]}
- },{related:['game/godot-autotile','game/blob-47-tileset','game/dual-grid-tileset','tile-lab']}),
+ },{related:['game/godot-autotile','game/blob-47-tileset','game/dual-grid-tileset','tile-lab','game/tileset-generator']}),
  'game/blob-47-tileset':kw('tile-lab','tile','tile-check',{
   en:{title:'47-Tile Blob Tileset — Identify the Layout, Check, Generate',description:'Which 47-tile blob layout is your sheet? Identify cr31, wang blob 7×7, caeles, GameMaker or Godot 3 orders from the pixels, list missing tiles, generate the set from a base block and export.',lead:'Several incompatible 47-tile orders exist and nothing in the PNG says which one you have. The Studio scores every known order at every position by how seamlessly neighbouring tiles join, and tells you which it is and how sure it is.',
    what:['Known blob-47 orders: cr31 ascending (8×6), cr31 wang blob 7×7, caeles 7×7 and 8×6, GameMaker Studio 2, Godot 3 3×3-minimal (12×4).','Scored by seam continuity (ROC AUC, 1.0 = perfect); textured art is measured with colour-band histograms.','Bits for sheets in no known order can be suggested from the pixels, as a preview.','A generator builds a blob-47 set from an RPG Maker A2 block or a 2×3 base, byte-exact from its quarters.'],
@@ -464,7 +497,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['既知のブロブ47配置：cr31昇順（8×6）、cr31 wang blob 7×7、caeles 7×7・8×6、GameMaker Studio 2、Godot 3 3×3 minimal（12×4）。','継ぎ目の連続性で採点（ROC AUC、1.0＝完全）。質感のある絵は色帯ヒストグラムで測定。','既知の配置でないシートは、ピクセルからビットを提案（プレビュー）。','ジェネレーターがRPGツクールA2ブロックや2×3の基本ブロックから4分割パーツのままブロブ47を生成。'],
    steps:['47タイルのシートをドロップ。','グリッドを使い、配置候補と信頼度を読む。','正しいものを適用し、チェックパネルを確認。','Godot 4・Tiled・Unity・LDtkへ書き出し。'],
    faq:[['判定の精度は？','テストコーパスのブロブテンプレート4つはすべて高信頼度（AUC 1.000）、実在の64px洞窟タイルセットは中信頼度（0.964）で判定し、47タイルのビットはすべて正解でした。'],['シート内で2枚のタイルが入れ替わっていたら？','絵のチェックが、コーパスの全ブロブセットで入れ替わった2枚を正確に見つけました。']]}
- },{related:['game/godot-autotile','game/dual-grid-tileset','game/rpg-maker-autotile-to-godot','tile-lab']}),
+ },{related:['game/godot-autotile','game/dual-grid-tileset','game/rpg-maker-autotile-to-godot','tile-lab','game/tileset-generator','game/gamemaker-autotile-to-godot']}),
  'game/dual-grid-tileset':kw('tile-lab','tile','tile-map',{
   en:{title:'Dual Grid Tileset — 16 Tiles Instead of 47, for Godot and Tiled',description:'Build and test a dual-grid (16-corner) tileset: recognise dual-grid packs with several terrains, generate one from a base block, paint a test map and export Godot 4 terrains or a Tiled corner Wang set.',lead:'A dual grid draws 16 corner tiles offset half a tile from the map grid instead of 47 blob tiles. The Studio recognises dual-grid sheets (including several terrains in one pack), generates them from quarter tiles and exports them for Godot 4 and Tiled.',
    what:['16-corner layouts (cr31 2-corner = Godot 3 "2×2" = dual-grid 4×4) recognised with a confidence.','Multi-terrain packs: blocks with the same plain fill are grouped as one terrain.','Generate dual-grid 16 from the same quarters as a blob set; A-over-B transitions one pair at a time.','Godot 4 terrains in corners mode (verified, 251/251 cells incl. multi-terrain maps) and Tiled corner Wang sets (verified); not exported to Unity.'],
@@ -492,7 +525,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['配置に合ったWangセット種別の.tsx（ブロブは混合、辺16は辺、角16・デュアルグリッドは角）。','sample.tmx：Tiledルールで描いたマップ。角セットは半タイルずらしたレイヤー。','Tiled 1.12.2の--export-tileset・--export-mapでの読み込みとtmxrasterizer（ピクセル一致）で確認。','地形ブラシ自体は操作していません（WindowsではTiledのスクリプトがヘッドレスで動かないため）。'],
    steps:['タイルセットを入れて配置を適用。','Tiledルールでテストマップを塗ってプレビュー。','Tiledバンドルを書き出し。','.tsxかsample.tmxをTiledで開く。'],
    faq:[['Wangセットに孤立した「島」タイルがないのはなぜ？','TiledはIDがすべて0のWangタイルを捨てるため、単色ブロブセットの孤立タイルは書き込まれません。StudioのTiledルールはそのセルに印を付けます。'],['Phaserでサンプルマップを読めますか？','.tmxはTiledのマップです。Phaserはタイルセット埋め込みのTiled JSONを読むので、Tiledから書き出してください。']]}
- },{related:['game/godot-autotile','game/dual-grid-tileset','autotile-tester','tile-lab'],highlight:['tiled']}),
+ },{related:['game/godot-autotile','game/dual-grid-tileset','autotile-tester','tile-lab','game/tilemap-editor'],highlight:['tiled']}),
  'game/unity-rule-tile':kw('tile-lab','tile','tile-check',{
   en:{title:'Unity Rule Tile from a 47 or 16 Tileset — No Rules by Hand',description:'Turn a blob-47 or 16-side tileset into Unity 6 Rule Tiles without setting 47 rules by hand: an editor script slices the sprites and builds one Rule Tile per terrain. Checked in Unity 6000.5.',lead:'Instead of chopping the sheet and clicking 47 neighbour rules, drop it here: the layout is recognised, and the Unity bundle\'s editor script slices the sprites (Point, uncompressed) and builds the Rule Tile from the bits.',
    what:['Blob-47 and side-16 sets; the rules come from the recognised or painted terrain bits.','Editor/NerulioRuleTileImporter.cs builds one RuleTile per terrain with 2D Tilemap Extras.','Checked in Unity 6000.5.3f1 + Tilemap Extras 8.0.3: a painted Tilemap shows the predicted sprite in every cell, sprite rects and pixels exact.','Where a combination is missing, Unity draws the Rule Tile\'s default sprite — the Studio\'s test map shows that too.'],
@@ -506,7 +539,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    what:['ブロブ47・辺16のセット。ルールは認識または塗った地形ビットから作成。','Editor/NerulioRuleTileImporter.csが2D Tilemap Extrasで地形ごとにRuleTileを作成。','Unity 6000.5.3f1＋Tilemap Extras 8.0.3で確認：塗ったTilemapの全セルが予測どおり、スプライト範囲とピクセルも正確。','組み合わせが足りない所にはUnityがRule Tileの既定スプライトを描きます。Studioのテストマップもそれを表示。'],
    steps:['タイルセットを入れて配置を適用。','チェックパネルを読み、足りない組み合わせを埋める。','Unity 6向けに書き出し。','バンドルをAssets/にコピーすると、インポート後にRule Tileができます。'],
    faq:[['Unityの2D Tilemap Extrasは必要？','はい。Rule Tileはそのパッケージのものです（8.0.3で確認）。'],['1枚に複数の地形があるときは？','地形ごとに別のRule Tileになり、Unityはその間の遷移を描きません。']]}
- },{related:['game/unity-sprite-sheet','game/blob-47-tileset','game/godot-autotile','tile-lab'],highlight:['unity']})
+ },{related:['game/unity-sprite-sheet','game/blob-47-tileset','game/godot-autotile','tile-lab','game/gamemaker-autotile-to-godot'],highlight:['unity']})
 });
 
 /** The hub page at /game/ (breadcrumb parent of every game page). */
@@ -519,14 +552,20 @@ export const HUB=Object.freeze({
 /** Hub group names of the Lab kinds (src/game-seo-labs.js). */
 export const HUB_GROUPS=Object.freeze({sprite:HUB_NAMES('sprite'),pack:HUB_NAMES('pack'),tile:HUB_NAMES('tile'),
  pixel:L('Pixel art and palettes','도트와 팔레트','ドット絵とパレット'),texture:L('Textures, normal maps and PBR','텍스처·노멀맵·PBR','テクスチャ・ノーマルマップ・PBR'),
- ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール')});
+ ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール'),
+ normalmap:L('Normal maps and 2D lighting','노멀맵과 2D 라이팅','ノーマルマップと2Dライティング'),
+ engines:L('Engine how-tos','엔진별 가이드','エンジン別の手順'),formats:L('Format conversions','형식 변환','形式の変換'),
+ fixes:L('Fix common problems','자주 생기는 문제 해결','よくある問題の解決'),compare:L('Compared with other tools','다른 도구와 비교','ほかのツールとの比較')});
 function HUB_NAMES(k){return {en:HUB.en[k],ko:HUB.ko[k],ja:HUB.ja[k]};}
 
 /** Keyword pages: the Studio ones above, then the ones in src/game-seo-more.js. */
-export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MORE_KEYWORD_PAGES});
+export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MORE_KEYWORD_PAGES,...GAME_FAMILY_PAGES});
+/** Page families of src/game-seo-families.js (broad product pages, engine how-tos, format
+ * conversions, problem fixes, comparisons): which hub group each one is listed in. */
+export {GAME_FAMILY_PAGES,FAMILIES};
 /** Lab landings (src/game-seo-labs.js), and every kind a page can belong to. */
 export {GAME_LAB_PAGES,LAB_KINDS};
-export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile']);
+export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile','normalmap']);
 export const kindOf=ws=>WORKSPACES[ws]||LAB_KINDS[ws]||null;
 export const isStudioKind=ws=>STUDIO_KINDS.includes(ws);
 

@@ -191,7 +191,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['緑だけを変えるOpenGL ↔ DirectX変換（チャンネルごとに確認）。','どのエンジンがどの規約を期待するかと根拠のドキュメント（Unrealの−Yは推定と表示）。','ノーマルマップの検証：平均長、最大誤差、最小の青。','Sobel・Scharr・Sobel 5×5と、タイル用テクスチャのwrapで高さ → ノーマルを生成。'],
    steps:['ノーマルマップをドロップ。','目標の規約を選ぶ。','検証の数値を確認。','変換したマップをダウンロード。'],
    faq:[['自分のマップがどちらの規約か判定できますか？','いいえ。どちらも正しいノーマルマップです。ラボはどのエンジンが何を期待するかを示して変換しますが、判定できるとは言いません。'],['変換で劣化しますか？','しません。緑が255 − gになり、2回変換すると元のバイトに戻ります。']]}
- },{related:['texture-map','game/pixel-art-normal-map','texture-lab','channel-unpacker']}),
+ },{related:['texture-map','game/pixel-art-normal-map','texture-lab','channel-unpacker','game/normal-map-opengl-or-directx']}),
  'pbr-texture-validator':page('texture','texture-lab',{
   en:{title:'PBR Texture Validator — Naming, Sizes and Missing Maps',description:'Validate PBR texture naming and completeness: which maps a metallic/roughness or specular workflow still needs, mismatched sizes, non-power-of-two maps and inconsistent names, with a JSON report.',lead:'A focused view of the Texture Lab\'s Inspect stage: the checks an artist usually discovers only after import, reported per file with the measurement that triggered them.',
    what:['Required and recommended maps per workflow, "the parts of a packed map are already here".','Size mismatch, non-power-of-two (optionally non-square), unclassified or inconsistent names.','Measured facts: unexpected alpha, RGB under zero alpha, grey maps stored as RGB, single-channel maps whose RGB differ.','JSON report in the Game Labs envelope with per-texture measurements.'],
@@ -233,7 +233,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['明るさかアルファチャンネルから高さを取り、正規化したSobel 3×3・Scharr・Sobel 5×5カーネルを使用。','OpenGL（+Y、既定）かDirectX（−Y）、XやYの反転。','タイル用テクスチャのwrapサンプリング：縁のテクセルが実際の2倍リピート内の同じテクセルと一致。','ディテールノーマルをReoriented Normal Mappingで合成（平らになるRGB合成なし）。'],
    steps:['高さマップかスプライトをドロップ。','ソース（明るさ・アルファ）、カーネル、強さを選ぶ。','エンジンが期待する規約を選ぶ。','ノーマルマップをダウンロード。'],
    faq:[['LaigterやSpriteIlluminatorと同じ？','違います。高さや明るさの勾配を計算するもので、形を塗ったり面取りしたりはしません。ドット絵では高さはあなたのグレー値から来ます。'],['どちらの規約を使えばいい？','Unity・Godot・BlenderはOpenGL（+Y）、UnrealはDirectX（−Y）を期待します。Unreal側はEpicのglTFエクスポーターの文書から推定したものとしてラボに表示します。']]}
- },{related:['game/pixel-art-normal-map','normal-map-converter','texture-lab','channel-unpacker']}),
+ },{related:['game/pixel-art-normal-map','normal-map-converter','texture-lab','channel-unpacker','game/sprite-normal-map']}),
  'mask-packer':page('texture','texture-lab',{
   en:{title:'ORM & Mask Map Packer — Channel Pack Textures for Unity, Godot, glTF',description:'Pack separate grey maps into one texture: Unity HDRP mask map, URP metallic/smoothness, ORM for glTF and Godot, or any custom channel mapping, with inversion — bytes preserved under zero alpha.',lead:'Put AO, roughness, metallic and more into the channels your engine reads. Each preset states where its channel order comes from, and the PNG is written by the Lab itself, so bytes survive alpha 0.',
    what:['Presets: Unity HDRP mask (M, AO, detail, smoothness), URP metallic (M, –, –, smoothness), ORM (glTF 2.0, Godot 4).','Custom mapping per channel, constant 0/255, and per-channel inversion (roughness → smoothness).','Written as PNG by the Lab (not a canvas), so RGB under alpha 0 is kept.','Each preset links the documentation or engine source its order is taken from.'],
@@ -345,7 +345,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['画像全体（またはシート内の任意のタイル）の2×2・3×3リピートプレビュー。','左↔右、上↔下の平均・最大差と、タイル内部の同じ測定値。','その内部差を基準にした縁のヒートマップ、2枚目のタイルとの縁合わせ（任意）。','シームレス化：半タイルずらして境界をまたいでクロスフェード。前後を表示。'],
    steps:['テクスチャかタイルをドロップ。','軸ごとの判定と数値を読む。','ヒートマップとリピートプレビューを確認。','必要ならシームレス化してダウンロード。'],
    faq:[['「シームレス化」で絵は変わりますか？','はい、ブレンド帯の中で変わります。半タイルずらしてクロスフェードし、新たに描き足しはせず、前後を表示します。'],['ノイズの多いテクスチャは縁の差が大きくても継ぎ目なしと出るのはなぜ？','内部も同じくらい変化しているからです。判定は継ぎ目をテクスチャ自体の変化と比べます。']]}
- },{related:['tile-lab','texture-edge-bleed','tileset-slicer','atlas-padding']}),
+ },{related:['tile-lab','texture-edge-bleed','tileset-slicer','atlas-padding','game/tiling-normal-map-seams']}),
  'tile-helper':page('tilelab','tile-slice',{
   en:{title:'Split an Image into Tiles — One PNG per Tile (ZIP)',description:'Cut a tileset or any image into equal tiles and download one PNG per tile with a JSON of where each came from: margin and spacing detected, blank tiles skipped, duplicates and rotations found.',lead:'When the engine or tool wants separate images — GDevelop, Construct, a level editor — cut the sheet into tile-NNN.png files. The grid is measured from the pixels and every tile is an exact region copy.',
    what:['Grid candidates (tile size, margin, spacing) measured and ranked; every number stays editable.','One PNG per non-blank tile plus metadata.json with each tile\'s rect, column and row.','Exact and near-exact duplicates reported as aliases; optional rotated and flipped variants.','Optional padded atlas (edge extrusion) for bleeding-free rendering; long slices can be cancelled.'],

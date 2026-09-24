@@ -1,0 +1,3221 @@
+{
+ "date": "2026-09-24T08:01:21+00:00",
+ "studio_url": "http://127.0.0.1:4491",
+ "port": 4492,
+ "inputs": [
+  "tests/fixtures/game/corpus/ninja/run_0.png",
+  "tests/fixtures/game/corpus/ninja/run_1.png",
+  "tests/fixtures/game/corpus/ninja/run_2.png",
+  "tests/fixtures/game/corpus/ninja/run_3.png",
+  "tests/fixtures/game/corpus/ninja/run_4.png",
+  "tests/fixtures/game/corpus/ninja/run_5.png"
+ ],
+ "runs": [
+  {
+   "config": "preset=default",
+   "zip": "studio-default-run_pixi.zip",
+   "zip_files": [
+    "run_pixi/run.json",
+    "run_pixi/README-PIXI.md",
+    "run_pixi/run.png",
+    "run_pixi/run@2x.json",
+    "run_pixi/run@2x.png"
+   ],
+   "json_by_meta_scale": {
+    "1": "run_pixi/run.json",
+    "2": "run_pixi/run@2x.json"
+   },
+   "meta": {
+    "1": {
+     "app": "https://nerulio.pages.dev/game/studio/",
+     "version": "1",
+     "generator": "Nerulio Studio",
+     "image": "run.png",
+     "format": "RGBA8888",
+     "size": {
+      "w": 38,
+      "h": 50
+     },
+     "scale": "1",
+     "nerulio": {
+      "animations": {
+       "run": {
+        "fps": 10,
+        "loop": true,
+        "direction": "forward",
+        "durationsMs": [
+         100,
+         100,
+         100,
+         100,
+         100,
+         100
+        ]
+       }
+      }
+     }
+    },
+    "2": {
+     "app": "https://nerulio.pages.dev/game/studio/",
+     "version": "1",
+     "generator": "Nerulio Studio",
+     "image": "run@2x.png",
+     "format": "RGBA8888",
+     "size": {
+      "w": 74,
+      "h": 96
+     },
+     "scale": "2",
+     "nerulio": {
+      "animations": {
+       "run": {
+        "fps": 10,
+        "loop": true,
+        "direction": "forward",
+        "durationsMs": [
+         100,
+         100,
+         100,
+         100,
+         100,
+         100
+        ]
+       }
+      }
+     }
+    }
+   },
+   "atlas_png": {
+    "1": [
+     38,
+     50
+    ],
+    "2": [
+     74,
+     96
+    ]
+   },
+   "file_level": {
+    "frames": 6,
+    "rotated_frames": 0,
+    "geometry_mismatches": [],
+    "pixel_mismatches": []
+   },
+   "pixi": {
+    "@1x": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 1,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 38,
+       "h": 50
+      },
+      "scale": "1",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/default/run_pixi/run.png",
+      "resolution": 1,
+      "pixelWidth": 38,
+      "pixelHeight": 50,
+      "width": 38,
+      "height": 50,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": 10,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 60,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 110,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 160,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 210,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 260,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 34,
+        "width": 18,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 18,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_1": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 23,
+        "y": 0,
+        "width": 13,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 9,
+        "width": 13,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_2": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 20,
+        "y": 35,
+        "width": 17,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 8,
+        "y": 10,
+        "width": 17,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_3": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 17,
+        "width": 20,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 20,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_4": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 22,
+        "y": 17,
+        "width": 16,
+        "height": 16
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 8,
+        "width": 16,
+        "height": 16
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_5": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 21,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 21,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 1
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 40,
+      "y": 58,
+      "width": 542,
+      "height": 34
+     },
+     "url": "default/run_pixi/run.json"
+    },
+    "@2x": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 2,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run@2x.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 74,
+       "h": 96
+      },
+      "scale": "2",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/default/run_pixi/run@2x.png",
+      "resolution": 2,
+      "pixelWidth": 74,
+      "pixelHeight": 96,
+      "width": 37,
+      "height": 48,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": 10,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 60,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 110,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 160,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 210,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 260,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 32,
+        "width": 18,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 18,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_1": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 22,
+        "y": 0,
+        "width": 13,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 9,
+        "width": 13,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_2": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 19,
+        "y": 33,
+        "width": 17,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 8,
+        "y": 10,
+        "width": 17,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_3": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 16,
+        "width": 20,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 20,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_4": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 21,
+        "y": 16,
+        "width": 16,
+        "height": 16
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 8,
+        "width": 16,
+        "height": 16
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_5": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 21,
+        "height": 15
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 21,
+        "height": 15
+       },
+       "rotate": 0,
+       "resolution": 2
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 40,
+      "y": 58,
+      "width": 542,
+      "height": 34
+     },
+     "url": "default/run_pixi/run@2x.json"
+    },
+    "negative (@2x JSON, meta.scale \"1\")": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 1,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run@2x.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 74,
+       "h": 96
+      },
+      "scale": "1",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/default/negative-control/run@2x.png",
+      "resolution": 1,
+      "pixelWidth": 74,
+      "pixelHeight": 96,
+      "width": 74,
+      "height": 96,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": -10,
+      "y": -8,
+      "width": 80,
+      "height": 58
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": -10,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 40,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 90,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 140,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 190,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 240,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 64,
+        "width": 36,
+        "height": 30
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 36,
+        "height": 30
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_1": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 44,
+        "y": 0,
+        "width": 26,
+        "height": 30
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 18,
+        "width": 26,
+        "height": 30
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_2": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 38,
+        "y": 66,
+        "width": 34,
+        "height": 30
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 16,
+        "y": 20,
+        "width": 34,
+        "height": 30
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_3": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 32,
+        "width": 40,
+        "height": 30
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 40,
+        "height": 30
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_4": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 42,
+        "y": 32,
+        "width": 32,
+        "height": 32
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 16,
+        "width": 32,
+        "height": 32
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_5": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 42,
+        "height": 30
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 42,
+        "height": 30
+       },
+       "rotate": 0,
+       "resolution": 1
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 20,
+      "y": 16,
+      "width": 584,
+      "height": 68
+     },
+     "url": "default/negative-control/run@2x.json"
+    }
+   },
+   "page_messages": [],
+   "atlas_page_units": {
+    "@1x": [
+     38,
+     50
+    ],
+    "@2x": [
+     37,
+     48
+    ]
+   },
+   "source_compare": [
+    {
+     "frame": "run_0",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_1",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 544,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_2",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 552,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_3",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_4",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_5",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    }
+   ],
+   "negative_control_is_double": true
+  },
+  {
+   "config": "preset=pixi",
+   "zip": "studio-pixi-run_pixi.zip",
+   "zip_files": [
+    "run_pixi/run.json",
+    "run_pixi/README-PIXI.md",
+    "run_pixi/run.png",
+    "run_pixi/run@2x.json",
+    "run_pixi/run@2x.png"
+   ],
+   "json_by_meta_scale": {
+    "1": "run_pixi/run.json",
+    "2": "run_pixi/run@2x.json"
+   },
+   "meta": {
+    "1": {
+     "app": "https://nerulio.pages.dev/game/studio/",
+     "version": "1",
+     "generator": "Nerulio Studio",
+     "image": "run.png",
+     "format": "RGBA8888",
+     "size": {
+      "w": 33,
+      "h": 57
+     },
+     "scale": "1",
+     "nerulio": {
+      "animations": {
+       "run": {
+        "fps": 10,
+        "loop": true,
+        "direction": "forward",
+        "durationsMs": [
+         100,
+         100,
+         100,
+         100,
+         100,
+         100
+        ]
+       }
+      }
+     }
+    },
+    "2": {
+     "app": "https://nerulio.pages.dev/game/studio/",
+     "version": "1",
+     "generator": "Nerulio Studio",
+     "image": "run@2x.png",
+     "format": "RGBA8888",
+     "size": {
+      "w": 64,
+      "h": 110
+     },
+     "scale": "2",
+     "nerulio": {
+      "animations": {
+       "run": {
+        "fps": 10,
+        "loop": true,
+        "direction": "forward",
+        "durationsMs": [
+         100,
+         100,
+         100,
+         100,
+         100,
+         100
+        ]
+       }
+      }
+     }
+    }
+   },
+   "atlas_png": {
+    "1": [
+     33,
+     57
+    ],
+    "2": [
+     64,
+     110
+    ]
+   },
+   "file_level": {
+    "frames": 6,
+    "rotated_frames": 5,
+    "geometry_mismatches": [],
+    "pixel_mismatches": []
+   },
+   "pixi": {
+    "@1x": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 1,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 33,
+       "h": 57
+      },
+      "scale": "1",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/pixi/run_pixi/run.png",
+      "resolution": 1,
+      "pixelWidth": 33,
+      "pixelHeight": 57,
+      "width": 33,
+      "height": 57,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": 10,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 60,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 110,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 160,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 210,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 260,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 17,
+        "y": 23,
+        "width": 15,
+        "height": 18
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 18,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_1": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 17,
+        "y": 43,
+        "width": 15,
+        "height": 13
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 9,
+        "width": 13,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_2": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 40,
+        "width": 15,
+        "height": 17
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 8,
+        "y": 10,
+        "width": 17,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_3": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 18,
+        "width": 15,
+        "height": 20
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 20,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_4": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 8,
+        "width": 16,
+        "height": 16
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_5": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 18,
+        "y": 0,
+        "width": 15,
+        "height": 21
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 21,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 1
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 40,
+      "y": 58,
+      "width": 542,
+      "height": 34
+     },
+     "url": "pixi/run_pixi/run.json"
+    },
+    "@2x": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 2,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run@2x.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 64,
+       "h": 110
+      },
+      "scale": "2",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/pixi/run_pixi/run@2x.png",
+      "resolution": 2,
+      "pixelWidth": 64,
+      "pixelHeight": 110,
+      "width": 32,
+      "height": 55,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": 10,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 60,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 110,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 160,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 210,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 260,
+       "y": 21,
+       "width": 40,
+       "height": 29,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 16,
+        "y": 22,
+        "width": 15,
+        "height": 18
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 18,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 2
+      },
+      "run_1": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 16,
+        "y": 41,
+        "width": 15,
+        "height": 13
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 9,
+        "width": 13,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 2
+      },
+      "run_2": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 38,
+        "width": 15,
+        "height": 17
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 8,
+        "y": 10,
+        "width": 17,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 2
+      },
+      "run_3": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 17,
+        "width": 15,
+        "height": 20
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 20,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 2
+      },
+      "run_4": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 8,
+        "width": 16,
+        "height": 16
+       },
+       "rotate": 0,
+       "resolution": 2
+      },
+      "run_5": {
+       "width": 40,
+       "height": 29,
+       "frame": {
+        "x": 17,
+        "y": 0,
+        "width": 15,
+        "height": 21
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 40,
+        "height": 29
+       },
+       "trim": {
+        "x": 10,
+        "y": 10,
+        "width": 21,
+        "height": 15
+       },
+       "rotate": 2,
+       "resolution": 2
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 40,
+      "y": 58,
+      "width": 542,
+      "height": 34
+     },
+     "url": "pixi/run_pixi/run@2x.json"
+    },
+    "negative (@2x JSON, meta.scale \"1\")": {
+     "pixi": "8.21.0",
+     "renderer": "webgl",
+     "rendererResolution": 2,
+     "canvas": {
+      "width": 640,
+      "height": 240
+     },
+     "sheetResolution": 1,
+     "meta": {
+      "app": "https://nerulio.pages.dev/game/studio/",
+      "version": "1",
+      "generator": "Nerulio Studio",
+      "image": "run@2x.png",
+      "format": "RGBA8888",
+      "size": {
+       "w": 64,
+       "h": 110
+      },
+      "scale": "1",
+      "nerulio": {
+       "animations": {
+        "run": {
+         "fps": 10,
+         "loop": true,
+         "direction": "forward",
+         "durationsMs": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+         ]
+        }
+       }
+      }
+     },
+     "source": {
+      "label": "http://127.0.0.1:4492/pixi/negative-control/run@2x.png",
+      "resolution": 1,
+      "pixelWidth": 64,
+      "pixelHeight": 110,
+      "width": 64,
+      "height": 110,
+      "scaleMode": "nearest"
+     },
+     "animations": {
+      "run": [
+       "run_0",
+       "run_1",
+       "run_2",
+       "run_3",
+       "run_4",
+       "run_5"
+      ]
+     },
+     "drawn": "run_0",
+     "spriteBounds": {
+      "x": -10,
+      "y": -8,
+      "width": 80,
+      "height": 58
+     },
+     "sprites": [
+      {
+       "name": "run_0",
+       "x": -10,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_1",
+       "x": 40,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_2",
+       "x": 90,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_3",
+       "x": 140,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_4",
+       "x": 190,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "name": "run_5",
+       "x": 240,
+       "y": -8,
+       "width": 80,
+       "height": 58,
+       "anchor": [
+        0.5,
+        1
+       ]
+      }
+     ],
+     "textures": {
+      "run_0": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 32,
+        "y": 44,
+        "width": 30,
+        "height": 36
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 36,
+        "height": 30
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_1": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 32,
+        "y": 82,
+        "width": 30,
+        "height": 26
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 18,
+        "width": 26,
+        "height": 30
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_2": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 76,
+        "width": 30,
+        "height": 34
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 16,
+        "y": 20,
+        "width": 34,
+        "height": 30
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_3": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 34,
+        "width": 30,
+        "height": 40
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 40,
+        "height": 30
+       },
+       "rotate": 2,
+       "resolution": 1
+      },
+      "run_4": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 32
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 16,
+        "width": 32,
+        "height": 32
+       },
+       "rotate": 0,
+       "resolution": 1
+      },
+      "run_5": {
+       "width": 80,
+       "height": 58,
+       "frame": {
+        "x": 34,
+        "y": 0,
+        "width": 30,
+        "height": 42
+       },
+       "orig": {
+        "x": 0,
+        "y": 0,
+        "width": 80,
+        "height": 58
+       },
+       "trim": {
+        "x": 20,
+        "y": 20,
+        "width": 42,
+        "height": 30
+       },
+       "rotate": 2,
+       "resolution": 1
+      }
+     },
+     "drawn_device_px_bbox": {
+      "x": 20,
+      "y": 16,
+      "width": 584,
+      "height": 68
+     },
+     "url": "pixi/negative-control/run@2x.json"
+    }
+   },
+   "page_messages": [],
+   "atlas_page_units": {
+    "@1x": [
+     33,
+     57
+    ],
+    "@2x": [
+     32,
+     55
+    ]
+   },
+   "source_compare": [
+    {
+     "frame": "run_0",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_1",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 544,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_2",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 552,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_3",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_4",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_5",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    }
+   ],
+   "negative_control_is_double": true
+  }
+ ],
+ "chromium": "153.0.8010.12",
+ "pixi_version": "8.21.0",
+ "checks": [
+  {
+   "check": "preset=default: the ZIP holds a @1x JSON (meta.scale \"1\") and a @2x JSON (meta.scale \"2\")",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "1": "run_pixi/run.json",
+    "2": "run_pixi/run@2x.json"
+   }
+  },
+  {
+   "check": "preset=default: the @2x JSON points at its own @2x PNG",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    "run.png",
+    "run@2x.png"
+   ]
+  },
+  {
+   "check": "preset=default: @1x and @2x JSON list the same frames",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     "run_0",
+     "run_1",
+     "run_2",
+     "run_3",
+     "run_4",
+     "run_5"
+    ],
+    [
+     "run_0",
+     "run_1",
+     "run_2",
+     "run_3",
+     "run_4",
+     "run_5"
+    ]
+   ]
+  },
+  {
+   "check": "preset=default: @2x frame, spriteSourceSize and sourceSize are exactly 2x the @1x numbers",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": []
+  },
+  {
+   "check": "preset=default: every @2x atlas region is the @1x region as exact 2x2 pixel blocks (nearest)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": []
+  },
+  {
+   "check": "preset=default: PixiJS reads sheet.resolution 1 for @1x and 2 for @2x (from meta.scale)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    1,
+    2
+   ]
+  },
+  {
+   "check": "preset=default: texture.source.resolution is 1 (@1x) and 2 (@2x)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    1,
+    2
+   ]
+  },
+  {
+   "check": "preset=default: every @2x texture has the same width/height/orig in PixiJS units as @1x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "run_0": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_1": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_2": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_3": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_4": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_5": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ]
+   }
+  },
+  {
+   "check": "preset=default: every @2x frame holds 2x the texels of the @1x frame in the same PixiJS units (2x density)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "run_0": [
+     [
+      18,
+      15
+     ],
+     [
+      36,
+      30
+     ]
+    ],
+    "run_1": [
+     [
+      13,
+      15
+     ],
+     [
+      26,
+      30
+     ]
+    ],
+    "run_2": [
+     [
+      17,
+      15
+     ],
+     [
+      34,
+      30
+     ]
+    ],
+    "run_3": [
+     [
+      20,
+      15
+     ],
+     [
+      40,
+      30
+     ]
+    ],
+    "run_4": [
+     [
+      16,
+      16
+     ],
+     [
+      32,
+      32
+     ]
+    ],
+    "run_5": [
+     [
+      21,
+      15
+     ],
+     [
+      42,
+      30
+     ]
+    ]
+   }
+  },
+  {
+   "check": "preset=default: the animations keys and frame order are the same in @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "run": [
+      "run_0",
+      "run_1",
+      "run_2",
+      "run_3",
+      "run_4",
+      "run_5"
+     ]
+    },
+    {
+     "run": [
+      "run_0",
+      "run_1",
+      "run_2",
+      "run_3",
+      "run_4",
+      "run_5"
+     ]
+    }
+   ]
+  },
+  {
+   "check": "preset=default: the default anchor (pivot) is the same in @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ]
+    ],
+    [
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ]
+    ]
+   ]
+  },
+  {
+   "check": "preset=default: every @2x Sprite has the same bounds as the @1x one",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     {
+      "name": "run_0",
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_1",
+      "x": 60,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_2",
+      "x": 110,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_3",
+      "x": 160,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_4",
+      "x": 210,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_5",
+      "x": 260,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     }
+    ],
+    [
+     {
+      "name": "run_0",
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_1",
+      "x": 60,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_2",
+      "x": 110,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_3",
+      "x": 160,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_4",
+      "x": 210,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_5",
+      "x": 260,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     }
+    ]
+   ]
+  },
+  {
+   "check": "preset=default: something was drawn (the canvas readback is not empty)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": null
+  },
+  {
+   "check": "preset=default: the drawn size in device pixels is the same for @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    },
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    }
+   ]
+  },
+  {
+   "check": "preset=default: the @2x drawing is pixel-identical to the @1x drawing at renderer resolution 2 (2x2 blocks)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": null
+  },
+  {
+   "check": "preset=default: each @2x drawing equals its source PNG frame upscaled 2x nearest (opaque pixels)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "frame": "run_0",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_1",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 544,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_2",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 552,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_3",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_4",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_5",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    }
+   ]
+  },
+  {
+   "check": "preset=default: negative control reports the same texture size as @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": [
+    [
+     40,
+     29
+    ],
+    [
+     80,
+     58
+    ]
+   ]
+  },
+  {
+   "check": "preset=default: negative control draws at the same size as @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": [
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    },
+    {
+     "x": 20,
+     "y": 16,
+     "width": 584,
+     "height": 68
+    }
+   ]
+  },
+  {
+   "check": "preset=default: negative control drawing is pixel-identical to @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": null
+  },
+  {
+   "check": "preset=default: negative control texture is exactly 2x the @1x size (what a wrong meta.scale looks like)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     40,
+     29
+    ],
+    [
+     80,
+     58
+    ]
+   ]
+  },
+  {
+   "check": "preset=pixi: the ZIP holds a @1x JSON (meta.scale \"1\") and a @2x JSON (meta.scale \"2\")",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "1": "run_pixi/run.json",
+    "2": "run_pixi/run@2x.json"
+   }
+  },
+  {
+   "check": "preset=pixi: the @2x JSON points at its own @2x PNG",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    "run.png",
+    "run@2x.png"
+   ]
+  },
+  {
+   "check": "preset=pixi: @1x and @2x JSON list the same frames",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     "run_0",
+     "run_1",
+     "run_2",
+     "run_3",
+     "run_4",
+     "run_5"
+    ],
+    [
+     "run_0",
+     "run_1",
+     "run_2",
+     "run_3",
+     "run_4",
+     "run_5"
+    ]
+   ]
+  },
+  {
+   "check": "preset=pixi: @2x frame, spriteSourceSize and sourceSize are exactly 2x the @1x numbers",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": []
+  },
+  {
+   "check": "preset=pixi: every @2x atlas region is the @1x region as exact 2x2 pixel blocks (nearest)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": []
+  },
+  {
+   "check": "preset=pixi: PixiJS reads sheet.resolution 1 for @1x and 2 for @2x (from meta.scale)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    1,
+    2
+   ]
+  },
+  {
+   "check": "preset=pixi: texture.source.resolution is 1 (@1x) and 2 (@2x)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    1,
+    2
+   ]
+  },
+  {
+   "check": "preset=pixi: every @2x texture has the same width/height/orig in PixiJS units as @1x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "run_0": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_1": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_2": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_3": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_4": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ],
+    "run_5": [
+     [
+      40,
+      29
+     ],
+     [
+      40,
+      29
+     ]
+    ]
+   }
+  },
+  {
+   "check": "preset=pixi: every @2x frame holds 2x the texels of the @1x frame in the same PixiJS units (2x density)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": {
+    "run_0": [
+     [
+      15,
+      18
+     ],
+     [
+      30,
+      36
+     ]
+    ],
+    "run_1": [
+     [
+      15,
+      13
+     ],
+     [
+      30,
+      26
+     ]
+    ],
+    "run_2": [
+     [
+      15,
+      17
+     ],
+     [
+      30,
+      34
+     ]
+    ],
+    "run_3": [
+     [
+      15,
+      20
+     ],
+     [
+      30,
+      40
+     ]
+    ],
+    "run_4": [
+     [
+      16,
+      16
+     ],
+     [
+      32,
+      32
+     ]
+    ],
+    "run_5": [
+     [
+      15,
+      21
+     ],
+     [
+      30,
+      42
+     ]
+    ]
+   }
+  },
+  {
+   "check": "preset=pixi: the animations keys and frame order are the same in @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "run": [
+      "run_0",
+      "run_1",
+      "run_2",
+      "run_3",
+      "run_4",
+      "run_5"
+     ]
+    },
+    {
+     "run": [
+      "run_0",
+      "run_1",
+      "run_2",
+      "run_3",
+      "run_4",
+      "run_5"
+     ]
+    }
+   ]
+  },
+  {
+   "check": "preset=pixi: the default anchor (pivot) is the same in @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ]
+    ],
+    [
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ],
+     [
+      0.5,
+      1
+     ]
+    ]
+   ]
+  },
+  {
+   "check": "preset=pixi: every @2x Sprite has the same bounds as the @1x one",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     {
+      "name": "run_0",
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_1",
+      "x": 60,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_2",
+      "x": 110,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_3",
+      "x": 160,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_4",
+      "x": 210,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_5",
+      "x": 260,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     }
+    ],
+    [
+     {
+      "name": "run_0",
+      "x": 10,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_1",
+      "x": 60,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_2",
+      "x": 110,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_3",
+      "x": 160,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_4",
+      "x": 210,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     },
+     {
+      "name": "run_5",
+      "x": 260,
+      "y": 21,
+      "width": 40,
+      "height": 29,
+      "anchor": [
+       0.5,
+       1
+      ]
+     }
+    ]
+   ]
+  },
+  {
+   "check": "preset=pixi: something was drawn (the canvas readback is not empty)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": null
+  },
+  {
+   "check": "preset=pixi: the drawn size in device pixels is the same for @1x and @2x",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    },
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    }
+   ]
+  },
+  {
+   "check": "preset=pixi: the @2x drawing is pixel-identical to the @1x drawing at renderer resolution 2 (2x2 blocks)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": null
+  },
+  {
+   "check": "preset=pixi: each @2x drawing equals its source PNG frame upscaled 2x nearest (opaque pixels)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    {
+     "frame": "run_0",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_1",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 544,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_2",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 552,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_3",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_4",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 600,
+     "mismatches": 0
+    },
+    {
+     "frame": "run_5",
+     "source_px": [
+      40,
+      29
+     ],
+     "opaque_pixels": 624,
+     "mismatches": 0
+    }
+   ]
+  },
+  {
+   "check": "preset=pixi: negative control reports the same texture size as @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": [
+    [
+     40,
+     29
+    ],
+    [
+     80,
+     58
+    ]
+   ]
+  },
+  {
+   "check": "preset=pixi: negative control draws at the same size as @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": [
+    {
+     "x": 40,
+     "y": 58,
+     "width": 542,
+     "height": 34
+    },
+    {
+     "x": 20,
+     "y": 16,
+     "width": 584,
+     "height": 68
+    }
+   ]
+  },
+  {
+   "check": "preset=pixi: negative control drawing is pixel-identical to @1x",
+   "result": "PASS",
+   "negative_control": true,
+   "detail": null
+  },
+  {
+   "check": "preset=pixi: negative control texture is exactly 2x the @1x size (what a wrong meta.scale looks like)",
+   "result": "PASS",
+   "negative_control": false,
+   "detail": [
+    [
+     40,
+     29
+    ],
+    [
+     80,
+     58
+    ]
+   ]
+  }
+ ],
+ "verdict": "PASS",
+ "artifacts_dir": "C:\\Users\\2009s\\AppData\\Local\\Temp\\pixi-scale-pg9vsw5u"
+}

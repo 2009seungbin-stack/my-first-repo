@@ -130,6 +130,10 @@ html[lang="ko"] .gh-group h4,html[lang="ja"] .gh-group h4,html[lang="ko"] .gh-gr
 .file-tools .gh-group{background:transparent}
 .file-tools .gh-group h3::before{background:var(--gs-text-3)}
 [data-gs] .no-result{margin:20px 0 0;color:var(--gs-text-2)}
+.gh-hub-links{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 20px;margin:4px 0 12px;padding:14px 20px;border:1px solid var(--gs-line);border-radius:var(--gs-radius)}
+.gh-hub-links h3{margin:0;font:750 12.5px/1.2 var(--gs-font);letter-spacing:.07em;text-transform:uppercase;color:var(--gs-text-2)}
+html[lang="ko"] .gh-hub-links h3,html[lang="ja"] .gh-hub-links h3{letter-spacing:.02em}
+.gh-hub-links p{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;min-width:0}
 
 /* ---------------------------------------------------------------- reading content (#siteContent, src/content.js) */
 .gh-content .reading-content{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:0 64px;margin:112px 0 0;padding:64px 0 0;border-top:1px solid var(--gs-line);color:var(--gs-text-2);max-width:none}

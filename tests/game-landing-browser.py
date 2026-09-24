@@ -12,6 +12,11 @@ Part 3 (Chromium): every keyword page hands its file to the right workspace.
 Part 4 (Chromium AND Firefox): every Lab landing hands its files to its Lab and the job is measured.
 Part 5 (Chromium AND Firefox): keyword pages whose promise is a Lab flow (Lospec palette, integer
 upscale, roughness to smoothness, sheet to PNG frames) do exactly that, measured on the download.
+Part 6 (Chromium AND Firefox): the page families (src/game-seo-families.js) — a sample page of every
+family (broad, engines, formats, fixes, compare; Studio and Lab targets, a `via` page) is followed from
+its own file picker into the Studio and its promise is measured (frames against the sheet, generated
+normals, collision in the Godot export, FNF XML → GIFs, .aseprite durations, an unrotated Phaser atlas).
+Part 3 already hands a file to every Studio family page in Chromium.
 
 TEST_URL (default http://127.0.0.1:4173); BROWSERS=chromium,firefox (default both).
 Results: test-results/game-landing-browser.json ({check: [engines]}).
@@ -23,7 +28,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('TEST_URL', 'http://127.0.0.1:4173').rstrip('/')
-PARTS = os.environ.get('PARTS', '12345')  # for debugging only; the evidence run uses all parts
+PARTS = os.environ.get('PARTS', '123456')  # for debugging only; the evidence run uses all parts
 BROWSERS = [b for b in os.environ.get('BROWSERS', 'chromium,firefox').split(',') if b]
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 OUT = ROOT / 'test-results'; OUT.mkdir(exist_ok=True)
@@ -34,6 +39,10 @@ GIF = FX / 'sprite' / 'trooper_run.gif'                          # 6 frames, 120
 ASE = FX / 'aseprite' / 'indexed-features.aseprite'              # 4 frames, tags, slices
 CAVE = FX / 'tile' / 'cave-autotile47.png'                       # GameMaker 47, 64 px
 DUNGEON = FX / 'kenney' / 'tiny-dungeon-tilemap.png'             # 12×11 tiles of 16 px, 1 px spacing
+TORCH_SHEET = FX / 'game' / 'corpus' / 'torch' / 'Torch_Sheet.png'  # 96×64, six 32 px frames (OGA, CC0)
+TORCH_JSON = FX / 'game' / 'corpus' / 'torch' / 'Torch_Hash.json'  # Aseprite JSON hash for it (durations 100)
+TORCH_TEX = FX / 'texture' / 'torch_sheet.png'                     # the same torch as a texture fixture
+CAEL = FX / 'game' / 'cc0' / 'oga-caeles-blob47-16px.png'           # caeles blob-47 template, 16 px, alpha
 results = {}; errors = []
 
 
@@ -57,11 +66,11 @@ def js(p, body, arg=None):
 
 
 def pages():
-    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES} from './src/game-seo.js';import {INTENTS} from './src/intents.js';"
+    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,isStudioKind,kindOf} from './src/game-seo.js';import {INTENTS} from './src/intents.js';"
               "import {mayPromote} from './src/capabilities.js';"
               "console.log(JSON.stringify({intents:Object.fromEntries(Object.entries(GAME_INTENT_PAGES).map(([k,p])=>[k,{path:INTENTS[k].path,ws:p.ws,classic:!!p.classic,promote:mayPromote(k)}])),"
               "labs:Object.fromEntries(Object.entries(GAME_LAB_PAGES).map(([k,p])=>[k,{path:INTENTS[k].path,ws:p.ws,classic:false,promote:mayPromote(k),lab:true}])),"
-              "keywords:Object.fromEntries(Object.entries(GAME_KEYWORD_PAGES).map(([k,p])=>[k,{path:k,ws:p.ws,promote:mayPromote(p.intent),studio:['sprite','pack','tile'].includes(p.ws)}]))}));")
+              "keywords:Object.fromEntries(Object.entries(GAME_KEYWORD_PAGES).map(([k,p])=>[k,{path:k,ws:p.ws,promote:mayPromote(p.intent),studio:isStudioKind(p.ws),studioWs:kindOf(p.ws).studioWs||p.ws,via:p.via||'',family:p.family||''}]))}));")
     import subprocess
     out = subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', check=True)
     return json.loads(out.stdout)
@@ -169,9 +178,9 @@ def part1(browser):
             if v.get('lab') or (key in PAGES['keywords'] and not v.get('studio')):
                 ok('a Lab page\'s primary action opens its Lab (<route>/app/ or the classic Lab) and the header still links the Studio', 'data-gl-drop' in h and re.search(r'data-target="lab" data-href="(?:\w\w/)?[\w/-]+/(app|classic)/"', h) and 'data-studio-link' in h, key)
             else:
-                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile)"', h) and 'data-studio-link' in h, key)
+                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile|texture)"', h) and 'data-studio-link' in h, key)
             ok('the page shows a real screenshot of the Studio or its Lab (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
-            ok('engine badges carry their verification label', h.count('class="gl-badge') >= (2 if lab else 4) and (lab or 'Godot' in h), key)
+            ok('engine badges carry their verification label', h.count('class="gl-badge') >= (2 if lab else 3 if v.get('ws') == 'normalmap' else 4) and (lab or 'Godot' in h), key)
             if key != 'game':
                 ok('a classic-tool link appears exactly where the Studio does not cover something yet', ('data-gl-classic' in h) == bool(v.get('classic')), key)
             if site:
@@ -345,15 +354,38 @@ def part3(browser):
     ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, locale='en-US')
     for key, v in PAGES['keywords'].items():
         if not v.get('studio'):
-            continue  # Lab keyword pages: their Lab flow is covered in part 4 through the Lab landing
-        files = [ASE] if 'aseprite' in key else [GIF] if 'gif-to' in key else NINJA if v['ws'] == 'pack' else [CAVE] if v['ws'] == 'tile' else [SAMURAI]
+            continue  # Lab keyword pages: their Lab flow is covered in parts 4–6 through the landing
+        files = files_for(key, v)
         p = land(ctx, f'/en/{key}/', files, E)
-        want = {'sprite': 'sprite', 'tile': 'tile', 'pack': 'pack'}[v['ws']]
+        # A page whose files go through another workspace first (via) lands there; a pack page lands
+        # in Pack & Export once its frames exist; every other page lands in its own workspace.
+        want = v['via'] or {'sprite': 'sprite', 'tile': 'tile', 'pack': 'pack', 'normalmap': 'texture'}[v['ws']]
         if want == 'pack':
             p.wait_for_function('()=>window.nerulioStudio.workspace==="pack"', timeout=30000)
         ok('every game keyword page hands its file to the Studio workspace it names', js(p, 'return S.workspace;') == want, key, engine=E)
         p.close()
     ctx.close()
+
+
+def files_for(key, v):
+    """A committed CC0 file of the kind the page asks for."""
+    if 'fnf' in key:
+        return [TORCH_SHEET, GS / 'torch-sparrow.xml']
+    if 'texturepacker' in key or 'atlas-viewer' in key:
+        return [TORCH_SHEET, GS / 'torch-texturepacker.json']
+    if 'aseprite-json' in key:
+        return [TORCH_SHEET, TORCH_JSON]
+    if 'aseprite' in key:
+        return [ASE]
+    if 'gif-to' in key:
+        return [GIF]
+    if v['ws'] == 'pack':
+        return NINJA
+    if v['ws'] == 'tile':
+        return [CAVE]
+    if v['ws'] == 'normalmap':
+        return [TORCH_TEX]
+    return [SAMURAI]
 
 
 
@@ -685,6 +717,113 @@ def part5(browser, E):
     ctx.close()
 
 
+# ======================================================================= part 6: the page families, a sample per family, both engines
+def texture_ready(p):
+    p.wait_for_function('()=>{const T=window.nerulioTexture;return T&&T.S.gen&&!T.S.busy}', timeout=60000); p.wait_for_timeout(200)
+
+
+def normals_ok(p):
+    """Every opaque pixel's decoded normal is a unit vector facing the viewer (blue ≥ 128)."""
+    return js(p, '''const T=window.nerulioTexture,g=T.S.gen.normal,a=T.S.pic.rgba;let n=0,bad=0;
+      for(let i=0;i<a.length;i+=4){if(a[i+3]<255)continue;n++;const x=g[i]/127.5-1,y=g[i+1]/127.5-1,z=g[i+2]/127.5-1,l=Math.hypot(x,y,z);if(g[i+2]<128||Math.abs(l-1)>0.03)bad++;}
+      return {n,bad};''')
+
+
+def part6(browser, E):
+    """Page families (src/game-seo-families.js): one page per family is followed from its own file picker
+    into the Studio, and the job it promises is measured on committed CC0 fixtures."""
+    fam = {k: v for k, v in PAGES['keywords'].items() if v.get('family')}
+    if not fam:
+        return
+    ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, locale='en-US')
+    sheet = Image.open(TORCH_SHEET).convert('RGBA')
+    # broad: a PNG with its TexturePacker JSON ------------------------------------------------
+    if 'game/sprite-atlas-viewer' in fam:
+        p = land(ctx, '/en/game/sprite-atlas-viewer/', [TORCH_SHEET, GS / 'torch-texturepacker.json'], E); a = asset(p)
+        ok('family broad (sprite-atlas-viewer): a sheet with its TexturePacker JSON opens as 6 frames grouped by name into one animation', js(p, 'return S.workspace;') == 'sprite' and len(a['frames']) == 6 and [t['name'] for t in a['tags']] == ['torch'], str([t['name'] for t in a['tags']]), engine=E)
+        ok('family broad (sprite-atlas-viewer): every frame equals its rectangle of the sheet, pixel for pixel',
+           all(visible(frame_rgba(p, i)) == visible(sheet.crop(((i % 3) * 32, (i // 3) * 32, (i % 3) * 32 + 32, (i // 3) * 32 + 32))) for i in range(6)), engine=E)
+        p.close()
+    # broad: a sprite straight into the Texture workspace --------------------------------------
+    if 'game/sprite-normal-map' in fam:
+        p = land(ctx, '/en/game/sprite-normal-map/', [TORCH_TEX], E); texture_ready(p)
+        ok('family broad (sprite-normal-map): the sprite opens in the Texture workspace with a normal map generated at once', js(p, 'return S.workspace;') == 'texture', engine=E)
+        r = normals_ok(p)
+        ok('family broad (sprite-normal-map): every opaque pixel of the generated map decodes to a unit normal facing the viewer', r['n'] > 100 and r['bad'] == 0, str(r), engine=E)
+        p.close()
+    # engines: collision shapes from alpha, exported for Godot -----------------------------------
+    if 'game/godot-tileset-collision' in fam:
+        p = land(ctx, '/en/game/godot-tileset-collision/', [CAVE], E); tile_apply(p)
+        # Select the tiles from (1,0) to (7,5) with the select tool (the panel acts for the first
+        # selected tile, which must hold terrain bits; the cave sheet's tile 0,0 is blank).
+        p.keyboard.press('v'); p.wait_for_timeout(100)
+        drag(p, (1 * 64 + 32, 32), (7 * 64 + 32, 5 * 64 + 32)); p.wait_for_timeout(300)
+        p.wait_for_selector('[data-action="tile-col-outline"]:not([disabled])', timeout=20000)
+        p.click('[data-action="tile-col-outline"]')
+        p.wait_for_function('()=>{const S=window.nerulioStudio,t=Object.values(S.doc.settings.tile.tilesets)[0];return Object.values(t.tiles).filter(x=>x.collision&&x.collision.length).length>=35}', timeout=60000)
+        p.locator('[data-tile-panel="tile-export"]').scroll_into_view_if_needed()
+        p.select_option('[data-tile="collision"]', 'edited')  # the Export panel's Collision (Godot): the traced shapes as they are
+        with p.expect_download(timeout=60000) as d:
+            p.click('[data-action="tile-export"]')
+        z = zipfile.ZipFile(io.BytesIO(Path(d.value.path()).read_bytes()))
+        tiles = json.loads(z.read('godot/nerulio-tileset.json'))['tileSet']['tiles']
+        polys = [poly for t in tiles for poly in (t.get('collision') or [])]
+        ok('family engines (godot-tileset-collision): Outline polygon traces a collision shape for the terrain tiles and the Godot export carries them inside each 64 px tile',
+           len([t for t in tiles if t.get('collision')]) >= 35 and all(-0.01 <= c <= 64.01 for poly in polys for pt in poly for c in pt), f'{len(polys)} polygons', engine=E)
+        p.close()
+    # formats: an FNF-style Sparrow XML with trimmed frames, to GIF --------------------------------
+    if 'game/fnf-spritesheet-to-gif' in fam:
+        p = land(ctx, '/en/game/fnf-spritesheet-to-gif/', [TORCH_SHEET, GS / 'torch-sparrow.xml'], E); a = asset(p)
+        ok('family formats (fnf-spritesheet-to-gif): SubTexture name prefixes become the animations ("torch flame", "torch dim"), trim offsets kept on a 32 px canvas',
+           sorted(t['name'] for t in a['tags']) == ['torch dim', 'torch flame'] and all((f['canvasWidth'], f['canvasHeight']) == (32, 32) for f in a['frames']), str([t['name'] for t in a['tags']]), engine=E)
+        ok('family formats (fnf-spritesheet-to-gif): each trimmed frame, placed back on its canvas, equals its 32 px cell of the sheet',
+           all(visible(frame_rgba(p, i)) == visible(sheet.crop(((i % 3) * 32, (i // 3) * 32, (i % 3) * 32 + 32, (i // 3) * 32 + 32))) for i in range(6)), engine=E)
+        z = to_pack_export(p, 'gif')
+        gifs = [n for n in z.namelist() if n.endswith('.gif')]
+        counts = sorted(Image.open(io.BytesIO(z.read(n))).n_frames for n in gifs)
+        ok('family formats (fnf-spritesheet-to-gif): one animated GIF per animation, each with its 3 frames', len(gifs) == 2 and counts == [3, 3], str(gifs), engine=E)
+        p.close()
+    # formats: .aseprite opened without Aseprite ------------------------------------------------
+    if 'game/aseprite-viewer' in fam:
+        p = land(ctx, '/en/game/aseprite-viewer/', [ASE], E); a = asset(p)
+        ok('family formats (aseprite-viewer): the .aseprite file opens with its 4 frames, per-frame durations 100/150/50/250 ms and 4 tags',
+           len(a['frames']) == 4 and [f['duration'] for f in a['frames']] == [100, 150, 50, 250] and len(a['tags']) == 4, str([f['duration'] for f in a['frames']]), engine=E)
+        p.close()
+    # formats (via): a sheet cut in Sprite, then lit frame by frame in Texture ----------------------
+    if 'game/normal-map-sprite-sheet' in fam:
+        p = land(ctx, '/en/game/normal-map-sprite-sheet/', [TORCH_TEX], E)
+        ok('family formats (normal-map-sprite-sheet): the sheet arrives in the Sprite workspace first, to be cut into frames', js(p, 'return S.workspace;') == 'sprite', engine=E)
+        apply_sheet(p, 6); p.click('.st-ws-tab[data-ws="texture"]'); texture_ready(p)
+        reg = js(p, 'const r=window.nerulioTexture.region();return [r.w,r.h];')
+        ok('family formats (normal-map-sprite-sheet): in the Texture workspace each of the 6 frames is its own region (at most 32×32) with a generated map', js(p, 'return S.workspace;') == 'texture' and 0 < reg[0] <= 32 and 0 < reg[1] <= 32 and p.locator('.tx-frame').count() == 6 and normals_ok(p)['bad'] == 0, str(reg), engine=E)
+        p.close()
+    # fixes: the Phaser export never rotates a frame ------------------------------------------------
+    if 'game/phaser-atlas-frames-wrong' in fam:
+        p = land(ctx, '/en/game/phaser-atlas-frames-wrong/', NINJA, E)
+        p.wait_for_function('()=>window.nerulioStudio.workspace==="pack"', timeout=30000)
+        z = to_pack_export(p, 'phaser')
+        atlas = json.loads(z.read(next(n for n in z.namelist() if n.endswith('.json') and 'anims' not in n)))
+        frames = atlas['frames'] if isinstance(atlas['frames'], list) else list(atlas['frames'].values()) if 'frames' in atlas else [f for t in atlas.get('textures', []) for f in t['frames']]
+        ok('family fixes (phaser-atlas-frames-wrong): the Phaser export writes every frame unrotated, with its trim offset', len(frames) == 6 and all(f.get('rotated') is False for f in frames) and all('spriteSourceSize' in f for f in frames), json.dumps(frames[0])[:200], engine=E)
+        p.close()
+    # compare: the same sprite in the Texture workspace, lit with the Godot model -----------------------
+    if 'game/laigter-alternative' in fam:
+        p = land(ctx, '/en/game/laigter-alternative/', [TORCH_TEX], E); texture_ready(p)
+        ok('family compare (laigter-alternative): the sprite opens in the Texture workspace with a generated normal map and a light', js(p, 'return S.workspace;') == 'texture' and len(js(p, 'return window.nerulioTexture.entry().scene.lights;')) >= 1, engine=E)
+        p.close()
+    # engines, a Lab page: the classic Sprite Lab writes one PNG per frame (GDevelop takes frame images) -
+    if 'game/gdevelop-sprite-sheet' in fam:
+        p = ctx.new_page(); p.on('pageerror', lambda e: errors.append(f'{E} gdevelop: {e}'))
+        p.goto(BASE + '/en/game/gdevelop-sprite-sheet/'); p.wait_for_function('()=>document.documentElement.dataset.glReady==="1"', timeout=30000)
+        with p.expect_navigation(url=re.compile(r'/classic/'), timeout=30000):
+            p.set_input_files('#glFiles', [str(SAMURAI)])
+        p.wait_for_function('()=>document.documentElement.dataset.taskReady==="1"', timeout=60000)
+        p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===60', timeout=60000)
+        ok('family engines (gdevelop-sprite-sheet): the sheet chosen on the page arrives in the classic Sprite Lab with its 60 frames outlined', True, engine=E)
+        p.close()
+    ctx.close()
+
+
 with sync_playwright() as pw:
     if 'chromium' in BROWSERS:
         b = pw.chromium.launch()
@@ -693,12 +832,14 @@ with sync_playwright() as pw:
         if '2' in PARTS: part2(b, 'chromium')
         if '4' in PARTS: part4(b, 'chromium')
         if '5' in PARTS: part5(b, 'chromium')
+        if '6' in PARTS: part6(b, 'chromium')
         b.close()
     if 'firefox' in BROWSERS:
         b = pw.firefox.launch()
         if '2' in PARTS: part2(b, 'firefox')
         if '4' in PARTS: part4(b, 'firefox')
         if '5' in PARTS: part5(b, 'firefox')
+        if '6' in PARTS: part6(b, 'firefox')
         b.close()
 ok('no uncaught page errors', not errors, str(errors[:3]))
 (OUT / 'game-landing-browser.json').write_text(json.dumps({'checks': results, 'errors': errors}, ensure_ascii=False, indent=1), encoding='utf-8')

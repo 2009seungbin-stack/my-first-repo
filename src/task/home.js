@@ -17,6 +17,7 @@ function relabel(){
  }
  for(const h of document.querySelectorAll('[data-cat]'))h.textContent=text('cat.'+h.dataset.cat);
  for(const a of document.querySelectorAll('[data-tool-link]'))a.href=toolURL(a.dataset.toolLink);
+ for(const a of document.querySelectorAll('[data-hub-link]'))a.href=pagePrefix()+'game/'+(a.dataset.hubLink?'#hub-'+a.dataset.hubLink:'');
  // The product shots are captured per language (tools/home-screens.py): swap them with the copy.
  const l=locale(),shot=$('#heroShot');
  if(shot){shot.srcset=[1280,1600,2560].map(w=>`assets/home/shot-hero-${l}-${w}.webp ${w}w`).join(', ');shot.src=`assets/home/shot-hero-${l}-1600.webp`;shot.alt=text('gh.heroAlt');
