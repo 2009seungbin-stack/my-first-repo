@@ -22,7 +22,9 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | --- | --- | --- |
 | `SERVICE_API` | 변수(빌드) | `on`이어야 계정 계층이 빌드된다. 없으면 기존 정적 사이트 |
 | `SITE_URL` | 변수 | 기존과 동일 (canonical 등) |
-| `FREE_DAILY_JOBS` | 변수 | Free heavy 작업/일. 기본 30 |
+| `FREE_DAILY_JOBS` | 변수 | Free heavy 작업/일 (파일 도구). 기본 30 |
+| `FREE_DAILY_STUDIO_EXPORTS` | 변수(빌드+런타임) | Free 스튜디오 엔진 내보내기/일. 기본 10. 가격 페이지 문구와 Worker 한도가 같은 값을 쓴다 ([PRICING-MODEL.md](PRICING-MODEL.md)) |
+| `ADSENSE_SLOT_STUDIO` | 변수(빌드) | 스튜디오 데스크톱 광고 칸의 광고 단위 ID(10자리). `ADSENSE_CLIENT`와 `ADSENSE_CMP_READY=true`가 있어야 켜진다 ([ADS.md](ADS.md)) |
 | `ANON_NETWORK_DAILY_JOBS` | 변수 | 익명 네트워크 버킷 Turnstile 기준. 기본 한도×4 |
 | `PRO_PRICE_AMOUNT`, `PRO_PRICE_CURRENCY`, `PRO_PRICE_INTERVAL` | 변수(빌드) | 가격 표시 (`4.99`, `USD`, `month`). 없으면 "가격은 출시 시 공개" |
 | `GOOGLE_OAUTH_CLIENT_ID` | 변수 | Google OAuth 클라이언트 ID |
@@ -54,12 +56,13 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 7. **배포**: Preview 환경에 먼저 `SERVICE_API=on`을 설정하고 브랜치를 push. Production은 preview 검증 후.
 8. **`/api/v1/health` 확인**: `{"configured":true,"database":true,...}`. `configured:false`면 `DB` 바인딩 또는 `SESSION_SECRET`(32자 이상) 누락.
 9. **익명 quota 확인**: preview에 `FREE_DAILY_JOBS=2`로 배포 → 시크릿 창에서 heavy 도구(예: `/ko/image/upscale/`) 3회 → 3번째에 업그레이드 모달, 파일 유지 확인. 가벼운 도구는 계속 동작해야 한다. 이후 원래 값으로 되돌린다.
+9b. **스튜디오 한도 확인**: preview에 `FREE_DAILY_STUDIO_EXPORTS=2` → 시크릿 창에서 `/ko/game/studio/?ws=pack`에 이미지를 넣고 엔진 내보내기 3회 → 3번째에 스튜디오 한도 대화상자, 프로젝트 유지, 대화상자의 "프로젝트 저장"으로 `.nerulio` 저장 확인. 이후 원래 값으로 되돌린다.
 10. **테스트 Pro 확인** (결제 없이 운영자가 부여):
     ```sh
     npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --command "SELECT id,email FROM users"
     npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --command "INSERT INTO subscriptions(provider,external_subscription_id,user_id,plan,status,current_period_end,cancel_at_period_end,updated_at) VALUES('manual','manual-test-1','<USER_ID>','pro','active',<만료 epoch ms>,0,<현재 epoch ms>)"
     ```
-    헤더 Pro 배지, 광고 요청 0, heavy 무제한을 확인한 뒤 행을 삭제한다. `provider='manual'`은 결제가 아니라 운영자 부여임을 기록으로 남긴다.
+    헤더 Pro 배지, 광고 요청 0(스튜디오 포함: 광고 칸 없음, 캔버스가 전체 폭), heavy·스튜디오 내보내기 무제한을 확인한 뒤 행을 삭제한다. `provider='manual'`은 결제가 아니라 운영자 부여임을 기록으로 남긴다.
 11. **그 다음에만 결제 연결**: [BILLING.md](BILLING.md)의 출시 순서를 따른다.
 
 ## Worker 라우팅과 비용

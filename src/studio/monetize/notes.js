@@ -1,0 +1,37 @@
+/** Quiet remaining-count notes (accounts on only). Nothing is shown while more than LOW_AT free
+ * Studio exports are left; from LOW_AT down a small line appears under each workspace's main
+ * export button and follows it through panel re-renders. No toast, no badge in the chrome. */
+import {current,onChange,load} from '../../entitlement.js';
+import {LOW_AT} from './meter.js';
+import {mt} from './strings.js';
+/** The main export button of each metered workspace → its Studio action id. (Pack & Export's
+ * per-format list shares the main button's count; one note under the main button is enough.) */
+export const METERED_BUTTONS=Object.freeze({'[data-export-main]':'studio-pack-export','[data-action="tile-export"]':'studio-tile-export','[data-action="tex-export"]':'studio-texture-export'});
+/** Free Studio exports left today, or null when unknown / unlimited. */
+export function studioRemaining(){
+ const u=current().me?.studioUsage;
+ return u&&!u.unlimited&&Number.isFinite(u.remaining)?u.remaining:null;
+}
+export function startRemainingNotes(root,locale){
+ const selector=Object.keys(METERED_BUTTONS).join(',');
+ let scheduled=false;
+ const decorate=()=>{
+  scheduled=false;
+  const n=studioRemaining(),show=n!=null&&n<=LOW_AT,l=locale();
+  for(const b of root.querySelectorAll(selector)){
+   let note=b.nextElementSibling?.classList.contains('st-meter-left')?b.nextElementSibling:null;
+   if(!show){note?.remove();continue;}
+   const text=n>0?mt(l,'meter.left',{n}):mt(l,'meter.none');
+   if(!note){note=document.createElement('small');note.className='st-meter-left';note.setAttribute('role','status');b.after(note);}
+   if(note.textContent!==text)note.textContent=text;
+   note.classList.toggle('is-out',n===0);note.title=mt(l,'meter.leftTitle');note.dataset.remaining=String(n);
+  }
+ };
+ const later=()=>{if(!scheduled){scheduled=true;queueMicrotask(decorate);}};
+ // Panels re-render their buttons: re-attach after changes that add elements (cheap: 3 selectors).
+ new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&!n.classList.contains('st-meter-left'))))later();}).observe(root,{childList:true,subtree:true});
+ new MutationObserver(later).observe(root,{attributes:true,attributeFilter:['lang']});
+ onChange(later);
+ load().then(later,()=>{});
+ return later;
+}

@@ -1,4 +1,4 @@
-import {quotaDay,nextReset} from '../src/quota.js';
+import {quotaDay,nextReset,STUDIO_SUBJECT_SUFFIX} from '../src/quota.js';
 import {ApiError} from './http.js';
 /** Daily heavy-job accounting in D1. Never SELECT → JS increment → UPDATE.
  * One authorization is one db.batch(), which D1 executes as a single transaction:
@@ -49,6 +49,10 @@ export async function networkUsage(db,networkSubject,now){
 export function carryOverStatement(db,anonSubject,userSubject,now){
  return db.prepare(`INSERT INTO daily_usage(subject_id,day,used) SELECT ?2,day,used FROM daily_usage WHERE subject_id=?1 AND day=?3
   ON CONFLICT(subject_id,day) DO UPDATE SET used=MAX(used,excluded.used)`).bind(anonSubject,userSubject,quotaDay(now));
+}
+/** Every daily counter of the identity (file-tool jobs and Studio exports) carries over. */
+export function carryOverStatements(db,anonSubject,userSubject,now){
+ return [carryOverStatement(db,anonSubject,userSubject,now),carryOverStatement(db,anonSubject+STUDIO_SUBJECT_SUFFIX,userSubject+STUDIO_SUBJECT_SUFFIX,now)];
 }
 /** Retention: expired sessions immediately; usage 7 days; idempotency keys 3 days;
  * webhook de-duplication keys 90 days (longer than any provider's retry window). */

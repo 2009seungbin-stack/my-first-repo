@@ -9,6 +9,7 @@
 import './strings.js';
 import * as P from '../../core/project.js';
 import {h} from '../../ui/dom.js';
+import {meter} from '../../monetize/meter.js';
 import {ShapeLayer} from '../../canvas/canvas-view.js';
 import {ICONS} from '../../ui/icons.js';
 import {zip} from '../../../core.js';
@@ -810,6 +811,8 @@ export default {
    const entries=[];
    for(const [tg,files] of Object.entries(bundle))for(const [name,content] of Object.entries(files))entries.push({name:`${tg}/${name}`,blob:new Blob([content])});
    if(!entries.length){ctx.toast(t('tile.export.nothing'),{error:true});return;}
+   // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
+   if(!await meter('studio-tile-export'))return;
    const notes=bundle.notes||{};
    entries.push({name:'NOTES.txt',blob:new Blob([[`Nerulio Studio (Tile) export — ${ts.name}`,'',...Object.entries(VERIFY).filter(([k])=>exportOpts.targets.has(k)).map(([k,v])=>`${k}: ${v.status.toUpperCase()} — ${v.detail}`),'',...Object.entries(notes).map(([k,v])=>`${k}: ${v}`),''].join('\n')])});
    const zipped=await zip(entries,{paths:true});

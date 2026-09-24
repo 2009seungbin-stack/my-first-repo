@@ -34,7 +34,7 @@ export function entry(html,route='',siteURL='',config={}){
  const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
- if(parts.path===STUDIO_PATH)return studioPage({locale,base});
+ if(parts.path===STUDIO_PATH)return studioPage({locale,base,config});
  // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
  const game=gamePageFor(parts.path);
  if(game){

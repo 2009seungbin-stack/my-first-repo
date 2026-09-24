@@ -1,6 +1,7 @@
 /** Texture workspace panels. Rendering only: every change goes through the controller `C`
  * (index.js), which turns it into one undoable document edit. */
 import {h} from '../../ui/dom.js';
+import {meter} from '../../monetize/meter.js';
 import {ICONS} from '../../ui/icons.js';
 import * as St from './state.js';
 import {ENGINE_PRESETS,PRESET_IDS} from '../../../game/texture-presets.js';
@@ -272,7 +273,9 @@ export function createPanels(C){
    return h('label.tx-target',{},i,h('span',{},h('b',{},t('tex.export.target.'+k)),h('small.tx-verify.is-'+v.status,{},v.status==='verified'?t('tex.export.verified',{engine:v.engine}):v.status==='unverified'?t('tex.export.unverified'):t('tex.export.plain')),h('small.st-muted',{},t('tex.export.what.'+k))));};
   const go=btn(t('tex.export.go'),async()=>{
    const targets=Object.keys(exp.targets).filter(k=>exp.targets[k]);if(!targets.length){ctx.toast(t('tex.export.none'),{error:true});return;}
-   go.disabled=true;try{const r=await C.exportZip({targets,includeHeight:exp.height,includeAO:exp.ao,bleed:exp.bleed});C.download(r.blob,r.name);ctx.toast(t('tex.export.done',{n:r.files.length}));}
+   go.disabled=true;
+   // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
+   try{if(!await meter('studio-texture-export'))return;const r=await C.exportZip({targets,includeHeight:exp.height,includeAO:exp.ao,bleed:exp.bleed});C.download(r.blob,r.name);ctx.toast(t('tex.export.done',{n:r.files.length}));}
    catch(err){ctx.toast(String(err.message||err),{error:true});}finally{go.disabled=false;}
   },{primary:true,disabled:!S.gen,action:'tex-export'});
   const quick=(conv)=>btn(t('tex.export.quick',{conv:t('tex.conv.'+conv)}),async()=>{const {flipGreen}=await import('../../../game/texture-normal.js');const pic=S.pic,g=S.gen;let n=g.normal;const dx=C.isDX();if(dx!==(conv==='directx'))n=flipGreen(n,pic.w,pic.h);C.download(await encodeRGBAPNG(n,pic.w,pic.h),`${safeBase(a.name)}_n${conv==='directx'?'_dx':''}.png`);},{disabled:!S.gen,action:'tex-quick-'+conv});
