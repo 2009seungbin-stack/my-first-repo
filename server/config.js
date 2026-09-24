@@ -1,5 +1,6 @@
 import BUILD from './build-info.js';
 import {freeDailyLimit,freeStudioLimit,freeAnonStudioLimit} from '../src/quota.js';
+import {parsePrivateJwk} from './tickets.js';
 /** Runtime configuration. Plain settings are Pages environment variables; credentials are
  * Pages secrets. Nothing here is ever sent to the browser except explicitly public fields. */
 export const SESSION_TTL_MS=30*864e5;
@@ -53,6 +54,8 @@ export function runtimeConfig(env={},build=BUILD){
  const anonNetworkStudio=between(env.ANON_NETWORK_STUDIO_EXPORTS,Math.max(freeAnonStudio*10,1),0,1e6);
  return Object.freeze({
   anonNetworkStudio,anonWideStudio:anonNetworkStudio*4,
+  // ECDSA P-256 key that signs permissions (server/tickets.js); null = unsigned answers.
+  ticketKey:parsePrivateJwk(env.TICKET_PRIVATE_KEY),
   // Previous SESSION_SECRET, still accepted for anonymous cookies during a rotation.
   previousSecret:String(env.SESSION_SECRET_PREVIOUS||'').length>=32?String(env.SESSION_SECRET_PREVIOUS):'',
   environment,environmentOverrideRefused:devRequested&&environment!=='development',siteOrigin,freeDailyJobs,freeDailyStudio,freeAnonStudio,

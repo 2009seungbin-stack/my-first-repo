@@ -12,16 +12,23 @@ export function studioRemaining(){
  const u=current().me?.studioUsage;
  return u&&!u.unlimited&&Number.isFinite(u.remaining)?u.remaining:null;
 }
+/** The signed-in limit when this identity is anonymous and a free sign-in would unlock more. */
+export function signInUnlocks(){const u=current().me?.studioUsage;return u&&!u.unlimited&&u.signInLimit?u.signInLimit:0;}
+/** Anonymous identities see the note only from the last export without an account (never on
+ * first use); signed-in Free users from LOW_AT down. */
+export function noteText(l,n,unlock){
+ if(unlock)return n>1?null:n===1?mt(l,'meter.anonLeft',{n,s:unlock}):mt(l,'meter.anonNone');
+ return n>LOW_AT?null:n>0?mt(l,'meter.left',{n}):mt(l,'meter.none');
+}
 export function startRemainingNotes(root,locale){
  const selector=Object.keys(METERED_BUTTONS).join(',');
  let scheduled=false;
  const decorate=()=>{
   scheduled=false;
-  const n=studioRemaining(),show=n!=null&&n<=LOW_AT,l=locale();
+  const n=studioRemaining(),l=locale(),text=n==null?null:noteText(l,n,signInUnlocks()),show=text!=null;
   for(const b of root.querySelectorAll(selector)){
    let note=b.nextElementSibling?.classList.contains('st-meter-left')?b.nextElementSibling:null;
    if(!show){note?.remove();continue;}
-   const text=n>0?mt(l,'meter.left',{n}):mt(l,'meter.none');
    if(!note){note=document.createElement('small');note.className='st-meter-left';note.setAttribute('role','status');b.after(note);}
    if(note.textContent!==text)note.textContent=text;
    note.classList.toggle('is-out',n===0);note.title=mt(l,'meter.leftTitle');note.dataset.remaining=String(n);

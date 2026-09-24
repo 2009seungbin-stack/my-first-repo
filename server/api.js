@@ -9,6 +9,7 @@ import {verifyTurnstile} from './turnstile.js';
 import {billingProvider} from './billing/index.js';
 import {applyBillingEvent} from './billing/webhook.js';
 import {allowRequest} from './ratelimit.js';
+import {signTicket,NONCE} from './tickets.js';
 export const API_VERSION='1';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 /** State-changing browser endpoints accept only Nerulio's own origin. There is no CORS:
@@ -82,7 +83,11 @@ async function me(request,ctx,cfg,db,now){
   const nets=await networkSubjects(clientIP(request),cfg.secret,now);
   if(nets)try{await db.prepare('INSERT INTO account_activity(user_id,day,network,pro) VALUES(?1,?2,?3,?4) ON CONFLICT DO NOTHING').bind(ctx.user.id,quotaDay(now),nets.narrow,ctx.plan==='pro'?1:0).run();}catch{}
  }
+ // Signed plan, bound to the page's nonce for this request (a copied answer is useless).
+ const nonce=ctx.url.searchParams.get('n')||'';
+ const entitlement=NONCE.test(nonce)?await signTicket(cfg.ticketKey,{kind:'me',n:nonce,plan:ctx.plan,ads:ctx.plan!=='pro',loggedIn:!!ctx.user}):undefined;
  return {
+  ...(entitlement?{entitlement}:{}),
   loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),studioUsage:publicUsage(ctx.plan,studio),
   ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   ...(grace?{grace}:{}),
@@ -127,7 +132,9 @@ async function authorize(request,ctx,cfg,env,now,deps){
  const cls=quotaClass(body.toolId);
  if(!cls)throw new ApiError('UNKNOWN_TOOL');
  if(cls!=='heavy'&&cls!=='studio')throw new ApiError('NOT_METERED','This tool does not use the daily limit.');
- if(ctx.plan==='pro')return {allowed:true,unlimited:true,plan:'pro'};
+ const op=body.operationId.toLowerCase();
+ const ticket=plan=>signTicket(cfg.ticketKey,{kind:'job',op,tool:body.toolId,plan});
+ if(ctx.plan==='pro')return {allowed:true,unlimited:true,plan:'pro',ticket:await ticket('pro')};
  const nets=await networkSubjects(clientIP(request),cfg.secret,now);
  await rateLimit(request,ctx,env,deps,cfg,now,'authorize',nets);
  await networkGate(request,ctx,cfg,db,now,deps,nets,body,cls);
@@ -145,7 +152,7 @@ async function authorize(request,ctx,cfg,env,now,deps){
  }
  // 'heavy' (file tools) and 'studio' (Studio exports) are separate counters of the same identity.
  const limit=cls==='studio'?studioLimitFor(ctx,cfg):limitFor(cfg,cls);
- const result=await authorizeJob(db,{subject:counterSubject(ctx.subject,cls),operationId:body.operationId.toLowerCase(),toolId:body.toolId,limit,now,networkSubjects:buckets});
+ const result=await authorizeJob(db,{subject:counterSubject(ctx.subject,cls),operationId:op,toolId:body.toolId,limit,now,networkSubjects:buckets});
  if(deps.ctx&&deps.random()<1/500)deps.ctx.waitUntil(db.batch(cleanupStatements(db,now)).catch(()=>{}));
  if(!result.allowed){
   if(cls==='studio'&&signInUnlocks(ctx,cfg)){
@@ -155,7 +162,7 @@ async function authorize(request,ctx,cfg,env,now,deps){
   await bumpEvent(db,now,'daily_limit');
   throw new ApiError('DAILY_LIMIT',undefined,{},{allowed:false,reason:'daily_limit',kind:cls,used:result.used,limit:result.limit,remaining:0,resetAt:result.resetAt});
  }
- return {...result,plan:'free',kind:cls};
+ return {...result,plan:'free',kind:cls,ticket:await ticket('free')};
 }
 /** The page spent signed offline tokens while the service was unreachable; charge each exactly
  * once (idempotent per token). Forged, foreign or stale tokens are counted as abuse signals. */
@@ -252,7 +259,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
   const cfg=runtimeConfig(env),now=deps.now(),db=env.DB;
   if(key==='GET /health'){
    let database=false;if(db)try{database=(await db.prepare('SELECT 1 AS ok').first())?.ok===1;}catch{}
-   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),
+   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
     ...(cfg.environmentOverrideRefused?{warning:'NERULIO_ENV=development is ignored on this build'}:{})});
   }
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');

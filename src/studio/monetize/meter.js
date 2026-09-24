@@ -12,10 +12,10 @@ import {STUDIO_ACTIONS,meteredTool} from '../../quota.js';
 import {mt} from './strings.js';
 export const LOW_AT=3;// the remaining count appears next to export buttons from here down
 const service=typeof document!=='undefined'&&!!document.querySelector('meta[name="nerulio-service"]');
-let studio=null,limitHandler=null,onUsage=()=>{};
+let studio=null,limitHandler=null,signInHandler=null,onUsage=()=>{};
 const loc=()=>studio?.locale||document.documentElement.lang||'en';
 /** Called once by monetize/index.js when the Studio exists. */
-export function bindStudio(s,{onLimit,usageChanged}={}){studio=s;limitHandler=onLimit||null;onUsage=usageChanged||onUsage;}
+export function bindStudio(s,{onLimit,onSignIn,usageChanged}={}){studio=s;limitHandler=onLimit||null;signInHandler=onSignIn||null;onUsage=usageChanged||onUsage;}
 export async function meter(action){
  if(!Object.hasOwn(STUDIO_ACTIONS,action))throw Error(`Unclassified Studio action "${action}": add it to STUDIO_ACTIONS in src/quota.js`);
  if(!meteredTool(action)||!service)return true;
@@ -24,10 +24,11 @@ export async function meter(action){
   lowAt:LOW_AT,
   notice(key){
    if(key==='remaining')return;// shown beside the export buttons (notes.js), never as a toast
-   const k={graceUsed:'meter.grace',paused:'meter.paused',challengeFailed:'meter.challengeFailed'}[key];
+   const k={graceUsed:'meter.grace',paused:'meter.paused',challengeFailed:'meter.challengeFailed',updated:'meter.updated',networkLimit:'meter.networkLimit',rateLimited:'meter.rateLimited',signInRequired:'meter.anonNone'}[key];
    if(k)studio?.toast(mt(loc(),k),{error:key!=='graceUsed'});
   },
-  async limit(info){onUsage();if(limitHandler)await limitHandler(info);}
+  async limit(info){onUsage();if(limitHandler)await limitHandler(info);},
+  async signIn(info){onUsage();if(signInHandler)await signInHandler(info);else studio?.toast(mt(loc(),'meter.anonNone'));}
  });
  onUsage();
  return ok;

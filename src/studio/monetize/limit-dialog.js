@@ -24,3 +24,21 @@ export async function showStudioLimit(studio,root,{resetAt,used,limit,pricing,pr
  else if(v==='pro')window.open(pricingURL,'_blank','noopener');
  return v;
 }
+/** Shown when an anonymous identity has used its engine exports without an account. Friendly
+ * and honest: the next step is a FREE sign-in, which opens in a new tab so this tab — and the
+ * project in memory — is never navigated away; the project keeps autosaving meanwhile. */
+export async function showStudioSignIn(studio,root,{used,signInLimit,openSignIn}){
+ const l=studio.locale,t=(k,v)=>mt(l,k,v);
+ const body=h('div.st-limit-body',{},
+  h('p',{'data-signin-body':''},t('signin.body',{used,limit:signInLimit})),
+  h('p.st-limit-safe',{},t('signin.safe')));
+ const buttons=[{label:t('signin.later'),value:'close'}];
+ if(studio.doc.assets.length)buttons.push({label:t('limit.save'),value:'save'});
+ buttons.push({label:t('signin.go'),value:'signin',primary:true});
+ const dlg=modal(root,{title:t('signin.title'),body,buttons,className:'st-limit st-signin'});
+ dlg.dialog.id='studioSignInDialog';
+ const v=await dlg.done;
+ if(v==='save')studio.runCommand('file.save');
+ else if(v==='signin'){openSignIn('studio');studio.toast(t('signin.wait'));}
+ return v;
+}

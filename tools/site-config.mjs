@@ -37,14 +37,16 @@ export function configuration(env=process.env){
  if(!['','on','off'].includes(env.CF_WEB_ANALYTICS||''))throw Error('CF_WEB_ANALYTICS must be on or off');
  const webAnalytics=env.CF_WEB_ANALYTICS==='on'&&!preview;
  const service=env.SERVICE_API==='on';
- // Pro is sold monthly and yearly. PRO_PRICE_AMOUNT is the monthly price (or the only price
- // when PRO_PRICE_INTERVAL=year), PRO_PRICE_AMOUNT_YEARLY the yearly one. Display only: what is
- // charged is the provider price (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY).
- const pricing={amount:env.PRO_PRICE_AMOUNT||'',currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month',yearlyAmount:env.PRO_PRICE_AMOUNT_YEARLY||''};
- if(pricing.amount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.amount))throw Error('PRO_PRICE_AMOUNT must be a plain decimal such as 4.99');
- if(pricing.yearlyAmount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.yearlyAmount))throw Error('PRO_PRICE_AMOUNT_YEARLY must be a plain decimal such as 49.99');
- if(pricing.yearlyAmount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
- if(pricing.amount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
+ // Pro is sold monthly and yearly. PRO_PRICE_MONTHLY_AMOUNT (alias PRO_PRICE_AMOUNT) and
+ // PRO_PRICE_YEARLY_AMOUNT are display prices in PRO_PRICE_CURRENCY; what is charged is the provider
+ // price each is paired with (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY). The yearly saving is
+ // computed from the two amounts, never written down.
+ const monthly=env.PRO_PRICE_MONTHLY_AMOUNT||env.PRO_PRICE_AMOUNT||'',yearly=env.PRO_PRICE_YEARLY_AMOUNT||env.PRO_PRICE_AMOUNT_YEARLY||'';
+ const pricing={amount:monthly,currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month',yearlyAmount:yearly};
+ for(const [name,value]of [['PRO_PRICE_MONTHLY_AMOUNT',pricing.amount],['PRO_PRICE_YEARLY_AMOUNT',pricing.yearlyAmount]]){
+  if(value&&!/^\d{1,6}(\.\d{1,2})?$/.test(value))throw Error(`${name} must be a plain decimal such as 4.99`);
+ }
+ if((pricing.amount||pricing.yearlyAmount)&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
  if(!['month','year'].includes(pricing.interval))throw Error('PRO_PRICE_INTERVAL must be month or year');
  // A retired deployment (e.g. the old *.pages.dev project) builds only a permanent redirect.
  let redirectTo='';
@@ -56,7 +58,10 @@ export function configuration(env=process.env){
  // Built by Cloudflare Pages (CF_PAGES=1) rather than locally: the Worker then ignores
  // NERULIO_ENV=development, so the sandbox billing provider cannot be switched on in production.
  const pagesBuild=env.CF_PAGES==='1';
- return {siteURL,preview,pagesBuild,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics};
+ // Public half of the key that signs service answers (tools/ticket-keys.mjs). Not a secret.
+ const ticketPublicKey=env.TICKET_PUBLIC_KEY||'';
+ if(ticketPublicKey&&!/^[A-Za-z0-9_-]{87}$/.test(ticketPublicKey))throw Error('TICKET_PUBLIC_KEY must be the value printed by node tools/ticket-keys.mjs');
+ return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';
