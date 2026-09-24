@@ -168,7 +168,6 @@ html[lang="ko"] .gh-content .related-tools h2,html[lang="ja"] .gh-content .relat
 @media (max-width:900px){
  .gh-row,.gh-row.is-flip{grid-template-columns:1fr;gap:28px;padding:44px 0}
  .gh-row.is-flip .gh-row-copy{order:0}
- .gh-labs{grid-template-columns:1fr 1fr}
  .gh-engines-box{padding:32px 24px}
  .gh-engines-head{grid-template-columns:1fr}
  .gh-content .reading-content{grid-template-columns:1fr}

@@ -127,3 +127,4 @@ html[lang="ko"] .gl-toc p,html[lang="ja"] .gl-toc p{letter-spacing:.03em}
  .gl-cards{grid-template-columns:1fr}
  .gl-steps li{padding:12px 14px}
 }
+.gl-body .ad-slot{margin:48px 0 0}

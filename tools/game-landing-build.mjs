@@ -66,14 +66,14 @@ function header(locale,prefix){
   links:[{href:`${prefix}${GAME_HUB_PATH}/`,label:UI.allGame[locale]},...(GUIDES.length?[{href:`${prefix}${GUIDE_INDEX_PATH}/`,label:DESIGN_UI.guides[locale]}]:[]),{href:prefix,label:UI.allTools[locale]}],
   studio:{href:`${prefix}${STUDIO_ROUTE}/`,label:UI.studio[locale],attrs:{'data-studio-link':true}}});
 }
-function shell({locale,base,title,description,headHTML,body}){
- return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-landing.css"><script type="module" src="src/game-landing.js"></script>${headHTML}
+function shell({locale,base,title,description,headHTML,body,shotKey}){
+ return `<!doctype html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#0f1114"><meta name="description" content="${esc(description)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><base href="${base}"><title>${esc(title)}</title><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="stylesheet" href="src/game-site.css"><link rel="stylesheet" href="src/game-landing.css">${SHOTS[shotKey]?`<link rel="preload" as="image" href="assets/studio/${SHOTS[shotKey].file}-780.webp" media="(max-width: 820px)" fetchpriority="high">`:''}<script type="module" src="src/game-landing.js"></script>${headHTML}
 </head><body class="game-landing" data-gs>${body}<div class="gh-dropover" aria-hidden="true"></div><input id="glFiles" type="file" multiple hidden></body></html>`;
 }
 const footerHTML=(locale,prefix)=>`<div class="gs-footgrid gl-foot">${footerBrand({locale,prefix})}${footer(locale)}</div>`;
 function shot(key,locale,{priority=false}={}){
  const s=SHOTS[key];if(!s)return '';
- return `<figure class="gl-shot"><div class="gs-frame gl-shot-frame"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp" width="780" height="${Math.round(s.h*780/s.w)}"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}" decoding="async"${priority?' fetchpriority="high"':' loading="lazy"'}></picture></div><figcaption class="gs-caption">${esc(shotCaption(s,locale))}</figcaption></figure>`;
+ return `<figure class="gl-shot"><div class="gs-frame gl-shot-frame"><picture><source media="(max-width: 820px)" srcset="assets/studio/${s.file}-780.webp" width="780" height="${Math.round(s.h*780/s.w)}"><img src="assets/studio/${s.file}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt[locale])}"${priority?' fetchpriority="high"':' loading="lazy" decoding="async"'}></picture></div><figcaption class="gs-caption">${esc(shotCaption(s,locale))}</figcaption></figure>`;
 }
 function badges(ws,locale,highlight=[],{label=true}={}){
  const rows=exportsFor(ws),order=[...rows.filter(r=>highlight.includes(r.id)),...rows.filter(r=>!highlight.includes(r.id))];
@@ -128,7 +128,7 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
  const items=[['what',UI.what[locale]],['how',UI.how[locale]],['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
  const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}" data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${what}${how}<!--ad:content-1-->${exp}${limits}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
- return shell({locale,base,title,description:c.description,headHTML,body});
+ return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];
@@ -158,6 +158,6 @@ export function gameHubPage({locale,prefix,base,headHTML}){
  // Every guide, once src/guides.js has any (branch nerulio/game-guides); nothing before that.
  const guides=GUIDES.length?`<section class="gl-section gl-hub-group" id="hub-guides"><h2>${esc(LAB_UI.guides[locale])}</h2><ul class="gl-hub-list">${GUIDES.map(g=>`<li><a href="${prefix}${guidePath(g.slug)}/"><b>${esc(g.title?.[locale]||g.title?.en||g.slug)}</b><small>${esc(g.description?.[locale]||g.description?.en||'')}</small></a></li>`).join('')}</ul><p><a class="gs-link" href="${prefix}${GUIDE_INDEX_PATH}/">${esc(LAB_UI.allGuides[locale])}</a></p></section>`:'';
  const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(HUB_GAME,prefix)} data-key="${GAME_HUB_PATH}" data-kind="hub" data-accept="${esc(WORKSPACES.sprite.accept)}">${hero}<div class="gs-wrap">${badges('sprite',locale)}</div><div class="gs-wrap gl-layout">${nav}<div class="gl-body" data-ad-host>${GROUP_ORDER.map(section).join('')}${guides}<!--ad:content-1--><section class="gl-section" id="exports"><h2>${esc(UI.exports[locale])}</h2><p class="gl-muted">${esc(UI.exportsLead[locale])}</p>${badges('tile',locale,[],{label:false})}</section>${faqHTML(COMMON_FAQ.map(x=>x[locale]),locale)}<!--ad:content-2--></div></div></main>${footerHTML(locale,prefix)}`;
- return shell({locale,base,title,description:h.description,headHTML,body});
+ return shell({locale,base,title,description:h.description,headHTML,body,shotKey:'sprite-frame'});
 
 }

@@ -121,6 +121,7 @@ html[lang="ko"] [data-gs] .site-footer nav::before,html[lang="ja"] [data-gs] .si
 [data-gs] .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:min(560px,calc(100vw - 32px));background:var(--gs-panel-2);color:var(--gs-head);border:1px solid var(--gs-line-2);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;box-shadow:0 12px 40px #000a}
 [data-gs] .toast.error{border-color:#ff6b6b80}
 
+@media (min-width:1680px){:root{--gs-max:1320px}}
 @media (max-width:900px){
  .gs-nav{display:none}
  .gs-footgrid{grid-template-columns:[full-start] var(--gs-gutter) [main-start] minmax(0,1fr) [main-end] var(--gs-gutter) [full-end];grid-template-rows:auto [foot] auto [foot2] auto}
