@@ -38,7 +38,8 @@ export function entry(html,route='',siteURL='',config={}){
  // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
  const game=gamePageFor(parts.path);
  if(game){
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=gameHead(game,locale,siteURL,config);
+  // adHead: in-content ad positions on the landings and the hub (markers in [data-ad-host]; docs/ADS.md).
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=gameHead(game,locale,siteURL,config)+adHead(config);
   return game.kind==='hub'?gameHubPage({locale,prefix,base,headHTML}):gameLandingPage({game,locale,prefix,base,headHTML});
  }
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
