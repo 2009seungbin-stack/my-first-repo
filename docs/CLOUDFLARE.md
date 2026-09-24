@@ -37,7 +37,15 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | `BILLING_PRICE_ID` | 변수 | 결제사 가격 ID |
 | `BILLING_API_KEY`, `BILLING_WEBHOOK_SECRET` | **secret** | 결제사 자격 증명 |
 | `ADMIN_GOOGLE_SUBJECTS` | 변수 | 관리자 Google `sub` 목록 (쉼표) |
-| `NERULIO_ENV` | — | 로컬 테스트 전용(`development`). 운영에 설정하지 않는다 |
+| `NERULIO_ENV` | — | 로컬 테스트 전용(`development`). Pages 빌드에서는 무시된다 |
+| `TICKET_PRIVATE_KEY` | **secret** | `node tools/ticket-keys.mjs`로 생성. 권한 응답 서명(ECDSA P-256). production/preview 따로 |
+| `TICKET_PUBLIC_KEY` | 변수 | 같은 도구의 공개 키. 빌드가 페이지에 넣는다 |
+| `SESSION_SECRET_PREVIOUS` | **secret** | `SESSION_SECRET` 교체 시 이전 값(몇 주). 없으면 교체 순간 모든 익명 사용량이 초기화된다 |
+| `FREE_ANON_STUDIO_EXPORTS` | 변수 | 계정 없이 하루 스튜디오 내보내기(기본 3, 0=항상 로그인) |
+| `ANON_NETWORK_STUDIO_EXPORTS`, `ANON_NETWORK_DAILY_JOBS`, `NETWORK_DAILY_HARD_LIMIT`, `NETWORK_WIDE_DAILY_HARD_LIMIT` | 변수 | 네트워크 버킷(기본 30 / 160 soft·Turnstile / 800 / 3200) |
+| `OFFLINE_GRACE_EXPORTS`, `API_RATE_PER_MINUTE`, `MAX_SESSIONS_PER_USER`, `PAST_DUE_GRACE_DAYS`, `PRO_SHARING_NETWORKS` | 변수 | 기본 3 / 120 / 5 / 7 / 10 |
+| `PRO_PRICE_MONTHLY_AMOUNT`, `PRO_PRICE_YEARLY_AMOUNT`, `PRO_PRICE_CURRENCY` | 변수 | 표시 가격(예: 4.99 / 40 / USD). 연간 절약률은 계산 |
+| `BILLING_PRICE_ID_YEARLY`, `BILLING_PRICE_IDS_LEGACY` | 변수 | 연간 가격 ID, Pro로 인정할 옛 가격 ID 목록 |
 
 `SESSION_SECRET` 생성 예: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
 
@@ -80,7 +88,7 @@ D1 사용량(대략): 익명 `/me`는 쿠키가 있으면 1행 읽기, 첫 방�
 
 ## Rate limiting
 
-Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 30회 계산은 D1이 한다. **커스텀 도메인(Cloudflare zone)** 이 필요하며 `*.pages.dev`에는 WAF 규칙을 걸 수 없다. 권장 규칙 예 (Security → WAF → Rate limiting rules):
+Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 30회 계산은 D1이 한다. **커스텀 도메인(Cloudflare zone)** 이 필요하며 `*.pages.dev`에는 WAF 규칙을 걸 수 없다. 권장 규칙 예 (Security → WAF → Rate limiting rules): 커스텀 도메인이 생기기 전에는 Worker 안의 분당 제한(`API_RATE_PER_MINUTE`, 네트워크당, 격리 인스턴스 단위)이 폭주만 막는 임시 장치로 동작한다 — 도메인을 산 뒤 아래 규칙을 추가한다(소유자 작업).
 
 - `starts_with(http.request.uri.path, "/api/v1/auth/")` — IP당 10초 20회 초과 시 차단
 - `starts_with(http.request.uri.path, "/api/v1/")` — IP당 10초 60회 초과 시 Managed Challenge

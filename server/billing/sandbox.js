@@ -18,13 +18,15 @@ export const sandbox={
   return safeEqual(await hmacHex(secret,`${t}.${body}`),parts.v1);
  },
  normalizeWebhook(p){
-  const d=p?.data||{},occurredAt=Date.parse(p?.occurredAt);
+  const d=p?.data||{},occurredAt=Date.parse(p?.occurredAt),type=String(p?.type||'');
   if(typeof p?.id!=='string'||!p.id||!Number.isFinite(occurredAt))return null;
-  const sub=String(p.type||'').startsWith('subscription.')&&typeof d.subscriptionId==='string'?{
+  const sub=type.startsWith('subscription.')&&typeof d.subscriptionId==='string'?{
    externalSubscriptionId:d.subscriptionId,externalCustomerId:typeof d.customerId==='string'?d.customerId:null,
-   userId:typeof d.userId==='string'?d.userId:null,plan:d.plan==='pro'?'pro':'other',status:String(d.status||'unknown'),
+   userId:typeof d.userId==='string'?d.userId:null,plan:d.plan==='pro'?'pro':'other',priceId:typeof d.priceId==='string'?d.priceId:null,status:String(d.status||'unknown'),
    currentPeriodEnd:Date.parse(d.currentPeriodEnd)||null,cancelAtPeriodEnd:d.cancelAtPeriodEnd===true}:null;
-  return {eventId:p.id,type:String(p.type||''),occurredAt,subscription:sub};
+  const adjustment=type.startsWith('adjustment.')&&typeof d.action==='string'?{action:d.action,status:String(d.status||''),
+   externalSubscriptionId:typeof d.subscriptionId==='string'?d.subscriptionId:null,externalCustomerId:typeof d.customerId==='string'?d.customerId:null}:null;
+  return {eventId:p.id,type,occurredAt,subscription:sub,adjustment};
  },
  async portal({origin}){return {url:`${origin}/account/?portal=sandbox`};},
  async getSubscription(){return null;}

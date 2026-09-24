@@ -1,9 +1,11 @@
 import {hmacHex,safeEqual} from '../crypto.js';
 import {ApiError} from '../http.js';
+import {proPriceIds} from '../config.js';
 /** Paddle Billing adapter (merchant of record; handles tax and supports sellers in Korea).
  * Written against Paddle's public API documentation. It has NOT been exercised against a
  * Paddle sandbox account from this repository — verify it there before BILLING_MODE=live.
- * Env: BILLING_API_KEY (secret), BILLING_WEBHOOK_SECRET (secret), BILLING_PRICE_ID, BILLING_MODE. */
+ * Env: BILLING_API_KEY (secret), BILLING_WEBHOOK_SECRET (secret), BILLING_PRICE_ID (monthly),
+ * BILLING_PRICE_ID_YEARLY, BILLING_PRICE_IDS_LEGACY (comma list, still Pro), BILLING_MODE. */
 const API={sandbox:'https://sandbox-api.paddle.com',live:'https://api.paddle.com'};
 const TOLERANCE_S=300;
 const base=env=>API[String(env.BILLING_MODE||'sandbox').toLowerCase()]||API.sandbox;
@@ -16,9 +18,9 @@ async function call(env,fetcher,path,body){
 }
 export const paddle={
  name:'paddle',
- async createCheckout({user,env,fetcher=fetch}){
+ async createCheckout({user,env,priceId=env.BILLING_PRICE_ID,fetcher=fetch}){
   // custom_data travels from the transaction to the subscription and back in webhooks.
-  const data=await call(env,fetcher,'/transactions',{items:[{price_id:env.BILLING_PRICE_ID,quantity:1}],custom_data:{nerulio_user_id:user.id}});
+  const data=await call(env,fetcher,'/transactions',{items:[{price_id:priceId,quantity:1}],custom_data:{nerulio_user_id:user.id}});
   if(!data?.checkout?.url)throw new ApiError('UPSTREAM_FAILED','Billing provider returned no checkout URL. Set a default payment link in Paddle.');
   return {url:data.checkout.url,reference:data.id};
  },
@@ -34,14 +36,21 @@ export const paddle={
  normalizeWebhook(p,env){
   const occurredAt=Date.parse(p?.occurred_at);
   if(typeof p?.event_id!=='string'||!p.event_id||!Number.isFinite(occurredAt))return null;
-  const type=String(p.event_type||''),d=p.data||{};
+  const type=String(p.event_type||''),d=p.data||{},pro=proPriceIds(env);
+  const prices=(d.items||[]).map(i=>i?.price?.id).filter(id=>typeof id==='string');
+  const proPrice=prices.find(id=>pro.includes(id));
   const sub=type.startsWith('subscription.')&&typeof d.id==='string'?{
    externalSubscriptionId:d.id,externalCustomerId:typeof d.customer_id==='string'?d.customer_id:null,
    userId:typeof d.custom_data?.nerulio_user_id==='string'?d.custom_data.nerulio_user_id:null,
-   plan:(d.items||[]).some(i=>i?.price?.id===env.BILLING_PRICE_ID)?'pro':'other',
+   // Only a price we sell as Pro grants Pro; anything else is stored as 'other'.
+   plan:proPrice?'pro':'other',priceId:proPrice||prices[0]||null,
    status:String(d.status||'unknown'),currentPeriodEnd:Date.parse(d.current_billing_period?.ends_at)||null,
    cancelAtPeriodEnd:d.scheduled_change?.action==='cancel'}:null;
-  return {eventId:p.event_id,type,occurredAt,subscription:sub};
+  // Refunds, credits and chargebacks arrive as adjustments on a transaction of a subscription.
+  const adjustment=type.startsWith('adjustment.')&&typeof d.action==='string'?{
+   action:d.action,status:String(d.status||''),externalSubscriptionId:typeof d.subscription_id==='string'?d.subscription_id:null,
+   externalCustomerId:typeof d.customer_id==='string'?d.customer_id:null}:null;
+  return {eventId:p.event_id,type,occurredAt,subscription:sub,adjustment};
  },
  async portal({customerId,subscriptionId,env,fetcher=fetch}){
   if(!customerId)throw new ApiError('BILLING_UNAVAILABLE','No billing customer on file.');

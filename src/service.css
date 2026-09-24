@@ -19,6 +19,9 @@
 .plan.featured{border-color:#b9d3fb;box-shadow:0 10px 40px #3182f614}
 .plan h2{margin:0 0 6px!important;font-size:19px!important}
 .plan-price{font-size:22px;font-weight:800;color:var(--ink);margin:0 0 14px}
+.plan-price-alt{font-size:14px;font-weight:600;color:var(--muted,#667);margin:-8px 0 14px}
+.service-hint{display:block;font-size:12px;color:var(--muted,#667);margin-top:2px}
+.plan-action .secondary{margin-left:8px}
 .plan-cta,.plan-action .primary,.plan-action .secondary{margin-top:18px!important}
 .policy-main a.plan-cta,.policy-main .plan-action a{text-decoration:none}
 .policy-main a.primary{color:#fff}

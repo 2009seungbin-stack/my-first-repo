@@ -59,14 +59,21 @@ production/preview 구분은 빌드 시 `CF_PAGES_BRANCH`(또는 `SITE_ENV=previ
 
 ## 구독 수명주기와 Pro 판정
 
-Pro ⇔ `plan='pro' AND status IN ('active','trialing') AND current_period_end > now`.
+Pro 판정(`server/identity.js grantsPro`, 2026-09-24 소유자 결정): `plan='pro'`(= Pro로 파는 가격 ID)이고 분쟁 표시가 없고 계정이 플래그되지 않았을 때만.
 
 | 상황 | 결과 |
 | --- | --- |
-| 결제 완료 webhook (active) | Pro |
-| 해지 예약 (`cancel_at_period_end=1`, status active) | 기간 종료까지 Pro, 계정 페이지에 종료일 표시 |
-| 기간 만료 | 별도 작업 없이 Free (시간 비교) |
-| `canceled`, `past_due`, `paused` | Free |
+| 결제 완료 webhook (active / trialing) | `current_period_end`까지 Pro |
+| 해지 예약 (`cancel_at_period_end=1`) | 기간 종료까지 Pro, 계정 페이지에 종료일 표시 |
+| `canceled` (자발적 환불 포함) | **결제한 기간이 끝날 때까지 Pro**, 그다음 Free. 기간 종료일이 없는 canceled 이벤트는 저장된 종료일을 유지 |
+| `past_due` (카드 재시도 중) | 처음 past_due가 된 때부터 `PAST_DUE_GRACE_DAYS`일(기본 7, 3–7) Pro, 그다음 Free. 계정 페이지에 유예 종료일 |
+| 차지백·분쟁 (`adjustment.*`의 `chargeback`, `chargeback_warning`) | **즉시 Free + 계정 플래그**(`users.flagged_at`, `flag_reason='chargeback'`). 나중에 오는 active 이벤트도 되살리지 못하고, 새 결제는 `ACCOUNT_FLAGGED`로 거부. 해제는 운영자가 검토 후 SQL로(`UPDATE users SET flagged_at=NULL,flag_reason=NULL WHERE id=…` + 해당 구독 `disputed_at=NULL`) |
+| 환불 `refund`·`credit`·`chargeback_reverse` | 기록만(Pro 판정은 구독 상태가 결정) |
+| `paused`, 알 수 없는 상태, 알 수 없는 가격 ID | Free |
+
+가격: 월간 `BILLING_PRICE_ID`, 연간 `BILLING_PRICE_ID_YEARLY`, 기존 가입자가 남아 있는 옛 가격은 `BILLING_PRICE_IDS_LEGACY`(쉼표 구분). 이 목록에 없는 가격은 절대 Pro가 아니다. 가격 페이지는 `PRO_PRICE_MONTHLY_AMOUNT`/`PRO_PRICE_YEARLY_AMOUNT`/`PRO_PRICE_CURRENCY`로 두 주기를 표시하고 연간 절약률은 두 값으로 계산한다(4.99×12 → 40 ≈ 33%). Paddle webhook은 `subscription.*`와 `adjustment.*`를 켠다.
+
+`NERULIO_ENV=development`는 Cloudflare Pages에서 만든 빌드(`CF_PAGES=1`)에서 무시된다 — 운영 빌드에서 sandbox 결제가 켜질 수 없다(`/health`가 경고).
 
 ## 출시 순서
 
