@@ -20,10 +20,14 @@ export async function stashFiles(files,meta=null){
 /** Files and meta in one read; both empty when nothing (fresh) is waiting. */
 export async function takeHandoff(){
  try{
-  const db=await open(),tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);
-  const record=await new Promise(resolve=>{const r=store.get(KEY);r.onsuccess=()=>resolve(r.result);r.onerror=()=>resolve(null);});
-  store.delete(KEY);await done(tx);db.close();
-  return record&&Date.now()-record.at<MAX_AGE?{files:record.files.filter(f=>f instanceof Blob),meta:record.meta||null}:{files:[],meta:null};
+  const db=await open();
+  const record=await new Promise(resolve=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(KEY);r.onsuccess=()=>resolve(r.result);r.onerror=()=>resolve(null);});
+  const fresh=record&&Date.now()-record.at<MAX_AGE;
+  // Copy the bytes out BEFORE deleting the record: in Firefox a Blob read from IndexedDB is backed
+  // by the stored entry and later reads of it fail ("The operation was aborted") once it is deleted.
+  const files=fresh?await Promise.all(record.files.filter(f=>f instanceof Blob).map(async f=>new File([await f.arrayBuffer()],f.name||'file',{type:f.type,lastModified:f.lastModified||Date.now()}))):[];
+  const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(KEY);await done(tx);db.close();
+  return fresh?{files,meta:record.meta||null}:{files:[],meta:null};
  }catch{return {files:[],meta:null};}
 }
 export async function takeFiles(){return (await takeHandoff()).files;}

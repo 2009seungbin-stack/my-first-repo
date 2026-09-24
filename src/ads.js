@@ -5,11 +5,18 @@ import {labels} from './content.js';
 import {adsAllowed} from './entitlement.js';
 const config=document.querySelector('meta[name="adsense-config"]');
 const ADSENSE='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+// Markers (<!--ad:content-1-->) live in the reading part of a page: #siteContent on tool pages and
+// the home, [data-ad-host] on the game landings and the /game/ hub (tools/game-landing-build.mjs).
+function findMarker(position){
+ for(const host of document.querySelectorAll('#siteContent,[data-ad-host]')){
+  const walker=document.createTreeWalker(host,128);let marker;
+  while((marker=walker.nextNode()))if(marker.data===`ad:${position}`)return marker;
+ }
+ return null;
+}
 function mount(client,slots){
  for(const [position,slotId] of Object.entries(slots)){
-  const host=document.getElementById('siteContent');if(!host)break;
-  const walker=document.createTreeWalker(host,128);let marker;
-  while((marker=walker.nextNode()))if(marker.data===`ad:${position}`)break;
+  const marker=findMarker(position);
   if(!marker)continue;
   const slot=document.createElement('aside');slot.className='ad-slot';slot.dataset.position=position;
   const label=document.createElement('span');label.className='ad-label';label.dataset.adLabel='';label.textContent=labels[document.documentElement.lang].ad;
