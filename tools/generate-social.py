@@ -48,9 +48,9 @@ def card(locale, title):
 
 
 GAME_BG, GAME_INK, GAME_MUTED, GAME_ACCENT = (15, 17, 22, 255), (233, 236, 242, 255), (143, 153, 171, 255), (76, 194, 255, 255)
-STATUS_COLOR = {'verified': (62, 207, 142, 255), 'built': (177, 140, 255, 255), 'decoded': (86, 199, 193, 255), 'measured': (110, 168, 255, 255), 'partial': (232, 195, 90, 255), 'unverified': (255, 159, 67, 255)}
+STATUS_COLOR = {'verified': (62, 207, 142, 255), 'built': (177, 140, 255, 255), 'decoded': (86, 199, 193, 255), 'measured': (110, 168, 255, 255), 'partial': (232, 195, 90, 255), 'unverified': (255, 159, 67, 255), 'plain': (150, 160, 178, 255)}
 # Strongest evidence first; UNVERIFIED rows come last but keep their label when shown.
-STATUS_RANK = ['verified', 'built', 'decoded', 'measured', 'partial', 'unverified']
+STATUS_RANK = ['verified', 'built', 'decoded', 'measured', 'partial', 'plain', 'unverified']
 GAME_SUB = {'ko': '게임 에셋 스튜디오 · 브라우저에서 처리', 'en': 'Game asset studio · runs in your browser', 'ja': 'ゲームアセットスタジオ · ブラウザで処理'}
 
 
@@ -59,8 +59,8 @@ def game_pages():
     Studio landings, the Lab landings (GAME_LAB_PAGES, rows from LAB_KINDS) and every keyword page
     (GAME_KEYWORD_PAGES, rows of the workspace or Lab it opens). Stems follow socialStem() in
     tools/game-seo-build.mjs; the status labels are the ones the pages show (STATUS)."""
-    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,STATUS,kindOf,isStudioKind} from './src/game-seo.js';"
-              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports).map(r=>({id:r.id,name:r.name,status:r.status,label:STATUS[r.status]}));"
+    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,STATUS,kindOf,isStudioKind} from './src/game-seo.js';"
+              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports).map(r=>({id:r.id,name:r.name,status:r.status,label:STATUS[r.status]}));"
               "const title=p=>({ko:p.copy.ko.title,en:p.copy.en.title,ja:p.copy.ja.title});"
               "const out=[{stem:'game',kind:'hub',shot:SHOTS['sprite-frame'].file,title:{ko:HUB.ko.title,en:HUB.en.title,ja:HUB.ja.title},rows:rows('sprite')}];"
               "for(const [id,p] of Object.entries(GAME_INTENT_PAGES))out.push({stem:id,kind:'intent',shot:SHOTS[p.shot].file,title:title(p),rows:rows(p.ws),hl:p.highlight||[]});"
