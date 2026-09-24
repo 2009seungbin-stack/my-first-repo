@@ -179,14 +179,28 @@ Done and pushed (see `git log`):
    lastmod hashing), game links in every footer, hub guides section (lights up with src/guides.js —
    verified by copying the guides branch's registry in temporarily).
 
-Left / to verify (update this list as you go):
-- Full runs: game-landing parts 1–5 both browsers, regression.py (NERULIO_CORPUS=C:
-ope),
-  service-browser.py (never run on this branch), screenshots 1440/390 review.
-- docs/SEO.md update (sitemap index, lastmod ledger, IndexNow workflow, validation command).
+Verified in session 2 (2026-09-24, Chromium 153 / Firefox 155):
+- `tests/game-landing-browser.py` parts 1–5, `--dist` build with SITE_URL: PASS — 3186 check runs in
+  Chromium (parts 1–5), 74 in Firefox (parts 2, 4, 5), 105 distinct checks, 0 page errors.
+- `tests/service-browser.py`: 50/50 (first run failed: the cross-link was an `<aside>`, which the
+  suite counts as an empty ad container → now a `<section>`).
+- `npm test` 1960 pass / 1 skip / 0 fail; `npm run check` OK.
+- `python tools/validate-sitemaps.py dist`: all sitemaps valid against the official XSDs.
+- validator.schema.org: en/game/pixel-lab 0 errors (its one warning, `browserRequirements` on
+  SoftwareApplication, fixed → `softwareRequirements`); the full run was blocked by Google rate
+  limiting (HTTP 429 / captcha) — rerun `python tools/validate-structured-data.py dist` later.
+- regression.py (NERULIO_CORPUS=C:
+ope): first run stopped at recipes-browser (old Lab URL, fixed:
+  task/recipes suites and engine-verify baseline now open `<route>/app/`). Rerun result: see §3.1.
+
+Left:
 - Guides merge: when `nerulio/game-guides` lands, run `node tools/lastmod.mjs --write` (landings gain
   guide links → content changed) and check guide pages that are not complete in a language are not
   listed in sitemap-guides.xml (the SEO build lists every GUIDE_ROUTES route in ko/en/ja).
+- Lab screenshots show the light Lab UI (it is the real page); the landings around them are dark.
+
+### 3.1 Regression rerun
+(pending — fill in)
 
 ## 4. How to run
 
