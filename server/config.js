@@ -1,5 +1,5 @@
 import BUILD from './build-info.js';
-import {freeDailyLimit} from '../src/quota.js';
+import {freeDailyLimit,freeStudioLimit} from '../src/quota.js';
 /** Runtime configuration. Plain settings are Pages environment variables; credentials are
  * Pages secrets. Nothing here is ever sent to the browser except explicitly public fields. */
 export const SESSION_TTL_MS=30*864e5;
@@ -12,7 +12,7 @@ export function runtimeConfig(env={},build=BUILD){
  // Preview builds are marked at build time (CF_PAGES_BRANCH !== main); "development" must be explicit.
  const environment=build.preview?'preview':env.NERULIO_ENV==='development'?'development':'production';
  const secret=String(env.SESSION_SECRET||'');
- const freeDailyJobs=freeDailyLimit(env.FREE_DAILY_JOBS);
+ const freeDailyJobs=freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio=freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS);
  let siteOrigin='';try{siteOrigin=new URL(env.SITE_URL||build.siteURL).origin;}catch{}
  const provider=String(env.BILLING_PROVIDER||'none').toLowerCase();
  let billingMode='off',billingReason='BILLING_PROVIDER is not set';
@@ -28,14 +28,15 @@ export function runtimeConfig(env={},build=BUILD){
   else{billingMode=mode;billingReason='';}
  }else if(provider!=='none')billingReason='unknown BILLING_PROVIDER';
  return Object.freeze({
-  environment,siteOrigin,freeDailyJobs,
+  environment,siteOrigin,freeDailyJobs,freeDailyStudio,
   configured:!!env.DB&&secret.length>=32,
   secret,
   google:{clientId:env.GOOGLE_OAUTH_CLIENT_ID||'',clientSecret:env.GOOGLE_OAUTH_CLIENT_SECRET||''},
   turnstile:{siteKey:env.TURNSTILE_SITE_KEY||'',secret:env.TURNSTILE_SECRET_KEY||''},
   // Anonymous identities sharing one network may all be legitimate (schools, offices);
   // crossing this only asks for a Turnstile check, it never blocks by itself.
-  anonNetworkSoftLimit:positive(env.ANON_NETWORK_DAILY_JOBS,freeDailyJobs*4,1e6),
+  // The bucket counts file-tool jobs and Studio exports together.
+  anonNetworkSoftLimit:positive(env.ANON_NETWORK_DAILY_JOBS,(freeDailyJobs+freeDailyStudio)*4,1e6),
   billing:{provider:billingMode==='off'?'none':provider,mode:billingMode,reason:billingReason},
   adminSubjects:String(env.ADMIN_GOOGLE_SUBJECTS||'').split(',').map(s=>s.trim()).filter(Boolean)
  });

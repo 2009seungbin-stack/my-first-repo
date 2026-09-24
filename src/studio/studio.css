@@ -13,6 +13,9 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
  background:var(--bg-0);color:var(--text);font:12px/1.35 system-ui,-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Hiragino Sans","Yu Gothic UI","Noto Sans KR","Noto Sans JP",sans-serif;
  -webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
 }
+/* system-ui resolves to the OS UI font of the Windows locale: on Korean Windows that is Malgun Gothic, which then draws
+   Japanese kana and kanji in Korean glyph shapes. Japanese gets Japanese UI fonts first. */
+.studio:lang(ja){font-family:-apple-system,"Segoe UI","Yu Gothic UI","Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,"Noto Sans JP",sans-serif}
 .studio[data-theme="light"]{color-scheme:light;
  --bg-0:#e4e6ea;--bg-1:#f2f3f5;--bg-2:#e8eaee;--bg-3:#dcdfe4;--bg-4:#cfd3da;--well:#ffffff;
  --line:#d0d4da;--line-2:#bfc4cc;--text:#1d2025;--text-2:#4f5661;--text-3:#7a818c;--accent:#0a84c6;--accent-ink:#fff;--sel:#c98a00;--info:#0a6fa6}

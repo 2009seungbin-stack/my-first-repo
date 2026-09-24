@@ -1,4 +1,4 @@
-import {quotaClass,quotaDay} from '../src/quota.js';
+import {quotaClass,quotaDay,counterSubject,STUDIO_SUBJECT_SUFFIX} from '../src/quota.js';
 import {runtimeConfig,HUMAN_TTL_MS} from './config.js';
 import {ApiError,json,errorResponse,readJSON,readBody,cookie} from './http.js';
 import {hmacHex,sign,unsign} from './crypto.js';
@@ -35,11 +35,17 @@ export async function networkSubject(ip,secret,now){
  return 'n:'+(await hmacHex(secret,`net\n${quotaDay(now)}\n${net}`)).slice(0,32);
 }
 const publicUsage=(plan,usage)=>plan==='pro'?{unlimited:true}:usage;
+/** Free counters of one class; a brand-new anonymous identity has no row yet, so skip the read. */
+const limitFor=(cfg,cls)=>cls==='studio'?cfg.freeDailyStudio:cfg.freeDailyJobs;
+async function counter(ctx,cfg,db,now,cls){
+ const limit=limitFor(cfg,cls);
+ if(ctx.setCookies.length&&!ctx.user)return {used:0,limit,remaining:limit,resetAt:resetAt(now)};
+ return usageFor(db,counterSubject(ctx.subject,cls),limit,now);
+}
 async function me(ctx,cfg,db,now){
- // A brand-new anonymous identity has no row yet; skip the read.
- const usage=ctx.plan==='pro'?null:ctx.setCookies.length&&!ctx.user?{used:0,limit:cfg.freeDailyJobs,remaining:cfg.freeDailyJobs,resetAt:resetAt(now)}:await usageFor(db,ctx.subject,cfg.freeDailyJobs,now);
+ const [usage,studio]=ctx.plan==='pro'?[null,null]:await Promise.all([counter(ctx,cfg,db,now,'heavy'),counter(ctx,cfg,db,now,'studio')]);
  return {
-  loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),
+  loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),studioUsage:publicUsage(ctx.plan,studio),
   ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   billing:{mode:cfg.billing.mode},
   turnstileSiteKey:cfg.turnstile.siteKey&&cfg.turnstile.secret?cfg.turnstile.siteKey:''
@@ -55,7 +61,7 @@ async function authorize(request,ctx,cfg,db,now,deps){
  if(!UUID.test(body.operationId||''))throw new ApiError('INVALID_OPERATION','operationId must be a UUID.');
  const cls=quotaClass(body.toolId);
  if(!cls)throw new ApiError('UNKNOWN_TOOL');
- if(cls!=='heavy')throw new ApiError('NOT_METERED','This tool does not use the daily limit.');
+ if(cls!=='heavy'&&cls!=='studio')throw new ApiError('NOT_METERED','This tool does not use the daily limit.');
  if(ctx.plan==='pro')return {allowed:true,unlimited:true,plan:'pro'};
  let network='';
  if(!ctx.user){
@@ -67,10 +73,11 @@ async function authorize(request,ctx,cfg,db,now,deps){
    ctx.setCookies.push(cookie(HUMAN_COOKIE,await sign(cfg.secret,'human/v1',`${ctx.anonId}~${now+HUMAN_TTL_MS}`),{maxAge:HUMAN_TTL_MS/1000,secure:ctx.secure}));
   }
  }
- const result=await authorizeJob(db,{subject:ctx.subject,operationId:body.operationId.toLowerCase(),toolId:body.toolId,limit:cfg.freeDailyJobs,now,networkSubject:network});
+ // 'heavy' (file tools) and 'studio' (Studio exports) are separate counters of the same identity.
+ const result=await authorizeJob(db,{subject:counterSubject(ctx.subject,cls),operationId:body.operationId.toLowerCase(),toolId:body.toolId,limit:limitFor(cfg,cls),now,networkSubject:network});
  if(deps.ctx&&deps.random()<1/500)deps.ctx.waitUntil(db.batch(cleanupStatements(db,now)).catch(()=>{}));
- if(!result.allowed)throw new ApiError('DAILY_LIMIT',undefined,{},{allowed:false,reason:'daily_limit',used:result.used,limit:result.limit,remaining:0,resetAt:result.resetAt});
- return {...result,plan:'free'};
+ if(!result.allowed)throw new ApiError('DAILY_LIMIT',undefined,{},{allowed:false,reason:'daily_limit',kind:cls,used:result.used,limit:result.limit,remaining:0,resetAt:result.resetAt});
+ return {...result,plan:'free',kind:cls};
 }
 async function checkout(request,ctx,cfg,env,deps){
  const body=fields(await readJSON(request,4096),['turnstileToken','locale']);
@@ -112,11 +119,11 @@ async function adminStats(ctx,cfg,db,now){
  const [users,pro,usage,jobs,events]=await db.batch([
   db.prepare('SELECT COUNT(*) n FROM users'),
   db.prepare(`SELECT COUNT(DISTINCT user_id) n FROM subscriptions WHERE plan='pro' AND status IN ('active','trialing') AND current_period_end>?1`).bind(now),
-  db.prepare(`SELECT COALESCE(SUM(used),0) n FROM daily_usage WHERE day=?1 AND subject_id NOT LIKE 'n:%'`).bind(day),
+  db.prepare(`SELECT COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN 0 ELSE used END),0) n,COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN used ELSE 0 END),0) studio FROM daily_usage WHERE day=?1 AND subject_id NOT LIKE 'n:%'`).bind(day,'%'+STUDIO_SUBJECT_SUFFIX),
   db.prepare('SELECT COALESCE(SUM(allowed=0),0) denied,COUNT(*) total FROM job_authorizations WHERE created_at>=?1').bind(Date.parse(day)),
   db.prepare(`SELECT COALESCE(SUM(state='ignored'),0) ignored,COUNT(*) total FROM billing_events WHERE processed_at>=?1`).bind(since)
  ]);
- return {day,users:users.results[0].n,proActive:pro.results[0].n,freeHeavyJobsToday:usage.results[0].n,authorizationsToday:jobs.results[0].total,deniedToday:jobs.results[0].denied,
+ return {day,users:users.results[0].n,proActive:pro.results[0].n,freeHeavyJobsToday:usage.results[0].n,freeStudioExportsToday:usage.results[0].studio,authorizationsToday:jobs.results[0].total,deniedToday:jobs.results[0].denied,
   billingEvents24h:events.results[0].total,billingEventsIgnored24h:events.results[0].ignored,billing:cfg.billing.mode,environment:cfg.environment};
 }
 const ROUTES={
@@ -145,7 +152,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
   const done=(body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   switch(key){
    case 'GET /me':return done(await me(context,cfg,db,now));
-   case 'GET /usage':return done({plan:context.plan,usage:context.plan==='pro'?{unlimited:true}:await usageFor(db,context.subject,cfg.freeDailyJobs,now)});
+   case 'GET /usage':return done(context.plan==='pro'?{plan:'pro',usage:{unlimited:true},studioUsage:{unlimited:true}}:{plan:context.plan,usage:await usageFor(db,context.subject,cfg.freeDailyJobs,now),studioUsage:await usageFor(db,counterSubject(context.subject,'studio'),cfg.freeDailyStudio,now)});
    case 'POST /jobs/authorize':return done(await authorize(request,context,cfg,db,now,deps));
    case 'GET /auth/google/start':return await startLogin(context,cfg,now);
    case 'GET /auth/google/callback':return await finishLogin(context,cfg,db,now,deps.fetch);

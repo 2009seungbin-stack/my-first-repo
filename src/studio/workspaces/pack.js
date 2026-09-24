@@ -7,6 +7,7 @@
 import '../strings-pack.js';
 import {ShapeLayer} from '../canvas/canvas-view.js';
 import {h} from '../ui/dom.js';
+import {meter} from '../monetize/meter.js';
 import {TARGETS,settingsFor} from '../../game/export/targets.js';
 import {DEFAULT_PACK_SETTINGS,normalizePackSettings} from '../../game/pack/packer.js';
 import {getFrameSelection,setFrameSelection,onFrameSelection} from '../core/frame-selection.js';
@@ -246,8 +247,12 @@ export default {
    exportBox.querySelector('.pk-all').addEventListener('toggle',e=>{if(e.target.open!==(prefs().allOpen!==false))setPrefs({allOpen:e.target.open},{mergeKey:'pack-all'});});
   }
   const fmtSize=n=>n<1024?`${n} B`:n<1048576?`${Math.round(n/1024)} KB`:`${(n/1048576).toFixed(1)} MB`;
-  function runExport(id){
-   if(!result||busy||exporting)return;
+  let metering=false;
+  async function runExport(id){
+   if(!result||busy||exporting||metering)return;
+   // Free daily Studio export (docs/PRICING-MODEL.md); a refusal leaves everything as it was.
+   metering=true;let go=false;try{go=await meter('studio-pack-export');}finally{metering=false;}
+   if(!go||!result||busy||exporting)return;
    const w=ensureWorker(),jid=++job;busy={op:'export',job:jid};exporting=id;
    w.postMessage({op:'export',job:jid,target:id,options:{base:exportBase()}});
    renderExport();renderResult();

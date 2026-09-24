@@ -8,6 +8,7 @@ import {LANDINGS,LANDING_PATHS,landingText} from './landings.js';
 import {t} from './i18n.js';
 import {esc} from './ui.js';
 import {DIRECTORY} from './task/registry.js';
+import {COMMON_FAQ} from './game-seo.js';
 
 export const labels=brandCopy({
  en:{related:'Related tools',how:'How it works',formats:'Supported formats',features:'What this tool does',limits:'Before you export',faq:'Frequently asked questions',about:'About',privacy:'Privacy',terms:'Terms',contact:'Contact',home:'Open {brand}',ad:'Advertisement',language:'Language',saved:'Keep your original file. Export your result before reloading or closing this tab.',uploadQ:'Are my files uploaded?',uploadA:'{brand} processes selected files on your device and has no file-upload API. Optional engines and models are downloaded from third parties; those requests expose connection information such as your IP address.',resultQ:'Will my work be saved automatically?',resultA:'No. Images and editing state stay in this tab; media output can use local temporary storage. Changing language preserves your work; reloading, closing the tab, or following a link to another page can clear it.'},
@@ -171,6 +172,8 @@ function landingHTML(id,locale,path){
 export function toolContent(id,locale,path=''){
  const capability=id==='home'?'':capabilitySummary(id,locale),landing=landingHTML(id,locale,path);
  const l=labels[locale],g=guide(id,locale),related=INTENTS[id].next.length?INTENTS[id].next:id==='home'?['sprite-slicer','sprite-sheet-maker','tile-lab']:['upscale','pdf-merge','pixel','media'];
- const faq=[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
+ // The home is the Studio's front door: its FAQ is the game pages' (the Studio autosaves), not the file tools' "no autosave" answer.
+ // The third common question (Aseprite/plugins) repeats the home's own first question, so it is left out.
+ const faq=id==='home'?[[g[3],g[4]],...COMMON_FAQ.slice(0,2).map(x=>x[locale])]:[[g[3],g[4]],[l.uploadQ,l.uploadA],[l.resultQ,l.resultA]];
  return `<section class="reading-content"><nav class="related-tools" aria-label="${esc(l.related)}"><h2>${esc(l.related)}</h2>${related.slice(0,3).map(n=>`<a href="${locale}/${INTENTS[n].path}/" data-action="intent:${n}">${esc(t(`intent.${n}.title`,{},locale))}</a>`).join('')}</nav>${gameCrossLink(id,locale)}<article>${landing.intro}${exampleHTML(id,locale)}<h2>${esc(t(`intent.${id}.title`,{},locale))}</h2><p>${esc(t(`intent.${id}.description`,{},locale))}</p><h3>${esc(l.how)}</h3><ol>${g[0].split('|').map(s=>`<li>${esc(s)}</li>`).join('')}</ol><h3>${esc(l.formats)}</h3><p>${esc(formats(id,locale))}</p><h3>${esc(l.features)}</h3><p>${esc(g[1])}</p><h3>${esc(capability.title)}</h3><p data-capability="${id}">${esc(capability.text)}</p><h3>${esc(l.limits)}</h3><p>${esc(g[2])}</p>${landing.links}</article><!--ad:content-1--><section class="faq"><h2>${esc(l.faq)}</h2>${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section><!--ad:content-2--></section>${footer(locale)}`;
 }
