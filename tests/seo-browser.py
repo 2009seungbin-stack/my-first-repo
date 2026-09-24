@@ -53,7 +53,10 @@ def run_mode(browser,mode,index):
                 ok('no-domain omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0 and page.locator('link[hreflang]').count()==0)
             else:
                 canonical=page.locator('link[rel=canonical]').get_attribute('href')
-                ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+('/en/' if route=='/' else route))
+                # / adapts to the visitor's language: its own canonical and the home cluster's x-default (src/seo.js).
+                ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+route)
+                xdefault=page.locator('link[hreflang="x-default"]').get_attribute('href')
+                ok(mode+' x-default is a canonical page '+route,xdefault=='https://fileforge.example.test'+('/' if route in ['/','/en/'] or route.count('/')==2 else '/en/'+route.split('/',2)[2]))
                 ok(mode+' hreflang '+route,page.locator('link[hreflang]').count()==4)
             if mode=='ads':
                 ok('two content-only ad slots '+route,page.locator('.ad-slot').count()==2 and page.locator('#workspace .ad-slot, main.page .ad-slot').count()==0)

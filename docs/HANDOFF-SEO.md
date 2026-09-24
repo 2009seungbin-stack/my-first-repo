@@ -205,11 +205,41 @@ ope), after the last fix:
   game-landing parts 1–5 Chromium+Firefox PASS (3186 + 74 runs, 105 distinct), landings-browser 32,
   task-browser 318, recipes-browser 46, studio 103, studio-sprite 95, studio-pack 61, studio-tile 45,
   seo-browser 471 (own ports 4270–4273), service-browser 50/50.
-- Integrated `tools/regression.py`: run 1 stopped at recipes-browser (fixed), run 2 stopped at
-  seo-browser (footer carried a second `data-studio-link`; fixed). Run 3: see the final report / git log.
+- Integrated `tools/regression.py` (NERULIO_CORPUS=C:\nope): runs 1–2 stopped at recipes-browser / seo-browser
+  (both fixed); **PASS** at 3abf8b4 (all suites incl. game-landing; seo-browser 489 checks).
+  service-browser 50/50 at the same state.
 - validator.schema.org is rate-limited from this machine (HTTP 429 then a captcha redirect); only
   en/game/pixel-lab was validated there (0 errors; its warning fixed). The offline JSON-LD test covers
   all 192 pages.
+
+### 3.2 Brand query fix (coordinator request, 2026-09-24)
+Google showed the old title for "nerulio" and corrected it to "neroli". Done (b49dcca):
+- Home JSON-LD: `WebSite` (name "Nerulio", alternateName, url = site root), `Organization` (logo
+  `assets/brand/nerulio-logo-512.png`, rendered from the real logo SVG) and `SoftwareApplication`
+  named "Nerulio" (DeveloperApplication, free, game-studio featureList).
+- `/` is its own canonical and the x-default of the home cluster (static HTML and after the client
+  re-renders the head, checked in Chromium and Firefox with en/ko/ja browser locales); other clusters
+  use their English page as x-default, so every hreflang target is a canonical URL. `/` is in
+  sitemap-game.xml (337 URLs).
+- Tool pages' WebApplication: featureList = the visible "what this tool does" copy; no more
+  "Maturity: basic" / engine names / UtilitiesApplication. No offers on tool pages (the service layer
+  may add paid limits; `tests/deployment.test.mjs` forbids it).
+- Home lead + meta description start with "Nerulio"; `application-name` meta on every page.
+- Tests: `tests/brand-seo.test.mjs`.
+
+### 3.3 Ownership split (from 2026-09-24)
+A DESIGN agent (`nerulio/game-home-design`) owns layout, markup structure, CSS and visuals of the home,
+the /game/ hub and the landing template. This branch owns copy, meta, JSON-LD, sitemaps, hreflang,
+link data, IndexNow and their tests. Notes for the design agent:
+- Lab screenshots show the light Lab UI (the real page) inside the dark landing; the Lab's own title
+  in the shot is English on ko/ja pages.
+- The "Making a game?" block on file-tool pages (`src/content.js` `gameCrossLink`, class
+  `game-xlink`, CSS in `content.css`) and the footer game nav (`footer-game`) are plain styling; they
+  must stay `<section>`/`<nav>` (not `<aside>`, which service-browser treats as an ad container) and
+  keep `data-chrome` so they do not change page lastmod.
+- Structured data tests compare the FAQ JSON-LD with `<details><summary>…</summary><p>…</p></details>`
+  and the HowTo with `<ol class="gl-steps"><li>…</li>`; if the markup changes, change
+  `tests/game-seo.test.mjs` with it (and `gameFaqData`/`gameHowTo` stay the source of truth).
 
 ## 4. How to run
 
