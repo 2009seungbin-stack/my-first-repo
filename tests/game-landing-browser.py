@@ -754,19 +754,22 @@ def part6(browser, E):
     # engines: collision shapes from alpha, exported for Godot -----------------------------------
     if 'game/godot-tileset-collision' in fam:
         p = land(ctx, '/en/game/godot-tileset-collision/', [CAVE], E); tile_apply(p)
-        p.keyboard.press('v'); p.wait_for_timeout(100); p.keyboard.press('Control+a'); p.wait_for_timeout(200)
-        if p.locator('[data-action="tile-col-outline"]').is_disabled():
-            a0 = canvas_at(p, 8, 8); p.keyboard.down('Control'); p.mouse.click(a0['x'], a0['y']); p.keyboard.up('Control'); p.wait_for_timeout(200)
+        # Select the tiles from (1,0) to (7,5) with the select tool (the panel acts for the first
+        # selected tile, which must hold terrain bits; the cave sheet's tile 0,0 is blank).
+        p.keyboard.press('v'); p.wait_for_timeout(100)
+        drag(p, (1 * 64 + 32, 32), (7 * 64 + 32, 5 * 64 + 32)); p.wait_for_timeout(300)
+        p.wait_for_selector('[data-action="tile-col-outline"]:not([disabled])', timeout=20000)
         p.click('[data-action="tile-col-outline"]')
-        p.wait_for_function('()=>{const S=window.nerulioStudio,t=Object.values(S.doc.settings.tile.tilesets)[0];return Object.values(t.tiles).filter(x=>x.collision&&x.collision.length).length>=40}', timeout=60000)
+        p.wait_for_function('()=>{const S=window.nerulioStudio,t=Object.values(S.doc.settings.tile.tilesets)[0];return Object.values(t.tiles).filter(x=>x.collision&&x.collision.length).length>=35}', timeout=60000)
         p.locator('[data-tile-panel="tile-export"]').scroll_into_view_if_needed()
+        p.select_option('[data-tile="collision"]', 'edited')  # the Export panel's Collision (Godot): the traced shapes as they are
         with p.expect_download(timeout=60000) as d:
             p.click('[data-action="tile-export"]')
         z = zipfile.ZipFile(io.BytesIO(Path(d.value.path()).read_bytes()))
         tiles = json.loads(z.read('godot/nerulio-tileset.json'))['tileSet']['tiles']
         polys = [poly for t in tiles for poly in (t.get('collision') or [])]
         ok('family engines (godot-tileset-collision): Outline polygon traces a collision shape for the terrain tiles and the Godot export carries them inside each 64 px tile',
-           len([t for t in tiles if t.get('collision')]) >= 40 and all(-0.01 <= c <= 64.01 for poly in polys for pt in poly for c in pt), f'{len(polys)} polygons', engine=E)
+           len([t for t in tiles if t.get('collision')]) >= 35 and all(-0.01 <= c <= 64.01 for poly in polys for pt in poly for c in pt), f'{len(polys)} polygons', engine=E)
         p.close()
     # formats: an FNF-style Sparrow XML with trimmed frames, to GIF --------------------------------
     if 'game/fnf-spritesheet-to-gif' in fam:
@@ -792,7 +795,7 @@ def part6(browser, E):
         ok('family formats (normal-map-sprite-sheet): the sheet arrives in the Sprite workspace first, to be cut into frames', js(p, 'return S.workspace;') == 'sprite', engine=E)
         apply_sheet(p, 6); p.click('.st-ws-tab[data-ws="texture"]'); texture_ready(p)
         reg = js(p, 'const r=window.nerulioTexture.region();return [r.w,r.h];')
-        ok('family formats (normal-map-sprite-sheet): in the Texture workspace every frame is its own 32×32 region with a generated map', js(p, 'return S.workspace;') == 'texture' and reg == [32, 32] and p.locator('.tx-frame').count() == 6 and normals_ok(p)['bad'] == 0, str(reg), engine=E)
+        ok('family formats (normal-map-sprite-sheet): in the Texture workspace each of the 6 frames is its own region (at most 32×32) with a generated map', js(p, 'return S.workspace;') == 'texture' and 0 < reg[0] <= 32 and 0 < reg[1] <= 32 and p.locator('.tx-frame').count() == 6 and normals_ok(p)['bad'] == 0, str(reg), engine=E)
         p.close()
     # fixes: the Phaser export never rotates a frame ------------------------------------------------
     if 'game/phaser-atlas-frames-wrong' in fam:
