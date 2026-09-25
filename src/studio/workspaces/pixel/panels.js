@@ -92,7 +92,7 @@ export function createPanels(W){
  }
  // ------------------------------------------------------------------ Palette
  const palette=h('div.px-palette',{'data-px':'palette'});
- let palSel=new Set(),dragFrom=null,imageColors=null;
+ let palSel=new Set(),dragFrom=null,imageColors=null,lastClick=null;
  function paletteActions(actions){
   actions.append(btn('plus',t('px.pal.add'),()=>addFg(),{id:'pal-add'}),btn('trash',t('px.pal.remove'),()=>removeSelected(),{id:'pal-remove'}),btn('pxSort',t('px.pal.sort'),e=>sortMenu(e.currentTarget),{id:'pal-sort'}),btn('pxMenu',t('px.pal.more'),e=>palMenu(e.currentTarget),{id:'pal-menu'}));
  }
@@ -124,10 +124,12 @@ export function createPanels(W){
  palette.addEventListener('pointerup',e=>{const d=dragFrom;dragFrom=null;if(!d)return;for(const s of palette.querySelectorAll('.is-drop'))s.classList.remove('is-drop');
   if(d.moved){const el=document.elementFromPoint(e.clientX,e.clientY)?.closest('.px-pal-sw');if(el)moveEntries(palSel.has(d.i)?[...palSel]:[d.i],Number(el.dataset.i));return;}
   const i=d.i,c=currentColors()[i];
+  // double-click = edit (detected here: the first click re-renders the swatches, so the browser's dblclick never reaches one)
+  const now=performance.now(),dbl=lastClick&&lastClick.i===i&&now-lastClick.t<450&&!d.mods.shift&&!d.mods.mod;lastClick=dbl?null:{i,t:now};
+  if(dbl){editEntry(i);return;}
   if(d.mods.shift||d.mods.mod){if(d.mods.shift&&palSel.size){const last=[...palSel].pop(),[lo,hi]=last<i?[last,i]:[i,last];for(let k=lo;k<=hi;k++)palSel.add(k);}else palSel.has(i)?palSel.delete(i):palSel.add(i);W.S.rampSel=[...palSel].sort((a,b)=>a-b);if(W.S.rampSel.length<2)W.S.rampSel=[];}
   else{palSel=new Set([i]);W.S.rampSel=[];}
   W.setColor('fg',PD.isIndexed(asset())&&i===PD.transparentIndexOf(asset())?[0,0,0,0]:c,{index:i});document.querySelector('.px-bar')?.sync?.();});
- palette.addEventListener('dblclick',e=>{const sw=e.target.closest('.px-pal-sw');if(sw)editEntry(Number(sw.dataset.i));});
  /** Writes a new palette. In an indexed sprite every cel is rewritten (indices remapped by `map`,
   * PLTE replaced) so other workspaces and exports see the new colours: one undo step. */
  async function applyPalette(colors,{map=null,transparentIndex,label}){

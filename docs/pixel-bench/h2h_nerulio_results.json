@@ -1,0 +1,130 @@
+{
+ "T9": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 100.0,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 100.0,
+  "colours_out": 9,
+  "colours_truth": 9,
+  "verdict": "Upscaled \u00d74 (exact block grid) SURE",
+  "ms": 1404,
+  "steps": "import, Measure, Preview, Apply as new sprite, Export PNG (5); size found by the tool"
+ },
+ "T10": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 99.682,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 99.236,
+  "colours_out": 13,
+  "colours_truth": 9,
+  "verdict": "Smoothly resized \u2248 \u00d73.78 (\u00d73.78 vertically) SURE",
+  "ms": 4619,
+  "steps": "import, Measure, Preview, Apply, Export PNG (5); size and colours found by the tool"
+ },
+ "T5": {
+  "opaque": 5759,
+  "nearest_rgb_pct": 31.7,
+  "nearest_oklab_pct": 100.0,
+  "black_kept": 1708,
+  "black_total": 1708,
+  "alpha_same": true,
+  "mode": [
+   "indexed",
+   17,
+   0
+  ],
+  "steps": "Palette \u22ef \u203a Import palette\u2026 \u203a file \u203a Replace; Pixel \u203a Colour mode\u2026 \u203a Current palette \u203a Convert (\u22486)"
+ },
+ "T7": {
+  "team_px": 2662,
+  "recoloured": 2662,
+  "other_px_changed": 0,
+  "undo_steps": 1,
+  "steps": "indexed sheet: double-click the palette entry, type the colour, OK (3); every frame and layer follows. RGB sprites: Pixel \u203a Team-colour variants\u2026 makes red/blue/green sprites in one dialog"
+ },
+ "T8": {
+  "outline_px": 1770,
+  "originals_unchanged": true,
+  "shadow_px": 680,
+  "size": [
+   96,
+   144
+  ],
+  "undo": [
+   "Outline",
+   "Drop shadow"
+  ],
+  "steps": "Pixel \u203a Outline (1), Pixel \u203a Drop shadow (1); canvas NOT grown (pixels at the sheet border get no outline outside the canvas)"
+ },
+ "T11": {
+  "verify": "colorMode=INDEXED size=96x144 palette=10\nlayer 1 name=Layer 1 blend=NORMAL opacity=255\nlayer 2 name=Layer 2 blend=MULTIPLY opacity=160",
+  "steps": "Colour mode \u203a Indexed, Shift+N, draw, Blend = Multiply, Opacity 160, Pixel \u203a Export .aseprite (\u22486)"
+ },
+ "T4": {
+  "ok": true,
+  "from_": [
+   69,
+   40,
+   60
+  ],
+  "to": [
+   102,
+   57,
+   49
+  ],
+  "steps": "select ramp colours with Shift+click in the palette, Ink = Shading, paint (\u22483)"
+ },
+ "T3": {
+  "ok": true,
+  "axis": 10,
+  "steps": "Symmetry = vertical, type axis position 10 (2)"
+ },
+ "T13": {
+  "online": true,
+  "result": "PICO-8 \u00b7 16 colours",
+  "swatches": 16,
+  "steps": "Pixel \u203a Lospec palette\u2026, allow once, type name, Load, Replace (5)"
+ },
+ "T14": {
+  "read": {},
+  "roundTrip": {
+   "gpl": true,
+   "pal": true,
+   "hex": true,
+   "ase": true,
+   "act": true,
+   "json": true
+  },
+  "steps": "Palette \u22ef \u203a Import palette\u2026 / Export palette as \u2026 (2)",
+  "read_aseprite_and_adobe_files": {
+   "T14_pico8.gpl": 16,
+   "T14_pico8.pal": 16,
+   "T14_pico8.hex": 16,
+   "T14_pico8.act": 16,
+   "pico8_adobe_swatch.ase": 16
+  }
+ },
+ "page_errors": []
+}
