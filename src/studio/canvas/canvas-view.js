@@ -209,12 +209,13 @@ export class CanvasView{
   if(box&&dpr!==1&&Math.abs(W-css.width)<1&&Math.abs(H-css.height)<1){W=Math.max(1,Math.round(css.width*dpr));H=Math.max(1,Math.round(css.height*dpr));}
   if(W===this.W&&H===this.H&&dpr===this.dpr)return;
   const first=!this.sized;this.sized=true;
-  // keep the centre of the view where it was
+  // keep the centre of the view where it was (a fitted view is fitted again below)
+  const refit=!first&&this.fitted&&!!this.image;
   if(!first)this.v={...this.v,x:Math.round(this.v.x+(W-this.W)/2),y:Math.round(this.v.y+(H-this.H)/2)};
   this.W=W;this.H=H;this.dpr=dpr;
   for(const c of [this.imageCanvas,this.overlay]){c.width=W;c.height=H;}
   this.sizeRulers();
-  if(first&&this.image){const pv=this.pendingView;this.pendingView=null;if(pv&&pv!=='fit')this.setView(pv);else this.fit();}else this.invalidate();
+  if(first&&this.image){const pv=this.pendingView;this.pendingView=null;if(pv&&pv!=='fit')this.setView(pv);else this.fit();}else if(refit)this.fit();else this.invalidate();
   this.emit('view',this.v);
  }
  // ------------------------------------------------------------------ image
@@ -223,7 +224,9 @@ export class CanvasView{
   const token=this.frame=(this.frame||0)+1;
   this.image={src,w,h};await this.renderer.setImage(src,w,h);if(token!==this.frame)return;
   const good=view&&V.isValidZoom(view.scale);
-  if(!this.sized)this.pendingView=good?view:'fit';else if(good)this.setView(view);else this.fit();
+  // re-showing the same view (a workspace redrawing its picture) keeps a fitted view fitted
+  const keep=good&&this.fitted&&view.scale===this.v.scale&&view.x===this.v.x&&view.y===this.v.y;
+  if(!this.sized)this.pendingView=good?view:'fit';else if(good){this.setView(view);if(keep)this.fitted=true;}else this.fit();
   this.invalidate();
  }
  clearImage(){this.image=null;this.renderer.clearImage();this.invalidate();}
@@ -235,12 +238,15 @@ export class CanvasView{
  setView(v,{clamp=true}={}){
   let next={scale:V.isValidZoom(v.scale)?v.scale:V.floorZoom(v.scale),x:Math.round(v.x),y:Math.round(v.y)};
   if(clamp&&this.image)next=V.clampView(next,this.image.w,this.image.h,this.W,this.H,Math.round(KEEP_VISIBLE*this.dpr));
+  this.fitted=false;// any other view change (zoom, pan, a restored view) ends "fitted"; fit() sets it again
   if(next.scale===this.v.scale&&next.x===this.v.x&&next.y===this.v.y)return;
   this.v=next;this.invalidate();this.emit('view',this.v);
  }
  zoomTo(scale,anchor=null){const a=anchor||{x:this.W/2,y:this.H/2};this.setView(V.zoomAt(this.v,Math.min(V.MAX_ZOOM,Math.max(V.MIN_ZOOM,scale)),a.x,a.y));}
  zoomStep(dir,anchor=null){this.zoomTo(V.stepZoom(this.v.scale,dir),anchor||this.lastPointer);}
- fit(){if(!this.image)return;const pad=Math.round(24*this.dpr);this.setView(V.fitView(this.image.w,this.image.h,this.W,this.H,{pad,max:Math.max(1,Math.round(8*this.dpr))}),{clamp:false});}
+ /** Fits and centres the image. The view stays "fitted" (re-fitted when the viewport resizes: a
+  * panel opens, the phone rotates) until the user zooms or pans. */
+ fit(){if(!this.image)return;const pad=Math.round(24*this.dpr);this.setView(V.fitView(this.image.w,this.image.h,this.W,this.H,{pad,max:Math.max(1,Math.round(8*this.dpr))}),{clamp:false});this.fitted=true;}
  actual(){this.zoomTo(1,this.lastPointer);}
  panBy(dx,dy){this.setView(V.panBy(this.v,dx,dy));}
  /** Centre an image-space rect in the viewport at the current zoom. */

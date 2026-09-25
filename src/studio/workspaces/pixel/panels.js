@@ -61,8 +61,11 @@ export function createPanels(W){
     const b=(label,cmd,id)=>{const x=h('button.px-tog',{type:'button','data-px':id},label);x.addEventListener('click',()=>ctx.runCommand(cmd));return x;};
     parts.push(b(t('px.cmd.flipH'),'pixel.flipH','flip-h'),b(t('px.cmd.flipV'),'pixel.flipV','flip-v'),b(t('px.cmd.rotateCW'),'pixel.rotateCW','rotate-cw'),b(t('px.cmd.rotateCCW'),'pixel.rotateCCW','rotate-ccw'),b(t('px.cmd.outline'),'pixel.outline','outline'),b(t('px.cmd.shadow'),'pixel.shadow','shadow'));
     if(W.floating())parts.push(b(t('px.cmd.drop'),'pixel.drop','drop'));}
-   el.replaceChildren(...parts);el.hidden=!asset();
+   el.replaceChildren(...parts);el.hidden=!asset();requestAnimationFrame(edges);
   };
+  // options that do not fit scroll sideways; the hidden side fades (as the compact tool strip)
+  const edges=()=>{const s=el.scrollLeft>1,e=el.scrollLeft+el.clientWidth<el.scrollWidth-1,v=[s&&'start',e&&'end'].filter(Boolean).join(' ');if(el.dataset.more!==v)el.dataset.more=v;};
+  el.addEventListener('scroll',edges,{passive:true});new ResizeObserver(edges).observe(el);
   el.sync=sync;
   // re-sync when the tool changes (the tool bar and keys both go through the shell)
   const mo=new MutationObserver(()=>sync());const tb=document.querySelector('.st-toolbar');if(tb)mo.observe(tb,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});

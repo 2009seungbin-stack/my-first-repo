@@ -38,7 +38,7 @@ document fields, Lospec + CSP, cleanup engine, benchmark, head-to-head, "where w
   names. Fixed: palette double-click edit never fired; cleanup crashed on transparent input; new layer hung the page
   (st() drops unknown placeholders → pattern without {n} → endless loop; caught by the full regression run);
   Studio CSP uses explicit /ko|en|ja/ paths and tools/serve.mjs applies the build headers() in dev.
-- Browser suite now 72/72 on the source server; unit 34/34.
+- Browser suite now 76/76 on the source server; unit 34/34. 390 px: a fitted view is re-fitted on viewport resize (shared canvas-view.js), the compact tool strip (shared app.js + studio.css) and the Pixel options bar fade the edge that hides more controls.
 - FINAL VERIFICATION (2026-09-25, head after this commit): `NERULIO_CORPUS='C:\nope' python tools/regression.py`
   → syntax, node (2211 tests: 2210 pass, 0 fail, 1 skip), build and all 15 browser suites PASS (incl.
   studio-pixel-browser 72/72). One earlier run failed once in studio-texture-browser (Texture "normalFrom" option
