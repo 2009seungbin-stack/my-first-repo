@@ -9,3 +9,6 @@ tests/fixtures/kenney/*.png -text
 
 # Texture workspace fixtures are compared byte for byte
 tests/fixtures/texture/*.png -text
+
+# Pixel workspace fixtures are compared pixel for pixel
+tests/fixtures/pixel/*.png -text

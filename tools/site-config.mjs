@@ -79,5 +79,11 @@ export function headers(source,{preview,webAnalytics=false}){
  const [global,...rest]=source.replace(/\r\n/g,'\n').replace(/\s+$/,'').split(/\n(?=\S)/);
  let out=(webAnalytics?global.replace("script-src 'self'",`script-src 'self' ${WEB_ANALYTICS.script}`).replace("connect-src 'self'",`connect-src 'self' ${WEB_ANALYTICS.connect}`):global)+'\n  Cache-Control: public, max-age=0, must-revalidate\n';
  if(preview)out+='  X-Robots-Tag: noindex, nofollow\n';
- return out+rest.map(block=>block+'\n').join('');
+ const siteCSP=/\n\s*Content-Security-Policy: ([^\n]+)/.exec(out)?.[1];
+ out+=rest.map(block=>block+'\n').join('');
+ // The Studio's Pixel workspace may load a palette from lospec.com (its only network request,
+ // asked first): Studio pages get the site CSP with that one origin added to connect-src.
+ if(siteCSP)for(const p of STUDIO_PATHS)out+=`${p}\n  ! Content-Security-Policy\n  Content-Security-Policy: ${siteCSP.replace("connect-src 'self'",`connect-src 'self' ${STUDIO_CONNECT.join(' ')}`)}\n`;
+ return out;
 }
+export const STUDIO_PATHS=Object.freeze(['/game/studio/*','/:lang/game/studio/*']),STUDIO_CONNECT=Object.freeze(['https://lospec.com']);

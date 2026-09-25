@@ -334,3 +334,14 @@ test('pixel copy: every key the workspace asks for exists (literal and generated
  assert.deepEqual(missing,[],'missing strings');
  assert.equal(st('ko','group.pixel'),'픽셀');assert.equal(st('ja','px.menu'),'ピクセル');
 });
+import {headers,STUDIO_PATHS} from '../tools/site-config.mjs';
+test('CSP: only the Studio pages may connect to lospec.com; the rest of the site keeps its CSP',()=>{
+ const src=readFileSync(new URL('../_headers',import.meta.url),'utf8');
+ for(const webAnalytics of [false,true]){
+  const out=headers(src,{webAnalytics}),blocks=out.split(/\n(?=\S)/),head=blocks[0];
+  assert.ok(!head.includes('lospec'),'site-wide CSP stays without lospec');
+  for(const p of STUDIO_PATHS){const b=blocks.find(x=>x.startsWith(p+'\n'));assert.ok(b,p);
+   const csp=/Content-Security-Policy: (.*)/.exec(b.split('\n').slice(2).join('\n'))[1],site=/Content-Security-Policy: (.*)/.exec(head)[1];
+   assert.ok(b.includes('! Content-Security-Policy'));assert.equal(csp,site.replace("connect-src 'self'","connect-src 'self' https://lospec.com"));}
+ }
+});
