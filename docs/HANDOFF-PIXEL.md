@@ -39,6 +39,11 @@ document fields, Lospec + CSP, cleanup engine, benchmark, head-to-head, "where w
   (st() drops unknown placeholders → pattern without {n} → endless loop; caught by the full regression run);
   Studio CSP uses explicit /ko|en|ja/ paths and tools/serve.mjs applies the build headers() in dev.
 - Browser suite now 72/72 on the source server; unit 34/34.
+- FINAL VERIFICATION (2026-09-25, head after this commit): `NERULIO_CORPUS='C:\nope' python tools/regression.py`
+  → syntax, node (2211 tests: 2210 pass, 0 fail, 1 skip), build and all 15 browser suites PASS (incl.
+  studio-pixel-browser 72/72). One earlier run failed once in studio-texture-browser (Texture "normalFrom" option
+  list after an import; passed 41/41 alone and in the rerun — a timing flake, not in Pixel code).
+  `SERVICE_PORT=4502 python tests/service-browser.py` → 119 checks PASS. `npm run check` PASS.
 - Bench WORK folder = C:/Users/2009s/nerulio-handoff/scratch/p2/competitors ($PIXEL_BENCH_WORK); scripts use it.
 - Screenshots: C:/Users/2009s/nerulio-handoff/scratch/p2/studio-pixel/ (run the browser test with PIXEL_SHOTS set).
 - LEFT (see STUDIO-PIXEL.md "Where Nerulio is still worse"): layer groups, linked cels, RotSprite/free transform,
