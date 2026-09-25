@@ -265,7 +265,7 @@ with sync_playwright() as pw:
         lua=TMP/'inspect.lua';lua.write_text('''local s=app.activeSprite
 local m={[ColorMode.RGB]="rgb",[ColorMode.INDEXED]="indexed",[ColorMode.GRAY]="gray"}
 local out={m[s.colorMode],s.width,s.height,#s.frames,s.transparentColor,#s.palettes[1]}
-for _,l in ipairs(s.layers) do local b="?" for k,v in pairs(BlendMode) do if v==l.blendMode then b=k end end out[#out+1]=l.name.."|"..b.."|"..tostring(l.isEditable) end
+for _,l in ipairs(s.layers) do local b="?" for k,v in pairs(BlendMode) do if v==l.blendMode and (b=="?" or k=="NORMAL") then b=k end end out[#out+1]=l.name.."|"..b.."|"..tostring(l.isEditable) end
 print(table.concat(out,","))''')
         r=subprocess.run([ASEPRITE,'-b',str(ase),'--script',str(lua)],capture_output=True,text=True,timeout=120)
         ok('real Aseprite reads it back: indexed, 24×16, 2 frames, transparent index 0, 33 colours, Layer 2 MULTIPLY and not editable',
