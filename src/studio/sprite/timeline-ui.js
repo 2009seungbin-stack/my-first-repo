@@ -69,7 +69,7 @@ export function createTimeline(W){
  function render(force=false){
   renderBar();
   const a=W.asset();
-  if(!a||!a.frames.length){body.replaceChildren(h('p.st-muted.st-pad.sp-tl-empty',{},a?t('sp.tl.noFrames'):t('sp.tl.noAsset')));lastKey='';return;}
+  if(!a||!a.frames.length){body.replaceChildren(W.timelineEmpty?.(a)||h('p.st-muted.st-pad.sp-tl-empty',{},a?t('sp.tl.noFrames'):t('sp.tl.noAsset')));lastKey='';return;}
   // documents are immutable: the grid is rebuilt only when one of these objects changed
   const key={frames:a.frames,tags:a.tags,layers:a.layers,cels:a.cels,cw,jitter};
   if(!force&&lastKey&&Object.keys(key).every(k=>key[k]===lastKey[k])&&body.firstChild?.classList?.contains('sp-tl-grid')){mark();return;}

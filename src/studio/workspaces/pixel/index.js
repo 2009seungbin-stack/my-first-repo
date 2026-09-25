@@ -11,6 +11,7 @@ import * as D from '../../sprite/sprite-doc.js';
 import * as PD from '../../pixel/pixel-doc.js';
 import * as R from '../../pixel/raster.js';
 import {h,storage} from '../../ui/dom.js';
+import {isTypingTarget} from '../../core/keymap.js';
 import {ICONS} from '../../ui/icons.js';
 import {createTimeline} from '../../sprite/timeline-ui.js';
 import {createPreview} from '../../sprite/preview-ui.js';
@@ -65,7 +66,12 @@ export default {
    setSelection,deselect,liftSelection,moveFloat,dropFloat,cancelFloat,floatMoved:()=>{updateStatus();},floatHit,selectLayerPixels,
    setColor,swapColors:()=>{[prefs.fg,prefs.bg]=[prefs.bg,prefs.fg];savePrefs();panels.renderColor();},
    refresh:()=>refreshAll(),present,
-   setLayer:id=>{S.layerId=id;panels.renderLayers();markTimelineLayer();updateStatus();}
+   setLayer:id=>{S.layerId=id;panels.renderLayers();markTimelineLayer();updateStatus();},
+   /** The timeline of a picture without frames: paint on it as it is, or make it frame 1. */
+   timelineEmpty(a){
+    const b=(label,cmd,primary)=>{const x=h('button.st-btn'+(primary?'.primary':''),{type:'button','data-px':'tl-'+cmd.split('.').pop()},label);x.addEventListener('click',()=>ctx.runCommand(cmd));return x;};
+    return h('div.st-pad.sp-tl-empty.px-tl-empty',{},h('p.st-muted',{},t(a?'px.tl.noFrames':'px.tl.noSprite')),h('div.st-row',{},a?b(t('px.cmd.animate'),'pixel.animate',true):b(t('px.cmd.newSprite'),'pixel.newSprite',true),a?'':b(t('cmd.file.import'),'file.import')));
+   }
   };
   const pointKey=()=>S.assetId+'|'+session.frameId+'|'+S.layerId;
   // ------------------------------------------------------------ colours ↔ plane values
@@ -130,8 +136,12 @@ export default {
   }
   function renderFloat(){const f=S.float,l=session.layer(f.layerId);const prev=l.plane;l.plane=R.stamp(R.clonePlane(f.base),f.piece,{clear:session.clear});void prev;session.refresh({x:0,y:0,w:session.rect.w,h:session.rect.h});S.selection=R.pieceMaskOn(f.piece,session.rect.w,session.rect.h);overlay.setMask(S.selection);}
   function moveFloat(dx,dy){if(!S.float)return;S.float.piece={...S.float.piece,x:S.float.piece.x+dx,y:S.float.piece.y+dy};S.float.moved=true;renderFloat();updateStatus();}
+  /** Flip / rotate: floating pixels are transformed and stay floating; a selection (or, without
+   * one, the whole layer) is transformed in place as ONE undo step, as in Aseprite. */
   function transformFloat(fn,label){
-   if(!S.float&&!liftSelectionOrLayer())return;S.float.piece=fn(S.float.piece);S.float.moved=true;S.float.label=label;renderFloat();
+   const floating=!!S.float,hadSel=!!S.selection;
+   if(!floating&&!liftSelectionOrLayer())return;S.float.piece=fn(S.float.piece);S.float.moved=true;S.float.label=label;renderFloat();
+   if(!floating){dropFloat();if(!hadSel){S.selection=null;overlay.setMask(null);}updateStatus();}
   }
   function liftSelectionOrLayer(){if(!canPaint())return false;if(!S.selection)selectLayerPixels();return liftSelection();}
   function floatHit(x,y){const f=S.float?.piece;if(!f)return false;const lx=x-f.x,ly=y-f.y;return lx>=0&&ly>=0&&lx<f.w&&ly<f.h&&!!f.mask[ly*f.w+lx];}
@@ -168,6 +178,24 @@ export default {
    const l=session.layer(S.layerId);
    S.float={piece:{...piece,x,y,data},layerId:l.id,base:l.plane,before:l.plane,copy:true,moved:true,label:t('px.cmd.paste')};renderFloat();ctx.setTool('px-move');
   }
+  const pasteClip=()=>pastePiece(S.clip.piece,{fromKind:S.clip.kind,colors:S.clip.colors,ti:S.clip.ti});
+  /** Ctrl/⌘+V: our own copy pastes at its place with its exact values (indices included); a picture
+   * copied in another app pastes as floating pixels. The shell's paste import never sees it. */
+  const onPaste=e=>{
+   if(isTypingTarget(document.activeElement)||document.querySelector('dialog[open]')||!asset())return;
+   const file=[...(e.clipboardData?.files||[])].find(f=>/^image\//.test(f.type));
+   if(!S.clip&&!file)return;
+   e.preventDefault();e.stopImmediatePropagation();
+   (S.clip?(file?sameAsClip(file):Promise.resolve(true)):Promise.resolve(false)).then(same=>same?pasteClip():pasteImageFile(file)).catch(err=>ctx.toast(String(err.message||err),{error:true}));
+  };
+  document.addEventListener('paste',onPaste,true);
+  async function sameAsClip(file){
+   const p=S.clip.piece,bmp=await createImageBitmap(file,{premultiplyAlpha:'none',colorSpaceConversion:'none'});if(bmp.width!==p.w||bmp.height!==p.h)return false;
+   const c=new OffscreenCanvas(p.w,p.h),x=c.getContext('2d');x.drawImage(bmp,0,0);const d=x.getImageData(0,0,p.w,p.h).data,want=clipRGBA();
+   for(let i=0;i<d.length;i+=4){if(!d[i+3]&&!want[i+3])continue;if(Math.abs(d[i]-want[i])>1||Math.abs(d[i+1]-want[i+1])>1||Math.abs(d[i+2]-want[i+2])>1||Math.abs(d[i+3]-want[i+3])>1)return false;}
+   return true;
+  }
+  const clipRGBA=()=>{const p=S.clip.piece,out=new Uint8Array(p.w*p.h*4);for(let i=0;i<p.w*p.h;i++){if(!p.mask[i])continue;const v=S.clip.kind===R.INDEXED?(p.data[i]===S.clip.ti?0:keyOf(...S.clip.colors[p.data[i]].slice(0,3),S.clip.colors[p.data[i]][3]??255)):p.data[i];out.set(R.unpack(v),i*4);}return out;};
   async function pasteImageFile(file){
    const bmp=await createImageBitmap(file,{premultiplyAlpha:'none',colorSpaceConversion:'none'});const c=new OffscreenCanvas(bmp.width,bmp.height),x=c.getContext('2d');x.drawImage(bmp,0,0);
    const d=new Uint8Array(x.getImageData(0,0,bmp.width,bmp.height).data.buffer);const plane=R.planeFromRGBA(d,bmp.width,bmp.height),mask=new Uint8Array(bmp.width*bmp.height).fill(1);
@@ -332,7 +360,7 @@ export default {
   cmd('pixel.symmetryY',()=>W.setPref('symmetry',{...prefs.symmetry,mode:prefs.symmetry.mode==='y'?'none':prefs.symmetry.mode==='both'?'x':prefs.symmetry.mode==='x'?'both':'y'}),{checked:()=>prefs.symmetry.mode==='y'||prefs.symmetry.mode==='both'});
   cmd('pixel.copy',()=>copy(),{keys:['Mod+C'],enabled:painting});
   cmd('pixel.cut',()=>copy({cut:true}),{keys:['Mod+X'],enabled:painting});
-  cmd('pixel.paste',async()=>{if(S.clip)pastePiece(S.clip.piece,{fromKind:S.clip.kind,colors:S.clip.colors,ti:S.clip.ti});else{try{const items=await navigator.clipboard.read();for(const it of items){const type=it.types.find(x=>x.startsWith('image/'));if(type){await pasteImageFile(await it.getType(type));return;}}}catch{}ctx.toast(t('px.hint.clipboardEmpty'),{error:true});}},{enabled:painting});
+  cmd('pixel.paste',async()=>{if(S.clip)pasteClip();else{try{const items=await navigator.clipboard.read();for(const it of items){const type=it.types.find(x=>x.startsWith('image/'));if(type){await pasteImageFile(await it.getType(type));return;}}}catch{}ctx.toast(t('px.hint.clipboardEmpty'),{error:true});}},{enabled:painting});
   cmd('pixel.reselect',()=>{if(S.lastSel)setSelection(S.lastSel);},{keys:['Mod+Shift+D'],enabled:()=>!!S.lastSel});
   cmd('pixel.invertSelection',()=>{const r=session.rect;setSelection(S.selection?R.invertMask(S.selection):new Uint8Array(r.w*r.h).fill(1));},{keys:['Mod+Shift+I'],enabled:painting});
   cmd('pixel.selectLayer',()=>selectLayerPixels(),{enabled:painting});
@@ -416,7 +444,7 @@ export default {
    nudge(dx,dy){if(!S.float&&!S.selection)return;if(!S.float&&!liftSelection())return;moveFloat(dx,dy);},
    step,
    onAsset(id){if(id!==S.assetId)useAsset(id);},
-   deactivate(){stop();dropFloat();offSel();previewWin.destroy();bar.remove();cleanup.destroy?.();delete window.__pixel;}
+   deactivate(){stop();dropFloat();offSel();document.removeEventListener('paste',onPaste,true);previewWin.destroy();bar.remove();cleanup.destroy?.();delete window.__pixel;}
   };
  }
 };

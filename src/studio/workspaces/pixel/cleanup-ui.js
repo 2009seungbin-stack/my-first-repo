@@ -124,7 +124,7 @@ export function createCleanup(W){
   const cand=A.candidate&&A.candidate.kind!=='unit'?A.candidate:null;
   return [cand?t('px.clean.v.untrusted',{s:fmt(cand.scaleX??cand.scale)}):t('px.clean.v.none'),conf(cand?.confidence||'low')];
  }
- function field(label,control,hint){return h('label.px-f.px-f-full',{title:hint||null},h('span',{},label),control);}
+ function field(label,control,hint){return h('label.px-f.px-f-full',{title:hint||null},h('span',{},label,hint?h('small',{},hint):''),control);}
  function select(id,value,options,on){const s=h('select.st-input.px-sel',{'data-px':'clean-'+id,'aria-label':t('px.clean.opt.'+id)},...options.map(([v,l])=>h('option',{value:v,selected:String(v)===String(value)||null},l)));s.addEventListener('change',()=>on(s.value));return s;}
  function check(id,on){const i=h('input',{type:'checkbox',checked:o[id]||null,'data-px':'clean-'+id});i.addEventListener('change',()=>{o[id]=i.checked;saveOpts();on?.();invalidateResult();});return h('label.st-check',{},i,t('px.clean.opt.'+id));}
  function invalidateResult(){if(S.result){S.result=null;setState('measured');render();}}
@@ -142,7 +142,7 @@ export function createCleanup(W){
   const go=h('button.st-btn'+(S.analysis&&!stale?'':'.primary'),{type:'button','data-px':'clean-measure',disabled:busy||null},S.state==='measuring'?t('px.clean.measuring'):S.analysis?t('px.clean.remeasure'):t('px.clean.measure'));go.addEventListener('click',()=>measure());
   const head=h('div.st-sec',{},
    h('p.st-muted.px-note',{},t('px.clean.lead')),
-   h('div.px-seg',{role:'radiogroup','aria-label':t('px.clean.scope')},seg('frame',a.frames.length?t('px.clean.scopeFrame'):t('px.clean.scopeImage')),seg('tag',tag?t('px.clean.scopeTag',{name:tag.name}):t('px.clean.scopeTagNone'),!!tag),seg('all',t('px.clean.scopeAll',{n:a.frames.length}),multi)),
+   a.frames.length>1?h('div.px-seg',{role:'radiogroup','aria-label':t('px.clean.scope')},seg('frame',t('px.clean.scopeFrame')),seg('tag',tag?t('px.clean.scopeTag',{name:tag.name}):t('px.clean.scopeTagNone'),!!tag),seg('all',t('px.clean.scopeAll',{n:a.frames.length}),multi)):h('p.px-scope-one',{},t(a.frames.length?'px.clean.scopeFrame':'px.clean.scopeImage')),
    h('div.px-clean-row',{},field(t('px.clean.scale'),scale,t('px.clean.scaleHint')),go));
   const parts=[head];
   if(S.state==='error')parts.push(h('div.st-sec',{},h('p.st-error',{'data-px':'clean-error'},t('px.clean.failed',{reason:S.error}))));
