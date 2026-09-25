@@ -5,8 +5,8 @@ the **paid/desktop leaders**: TexturePacker Pro, SpriteIlluminator, Laigter, Til
 Tiled's and Godot's own terrain tools as the free baseline for autotiles. Wins and losses are both
 reported with numbers. "Loses" means loses. Where nothing was measured, the page says so.
 
-**Status:** TexturePacker is done. The normal-map and tile sections are still in progress; they
-say so below until they are filled in.
+**Status:** TexturePacker and normal maps are done. The tile section is still in progress; it
+says so below until it is filled in.
 
 ## Where Nerulio wins, ties and loses (so far)
 
@@ -25,10 +25,14 @@ say so below until they are filled in.
 | Phaser 3/4, PixiJS 8, Spine runtime | Tie | both pass on all 4 tested sets. Both leave rotation off for Phaser; TexturePacker's rotated Phaser frames FAIL in Phaser 3.90 and 4.2 |
 | Godot 4 | **Win** (small) | both draw correctly. TexturePacker's path needs its editor plugin and gives AtlasTextures + an AnimationPlayer library, at a fixed 10 fps. It ships no PNG import settings, so Godot's default `fix_alpha_border` recolours faint pixels (archer 8/10 frames exact). The Studio ships a SpriteFrames `.tres`, a `.tscn` and a `.png.import` (10/10) |
 | Unity | Not compared | TexturePacker's importer is on the Unity Asset Store only (needs an Asset Store account action) |
-| Polygon packing | **Loss (feature)** | the Studio has none. TexturePacker's polygon mode made the spaceshooter sheet 4.5 % smaller than the Studio's best, but made the character sets 16–25 % larger than its own rectangle packing |
+| Polygon packing | **Loss (feature)** | the Studio has none. TexturePacker's polygon mode made the spaceshooter sheet 4.5 % smaller than the Studio's best, but made the four character sets 15–27 % larger than its own rectangle packing |
 | Engine exporters | **Loss (breadth)** | TexturePacker has 68 data formats. The Studio has 17 targets, and its targets were loaded in 10 real engines/runtimes |
 | Texture formats (PVR, ETC, ASTC, DXT, Basis, WebP) and pixel formats (RGBA4444 …) | **Loss (feature)** | the Studio writes PNG only |
-| Price | **Win** | Studio free. TexturePacker Pro is a paid licence; this test used its 7-day trial |
+| Price | **Win** | Studio free. TexturePacker Pro costs US$49.99, perpetual with 1 year of updates; this test used its 7-day trial |
+| Normal-map accuracy vs. reference normals (SpriteIlluminator, Laigter) | Tie, or a small **loss** | on asteroids Laigter is 1.7° and 0.7 lit levels closer, SpriteIlluminator 0.3–1.8° closer. On bricks SpriteIlluminator is 0.5–1.3° closer (0.2° against Nerulio's height-map mode). On the hand-painted torch every tool, Nerulio included, is worse than a flat map |
+| Seamless textures | **Win** | Nerulio roll error 0. SpriteIlluminator's Emboss 1.5–2.9 (max 24 levels). Laigter 58–64 by default, 0 with its Tile preset |
+| Normal map → lit sprite in Godot/Unity | **Win** | Nerulio exports a verified Godot scene and Unity importer. SpriteIlluminator and Laigter need it set up by hand. SpriteIlluminator has no command line |
+| Normal-map paint tools | **Loss** | SpriteIlluminator has Angle/Structure brushes and selections; the Studio has a height brush only |
 
 ## Method
 
@@ -225,8 +229,136 @@ Things the Studio has that TexturePacker does not show in this comparison:
 
 ## 2. Normal maps: SpriteIlluminator and Laigter vs. Studio Texture
 
-*In progress.* Laigter 1.14 was already measured on the same assets in `docs/STUDIO-TEXTURE.md`.
-SpriteIlluminator 2.1.2 (Pro trial) is being driven through its GUI because it has no command line.
+### Method
+
+The assets, reference normals and metrics are the ones in `docs/STUDIO-TEXTURE.md`, which also
+explains why these references are the ground truth. Measured with
+`tools/engine-verify/texture/h2h_measure.mjs`.
+
+**Assets and their reference normal maps:**
+
+* **asteroids**: normals rendered from the 3D models (OGA, Jarusca, CC0).
+* **torch**: normals hand-painted by the artist, pixel art (OGA, XLIVE99, CC0).
+* **bricks**: ambientCG NormalGL. The tools get the albedo (`bricks`) or the 8-bit displacement
+  (`bricksheight`) as input.
+
+**Metrics:**
+
+* **°**: mean angle to the reference normal.
+* **°best**: the same after the best single strength factor. Strength is a slider in every tool;
+  the shape is not.
+* **Lambert**: mean |N·L difference| × 255 for 4 lights at 45°.
+* **Roll**: the output of the texture rolled by half, then rolled back, compared on a 2 px border
+  band. 0 means wrap-correct.
+
+**New here: the maps lit in Godot 4.7.2** (`tools/h2h/godot_lit.py` + `godot_lit_probe.gd`).
+
+* Every tool's normal map and the reference map are put in a CanvasTexture with the same diffuse.
+* The scene is lit by a uniform PointLight2D at each corner of the picture, one at a time, at a
+  height of half the picture. A black CanvasModulate means only the light is seen.
+* The measure is the mean and 95th percentile of the difference to the reference-normal render, in
+  8-bit levels, over opaque pixels.
+* Two controls give the scale:
+  * **flat**, a normal map that does nothing;
+  * **green-flipped reference**, the right shape with the wrong convention.
+
+**How each tool was run:**
+
+* **SpriteIlluminator 2.1.2** (Pro trial) has no command line. It was driven through its GUI with
+  UI Automation (`pywinauto`):
+  1. Add sprites.
+  2. Select a sprite.
+  3. Apply an effect with its default settings.
+  4. Export normals, with the dialog defaults: suffix `_n`, Y not inverted, "7 bit, best
+     compatibility" Z.
+
+  The effects used:
+  * sprites: **Bevel** (width 16, height 100 %, smoothness 8, Up), and Bevel + **Emboss** (height 4,
+    smoothness 1);
+  * textures: **Emboss**. It is SpriteIlluminator's detail-from-brightness effect, and it has no
+    tile mode. Bevel has a *Tile mode* box, but on an opaque texture Bevel has no edges to act on.
+* **Laigter 1.14**: the outputs of the 2026-09-24 run (CLI `--no-gui`, default and `Tile` preset),
+  the same files as in `docs/STUDIO-TEXTURE.md`.
+* **Nerulio**: regenerated today by `h2h_measure.mjs` with the parameters the Studio suggests when
+  it opens the picture. There was no per-asset tuning on any side.
+
+### Accuracy against the reference normals
+
+| Tool | Asteroids ° / °best / Lambert | Torch ° / °best / Lambert | Bricks albedo ° / °best / Lambert · roll | Brick height ° / °best / Lambert · roll |
+|---|---|---|---|---|
+| **Nerulio** | 20.0 / 19.6 / 35.6 | 38.1 / 37.6 / 62.5 | 14.7 / 14.4 / 29.4 · **0** | 8.8 / 5.5 / 17.6 · **0** (as a height map: 7.7 / 5.5 / 15.5 · **0**) |
+| SpriteIlluminator, defaults | 19.7 / 17.7 / 36.5 (Bevel) | **36.6** / **36.4** / 64.7 (Bevel) | **14.1** / 13.9 / **28.4** · 1.49 (max 9) | **7.5** / 6.1 / **15.0** · 2.94 (max 24) |
+| SpriteIlluminator, Bevel + Emboss | 18.2 / 16.3 / 33.7 | 38.3 / 36.9 / 67.4 | — | — |
+| Laigter 1.14, default | **18.3** / **14.3** / **31.9** | 41.6 / 37.4 / 63.9 | 27.3 / 15.8 / 51.3 · 63.8 | 29.8 / 13.7 / 54.7 · 57.8 |
+| Laigter 1.14, Tile preset | — | — | 16.5 / **12.5** / 33.0 · 0 | 26.0 / 10.3 / 49.4 · 0 |
+
+### Lit in Godot 4.7.2
+
+Difference from the scene lit with the reference normal map, in 8-bit levels, mean / p95. Lower is
+better.
+
+| Tool | Asteroids | Torch | Bricks (albedo) | Bricks (height) |
+|---|---|---|---|---|
+| **Nerulio** | 6.98 / 24 | 36.2 / 115 | 10.1 / 29 | 5.96 / 17 (as a height map: 4.97 / 15) |
+| SpriteIlluminator (Bevel / Emboss) | 7.39 / 26 | 37.5 / 108 | **9.78** / **28** | 5.09 / **14** |
+| SpriteIlluminator (Bevel + Emboss) | 6.86 / 24 | 42.1 / 128 | — | — |
+| Laigter default / Tile | **6.32** / **23** | 51.0 / 166 | 16.0 / 47 · Tile 11.3 / 33 | 17.0 / 47 · Tile 15.3 / 43 |
+| PBR Forge (web, for reference) | 14.2 / 34 | **29.1** / **66** | 10.6 / 31 | 8.9 / 26 |
+| control: **flat** normal map | 15.4 / 35 | **26.6 / 69** | 11.5 / 34 | 11.5 / 34 |
+| control: reference, green flipped | 10.1 / 31 | 19.5 / 67 | 15.1 / 51 | 15.1 / 51 |
+
+What this shows:
+
+* **Rendered sprites (asteroids): a close three-way race, and Nerulio is not first.**
+  * Laigter's default is closest (6.3 levels, 18.3°). Then SpriteIlluminator Bevel + Emboss (6.9),
+    Nerulio (7.0), and SpriteIlluminator Bevel alone (7.4).
+  * The spread is under 1 level lit and under 2° in angle. All three are far better than a flat map
+    (15.4).
+* **Hand-painted pixel art (torch): every generator is worse than no normal map at all.**
+  * A flat map is 26.6 levels off. Nerulio is 36.2, SpriteIlluminator 37.5 and Laigter 51.0.
+  * Stylised normals cannot be derived from the colours. None of these tools should claim they can.
+  * For such art the honest advice is a hand-painted map, or the height brush.
+* **Tileable texture from its albedo:**
+  * SpriteIlluminator's Emboss is slightly closer than Nerulio: 9.8 vs. 10.1 levels, 14.1° vs.
+    14.7°.
+  * But it is **not seamless**. The roll test finds a border band of 1.49 (max 9) on the albedo and
+    2.94 (max 24) on the height input, because Emboss has no wrap mode.
+  * Nerulio is exactly wrap-consistent (roll 0).
+  * Laigter needs its Tile preset to reach roll 0, and is then less accurate (11.3).
+* **Height map input:** SpriteIlluminator's Emboss (5.09) is between Nerulio's height-map mode
+  (4.97, the closest) and Nerulio's default brightness mode (5.96).
+* **Convention.** All outputs read as OpenGL (Y+) to the Studio's detector, with high confidence.
+  SpriteIlluminator's "Invert y axis" option gives DirectX.
+
+### Workflow: from a sprite PNG to a lit sprite in Godot
+
+| | Nerulio Studio Texture | SpriteIlluminator 2.1.2 | Laigter 1.14 |
+|---|---|---|---|
+| Price | free, browser | ≈ US$49.99 (TexturePacker bundle US$69.99), perpetual with 1 year of updates; Windows/macOS/Linux | free GPL build on GitHub, paid on itch.io |
+| Steps to a normal map | drop the PNG: the map is generated at once, 12–380 ms for these inputs | Add sprites (file dialog) → select → Bevel → Apply → (Emboss → Apply) → Export normals → OK: **6–8 actions** | open, drag PNG, export (or one CLI call) |
+| Steps to a lit Godot scene | Ctrl+E → Export ZIP → open `<name>_lit.tscn` (**verified in Godot 4.7.2**, ≤ 1/255 vs the preview) | set up CanvasTexture + lights by hand. Its lit preview uses its own light model, not Godot's | by hand |
+| Unity 6 URP 2D | importer + Light2D preview (verified) | by hand | by hand |
+| Command line / batch | ○ (the pipeline modules run in Node, no user CLI) | **none** | ● |
+| Bevel from alpha | ● size-aware default | ● width/height/smoothness/direction | ● |
+| Detail from brightness | ● with a high-pass | ● Emboss | ● |
+| Wrap-correct textures | ● suggested for opaque pictures, roll 0 | ○ Emboss has no wrap (roll 1.5–2.9) | ● with the Tile preset |
+| Height-map input (16-bit) | ● | ○ | not checked |
+| Paint tools | height brush: raise/lower/smooth/flatten/erase | **more**: Height, Angle, Structure (patterns), Smoothen, Erase, plus Color/Polygon/Rectangle/Ellipse selection, Move, copy/paste normals | ○ |
+| Per-frame processing of a sheet | ● frames never bleed | one sprite per image; sheets as one picture | the CLI treats a sheet as one image |
+| GL/DX detection with confidence | ● | ○ (export option only) | ○ |
+| Pixel-art quantised normals | ● 4–32 directions | ○ | ○ |
+| AO, specular, cavity maps | ● (labelled approximations) | ○ | ● specular, occlusion, parallax |
+| Packing normal maps with the atlas | ○ | ● through TexturePacker (`--pack-normalmaps`) | ○ |
+| Export lit sprite / animation | ○ (a lit Godot scene instead) | ● | ○ |
+
+**Summary.**
+
+* **Accuracy: a tie, or a small loss.** SpriteIlluminator and Laigter are as good as Nerulio, and
+  on some inputs slightly better: up to 1.8° and 0.9 lit levels.
+* **Nerulio wins** on seams, engine export (verified Godot and Unity scenes), convention detection,
+  height input, per-frame sheets, price and steps.
+* **Nerulio loses** on paint tools. SpriteIlluminator's Angle and Structure brushes and its
+  selection tools have no equivalent in the Studio.
 
 ## 3. Autotiles: Tilesetter, Tiled and Godot vs. Studio Tile
 
@@ -251,3 +383,17 @@ SpriteIlluminator 2.1.2 (Pro trial) is being driven through its GUI because it h
    * More data formats with real users: cocos2d plist, libGDX (already via Spine), MonoGame.
 5. **Speed on big jobs.** Measure the browser worker against the CLI on the same 1,000-frame set
    before claiming parity.
+6. **Normal maps of rendered sprites, 1.7° and 0.7 lit levels behind Laigter's default.**
+   * Laigter's dome over the whole silhouette fits 3D-rendered sprites best at the best strength
+     (14.3° vs. Nerulio's 19.6°).
+   * Try a rounder profile with a larger default width for HD sprites, and re-measure on more than
+     one 3D-rendered set before changing the default.
+7. **Brightness detail on textures, 0.3 lit levels behind SpriteIlluminator's Emboss.** Compare
+   Emboss's small-radius relief with the Studio's high-pass on more ambientCG sets. The seam
+   advantage must stay at 0.
+8. **Paint tools.** An *angle* brush (paint a slope direction directly) and pattern/structure
+   stamps would close the feature gap with SpriteIlluminator.
+9. **Hand-painted pixel art.**
+   * When the Studio suggests generated normals for small pixel art, say that a flat or hand-painted
+     map may be better (measured: flat 26.6 levels vs. 36.2 on the torch).
+   * Consider a lower default strength for pixel art.
