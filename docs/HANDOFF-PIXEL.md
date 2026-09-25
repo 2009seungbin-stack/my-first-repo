@@ -23,8 +23,25 @@
 - CSP: tools/site-config.mjs headers() adds /game/studio/* and /:lang/game/studio/* blocks = site CSP + https://lospec.com
   in connect-src (unit test). Lospec JSON sends Access-Control-Allow-Origin: * (checked with curl).
 - Fixtures: tests/fixtures/pixel/ (CC0, LICENSE.md, -text).
-- NEXT: tests/studio-pixel-browser.py + regression.py entry; screenshots 1440/390 review; 512x512x100 timing;
-  engine work on ai-sim/JPEG; bench script paths → scratch/p2; head-to-head; docs/STUDIO-PIXEL.md.
+
+### Later in session 2 (all pushed)
+The workspace is built, wired, tested and documented: **docs/STUDIO-PIXEL.md** is the user/dev doc (tools, keys,
+document fields, Lospec + CSP, cleanup engine, benchmark, head-to-head, "where we are worse", performance, tests).
+- Tests: `node --test tests/studio-pixel.test.mjs` 33/33; `tests/studio-pixel-browser.py` 70/70 (in tools/regression.py;
+  real CC0 fixtures, real Aseprite CLI read-back when present, fixtures read from disk so it runs against dist too).
+- Engine (src/game/pixel-snap.js): edge tracking for uneven pseudo-pixels + perfect-fit lattice priority. Benchmark
+  (69 cases): size exact 75→81 %, exact px 56.9→63.2 % (74.0 % with background kept; best competitor 44.6 %).
+- Head-to-head (docs/pixel-bench/h2h_nerulio.py + h2h_nerulio_results.json): T9 100 %, T10 99.7 % (Aseprite 81.5 %
+  with a typed size), T5 100 % Oklab-nearest, T7 2662/2662, T8 1846/705 px = Aseprite, T11 verified in real Aseprite,
+  T13 live Lospec OK. Pixelorama web: file dialog and synthetic drop both fail headless → not measured.
+- Added: Canvas size (Ctrl+Alt+C). Fixed: palette double-click edit never fired; cleanup crashed on transparent
+  input; Studio CSP uses explicit /ko|en|ja/ paths and tools/serve.mjs applies the build headers() in dev.
+- Bench WORK folder = C:/Users/2009s/nerulio-handoff/scratch/p2/competitors ($PIXEL_BENCH_WORK); scripts use it.
+- Screenshots: C:/Users/2009s/nerulio-handoff/scratch/p2/studio-pixel/ (run the browser test with PIXEL_SHOTS set).
+- LEFT (see STUDIO-PIXEL.md "Where Nerulio is still worse"): layer groups, linked cels, RotSprite/free transform,
+  gradient/spray/text tools, custom brushes, polygon lasso, tiled mode, Sprite Size, draggable symmetry axis,
+  frame-step wrap, JPEG bit-exact colours, real generated images (all 7 left "unsure"), Firefox/WebKit not run,
+  CSP on Cloudflare UNVERIFIED until deployed. The NEXT STEPS list below is the session-1 plan (all done).
 
 ## Scope of P2 (from the task)
 
