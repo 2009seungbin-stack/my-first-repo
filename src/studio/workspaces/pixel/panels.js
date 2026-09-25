@@ -29,6 +29,7 @@ export function createPanels(W){
  const num=(label,value,min,max,on,id,step=1)=>{const i=h('input.st-input.px-num',{type:'number',min:String(min),max:String(max),step:String(step),value:String(value),'aria-label':label,title:label,'data-px':id||null});i.addEventListener('change',()=>{const v=Math.max(min,Math.min(max,Number(i.value)||min));i.value=String(v);on(v);});return i;};
  const toggle=(label,on,fn,id)=>{const b=h('button.px-tog',{type:'button','aria-pressed':String(!!on),'data-px':id||null},label);b.addEventListener('click',fn);return b;};
  // ------------------------------------------------------------------ context bar (tool options)
+ const lab=text=>h('span.px-f.px-lab',{'aria-hidden':'true'},text);
  function contextBar(){
   const el=h('div.px-bar',{role:'toolbar','aria-label':t('px.bar.label'),'data-px':'bar'});
   const sync=()=>{
@@ -38,14 +39,14 @@ export function createPanels(W){
     parts.push(h('label.px-f',{},h('span',{},t('px.bar.size')),num(t('px.bar.size'),o.size,1,16,v=>W.setPref('size',v),'size'),
      h('input.px-range',{type:'range',min:'1',max:'16',value:String(o.size),'aria-label':t('px.bar.size'),'data-px':'size-range',oninput:e=>W.setPref('size',Number(e.target.value))})));
     parts.push(sel(t('px.bar.brush'),o.brush,[['square',t('px.brush.square')],['round',t('px.brush.round')]],v=>W.setPref('brush',v),'brush'));
-    if(tool!=='px-eraser')parts.push(sel(t('px.bar.ink'),o.ink,[['simple',t('px.ink.simple')],['alpha',t('px.ink.alpha')],['lockAlpha',t('px.ink.lockAlpha')],['shading',t('px.ink.shading')],['dither',t('px.ink.dither')]],v=>W.setPref('ink',v),'ink'));
+    if(tool!=='px-eraser')parts.push(lab(t('px.bar.ink')),sel(t('px.bar.ink'),o.ink,[['simple',t('px.ink.simple')],['alpha',t('px.ink.alpha')],['lockAlpha',t('px.ink.lockAlpha')],['shading',t('px.ink.shading')],['dither',t('px.ink.dither')]],v=>W.setPref('ink',v),'ink'));
     if(tool==='px-pencil')parts.push(toggle(t('px.bar.pixelPerfect'),o.pixelPerfect,()=>W.setPref('pixelPerfect',!o.pixelPerfect),'pixel-perfect'));
     if(o.ink==='dither'&&tool!=='px-eraser')parts.push(sel(t('px.bar.pattern'),o.ditherPattern,Object.keys(R.DITHER_PATTERNS).map(k=>[k,t('px.dither.'+k)]),v=>W.setPref('ditherPattern',v),'dither-pattern'),
      h('label.px-f',{},h('span',{},t('px.bar.density')),num(t('px.bar.density'),o.ditherDensity,0,100,v=>W.setPref('ditherDensity',v),'dither-density',5)),
      sel(t('px.bar.second'),o.ditherSecond,[['bg',t('px.dither.bg')],['keep',t('px.dither.keep')]],v=>W.setPref('ditherSecond',v),'dither-second'));
     if(o.ink==='shading'&&tool!=='px-eraser')parts.push(h('span.px-hint',{},W.S.rampSel.length>=2?t('px.bar.rampSel',{n:W.S.rampSel.length}):t('px.bar.rampAll')));
     const s=o.symmetry;
-    parts.push(sel(t('px.bar.symmetry'),s.mode,[['none',t('px.sym.none')],['x',t('px.sym.x')],['y',t('px.sym.y')],['both',t('px.sym.both')]],v=>W.setPref('symmetry',{...s,mode:v}),'symmetry'));
+    parts.push(lab(t('px.bar.symmetry')),sel(t('px.bar.symmetry'),s.mode,[['none',t('px.sym.none')],['x',t('px.sym.x')],['y',t('px.sym.y')],['both',t('px.sym.both')]],v=>W.setPref('symmetry',{...s,mode:v}),'symmetry'));
     if(s.mode!=='none'){const r=session.rect||{w:0,h:0};
      if(s.mode!=='y')parts.push(h('label.px-f',{},h('span',{},'X'),num(t('px.bar.axisX'),s.axisX??r.w/2,0,r.w,v=>W.setPref('symmetry',{...s,axisX:v}),'axis-x',.5)));
      if(s.mode!=='x')parts.push(h('label.px-f',{},h('span',{},'Y'),num(t('px.bar.axisY'),s.axisY??r.h/2,0,r.h,v=>W.setPref('symmetry',{...s,axisY:v}),'axis-y',.5)));}
@@ -54,8 +55,8 @@ export function createPanels(W){
    if(fill){parts.push(toggle(t('px.bar.contiguous'),o.contiguous,()=>W.setPref('contiguous',!o.contiguous),'contiguous'),
     h('label.px-f',{},h('span',{},t('px.bar.tolerance')),num(t('px.bar.tolerance'),o.tolerance,0,255,v=>W.setPref('tolerance',v),'tolerance')),
     toggle(t('px.bar.sampleMerged'),o.sampleMerged,()=>W.setPref('sampleMerged',!o.sampleMerged),'sample-merged'));
-    if(tool==='px-bucket')parts.push(sel(t('px.bar.ink'),o.ink==='alpha'||o.ink==='lockAlpha'?'simple':o.ink,[['simple',t('px.ink.simple')],['shading',t('px.ink.shading')],['dither',t('px.ink.dither')]],v=>W.setPref('ink',v),'ink'));}
-   if(tool==='px-picker')parts.push(sel(t('px.bar.sample'),o.eyedropSample,[['merged',t('px.sample.merged')],['layer',t('px.sample.layer')]],v=>W.setPref('eyedropSample',v),'eyedrop-sample'));
+    if(tool==='px-bucket')parts.push(lab(t('px.bar.ink')),sel(t('px.bar.ink'),o.ink==='alpha'||o.ink==='lockAlpha'?'simple':o.ink,[['simple',t('px.ink.simple')],['shading',t('px.ink.shading')],['dither',t('px.ink.dither')]],v=>W.setPref('ink',v),'ink'));}
+   if(tool==='px-picker')parts.push(lab(t('px.bar.sample')),sel(t('px.bar.sample'),o.eyedropSample,[['merged',t('px.sample.merged')],['layer',t('px.sample.layer')]],v=>W.setPref('eyedropSample',v),'eyedrop-sample'));
    if(selT){parts.push(h('span.px-hint',{},t('px.bar.selectHint')));
     const b=(label,cmd,id)=>{const x=h('button.px-tog',{type:'button','data-px':id},label);x.addEventListener('click',()=>ctx.runCommand(cmd));return x;};
     parts.push(b(t('px.cmd.flipH'),'pixel.flipH','flip-h'),b(t('px.cmd.flipV'),'pixel.flipV','flip-v'),b(t('px.cmd.rotateCW'),'pixel.rotateCW','rotate-cw'),b(t('px.cmd.rotateCCW'),'pixel.rotateCCW','rotate-ccw'),b(t('px.cmd.outline'),'pixel.outline','outline'),b(t('px.cmd.shadow'),'pixel.shadow','shadow'));

@@ -86,4 +86,4 @@ export function headers(source,{preview,webAnalytics=false}){
  if(siteCSP)for(const p of STUDIO_PATHS)out+=`${p}\n  ! Content-Security-Policy\n  Content-Security-Policy: ${siteCSP.replace("connect-src 'self'",`connect-src 'self' ${STUDIO_CONNECT.join(' ')}`)}\n`;
  return out;
 }
-export const STUDIO_PATHS=Object.freeze(['/game/studio/*','/:lang/game/studio/*']),STUDIO_CONNECT=Object.freeze(['https://lospec.com']);
+export const STUDIO_PATHS=Object.freeze(['/game/studio/*',...BRAND.supportedLanguages.map(l=>`/${l}/game/studio/*`)]),STUDIO_CONNECT=Object.freeze(['https://lospec.com']);

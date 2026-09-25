@@ -133,3 +133,5 @@
 .px-scope-one{margin:8px 0 6px;font-weight:600;color:var(--text)}
 .px-tl-empty p{margin:0 0 4px}
 .px-tl-empty .st-row{margin-top:4px}
+.px-lab{margin-left:4px}
+.studio[data-workspace="pixel"] .st-sheet .st-tab{white-space:nowrap}
