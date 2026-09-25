@@ -1,7 +1,7 @@
 import {normalizeSiteURL} from '../src/seo.js';
 import {esc} from '../src/ui.js';
 import {BRAND} from '../src/brand.js';
-import {freeDailyLimit} from '../src/quota.js';
+import {freeDailyLimit,freeStudioLimit,freeAnonStudioLimit} from '../src/quota.js';
 export function configuration(env=process.env){
  const preview=env.SITE_ENV==='preview'||!!(env.CF_PAGES_BRANCH&&env.CF_PAGES_BRANCH!=='main');
  const siteURL=normalizeSiteURL(env.SITE_URL||BRAND.baseUrl);
@@ -16,8 +16,13 @@ export function configuration(env=process.env){
   const value=env[name]||'';if(value&&!/^\d{10}$/.test(value))throw Error(`${name} must be the 10-digit ad unit ID issued by Google`);
   if(client&&value)slots[position]=value;
  }
+ // The Studio's desktop ad column (docs/ADS.md) is its own ad unit. It is kept apart from
+ // `slots` so content pages never mount it and the Studio never mounts content units.
+ const studioSlotValue=env.ADSENSE_SLOT_STUDIO||'';
+ if(studioSlotValue&&!/^\d{10}$/.test(studioSlotValue))throw Error('ADSENSE_SLOT_STUDIO must be the 10-digit ad unit ID issued by Google');
+ const studioAd=client&&studioSlotValue?{client,slot:studioSlotValue}:null;
  if(verificationClient&&(!siteURL||!siteURL.startsWith('https://')))throw Error('AdSense requires an explicit HTTPS SITE_URL');
- if(client&&Object.keys(slots).length&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
+ if(client&&(Object.keys(slots).length||studioAd)&&env.ADSENSE_CMP_READY!=='true')throw Error('Configure and verify a Google-certified CMP, then set ADSENSE_CMP_READY=true before enabling ad units');
  const searchVerification=preview?'':env.GOOGLE_SITE_VERIFICATION||BRAND.searchVerification;
  if(searchVerification&&!/^[A-Za-z0-9_-]{1,256}$/.test(searchVerification))throw Error('Invalid Google verification token');
  const indexNowKey=preview?'':env.INDEXNOW_KEY||BRAND.indexNowKey||'';
@@ -32,9 +37,16 @@ export function configuration(env=process.env){
  if(!['','on','off'].includes(env.CF_WEB_ANALYTICS||''))throw Error('CF_WEB_ANALYTICS must be on or off');
  const webAnalytics=env.CF_WEB_ANALYTICS==='on'&&!preview;
  const service=env.SERVICE_API==='on';
- const pricing={amount:env.PRO_PRICE_AMOUNT||'',currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month'};
- if(pricing.amount&&!/^\d{1,6}(\.\d{1,2})?$/.test(pricing.amount))throw Error('PRO_PRICE_AMOUNT must be a plain decimal such as 4.99');
- if(pricing.amount&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
+ // Pro is sold monthly and yearly. PRO_PRICE_MONTHLY_AMOUNT (alias PRO_PRICE_AMOUNT) and
+ // PRO_PRICE_YEARLY_AMOUNT are display prices in PRO_PRICE_CURRENCY; what is charged is the provider
+ // price each is paired with (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY). The yearly saving is
+ // computed from the two amounts, never written down.
+ const monthly=env.PRO_PRICE_MONTHLY_AMOUNT||env.PRO_PRICE_AMOUNT||'',yearly=env.PRO_PRICE_YEARLY_AMOUNT||env.PRO_PRICE_AMOUNT_YEARLY||'';
+ const pricing={amount:monthly,currency:(env.PRO_PRICE_CURRENCY||'').toUpperCase(),interval:env.PRO_PRICE_INTERVAL||'month',yearlyAmount:yearly};
+ for(const [name,value]of [['PRO_PRICE_MONTHLY_AMOUNT',pricing.amount],['PRO_PRICE_YEARLY_AMOUNT',pricing.yearlyAmount]]){
+  if(value&&!/^\d{1,6}(\.\d{1,2})?$/.test(value))throw Error(`${name} must be a plain decimal such as 4.99`);
+ }
+ if((pricing.amount||pricing.yearlyAmount)&&!/^[A-Z]{3}$/.test(pricing.currency))throw Error('PRO_PRICE_CURRENCY must be an ISO 4217 code such as USD');
  if(!['month','year'].includes(pricing.interval))throw Error('PRO_PRICE_INTERVAL must be month or year');
  // A retired deployment (e.g. the old *.pages.dev project) builds only a permanent redirect.
  let redirectTo='';
@@ -43,7 +55,13 @@ export function configuration(env=process.env){
   if(u.protocol!=='https:'||u.username||u.password||u.search||u.hash||u.pathname!=='/')throw Error('REDIRECT_TO must be a bare https origin such as https://nerulio.pages.dev');
   redirectTo=u.origin;
  }
- return {siteURL,preview,client,slots,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),redirectTo,webAnalytics};
+ // Built by Cloudflare Pages (CF_PAGES=1) rather than locally: the Worker then ignores
+ // NERULIO_ENV=development, so the sandbox billing provider cannot be switched on in production.
+ const pagesBuild=env.CF_PAGES==='1';
+ // Public half of the key that signs service answers (tools/ticket-keys.mjs). Not a secret.
+ const ticketPublicKey=env.TICKET_PUBLIC_KEY||'';
+ if(ticketPublicKey&&!/^[A-Za-z0-9_-]{87}$/.test(ticketPublicKey))throw Error('TICKET_PUBLIC_KEY must be the value printed by node tools/ticket-keys.mjs');
+ return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics};
 }
 export function adHead({client='',slots={},service=false}={}){
  if(!client)return '';

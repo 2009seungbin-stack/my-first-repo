@@ -169,7 +169,7 @@ with sync_playwright() as pw:
             for y in range(3,43):im.putpixel((x,y),(200,40+i*20,60,255))
         b=io.BytesIO();im.save(b,'PNG');return {'name':f'walk_{i}.png','mimeType':'image/png','buffer':b.getvalue()}
     sprites=[sprite(i) for i in range(6)]
-    page.goto(BASE+'/en/sprite-sheet-maker/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=sprites);page.locator('#atlasCanvas').wait_for();page.wait_for_timeout(400)
+    page.goto(BASE+'/en/sprite-sheet-maker/classic/',wait_until='networkidle');page.locator('#fileInput').set_input_files(files=sprites);page.locator('#atlasCanvas').wait_for();page.wait_for_timeout(400)
     ok('atlas shows size, frame count and packing efficiency',page.locator('#atlasSummary .summary-line').inner_text().startswith('6 frame(s)') and '%' in page.locator('#atlasSummary').inner_text())
     ok('animation preview and frame strip are present',page.locator('#animCanvas').count()==1 and page.locator('.frame-chip').count()==6)
     with page.expect_download() as d:page.locator('#atlasRun').click()
@@ -385,7 +385,7 @@ with sync_playwright() as pw:
     def lab_png(path,name):return Image.open(io.BytesIO(zipfile.ZipFile(path).read(name))).convert('RGBA')
 
     # --- Slice: one frame per character on a sheet whose parts are drawn 1-2px apart -----------
-    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/sprite-lab/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(str(LAB_FIXTURE))
     page.locator('#labSheet canvas').wait_for(timeout=60000)
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>0',timeout=60000)
@@ -584,7 +584,7 @@ with sync_playwright() as pw:
 
     # --- Aliasing: identical frames are stored once, and the alias resolves -------------------
     lab_twin=sheet_png(48,12,[((1,2,6,9),(200,40,40,255)),((17,2,22,9),(30,90,200,255)),((33,2,38,9),(200,40,40,255))])
-    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/sprite-lab/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[lab_twin])
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===3',timeout=60000)
     page.locator('[data-action="lab-stage"][data-stage="export"]').click();page.wait_for_timeout(1200)
@@ -607,7 +607,7 @@ with sync_playwright() as pw:
 
     # --- Mirroring: the atlas must hold really flipped pixels, not flipped metadata ------------
     lab_asym=sheet_png(24,14,[((2,2,9,11),(200,40,40,255)),((2,2,3,4),(255,255,255,255))])
-    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/sprite-lab/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[lab_asym])
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===1',timeout=60000)
     page.locator('[data-action="lab-stage"][data-stage="animate"]').click();page.wait_for_timeout(600)
@@ -637,7 +637,7 @@ with sync_playwright() as pw:
     for row in range(8):
         for col in range(8):lab_big.paste(lab_block,(col*256+28,row*256+28))
     lab_bb=io.BytesIO();lab_big.save(lab_bb,'PNG')
-    page.goto(BASE+'/en/game/sprite-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/sprite-lab/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'big.png','mimeType':'image/png','buffer':lab_bb.getvalue()}])
     page.locator('#labSheet canvas').wait_for(timeout=120000)
     page.wait_for_function('()=>document.querySelector("#labSummary.is-error")||document.querySelectorAll(".slicer-box").length>1',timeout=180000)
@@ -662,7 +662,7 @@ with sync_playwright() as pw:
        f"{lab_bigd['meta']['pageSizes']} {sum(1 for f in lab_bigd['frames'].values() if f['aliasOf'])}")
 
     # --- The old URLs still work, at the right stage, and still prove what they proved --------
-    page.goto(BASE+'/en/sprite-slicer/',wait_until='networkidle')
+    page.goto(BASE+'/en/sprite-slicer/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
     page.locator('#labSheet canvas').wait_for(timeout=60000)
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===2',timeout=60000)
@@ -682,7 +682,7 @@ with sync_playwright() as pw:
     ok('grid mode offers ranked suggestions, each with the evidence it was scored on',
        page.locator('#labSuggest .chip').count()>=1
        and len(page.locator('#labSuggest .chip').first.get_attribute('title'))>40)
-    page.goto(BASE+'/en/normalize-sprite-frames/',wait_until='networkidle')
+    page.goto(BASE+'/en/normalize-sprite-frames/classic/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[sheet_png(36,20,[((1,2,5,8),(255,0,0,255)),((20,4,27,15),(0,255,0,255))])])
     page.wait_for_function('()=>document.querySelectorAll("#labAfter canvas").length===2',timeout=60000)
     ok('the frame-normalize URL opens the Lab at Normalize and shows the common canvas first',
@@ -699,7 +699,7 @@ with sync_playwright() as pw:
        lab_ims[0].size==lab_ims[1].size==(8,12) and lab_ims[0].getbbox()[3]==lab_ims[1].getbbox()[3]==12,
        f'{lab_ims[0].size} {lab_ims[0].getbbox()} {lab_ims[1].getbbox()}')
     # --- A settings link is a preset, and carries no image data -------------------------------
-    page.goto(BASE+'/en/game/sprite-lab/?mode=grid&cellW=48&cellH=48&atlasPadding=4&maxSize=512&bg=black',wait_until='networkidle')
+    page.goto(BASE+'/en/game/sprite-lab/classic/?mode=grid&cellW=48&cellH=48&atlasPadding=4&maxSize=512&bg=black',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[sheet_png(96,48,[((0,0,47,47),(200,40,40,255)),((48,0,95,47),(30,90,200,255))])])
     page.locator('#labSheet canvas').wait_for(timeout=60000)
     page.wait_for_function('()=>document.querySelectorAll(".slicer-box").length>0',timeout=60000)
@@ -718,7 +718,7 @@ with sync_playwright() as pw:
        'data:' not in lab_shared['query'] and lab_shared['back']=={'mode':'grid','cellW':48,'atlasPadding':4},
        str(lab_shared))
     # ===== Sprite Lab — END ====================================================================
-    page.goto(BASE+'/en/texture-mask-packer/',wait_until='networkidle')
+    page.goto(BASE+'/en/texture-mask-packer/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[file_of(f'{v}.png',Image.new('RGBA',(2,2),(v,v,v,255))) for v in (10,80,220)])
     page.wait_for_function('()=>document.querySelectorAll("#maskPreviews canvas").length===4',timeout=60000)
     ok('the packer previews the pack and every channel on its own',page.locator('#maskPreviews canvas').count()==4 and page.locator('#maskFiles .file').count()==3)
@@ -747,7 +747,7 @@ with sync_playwright() as pw:
     sprite=Image.new('RGBA',(32,32),(0,0,0,0))
     for y in range(10,22):
         for x in range(10,22):sprite.putpixel((x,y),(210,40,30,255))
-    page.goto(BASE+'/en/game/texture-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/texture-lab/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[grey('rock_basecolor.png',180),ramp('rock_height.png'),file_of('rock_orm.png',packed)])
     page.wait_for_function('()=>document.querySelectorAll("#texFiles .file").length===3',timeout=60000)
     ok('filenames classify into map roles without being asked',
@@ -982,7 +982,7 @@ with sync_playwright() as pw:
     fx=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(fx)
     def plab_files(pairs):return [{'name':n,'mimeType':'image/png','buffer':b} for n,b in pairs]
     def plab_open(path,pairs):
-        page.goto(BASE+'/en/'+path+'/',wait_until='networkidle')
+        page.goto(BASE+'/en/'+path+'/app/',wait_until='networkidle')
         page.locator('#fileInput').set_input_files(files=plab_files(pairs));page.locator('#plabCanvas').wait_for();page.wait_for_timeout(700)
     def plab_zip(entries=None):
         with page.expect_download() as d:page.locator('[data-action="plab-export"]').click()
@@ -1050,7 +1050,7 @@ with sync_playwright() as pw:
     for width in (390,320):
         plab_phone=browser.new_context(viewport={'width':width,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
         plab_phone.on('pageerror',lambda e:errors.append(str(e)))
-        plab_phone.goto(BASE+'/ko/game/pixel-lab/',wait_until='networkidle')
+        plab_phone.goto(BASE+'/ko/game/pixel-lab/app/',wait_until='networkidle')
         plab_phone.locator('#fileInput').set_input_files(files=plab_files(fx.frames(8)));plab_phone.locator('#plabCanvas').wait_for();plab_phone.wait_for_timeout(800)
         for stage in ('palette','cleanup','check'):
             plab_phone.locator(f'[data-action="plab-stage"][data-stage="{stage}"]').click();plab_phone.wait_for_timeout(700)
@@ -1087,7 +1087,7 @@ with sync_playwright() as pw:
         return tuple(page.evaluate("""([sel,cx,cy,size])=>{const c=document.querySelector(sel),g=c.getContext('2d');
           const d=g.getImageData(Math.floor(cx*size+size/2),Math.floor(cy*size+size/2),1,1).data;return [d[0],d[1],d[2],d[3]];}""",[selector,cx,cy,size]))
     sheet=blob_sheet()
-    open_lab('/en/game/tile-lab/',sheet)
+    open_lab('/en/game/tile-lab/classic/',sheet)
     ok('the Lab opens as one workspace with its stages',page.locator('.tl-stages button').count()==6 and page.locator('#tlSheet').count()==1)
     top=page.locator('.tl-cand').first.inner_text().replace('×','x')
     ok('the grid is measured, and the measured grid is the one offered first','16x16' in top,top)
@@ -1107,12 +1107,12 @@ with sync_playwright() as pw:
     page.locator('[data-action="tl-stage"][data-stage="rules"]').click();page.wait_for_timeout(400)
     ok('a complete 47-tile blob sheet reports nothing missing',
        page.locator('#tlRules .summary-big').inner_text()=='0' and page.locator('[data-ghost]').count()==0)
-    open_lab('/en/game/tile-lab/',blob_sheet(blank={5,17,40}),'?stage=rules')
+    open_lab('/en/game/tile-lab/classic/',blob_sheet(blank={5,17,40}),'?stage=rules')
     ok('a sheet with three slots painted out reports exactly those three',
        sorted(int(v) for v in page.locator('[data-ghost]').evaluate_all('ns=>ns.map(n=>n.dataset.ghost)'))==[5,17,40],
        page.locator('#tlRules .summary-line').first.inner_text())
     # --- autotile tester: the rules choose the tile, and the pixels prove which one ---
-    open_lab('/en/game/autotile-tester/',sheet)
+    open_lab('/en/game/autotile-tester/classic/',sheet)
     ok('the autotile route opens the Lab at its tester',page.locator('[data-action="tl-stage"][data-stage="tester"]').get_attribute('aria-pressed')=='true')
     ok('the sheet is used as the tile art when it can cover the rule set',
        page.locator('[data-key="source"][data-value="sheet"]').get_attribute('aria-pressed')=='true')
@@ -1142,7 +1142,7 @@ with sync_playwright() as pw:
         for x in range(32):
             v=int(128+60*math.cos(2*math.pi*x/32)+40*math.cos(2*math.pi*y/32));wrap.putpixel((x,y),(v,v,v,255))
     b=io.BytesIO();wrap.save(b,'PNG')
-    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    open_lab('/en/game/seamless-tile-checker/app/',b.getvalue())
     # The seams stage has no grid fields; the tile it measures is named in the board bar.
     ok('the seam checker treats the whole image as the tile','32'+chr(215)+'32' in page.locator('#tlSeamInfo').inner_text(),page.locator('#tlSeamInfo').inner_text())
     ok('a tile that wraps is reported seamless','without a visible seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
@@ -1150,7 +1150,7 @@ with sync_playwright() as pw:
     for y in range(32):
         for x in range(32):ramp.putpixel((x,y),(x*8,y*8,90,255))
     b=io.BytesIO();ramp.save(b,'PNG')
-    open_lab('/en/game/seamless-tile-checker/',b.getvalue())
+    open_lab('/en/game/seamless-tile-checker/app/',b.getvalue())
     ok('a tile that does not wrap is reported honestly','shows a seam' in page.locator('#tlSeamSummary .summary-line').inner_text())
     ready(page)
     with page.expect_download() as d:page.locator('#taskDownload').click()
@@ -1158,7 +1158,7 @@ with sync_playwright() as pw:
     worst=max(max(abs(a-b) for a,b in zip(healed.getpixel((0,y)),healed.getpixel((31,y)))) for y in range(32))
     ok('the seamless helper really joins the wrap it showed',healed.size==(32,32) and worst<=8,worst)
     # --- templates: guide art whose cells are the layout table ---
-    open_lab('/en/game/tile-lab/',sheet,'?stage=templates&kind=edge16')
+    open_lab('/en/game/tile-lab/classic/',sheet,'?stage=templates&kind=edge16')
     ready(page)
     with page.expect_download() as d:page.locator('#taskDownload').click()
     z=zipfile.ZipFile(d.value.path())
@@ -1169,7 +1169,7 @@ with sync_playwright() as pw:
     ok('every template cell is drawn where the JSON says it is',
        all(guide.crop((s['rect']['x'],s['rect']['y'],s['rect']['x']+s['rect']['w'],s['rect']['y']+s['rect']['h'])).getbbox() for s in layout['slots']))
     # --- Godot pack: generic JSON plus a helper script, never a hand-written resource ---
-    open_lab('/en/game/tile-lab/',sheet,'?stage=export&kind=blob47')
+    open_lab('/en/game/tile-lab/classic/',sheet,'?stage=export&kind=blob47')
     ready(page)
     with page.expect_download() as d:page.locator('#taskDownload').click()
     z=zipfile.ZipFile(d.value.path());pack=set(z.namelist())
@@ -1237,7 +1237,7 @@ with sync_playwright() as pw:
         z=zipfile.ZipFile(d.value.path());assert z.testzip() is None;return z
     def ui_image(z,name):return Image.open(io.BytesIO(z.read(name))).convert('RGBA')
     # --- 9-slice: suggestion, keyboard, and corners that survive every resize ---
-    page.goto(BASE+'/en/game/9-slice-editor/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/9-slice-editor/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('#nsCanvas').wait_for(timeout=60000);page.wait_for_timeout(400)
     ok('the 9-slice route opens the Lab at its own stage',page.locator('[data-action="ui-stage"][data-stage="slice"]').get_attribute('aria-selected')=='true')
@@ -1284,7 +1284,7 @@ with sync_playwright() as pw:
     ok('stretching instead smears that middle across the span',
        stretched.crop((4,0,5,4)).tobytes()==stretched.crop((6,0,7,4)).tobytes() and tiled.crop((4,0,5,4)).tobytes()!=tiled.crop((6,0,7,4)).tobytes())
     # A shared link carries settings only: no image data can be in a URL.
-    page.goto(BASE+'/en/game/ui-lab/?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-lab/app/?stage=states&l=5&r=7&t=3&b=4&mode=tile&w=250&h=90',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(300)
     opened=page.locator('[data-action="ui-stage"][aria-selected="true"]').get_attribute('data-stage')
@@ -1294,7 +1294,7 @@ with sync_playwright() as pw:
        and page.locator('[data-key="slice.mode"][aria-pressed="true"]').get_attribute('data-value')=='tile'
        and page.locator('[data-opt="slice.customW"]').input_value()=='250')
     # --- button states ---
-    page.goto(BASE+'/en/game/button-state-generator/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/button-state-generator/app/',wait_until='networkidle')
     button=Image.new('RGBA',(40,16),(60,120,200,255))
     page.locator('#fileInput').set_input_files(files=[{'name':'button.png','mimeType':'image/png','buffer':io.BytesIO(),'buffer':ui_png(button)['buffer']}])
     page.locator('.ui-state canvas').first.wait_for(timeout=60000);page.wait_for_timeout(400)
@@ -1314,7 +1314,7 @@ with sync_playwright() as pw:
        all(strip.crop((f['rect']['x'],f['rect']['y'],f['rect']['x']+f['rect']['w'],f['rect']['y']+f['rect']['h'])).tobytes()==ui_image(z,f'states/{n}.png').tobytes() for n,f in states['frames'].items()))
     ok('the JSON records the operation values each state used',states['states']['pressed']['ops']['offsetY']==3 and states['states']['disabled']['ops']['alpha']==0.5)
     # --- UI atlas + component slicer ---
-    page.goto(BASE+'/en/game/ui-lab/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-lab/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'ui-sheet.png','mimeType':'image/png','buffer':ui_png(ui_sheet())['buffer']}])
     page.locator('#nsCanvas').wait_for(timeout=60000)
     page.locator('[data-action="ui-stage"][data-stage="atlas"]').click();page.locator('.ui-element').first.wait_for(timeout=60000);page.wait_for_timeout(300)
@@ -1335,7 +1335,7 @@ with sync_playwright() as pw:
     page.locator('[data-opt="atlas.merge"]').fill('40');page.wait_for_timeout(500)
     ok('a larger merge distance really joins neighbouring boxes',page.locator('.ui-element').count()<4)
     # --- bitmap font: the original URL, the original guarantee, plus measured and TTF modes ---
-    page.goto(BASE+'/en/bitmap-font-maker/',wait_until='networkidle')
+    page.goto(BASE+'/en/bitmap-font-maker/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[{'name':'font.png','mimeType':'image/png','buffer':ui_png(Image.new('RGBA',(16,8),(255,255,255,255)))['buffer']}])
     page.locator('#rc-chars').wait_for(timeout=60000);page.wait_for_timeout(300)
     ok('the original bitmap-font URL opens the Lab at its Font stage',page.locator('[data-action="ui-stage"][data-stage="font"]').get_attribute('aria-selected')=='true')
@@ -1386,7 +1386,7 @@ with sync_playwright() as pw:
            and sum(1 for o,v in inside if not o and v<=128)>=0.9*sum(1 for o,_ in inside if not o))
         page.locator('[data-opt="font.sdf"]').uncheck();page.wait_for_timeout(200)
     # --- missing glyphs, safe areas, localisation overflow, contrast ---
-    page.goto(BASE+'/en/game/missing-glyph-checker/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/missing-glyph-checker/app/',wait_until='networkidle')
     fnt_text=('info face="Test" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0\n'
               'common lineHeight=8 base=6 scaleW=64 scaleH=8 pages=1 packed=0\npage id=0 file="font.png"\nchars count=5\n'
               +'\n'.join(f'char id={ord(c)} x=0 y=0 width=4 height=8 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=15' for c in 'Str가')+'\n')
@@ -1403,7 +1403,7 @@ with sync_playwright() as pw:
     ok('the missing report names the font it compared against and each codepoint with its lines',
        report['source']=='ui.fnt' and report['fontGlyphs']==4
        and any(m['codepoint']=='U+'+format(ord('끝'),'04X') and m['lines']==[2] for m in report['missing']))
-    page.goto(BASE+'/en/game/ui-scale-preview/',wait_until='networkidle')
+    page.goto(BASE+'/en/game/ui-scale-preview/app/',wait_until='networkidle')
     page.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
     page.locator('.ui-screen canvas').wait_for(timeout=60000);page.wait_for_timeout(400)
     page.locator('[data-key="check.screen"][data-value="4k"]').click();page.wait_for_timeout(300)
@@ -1428,7 +1428,7 @@ with sync_playwright() as pw:
     for width in [390,320]:
         lab=browser.new_context(viewport={'width':width,'height':860},device_scale_factor=2,is_mobile=True,has_touch=True).new_page()
         lab.on('pageerror',lambda e:errors.append(str(e)))
-        lab.goto(BASE+'/ko/game/ui-lab/',wait_until='networkidle')
+        lab.goto(BASE+'/ko/game/ui-lab/app/',wait_until='networkidle')
         lab.locator('#fileInput').set_input_files(files=[ui_png(ui_panel())])
         lab.locator('#nsCanvas').wait_for(timeout=60000);lab.wait_for_timeout(400)
         for stage in ['slice','states','atlas','font','check']:
@@ -1441,7 +1441,7 @@ with sync_playwright() as pw:
     # --- phone ---
     phone=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True).new_page();phone.on('pageerror',lambda e:errors.append(str(e)))
     # compress stays last: the sample check below runs on whatever this loop left open.
-    for path in ['/ko/','/ko/game/tile-lab/','/ko/game/autotile-tester/','/ko/image/compress/']:
+    for path in ['/ko/','/ko/game/tile-lab/','/ko/game/tile-lab/classic/','/ko/game/autotile-tester/','/ko/image/compress/']:
         phone.goto(BASE+path,wait_until='networkidle')
         ok(f'no horizontal scroll on a phone {path}',phone.evaluate('()=>document.documentElement.scrollWidth<=window.innerWidth+1'))
     phone.locator('[data-action="task-sample"]').click();ready(phone)

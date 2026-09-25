@@ -22,7 +22,9 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | --- | --- | --- |
 | `SERVICE_API` | 변수(빌드) | `on`이어야 계정 계층이 빌드된다. 없으면 기존 정적 사이트 |
 | `SITE_URL` | 변수 | 기존과 동일 (canonical 등) |
-| `FREE_DAILY_JOBS` | 변수 | Free heavy 작업/일. 기본 30 |
+| `FREE_DAILY_JOBS` | 변수 | Free heavy 작업/일 (파일 도구). 기본 30 |
+| `FREE_DAILY_STUDIO_EXPORTS` | 변수(빌드+런타임) | Free 스튜디오 엔진 내보내기/일. 기본 10. 가격 페이지 문구와 Worker 한도가 같은 값을 쓴다 ([PRICING-MODEL.md](PRICING-MODEL.md)) |
+| `ADSENSE_SLOT_STUDIO` | 변수(빌드) | 스튜디오 데스크톱 광고 칸의 광고 단위 ID(10자리). `ADSENSE_CLIENT`와 `ADSENSE_CMP_READY=true`가 있어야 켜진다 ([ADS.md](ADS.md)) |
 | `ANON_NETWORK_DAILY_JOBS` | 변수 | 익명 네트워크 버킷 Turnstile 기준. 기본 한도×4 |
 | `PRO_PRICE_AMOUNT`, `PRO_PRICE_CURRENCY`, `PRO_PRICE_INTERVAL` | 변수(빌드) | 가격 표시 (`4.99`, `USD`, `month`). 없으면 "가격은 출시 시 공개" |
 | `GOOGLE_OAUTH_CLIENT_ID` | 변수 | Google OAuth 클라이언트 ID |
@@ -35,7 +37,15 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | `BILLING_PRICE_ID` | 변수 | 결제사 가격 ID |
 | `BILLING_API_KEY`, `BILLING_WEBHOOK_SECRET` | **secret** | 결제사 자격 증명 |
 | `ADMIN_GOOGLE_SUBJECTS` | 변수 | 관리자 Google `sub` 목록 (쉼표) |
-| `NERULIO_ENV` | — | 로컬 테스트 전용(`development`). 운영에 설정하지 않는다 |
+| `NERULIO_ENV` | — | 로컬 테스트 전용(`development`). Pages 빌드에서는 무시된다 |
+| `TICKET_PRIVATE_KEY` | **secret** | `node tools/ticket-keys.mjs`로 생성. 권한 응답 서명(ECDSA P-256). production/preview 따로 |
+| `TICKET_PUBLIC_KEY` | 변수 | 같은 도구의 공개 키. 빌드가 페이지에 넣는다 |
+| `SESSION_SECRET_PREVIOUS` | **secret** | `SESSION_SECRET` 교체 시 이전 값(몇 주). 없으면 교체 순간 모든 익명 사용량이 초기화된다 |
+| `FREE_ANON_STUDIO_EXPORTS` | 변수 | 계정 없이 하루 스튜디오 내보내기(기본 3, 0=항상 로그인) |
+| `ANON_NETWORK_STUDIO_EXPORTS`, `ANON_NETWORK_DAILY_JOBS`, `NETWORK_DAILY_HARD_LIMIT`, `NETWORK_WIDE_DAILY_HARD_LIMIT` | 변수 | 네트워크 버킷(기본 30 / 160 soft·Turnstile / 800 / 3200) |
+| `OFFLINE_GRACE_EXPORTS`, `API_RATE_PER_MINUTE`, `MAX_SESSIONS_PER_USER`, `PAST_DUE_GRACE_DAYS`, `PRO_SHARING_NETWORKS` | 변수 | 기본 3 / 120 / 5 / 7 / 10 |
+| `PRO_PRICE_MONTHLY_AMOUNT`, `PRO_PRICE_YEARLY_AMOUNT`, `PRO_PRICE_CURRENCY` | 변수 | 표시 가격(예: 4.99 / 40 / USD). 연간 절약률은 계산 |
+| `BILLING_PRICE_ID_YEARLY`, `BILLING_PRICE_IDS_LEGACY` | 변수 | 연간 가격 ID, Pro로 인정할 옛 가격 ID 목록 |
 
 `SESSION_SECRET` 생성 예: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
 
@@ -54,12 +64,13 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 7. **배포**: Preview 환경에 먼저 `SERVICE_API=on`을 설정하고 브랜치를 push. Production은 preview 검증 후.
 8. **`/api/v1/health` 확인**: `{"configured":true,"database":true,...}`. `configured:false`면 `DB` 바인딩 또는 `SESSION_SECRET`(32자 이상) 누락.
 9. **익명 quota 확인**: preview에 `FREE_DAILY_JOBS=2`로 배포 → 시크릿 창에서 heavy 도구(예: `/ko/image/upscale/`) 3회 → 3번째에 업그레이드 모달, 파일 유지 확인. 가벼운 도구는 계속 동작해야 한다. 이후 원래 값으로 되돌린다.
+9b. **스튜디오 한도 확인**: preview에 `FREE_DAILY_STUDIO_EXPORTS=2` → 시크릿 창에서 `/ko/game/studio/?ws=pack`에 이미지를 넣고 엔진 내보내기 3회 → 3번째에 스튜디오 한도 대화상자, 프로젝트 유지, 대화상자의 "프로젝트 저장"으로 `.nerulio` 저장 확인. 이후 원래 값으로 되돌린다.
 10. **테스트 Pro 확인** (결제 없이 운영자가 부여):
     ```sh
     npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --command "SELECT id,email FROM users"
     npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --command "INSERT INTO subscriptions(provider,external_subscription_id,user_id,plan,status,current_period_end,cancel_at_period_end,updated_at) VALUES('manual','manual-test-1','<USER_ID>','pro','active',<만료 epoch ms>,0,<현재 epoch ms>)"
     ```
-    헤더 Pro 배지, 광고 요청 0, heavy 무제한을 확인한 뒤 행을 삭제한다. `provider='manual'`은 결제가 아니라 운영자 부여임을 기록으로 남긴다.
+    헤더 Pro 배지, 광고 요청 0(스튜디오 포함: 광고 칸 없음, 캔버스가 전체 폭), heavy·스튜디오 내보내기 무제한을 확인한 뒤 행을 삭제한다. `provider='manual'`은 결제가 아니라 운영자 부여임을 기록으로 남긴다.
 11. **그 다음에만 결제 연결**: [BILLING.md](BILLING.md)의 출시 순서를 따른다.
 
 ## Worker 라우팅과 비용
@@ -77,7 +88,7 @@ D1 사용량(대략): 익명 `/me`는 쿠키가 있으면 1행 읽기, 첫 방�
 
 ## Rate limiting
 
-Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 30회 계산은 D1이 한다. **커스텀 도메인(Cloudflare zone)** 이 필요하며 `*.pages.dev`에는 WAF 규칙을 걸 수 없다. 권장 규칙 예 (Security → WAF → Rate limiting rules):
+Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 30회 계산은 D1이 한다. **커스텀 도메인(Cloudflare zone)** 이 필요하며 `*.pages.dev`에는 WAF 규칙을 걸 수 없다. 권장 규칙 예 (Security → WAF → Rate limiting rules): 커스텀 도메인이 생기기 전에는 Worker 안의 분당 제한(`API_RATE_PER_MINUTE`, 네트워크당, 격리 인스턴스 단위)이 폭주만 막는 임시 장치로 동작한다 — 도메인을 산 뒤 아래 규칙을 추가한다(소유자 작업).
 
 - `starts_with(http.request.uri.path, "/api/v1/auth/")` — IP당 10초 20회 초과 시 차단
 - `starts_with(http.request.uri.path, "/api/v1/")` — IP당 10초 60회 초과 시 Managed Challenge

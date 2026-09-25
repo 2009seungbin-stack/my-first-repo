@@ -53,7 +53,10 @@ def run_mode(browser,mode,index):
                 ok('no-domain omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0 and page.locator('link[hreflang]').count()==0)
             else:
                 canonical=page.locator('link[rel=canonical]').get_attribute('href')
-                ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+('/en/' if route=='/' else route))
+                # / adapts to the visitor's language: its own canonical and the home cluster's x-default (src/seo.js).
+                ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+route)
+                xdefault=page.locator('link[hreflang="x-default"]').get_attribute('href')
+                ok(mode+' x-default is a canonical page '+route,xdefault=='https://fileforge.example.test'+('/' if route in ['/','/en/'] or route.count('/')==2 else '/en/'+route.split('/',2)[2]))
                 ok(mode+' hreflang '+route,page.locator('link[hreflang]').count()==4)
             if mode=='ads':
                 ok('two content-only ad slots '+route,page.locator('.ad-slot').count()==2 and page.locator('#workspace .ad-slot, main.page .ad-slot').count()==0)
@@ -62,6 +65,47 @@ def run_mode(browser,mode,index):
             else:ok(mode+' no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0)
             page.reload(wait_until='networkidle');idle(page);ok(mode+' refresh '+route,page.locator('h1').inner_text()!='')
         if mode!='ads':ok(mode+' initial load has no external requests',all(u.startswith(base) or u.startswith('blob:') for u in requests))
+        # Game landing pages (tools/game-landing-build.mjs): indexable, reciprocal, ad-free, Studio-first.
+        for route in ['/ko/sprite-slicer/','/en/game/','/ja/game/texture-packer-free/']:
+            response=page.goto(base+route,wait_until='networkidle')
+            lang=route.split('/')[1]
+            ok(mode+' game page '+route,response.status==200 and page.locator('html').get_attribute('lang')==lang and page.title()==page.locator('h1').inner_text()+' · Nerulio')
+            ok(mode+' game page robots '+route,page.locator('meta[name=robots]').count()==(1 if mode=='preview' else 0))
+            ok(mode+' game page opens the Studio '+route,page.locator('.gl-drop a[href*="game/studio/?ws="]').count()==1 and page.locator('[data-studio-link]').count()==1)
+            if mode=='ads':
+                # Two in-content positions in the reading part ([data-ad-host]): never in the hero, the drop zone or next to its buttons.
+                ok('game page: two in-content ad slots, labelled '+route,page.locator('[data-ad-host] .ad-slot').count()==2 and page.locator('.ad-slot').count()==2 and all(t.strip() for t in page.locator('.ad-slot .ad-label').all_inner_texts()))
+                ok('game page: no ad in the hero, drop zone or header '+route,page.locator('.gl-hero .ad-slot, .gl-drop .ad-slot, header .ad-slot, [data-ad-exclude] .ad-slot').count()==0)
+                hero=page.locator('.gl-hero').bounding_box();first=page.locator('.ad-slot').first.bounding_box()
+                ok('game page: the first ad sits well below the hero and its drop zone '+route,first['y']>hero['y']+hero['height']+100)
+            else:ok(mode+' game page has no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle').count()==0)
+            if mode=='disabled':ok(mode+' game page omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0)
+            else:
+                ok(mode+' game page canonical '+route,page.locator('link[rel=canonical]').get_attribute('href')=='https://fileforge.example.test'+route)
+                ok(mode+' game page hreflang '+route,page.locator('link[hreflang]').count()==4)
+        if mode=='ads':
+            # The game home, a landing and the hub with ads on, at phone and desktop width: labels, no overlap with
+            # the primary actions, little layout shift; the Studio (an editing surface) never carries ads.
+            CLS='''()=>new Promise(r=>{let v=0;new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)v+=e.value;}).observe({type:'layout-shift',buffered:true});setTimeout(()=>r(v),600);})'''
+            for width,height in [(390,844),(1440,900)]:
+                page.set_viewport_size({'width':width,'height':height})
+                for route in ['/ko/','/en/sprite-slicer/','/ja/game/']:
+                    page.goto(base+route,wait_until='networkidle')
+                    for y in range(0,page.evaluate('document.documentElement.scrollHeight'),700):page.evaluate(f'scrollTo(0,{y})');page.wait_for_timeout(30)
+                    page.evaluate('scrollTo(0,0)');page.wait_for_timeout(200)
+                    slots=page.locator('.ad-slot')
+                    ok(f'ads {width}px: two labelled slots {route}',slots.count()==2 and all(t.strip() for t in page.locator('.ad-slot .ad-label').all_inner_texts()))
+                    actions=[b for b in page.locator('.gl-drop, .gh-cta, [data-studio-link], .gs-btn').all() if b.is_visible()]
+                    boxes=[b.bounding_box() for b in actions]
+                    def hits(a,b):return not(a['x']+a['width']<=b['x'] or b['x']+b['width']<=a['x'] or a['y']+a['height']<=b['y'] or b['y']+b['height']<=a['y'])
+                    ok(f'ads {width}px: no slot overlaps a call to action {route}',all(not hits(s.bounding_box(),b) for s in slots.all() for b in boxes if b))
+                    ok(f'ads {width}px: no slot above the fold {route}',slots.first.bounding_box()['y']>height)
+                    ok(f'ads {width}px: no horizontal overflow {route}',page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
+                    ok(f'ads {width}px: layout shift under 0.1 {route}',page.evaluate(CLS)<0.1)
+                    page.screenshot(path=str(OUT/f'ads-{width}{route.replace("/","_")}full.png'),full_page=True)
+            page.set_viewport_size({'width':1440,'height':1000})
+            page.goto(base+'/en/game/studio/',wait_until='domcontentloaded');page.wait_for_timeout(800)
+            ok('ads: the Studio has no ad script or markup',page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"],script[src*="ads.js"]').count()==0)
         # Upscale is a single-task page; mode=smooth keeps this flow free of the optional model download.
         page.goto(base+'/en/image/upscale/?scale=4&format=png&mode=smooth',wait_until='networkidle')
         if mode!='disabled':ok(mode+' query canonical clean','?' not in page.locator('link[rel=canonical]').get_attribute('href'))

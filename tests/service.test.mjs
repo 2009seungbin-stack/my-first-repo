@@ -69,7 +69,7 @@ test('migrations build the full schema on a fresh database',{skip},async()=>{
  const tables=db.raw.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(r=>r.name);
  for(const t of ['billing_events','daily_usage','job_authorizations','sessions','subscriptions','users'])assert(tables.includes(t),t);
  const cols=t=>db.raw.prepare(`PRAGMA table_info(${t})`).all().map(c=>c.name);
- assert.deepEqual(cols('users'),['id','email','display_name','provider','provider_subject','created_at']);
+ assert.deepEqual(cols('users'),['id','email','display_name','provider','provider_subject','created_at','flagged_at','flag_reason']);
  assert(['token_hash','user_id','created_at','expires_at'].every(c=>cols('sessions').includes(c)));
  assert(['user_id','provider','external_customer_id','external_subscription_id','plan','status','current_period_end','cancel_at_period_end','updated_at'].every(c=>cols('subscriptions').includes(c)));
  assert(['subject_id','day','used'].every(c=>cols('daily_usage').includes(c)));
@@ -77,8 +77,8 @@ test('migrations build the full schema on a fresh database',{skip},async()=>{
  assert(['provider','event_id','processed_at'].every(c=>cols('billing_events').includes(c)));
  assert(!Object.values({u:cols('users'),s:cols('sessions')}).flat().some(c=>/file|name_of|path|blob|content/.test(c)),'no file-related columns');
  // unique identity and de-duplication constraints
- db.raw.exec("INSERT INTO users VALUES('a',NULL,NULL,'google','s1',1)");
- assert.throws(()=>db.raw.exec("INSERT INTO users VALUES('b',NULL,NULL,'google','s1',1)"),/UNIQUE/);
+ db.raw.exec("INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('a',NULL,NULL,'google','s1',1)");
+ assert.throws(()=>db.raw.exec("INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('b',NULL,NULL,'google','s1',1)"),/UNIQUE/);
  db.raw.exec("INSERT INTO billing_events(provider,event_id,processed_at) VALUES('p','e',1)");
  assert.throws(()=>db.raw.exec("INSERT INTO billing_events(provider,event_id,processed_at) VALUES('p','e',2)"),/UNIQUE|PRIMARY/);
  assert.throws(()=>db.raw.exec("INSERT INTO sessions VALUES('h','missing',1,2)"),/FOREIGN KEY/);
@@ -92,15 +92,23 @@ test('anonymous identity: secure random cookie issued once, then reused',{skip},
  assert(anon,'anonymous cookie issued on first contact');
  for(const attr of ['HttpOnly','Secure','SameSite=Lax','Path=/','Max-Age='])assert(anon.includes(attr),attr);
  assert.match(h.jar.nerulio_anon,/^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}$/,'random id + HMAC');
- assert.deepEqual(first.json,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},billing:{mode:'off'},turnstileSiteKey:''});
+ // No database rows exist for an anonymous visitor who never ran a heavy job.
+ assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
+ const {grace,...rest}=first.json;
+ assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},turnstileSiteKey:''});
+ // Signed offline allowance: none before the identity's first counted job of the day…
+ assert.equal(grace.day,'2026-09-21');assert.deepEqual([grace.heavy,grace.studio],[[],[]]);
+ await h.authorize('studio-pack-export');
+ // …then up to OFFLINE_GRACE_EXPORTS (3) opaque tokens, never more than what is left (3-1=2).
+ const later=(await h.call('GET','/api/v1/me')).json.grace;
+ assert.equal(later.heavy.length,0);assert.equal(later.studio.length,2);
+ assert(later.studio.every(t=>/^s[1-2]\.[A-Za-z0-9_-]{22}$/.test(t)));
  const again=await h.call('GET','/api/v1/me');
  assert.equal(again.setCookies.length,0,'same identity kept');
  // A forged or tampered cookie is replaced, not trusted.
  const [id]=h.jar.nerulio_anon.split('.');h.jar.nerulio_anon=id+'.AAAA';
  const forged=await h.call('GET','/api/v1/me');
  assert(forged.setCookies.some(c=>c.startsWith('nerulio_anon=')));
- // No database rows exist for an anonymous visitor who never ran a heavy job.
- assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
 });
 
 test('API responses are JSON, private, and never CORS-enabled',{skip},async()=>{
@@ -216,8 +224,13 @@ test('expired Pro falls back to Free; scheduled cancellation stays Pro until per
  h.clock.now+=3600e3+1;
  me=(await h.call('GET','/api/v1/me')).json;
  assert.equal(me.plan,'free');assert.equal(me.ads,true);assert.equal(me.usage.limit,30);
- const other=harness(),{id:u2}=await signIn(other);await grantPro(other,u2,{status:'canceled'});
- assert.equal((await other.call('GET','/api/v1/me')).json.plan,'free','canceled status is not Pro');
+ // Canceled (incl. after a voluntary refund) keeps the paid period, then Free; paused is never Pro.
+ const other=harness(),{id:u2}=await signIn(other);await grantPro(other,u2,{status:'canceled',end:other.clock.now+3600e3});
+ assert.equal((await other.call('GET','/api/v1/me')).json.plan,'pro','the paid period of a canceled subscription is honoured');
+ other.clock.now+=3600e3+1;
+ assert.equal((await other.call('GET','/api/v1/me')).json.plan,'free','canceled and past its period end is Free');
+ const third=harness(),{id:pausedUser}=await signIn(third);await grantPro(third,pausedUser,{status:'paused'});
+ assert.equal((await third.call('GET','/api/v1/me')).json.plan,'free','paused is not Pro');
  const pastDue=harness(),{id:u3}=await signIn(pastDue);await grantPro(pastDue,u3,{status:'past_due'});
  assert.equal((await pastDue.call('GET','/api/v1/me')).json.plan,'free');
 });
@@ -243,6 +256,7 @@ function idToken(claims){const enc=o=>base64url(new TextEncoder().encode(JSON.st
 test('Google OAuth: state + PKCE + nonce, subject-keyed identity, anonymous usage carried over',{skip},async()=>{
  const h=harness({GOOGLE_OAUTH_CLIENT_ID:'client-1',GOOGLE_OAUTH_CLIENT_SECRET:'shh'});
  await h.authorize();await h.authorize();// 2 anonymous jobs today
+ await h.authorize('studio-pack-export');// and 1 Studio export (its own counter)
  const start=await h.call('GET','/api/v1/auth/google/start?return=/ko/pricing/');
  assert.equal(start.status,302);
  const loc=new URL(start.headers.get('location'));
@@ -268,6 +282,7 @@ test('Google OAuth: state + PKCE + nonce, subject-keyed identity, anonymous usag
  for(const attr of ['HttpOnly','Secure','SameSite=Lax','Path=/'])assert(session.includes(attr),attr);
  const me=(await h.call('GET','/api/v1/me')).json;
  assert.equal(me.loggedIn,true);assert.equal(me.usage.used,2,'signing in is not a quota reset');
+ assert.equal(me.studioUsage.used,1,'Studio exports carry over on sign-in too');
  assert.equal(h.db.raw.prepare("SELECT provider_subject FROM users").get().provider_subject,'1098');
  // same Google subject with a different e-mail is the same account
  const s3=await h.call('GET','/api/v1/auth/google/start'),l3=new URL(s3.headers.get('location'));
@@ -311,8 +326,9 @@ test('billing webhook: signature required, activation is webhook-driven and idem
  const dup=await sandboxWebhook(h,event);assert.equal(dup.json.duplicate,true);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM billing_events').get().n,1);
  // An older event delivered late cannot overwrite newer state.
- await sandboxWebhook(h,subEvent(id,{status:'canceled'}),{});// same occurredAt → applies (>=)
- assert.equal((await h.call('GET','/api/v1/me')).json.plan,'free');
+ await sandboxWebhook(h,subEvent(id,{status:'canceled',currentPeriodEnd:null}),{});// same occurredAt → applies (>=)
+ let cur=(await h.call('GET','/api/v1/me')).json;
+ assert.equal(cur.subscription.status,'canceled');assert.equal(cur.plan,'pro','canceled keeps the stored paid period');
  const newer={...subEvent(id,{status:'active'}),occurredAt:new Date(DAY0+1000).toISOString()};await sandboxWebhook(h,newer);
  const older={...subEvent(id,{status:'canceled'}),occurredAt:new Date(DAY0-1000).toISOString()};await sandboxWebhook(h,older);
  assert.equal((await h.call('GET','/api/v1/me')).json.plan,'pro','out-of-order older event ignored');
@@ -351,7 +367,7 @@ test('Paddle adapter: signature verification and normalization',async()=>{
  assert.equal(await paddle.verifyWebhook({headers,body:body+' ',env,now:DAY0}),false);
  assert.equal(await paddle.verifyWebhook({headers,body,env,now:DAY0+3600e3}),false,'replay window');
  const e=paddle.normalizeWebhook(JSON.parse(body),env);
- assert.deepEqual(e.subscription,{externalSubscriptionId:'sub_1',externalCustomerId:'ctm_1',userId:'u1',plan:'pro',status:'active',currentPeriodEnd:Date.parse('2026-10-21T10:00:00Z'),cancelAtPeriodEnd:true});
+ assert.deepEqual(e.subscription,{externalSubscriptionId:'sub_1',externalCustomerId:'ctm_1',userId:'u1',plan:'pro',priceId:'pri_pro',status:'active',currentPeriodEnd:Date.parse('2026-10-21T10:00:00Z'),cancelAtPeriodEnd:true});
  assert.equal(paddle.normalizeWebhook({...JSON.parse(body),data:{...JSON.parse(body).data,items:[{price:{id:'pri_other'}}]}},env).subscription.plan,'other');
 });
 
@@ -382,9 +398,9 @@ test('admin stats are aggregate-only and hidden from non-admins',{skip},async()=
  const h=harness({ADMIN_GOOGLE_SUBJECTS:'admin-sub'});
  assert.equal((await h.call('GET','/api/v1/admin/stats')).status,404);
  await signIn(h,{subject:'someone'});assert.equal((await h.call('GET','/api/v1/admin/stats')).status,404);
- const a=harness({ADMIN_GOOGLE_SUBJECTS:'admin-sub'});await a.authorize();await signIn(a,{subject:'admin-sub'});
+ const a=harness({ADMIN_GOOGLE_SUBJECTS:'admin-sub'});await a.authorize();await a.authorize('studio-tile-export');await a.authorize('studio-tile-export');await signIn(a,{subject:'admin-sub'});
  const stats=await a.call('GET','/api/v1/admin/stats');
- assert.equal(stats.status,200);assert.equal(stats.json.users,1);assert.equal(stats.json.freeHeavyJobsToday,1);
+ assert.equal(stats.status,200);assert.equal(stats.json.users,1);assert.equal(stats.json.freeHeavyJobsToday,1);assert.equal(stats.json.freeStudioExportsToday,2);
  assert(!JSON.stringify(stats.json).includes('@'),'no personal data');
  a.clock.now+=13*3600e3;assert.equal((await a.call('GET','/api/v1/admin/stats')).status,404,'admin must have signed in recently');
 });
@@ -396,4 +412,37 @@ test('Worker entry routes /api/v1 to the API and everything else to static asset
  const other=await worker.fetch(new Request(ORIGIN+'/api/v2/x'),env,{});assert.equal(other.status,404);
  const page=await worker.fetch(new Request(ORIGIN+'/en/image/crop/'),env,{});
  assert.deepEqual(seen,['/en/image/crop/']);assert.equal(await page.text(),'<html><script src="x.js"></script></html>','no rewrite in non-ad builds');
+});
+
+test('Studio exports: own daily counter (FREE_DAILY_STUDIO_EXPORTS), separate from file-tool heavy jobs',{skip},async()=>{
+ const h=harness({FREE_DAILY_JOBS:'2',FREE_DAILY_STUDIO_EXPORTS:'3'});
+ let me=(await h.call('GET','/api/v1/me')).json;
+ assert.deepEqual({used:me.studioUsage.used,limit:me.studioUsage.limit,remaining:me.studioUsage.remaining},{used:0,limit:3,remaining:3});
+ for(let i=1;i<=3;i++){const r=await h.authorize(i===2?'studio-tile-export':i===3?'studio-texture-export':'studio-pack-export');assert.equal(r.status,200);assert.deepEqual([r.json.allowed,r.json.used,r.json.remaining,r.json.kind],[true,i,3-i,'studio']);}
+ const denied=await h.authorize('studio-pack-export');
+ assert.equal(denied.status,429);assert.equal(denied.json.error.code,'DAILY_LIMIT');assert.equal(denied.json.kind,'studio');assert.equal(denied.json.limit,3);
+ assert.equal(denied.json.resetAt,new Date(Date.UTC(2026,8,22)).toISOString());
+ // the file tools' counter is untouched by Studio exports, and vice versa
+ assert.equal((await h.authorize('upscale')).json.used,1);assert.equal((await h.authorize('upscale')).json.used,2);assert.equal((await h.authorize('upscale')).status,429);
+ me=(await h.call('GET','/api/v1/me')).json;
+ assert.equal(me.usage.used,2);assert.equal(me.studioUsage.used,3);assert.equal(me.studioUsage.remaining,0);
+ const usage=(await h.call('GET','/api/v1/usage')).json;assert.equal(usage.studioUsage.remaining,0);assert.equal(usage.usage.remaining,0);
+ assert.equal(h.db.raw.prepare("SELECT used FROM daily_usage WHERE subject_id LIKE 'a:%#studio'").get().used,3,'never exceeds the Studio limit');
+ h.clock.now=Date.UTC(2026,8,22,0,0,1);
+ assert.equal((await h.authorize('studio-pack-export')).json.used,1,'resets at 00:00 UTC');
+});
+test('Studio: light actions are never metered, unknown ids are rejected, Pro is unlimited',{skip},async()=>{
+ const h=harness({FREE_DAILY_STUDIO_EXPORTS:'1'});
+ for(const id of ['studio-import','studio-save-project','studio-autosave','studio-aseprite-export','studio-texture-quick-png','studio-pack-preview'])assert.equal((await h.authorize(id)).json.error.code,'NOT_METERED',id);
+ assert.equal((await h.authorize('studio-anything')).json.error.code,'UNKNOWN_TOOL');
+ assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
+ const p=harness({FREE_DAILY_STUDIO_EXPORTS:'1'}),{id}=await signIn(p);await grantPro(p,id);
+ const me=(await p.call('GET','/api/v1/me')).json;assert.deepEqual(me.studioUsage,{unlimited:true});assert.equal(me.ads,false);
+ for(let i=0;i<4;i++){const r=await p.authorize('studio-pack-export');assert.equal(r.json.allowed,true);assert.equal(r.json.unlimited,true);}
+ assert.equal(p.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
+});
+test('Studio export limit config: default 10, invalid values fall back, network soft limit covers both counters',()=>{
+ assert.equal(runtimeConfig({}).freeDailyStudio,10);assert.equal(runtimeConfig({FREE_DAILY_STUDIO_EXPORTS:'25'}).freeDailyStudio,25);
+ for(const v of ['0','-1','abc','10001','2.5'])assert.equal(runtimeConfig({FREE_DAILY_STUDIO_EXPORTS:v}).freeDailyStudio,10,v);
+ assert.equal(runtimeConfig({FREE_DAILY_JOBS:'30',FREE_DAILY_STUDIO_EXPORTS:'10'}).anonNetworkSoftLimit,160);
 });

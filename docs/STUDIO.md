@@ -1,8 +1,10 @@
 # Nerulio Studio (P0 foundation)
 
 `/game/studio/` (also `/ko/…`, `/en/…`, `/ja/…`) is a full-viewport dark app for 2D game assets:
-menu bar, tool bar, canvas, dockable panels, status bar. It has no site header, footer, SEO copy or
-ads, and it is `noindex,nofollow` and outside the sitemap. P0 ships the shell, the canvas engine,
+menu bar, tool bar, canvas, dockable panels, status bar. It has no site header, footer or SEO copy,
+and it is `noindex,nofollow` and outside the sitemap. Monetization (Free: one labelled desktop ad
+column + a daily count of engine export bundles; Pro: neither) is a separate module — see
+"Monetization" below. P0 ships the shell, the canvas engine,
 the command/undo system, the project store and one small workspace (**Viewer**). The Sprite, Pixel,
 Tile, Texture and UI workspaces (P1–P5) plug into the API described here.
 
@@ -32,6 +34,8 @@ src/studio/workspaces/
   viewer.js                     the Viewer/Import workspace (reference implementation of the API)
   coming.js                     workspaces not built yet, registered as "coming" (no UI of their own)
   tile/                         the Tile workspace (P3) — docs/STUDIO-TILE.md
+  texture/                      the Texture workspace (P4) — docs/STUDIO-TEXTURE.md
+src/studio/monetize/            ad column, Studio export metering, limit dialog (docs/ADS.md, docs/PRICING-MODEL.md)
 src/studio/grid-worker.js       worker: grid suggestion (src/game/grid-detect.js) and per-cell occupancy
 ```
 
@@ -136,6 +140,30 @@ Rules for workspaces: edits go through `ctx.execute` (never mutate the document)
 `src/studio/strings.js` in all three languages; heuristics show their confidence and are applied only
 by an explicit user action (the Viewer's grid suggestion is the pattern: preview + "not applied" +
 Apply); no button for a feature that does not exist yet.
+
+## Monetization (`src/studio/monetize/`)
+
+Off unless the build has accounts (`SERVICE_API=on`) or the Studio ad unit (`ADSENSE_CLIENT` +
+`ADSENSE_SLOT_STUDIO` + `ADSENSE_CMP_READY`); a build without them loads only `meter.js` and
+`strings.js` (both tiny) and behaves exactly as before.
+
+* **Hooks in shared files** (keep them when merging): `tools/studio-build.mjs` adds the config
+  metas, `monetize.css` and `boot.js` to the head; `src/studio/main.js` awaits
+  `prepareMonetization()` before `createStudio()` and calls `attach(studio, root)` right after it,
+  so the ad column is part of the editor's first layout. `app.js` and `studio.css` are untouched.
+* **Ad column** (`ad-column.js`, `layout.js`): a fifth grid track after the right dock
+  (`.studio.has-ad`), only at ≥ 1280×700 CSS px, 160×600 or 300×600 fixed at mount, labelled,
+  never refreshed; Pro / unreachable service → never mounted and no Google request. Menus are kept
+  left of it and dialog backdrops stop at it. Details and policy basis: docs/ADS.md.
+* **Metering a new export** (`meter.js`): add the id to `STUDIO_ACTIONS` in `src/quota.js`
+  (`'studio'` for an engine bundle, `'none'` for anything light) and put
+  `if(!await meter('<id>'))return;` right before the work starts (after validation, so a refused
+  or invalid export never costs a count). A refusal must leave the document untouched. Give the
+  workspace's main export button `data-action="…"` and list it in `notes.js` `METERED_BUTTONS` so
+  the remaining-count note can follow it. Current call sites: `workspaces/pack.js` `runExport`,
+  `workspaces/tile/index.js` `doExport`, `workspaces/texture/panels.js` export button.
+* **Limit dialog** (`limit-dialog.js`): Studio `modal()`, reset time, work-is-safe note, Save
+  project (runs `file.save`), See Pro (new tab).
 
 ## Known gaps (P0)
 

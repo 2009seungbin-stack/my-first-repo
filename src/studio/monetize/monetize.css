@@ -1,0 +1,35 @@
+/* Studio monetization: the desktop ad column (docs/ADS.md) and the export-limit UI.
+ * Loaded render-blocking from the head only when accounts or the Studio ad unit are on, so the
+ * column is laid out in the same frame as the editor (no layout shift). */
+.st-ad{display:none}
+@media (min-width:1280px) and (min-height:700px){
+ /* the column is a fifth grid track after the right dock; its width is fixed at mount */
+ .studio.has-ad[data-mode="desktop"] .st-body{grid-template-columns:var(--tool-w) minmax(0,1fr) 4px var(--right-w) var(--ad-col)}
+ .studio.has-ad.right-closed[data-mode="desktop"] .st-body{grid-template-columns:var(--tool-w) minmax(0,1fr) 0 0 var(--ad-col)}
+ /* with the dock closed its 0-wide resizer would sit right beside the column: nothing to resize, so hide it */
+ .studio.has-ad.right-closed[data-mode="desktop"] .st-split-x{display:none}
+ .studio.has-ad[data-mode="desktop"] .st-ad{display:flex;grid-column:5;grid-row:1}/* explicit: a hidden (closed) dock takes no track */
+ /* nothing of the editor ever covers the ad: the drop hint and dialog backdrops stop at the column */
+ .studio.has-ad[data-mode="desktop"] .st-drop{right:var(--ad-col)}
+ .studio.has-ad[data-mode="desktop"] .st-dialog::backdrop{right:var(--ad-col)}
+}
+.st-ad{flex-direction:column;align-items:center;min-width:0;min-height:0;overflow:hidden;padding:10px 20px 12px;background:#0e1013;border-left:1px solid var(--line-2);box-shadow:inset 1px 0 0 #000;contain:layout paint}
+.studio[data-theme="light"] .st-ad{background:#d3d6db}
+.st-ad-label{align-self:stretch;height:16px;margin:0 0 6px;font-size:10px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);text-align:center}
+.st-ad-slot{position:relative;flex:none;background:repeating-linear-gradient(135deg,transparent 0 8px,rgba(255,255,255,.015) 8px 16px)}
+.st-ad-slot>ins.adsbygoogle{display:block}
+/* Google's documented way to hide an unfilled unit; the reserved slot keeps its size */
+.st-ad-slot>ins.adsbygoogle[data-ad-status="unfilled"]{display:none!important}
+.st-ad-house{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:14px;text-align:center;font-size:11px;line-height:1.5;color:var(--text-3)}
+.st-ad-house[hidden]{display:none}
+.st-ad-pro{margin-top:auto;padding-top:24px;font-size:11px;color:var(--text-2);text-decoration:underline;text-underline-offset:2px;text-align:center}
+.st-ad-pro:hover{color:var(--text)}
+/* export limit: remaining note beside a metered button, only when low */
+.st-meter-left{display:block;margin:4px 0 0;font-size:11px;color:var(--warn);font-variant-numeric:tabular-nums}
+.st-meter-left.is-out{color:var(--danger)}
+.st-meter-left.is-signin{color:var(--accent,#4ea1ff)}
+.st-limit .st-dialog-body p{margin:6px 0}
+.st-limit-safe{padding:8px 10px;border-radius:5px;background:var(--bg-2);border-left:3px solid var(--accent)}
+.st-limit-pro{margin:10px 0 2px;padding:10px 12px;border:1px solid var(--line-2);border-radius:6px;background:var(--bg-2)}
+.st-limit-pro strong{display:block;margin-bottom:4px}
+.st-limit-pro ul{margin:0;padding-left:18px;color:var(--text-2)}

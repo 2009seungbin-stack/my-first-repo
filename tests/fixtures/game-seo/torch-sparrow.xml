@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="Torch_Sheet.png">
+	<!-- hand-written test fixture: Sparrow XML with trimmed frames, FNF-style names -->
+	<SubTexture name="torch flame0000" x="10" y="5" width="12" height="25" frameX="-10" frameY="-5" frameWidth="32" frameHeight="32"/>
+	<SubTexture name="torch flame0001" x="42" y="5" width="12" height="25" frameX="-10" frameY="-5" frameWidth="32" frameHeight="32"/>
+	<SubTexture name="torch flame0002" x="74" y="5" width="12" height="25" frameX="-10" frameY="-5" frameWidth="32" frameHeight="32"/>
+	<SubTexture name="torch dim0000" x="10" y="38" width="12" height="24" frameX="-10" frameY="-6" frameWidth="32" frameHeight="32"/>
+	<SubTexture name="torch dim0001" x="42" y="38" width="12" height="24" frameX="-10" frameY="-6" frameWidth="32" frameHeight="32"/>
+	<SubTexture name="torch dim0002" x="74" y="38" width="12" height="24" frameX="-10" frameY="-6" frameWidth="32" frameHeight="32"/>
+</TextureAtlas>

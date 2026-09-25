@@ -15,13 +15,16 @@ function render(){
  if(state==='offline'||!me){body.innerHTML=`<p>${esc(t('serviceDown'))}</p>`;say('serviceDown',true);return;}
  const signIn=apiPath(`auth/google/start?return=${encodeURIComponent(`/${locale}/account/`)}`);
  if(!me.loggedIn){
-  body.innerHTML=`<p class="service-lead">${esc(t('signedOutLead'))}</p><dl><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd><dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
+  const su=me.studioUsage,anonNote=su?.signInLimit?`<small class="service-hint" data-studio-anon>${esc(t('studioAnon',{a:su.limit,s:su.signInLimit}))}</small>`:'';
+  body.innerHTML=`<p class="service-lead">${esc(t('signedOutLead'))}</p><dl><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd>${su?`<dt>${esc(t('studioExports'))}</dt><dd><span data-studio-usage>${su.used} / ${su.limit}</span>${anonNote}</dd>`:''}<dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
 <div class="service-actions"><a class="primary" data-signin href="${esc(signIn)}">${esc(t('signIn'))}</a><a class="secondary" href="${locale}/pricing/">${esc(t('pricing'))}</a></div>`;
  }else{
   const pro=me.plan==='pro',sub=me.subscription;
   const rows=[[t('name'),me.user.name||'—'],[t('email'),me.user.email||'—'],[t('plan'),pro?t('pro'):t('free')],
-   [t('heavyJobs'),pro?t('unlimited'):`${me.usage.used} / ${me.usage.limit}`,'data-usage'],...(!pro?[[t('reset'),duration(locale,Date.parse(me.usage.resetAt)-Date.now()),'data-reset']]:[]),[t('ads'),me.ads?t('on'):t('off'),'data-ads'],
-   ...(pro&&sub?.currentPeriodEnd?[['',t(sub.cancelAtPeriodEnd?'endsOn':'renewsOn',{date:dateText(sub.currentPeriodEnd)})]]:[])];
+   [t('heavyJobs'),pro?t('unlimited'):`${me.usage.used} / ${me.usage.limit}`,'data-usage'],...(me.studioUsage?[[t('studioExports'),pro?t('unlimited'):`${me.studioUsage.used} / ${me.studioUsage.limit}`,'data-studio-usage']]:[]),...(!pro?[[t('reset'),duration(locale,Date.parse(me.usage.resetAt)-Date.now()),'data-reset']]:[]),[t('ads'),me.ads?t('on'):t('off'),'data-ads'],
+   ...(pro&&sub?.currentPeriodEnd&&!sub.pastDue?[['',t(sub.cancelAtPeriodEnd||sub.status==='canceled'?'endsOn':'renewsOn',{date:dateText(sub.currentPeriodEnd)})]]:[]),
+   ...(pro&&sub?.pastDue&&sub.graceEndsAt?[['',t('pastDue',{date:dateText(sub.graceEndsAt)}),'data-past-due']]:[]),
+   ...(sub?.disputed?[['',t('disputed'),'data-disputed']]:[])];
   body.innerHTML=`<dl>${rows.map(([k,v,a])=>`<dt>${esc(k)}</dt><dd ${a||''}>${esc(v)}</dd>`).join('')}</dl>
 <div class="service-actions">${pro?(me.billing.mode!=='off'&&sub?.provider!=='manual'?`<button type="button" class="secondary" data-manage>${esc(t('manage'))}</button>`:''):`<a class="primary" href="${locale}/pricing/">${esc(t('upgrade'))}</a>`}<button type="button" class="secondary" data-signout>${esc(t('signOut'))}</button></div>`;
  }
@@ -31,7 +34,7 @@ body.addEventListener('click',async event=>{
  if(target.matches('[data-signin]')){track('login_started');return;}
  event.preventDefault();target.disabled=true;
  try{
-  if(target.matches('[data-signout]')){await logout();render();return;}
+  if(target.matches('[data-signout]')){await logout();render();try{new BroadcastChannel('nerulio-account').postMessage('changed');}catch{}return;}
   const r=await fetch(apiPath('billing/portal'),{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:'{}'});
   const data=await r.json().catch(()=>null);
   if(r.ok&&data?.url)location.assign(data.url);else say('serviceDown',true);
@@ -51,11 +54,16 @@ async function awaitActivation(){
 if(!entitlement.enabled){render();}
 else{
  await load();render();
- if(params.get('login')==='ok')track('login_completed');
+ if(params.get('login')==='ok'){
+  track('login_completed');
+  // Tell the tab that opened sign-in (e.g. the Studio, whose project is still in memory).
+  try{new BroadcastChannel('nerulio-account').postMessage('signed-in');}catch{}
+  if(params.get('from')==='studio'&&current().me?.loggedIn)say('backToStudio');
+ }
  if(params.get('login')==='failed')say('loginFailed',true);
  if(params.get('checkout')==='sandbox')say('sandbox');
  if(params.get('checkout')==='success'&&current().me?.plan!=='pro')awaitActivation();
- if(params.has('login')||params.has('checkout')||params.has('portal')){const clean=new URL(location.href);for(const k of ['login','reason','checkout','reference','portal'])clean.searchParams.delete(k);history.replaceState(null,'',clean);}
+ if(params.has('login')||params.has('checkout')||params.has('portal')){const clean=new URL(location.href);for(const k of ['login','reason','checkout','reference','portal','from'])clean.searchParams.delete(k);history.replaceState(null,'',clean);}
  // Countdown is local arithmetic; it never polls the server.
  setInterval(()=>{const me=current().me,el=body.querySelector('[data-reset]');if(me?.usage?.resetAt&&el)el.textContent=duration(locale,Date.parse(me.usage.resetAt)-Date.now());},60e3);
 }

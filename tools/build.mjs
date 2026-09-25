@@ -1,5 +1,7 @@
 import {mayPromote} from '../src/capabilities.js';
-import {imageSitemap,verificationHead,notFound} from './growth-build.mjs';
+import {verificationHead,notFound} from './growth-build.mjs';
+// Sitemap index + per-area sitemaps with hreflang and real lastmod (tools/sitemaps.mjs, tools/lastmod.mjs).
+import {sitemapFiles,allPagesSitemap,SITEMAP_INDEX} from './sitemaps.mjs';import {lastmodResolver,pageHashes} from './lastmod.mjs';
 import {BRAND} from '../src/brand.js';
 import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
@@ -16,10 +18,14 @@ import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigat
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
+import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths} from './game-landing-build.mjs';
+import {gameHead} from './game-seo-build.mjs';
+import {GAME_HUB_PATH} from '../src/game-seo.js';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH].map(r=>`${l}/${r}`)])];
+// /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
@@ -28,14 +34,25 @@ export function entry(html,route='',siteURL='',config={}){
  const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
- if(parts.path===STUDIO_PATH)return studioPage({locale,base});
+ if(parts.path===STUDIO_PATH)return studioPage({locale,base,config});
+ // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
+ const game=gamePageFor(parts.path);
+ if(game){
+  // adHead: in-content ad positions on the landings and the hub (markers in [data-ad-host]; docs/ADS.md).
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=gameHead(game,locale,siteURL,config)+adHead(config);
+  return game.kind==='hub'?gameHubPage({locale,prefix,base,headHTML}):gameLandingPage({game,locale,prefix,base,headHTML});
+ }
  // A landing page (src/landings.js) is its base tool with its own copy and canonical URL.
  const land=landingText(parts.path,locale),landing=land?parts.path:'';
  const title=(land?.title||t(`intent.${id}.title`,{},locale))+' · '+BRAND.name,description=land?.description||t(`intent.${id}.description`,{},locale);
  // The home directory and migrated tools use the single-task UI (src/task); every other
  // route keeps the classic editor until its task page is a superset of that flow.
  if(!parts.path||isTask(id)){
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  // <game route>/classic: the old Lab behind a Studio landing — reachable, never indexed.
+  const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':'';
+  // The home page at / adapts to the visitor's language: its own canonical and the x-default (src/seo.js).
+  const neutralHome=!parts.locale&&!parts.path;
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
   return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
@@ -59,12 +76,9 @@ function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
  return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service,!!config.webAnalytics)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
-export function sitemap(siteURL,extra=[]){
- // Landing pages are listed only when their base tool is qualified for search.
- const paths=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent)),...POLICY_ROUTES,...extra];
- const urls=siteURL?paths.flatMap(p=>LOCALES.map(l=>`<url><loc>${escape(new URL(pagePath(p,l),siteURL).href)}</loc>${[...LOCALES,null].map(a=>`<xhtml:link rel="alternate" hreflang="${a||'x-default'}" href="${escape(new URL(pagePath(p,a),siteURL).href)}"/>`).join('')}</url>`)).join(''):'';
- return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`;
-}
+/** Every indexable page URL in one urlset: home, game pages, guides, then the file tools (tests,
+ * IndexNow). The published sitemap.xml is an index of per-area sitemaps (tools/sitemaps.mjs). */
+export function sitemap(siteURL,extra=[],lastmod){return allPagesSitemap(siteURL,extra,lastmod);}
 export async function build(options={}){
  const env={...(options.env||process.env)};
  if(options.siteURL!==undefined)env.SITE_URL=options.siteURL;
@@ -86,14 +100,14 @@ export async function build(options={}){
  for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
- await writeFile(path.join(dist,'sitemap.xml'),sitemap(config.preview?'':siteURL,config.service?['pricing']:[]));
- await writeFile(path.join(dist,'sitemap-images.xml'),imageSitemap(config.preview?'':siteURL));
+ const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
+ for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
- await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL('sitemap.xml',siteURL).href+'\nSitemap: '+new URL('sitemap-images.xml',siteURL).href+'\n':''}`);
+ await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL(SITEMAP_INDEX,siteURL).href+'\n':''}`);
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
  }
  if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);

@@ -1,6 +1,6 @@
 # 인증과 세션
 
-Free 도구 사용에는 **로그인이 필요 없다.** 로그인은 Pro 구매와 계정 관리에만 쓴다.
+Free 도구 사용에는 **로그인이 필요 없다.** 예외는 스튜디오 엔진 내보내기: 계정 없이 하루 `FREE_ANON_STUDIO_EXPORTS`회(기본 3) 뒤에는 무료 Google 로그인이 필요하다(새 탭에서 열려 작업 중인 탭과 프로젝트는 그대로). 그 밖의 로그인은 Pro 구매와 계정 관리에 쓴다. 로그아웃하면 그날 사용량이 브라우저의 익명 식별자로 되돌아가고, 계정당 동시 세션은 `MAX_SESSIONS_PER_USER`(기본 5)개까지다.
 
 ## 식별자 종류
 
@@ -9,7 +9,7 @@ Free 도구 사용에는 **로그인이 필요 없다.** 로그인은 Pro 구매
 | `nerulio_anon` | 128비트 무작위 ID + HMAC-SHA256(`SESSION_SECRET`, `anon/v1`) 서명 | HttpOnly, Secure, SameSite=Lax, Path=/ | 400일 |
 | `nerulio_session` | 256비트 무작위 토큰 (원문) | HttpOnly, Secure, SameSite=Lax, Path=/ | 30일 |
 | `nerulio_oauth` | state·PKCE verifier·nonce·복귀 경로의 서명된 묶음 | HttpOnly, Secure, SameSite=Lax, Path=/api/v1/auth/ | 10분 |
-| `nerulio_human` | Turnstile 통과 표시 (익명 ID 결합, 서명) | HttpOnly, Secure, SameSite=Lax | 12시간 |
+| `nerulio_human` | Turnstile 통과 표시 (통과한 식별자 — 로그인 시 계정, 아니면 익명 ID — 에 결합, 서명) | HttpOnly, Secure, SameSite=Lax | 12시간 |
 
 - 서명이 맞지 않는 `nerulio_anon`은 신뢰하지 않고 새로 발급한다(임의 ID로 DB 행을 만들 수 없음).
 - 익명 방문자는 heavy 작업을 실행하기 전까지 **DB 행이 생기지 않는다.**

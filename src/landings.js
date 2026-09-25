@@ -3,6 +3,7 @@
  * duplicate of the base page. A landing inherits its base tool's indexing decision: if the
  * tool is not qualified for search (src/capabilities.js), neither is the landing.
  * Dependency-free: shared by the static build, the browser and tests. */
+import {GAME_KEYWORD_PAGES} from './game-seo.js';
 const F={png:'PNG',jpeg:'JPG',webp:'WebP',avif:'AVIF',bmp:'BMP',heic:'HEIC',mp4:'MP4',mov:'MOV',webm:'WebM',pdf:'PDF',gif:'GIF',mp3:'MP3'};
 const NOTE={
  png:{ko:'PNG는 무손실이고 투명 배경을 지원해 로고·스크린샷·그래픽에 적합하지만 사진은 용량이 큽니다.',en:'PNG is lossless and supports transparency — ideal for logos, screenshots and graphics, but large for photos.',ja:'PNGは可逆圧縮で透明に対応し、ロゴ・スクリーンショット向きですが写真は容量が大きくなります。'},
@@ -72,7 +73,10 @@ export const LANDINGS=Object.freeze({
  'image/heic-to-png':convert('heic','png','heic'),
  ...Object.fromEntries([20,50,100,200,500,1000].map(kb=>[`image/compress-to-${kb>=1000?kb/1000+'mb':kb+'kb'}`,compress(kb)])),
  ...Object.fromEntries(Object.entries(SOCIAL).map(([slug,[name,w,h]])=>[`image/resize/${slug}`,resize(name,w,h)])),
- ...Object.fromEntries([['mp4','gif'],['mov','gif'],['webm','gif'],['mp4','mp3'],['mov','mp3'],['webm','mp3']].map(([a,b])=>[`video/${a}-to-${b}`,video(a,b)]))
+ ...Object.fromEntries([['mp4','gif'],['mov','gif'],['webm','gif'],['mp4','mp3'],['mov','mp3'],['webm','mp3']].map(([a,b])=>[`video/${a}-to-${b}`,video(a,b)])),
+ // Game-dev search pages (src/game-seo.js): rendered as game landings that open the Studio
+ // (tools/game-landing-build.mjs); `studio` carries their workspace, screenshot and copy.
+ ...Object.fromEntries(Object.entries(GAME_KEYWORD_PAGES).map(([path,p])=>[path,{intent:p.intent,query:'',studio:p,text:per(l=>({title:p.copy[l].title,headline:p.copy[l].title,description:p.copy[l].description,intro:[p.copy[l].lead,...p.copy[l].what]}))}]))
 });
 export const LANDING_PATHS=Object.freeze(Object.keys(LANDINGS));
 export const landingFor=path=>Object.hasOwn(LANDINGS,path)?LANDINGS[path]:null;

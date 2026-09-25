@@ -1,0 +1,149 @@
+/* Nerulio game site — shared design system for the home (/), the /game/ hub and every game landing.
+ * Same dark language as the Studio (src/studio/studio.css): neutral greys, one cyan accent, dense
+ * UI type, the art as the colour. Page-specific rules live in src/game-home.css and
+ * src/game-landing.css. Tokens: --gs-*. */
+:root{color-scheme:dark;
+ --gs-bg:#0f1114;--gs-bg-2:#131518;--gs-panel:#1b1d21;--gs-panel-2:#23262b;--gs-well:#0c0d10;
+ --gs-line:#2a2e34;--gs-line-2:#3a3f47;
+ --gs-text:#e9ebee;--gs-text-2:#b3b9c2;--gs-text-3:#8c939d;--gs-head:#f5f6f8;
+ --gs-accent:#4cc2ff;--gs-accent-2:#8fdcff;--gs-accent-ink:#04131c;--gs-accent-soft:#4cc2ff1f;
+ --gs-ok:#7bd88f;--gs-built:#b69cff;--gs-decoded:#56c7c1;--gs-partial:#e8c35a;--gs-warn:#ffa24f;
+ --gs-radius:12px;--gs-radius-s:8px;--gs-radius-l:18px;
+ --gs-max:1200px;--gs-gutter:24px;--gs-header-h:60px;
+ --gs-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -20px #000c,0 0 0 1px #00000080;
+ --gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+ --gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+ --gs-mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,monospace;
+ --gs-track-display:-.035em;--gs-track-h:-.02em}
+/* CJK: the language's own face before the other script's, gentler tracking, keep words whole. */
+html[lang="ko"]{--gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--gs-track-display:-.025em;--gs-track-h:-.015em}
+html[lang="ja"]{--gs-font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-font-display:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",system-ui,sans-serif;--gs-track-display:-.01em;--gs-track-h:0em}
+html{background:var(--gs-bg);-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--gs-header-h) + 16px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body[data-gs]{margin:0;background:var(--gs-bg);color:var(--gs-text);font:16px/1.65 var(--gs-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip;text-rendering:optimizeLegibility}
+html[lang="ko"] body[data-gs]{word-break:keep-all;overflow-wrap:anywhere}
+html[lang="ja"] body[data-gs]{line-break:strict;overflow-wrap:anywhere}
+/* Long unbreakable runs ("hover·pressed·disabled·focus", keep-all Korean) must never push a phone page
+   sideways, whatever fallback font the system has (Linux CI fonts are wider): break only when nothing else fits. */
+[data-gs] :is(h1,h2,h3,h4,p,li,dt,dd,figcaption,summary,small,b,strong,a,td,th,span){overflow-wrap:anywhere}
+[data-gs] *,[data-gs] *::before,[data-gs] *::after{box-sizing:border-box}
+[data-gs] [hidden]{display:none!important}
+[data-gs] img{max-width:100%;height:auto}
+[data-gs] a{color:var(--gs-accent-2);text-decoration:none}
+[data-gs] a:hover{color:#fff}
+[data-gs] :focus-visible{outline:2px solid var(--gs-accent);outline-offset:3px;border-radius:6px}
+[data-gs] h1,[data-gs] h2,[data-gs] h3{font-family:var(--gs-font-display);color:var(--gs-head);text-wrap:balance}
+.gs-wrap{width:100%;max-width:calc(var(--gs-max) + var(--gs-gutter)*2);margin:0 auto;padding:0 var(--gs-gutter)}
+.gs-skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--gs-accent);color:var(--gs-accent-ink)!important;font-weight:800;padding:10px 14px;border-radius:var(--gs-radius-s)}
+.gs-skip:focus{top:10px}
+
+/* ---------------------------------------------------------------- header */
+.gs-header{position:sticky;top:0;z-index:40;background:#0f1114d9;-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid #ffffff12}
+.gs-header-in{display:flex;align-items:center;gap:8px;height:var(--gs-header-h)}
+.gs-brand{display:flex;align-items:center;gap:9px;color:var(--gs-head)!important;flex:none;margin-right:10px}
+.gs-brand svg{width:26px;height:26px;flex:none}
+.gs-brand strong{font:800 19px/1 var(--gs-font-display);letter-spacing:-.03em}.gs-brand strong span{color:var(--gs-accent)}
+.gs-nav{display:flex;align-items:center;gap:2px;min-width:0}
+.gs-nav a{font-size:14px;font-weight:600;color:var(--gs-text-2);padding:7px 11px;border-radius:var(--gs-radius-s);white-space:nowrap}
+.gs-nav a:hover{color:var(--gs-head);background:#ffffff0d}
+.gs-header-end{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+.gs-lang{position:relative;display:flex;align-items:center;color:var(--gs-text-2)}
+.gs-lang svg{position:absolute;left:10px;pointer-events:none}
+.gs-lang select{appearance:none;-webkit-appearance:none;font:600 13px/1 var(--gs-font);color:var(--gs-text);background:transparent;border:1px solid var(--gs-line-2);border-radius:var(--gs-radius-s);height:36px;padding:0 12px 0 32px;cursor:pointer;max-width:9.5em}
+.gs-lang select:hover{border-color:#566070}
+.gs-lang select option{background:var(--gs-panel);color:var(--gs-text)}
+.gs-account{font-size:13px;font-weight:700;color:var(--gs-text-2)!important;padding:8px 10px;border-radius:var(--gs-radius-s)}
+.gs-account:hover{background:#ffffff0d}
+
+/* ---------------------------------------------------------------- buttons */
+.gs-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:10px;border:1px solid transparent;font:750 15px/1 var(--gs-font);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s,box-shadow .15s,transform .15s}
+.gs-btn svg{flex:none}
+.gs-btn-primary,[data-gs] .gs-btn-primary{background:var(--gs-accent);color:var(--gs-accent-ink)!important;box-shadow:0 8px 28px -8px #4cc2ff80,0 1px 0 #ffffff59 inset}
+.gs-btn-primary:hover{background:var(--gs-accent-2);color:var(--gs-accent-ink)!important}
+.gs-btn-ghost{background:#ffffff08;color:var(--gs-head)!important;border-color:var(--gs-line-2)}
+.gs-btn-ghost:hover{background:#ffffff12;border-color:#566070}
+.gs-btn-s{min-height:36px;padding:0 14px;font-size:13.5px;border-radius:var(--gs-radius-s)}
+.gs-btn-l{min-height:52px;padding:0 26px;font-size:16px;border-radius:12px}
+.gs-link{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--gs-accent-2)!important}
+.gs-link::after{content:"→";transition:transform .15s}.gs-link:hover::after{transform:translateX(3px)}
+
+/* ---------------------------------------------------------------- sections */
+.gs-section{padding:96px 0 0}
+.gs-kicker{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;font:700 12.5px/1.2 var(--gs-font);letter-spacing:.08em;text-transform:uppercase;color:var(--gs-accent-2)}
+html[lang="ko"] .gs-kicker,html[lang="ja"] .gs-kicker{letter-spacing:.04em}
+.gs-kicker::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--gs-accent)}
+.gs-h2{font-size:clamp(28px,3.4vw,42px);line-height:1.15;letter-spacing:var(--gs-track-display);font-weight:800;margin:0 0 14px}
+.gs-lead{font-size:clamp(16px,1.35vw,18px);color:var(--gs-text-2);margin:0;max-width:62ch}
+.gs-head{max-width:760px;margin:0 0 44px}
+.gs-muted{color:var(--gs-text-3)}
+.gs-frame{margin:0;border-radius:var(--gs-radius);overflow:hidden;background:var(--gs-well);border:1px solid var(--gs-line-2);box-shadow:var(--gs-shadow)}
+.gs-frame img{display:block;width:100%;height:auto}
+.gs-caption{font-size:13px;line-height:1.5;color:var(--gs-text-3);margin:12px 2px 0}
+
+/* status: the verification words used by the Studio's export panel */
+.gs-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:750;color:var(--gs-ok);white-space:nowrap}
+.gs-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 22%,transparent)}
+.gs-status.is-built{color:var(--gs-built)}.gs-status.is-decoded{color:var(--gs-decoded)}.gs-status.is-partial{color:var(--gs-partial)}.gs-status.is-unverified{color:var(--gs-warn)}.gs-status.is-measured{color:var(--gs-decoded)}.gs-status.is-plain{color:var(--gs-text-2)}
+
+/* FAQ (details/summary) */
+.gs-faq details{border-bottom:1px solid var(--gs-line)}
+.gs-faq details:first-of-type{border-top:1px solid var(--gs-line)}
+.gs-faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 2px;font-weight:700;font-size:16.5px;color:var(--gs-head)}
+.gs-faq summary::-webkit-details-marker{display:none}
+.gs-faq summary::after{content:"";flex:none;width:10px;height:10px;border-right:2px solid var(--gs-text-3);border-bottom:2px solid var(--gs-text-3);transform:rotate(45deg) translate(-3px,-3px);transition:transform .2s}
+.gs-faq details[open] summary::after{transform:rotate(225deg) translate(-3px,-3px)}
+.gs-faq summary:hover{color:#fff}
+.gs-faq details p{margin:-4px 2px 20px;color:var(--gs-text-2);max-width:72ch}
+
+/* ---------------------------------------------------------------- ads (src/ads.js; only when a build enables them) */
+[data-gs] .ad-slot{display:block;margin:72px 0;padding:18px 0 22px;min-height:300px;border-top:1px solid var(--gs-line);border-bottom:1px solid var(--gs-line);text-align:center;min-width:0;contain:layout}
+[data-gs] .ad-label{display:block;font-size:11.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--gs-text-3);margin:0 0 12px}
+html[lang="ko"] [data-gs] .ad-label,html[lang="ja"] [data-gs] .ad-label{letter-spacing:.02em;text-transform:none}
+[data-gs] .ad-slot ins{display:block;min-height:250px}
+[data-gs] .ad-slot:has(ins[data-ad-status=unfilled]){display:none}
+
+/* ---------------------------------------------------------------- footer (markup: src/content.js footer()) */
+.gs-footgrid{display:grid;grid-template-columns:[full-start] minmax(var(--gs-gutter),1fr) [main-start] minmax(0,300px) minmax(0,900px) [main-end] minmax(var(--gs-gutter),1fr) [full-end]}
+.gs-footgrid>*{grid-column:main}
+.gs-footgrid::before{content:"";grid-column:full;grid-row:foot;margin-top:112px;border-top:1px solid var(--gs-line);background:linear-gradient(#0c0d10,#0a0b0d)}
+.gs-footgrid>.gs-footer-brand{grid-column:2;grid-row:foot;margin-top:112px;padding:48px 32px 48px 0}
+.gs-footgrid>.site-footer{grid-column:3;grid-row:foot;margin-top:112px!important;padding:48px 0!important}
+.gs-footgrid{grid-template-rows:auto [foot] auto}
+.gs-footer-brand p{margin:12px 0 0;color:var(--gs-text-3);font-size:13.5px;line-height:1.6;max-width:30ch}
+[data-gs] .site-footer{display:grid;grid-template-columns:2fr 1fr;gap:32px 40px;margin:0;padding:0;max-width:none;font-size:14px;color:var(--gs-text-3);border:0;line-height:1.6}
+[data-gs] .site-footer nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px 24px;align-content:start}
+[data-gs] .site-footer nav:not(.footer-game){grid-template-columns:1fr}
+[data-gs] .site-footer nav::before{content:attr(aria-label);grid-column:1/-1;font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--gs-text-2);margin-bottom:6px}
+html[lang="ko"] [data-gs] .site-footer nav::before,html[lang="ja"] [data-gs] .site-footer nav::before{letter-spacing:.03em}
+[data-gs] .site-footer a{display:block;margin:0;padding:3px 0;color:var(--gs-text-2);text-decoration:none}
+[data-gs] .site-footer a:hover{color:#fff}
+[data-gs] .site-footer p{grid-column:1/-1;margin:8px 0 0;padding-top:20px;border-top:1px solid var(--gs-line);font-size:13px}
+
+/* ---------------------------------------------------------------- toast (src/task/shell.js) */
+[data-gs] .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:min(560px,calc(100vw - 32px));background:var(--gs-panel-2);color:var(--gs-head);border:1px solid var(--gs-line-2);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;box-shadow:0 12px 40px #000a}
+[data-gs] .toast.error{border-color:#ff6b6b80}
+
+@media (min-width:1680px){:root{--gs-max:1320px}}
+@media (max-width:900px){
+ .gs-nav{display:none}
+ .gs-footgrid{grid-template-columns:[full-start] var(--gs-gutter) [main-start] minmax(0,1fr) [main-end] var(--gs-gutter) [full-end];grid-template-rows:auto [foot] auto [foot2] auto}
+ .gs-footgrid>.gs-footer-brand{grid-column:main;grid-row:foot;padding:40px 0 0}
+ .gs-footgrid>.site-footer{grid-column:main;grid-row:foot2;margin-top:0!important;padding:28px 0 40px!important}
+ .gs-footgrid::before{grid-row:foot/span 2}
+}
+@media (max-width:640px){
+ :root{--gs-gutter:16px;--gs-header-h:56px}
+ .gs-brand{margin-right:0}.gs-brand strong{font-size:17px}
+ .gs-header-end{gap:6px}
+ .gs-lang select{width:38px;padding:0;color:transparent;border-color:var(--gs-line-2)}
+ .gs-lang select:focus-visible{color:transparent}
+ .gs-lang svg{left:10px}
+ .gs-account{display:none}
+ .gs-section{padding-top:72px}
+ .gs-head{margin-bottom:32px}
+ [data-gs] .site-footer{grid-template-columns:1fr}
+ .gs-footgrid::before,.gs-footgrid>.gs-footer-brand{margin-top:72px}
+ [data-gs] .site-footer nav{grid-template-columns:1fr 1fr}
+ [data-gs] .ad-slot{margin:56px 0;min-height:290px}
+}
+@media (prefers-reduced-motion:reduce){[data-gs] *,[data-gs] *::before,[data-gs] *::after{transition:none!important;animation:none!important}}

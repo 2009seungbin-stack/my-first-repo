@@ -2,7 +2,7 @@ import {base64url,fromBase64url,randomToken,sha256,sha256Bytes,sign,unsign,safeE
 import {ApiError,cookie,clearCookie,redirect} from './http.js';
 import {OAUTH_COOKIE,SESSION_COOKIE} from './identity.js';
 import {OAUTH_TTL_MS,SESSION_TTL_MS} from './config.js';
-import {carryOverStatement} from './usage.js';
+import {carryOverStatements} from './usage.js';
 /** Google OpenID Connect, authorization-code flow with state, PKCE (S256) and nonce.
  * Login is only needed for Pro purchase and account management — never for Free tools. */
 export const GOOGLE={auth:'https://accounts.google.com/o/oauth2/v2/auth',token:'https://oauth2.googleapis.com/token',issuers:['https://accounts.google.com','accounts.google.com']};
@@ -66,13 +66,20 @@ export async function finishLogin(ctx,cfg,db,now,fetcher=fetch){
  // Signing in again replaces this browser's previous session instead of accumulating them.
  const previous=ctx.cookies[SESSION_COOKIE];
  if(previous&&/^[A-Za-z0-9_-]{43}$/.test(previous))statements.push(db.prepare('DELETE FROM sessions WHERE token_hash=?1').bind(await sha256(previous)));
- if(ctx.anonId)statements.push(carryOverStatement(db,`a:${ctx.anonId}`,`u:${user.id}`,now));
+ if(ctx.anonId)statements.push(...carryOverStatements(db,`a:${ctx.anonId}`,`u:${user.id}`,now));
+ // At most MAX_SESSIONS_PER_USER live sessions per account: the oldest are signed out.
+ statements.push(db.prepare('DELETE FROM sessions WHERE user_id=?1 AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id=?1 ORDER BY created_at DESC,token_hash LIMIT ?2)').bind(user.id,cfg.maxSessionsPerUser||5));
  await db.batch(statements);
  const target=new URL(safeReturnPath(saved.returnTo),ctx.url.origin);target.searchParams.set('login','ok');
  return redirect(target.pathname+target.search,[...ctx.setCookies,clearCookie(OAUTH_COOKIE,{path:'/api/v1/auth/',secure:ctx.secure}),cookie(SESSION_COOKIE,token,{maxAge:SESSION_TTL_MS/1000,secure:ctx.secure})]);
 }
-export async function logout(ctx,db){
- const raw=ctx.cookies[SESSION_COOKIE];
- if(raw&&/^[A-Za-z0-9_-]{43}$/.test(raw))await db.prepare('DELETE FROM sessions WHERE token_hash=?1').bind(await sha256(raw)).run();
+/** Signing out deletes the session and moves today's counters back onto this browser's
+ * anonymous identity (MAX), so "use the account's allowance, sign out, continue anonymously"
+ * is not a second allowance. */
+export async function logout(ctx,db,now=Date.now()){
+ const raw=ctx.cookies[SESSION_COOKIE],statements=[];
+ if(raw&&/^[A-Za-z0-9_-]{43}$/.test(raw))statements.push(db.prepare('DELETE FROM sessions WHERE token_hash=?1').bind(await sha256(raw)));
+ if(ctx.user&&ctx.anonId)statements.push(...carryOverStatements(db,`u:${ctx.user.id}`,`a:${ctx.anonId}`,now));
+ if(statements.length)await db.batch(statements);
  return clearCookie(SESSION_COOKIE,{secure:ctx.secure});
 }

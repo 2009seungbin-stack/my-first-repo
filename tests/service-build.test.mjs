@@ -35,7 +35,7 @@ test('default build is the unchanged static site: no Worker, no account pages, n
   await assert.rejects(read('pricing/index.html'));await assert.rejects(read('verify/index.html'));
   const page=await read('en/image/upscale/index.html');
   assert(!page.includes('nerulio-service'));assert(page.includes('id="accountLink"')&&/id="accountLink"[^>]*hidden/.test(page));
-  assert(!(await read('sitemap.xml')).includes('/pricing/'));
+  for(const f of ['sitemap.xml','sitemap-game.xml','sitemap-tools.xml'])assert(!(await read(f)).includes('/pricing/'),f);
   assert(!(await read('en/privacy/index.html')).includes('nerulio_anon'));
  });
 });
@@ -55,7 +55,7 @@ test('service build: Worker bundle, API-only routes, pages, headers, privacy tex
   for(const l of ['','ko/','en/','ja/'])for(const r of ['pricing','account'])assert((await read(`${l}${r}/index.html`)).includes(`src/${r}-page.js`));
   assert((await read('ko/pricing/index.html')).includes('US$4.99'));
   assert((await read('en/account/index.html')).includes('noindex,nofollow'));
-  assert((await read('sitemap.xml')).includes('/en/pricing/'));assert(!(await read('sitemap.xml')).includes('/account/'));
+  assert((await read('sitemap-tools.xml')).includes('/en/pricing/'));for(const f of ['sitemap.xml','sitemap-game.xml','sitemap-tools.xml'])assert(!(await read(f)).includes('/account/'),f);
   const verify=await read('verify/index.html');assert(verify.includes('noindex')&&!/<script(?![^>]*\bsrc=)/.test(verify),'no inline script');
   const headers=await read('_headers');
   assert(headers.startsWith('/*'));assert(/\/verify\/\*\n  ! Content-Security-Policy\n  Content-Security-Policy: [^\n]*challenges\.cloudflare\.com[^\n]*frame-ancestors 'self'/.test(headers));

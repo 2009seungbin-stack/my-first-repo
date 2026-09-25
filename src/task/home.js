@@ -17,14 +17,20 @@ function relabel(){
  }
  for(const h of document.querySelectorAll('[data-cat]'))h.textContent=text('cat.'+h.dataset.cat);
  for(const a of document.querySelectorAll('[data-tool-link]'))a.href=toolURL(a.dataset.toolLink);
- const shot=$('#heroShot');if(shot){shot.src=`assets/home/studio-sprite-${locale()}.webp`;shot.alt=text('gh.heroAlt');}
+ for(const a of document.querySelectorAll('[data-hub-link]'))a.href=pagePrefix()+'game/'+(a.dataset.hubLink?'#hub-'+a.dataset.hubLink:'');
+ // The product shots are captured per language (tools/home-screens.py): swap them with the copy.
+ const l=locale(),shot=$('#heroShot');
+ if(shot){shot.srcset=[1280,1600,2560].map(w=>`assets/home/shot-hero-${l}-${w}.webp ${w}w`).join(', ');shot.src=`assets/home/shot-hero-${l}-1600.webp`;shot.alt=text('gh.heroAlt');
+  const crop=shot.parentElement.querySelector('source');if(crop)crop.srcset=[780,1040].map(w=>`assets/home/shot-hero-crop-${l}-${w}.webp ${w}w`).join(', ');}
+ for(const img of document.querySelectorAll('img[data-shot]')){const n=img.dataset.shot;img.srcset=`assets/home/shot-${n}-${l}-1040.webp 1040w, assets/home/shot-${n}-${l}-1600.webp 1600w`;img.src=`assets/home/shot-${n}-${l}-1040.webp`;const cap=img.closest('figure')?.querySelector('figcaption');if(cap)img.alt=cap.textContent;}
+ const demo=$('.gh-demo-stage');if(demo)demo.setAttribute('aria-label',text('gh.flow.demo'));
  const q=$('#toolQuery');if(q){q.placeholder=text('search');q.setAttribute('aria-label',text('searchLabel'));}
  filter();if(held.length)suggest(held);
 }
 function filter(){
  const words=($('#toolQuery')?.value||'').toLowerCase().split(/\s+/).filter(Boolean);let shown=0;
  for(const a of document.querySelectorAll('.tool-card[data-tool]')){const hit=words.every(w=>a.dataset.search.includes(w));a.hidden=!hit;if(hit)shown++;}
- for(const s of document.querySelectorAll('.directory section'))s.hidden=!s.querySelector('.tool-card:not([hidden])');
+ for(const s of document.querySelectorAll('.directory section,.directory .gh-group'))s.hidden=!s.querySelector('.tool-card:not([hidden])');
  // folded groups (all game tools, other file tools) open by themselves when a search hits inside them
  for(const d of document.querySelectorAll('#directory details')){const hit=!!d.querySelector('.tool-card:not([hidden])');if(d.id==='file-tools')d.hidden=!hit;if(words.length&&hit)d.open=true;}
  const none=$('#noResult');if(none){none.hidden=shown>0;none.textContent=text('noResult');}

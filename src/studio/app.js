@@ -569,6 +569,10 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    if(handoff.files.length){
     const assets=await importFiles(handoff.files,{from:'handoff'});
     if(handoff.meta&&assets.length)wsInstance?.handoff?.(handoff.meta,assets);
+    // A landing page may name the next workspace (e.g. Pack & Export after frame files). It is
+    // opened only when every imported asset already has frames; a sheet waits for its Apply.
+    const next=handoff.meta?.workspace;
+    if(next&&next!==currentWs&&workspaces.get(next)?.status==='ready'&&assets.length&&assets.every(a=>(P.assetById(doc(),typeof a==='string'?a:a?.id)?.frames?.length||0)>0))activateWorkspace(next);
     if(session)toast(t('toast.previousKept'));
    }else if(session){
     let snap=null;try{snap=(await autosave.list(session.projectId)).find(s=>s.key===session.key);}catch{}
