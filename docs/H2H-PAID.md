@@ -14,14 +14,14 @@ full version was not bought, so what it does is taken from its docs and labelled
 |---|---|---|
 | Sheet size, rotation allowed, 4 of 5 sets (ninja, archer, samurai, toon) | **Win** | 2.0–17.7 % smaller than TexturePacker's MaxRects Best |
 | Sheet size, spaceshooter (294 sprites, 96 sizes) | **Loss** | 0.8 % (square pages) to 2.5 % larger than TexturePacker |
-| Sheet size, rotation off | 3 wins, 2 losses | samurai −8.7 %, ninja −16.9 %. TexturePacker is smaller on archer (0.8 %), toon (3.0 %) and spaceshooter (1.2 %), but only with pages of 5.6:1, 35:1 and 14:1 |
+| Sheet size, rotation off | 2 wins, 3 losses | the Studio is smaller on samurai (−8.7 %) and ninja (−16.9 %). TexturePacker is smaller on archer (0.8 %), toon (3.0 %) and spaceshooter (1.2 %), with pages of 5.6:1, 35:1 and 14:1 |
 | Sheet size, square pages (TexturePacker `--force-squared`) | 4 wins, 1 loss | −2.6 % to −20.6 %; spaceshooter +0.8 % |
 | Sheet size, power of two | Tie | identical page sizes on all 5 sets |
 | Frames restored pixel for pixel | Tie | both 415/415 in every configuration |
 | Duplicates (alias) | Tie | both store 6 of 18 ninja frames. TexturePacker's alias page for archer ×8 is 1.1 % smaller |
 | Multipack (archer ×8, 2048 max, alias off) | **Win** | 5 pages each; the Studio's total area is 1.9 % smaller |
 | PNG file size | Tie | within ±3 % either way (both write indexed PNG when a sheet has ≤ 256 colours) |
-| Pack speed | **Loss** (desktop) | TexturePacker CLI 0.1–2.2 s, including process start. The Studio's modules in Node take 0.01–1.3 s, but the browser worker is slower (1,000 frames: 2.4 s) |
+| Pack speed | Not decided | TexturePacker CLI 0.1–1.9 s per set, including process start. The Studio's modules in Node take 0.01–1.3 s, and TexturePacker is faster only on archer ×8 with alias (1.2 vs. 2.1 s). The Studio's browser worker was not timed on these sets |
 | Phaser 3/4, PixiJS 8, Spine runtime | Tie | both pass on all 4 tested sets. Both leave rotation off for Phaser; TexturePacker's rotated Phaser frames FAIL in Phaser 3.90 and 4.2 |
 | Godot 4 | **Win** (small) | both draw correctly. TexturePacker's path needs its editor plugin and gives AtlasTextures + an AnimationPlayer library, at a fixed 10 fps. It ships no PNG import settings, so Godot's default `fix_alpha_border` recolours faint pixels (archer 8/10 frames exact). The Studio ships a SpriteFrames `.tres`, a `.tscn` and a `.png.import` (10/10) |
 | Unity | Not compared | TexturePacker's importer is on the Unity Asset Store only (needs an Asset Store account action) |
@@ -192,10 +192,12 @@ Notes:
   * archer ×8 multipack 4.5 s
 
   The Studio's modules in Node (decode + pack + draw + encode + write): 0.01, 0.1, 0.16, 0.5,
-  0.6–1.3 and 3.7 s. In the browser the Studio packs in a worker: 1,000 frames in 2.4 s, measured
-  in `docs/STUDIO-PACK.md`. TexturePacker is a native app and is at least as fast. Both are
-  interactive on these sets. **TexturePacker is faster on large jobs**; this run did not measure
-  by how much in the browser.
+  0.6–1.3 and 3.7 s, which is faster on these runs.
+  * TexturePacker is faster on one: archer ×8 with alias at 2048, 1.2 s vs. 2.1 s.
+  * The Studio's real path is a browser worker, and that was **not** timed on these sets. The
+    only browser figure is 1,000 frames in 2.4 s (`docs/STUDIO-PACK.md`).
+  * Both are interactive on these sets. No speed claim either way until the worker is timed on
+    the same sets.
 
 ### In the engines (same four sets, judged against the source frames)
 
