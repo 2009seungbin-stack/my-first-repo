@@ -52,7 +52,8 @@ export function coverPainted(doc,assetId,frameId,painted){
  });
 }
 // ------------------------------------------------------------------ layers
-const layerName=(a,base='Layer')=>{const taken=new Set(a.layers.map(l=>l.name));let n=a.layers.length+1;while(taken.has(`${base} ${n}`))n++;return `${base} ${n}`;};
+/** The first free default layer name: `pattern` has {n} (localised by the caller, e.g. '레이어 {n}'). */
+export const layerName=(a,pattern='Layer {n}')=>{const taken=new Set(a.layers.map(l=>l.name)),at=n=>pattern.replace('{n}',n);let n=a.layers.length+1;while(taken.has(at(n)))n++;return at(n);};
 /** New empty layer above `aboveId` (or on top). Returns {doc, id}. */
 export function addLayer(doc,assetId,{aboveId=null,name=null,id=P.uid('l')}={}){
  let made=id;
@@ -144,10 +145,10 @@ export const isIndexed=a=>a?.colorMode==='indexed'&&!!a.palette?.colors?.length;
 export const transparentIndexOf=a=>isIndexed(a)?(a.transparentIndex??0):-1;
 // ------------------------------------------------------------------ new sprites
 /** A new sprite: one transparent layer, one frame over the whole canvas (so it can be animated). */
-export function newSprite({name='Sprite',width,height,blob,palette=null,colorMode='rgb',transparentIndex=0,id=P.uid('a')}){
+export function newSprite({name='Sprite',width,height,blob,palette=null,colorMode='rgb',transparentIndex=0,id=P.uid('a'),layer='Layer 1'}){
  const a=P.imageAsset({id,name,width,height,blob});
  const f=P.frameForRect(a,{x:0,y:0,w:width,h:height},{id:P.uid('f'),name:`${String(name).replace(/\.[^.]+$/,'')||'frame'}_0`,index:0});
- const out={...a,frames:[f],layers:[{...a.layers[0],name:'Layer 1'}]};
+ const out={...a,frames:[f],layers:[{...a.layers[0],name:layer}]};
  if(palette)out.palette=normalizePalette(palette);
  if(colorMode==='indexed'&&out.palette){out.colorMode='indexed';out.transparentIndex=transparentIndex;}
  return out;

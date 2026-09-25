@@ -127,6 +127,10 @@ with sync_playwright() as pw:
     js(p,"W.setPref('symmetry',{mode:'x',axisX:null,axisY:null})");p.keyboard.press('b');js(p,"W.setColor('fg',[20,160,90,255])")
     drag(p,[(8,29),(11,29)])
     ok('vertical symmetry mirrors the stroke across the centre (x ↔ 31−x) in the same undo step',all(px(p,x,29)==[20,160,90,255] for x in [8,11,20,23]) and hist(p)[-1]=='Pencil')
+    n0=len(hist(p));drag(p,[(16,-1),(12,-1),(10,-1)])
+    ok('the symmetry axis is dragged by its handle above the canvas (half-pixel steps), no paint, no undo entry',js(p,'return W.prefs.symmetry.axisX;')==10.5 and len(hist(p))==n0)
+    drag(p,[(8,27),(9,27)])
+    ok('strokes then mirror around the new axis (x ↔ 20−x)',px(p,11,27)==[20,160,90,255] and px(p,12,27)==[20,160,90,255] and alpha(p,23,27)==0)
     js(p,"W.setPref('symmetry',{mode:'none',axisX:null,axisY:null})")
     p.keyboard.press('u');js(p,"W.setPref('shapeFill',true)");js(p,"W.setColor('fg',[250,200,30,255])");drag(p,[(22,10),(27,15)])
     ok('rectangle tool (filled) draws the exact box',all(px(p,x,y)==[250,200,30,255] for x in (22,27) for y in (10,15)) and px(p,24,12)==[250,200,30,255] and alpha(p,28,12)==0)
@@ -307,11 +311,11 @@ print(table.concat(out,","))''')
     ok('no page errors so far',errors==[],str(errors[:3]))
     ctx.close()
     # ------------------------------------------------------------ languages
-    for lang,menu,tool in [('ko','픽셀','연필'),('ja','ピクセル','鉛筆')]:
+    for lang,menu,tool,layer in [('ko','픽셀','연필','레이어 1'),('ja','ピクセル','鉛筆','レイヤー 1')]:
         c2=browser.new_context(viewport={'width':1440,'height':900});q=c2.new_page();q.on('pageerror',lambda e:errors.append(str(e)))
         q.goto(BASE+f'/{lang}/game/studio/?ws=pixel');ready(q)
         js(q,"S.runCommand('pixel.newSprite')");q.wait_for_selector('dialog');q.click('dialog .st-btn.primary');settle(q,500)
-        ok(f'{lang}: menu, tool bar and panels are translated',menu in q.inner_text('.st-menubar') and q.inner_text('.px-bar-tool')==tool and q.locator('[data-px="cleanup"]').count()==1)
+        ok(f'{lang}: menu, tool bar, panels and the default layer name are translated',menu in q.inner_text('.st-menubar') and q.inner_text('.px-bar-tool')==tool and q.locator('[data-px="cleanup"]').count()==1 and q.inner_text('.px-layer-name')==layer)
         if lang=='ko':shot(q,'05-ko-1440.png')
         c2.close()
     # ------------------------------------------------------------ 390 px

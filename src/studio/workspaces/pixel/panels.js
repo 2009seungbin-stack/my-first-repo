@@ -297,7 +297,7 @@ export function createPanels(W){
  async function layerOp(op){
   const a=asset();if(!a)return;const id=W.layerId(),i=a.layers.findIndex(l=>l.id===id);
   await W.commitChain();
-  if(op==='new'){let made;W.exec(t('px.cmd.newLayer'),d=>{const r=PD.addLayer(d,a.id,{aboveId:id});made=r.id;return r.doc;});W.setLayer(made);return;}
+  if(op==='new'){let made;W.exec(t('px.cmd.newLayer'),d=>{const r=PD.addLayer(d,a.id,{aboveId:id,name:PD.layerName(a,t('px.layer.defaultName'))});made=r.id;return r.doc;});W.setLayer(made);return;}
   if(op==='duplicate'){let made;W.exec(t('px.cmd.duplicateLayer'),d=>{const r=PD.duplicateLayer(d,a.id,id);made=r.id;return r.doc;});if(made)W.setLayer(made);return;}
   if(op==='delete'){if(a.layers.length<=1){ctx.toast(t('px.layer.last'),{error:true});return;}const blob=await W.emptyBlob();const name=a.layers[i].name;W.exec(t('px.cmd.deleteLayer'),d=>PD.removeLayer(d,a.id,id,{emptyBlob:blob}));W.setLayer(asset().layers[Math.max(0,i-1)].id);ctx.toast(t('px.layer.deleted',{name,undo:ctx.shortcutOf('edit.undo')}));return;}
   if(op==='up'||op==='down'){W.exec(t('px.cmd.moveLayer'),d=>PD.moveLayer(d,a.id,id,i+(op==='up'?1:-1)));return;}
@@ -364,7 +364,7 @@ export function createPanels(W){
   let blob;const pal=[[0,0,0,0],...I.DB32];
   if(indexed){const png=encodeIndexedPNG(new Uint8Array(W0*H0),W0,H0,pal,{transparentIndex:0});blob=(await images.put(new Blob([png],{type:'image/png'}),{width:W0,height:H0})).id;}
   else blob=await storeRGBA(images,{width:W0,height:H0,data:new Uint8Array(W0*H0*4)});
-  const a=PD.newSprite({name:name.value.trim()||'sprite',width:W0,height:H0,blob,palette:indexed?pal:I.DB32,colorMode:indexed?'indexed':'rgb',transparentIndex:0});
+  const a=PD.newSprite({name:name.value.trim()||'sprite',width:W0,height:H0,blob,palette:indexed?pal:I.DB32,colorMode:indexed?'indexed':'rgb',transparentIndex:0,layer:t('px.layer.defaultName').replace('{n}','1')});
   W.exec(t('px.cmd.newSprite'),d=>P.addAssets(d,[a]));await ctx.showAsset(a.id);ctx.setTool('px-pencil');
  }
  /** Sprite › Canvas Size (Aseprite): pixels added (or removed, negative) on each side; nothing is scaled. */

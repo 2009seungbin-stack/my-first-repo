@@ -20,7 +20,12 @@ export class PixelOverlay{
    const ax=sym.axisX??r.w/2,ay=sym.axisY??r.h/2;ctx.save();ctx.setLineDash([6*dpr,4*dpr]);ctx.lineWidth=1;ctx.strokeStyle='rgba(255,90,200,.85)';ctx.beginPath();
    if(sym.mode==='x'||sym.mode==='both'){ctx.moveTo(X(ax),Y(0));ctx.lineTo(X(ax),Y(r.h));}
    if(sym.mode==='y'||sym.mode==='both'){ctx.moveTo(X(0),Y(ay));ctx.lineTo(X(r.w),Y(ay));}
-   ctx.stroke();ctx.restore();
+   ctx.stroke();
+   // drag handles just outside the canvas (the tools grab them there)
+   ctx.setLineDash([]);ctx.fillStyle='rgba(255,90,200,.95)';const k=7*dpr;
+   if(sym.mode==='x'||sym.mode==='both'){const x=X(ax),y=Y(0)-3*dpr;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-k,y-k*1.4);ctx.lineTo(x+k,y-k*1.4);ctx.closePath();ctx.fill();}
+   if(sym.mode==='y'||sym.mode==='both'){const x=X(0)-3*dpr,y=Y(ay);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-k*1.4,y-k);ctx.lineTo(x-k*1.4,y+k);ctx.closePath();ctx.fill();}
+   ctx.restore();
   }
   // cleanup grid
   if(this.grid){ctx.save();ctx.lineWidth=1;ctx.strokeStyle=this.grid.weak?'rgba(240,180,60,.75)':'rgba(76,194,255,.7)';if(this.grid.weak)ctx.setLineDash([3*dpr,3*dpr]);ctx.beginPath();
