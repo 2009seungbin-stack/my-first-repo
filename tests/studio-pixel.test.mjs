@@ -345,3 +345,34 @@ test('CSP: only the Studio pages may connect to lospec.com; the rest of the site
    assert.ok(b.includes('! Content-Security-Policy'));assert.equal(csp,site.replace("connect-src 'self'","connect-src 'self' https://lospec.com"));}
  }
 });
+
+// ------------------------------------------------------------------ engine: pseudo-pixels and clean fractional upscales (real CC0 art)
+const hero=async()=>{const d=await decodePNG(new Uint8Array(readFileSync(new URL('./fixtures/pixel/old_hero.png',import.meta.url))));return {data:new Uint8Array(d.data),width:d.width,height:d.height};};
+function rng(seed){let s=seed>>>0;return ()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+/** Pseudo-pixels: every source column/row gets its own width (80–120 % of `s`), plus ±noise per pixel. */
+function pseudo(src,s,seed,noise=6){
+ const r=rng(seed),cut=n=>{const c=[0];for(let i=0;i<n;i++)c.push(c[i]+Math.max(1,Math.round(s*(.8+.4*r()))));return c;};
+ const cx=cut(src.width),cy=cut(src.height),W=cx.at(-1),H=cy.at(-1),d=new Uint8Array(W*H*4);
+ for(let j=0;j<src.height;j++)for(let i=0;i<src.width;i++){const o=(j*src.width+i)*4;for(let y=cy[j];y<cy[j+1];y++)for(let x=cx[i];x<cx[i+1];x++){const p=(y*W+x)*4;for(let c=0;c<3;c++)d[p+c]=Math.max(0,Math.min(255,src.data[o+c]+Math.round((r()*2-1)*noise)));d[p+3]=255;}}
+ return {img:{data:d,width:W,height:H},cx,cy};
+}
+test('engine: generated pseudo-pixels of uneven width are followed by edge tracking (not a lattice), and the cleanup finds the 1× size',async()=>{
+ const src=await hero();
+ for(const [s,seed]of [[6,1],[7,2],[9,3]]){
+  const {img,cx,cy}=pseudo(src,s,seed),g=S.findGrid(img);
+  assert.equal(g.kind,'tracked',`s=${s}`);assert.equal(g.confidence,'medium');
+  assert.ok(Math.abs(g.width-64)<=1&&Math.abs(g.height-48)<=1,`s=${s} got ${g.width}x${g.height}`);
+  // cuts inside a run of one colour cannot be seen (and do not matter): judge the pixels instead
+  const A=analyse([img]);assert.ok(A.grid&&A.grid.kind==='tracked','the cleanup trusts it');
+  const out=runCleanup([img],{background:null},A).frames[0];
+  if(out.width===64&&out.height===48){let near=0;for(let i=0;i<out.data.length;i+=4)if(Math.max(...[0,1,2].map(c=>Math.abs(out.data[i+c]-src.data[i+c])))<=8)near++;
+   assert.ok(near/(64*48)>=.8,`s=${s} ${near/(64*48)} of the pixels within 8 levels of the original`);}
+  void cx;void cy;
+ }
+});
+test('engine: edge tracking is NOT used for clean or uniform art (block grids, clean fractional upscales keep their lattice)',async()=>{
+ const src=await hero();
+ const near=(s)=>{const W=Math.round(src.width*s),H=Math.round(src.height*s),d=new Uint8Array(W*H*4);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const o=(Math.min(src.height-1,Math.floor(y/s))*src.width+Math.min(src.width-1,Math.floor(x/s)))*4;d.set(src.data.subarray(o,o+4),(y*W+x)*4);}return {data:d,width:W,height:H};};
+ for(const s of [3.3,4.7]){const g=S.findGrid(near(s));assert.equal(g.kind,'lattice',`x${s}`);assert.ok(Math.abs(g.scaleX-s)<.02,`x${s} scale ${g.scaleX}`);assert.equal(g.width,64);assert.equal(g.height,48);}
+ assert.equal(S.findGrid(near(5)).kind,'integer');
+});

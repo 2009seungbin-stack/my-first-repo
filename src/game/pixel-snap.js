@@ -100,7 +100,11 @@ export function estimateLattice(P,{minScale=1.5,maxScale=64}={}){
  const gap=typicalGap(gaps);let chosen=best;
  if(gap){const near=strong.filter(p=>Math.abs(p.s/gap-1)<=.25).sort((a,b)=>b.c-a.c)[0];
   if(near)chosen=near;
-  else if(gap>=minScale&&gap<=top){const around=scan(P,Math.max(minScale,gap*.88),Math.min(top,gap*1.12),.01);chosen=around.reduce((a,b)=>b.c>a.c?b:a,around[0]);}}
+  else if(gap>=minScale&&gap<=top){const around=scan(P,Math.max(minScale,gap*.88),Math.min(top,gap*1.12),.01);chosen=around.reduce((a,b)=>b.c>a.c?b:a,around[0]);}
+  // clean art with large flat areas has few edges one cell apart, so its typical gap is a multiple
+  // of the cell; a lattice that puts EVERY edge on its lines (nothing between) and is far more
+  // coherent than the gap's period is the pixel lattice
+  const b=strong.find(p=>p.s===best.s);if(chosen!==best&&b&&b.inner!=null&&b.inner<=.05&&chosen.c<best.c*.7)chosen=best;}
  const fine=scan(P,Math.max(minScale,chosen.s-.03),chosen.s+.03,.001),f=fine.reduce((a,b)=>b.c>a.c?b:a,fine[0]);
  const refine=(pa,s0)=>{let b={s:s0,c:-1};for(let s=s0-.015;s<=s0+.015+1e-9;s+=.0005){const c=axisLattice(pa,s).c;if(c>b.c)b={s:+s.toFixed(4),c};}return b.s;};
  const sx=refine(P.x,f.s),sy=refine(P.y,f.s),lx=axisLattice(P.x,sx),ly=axisLattice(P.y,sy);
@@ -156,12 +160,9 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  if(!est||est.scale<1.4)return {kind:'unit',scale:1,scaleX:1,scaleY:1,phaseX:0,phaseY:0,confidence:est?.confidence||'low',coherence:est?.coherence||0,xs:cutsAt(w,1,0),ys:cutsAt(h,1,0),moved:0,width:w,height:h};
  if(phaseX!=null)est.phaseX=phaseX;if(phaseY!=null)est.phaseY=phaseY;
  // Pseudo-pixels of uneven size (generated "pixel art"): no single lattice holds across the image,
- // but the spacing of edge peaks still gives the cell size, and the cuts can follow the edges.
- if(est.confidence==='low'&&scale==null){
-  const gx=typicalGap(edgeGaps(P.x.d1)),gy=typicalGap(edgeGaps(P.y.d1));
-  if(gx&&gy&&gx>=2&&gy>=2){const tx=trackBoundaries(P.x.d1,w,gx),ty=trackBoundaries(P.y.d1,h,gy),strength=Math.min(tx.strength,ty.strength);
-   if(strength>=2)return {kind:'tracked',scale:+((gx+gy)/2).toFixed(3),scaleX:+gx.toFixed(3),scaleY:+gy.toFixed(3),phaseX:tx.cuts[1]%gx,phaseY:ty.cuts[1]%gy,order:1,confidence:strength>=3?'medium':'low',strength:+strength.toFixed(2),coherence:est.coherence,xs:tx.cuts,ys:ty.cuts,moved:0,width:tx.cuts.length-1,height:ty.cuts.length-1,lattice:{scale:est.scale,confidence:est.confidence}};}
- }
+ // but every cell edge is still an edge. When the input is noisy, the lattice is not a clear one and
+ // the edges sit off it, cuts that follow the edges replace it (see trackedGrid for the rules).
+ if(scale==null&&est.confidence!=='high'){const tr=trackedGrid(img,P,est);if(tr)return tr;}
  if(est.order===2){
   // smooth resample: refine each axis by least squares on the lines with the most detail
   const {x,y}=smoothLines(img);
@@ -172,6 +173,67 @@ export function findGrid(img,{maxScale=64,scale=null,phaseX=null,phaseY=null,ela
  }
  const bx=boundaries(P.x.d1,w,est.scaleX,est.phaseX,{elastic}),by=boundaries(P.y.d1,h,est.scaleY,est.phaseY,{elastic});
  return {kind:'lattice',...est,xs:bx.cuts,ys:by.cuts,moved:bx.moved+by.moved,predicted:bx.predicted+by.predicted,width:bx.cuts.length-1,height:by.cuts.length-1};
+}
+/** Significant edge peaks of a profile: local maxima above the noise floor (the median of the
+ * profile — most lines lie inside cells) by at least `frac` of the way to the strong peaks (95th
+ * percentile), so JPEG ripples and per-pixel noise do not count. */
+export function edgePeaks(prof,frac=.25){
+ const pk=[];for(let i=1;i<prof.length-1;i++)if(prof[i]>0&&prof[i]>=prof[i-1]&&prof[i]>prof[i+1])pk.push(i);
+ if(pk.length<3)return [];
+ const all=Float64Array.from(prof).sort(),floor=all[all.length>>1],v=pk.map(i=>prof[i]).sort((a,b)=>a-b),top=v[Math.floor(v.length*.95)],cut=floor+frac*(top-floor);
+ return pk.filter(i=>prof[i]>=cut);
+}
+/** Energy-weighted RMS distance of edge peaks from the lattice (s, phase), in cells (0 = every
+ * peak on a line; about 0.29 = no relation). */
+export function offLattice(prof,pk,s,phase){let e=0,w=0;for(const i of pk){let d=((i-phase)%s+s)%s;d=Math.min(d,s-d);e+=prof[i]*d*d;w+=prof[i];}return w?Math.sqrt(e/w)/s:1;}
+/** Cuts along one axis that follow the edges of pseudo-pixels of uneven width:
+ *  1. the largest cell size s (sweep 2…64 px, ×1.02) whose cuts — dynamic programming with every
+ *     cell between 0.7·s and 1.35·s — still land on ≥ 97 % of the significant edge energy;
+ *  2. the typical cell = mean of the single-cell gaps between the edges those cuts landed on;
+ *  3. every stretch between two landed edges (and the ends) divided into round(length / cell)
+ *     equal cells — runs of equal colour have no edges to follow.
+ * Returns {cuts, s, capture} or null when there are too few edges. */
+export function trackAxis(prof,len){
+ const pk=edgePeaks(prof);if(pk.length<4)return null;
+ const val=new Float64Array(len+1);for(const i of pk)val[i]=prof[i];
+ const total=pk.reduce((a,i)=>a+prof[i],0);let pick=null,top=0;const runs=[];
+ for(let s=2;s<=Math.min(64,len/3);s*=1.02){const r=peakCuts(val,len,s);if(r){runs.push({s,cap:r.score/total,cuts:r.cuts});if(r.score/total>top)top=r.score/total;}}
+ for(const r of runs)if(r.cap>=top*.97)pick=r;
+ if(!pick)return null;
+ const on=pick.cuts.filter(c=>c>0&&c<len&&val[c]>0),gaps=[];for(let k=1;k<on.length;k++)gaps.push(on[k]-on[k-1]);
+ if(gaps.length<3)return null;
+ const sg=[...gaps].sort((a,b)=>a-b),mn=sg[Math.floor(sg.length*.05)],single=sg.filter(g=>g<=1.5*mn),cell=single.reduce((a,b)=>a+b,0)/single.length;
+ const anchors=[0,...on,len],cuts=[0];
+ for(let k=1;k<anchors.length;k++){const A=anchors[k-1],B=anchors[k],D=B-A;
+  if((k===1||k===anchors.length-1)&&D<cell*.5){if(k===anchors.length-1)cuts[cuts.length-1]=len;continue;}// an end sliver joins its neighbour
+  const n=Math.max(1,Math.round(D/cell));for(let q=1;q<=n;q++)cuts.push(Math.round(A+D*q/n));}
+ if(cuts[cuts.length-1]!==len)cuts.push(len);
+ return {cuts:[...new Set(cuts)].sort((a,b)=>a-b),s:cell,capture:+top.toFixed(3)};
+}
+function peakCuts(val,len,s){
+ const a=Math.max(1,Math.round(.7*s)),b=Math.max(a,Math.round(1.35*s));
+ const score=new Float64Array(len+1).fill(-Infinity),from=new Int32Array(len+1).fill(-1);
+ for(let i=1;i<=Math.min(len-1,b);i++){score[i]=val[i];from[i]=0;}
+ for(let i=1;i<len;i++){if(score[i]===-Infinity)continue;for(let j=i+a;j<=Math.min(len-1,i+b);j++){const v=score[i]+val[j];if(v>score[j]){score[j]=v;from[j]=i;}}}
+ let best=-1,bv=-Infinity;for(let i=Math.max(1,len-b);i<len;i++)if(score[i]>bv){bv=score[i];best=i;}
+ if(best<0)return null;const cuts=[len];for(let i=best;i>0;i=from[i])cuts.push(i);cuts.push(0);cuts.reverse();return {cuts,score:bv};
+}
+/** Edge-following grid for generated / hand-resized "pixel art" whose pseudo-pixels vary in size.
+ * Used instead of the lattice only when all of these hold (measured on the 69-case benchmark in
+ * docs/pixel-bench, where they separate pseudo-pixels from true resamples, blur and JPEG):
+ *   the colours are noisy · the lattice is not 'high' · the edges sit off the lattice (≥ 0.1 cell
+ *   RMS) · the tracked cell is ≥ 3 px on both axes and roughly square (≤ 1.25:1) · the tracked cuts
+ *   land on ≥ 90 % of the edge energy · for a smooth (order 2) lattice, the tracked cell agrees with
+ *   it within 10 %. Confidence 'medium': two measures agree, but no exact proof as for a block grid. */
+export function trackedGrid(img,P,est){
+ if(!colorNoise(img).noisy)return null;
+ const px=edgePeaks(P.x.d1),py=edgePeaks(P.y.d1);if(px.length<4||py.length<4)return null;
+ const off=(offLattice(P.x.d1,px,est.scaleX,est.phaseX)+offLattice(P.y.d1,py,est.scaleY,est.phaseY))/2;if(off<.1)return null;
+ const tx=trackAxis(P.x.d1,img.width),ty=trackAxis(P.y.d1,img.height);if(!tx||!ty)return null;
+ if(tx.s<3||ty.s<3||Math.max(tx.s,ty.s)/Math.min(tx.s,ty.s)>1.25||Math.min(tx.capture,ty.capture)<.9)return null;
+ if(est.order===2&&(Math.abs(tx.s/est.scaleX-1)>.1||Math.abs(ty.s/est.scaleY-1)>.1))return null;
+ return {kind:'tracked',scale:+((tx.s+ty.s)/2).toFixed(3),scaleX:+tx.s.toFixed(3),scaleY:+ty.s.toFixed(3),phaseX:tx.cuts[1]%tx.s,phaseY:ty.cuts[1]%ty.s,order:1,confidence:'medium',
+  offLattice:+off.toFixed(3),capture:Math.min(tx.capture,ty.capture),coherence:est.coherence,xs:tx.cuts,ys:ty.cuts,moved:0,width:tx.cuts.length-1,height:ty.cuts.length-1,lattice:{scale:est.scale,confidence:est.confidence}};
 }
 /** Cell boundaries that follow the edges: dynamic programming over the edge profile, every cell
  * between 0.7 and 1.35 of the typical size `s` (end cells from 0.4), maximising the edge energy on

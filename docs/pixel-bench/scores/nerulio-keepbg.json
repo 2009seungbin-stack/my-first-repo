@@ -1,33 +1,33 @@
 {
- "tool": "nerulio",
- "outdir": "C:\\Users\\2009s\\nerulio-handoff\\scratch\\p2\\competitors\\out\\nerulio",
+ "tool": "nerulio-keepbg",
+ "outdir": "C:\\Users\\2009s\\nerulio-handoff\\scratch\\p2\\competitors\\out\\nerulio-keepbg",
  "data": "C:\\Users\\2009s\\nerulio-asset-corpus\\_adhoc\\nerulio-studio-pixel",
  "n_cases": 76,
  "aggregates": {
   "nearest-int": {
    "n": 20,
    "failed": 0,
-   "acc_mean": 0.922476233452486,
+   "acc_mean": 0.9736678004535146,
    "acc_median": 1.0,
-   "acc_tol_mean": 0.9437772538606494,
-   "perfect": 16,
+   "acc_tol_mean": 0.994968820861678,
+   "perfect": 18,
    "size_exact_pct": 100.0,
    "size_pm1_pct": 100.0,
    "scale_ok_pct": 100.0,
    "scale_err_median": 0.0,
-   "colour_ratio_mean": 0.9537500000000001,
+   "colour_ratio_mean": 0.9600000000000002,
    "dE_mean": 0.0003693905644137834,
    "fringe_pct_mean": 0.0,
-   "alpha_err_mean": 5.119156700102882,
-   "time_ms_median": 19.5
+   "alpha_err_mean": 0.0,
+   "time_ms_median": 21.0
   },
   "nearest-frac": {
    "n": 9,
    "failed": 0,
-   "acc_mean": 0.8864213517301315,
+   "acc_mean": 0.9701163748782796,
    "acc_median": 1.0,
-   "acc_tol_mean": 0.9100891521836463,
-   "perfect": 6,
+   "acc_tol_mean": 0.9937841753317945,
+   "perfect": 7,
    "size_exact_pct": 100.0,
    "size_pm1_pct": 100.0,
    "scale_ok_pct": 100.0,
@@ -35,16 +35,16 @@
    "colour_ratio_mean": 0.9555555555555555,
    "dE_mean": 0.0005256664460227859,
    "fringe_pct_mean": 0.0,
-   "alpha_err_mean": 8.369502314814817,
-   "time_ms_median": 31.0
+   "alpha_err_mean": 0.0,
+   "time_ms_median": 33.0
   },
   "smooth-resample": {
    "n": 14,
    "failed": 0,
-   "acc_mean": 0.7050422328327933,
-   "acc_median": 0.777821462391775,
-   "acc_tol_mean": 0.7822214829276639,
-   "perfect": 4,
+   "acc_mean": 0.7588461762851743,
+   "acc_median": 0.8586154513888888,
+   "acc_tol_mean": 0.8360254263800447,
+   "perfect": 5,
    "size_exact_pct": 92.85714285714286,
    "size_pm1_pct": 92.85714285714286,
    "scale_ok_pct": 92.85714285714286,
@@ -52,59 +52,59 @@
    "colour_ratio_mean": 1.5950658761528327,
    "dE_mean": 0.030850492196855123,
    "fringe_pct_mean": 21.998449485411253,
-   "alpha_err_mean": 5.516343786743093,
-   "time_ms_median": 2108.5
+   "alpha_err_mean": 0.13594944150499705,
+   "time_ms_median": 2177.0
   },
   "jpeg": {
    "n": 10,
    "failed": 0,
-   "acc_mean": 0.0451437606292517,
+   "acc_mean": 0.12066459396258504,
    "acc_median": 0.0,
-   "acc_tol_mean": 0.4843567785768877,
+   "acc_tol_mean": 0.8402577312761744,
    "perfect": 0,
    "size_exact_pct": 80.0,
    "size_pm1_pct": 80.0,
    "scale_ok_pct": 80.0,
    "scale_err_median": 7.738095238094651e-05,
-   "colour_ratio_mean": 3.0681047710459475,
-   "dE_mean": 0.16068512371589877,
-   "fringe_pct_mean": 20.73147976643984,
-   "alpha_err_mean": 39.73349087052436,
-   "time_ms_median": 297.0
+   "colour_ratio_mean": 3.1688526342938106,
+   "dE_mean": 0.08897672570815299,
+   "fringe_pct_mean": 10.116801134447083,
+   "alpha_err_mean": 0.0,
+   "time_ms_median": 283.5
   },
   "blur": {
    "n": 6,
    "failed": 0,
-   "acc_mean": 0.537773108137924,
-   "acc_median": 0.5838915213915213,
-   "acc_tol_mean": 0.6423154217692443,
+   "acc_mean": 0.6636411636934795,
+   "acc_median": 0.7576717342342343,
+   "acc_tol_mean": 0.7678579564914664,
    "perfect": 0,
    "size_exact_pct": 66.66666666666667,
    "size_pm1_pct": 66.66666666666667,
    "scale_ok_pct": 66.66666666666667,
    "scale_err_median": 0.002040178571428543,
    "colour_ratio_mean": 1.3978571428571431,
-   "dE_mean": 0.10919094520401613,
-   "fringe_pct_mean": 1.3546747162497619,
-   "alpha_err_mean": 28.11602595654698,
-   "time_ms_median": 500.0
+   "dE_mean": 0.0529086493417999,
+   "fringe_pct_mean": 1.1393643004992489,
+   "alpha_err_mean": 15.72121529736045,
+   "time_ms_median": 366.0
   },
   "ai-sim": {
    "n": 10,
    "failed": 0,
-   "acc_mean": 0.36089002172308376,
-   "acc_median": 0.2560763888888889,
-   "acc_tol_mean": 0.5320158434359842,
+   "acc_mean": 0.7032657864215707,
+   "acc_median": 0.7716878255208333,
+   "acc_tol_mean": 0.9279072331344709,
    "perfect": 0,
    "size_exact_pct": 20.0,
    "size_pm1_pct": 80.0,
    "scale_ok_pct": 90.0,
    "scale_err_median": 0.017815907188555927,
-   "colour_ratio_mean": 1.0146728271728271,
-   "dE_mean": 0.04604945042284774,
-   "fringe_pct_mean": 6.891681878235778,
-   "alpha_err_mean": 41.41648312426075,
-   "time_ms_median": 741.0
+   "colour_ratio_mean": 1.0501429126429125,
+   "dE_mean": 0.01140920974520057,
+   "fringe_pct_mean": 2.0410348708092547,
+   "alpha_err_mean": 0.0,
+   "time_ms_median": 624.0
   },
   "phase(tag)": {
    "n": 9,
@@ -121,24 +121,24 @@
    "dE_mean": 0.0037199507863870484,
    "fringe_pct_mean": 6.3296341964652685,
    "alpha_err_mean": 0.0,
-   "time_ms_median": 24.0
+   "time_ms_median": 26.0
   },
   "overall": {
    "n": 69,
    "failed": 0,
-   "acc_mean": 0.6316649937192885,
-   "acc_median": 0.7601351351351351,
-   "acc_tol_mean": 0.7541314051970619,
-   "perfect": 26,
+   "acc_mean": 0.739846386043039,
+   "acc_median": 0.9129310344827586,
+   "acc_tol_mean": 0.9106751789506607,
+   "perfect": 30,
    "size_exact_pct": 81.15942028985508,
    "size_pm1_pct": 89.85507246376811,
    "scale_ok_pct": 91.30434782608695,
    "scale_err_median": 0.0002500000000000095,
-   "colour_ratio_mean": 1.4379832044271055,
-   "dE_mean": 0.04420341160226641,
-   "fringe_pct_mean": 8.584608080290037,
-   "alpha_err_mean": 17.900483529520688,
-   "time_ms_median": 282.0
+   "colour_ratio_mean": 1.4595365303282575,
+   "dE_mean": 0.025584593487576624,
+   "fringe_pct_mean": 6.324533893497341,
+   "alpha_err_mean": 1.3946461444236617,
+   "time_ms_median": 220.0
   }
  },
  "ai_real": [
@@ -148,8 +148,8 @@
     1024,
     1024
    ],
-   "out_colours": 102,
-   "time_ms": 2070,
+   "out_colours": 103,
+   "time_ms": 1936,
    "failed": false,
    "error": null
   },
@@ -160,7 +160,7 @@
     112
    ],
    "out_colours": 228,
-   "time_ms": 529,
+   "time_ms": 491,
    "failed": false,
    "error": null
   },
@@ -171,7 +171,7 @@
     500
    ],
    "out_colours": 243,
-   "time_ms": 879,
+   "time_ms": 809,
    "failed": false,
    "error": null
   },
@@ -182,7 +182,7 @@
     500
    ],
    "out_colours": 48,
-   "time_ms": 986,
+   "time_ms": 799,
    "failed": false,
    "error": null
   },
@@ -193,7 +193,7 @@
     500
    ],
    "out_colours": 241,
-   "time_ms": 922,
+   "time_ms": 789,
    "failed": false,
    "error": null
   },
@@ -204,7 +204,7 @@
     500
    ],
    "out_colours": 270,
-   "time_ms": 1075,
+   "time_ms": 934,
    "failed": false,
    "error": null
   },
@@ -215,7 +215,7 @@
     112
    ],
    "out_colours": 99,
-   "time_ms": 1252,
+   "time_ms": 1036,
    "failed": false,
    "error": null
   }
@@ -225,7 +225,7 @@
    "id": "sumo_hulk_rows__nn_x2",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 34,
+   "time_ms": 47,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -260,7 +260,7 @@
    "id": "kpp_chars__nn_x3",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 17,
+   "time_ms": 22,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -295,7 +295,7 @@
    "id": "micro_rogue__nn_x4",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 8,
+   "time_ms": 10,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -330,7 +330,7 @@
    "id": "rogue_chars__nn_x5",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 15,
+   "time_ms": 19,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -365,7 +365,7 @@
    "id": "samurai__nn_x6",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 35,
+   "time_ms": 37,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -400,7 +400,7 @@
    "id": "old_hero__nn_x7",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 47,
+   "time_ms": 38,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -418,13 +418,13 @@
    ],
    "scale_err": 0.0,
    "scale_ok": true,
-   "acc": 0.24674479166666666,
-   "acc_tol": 0.24674479166666666,
+   "acc": 1.0,
+   "acc_tol": 1.0,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 75.32552083333334,
+   "alpha_err": 0.0,
    "dE": 0.0,
    "truth_colours": 11,
    "colour_ratio": 1.0,
@@ -435,7 +435,7 @@
    "id": "sprite_boy__nn_x8",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 25,
+   "time_ms": 28,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -470,7 +470,7 @@
    "id": "ninja_run__nn_x2",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 2,
+   "time_ms": 3,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -505,7 +505,7 @@
    "id": "tiny_dungeon__nn_x3",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 10,
+   "time_ms": 11,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -540,14 +540,14 @@
    "id": "kpp_tiles__nn_x4",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 20,
+   "time_ms": 15,
    "tool_error": null,
    "failed": false,
    "output": [
     72,
     54
    ],
-   "out_colours": 7,
+   "out_colours": 8,
    "drops_alpha": false,
    "size_exact": true,
    "size_pm1": true,
@@ -558,16 +558,16 @@
    ],
    "scale_err": 0.0,
    "scale_ok": true,
-   "acc": 0.7294238683127572,
-   "acc_tol": 0.7294238683127572,
+   "acc": 1.0,
+   "acc_tol": 1.0,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 27.05761316872428,
+   "alpha_err": 0.0,
    "dE": 0.0,
    "truth_colours": 8,
-   "colour_ratio": 0.875,
+   "colour_ratio": 1.0,
    "fringe_px": 0,
    "fringe_pct": 0.0
   },
@@ -575,7 +575,7 @@
    "id": "rpg_sheet__nn_x5",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 32,
+   "time_ms": 36,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -610,7 +610,7 @@
    "id": "onebit__nn_x6",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 16,
+   "time_ms": 20,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -645,7 +645,7 @@
    "id": "cave47__nn_x7",
    "kind": "nearest-int",
    "tags": [],
-   "time_ms": 62,
+   "time_ms": 76,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -682,7 +682,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 17,
+   "time_ms": 14,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -719,7 +719,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 14,
+   "time_ms": 9,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -756,7 +756,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 24,
+   "time_ms": 26,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -830,7 +830,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 44,
+   "time_ms": 56,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -867,7 +867,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 13,
+   "time_ms": 15,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -904,7 +904,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 31,
+   "time_ms": 37,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -939,7 +939,7 @@
    "id": "kpp_chars__nn_x2.5",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 26,
+   "time_ms": 28,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -974,7 +974,7 @@
    "id": "sprite_boy__nn_x3.3",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 28,
+   "time_ms": 33,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1009,7 +1009,7 @@
    "id": "onebit__nn_x4.7",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 54,
+   "time_ms": 59,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1044,7 +1044,7 @@
    "id": "rogue_chars__nn_x2.5",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 18,
+   "time_ms": 20,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1079,7 +1079,7 @@
    "id": "tiny_dungeon__nn_x3.3",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 52,
+   "time_ms": 60,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1114,7 +1114,7 @@
    "id": "sumo_hulk_rows__nn_x4.7",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 64,
+   "time_ms": 75,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1149,7 +1149,7 @@
    "id": "old_hero__nn_x2.5",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 29,
+   "time_ms": 27,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1167,13 +1167,13 @@
    ],
    "scale_err": 0.002899999999999991,
    "scale_ok": true,
-   "acc": 0.24674479166666666,
-   "acc_tol": 0.24674479166666666,
+   "acc": 1.0,
+   "acc_tol": 1.0,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 75.32552083333334,
+   "alpha_err": 0.0,
    "dE": 0.0,
    "truth_colours": 11,
    "colour_ratio": 1.0,
@@ -1219,7 +1219,7 @@
    "id": "micro_rogue__nn_x4.7",
    "kind": "nearest-frac",
    "tags": [],
-   "time_ms": 31,
+   "time_ms": 32,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1254,7 +1254,7 @@
    "id": "micro_rogue__bilinear_x3.78",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 1018,
+   "time_ms": 1188,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1289,7 +1289,7 @@
    "id": "old_hero__bilinear_x4.25",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 1676,
+   "time_ms": 1955,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1307,13 +1307,13 @@
    ],
    "scale_err": 5.88235294117321e-05,
    "scale_ok": true,
-   "acc": 0.24674479166666666,
-   "acc_tol": 0.24674479166666666,
+   "acc": 1.0,
+   "acc_tol": 1.0,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 75.32552083333334,
+   "alpha_err": 0.0,
    "dE": 0.0,
    "truth_colours": 11,
    "colour_ratio": 1.0,
@@ -1324,7 +1324,7 @@
    "id": "tiny_dungeon__bilinear_x5.5",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 2904,
+   "time_ms": 3148,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1359,7 +1359,7 @@
    "id": "onebit__bilinear_x7.2",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 3653,
+   "time_ms": 3580,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1394,7 +1394,7 @@
    "id": "kpp_chars__bicubic_x3.78",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 1448,
+   "time_ms": 1435,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1429,7 +1429,7 @@
    "id": "samurai__bicubic_x4.25",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 2417,
+   "time_ms": 2402,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1464,7 +1464,7 @@
    "id": "ninja_run__bicubic_x5.5",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 1438,
+   "time_ms": 1595,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1499,7 +1499,7 @@
    "id": "rpg_sheet__bicubic_x7.2",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 4934,
+   "time_ms": 5094,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1534,7 +1534,7 @@
    "id": "sumo_hulk_rows__lanczos_x3.78",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 2126,
+   "time_ms": 2290,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1569,7 +1569,7 @@
    "id": "rogue_chars__lanczos_x4.25",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 1962,
+   "time_ms": 2015,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1604,7 +1604,7 @@
    "id": "sprite_boy__lanczos_x5.5",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 2091,
+   "time_ms": 2064,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1639,7 +1639,7 @@
    "id": "kpp_tiles__lanczos_x7.2",
    "kind": "smooth-resample",
    "tags": [],
-   "time_ms": 3675,
+   "time_ms": 3671,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1676,7 +1676,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 1144,
+   "time_ms": 1080,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1713,7 +1713,7 @@
    "tags": [
     "phase"
    ],
-   "time_ms": 2756,
+   "time_ms": 2725,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1748,7 +1748,7 @@
    "id": "rogue_chars__jpeg85_nn_x4",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 189,
+   "time_ms": 187,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1783,14 +1783,14 @@
    "id": "samurai__jpeg70_nn_x5",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 300,
+   "time_ms": 294,
    "tool_error": null,
    "failed": false,
    "output": [
     96,
     48
    ],
-   "out_colours": 17,
+   "out_colours": 18,
    "drops_alpha": false,
    "size_exact": true,
    "size_pm1": true,
@@ -1802,30 +1802,30 @@
    "scale_err": 4.999999999997229e-05,
    "scale_ok": true,
    "acc": 0.0,
-   "acc_tol": 0.2940538194444444,
+   "acc_tol": 0.9887152777777778,
    "shift": [
     -2,
     -2
    ],
-   "alpha_err": 67.83071230342276,
-   "dE": 0.15436881461442725,
+   "alpha_err": 0.0,
+   "dE": 0.07339215508708397,
    "truth_colours": 13,
-   "colour_ratio": 1.3076923076923077,
+   "colour_ratio": 1.3846153846153846,
    "fringe_px": 52,
-   "fringe_pct": 3.6958066808813075
+   "fringe_pct": 1.128472222222222
   },
   {
    "id": "sprite_boy__jpeg85_nn_x6",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 294,
+   "time_ms": 273,
    "tool_error": null,
    "failed": false,
    "output": [
     64,
     32
    ],
-   "out_colours": 13,
+   "out_colours": 14,
    "drops_alpha": false,
    "size_exact": true,
    "size_pm1": true,
@@ -1837,15 +1837,15 @@
    "scale_err": 8.333333333336117e-05,
    "scale_ok": true,
    "acc": 0.005859375,
-   "acc_tol": 0.56884765625,
+   "acc_tol": 0.9677734375,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 39.892578125,
-   "dE": 0.007207042175728334,
+   "alpha_err": 0.0,
+   "dE": 0.005493659861017949,
    "truth_colours": 24,
-   "colour_ratio": 0.5416666666666666,
+   "colour_ratio": 0.5833333333333334,
    "fringe_px": 0,
    "fringe_pct": 0.0
   },
@@ -1853,7 +1853,7 @@
    "id": "tiny_dungeon__jpeg70_nn_x3",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 228,
+   "time_ms": 205,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1888,7 +1888,7 @@
    "id": "rpg_sheet__jpeg85_nn_x8",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 775,
+   "time_ms": 756,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1923,7 +1923,7 @@
    "id": "cave47__jpeg70_nn_x7",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 606,
+   "time_ms": 593,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1958,7 +1958,7 @@
    "id": "old_hero__jpeg85_nf_x3.3",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 138,
+   "time_ms": 139,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -1976,24 +1976,24 @@
    ],
    "scale_err": 0.00022119838710282677,
    "scale_ok": true,
-   "acc": 0.0,
-   "acc_tol": 0.1533203125,
+   "acc": 0.7552083333333334,
+   "acc_tol": 0.9065755208333334,
    "shift": [
-    -2,
-    -2
+    0,
+    0
    ],
-   "alpha_err": 74.36886395511921,
-   "dE": 0.3448444845975336,
+   "alpha_err": 0.0,
+   "dE": 0.0044761590354895076,
    "truth_colours": 11,
    "colour_ratio": 3.090909090909091,
    "fringe_px": 280,
-   "fringe_pct": 36.93931398416886
+   "fringe_pct": 9.114583333333332
   },
   {
    "id": "ninja_run__jpeg70_nf_x4.7",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 107,
+   "time_ms": 100,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2012,30 +2012,30 @@
    "scale_err": 0.002093692551942723,
    "scale_ok": true,
    "acc": 0.0,
-   "acc_tol": 0.0706896551724138,
+   "acc_tol": 0.9422413793103448,
    "shift": [
     -2,
     -2
    ],
-   "alpha_err": 85.38011695906432,
-   "dE": 0.3748635686344698,
+   "alpha_err": 0.0,
+   "dE": 0.08675459686285121,
    "truth_colours": 12,
    "colour_ratio": 1.4166666666666667,
    "fringe_px": 65,
-   "fringe_pct": 43.333333333333336
+   "fringe_pct": 5.603448275862069
   },
   {
    "id": "kpp_tiles__jpeg85_bilinear_x3.78",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 2054,
+   "time_ms": 1882,
    "tool_error": null,
    "failed": false,
    "output": [
     272,
     204
    ],
-   "out_colours": 42,
+   "out_colours": 44,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": false,
@@ -2047,30 +2047,30 @@
    "scale_err": 0.7352941332179922,
    "scale_ok": false,
    "acc": 0.0,
-   "acc_tol": 0.10416666666666667,
+   "acc_tol": 0.20910493827160495,
    "shift": [
     -2,
     -2
    ],
-   "alpha_err": 29.86263736263736,
-   "dE": 0.18123215490139838,
+   "alpha_err": 0.0,
+   "dE": 0.20288781264175715,
    "truth_colours": 9,
-   "colour_ratio": 4.666666666666667,
-   "fringe_px": 14878,
-   "fringe_pct": 34.812925568008986
+   "colour_ratio": 4.888888888888889,
+   "fringe_px": 16394,
+   "fringe_pct": 29.54512687427912
   },
   {
    "id": "onebit__jpeg70_bicubic_x5.5",
    "kind": "jpeg",
    "tags": [],
-   "time_ms": 2913,
+   "time_ms": 2882,
    "tool_error": null,
    "failed": false,
    "output": [
     528,
     176
    ],
-   "out_colours": 39,
+   "out_colours": 41,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": false,
@@ -2082,23 +2082,23 @@
    "scale_err": 0.8181818181818182,
    "scale_ok": false,
    "acc": 0.0,
-   "acc_tol": 0.0,
+   "acc_tol": 0.7356770833333334,
    "shift": [
     -2,
     -2
    ],
-   "alpha_err": 100.0,
-   "dE": null,
+   "alpha_err": 0.0,
+   "dE": 0.13311282507379854,
    "truth_colours": 3,
-   "colour_ratio": 13.0,
-   "fringe_px": 21939,
-   "fringe_pct": 63.679902473005924
+   "colour_ratio": 13.666666666666666,
+   "fringe_px": 28736,
+   "fringe_pct": 30.922865013774103
   },
   {
    "id": "kpp_chars__blur0.6_nn_x4",
    "kind": "blur",
    "tags": [],
-   "time_ms": 156,
+   "time_ms": 125,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2133,7 +2133,7 @@
    "id": "rogue_chars__blur0.8_nn_x5",
    "kind": "blur",
    "tags": [],
-   "time_ms": 4816,
+   "time_ms": 2158,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2168,7 +2168,7 @@
    "id": "old_hero__blur1.0_nn_x6",
    "kind": "blur",
    "tags": [],
-   "time_ms": 361,
+   "time_ms": 236,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2186,24 +2186,24 @@
    ],
    "scale_err": 0.0002500000000000095,
    "scale_ok": true,
-   "acc": 0.0,
-   "acc_tol": 0.23828125,
+   "acc": 0.7552083333333334,
+   "acc_tol": 0.9915364583333334,
    "shift": [
-    -2,
-    -2
+    0,
+    0
    ],
-   "alpha_err": 74.36886395511921,
-   "dE": 0.34042762799444115,
+   "alpha_err": 0.0,
+   "dE": 0.002733852821143723,
    "truth_colours": 11,
    "colour_ratio": 0.9090909090909091,
    "fringe_px": 13,
-   "fringe_pct": 1.7150395778364116
+   "fringe_pct": 0.4231770833333333
   },
   {
    "id": "tiny_dungeon__blur1.2_nn_x8",
    "kind": "blur",
    "tags": [],
-   "time_ms": 745,
+   "time_ms": 520,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2238,7 +2238,7 @@
    "id": "rpg_sheet__blur0.6_nn_x3",
    "kind": "blur",
    "tags": [],
-   "time_ms": 361,
+   "time_ms": 260,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2273,7 +2273,7 @@
    "id": "cave47__blur1.0_nn_x7",
    "kind": "blur",
    "tags": [],
-   "time_ms": 639,
+   "time_ms": 472,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2308,14 +2308,14 @@
    "id": "kpp_chars__aisim0_n5",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 282,
+   "time_ms": 220,
    "tool_error": null,
    "failed": false,
    "output": [
     73,
     24
    ],
-   "out_colours": 11,
+   "out_colours": 12,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": true,
@@ -2326,16 +2326,16 @@
    ],
    "scale_err": 0.01593172145089654,
    "scale_ok": true,
-   "acc": 0.36936936936936937,
-   "acc_tol": 0.5371621621621622,
+   "acc": 0.6677927927927928,
+   "acc_tol": 0.8355855855855856,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 32.87671232876712,
-   "dE": 0.05632389884723422,
+   "alpha_err": 0.0,
+   "dE": 0.05202073330994272,
    "truth_colours": 12,
-   "colour_ratio": 0.9166666666666666,
+   "colour_ratio": 1.0,
    "fringe_px": 0,
    "fringe_pct": 0.0
   },
@@ -2343,7 +2343,7 @@
    "id": "old_hero__aisim1_n6",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 560,
+   "time_ms": 375,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2361,14 +2361,14 @@
    ],
    "scale_err": 0.005100297914597859,
    "scale_ok": true,
-   "acc": 0.14518229166666666,
-   "acc_tol": 0.24251302083333334,
+   "acc": 0.884765625,
+   "acc_tol": 0.9801432291666666,
    "shift": [
     -1,
     1
    ],
-   "alpha_err": 74.93386243386243,
-   "dE": 0.0019225863136894093,
+   "alpha_err": 0.0,
+   "dE": 0.00047901191184687497,
    "truth_colours": 11,
    "colour_ratio": 0.9090909090909091,
    "fringe_px": 0,
@@ -2378,14 +2378,14 @@
    "id": "kpp_tiles__aisim2_n7",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 707,
+   "time_ms": 547,
    "tool_error": null,
    "failed": false,
    "output": [
     72,
     53
    ],
-   "out_colours": 8,
+   "out_colours": 9,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": true,
@@ -2396,16 +2396,16 @@
    ],
    "scale_err": 0.019162740708501862,
    "scale_ok": true,
-   "acc": 0.6893004115226338,
-   "acc_tol": 0.7037037037037037,
+   "acc": 0.941358024691358,
+   "acc_tol": 0.9557613168724279,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 27.358490566037734,
-   "dE": 0.0019715086570436537,
+   "alpha_err": 0.0,
+   "dE": 0.0063483039861476215,
    "truth_colours": 9,
-   "colour_ratio": 0.8888888888888888,
+   "colour_ratio": 1.0,
    "fringe_px": 0,
    "fringe_pct": 0.0
   },
@@ -2413,7 +2413,7 @@
    "id": "sumo_hulk_rows__aisim3_n8_blur0.7",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 923,
+   "time_ms": 749,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2431,31 +2431,31 @@
    ],
    "scale_err": 0.017542971977543925,
    "scale_ok": true,
-   "acc": 0.3070746527777778,
-   "acc_tol": 0.3205295138888889,
+   "acc": 0.3096788194444444,
+   "acc_tol": 0.8615451388888888,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 54.1015625,
-   "dE": 0.02564659136111633,
+   "alpha_err": 0.0,
+   "dE": 0.013349791770354382,
    "truth_colours": 8,
    "colour_ratio": 1.125,
    "fringe_px": 638,
-   "fringe_pct": 30.16548463356974
+   "fringe_pct": 13.84548611111111
   },
   {
    "id": "samurai__aisim4_n9",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 1118,
+   "time_ms": 957,
    "tool_error": null,
    "failed": false,
    "output": [
     97,
     48
    ],
-   "out_colours": 14,
+   "out_colours": 15,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": true,
@@ -2466,24 +2466,24 @@
    ],
    "scale_err": 0.018088842399567928,
    "scale_ok": true,
-   "acc": 0.205078125,
-   "acc_tol": 0.2458767361111111,
+   "acc": 0.8884548611111112,
+   "acc_tol": 0.9292534722222222,
    "shift": [
     0,
     0
    ],
-   "alpha_err": 69.44444444444444,
-   "dE": 0.0421335990642879,
+   "alpha_err": 0.0,
+   "dE": 0.016585931949435636,
    "truth_colours": 13,
-   "colour_ratio": 1.0769230769230769,
+   "colour_ratio": 1.1538461538461537,
    "fringe_px": 38,
-   "fringe_pct": 2.6988636363636362
+   "fringe_pct": 0.816151202749141
   },
   {
    "id": "tiny_dungeon__aisim5_n10_jpeg80",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 1065,
+   "time_ms": 899,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2518,7 +2518,7 @@
    "id": "cave47__aisim6_n6",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 854,
+   "time_ms": 752,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2553,7 +2553,7 @@
    "id": "rogue_chars__aisim7_n8_blur0.7",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 643,
+   "time_ms": 575,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2588,14 +2588,14 @@
    "id": "ninja_run__aisim8_n7_jpeg80",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 327,
+   "time_ms": 253,
    "tool_error": null,
    "failed": false,
    "output": [
     37,
     28
    ],
-   "out_colours": 14,
+   "out_colours": 15,
    "drops_alpha": false,
    "size_exact": false,
    "size_pm1": false,
@@ -2606,24 +2606,24 @@
    ],
    "scale_err": 0.063453618451633,
    "scale_ok": false,
-   "acc": 0.0,
-   "acc_tol": 0.08448275862068966,
+   "acc": 0.7637931034482759,
+   "acc_tol": 0.8482758620689655,
    "shift": [
-    -2,
-    -2
+    -1,
+    -1
    ],
-   "alpha_err": 85.28528528528528,
-   "dE": 0.3003641115981988,
+   "alpha_err": 0.0,
+   "dE": 0.0061875299754177975,
    "truth_colours": 12,
-   "colour_ratio": 1.1666666666666667,
+   "colour_ratio": 1.25,
    "fringe_px": 49,
-   "fringe_pct": 33.33333333333333
+   "fringe_pct": 4.72972972972973
   },
   {
    "id": "onebit__aisim9_n9_jpeg80",
    "kind": "ai-sim",
    "tags": [],
-   "time_ms": 775,
+   "time_ms": 673,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2641,38 +2641,38 @@
    ],
    "scale_err": 0.023118915729428813,
    "scale_ok": true,
-   "acc": 0.08138020833333333,
-   "acc_tol": 0.248046875,
+   "acc": 0.7652994791666666,
+   "acc_tol": 0.9306640625,
    "shift": [
     -1,
     0
    ],
-   "alpha_err": 70.16447368421052,
-   "dE": 0.020733472273115484,
+   "alpha_err": 0.0,
+   "dE": 0.007722058435069086,
    "truth_colours": 3,
    "colour_ratio": 1.6666666666666667,
-   "fringe_px": 24,
-   "fringe_pct": 2.6373626373626373
+   "fringe_px": 30,
+   "fringe_pct": 0.937207122774133
   },
   {
    "id": "ai_horror_monster",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 2070,
+   "time_ms": 1936,
    "tool_error": null,
    "failed": false,
    "output": [
     1024,
     1024
    ],
-   "out_colours": 102,
+   "out_colours": 103,
    "drops_alpha": false
   },
   {
    "id": "ai_gosoythoth",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 529,
+   "time_ms": 491,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2686,7 +2686,7 @@
    "id": "ai_guns",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 879,
+   "time_ms": 809,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2700,7 +2700,7 @@
    "id": "ai_bones",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 986,
+   "time_ms": 799,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2714,7 +2714,7 @@
    "id": "ai_asteroids",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 922,
+   "time_ms": 789,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2728,7 +2728,7 @@
    "id": "ai_turrets",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 1075,
+   "time_ms": 934,
    "tool_error": null,
    "failed": false,
    "output": [
@@ -2742,7 +2742,7 @@
    "id": "ai_gosoythoth_f0",
    "kind": "ai-real",
    "tags": [],
-   "time_ms": 1252,
+   "time_ms": 1036,
    "tool_error": null,
    "failed": false,
    "output": [

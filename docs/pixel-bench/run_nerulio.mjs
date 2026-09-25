@@ -19,7 +19,7 @@ for(const c of cases){
  try{
   const file=/\.png$/i.test(c.path)?DATA+'/'+c.path:WORK+'/_pngcache/'+c.id+'.png';
   const img=await decodePNG(new Uint8Array(readFileSync(file)),{maxPixels:1e8});
-  const r=runCleanup([{data:img.data,width:img.width,height:img.height}],{});
+  const r=runCleanup([{data:img.data,width:img.width,height:img.height}],JSON.parse(process.env.PIXEL_BENCH_OPTS||'{}'));
   const f=r.frames[0],png=await encodeRGBAPNG(f.data,f.width,f.height);
   writeFileSync(new URL(c.id+'.png',OUT),Buffer.from(await png.arrayBuffer()));
   const snap=r.report.steps.find(s=>s.id==='snap');
