@@ -236,10 +236,10 @@ resample 4.7 s (least-squares fit), both in the worker.
 
 ## 8. Tests
 
-* `node --test tests/studio-pixel.test.mjs` — 33 tests: raster, strokes, inks, indexed, PNG-8,
+* `node --test tests/studio-pixel.test.mjs` — 34 tests: raster, strokes, inks, indexed, PNG-8,
   palette files, ramps, audit, document edits (incl. canvas size), grid engine (exact, fractional,
   bilinear, pseudo-pixels on the committed Old Hero fixture), cleanup, strings parity, Studio CSP.
-* `tests/studio-pixel-browser.py` (in `tools/regression.py`) — 70 checks on real CC0 fixtures
+* `tests/studio-pixel-browser.py` (in `tools/regression.py`) — 72 checks on real CC0 fixtures
   (`tests/fixtures/pixel/`, LICENSE.md): tools and undo, selection, layers and blend, lock, canvas
   size, indexed mode and palette edits, Lospec consent (mocked, no network), audit, cleanup on Old
   Hero ×7 / ×4.25 bilinear (exact 1× pixels) / Ninja ×4.25 transparent / a generated image (not
