@@ -391,3 +391,8 @@ test('document: canvas size grows / crops around the pixels; whole-canvas frames
  assert.deepEqual(s2.frames[0].sourceRect,{x:18,y:0,w:16,h:16});
  assert.throws(()=>PD.canvasSize(d2,sheet.id,{left:0,right:-4}),/would be cut/);
 });
+test('document: default layer names are numbered from a localised pattern and never loop',()=>{
+ const a=PD.newSprite({name:'s',width:4,height:4,blob:BLOB,layer:'레이어 1'});
+ assert.equal(a.layers[0].name,'레이어 1');assert.equal(PD.layerName(a,'레이어 {n}'),'레이어 2');
+ assert.equal(PD.layerName(a,'Layer'),'Layer 2','a pattern without {n} still gets a number');
+});

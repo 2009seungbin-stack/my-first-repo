@@ -53,7 +53,7 @@ export function coverPainted(doc,assetId,frameId,painted){
 }
 // ------------------------------------------------------------------ layers
 /** The first free default layer name: `pattern` has {n} (localised by the caller, e.g. '레이어 {n}'). */
-export const layerName=(a,pattern='Layer {n}')=>{const taken=new Set(a.layers.map(l=>l.name)),at=n=>pattern.replace('{n}',n);let n=a.layers.length+1;while(taken.has(at(n)))n++;return at(n);};
+export const layerName=(a,pattern='Layer {n}')=>{if(!pattern.includes('{n}'))pattern+=' {n}';const taken=new Set(a.layers.map(l=>l.name)),at=n=>pattern.replace('{n}',n);let n=a.layers.length+1;while(taken.has(at(n)))n++;return at(n);};
 /** New empty layer above `aboveId` (or on top). Returns {doc, id}. */
 export function addLayer(doc,assetId,{aboveId=null,name=null,id=P.uid('l')}={}){
  let made=id;
