@@ -422,7 +422,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  function makeContext(ws){
   const disposers=[],on=(type,fn)=>{listeners[type].add(fn);disposers.push(()=>listeners[type].delete(fn));};
   const ctx={
-   t,get locale(){return locale;},history,images,view,edit,
+   t,get locale(){return locale;},history,images,view,edit,menus,
    get doc(){return history.doc;},
    execute:cmd=>history.execute(cmd),
    get activeAsset(){return P.assetById(history.doc,activeAssetId);},
@@ -439,7 +439,8 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    on,
    badge:id=>docks.badge(id),
    setTool,
-   get tool(){return activeTool;}
+   /** Id of the active tool (tool bar / keys). */
+   get activeTool(){return activeTool;}
   };
   return {ctx,dispose(){while(disposers.length)disposers.pop()();}};
  }

@@ -304,3 +304,33 @@ test('cleanup: quantize to a fixed palette (dither off by default), outline + sh
  const al=runCleanup([moved,shifted],{snap:false,merge:0,fringe:false,background:'off',align:'overlap'});assert.deepEqual(al.report.steps.find(s=>s.id==='align').shifts[1],[0,-1]);
  assert.equal(accuracy(al.frames[1],al.frames[0]),1);
 });
+
+// ------------------------------------------------------------------ workspace copy (ko/en/ja)
+import {PIXEL_STRINGS} from '../src/studio/workspaces/pixel/strings.js';
+import {st} from '../src/studio/strings.js';
+import {readFileSync,readdirSync} from 'node:fs';
+import {BLEND_MODES} from '../src/game/aseprite-blend.js';
+import {TEAM_COLORS} from '../src/game/palette.js';
+const flatKeys=(o,p='')=>Object.entries(o).flatMap(([k,v])=>v&&typeof v==='object'?flatKeys(v,p+k+'.'):[[p+k,String(v)]]);
+const slotsOf=s=>[...s.matchAll(/\{(\w+)\}/g)].map(m=>m[1]).sort().join();
+test('pixel copy: ko, en and ja have the same keys and the same {placeholders}; no "AI" wording',()=>{
+ const en=new Map(flatKeys(PIXEL_STRINGS.en));
+ for(const l of ['ko','ja']){const other=new Map(flatKeys(PIXEL_STRINGS[l]));
+  assert.deepEqual([...other.keys()].sort(),[...en.keys()].sort(),l+' keys');
+  for(const [k,v]of en)assert.equal(slotsOf(other.get(k)),slotsOf(v),`${l} ${k} placeholders`);}
+ for(const l of ['en','ko','ja'])for(const [k,v]of flatKeys(PIXEL_STRINGS[l]))assert.ok(!/\bAI\b/.test(v),`${l} ${k} says AI`);
+});
+test('pixel copy: every key the workspace asks for exists (literal and generated keys)',()=>{
+ const dir='src/studio/workspaces/pixel/',src=readdirSync(dir).filter(f=>f.endsWith('.js')).map(f=>readFileSync(dir+f,'utf8')).join('\n');
+ const used=new Set([...src.matchAll(/'(px\.[a-zA-Z0-9_.]+[a-zA-Z0-9_])'/g)].map(m=>m[1]));
+ // generated keys: command labels, tools, blend modes, teams, dither patterns, sorts, colour slots
+ for(const m of src.matchAll(/cmd\('pixel\.(\w+)'/g))used.add('px.cmd.'+m[1]);
+ for(const m of src.matchAll(/T\('(\w+)'/g)){used.add('px.tool.'+m[1]);used.add('px.tool.'+m[1]+'Hint');}
+ for(const b of BLEND_MODES)used.add('px.blend.'+b);for(const n of Object.keys(TEAM_COLORS))used.add('px.team.'+n);
+ for(const k of Object.keys(R.DITHER_PATTERNS))used.add('px.dither.'+k);for(const k of ['luminance','hue','saturation','usage'])used.add('px.sort.'+k);
+ for(const k of ['fg','bg'])used.add('px.color.'+k);for(const k of ['integer','lattice','tracked','unit'])used.add('px.clean.kind.'+k);
+ for(const k of ['high','medium','low','user'])used.add('px.clean.conf.'+k);
+ const missing=[...used].filter(k=>{for(const l of ['en','ko','ja']){const v=k.split('.').slice(1).reduce((a,x)=>a?.[x],PIXEL_STRINGS[l]);if(typeof v!=='string')return true;}return false;});
+ assert.deepEqual(missing,[],'missing strings');
+ assert.equal(st('ko','group.pixel'),'픽셀');assert.equal(st('ja','px.menu'),'ピクセル');
+});

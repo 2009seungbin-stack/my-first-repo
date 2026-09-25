@@ -23,7 +23,7 @@ export class PixelOverlay{
    ctx.stroke();ctx.restore();
   }
   // cleanup grid
-  if(this.grid){ctx.save();ctx.lineWidth=1;ctx.strokeStyle='rgba(76,194,255,.7)';ctx.beginPath();
+  if(this.grid){ctx.save();ctx.lineWidth=1;ctx.strokeStyle=this.grid.weak?'rgba(240,180,60,.75)':'rgba(76,194,255,.7)';if(this.grid.weak)ctx.setLineDash([3*dpr,3*dpr]);ctx.beginPath();
    for(const x of this.grid.xs){ctx.moveTo(X(x),Y(0));ctx.lineTo(X(x),Y(r.h));}for(const y of this.grid.ys){ctx.moveTo(X(0),Y(y));ctx.lineTo(X(r.w),Y(y));}ctx.stroke();ctx.restore();}
   // selection ants
   if(this.mask&&this.mask.length===r.w*r.h){
@@ -49,4 +49,4 @@ export class PixelOverlay{
   }
  }
 }
-const currentTool=W=>W.ctx.tool||'';
+const currentTool=W=>W.ctx.activeTool||'';

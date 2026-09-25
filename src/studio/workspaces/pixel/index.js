@@ -14,7 +14,8 @@ import {h,storage} from '../../ui/dom.js';
 import {ICONS} from '../../ui/icons.js';
 import {createTimeline} from '../../sprite/timeline-ui.js';
 import {createPreview} from '../../sprite/preview-ui.js';
-import {createImporter} from '../../sprite/importers.js';
+import {createImporter,isSpriteFile} from '../../sprite/importers.js';
+import {isAPNG} from '../../sprite/apng-decode.js';
 import {steps,stepAt,tagAt,stepIndex,onionFrames,rangeTag} from '../../sprite/playback.js';
 import {setFrameSelection,onFrameSelection,getFrameSelection} from '../../core/frame-selection.js';
 import {rgbaGetter,storeRGBA,blobRGBA} from '../../sprite/frame-render.js';
@@ -133,7 +134,7 @@ export default {
    if(!S.float&&!liftSelectionOrLayer())return;S.float.piece=fn(S.float.piece);S.float.moved=true;S.float.label=label;renderFloat();
   }
   function liftSelectionOrLayer(){if(!canPaint())return false;if(!S.selection)selectLayerPixels();return liftSelection();}
-  const floatHit=(x,y)=>{const f=S.float?.piece;if(!f)return false;const lx=x-f.x,ly=y-f.y;return lx>=0&&ly>=0&&lx<f.w&&ly<f.h&&!!f.mask[ly*f.w+lx];};
+  function floatHit(x,y){const f=S.float?.piece;if(!f)return false;const lx=x-f.x,ly=y-f.y;return lx>=0&&ly>=0&&lx<f.w&&ly<f.h&&!!f.mask[ly*f.w+lx];}
   /** Drops the floating piece: the layer as it now looks becomes the cel (one undo step). */
   function dropFloat(){
    const f=S.float;if(!f)return;S.float=null;
@@ -204,7 +205,7 @@ export default {
   T('marquee','M',30,tools.marquee);T('lasso','Q',31,tools.lasso);T('wand','W',32,tools.wand);T('move','V',33,tools.move);
   const panels=createPanels(W);W.panels=panels;
   const cleanup=createCleanup(W);
-  const hudHost=view.root.parentElement;
+  const hudHost=view.root.closest('.st-canvas-wrap')||view.root.parentElement;
   const bar=panels.contextBar();hudHost.append(bar);
   const previewWin=createPreview({...W,prefs,setPref:W.setPref,asset,playTag},view.root.closest('.studio')||document.body);
   // ------------------------------------------------------------ panels
@@ -230,7 +231,7 @@ export default {
   function setDurations(ids,ms){if(ids.length)exec(t('sp.cmd.duration',{n:ids.length,ms}),d=>D.setDurations(d,S.assetId,ids,ms));}
   function moveFrames(ids,to){const a=asset(),curId=a.frames[S.cur].id;exec(t('sp.cmd.moveFrames',{n:ids.length}),d=>D.moveFrames(d,a.id,ids,to));S.cur=D.indexOf(asset(),curId);refreshAll();}
   const offSel=onFrameSelection(({ids,source})=>{if(source==='pixel')return;const a=asset();if(!a)return;const known=ids.filter(id=>a.frames.some(f=>f.id===id));if(!known.length)return;S.sel=known;S.cur=D.indexOf(a,known[known.length-1]);onFrameChanged(false);});
-  function onFrameChanged(share=true){if(share)setFrameSelection(S.sel,'pixel');if(S.float)dropFloat();present();timeline.mark();markTimelineLayer();updateStatus();previewWin.restart?.();}
+  function onFrameChanged(share=true){if(share)setFrameSelection(S.sel,'pixel');if(S.float)dropFloat();present();timeline.mark();markTimelineLayer();updateStatus();previewWin.restart?.();cleanup.showGrid?.();}
   function play(){const a=asset();if(!a?.frames.length||S.playing)return;dropFloat();const tg=prefs.loopTag?playTag():null,tag=tg||rangeTag(a),list=steps(a,tag,{whole:!!tg&&tg.repeat>0});if(!list.length)return;
    const k=Math.max(0,list.findIndex(s=>s.index===S.cur));S.playing=true;S.play={list,loop:!tg||tg.repeat===0,t0:performance.now()-list[k].from};timeline.mark();
    const tick=()=>{if(!S.playing)return;S.raf=requestAnimationFrame(tick);const s=stepAt(S.play.list,performance.now()-S.play.t0,{loop:S.play.loop});if(s.done){S.cur=s.index;stop();onFrameChanged();return;}if(s.index!==S.cur){S.cur=s.index;present();timeline.mark();updateStatus();}};
@@ -383,6 +384,17 @@ export default {
   }
   function download(blob,name){const link=h('a',{href:URL.createObjectURL(blob),download:name});document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),30000);}
   const importer=createImporter(ctx,{onChange:()=>refreshAll()});
+  async function isPlainPicture(f){
+   if(isSpriteFile(f)||!/^image\/|\.(png|jpe?g|webp|bmp|avif)$/i.test(f.type+' '+f.name))return false;
+   const head=new Uint8Array(await f.slice(0,1<<16).arrayBuffer());
+   return !(head[0]===137&&head[1]===80&&isAPNG(new Uint8Array(await f.arrayBuffer())));
+  }
+  async function importPicture(f,{from}){
+   const {record,source}=await images.importFile(f);
+   const a=P.imageAsset({name:f.name||'image.png',width:record.width,height:record.height,blob:record.id,source});
+   ctx.execute(ctx.edit(t('cmd.importN',{n:1}),d=>P.addAssets(d,[a]),{meta:{from}}));
+   await ctx.showAsset(a.id);ctx.toast(t('toast.imported',{n:1}));return [a.id];
+  }
   // ------------------------------------------------------------ start
   S.assetId=null;timeline.render(true);panels.renderAll();cleanup.render();
   W.markTimelineLayer=markTimelineLayer;W.updateStatus=updateStatus;W.refreshAll=refreshAll;W.useAsset=useAsset;W.previewWin=previewWin;W.timeline=timeline;W.cleanupUI=cleanup;W.commitChain=()=>commitChain;
@@ -392,8 +404,9 @@ export default {
    importFiles:async(files,{from}={})=>{
     // pasting an image while a sprite is open pastes it as floating pixels (Aseprite); anything else imports
     if(from==='paste'&&asset()&&files.length===1&&/^image\//.test(files[0].type)){await pasteImageFile(files[0]);return [];}
-    // the Sprite importers: GIF / APNG / .aseprite / numbered frames / atlas data arrive with their
-    // frames, layers and tags; a single picture arrives as one image to paint on
+    // one plain picture arrives as one image to paint on (no sheet analysis); the Sprite importers
+    // take GIF / APNG / .aseprite / numbered frames / atlas data with their frames, layers and tags
+    if(files.length===1&&await isPlainPicture(files[0]))return importPicture(files[0],{from});
     return importer.importFiles(files,{from});
    },
    selectAll(){const r=session.rect;if(!r)return;setSelection(new Uint8Array(r.w*r.h).fill(1));},

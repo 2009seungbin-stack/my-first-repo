@@ -32,7 +32,7 @@ export function createPanels(W){
  function contextBar(){
   const el=h('div.px-bar',{role:'toolbar','aria-label':t('px.bar.label'),'data-px':'bar'});
   const sync=()=>{
-   const tool=ctx.tool||'',o=prefs,paint=/px-(pencil|eraser|line|rect|ellipse)/.test(tool),fill=/px-(bucket|wand)/.test(tool),shape=/px-(rect|ellipse)/.test(tool),selT=/px-(marquee|lasso|wand|move)/.test(tool);
+   const tool=ctx.activeTool||'',o=prefs,paint=/px-(pencil|eraser|line|rect|ellipse)/.test(tool),fill=/px-(bucket|wand)/.test(tool),shape=/px-(rect|ellipse)/.test(tool),selT=/px-(marquee|lasso|wand|move)/.test(tool);
    const parts=[h('span.px-bar-tool',{},t('px.tool.'+(tool.replace('px-','')||'pencil')))];
    if(paint){
     parts.push(h('label.px-f',{},h('span',{},t('px.bar.size')),num(t('px.bar.size'),o.size,1,16,v=>W.setPref('size',v),'size'),
@@ -125,7 +125,7 @@ export function createPanels(W){
   const i=d.i,c=currentColors()[i];
   if(d.mods.shift||d.mods.mod){if(d.mods.shift&&palSel.size){const last=[...palSel].pop(),[lo,hi]=last<i?[last,i]:[i,last];for(let k=lo;k<=hi;k++)palSel.add(k);}else palSel.has(i)?palSel.delete(i):palSel.add(i);W.S.rampSel=[...palSel].sort((a,b)=>a-b);if(W.S.rampSel.length<2)W.S.rampSel=[];}
   else{palSel=new Set([i]);W.S.rampSel=[];}
-  W.setColor('fg',PD.isIndexed(asset())&&i===PD.transparentIndexOf(asset())?[0,0,0,0]:c,{index:i});ctx.runCommand('noop');document.querySelector('.px-bar')?.sync?.();});
+  W.setColor('fg',PD.isIndexed(asset())&&i===PD.transparentIndexOf(asset())?[0,0,0,0]:c,{index:i});document.querySelector('.px-bar')?.sync?.();});
  palette.addEventListener('dblclick',e=>{const sw=e.target.closest('.px-pal-sw');if(sw)editEntry(Number(sw.dataset.i));});
  /** Writes a new palette. In an indexed sprite every cel is rewritten (indices remapped by `map`,
   * PLTE replaced) so other workspaces and exports see the new colours: one undo step. */
@@ -162,7 +162,7 @@ export function createPanels(W){
  }
  function sortMenu(anchor){
   const r=anchor.getBoundingClientRect(),run=mode=>{const a=asset(),cols=ensurePalette();const counts=mode==='usage'?usage():null;const s=I.sortPaletteEntries(cols,mode,{transparentIndex:PD.isIndexed(a)?PD.transparentIndexOf(a):-1,counts});applyPalette(s.colors,{map:PD.isIndexed(a)?s.map:null,transparentIndex:PD.isIndexed(a)?s.transparentIndex:undefined,label:t('px.cmd.palSort')});};
-  ctx.menus?.openAt?.(['luminance','hue','saturation','usage'].map(m=>({label:t('px.sort.'+m),run:()=>run(m)})),r.left,r.bottom,{owner:anchor})??W.toast(t('px.sort.luminance'));
+  ctx.menus.openAt(['luminance','hue','saturation','usage'].map(m=>({label:t('px.sort.'+m),run:()=>run(m)})),r.left,r.bottom,{owner:anchor});
  }
  function usage(){const a=asset();if(!PD.isIndexed(a))return null;const c=new Array(a.palette.colors.length).fill(0);for(const l of session.layers)for(const v of l.plane.data)c[v]++;return c;}
  function palMenu(anchor){
@@ -170,7 +170,7 @@ export function createPanels(W){
   const items=[{label:t('px.pal.import'),run:()=>importPalette()},...Object.keys(PIO.PALETTE_WRITERS).map(f=>({label:t('px.pal.export',{fmt:'.'+f}),run:()=>exportPalette(f)})),{sep:true},
    {label:t('px.cmd.lospec'),run:()=>lospec()},{label:t('px.cmd.ramp'),run:()=>rampDialog()},{label:t('px.cmd.variants'),run:()=>variantsDialog()},{label:t('px.pal.fromImageCmd'),run:()=>paletteFromImage()},{sep:true},
    {label:t('px.pal.setTransparent'),run:()=>setTransparent()},{label:t('px.cmd.colorMode'),run:()=>colorModeDialog()}];
-  ctx.menus?.openAt?.(items,r.left,r.bottom,{owner:anchor});
+  ctx.menus.openAt(items,r.left,r.bottom,{owner:anchor});
  }
  async function paletteFromImage(){await deriveImageColors();const a=asset(),cols=imageColors||[];if(!cols.length)return;if(cols.length>=256){ctx.toast(t('px.pal.tooMany'),{error:true});return;}
   const base=PD.isIndexed(a)?null:cols;if(base)applyPalette(base,{label:t('px.cmd.palFromImage')});else ctx.toast(t('px.pal.indexedFromImage'));}
