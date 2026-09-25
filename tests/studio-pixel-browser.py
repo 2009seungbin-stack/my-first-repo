@@ -48,8 +48,10 @@ def alpha(p,x,y):return px(p,x,y)[3]
 def frame_rgba(p,i=0,asset=None):
     return js(p,'''const a=arg.asset?S.doc.assets.find(x=>x.name===arg.asset):W.asset(),{rgbaGetter}=await import("/src/studio/sprite/frame-render.js"),{composeFrame,composeCanvas}=await import("/src/studio/sprite/frame-image.js");
      await W.commitChain();const f=a.frames[arg.i],g=await rgbaGetter(S.images,a,f?[f]:[{id:"*"}]);const img=f?composeFrame(a,f,g):composeCanvas(a,{id:"*"},g);return {w:img.width,h:img.height,d:Array.from(img.data)};''',{'i':i,'asset':asset})
-def fixture_rgba(p,name):
-    return js(p,'''const r=await fetch("/tests/fixtures/pixel/"+arg).then(r=>r.blob()),bm=await createImageBitmap(r,{premultiplyAlpha:"none",colorSpaceConversion:"none"}),c=new OffscreenCanvas(bm.width,bm.height),x=c.getContext("2d");x.drawImage(bm,0,0);return {w:bm.width,h:bm.height,d:Array.from(x.getImageData(0,0,bm.width,bm.height).data)};''',name)
+def png_rgba(p,data):
+    return js(p,'''const bm=await createImageBitmap(new Blob([new Uint8Array(arg)]),{premultiplyAlpha:"none",colorSpaceConversion:"none"}),c=new OffscreenCanvas(bm.width,bm.height),x=c.getContext("2d");x.drawImage(bm,0,0);return {w:bm.width,h:bm.height,d:Array.from(x.getImageData(0,0,bm.width,bm.height).data)};''',list(data))
+# fixtures are read from disk (the built site used by tools/regression.py does not serve tests/)
+def fixture_rgba(p,name):return png_rgba(p,(FIX/name).read_bytes())
 def same_pixels(a,b):
     if a['w']!=b['w'] or a['h']!=b['h']:return -1
     bad=0
@@ -288,8 +290,7 @@ print(table.concat(out,","))''')
         subprocess.run([ASEPRITE,'-b',str(ase),'--color-mode','rgb','--save-as',str(TMP/'ase-{frame}.png')],capture_output=True,timeout=120)
         diffs=[]
         for i in (0,1):
-            png=(TMP/f'ase-{i}.png').read_bytes()
-            img=js(p,'''const b=new Blob([new Uint8Array(arg)]),bm=await createImageBitmap(b,{premultiplyAlpha:"none",colorSpaceConversion:"none"}),c=new OffscreenCanvas(bm.width,bm.height),x=c.getContext("2d");x.drawImage(bm,0,0);return {w:bm.width,h:bm.height,d:Array.from(x.getImageData(0,0,bm.width,bm.height).data)};''',list(png))
+            img=png_rgba(p,(TMP/f'ase-{i}.png').read_bytes())
             diffs.append(same_pixels(img,comp[i]))
         ok('Aseprite renders both frames pixel-identical to the Studio (0 px differ)',diffs==[0,0],str(diffs))
     else:skip('real Aseprite CLI check',f'{ASEPRITE} not found')
