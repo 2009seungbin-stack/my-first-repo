@@ -106,12 +106,14 @@ with sync_playwright() as pw:
     fresh(p); imp(p, TRUTH)
     js(p, "W.setColor('fg',[0,0,0,255]);W.setColor('bg',[40,20,60,255]);")
     before = np.asarray(Image.open(TRUTH).convert('RGBA')).astype(int)
+    js(p, "S.runCommand('pixel.canvasSize')"); p.wait_for_selector('dialog.px-canvas'); p.click('dialog .st-btn.primary'); settle(p, 800)  # +1 px each side, as in the Aseprite run
+    before = np.pad(before, ((1, 1), (1, 1), (0, 0)))
     js(p, "S.runCommand('pixel.outline')"); settle(p, 800); o1 = export_png(p, 'T8_outline.png')
     js(p, "S.runCommand('pixel.shadow')"); settle(p, 800); o2 = export_png(p, 'T8_outline_shadow.png')
     q1 = np.asarray(Image.open(o1).convert('RGBA')).astype(int); q2 = np.asarray(Image.open(o2).convert('RGBA')).astype(int)
     R['T8'] = dict(outline_px=int(((q1[..., 3] >= 128) & (before[..., 3] < 128)).sum()), originals_unchanged=bool(((before[..., 3] >= 128) <= ((q1 == before).all(-1))).all()),
-                   shadow_px=int(((q2[..., 3] >= 128) & (q1[..., 3] < 128)).sum()), size=list(q1.shape[1::-1]), undo=hist(p)[-2:],
-                   steps='Pixel › Outline (1), Pixel › Drop shadow (1); canvas NOT grown (pixels at the sheet border get no outline outside the canvas)')
+                   shadow_px=int(((q2[..., 3] >= 128) & (q1[..., 3] < 128)).sum()), size=list(q1.shape[1::-1]), undo=hist(p)[-3:],
+                   steps='Pixel › Canvas size… (+1 each side is the default) OK (2), Pixel › Outline (1), Pixel › Drop shadow (1)')
     # ---------------- T11: .aseprite with 2 layers, multiply at opacity 160, indexed
     fresh(p); imp(p, TRUTH)
     js(p, "S.runCommand('pixel.colorMode')"); p.wait_for_selector('dialog [data-px="mode-palette"]'); p.click('dialog .st-btn.primary'); settle(p, 1200)

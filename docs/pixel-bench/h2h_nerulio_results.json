@@ -18,7 +18,7 @@
   "colours_out": 9,
   "colours_truth": 9,
   "verdict": "Upscaled \u00d74 (exact block grid) SURE",
-  "ms": 1404,
+  "ms": 1405,
   "steps": "import, Measure, Preview, Apply as new sprite, Export PNG (5); size found by the tool"
  },
  "T10": {
@@ -40,7 +40,7 @@
   "colours_out": 13,
   "colours_truth": 9,
   "verdict": "Smoothly resized \u2248 \u00d73.78 (\u00d73.78 vertically) SURE",
-  "ms": 4619,
+  "ms": 4714,
   "steps": "import, Measure, Preview, Apply, Export PNG (5); size and colours found by the tool"
  },
  "T5": {
@@ -65,18 +65,19 @@
   "steps": "indexed sheet: double-click the palette entry, type the colour, OK (3); every frame and layer follows. RGB sprites: Pixel \u203a Team-colour variants\u2026 makes red/blue/green sprites in one dialog"
  },
  "T8": {
-  "outline_px": 1770,
+  "outline_px": 1846,
   "originals_unchanged": true,
-  "shadow_px": 680,
+  "shadow_px": 705,
   "size": [
-   96,
-   144
+   98,
+   146
   ],
   "undo": [
+   "Canvas size 98\u00d7146",
    "Outline",
    "Drop shadow"
   ],
-  "steps": "Pixel \u203a Outline (1), Pixel \u203a Drop shadow (1); canvas NOT grown (pixels at the sheet border get no outline outside the canvas)"
+  "steps": "Pixel \u203a Canvas size\u2026 (+1 each side is the default) OK (2), Pixel \u203a Outline (1), Pixel \u203a Drop shadow (1)"
  },
  "T11": {
   "verify": "colorMode=INDEXED size=96x144 palette=10\nlayer 1 name=Layer 1 blend=NORMAL opacity=255\nlayer 2 name=Layer 2 blend=MULTIPLY opacity=160",

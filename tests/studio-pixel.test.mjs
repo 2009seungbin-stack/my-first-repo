@@ -376,3 +376,18 @@ test('engine: edge tracking is NOT used for clean or uniform art (block grids, c
  for(const s of [3.3,4.7]){const g=S.findGrid(near(s));assert.equal(g.kind,'lattice',`x${s}`);assert.ok(Math.abs(g.scaleX-s)<.02,`x${s} scale ${g.scaleX}`);assert.equal(g.width,64);assert.equal(g.height,48);}
  assert.equal(S.findGrid(near(5)).kind,'integer');
 });
+test('document: canvas size grows / crops around the pixels; whole-canvas frames keep pivots and boxes on the same pixels; sheet regions move; cut regions are refused',()=>{
+ const base=PD.newSprite({name:'s',width:10,height:8,blob:BLOB});
+ let doc=P.addAssets(P.createProject(),[{...base,frames:[{...base.frames[0],pivotX:.5,pivotY:1,boxes:[{id:'b',type:'hit',shape:'rect',x:2,y:3,w:4,h:2}],collision:[[[0,0],[2,0],[2,2]]]}]}]);
+ const id=base.id,g=PD.canvasSize(doc,id,{left:1,top:2,right:3,bottom:0}),a=P.assetById(g,id),f=a.frames[0];
+ assert.deepEqual([a.width,a.height],[14,10]);assert.deepEqual([a.cels[0].x,a.cels[0].y],[1,2]);
+ assert.deepEqual(f.sourceRect,{x:0,y:0,w:14,h:10});assert.equal(f.pivotX*14,5+1);assert.equal(f.pivotY*10,8+2);
+ assert.deepEqual([f.boxes[0].x,f.boxes[0].y],[3,5]);assert.deepEqual(f.collision[0][1],[3,2]);
+ P.normalizeProject(JSON.parse(JSON.stringify(g)));
+ const c=P.assetById(PD.canvasSize(g,id,{left:-1,top:-2,right:-3,bottom:0}),id);assert.deepEqual([c.width,c.height,c.cels[0].x,c.cels[0].y],[10,8,0,0]);
+ // a sheet: regions move with the pixels; a crop that cuts one is refused
+ const sheet={...P.imageAsset({name:'sheet',width:32,height:16,blob:BLOB2}),frames:[P.frameForRect({width:32,height:16,name:'sheet',frames:[]},{x:16,y:0,w:16,h:16},{id:'f1'})]};
+ const d2=P.addAssets(P.createProject(),[sheet]),s2=P.assetById(PD.canvasSize(d2,sheet.id,{left:2,top:0,right:0,bottom:0}),sheet.id);
+ assert.deepEqual(s2.frames[0].sourceRect,{x:18,y:0,w:16,h:16});
+ assert.throws(()=>PD.canvasSize(d2,sheet.id,{left:0,right:-4}),/would be cut/);
+});

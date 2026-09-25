@@ -169,6 +169,10 @@ with sync_playwright() as pw:
     p.keyboard.press('b');before=px(p,30,30);drag(p,[(29,30),(31,30)])
     ok('a locked layer refuses paint and says why',px(p,30,30)==before and 'locked' in p.inner_text('.st-toast'))
     p.click('.px-layer.is-cur [data-px="lock"]');settle(p,300)
+    p.keyboard.press('Control+Alt+c');p.wait_for_selector('dialog.px-canvas');p.click('dialog .st-btn.primary');settle(p,600)
+    ok('Ctrl+Alt+C Canvas size: +1 px on every side = 34×34 in one step, pixels move with it',js(p,'const a=W.asset();return [a.width,a.height];')==[34,34] and hist(p)[-1]=='Canvas size 34×34' and px(p,6,3)==[16,53,157,255])
+    js(p,"S.runCommand('edit.undo')");settle(p,500)
+    ok('undo restores the 32×32 canvas',js(p,'const a=W.asset();return [a.width,a.height];')==[32,32])
     shot(p,'02-layers-1440.png')
     # ------------------------------------------------------------ indexed colour
     new_sprite(p,32,16)

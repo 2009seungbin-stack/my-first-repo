@@ -378,6 +378,7 @@ export default {
   cmd('pixel.deleteLayer',()=>panels.layerOp('delete'),{enabled:()=>(asset()?.layers.length||0)>1});
   cmd('pixel.newSprite',()=>panels.newSprite(),{enabled:()=>true});
   cmd('pixel.colorMode',()=>panels.colorModeDialog(),{});
+  cmd('pixel.canvasSize',()=>panels.canvasSizeDialog(),{keys:['Mod+Alt+C']});
   cmd('pixel.lospec',()=>panels.lospec(),{enabled:()=>true});
   cmd('pixel.ramp',()=>panels.rampDialog(),{});
   cmd('pixel.variants',()=>panels.variantsDialog(),{});
@@ -386,7 +387,7 @@ export default {
   cmd('pixel.exportAseprite',()=>exportAseprite(),{group:'file'});
   cmd('pixel.exportPNG',()=>exportFramePNG(),{group:'file'});
   cmd('pixel.animate',()=>{const a=asset();exec(t('px.cmd.animate'),d=>PD.frameFromCanvas(d,a.id));refreshAll();},{enabled:()=>!!asset()&&!asset().frames.length});
-  ctx.menu({id:'pixel',title:'px.menu',items:()=>['pixel.newSprite','pixel.colorMode','-','pixel.copy','pixel.cut','pixel.paste','pixel.drop','-','pixel.reselect','pixel.invertSelection','pixel.selectLayer','-',
+  ctx.menu({id:'pixel',title:'px.menu',items:()=>['pixel.newSprite','pixel.colorMode','pixel.canvasSize','-','pixel.copy','pixel.cut','pixel.paste','pixel.drop','-','pixel.reselect','pixel.invertSelection','pixel.selectLayer','-',
    'pixel.flipH','pixel.flipV','pixel.rotateCW','pixel.rotateCCW','pixel.replaceColor','pixel.outline','pixel.shadow','-','pixel.newLayer','pixel.duplicateLayer','pixel.mergeDown','pixel.deleteLayer','-',
    'pixel.swapColors','pixel.pixelPerfect','pixel.symmetryX','pixel.symmetryY','-','pixel.lospec','pixel.ramp','pixel.variants','pixel.audit','pixel.cleanup','-',
    'sprite.play','sprite.onion','sprite.preview','pixel.animate','-','pixel.exportPNG','pixel.exportAseprite']});

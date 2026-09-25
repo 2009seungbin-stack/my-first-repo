@@ -156,3 +156,34 @@ export function newSprite({name='Sprite',width,height,blob,palette=null,colorMod
 export function frameFromCanvas(doc,assetId){
  return map(doc,assetId,a=>a.frames.length?a:{...a,frames:[P.frameForRect(a,{x:0,y:0,w:a.width,h:a.height},{id:P.uid('f'),index:0})]});
 }
+// ------------------------------------------------------------------ canvas size
+/** Aseprite's Sprite › Canvas Size: adds (or, negative, removes) `left/top/right/bottom` pixels
+ * around the canvas without scaling anything. Cels move by (left, top) — their pixels are not
+ * re-encoded; frames that cover the whole canvas (animations, new sprites) grow with it, keeping
+ * their pivot / boxes / collision on the same pixels; regions of a sheet move with the pixels
+ * (a region the new canvas would cut is refused). Slices and the cut grid move too. */
+export function canvasSize(doc,assetId,{left=0,top=0,right=0,bottom=0}){
+ return map(doc,assetId,a=>{
+  const W=a.width+left+right,H=a.height+top+bottom;
+  if(!(W>=1&&H>=1))throw Error('The canvas must keep at least 1×1 pixel');
+  if(W>32768||H>32768)throw Error('The canvas is limited to 32768 px per side');
+  if(!left&&!top&&!right&&!bottom)return a;
+  const whole=f=>f.sourceRect.x===0&&f.sourceRect.y===0&&f.sourceRect.w===a.width&&f.sourceRect.h===a.height&&!f.trimmedRect&&f.offsetX===0&&f.offsetY===0&&f.canvasWidth===a.width&&f.canvasHeight===a.height;
+  const mv=(x,y)=>[x+left,y+top];
+  const frames=a.frames.map(f=>{
+   if(whole(f)){
+    const bx=b=>b.shape==='rect'?{...b,x:b.x+left,y:b.y+top}:b.shape==='circle'?{...b,cx:b.cx+left,cy:b.cy+top}:{...b,points:b.points.map(p=>mv(...p))};
+    return makeFrame({...f,sourceRect:{x:0,y:0,w:W,h:H},trimmedRect:null,canvasWidth:W,canvasHeight:H,offsetX:0,offsetY:0,pivotX:(f.pivotX*a.width+left)/W,pivotY:(f.pivotY*a.height+top)/H,
+     boxes:f.boxes.map(bx),collision:f.collision.map(poly=>poly.map(p=>mv(...p)))});
+   }
+   const r=f.sourceRect,n={x:r.x+left,y:r.y+top,w:r.w,h:r.h};
+   if(n.x<0||n.y<0||n.x+n.w>W||n.y+n.h>H)throw Error(`Frame ${f.name||f.id} would be cut by the new canvas`);
+   const t=f.trimmedRect?{...f.trimmedRect,x:f.trimmedRect.x+left,y:f.trimmedRect.y+top}:null;
+   return makeFrame({...f,sourceRect:n,trimmedRect:t});
+  });
+  const cels=a.cels.map(c=>({...c,x:c.x+left,y:c.y+top}));
+  const slices=(a.slices||[]).map(s=>({...s,keys:s.keys.map(k=>({...k,bounds:{...k.bounds,x:k.bounds.x+left,y:k.bounds.y+top}}))}));// centre and pivot are relative to the bounds
+  const grid=a.grid?{...a.grid,ox:Math.max(0,a.grid.ox+left),oy:Math.max(0,a.grid.oy+top)}:a.grid;
+  return {...a,width:W,height:H,frames,cels,slices,grid};
+ });
+}

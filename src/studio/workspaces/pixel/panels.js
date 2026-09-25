@@ -367,6 +367,18 @@ export function createPanels(W){
   const a=PD.newSprite({name:name.value.trim()||'sprite',width:W0,height:H0,blob,palette:indexed?pal:I.DB32,colorMode:indexed?'indexed':'rgb',transparentIndex:0});
   W.exec(t('px.cmd.newSprite'),d=>P.addAssets(d,[a]));await ctx.showAsset(a.id);ctx.setTool('px-pencil');
  }
+ /** Sprite › Canvas Size (Aseprite): pixels added (or removed, negative) on each side; nothing is scaled. */
+ async function canvasSizeDialog(){
+  const a=asset();if(!a)return;await W.commitChain();const host=document.querySelector('.studio');
+  const v={left:1,top:1,right:1,bottom:1},size=h('p.st-muted',{'data-px':'canvas-result'});
+  const upd=()=>{size.textContent=t('px.canvas.result',{w:a.width+v.left+v.right,h:a.height+v.top+v.bottom});};
+  const f=k=>h('label.st-field',{},h('span',{},t('px.canvas.'+k)),num(t('px.canvas.'+k),v[k],-4096,4096,x=>{v[k]=x;upd();},'canvas-'+k));
+  for(const k of Object.keys(v))v[k]=1;upd();
+  const ok=await modal(host,{title:t('px.cmd.canvasSize'),body:h('div.px-dlg',{},h('p.st-muted',{},t('px.canvas.help',{w:a.width,h:a.height})),h('div.px-dlg-row',{},f('left'),f('right')),h('div.px-dlg-row',{},f('top'),f('bottom')),size),
+   buttons:[{label:t('confirm.cancel'),value:null},{label:t('confirm.ok'),value:'ok',primary:true}],className:'px-canvas'}).done;
+  if(ok!=='ok')return;
+  try{W.exec(t('px.canvas.step',{w:a.width+v.left+v.right,h:a.height+v.top+v.bottom}),d=>PD.canvasSize(d,a.id,v));ctx.toast(t('px.canvas.done',{w:asset().width,h:asset().height}));}catch(e){ctx.toast(e.message,{error:true});}
+ }
  async function colorModeDialog(){
   const a=asset();if(!a)return;const host=document.querySelector('.studio'),idx=PD.isIndexed(a);
   if(idx){const ok=await modal(host,{title:t('px.mode.toRgbTitle'),body:h('p',{},t('px.mode.toRgb')),buttons:[{label:t('confirm.cancel'),value:false},{label:t('px.mode.convert'),value:true,primary:true}]}).done;
@@ -387,7 +399,7 @@ export function createPanels(W){
   ctx.toast(off?t('px.mode.convertedNearest',{n:off,colors:pal.length}):t('px.mode.converted',{colors:pal.length}));
  }
  function renderAll(){imageColors=null;renderColor();renderPalette();renderLayers();renderAudit();ctx.badge('px-palette');}
- return {contextBar,color,palette,layers,audit,paletteActions,layerActions,layerOp,renderColor,renderPalette,renderLayers,renderAudit,renderAll,runAudit,newSprite,colorModeDialog,lospec,rampDialog,variantsDialog,applyPalette,useLoadedPalette};
+ return {contextBar,color,palette,layers,audit,paletteActions,layerActions,layerOp,renderColor,renderPalette,renderLayers,renderAudit,renderAll,runAudit,newSprite,colorModeDialog,canvasSizeDialog,lospec,rampDialog,variantsDialog,applyPalette,useLoadedPalette};
 }
 // ------------------------------------------------------------------ HSV helpers
 function rgbToHsv(c){const r=c[0]/255,g=c[1]/255,b=c[2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let hh=0;if(d){if(mx===r)hh=((g-b)/d)%6;else if(mx===g)hh=(b-r)/d+2;else hh=(r-g)/d+4;hh*=60;if(hh<0)hh+=360;}return [hh,mx?d/mx:0,mx];}
