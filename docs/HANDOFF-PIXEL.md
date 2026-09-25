@@ -6,6 +6,26 @@
 - **Port:** 4501 (`PORT=4501 node tools/serve.mjs`). Screenshots go to `scratchpad/p2/studio-pixel/` (none taken yet).
 - Rules: `scratchpad/STUDIO-AGENT-RULES.md` (incl. P1+ addendum: corpus-less CI run, byte-exact fixtures in `.gitattributes`).
 
+## STATUS (session 2, 2026-09-25) — read this first
+- Merged origin/main (101 commits, no conflicts). `npm test` 2206 pass / 0 fail / 1 skip.
+- Workspace is WIRED and RUNS: registered in main.js (tab after Tile), removed from coming.js, check.mjs covers
+  src/studio/pixel + workspaces/pixel. strings.js (ko/en/ja, parity + "every used key exists" tests), pixel.css,
+  cleanup-ui.js + cleanup-worker.js written. Stubs fixed (noop command removed; `ctx.menus` added to ctx).
+- Bug found + fixed: the earlier `get tool()` on ctx shadowed `ctx.tool(def)` (broke every workspace) → now `ctx.activeTool`.
+- Verified by hand in Playwright (port 4501): stroke = 1 undo step, undo/redo, right-click BG, bucket, rect, pixel-perfect,
+  Shift+click line, symmetry, marquee move/drop/undo, flip/rotate in place, copy/paste, layers + multiply blend + merge
+  down (pixels identical), lock refuses paint, indexed conversion keeps the picture, palette drag reorder keeps the picture,
+  cleanup of old_hero bilinear x4.25 with background=keep → 3072/3072 pixels = truth, .nerulio round trip keeps
+  palette/colorMode/locked/blend + pixels.
+- Real Aseprite CLI: exported indexed 2-layer (normal + multiply, locked) 2-frame sprite opens as indexed, palette 33,
+  transparentColor 0, blend MULTIPLY, editable=false; `--color-mode rgb --save-as` frames = Studio composite, 0 px diff
+  (scratch: C:/Users/2009s/nerulio-handoff/scratch/p2/aseprite/).
+- CSP: tools/site-config.mjs headers() adds /game/studio/* and /:lang/game/studio/* blocks = site CSP + https://lospec.com
+  in connect-src (unit test). Lospec JSON sends Access-Control-Allow-Origin: * (checked with curl).
+- Fixtures: tests/fixtures/pixel/ (CC0, LICENSE.md, -text).
+- NEXT: tests/studio-pixel-browser.py + regression.py entry; screenshots 1440/390 review; 512x512x100 timing;
+  engine work on ai-sim/JPEG; bench script paths → scratch/p2; head-to-head; docs/STUDIO-PIXEL.md.
+
 ## Scope of P2 (from the task)
 
 An Aseprite-class pixel editor workspace `pixel` inside the Studio (replacing the "coming P2" entry), editing
