@@ -1,5 +1,5 @@
-import * as S from 'file:///C:/Users/2009s/Desktop/SITE/.claude/worktrees/agent-ae3a259be05a673a5/src/game/pixel-snap.js';
-import {runCleanup} from 'file:///C:/Users/2009s/Desktop/SITE/.claude/worktrees/agent-ae3a259be05a673a5/src/studio/pixel/cleanup.js';
+import * as S from '../../src/game/pixel-snap.js';
+import {runCleanup} from '../../src/studio/pixel/cleanup.js';
 function sprite1x(w=24,h=20){
  const d=new Uint8Array(w*h*4),cols=[[40,32,60],[200,60,70],[250,200,90],[80,160,90],[60,90,200]];let seed=w*131+h;const rnd=()=>((seed=(seed*1103515245+12345)&0x7fffffff)/0x7fffffff);
  for(let y=2;y<h-2;y++){let c=cols[1],left=0;for(let x=3;x<w-3;x++){const edge=y===2||y===h-3||x===3||x===w-4;if(!left){c=cols[1+Math.floor(rnd()*4)];left=1+Math.floor(rnd()*3);}left--;d.set([...(edge?cols[0]:c),255],(y*w+x)*4);}}

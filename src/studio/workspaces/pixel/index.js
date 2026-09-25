@@ -285,7 +285,7 @@ export default {
   function updateStatus(){
    const a=asset();if(!a){ctx.status('selection','');return;}
    const l=a.layers.find(x=>x.id===S.layerId),f=frame(),sel=S.selection?R.maskBounds(S.selection,session.rect?.w||1,session.rect?.h||1):null;
-   ctx.status('selection',t('px.status.main',{frame:f?`${S.cur+1}/${a.frames.length}`:t('px.status.noFrames'),layer:l?.name||'—',mode:t(PD.isIndexed(a)?'px.mode.indexed':'px.mode.rgb'),sel:sel?` · ${t('px.status.sel',{w:sel.w,h:sel.h,x:sel.x,y:sel.y})}`:''}));
+   ctx.status('selection',t('px.status.main',{frame:f?t('px.status.frame',{i:S.cur+1,n:a.frames.length}):t('px.status.noFrames'),layer:l?.name||'—',mode:t(PD.isIndexed(a)?'px.mode.indexed':'px.mode.rgb'),sel:sel?` · ${t('px.status.sel',{w:sel.w,h:sel.h,x:sel.x,y:sel.y})}`:''}));
   }
   // ------------------------------------------------------------ document / asset events
   function refreshAll(){

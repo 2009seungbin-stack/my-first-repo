@@ -75,7 +75,7 @@ export function createCleanup(W){
   try{
    const copies=S.inputs.map(copyFrame);
    const r=await work({op:'run',frames:copies,opts:workOpts(),analysis:S.analysis},copies.map(f=>f.data.buffer));
-   if(token!==S.token)return;S.result=r;setState('done');
+   if(token!==S.token)return;S.result=r;S.scrollResult=true;setState('done');
   }catch(e){if(e.stopped||token!==S.token)return;S.error=String(e.message||e);setState('error');}
   render();
  }
@@ -124,7 +124,7 @@ export function createCleanup(W){
   const cand=A.candidate&&A.candidate.kind!=='unit'?A.candidate:null;
   return [cand?t('px.clean.v.untrusted',{s:fmt(cand.scaleX??cand.scale)}):t('px.clean.v.none'),conf(cand?.confidence||'low')];
  }
- function field(label,control,hint){return h('label.px-f.px-f-full',{title:hint||null},h('span',{},label,hint?h('small',{},hint):''),control);}
+ function field(label,control,hint){if(hint)control.title=hint;return h('label.px-f.px-f-full',{title:hint||null},h('span',{},label),control);}
  function select(id,value,options,on){const s=h('select.st-input.px-sel',{'data-px':'clean-'+id,'aria-label':t('px.clean.opt.'+id)},...options.map(([v,l])=>h('option',{value:v,selected:String(v)===String(value)||null},l)));s.addEventListener('change',()=>on(s.value));return s;}
  function check(id,on){const i=h('input',{type:'checkbox',checked:o[id]||null,'data-px':'clean-'+id});i.addEventListener('change',()=>{o[id]=i.checked;saveOpts();on?.();invalidateResult();});return h('label.st-check',{},i,t('px.clean.opt.'+id));}
  function invalidateResult(){if(S.result){S.result=null;setState('measured');render();}}
@@ -149,7 +149,7 @@ export function createCleanup(W){
   if(S.analysis){
    const A=S.analysis,[v,c]=verdict(A),g=A.grid;
    const size=g?`${g.width}×${g.height}`:null,input=S.inputs?.[0];
-   const bg=A.background?h('span',{},h('i.px-clean-sw',{style:`--c:rgb(${A.background.color.slice(0,3).join(',')})`}),t('px.clean.bg',{hex:hex(A.background.color),pct:Math.round(A.background.share*100)})):t('px.clean.noBg');
+   const bg=A.background?h('span',{},h('i.px-clean-sw',{style:`--c:rgb(${A.background.color.slice(0,3).join(',')})`}),t(o.background==='keep'?'px.clean.bgKept':'px.clean.bg',{hex:hex(A.background.color),pct:Math.round(A.background.share*100)})):t('px.clean.noBg');
    const gridT=h('input',{type:'checkbox',checked:S.showGrid||null,'data-px':'clean-grid'});gridT.addEventListener('change',()=>{S.showGrid=gridT.checked;showGrid();});
    parts.push(h('div.st-sec',{'data-px':'clean-analysis'},
     stale?h('p.px-warn',{},t('px.clean.stale')):'',
@@ -167,7 +167,7 @@ export function createCleanup(W){
    const alpha=h('input.st-input.px-num',{type:'number',min:'0',max:'255',value:String(o.alphaCut),'data-px':'clean-alphaCut','aria-label':t('px.clean.opt.alphaCut')});alpha.addEventListener('change',()=>setOpt('alphaCut',Math.max(0,Math.min(255,Number(alpha.value)||0))));
    const hasPal=!!a.palette?.colors?.length;
    const opts=h('details.st-sec.px-clean-opts',{open:storage.get(PREFS+'.open',false)||null},h('summary',{},t('px.clean.options')),
-    field(t('px.clean.opt.background'),select('background',o.background,[['auto',t('px.clean.bgAuto')],['keep',t('px.clean.bgKeep')]],v2=>setOpt('background',v2))),
+    field(t('px.clean.opt.background'),select('background',o.background,[['auto',t('px.clean.bgAuto')],['keep',t('px.clean.bgKeep')]],v2=>{setOpt('background',v2);render();})),
     field(t('px.clean.opt.alphaCut'),alpha,t('px.clean.alphaHint')),
     field(t('px.clean.opt.merge'),mergeSel,t('px.clean.mergeHint')),
     field(t('px.clean.opt.maxColors'),maxC,t('px.clean.maxHint')),
@@ -183,6 +183,7 @@ export function createCleanup(W){
   }
   if(S.result)parts.push(resultView());
   root.replaceChildren(...parts);
+  if(S.state==='done'&&S.scrollResult){S.scrollResult=false;requestAnimationFrame(()=>root.querySelector('[data-px="clean-result"]')?.scrollIntoView({block:'nearest'}));}
  }
  function resultView(){
   const r=S.result,n=r.frames.length,k=Math.min(S.view,n-1),before=S.inputs[k],after=r.frames[k];

@@ -14,7 +14,9 @@ import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, 'perfectPixel', 'src'))
+# tool clones, harness pages and outputs live outside the repo (PIXEL_BENCH_WORK)
+WORK = os.environ.get('PIXEL_BENCH_WORK', 'C:/Users/2009s/nerulio-handoff/scratch/p2/competitors')
+sys.path.insert(0, os.path.join(WORK, 'perfectPixel', 'src'))
 BACKEND = sys.argv[1] if len(sys.argv) > 1 else 'opencv'
 DATA = sys.argv[2] if len(sys.argv) > 2 else r'C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-studio-pixel'
 if BACKEND == 'numpy':
@@ -24,7 +26,7 @@ else:
     import cv2  # noqa: F401  (must be importable)
     from perfect_pixel.perfect_pixel import get_perfect_pixel
     TOOL = 'perfectpixel'
-OUT = os.path.join(HERE, 'out', TOOL)
+OUT = os.path.join(WORK, 'out', TOOL)
 
 
 def load_rgb(path):

@@ -16,9 +16,11 @@ import base64, functools, http.server, json, os, sys, threading, time
 from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# tool clones, harness pages and outputs live outside the repo (PIXEL_BENCH_WORK)
+WORK = os.environ.get('PIXEL_BENCH_WORK', 'C:/Users/2009s/nerulio-handoff/scratch/p2/competitors')
 VARIANT = sys.argv[1] if len(sys.argv) > 1 else 'unfake'
 DATA = sys.argv[2] if len(sys.argv) > 2 else r'C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-studio-pixel'
-OUT = os.path.join(HERE, 'out', VARIANT)
+OUT = os.path.join(WORK, 'out', VARIANT)
 OPTS = {
     'unfake': dict(maxColors=16, autoColorCount=False, snapGrid=True, detectMethod='edge', edgeDetectMethod='tiled',
                    downscaleMethod='dominant', domMeanThreshold=0.15, manualScale=None,
@@ -42,7 +44,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=HERE))
+    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=WORK))
     port = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     cases = json.load(open(os.path.join(DATA, 'cases.json')))['cases']

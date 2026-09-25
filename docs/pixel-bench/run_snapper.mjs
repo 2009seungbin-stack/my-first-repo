@@ -11,12 +11,14 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// the snapper wasm build and outputs live outside the repo (PIXEL_BENCH_WORK)
+const WORK = process.env.PIXEL_BENCH_WORK || 'C:/Users/2009s/nerulio-handoff/scratch/p2/competitors';
 const DATA = process.argv[2] || 'C:/Users/2009s/nerulio-asset-corpus/_adhoc/nerulio-studio-pixel';
-const OUT = process.argv[3] || path.join(HERE, 'out', 'snapper');
+const OUT = process.argv[3] || path.join(WORK, 'out', 'snapper');
 const K_COLORS = process.env.K_COLORS ? Number(process.env.K_COLORS) : undefined; // undefined -> wasm default (16)
 fs.mkdirSync(OUT, { recursive: true });
 
-const wasmBytes = fs.readFileSync(path.join(HERE, '_snapweb', 'snapper_bg.wasm'));
+const wasmBytes = fs.readFileSync(path.join(WORK, '_snapweb', 'snapper_bg.wasm'));
 const wasmSha = crypto.createHash('sha256').update(wasmBytes).digest('hex');
 const mod = new WebAssembly.Module(wasmBytes);
 let f; // exports
