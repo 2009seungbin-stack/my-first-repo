@@ -35,6 +35,7 @@ src/studio/workspaces/
   coming.js                     workspaces not built yet, registered as "coming" (no UI of their own)
   tile/                         the Tile workspace (P3) — docs/STUDIO-TILE.md
   texture/                      the Texture workspace (P4) — docs/STUDIO-TEXTURE.md
+  pixel/                        the Pixel workspace (P2) — docs/STUDIO-PIXEL.md (pure modules: src/studio/pixel/)
 src/studio/monetize/            ad column, Studio export metering, limit dialog (docs/ADS.md, docs/PRICING-MODEL.md)
 src/studio/grid-worker.js       worker: grid suggestion (src/game/grid-detect.js) and per-cell occupancy
 ```

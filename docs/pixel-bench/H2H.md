@@ -1,7 +1,7 @@
 # Nerulio Studio pixel: head-to-head against competitors
 
-Status 2026-09-24. Workspace: `scratchpad/p2/competitors` (WORK). Dataset: `C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-studio-pixel` (DATA).
-Nerulio itself is **not** scored here. This file sets the bar it has to beat.
+Status 2026-09-24 (competitors). Workspace: `C:\Users\2009s\nerulio-handoff\scratch\p2\competitors` (WORK, or `$PIXEL_BENCH_WORK`). Dataset: `C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-studio-pixel` (DATA).
+This file sets the bar. **Nerulio's scores and its column of the edit-task table are in docs/STUDIO-PIXEL.md §5–6** (2026-09-25; `scores/nerulio*.json`, `h2h_nerulio_results.json`).
 
 ## 1. Dataset (DATA/cases.json, 76 cases)
 
