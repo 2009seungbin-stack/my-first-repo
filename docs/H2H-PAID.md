@@ -1,0 +1,253 @@
+# Studio vs. the paid and desktop tools (head-to-head, 2026-09-25)
+
+`docs/STUDIO-PACK-H2H.md` compared the Studio with **free web** packers. This page compares it with
+the **paid/desktop leaders**: TexturePacker Pro, SpriteIlluminator, Laigter, Tilesetter, plus
+Tiled's and Godot's own terrain tools as the free baseline for autotiles. Wins and losses are both
+reported with numbers. "Loses" means loses. Where nothing was measured, the page says so.
+
+**Status:** TexturePacker is done. The normal-map and tile sections are still in progress; they
+say so below until they are filled in.
+
+## Where Nerulio wins, ties and loses (so far)
+
+| Area | Result | Measured gap |
+|---|---|---|
+| Sheet size, rotation allowed, 4 of 5 sets (ninja, archer, samurai, toon) | **Win** | 2.0–17.7 % smaller than TexturePacker's MaxRects Best |
+| Sheet size, spaceshooter (294 sprites, 96 sizes) | **Loss** | 0.8 % (square pages) to 2.5 % larger than TexturePacker |
+| Sheet size, rotation off | 3 wins, 2 losses | samurai −8.7 %, ninja −16.9 %. TexturePacker is smaller on archer (0.8 %), toon (3.0 %) and spaceshooter (1.2 %), but only with pages of 5.6:1, 35:1 and 14:1 |
+| Sheet size, square pages (TexturePacker `--force-squared`) | 4 wins, 1 loss | −2.6 % to −20.6 %; spaceshooter +0.8 % |
+| Sheet size, power of two | Tie | identical page sizes on all 5 sets |
+| Frames restored pixel for pixel | Tie | both 415/415 in every configuration |
+| Duplicates (alias) | Tie | both store 6 of 18 ninja frames. TexturePacker's alias page for archer ×8 is 1.1 % smaller |
+| Multipack (archer ×8, 2048 max, alias off) | **Win** | 5 pages each; the Studio's total area is 1.9 % smaller |
+| PNG file size | Tie | within ±3 % either way (both write indexed PNG when a sheet has ≤ 256 colours) |
+| Pack speed | **Loss** (desktop) | TexturePacker CLI 0.1–2.2 s, including process start. The Studio's modules in Node take 0.01–1.3 s, but the browser worker is slower (1,000 frames: 2.4 s) |
+| Phaser 3/4, PixiJS 8, Spine runtime | Tie | both pass on all 4 tested sets. Both leave rotation off for Phaser; TexturePacker's rotated Phaser frames FAIL in Phaser 3.90 and 4.2 |
+| Godot 4 | **Win** (small) | both draw correctly. TexturePacker's path needs its editor plugin and gives AtlasTextures + an AnimationPlayer library, at a fixed 10 fps. It ships no PNG import settings, so Godot's default `fix_alpha_border` recolours faint pixels (archer 8/10 frames exact). The Studio ships a SpriteFrames `.tres`, a `.tscn` and a `.png.import` (10/10) |
+| Unity | Not compared | TexturePacker's importer is on the Unity Asset Store only (needs an Asset Store account action) |
+| Polygon packing | **Loss (feature)** | the Studio has none. TexturePacker's polygon mode made the spaceshooter sheet 4.5 % smaller than the Studio's best, but made the character sets 16–25 % larger than its own rectangle packing |
+| Engine exporters | **Loss (breadth)** | TexturePacker has 68 data formats. The Studio has 17 targets, and its targets were loaded in 10 real engines/runtimes |
+| Texture formats (PVR, ETC, ASTC, DXT, Basis, WebP) and pixel formats (RGBA4444 …) | **Loss (feature)** | the Studio writes PNG only |
+| Price | **Win** | Studio free. TexturePacker Pro is a paid licence; this test used its 7-day trial |
+
+## Method
+
+* **Assets.** The same five real CC0 frame sets as `docs/STUDIO-PACK-H2H.md`, rebuilt from the
+  corpus by `tools/h2h/pack_sets.py`:
+  * ninja: 6 frames, 40×29
+  * archer: 10 frames, 381×554
+  * samurai: 60 frames of 48 px
+  * toon: 45 frames of 96×128
+  * spaceshooter: 294 sprites in 96 sizes
+
+  Plus ninja ×3 (duplicates) and archer ×8 (multipack).
+* **Judge.** `tools/h2h/atlas_verify.py` restores every frame from each tool's TexturePacker JSON
+  hash and compares it with its source PNG, ignoring RGB under alpha 0.
+  * It uses frame, rotated (stored clockwise), spriteSourceSize and sourceSize.
+  * Polygon frames are restored through their triangle mesh, pixel centres inside the triangles.
+    A polygon frame is exact only when no opaque source pixel falls outside the mesh.
+* **Efficiency** = sum of the frames' opaque bounding boxes ÷ total page area.
+* **Engines.** `tools/h2h/engine_check.py` loads TexturePacker's own exports and the Studio's
+  bundles into the real engines with `tools/engine-verify`: Phaser 3.90, Phaser 4.2, PixiJS 8.21 and
+  spine-canvas 4.2. Both are judged against the source frames. `tools/h2h/godot_tp_check.py` draws
+  TexturePacker's Godot path in Godot 4.7.2.
+* **Reproduce:**
+
+  ```
+  python tools/h2h/pack_sets.py
+  python tools/h2h/tp_pack.py            # needs TEXTUREPACKER_BIN with a Pro licence or trial
+  node   tools/h2h/nerulio_pack.mjs
+  python tools/h2h/atlas_verify.py
+  python tools/h2h/tp_engine_exports.py
+  python tools/h2h/engine_check.py --port 4561
+  TP_GODOT_PLUGIN=<plugin folder> python tools/h2h/godot_tp_check.py
+  ```
+
+  Outputs go to `H2H_WORK` (default `test-results/h2h-paid`, git-ignored). The run on this page
+  wrote them to `C:\Users\2009s\nerulio-handoff\scratch\h2h-paid\work`. Competitor binaries and
+  outputs are not committed.
+
+### Versions and how each tool was obtained
+
+| Tool | Version | Source | Licence used |
+|---|---|---|---|
+| TexturePacker | 8.3.0 (2026-09-16), 64-bit | official MSI from codeandweb.com, unpacked with `msiexec /a` (not installed) | **Pro trial**: started by the GUI on first launch ("Pro trial: 7 days left"), with no account, e-mail or payment. The CLI then reports `License type: trial, Expiry: 2026-10-02`. Telemetry was declined. The trial EULA allows evaluation only, so no TexturePacker output is committed or shipped |
+| TexturePacker Godot plugin | v4.3.0 | github.com/CodeAndWeb/texturepacker-godot-plugin (MIT) | — |
+| SpriteIlluminator | 2.1.2 | official MSI, unpacked the same way | Pro trial ("Try SpriteIlluminator Pro"), no account. **GUI only**: it has no command line |
+| Nerulio Studio | `origin/main` @ 0976d1a + this branch | the same modules the Studio runs (`src/game/pack`, `src/game/export`) | — |
+| Engines | Godot 4.7.2, Phaser 3.90.0 / 4.2.1, PixiJS 8.21.0, spine-canvas 4.2.120 | `tools/engine-verify` | — |
+
+## 1. TexturePacker Pro vs. Studio Pack & Export
+
+### Settings (identical on both sides)
+
+| | TexturePacker CLI | Studio |
+|---|---|---|
+| common | `--format json --trim-mode Trim --shape-padding 2 --border-padding 0 --extrude 0 --max-size 4096 --size-constraints AnySize --multipack` (alias on, its default) | `trimMode:'trim', shapePadding:2, borderPadding:0, extrude:0, maxWidth/Height:4096, dedupe:true` |
+| rot1-best | `--algorithm MaxRects --maxrects-heuristics Best --pack-mode Best --enable-rotation` | `allowRotation:true, effort:'best'` |
+| rot0-best | same with `--disable-rotation` | `allowRotation:false, effort:'best'` |
+| rot1-square | rot1-best + `--force-squared` | rot1-best + `sizeMode:'square'` |
+| rot0-pot | rot0-best with `--size-constraints POT` | rot0-best + `sizeMode:'pot'` |
+| rot1-good / rot1-normal | `--pack-mode Good` (TexturePacker's default mode) | `effort:'normal'` (the Studio's default) |
+| polygon | `--algorithm Polygon --trim-mode Polygon --enable-rotation --pack-mode Best` | — (the Studio has no polygon mode) |
+| defaults | `--format json` only | — |
+
+### Sheet size
+
+Area in px², with efficiency in brackets. Δ = the Studio relative to TexturePacker; negative means
+the Studio's sheet is smaller.
+
+| Set | Config | TexturePacker Pro | Studio | Δ |
+|---|---|---|---|---|
+| ninja | rotation allowed | 127×18 = 2,286 (0.70) | **33×57 = 1,881 (0.85)** | **−17.7 %** |
+| ninja | rotation off | 127×18 = 2,286 (0.70) | **38×50 = 1,900 (0.84)** | **−16.9 %** |
+| ninja | square | 55×55 = 3,025 | **49×49 = 2,401** | **−20.6 %** |
+| archer | rotation allowed | 873×1942 = 1,695,366 (0.92) | **1071×1526 = 1,634,346 (0.96)** | **−3.6 %** |
+| archer | rotation off | **3034×538 = 1,632,292 (0.96)**, a 5.6:1 strip | 1543×1066 = 1,644,838 (0.95) | +0.8 % |
+| archer | square | 1350×1350 = 1,822,500 | **1332×1332 = 1,774,224** | **−2.6 %** |
+| samurai | rotation allowed | 125×574 = 71,750 (0.77) | **313×216 = 67,608 (0.82)** | **−5.8 %** |
+| samurai | rotation off | 588×127 = 74,676 (0.74) | **275×248 = 68,200 (0.81)** | **−8.7 %** |
+| samurai | square | 273×273 = 74,529 | **259×259 = 67,081** | **−10.0 %** |
+| toon | rotation allowed | 495×716 = 354,420 (0.90) | **587×592 = 347,504 (0.91)** | **−2.0 %** |
+| toon | rotation off | **3551×102 = 362,202 (0.88)**, a 35:1 strip | 631×591 = 372,921 (0.85) | +3.0 % |
+| toon | square | 601×601 = 361,201 | **590×590 = 348,100** | **−3.6 %** |
+| spaceshooter | rotation allowed | **3575×256 = 915,200 (0.93)**, a 14:1 strip | 951×983 = 934,833 (0.91) | **+2.1 %** |
+| spaceshooter | rotation off | **256×3604 = 922,624 (0.92)** | 951×982 = 933,882 (0.91) | **+1.2 %** |
+| spaceshooter | square | **959×959 = 919,681** | 963×963 = 927,369 | **+0.8 %** |
+| spaceshooter | default effort (Good vs normal) | **3582×256 = 916,992** | 944×996 = 940,224 | **+2.5 %** |
+| all 5 | power of two | 64², 2048², 256×512, 512×1024, 1024² | identical | 0 |
+
+Notes:
+
+* **Strips.** TexturePacker's Best mode picks the smallest area even when the page is a long strip
+  (127×18, 3551×102, 3575×256). The Studio scores squarer pages higher. The square rows compare the
+  two tools on the same shape constraint.
+* **TexturePacker's plain defaults** (`--format json`) give ninja 2,552, archer 1,701,000,
+  samurai 73,152, toon 356,846 and spaceshooter 922,500. At its default normal effort, the Studio
+  is smaller on four sets with rotation on, and 1.9 % larger on spaceshooter. With rotation off
+  (its generic default), it is also larger on toon (+4.5 %) and on spaceshooter (+2.3 %).
+* **Polygon mode (TexturePacker only)**, in px²:
+
+  | Set | Polygon | vs. TexturePacker's own rectangle Best |
+  |---|---|---|
+  | ninja | 2,904 | larger |
+  | archer | 2,013,020 | larger |
+  | samurai | 82,626 | larger |
+  | toon | 433,066 | larger |
+  | spaceshooter | **892,581** | 2.5 % smaller, and 4.5 % smaller than the Studio's best |
+
+  So polygon packing pays off here only on the ship/laser sprites. Every polygon frame covered all
+  of its opaque pixels (415/415 exact through the mesh).
+
+### Correctness, duplicates, multipack, file size, speed
+
+* **Exact restore.** Every configuration of both tools: ninja 6/6, archer 10/10, samurai 60/60,
+  toon 45/45, spaceshooter 294/294. There were no overlaps. TexturePacker's rotated frames follow
+  the same clockwise convention as the Studio's.
+* **Duplicates.** Ninja ×3 (18 frames) is stored as 6 frames by both tools. TexturePacker's page is
+  127×18 = 2,286 px², the Studio's 38×50 = 1,900 px².
+* **Alias + multipack limit.** Archer ×8 at a 2048 max, alias on: TexturePacker 1539×1057 =
+  1,626,723 px², the Studio 1543×1066 = 1,644,838 px². TexturePacker is 1.1 % smaller.
+* **Multipack without alias** (80 frames, 2048 max): 5 pages each. TexturePacker 13,091,072 px²,
+  the Studio **12,841,021** px² (−1.9 %).
+* **PNG bytes** (rot1-best / square):
+
+  | Set | TexturePacker | Studio |
+  |---|---|---|
+  | ninja | 483 / 554 | 531 / 526 |
+  | archer | 718,695 / 711,557 | 706,081 / 701,282 |
+  | samurai | 6,599 / 7,738 | 6,583 / 7,685 |
+  | toon | 104,417 / 106,392 | 106,849 / 104,593 |
+  | spaceshooter | 131,622 / 140,170 | 133,469 / 148,169 |
+
+  A tie.
+* **Time.** TexturePacker CLI wall time, including about 60 ms of process start and PNG writing:
+  * ninja 0.1 s
+  * samurai 0.16 s
+  * toon 0.2 s
+  * archer 0.85 s
+  * spaceshooter 1.3–1.9 s
+  * archer ×8 multipack 4.5 s
+
+  The Studio's modules in Node (decode + pack + draw + encode + write): 0.01, 0.1, 0.16, 0.5,
+  0.6–1.3 and 3.7 s. In the browser the Studio packs in a worker: 1,000 frames in 2.4 s, measured
+  in `docs/STUDIO-PACK.md`. TexturePacker is a native app and is at least as fast. Both are
+  interactive on these sets. **TexturePacker is faster on large jobs**; this run did not measure
+  by how much in the browser.
+
+### In the engines (same four sets, judged against the source frames)
+
+| Engine | TexturePacker's own export | Studio bundle |
+|---|---|---|
+| Phaser 3.90 + 4.2 (`phaser` format, its default: no rotation) | PASS 4/4 sets | PASS 4/4 |
+| Phaser 3.90 + 4.2, TexturePacker with `--enable-rotation` | **FAIL 3/3 sets that rotate**: exactly the rotated frames are wrong (archer 6/10, samurai 40/60, toon 9/45 matched) | the Studio's Phaser preset refuses rotation |
+| PixiJS 8.21 (`pixijs4`, which rotates by default) | PASS 4/4, rotated included | PASS 4/4 (rotation on) |
+| Spine runtime 4.2 (`spine`, rotation on) | PASS 4/4 | PASS 4/4 |
+| Godot 4.7.2 | TexturePacker's plugin imports the `.tpsheet`; drawn: ninja 6/6, **archer 8/10**, samurai 60/60, toon 45/45 exact | PASS 4/4 (SpriteFrames `.tres`, `.tscn`, `.png.import`) |
+| Unity 6 | **not measured**: TexturePacker Importer is only on the Unity Asset Store (needs an account action) | PASS (earlier runs, `docs/STUDIO-PACK.md`) |
+
+What the Godot row means in practice:
+
+* **TexturePacker's route.**
+  * Copy the addon into the project and enable it in Project Settings.
+  * Its importer writes one AtlasTexture `.tres` per sprite.
+  * It also writes an AnimationLibrary per name group (`run`, `attack`, `samurai`, `toon`) for an
+    AnimationPlayer, at a fixed 10 fps. There is no SpriteFrames and no scene.
+  * The PNG gets Godot's default import (`fix_alpha_border=true`). In archer frames 8 and 9 an
+    alpha-16 pixel (64,48,32) was recoloured to (191,175,175). That is the engine default, not
+    TexturePacker's packing.
+* **The Studio's route.** It needs no plugin and ships the import settings, SpriteFrames with
+  per-frame durations, and a scene with nearest filtering.
+
+### Features TexturePacker has that the Studio does not (the measured gap is above)
+
+* **Polygon packing and polygon meshes.** The measured gain is 2.5–4.5 % on the sprite pack and a
+  loss on characters.
+* **68 data formats.** Examples: cocos2d, SpriteKit, Unreal Paper2D, MonoGame, libGDX, Solar2D,
+  GameMaker texture group, Godot tpsheet, Unity tpsheet, and custom exporters. The Studio has 17
+  targets.
+* **GPU texture formats and reduced pixel formats with dithering.** PVR/PVRTC, ETC1/2, ASTC, DXT,
+  Basis, KTX/KTX2, WebP, JPG; RGBA4444, RGB565 and so on.
+* **Smart folders and a command line / `.tps` project file for build pipelines.**
+* **Normal-map sheet packing with the same layout (`--pack-normalmaps`).** The Studio's Texture
+  workspace works per sheet, not per packed atlas.
+* **Scale variants with smooth filters and Scale2x/Hq2x.** The Studio has nearest only, which is
+  the correct choice for pixel art.
+* Force-identical layout across variants, content protection, sprite pivots per sprite in the GUI.
+
+Things the Studio has that TexturePacker does not show in this comparison:
+
+* animations with per-frame durations, tags, pivots and hitboxes reaching the engine;
+* `.aseprite`, GIF, APNG and WebM output;
+* the Godot scene and import settings;
+* engine checks run in the real engines;
+* it runs free in a browser.
+
+## 2. Normal maps: SpriteIlluminator and Laigter vs. Studio Texture
+
+*In progress.* Laigter 1.14 was already measured on the same assets in `docs/STUDIO-TEXTURE.md`.
+SpriteIlluminator 2.1.2 (Pro trial) is being driven through its GUI because it has no command line.
+
+## 3. Autotiles: Tilesetter, Tiled and Godot vs. Studio Tile
+
+*In progress.*
+
+## Improvements that would turn losses into wins
+
+1. **Spaceshooter-type packs (many small sprites, many sizes), −0.8 to −2.5 %.**
+   * Try more strip widths and sort orders at `effort:'best'`, and optionally allow long pages when
+     the user permits them. TexturePacker's wins here come from 14:1 strips or a 959² page.
+   * Target: ≤ TexturePacker's square result (919,681 px²) on spaceshooter.
+2. **Alias + page limit, −1.1 % on archer ×8.** The same search improvement applies.
+3. **Polygon packing (optional).**
+   * Worth it only for sprite packs with angular shapes: 4.5 % on spaceshooter, worse on characters.
+   * It is also limited by engines: Phaser, Pixi and Godot's AtlasTexture do not draw TexturePacker
+     meshes from these exports.
+   * Lower priority than 1.
+4. **Formats.**
+   * WebP (lossless) output is cheap and widely read.
+   * GPU formats (ASTC/ETC2/Basis) matter for mobile. The Studio would need encoders and engine
+     checks.
+   * More data formats with real users: cocos2d plist, libGDX (already via Spine), MonoGame.
+5. **Speed on big jobs.** Measure the browser worker against the CLI on the same 1,000-frame set
+   before claiming parity.
