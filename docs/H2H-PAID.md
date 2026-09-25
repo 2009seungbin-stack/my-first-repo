@@ -5,10 +5,10 @@ the **paid/desktop leaders**: TexturePacker Pro, SpriteIlluminator, Laigter, Til
 Tiled's and Godot's own terrain tools as the free baseline for autotiles. Wins and losses are both
 reported with numbers. "Loses" means loses. Where nothing was measured, the page says so.
 
-**Status:** TexturePacker and normal maps are done. The tile section is still in progress; it
-says so below until it is filled in.
+**Status:** all three comparisons are done. The tile comparison is only partly measured: Tilesetter's
+full version was not bought, so what it does is taken from its docs and labelled *docs*.
 
-## Where Nerulio wins, ties and loses (so far)
+## Where Nerulio wins, ties and loses
 
 | Area | Result | Measured gap |
 |---|---|---|
@@ -33,6 +33,8 @@ says so below until it is filled in.
 | Seamless textures | **Win** | Nerulio roll error 0. SpriteIlluminator's Emboss 1.5–2.9 (max 24 levels). Laigter 58–64 by default, 0 with its Tile preset |
 | Normal map → lit sprite in Godot/Unity | **Win** | Nerulio exports a verified Godot scene and Unity importer. SpriteIlluminator and Laigter need it set up by hand. SpriteIlluminator has no command line |
 | Normal-map paint tools | **Loss** | SpriteIlluminator has Angle/Structure brushes and selections; the Studio has a height brush only |
+| Autotile generation from base + edge tiles (Tilesetter) | **Loss (feature), not measured** | Tilesetter's paid version (US$12.99) builds 47/16 sets from a base and an edge tile with per-direction edges. Lite refuses it. The Studio generates only from quarter-based sources (A2, Blobsmith, A4, five-tile, rim) |
+| Existing 47 sheet → working engine terrain | **Win** | Studio: 6 actions, 0 manual bits, Godot 4.7.2 485/485 cells. Godot's editor: 235 bits by hand; Tiled: 188 regions; Tilesetter Lite: no engine export; Tilesetter full: Godot export documented as autotile bitmasks (Godot 3 wording, Godot 4 unverified) |
 
 ## Method
 
@@ -67,6 +69,19 @@ says so below until it is filled in.
   TP_GODOT_PLUGIN=<plugin folder> python tools/h2h/godot_tp_check.py
   ```
 
+  Normal maps and tiles:
+
+  ```
+  node   tools/engine-verify/texture/h2h_measure.mjs <dir> --json <dir>/h2h.json   # <dir>/in + <dir>/out/<tool>/<input>/<input>_n.png
+  python tools/h2h/collect_normals.py <export folder> <dir> <tool>                # file a tool's *_n.png exports into that layout
+  python tools/h2h/godot_lit.py <dir>                                             # lit in Godot 4.7.2 vs the reference normals
+  python tools/h2h/autotile_clicks.py [corpus path]                               # manual terrain marking from ground-truth masks
+  ```
+
+  SpriteIlluminator and Tilesetter have no command line. Their GUI runs were driven with UI
+  Automation and the DevTools protocol with the helpers in `tools/h2h/gui/` (see its README). The steps are
+  listed in sections 2 and 3.
+
   Outputs go to `H2H_WORK` (default `test-results/h2h-paid`, git-ignored). The run on this page
   wrote them to `C:\Users\2009s\nerulio-handoff\scratch\h2h-paid\work`. Competitor binaries and
   outputs are not committed.
@@ -78,6 +93,9 @@ says so below until it is filled in.
 | TexturePacker | 8.3.0 (2026-09-16), 64-bit | official MSI from codeandweb.com, unpacked with `msiexec /a` (not installed) | **Pro trial**: started by the GUI on first launch ("Pro trial: 7 days left"), with no account, e-mail or payment. The CLI then reports `License type: trial, Expiry: 2026-10-02`. Telemetry was declined. The trial EULA allows evaluation only, so no TexturePacker output is committed or shipped |
 | TexturePacker Godot plugin | v4.3.0 | github.com/CodeAndWeb/texturepacker-godot-plugin (MIT) | — |
 | SpriteIlluminator | 2.1.2 | official MSI, unpacked the same way | Pro trial ("Try SpriteIlluminator Pro"), no account. **GUI only**: it has no command line |
+| Laigter | 1.14.0 | GitHub release (GPL-3), run 2026-09-24 by the Texture agent; same outputs re-measured | free build |
+| Tilesetter Lite | 2.1.0 (Electron 10, build dated 2021-12) | free demo download on led.itch.io/tilesetter | free; the full version (US$12.99) was **not** bought |
+| Tiled / Godot editor | Tiled 1.12.2, Godot 4.7.2 | already on this PC | free |
 | Nerulio Studio | `origin/main` @ 0976d1a + this branch | the same modules the Studio runs (`src/game/pack`, `src/game/export`) | — |
 | Engines | Godot 4.7.2, Phaser 3.90.0 / 4.2.1, PixiJS 8.21.0, spine-canvas 4.2.120 | `tools/engine-verify` | — |
 
@@ -362,7 +380,66 @@ What this shows:
 
 ## 3. Autotiles: Tilesetter, Tiled and Godot vs. Studio Tile
 
-*In progress.*
+### Tilesetter: partly measured (Lite), full version docs-based
+
+* **What was run.** Tilesetter **Lite 2.1.0**, the free demo from the official itch.io page
+  (led.itch.io/tilesetter). No account or payment. It is an Electron 10 app, driven over the
+  DevTools protocol.
+* **Not bought: the full version, US$12.99** (itch.io, with a Steam key). Everything below marked
+  *docs* comes from tilesetter.org/docs and was not run.
+* **Input.** Tiles cut from the real cave blob-47 sheet (OGA, CC0, 64 px): the full tile (mask 255)
+  as the *base* and the top-edge tile (mask 124) as the *edge*.
+
+| Step | Tilesetter Lite 2.1.0 (measured) | Tilesetter full US$12.99 (*docs*) | Nerulio Studio Tile (measured, `docs/STUDIO-TILE.md`) |
+|---|---|---|---|
+| Bring the art in | set tile size 64 → paste or Ctrl+I into the Set View | same | drop the sheet; grid and layout are recognised from the pixels |
+| Generate 47 tiles from **base + edge** | **refused**: "Blob border generation between two or more tiles not available in Tilesetter Lite" | Build Borders (Blob) with the base + edge tiles | Generator: A2 / Blobsmith / A4 wall / five-tile / procedural-rim sources → blob-47 or dual-grid 16, quarter-exact |
+| Generate from **one** tile | works: right-click → Build Borders (Blob) cuts the base against empty space with a 4 px cutoff (1 selection + 2 clicks). No rim art is drawn | same, plus per-direction edge textures and custom corners | procedural rim from a single block |
+| Use an **existing, artist-made** 47 sheet | tiles only, no rules | Godot/Unity/GMS2 export "with auto-tile bitmasks pre-configured" when exported from the Set View (*docs*) | 7 actions, 4.5 s: layout recognised (GameMaker 47, medium, AUC 0.964); bits 47/47 vs. truth |
+| Export PNG | Export → Image. In the scripted run it wrote only 1 of 55 selected tiles; not resolved, probably the automation | PNG, JSON | PNG + Godot / Tiled / LDtk / Unity / generic in one ZIP |
+| Godot | **Pro** | "auto-tile bitmasks" (*docs*). That is Godot 3 terminology; the changelog never mentions Godot 4 terrains, and the Lite build is dated 2021-12, before Godot 4.0. **Godot 4 support unverified** | TileSet terrain set built by the shipped importer in Godot 4.7.2; **485/485** painted cells right |
+| Unity | **Pro** | `.unitypackage` with Rule Tiles, needs the 2d-extras scripts (*docs*) | RuleTiles built in Unity 6000.5.3f1, `GetSprite` = prediction in every cell |
+| Tiled / LDtk | — | — (not listed) | Tiled Wang set (verified with Tiled 1.12.2), LDtk rules (schema + loader) |
+| GameMaker / Defold | **Pro** | GMS2 with auto-tiling; Defold without tile behaviours (*docs*) | — (not exported) |
+| Map editor | "Map editor not available in Tilesetter Lite" | yes, with isometric support | test map with the Godot and the Tiled rule |
+
+**Verdict.**
+
+* **Tilesetter's real strength is generation.** Base + edge tiles, per-direction edge textures and
+  mixed borders give art the Studio's quarter-based generator cannot make from two tiles. That
+  feature is paid, and it was **not measured**.
+* **Nerulio wins** on:
+  * using existing 47 sheets: recognition, bits, and engine files verified in Godot 4;
+  * price;
+  * Godot 4.
+
+### The free baseline: setting up a working 47-tile terrain by hand
+
+`tools/h2h/autotile_clicks.py` computes the unavoidable marking from the corpus ground-truth masks
+of the same cave sheet (47 tiles, 47 distinct masks; the GameMaker template gives the same numbers).
+Setup steps are counted from the editors' own UI. The editors were not driven, so the setup counts
+are *docs/UI-based*. The bit counts are exact.
+
+| | Godot 4.7 TileSet editor | Tiled 1.12 Wang sets | Nerulio Studio Tile |
+|---|---|---|---|
+| Setup | TileMapLayer → New TileSet → tile size 64 → drag the PNG in → "create tiles automatically" → Terrain Sets: add, mode *Match Corners and Sides*, add terrain → Paint tab → Terrains → pick set and terrain: **≈ 11 steps** | New Tileset (image, 64 px) → Terrain Sets → add *Mixed Set* → add a colour → select the terrain brush: **≈ 6 steps** | Tile tab → import → pick the file → Use this grid → first candidate → Apply: **6 actions** (measured) |
+| Marking | **235 bits**: 47 centre + 188 peering, 136 of them sides and 52 corners. A drag can paint several bits at once, so this is the number of bits to set, not a minimum click count | **188 regions**. The all-zero island tile cannot be stored (Tiled drops Wang ID 0) | **0**: the bits come from the recognised layout (188 peering bits written) |
+| Chance of a wrong bit | any of 235 manual marks; one swapped pair makes Godot pick wrong tiles (the harness self-test shows exactly that) | any of 188 | art-vs-bits check: two swapped tiles are found exactly on every blob set |
+| Checked in the engine | whatever you painted | whatever you painted | Godot 4.7.2 485/485 cells; Tiled 1.12.2 reads every Wang ID as written; Unity RuleTile every cell |
+| Time | minutes, not measured | minutes, not measured | 4.5 s (measured, Chromium) |
+
+Godot and Tiled are free, and both have terrain brushes. Neither recognises a layout or generates
+tiles. For a sheet in a known layout the Studio removes the 188–235 manual marks. For art in no
+known layout, it suggests bits from the pixels: 47/47 on the textured cave art, 0/16 on the Wang
+edge template without a reference tile (`docs/STUDIO-TILE.md`).
+
+## Blocked on payment or an account (for the owner to decide)
+
+| Tool | What is blocked | Cost / action |
+|---|---|---|
+| Tilesetter (full) | base + edge generation, engine exports and the map editor, so a measured comparison of generation quality and of its Godot/Unity output | US$12.99 on itch.io or Steam |
+| TexturePacker Importer for Unity | loading TexturePacker's Unity output in Unity 6 | free, but only through the Unity Asset Store: an "acquire" action on the owner's Unity account |
+| TexturePacker Pro / SpriteIlluminator Pro | nothing for this report (7-day trials, no account). Re-running after 2026-10-02 needs a licence | US$49.99 each, or US$69.99 as a bundle; perpetual with 1 year of updates |
 
 ## Improvements that would turn losses into wins
 
@@ -397,3 +474,11 @@ What this shows:
    * When the Studio suggests generated normals for small pixel art, say that a flat or hand-painted
      map may be better (measured: flat 26.6 levels vs. 36.2 on the torch).
    * Consider a lower default strength for pixel art.
+10. **Tilesetter-style generation.**
+    * Build blob-47 / Wang-16 from one base tile + one edge tile, with per-direction edge textures
+      and corner overrides.
+    * This is the one tile feature the paid competitor has and the Studio lacks.
+    * Measure it against Tilesetter's full version once the owner decides whether to buy it
+      (US$12.99).
+11. **Engine formats Tilesetter lists and the Studio does not:** GameMaker `.yy` with auto-tiling,
+    and Defold tilesource for tile sets. Both need a real-engine check before they ship.
