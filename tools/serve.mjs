@@ -3,10 +3,12 @@ import path from 'node:path';
 import {readFile,stat} from 'node:fs/promises';
 import {ROOT,ALL_ROUTES,entry} from './build.mjs';
 import {nonce,adCSP,transformHTML} from './ads-worker.mjs';
+import {headers as buildHeaders} from './site-config.mjs';
 const base=process.argv.includes('--dist')?path.resolve(process.env.DIST_DIR||path.join(ROOT,'dist')):path.resolve(ROOT);
 const port=Number(process.env.PORT||4173);
 const mount=process.env.BASE_PATH||'';
-const headerText=await readFile(path.join(base,'_headers'),'utf8');
+// the source tree gets the same _headers the build writes (e.g. the Studio's own CSP block)
+const rawHeaders=await readFile(path.join(base,'_headers'),'utf8'),headerText=base===path.resolve(ROOT)?buildHeaders(rawHeaders,{}):rawHeaders;
 // Cloudflare Pages _headers semantics: path blocks apply in order, repeated names join with a
 // comma, and "! Name" detaches a header set by an earlier matching block.
 const headerRules=[];for(const line of headerText.split(/\r?\n/)){

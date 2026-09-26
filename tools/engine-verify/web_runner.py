@@ -25,8 +25,17 @@ LIBS = {
 def engines_available() -> dict:
     out = {}
     for name, lib in LIBS.items():
-        pkg = lib.parents[1] / 'package.json'
-        out[name] = json.loads(pkg.read_text(encoding='utf-8'))['version'] if lib.exists() else None
+        # the package's own package.json sits above dist/; spine-canvas keeps its build one level
+        # deeper (dist/iife) and has a version-less {"type": ...} package.json inside dist/
+        out[name] = None
+        if name == 'css':
+            out[name] = 'Chromium (Playwright)' if lib.exists() else None
+            continue
+        for p in lib.parents if lib.exists() else ():
+            f = p / 'package.json'
+            if f.exists() and 'version' in (meta := json.loads(f.read_text(encoding='utf-8'))):
+                out[name] = meta['version']
+                break
     return out
 
 

@@ -54,6 +54,16 @@ class GLRenderer{
   this.tiles=await Promise.all(jobs);
  }
  clearImage(){for(const t of this.tiles)this.gl.deleteTexture(t.tex);this.tiles=[];}
+ /** Live painting: straight RGBA of `rect` (w*h*4 bytes) replaces that part of the textures. */
+ updateRect(data,rect){
+  const gl=this.gl;gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+  for(const t of this.tiles){
+   const x0=Math.max(rect.x,t.x),y0=Math.max(rect.y,t.y),x1=Math.min(rect.x+rect.w,t.x+t.w),y1=Math.min(rect.y+rect.h,t.y+t.h);if(x1<=x0||y1<=y0)continue;
+   const w=x1-x0,h=y1-y0;let part=data;
+   if(w!==rect.w||h!==rect.h){part=new Uint8Array(w*h*4);for(let y=0;y<h;y++)part.set(data.subarray(((y0-rect.y+y)*rect.w+x0-rect.x)*4,((y0-rect.y+y)*rect.w+x0-rect.x+w)*4),y*w*4);}
+   gl.bindTexture(gl.TEXTURE_2D,t.tex);gl.texSubImage2D(gl.TEXTURE_2D,0,x0-t.x,y0-t.y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,part);
+  }
+ }
  draw(v,W,H,o){
   const gl=this.gl,[r,g,b]=hex(o.workspace);
   gl.viewport(0,0,W,H);gl.clearColor(r,g,b,1);gl.clear(gl.COLOR_BUFFER_BIT);
@@ -75,6 +85,11 @@ class Canvas2DRenderer{
  constructor(canvas){this.ctx=canvas.getContext('2d',{alpha:false});if(!this.ctx)throw Error('No 2D canvas');this.kind='2d';this.src=null;this.pattern=null;this.patternKey='';}
  async setImage(src,w,h){this.src=src;this.w=w;this.h=h;}
  clearImage(){this.src=null;}
+ updateRect(data,rect){
+  // an ImageBitmap cannot be written to: keep a canvas copy from the first live update on
+  if(!this.src.getContext){const c=new OffscreenCanvas(this.w,this.h);c.getContext('2d').drawImage(this.src,0,0);this.src=c;}
+  this.src.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(data.buffer,data.byteOffset,rect.w*rect.h*4),rect.w,rect.h),rect.x,rect.y);
+ }
  draw(v,W,H,o){
   const c=this.ctx;c.setTransform(1,0,0,1,0,0);c.fillStyle=o.workspace;c.fillRect(0,0,W,H);
   if(!this.src)return;
@@ -194,12 +209,13 @@ export class CanvasView{
   if(box&&dpr!==1&&Math.abs(W-css.width)<1&&Math.abs(H-css.height)<1){W=Math.max(1,Math.round(css.width*dpr));H=Math.max(1,Math.round(css.height*dpr));}
   if(W===this.W&&H===this.H&&dpr===this.dpr)return;
   const first=!this.sized;this.sized=true;
-  // keep the centre of the view where it was
+  // keep the centre of the view where it was (a fitted view is fitted again below)
+  const refit=!first&&this.fitted&&!!this.image;
   if(!first)this.v={...this.v,x:Math.round(this.v.x+(W-this.W)/2),y:Math.round(this.v.y+(H-this.H)/2)};
   this.W=W;this.H=H;this.dpr=dpr;
   for(const c of [this.imageCanvas,this.overlay]){c.width=W;c.height=H;}
   this.sizeRulers();
-  if(first&&this.image){const pv=this.pendingView;this.pendingView=null;if(pv&&pv!=='fit')this.setView(pv);else this.fit();}else this.invalidate();
+  if(first&&this.image){const pv=this.pendingView;this.pendingView=null;if(pv&&pv!=='fit')this.setView(pv);else this.fit();}else if(refit)this.fit();else this.invalidate();
   this.emit('view',this.v);
  }
  // ------------------------------------------------------------------ image
@@ -208,21 +224,29 @@ export class CanvasView{
   const token=this.frame=(this.frame||0)+1;
   this.image={src,w,h};await this.renderer.setImage(src,w,h);if(token!==this.frame)return;
   const good=view&&V.isValidZoom(view.scale);
-  if(!this.sized)this.pendingView=good?view:'fit';else if(good)this.setView(view);else this.fit();
+  // re-showing the same view (a workspace redrawing its picture) keeps a fitted view fitted
+  const keep=good&&this.fitted&&view.scale===this.v.scale&&view.x===this.v.x&&view.y===this.v.y;
+  if(!this.sized)this.pendingView=good?view:'fit';else if(good){this.setView(view);if(keep)this.fitted=true;}else this.fit();
   this.invalidate();
  }
  clearImage(){this.image=null;this.renderer.clearImage();this.invalidate();}
+ /** Replaces part of the shown image in place without touching the view (live painting): `data` is
+  * straight RGBA of `rect` (rect.w*rect.h*4 bytes), in image pixels. */
+ updateImage(data,rect){if(!this.image||this.lost)return;this.renderer.updateRect(data,rect);this.invalidate();}
  // ------------------------------------------------------------------ view
  get view(){return this.v;}
  setView(v,{clamp=true}={}){
   let next={scale:V.isValidZoom(v.scale)?v.scale:V.floorZoom(v.scale),x:Math.round(v.x),y:Math.round(v.y)};
   if(clamp&&this.image)next=V.clampView(next,this.image.w,this.image.h,this.W,this.H,Math.round(KEEP_VISIBLE*this.dpr));
+  this.fitted=false;// any other view change (zoom, pan, a restored view) ends "fitted"; fit() sets it again
   if(next.scale===this.v.scale&&next.x===this.v.x&&next.y===this.v.y)return;
   this.v=next;this.invalidate();this.emit('view',this.v);
  }
  zoomTo(scale,anchor=null){const a=anchor||{x:this.W/2,y:this.H/2};this.setView(V.zoomAt(this.v,Math.min(V.MAX_ZOOM,Math.max(V.MIN_ZOOM,scale)),a.x,a.y));}
  zoomStep(dir,anchor=null){this.zoomTo(V.stepZoom(this.v.scale,dir),anchor||this.lastPointer);}
- fit(){if(!this.image)return;const pad=Math.round(24*this.dpr);this.setView(V.fitView(this.image.w,this.image.h,this.W,this.H,{pad,max:Math.max(1,Math.round(8*this.dpr))}),{clamp:false});}
+ /** Fits and centres the image. The view stays "fitted" (re-fitted when the viewport resizes: a
+  * panel opens, the phone rotates) until the user zooms or pans. */
+ fit(){if(!this.image)return;const pad=Math.round(24*this.dpr);this.setView(V.fitView(this.image.w,this.image.h,this.W,this.H,{pad,max:Math.max(1,Math.round(8*this.dpr))}),{clamp:false});this.fitted=true;}
  actual(){this.zoomTo(1,this.lastPointer);}
  panBy(dx,dy){this.setView(V.panBy(this.v,dx,dy));}
  /** Centre an image-space rect in the viewport at the current zoom. */

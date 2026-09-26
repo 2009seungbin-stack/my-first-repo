@@ -266,6 +266,13 @@ html,body.studio-page{margin:0;height:100%;overflow:hidden;background:#15171a;ov
 .studio[data-mode="compact"] .st-tool{width:40px;height:38px}
 .studio[data-mode="compact"] .st-tool[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--accent)}
 .studio[data-mode="compact"] .st-toolbar .st-grow{display:none}
+/* more tools than fit: the strip scrolls sideways and fades the edge(s) that hide tools */
+.studio[data-mode="compact"] .st-toolbar{justify-content:safe center;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.studio[data-mode="compact"] .st-toolbar::-webkit-scrollbar{display:none}
+.studio[data-mode="compact"] .st-toolbar .st-tool{flex:none}
+.studio[data-mode="compact"] .st-toolbar[data-more="end"]{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent)}
+.studio[data-mode="compact"] .st-toolbar[data-more="start"]{-webkit-mask-image:linear-gradient(90deg,transparent,#000 56px);mask-image:linear-gradient(90deg,transparent,#000 56px)}
+.studio[data-mode="compact"] .st-toolbar[data-more="start end"]{-webkit-mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent);mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent)}
 .studio[data-mode="compact"] .st-slot-renderer,.studio[data-mode="compact"] .st-slot-memory,.studio[data-mode="compact"] .st-slot-image{display:none}
 .studio[data-mode="compact"] .st-hud{bottom:8px;right:8px}
 .studio[data-mode="compact"] .st-toast{bottom:calc(var(--status-h) + 46px + 52px);max-width:calc(100vw - 32px);padding:6px 10px;font-size:12px;line-height:1.3;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.4)}

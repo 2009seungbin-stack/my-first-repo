@@ -125,7 +125,12 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    b.addEventListener('click',()=>{setTool(tl.id);});return b;
   }),h('span.st-grow',{}),toolbarExtra);
   toolbar.setAttribute('aria-label',t('toolbar.label'));
+  requestAnimationFrame(toolbarEdges);
  }
+ /** Compact (phone) tool strip: which ends have more tools off-screen, so CSS can fade that edge. */
+ function toolbarEdges(){const el=toolbar,start=el.scrollLeft>1,end=el.scrollLeft+el.clientWidth<el.scrollWidth-1,v=[start&&'start',end&&'end'].filter(Boolean).join(' ');if(el.dataset.more!==v)el.dataset.more=v;}
+ toolbar.addEventListener('scroll',toolbarEdges,{passive:true});
+ new ResizeObserver(()=>toolbarEdges()).observe(toolbar);
  const toolbarExtra=h('span.st-toolbar-extra',{});
  registerTool({id:'hand',title:'tool.hand',icon:'hand',key:'H',order:90,hint:'tool.handHint',impl:{pans:true,cursor:()=>'grab'}});
  registerTool({id:'zoom',title:'tool.zoom',icon:'zoom',key:'Z',order:91,hint:'tool.zoomHint',impl:{down(i){view.zoomStep(i.alt?-1:1,{x:i.sx,y:i.sy});return false;},cursor:()=>'zoom-in'}});
@@ -422,7 +427,7 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
  function makeContext(ws){
   const disposers=[],on=(type,fn)=>{listeners[type].add(fn);disposers.push(()=>listeners[type].delete(fn));};
   const ctx={
-   t,get locale(){return locale;},history,images,view,edit,
+   t,get locale(){return locale;},history,images,view,edit,menus,
    get doc(){return history.doc;},
    execute:cmd=>history.execute(cmd),
    get activeAsset(){return P.assetById(history.doc,activeAssetId);},
@@ -438,7 +443,9 @@ export function createStudio(host,{rootURL=new URL('../../',import.meta.url),ren
    layer(l){view.addLayer(l);disposers.push(()=>view.removeLayer(l));return l;},
    on,
    badge:id=>docks.badge(id),
-   setTool
+   setTool,
+   /** Id of the active tool (tool bar / keys). */
+   get activeTool(){return activeTool;}
   };
   return {ctx,dispose(){while(disposers.length)disposers.pop()();}};
  }

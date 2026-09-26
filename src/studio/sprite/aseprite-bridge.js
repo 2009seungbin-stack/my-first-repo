@@ -79,11 +79,12 @@ function keyAt(s,f){let k=null;for(const key of s.keys)if(key.frame<=f&&(!k||key
 /** Studio asset → {doc (for writeAseprite), skipped[]}. `rgbaOf(blob)` → {width,height,data}.
  * Frames keep timeline order and duration; each Studio layer becomes an Aseprite layer whose cel
  * is the layer's own pixels for that frame, cut to the frame's region and placed on its canvas. */
-export function asepriteFromAsset(asset,rgbaOf,{layerNames=true}={}){
+export function asepriteFromAsset(asset,rgbaOf,{layerNames=true,palette=null,transparentIndex=0}={}){
  const frames=asset.frames,skipped=[];
  if(!frames.length)throw Error('The sprite has no frames');
  const W=Math.max(...frames.map(f=>f.canvasWidth)),H=Math.max(...frames.map(f=>f.canvasHeight));
- const layers=asset.layers.map(l=>({name:layerNames?l.name:'Layer',visible:l.visible,opacity:l.opacity,blendMode:blendIndex(l.blend)}));
+ // a locked layer (Pixel workspace) is Aseprite's non-editable layer
+ const layers=asset.layers.map(l=>({name:layerNames?l.name:'Layer',visible:l.visible,opacity:l.opacity,blendMode:blendIndex(l.blend),editable:!l.locked}));
  const docFrames=frames.map(f=>{
   const images={},cels={},inner=f.trimmedRect||f.sourceRect;
   asset.layers.forEach((l,li)=>{
@@ -132,7 +133,8 @@ export function asepriteFromAsset(asset,rgbaOf,{layerNames=true}={}){
  for(const [name,slot]of slots)keyed(name,f=>{const b=slot.id?f.boxes.find(x=>x.id===slot.id):f.boxes.filter(x=>x.shape==='rect'&&x.type===slot.type&&!names[x.id])[slot.n-1];return b?{x:Math.round(b.x),y:Math.round(b.y),w:Math.max(1,Math.round(b.w)),h:Math.max(1,Math.round(b.h))}:null;},{userData:sliceUD(imported.get(name))});
  const nineNames=new Set(frames.flatMap(f=>(f.metadata?.aseprite?.nineSlices||[]).map(n=>n.name)));
  for(const name of nineNames)keyed(name,f=>{const n=(f.metadata?.aseprite?.nineSlices||[]).find(x=>x.name===name);return n?{...n.bounds,center:n.center}:null;},{userData:sliceUD(imported.get(name))});
- const doc=documentFromImages({width:W,height:H,layers,frames:docFrames,tags,slices});
+ // an indexed sprite (Pixel workspace) is written as an indexed Aseprite file with its palette
+ const doc=documentFromImages({width:W,height:H,layers,frames:docFrames,tags,slices,...(palette?{palette,transparentIndex}:{})});
  return {doc,skipped};
 }
 function rawLayer(cel,src,inner){

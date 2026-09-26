@@ -1,0 +1,155 @@
+{
+ "T9": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 100.0,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 100.0,
+  "colours_out": 9,
+  "colours_truth": 9,
+  "ms": 98,
+  "rc": 0,
+  "how": "Sprite > Sprite Size 96x144 (25%), method nearest"
+ },
+ "T10_nearest_known_size": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 81.525,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 59.194,
+  "colours_out": 554,
+  "colours_truth": 9,
+  "ms": 127,
+  "rc": 0,
+  "how": "Sprite Size typed to 96x144 (user must know the true size), method nearest"
+ },
+ "T10_bilinear_known_size": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 78.378,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 50.721,
+  "colours_out": 675,
+  "colours_truth": 9,
+  "ms": 92,
+  "rc": 0,
+  "how": "Sprite Size typed to 96x144 (user must know the true size), method bilinear"
+ },
+ "T10_rotsprite_known_size": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 81.105,
+  "shift": [
+   0,
+   0
+  ],
+  "opaque_exact_pct": 57.475,
+  "colours_out": 586,
+  "colours_truth": 9,
+  "ms": 162,
+  "rc": 0,
+  "how": "Sprite Size typed to 96x144 (user must know the true size), method rotsprite"
+ },
+ "T10_nearest_guess_x4": {
+  "out_size": [
+   91,
+   136
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": false,
+  "exact_pct": 54.376,
+  "shift": [
+   -1,
+   -2
+  ],
+  "opaque_exact_pct": 23.893,
+  "colours_out": 543,
+  "colours_truth": 9,
+  "ms": 92,
+  "rc": 0,
+  "how": "user guesses 4x (25%) -> 91x136"
+ },
+ "T6_T7_T14": {
+  "log": "T14 loaded pico-8.gpl entries=16\nT14 gpl save=ok reload entries=16 roundtrip_identical_first16=true\nT14 pal save=ok reload entries=16 roundtrip_identical_first16=true\nT14 hex save=ok reload entries=16 roundtrip_identical_first16=true\nT14 act save=ok reload entries=16 roundtrip_identical_first16=true\nT14 col save=ok reload entries=256 roundtrip_identical_first16=true\nT14 png save=ok reload entries=16 roundtrip_identical_first16=true\nT14 adobe .ase load (Palette{fromFile}) -> ok=true result=nil\nError reading header\nError loading sprite from file \"C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p2\\competitors\\aseprite\\pico8_adobe_swatch.ase\"\nT14 adobe .ase via app.open -> ok=true result=nil\nT7 imported sheet as animation: frames=54 size=16x16\nT7 team colour picked: #84d652 used 2662 px\nT7 variant red: frames changed=36 px=2662\nT7 after undo team-colour px=2662\nT7 variant blue: frames changed=36 px=2662\nT7 after undo team-colour px=2662\nT7 variant green: frames changed=36 px=2662\nT7 after undo team-colour px=2662\nT7 indexed: palette size=10 team index=6\nT7 indexed route: 1 palette-entry edit recoloured all frames",
+  "ms": 117,
+  "rc": 0
+ },
+ "T10_nearest_known_size_quant10": {
+  "out_size": [
+   96,
+   144
+  ],
+  "truth_size": [
+   96,
+   144
+  ],
+  "size_ok": true,
+  "exact_pct": 56.076,
+  "shift": [
+   0,
+   1
+  ],
+  "opaque_exact_pct": 0.0,
+  "colours_out": 4,
+  "colours_truth": 9,
+  "ms": 103,
+  "rc": 0,
+  "how": "Sprite Size 96x144 nearest + Create palette from sprite (10 colours) + Indexed (fit rgb, no dither)"
+ },
+ "T5": {
+  "log": "palette entries: 16\ncolorMode=indexed transparentColor=0 palette=16 rgbmap=nil fit=nil",
+  "ms": 111,
+  "rc": 0
+ },
+ "T8": {
+  "log": "outline done 98x146\nshadow done, layers after flatten=1",
+  "ms": 97,
+  "rc": 0
+ },
+ "T11": {
+  "log": "saved C:\\Users\\2009s\\AppData\\Local\\Temp\\claude\\C--Users-2009s-Desktop-SITE\\6366d22b-5639-4c5c-b872-1c20b9b6adcd\\scratchpad\\p2\\competitors\\aseprite\\T11_two_layers_indexed.aseprite",
+  "verify": "reopened colorMode=INDEXED size=96x144 palette=16\nlayer 1 name=base blend=SRC_OVER opacity=255 cels=1\nlayer 2 name=shade-multiply blend=MULTIPLY opacity=160 cels=1",
+  "ms": 156,
+  "rc": 0
+ }
+}
