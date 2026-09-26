@@ -59,8 +59,8 @@ def game_pages():
     Studio landings, the Lab landings (GAME_LAB_PAGES, rows from LAB_KINDS) and every keyword page
     (GAME_KEYWORD_PAGES, rows of the workspace or Lab it opens). Stems follow socialStem() in
     tools/game-seo-build.mjs; the status labels are the ones the pages show (STATUS)."""
-    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,STATUS,kindOf,isStudioKind} from './src/game-seo.js';"
-              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports).map(r=>({id:r.id,name:r.name,status:r.status,label:STATUS[r.status]}));"
+    script = ("import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,HUB,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,PIXEL_EXPORTS,STATUS,kindOf,isStudioKind} from './src/game-seo.js';"
+              "const rows=ws=>(ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:ws==='pixelart'?PIXEL_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports).map(r=>({id:r.id,name:r.name,status:r.status,label:STATUS[r.status]}));"
               "const title=p=>({ko:p.copy.ko.title,en:p.copy.en.title,ja:p.copy.ja.title});"
               "const out=[{stem:'game',kind:'hub',shot:SHOTS['sprite-frame'].file,title:{ko:HUB.ko.title,en:HUB.en.title,ja:HUB.ja.title},rows:rows('sprite')}];"
               "for(const [id,p] of Object.entries(GAME_INTENT_PAGES))out.push({stem:id,kind:'intent',shot:SHOTS[p.shot].file,title:title(p),rows:rows(p.ws),hl:p.highlight||[]});"

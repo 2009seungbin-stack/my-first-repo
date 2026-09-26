@@ -40,6 +40,13 @@ export const SHOTS=Object.freeze({
  'tile-generator':{file:'tile-generator',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a 47-tile set assembled pixel for pixel from the RPG Maker A2 block of a CC0 sheet, linked to its source','Studio 타일 작업 공간: CC0 시트의 RPG 만들기 A2 블록에서 픽셀 단위로 조립한 47타일 세트가 원본과 연결된 화면','Studio のタイル作業画面：CC0シートのRPGツクールA2ブロックからピクセル単位で組み立て、元画像とリンクした47タイルのセット')},
  'tile-collision':{file:'tile-collision',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Tile workspace: a CC0 blob-47 tileset (16 px) with a collision polygon traced from the alpha of every tile','Studio 타일 작업 공간: 모든 타일의 알파에서 충돌 폴리곤을 따낸 CC0 블롭 47 타일셋(16px)','Studio のタイル作業画面：全タイルのアルファから衝突ポリゴンをトレースしたCC0のブロブ47タイルセット（16px）')},
  'pack-formats':{file:'pack-formats',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pack & Export: CC0 ninja frames packed on one page and the list of all 18 export formats, each with its own Export button','Studio 패킹·내보내기: 한 페이지에 패킹한 CC0 닌자 프레임과 각자 내보내기 버튼이 있는 18개 형식 목록','Studio のパック＆書き出し：1ページにパックしたCC0の忍者のフレームと、それぞれ書き出しボタンがある18形式の一覧')},
+ // Shots of the Pixel workspace pages (src/game-seo-pixel.js; tools/studio-screens.py, FAMILY_SHOTS).
+ 'pixel-edit':{file:'pixel-edit',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace: a CC0 sprite zoomed in with the pencil, two layers (one set to Multiply), the sprite palette and the timeline','Studio 픽셀 작업 공간: 연필 도구로 확대한 CC0 스프라이트, 레이어 두 개(하나는 곱하기), 스프라이트 팔레트와 타임라인','Studio のピクセル作業画面：鉛筆ツールで拡大したCC0スプライト、2枚のレイヤー（1枚は乗算）、スプライトのパレットとタイムライン')},
+ 'pixel-anim':{file:'pixel-anim',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace: six CC0 ninja run frames on the timeline, one frame being edited with onion skin showing the frames before and after','Studio 픽셀 작업 공간: 타임라인의 CC0 닌자 달리기 6프레임, 어니언 스킨으로 앞뒤 프레임을 보며 한 프레임을 편집하는 화면','Studio のピクセル作業画面：タイムライン上のCC0忍者の走り6フレーム。オニオンスキンで前後を見ながら1フレームを編集')},
+ 'pixel-palette':{file:'pixel-palette',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace: a CC0 sprite in indexed colour mode with its palette, the transparent index and the colour audit per frame','Studio 픽셀 작업 공간: 인덱스 색상 모드의 CC0 스프라이트와 팔레트, 투명 인덱스, 프레임별 색 점검','Studio のピクセル作業画面：インデックスカラーモードのCC0スプライトとパレット、透明インデックス、フレームごとの色チェック')},
+ 'pixel-cleanup':{file:'pixel-cleanup',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace, Cleanup panel: a CC0 sprite resized ×4.25 with bilinear filtering, measured as a smooth resize with its grid drawn, and the 64×48 result previewed before Apply','Studio 픽셀 작업 공간 정리 패널: 쌍선형으로 ×4.25 확대한 CC0 스프라이트를 부드러운 확대로 측정해 격자를 그리고, 적용 전에 64×48 결과를 미리 보는 화면','Studio のピクセル作業画面の整理パネル：バイリニアで×4.25に拡大したCC0スプライトを滑らかな拡大と判定してグリッドを表示し、適用前に64×48の結果をプレビュー')},
+ 'pixel-generated':{file:'pixel-generated',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace, Cleanup panel: a CC0 image made by an image generator, measured as unsure; nothing is applied automatically','Studio 픽셀 작업 공간 정리 패널: 이미지 생성기로 만든 CC0 그림을 "불확실"로 측정하고 자동으로 적용하지 않는 화면','Studio のピクセル作業画面の整理パネル：画像生成で作られたCC0画像を「不確か」と判定し、自動では適用しない')},
+ 'pixel-outline':{file:'pixel-outline',w:1440,h:900,app:'studio',by:'OpenGameArt',alt:L('Studio Pixel workspace: a CC0 sprite after Canvas size +1, a 1 px outline and a drop shadow, each one step in the History panel','Studio 픽셀 작업 공간: 캔버스 크기 +1, 1px 외곽선, 드롭 섀도를 적용한 CC0 스프라이트와 각각 한 단계인 히스토리 패널','Studio のピクセル作業画面：キャンバスサイズ+1、1pxのアウトライン、ドロップシャドウを適用したCC0スプライトと、それぞれ1手順の履歴パネル')},
  'sprite-lab':{file:'sprite-lab',w:1440,h:900,app:'spritelab',by:'OpenGameArt',alt:L('Classic Sprite Lab: a CC0 sheet with every frame outlined before export','기존 스프라이트 랩: 내보내기 전 모든 프레임에 윤곽이 표시된 CC0 시트','従来のスプライトラボ：書き出し前に全フレームの枠を表示したCC0シート')}
 });
 
@@ -89,6 +96,15 @@ export const TEXTURE_EXPORTS=Object.freeze([
  {id:'godot',name:'Godot 4 2D lights',files:'_lit.tscn · CanvasTexture .tres · normal / specular PNG',status:'verified',engine:'Godot 4.7.2',note:L('Six real CC0 cases rendered by Godot (gl_compatibility): every checked frame within 1/255 of the Studio\'s lit preview. The same render with green flipped is 3.8–37 levels off, so the check can see a wrong convention.','실제 CC0 사례 6개를 Godot(gl_compatibility)가 렌더링했고, 확인한 모든 프레임이 Studio 조명 미리보기와 1/255 이내로 같았습니다. 초록을 뒤집은 같은 렌더는 3.8~37단계 어긋나므로 잘못된 규약을 잡아낼 수 있습니다.','実在のCC0ケース6件をGodot（gl_compatibility）で描画し、確認した全フレームがStudioのライティングプレビューと1/255以内で一致。緑を反転した同じ描画は3.8〜37段階ずれるため、規約の誤りを検出できます。')},
  {id:'unity',name:'Unity 6 URP 2D',files:'PNG · nerulio-texture.json · Editor/NerulioNormalMapImporter.cs',status:'verified',engine:'Unity 6000.5.3f1 (URP 17.5)',note:L('12 of 12 runs (6 cases in Gamma and Linear colour space): the lighting URP applied matches the exported normal map (mean error 0.0037–0.0085). URP draws its own light falloff, so brightness is Unity\'s, not the preview\'s.','12회 중 12회 통과(사례 6개 × 감마·리니어 색 공간): URP가 적용한 조명이 내보낸 노멀맵과 일치합니다(평균 오차 0.0037~0.0085). 빛의 감쇠는 URP 방식이라 밝기는 미리보기가 아니라 Unity 기준입니다.','12回中12回合格（6ケース×ガンマ・リニア色空間）：URPが適用したライティングが書き出したノーマルマップと一致（平均誤差0.0037〜0.0085）。光の減衰はURP独自なので、明るさはプレビューではなくUnityの基準です。')},
  {id:'png',name:'PNG set + JSON',files:'albedo · _n (OpenGL) · _n_dx (DirectX) · 16-bit height · AO · specular · manifest',status:'plain',engine:'',note:L('Plain files for any engine or tool; no engine run is claimed for them.','어떤 엔진이나 도구에서도 쓰는 일반 파일이며, 엔진 실행 검증은 주장하지 않습니다.','どのエンジン・ツールでも使える通常ファイルで、エンジンでの実行検証はうたっていません。')}
+]);
+
+/** Outputs of the Pixel workspace (docs/STUDIO-PIXEL.md §3, §6 T11/T14, §8). Engine bundles are made
+ * from the same sprite in Pack & Export, whose checks are SPRITE_EXPORTS. */
+export const PIXEL_EXPORTS=Object.freeze([
+ {id:'aseprite',name:'.aseprite',files:'layers · blend · opacity · locked · indexed palette · frames · tags',status:'verified',engine:'Aseprite 1.3.18',note:L('The real Aseprite command line reopened the file as INDEXED with 2 layers, Multiply at opacity 160 and the locked layer not editable; the frames are pixel-identical.','실제 Aseprite 명령줄이 파일을 인덱스 모드, 레이어 2개, 불투명도 160의 곱하기, 편집 불가로 잠긴 레이어 그대로 다시 열었고 프레임 픽셀이 같았습니다.','実際のAsepriteコマンドラインで、インデックスモード・レイヤー2枚・不透明度160の乗算・編集不可のロックレイヤーのまま開き直し、フレームのピクセルも一致しました。')},
+ {id:'palette',name:'Palette files',files:'.gpl · .pal · .hex · .ase · .act · .json',status:'measured',engine:'read back',note:L('Each format was written and read back identical; Aseprite\'s own .gpl, .pal, .hex and .act and a real Adobe .ase (16 colours) were read.','형식마다 쓰고 다시 읽어 같음을 확인했고, Aseprite가 만든 .gpl·.pal·.hex·.act와 실제 Adobe .ase(16색)를 읽었습니다.','各形式を書き出して読み戻し、一致を確認。Asepriteが書いた.gpl・.pal・.hex・.actと実際のAdobe .ase（16色）も読み込めました。')},
+ {id:'engines',name:'Godot 4 · Unity 6 · Phaser · PixiJS',files:'through Pack & Export',status:'verified',engine:'Godot 4.7.2 · Unity 6000.5.3f1 · Phaser 3.90/4.2 · PixiJS 8.21',note:L('The sprite you drew is packed in Pack & Export; those engine files were loaded in each engine on real CC0 assets (47 of 49 runs pass; the 2 failures are a Phaser 3.90 bug the Phaser 3 preset avoids).','그린 스프라이트는 패킹·내보내기에서 묶습니다. 그 엔진 파일은 실제 CC0 에셋으로 각 엔진에서 불러와 확인했습니다(49회 중 47회 통과, 실패 2회는 Phaser 3 프리셋이 피하는 Phaser 3.90 버그).','描いたスプライトはパック＆書き出しでまとめます。そのエンジン用ファイルは実在のCC0アセットで各エンジンに読み込んで確認済み（49回中47回合格。失敗2回はPhaser 3プリセットで避けられるPhaser 3.90のバグ）。')},
+ {id:'png',name:'Frame PNG · .nerulio',files:'PNG-8 with the palette when an indexed frame fits it · project file',status:'plain',engine:'',note:L('Plain files for any tool; no engine run is claimed for them.','어떤 도구에서도 쓰는 일반 파일이며, 엔진 실행 검증은 주장하지 않습니다.','どのツールでも使える通常ファイルで、エンジンでの検証は主張しません。')}
 ]);
 
 /** Page chrome and section headings. */
@@ -156,6 +172,17 @@ export const WORKSPACES=Object.freeze({
   limits:L(['On a picture without transparent edges (a tileable texture) a flipped red channel cannot be told apart from a DirectX green; the Check panel says so and offers Flip red.','A sheet is lit as one picture until its frames are cut in the Sprite workspace; the Texture workspace does not cut frames.','The rim light is preview only, and Unity gets no specular map (Godot does).','Unity draws its own light falloff: the exported normal map is verified in Unity, the brightness curve is Unity\'s.'],
    ['투명한 가장자리가 없는 그림(반복 텍스처)에서는 빨강이 뒤집힌 것과 DirectX 초록을 구별할 수 없습니다. 점검 패널이 이를 알리고 "빨강 뒤집기"를 제공합니다.','시트는 스프라이트 작업 공간에서 프레임을 자르기 전까지 그림 하나로 조명됩니다. 텍스처 작업 공간은 프레임을 자르지 않습니다.','림 라이트는 미리보기 전용이며, Unity로는 스페큘러 맵을 내보내지 않습니다(Godot는 내보냄).','Unity는 자체 빛 감쇠를 씁니다. 내보낸 노멀맵은 Unity에서 검증했지만 밝기 곡선은 Unity 방식입니다.'],
    ['透明な縁がない絵（繰り返しテクスチャ）では、赤の反転とDirectXの緑を区別できません。チェックパネルがそれを伝え、「赤を反転」を用意しています。','シートはスプライト作業画面でフレームを切るまで1枚の絵としてライティングされます。テクスチャ作業画面ではフレームを切りません。','リムライトはプレビュー専用で、Unityにはスペキュラーマップを書き出しません（Godotには書き出し）。','Unityは独自の光の減衰を使います。書き出したノーマルマップはUnityで検証済みですが、明るさの曲線はUnityのものです。'])
+ },
+ // The Studio's Pixel workspace (/game/studio/?ws=pixel). 'pixel' is the Pixel Lab's kind
+ // (src/game-seo-labs.js), so this kind is 'pixelart'; `studioWs` is the ?ws= value.
+ pixelart:{
+  studioWs:'pixel',
+  accept:'image/png,image/gif,image/webp,image/jpeg,image/bmp,.png,.apng,.gif,.webp,.jpg,.jpeg,.bmp,.ase,.aseprite',
+  name:L('Pixel workspace','픽셀 작업 공간','ピクセル作業画面'),
+  drop:L('Drop a sprite, frames, a GIF or an .aseprite file to paint on — or an upscaled picture to clean up','칠할 스프라이트·프레임·GIF·.aseprite 파일, 또는 정리할 확대된 그림을 끌어다 놓으세요','描くスプライト・フレーム・GIF・.aseprite、または整理する拡大画像をドロップ'),
+  limits:L(['Not in the Pixel workspace (Aseprite has them): layer groups, linked cels, tilemap layers, reference layers, RotSprite and free rotation or scaling of a selection (only flips and 90°), gradient, spray, contour and text tools, custom brushes (square or round, 1–16 px), tiled drawing, Lua scripting and a command line.','The symmetry axis is typed, not dragged on the canvas. On touch there is no right button, so the background colour needs the swap button or X.','Cleanup: JPEG input comes back close (84 % of pixels within ΔE 0.02 with the background kept) but rarely exact (12 %); simulated generated art gets the exact size 20 % of the time (±1 px: 80 %); none of 7 real generated images was snapped automatically — you type the pixel size the panel suggests.','Indexed conversion picks the nearest colour in Oklab, not Aseprite\'s RGB distance: 68 % of the test sprite\'s pixels got a different (perceptually closer) pick. The Lospec search is the only network request and asks first.'],
+   ['픽셀 작업 공간에 없는 것(Aseprite에는 있음): 레이어 그룹, 링크된 셀, 타일맵 레이어, 참조 레이어, RotSprite와 선택 영역 자유 회전·크기 조절(뒤집기와 90°만), 그라디언트·스프레이·윤곽·텍스트 도구, 사용자 브러시(사각·원 1~16px), 타일 반복 그리기, Lua 스크립트와 명령줄.','대칭 축은 숫자로 입력하며 캔버스에서 끌 수 없습니다. 터치에서는 오른쪽 버튼이 없어 배경색은 전환 버튼이나 X로 씁니다.','정리: JPEG는 가깝게 돌아오지만(배경 유지 시 84 %가 ΔE 0.02 이내) 정확히 같은 경우는 드뭅니다(12 %). 모의 생성 그림은 크기를 정확히 맞힌 비율이 20 %(±1px 80 %)이고, 실제 생성 그림 7장은 하나도 자동으로 맞추지 않았습니다. 패널이 제안한 픽셀 크기를 직접 입력해야 합니다.','인덱스 변환은 Aseprite의 RGB 거리가 아니라 Oklab에서 가장 가까운 색을 고릅니다. 시험 스프라이트의 68 % 픽셀이 다른(눈으로 더 가까운) 색이 됐습니다. Lospec 검색이 유일한 네트워크 요청이며 먼저 묻습니다.'],
+   ['ピクセル作業画面にないもの（Asepriteにはある）：レイヤーグループ、リンクセル、タイルマップレイヤー、参照レイヤー、RotSpriteと選択範囲の自由回転・拡縮（反転と90°のみ）、グラデーション・スプレー・輪郭・テキストツール、カスタムブラシ（四角・丸の1〜16px）、タイル状の連続描画、LuaスクリプトとCLI。','対称軸は数値入力で、キャンバス上でドラッグできません。タッチでは右ボタンがないため、背景色は入れ替えボタンかXで使います。','整理：JPEGは近い色で戻りますが（背景を残すと84 %がΔE 0.02以内）、完全一致はまれ（12 %）。模擬的な生成画像でサイズが完全一致したのは20 %（±1px：80 %）、実際の生成画像7枚は1枚も自動では合わせません。パネルが示すピクセルサイズを入力してください。','インデックス変換はAsepriteのRGB距離ではなくOklabで最も近い色を選びます。テスト用スプライトでは68 %のピクセルが別の（見た目により近い）色になりました。Lospec検索が唯一の通信で、事前に確認します。'])
  }
 });
 
@@ -554,6 +581,7 @@ export const HUB_GROUPS=Object.freeze({sprite:HUB_NAMES('sprite'),pack:HUB_NAMES
  pixel:L('Pixel art and palettes','도트와 팔레트','ドット絵とパレット'),texture:L('Textures, normal maps and PBR','텍스처·노멀맵·PBR','テクスチャ・ノーマルマップ・PBR'),
  ui:L('Game UI and bitmap fonts','게임 UI와 비트맵 폰트','ゲームUIとビットマップフォント'),tilelab:L('Tiles: slicing, padding and seams','타일 자르기·여백·이음새','タイルの分割・余白・継ぎ目'),spritelab:L('Classic sprite tools','기존 스프라이트 도구','従来のスプライトツール'),
  normalmap:L('Normal maps and 2D lighting','노멀맵과 2D 라이팅','ノーマルマップと2Dライティング'),
+ pixelart:L('Pixel art editor and cleanup','도트 에디터와 도트 정리','ドット絵エディタと整理'),
  engines:L('Engine how-tos','엔진별 가이드','エンジン別の手順'),formats:L('Format conversions','형식 변환','形式の変換'),
  fixes:L('Fix common problems','자주 생기는 문제 해결','よくある問題の解決'),compare:L('Compared with other tools','다른 도구와 비교','ほかのツールとの比較')});
 function HUB_NAMES(k){return {en:HUB.en[k],ko:HUB.ko[k],ja:HUB.ja[k]};}
@@ -565,7 +593,7 @@ export const GAME_KEYWORD_PAGES=Object.freeze({...BASE_KEYWORD_PAGES,...GAME_MOR
 export {GAME_FAMILY_PAGES,FAMILIES};
 /** Lab landings (src/game-seo-labs.js), and every kind a page can belong to. */
 export {GAME_LAB_PAGES,LAB_KINDS};
-export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile','normalmap']);
+export const STUDIO_KINDS=Object.freeze(['sprite','pack','tile','normalmap','pixelart']);
 export const kindOf=ws=>WORKSPACES[ws]||LAB_KINDS[ws]||null;
 export const isStudioKind=ws=>STUDIO_KINDS.includes(ws);
 

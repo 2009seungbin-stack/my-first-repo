@@ -104,7 +104,7 @@ test('(c) every family page has its own table or head-to-head, steps and FAQ ans
 });
 
 test('(d) the deep link opens the workspace that does the job, and 4–6 related pages exist',()=>{
- const want={sprite:'game/studio/?ws=sprite',pack:'game/studio/?ws=sprite',tile:'game/studio/?ws=tile',normalmap:'game/studio/?ws=texture'};
+ const want={sprite:'game/studio/?ws=sprite',pack:'game/studio/?ws=sprite',tile:'game/studio/?ws=tile',normalmap:'game/studio/?ws=texture',pixelart:'game/studio/?ws=pixel'};
  for(const [k,p] of FAM){
   const t=targetOf(gamePageFor(k));
   if(isStudioKind(p.ws)&&p.via){assert.equal(t.route,`game/studio/?ws=${p.via}`,k);assert.equal(`game/studio/?ws=${t.then}`,want[p.ws],`${k}: goes on to its own workspace`);}

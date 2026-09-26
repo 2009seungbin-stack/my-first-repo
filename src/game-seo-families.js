@@ -8,11 +8,12 @@
  * page-specific table/steps/FAQ, deep link).
  *
  * The copy is large, so it is loaded only where pages are BUILT (Node: the static build, the tests,
- * the screenshot and social-card tools). Browser modules that import src/game-seo.js through
+ * the screenshot and social-card tools). src/game-seo-pixel.js holds the Pixel workspace pages
+ * (kind 'pixelart', ?ws=pixel) of every family. Browser modules that import src/game-seo.js through
  * src/landings.js (every file-tool page) get an empty object and never download it; no browser code
  * reads these pages — the landings themselves are static HTML with src/game-landing.js. */
 const NODE=typeof process!=='undefined'&&!!process.versions?.node;
-const FILES=['./game-seo-broad.js','./game-seo-engines.js','./game-seo-formats.js','./game-seo-fixes.js','./game-seo-compare.js'];
+const FILES=['./game-seo-broad.js','./game-seo-engines.js','./game-seo-formats.js','./game-seo-fixes.js','./game-seo-compare.js','./game-seo-pixel.js'];
 const mods=NODE?await Promise.all(FILES.map(f=>import(f))):[];
 export const GAME_FAMILY_PAGES=Object.freeze(Object.assign({},...mods.map(m=>m.PAGES)));
 /** Families and the hub group each one is listed in (null = its workspace's group). */
