@@ -115,7 +115,7 @@ export const PAGES=Object.freeze({
     ['ピクセルサイズ','1:1','1:1','ニアレストネイバーで4倍'],
     ['ファイル','タグごとに1本','タグごとに1本','アニメーションごとに1本'],
     ['確認方法','Pillowで全フレームと遅延をデコード','Pillow、フレーム一致','Chromiumで再生、ffprobeでフレーム数を確認']]}}
- },{related:['game/aseprite-viewer','game/sprite-sheet-to-gif','game/sprite-sheet-to-video','sprite-animation-preview','game/aseprite-to-sprite-sheet'],highlight:['gif']}),
+ },{related:['game/aseprite-viewer','game/sprite-sheet-to-gif','game/sprite-sheet-to-video','sprite-animation-preview','game/aseprite-to-sprite-sheet','game/pixel-art-animation'],highlight:['gif']}),
  'game/sprite-sheet-to-aseprite':page('sprite-slicer','sprite','sprite-sheet',{
   en:{title:'Sprite Sheet to Aseprite — Cut, Tag and Save .aseprite',description:'Turn a PNG sprite sheet into an .aseprite file: frames cut by the measured grid or by islands, rows as tags, durations, and the pivot and hitboxes as slices.',
    lead:'To rework a downloaded or old sprite sheet in Aseprite you want frames and tags, not one big picture. Drop the PNG here: the Studio measures the grid (margin and spacing included) or finds each sprite as an island, removes a flat background colour, makes each row a tag, and writes one .aseprite file with the timing, the pivot and the hitboxes as slices.',

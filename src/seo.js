@@ -49,9 +49,9 @@ function toolFeatures(id,locale){
 /** The home page is the game asset studio: a free web DeveloperApplication. Every feature named
  * here ships (docs/STUDIO-*.md); engine names are the targets whose exports were loaded there. */
 const HOME_APP={
- en:['Nerulio — Game asset studio',['Sprite sheet slicing and animation timeline','Pivots, hitboxes and collision polygons per frame','Texture atlas packing (MaxRects, trim, extrude, multipack)','Autotile tilesets: layout recognition, terrain bits, test map','Exports for Godot 4, Unity 6, Phaser, PixiJS, Defold, LÖVE, Spine and Tiled','.aseprite read and write']],
- ko:['Nerulio — 게임 에셋 스튜디오',['스프라이트 시트 자르기와 애니메이션 타임라인','프레임별 피벗·히트박스·충돌 폴리곤','텍스처 아틀라스 패킹(MaxRects·트림·가장자리 확장·다중 페이지)','오토타일 타일셋: 배치 인식·지형 비트·테스트 맵','Godot 4·Unity 6·Phaser·PixiJS·Defold·LÖVE·Spine·Tiled 내보내기','.aseprite 읽기·쓰기']],
- ja:['Nerulio — ゲームアセットスタジオ',['スプライトシート分割とアニメーションのタイムライン','フレームごとのピボット・当たり判定・衝突ポリゴン','テクスチャアトラスのパック（MaxRects・トリム・縁の拡張・マルチパック）','オートタイルのタイルセット：配置の認識・地形ビット・テストマップ','Godot 4・Unity 6・Phaser・PixiJS・Defold・LÖVE・Spine・Tiledへの書き出し','.asepriteの読み書き']]
+ en:['Nerulio — Game asset studio',['Sprite sheet slicing and animation timeline','Pivots, hitboxes and collision polygons per frame','Texture atlas packing (MaxRects, trim, extrude, multipack)','Autotile tilesets: layout recognition, terrain bits, test map','Pixel editor: pencil, layers, indexed palettes, cleanup of upscaled pixel art','Exports for Godot 4, Unity 6, Phaser, PixiJS, Defold, LÖVE, Spine and Tiled','.aseprite read and write']],
+ ko:['Nerulio — 게임 에셋 스튜디오',['스프라이트 시트 자르기와 애니메이션 타임라인','프레임별 피벗·히트박스·충돌 폴리곤','텍스처 아틀라스 패킹(MaxRects·트림·가장자리 확장·다중 페이지)','오토타일 타일셋: 배치 인식·지형 비트·테스트 맵','도트 에디터: 연필·레이어·인덱스 팔레트·확대된 도트 정리','Godot 4·Unity 6·Phaser·PixiJS·Defold·LÖVE·Spine·Tiled 내보내기','.aseprite 읽기·쓰기']],
+ ja:['Nerulio — ゲームアセットスタジオ',['スプライトシート分割とアニメーションのタイムライン','フレームごとのピボット・当たり判定・衝突ポリゴン','テクスチャアトラスのパック（MaxRects・トリム・縁の拡張・マルチパック）','オートタイルのタイルセット：配置の認識・地形ビット・テストマップ','ドット絵エディタ：鉛筆・レイヤー・インデックスパレット・拡大したドット絵の整理','Godot 4・Unity 6・Phaser・PixiJS・Defold・LÖVE・Spine・Tiledへの書き出し','.asepriteの読み書き']]
 };
 /** Home: WebSite (the site name Google shows: "Nerulio"), Organization (name, url, square logo) and the
  * studio itself as a free DeveloperApplication named Nerulio. `neutral`: served at / (x-default). */

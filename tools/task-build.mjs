@@ -80,6 +80,7 @@ ${u('gh.dropOr','p','gh-drop-hint')}</div>
 ${row('sprite',demo,go('sprite','openSprite'))}
 ${row('pack',shotFig('pack','packCaption',1600,980),go('pack','openPack'),{flip:true})}
 ${row('tile',shotFig('tile','tileCaption',1600,980),go('tile','openTile'))}
+${row('pixel',shotFig('pixel','pixelCaption',1600,980),go('pixel','openPixel'),{flip:true})}
 <article class="gh-row gh-row-labs" id="flow-labs"><div class="gh-row-copy"><h3>${u('gh.flow.labs.0')}</h3><p>${u('gh.flow.labs.1')}</p></div><div class="gh-labs">${labs}</div></article></div></section>`;
  // 3. Proof: which engines loaded the exports, with the Studio's own honest labels.
  const engines=`<section class="gs-section gh-engines" id="engines" aria-labelledby="enginesTitle"><div class="gs-wrap"><div class="gh-engines-box"><header class="gh-engines-head"><h2 class="gs-h2" id="enginesTitle" data-ui="gh.engines">${esc(ui(locale,'gh.engines'))}</h2>${u('gh.enginesNote','p','gs-lead')}</header><ul class="gh-engine-grid engine-list">${engineRows().map(r=>`<li class="gh-engine is-${r.status}"><b>${esc(r.name)}</b><span class="gs-status is-${r.status}" data-ui="gh.status.${r.status}">${esc(ui(locale,'gh.status.'+r.status))}</span>${r.engine?`<small>${esc(r.engine)}</small>`:''}</li>`).join('')}</ul></div></div></section>`;

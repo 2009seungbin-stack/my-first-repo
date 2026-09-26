@@ -17,6 +17,10 @@ family (broad, engines, formats, fixes, compare; Studio and Lab targets, a `via`
 its own file picker into the Studio and its promise is measured (frames against the sheet, generated
 normals, collision in the Godot export, FNF XML → GIFs, .aseprite durations, an unrotated Phaser atlas).
 Part 3 already hands a file to every Studio family page in Chromium.
+Part 6 also follows every Pixel workspace page (src/game-seo-pixel.js, kind 'pixelart', ?ws=pixel) into
+the Studio in both engines: a pencil stroke, a x7 upscale back to the exact 1x original, frames reaching
+the Pixel workspace through Sprite (via), an exact indexed conversion, a 1 px outline equal to the
+4-connected ring computed here, and a generated image left unsure.
 
 TEST_URL (default http://127.0.0.1:4173); BROWSERS=chromium,firefox (default both).
 Results: test-results/game-landing-browser.json ({check: [engines]}).
@@ -43,6 +47,7 @@ TORCH_SHEET = FX / 'game' / 'corpus' / 'torch' / 'Torch_Sheet.png'  # 96×64, si
 TORCH_JSON = FX / 'game' / 'corpus' / 'torch' / 'Torch_Hash.json'  # Aseprite JSON hash for it (durations 100)
 TORCH_TEX = FX / 'texture' / 'torch_sheet.png'                     # the same torch as a texture fixture
 CAEL = FX / 'game' / 'cc0' / 'oga-caeles-blob47-16px.png'           # caeles blob-47 template, 16 px, alpha
+PXF = FX / 'pixel'                                                  # Pixel workspace CC0 fixtures (LICENSE.md there)
 results = {}; errors = []
 
 
@@ -178,7 +183,7 @@ def part1(browser):
             if v.get('lab') or (key in PAGES['keywords'] and not v.get('studio')):
                 ok('a Lab page\'s primary action opens its Lab (<route>/app/ or the classic Lab) and the header still links the Studio', 'data-gl-drop' in h and re.search(r'data-target="lab" data-href="(?:\w\w/)?[\w/-]+/(app|classic)/"', h) and 'data-studio-link' in h, key)
             else:
-                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile|texture)"', h) and 'data-studio-link' in h, key)
+                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile|texture|pixel)"', h) and 'data-studio-link' in h, key)
             ok('the page shows a real screenshot of the Studio or its Lab (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
             ok('engine badges carry their verification label', h.count('class="gl-badge') >= (2 if lab else 3 if v.get('ws') == 'normalmap' else 4) and (lab or 'Godot' in h), key)
             if key != 'game':
@@ -359,7 +364,7 @@ def part3(browser):
         p = land(ctx, f'/en/{key}/', files, E)
         # A page whose files go through another workspace first (via) lands there; a pack page lands
         # in Pack & Export once its frames exist; every other page lands in its own workspace.
-        want = v['via'] or {'sprite': 'sprite', 'tile': 'tile', 'pack': 'pack', 'normalmap': 'texture'}[v['ws']]
+        want = v['via'] or {'sprite': 'sprite', 'tile': 'tile', 'pack': 'pack', 'normalmap': 'texture', 'pixelart': 'pixel'}[v['ws']]
         if want == 'pack':
             p.wait_for_function('()=>window.nerulioStudio.workspace==="pack"', timeout=30000)
         ok('every game keyword page hands its file to the Studio workspace it names', js(p, 'return S.workspace;') == want, key, engine=E)
@@ -379,6 +384,8 @@ def files_for(key, v):
         return [ASE]
     if 'gif-to' in key:
         return [GIF]
+    if v['ws'] == 'pixelart':
+        return [PXF / ('gosoythoth_frame0.png' if 'ai-pixel' in key or 'snapper' in key else 'old_hero__nn_x7.png')]
     if v['ws'] == 'pack':
         return NINJA
     if v['ws'] == 'tile':
@@ -821,7 +828,98 @@ def part6(browser, E):
         p.wait_for_function('()=>document.querySelectorAll(".slicer-box").length===60', timeout=60000)
         ok('family engines (gdevelop-sprite-sheet): the sheet chosen on the page arrives in the classic Sprite Lab with its 60 frames outlined', True, engine=E)
         p.close()
+    pixel_family(ctx, E)
     ctx.close()
+
+
+def pxjs(p, body, arg=None):
+    return p.evaluate('async(arg)=>{const S=window.nerulioStudio,W=window.__pixel;' + body + '}', arg)
+
+
+def px_frame(p):
+    """The current Pixel sprite's first frame (or its picture), composed the way the Pixel workspace shows it."""
+    d = pxjs(p, '''const a=W.asset(),{rgbaGetter}=await import("/src/studio/sprite/frame-render.js"),{composeFrame,composeCanvas}=await import("/src/studio/sprite/frame-image.js");
+      await W.commitChain();const f=a.frames[0],g=await rgbaGetter(S.images,a,f?[f]:[{id:"*"}]);const img=f?composeFrame(a,f,g):composeCanvas(a,{id:"*"},g);return {w:img.width,h:img.height,d:Array.from(img.data)};''')
+    return Image.frombytes('RGBA', (d['w'], d['h']), bytes(d['d']))
+
+
+def px_clean(p, states):
+    p.wait_for_function('s=>s.includes(document.querySelector("[data-px=cleanup]").dataset.state)', arg=states, timeout=90000); p.wait_for_timeout(200)
+
+
+def pixel_family(ctx, E):
+    """Every Pixel workspace page: its own file picker, the Studio, and the promise measured."""
+    fam = {k: v for k, v in PAGES['keywords'].items() if v.get('ws') == 'pixelart'}
+    if not fam:
+        return
+    hero = Image.open(PXF / 'old_hero.png').convert('RGBA')
+    if 'game/pixel-art-editor' in fam:
+        p = land(ctx, '/en/game/pixel-art-editor/', [PXF / 'old_hero.png'], E)
+        ok('family broad (pixel-art-editor): the PNG opens in the Pixel workspace as one 64×48 picture to paint on', js(p, 'return S.workspace;') == 'pixel' and pxjs(p, 'const a=W.asset();return [a.width,a.height];') == [64, 48], engine=E)
+        pxjs(p, "W.setColor('fg',[255,0,255,255]);"); p.locator('.st-canvas-host .cv-stage').focus(); p.keyboard.press('b')
+        n0 = js(p, 'return S.history.index;')
+        a, b = canvas_at(p, 10.5, 40.5), canvas_at(p, 20.5, 40.5)
+        p.mouse.move(a['x'], a['y']); p.mouse.down(); p.mouse.move(b['x'], b['y'], steps=6); p.mouse.up(); p.wait_for_timeout(300)
+        got = px_frame(p)
+        ok('family broad (pixel-art-editor): a pencil stroke paints the foreground colour along the drag and is one undo step',
+           js(p, 'return S.history.index;') == n0 + 1 and got.getpixel((15, 40)) == (255, 0, 255, 255) and got.getpixel((15, 20)) == hero.getpixel((15, 20)), str(got.getpixel((15, 40))), engine=E)
+        p.close()
+    if 'game/pixel-art-downscaler' in fam:
+        p = land(ctx, '/en/game/pixel-art-downscaler/', [PXF / 'old_hero__nn_x7.png'], E)
+        p.click('[data-px="clean-measure"]'); px_clean(p, ['measured', 'error'])
+        ok('family fixes (pixel-art-downscaler): Measure reads the x7 upscale as an exact x7 grid, sure, 64×48, and changes nothing',
+           js(p, 'return S.workspace;') == 'pixel' and 'Upscaled ×7' in p.inner_text('[data-px="clean-verdict"]') and p.locator('[data-px="clean-verdict"] .st-conf.is-high').count() == 1 and '64×48' in p.inner_text('[data-px="clean-size"]') and js(p, 'return S.doc.assets.length;') == 1, p.inner_text('[data-px="clean-verdict"]'), engine=E)
+        if p.locator('.px-clean-opts').get_attribute('open') is None:
+            p.click('.px-clean-opts summary')
+        p.select_option('[data-px="clean-background"]', 'keep')
+        p.click('[data-px="clean-preview"]'); px_clean(p, ['done', 'error']); p.click('[data-px="clean-apply"]'); p.wait_for_timeout(1200)
+        ok('family fixes (pixel-art-downscaler): Apply adds a new sprite equal to the original 64×48 art pixel for pixel; the upscale stays',
+           js(p, 'return S.doc.assets.length;') == 2 and visible(px_frame(p)) == visible(hero), engine=E)
+        p.close()
+    if 'game/pixel-art-animation' in fam:
+        frames = [PXF / f'ninja_run_{i}.png' for i in range(6)]
+        p = land(ctx, '/en/game/pixel-art-animation/', frames, E)
+        p.wait_for_function('()=>window.nerulioStudio.workspace==="pixel"', timeout=30000)
+        a = asset(p)
+        ok('family broad, via (pixel-art-animation): six frame files are imported through Sprite as one animation and the Pixel workspace opens on them',
+           len(a['frames']) == 6 and len(a['tags']) == 1 and pxjs(p, 'return W.asset().frames.length;') == 6, engine=E)
+        p.locator('.st-canvas-host .cv-stage').focus(); p.keyboard.press('F3'); p.wait_for_timeout(400)
+        ok('family broad, via (pixel-art-animation): F3 turns on onion skin in the Pixel workspace', pxjs(p, 'return !!W.session.onion;'), engine=E)
+        p.close()
+    if 'game/pixel-art-palette-editor' in fam:
+        frames = [PXF / f'ninja_run_{i}.png' for i in range(6)]
+        p = land(ctx, '/en/game/pixel-art-palette-editor/', frames, E)
+        before = px_frame(p)
+        colours = set()
+        for f in frames:
+            raw = Image.open(f).convert('RGBA').tobytes()
+            colours |= {raw[i:i + 3] for i in range(0, len(raw), 4) if raw[i + 3] > 0}
+        js(p, "S.runCommand('pixel.colorMode')"); p.wait_for_selector('dialog [data-px="mode-palette"]')
+        p.click('dialog .st-btn.primary'); p.wait_for_timeout(1200)
+        mode = pxjs(p, 'const a=W.asset();return [a.colorMode,a.palette.colors.length,a.transparentIndex];')
+        ok('family broad (pixel-art-palette-editor): Colour mode › Indexed from the exact colours makes an indexed sprite whose palette holds every colour plus the transparent index, and frame 1 keeps every pixel',
+           mode[0] == 'indexed' and mode[1] == len(colours) + 1 and mode[2] == 0 and visible(px_frame(p)) == visible(before), str(mode), engine=E)
+        p.close()
+    if 'game/pixel-art-outline' in fam:
+        p = land(ctx, '/en/game/pixel-art-outline/', [PXF / 'ninja_run_0.png'], E)
+        p.keyboard.press('Control+Alt+c'); p.wait_for_selector('dialog.px-canvas'); p.click('dialog .st-btn.primary'); p.wait_for_timeout(700)
+        src = px_frame(p)
+        pxjs(p, "W.setColor('fg',[255,236,39,255]);"); js(p, "S.runCommand('pixel.outline')"); p.wait_for_timeout(600)
+        out = px_frame(p)
+        w, h = src.size; sp, op = src.load(), out.load()
+        ring = {(x, y) for y in range(h) for x in range(w) if sp[x, y][3] == 0 and any(0 <= x + dx < w and 0 <= y + dy < h and sp[x + dx, y + dy][3] > 0 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+        changed = {(x, y) for y in range(h) for x in range(w) if op[x, y] != sp[x, y]}
+        ok('family broad (pixel-art-outline): after Canvas size +1, Outline paints exactly the 4-connected ring outside the sprite in the foreground colour and leaves the art unchanged',
+           (w, h) == (42, 31) and changed == ring and all(op[x, y] == (255, 236, 39, 255) for x, y in ring), f'{len(changed)} changed, {len(ring)} expected', engine=E)
+        p.close()
+    for key in ['game/pixel-snapper-alternative', 'game/fix-ai-pixel-art']:
+        if key not in fam:
+            continue
+        p = land(ctx, f'/en/{key}/', [PXF / 'gosoythoth_frame0.png'], E)
+        p.click('[data-px="clean-measure"]'); px_clean(p, ['measured', 'error'])
+        ok(f'{fam[key].get("family") or "keyword"} ({key.split("/")[1]}): a generated image is measured as unsure — no sure grid, nothing applied',
+           js(p, 'return S.workspace;') == 'pixel' and p.locator('[data-px="clean-verdict"] .st-conf.is-high').count() == 0 and pxjs(p, 'return W.cleanupUI.state().analysis.grid===null;') and js(p, 'return S.doc.assets.length;') == 1, p.inner_text('[data-px="clean-verdict"]'), engine=E)
+        p.close()
 
 
 with sync_playwright() as pw:

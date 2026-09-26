@@ -5,7 +5,7 @@ import {LANDINGS} from '../src/landings.js';
 import {footer} from '../src/content.js';
 import {siteHeader,footerBrand} from './game-chrome.mjs';
 import {DIRECTORY} from '../src/task/registry.js';
-import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,FAMILIES,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
+import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,PIXEL_EXPORTS,FAMILIES,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
 import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
 /** Static HTML of the game landing pages (src/game-seo.js) and of the /game/ hub.
  * Dark, editor-looking pages whose primary action hands the dropped files to the Studio
@@ -44,7 +44,7 @@ export function targetOf(game){
  const ws=game.page.ws;
  if(isStudioKind(ws)){
   if(ws==='pack')return {type:'studio',entry:'sprite',then:'pack',route:`${STUDIO_ROUTE}/?ws=sprite`,empty:`${STUDIO_ROUTE}/?ws=pack`};
-  const id=kindOf(ws).studioWs||ws;// the Texture workspace is kind 'normalmap', ?ws=texture
+  const id=kindOf(ws).studioWs||ws;// the Texture workspace is kind 'normalmap' (?ws=texture), the Pixel workspace 'pixelart' (?ws=pixel)
   // `via`: the page's files are imported in another workspace first (a sheet is cut into frames in
   // Sprite before the Texture workspace lights it frame by frame); the empty Studio opens the page's own.
   const via=game.page.via;
@@ -54,7 +54,7 @@ export function targetOf(game){
  const route=toolRoute(game.kind==='keyword'?game.page.intent:game.key)+'/';
  return {type:'lab',entry:'',then:'',route,empty:route};
 }
-export const exportsFor=ws=>ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports;
+export const exportsFor=ws=>ws==='tile'?TILE_EXPORTS:ws==='normalmap'?TEXTURE_EXPORTS:ws==='pixelart'?PIXEL_EXPORTS:isStudioKind(ws)?SPRITE_EXPORTS:kindOf(ws).exports;
 const LAB_UI={
  open:{en:'Open the {name}',ko:'{name} 열기',ja:'{name}を開く'},
  outputs:{en:'Outputs and how each was checked',ko:'출력 파일과 검증 방법',ja:'出力ファイルと検証方法'},
@@ -100,6 +100,10 @@ const EVIDENCE={
 EVIDENCE.normalmap={en:'Godot 4.7.2 rendered 6 real CC0 cases (pixel art, an HD sprite, a tileable texture, an imported DirectX map): every checked frame within 1/255 of the Studio\'s preview. Unity 6000.5 URP 2D: 12 of 12 runs pass (6 cases × Gamma and Linear). OpenGL/DirectX detection on real maps of known convention: 128 full 1K maps 100 % right, and not one wrong "high" verdict in 1,562 samples (a naive "green-high means OpenGL" rule gets 46 %).',
  ko:'Godot 4.7.2가 실제 CC0 사례 6개(도트, HD 스프라이트, 반복 텍스처, 가져온 DirectX 맵)를 렌더링했고 확인한 모든 프레임이 Studio 미리보기와 1/255 이내였습니다. Unity 6000.5 URP 2D: 12회 중 12회 통과(사례 6개 × 감마·리니어). 규약을 아는 실제 맵으로 OpenGL/DirectX 판별: 1K 전체 맵 128개 100% 정답, 표본 1,562개 중 틀린 "높음" 판정 0건(초록이 밝으면 OpenGL이라는 단순 규칙은 46%).',
  ja:'Godot 4.7.2で実在のCC0ケース6件（ドット絵、HDスプライト、繰り返しテクスチャ、読み込んだDirectXマップ）を描画し、確認した全フレームがStudioのプレビューと1/255以内。Unity 6000.5 URP 2D：12回中12回合格（6ケース×ガンマ・リニア）。規約が分かっている実在のマップでOpenGL/DirectX判定：1Kのマップ128枚で100%正解、1,562サンプル中で誤った「高」判定は0件（「緑が明るければOpenGL」という単純な規則は46%）。'};
+// docs/STUDIO-PIXEL.md §5 (cleanup benchmark), §6 (head-to-head), §8 (tests).
+EVIDENCE.pixelart={en:'Cleanup benchmark, 69 CC0 cases with a known 1× original: the exact size found for 81 % (±1 px: 90 %) and 74.0 % of pixels exact with the background kept; the best competitor found 30 % of sizes (perfectPixel) and the best exact-pixel score was 44.6 % (unfake.js). An Aseprite-made ×4 nearest upscale came back 100 % exact and a ×3.78 bilinear resize 99.7 %, both with the size found automatically. A 1 px outline and a drop shadow matched Aseprite pixel for pixel (1846 and 705 px). .aseprite files written here reopen in Aseprite 1.3.18 as indexed, with their layers, blend mode and lock.',
+ ko:'정리 벤치마크(원래 1배 그림을 아는 CC0 사례 69개): 크기를 정확히 찾은 비율 81 %(±1px 90 %), 배경 유지 시 픽셀 74.0 % 정확. 가장 나은 경쟁 도구는 크기 30 %(perfectPixel), 정확한 픽셀 44.6 %(unfake.js). Aseprite로 만든 ×4 최근접 확대는 100 %, ×3.78 쌍선형 확대는 99.7 % 정확하게 돌아왔고 두 경우 모두 크기를 자동으로 찾았습니다. 1px 외곽선과 드롭 섀도는 Aseprite 결과와 픽셀까지 같았습니다(1846px, 705px). 여기서 쓴 .aseprite는 Aseprite 1.3.18에서 인덱스 모드와 레이어·블렌드·잠금이 그대로 열립니다.',
+ ja:'整理のベンチマーク（元の1倍画像が分かっているCC0ケース69件）：サイズを正確に当てたのは81 %（±1px：90 %）、背景を残すとピクセルの74.0 %が完全一致。最も良い競合ツールはサイズ30 %（perfectPixel）、完全一致ピクセル44.6 %（unfake.js）。Asepriteで作った×4ニアレスト拡大は100 %、×3.78バイリニアは99.7 %一致で戻り、どちらもサイズは自動で判定。1pxのアウトラインとドロップシャドウはAsepriteの結果とピクセル単位で一致（1846px・705px）。ここで書いた.asepriteはAseprite 1.3.18でインデックスモード・レイヤー・合成モード・ロックのまま開きます。'};
 /** A page's own table (engine settings, format fields, a fix's before/after): copy.table =
  * {title, lead?, head:[…], rows:[[…]…]}. The first cell of a row is its header cell. */
 function tableHTML(tb,id){
@@ -156,7 +160,7 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
 export const gameFaq=(game,locale)=>game.kind==='hub'?COMMON_FAQ.map(x=>x[locale]):[...game.page.copy[locale].faq,...COMMON_FAQ.map(x=>x[locale])];
-const GROUP_ORDER=['sprite','pack','tile','normalmap','pixel','texture','ui','tilelab','spritelab','engines','formats','fixes','compare'];
+const GROUP_ORDER=['sprite','pack','tile','normalmap','pixelart','pixel','texture','ui','tilelab','spritelab','engines','formats','fixes','compare'];
 /** The hub group of a page: its family's group (engine how-tos, formats, fixes, comparisons) or,
  * for a broad product page and every older page, its workspace. */
 export const groupOf=p=>FAMILIES[p.family]?.group||p.ws;
