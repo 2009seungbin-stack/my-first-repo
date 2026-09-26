@@ -7,10 +7,12 @@ Drives the real Studio at /game/studio/ with committed CC0 art and saves crisp c
   - pack:  Pack & Export with the same frames packed for Godot 4.
   - tile:  Tile workspace, the cave autotile-47 sheet (OpenGameArt, CC0) and a test map
            painted with the Godot 4 terrain rule.
+  - pixel: Pixel workspace, the six ninja run frames by DezrasDragons (OpenGameArt, CC0,
+           tests/fixtures/pixel) with frame 3 open and onion skin on.
   - labs:  4:3 crops of the Lab screenshots in assets/studio (no browser needed).
 Licences: assets/home/art/LICENSE.md and tests/fixtures/tile/SOURCES.md.
 Needs a running server: TEST_URL (default http://127.0.0.1:4173).
-Usage: python tools/home-screens.py [--only hero,pack,tile,labs] [--locales en,ko,ja]
+Usage: python tools/home-screens.py [--only hero,pack,tile,pixel,labs] [--locales en,ko,ja]
 """
 import io, os, re, sys
 from pathlib import Path
@@ -137,6 +139,18 @@ def tile(browser, locale):
     p.context.close()
 
 
+def pixel(browser, locale):
+    p = studio(browser, locale, 'pixel', (SW, SH))
+    frames = sorted((ROOT / 'tests' / 'fixtures' / 'pixel').glob('ninja_run_[0-9].png'))
+    p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(f) for f in frames])
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets[0]?.frames.length===6', timeout=30000)
+    p.evaluate('()=>window.__pixel.setCurrent(2,{select:true})'); p.wait_for_timeout(300)
+    js(p, 'S.view.zoomTo(20);S.view.reveal({x:0,y:0,w:40,h:29});'); p.wait_for_timeout(200)
+    p.keyboard.press('F3'); p.wait_for_timeout(300); p.keyboard.press('b'); quiet(p)
+    save(p.screenshot(), f'shot-pixel-{locale}', [1600, 1040], crop=(40, 30, SW - 40, SH - 30 - 22))
+    p.context.close()
+
+
 def labs():
     """Lab cards: 4:3 crops of the Lab screenshots (assets/studio/*-lab.webp, tools/studio-screens.py)."""
     for name, box in [('pixel', (183, 300, 815, 760)), ('texture', (183, 312, 813, 620)), ('ui', (183, 95, 823, 562))]:
@@ -153,7 +167,7 @@ if want('labs'):
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     for locale in LOCALES:
-        for name, fn in [('hero', hero), ('pack', pack), ('tile', tile)]:
+        for name, fn in [('hero', hero), ('pack', pack), ('tile', tile), ('pixel', pixel)]:
             if want(name):
                 fn(browser, locale)
     browser.close()

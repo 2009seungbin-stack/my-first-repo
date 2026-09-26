@@ -135,7 +135,7 @@ export const PAGES=Object.freeze({
     ['フレームの時間（ms）','speed＝タグのfps、duration＝ms ÷（1000 ÷ fps）','各フレームを自分の時刻にキー','フレームごとにmsのduration','フレームごとにmsのduration','1/100秒単位の遅延、最短2'],
     ['方向','逆方向・ピンポンをフレーム順に展開','逆方向・ピンポンをフレーム順に展開','逆方向は展開、ピンポンはyoyo','direction：forward・reverse・pingpong','再生順にフレームを記録'],
     ['繰り返し（0＝無限）','0のときだけloopをオン','0のときだけLoop Timeをオン','無限はrepeat −1、n回再生はrepeat n−1','frameTagsのrepeat','ループ回数0で無限、n回再生はn−1、1回だけならループ情報なし']]}}
- },{related:['sprite-animation-preview','game/sprite-sheet-to-gif','game/gif-to-sprite-sheet','game/godot-animation-frame-duration','frame-normalize'],highlight:['gif','godot4']}),
+ },{related:['sprite-animation-preview','game/sprite-sheet-to-gif','game/gif-to-sprite-sheet','game/godot-animation-frame-duration','frame-normalize','game/pixel-art-animation'],highlight:['gif','godot4']}),
 
  // src/studio/sprite/atlas-data.js (what is read from each atlas file), docs/STUDIO-SPRITE.md §9.
  'game/sprite-atlas-viewer':page('sprite-lab','sprite','sprite-atlas',{

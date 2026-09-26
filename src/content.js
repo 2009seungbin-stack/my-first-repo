@@ -136,20 +136,20 @@ export function formats(id,locale){
  * image / PDF / video tools carry a "Making a game?" block. Short literal titles on purpose — this
  * module is loaded in the browser, so it does not import the landing copy (src/game-seo.js). */
 const GAME_NAV=Object.freeze({
- en:['Game studio',[['game/studio','Game studio'],['game','All game tools'],['sprite-slicer','Sprite sheet slicer'],['sprite-sheet-maker','Sprite sheet packer'],['game/tile-lab','Autotile tilesets'],['game/pixel-lab','Pixel art palettes'],['game/texture-lab','Texture maps']]],
- ko:['게임 스튜디오',[['game/studio','게임 스튜디오'],['game','게임 도구 전체'],['sprite-slicer','스프라이트 시트 자르기'],['sprite-sheet-maker','스프라이트 시트 패커'],['game/tile-lab','오토타일 타일셋'],['game/pixel-lab','도트 팔레트'],['game/texture-lab','텍스처 맵']]],
- ja:['ゲームスタジオ',[['game/studio','ゲームスタジオ'],['game','ゲームツール一覧'],['sprite-slicer','スプライトシート分割'],['sprite-sheet-maker','スプライトシートパッカー'],['game/tile-lab','オートタイル'],['game/pixel-lab','ドット絵パレット'],['game/texture-lab','テクスチャマップ']]]
+ en:['Game studio',[['game/studio','Game studio'],['game','All game tools'],['sprite-slicer','Sprite sheet slicer'],['sprite-sheet-maker','Sprite sheet packer'],['game/tile-lab','Autotile tilesets'],['game/pixel-art-editor','Pixel art editor'],['game/pixel-lab','Pixel art palettes'],['game/texture-lab','Texture maps']]],
+ ko:['게임 스튜디오',[['game/studio','게임 스튜디오'],['game','게임 도구 전체'],['sprite-slicer','스프라이트 시트 자르기'],['sprite-sheet-maker','스프라이트 시트 패커'],['game/tile-lab','오토타일 타일셋'],['game/pixel-art-editor','도트 에디터'],['game/pixel-lab','도트 팔레트'],['game/texture-lab','텍스처 맵']]],
+ ja:['ゲームスタジオ',[['game/studio','ゲームスタジオ'],['game','ゲームツール一覧'],['sprite-slicer','スプライトシート分割'],['sprite-sheet-maker','スプライトシートパッカー'],['game/tile-lab','オートタイル'],['game/pixel-art-editor','ドット絵エディタ'],['game/pixel-lab','ドット絵パレット'],['game/texture-lab','テクスチャマップ']]]
 });
 function gameFooterNav(locale){const [label,links]=GAME_NAV[locale]||GAME_NAV.en;return `<nav class="footer-game" aria-label="${esc(label)}">${links.map(([p,name])=>`<a href="${locale}/${p}/">${esc(name)}</a>`).join('')}</nav>`;}
 const GAME_XLINK=Object.freeze({
- en:{h:'Making a game?',p:'Nerulio is a 2D game asset studio first: cut sprite sheets into animations, pack texture atlases, check autotile tilesets and export them for Godot, Unity, Phaser and other engines. It runs in your browser; files stay on your device.',studio:'Open the game studio',hub:'All game tools'},
- ko:{h:'게임을 만들고 있나요?',p:'Nerulio는 무엇보다 2D 게임 에셋 스튜디오입니다. 스프라이트 시트를 애니메이션으로 자르고, 텍스처 아틀라스를 패킹하고, 오토타일 타일셋을 점검해 Godot·Unity·Phaser 등 엔진용으로 내보냅니다. 브라우저에서 동작하며 파일은 기기 밖으로 나가지 않습니다.',studio:'게임 스튜디오 열기',hub:'게임 도구 전체'},
- ja:{h:'ゲームを作っていますか？',p:'Nerulioは何よりも2Dゲームアセットのスタジオです。スプライトシートをアニメーションに分割し、テクスチャアトラスをパックし、オートタイルのタイルセットを確認して、Godot・Unity・Phaserなどのエンジン向けに書き出します。ブラウザで動き、ファイルは端末の外に出ません。',studio:'ゲームスタジオを開く',hub:'ゲームツール一覧'}
+ en:{h:'Making a game?',p:'Nerulio is a 2D game asset studio first: draw pixel art, cut sprite sheets into animations, pack texture atlases, check autotile tilesets and export them for Godot, Unity, Phaser and other engines. It runs in your browser; files stay on your device.',studio:'Open the game studio',hub:'All game tools'},
+ ko:{h:'게임을 만들고 있나요?',p:'Nerulio는 무엇보다 2D 게임 에셋 스튜디오입니다. 도트를 그리고, 스프라이트 시트를 애니메이션으로 자르고, 텍스처 아틀라스를 패킹하고, 오토타일 타일셋을 점검해 Godot·Unity·Phaser 등 엔진용으로 내보냅니다. 브라우저에서 동작하며 파일은 기기 밖으로 나가지 않습니다.',studio:'게임 스튜디오 열기',hub:'게임 도구 전체'},
+ ja:{h:'ゲームを作っていますか？',p:'Nerulioは何よりも2Dゲームアセットのスタジオです。ドット絵を描き、スプライトシートをアニメーションに分割し、テクスチャアトラスをパックし、オートタイルのタイルセットを確認して、Godot・Unity・Phaserなどのエンジン向けに書き出します。ブラウザで動き、ファイルは端末の外に出ません。',studio:'ゲームスタジオを開く',hub:'ゲームツール一覧'}
 });
 /** The game pages closest to each file-tool family (image users slice sheets and make textures, video
  * users turn clips and GIFs into sprite sheets). */
 const GAME_PICKS=Object.freeze({
- image:[['sprite-slicer',{en:'Sprite sheet slicer',ko:'스프라이트 시트 자르기',ja:'スプライトシート分割'}],['game/pixel-lab',{en:'Pixel art palettes',ko:'도트 팔레트',ja:'ドット絵パレット'}],['game/texture-lab',{en:'Normal and texture maps',ko:'노멀·텍스처 맵',ja:'ノーマル・テクスチャマップ'}]],
+ image:[['sprite-slicer',{en:'Sprite sheet slicer',ko:'스프라이트 시트 자르기',ja:'スプライトシート分割'}],['game/pixel-art-editor',{en:'Pixel art editor',ko:'도트 에디터',ja:'ドット絵エディタ'}],['game/texture-lab',{en:'Normal and texture maps',ko:'노멀·텍스처 맵',ja:'ノーマル・テクスチャマップ'}]],
  pdf:[['sprite-slicer',{en:'Sprite sheet slicer',ko:'스프라이트 시트 자르기',ja:'スプライトシート分割'}],['sprite-sheet-maker',{en:'Sprite sheet packer',ko:'스프라이트 시트 패커',ja:'スプライトシートパッカー'}],['game/tile-lab',{en:'Autotile tilesets',ko:'오토타일 타일셋',ja:'オートタイル'}]],
  video:[['game/gif-to-sprite-sheet',{en:'GIF to sprite sheet',ko:'GIF를 스프라이트 시트로',ja:'GIFをスプライトシートに'}],['game/sprite-animation-preview',{en:'Sprite animation preview',ko:'스프라이트 애니메이션 미리보기',ja:'スプライトアニメーションのプレビュー'}],['sprite-sheet-maker',{en:'Sprite sheet packer',ko:'스프라이트 시트 패커',ja:'スプライトシートパッカー'}]]
 });

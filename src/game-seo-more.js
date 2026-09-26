@@ -162,7 +162,7 @@ export const GAME_MORE_KEYWORD_PAGES=Object.freeze({
    what:['Lospec形式のHEXリスト（1行1色かカンマ区切り、#は任意）、GIMP .gpl、JSON。形式は内容で判定。','全フレームを同じパレットに固定するので、アニメーションが一貫します。','ディザー：なし（アニメーションの既定）、Bayer 2×2/4×4/8×8、Floyd–Steinberg、Atkinson。ちらつきの警告つき。','1×〜8×ニアレストのPNGフレームと.gplパレットで書き出し。'],
    steps:['フレームをドロップ。','Lospecのパレットを読み込むか貼る。','ディザー方式を選び、並べて比較。','ZIPで書き出し。'],
    faq:[['Lospecからパレットを取ってきてくれますか？','いいえ。何もダウンロードしません。LospecでパレットのHEXリストか.gplをコピーし、貼るか読み込んでください。'],['書き出した色はすべてパレット内ですか？','はい。テストでは書き出した全フレームの色の和集合が固定パレットの部分集合でした。']]}
- },{related:['pixel-lab','palette-extractor','palette-swap-ramp','game/fix-ai-pixel-art']}),
+ },{related:['pixel-lab','palette-extractor','palette-swap-ramp','game/fix-ai-pixel-art','game/pixel-art-palette-editor']}),
  // Retargeted to the Studio's Pixel workspace cleanup (docs/STUDIO-PIXEL.md §5): it now re-grids,
  // so the page says how well it does that on generated art and where it stops. The Pixel Lab's
  // palette lock and anti-alias remover are linked, not repeated.
@@ -193,7 +193,7 @@ export const GAME_MORE_KEYWORD_PAGES=Object.freeze({
    what:['ニアレストネイバーだけの1×〜8×整数倍。フィルターも生成されたディテールもなし。','チェッカーがすでに拡大済みか（正確な倍率とオフセット）を検出し、拡大した画像をさらに拡大するのを防ぎます。','正確なグリッドがあれば、まず1倍を復元してから拡大してください。','アニメーションはフレームごとに処理し、PNGで書き出し。'],
    steps:['画像かフレームをドロップ。','倍率レポートを読み、拡大済みなら1倍を復元。','整数倍率を選ぶ。','PNGで書き出し。'],
    faq:[['なぜ整数倍だけ？','非整数倍は一部のピクセルを太くします。チェッカーはそれも測り、2.5倍ニアレスト拡大は2.500倍と判定して整数とは言いません。'],['AIアップスケーラーのようにディテールを足しますか？','いいえ。出力のすべてのピクセルは元のピクセルのコピーです。']]}
- },{related:['pixel-perfect-checker','game/fix-ai-pixel-art','pixel-lab','game/godot-pixel-art-blurry']}),
+ },{related:['pixel-perfect-checker','game/fix-ai-pixel-art','pixel-lab','game/godot-pixel-art-blurry','game/pixel-art-downscaler']}),
  'game/pixel-art-normal-map':kw('texture-map','texture','texture-lab',{
   en:{title:'Pixel Art Normal Map Generator — From Sprite Brightness or Alpha',description:'Make a normal map for 2D lighting from a sprite\'s brightness or alpha: Sobel, Scharr or Sobel 5×5, OpenGL or DirectX, unit-length vectors. A height gradient, not a bevel; engine import untested.',lead:'For 2D lights you need a normal map per sprite. The Texture Lab reads height from the sprite\'s own grey values (or its alpha) and turns the gradient into a tangent-space normal map, with the convention named on screen.',
    what:['Height from luminance or from the alpha channel.','Kernels Sobel 3×3, Scharr and Sobel 5×5, normalised so the same strength means the same slope.','OpenGL (+Y: Unity, Godot) or DirectX (−Y), with X/Y invert; flat areas come out exactly (128, 128, 255).','Converted and generated maps decode to unit-length vectors (checked).'],
