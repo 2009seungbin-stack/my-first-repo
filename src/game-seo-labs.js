@@ -93,7 +93,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['全フレームからアルファ加重のパレットを1つ作成（Oklabのメディアンカット、2〜256色）。ゲームボーイ・PICO-8・Sweetie 16・Endesga 32・NESのパレットも使えます。','ディザー：なし、Floyd–Steinberg、Atkinson、Bayer 2×2/4×4/8×8。組織的ディザーはフレーム間でちらつかず、誤差拡散を選ぶと警告します。','パレット編集：明度・色相・彩度・頻度で並べ替え、再抽出しても残る色をロック。','PNGフレーム（1×〜8×ニアレスト）、.gplパレット、JSONで書き出し。'],
    steps:['フレームをドロップ。','色数か定番パレットを選ぶ。','ディザー方式を選ぶ（アニメーションは既定の「なし」）。','ZIPで書き出し。'],
    faq:[['ディザー後にアニメーションがちらつくのはなぜ？','誤差拡散は誤差を画像全体に運ぶため、1ピクセル動くだけで後の判定が変わります。組織的（Bayer）ディザーは位置だけで決まるのでちらつきません。ラボの既定は「なし」です。'],['Lospecのパレットを使えますか？','はい。LospecのHEXリスト、.gpl、JSONを貼り付けるか読み込むと、フレームがそのパレットに固定されます。']]}
- },{related:['palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','game/lospec-palette']}),
+ },{related:['palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','game/lospec-palette','game/pixel-art-editor']}),
  'palette-extractor':page('pixel','pixel-lab',{
   en:{title:'Pixel Art Palette Extractor — .gpl, HEX and JSON',description:'Extract the colour palette from pixel art or sprite frames, with each colour\'s pixel count, sort it, audit a colour budget and export GIMP .gpl, Lospec HEX or JSON. Free, in your browser.',lead:'Get the real palette of a sprite — every colour with its pixel count and share — from one image or a whole animation, then keep it under a colour budget.',
    what:['Palette from all frames at once, with exact per-colour counts and percentages.','Sort by lightness, hue, saturation or frequency (greys grouped at the end of a hue sort).','Colour budget audit: target vs actual, the rarest colours listed, one-click merge into their nearest survivor.','Import and export GIMP .gpl, Lospec-style HEX lists and JSON; the format is read from the content, not the extension.'],
@@ -107,7 +107,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['全フレームから一度にパレットを作り、色ごとの正確なピクセル数と割合を表示。','明度・色相・彩度・頻度で並べ替え（色相順ではグレーを末尾に）。','色数予算のチェック：目標と実際、最も少ない色の一覧、最も近い残りの色へワンクリックで統合。','GIMP .gpl、Lospec形式のHEXリスト、JSONの読み書き。形式は拡張子ではなく内容で判定。'],
    steps:['画像かフレームをドロップ。','色数と並び順を決める。','必要なら色数予算を設定し、少ない色を統合。','パレット（.gpl・.hex・.json）か色を変えたフレームを書き出し。'],
    faq:[['ピクセル数は正確ですか？','はい。アニメーション全体で4メガピクセルまでは正確で、それを超えると表示中のフレームだけを数え、パネルにその旨を表示します。'],['GIMPパレット入りの.txtも読めますか？','はい。形式を内容で判定するので、GIMPのヘッダーがある.txtは.gplとして読みます。']]}
- },{related:['pixel-lab','game/lospec-palette','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker']}),
+ },{related:['pixel-lab','game/lospec-palette','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','game/pixel-art-palette-editor']}),
  'palette-swap-ramp':page('pixel','pixel-lab',{
   en:{title:'Sprite Palette Swap — Recolour Ramps and Team Colours',description:'Recolour pixel-art sprites by mapping whole shading ramps, not single colours: team colour variants, hue-range replace and status tints (frozen, poison) that keep every shading step. No upload.',lead:'Every recolour here is a palette transform: pixels keep their palette index, so two frames that shared a colour still share it and the darkest shade stays the darkest.',
    what:['Ramp swap: selected source colours map onto a target ramp by position in lightness, never by nearest colour.','Auto ramp from one base colour, keeping the source ramp\'s lightness steps.','Team colour batch: N variants (red, blue, green … or any #RRGGBB) exported as one ZIP with a folder and a .gpl per variant.','Hue-range replace and status presets (frozen, poison, burn, ghost, damage flash), labelled as recipes.'],
@@ -121,7 +121,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['ランプ置き換え：選んだ元の色を、最も近い色ではなく明度順の位置で目標ランプに対応。','基準色1つから自動でランプを作成し、元のランプの明度段階を保持。','チームカラー一括：N個の色違い（赤・青・緑…任意の#RRGGBB）を、色違いごとのフォルダーと.gpl入りのZIP1つで書き出し。','色相範囲の置き換えと状態プリセット（凍結・毒・炎上・ゴースト・被弾フラッシュ）。プリセットはレシピとして表示。'],
    steps:['フレームをドロップ。','パレットで変えたいランプの色を選ぶ。','ランプ・基準色・色相範囲・状態プリセットを選んでプレビュー。','適用するか、チームの色違いを書き出し。'],
    faq:[['フレーム間の陰影は一貫しますか？','はい。ピクセルではなくパレットを変えるので、全フレームで同じ陰影に同じ番号が使われます。テストでは4つの色違いが選んだ3枠だけを変え、残り13枠はバイト一致でした。'],['許容範囲つきの単色置き換えもありますか？','はい。別のパレットスワップツールが、許容範囲と陰影オフセットで単色を置き換えます。']]}
- },{related:['pixel-lab','palette-extractor','pixel-art-cleanup','game/lospec-palette']}),
+ },{related:['pixel-lab','palette-extractor','pixel-art-cleanup','game/lospec-palette','game/pixel-art-palette-editor']}),
  'pixel-art-cleanup':page('pixel','pixel-lab',{
   en:{title:'Pixel Art Cleanup — Remove Anti-Aliasing and Stray Pixels',description:'Clean pixel art: snap anti-aliased edge pixels to the palette without moving the silhouette, and find stray pixels, tiny clusters, single-pixel holes and outline gaps before fixing them.',lead:'Everything is reported as candidates first — highlighted on the image and counted — and changed only when you tick it. The anti-alias remover snaps each in-between pixel to one of the two palette colours it sits between.',
    what:['Anti-alias remover: a pixel between two palette colours snaps to the nearer end of that pair; decisions read the original pixels, so scan order cannot change the result.','Stray pixels, tiny clusters (size adjustable) and single-pixel holes from one component scan.','Outline checks: gaps, doubled runs and thickness on straight edges; the auto-fix only closes gaps.','Alpha is untouched unless you set a cut-off, and then only rounded to 0 or 255.'],
@@ -135,7 +135,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['アンチエイリアス除去：2つのパレット色の間のピクセルを、その組の近い方に合わせます。元のピクセルで判定するので走査順で結果は変わりません。','はみ出しピクセル、小さな塊（サイズ調整可）、1ピクセルの穴を1回の連結成分走査で検出。','輪郭チェック：直線の縁のすき間・二重・太さ。自動修正はすき間を埋めるだけ。','アルファはしきい値を設定しない限り変えず、設定しても0か255に丸めるだけ。'],
    steps:['フレームをドロップ。','候補の件数を読み、表示されたピクセルを確認。','必要な修正（アンチエイリアス・はみ出し・塊・穴・輪郭のすき間）にチェック。','整理したフレームを書き出し。'],
    faq:[['スプライトの輪郭は動きますか？','いいえ。テストのフレームでアンチエイリアス除去が271色をパレットの16色に減らす間、アルファのピクセルは0個しか変わりませんでした。'],['ディザーのかかった絵にも使えますか？','ディザーのパターンは1ピクセルでできているので件数に含まれます。整理の前にディザーを「なし」にしてください。']]}
- },{related:['game/fix-ai-pixel-art','pixel-perfect-checker','pixel-lab','palette-extractor']}),
+ },{related:['game/fix-ai-pixel-art','pixel-perfect-checker','pixel-lab','palette-extractor','game/pixel-art-downscaler']}),
  'pixel-perfect-checker':page('pixel','pixel-lab',{
   en:{title:'Pixel Perfect Checker — Detect Scale, Blur and Off-Grid Pixels',description:'Check whether pixel art is pixel perfect: detect its integer scale and grid offset exactly, estimate non-integer scaling, count blurred edge pixels, and recover the 1× source when a clean grid exists.',lead:'Is this sprite really 3× nearest, or 2.5× bilinear? The checker finds the columns and rows where colour changes and proves the block size from them — no sampling, no guess.',
    what:['Exact integer scale and offset from where colour changes happen (finds off-grid crops too).','Non-integer scale estimated from the shortest runs only (a 2.5× nearest resize reads 2.500×).','Blur detection: counts edge pixels whose colour lies between two neighbours, plus soft-alpha pixels.','Recover the 1× source (only when an exact grid is proven), integer scaler 1×–8×, colour budget and silhouette check.'],
@@ -149,7 +149,7 @@ export const GAME_LAB_PAGES=Object.freeze({
    what:['色が変わる位置から正確な整数倍率とオフセットを検出（グリッドのずれた切り抜きも検出）。','最も短い連続区間だけから非整数倍率を推定（2.5倍ニアレスト拡大は2.500倍と判定）。','ぼけ検出：2つの隣接色の中間色を持つ縁のピクセルと半透明ピクセルを数えます。','正確なグリッドが証明されたときだけ1倍の元画像を復元、1×〜8×の整数拡大、色数予算・シルエットのチェック。'],
    steps:['画像をドロップ。','レポートで倍率・オフセット・ぼけた縁を確認。','正確なグリッドがあれば1倍を復元、なければ整数倍で拡大。','書き出し。'],
    faq:[['「確信なし」と出るのはなぜ？','単色の画像や一方向にしか変化しない画像には測るグリッドがありません。推測せずにそう伝えます。'],['ぼけた（バイリニア）拡大を直せますか？','測定はします。テストのスプライトでは縁のピクセル1243個（86.3%）が中間色でした。ただし正確な復元は、きれいなブロックグリッドがあるときだけです。']]}
- },{related:['game/pixel-art-upscaler','game/fix-ai-pixel-art','pixel-art-cleanup','pixel-lab']}),
+ },{related:['game/pixel-art-upscaler','game/fix-ai-pixel-art','pixel-art-cleanup','pixel-lab','game/pixel-art-downscaler']}),
  'texture-lab':page('texture','texture-lab',{
   en:{title:'PBR Texture Checker — Validate a Material Set in the Browser',description:'Check a PBR texture set before import: map roles from filenames, missing maps per workflow, size mismatches, packed maps, normal-map validity and colour-space guidance, with a JSON report.',lead:'Drop a material\'s maps and the Texture Lab sorts them into roles, checks the set against the chosen workflow and reports every issue with the file and the number behind it.',
    what:['Roles from filenames (albedo, normal, roughness, metallic, AO, height, emission, ORM …); every role is a drop-down you can change.','Checks: dimension mismatch, missing maps, duplicate roles, non-power-of-two, unexpected alpha, grey maps stored as RGB, packed maps.','Normal maps validated by measurement: unit length and non-negative blue.','Stages for channels, normals, packing, fixing (edge bleed, mipmap preview, power-of-two) and batch export.'],

@@ -32,6 +32,10 @@ TORCH = FX / 'game' / 'corpus' / 'torch'
 TEX = FX / 'texture'
 A2 = FX / 'tile' / 'coolschool-A2.png'
 FAMILY_SHOTS = {'sprite-gif', 'sprite-aseprite', 'sprite-atlas', 'texture-lit', 'texture-check', 'tile-missing', 'tile-generator', 'tile-collision', 'pack-formats'}
+# Shots of the Pixel workspace pages (src/game-seo-pixel.js), from the committed CC0 fixtures in
+# tests/fixtures/pixel (GrafxKid "Classic Hero", DezrasDragons ninja, batterypuck's generated image; LICENSE.md there).
+PX = FX / 'pixel'
+PIXEL_SHOTS = {'pixel-edit', 'pixel-anim', 'pixel-palette', 'pixel-cleanup', 'pixel-generated', 'pixel-outline'}
 
 
 def want(*names):
@@ -145,6 +149,88 @@ def tile_ready(p, sheet, verdict='[data-verdict="complete"]'):
     p.wait_for_selector(verdict, timeout=30000)
 
 
+def pxjs(p, body, arg=None):
+    return p.evaluate('async(arg)=>{const S=window.nerulioStudio,W=window.__pixel;' + body + '}', arg)
+
+
+def px_import(p, names):
+    n = js(p, 'return S.doc.assets.length;')
+    p.set_input_files('input[type=file][multiple]:not([webkitdirectory])', [str(PX / x) for x in names])
+    p.wait_for_function('n=>window.nerulioStudio.doc.assets.length>n', arg=n, timeout=30000); p.wait_for_timeout(600)
+
+
+def px_zoom(p, z):
+    pxjs(p, 'S.view.zoomTo(arg);S.view.reveal({x:0,y:0,w:W.session.rect.w,h:W.session.rect.h});', z); p.wait_for_timeout(250)
+
+
+def px_drag(p, pts):
+    s = [canvas_at(p, x + .5, y + .5) for x, y in pts]
+    p.mouse.move(s[0]['x'], s[0]['y']); p.mouse.down()
+    for q in s[1:]:
+        p.mouse.move(q['x'], q['y'], steps=4)
+    p.mouse.up(); p.wait_for_timeout(250)
+
+
+def px_clean_wait(p, states):
+    p.wait_for_function('s=>s.includes(document.querySelector("[data-px=cleanup]").dataset.state)', arg=states, timeout=90000); p.wait_for_timeout(300)
+
+
+def pixel_shots(browser):
+    # Pixel: GrafxKid's hero, a shading layer set to Multiply, the pencil active.
+    if want('pixel-edit'):
+        p = fresh(browser, 'pixel'); px_import(p, ['old_hero.png']); px_zoom(p, 12)
+        p.keyboard.press('Shift+n'); p.wait_for_timeout(300)
+        pxjs(p, "W.setColor('fg',[120,110,190,255])"); p.keyboard.press('b')
+        px_drag(p, [(20, 30), (21, 31), (22, 32), (23, 33), (24, 34), (25, 35)])
+        px_drag(p, [(38, 28), (38, 34), (40, 36)])
+        p.select_option('[data-px="layer-blend"]', 'multiply'); p.wait_for_timeout(300)
+        p.keyboard.press('b'); quiet(p)
+        save(p.screenshot(), 'pixel-edit'); p.context.close()
+    # Pixel: the six ninja run frames, frame 3 current, onion skin on.
+    if want('pixel-anim'):
+        p = fresh(browser, 'pixel'); px_import(p, [f'ninja_run_{i}.png' for i in range(6)])
+        pxjs(p, 'W.setCurrent(2,{select:true});'); p.wait_for_timeout(300); px_zoom(p, 14)
+        p.keyboard.press('F3'); p.wait_for_timeout(400); p.keyboard.press('b'); quiet(p)
+        save(p.screenshot(), 'pixel-anim'); p.context.close()
+    # Pixel: the ninja frames converted to indexed colour (exact colours), palette and audit visible.
+    if want('pixel-palette'):
+        p = fresh(browser, 'pixel'); px_import(p, [f'ninja_run_{i}.png' for i in range(6)])
+        js(p, "S.runCommand('pixel.colorMode')"); p.wait_for_selector('dialog [data-px="mode-palette"]')
+        p.click('dialog .st-btn.primary'); p.wait_for_timeout(1200); px_zoom(p, 14)
+        # Palette and audit side by side: fold the panels above them (a per-page view preference).
+        for name in ['Colour', 'Assets', 'Layers', 'Cleanup']:
+            t = p.locator('.st-panel-toggle', has_text=name).first
+            if t.count() and t.get_attribute('aria-expanded') == 'true':
+                t.click(); p.wait_for_timeout(150)
+        js(p, "S.runCommand('pixel.audit')"); p.wait_for_timeout(900)
+        p.evaluate('()=>document.querySelectorAll(".st-dock-right, .st-dock-right *").forEach(e=>{if(e.scrollTop)e.scrollTop=0})'); p.wait_for_timeout(200)
+        quiet(p)
+        save(p.screenshot(), 'pixel-palette'); p.context.close()
+    # Cleanup: Old Hero resized x4.25 bilinear, measured, background kept, previewed before Apply.
+    if want('pixel-cleanup'):
+        p = fresh(browser, 'pixel'); px_import(p, ['old_hero__bilinear_x4.25.png'])
+        p.click('[data-px="clean-measure"]'); px_clean_wait(p, ['measured', 'error'])
+        if p.locator('.px-clean-opts').get_attribute('open') is None:
+            p.click('.px-clean-opts summary')
+        p.select_option('[data-px="clean-background"]', 'keep'); p.wait_for_timeout(100)
+        p.click('[data-px="clean-preview"]'); px_clean_wait(p, ['done', 'error']); quiet(p)
+        save(p.screenshot(), 'pixel-cleanup'); p.context.close()
+    # Cleanup: an image made by an image generator (CC0), measured and judged unsure.
+    if want('pixel-generated'):
+        p = fresh(browser, 'pixel'); px_import(p, ['gosoythoth_frame0.png'])
+        p.click('[data-px="clean-measure"]'); px_clean_wait(p, ['measured', 'error']); quiet(p)
+        save(p.screenshot(), 'pixel-generated'); p.context.close()
+    # Outline and drop shadow: Canvas size +1, Outline (foreground), Drop shadow (background).
+    if want('pixel-outline'):
+        p = fresh(browser, 'pixel'); px_import(p, ['ninja_run_0.png'])
+        p.keyboard.press('Control+Alt+c'); p.wait_for_selector('dialog.px-canvas'); p.click('dialog .st-btn.primary'); p.wait_for_timeout(700)
+        pxjs(p, "W.setColor('fg',[255,236,39,255]);W.setColor('bg',[29,43,83,255]);")
+        js(p, "S.runCommand('pixel.outline')"); p.wait_for_timeout(500)
+        js(p, "S.runCommand('pixel.shadow')"); p.wait_for_timeout(500)
+        px_zoom(p, 16); quiet(p)
+        save(p.screenshot(), 'pixel-outline'); p.context.close()
+
+
 def family_shots(browser):
     # Sprite: an animated GIF imported as frames with its own delays on the timeline, onion skin on.
     if want('sprite-gif'):
@@ -239,6 +325,8 @@ with sync_playwright() as pw:
     browser = pw.chromium.launch()
     if want(*FAMILY_SHOTS):
         family_shots(browser)
+    if want(*PIXEL_SHOTS):
+        pixel_shots(browser)
     if want(*STUDIO_SHOTS):
         ctx = browser.new_context(viewport={'width': 1440, 'height': 900}, device_scale_factor=1)
         # ---------------------------------------------------------------- Sprite: the sheet and its proposed cut
