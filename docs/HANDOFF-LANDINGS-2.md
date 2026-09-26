@@ -75,5 +75,6 @@ here; it passed 2/2 standalone and in the next full run.
   a later run measured "sideways and clipped" — the new pages say "drawn wrongly, not turned back".
 - The older 64 pages' copy is still in the browser module graph (~390 KB); it could move to Node-only
   loading like the families.
-- Demand we could not serve yet (docs/SEO-KEYWORDS.md §6): pixel art editor, video → sprite sheet,
+- Demand we could not serve yet (docs/SEO-KEYWORDS.md §6): video → sprite sheet,
   VRChat sheets, CJK bitmap fonts (UI Lab bugs), Unity tile collision.
+  (The pixel editor demand is served since 2026-09-26: docs/HANDOFF-LANDINGS-PIXEL.md.)
