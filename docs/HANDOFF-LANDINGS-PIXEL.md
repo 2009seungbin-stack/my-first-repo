@@ -62,14 +62,20 @@ sprite-animation-preview) / ja 0.354 (limits 0.46/0.55/0.49). No "AI" wording on
 
 ## Verification
 
-See the final section of the branch report; results at the time of writing are in the table below.
-
 | Check | Result |
 |---|---|
 | `npm test` | 2234 pass / 0 fail / 1 skip |
 | `npm run check` | OK |
-| `tests/game-landing-browser.py` parts 1, 3, 6 (Chromium, dev server) | 46/46 distinct checks |
-| part 6 in Firefox | 25/25 (all Pixel checks pass) |
+| `NERULIO_CORPUS='C:\nope' python tools/regression.py` | FULL HTTP REGRESSION PASSED (18 suites): game-landing 227 check runs / 129 distinct (Chromium + Firefox, 0 page errors), design 347 (forced wide font at 390 px on 331 game pages + home + hub), studio-pixel 76, seo 526 |
+| `SERVICE_PORT=4493 python tests/service-browser.py` | 119/119 |
+| `python tools/validate-sitemaps.py dist` | ALL PASS, 472 page URLs (sitemap-game.xml 331 = 313 + 18) |
+
+Two earlier full runs failed and were fixed or re-run: (1) design-browser caught a 390 px overflow
+with a forced wide font from the long "Godot 4 · Unity 6 · Phaser · PixiJS" badge on the Pixel pages —
+renamed "Engine bundles" (commit 9075201); (2) the known flaky Texture timing check ("a detection still
+running for the previous picture…", also noted in HANDOFF-LANDINGS-2) failed once; it passed 2/2
+standalone and in the third full run. Note: `tools/regression.py` crashes while printing a failure log
+on a cp949 console; run it with `PYTHONIOENCODING=utf-8`.
 
 ## Open / next
 
