@@ -139,6 +139,7 @@ def run_mode(browser,mode,index):
                 res=page.goto(base+f'/{locale}/{policy}/',wait_until='networkidle')
                 ok(mode+' policy '+locale+'/'+policy,res.status==200 and page.locator('html').get_attribute('lang')==locale and page.locator('h1').count()==1)
                 ok(mode+' policy no editor '+locale+'/'+policy,page.locator('#workspace').count()==0)
+                ok(mode+' policy brand '+locale+'/'+policy,page.title().endswith(' · Nerulio') and page.locator('meta[property="og:title"]').get_attribute('content')==page.title())
         page.goto(base+'/privacy/',wait_until='networkidle');page.locator('.policy-languages a[lang=ko]').click()
         ok(mode+' policy language switches',page.locator('html').get_attribute('lang')=='ko' and '/ko/privacy/' in page.url)
         res=page.goto(base+'/this-page-does-not-exist/',wait_until='networkidle');ok(mode+' real 404',res.status==404 and '404' in page.locator('h1').inner_text())

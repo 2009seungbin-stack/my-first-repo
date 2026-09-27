@@ -19,6 +19,8 @@ for port in [4173,4174]:
 run('syntax',['node','tools/check.mjs'])
 run('node',['node','--test',*[str(p.relative_to(ROOT)) for p in sorted((ROOT/'tests').glob('*.test.mjs'))]])
 run('build',['node','tools/build.mjs'])
+run('seo-audit-test',[sys.executable,'tests/seo-audit-test.py'])
+run('seo-audit',[sys.executable,'tools/audit-seo.py'])
 servers=[];logs=[]
 try:
     for port,mount in [(4173,''),(4174,'/my-first-repo')]:
