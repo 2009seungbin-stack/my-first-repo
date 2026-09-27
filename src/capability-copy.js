@@ -1,7 +1,18 @@
 // Visible capability copy is shared by static guides and the running app.
-import {CAPABILITIES} from './capabilities.js';
 const choose=(locale,values)=>values[{en:0,ko:1,ja:2}[locale]??0];
-export function capabilityGuide(id,locale){const c=CAPABILITIES[id];let key;
+// Task-specific instructions are shared by the static page and the running tool.
+const STEPS={
+ image:['Open an image and keep the original|Apply crop, rotation or resize and review the preview|Choose PNG, JPG or WebP, export and inspect the saved image','이미지를 열고 원본 보관|자르기·회전·크기 변경을 적용하고 미리보기 확인|PNG·JPG·WebP를 골라 저장하고 결과 확인','画像を開いて元画像を保管|切り抜き・回転・サイズ変更を適用して確認|PNG・JPG・WebPを選び保存した画像を確認'],
+ 'pdf-merge':['Add the PDF files you want to combine|Arrange the pages and remove unwanted ones|Export one PDF and check the page order','합칠 PDF 파일 추가|페이지 순서를 정하고 필요 없는 페이지 제외|하나의 PDF로 저장한 뒤 페이지 순서 확인','結合するPDFを追加|ページを並べ替え不要なページを除外|1つのPDFに保存してページ順を確認'],
+ 'pdf-split':['Open the source PDF|Choose page ranges or a split grouping|Export and check the pages in each result','원본 PDF 열기|페이지 범위 또는 분할 그룹 선택|저장 후 각 결과의 페이지 확인','元のPDFを開く|ページ範囲または分割グループを選択|保存して各結果のページを確認'],
+ 'pdf-compress':['Open a PDF and keep a backup|Choose preserve mode or raster mode, which removes searchable text|Compare the measured size and inspect text and images','PDF를 열고 원본 보관|보존 모드 또는 글자 검색이 사라지는 이미지 모드 선택|실제 용량을 비교하고 글자·이미지 확인','PDFを開き元ファイルを保管|保持モード、または検索文字を失う画像化モードを選択|実際の容量を比較し文字・画像を確認'],
+ 'jpg-to-pdf':['Add JPG, PNG or WebP images|Arrange the page order and review the layout|Export a PDF and check the first and last pages','JPG·PNG·WebP 이미지 추가|페이지 순서와 배치 확인|PDF로 저장하고 첫 페이지와 마지막 페이지 확인','JPG・PNG・WebPを追加|ページ順と配置を確認|PDFに保存し最初と最後のページを確認'],
+ 'pdf-to-jpg':['Open a PDF and select the pages|Choose JPG or PNG and the output size|Export the images and check small text at full size','PDF를 열고 페이지 선택|JPG·PNG 형식과 출력 크기 선택|이미지를 저장하고 실제 크기에서 작은 글자 확인','PDFを開きページを選択|JPG・PNG形式と出力サイズを選択|保存した画像を等倍で見て小さい文字を確認'],
+ 'video-mp3':['Open a supported video or audio file|Choose the time range, MP3 or WAV, and audio settings|Export and listen to the beginning and end of the result','지원되는 영상·오디오 파일 열기|시간 범위와 MP3·WAV 형식, 오디오 설정 선택|저장한 결과의 처음과 끝을 재생해 확인','対応する動画・音声を開く|時間範囲、MP3・WAV形式、音声設定を選択|保存した結果の最初と最後を再生して確認'],
+ 'video-frame':['Open a video and seek to a frame|Pause and inspect the selected scene|Export a still image and check its dimensions','영상을 열고 원하는 프레임으로 이동|일시 정지하고 선택한 장면 확인|정지 이미지를 저장한 뒤 크기 확인','動画を開いて目的のフレームへ移動|一時停止して場面を確認|静止画を保存し画像サイズを確認'],
+ 'video-gif':['Open a video and select a short range|Set width, frame rate and palette size|Export a GIF and check motion, colors and file size','영상을 열고 짧은 구간 선택|너비·프레임 수·색상 수 설정|GIF로 저장하고 움직임·색상·용량 확인','動画を開き短い区間を選択|幅・フレームレート・色数を設定|GIFを保存し動き・色・容量を確認']
+};
+export function capabilityGuide(id,locale){let key;
  if(['media','video-trim','video-compress','video-mp3','video-gif','video-frame'].includes(id))key='media';
  else if(id.startsWith('pdf')||id==='jpg-to-pdf')key='pdf';
  else if(['image','resize','upscale','remove-bg','compress'].includes(id))key=id;
@@ -31,5 +42,5 @@ export function capabilityGuide(id,locale){const c=CAPABILITIES[id];let key;
  'video-gif':['Decode one frame at a time; choose GIF width, FPS, palette size and dithering.','프레임을 하나씩 읽고 GIF 너비·FPS·색상 수·디더링을 선택합니다.','1フレームずつ読み、GIFの幅・FPS・色数・ディザを選択します。'],
  'video-frame':['Export the decoded frame at source resolution; preview size does not constrain output.','미리보기 크기와 별개로 디코딩한 장면을 원본 해상도로 저장합니다.','プレビューサイズとは別に、デコードしたフレームを元解像度で保存します。']
  }[id];
- return [common[0],choose(locale,focus||feature),limit,common[1],common[2]+' '+c.maturity];
+ return [STEPS[id]?choose(locale,STEPS[id]):common[0],choose(locale,focus||feature),limit,common[1],common[2]];
 }
