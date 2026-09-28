@@ -77,16 +77,17 @@ function biquad(type,sr){
  return [b0/a0,b1/a0,b2/a0,a1/a0,a2/a0];
 }
 export function loudness(channels,sampleRate){
- validateAudio(channels,sampleRate);const n=channels[0].length,block=Math.round(sampleRate*.4),hop=Math.round(sampleRate*.1);if(n<block)return {integrated:null,reason:'too-short',samplePeak:null};
+ validateAudio(channels,sampleRate);const n=channels[0].length,block=Math.round(sampleRate*.4),hop=Math.round(sampleRate*.1);if(n<block){let peak=0;for(const c of channels)for(const v of c)peak=Math.max(peak,Math.abs(v));return {integrated:null,momentary:null,shortTerm:null,reason:'too-short',samplePeak:peak?db(peak):null};}
  // Keep only one 400 ms ring of filtered energy, not a Float64 copy of the
  // entire 3-minute decoded file. This also preserves bounded Worker memory.
- const states=channels.map(()=>({s1:0,s2:0,h1:0,h2:0})),shelf=biquad('shelf',sampleRate),high=biquad('high',sampleRate),ring=new Float64Array(block),blocks=[];let sum=0,samplePeak=0;
+ const states=channels.map(()=>({s1:0,s2:0,h1:0,h2:0})),shelf=biquad('shelf',sampleRate),high=biquad('high',sampleRate),ring=new Float64Array(block),longBlock=Math.round(sampleRate*3),longRing=new Float64Array(longBlock),blocks=[];let sum=0,longSum=0,samplePeak=0;
  for(let i=0;i<n;i++){let energy=0;for(let c=0;c<channels.length;c++){const x=channels[c][i],state=states[c];samplePeak=Math.max(samplePeak,Math.abs(x));const y=shelf[0]*x+state.s1;state.s1=shelf[1]*x-shelf[3]*y+state.s2;state.s2=shelf[2]*x-shelf[4]*y;const z=high[0]*y+state.h1;state.h1=high[1]*y-high[3]*z+state.h2;state.h2=high[2]*y-high[4]*z;energy+=z*z;}
-  const idx=i%block;sum+=energy-ring[idx];ring[idx]=energy;if(i+1>=block&&(i+1-block)%hop===0)blocks.push(sum/block);
+  const idx=i%block;sum+=energy-ring[idx];ring[idx]=energy;const longIdx=i%longBlock;longSum+=energy-longRing[longIdx];longRing[longIdx]=energy;if(i+1>=block&&(i+1-block)%hop===0)blocks.push(sum/block);
  }
- const loud=e=>-.691+10*Math.log10(Math.max(1e-20,e));const above=blocks.filter(e=>loud(e)>-70);if(!above.length)return {integrated:null,reason:'silent',samplePeak:0};
+ const loud=e=>-.691+10*Math.log10(Math.max(1e-20,e)),momentary=loud(sum/block),shortTerm=n>=longBlock?loud(longSum/longBlock):null;
+ const above=blocks.filter(e=>loud(e)>-70);if(!above.length)return {integrated:null,momentary:null,shortTerm:null,reason:'silent',samplePeak:0};
  const mean=above.reduce((a,b)=>a+b,0)/above.length,gate=loud(mean)-10,selected=above.filter(e=>loud(e)>gate),average=selected.reduce((a,b)=>a+b,0)/selected.length;
- return {integrated:loud(average),samplePeak:db(samplePeak),gatedBlocks:selected.length,totalBlocks:blocks.length};
+ return {integrated:loud(average),momentary:momentary>-70?momentary:null,shortTerm:shortTerm!==null&&shortTerm>-70?shortTerm:null,samplePeak:db(samplePeak),gatedBlocks:selected.length,totalBlocks:blocks.length};
 }
 export function normalize(channels,sampleRate,{targetLufs=-23,ceilingDb=-1}={}){
  if(!Number.isFinite(targetLufs)||targetLufs<-35||targetLufs>-8||!Number.isFinite(ceilingDb)||ceilingDb>0||ceilingDb<-6)throw Error('loudness target');

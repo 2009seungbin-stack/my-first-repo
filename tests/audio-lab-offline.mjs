@@ -20,6 +20,7 @@ const folder=mkdtempSync(join(tmpdir(),'nerulio-audio-lab-'));
 try{
  for(const format of ['wav','ogg']){
   const bytes=format==='wav'?encodeWav(edited,rate):await encodeCompressed(edited,rate,'ogg'),path=join(folder,`kenney-edited.${format}`);writeFileSync(path,bytes);
+  if(process.env.AUDIO_LAB_QA_OUT)writeFileSync(join(process.env.AUDIO_LAB_QA_OUT,`kenney-edited.${format}`),bytes);
   const reopened=probe(path),track=reopened.streams.find(x=>x.codec_type==='audio');assert.equal(track.codec_name,format==='wav'?'pcm_s16le':'vorbis');
   assert.ok(Math.abs(Number(reopened.format.duration)-6)<.02,`${format} duration`);
   execFileSync('ffmpeg',['-v','error','-i',path,'-f','null',process.platform==='win32'?'NUL':'/dev/null']);
