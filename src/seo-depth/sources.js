@@ -11,6 +11,7 @@ export const SOURCE_HOSTS=new Set([
  'datatracker.ietf.org',
  'defold.com',
  'developer.apple.com',
+ 'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
  'developers.google.com',
  'doc.mapeditor.org',
@@ -20,6 +21,7 @@ export const SOURCE_HOSTS=new Set([
  'docs.substance3d.com',
  'docs.unity.com',
  'docs.unity3d.com',
+ 'ezgif.com', // ezgif's own tool pages (formats, limits, retention), for game/ezgif-sprite-cutter-alternative
  'en.esotericsoftware.com',
  'esotericsoftware.com',
  'ffmpeg.org',
@@ -42,7 +44,12 @@ export const SOURCE_HOSTS=new Set([
  'pixijs.com',
  'pixijs.download',
  'registry.khronos.org',
+ 'rpgmakerofficial.com', // RPG Maker MZ official help (Gotcha Gotcha Games): Asset Standards
+
  'spec.lottiefiles.com',
+ 'tech.ebu.ch', // EBU R 95, the broadcast safe-area recommendation (ui group)
+ 'www.angelcode.com', // BMFont, the owner of the .fnt format (ui group)
+ 'www.gnu.org', // GNU gettext manual, the owner of the .po format (ui group)
  'support.apple.com',
  'support.discord.com',
  'support.google.com',
@@ -65,5 +72,6 @@ export const SOURCE_HOSTS=new Set([
  'www.pdfa.org',
  'www.rfc-editor.org',
  'www.rpgmakerweb.com',
+ 'www.spritefusion.com', // Sprite Fusion's own documentation (compared on game/sprite-fusion-alternative)
  'www.w3.org',
 ]);
