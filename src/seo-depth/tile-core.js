@@ -305,5 +305,132 @@ export default {
    versions:{body:['Nerulioの検証（docs/STUDIO-TILE.md、2026-09-23）：Godotルールはコーパスの全マップの塗ったすべてのセルでGodot 4.7.2.stable.officialと一致し、不完全なセットや複数地形のセットでエンジンが選んだ結果は単体テストが再生します。Tiled 1.12.2はWang IDを書いたとおりに読み、`sample.tmx`をピクセル単位で同じに描画しました。Unity 6000.5.3f1はStudioの予測どおりのセルにDefault Spriteを描きました。エンジンのエディターでの動作はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.godotLayer,S.ja.godotTilemaps,S.ja.tiledTerrain,S.ja.unityRule]}
   }
  },
+ 'game/tileset-slicer':{
+  type:'tool',
+  intent:{primary:'find a tileset image\'s tile size, margin and spacing and cut it into a correct grid',secondary:['tileset with 1 px spacing','how many columns and rows','Kenney tileset tile size','why tiles drift when slicing'],
+   goal:'the exact grid (tile size, margin, spacing, columns × rows) so every tile is cut on its own pixels, carried into the engine tileset',input:'PNG tileset (with or without gaps between tiles)',output:'the grid applied in the Studio and exported with the tileset (Godot 4, Tiled, Unity, LDtk); per-tile PNGs from the classic tile grid slicer',target:'any engine that takes tile size + margin + spacing',support:'full',
+   evidence:['src/game/tile-grid.js (tileRects: floor((len - margin + spacing) / (tile + spacing)); detectGrid)','src/studio/workspaces/tile/tile-worker.js (detection up to 16 MP, layout-fit sizes)','docs/TILE-LAB.md §1 grid detection, §2 slicer','detectGrid run on the Kenney Tiny Dungeon and Pixel Platformer corpus files, 2026-09-28','docs/TILE-LAB.md (Godot 4.7.2: margin 1 / spacing 2 reached TileSetAtlasSource)'],
+   external:['Godot 4.7 Using TileSets: Margins, Separation, Texture Region Size','Tiled: tileset margin and spacing','Sprite Fusion: tileset size must be a multiple of the tile size']},
+  en:{
+   answer:'To cut a tileset you need three numbers per axis: the tile size, the margin (pixels before the first tile) and the spacing (pixels between tiles). The count is columns = floor((width − margin + spacing) ÷ (tile + spacing)), and the same for rows: Kenney Tiny Dungeon\'s 203 × 186 px sheet with 16 px tiles and 1 px spacing gives 12 × 11 = 132 tiles. The Studio measures these numbers from the pixels, shows the best grid dashed until you press Use this grid, and carries it into the Godot 4, Tiled, Unity and LDtk exports; a ZIP of single tile PNGs comes from the [[tile-grid-slicer|classic tile grid slicer]].',
+   concept:{title:'The grid model, the formula, and how the numbers are measured',body:[
+    'Every tile has the same size. The margin is skipped once before the first column (and row), the spacing sits between two neighbouring tiles, and nothing is assumed after the last tile. Tile (c, r) therefore starts at x = margin + c × (tile + spacing), y = margin + r × (tile + spacing). Godot names the same numbers Texture Region Size, Margins and Separation; Tiled names them tile size, Margin and Spacing.',
+    'n tiles need margin + n × tile + (n − 1) × spacing pixels, so the most that fit is floor((W − margin + spacing) ÷ (tile + spacing)). With the same margin on both sides the textbook form (W − 2 × margin + spacing) ÷ (tile + spacing) comes out exact; Nerulio\'s floor gives the same count whenever the leftover strip on the right is narrower than one tile plus spacing, which is also why a sheet with a few spare pixels still slices cleanly.',
+    'The detector reads the image one line at a time: how much each row and column differs from the previous one. It folds that profile at every period from 4 px to half the image and keeps the periods that explain the most of its variation, then checks the phase, and demands that every line a margin or spacing claims is really blank or flat. When the first or last line of every tile is blank, "16 px + 1 px spacing" beats "17 px tiles"; a multiple of the true size loses when a divisor scores within 0.02 of it. The Studio also tries the sizes at which a published autotile layout fits exactly.',
+    'It is weakest where a sheet gives no separators: packed tiles whose interiors are busier than their borders. It cannot measure one tile per axis, and the Studio measures images up to 16 megapixels; above that, type the size.'],
+    terms:[['Tile size','Width and height of one tile in pixels (Godot: Texture Region Size).'],['Margin','Pixels before the first tile, at the left and top edge.'],['Spacing','Pixels between two neighbouring tiles (Godot: Separation). Often 1 px, sometimes extruded border pixels.'],['Packed sheet','Tiles edge to edge, no spacing: the easiest for other editors, the hardest to measure.']]},
+   example:{title:'Example: two Kenney sheets from the test corpus',lead:'Measured with Nerulio\'s grid detector on the CC0 files (2026-09-28):',lines:[
+    'Kenney Tiny Dungeon   tilemap.png          203 × 186 px   16 px tiles, 1 px spacing, margin 0',
+    'columns = floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    'rows    = floor((186 − 0 + 1) / (16 + 1)) = floor(187 / 17) = 11          → 132 tiles',
+    'tile 13 = column 1, row 1  → x = 0 + 1 × 17 = 17, y = 17, size 16 × 16',
+    'detected: 16 × 16, spacing 1, 12 × 11, score 0.976 (high)',
+    '',
+    'tilemap_packed.png    192 × 176 px   same tiles, no spacing → 192 / 16 = 12, 176 / 16 = 11',
+    'detected: 16 × 16, 12 × 11, but score 0.514 (low): no blank line between tiles',
+    '',
+    'Kenney Pixel Platformer  tilemap.png  379 × 170 px → (379 + 1) / (18 + 1) = 20, (170 + 1) / 19 = 9',
+    'its tiles are 18 px, not 16: detected 18 × 18, spacing 1, 20 × 9, score 0.946 (high)'],
+    after:'The same art scores 0.976 with gaps and 0.514 without them: blank separator lines are the strongest evidence a sheet can give. On a packed sheet, look at the dashed grid before you press Use this grid, or type the size you know.'},
+   verify:{title:'Check the grid before you use it',steps:[
+    'The dashed lines sit in the gaps all the way to the last column and the last row. If they are right on the left and wrong on the right, the tile size or spacing is off.',
+    'Columns × rows match what you expect (12 × 11 = 132 for Tiny Dungeon), and the tiles counted as blank are really empty.',
+    'After export, Godot\'s atlas shows the same Texture Region Size, Margins and Separation; Nerulio\'s Godot export with margin 1 and spacing 2 reached `TileSetAtlasSource` unchanged in Godot 4.7.2.',
+    'For single tile PNGs, the classic slicer\'s tiles are copied region by region, never resampled: each one equals its source rectangle byte for byte.']},
+   trouble:{rows:[
+    ['Tiles drift further off with every column','Wrong tile size: Pixel Platformer\'s 18 px tiles read as 16 px + 1 px put tile c at 17 × c instead of 19 × c, 2 px more off per column','The grid fits the first column and misses the tenth by 18 px','Take the candidate with 18 px, or type tile 18, spacing 1'],
+    ['Every tile is cut 1 px too far up and left','A border was not declared as margin','The first row and column of the image are blank or one flat colour','Set margin 1; the count formula subtracts it once'],
+    ['A partial column or row is left at the right or bottom','The tile size does not divide the sheet; the floor drops anything narrower than one tile plus spacing','Compute (W − margin + spacing) ÷ (tile + spacing): it should be a whole number or just above one','Recheck the tile size; a remainder of many pixels means the reading is wrong, not the sheet'],
+    ['The top candidate is only low or medium','A packed sheet: nothing blank between tiles, and busy tile interiors','Score and confidence next to each candidate','Confirm the dashed grid, pick another candidate, or type the size'],
+    ['No candidates at all on a huge image','The Studio measures sheets up to 16 megapixels','Image width × height','Type the tile size, margin and spacing by hand'],
+    ['Another editor refuses the sheet','Some editors take no spacing: Sprite Fusion asks that the tileset width and height be exact multiples of the tile size','Does W ÷ tile give a whole number?','Use the packed version of the sheet, or repack it without gaps']]},
+   alternatives:{rows:[
+    ['Type the numbers in the engine: Godot\'s atlas (Texture Region Size, Margins, Separation) or Tiled\'s new-tileset dialog (tile size, Margin, Spacing)','You already know the grid, for example from the asset pack\'s readme.'],
+    ['The [[tile-grid-slicer|classic tile grid slicer]]','You want every tile as its own PNG, exact and near duplicates found, rotated and flipped variants, or an [[atlas-padding|extruded atlas]] against bleeding.'],
+    ['The [[sprite-slicer|sprite slicer]]','The sheet has sprites of different sizes with no grid; tile slicing needs a regular grid.']]},
+   limits:['Regular grids only; isometric or hexagonal sheets are not modelled.','The Studio does not write one PNG per tile; that stays in the classic slicer.','A sheet with a single tile per axis has no period to measure.'],
+   versions:{body:['The formula and the rectangles are those of `tileRects` in src/game/tile-grid.js; detection was checked on 10 synthetic sheets (true grid first in 10 of 10) and the Kenney numbers above were measured on the corpus files on 2026-09-28. The Godot 4.7.2 run of 2026-09-22 read margin 1 and separation 2 back from the built TileSet. Engine field names follow the linked documentation.'],sources:[S.en.godotTilesets,S.en.tiledTilesets,S.en.sfImport]}
+  },
+  ko:{
+   answer:'타일셋을 자르려면 축마다 세 숫자가 필요합니다. 타일 크기, 여백(첫 타일 앞의 픽셀), 간격(타일 사이의 픽셀)입니다. 개수는 열 = floor((너비 − 여백 + 간격) ÷ (타일 + 간격))이고 행도 같습니다. Kenney Tiny Dungeon의 203 × 186px 시트는 16px 타일과 1px 간격으로 12 × 11 = 132장이 됩니다. Studio는 이 숫자를 픽셀에서 재고, 이 격자 사용을 누를 때까지 가장 좋은 격자를 점선으로 보여 주며, Godot 4·Tiled·유니티·LDtk 내보내기에 그대로 넘깁니다. 타일마다 PNG로 된 ZIP은 [[tile-grid-slicer|기존 타일 격자 자르기]]에서 받습니다.',
+   concept:{title:'격자 모델, 공식, 그리고 숫자를 재는 방법',body:[
+    '모든 타일은 크기가 같습니다. 여백은 첫 열(과 첫 행) 앞에서 한 번만 건너뛰고, 간격은 이웃한 두 타일 사이에 있으며, 마지막 타일 뒤에는 아무것도 가정하지 않습니다. 그래서 (c, r) 타일은 x = 여백 + c × (타일 + 간격), y = 여백 + r × (타일 + 간격)에서 시작합니다. 고도는 같은 숫자를 Texture Region Size, Margins, Separation이라 부르고, Tiled는 타일 크기, Margin, Spacing이라 부릅니다.',
+    '타일 n장에는 여백 + n × 타일 + (n − 1) × 간격 픽셀이 필요하므로, 들어가는 최대 개수는 floor((W − 여백 + 간격) ÷ (타일 + 간격))입니다. 양쪽 여백이 같으면 교과서식 (W − 2 × 여백 + 간격) ÷ (타일 + 간격)이 딱 나누어떨어집니다. Nerulio의 floor는 오른쪽에 남는 띠가 타일 하나와 간격보다 좁기만 하면 같은 개수를 주며, 여분 픽셀이 조금 있는 시트도 깔끔하게 잘리는 이유가 이것입니다.',
+    '감지기는 이미지를 한 줄씩 읽어 각 행과 열이 앞줄과 얼마나 다른지 봅니다. 그 프로필을 4px부터 이미지 절반까지의 모든 주기로 접어 변화를 가장 많이 설명하는 주기를 고르고, 위상을 확인하고, 여백이나 간격이라고 주장하는 줄이 실제로 비었거나 단색인지 따집니다. 모든 타일의 첫 줄이나 마지막 줄이 비어 있으면 "16px + 1px 간격"이 "17px 타일"을 이깁니다. 실제 크기의 배수는 약수의 점수가 0.02 이내면 집니다. Studio는 공개된 오토타일 배치가 딱 맞는 크기도 함께 시험합니다.',
+    '가장 약한 경우는 구분선이 전혀 없는 시트, 즉 타일 속이 테두리보다 복잡한 촘촘한 시트입니다. 축마다 타일이 하나뿐이면 잴 수 없고, Studio는 16메가픽셀까지의 이미지만 잽니다. 그보다 크면 크기를 직접 입력하세요.'],
+    terms:[['타일 크기','타일 한 장의 가로·세로 픽셀(고도: Texture Region Size).'],['여백','왼쪽과 위쪽 가장자리에서 첫 타일 앞에 있는 픽셀.'],['간격','이웃한 두 타일 사이의 픽셀(고도: Separation). 보통 1px, 가장자리 픽셀을 늘린 경우도 있음.'],['촘촘한 시트','간격 없이 타일을 붙인 시트. 다른 에디터에는 가장 편하지만 재기는 가장 어렵습니다.']]},
+   example:{title:'예시: 테스트 코퍼스의 Kenney 시트 두 장',lead:'CC0 파일을 Nerulio 격자 감지기로 잰 결과(2026-09-28):',lines:[
+    'Kenney Tiny Dungeon   tilemap.png          203 × 186 px   16px 타일, 1px 간격, 여백 0',
+    '열 = floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    '행 = floor((186 − 0 + 1) / (16 + 1)) = floor(187 / 17) = 11              → 132장',
+    '13번 타일 = 1열 1행  → x = 0 + 1 × 17 = 17, y = 17, 크기 16 × 16',
+    '감지: 16 × 16, 간격 1, 12 × 11, 점수 0.976 (높음)',
+    '',
+    'tilemap_packed.png    192 × 176 px   같은 타일, 간격 없음 → 192 / 16 = 12, 176 / 16 = 11',
+    '감지: 16 × 16, 12 × 11, 하지만 점수 0.514 (낮음): 타일 사이에 빈 줄이 없음',
+    '',
+    'Kenney Pixel Platformer  tilemap.png  379 × 170 px → (379 + 1) / (18 + 1) = 20, (170 + 1) / 19 = 9',
+    '타일은 16px가 아니라 18px: 감지 18 × 18, 간격 1, 20 × 9, 점수 0.946 (높음)'],
+    after:'같은 그림이 간격이 있으면 0.976, 없으면 0.514입니다. 비어 있는 구분선은 시트가 줄 수 있는 가장 강한 증거입니다. 촘촘한 시트라면 이 격자 사용을 누르기 전에 점선 격자를 보거나, 알고 있는 크기를 입력하세요.'},
+   verify:{title:'쓰기 전에 격자 확인하기',steps:[
+    '점선이 마지막 열과 마지막 행까지 간격 위에 놓여야 합니다. 왼쪽은 맞는데 오른쪽이 틀리면 타일 크기나 간격이 어긋난 것입니다.',
+    '열 × 행이 예상과 같고(Tiny Dungeon은 12 × 11 = 132), 빈 타일로 센 칸이 정말 비어 있어야 합니다.',
+    '내보낸 뒤 고도 아틀라스의 Texture Region Size, Margins, Separation이 같은 값이어야 합니다. 여백 1·간격 2로 내보낸 Nerulio 고도 파일은 Godot 4.7.2에서 `TileSetAtlasSource`에 그대로 들어갔습니다.',
+    '타일별 PNG가 필요하면 기존 자르기 도구는 영역을 그대로 복사하고 다시 샘플링하지 않으므로, 각 타일이 원본 사각형과 바이트 단위로 같습니다.']},
+   trouble:{rows:[
+    ['열이 넘어갈수록 타일이 점점 어긋남','타일 크기가 틀림: Pixel Platformer의 18px 타일을 16px + 1px로 읽으면 c번째 타일이 19 × c가 아니라 17 × c에서 시작해 열마다 2px씩 더 어긋남','첫 열은 맞는데 열 번째 열은 18px 빗나감','18px 후보를 고르거나 타일 18, 간격 1을 입력'],
+    ['모든 타일이 위·왼쪽으로 1px씩 밀려 잘림','테두리를 여백으로 지정하지 않음','이미지의 첫 행과 첫 열이 비었거나 한 가지 색','여백 1로 설정. 개수 공식은 여백을 한 번 뺌'],
+    ['오른쪽이나 아래에 반쪽 열·행이 남음','타일 크기가 시트를 나누지 못함. floor는 타일 하나와 간격보다 좁은 부분을 버림','(W − 여백 + 간격) ÷ (타일 + 간격)을 계산: 정수이거나 정수보다 조금 커야 함','타일 크기를 다시 확인. 남는 픽셀이 많다면 시트가 아니라 해석이 틀린 것'],
+    ['첫 후보가 낮음이나 중간뿐','촘촘한 시트: 타일 사이에 빈 줄이 없고 타일 속이 복잡함','후보마다 붙은 점수와 신뢰도','점선 격자를 확인하거나, 다른 후보를 고르거나, 크기를 입력'],
+    ['아주 큰 이미지에서 후보가 하나도 없음','Studio는 16메가픽셀까지의 시트만 잼','이미지 너비 × 높이','타일 크기·여백·간격을 직접 입력'],
+    ['다른 에디터가 시트를 받지 않음','간격을 받지 않는 에디터가 있음: Sprite Fusion은 타일셋 너비와 높이가 타일 크기의 정확한 배수여야 함','W ÷ 타일이 정수인가?','시트의 촘촘한 버전을 쓰거나 간격 없이 다시 패킹']]},
+   alternatives:{rows:[
+    ['엔진에 숫자를 직접 입력: 고도 아틀라스(Texture Region Size, Margins, Separation)나 Tiled 새 타일셋 대화상자(타일 크기, Margin, Spacing)','에셋 팩의 설명서 등으로 격자를 이미 알고 있을 때.'],
+    ['[[tile-grid-slicer|기존 타일 격자 자르기]]','타일마다 PNG 파일, 완전·유사 중복 찾기, 회전·뒤집기 변형, 번짐을 막는 [[atlas-padding|가장자리 확장 아틀라스]]가 필요할 때.'],
+    ['[[sprite-slicer|스프라이트 자르기]]','크기가 제각각인 스프라이트가 격자 없이 놓인 시트일 때. 타일 자르기는 규칙적인 격자가 필요합니다.']]},
+   limits:['규칙적인 격자만 다룹니다. 아이소메트릭·육각 시트는 모델링하지 않습니다.','Studio는 타일마다 PNG를 쓰지 않습니다. 그 기능은 기존 자르기 도구에 있습니다.','축마다 타일이 하나뿐인 시트는 잴 주기가 없습니다.'],
+   versions:{body:['공식과 사각형은 src/game/tile-grid.js의 `tileRects` 그대로입니다. 감지는 합성 시트 10장에서 확인했고(10장 모두 실제 격자가 1위), 위의 Kenney 숫자는 2026-09-28에 코퍼스 파일로 쟀습니다. 2026-09-22 Godot 4.7.2 실행에서 만들어진 TileSet이 여백 1과 간격 2를 그대로 읽어 냈습니다. 엔진의 필드 이름은 링크한 공식 문서를 따릅니다.'],sources:[S.ko.godotTilesets,S.ko.tiledTilesets,S.ko.sfImport]}
+  },
+  ja:{
+   answer:'タイルセットを切り分けるには、軸ごとに3つの数が必要です。タイルサイズ、余白（最初のタイルの前のピクセル）、間隔（タイル同士の間のピクセル）です。個数は列 = floor((幅 − 余白 + 間隔) ÷ (タイル + 間隔))で、行も同じです。Kenney Tiny Dungeonの203 × 186pxのシートは、16pxのタイルと1pxの間隔で12 × 11 = 132枚になります。Studioはこれらの数をピクセルから測り、「このグリッドを使う」を押すまで最良のグリッドを点線で示し、Godot 4・Tiled・Unity・LDtkへの書き出しにそのまま渡します。タイルごとのPNGのZIPは[[tile-grid-slicer|従来のタイルグリッド分割]]で作れます。',
+   concept:{title:'グリッドのモデル、計算式、数の測り方',body:[
+    'タイルはすべて同じ大きさです。余白は最初の列（と行）の前で一度だけ飛ばし、間隔は隣り合う2枚の間にあり、最後のタイルの後ろには何も仮定しません。したがってタイル(c, r)はx = 余白 + c × (タイル + 間隔)、y = 余白 + r × (タイル + 間隔)から始まります。Godotは同じ数をTexture Region Size、Margins、Separationと呼び、Tiledはタイルサイズ、Margin、Spacingと呼びます。',
+    'n枚のタイルには余白 + n × タイル + (n − 1) × 間隔のピクセルが要るので、入る最大数はfloor((W − 余白 + 間隔) ÷ (タイル + 間隔))です。両側の余白が同じなら、教科書どおりの(W − 2 × 余白 + 間隔) ÷ (タイル + 間隔)が割り切れます。Nerulioのfloorは、右側に残る帯がタイル1枚と間隔より狭ければ同じ個数になり、数ピクセル余ったシートでもきれいに切れるのはこのためです。',
+    '検出器は画像を1行ずつ読み、各行・各列が前の行とどれだけ違うかを見ます。その変化の並びを4pxから画像の半分までのあらゆる周期で折り重ね、変化を最もよく説明する周期を選び、位相を確かめ、余白や間隔と主張する行が本当に空か単色かを調べます。どのタイルも最初か最後の行が空なら「16px＋1pxの間隔」が「17pxのタイル」に勝ち、本当のサイズの倍数は、約数のスコアが0.02以内なら負けます。Studioは公開オートタイル配置がぴったり収まるサイズも併せて試します。',
+    '最も苦手なのは区切りがまったくないシート、つまりタイルの中身が縁より複雑な詰めたシートです。軸ごとにタイルが1枚しかないと測れず、Studioが測るのは16メガピクセルまでの画像です。それより大きい場合はサイズを入力してください。'],
+    terms:[['タイルサイズ','タイル1枚の幅と高さ（Godot：Texture Region Size）。'],['余白','左端と上端で、最初のタイルの前にあるピクセル。'],['間隔','隣り合うタイルの間のピクセル（Godot：Separation）。多くは1px、縁のピクセルを引き伸ばしたものもある。'],['詰めたシート','間隔なしでタイルを並べたシート。ほかのエディターには最も扱いやすく、測るのは最も難しい。']]},
+   example:{title:'例：テストコーパスのKenneyシート2枚',lead:'CC0のファイルをNerulioのグリッド検出器で測った結果（2026-09-28）：',lines:[
+    'Kenney Tiny Dungeon   tilemap.png          203 × 186 px   16pxタイル、間隔1px、余白0',
+    '列 = floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    '行 = floor((186 − 0 + 1) / (16 + 1)) = floor(187 / 17) = 11              → 132枚',
+    'タイル13 = 1列目・1行目  → x = 0 + 1 × 17 = 17、y = 17、サイズ16 × 16',
+    '検出：16 × 16、間隔1、12 × 11、スコア0.976（高）',
+    '',
+    'tilemap_packed.png    192 × 176 px   同じタイル、間隔なし → 192 / 16 = 12、176 / 16 = 11',
+    '検出：16 × 16、12 × 11、ただしスコア0.514（低）：タイル間に空の行がない',
+    '',
+    'Kenney Pixel Platformer  tilemap.png  379 × 170 px → (379 + 1) / (18 + 1) = 20、(170 + 1) / 19 = 9',
+    'タイルは16pxではなく18px：検出18 × 18、間隔1、20 × 9、スコア0.946（高）'],
+    after:'同じ絵でも間隔があれば0.976、なければ0.514です。空の区切り線は、シートが示せる最も強い手がかりです。詰めたシートでは「このグリッドを使う」を押す前に点線のグリッドを確かめるか、わかっているサイズを入力してください。'},
+   verify:{title:'使う前にグリッドを確かめる',steps:[
+    '点線が最後の列・最後の行まで間隔の上に乗っていること。左は合っているのに右がずれるなら、タイルサイズか間隔が違います。',
+    '列 × 行が予想どおりで（Tiny Dungeonなら12 × 11 = 132）、空タイルとして数えたマスが本当に空であること。',
+    '書き出し後、Godotのアトラスで Texture Region Size、Margins、Separationが同じ値であること。余白1・間隔2で書き出したNerulioのGodotファイルは、Godot 4.7.2で`TileSetAtlasSource`にそのまま入りました。',
+    'タイルごとのPNGが要るなら、従来の分割ツールは領域をそのままコピーし再サンプリングしないので、各タイルが元の矩形とバイト単位で一致します。']},
+   trouble:{rows:[
+    ['列が進むほどタイルがずれていく','タイルサイズの誤り：Pixel Platformerの18pxタイルを16px＋1pxと読むと、c番目のタイルが19 × cではなく17 × cから始まり、1列ごとに2pxずつずれる','最初の列は合うのに10列目では18px外れる','18pxの候補を選ぶか、タイル18・間隔1を入力'],
+    ['すべてのタイルが上と左に1pxずれて切れる','外周の枠を余白として指定していない','画像の最初の行と列が空か単色','余白を1にする。個数の式は余白を1回だけ引く'],
+    ['右端や下端に半端な列・行が残る','タイルサイズがシートを割り切れない。floorはタイル1枚と間隔より狭い部分を捨てる','(W − 余白 + 間隔) ÷ (タイル + 間隔)を計算：整数か、整数よりわずかに大きいはず','タイルサイズを見直す。余りが大きいならシートではなく読み取りが間違っている'],
+    ['最初の候補が低か中しかない','詰めたシート：タイル間に空の行がなく、中身が複雑','各候補のスコアと信頼度','点線のグリッドを確かめる、別の候補を選ぶ、またはサイズを入力'],
+    ['とても大きい画像で候補が1つも出ない','Studioが測るのは16メガピクセルまで','画像の幅 × 高さ','タイルサイズ・余白・間隔を手で入力'],
+    ['ほかのエディターがシートを受け付けない','間隔を扱わないエディターがある：Sprite Fusionはタイルセットの幅と高さがタイルサイズのちょうど倍数であることを求める','W ÷ タイルが整数か','シートの詰めた版を使うか、間隔なしで詰め直す']]},
+   alternatives:{rows:[
+    ['エンジンに数を直接入力：Godotのアトラス（Texture Region Size、Margins、Separation）やTiledの新規タイルセット画面（タイルサイズ、Margin、Spacing）','素材パックの説明などでグリッドがもうわかっているとき。'],
+    ['[[tile-grid-slicer|従来のタイルグリッド分割]]','タイルごとのPNG、完全一致と近似の重複検出、回転・反転の派生、にじみ対策の[[atlas-padding|縁を拡張したアトラス]]が欲しいとき。'],
+    ['[[sprite-slicer|スプライト分割]]','大きさの違うスプライトがグリッドなしで並んだシートのとき。タイルの分割には規則的なグリッドが必要です。']]},
+   limits:['規則的なグリッドのみ扱います。アイソメトリック・六角形のシートはモデル化していません。','StudioはタイルごとのPNGを書き出しません。その機能は従来の分割ツールにあります。','軸ごとにタイルが1枚しかないシートには、測る周期がありません。'],
+   versions:{body:['計算式と矩形はsrc/game/tile-grid.jsの`tileRects`そのものです。検出は合成シート10枚で確認し（10枚すべてで本当のグリッドが1位）、上のKenneyの数値は2026-09-28にコーパスのファイルで測りました。2026-09-22のGodot 4.7.2の実行では、作成したTileSetから余白1と間隔2がそのまま読み戻せました。エンジンの項目名はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.godotTilesets,S.ja.tiledTilesets,S.ja.sfImport]}
+  }
+ },
 /*END*/
 };
