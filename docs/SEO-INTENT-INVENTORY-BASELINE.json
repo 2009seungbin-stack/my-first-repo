@@ -1,0 +1,7848 @@
+{
+ "generated": "2026-09-28T03:41:53.997Z",
+ "source": "tools/sitemaps.mjs sitemapGroups() — indexable game + tool pages, hub and policy pages excluded",
+ "pages": 151,
+ "urls": 453,
+ "byType": {
+  "pending": 150,
+  "conversion": 1
+ },
+ "byGroup": {
+  "sprite-core": 14,
+  "sprite-formats": 11,
+  "sprite-engines": 10,
+  "pack": 14,
+  "pixel-fix": 8,
+  "tile-core": 8,
+  "tile-engines": 8,
+  "texture-normals": 9,
+  "pixel-edit": 9,
+  "texture-pbr": 8,
+  "ui": 9,
+  "tools-image": 28,
+  "tools-media": 15
+ },
+ "rows": [
+  {
+   "route": "game/sprite-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "broad",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2084,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3945,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1951,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-lab",
+     "similarity": 0.102
+    },
+    {
+     "route": "game/ezgif-sprite-cutter-alternative",
+     "similarity": 0.097
+    },
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.096
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-animator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "broad",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1811,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3110,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1611,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-animation-frame-duration",
+     "similarity": 0.132
+    },
+    {
+     "route": "game/pixel-art-animation",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.116
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-atlas-viewer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "broad",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1649,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2930,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1562,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/fnf-spritesheet-to-gif",
+     "similarity": 0.155
+    },
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.142
+    },
+    {
+     "route": "game/texturepacker-to-unity",
+     "similarity": 0.108
+    }
+   ]
+  },
+  {
+   "route": "sprite-slicer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 613,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1153,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 508,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tileset-slicer",
+     "similarity": 0.138
+    },
+    {
+     "route": "game/sprite-sheet-slicing-off",
+     "similarity": 0.131
+    },
+    {
+     "route": "game/remove-sprite-background",
+     "similarity": 0.123
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-lab",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 761,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1382,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 715,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-animation-preview",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.103
+    },
+    {
+     "route": "game/sprite-editor",
+     "similarity": 0.102
+    }
+   ]
+  },
+  {
+   "route": "normalize-sprite-frames",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 544,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1035,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 480,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-jitter-after-trim",
+     "similarity": 0.092
+    },
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.075
+    },
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.074
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-animation-preview",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 657,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1154,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 557,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-lab",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/gif-to-sprite-sheet",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/pixel-art-animation",
+     "similarity": 0.105
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-pivot-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 560,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1010,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 510,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/hitbox-editor",
+     "similarity": 0.113
+    },
+    {
+     "route": "game/collision-polygon-generator",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.088
+    }
+   ]
+  },
+  {
+   "route": "game/hitbox-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 631,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1117,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 573,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-pivot-editor",
+     "similarity": 0.113
+    },
+    {
+     "route": "game/collision-polygon-generator",
+     "similarity": 0.102
+    },
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.092
+    }
+   ]
+  },
+  {
+   "route": "game/collision-polygon-generator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "intent",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 456,
+     "intent": 0
+    },
+    "en": {
+     "existing": 947,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 427,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-pivot-editor",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/hitbox-editor",
+     "similarity": 0.102
+    },
+    {
+     "route": "normalize-sprite-frames",
+     "similarity": 0.072
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 508,
+     "intent": 0
+    },
+    "en": {
+     "existing": 917,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 452,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-gif",
+     "similarity": 0.13
+    },
+    {
+     "route": "game/sprite-sheet-to-video",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.1
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-godot",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": "conversion",
+   "intent": {
+    "primary": "convert an .aseprite file into a working Godot 4 animated sprite",
+    "secondary": [
+     "keep tags and per-frame timing",
+     "pixel-art import settings in Godot",
+     "no Aseprite install or Godot plugin"
+    ],
+    "goal": "an AnimatedSprite2D in Godot 4 that plays every Aseprite tag at the timing drawn in Aseprite",
+    "input": ".aseprite / .ase file (tags optional; layers, slices optional)",
+    "output": "SpriteFrames .tres + packed PNG + AnimatedSprite2D .tscn + .png.import + README",
+    "target": "Godot 4 (verified 4.7.2)",
+    "support": "full",
+    "evidence": [
+     "src/game/export/godot.js",
+     "src/game/aseprite.js (tags → animations, fps from average duration)",
+     "docs/STUDIO-PACK.md (Godot 4.7.2 engine-verify runs)",
+     "docs/STUDIO-SPRITE.md §10 (231-file .aseprite corpus)"
+    ],
+    "external": [
+     "Godot 4.7 docs: SpriteFrames relative duration and FPS formula",
+     "AnimatedSprite2D properties and play()",
+     "Aseprite docs: tags, Export Sprite Sheet"
+    ]
+   },
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [
+    "answer",
+    "concept",
+    "example",
+    "mapping",
+    "outputs",
+    "target",
+    "verify",
+    "trouble",
+    "alternatives",
+    "limits",
+    "versions"
+   ],
+   "chars": {
+    "ko": {
+     "existing": 726,
+     "intent": 5744
+    },
+    "en": {
+     "existing": 1166,
+     "intent": 8917
+    },
+    "ja": {
+     "existing": 675,
+     "intent": 5384
+    }
+   },
+   "missing": [],
+   "closest": [
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.12
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/godot-animation-frame-duration",
+     "similarity": 0.106
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-unity",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 653,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1060,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 574,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/unity-sprite-sheet",
+     "similarity": 0.186
+    },
+    {
+     "route": "game/unity-rule-tile",
+     "similarity": 0.137
+    },
+    {
+     "route": "game/texturepacker-to-unity",
+     "similarity": 0.127
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-phaser",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 812,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1134,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 751,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.254
+    },
+    {
+     "route": "game/phaser-atlas-frames-wrong",
+     "similarity": 0.116
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.113
+    }
+   ]
+  },
+  {
+   "route": "game/godot-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 597,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1019,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 527,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/unity-sprite-sheet",
+     "similarity": 0.149
+    },
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.105
+    },
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.1
+    }
+   ]
+  },
+  {
+   "route": "game/unity-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 561,
+     "intent": 0
+    },
+    "en": {
+     "existing": 928,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 514,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.186
+    },
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.149
+    },
+    {
+     "route": "game/texturepacker-to-unity",
+     "similarity": 0.101
+    }
+   ]
+  },
+  {
+   "route": "game/gamemaker-sprite-strip",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 710,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1179,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 653,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-gamemaker",
+     "similarity": 0.156
+    },
+    {
+     "route": "game/pixi-spritesheet-json",
+     "similarity": 0.082
+    },
+    {
+     "route": "game/gif-to-sprite-sheet",
+     "similarity": 0.082
+    }
+   ]
+  },
+  {
+   "route": "game/remove-sprite-background",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "keyword",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 585,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1204,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 523,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.093
+    },
+    {
+     "route": "game/sprite-sheet-slicing-off",
+     "similarity": 0.091
+    }
+   ]
+  },
+  {
+   "route": "sprite-sheet-maker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "intent",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 680,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1196,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 604,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/texture-packer-free",
+     "similarity": 0.141
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.105
+    },
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.085
+    }
+   ]
+  },
+  {
+   "route": "game/gif-to-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 627,
+     "intent": 0
+    },
+    "en": {
+     "existing": 981,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 576,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-animation-preview",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/gamemaker-sprite-strip",
+     "similarity": 0.082
+    },
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.082
+    }
+   ]
+  },
+  {
+   "route": "game/texture-packer-free",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 720,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1264,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 633,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "sprite-sheet-maker",
+     "similarity": 0.141
+    },
+    {
+     "route": "game/spine-atlas",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/sprite-sheet-packers-compared",
+     "similarity": 0.092
+    }
+   ]
+  },
+  {
+   "route": "game/godot-pixel-art-blurry",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 738,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1283,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 698,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.093
+    },
+    {
+     "route": "game/unity-pixel-art-blurry",
+     "similarity": 0.089
+    },
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.082
+    }
+   ]
+  },
+  {
+   "route": "game/phaser-texture-atlas",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 755,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1156,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 693,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-phaser",
+     "similarity": 0.254
+    },
+    {
+     "route": "game/sparrow-xml-spritesheet",
+     "similarity": 0.125
+    },
+    {
+     "route": "game/phaser-atlas-frames-wrong",
+     "similarity": 0.114
+    }
+   ]
+  },
+  {
+   "route": "game/pixi-spritesheet-json",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 695,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1103,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 648,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-json-to-pixi",
+     "similarity": 0.152
+    },
+    {
+     "route": "game/sparrow-xml-spritesheet",
+     "similarity": 0.101
+    },
+    {
+     "route": "game/aseprite-to-phaser",
+     "similarity": 0.1
+    }
+   ]
+  },
+  {
+   "route": "game/defold-atlas",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 689,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1140,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 655,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.104
+    },
+    {
+     "route": "game/unity-sprite-sheet",
+     "similarity": 0.086
+    },
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.085
+    }
+   ]
+  },
+  {
+   "route": "game/love2d-quads",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 582,
+     "intent": 0
+    },
+    "en": {
+     "existing": 965,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 526,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sparrow-xml-spritesheet",
+     "similarity": 0.104
+    },
+    {
+     "route": "game/pixi-spritesheet-json",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/gamemaker-sprite-strip",
+     "similarity": 0.081
+    }
+   ]
+  },
+  {
+   "route": "game/spine-atlas",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 567,
+     "intent": 0
+    },
+    "en": {
+     "existing": 962,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 506,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/texture-packer-free",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/sparrow-xml-spritesheet",
+     "similarity": 0.08
+    }
+   ]
+  },
+  {
+   "route": "game/sparrow-xml-spritesheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 857,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1239,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 791,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.125
+    },
+    {
+     "route": "game/phaser-atlas-frames-wrong",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/love2d-quads",
+     "similarity": 0.104
+    }
+   ]
+  },
+  {
+   "route": "game/css-sprite-generator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "keyword",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 520,
+     "intent": 0
+    },
+    "en": {
+     "existing": 901,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 462,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.069
+    },
+    {
+     "route": "game/unity-sprite-sheet",
+     "similarity": 0.068
+    },
+    {
+     "route": "game/spine-atlas",
+     "similarity": 0.065
+    }
+   ]
+  },
+  {
+   "route": "game/tileset-generator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "broad",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1731,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3219,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1528,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/rpg-maker-autotile-to-godot",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.098
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.087
+    }
+   ]
+  },
+  {
+   "route": "game/tilemap-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "broad",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1726,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3248,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1600,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/sprite-fusion-alternative",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.114
+    }
+   ]
+  },
+  {
+   "route": "game/tile-lab",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "intent",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 759,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1303,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 688,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-autotile",
+     "similarity": 0.154
+    },
+    {
+     "route": "game/blob-47-tileset",
+     "similarity": 0.136
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.111
+    }
+   ]
+  },
+  {
+   "route": "game/autotile-tester",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "intent",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 697,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1235,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 617,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/tilemap-editor",
+     "similarity": 0.108
+    },
+    {
+     "route": "game/godot-autotile",
+     "similarity": 0.101
+    }
+   ]
+  },
+  {
+   "route": "game/tileset-slicer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "intent",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 509,
+     "intent": 0
+    },
+    "en": {
+     "existing": 969,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 450,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.138
+    },
+    {
+     "route": "tile-grid-slicer",
+     "similarity": 0.114
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.101
+    }
+   ]
+  },
+  {
+   "route": "game/godot-autotile",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 725,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1219,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 649,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tile-lab",
+     "similarity": 0.154
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.114
+    }
+   ]
+  },
+  {
+   "route": "game/rpg-maker-autotile-to-godot",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 640,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1136,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 587,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tileset-generator",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/dual-grid-tileset",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/tile-lab",
+     "similarity": 0.08
+    }
+   ]
+  },
+  {
+   "route": "game/blob-47-tileset",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 697,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1184,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 593,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tile-lab",
+     "similarity": 0.136
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.103
+    },
+    {
+     "route": "game/godot-autotile",
+     "similarity": 0.092
+    }
+   ]
+  },
+  {
+   "route": "game/dual-grid-tileset",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 694,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1188,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 614,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/rpg-maker-autotile-to-godot",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/godot-autotile",
+     "similarity": 0.1
+    },
+    {
+     "route": "game/tile-lab",
+     "similarity": 0.09
+    }
+   ]
+  },
+  {
+   "route": "game/tiled-wang-set",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 696,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1141,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 623,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/dual-grid-tileset",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.086
+    },
+    {
+     "route": "game/ldtk-autotile-rules",
+     "similarity": 0.083
+    }
+   ]
+  },
+  {
+   "route": "game/unity-rule-tile",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 635,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1045,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 575,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.137
+    },
+    {
+     "route": "game/ldtk-autotile-rules",
+     "similarity": 0.122
+    },
+    {
+     "route": "game/tile-lab",
+     "similarity": 0.094
+    }
+   ]
+  },
+  {
+   "route": "game/ldtk-autotile-rules",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "keyword",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 612,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1128,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 575,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/unity-rule-tile",
+     "similarity": 0.122
+    },
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.099
+    },
+    {
+     "route": "game/dual-grid-tileset",
+     "similarity": 0.089
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-normal-map",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "broad",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1850,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3367,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1680,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/laigter-alternative",
+     "similarity": 0.134
+    },
+    {
+     "route": "game/normal-map-sprite-sheet",
+     "similarity": 0.127
+    },
+    {
+     "route": "game/godot-2d-normal-map",
+     "similarity": 0.125
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "broad",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2023,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3522,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1854,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-alternative",
+     "similarity": 0.096
+    },
+    {
+     "route": "game/sprite-editor",
+     "similarity": 0.092
+    },
+    {
+     "route": "game/pixel-art-animation",
+     "similarity": 0.085
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-animation",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "broad",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1717,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3173,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1548,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-animator",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/aseprite-viewer",
+     "similarity": 0.11
+    },
+    {
+     "route": "game/sprite-animation-preview",
+     "similarity": 0.105
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-palette-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "broad",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1847,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3375,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1738,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-alternative",
+     "similarity": 0.097
+    },
+    {
+     "route": "game/pixel-art-outline",
+     "similarity": 0.083
+    },
+    {
+     "route": "game/aseprite-viewer",
+     "similarity": 0.081
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-outline",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "broad",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1592,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3020,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1472,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-alternative",
+     "similarity": 0.098
+    },
+    {
+     "route": "game/pixel-art-downscaler",
+     "similarity": 0.098
+    },
+    {
+     "route": "game/pixel-art-animation",
+     "similarity": 0.094
+    }
+   ]
+  },
+  {
+   "route": "game/fix-ai-pixel-art",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "keyword",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1147,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2241,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 995,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-snapper-alternative",
+     "similarity": 0.146
+    },
+    {
+     "route": "game/pixel-art-downscaler",
+     "similarity": 0.119
+    },
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.078
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-lab",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "lab",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 665,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1176,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 605,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.142
+    },
+    {
+     "route": "game/palette-extractor",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/pixel-art-palette-editor",
+     "similarity": 0.063
+    }
+   ]
+  },
+  {
+   "route": "game/palette-extractor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "lab",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 535,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1041,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 463,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/pixel-lab",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/pixel-art-palette-editor",
+     "similarity": 0.071
+    }
+   ]
+  },
+  {
+   "route": "game/palette-swap-ramp",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "lab",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 598,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1147,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 515,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.075
+    },
+    {
+     "route": "game/pixel-art-palette-editor",
+     "similarity": 0.064
+    },
+    {
+     "route": "game/palette-extractor",
+     "similarity": 0.063
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-cleanup",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "lab",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 563,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1145,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 518,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/fix-ai-pixel-art",
+     "similarity": 0.064
+    },
+    {
+     "route": "game/pixel-perfect-checker",
+     "similarity": 0.058
+    },
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.057
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-perfect-checker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "lab",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 581,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1088,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 495,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-art-upscaler",
+     "similarity": 0.118
+    },
+    {
+     "route": "game/pixel-art-cleanup",
+     "similarity": 0.058
+    },
+    {
+     "route": "game/pixel-art-downscaler",
+     "similarity": 0.056
+    }
+   ]
+  },
+  {
+   "route": "game/lospec-palette",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "keyword",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 556,
+     "intent": 0
+    },
+    "en": {
+     "existing": 969,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 508,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-lab",
+     "similarity": 0.142
+    },
+    {
+     "route": "game/palette-extractor",
+     "similarity": 0.111
+    },
+    {
+     "route": "game/palette-swap-ramp",
+     "similarity": 0.075
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-upscaler",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "keyword",
+   "workspace": "pixel",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 491,
+     "intent": 0
+    },
+    "en": {
+     "existing": 916,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 434,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-perfect-checker",
+     "similarity": 0.118
+    },
+    {
+     "route": "game/palette-extractor",
+     "similarity": 0.056
+    },
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.054
+    }
+   ]
+  },
+  {
+   "route": "game/texture-lab",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 589,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1091,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 561,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pbr-texture-validator",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/normal-map-converter",
+     "similarity": 0.065
+    },
+    {
+     "route": "game/channel-unpacker",
+     "similarity": 0.058
+    }
+   ]
+  },
+  {
+   "route": "game/channel-unpacker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 481,
+     "intent": 0
+    },
+    "en": {
+     "existing": 905,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 475,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/roughness-to-smoothness",
+     "similarity": 0.131
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/pbr-texture-validator",
+     "similarity": 0.064
+    }
+   ]
+  },
+  {
+   "route": "game/normal-map-converter",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 458,
+     "intent": 0
+    },
+    "en": {
+     "existing": 868,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 420,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "normal-map-generator",
+     "similarity": 0.1
+    },
+    {
+     "route": "game/pixel-art-normal-map",
+     "similarity": 0.091
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.068
+    }
+   ]
+  },
+  {
+   "route": "game/pbr-texture-validator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 472,
+     "intent": 0
+    },
+    "en": {
+     "existing": 860,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 429,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/texture-lab",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/roughness-to-smoothness",
+     "similarity": 0.07
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.067
+    }
+   ]
+  },
+  {
+   "route": "game/texture-edge-bleed",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 557,
+     "intent": 0
+    },
+    "en": {
+     "existing": 994,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 534,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "atlas-padding",
+     "similarity": 0.087
+    },
+    {
+     "route": "game/remove-sprite-background",
+     "similarity": 0.053
+    },
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.052
+    }
+   ]
+  },
+  {
+   "route": "normal-map-generator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 620,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1069,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 569,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-art-normal-map",
+     "similarity": 0.291
+    },
+    {
+     "route": "game/normal-map-converter",
+     "similarity": 0.1
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.067
+    }
+   ]
+  },
+  {
+   "route": "texture-mask-packer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "lab",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 569,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1020,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 560,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/roughness-to-smoothness",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/channel-unpacker",
+     "similarity": 0.09
+    },
+    {
+     "route": "game/normal-map-converter",
+     "similarity": 0.068
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-normal-map",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "keyword",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 574,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1095,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 550,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "normal-map-generator",
+     "similarity": 0.291
+    },
+    {
+     "route": "game/normal-map-converter",
+     "similarity": 0.091
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.066
+    }
+   ]
+  },
+  {
+   "route": "game/roughness-to-smoothness",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "keyword",
+   "workspace": "texture",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 595,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1061,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 593,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/channel-unpacker",
+     "similarity": 0.131
+    },
+    {
+     "route": "texture-mask-packer",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/pbr-texture-validator",
+     "similarity": 0.07
+    }
+   ]
+  },
+  {
+   "route": "game/ui-lab",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 597,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1087,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 547,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/ui-scale-preview",
+     "similarity": 0.076
+    },
+    {
+     "route": "game/9-slice-editor",
+     "similarity": 0.063
+    },
+    {
+     "route": "game/godot-sprite-sheet",
+     "similarity": 0.059
+    }
+   ]
+  },
+  {
+   "route": "game/9-slice-editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 691,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1185,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 607,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/ui-lab",
+     "similarity": 0.063
+    },
+    {
+     "route": "game/button-state-generator",
+     "similarity": 0.063
+    },
+    {
+     "route": "game/unity-pixel-art-blurry",
+     "similarity": 0.056
+    }
+   ]
+  },
+  {
+   "route": "game/button-state-generator",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 477,
+     "intent": 0
+    },
+    "en": {
+     "existing": 856,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 431,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/9-slice-editor",
+     "similarity": 0.063
+    },
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.06
+    },
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.055
+    }
+   ]
+  },
+  {
+   "route": "game/missing-glyph-checker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 474,
+     "intent": 0
+    },
+    "en": {
+     "existing": 876,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 431,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/lospec-palette",
+     "similarity": 0.055
+    },
+    {
+     "route": "bitmap-font-maker",
+     "similarity": 0.054
+    },
+    {
+     "route": "game/texture-lab",
+     "similarity": 0.051
+    }
+   ]
+  },
+  {
+   "route": "game/ui-scale-preview",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 501,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1000,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 480,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/ui-lab",
+     "similarity": 0.076
+    },
+    {
+     "route": "game/button-state-generator",
+     "similarity": 0.042
+    },
+    {
+     "route": "game/gif-to-sprite-sheet",
+     "similarity": 0.037
+    }
+   ]
+  },
+  {
+   "route": "bitmap-font-maker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "ui",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 615,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1096,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 578,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/missing-glyph-checker",
+     "similarity": 0.054
+    },
+    {
+     "route": "game/spine-atlas",
+     "similarity": 0.052
+    },
+    {
+     "route": "sprite-sheet-maker",
+     "similarity": 0.044
+    }
+   ]
+  },
+  {
+   "route": "game/seamless-tile-checker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "tilelab",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 510,
+     "intent": 0
+    },
+    "en": {
+     "existing": 1087,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 451,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tiling-normal-map-seams",
+     "similarity": 0.06
+    },
+    {
+     "route": "game/normal-map-sprite-sheet",
+     "similarity": 0.055
+    },
+    {
+     "route": "game/sprite-sheet-frame-size",
+     "similarity": 0.052
+    }
+   ]
+  },
+  {
+   "route": "tile-grid-slicer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "tilelab",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 566,
+     "intent": 0
+    },
+    "en": {
+     "existing": 998,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 510,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/tileset-slicer",
+     "similarity": 0.114
+    },
+    {
+     "route": "atlas-padding",
+     "similarity": 0.092
+    },
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.087
+    }
+   ]
+  },
+  {
+   "route": "atlas-padding",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "ui",
+   "family": "lab",
+   "workspace": "tilelab",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 523,
+     "intent": 0
+    },
+    "en": {
+     "existing": 993,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 494,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "tile-grid-slicer",
+     "similarity": 0.092
+    },
+    {
+     "route": "game/texture-edge-bleed",
+     "similarity": 0.087
+    },
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.07
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-to-png-frames",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "keyword",
+   "workspace": "spritelab",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 2,
+    "table": 0,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 537,
+     "intent": 0
+    },
+    "en": {
+     "existing": 979,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 517,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.118
+    },
+    {
+     "route": "game/gdevelop-sprite-sheet",
+     "similarity": 0.102
+    },
+    {
+     "route": "game/remove-sprite-background",
+     "similarity": 0.093
+    }
+   ]
+  },
+  {
+   "route": "game/godot-tileset-collision",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "engines",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 6,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1939,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3555,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1751,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.088
+    },
+    {
+     "route": "game/sprite-fusion-alternative",
+     "similarity": 0.082
+    },
+    {
+     "route": "game/tilemap-editor",
+     "similarity": 0.082
+    }
+   ]
+  },
+  {
+   "route": "game/godot-2d-normal-map",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "engines",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2374,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3900,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2213,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/normal-map-sprite-sheet",
+     "similarity": 0.125
+    },
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.125
+    },
+    {
+     "route": "game/unity-2d-normal-map",
+     "similarity": 0.105
+    }
+   ]
+  },
+  {
+   "route": "game/unity-2d-normal-map",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "engines",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 6,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2449,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4091,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2354,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/godot-2d-normal-map",
+     "similarity": 0.105
+    },
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.1
+    },
+    {
+     "route": "game/normal-map-sprite-sheet",
+     "similarity": 0.093
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-frame-size",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "engines",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1942,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3479,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1790,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-slicing-off",
+     "similarity": 0.118
+    },
+    {
+     "route": "game/sprite-atlas-viewer",
+     "similarity": 0.1
+    },
+    {
+     "route": "game/ezgif-sprite-cutter-alternative",
+     "similarity": 0.099
+    }
+   ]
+  },
+  {
+   "route": "game/godot-animation-frame-duration",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "engines",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1678,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2735,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1559,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-animator",
+     "similarity": 0.132
+    },
+    {
+     "route": "game/aseprite-to-godot",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/aseprite-to-gamemaker",
+     "similarity": 0.104
+    }
+   ]
+  },
+  {
+   "route": "game/gdevelop-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "engines",
+   "workspace": "spritelab",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 6,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1728,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3155,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1558,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-to-png-frames",
+     "similarity": 0.102
+    },
+    {
+     "route": "game/sprite-atlas-viewer",
+     "similarity": 0.093
+    },
+    {
+     "route": "game/sprite-sheet-frame-size",
+     "similarity": 0.092
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-viewer",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1797,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3328,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1695,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.12
+    },
+    {
+     "route": "game/pixel-art-animation",
+     "similarity": 0.11
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.106
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2006,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3260,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1864,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-json-to-pixi",
+     "similarity": 0.131
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.116
+    },
+    {
+     "route": "game/aseprite-to-phaser",
+     "similarity": 0.113
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1440,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2670,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1299,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.13
+    },
+    {
+     "route": "game/sprite-sheet-to-video",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/sprite-animator",
+     "similarity": 0.113
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-to-aseprite",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1505,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2988,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1402,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.121
+    },
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/aseprite-viewer",
+     "similarity": 0.12
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-to-video",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1431,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2494,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1287,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-gif",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/sprite-sheet-to-gif",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/fnf-spritesheet-to-gif",
+     "similarity": 0.085
+    }
+   ]
+  },
+  {
+   "route": "game/texturepacker-to-godot",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1891,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3078,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1748,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/fnf-spritesheet-to-gif",
+     "similarity": 0.152
+    },
+    {
+     "route": "game/sprite-atlas-viewer",
+     "similarity": 0.142
+    },
+    {
+     "route": "game/texturepacker-to-unity",
+     "similarity": 0.121
+    }
+   ]
+  },
+  {
+   "route": "game/texturepacker-to-unity",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1674,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2859,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1611,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/unity-pixel-art-blurry",
+     "similarity": 0.162
+    },
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.127
+    },
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.121
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-json-to-pixi",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1752,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2624,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1670,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixi-spritesheet-json",
+     "similarity": 0.152
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.131
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.119
+    }
+   ]
+  },
+  {
+   "route": "game/fnf-spritesheet-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "formats",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1601,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2665,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1491,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-atlas-viewer",
+     "similarity": 0.155
+    },
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.152
+    },
+    {
+     "route": "game/aseprite-to-gif",
+     "similarity": 0.102
+    }
+   ]
+  },
+  {
+   "route": "game/gamemaker-autotile-to-godot",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "formats",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1843,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3100,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1706,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-fusion-alternative",
+     "similarity": 0.132
+    },
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/tilemap-editor",
+     "similarity": 0.119
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-to-gamemaker",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-engines",
+   "family": "formats",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1720,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2742,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1566,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/gamemaker-sprite-strip",
+     "similarity": 0.156
+    },
+    {
+     "route": "game/keep-aseprite-tags-when-packing",
+     "similarity": 0.108
+    },
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.104
+    }
+   ]
+  },
+  {
+   "route": "game/normal-map-sprite-sheet",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "formats",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1664,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3057,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1551,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.127
+    },
+    {
+     "route": "game/godot-2d-normal-map",
+     "similarity": 0.125
+    },
+    {
+     "route": "game/laigter-alternative",
+     "similarity": 0.108
+    }
+   ]
+  },
+  {
+   "route": "game/godot-terrain-wrong-tiles",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-engines",
+   "family": "fixes",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2040,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4060,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1817,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/autotile-tester",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/tilemap-editor",
+     "similarity": 0.114
+    }
+   ]
+  },
+  {
+   "route": "game/unity-pixel-art-blurry",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "fixes",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1756,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3154,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1627,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/texturepacker-to-unity",
+     "similarity": 0.162
+    },
+    {
+     "route": "game/aseprite-to-unity",
+     "similarity": 0.109
+    },
+    {
+     "route": "game/unity-2d-normal-map",
+     "similarity": 0.091
+    }
+   ]
+  },
+  {
+   "route": "game/normal-map-opengl-or-directx",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "fixes",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1798,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3134,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1612,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/normalmap-online-alternative",
+     "similarity": 0.105
+    },
+    {
+     "route": "game/laigter-alternative",
+     "similarity": 0.083
+    }
+   ]
+  },
+  {
+   "route": "game/pixijs-2x-spritesheet-scale",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "fixes",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2062,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3271,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1867,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-json-to-pixi",
+     "similarity": 0.117
+    },
+    {
+     "route": "game/pixi-spritesheet-json",
+     "similarity": 0.096
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.085
+    }
+   ]
+  },
+  {
+   "route": "game/phaser-atlas-frames-wrong",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "fixes",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1915,
+     "intent": 0
+    },
+    "en": {
+     "existing": 2968,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1773,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/aseprite-to-phaser",
+     "similarity": 0.116
+    },
+    {
+     "route": "game/phaser-texture-atlas",
+     "similarity": 0.114
+    },
+    {
+     "route": "game/sparrow-xml-spritesheet",
+     "similarity": 0.111
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-slicing-off",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "fixes",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1520,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3242,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1360,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "sprite-slicer",
+     "similarity": 0.131
+    },
+    {
+     "route": "game/sprite-sheet-frame-size",
+     "similarity": 0.118
+    },
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.106
+    }
+   ]
+  },
+  {
+   "route": "game/keep-aseprite-tags-when-packing",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-formats",
+   "family": "fixes",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1797,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3073,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1722,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.121
+    },
+    {
+     "route": "game/aseprite-json-to-pixi",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.116
+    }
+   ]
+  },
+  {
+   "route": "game/tiling-normal-map-seams",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-pbr",
+   "family": "fixes",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 5,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1577,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3027,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1399,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/laigter-alternative",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.094
+    },
+    {
+     "route": "game/normalmap-online-alternative",
+     "similarity": 0.093
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-jitter-after-trim",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "fixes",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 4,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1777,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3234,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1684,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-atlas-viewer",
+     "similarity": 0.103
+    },
+    {
+     "route": "game/phaser-atlas-frames-wrong",
+     "similarity": 0.103
+    },
+    {
+     "route": "game/texturepacker-to-godot",
+     "similarity": 0.098
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-art-downscaler",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "fixes",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 1,
+    "compare": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 1628,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3102,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 1466,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/fix-ai-pixel-art",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/pixel-snapper-alternative",
+     "similarity": 0.109
+    },
+    {
+     "route": "game/pixel-art-outline",
+     "similarity": 0.098
+    }
+   ]
+  },
+  {
+   "route": "game/aseprite-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-edit",
+   "family": "compare",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2990,
+     "intent": 0
+    },
+    "en": {
+     "existing": 5314,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2826,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/pixel-art-outline",
+     "similarity": 0.098
+    },
+    {
+     "route": "game/pixel-art-palette-editor",
+     "similarity": 0.097
+    },
+    {
+     "route": "game/pixel-art-editor",
+     "similarity": 0.096
+    }
+   ]
+  },
+  {
+   "route": "game/laigter-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "compare",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2332,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4036,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2221,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/normalmap-online-alternative",
+     "similarity": 0.163
+    },
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.134
+    },
+    {
+     "route": "game/normal-map-sprite-sheet",
+     "similarity": 0.108
+    }
+   ]
+  },
+  {
+   "route": "game/normalmap-online-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "texture-normals",
+   "family": "compare",
+   "workspace": "normalmap",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2286,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3897,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2183,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/laigter-alternative",
+     "similarity": 0.163
+    },
+    {
+     "route": "game/sprite-normal-map",
+     "similarity": 0.123
+    },
+    {
+     "route": "game/normal-map-opengl-or-directx",
+     "similarity": 0.105
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-sheet-packers-compared",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pack",
+   "family": "compare",
+   "workspace": "pack",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2681,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4208,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2506,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/texture-packer-free",
+     "similarity": 0.092
+    },
+    {
+     "route": "sprite-sheet-maker",
+     "similarity": 0.085
+    },
+    {
+     "route": "game/aseprite-to-sprite-sheet",
+     "similarity": 0.08
+    }
+   ]
+  },
+  {
+   "route": "game/sprite-fusion-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tile-core",
+   "family": "compare",
+   "workspace": "tile",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2381,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4006,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2241,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/gamemaker-autotile-to-godot",
+     "similarity": 0.132
+    },
+    {
+     "route": "game/tilemap-editor",
+     "similarity": 0.119
+    },
+    {
+     "route": "game/godot-terrain-wrong-tiles",
+     "similarity": 0.098
+    }
+   ]
+  },
+  {
+   "route": "game/ezgif-sprite-cutter-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "sprite-core",
+   "family": "compare",
+   "workspace": "sprite",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 4,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2132,
+     "intent": 0
+    },
+    "en": {
+     "existing": 3631,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2016,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/sprite-sheet-to-aseprite",
+     "similarity": 0.106
+    },
+    {
+     "route": "game/aseprite-to-gif",
+     "similarity": 0.101
+    },
+    {
+     "route": "game/sprite-sheet-frame-size",
+     "similarity": 0.099
+    }
+   ]
+  },
+  {
+   "route": "game/pixel-snapper-alternative",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "pixel-fix",
+   "family": "compare",
+   "workspace": "pixelart",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "lead": 1,
+    "what": 5,
+    "steps": 4,
+    "faq": 3,
+    "table": 0,
+    "compare": 1
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 2454,
+     "intent": 0
+    },
+    "en": {
+     "existing": 4105,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 2262,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "game/fix-ai-pixel-art",
+     "similarity": 0.146
+    },
+    {
+     "route": "game/pixel-art-downscaler",
+     "similarity": 0.109
+    },
+    {
+     "route": "game/aseprite-alternative",
+     "similarity": 0.078
+    }
+   ]
+  },
+  {
+   "route": "image/editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "image",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 84,
+     "intent": 0
+    },
+    "en": {
+     "existing": 145,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 73,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "pdf/editor",
+     "similarity": 0.154
+    },
+    {
+     "route": "image/convert",
+     "similarity": 0.094
+    },
+    {
+     "route": "image/bmp-to-jpg",
+     "similarity": 0.076
+    }
+   ]
+  },
+  {
+   "route": "image/compress",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 24,
+     "intent": 0
+    },
+    "en": {
+     "existing": 47,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 18,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-1mb",
+     "similarity": 0.101
+    },
+    {
+     "route": "image/compress-to-20kb",
+     "similarity": 0.1
+    },
+    {
+     "route": "image/compress-to-50kb",
+     "similarity": 0.1
+    }
+   ]
+  },
+  {
+   "route": "image/convert",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 39,
+     "intent": 0
+    },
+    "en": {
+     "existing": 51,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 33,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/bmp-to-jpg",
+     "similarity": 0.172
+    },
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.16
+    },
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.154
+    }
+   ]
+  },
+  {
+   "route": "image/resize",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 24,
+     "intent": 0
+    },
+    "en": {
+     "existing": 54,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 19,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/linkedin-banner",
+     "similarity": 0.116
+    },
+    {
+     "route": "image/resize/youtube-thumbnail",
+     "similarity": 0.115
+    },
+    {
+     "route": "image/resize/x-header",
+     "similarity": 0.115
+    }
+   ]
+  },
+  {
+   "route": "pdf/editor",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "pdf",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 74,
+     "intent": 0
+    },
+    "en": {
+     "existing": 151,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 72,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/editor",
+     "similarity": 0.154
+    },
+    {
+     "route": "pdf/split",
+     "similarity": 0.068
+    },
+    {
+     "route": "media",
+     "similarity": 0.068
+    }
+   ]
+  },
+  {
+   "route": "pdf/split",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "pdf-split",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 85,
+     "intent": 0
+    },
+    "en": {
+     "existing": 143,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 63,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "media",
+     "similarity": 0.082
+    },
+    {
+     "route": "pdf/editor",
+     "similarity": 0.068
+    },
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.058
+    }
+   ]
+  },
+  {
+   "route": "pdf/compress",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "pdf-compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 34,
+     "intent": 0
+    },
+    "en": {
+     "existing": 74,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 28,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "pdf/split",
+     "similarity": 0.025
+    },
+    {
+     "route": "image/avif-to-jpg",
+     "similarity": 0.013
+    },
+    {
+     "route": "game/unity-sprite-sheet",
+     "similarity": 0.011
+    }
+   ]
+  },
+  {
+   "route": "media",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "media",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 88,
+     "intent": 0
+    },
+    "en": {
+     "existing": 157,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 72,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.124
+    },
+    {
+     "route": "video/frame",
+     "similarity": 0.094
+    },
+    {
+     "route": "pdf/split",
+     "similarity": 0.082
+    }
+   ]
+  },
+  {
+   "route": "video/trim",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-trim",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 41,
+     "intent": 0
+    },
+    "en": {
+     "existing": 66,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 37,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.026
+    },
+    {
+     "route": "image/bmp-to-jpg",
+     "similarity": 0.015
+    },
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.014
+    }
+   ]
+  },
+  {
+   "route": "video/frame",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-frame",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 75,
+     "intent": 0
+    },
+    "en": {
+     "existing": 129,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 60,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "media",
+     "similarity": 0.094
+    },
+    {
+     "route": "image/editor",
+     "similarity": 0.069
+    },
+    {
+     "route": "pdf/editor",
+     "similarity": 0.067
+    }
+   ]
+  },
+  {
+   "route": "video/to-mp3",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-mp3",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 84,
+     "intent": 0
+    },
+    "en": {
+     "existing": 142,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 61,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mov-to-mp3",
+     "similarity": 0.397
+    },
+    {
+     "route": "video/mp4-to-mp3",
+     "similarity": 0.393
+    },
+    {
+     "route": "video/webm-to-mp3",
+     "similarity": 0.385
+    }
+   ]
+  },
+  {
+   "route": "video/to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-gif",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 32,
+     "intent": 0
+    },
+    "en": {
+     "existing": 74,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 24,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mp4-to-gif",
+     "similarity": 0.24
+    },
+    {
+     "route": "video/mov-to-gif",
+     "similarity": 0.238
+    },
+    {
+     "route": "video/webm-to-gif",
+     "similarity": 0.235
+    }
+   ]
+  },
+  {
+   "route": "video/compress",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 0
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 42,
+     "intent": 0
+    },
+    "en": {
+     "existing": 75,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 34,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.05
+    },
+    {
+     "route": "video/frame",
+     "similarity": 0.043
+    },
+    {
+     "route": "video/to-gif",
+     "similarity": 0.029
+    }
+   ]
+  },
+  {
+   "route": "image/png-to-jpg",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 4
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 256,
+     "intent": 0
+    },
+    "en": {
+     "existing": 456,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 225,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.683
+    },
+    {
+     "route": "image/webp-to-jpg",
+     "similarity": 0.642
+    },
+    {
+     "route": "image/avif-to-jpg",
+     "similarity": 0.624
+    }
+   ]
+  },
+  {
+   "route": "image/jpg-to-png",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 191,
+     "intent": 0
+    },
+    "en": {
+     "existing": 340,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 171,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/png-to-jpg",
+     "similarity": 0.683
+    },
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.629
+    },
+    {
+     "route": "image/webp-to-png",
+     "similarity": 0.596
+    }
+   ]
+  },
+  {
+   "route": "image/png-to-webp",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 194,
+     "intent": 0
+    },
+    "en": {
+     "existing": 361,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 180,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/webp-to-png",
+     "similarity": 0.881
+    },
+    {
+     "route": "image/jpg-to-webp",
+     "similarity": 0.597
+    },
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.556
+    }
+   ]
+  },
+  {
+   "route": "image/webp-to-png",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 194,
+     "intent": 0
+    },
+    "en": {
+     "existing": 361,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 180,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/png-to-webp",
+     "similarity": 0.881
+    },
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.603
+    },
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.596
+    }
+   ]
+  },
+  {
+   "route": "image/jpg-to-webp",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 191,
+     "intent": 0
+    },
+    "en": {
+     "existing": 344,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 173,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/webp-to-jpg",
+     "similarity": 0.693
+    },
+    {
+     "route": "image/png-to-webp",
+     "similarity": 0.597
+    },
+    {
+     "route": "image/webp-to-png",
+     "similarity": 0.549
+    }
+   ]
+  },
+  {
+   "route": "image/webp-to-jpg",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 4
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 256,
+     "intent": 0
+    },
+    "en": {
+     "existing": 460,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 227,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/jpg-to-webp",
+     "similarity": 0.693
+    },
+    {
+     "route": "image/png-to-jpg",
+     "similarity": 0.642
+    },
+    {
+     "route": "image/avif-to-jpg",
+     "similarity": 0.626
+    }
+   ]
+  },
+  {
+   "route": "image/avif-to-jpg",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 4
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 256,
+     "intent": 0
+    },
+    "en": {
+     "existing": 434,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 221,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/webp-to-jpg",
+     "similarity": 0.626
+    },
+    {
+     "route": "image/png-to-jpg",
+     "similarity": 0.624
+    },
+    {
+     "route": "image/bmp-to-jpg",
+     "similarity": 0.472
+    }
+   ]
+  },
+  {
+   "route": "image/avif-to-png",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 194,
+     "intent": 0
+    },
+    "en": {
+     "existing": 335,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 174,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.621
+    },
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.577
+    },
+    {
+     "route": "image/webp-to-png",
+     "similarity": 0.551
+    }
+   ]
+  },
+  {
+   "route": "image/bmp-to-png",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 174,
+     "intent": 0
+    },
+    "en": {
+     "existing": 309,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 159,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.629
+    },
+    {
+     "route": "image/avif-to-png",
+     "similarity": 0.621
+    },
+    {
+     "route": "image/webp-to-png",
+     "similarity": 0.603
+    }
+   ]
+  },
+  {
+   "route": "image/bmp-to-jpg",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "convert",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 171,
+     "intent": 0
+    },
+    "en": {
+     "existing": 292,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 152,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/jpg-to-webp",
+     "similarity": 0.541
+    },
+    {
+     "route": "image/jpg-to-png",
+     "similarity": 0.537
+    },
+    {
+     "route": "image/bmp-to-png",
+     "similarity": 0.53
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-20kb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 239,
+     "intent": 0
+    },
+    "en": {
+     "existing": 439,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 186,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-200kb",
+     "similarity": 0.961
+    },
+    {
+     "route": "image/compress-to-50kb",
+     "similarity": 0.945
+    },
+    {
+     "route": "image/compress-to-100kb",
+     "similarity": 0.943
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-50kb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 239,
+     "intent": 0
+    },
+    "en": {
+     "existing": 439,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 186,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-500kb",
+     "similarity": 0.961
+    },
+    {
+     "route": "image/compress-to-20kb",
+     "similarity": 0.945
+    },
+    {
+     "route": "image/compress-to-100kb",
+     "similarity": 0.943
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-100kb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 241,
+     "intent": 0
+    },
+    "en": {
+     "existing": 441,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 188,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-200kb",
+     "similarity": 0.95
+    },
+    {
+     "route": "image/compress-to-500kb",
+     "similarity": 0.95
+    },
+    {
+     "route": "image/compress-to-20kb",
+     "similarity": 0.943
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-200kb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 241,
+     "intent": 0
+    },
+    "en": {
+     "existing": 441,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 188,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-20kb",
+     "similarity": 0.961
+    },
+    {
+     "route": "image/compress-to-100kb",
+     "similarity": 0.95
+    },
+    {
+     "route": "image/compress-to-500kb",
+     "similarity": 0.95
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-500kb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 241,
+     "intent": 0
+    },
+    "en": {
+     "existing": 441,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 188,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-50kb",
+     "similarity": 0.961
+    },
+    {
+     "route": "image/compress-to-100kb",
+     "similarity": 0.95
+    },
+    {
+     "route": "image/compress-to-200kb",
+     "similarity": 0.95
+    }
+   ]
+  },
+  {
+   "route": "image/compress-to-1mb",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "compress",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 237,
+     "intent": 0
+    },
+    "en": {
+     "existing": 437,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 184,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/compress-to-100kb",
+     "similarity": 0.939
+    },
+    {
+     "route": "image/compress-to-20kb",
+     "similarity": 0.932
+    },
+    {
+     "route": "image/compress-to-50kb",
+     "similarity": 0.932
+    }
+   ]
+  },
+  {
+   "route": "image/resize/instagram-post",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 284,
+     "intent": 0
+    },
+    "en": {
+     "existing": 451,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 236,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/instagram-portrait",
+     "similarity": 0.872
+    },
+    {
+     "route": "image/resize/instagram-story",
+     "similarity": 0.849
+    },
+    {
+     "route": "image/resize/x-header",
+     "similarity": 0.802
+    }
+   ]
+  },
+  {
+   "route": "image/resize/instagram-portrait",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 283,
+     "intent": 0
+    },
+    "en": {
+     "existing": 453,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 235,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/instagram-post",
+     "similarity": 0.872
+    },
+    {
+     "route": "image/resize/instagram-story",
+     "similarity": 0.838
+    },
+    {
+     "route": "image/resize/linkedin-banner",
+     "similarity": 0.793
+    }
+   ]
+  },
+  {
+   "route": "image/resize/instagram-story",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 284,
+     "intent": 0
+    },
+    "en": {
+     "existing": 457,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 242,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/instagram-post",
+     "similarity": 0.849
+    },
+    {
+     "route": "image/resize/instagram-portrait",
+     "similarity": 0.838
+    },
+    {
+     "route": "image/resize/youtube-thumbnail",
+     "similarity": 0.789
+    }
+   ]
+  },
+  {
+   "route": "image/resize/youtube-thumbnail",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 277,
+     "intent": 0
+    },
+    "en": {
+     "existing": 446,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 233,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/youtube-banner",
+     "similarity": 0.848
+    },
+    {
+     "route": "image/resize/discord-banner",
+     "similarity": 0.823
+    },
+    {
+     "route": "image/resize/instagram-post",
+     "similarity": 0.798
+    }
+   ]
+  },
+  {
+   "route": "image/resize/youtube-banner",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 281,
+     "intent": 0
+    },
+    "en": {
+     "existing": 453,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 238,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/youtube-thumbnail",
+     "similarity": 0.848
+    },
+    {
+     "route": "image/resize/discord-banner",
+     "similarity": 0.839
+    },
+    {
+     "route": "image/resize/linkedin-banner",
+     "similarity": 0.8
+    }
+   ]
+  },
+  {
+   "route": "image/resize/x-header",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 278,
+     "intent": 0
+    },
+    "en": {
+     "existing": 446,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 234,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/linkedin-banner",
+     "similarity": 0.814
+    },
+    {
+     "route": "image/resize/instagram-post",
+     "similarity": 0.802
+    },
+    {
+     "route": "image/resize/youtube-thumbnail",
+     "similarity": 0.798
+    }
+   ]
+  },
+  {
+   "route": "image/resize/linkedin-banner",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 276,
+     "intent": 0
+    },
+    "en": {
+     "existing": 443,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 231,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/x-header",
+     "similarity": 0.814
+    },
+    {
+     "route": "image/resize/discord-banner",
+     "similarity": 0.805
+    },
+    {
+     "route": "image/resize/youtube-banner",
+     "similarity": 0.8
+    }
+   ]
+  },
+  {
+   "route": "image/resize/discord-banner",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-image",
+   "family": "file-tool",
+   "workspace": "resize",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 278,
+     "intent": 0
+    },
+    "en": {
+     "existing": 448,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 233,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "image/resize/youtube-banner",
+     "similarity": 0.839
+    },
+    {
+     "route": "image/resize/youtube-thumbnail",
+     "similarity": 0.823
+    },
+    {
+     "route": "image/resize/linkedin-banner",
+     "similarity": 0.805
+    }
+   ]
+  },
+  {
+   "route": "video/mp4-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-gif",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 183,
+     "intent": 0
+    },
+    "en": {
+     "existing": 319,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 156,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/webm-to-gif",
+     "similarity": 0.63
+    },
+    {
+     "route": "video/mov-to-gif",
+     "similarity": 0.601
+    },
+    {
+     "route": "video/mp4-to-mp3",
+     "similarity": 0.26
+    }
+   ]
+  },
+  {
+   "route": "video/mov-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-gif",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 198,
+     "intent": 0
+    },
+    "en": {
+     "existing": 331,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 173,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mp4-to-gif",
+     "similarity": 0.601
+    },
+    {
+     "route": "video/webm-to-gif",
+     "similarity": 0.587
+    },
+    {
+     "route": "video/mov-to-mp3",
+     "similarity": 0.276
+    }
+   ]
+  },
+  {
+   "route": "video/webm-to-gif",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-gif",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 183,
+     "intent": 0
+    },
+    "en": {
+     "existing": 326,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 172,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mp4-to-gif",
+     "similarity": 0.63
+    },
+    {
+     "route": "video/mov-to-gif",
+     "similarity": 0.587
+    },
+    {
+     "route": "video/webm-to-mp3",
+     "similarity": 0.268
+    }
+   ]
+  },
+  {
+   "route": "video/mp4-to-mp3",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-mp3",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 231,
+     "intent": 0
+    },
+    "en": {
+     "existing": 391,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 202,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/webm-to-mp3",
+     "similarity": 0.688
+    },
+    {
+     "route": "video/mov-to-mp3",
+     "similarity": 0.676
+    },
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.393
+    }
+   ]
+  },
+  {
+   "route": "video/mov-to-mp3",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-mp3",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 246,
+     "intent": 0
+    },
+    "en": {
+     "existing": 403,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 219,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mp4-to-mp3",
+     "similarity": 0.676
+    },
+    {
+     "route": "video/webm-to-mp3",
+     "similarity": 0.661
+    },
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.397
+    }
+   ]
+  },
+  {
+   "route": "video/webm-to-mp3",
+   "locales": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "group": "tools-media",
+   "family": "file-tool",
+   "workspace": "video-mp3",
+   "type": null,
+   "intent": null,
+   "existing": {
+    "intro": 3
+   },
+   "sections": [],
+   "chars": {
+    "ko": {
+     "existing": 231,
+     "intent": 0
+    },
+    "en": {
+     "existing": 398,
+     "intent": 0
+    },
+    "ja": {
+     "existing": 218,
+     "intent": 0
+    }
+   },
+   "missing": [
+    "intent content"
+   ],
+   "closest": [
+    {
+     "route": "video/mp4-to-mp3",
+     "similarity": 0.688
+    },
+    {
+     "route": "video/mov-to-mp3",
+     "similarity": 0.661
+    },
+    {
+     "route": "video/to-mp3",
+     "similarity": 0.385
+    }
+   ]
+  }
+ ]
+}
