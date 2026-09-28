@@ -1291,5 +1291,343 @@ export default {
    versions:{body:['Chromium（Playwright）で書き出したスタイルシートをそのままリンクし、`.sprite-…`のルールごとに要素を1つ描いて、スクリーンショットを元画像と比較しました。ほかのブラウザはこの実行に含まれていません。`image-rendering`と`background-position`の動作はMDNの説明に従います。'],sources:[S.mdnRendering,S.mdnPosition]}
   }
  },
+ 'game/texturepacker-to-godot':{
+  type:'conversion',
+  intent:{primary:'use a TexturePacker JSON atlas in Godot 4 as an animated sprite',secondary:['what a TexturePacker data file contains','trim margins in AtlasTexture','no editor plugin','rotated sprites'],
+   goal:'an AnimatedSprite2D in Godot 4 that plays the atlas frames as named animations, trimmed frames at full size',input:'TexturePacker JSON (hash or array) + its PNG',output:'SpriteFrames .tres + new PNG page + .png.import + AnimatedSprite2D .tscn',target:'Godot 4 (bundle format verified in 4.7.2)',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js (TexturePacker JSON reader: trim, pivot, 100 ms default, rotated frames kept turned)','src/game/animation-names.js (name + number grouping)','src/game/export/godot.js (region, margin, filter_clip, relative durations, rotation refused)','docs/STUDIO-PACK.md (Godot 4.7.2 runs)','docs/H2H-PAID.md (TexturePacker Godot plugin v4.3.0 in Godot 4.7.2)'],
+   external:['TexturePacker docs: sprite values (frameRect, cornerOffset, untrimmedSize, rotated, pivotPoint)','TexturePacker docs: trim modes and rotation','CodeAndWeb: Godot importer (tpsheet, AtlasTexture per sprite, AnimationLibrary at 10 fps)','Godot 4.7 docs: AtlasTexture region, margin, filter_clip']},
+  en:{
+   answer:'A TexturePacker JSON data file (hash or array) lists every sprite by name with its rectangle on the PNG, its trim (`spriteSourceSize`, `sourceSize`), a `rotated` flag and optionally a pivot, but no animations and no timing. Drop the PNG and the JSON into Nerulio: frames are read with their trim, grouped into animations by name (walk_01, walk_02 → walk), and exported as a Godot 4 SpriteFrames `.tres`, an AnimatedSprite2D `.tscn` and a `.png.import`, with no editor plugin. Godot 4 only; that bundle format was loaded by Godot 4.7.2.',
+   concept:{title:'What the TexturePacker file holds, and what Godot needs',body:[
+    'TexturePacker\'s JSON is a list of sprites. For each one: `frame` (where the stored pixels are on the PNG), `spriteSourceSize` (where those pixels sat in the original image), `sourceSize` (the original size), `rotated` (the piece lies turned by 90°) and, if you set pivot points, a `pivot` from 0 to 1. `meta.image` names the PNG and `meta.size` gives its size. There is no frame duration and no animation list: animations exist only as a naming convention.',
+    'Godot 4 plays frame animation from a SpriteFrames resource on an AnimatedSprite2D. Each frame there is an AtlasTexture: `region` is the rectangle on the atlas and `margin` adds the trimmed border back, so a trimmed frame keeps its full size. AtlasTexture has `atlas`, `region`, `margin` and `filter_clip` but no rotation property, which is why rotated sprites have to be repacked.',
+    'Nerulio does not reuse TexturePacker\'s PNG as it is. It cuts every frame out with its trim, lets you name tags and set durations on the timeline, and packs a new page for Godot without rotation. The page layout may differ from TexturePacker\'s; the frame names stay.'],
+    terms:[['spriteSourceSize','x, y, w, h of the stored pixels inside the original image.'],['sourceSize','Width and height of the original, untrimmed image.'],['AtlasTexture margin','`Rect2(left, top, width to add, height to add)` that restores a trimmed frame.'],['Relative duration','Godot\'s per-frame multiplier: 1.0 lasts 1 ÷ the animation speed.']]},
+   example:{title:'Example: one trimmed frame from JSON to SpriteFrames',lines:[
+    'TexturePacker JSON                                   Godot 4 SpriteFrames (.tres)',
+    '"run_0": {                                           [sub_resource type="AtlasTexture" …]',
+    '  "frame": {"x":…,"y":…,"w":18,"h":15},              region = Rect2(x, y, 18, 15) on the new page',
+    '  "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15},',
+    '  "sourceSize": {"w":40,"h":29} }                    margin = Rect2(10, 10, 22, 14)',
+    '                                                         22 = 40 − 18,  14 = 29 − 15',
+    '                                                     filter_clip = true',
+    '',
+    'names run_0 … run_5 → animation "run", 6 frames, 100 ms each (the JSON has no timing)',
+    '"speed": 10.0 (1000 / 100 ms)        every frame "duration": 1.0',
+    'set run_5 to 250 ms in the Studio  → run_5 "duration": 2.5 (250 / 100)'],
+    after:'The margin puts the 18 × 15 piece back 10 px from the left and top of a 40 × 29 frame, so Godot draws and measures the frame at its original size.'},
+   mapping:{title:'TexturePacker publish settings and what reaches Godot',head:['Setting in TexturePacker','What the JSON then contains','Result in the Godot 4 bundle'],rows:[
+    ['Data format JSON (Hash) or JSON (Array)','`frames` as an object keyed by name, or as a list with `filename`','Both are read; names are kept without the file extension'],
+    ['Trim mode Trim','`trimmed: true`, `spriteSourceSize`, `sourceSize`','AtlasTexture `margin` restores the full size'],
+    ['Trim mode Crop, flush position','A `sourceSize` equal to the cropped size','Frames arrive at the cropped size; the original canvas cannot be recovered'],
+    ['Allow rotation on','`rotated: true` for the turned sprites','Imported still turned and exported UNVERIFIED; repack with rotation off'],
+    ['Detect identical sprites','Several names point at one rectangle','Every name stays a frame; identical AtlasTextures are shared in the .tres'],
+    ['Pivot points','`pivot` {x, y} from 0 to 1','Frame pivot; the node offset uses the first frame\'s pivot'],
+    ['Sprite names walk_01, walk_02 …','Names only','Animation `walk`, frames in natural order (2 before 10)']]},
+   outputs:{rows:[
+    ['run.tres','SpriteFrames: one animation per tag with speed, loop and relative durations; AtlasTexture `region`, `margin` and `filter_clip`; metadata `nerulio` with pivots and boxes.'],
+    ['run.tscn','An AnimatedSprite2D that uses the resource, with Nearest texture filter and the first frame\'s pivot as offset.'],
+    ['run.png, run.png.import','The new page and its import settings: lossless, no mipmaps, Fix Alpha Border off.'],
+    ['README-GODOT.md','The steps for this bundle.']]},
+   target:{title:'Import it into Godot 4',steps:[
+    'Unzip and copy the whole folder under `res://`, for example `res://characters/run/`; the `.tres` finds the new PNG by a relative path.',
+    'Let the FileSystem dock import it. The shipped `.png.import` keeps faint pixels exact; Godot\'s default import would recolour pixels under alpha 20.',
+    'Drag `run.tscn` into your scene, or load `run.tres` into the Sprite Frames property of your own AnimatedSprite2D.',
+    'Play from a script with `$Hero.play("run")`; connect `animation_finished` for animations that do not loop.',
+    'Remove the old TexturePacker PNG and JSON from the project if nothing else uses them, so the same art is not imported twice.']},
+   verify:{steps:[
+    'SpriteFrames panel: one animation per name group, with the frame count of the JSON (6 for run_0 … run_5).',
+    'Zoom to 400 % and compare a trimmed frame with its original: same size and position, because the margin restored the trim.',
+    '`print($Hero.sprite_frames.get_frame_texture("run", 0).margin)` prints the frame\'s margin Rect2.']},
+   trouble:{rows:[
+    ['Frames were grouped into the wrong animations','Names do not follow name + number, or two groups share a prefix','The Import panel shows how the animations were grouped','Rename frames or fix the tags on the timeline before exporting'],
+    ['Some frames are sideways','Those sprites were packed with rotation','Search the JSON for `"rotated": true`','Repack in TexturePacker with Allow rotation off and drop the new pair of files'],
+    ['Every animation plays at the same speed','The JSON has no timing, so every frame starts at 100 ms','Timeline durations before exporting','Set the real durations per frame or per tag, then export again'],
+    ['The Import panel says frames lie outside the image','The JSON belongs to another PNG, or the PNG was resized after packing','Compare `meta.size` with the PNG\'s size','Drop the PNG named in `meta.image` together with its JSON'],
+    ['Faint pixels (glow, smoke) change colour','The PNG was imported with Godot\'s default Fix Alpha Border instead of the shipped `.png.import`','Import dock of the PNG','Keep the shipped `.png.import`, or turn Fix Alpha Border off and reimport']]},
+   alternatives:{rows:[
+    ['TexturePacker\'s own Godot importer (Godot SpriteSheet `.tpsheet` + plugin)','You keep publishing from TexturePacker and want automatic reimport. According to CodeAndWeb it creates one AtlasTexture per sprite in a `.sprites` folder and an AnimationLibrary with looping animations at 10 fps. In our Godot 4.7.2 test it drew correctly, but under Godot\'s default PNG import faint pixels changed in 2 of 10 archer frames.'],
+    ['Add Frames from Sprite Sheet in Godot','Only for sheets on an even grid; a packed atlas has frames of different sizes. See [[game/godot-sprite-sheet|sprite sheets in Godot]].'],
+    ['Start from the source instead','If you still have the .aseprite file, [[game/aseprite-to-godot|Aseprite to Godot]] keeps tags and durations that a TexturePacker JSON never had.']]},
+   limits:['Rotated sprites in the JSON are imported still turned, and exporting them is UNVERIFIED.','TexturePacker\'s `.tpsheet` format is not read; publish the sheet as JSON (Hash or Array).','Polygon-packed sheets are read as rectangles; the polygon meshes are ignored.'],
+   versions:{body:['Nerulio\'s Godot 4 bundle (SpriteFrames .tres, .tscn, .png.import) was loaded by Godot 4.7.2, and every frame was drawn at 1× and 4× and compared with its source; the TexturePacker JSON reader is `src/studio/sprite/atlas-data.js`. TexturePacker 8.3.0 and its Godot plugin v4.3.0 were run in the 2026-09-25 comparison. Godot behaviour follows the Godot 4.7 docs; the plugin\'s behaviour is quoted from CodeAndWeb.'],sources:[S.tpExporter,S.tpSettings,S.tpGodot,S.godotAtlas,S.godotFrames]}
+  },
+  ko:{
+   answer:'TexturePacker JSON 데이터 파일(해시 또는 배열)에는 스프라이트마다 이름, PNG 위 사각형, 트림(`spriteSourceSize`, `sourceSize`), `rotated` 표시, 선택적으로 피벗이 있지만 애니메이션과 시간 정보는 없습니다. PNG와 JSON을 Nerulio에 함께 넣으면 트림을 반영해 프레임을 읽고, 이름으로 애니메이션을 묶고(walk_01, walk_02 → walk), 편집기 플러그인 없이 Godot 4용 SpriteFrames `.tres`, AnimatedSprite2D `.tscn`, `.png.import`로 내보냅니다. Godot 4 전용이며, 이 번들 형식은 Godot 4.7.2에서 불러와 확인했습니다.',
+   concept:{title:'TexturePacker 파일에 든 것과 Godot가 필요로 하는 것',body:[
+    'TexturePacker의 JSON은 스프라이트 목록입니다. 각각에 `frame`(PNG 위에 저장된 픽셀 위치), `spriteSourceSize`(그 픽셀이 원래 이미지에서 있던 위치), `sourceSize`(원래 크기), `rotated`(조각이 90도 돌려져 있음), 그리고 피벗을 설정했다면 0–1 범위의 `pivot`이 있습니다. `meta.image`가 PNG 이름, `meta.size`가 그 크기입니다. 프레임 길이도 애니메이션 목록도 없고, 애니메이션은 이름 규칙으로만 존재합니다.',
+    'Godot 4는 AnimatedSprite2D가 SpriteFrames 리소스를 재생해 프레임 애니메이션을 보여 줍니다. 여기서 프레임 하나는 AtlasTexture이며, `region`은 아틀라스 위 사각형이고 `margin`이 트림된 테두리를 되돌려 주어 트림된 프레임도 원래 크기를 유지합니다. AtlasTexture에는 `atlas`, `region`, `margin`, `filter_clip`만 있고 회전 속성이 없기 때문에, 회전된 스프라이트는 다시 패킹해야 합니다.',
+    'Nerulio는 TexturePacker의 PNG를 그대로 쓰지 않습니다. 모든 프레임을 트림째 잘라 내고, 타임라인에서 태그 이름과 길이를 정하게 한 다음, 회전 없이 Godot용 새 페이지를 패킹합니다. 페이지 배치는 TexturePacker와 다를 수 있지만 프레임 이름은 그대로입니다.'],
+    terms:[['spriteSourceSize','원래 이미지 안에서 저장된 픽셀의 x, y, w, h.'],['sourceSize','트림 전 원래 이미지의 너비와 높이.'],['AtlasTexture margin','트림된 프레임을 되살리는 `Rect2(왼쪽, 위, 더할 너비, 더할 높이)`.'],['상대 길이','Godot의 프레임별 배수. 1.0은 1 ÷ 애니메이션 속도만큼 보임.']]},
+   example:{title:'예시: 트림된 프레임 하나를 JSON에서 SpriteFrames로',lines:[
+    'TexturePacker JSON                                   Godot 4 SpriteFrames (.tres)',
+    '"run_0": {                                           [sub_resource type="AtlasTexture" …]',
+    '  "frame": {"x":…,"y":…,"w":18,"h":15},              region = Rect2(x, y, 18, 15), 새 페이지 기준',
+    '  "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15},',
+    '  "sourceSize": {"w":40,"h":29} }                    margin = Rect2(10, 10, 22, 14)',
+    '                                                         22 = 40 − 18,  14 = 29 − 15',
+    '                                                     filter_clip = true',
+    '',
+    '이름 run_0 … run_5 → 애니메이션 "run", 6프레임, 각 100ms (JSON에 시간 정보 없음)',
+    '"speed": 10.0 (1000 / 100ms)        모든 프레임 "duration": 1.0',
+    'Studio에서 run_5를 250ms로       → run_5 "duration": 2.5 (250 / 100)'],
+    after:'margin이 18 × 15 조각을 40 × 29 프레임의 왼쪽과 위에서 10px 안쪽에 되돌려 놓으므로, Godot는 원래 크기로 프레임을 그리고 잽니다.'},
+   mapping:{title:'TexturePacker 퍼블리시 설정과 Godot에 도착하는 것',head:['TexturePacker 설정','그때 JSON에 들어가는 것','Godot 4 번들의 결과'],rows:[
+    ['데이터 형식 JSON (Hash) 또는 JSON (Array)','이름을 키로 한 객체 또는 `filename`이 있는 목록의 `frames`','둘 다 읽음. 이름은 확장자 없이 유지'],
+    ['Trim mode Trim','`trimmed: true`, `spriteSourceSize`, `sourceSize`','AtlasTexture `margin`이 원래 크기를 되살림'],
+    ['Trim mode Crop, flush position','잘린 크기와 같은 `sourceSize`','프레임이 잘린 크기로 도착하며 원래 캔버스는 되찾을 수 없음'],
+    ['Allow rotation 켬','돌린 스프라이트에 `rotated: true`','돌려진 채로 가져오며 내보내기는 미검증. 회전 없이 다시 패킹'],
+    ['Detect identical sprites','여러 이름이 한 사각형을 가리킴','이름마다 프레임이 유지되고 .tres에서 같은 AtlasTexture를 공유'],
+    ['피벗 포인트','0–1 범위의 `pivot` {x, y}','프레임 피벗. 노드 오프셋은 첫 프레임의 피벗'],
+    ['스프라이트 이름 walk_01, walk_02 …','이름뿐','애니메이션 `walk`, 자연 순서(2가 10보다 먼저)']]},
+   outputs:{rows:[
+    ['run.tres','SpriteFrames: 태그마다 속도·반복·상대 길이가 있는 애니메이션, AtlasTexture의 `region`·`margin`·`filter_clip`, 피벗과 박스가 든 메타데이터 `nerulio`.'],
+    ['run.tscn','이 리소스를 쓰는 AnimatedSprite2D. Nearest 텍스처 필터, 첫 프레임 피벗을 오프셋으로.'],
+    ['run.png, run.png.import','새 페이지와 가져오기 설정: 무손실, 밉맵 없음, Fix Alpha Border 끔.'],
+    ['README-GODOT.md','이 번들의 단계 설명.']]},
+   target:{title:'Godot 4로 가져오기',steps:[
+    '압축을 풀고 폴더째 `res://` 아래에 복사합니다(예: `res://characters/run/`). `.tres`가 상대 경로로 새 PNG를 찾습니다.',
+    '파일시스템 독이 가져오게 둡니다. 함께 온 `.png.import`가 흐린 픽셀을 정확히 지켜 줍니다. Godot 기본 가져오기는 알파 20 미만 픽셀의 색을 바꿉니다.',
+    '`run.tscn`을 씬에 끌어 놓거나, 직접 만든 AnimatedSprite2D의 Sprite Frames 속성에 `run.tres`를 지정합니다.',
+    '스크립트에서 `$Hero.play("run")`으로 재생하고, 반복하지 않는 애니메이션은 `animation_finished`를 연결합니다.',
+    '다른 곳에서 쓰지 않는다면 예전 TexturePacker PNG와 JSON을 프로젝트에서 지워 같은 그림을 두 번 가져오지 않게 합니다.']},
+   verify:{steps:[
+    'SpriteFrames 패널: 이름 그룹마다 애니메이션 하나, 프레임 수는 JSON과 같음(run_0 … run_5면 6).',
+    '400%로 확대해 트림된 프레임을 원본과 비교합니다. margin이 트림을 되살렸으므로 크기와 위치가 같아야 합니다.',
+    '`print($Hero.sprite_frames.get_frame_texture("run", 0).margin)`이 그 프레임의 margin Rect2를 출력합니다.']},
+   trouble:{rows:[
+    ['프레임이 엉뚱한 애니메이션으로 묶임','이름이 "이름 + 번호" 규칙을 따르지 않거나 두 그룹이 접두어를 공유','가져오기 패널에 묶인 방식이 표시됨','내보내기 전에 타임라인에서 프레임 이름이나 태그를 고침'],
+    ['일부 프레임이 옆으로 누움','그 스프라이트가 회전된 채 패킹됨','JSON에서 `"rotated": true` 검색','TexturePacker에서 Allow rotation을 끄고 다시 패킹한 뒤 새 파일 쌍을 넣음'],
+    ['모든 애니메이션이 같은 속도로 재생됨','JSON에 시간 정보가 없어 모든 프레임이 100ms로 시작','내보내기 전 타임라인의 길이','프레임이나 태그마다 실제 길이를 정하고 다시 내보냄'],
+    ['가져오기 패널에 이미지 밖에 있는 프레임이 있다고 나옴','JSON이 다른 PNG의 것이거나 패킹 후 PNG 크기가 바뀜','`meta.size`와 PNG 크기 비교','`meta.image`에 적힌 PNG를 그 JSON과 함께 넣음'],
+    ['흐린 픽셀(빛, 연기)의 색이 바뀜','함께 온 `.png.import` 대신 Godot 기본값(Fix Alpha Border 켬)으로 가져옴','PNG의 Import 독','함께 온 `.png.import`를 유지하거나 Fix Alpha Border를 끄고 다시 가져옴']]},
+   alternatives:{rows:[
+    ['TexturePacker 자체 Godot 가져오기(Godot SpriteSheet `.tpsheet` + 플러그인)','계속 TexturePacker에서 퍼블리시하며 자동으로 다시 가져오고 싶을 때. CodeAndWeb 설명에 따르면 `.sprites` 폴더에 스프라이트마다 AtlasTexture를, 10fps로 반복하는 애니메이션의 AnimationLibrary를 만듭니다. Godot 4.7.2 시험에서 올바르게 그려졌지만, Godot 기본 PNG 가져오기에서는 궁수 10프레임 중 2프레임에서 흐린 픽셀이 바뀌었습니다.'],
+    ['Godot의 Add Frames from Sprite Sheet','균일한 격자 시트에만 맞습니다. 패킹된 아틀라스는 프레임 크기가 제각각입니다. [[game/godot-sprite-sheet|Godot에서 스프라이트 시트]] 참고.'],
+    ['원본에서 시작','.aseprite 파일이 남아 있다면 [[game/aseprite-to-godot|Aseprite를 Godot로]]가 TexturePacker JSON에는 없던 태그와 길이를 지켜 줍니다.']]},
+   limits:['JSON의 회전된 스프라이트는 돌려진 채로 가져오며, 내보내기는 미검증입니다.','TexturePacker의 `.tpsheet` 형식은 읽지 않습니다. 시트를 JSON(Hash 또는 Array)으로 퍼블리시하세요.','폴리곤으로 패킹된 시트는 사각형으로 읽으며 폴리곤 메시는 무시합니다.'],
+   versions:{body:['Nerulio의 Godot 4 번들(SpriteFrames .tres, .tscn, .png.import)을 Godot 4.7.2에서 불러와 모든 프레임을 1배와 4배로 그려 원본과 비교했습니다. TexturePacker JSON 읽기는 `src/studio/sprite/atlas-data.js`입니다. TexturePacker 8.3.0과 Godot 플러그인 v4.3.0은 2026-09-25 비교에서 실행했습니다. Godot 동작은 Godot 4.7 문서를, 플러그인 동작은 CodeAndWeb 설명을 따릅니다.'],sources:[S.tpExporter,S.tpSettings,S.tpGodot,S.godotAtlas,S.godotFrames]}
+  },
+  ja:{
+   answer:'TexturePackerのJSONデータファイル（ハッシュまたは配列）には、スプライトごとに名前、PNG上の矩形、トリム（`spriteSourceSize`、`sourceSize`）、`rotated`フラグ、必要ならピボットが入っていますが、アニメーションと時間の情報はありません。PNGとJSONをNerulioにまとめて入れると、トリムを反映してフレームを読み、名前でアニメーションにまとめ（walk_01、walk_02 → walk）、エディタープラグインなしでGodot 4用のSpriteFrames `.tres`、AnimatedSprite2D `.tscn`、`.png.import`として書き出します。Godot 4専用で、このバンドル形式はGodot 4.7.2で読み込みを確認しています。',
+   concept:{title:'TexturePackerのファイルの中身と、Godotに必要なもの',body:[
+    'TexturePackerのJSONはスプライトの一覧です。それぞれに`frame`（PNG上の保存ピクセルの位置）、`spriteSourceSize`（そのピクセルが元画像のどこにあったか）、`sourceSize`（元の大きさ）、`rotated`（断片が90度回転している）、ピボットを設定したなら0–1の`pivot`があります。`meta.image`がPNGの名前、`meta.size`がその大きさです。フレームの長さもアニメーションの一覧もなく、アニメーションは名前の付け方としてしか存在しません。',
+    'Godot 4では、AnimatedSprite2DがSpriteFramesリソースを再生してフレームアニメーションを表示します。ここでの1フレームはAtlasTextureで、`region`がアトラス上の矩形、`margin`がトリムした余白を戻すので、トリムしたフレームも元の大きさを保ちます。AtlasTextureには`atlas`、`region`、`margin`、`filter_clip`があるだけで回転のプロパティはないため、回転したスプライトはパックし直す必要があります。',
+    'NerulioはTexturePackerのPNGをそのままは使いません。全フレームをトリムごと切り出し、タイムラインでタグの名前と長さを決めさせてから、回転なしでGodot用の新しいページをパックします。ページの配置はTexturePackerと違うことがありますが、フレーム名は変わりません。'],
+    terms:[['spriteSourceSize','元画像の中での保存ピクセルのx, y, w, h。'],['sourceSize','トリム前の元画像の幅と高さ。'],['AtlasTextureのmargin','トリムしたフレームを戻す`Rect2(左, 上, 足す幅, 足す高さ)`。'],['相対の長さ','Godotのフレームごとの倍率。1.0は1 ÷ アニメーション速度だけ表示。']]},
+   example:{title:'例：トリムしたフレーム1つをJSONからSpriteFramesへ',lines:[
+    'TexturePacker JSON                                   Godot 4 SpriteFrames (.tres)',
+    '"run_0": {                                           [sub_resource type="AtlasTexture" …]',
+    '  "frame": {"x":…,"y":…,"w":18,"h":15},              region = Rect2(x, y, 18, 15)、新しいページ上',
+    '  "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15},',
+    '  "sourceSize": {"w":40,"h":29} }                    margin = Rect2(10, 10, 22, 14)',
+    '                                                         22 = 40 − 18,  14 = 29 − 15',
+    '                                                     filter_clip = true',
+    '',
+    '名前 run_0 … run_5 → アニメーション "run"、6フレーム、各100ms（JSONに時間の情報なし）',
+    '"speed": 10.0 (1000 / 100ms)        全フレーム "duration": 1.0',
+    'Studioでrun_5を250msに           → run_5 "duration": 2.5 (250 / 100)'],
+    after:'marginが18 × 15の断片を40 × 29のフレームの左と上から10px内側に戻すので、Godotはフレームを元の大きさで描き、大きさを測ります。'},
+   mapping:{title:'TexturePackerのパブリッシュ設定と、Godotに届くもの',head:['TexturePackerの設定','そのときJSONに入るもの','Godot 4バンドルでの結果'],rows:[
+    ['データ形式 JSON (Hash) または JSON (Array)','名前をキーにしたオブジェクト、または`filename`を持つリストの`frames`','どちらも読む。名前は拡張子なしで保持'],
+    ['Trim mode Trim','`trimmed: true`、`spriteSourceSize`、`sourceSize`','AtlasTextureの`margin`が元の大きさを戻す'],
+    ['Trim mode Crop, flush position','切り詰めた大きさと同じ`sourceSize`','フレームは切り詰めた大きさで届き、元のキャンバスは取り戻せない'],
+    ['Allow rotationオン','回したスプライトに`rotated: true`','回ったまま取り込み、書き出しは未検証。回転なしでパックし直す'],
+    ['Detect identical sprites','複数の名前が1つの矩形を指す','名前ごとにフレームは残り、.tresでは同じAtlasTextureを共有'],
+    ['ピボットポイント','0–1の`pivot` {x, y}','フレームのピボット。ノードのオフセットは最初のフレームのピボット'],
+    ['スプライト名 walk_01、walk_02 …','名前だけ','アニメーション`walk`、自然順（2が10より先）']]},
+   outputs:{rows:[
+    ['run.tres','SpriteFrames：タグごとに速度・ループ・相対の長さを持つアニメーション、AtlasTextureの`region`・`margin`・`filter_clip`、ピボットとボックス入りのメタデータ`nerulio`。'],
+    ['run.tscn','このリソースを使うAnimatedSprite2D。Nearestのテクスチャフィルター、最初のフレームのピボットをオフセットに。'],
+    ['run.png、run.png.import','新しいページとインポート設定：可逆、ミップマップなし、Fix Alpha Borderオフ。'],
+    ['README-GODOT.md','このバンドルの手順。']]},
+   target:{title:'Godot 4に取り込む',steps:[
+    '展開してフォルダーごと`res://`以下にコピーします（例：`res://characters/run/`）。`.tres`は相対パスで新しいPNGを探します。',
+    'ファイルシステムドックに取り込ませます。同梱の`.png.import`が薄いピクセルを正確に保ちます。Godotの既定のインポートはアルファ20未満のピクセルの色を変えてしまいます。',
+    '`run.tscn`をシーンにドラッグするか、自分のAnimatedSprite2DのSprite Frames属性に`run.tres`を読み込みます。',
+    'スクリプトでは`$Hero.play("run")`で再生し、ループしないアニメーションには`animation_finished`をつなぎます。',
+    'ほかで使っていなければ、古いTexturePackerのPNGとJSONをプロジェクトから外し、同じ絵を二重に取り込まないようにします。']},
+   verify:{steps:[
+    'SpriteFramesパネル：名前のグループごとにアニメーションが1つあり、フレーム数はJSONと同じ（run_0 … run_5なら6）。',
+    '400%に拡大して、トリムしたフレームを元画像と比べます。marginがトリムを戻しているので、大きさと位置が同じはずです。',
+    '`print($Hero.sprite_frames.get_frame_texture("run", 0).margin)`がそのフレームのmarginのRect2を出力します。']},
+   trouble:{rows:[
+    ['フレームが違うアニメーションにまとめられた','名前が「名前＋番号」になっていない、または2つのグループが接頭辞を共有','インポートパネルにまとめ方が表示される','書き出し前に、タイムラインでフレーム名やタグを直す'],
+    ['一部のフレームが横倒し','そのスプライトが回転ありでパックされた','JSONで`"rotated": true`を検索','TexturePackerでAllow rotationをオフにしてパックし直し、新しいファイルの組を入れる'],
+    ['どのアニメーションも同じ速さで再生される','JSONに時間の情報がなく、全フレームが100msから始まる','書き出し前のタイムラインの長さ','フレームやタグごとに実際の長さを設定して書き出し直す'],
+    ['インポートパネルに画像の外にあるフレームがあると出る','JSONが別のPNGのもの、またはパック後にPNGの大きさを変えた','`meta.size`とPNGの大きさを比べる','`meta.image`に書かれたPNGを、そのJSONと一緒に入れる'],
+    ['薄いピクセル（光・煙）の色が変わる','同梱の`.png.import`ではなく、Godot既定のFix Alpha Borderオンで取り込んだ','PNGのインポートドック','同梱の`.png.import`を残すか、Fix Alpha Borderを切って再インポート']]},
+   alternatives:{rows:[
+    ['TexturePacker純正のGodotインポーター（Godot SpriteSheet `.tpsheet`＋プラグイン）','TexturePackerからのパブリッシュを続け、自動で再インポートさせたいとき。CodeAndWebの説明では、`.sprites`フォルダーにスプライトごとのAtlasTextureと、10fpsでループするアニメーションのAnimationLibraryを作ります。Godot 4.7.2での試験では正しく描かれましたが、Godot既定のPNGインポートでは弓兵10フレーム中2フレームで薄いピクセルが変わりました。'],
+    ['GodotのAdd Frames from Sprite Sheet','均一なグリッドのシート専用です。パック済みアトラスはフレームの大きさがばらばらです。[[game/godot-sprite-sheet|Godotでスプライトシート]]を参照。'],
+    ['元データから始める','.asepriteファイルが残っているなら、[[game/aseprite-to-godot|AsepriteからGodotへ]]がTexturePackerのJSONにはなかったタグと長さを保ちます。']]},
+   limits:['JSON内の回転したスプライトは回ったまま取り込まれ、その書き出しは未検証です。','TexturePackerの`.tpsheet`形式は読みません。シートはJSON（HashかArray）でパブリッシュしてください。','ポリゴンでパックしたシートは矩形として読み、ポリゴンのメッシュは無視します。'],
+   versions:{body:['NerulioのGodot 4バンドル（SpriteFrames .tres、.tscn、.png.import）をGodot 4.7.2で読み込み、全フレームを1倍と4倍で描いて元画像と比較しました。TexturePackerのJSONの読み込みは`src/studio/sprite/atlas-data.js`です。TexturePacker 8.3.0とGodotプラグインv4.3.0は2026-09-25の比較で実行しました。Godotの動作はGodot 4.7のドキュメントに、プラグインの動作はCodeAndWebの説明に従います。'],sources:[S.tpExporter,S.tpSettings,S.tpGodot,S.godotAtlas,S.godotFrames]}
+  }
+ },
+ 'game/texturepacker-to-unity':{
+  type:'conversion',
+  intent:{primary:'use a TexturePacker JSON atlas in Unity as sliced sprites and animation clips',secondary:['y axis flip from top-left to bottom-left','pivots inside trimmed rects','no TexturePacker Importer package'],
+   goal:'a Sprite Mode Multiple texture in Unity 6 with one named sprite per frame, correct pivots and one AnimationClip per animation',input:'TexturePacker JSON (hash or array) + its PNG',output:'PNG page + .unity.json + Editor/NerulioSpriteImporter.cs',target:'Unity 6 (verified 6000.5.3f1)',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js (TexturePacker JSON reader)','src/game/export/unity.js (rect y flip, pivot normalisation, importer settings, clips)','docs/STUDIO-PACK.md (Unity 6000.5.3f1 batch runs)','docs/H2H-PAID.md (TexturePacker Importer for Unity not measured)'],
+   external:['TexturePacker docs: sprite values and trim modes','Unity 6 manual: Sprite texture import settings (Sprite Mode, Pixels Per Unit, Filter Mode)']},
+  en:{
+   answer:'A TexturePacker JSON gives every sprite\'s rectangle measured from the top-left of the PNG, its trim and an optional pivot from 0 to 1; Unity wants sprite rects measured from the bottom-left and a pivot relative to each rect. Drop the PNG and JSON into Nerulio and export for Unity 6: the bundle holds the converted rects and pivots in a `.unity.json` plus `NerulioSpriteImporter.cs`, an editor script that slices the texture (Sprite, Multiple, Point, uncompressed) and builds one AnimationClip per animation. Unity 6000.5.3f1 ran it in batch mode.',
+   concept:{title:'Top-left rectangles, bottom-left sprites',body:[
+    'Unity keeps several sprites on one texture as a texture with Sprite Mode Multiple and a list of sprite rectangles. Each rect is measured in pixels from the bottom-left corner, and each sprite\'s pivot is a point from 0 to 1 inside its own rect.',
+    'TexturePacker\'s y axis runs down from the top, so a frame at y with height h becomes rect y = page height − (y + h). A trimmed frame\'s rect holds only its stored pixels, so a pivot defined on the full frame must move into that rect: pivot x = (pivot px − trim x) ÷ w, and pivot y = (h − (pivot py − trim y)) ÷ h. A value outside 0–1 is correct; it means the pivot lies in the trimmed-away border.',
+    'Pixels Per Unit decides how large a sprite is in world units: 100 by default, and the script applies the value written in the JSON. Animation in Unity is an AnimationClip that swaps the SpriteRenderer\'s sprite at key times; the script writes one key at each frame\'s own start time.'],
+    terms:[['Sprite Mode Multiple','One texture holding many named sprite rects.'],['Sprite rect','Rectangle, pivot and name of one sprite on the texture, in pixels from the bottom-left.'],['Pixels Per Unit','Texture pixels per world unit.'],['AnimationClip','Keyframes that change the SpriteRenderer\'s sprite over time.']]},
+   example:{title:'Example: converting one trimmed frame',lines:[
+    'frame run_0 on the packed 38 × 50 page: x 0, y 34, w 18, h 15',
+    'trim at (10, 10) in a 40 × 29 frame; pivot bottom centre = (20, 29) px on the full frame',
+    '',
+    'Unity rect y  = 50 − (34 + 15) = 1                rect = (0, 1, 18, 15)',
+    'pivot x       = (20 − 10) / 18 = 0.5556',
+    'pivot y       = (15 − (29 − 10)) / 15 = −0.2667   below the rect: the feet are in trimmed-away rows',
+    '',
+    'clip "run": sprite keys at 0.0, 0.1, 0.2, 0.3, 0.4, 0.5 s, loop on, 0.6 s per cycle'],
+    after:'All six frames get pivots that point at the same spot of the original 40 × 29 frame, so the character does not jitter although each rect has a different trim.'},
+   mapping:{title:'TexturePacker publish settings and the Unity result',head:['Setting in TexturePacker','What the JSON then contains','In Unity 6 after the importer script'],rows:[
+    ['Data format JSON (Hash) or JSON (Array)','`frames` by name, or a list with `filename`','Sprite names = frame names without extension'],
+    ['Trim mode Trim','`spriteSourceSize`, `sourceSize`','Rect = stored pixels; pivot normalised inside it, so every frame keeps one anchor'],
+    ['Allow rotation on','`rotated: true`','The Unity target refuses a rotated pack: repack with rotation off'],
+    ['Pivot points','`pivot` from 0 to 1 on the full sprite','Custom pivot of each sprite, converted into the trimmed rect'],
+    ['Max size, multipack','`meta.size`; one JSON + PNG pair per page','The script raises the texture\'s Max Size to the next power of two that fits the page'],
+    ['(no setting)','No timing','Clips start at 100 ms per frame until you set durations in the Studio']]},
+   outputs:{rows:[
+    ['run.png','The page texture (Nerulio\'s new packing, no rotation).'],
+    ['run.unity.json','Pixels Per Unit, textures, sprites (rect, pivot, border) and clips with key times and loop.'],
+    ['Editor/NerulioSpriteImporter.cs','Editor script: Tools › Nerulio › Import Studio JSON applies the texture settings and sprite rects, then writes the `.anim` clips.'],
+    ['README-UNITY.md','The steps for this bundle.']]},
+   target:{title:'Import it into Unity 6',steps:[
+    'Copy the folder into `Assets/`, keeping `Editor/` inside it so that Unity compiles `NerulioSpriteImporter.cs` as an editor script.',
+    'Make sure the 2D Sprite package (com.unity.2d.sprite) is installed; the 2D templates include it.',
+    'Run Tools › Nerulio › Import Studio JSON and pick `run.unity.json`: the sprites appear on the texture and the `.anim` clips next to the JSON.',
+    'Add the clips to an Animator Controller on your character\'s SpriteRenderer object; each clip animates its sprite.',
+    'If your game uses another scale, change `pixelsPerUnit` in the `.unity.json` before running the import.']},
+   verify:{steps:[
+    'Open the texture in the Sprite Editor: six rects named run_0 … run_5, each pivot at the feet (below the rect for trimmed frames).',
+    'Play the `run` clip: 0.6 s per cycle, and the character does not move up or down between frames.',
+    'Texture inspector: Sprite Mode Multiple, Filter Mode Point, no compression, no mipmaps.']},
+   trouble:{rows:[
+    ['Sprites cut in the wrong places, shifted vertically','Rects typed in from the JSON without flipping y','Compare a rect\'s y with page height − (y + h)','Use the importer script, which converts y'],
+    ['The character jumps between frames','Pivots left at Center for trimmed rects','Sprite Editor: the pivot of each sprite','Import with the script; pivots are normalised inside each trimmed rect'],
+    ['The menu Tools › Nerulio is missing','The script is not in an Editor folder, or compile errors elsewhere block it','The Console for compile errors','Keep `Editor/NerulioSpriteImporter.cs` in an Editor folder and install com.unity.2d.sprite'],
+    ['Sprites look blurry or blocky-compressed','Texture settings changed after the import (Bilinear, compression)','The texture inspector','Point filter, no compression; see [[game/unity-pixel-art-blurry|blurry pixel art in Unity]]'],
+    ['Hit boxes are missing','A Unity sprite has no field for them, so this importer does not carry them','The export notes say so','Export Generic JSON for the boxes and create colliders yourself']]},
+   alternatives:{rows:[
+    ['TexturePacker\'s own Unity importer','You publish from TexturePacker for Unity regularly. It is distributed through the Unity Asset Store and was not measured here.'],
+    ['The Sprite Editor\'s grid slicing','The sheet is an even grid; for a packed atlas the rects must come from the data file. See [[game/unity-sprite-sheet|sprite sheets in Unity]].'],
+    ['Start from the source','With the .aseprite file, [[game/aseprite-to-unity|Aseprite to Unity]] keeps tags and durations that a TexturePacker JSON never had.']]},
+   limits:['Rotated sprites in the JSON are imported still turned; the Unity target refuses a rotated pack.','Frame timing is not in TexturePacker\'s JSON: set durations before exporting.','Collision polygons and hit boxes are not written as Unity physics shapes.'],
+   versions:{body:['Unity 6000.5.3f1 in batch mode ran `NerulioSpriteImporter.cs` on exported bundles and read back rects, pivots (one common anchor), pixels, clip keys and durations. The TexturePacker import is `src/studio/sprite/atlas-data.js`; TexturePacker\'s own Unity importer was not tested. Unity terms follow the Unity 6 manual.'],sources:[S.tpExporter,S.tpSettings,S.unitySprite]}
+  },
+  ko:{
+   answer:'TexturePacker JSON은 스프라이트마다 PNG 왼쪽 위에서 잰 사각형, 트림, 선택적인 0–1 피벗을 줍니다. Unity는 왼쪽 아래에서 잰 스프라이트 사각형과 사각형마다의 상대 피벗을 원합니다. PNG와 JSON을 Nerulio에 넣고 Unity 6용으로 내보내면, 변환된 사각형과 피벗이 든 `.unity.json`과, 텍스처를 잘라(Sprite, Multiple, Point, 무압축) 애니메이션마다 AnimationClip을 만드는 편집기 스크립트 `NerulioSpriteImporter.cs`가 번들에 들어 있습니다. Unity 6000.5.3f1 배치 모드에서 실행해 확인했습니다.',
+   concept:{title:'왼쪽 위 기준 사각형, 왼쪽 아래 기준 스프라이트',body:[
+    'Unity는 텍스처 하나에 여러 스프라이트를 둘 때 Sprite Mode를 Multiple로 하고 스프라이트 사각형 목록을 둡니다. 사각형은 왼쪽 아래 모서리부터 픽셀로 재고, 스프라이트의 피벗은 자기 사각형 안의 0–1 좌표입니다.',
+    'TexturePacker의 y축은 위에서 아래로 내려가므로, y 위치에 높이 h인 프레임은 사각형 y = 페이지 높이 − (y + h)가 됩니다. 트림된 프레임의 사각형에는 저장된 픽셀만 있으므로, 전체 프레임 기준 피벗을 그 사각형 안으로 옮겨야 합니다. 피벗 x = (피벗 px − 트림 x) ÷ w, 피벗 y = (h − (피벗 py − 트림 y)) ÷ h. 0–1을 벗어난 값이 맞는 값이며, 피벗이 잘려 나간 테두리 쪽에 있다는 뜻입니다.',
+    'Pixels Per Unit은 스프라이트가 월드 단위로 얼마나 큰지 정합니다. 기본 100이며 스크립트는 JSON에 적힌 값을 적용합니다. Unity의 애니메이션은 정해진 시각마다 SpriteRenderer의 스프라이트를 바꾸는 AnimationClip이고, 스크립트는 프레임마다 자기 시작 시각에 키를 하나씩 씁니다.'],
+    terms:[['Sprite Mode Multiple','이름 붙은 스프라이트 사각형 여러 개를 담은 텍스처 하나.'],['스프라이트 사각형','텍스처 위 스프라이트 하나의 사각형·피벗·이름. 왼쪽 아래부터 픽셀 단위.'],['Pixels Per Unit','월드 단위 하나에 해당하는 텍스처 픽셀 수.'],['AnimationClip','시간에 따라 SpriteRenderer의 스프라이트를 바꾸는 키프레임.']]},
+   example:{title:'예시: 트림된 프레임 하나 변환하기',lines:[
+    '패킹된 38 × 50 페이지 위 run_0: x 0, y 34, w 18, h 15',
+    '40 × 29 프레임에서 트림 위치 (10, 10), 피벗은 아래쪽 가운데 = 전체 프레임 기준 (20, 29) px',
+    '',
+    'Unity 사각형 y = 50 − (34 + 15) = 1                사각형 = (0, 1, 18, 15)',
+    '피벗 x        = (20 − 10) / 18 = 0.5556',
+    '피벗 y        = (15 − (29 − 10)) / 15 = −0.2667    사각형 아래: 발이 잘려 나간 줄에 있음',
+    '',
+    '클립 "run": 스프라이트 키 0.0, 0.1, 0.2, 0.3, 0.4, 0.5초, 반복 켬, 한 바퀴 0.6초'],
+    after:'여섯 프레임의 피벗이 모두 원래 40 × 29 프레임의 같은 점을 가리키므로, 사각형마다 트림이 달라도 캐릭터가 흔들리지 않습니다.'},
+   mapping:{title:'TexturePacker 퍼블리시 설정과 Unity 결과',head:['TexturePacker 설정','그때 JSON에 들어가는 것','가져오기 스크립트 실행 후 Unity 6'],rows:[
+    ['데이터 형식 JSON (Hash) 또는 JSON (Array)','이름별 `frames` 또는 `filename`이 있는 목록','스프라이트 이름 = 확장자 없는 프레임 이름'],
+    ['Trim mode Trim','`spriteSourceSize`, `sourceSize`','사각형 = 저장된 픽셀. 그 안에서 피벗을 정규화해 모든 프레임이 기준점 하나를 공유'],
+    ['Allow rotation 켬','`rotated: true`','Unity 대상은 회전된 패킹을 거부: 회전 없이 다시 패킹'],
+    ['피벗 포인트','전체 스프라이트 기준 0–1 `pivot`','스프라이트마다 사용자 피벗. 트림된 사각형 안으로 변환'],
+    ['최대 크기, 멀티팩','`meta.size`. 페이지마다 JSON + PNG 한 쌍','스크립트가 텍스처 Max Size를 페이지가 들어가는 다음 2의 거듭제곱으로 올림'],
+    ['(설정 없음)','시간 정보 없음','Studio에서 길이를 정하기 전까지 클립은 프레임당 100ms']]},
+   outputs:{rows:[
+    ['run.png','페이지 텍스처(Nerulio가 새로 패킹, 회전 없음).'],
+    ['run.unity.json','Pixels Per Unit, 텍스처, 스프라이트(사각형, 피벗, 테두리), 키 시각과 반복이 있는 클립.'],
+    ['Editor/NerulioSpriteImporter.cs','편집기 스크립트: Tools › Nerulio › Import Studio JSON이 텍스처 설정과 스프라이트 사각형을 적용하고 `.anim` 클립을 씀.'],
+    ['README-UNITY.md','이 번들의 단계 설명.']]},
+   target:{title:'Unity 6로 가져오기',steps:[
+    '폴더를 `Assets/`에 복사하되 `Editor/`를 안에 그대로 두어 Unity가 `NerulioSpriteImporter.cs`를 편집기 스크립트로 컴파일하게 합니다.',
+    '2D Sprite 패키지(com.unity.2d.sprite)가 설치돼 있는지 확인합니다. 2D 템플릿에는 들어 있습니다.',
+    'Tools › Nerulio › Import Studio JSON을 실행하고 `run.unity.json`을 고릅니다. 텍스처에 스프라이트가 생기고 JSON 옆에 `.anim` 클립이 생깁니다.',
+    '캐릭터의 SpriteRenderer 오브젝트에 있는 Animator Controller에 클립을 추가합니다. 각 클립이 스프라이트를 바꿉니다.',
+    '게임이 다른 배율을 쓰면 가져오기 전에 `.unity.json`의 `pixelsPerUnit`을 바꿉니다.']},
+   verify:{steps:[
+    'Sprite Editor에서 텍스처를 엽니다. run_0 … run_5라는 사각형 6개가 있고, 피벗은 모두 발 위치에 있습니다(트림된 프레임은 사각형 아래).',
+    '`run` 클립을 재생합니다. 한 바퀴 0.6초이고 프레임 사이에 캐릭터가 위아래로 움직이지 않아야 합니다.',
+    '텍스처 인스펙터: Sprite Mode Multiple, Filter Mode Point, 압축 없음, 밉맵 없음.']},
+   trouble:{rows:[
+    ['스프라이트가 엉뚱한 곳에서 잘리고 위아래로 밀림','JSON의 사각형을 y를 뒤집지 않고 손으로 옮겨 적음','사각형 y를 페이지 높이 − (y + h)와 비교','y를 변환하는 가져오기 스크립트 사용'],
+    ['프레임 사이에 캐릭터가 튐','트림된 사각형의 피벗이 Center로 남아 있음','Sprite Editor에서 스프라이트마다 피벗 확인','스크립트로 가져오기. 피벗이 트림된 사각형마다 정규화됨'],
+    ['Tools › Nerulio 메뉴가 없음','스크립트가 Editor 폴더에 없거나 다른 곳의 컴파일 오류가 막고 있음','Console의 컴파일 오류','`Editor/NerulioSpriteImporter.cs`를 Editor 폴더에 두고 com.unity.2d.sprite 설치'],
+    ['스프라이트가 흐리거나 압축 얼룩이 보임','가져온 뒤 텍스처 설정이 바뀜(Bilinear, 압축)','텍스처 인스펙터','Point 필터, 압축 없음. [[game/unity-pixel-art-blurry|Unity에서 도트 그림이 흐릴 때]] 참고'],
+    ['히트박스가 없음','Unity 스프라이트에 그 필드가 없어 이 가져오기로는 전달되지 않음','내보내기 안내에 표시됨','박스는 Generic JSON으로 내보내고 콜라이더는 직접 만듦']]},
+   alternatives:{rows:[
+    ['TexturePacker 자체 Unity 가져오기','TexturePacker에서 Unity용으로 자주 퍼블리시할 때. Unity Asset Store로 배포되며 여기서는 측정하지 않았습니다.'],
+    ['Sprite Editor의 격자 자르기','시트가 균일한 격자일 때. 패킹된 아틀라스는 사각형을 데이터 파일에서 가져와야 합니다. [[game/unity-sprite-sheet|Unity에서 스프라이트 시트]] 참고.'],
+    ['원본에서 시작','.aseprite 파일이 있다면 [[game/aseprite-to-unity|Aseprite를 Unity로]]가 TexturePacker JSON에는 없던 태그와 길이를 지켜 줍니다.']]},
+   limits:['JSON의 회전된 스프라이트는 돌려진 채로 가져오며, Unity 대상은 회전된 패킹을 거부합니다.','TexturePacker JSON에는 프레임 시간이 없으니 내보내기 전에 길이를 정하세요.','충돌 폴리곤과 히트박스는 Unity 물리 모양으로 쓰지 않습니다.'],
+   versions:{body:['Unity 6000.5.3f1 배치 모드에서 내보낸 번들에 `NerulioSpriteImporter.cs`를 실행하고 사각형, 피벗(공통 기준점 하나), 픽셀, 클립 키와 길이를 다시 읽었습니다. TexturePacker 가져오기는 `src/studio/sprite/atlas-data.js`이며, TexturePacker 자체 Unity 가져오기는 시험하지 않았습니다. Unity 용어는 Unity 6 매뉴얼을 따릅니다.'],sources:[S.tpExporter,S.tpSettings,S.unitySprite]}
+  },
+  ja:{
+   answer:'TexturePackerのJSONは、スプライトごとにPNGの左上から測った矩形、トリム、任意の0–1のピボットを持ちます。Unityが求めるのは、左下から測ったスプライトの矩形と、矩形ごとの相対的なピボットです。PNGとJSONをNerulioに入れてUnity 6向けに書き出すと、変換済みの矩形とピボットを入れた`.unity.json`と、テクスチャを切り分け（Sprite、Multiple、Point、非圧縮）アニメーションごとにAnimationClipを作るエディタースクリプト`NerulioSpriteImporter.cs`がバンドルに入ります。Unity 6000.5.3f1のバッチモードで実行して確認しました。',
+   concept:{title:'左上基準の矩形と、左下基準のスプライト',body:[
+    'Unityは1枚のテクスチャに複数のスプライトを置くとき、Sprite ModeをMultipleにしてスプライトの矩形の一覧を持ちます。矩形は左下の角からピクセルで測り、スプライトのピボットは自分の矩形の中の0–1の点です。',
+    'TexturePackerのy軸は上から下へ進むので、位置y・高さhのフレームは矩形のy = ページの高さ − (y + h)になります。トリムしたフレームの矩形には保存ピクセルしかないため、フレーム全体で決めたピボットをその矩形の中へ移す必要があります。ピボットx = (ピボットpx − トリムx) ÷ w、ピボットy = (h − (ピボットpy − トリムy)) ÷ h。0–1から外れた値で正しく、ピボットが切り取られた余白の側にあることを意味します。',
+    'Pixels Per Unitは、スプライトがワールド単位でどれだけの大きさかを決めます。既定は100で、スクリプトはJSONに書かれた値を適用します。Unityのアニメーションは、決まった時刻にSpriteRendererのスプライトを差し替えるAnimationClipで、スクリプトはフレームごとに自分の開始時刻にキーを1つ書きます。'],
+    terms:[['Sprite Mode Multiple','名前付きのスプライト矩形を複数持つ1枚のテクスチャ。'],['スプライトの矩形','テクスチャ上の1スプライトの矩形・ピボット・名前。左下からのピクセル単位。'],['Pixels Per Unit','ワールドの1単位に相当するテクスチャのピクセル数。'],['AnimationClip','時間とともにSpriteRendererのスプライトを変えるキーフレーム。']]},
+   example:{title:'例：トリムしたフレーム1つの変換',lines:[
+    'パック済み38 × 50ページ上のrun_0：x 0、y 34、w 18、h 15',
+    '40 × 29のフレームでトリム位置 (10, 10)、ピボットは下中央 = フレーム全体の (20, 29) px',
+    '',
+    'Unityの矩形y = 50 − (34 + 15) = 1                矩形 = (0, 1, 18, 15)',
+    'ピボットx    = (20 − 10) / 18 = 0.5556',
+    'ピボットy    = (15 − (29 − 10)) / 15 = −0.2667   矩形の下：足は切り取られた行にある',
+    '',
+    'クリップ "run"：スプライトのキー 0.0、0.1、0.2、0.3、0.4、0.5秒、ループあり、1周0.6秒'],
+    after:'6フレームのピボットはどれも元の40 × 29フレームの同じ点を指すので、矩形ごとにトリムが違ってもキャラクターは揺れません。'},
+   mapping:{title:'TexturePackerのパブリッシュ設定とUnityでの結果',head:['TexturePackerの設定','そのときJSONに入るもの','インポートスクリプト実行後のUnity 6'],rows:[
+    ['データ形式 JSON (Hash) または JSON (Array)','名前ごとの`frames`、または`filename`を持つリスト','スプライト名 = 拡張子なしのフレーム名'],
+    ['Trim mode Trim','`spriteSourceSize`、`sourceSize`','矩形 = 保存ピクセル。その中でピボットを正規化し、全フレームが1つの基準点を共有'],
+    ['Allow rotationオン','`rotated: true`','Unity向けは回転したパックを拒否：回転なしでパックし直す'],
+    ['ピボットポイント','スプライト全体での0–1の`pivot`','スプライトごとのカスタムピボット。トリムした矩形の中へ変換'],
+    ['最大サイズ、マルチパック','`meta.size`。ページごとにJSON＋PNGの組','スクリプトがテクスチャのMax Sizeを、ページが収まる次の2のべき乗まで上げる'],
+    ['（設定なし）','時間の情報なし','Studioで長さを決めるまで、クリップは1フレーム100ms']]},
+   outputs:{rows:[
+    ['run.png','ページのテクスチャ（Nerulioが新たにパック、回転なし）。'],
+    ['run.unity.json','Pixels Per Unit、テクスチャ、スプライト（矩形、ピボット、ボーダー）、キーの時刻とループを持つクリップ。'],
+    ['Editor/NerulioSpriteImporter.cs','エディタースクリプト：Tools › Nerulio › Import Studio JSONがテクスチャ設定とスプライトの矩形を適用し、`.anim`クリップを書く。'],
+    ['README-UNITY.md','このバンドルの手順。']]},
+   target:{title:'Unity 6に取り込む',steps:[
+    'フォルダーを`Assets/`にコピーし、`Editor/`を中に残して、Unityが`NerulioSpriteImporter.cs`をエディタースクリプトとしてコンパイルするようにします。',
+    '2D Spriteパッケージ（com.unity.2d.sprite）が入っていることを確認します。2Dテンプレートには含まれています。',
+    'Tools › Nerulio › Import Studio JSONを実行し、`run.unity.json`を選びます。テクスチャにスプライトができ、JSONの隣に`.anim`クリップができます。',
+    'キャラクターのSpriteRendererを持つオブジェクトのAnimator Controllerにクリップを追加します。各クリップがスプライトを差し替えます。',
+    'ゲームが別の縮尺を使うなら、インポート前に`.unity.json`の`pixelsPerUnit`を変えます。']},
+   verify:{steps:[
+    'Sprite Editorでテクスチャを開きます。run_0 … run_5という6つの矩形があり、ピボットはどれも足の位置です（トリムしたフレームでは矩形の下）。',
+    '`run`クリップを再生します。1周0.6秒で、フレーム間でキャラクターが上下に動かないはずです。',
+    'テクスチャのインスペクター：Sprite Mode Multiple、Filter Mode Point、圧縮なし、ミップマップなし。']},
+   trouble:{rows:[
+    ['スプライトが違う場所で切られ、上下にずれる','JSONの矩形を、yを反転せずに手で写した','矩形のyをページの高さ − (y + h)と比べる','yを変換するインポートスクリプトを使う'],
+    ['フレーム間でキャラクターが跳ねる','トリムした矩形のピボットがCenterのまま','Sprite Editorでスプライトごとのピボットを見る','スクリプトで取り込む。ピボットはトリムした矩形ごとに正規化される'],
+    ['Tools › Nerulioのメニューがない','スクリプトがEditorフォルダーにない、または別の場所のコンパイルエラーが止めている','Consoleのコンパイルエラー','`Editor/NerulioSpriteImporter.cs`をEditorフォルダーに置き、com.unity.2d.spriteを入れる'],
+    ['スプライトがぼやける・圧縮のノイズが出る','取り込み後にテクスチャ設定が変わった（Bilinear、圧縮）','テクスチャのインスペクター','Pointフィルター、圧縮なし。[[game/unity-pixel-art-blurry|Unityでドット絵がぼやける]]を参照'],
+    ['ヒットボックスがない','Unityのスプライトにはその項目がなく、このインポートでは運ばれない','書き出しの注意にそう出る','ボックスはGeneric JSONで書き出し、コライダーは自分で作る']]},
+   alternatives:{rows:[
+    ['TexturePacker純正のUnityインポーター','TexturePackerからUnity向けに頻繁にパブリッシュするとき。Unity Asset Storeで配布されており、ここでは計測していません。'],
+    ['Sprite Editorのグリッド分割','シートが均一なグリッドのとき。パック済みアトラスでは矩形をデータファイルから取る必要があります。[[game/unity-sprite-sheet|Unityでスプライトシート]]を参照。'],
+    ['元データから始める','.asepriteファイルがあるなら、[[game/aseprite-to-unity|AsepriteからUnityへ]]がTexturePackerのJSONにはなかったタグと長さを保ちます。']]},
+   limits:['JSON内の回転したスプライトは回ったまま取り込まれ、Unity向けの書き出しは回転したパックを拒否します。','TexturePackerのJSONにはフレームの時間がないので、書き出し前に長さを設定してください。','衝突ポリゴンとヒットボックスは、Unityの物理形状としては書き出しません。'],
+   versions:{body:['Unity 6000.5.3f1のバッチモードで、書き出したバンドルに`NerulioSpriteImporter.cs`を実行し、矩形、ピボット（共通の基準点1つ）、ピクセル、クリップのキーと長さを読み戻しました。TexturePackerの取り込みは`src/studio/sprite/atlas-data.js`で、TexturePacker純正のUnityインポーターは試していません。Unityの用語はUnity 6のマニュアルに従います。'],sources:[S.tpExporter,S.tpSettings,S.unitySprite]}
+  }
+ },
  // @@PAGES@@
 };
