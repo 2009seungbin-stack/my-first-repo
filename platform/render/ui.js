@@ -72,7 +72,9 @@ const LOGO=html`<svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="tru
  */
 export function page(o){
  const s=t(o.l);
- const alt=Object.entries(o.alternates||{});
+ // Every page with language versions names the English one as x-default, the same way.
+ const alts={...(o.alternates||{})};if(alts.en&&alts.ko&&!alts['x-default'])alts['x-default']=alts.en;
+ const alt=Object.entries(alts);
  return html`<!doctype html>
 <html lang="${o.l}">
 <head>
