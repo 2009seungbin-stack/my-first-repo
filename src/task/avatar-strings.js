@@ -13,3 +13,9 @@ Object.assign(COPY.ja,{nativeShare:'カード画像を共有',shareUnavailable:'
 Object.assign(COPY.en,{skinPalette:'Skin tone',skin:'Light',skinTan:'Tan',skinDeep:'Deep'});
 Object.assign(COPY.ko,{skinPalette:'피부 색',skin:'밝은 피부',skinTan:'중간 피부',skinDeep:'짙은 피부'});
 Object.assign(COPY.ja,{skinPalette:'肌の色',skin:'明るい肌',skinTan:'中間の肌',skinDeep:'濃い肌'});
+Object.assign(COPY.en,{gif:'Download animated GIF',motionLabel:'GIF motion',blink:'Blink',breathe:'Breathe',speedLabel:'Frame duration',gifLimit:'GIF is capped at 1024 px; the PNG keeps the selected size.',gifNote:'GIF uses eight exact-palette frames. Choose blink or a one-pixel shoulder breath; preview motion never starts automatically.'});
+Object.assign(COPY.ko,{gif:'애니메이션 GIF 다운로드',motionLabel:'GIF 움직임',blink:'눈 깜박임',breathe:'호흡',speedLabel:'프레임 길이',gifLimit:'GIF는 최대 1024px로 출력됩니다. PNG는 선택한 크기를 유지합니다.',gifNote:'GIF는 정확한 팔레트로 8프레임을 만듭니다. 눈 깜박임 또는 어깨 1픽셀 호흡을 고르세요. 미리보기 움직임은 자동 시작하지 않습니다.'});
+Object.assign(COPY.ja,{gif:'アニメGIFを保存',motionLabel:'GIFの動き',blink:'まばたき',breathe:'呼吸',speedLabel:'フレームの長さ',gifLimit:'GIFは最大1024pxです。PNGは選んだ大きさを保ちます。',gifNote:'GIFは正確なパレットの8フレームです。まばたきか肩を1ピクセル動かす呼吸を選べます。プレビューの動きは自動再生しません。'});
+Object.assign(COPY.en,{motionDisabled:'Preview animation follows your reduced-motion system setting.'});
+Object.assign(COPY.ko,{motionDisabled:'미리보기 애니메이션은 기기의 움직임 줄이기 설정을 따릅니다.'});
+Object.assign(COPY.ja,{motionDisabled:'プレビューのアニメーションは端末の動きを減らす設定に従います。'});

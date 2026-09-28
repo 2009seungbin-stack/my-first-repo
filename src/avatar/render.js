@@ -65,10 +65,23 @@ export function nearest(source,size){
  return {width:size,height:size,data:dest};
 }
 
+/** One authored alternate logical frame. Neither motion mode interpolates pixels. */
+export function renderMotionFrame(state,mode){
+ if(mode==='blink')return renderLogical({...state,eyes:state?.eyes==='sleepy'?'bright':'sleepy'});
+ const base=renderLogical(state);
+ if(mode!=='breathe')return base;
+ const cloth=RAMPS[normalize(state).outfitPalette];
+ const put=(x,y,color)=>base.data.set(color,(y*16+x)*4);
+ for(const x of [3,12])put(x,12,cloth[0]);
+ for(const x of [4,11])put(x,12,cloth[2]);
+ return base;
+}
+
 /** Composite a local, already reduced 16px background under the opaque authored parts. */
-export function withLocalBackground(state,background){
+export function withLocalBackground(state,background,motion='none'){
  if(!(background instanceof Uint8ClampedArray)||background.length!==16*16*4)throw new RangeError('Invalid local background pixels');
- const top=renderLogical({...state,background:'transparent'}),out=new Uint8ClampedArray(background);
+ const clean={...state,background:'transparent'};
+ const top=motion==='none'?renderLogical(clean):renderMotionFrame(clean,motion),out=new Uint8ClampedArray(background);
  for(let i=0;i<out.length;i+=4){
   const a=top.data[i+3]/255;if(!a)continue;
   const under=out[i+3]/255,combined=a+under*(1-a);

@@ -62,6 +62,14 @@ with sync_playwright() as p:
                 frames.append(frame.convert('RGBA').tobytes())
             assert frames[0]==frames[1]==frames[2]==frames[5]==frames[6]==frames[7]
             assert frames[3]==frames[4]!=frames[0]
+        page.locator('#avatarMotion').select_option('breathe')
+        page.locator('#avatarDelay').select_option('200')
+        assert 'motion=breathe' in page.url and 'delay=200' in page.url
+        times['breatheGif256']=saved(page,'gif',OUT/f'{engine}-breathe.gif')
+        with Image.open(OUT/f'{engine}-breathe.gif') as gif:
+            assert gif.n_frames==8 and gif.info.get('loop')==0
+            assert all(frame.info.get('duration')==200 for frame in ImageSequence.Iterator(gif))
+        assert (OUT/f'{engine}-blink.gif').read_bytes()!=(OUT/f'{engine}-breathe.gif').read_bytes()
         times['card']=saved(page,'card',OUT/f'{engine}-card.png')
         with Image.open(OUT/f'{engine}-card.png') as card:assert card.size==(1200,630) and card.mode=='RGBA'
         page.locator('[data-tab="face"]').click()

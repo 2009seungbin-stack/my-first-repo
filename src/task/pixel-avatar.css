@@ -10,6 +10,7 @@
 .avatar-app button[disabled]{opacity:.55;cursor:not-allowed}.avatar-app button[hidden]{display:none}
 .avatar-app button.primary{background:#146c73;color:#fff;border-color:#146c73}.avatar-app button.primary:hover{background:#0c555b}
 .avatar-status{min-height:1.5em;color:#426b69;margin:12px 2px 0}
+.avatar-motion-note{display:block;margin-top:8px;color:#53687b}
 .avatar-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:7px}.avatar-tabs button{white-space:nowrap}
 .avatar-tabs button.active,.avatar-choice.active{background:#dff3ef;border-color:#218279;color:#0b5758}
 .avatar-option-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.avatar-option-head h2,.avatar-export h2{font-size:1.1rem;margin:16px 0 12px}
@@ -17,6 +18,7 @@
 .avatar-palettes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.avatar-palettes label,.avatar-export label{display:grid;gap:6px;font-weight:600}.avatar-palettes select,.avatar-export select{width:100%}
 .avatar-background{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:18px}.avatar-background small{flex-basis:100%;line-height:1.45;color:#53687b}.avatar-background span{max-width:100%;overflow-wrap:anywhere;font-size:.9rem}
 .avatar-export{border-top:1px solid #d7e1e8;margin-top:24px;padding-top:5px}.avatar-export-buttons{margin-top:16px}
+.avatar-motion{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.avatar-motion label{display:grid;gap:6px;font-weight:600}.avatar-motion select{width:100%}.avatar-size-note{display:block;margin-top:10px;color:#66592b}
 .avatar-share{margin-top:22px}.avatar-note{font-size:.9rem;line-height:1.55;color:#53687b;margin:10px 0}
 @media(max-width:780px){.avatar-layout{grid-template-columns:minmax(0,1fr)}.avatar-stage,.avatar-controls{padding:16px}.avatar-art{min-height:340px}}
-@media(max-width:410px){.avatar-app{padding:8px 10px 24px}.avatar-stage,.avatar-controls{padding:12px}.avatar-art{min-height:290px}.avatar-art canvas{width:min(256px,90%)}.avatar-palettes{grid-template-columns:1fr}.avatar-main-actions button{flex:1 1 42%}}
+@media(max-width:410px){.avatar-app{padding:8px 10px 24px}.avatar-stage,.avatar-controls{padding:12px}.avatar-art{min-height:290px}.avatar-art canvas{width:min(256px,90%)}.avatar-palettes,.avatar-motion{grid-template-columns:1fr}.avatar-main-actions button{flex:1 1 42%}}

@@ -1,5 +1,5 @@
 import {renderLogical,withLocalBackground} from './render.js';
-import {encodeBlinkGif} from './gif.js';
+import {encodeAvatarGif} from './gif.js';
 
 async function localPixels(blob){
  if(!blob)return null;
@@ -31,13 +31,13 @@ function cardCanvas(state,backgroundPixels){
 }
 
 self.onmessage=async event=>{
- const {id,kind,state,size=256,delay=125,background=null}=event.data||{};
+ const {id,kind,state,size=256,delay=125,motion='blink',background=null}=event.data||{};
  try{
   self.postMessage({id,type:'progress',phase:'render'});
   const backgroundPixels=await localPixels(background);
   let blob;
   if(kind==='gif'){
-   const result=encodeBlinkGif(state,{size,delay,backgroundPixels});
+   const result=encodeAvatarGif(state,{size,delay,motion,backgroundPixels});
    blob=new Blob([result.bytes],{type:'image/gif'});
   }else if(kind==='card'){
    blob=await cardCanvas(state,backgroundPixels).convertToBlob({type:'image/png'});
