@@ -98,7 +98,7 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <a class="skip" href="#main">${o.l==='ko'?'본문 바로가기':'Skip to content'}</a>
 <header class="hd"><div class="w hr">
 <a class="brand" href="${frontUrl(o.l)}">${LOGO}<span>Nerulio</span></a>
-<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip">${o.scope.name}</span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>
+<form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>
 <nav class="hn" aria-label="Nerulio"><a class="hb" href="/${o.l}/radar/">${s.radar}</a><a class="hb tl" href="/${o.l}/">${s.tools}</a></nav>
 <div class="hu" data-island="account"><a class="hb solid" href="/${o.l}/account/">${s.login}</a></div>
 </div></header>

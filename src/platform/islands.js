@@ -61,6 +61,9 @@ async function main(){
  const st=(await api('/state?'+q)).data||{signedIn:false,votes:{}};
  const signedIn=!!st.signedIn;
 
+ // Header search inside a channel: × drops the channel scope.
+ for(const x of $$('[data-unscope]'))x.addEventListener('click',()=>{const f=x.closest('form');$('input[name="in"]',f)?.remove();x.parentElement.remove();const q=$('input[name="q"]',f);if(q){q.placeholder=L==='ko'?'검색':'Search';q.focus();}});
+
  // Account
  const acc=$('[data-island="account"]');
  if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/community/me`;a.textContent=st.user.name;acc.append(a);}
