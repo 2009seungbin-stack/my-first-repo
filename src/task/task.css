@@ -576,3 +576,5 @@ html:has(body.game-home){background:#131518}
 .more-tools{margin-top:10px}.more-tools>summary{cursor:pointer;color:var(--gh-accent,#3182f6);font-weight:750;font-size:13px;padding:8px 0;list-style:none}.more-tools>summary::-webkit-details-marker{display:none}.more-tools[open]>summary{margin-bottom:10px}
 .game-home h1,.game-home .page-lead,.game-home .ws-card,.game-home .gh-note{word-break:keep-all;overflow-wrap:anywhere}
 .game-home .language-control{background:var(--gh-1);border-color:var(--gh-line);color:var(--gh-text)}.game-home .language-control select{background:transparent;color:var(--gh-text)}.game-home .language-control select option{background:#1b1d21;color:#d9dce1}
+
+.store-tiny{display:grid;gap:5px;margin:10px 0;padding:9px;border:1px solid #dce5f1;border-radius:9px;font-size:12px}.store-tiny canvas{width:120px;height:45px;image-rendering:auto}.store-card:focus-visible{outline:3px solid #125fb8;outline-offset:2px}

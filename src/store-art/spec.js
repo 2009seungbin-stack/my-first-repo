@@ -24,10 +24,10 @@ export const STORE_SLOTS=Object.freeze([
  slot('library-logo','steam',1280,720,{alpha:true,text:'logo-only',source:STEAM_LIBRARY,notes:'1280 wide and/or 720 tall; transparent logo-only PNG.'}),
  slot('page-background','steam',1438,810,{required:false,text:'none',source:STEAM_STORE}),
  slot('bundle-header','steam',707,232,{required:false,logo:true,source:STEAM_STORE}),
- slot('cover','itch',630,500,{source:ITCH}),
- slot('banner-suggested','itch',960,300,{required:false,source:'https://itch.io/docs/creators/design',notes:'Custom suggestion, not an official fixed size.'}),
+ slot('cover','itch',630,500,{logo:true,source:ITCH}),
+ slot('banner-suggested','itch',960,300,{required:false,logo:true,source:'https://itch.io/docs/creators/design',notes:'Custom suggestion, not an official fixed size.'}),
  slot('icon','google-play',512,512,{alpha:true,text:'none',source:PLAY}),
- slot('feature','google-play',1024,500,{format:'jpeg',text:'optional',guide:'center-advisory',source:PLAY}),
+ slot('feature','google-play',1024,500,{format:'jpeg',logo:true,text:'optional',guide:'center-advisory',source:PLAY}),
  slot('icon-source','apple',1024,1024,{text:'none',source:APPLE,notes:'Xcode asset catalog source, not a standalone App Store upload.'})
 ]);
 export const REQUIRED_SLOTS=Object.freeze(STORE_SLOTS.filter(s=>s.required).map(s=>s.id));

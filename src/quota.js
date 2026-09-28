@@ -7,7 +7,7 @@
  */
 export const QUOTA_CLASSES=Object.freeze({
  // Game-asset recipes: palette/grid/crop helpers are light; full pipelines and batch packs are heavy.
- refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
+ 'store-art-pack':'none',refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
  // Texture Lab and its routes are local pixel work: no metering.
  'texture-lab':'none','channel-unpacker':'none','normal-map-converter':'none','pbr-texture-validator':'none','texture-edge-bleed':'none',

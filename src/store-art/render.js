@@ -19,6 +19,12 @@ export function cropGeometry(sw,sh,w,h,setting,pixel=false){
  return {x,y,w:outW,h:outH,scale,integerNearest:pixel&&min>=1,downsampleNearest:pixel&&min<1};
 }
 function canvas(w,h){return new OffscreenCanvas(w,h);}
+function hasTransparentPixel(bitmap){
+ const w=Math.min(bitmap.width,512),h=Math.min(bitmap.height,512),c=canvas(w,h),ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0,w,h);
+ const rgba=ctx.getImageData(0,0,w,h).data;
+ for(let i=3;i<rgba.length;i+=4)if(rgba[i]<255)return true;
+ return false;
+}
 function titleLayer(ctx,slot,settings,loc){
  if(!settings.title||slot.text==='none')return false;
  const w=slot.w,h=slot.h,s=slot.id==='store-small'?Math.floor(h*.39):Math.floor(Math.min(w*.085,h*.18));
@@ -54,11 +60,13 @@ export async function renderSlot(slot,art,logo,settings){
 }
 export async function buildPack({artFile,logoFile,screenshotFiles=[],rawSettings,onProgress=()=>{}}){
  if(!artFile)throw Error('Key art is required');
- const settings=normalizedSettings(rawSettings),art=await createImageBitmap(artFile),logo=logoFile?await createImageBitmap(logoFile):null;
- const entries=[],report={tool:'Nerulio Store Art Pack',specCheckedAt:SPEC_DATE,platformApproval:'Not checked by platforms',source:{art:artFile.name,artWidth:art.width,artHeight:art.height,logo:logoFile?.name||null},files:[],warnings:[]};
+ const started=performance.now(),settings=normalizedSettings(rawSettings),art=await createImageBitmap(artFile),logo=logoFile?await createImageBitmap(logoFile):null,decoded=performance.now();
+ const entries=[],report={tool:'Nerulio Store Art Pack',specCheckedAt:SPEC_DATE,platformApproval:'Not checked by platforms',source:{art:artFile.name,artWidth:art.width,artHeight:art.height,logo:logoFile?.name||null},files:[],warnings:[],manualReview:['Confirm source-art rights and examine baked-in text against each store policy.','Inspect every crop and the Steam 462x174 capsule at 120x45 display size.','Submit the files individually in the correct platform interface.']};
  try{
   const chosen=STORE_SLOTS.filter(s=>settings.platforms.includes(s.platform)&&(s.required||settings.optional));
-  if(!logo)report.warnings.push('No original transparent logo supplied. Typed title is a placeholder; visually review every Steam capsule and the separate library logo.');
+  if(!chosen.length)throw Error('Choose at least one store to export');
+  if(settings.platforms.includes('steam')&&!logo)report.warnings.push('No original transparent logo supplied. Typed title is a placeholder; visually review every Steam capsule and the separate library logo.');
+  if(logo&&!hasTransparentPixel(logo))report.warnings.push('The supplied logo PNG has no transparent pixels. Review it against store logo requirements.');
   if(settings.platforms.includes('steam')&&screenshotFiles.length<5)report.warnings.push(`Steam requires at least five genuine gameplay screenshots; ${screenshotFiles.length} supplied. This pack does not synthesize them.`);
   for(let i=0;i<chosen.length;i++){
    const slot=chosen[i],r=await renderSlot(slot,art,logo,settings);entries.push({name:slot.path,blob:r.blob});
@@ -66,6 +74,7 @@ export async function buildPack({artFile,logoFile,screenshotFiles=[],rawSettings
    if(slot.id==='icon'&&r.blob.size>1024*1024)report.warnings.push('Google Play icon exceeds 1024 KB; reduce image complexity before uploading.');
    if(slot.id==='banner-suggested')report.warnings.push('itch.io banner dimensions are a custom suggestion, not an official fixed size.');
    if(slot.id==='icon-source')report.warnings.push('Apple icon is an Xcode source image, not a standalone App Store upload.');
+   if(r.geometry?.scale>1.001)report.warnings.push(`${slot.id}: source artwork was enlarged ${r.geometry.scale.toFixed(2)}×; inspect sharpness.`);
    if(r.geometry?.downsampleNearest)report.warnings.push(`${slot.id}: nearest downsampling used; integer enlargement was impossible at this output size.`);
    onProgress({done:i+1,total:chosen.length,slot:slot.id});
   }
@@ -76,7 +85,8 @@ export async function buildPack({artFile,logoFile,screenshotFiles=[],rawSettings
    const name=`steam/screenshots/gameplay-${String(i+1).padStart(2,'0')}.${file.type==='image/png'?'png':'jpg'}`;
    entries.push({name,blob:file});report.files.push({path:name,slot:'screenshot',platform:'steam',width:w,height:h,mime:file.type,bytes:file.size,source:STEAM_SCREENSHOT_SOURCE,originalCapture:true});
   }
+  report.timingMs={decode:Math.round(decoded-started),renderAndInspect:Math.round(performance.now()-decoded)};
   entries.push({name:'checklist.json',blob:new Blob([JSON.stringify(report,null,2)],{type:'application/json'})});
-  const archive=await zip(entries,{paths:true});return {archive,report,entries};
+  const archive=await zip(entries,{paths:true});return {archive,report,entries,timingMs:{...report.timingMs,zip:Math.round(performance.now()-decoded-report.timingMs.renderAndInspect),total:Math.round(performance.now()-started)}};
  }finally{art.close();logo?.close();}
 }

@@ -15,6 +15,7 @@ import {stateStore} from '../tools/distribution/state.mjs';
 import {run} from '../tools/distribution/run.mjs';
 import {sitemapGroups} from '../tools/sitemaps.mjs';
 import {DEPTH} from '../src/seo-depth/index.js';
+import {gamePageFor} from '../tools/game-landing-build.mjs';
 const now=new Date('2026-09-28T12:00:00Z');
 const pages=inventory().pages;
 const page=selectContent(pages,emptyLedger(),{now}),article=buildArticle(page);
@@ -31,7 +32,7 @@ const response=data=>({ok:true,status:200,json:async()=>data});
 const raw=(overrides={})=>({id:101,url:'https://dev.to/operator/example-101',canonical_url:article.canonical_url,title:article.title,published_at:null,...overrides});
 
 test('inventory derives every game source from indexable registries, with English canonical and real evidence',()=>{
- const expected=sitemapGroups().game.filter(p=>DEPTH[p]?.en);
+ const expected=sitemapGroups().game.filter(p=>DEPTH[p]?.en&&gamePageFor(p)); // Direct game-named task tools are not editorial game landings.
  assert.equal(pages.length,expected.length);assert(pages.length>100);
  for(const p of pages){assert(validCanonical(p.canonical));assert(expected.includes(p.route.slice(4,-1)));assert(p.primaryTopic);assert(p.priorityReason);assert(p.sourceEvidence.length);assert(p.assets.length);}
  assert(!pages.some(p=>/\/classic\/|\/app\/|\/studio\/|\/image\/|\/privacy\//.test(p.route)));
