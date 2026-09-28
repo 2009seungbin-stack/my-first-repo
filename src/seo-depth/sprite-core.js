@@ -824,5 +824,332 @@ export default {
    limits:['ポリゴンは書き出しにデータとして入るだけで、CollisionPolygon2DノードやUnityのコライダーは作りません。','衝突ポリゴンはUnity、Aseprite、アトラス形式には入りません。汎用JSONを使ってください。','形状の中の穴はStudioのポリゴンに含まれません。'],
    versions:{body:['輪郭の追跡と例の数値はNerulio自身のモジュール（src/game/contour.js）によるものです。メタデータ入りのGodotバンドルはGodot 4.7.2で読み込みましたが、その実行で衝突ポリゴンを物理形状として使ったわけではありません。エンジンの動作はGodot 4.7とUnity 6のドキュメントに従います。'],sources:[S.godotPoly,S.godotArea,S.unityPoints,S.unityPhys]}
   }
+ },
+ // ------------------------------------------------------------------ game/sprite-editor
+ 'game/sprite-editor':{
+  type:'create',
+  intent:{primary:'a sprite editor online for game sprites: paint frames and prepare them for an engine',secondary:['pixel painting vs frame preparation','which Studio workspace does what','when Aseprite is still the better tool'],
+   goal:'frames painted or touched up, timed and marked, and exported in a format the engine loads',input:'a new sprite, or a PNG sheet, frames, GIF or .aseprite',output:'engine bundle (Godot 4, Unity 6 and 16 other formats)',support:'full',
+   evidence:['docs/STUDIO-PIXEL.md (new sprite, tools)','docs/STUDIO-SPRITE.md','docs/STUDIO-PACK.md','src/game/export/unity.js (importer: Point, uncompressed, clips)','src/game/export/targets.js (18 targets)'],
+   external:['Aseprite docs: tags, slices','Unity 6 Sprite Editor']},
+  en:{
+   answer:'A sprite editor for games does two jobs: painting the pixels of each frame, and turning frames into something an engine plays, with tags, per-frame timing, pivots, boxes, a packed atlas and the engine\'s data file. Nerulio Studio does both in one browser project: the Pixel workspace paints (pencil, bucket, shapes, selections, layers, palettes, onion skin), the Sprite workspace times and marks frames, and Pack & Export writes Godot 4, Unity 6 and 16 other formats. Long painting sessions, tilemap layers or scripted workflows are still a job for Aseprite.',
+   concept:{title:'Two halves of sprite editing',body:[
+    'Painting is about pixels: a canvas, a palette, layers, a pencil that never anti-aliases, and onion skin to draw in-betweens. Preparation is about data: which frames form "run", how long each one shows, which pixel sits on the character\'s position, where the attack hits, and how all of that is written for Godot, Unity or Phaser. Many tools do one half well; the hand-off between them (export a sheet, re-slice, re-type the timing) is where timing, pivots and alignment get lost.',
+    'In the Studio both halves edit the same frames. A stroke in the Pixel workspace is one undo step on the current frame; switching to the Sprite workspace shows the same frame on the timeline with its duration, pivot and boxes. Projects autosave in the browser\'s IndexedDB and can be saved as a .nerulio file; nothing is uploaded.',
+    'Exports are checked against the engines themselves: a verified target was loaded and drawn by that engine from a bundle made in the UI, and the target\'s line says so; GameMaker is labelled UNVERIFIED because no GameMaker could be run.'],
+    terms:[['Pixel workspace','Painting: pencil, eraser, bucket, shapes, selections, layers with blend modes, indexed palettes, onion skin.'],['Sprite workspace','Frames as data: import, timeline, tags, durations, pivots, boxes, alignment.'],['Pack & Export','Atlas packing and the engine files.']]},
+   example:{title:'Example: a four-frame walk from a blank canvas to Unity 6',lead:'Each line is one step in one project.',lines:[
+    'Pixel     new sprite 32 × 32, 4 frames, 16-colour palette, onion skin on',
+    'Sprite    tag walk = frames 1–4, 120 ms each → 480 ms per cycle (8.33 FPS)',
+    '          pivot (0.5, 1.0) = pixel (16, 32); hurt box 12 × 26 at (10, 6)',
+    'Pack      Unity preset: trim, 2 px shape padding, no rotation → one page',
+    'Export    hero.png + hero.unity.json + Editor/NerulioSpriteImporter.cs + README-UNITY.md',
+    'Unity     Tools › Nerulio › Import Studio JSON → 4 sprites (Point, uncompressed) + walk.anim'],
+    after:'The hurt box does not reach Unity (it has no sprite field for it); the Godot bundle and the generic JSON carry it, see the [[game/hitbox-editor|hitbox editor]].'},
+   mapping:{title:'Where each part of the job happens',head:['Job','In Nerulio Studio','In a dedicated pixel editor such as Aseprite'],rows:[
+    ['Paint and edit pixels','Pixel workspace, Aseprite shortcuts, 19 layer blend modes, indexed palettes and Lospec palettes','Aseprite has a fuller painting toolset, tilemap layers and scripting; Nerulio lacks layer groups, tilemap layers, RotSprite and text'],
+    ['Tags and per-frame timing','Sprite timeline; reads and writes .aseprite tags and durations','Aseprite\'s own timeline and tags'],
+    ['Pivots and hit / hurt boxes','Pivot tool and box tools per frame, tag or selection','Slices with a pivot point, drawn by hand'],
+    ['Engine files','Pack & Export: 18 formats with engine-checked presets','Sprite sheet + JSON; engine files come from plugins or importers']]},
+   verify:{steps:[
+    'Play each tag in the Sprite workspace at the zoom you ship at (F7 preview, 1×–8×).',
+    'Read the verification line of the export target before exporting, and the notes after.',
+    'Open the bundle in the engine and play the same tag next to the Studio preview.']},
+   trouble:{rows:[
+    ['Pixels look blurry in the engine','The engine filters the texture instead of using nearest-neighbour','Zoom in: edges are soft','Keep the shipped import settings (Point in Unity, Nearest in the Godot scene) or set nearest filtering in the engine'],
+    ['The Unity importer script does not compile','The 2D Sprite package (`com.unity.2d.sprite`) is missing, for example in a 3D template','Console errors about UnityEditor.U2D.Sprites','Install the 2D Sprite package, then import again'],
+    ['Colours change in an exported GIF','More than 255 colours are reduced by median cut, and alpha becomes on or off','The export notes say the palette was reduced','Export PNG or APNG where colours must stay exact'],
+    ['Work is gone after clearing the browser','Projects autosave in the browser\'s storage, which clearing site data removes','The project list is empty','Save a .nerulio file for anything you want to keep']]},
+   alternatives:{rows:[
+    ['Aseprite (desktop)','Long painting sessions, tilemap layers and scripting. Nerulio reads and writes .aseprite, so the two can be combined: see [[game/aseprite-alternative|Aseprite alternatives]].'],
+    ['The engine\'s editor (Unity Sprite Editor, Godot SpriteFrames panel)','Slicing and animating one sheet inside the project, when timing is even and nothing else is needed.']]},
+   limits:['The Pixel workspace lacks layer groups, tilemap layers, RotSprite and text.','The UI workspace (nine-slice, button states, bitmap fonts) is not in the Studio yet; the UI Lab does those.','GameMaker export is UNVERIFIED in GameMaker.'],
+   versions:{body:['231 of 231 .aseprite test files came back into Aseprite 1.3.18 with the same tags, durations and pixels; the Unity 6 export was applied by Unity 6000.5.3f1 in batch mode (rects, pivots, pixels, clip keys).'],sources:[S.aseTags,S.aseSlices,S.unityEditor]}
+  },
+  ko:{
+   answer:'게임용 스프라이트 편집기는 두 가지 일을 합니다. 프레임마다 픽셀을 그리는 일과, 프레임을 엔진이 재생할 수 있게 만드는 일(태그, 프레임별 타이밍, 피벗, 박스, 패킹된 아틀라스, 엔진 데이터 파일)입니다. Nerulio Studio는 둘을 브라우저의 한 프로젝트에서 합니다. 픽셀 작업 공간이 그리고(연필, 채우기, 도형, 선택, 레이어, 팔레트, 어니언 스킨), 스프라이트 작업 공간이 프레임에 시간과 표시를 달고, Pack & Export가 Godot 4, Unity 6 외 16개 형식을 씁니다. 긴 그리기 작업, 타일맵 레이어, 스크립트 작업은 여전히 Aseprite의 몫입니다.',
+   concept:{title:'스프라이트 편집의 두 절반',body:[
+    '그리기는 픽셀의 일입니다. 캔버스, 팔레트, 레이어, 안티에일리어싱 없는 연필, 중간 동작을 그리기 위한 어니언 스킨. 준비는 데이터의 일입니다. 어떤 프레임이 "run"인지, 각각 얼마나 보이는지, 어느 픽셀이 캐릭터 위치에 놓이는지, 공격이 어디를 때리는지, 그리고 이 모두를 Godot, Unity, Phaser용으로 어떻게 쓰는지. 많은 도구가 한쪽을 잘하고, 둘 사이를 넘길 때(시트로 내보내고, 다시 자르고, 타이밍을 다시 입력) 타이밍과 피벗과 정렬이 사라집니다.',
+    'Studio에서는 두 절반이 같은 프레임을 편집합니다. 픽셀 작업 공간의 획 하나는 현재 프레임의 되돌리기 한 단위이고, 스프라이트 작업 공간으로 바꾸면 같은 프레임이 길이·피벗·박스와 함께 타임라인에 보입니다. 프로젝트는 브라우저 IndexedDB에 자동 저장되고 .nerulio 파일로 저장할 수 있으며, 아무것도 업로드하지 않습니다.',
+    '내보내기는 엔진 자체로 확인합니다. 검증된 대상은 UI에서 만든 번들을 그 엔진이 불러와 그렸고, 대상 줄에 그렇게 표시됩니다. GameMaker는 실행할 수 없어서 UNVERIFIED로 표시합니다.'],
+    terms:[['픽셀 작업 공간','그리기: 연필, 지우개, 채우기, 도형, 선택, 블렌드 모드가 있는 레이어, 인덱스 팔레트, 어니언 스킨.'],['스프라이트 작업 공간','데이터로서의 프레임: 가져오기, 타임라인, 태그, 길이, 피벗, 박스, 정렬.'],['Pack & Export','아틀라스 패킹과 엔진 파일.']]},
+   example:{title:'예시: 빈 캔버스에서 Unity 6까지, 4프레임 걷기',lead:'한 줄이 한 프로젝트 안의 한 단계입니다.',lines:[
+    '픽셀      새 스프라이트 32 × 32, 4프레임, 16색 팔레트, 어니언 스킨 켬',
+    '스프라이트 태그 walk = 프레임 1–4, 각 120ms → 한 주기 480ms(8.33FPS)',
+    '          피벗 (0.5, 1.0) = 픽셀 (16, 32), (10, 6)에 12 × 26 허트 박스',
+    '패킹      Unity 프리셋: 트림, 모양 여백 2px, 회전 없음 → 한 페이지',
+    '내보내기  hero.png + hero.unity.json + Editor/NerulioSpriteImporter.cs + README-UNITY.md',
+    'Unity     Tools › Nerulio › Import Studio JSON → 스프라이트 4개(Point, 무압축) + walk.anim'],
+    after:'허트 박스는 Unity로 가지 않습니다(넣을 스프라이트 필드가 없음). Godot 번들과 일반 JSON에는 들어갑니다. [[game/hitbox-editor|히트박스 편집기]]를 보세요.'},
+   mapping:{title:'각 작업이 이뤄지는 곳',head:['작업','Nerulio Studio에서','Aseprite 같은 전용 도트 편집기에서'],rows:[
+    ['픽셀 그리기·수정','픽셀 작업 공간, Aseprite 단축키, 레이어 블렌드 모드 19종, 인덱스 팔레트와 Lospec 팔레트','Aseprite는 그리기 도구가 더 풍부하고 타일맵 레이어와 스크립트가 있음. Nerulio에는 레이어 그룹, 타일맵 레이어, RotSprite, 텍스트가 없음'],
+    ['태그와 프레임별 타이밍','스프라이트 타임라인. .aseprite의 태그와 길이를 읽고 씀','Aseprite 자체 타임라인과 태그'],
+    ['피벗과 히트·허트 박스','프레임·태그·선택 단위의 피벗 도구와 박스 도구','피벗 점이 있는 슬라이스를 직접 그림'],
+    ['엔진 파일','Pack & Export: 엔진으로 확인한 프리셋이 있는 18개 형식','스프라이트 시트 + JSON. 엔진 파일은 플러그인이나 가져오기 도구가 만듦']]},
+   verify:{steps:[
+    '스프라이트 작업 공간에서 게임과 같은 배율로 태그마다 재생합니다(F7 미리보기, 1~8배).',
+    '내보내기 전에 대상의 검증 줄을, 내보낸 뒤에는 안내를 읽습니다.',
+    '번들을 엔진에서 열고 Studio 미리보기와 나란히 같은 태그를 재생합니다.']},
+   trouble:{rows:[
+    ['엔진에서 픽셀이 흐림','엔진이 최근접 대신 필터링으로 텍스처를 그림','확대하면 가장자리가 부드러움','함께 온 가져오기 설정(Unity는 Point, Godot 씬은 Nearest)을 유지하거나 엔진에서 최근접 필터로 설정'],
+    ['Unity 가져오기 스크립트가 컴파일되지 않음','2D Sprite 패키지(`com.unity.2d.sprite`)가 없음. 예: 3D 템플릿','콘솔에 UnityEditor.U2D.Sprites 관련 오류','2D Sprite 패키지를 설치하고 다시 가져오기'],
+    ['내보낸 GIF의 색이 바뀜','255색을 넘으면 median cut으로 줄이고, 알파는 켜짐·꺼짐만 남음','내보내기 안내에 팔레트를 줄였다고 나옴','색이 정확해야 하면 PNG나 APNG로 내보내기'],
+    ['브라우저 데이터를 지운 뒤 작업이 사라짐','프로젝트는 브라우저 저장소에 자동 저장되며, 사이트 데이터를 지우면 함께 지워짐','프로젝트 목록이 비어 있음','남겨야 할 작업은 .nerulio 파일로 저장']]},
+   alternatives:{rows:[
+    ['Aseprite(데스크톱)','긴 그리기 작업, 타일맵 레이어, 스크립트. Nerulio가 .aseprite를 읽고 쓰므로 함께 쓸 수 있습니다: [[game/aseprite-alternative|Aseprite 대안]] 참고.'],
+    ['엔진 편집기(Unity Sprite Editor, Godot SpriteFrames 패널)','타이밍이 일정하고 다른 것이 필요 없을 때, 시트 한 장을 프로젝트 안에서 자르고 움직이기.']]},
+   limits:['픽셀 작업 공간에는 레이어 그룹, 타일맵 레이어, RotSprite, 텍스트가 없습니다.','UI 작업 공간(나인 슬라이스, 버튼 상태, 비트맵 폰트)은 아직 Studio에 없고 UI Lab이 맡습니다.','GameMaker 내보내기는 GameMaker에서 UNVERIFIED입니다.'],
+   versions:{body:['.aseprite 테스트 파일 231개 모두 같은 태그·길이·픽셀로 Aseprite 1.3.18에 다시 열렸고, Unity 6 내보내기는 Unity 6000.5.3f1 배치 모드에서 적용됐습니다(사각형, 피벗, 픽셀, 클립 키).'],sources:[S.aseTags,S.aseSlices,S.unityEditor]}
+  },
+  ja:{
+   answer:'ゲーム用のスプライトエディターの仕事は2つです。フレームごとにピクセルを描くことと、フレームをエンジンが再生できる形にすること（タグ、フレームごとのタイミング、ピボット、ボックス、パックしたアトラス、エンジン用データファイル）です。Nerulio Studioはブラウザの1つのプロジェクトで両方を行います。ピクセル作業画面で描き（鉛筆・塗りつぶし・図形・選択・レイヤー・パレット・オニオンスキン）、スプライト作業画面でフレームに時間と印を付け、Pack & ExportがGodot 4、Unity 6ほか16形式を書き出します。長時間の作画やタイルマップレイヤー、スクリプトを使う作業は、今もAsepriteの出番です。',
+   concept:{title:'スプライト編集の2つの半分',body:[
+    '作画はピクセルの仕事です。キャンバス、パレット、レイヤー、アンチエイリアスしない鉛筆、中割りを描くためのオニオンスキン。準備はデータの仕事です。どのフレームが「run」か、それぞれ何ミリ秒出すか、どのピクセルをキャラの位置に置くか、攻撃がどこに当たるか、そしてそれらをGodot・Unity・Phaser向けにどう書くか。多くのツールは片方が得意で、そのあいだの受け渡し（シートで書き出し、切り直し、タイミングを入れ直す）でタイミングやピボットやそろえが失われます。',
+    'Studioでは両方が同じフレームを編集します。ピクセル作業画面の1ストロークは現在のフレームに対する1回の取り消し単位で、スプライト作業画面に切り替えると同じフレームが長さ・ピボット・ボックスとともにタイムラインに並びます。プロジェクトはブラウザのIndexedDBに自動保存され、.nerulioファイルにも保存できます。何もアップロードしません。',
+    '書き出しはエンジン自体で確認しています。検証済みの書き出し先は、UIで作ったバンドルをそのエンジンが読み込んで描画しており、書き出し先の行にそう表示されます。GameMakerは実行できないためUNVERIFIEDと表示します。'],
+    terms:[['ピクセル作業画面','作画：鉛筆・消しゴム・塗りつぶし・図形・選択・合成モード付きレイヤー・インデックスパレット・オニオンスキン。'],['スプライト作業画面','データとしてのフレーム：読み込み・タイムライン・タグ・長さ・ピボット・ボックス・そろえ。'],['Pack & Export','アトラスのパックとエンジン用ファイル。']]},
+   example:{title:'例：白紙のキャンバスからUnity 6まで、4フレームの歩き',lead:'1行が1つのプロジェクト内の1工程です。',lines:[
+    'ピクセル   新規スプライト 32 × 32、4フレーム、16色パレット、オニオンスキン オン',
+    'スプライト タグ walk = フレーム1–4、各120ms → 1周480ms（8.33FPS）',
+    '           ピボット (0.5, 1.0) = ピクセル (16, 32)、(10, 6) に 12 × 26 のハートボックス',
+    'パック     Unityプリセット：トリム、シェイプ余白2px、回転なし → 1ページ',
+    '書き出し   hero.png + hero.unity.json + Editor/NerulioSpriteImporter.cs + README-UNITY.md',
+    'Unity      Tools › Nerulio › Import Studio JSON → スプライト4つ（Point、無圧縮）+ walk.anim'],
+    after:'ハートボックスはUnityには渡りません（入れるスプライトの項目がないため）。Godotバンドルと汎用JSONには入ります。[[game/hitbox-editor|ヒットボックスエディター]]を参照してください。'},
+   mapping:{title:'各作業をどこで行うか',head:['作業','Nerulio Studioでは','Asepriteなどの専用ドット絵エディターでは'],rows:[
+    ['ピクセルを描く・直す','ピクセル作業画面、Asepriteと同じショートカット、レイヤー合成モード19種、インデックスパレットとLospecパレット','Asepriteは作画ツールがより充実し、タイルマップレイヤーとスクリプトがある。Nerulioにはレイヤーグループ、タイルマップレイヤー、RotSprite、テキストがない'],
+    ['タグとフレームごとのタイミング','スプライトのタイムライン。.asepriteのタグと長さを読み書き','Aseprite自身のタイムラインとタグ'],
+    ['ピボットとヒット・ハートボックス','フレーム・タグ・選択単位のピボットツールとボックスツール','ピボット点付きのスライスを手で描く'],
+    ['エンジン用ファイル','Pack & Export：エンジンで確認したプリセット付きの18形式','スプライトシート + JSON。エンジン用ファイルはプラグインやインポーターが作る']]},
+   verify:{steps:[
+    'スプライト作業画面で、出荷時と同じ倍率で各タグを再生します（F7のプレビュー、1〜8倍）。',
+    '書き出す前に書き出し先の検証の行を、書き出したあとに注記を読みます。',
+    'バンドルをエンジンで開き、Studioのプレビューと並べて同じタグを再生します。']},
+   trouble:{rows:[
+    ['エンジンでピクセルがぼやける','エンジンが最近傍ではなくフィルタリングでテクスチャを描いている','拡大すると縁がにじむ','同梱のインポート設定（UnityはPoint、GodotのシーンはNearest）を保つか、エンジン側で最近傍フィルターにする'],
+    ['Unityのインポータースクリプトがコンパイルできない','2D Spriteパッケージ（`com.unity.2d.sprite`）がない。3Dテンプレートなど','コンソールにUnityEditor.U2D.Sprites関連のエラー','2D Spriteパッケージを入れてから取り込み直す'],
+    ['書き出したGIFの色が変わる','255色を超えるとmedian cutで減色し、アルファはオンかオフだけになる','書き出しの注記にパレットを減らしたと出る','色を正確に残したいならPNGかAPNGで書き出す'],
+    ['ブラウザのデータを消したら作業が消えた','プロジェクトはブラウザの保存領域に自動保存され、サイトデータを消すと一緒に消える','プロジェクト一覧が空','残したい作業は.nerulioファイルに保存する']]},
+   alternatives:{rows:[
+    ['Aseprite（デスクトップ）','長時間の作画、タイルマップレイヤー、スクリプト。Nerulioは.asepriteを読み書きするので併用できます：[[game/aseprite-alternative|Asepriteの代わり]]を参照。'],
+    ['エンジンのエディター（UnityのSprite Editor、GodotのSpriteFramesパネル）','長さが均一でほかに何も要らないとき、シート1枚をプロジェクト内で切ってアニメーションにする。']]},
+   limits:['ピクセル作業画面にはレイヤーグループ、タイルマップレイヤー、RotSprite、テキストがありません。','UI作業画面（ナインスライス、ボタンの状態、ビットマップフォント）はまだStudioになく、UI Labが担当します。','GameMaker書き出しはGameMakerではUNVERIFIEDです。'],
+   versions:{body:['.asepriteのテストファイル231件すべてが、同じタグ・長さ・ピクセルのままAseprite 1.3.18で開き直せました。Unity 6書き出しはUnity 6000.5.3f1のバッチモードで適用されました（矩形、ピボット、ピクセル、クリップのキー）。'],sources:[S.aseTags,S.aseSlices,S.unityEditor]}
+  }
+ },
+ // ------------------------------------------------------------------ game/sprite-animator
+ 'game/sprite-animator':{
+  type:'create',
+  intent:{primary:'build frame-by-frame game animations from a sheet, frames or a GIF, with per-frame timing',secondary:['tags, ping-pong and repeat','ms per frame vs FPS per engine','mirrored left/right animations'],
+   goal:'tags that play with the intended timing, direction and repeat in the preview, a GIF and the engine',input:'sheet, numbered frames or GIF',output:'tags with per-frame durations; GIF/APNG per tag or engine animation data',support:'full',
+   evidence:['src/studio/sprite/playback.js','src/game/export/godot.js (relative durations)','src/game/export/unity.js (key times, loopTime)','src/game/export/atlas-json.js (Phaser repeat n−1, yoyo)','src/game/export/bundle.js + anim.js (GIF loop count, delays)','src/game/export/engines.js (Defold/GameMaker one fps)'],
+   external:['Godot AnimatedSprite2D speed_scale, animation_finished, flip_h','Aseprite tags']},
+  en:{
+   answer:'A game animation built from sprites is a tag: a run of frames with its own duration on every frame, a direction (forward, reverse or ping-pong) and a repeat count. Build tags on Nerulio\'s timeline from a sheet, numbered PNG frames or a GIF (each GIF delay becomes that frame\'s duration), watch them loop at the size you ship, make a mirrored copy for the other direction, and export the same timing to one GIF per tag or to Godot 4, Unity 6, Phaser or Aseprite JSON. Engines that know only one FPS per animation get the tag\'s rate, and the export says so.',
+   concept:{title:'A tag, and how engines replay it',body:[
+    'Frame-by-frame animation is timing. A run cycle at even 80 ms reads as mechanical; a 300 ms anticipation pose before a jump reads as weight. So the timeline stores milliseconds on every frame and plays exactly that, and the tag\'s FPS is only the base for engines that count in ticks.',
+    'Engines replay the same tag in their own terms. Godot 4 stores an FPS per animation and a relative duration per frame (milliseconds ÷ the tick length). Unity keys a sprite at the start time of every frame in an AnimationClip. Phaser takes a duration in milliseconds per frame and counts repeat as extra plays. Defold and GameMaker play one rate per animation, so frames with their own durations lose them there. Ping-pong and reverse are written out as frame order for Godot and Unity, and become yoyo in Phaser.',
+    'A mirrored copy of a tag duplicates the frames and flips the pixels, the pivot and every box together, so run_mirror is a real animation with its own data. Flipping in the engine (Godot\'s AnimatedSprite2D has flip_h) saves texture space but leaves your box data unflipped.'],
+    terms:[['Tag','Frames + per-frame ms + direction + repeat.'],['Relative duration (Godot)','A frame\'s milliseconds ÷ (1000 ÷ the animation\'s FPS).'],['Mirrored copy','A new tag with pixels, pivot and boxes flipped horizontally.']]},
+   example:{title:'Example: one attack tag in four exports',lead:'Tag attack at 12 FPS, frames 80, 80, 80 and 250 ms, forward, repeat 3.',lines:[
+    'one cycle   80 + 80 + 80 + 250 = 490 ms; three plays = 1,470 ms',
+    'tick        1000 ÷ 12 = 83.33 ms',
+    'Godot 4     speed 12; durations 80 ÷ 83.33 = 0.96 (×3), 250 ÷ 83.33 = 3.0; loop off',
+    'Unity 6     keys at 0, 0.08, 0.16, 0.24 s, closing key at 0.49 s; Loop Time off',
+    'Phaser      duration 80, 80, 80, 250 per frame; repeat 2 (= 3 plays)',
+    'GIF         delays 8, 8, 8, 25 (1/100 s); loop count 2 (= 3 plays)'],
+    after:'Godot and Unity have no repeat count, so a tag that plays 3 times becomes "loop off" there: it plays once and you replay it from code (Godot\'s animation_finished signal). More on Godot\'s side: [[game/godot-animation-frame-duration|Godot frame durations]].'},
+   verify:{steps:[
+    'Press Enter on the tag: a finite tag stops on its last frame after its repeats; ping-pong does not repeat the end frames.',
+    'Hover frames on the timeline to read their milliseconds; select several frames to set one duration for all.',
+    'After export, compare one cycle\'s length in the engine with the sum of the frame durations.']},
+   trouble:{rows:[
+    ['A play-once attack loops in the engine','The tag\'s repeat is 0 (forever)','The tag panel shows repeat 0','Set repeat to 1 before exporting'],
+    ['A held pose is too short in Defold or GameMaker','These targets play one rate per animation, so per-frame durations are dropped','The export notes say the frames have different durations','Duplicate the held frame (Alt+N) so it lasts several base ticks, or accept the even timing'],
+    ['The run-left animation hits on the wrong side','The engine flips the pixels but not your box data','Compare the hitbox side in run and in the flipped run','Use the mirrored copy of the tag (pixels, pivot and boxes flipped), or mirror the box x in code'],
+    ['Phaser plays one play too many','A repeat typed by hand in Phaser as the number of plays','The repeat value in the animation config','Phaser counts extra plays: use plays − 1 (the export already does)']]},
+   alternatives:{rows:[
+    ['Aseprite\'s timeline','You draw and time frames in the same place; Nerulio reads the tags and durations from the .aseprite file later.'],
+    ['The engine\'s animation editor (Godot SpriteFrames panel, Unity Animation window)','You need animation events, blending or state machines that live in the engine anyway.'],
+    ['Skeletal animation (Spine and similar tools)','Characters built from moving parts rather than drawn frames; Nerulio only packs their atlas ([[game/spine-atlas|Spine atlas]]).']]},
+   limits:['Frame-by-frame only: no tweening, bones or interpolation.','Repeat counts above 1 are not stored in Godot or Unity; they play once there.','Defold rounds the animation FPS to a whole number.'],
+   versions:{body:['Clip keys and durations were read back from Unity 6000.5.3f1, animation speed, loop and relative durations from Godot 4.7.2, and animations played in Phaser 3.90 and 4.2. The Godot node properties named here follow the Godot 4.7 documentation.'],sources:[S.godotAnim,S.aseTags]}
+  },
+  ko:{
+   answer:'스프라이트로 만든 게임 애니메이션은 태그입니다. 프레임마다 길이가 따로 있고, 방향(정방향·역방향·핑퐁)과 반복 횟수가 있는 프레임 묶음이죠. Nerulio 타임라인에서 시트, 번호 붙은 PNG 프레임, GIF(각 GIF 지연이 그 프레임의 길이가 됨)로 태그를 만들고, 실제 크기로 반복 재생해 보고, 반대 방향용 반전 사본을 만들고, 같은 타이밍을 태그별 GIF나 Godot 4, Unity 6, Phaser, Aseprite JSON으로 내보냅니다. 애니메이션마다 FPS 하나만 아는 엔진은 태그의 속도를 받고, 내보내기가 그 사실을 알려 줍니다.',
+   concept:{title:'태그, 그리고 엔진이 태그를 재생하는 방식',body:[
+    '프레임 애니메이션은 타이밍입니다. 모두 80ms인 달리기는 기계적으로 보이고, 점프 전 300ms 예비 동작은 무게감을 줍니다. 그래서 타임라인은 프레임마다 밀리초를 저장하고 그대로 재생하며, 태그의 FPS는 틱 단위로 세는 엔진을 위한 기준일 뿐입니다.',
+    '엔진은 같은 태그를 자기 방식으로 재생합니다. Godot 4는 애니메이션마다 FPS를, 프레임마다 상대 길이(밀리초 ÷ 틱 길이)를 저장합니다. Unity는 AnimationClip에서 각 프레임의 시작 시각에 스프라이트 키를 둡니다. Phaser는 프레임마다 밀리초 길이를 받고 반복을 추가 재생 횟수로 셉니다. Defold와 GameMaker는 애니메이션마다 속도 하나로 재생하므로 프레임별 길이가 사라집니다. 핑퐁과 역방향은 Godot와 Unity에서는 프레임 순서로 풀어 쓰고, Phaser에서는 yoyo가 됩니다.',
+    '태그의 반전 사본은 프레임을 복제하고 픽셀, 피벗, 모든 박스를 함께 뒤집으므로 run_mirror는 자기 데이터를 가진 진짜 애니메이션입니다. 엔진에서 뒤집으면(Godot AnimatedSprite2D의 flip_h) 텍스처 공간은 아끼지만 박스 데이터는 뒤집히지 않습니다.'],
+    terms:[['태그','프레임 + 프레임별 ms + 방향 + 반복.'],['상대 길이(Godot)','프레임의 밀리초 ÷ (1000 ÷ 애니메이션 FPS).'],['반전 사본','픽셀, 피벗, 박스를 좌우로 뒤집은 새 태그.']]},
+   example:{title:'예시: 공격 태그 하나, 내보내기 네 가지',lead:'attack 태그, 12FPS, 프레임 80, 80, 80, 250ms, 정방향, 반복 3.',lines:[
+    '한 주기    80 + 80 + 80 + 250 = 490ms, 세 번 재생 = 1,470ms',
+    '틱         1000 ÷ 12 = 83.33ms',
+    'Godot 4    speed 12, 길이 80 ÷ 83.33 = 0.96(×3), 250 ÷ 83.33 = 3.0, loop 끔',
+    'Unity 6    키 0, 0.08, 0.16, 0.24초, 닫는 키 0.49초, Loop Time 끔',
+    'Phaser     프레임별 duration 80, 80, 80, 250, repeat 2(= 3번 재생)',
+    'GIF        지연 8, 8, 8, 25(100분의 1초), 반복 횟수 2(= 3번 재생)'],
+    after:'Godot와 Unity에는 반복 횟수가 없어서 3번 재생하는 태그는 "loop 끔"이 됩니다. 한 번 재생되므로 코드에서 다시 재생하세요(Godot의 animation_finished 시그널). Godot 쪽 자세한 내용은 [[game/godot-animation-frame-duration|Godot 프레임 길이]]에 있습니다.'},
+   verify:{steps:[
+    '태그에서 Enter를 누릅니다. 유한 태그는 반복을 마친 뒤 마지막 프레임에서 멈추고, 핑퐁은 끝 프레임을 반복하지 않아야 합니다.',
+    '타임라인의 프레임에 마우스를 올려 밀리초를 읽고, 여러 프레임을 선택해 길이를 한 번에 정합니다.',
+    '내보낸 뒤 엔진에서 한 주기의 길이를 프레임 길이의 합과 비교합니다.']},
+   trouble:{rows:[
+    ['한 번만 나와야 할 공격이 엔진에서 반복됨','태그의 반복이 0(무한)','태그 패널에 반복 0','내보내기 전에 반복을 1로'],
+    ['Defold나 GameMaker에서 멈춰 둔 포즈가 너무 짧음','이 대상은 애니메이션마다 속도 하나로 재생해 프레임별 길이가 빠짐','내보내기 안내에 프레임 길이가 서로 다르다고 나옴','멈춤 프레임을 복제(Alt+N)해 기본 틱 여러 개만큼 두거나, 고른 타이밍을 받아들이기'],
+    ['왼쪽 달리기에서 공격 판정이 반대쪽에 생김','엔진이 픽셀만 뒤집고 박스 데이터는 뒤집지 않음','run과 뒤집은 run에서 히트박스 쪽을 비교','태그의 반전 사본(픽셀·피벗·박스 모두 반전)을 쓰거나, 코드에서 박스 x를 뒤집기'],
+    ['Phaser에서 한 번 더 재생됨','Phaser에서 반복을 재생 횟수로 직접 입력함','애니메이션 설정의 repeat 값','Phaser는 추가 재생 횟수를 세므로 재생 횟수 − 1(내보내기는 이미 그렇게 씀)']]},
+   alternatives:{rows:[
+    ['Aseprite 타임라인','같은 곳에서 그리고 시간을 맞출 때. Nerulio는 나중에 .aseprite 파일의 태그와 길이를 읽습니다.'],
+    ['엔진 애니메이션 편집기(Godot SpriteFrames 패널, Unity Animation 창)','애니메이션 이벤트, 블렌딩, 상태 머신처럼 어차피 엔진에 있어야 하는 것이 필요할 때.'],
+    ['스켈레탈 애니메이션(Spine 등)','그린 프레임이 아니라 움직이는 부품으로 만든 캐릭터. Nerulio는 그 아틀라스만 패킹합니다([[game/spine-atlas|Spine 아틀라스]]).']]},
+   limits:['프레임 단위만: 트윈, 본, 보간은 없습니다.','2 이상의 반복 횟수는 Godot와 Unity에 저장되지 않아 거기서는 한 번 재생됩니다.','Defold는 애니메이션 FPS를 정수로 반올림합니다.'],
+   versions:{body:['클립 키와 길이는 Unity 6000.5.3f1에서, 애니메이션 속도·반복·상대 길이는 Godot 4.7.2에서 다시 읽었고, 애니메이션은 Phaser 3.90과 4.2에서 재생됐습니다. 여기 나온 Godot 노드 속성은 Godot 4.7 문서를 따릅니다.'],sources:[S.godotAnim,S.aseTags]}
+  },
+  ja:{
+   answer:'スプライトで作るゲームのアニメーションはタグです。フレームごとに長さを持ち、方向（順・逆・ピンポン）と繰り返し回数を持つフレームの並びです。Nerulioのタイムラインで、シート・連番PNG・GIF（GIFの各ディレイがそのフレームの長さになる）からタグを作り、出荷時の大きさでループ再生を確かめ、逆向き用に反転コピーを作り、同じタイミングをタグごとのGIFや、Godot 4・Unity 6・Phaser・Aseprite JSONに書き出します。アニメーションごとにFPSを1つしか持てないエンジンにはタグの速度が渡り、書き出しがその旨を知らせます。',
+   concept:{title:'タグと、エンジンでの再生のされ方',body:[
+    'コマ撮りのアニメーションはタイミングがすべてです。すべて80msの走りは機械的に見え、ジャンプ前の300msの予備動作は重さを伝えます。だからタイムラインはフレームごとにミリ秒を持ってそのとおり再生し、タグのFPSはティックで数えるエンジン向けの基準にすぎません。',
+    'エンジンは同じタグをそれぞれのやり方で再生します。Godot 4はアニメーションごとのFPSと、フレームごとの相対的な長さ（ミリ秒 ÷ ティックの長さ）を持ちます。UnityはAnimationClipで各フレームの開始時刻にスプライトのキーを打ちます。Phaserはフレームごとのミリ秒を受け取り、繰り返しを追加の再生回数として数えます。DefoldとGameMakerはアニメーションごとに1つの速度で再生するので、フレームごとの長さは失われます。ピンポンと逆方向は、GodotとUnityではフレーム順に展開し、Phaserではyoyoになります。',
+    'タグの反転コピーはフレームを複製し、ピクセル・ピボット・すべてのボックスをまとめて反転するので、run_mirrorは自分のデータを持った本物のアニメーションです。エンジン側での反転（GodotのAnimatedSprite2Dのflip_h）はテクスチャの容量を節約できますが、ボックスのデータは反転しません。'],
+    terms:[['タグ','フレーム + フレームごとのms + 方向 + 繰り返し。'],['相対的な長さ（Godot）','フレームのミリ秒 ÷（1000 ÷ アニメーションのFPS）。'],['反転コピー','ピクセル・ピボット・ボックスを左右反転した新しいタグ。']]},
+   example:{title:'例：1つの攻撃タグを4通りに書き出す',lead:'タグattack、12FPS、フレームは80・80・80・250ms、順方向、繰り返し3。',lines:[
+    '1周        80 + 80 + 80 + 250 = 490ms、3回再生 = 1,470ms',
+    'ティック   1000 ÷ 12 = 83.33ms',
+    'Godot 4    speed 12、長さ 80 ÷ 83.33 = 0.96（×3）、250 ÷ 83.33 = 3.0、loop オフ',
+    'Unity 6    キー 0、0.08、0.16、0.24秒、締めのキー 0.49秒、Loop Time オフ',
+    'Phaser     フレームごとの duration 80、80、80、250、repeat 2（= 3回再生）',
+    'GIF        ディレイ 8、8、8、25（1/100秒）、ループ回数 2（= 3回再生）'],
+    after:'GodotとUnityには繰り返し回数がないため、3回再生するタグはそこでは「loop オフ」になります。1回再生されるので、コードから再生し直してください（Godotのanimation_finishedシグナル）。Godot側の詳細は[[game/godot-animation-frame-duration|Godotのフレームの長さ]]にあります。'},
+   verify:{steps:[
+    'タグでEnterを押します。有限のタグは繰り返しを終えると最後のフレームで止まり、ピンポンは端のフレームを繰り返さないはずです。',
+    'タイムラインのフレームにカーソルを載せてミリ秒を読み、複数のフレームを選んで長さをまとめて設定します。',
+    '書き出し後、エンジンでの1周の長さをフレームの長さの合計と比べます。']},
+   trouble:{rows:[
+    ['1回だけのはずの攻撃がエンジンでループする','タグの繰り返しが0（無限）','タグパネルで繰り返し0','書き出す前に繰り返しを1にする'],
+    ['DefoldやGameMakerで止めのポーズが短すぎる','これらの書き出し先はアニメーションごとに1つの速度で再生し、フレームごとの長さが落ちる','書き出しの注記にフレームの長さがばらばらだと出る','止めのフレームを複製（Alt+N）して基準のティック数個ぶんにするか、均一なタイミングを受け入れる'],
+    ['左向きの走りで攻撃判定が反対側に出る','エンジンはピクセルを反転するが、ボックスのデータは反転しない','runと反転したrunでヒットボックスの側を比べる','タグの反転コピー（ピクセル・ピボット・ボックスをすべて反転）を使うか、コードでボックスのxを反転する'],
+    ['Phaserで1回多く再生される','Phaserでrepeatに再生回数をそのまま手入力した','アニメーション設定のrepeatの値','Phaserは追加の再生回数を数えるので「再生回数 − 1」にする（書き出しはすでにそうしている）']]},
+   alternatives:{rows:[
+    ['Asepriteのタイムライン','描くのとタイミング付けを同じ場所で行いたいとき。Nerulioはあとで.asepriteファイルのタグと長さを読みます。'],
+    ['エンジンのアニメーションエディター（GodotのSpriteFramesパネル、UnityのAnimationウィンドウ）','アニメーションイベント、ブレンド、ステートマシンなど、どのみちエンジンにあるべきものが必要なとき。'],
+    ['スケルタルアニメーション（Spineなど）','描いたフレームではなく、動くパーツで組んだキャラクター。Nerulioはそのアトラスをパックするだけです（[[game/spine-atlas|Spineアトラス]]）。']]},
+   limits:['コマ単位のみで、トゥイーン・ボーン・補間はありません。','2以上の繰り返し回数はGodotとUnityに保存されず、そこでは1回再生になります。','DefoldはアニメーションのFPSを整数に丸めます。'],
+   versions:{body:['クリップのキーと長さはUnity 6000.5.3f1で、アニメーションの速度・ループ・相対的な長さはGodot 4.7.2で読み戻し、アニメーションはPhaser 3.90と4.2で再生しました。ここで挙げたGodotのノードのプロパティはGodot 4.7のドキュメントに従います。'],sources:[S.godotAnim,S.aseTags]}
+  }
+ },
+ // ------------------------------------------------------------------ game/sprite-atlas-viewer
+ 'game/sprite-atlas-viewer':{
+  type:'format',
+  intent:{primary:'open a sprite atlas PNG with its JSON or XML and see and play its frames',secondary:['what frame, spriteSourceSize and sourceSize mean','TexturePacker JSON vs Aseprite JSON vs Sparrow XML','convert the atlas to another engine'],
+   goal:'every named frame listed and restored to its full canvas, animations grouped and playing, convertible to another format',input:'atlas PNG + Aseprite JSON, TexturePacker JSON or Starling/Sparrow XML',output:'a Studio project; exports for Phaser, PixiJS, Godot 4, Unity 6 and others',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js parseAtlas','src/studio/sprite/import-plan.js groupFrameFiles (name grouping)','docs/STUDIO-SPRITE.md known limits (rotated frames UNVERIFIED on export)'],
+   external:['Phaser 3.90 JSONHash parser: setTrim from sourceSize and spriteSourceSize','Aseprite CLI --format json-hash / json-array','TexturePacker trim modes']},
+  en:{
+   answer:'An atlas PNG is packed frames with no visible order; the JSON or XML beside it says where each frame is, how big it originally was and, for Aseprite, how long it shows and which frames form each animation. Drop the PNG and its Aseprite JSON, TexturePacker JSON (hash or array) or Starling / Sparrow XML together: Nerulio lists every named frame, puts trimmed frames back on their original canvas, groups animations from frameTags or from the names, and plays them. From there it can export the same frames for Phaser, PixiJS, Godot 4, Unity 6 and more. Spine .atlas files are not read.',
+   concept:{title:'How an atlas data file describes a frame',body:[
+    'All three formats describe a frame the same way. `frame` (or x, y, width, height) is the rectangle on the PNG. If the packer trimmed transparent borders, `sourceSize` is the frame\'s original size and `spriteSourceSize` says where the trimmed rectangle sat on it; Starling / Sparrow XML says the same with frameWidth, frameHeight and negative frameX, frameY. A reader that ignores the offset draws every trimmed frame from its own corner, and the animation wobbles.',
+    'Timing and animations differ. Aseprite JSON has a `duration` in milliseconds on every frame and `meta.frameTags` with from, to, direction and repeat. TexturePacker JSON and Sparrow XML have neither, so animations are rebuilt from frame names (walk_01, walk_02 → walk; "BF idle dance0000" → "BF idle dance", in natural order) and every frame starts at 100 ms.',
+    '`rotated: true` means the packer turned the frame 90° on the page to save space. Readers must turn it back; Nerulio imports such frames, but they stay rotated in the sheet and their export is UNVERIFIED.'],
+    terms:[['frame','The frame\'s rectangle on the atlas PNG (unrotated size).'],['spriteSourceSize','Where the trimmed rectangle sits on the original frame, and its size.'],['sourceSize','The original, untrimmed frame size.'],['frameTags','Aseprite\'s animations: name, from, to, direction, repeat.'],['frameX / frameY','Sparrow XML\'s trim offset, written negative.']]},
+   example:{title:'Example: one trimmed frame in two formats',lead:'The same 48 × 64 frame, trimmed to 20 × 30, as TexturePacker JSON and as Sparrow XML:',lines:[
+    '"walk_01": { "frame": {"x": 130, "y": 2, "w": 20, "h": 30}, "trimmed": true,',
+    '  "spriteSourceSize": {"x": 14, "y": 34, "w": 20, "h": 30}, "sourceSize": {"w": 48, "h": 64} }',
+    '→ cut 20 × 30 at (130, 2) on the PNG, place it at (14, 34) on a 48 × 64 canvas',
+    '',
+    '<SubTexture name="walk_01" x="130" y="2" width="20" height="30"',
+    '            frameX="-14" frameY="-34" frameWidth="48" frameHeight="64"/>',
+    '→ the same frame: offset = (−frameX, −frameY) = (14, 34)',
+    '',
+    'names walk_01, walk_02, walk_10 → animation "walk", order 01, 02, 10 (natural sort)'],
+    after:'Phaser 3.90\'s own JSON parser calls setTrim with exactly these fields (sourceSize, then spriteSourceSize), which is why a correct atlas plays still in Phaser. Converting such an atlas for Godot is covered on [[game/texturepacker-to-godot|TexturePacker to Godot]].'},
+   outputs:{lead:'After the import you can export the frames again; each target writes its own files.',rows:[
+    ['name.json + name.anims.json','Phaser 3 / 4: atlas JSON (hash) and an animations file for anims.fromJSON, per-frame milliseconds.'],
+    ['name.json','PixiJS 8: spritesheet with `animations` in playback order and each frame\'s pivot as `anchor`.'],
+    ['name.tres + name.tscn + name.png.import','Godot 4: SpriteFrames with AtlasTexture margins that keep the trim, and a ready scene.'],
+    ['name.unity.json + Editor/NerulioSpriteImporter.cs','Unity 6: sprite rects with pivots and one AnimationClip per tag.'],
+    ['name.json (Aseprite JSON)','frameTags, per-frame duration and slices, for tools that read Aseprite\'s format.']]},
+   trouble:{rows:[
+    ['Some frames are missing','Their rectangles lie outside the PNG: the image was resized or is not the one the data was written for','The import panel lists the frames it left out','Use the PNG that belongs to the data file, at its original size'],
+    ['The animation plays at the wrong speed','TexturePacker JSON and Sparrow XML carry no timing, so every frame starts at 100 ms','The timeline shows 100 on every frame','Select the frames and type the duration once, or use Aseprite JSON, which keeps it'],
+    ['Animations are split or merged wrongly','Frame names without one prefix and a number, such as idle_a, idle_b','Look at the tag lanes on the timeline','Rename the frames or drag the tag lanes to the right ranges'],
+    ['Exported frames come out sideways','Rotated atlas frames stay rotated in the sheet, and their export is UNVERIFIED','The Packed frames list flags them as rotated','Repack the source without rotation, then import again']]},
+   alternatives:{rows:[
+    ['The tool that made the atlas (TexturePacker, Aseprite)','You still have the source project: re-export in the target format directly.'],
+    ['The engine\'s own loader (Phaser this.load.atlas, PixiJS Assets.load)','You only need the atlas in that engine and it already reads the format.']]},
+   limits:['Spine / libGDX .atlas files are not read.','Rotated frames are imported, but their export is UNVERIFIED.','Polygon (mesh) atlases are not read or written.'],
+   versions:{body:['The field meanings above match the Phaser 3.90 parser and the Aseprite CLI\'s json-hash and json-array formats; TexturePacker\'s own documentation describes what its trim modes store. Imported atlas data was part of the 16-asset import check (frames correct with the default choices).'],sources:[S.phaserJson,S.aseCli,S.tpTrim]}
+  },
+  ko:{
+   answer:'아틀라스 PNG는 순서가 보이지 않게 패킹된 프레임들입니다. 옆의 JSON이나 XML이 각 프레임의 위치와 원래 크기를, Aseprite라면 보이는 시간과 애니메이션 구성까지 알려 줍니다. PNG와 Aseprite JSON, TexturePacker JSON(hash·array), Starling / Sparrow XML을 함께 놓으면 Nerulio가 이름 붙은 프레임을 모두 나열하고, 트림된 프레임을 원래 캔버스로 되돌리고, frameTags나 이름으로 애니메이션을 묶어 재생합니다. 그다음 같은 프레임을 Phaser, PixiJS, Godot 4, Unity 6 등으로 내보낼 수 있습니다. Spine .atlas 파일은 읽지 않습니다.',
+   concept:{title:'아틀라스 데이터 파일이 프레임을 설명하는 방식',body:[
+    '세 형식 모두 프레임을 같은 방식으로 설명합니다. `frame`(또는 x, y, width, height)은 PNG 위의 사각형입니다. 패커가 투명한 테두리를 잘라냈다면 `sourceSize`가 원래 크기, `spriteSourceSize`가 잘린 사각형이 원래 프레임의 어디에 있었는지를 알려 줍니다. Starling / Sparrow XML은 frameWidth, frameHeight와 음수 frameX, frameY로 같은 내용을 씁니다. 이 오프셋을 무시하는 읽기 도구는 트림된 프레임을 각자의 모서리에서 그려 애니메이션이 흔들립니다.',
+    '타이밍과 애니메이션은 다릅니다. Aseprite JSON에는 프레임마다 밀리초 `duration`과, from·to·방향·반복이 있는 `meta.frameTags`가 있습니다. TexturePacker JSON과 Sparrow XML에는 둘 다 없어서 애니메이션을 프레임 이름으로 다시 묶고(walk_01, walk_02 → walk, "BF idle dance0000" → "BF idle dance", 자연 정렬), 모든 프레임이 100ms로 시작합니다.',
+    '`rotated: true`는 패커가 공간을 아끼려고 프레임을 페이지에서 90° 돌렸다는 뜻입니다. 읽는 쪽이 되돌려야 합니다. Nerulio는 이런 프레임을 가져오지만 시트에서 회전된 채 남고, 내보내기는 UNVERIFIED입니다.'],
+    terms:[['frame','아틀라스 PNG 위 프레임의 사각형(회전 전 크기).'],['spriteSourceSize','잘린 사각형이 원래 프레임의 어디에 있는지와 그 크기.'],['sourceSize','트림 전 원래 프레임 크기.'],['frameTags','Aseprite의 애니메이션: 이름, from, to, 방향, 반복.'],['frameX / frameY','Sparrow XML의 트림 오프셋. 음수로 기록.']]},
+   example:{title:'예시: 트림된 프레임 하나, 형식 두 가지',lead:'20 × 30으로 트림된 같은 48 × 64 프레임을 TexturePacker JSON과 Sparrow XML로:',lines:[
+    '"walk_01": { "frame": {"x": 130, "y": 2, "w": 20, "h": 30}, "trimmed": true,',
+    '  "spriteSourceSize": {"x": 14, "y": 34, "w": 20, "h": 30}, "sourceSize": {"w": 48, "h": 64} }',
+    '→ PNG의 (130, 2)에서 20 × 30을 잘라 48 × 64 캔버스의 (14, 34)에 놓기',
+    '',
+    '<SubTexture name="walk_01" x="130" y="2" width="20" height="30"',
+    '            frameX="-14" frameY="-34" frameWidth="48" frameHeight="64"/>',
+    '→ 같은 프레임: 오프셋 = (−frameX, −frameY) = (14, 34)',
+    '',
+    '이름 walk_01, walk_02, walk_10 → 애니메이션 "walk", 순서 01, 02, 10(자연 정렬)'],
+    after:'Phaser 3.90의 JSON 파서는 바로 이 필드로 setTrim을 호출합니다(sourceSize, 그다음 spriteSourceSize). 그래서 올바른 아틀라스는 Phaser에서 흔들리지 않습니다. 이런 아틀라스를 Godot용으로 바꾸는 방법은 [[game/texturepacker-to-godot|TexturePacker에서 Godot로]]에 있습니다.'},
+   outputs:{lead:'가져온 뒤 프레임을 다시 내보낼 수 있으며, 대상마다 자기 파일을 씁니다.',rows:[
+    ['name.json + name.anims.json','Phaser 3 / 4: 아틀라스 JSON(hash)과 anims.fromJSON용 애니메이션 파일, 프레임별 밀리초.'],
+    ['name.json','PixiJS 8: 재생 순서의 `animations`와 프레임 피벗을 `anchor`로 담은 스프라이트시트.'],
+    ['name.tres + name.tscn + name.png.import','Godot 4: 트림을 유지하는 AtlasTexture margin이 있는 SpriteFrames와 바로 쓸 씬.'],
+    ['name.unity.json + Editor/NerulioSpriteImporter.cs','Unity 6: 피벗이 있는 스프라이트 사각형과 태그마다 AnimationClip 하나.'],
+    ['name.json(Aseprite JSON)','Aseprite 형식을 읽는 도구용 frameTags, 프레임별 duration, 슬라이스.']]},
+   trouble:{rows:[
+    ['일부 프레임이 없음','사각형이 PNG 밖에 있음: 이미지 크기가 바뀌었거나 데이터가 만들어진 그 이미지가 아님','가져오기 패널에 빠진 프레임이 나옴','데이터 파일과 짝인 PNG를 원래 크기 그대로 쓰기'],
+    ['애니메이션 속도가 틀림','TexturePacker JSON과 Sparrow XML에는 타이밍이 없어 모든 프레임이 100ms로 시작','타임라인의 모든 프레임에 100','프레임을 선택해 길이를 한 번에 입력하거나, 길이를 담는 Aseprite JSON 사용'],
+    ['애니메이션이 잘못 나뉘거나 합쳐짐','접두사 하나와 번호로 된 이름이 아님(예: idle_a, idle_b)','타임라인의 태그 줄 확인','프레임 이름을 바꾸거나 태그 줄을 올바른 범위로 드래그'],
+    ['내보낸 프레임이 옆으로 누움','회전된 아틀라스 프레임은 시트에서 회전된 채 남고, 내보내기는 UNVERIFIED','패킹된 프레임 목록에 회전 표시','원본을 회전 없이 다시 패킹한 뒤 다시 가져오기']]},
+   alternatives:{rows:[
+    ['아틀라스를 만든 도구(TexturePacker, Aseprite)','원본 프로젝트가 있다면 대상 형식으로 바로 다시 내보내기.'],
+    ['엔진 자체 로더(Phaser this.load.atlas, PixiJS Assets.load)','그 엔진에서만 쓰면 되고 엔진이 이미 그 형식을 읽을 때.']]},
+   limits:['Spine / libGDX .atlas 파일은 읽지 않습니다.','회전된 프레임은 가져오지만 내보내기는 UNVERIFIED입니다.','폴리곤(메시) 아틀라스는 읽지도 쓰지도 않습니다.'],
+   versions:{body:['위 필드의 의미는 Phaser 3.90 파서와 Aseprite CLI의 json-hash·json-array 형식에 맞습니다. TexturePacker 트림 모드가 무엇을 저장하는지는 TexturePacker 공식 문서에 있습니다. 아틀라스 데이터 가져오기는 실제 에셋 16개 확인에 포함됐습니다(기본 선택으로 프레임 정상).'],sources:[S.phaserJson,S.aseCli,S.tpTrim]}
+  },
+  ja:{
+   answer:'アトラスのPNGは、順番が見えない形でパックされたフレームの集まりです。隣のJSONやXMLが各フレームの位置と元の大きさを、Asepriteならさらに表示時間とアニメーションの構成を伝えます。PNGとAseprite JSON、TexturePacker JSON（hash・array）、Starling / Sparrow XMLを一緒にドロップすると、Nerulioは名前付きフレームをすべて一覧にし、トリムされたフレームを元のキャンバスに戻し、frameTagsか名前でアニメーションをまとめて再生します。そこから同じフレームをPhaser、PixiJS、Godot 4、Unity 6などに書き出せます。Spineの.atlasファイルは読みません。',
+   concept:{title:'アトラスのデータファイルはフレームをどう記述するか',body:[
+    '3つの形式はどれもフレームを同じように記述します。`frame`（またはx・y・width・height）はPNG上の矩形です。パッカーが透明な縁を切り落としていれば、`sourceSize` が元の大きさ、`spriteSourceSize` が切り詰めた矩形が元のフレームのどこにあったかを示します。Starling / Sparrow XMLは同じことをframeWidth・frameHeightと負のframeX・frameYで書きます。このオフセットを無視する読み込み側は、トリムされたフレームをそれぞれの角から描くので、アニメーションがぶれます。',
+    'タイミングとアニメーションは形式で違います。Aseprite JSONにはフレームごとのミリ秒の `duration` と、from・to・方向・繰り返しを持つ `meta.frameTags` があります。TexturePacker JSONとSparrow XMLにはどちらもないため、アニメーションはフレーム名からまとめ直し（walk_01, walk_02 → walk、"BF idle dance0000" → "BF idle dance"、自然順）、全フレームが100msで始まります。',
+    '`rotated: true` は、パッカーが容量を節約するためにフレームをページ上で90°回したという意味です。読み込み側が戻す必要があります。Nerulioはこうしたフレームも読み込みますが、シート上では回転したまま残り、その書き出しはUNVERIFIEDです。'],
+    terms:[['frame','アトラスPNG上のフレームの矩形（回転前の大きさ）。'],['spriteSourceSize','切り詰めた矩形が元のフレームのどこにあるかと、その大きさ。'],['sourceSize','トリム前の元のフレームの大きさ。'],['frameTags','Asepriteのアニメーション：名前・from・to・方向・繰り返し。'],['frameX / frameY','Sparrow XMLのトリムのオフセット。負の値で書く。']]},
+   example:{title:'例：トリムされた1フレームを2つの形式で',lead:'20 × 30にトリムされた同じ48 × 64のフレームを、TexturePacker JSONとSparrow XMLで：',lines:[
+    '"walk_01": { "frame": {"x": 130, "y": 2, "w": 20, "h": 30}, "trimmed": true,',
+    '  "spriteSourceSize": {"x": 14, "y": 34, "w": 20, "h": 30}, "sourceSize": {"w": 48, "h": 64} }',
+    '→ PNGの (130, 2) から 20 × 30 を切り出し、48 × 64 キャンバスの (14, 34) に置く',
+    '',
+    '<SubTexture name="walk_01" x="130" y="2" width="20" height="30"',
+    '            frameX="-14" frameY="-34" frameWidth="48" frameHeight="64"/>',
+    '→ 同じフレーム：オフセット = (−frameX, −frameY) = (14, 34)',
+    '',
+    '名前 walk_01, walk_02, walk_10 → アニメーション "walk"、順序 01, 02, 10（自然順）'],
+    after:'Phaser 3.90のJSONパーサーは、まさにこれらの項目でsetTrimを呼びます（sourceSize、次にspriteSourceSize）。だから正しいアトラスはPhaserでぶれません。こうしたアトラスをGodot向けに変換する方法は[[game/texturepacker-to-godot|TexturePackerからGodotへ]]にあります。'},
+   outputs:{lead:'読み込んだあと、フレームを書き出し直せます。書き出し先ごとに固有のファイルを書きます。',rows:[
+    ['name.json + name.anims.json','Phaser 3 / 4：アトラスJSON（hash）とanims.fromJSON用のアニメーションファイル。フレームごとのミリ秒。'],
+    ['name.json','PixiJS 8：再生順の `animations` と、フレームのピボットを `anchor` として持つスプライトシート。'],
+    ['name.tres + name.tscn + name.png.import','Godot 4：トリムを保つAtlasTextureのmarginを持つSpriteFramesと、すぐ使えるシーン。'],
+    ['name.unity.json + Editor/NerulioSpriteImporter.cs','Unity 6：ピボット付きのスプライト矩形と、タグごとのAnimationClip。'],
+    ['name.json（Aseprite JSON）','Aseprite形式を読むツール向けのframeTags、フレームごとのduration、スライス。']]},
+   trouble:{rows:[
+    ['一部のフレームがない','矩形がPNGの外にある：画像が縮小された、またはデータを書いたときの画像ではない','インポートパネルに除外したフレームが出る','データファイルと対になるPNGを元の大きさで使う'],
+    ['アニメーションの速度が違う','TexturePacker JSONとSparrow XMLにはタイミングがなく、全フレームが100msで始まる','タイムラインの全フレームに100','フレームを選んで長さをまとめて入力するか、長さを保持するAseprite JSONを使う'],
+    ['アニメーションの分かれ方・まとまり方がおかしい','1つの接頭辞と番号でできた名前ではない（idle_a、idle_bなど）','タイムラインのタグの行を見る','フレーム名を変えるか、タグの行を正しい範囲にドラッグする'],
+    ['書き出したフレームが横倒しになる','回転したアトラスのフレームはシート上で回転したまま残り、その書き出しはUNVERIFIED','パック済みフレーム一覧に回転の印','元データを回転なしでパックし直して、読み込み直す']]},
+   alternatives:{rows:[
+    ['アトラスを作ったツール（TexturePacker、Aseprite）','元のプロジェクトがあるなら、目的の形式で直接書き出し直す。'],
+    ['エンジン自身のローダー（Phaserのthis.load.atlas、PixiJSのAssets.load）','そのエンジンでだけ使えばよく、エンジンがすでにその形式を読めるとき。']]},
+   limits:['Spine / libGDXの.atlasファイルは読みません。','回転したフレームは読み込めますが、その書き出しはUNVERIFIEDです。','ポリゴン（メッシュ）アトラスは読みも書きもしません。'],
+   versions:{body:['上の項目の意味は、Phaser 3.90のパーサーとAseprite CLIのjson-hash・json-array形式に一致します。TexturePackerのトリムモードが何を保存するかはTexturePacker公式ドキュメントにあります。アトラスデータの読み込みは実在アセット16件の確認に含まれています（既定の選択でフレームは正常）。'],sources:[S.phaserJson,S.aseCli,S.tpTrim]}
+  }
  }
 };
