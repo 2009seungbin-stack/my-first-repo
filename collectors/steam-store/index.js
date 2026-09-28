@@ -137,7 +137,12 @@ export function createSteamStoreAdapter(opts={}){
    for(const t of games){
     const appid=t.facts.steam_appid;
     let en;
-    try{en=await fetchDetails(ctx,appid,'english','us',delays);}catch(e){failed++;ctx.log(`steam-store: ${appid}: ${e}`);continue;}
+    let enCc='us';
+    try{
+     en=await fetchDetails(ctx,appid,'english','us',delays);
+     // Some Korean/Asian releases are not sold in the US store: read the English data via the KR store.
+     if('missing' in en){enCc='kr';en=await fetchDetails(ctx,appid,'english','kr',delays);}
+    }catch(e){failed++;ctx.log(`steam-store: ${appid}: ${e}`);continue;}
     if('missing' in en){skipped++;ctx.log(`steam-store: ${appid}: no store data (removed, region-locked or not an app)`);continue;}
     if(en.data.type!=='game'){skipped++;ctx.log(`steam-store: ${appid}: type ${en.data.type}, not a game`);continue;}
     let ko=null;
@@ -147,7 +152,7 @@ export function createSteamStoreAdapter(opts={}){
     if(t.slug)slugOwner.set(t.slug,t.id);
     entities.push(gameEntity(en.data,ko,{appid,id:t.id,slug,src:sourceId(appid),orgId}));
     sources.push({id:sourceId(appid),kind:'OFFICIAL',url:storeUrl(appid),title:`${name} on Steam`,publisher:'Valve Corporation (Steam store)',retrieved,adapter:'steam-store',
-     note:`Machine-read from ${detailsUrl(appid,'english','us')} and ${detailsUrl(appid,'koreana','kr')} (undocumented store JSON endpoint behind this page).`});
+     note:`Machine-read from ${detailsUrl(appid,'english',enCc)} and ${detailsUrl(appid,'koreana','kr')} (undocumented store JSON endpoint behind this page).`});
     ok++;
    }
    if(games.length&&!ok)throw Error(`steam-store: no game could be read (${failed} failed, ${skipped} skipped)`);

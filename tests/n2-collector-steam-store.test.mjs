@@ -16,7 +16,7 @@ function fakeFetch(plan={}){
  const f=async(url)=>{
   calls.push(url);
   const u=new URL(url),appid=u.searchParams.get('appids'),l=u.searchParams.get('l');
-  const scripted=plan[`${appid}:${l}`]?.shift();
+  const scripted=(plan[`${appid}:${l}:${u.searchParams.get('cc')}`]||plan[`${appid}:${l}`])?.shift();
   if(scripted)return new Response(scripted.body,{status:scripted.status,headers:{'content-type':'application/json'}});
   let body;try{body=fx(`${appid}.${l}.json`);}catch{body=JSON.stringify({[appid]:{success:false}});}
   return new Response(body,{status:200,headers:{'content-type':'application/json'}});
@@ -65,7 +65,7 @@ test('collect() turns recorded appdetails into a valid seed document',async()=>{
  assert.equal(run.error,null);
  const doc=run.doc;
  assert.deepEqual(validateSeed(doc,{entities:new Set(['org:unknown-worlds','game:other'])}),[]);
- assert.equal(fetch.calls.length,9,'english + korean per game; missing app stops after the english call');
+ assert.equal(fetch.calls.length,10,'english + korean per game; a missing app stops after the English US + KR calls');
  assert.ok(fetch.calls.every(u=>u.startsWith('https://store.steampowered.com/api/appdetails?appids=')));
  const byId=Object.fromEntries(doc.entities.map(e=>[e.id,e]));
  const fact=(id,p)=>byId[id].facts.find(f=>f.p===p)?.v;
@@ -106,6 +106,15 @@ test('throttled responses are retried, then the game is skipped without failing 
  assert.ok(run.doc.entities.some(e=>e.id==='game:steam-367520'),'recovered after 429 and a null body');
  assert.ok(!run.doc.entities.some(e=>e.id==='game:steam-233860'),'gave up after the retry budget');
  assert.equal(run.doc.stats.failed,1);
+});
+
+test('games missing from the US store are read through the KR store',async()=>{
+ const fetch=fakeFetch({'1962700:english:us':[{status:200,body:JSON.stringify({1962700:{success:false}})}]});
+ const run=await runAdapter(createSteamStoreAdapter({retryDelays:[0]}),{fetch,now,targets:[target(1962700)]});
+ assert.equal(run.error,null);
+ assert.deepEqual(fetch.calls.map(u=>new URL(u).searchParams.get('cc')),['us','kr','kr']);
+ assert.equal(run.doc.entities[0].names.en,'Subnautica 2');
+ assert.match(run.doc.sources[0].note,/l=english&cc=kr/);
 });
 
 test('a run where nothing can be read reports an error for health tracking',async()=>{

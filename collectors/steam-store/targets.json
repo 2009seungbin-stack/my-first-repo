@@ -1,0 +1,1921 @@
+{
+ "schema": "nerulio.targets/1",
+ "vertical": "games",
+ "generated": "2026-09-28",
+ "selection": {
+  "kr_top_seller_week": {
+   "url": "https://store.steampowered.com/charts/topselling/KR",
+   "endpoint": "IStoreTopSellersService/GetWeeklyTopSellers/v1 (country_code=KR, ranks 1-200; observed, undocumented)",
+   "retrieved": "2026-09-28"
+  },
+  "most_played_global": {
+   "url": "https://store.steampowered.com/charts/mostplayed",
+   "endpoint": "ISteamChartsService/GetMostPlayedGames/v1 (ranks 1-100; observed, undocumented)",
+   "retrieved": "2026-09-28"
+  },
+  "curated": "collectors/steam-store/curated.json",
+  "excluded": {
+   "431960": "Wallpaper Engine — desktop software, not a game",
+   "1675200": "Steam Deck — hardware"
+  },
+  "filters": "chart items with type != 0 (DLC, soundtracks) or adult-content descriptors 3/4 are left out"
+ },
+ "targets": [
+  {
+   "appid": 578080,
+   "why": [
+    "kr_top_seller_week:1",
+    "most_played_global:3"
+   ],
+   "name": "PUBG: BATTLEGROUNDS"
+  },
+  {
+   "appid": 1049590,
+   "why": [
+    "kr_top_seller_week:2"
+   ],
+   "name": "Eternal Return"
+  },
+  {
+   "appid": 1973530,
+   "why": [
+    "kr_top_seller_week:3",
+    "most_played_global:23"
+   ],
+   "name": "Limbus Company"
+  },
+  {
+   "appid": 1867240,
+   "why": [
+    "kr_top_seller_week:4",
+    "most_played_global:5"
+   ],
+   "name": "WARDOGS"
+  },
+  {
+   "appid": 960170,
+   "why": [
+    "kr_top_seller_week:5"
+   ],
+   "name": "DJMAX RESPECT V"
+  },
+  {
+   "appid": 2402680,
+   "why": [
+    "kr_top_seller_week:6"
+   ],
+   "name": "Dimraeth"
+  },
+  {
+   "appid": 5099430,
+   "why": [
+    "kr_top_seller_week:7"
+   ],
+   "name": "The Rhapsody of Zephyr Remastered"
+  },
+  {
+   "appid": 4126040,
+   "why": [
+    "kr_top_seller_week:8",
+    "most_played_global:10"
+   ],
+   "name": "Aniimo"
+  },
+  {
+   "appid": 294100,
+   "why": [
+    "kr_top_seller_week:9",
+    "most_played_global:83"
+   ],
+   "name": "RimWorld"
+  },
+  {
+   "appid": 4225980,
+   "why": [
+    "kr_top_seller_week:10"
+   ],
+   "name": "Trails in the Sky 2nd Chapter"
+  },
+  {
+   "appid": 1086940,
+   "why": [
+    "kr_top_seller_week:11",
+    "most_played_global:37",
+    "curated:big_release"
+   ],
+   "name": "Baldur's Gate 3"
+  },
+  {
+   "appid": 2139460,
+   "why": [
+    "kr_top_seller_week:12",
+    "most_played_global:99"
+   ],
+   "name": "Once Human"
+  },
+  {
+   "appid": 2344520,
+   "why": [
+    "kr_top_seller_week:14",
+    "most_played_global:71"
+   ],
+   "name": "Diablo® IV"
+  },
+  {
+   "appid": 3557620,
+   "why": [
+    "kr_top_seller_week:16"
+   ],
+   "name": "Blue Archive"
+  },
+  {
+   "appid": 3564740,
+   "why": [
+    "kr_top_seller_week:17"
+   ],
+   "name": "Where Winds Meet"
+  },
+  {
+   "appid": 2246340,
+   "why": [
+    "kr_top_seller_week:18",
+    "most_played_global:43"
+   ],
+   "name": "Monster Hunter Wilds"
+  },
+  {
+   "appid": 2074920,
+   "why": [
+    "kr_top_seller_week:19"
+   ],
+   "name": "The First Descendant"
+  },
+  {
+   "appid": 3447040,
+   "why": [
+    "kr_top_seller_week:20"
+   ],
+   "name": "Sora no Kiseki the 1st"
+  },
+  {
+   "appid": 730,
+   "why": [
+    "kr_top_seller_week:21",
+    "most_played_global:1"
+   ],
+   "name": "Counter-Strike 2"
+  },
+  {
+   "appid": 1172470,
+   "why": [
+    "kr_top_seller_week:22",
+    "most_played_global:6"
+   ],
+   "name": "Apex Legends™"
+  },
+  {
+   "appid": 985810,
+   "why": [
+    "kr_top_seller_week:23"
+   ],
+   "name": "GrandChase"
+  },
+  {
+   "appid": 3321460,
+   "why": [
+    "kr_top_seller_week:24",
+    "most_played_global:92"
+   ],
+   "name": "Crimson Desert Enhanced"
+  },
+  {
+   "appid": 4656000,
+   "why": [
+    "kr_top_seller_week:25"
+   ],
+   "name": "BOMBANANA!"
+  },
+  {
+   "appid": 2638890,
+   "why": [
+    "kr_top_seller_week:26"
+   ],
+   "name": "Onimusha: Way of the Sword"
+  },
+  {
+   "appid": 4001890,
+   "why": [
+    "kr_top_seller_week:27",
+    "most_played_global:52"
+   ],
+   "name": "How to Fish"
+  },
+  {
+   "appid": 1825750,
+   "why": [
+    "kr_top_seller_week:28"
+   ],
+   "name": "Soulworker : Your Destiny Awaits"
+  },
+  {
+   "appid": 872410,
+   "why": [
+    "kr_top_seller_week:30"
+   ],
+   "name": "ROMANCE OF THE THREE KINGDOMS XIV"
+  },
+  {
+   "appid": 381210,
+   "why": [
+    "kr_top_seller_week:31",
+    "most_played_global:19"
+   ],
+   "name": "Dead by Daylight"
+  },
+  {
+   "appid": 3357650,
+   "why": [
+    "kr_top_seller_week:32"
+   ],
+   "name": "PRAGMATA"
+  },
+  {
+   "appid": 2357570,
+   "why": [
+    "kr_top_seller_week:33",
+    "most_played_global:13"
+   ],
+   "name": "Overwatch®"
+  },
+  {
+   "appid": 230410,
+   "why": [
+    "kr_top_seller_week:34",
+    "most_played_global:20"
+   ],
+   "name": "Warframe"
+  },
+  {
+   "appid": 1627720,
+   "why": [
+    "kr_top_seller_week:35",
+    "curated:korean_developer"
+   ],
+   "name": "Lies of P"
+  },
+  {
+   "appid": 3240220,
+   "why": [
+    "kr_top_seller_week:36",
+    "most_played_global:26"
+   ],
+   "name": "Grand Theft Auto V Enhanced"
+  },
+  {
+   "appid": 216150,
+   "why": [
+    "kr_top_seller_week:37"
+   ],
+   "name": "MapleStory"
+  },
+  {
+   "appid": 3159330,
+   "why": [
+    "kr_top_seller_week:38"
+   ],
+   "name": "Assassin’s Creed Shadows"
+  },
+  {
+   "appid": 1984270,
+   "why": [
+    "kr_top_seller_week:39"
+   ],
+   "name": "Digimon Story Time Stranger"
+  },
+  {
+   "appid": 2436940,
+   "why": [
+    "kr_top_seller_week:40"
+   ],
+   "name": "Sephiria"
+  },
+  {
+   "appid": 4108000,
+   "why": [
+    "kr_top_seller_week:41"
+   ],
+   "name": "Machine Party"
+  },
+  {
+   "appid": 2288340,
+   "why": [
+    "kr_top_seller_week:42"
+   ],
+   "name": "ACE COMBAT 8: WINGS OF THEVE"
+  },
+  {
+   "appid": 4128400,
+   "why": [
+    "kr_top_seller_week:43"
+   ],
+   "name": "eBaseball™: PRO SPIRIT"
+  },
+  {
+   "appid": 1623730,
+   "why": [
+    "kr_top_seller_week:44",
+    "most_played_global:36"
+   ],
+   "name": "Palworld"
+  },
+  {
+   "appid": 3008130,
+   "why": [
+    "kr_top_seller_week:45"
+   ],
+   "name": "Dying Light: The Beast"
+  },
+  {
+   "appid": 1374490,
+   "why": [
+    "kr_top_seller_week:47",
+    "most_played_global:84"
+   ],
+   "name": "RuneScape: Dragonwilds"
+  },
+  {
+   "appid": 1407200,
+   "why": [
+    "kr_top_seller_week:48"
+   ],
+   "name": "World of Tanks"
+  },
+  {
+   "appid": 2001120,
+   "why": [
+    "kr_top_seller_week:49"
+   ],
+   "name": "Split Fiction"
+  },
+  {
+   "appid": 1665460,
+   "why": [
+    "kr_top_seller_week:51",
+    "most_played_global:54"
+   ],
+   "name": "eFootball™"
+  },
+  {
+   "appid": 949230,
+   "why": [
+    "kr_top_seller_week:52"
+   ],
+   "name": "Cities: Skylines II"
+  },
+  {
+   "appid": 3764200,
+   "why": [
+    "kr_top_seller_week:53"
+   ],
+   "name": "Resident Evil Requiem"
+  },
+  {
+   "appid": 1245620,
+   "why": [
+    "kr_top_seller_week:55",
+    "most_played_global:49"
+   ],
+   "name": "ELDEN RING"
+  },
+  {
+   "appid": 4508340,
+   "why": [
+    "kr_top_seller_week:57"
+   ],
+   "name": "NTE: Neverness to Everness"
+  },
+  {
+   "appid": 2073620,
+   "why": [
+    "kr_top_seller_week:58",
+    "most_played_global:69"
+   ],
+   "name": "Arena Breakout: Infinite"
+  },
+  {
+   "appid": 3609080,
+   "why": [
+    "kr_top_seller_week:60"
+   ],
+   "name": "StarSavior"
+  },
+  {
+   "appid": 2507950,
+   "why": [
+    "kr_top_seller_week:61",
+    "most_played_global:22"
+   ],
+   "name": "Delta Force"
+  },
+  {
+   "appid": 2622000,
+   "why": [
+    "kr_top_seller_week:62"
+   ],
+   "name": "Astral Party "
+  },
+  {
+   "appid": 553850,
+   "why": [
+    "kr_top_seller_week:63",
+    "most_played_global:16"
+   ],
+   "name": "HELLDIVERS™ 2"
+  },
+  {
+   "appid": 3308670,
+   "why": [
+    "kr_top_seller_week:64"
+   ],
+   "name": "GIRLS' FRONTLINE 2: EXILIUM"
+  },
+  {
+   "appid": 4080220,
+   "why": [
+    "kr_top_seller_week:66",
+    "most_played_global:38"
+   ],
+   "name": "EA SPORTS FC™ 27"
+  },
+  {
+   "appid": 1449850,
+   "why": [
+    "kr_top_seller_week:67",
+    "most_played_global:53"
+   ],
+   "name": "Yu-Gi-Oh! Master Duel"
+  },
+  {
+   "appid": 4560660,
+   "why": [
+    "kr_top_seller_week:68"
+   ],
+   "name": "Eslabong"
+  },
+  {
+   "appid": 892970,
+   "why": [
+    "kr_top_seller_week:69",
+    "most_played_global:7"
+   ],
+   "name": "Valheim"
+  },
+  {
+   "appid": 2369390,
+   "why": [
+    "kr_top_seller_week:70"
+   ],
+   "name": "Far Cry® 6"
+  },
+  {
+   "appid": 3932890,
+   "why": [
+    "kr_top_seller_week:71"
+   ],
+   "name": "Escape from Tarkov"
+  },
+  {
+   "appid": 3513350,
+   "why": [
+    "kr_top_seller_week:72",
+    "most_played_global:73"
+   ],
+   "name": "Wuthering Waves"
+  },
+  {
+   "appid": 4025700,
+   "why": [
+    "kr_top_seller_week:73"
+   ],
+   "name": "Heartopia"
+  },
+  {
+   "appid": 1144200,
+   "why": [
+    "kr_top_seller_week:74"
+   ],
+   "name": "Ready or Not"
+  },
+  {
+   "appid": 2444750,
+   "why": [
+    "kr_top_seller_week:75"
+   ],
+   "name": "Shape of Dreams"
+  },
+  {
+   "appid": 570,
+   "why": [
+    "kr_top_seller_week:76",
+    "most_played_global:2"
+   ],
+   "name": "Dota 2"
+  },
+  {
+   "appid": 2459550,
+   "why": [
+    "kr_top_seller_week:77"
+   ],
+   "name": "Emberward"
+  },
+  {
+   "appid": 3679080,
+   "why": [
+    "kr_top_seller_week:78"
+   ],
+   "name": "The Seven Deadly Sins: Origin"
+  },
+  {
+   "appid": 236390,
+   "why": [
+    "kr_top_seller_week:79",
+    "most_played_global:15"
+   ],
+   "name": "War Thunder"
+  },
+  {
+   "appid": 812140,
+   "why": [
+    "kr_top_seller_week:80"
+   ],
+   "name": "Assassin's Creed® Odyssey"
+  },
+  {
+   "appid": 1285190,
+   "why": [
+    "kr_top_seller_week:81"
+   ],
+   "name": "Borderlands 4"
+  },
+  {
+   "appid": 1142710,
+   "why": [
+    "kr_top_seller_week:82",
+    "most_played_global:28"
+   ],
+   "name": "Total War: WARHAMMER III"
+  },
+  {
+   "appid": 4356430,
+   "why": [
+    "kr_top_seller_week:83"
+   ],
+   "name": "NBA 2K27"
+  },
+  {
+   "appid": 3985950,
+   "why": [
+    "kr_top_seller_week:84"
+   ],
+   "name": "R.I.P. - Reincarnation Insurance Program"
+  },
+  {
+   "appid": 1903340,
+   "why": [
+    "kr_top_seller_week:85"
+   ],
+   "name": "Clair Obscur: Expedition 33"
+  },
+  {
+   "appid": 4162040,
+   "why": [
+    "kr_top_seller_week:86"
+   ],
+   "name": "Zenless Zone Zero"
+  },
+  {
+   "appid": 1222670,
+   "why": [
+    "kr_top_seller_week:87",
+    "most_played_global:61"
+   ],
+   "name": "The Sims™ 4"
+  },
+  {
+   "appid": 4163960,
+   "why": [
+    "kr_top_seller_week:88"
+   ],
+   "name": "Another Eden Begins"
+  },
+  {
+   "appid": 4559140,
+   "why": [
+    "kr_top_seller_week:89"
+   ],
+   "name": "Godius Eternal War"
+  },
+  {
+   "appid": 1426210,
+   "why": [
+    "kr_top_seller_week:90"
+   ],
+   "name": "It Takes Two"
+  },
+  {
+   "appid": 4659620,
+   "why": [
+    "kr_top_seller_week:91"
+   ],
+   "name": "Touhou Koumakyou: New Classic - the Embodiment of Scarlet Devil"
+  },
+  {
+   "appid": 3527290,
+   "why": [
+    "kr_top_seller_week:92",
+    "most_played_global:40"
+   ],
+   "name": "PEAK"
+  },
+  {
+   "appid": 3681010,
+   "why": [
+    "kr_top_seller_week:93"
+   ],
+   "name": "Nioh 3"
+  },
+  {
+   "appid": 2399420,
+   "why": [
+    "kr_top_seller_week:94"
+   ],
+   "name": "Le Mans Ultimate"
+  },
+  {
+   "appid": 4358690,
+   "why": [
+    "kr_top_seller_week:95",
+    "most_played_global:58"
+   ],
+   "name": "Graveyard Keeper 2"
+  },
+  {
+   "appid": 2767030,
+   "why": [
+    "kr_top_seller_week:96",
+    "most_played_global:14"
+   ],
+   "name": "Marvel Rivals"
+  },
+  {
+   "appid": 2879840,
+   "why": [
+    "kr_top_seller_week:97"
+   ],
+   "name": "Escape Simulator 2"
+  },
+  {
+   "appid": 2050650,
+   "why": [
+    "kr_top_seller_week:98",
+    "most_played_global:93",
+    "curated:big_release"
+   ],
+   "name": "Resident Evil 4"
+  },
+  {
+   "appid": 1478500,
+   "why": [
+    "kr_top_seller_week:99"
+   ],
+   "name": "Big Walk"
+  },
+  {
+   "appid": 269210,
+   "why": [
+    "kr_top_seller_week:100"
+   ],
+   "name": "Hero Siege"
+  },
+  {
+   "appid": 1295660,
+   "why": [
+    "kr_top_seller_week:101",
+    "curated:big_release"
+   ],
+   "name": "Sid Meier's Civilization VII"
+  },
+  {
+   "appid": 271590,
+   "why": [
+    "most_played_global:8"
+   ]
+  },
+  {
+   "appid": 2868840,
+   "why": [
+    "most_played_global:9"
+   ]
+  },
+  {
+   "appid": 2676230,
+   "why": [
+    "most_played_global:11"
+   ]
+  },
+  {
+   "appid": 359550,
+   "why": [
+    "most_played_global:12"
+   ]
+  },
+  {
+   "appid": 250900,
+   "why": [
+    "most_played_global:17",
+    "curated:indie_hit"
+   ],
+   "name": "The Binding of Isaac: Rebirth"
+  },
+  {
+   "appid": 322170,
+   "why": [
+    "most_played_global:18"
+   ]
+  },
+  {
+   "appid": 1422450,
+   "why": [
+    "most_played_global:21"
+   ]
+  },
+  {
+   "appid": 105600,
+   "why": [
+    "most_played_global:24",
+    "curated:korean_patch"
+   ],
+   "name": "Terraria"
+  },
+  {
+   "appid": 413150,
+   "why": [
+    "most_played_global:25",
+    "curated:indie_hit"
+   ],
+   "name": "Stardew Valley"
+  },
+  {
+   "appid": 252490,
+   "why": [
+    "most_played_global:27",
+    "curated:classic"
+   ],
+   "name": "Rust"
+  },
+  {
+   "appid": 2807960,
+   "why": [
+    "most_played_global:29"
+   ]
+  },
+  {
+   "appid": 227300,
+   "why": [
+    "most_played_global:30"
+   ]
+  },
+  {
+   "appid": 3405690,
+   "why": [
+    "most_played_global:31"
+   ]
+  },
+  {
+   "appid": 108600,
+   "why": [
+    "most_played_global:32",
+    "curated:indie_hit"
+   ],
+   "name": "Project Zomboid"
+  },
+  {
+   "appid": 550,
+   "why": [
+    "most_played_global:33"
+   ]
+  },
+  {
+   "appid": 440,
+   "why": [
+    "most_played_global:34"
+   ]
+  },
+  {
+   "appid": 438100,
+   "why": [
+    "most_played_global:35"
+   ]
+  },
+  {
+   "appid": 1203220,
+   "why": [
+    "most_played_global:39",
+    "curated:classic"
+   ],
+   "name": "NARAKA: BLADEPOINT"
+  },
+  {
+   "appid": 394360,
+   "why": [
+    "most_played_global:41",
+    "curated:classic"
+   ],
+   "name": "Hearts of Iron IV"
+  },
+  {
+   "appid": 1174180,
+   "why": [
+    "most_played_global:42",
+    "curated:big_release"
+   ],
+   "name": "Red Dead Redemption 2"
+  },
+  {
+   "appid": 1938090,
+   "why": [
+    "most_played_global:44"
+   ]
+  },
+  {
+   "appid": 1091500,
+   "why": [
+    "most_played_global:45",
+    "curated:big_release"
+   ],
+   "name": "Cyberpunk 2077"
+  },
+  {
+   "appid": 3241660,
+   "why": [
+    "most_played_global:46"
+   ]
+  },
+  {
+   "appid": 252950,
+   "why": [
+    "most_played_global:47"
+   ]
+  },
+  {
+   "appid": 284160,
+   "why": [
+    "most_played_global:48"
+   ]
+  },
+  {
+   "appid": 322330,
+   "why": [
+    "most_played_global:50",
+    "curated:indie_hit"
+   ],
+   "name": "Don't Starve Together"
+  },
+  {
+   "appid": 4000,
+   "why": [
+    "most_played_global:51"
+   ]
+  },
+  {
+   "appid": 1808500,
+   "why": [
+    "most_played_global:55"
+   ]
+  },
+  {
+   "appid": 1281930,
+   "why": [
+    "most_played_global:56"
+   ]
+  },
+  {
+   "appid": 2483190,
+   "why": [
+    "most_played_global:57"
+   ]
+  },
+  {
+   "appid": 275850,
+   "why": [
+    "most_played_global:59"
+   ]
+  },
+  {
+   "appid": 3678970,
+   "why": [
+    "most_played_global:60"
+   ]
+  },
+  {
+   "appid": 489830,
+   "why": [
+    "most_played_global:62",
+    "curated:big_release"
+   ],
+   "name": "The Elder Scrolls V: Skyrim Special Edition"
+  },
+  {
+   "appid": 1085660,
+   "why": [
+    "most_played_global:63",
+    "curated:classic"
+   ],
+   "name": "Destiny 2"
+  },
+  {
+   "appid": 1364780,
+   "why": [
+    "most_played_global:64",
+    "curated:big_release"
+   ],
+   "name": "Street Fighter 6"
+  },
+  {
+   "appid": 2300320,
+   "why": [
+    "most_played_global:65"
+   ]
+  },
+  {
+   "appid": 2694490,
+   "why": [
+    "most_played_global:66",
+    "curated:big_release"
+   ],
+   "name": "Path of Exile 2"
+  },
+  {
+   "appid": 289070,
+   "why": [
+    "most_played_global:67",
+    "curated:classic"
+   ],
+   "name": "Sid Meier's Civilization VI"
+  },
+  {
+   "appid": 1905180,
+   "why": [
+    "most_played_global:68"
+   ]
+  },
+  {
+   "appid": 4019220,
+   "why": [
+    "most_played_global:70"
+   ]
+  },
+  {
+   "appid": 3669870,
+   "why": [
+    "most_played_global:72"
+   ]
+  },
+  {
+   "appid": 244210,
+   "why": [
+    "most_played_global:74"
+   ]
+  },
+  {
+   "appid": 291550,
+   "why": [
+    "most_played_global:75"
+   ]
+  },
+  {
+   "appid": 3419430,
+   "why": [
+    "most_played_global:76"
+   ]
+  },
+  {
+   "appid": 813780,
+   "why": [
+    "most_played_global:77",
+    "curated:classic"
+   ],
+   "name": "Age of Empires II: Definitive Edition"
+  },
+  {
+   "appid": 221100,
+   "why": [
+    "most_played_global:78"
+   ]
+  },
+  {
+   "appid": 1366800,
+   "why": [
+    "most_played_global:79"
+   ]
+  },
+  {
+   "appid": 251570,
+   "why": [
+    "most_played_global:80"
+   ]
+  },
+  {
+   "appid": 261550,
+   "why": [
+    "most_played_global:81"
+   ]
+  },
+  {
+   "appid": 594650,
+   "why": [
+    "most_played_global:82",
+    "curated:classic"
+   ],
+   "name": "Hunt: Showdown 1896"
+  },
+  {
+   "appid": 2183900,
+   "why": [
+    "most_played_global:85"
+   ]
+  },
+  {
+   "appid": 582010,
+   "why": [
+    "most_played_global:86",
+    "curated:big_release"
+   ],
+   "name": "Monster Hunter: World"
+  },
+  {
+   "appid": 714010,
+   "why": [
+    "most_played_global:87"
+   ]
+  },
+  {
+   "appid": 945360,
+   "why": [
+    "most_played_global:88",
+    "curated:indie_hit"
+   ],
+   "name": "Among Us"
+  },
+  {
+   "appid": 393380,
+   "why": [
+    "most_played_global:89"
+   ]
+  },
+  {
+   "appid": 292030,
+   "why": [
+    "most_played_global:90",
+    "curated:big_release"
+   ],
+   "name": "The Witcher 3: Wild Hunt"
+  },
+  {
+   "appid": 739630,
+   "why": [
+    "most_played_global:91",
+    "curated:indie_hit"
+   ],
+   "name": "Phasmophobia"
+  },
+  {
+   "appid": 2622380,
+   "why": [
+    "most_played_global:94",
+    "curated:big_release"
+   ],
+   "name": "ELDEN RING NIGHTREIGN"
+  },
+  {
+   "appid": 960090,
+   "why": [
+    "most_played_global:95"
+   ]
+  },
+  {
+   "appid": 5165210,
+   "why": [
+    "most_played_global:96"
+   ]
+  },
+  {
+   "appid": 2073850,
+   "why": [
+    "most_played_global:97"
+   ]
+  },
+  {
+   "appid": 3551340,
+   "why": [
+    "most_played_global:98"
+   ]
+  },
+  {
+   "appid": 1158310,
+   "why": [
+    "most_played_global:100",
+    "curated:classic"
+   ],
+   "name": "Crusader Kings III"
+  },
+  {
+   "appid": 640820,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Pathfinder: Kingmaker"
+  },
+  {
+   "appid": 1184370,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Pathfinder: Wrath of the Righteous"
+  },
+  {
+   "appid": 505230,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Pathologic 2"
+  },
+  {
+   "appid": 2186680,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Warhammer 40,000: Rogue Trader"
+  },
+  {
+   "appid": 333640,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Caves of Qud"
+  },
+  {
+   "appid": 763890,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Wildermyth"
+  },
+  {
+   "appid": 346940,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Shadowrun: Hong Kong"
+  },
+  {
+   "appid": 234650,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Shadowrun Returns"
+  },
+  {
+   "appid": 719040,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Wasteland 3"
+  },
+  {
+   "appid": 1466640,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Road 96"
+  },
+  {
+   "appid": 2058570,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Rift Wizard 2"
+  },
+  {
+   "appid": 718670,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Cultist Simulator"
+  },
+  {
+   "appid": 704450,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Neverwinter Nights: Enhanced Edition"
+  },
+  {
+   "appid": 1084160,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Jagged Alliance 3"
+  },
+  {
+   "appid": 524220,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "NieR:Automata"
+  },
+  {
+   "appid": 1111390,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "ROBOTICS;NOTES DaSH"
+  },
+  {
+   "appid": 1961950,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "CHAOS;HEAD NOAH"
+  },
+  {
+   "appid": 359390,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Amnesia: Memories"
+  },
+  {
+   "appid": 2491040,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Higurashi When They Cry Hou+"
+  },
+  {
+   "appid": 351970,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Tales of Zestiria"
+  },
+  {
+   "appid": 1879330,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "WARRIORS OROCHI 3 Ultimate Definitive Edition"
+  },
+  {
+   "appid": 211820,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Starbound"
+  },
+  {
+   "appid": 2499520,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Be My Horde"
+  },
+  {
+   "appid": 2623190,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "The Elder Scrolls IV: Oblivion Remastered"
+  },
+  {
+   "appid": 859580,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Imperator: Rome"
+  },
+  {
+   "appid": 1531540,
+   "why": [
+    "curated:korean_patch"
+   ],
+   "name": "Distant Worlds 2"
+  },
+  {
+   "appid": 1716740,
+   "why": [
+    "curated:korean_patch",
+    "curated:big_release"
+   ],
+   "name": "Starfield"
+  },
+  {
+   "appid": 377160,
+   "why": [
+    "curated:korean_patch",
+    "curated:big_release"
+   ],
+   "name": "Fallout 4"
+  },
+  {
+   "appid": 22380,
+   "why": [
+    "curated:korean_patch",
+    "curated:classic"
+   ],
+   "name": "Fallout: New Vegas"
+  },
+  {
+   "appid": 236850,
+   "why": [
+    "curated:korean_patch",
+    "curated:classic"
+   ],
+   "name": "Europa Universalis IV"
+  },
+  {
+   "appid": 367520,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Hollow Knight"
+  },
+  {
+   "appid": 1030300,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Hollow Knight: Silksong"
+  },
+  {
+   "appid": 1145360,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Hades"
+  },
+  {
+   "appid": 1145350,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Hades II"
+  },
+  {
+   "appid": 646570,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Slay the Spire"
+  },
+  {
+   "appid": 2379780,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Balatro"
+  },
+  {
+   "appid": 1794680,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Vampire Survivors"
+  },
+  {
+   "appid": 588650,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Dead Cells"
+  },
+  {
+   "appid": 504230,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Celeste"
+  },
+  {
+   "appid": 753640,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Outer Wilds"
+  },
+  {
+   "appid": 632470,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Disco Elysium"
+  },
+  {
+   "appid": 427520,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Factorio"
+  },
+  {
+   "appid": 526870,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Satisfactory"
+  },
+  {
+   "appid": 264710,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Subnautica"
+  },
+  {
+   "appid": 848450,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Subnautica: Below Zero"
+  },
+  {
+   "appid": 1962700,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Subnautica 2"
+  },
+  {
+   "appid": 233860,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Kenshi"
+  },
+  {
+   "appid": 457140,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Oxygen Not Included"
+  },
+  {
+   "appid": 262060,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Darkest Dungeon"
+  },
+  {
+   "appid": 1940340,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Darkest Dungeon II"
+  },
+  {
+   "appid": 1150690,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "OMORI"
+  },
+  {
+   "appid": 391540,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Undertale"
+  },
+  {
+   "appid": 1671210,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "DELTARUNE"
+  },
+  {
+   "appid": 268910,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Cuphead"
+  },
+  {
+   "appid": 1092790,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Inscryption"
+  },
+  {
+   "appid": 1942280,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Brotato"
+  },
+  {
+   "appid": 1966720,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Lethal Company"
+  },
+  {
+   "appid": 548430,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Deep Rock Galactic"
+  },
+  {
+   "appid": 1366540,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Dyson Sphere Program"
+  },
+  {
+   "appid": 1062090,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Timberborn"
+  },
+  {
+   "appid": 1284190,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "The Planet Crafter"
+  },
+  {
+   "appid": 1055540,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "A Short Hike"
+  },
+  {
+   "appid": 2231450,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Pizza Tower"
+  },
+  {
+   "appid": 1332010,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Stray"
+  },
+  {
+   "appid": 387290,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Ori and the Blind Forest: Definitive Edition"
+  },
+  {
+   "appid": 1057090,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Ori and the Will of the Wisps"
+  },
+  {
+   "appid": 881100,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Noita"
+  },
+  {
+   "appid": 311690,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Enter the Gungeon"
+  },
+  {
+   "appid": 632360,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Risk of Rain 2"
+  },
+  {
+   "appid": 648800,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Raft"
+  },
+  {
+   "appid": 242760,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "The Forest"
+  },
+  {
+   "appid": 1326470,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Sons Of The Forest"
+  },
+  {
+   "appid": 962130,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Grounded"
+  },
+  {
+   "appid": 1604030,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "V Rising"
+  },
+  {
+   "appid": 1203620,
+   "why": [
+    "curated:indie_hit"
+   ],
+   "name": "Enshrouded"
+  },
+  {
+   "appid": 1868140,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "DAVE THE DIVER"
+  },
+  {
+   "appid": 1599340,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Lost Ark"
+  },
+  {
+   "appid": 1147560,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Skul: The Hero Slayer"
+  },
+  {
+   "appid": 753420,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Dungreed"
+  },
+  {
+   "appid": 568220,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Lobotomy Corporation"
+  },
+  {
+   "appid": 1256670,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Library Of Ruina"
+  },
+  {
+   "appid": 582660,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Black Desert"
+  },
+  {
+   "appid": 2456740,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "inZOI"
+  },
+  {
+   "appid": 3489700,
+   "why": [
+    "curated:korean_developer"
+   ],
+   "name": "Stellar Blade"
+  },
+  {
+   "appid": 814380,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Sekiro: Shadows Die Twice"
+  },
+  {
+   "appid": 374320,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "DARK SOULS III"
+  },
+  {
+   "appid": 281990,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Stellaris"
+  },
+  {
+   "appid": 529340,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Victoria 3"
+  },
+  {
+   "appid": 255710,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Cities: Skylines"
+  },
+  {
+   "appid": 1687950,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Persona 5 Royal"
+  },
+  {
+   "appid": 2161700,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Persona 3 Reload"
+  },
+  {
+   "appid": 2215430,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Ghost of Tsushima DIRECTOR'S CUT"
+  },
+  {
+   "appid": 1593500,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "God of War"
+  },
+  {
+   "appid": 2322010,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "God of War Ragnarök"
+  },
+  {
+   "appid": 2358720,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Black Myth: Wukong"
+  },
+  {
+   "appid": 1446780,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "MONSTER HUNTER RISE"
+  },
+  {
+   "appid": 1888930,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "The Last of Us Part I"
+  },
+  {
+   "appid": 1817070,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Marvel's Spider-Man Remastered"
+  },
+  {
+   "appid": 1196590,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Resident Evil Village"
+  },
+  {
+   "appid": 1778820,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "TEKKEN 8"
+  },
+  {
+   "appid": 1888160,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "ARMORED CORE VI FIRES OF RUBICON"
+  },
+  {
+   "appid": 2677660,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Indiana Jones and the Great Circle"
+  },
+  {
+   "appid": 1643320,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl"
+  },
+  {
+   "appid": 2124490,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "SILENT HILL 2"
+  },
+  {
+   "appid": 1551360,
+   "why": [
+    "curated:big_release"
+   ],
+   "name": "Forza Horizon 5"
+  },
+  {
+   "appid": 238960,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Path of Exile"
+  },
+  {
+   "appid": 346110,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "ARK: Survival Evolved"
+  },
+  {
+   "appid": 1097150,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Fall Guys"
+  },
+  {
+   "appid": 1172620,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Sea of Thieves"
+  },
+  {
+   "appid": 620,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Portal 2"
+  },
+  {
+   "appid": 546560,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Half-Life: Alyx"
+  },
+  {
+   "appid": 1466860,
+   "why": [
+    "curated:classic"
+   ],
+   "name": "Age of Empires IV"
+  }
+ ]
+}
