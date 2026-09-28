@@ -1772,4 +1772,455 @@ export default {
    versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=100` に渡す設定のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png`、そのPillow製JPG（画質92）、`tests/fixtures/texture/bricks_Color.png` を計測しました。高画質の数値は同じ写真で計測したその段階の候補です。'],sources:[MDN.ja]}
   }
  },
+ 'image/compress-to-200kb':{
+  type:'tool',
+  intent:{primary:'compress an image to 200 KB or less',secondary:['photo under 200 KB for a job or university application','200 KB without losing quality','keep a PNG lossless under 200 KB'],
+   goal:'a file at or under 200 KB that keeps as much quality as possible, lossless where it already fits',input:'photo, scan, texture or graphic',output:'JPG, WebP or PNG of at most 204,800 bytes',target:'application portals, marketplaces, CMS uploads',support:'full',
+   evidence:['src/task/compress.js','src/compression.js (original file as a candidate)','measured 2026-09-28, Chromium 153: astronaut.png, astronaut.jpg, bricks_Color.png'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'"200 KB" allows up to 200 × 1,024 = 204,800 bytes. When a file already fits and is a JPG, PNG or WebP, it wins with a perfect score and comes back untouched — a 127,956-byte PNG texture stayed a lossless PNG. Larger files are re-encoded at the level\'s quality and searched down only if needed: the 791,555-byte NASA PNG became a 45,813-byte JPG. At full phone-camera resolution 200 KB is tight; about 1.2–2.7 megapixels fit at the quality levels measured here. Forms that count 200,000 bytes need 195.',
+   concept:{title:'200 KB: lossless when possible, lossy when necessary',body:[
+    'The candidate list always includes the dropped file itself when it fits the target and is a format Auto can write. It scores 1.0, so it beats every lossy re-encode, and a PNG under 200 KB stays pixel-exact. Only files above 204,800 bytes are actually compressed.',
+    'The budget is 1,638,400 bits. On the test photo, 0.62 bits per pixel scored 0.96 (WebP) and 1.40 bits per pixel scored 0.98 (JPG). Divided into the budget that is 2.66 or 1.17 megapixels — about 1882 × 1411 or 1249 × 937 at 4:3. A 12.2-megapixel phone photo would get 0.13 bits per pixel, far below both, so expect a very low quality or "Target size not reached" unless the dimensions go down.'],
+    terms:[['204,800 bytes','200 × 1,024, the preset\'s exact ceiling.'],['Original as a candidate','A dropped JPG, PNG or WebP that already fits competes with a score of 1.0.'],['Bits per pixel','Size in bits ÷ pixel count; used here only as a rough guide.']]},
+   example:{title:'200 KB on three real files (measured)',lead:'Balanced level, Auto format, Chromium 153, 2026-09-28.',lines:[
+    'Target 200 KB = 204,800 bytes',
+    '',
+    'bricks_Color.png  256 x 256   127,956 bytes  ->  original PNG kept (lossless)',
+    'astronaut.jpg     512 x 512    75,758 bytes  ->  original JPG kept',
+    'astronaut.png     512 x 512   791,555 bytes  ->  JPG q0.80   45,813 bytes  SSIM 0.9785',
+    '                              (lossless PNG re-encode: 575,694 bytes, too big)',
+    '',
+    '4032 x 3024 photo: 1,638,400 bits / 12,192,768 px = 0.13 bits per pixel'],
+    after:'For the brick texture a lossy WebP of 14,214 bytes also existed, but under a 200 KB limit the exact original scores higher and is kept.'},
+   mapping:{title:'Entering the right limit',head:['The form says','Target size to enter','Largest file you get'],rows:[
+    ['200 KB, counted as 1,024 bytes','200 (preset)','204,800 bytes'],
+    ['200 KB, counted as 1,000 bytes','195','199,680 bytes'],
+    ['200 KB, keep the phone photo usable','200 + Max width about 1,800','Fewer pixels, higher quality'],
+    ['200 KB, JPG only','200 + Output format JPG','Transparency filled with the JPG background']]},
+   verify:{steps:[
+    'If the result line says the original was kept, the file already met the limit — check that its format is one the portal accepts.',
+    'Compare the exact byte count with the portal\'s limit.',
+    'Open the result at 100 % before uploading.']},
+   trouble:{rows:[
+    ['The PNG came back unchanged, but the portal wants JPG','The PNG fitted, so it won with a perfect score','Result line says original kept','Advanced → Output format → JPG'],
+    ['A phone photo misses the target','0.13 bits per pixel is not reachable at full size','Warning under the file','Allow smaller dimensions or set Max width to about 1,800 px'],
+    ['Rejected although it shows 200 KB','The portal counts 200,000 bytes','Exact bytes in file properties','Enter 195'],
+    ['The photo looks worse than expected at 200 KB','A large photo forced the quality search low','Compare with a version resized to 1,800 px','Fewer pixels at higher quality often look better; resize first']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|Compress to 500 KB]]','The portal allows it; a large photo keeps far more detail.'],
+    ['[[image/resize|Resize]] then compress','You know the display size; unused pixels only cost bytes.'],
+    ['[[pdf/compress|Compress a PDF]]','The document is a PDF, not an image.']]},
+   limits:['A file that already fits is not re-encoded, so its format may not be the one the portal wants — set the output format.','Megapixel figures are estimates from one photo, not guarantees.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for `?kb=200`, on `tests/fixtures/astronaut.png`, its Pillow JPG (quality 92) and `tests/fixtures/texture/bricks_Color.png` (ambientCG CC0).'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'"200KB"는 최대 200 × 1,024 = 204,800바이트입니다. 이미 들어가는 JPG·PNG·WebP 파일은 만점으로 이겨 그대로 돌아옵니다. 127,956바이트 PNG 텍스처는 무손실 PNG 그대로였습니다. 더 큰 파일은 단계 화질로 다시 인코딩하고 필요할 때만 화질을 낮춥니다. 791,555바이트 NASA PNG는 45,813바이트 JPG가 됐습니다. 휴대폰 카메라 원본 해상도에서 200KB는 빠듯하며, 여기서 측정한 화질 수준으로는 약 1.2~2.7메가픽셀이 들어갑니다. 200,000바이트로 세는 양식은 195를 입력하세요.',
+   concept:{title:'200KB: 가능하면 무손실, 필요하면 손실',body:[
+    '넣은 파일이 목표에 들어가고 자동이 쓸 수 있는 형식이면 후보 목록에 항상 그 파일이 포함됩니다. 점수가 1.0이라 어떤 손실 재인코딩보다 앞서고, 200KB 이하의 PNG는 픽셀까지 그대로 남습니다. 실제로 압축되는 것은 204,800바이트를 넘는 파일뿐입니다.',
+    '예산은 1,638,400비트입니다. 테스트 사진에서 픽셀당 0.62비트는 0.96(WebP), 1.40비트는 0.98(JPG)이었습니다. 예산을 나누면 2.66 또는 1.17메가픽셀, 4:3 기준 약 1882 × 1411 또는 1249 × 937입니다. 1,220만 화소 휴대폰 사진은 픽셀당 0.13비트로 둘 다에 한참 못 미치므로, 크기를 줄이지 않으면 매우 낮은 화질이나 "목표 용량에 맞추지 못했습니다"를 예상하세요.'],
+    terms:[['204,800바이트','200 × 1,024. 프리셋의 정확한 상한.'],['후보로서의 원본','이미 들어가는 JPG·PNG·WebP는 점수 1.0으로 경쟁합니다.'],['픽셀당 비트','비트 단위 크기 ÷ 픽셀 수. 여기서는 대략적인 기준으로만 씁니다.']]},
+   example:{title:'실제 파일 세 개에 200KB 적용(실측)',lead:'균형 단계, 자동 형식, Chromium 153, 2026-09-28.',lines:[
+    '목표 200KB = 204,800 바이트',
+    '',
+    'bricks_Color.png  256 x 256   127,956 바이트  ->  원본 PNG 유지 (무손실)',
+    'astronaut.jpg     512 x 512    75,758 바이트  ->  원본 JPG 유지',
+    'astronaut.png     512 x 512   791,555 바이트  ->  JPG q0.80   45,813 바이트  SSIM 0.9785',
+    '                              (무손실 PNG 재인코딩: 575,694 바이트, 초과)',
+    '',
+    '4032 x 3024 사진: 1,638,400 비트 / 12,192,768 픽셀 = 픽셀당 0.13 비트'],
+    after:'벽돌 텍스처에는 14,214바이트 손실 WebP 후보도 있었지만 200KB 제한에서는 정확한 원본의 점수가 더 높아 원본이 남았습니다.'},
+   mapping:{title:'제한값 제대로 입력하기',head:['양식 문구','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['200KB, 1KB = 1,024바이트','200 (기본값)','204,800 바이트'],
+    ['200KB, 1KB = 1,000바이트','195','199,680 바이트'],
+    ['200KB, 휴대폰 사진을 쓸 만하게','200 + 최대 너비 약 1,800','픽셀은 적게, 화질은 높게'],
+    ['200KB, JPG만','200 + 저장 형식 JPG','투명 부분은 JPG 배경색으로 채움']]},
+   verify:{steps:[
+    '결과 줄에 원본 유지라고 나오면 파일이 이미 제한을 만족한 것입니다. 그 형식을 포털이 받는지 확인하세요.',
+    '정확한 바이트 수를 포털의 제한과 비교하세요.',
+    '올리기 전에 결과를 100%로 열어 보세요.']},
+   trouble:{rows:[
+    ['PNG가 그대로 돌아왔는데 포털은 JPG를 원함','PNG가 들어가서 만점으로 이겼습니다','결과 줄에 원본 유지','고급 → 저장 형식 → JPG'],
+    ['휴대폰 사진이 목표를 못 맞춤','원본 크기에서 픽셀당 0.13비트는 도달할 수 없습니다','파일 아래 경고','크기 줄이기를 허용하거나 최대 너비를 1,800px 정도로 지정하세요'],
+    ['200KB로 보이는데 거부됨','포털이 200,000바이트로 셉니다','파일 속성의 정확한 바이트 수','195를 입력하세요'],
+    ['200KB에서 사진이 생각보다 나빠 보임','큰 사진이라 화질 탐색이 낮게 내려갔습니다','1,800px로 줄인 버전과 비교','픽셀을 줄이고 화질을 높이는 쪽이 나아 보이는 경우가 많습니다. 먼저 크기를 줄이세요']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|500KB 이하로 압축]]','포털이 허용한다면. 큰 사진이 훨씬 많은 디테일을 지킵니다.'],
+    ['[[image/resize|크기 변경]] 후 압축','표시 크기를 알 때. 쓰이지 않는 픽셀은 바이트만 먹습니다.'],
+    ['[[pdf/compress|PDF 압축]]','문서가 이미지가 아니라 PDF일 때.']]},
+   limits:['이미 들어가는 파일은 다시 인코딩하지 않으므로 포털이 원하는 형식이 아닐 수 있습니다. 저장 형식을 지정하세요.','메가픽셀 수치는 사진 한 장에서 얻은 추정이며 보장이 아닙니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 `?kb=200`에 넘기는 옵션으로 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`, 그 Pillow JPG(화질 92), `tests/fixtures/texture/bricks_Color.png`(ambientCG CC0)를 측정했습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'「200KB」は最大200 × 1,024 = 204,800バイトです。すでに収まっているJPG・PNG・WebPファイルは満点で勝ち、そのまま返ります。127,956バイトのPNGテクスチャは可逆のPNGのままでした。大きなファイルは段階の画質でエンコードし直し、必要なときだけ画質を下げます。791,555バイトのNASAのPNGは45,813バイトのJPGになりました。スマホカメラの元の解像度では200KBは厳しく、ここで計測した画質の水準ではおよそ1.2〜2.7メガピクセルが収まります。200,000バイトで数えるフォームなら195を入力します。',
+   concept:{title:'200KB：できれば可逆、必要なら非可逆',body:[
+    '入れたファイルが目標に収まり、自動で書ける形式なら、候補には必ずそのファイル自体が入ります。点数は1.0なのでどの非可逆の再エンコードより上になり、200KB以下のPNGはピクセルまでそのまま残ります。実際に圧縮されるのは204,800バイトを超えるファイルだけです。',
+    '予算は1,638,400ビットです。テスト写真では1ピクセル0.62ビットで0.96（WebP）、1.40ビットで0.98（JPG）でした。予算を割ると2.66または1.17メガピクセル、4:3でおよそ1882 × 1411または1249 × 937です。1,220万画素のスマホ写真は1ピクセル0.13ビットでどちらにも遠く及ばないため、サイズを縮めなければ非常に低い画質か「目標サイズに届きませんでした」になると考えてください。'],
+    terms:[['204,800バイト','200 × 1,024。プリセットの正確な上限。'],['候補としての元ファイル','すでに収まるJPG・PNG・WebPは点数1.0で競います。'],['1ピクセルあたりのビット','ビット単位の容量 ÷ ピクセル数。ここではおおよその目安としてだけ使います。']]},
+   example:{title:'実際の3ファイルに200KBを適用（実測）',lead:'バランス、自動形式、Chromium 153、2026-09-28。',lines:[
+    '目標 200KB = 204,800 バイト',
+    '',
+    'bricks_Color.png  256 x 256   127,956 バイト  ->  元のPNGのまま（可逆）',
+    'astronaut.jpg     512 x 512    75,758 バイト  ->  元のJPGのまま',
+    'astronaut.png     512 x 512   791,555 バイト  ->  JPG q0.80   45,813 バイト  SSIM 0.9785',
+    '                              （可逆PNGの再エンコード: 575,694 バイト、超過）',
+    '',
+    '4032 x 3024の写真: 1,638,400 ビット / 12,192,768 ピクセル = 1ピクセル 0.13 ビット'],
+    after:'レンガのテクスチャには14,214バイトの非可逆WebPの候補もありましたが、200KBの上限では正確な元ファイルのほうが点数が高く、元のまま残りました。'},
+   mapping:{title:'上限を正しく入力する',head:['フォームの表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['200KB（1KB = 1,024バイト）','200（プリセット）','204,800 バイト'],
+    ['200KB（1KB = 1,000バイト）','195','199,680 バイト'],
+    ['200KBでスマホ写真を見られる画質に','200 + 最大幅 約1,800','ピクセルを減らして画質を上げる'],
+    ['200KBでJPGのみ','200 + 保存形式JPG','透明部分はJPGの背景色で塗る']]},
+   verify:{steps:[
+    '結果の行に元のままと出たら、ファイルはすでに上限を満たしています。その形式をポータルが受け付けるか確認します。',
+    '正確なバイト数をポータルの上限と比べます。',
+    'アップロード前に結果を100%で開きます。']},
+   trouble:{rows:[
+    ['PNGがそのまま返ったが、ポータルはJPGを求める','PNGが収まっていたので満点で勝った','結果の行に元のまま','詳細 → 保存形式 → JPG'],
+    ['スマホ写真が目標に届かない','元のサイズでは1ピクセル0.13ビットに届かない','ファイルの下の警告','縮小を許可するか、最大幅を1,800px程度にします'],
+    ['200KBと表示されるのに拒否される','ポータルが200,000バイトで数えている','ファイルのプロパティで正確なバイト数','195を入力します'],
+    ['200KBで写真が思ったより悪い','大きな写真のため、画質の探索が低く下がった','1,800pxに縮小した版と比べる','ピクセルを減らして画質を上げたほうがきれいに見えることが多いので、先に縮小します']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|500KB以下に圧縮]]','ポータルが許すなら。大きな写真の細部がずっと多く残ります。'],
+    ['[[image/resize|サイズ変更]]してから圧縮','表示サイズが分かっている場合。使われないピクセルはバイトを食うだけです。'],
+    ['[[pdf/compress|PDFの圧縮]]','書類が画像ではなくPDFの場合。']]},
+   limits:['すでに収まるファイルは再エンコードしないため、ポータルが求める形式でないことがあります。保存形式を指定してください。','メガピクセルの数値は1枚の写真からの推定で、保証ではありません。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=200` に渡す設定のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png`、そのPillow製JPG（画質92）、`tests/fixtures/texture/bricks_Color.png`（ambientCG CC0）を計測しました。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/compress-to-500kb':{
+  type:'tool',
+  intent:{primary:'compress an image to 500 KB or less',secondary:['phone photo under 500 KB','500 KB JPG for upload','why the lossless PNG does not fit'],
+   goal:'a photo at or under 500 KB with minimal visible loss, ideally at full resolution',input:'photo, scan or screenshot',output:'JPG, WebP or PNG of at most 512,000 bytes',target:'marketplace listings, forms, e-mail',support:'full',
+   evidence:['src/task/compress.js','src/compression.js','measured 2026-09-28, Chromium 153: astronaut.png (PNG re-encode 575,694 B vs 512,000 B target)'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'"500 KB" means at most 500 × 1,024 = 512,000 bytes — enough for roughly 2.9–6.6 megapixels of photo at the quality levels measured here, so moderately large photos can often keep their full size. A lossless PNG may still miss it: the 512 × 512 NASA photo re-encoded as PNG was 575,694 bytes, 63,694 over, so the tool chose a 45,813-byte JPG (SSIM 0.9785) instead. Choose High quality to start at 0.92 and use more of the budget; enter 488 if the form counts 500,000 bytes.',
+   concept:{title:'A generous ceiling, used sparingly by default',body:[
+    'The budget is 4,096,000 bits. At the densities measured on the test photo (0.62 and 1.40 bits per pixel) that holds about 6.6 or 2.9 megapixels — around 2976 × 2232 or 1976 × 1482 at 4:3. A 12.2-megapixel phone photo gets 0.34 bits per pixel, below the lowest measured density, so its quality will be searched down unless you allow smaller dimensions.',
+    'Because the target is only a ceiling, a small photo does not get "500 KB of quality": Balanced still starts at 0.80. Photos and screenshots that should stay lossless must fit as PNG; for the fixture that needed 575,694 bytes, which is why the 1 MB page keeps it lossless and this one does not.'],
+    terms:[['512,000 bytes','500 × 1,024, the exact ceiling.'],['Lossless fit','A PNG candidate wins only if it is at or under the target.'],['High quality','Level that starts the search at quality 0.92 instead of 0.80.']]},
+   example:{title:'Where lossless stops fitting (measured)',lead:'Balanced level, Auto format, Chromium 153, 2026-09-28, on the 512 × 512 NASA fixture.',lines:[
+    'Target 500 KB = 512,000 bytes',
+    '',
+    'PNG re-encode    575,694 bytes   SSIM 1.0000   63,694 over -> out',
+    'JPG q0.80         45,813 bytes   SSIM 0.9785   <- chosen',
+    'WebP q0.80        32,200 bytes   SSIM 0.9749',
+    '',
+    'High level candidates: WebP q0.92 59,824 (0.9883), JPG q0.92 73,755 (0.9874)',
+    '4032 x 3024 photo: 4,096,000 bits / 12,192,768 px = 0.34 bits per pixel'],
+    after:'With High quality both 0.92 candidates fit under 512,000 bytes, so the higher-scoring WebP would be chosen — 59,824 bytes, still far below the limit.'},
+   mapping:{title:'Entering the right limit',head:['The form says','Target size to enter','Largest file you get'],rows:[
+    ['500 KB, counted as 1,024 bytes','500 (preset)','512,000 bytes'],
+    ['500 KB, counted as 1,000 bytes','488','499,712 bytes'],
+    ['500 KB and best quality','500 + High quality','Starts at 0.92'],
+    ['500 KB for a 12 MP photo','500 + Reduce dimensions','Up to five smaller widths tried']]},
+   verify:{steps:[
+    'Check the byte count against the form, and the pixel size in the result line ("kept" or "resized to").',
+    'Zoom into faces, foliage and text at 100 %.',
+    'If you allowed shrinking, confirm the new width is still enough for where the photo is shown.']},
+   trouble:{rows:[
+    ['The result is only about 50 KB','Balanced starts at 0.80 and a small photo fits at once','Result line','Choose High quality'],
+    ['The screenshot did not stay PNG','The lossless PNG was bigger than 512,000 bytes','Compare with the 1 MB result','Use [[image/compress-to-1mb|1 MB]] if allowed, or accept JPG/WebP'],
+    ['A phone photo shows visible blocks','0.34 bits per pixel forced a low quality','Zoom in at 100 %','Allow smaller dimensions or set Max width around 2,900 px'],
+    ['The form rejects "500 KB"','It counts 500,000 bytes','Exact bytes in file properties','Enter 488']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-1mb|Compress to 1 MB]]','The limit allows it and you want the PNG lossless or a phone photo at full size.'],
+    ['[[image/compress-to-200kb|Compress to 200 KB]]','The destination is stricter.']]},
+   limits:['The tool never raises quality above the level to use the whole 500 KB.','Pixel estimates rest on one measured photo; other content compresses differently.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for `?kb=500`, on `tests/fixtures/astronaut.png`; High-quality figures are the measured candidates of that level on the same photo.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'"500KB"는 최대 500 × 1,024 = 512,000바이트입니다. 여기서 측정한 화질 수준이라면 사진 약 2.9~6.6메가픽셀이 들어갈 만한 크기라 적당히 큰 사진은 원래 크기를 유지하는 경우가 많습니다. 그래도 무손실 PNG는 넘칠 수 있습니다. 512 × 512 NASA 사진을 PNG로 다시 저장하면 575,694바이트로 63,694바이트가 넘어서, 도구는 대신 45,813바이트 JPG(SSIM 0.9785)를 골랐습니다. 예산을 더 쓰려면 0.92에서 시작하는 고화질을, 양식이 500,000바이트로 센다면 488을 입력하세요.',
+   concept:{title:'넉넉한 상한, 기본값에서는 아껴 쓰기',body:[
+    '예산은 4,096,000비트입니다. 테스트 사진에서 측정한 밀도(픽셀당 0.62비트와 1.40비트)로 보면 약 6.6 또는 2.9메가픽셀, 4:3 기준 약 2976 × 2232 또는 1976 × 1482가 들어갑니다. 1,220만 화소 휴대폰 사진은 픽셀당 0.34비트로 측정한 가장 낮은 밀도보다 낮아서, 더 작은 크기를 허용하지 않으면 화질이 낮게 탐색됩니다.',
+    '목표는 상한일 뿐이라 작은 사진이 "500KB만큼의 화질"을 받지는 않습니다. 균형은 여전히 0.80에서 시작합니다. 무손실로 남아야 하는 사진과 스크린샷은 PNG로 들어가야 하는데, 테스트 사진은 575,694바이트가 필요했습니다. 1MB 페이지에서는 무손실로 남고 이 페이지에서는 그렇지 않은 이유입니다.'],
+    terms:[['512,000바이트','500 × 1,024. 정확한 상한.'],['무손실로 들어가기','PNG 후보는 목표 이하일 때만 이깁니다.'],['고화질','탐색을 0.80이 아니라 0.92에서 시작하는 단계.']]},
+   example:{title:'무손실이 들어가지 않는 지점(실측)',lead:'균형 단계, 자동 형식, Chromium 153, 2026-09-28, 512 × 512 NASA 테스트 사진.',lines:[
+    '목표 500KB = 512,000 바이트',
+    '',
+    'PNG 재인코딩     575,694 바이트   SSIM 1.0000   63,694 초과 -> 탈락',
+    'JPG q0.80         45,813 바이트   SSIM 0.9785   <- 선택',
+    'WebP q0.80        32,200 바이트   SSIM 0.9749',
+    '',
+    '고화질 후보: WebP q0.92 59,824 (0.9883), JPG q0.92 73,755 (0.9874)',
+    '4032 x 3024 사진: 4,096,000 비트 / 12,192,768 픽셀 = 픽셀당 0.34 비트'],
+    after:'고화질이면 0.92 후보 둘 다 512,000바이트 안에 들어가 점수가 높은 WebP가 선택됩니다. 59,824바이트로 여전히 제한보다 한참 작습니다.'},
+   mapping:{title:'제한값 제대로 입력하기',head:['양식 문구','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['500KB, 1KB = 1,024바이트','500 (기본값)','512,000 바이트'],
+    ['500KB, 1KB = 1,000바이트','488','499,712 바이트'],
+    ['500KB, 최고 화질로','500 + 고화질','0.92에서 시작'],
+    ['1,200만 화소 사진을 500KB로','500 + 크기도 줄이기','최대 다섯 가지 작은 너비 시도']]},
+   verify:{steps:[
+    '바이트 수를 양식과 비교하고, 결과 줄의 픽셀 크기(유지 또는 축소)도 확인하세요.',
+    '얼굴·나뭇잎·글자를 100%로 확대해 보세요.',
+    '축소를 허용했다면 새 너비가 사진이 표시될 곳에 충분한지 확인하세요.']},
+   trouble:{rows:[
+    ['결과가 50KB 정도밖에 안 됨','균형은 0.80에서 시작하고 작은 사진은 바로 들어갑니다','결과 줄','고화질을 고르세요'],
+    ['스크린샷이 PNG로 남지 않음','무손실 PNG가 512,000바이트보다 컸습니다','1MB 결과와 비교','허용된다면 [[image/compress-to-1mb|1MB]]를 쓰거나 JPG·WebP를 받아들이세요'],
+    ['휴대폰 사진에 블록이 보임','픽셀당 0.34비트라 화질이 낮아졌습니다','100%로 확대','크기 줄이기를 허용하거나 최대 너비를 2,900px 정도로 지정하세요'],
+    ['양식이 "500KB"를 거부','500,000바이트로 셉니다','파일 속성의 정확한 바이트 수','488을 입력하세요']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-1mb|1MB 이하로 압축]]','제한이 허락하고 PNG를 무손실로, 휴대폰 사진을 원래 크기로 두고 싶을 때.'],
+    ['[[image/compress-to-200kb|200KB 이하로 압축]]','받는 곳의 제한이 더 엄격할 때.']]},
+   limits:['500KB를 다 쓰려고 단계보다 화질을 올리지는 않습니다.','픽셀 추정은 측정한 사진 한 장에 기댄 것이며 다른 내용은 다르게 압축됩니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 `?kb=500`에 넘기는 옵션으로 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`를 측정했습니다. 고화질 수치는 같은 사진에서 측정한 그 단계의 후보입니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'「500KB」は最大500 × 1,024 = 512,000バイトです。ここで計測した画質の水準なら写真でおよそ2.9〜6.6メガピクセルが入る大きさで、そこそこ大きな写真なら元のサイズを保てることが多いでしょう。それでも可逆のPNGははみ出すことがあります。512 × 512のNASAの写真をPNGで保存し直すと575,694バイトで63,694バイト超過し、ツールは代わりに45,813バイトのJPG（SSIM 0.9785）を選びました。予算をもっと使うなら0.92から始まる高画質を、フォームが500,000バイトで数えるなら488を入力します。',
+   concept:{title:'余裕のある上限を、初期設定では控えめに使う',body:[
+    '予算は4,096,000ビットです。テスト写真で計測した密度（1ピクセル0.62ビットと1.40ビット）なら、約6.6または2.9メガピクセル、4:3でおよそ2976 × 2232または1976 × 1482が入ります。1,220万画素のスマホ写真は1ピクセル0.34ビットで、計測した最も低い密度を下回るため、小さいサイズを許可しなければ画質が低く探索されます。',
+    '目標は上限にすぎないので、小さな写真が「500KB分の画質」をもらうわけではありません。バランスは0.80から始まります。可逆のまま残したい写真やスクリーンショットはPNGで収まる必要があり、テスト写真では575,694バイト必要でした。1MBのページでは可逆で残り、このページでは残らない理由です。'],
+    terms:[['512,000バイト','500 × 1,024。正確な上限。'],['可逆で収まる','PNGの候補は目標以下のときだけ勝ちます。'],['高画質','探索を0.80ではなく0.92から始める段階。']]},
+   example:{title:'可逆が収まらなくなる境目（実測）',lead:'バランス、自動形式、Chromium 153、2026-09-28、512 × 512のNASAのテスト写真。',lines:[
+    '目標 500KB = 512,000 バイト',
+    '',
+    'PNG再エンコード  575,694 バイト   SSIM 1.0000   63,694 超過 -> 脱落',
+    'JPG q0.80         45,813 バイト   SSIM 0.9785   <- 採用',
+    'WebP q0.80        32,200 バイト   SSIM 0.9749',
+    '',
+    '高画質の候補: WebP q0.92 59,824（0.9883）、JPG q0.92 73,755（0.9874）',
+    '4032 x 3024の写真: 4,096,000 ビット / 12,192,768 ピクセル = 1ピクセル 0.34 ビット'],
+    after:'高画質なら0.92の候補が2つとも512,000バイトに収まり、点数の高いWebPが選ばれます。59,824バイトで、それでも上限よりずっと小さい値です。'},
+   mapping:{title:'上限を正しく入力する',head:['フォームの表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['500KB（1KB = 1,024バイト）','500（プリセット）','512,000 バイト'],
+    ['500KB（1KB = 1,000バイト）','488','499,712 バイト'],
+    ['500KBで最高画質に','500 + 高画質','0.92から開始'],
+    ['1,200万画素の写真を500KBに','500 + サイズも縮小','最大5つの小さな幅を試す']]},
+   verify:{steps:[
+    'バイト数をフォームと比べ、結果の行のピクセルサイズ（維持か縮小か）も確認します。',
+    '顔・木の葉・文字を100%で拡大します。',
+    '縮小を許可したなら、新しい幅が写真の表示先に十分か確認します。']},
+   trouble:{rows:[
+    ['結果が50KB程度しかない','バランスは0.80から始まり、小さな写真はすぐに収まる','結果の行','高画質を選びます'],
+    ['スクリーンショットがPNGのまま残らない','可逆のPNGが512,000バイトより大きかった','1MBの結果と比べる','許されるなら[[image/compress-to-1mb|1MB]]を使うか、JPG・WebPで妥協します'],
+    ['スマホ写真にブロックが見える','1ピクセル0.34ビットで画質が下がった','100%で拡大','縮小を許可するか、最大幅を2,900px程度にします'],
+    ['フォームが「500KB」を拒否','500,000バイトで数えている','ファイルのプロパティで正確なバイト数','488を入力します']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-1mb|1MB以下に圧縮]]','上限が許し、PNGを可逆のまま、スマホ写真を元のサイズのままにしたい場合。'],
+    ['[[image/compress-to-200kb|200KB以下に圧縮]]','提出先の上限がもっと厳しい場合。']]},
+   limits:['500KBを使い切るために段階より画質を上げることはしません。','ピクセル数の見積もりは計測した1枚の写真に基づくもので、内容が違えば圧縮のされ方も違います。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=500` に渡す設定のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png` を計測しました。高画質の数値は同じ写真で計測したその段階の候補です。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/compress-to-1mb':{
+  type:'tool',
+  intent:{primary:'compress an image to 1 MB or less',secondary:['phone photo under 1 MB','1 MB = 1,000,000 or 1,048,576 bytes','keep it lossless under 1 MB'],
+   goal:'a file under the destination\'s 1 MB limit, lossless when it fits',input:'photo, screenshot, scan (typically several MB from a phone)',output:'JPG, WebP or PNG of at most 1,024,000 bytes',target:'e-mail, chat, portals, marketplaces',support:'full',
+   evidence:['src/landings.js (kb=1000)','src/task/compress.js','src/compression.js','measured 2026-09-28, Chromium 153: astronaut.png'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'This page\'s 1 MB preset is 1,000 KB × 1,024 = 1,024,000 bytes — between a decimal megabyte (1,000,000) and a binary one (1,048,576). If your destination counts 1,000,000 bytes, enter 976 as Target size (999,424 bytes). 1 MB is enough to keep many images lossless: the 512 × 512 NASA photo came back as a pixel-identical 575,694-byte PNG. For a 12-megapixel phone photo 1 MB gives 0.67 bits per pixel, about the density that scored SSIM 0.96 on the test photo, so full size is often possible at moderate quality.',
+   concept:{title:'Three different megabytes',body:[
+    'Nerulio multiplies the KB target by 1,024; the preset asks for 1,000 KB, so the ceiling is 1,024,000 bytes. A form that says "1 MB" may mean 1,000,000 bytes (decimal) or 1,048,576 bytes (binary). A 1,010,000-byte result passes this page\'s target, passes a binary limit and fails a decimal one — hence the 976 entry.',
+    'Below that ceiling the usual rules apply: the original file competes if it fits, a lossless PNG wins whenever it fits because it scores 1.0, and lossy candidates start at the level\'s quality and are searched down only if needed. The fixture\'s own PNG (791,555 bytes) and the browser\'s PNG re-encode (575,694 bytes) both fitted; with equal scores the smaller one won.',
+    'For a 4032 × 3024 photo the budget is 8,192,000 bits over 12,192,768 pixels = 0.67 bits per pixel. On the test photo, WebP at 0.62 bits per pixel scored 0.96, so a phone photo can usually stay at full size at a moderate quality — or at a higher quality after shrinking to about 2800 × 2100, where the budget reaches the 1.40 bits per pixel that scored 0.98.'],
+    terms:[['1,024,000 bytes','1,000 × 1,024: this page\'s exact ceiling.'],['Decimal MB','1,000,000 bytes; enter 976 to stay under it.'],['Binary MB (MiB)','1,048,576 bytes; the preset is already under it.']]},
+   example:{title:'1 MB on the NASA photo, and the budget for a phone photo',lead:'Measured with Balanced level and Auto format in Chromium 153 on 2026-09-28; the phone-photo lines are arithmetic.',lines:[
+    'Target 1 MB = 1,000 x 1,024 = 1,024,000 bytes',
+    '',
+    'astronaut.png   791,555 bytes   original fits, SSIM 1.0',
+    '  PNG re-encode 575,694 bytes   SSIM 1.0, smaller   <- chosen (lossless)',
+    '  JPG q0.80      45,813 bytes   SSIM 0.9785',
+    '',
+    '4032 x 3024: 8,192,000 bits / 12,192,768 px = 0.67 bits per pixel',
+    'Decimal-safe entry: 976 x 1,024 = 999,424 bytes'],
+    after:'The chosen PNG is named `astronaut-min.png`; its pixels are identical to the source. At 500 KB the same photo could not stay lossless (see [[image/compress-to-500kb|compress to 500 KB]]).'},
+   mapping:{title:'Which number to type',head:['The destination says','Target size to enter','Largest file you get'],rows:[
+    ['1 MB (this preset)','1000','1,024,000 bytes'],
+    ['1 MB = 1,000,000 bytes','976','999,424 bytes'],
+    ['1 MB = 1,048,576 bytes (MiB)','1024','1,048,576 bytes'],
+    ['2 MB, e.g. YouTube\'s mobile thumbnail limit','2000 (or 1953 for 2,000,000 bytes)','2,048,000 bytes']]},
+   verify:{steps:[
+    'Check the exact byte count in the file properties; the result list shows sizes of this range in KB, e.g. "1000 KB".',
+    'If the result is a PNG, confirm the destination accepts PNG; otherwise set Output format to JPG.',
+    'For phone photos, check whether the result line says the resolution was kept.']},
+   trouble:{rows:[
+    ['Rejected although it is "1 MB"','The destination counts 1,000,000 bytes; the result can be up to 1,024,000','Exact bytes in file properties','Enter 976 as Target size'],
+    ['The result is a large PNG, not a JPG','The lossless PNG fitted and scored 1.0','The name ends in `-min.png`','Set Output format to JPG if the destination needs JPG'],
+    ['A phone photo still misses the target','Very detailed or noisy picture needs more than 0.67 bits per pixel','Warning under the file','Allow smaller dimensions; about 2800 px wide gives 1.4 bits per pixel'],
+    ['A HEIC photo from an iPhone','HEIC is decoded (a decoder may be downloaded) and written as JPG, PNG or WebP','The source ends in .heic','Nothing to fix; EXIF such as the location is not written to the result']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|Compress to 500 KB]]','The limit is lower or you want a lighter file for the web.'],
+    ['[[image/heic-to-jpg|HEIC to JPG]]','You only need an iPhone photo as JPG and the size is not limited.'],
+    ['[[video/compress|Compress a video]]','The file is a video, not a photo.']]},
+   limits:['The preset targets 1,024,000 bytes, not 1,000,000; change the number when your destination counts decimal megabytes.','EXIF (camera, date, location) is not written, and animated images are refused.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for the landing preset `kb=1000` (`src/landings.js`), on `tests/fixtures/astronaut.png`. The YouTube 2 MB mobile thumbnail limit is from YouTube Help (checked the same day).'],sources:[MDN.en,'[YouTube Help: Add video thumbnails](https://support.google.com/youtube/answer/72431)']}
+  },
+  ko:{
+   answer:'이 페이지의 1MB 프리셋은 1,000KB × 1,024 = 1,024,000바이트입니다. 십진 메가바이트(1,000,000)와 이진 메가바이트(1,048,576) 사이 값이죠. 받는 곳이 1,000,000바이트로 센다면 목표 용량에 976(999,424바이트)을 입력하세요. 1MB면 많은 이미지를 무손실로 둘 수 있습니다. 512 × 512 NASA 사진은 픽셀까지 같은 575,694바이트 PNG로 돌아왔습니다. 1,200만 화소 휴대폰 사진이라면 1MB는 픽셀당 0.67비트로, 테스트 사진에서 SSIM 0.96이 나온 밀도와 비슷해 원래 크기를 적당한 화질로 유지할 수 있는 경우가 많습니다.',
+   concept:{title:'서로 다른 세 가지 메가바이트',body:[
+    'Nerulio는 KB 목표에 1,024를 곱합니다. 프리셋은 1,000KB를 요청하므로 상한은 1,024,000바이트입니다. "1MB"라고 적힌 양식은 1,000,000바이트(십진)일 수도 1,048,576바이트(이진)일 수도 있습니다. 1,010,000바이트 결과는 이 페이지의 목표와 이진 제한은 통과하지만 십진 제한에는 걸립니다. 그래서 976을 입력하라는 것입니다.',
+    '상한 아래에서는 평소 규칙이 적용됩니다. 원본이 들어가면 원본도 경쟁하고, 무손실 PNG는 점수 1.0이라 들어가기만 하면 이기며, 손실 후보는 단계 화질에서 시작해 필요할 때만 낮춥니다. 테스트 사진의 PNG 원본(791,555바이트)과 브라우저의 PNG 재인코딩(575,694바이트)이 모두 들어갔고, 점수가 같아 더 작은 쪽이 이겼습니다.',
+    '4032 × 3024 사진이라면 예산 8,192,000비트를 12,192,768픽셀로 나눠 픽셀당 0.67비트입니다. 테스트 사진에서 WebP는 픽셀당 0.62비트로 0.96을 받았으니 휴대폰 사진도 대개 원래 크기에서 적당한 화질로 들어갑니다. 약 2800 × 2100으로 줄이면 0.98이 나온 1.40비트에 닿아 더 높은 화질이 됩니다.'],
+    terms:[['1,024,000바이트','1,000 × 1,024. 이 페이지의 정확한 상한.'],['십진 MB','1,000,000바이트. 그 아래로 맞추려면 976을 입력합니다.'],['이진 MB(MiB)','1,048,576바이트. 프리셋은 이미 그보다 작습니다.']]},
+   example:{title:'NASA 사진에 1MB 적용, 그리고 휴대폰 사진의 예산',lead:'2026-09-28 Chromium 153에서 균형 단계와 자동 형식으로 측정했습니다. 휴대폰 사진 줄은 계산값입니다.',lines:[
+    '목표 1MB = 1,000 x 1,024 = 1,024,000 바이트',
+    '',
+    'astronaut.png   791,555 바이트   원본이 들어감, SSIM 1.0',
+    '  PNG 재인코딩  575,694 바이트   SSIM 1.0, 더 작음   <- 선택 (무손실)',
+    '  JPG q0.80      45,813 바이트   SSIM 0.9785',
+    '',
+    '4032 x 3024: 8,192,000 비트 / 12,192,768 픽셀 = 픽셀당 0.67 비트',
+    '십진 기준 안전값: 976 x 1,024 = 999,424 바이트'],
+    after:'선택된 PNG의 이름은 `astronaut-min.png`이고 픽셀은 원본과 같습니다. 500KB에서는 같은 사진이 무손실로 남지 못했습니다([[image/compress-to-500kb|500KB 이하로 압축]] 참고).'},
+   mapping:{title:'입력할 숫자',head:['받는 곳의 표기','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['1MB (이 프리셋)','1000','1,024,000 바이트'],
+    ['1MB = 1,000,000바이트','976','999,424 바이트'],
+    ['1MB = 1,048,576바이트(MiB)','1024','1,048,576 바이트'],
+    ['2MB, 예: YouTube 모바일 썸네일 제한','2000 (2,000,000바이트면 1953)','2,048,000 바이트']]},
+   verify:{steps:[
+    '파일 속성에서 정확한 바이트 수를 확인하세요. 결과 목록은 이 범위의 크기를 KB로, 예를 들어 "1000 KB"로 보여 줍니다.',
+    '결과가 PNG라면 받는 곳이 PNG를 받는지 확인하고, 아니면 저장 형식을 JPG로 바꾸세요.',
+    '휴대폰 사진이라면 결과 줄에 해상도 유지라고 나오는지 보세요.']},
+   trouble:{rows:[
+    ['"1MB"인데 거부됨','받는 곳이 1,000,000바이트로 셉니다. 결과는 최대 1,024,000바이트일 수 있습니다','파일 속성의 정확한 바이트 수','목표 용량에 976을 입력하세요'],
+    ['결과가 JPG가 아니라 큰 PNG','무손실 PNG가 들어가 점수 1.0으로 이겼습니다','이름이 `-min.png`로 끝남','받는 곳이 JPG를 원하면 저장 형식을 JPG로 하세요'],
+    ['휴대폰 사진이 여전히 목표를 못 맞춤','아주 세밀하거나 노이즈가 많아 픽셀당 0.67비트로 부족합니다','파일 아래 경고','크기 줄이기를 허용하세요. 너비 약 2800px이면 픽셀당 1.4비트입니다'],
+    ['아이폰의 HEIC 사진','HEIC를 디코딩해(디코더를 내려받을 수 있음) JPG·PNG·WebP로 씁니다','원본이 .heic로 끝남','고칠 것은 없습니다. 위치 같은 EXIF는 결과에 기록되지 않습니다']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|500KB 이하로 압축]]','제한이 더 낮거나 웹용으로 더 가벼운 파일이 필요할 때.'],
+    ['[[image/heic-to-jpg|HEIC → JPG]]','아이폰 사진을 JPG로만 바꾸면 되고 용량 제한이 없을 때.'],
+    ['[[video/compress|영상 압축]]','파일이 사진이 아니라 영상일 때.']]},
+   limits:['프리셋은 1,000,000이 아니라 1,024,000바이트를 목표로 합니다. 받는 곳이 십진 메가바이트로 센다면 숫자를 바꾸세요.','EXIF(카메라·날짜·위치)는 기록하지 않으며 움직이는 이미지는 거부합니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 랜딩 프리셋 `kb=1000`(`src/landings.js`)에 넘기는 옵션으로 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`를 측정했습니다. YouTube 모바일 썸네일 2MB 제한은 같은 날 확인한 YouTube 고객센터 내용입니다.'],sources:[MDN.ko,'[YouTube 고객센터: 동영상 썸네일 추가](https://support.google.com/youtube/answer/72431)']}
+  },
+  ja:{
+   answer:'このページの1MBプリセットは1,000KB × 1,024 = 1,024,000バイトです。10進のメガバイト（1,000,000）と2進のメガバイト（1,048,576）の間の値です。提出先が1,000,000バイトで数えるなら、目標サイズに976（999,424バイト）と入力します。1MBあれば多くの画像を可逆のまま残せます。512 × 512のNASAの写真は、ピクセルまで同じ575,694バイトのPNGで返りました。1,200万画素のスマホ写真なら1MBは1ピクセル0.67ビットで、テスト写真でSSIM 0.96が出た密度に近いため、元のサイズのまま程よい画質で収まることが多いでしょう。',
+   concept:{title:'3種類のメガバイト',body:[
+    'NerulioはKBの目標に1,024を掛けます。プリセットは1,000KBを指定するので、上限は1,024,000バイトです。「1MB」と書かれたフォームは1,000,000バイト（10進）のことも1,048,576バイト（2進）のこともあります。1,010,000バイトの結果は、このページの目標と2進の上限は通りますが、10進の上限では弾かれます。976を入力するのはこのためです。',
+    '上限の下では通常のルールが働きます。元ファイルが収まれば元ファイルも競い、可逆PNGは点数1.0なので収まれば必ず勝ち、非可逆の候補は段階の画質から始めて必要なときだけ下げます。テスト写真の元のPNG（791,555バイト）もブラウザでのPNG再エンコード（575,694バイト）も収まり、点数が同じなので小さいほうが勝ちました。',
+    '4032 × 3024の写真なら、予算8,192,000ビットを12,192,768ピクセルで割って1ピクセル0.67ビットです。テスト写真ではWebPが0.62ビットで0.96だったので、スマホ写真もたいてい元のサイズのまま程よい画質で収まります。約2800 × 2100に縮めれば、0.98が出た1.40ビットに届き、画質はさらに上がります。'],
+    terms:[['1,024,000バイト','1,000 × 1,024。このページの正確な上限。'],['10進のMB','1,000,000バイト。これを下回るには976を入力します。'],['2進のMB（MiB）','1,048,576バイト。プリセットはすでにこれより小さい値です。']]},
+   example:{title:'NASAの写真に1MBを適用、そしてスマホ写真の予算',lead:'2026-09-28にChromium 153でバランスと自動形式で計測しました。スマホ写真の行は計算値です。',lines:[
+    '目標 1MB = 1,000 x 1,024 = 1,024,000 バイト',
+    '',
+    'astronaut.png   791,555 バイト   元ファイルが収まる、SSIM 1.0',
+    '  PNG再エンコード 575,694 バイト SSIM 1.0、より小さい   <- 採用（可逆）',
+    '  JPG q0.80      45,813 バイト   SSIM 0.9785',
+    '',
+    '4032 x 3024: 8,192,000 ビット / 12,192,768 ピクセル = 1ピクセル 0.67 ビット',
+    '10進でも安全な値: 976 x 1,024 = 999,424 バイト'],
+    after:'選ばれたPNGの名前は `astronaut-min.png` で、ピクセルは元と同一です。500KBでは同じ写真が可逆のまま残れませんでした（[[image/compress-to-500kb|500KB以下に圧縮]]参照）。'},
+   mapping:{title:'入力する数字',head:['提出先の表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['1MB（このプリセット）','1000','1,024,000 バイト'],
+    ['1MB = 1,000,000バイト','976','999,424 バイト'],
+    ['1MB = 1,048,576バイト（MiB）','1024','1,048,576 バイト'],
+    ['2MB、例：YouTubeのモバイル用サムネイル上限','2000（2,000,000バイトなら1953）','2,048,000 バイト']]},
+   verify:{steps:[
+    'ファイルのプロパティで正確なバイト数を確認します。結果一覧はこの範囲の容量をKBで、例えば「1000 KB」と表示します。',
+    '結果がPNGなら提出先がPNGを受け付けるか確認し、だめなら保存形式をJPGにします。',
+    'スマホ写真なら、結果の行に解像度を維持と出ているか見ます。']},
+   trouble:{rows:[
+    ['「1MB」なのに拒否される','提出先が1,000,000バイトで数えている。結果は最大1,024,000バイトになり得る','ファイルのプロパティで正確なバイト数','目標サイズに976を入力します'],
+    ['結果がJPGではなく大きなPNG','可逆PNGが収まり、点数1.0で勝った','名前が `-min.png` で終わる','提出先がJPGを求めるなら保存形式をJPGにします'],
+    ['スマホ写真がまだ目標に届かない','非常に細かい、またはノイズの多い写真で、1ピクセル0.67ビットでは足りない','ファイルの下の警告','縮小を許可します。幅約2800pxなら1ピクセル1.4ビットです'],
+    ['iPhoneのHEIC写真','HEICを展開し（デコーダーを取得することがある）、JPG・PNG・WebPで書き出す','元ファイルが.heicで終わる','直すことはありません。位置情報などのEXIFは結果に書き込まれません']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-500kb|500KB以下に圧縮]]','上限がもっと低い場合や、Web用にもっと軽いファイルが欲しい場合。'],
+    ['[[image/heic-to-jpg|HEIC → JPG]]','iPhoneの写真をJPGにするだけで、容量の上限がない場合。'],
+    ['[[video/compress|動画の圧縮]]','ファイルが写真ではなく動画の場合。']]},
+   limits:['プリセットの目標は1,000,000ではなく1,024,000バイトです。提出先が10進のメガバイトで数えるなら数字を変えてください。','EXIF（カメラ・日時・位置）は書き込まず、アニメーション画像は拒否します。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` がランディングのプリセット `kb=1000`（`src/landings.js`）に渡す設定のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png` を計測しました。YouTubeのモバイル用サムネイル2MBの上限は同じ日に確認したYouTubeヘルプの記載です。'],sources:[MDN.ja,'[YouTube ヘルプ: 動画のサムネイルを追加する](https://support.google.com/youtube/answer/72431)']}
+  }
+ },
+ 'image/editor':{
+  type:'tool',
+  intent:{primary:'free online image editor (crop, resize, rotate, export)',secondary:['edit a photo without uploading','several edits then save once','batch export several images as ZIP'],
+   goal:'one picture (or several) cropped, resized and cleaned up, saved once in the right format and size',input:'PNG, JPG, WebP, AVIF, BMP, HEIC (still images, several at once)',output:'PNG (default), JPG, WebP; `<name>-edited.<ext>`; ZIP when exporting all',target:'any destination; export settings match the compressor',support:'full',
+   evidence:['src/app.js (toolDock, crop presets, resize ratio lock, saveImages)','src/compression.js (export encoder)','src/capability-copy.js image guide'],
+   external:[]},
+  en:{
+   answer:'The image editor is for several steps on one picture before saving once: crop (free, 1:1, 4:3, 16:9 or exact pixels), resize, rotate 90°, flip, trim transparent margins, add a 1 px outline, fill the background, remove a background or enlarge 2×/4×, then export as PNG, JPG or WebP — optionally to a target size, and for all open images at once as a ZIP. Everything runs in your browser and the original file is never changed. If you need only one step, the single-task pages ([[image/compress|compress]], [[image/convert|convert]], [[image/resize|resize]], [[image/crop|crop]]) are quicker.',
+   concept:{title:'A working copy, edited in order, encoded once',body:[
+    'Each edit is applied to a working copy of the picture in the order you make it; Undo steps back and "Restore original" returns to the file as opened. Because every step resamples or cuts real pixels, the order matters: crop first, then resize, then export — resizing a whole photo and cropping afterwards throws away detail you paid for.',
+    'Export uses the same encoder as the compressor: Auto, PNG, JPG or WebP (AVIF only where the browser can encode it), quality 25–100 (92 by default), an optional target size in KB, a maximum width, the JPG background colour and "Allow further resizing to meet the limit". PNG is the default. With several images open, "Apply export settings to all images" saves one ZIP; images that miss the target are left out and counted in the message.'],
+    terms:[['Working copy','The edited picture in memory; the file on your disk is untouched.'],['Crop preset','A centred box of the chosen ratio, 80 % of the width or height, which you can then drag or type in pixels.'],['Target KB','Optional ceiling for the exported file, searched like on the compress pages.']]},
+   example:{title:'A 4032 × 3024 photo to a 1920 × 1080 banner under 200 KB',lead:'The numbers follow the editor\'s code: the 16:9 preset box, the locked-ratio resize and the export ceiling. The source size is an example of a 12-megapixel phone photo.',lines:[
+    'Open             4032 x 3024',
+    'Crop 16:9        w = 4032 x 0.8 = 3225.6 -> 3226,   h = 3225.6 / (16/9) = 1814.4 -> 1814',
+    '                 x = (4032 - 3225.6) / 2 = 403.2 -> 403,   y = (3024 - 1814.4) / 2 = 604.8 -> 605',
+    'Resize           width 1920, ratio locked: 1920 x 1814 / 3226 = 1079.6 -> 1080',
+    'Export           JPG, target 200 KB = 204,800 bytes',
+    'File             photo-edited.jpg, 1920 x 1080'],
+    after:'Drag the crop box before applying if the subject is not centred; the X, Y, width and height fields take exact pixels, and arrow keys move it by 1 px (Shift: 10 px).'},
+   verify:{steps:[
+    'After export, open the saved file and check its pixel size and format — the file name ends in `-edited`.',
+    'If you used a target size, the success message lists the saved size; with "all images", it also says how many missed the target.',
+    'Keep the original: edits are not written back to it.']},
+   trouble:{rows:[
+    ['Some images are missing from the ZIP','They could not reach the target size and were left out','The message counts them','Raise the target, allow extra shrink, or export those separately'],
+    ['The export is a PNG and far too big','PNG is the default export format','File name ends in `.png`','Choose JPG or WebP, or Auto'],
+    ['Transparent areas turned white','JPG export fills transparency with the JPG background colour','Output format is JPG','Export PNG or WebP, or change the JPG background'],
+    ['The photo lost sharpness','It was resized and then cropped, or enlarged 2×/4×','Check the order of your edits','Undo, crop first, then resize; enlargement adds pixels, not detail']]},
+   alternatives:{rows:[
+    ['[[image/crop|Crop]]','Only framing is needed: aspect and platform presets, straightening, a circle shape and the same crop for many files.'],
+    ['[[image/resize/youtube-banner|Platform resize presets]]','You need an exact platform size with a centred crop in one step.'],
+    ['[[image/compress|Compress]]','Only the file size matters; it compares formats and qualities for you.']]},
+   limits:['Edits are pixel operations on one working copy; there are no layers, text or drawing tools for images.','EXIF is not written to exports, and animated images are refused.'],
+   versions:{body:['Behaviour taken from `src/app.js` (tool dock, crop presets, resize ratio lock, export and ZIP) and the shared encoder in `src/compression.js` in this repository version. No external program is involved, so no outside documentation is cited.'],sources:[]}
+  },
+  ko:{
+   answer:'이미지 편집기는 한 그림에 여러 단계를 적용한 뒤 한 번에 저장할 때 씁니다. 자르기(자유, 1:1, 4:3, 16:9, 정확한 픽셀), 크기 변경, 90° 회전, 좌우 반전, 투명 여백 잘라내기, 1px 외곽선, 배경색 채우기, 배경 제거, 2배·4배 확대를 한 뒤 PNG·JPG·WebP로 내보냅니다. 목표 용량을 정할 수도 있고, 열린 이미지 전체를 ZIP 하나로 저장할 수도 있습니다. 모든 작업은 브라우저에서 이뤄지며 원본 파일은 바뀌지 않습니다. 한 단계만 필요하다면 [[image/compress|압축]], [[image/convert|변환]], [[image/resize|크기 변경]], [[image/crop|자르기]] 같은 단일 작업 페이지가 더 빠릅니다.',
+   concept:{title:'작업 사본을 순서대로 편집하고 한 번 인코딩',body:[
+    '편집은 적용한 순서대로 그림의 작업 사본에 반영됩니다. 되돌리기로 한 단계씩 돌아가고, "원본으로 되돌리기"는 처음 연 파일 상태로 돌아갑니다. 단계마다 실제 픽셀을 다시 계산하거나 잘라내므로 순서가 중요합니다. 먼저 자르고, 그다음 크기를 바꾸고, 마지막에 내보내세요. 사진 전체를 줄인 뒤 자르면 아까운 디테일을 버리게 됩니다.',
+    '내보내기는 압축 도구와 같은 인코더를 씁니다. 자동·PNG·JPG·WebP(AVIF는 브라우저가 인코딩할 수 있을 때만), 화질 25~100(기본 92), 선택형 목표 용량(KB), 최대 너비, JPG 배경색, "용량이 넘으면 추가 축소 허용"을 고릅니다. 기본 형식은 PNG입니다. 여러 이미지를 열었다면 "모든 이미지에 저장 설정 적용"으로 ZIP 하나를 저장하며, 목표를 못 맞춘 이미지는 빠지고 메시지에 개수가 표시됩니다.'],
+    terms:[['작업 사본','메모리에 있는 편집 중인 그림. 디스크의 파일은 그대로입니다.'],['자르기 프리셋','선택한 비율로 너비나 높이의 80%를 차지하는 가운데 상자. 끌거나 픽셀로 입력해 조정합니다.'],['목표 KB','내보낼 파일의 선택형 상한. 압축 페이지와 같은 방식으로 탐색합니다.']]},
+   example:{title:'4032 × 3024 사진을 200KB 이하의 1920 × 1080 배너로',lead:'숫자는 편집기 코드를 따릅니다: 16:9 프리셋 상자, 비율 고정 크기 변경, 내보내기 상한. 원본 크기는 1,200만 화소 휴대폰 사진의 예입니다.',lines:[
+    '열기             4032 x 3024',
+    '16:9로 자르기    w = 4032 x 0.8 = 3225.6 -> 3226,   h = 3225.6 / (16/9) = 1814.4 -> 1814',
+    '                 x = (4032 - 3225.6) / 2 = 403.2 -> 403,   y = (3024 - 1814.4) / 2 = 604.8 -> 605',
+    '크기 변경        너비 1920, 비율 유지: 1920 x 1814 / 3226 = 1079.6 -> 1080',
+    '내보내기         JPG, 목표 200KB = 204,800 바이트',
+    '파일             photo-edited.jpg, 1920 x 1080'],
+    after:'피사체가 가운데에 있지 않다면 적용하기 전에 자르기 상자를 끌어 옮기세요. X·Y·너비·높이 칸에 정확한 픽셀을 입력할 수 있고, 방향키로 1px(Shift: 10px)씩 움직입니다.'},
+   verify:{steps:[
+    '내보낸 뒤 저장된 파일을 열어 픽셀 크기와 형식을 확인하세요. 파일 이름은 `-edited`로 끝납니다.',
+    '목표 용량을 썼다면 완료 메시지에 저장된 크기가 나오고, 전체 이미지 저장이라면 목표를 못 맞춘 개수도 나옵니다.',
+    '원본을 보관하세요. 편집 내용은 원본에 다시 쓰이지 않습니다.']},
+   trouble:{rows:[
+    ['ZIP에 일부 이미지가 없음','목표 용량을 맞추지 못해 제외됐습니다','메시지에 개수가 표시됨','목표를 늘리거나 추가 축소를 허용하거나, 그 이미지만 따로 내보내세요'],
+    ['내보낸 파일이 PNG이고 너무 큼','기본 내보내기 형식이 PNG입니다','파일 이름이 `.png`로 끝남','JPG·WebP나 자동을 고르세요'],
+    ['투명한 부분이 흰색이 됨','JPG 내보내기는 투명 부분을 JPG 배경색으로 채웁니다','저장 형식이 JPG','PNG나 WebP로 내보내거나 JPG 배경색을 바꾸세요'],
+    ['사진이 선명도를 잃음','크기를 바꾼 뒤 잘랐거나 2배·4배로 확대했습니다','편집 순서 확인','되돌린 뒤 먼저 자르고 크기를 바꾸세요. 확대는 픽셀을 늘릴 뿐 디테일을 만들지 않습니다']]},
+   alternatives:{rows:[
+    ['[[image/crop|자르기]]','구도만 잡으면 될 때. 비율·플랫폼 프리셋, 수평 맞추기, 원형 모양, 여러 파일에 같은 영역 적용.'],
+    ['[[image/resize/youtube-banner|플랫폼 크기 프리셋]]','가운데 기준 자르기와 함께 정확한 플랫폼 크기가 한 번에 필요할 때.'],
+    ['[[image/compress|압축]]','파일 크기만 중요할 때. 형식과 화질을 대신 비교합니다.']]},
+   limits:['편집은 작업 사본 하나에 대한 픽셀 처리이며, 이미지용 레이어·글자·그리기 도구는 없습니다.','내보낸 파일에는 EXIF가 기록되지 않고 움직이는 이미지는 거부합니다.'],
+   versions:{body:['동작은 이 저장소 버전의 `src/app.js`(도구 막대, 자르기 프리셋, 비율 고정 크기 변경, 내보내기와 ZIP)와 공용 인코더 `src/compression.js`에서 가져왔습니다. 외부 프로그램이 관여하지 않으므로 외부 문서는 인용하지 않았습니다.'],sources:[]}
+  },
+  ja:{
+   answer:'画像エディターは、1枚の画像に複数の処理をしてから1回で保存したいときに使います。切り抜き（自由、1:1、4:3、16:9、正確なピクセル指定）、サイズ変更、90°回転、左右反転、透明な余白の切り取り、1pxの輪郭線、背景色の塗りつぶし、背景除去、2倍・4倍の拡大を行い、PNG・JPG・WebPで書き出します。目標サイズも指定でき、開いている画像をまとめてZIP 1つで保存することもできます。処理はすべてブラウザ内で行い、元のファイルは変わりません。1つの処理だけなら、[[image/compress|圧縮]]、[[image/convert|変換]]、[[image/resize|サイズ変更]]、[[image/crop|切り抜き]]などの単機能ページのほうが早く済みます。',
+   concept:{title:'作業用コピーを順に編集し、1回だけエンコード',body:[
+    '編集は行った順に画像の作業用コピーへ反映されます。元に戻すで1段階ずつ戻り、「原本に戻す」で開いたときのファイルの状態に戻ります。各処理は実際のピクセルを計算し直したり切り取ったりするので、順番が大切です。先に切り抜き、次にサイズ変更、最後に書き出します。写真全体を縮小してから切り抜くと、せっかくの細部を捨てることになります。',
+    '書き出しは圧縮ツールと同じエンコーダーを使います。自動・PNG・JPG・WebP（AVIFはブラウザがエンコードできる場合のみ）、画質25〜100（初期値92）、任意の目標サイズ（KB）、最大幅、JPGの背景色、「容量を超える場合は追加の縮小を許可」を選びます。初期の形式はPNGです。複数の画像を開いているときは「全画像に保存設定を適用」でZIP 1つに保存し、目標に届かなかった画像は除外されて件数がメッセージに表示されます。'],
+    terms:[['作業用コピー','メモリ上で編集中の画像。ディスク上のファイルはそのままです。'],['切り抜きのプリセット','選んだ比率で幅か高さの80%を占める中央の枠。ドラッグやピクセル入力で調整します。'],['目標KB','書き出すファイルの任意の上限。圧縮ページと同じ方法で探索します。']]},
+   example:{title:'4032 × 3024の写真を200KB以下の1920 × 1080のバナーに',lead:'数値はエディターのコードに従っています：16:9プリセットの枠、比率固定のサイズ変更、書き出しの上限。元のサイズは1,200万画素のスマホ写真の例です。',lines:[
+    '開く             4032 x 3024',
+    '16:9で切り抜き   w = 4032 x 0.8 = 3225.6 -> 3226,   h = 3225.6 / (16/9) = 1814.4 -> 1814',
+    '                 x = (4032 - 3225.6) / 2 = 403.2 -> 403,   y = (3024 - 1814.4) / 2 = 604.8 -> 605',
+    'サイズ変更       幅1920、比率固定: 1920 x 1814 / 3226 = 1079.6 -> 1080',
+    '書き出し         JPG、目標200KB = 204,800 バイト',
+    'ファイル         photo-edited.jpg、1920 x 1080'],
+    after:'被写体が中央にないなら、適用する前に切り抜き枠をドラッグします。X・Y・幅・高さの欄には正確なピクセルを入力でき、矢印キーで1px（Shiftで10px）ずつ動かせます。'},
+   verify:{steps:[
+    '書き出し後、保存したファイルを開いてピクセルサイズと形式を確認します。ファイル名は `-edited` で終わります。',
+    '目標サイズを使った場合、完了メッセージに保存した容量が出て、すべての画像を保存した場合は目標に届かなかった件数も出ます。',
+    '元のファイルは保管しておきます。編集内容は元ファイルに書き戻されません。']},
+   trouble:{rows:[
+    ['ZIPに一部の画像がない','目標サイズに届かず除外された','メッセージに件数が表示される','目標を上げるか追加の縮小を許可するか、その画像だけ別に書き出します'],
+    ['書き出したファイルがPNGで大きすぎる','初期の書き出し形式がPNG','ファイル名が `.png` で終わる','JPG・WebPか自動を選びます'],
+    ['透明部分が白くなった','JPGの書き出しは透明部分をJPGの背景色で塗る','保存形式がJPG','PNGかWebPで書き出すか、JPGの背景色を変えます'],
+    ['写真のシャープさが落ちた','サイズ変更してから切り抜いた、または2倍・4倍に拡大した','編集の順番を確認','元に戻して、先に切り抜いてからサイズを変えます。拡大はピクセルを増やすだけで細部は生みません']]},
+   alternatives:{rows:[
+    ['[[image/crop|切り抜き]]','構図だけ決めればよい場合。比率・各サービスのプリセット、水平調整、円形、複数ファイルへの同じ範囲の適用。'],
+    ['[[image/resize/youtube-banner|各サービス向けサイズのプリセット]]','中央基準の切り抜きと正確なサービス用サイズを1回で済ませたい場合。'],
+    ['[[image/compress|圧縮]]','ファイルサイズだけが問題の場合。形式と画質を代わりに比べます。']]},
+   limits:['編集は1つの作業用コピーに対するピクセル処理で、画像用のレイヤー・文字・描画ツールはありません。','書き出したファイルにEXIFは書き込まれず、アニメーション画像は拒否します。'],
+   versions:{body:['動作はこのリポジトリの版の `src/app.js`（ツールバー、切り抜きプリセット、比率固定のサイズ変更、書き出しとZIP）と共通のエンコーダー `src/compression.js` から取っています。外部のプログラムは関わらないため、外部の文書は引用していません。'],sources:[]}
+  }
+ },
 };
