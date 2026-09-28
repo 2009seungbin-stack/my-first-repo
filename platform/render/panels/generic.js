@@ -30,8 +30,8 @@ export function factRows(ctx,only){
  const rows=[];
  for(const p of order){
   const f=facts.find(x=>x.property===p&&x.plan==='*'&&(x.region===ctx.region||x.region==='*'||x.region==='GLOBAL'))||facts.find(x=>x.property===p&&x.plan==='*');
-  if(!f||p==='homepage')continue;
   const def=propertyDef(e.vertical,p);
+  if(!f||p==='homepage'||def?.public===false)continue;
   rows.push(html`<tr><th>${def?label(def.label,l):p}</th><td>${factText(e.vertical,f,l)}${f.verification!=='OFFICIAL'?html` ${badge(f.verification,l)}`:''}</td></tr>`);
  }
  return rows;

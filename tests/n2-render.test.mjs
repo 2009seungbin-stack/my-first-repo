@@ -61,7 +61,12 @@ test('AI service channel: status, models with official API prices, plans in the 
  const {m,out}=await channel('ai','claude');
  assert.equal(m.panel.id,'ai-service');
  assert.match(out,/<h1>Claude 채널<\/h1>/);
- assert(out.includes('서비스 상태')&&out.includes('보고된 장애 없음'),'status block (no invented "정상")');
+ assert(out.includes('서비스 상태')&&out.includes('확인 전')&&!out.includes('보고된 장애 없음'),'no status claim before the status collector has run');
+ const d=await seeded();
+ await d.prepare("INSERT OR REPLACE INTO collectors (adapter,vertical,last_success_at) VALUES ('claude-status','ai',?)").bind(NOW-600e3).run();
+ const fresh=String(renderChannel(await loadChannel(d,m.entity,{l:'ko',now:NOW}),SITE));
+ assert(fresh.includes('보고된 장애 없음')&&fresh.includes('10분 전 확인'),'after a fresh collector run');
+ await d.prepare("DELETE FROM collectors WHERE adapter='claude-status'").run();
  assert(out.includes('Claude Opus 5.5')&&out.includes('$4 / $20'),'Opus 5.5 at $4 / $20 from the seed');
  assert(out.includes('Claude 위키')&&out.includes('>Pro<')&&out.includes('$20'),'plans table');
  assert(out.includes('rel="canonical" href="https://nerulio.com/ko/ai/claude/"'));
@@ -164,8 +169,19 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert((await res.text()).includes('Claude 채널'));
  assert.equal(await renderPlatformPage(new Request('https://nerulio.com/ko/ai/no-such-channel/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW}),null);
  await d.prepare("INSERT INTO entity_redirects (vertical,slug,entity_id,created_at) VALUES ('ai','claude-ai','service:claude',0)").run();
- const r=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude-ai/3?x=1'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
- assert.equal(r.status,301);assert.equal(r.headers.get('location'),'https://nerulio.com/ko/ai/claude/3?x=1');
+ const r=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude-ai/3'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ assert.equal(r.status,301);assert.equal(r.headers.get('location'),'https://nerulio.com/ko/ai/claude/3');
+ const go=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ // Junk or invalid parameters are redirected to the canonical URL (no cache-busting renders).
+ assert.equal((await go('/ko/ai/claude/?x=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
+ assert.equal((await go('/ko/ai/claude/?page=1.5&kind=constructor&sort=new')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
+ assert.equal((await go('/ko/ai/claude/?sort=top&kind=question&utm=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/?kind=question&sort=top');
+ assert.equal((await go('/ko/ai/claude/?kind=question&sort=top')).status,200);
+ const page=await go('/ko/ai/claude/');
+ assert.match(page.headers.get('content-security-policy'),/form-action 'self'/);assert.equal(page.headers.get('x-content-type-options'),'nosniff');
+ for(const p of ['/ko/search/?q=claude','/ko/radar/','/ko/community/best/','/ko/community/report?target=discussion:abc'])assert.equal((await go(p)).status,200,p);
+ const search=await (await go('/ko/search/?q=5070')).text();
+ assert(search.includes('/ko/hardware/rtx-5070/'),'model numbers find the GPU channel');
 });
 
 test('facts shown on a channel are the current rows',{skip:!sqliteAvailable},async()=>{

@@ -7,7 +7,8 @@ import {html,safeHref} from './html.js';
 import {t} from './strings.js';
 import {page,nameOf,channelUrl,box,badge} from './ui.js';
 import {boardTime,ago,TZ} from './format.js';
-import {related,eventsFor,issueReportsSince,factsFor,pickFact} from '../db/channel.js';
+import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState} from '../db/channel.js';
+import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
 
 const HOUR=36e5,DAY=864e5;
 export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
@@ -30,7 +31,9 @@ export async function loadStatus(db,entity,o){
  /** @type {Record<string,number>} */const symptoms={};
  for(const r of reports)if(r.created_at>=now-DAY){const k=String(r.env.symptom||'other');symptoms[k]=(symptoms[k]||0)+1;}
  const statusPage=pickFact((await factsFor(db,[entity.id])).get(entity.id),'status_page')?.value||null;
- return {entity,provider,siblings,incidents,hours,baseline,spike,total24:hours.reduce((a,h)=>a+h.n,0),symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
+ const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
+ const checked=adapter?statusChecked((await collectorState(db,[adapter])).get(adapter),now):false;
+ return {entity,provider,siblings,incidents,checked,hours,baseline,spike,total24:hours.reduce((a,h)=>a+h.n,0),symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
 }
 
 /** 24 bars, one per hour; the dashed line is the week's usual hourly rate. @param {Awaited<ReturnType<typeof loadStatus>>} m */
@@ -51,15 +54,15 @@ ${m.hours.map((h,i)=>i%6===0||i===23?html`<text class="ax" x="${PL+i*bw+bw/2}" y
 export function renderStatus(m,site){
  const {entity:e,l,now}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e);
  const open=m.incidents.filter(x=>x.status!=='ended');
- const headline=open.length?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):m.spike?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):(ko?`${name}: 보고된 장애 없음`:`${name}: no reported incident`);
- const state=open.length?'bad':m.spike?'warn':'ok';
- const top=html`<section class="box sthero ${state}"><span class="dot ${state==='ok'?'ok':state==='warn'?'warn':'bad'}" aria-hidden="true"></span><div><h1>${headline}</h1>
+ const headline=open.length?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):m.spike?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):m.checked?(ko?`${name}: 보고된 장애 없음`:`${name}: no reported incident`):(ko?`${name}: 공식 상태 확인 전`:`${name}: official status not checked yet`);
+ const state=open.length?'bad':m.spike?'warn':m.checked?'ok':'unk';
+ const top=html`<section class="box sthero ${state}"><span class="dot ${state}" aria-hidden="true"></span><div><h1>${headline}</h1>
 <p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div></section>`;
  const report=box({title:ko?'지금 문제가 있나요?':'Having problems now?',note:ko?'로그인한 사용자 리포트만 집계 · 1분에 3번까지':'Signed-in reports only'},html`<div class="vbs sym" data-island="outage-report" data-entity="${e.id}">${Object.entries(SYMPTOMS).map(([k,v])=>html`<button class="vb" type="button" data-symptom="${k}" disabled>${v[/** @type {'ko'|'en'} */(l)]}</button>`)}</div>`);
  const reports=box({title:ko?'최근 24시간 사용자 리포트':'User reports, last 24 hours',extra:badge('COMMUNITY',l),note:ko?`합계 ${m.total24}건 · 점선 = 지난 7일 평균`:`${m.total24} total · dashed = 7-day average`},
   html`${chart(m)}${Object.keys(m.symptoms).length?html`<ul class="rows">${Object.entries(m.symptoms).sort((a,b)=>b[1]-a[1]).map(([k,n])=>html`<li><span class="tt">${/** @type {any} */(SYMPTOMS)[k]?.[l]||k}</span><b>${n}</b></li>`)}</ul>`:''}
 <details class="method"><summary>${ko?'표로 보기':'Show as table'}</summary><table class="mt"><thead><tr><th>${ko?'시간':'Hour'}</th><th>${ko?'리포트':'Reports'}</th></tr></thead><tbody>${m.hours.map(h=>html`<tr><td>${boardTime(h.from,now,l)}</td><td>${h.n}</td></tr>`)}</tbody></table></details>`);
- const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'}</p>`);
+ const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${m.checked?(ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'):(ko?'공식 상태 페이지를 아직 수집하지 않았습니다. 위 링크에서 직접 확인해 주세요.':'The official status page has not been collected yet; check it via the link above.')}</p>`);
  const others=m.siblings.length?box({title:ko?'같은 회사의 다른 서비스':'Other services by the same company'},html`<ul class="rows">${m.siblings.map(x=>html`<li><a class="tt" href="${channelUrl(l,x)}status">${nameOf(x,l)}</a></li>`)}</ul>`):'';
  const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${report}${reports}${inc}</main><aside class="side">${others}</aside></div>`;
  return page({l,title:ko?`지금 ${name} 장애? 실시간 상태와 사용자 리포트 | Nerulio`:`Is ${name} down? Status and user reports | Nerulio`,

@@ -139,3 +139,14 @@ test('banned and restricted accounts cannot write',{skip},async()=>{
  h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,banned_at,created_at,updated_at) VALUES ('u-a','x',1,0,0)").run();
  assert.equal((await h.call('POST','/follow',{as:'a',body:{entityId:'game:steam-1'}})).status,403);
 });
+
+test('flags: one open flag per reporter and target, validated reason and target',{skip},async()=>{
+ const h=await harness();await h.signIn('a');
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:abc',reason:'copyright',note:'원본은 여기'}})).status,201);
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:abc',reason:'spam'}})).status,201);
+ const rows=h.db.raw.prepare("SELECT reason FROM content_flags WHERE target_id='abc'").all();
+ assert.deepEqual(rows.map(r=>r.reason),['spam'],'the repeat updates the open flag');
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'javascript:alert(1)',reason:'spam'}})).status,400);
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'comment:x',reason:'because'}})).status,400);
+ assert.equal((await h.call('POST','/flags',{body:{target:'comment:x',reason:'spam'}})).status,401);
+});

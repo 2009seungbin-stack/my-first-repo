@@ -24,7 +24,7 @@ function toast(text){
  if(!el){el=document.createElement('div');el.id='n2-toast';el.className='toast';el.setAttribute('role','status');document.body.append(el);}
  el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.hidden=true;},2600);
 }
-const loginUrl=()=>`/${L}/account/?next=${encodeURIComponent(location.pathname+location.search)}`;
+const loginUrl=()=>`/api/v1/auth/google/start?return=${encodeURIComponent(location.pathname+location.search)}`;
 function explain(res){
  if(res.code==='LOGIN_REQUIRED'){if(confirm(T.needLogin))location.href=loginUrl();return;}
  if(res.code==='RATE_LIMITED')return toast(T.rate);
@@ -156,6 +156,12 @@ async function main(){
   const title=$('input[name="title"]',wf);
   const sync=()=>{const r=kindSel.value==='report'&&!!rep;if(rep){rep.hidden=!r;for(const el of $$('select,input',rep))el.disabled=!r;}if(title)title.required=!r;};kindSel?.addEventListener('change',sync);sync();
  }
+
+ // 신고 form
+ const ff=$('form[data-island="flag-form"]');
+ if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);
+  const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
+  if(r){toast(T.thanks);$('button[type="submit"]',ff).disabled=true;}});
 
  // New posts bar (polls once a minute while the tab is visible)
  const bar=$('[data-island="new-posts"]');

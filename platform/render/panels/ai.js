@@ -13,7 +13,12 @@ import {dateMs} from '../../schema.js';
 
 const DAY=864e5;
 /** Status-page collectors per provider (collectors/<adapter>). */
-const STATUS_ADAPTER=/** @type {Record<string,string>} */({'provider:anthropic':'claude-status','provider:openai':'openai-status'});
+export const STATUS_ADAPTER=/** @type {Record<string,string>} */({'provider:anthropic':'claude-status','provider:openai':'openai-status'});
+
+/** Incident data is trusted as "no incident" only when the status collector succeeded recently. */
+export const STATUS_FRESH_MS=2*36e5;
+/** @param {{last_success_at:number|null}|null|undefined} c @param {number} now */
+export const statusChecked=(c,now)=>!!c?.last_success_at&&now-c.last_success_at<=STATUS_FRESH_MS;
 
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
@@ -61,12 +66,14 @@ const dedupe=list=>{const seen=new Set();return list.filter(x=>seen.has(x.title)
 function top(d,ctx){
  const {l,now,entity:e}=ctx,s=t(l).panel;
  const statusUrl=pickFact(ctx.facts,'status_page')?.value;
- const open=d.incidents.filter(x=>x.status!=='ended');
+ const open=d.incidents.filter(x=>x.status!=='ended'),fresh=statusChecked(d.collector,now);
  const serviceRow=(/** @type {import('../ui.js').Entity} */ svc)=>{
   const inc=open.find(x=>incidentMatches(x,svc,d.services.length));
-  return html`<li class="srow"><span class="dot ${inc?'warn':'ok'}" aria-hidden="true"></span><a href="${channelUrl(l,svc)}">${nameOf(svc,l)}</a><span class="sv ${inc?'bad':''}">${inc?s.incident:s.noIncident}</span></li>`;
+  // Without a recent successful status check, "no incident" would be a claim nobody verified.
+  const state=inc?'warn':fresh?'ok':'unk',text=inc?s.incident:fresh?s.noIncident:(l==='ko'?'확인 전':'Not checked yet');
+  return html`<li class="srow"><span class="dot ${state}" aria-hidden="true"></span><a href="${channelUrl(l,svc)}">${nameOf(svc,l)}</a><span class="sv ${inc?'bad':''}">${text}</span></li>`;
  };
- const status=box({title:s.status,extra:open.length?html`<span class="live"><i></i></span>`:'',note:html`${d.collector?.last_success_at?s.lastChecked(ago(d.collector.last_success_at,now,l))+' · ':''}${statusUrl?html`<a href="${safeHref(statusUrl)}" rel="noopener" target="_blank">${s.statusOpen}</a>`:s.statusSrc}`},
+ const status=box({title:s.status,extra:open.length?html`<span class="live"><i></i></span>`:'',note:html`${d.collector?.last_success_at?s.lastChecked(ago(d.collector.last_success_at,now,l))+' · ':(l==='ko'?'상태 수집 전 · ':'Not collected yet · ')}${statusUrl?html`<a href="${safeHref(statusUrl)}" rel="noopener" target="_blank">${s.statusOpen}</a>`:s.statusSrc}`},
   html`<ul class="rows">${d.services.map(serviceRow)}</ul>${open.slice(0,2).map(x=>html`<a class="alert" href="${safeHref(x.url)}" rel="noopener" target="_blank"><b>${x.starts_at?boardTime(x.starts_at,now,l):''}~</b> ${x.title[l]||x.title.en}</a>`)}<p class="fine">${s.statusNote} · <a href="${channelUrl(l,e)}status">${l==='ko'?'사용자 리포트 보기 ›':'User reports ›'}</a></p>`);
  const changed=box({title:s.justChanged,note:s.justChangedSrc},d.timeline.length?html`<ul class="rows tk">${d.timeline.map(x=>html`<li><span class="tm">${boardTime(x.at,now,l)}</span>${x.href?html`<a class="tt" href="${safeHref(x.href)}">${x.title}</a>`:html`<span class="tt">${x.title}</span>`}${badge(x.ver,l)}</li>`)}</ul>`:html`<p class="empty">${s.nothingNew}</p>`);
  const models=d.models.length?box({title:s.models,extra:badge('OFFICIAL',l),note:checked(d.models.map(r=>r.in?.observed_at||0),l)},html`<div class="tw"><table class="mt"><thead><tr><th>${s.modelCol}</th><th>${s.ctxCol}</th><th>${s.priceCol}</th><th>${s.releasedCol}</th></tr></thead><tbody>${d.models.map(r=>{

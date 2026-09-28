@@ -18,6 +18,8 @@ export const channelUrl=(l,e)=>`/${l}/${e.vertical}/${e.slug}/`;
 /** @param {string} l @param {{vertical:string,slug:string}} e @param {number} no */
 export const postUrl=(l,e,no)=>`${channelUrl(l,e)}${no}`;
 export const frontUrl=(/** @type {string} */ l)=>`/${l}/community/`;
+/** Google sign-in that comes back to `path` (server/auth-google.js safeReturnPath). @param {string} path */
+export const signInUrl=path=>`/api/v1/auth/google/start?return=${encodeURIComponent(path)}`;
 
 /** Two-letter tile for a channel without an image ("C", "5070", "GX"). @param {Entity} e @param {string} l */
 export function monogram(e,l){

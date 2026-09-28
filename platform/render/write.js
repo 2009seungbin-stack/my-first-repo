@@ -5,7 +5,7 @@
  * community verdict instead of being a free-text post. The form works through the islands. */
 import {html} from './html.js';
 import {t} from './strings.js';
-import {page,nameOf,channelUrl} from './ui.js';
+import {page,nameOf,channelUrl,signInUrl} from './ui.js';
 import {related,versionsOf} from '../db/channel.js';
 import {POST_KINDS,writableKinds,LIMITS} from '../community.js';
 
@@ -16,7 +16,7 @@ export async function loadWrite(db,entity,o){
  if(entity.type==='game')subjects=(await related(db,entity.id,'in',['translates'])).map(r=>r.entity);
  else if(entity.type==='app')subjects=(await related(db,entity.id,'in',['supports_host'])).map(r=>r.entity).slice(0,80);
  const versions=subjects.length?(await versionsOf(db,entity.id,8)).map(v=>v.version):[];
- return {entity,subjects,versions,l:o.l,kind:o.kind&&o.kind in POST_KINDS?o.kind:null,channels:o.channels||[]};
+ return {entity,subjects,versions,l:o.l,kind:o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,channels:o.channels||[]};
 }
 
 /** @param {Awaited<ReturnType<typeof loadWrite>>} m @param {{origin:string}} site */
@@ -37,7 +37,7 @@ export function renderWrite(m,site){
  const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>
 <section class="box"><div class="bh"><h1 class="wt">${ko?`${name} 채널에 글쓰기`:`Write in ${name}`}</h1></div>
 <form class="wform" data-island="write-form" data-entity="${e.id}">
-<p class="needlogin" hidden>${ko?'글을 등록하려면 로그인이 필요합니다. 작성한 내용은 로그인 후 다시 입력해야 할 수 있어요.':'Sign in to post.'} <a href="/${l}/account/">${s.login} ›</a></p>
+<p class="needlogin" hidden>${ko?'글을 등록하려면 로그인이 필요합니다. 작성한 내용은 로그인 후 다시 입력해야 할 수 있어요.':'Sign in to post.'} <a href="${signInUrl(base+'write')}" rel="nofollow">${s.login} ›</a></p>
 <div class="row"><label>${ko?'말머리':'Tag'}<select name="kind">${kinds.map(k=>html`<option value="${k}"${k===chosen?html` selected`:''}>${/** @type {any} */(s.kind)[k]}</option>`)}</select></label></div>
 ${rep}
 <label>${ko?'제목':'Title'}<input name="title" maxlength="${LIMITS.title[1]}" minlength="${LIMITS.title[0]}" required autocomplete="off"></label>

@@ -4,7 +4,7 @@
  * the wiki page and the board (게시판), so SEO text and community live on one URL. */
 import {html} from './html.js';
 import {t} from './strings.js';
-import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks} from './ui.js';
+import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,signInUrl} from './ui.js';
 import {compact} from './format.js';
 import {factsFor,channelPosts,channelStats,recentTitles,SORTS} from '../db/channel.js';
 import {panelFor} from './panels/index.js';
@@ -31,11 +31,11 @@ export async function loadChannel(db,entity,o){
  const ctx={db,entity,facts,l:o.l,now:o.now,region};
  const panel=panelFor(entity);
  const data=await panel.load(ctx);
- const kind=o.kind&&o.kind in POST_KINDS?o.kind:null,sort=SORTS.includes(/** @type {any} */(o.sort))?/** @type {string} */(o.sort):'new';
+ const kind=o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,sort=SORTS.includes(/** @type {any} */(o.sort))?/** @type {string} */(o.sort):'new';
  const board=await channelPosts(db,entity.id,{kind,sort,best:!!o.best,page:o.page||1,limit:PAGE_SIZE,now:o.now});
  const stats=await channelStats(db,entity.id,dayStart(o.now,o.l));
  const titles=await recentTitles(db,entity.id,o.now-2*864e5);
- return {entity,ctx,panel,data,kind,sort,best:!!o.best,page:o.page||1,board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ return {entity,ctx,panel,data,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -78,7 +78,7 @@ export function renderChannel(m,site){
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
 <div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${subtitle}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} ${compact(m.stats.followers,l)} · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
-<div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="/${l}/account/?next=${encodeURIComponent(base)}">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
+<div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
  const tabOrder=Object.keys(POST_KINDS).filter(k=>kinds.includes(k));
  const tabs=html`<nav class="mtabs" aria-label="${l==='ko'?'말머리':'Tags'}"><a href="${q({kind:null})}"${!m.kind?html` class="on" aria-current="page"`:''}>${s.all}</a>${tabOrder.map(k=>html`<a href="${q({kind:k,page:null})}"${m.kind===k?html` class="on" aria-current="page"`:''}>${/** @type {any} */(s.kind)[k]}</a>`)}</nav>`;

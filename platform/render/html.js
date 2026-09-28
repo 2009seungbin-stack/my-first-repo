@@ -25,6 +25,6 @@ export const raw=s=>new SafeHtml(s);
 /** Only http(s) and site-relative URLs reach an href. @param {unknown} u */
 export function safeHref(u){
  const s=String(u??'');
- if(s.startsWith('/')&&!s.startsWith('//'))return s;
+ if(s.startsWith('/')&&!/^\/[\/\\]/.test(s))return s;
  try{const x=new URL(s);return x.protocol==='https:'||x.protocol==='http:'?x.href:'#';}catch{return '#';}
 }

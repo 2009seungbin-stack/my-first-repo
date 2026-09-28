@@ -15,7 +15,7 @@ export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
 import {channelUrl,postUrl} from '../../platform/render/ui.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -153,6 +153,19 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await limit('vote',LIMITS.votesPerMinute);
     const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
     return done(r);
+   }
+   case 'POST /flags':{
+    only(body,['target','reason','note']);
+    const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
+    if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+    if(!['spam','abuse','wrong_info','source_dispute','duplicate','copyright','other'].includes(String(body.reason)))throw new ApiError('BAD_REQUEST','Invalid reason.',{field:'reason'});
+    const note=body.note===undefined||body.note===''?null:text(body.note,[1,1000],'note');
+    await limit('flag',10);
+    // One open flag per reporter and target; repeats update the reason instead of piling up.
+    const open=await db.prepare("SELECT id FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
+    if(open)await db.prepare('UPDATE content_flags SET reason=?,note=? WHERE id=?').bind(body.reason,note,open.id).run();
+    else await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
+    return done({ok:true},201);
    }
    case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
    case 'POST /rollout':{

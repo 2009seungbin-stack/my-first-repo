@@ -245,3 +245,45 @@ export async function issueReportsSince(db,ids,since){
  const rows=await inChunks(db,ids,ph=>`SELECT created_at,env FROM community_reports WHERE kind='issue' AND status='published' AND created_at>=? AND entity_id IN (${ph})`,[since]);
  return rows.map(r=>({created_at:Number(r.created_at),env:json(r.env,{})}));
 }
+
+/* ---------- search and radar ---------- */
+
+const likeEscape=(/** @type {string} */ s)=>s.replace(/[\\%_]/g,c=>'\\'+c);
+/**
+ * Channels matching a query: exact/prefix alias match first (short queries, model numbers like
+ * "5070"), then the FTS5 trigram index (3+ characters, works for Korean without a morphological
+ * analyzer). @param {D1} db @param {string} q @param {{vertical?:string|null,limit?:number}} [o]
+ */
+export async function searchEntities(db,q,o={}){
+ const limit=o.limit??20,norm=String(q).normalize('NFKC').toLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');
+ if(!norm)return [];
+ /** @type {Map<string,number>} */const score=new Map();
+ const add=(/** @type {string} */ id,/** @type {number} */ s)=>score.set(id,Math.max(score.get(id)||0,s));
+ for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm=? OR norm LIKE ? ESCAPE '\\' LIMIT 60`,[norm,likeEscape(norm)+'%']))add(String(r.entity_id),r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length));
+ if([...q.trim()].length>=3){
+  const phrase='"'+q.trim().replace(/"/g,'""')+'"';
+  try{for(const [i,r] of (await all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,[phrase])).entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),40-Math.min(39,i*0.5));}}catch{}
+ }
+ const ents=await entitiesByIds(db,[...score.keys()]);
+ return [...ents.values()].filter(e=>!o.vertical||e.vertical===o.vertical).sort((a,b)=>(score.get(b.id)||0)-(score.get(a.id)||0)).slice(0,limit);
+}
+/** Posts whose title contains the query (optionally inside one channel), newest first. @param {D1} db @param {string} q @param {{entityId?:string|null,limit?:number}} [o] */
+export async function searchPosts(db,q,o={}){
+ const s=String(q).trim();if(!s)return [];
+ const where=["d.status='published'","e.status='active'","d.title LIKE ? ESCAPE '\\'"],params=['%'+likeEscape(s)+'%'];
+ if(o.entityId){where.push('d.entity_id=?');params.push(o.entityId);}
+ return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY d.created_at DESC LIMIT ?`,[...params,o.limit??30])).map(postRow);
+}
+/** Versions released recently across all channels (Radar). @param {D1} db @param {{since:number,until:number,vertical?:string|null,limit?:number}} o */
+export async function recentVersions(db,o){
+ const rows=await all(db,`SELECT v.version,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id
+  WHERE v.released_at BETWEEN ? AND ? AND e.status='active'${o.vertical?' AND e.vertical=?':''} ORDER BY v.released_at DESC LIMIT ?`,[o.since,o.until,...(o.vertical?[o.vertical]:[]),o.limit??40]);
+ return rows.map(r=>({version:String(r.version),released_at:Number(r.released_at),notes_url:r.notes_url??null,verification:String(r.verification),entity:entityRow(r)}));
+}
+/** Upcoming events across all channels with the first linked entity (Radar). @param {D1} db @param {{from:number,to:number,vertical?:string|null,limit?:number}} o */
+export async function upcomingEvents(db,o){
+ const rows=await all(db,`SELECT ev.id,ev.kind,ev.title,ev.starts_at,ev.date_precision,ev.url,ev.verification,MIN(x.entity_id) AS eid FROM events ev JOIN event_entities x ON x.event_id=ev.id JOIN entities e ON e.id=x.entity_id
+  WHERE ev.starts_at BETWEEN ? AND ? AND ev.status NOT IN ('cancelled','ended') AND e.status='active'${o.vertical?' AND e.vertical=?':''} GROUP BY ev.id ORDER BY ev.starts_at LIMIT ?`,[o.from,o.to,...(o.vertical?[o.vertical]:[]),o.limit??40]);
+ const ents=await entitiesByIds(db,rows.map(r=>String(r.eid)));
+ return rows.map(r=>({id:Number(r.id),kind:String(r.kind),title:json(r.title,{}),starts_at:Number(r.starts_at),precision:String(r.date_precision),url:r.url??null,verification:String(r.verification),entity:ents.get(String(r.eid))||null})).filter(r=>r.entity);
+}

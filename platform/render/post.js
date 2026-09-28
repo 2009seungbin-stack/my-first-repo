@@ -43,8 +43,8 @@ export function renderPost(m,site){
  const best=top[0]&&top[0].up>=BEST_COMMENT_MIN&&(!top[1]||top[0].up>top[1].up)?top[0]:null;
  /** @type {Map<string|null,typeof m.comments>} */const kids=new Map();
  for(const c of m.comments){const k=c.parent_id;kids.set(k,[...(kids.get(k)||[]),c]);}
- const comment=(/** @type {(typeof m.comments)[number]} */ c,/** @type {number} */ depth,/** @type {boolean} */ pinned=false)=>html`<li class="co${depth?' re':''}${pinned?' bestc':''}${c.deleted?' del':''}" id="c-${c.id}"><div class="h">${depth?'↳ ':''}${pinned?html`<span class="bb">${s.bestComment}</span>`:''}${author({author_name:c.author_name,author_tier:c.author_tier},l)}${c.author_id===p.author_id?html`<span class="op">${s.op}</span>`:''}<span class="fine">${boardTime(c.created_at,now,l)}</span></div>
-<div class="cb">${c.deleted?s.deletedComment:raw(renderMarkdown(c.body_md))}</div><div class="a"><a href="#c-${c.id}" data-vote-comment="${c.id}">▲ ${c.up}</a>${c.deleted?'':html`<a href="#comment-form" data-reply="${c.id}" data-name="${c.author_name||''}">${s.reply}</a>`}<a href="/${l}/report?target=comment:${c.id}">${s.flag}</a></div></li>`;
+ const comment=(/** @type {(typeof m.comments)[number]} */ c,/** @type {number} */ depth,/** @type {boolean} */ pinned=false)=>html`<li class="co${depth?' re':''}${pinned?' bestc':''}${c.deleted?' del':''}" id="${pinned?'best-':''}c-${c.id}"><div class="h">${depth?'↳ ':''}${pinned?html`<span class="bb">${s.bestComment}</span>`:''}${author({author_name:c.author_name,author_tier:c.author_tier},l)}${c.author_id===p.author_id?html`<span class="op">${s.op}</span>`:''}<span class="fine">${boardTime(c.created_at,now,l)}</span></div>
+<div class="cb">${c.deleted?s.deletedComment:raw(renderMarkdown(c.body_md))}</div><div class="a"><a href="#c-${c.id}" data-vote-comment="${c.id}">▲ ${c.up}</a>${c.deleted?'':html`<a href="#comment-form" data-reply="${c.id}" data-name="${c.author_name||''}">${s.reply}</a>`}<a href="/${l}/community/report?target=comment:${c.id}">${s.flag}</a></div></li>`;
  /** @param {string|null} parent @param {number} depth @returns {unknown[]} */
  const thread=(parent,depth)=>(kids.get(parent)||[]).flatMap(c=>[comment(c,Math.min(depth,2)),...thread(c.id,depth+1)]);
  const rep=m.report;
@@ -65,16 +65,16 @@ ${Object.keys(rep.metrics||{}).length?html`<tr><th>${s.report.metrics}</th><td>$
 <div class="meta1">${author(p,l)}<span class="sep">|</span><time datetime="${new Date(p.created_at).toISOString()}">${fullTime(p.created_at,l)}</time>${p.edited_at?html`<span>${s.editedAt(boardTime(p.edited_at,now,l))}</span>`:''}<span class="sep">|</span><span>${s.up} ${p.up}</span><span class="sep">|</span><span>${s.comments} ${p.comments}</span><span class="sep">|</span><span>${s.views} ${compact(p.views,l)}</span></div></header>
 ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 <div class="vote" data-island="post-vote" data-post="${p.id}"${rep?.kind==='compat'?html` data-report="${JSON.stringify({kind:'compat',entityId:rep.entity_id,targetId:rep.target_id,subjectVersion:rep.subject_version||undefined,targetVersion:rep.target_version||undefined,result:rep.result})}"`:''}><button class="up" type="button" disabled><b>${p.up}</b><span>${s.up}</span></button>${rep?.kind==='compat'?html`<button type="button" disabled><b>0</b><span>${s.sameHere}</span></button><button type="button" disabled><b>0</b><span>${s.notRepro}</span></button>`:html`<button type="button" disabled><b>${p.down}</b><span>${s.down}</span></button>`}</div>
-<div class="pact"><button class="btn" type="button" data-island="share">${s.share}</button><a class="btn" href="${url}">${s.copyLink}</a><a class="btn" href="/${l}/report?target=discussion:${p.id}">${s.flag}</a></div></article>
+<div class="pact"><button class="btn" type="button" data-island="share">${s.share}</button><a class="btn" href="${url}">${s.copyLink}</a><a class="btn" href="/${l}/community/report?target=discussion:${p.id}">${s.flag}</a></div></article>
 <section class="box" id="comments"><div class="cmh">${s.commentsN(m.comments.filter(x=>!x.deleted).length)}<span class="srt"><span>${s.byOrder}</span></span></div>
 <ol class="cl">${best?comment(best,0,true):''}${thread(null,0)}</ol>
 <form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea></div><button class="btn p" type="submit">${s.submit}</button></form></section>
 <section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${m.around.map(x=>postRow(x,{l,now,href:postUrl(l,e,x.post_no),current:x.post_no===p.post_no}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
  const description=plainExcerpt(p.body_md,150)||p.title;
- const other=l==='ko'?'en':'ko';
- return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:site.origin+url,
-  // A post exists in the language it was written in; the other locale's URL shows the same post with that UI.
-  alternates:{[l]:site.origin+url,[other]:site.origin+postUrl(other,e,p.post_no)},noindex:p.locale!==l,
+ // A post exists in the language it was written in: that URL is canonical and the only one indexed.
+ const own=site.origin+postUrl(p.locale==='en'?'en':'ko',e,p.post_no);
+ return page({l,title:`${p.title} - ${s.channel(name)} | Nerulio`,description,canonical:own,
+  alternates:{[p.locale==='en'?'en':'ko']:own},noindex:p.locale!==l,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body,
   jsonld:{'@context':'https://schema.org','@type':'DiscussionForumPosting',headline:p.title,url:site.origin+url,datePublished:new Date(p.created_at).toISOString(),author:{'@type':'Person',name:p.bot?s.bot:p.author_name||s.anonymous},commentCount:p.comments,interactionStatistic:{'@type':'InteractionCounter',interactionType:'https://schema.org/LikeAction',userInteractionCount:p.up}}});
 }
