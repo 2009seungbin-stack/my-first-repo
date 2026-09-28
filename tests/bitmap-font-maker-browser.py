@@ -1,6 +1,7 @@
 """Focused local UI and independent ZIP re-open gate for Bitmap Font Maker 2."""
 import io
 import base64
+import hashlib
 import json
 import re
 import struct
@@ -18,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 't7-browser'
 BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:4707'
 NODE_EXPORT = """import fs from 'node:fs';import {parseBdf} from './src/game/font-bdf.js';import {projectFromBdf,renderFontProject} from './src/game/font-project.js';import {fntText,fntXml,fntBinary} from './src/game/bmfont.js';import {writePixelTtf} from './src/game/font-ttf.js';const project=projectFromBdf(parseBdf(fs.readFileSync(process.argv[1],'utf8')));const atlas=renderFontProject(project);const b=x=>Buffer.from(x).toString('base64');process.stdout.write(JSON.stringify({project,font:atlas.font,atlas:b(atlas.data),text:fntText(atlas.font),xml:fntXml(atlas.font),binary:b(fntBinary(atlas.font)),ttf:b(writePixelTtf(project))}));"""
+NODE_SHEET = """import fs from 'node:fs';import {projectFromGrid,renderFontProject} from './src/game/font-project.js';const input=JSON.parse(fs.readFileSync(0,'utf8'));const source=Buffer.from(input.data,'base64');const project=projectFromGrid(source,input.width,input.height,{cellW:8,cellH:12,chars:input.chars,baseline:9});const atlas=renderFontProject(project);process.stdout.write(JSON.stringify({project,font:atlas.font,atlas:Buffer.from(atlas.data).toString('base64')}));"""
 
 
 def binary_records(raw):
@@ -98,6 +100,27 @@ def model_only():
                 archive.writestr(name, value)
         verify_zip(target)
         print(f'PASS: {source} 192 glyphs reopened as PNG, BMFont text/XML/binary, project JSON and TTF')
+    source = ROOT / 'tests/fixtures/game/corpus/fonts/bellanger-font.png'
+    raw = source.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == 'eac5d8f06c5838733f73db668d4bee2f60ae0f3d32442ef7444eb8c2621c5a43'
+    image = Image.open(io.BytesIO(raw)).convert('RGBA')
+    chars = ''.join(chr(code) for code in range(32, 127))
+    payload = {'width': image.width, 'height': image.height,
+               'data': base64.b64encode(image.tobytes()).decode(), 'chars': chars}
+    result = subprocess.run(['node', '--input-type=module', '-e', NODE_SHEET], cwd=ROOT,
+                            input=json.dumps(payload), check=True, capture_output=True,
+                            text=True, encoding='utf-8')
+    converted = json.loads(result.stdout)
+    atlas = Image.frombytes('RGBA', (converted['font']['width'], converted['font']['height']),
+                            base64.b64decode(converted['atlas']))
+    assert len(converted['project']['glyphs']) == 95
+    for index, metric in enumerate(converted['font']['glyphs']):
+        source_cell = image.crop(((index % 16) * 8, (index // 16) * 12,
+                                  (index % 16 + 1) * 8, (index // 16 + 1) * 12))
+        result_cell = atlas.crop((metric['x'], metric['y'], metric['x'] + 8, metric['y'] + 12))
+        assert [p[3] > 8 for p in source_cell.get_flattened_data()] == [p[3] > 8 for p in result_cell.get_flattened_data()], index
+    assert source.read_bytes() == raw
+    print('PASS: CC0 Bellanger PNG 95-cell sheet copied into editable v2 atlas with all source alpha masks unchanged')
 
 
 def main():
