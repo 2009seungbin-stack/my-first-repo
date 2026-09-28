@@ -77,6 +77,17 @@ def main():
             assert hidden.count() >= 1, 'the moderator still sees the hidden post'
             hidden.first.locator('button', has_text='복구').click(); mod.wait_for_timeout(1200)
             assert pg.request.get(B + post_url).status == 200, 'restored'
+            # 정보 제안: a member suggests a value, the moderator accepts it
+            pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(400)
+            pg.locator('details.prop summary').click()
+            opt = pg.locator('form[data-island=propose] select[name=property] option[data-type=date]').first.get_attribute('value')
+            pg.select_option('form[data-island=propose] select[name=property]', opt)
+            pg.fill('form[data-island=propose] input[name=value]', '2026-10-20'); pg.fill('form[data-island=propose] input[name=sourceUrl]', 'https://example.com/notice')
+            pg.click('form[data-island=propose] button[type=submit]'); pg.wait_for_timeout(700)
+            mod.reload(); mod.wait_for_timeout(900)
+            assert mod.locator('[data-proposals] .mq').count() == 1, 'the proposal waits for review'
+            mod.locator('[data-proposals] .mq button', has_text='반영').click(); mod.wait_for_timeout(1200)
+            assert '반영' in mod.locator('[data-log]').inner_text()
             pg.goto(B + '/ko/community/me'); pg.wait_for_selector('[data-follows]:not([hidden]) li', timeout=5000)
             pg.fill('form[data-nickname] input', '밤샘테스터'); pg.click('form[data-nickname] button'); pg.wait_for_timeout(500)
             assert pg.locator('[data-follows] li').count() >= 1, 'followed channels listed'

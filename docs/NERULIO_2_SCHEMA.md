@@ -1,7 +1,7 @@
 # Nerulio 2.0 — schema
 
 D1 (SQLite). Migrations: `0001`–`0002` service layer (accounts, sessions, usage, billing), `0003`
-graph, `0004` community, `0005` read-path indexes. Timestamps are Unix epoch ms (UTC); JSON is TEXT.
+graph, `0004` community, `0005` read-path indexes, `0006` unique nicknames, `0007` fact proposals. Timestamps are Unix epoch ms (UTC); JSON is TEXT.
 There are no triggers: all writes go through `platform/ingest.js` (graph) or `server/platform/api.js`
 (community). Reads go through `platform/db/channel.js`.
 
@@ -39,6 +39,7 @@ COMMUNITY_VERIFIED > ESTIMATE > COMMUNITY > DISPUTED > UNKNOWN.
 | `community_reports` | compat / issue / benchmark reports (structured, ProtonDB-style) | `/api/v2/reports` |
 | `rollout_votes` | "I have it / not yet" per feature | `/api/v2/rollout` |
 | `content_flags` | 신고, one open flag per reporter and target | `/api/v2/flags` |
+| `fact_proposals` (0007) | 정보 제안: value + source from a member; a moderator accepts it (ingest, COMMUNITY_VERIFIED) or rejects it | `/api/v2/facts/propose`, `/api/v2/mod/action` |
 | `moderation_actions` | every hide/unhide/dismiss/restrict with its reason | `/api/v2/mod/action` |
 | `collectors`, `collector_runs` | source health: last success, failures | `tools/platform/collect.mjs --d1` |
 | `wiki_revisions`, `wiki_pages`, `stack_items`, `alert_rules`, `preflight_runs`, `uploads`, `analytics_*`, `vertical_settings` | defined for later features; not written yet | — |

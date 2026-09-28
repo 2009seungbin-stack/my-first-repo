@@ -33,7 +33,7 @@ const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다�
  [/^This tag cannot be used/,'이 채널에서는 쓸 수 없는 말머리예요.'],[/^Not hidden/,'숨겨진 상태가 아니에요. 새로고침해 주세요.'],[/^Already hidden/,'이미 임시조치된 대상이에요.'],[/^Already deleted/,'작성자가 이미 삭제했어요.'],
  [/^Only a higher role/,'더 높은 권한만 이 계정을 처리할 수 있어요.'],[/^You cannot moderate your own/,'자기 계정은 처리할 수 없어요.'],[/^This action does not apply/,'이 대상에는 쓸 수 없는 조치예요.'],
  [/^Only questions have an accepted/,'질문 글만 답변을 채택할 수 있어요.'],[/^Invalid reason/,'사유를 선택해 주세요.'],[/^Nothing to report at this address/,'신고할 대상을 찾을 수 없어요.'],[/^tokens_per_s must be/,'토큰/초는 0~5000 사이로 적어 주세요.'],
- [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
+ [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^This property cannot be proposed/,'이 항목은 제안할 수 없어요.'],[/^A source link/,'출처 링크(https://…)를 넣어 주세요.'],[/^The value does not fit/,'값의 형식이 이 항목과 맞지 않아요. (날짜는 2026-10-20, 숫자는 숫자만)'],[/^Already reviewed/,'이미 처리된 제안이에요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
 function message(m){
  if(L!=='ko')return m;
  for(const [re,ko] of KO_ERR){const x=re.exec(m);if(x)return typeof ko==='function'?ko(...x):ko.replace(/\$(\d)/g,(_,i)=>x[i]);}
@@ -305,6 +305,19 @@ async function main(){
   const r=await write('/reports',{kind:'benchmark',entityId:String(fd.get('model')),targetId:bf.dataset.gpu,metrics:{tokens_per_s:Number(String(fd.get('tps')).replace(',','.'))},env:Object.fromEntries([['runtime',fd.get('runtime')],['quant',fd.get('quant')],['ctx',fd.get('ctx')],['os',fd.get('os')]].filter(([,v])=>v).map(([k,v])=>[k,String(v)]))},signedIn);
   if(r){toast(T.thanks);setTimeout(()=>location.reload(),900);}});
 
+ // 정보 제안 (wiki box): values are typed by the property (number, yes/no, list) before sending.
+ for(const pf of $$('form[data-island="propose"]')){
+  pf.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(pf);
+   const opt=$('select[name="property"]',pf).selectedOptions[0],type=opt?.dataset.type||'text',raw=String(fd.get('value')||'').trim();
+   let value=raw;
+   if(type==='number'||type==='money'||type==='tokens')value=Number(raw.replace(/,/g,''));
+   else if(type==='bool')value=/^(예|yes|true|y|o|있음)$/i.test(raw);
+   else if(type==='list')value=raw.split(/[,·]/).map(x=>x.trim()).filter(Boolean);
+   const unit=String(fd.get('unit')||'').trim().toUpperCase()||(type==='money'?opt?.dataset.unit||undefined:undefined);
+   const r=await write('/facts/propose',{entityId:pf.dataset.entity,property:String(fd.get('property')),value,...(unit&&type==='money'?{unit}:{}),sourceUrl:String(fd.get('sourceUrl')||''),note:String(fd.get('note')||'')||undefined},signedIn);
+   if(r){toast(L==='ko'?'제안을 보냈어요. 운영자가 출처를 확인한 뒤 반영합니다.':'Sent. A moderator will check the source.');pf.reset();pf.closest('details').open=false;}});
+ }
+
  // 신고 form
  const ff=$('form[data-island="flag-form"]');
  if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);
@@ -351,9 +364,10 @@ async function main(){
    const {items,hidden=[],log}=r.data,ko=L==='ko';
    const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타'}:{};
    const STATUS=ko?{hidden:'임시조치 중',deleted:'작성자가 삭제',locked:'댓글 잠김'}:{};
-   const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제'}:{};
-   const KIND=ko?{discussion:'글',comment:'댓글',user:'계정'}:{};
+   const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려'}:{};
+   const KIND=ko?{discussion:'글',comment:'댓글',user:'계정',proposal:'정보 제안'}:{};
    const when=t=>new Date(t).toLocaleString(ko?'ko-KR':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+   const act_=async(...a)=>act(...a);
    const act=async(target,action,label)=>{const reason=prompt(`${label} — ${ko?'사유(처리 기록에 남습니다)':'reason (kept in the log)'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok){toast(ko?`${label} 처리했어요`:'Done');setTimeout(()=>location.reload(),700);}else explain(x);};
    /** One row: title (linked while it is public), who wrote it and where, the excerpt, then the actions that apply. */
    const row=(it,head,actions)=>{
@@ -382,6 +396,22 @@ async function main(){
    if(hb){hb.hidden=false;
     if(!hidden.length){const li=document.createElement('li');li.className='empty';li.textContent=ko?'임시조치 중인 글·댓글이 없습니다.':'Nothing is hidden.';hu.append(li);}
     for(const it of hidden)hu.append(row(it,`${ko?'임시조치':'Hidden'} ${when(it.hiddenAt)}${it.reason?` · ${it.reason}`:''}`,[['unhide',ACTION.unhide||'Restore']]));
+   }
+   // 정보 제안: proposed value next to the current one, with the source to check.
+   const pb=$('[data-proposals]');
+   if(pb){pb.hidden=false;const pu=$('ul',pb),proposals=r.data.proposals||[];
+    const show=v=>Array.isArray(v)?v.join(', '):typeof v==='boolean'?(v?(ko?'예':'yes'):(ko?'아니요':'no')):String(v);
+    if(!proposals.length){const li=document.createElement('li');li.className='empty';li.textContent=ko?'검토할 정보 제안이 없습니다.':'No proposals to review.';pu.append(li);}
+    for(const it of proposals){
+     const li=document.createElement('li');li.className='mq';
+     const top=document.createElement('p');top.className='mqh';const a=document.createElement('a');a.className='tt';a.href=it.url;a.textContent=`${it.channel} · ${it.property}`;top.append(a);li.append(top);
+     const v=document.createElement('p');v.className='mqx';v.textContent=`${ko?'제안':'Proposed'}: ${show(it.value)}${it.unit?' '+it.unit:''}   ←   ${ko?'현재':'Now'}: ${it.current?show(it.current.value)+(it.current.unit?' '+it.current.unit:'')+` (${it.current.verification})`:'—'}`;li.append(v);
+     const src=document.createElement('p');src.className='fine';const sa=document.createElement('a');sa.href=it.source;sa.target='_blank';sa.rel='noopener nofollow';sa.textContent=(ko?'출처: ':'Source: ')+it.source;src.append(sa,` · ${it.author} · ${when(it.at)}`);li.append(src);
+     if(it.note){const n=document.createElement('p');n.className='mqn';n.textContent=it.note;li.append(n);}
+     const bar=document.createElement('p');bar.className='mqa';
+     for(const [act,lab] of [['accept',ko?'반영':'Accept'],['reject',ko?'반려':'Reject']]){const b=document.createElement('button');b.type='button';b.className='btn'+(act==='accept'?' p':'');b.textContent=lab;b.addEventListener('click',()=>act_(it.target,act,lab));bar.append(b);}
+     li.append(bar);pu.append(li);
+    }
    }
    const lg=$('[data-log]');
    for(const x of log){const li=document.createElement('li');li.className='fine';li.textContent=`${when(x.created_at)} · ${ACTION[x.action]||x.action} · ${KIND[x.target_kind]||x.target_kind} ${String(x.target_id).slice(0,14)} · ${x.reason||''}`;lg.append(li);}

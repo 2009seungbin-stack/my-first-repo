@@ -165,6 +165,27 @@ test('open data: published compat reports by month, no account data, cacheable',
  assert(!JSON.stringify(r.json).includes('u-a')&&!JSON.stringify(r.json).includes('비밀')&&!JSON.stringify(r.json).includes('내 PC'),'no user ids, notes or comments');
 });
 
+test('fact proposals: validated like seed facts, reviewed by a moderator, never above an official value',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('mod');
+ h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0)").run();
+ const type=h.db.raw.prepare("SELECT type,vertical FROM entities WHERE id='game:steam-1'").get();
+ const {typeDef,propertyDef}=await import('../platform/verticals/index.js');
+ const prop=typeDef(type.vertical,type.type).props.find(p=>propertyDef(type.vertical,p)?.type==='date');
+ const send=body=>h.call('POST','/facts/propose',{as:'a',body:{entityId:'game:steam-1',property:prop,sourceUrl:'https://example.com/news',...body}});
+ assert.equal((await send({value:'next friday'})).status,400,'a date must be a date');
+ assert.equal((await send({value:'2026-10-20',sourceUrl:'javascript:1'})).status,400,'a real source link');
+ assert.equal((await send({property:'no_such_prop',value:'x'})).status,400);
+ const ok=await send({value:'2026-10-20',note:'공식 공지'});assert.equal(ok.status,201);
+ const q=(await h.call('GET','/mod/queue',{as:'mod'})).json;
+ assert.equal(q.proposals.length,1);assert.equal(q.proposals[0].value,'2026-10-20');
+ assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:q.proposals[0].target,action:'accept',reason:'공식 공지 확인'}})).status,200);
+ const f=h.db.raw.prepare('SELECT value,verification FROM facts WHERE entity_id=? AND property=? AND is_current=1').get('game:steam-1',prop);
+ assert.deepEqual({...f},{value:'"2026-10-20"',verification:'COMMUNITY_VERIFIED'});
+ assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.proposals.length,0);
+ assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:q.proposals[0].target,action:'accept',reason:'again'}})).status,409,'reviewed once');
+ assert.equal((await h.call('POST','/mod/action',{as:'a',body:{target:q.proposals[0].target,action:'accept',reason:'me'}})).status,404,'members cannot review');
+});
+
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  assert.equal((await h.call('POST','/rollout',{as:'a',body:{featureId:'feature:feat',hasIt:true,country:'KR',platform:'ios'}})).status,200);

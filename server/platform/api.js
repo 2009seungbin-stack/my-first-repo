@@ -16,8 +16,11 @@ import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
 import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
+import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
+import {ingest} from '../../platform/ingest.js';
+import {typeDef,propertyDef} from '../../platform/verticals/index.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -256,6 +259,30 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,updated_at) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),updated_at=excluded.updated_at').bind(context.user.id,id,now).run();
     return done({ok:true});
    }
+   case 'POST /facts/propose':{
+    only(body,['entityId','property','value','unit','sourceUrl','note','postId']);
+    const e=await entity(db,/** @type {string} */(body.entityId));
+    const full=(await db.prepare('SELECT type FROM entities WHERE id=?').bind(e.id).first());
+    const prop=String(body.property||''),def=propertyDef(String(e.vertical),prop);
+    // Only the properties this kind of channel shows in its wiki, never hidden ones.
+    if(!def||def.public===false||!(typeDef(String(e.vertical),String(full?.type))?.props||[]).includes(prop))throw new ApiError('BAD_REQUEST','This property cannot be proposed here.',{field:'property'});
+    const sourceUrl=String(body.sourceUrl||'');
+    if(!/^https?:\/\/[^\s]{4,2000}$/.test(sourceUrl))throw new ApiError('BAD_REQUEST','A source link (http/https) is required.',{field:'sourceUrl'});
+    const note=body.note===undefined||body.note===''?null:text(body.note,[1,500],'note');
+    const src=`src:proposal-${randomToken(8).toLowerCase().replace(/[^a-z0-9]/g,'')}`;
+    const fact={p:prop,v:body.value,...(body.unit?{unit:String(body.unit)}:{}),ver:'COMMUNITY_VERIFIED',src};
+    const doc={schema:SEED_SCHEMA,vertical:String(e.vertical),sources:[{id:src,kind:'COMMUNITY',url:sourceUrl,retrieved:new Date(now).toISOString().slice(0,10)}],entities:[{id:e.id,facts:[fact]}]};
+    // The same validation as seed files (types, units, currencies): a proposal is a one-fact seed.
+    const errors=validateSeed(doc,{entities:new Set([e.id])});
+    if(errors.length)throw new ApiError('BAD_REQUEST','The value does not fit this property.',{field:'value',detail:errors[0].slice(0,200)});
+    let discussion=null;
+    if(body.postId){const d=await db.prepare("SELECT id FROM discussions WHERE id=? AND entity_id=? AND status IN ('published','locked')").bind(String(body.postId),e.id).first();discussion=d?String(d.id):null;}
+    await limit('proposal',5);
+    const id=randomToken(12);
+    await db.prepare('INSERT INTO fact_proposals (id,entity_id,property,value,unit,source_url,note,discussion_id,user_id,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
+     .bind(id,e.id,prop,JSON.stringify(body.value),body.unit?String(body.unit):null,sourceUrl,note,discussion,context.user.id,now).run();
+    return done({ok:true,id},201);
+   }
    case 'POST /flags':{
     only(body,['target','reason','note']);
     const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
@@ -459,8 +486,18 @@ async function modQueue(db,_p){
  if(hk.length)for(const a of (await db.prepare(`SELECT target_kind,target_id,reason,created_at FROM moderation_actions WHERE action='hide' AND (target_kind||':'||target_id) IN (${hk.map(()=>'?').join(',')}) ORDER BY id`).bind(...hk).all()).results||[])
   hides.set(`${a.target_kind}:${a.target_id}`,{reason:String(a.reason),created_at:Number(a.created_at)});   // the latest hide wins
  const hidden=hiddenRows.map((/** @type {any} */ r)=>{const k=`${r.kind}:${r.id}`,a=hides.get(k);return {target:k,hiddenAt:a?.created_at??Number(r.updated_at),reason:a?.reason??null,...(targets.get(k)||EMPTY_TARGET)};});
+ // Fact proposals waiting for review, with the value the wiki shows now.
+ const props=(await db.prepare(`SELECT f.id,f.entity_id,f.property,f.value,f.unit,f.source_url,f.note,f.discussion_id,f.created_at,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(f.user_id,1,6))) AS author
+  FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`).all()).results||[];
+ const proposals=[];
+ for(const r of props){
+  const cur=await db.prepare("SELECT value,unit,verification FROM facts WHERE entity_id=? AND property=? AND is_current=1 AND plan='*' ORDER BY CASE region WHEN 'KR' THEN 0 WHEN '*' THEN 1 ELSE 2 END LIMIT 1").bind(r.entity_id,r.property).first();
+  const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
+  const def=propertyDef(e.vertical,String(r.property));
+  proposals.push({target:`proposal:${r.id}`,channel:nameOf(e,'ko'),url:channelUrl('ko',e),property:def?.label?.ko||r.property,value:JSON.parse(String(r.value)),unit:r.unit??null,current:cur?{value:JSON.parse(String(cur.value)),unit:cur.unit??null,verification:String(cur.verification)}:null,source:String(r.source_url),note:r.note??null,author:String(r.author),at:Number(r.created_at)});
+ }
  const log=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
- return {items,hidden,log};
+ return {items,hidden,proposals,log};
 }
 const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null});
 /** What a moderator needs to judge a flagged or hidden target without opening it (a hidden post is
@@ -478,13 +515,13 @@ async function modTargets(db,list){
   out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title)});
  return out;
 }
-const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict']);
+const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict','accept','reject']);
 /** Apply one moderator action; always logged in moderation_actions with its reason.
  * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
  * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin */
 async function modAction(db,actor,actorRole,body,now,origin){
  only(body,['target','action','reason','days']);
- const m=/^(discussion|comment|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
+ const m=/^(discussion|comment|user|proposal):([\w:.-]{1,100})$/.exec(String(body.target||''));
  if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
  const action=String(body.action);if(!MOD_ACTIONS.includes(action))throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
  const reason=text(body.reason,[2,500],'reason');
@@ -506,6 +543,20 @@ async function modAction(db,actor,actorRole,body,now,origin){
    w.push(db.prepare(`UPDATE ${table} SET status=?,updated_at=? WHERE id=? AND status='hidden'`).bind(prev,now,id));
   }
   if(kind==='comment'&&(action==='hide'||action==='unhide'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+ }
+ if(kind==='proposal'){
+  // accept = the value goes into the graph through the ingest pipeline (COMMUNITY_VERIFIED, so an
+  // official value is never replaced; a conflict is recorded instead); reject = closed with the reason.
+  if(action!=='accept'&&action!=='reject')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
+  const pr=await db.prepare("SELECT f.*,e.vertical FROM fact_proposals f JOIN entities e ON e.id=f.entity_id WHERE f.id=?").bind(id).first();
+  if(!pr)throw new ApiError('NOT_FOUND','No such proposal.');
+  if(pr.status!=='open')throw new ApiError('OPERATION_CONFLICT','Already reviewed.');
+  if(action==='accept'){
+   const src=`src:proposal-${String(id).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,40)}`;
+   await ingest(db,{schema:SEED_SCHEMA,vertical:String(pr.vertical),sources:[{id:src,kind:'COMMUNITY',url:String(pr.source_url),retrieved:new Date(Number(pr.created_at)).toISOString().slice(0,10)}],
+    entities:[{id:String(pr.entity_id),facts:[{p:String(pr.property),v:JSON.parse(String(pr.value)),...(pr.unit?{unit:String(pr.unit)}:{}),ver:'COMMUNITY_VERIFIED',src,note:`Proposed by a member, accepted by a moderator (${reason})`.slice(0,300)}]}]},{mode:'community',actor:`moderator:${actor}`,now});
+  }
+  w.push(db.prepare('UPDATE fact_proposals SET status=?,reviewer_id=?,reviewed_at=?,reason=? WHERE id=?').bind(action==='accept'?'accepted':'rejected',actor,now,reason,id));
  }
  if(kind==='user'){
   if(id===actor)throw new ApiError('FORBIDDEN','You cannot moderate your own account.');

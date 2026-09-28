@@ -22,7 +22,7 @@ npm run preview:platform       # static preview in .n2/preview/
 
 ## 2. D1 (owner)
 Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.wrangler.toml`).
-1. Apply migrations 0003–0006 to preview first, then production:
+1. Apply migrations 0003–0007 to preview first, then production:
    `npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml`
 2. Load the seed graph (sources, entities, facts, relations, versions, events, compatibility, search index):
    ```

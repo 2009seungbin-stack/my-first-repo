@@ -5,7 +5,7 @@
 import {html} from './html.js';
 import {page,box} from './ui.js';
 
-const ACTION=/** @type {Record<string,{ko:string,en:string}>} */({hide:{ko:'임시조치(숨김)',en:'Hidden'},unhide:{ko:'복구',en:'Restored'},dismiss:{ko:'기각',en:'Dismissed'},restrict:{ko:'이용 제한',en:'Restricted'},unrestrict:{ko:'제한 해제',en:'Unrestricted'}});
+const ACTION=/** @type {Record<string,{ko:string,en:string}>} */({hide:{ko:'임시조치(숨김)',en:'Hidden'},unhide:{ko:'복구',en:'Restored'},dismiss:{ko:'기각',en:'Dismissed'},restrict:{ko:'이용 제한',en:'Restricted'},unrestrict:{ko:'제한 해제',en:'Unrestricted'},accept:{ko:'정보 제안 반영',en:'Proposals accepted'},reject:{ko:'정보 제안 반려',en:'Proposals rejected'}});
 const REASON=/** @type {Record<string,{ko:string,en:string}>} */({spam:{ko:'스팸·도배',en:'Spam'},abuse:{ko:'욕설·혐오',en:'Abuse'},wrong_info:{ko:'틀린 정보',en:'Wrong info'},source_dispute:{ko:'출처 이의',en:'Source dispute'},copyright:{ko:'권리 침해',en:'Rights'},duplicate:{ko:'중복',en:'Duplicate'},other:{ko:'기타',en:'Other'}});
 
 /** @param {any} db @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */

@@ -12,7 +12,7 @@ import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
 import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE} from '../community.js';
-import {typeDef,verticalOf} from '../verticals/index.js';
+import {typeDef,verticalOf,propertyDef} from '../verticals/index.js';
 import {label} from '../labels.js';
 import {TZ,dateText} from './format.js';
 
@@ -100,7 +100,7 @@ ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard
  const links=officialLinks(e.official_urls,l);
  const lastSeen=Math.max(0,...ctx.facts.map(f=>f.observed_at||0));
  const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${lastSeen?html`<span>${l==='ko'?`${dateText(lastSeen,'day',l).slice(5)} 확인`:`checked ${dateText(lastSeen,'day',l)}`}</span> · `:''}${s.history}</a></div>${wikiRows}
-${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;
+${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}${proposeForm(e,l,td?.props||[])}</section>`;
  const toolIds=(ENTITY_TOOLS[e.id]||(e.type==='game'?[]:td?.tools||[])).filter(id=>id in TOOL_PATHS);
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';
  const rel=m.relatedList.length?box({title:s.related},html`<ul class="rows">${m.relatedList.map(r=>{const pd=/** @type {any} */(PREDICATES)[r.predicate];const how=pd?label(r.dir==='out'?pd:pd.inverse,l):'';return html`<li><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a><span class="fine">${how}</span></li>`;})}</ul>`):'';
@@ -118,3 +118,20 @@ const ENTITY_TOOLS=/** @type {Record<string,string[]>} */({'app:godot':['sprite-
 /** Tool ids used in vertical configs → existing tool pages (ids without a page yet are not linked). */
 const TOOL_PATHS=/** @type {Record<string,string>} */({'sprite-lab':'game/sprite-lab','pixel-lab':'game/pixel-lab','tile-lab':'game/tile-lab','texture-lab':'game/texture-lab','ui-lab':'game/ui-lab'});
 const TOOL_NAMES=/** @type {Record<string,{ko:string,en:string}>} */({'vram-fit':{ko:'VRAM 계산기',en:'VRAM calculator'},'sprite-lab':{ko:'스프라이트 랩',en:'Sprite Lab'},'pixel-lab':{ko:'픽셀 랩',en:'Pixel Lab'},'tile-lab':{ko:'타일 랩',en:'Tile Lab'},'texture-lab':{ko:'텍스처 랩',en:'Texture Lab'},'ui-lab':{ko:'UI 랩',en:'UI Lab'}});
+
+/** 정보 제안: a member suggests a value with a source; a moderator accepts it into the wiki
+ * (COMMUNITY_VERIFIED — an official value is never replaced). The islands send it to /api/v2/facts/propose.
+ * @param {any} e @param {string} l @param {string[]} props */
+function proposeForm(e,l,props){
+ const ko=l==='ko';
+ const opts=props.map(p=>({p,def:/** @type {any} */(propertyDef(e.vertical,p))})).filter(x=>x.def&&x.def.public!==false&&x.def.type!=='url');
+ if(!opts.length)return '';
+ return html`<details class="prop"><summary>${ko?'틀리거나 빠진 정보가 있나요? 제안하기':'Wrong or missing? Suggest a value'}</summary>
+<form class="wform" data-island="propose" data-entity="${e.id}"><label>${ko?'항목':'Field'}<select name="property" required>${opts.map(x=>html`<option value="${x.p}" data-type="${x.def.type||'text'}" data-unit="${x.def.unit||''}">${label(x.def.label,l)}</option>`)}</select></label>
+<label>${ko?'값':'Value'}<input name="value" required maxlength="200" placeholder="${ko?'예: 2026-10-20, 12, 공식 표기 그대로':'e.g. 2026-10-20, 12'}"></label>
+<label>${ko?'통화 (가격일 때)':'Currency (prices)'}<input name="unit" maxlength="3" placeholder="USD"></label>
+<label>${ko?'출처 링크 (공식 페이지 우선)':'Source link (official first)'}<input name="sourceUrl" type="url" required placeholder="https://"></label>
+<label>${ko?'메모 (선택)':'Note (optional)'}<input name="note" maxlength="500"></label>
+<p class="fine">${ko?'운영자가 출처를 확인한 뒤 “커뮤니티 검증” 값으로 반영합니다. 공식 값은 바꾸지 않습니다.':'A moderator checks the source before it appears as community-verified. Official values are never replaced.'}</p>
+<div class="acts"><button class="btn p" type="submit">${ko?'제안 보내기':'Send'}</button></div></form></details>`;
+}
