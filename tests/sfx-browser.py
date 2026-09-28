@@ -43,7 +43,7 @@ def run():
         if BROWSER == 'chromium': options['permissions']=['clipboard-read', 'clipboard-write']
         context = browser.new_context(**options)
         page = context.new_page(); errors = []; external = []
-        page.on('pageerror', lambda e: errors.append(str(e)))
+        page.on('pageerror', lambda e: errors.append(str(e.stack or e)))
         page.on('request', lambda req: external.append(req.url) if not req.url.startswith(BASE) and not req.url.startswith('data:') else None)
         page.goto(BASE + '/en/game/sfx-generator/', wait_until='domcontentloaded')
         page.locator('#metrics').filter(has_text='Duration').wait_for()
@@ -52,9 +52,23 @@ def run():
         page.locator('#advanced').evaluate('(x) => x.open = true')
         page.locator('#addLayer').click(); assert page.locator('.sfx-layer').count() == 2; checks += 1
         page.locator('#addNote').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
-        page.locator('#undo').click(); assert page.locator('#sequence .sfx-note').count() == 0; checks += 1
-        page.locator('#redo').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
+        page.locator('#timeline [data-step="2"][data-tone="3"]').click(); assert page.locator('#sequence .sfx-note').count() == 2; checks += 1
+        page.locator('#timeline [data-step="2"][data-tone="3"]').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
+        page.locator('#bpm').fill('90'); expect(page.locator('#bpm')).to_have_value('90'); checks += 1
+        page.locator('#undo').click(); expect(page.locator('#bpm')).to_have_value('120'); checks += 1
+        page.locator('#redo').click(); expect(page.locator('#bpm')).to_have_value('90'); checks += 1
         page.locator('#keep').click(); assert page.locator('#collection .sfx-note').count() == 1; checks += 1
+        page.locator('#collection [data-rename="0"]').fill('Laser One'); page.locator('#collection [data-rename="0"]').dispatch_event('change')
+        expect(page.locator('#collection [data-choose="0"]')).to_contain_text('Laser One'); checks += 1
+        page.locator('#keep').click(); page.locator('#collection [data-up="1"]').click()
+        expect(page.locator('#collection [data-choose="1"]')).to_contain_text('Laser One'); checks += 1
+        # Reopen an actual WAV for each of Bfxr's twelve named wave choices.
+        for wave_name in ('triangle','sine','square','saw','breaker','tan','whistle','white','voice','bitnoise','rasp','fm'):
+            page.locator('#layers select[data-layer="0"][data-field="wave"]').select_option(wave_name)
+            with page.expect_download(timeout=30000) as item: page.locator('#saveAudio').click()
+            target=temp/('wave-'+wave_name+'.wav');item.value.save_as(target)
+            with wave.open(str(target),'rb') as w:assert w.getnframes()>1000 and w.getframerate()==44100
+            checks += 1
 
         # Real CC0 Kenney audio when the local corpus is present, with a generated fallback for CI.
         sample = CORPUS if CORPUS.exists() else temp / 'input.wav'
@@ -63,6 +77,12 @@ def run():
         page.locator('#layers select[data-field="kind"]').first.wait_for()
         expect(page.locator('#layers select[data-field="kind"]').first).to_have_value('sample')
         assert 'Sample' in page.locator('#layers').inner_text(); checks += 1
+        page.locator('#layers [data-layer="0"][data-field="sampleStart"]').fill('0.01')
+        page.locator('#layers [data-layer="0"][data-field="sampleStart"]').dispatch_event('change')
+        page.locator('#layers [data-layer="0"][data-field="sampleEnd"]').fill('0.03')
+        page.locator('#layers [data-layer="0"][data-field="sampleEnd"]').dispatch_event('change')
+        page.locator('#layers [data-layer="0"][data-field="sampleLoop"]').check()
+        expect(page.locator('#layers [data-layer="0"][data-field="sampleLoop"]')).to_be_checked(); checks += 1
         page.locator('#undo').click(); page.wait_for_timeout(200); checks += 1
         if BROWSER == 'chromium':
             fallback=temp/'drop.wav'; make_wav(fallback)
@@ -77,7 +97,7 @@ def run():
         with wave.open(str(wav), 'rb') as w:
             assert w.getframerate() == 44100 and w.getsampwidth() == 3 and w.getnchannels() == 2 and w.getnframes() > 1000
         checks += 1
-        for fmt, codec in [('ogg', 'vorbis'), ('mp3', 'mp3')]:
+        for fmt, codec in [('ogg', 'vorbis')]:
             page.locator('#format').select_option(fmt)
             with page.expect_download(timeout=30000) as item: page.locator('#saveAudio').click()
             target = temp / ('effect.' + fmt); item.value.save_as(target)
@@ -87,12 +107,20 @@ def run():
                 assert info['streams'][0]['codec_name'] == codec, info
                 assert info['streams'][0]['sample_rate'] == '44100', info
             checks += 1
+        assert page.locator('#format option[value="mp3"]').get_attribute('disabled') is not None
+        assert 'UNVERIFIED' in page.locator('#format option[value="mp3"]').inner_text(); checks += 1
         page.locator('#format').select_option('wav')
         with page.expect_download(timeout=30000) as item: page.locator('#batch').click()
         zpath = temp / 'variants.zip'; item.value.save_as(zpath)
         with zipfile.ZipFile(zpath) as z:
             names = z.namelist(); assert len([n for n in names if n.endswith('.wav')]) == 4 and 'settings.json' in names
             assert json.loads(z.read('settings.json'))['variations'] == 4
+        checks += 1
+        with page.expect_download(timeout=30000) as item: page.locator('#exportCollection').click()
+        colpath=temp/'collection.zip';item.value.save_as(colpath)
+        with zipfile.ZipFile(colpath) as z:
+            names=z.namelist(); assert len([n for n in names if n.endswith('.wav')]) == 2 and 'collection.json' in names
+            assert json.loads(z.read('collection.json'))['sounds'][1]['name'] == 'Laser One'
         checks += 1
         code='5EoyNVSymuxD8s7HP1ixqdaCn5uVGEgwQ3kJBR7bSoApFQzm7E4zZPW2EcXm3jmNdTtTPeDuvwjY8z4exqaXz3NGBHRKBx3igYfBBMRBxDALhBSvzkF6VE2Pv'
         page.locator('#foreign').fill(code); page.locator('#useLegacy').click()
@@ -105,6 +133,7 @@ def run():
         expect(page.locator('#status')).to_contain_text('Unrecognized'); checks += 1
         page.locator('#share').click(); expect(page.locator('#status')).to_contain_text('?s=')
         link=page.locator('#status').inner_text().split()[-1]; page.goto(link); page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 1
+        expect(page.locator('#collection [data-choose="1"]')).to_contain_text('Laser One'); checks += 1
         assert not errors, errors; assert not external, external; checks += 1
         context.close(); browser.close()
         mobile = getattr(p, BROWSER).launch(headless=True)
