@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseBdf} from '../src/game/font-bdf.js';
-import {blankFontProject,projectFromBdf,projectFromGrid,renderFontProject,setGlyphPixel,setKerning,validateFontProject,PROJECT_FORMAT} from '../src/game/font-project.js';
+import {blankFontProject,projectFromBdf,projectFromGrid,renderFontProject,setGlyphPixel,setKerning,validateFontProject,addGlyph,fillGlyph,rectangleGlyph,PROJECT_FORMAT} from '../src/game/font-project.js';
 
 test('editable project renders its own pixels and metrics, including kerning',()=>{
  const project=blankFontProject('AB',{cellW:4,cellH:5,baseline:4});
@@ -34,4 +34,17 @@ test('a source grid is copied into the v2 bitmap and stays unchanged',()=>{
  const project=projectFromGrid(source,8,4,{cellW:4,cellH:4,chars:'AB',baseline:3});
  assert.equal(project.glyphs[0].pixels[1*4+2],1);
  setGlyphPixel(project,65,2,1,0);assert.equal(source[(1*8+2)*4+3],255);
+});
+
+test('a new Unicode glyph can be drawn with a bounded fill and rectangle',()=>{
+ const project=blankFontProject('A',{cellW:4,cellH:4,baseline:3});
+ addGlyph(project,0x3042,{w:4,h:4,xAdvance:5});
+ assert.equal(project.glyphs[1].codepoint,0x3042);
+ assert.throws(()=>addGlyph(project,0x3042),/already exists/);
+ assert.throws(()=>addGlyph(project,0xd800),/surrogate/);
+ rectangleGlyph(project,0x3042,1,1,2,2,1);
+ assert.deepEqual(project.glyphs[1].pixels,[0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0]);
+ fillGlyph(project,0x3042,0,0,1);
+ assert.deepEqual(project.glyphs[1].pixels,[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
+ assert.equal(renderFontProject(project).font.glyphs[1].xAdvance,5);
 });

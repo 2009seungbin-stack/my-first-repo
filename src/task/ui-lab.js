@@ -62,7 +62,7 @@ export function mount({el,def}){
   states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
   font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null,
-   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,preview:'',past:[],future:[],stroke:false,strokeInkBefore:null},
+   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,tool:'pencil',rectStart:null,preview:'',past:[],future:[],stroke:false,strokeInkBefore:null},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
@@ -301,9 +301,11 @@ ${f.mode!=='ttf'&&d!==undefined?(d?`<p class="hint" id="fontDetected" data-cell=
 <label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label>
 <label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label>
 ${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>${esc(T('fontGlyph'))}</span><select id="fontGlyph">${f.project.glyphs.map(g=>`<option value="${g.codepoint}" ${g.codepoint===f.selected?'selected':''}>${esc(g.codepoint<32?'U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'):String.fromCodePoint(g.codepoint)+' · U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'))}</option>`).join('')}</select></label><label class="field"><span>${esc(T('fontAdvance'))}</span><input id="fontAdvance" type="number" min="0" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xAdvance??0}"></label></div>
+<div class="field-row"><label class="field"><span>${esc(T('fontAddGlyph'))}</span><input id="fontAddGlyph" type="text" maxlength="8" placeholder="あ / U+3042"></label><button type="button" class="mini-button" data-action="ui-font-add">${esc(T('fontAdd'))}</button></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontBearingX'))}</span><input id="fontBearingX" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xOffset??0}"></label><label class="field"><span>${esc(T('fontBearingY'))}</span><input id="fontBearingY" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.yOffset??0}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
+<div class="field-row">${['pencil','fill','rectangle'].map(tool=>`<button type="button" class="mini-button" data-action="ui-font-tool" data-tool="${tool}" aria-pressed="${f.tool===tool}">${esc(T('fontTool.'+tool))}</button>`).join('')}</div>
 <div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>
 <label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p><p class="hint" id="fontSizeEstimate"></p>`:''}
 <form class="options" autocomplete="off">
@@ -527,6 +529,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   }
   const baseline=S.font.project.ascent-g.yOffset;
   if(baseline>=0&&baseline<=g.h){ctx.strokeStyle='#c33b45';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,baseline*scale);ctx.lineTo(canvas.width,baseline*scale);ctx.stroke();}
+  if(S.font.rectStart){const a=S.font.rectStart,x=Math.min(a.x,S.font.editX),y=Math.min(a.y,S.font.editY),w=Math.abs(a.x-S.font.editX)+1,h=Math.abs(a.y-S.font.editY)+1;
+   ctx.fillStyle='rgba(20,101,173,.25)';ctx.fillRect(x*scale,y*scale,w*scale,h*scale);ctx.strokeStyle='#1465ad';ctx.strokeRect(x*scale+.5,y*scale+.5,w*scale-1,h*scale-1);}
   ctx.strokeStyle='#1465ad';ctx.lineWidth=2;ctx.strokeRect(S.font.editX*scale+2,S.font.editY*scale+2,scale-4,scale-4);
   $('#fontEditCode').textContent=`U+${g.codepoint.toString(16).toUpperCase().padStart(4,'0')} · ${g.w}×${g.h}`;
  }
@@ -924,6 +928,14 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    else if(action==='ui-font-undo')stepFont(S.font.past,S.font.future);
    else if(action==='ui-font-redo')stepFont(S.font.future,S.font.past);
    else if(action==='ui-font-erase'){S.font.ink=S.font.ink?0:1;button.setAttribute('aria-pressed',String(!S.font.ink));}
+   else if(action==='ui-font-tool'){S.font.tool=button.dataset.tool;S.font.rectStart=null;refresh();}
+   else if(action==='ui-font-add'){
+    const raw=($('#fontAddGlyph')?.value||'').trim();
+    const codepoint=/^U\+([0-9a-f]{1,6})$/i.test(raw)?parseInt(raw.slice(2),16):[...raw].length===1?raw.codePointAt(0):null;
+    if(codepoint===null)throw Error(T('fontAddError'));
+    const g=selectedGlyph();rememberFont();FP.addGlyph(S.font.project,codepoint,{w:g?.w||S.font.cellW,h:g?.h||S.font.cellH,xAdvance:g?.xAdvance??S.font.cellW});
+    S.font.selected=codepoint;S.font.editX=0;S.font.editY=0;refresh();
+   }
    else if(action==='ui-font-kerning'){
     const pair=[...($('#fontKerningPair')?.value||'')];if(pair.length!==2)throw Error(T('fontKerningPairError'));
     rememberFont();FP.setKerning(S.font.project,pair[0].codePointAt(0),pair[1].codePointAt(0),int($('#fontKerningAmount').value,-128,128));refresh();
@@ -993,7 +1005,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;refresh();}
   else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent'].includes(e.target.id)){
    const f=S.font,g=selectedGlyph();if(!g)return;
-   rememberFont();const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
+   const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
+   if((e.target.id==='fontAscent'&&n+f.project.descent<1)||(e.target.id==='fontDescent'&&n+f.project.ascent<1)){toast(T('fontLineHeightError'),{error:true});refresh();return;}
+   rememberFont();
    if(e.target.id==='fontAdvance')g.xAdvance=n;
    else if(e.target.id==='fontBearingX')g.xOffset=n;
    else if(e.target.id==='fontBearingY')g.yOffset=n;
@@ -1012,7 +1026,15 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    const g=selectedGlyph();if(!g)return;
    const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
    if(delta){e.preventDefault();S.font.editX=clamp(S.font.editX+delta[0],0,g.w-1);S.font.editY=clamp(S.font.editY+delta[1],0,g.h-1);paintFontEdit();return;}
-   if(e.key===' '||e.key==='Enter'){e.preventDefault();rememberFont();fontPaint(S.font.editX,S.font.editY);refresh();return;}
+   if(e.key===' '||e.key==='Enter'){
+    e.preventDefault();const f=S.font;
+    if(f.tool==='rectangle'&&!f.rectStart){f.rectStart={x:f.editX,y:f.editY};paintFontEdit();return;}
+    rememberFont();
+    if(f.tool==='rectangle'){FP.rectangleGlyph(f.project,g.codepoint,f.rectStart.x,f.rectStart.y,f.editX,f.editY,f.ink);f.rectStart=null;}
+    else if(f.tool==='fill')FP.fillGlyph(f.project,g.codepoint,f.editX,f.editY,f.ink);
+    else fontPaint(f.editX,f.editY);
+    refresh();return;
+   }
    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?stepFont(S.font.future,S.font.past):stepFont(S.font.past,S.font.future);return;}
   }
   const guide=e.target.closest?.('.ns-guide');
@@ -1033,8 +1055,12 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  el.addEventListener('pointerdown',e=>{
   if(e.target.id==='fontEditCanvas'){
    const at=fontPixelAt(e);if(!at)return;
-   rememberFont();S.font.stroke=true;S.font.strokeInkBefore=S.font.ink;S.font.ink=e.button===2?0:S.font.ink;
-   fontPaint(at.x,at.y);e.target.setPointerCapture?.(e.pointerId);e.preventDefault();return;
+   const f=S.font;rememberFont();f.strokeInkBefore=f.ink;f.ink=e.button===2?0:f.ink;
+   if(f.tool==='fill'){FP.fillGlyph(f.project,f.selected,at.x,at.y,f.ink);f.ink=f.strokeInkBefore;f.strokeInkBefore=null;refresh();e.preventDefault();return;}
+   f.stroke=true;f.editX=at.x;f.editY=at.y;
+   if(f.tool==='rectangle'){f.rectStart=at;paintFontEdit();}
+   else fontPaint(at.x,at.y);
+   e.target.setPointerCapture?.(e.pointerId);e.preventDefault();return;
   }
   const guide=e.target.closest?.('.ns-guide');
   if(guide&&source){rememberBorder();drag={kind:'guide',side:guide.dataset.guide,zoom:sliceZoom(),rect:$('#nsArt').getBoundingClientRect()};guide.setPointerCapture?.(e.pointerId);e.preventDefault();return;}
@@ -1042,7 +1068,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(handle){const box=handle.closest('.ns-box').getBoundingClientRect();drag={kind:'resize',x:e.clientX,y:e.clientY,w:S.slice.customW,h:S.slice.customH,scale:S.slice.customW/box.width};handle.setPointerCapture?.(e.pointerId);e.preventDefault();}
  });
  el.addEventListener('pointermove',e=>{
-  if(S.font.stroke&&e.target.id==='fontEditCanvas'){const at=fontPixelAt(e);if(at)fontPaint(at.x,at.y);return;}
+  if(S.font.stroke&&e.target.id==='fontEditCanvas'){const at=fontPixelAt(e);if(at){if(S.font.tool==='rectangle'){S.font.editX=at.x;S.font.editY=at.y;paintFontEdit();}else fontPaint(at.x,at.y);}return;}
   if(!drag)return;
   if(drag.kind==='guide'){
    const b=drag.rect,at=drag.side==='left'||drag.side==='right'?(e.clientX-b.left)/drag.zoom:(e.clientY-b.top)/drag.zoom;
@@ -1057,6 +1083,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  });
  for(const type of ['pointerup','pointercancel'])el.addEventListener(type,()=>{
   const fontStroke=S.font.stroke;S.font.stroke=false;
+  if(fontStroke&&S.font.rectStart){const a=S.font.rectStart;FP.rectangleGlyph(S.font.project,S.font.selected,a.x,a.y,S.font.editX,S.font.editY,S.font.ink);S.font.rectStart=null;}
   if(S.font.strokeInkBefore!==null){S.font.ink=S.font.strokeInkBefore;S.font.strokeInkBefore=null;}
   // A click on a guide that moved nothing leaves no undo step behind.
   if(drag?.kind==='guide'){const last=borderPast.at(-1);if(last&&SIDES.every(side=>last[side]===S.border[side]))borderPast.pop();refreshUndo();}

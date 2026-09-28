@@ -979,6 +979,12 @@ Object.assign(S.ja.uiLab,{fontPreviewText:'プレビュー文',fontCoverage:'指
 Object.assign(S.ko.uiLab,{fontSizeEstimate:'현재 {glyphs}자: 최소 {pages}페이지 · RGBA 셀 약 {mib} MiB (실제 아틀라스는 별도 검사). KS 한글 {ks}/{ksTotal}자 포함. 한글 전체 {all}자는 자동 생성하지 않습니다.',fontImportTooLarge:'BDF 또는 프로젝트 파일이 32 MiB를 넘습니다.'});
 Object.assign(S.en.uiLab,{fontSizeEstimate:'Current {glyphs} glyphs: at least {pages} page(s) · about {mib} MiB of raw RGBA cells (actual atlas is checked separately). KS Hangul coverage {ks}/{ksTotal}. The full {all} Hangul syllables are not generated automatically.',fontImportTooLarge:'The BDF or project file exceeds 32 MiB.'});
 Object.assign(S.ja.uiLab,{fontSizeEstimate:'現在{glyphs}文字: 最低{pages}ページ · RGBAセル約{mib} MiB（実際のアトラスは別途確認）。KSハングル{ks}/{ksTotal}文字を収録。全{all}音節は自動生成しません。',fontImportTooLarge:'BDFまたはプロジェクトのファイルが32 MiBを超えています。'});
+Object.assign(S.ko.uiLab,{fontAddGlyph:'추가할 글자 또는 코드 포인트',fontAdd:'글자 추가',fontAddError:'글자 하나 또는 U+3042처럼 코드 포인트 하나를 입력하세요.',fontLineHeightError:'어센더와 디센더의 합은 1픽셀 이상이어야 합니다.',fontTool:{pencil:'연필',fill:'영역 채우기',rectangle:'사각형 채우기'}});
+Object.assign(S.en.uiLab,{fontAddGlyph:'Character or code point to add',fontAdd:'Add glyph',fontAddError:'Enter one character or a code point such as U+3042.',fontLineHeightError:'Ascender plus descender must be at least 1 pixel.',fontTool:{pencil:'Pencil',fill:'Flood fill',rectangle:'Filled rectangle'}});
+Object.assign(S.ja.uiLab,{fontAddGlyph:'追加する文字またはコードポイント',fontAdd:'文字を追加',fontAddError:'1文字またはU+3042のようなコードポイントを入力してください。',fontLineHeightError:'アセンダーとディセンダーの合計は1ピクセル以上必要です。',fontTool:{pencil:'鉛筆',fill:'領域の塗りつぶし',rectangle:'塗りつぶし矩形'}});
+S.ko.uiLab.fontEditHelp='화살표로 셀 이동, Space로 칠하기, Ctrl+Z로 되돌리기. 사각형 도구는 Space 두 번으로 시작·완료합니다. 마우스나 손가락으로도 그릴 수 있습니다.';
+S.en.uiLab.fontEditHelp='Arrow keys move the cell, Space paints, Ctrl+Z undoes. With the rectangle tool, press Space twice for its corners. Mouse and touch also work.';
+S.ja.uiLab.fontEditHelp='矢印キーでセル移動、Spaceで描画、Ctrl+Zで元に戻します。矩形ツールではSpaceを2回押して両角を指定します。マウスとタッチにも対応します。';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

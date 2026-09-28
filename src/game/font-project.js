@@ -46,6 +46,34 @@ export function setGlyphPixel(project,codepoint,x,y,ink){
  validInt(x,0,g.w-1,'pixel x');validInt(y,0,g.h-1,'pixel y');
  g.pixels[y*g.w+x]=ink?1:0;return project;
 }
+export function addGlyph(project,codepoint,{w=8,h=8,xAdvance=w}={}){
+ validInt(codepoint,0,0x10ffff,'code point');
+ if(codepoint>=0xd800&&codepoint<=0xdfff)throw Error('A surrogate is not a Unicode character');
+ if(project.glyphs.length>=1024)throw Error('Editable glyph limit is 1,024; large sets require a separately verified export');
+ if(project.glyphs.some(g=>g.codepoint===codepoint))throw Error('Character already exists in this project');
+ project.glyphs.push(glyph(codepoint,w,h,0,0,xAdvance));return project;
+}
+export function fillGlyph(project,codepoint,x,y,ink){
+ const g=project.glyphs.find(item=>item.codepoint===codepoint);if(!g)throw Error('Glyph not in project');
+ validInt(x,0,g.w-1,'pixel x');validInt(y,0,g.h-1,'pixel y');
+ const next=ink?1:0,old=g.pixels[y*g.w+x];if(old===next)return project;
+ const seen=new Uint8Array(g.w*g.h),queue=[y*g.w+x];seen[queue[0]]=1;
+ for(let head=0;head<queue.length;head++){
+  const at=queue[head],cx=at%g.w,cy=Math.floor(at/g.w);
+  if(g.pixels[at]!==old)continue;g.pixels[at]=next;
+  for(const [nx,ny] of [[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]])if(nx>=0&&nx<g.w&&ny>=0&&ny<g.h){
+   const ni=ny*g.w+nx;if(!seen[ni]){seen[ni]=1;queue.push(ni);}
+  }
+ }
+ return project;
+}
+export function rectangleGlyph(project,codepoint,x0,y0,x1,y1,ink){
+ const g=project.glyphs.find(item=>item.codepoint===codepoint);if(!g)throw Error('Glyph not in project');
+ for(const [value,limit,label] of [[x0,g.w-1,'x0'],[x1,g.w-1,'x1'],[y0,g.h-1,'y0'],[y1,g.h-1,'y1']])validInt(value,0,limit,label);
+ for(let y=Math.min(y0,y1);y<=Math.max(y0,y1);y++)for(let x=Math.min(x0,x1);x<=Math.max(x0,x1);x++)
+  g.pixels[y*g.w+x]=ink?1:0;
+ return project;
+}
 export function setKerning(project,first,second,amount){
  validInt(amount,-32768,32767,'kerning amount');
  const keys=new Set(project.glyphs.map(g=>g.codepoint));if(!keys.has(first)||!keys.has(second))throw Error('Kerning characters must be in this font');
