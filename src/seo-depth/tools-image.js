@@ -2223,4 +2223,386 @@ export default {
    versions:{body:['動作はこのリポジトリの版の `src/app.js`（ツールバー、切り抜きプリセット、比率固定のサイズ変更、書き出しとZIP）と共通のエンコーダー `src/compression.js` から取っています。外部のプログラムは関わらないため、外部の文書は引用していません。'],sources:[]}
   }
  },
+ 'image/resize':{
+  type:'tool',
+  intent:{primary:'resize an image to exact pixel dimensions or a percentage',secondary:['keep aspect ratio','fit versus fill versus stretch','resize without making it bigger'],
+   goal:'an image at the exact width and height needed, without distortion or unexpected enlargement',input:'PNG, JPG, WebP, AVIF, BMP, HEIC (still, several at once)',output:'`<name>-<w>x<h>.<ext>` in the original format (PNG/JPG/WebP) or a chosen one',target:'forms, web pages, thumbnails',support:'full',
+   evidence:['src/task/resize.js (target(), fit modes, noEnlarge)','src/image.js fitQuality','src/resample.js (Pica 10.0.3, mks2013)'],
+   external:[]},
+  en:{
+   answer:'Resizing changes how many pixels an image has. Enter a percentage, or a width and/or height in pixels: one side alone keeps the proportions (a 4032 × 3024 photo at width 1080 becomes 1080 × 810); both sides use a fit mode — fit inside, fill and crop the overflow, or stretch. By default Nerulio never makes an image larger than the original when you size by one side or stretch, keeps PNG, JPG and WebP in their format, and resamples with Pica\'s mks2013 filter. Platform presets (Instagram, YouTube, X, LinkedIn, Discord) are one click away under Advanced.',
+   concept:{title:'Percent, one side, or both sides',body:[
+    'By percent scales both sides by the same factor and rounds: 50 % of 4032 × 3024 is 2016 × 1512. By pixels with one side empty keeps the ratio: height = round(3024 × 1080 ÷ 4032) = 810. With both sides filled the picture usually has a different ratio from the box, so a fit mode decides what happens to the difference.',
+    'Fit inside (contain, the default) scales the whole picture into the box and centres it; the leftover strips are transparent in PNG/WebP, or filled with the margin colour, and white in JPG. Fill and crop (cover) scales until the box is full and cuts the overflow from both sides equally. Stretch ignores the ratio and distorts. "Never make images larger than the original" is on by default, but it only applies to percent, one-side and stretch sizing — fit and fill can enlarge a small image to reach the box.'],
+    terms:[['Contain (fit inside)','Whole picture visible; margins where the ratios differ.'],['Cover (fill and crop)','Box completely filled; the centred overflow is cut off.'],['mks2013','Magic Kernel Sharp 2013, the Pica resampling filter used for every resize here.']]},
+   example:{title:'One 4032 × 3024 photo, five ways (computed from the code)',lead:'Source size is an example 12-megapixel photo; the results follow `target()` and `fitQuality()` in the resize task.',lines:[
+    '50 %                      -> 2016 x 1512',
+    'width 1080 only           -> 1080 x 810     (3024 x 1080 / 4032 = 810)',
+    '1080 x 1080, contain      -> picture 1080 x 810, centred, 135 px margin top and bottom',
+    '1080 x 1080, cover        -> centre 3024 x 3024 cut out, scaled to 1080 x 1080',
+    '1080 x 1080, stretch      -> 1080 x 1080, faces squashed by 25 %',
+    '',
+    'width 1200 on an 800 x 600 image, "never larger" on -> stays 800 x 600'],
+    after:'Files are named after the result, e.g. `photo-1080x810.jpg`. Several files dropped together are resized with the same settings and can be saved as one ZIP.'},
+   verify:{steps:[
+    'The result list shows each file\'s new pixel size ("4032×3024 → 1080×810"); check it against what the destination asks for.',
+    'With contain, look at the margins: transparent in PNG, white (or your margin colour) in JPG.',
+    'With cover, check that nothing important was cut at the sides or the top and bottom.']},
+   trouble:{rows:[
+    ['The height changed although I typed only a width','One side alone keeps the original ratio','The result is e.g. 1080 × 810','Type both sides and pick a fit mode'],
+    ['The image did not get bigger','"Never make images larger" limits percent, one-side and stretch sizing','The source is smaller than the requested size','Untick it under Advanced; enlarging adds no detail'],
+    ['White or transparent bars appeared','Contain keeps the whole picture inside a box of another ratio','Result has margins','Choose cover to fill the box, or pick a margin colour'],
+    ['Heads are cut off','Cover crops from the centre','Compare with the source','Frame it first with [[image/crop|crop]], then resize']]},
+   alternatives:{rows:[
+    ['[[image/crop|Crop]]','You need to choose which part stays (not always the centre) or rotate and straighten.'],
+    ['[[image/compress|Compress]] with a Max width','The goal is a smaller file; it resizes and compresses in one step.'],
+    ['[[game/pixel-art-upscaler|Pixel art upscaler]]','Pixel art must be enlarged with hard edges (whole-number nearest-neighbour), not smoothed.']]},
+   limits:['Resampling is always smooth (mks2013); pixel art should use a nearest-neighbour tool instead.','JPG and WebP output use a fixed quality of 0.92; EXIF is not written.'],
+   versions:{body:['Behaviour from `src/task/resize.js`, `fitQuality()` in `src/image.js` and `src/resample.js` (Pica 10.0.3 with the mks2013 filter) in this repository version; the arithmetic above follows that code.'],sources:[]}
+  },
+  ko:{
+   answer:'크기 변경은 이미지의 픽셀 수를 바꾸는 작업입니다. 비율(%)이나 너비·높이 픽셀을 입력하세요. 한쪽만 입력하면 비율이 유지되고(4032 × 3024 사진에 너비 1080이면 1080 × 810), 양쪽을 모두 입력하면 맞춤 방식이 적용됩니다. 전체가 보이게 맞춤, 꽉 채우고 넘치는 부분 자르기, 늘리기 중 하나입니다. Nerulio는 기본적으로 한쪽 크기 지정이나 늘리기에서 원본보다 크게 만들지 않고, PNG·JPG·WebP는 원래 형식을 유지하며, Pica의 mks2013 필터로 다시 샘플링합니다. 인스타그램·유튜브·X·링크드인·디스코드 프리셋은 고급 설정에 있습니다.',
+   concept:{title:'비율, 한쪽, 또는 양쪽',body:[
+    '비율로 바꾸면 두 변에 같은 배율을 곱하고 반올림합니다. 4032 × 3024의 50%는 2016 × 1512입니다. 픽셀로 바꾸면서 한쪽을 비우면 비율이 유지됩니다. 높이 = round(3024 × 1080 ÷ 4032) = 810입니다. 양쪽을 모두 채우면 그림과 상자의 비율이 대개 달라서, 맞춤 방식이 그 차이를 어떻게 처리할지 정합니다.',
+    '전체가 보이게 맞춤(contain, 기본값)은 그림 전체를 상자 안에 넣고 가운데에 둡니다. 남는 띠는 PNG·WebP에서는 투명하거나 여백 색으로 채워지고, JPG에서는 흰색입니다. 꽉 채우고 넘치는 부분 자르기(cover)는 상자가 가득 찰 때까지 키운 뒤 넘친 부분을 양쪽에서 똑같이 잘라냅니다. 늘리기는 비율을 무시해 왜곡됩니다. "원본보다 크게 만들지 않기"는 기본으로 켜져 있지만 비율·한쪽·늘리기에만 적용되며, 맞춤과 채우기는 상자에 맞추려고 작은 이미지를 키울 수 있습니다.'],
+    terms:[['Contain(전체가 보이게 맞춤)','그림 전체가 보이며 비율이 다르면 여백이 생깁니다.'],['Cover(채우고 자르기)','상자를 가득 채우고 가운데 기준으로 넘친 부분을 잘라냅니다.'],['mks2013','Magic Kernel Sharp 2013. 여기서 모든 크기 변경에 쓰는 Pica 리샘플링 필터.']]},
+   example:{title:'4032 × 3024 사진 한 장, 다섯 가지 방법(코드로 계산)',lead:'원본 크기는 1,200만 화소 사진의 예이며, 결과는 크기 변경 작업의 `target()`과 `fitQuality()`를 따릅니다.',lines:[
+    '50 %                      -> 2016 x 1512',
+    '너비 1080만               -> 1080 x 810     (3024 x 1080 / 4032 = 810)',
+    '1080 x 1080, contain      -> 그림 1080 x 810, 가운데, 위아래 여백 135 px',
+    '1080 x 1080, cover        -> 가운데 3024 x 3024를 잘라 1080 x 1080으로',
+    '1080 x 1080, 늘리기       -> 1080 x 1080, 얼굴이 25 % 눌림',
+    '',
+    '800 x 600 이미지에 너비 1200, "크게 만들지 않기" 켬 -> 800 x 600 그대로'],
+    after:'파일 이름은 결과 크기를 따릅니다. 예: `photo-1080x810.jpg`. 여러 파일을 한꺼번에 놓으면 같은 설정으로 바뀌고 ZIP 하나로 저장할 수 있습니다.'},
+   verify:{steps:[
+    '결과 목록에 파일마다 새 픽셀 크기("4032×3024 → 1080×810")가 나옵니다. 받는 곳이 요구하는 크기와 비교하세요.',
+    'contain이라면 여백을 보세요. PNG에서는 투명, JPG에서는 흰색(또는 지정한 여백 색)입니다.',
+    'cover라면 양옆이나 위아래에서 중요한 부분이 잘리지 않았는지 확인하세요.']},
+   trouble:{rows:[
+    ['너비만 입력했는데 높이도 바뀜','한쪽만 입력하면 원래 비율을 유지합니다','결과가 예: 1080 × 810','양쪽을 입력하고 맞춤 방식을 고르세요'],
+    ['이미지가 커지지 않음','"원본보다 크게 만들지 않기"가 비율·한쪽·늘리기를 제한합니다','원본이 요청 크기보다 작음','고급에서 해제하세요. 확대해도 디테일은 늘지 않습니다'],
+    ['흰색이나 투명한 띠가 생김','contain은 다른 비율의 상자 안에 그림 전체를 넣습니다','결과에 여백이 있음','상자를 채우려면 cover를 고르거나 여백 색을 정하세요'],
+    ['머리가 잘림','cover는 가운데 기준으로 자릅니다','원본과 비교','먼저 [[image/crop|자르기]]로 구도를 잡은 뒤 크기를 바꾸세요']]},
+   alternatives:{rows:[
+    ['[[image/crop|자르기]]','가운데가 아닌 부분을 남기거나 회전·수평 맞추기가 필요할 때.'],
+    ['최대 너비를 지정해 [[image/compress|압축]]','목적이 작은 파일일 때. 크기 변경과 압축을 한 번에 합니다.'],
+    ['[[game/pixel-art-upscaler|도트 그림 확대]]','도트 그림을 부드럽게가 아니라 정수배 최근접 방식으로 선명하게 키워야 할 때.']]},
+   limits:['리샘플링은 항상 부드러운 방식(mks2013)입니다. 도트 그림은 최근접 방식 도구를 쓰세요.','JPG·WebP 출력은 화질 0.92로 고정이며 EXIF는 기록하지 않습니다.'],
+   versions:{body:['동작은 이 저장소 버전의 `src/task/resize.js`, `src/image.js`의 `fitQuality()`, `src/resample.js`(Pica 10.0.3, mks2013 필터)에서 가져왔고, 위 계산은 그 코드를 따릅니다.'],sources:[]}
+  },
+  ja:{
+   answer:'サイズ変更は画像のピクセル数を変える処理です。割合（%）か、幅・高さのピクセルを入力します。片方だけなら比率が保たれ（4032 × 3024の写真で幅1080なら1080 × 810）、両方入れると合わせ方が適用されます。全体が見えるように収める、埋めてはみ出しを切り取る、伸ばす、の3つです。Nerulioは初期設定で、片方指定や伸ばすときに元より大きくせず、PNG・JPG・WebPは元の形式を保ち、Picaのmks2013フィルターでリサンプリングします。Instagram・YouTube・X・LinkedIn・Discordのプリセットは詳細設定にあります。',
+   concept:{title:'割合、片方、または両方',body:[
+    '割合では両辺に同じ倍率を掛けて丸めます。4032 × 3024の50%は2016 × 1512です。ピクセル指定で片方を空けると比率が保たれ、高さ = round(3024 × 1080 ÷ 4032) = 810になります。両方を入れると、画像と枠の比率はたいてい違うので、その差をどう扱うかを合わせ方で決めます。',
+    '全体が見えるように収める（contain、初期値）は画像全体を枠に入れて中央に置きます。余る帯はPNG・WebPでは透明か余白の色、JPGでは白になります。埋めてはみ出しを切り取る（cover）は枠が埋まるまで拡大し、はみ出した分を両側から均等に切り取ります。伸ばすは比率を無視してゆがめます。「元より大きくしない」は初期設定でオンですが、割合・片方・伸ばすにだけ効き、収める・埋めるでは枠に合わせるために小さな画像を拡大することがあります。'],
+    terms:[['Contain（収める）','画像全体が見え、比率が違えば余白ができます。'],['Cover（埋めて切り取る）','枠を完全に埋め、中央基準ではみ出した部分を切り取ります。'],['mks2013','Magic Kernel Sharp 2013。ここでのすべてのサイズ変更に使うPicaのリサンプリングフィルター。']]},
+   example:{title:'4032 × 3024の写真1枚を5通りに（コードから計算）',lead:'元のサイズは1,200万画素の写真の例で、結果はサイズ変更タスクの `target()` と `fitQuality()` に従います。',lines:[
+    '50 %                      -> 2016 x 1512',
+    '幅1080のみ                -> 1080 x 810     （3024 x 1080 / 4032 = 810）',
+    '1080 x 1080、contain      -> 画像 1080 x 810、中央、上下に135 pxの余白',
+    '1080 x 1080、cover        -> 中央の3024 x 3024を切り出し 1080 x 1080に',
+    '1080 x 1080、伸ばす       -> 1080 x 1080、顔が25 %つぶれる',
+    '',
+    '800 x 600の画像に幅1200、「元より大きくしない」オン -> 800 x 600のまま'],
+    after:'ファイル名は結果のサイズになります。例：`photo-1080x810.jpg`。複数のファイルをまとめて入れると同じ設定で変換され、ZIP 1つで保存できます。'},
+   verify:{steps:[
+    '結果一覧にファイルごとの新しいピクセルサイズ（「4032×3024 → 1080×810」）が出ます。提出先の求めるサイズと比べます。',
+    'containなら余白を見ます。PNGでは透明、JPGでは白（または指定した余白の色）です。',
+    'coverなら、左右や上下で大事な部分が切れていないか確認します。']},
+   trouble:{rows:[
+    ['幅だけ入れたのに高さも変わった','片方だけだと元の比率を保つ','結果が例：1080 × 810','両方を入力し、合わせ方を選びます'],
+    ['画像が大きくならない','「元より大きくしない」が割合・片方・伸ばすを制限している','元画像が指定サイズより小さい','詳細設定で外します。拡大しても細部は増えません'],
+    ['白や透明の帯が出た','containは比率の違う枠に画像全体を収める','結果に余白がある','枠を埋めるならcoverを選ぶか、余白の色を指定します'],
+    ['頭が切れた','coverは中央基準で切り取る','元画像と比べる','先に[[image/crop|切り抜き]]で構図を決めてからサイズを変えます']]},
+   alternatives:{rows:[
+    ['[[image/crop|切り抜き]]','中央以外の部分を残したい、回転や水平調整もしたい場合。'],
+    ['最大幅を指定して[[image/compress|圧縮]]','目的が小さなファイルの場合。サイズ変更と圧縮を一度に行います。'],
+    ['[[game/pixel-art-upscaler|ドット絵の拡大]]','ドット絵をなめらかにではなく、整数倍のニアレストネイバーでくっきり拡大したい場合。']]},
+   limits:['リサンプリングは常になめらかな方式（mks2013）です。ドット絵にはニアレストネイバーのツールを使います。','JPG・WebPの出力は画質0.92固定で、EXIFは書き込みません。'],
+   versions:{body:['動作はこのリポジトリの版の `src/task/resize.js`、`src/image.js` の `fitQuality()`、`src/resample.js`（Pica 10.0.3、mks2013フィルター）から取り、上の計算はそのコードに従っています。'],sources:[]}
+  }
+ },
+ 'image/resize/instagram-post':{
+  type:'tool',
+  intent:{primary:'resize a photo for an Instagram square post (1080 × 1080)',secondary:['Instagram post size','square crop from a landscape photo','why Instagram crops my photo'],
+   goal:'a 1080 × 1080 image Instagram keeps at full width without cropping it again',input:'any still photo or graphic',output:'1080 × 1080 image (`<name>-1080x1080.<ext>`), centre-cropped by default',target:'Instagram feed post',support:'full',
+   evidence:['src/landings.js SOCIAL instagram-post','src/task/resize.js (fit=cover)','src/image.js fitQuality'],
+   external:['Instagram Help Center 1631821640426723, checked 2026-09-28']},
+  en:{
+   answer:'This preset makes a 1080 × 1080 square. Instagram\'s Help Center (checked 2026-09-28) says photos are shared up to 1080 px wide and kept at their resolution when the ratio is between 1.91:1 and 3:4; 1:1 is inside that range, so a 1080-px square is not resized or cropped again. Nerulio fills the square by cutting the centre out of your photo — from a 4032 × 3024 landscape that is the middle 3024 × 3024, a quarter of the width lost — or, with Fit inside, keeps the whole photo with margins.',
+   concept:{title:'What Instagram does with a square, and what the preset does',body:[
+    'According to Instagram\'s help page, a photo narrower than 320 px is enlarged to 320, a wider one than 1080 is reduced to 1080, and a ratio outside 1.91:1–3:4 is cropped to a supported one. The page recommends uploading at least 1080 px wide. It does not name 1080 × 1080 as a required size; the square is simply one ratio Instagram keeps untouched.',
+    'The preset uses cover: the largest centred square is cut from the photo and scaled to 1080. From a landscape 4:3 photo, 504 px are removed on each side; from a portrait 3:4 photo, 504 px at the top and bottom. Fit inside keeps everything and adds bars instead. A source smaller than 1080 px is enlarged — Instagram would do the same, and neither adds detail.'],
+    terms:[['1:1','Square; width equals height.'],['Cover (preset default)','Fills the square and cuts the centred overflow.'],['Supported ratio range','1.91:1 (wide) to 3:4 (tall) on Instagram\'s help page.']]},
+   example:{title:'Square crops from two phone photos (computed from the code)',lead:'Example sources of 12 megapixels; the numbers follow the resize task\'s cover calculation.',lines:[
+    'Landscape 4032 x 3024 -> crop x 504..3528, full height = 3024 x 3024',
+    '                         scaled x 0.357 -> 1080 x 1080   (75 % of the photo kept)',
+    'Portrait  3024 x 4032 -> crop y 504..3528, full width  = 3024 x 3024',
+    '                         scaled x 0.357 -> 1080 x 1080   (75 % kept)',
+    '',
+    'Fit inside instead (landscape): picture 1080 x 810, bars 135 px top and bottom'],
+    after:'If the subject is not in the middle, pick the square yourself with [[image/crop|crop]] (1:1 preset), then resize.'},
+   verify:{steps:[
+    'The result list shows `1080×1080`; the file name ends in `-1080x1080`.',
+    'Check the edges of the square: anything important near the left and right of a landscape photo is gone.',
+    'In Instagram\'s post preview the square should appear without a further crop.']},
+   trouble:{rows:[
+    ['The subject is cut in half','Cover takes the centre; the subject was off-centre','Compare the square with the original','Crop the square yourself with [[image/crop|crop]], then resize'],
+    ['White bars in the post','Fit inside was chosen and the output is JPG','Output shows margins','Use the default fill, or pick a margin colour that suits the post'],
+    ['The post looks soft','The source was smaller than 1080 px and was enlarged','Source size in the result line','Use a larger original; enlarging adds no detail'],
+    ['I wanted the photo taller than square','A square is the shortest portrait ratio','—','Use [[image/resize/instagram-portrait|the portrait preset]] instead']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|Instagram portrait]]','Portrait photos: a 4:5 or 3:4 post shows more of the picture than a square.'],
+    ['Instagram\'s own crop when posting','You are posting from the phone and do not need a file: the app crops to a supported ratio itself.']]},
+   limits:['The crop is always centred; there is no subject detection.','Instagram\'s own processing after upload (compression, feed display) is outside Nerulio\'s control.'],
+   versions:{body:['Instagram\'s behaviour is quoted from its Help Center page on photo resolution, read on 2026-09-28. The crop arithmetic follows `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[Instagram Help Center: Image resolution of photos you share on Instagram](https://help.instagram.com/1631821640426723)']}
+  },
+  ko:{
+   answer:'이 프리셋은 1080 × 1080 정사각형을 만듭니다. 인스타그램 고객센터(2026-09-28 확인)에 따르면 사진은 최대 너비 1080px로 공유되고, 비율이 1.91:1에서 3:4 사이면 해상도가 유지됩니다. 1:1은 그 범위 안이므로 1080px 정사각형은 다시 줄거나 잘리지 않습니다. Nerulio는 사진 가운데를 잘라 정사각형을 채웁니다. 4032 × 3024 가로 사진이라면 가운데 3024 × 3024를 남기고 너비의 4분의 1을 버립니다. 전체가 보이게 맞춤을 고르면 사진 전체를 남기고 여백을 넣습니다.',
+   concept:{title:'인스타그램이 정사각형을 다루는 방식과 프리셋의 동작',body:[
+    '인스타그램 도움말에 따르면 너비 320px보다 좁은 사진은 320으로 키우고, 1080보다 넓은 사진은 1080으로 줄이며, 1.91:1~3:4 밖의 비율은 지원되는 비율로 자릅니다. 너비 1080px 이상으로 올리라고 권하지만 1080 × 1080을 필수 크기로 적어 두지는 않았습니다. 정사각형은 인스타그램이 손대지 않는 비율 중 하나일 뿐입니다.',
+    '프리셋은 cover를 씁니다. 사진에서 가장 큰 가운데 정사각형을 잘라 1080으로 맞춥니다. 4:3 가로 사진이면 양옆에서 504px씩, 3:4 세로 사진이면 위아래에서 504px씩 잘립니다. 전체가 보이게 맞춤은 모두 남기고 대신 띠를 넣습니다. 1080px보다 작은 원본은 커지는데, 인스타그램도 마찬가지이며 어느 쪽도 디테일을 더하지는 않습니다.'],
+    terms:[['1:1','정사각형. 너비와 높이가 같습니다.'],['Cover(프리셋 기본값)','정사각형을 채우고 가운데 기준으로 넘친 부분을 자릅니다.'],['지원 비율 범위','인스타그램 도움말 기준 1.91:1(가로로 긴)부터 3:4(세로로 긴)까지.']]},
+   example:{title:'휴대폰 사진 두 장에서 정사각형 자르기(코드로 계산)',lead:'1,200만 화소 원본을 예로 들었고, 숫자는 크기 변경 작업의 cover 계산을 따릅니다.',lines:[
+    '가로 4032 x 3024 -> x 504..3528 자르기, 높이 전체 = 3024 x 3024',
+    '                    x 0.357 배율 -> 1080 x 1080   (사진의 75 % 유지)',
+    '세로 3024 x 4032 -> y 504..3528 자르기, 너비 전체 = 3024 x 3024',
+    '                    x 0.357 배율 -> 1080 x 1080   (75 % 유지)',
+    '',
+    '대신 전체가 보이게 맞춤(가로): 그림 1080 x 810, 위아래 띠 135 px'],
+    after:'피사체가 가운데에 없다면 [[image/crop|자르기]](1:1 프리셋)로 정사각형을 직접 고른 뒤 크기를 바꾸세요.'},
+   verify:{steps:[
+    '결과 목록에 `1080×1080`이 나오고 파일 이름이 `-1080x1080`으로 끝납니다.',
+    '정사각형 가장자리를 확인하세요. 가로 사진의 양옆 가까이에 있던 중요한 것은 사라졌습니다.',
+    '인스타그램 게시물 미리보기에서 추가로 잘리지 않고 정사각형 그대로 보여야 합니다.']},
+   trouble:{rows:[
+    ['피사체가 반으로 잘림','cover는 가운데를 취하는데 피사체가 한쪽에 있었습니다','정사각형과 원본 비교','[[image/crop|자르기]]로 정사각형을 직접 고른 뒤 크기를 바꾸세요'],
+    ['게시물에 흰 띠가 생김','전체가 보이게 맞춤을 골랐고 출력이 JPG입니다','결과에 여백이 있음','기본값인 채우기를 쓰거나 게시물에 어울리는 여백 색을 고르세요'],
+    ['게시물이 흐릿함','원본이 1080px보다 작아 확대됐습니다','결과 줄의 원본 크기','더 큰 원본을 쓰세요. 확대는 디테일을 더하지 않습니다'],
+    ['정사각형보다 세로로 긴 사진을 원함','정사각형은 세로 비율 중 가장 짧은 것입니다','—','[[image/resize/instagram-portrait|세로 게시물 프리셋]]을 쓰세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|인스타그램 세로 게시물]]','세로 사진. 4:5나 3:4 게시물이 정사각형보다 사진을 더 많이 보여 줍니다.'],
+    ['게시할 때 인스타그램의 자체 자르기','휴대폰에서 바로 올리고 파일이 필요 없을 때. 앱이 지원 비율로 직접 자릅니다.']]},
+   limits:['자르기는 항상 가운데 기준이며 피사체 인식은 없습니다.','업로드 후 인스타그램의 처리(압축, 피드 표시)는 Nerulio가 제어할 수 없습니다.'],
+   versions:{body:['인스타그램의 동작은 2026-09-28에 읽은 사진 해상도 도움말 페이지를 인용했습니다. 자르기 계산은 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[Instagram 고객센터: 사진 해상도](https://help.instagram.com/1631821640426723)']}
+  },
+  ja:{
+   answer:'このプリセットは1080 × 1080の正方形を作ります。Instagramヘルプセンター（2026-09-28確認）によると、写真は最大幅1080pxで共有され、比率が1.91:1から3:4の間なら解像度が保たれます。1:1はその範囲内なので、1080pxの正方形は縮小も再トリミングもされません。Nerulioは写真の中央を切り出して正方形を埋めます。4032 × 3024の横長写真なら中央の3024 × 3024を残し、幅の4分の1を捨てます。全体が見えるように収めるを選べば、写真全体を残して余白を入れます。',
+   concept:{title:'Instagramが正方形をどう扱うか、プリセットが何をするか',body:[
+    'Instagramのヘルプによれば、幅320px未満の写真は320に拡大、1080を超える写真は1080に縮小され、1.91:1〜3:4の範囲外の比率は対応する比率にトリミングされます。幅1080px以上でのアップロードを勧めていますが、1080 × 1080を必須サイズとしては挙げていません。正方形はInstagramが手を加えない比率の1つというだけです。',
+    'プリセットはcoverを使い、写真から最大の中央の正方形を切り出して1080に合わせます。4:3の横長写真なら左右から504pxずつ、3:4の縦長写真なら上下から504pxずつ切られます。全体が見えるように収めるならすべてを残し、代わりに帯を入れます。1080pxより小さい元画像は拡大されますが、Instagramでも同じで、どちらも細部は増えません。'],
+    terms:[['1:1','正方形。幅と高さが同じ。'],['Cover（プリセットの初期値）','正方形を埋め、中央基準ではみ出た部分を切り取ります。'],['対応する比率の範囲','Instagramのヘルプでは1.91:1（横長）から3:4（縦長）まで。']]},
+   example:{title:'スマホ写真2枚から正方形を切り出す（コードから計算）',lead:'1,200万画素の元画像を例にし、数値はサイズ変更タスクのcoverの計算に従います。',lines:[
+    '横長 4032 x 3024 -> x 504..3528を切り出し、高さ全体 = 3024 x 3024',
+    '                    x 0.357倍 -> 1080 x 1080   （写真の75 %を残す）',
+    '縦長 3024 x 4032 -> y 504..3528を切り出し、幅全体 = 3024 x 3024',
+    '                    x 0.357倍 -> 1080 x 1080   （75 %を残す）',
+    '',
+    '代わりに収める（横長）: 画像 1080 x 810、上下に135 pxの帯'],
+    after:'被写体が中央にないなら、[[image/crop|切り抜き]]（1:1のプリセット）で正方形を自分で選んでからサイズを変えます。'},
+   verify:{steps:[
+    '結果一覧に `1080×1080` と出て、ファイル名が `-1080x1080` で終わります。',
+    '正方形の端を確認します。横長写真の左右の端近くにあった大事なものはなくなっています。',
+    'Instagramの投稿プレビューで、それ以上切られずに正方形のまま表示されるはずです。']},
+   trouble:{rows:[
+    ['被写体が半分に切れた','coverは中央を取るが、被写体が片側にあった','正方形と元画像を比べる','[[image/crop|切り抜き]]で正方形を自分で選んでからサイズを変えます'],
+    ['投稿に白い帯が出る','全体が見えるように収めるを選び、出力がJPG','結果に余白がある','初期値の埋めるを使うか、投稿に合う余白の色を選びます'],
+    ['投稿がぼやける','元画像が1080pxより小さく拡大された','結果の行の元のサイズ','もっと大きな元画像を使います。拡大しても細部は増えません'],
+    ['正方形より縦長にしたい','正方形は縦の比率の中で最も短い','—','[[image/resize/instagram-portrait|縦長投稿のプリセット]]を使います']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|Instagram縦長投稿]]','縦長の写真。4:5や3:4の投稿は正方形より写真を多く見せます。'],
+    ['投稿時のInstagram自体のトリミング','スマホから直接投稿し、ファイルが不要な場合。アプリが対応比率に自分で切り取ります。']]},
+   limits:['切り抜きは常に中央基準で、被写体の認識はありません。','アップロード後のInstagram側の処理（圧縮、フィードでの表示）はNerulioでは制御できません。'],
+   versions:{body:['Instagramの動作は、2026-09-28に読んだ写真の解像度についてのヘルプページから引用しています。切り抜きの計算は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[Instagram ヘルプセンター: 写真の解像度](https://help.instagram.com/1631821640426723)']}
+  }
+ },
+ 'image/resize/instagram-portrait':{
+  type:'tool',
+  intent:{primary:'resize a photo for an Instagram portrait post (1080 × 1350, 4:5)',secondary:['Instagram portrait size','4:5 or 3:4 for Instagram','tallest Instagram post'],
+   goal:'a portrait image Instagram keeps at 1080 px wide without cropping it',input:'any still photo, usually portrait',output:'1080 × 1350 (4:5) by default; 1080 × 1440 (3:4) if typed',target:'Instagram feed post',support:'full',
+   evidence:['src/landings.js SOCIAL instagram-portrait (1080×1350)','src/task/resize.js (fit=cover)'],
+   external:['Instagram Help Center 1631821640426723 (ratio 1.91:1–3:4, height 566–1440 at 1080 wide), checked 2026-09-28']},
+  en:{
+   answer:'This preset makes a 1080 × 1350 portrait (4:5). On 2026-09-28 Instagram\'s Help Center gave the supported range as 1.91:1 to 3:4 — at 1080 px wide, heights from 566 to 1440 — so 1350 is kept as it is. The page does not recommend 1350 in particular; the tallest ratio it lists is 3:4, which is 1080 × 1440: type 1440 in the height field for that. From a 3024 × 4032 phone portrait the preset keeps 94 % of the photo (126 px cut at top and bottom); a 3:4 output would keep all of it.',
+   concept:{title:'4:5 or 3:4 — both inside Instagram\'s range',body:[
+    'A phone held upright usually records 3:4 (3024 × 4032). Instagram\'s help page accepts portrait posts up to 3:4, so such a photo can be posted uncropped at 1080 × 1440. The 1080 × 1350 preset (4:5) is slightly shorter: cover trims the difference from the top and bottom equally.',
+    'A landscape photo in a portrait box loses a lot: from 4032 × 3024 only the central 2419 × 3024 survives, 60 % of the picture. For such photos, either choose a square or frame the portrait area yourself before resizing. Photos with a ratio outside Instagram\'s range are cropped by Instagram itself, which is exactly what the preset avoids.'],
+    terms:[['4:5','1080 × 1350; the preset.'],['3:4','1080 × 1440; the tallest ratio on Instagram\'s help page, and the usual phone portrait ratio.'],['Cover crop','Equal cut on both sides of the longer dimension.']]},
+   example:{title:'Phone photos into 1080 × 1350 and 1080 × 1440 (computed from the code)',lead:'Example 12-megapixel sources; cover arithmetic from the resize task.',lines:[
+    'Portrait 3024 x 4032 -> 1080 x 1350: crop 3024 x 3780 (126 px off top and bottom)',
+    '                        94 % kept, scaled x 0.357',
+    'Portrait 3024 x 4032 -> 1080 x 1440: whole photo, scaled x 0.357, nothing cut',
+    '',
+    'Landscape 4032 x 3024 -> 1080 x 1350: crop 2419 x 3024 (806 px off each side)',
+    '                         60 % kept, scaled x 0.446'],
+    after:'Instagram\'s page states the range as a ratio of the photo; a file of 1080 × 1440 is at the 3:4 limit, and anything taller would be cropped by Instagram.'},
+   verify:{steps:[
+    'The result list shows `1080×1350` (or `1080×1440` if you typed it).',
+    'Compare the top and bottom with the original: heads and feet near the edges are where the 4:5 crop bites.',
+    'In Instagram\'s preview the post should appear at full height without a further crop.']},
+   trouble:{rows:[
+    ['The top of the head is cut off','4:5 cover trims 126 px from the top of a 3:4 photo','Compare with the original','Type 1440 as height (3:4), or frame with [[image/crop|crop]] first'],
+    ['A landscape photo became a narrow strip','Cover keeps only the central 2419 × 3024','Result shows the middle only','Use [[image/resize/instagram-post|the square preset]] or fit inside with margins'],
+    ['Instagram still cropped the post','The file was taller than 3:4 (e.g. 9:16)','Check the result size','Keep the height at 1440 or less for 1080 px width'],
+    ['The post is soft','The source had fewer than 1080 px across and was enlarged','Source size in the result line','Use the original camera file']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-post|Instagram square]]','Landscape photos, or when a grid of squares matters more than height.'],
+    ['[[image/resize/instagram-story|Stories and Reels (9:16)]]','Full-screen vertical content rather than a feed post.']]},
+   limits:['The preset stays at 1350; switching to 1440 is a manual edit of the height field.','Instagram\'s help page gives ranges, not a fixed recommended portrait size; it can change after the date checked.'],
+   versions:{body:['Checked on Instagram\'s Help Center on 2026-09-28: widths 320–1080 are kept when the ratio is between 1.91:1 and 3:4 (height 566–1440 at 1080 wide). Crop numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[Instagram Help Center: Image resolution of photos you share on Instagram](https://help.instagram.com/1631821640426723)']}
+  },
+  ko:{
+   answer:'이 프리셋은 1080 × 1350 세로 이미지(4:5)를 만듭니다. 2026-09-28 인스타그램 고객센터는 지원 범위를 1.91:1부터 3:4까지로 안내했습니다. 너비 1080px에서 높이 566~1440이므로 1350은 그대로 유지됩니다. 다만 도움말이 1350을 특별히 권장하지는 않으며, 나열된 가장 세로로 긴 비율은 3:4, 즉 1080 × 1440입니다. 그 크기를 원하면 높이 칸에 1440을 입력하세요. 3024 × 4032 휴대폰 세로 사진에서 프리셋은 사진의 94%를 남기고(위아래 126px씩 자름), 3:4 출력이면 전부 남깁니다.',
+   concept:{title:'4:5와 3:4 — 둘 다 인스타그램 범위 안',body:[
+    '휴대폰을 세워 찍으면 보통 3:4(3024 × 4032)로 저장됩니다. 인스타그램 도움말은 세로 게시물을 3:4까지 받으므로 이런 사진은 1080 × 1440으로 자르지 않고 올릴 수 있습니다. 1080 × 1350 프리셋(4:5)은 조금 짧아서 cover가 그 차이를 위아래에서 똑같이 잘라냅니다.',
+    '가로 사진을 세로 상자에 넣으면 많이 잃습니다. 4032 × 3024에서는 가운데 2419 × 3024, 사진의 60%만 남습니다. 이런 사진은 정사각형을 고르거나 크기를 바꾸기 전에 세로 영역을 직접 잡으세요. 인스타그램 범위를 벗어난 비율은 인스타그램이 직접 자르는데, 프리셋은 바로 그것을 피하려는 것입니다.'],
+    terms:[['4:5','1080 × 1350. 프리셋 크기.'],['3:4','1080 × 1440. 인스타그램 도움말의 가장 세로로 긴 비율이자 휴대폰 세로 사진의 흔한 비율.'],['Cover 자르기','긴 쪽의 양 끝을 똑같이 잘라내는 방식.']]},
+   example:{title:'휴대폰 사진을 1080 × 1350과 1080 × 1440으로(코드로 계산)',lead:'1,200만 화소 원본을 예로 들었고, 크기 변경 작업의 cover 계산입니다.',lines:[
+    '세로 3024 x 4032 -> 1080 x 1350: 3024 x 3780 자르기 (위아래 126 px씩)',
+    '                    94 % 유지, x 0.357 배율',
+    '세로 3024 x 4032 -> 1080 x 1440: 사진 전체, x 0.357 배율, 잘림 없음',
+    '',
+    '가로 4032 x 3024 -> 1080 x 1350: 2419 x 3024 자르기 (양옆 806 px씩)',
+    '                    60 % 유지, x 0.446 배율'],
+    after:'인스타그램 도움말은 범위를 사진의 비율로 설명합니다. 1080 × 1440 파일은 3:4 한계에 딱 맞고, 그보다 세로로 길면 인스타그램이 자릅니다.'},
+   verify:{steps:[
+    '결과 목록에 `1080×1350`(또는 입력했다면 `1080×1440`)이 나옵니다.',
+    '위아래를 원본과 비교하세요. 가장자리에 가까운 머리와 발이 4:5 자르기의 영향을 받습니다.',
+    '인스타그램 미리보기에서 추가로 잘리지 않고 전체 높이로 보여야 합니다.']},
+   trouble:{rows:[
+    ['정수리가 잘림','4:5 cover가 3:4 사진의 위에서 126px을 잘랐습니다','원본과 비교','높이에 1440(3:4)을 입력하거나 먼저 [[image/crop|자르기]]로 구도를 잡으세요'],
+    ['가로 사진이 좁은 띠가 됨','cover가 가운데 2419 × 3024만 남겼습니다','결과에 가운데만 남음','[[image/resize/instagram-post|정사각형 프리셋]]을 쓰거나 여백을 두고 맞춤을 쓰세요'],
+    ['인스타그램이 그래도 잘랐음','파일이 3:4보다 세로로 길었습니다(예: 9:16)','결과 크기 확인','너비 1080px이면 높이를 1440 이하로 두세요'],
+    ['게시물이 흐릿함','원본 가로 픽셀이 1080보다 적어 확대됐습니다','결과 줄의 원본 크기','카메라 원본 파일을 쓰세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-post|인스타그램 정사각형]]','가로 사진이거나, 높이보다 정사각형 격자가 중요할 때.'],
+    ['[[image/resize/instagram-story|스토리·릴스(9:16)]]','피드 게시물이 아니라 전체 화면 세로 콘텐츠일 때.']]},
+   limits:['프리셋은 1350에 고정되어 있고 1440으로 바꾸려면 높이 칸을 직접 고쳐야 합니다.','인스타그램 도움말은 고정 권장 크기가 아니라 범위를 제시하며, 확인한 날짜 이후 바뀔 수 있습니다.'],
+   versions:{body:['2026-09-28 인스타그램 고객센터에서 확인: 비율이 1.91:1~3:4이면 너비 320~1080이 유지됩니다(너비 1080에서 높이 566~1440). 자르기 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[Instagram 고객센터: 사진 해상도](https://help.instagram.com/1631821640426723)']}
+  },
+  ja:{
+   answer:'このプリセットは1080 × 1350の縦長画像（4:5）を作ります。2026-09-28のInstagramヘルプセンターは対応範囲を1.91:1から3:4としており、幅1080pxで高さ566〜1440なので、1350はそのまま保たれます。ただしヘルプが1350を特に推奨しているわけではなく、挙げられている最も縦長の比率は3:4、つまり1080 × 1440です。その大きさにしたいなら高さの欄に1440と入力します。3024 × 4032のスマホの縦長写真なら、プリセットは写真の94%を残し（上下126pxずつ切る）、3:4の出力ならすべて残ります。',
+   concept:{title:'4:5と3:4 — どちらもInstagramの範囲内',body:[
+    'スマホを縦にして撮ると、ふつうは3:4（3024 × 4032）で保存されます。Instagramのヘルプは縦長投稿を3:4まで受け付けるので、こうした写真は1080 × 1440で切らずに投稿できます。1080 × 1350のプリセット（4:5）は少し短く、coverがその差を上下から均等に切り取ります。',
+    '横長写真を縦長の枠に入れると多くを失います。4032 × 3024からは中央の2419 × 3024、写真の60%しか残りません。こうした写真は正方形を選ぶか、サイズを変える前に縦長の範囲を自分で決めます。Instagramの範囲外の比率はInstagram自身が切り取り、プリセットはまさにそれを避けるためのものです。'],
+    terms:[['4:5','1080 × 1350。プリセットのサイズ。'],['3:4','1080 × 1440。Instagramのヘルプで最も縦長の比率で、スマホの縦長写真によくある比率。'],['Coverの切り抜き','長いほうの両端を均等に切る方式。']]},
+   example:{title:'スマホ写真を1080 × 1350と1080 × 1440に（コードから計算）',lead:'1,200万画素の元画像を例にした、サイズ変更タスクのcoverの計算です。',lines:[
+    '縦長 3024 x 4032 -> 1080 x 1350: 3024 x 3780を切り出し（上下126 pxずつ）',
+    '                    94 %を残す、x 0.357倍',
+    '縦長 3024 x 4032 -> 1080 x 1440: 写真全体、x 0.357倍、切り取りなし',
+    '',
+    '横長 4032 x 3024 -> 1080 x 1350: 2419 x 3024を切り出し（左右806 pxずつ）',
+    '                    60 %を残す、x 0.446倍'],
+    after:'Instagramのヘルプは範囲を写真の比率で説明しています。1080 × 1440のファイルは3:4の限界ちょうどで、それより縦長だとInstagramが切り取ります。'},
+   verify:{steps:[
+    '結果一覧に `1080×1350`（入力したなら `1080×1440`）と出ます。',
+    '上下を元画像と比べます。端に近い頭や足が4:5の切り抜きの影響を受けます。',
+    'Instagramのプレビューで、さらに切られずに全体の高さで表示されるはずです。']},
+   trouble:{rows:[
+    ['頭のてっぺんが切れた','4:5のcoverが3:4の写真の上から126pxを切った','元画像と比べる','高さに1440（3:4）を入れるか、先に[[image/crop|切り抜き]]で構図を決めます'],
+    ['横長写真が細い帯になった','coverが中央の2419 × 3024だけを残した','結果に中央だけが残る','[[image/resize/instagram-post|正方形のプリセット]]を使うか、余白付きで収めます'],
+    ['それでもInstagramに切られた','ファイルが3:4より縦長だった（例：9:16）','結果のサイズを確認','幅1080pxなら高さを1440以下にします'],
+    ['投稿がぼやける','元画像の横のピクセルが1080より少なく拡大された','結果の行の元のサイズ','カメラの元ファイルを使います']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-post|Instagram正方形]]','横長写真の場合や、高さより正方形のグリッドを重視する場合。'],
+    ['[[image/resize/instagram-story|ストーリーズ・リール（9:16）]]','フィード投稿ではなく全画面の縦長コンテンツの場合。']]},
+   limits:['プリセットは1350固定で、1440にするには高さの欄を手で直します。','Instagramのヘルプは固定の推奨サイズではなく範囲を示しており、確認した日以降に変わることがあります。'],
+   versions:{body:['2026-09-28にInstagramヘルプセンターで確認：比率が1.91:1〜3:4なら幅320〜1080が保たれます（幅1080で高さ566〜1440）。切り抜きの数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[Instagram ヘルプセンター: 写真の解像度](https://help.instagram.com/1631821640426723)']}
+  }
+ },
+ 'image/resize/instagram-story':{
+  type:'tool',
+  intent:{primary:'resize an image for Instagram Stories or Reels (1080 × 1920, 9:16)',secondary:['Instagram story size','9:16 from a landscape photo','Reels cover size'],
+   goal:'a full-screen 9:16 vertical image for a Story or Reel',input:'any still photo or graphic',output:'1080 × 1920 (9:16), centre-cropped by default',target:'Instagram Stories, Reels',support:'partial',
+   evidence:['src/landings.js SOCIAL instagram-story (1080×1920)','src/task/resize.js (fit=cover)'],
+   external:['Instagram Help Center 1038071743007909 (Reels: 1.91:1 to 9:16, min 720 px, cover 420×654), checked 2026-09-28; no Stories pixel size found']},
+  en:{
+   answer:'This preset makes a 1080 × 1920 vertical image, ratio 9:16. When we checked on 2026-09-28, Instagram\'s Help Center gave no pixel size or safe zone for Stories; its Reels page allows aspect ratios between 1.91:1 and 9:16 with a minimum resolution of 720 pixels, so 9:16 is the tallest ratio Instagram documents. From a 3024 × 4032 phone portrait the preset keeps the central 2268 × 4032 (75 %); from a landscape photo only 42 % survives, so frame landscape shots yourself or use Fit inside.',
+   concept:{title:'Filling a 9:16 screen',body:[
+    '9:16 is taller than any camera photo, so cover always cuts the sides. A 3:4 portrait loses 378 px on each side; a 4:3 landscape keeps just the middle 1701 × 3024. Fit inside keeps the whole photo and fills the rest with transparent or coloured margins — the usual choice for landscape shots and graphics that must stay complete.',
+    'Instagram\'s Reels page also names a recommended cover photo of 420 × 654 px (about 1:1.55). The preset is not that cover size; type 420 × 654 in the pixel fields if you are making a Reels cover. Because Instagram publishes no safe zone, keep text away from the very top and bottom and check the preview in the app before posting.'],
+    terms:[['9:16','1080 × 1920; the tallest ratio on Instagram\'s Reels page.'],['Reels cover','420 × 654 px recommended on the same page; cannot be edited after upload.'],['Fit inside','Keeps the whole picture; margins fill the rest of the 9:16 frame.']]},
+   example:{title:'Photos into 9:16 (computed from the code)',lead:'Example 12-megapixel sources; cover and contain arithmetic from the resize task.',lines:[
+    'Portrait  3024 x 4032 -> crop 2268 x 4032 (378 px off each side), 75 % kept',
+    '                         scaled x 0.476 -> 1080 x 1920',
+    'Landscape 4032 x 3024 -> crop 1701 x 3024 (1165.5 px off each side), 42 % kept',
+    '',
+    'Fit inside, landscape: picture 1080 x 810 in the middle,',
+    '                       555 px of margin above and below'],
+    after:'Choose a margin colour under Advanced (for example black) if you post the fitted version as a JPG; otherwise JPG margins are white.'},
+   verify:{steps:[
+    'The result shows `1080×1920`.',
+    'Open the Story or Reel preview in the app and check that text and faces are not hidden under the app\'s own buttons.',
+    'For a Reels cover, check that the file is 420 × 654 instead.']},
+   trouble:{rows:[
+    ['A landscape photo shows only a thin middle slice','9:16 cover keeps 42 % of a 4:3 landscape','Compare with the original','Use Fit inside with a margin colour, or pick the area with [[image/crop|crop]] first'],
+    ['Text is hidden behind the app\'s buttons','No official safe zone is published; the app overlays the edges','Check the in-app preview','Move text towards the middle and re-export'],
+    ['Margins are white','Fit inside with JPG output and no margin colour','Result has white bars','Pick a margin colour or keep PNG'],
+    ['The Reels cover looks cropped','The 9:16 image was used as the cover','Cover size','Make a 420 × 654 version for the cover']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|Instagram portrait post]]','The picture belongs in the feed; a 4:5 or 3:4 post crops far less.'],
+    ['Instagram\'s own editor','You post from the phone and are happy to position the photo by hand in the app.']]},
+   limits:['No official Stories size or safe zone was found on Instagram\'s Help Center; 1080 × 1920 is the 9:16 ratio at 1080 px wide, not a documented requirement.','Reels video requirements (30 FPS, 720 px minimum) apply to video, which this image tool does not make.'],
+   versions:{body:['Checked on Instagram\'s Help Center on 2026-09-28: the Reels page lists aspect ratios between 1.91:1 and 9:16, a minimum of 30 FPS and 720 pixels, and a 420 × 654 px cover; a search of the Help Center found no Stories dimensions. Crop numbers follow `src/task/resize.js` and `fitQuality()`.'],sources:['[Instagram Help Center: Reel size and aspect ratios](https://help.instagram.com/1038071743007909)']}
+  },
+  ko:{
+   answer:'이 프리셋은 1080 × 1920 세로 이미지, 9:16 비율을 만듭니다. 2026-09-28에 확인했을 때 인스타그램 고객센터에는 스토리의 픽셀 크기나 안전 영역이 없었습니다. 릴스 페이지는 화면 비율 1.91:1~9:16과 최소 해상도 720픽셀을 안내하므로, 9:16이 인스타그램이 문서로 밝힌 가장 세로로 긴 비율입니다. 3024 × 4032 휴대폰 세로 사진에서는 가운데 2268 × 4032(75%)가 남고, 가로 사진은 42%만 남으니 가로 사진은 직접 구도를 잡거나 전체가 보이게 맞춤을 쓰세요.',
+   concept:{title:'9:16 화면 채우기',body:[
+    '9:16은 어떤 카메라 사진보다도 세로로 길어서 cover는 항상 양옆을 자릅니다. 3:4 세로 사진은 양옆에서 378px씩 잃고, 4:3 가로 사진은 가운데 1701 × 3024만 남습니다. 전체가 보이게 맞춤은 사진 전체를 남기고 나머지를 투명하거나 색이 있는 여백으로 채웁니다. 가로 사진이나 완전히 보여야 하는 그래픽에 흔히 쓰는 선택입니다.',
+    '인스타그램 릴스 페이지는 커버 사진 권장 크기로 420 × 654px(약 1:1.55)도 제시합니다. 프리셋은 그 커버 크기가 아니므로 릴스 커버를 만든다면 픽셀 칸에 420 × 654를 입력하세요. 인스타그램이 안전 영역을 공개하지 않으므로 글자는 맨 위와 맨 아래에서 떨어뜨리고, 올리기 전에 앱 미리보기를 확인하세요.'],
+    terms:[['9:16','1080 × 1920. 인스타그램 릴스 페이지의 가장 세로로 긴 비율.'],['릴스 커버','같은 페이지에서 권장하는 420 × 654px. 업로드 후에는 편집할 수 없습니다.'],['전체가 보이게 맞춤','그림 전체를 남기고 9:16 틀의 나머지를 여백으로 채웁니다.']]},
+   example:{title:'사진을 9:16으로(코드로 계산)',lead:'1,200만 화소 원본을 예로 들었고, 크기 변경 작업의 cover·contain 계산입니다.',lines:[
+    '세로 3024 x 4032 -> 2268 x 4032 자르기 (양옆 378 px씩), 75 % 유지',
+    '                    x 0.476 배율 -> 1080 x 1920',
+    '가로 4032 x 3024 -> 1701 x 3024 자르기 (양옆 1165.5 px씩), 42 % 유지',
+    '',
+    '전체가 보이게 맞춤, 가로: 가운데에 그림 1080 x 810,',
+    '                          위아래 여백 555 px'],
+    after:'맞춤 버전을 JPG로 올린다면 고급 설정에서 여백 색(예: 검정)을 고르세요. 그렇지 않으면 JPG 여백은 흰색입니다.'},
+   verify:{steps:[
+    '결과에 `1080×1920`이 나옵니다.',
+    '앱에서 스토리나 릴스 미리보기를 열어 글자와 얼굴이 앱의 버튼에 가려지지 않는지 확인하세요.',
+    '릴스 커버라면 파일이 대신 420 × 654인지 확인하세요.']},
+   trouble:{rows:[
+    ['가로 사진이 가운데 좁은 조각만 보임','9:16 cover는 4:3 가로 사진의 42%만 남깁니다','원본과 비교','여백 색과 함께 전체가 보이게 맞춤을 쓰거나 먼저 [[image/crop|자르기]]로 영역을 고르세요'],
+    ['글자가 앱 버튼 뒤에 숨음','공식 안전 영역이 없고 앱이 가장자리에 요소를 겹쳐 그립니다','앱 미리보기 확인','글자를 가운데 쪽으로 옮겨 다시 내보내세요'],
+    ['여백이 흰색','JPG 출력에 여백 색 없이 맞춤을 썼습니다','결과에 흰 띠','여백 색을 고르거나 PNG로 두세요'],
+    ['릴스 커버가 잘려 보임','9:16 이미지를 커버로 썼습니다','커버 크기','커버용으로 420 × 654 버전을 만드세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|인스타그램 세로 게시물]]','피드에 올릴 그림이라면. 4:5나 3:4 게시물은 훨씬 덜 잘립니다.'],
+    ['인스타그램 자체 편집기','휴대폰에서 올리며 앱에서 손으로 위치를 잡아도 괜찮을 때.']]},
+   limits:['인스타그램 고객센터에서 공식 스토리 크기나 안전 영역을 찾지 못했습니다. 1080 × 1920은 너비 1080px에서의 9:16 비율이며 문서로 정해진 요구 사항이 아닙니다.','릴스 영상 요건(30FPS, 최소 720px)은 영상에 해당하며 이 이미지 도구는 영상을 만들지 않습니다.'],
+   versions:{body:['2026-09-28 인스타그램 고객센터에서 확인: 릴스 페이지는 화면 비율 1.91:1~9:16, 최소 30FPS와 720픽셀, 420 × 654px 커버를 안내합니다. 고객센터 검색에서는 스토리 크기를 찾지 못했습니다. 자르기 숫자는 `src/task/resize.js`와 `fitQuality()`를 따릅니다.'],sources:['[Instagram 고객센터: 릴스 크기와 화면 비율](https://help.instagram.com/1038071743007909)']}
+  },
+  ja:{
+   answer:'このプリセットは1080 × 1920の縦長画像、比率9:16を作ります。2026-09-28に確認した時点で、Instagramヘルプセンターにはストーリーズのピクセルサイズもセーフゾーンもありませんでした。リールのページは縦横比1.91:1〜9:16と最低解像度720ピクセルを示しており、9:16がInstagramが文書で示す最も縦長の比率です。3024 × 4032のスマホの縦長写真なら中央の2268 × 4032（75%）が残り、横長写真は42%しか残らないので、横長は自分で構図を決めるか、全体が見えるように収めるを使います。',
+   concept:{title:'9:16の画面を埋める',body:[
+    '9:16はどのカメラ写真よりも縦長なので、coverは必ず左右を切ります。3:4の縦長写真は左右から378pxずつ失い、4:3の横長写真は中央の1701 × 3024だけが残ります。全体が見えるように収めるは写真全体を残し、残りを透明か色付きの余白で埋めます。横長写真や全体を見せる必要のあるグラフィックでよく使う選択です。',
+    'Instagramのリールのページは、カバー写真の推奨サイズとして420 × 654px（約1:1.55）も挙げています。プリセットはそのカバーのサイズではないので、リールのカバーを作るならピクセルの欄に420 × 654と入力します。Instagramはセーフゾーンを公開していないので、文字は上端と下端から離し、投稿前にアプリのプレビューを確認します。'],
+    terms:[['9:16','1080 × 1920。Instagramのリールのページで最も縦長の比率。'],['リールのカバー','同じページで推奨される420 × 654px。アップロード後は編集できません。'],['全体が見えるように収める','画像全体を残し、9:16の枠の残りを余白で埋めます。']]},
+   example:{title:'写真を9:16に（コードから計算）',lead:'1,200万画素の元画像を例にした、サイズ変更タスクのcover・containの計算です。',lines:[
+    '縦長 3024 x 4032 -> 2268 x 4032を切り出し（左右378 pxずつ）、75 %を残す',
+    '                    x 0.476倍 -> 1080 x 1920',
+    '横長 4032 x 3024 -> 1701 x 3024を切り出し（左右1165.5 pxずつ）、42 %を残す',
+    '',
+    '収める、横長: 中央に画像 1080 x 810、',
+    '              上下に555 pxの余白'],
+    after:'収めた版をJPGで投稿するなら、詳細設定で余白の色（例：黒）を選びます。そうしないとJPGの余白は白になります。'},
+   verify:{steps:[
+    '結果に `1080×1920` と出ます。',
+    'アプリでストーリーズやリールのプレビューを開き、文字や顔がアプリのボタンに隠れていないか確認します。',
+    'リールのカバーなら、ファイルが代わりに420 × 654になっているか確認します。']},
+   trouble:{rows:[
+    ['横長写真が中央の細い部分だけになる','9:16のcoverは4:3の横長写真の42%しか残さない','元画像と比べる','余白の色を付けて収めるを使うか、先に[[image/crop|切り抜き]]で範囲を選びます'],
+    ['文字がアプリのボタンの後ろに隠れる','公式のセーフゾーンがなく、アプリが端に要素を重ねて表示する','アプリのプレビューを確認','文字を中央寄りに移して書き出し直します'],
+    ['余白が白い','JPG出力で余白の色を指定せずに収めた','結果に白い帯','余白の色を選ぶかPNGのままにします'],
+    ['リールのカバーが切れて見える','9:16の画像をカバーに使った','カバーのサイズ','カバー用に420 × 654の版を作ります']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-portrait|Instagram縦長投稿]]','フィードに載せる画像なら。4:5や3:4の投稿のほうがずっと切られにくい。'],
+    ['Instagram自体の編集機能','スマホから投稿し、アプリで手で位置を決めてもよい場合。']]},
+   limits:['Instagramヘルプセンターで公式のストーリーズのサイズやセーフゾーンは見つかりませんでした。1080 × 1920は幅1080pxでの9:16の比率で、文書化された必須条件ではありません。','リール動画の条件（30FPS、最低720px）は動画に関するもので、この画像ツールは動画を作りません。'],
+   versions:{body:['2026-09-28にInstagramヘルプセンターで確認：リールのページは縦横比1.91:1〜9:16、最低30FPSと720ピクセル、420 × 654pxのカバーを示しています。ヘルプセンターの検索ではストーリーズのサイズは見つかりませんでした。切り抜きの数値は `src/task/resize.js` と `fitQuality()` に従います。'],sources:['[Instagram ヘルプセンター: リールのサイズと縦横比](https://help.instagram.com/1038071743007909)']}
+  }
+ },
 };
