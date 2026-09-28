@@ -140,6 +140,11 @@ test('a bare compat click is one vote per person: no post, a repeat changes the 
  await h.call('POST','/reports',{as:'a',body:{kind:'compat',entityId:'translation_patch:test-game-ko',targetId:'game:steam-1',targetVersion:'2.3.1',result:'works',comment:'Windows 11에서 문제 없음'}});
  const after=Object.fromEntries((await compatReportCounts(h.db,'translation_patch:test-game-ko','game:steam-1')).map(c=>[c.result,c.n]));
  assert.deepEqual(after,{works:2},'people, not clicks');
+ // A detailed report naming a patch version also replaces the same person's bare vote.
+ await click('b','works');
+ await h.call('POST','/reports',{as:'b',body:{kind:'compat',entityId:'translation_patch:test-game-ko',subjectVersion:'1.7',targetId:'game:steam-1',targetVersion:'2.3.1',result:'broken',comment:'크래시'}});
+ const final=Object.fromEntries((await compatReportCounts(h.db,'translation_patch:test-game-ko','game:steam-1')).map(c=>[c.result,c.n]));
+ assert.deepEqual(final,{works:1,broken:1},'b counts once, with the report');
 });
 
 test('내 정보: my posts and comments, newest first, only mine',{skip},async()=>{

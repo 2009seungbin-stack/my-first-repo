@@ -177,13 +177,19 @@ async function main(){
  // Compat strip (game → Korean patch), driver issue, rollout
  for(const box of $$('[data-island="compat-vote"]')){
   const results=['works','works_with_issues','broken'];
+  const key=`${box.dataset.subject}|${box.dataset.targetVersion||'*'}`;let mineNow=st.compat?.[key]||null;
+  const strip=box.closest('.strip');
+  const more=r=>{let a=$('.vmore',box.parentElement);if(!a&&box.dataset.write){a=document.createElement('a');a.className='vmore fine';box.after(a);}if(a){a.href=`${box.dataset.write}&result=${r}`;a.textContent=T.addDetails;}};
+  if(mineNow){$$('button',box).forEach((x,j)=>x.classList.toggle('on',results[j]===mineNow));more(mineNow);}
   $$('button',box).forEach((b,i)=>{b.disabled=false;b.addEventListener('click',async()=>{
    const r=await write('/reports',{kind:'compat',entityId:box.dataset.subject,targetId:box.dataset.target,targetVersion:box.dataset.targetVersion||undefined,result:results[i]},signedIn);
    if(!r)return;
    $$('button',box).forEach((x,j)=>x.classList.toggle('on',j===i));
-   // A click is a vote (one per person); details go in a 리포트 post from the write page.
-   let more=$('.vmore',box.parentElement);
-   if(!more&&box.dataset.write){more=document.createElement('a');more.className='vmore fine';more.href=box.dataset.write;more.textContent=T.addDetails;box.after(more);}
+   // One vote per person: move this person's count from the old result to the new one.
+   const bump=(res,d)=>{const n=strip&&$(`[data-tally] [data-n="${res}"]`,strip);if(n)n.textContent=String(Math.max(0,Number(n.textContent||0)+d));};
+   if(mineNow!==results[i]){if(mineNow)bump(mineNow,-1);bump(results[i],1);mineNow=results[i];}
+   // A click is a vote; details (setup, symptoms) go in a 리포트 post from the write page.
+   more(results[i]);
    toast(T.voted);
   });});
  }

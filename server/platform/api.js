@@ -336,7 +336,12 @@ async function state(db,context,q){
  const p=await db.prepare('SELECT display_name,tier FROM user_profiles WHERE user_id=?').bind(user.id).first();
  out.user={name:p?.display_name||defaultNickname(user.id),tier:p?.tier||'new'};
  const entityId=q.get('entity');
- if(entityId&&ENTITY_ID.test(entityId))out.following=!!(await db.prepare('SELECT 1 FROM follows WHERE user_id=? AND entity_id=?').bind(user.id,entityId).first());
+ if(entityId&&ENTITY_ID.test(entityId)){
+  out.following=!!(await db.prepare('SELECT 1 FROM follows WHERE user_id=? AND entity_id=?').bind(user.id,entityId).first());
+  // The reader's latest compat result per patch on this game (the strip highlights it after a reload).
+  const cv=(await db.prepare(`SELECT entity_id,COALESCE(target_version,'*') AS tv,result FROM community_reports WHERE kind='compat' AND user_id=? AND target_id=? AND status='published' ORDER BY created_at DESC,rowid DESC LIMIT 20`).bind(user.id,entityId).all()).results||[];
+  out.compat={};for(const r of cv){const k=`${r.entity_id}|${r.tv}`;if(!(k in out.compat))out.compat[k]=String(r.result);}
+ }
  const post=q.get('post');
  if(post&&/^[\w-]{1,64}$/.test(post)){
   const own=await db.prepare('SELECT author_id FROM discussions WHERE id=?').bind(post).first();
@@ -375,13 +380,18 @@ async function report(db,context,body,now,limit,origin){
  // A bare click ("✓ 작동" on a game channel, "안 돼요" on a status page) is a vote: one per user and
  // combination, a new click replaces the old one, and it never becomes a post. A report with text
  // or a title is a post on the board (and still counts once per user: see compatVerdict).
- if(quick)await db.prepare(`DELETE FROM community_reports WHERE kind=? AND user_id=? AND entity_id=? AND COALESCE(subject_version,'*')=? AND COALESCE(target_id,'')=? AND COALESCE(target_version,'*')=? AND comment IS NULL
-  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=community_reports.id)${body.kind==='issue'?' AND created_at>?':''}`)
-  .bind(body.kind,context.user.id,subject.id,sv||'*',target?.id??'',tv||'*',...(body.kind==='issue'?[now-ISSUE_VOTE_MS]:[])).run();
+ // A person's bare vote on this patch × game version is replaced by their next click and by their
+ // detailed report (whatever patch version it names): one person, one voice per game version.
+ const replaced=quick||body.kind==='compat'?await db.prepare(`DELETE FROM community_reports WHERE kind=? AND user_id=? AND entity_id=?${quick?" AND COALESCE(subject_version,'*')=?":''} AND COALESCE(target_id,'')=? AND COALESCE(target_version,'*')=? AND comment IS NULL
+  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=community_reports.id)${body.kind==='issue'?' AND created_at>?':''} RETURNING COALESCE(subject_version,'*') AS sv`)
+  .bind(body.kind,context.user.id,subject.id,...(quick?[sv||'*']:[]),target?.id??'',tv||'*',...(body.kind==='issue'?[now-ISSUE_VOTE_MS]:[])).all():{results:[]};
+ const staleSv=[...new Set(((replaced.results||[])).map((/** @type {any} */ r)=>String(r.sv)))].filter(x=>x!==(sv||'*'));
  await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,subject_version,target_id,target_version,env,result,comment,user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
   .bind(id,body.kind,subject.id,sv,target?.id??null,tv,JSON.stringify(env),result,comment,context.user.id,now,now).run();
  /** @type {any} */let verdict=null;
- const recompute=async()=>{if(body.kind==='compat'&&target){try{verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}
+ /** The verdicts of other patch versions this person's removed vote counted in. */
+ const recomputeStale=async()=>{if(body.kind==='compat'&&target)for(const x of staleSv)await recomputeCompat(db,{subject:subject.id,subjectVersion:x,target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now);};
+ const recompute=async()=>{await recomputeStale();if(body.kind==='compat'&&target){try{verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}
   catch(e){if(!/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw e;verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}}};
  if(quick){
   await recompute();

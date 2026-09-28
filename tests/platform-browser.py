@@ -58,8 +58,13 @@ def main():
             posts_before = pg.locator('.plist .pr').count()
             for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)
             assert pg.locator('[data-island=compat-vote] button.on').count() == 1 and pg.locator('.vmore').count() == 1, 'a click is a vote with a link to a detailed report'
-            pg.reload(); pg.wait_for_timeout(300)
+            works_n = pg.locator('[data-tally] [data-n=works]').inner_text()
+            pg.reload(); pg.wait_for_timeout(700)
             assert pg.locator('.plist .pr').count() == posts_before, 'votes never create posts'
+            assert pg.locator('[data-island=compat-vote] button.on').count() == 1, 'my vote stays highlighted after a reload'
+            assert pg.locator('[data-tally] [data-n=works]').inner_text() == works_n, 'the live count matched the server'
+            pg.locator('[data-island=compat-vote] button').nth(2).click(); pg.wait_for_timeout(500)
+            assert 'result=broken' in pg.locator('.vmore').get_attribute('href'), 'the detailed-report link carries my result'
             # flag the post, then handle it as a moderator (임시조치 with a reason)
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(300)
             post_url = pg.locator('.plist a.tt').first.get_attribute('href')

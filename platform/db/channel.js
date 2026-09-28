@@ -111,10 +111,10 @@ export async function compatibilityOf(db,k){
 /** Published compat reports per (subject version, target version) for the vote counts under a panel.
  * @param {D1} db @param {string} subject @param {string} target */
 export async function compatReportCounts(db,subject,target){
- // Each user's latest report per combination, like compatVerdict: the strip, the wiki table and
- // the verdict all count people, not clicks.
+ // Each person's latest report per game version (whatever patch version it names): the strip,
+ // the wiki table and the verdict all count people, not clicks.
  const rows=await all(db,`SELECT sv,tv,result,COUNT(*) AS n FROM (SELECT COALESCE(subject_version,'*') AS sv,COALESCE(target_version,'*') AS tv,result,
-  ROW_NUMBER() OVER (PARTITION BY user_id,COALESCE(subject_version,'*'),COALESCE(target_version,'*') ORDER BY created_at DESC,rowid DESC) AS rn FROM community_reports
+  ROW_NUMBER() OVER (PARTITION BY user_id,COALESCE(target_version,'*') ORDER BY created_at DESC,rowid DESC) AS rn FROM community_reports
   WHERE kind='compat' AND status='published' AND visibility<>'private' AND entity_id=? AND target_id=?) WHERE rn=1 GROUP BY 1,2,3`,[subject,target]);
  return rows.map(r=>({sv:String(r.sv),tv:String(r.tv),result:String(r.result),n:Number(r.n)}));
 }
