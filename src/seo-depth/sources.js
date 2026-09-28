@@ -11,6 +11,7 @@ export const SOURCE_HOSTS=new Set([
  'datatracker.ietf.org',
  'defold.com',
  'developer.apple.com',
+ 'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
  'developers.google.com',
  'doc.mapeditor.org',
@@ -42,6 +43,8 @@ export const SOURCE_HOSTS=new Set([
  'pixijs.com',
  'pixijs.download',
  'registry.khronos.org',
+ 'rpgmakerofficial.com', // RPG Maker MZ official help (Gotcha Gotcha Games): Asset Standards
+
  'spec.lottiefiles.com',
  'tech.ebu.ch', // EBU R 95, the broadcast safe-area recommendation (ui group)
  'www.angelcode.com', // BMFont, the owner of the .fnt format (ui group)

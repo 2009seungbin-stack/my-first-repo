@@ -22,17 +22,8 @@ const PAGE=process.env.SEO_DEPTH_PAGE||'';
 const PAGES=PAGE?[PAGE]:ONLY?GROUPS[ONLY]:INDEXABLE;
 if(ONLY&&!PAGES)throw Error(`Unknown SEO_DEPTH_GROUP ${ONLY}; groups: ${Object.keys(GROUPS).join(', ')}`);
 import {SOURCE_HOSTS} from '../src/seo-depth/sources.js';
+import {REQUIRED} from '../src/seo-depth/rules.js';
 
-/** Minimum entries per section and type (docs/SEO-CONTENT-MODEL.md, "Types"). `|` = one of. */
-export const REQUIRED=Object.freeze({
- conversion:{answer:1,concept:1,example:1,mapping:4,outputs:2,target:4,verify:2,trouble:4,alternatives:2,versions:1},
- engine:{answer:1,concept:1,example:1,outputs:1,target:4,verify:1,trouble:4,alternatives:1,versions:1},
- troubleshoot:{answer:1,concept:1,trouble:4,verify:2,'example|mapping':1,versions:1},
- create:{answer:1,concept:1,example:1,'verify|target':1,trouble:3,alternatives:2},
- format:{answer:1,concept:1,'example|mapping':1,'outputs|target':1,trouble:3,versions:1},
- compare:{answer:1,concept:1,alternatives:2,limits:3,versions:1},
- tool:{answer:1,concept:1,example:1,verify:1,trouble:3,alternatives:1,limits:1}
-});
 /** Types whose `versions` must cite at least one official source (they describe another program). */
 const NEEDS_SOURCE=new Set(['conversion','engine','troubleshoot','format','compare']);
 const count=(d,id)=>{const b=d?.[id];if(!b)return 0;if(id==='answer')return b?1:0;if(Array.isArray(b))return b.length;
