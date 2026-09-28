@@ -57,7 +57,7 @@ Every section is optional in the model; the **type** decides which are required 
 | `verify` | `{title?, lead?, steps:[…]}` | how to check the result |
 | `trouble` | `{title?, lead?, rows:[[symptom, cause, check, fix]…]}` | troubleshooting table |
 | `alternatives` | `{title?, lead?, rows:[[option, whenBetter]…]}` | other ways, honestly |
-| `limits` | `[…]` or `{title, items:[…]}` | page-specific limits (game pages: first items of "Limits") |
+| `limits` | `[…]` or `{title, items:[…]}` | page-specific limits: an untitled list opens the game page's "Limits"; a titled one (e.g. "What Nerulio lacks") is its own section `#scope` |
 | `versions` | `{title?, body:[…], sources:['[label](https://official-doc)'…]}` | versions tested + official docs |
 
 Inline markup in any prose or table cell: `` `code` ``, `[[canonical/path|link text]]` (internal,

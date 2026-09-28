@@ -155,8 +155,10 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const d=depthOf(game.canonical,locale),o={prefix,resolve:resolveLink},slot=s=>depthSlot(s,d,locale,o);
  const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${answerHTML(d,o)}${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</div></section>`;
  const [lead,afterHow,afterTable,end]=['lead','after-how','after-table','end'].map(slot),html=list=>list.map(x=>x[2]).join('');
- // The page's own limits come first in the Limits section, then the workspace's.
- const ownLimits=(d?.limits?.items||d?.limits||[]),versions=end.filter(([id])=>id==='versions');
+ // A page's own limits: with a title of its own (a comparison's "What Nerulio lacks") they are their own
+ // section (#scope); otherwise they come first in the Limits section, before the workspace's.
+ const titled=!!d?.limits?.title,ownLimits=titled?[]:(d?.limits?.items||d?.limits||[]),versions=end.filter(([id])=>id==='versions');
+ const scope=titled?end.filter(([id])=>id==='limits').map(([,label,h])=>['scope',label,h.replace('id="limits"','id="scope"')]):[];
  const what=`<section class="gl-section" id="what"><h2>${esc(UI.what[locale])}</h2><ul class="gl-cards">${c.what.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
  const how=`<section class="gl-section" id="how"><h2>${esc(UI.how[locale])}</h2><ol class="gl-steps">${c.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>`;
  const cmp=c.compare?compareHTML(page,c,locale):'',table=c.table?tableHTML(c.table,'settings'):'';
@@ -166,8 +168,8 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const faq=faqHTML(gameFaq(game,locale),locale);
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
  const ids=list=>list.map(([id,label])=>[id,label]);
- const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
+ const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],...ids(scope),['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${html(scope)}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
  return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
