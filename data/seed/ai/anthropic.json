@@ -1826,6 +1826,7 @@
         "en": "Claude",
         "ko": "Claude"
       },
+      "aliases": ["클로드"],
       "description": {
         "en": "Anthropic's Claude assistant apps on the web, desktop and mobile, sold as Free, Pro, Max, Team and Enterprise plans.",
         "ko": "웹·데스크톱·모바일에서 쓰는 Anthropic의 Claude 어시스턴트 앱으로, Free·Pro·Max·Team·Enterprise 요금제로 제공됩니다."
@@ -1993,6 +1994,7 @@
         "en": "Claude Code",
         "ko": "Claude Code"
       },
+      "aliases": ["클로드 코드"],
       "description": {
         "en": "Anthropic's agentic coding tool that reads a codebase, edits files and runs commands, available as a terminal CLI, IDE extensions, a desktop app and in the browser.",
         "ko": "코드베이스를 읽고 파일을 수정하며 명령을 실행하는 Anthropic의 에이전트형 코딩 도구로, 터미널 CLI·IDE 확장·데스크톱 앱·브라우저에서 쓸 수 있습니다."

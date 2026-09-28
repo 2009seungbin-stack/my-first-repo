@@ -61,6 +61,7 @@
         "en": "OpenAI",
         "ko": "OpenAI"
       },
+      "aliases": ["오픈AI", "오픈에이아이"],
       "description": {
         "en": "US AI company that develops the GPT model families and operates ChatGPT, Codex and the OpenAI API platform.",
         "ko": "GPT 모델 계열을 개발하고 ChatGPT, Codex, OpenAI API 플랫폼을 운영하는 미국의 AI 기업입니다."
@@ -2650,6 +2651,7 @@
         "en": "ChatGPT",
         "ko": "ChatGPT"
       },
+      "aliases": ["챗GPT", "챗지피티", "지피티", "GPT"],
       "description": {
         "en": "OpenAI's assistant app on the web, mobile and desktop, with Chat for conversation and ChatGPT Work for delegated multi-step tasks.",
         "ko": "웹·모바일·데스크톱에서 쓰는 OpenAI의 AI 어시스턴트로, 대화용 Chat과 여러 단계 작업을 맡기는 ChatGPT Work를 제공합니다."
@@ -2801,6 +2803,7 @@
         "en": "Codex",
         "ko": "Codex"
       },
+      "aliases": ["코덱스"],
       "description": {
         "en": "OpenAI's coding agent, available as the Codex CLI, an IDE extension, Codex cloud on the web and inside the ChatGPT apps; included with ChatGPT plans or usable with an API key.",
         "ko": "Codex CLI, IDE 확장, 웹의 Codex cloud, ChatGPT 앱 안에서 쓰는 OpenAI의 코딩 에이전트로, ChatGPT 요금제에 포함되거나 API 키로 사용할 수 있습니다."

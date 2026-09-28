@@ -286,8 +286,12 @@ export async function searchEntities(db,q,o={}){
  for(const r of await inChunks(db,ids.filter(id=>id.startsWith('translation_patch:')),ph=>`SELECT subject_id,object_id FROM relations WHERE predicate='translates' AND subject_id IN (${ph})`))
   add(String(r.object_id),(score.get(String(r.subject_id))||0)+1,-1);
  const ents=await entitiesByIds(db,[...score.keys()]);
- return [...ents.values()].filter(e=>!o.vertical||e.vertical===o.vertical).sort((a,b)=>(score.get(b.id)||0)-(score.get(a.id)||0)).slice(0,limit);
+ // Among similar matches, the channels people mean first: a service or game over its models, plans
+ // and goods ("GPT" → ChatGPT before twenty GPT models).
+ const rank=(/** @type {Entity} */ e)=>(score.get(e.id)||0)+(TYPE_BOOST[e.type]||0);
+ return [...ents.values()].filter(e=>!o.vertical||e.vertical===o.vertical).sort((a,b)=>rank(b)-rank(a)).slice(0,limit);
 }
+const TYPE_BOOST=/** @type {Record<string,number>} */({service:12,provider:8,game:8,gpu:6,app:6,work:6,franchise:6,plan:4,model:0});
 /** Search words: NFKC, lower case, punctuation dropped, at most 6. @param {string} q */
 export function searchTokens(q){
  return String(q).normalize('NFKC').toLowerCase().split(/\s+/).map(t=>t.replace(/[\p{P}\p{S}]+/gu,'')).filter(Boolean).slice(0,6);
