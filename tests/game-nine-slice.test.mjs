@@ -79,5 +79,5 @@ test('every engine mapping is derived from the same four pixel numbers',()=>{
  assert.deepEqual(e.pixels,{left:6,right:7,top:8,bottom:9});
  assert.deepEqual(e.normalized,{left:6/24,right:7/24,top:8/32,bottom:9/32});
  assert.deepEqual(e.godot4,{patch_margin_left:6,patch_margin_right:7,patch_margin_top:8,patch_margin_bottom:9});
- assert.deepEqual(e.unity.border,[6,9,7,8]);// Unity's Sprite Editor order is L, B, R, T
+ assert.deepEqual(e.unity.border,[6,9,7,8]);// Unity's Sprite.border vector order is L, B, R, T (the Sprite Editor fields are L, R, T, B)
 });

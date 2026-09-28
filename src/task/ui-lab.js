@@ -575,7 +575,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const e=NS.engineBorders(border,w,h);
   return [T('setup.title'),'',T('setup.numbers',{l:e.pixels.left,r:e.pixels.right,t:e.pixels.top,b:e.pixels.bottom}),'',
    '## Godot 4','',T('setup.godot1'),T('setup.godot2',{l:e.godot4.patch_margin_left,r:e.godot4.patch_margin_right,t:e.godot4.patch_margin_top,b:e.godot4.patch_margin_bottom}),T('setup.godot3'),'',
-   '## Unity','',T('setup.unity1'),T('setup.unity2',{border:e.unity.border.join(', ')}),T('setup.unity3'),'',
+   '## Unity','',T('setup.unity1'),T('setup.unity2',{border:(([l,b,r,t])=>`L ${l}, R ${r}, T ${t}, B ${b}`)(e.unity.border)}),T('setup.unity3'),'',
    '## '+T('setup.normalized'),'',`left=${e.normalized.left.toFixed(4)} right=${e.normalized.right.toFixed(4)} top=${e.normalized.top.toFixed(4)} bottom=${e.normalized.bottom.toFixed(4)}`,'',
    T('setup.unverified'),''].join('\n');
  };

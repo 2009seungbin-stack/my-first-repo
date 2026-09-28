@@ -45,7 +45,7 @@ cuts \`_stripN\` files into N frames. Then set in the Sprite Editor:
 ${sprites.map(s=>`* \`${s.file}\` → ${s.frames} frame(s) of ${s.width}×${s.height}, **Origin** x ${s.xorigin}, y ${s.yorigin}, **Speed** ${s.playbackSpeed} frames per second${s.uniformTiming?'':' (frames have different durations; see gamemaker.json)'}`).join('\n')}
 
 Every frame of a strip is drawn with its pivot on the origin, so frames do not jump. For pixel art
-turn off **Interpolate colours between pixels** (Game Options › Graphics).
+turn off **Interpolate colours between pixels** (Game Options › your target platform, e.g. Windows › Graphics).
 `});
  return {files,composes,notes,images:[]};
 }

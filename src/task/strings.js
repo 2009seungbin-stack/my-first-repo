@@ -873,7 +873,7 @@ S.ko.uiLab={drop:'패널·버튼·UI 시트를 놓으세요',dropHint:'PNG 한 �
  setup:{title:'# 9슬라이스 설정 안내',numbers:'경계선(px): 왼쪽 {l} · 오른쪽 {r} · 위 {t} · 아래 {b}',
   godot1:'1. PNG를 프로젝트에 넣고 NinePatchRect의 texture로 지정합니다.',godot2:'2. patch_margin_left / right / top / bottom = {l} / {r} / {t} / {b}',
   godot3:'3. 버튼·패널 테마에는 StyleBoxTexture를 쓰고 texture_margin_left / right / top / bottom에 같은 값을 넣습니다. 타일 모드로 내보냈다면 axis_stretch_horizontal·vertical을 Tile로 바꿉니다.',
-  unity1:'1. PNG를 가져와 Sprite Mode = Single, Mesh Type = Full Rect로 두고 Sprite Editor를 엽니다.',unity2:'2. Border 칸은 L, B, R, T 순서이고 원점이 왼쪽 아래입니다: {border}',
+  unity1:'1. PNG를 가져와 Sprite Mode = Single, Mesh Type = Full Rect로 두고 Sprite Editor를 엽니다.',unity2:'2. Sprite Editor의 Border 칸(L, R, T, B)에 입력합니다: {border}. 스크립트의 Sprite.border 벡터는 L, B, R, T 순서입니다.',
   unity3:'3. Image 컴포넌트의 Image Type을 Sliced(타일 모드는 Tiled)로 설정합니다.',normalized:'정규화 값 (0–1)',
   unverified:'이 안내는 이번 릴리스에서 Godot·Unity 안에서 직접 실행해 확인하지 않았습니다(UNVERIFIED). .tres·.meta 같은 엔진 리소스 파일은 만들지 않습니다.'}};
 S.en.uiLab={drop:'Drop a panel, button or UI sheet',dropHint:'One PNG · nine-slice, button states, a UI atlas and bitmap fonts in one place',openCheck:'Just run the checks',stages:'Stages',
@@ -914,7 +914,7 @@ S.en.uiLab={drop:'Drop a panel, button or UI sheet',dropHint:'One PNG · nine-sl
  setup:{title:'# Nine-slice setup notes',numbers:'Borders in pixels: left {l} · right {r} · top {t} · bottom {b}',
   godot1:'1. Add the PNG to your project and set it as the texture of a NinePatchRect.',godot2:'2. patch_margin_left / right / top / bottom = {l} / {r} / {t} / {b}',
   godot3:'3. For a Button or Panel theme, use a StyleBoxTexture and put the same numbers in texture_margin_left / right / top / bottom. If you exported tile mode, set axis_stretch_horizontal and axis_stretch_vertical to Tile.',
-  unity1:'1. Import the PNG, keep Sprite Mode = Single and Mesh Type = Full Rect, then open the Sprite Editor.',unity2:'2. The Border fields are in the order L, B, R, T with a bottom-left origin: {border}',
+  unity1:'1. Import the PNG, keep Sprite Mode = Single and Mesh Type = Full Rect, then open the Sprite Editor.',unity2:'2. Type these into the Sprite Editor Border fields (L, R, T, B): {border}. In scripts, the Sprite.border vector is ordered L, B, R, T.',
   unity3:'3. On an Image component set Image Type = Sliced (Tiled for tile mode).',normalized:'Normalised values (0–1)',
   unverified:'These steps were not run inside Godot or Unity for this release: treat them as UNVERIFIED setup notes. No .tres, .meta or other engine resource file is written.'}};
 S.ja.uiLab={drop:'パネル・ボタン・UIシートをドロップ',dropHint:'PNG1枚 · 9スライス、ボタン状態、UIアトラス、ビットマップフォントを一か所で',openCheck:'画像なしでチェックだけ',stages:'ステージ',
@@ -955,7 +955,7 @@ S.ja.uiLab={drop:'パネル・ボタン・UIシートをドロップ',dropHint:'
  setup:{title:'# 9スライス設定メモ',numbers:'境界線(px): 左 {l} · 右 {r} · 上 {t} · 下 {b}',
   godot1:'1. PNGをプロジェクトに追加し、NinePatchRectのtextureに設定します。',godot2:'2. patch_margin_left / right / top / bottom = {l} / {r} / {t} / {b}',
   godot3:'3. ButtonやPanelのテーマではStyleBoxTextureを使い、texture_margin_left / right / top / bottomに同じ値を入れます。タイルモードで書き出した場合はaxis_stretch_horizontal・verticalをTileにします。',
-  unity1:'1. PNGをインポートし、Sprite Mode = Single、Mesh Type = Full RectのままSprite Editorを開きます。',unity2:'2. Border欄はL, B, R, Tの順で、原点は左下です: {border}',
+  unity1:'1. PNGをインポートし、Sprite Mode = Single、Mesh Type = Full RectのままSprite Editorを開きます。',unity2:'2. Sprite EditorのBorder欄（L, R, T, B）に入力します: {border}。スクリプトのSprite.borderベクトルはL, B, R, Tの順です。',
   unity3:'3. ImageコンポーネントのImage TypeをSliced（タイルモードならTiled）にします。',normalized:'正規化した値 (0–1)',
   unverified:'この手順は今回のリリースでGodotやUnity内で実行して確認していません（UNVERIFIED）。.tresや.metaなどのエンジンリソースファイルは作りません。'}};
 export function ui(locale,key,vars={}){
