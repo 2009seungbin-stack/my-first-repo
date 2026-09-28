@@ -1291,10 +1291,10 @@
    "env": {
     "arch": "arm64"
    },
-   "status": "works_with_issues",
+   "status": "unknown",
    "ver": "OFFICIAL",
    "src": "src:cockos-reaper-download",
-   "note": "Windows 11 arm64ec build is offered as a BETA."
+   "note": "Cockos offers the Windows 11 arm64ec build only as a BETA; no support statement for Windows on Arm."
   },
   {
    "subject": "app:bitwig-studio",

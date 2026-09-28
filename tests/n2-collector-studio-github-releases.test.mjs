@@ -6,11 +6,11 @@ import {runAdapter,collectorContext} from '../collectors/_runtime.js';
 import {validateSeed} from '../platform/seed.js';
 
 const fx=(/** @type {string} */ f)=>readFileSync(new URL(`./fixtures/n2/collectors/studio-github-releases/${f}`,import.meta.url),'utf8');
-const GODOT=fx('godot.json'),OBS=fx('obs-studio.json');
-const KNOWN={entities:new Set(['app:godot','app:obs-studio'])};
+const GODOT=fx('godot.json'),OBS=fx('obs-studio.json'),SURGE=fx('surge-xt.json');
+const KNOWN={entities:new Set(['app:godot','app:obs-studio','plugin:surge-synth-team-surge-xt'])};
 const NOW=Date.UTC(2026,8,28,12);
 const fakeFetch=(/** @type {(url:string)=>[string,number]} */ route)=>{const calls=[];const f=async(/** @type {string} */ url,/** @type {any} */ init)=>{calls.push({url,init});const [body,status]=route(url);return new Response(body,{status,headers:{'content-type':'application/json'}});};f.calls=calls;return f;};
-const route=(/** @type {string} */ url)=>/** @type {[string,number]} */(url.includes('/godotengine/godot/')?[GODOT,200]:url.includes('/obsproject/obs-studio/')?[OBS,200]:['[]',404]);
+const route=(/** @type {string} */ url)=>/** @type {[string,number]} */(url.includes('/godotengine/godot/')?[GODOT,200]:url.includes('/obsproject/obs-studio/')?[OBS,200]:url.includes('/surge-synthesizer/releases-xt/')?[SURGE,200]:['[]',404]);
 
 test('adapter contract: auto mode, api.github.com only, polite', ()=>{
  assert.equal(adapter.id,'studio-github-releases');
@@ -18,7 +18,7 @@ test('adapter contract: auto mode, api.github.com only, polite', ()=>{
  assert.equal(adapter.mode,'auto');
  assert.deepEqual(adapter.hosts,['api.github.com']);
  assert.ok(adapter.minIntervalMs>=1000);
- assert.deepEqual(Object.keys(REPOS).sort(),['godotengine/godot','obsproject/obs-studio']);
+ assert.deepEqual(Object.keys(REPOS).sort(),['godotengine/godot','obsproject/obs-studio','surge-synthesizer/releases-xt']);
 });
 
 test('compareVersions: numeric order, pre-releases sort below the release', ()=>{
@@ -67,11 +67,12 @@ test('collect() through the runtime: one request per repo, snapshots, valid part
  const f=fakeFetch(route);
  const run=await runAdapter(adapter,{fetch:f,now:()=>NOW});
  assert.equal(run.error,null);
- assert.equal(f.calls.length,2);
+ assert.equal(f.calls.length,3);
  assert.ok(f.calls.every(c=>new URL(c.url).hostname==='api.github.com'));
- assert.equal(run.snapshots.length,2);
+ assert.equal(run.snapshots.length,3);
  assert.deepEqual(validateSeed(run.doc,KNOWN),[]);
- assert.deepEqual(run.doc.entities.map((/** @type {any} */ e)=>e.id),['app:godot','app:obs-studio']);
+ assert.deepEqual(run.doc.entities.map((/** @type {any} */ e)=>e.id),['app:godot','app:obs-studio','plugin:surge-synth-team-surge-xt']);
+ assert.equal(run.doc.entities[2].facts[0].v,'1.3.4');
  assert.ok(run.doc.sources.every((/** @type {any} */ s)=>s.retrieved==='2026-09-28'&&s.adapter==='studio-github-releases'));
  assert.doesNotMatch(JSON.stringify(run.doc),/browser_download_url|\.exe"|\.dmg"/);
 });

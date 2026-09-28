@@ -4,7 +4,8 @@
  * Endpoint (documented): GET https://api.github.com/repos/{owner}/{repo}/releases
  *   https://docs.github.com/en/rest/releases/releases#list-releases  (unauthenticated: 60 req/h;
  *   this adapter makes one request per repository per run). Observed responding 2026-09-28.
- * Releases are published by the projects themselves (godotengine/godot, obsproject/obs-studio),
+ * Releases are published by the projects themselves (godotengine/godot, obsproject/obs-studio,
+ * surge-synthesizer/releases-xt),
  * so they are the projects' own release records; values are labelled AUTOMATED because they are
  * collected by a machine, not checked by a curator.
  *
@@ -17,6 +18,8 @@
 export const REPOS=Object.freeze(/** @type {Record<string,{entity:string,tag:(t:string)=>string|null}>} */({
  'godotengine/godot':{entity:'app:godot',tag:t=>{const m=/^(\d+\.\d+(?:\.\d+)*)-stable$/.exec(t);return m?m[1]:null;}},
  'obsproject/obs-studio':{entity:'app:obs-studio',tag:t=>/^\d+\.\d+\.\d+(-(beta|rc)\d+)?$/.test(t)?t:null},
+ // Surge XT publishes its stable builds in a separate releases repository (linked from surge-synthesizer.github.io).
+ 'surge-synthesizer/releases-xt':{entity:'plugin:surge-synth-team-surge-xt',tag:t=>/^\d+\.\d+\.\d+$/.test(t)?t:null},
 }));
 export const MAX_VERSIONS=12;
 const DATE=/^\d{4}-\d\d-\d\d/;
