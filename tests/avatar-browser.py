@@ -119,6 +119,11 @@ with sync_playwright() as p:
             other.goto(BASE+f'/{language}/game/pixel-avatar-maker/')
             assert other.locator('#taskTitle').inner_text()==title
             assert other.evaluate('document.documentElement.scrollWidth-innerWidth')==0
+            other.screenshot(path=OUT/f'{engine}-{language}-mobile.png',full_page=True)
+            localized_card=OUT/f'{engine}-{language}-card.png'
+            saved(other,'card',localized_card)
+            with Image.open(localized_card) as card:assert card.size==(1200,630) and card.mode=='RGBA'
+            assert localized_card.read_bytes()!=(OUT/f'{engine}-card.png').read_bytes()
         reduced=browser.new_page(reduced_motion='reduce')
         reduced.goto(BASE+PATH)
         assert reduced.locator('[data-action="toggle-motion"]').is_disabled()
