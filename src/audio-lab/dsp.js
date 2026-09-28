@@ -27,7 +27,9 @@ function stretchVirtual(channels,speed,ratio){
  const n=Math.max(1,Math.round(channels[0].length/ratio)),outLen=Math.max(1,Math.round(n/speed)),frame=Math.min(2048,Math.max(256,2**Math.floor(Math.log2(Math.max(256,n/4))))),hop=frame/2,search=Math.min(128,hop/4);
  const out=channels.map(()=>new Float32Array(outLen)),weight=new Float32Array(outLen),window=Float32Array.from({length:frame},(_,i)=>Math.sin(Math.PI*(i+.5)/frame)**2);
  let prevSource=0;
- for(let dest=0;dest<outLen;dest+=hop){const expected=dest*speed,maxStart=Math.max(0,n-frame),nominal=clamp(Math.round(expected),0,maxStart);let start=nominal;
+ // Centering the analysis frame around the intended source time cancels the
+ // systematic transient lead/lag otherwise introduced by overlap-add.
+ for(let dest=0;dest<outLen;dest+=hop){const expected=dest*speed+(speed-1)*frame,maxStart=Math.max(0,n-frame),nominal=clamp(Math.round(expected),0,maxStart);let start=nominal;
   if(dest>0){let best=-Infinity;for(let delta=-search;delta<=search;delta+=4){const candidate=clamp(nominal+delta,0,maxStart);let cross=0,aa=0,bb=0;
     for(let k=0;k<hop&&dest+k<outLen;k+=16){const before=weight[dest+k]?out[0][dest+k]/weight[dest+k]:0,after=at(channels[0],Math.min(n-1,candidate+k),ratio);cross+=before*after;aa+=before*before;bb+=after*after;}
     const score=cross/Math.sqrt(aa*bb+1e-12)-Math.abs(candidate-prevSource-speed*hop)*.00001;if(score>best){best=score;start=candidate;}
