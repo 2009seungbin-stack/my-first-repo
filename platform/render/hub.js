@@ -13,7 +13,7 @@ import {verticalOf,typeDef} from '../verticals/index.js';
 import {label} from '../labels.js';
 
 export const HUB_PAGE_SIZE=60;
-/** @param {any} db @param {string} vertical @param {{l:string,now?:number,type?:string|null,org?:string|null,sort?:string|null,page?:number,channels?:{name:string,href:string}[]}} o */
+/** @param {any} db @param {string} vertical @param {{l:string,now?:number,type?:string|null,org?:string|null,sort?:string|null,vs?:string|null,page?:number,channels?:{name:string,href:string}[]}} o */
 export async function loadHub(db,vertical,o){
  const v=verticalOf(vertical);if(!v)return null;
  const counts=await typeCounts(db,vertical);
@@ -43,7 +43,7 @@ export async function loadHub(db,vertical,o){
  if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=collapseVersions(await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:20}),o.l).slice(0,10);}
  if(type==='work'&&vertical==='subculture')now_.week=(await upcomingEvents(db,{from:now,to:now+7*864e5,vertical:'subculture',limit:60})).filter((/** @type {any} */ e)=>e.kind==='broadcast'||e.kind==='release');
  if(!type&&vertical==='subculture'){now_.events=await upcomingEvents(db,{from:now,to:now+14*864e5,vertical:'subculture',limit:10});now_.preorders=await preorderDeadlines(db,now,8);}
- return {vertical,v,type,page:pageNo,counts,groups,compare,org:o.org||null,sort:o.sort||null,now:now_,at:now,l:o.l,channels:o.channels||[]};
+ return {vertical,v,type,page:pageNo,counts,groups,compare,org:o.org||null,sort:o.sort||null,vs:o.vs?o.vs.split(','):null,now:now_,at:now,l:o.l,channels:o.channels||[]};
 }
 /** @param {NonNullable<Awaited<ReturnType<typeof loadHub>>>} m @param {{origin:string}} site */
 export function renderHub(m,site){
@@ -65,12 +65,14 @@ export function renderHub(m,site){
 function compareTable(m,l){
  const ko=l==='ko',rows=m.compare.rows;
  if(m.type==='gpu'){
+  const pair=m.vs?m.vs.map((/** @type {string} */ slug)=>rows.find((/** @type {any} */ r)=>r.e.slug===slug)).filter(Boolean):[];
+  const versus=pair.length===2?gpuVersus(pair,l):'';
   const list=rows.filter((/** @type {any} */ r)=>r.f('vram_gb')).sort((/** @type {any} */ a,/** @type {any} */ b)=>Number(b.f('vram_gb').value)-Number(a.f('vram_gb').value)||String(b.f('release_date')?.value||'').localeCompare(String(a.f('release_date')?.value||'')));
-  const q4=(/** @type {number} */ vram)=>{let best=0;for(const p of [1,3,4,7,8,12,14,20,24,27,32,35,49,70,72,110,123])if(estimateLlmMemory({paramsB:p,quant:'Q4_K_M',vramGiB:vram}).verdict==='fits')best=p;return best;};
+  const q4=q4Max;
   const cell=(/** @type {any} */ f,/** @type {string} */ unit)=>f?`${int(Number(f.value),l)}${unit}`:'–';
-  return box({title:ko?`그래픽카드 ${list.length}개`:`${list.length} GPUs`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'카드':'Card'}</th><th>VRAM</th><th>${ko?'대역폭':'Bandwidth'}</th><th>${ko?'보드 전력':'Power'}</th><th>${ko?'출시가':'MSRP'}</th><th>${ko?'출시':'Released'}</th><th>${ko?'Q4 최대 (추정)':'Q4 max (est.)'}</th></tr></thead><tbody>
+  return html`${versus}${box({title:ko?`그래픽카드 ${list.length}개`:`${list.length} GPUs`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'카드':'Card'}</th><th>VRAM</th><th>${ko?'대역폭':'Bandwidth'}</th><th>${ko?'보드 전력':'Power'}</th><th>${ko?'출시가':'MSRP'}</th><th>${ko?'출시':'Released'}</th><th>${ko?'Q4 최대 (추정)':'Q4 max (est.)'}</th></tr></thead><tbody>
 ${list.map((/** @type {any} */ r)=>{const v=Number(r.f('vram_gb').value),price=r.f('launch_price_usd'),rel=r.f('release_date');return html`<tr><td><a href="${channelUrl(l,r.e)}"><b>${nameOf(r.e,l)}</b></a></td><td><b>${v} GB</b></td><td>${cell(r.f('memory_bandwidth_gbs'),' GB/s')}</td><td>${cell(r.f('board_power_w'),' W')}</td><td>${price?money(Number(price.value),'USD',l):'–'}</td><td>${rel?isoDateText(String(rel.value)):'–'}</td><td><a href="${channelUrl(l,r.e)}local-llm">≈ ${q4(v)}B</a></td></tr>`;})}
-</tbody></table></div>`);
+</tbody></table></div>`)}`;
  }
  if(m.type==='plan'){
   // Plans without a list price (Enterprise) stay in the table as "문의", so the count matches the tab.
@@ -90,6 +92,25 @@ ${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_
  return box({title:ko?`API로 쓸 수 있는 모델 ${list.length}개`:`${list.length} models with API prices`},html`${chips}<div class="tw"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'회사':'Provider'}</th><th>${ko?'입력':'Input'}</th><th>${ko?'출력':'Output'}</th><th>${ko?'캐시 입력':'Cached'}</th><th>${ko?'컨텍스트':'Context'}</th><th>${ko?'출시':'Released'}</th></tr></thead><tbody>
 ${list.map((/** @type {any} */ r)=>{const i=r.f('api_input_price'),o=r.f('api_output_price'),c=r.f('api_cached_input_price'),ctx=r.f('context_window'),rel=r.f('release_date');return html`<tr><td><a href="${channelUrl(l,r.e)}"><b>${nameOf(r.e,l)}</b></a></td><td>${r.owner?nameOf(r.owner,l):'–'}</td><td>${money(Number(i.value),i.unit||'USD',l)}</td><td>${o?money(Number(o.value),o.unit||'USD',l):'–'}</td><td>${c?money(Number(c.value),c.unit||'USD',l):'–'}</td><td>${ctx?tokens(Number(ctx.value)):'–'}</td><td>${rel?isoDateText(String(rel.value)):'–'}</td></tr>`;})}
 </tbody></table></div><p class="fine pad">${ko?'가격은 100만 토큰당 USD. 모델 이름을 누르면 가격 변경 이력이 있습니다.':'USD per 1M tokens. Open a model for its price history.'}</p>`);
+}
+
+/** Largest open-model size (billions) that fits at Q4_K_M, from the same estimate as the GPU pages. @param {number} vram */
+function q4Max(vram){let best=0;for(const p of [1,3,4,7,8,12,14,20,24,27,32,35,49,70,72,110,123])if(estimateLlmMemory({paramsB:p,quant:'Q4_K_M',vramGiB:vram}).verdict==='fits')best=p;return best;}
+/** Two cards side by side (?type=gpu&vs=a,b); the better value of each row in bold.
+ * @param {any[]} pair @param {string} l */
+function gpuVersus(pair,l){
+ const ko=l==='ko';
+ const num=(/** @type {any} */ r,/** @type {string} */ p)=>{const f=r.f(p);return f?Number(f.value):null;};
+ const ROWS=/** @type {[string,string,(r:any)=>number|null,(n:number)=>string,boolean][]} */([
+  ['VRAM','VRAM',r=>num(r,'vram_gb'),n=>`${n} GB`,true],
+  ['대역폭','Bandwidth',r=>num(r,'memory_bandwidth_gbs'),n=>`${int(n,l)} GB/s`,true],
+  ['보드 전력','Board power',r=>num(r,'board_power_w'),n=>`${int(n,l)} W`,false],
+  ['출시가','MSRP',r=>num(r,'launch_price_usd'),n=>money(n,'USD',l),false],
+  ['Q4 최대 모델 (추정)','Q4 max (est.)',r=>{const v=num(r,'vram_gb');return v?q4Max(v):null;},n=>`≈ ${n}B`,true]]);
+ const [a,b]=pair;
+ return box({title:ko?`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`:`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`,extra:badge('OFFICIAL',l),note:ko?'공식 스펙 · Q4 최대는 추정':'Official specs · Q4 max is an estimate'},html`<div class="tw"><table class="mt vs"><thead><tr><th></th><th><a href="${channelUrl(l,a.e)}">${nameOf(a.e,l)}</a></th><th><a href="${channelUrl(l,b.e)}">${nameOf(b.e,l)}</a></th></tr></thead><tbody>
+${ROWS.map(([k,e,get,fmt,higher])=>{const x=get(a),y=get(b);const win=x==null||y==null||x===y?0:(higher?x>y:x<y)?1:2;return html`<tr><th>${ko?k:e}</th><td>${x==null?'–':win===1?html`<b>${fmt(x)}</b>`:fmt(x)}</td><td>${y==null?'–':win===2?html`<b>${fmt(y)}</b>`:fmt(y)}</td></tr>`;})}
+</tbody></table></div><p class="fine pad"><a href="${channelUrl(l,a.e)}local-llm">${nameOf(a.e,l)} 로컬 LLM ›</a> · <a href="${channelUrl(l,b.e)}local-llm">${nameOf(b.e,l)} 로컬 LLM ›</a></p>`);
 }
 
 /** @param {any} m */
