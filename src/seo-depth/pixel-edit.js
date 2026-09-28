@@ -841,5 +841,214 @@ export default {
    versions:{body:['Nerulio：docs/PIXEL-LAB.md（Chromium。チームの色違い4つ × 8フレームを4フォルダーのPNG 32枚で書き出し、それぞれ選んだパレット3枠だけが変わり残り13枠はバイト一致）。上のランプはsrc/game/palette.jsで計算しました。AsepriteのReplace Colorの説明は公式ドキュメントに基づきます。'],
     sources:[s('Asepriteドキュメント：Replace Color',A.replace)]}
   }
+ },
+ // ───────────────────────────────────────────────────────────────── Lospec palettes (formats)
+ 'game/lospec-palette':{
+  type:'format',
+  intent:{primary:'download a Lospec palette in the right file format and apply it to pixel art',secondary:['what .hex .gpl .pal .ase .txt .json store','which file each program reads','lock sprite frames to the palette','load a Lospec palette by name'],
+   goal:'the chosen Lospec palette loaded in the tool you use, and every frame of the sprite mapped onto exactly its colours',
+   input:'a Lospec palette (downloaded file, pasted HEX list, or its name) and sprite frames',output:'PNG frames using only the palette colours, plus the palette as .gpl',
+   target:'Nerulio Pixel Lab or Studio Pixel workspace; GIMP, Photoshop, Paint.net, Aseprite via the file Lospec recommends',support:'partial',
+   evidence:['src/game/palette.js parsePaletteFile (Lab: .gpl, HEX, JSON)','src/studio/pixel/palette-io.js readPalette, lospecSlug, lospecURL (Studio: .gpl .pal .ase .act .hex .json)','Lospec PICO-8 files downloaded 2026-09-28 and read with both parsers (.txt misread by the Studio, rejected by the Lab)','docs/STUDIO-PIXEL.md §4 (Lospec request, consent, CSP), §6 T13/T14'],
+   external:['Lospec palette page download list and "How to import palettes"','GIMP .gpl specification','Aseprite GPL RGBA extension','Adobe Color Table (.act) specification']},
+  en:{
+   answer:'Every palette on Lospec can be downloaded as a HEX file, GIMP GPL, JASC PAL, Photoshop ASE, Paint.net TXT or PNG image, and the same address with `.json` returns the palette as JSON. Pick the file your program reads: .hex or .gpl for most pixel tools, ASE for Photoshop, TXT for Paint.net. In Nerulio, paste the HEX list or import the .gpl in the Pixel Lab to lock every frame to the palette, or type the palette\'s name in the Studio\'s Pixel workspace (Pixel › Lospec palette…), which makes one request to lospec.com after asking.',
+   concept:{title:'Seven downloads, one palette: what each Lospec file actually contains',body:[
+    'All of Lospec\'s files carry the same colours in the same order; they differ in what else they carry and who can read them. Text formats (.hex, .gpl, .pal, .txt) can be opened in any text editor to check them. Only .gpl and .json keep the palette\'s name; only .gpl and .ase keep a name per colour (Lospec writes the hex code there). None of Lospec\'s files stores transparency, which is why a tool that treats index 0 as transparent can turn a palette\'s first colour into the mask.',
+    'Two formats trip people up. `.ase` from Lospec is Adobe Swatch Exchange, a different format from Aseprite\'s sprite files that share the extension, so Aseprite cannot open it as a palette. And Paint.net\'s `.txt` writes each colour as AARRGGBB, alpha first, so a reader expecting RRGGBB or RRGGBBAA gets every colour wrong.',
+    'Lospec\'s own import guide names the file per program: Aseprite reads .pal, .gpl or PNG; GIMP .gpl, .pal or .aco; Photoshop ASE; Paint.net TXT; GrafX2 .pal. Nerulio\'s Pixel Lab reads .gpl, .hex and .json (or pasted text); the Studio\'s Pixel workspace also reads JASC and RIFF .pal, Adobe .ase and .act, and fetches the JSON by name.'],
+    terms:[['.hex','One colour per line as six hex digits, nothing else.'],['.gpl','GIMP Palette text: a header, the name, then "R G B name" lines. RGB only in GIMP\'s specification; Aseprite adds an RGBA variant.'],['.pal (JASC)','Paint Shop Pro text: "JASC-PAL", "0100", the colour count, then "R G B" lines.'],['.ase (Adobe)','Adobe Swatch Exchange: binary, named swatches in RGB, CMYK, LAB or Gray.'],['.act','Adobe Color Table: 256 RGB triples (768 bytes), optionally 4 more bytes for the colour count and a transparent index.'],['Slug','The palette\'s name in its Lospec address: lower case, spaces as dashes (Endesga 32 → endesga-32).']]},
+   mapping:{title:'Lospec\'s files and what Nerulio does with them',lead:'Checked on the PICO-8 palette downloaded from lospec.com on 2026-09-28 and read with both of Nerulio\'s palette readers.',head:['File','What it stores','In Nerulio'],rows:[
+    ['HEX File (.hex)','16 lines like `1D2B53`: upper case, no `#`, no names, 128 bytes for PICO-8','Pixel Lab and Studio read it; you can also paste it into the Lab'],
+    ['GIMP GPL (.gpl)','`GIMP Palette`, then `#Palette Name`, `#Description` and `#Colors` as comments, then tab-separated `R G B` with the hex code as the name; no alpha','Both read it; the Studio keeps the palette name'],
+    ['PAL File, JASC (.pal)','`JASC-PAL`, `0100`, `16`, then one `R G B` line per colour; no names','Studio reads it (and binary RIFF .pal); the Lab rejects it'],
+    ['Photoshop ASE (.ase)','Binary `ASEF`: one swatch per colour named by its hex code, RGB stored as 0–1 floats','Studio reads it; the Lab does not'],
+    ['Paint.net TXT (.txt)','`;` comment lines, then `FF1D2B53`-style AARRGGBB values','Not supported: the Studio misreads the alpha byte as red, the Lab rejects the file; use .hex'],
+    ['JSON (address + .json)','`{"name":"PICO-8","author":"","colors":["000000",…]}`, sent with `Access-Control-Allow-Origin: *`','What the Studio\'s Lospec search requests; both read it'],
+    ['PNG image (1×, 8×, 32×)','A picture with one swatch per colour','Not read as a palette file; use .hex or .gpl'],
+    ['.act (not offered by Lospec)','768 bytes of RGB, or 772 with a count and a transparent index','Studio reads and writes it (772 bytes, no transparent index)']],
+    note:'Nerulio writes .gpl, .pal (JASC), .hex, .ase, .act and .json from the Studio, and .gpl, .hex and .json from the Lab; each was written and read back identical in the tests.'},
+   target:{title:'Apply the palette to your frames',steps:[
+    'Open the palette on lospec.com and download the HEX File (or GIMP GPL).',
+    'In the Pixel Lab, drop your frames, open the Palette stage and use Import & export: choose the file, or paste the colours and press Load pasted palette.',
+    'In the Convert stage keep Dither on None for an animation (a Bayer matrix if you want texture), check the frames, then Export all frames (ZIP).',
+    'Or, for a layered sprite, open the Studio\'s Pixel workspace, choose Pixel › Lospec palette…, allow the one request, type the name (for example `pico-8`), Load, then Replace or Append; convert with Colour mode… to Indexed.',
+    'For other programs, download the file Lospec\'s import guide names for them: .gpl or .pal for GIMP and Aseprite, ASE for Photoshop, TXT for Paint.net.']},
+   trouble:{rows:[
+    ['After importing Lospec\'s .txt in the Studio, the colours are wrong or transparent','Paint.net TXT stores AARRGGBB; the Studio reads eight digits as RRGGBBAA, so FF1D2B53 becomes a half-transparent red','The palette shows reds with checkerboard transparency','Remove it and import the .hex of the same palette instead'],
+    ['The Pixel Lab says "Line 1 is not a colour: JASC-PAL"','The Lab reads only .gpl, HEX lists and JSON','The first line of the file is JASC-PAL (or ASEF for .ase)','Download the HEX File or GIMP GPL version'],
+    ['Aseprite cannot open the .ase from Lospec','It is an Adobe Swatch Exchange file, not an Aseprite sprite; in the repository\'s test Aseprite 1.3.18 reported "Error reading header"','The file starts with the bytes ASEF','Use the .gpl or .pal download for Aseprite, as Lospec\'s import guide says'],
+    ['"No Lospec palette named …" in the Studio','The name typed does not match the palette\'s address','Open the palette on lospec.com and read the last part of its address','Type that slug (for example `endesga-32`), or import a downloaded file'],
+    ['The Lospec search fails with a network error','Offline, blocked by the network, or used outside the Studio pages, the only pages allowed to contact lospec.com','The error message shows the failed request','Download the .hex on lospec.com and import it; no request is needed']]},
+   alternatives:{rows:[
+    ['Extracting a palette from your own art','You want the sprite\'s current colours rather than a published set: [[game/palette-extractor|palette extractor]].'],
+    ['Building ramps yourself','None of the published palettes fits: build hue-shifted ramps in [[game/pixel-art-palette-editor|the palette editor]].'],
+    ['Lospec\'s Aseprite extension','You work in Aseprite: Lospec\'s import guide mentions a third-party Lospec Palette Importer extension for it.']]},
+   limits:['Paint.net .txt and PNG palette images are not read; use .hex, .gpl or .json.','The Pixel Lab reads only .gpl, HEX and JSON; the other formats need the Studio.','The by-name search needs lospec.com to be reachable and was verified with one live request in the dev server; the Cloudflare deployment of that header is not verified yet.'],
+   versions:{body:['Lospec\'s download list and file contents were checked on lospec.com on 2026-09-28 (PICO-8: 16 colours; .gpl 480 bytes, .hex 128, .pal 199, .ase 652, .txt 402, .json 184). Nerulio: both palette readers were run on those files; the Studio\'s readers and writers are unit-tested in `tests/studio-pixel.test.mjs`. File layouts follow the format owners\' specifications listed here.'],
+    sources:[s('Lospec: PICO-8 palette and its downloads',LOSPEC.pico),s('Lospec: How to import palettes',LOSPEC.importing),s('GIMP developer docs: GIMP Palette format (.gpl)',GIMP_GPL),s('Aseprite repository: GPL palette RGBA extension',A.gplExt),s('Adobe Photoshop file formats: Color Table (.act)',ADOBE_ACT)]}
+  },
+  ko:{
+   answer:'Lospec의 모든 팔레트는 HEX 파일, GIMP GPL, JASC PAL, Photoshop ASE, Paint.net TXT, PNG 이미지로 받을 수 있고, 같은 주소에 `.json`을 붙이면 JSON으로도 받습니다. 쓰는 프로그램이 읽는 파일을 고르세요. 대부분의 도트 도구는 .hex나 .gpl, 포토샵은 ASE, Paint.net은 TXT입니다. Nerulio에서는 픽셀 랩에 HEX 목록을 붙여 넣거나 .gpl을 가져와 모든 프레임을 팔레트에 고정하고, Studio 픽셀 작업 공간에서는 팔레트 이름을 입력하면(픽셀 › Lospec 팔레트…) 동의를 받은 뒤 lospec.com에 요청 하나를 보냅니다.',
+   concept:{title:'다운로드는 일곱 가지, 팔레트는 하나: Lospec 파일마다 실제로 든 것',body:[
+    'Lospec 파일은 모두 같은 색을 같은 순서로 담고 있고, 그 밖에 무엇을 담는지와 누가 읽을 수 있는지만 다릅니다. 텍스트 형식(.hex, .gpl, .pal, .txt)은 아무 텍스트 편집기로 열어 확인할 수 있습니다. 팔레트 이름은 .gpl과 .json에만, 색마다 이름은 .gpl과 .ase에만 있습니다(Lospec은 거기에 hex 코드를 씀). Lospec 파일은 어느 것도 투명도를 저장하지 않으므로, 0번을 투명으로 다루는 도구에서는 팔레트의 첫 색이 투명 마스크가 될 수 있습니다.',
+    '두 형식이 자주 문제를 일으킵니다. Lospec의 `.ase`는 어도비 스와치 교환 형식으로, 확장자만 같은 에이스프라이트 스프라이트 파일과는 다른 형식이라 에이스프라이트가 팔레트로 열지 못합니다. 또 Paint.net의 `.txt`는 색을 알파가 먼저 오는 AARRGGBB로 쓰므로, RRGGBB나 RRGGBBAA를 기대하는 프로그램은 모든 색을 잘못 읽습니다.',
+    'Lospec의 가져오기 안내는 프로그램마다 파일을 지정합니다. 에이스프라이트는 .pal·.gpl·PNG, 김프는 .gpl·.pal·.aco, 포토샵은 ASE, Paint.net은 TXT, GrafX2는 .pal입니다. Nerulio 픽셀 랩은 .gpl·.hex·.json(또는 붙여 넣은 텍스트)을 읽고, Studio 픽셀 작업 공간은 JASC·RIFF .pal, 어도비 .ase·.act도 읽으며 이름으로 JSON을 받아 옵니다.'],
+    terms:[['.hex','한 줄에 16진수 여섯 자리 색 하나, 그 밖에는 없음.'],['.gpl','김프 팔레트 텍스트. 머리말, 이름, 그 뒤 "R G B 이름" 줄. 김프 사양은 RGB만이며 에이스프라이트가 RGBA 변형을 더함.'],['.pal(JASC)','페인트샵 프로 텍스트. "JASC-PAL", "0100", 색 개수, 그 뒤 "R G B" 줄.'],['.ase(어도비)','어도비 스와치 교환. 바이너리이며 RGB·CMYK·LAB·Gray로 된 이름 붙은 견본.'],['.act','어도비 색상표. RGB 256개(768바이트), 선택적으로 색 개수와 투명 인덱스용 4바이트 추가.'],['슬러그','Lospec 주소에 쓰이는 팔레트 이름. 소문자, 공백은 대시(Endesga 32 → endesga-32).']]},
+   mapping:{title:'Lospec 파일과 Nerulio에서의 처리',lead:'2026-09-28 lospec.com에서 받은 PICO-8 팔레트를 Nerulio의 팔레트 읽기 두 가지로 모두 읽어 확인했습니다.',head:['파일','저장하는 것','Nerulio에서'],rows:[
+    ['HEX File(.hex)','`1D2B53` 같은 16줄. 대문자, `#` 없음, 이름 없음, PICO-8은 128바이트','픽셀 랩과 Studio가 읽음. 랩에는 붙여 넣기도 가능'],
+    ['GIMP GPL(.gpl)','`GIMP Palette`, 주석으로 `#Palette Name`·`#Description`·`#Colors`, 그 뒤 탭으로 구분한 `R G B`와 이름 자리의 hex 코드. 알파 없음','둘 다 읽음. Studio는 팔레트 이름도 유지'],
+    ['PAL File, JASC(.pal)','`JASC-PAL`, `0100`, `16`, 그 뒤 색마다 `R G B` 한 줄. 이름 없음','Studio가 읽음(바이너리 RIFF .pal도). 랩은 거부'],
+    ['Photoshop ASE(.ase)','바이너리 `ASEF`. 색마다 hex 코드 이름의 견본, RGB는 0~1 실수','Studio가 읽음. 랩은 못 읽음'],
+    ['Paint.net TXT(.txt)','`;` 주석 줄, 그 뒤 `FF1D2B53` 같은 AARRGGBB 값','지원 안 함: Studio는 알파 바이트를 빨강으로 잘못 읽고 랩은 거부. .hex 사용'],
+    ['JSON(주소 + .json)','`{"name":"PICO-8","author":"","colors":["000000",…]}`, `Access-Control-Allow-Origin: *`와 함께 전송','Studio의 Lospec 검색이 요청하는 파일. 둘 다 읽음'],
+    ['PNG 이미지(1×, 8×, 32×)','색마다 견본 하나가 있는 그림','팔레트 파일로 읽지 않음. .hex나 .gpl 사용'],
+    ['.act(Lospec은 제공 안 함)','RGB 768바이트, 또는 개수와 투명 인덱스를 더한 772바이트','Studio가 읽고 씀(772바이트, 투명 인덱스 없음)']],
+    note:'Nerulio는 Studio에서 .gpl·.pal(JASC)·.hex·.ase·.act·.json을, 랩에서 .gpl·.hex·.json을 쓰며, 테스트에서 모두 쓰고 다시 읽어 똑같았습니다.'},
+   target:{title:'팔레트를 프레임에 적용하기',steps:[
+    'lospec.com에서 팔레트를 열고 HEX File(또는 GIMP GPL)을 받습니다.',
+    '픽셀 랩에 프레임을 놓고 팔레트 단계의 가져오기·내보내기에서 파일을 고르거나, 색을 붙여 넣고 붙여 넣은 팔레트 불러오기를 누릅니다.',
+    '변환 단계에서 애니메이션이라면 디더를 없음으로 두고(질감을 원하면 Bayer), 프레임을 확인한 뒤 모든 프레임 내보내기(ZIP)를 합니다.',
+    '레이어가 있는 스프라이트라면 Studio 픽셀 작업 공간에서 픽셀 › Lospec 팔레트…를 고르고 요청 한 번을 허용한 뒤 이름(예: `pico-8`)을 입력해 불러오고, 바꾸기나 덧붙이기를 고른 다음 색 모드…로 인덱스로 변환합니다.',
+    '다른 프로그램에는 Lospec 가져오기 안내가 지정한 파일을 받으세요. 김프와 에이스프라이트는 .gpl이나 .pal, 포토샵은 ASE, Paint.net은 TXT입니다.']},
+   trouble:{rows:[
+    ['Studio에서 Lospec .txt를 가져오자 색이 틀리거나 투명함','Paint.net TXT는 AARRGGBB인데 Studio는 여덟 자리를 RRGGBBAA로 읽어 FF1D2B53이 반투명 빨강이 됨','팔레트에 체커 무늬로 투명한 빨간색들이 보임','지우고 같은 팔레트의 .hex를 가져오기'],
+    ['픽셀 랩이 "Line 1 is not a colour: JASC-PAL"이라고 함','랩은 .gpl, HEX 목록, JSON만 읽음','파일 첫 줄이 JASC-PAL(.ase라면 ASEF)','HEX File이나 GIMP GPL 판을 받기'],
+    ['에이스프라이트가 Lospec의 .ase를 못 엶','에이스프라이트 스프라이트가 아니라 어도비 스와치 교환 파일. 저장소 시험에서 Aseprite 1.3.18은 헤더를 읽지 못한다는 오류를 냄','파일이 ASEF 바이트로 시작함','Lospec 가져오기 안내대로 에이스프라이트에는 .gpl이나 .pal을 받기'],
+    ['Studio에서 해당 이름의 Lospec 팔레트가 없다고 나옴','입력한 이름이 팔레트 주소와 다름','lospec.com에서 팔레트를 열어 주소 끝부분 확인','그 슬러그(예: `endesga-32`)를 입력하거나 받은 파일을 가져오기'],
+    ['Lospec 검색이 네트워크 오류로 실패','오프라인이거나 네트워크가 막았거나, lospec.com 접속이 허용된 유일한 곳인 Studio 페이지 밖에서 사용','오류 메시지에 실패한 요청이 나옴','lospec.com에서 .hex를 받아 가져오기. 요청이 필요 없음']]},
+   alternatives:{rows:[
+    ['내 그림에서 팔레트 뽑기','공개된 색 묶음이 아니라 스프라이트의 현재 색을 원할 때: [[game/palette-extractor|팔레트 추출]].'],
+    ['램프를 직접 만들기','맞는 공개 팔레트가 없을 때 [[game/pixel-art-palette-editor|팔레트 편집기]]에서 색상 이동 램프를 만드세요.'],
+    ['Lospec의 에이스프라이트 확장','에이스프라이트에서 작업한다면. Lospec 가져오기 안내가 서드파티 Lospec Palette Importer 확장을 소개합니다.']]},
+   limits:['Paint.net .txt와 PNG 팔레트 이미지는 읽지 않습니다. .hex, .gpl, .json을 쓰세요.','픽셀 랩은 .gpl, HEX, JSON만 읽으며 다른 형식은 Studio가 필요합니다.','이름 검색은 lospec.com에 닿아야 하며 개발 서버에서 실제 요청 한 번으로 확인했습니다. 그 헤더의 Cloudflare 배포는 아직 확인하지 않았습니다.'],
+   versions:{body:['Lospec의 다운로드 목록과 파일 내용은 2026-09-28 lospec.com에서 확인했습니다(PICO-8: 16색, .gpl 480바이트, .hex 128, .pal 199, .ase 652, .txt 402, .json 184). Nerulio: 그 파일들을 팔레트 읽기 두 가지로 모두 읽어 봤고, Studio의 읽기·쓰기는 `tests/studio-pixel.test.mjs`로 단위 테스트됩니다. 파일 구조는 아래 형식 소유자의 사양을 따릅니다.'],
+    sources:[s('Lospec: PICO-8 팔레트와 다운로드',LOSPEC.pico),s('Lospec: How to import palettes',LOSPEC.importing),s('GIMP 개발자 문서: GIMP Palette 형식(.gpl)',GIMP_GPL),s('Aseprite 저장소: GPL 팔레트 RGBA 확장',A.gplExt),s('Adobe Photoshop 파일 형식: Color Table(.act)',ADOBE_ACT)]}
+  },
+  ja:{
+   answer:'Lospecのパレットはどれも、HEXファイル、GIMP GPL、JASC PAL、Photoshop ASE、Paint.net TXT、PNG画像でダウンロードでき、同じアドレスに`.json`を付けるとJSONでも取得できます。使うソフトが読めるファイルを選びます。多くのドット絵ツールは.hexか.gpl、PhotoshopはASE、Paint.netはTXTです。Nerulioでは、ピクセルラボにHEXリストを貼るか.gplを読み込んで全フレームをパレットにロックし、Studioのピクセル作業画面ではパレット名を入力すると（ピクセル › Lospec パレット…）、確認のあとlospec.comへリクエストを1つ送ります。',
+   concept:{title:'ダウンロードは7種類、パレットは1つ：Lospecの各ファイルの中身',body:[
+    'Lospecのファイルはどれも同じ色を同じ順で持ち、違うのはほかに何を持つかと、どのソフトが読めるかです。テキスト形式（.hex、.gpl、.pal、.txt）は任意のテキストエディタで開いて確かめられます。パレット名を持つのは.gplと.jsonだけ、色ごとの名前を持つのは.gplと.aseだけです（Lospecはそこにhexコードを書きます）。Lospecのファイルはどれも透明度を保存しないので、0番を透明として扱うツールでは、パレットの最初の色が透明マスクになることがあります。',
+    'よくつまずく形式が2つあります。Lospecの`.ase`はAdobeスウォッチ交換形式で、拡張子が同じAsepriteのスプライトファイルとは別物のため、Asepriteはパレットとして開けません。また、Paint.netの`.txt`は色をアルファが先に来るAARRGGBBで書くため、RRGGBBやRRGGBBAAを想定するソフトはすべての色を読み違えます。',
+    'Lospecの読み込みガイドは、ソフトごとにファイルを指定しています。Asepriteは.pal・.gpl・PNG、GIMPは.gpl・.pal・.aco、PhotoshopはASE、Paint.netはTXT、GrafX2は.palです。Nerulioのピクセルラボは.gpl・.hex・.json（または貼り付けたテキスト）を読み、Studioのピクセル作業画面はJASCとRIFFの.pal、Adobeの.ase・.actも読み、名前でJSONを取得します。'],
+    terms:[['.hex','1行に16進数6桁の色が1つ。それ以外は何もない。'],['.gpl','GIMPパレットのテキスト。ヘッダー、名前、その後に「R G B 名前」の行。GIMPの仕様ではRGBのみで、AsepriteがRGBAの派生形を追加。'],['.pal（JASC）','Paint Shop Proのテキスト。「JASC-PAL」「0100」、色数、その後に「R G B」の行。'],['.ase（Adobe）','Adobeスウォッチ交換。バイナリで、RGB・CMYK・LAB・Grayの名前付きスウォッチ。'],['.act','Adobeカラーテーブル。RGBが256組（768バイト）、任意で色数と透明インデックス用の4バイトが続く。'],['スラッグ','Lospecのアドレスに使われるパレット名。小文字で、空白はダッシュ（Endesga 32 → endesga-32）。']]},
+   mapping:{title:'Lospecのファイルと、Nerulioでの扱い',lead:'2026-09-28にlospec.comから取得したPICO-8パレットを、Nerulioの2つのパレット読み込み処理で読んで確認しました。',head:['ファイル','保存している内容','Nerulioでは'],rows:[
+    ['HEX File（.hex）','`1D2B53`のような16行。大文字、`#`なし、名前なし、PICO-8で128バイト','ピクセルラボとStudioが読む。ラボには貼り付けも可'],
+    ['GIMP GPL（.gpl）','`GIMP Palette`、コメントとして`#Palette Name`・`#Description`・`#Colors`、その後にタブ区切りの`R G B`と名前欄のhexコード。アルファなし','どちらも読む。Studioはパレット名も保持'],
+    ['PAL File、JASC（.pal）','`JASC-PAL`、`0100`、`16`、その後に色ごとの`R G B`の行。名前なし','Studioが読む（バイナリのRIFF .palも）。ラボは拒否'],
+    ['Photoshop ASE（.ase）','バイナリの`ASEF`。色ごとにhexコード名のスウォッチ、RGBは0〜1の浮動小数','Studioが読む。ラボは読めない'],
+    ['Paint.net TXT（.txt）','`;`のコメント行、その後に`FF1D2B53`のようなAARRGGBBの値','非対応：Studioはアルファのバイトを赤として読み違え、ラボは拒否。.hexを使う'],
+    ['JSON（アドレス + .json）','`{"name":"PICO-8","author":"","colors":["000000",…]}`、`Access-Control-Allow-Origin: *`付きで送信','StudioのLospec検索が要求するファイル。どちらも読む'],
+    ['PNG画像（1×、8×、32×）','色ごとに見本が1つ並んだ画像','パレットファイルとしては読まない。.hexか.gplを使う'],
+    ['.act（Lospecは配布していない）','RGBで768バイト、または色数と透明インデックスを足した772バイト','Studioが読み書き（772バイト、透明インデックスなし）']],
+    note:'NerulioはStudioから.gpl・.pal（JASC）・.hex・.ase・.act・.jsonを、ラボから.gpl・.hex・.jsonを書き出し、テストではすべて書き出して読み戻し一致しました。'},
+   target:{title:'パレットをフレームに適用する',steps:[
+    'lospec.comでパレットを開き、HEX File（かGIMP GPL）をダウンロードします。',
+    'ピクセルラボにフレームをドロップし、パレットの工程の読み込み・書き出しでファイルを選ぶか、色を貼り付けて「貼り付けたパレットを読み込む」を押します。',
+    '変換の工程で、アニメならディザは「なし」のまま（質感が欲しければBayer）にしてフレームを確認し、全フレームを書き出し（ZIP）ます。',
+    'レイヤーのあるスプライトなら、Studioのピクセル作業画面でピクセル › Lospec パレット…を選び、1回のリクエストを許可して名前（例：`pico-8`）を入力して読み込み、置き換えか追加を選んでから、カラーモード…でインデックスに変換します。',
+    'ほかのソフトには、Lospecの読み込みガイドが指定するファイルを使います。GIMPとAsepriteは.gplか.pal、PhotoshopはASE、Paint.netはTXTです。']},
+   trouble:{rows:[
+    ['StudioでLospecの.txtを読み込んだら色がおかしい・透明','Paint.net TXTはAARRGGBBだが、Studioは8桁をRRGGBBAAとして読むため、FF1D2B53が半透明の赤になる','パレットにチェッカー模様の透明な赤が並ぶ','削除して、同じパレットの.hexを読み込む'],
+    ['ピクセルラボが「Line 1 is not a colour: JASC-PAL」と表示する','ラボが読めるのは.gpl、HEXリスト、JSONだけ','ファイルの1行目がJASC-PAL（.aseならASEF）','HEX FileかGIMP GPL版をダウンロード'],
+    ['AsepriteでLospecの.aseが開けない','Asepriteのスプライトではなく、Adobeスウォッチ交換のファイル。リポジトリのテストではAseprite 1.3.18がヘッダーを読めないというエラーを出した','ファイルがASEFのバイトで始まる','Lospecの読み込みガイドどおり、Asepriteには.gplか.palを使う'],
+    ['Studioでその名前のLospecパレットがないと出る','入力した名前がパレットのアドレスと一致しない','lospec.comでパレットを開き、アドレスの末尾を見る','そのスラッグ（例：`endesga-32`）を入力するか、ダウンロードしたファイルを読み込む'],
+    ['Lospec検索がネットワークエラーで失敗する','オフライン、ネットワークでのブロック、またはlospec.comへの接続が許されている唯一の場所であるStudioのページ以外で使った','エラーメッセージに失敗したリクエストが表示される','lospec.comで.hexをダウンロードして読み込む。リクエストは不要']]},
+   alternatives:{rows:[
+    ['自分の絵からパレットを取り出す','公開された色の組ではなく、スプライトの今の色が欲しいとき：[[game/palette-extractor|パレット抽出]]。'],
+    ['ランプを自分で作る','合う公開パレットがないときは、[[game/pixel-art-palette-editor|パレットエディタ]]で色相シフトのランプを作ります。'],
+    ['LospecのAseprite拡張','Asepriteで作業しているなら。Lospecの読み込みガイドがサードパーティのLospec Palette Importer拡張を紹介しています。']]},
+   limits:['Paint.netの.txtとPNGのパレット画像は読みません。.hex、.gpl、.jsonを使ってください。','ピクセルラボが読むのは.gpl、HEX、JSONだけで、ほかの形式にはStudioが必要です。','名前での検索にはlospec.comへ接続できる必要があり、開発サーバーで実際のリクエスト1回により確認しました。そのヘッダーのCloudflareへの配備はまだ確認していません。'],
+   versions:{body:['Lospecのダウンロード一覧とファイルの中身は2026-09-28にlospec.comで確認しました（PICO-8：16色、.gpl 480バイト、.hex 128、.pal 199、.ase 652、.txt 402、.json 184）。Nerulio：それらのファイルを2つのパレット読み込み処理で読み、Studioの読み書きは`tests/studio-pixel.test.mjs`で単体テストしています。ファイル構造は下に挙げた形式の策定元の仕様に従います。'],
+    sources:[s('Lospec：PICO-8パレットとダウンロード',LOSPEC.pico),s('Lospec：How to import palettes',LOSPEC.importing),s('GIMP開発者ドキュメント：GIMP Palette形式（.gpl）',GIMP_GPL),s('Asepriteリポジトリ：GPLパレットのRGBA拡張',A.gplExt),s('Adobe Photoshopファイル形式：Color Table（.act）',ADOBE_ACT)]}
+  }
+ },
+ // ───────────────────────────────────────────────────────────────── Aseprite alternative (compare)
+ 'game/aseprite-alternative':{
+  type:'compare',
+  intent:{primary:'find a free or browser alternative to Aseprite and know what is lost',secondary:['what Aseprite does better','what survives an .aseprite round trip','licence, trial and platforms of Aseprite','when to use which, or both'],
+   goal:'a decision between Aseprite, Nerulio or both, based on the tools and files the visitor actually uses',
+   input:'the visitor\'s workflow and .aseprite files',output:'a choice, and .aseprite files that move between both tools',
+   target:'Aseprite 1.3.x and Nerulio Studio',support:'partial',
+   evidence:['docs/STUDIO-PIXEL.md §6 (14 tasks vs Aseprite 1.3.18, 2026-09-24/25) and "Where Nerulio is still worse"','docs/STUDIO-SPRITE.md §10 (231 .aseprite files: 222 layered, 9 flattened; all reopened in Aseprite 1.3.18.6)','src/studio/sprite/aseprite-bridge.js (groups → path-named layers, reference layers skipped, tilemap cels rendered)'],
+   external:['aseprite.org FAQ (what you get, updates to v1.9, source for personal use, EULA), Trial (cannot save), Buy (platforms + Steam key)','Aseprite docs: Tilemap, Scripting, CLI, FX Outline, Symmetry']},
+  en:{
+   answer:'No browser editor replaces all of Aseprite, so choose by what your work depends on. Aseprite is a mature, paid desktop editor for Windows, macOS and Ubuntu (the free trial cannot save; the source may be compiled for personal use) with tilemap layers, layer groups, linked cels, Lua scripting and a command line. Nerulio\'s Pixel workspace is free in a browser tab, uses Aseprite\'s keys, reads and writes `.aseprite`, and adds grid-detecting cleanup, Lospec palettes by name and engine exports, but it lacks those Aseprite features. Because the file moves both ways, many pipelines can use both.',
+   concept:{title:'What an "alternative" has to preserve: your files, your tools and your automation',body:[
+    'Start with the file. Nerulio opens an `.aseprite` with its layers, blend modes, opacity, palette, indexed mode, frames, durations, tags and slices, and writes all of those back; of 231 real files, 222 kept their layers and 9 were flattened because group opacity or per-cel z-order could not be reproduced exactly, and all 231 reopened in Aseprite with the same tags, durations and pixels. What does not survive is structure Nerulio has no model for: layer groups become separate layers named by their path, tilemap layers become plain pixels, linked cels become independent copies, and reference layers are left out.',
+    'Then the tools you reach for every day. The pencil, bucket, shapes, selections, layers, shading ink, symmetry, onion skin and palettes behave alike and were measured on the same sprite. Aseprite\'s larger toolbox (rotation of a selection, gradient, spray, text, custom brushes, tiled drawing, tilemaps) has no counterpart here.',
+    'Last, automation. If a build script calls Aseprite\'s command line to export sheets, or you rely on Lua scripts, the browser cannot take that over. Aseprite\'s purchase includes Windows, macOS and Ubuntu builds plus a Steam key and updates up to v1.9, according to its FAQ; Nerulio needs a Chromium-based browser for the verified behaviour.'],
+    terms:[['Linked cel','One image shared by several frames in Aseprite; editing it changes all of them.'],['Tilemap layer','An Aseprite layer whose cells reference tiles of a tileset (Aseprite 1.3 and later).'],['Round trip','Opening a file in one tool, saving it, and opening it again in the other without losing data.']]},
+   mapping:{title:'An .aseprite file through Nerulio and back',lead:'From the reader and writer in the repository and the 231-file corpus test.',head:['In your Aseprite file','Opened in Nerulio','Saved back as .aseprite'],rows:[
+    ['Layers, opacity, 19 blend modes','Kept when the layered result matches Aseprite\'s render pixel for pixel; otherwise flattened, with the reason shown','Layers, blend mode and opacity written'],
+    ['Layer groups','Leaf layers named by their path (`Body/Arm`); group opacity forces flattening','Flat list of layers, no groups'],
+    ['Indexed colour, palette, transparent index','Kept; cels stored as indexed PNG','Indexed file; real Aseprite reopened it as indexed'],
+    ['Tags and frame durations','Kept (direction and repeat count too)','Tags over consecutive frames, per-frame durations'],
+    ['Slices','Pivots, hit and hurt boxes, 9-slice data','Written back as slices'],
+    ['Tilemap layers','Rendered to ordinary pixels','Image layers; the tileset is gone'],
+    ['Linked cels','Independent copies per frame','No links'],
+    ['Reference layers','Left out','Not written']]},
+   alternatives:{rows:[
+    ['Aseprite','Your work uses tilemap layers, layer groups, linked cels, RotSprite or free rotation, gradient, spray or text tools, custom brushes, Lua scripts or the CLI in a build; or you want a desktop program that works without a browser.'],
+    ['Nerulio Pixel workspace','You cannot install software on the machine, you want drawing, pivots, hitboxes and Godot, Unity or Phaser files in one place, or you need Lospec palettes by name and the cleanup of upscaled art.'],
+    ['Both, one after the other','Draw in Aseprite and drop the .aseprite into Nerulio for engine bundles (see [[game/aseprite-to-godot|Aseprite to Godot]]), or sketch in the browser and finish in Aseprite.'],
+    ['Aseprite compiled from source','Its FAQ says the source code can be downloaded and compiled for your personal use; building is up to you, and the EULA restricts redistributing compiled builds.'],
+    ['Simpler web editors (Piskel, Lospec Pixel Editor)','Quick sketches only: in the repository\'s head-to-head, Piskel\'s bucket had no tolerance and its symmetry was centre-only, and the Lospec editor\'s bucket was contiguous only, with a fixed list of 11 preset palettes.']]},
+   limits:['Missing structure: no layer groups, tilemap layers, reference layers or linked cels.','Missing transforms and tools: no RotSprite, free rotation or scaling of a selection, gradient, spray, contour, text, blur, polygonal lasso, custom brushes or tiled-mode drawing.','No Lua scripting, no command line and no screen for remapping keys.','Outline is outer and 4-connected only, one frame at a time; Aseprite also offers inside outlines and applying it to all cels.','Verified in Chromium only; on touch screens there is no right button, so the background colour needs the swap button or X.'],
+   versions:{body:['Compared with Aseprite 1.3.18 (real CLI build) on 2026-09-24/25 on one CC0 sprite (docs/STUDIO-PIXEL.md §6); the 231-file .aseprite round trip reopened in Aseprite 1.3.18.6 (docs/STUDIO-SPRITE.md §10). Aseprite\'s platforms, trial, update and licence terms were read on aseprite.org on 2026-09-28. The price is not stated here because the purchase page did not show one we could verify.'],
+    sources:[s('Aseprite FAQ',A.faq),s('Aseprite trial version',A.trial),s('Aseprite docs: Tilemap',A.tilemap),s('Aseprite docs: Scripting',A.scripting),s('Aseprite docs: Command Line Interface',A.cli),s('Aseprite docs: FX (Outline)',A.fx)]}
+  },
+  ko:{
+   answer:'브라우저 편집기 하나가 에이스프라이트를 전부 대신하지는 못하므로, 작업이 무엇에 기대는지로 고르세요. 에이스프라이트는 Windows·macOS·Ubuntu용 성숙한 유료 데스크톱 편집기이며(무료 체험판은 저장할 수 없고, 소스는 개인 용도로 컴파일 가능), 타일맵 레이어, 레이어 그룹, 링크된 셀, Lua 스크립트, 명령줄을 갖췄습니다. Nerulio 픽셀 작업 공간은 브라우저 탭에서 무료로 돌고, 에이스프라이트 키를 쓰며, `.aseprite`를 읽고 쓰고, 격자를 찾는 정리·이름으로 부르는 Lospec 팔레트·엔진 내보내기를 더하지만 앞의 에이스프라이트 기능은 없습니다. 파일이 양쪽으로 오가므로 둘을 함께 쓰는 작업 흐름도 많습니다.',
+   concept:{title:'대안이 지켜야 할 것: 파일, 쓰는 도구, 자동화',body:[
+    '먼저 파일입니다. Nerulio는 `.aseprite`를 레이어, 블렌드 모드, 불투명도, 팔레트, 인덱스 모드, 프레임, 시간, 태그, 슬라이스와 함께 열고 모두 다시 씁니다. 실제 파일 231개 중 222개는 레이어가 유지됐고, 9개는 그룹 불투명도나 셀별 z 순서를 정확히 재현할 수 없어 합쳐졌으며, 231개 모두 에이스프라이트에서 같은 태그·시간·픽셀로 다시 열렸습니다. 남지 않는 것은 Nerulio에 개념이 없는 구조입니다. 레이어 그룹은 경로 이름을 가진 개별 레이어가 되고, 타일맵 레이어는 일반 픽셀이 되며, 링크된 셀은 독립된 복사본이 되고, 참조 레이어는 빠집니다.',
+    '다음은 매일 손이 가는 도구입니다. 연필, 페인트통, 도형, 선택, 레이어, 셰이딩 잉크, 대칭, 어니언 스킨, 팔레트는 비슷하게 동작하며 같은 스프라이트로 측정했습니다. 에이스프라이트의 더 큰 도구 상자(선택 영역 회전, 그라디언트, 스프레이, 텍스트, 사용자 브러시, 타일 모드 그리기, 타일맵)는 여기에 대응하는 것이 없습니다.',
+    '마지막은 자동화입니다. 빌드 스크립트가 에이스프라이트 명령줄로 시트를 내보내거나 Lua 스크립트에 기대고 있다면 브라우저가 그 일을 대신할 수 없습니다. 에이스프라이트 FAQ에 따르면 구매에는 Windows·macOS·Ubuntu 빌드와 Steam 키, v1.9까지의 업데이트가 포함됩니다. Nerulio에서 확인된 동작은 Chromium 계열 브라우저 기준입니다.'],
+    terms:[['링크된 셀','에이스프라이트에서 여러 프레임이 함께 쓰는 그림 하나. 고치면 모두 바뀜.'],['타일맵 레이어','칸마다 타일셋의 타일을 가리키는 에이스프라이트 레이어(Aseprite 1.3 이후).'],['왕복','한 도구에서 파일을 열어 저장한 뒤 다른 도구에서 다시 열어도 데이터가 사라지지 않는 것.']]},
+   mapping:{title:'.aseprite 파일이 Nerulio를 거쳐 돌아올 때',lead:'저장소의 읽기·쓰기 코드와 231개 파일 시험을 바탕으로 했습니다.',head:['에이스프라이트 파일에서','Nerulio에서 열면','.aseprite로 다시 저장하면'],rows:[
+    ['레이어, 불투명도, 블렌드 모드 19종','레이어 결과가 에이스프라이트 렌더와 픽셀까지 같으면 유지, 아니면 이유를 보여 주고 합침','레이어, 블렌드 모드, 불투명도 기록'],
+    ['레이어 그룹','경로 이름을 가진 하위 레이어(`Body/Arm`). 그룹 불투명도가 있으면 합쳐짐','그룹 없는 평평한 레이어 목록'],
+    ['인덱스 색, 팔레트, 투명 인덱스','유지. 셀은 인덱스 PNG로 보관','인덱스 파일. 실제 에이스프라이트가 인덱스로 다시 엶'],
+    ['태그와 프레임 시간','유지(방향과 반복 횟수 포함)','연속 프레임 태그와 프레임별 시간'],
+    ['슬라이스','피벗, 히트·허트 박스, 9-슬라이스 데이터','슬라이스로 다시 기록'],
+    ['타일맵 레이어','일반 픽셀로 그려짐','이미지 레이어. 타일셋은 사라짐'],
+    ['링크된 셀','프레임마다 독립된 복사본','링크 없음'],
+    ['참조 레이어','빠짐','기록 안 됨']]},
+   alternatives:{rows:[
+    ['에이스프라이트','작업에 타일맵 레이어, 레이어 그룹, 링크된 셀, RotSprite나 자유 회전, 그라디언트·스프레이·텍스트 도구, 사용자 브러시, Lua 스크립트, 빌드 속 명령줄이 필요할 때. 또는 브라우저 없이 도는 데스크톱 프로그램을 원할 때.'],
+    ['Nerulio 픽셀 작업 공간','컴퓨터에 프로그램을 설치할 수 없을 때, 그리기·피벗·히트박스·Godot·Unity·Phaser 파일을 한곳에서 하고 싶을 때, 이름으로 부르는 Lospec 팔레트나 확대된 그림 정리가 필요할 때.'],
+    ['둘을 차례로','에이스프라이트에서 그리고 .aseprite를 Nerulio에 넣어 엔진 번들을 만들거나([[game/aseprite-to-godot|에이스프라이트를 Godot로]] 참고), 브라우저에서 스케치하고 에이스프라이트에서 마무리.'],
+    ['소스에서 컴파일한 에이스프라이트','FAQ에 따르면 소스 코드를 받아 개인 용도로 컴파일할 수 있습니다. 빌드는 직접 해야 하고, 컴파일한 빌드의 재배포는 EULA가 제한합니다.'],
+    ['더 단순한 웹 편집기(Piskel, Lospec Pixel Editor)','빠른 스케치용. 저장소의 비교 시험에서 Piskel의 페인트통에는 허용 오차가 없고 대칭은 중앙 고정이었으며, Lospec 편집기의 페인트통은 연결 영역만 칠하고 팔레트는 고정된 프리셋 11개였습니다.']]},
+   limits:['없는 구조: 레이어 그룹, 타일맵 레이어, 참조 레이어, 링크된 셀.','없는 변형·도구: RotSprite, 선택 영역 자유 회전·크기 조절, 그라디언트, 스프레이, 윤곽, 텍스트, 흐림, 다각형 올가미, 사용자 브러시, 타일 모드 그리기.','Lua 스크립트, 명령줄, 키 재지정 화면이 없습니다.','외곽선은 바깥·4방향만, 한 번에 한 프레임씩입니다. 에이스프라이트는 안쪽 외곽선과 모든 셀 적용도 제공합니다.','Chromium에서만 확인했습니다. 터치 화면에는 오른쪽 버튼이 없어 배경색은 전환 버튼이나 X가 필요합니다.'],
+   versions:{body:['Aseprite 1.3.18(실제 CLI 빌드)과 2026-09-24/25에 CC0 스프라이트 하나로 비교했습니다(docs/STUDIO-PIXEL.md §6). 231개 .aseprite 왕복은 Aseprite 1.3.18.6에서 다시 열었습니다(docs/STUDIO-SPRITE.md §10). 에이스프라이트의 지원 환경, 체험판, 업데이트, 라이선스 조건은 2026-09-28 aseprite.org에서 읽었습니다. 구매 페이지에서 확인할 수 있는 가격이 표시되지 않아 가격은 적지 않았습니다.'],
+    sources:[s('Aseprite FAQ',A.faq),s('Aseprite 체험판',A.trial),s('Aseprite 문서: Tilemap',A.tilemap),s('Aseprite 문서: Scripting',A.scripting),s('Aseprite 문서: Command Line Interface',A.cli),s('Aseprite 문서: FX(Outline)',A.fx)]}
+  },
+  ja:{
+   answer:'ブラウザのエディタ1つでAsepriteのすべてを置き換えることはできないので、作業が何に頼っているかで選びます。AsepriteはWindows・macOS・Ubuntu向けの成熟した有料デスクトップエディタで（無料の体験版は保存不可、ソースは個人利用ならコンパイル可）、タイルマップレイヤー、レイヤーグループ、リンクセル、Luaスクリプト、コマンドラインを備えます。Nerulioのピクセル作業画面はブラウザのタブで無料で動き、Asepriteのキーを使い、`.aseprite`を読み書きし、グリッドを検出する整理、名前で呼べるLospecパレット、エンジン向け書き出しを加えますが、先のAsepriteの機能はありません。ファイルは双方向にやり取りできるので、両方を使う作業の流れも多くあります。',
+   concept:{title:'「代わり」が守るべきもの：ファイル、使う道具、自動化',body:[
+    'まずファイルです。Nerulioは`.aseprite`をレイヤー、合成モード、不透明度、パレット、インデックスモード、フレーム、時間、タグ、スライスごと開き、すべて書き戻します。実在の231ファイルのうち222はレイヤーを保ち、9はグループの不透明度やセルごとのz順を正確に再現できないため統合され、231すべてがAsepriteで同じタグ・時間・ピクセルのまま開き直せました。残らないのはNerulioに概念のない構造です。レイヤーグループはパス名の付いた個別のレイヤーに、タイルマップレイヤーは普通のピクセルに、リンクセルは独立したコピーになり、参照レイヤーは除かれます。',
+    '次に毎日使う道具です。鉛筆、バケツ、図形、選択、レイヤー、シェーディングインク、対称、オニオンスキン、パレットは同じように動き、同じスプライトで測定しました。Asepriteのより大きな道具箱（選択範囲の回転、グラデーション、スプレー、テキスト、カスタムブラシ、タイルモードでの描画、タイルマップ）に相当するものはここにはありません。',
+    '最後に自動化です。ビルドスクリプトがAsepriteのコマンドラインでシートを書き出していたり、Luaスクリプトに頼っていたりするなら、ブラウザはその役を引き継げません。AsepriteのFAQによると、購入にはWindows・macOS・Ubuntuのビルド、Steamキー、v1.9までのアップデートが含まれます。Nerulioで確認済みの動作はChromium系ブラウザでのものです。'],
+    terms:[['リンクセル','Asepriteで複数のフレームが共有する1枚の絵。直すとすべてが変わる。'],['タイルマップレイヤー','マスごとにタイルセットのタイルを参照するAsepriteのレイヤー（Aseprite 1.3以降）。'],['往復','あるツールでファイルを開いて保存し、別のツールで開き直してもデータが失われないこと。']]},
+   mapping:{title:'.asepriteファイルがNerulioを通って戻るとき',lead:'リポジトリの読み書きのコードと、231ファイルのテストに基づきます。',head:['Asepriteのファイルでは','Nerulioで開くと','.asepriteに保存し直すと'],rows:[
+    ['レイヤー、不透明度、19種の合成モード','レイヤーの結果がAsepriteの描画とピクセル単位で一致すれば保持、そうでなければ理由を示して統合','レイヤー、合成モード、不透明度を記録'],
+    ['レイヤーグループ','パス名の付いた末端のレイヤー（`Body/Arm`）。グループの不透明度があると統合','グループのない平らなレイヤー一覧'],
+    ['インデックスカラー、パレット、透明インデックス','保持。セルはインデックスPNGで保存','インデックスのファイル。実際のAsepriteがインデックスとして開き直した'],
+    ['タグとフレームの時間','保持（方向と繰り返し回数も）','連続したフレームのタグとフレームごとの時間'],
+    ['スライス','ピボット、ヒット・ハートボックス、9スライスのデータ','スライスとして書き戻す'],
+    ['タイルマップレイヤー','普通のピクセルとして描画','画像レイヤー。タイルセットはなくなる'],
+    ['リンクセル','フレームごとに独立したコピー','リンクなし'],
+    ['参照レイヤー','除外','書き出さない']]},
+   alternatives:{rows:[
+    ['Aseprite','作業にタイルマップレイヤー、レイヤーグループ、リンクセル、RotSpriteや自由回転、グラデーション・スプレー・テキストの道具、カスタムブラシ、Luaスクリプト、ビルド内のコマンドラインが必要なとき。あるいはブラウザなしで動くデスクトップアプリが欲しいとき。'],
+    ['Nerulioのピクセル作業画面','そのパソコンにソフトを入れられないとき、描画・ピボット・当たり判定・Godot/Unity/Phaser用ファイルを1か所で済ませたいとき、名前で呼べるLospecパレットや拡大画像の整理が必要なとき。'],
+    ['両方を順番に','Asepriteで描いて.asepriteをNerulioに入れエンジン用バンドルを作る（[[game/aseprite-to-godot|AsepriteからGodotへ]]を参照）、またはブラウザで下描きしてAsepriteで仕上げる。'],
+    ['ソースからコンパイルしたAseprite','FAQによると、ソースコードをダウンロードして個人利用のためにコンパイルできます。ビルドは自分で行い、コンパイルしたビルドの再配布はEULAで制限されます。'],
+    ['よりシンプルなWebエディタ（Piskel、Lospec Pixel Editor）','手早い下描き向け。リポジトリの比較テストでは、Piskelのバケツに許容範囲はなく対称は中央固定、Lospecエディタのバケツは隣接範囲のみで、パレットは固定の11プリセットでした。']]},
+   limits:['ない構造：レイヤーグループ、タイルマップレイヤー、参照レイヤー、リンクセル。','ない変形・道具：RotSprite、選択範囲の自由回転・拡大縮小、グラデーション、スプレー、輪郭、テキスト、ぼかし、多角形なげなわ、カスタムブラシ、タイルモードでの描画。','Luaスクリプト、コマンドライン、キー割り当ての変更画面はありません。','縁取りは外側・4方向のみで、1フレームずつです。Asepriteは内側の縁取りと全セルへの適用もできます。','確認はChromiumのみです。タッチ画面には右ボタンがないため、背景色には入れ替えボタンかXが必要です。'],
+   versions:{body:['Aseprite 1.3.18（実際のCLIビルド）と2026-09-24/25にCC0スプライト1枚で比較しました（docs/STUDIO-PIXEL.md §6）。231ファイルの.aseprite往復はAseprite 1.3.18.6で開き直しました（docs/STUDIO-SPRITE.md §10）。Asepriteの対応環境、体験版、アップデート、ライセンス条件は2026-09-28にaseprite.orgで確認しました。購入ページで確認できる価格が表示されなかったため、価格は記載していません。'],
+    sources:[s('Aseprite FAQ',A.faq),s('Aseprite 体験版',A.trial),s('Asepriteドキュメント：Tilemap',A.tilemap),s('Asepriteドキュメント：Scripting',A.scripting),s('Asepriteドキュメント：Command Line Interface',A.cli),s('Asepriteドキュメント：FX（Outline）',A.fx)]}
+  }
  }
 };
