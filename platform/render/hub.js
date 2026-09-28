@@ -5,7 +5,8 @@ import {html} from './html.js';
 import {page,nameOf,channelUrl,box,monogram,TILE} from './ui.js';
 import {compact} from './format.js';
 import {hubEntities,typeCounts,factsFor,pickFact,related} from '../db/channel.js';
-import {money,tokens,isoDateText} from './format.js';
+import {money,tokens,isoDateText,int} from './format.js';
+import {estimateLlmMemory} from '../estimates/llm-memory.js';
 import {badge} from './ui.js';
 import {verticalOf,typeDef} from '../verticals/index.js';
 import {label} from '../labels.js';
@@ -22,6 +23,11 @@ export async function loadHub(db,vertical,o){
  for(const t of types)groups.push({type:t,total:counts[t]||0,rows:await hubEntities(db,vertical,{type:t,limit:type?HUB_PAGE_SIZE:12,offset:type?(pageNo-1)*HUB_PAGE_SIZE:0})});
  // AI plans and models: a comparison table from official facts instead of a plain list.
  let compare=null;
+ if(vertical==='hardware'&&type==='gpu'){
+  const all=await hubEntities(db,'hardware',{type,limit:200});
+  const facts=await factsFor(db,all.map(r=>r.entity.id));
+  compare={rows:all.map(r=>({e:r.entity,owner:null,f:(/** @type {string} */ p)=>pickFact(facts.get(r.entity.id),p)}))};
+ }
  if(vertical==='ai'&&(type==='plan'||type==='model')){
   const all=await hubEntities(db,'ai',{type,limit:200});
   const facts=await factsFor(db,all.map(r=>r.entity.id));
@@ -40,9 +46,9 @@ export function renderHub(m,site){
  const total=m.type?m.counts[m.type]||0:0,last=Math.ceil(total/HUB_PAGE_SIZE);
  const pager=m.type&&last>1?html`<nav class="pager" aria-label="${ko?'페이지':'Page'}">${m.page>1?html`<a class="btn" href="${base}?type=${m.type}${m.page-1>1?`&page=${m.page-1}`:''}">‹</a>`:''}<span class="fine">${m.page} / ${last}</span>${m.page<last?html`<a class="btn" href="${base}?type=${m.type}&page=${m.page+1}">›</a>`:''}</nav>`:'';
  const cmp=m.compare?compareTable(m,l):null;
- const body=cmp?html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${m.type==='plan'?(ko?'AI 요금제 비교':'AI plan comparison'):(ko?'AI 모델 API 가격 비교':'AI model API price comparison')}</h1>${badge('OFFICIAL',l)}</div><span class="fine">${m.type==='plan'?(ko?'각 회사 공식 요금 페이지 기준. 한국 요금이 공식으로 나와 있으면 원화, 아니면 달러로 적었습니다(달러 요금은 결제 시 환율·세금에 따라 달라짐).':'From each company\'s official pricing page, in the local currency where one is published.'):(ko?'각 회사 공식 가격 문서 기준, 100만 토큰당 달러.':'From each company\'s official pricing docs, USD per 1M tokens.')}</span>${tabs}</div></section>${cmp}`:html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${label(v.label,l)}</h1><span class="fine">${label(v.tagline,l)}</span></div>${tabs}</div></section>${groups}${pager}`;
+ const body=cmp?html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${m.type==='gpu'?(ko?'그래픽카드 VRAM·스펙 비교':'GPU VRAM and spec comparison'):m.type==='plan'?(ko?'AI 요금제 비교':'AI plan comparison'):(ko?'AI 모델 API 가격 비교':'AI model API price comparison')}</h1>${badge('OFFICIAL',l)}</div><span class="fine">${m.type==='gpu'?(ko?'제조사 공식 스펙 기준. "Q4 최대"는 Q4_K_M에서 여유 있게 들어가는 모델 크기 추정(KV 캐시 제외)입니다.':'Official specs. "Q4 max" is an estimate of the largest model that fits at Q4_K_M (KV cache excluded).'):m.type==='plan'?(ko?'각 회사 공식 요금 페이지 기준. 한국 요금이 공식으로 나와 있으면 원화, 아니면 달러로 적었습니다(달러 요금은 결제 시 환율·세금에 따라 달라짐).':'From each company\'s official pricing page, in the local currency where one is published.'):(ko?'각 회사 공식 가격 문서 기준, 100만 토큰당 달러.':'From each company\'s official pricing docs, USD per 1M tokens.')}</span>${tabs}</div></section>${cmp}`:html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${label(v.label,l)}</h1><span class="fine">${label(v.tagline,l)}</span></div>${tabs}</div></section>${groups}${pager}`;
  const other=ko?'en':'ko';
- if(cmp)return page({l,title:m.type==='plan'?(ko?'AI 요금제 비교 — ChatGPT·Claude·Gemini 월 요금 (공식) | Nerulio':'AI plan comparison — ChatGPT, Claude, Gemini | Nerulio'):(ko?'AI 모델 API 가격 비교 — 입력·출력 100만 토큰당 (공식) | Nerulio':'AI model API prices — per 1M tokens | Nerulio'),description:ko?'공식 가격 페이지 기준 요금·API 가격을 한 표로. 바뀌면 기록이 남습니다.':'Official prices in one table, with change history.',canonical:site.origin+base+`?type=${m.type}`,alternates:{[l]:site.origin+base+`?type=${m.type}`,[other]:site.origin+`/${other}/${vertical}/?type=${m.type}`},channels:m.channels,body});
+ if(cmp)return page({l,title:m.type==='gpu'?(ko?'그래픽카드 VRAM·스펙 비교 — 로컬 LLM 추정 포함 | Nerulio':'GPU VRAM and spec comparison | Nerulio'):m.type==='plan'?(ko?'AI 요금제 비교 — ChatGPT·Claude·Gemini 월 요금 (공식) | Nerulio':'AI plan comparison — ChatGPT, Claude, Gemini | Nerulio'):(ko?'AI 모델 API 가격 비교 — 입력·출력 100만 토큰당 (공식) | Nerulio':'AI model API prices — per 1M tokens | Nerulio'),description:ko?'공식 가격 페이지 기준 요금·API 가격을 한 표로. 바뀌면 기록이 남습니다.':'Official prices in one table, with change history.',canonical:site.origin+base+`?type=${m.type}`,alternates:{[l]:site.origin+base+`?type=${m.type}`,[other]:site.origin+`/${other}/${vertical}/?type=${m.type}`},channels:m.channels,body});
  return page({l,title:ko?`${label(v.label,l)} 채널 — ${label(v.tagline,l)} | Nerulio`:`${label(v.label,l)} channels — ${label(v.tagline,l)} | Nerulio`,description:label(v.tagline,l),
   canonical:site.origin+base+(m.type?`?type=${m.type}${m.page>1?`&page=${m.page}`:''}`:''),alternates:{[l]:site.origin+base,[other]:site.origin+`/${other}/${vertical}/`},noindex:m.page>1,channels:m.channels,body});
 }
@@ -50,6 +56,14 @@ export function renderHub(m,site){
 /** @param {any} m @param {string} l */
 function compareTable(m,l){
  const ko=l==='ko',rows=m.compare.rows;
+ if(m.type==='gpu'){
+  const list=rows.filter((/** @type {any} */ r)=>r.f('vram_gb')).sort((/** @type {any} */ a,/** @type {any} */ b)=>Number(b.f('vram_gb').value)-Number(a.f('vram_gb').value)||String(b.f('release_date')?.value||'').localeCompare(String(a.f('release_date')?.value||'')));
+  const q4=(/** @type {number} */ vram)=>{let best=0;for(const p of [1,3,4,7,8,12,14,20,24,27,32,35,49,70,72,110,123])if(estimateLlmMemory({paramsB:p,quant:'Q4_K_M',vramGiB:vram}).verdict==='fits')best=p;return best;};
+  const cell=(/** @type {any} */ f,/** @type {string} */ unit)=>f?`${int(Number(f.value),l)}${unit}`:'–';
+  return box({title:ko?`그래픽카드 ${list.length}개`:`${list.length} GPUs`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'카드':'Card'}</th><th>VRAM</th><th>${ko?'대역폭':'Bandwidth'}</th><th>${ko?'보드 전력':'Power'}</th><th>${ko?'출시가':'MSRP'}</th><th>${ko?'출시':'Released'}</th><th>${ko?'Q4 최대 (추정)':'Q4 max (est.)'}</th></tr></thead><tbody>
+${list.map((/** @type {any} */ r)=>{const v=Number(r.f('vram_gb').value),price=r.f('launch_price_usd'),rel=r.f('release_date');return html`<tr><td><a href="${channelUrl(l,r.e)}"><b>${nameOf(r.e,l)}</b></a></td><td><b>${v} GB</b></td><td>${cell(r.f('memory_bandwidth_gbs'),' GB/s')}</td><td>${cell(r.f('board_power_w'),' W')}</td><td>${price?money(Number(price.value),'USD',l):'–'}</td><td>${rel?isoDateText(String(rel.value)):'–'}</td><td><a href="${channelUrl(l,r.e)}local-llm">≈ ${q4(v)}B</a></td></tr>`;})}
+</tbody></table></div>`);
+ }
  if(m.type==='plan'){
   const list=rows.filter((/** @type {any} */ r)=>r.f('price_monthly')).sort((/** @type {any} */ a,/** @type {any} */ b)=>String(a.owner?.slug||'').localeCompare(String(b.owner?.slug||''))||String(a.f('price_monthly').unit||'USD').localeCompare(String(b.f('price_monthly').unit||'USD'))||Number(a.f('price_monthly').value)-Number(b.f('price_monthly').value));
   return box({title:ko?`요금제 ${list.length}개`:`${list.length} plans`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'서비스':'Service'}</th><th>${ko?'요금제':'Plan'}</th><th>${ko?'월 요금':'Monthly'}</th><th>${ko?'연 요금':'Yearly'}</th><th>${ko?'최소 인원':'Min seats'}</th></tr></thead><tbody>

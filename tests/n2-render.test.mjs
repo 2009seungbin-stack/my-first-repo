@@ -284,6 +284,8 @@ test('AI hub: plan and model price comparison tables from official facts',{skip:
  const plans=await go('/ko/ai/?type=plan');
  assert(plans.includes('AI 요금제 비교')&&plans.includes('Claude Pro')&&plans.includes('$20'));
  assert(!plans.includes('noindex'),'the comparison is indexable');
+ const gpus=await go('/ko/hardware/?type=gpu');
+ assert(gpus.includes('그래픽카드 VRAM·스펙 비교')&&gpus.includes('/ko/hardware/rtx-5070/local-llm'));
  const models=await go('/ko/ai/?type=model');
  assert(models.includes('AI 모델 API 가격 비교')&&models.includes('Claude Opus 5.5'));
 });
