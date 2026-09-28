@@ -41,7 +41,7 @@ def binary_records(raw):
     return chars, kernings
 
 
-def verify_zip(path):
+def verify_zip(path, expected_count=192):
     with zipfile.ZipFile(path) as archive:
         names = set(archive.namelist())
         assert {'font.png', 'font.fnt', 'font.xml', 'font-binary.fnt',
@@ -52,7 +52,7 @@ def verify_zip(path):
         assert image.size == (font['width'], font['height'])
         xml = ET.fromstring(archive.read('font.xml'))
         xml_chars = {int(node.attrib['id']): node.attrib for node in xml.findall('./chars/char')}
-        assert len(xml_chars) == len(font['glyphs']) == len(project['glyphs']) == 192
+        assert len(xml_chars) == len(font['glyphs']) == len(project['glyphs']) == expected_count
         binary_chars, binary_kernings = binary_records(archive.read('font-binary.fnt'))
         by_cp = {g['codepoint']: g for g in project['glyphs']}
         for index, metric in enumerate(font['glyphs']):
@@ -68,8 +68,8 @@ def verify_zip(path):
             assert [1 if pixel[3] else 0 for pixel in crop.get_flattened_data()] == original['pixels'], cp
         assert len(binary_kernings) == len(font['kernings'])
         text = archive.read('font.fnt').decode('utf-8')
-        assert int(re.search(r'chars count=(\d+)', text).group(1)) == 192
-        assert len(re.findall(r'^char id=', text, re.M)) == 192
+        assert int(re.search(r'chars count=(\d+)', text).group(1)) == expected_count
+        assert len(re.findall(r'^char id=', text, re.M)) == expected_count
         ttf = TTFont(io.BytesIO(archive.read('font.ttf')))
         assert ttf.sfntVersion == '\x00\x01\x00\x00'
         assert set(ttf.getBestCmap()) == set(by_cp)
@@ -189,6 +189,26 @@ def main():
                 p2.locator('#fontGlyph option').first.wait_for()
                 assert p2.locator('#fontGlyph option').count() == 192
                 p2.screenshot(path=str(OUT / 'font-en-1440.png'), full_page=True)
+                p2.locator('#hangulComposer').evaluate('(element) => { element.open = true }')
+                p2.locator('#fontHangulCanvas').click(position={'x': 5, 'y': 5})
+                p2.locator('#fontHangulPart').select_option('vowel')
+                p2.locator('#fontHangulCanvas').click(position={'x': 5, 'y': 5})
+                assert '1 overlapping' in p2.locator('#fontHangulStatus').inner_text()
+                p2.locator('[data-action="ui-font-hangul-apply"]').click()
+                assert p2.locator('#fontGlyph option').count() == 193
+                p2.locator('[data-action="ui-font-undo"]').click()
+                assert p2.locator('#fontGlyph option').count() == 192
+                p2.locator('[data-action="ui-font-redo"]').click()
+                assert p2.locator('#fontGlyph option').count() == 193
+                with p2.expect_download() as got_composed:
+                    p2.locator('[data-action="ui-export-font"]').click()
+                composed_zip = OUT / 'font-hangul-composed.zip'
+                got_composed.value.save_as(composed_zip)
+                composed = verify_zip(composed_zip, 193)
+                assert composed['hangulTemplates']['leading']['0']['vertical-open'][0] == 1
+                assert composed['hangulTemplates']['vowel']['0']['open'][0] == 1
+                assert composed['glyphs'][-1]['codepoint'] == 0xac00
+                p2.screenshot(path=str(OUT / 'font-hangul-composer-1440.png'), full_page=True)
                 ctx2.close()
             ctx.close()
         mulmaru = ROOT / 'test-results/t7-research/mulmaru/unpacked/Mulmaru.ttf'

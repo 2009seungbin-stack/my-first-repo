@@ -7,7 +7,8 @@ import * as ST from '../game/ui-states.js';
 import * as BM from '../game/bmfont.js';
 import {parseBdf} from '../game/font-bdf.js';
 import * as FP from '../game/font-project.js';
-import {HANGUL_COUNT,ksX1001Hangul,estimateGlyphAtlas,planFontGrid} from '../game/font-hangul.js';
+import {HANGUL_COUNT,hangulParts,ksX1001Hangul,estimateGlyphAtlas,planFontGrid} from '../game/font-hangul.js';
+import * as HC from '../game/font-hangul-compose.js';
 import * as SDF from '../game/sdf.js';
 import * as LAY from '../game/ui-layout.js';
 import {contrastRatio,wcag,round2} from '../game/contrast.js';
@@ -61,7 +62,8 @@ export function mount({el,def}){
   states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
   font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null,
-   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,tool:'pencil',rectStart:null,preview:'',past:[],future:[],stroke:false,strokeInkBefore:null},
+   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,tool:'pencil',rectStart:null,preview:'',past:[],future:[],stroke:false,strokeInkBefore:null,
+   hangulCp:0xac00,hangulPart:'leading',hangulX:0,hangulY:0,hangulStroke:false},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
@@ -118,10 +120,11 @@ ${stage==='font'?`<div class="ui-font-import"><label class="field"><span>${esc(T
    return;
   }
   // Re-rendering the side panel must not collapse Advanced under the user's hands.
-  const open=$('#optionsAdvanced')?.open;
+  const open=$('#optionsAdvanced')?.open,openHangul=$('#hangulComposer')?.open;
   $('#uiBoard').innerHTML=view.board();
   $('#uiSide').innerHTML=view.side();
   if(open){const details=$('#optionsAdvanced');if(details)details.open=true;}
+  if(openHangul){const details=$('#hangulComposer');if(details)details.open=true;}
   view.paint?.();
  }
  const refresh=()=>{if(source||!needsImage(stage))paintStage();};
@@ -315,7 +318,17 @@ ${f.mode==='draw'&&f.project?`<label class="field"><span>${esc(T('fontGlyph'))}<
 <div class="field-row"><label class="field"><span>${esc(T('fontBearingX'))}</span><input id="fontBearingX" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xOffset??0}"></label><label class="field"><span>${esc(T('fontBearingY'))}</span><input id="fontBearingY" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.yOffset??0}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
-</details><p class="hint" id="fontSizeEstimate">${esc(fontEstimateText(f.project))}</p>`:''}
+</details><p class="hint" id="fontSizeEstimate">${esc(fontEstimateText(f.project))}</p>
+<details class="options-advanced" id="hangulComposer"><summary>${esc(T('fontHangulTitle'))}</summary>
+<p class="hint">${esc(T('fontHangulHelp'))}</p>
+<p class="hint">${esc(T('fontHangulReplaceNote'))}</p>
+<label class="field"><span>${esc(T('fontHangulSyllable'))}</span><input id="fontHangulSyllable" type="text" maxlength="1" value="${esc(String.fromCodePoint(f.hangulCp))}" lang="ko"></label>
+<label class="field"><span>${esc(T('fontHangulPartLabel'))}</span><select id="fontHangulPart">${(hangulParts(f.hangulCp).trailing?HC.HANGUL_PARTS:HC.HANGUL_PARTS.slice(0,2)).map(part=>`<option value="${part}" ${f.hangulPart===part?'selected':''}>${esc(T('fontHangulPart.'+part))}</option>`).join('')}</select></label>
+<div class="ui-font-editor"><canvas id="fontHangulCanvas" tabindex="0" aria-label="${esc(T('fontHangulCanvasHelp'))}"></canvas></div>
+<div class="ui-font-editor"><canvas id="fontHangulPreview" aria-label="${esc(T('fontHangulPreview'))}"></canvas></div>
+<p class="hint" id="fontHangulStatus" role="status" aria-live="polite"></p>
+<div class="field-row"><button type="button" class="mini-button" data-action="ui-font-hangul-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button><button type="button" class="mini-button" data-action="ui-font-hangul-apply" ${f.project.hangulTemplates&&!HC.missingHangulTemplates(f.project.hangulTemplates,f.hangulCp).length?'':'disabled'}>${esc(T('fontHangulApply'))}</button></div>
+</details>`:''}
 <form class="options" autocomplete="off">
 ${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="font.size" min="6" max="128" value="${f.size}" inputmode="numeric"></label><label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label></div>
@@ -337,7 +350,7 @@ ${f.sdf?`<label class="field"><span>${esc(T('sdfSpread'))}</span><input type="nu
 <button type="button" class="primary big" data-action="ui-export-font">${esc(T(f.mode==='draw'?'fontExportProject':'fontExportV2'))}</button>
 <small class="local-note">${esc(text('local'))}</small>`;
    },
-   paint(){buildFont();}
+   paint(){buildFont();paintHangulComponent();}
   },
   // ---------- check ----------
   check:{
@@ -553,6 +566,39 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const canvas=$('#fontEditCanvas'),g=selectedGlyph(),r=canvas?.getBoundingClientRect();if(!g||!r||!r.width||!r.height)return null;
   return {x:clamp(Math.floor((event.clientX-r.left)/r.width*g.w),0,g.w-1),y:clamp(Math.floor((event.clientY-r.top)/r.height*g.h),0,g.h-1)};
  }
+ function hangulKit(){
+  const f=S.font;if(!f.project.hangulTemplates){const side=clamp(f.project.lineHeight,1,128);f.project.hangulTemplates=HC.blankHangulTemplates(side,side);}
+  return f.project.hangulTemplates;
+ }
+ function paintHangulComponent(){
+  const canvas=$('#fontHangulCanvas'),preview=$('#fontHangulPreview'),status=$('#fontHangulStatus');
+  if(!canvas||!preview||!status||!S.font.project)return;
+  const f=S.font,kit=f.project.hangulTemplates,side=clamp(f.project.lineHeight,1,128),w=kit?.width||side,h=kit?.height||side;
+  if(f.hangulPart==='trailing'&&!hangulParts(f.hangulCp).trailing)f.hangulPart='leading';
+  const scale=clamp(Math.floor(256/Math.max(w,h)),4,20),pixels=kit?HC.hangulTemplateMask(kit,f.hangulCp,f.hangulPart):null;
+  canvas.width=w*scale;canvas.height=h*scale;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   if(pixels?.[y*w+x]){ctx.fillStyle='#152638';ctx.fillRect(x*scale,y*scale,scale,scale);}
+   ctx.strokeStyle='#cbd5e1';ctx.strokeRect(x*scale+.5,y*scale+.5,scale,scale);
+  }
+  f.hangulX=clamp(f.hangulX,0,w-1);f.hangulY=clamp(f.hangulY,0,h-1);
+  ctx.strokeStyle='#1465ad';ctx.lineWidth=2;ctx.strokeRect(f.hangulX*scale+2,f.hangulY*scale+2,scale-4,scale-4);
+  preview.width=w*scale;preview.height=h*scale;
+  const px=preview.getContext('2d');px.fillStyle='#fff';px.fillRect(0,0,preview.width,preview.height);
+  const missing=kit?HC.missingHangulTemplates(kit,f.hangulCp):(hangulParts(f.hangulCp).trailing?HC.HANGUL_PARTS:HC.HANGUL_PARTS.slice(0,2));
+  if(missing.length){status.textContent=T('fontHangulMissing',{parts:missing.map(part=>T('fontHangulPart.'+part)).join(', ')});return;}
+  const made=HC.composeHangulMask(f.hangulCp,kit);
+  px.fillStyle='#152638';for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(made.pixels[y*w+x])px.fillRect(x*scale,y*scale,scale,scale);
+  status.textContent=T('fontHangulReady',{collisions:made.collisions});
+ }
+ function hangulPixelAt(event){
+  const canvas=$('#fontHangulCanvas'),r=canvas?.getBoundingClientRect(),f=S.font;
+  if(!r?.width||!r?.height||!f.project)return null;
+  const side=clamp(f.project.lineHeight,1,128),w=f.project.hangulTemplates?.width||side,h=f.project.hangulTemplates?.height||side;
+  return {x:clamp(Math.floor((event.clientX-r.left)/r.width*w),0,w-1),y:clamp(Math.floor((event.clientY-r.top)/r.height*h),0,h-1)};
+ }
+ function paintHangulAt(x,y){const f=S.font;HC.paintHangulTemplate(hangulKit(),f.hangulCp,f.hangulPart,x,y,f.ink);f.hangulX=x;f.hangulY=y;paintHangulComponent();}
  function fontPaint(x,y){
   const f=S.font,g=selectedGlyph();if(!g||x<0||x>=g.w||y<0||y>=g.h)return;
   f.editX=x;f.editY=y;if(g.pixels[y*g.w+x]!==f.ink){FP.setGlyphPixel(f.project,g.codepoint,x,y,f.ink);buildFont();}
@@ -960,6 +1006,16 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    else if(action==='ui-font-undo')stepFont(S.font.past,S.font.future);
    else if(action==='ui-font-redo')stepFont(S.font.future,S.font.past);
    else if(action==='ui-font-erase'){S.font.ink=S.font.ink?0:1;button.setAttribute('aria-pressed',String(!S.font.ink));}
+   else if(action==='ui-font-hangul-erase'){S.font.ink=S.font.ink?0:1;refresh();}
+   else if(action==='ui-font-hangul-apply'){
+    const f=S.font,kit=f.project.hangulTemplates;
+    if(!kit||HC.missingHangulTemplates(kit,f.hangulCp).length)throw Error(T('fontHangulNeedMasks'));
+    const made=HC.composeHangulMask(f.hangulCp,kit);rememberFont();
+    let glyph=f.project.glyphs.find(g=>g.codepoint===f.hangulCp);
+    if(!glyph){FP.addGlyph(f.project,f.hangulCp,{w:made.width,h:made.height,xAdvance:made.width});glyph=f.project.glyphs.find(g=>g.codepoint===f.hangulCp);}
+    glyph.w=made.width;glyph.h=made.height;glyph.pixels=made.pixels;glyph.xOffset=0;glyph.yOffset=0;glyph.xAdvance=made.width;
+    f.selected=f.hangulCp;f.editX=0;f.editY=0;refresh();
+   }
    else if(action==='ui-font-tool'){S.font.tool=button.dataset.tool;S.font.rectStart=null;refresh();}
    else if(action==='ui-font-add'){
     const raw=($('#fontAddGlyph')?.value||'').trim();
@@ -1035,6 +1091,12 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   else if(e.target.id==='fntFile')loadLocalFile(e.target,'fnt');
   else if(e.target.id==='localeFile')loadLocalFile(e.target,'locale');
   else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;S.font.rectStart=null;refresh();}
+  else if(e.target.id==='fontHangulSyllable'){
+   const chars=[...e.target.value];const cp=chars.length===1?chars[0].codePointAt(0):null;
+   if(cp===null||cp<0xac00||cp>0xd7a3){toast(T('fontHangulInvalid'),{error:true});refresh();return;}
+   S.font.hangulCp=cp;S.font.hangulPart='leading';S.font.hangulX=0;S.font.hangulY=0;refresh();
+  }
+  else if(e.target.id==='fontHangulPart'){S.font.hangulPart=e.target.value;S.font.hangulX=0;S.font.hangulY=0;refresh();}
   else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent','fontGlyphW','fontGlyphH'].includes(e.target.id)){
    const f=S.font,g=selectedGlyph();if(!g)return;
    const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
@@ -1057,6 +1119,13 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
+  if(e.target.id==='fontHangulCanvas'){
+   const f=S.font,kit=f.project?.hangulTemplates,side=clamp(f.project?.lineHeight||8,1,128),w=kit?.width||side,h=kit?.height||side;
+   const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+   if(delta){e.preventDefault();f.hangulX=clamp(f.hangulX+delta[0],0,w-1);f.hangulY=clamp(f.hangulY+delta[1],0,h-1);paintHangulComponent();return;}
+   if(e.key===' '||e.key==='Enter'){e.preventDefault();rememberFont();paintHangulAt(f.hangulX,f.hangulY);refresh();$('#fontHangulCanvas')?.focus();return;}
+   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?stepFont(f.future,f.past):stepFont(f.past,f.future);$('#fontHangulCanvas')?.focus();return;}
+  }
   if(e.target.id==='fontEditCanvas'){
    const g=selectedGlyph();if(!g)return;
    const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
@@ -1088,6 +1157,11 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  });
  // Dragging a guide, and dragging the custom preview's corner, both work in source pixels.
  el.addEventListener('pointerdown',e=>{
+  if(e.target.id==='fontHangulCanvas'){
+   const at=hangulPixelAt(e);if(!at)return;
+   const f=S.font;rememberFont();f.strokeInkBefore=f.ink;f.ink=e.button===2?0:f.ink;f.hangulStroke=true;
+   paintHangulAt(at.x,at.y);e.target.setPointerCapture?.(e.pointerId);e.preventDefault();return;
+  }
   if(e.target.id==='fontEditCanvas'){
    const at=fontPixelAt(e);if(!at)return;
    const f=S.font;rememberFont();f.strokeInkBefore=f.ink;f.ink=e.button===2?0:f.ink;
@@ -1103,6 +1177,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(handle){const box=handle.closest('.ns-box').getBoundingClientRect();drag={kind:'resize',x:e.clientX,y:e.clientY,w:S.slice.customW,h:S.slice.customH,scale:S.slice.customW/box.width};handle.setPointerCapture?.(e.pointerId);e.preventDefault();}
  });
  el.addEventListener('pointermove',e=>{
+  if(S.font.hangulStroke&&e.target.id==='fontHangulCanvas'){const at=hangulPixelAt(e);if(at)paintHangulAt(at.x,at.y);return;}
   if(S.font.stroke&&e.target.id==='fontEditCanvas'){const at=fontPixelAt(e);if(at){if(S.font.tool==='rectangle'){S.font.editX=at.x;S.font.editY=at.y;paintFontEdit();}else fontPaint(at.x,at.y);}return;}
   if(!drag)return;
   if(drag.kind==='guide'){
@@ -1117,13 +1192,13 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   VIEWS.slice.paint();
  });
  for(const type of ['pointerup','pointercancel'])el.addEventListener(type,()=>{
-  const fontStroke=S.font.stroke;S.font.stroke=false;
+  const fontStroke=S.font.stroke,hangulStroke=S.font.hangulStroke;S.font.stroke=false;S.font.hangulStroke=false;
   if(fontStroke&&S.font.rectStart){const a=S.font.rectStart;FP.rectangleGlyph(S.font.project,S.font.selected,a.x,a.y,S.font.editX,S.font.editY,S.font.ink);S.font.rectStart=null;}
   if(S.font.strokeInkBefore!==null){S.font.ink=S.font.strokeInkBefore;S.font.strokeInkBefore=null;}
   // A click on a guide that moved nothing leaves no undo step behind.
   if(drag?.kind==='guide'){const last=borderPast.at(-1);if(last&&SIDES.every(side=>last[side]===S.border[side]))borderPast.pop();refreshUndo();}
-  drag=null;if(fontStroke)refresh();});
- el.addEventListener('contextmenu',e=>{if(e.target.id==='fontEditCanvas')e.preventDefault();});
+  drag=null;if(fontStroke||hangulStroke)refresh();});
+ el.addEventListener('contextmenu',e=>{if(e.target.id==='fontEditCanvas'||e.target.id==='fontHangulCanvas')e.preventDefault();});
  const refreshUndo=()=>{const u=$('#nsUndo'),r=$('#nsRedo');if(u)u.disabled=!borderPast.length;if(r)r.disabled=!borderFuture.length;};
  // A .fnt, a .txt or a font file can be dropped straight onto its own field; the page-level
  // intake only accepts images, so those drops must not reach it.
