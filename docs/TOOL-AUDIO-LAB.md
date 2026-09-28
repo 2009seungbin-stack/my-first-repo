@@ -1,6 +1,15 @@
 # Audio Lab — stage 1 design gate (T5)
 
-Status: **implementation in progress; browser and listening gates pending**. Stage-1 research was prepared 2026-09-28 on `nerulio/tool-t5-audio-lab` from `origin/main` at `cd1e69a`, and coordinator review approved implementation. This document keeps the original design targets below; the measured implementation state is recorded next. No release or competitor-superiority claim is made.
+Status: **implementation in progress; browser gates passed, listening and phone gates pending**. Stage-1 research was prepared 2026-09-28 on `nerulio/tool-t5-audio-lab` from `origin/main` at `cd1e69a`, and coordinator review approved implementation. This document keeps the original design targets below; the measured implementation state is recorded next. No release or competitor-superiority claim is made.
+
+## Browser audit — 2026-09-29
+
+- `tests/audio-lab-browser.py` passed **46/46 Chromium checks** on the built local page: ko/en/ja pages, no ad slot or 390 px horizontal overflow, media-guide navigation, local Worker decode of a constructed 120 BPM/C-major WAV, matching estimates, edit undo/redo, browser audio preview, WAV/Ogg/MP3 download, real Kenney CC0 Vorbis decode/edit, and no non-GET requests or JavaScript page errors. The test verifies the source file stays in the browser request trace; it does not inspect arbitrary browser extensions or the user's network stack. `docs/evidence/audio-lab/browser-results.json` lists each check.
+- Independent FFprobe/FFmpeg reopened and decoded each browser output. Selected 2–12 s became WAV PCM16 10.001134 s / 441,094 B, Ogg Vorbis 10.001134 s / 20,470 B, and MP3 10.083265 s / 201,299 B. The MP3 has about 82 ms encoder padding and the UI warns that padding can affect short cues. A separate Firefox 390 px smoke opened the same WAV, returned 120.0 BPM/C major, exported PCM16 WAV 5.997324 s for the 2–8 s range, had no horizontal overflow or page error, and was reopened by FFprobe. Firefox did not run the full 46-check matrix.
+- The [desktop screenshot](evidence/audio-lab/desktop-loaded.png) and [390 px Japanese screenshot](evidence/audio-lab/mobile-ja.png) were inspected: controls, waveform, metrics, export/status areas and explanatory content are visible without overlap. This visual inspection does not establish screen-reader usability or real-device performance.
+- Chromium reported native `AudioEncoder.isConfigSupported({codec:'mp4a.40.2', sampleRate:44100, numberOfChannels:2, bitrate:128000})` as supported. No AAC-in-MP4 file was emitted or imported on an iPhone. M4R remains disabled/UNVERIFIED. The real Kenney clip has no independently annotated BPM or key, and no human listening/AB quality test was possible here; its successful decode/edit is not evidence of tempo/key accuracy or audible quality.
+
+The following table is the 2026-09-28 pre-browser snapshot; the 2026-09-29 results above supersede its pending browser items.
 
 ## Implementation audit — 2026-09-28
 
