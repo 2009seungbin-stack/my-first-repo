@@ -290,6 +290,9 @@ async function state(db,context,q){
  return out;
 }
 
+/** An outage click counts for an hour: a user who is still affected later can click again (the
+ * status page shows reports per hour), but repeated clicks within the hour count once. */
+const ISSUE_VOTE_MS=36e5;
 /** Structured compat/issue report (ProtonDB-style): stored as a community report, recomputes the
  * community verdict, and becomes a 리포트 post so it can be discussed.
  * @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
@@ -309,15 +312,25 @@ async function report(db,context,body,now,limit,origin){
  }
  const comment=body.comment===undefined||body.comment===''?null:text(body.comment,[1,2000],'comment');
  const sv=optVersion(body.subjectVersion),tv=optVersion(body.targetVersion);
- await limit('report',LIMITS.postsPerMinute);
+ const quick=!comment&&!body.title&&(body.kind==='issue'||!Object.keys(env).length);
+ await limit(quick?'vote':'report',quick?LIMITS.votesPerMinute:LIMITS.postsPerMinute);
  const id=randomToken(12);
+ // A bare click ("✓ 작동" on a game channel, "안 돼요" on a status page) is a vote: one per user and
+ // combination, a new click replaces the old one, and it never becomes a post. A report with text
+ // or a title is a post on the board (and still counts once per user: see compatVerdict).
+ if(quick)await db.prepare(`DELETE FROM community_reports WHERE kind=? AND user_id=? AND entity_id=? AND COALESCE(subject_version,'*')=? AND COALESCE(target_id,'')=? AND COALESCE(target_version,'*')=? AND comment IS NULL
+  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=community_reports.id)${body.kind==='issue'?' AND created_at>?':''}`)
+  .bind(body.kind,context.user.id,subject.id,sv||'*',target?.id??'',tv||'*',...(body.kind==='issue'?[now-ISSUE_VOTE_MS]:[])).run();
  await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,subject_version,target_id,target_version,env,result,comment,user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
   .bind(id,body.kind,subject.id,sv,target?.id??null,tv,JSON.stringify(env),result,comment,context.user.id,now,now).run();
  /** @type {any} */let verdict=null;
  const recompute=async()=>{if(body.kind==='compat'&&target){try{verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}
   catch(e){if(!/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw e;verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}}};
- // A compat report (or any report with text) is also a post; a bare "it's down" click is only counted.
- if(body.kind==='issue'&&!comment&&!body.title){await recompute();return {id,verdict,postNo:null,url:null};}
+ if(quick){
+  await recompute();
+  if(body.kind==='compat'&&target)await purge(origin,[...pagesOf(target),...pagesOf(subject)]);
+  return {id,verdict,postNo:null,url:null,vote:true};
+ }
  const board=target&&body.kind==='compat'?target:subject;
  const RESULT_KO=/** @type {Record<string,string>} */({works:'작동',works_with_issues:'일부 문제',broken:'안 됨'});
  // "테스트 게임 한글패치 1.7 × 테스트 게임 2.3.1: 작동" — names in Korean, the report language.

@@ -125,6 +125,23 @@ test('a compat report becomes a 리포트 post in the game channel and moves the
  assert.equal(envBad.status,400);
 });
 
+test('a bare compat click is one vote per person: no post, a repeat changes the vote, counts agree',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ const click=(as,result)=>h.call('POST','/reports',{as,body:{kind:'compat',entityId:'translation_patch:test-game-ko',targetId:'game:steam-1',targetVersion:'2.3.1',result}});
+ for(let i=0;i<3;i++)assert.equal((await click('a','works')).status,201);
+ const r=await click('a','broken');assert.equal(r.json.vote,true);assert.equal(r.json.url,null);
+ await click('b','works');
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) n FROM discussions WHERE kind='report'").get().n,0,'clicks never become posts');
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) n FROM community_reports WHERE kind='compat'").get().n,2,'one row per person');
+ const {compatReportCounts}=await import('../platform/db/channel.js');
+ const counts=Object.fromEntries((await compatReportCounts(h.db,'translation_patch:test-game-ko','game:steam-1')).map(c=>[c.result,c.n]));
+ assert.deepEqual(counts,{broken:1,works:1});
+ // A detailed report of the same person is a post and replaces their vote in the counts.
+ await h.call('POST','/reports',{as:'a',body:{kind:'compat',entityId:'translation_patch:test-game-ko',targetId:'game:steam-1',targetVersion:'2.3.1',result:'works',comment:'Windows 11에서 문제 없음'}});
+ const after=Object.fromEntries((await compatReportCounts(h.db,'translation_patch:test-game-ko','game:steam-1')).map(c=>[c.result,c.n]));
+ assert.deepEqual(after,{works:2},'people, not clicks');
+});
+
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  assert.equal((await h.call('POST','/rollout',{as:'a',body:{featureId:'feature:feat',hasIt:true,country:'KR',platform:'ios'}})).status,200);

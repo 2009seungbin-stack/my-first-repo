@@ -6,9 +6,9 @@
 const L=document.documentElement.lang==='en'?'en':'ko';
 const T={
  ko:{login:'로그인',needLogin:'로그인하면 참여할 수 있어요. 로그인 페이지로 이동할까요?',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
  en:{login:'Sign in',needLogin:'Sign in to take part. Go to the sign-in page?',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
 }[L];
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 async function api(path,body){
@@ -107,8 +107,12 @@ async function main(){
      st.votes[box.dataset.post]=next;buttons[0].querySelector('b').textContent=r.up;if(!rep)buttons[1].querySelector('b').textContent=r.down;
      buttons[0].classList.toggle('on',next===1);
     }else{
+     // One vote per person: a repeat click changes the vote instead of adding one.
+     if(b.classList.contains('on'))return toast(T.voted);
      const r=await write('/reports',{...rep,result:i===1?rep.result:(rep.result==='broken'?'works':'broken')},signedIn);if(!r)return;
-     const n=b.querySelector('b');n.textContent=String(Number(n.textContent||0)+1);toast(T.thanks);
+     const other=buttons[i===1?2:1],n=b.querySelector('b');
+     if(other.classList.contains('on')){other.classList.remove('on');const o=other.querySelector('b');o.textContent=String(Math.max(0,Number(o.textContent||0)-1));}
+     n.textContent=String(Number(n.textContent||0)+1);b.classList.add('on');toast(T.voted);
     }
    });
   });
@@ -124,7 +128,12 @@ async function main(){
   const results=['works','works_with_issues','broken'];
   $$('button',box).forEach((b,i)=>{b.disabled=false;b.addEventListener('click',async()=>{
    const r=await write('/reports',{kind:'compat',entityId:box.dataset.subject,targetId:box.dataset.target,targetVersion:box.dataset.targetVersion||undefined,result:results[i]},signedIn);
-   if(r){toast(T.thanks);if(r.url)setTimeout(()=>{location.href=r.url;},900);}
+   if(!r)return;
+   $$('button',box).forEach((x,j)=>x.classList.toggle('on',j===i));
+   // A click is a vote (one per person); details go in a 리포트 post from the write page.
+   let more=$('.vmore',box.parentElement);
+   if(!more&&box.dataset.write){more=document.createElement('a');more.className='vmore fine';more.href=box.dataset.write;more.textContent=T.addDetails;box.after(more);}
+   toast(T.voted);
   });});
  }
  for(const box of $$('[data-island="issue-vote"]')){

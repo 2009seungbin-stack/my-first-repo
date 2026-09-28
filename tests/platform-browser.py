@@ -52,8 +52,11 @@ def main():
             pg.locator('[data-reply]').first.click(); pg.fill('#comment-form textarea', '답글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             assert pg.locator('.co.re').count() == 1, 'reply is threaded'
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
-            pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_url(re.compile(r'/ko/games/caves-of-qud/\d+$'), timeout=8000)
-            assert '작동' in pg.locator('h1').inner_text()
+            posts_before = pg.locator('.plist .pr').count()
+            for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)
+            assert pg.locator('[data-island=compat-vote] button.on').count() == 1 and pg.locator('.vmore').count() == 1, 'a click is a vote with a link to a detailed report'
+            pg.reload(); pg.wait_for_timeout(300)
+            assert pg.locator('.plist .pr').count() == posts_before, 'votes never create posts'
             # flag the post, then handle it as a moderator (임시조치 with a reason)
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(300)
             post_url = pg.locator('.plist a.tt').first.get_attribute('href')
@@ -66,6 +69,11 @@ def main():
             mod.locator('.mq button', has_text='임시조치').first.click(); mod.wait_for_timeout(1200)
             assert '도배 확인' in mod.locator('[data-log]').inner_text()
             assert pg.request.get(B + post_url).status == 404, 'hidden posts are gone from the site'
+            mod.reload(); mod.wait_for_timeout(900)
+            hidden = mod.locator('[data-hidden] .mq')
+            assert hidden.count() >= 1, 'the moderator still sees the hidden post'
+            hidden.first.locator('button', has_text='복구').click(); mod.wait_for_timeout(1200)
+            assert pg.request.get(B + post_url).status == 200, 'restored'
             pg.goto(B + '/ko/community/me'); pg.wait_for_timeout(800)
             pg.fill('form[data-nickname] input', '밤샘테스터'); pg.click('form[data-nickname] button'); pg.wait_for_timeout(500)
             assert pg.locator('[data-follows] li').count() >= 1, 'followed channels listed'
