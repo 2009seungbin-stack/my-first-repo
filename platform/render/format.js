@@ -125,3 +125,10 @@ export function collapseVersions(list,l){
   const newest=byVer[byVer.length-1],oldest=byVer[0];
   return {...newest,version:`${oldest.version} → ${newest.version} (${l==='ko'?`${g.length}건`:`${g.length} builds`})`};});
 }
+
+/** "≈ ₩29,400" for a USD amount at a reference rate (rounded to ₩100; an approximation, never a price).
+ * @param {number} usd @param {{rate:number,asOf:string}|null} fx @param {string} l */
+export function approxKrw(usd,fx,l){
+ if(!fx||!(usd>0)||l!=='ko')return '';
+ return `≈ ₩${(Math.round(usd*fx.rate/100)*100).toLocaleString('ko-KR')}`;
+}

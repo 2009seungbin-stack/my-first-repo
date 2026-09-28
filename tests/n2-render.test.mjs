@@ -226,6 +226,11 @@ test('status, history and write pages render; status is only for services',{skip
  assert(html.includes('지금 Claude(클로드) 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
+ // With a reference rate, USD plan prices get "≈ ₩" and the rate's date.
+ await d.prepare("INSERT INTO fx_rates (base,quote,rate,as_of,source_url,fetched_at) VALUES ('USD','KRW',1400,'2026-09-25','https://www.ecb.europa.eu/',?)").bind(NOW).run();
+ const plans=await (await get('/ko/ai/?type=plan')).text();
+ assert(plans.includes('≈ ₩28,000')&&plans.includes('ECB 기준환율(2026-09-25'),'Claude Pro $20 ≈ ₩28,000');
+ assert((await (await get('/ko/ai/claude/')).text()).includes('≈ ₩28,000'));
  const pro=await (await get('/ko/ai/claude-pro/')).text(),proEn=await (await get('/en/ai/claude-pro/')).text();
  assert(pro.includes('연간 결제 시 월 $17')&&!pro.includes('with annual billing'),'Korean pages show the Korean price note');
  assert(proEn.includes('with annual billing'),'English pages keep the official text');

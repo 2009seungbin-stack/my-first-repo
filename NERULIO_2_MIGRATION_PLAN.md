@@ -22,7 +22,7 @@ npm run preview:platform       # static preview in .n2/preview/
 
 ## 2. D1 (owner)
 Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.wrangler.toml`).
-1. Apply migrations 0003–0008 to preview first, then production:
+1. Apply migrations 0003–0009 to preview first, then production:
    `npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml`
 2. Load the seed graph (sources, entities, facts, relations, versions, events, compatibility, search index):
    ```
@@ -56,6 +56,8 @@ pipeline → D1 through the REST API (`platform/db/d1-rest.js`), with every run 
 4. Run it once by hand (Actions → Nerulio 2.0 collectors → Run workflow) and check
    `SELECT adapter,last_success_at,last_error FROM collectors`.
 The status panels switch from "확인 전" to "보고된 장애 없음 / 장애 조사 중" after the first successful run.
+The same workflow fetches the ECB reference rate (`tools/platform/fx.mjs`) every 6 hours; "≈ ₩" appears
+next to USD plan prices once a rate is stored (hidden again if it is more than 10 days old).
 
 ## 6. Production (owner)
 Same as steps 2–3 on production, then:

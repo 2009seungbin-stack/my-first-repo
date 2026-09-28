@@ -336,6 +336,12 @@ export async function koAlias(db,id,name){
  const a=rows.map(r=>String(r.alias)).find(x=>/[가-힣]/.test(x)&&x!==name);
  return a||null;
 }
+/** The latest KRW per USD reference rate (tools/platform/fx.mjs), if fetched in the last 10 days.
+ * @param {D1} db @param {number} now @returns {Promise<{rate:number,asOf:string}|null>} */
+export async function fxUsdKrw(db,now){
+ try{const r=await db.prepare("SELECT rate,as_of,fetched_at FROM fx_rates WHERE base='USD' AND quote='KRW'").first();
+  return r&&now-Number(r.fetched_at)<=10*864e5?{rate:Number(r.rate),asOf:String(r.as_of)}:null;}catch{return null;}
+}
 /** Versions released recently across all channels (Radar). @param {D1} db @param {{since:number,until:number,vertical?:string|null,limit?:number}} o */
 export async function recentVersions(db,o){
  const rows=await all(db,`SELECT v.version,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id

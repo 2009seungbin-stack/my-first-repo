@@ -1,7 +1,7 @@
 # Nerulio 2.0 — schema
 
 D1 (SQLite). Migrations: `0001`–`0002` service layer (accounts, sessions, usage, billing), `0003`
-graph, `0004` community, `0005` read-path indexes, `0006` unique nicknames, `0007` fact proposals, `0008` reply alerts (radar_state.replies_seen_at) and author indexes. Timestamps are Unix epoch ms (UTC); JSON is TEXT.
+graph, `0004` community, `0005` read-path indexes, `0006` unique nicknames, `0007` fact proposals, `0008` reply alerts (radar_state.replies_seen_at) and author indexes, `0009` fx_rates (≈ ₩ reference rate). Timestamps are Unix epoch ms (UTC); JSON is TEXT.
 There are no triggers: all writes go through `platform/ingest.js` (graph) or `server/platform/api.js`
 (community). Reads go through `platform/db/channel.js`.
 

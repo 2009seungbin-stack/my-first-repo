@@ -5,8 +5,8 @@
 import {html,safeHref} from '../html.js';
 import {t} from '../strings.js';
 import {box,badge,nameOf,channelUrl} from '../ui.js';
-import {money,tokens,boardTime,isoDateText,factText,ago} from '../format.js';
-import {related,factsFor,pickFact,eventsFor,changesFor,versionsOf,availabilityFor,rolloutVotes,collectorState,issueReportsSince} from '../../db/channel.js';
+import {money,tokens,boardTime,isoDateText,factText,ago,approxKrw} from '../format.js';
+import {related,factsFor,pickFact,eventsFor,changesFor,versionsOf,availabilityFor,rolloutVotes,collectorState,issueReportsSince,fxUsdKrw} from '../../db/channel.js';
 import {reportSignal} from '../../status-signal.js';
 import {describeChange} from '../../change-text.js';
 import {rolloutSummary} from '../../community.js';
@@ -70,7 +70,7 @@ async function load(ctx){
  const priced=modelRows.filter(r=>r.in&&(r.in.unit||'USD')==='USD').sort((a,b)=>Number(a.in?.value)-Number(b.in?.value));
  const shown=modelRows.slice(0,6),cheapest=priced[0]||null;
  if(cheapest&&!shown.includes(cheapest))shown.push(cheapest);
- return {provider,services,plans:planRows,models:shown,cheapest:priced.length>1?cheapest?.m.id??null:null,modelCount:modelRows.length,incidents,collector,signals,timeline:dedupe(timeline).slice(0,6),rollouts};
+ return {provider,services,fx:await fxUsdKrw(db,now),plans:planRows,models:shown,cheapest:priced.length>1?cheapest?.m.id??null:null,modelCount:modelRows.length,incidents,collector,signals,timeline:dedupe(timeline).slice(0,6),rollouts};
 }
 /** @param {{title:string}[]} list */
 const dedupe=/** @template {{title:string}} T @param {T[]} list @returns {T[]} */ list=>{const seen=new Set();return list.filter(x=>seen.has(x.title)?false:(seen.add(x.title),true));};
@@ -117,7 +117,7 @@ ${platforms?html`<tr><th>${s.apps}</th><td>${factText('ai',platforms,l)}</td></t
 ${dev.length?html`<tr><th>${s.developer}</th><td>${dev.map((x,i)=>html`${i?' · ':''}<a href="${channelUrl(l,x)}">${nameOf(x,l)}</a>`)}</td></tr>`:''}
 ${pickFact(ff,'release_date')?html`<tr><th>${t(l).panel.releasedCol}</th><td>${factText('ai',/** @type {any} */(pickFact(ff,'release_date')),l)}</td></tr>`:''}
 </tbody></table>
-${d.plans.length?html`<h3 class="wh">${s.plans} ${badge('OFFICIAL',l)}</h3><table class="wk"><tbody>${d.plans.map(r=>html`<tr><th><a href="${channelUrl(l,r.p)}">${planShort(r.p,ctx.entity,l)}</a></th><td><span title="${r.note||''}">${r.monthly?money(Number(r.monthly.value),r.monthly.unit||'USD',l):'–'}</span></td></tr>`)}</tbody></table><p class="fine pad">${s.priceNote}</p>`:''}`;
+${d.plans.length?html`<h3 class="wh">${s.plans} ${badge('OFFICIAL',l)}</h3><table class="wk"><tbody>${d.plans.map(r=>html`<tr><th><a href="${channelUrl(l,r.p)}">${planShort(r.p,ctx.entity,l)}</a></th><td><span title="${r.note||''}">${r.monthly?money(Number(r.monthly.value),r.monthly.unit||'USD',l):'–'}</span>${r.monthly&&(r.monthly.unit||'USD')==='USD'&&d.fx?html` <span class="fine">${approxKrw(Number(r.monthly.value),d.fx,l)}</span>`:''}</td></tr>`)}</tbody></table><p class="fine pad">${s.priceNote}${d.fx&&l==='ko'?` · ≈ ₩는 ECB 기준환율(${d.fx.asOf}) 환산, 세금·결제 수수료 제외`:''}</p>`:''}`;
 }
 /** "Claude Team (스탠다드 시트)" → "Team (스탠다드 시트)" inside the Claude channel. */
 function planShort(/** @type {any} */ p,/** @type {any} */ e,/** @type {string} */ l){const n=nameOf(p,l),svc=nameOf(e,l);return n.startsWith(svc+' ')?n.slice(svc.length+1):n;}

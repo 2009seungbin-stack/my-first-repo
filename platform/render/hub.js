@@ -5,9 +5,9 @@ import {html} from './html.js';
 import {page,nameOf,channelUrl,box,monogram,TILE} from './ui.js';
 import {compact,collapseVersions} from './format.js';
 import {kindTag} from './radar.js';
-import {hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions,entitiesByIds} from '../db/channel.js';
+import {fxUsdKrw,hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions,entitiesByIds} from '../db/channel.js';
 import {dday,eventTime,boardTime} from './format.js';
-import {money,tokens,isoDateText,int} from './format.js';
+import {money,tokens,isoDateText,int,approxKrw} from './format.js';
 import {estimateLlmMemory} from '../estimates/llm-memory.js';
 import {badge} from './ui.js';
 import {verticalOf,typeDef} from '../verticals/index.js';
@@ -36,7 +36,7 @@ export async function loadHub(db,vertical,o){
   const ids=all.map(r=>r.entity.id);
   const byId=type==='plan'?await relatedManyIn(db,ids,'has_plan'):await relatedMany(db,ids,'made_by');
   const owner=new Map(ids.map(id=>[id,byId.get(id)?.[0]||null]));
-  compare={rows:all.map(r=>({e:r.entity,owner:owner.get(r.entity.id),f:(/** @type {string} */ p)=>pickFact(facts.get(r.entity.id),p,{region:o.l==='ko'?'KR':'US'})}))};
+  compare={rows:all.map(r=>({e:r.entity,owner:owner.get(r.entity.id),f:(/** @type {string} */ p)=>pickFact(facts.get(r.entity.id),p,{region:o.l==='ko'?'KR':'US'})})),fx:type==='plan'?await fxUsdKrw(db,o.now??Date.now()):null};
  }
  // "Right now" boxes on the vertical's front page (no type filter).
  const now=o.now??Date.now();
@@ -91,11 +91,12 @@ ${list.map((/** @type {any} */ r)=>{const v=Number(r.f('vram_gb').value),price=r
 </tbody></table></div>`)}`;
  }
  if(m.type==='plan'){
+  const fx=m.compare.fx||null;
   // Plans without a list price (Enterprise) stay in the table as "문의", so the count matches the tab.
   const list=rows.slice().sort((/** @type {any} */ a,/** @type {any} */ b)=>(a.f('price_monthly')?0:1)-(b.f('price_monthly')?0:1)).sort((/** @type {any} */ a,/** @type {any} */ b)=>String(a.owner?.slug||'').localeCompare(String(b.owner?.slug||''))||(a.f('price_monthly')?0:1)-(b.f('price_monthly')?0:1)||String(a.f('price_monthly')?.unit||'USD').localeCompare(String(b.f('price_monthly')?.unit||'USD'))||Number(a.f('price_monthly')?.value)-Number(b.f('price_monthly')?.value));
   return box({title:ko?`요금제 ${list.length}개`:`${list.length} plans`},html`<div class="tw" tabindex="0"><table class="mt"><thead><tr><th>${ko?'서비스':'Service'}</th><th>${ko?'요금제':'Plan'}</th><th>${ko?'월 요금':'Monthly'}</th><th>${ko?'연 요금':'Yearly'}</th><th class="nm">${ko?'최소 인원':'Min seats'}</th></tr></thead><tbody>
-${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_yearly'),seats=r.f('seats_min');return html`<tr><td>${r.owner?html`<a href="${channelUrl(l,r.owner)}">${nameOf(r.owner,l)}</a>`:'–'}</td><td><a href="${channelUrl(l,r.e)}">${nameOf(r.e,l)}</a></td><td>${mo?html`<b>${money(Number(mo.value),mo.unit||'USD',l)}</b>`:html`<span class="fine">${ko?'문의':'Contact'}</span>`}</td><td>${yr?money(Number(yr.value),yr.unit||'USD',l):'–'}</td><td class="nm">${seats?seats.value:'–'}</td></tr>`;})}
-</tbody></table></div>`);
+${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_yearly'),seats=r.f('seats_min');return html`<tr><td>${r.owner?html`<a href="${channelUrl(l,r.owner)}">${nameOf(r.owner,l)}</a>`:'–'}</td><td><a href="${channelUrl(l,r.e)}">${nameOf(r.e,l)}</a></td><td>${mo?html`<b>${money(Number(mo.value),mo.unit||'USD',l)}</b>${(mo.unit||'USD')==='USD'&&fx?html`<br><span class="fine">${approxKrw(Number(mo.value),fx,l)}</span>`:''}`:html`<span class="fine">${ko?'문의':'Contact'}</span>`}</td><td>${yr?money(Number(yr.value),yr.unit||'USD',l):'–'}</td><td class="nm">${seats?seats.value:'–'}</td></tr>`;})}
+</tbody></table></div>${fx&&l==='ko'?html`<p class="fine pad">≈ ₩는 ECB 기준환율(${fx.asOf}, 1달러 ${fx.rate.toLocaleString('ko-KR')}원) 환산입니다. 세금·결제 수수료가 빠진 참고값이며, 실제 청구액은 결제 수단과 부가세에 따라 다릅니다.</p>`:''}`);
  }
  const live=rows.filter((/** @type {any} */ r)=>r.f('api_input_price')&&['active','preview',undefined].includes(r.f('status')?.value));
  // Older and retiring models stay reachable from the table (else they are only in the sitemap).
