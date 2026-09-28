@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runAdapter} from '../collectors/_runtime.js';
 import {createSteamNewsAdapter,updatesFromNews} from '../collectors/steam-news/index.js';
-import {versionFromTitle,classify} from '../collectors/steam-news/parse.js';
+import {versionFromTitle,classify,aboutOtherGame} from '../collectors/steam-news/parse.js';
 import {validateSeed} from '../platform/seed.js';
 
 const FX=new URL('./fixtures/n2/collectors/steam-news/',import.meta.url);
@@ -45,6 +45,21 @@ test('classify: developer tag, patch wording, and no future/beta posts',()=>{
  assert.equal(classify({title:'9월 25일 업데이트 안내'}).update,true);
  assert.equal(classify({title:'Kenshi 1.0.67 - Experimental Branch',tags:['patchnotes']}).channel,'beta');
  assert.equal(classify({title:'Full Moon Event & Bundles'}).update,false);
+ assert.equal(classify({title:'V3.3.0 EXP',tags:['patchnotes']}).channel,'beta');
+ assert.equal(classify({title:'New Public Update Preview - May',tags:['patchnotes']}).update,false,'previews are excluded even when tagged');
+ assert.equal(classify({title:'35% off NieR Replicant ver.1.22474487139…'}).update,false);
+ assert.equal(classify({title:'Victoria 3 – Dev Diary #189 - Free Update 1.15 Features'}).update,false);
+ assert.equal(classify({title:'Stellaris 4.5.1 released (checksum 358e)'}).version,'4.5.1');
+ assert.equal(versionFromTitle('Y11S3.1 PATCH NOTES'),null,'numbers glued to a season label are not versions');
+});
+
+test('posts about a sibling game are not updates of this game',()=>{
+ assert.equal(aboutOtherGame('Hades II v1.0 Is Now Available!','Hades'),true);
+ assert.equal(aboutOtherGame('Civilization VII Update 1.2.2 – Jun 23',"Sid Meier’s Civilization VI"),true);
+ assert.equal(aboutOtherGame('Civilization VI Spring Patch',"Sid Meier’s Civilization VI"),false);
+ assert.equal(aboutOtherGame('Darkest Dungeon II - Mac Mod Update','Darkest Dungeon II'),false);
+ assert.equal(aboutOtherGame('Patch Version 1.5.12620 Now Live','Hollow Knight'),false);
+ assert.equal(classify({title:'Civilization VII Update 1.2.2 – Jun 23',tags:['patchnotes']},"Sid Meier’s Civilization VI").update,false);
 });
 
 test('updatesFromNews on recorded posts',()=>{

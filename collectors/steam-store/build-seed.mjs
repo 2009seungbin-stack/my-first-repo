@@ -48,7 +48,7 @@ for(const e of doc.entities.filter(e=>e.type==='game')){
  if(want&&!normName(e.names.en).includes(normName(want))&&!normName(want).includes(normName(e.names.en)))mismatches.push(`${appid}: curated "${want}" vs store "${e.names.en}"`);
 }
 if(!args['skip-news']){
- const games=doc.entities.filter(e=>e.type==='game').map(e=>({id:e.id,type:'game',vertical:'games',facts:{steam_appid:e.facts.find(f=>f.p==='steam_appid').v}}));
+ const games=doc.entities.filter(e=>e.type==='game').map(e=>({id:e.id,type:'game',vertical:'games',names:e.names,facts:{steam_appid:e.facts.find(f=>f.p==='steam_appid').v}}));
  const news=await runAdapter(createSteamNewsAdapter(),{targets:games,log});
  if(news.error)log(`steam-news failed: ${news.error}`);
  else{

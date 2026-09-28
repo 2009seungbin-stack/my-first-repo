@@ -31,12 +31,12 @@ function excerpt(body){
 
 /**
  * Turn news items into facts/versions. Pure; exported for tests.
- * @param {any[]} items newest first (as returned) @param {{appid:number,src:string}} o
+ * @param {any[]} items newest first (as returned) @param {{appid:number,src:string,name?:string}} o name = the game's English name (skips posts about sibling games)
  * @returns {{facts:any[],versions:any[],updates:number}}
  */
 export function updatesFromNews(items,o){
  const posts=[...items].filter(n=>Number.isFinite(n?.date)).sort((a,b)=>b.date-a.date)
-  .map(n=>({n,c:classify(n)})).filter(x=>x.c.update&&x.c.channel==='stable');
+  .map(n=>({n,c:classify(n,o.name)})).filter(x=>x.c.update&&x.c.channel==='stable');
  const facts=[],versions=[];
  if(posts.length){
   const latest=posts[0],d=postDate(latest.n.date);
@@ -78,7 +78,7 @@ export function createSteamNewsAdapter(opts={}){
     }
     if(!Array.isArray(items)){failed++;continue;}
     ok++;
-    const u=updatesFromNews(items,{appid,src:sourceId(appid)});
+    const u=updatesFromNews(items,{appid,src:sourceId(appid),name:t.names?.en});
     if(!u.facts.length&&!u.versions.length)continue;
     withUpdates++;
     entities.push({id:t.id,facts:u.facts,...(u.versions.length?{versions:u.versions}:{})});

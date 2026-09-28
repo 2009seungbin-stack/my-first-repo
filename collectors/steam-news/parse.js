@@ -17,9 +17,10 @@ const RULES=[
  // "v1.2.3", "V 1.4"
  new RegExp(`(?:^|[^a-z0-9])v\\.?\\s?${NUM}(?![\\d.])`,'i'),
  // "12.4a Hotfix", "1.0.68 Patch Notes"
- new RegExp(`(?:^|[^\\d.])${NUM}\\s*(?:[-\\u2013:]\\s*)?${KW}`,'i'),
+ // (a number glued to letters, e.g. "Y11S3.1", is not taken: it is part of a larger label)
+ new RegExp(`(?:^|[^\\w.])${NUM}\\s*(?:[-\\u2013:]\\s*)?${KW}`,'i'),
  // any x.y.z token ("Terraria 1.4.5.7 - Out Now")
- /(?:^|[^\d.])(\d+\.\d+\.\d+(?:\.\d+)*[a-z]?)(?![\d.])/i,
+ /(?:^|[^\w.])(\d+\.\d+\.\d+(?:\.\d+)*[a-z]?)(?![\d.])/i,
 ];
 /** Named patches without dotted numbers: "Patch 8", "Hotfix #36". */
 const NAMED=/\b(Patch|Hotfix)\s*(#?)\s*(\d{1,4})(?![\d.])/i;
@@ -46,22 +47,46 @@ export function versionFromTitle(title){
  return null;
 }
 
-const NOT_AN_UPDATE=/\b(upcoming|coming soon|preview|teaser|roadmap|sneak peek|stress test|next week|schedule[d]?|survey|revealed|announc(?:e|es|ed|ing|ement)|launch date|release date|trailer|known issues?|eta|service report|maintenance|bans? notice)\b|예정|예고|로드맵|사전\s*안내|점검/i;
+/** Never an update, even when tagged: previews, announcements, notices, sales, diaries. */
+const NOT_AN_UPDATE=/\b(upcoming|coming soon|preview|teaser|roadmap|sneak peek|stress test|next week|schedule[d]?|survey|revealed|announc(?:e|es|ed|ing|ement)|launch date|release date|trailer|known issues?|eta|service report|maintenance|bans? notice|dev(?:eloper)? diary|sale|discount|bundle|merch(?:andise)?)\b|\d+\s*% off|예정|예고|로드맵|사전\s*안내|점검|할인/i;
 const UPDATE_WORDS=/\bpatch(?:\s*notes?)?\b|\bhot\s*-?fix(?:es)?\b|\bchange\s*log\b|\brelease notes?\b|패치|핫픽스|업데이트\s*(?:안내|내역|노트)/i;
-const BETA=/\b(beta|experimental|public test|test server|ptr|playtest|stress test)\b|테스트\s*서버|실험/i;
+/** A version alone is not enough without some release wording ("Hades II v1.0 Is Now Available!"
+ * in the Hades feed is a sequel promo, "Terraria 1.4.5.7 - Out Now" is an update). */
+const RELEASE_WORDS=/\b(patch|hot\s*-?fix|update[ds]?|change\s*log|release notes?|released|out now|now live|is live|version|build)\b|패치|업데이트|핫픽스|버전/i;
+const BETA=/\b(beta|experimental|exp|public test|test server|ptr|playtest|stress test|public update preview)\b|테스트\s*서버|실험/i;
+const SEQUEL=/^(?:[ivx]+|\d{1,2})$/i;
+
+/**
+ * True when the title is about a numbered sibling of this game (publishers cross-post:
+ * "Civilization VII Update 1.2.2" in the Civilization VI feed, "Hades II v1.0" in the Hades feed).
+ * @param {string} title @param {string|undefined} gameName
+ */
+export function aboutOtherGame(title,gameName){
+ if(!gameName)return false;
+ const words=String(gameName).replace(/[™®:–-]/g,' ').split(/\s+/).filter(Boolean);
+ // anchor word = last non-sequel word of the name; the name's own sequel marker follows it (or none)
+ let i=words.length-1;while(i>0&&SEQUEL.test(words[i]))i--;
+ const anchor=words[i],own=(words[i+1]||'').toUpperCase();
+ if(!anchor||anchor.length<4)return false;
+ const re=new RegExp(`\\b${anchor.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\s+([IVX]+|\\d{1,2})(?![\\w.])`,'gi');
+ for(const m of title.matchAll(re))if(m[1].toUpperCase()!==own)return true;
+ return false;
+}
 
 /**
  * Classify one news item.
+ * - never an update: previews, announcements, notices, sales, dev diaries, posts about a sibling game;
  * - tagged `patchnotes` by the developer → update;
- * - otherwise the title must state a version or use patch/hotfix/changelog wording, and must not
- *   announce something future ("upcoming", "preview", "예정" …).
- * @param {{title?:string,tags?:string[]}} item
+ * - otherwise the title must use patch/hotfix/changelog wording, or state a version together with
+ *   release wording.
+ * @param {{title?:string,tags?:string[]}} item @param {string} [gameName]
  * @returns {{update:boolean,version:string|null,channel:'stable'|'beta'}}
  */
-export function classify(item){
+export function classify(item,gameName){
  const title=String(item.title||''),tagged=(item.tags||[]).includes('patchnotes');
  const version=versionFromTitle(title);
- const update=tagged||(!NOT_AN_UPDATE.test(title)&&(!!version||UPDATE_WORDS.test(title)));
+ const excluded=NOT_AN_UPDATE.test(title)||aboutOtherGame(title,gameName);
+ const update=!excluded&&(tagged||UPDATE_WORDS.test(title)||(!!version&&RELEASE_WORDS.test(title)));
  return {update,version:update?version:null,channel:BETA.test(title)?'beta':'stable'};
 }
 
