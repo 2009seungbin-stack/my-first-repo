@@ -357,5 +357,422 @@ export default {
    versions:{body:['`tests/normals.test.mjs` は、許された方向と傾きだけが出ること、平らな所が平らなままであることを確認しています。StudioのGodot書き出しは、ドット絵の2ケース（6フレーム32pxのたいまつ、60フレーム48pxの侍）をGodot 4.7.2が描画し、確認した全フレームが1/255以内でした。これは書き出し経路の検証で、量子化そのものの検証ではありません。このページのラボのマップは数値でのみ確認しています。エンジンの設定は下記のGodot・Unityのドキュメントに従います。'],sources:[G_POINT,G_LIGHTS,U_RENDERER]}
   }
  },
-//PAGE4
+ 'game/godot-2d-normal-map':{
+  type:'engine',
+  intent:{primary:'use a normal map on a 2D sprite in Godot 4 so Light2D nodes shade it',secondary:['CanvasTexture normal map setup','PointLight2D height and DirectionalLight2D height','light mask / item cull mask','normal map has no effect in Godot 2D'],
+   goal:'a Sprite2D in Godot 4 whose relief follows PointLight2D / DirectionalLight2D lights',input:'sprite or cut sheet (PNG) plus its normal map, or a sprite to generate one from',output:'_lit.tscn (Sprite2D + CanvasTexture + CanvasModulate + PointLight2D + AnimationPlayer), _canvas_texture.tres, PNGs',target:'Godot 4 (verified 4.7.2, Compatibility renderer)',support:'full',
+   evidence:['src/game/normals/export.js godotScene / godotCanvasTexture','src/game/normals/lighting.js (Godot canvas light model)','docs/STUDIO-TEXTURE.md (Godot 4.7.2 6/6, negative control)'],
+   external:['Godot 4.7: CanvasTexture, PointLight2D.height (pixels, default 0), DirectionalLight2D.height (0–1), Light2D.range_item_cull_mask, CanvasItem.light_mask (default 1), CanvasModulate, import option Normal Map Invert Y']},
+  en:{
+   answer:'In Godot 4 a 2D normal map works only inside a `CanvasTexture`: set it as the Normal Map Texture next to the sprite\'s Diffuse Texture, then light the sprite with a `PointLight2D` or `DirectionalLight2D` whose Height is above 0 and whose Item Cull Mask matches the sprite\'s Light Mask. Nerulio\'s Texture workspace generates the map and exports that scene ready-made (Sprite2D, CanvasTexture, CanvasModulate, one PointLight2D per light and an AnimationPlayer for frames), rendered by Godot 4.7.2 within 1/255 of the preview.',
+   concept:{title:'How Godot 4 lights a normal-mapped sprite',body:[
+    'Godot draws 2D lights per pixel on top of the sprite\'s colour. A plain texture has no normals, so a light only brightens it; a `CanvasTexture` bundles a diffuse texture, a normal map and an optional specular map, and the normal map "only has a visible effect if Light2Ds are affecting this CanvasTexture". Godot expects X+, Y+ and Z+ normals, the OpenGL style.',
+    'Per pixel the light adds colour × energy × falloff × N·L, where L points from the pixel to the light raised by its Height. For a `PointLight2D` Height is in pixels: the docs\' example is a height of 100 lighting an object 100 px away at 45°. Its default is 0, which puts the light in the sprite\'s plane. A `DirectionalLight2D` has a Height from 0 (parallel to the plane) to 1 (perpendicular), and its direction is the node\'s rotation.',
+    'The light\'s size and falloff come from its texture: a `PointLight2D` draws a (usually grey) texture scaled by Texture Scale. A `CanvasModulate` multiplies the whole canvas by an ambient colour, which is what makes unlit parts dark. Which nodes a light reaches is decided by its Range settings: Item Cull Mask against each CanvasItem\'s Light Mask (default layer 1), plus layer and z ranges.',
+    'Nerulio\'s preview is this model computed on the CPU and in WebGL2 (`lighting.js`): N is decoded from red and green like Godot does, with blue rebuilt from them, and each exported light carries the Studio\'s falloff curve as a 256 px texture, so the brightness in Godot matches the preview, not only the direction.'],
+    terms:[['CanvasTexture','A 2D texture resource holding diffuse, normal and specular maps plus specular colour and shininess.'],['Height','How far above the canvas a light sits; only visible on normal-mapped surfaces.'],['Item Cull Mask / Light Mask','Layer bits on the light and on the sprite; they must share one for the light to reach it.'],['CanvasModulate','One node per canvas that tints everything by an ambient colour.']]},
+   example:{title:'Example: what Height and Texture Scale do to one pixel',lead:'A flat pixel (N = 0, 0, 1) and a PointLight2D 64 px to its left:',lines:[
+    'Height 64 px   → elevation atan(64/64)  = 45°   flat N·L = sin 45° = 0.707',
+    'Height 0 (default)  → elevation 0°            flat N·L = 0: only slopes facing the light are lit',
+    'Height 256 px  → elevation atan(256/64) = 76°   flat N·L = 0.970: the relief almost disappears',
+    '',
+    'Nerulio falloff PNG = 256 px wide, so texture_scale = 2 × radius / 256',
+    'radius 128 px → texture_scale 1.0     radius 256 px → texture_scale 2.0',
+    '',
+    'DirectionalLight2D: Height 0 = parallel to the plane, 1 = straight down onto it'],
+    after:'A low light exaggerates relief and a high one flattens it; most scenes land between 30° and 60° of elevation. Change Height before you change the normal map\'s strength.'},
+   outputs:{lead:'For a sprite called torch.png the `godot/` folder holds:',rows:[
+    ['torch_lit.tscn','Node2D with the Ambient CanvasModulate, the Sprite2D (region on, Nearest for pixel art), one PointLight2D per light and, for frames, an AnimationPlayer.'],
+    ['torch_canvas_texture.tres','The CanvasTexture alone (diffuse, normal, optional specular and shininess) for your own Sprite2D.'],
+    ['torch.png, torch_n.png','The sprite or sheet, byte for byte, and its OpenGL normal map.'],
+    ['torch_light_smooth.png','The falloff texture of each falloff type used (smooth, linear, quadratic or constant).'],
+    ['torch_s.png','A specular map, only when specular is above 0.'],
+    ['README.md','These steps and the verification status.']]},
+   target:{title:'Set it up in Godot 4',steps:[
+    'Copy the `godot` folder anywhere under `res://` (the files refer to each other by relative paths) and open `torch_lit.tscn` to see the lit result; the steps below are for your own nodes.',
+    'Select your Sprite2D; in its Texture property create a New CanvasTexture, then set Diffuse Texture to the sprite PNG and Normal Map Texture to `torch_n.png`, or load `torch_canvas_texture.tres`.',
+    'Add a PointLight2D: give it a Texture (the bundle\'s falloff PNG, or any soft round gradient), a Height above 0 in pixels and an Energy; move it over the sprite.',
+    'Check the masks: the light\'s Range › Item Cull Mask must share a layer with the sprite\'s Light Mask (layer 1 by default).',
+    'Add one CanvasModulate with a dark colour so unlit areas get dark; without it the sprite starts at full brightness and lights only add to it.',
+    'For pixel art set the Sprite2D\'s Texture › Filter to Nearest (the bundle does); if you use a DirectX-style map from elsewhere, enable Process › Normal Map Invert Y in its Import dock and reimport.']},
+   verify:{steps:[
+    'Move the light above the sprite: top edges must brighten. If bottom edges do, the map is DirectX-style.',
+    'Drag the light\'s Height from 0 upwards: the relief must get softer as the light rises. No change at all means the normal map is not being read.',
+    'Compare with the Studio\'s Lit view: in our runs Godot 4.7.2 matched it within 1/255 on every checked frame.']},
+   trouble:{rows:[
+    ['The normal map changes nothing','The sprite uses a plain texture, not a CanvasTexture with a Normal Map Texture','Inspector: Sprite2D › Texture shows CanvasTexture?','Wrap the texture in a CanvasTexture or load `torch_canvas_texture.tres`'],
+    ['Only the rims facing the light glow; the middle stays dark','PointLight2D Height is 0, its default, so the light lies in the sprite\'s plane','Inspector: the light\'s Height','Raise Height; about the light\'s distance to the sprite gives 45°'],
+    ['The sprite is not lit at all','The light\'s Item Cull Mask and the sprite\'s Light Mask share no layer, or the sprite lies outside the light\'s texture','Toggle the light; compare both masks; look at Texture Scale','Put both on one layer; raise Texture Scale'],
+    ['Lit from below when the light is above','A DirectX-style (Y−) normal map','Top edges dark under a light straight above','Use `torch_n.png` (OpenGL), or enable Process › Normal Map Invert Y and reimport; see [[game/normal-map-opengl-or-directx|OpenGL or DirectX]]'],
+    ['Everything looks washed out','No CanvasModulate, so the base colour is already at full brightness','The scene tree has no CanvasModulate','Add one with a dark colour, like the bundle\'s Ambient node'],
+    ['Pixel-art relief looks smeared','Linear filtering on the node or the CanvasTexture','Zoom in: soft pixel edges','Filter Nearest; see [[game/godot-pixel-art-blurry|blurry pixel art in Godot]]']]},
+   alternatives:{rows:[
+    ['Build the CanvasTexture and lights yourself','You already have normal maps (a 3D bake, Laigter, hand-painted): follow the steps above with your own `_n` file.'],
+    ['A canvas_item shader of your own','You need a light Godot\'s Light2D does not draw, such as a rim light; that is why the Studio\'s rim light stays in the preview.'],
+    ['An AnimatedSprite2D from [[game/aseprite-to-godot|the SpriteFrames export]]','You prefer SpriteFrames for animation; attaching normal maps to its frames was not part of our check.']]},
+   limits:['Checked with the Compatibility renderer (gl_compatibility) of Godot 4.7.2; Forward+ and Mobile were not run.','Shadows (LightOccluder2D) are not exported.','The exported scene animates a Sprite2D through an AnimationPlayer, not an AnimatedSprite2D.'],
+   versions:{body:['Godot 4.7.2 (gl_compatibility), six real CC0 cases: every checked frame within 1/255 of the Studio\'s reference, mean 0.14–0.22 levels, also through the exported AnimationPlayer; the same render with green flipped was 3.8–37 levels off, so the check sees a wrong convention. Property names and defaults above follow the Godot 4.7 class reference.'],sources:[G_LIGHTS,G_CANVAS,G_POINT,G_DIR,G_LIGHT2D,G_ITEM,G_IMPORT]}
+  },
+  ko:{
+   answer:'Godot 4에서 2D 노멀맵은 `CanvasTexture` 안에서만 작동합니다. 스프라이트의 Diffuse Texture 옆 Normal Map Texture에 노멀맵을 넣고, Height가 0보다 크며 Item Cull Mask가 스프라이트의 Light Mask와 겹치는 `PointLight2D`나 `DirectionalLight2D`로 비춰야 합니다. Nerulio 텍스처 작업 공간은 노멀맵을 만들고, 그 씬(Sprite2D, CanvasTexture, CanvasModulate, 조명마다 PointLight2D, 프레임용 AnimationPlayer)을 완성된 상태로 내보냅니다. Godot 4.7.2 렌더와 미리보기 차이는 1/255 이내였습니다.',
+   concept:{title:'Godot 4가 노멀맵 스프라이트를 비추는 방식',body:[
+    'Godot는 스프라이트 색 위에 2D 조명을 픽셀 단위로 그립니다. 일반 텍스처에는 노멀이 없어 조명이 밝게만 할 뿐이고, 디퓨즈 텍스처·노멀맵·스페큘러 맵을 묶는 `CanvasTexture`에 넣어야 합니다. 문서대로 노멀맵은 Light2D가 그 CanvasTexture에 영향을 줄 때만 눈에 보입니다. Godot가 기대하는 것은 X+, Y+, Z+ 즉 OpenGL 방식입니다.',
+    '조명은 픽셀마다 색 × 에너지 × 감쇠 × N·L을 더하며, L은 픽셀에서 Height만큼 들어 올린 조명으로 향하는 방향입니다. `PointLight2D`의 Height는 픽셀 단위로, 문서의 예는 높이 100이 100px 떨어진 물체를 45°로 비춘다는 것입니다. 기본값은 0이라 조명이 스프라이트 평면 위에 놓입니다. `DirectionalLight2D`의 Height는 0(평면과 평행)부터 1(수직)까지이고 방향은 노드의 회전으로 정합니다.',
+    '조명의 크기와 감쇠는 텍스처에서 옵니다. `PointLight2D`는 보통 회색인 텍스처를 Texture Scale만큼 키워 그립니다. `CanvasModulate`는 캔버스 전체에 주변광 색을 곱해 조명이 닿지 않는 곳을 어둡게 만듭니다. 조명이 어느 노드에 닿는지는 Range 설정이 정하는데, 조명의 Item Cull Mask와 각 CanvasItem의 Light Mask(기본 1번 레이어), 그리고 레이어·z 범위입니다.',
+    'Nerulio의 미리보기는 이 모델을 CPU와 WebGL2로 계산한 것입니다(`lighting.js`). Godot처럼 빨강·초록에서 N을 읽고 파랑은 그 둘로 다시 계산하며, 내보내는 조명마다 Studio의 감쇠 곡선을 256px 텍스처로 넣기 때문에 방향뿐 아니라 밝기까지 미리보기와 같습니다.'],
+    terms:[['CanvasTexture','디퓨즈·노멀·스페큘러 맵과 스페큘러 색·광택을 담는 2D 텍스처 리소스.'],['Height','조명이 캔버스 위로 얼마나 떠 있는지. 노멀맵이 있는 면에서만 차이가 보입니다.'],['Item Cull Mask / Light Mask','조명과 스프라이트의 레이어 비트. 하나라도 겹쳐야 조명이 닿습니다.'],['CanvasModulate','캔버스마다 하나 두는 노드로, 모든 것에 주변광 색을 곱합니다.']]},
+   example:{title:'예시: Height와 Texture Scale이 한 픽셀에 주는 영향',lead:'평평한 픽셀(N = 0, 0, 1)과 그 왼쪽 64px에 있는 PointLight2D:',lines:[
+    'Height 64px    → 앙각 atan(64/64)  = 45°    평면 N·L = sin 45° = 0.707',
+    'Height 0(기본) → 앙각 0°                    평면 N·L = 0: 조명을 향한 경사만 밝음',
+    'Height 256px   → 앙각 atan(256/64) = 76°    평면 N·L = 0.970: 입체감이 거의 사라짐',
+    '',
+    'Nerulio 감쇠 PNG 폭 = 256px 이므로 texture_scale = 2 × 반경 / 256',
+    '반경 128px → texture_scale 1.0     반경 256px → texture_scale 2.0',
+    '',
+    'DirectionalLight2D: Height 0 = 평면과 평행, 1 = 바로 위에서 수직'],
+    after:'낮은 조명은 입체를 과장하고 높은 조명은 평평하게 만듭니다. 대부분의 장면은 앙각 30°~60° 사이에 들어옵니다. 노멀맵 강도를 바꾸기 전에 Height부터 조절하세요.'},
+   outputs:{lead:'torch.png라는 스프라이트라면 `godot/` 폴더에 다음이 들어 있습니다.',rows:[
+    ['torch_lit.tscn','주변광 CanvasModulate, Sprite2D(region 사용, 도트면 Nearest), 조명마다 PointLight2D, 프레임이 있으면 AnimationPlayer가 든 Node2D.'],
+    ['torch_canvas_texture.tres','내 Sprite2D에 쓸 CanvasTexture 단독 파일(디퓨즈, 노멀, 필요하면 스페큘러와 광택).'],
+    ['torch.png, torch_n.png','원본과 바이트까지 같은 스프라이트·시트, 그리고 OpenGL 노멀맵.'],
+    ['torch_light_smooth.png','쓰인 감쇠 종류(smooth·linear·quadratic·constant)마다 하나씩인 감쇠 텍스처.'],
+    ['torch_s.png','스페큘러가 0보다 클 때만 들어가는 스페큘러 맵.'],
+    ['README.md','이 단계와 검증 상태.']]},
+   target:{title:'Godot 4에서 설정하기',steps:[
+    '`godot` 폴더를 `res://` 아래 아무 곳에 복사하고(파일끼리 상대 경로로 참조) `torch_lit.tscn`을 열어 결과를 봅니다. 아래는 내 노드에 직접 설정할 때입니다.',
+    'Sprite2D를 선택하고 Texture 속성에서 새 CanvasTexture를 만든 뒤 Diffuse Texture에 스프라이트 PNG, Normal Map Texture에 `torch_n.png`를 넣거나 `torch_canvas_texture.tres`를 불러옵니다.',
+    'PointLight2D를 추가하고 Texture(번들의 감쇠 PNG나 부드러운 원형 그러데이션), 0보다 큰 Height(픽셀), Energy를 정한 뒤 스프라이트 위로 옮깁니다.',
+    '마스크를 확인합니다. 조명의 Range › Item Cull Mask와 스프라이트의 Light Mask(기본 1번 레이어)가 한 레이어 이상 겹쳐야 합니다.',
+    '어두운 색의 CanvasModulate를 하나 두어 조명이 없는 곳을 어둡게 합니다. 없으면 스프라이트가 처음부터 최대 밝기이고 조명은 더하기만 합니다.',
+    '도트 그림이면 Sprite2D의 Texture › Filter를 Nearest로 둡니다(번들은 설정됨). 다른 곳에서 받은 DirectX 방식 맵이라면 Import 독에서 Process › Normal Map Invert Y를 켜고 다시 가져옵니다.']},
+   verify:{steps:[
+    '조명을 스프라이트 위로 옮기세요. 윗가장자리가 밝아져야 하고, 아랫가장자리가 밝아지면 DirectX 방식 맵입니다.',
+    '조명의 Height를 0부터 올려 보세요. 조명이 높아질수록 입체가 부드러워져야 하며, 전혀 변화가 없으면 노멀맵이 읽히지 않는 것입니다.',
+    'Studio의 Lit 보기와 비교하세요. 검증에서 Godot 4.7.2는 확인한 모든 프레임에서 1/255 이내로 같았습니다.']},
+   trouble:{rows:[
+    ['노멀맵을 넣어도 아무 변화가 없음','스프라이트가 노멀맵이 든 CanvasTexture가 아닌 일반 텍스처를 씀','인스펙터에서 Sprite2D의 Texture가 CanvasTexture인지','텍스처를 CanvasTexture로 감싸거나 `torch_canvas_texture.tres` 불러오기'],
+    ['조명 쪽 테두리만 빛나고 가운데는 어두움','PointLight2D의 Height가 기본값 0이라 조명이 스프라이트 평면에 놓임','인스펙터에서 조명의 Height','Height를 올리기. 스프라이트까지의 거리만큼이면 45°'],
+    ['스프라이트가 전혀 밝아지지 않음','조명의 Item Cull Mask와 스프라이트의 Light Mask가 겹치지 않거나, 스프라이트가 조명 텍스처 범위 밖에 있음','조명을 껐다 켜 보고, 두 마스크와 Texture Scale 확인','같은 레이어에 두고 Texture Scale 키우기'],
+    ['조명이 위에 있는데 아래에서 비친 듯함','DirectX 방식(Y−) 노멀맵','바로 위 조명에서 윗가장자리가 어두움','OpenGL인 `torch_n.png`를 쓰거나 Process › Normal Map Invert Y를 켜고 다시 가져오기. [[game/normal-map-opengl-or-directx|OpenGL·DirectX 판별]] 참고'],
+    ['화면 전체가 허옇게 뜸','CanvasModulate가 없어 기본색이 이미 최대 밝기','씬 트리에 CanvasModulate가 없음','번들의 Ambient 노드처럼 어두운 색으로 하나 추가'],
+    ['도트 입체가 번져 보임','노드나 CanvasTexture의 선형 필터','확대하면 픽셀 경계가 부드러움','Nearest 필터. [[game/godot-pixel-art-blurry|Godot 도트 흐림 해결]] 참고']]},
+   alternatives:{rows:[
+    ['CanvasTexture와 조명을 직접 구성','이미 노멀맵이 있을 때(3D 굽기, Laigter, 손으로 그림). 위 단계를 내 `_n` 파일로 따라 하면 됩니다.'],
+    ['직접 만든 canvas_item 셰이더','림 라이트처럼 Godot의 Light2D가 그리지 않는 조명이 필요할 때. 그래서 Studio의 림 라이트는 미리보기에만 있습니다.'],
+    ['[[game/aseprite-to-godot|SpriteFrames 내보내기]]의 AnimatedSprite2D','애니메이션을 SpriteFrames로 다루고 싶을 때. 그 프레임에 노멀맵을 붙이는 것은 검증 대상이 아니었습니다.']]},
+   limits:['Godot 4.7.2의 Compatibility 렌더러(gl_compatibility)로만 확인했습니다. Forward+와 Mobile은 돌려 보지 않았습니다.','그림자(LightOccluder2D)는 내보내지 않습니다.','내보낸 씬은 AnimatedSprite2D가 아니라 AnimationPlayer로 Sprite2D를 움직입니다.'],
+   versions:{body:['Godot 4.7.2(gl_compatibility), 실제 CC0 사례 6건: 확인한 모든 프레임이 Studio 기준과 1/255 이내(평균 0.14~0.22단계)였고 내보낸 AnimationPlayer를 거쳐도 같았습니다. 초록을 뒤집은 렌더는 3.8~37단계 어긋나, 검사가 잘못된 규약을 잡아낸다는 것도 확인했습니다. 속성 이름과 기본값은 Godot 4.7 클래스 레퍼런스를 따릅니다.'],sources:[G_LIGHTS,G_CANVAS,G_POINT,G_DIR,G_LIGHT2D,G_ITEM,G_IMPORT]}
+  },
+  ja:{
+   answer:'Godot 4の2Dノーマルマップは `CanvasTexture` の中でだけ働きます。スプライトのDiffuse Textureの隣のNormal Map Textureにノーマルマップを入れ、Heightが0より大きく、Item Cull MaskがスプライトのLight Maskと重なる `PointLight2D` か `DirectionalLight2D` で照らす必要があります。Nerulioのテクスチャ作業画面はノーマルマップを作り、そのシーン（Sprite2D、CanvasTexture、CanvasModulate、ライトごとのPointLight2D、フレーム用のAnimationPlayer）を完成した状態で書き出します。Godot 4.7.2での描画とプレビューの差は1/255以内でした。',
+   concept:{title:'Godot 4がノーマルマップ付きスプライトを照らす仕組み',body:[
+    'Godotはスプライトの色の上に2Dライトをピクセル単位で描きます。普通のテクスチャには法線がないのでライトは明るくするだけです。ディフューズ・ノーマルマップ・スペキュラーマップをまとめる `CanvasTexture` に入れる必要があり、ドキュメントのとおり、ノーマルマップはLight2DがそのCanvasTextureに当たっているときだけ目に見えます。Godotが期待するのはX+、Y+、Z+、つまりOpenGL方式です。',
+    'ライトはピクセルごとに 色 × エネルギー × 減衰 × N·L を加えます。Lはピクセルから、Heightの分だけ持ち上げたライトへの方向です。`PointLight2D` のHeightはピクセル単位で、ドキュメントの例では高さ100が100px離れた物体を45°で照らします。既定値は0で、ライトがスプライトの平面上に置かれます。`DirectionalLight2D` のHeightは0（平面と平行）から1（垂直）までで、向きはノードの回転で決まります。',
+    'ライトの大きさと減衰はテクスチャから来ます。`PointLight2D` はふつうグレーのテクスチャをTexture Scaleの分だけ拡大して描きます。`CanvasModulate` はキャンバス全体に環境光の色を掛け、光の当たらない所を暗くします。ライトがどのノードに届くかはRangeの設定で決まり、ライトのItem Cull Maskと各CanvasItemのLight Mask（既定はレイヤー1）、さらにレイヤーとzの範囲です。',
+    'Nerulioのプレビューはこのモデルを CPU と WebGL2 で計算したものです（`lighting.js`）。Godotと同じく赤と緑からNを読み、青はその2つから計算し直します。書き出す各ライトにはStudioの減衰カーブを256pxのテクスチャとして入れるので、向きだけでなく明るさもプレビューと一致します。'],
+    terms:[['CanvasTexture','ディフューズ・ノーマル・スペキュラーのマップとスペキュラーの色・光沢を持つ2Dテクスチャのリソース。'],['Height','ライトがキャンバスからどれだけ浮いているか。ノーマルマップのある面でだけ違いが見えます。'],['Item Cull Mask / Light Mask','ライトとスプライトのレイヤーのビット。1つでも重ならないと光が届きません。'],['CanvasModulate','キャンバスに1つ置くノードで、全体に環境光の色を掛けます。']]},
+   example:{title:'具体例：HeightとTexture Scaleが1ピクセルに与える影響',lead:'平らなピクセル（N = 0, 0, 1）と、その左64pxにあるPointLight2D：',lines:[
+    'Height 64px    → 仰角 atan(64/64)  = 45°    平面の N·L = sin 45° = 0.707',
+    'Height 0（既定）→ 仰角 0°                   平面の N·L = 0：光に向いた斜面だけが明るい',
+    'Height 256px   → 仰角 atan(256/64) = 76°    平面の N·L = 0.970：立体感がほぼ消える',
+    '',
+    'Nerulioの減衰PNGは幅256px なので texture_scale = 2 × 半径 / 256',
+    '半径128px → texture_scale 1.0     半径256px → texture_scale 2.0',
+    '',
+    'DirectionalLight2D：Height 0 = 平面と平行、1 = 真上から垂直'],
+    after:'低いライトは立体を強調し、高いライトは平らにします。多くの場面は仰角30°〜60°に収まります。ノーマルマップの強さを変える前に、まずHeightを調整してください。'},
+   outputs:{lead:'torch.pngというスプライトなら、`godot/` フォルダーの中身は次のとおりです。',rows:[
+    ['torch_lit.tscn','環境光のCanvasModulate、Sprite2D（region有効、ドット絵ならNearest）、ライトごとのPointLight2D、フレームがあればAnimationPlayerを持つNode2D。'],
+    ['torch_canvas_texture.tres','自分のSprite2D用のCanvasTexture単体（ディフューズ、ノーマル、必要ならスペキュラーと光沢）。'],
+    ['torch.png, torch_n.png','元とバイト単位で同じスプライト・シートと、そのOpenGLノーマルマップ。'],
+    ['torch_light_smooth.png','使った減衰の種類（smooth・linear・quadratic・constant）ごとの減衰テクスチャ。'],
+    ['torch_s.png','スペキュラーが0より大きいときだけ入るスペキュラーマップ。'],
+    ['README.md','この手順と検証状況。']]},
+   target:{title:'Godot 4で設定する',steps:[
+    '`godot` フォルダーを `res://` 以下の好きな場所にコピーし（ファイル同士は相対パスで参照）、`torch_lit.tscn` を開いて結果を見ます。以下は自分のノードに設定する場合です。',
+    'Sprite2Dを選び、Textureプロパティで新しいCanvasTextureを作り、Diffuse TextureにスプライトのPNG、Normal Map Textureに `torch_n.png` を入れるか、`torch_canvas_texture.tres` を読み込みます。',
+    'PointLight2Dを追加し、Texture（バンドルの減衰PNGか、やわらかい円形グラデーション）、0より大きいHeight（ピクセル）、Energyを決めてスプライトの上へ動かします。',
+    'マスクを確認します。ライトのRange › Item Cull MaskとスプライトのLight Mask（既定はレイヤー1）が1つ以上重なっている必要があります。',
+    '暗い色のCanvasModulateを1つ置き、光の当たらない所を暗くします。ないとスプライトは最初から最大の明るさで、ライトは足し算するだけになります。',
+    'ドット絵ならSprite2DのTexture › FilterをNearestにします（バンドルは設定済み）。よそで作ったDirectX方式のマップなら、ImportドックでProcess › Normal Map Invert Yをオンにして再インポートします。']},
+   verify:{steps:[
+    'ライトをスプライトの上に動かします。上の縁が明るくなるはずで、下の縁が明るくなるならDirectX方式のマップです。',
+    'ライトのHeightを0から上げてみます。ライトが高くなるほど立体がやわらかくなるはずで、まったく変わらなければノーマルマップが読まれていません。',
+    'StudioのLit表示と比べます。検証ではGodot 4.7.2が確認した全フレームで1/255以内で一致しました。']},
+   trouble:{rows:[
+    ['ノーマルマップを入れても何も変わらない','スプライトがノーマルマップ入りのCanvasTextureではなく普通のテクスチャを使っている','インスペクターでSprite2DのTextureがCanvasTextureか','テクスチャをCanvasTextureで包むか、`torch_canvas_texture.tres` を読み込む'],
+    ['光に向いた縁だけ光り、中央は暗い','PointLight2DのHeightが既定の0で、ライトがスプライトの平面上にある','インスペクターでライトのHeight','Heightを上げる。スプライトまでの距離と同じくらいで45°'],
+    ['スプライトがまったく明るくならない','ライトのItem Cull MaskとスプライトのLight Maskが重ならない、またはスプライトがライトのテクスチャの範囲外','ライトをオンオフし、両方のマスクとTexture Scaleを確認','同じレイヤーに置き、Texture Scaleを大きくする'],
+    ['ライトが上にあるのに下から照らされたよう','DirectX方式（Y−）のノーマルマップ','真上のライトで上の縁が暗い','OpenGLの `torch_n.png` を使うか、Process › Normal Map Invert Yをオンにして再インポート。[[game/normal-map-opengl-or-directx|OpenGL・DirectXの判定]]を参照'],
+    ['全体が白っぽく浮いて見える','CanvasModulateがなく、基本色がすでに最大の明るさ','シーンツリーにCanvasModulateがない','バンドルのAmbientノードのように暗い色で1つ追加'],
+    ['ドット絵の凹凸がにじむ','ノードかCanvasTextureの線形フィルター','拡大するとピクセルの境目がやわらかい','Nearestフィルター。[[game/godot-pixel-art-blurry|Godotでドット絵がぼやける]]を参照']]},
+   alternatives:{rows:[
+    ['CanvasTextureとライトを自分で組む','ノーマルマップがすでにあるとき（3Dベイク、Laigter、手描き）。上の手順を自分の `_n` ファイルでなぞれば済みます。'],
+    ['自作のcanvas_itemシェーダー','リムライトのように、GodotのLight2Dが描かないライトが必要なとき。そのためStudioのリムライトはプレビュー専用です。'],
+    ['[[game/aseprite-to-godot|SpriteFrames書き出し]]のAnimatedSprite2D','アニメーションをSpriteFramesで扱いたいとき。そのフレームにノーマルマップを付ける構成は検証の対象外でした。']]},
+   limits:['Godot 4.7.2のCompatibilityレンダラー（gl_compatibility）でのみ確認しました。Forward+とMobileは試していません。','影（LightOccluder2D）は書き出しません。','書き出したシーンはAnimatedSprite2DではなくAnimationPlayerでSprite2Dを動かします。'],
+   versions:{body:['Godot 4.7.2（gl_compatibility）、実在するCC0の6ケース：確認した全フレームがStudioの基準と1/255以内（平均0.14〜0.22段階）で、書き出したAnimationPlayerを通しても同じでした。緑を反転した描画は3.8〜37段階ずれ、チェックが誤った規約を見分けられることも確かめています。プロパティ名と既定値はGodot 4.7のクラスリファレンスに従います。'],sources:[G_LIGHTS,G_CANVAS,G_POINT,G_DIR,G_LIGHT2D,G_ITEM,G_IMPORT]}
+  }
+ },
+ 'game/unity-2d-normal-map':{
+  type:'engine',
+  intent:{primary:'use a normal map on a 2D sprite in Unity 6 URP so Light 2D shades it',secondary:['Secondary Texture _NormalMap','Light 2D Normal Map Quality and Distance','Light Render Texture Scale for pixel art','normal map not working in Unity 2D'],
+   goal:'a Unity 6 URP 2D sprite whose relief follows Light 2D lights',input:'sprite or cut sheet (PNG) plus its normal map, or a sprite to generate one from',output:'PNGs + nerulio-texture.json + Editor/NerulioNormalMapImporter.cs',target:'Unity 6 URP 2D (verified 6000.5.3f1, URP 17.5)',support:'full',
+   evidence:['src/game/normals/export.js UNITY_IMPORTER / unityBlock','docs/STUDIO-TEXTURE.md (Unity 12/12, negative control, three importer bugs)','tests/normals.test.mjs (importer checks)'],
+   external:['Unity manual: Secondary Textures _NormalMap, Sprite-Lit-Default','Light 2D: Normal Map Quality (Disabled default), Normal Map Distance (units)','Renderer 2D: Light Render Texture Scale default 0.5','Unity uses Y+ normal maps']},
+  en:{
+   answer:'In Unity 6 a 2D normal map is read only when four things line up: the project renders with URP and its 2D Renderer, the sprite uses the Sprite-Lit-Default material, the map is attached to the sprite texture as a Secondary Texture named `_NormalMap`, and the Light 2D has Normal Map Quality set to Fast or Accurate (it is Disabled by default). Nerulio exports the PNGs, a JSON and an editor script that does the texture part and can place matching Light 2D lights; it passed 12 of 12 runs in Unity 6000.5.3f1 with URP 17.5.',
+   concept:{title:'How URP\'s 2D lights read a sprite normal map',body:[
+    'URP\'s lit sprite shader samples the normal map through the sprite\'s Secondary Textures: extra textures stored with the sprite, found by name. The name `_NormalMap` is what the shader looks for, and the map must share the sprite\'s UVs, so it has to have exactly the sprite sheet\'s size and layout. Unity uses Y+ normal maps (the OpenGL style), with RGB = XYZ and (0.5, 0.5, 1) as the flat normal.',
+    'A normal map holds vectors, not colours, so sRGB (Color Texture) must be off or the values are gamma-decoded and every slope tilts. Unity\'s manual imports it with Texture Type Normal Map; Nerulio\'s importer keeps it a Default texture with sRGB off, uncompressed, no mipmaps and Non-Power of 2 set to None, which is the setup that passed in Unity 6.',
+    'On the light, Normal Map Quality switches normal mapping on (Fast or Accurate) and Normal Map Distance sets how far the light sits from the sprite, in Unity units. It works like a height: a small distance means light arriving at a steep angle from the side, a large one light from almost straight above.',
+    'The 2D Renderer computes lights into textures at a fraction of the screen resolution, 0.5 by default (Light Render Texture Scale). For smooth art that is invisible; for pixel art it softens one-pixel lighting bands, so the Nerulio README suggests 1.'],
+    terms:[['Secondary Texture','An extra texture attached to a sprite and found by name; `_NormalMap` for normals, `_MaskTex` for masks.'],['Normal Map Quality','Disabled (default), Fast or Accurate on each Light 2D.'],['Normal Map Distance','The light\'s distance from the sprite plane in Unity units; Nerulio sets it to the Studio height ÷ Pixels Per Unit.'],['Pixels Per Unit','How many texture pixels make one Unity unit; 100 in the export by default.']]},
+   example:{title:'Example: one Studio light converted to Unity units',lead:'A 32 × 32 frame, Pixels Per Unit 100, a Studio light at x 8, y 6 (pixels, y down), height 24 px, radius 96 px:',lines:[
+    'position x = (8  − 32/2) / 100 = −0.08',
+    'position y = (32/2 − 6)  / 100 = +0.10     (Unity y points up)',
+    'Normal Map Distance = 24 / 100 = 0.24     Outer Radius = 96 / 100 = 0.96',
+    '',
+    'sprite rect, sheet 192 × 32, frame 3:  x = 96, y = 32 − (0 + 32) = 0',
+    '',
+    'Light Render Texture Scale 0.5 at 1920 × 1080 → lights drawn at 960 × 540',
+    '                             1.0             → 1920 × 1080, one light texel per screen pixel'],
+    after:'Positions are measured from the sprite\'s centre pivot, which the importer sets for every frame. Rects are written bottom-up because Unity counts texture rows from the bottom.'},
+   outputs:{lead:'For a sprite called torch.png the `unity/` folder holds:',rows:[
+    ['torch.png, torch_n.png','The sprite or sheet, byte for byte, and its OpenGL (Y+) normal map.'],
+    ['nerulio-texture.json','Size, Pixels Per Unit, Point filter flag, frame rects (bottom-up) and the lights with position, height, energy, radius and colour.'],
+    ['Editor/NerulioNormalMapImporter.cs','Adds Tools › Nerulio › Apply Texture JSON and Create Lit Preview.'],
+    ['README.md','These steps, the Light Render Texture Scale hint and the verification status.']]},
+   target:{title:'Set it up in Unity 6 (URP 2D)',steps:[
+    'Use a project that renders with URP and a 2D Renderer, and keep the sprites on the Sprite-Lit-Default material.',
+    'Copy the `unity` folder into `Assets/`; Unity compiles `Editor/NerulioNormalMapImporter.cs`.',
+    'Run Tools › Nerulio › Apply Texture JSON and pick `nerulio-texture.json`: the sprite gets its frame rects (Multiple mode for sheets, Point filter for pixel art) and `_NormalMap` as Secondary Texture; the normal map gets sRGB off, no compression, no mipmaps and no power-of-two resize.',
+    'Run Tools › Nerulio › Create Lit Preview: a `NerulioLitPreview` object with the first frame and one Light 2D per Studio light, Normal Map Quality Accurate and Normal Map Distance = height ÷ Pixels Per Unit.',
+    'For your own lights (GameObject › Light, for example Spot Light 2D), set Normal Map Quality to Fast or Accurate and a Normal Map Distance, and make sure Target Sorting Layers include the sprite\'s layer.',
+    'For pixel art, open your Renderer 2D asset and set Light Render Texture Scale to 1.']},
+   verify:{steps:[
+    'Select the sprite texture › Open Sprite Editor › Secondary Textures: `_NormalMap` points at `torch_n.png`.',
+    'Select `torch_n.png`: sRGB (Color Texture) off and the size in the inspector equals the PNG\'s size.',
+    'Move a Light 2D above the sprite: top edges brighten. Set its Normal Map Quality to Disabled and the relief disappears, which proves the map is read.']},
+   trouble:{rows:[
+    ['Only a flat glow, no relief','The Light 2D\'s Normal Map Quality is Disabled, its default','Light 2D inspector','Set Fast or Accurate (Create Lit Preview sets Accurate)'],
+    ['Relief tilted the wrong way, lit from below','A DirectX-style (Y−) map, or sRGB left on so the vectors are gamma-decoded','Import settings of the normal map; the Studio\'s Check panel verdict','Use Nerulio\'s `torch_n.png` (Y+) and turn sRGB off; see [[game/normal-map-opengl-or-directx|OpenGL or DirectX]]'],
+    ['Normals blurred or shifted against the pixels','The map was resized to a power of two or compressed (a 96 × 64 map became 128 × 64 in our first run)','The inspector shows another size than the PNG','Non-Power of 2 None, Uncompressed; the current importer sets both'],
+    ['Soft, blocky light bands on pixel art','Light Render Texture Scale is 0.5','Renderer 2D asset','Set it to 1; see also [[game/unity-pixel-art-blurry|blurry pixel art in Unity]]'],
+    ['The sprite is not lit at all','Sprite-Unlit-Default material, or the light\'s Target Sorting Layers leave out the sprite\'s layer','Sprite Renderer material; the light\'s Target Sorting Layers','Use Sprite-Lit-Default and include the layer'],
+    ['Create Lit Preview placed no lights','URP is not installed (the console says so), or an old copy of the importer searched the pre-Unity 6 assembly for Light2D','Console message after the command','Install URP; re-export so the current importer is used']]},
+   alternatives:{rows:[
+    ['Unity\'s Sprite Editor › Secondary Textures by hand','One or two sprites: add `_NormalMap` yourself. Unity\'s manual sets the map\'s Texture Type to Normal Map; the importer keeps Default with sRGB off, which is the variant that was verified.'],
+    ['A custom lit sprite shader (Shader Graph)','You need a lighting look URP\'s 2D lights do not give; the texture settings above still apply.'],
+    ['[[game/unity-sprite-sheet|Unity sprite sheet export]]','You only need the frames sliced in Unity, without normal maps.']]},
+   limits:['Brightness follows URP\'s own light falloff, not the Studio\'s; placement, height and the N·L term were verified.','No specular map is exported for Unity (Godot only).','Only Unity 6000.5.3f1 with URP 17.5 was run; other versions may name the light fields differently.'],
+   versions:{body:['Unity 6000.5.3f1, URP 17.5, 2D Renderer, Direct3D 12: 12 of 12 PASS (6 real cases × Gamma and Linear colour space), mean |N·L error| 0.0037–0.0085 and p95 0.013–0.022 against the exported map; with the map green-flipped inside Unity every run failed (mean error 0.07–0.19). The probe ran the shipped importer. Menu names, defaults and the Secondary Texture name follow the Unity manual.'],sources:[U_SECONDARY,U_LIGHT,U_RENDERER,U_PREPARE,U_NORMAL]}
+  },
+  ko:{
+   answer:'Unity 6에서 2D 노멀맵은 네 가지가 맞아야 읽힙니다. 프로젝트가 URP와 2D 렌더러로 그리고, 스프라이트가 Sprite-Lit-Default 머티리얼을 쓰며, 노멀맵이 스프라이트 텍스처에 이름이 `_NormalMap`인 보조 텍스처로 붙어 있고, Light 2D의 Normal Map Quality가 Fast나 Accurate여야 합니다(기본값은 Disabled). Nerulio는 PNG, JSON, 그리고 텍스처 쪽 설정을 대신하고 맞는 Light 2D까지 배치하는 에디터 스크립트를 내보내며, Unity 6000.5.3f1·URP 17.5에서 12회 중 12회 통과했습니다.',
+   concept:{title:'URP 2D 조명이 스프라이트 노멀맵을 읽는 방식',body:[
+    'URP의 조명용 스프라이트 셰이더는 스프라이트의 보조 텍스처(Secondary Textures)에서 노멀맵을 읽습니다. 스프라이트와 함께 저장되고 이름으로 찾는 추가 텍스처이며, 셰이더가 찾는 이름이 `_NormalMap`입니다. 스프라이트와 UV를 공유하므로 시트와 크기·배치가 정확히 같아야 합니다. Unity는 Y+ 노멀맵(OpenGL 방식)을 쓰고, RGB가 XYZ이며 평평한 노멀은 (0.5, 0.5, 1)입니다.',
+    '노멀맵은 색이 아니라 벡터를 담으므로 sRGB(Color Texture)를 꺼야 합니다. 켜 두면 값이 감마 변환되어 모든 경사가 틀어집니다. Unity 매뉴얼은 Texture Type을 Normal Map으로 가져오지만, Nerulio 임포터는 Default 텍스처로 두고 sRGB 끔, 무압축, 밉맵 없음, Non-Power of 2 None으로 설정하며, 이것이 Unity 6에서 통과한 구성입니다.',
+    '조명 쪽에서는 Normal Map Quality가 노멀 매핑을 켜고(Fast 또는 Accurate), Normal Map Distance가 조명과 스프라이트 사이 거리를 Unity 단위로 정합니다. 높이처럼 작동해서, 거리가 작으면 빛이 옆에서 가파르게 들어오고 크면 거의 바로 위에서 들어옵니다.',
+    '2D 렌더러는 조명을 화면 해상도의 일부 크기 텍스처에 계산하며 기본값은 0.5입니다(Light Render Texture Scale). 부드러운 그림에서는 티가 안 나지만 도트 그림에서는 1픽셀짜리 조명 띠가 뭉개지므로, Nerulio README는 1을 권합니다.'],
+    terms:[['보조 텍스처','스프라이트에 붙어 이름으로 찾는 추가 텍스처. 노멀은 `_NormalMap`, 마스크는 `_MaskTex`.'],['Normal Map Quality','Light 2D마다 있는 설정. Disabled(기본)·Fast·Accurate.'],['Normal Map Distance','조명과 스프라이트 평면 사이 거리(Unity 단위). Nerulio는 Studio 높이 ÷ Pixels Per Unit으로 넣습니다.'],['Pixels Per Unit','Unity 1단위에 해당하는 텍스처 픽셀 수. 내보내기 기본값은 100.']]},
+   example:{title:'예시: Studio 조명 하나를 Unity 단위로 바꾸기',lead:'32 × 32 프레임, Pixels Per Unit 100, Studio 조명이 x 8, y 6(픽셀, 아래가 +), 높이 24px, 반경 96px일 때:',lines:[
+    '위치 x = (8  − 32/2) / 100 = −0.08',
+    '위치 y = (32/2 − 6)  / 100 = +0.10     (Unity는 위가 +)',
+    'Normal Map Distance = 24 / 100 = 0.24     Outer Radius = 96 / 100 = 0.96',
+    '',
+    '스프라이트 영역, 시트 192 × 32, 3번 프레임:  x = 96, y = 32 − (0 + 32) = 0',
+    '',
+    'Light Render Texture Scale 0.5, 1920 × 1080 화면 → 조명을 960 × 540으로 계산',
+    '                             1.0                  → 1920 × 1080, 화면 픽셀마다 조명 텍셀 하나'],
+    after:'위치는 임포터가 모든 프레임에 설정하는 가운데 피벗을 기준으로 잽니다. Unity는 텍스처 행을 아래에서부터 세기 때문에 영역도 아래 기준으로 기록됩니다.'},
+   outputs:{lead:'torch.png라는 스프라이트라면 `unity/` 폴더에 다음이 들어 있습니다.',rows:[
+    ['torch.png, torch_n.png','원본과 바이트까지 같은 스프라이트·시트와 OpenGL(Y+) 노멀맵.'],
+    ['nerulio-texture.json','크기, Pixels Per Unit, Point 필터 여부, 아래 기준 프레임 영역, 조명의 위치·높이·세기·반경·색.'],
+    ['Editor/NerulioNormalMapImporter.cs','Tools › Nerulio › Apply Texture JSON과 Create Lit Preview 메뉴를 추가합니다.'],
+    ['README.md','이 단계, Light Render Texture Scale 안내, 검증 상태.']]},
+   target:{title:'Unity 6(URP 2D)에서 설정하기',steps:[
+    'URP와 2D 렌더러로 그리는 프로젝트를 쓰고, 스프라이트 머티리얼은 Sprite-Lit-Default로 둡니다.',
+    '`unity` 폴더를 `Assets/`에 복사하면 Unity가 `Editor/NerulioNormalMapImporter.cs`를 컴파일합니다.',
+    'Tools › Nerulio › Apply Texture JSON을 실행해 `nerulio-texture.json`을 고릅니다. 스프라이트에 프레임 영역(시트는 Multiple, 도트는 Point 필터)과 보조 텍스처 `_NormalMap`이 들어가고, 노멀맵은 sRGB 끔·무압축·밉맵 없음·2의 거듭제곱 크기 변경 없음으로 설정됩니다.',
+    'Tools › Nerulio › Create Lit Preview를 실행하면 첫 프레임과 Studio 조명마다 Light 2D가 든 `NerulioLitPreview` 오브젝트가 생기며, Normal Map Quality는 Accurate, Normal Map Distance는 높이 ÷ Pixels Per Unit입니다.',
+    '직접 만든 조명(GameObject › Light, 예: Spot Light 2D)은 Normal Map Quality를 Fast나 Accurate로 바꾸고 Normal Map Distance를 정한 뒤, Target Sorting Layers에 스프라이트의 레이어가 포함되는지 확인합니다.',
+    '도트 그림이면 Renderer 2D 에셋을 열어 Light Render Texture Scale을 1로 둡니다.']},
+   verify:{steps:[
+    '스프라이트 텍스처를 선택 › Open Sprite Editor › Secondary Textures에서 `_NormalMap`이 `torch_n.png`를 가리키는지 봅니다.',
+    '`torch_n.png`를 선택해 sRGB(Color Texture)가 꺼져 있고 인스펙터의 크기가 PNG 크기와 같은지 확인합니다.',
+    'Light 2D를 스프라이트 위로 옮기면 윗가장자리가 밝아집니다. Normal Map Quality를 Disabled로 바꾸면 입체가 사라지는데, 이것으로 맵이 읽히고 있음이 확인됩니다.']},
+   trouble:{rows:[
+    ['평평하게 빛나기만 하고 입체가 없음','Light 2D의 Normal Map Quality가 기본값 Disabled','Light 2D 인스펙터','Fast나 Accurate로 바꾸기(Create Lit Preview는 Accurate로 설정)'],
+    ['입체가 반대로 기울고 아래에서 비친 듯함','DirectX 방식(Y−) 맵이거나 sRGB가 켜져 벡터가 감마 변환됨','노멀맵 가져오기 설정, Studio 점검 패널의 판정','Nerulio의 `torch_n.png`(Y+)를 쓰고 sRGB 끄기. [[game/normal-map-opengl-or-directx|OpenGL·DirectX 판별]] 참고'],
+    ['노멀이 흐리거나 픽셀과 어긋남','맵이 2의 거듭제곱으로 늘어나거나 압축됨(첫 실행에서 96 × 64가 128 × 64로 바뀜)','인스펙터 크기가 PNG와 다름','Non-Power of 2 None, 무압축. 현재 임포터는 둘 다 설정'],
+    ['도트 그림의 조명 띠가 뭉개지고 계단처럼 보임','Light Render Texture Scale이 0.5','Renderer 2D 에셋','1로 바꾸기. [[game/unity-pixel-art-blurry|Unity 도트 흐림 해결]]도 참고'],
+    ['스프라이트가 전혀 밝아지지 않음','Sprite-Unlit-Default 머티리얼이거나, 조명의 Target Sorting Layers에 스프라이트 레이어가 빠짐','Sprite Renderer 머티리얼과 조명의 Target Sorting Layers','Sprite-Lit-Default를 쓰고 레이어 포함하기'],
+    ['Create Lit Preview가 조명을 만들지 않음','URP가 설치되지 않았거나(콘솔에 표시), Unity 6 이전 어셈블리에서 Light2D를 찾던 옛 임포터','명령 뒤의 콘솔 메시지','URP 설치, 다시 내보내 현재 임포터 쓰기']]},
+   alternatives:{rows:[
+    ['Unity Sprite Editor › Secondary Textures에서 직접','스프라이트가 한두 개라면 `_NormalMap`을 직접 추가하세요. Unity 매뉴얼은 맵의 Texture Type을 Normal Map으로 두지만, 임포터는 sRGB를 끈 Default로 두며 검증한 것은 이 구성입니다.'],
+    ['직접 만든 조명 스프라이트 셰이더(Shader Graph)','URP 2D 조명으로는 안 나오는 표현이 필요할 때. 위의 텍스처 설정은 그대로 적용됩니다.'],
+    ['[[game/unity-sprite-sheet|Unity 스프라이트 시트 내보내기]]','노멀맵 없이 Unity에서 프레임만 잘리면 될 때.']]},
+   limits:['밝기는 Studio가 아니라 URP 자체의 감쇠를 따릅니다. 검증한 것은 위치, 높이, N·L 항입니다.','Unity용 스페큘러 맵은 내보내지 않습니다(Godot 전용).','Unity 6000.5.3f1과 URP 17.5에서만 돌려 봤으며, 다른 버전은 조명 필드 이름이 다를 수 있습니다.'],
+   versions:{body:['Unity 6000.5.3f1, URP 17.5, 2D 렌더러, Direct3D 12: 12회 중 12회 통과(실제 사례 6건 × Gamma·Linear 색 공간). 내보낸 맵 대비 N·L 평균 오차 0.0037~0.0085, p95 0.013~0.022였고, Unity 안에서 맵의 초록을 뒤집으면 모든 실행이 실패했습니다(평균 오차 0.07~0.19). 검사는 배포하는 임포터를 그대로 실행했습니다. 메뉴 이름, 기본값, 보조 텍스처 이름은 Unity 매뉴얼을 따릅니다.'],sources:[U_SECONDARY,U_LIGHT,U_RENDERER,U_PREPARE,U_NORMAL]}
+  },
+  ja:{
+   answer:'Unity 6で2Dノーマルマップが読まれるのは、4つがそろったときだけです。プロジェクトがURPと2D Rendererで描画し、スプライトがSprite-Lit-Defaultマテリアルを使い、ノーマルマップがスプライトのテクスチャに `_NormalMap` という名前のセカンダリテクスチャとして付き、Light 2DのNormal Map QualityがFastかAccurateであること（既定はDisabled）。NerulioはPNG、JSON、そしてテクスチャ側の設定を代わりに行い対応するLight 2Dも置けるエディタースクリプトを書き出し、Unity 6000.5.3f1・URP 17.5で12回中12回合格しました。',
+   concept:{title:'URPの2Dライトがスプライトのノーマルマップを読む仕組み',body:[
+    'URPのライト対応スプライトシェーダーは、スプライトのセカンダリテクスチャからノーマルマップを読みます。スプライトと一緒に保存され、名前で探される追加のテクスチャで、シェーダーが探す名前が `_NormalMap` です。スプライトとUVを共有するので、シートとサイズ・配置が完全に同じである必要があります。UnityはY+のノーマルマップ（OpenGL方式）を使い、RGBがXYZ、平らな法線は (0.5, 0.5, 1) です。',
+    'ノーマルマップは色ではなくベクトルなので、sRGB（Color Texture）をオフにしなければなりません。オンだと値がガンマ変換され、すべての斜面が傾きます。UnityのマニュアルはTexture TypeをNormal Mapで読み込みますが、NerulioのインポーターはDefaultのまま、sRGBオフ・無圧縮・ミップマップなし・Non-Power of 2 Noneに設定し、これがUnity 6で合格した構成です。',
+    'ライト側では、Normal Map Qualityが法線マッピングをオンにし（FastかAccurate）、Normal Map Distanceがライトとスプライトの距離をUnityの単位で決めます。高さのように働き、距離が小さいと光が横から急な角度で入り、大きいとほぼ真上から入ります。',
+    '2D Rendererはライトを画面解像度の一部の大きさのテクスチャに計算し、既定は0.5です（Light Render Texture Scale）。なめらかな絵では目立ちませんが、ドット絵では1ピクセル幅の光の帯がぼやけるため、NerulioのREADMEは1を勧めています。'],
+    terms:[['セカンダリテクスチャ','スプライトに付けて名前で探す追加のテクスチャ。法線は `_NormalMap`、マスクは `_MaskTex`。'],['Normal Map Quality','Light 2Dごとの設定。Disabled（既定）・Fast・Accurate。'],['Normal Map Distance','ライトとスプライトの平面の距離（Unityの単位）。NerulioはStudioの高さ ÷ Pixels Per Unitを入れます。'],['Pixels Per Unit','Unityの1単位に当たるテクスチャのピクセル数。書き出しの既定は100。']]},
+   example:{title:'具体例：Studioのライト1つをUnityの単位に換算',lead:'32 × 32のフレーム、Pixels Per Unit 100、Studioのライトがx 8、y 6（ピクセル、下が＋）、高さ24px、半径96pxのとき：',lines:[
+    '位置 x = (8  − 32/2) / 100 = −0.08',
+    '位置 y = (32/2 − 6)  / 100 = +0.10     （Unityは上が＋）',
+    'Normal Map Distance = 24 / 100 = 0.24     Outer Radius = 96 / 100 = 0.96',
+    '',
+    'スプライトの範囲、シート192 × 32、フレーム3:  x = 96、y = 32 − (0 + 32) = 0',
+    '',
+    'Light Render Texture Scale 0.5、画面1920 × 1080 → ライトを960 × 540で計算',
+    '                             1.0                → 1920 × 1080、画面の1ピクセルに光のテクセル1つ'],
+    after:'位置は、インポーターが全フレームに設定する中央のピボットから測ります。Unityはテクスチャの行を下から数えるので、範囲も下基準で書かれます。'},
+   outputs:{lead:'torch.pngというスプライトなら、`unity/` フォルダーの中身は次のとおりです。',rows:[
+    ['torch.png, torch_n.png','元とバイト単位で同じスプライト・シートと、OpenGL（Y+）のノーマルマップ。'],
+    ['nerulio-texture.json','サイズ、Pixels Per Unit、Pointフィルターの有無、下基準のフレームの範囲、ライトの位置・高さ・強さ・半径・色。'],
+    ['Editor/NerulioNormalMapImporter.cs','Tools › Nerulio › Apply Texture JSONとCreate Lit Previewのメニューを追加します。'],
+    ['README.md','この手順、Light Render Texture Scaleの案内、検証状況。']]},
+   target:{title:'Unity 6（URP 2D）で設定する',steps:[
+    'URPと2D Rendererで描画するプロジェクトを使い、スプライトのマテリアルはSprite-Lit-Defaultのままにします。',
+    '`unity` フォルダーを `Assets/` にコピーすると、Unityが `Editor/NerulioNormalMapImporter.cs` をコンパイルします。',
+    'Tools › Nerulio › Apply Texture JSONを実行して `nerulio-texture.json` を選びます。スプライトにフレームの範囲（シートはMultiple、ドット絵はPointフィルター）とセカンダリテクスチャ `_NormalMap` が入り、ノーマルマップはsRGBオフ・無圧縮・ミップマップなし・2の累乗へのリサイズなしになります。',
+    'Tools › Nerulio › Create Lit Previewを実行すると、最初のフレームとStudioのライトごとのLight 2Dを持つ `NerulioLitPreview` が作られます。Normal Map QualityはAccurate、Normal Map Distanceは高さ ÷ Pixels Per Unitです。',
+    '自分で作るライト（GameObject › Light、たとえばSpot Light 2D）は、Normal Map QualityをFastかAccurateにしてNormal Map Distanceを決め、Target Sorting Layersにスプライトのレイヤーが含まれているか確認します。',
+    'ドット絵なら、Renderer 2DアセットでLight Render Texture Scaleを1にします。']},
+   verify:{steps:[
+    'スプライトのテクスチャを選択 › Open Sprite Editor › Secondary Texturesで、`_NormalMap` が `torch_n.png` を指しているか見ます。',
+    '`torch_n.png` を選び、sRGB（Color Texture）がオフで、インスペクターのサイズがPNGのサイズと同じか確かめます。',
+    'Light 2Dをスプライトの上へ動かすと上の縁が明るくなります。Normal Map QualityをDisabledにすると立体が消え、マップが読まれていることが確かめられます。']},
+   trouble:{rows:[
+    ['平らに光るだけで立体がない','Light 2DのNormal Map Qualityが既定のDisabled','Light 2Dのインスペクター','FastかAccurateにする（Create Lit PreviewはAccurateに設定）'],
+    ['立体が逆に傾き、下から照らされたよう','DirectX方式（Y−）のマップか、sRGBがオンでベクトルがガンマ変換された','ノーマルマップのインポート設定、Studioのチェックパネルの判定','Nerulioの `torch_n.png`（Y+）を使い、sRGBをオフに。[[game/normal-map-opengl-or-directx|OpenGL・DirectXの判定]]を参照'],
+    ['法線がぼやける、ピクセルとずれる','マップが2の累乗にリサイズされたか圧縮された（最初の実行では96 × 64が128 × 64になった）','インスペクターのサイズがPNGと違う','Non-Power of 2 None、無圧縮。現在のインポーターは両方を設定'],
+    ['ドット絵の光の帯がぼやけて段々に見える','Light Render Texture Scaleが0.5','Renderer 2Dアセット','1にする。[[game/unity-pixel-art-blurry|Unityでドット絵がぼやける]]も参照'],
+    ['スプライトがまったく明るくならない','Sprite-Unlit-Defaultマテリアル、またはライトのTarget Sorting Layersにスプライトのレイヤーがない','Sprite Rendererのマテリアルとライトの Target Sorting Layers','Sprite-Lit-Defaultを使い、レイヤーを含める'],
+    ['Create Lit Previewがライトを作らない','URPが入っていない（コンソールに表示）、またはUnity 6より前のアセンブリでLight2Dを探していた古いインポーター','コマンド後のコンソールのメッセージ','URPを入れ、書き出し直して現在のインポーターを使う']]},
+   alternatives:{rows:[
+    ['UnityのSprite Editor › Secondary Texturesで手作業','スプライトが1〜2個なら `_NormalMap` を自分で追加。UnityのマニュアルはマップのTexture TypeをNormal Mapにしますが、インポーターはsRGBオフのDefaultにしており、検証したのはこの構成です。'],
+    ['自作のライト対応スプライトシェーダー（Shader Graph）','URPの2Dライトでは出せない表現が必要なとき。上のテクスチャ設定はそのまま当てはまります。'],
+    ['[[game/unity-sprite-sheet|Unity用スプライトシートの書き出し]]','ノーマルマップなしで、Unityでフレームを切り分けるだけでよいとき。']]},
+   limits:['明るさはStudioではなくURP独自の減衰に従います。検証したのは位置、高さ、N·Lの項です。','Unity用のスペキュラーマップは書き出しません（Godotのみ）。','試したのはUnity 6000.5.3f1とURP 17.5だけで、ほかのバージョンではライトのフィールド名が違うことがあります。'],
+   versions:{body:['Unity 6000.5.3f1、URP 17.5、2D Renderer、Direct3D 12：12回中12回合格（実在の6ケース × Gamma・Linearの色空間）。書き出したマップに対するN·Lの平均誤差は0.0037〜0.0085、p95は0.013〜0.022で、Unityの中でマップの緑を反転させると全実行が不合格になりました（平均誤差0.07〜0.19）。検証は配布しているインポーターをそのまま実行しています。メニュー名、既定値、セカンダリテクスチャの名前はUnityのマニュアルに従います。'],sources:[U_SECONDARY,U_LIGHT,U_RENDERER,U_PREPARE,U_NORMAL]}
+  }
+ },
+ 'game/normal-map-sprite-sheet':{
+  type:'create',
+  intent:{primary:'make a normal map for an animated sprite sheet without seams or flicker between frames',secondary:['per-frame normal map generation','frame border / edge handling','same layout as the colour sheet','animated lit sprite in Godot or Unity'],
+   goal:'a normal-map sheet with the colour sheet\'s exact layout, each frame computed on its own with the same settings',input:'sprite sheet PNG (cut into frames in the Sprite workspace)',output:'_n.png sheet + Godot 4 scene with AnimationPlayer or Unity 6 rects + _NormalMap',target:'Godot 4, Unity 6 URP 2D, or any engine reading a normal sheet',support:'full',
+   evidence:['src/game/normals/pipeline.js (regionsOf, baseHeight, normalMap per region; bleed 2 px)','src/game/normals/height.js (border "outside": the frame edge counts as transparent)','tests/normals.test.mjs (frames are independent)','src/game/normals/export.js (region_rect keys, Unity rects bottom-up)','docs/STUDIO-TEXTURE.md (adventurer 720×330, samurai 60 frames)'],
+   external:['Unity manual: normal map must share the sprite UVs','Godot 4.7 2D lights and CanvasTexture']},
+  en:{
+   answer:'Give an animated sprite sheet its normal map frame by frame: each frame\'s relief is computed inside its own rectangle with the same settings in pixels, and the result is one normal-map sheet with exactly the colour sheet\'s layout. In Nerulio you cut the sheet in the Sprite workspace (grid or islands, then Apply), open the Texture tab, and export `_n.png` plus a Godot 4 scene whose AnimationPlayer steps through the frames, or a Unity 6 importer that sets the same sprite rects and attaches `_NormalMap`.',
+   concept:{title:'What goes wrong at frame borders, and how per-frame generation avoids it',body:[
+    'A normal map generator looks at neighbouring pixels. The slope kernel reads 1 px around each pixel (Pixel, Sobel, Scharr) or 2 px (Sobel 5×5), the bevel measures the distance to the nearest transparent pixel, and blurs reach further. Over a whole sheet all three cross frame borders: where two frames touch, the bevel treats the next frame\'s pixels as more body, and the kernel mixes both drawings in the border columns.',
+    'Nerulio processes each frame region on its own. The kernels clamp at the region border (they repeat the frame\'s last pixel), the distance transform treats the frame edge as transparent, and blur never reads across it. Width, depth and strength are absolute pixels, never rescaled per frame, so a pose that repeats gets identical relief wherever it sits on the sheet; `tests/normals.test.mjs` checks that a frame\'s map does not depend on its neighbours and moves with the sprite.',
+    'Outside the drawing each frame gets the flat normal (128, 128, 255) with full alpha, and the silhouette\'s normals are copied 2 px outward into the transparent area. When the engine filters or mipmaps the sheet, the texels next to the sprite\'s edge therefore hold plausible normals instead of nothing.',
+    'Lights are stored in frame pixels, so the preview and the exported scene light every frame from the same relative position: the animation does not drift through the light as its region moves across the sheet.'],
+    terms:[['Frame region','The rectangle of one frame on the sheet; all normal-map work stays inside it.'],['Clamp','An edge mode that repeats the last pixel instead of reading past the border.'],['Edge bleed','Copying edge normals into transparent pixels so filtering at the silhouette stays correct.']]},
+   example:{title:'Example: a 720 × 330 sheet of 80 × 110 frames',lead:'The CC0 adventurer sheet from our Godot and Unity checks (720 × 330 is not a power of two):',lines:[
+    '720 / 80 = 9 columns    330 / 110 = 3 rows    → 27 cells',
+    'each region: bevel, kernel and blur run inside 80 × 110 only',
+    'normal sheet: 720 × 330, same layout, saved as _n.png',
+    '',
+    'Godot  frame 10 = row 1, column 1 → region_rect Rect2(80, 110, 80, 110)',
+    'Unity  rects count rows from the bottom: y = 330 − (110 + 110) = 110',
+    '       row 0 → y = 220      row 2 → y = 0'],
+    after:'In the Godot scene each frame is a key on `region_rect`, placed at the sum of the durations before it, and the Animation\'s length is the sum of all of them; one CanvasTexture holds the normal map for every frame.'},
+   verify:{steps:[
+    'Press ` to switch between the whole sheet and one frame: the frame\'s relief must look the same in both.',
+    'Press Enter in the Lit view: if the relief flickers between two frames that look alike, compare them in the Height view; the difference is in the drawings, not in their neighbours.',
+    'Open `_n.png` next to the colour sheet: the silhouettes line up pixel for pixel.',
+    'In Godot, play the AnimationPlayer: `region_rect` advances one frame per key and the normals move with the sprite.']},
+   trouble:{rows:[
+    ['A straight bright ridge along one side of a frame','The drawing touches the frame edge, and the frame border counts as transparent, so a rim is built there','The ridge lies exactly on the frame border','Re-cut with room around the drawing, or flatten that strip with the Height brush'],
+    ['The relief of one pose leaks into the next','The normal map was made from the whole sheet (another tool, or a sheet whose frames were never cut)','Texture workspace shows one region; the Frames panel is empty','Cut the frames in the Sprite workspace (see [[sprite-slicer|the sheet cutter]]) and regenerate'],
+    ['Edges shimmer as the sprite moves in the engine','Bilinear filtering samples across frame borders of the normal sheet','Gone with Nearest / Point filtering','Nearest or Point for pixel art; for filtered art leave spacing between frames ([[atlas-padding|atlas padding]])'],
+    ['Unity shows the wrong part of the sheet','The sheet was edited or resized after export, so the rects no longer fit','Sprite Editor rects against the PNG size','Export again and re-run Apply Texture JSON']]},
+   alternatives:{rows:[
+    ['Generate each frame separately in any tool and reassemble','A few frames and a tool you already use; you have to keep the layout identical by hand.'],
+    ['Laigter\'s sheet splitting','Its app splits a sheet by frame count or grid size (release 1.12.0); how its bevel treats frame borders was not measured.'],
+    ['Pack colour and normal atlases together (TexturePacker `--pack-normalmaps`)','Many sprites packed into one atlas: the Studio\'s Texture workspace works on one sheet, not on a packed multi-sprite atlas.']]},
+   limits:['The Texture workspace does not cut frames; a sheet without frames is lit as one picture.','Near a region border in Wrap or Mirror mode the live brush preview can differ slightly until the exact recompute after the stroke.','Normal maps are not packed together with a multi-sprite atlas.'],
+   versions:{body:['`tests/normals.test.mjs` shows that a frame\'s map does not depend on its neighbours and moves with the sprite. Godot 4.7.2 rendered the exported AnimationPlayer frames within 1/255, including the 60-frame samurai and the 720 × 330 adventurer; the same six cases passed 12 of 12 runs in Unity 6000.5.3f1. That the normal map must share the sprite\'s UVs is stated in the Unity manual.'],sources:[U_SECONDARY,G_CANVAS,G_LIGHTS]}
+  },
+  ko:{
+   answer:'애니메이션 스프라이트 시트의 노멀맵은 프레임마다 만들어야 합니다. 각 프레임의 입체를 자기 사각형 안에서 픽셀 단위 같은 설정으로 계산하면, 색 시트와 배치가 똑같은 노멀맵 시트 한 장이 나옵니다. Nerulio에서는 스프라이트 작업 공간에서 시트를 자르고(격자나 덩어리, 그다음 Apply) 텍스처 탭을 연 뒤 `_n.png`와 함께, AnimationPlayer가 프레임을 넘기는 Godot 4 씬이나 같은 스프라이트 영역을 설정하고 `_NormalMap`을 붙이는 Unity 6 임포터를 내보냅니다.',
+   concept:{title:'프레임 경계에서 생기는 문제와 프레임별 생성으로 피하는 방법',body:[
+    '노멀맵 생성기는 이웃 픽셀을 봅니다. 기울기 커널은 픽셀 둘레 1px(Pixel·Sobel·Scharr)이나 2px(Sobel 5×5)을 읽고, 베벨은 가장 가까운 투명 픽셀까지 거리를 재며, 블러는 더 멀리 퍼집니다. 시트 전체에 돌리면 셋 다 프레임 경계를 넘습니다. 두 프레임이 맞닿은 곳에서는 베벨이 옆 프레임의 픽셀을 몸통의 연장으로 보고, 커널은 경계 열에서 두 그림을 섞습니다.',
+    'Nerulio는 프레임 영역마다 따로 처리합니다. 커널은 영역 경계에서 멈추고(프레임의 마지막 픽셀을 반복), 거리 변환은 프레임 가장자리를 투명으로 보며, 블러는 경계를 넘어 읽지 않습니다. 폭·깊이·강도는 프레임마다 다시 맞추지 않는 절대 픽셀 값이라, 같은 포즈는 시트의 어디에 있든 같은 입체가 됩니다. `tests/normals.test.mjs`가 프레임의 맵이 이웃에 좌우되지 않고 스프라이트와 함께 움직이는지 확인합니다.',
+    '그림 바깥에는 알파가 꽉 찬 평평한 노멀 (128, 128, 255)이 들어가고, 실루엣의 노멀은 투명한 곳으로 2px 복사됩니다. 그래서 엔진이 시트를 필터링하거나 밉맵을 만들 때 스프라이트 가장자리 옆 텍셀에 빈 값이 아니라 그럴듯한 노멀이 있습니다.',
+    '조명은 프레임 픽셀 기준으로 저장되므로 미리보기와 내보낸 씬 모두 모든 프레임을 같은 상대 위치에서 비춥니다. 영역이 시트 위를 옮겨 다녀도 애니메이션이 조명 속을 흘러가지 않습니다.'],
+    terms:[['프레임 영역','시트 위 프레임 하나의 사각형. 노멀맵 계산은 모두 그 안에서만 합니다.'],['Clamp','경계 너머를 읽지 않고 마지막 픽셀을 반복하는 가장자리 방식.'],['가장자리 번짐','가장자리 노멀을 투명 픽셀로 복사해 실루엣에서 필터링해도 올바르게 하는 처리.']]},
+   example:{title:'예시: 80 × 110 프레임으로 된 720 × 330 시트',lead:'Godot·Unity 검증에 쓴 CC0 모험가 시트(720 × 330은 2의 거듭제곱이 아님):',lines:[
+    '720 / 80 = 9열    330 / 110 = 3행    → 27칸',
+    '영역마다: 베벨·커널·블러가 80 × 110 안에서만 동작',
+    '노멀 시트: 720 × 330, 같은 배치, _n.png로 저장',
+    '',
+    'Godot  10번 프레임 = 1행 1열 → region_rect Rect2(80, 110, 80, 110)',
+    'Unity  영역은 아래에서부터 셈: y = 330 − (110 + 110) = 110',
+    '       0행 → y = 220      2행 → y = 0'],
+    after:'Godot 씬에서 프레임은 `region_rect`의 키 하나이며 그 앞 프레임들의 길이를 더한 시점에 놓이고, 애니메이션 길이는 전체 길이의 합입니다. CanvasTexture 하나가 모든 프레임의 노멀맵을 담습니다.'},
+   verify:{steps:[
+    '` 키로 시트 전체와 프레임 하나를 오가 보세요. 그 프레임의 입체가 양쪽에서 같아야 합니다.',
+    'Lit 보기에서 Enter를 누르세요. 비슷해 보이는 두 프레임 사이에서 입체가 깜박이면 높이 보기로 비교하세요. 차이는 이웃이 아니라 그림 자체에 있습니다.',
+    '`_n.png`를 색 시트 옆에 열어 보면 실루엣이 픽셀 단위로 겹쳐야 합니다.',
+    'Godot에서 AnimationPlayer를 재생하면 키마다 `region_rect`가 한 프레임씩 넘어가고 노멀도 스프라이트와 함께 움직입니다.']},
+   trouble:{rows:[
+    ['프레임 한쪽 변을 따라 곧은 밝은 능선이 생김','그림이 프레임 가장자리에 닿아 있고, 프레임 경계는 투명으로 간주되어 거기에 테두리가 만들어짐','능선이 프레임 경계와 정확히 겹침','그림 둘레에 여유를 두고 다시 자르거나, 높이 브러시로 그 줄을 평평하게'],
+    ['한 포즈의 입체가 다음 포즈로 새어 들어감','노멀맵을 시트 전체로 만듦(다른 툴이거나 프레임을 자르지 않은 시트)','텍스처 작업 공간에 영역이 하나뿐이고 프레임 패널이 비어 있음','스프라이트 작업 공간에서 프레임을 자르고([[sprite-slicer|시트 자르기]] 참고) 다시 생성'],
+    ['엔진에서 스프라이트가 움직일 때 가장자리가 반짝임','이중선형 필터가 노멀 시트의 프레임 경계 너머를 샘플링함','Nearest·Point 필터에서는 사라짐','도트는 Nearest·Point, 필터를 쓰는 그림은 프레임 사이에 간격 두기([[atlas-padding|아틀라스 여백]])'],
+    ['Unity에서 시트의 엉뚱한 부분이 보임','내보낸 뒤 시트를 고치거나 크기를 바꿔 영역이 맞지 않음','Sprite Editor 영역과 PNG 크기 비교','다시 내보내고 Apply Texture JSON 재실행']]},
+   alternatives:{rows:[
+    ['아무 툴에서나 프레임을 하나씩 만들어 다시 합치기','프레임이 적고 이미 쓰는 툴이 있을 때. 배치를 손으로 똑같이 유지해야 합니다.'],
+    ['Laigter의 시트 나누기','앱에서 프레임 수나 격자 크기로 시트를 나눕니다(1.12.0 릴리스). 베벨이 프레임 경계를 어떻게 다루는지는 측정하지 않았습니다.'],
+    ['색·노멀 아틀라스를 함께 패킹(TexturePacker `--pack-normalmaps`)','여러 스프라이트를 아틀라스 하나로 패킹할 때. Studio 텍스처 작업 공간은 시트 한 장 단위이며 여러 스프라이트를 패킹한 아틀라스는 다루지 않습니다.']]},
+   limits:['텍스처 작업 공간은 프레임을 자르지 않습니다. 프레임이 없는 시트는 그림 한 장으로 비춥니다.','Wrap·Mirror 모드에서 영역 경계 근처의 실시간 브러시 미리보기는 칠한 뒤 정확히 다시 계산될 때까지 조금 다를 수 있습니다.','노멀맵을 여러 스프라이트 아틀라스와 함께 패킹하지 않습니다.'],
+   versions:{body:['`tests/normals.test.mjs`는 프레임의 맵이 이웃에 좌우되지 않고 스프라이트와 함께 움직임을 보여 줍니다. Godot 4.7.2는 60프레임 사무라이와 720 × 330 모험가를 포함해 내보낸 AnimationPlayer 프레임을 1/255 이내로 렌더했고, 같은 6개 사례가 Unity 6000.5.3f1에서 12회 중 12회 통과했습니다. 노멀맵이 스프라이트와 UV를 공유해야 한다는 점은 Unity 매뉴얼에 있습니다.'],sources:[U_SECONDARY,G_CANVAS,G_LIGHTS]}
+  },
+  ja:{
+   answer:'アニメーションするスプライトシートのノーマルマップは、フレームごとに作ります。各フレームの立体を自分の矩形の中でピクセル単位の同じ設定で計算すれば、色のシートとまったく同じ配置のノーマルマップのシートが1枚できます。Nerulioではスプライト作業画面でシートを切り（グリッドか塊、そしてApply）、テクスチャタブを開き、`_n.png` と一緒に、AnimationPlayerがフレームを送るGodot 4のシーンか、同じスプライトの範囲を設定して `_NormalMap` を付けるUnity 6のインポーターを書き出します。',
+   concept:{title:'フレームの境目で起きることと、フレームごとの生成で避ける方法',body:[
+    'ノーマルマップの生成ツールは隣のピクセルを見ます。傾きのカーネルは各ピクセルの周り1px（Pixel・Sobel・Scharr）か2px（Sobel 5×5）を読み、面取りはいちばん近い透明ピクセルまでの距離を測り、ぼかしはさらに遠くまで広がります。シート全体にかけると3つとも境目を越えます。2つのフレームが接する所では、面取りが隣のフレームのピクセルを体の続きとみなし、カーネルは境目の列で2つの絵を混ぜます。',
+    'Nerulioはフレームの領域ごとに別々に処理します。カーネルは領域の境目で止まり（フレームの最後のピクセルを繰り返す）、距離変換はフレームの縁を透明とみなし、ぼかしは境目を越えて読みません。幅・深さ・強さはフレームごとに合わせ直さない絶対ピクセル値なので、同じポーズはシートのどこにあっても同じ立体になります。`tests/normals.test.mjs` が、フレームのマップが隣に左右されず、スプライトと一緒に動くことを確かめています。',
+    '絵の外側にはアルファ最大の平らな法線 (128, 128, 255) が入り、シルエットの法線は透明な所へ2px複製されます。そのため、エンジンがシートをフィルタリングしたりミップマップを作ったりしても、スプライトの縁の隣のテクセルには空ではなくもっともらしい法線があります。',
+    'ライトはフレームのピクセル基準で保存されるので、プレビューでも書き出したシーンでも、すべてのフレームを同じ相対位置から照らします。領域がシートの上を移っても、アニメーションが光の中を流れていくことはありません。'],
+    terms:[['フレームの領域','シート上のフレーム1つの矩形。ノーマルマップの計算はすべてその中だけで行います。'],['Clamp','境目の先を読まず、最後のピクセルを繰り返す縁の処理。'],['エッジブリード','縁の法線を透明ピクセルへ複製し、シルエットでフィルタリングしても正しく保つ処理。']]},
+   example:{title:'具体例：80 × 110のフレームが並ぶ720 × 330のシート',lead:'GodotとUnityの検証に使ったCC0の冒険者のシート（720 × 330は2の累乗ではない）：',lines:[
+    '720 / 80 = 9列    330 / 110 = 3行    → 27マス',
+    '領域ごとに：面取り・カーネル・ぼかしは80 × 110の中だけで動く',
+    'ノーマルのシート：720 × 330、同じ配置、_n.pngとして保存',
+    '',
+    'Godot  フレーム10 = 1行1列 → region_rect Rect2(80, 110, 80, 110)',
+    'Unity  範囲は下から数える：y = 330 − (110 + 110) = 110',
+    '       0行 → y = 220      2行 → y = 0'],
+    after:'Godotのシーンでは、各フレームは `region_rect` のキー1つで、それより前のフレームの長さの合計の時刻に置かれ、アニメーションの長さは全フレームの長さの合計です。1つのCanvasTextureが全フレームのノーマルマップを持ちます。'},
+   verify:{steps:[
+    '` キーでシート全体と1フレームを切り替えます。そのフレームの立体がどちらでも同じに見えるはずです。',
+    'Lit表示でEnterを押します。よく似た2つのフレームの間で立体がちらつくなら、高さ表示で比べてください。違いは隣ではなく絵そのものにあります。',
+    '`_n.png` を色のシートの隣で開くと、シルエットがピクセル単位で重なるはずです。',
+    'GodotでAnimationPlayerを再生すると、キーごとに `region_rect` が1フレームずつ進み、法線もスプライトと一緒に動きます。']},
+   trouble:{rows:[
+    ['フレームの一辺に沿ってまっすぐな明るい尾根が出る','絵がフレームの縁に触れており、フレームの境目は透明とみなされるのでそこに縁ができた','尾根がフレームの境目とぴったり重なる','絵の周りに余白を取って切り直すか、高さブラシでその帯を平らにする'],
+    ['あるポーズの立体が次のポーズへ漏れる','ノーマルマップをシート全体から作った（別のツール、またはフレームを切っていないシート）','テクスチャ作業画面の領域が1つだけで、フレームパネルが空','スプライト作業画面でフレームを切り（[[sprite-slicer|シート分割]]を参照）、生成し直す'],
+    ['エンジンでスプライトが動くと縁がちらつく','バイリニアフィルターがノーマルのシートのフレームの境目の先をサンプリングしている','Nearest・Pointフィルターでは消える','ドット絵はNearest・Point、フィルターを使う絵はフレーム間に間隔を空ける（[[atlas-padding|アトラスの余白]]）'],
+    ['Unityでシートの違う部分が表示される','書き出し後にシートを編集・リサイズしたため範囲が合わない','Sprite Editorの範囲とPNGのサイズを比べる','書き出し直してApply Texture JSONを再実行']]},
+   alternatives:{rows:[
+    ['任意のツールでフレームを1枚ずつ作って組み直す','フレームが少なく、使い慣れたツールがあるとき。配置を手作業で同じに保つ必要があります。'],
+    ['Laigterのシート分割','アプリでフレーム数かグリッドサイズでシートを分割できます（1.12.0リリース）。面取りがフレームの境目をどう扱うかは測定していません。'],
+    ['色とノーマルのアトラスを一緒にパック（TexturePacker `--pack-normalmaps`）','多数のスプライトを1つのアトラスにパックするとき。Studioのテクスチャ作業画面はシート1枚単位で、複数スプライトをパックしたアトラスは扱いません。']]},
+   limits:['テクスチャ作業画面はフレームを切りません。フレームのないシートは1枚の絵として照らします。','Wrap・Mirrorモードでは、領域の境目付近のブラシのライブプレビューが、描いた後の正確な再計算まで少し違うことがあります。','ノーマルマップを複数スプライトのアトラスと一緒にパックすることはしません。'],
+   versions:{body:['`tests/normals.test.mjs` は、フレームのマップが隣に左右されず、スプライトと一緒に動くことを示しています。Godot 4.7.2は60フレームの侍と720 × 330の冒険者を含め、書き出したAnimationPlayerのフレームを1/255以内で描画し、同じ6ケースがUnity 6000.5.3f1で12回中12回合格しました。ノーマルマップがスプライトとUVを共有する必要があることはUnityのマニュアルに書かれています。'],sources:[U_SECONDARY,G_CANVAS,G_LIGHTS]}
+  }
+ },
+//PAGE7
 };
