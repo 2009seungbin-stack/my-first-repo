@@ -13,6 +13,7 @@ export function mount({el}){
  if(!document.querySelector('[data-avatar-css]')){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./pixel-avatar.css',import.meta.url).href;link.dataset.avatarCss='';document.head.append(link);}
  const initial=parse(location.search),C=()=>COPY[getLocale()]||COPY.en;
  let state=initial.state,tab='face',past=[],future=[],locks={},size=256,busy=false,job=null,status=initial.valid?'statusReady':'statusBadURL';
+ let backgroundFile=null,backgroundBitmap=null;
  const $=sel=>el.querySelector(sel);
  const link=()=>{const url=new URL(location.href);url.search=serialize(state);return url.href};
  function syncURL(){history.replaceState({},'',link());}
@@ -20,7 +21,13 @@ export function mount({el}){
  function preview(){
   const canvas=$('#avatarCanvas');if(!canvas)return;
   const logical=renderLogical(state);canvas.width=16;canvas.height=16;
-  canvas.getContext('2d').putImageData(new ImageData(logical.data,16,16),0,0);
+  const ctx=canvas.getContext('2d');
+  if(backgroundBitmap){
+   const scale=Math.max(16/backgroundBitmap.width,16/backgroundBitmap.height),w=backgroundBitmap.width*scale,h=backgroundBitmap.height*scale;
+   ctx.drawImage(backgroundBitmap,(16-w)/2,(16-h)/2,w,h);
+   const top=renderLogical({...state,background:'transparent'}),layer=document.createElement('canvas');layer.width=16;layer.height=16;
+   layer.getContext('2d').putImageData(new ImageData(top.data,16,16),0,0);ctx.drawImage(layer,0,0);
+  }else ctx.putImageData(new ImageData(logical.data,16,16),0,0);
  }
  function options(key){return PARTS[key].map(([id])=>`<button type="button" class="avatar-choice ${state[key]===id?'active':''}" data-category="${key}" data-choice="${id}" aria-pressed="${state[key]===id}">${esc(C()[id]||id)}</button>`).join('');}
  function render(){
@@ -34,6 +41,7 @@ export function mount({el}){
   <div class="avatar-option-head"><h2>${esc(c[tab])}</h2><button type="button" data-action="lock" aria-pressed="${!!locks[tab]}">${locks[tab]?esc(c.unlock):esc(c.lock)}</button></div><div class="avatar-options" role="group" aria-label="${esc(c[tab])}">${options(tab)}</div>
   <div class="avatar-palettes"><label>${esc(c.hairPalette)}<select data-palette="hairPalette">${PALETTES.hair.map(id=>`<option value="${id}" ${state.hairPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label>
   <label>${esc(c.outfitPalette)}<select data-palette="outfitPalette">${PALETTES.outfit.map(id=>`<option value="${id}" ${state.outfitPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label></div>
+  <div class="avatar-background"><button type="button" data-action="pick">${esc(c.pickBackground)}</button>${backgroundFile?`<button type="button" data-action="remove-background">${esc(c.removeBackground)}</button><span>${esc(c.backgroundLoaded+backgroundFile.name)}</span>`:''}<small>${esc(c.backgroundHint)}</small></div>
   <div class="avatar-export"><h2>${esc(c.png)}</h2><label>${esc(c.size)}<select id="avatarSize">${[32,48,64,128,256,512,1024,4096].map(n=>`<option value="${n}" ${size===n?'selected':''}>${n} × ${n}</option>`).join('')}</select></label>
   <div class="avatar-export-buttons"><button type="button" class="primary" data-action="png" ${busy?'disabled':''}>${esc(c.png)}</button><button type="button" data-action="gif" ${busy?'disabled':''}>${esc(c.gif)}</button><button type="button" data-action="card" ${busy?'disabled':''}>${esc(c.card)}</button><button type="button" data-action="cancel" ${busy?'':'hidden'}>${esc(c.cancel)}</button></div></div></section></div>
   <div class="avatar-share"><button type="button" data-action="link">${esc(c.link)}</button><a href="${esc(x)}" target="_blank" rel="noopener noreferrer">${esc(c.x)}</a><a href="${esc(line)}" target="_blank" rel="noopener noreferrer">${esc(c.line)}</a></div>
@@ -65,7 +73,7 @@ export function mount({el}){
    }
   };
   worker.onerror=e=>{say('statusError',e.message);busy=false;worker.terminate();job=null;render();};
-  worker.postMessage({id,kind,state,size:outputSize,delay:125});
+  worker.postMessage({id,kind,state,size:outputSize,delay:125,background:backgroundFile});
  }
  el.addEventListener('click',async event=>{
   const choice=event.target.closest('[data-choice]');if(choice){update({...state,[choice.dataset.category]:choice.dataset.choice});return;}
@@ -76,6 +84,7 @@ export function mount({el}){
   if(action==='undo')restore(past,future);
   if(action==='redo')restore(future,past);
   if(action==='reset')update(DEFAULT);
+  if(action==='remove-background'&&backgroundBitmap){backgroundBitmap.close();backgroundBitmap=null;backgroundFile=null;render();}
   if(['png','gif','card'].includes(action))await exportFile(action);
   if(action==='cancel'&&job){job.terminate();job=null;busy=false;say('statusCancel');render();}
   if(action==='link'){
@@ -94,5 +103,14 @@ export function mount({el}){
  });
  onLocale(render);
  render();
- return {add(){/* Background import is introduced only with an explicit render path. */}};
+ return {async add(files){
+  const file=files[0];if(!file)return;
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>20*1024*1024){say('backgroundError');return;}
+  let bitmap;
+  try{
+   bitmap=await createImageBitmap(file);
+   if(bitmap.width>8192||bitmap.height>8192)throw new RangeError('Image dimensions exceed 8192');
+   backgroundBitmap?.close();backgroundBitmap=bitmap;backgroundFile=file;render();
+  }catch{bitmap?.close();say('backgroundError');}
+ }};
 }

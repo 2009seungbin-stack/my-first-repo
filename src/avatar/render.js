@@ -64,3 +64,16 @@ export function nearest(source,size){
  }
  return {width:size,height:size,data:dest};
 }
+
+/** Composite a local, already reduced 16px background under the opaque authored parts. */
+export function withLocalBackground(state,background){
+ if(!(background instanceof Uint8ClampedArray)||background.length!==16*16*4)throw new RangeError('Invalid local background pixels');
+ const top=renderLogical({...state,background:'transparent'}),out=new Uint8ClampedArray(background);
+ for(let i=0;i<out.length;i+=4){
+  const a=top.data[i+3]/255;if(!a)continue;
+  const under=out[i+3]/255,combined=a+under*(1-a);
+  for(let channel=0;channel<3;channel++)out[i+channel]=combined?Math.round((top.data[i+channel]*a+out[i+channel]*under*(1-a))/combined):0;
+  out[i+3]=Math.round(combined*255);
+ }
+ return {width:16,height:16,data:out};
+}
