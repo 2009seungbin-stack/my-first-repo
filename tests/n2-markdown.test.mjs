@@ -32,3 +32,13 @@ test('safeHref and excerpts',()=>{
  assert.equal(safeHref('javascript:alert(1)'),null);assert.equal(safeHref('/ko/games/x/'),'/ko/games/x/');assert.equal(safeHref('//x.example'),null);
  assert.equal(plainExcerpt('## Hi\n**there** [link](https://x.example)',50),'Hi there link');
 });
+
+test('GFM tables (benchmark posts) render escaped, with alignment; a lone pipe line stays text',()=>{
+ const out=renderMarkdown('| GPU | tok/s |\n|---|--:|\n| 5070 <b> | **42** |\n| 4070 | 35 |');
+ assert(out.startsWith('<div class="tw"><table class="mdt"><thead><tr><th>GPU</th><th class="ar">tok/s</th>'));
+ assert(out.includes('<td>5070 &lt;b&gt;</td>')&&out.includes('<strong>42</strong>'));
+ assert.equal(renderMarkdown('| not a table'),'<p>| not a table</p>');
+});
+test('a bare URL at the start of a later line is a link',()=>{
+ assert(renderMarkdown('출처\nhttps://example.com/a').includes('<br><a href="https://example.com/a"'));
+});

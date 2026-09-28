@@ -4,9 +4,9 @@
  * the community benchmark board, and the official spec sheet in the wiki box. */
 import {html} from '../html.js';
 import {t} from '../strings.js';
-import {box,badge,nameOf,channelUrl} from '../ui.js';
+import {box,badge,nameOf,channelUrl,postUrl,kindChip} from '../ui.js';
 import {isoDateText,int} from '../format.js';
-import {related,factsFor,pickFact,versionsOf,benchmarksOn,issueCounts,openModels,entitiesWithFact,entitiesByIds} from '../../db/channel.js';
+import {related,factsFor,pickFact,versionsOf,benchmarksOn,issueCounts,openModels,entitiesWithFact,entitiesByIds,channelPosts} from '../../db/channel.js';
 import {estimateLlmMemory,METHOD} from '../../estimates/llm-memory.js';
 import {factRows} from './generic.js';
 
@@ -44,13 +44,16 @@ async function load(ctx){
  const same=vram?(await entitiesWithFact(db,'gpu','vram_gb',vram,8)).filter(x=>x.id!==e.id):[];
  const similar=[...new Map([...succ,...same].map(x=>[x.id,x])).values()].slice(0,5);
  const sf=await factsFor(db,similar.map(x=>x.id));
- return {vendor,driver,vram,fit,board,similar:similar.map(x=>({e:x,vram:pickFact(sf.get(x.id),'vram_gb')?.value}))};
+ // 벤치 posts on this channel: shown with the board, so a measurement written as a post is not
+ // hidden behind "no reports yet".
+ const benchPosts=(await channelPosts(db,e.id,{kind:'benchmark',sort:'top',limit:3})).posts;
+ return {vendor,driver,vram,fit,board,benchPosts,similar:similar.map(x=>({e:x,vram:pickFact(sf.get(x.id),'vram_gb')?.value}))};
 }
 const median=(/** @type {number[]} */ v)=>{const s=[...v].sort((a,b)=>a-b),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
 
 /** @param {Awaited<ReturnType<typeof load>>} d @param {import('./index.js').PanelContext} ctx */
 function top(d,ctx){
- const {l}=ctx,s=t(l).panel;
+ const {l,entity:e}=ctx,s=t(l).panel;
  const dr=d.driver;
  const issues=dr?dr.issues:{};
  const ok=(issues.works||0),bad=(issues.works_with_issues||0)+(issues.broken||0),n=ok+bad;
@@ -60,7 +63,10 @@ function top(d,ctx){
  const VERDICT=/** @type {Record<string,[string,string]>} */({fits:[s.fits,'fy'],tight:[s.tight,'fm'],does_not_fit:[s.noFit,'fn']});
  const fit=d.fit.length?box({title:s.localAi,extra:html`<a class="st e" href="#estimate-method">${s.estimateMethod}</a>`,note:`${QUANT} · ${l==='ko'?'KV 캐시 제외':'KV cache excluded'}`},html`<ul class="fitg">${d.fit.map(x=>{const [lab,cls]=VERDICT[/** @type {string} */(x.r.verdict)];return html`<li class="fit"><a class="fine" href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a><b class="${cls}">${lab}</b><span class="fine">≈ ${x.r.gib.total.low.toFixed(1)}–${x.r.gib.total.high.toFixed(1)} GiB</span><span class="fine">${x.measured.length?html`${l==='ko'?'측정 중앙값':'measured median'} <b>${int(Math.round(median(x.measured)*10)/10,l)}</b> tok/s · ${s.measured(x.measured.length)}`:s.noMeasure}</span></li>`;})}</ul>
 <p class="fine pad"><a href="${channelUrl(l,ctx.entity)}local-llm">${l==='ko'?'모든 모델 보기 · 내 측정값 올리기 ›':'All models · post a measurement ›'}</a></p><details class="method" id="estimate-method"><summary>${l==='ko'?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`):'';
- const board=box({title:s.benchBoard,extra:badge('COMMUNITY',l),note:s.benchNote},d.board.length?html`<div class="tw"><table class="mt"><thead><tr><th>${s.task}</th><th>${s.setting}</th><th>${s.median}</th><th>${s.count}</th></tr></thead><tbody>${d.board.map(b=>html`<tr><td>${b.name}</td><td>${[b.runtime,b.quant].filter(Boolean).join(' · ')}</td><td><b>${int(Math.round(b.median*10)/10,l)} tok/s</b></td><td>${b.values.length}</td></tr>`)}</tbody></table></div>`:html`<p class="empty">${s.benchEmpty}</p>`);
+ const empty=d.benchPosts.length?(l==='ko'?'아직 표로 모은 측정값이 없습니다. 아래 벤치 글의 수치를 “측정값 올리기”로 남기면 중앙값에 들어갑니다.':'No structured measurements yet. Add the numbers from the posts below to count them.'):s.benchEmpty;
+ const posts=d.benchPosts.length?html`<ul class="rows">${d.benchPosts.map(p=>html`<li>${kindChip('benchmark',l)}<a class="tt" href="${postUrl(l,e,p.post_no)}">${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a><span class="fine">${p.up?`▲ ${p.up}`:''}</span></li>`)}</ul>`:'';
+ const board=box({title:s.benchBoard,extra:badge('COMMUNITY',l),note:s.benchNote},html`${d.board.length?html`<div class="tw"><table class="mt"><thead><tr><th>${s.task}</th><th>${s.setting}</th><th>${s.median}</th><th>${s.count}</th></tr></thead><tbody>${d.board.map(b=>html`<tr><td>${b.name}</td><td>${[b.runtime,b.quant].filter(Boolean).join(' · ')}</td><td><b>${int(Math.round(b.median*10)/10,l)} tok/s</b></td><td>${b.values.length}</td></tr>`)}</tbody></table></div>`:html`<p class="empty">${empty}</p>`}${posts}
+<p class="fine pad"><a href="${channelUrl(l,e)}local-llm#bench">${l==='ko'?'측정값 올리기 ›':'Add a measurement ›'}</a> · <a href="${channelUrl(l,e)}?kind=benchmark">${l==='ko'?'벤치 글 모두 보기 ›':'All benchmark posts ›'}</a></p>`);
  return html`<div class="g2 c">${driver}${fit}</div>${board}`;
 }
 /** @param {Awaited<ReturnType<typeof load>>} d @param {import('./index.js').PanelContext} ctx */

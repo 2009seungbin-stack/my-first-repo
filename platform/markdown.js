@@ -26,10 +26,11 @@ function inline(t){
   const ext=/^https?:/.test(h);return `<a href="${esc(h)}"${ext?' rel="nofollow ugc noopener noreferrer" target="_blank"':''}>${label}</a>`;
  });
  // Bare URLs become links too.
- t=t.replace(/(^|[\s(])(https?:\/\/[^\s<>()"]{3,2000})/g,(m,pre,url)=>{const h=safeHref(url);return h?`${pre}<a href="${esc(h)}" rel="nofollow ugc noopener noreferrer" target="_blank">${url}</a>`:m;});
+ t=t.replace(/(^|[\s(]|<br>)(https?:\/\/[^\s<>()"]{3,2000})/g,(m,pre,url)=>{const h=safeHref(url);return h?`${pre}<a href="${esc(h)}" rel="nofollow ugc noopener noreferrer" target="_blank">${url}</a>`:m;});
  t=t.replace(/\*\*([^*\n]{1,500})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,500})\*/g,'$1<em>$2</em>').replace(/~~([^~\n]{1,500})~~/g,'<del>$1</del>');
  return t.replace(/\u0000(\d+)\u0000/g,(_,i)=>`<code>${codes[Number(i)]}</code>`);
 }
+const TABLE_SEP=/^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
 /** @param {string} md @param {{headingBase?:number}} [o] */
 export function renderMarkdown(md,o={}){
  const base=o.headingBase??3;
@@ -43,8 +44,18 @@ export function renderMarkdown(md,o={}){
   if(/^&gt;\s?/.test(line)){const buf=[];while(i<lines.length&&/^&gt;\s?/.test(lines[i]))buf.push(lines[i++].replace(/^&gt;\s?/,''));out.push(`<blockquote>${inline(buf.join('<br>'))}</blockquote>`);continue;}
   if(/^\s*[-*]\s+/.test(line)){const buf=[];while(i<lines.length&&/^\s*[-*]\s+/.test(lines[i]))buf.push(`<li>${inline(lines[i++].replace(/^\s*[-*]\s+/,''))}</li>`);out.push(`<ul>${buf.join('')}</ul>`);continue;}
   if(/^\s*\d+[.)]\s+/.test(line)){const buf=[];while(i<lines.length&&/^\s*\d+[.)]\s+/.test(lines[i]))buf.push(`<li>${inline(lines[i++].replace(/^\s*\d+[.)]\s+/,''))}</li>`);out.push(`<ol>${buf.join('')}</ol>`);continue;}
+  // GFM table: a header row, a |---|:---:| separator, then rows (benchmark posts need these).
+  if(/^\s*\|.*\|\s*$/.test(line)&&i+1<lines.length&&TABLE_SEP.test(lines[i+1])){
+   const cells=(/** @type {string} */ r)=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim());
+   const head=cells(line),align=cells(lines[i+1]).map(c=>/^:-+:$/.test(c)?'center':/-:$/.test(c)?'right':'');
+   i+=2;const rows=[];
+   while(i<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i])&&rows.length<200)rows.push(cells(lines[i++]));
+   const td=(/** @type {string} */ tag,/** @type {string} */ c,/** @type {number} */ k)=>`<${tag}${align[k]?` class="${align[k]==='right'?'ar':'ac'}"`:''}>${inline(c)}</${tag}>`;
+   out.push(`<div class="tw"><table class="mdt"><thead><tr>${head.slice(0,20).map((c,k)=>td('th',c,k)).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${head.slice(0,20).map((_,k)=>td('td',r[k]??'',k)).join('')}</tr>`).join('')}</tbody></table></div>`);
+   continue;
+  }
   if(!line.trim()){i++;continue;}
-  const buf=[];while(i<lines.length&&lines[i].trim()&&!/^(```|#{1,3}\s|&gt;|\s*[-*]\s+|\s*\d+[.)]\s+)/.test(lines[i]))buf.push(lines[i++]);
+  const buf=[];while(i<lines.length&&lines[i].trim()&&!/^(```|#{1,3}\s|&gt;|\s*[-*]\s+|\s*\d+[.)]\s+)/.test(lines[i])&&!(/^\s*\|/.test(lines[i])&&TABLE_SEP.test(lines[i+1]||'')))buf.push(lines[i++]);
   out.push(`<p>${inline(buf.join('<br>'))}</p>`);
  }
  return out.join('');
