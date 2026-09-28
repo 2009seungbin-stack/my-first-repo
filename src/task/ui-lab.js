@@ -8,6 +8,7 @@ import * as BM from '../game/bmfont.js';
 import {parseBdf} from '../game/font-bdf.js';
 import * as FP from '../game/font-project.js';
 import {writePixelTtf} from '../game/font-ttf.js';
+import {HANGUL_COUNT,ksX1001Hangul,estimateGlyphAtlas} from '../game/font-hangul.js';
 import * as SDF from '../game/sdf.js';
 import * as LAY from '../game/ui-layout.js';
 import {contrastRatio,wcag,round2} from '../game/contrast.js';
@@ -304,7 +305,7 @@ ${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>
 <div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
 <div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>
-<label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p>`:''}
+<label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p><p class="hint" id="fontSizeEstimate"></p>`:''}
 <form class="options" autocomplete="off">
 ${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="font.size" min="6" max="128" value="${f.size}" inputmode="numeric"></label><label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label></div>
@@ -497,6 +498,13 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const coverage=$('#fontCoverage');if(coverage){
    const present=new Set(font.glyphs.map(g=>g.codepoint)),requested=[...new Set([...S.font.preview].filter(ch=>!/[\r\n]/.test(ch)).map(ch=>ch.codePointAt(0)))];
    const missing=requested.filter(code=>!present.has(code));coverage.textContent=T('fontCoverage',{present:requested.length-missing.length,total:requested.length,missing:missing.slice(0,12).map(code=>`U+${code.toString(16).toUpperCase().padStart(4,'0')}`).join(', ')||T('fontNone')});
+  }
+  const estimate=$('#fontSizeEstimate');if(estimate){
+   const project=S.font.project,w=Math.max(1,...project.glyphs.map(g=>g.w)),h=Math.max(1,...project.glyphs.map(g=>g.h));
+   const current=estimateGlyphAtlas(project.glyphs.length,w,h);
+   const covered=new Set(project.glyphs.map(g=>g.codepoint));
+   const ks=ksX1001Hangul().filter(cp=>covered.has(cp)).length;
+   estimate.textContent=T('fontSizeEstimate',{glyphs:project.glyphs.length,pages:current.minimumPages,mib:(current.rawRgbaBytes/1048576).toFixed(1),ks,ksTotal:2350,all:HANGUL_COUNT});
   }
  }
  function selectedGlyph(){return S.font.project?.glyphs.find(g=>g.codepoint===S.font.selected);}
@@ -884,6 +892,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  async function loadLocalFile(input,kind){
   const file=input.files?.[0];if(!file)return;
   try{
+   if((kind==='bdf'||kind==='fontProject')&&file.size>32*1024*1024)throw Error(T('fontImportTooLarge'));
    if(kind==='font'){
     const family='uilab-'+Math.random().toString(36).slice(2,8);
     const face=new FontFace(family,await file.arrayBuffer());await face.load();document.fonts.add(face);

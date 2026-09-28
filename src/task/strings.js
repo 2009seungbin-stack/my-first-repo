@@ -976,6 +976,9 @@ S.ja.uiLab.fontExportV2='PNG + BMFont 3形式を取得';
 Object.assign(S.ko.uiLab,{fontPreviewText:'미리 볼 문장',fontCoverage:'요청한 글자 {total}개 중 {present}개 포함 · 빠짐: {missing}',fontNone:'없음'});
 Object.assign(S.en.uiLab,{fontPreviewText:'Preview text',fontCoverage:'{present} of {total} requested characters present · missing: {missing}',fontNone:'none'});
 Object.assign(S.ja.uiLab,{fontPreviewText:'プレビュー文',fontCoverage:'指定した{total}文字のうち{present}文字を収録 · 不足: {missing}',fontNone:'なし'});
+Object.assign(S.ko.uiLab,{fontSizeEstimate:'현재 {glyphs}자: 최소 {pages}페이지 · RGBA 셀 약 {mib} MiB (실제 아틀라스는 별도 검사). KS 한글 {ks}/{ksTotal}자 포함. 한글 전체 {all}자는 자동 생성하지 않습니다.',fontImportTooLarge:'BDF 또는 프로젝트 파일이 32 MiB를 넘습니다.'});
+Object.assign(S.en.uiLab,{fontSizeEstimate:'Current {glyphs} glyphs: at least {pages} page(s) · about {mib} MiB of raw RGBA cells (actual atlas is checked separately). KS Hangul coverage {ks}/{ksTotal}. The full {all} Hangul syllables are not generated automatically.',fontImportTooLarge:'The BDF or project file exceeds 32 MiB.'});
+Object.assign(S.ja.uiLab,{fontSizeEstimate:'現在{glyphs}文字: 最低{pages}ページ · RGBAセル約{mib} MiB（実際のアトラスは別途確認）。KSハングル{ks}/{ksTotal}文字を収録。全{all}音節は自動生成しません。',fontImportTooLarge:'BDFまたはプロジェクトのファイルが32 MiBを超えています。'});
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
