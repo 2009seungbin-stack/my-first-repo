@@ -834,5 +834,273 @@ export default {
    versions:{body:['XMLの読み込みはStudio共通のアトラス取り込みで、実際のアセットをUIから読み込む検証（アトラスデータを含む）を経ています。実際のFNFキャラクターは記録された検証になく、回転フレームは未検証です。GIFの出力はPillowでデコードして確認しています。形式の説明はStarlingのドキュメント、キャラクターの項目はFNF公式のModdingドキュメントに基づきます。'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
   }
  },
+/* ============================================================================ sprite-sheet-to-gif */
+ 'game/sprite-sheet-to-gif':{
+  type:'conversion',
+  intent:{primary:'make an animated GIF from a PNG sprite sheet',secondary:['one GIF per row or animation','choose a frame rate a GIF can store','transparent background from a keyed sheet'],
+   goal:'one looping GIF per animation of the sheet, cut on the right grid, at a speed GIF can represent',input:'PNG sprite sheet (grid or irregular, transparent or key-coloured)',output:'ZIP with one .gif per animation',target:'browsers, chats and forums that play GIF',support:'full',
+   evidence:['src/studio/sprite/import-plan.js (grid cells, empty cells skipped, row_n tags, 100 ms timing decision)','src/game/color-key.js','src/game/export/anim.js (delay rounding, 1-bit alpha, palette)','src/game/model.js playbackOrder (ping-pong)','docs/STUDIO-PACK.md (GIF decoded by Pillow)'],
+   external:['W3C GIF89a: delay in 1/100 s, colour table ≤ 256, transparency index','Aseprite docs: Import Sprite Sheet (alternative)']},
+  en:{
+   answer:"Cut the sheet into frames (Nerulio measures the grid or finds each sprite as an island), make each row an animation, give it a speed, and export Animated GIF: one GIF per animation, each frame with its own delay. The sheet itself has no timing, so you choose the frame rate; GIF stores 1/100 s, so 10, 20, 25 or 50 fps come out exact while 12 fps (83.3 ms) becomes 80 ms. Transparency is on/off, and up to 255 colours stay exact.",
+   concept:{title:'From a still sheet to a timed GIF',body:[
+    "A sprite sheet is a grid of poses in one PNG. To animate it you need three things the image does not say: where each frame is (cell size, margin, spacing), which frames belong together (usually one row per animation), and how long each frame shows. Nerulio measures the first from the pixels, proposes the second from the rows, and starts the third at 100 ms per frame.",
+    "A GIF can only wait whole hundredths of a second. A frame rate is stored exactly when 100 divided by it is a whole number: 10 fps (10), 20 fps (5), 25 fps (4), 50 fps (2). Any other rate is rounded frame by frame, and no frame is written shorter than 20 ms.",
+    "If the sheet sits on a flat colour instead of transparency, key it out during the import, or the GIF shows the colour. Frames are placed on one cell per animation, aligned on their pivots, so rows cut as islands of different sizes do not wobble."],
+    terms:[['Frame rate (fps)','Frames per second; frame time = 1000 ÷ fps milliseconds.'],['Delay','GIF\'s wait per frame, in 1/100 s.'],['Grid','Cell size, margin and spacing of the sheet.'],['Ping-pong','Forward then back without repeating the end frames: 0-1-2-3-2-1.']]},
+   example:{title:'Example: a 384 × 256 sheet at four speeds',lines:[
+    'sheet   384 × 256 px, 6 columns × 4 rows',
+    'cell    384 / 6 = 64 px wide, 256 / 4 = 64 px high',
+    'rows    row_1 … row_4, 6 frames each',
+    '',
+    'fps   frame time   GIF delay          one cycle of 6 frames',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (750 intended)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (exact)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (500 intended)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (exact)'],
+    after:'Ping-pong on a 6-frame row plays 10 steps per cycle (0-1-2-3-4-5-4-3-2-1), so at 10 fps one cycle lasts 1.0 s.'},
+   mapping:{head:['Sheet / Studio','Nerulio','GIF'],rows:[
+    ['Grid cell (or island)','One frame; empty cells are left out','One GIF frame'],
+    ['Row','One animation `row_n`, renamed on the Timeline','One file per animation'],
+    ['Key colour (magenta, green …)','Made transparent at import','The transparent index'],
+    ['Frame rate or ms per frame','A duration per frame','Delay in 1/100 s, at least 2'],
+    ['Direction, repeat','Written out as frame order; repeat kept','Frame order; loop count'],
+    ['Frames of different sizes','One cell per animation, pivots aligned','One frame size per GIF']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','The download for a sheet named `sheet.png`, with a folder `sheet_gif/`.'],
+    ['sheet_gif/sheet_row_1.gif','The first row\'s animation; rename the tag first for a readable name such as `sheet_walk.gif`.']]},
+   target:{title:'Use the GIF',steps:[
+    'Unzip; each animation is its own GIF.',
+    'Open one in a browser to check the speed: a 6-frame row at 10 fps loops every 0.6 s.',
+    'Check the edges on the background where the GIF will appear; if they need soft alpha, export APNG from the same panel.',
+    'For a video post, export [[game/sprite-sheet-to-video|WebM video]] (4× nearest) instead; for the opposite direction see [[game/gif-to-sprite-sheet|GIF to sprite sheet]].']},
+   verify:{steps:[
+    'The GIF of a 6-frame row has 6 frames, or 10 for ping-pong.',
+    'No frame shows the old background colour; if one does, the key colour was not applied at import.',
+    'The export notes list rounded delays; there are none at 10, 20, 25 or 50 fps.']},
+   trouble:{rows:[
+    ['The GIF shows half frames or two frames at once','The grid guess is off (margin, spacing, or a cell size a few pixels wrong)','Sheet view: the grid lines over the art','Pick another grid proposal or type cell size, margin and spacing; see [[game/sprite-sheet-slicing-off|slicing that is off]]'],
+    ['Magenta or green behind the sprite','The key colour was not applied','Import panel: Background colour','Switch it to the detected colour and apply again; see [[game/remove-sprite-background|removing a sprite background]]'],
+    ['The animation wobbles','Frames were cut as islands and their pivots differ','Onion skin (F3)','Set one pivot for the tag, or align the frames; see [[game/sprite-jitter-after-trim|jitter after trimming]]'],
+    ['The speed is slightly off','The frame time is not a whole number of hundredths','Compare with the table above','Use 10, 20, 25 or 50 fps, or export APNG'],
+    ['Soft shadows became solid or vanished','1-bit transparency: alpha ≥ 128 became opaque, lower alpha transparent','The export note about semi-transparent pixels','Export APNG']]},
+   alternatives:{rows:[
+    ['APNG from the same panel','Soft edges and millisecond timing matter; every pixel is exact.'],
+    ['[[game/ezgif-sprite-cutter-alternative|An online GIF maker such as ezgif]]','You already have loose frame images and want a quick GIF without per-animation tags.'],
+    ['Aseprite: File > Import Sprite Sheet, then export','You own Aseprite and want to keep editing the animation there.']]},
+   limits:['A sheet stores no timing: the speed is always your choice, starting at 100 ms per frame.','The GIF keeps the sheet\'s pixel size; there is no scale option for GIF export.'],
+   versions:{body:['GIF output is checked by decoding exported files with Pillow: every frame and delay as written. Grid and key detection are the Studio importer, run on real asset sheets through the UI with correct frames on the default choices. GIF\'s limits follow the W3C GIF89a specification.'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  },
+  ko:{
+   answer:'시트를 프레임으로 자르고(Nerulio가 격자를 재거나 스프라이트를 아일랜드로 찾음), 행마다 애니메이션으로 만들고, 속도를 정한 뒤 Animated GIF로 내보내면 애니메이션마다 GIF가 하나씩, 프레임마다 자기 지연을 가진 채로 나옵니다. 시트 자체에는 타이밍이 없으니 프레임레이트는 직접 고릅니다. GIF는 1/100초 단위라 10·20·25·50 fps는 정확히, 12 fps(83.3 ms)는 80 ms가 됩니다. 투명은 켜짐/꺼짐이고 255색까지는 색이 정확합니다.',
+   concept:{title:'멈춘 시트에서 시간이 있는 GIF로',body:[
+    '스프라이트 시트는 PNG 한 장에 포즈를 격자로 늘어놓은 것입니다. 움직이게 하려면 그림이 말해 주지 않는 세 가지가 필요합니다. 프레임이 어디 있는지(칸 크기, 여백, 간격), 어떤 프레임끼리 한 동작인지(보통 행 하나가 애니메이션 하나), 프레임마다 얼마나 보여 줄지입니다. Nerulio는 첫째를 픽셀에서 재고, 둘째를 행으로 제안하고, 셋째는 프레임당 100 ms로 시작합니다.',
+    'GIF는 1/100초의 정수배만큼만 기다릴 수 있습니다. 100을 프레임레이트로 나눠 정수가 되면 정확히 저장됩니다. 10 fps(10), 20 fps(5), 25 fps(4), 50 fps(2)입니다. 그 밖의 속도는 프레임마다 반올림되고, 20 ms보다 짧은 프레임은 쓰지 않습니다.',
+    '시트가 투명이 아니라 단색 위에 있다면 가져올 때 그 색을 빼야 합니다. 안 그러면 GIF에 그 색이 보입니다. 프레임은 애니메이션마다 한 칸에 피벗을 맞춰 놓기 때문에, 크기가 다른 아일랜드로 자른 행도 흔들리지 않습니다.'],
+    terms:[['프레임레이트(fps)','초당 프레임 수. 프레임 시간 = 1000 ÷ fps 밀리초.'],['지연','GIF의 프레임별 대기 시간, 1/100초 단위.'],['격자','시트의 칸 크기, 여백, 간격.'],['핑퐁','끝 프레임을 반복하지 않고 앞으로 갔다 돌아오는 순서: 0-1-2-3-2-1.']]},
+   example:{title:'예시: 384 × 256 시트를 네 가지 속도로',lines:[
+    '시트    384 × 256 px, 6열 × 4행',
+    '칸      384 / 6 = 가로 64 px, 256 / 4 = 세로 64 px',
+    '행      row_1 … row_4, 각 6프레임',
+    '',
+    'fps   프레임 시간  GIF 지연           6프레임 한 사이클',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (의도 750)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (정확)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (의도 500)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (정확)'],
+    after:'6프레임 행을 핑퐁으로 하면 한 사이클이 10단계(0-1-2-3-4-5-4-3-2-1)라서 10 fps에서 1.0초입니다.'},
+   mapping:{head:['시트 / Studio','Nerulio','GIF'],rows:[
+    ['격자 칸(또는 아일랜드)','프레임 하나, 빈 칸은 제외','GIF 프레임 하나'],
+    ['행','애니메이션 `row_n`, 타임라인에서 이름 변경','애니메이션마다 파일 하나'],
+    ['키 색(마젠타, 초록 …)','가져올 때 투명 처리','투명 색 번호'],
+    ['프레임레이트 또는 프레임당 ms','프레임마다 길이','1/100초 단위 지연, 최소 2'],
+    ['방향, 반복','프레임 순서로 펼쳐 기록, 반복 유지','프레임 순서, 반복 횟수'],
+    ['크기가 다른 프레임','애니메이션마다 한 칸, 피벗 정렬','GIF마다 프레임 크기 하나']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','`sheet.png`라는 시트를 내보낼 때 받는 파일. 안에 `sheet_gif/` 폴더가 있습니다.'],
+    ['sheet_gif/sheet_row_1.gif','첫 행의 애니메이션. 태그 이름을 먼저 바꾸면 `sheet_walk.gif`처럼 알아보기 쉬운 이름이 됩니다.']]},
+   target:{title:'GIF 쓰기',steps:[
+    'ZIP을 풉니다. 애니메이션마다 GIF가 하나입니다.',
+    '브라우저에서 하나를 열어 속도를 확인하세요. 10 fps인 6프레임 행은 0.6초마다 반복됩니다.',
+    'GIF가 올라갈 배경 위에서 가장자리를 보세요. 부드러운 알파가 필요하면 같은 패널에서 APNG로 내보내세요.',
+    '동영상 게시물이라면 [[game/sprite-sheet-to-video|WebM 동영상]](최근접 4배)으로 내보내세요. 반대 방향은 [[game/gif-to-sprite-sheet|GIF를 스프라이트 시트로]]를 보세요.']},
+   verify:{steps:[
+    '6프레임 행의 GIF는 프레임이 6개, 핑퐁이면 10개입니다.',
+    '어느 프레임에도 원래 배경색이 보이면 안 됩니다. 보인다면 가져올 때 키 색이 적용되지 않은 것입니다.',
+    '내보내기 안내에 반올림한 지연이 나옵니다. 10·20·25·50 fps에서는 없습니다.']},
+   trouble:{rows:[
+    ['GIF에 프레임이 반쯤 잘리거나 두 개가 함께 보임','격자 추정이 어긋났습니다(여백, 간격, 몇 픽셀 틀린 칸 크기)','시트 보기: 그림 위의 격자선','다른 격자 제안을 고르거나 칸 크기·여백·간격을 입력하세요. [[game/sprite-sheet-slicing-off|자르기가 어긋날 때]] 참고'],
+    ['스프라이트 뒤에 마젠타나 초록이 보임','키 색이 적용되지 않았습니다','가져오기 패널: 배경색','감지된 색으로 바꾸고 다시 적용하세요. [[game/remove-sprite-background|스프라이트 배경 제거]] 참고'],
+    ['애니메이션이 흔들림','아일랜드로 잘린 프레임의 피벗이 서로 다릅니다','어니언 스킨(F3)','태그에 피벗을 하나로 정하거나 프레임을 정렬하세요. [[game/sprite-jitter-after-trim|트림 후 흔들림]] 참고'],
+    ['속도가 조금 다름','프레임 시간이 1/100초의 정수배가 아닙니다','위 표와 비교합니다','10·20·25·50 fps를 쓰거나 APNG로 내보내세요'],
+    ['부드러운 그림자가 진해지거나 사라짐','1비트 투명: 알파 128 이상은 불투명, 그보다 낮으면 투명','반투명 픽셀에 관한 내보내기 안내','APNG로 내보내세요']]},
+   alternatives:{rows:[
+    ['같은 패널의 APNG','부드러운 가장자리와 밀리초 타이밍이 중요할 때. 모든 픽셀이 정확합니다.'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgif 같은 온라인 GIF 도구]]','이미 프레임별 이미지가 있고 애니메이션 태그 없이 빠르게 GIF만 필요할 때.'],
+    ['Aseprite: File > Import Sprite Sheet 후 내보내기','Aseprite가 있고 그 안에서 애니메이션을 계속 다듬고 싶을 때.']]},
+   limits:['시트에는 타이밍이 없어서 속도는 늘 직접 정하며, 프레임당 100 ms에서 시작합니다.','GIF는 시트의 픽셀 크기 그대로이며 GIF 내보내기에는 확대 옵션이 없습니다.'],
+   versions:{body:['GIF 결과는 내보낸 파일을 Pillow로 디코딩해 모든 프레임과 지연이 쓴 그대로인지 확인합니다. 격자와 키 색 감지는 Studio 가져오기 기능으로, 실제 에셋 시트를 UI로 가져와 기본 선택만으로 프레임이 맞게 잘리는지 확인했습니다. GIF의 한계는 W3C GIF89a 명세를 따릅니다.'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  },
+  ja:{
+   answer:'シートをフレームに切り（Nerulioがグリッドを測るか、スプライトを島として見つけます）、行ごとにアニメーションにし、速度を決めてAnimated GIFで書き出すと、アニメーションごとにGIFが1つ、フレームごとのディレイ付きでできます。シート自体にタイミングはないので、フレームレートは自分で選びます。GIFは1/100秒単位なので、10・20・25・50 fpsは正確に、12 fps（83.3 ms）は80 msになります。透明はオン／オフで、255色までは色が正確です。',
+   concept:{title:'止まったシートから時間のあるGIFへ',body:[
+    'スプライトシートは1枚のPNGにポーズを格子状に並べたものです。動かすには、画像が教えてくれない3つの情報が要ります。各フレームの位置（セルサイズ、マージン、スペーシング）、どのフレームが同じ動作か（普通は1行が1アニメーション）、各フレームをどれだけ表示するか。Nerulioは1つ目をピクセルから測り、2つ目を行から提案し、3つ目は1フレーム100 msから始めます。',
+    'GIFは1/100秒の整数倍しか待てません。100をフレームレートで割って整数になれば正確に保存されます。10 fps（10）、20 fps（5）、25 fps（4）、50 fps（2）です。それ以外の速度はフレームごとに丸められ、20 msより短いフレームは書きません。',
+    'シートが透明ではなく単色の上にあるなら、読み込み時にその色を抜いてください。抜かないとGIFにその色が出ます。フレームはアニメーションごとに1つのセルにピボットで揃えて置くので、サイズの違う島として切った行もガタつきません。'],
+    terms:[['フレームレート（fps）','毎秒のフレーム数。フレーム時間 = 1000 ÷ fps ミリ秒。'],['ディレイ','GIFのフレームごとの待ち時間、1/100秒単位。'],['グリッド','シートのセルサイズ、マージン、スペーシング。'],['ピンポン','端のフレームを繰り返さずに往復する順序：0-1-2-3-2-1。']]},
+   example:{title:'具体例：384 × 256のシートを4つの速度で',lines:[
+    'シート  384 × 256 px、6列 × 4行',
+    'セル    384 / 6 = 幅 64 px、256 / 4 = 高さ 64 px',
+    '行      row_1 … row_4、各6フレーム',
+    '',
+    'fps   フレーム時間 GIFのディレイ       6フレーム1サイクル',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (意図 750)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (一致)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (意図 500)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (一致)'],
+    after:'6フレームの行をピンポンにすると1サイクルは10ステップ（0-1-2-3-4-5-4-3-2-1）なので、10 fpsで1.0秒です。'},
+   mapping:{head:['シート／Studio','Nerulio','GIF'],rows:[
+    ['グリッドのセル（または島）','1フレーム、空のセルは除外','GIFの1フレーム'],
+    ['行','アニメーション`row_n`、タイムラインで改名','アニメーションごとに1ファイル'],
+    ['キーカラー（マゼンタ、緑 …）','読み込み時に透明化','透明色インデックス'],
+    ['フレームレートまたは1フレームのms','フレームごとの長さ','1/100秒単位のディレイ、最小2'],
+    ['方向、繰り返し','フレーム順に展開して記録、繰り返しは保持','フレーム順、ループ回数'],
+    ['サイズの違うフレーム','アニメーションごとに1セル、ピボットで揃える','GIFごとにフレームサイズ1つ']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','`sheet.png`というシートを書き出したときのダウンロード。中に`sheet_gif/`フォルダがあります。'],
+    ['sheet_gif/sheet_row_1.gif','1行目のアニメーション。先にタグ名を変えると`sheet_walk.gif`のような分かりやすい名前になります。']]},
+   target:{title:'GIFを使う',steps:[
+    'ZIPを展開します。アニメーションごとにGIFが1つです。',
+    '1つをブラウザで開いて速度を確かめます。10 fpsの6フレームの行は0.6秒ごとにループします。',
+    'GIFを載せる背景の上で縁を確認します。柔らかいアルファが必要なら同じパネルからAPNGで書き出してください。',
+    '動画投稿なら[[game/sprite-sheet-to-video|WebM動画]]（ニアレスト4倍）で書き出してください。逆方向は[[game/gif-to-sprite-sheet|GIFからスプライトシートへ]]を参照。']},
+   verify:{steps:[
+    '6フレームの行のGIFはフレームが6つ、ピンポンなら10です。',
+    'どのフレームにも元の背景色が出ていないこと。出ていれば読み込み時にキーカラーが適用されていません。',
+    '書き出しメモに丸めたディレイが出ます。10・20・25・50 fpsでは出ません。']},
+   trouble:{rows:[
+    ['GIFにフレームが半分だけ、または2つ同時に映る','グリッドの推定がずれています（マージン、スペーシング、数ピクセル違うセルサイズ）','シート表示：絵に重なるグリッド線','別のグリッド候補を選ぶか、セルサイズ・マージン・スペーシングを入力してください。[[game/sprite-sheet-slicing-off|切り出しがずれるとき]]を参照'],
+    ['スプライトの後ろにマゼンタや緑が見える','キーカラーが適用されていません','インポートパネル：背景色','検出された色に切り替えて適用し直してください。[[game/remove-sprite-background|スプライト背景の除去]]を参照'],
+    ['アニメーションがガタつく','島として切ったフレームのピボットがばらばらです','オニオンスキン（F3）','タグのピボットを1つに決めるか、フレームを揃えてください。[[game/sprite-jitter-after-trim|トリム後のガタつき]]を参照'],
+    ['速度が少し違う','フレーム時間が1/100秒の整数倍ではありません','上の表と比べます','10・20・25・50 fpsにするか、APNGで書き出してください'],
+    ['柔らかい影が濃くなる・消える','1ビット透明：アルファ128以上は不透明、それ未満は透明になりました','半透明ピクセルについての書き出しメモ','APNGで書き出してください']]},
+   alternatives:{rows:[
+    ['同じパネルのAPNG','柔らかい縁とミリ秒のタイミングが大事なとき。全ピクセルが正確です。'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgifなどのオンラインGIFツール]]','すでにフレームごとの画像があり、アニメーションのタグなしで手早くGIFだけ欲しいとき。'],
+    ['Aseprite：File > Import Sprite Sheetのあと書き出し','Asepriteを持っていて、その中でアニメーションを仕上げ続けたいとき。']]},
+   limits:['シートにはタイミングがないので、速度は常に自分で決め、1フレーム100 msから始まります。','GIFはシートのピクセルサイズのままで、GIF書き出しに拡大オプションはありません。'],
+   versions:{body:['GIFの出力は、書き出したファイルをPillowでデコードし、全フレームとディレイが書いたとおりか確認しています。グリッドとキーカラーの検出はStudioの取り込み機能で、実際のアセットのシートをUIから読み込み、既定の選択のままでフレームが正しく切れることを確認しました。GIFの制約はW3CのGIF89a仕様に基づきます。'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  }
+ },
+/* ============================================================================ remove-sprite-background */
+ 'game/remove-sprite-background':{
+  type:'create',
+  intent:{primary:'remove the solid (magenta, green, flat colour) background of a sprite sheet',secondary:['colour key to transparency','magenta background to transparent PNG','JPEG sprite sheet background'],
+   goal:'a sheet whose key-coloured background is fully transparent, frames cut afterwards, original kept',input:'PNG or JPEG sprite sheet on a flat key colour',output:'the keyed sheet inside the Studio (then frames, PNG sheet, GIF, .aseprite or engine export)',target:'any export of the Studio',support:'partial',
+   evidence:['src/game/color-key.js (border/sheet/lines/alpha evidence, high ≥ 75 % border or ≥ 40 % + 4 lines, tolerance ceil(p95 spread)+2 ≤ 64, global key, RGB kept)','src/studio/sprite/sprite-worker.js + import-plan.js (applied only when high; alternatives detected colour or none)','tests/game-real-assets.test.mjs (magenta 2 px margin / 1 px spacing sheet, Kenney roguelike dungeon, alpha sheet gets no key)'],
+   external:[]},
+  en:{
+   answer:"Many old sheets use a key colour, often magenta #ff00ff, instead of transparency. Drop the sheet: Nerulio measures its border, proposes the key colour with a confidence, and applies it on its own only when the evidence is strong. Every pixel of that colour then gets alpha 0, exactly for a clean PNG or within a tolerance measured from the border for a JPEG-damaged one. The original stays stored for undo, and the frames are cut afterwards.",
+   concept:{title:'How the key colour is found',body:[
+    "A backdrop surrounds the art, so the detector starts at the border: the most common border colour is the candidate. It then checks how much of the border has that colour, how much of the whole sheet has it (it must be between 10 % and 97 %), whether it appears on all four sides, and whether whole rows or columns are that colour, as the spacing lines of a keyed grid are.",
+    "Confidence is high when at least 75 % of the border is the colour, or at least 40 % together with four or more full lines; only then is it applied automatically. Medium and low results are shown with the colour so you can apply it yourself. A sheet whose border is already more than half transparent gets no key: it uses alpha, and a key would erase content.",
+    "The tolerance comes from the border too. A PNG key is one exact colour (tolerance 0). JPEG compression spreads it, so the detector measures how far near-key border pixels drift (95th percentile, within 48 RGB levels) and allows that plus 2, at most 64. The key is global: key-coloured pixels inside a sprite become transparent as well, and every keyed pixel keeps its RGB under alpha 0."],
+    terms:[['Key colour','A colour that means “nothing here”; conventional ones are magenta, cyan, green, red, blue and yellow.'],['Tolerance','Allowed RGB distance from the key colour; 0 means exact.'],['Alpha','Opacity per pixel; keyed pixels get alpha 0.'],['Fringe','Edge pixels blended between the art and the key colour. They are not the key colour, so they stay.']]},
+   example:{title:'Example: a magenta sheet with margin and spacing',lines:[
+    'sheet          267 × 135 px: 8 × 4 cells of 32 × 32, 2 px margin, 1 px spacing',
+    'border         100 % #ff00ff             → ≥ 75 %: confidence high, applied',
+    'full lines     margin and spacing rows and columns are all #ff00ff',
+    'tolerance      0: every border pixel is exactly #ff00ff',
+    'result         every #ff00ff pixel → alpha 0; the grid then finds 32 frames',
+    '',
+    'JPEG version   near-key border pixels drift up to 9 levels → tolerance 9 + 2 = 11',
+    '               pixel (250, 6, 247): distance √(5² + 6² + 8²) ≈ 11.2 > 11 → kept'],
+    after:'That last pixel is the typical fringe case: close to magenta, but not close enough, so it stays opaque and pink. The tolerance is measured, not typed in.'},
+   verify:{steps:[
+    'Import panel: the Background colour decision shows the colour, the confidence and the reasons (border share, sheet share, full lines, tolerance).',
+    'Open the floating preview (F7) on a contrasting background: no key-coloured pixels should remain between frames or around outlines.',
+    'Undo once to compare with the untouched original; the import is a single undo step.']},
+   trouble:{rows:[
+    ['A pink or green outline remains','The art was anti-aliased or resized against the key colour, so the edge pixels are blends, not the key','Zoom in on an edge: the outline pixels are mixtures of art and key','Nerulio does not un-blend keyed edges on import; recolour the edge in the [[game/pixel-art-editor|pixel editor]] or export the source again with real transparency'],
+    ['Holes inside the sprite','The sprite uses the key colour itself, and the key applies to the whole sheet','The holes have exactly the key colour','Choose “no key colour”, or recolour those pixels in the source first'],
+    ['The background was not removed','Confidence was medium or low: the colour is missing on one side, the sheet already uses transparency, or too little of the border has it','The decision\'s reasons','Click the detected colour (the alternative) to apply it anyway'],
+    ['The wrong colour was detected','The most common border colour is not the backdrop, for example a scene that runs to the edges','The decision names the colour','Choose “no key colour”; the Studio offers only the detected colour or none, so fix the backdrop in an image editor first'],
+    ['Speckles remain on a JPEG sheet','Compression noise beyond the measured tolerance, or beyond the maximum of 64','The tolerance in the reasons','Use a PNG original if there is one; JPEG noise cannot be keyed cleanly']]},
+   alternatives:{rows:[
+    ['Export the source with transparency','You have the original project (Aseprite, Photoshop …): real alpha is better than any key.'],
+    ['An image editor\'s select-by-colour and delete','You need to key one region only, pick the colour yourself, or clean a fringe by hand.'],
+    ['[[game/sprite-sheet-to-aseprite|Continue to an .aseprite file]]','After keying you want frames, tags and timing in Aseprite.']]},
+   limits:['Only the colour detected from the border can be applied; there is no colour picker for the key.','The key applies to the whole sheet, not to one region.','Soft anti-aliased edges against the key are not repaired.'],
+   versions:{body:['Key detection is tested on synthetic keyed sheets (a magenta grid with 2 px margin and 1 px spacing is keyed and cut into 32 frames exactly) and on real Kenney sheets such as a magenta roguelike dungeon set with 16 px tiles and 1 px spacing; a sheet that already uses alpha, and an opaque noise texture, get no key.']}
+  },
+  ko:{
+   answer:'오래된 시트는 투명 대신 키 색, 흔히 마젠타 #ff00ff를 씁니다. 시트를 넣으면 Nerulio가 테두리를 재서 키 색과 신뢰도를 제안하고, 근거가 충분할 때만 스스로 적용합니다. 그러면 그 색의 모든 픽셀이 알파 0이 됩니다. 깨끗한 PNG면 정확히 그 색만, JPEG로 뭉개진 키면 테두리에서 잰 허용 범위 안의 색까지입니다. 원본은 되돌리기용으로 보관되고, 프레임은 그다음에 자릅니다.',
+   concept:{title:'키 색을 찾는 방법',body:[
+    '배경은 그림을 둘러싸므로 감지는 테두리에서 시작합니다. 테두리에서 가장 많은 색이 후보입니다. 그다음 테두리의 몇 %가 그 색인지, 시트 전체의 몇 %가 그 색인지(10 %~97 % 사이여야 함), 네 변 모두에 나오는지, 키 색 격자의 간격선처럼 한 줄 전체가 그 색인 행·열이 있는지 확인합니다.',
+    '테두리의 75 % 이상이 그 색이거나, 40 % 이상이면서 꽉 찬 줄이 4개 이상이면 신뢰도가 높음이고, 이때만 자동으로 적용합니다. 중간·낮음이면 색을 보여 주고 직접 적용할 수 있게 합니다. 테두리의 절반 넘게 이미 투명한 시트에는 키를 쓰지 않습니다. 알파를 쓰는 시트라 키를 적용하면 그림이 지워지기 때문입니다.',
+    '허용 범위도 테두리에서 정합니다. PNG의 키는 정확히 한 색이라 허용 범위 0입니다. JPEG 압축은 색을 흩뜨리므로, 키에 가까운 테두리 픽셀이 얼마나 벗어났는지(RGB 48 단계 안, 95번째 백분위수)를 재고 거기에 2를 더해 최대 64까지 허용합니다. 키는 시트 전체에 적용됩니다. 스프라이트 안쪽의 키 색 픽셀도 투명해지고, 키로 뺀 픽셀은 알파 0 아래에 RGB를 그대로 둡니다.'],
+    terms:[['키 색','“여기엔 아무것도 없음”을 뜻하는 색. 흔히 마젠타, 시안, 초록, 빨강, 파랑, 노랑을 씁니다.'],['허용 범위','키 색과의 RGB 거리 허용치. 0이면 정확히 같은 색만.'],['알파','픽셀별 불투명도. 키로 뺀 픽셀은 알파 0이 됩니다.'],['프린지','그림과 키 색이 섞인 가장자리 픽셀. 키 색 자체가 아니라서 남습니다.']]},
+   example:{title:'예시: 여백과 간격이 있는 마젠타 시트',lines:[
+    '시트        267 × 135 px: 32 × 32 칸 8 × 4개, 여백 2 px, 간격 1 px',
+    '테두리      100 % #ff00ff            → 75 % 이상: 신뢰도 높음, 적용',
+    '꽉 찬 줄    여백과 간격의 행·열이 모두 #ff00ff',
+    '허용 범위   0: 테두리 픽셀이 모두 정확히 #ff00ff',
+    '결과        #ff00ff 픽셀 → 알파 0, 이어서 격자가 프레임 32개를 찾음',
+    '',
+    'JPEG 버전   키에 가까운 테두리 픽셀이 최대 9단계 벗어남 → 허용 범위 9 + 2 = 11',
+    '            픽셀 (250, 6, 247): 거리 √(5² + 6² + 8²) ≈ 11.2 > 11 → 남음'],
+    after:'마지막 픽셀이 전형적인 프린지입니다. 마젠타에 가깝지만 충분히 가깝지는 않아 불투명한 분홍으로 남습니다. 허용 범위는 입력하는 값이 아니라 재서 정하는 값입니다.'},
+   verify:{steps:[
+    '가져오기 패널: 배경색 결정에 색, 신뢰도, 근거(테두리 비율, 시트 비율, 꽉 찬 줄, 허용 범위)가 나옵니다.',
+    '플로팅 미리보기(F7)를 대비되는 배경으로 여세요. 프레임 사이나 외곽선 둘레에 키 색 픽셀이 남으면 안 됩니다.',
+    '한 번 되돌려 손대지 않은 원본과 비교하세요. 가져오기는 되돌리기 한 단계입니다.']},
+   trouble:{rows:[
+    ['분홍·초록 외곽선이 남음','그림이 키 색 위에서 안티에일리어싱되거나 크기가 바뀌어, 가장자리 픽셀이 키 색이 아니라 섞인 색입니다','가장자리를 확대하면 외곽 픽셀이 그림과 키의 중간색입니다','Nerulio는 가져올 때 섞인 가장자리를 풀지 않습니다. [[game/pixel-art-editor|픽셀 편집기]]에서 가장자리 색을 고치거나, 원본을 진짜 투명으로 다시 내보내세요'],
+    ['스프라이트 안에 구멍이 생김','스프라이트가 키 색을 직접 쓰고, 키는 시트 전체에 적용됩니다','구멍의 색이 정확히 키 색입니다','“키 색 없음”을 고르거나, 원본에서 그 픽셀 색을 먼저 바꾸세요'],
+    ['배경이 빠지지 않음','신뢰도가 중간이나 낮음입니다. 한 변에 그 색이 없거나, 시트가 이미 투명을 쓰거나, 테두리에서 그 색 비율이 낮습니다','결정의 근거','감지된 색(대안)을 클릭해 그래도 적용하세요'],
+    ['엉뚱한 색이 감지됨','테두리에서 가장 많은 색이 배경이 아닙니다. 예: 가장자리까지 그려진 장면','결정에 색이 나옵니다','“키 색 없음”을 고르세요. Studio는 감지된 색 또는 없음만 제공하므로, 이미지 편집기에서 배경부터 정리하세요'],
+    ['JPEG 시트에 점이 남음','측정된 허용 범위나 최대치 64를 넘는 압축 잡음입니다','근거에 적힌 허용 범위','PNG 원본이 있으면 그것을 쓰세요. JPEG 잡음은 깨끗하게 키로 뺄 수 없습니다']]},
+   alternatives:{rows:[
+    ['원본을 투명으로 다시 내보내기','원래 프로젝트(Aseprite, Photoshop …)가 있다면 진짜 알파가 어떤 키보다 낫습니다.'],
+    ['이미지 편집기의 색 기준 선택 후 삭제','한 영역만 빼거나, 색을 직접 고르거나, 프린지를 손으로 정리해야 할 때.'],
+    ['[[game/sprite-sheet-to-aseprite|.aseprite 파일로 이어 가기]]','배경을 뺀 뒤 Aseprite에서 프레임·태그·타이밍을 다루고 싶을 때.']]},
+   limits:['테두리에서 감지한 색만 적용할 수 있고, 키 색을 고르는 색상 선택기는 없습니다.','키는 한 영역이 아니라 시트 전체에 적용됩니다.','키 색 위에서 부드럽게 안티에일리어싱된 가장자리는 복구하지 않습니다.'],
+   versions:{body:['키 감지는 합성한 키 색 시트(여백 2 px·간격 1 px 마젠타 격자를 키로 빼고 정확히 32프레임으로 자름)와, 16 px 타일·1 px 간격의 마젠타 로그라이크 던전 세트 같은 실제 Kenney 시트로 시험합니다. 이미 알파를 쓰는 시트와 불투명한 잡음 텍스처에는 키가 적용되지 않습니다.']}
+  },
+  ja:{
+   answer:'古いシートの多くは透明の代わりにキーカラー、よくあるのはマゼンタ#ff00ffを使っています。シートをドロップすると、Nerulioが縁を測ってキーカラーと信頼度を提案し、根拠が十分なときだけ自動で適用します。するとその色のピクセルがすべてアルファ0になります。きれいなPNGなら完全一致の色だけ、JPEGで崩れたキーなら縁から測った許容範囲内の色までです。元の画像は取り消し用に保存され、フレームはそのあとで切ります。',
+   concept:{title:'キーカラーの見つけ方',body:[
+    '背景は絵を囲んでいるので、検出は縁から始めます。縁でいちばん多い色が候補です。次に、縁の何%がその色か、シート全体の何%がその色か（10 %〜97 %の間であること）、4辺すべてに現れるか、キーカラーのグリッドの区切り線のように行や列がまるごとその色になっているかを調べます。',
+    '縁の75 %以上がその色、または40 %以上かつ全面がその色の線が4本以上なら信頼度は高で、このときだけ自動適用します。中・低の場合は色を示し、自分で適用できるようにします。縁の半分以上がすでに透明なシートにはキーを使いません。アルファを使っているシートなので、キーを適用すると絵が消えてしまうからです。',
+    '許容範囲も縁から決めます。PNGのキーは完全に1色なので許容範囲は0です。JPEG圧縮は色を散らすので、キーに近い縁のピクセルがどれだけずれているか（RGBで48段階以内、95パーセンタイル）を測り、それに2を足して最大64まで許します。キーはシート全体に効きます。スプライト内部のキーカラーのピクセルも透明になり、抜いたピクセルはアルファ0の下にRGBを残します。'],
+    terms:[['キーカラー','「ここには何もない」を表す色。よく使われるのはマゼンタ、シアン、緑、赤、青、黄。'],['許容範囲','キーカラーとのRGB距離の許容値。0なら完全一致のみ。'],['アルファ','ピクセルごとの不透明度。キーで抜いたピクセルはアルファ0になります。'],['フリンジ','絵とキーカラーが混ざった縁のピクセル。キーカラーそのものではないので残ります。']]},
+   example:{title:'具体例：マージンとスペーシングのあるマゼンタのシート',lines:[
+    'シート      267 × 135 px：32 × 32 のセルが 8 × 4、マージン 2 px、スペーシング 1 px',
+    '縁          100 % #ff00ff             → 75 % 以上：信頼度 高、適用',
+    '全面の線    マージンとスペーシングの行・列はすべて #ff00ff',
+    '許容範囲    0：縁のピクセルはすべて完全に #ff00ff',
+    '結果        #ff00ff のピクセル → アルファ 0、続いてグリッドが32フレームを検出',
+    '',
+    'JPEG版      キーに近い縁のピクセルが最大9段階ずれる → 許容範囲 9 + 2 = 11',
+    '            ピクセル (250, 6, 247)：距離 √(5² + 6² + 8²) ≈ 11.2 > 11 → 残る'],
+    after:'最後のピクセルが典型的なフリンジです。マゼンタに近いものの十分には近くないので、不透明なピンクのまま残ります。許容範囲は入力する値ではなく、測って決まる値です。'},
+   verify:{steps:[
+    'インポートパネル：背景色の判断に、色、信頼度、根拠（縁の割合、シートの割合、全面の線、許容範囲）が出ます。',
+    'フローティングプレビュー（F7）を対照的な背景で開きます。フレームの間や輪郭の周りにキーカラーのピクセルが残っていないこと。',
+    '1回取り消して元の画像と比べます。読み込みは1回の取り消し単位です。']},
+   trouble:{rows:[
+    ['ピンクや緑の輪郭が残る','絵がキーカラーの上でアンチエイリアスまたは拡縮されていて、縁のピクセルがキーではなく混色です','縁を拡大すると、輪郭のピクセルが絵とキーの中間色です','Nerulioは読み込み時に混ざった縁を分離しません。[[game/pixel-art-editor|ピクセルエディタ]]で縁の色を直すか、元データを本物の透明で書き出し直してください'],
+    ['スプライトの中に穴が開く','スプライト自体がキーカラーを使っていて、キーはシート全体に効きます','穴の色がキーカラーと完全に一致します','「キーカラーなし」を選ぶか、元データでそのピクセルの色を先に変えてください'],
+    ['背景が抜けない','信頼度が中か低です。ある辺にその色がない、シートがすでに透明を使っている、縁に占めるその色の割合が低い、など','判断の根拠','検出された色（代替案）をクリックして、それでも適用してください'],
+    ['違う色が検出される','縁でいちばん多い色が背景ではありません。例：端まで描かれた場面','判断に色が出ます','「キーカラーなし」を選んでください。Studioは検出した色かなしのどちらかしか出さないので、画像エディタで背景を先に整えてください'],
+    ['JPEGのシートに点が残る','測った許容範囲や上限64を超える圧縮ノイズです','根拠にある許容範囲','PNGの元画像があればそれを使ってください。JPEGのノイズはきれいにキーで抜けません']]},
+   alternatives:{rows:[
+    ['元データを透明付きで書き出し直す','元のプロジェクト（Aseprite、Photoshop …）があるなら、本物のアルファはどんなキーより確実です。'],
+    ['画像エディタの色で選択して削除','一部の領域だけ抜きたい、色を自分で選びたい、フリンジを手で掃除したいとき。'],
+    ['[[game/sprite-sheet-to-aseprite|.asepriteファイルへ進む]]','背景を抜いたあと、Asepriteでフレーム・タグ・タイミングを扱いたいとき。']]},
+   limits:['縁から検出した色しか適用できず、キーカラーを選ぶカラーピッカーはありません。','キーは一部の領域ではなくシート全体に効きます。','キーカラーの上で柔らかくアンチエイリアスされた縁は修復しません。'],
+   versions:{body:['キーの検出は、合成したキーカラーのシート（マージン2 px・スペーシング1 pxのマゼンタのグリッドをキーで抜き、正確に32フレームに切る）と、16 pxタイル・1 px間隔のマゼンタのローグライク用ダンジョンセットのような実際のKenneyのシートでテストしています。すでにアルファを使うシートと、不透明なノイズテクスチャにはキーが適用されません。']}
+  }
+ },
 //@@NEXT
 };
