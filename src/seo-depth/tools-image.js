@@ -949,4 +949,337 @@ export default {
    versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` をPillow 12.3の画質60で保存したAVIFを計測しました。AVIFの構造と機能はMDNの説明に従っています。'],sources:[MDN.ja]}
   }
  },
+ 'image/avif-to-png':{
+  type:'tool',
+  intent:{primary:'convert AVIF to PNG',secondary:['open AVIF in an editor that needs PNG','keep AVIF transparency','AVIF to PNG file size'],
+   goal:'a lossless PNG of the decoded AVIF that editors and engines open',input:'AVIF (still; the browser must decode it)',output:'PNG, lossless, same dimensions, alpha kept',target:'image editors, game engines, tools without AVIF support',support:'full',
+   evidence:['src/task/convert.js','src/image-container.js','measured 2026-09-28, Chromium 153: astronaut.avif (Pillow 12.3 q60)'],
+   external:['MDN: AVIF lossy/lossless, alpha, HDR']},
+  en:{
+   answer:'AVIF to PNG gives editors and game engines that cannot read AVIF an exact, lossless copy of the decoded picture, transparency included. Nothing is added or recovered: the PNG shows the AVIF\'s compression exactly as decoded. It is by far the largest route out of AVIF — a 25,255-byte AVIF photo (512 × 512) became a 428,230-byte PNG, 17 times larger — so use it for graphics, cut-outs and working copies, and [[image/avif-to-jpg|AVIF to JPG]] for photos you only need to share.',
+   concept:{title:'An exact snapshot of the decoded AVIF',body:[
+    'An AVIF is decoded by the browser into 8-bit RGBA pixels. PNG stores those pixels without loss, so the PNG is the most faithful file you can get out of the AVIF without AVIF support — every later edit and save starts from exactly what the AVIF showed.',
+    'The size jump comes from what AV1 already discarded: the AVIF encoder threw away fine grain PNG would have to spell out byte by byte. For a flat-colour logo or UI element the jump is much smaller, since PNG compresses flat areas well. AVIF transparency is kept as PNG alpha; HDR and extra bit depth are not, because the canvas holds 8 bits per channel.'],
+    terms:[['8-bit RGBA','Four 0–255 values per pixel: what the browser canvas holds after decoding.'],['PNG alpha','Per-pixel transparency in the PNG; transparent AVIF areas stay transparent.'],['Bit depth','Bits per channel. AVIF may use 10 or 12; the PNG written here has 8.']]},
+   example:{title:'One AVIF, three ways out (measured)',lead:'AVIF written by Pillow 12.3 at quality 60 from the 512 × 512 NASA fixture; converted with Nerulio\'s code in Chromium 153 on 2026-09-28.',lines:[
+    'Source: astronaut.avif     25,255 bytes',
+    '',
+    '-> PNG          428,230 bytes   17.0 x   identical to the decoded AVIF',
+    '-> WebP q100    235,326 bytes    9.3 x   lossless, identical',
+    '-> JPG q92       62,610 bytes    2.5 x   SSIM 0.9966'],
+    after:'A lossless WebP holds the same pixels as the PNG in 45 % less space, if the program that needs the file reads WebP.'},
+   mapping:{title:'What the PNG receives',head:['In the AVIF','What the converter does','In the PNG'],rows:[
+    ['Decoded pixels','Stored losslessly','Identical 8-bit pixels'],
+    ['Alpha','Kept','PNG alpha'],
+    ['10/12-bit depth, HDR','Reduced to the browser\'s 8-bit canvas','8 bits per channel, no HDR'],
+    ['Image sequence (animated AVIF)','Refused before converting','—'],
+    ['EXIF / colour metadata','Not copied','No EXIF, no profile chunk']]},
+   verify:{steps:[
+    'Open the PNG in the editor or engine that refused the AVIF.',
+    'Check transparent areas on a checkered background.',
+    'Compare the PNG with the AVIF in the browser at 100 %: they should be indistinguishable.']},
+   trouble:{rows:[
+    ['"This image cannot be opened"','The browser cannot decode this AVIF','Open the AVIF directly in the same browser','Use an up-to-date browser; if no browser opens it, the file is probably damaged'],
+    ['The PNG is enormous','Lossless PNG of a photo that AV1 had compressed hard','Compare sizes','Use [[image/avif-to-jpg|AVIF to JPG]] for photos, or lossless WebP if the target reads WebP'],
+    ['HDR highlights look flat','8-bit canvas, no HDR in the PNG','Compare with the AVIF on an HDR display','Ask the author for an SDR export when looks matter'],
+    ['Animated AVIF is refused','Image sequences are not still images','The AVIF plays in the browser','Extract one frame elsewhere first']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-jpg|AVIF to JPG]]','Photos that only need to open everywhere: 62,610 instead of 428,230 bytes here.'],
+    ['[[image/compress|Compress]] with Auto','You need a small file of the AVIF in a common format; it compares PNG, JPG and WebP.']]},
+   limits:['Only AVIFs the browser decodes can be converted.','HDR and bit depth above 8 are not kept; EXIF is not written.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path on an AVIF written by Pillow 12.3 (quality 60) from `tests/fixtures/astronaut.png`. AVIF\'s features (alpha, higher bit depth, HDR) follow MDN.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'AVIF를 PNG로 바꾸면 AVIF를 읽지 못하는 편집기와 게임 엔진에 디코딩한 그림을 투명도까지 포함해 정확한 무손실 사본으로 넘길 수 있습니다. 더해지거나 복구되는 것은 없고, PNG는 AVIF의 압축 흔적을 디코딩된 그대로 보여 줍니다. AVIF에서 나가는 경로 중 가장 큽니다. 25,255바이트 AVIF 사진(512 × 512)이 428,230바이트 PNG, 17배가 됐습니다. 그래픽·누끼·작업용 사본에 쓰고, 공유만 할 사진은 [[image/avif-to-jpg|AVIF → JPG]]를 쓰세요.',
+   concept:{title:'디코딩된 AVIF의 정확한 스냅숏',body:[
+    '브라우저가 AVIF를 8비트 RGBA 픽셀로 디코딩하고 PNG가 그 픽셀을 손실 없이 저장합니다. 그래서 AVIF를 지원하지 않는 환경에서 얻을 수 있는 가장 충실한 파일이며, 이후의 편집과 저장은 AVIF가 보여 주던 모습 그대로에서 시작합니다.',
+    '크기가 크게 느는 이유는 AV1이 이미 버린 정보 때문입니다. AVIF 인코더는 PNG가 바이트 단위로 모두 적어야 할 미세한 결을 버렸습니다. 단색 로고나 UI 요소는 PNG가 평평한 영역을 잘 압축하므로 훨씬 덜 늘어납니다. AVIF의 투명도는 PNG 알파로 유지되지만, 캔버스가 채널당 8비트라 HDR과 추가 비트 심도는 유지되지 않습니다.'],
+    terms:[['8비트 RGBA','픽셀마다 0~255 값 네 개. 디코딩 후 브라우저 캔버스가 담는 형태입니다.'],['PNG 알파','PNG의 픽셀별 투명도. AVIF의 투명한 부분은 그대로 투명합니다.'],['비트 심도','채널당 비트 수. AVIF는 10·12비트도 쓰지만 여기서 만드는 PNG는 8비트입니다.']]},
+   example:{title:'AVIF 한 장, 세 가지 출력(실측)',lead:'512 × 512 NASA 테스트 사진을 Pillow 12.3 화질 60으로 저장한 AVIF를 2026-09-28 Chromium 153에서 Nerulio 코드로 변환했습니다.',lines:[
+    '원본: astronaut.avif      25,255 바이트',
+    '',
+    '-> PNG          428,230 바이트   17.0배   디코딩한 AVIF와 동일',
+    '-> WebP q100    235,326 바이트    9.3배   무손실, 동일',
+    '-> JPG q92       62,610 바이트    2.5배   SSIM 0.9966'],
+    after:'파일을 쓸 프로그램이 WebP를 읽는다면 무손실 WebP가 PNG와 같은 픽셀을 45% 작게 담습니다.'},
+   mapping:{title:'PNG로 넘어가는 것',head:['AVIF에 있던 것','변환기가 하는 일','PNG에서는'],rows:[
+    ['디코딩된 픽셀','무손실로 저장','동일한 8비트 픽셀'],
+    ['알파','유지','PNG 알파'],
+    ['10·12비트 심도, HDR','브라우저의 8비트 캔버스로 줄어듦','채널당 8비트, HDR 없음'],
+    ['이미지 시퀀스(움직이는 AVIF)','변환 전에 거부','—'],
+    ['EXIF·색 메타데이터','복사하지 않음','EXIF·프로필 청크 없음']]},
+   verify:{steps:[
+    'AVIF를 거부하던 편집기나 엔진에서 PNG를 열어 보세요.',
+    '투명한 부분을 체크무늬 배경에서 확인하세요.',
+    '브라우저에서 AVIF와 100%로 비교하세요. 구별할 수 없어야 합니다.']},
+   trouble:{rows:[
+    ['"이미지를 열 수 없습니다"','브라우저가 이 AVIF를 디코딩하지 못합니다','같은 브라우저에서 AVIF를 직접 열기','최신 브라우저를 쓰세요. 어떤 브라우저에서도 안 열리면 파일이 손상됐을 가능성이 큽니다'],
+    ['PNG가 너무 큼','AV1이 강하게 압축한 사진을 무손실 PNG로 저장했습니다','용량 비교','사진은 [[image/avif-to-jpg|AVIF → JPG]]를, 대상이 WebP를 읽으면 무손실 WebP를 쓰세요'],
+    ['HDR 하이라이트가 밋밋함','8비트 캔버스라 PNG에 HDR이 없습니다','HDR 화면에서 AVIF와 비교','색감이 중요하면 작성자에게 SDR 버전을 요청하세요'],
+    ['움직이는 AVIF가 거부됨','이미지 시퀀스는 정지 이미지가 아닙니다','브라우저에서 AVIF가 재생됨','다른 곳에서 한 프레임을 먼저 추출하세요']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-jpg|AVIF → JPG]]','어디서나 열리기만 하면 되는 사진. 여기서는 428,230바이트 대신 62,610바이트였습니다.'],
+    ['자동 형식으로 [[image/compress|압축]]','AVIF를 흔한 형식의 작은 파일로 만들어야 할 때. PNG·JPG·WebP를 비교합니다.']]},
+   limits:['브라우저가 디코딩하는 AVIF만 변환할 수 있습니다.','HDR과 8비트를 넘는 비트 심도는 유지되지 않으며 EXIF는 기록하지 않습니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`를 Pillow 12.3 화질 60으로 저장한 AVIF를 측정했습니다. AVIF의 기능(알파, 높은 비트 심도, HDR)은 MDN을 따랐습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'AVIFをPNGにすると、AVIFを読めない編集ソフトやゲームエンジンに、展開した画像を透過も含めて正確な可逆コピーとして渡せます。何かが加わったり復元されたりはせず、PNGはAVIFの圧縮の跡を展開したとおりに写します。AVIFからの変換では最も大きくなる経路で、25,255バイトのAVIF写真（512 × 512）が428,230バイトのPNG、17倍になりました。グラフィック・切り抜き・作業用コピーに使い、共有するだけの写真は[[image/avif-to-jpg|AVIF → JPG]]にします。',
+   concept:{title:'展開したAVIFの正確なスナップショット',body:[
+    'ブラウザがAVIFを8ビットのRGBAピクセルに展開し、PNGがそのピクセルを劣化なく保存します。AVIF非対応の環境で得られる最も忠実なファイルであり、以後の編集や保存はAVIFが見せていたとおりの状態から始まります。',
+    '大きく増えるのは、AV1がすでに捨てた情報のためです。AVIFエンコーダーは、PNGなら1バイトずつ書き出さなければならない細かな粒状感を捨てています。単色のロゴやUI部品はPNGが平坦な部分をうまく圧縮するので、増え方はずっと小さくなります。AVIFの透過はPNGのアルファとして残りますが、キャンバスはチャンネルあたり8ビットなので、HDRや追加のビット深度は残りません。'],
+    terms:[['8ビットRGBA','ピクセルごとに0〜255の値が4つ。展開後にブラウザのキャンバスが持つ形です。'],['PNGのアルファ','PNGのピクセルごとの透明度。AVIFの透明部分は透明のままです。'],['ビット深度','チャンネルあたりのビット数。AVIFは10・12ビットも使えますが、ここで書き出すPNGは8ビットです。']]},
+   example:{title:'1枚のAVIFから3通りの出力（実測）',lead:'512 × 512のNASAのテスト写真をPillow 12.3の画質60で保存したAVIFを、2026-09-28にChromium 153でNerulioのコードを使って変換しました。',lines:[
+    '元画像: astronaut.avif      25,255 バイト',
+    '',
+    '-> PNG          428,230 バイト   17.0倍   展開したAVIFと同一',
+    '-> WebP q100    235,326 バイト    9.3倍   可逆、同一',
+    '-> JPG q92       62,610 バイト    2.5倍   SSIM 0.9966'],
+    after:'ファイルを使うソフトがWebPを読めるなら、可逆WebPはPNGと同じピクセルを45%小さく保存できます。'},
+   mapping:{title:'PNGに引き継がれるもの',head:['AVIFにあったもの','変換での処理','PNGでは'],rows:[
+    ['展開したピクセル','可逆で保存','同一の8ビットピクセル'],
+    ['アルファ','保持','PNGのアルファ'],
+    ['10・12ビット深度、HDR','ブラウザの8ビットキャンバスに縮小','チャンネルあたり8ビット、HDRなし'],
+    ['画像シーケンス（アニメーションAVIF）','変換前に拒否','—'],
+    ['EXIF・色のメタデータ','コピーしない','EXIF・プロファイルのチャンクなし']]},
+   verify:{steps:[
+    'AVIFを拒否していた編集ソフトやエンジンでPNGを開きます。',
+    '透明部分を市松模様の背景で確認します。',
+    'ブラウザでAVIFと100%で比べます。見分けがつかないはずです。']},
+   trouble:{rows:[
+    ['「画像を開けません」と出る','ブラウザがこのAVIFを展開できない','同じブラウザでAVIFを直接開く','最新のブラウザを使います。どのブラウザでも開けなければファイルの破損が濃厚です'],
+    ['PNGが大きすぎる','AV1が強く圧縮した写真を可逆PNGで保存した','容量を比べる','写真は[[image/avif-to-jpg|AVIF → JPG]]に、渡し先がWebPを読めるなら可逆WebPにします'],
+    ['HDRのハイライトが平板','8ビットのキャンバスで、PNGにHDRがない','HDRディスプレイでAVIFと比べる','見た目が重要なら作者にSDR版を依頼します'],
+    ['アニメーションAVIFが拒否される','画像シーケンスは静止画ではない','ブラウザでAVIFが再生される','別の場所で1コマを先に取り出します']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-jpg|AVIF → JPG]]','どこでも開ければよい写真。ここでは428,230バイトではなく62,610バイトでした。'],
+    ['自動形式で[[image/compress|圧縮]]','AVIFを一般的な形式の小さなファイルにしたい場合。PNG・JPG・WebPを比べます。']]},
+   limits:['変換できるのは、ブラウザが展開できるAVIFだけです。','HDRと8ビットを超えるビット深度は保持されず、EXIFも書き込みません。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` をPillow 12.3の画質60で保存したAVIFを計測しました。AVIFの機能（アルファ、高ビット深度、HDR）はMDNに従っています。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/bmp-to-png':{
+  type:'tool',
+  intent:{primary:'convert BMP to PNG',secondary:['make BMP files smaller without losing quality','BMP to PNG lossless','open BMP on the web'],
+   goal:'a lossless PNG, much smaller than the BMP, with identical pixels',input:'BMP (the common uncompressed 24-bit kind; decoding by the browser)',output:'PNG, lossless, same dimensions',target:'web pages, chat, documents, game tools',support:'full',
+   evidence:['src/task/convert.js','measured 2026-09-28, Chromium 153: astronaut.bmp (512×512, 786,486 B), dungeon.bmp from Kenney tiny-dungeon (203×186, 113,886 B)'],
+   external:['MDN: BMP usually uncompressed, 3 bytes per pixel, rows padded to 4 bytes; avoid for web content']},
+  en:{
+   answer:'BMP to PNG is the safe way to shrink a BMP: both formats are lossless, so the PNG has exactly the same pixels, only compressed. How much you save depends on the content — a 512 × 512 photo went from 786,486 to 575,694 bytes (−27 %), while a 203 × 186 tile sheet with flat colours went from 113,886 to 16,685 bytes (−85 %). The width and height are unchanged, and no quality setting is involved.',
+   concept:{title:'Why BMPs are so large',body:[
+    'The common BMP stores every pixel as three raw bytes (blue, green, red) with no compression, and pads each row to a multiple of 4 bytes. Its size is therefore fixed by the dimensions: 54 header bytes + height × padded row length. MDN recommends avoiding BMP for web content for exactly this reason.',
+    'PNG predicts each pixel from its neighbours and compresses the difference losslessly. Flat colour, text and pixel art predict almost perfectly and shrink dramatically; camera noise does not, so photos shrink only moderately. Either way nothing is lost — the measured PNGs decode to the very same pixels as the BMPs.'],
+    terms:[['Uncompressed','Raw pixel bytes; the file size depends only on width and height.'],['Row padding','Each BMP row is rounded up to a multiple of 4 bytes.'],['Lossless','The PNG decodes to exactly the pixels the BMP held.']]},
+   example:{title:'Size arithmetic and two measured files',lead:'BMP sizes computed from the format; PNG sizes measured with Nerulio\'s converter in Chromium 153 on 2026-09-28 (BMPs written by Pillow 12.3 from the repository fixtures).',lines:[
+    'Photo   512 x 512:  row = 512 x 3 = 1,536 bytes (already a multiple of 4)',
+    '        54 + 512 x 1,536 = 786,486 bytes BMP  ->  575,694 bytes PNG  (-27 %)',
+    '',
+    'Tiles   203 x 186:  row = 203 x 3 = 609 -> padded to 612 bytes',
+    '        54 + 186 x 612   = 113,886 bytes BMP  ->   16,685 bytes PNG  (-85 %)',
+    '',
+    'Pixels changed in both PNGs: 0'],
+    after:'The tile sheet is Kenney\'s CC0 Tiny Dungeon tilemap flattened onto black; as lossless WebP (quality 100) it shrank further to 6,318 bytes, also pixel-exact.'},
+   mapping:{title:'What the PNG keeps',head:['In the BMP','What the converter does','In the PNG'],rows:[
+    ['24-bit pixels','Stored losslessly','Identical pixels'],
+    ['Row padding and bottom-up order','Handled by the browser\'s decoder','Not needed in PNG'],
+    ['File size tied to dimensions','Replaced by DEFLATE compression','Size depends on content'],
+    ['Header resolution (DPI) fields','Not copied','No DPI information']]},
+   verify:{steps:[
+    'Open both files at 100 %: they must look identical, because both formats are lossless.',
+    'Check that width and height match the BMP.',
+    'Compare the byte counts: screenshots and graphics usually shrink far more than photos.']},
+   trouble:{rows:[
+    ['"This image cannot be opened"','An unusual BMP variant (compressed, odd bit depth) the browser does not decode','Open the BMP directly in the browser','Re-save it as a standard 24-bit BMP or PNG in the program that made it'],
+    ['The PNG is only a little smaller','A photo: noise compresses poorly even in PNG','Compare sizes','For photos, [[image/bmp-to-jpg|BMP to JPG]] is ten times smaller'],
+    ['Print size changed in a layout program','BMP DPI fields are not copied, so the program assumes its default','Look at the image\'s DPI in that program','Set the size in the layout program; the pixel dimensions are unchanged'],
+    ['Colours look different in an old viewer','The PNG has no colour profile, the viewer may treat colours differently','Compare in a browser','Use a current viewer; the pixel values are identical']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-jpg|BMP to JPG]]','Camera photos where a tenth of the size matters more than exact pixels.'],
+    ['[[image/convert|Convert]] to WebP at quality 100','The target reads WebP: lossless and smaller still (6,318 vs 16,685 bytes for the tile sheet).']]},
+   limits:['Only BMP variants the browser decodes can be read.','DPI and other header fields are not carried over.'],
+   versions:{body:['BMP sizes follow the layout MDN describes (3 bytes per pixel, rows padded to 4 bytes). PNG sizes and the zero-difference check were measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path, on BMPs written by Pillow 12.3 from `tests/fixtures/astronaut.png` and `tests/fixtures/kenney/tiny-dungeon-tilemap.png`.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'BMP를 PNG로 바꾸는 것은 BMP를 줄이는 가장 안전한 방법입니다. 두 형식 모두 무손실이라 PNG는 픽셀이 완전히 같고 압축만 됩니다. 얼마나 줄지는 내용에 달려 있습니다. 512 × 512 사진은 786,486바이트에서 575,694바이트(−27%)가 됐고, 단색이 많은 203 × 186 타일 시트는 113,886바이트에서 16,685바이트(−85%)가 됐습니다. 가로·세로는 그대로이고 화질 설정도 쓰이지 않습니다.',
+   concept:{title:'BMP가 큰 이유',body:[
+    '일반적인 BMP는 픽셀마다 파랑·초록·빨강 세 바이트를 압축 없이 저장하고, 각 행을 4바이트의 배수로 채웁니다. 그래서 크기가 해상도만으로 정해집니다. 헤더 54바이트 + 높이 × 채운 행 길이입니다. MDN도 이 때문에 웹 콘텐츠에는 BMP를 피하라고 권합니다.',
+    'PNG는 각 픽셀을 이웃 픽셀로 예측하고 그 차이를 무손실로 압축합니다. 단색·글자·도트 그림은 거의 완벽하게 예측되어 크게 줄지만, 카메라 노이즈는 그렇지 않아 사진은 적당히만 줄어듭니다. 어느 경우든 잃는 것은 없으며, 측정한 PNG는 BMP와 똑같은 픽셀로 디코딩됐습니다.'],
+    terms:[['비압축','픽셀 바이트를 그대로 저장. 파일 크기는 가로·세로로만 정해집니다.'],['행 채움(패딩)','BMP의 각 행은 4바이트의 배수로 올림됩니다.'],['무손실','PNG가 BMP에 있던 픽셀과 정확히 같게 디코딩됩니다.']]},
+   example:{title:'크기 계산과 실측 두 건',lead:'BMP 크기는 형식 구조로 계산했고, PNG 크기는 2026-09-28 Chromium 153에서 Nerulio 변환기로 측정했습니다(BMP는 저장소 테스트 자료로 Pillow 12.3이 만든 것).',lines:[
+    '사진   512 x 512:  행 = 512 x 3 = 1,536 바이트 (이미 4의 배수)',
+    '       54 + 512 x 1,536 = 786,486 바이트 BMP  ->  575,694 바이트 PNG  (-27 %)',
+    '',
+    '타일   203 x 186:  행 = 203 x 3 = 609 -> 612 바이트로 채움',
+    '       54 + 186 x 612   = 113,886 바이트 BMP  ->   16,685 바이트 PNG  (-85 %)',
+    '',
+    '두 PNG에서 바뀐 픽셀: 0'],
+    after:'타일 시트는 Kenney의 CC0 Tiny Dungeon 타일맵을 검은 배경에 합친 것입니다. 무손실 WebP(화질 100)로는 6,318바이트까지 줄었고 역시 픽셀이 같았습니다.'},
+   mapping:{title:'PNG에 남는 것',head:['BMP에 있던 것','변환기가 하는 일','PNG에서는'],rows:[
+    ['24비트 픽셀','무손실로 저장','픽셀 동일'],
+    ['행 채움과 아래에서 위로 저장하는 순서','브라우저 디코더가 처리','PNG에는 필요 없음'],
+    ['해상도에 묶인 파일 크기','DEFLATE 압축으로 대체','크기가 내용에 따라 달라짐'],
+    ['헤더의 해상도(DPI) 값','복사하지 않음','DPI 정보 없음']]},
+   verify:{steps:[
+    '두 파일을 100%로 열어 보세요. 둘 다 무손실이라 똑같아 보여야 합니다.',
+    '가로·세로가 BMP와 같은지 확인하세요.',
+    '바이트 수를 비교하세요. 스크린샷과 그래픽은 사진보다 훨씬 많이 줄어듭니다.']},
+   trouble:{rows:[
+    ['"이미지를 열 수 없습니다"','브라우저가 디코딩하지 못하는 특이한 BMP 변형(압축, 특수 비트 심도)입니다','브라우저에서 BMP를 직접 열어 보기','만든 프로그램에서 표준 24비트 BMP나 PNG로 다시 저장하세요'],
+    ['PNG가 조금밖에 안 줄어듦','사진이라 PNG로도 노이즈가 잘 압축되지 않습니다','용량 비교','사진이라면 [[image/bmp-to-jpg|BMP → JPG]]가 10분의 1 크기입니다'],
+    ['편집 프로그램에서 인쇄 크기가 달라짐','BMP의 DPI 값이 복사되지 않아 프로그램이 기본값을 씁니다','그 프로그램에서 이미지 DPI 확인','편집 프로그램에서 크기를 지정하세요. 픽셀 수는 그대로입니다'],
+    ['오래된 뷰어에서 색이 달라 보임','PNG에 색상 프로필이 없어 뷰어가 색을 다르게 처리할 수 있습니다','브라우저에서 비교','최신 뷰어를 쓰세요. 픽셀 값은 동일합니다']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-jpg|BMP → JPG]]','정확한 픽셀보다 10분의 1 크기가 중요한 카메라 사진.'],
+    ['화질 100 WebP로 [[image/convert|변환]]','대상이 WebP를 읽을 때. 무손실이면서 더 작습니다(타일 시트 6,318 대 16,685바이트).']]},
+   limits:['브라우저가 디코딩하는 BMP 변형만 읽을 수 있습니다.','DPI 등 헤더 값은 옮겨지지 않습니다.'],
+   versions:{body:['BMP 크기는 MDN이 설명하는 구조(픽셀당 3바이트, 행은 4바이트로 채움)를 따랐습니다. PNG 크기와 픽셀 차이 0은 2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`와 `tests/fixtures/kenney/tiny-dungeon-tilemap.png`로 Pillow 12.3이 만든 BMP를 측정했습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'BMPをPNGにするのは、BMPを小さくする最も安全な方法です。どちらも可逆形式なので、PNGはピクセルがまったく同じで、圧縮されるだけです。どれだけ減るかは内容次第で、512 × 512の写真は786,486バイトから575,694バイト（−27%）、単色の多い203 × 186のタイルシートは113,886バイトから16,685バイト（−85%）になりました。幅と高さは変わらず、画質の設定も使いません。',
+   concept:{title:'BMPが大きい理由',body:[
+    '一般的なBMPは、ピクセルごとに青・緑・赤の3バイトを圧縮せずに保存し、各行を4バイトの倍数に埋めます。そのため容量は解像度だけで決まり、ヘッダー54バイト + 高さ × 埋めた行の長さになります。MDNもこの理由でWebコンテンツにはBMPを避けるよう勧めています。',
+    'PNGは各ピクセルを隣のピクセルから予測し、その差を可逆で圧縮します。単色・文字・ドット絵はほぼ完全に予測できるので大きく縮み、カメラのノイズは予測しにくいので写真はそこそこしか縮みません。どちらでも失うものはなく、計測したPNGはBMPとまったく同じピクセルに展開されました。'],
+    terms:[['非圧縮','ピクセルのバイトをそのまま保存。容量は幅と高さだけで決まります。'],['行のパディング','BMPの各行は4バイトの倍数に切り上げられます。'],['可逆','PNGがBMPにあったピクセルとまったく同じに展開されること。']]},
+   example:{title:'容量の計算と実測2件',lead:'BMPの容量は形式の構造から計算し、PNGの容量は2026-09-28にChromium 153でNerulioの変換を使って計測しました（BMPはリポジトリのテスト素材からPillow 12.3で作成）。',lines:[
+    '写真    512 x 512:  行 = 512 x 3 = 1,536 バイト（すでに4の倍数）',
+    '        54 + 512 x 1,536 = 786,486 バイト BMP  ->  575,694 バイト PNG  (-27 %)',
+    '',
+    'タイル  203 x 186:  行 = 203 x 3 = 609 -> 612 バイトに埋める',
+    '        54 + 186 x 612   = 113,886 バイト BMP  ->   16,685 バイト PNG  (-85 %)',
+    '',
+    '両PNGで変化したピクセル: 0'],
+    after:'タイルシートはKenneyのCC0「Tiny Dungeon」のタイルマップを黒背景に合成したものです。可逆WebP（画質100）では6,318バイトまで縮み、こちらもピクセルは同一でした。'},
+   mapping:{title:'PNGに残るもの',head:['BMPにあったもの','変換での処理','PNGでは'],rows:[
+    ['24ビットのピクセル','可逆で保存','ピクセル同一'],
+    ['行のパディングと下から上への並び','ブラウザのデコーダーが処理','PNGでは不要'],
+    ['解像度で決まる容量','DEFLATE圧縮に置き換え','容量は内容次第'],
+    ['ヘッダーの解像度（DPI）','コピーしない','DPI情報なし']]},
+   verify:{steps:[
+    '2つのファイルを100%で開きます。どちらも可逆なので、まったく同じに見えるはずです。',
+    '幅と高さがBMPと同じか確認します。',
+    'バイト数を比べます。スクリーンショットやグラフィックは写真よりずっと大きく縮みます。']},
+   trouble:{rows:[
+    ['「画像を開けません」と出る','ブラウザが展開できない特殊なBMP（圧縮付き、特殊なビット深度）','ブラウザでBMPを直接開いてみる','作成したソフトで標準の24ビットBMPかPNGとして保存し直します'],
+    ['PNGが少ししか小さくならない','写真なので、PNGでもノイズがうまく圧縮できない','容量を比べる','写真なら[[image/bmp-to-jpg|BMP → JPG]]で10分の1になります'],
+    ['レイアウトソフトで印刷サイズが変わった','BMPのDPIがコピーされず、ソフトが既定値を使った','そのソフトで画像のDPIを確認','レイアウトソフト側でサイズを指定します。ピクセル数は変わっていません'],
+    ['古いビューアで色が違って見える','PNGにカラープロファイルがなく、ビューアが色を別に扱うことがある','ブラウザで比べる','最新のビューアを使います。ピクセル値は同一です']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-jpg|BMP → JPG]]','ピクセルの正確さより10分の1の容量が大事なカメラ写真。'],
+    ['画質100のWebPに[[image/convert|変換]]','渡し先がWebPを読める場合。可逆でさらに小さくなります（タイルシートで6,318対16,685バイト）。']]},
+   limits:['読み込めるのは、ブラウザが展開できるBMPだけです。','DPIなどのヘッダー情報は引き継ぎません。'],
+   versions:{body:['BMPの容量はMDNが説明する構造（1ピクセル3バイト、行は4バイトに埋める）に従って計算しました。PNGの容量とピクセル差0は、2026-09-28にPlaywright Chromium 153でNerulioの変換経路を使い、`tests/fixtures/astronaut.png` と `tests/fixtures/kenney/tiny-dungeon-tilemap.png` からPillow 12.3で作ったBMPで計測しました。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/bmp-to-jpg':{
+  type:'tool',
+  intent:{primary:'convert BMP to JPG',secondary:['shrink a BMP photo for email','BMP to JPG quality','when to use PNG instead'],
+   goal:'a small JPG of a BMP photo that looks the same, or the advice to use PNG for graphics',input:'BMP (standard 24-bit)',output:'JPG, same dimensions, quality 20–100 (default 92)',target:'email, upload forms, photo apps',support:'full',
+   evidence:['src/task/convert.js','measured 2026-09-28, Chromium 153: astronaut.bmp and dungeon.bmp (Kenney tiles)'],
+   external:['MDN: BMP uncompressed; JPEG lossy, good for photos, poor for sharp graphics']},
+  en:{
+   answer:'BMP to JPG shrinks an uncompressed BMP photo to roughly a tenth: the 512 × 512 photo went from 786,486 to 73,755 bytes at quality 92 (9.4 %, SSIM 0.9874). JPG is lossy, so this is the right choice for camera pictures and the wrong one for screenshots, diagrams and pixel art — a 203 × 186 tile sheet became a 28,506-byte JPG that changed almost every pixel, while [[image/bmp-to-png|BMP to PNG]] gave an exact 16,685-byte file.',
+   concept:{title:'Uncompressed to lossy: great for photos only',body:[
+    'A BMP spends three bytes on every pixel, so it has plenty to gain from any compression. JPG gains the most on photos, where discarding fine frequency detail is hard to see; a quality of 92 kept the NASA photo visually unchanged at under a tenth of the size.',
+    'On sharp-edged graphics JPG works against itself: every hard edge produces ringing and smeared colour, and those errors also cost bytes. On the Kenney tile sheet 37,393 of 37,758 pixels changed (largest error 104/255), and the JPG was 70 % bigger than the lossless PNG.'],
+    terms:[['Quality','JPG encoder setting 20–100; 92 by default.'],['Ringing','Ripples next to hard edges caused by dropping high frequencies.'],['SSIM','Similarity score, 1.0 = identical; 0.9874 for the photo here.']]},
+   example:{title:'Photo versus graphic (measured)',lead:'BMPs written by Pillow 12.3 from repository fixtures; Nerulio\'s converter in Chromium 153 on 2026-09-28, quality 92.',lines:[
+    'Photo  astronaut.bmp   512 x 512   786,486 bytes',
+    '  -> JPG q92    73,755 bytes    9.4 %   SSIM 0.9874',
+    '  -> PNG       575,694 bytes   73.2 %   identical',
+    '',
+    'Tiles  dungeon.bmp     203 x 186   113,886 bytes',
+    '  -> JPG q92    28,506 bytes   25.0 %   37,393 of 37,758 pixels changed',
+    '  -> PNG        16,685 bytes   14.7 %   identical'],
+    after:'Rule of thumb from these two files: photo → JPG, anything drawn → PNG.'},
+   mapping:{title:'What the JPG keeps',head:['In the BMP','What the converter does','In the JPG'],rows:[
+    ['24-bit pixels','Encoded lossily at the chosen quality','Approximate pixels, same size'],
+    ['File size tied to dimensions','Replaced by JPG compression','About a tenth for the photo'],
+    ['32-bit BMP alpha, if any','Painted onto the JPG background colour','No alpha'],
+    ['DPI header fields','Not copied','None']]},
+   verify:{steps:[
+    'Compare BMP and JPG at 100 % on edges and fine texture.',
+    'For screenshots or drawings, look for halos around lines; if you see them, convert to PNG instead.',
+    'Check the byte count against the limit you need to meet.']},
+   trouble:{rows:[
+    ['Halos and smudges around text or lines','JPG is lossy and struggles with hard edges','Zoom in on the edges','Use [[image/bmp-to-png|BMP to PNG]] for graphics'],
+    ['The JPG is still too large','Quality 92 is above what the limit allows','Read the byte count','Use [[image/compress-to-100kb|compress to 100 KB]] or the size you need'],
+    ['The BMP will not open','A BMP variant the browser does not decode','Open the BMP directly in the browser','Re-save as a standard 24-bit BMP or PNG in the original program'],
+    ['Printed size changed','DPI fields are not copied','Check DPI in the layout program','Set the print size there; pixel dimensions are unchanged']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-png|BMP to PNG]]','Screenshots, drawings, pixel art — exact pixels and often smaller than the JPG.'],
+    ['[[image/compress|Compress]] with a target size','You have a byte limit; it picks the quality (and JPG or WebP) for you.']]},
+   limits:['JPG is lossy; exact pixels are not kept.','DPI information is not copied and transparency, if any, is filled.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path on BMPs written by Pillow 12.3 from `tests/fixtures/astronaut.png` and `tests/fixtures/kenney/tiny-dungeon-tilemap.png`. Format behaviour follows MDN.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'BMP를 JPG로 바꾸면 비압축 BMP 사진이 대략 10분의 1이 됩니다. 512 × 512 사진은 화질 92에서 786,486바이트가 73,755바이트(9.4%, SSIM 0.9874)가 됐습니다. JPG는 손실 압축이라 카메라 사진에는 맞지만 스크린샷·도표·도트 그림에는 맞지 않습니다. 203 × 186 타일 시트는 거의 모든 픽셀이 바뀐 28,506바이트 JPG가 됐고, [[image/bmp-to-png|BMP → PNG]]는 픽셀이 정확한 16,685바이트 파일을 만들었습니다.',
+   concept:{title:'비압축에서 손실로: 사진에만 좋은 선택',body:[
+    'BMP는 픽셀마다 3바이트를 쓰므로 어떤 압축이든 이득이 큽니다. JPG는 미세한 주파수 정보를 버려도 잘 티가 나지 않는 사진에서 가장 크게 줄이며, 화질 92에서 NASA 사진은 10분의 1도 안 되는 크기로 눈에 띄는 변화가 없었습니다.',
+    '선명한 경계가 있는 그래픽에서는 JPG가 불리합니다. 모든 경계에서 물결무늬와 색 번짐이 생기고 그 오차에도 바이트가 듭니다. Kenney 타일 시트에서는 37,758픽셀 중 37,393개가 바뀌었고(최대 오차 104/255), JPG가 무손실 PNG보다 70% 컸습니다.'],
+    terms:[['화질','JPG 인코더 설정 20~100, 기본 92.'],['링잉','고주파를 버려 선명한 경계 옆에 생기는 물결무늬.'],['SSIM','유사도 점수. 1.0이면 동일하며 여기 사진은 0.9874.']]},
+   example:{title:'사진과 그래픽 비교(실측)',lead:'저장소 테스트 자료로 Pillow 12.3이 만든 BMP, 2026-09-28 Chromium 153의 Nerulio 변환기, 화질 92.',lines:[
+    '사진   astronaut.bmp   512 x 512   786,486 바이트',
+    '  -> JPG q92    73,755 바이트    9.4 %   SSIM 0.9874',
+    '  -> PNG       575,694 바이트   73.2 %   동일',
+    '',
+    '타일   dungeon.bmp     203 x 186   113,886 바이트',
+    '  -> JPG q92    28,506 바이트   25.0 %   37,758픽셀 중 37,393개 변경',
+    '  -> PNG        16,685 바이트   14.7 %   동일'],
+    after:'두 파일에서 얻은 기준: 사진은 JPG, 그린 그림은 PNG.'},
+   mapping:{title:'JPG에 남는 것',head:['BMP에 있던 것','변환기가 하는 일','JPG에서는'],rows:[
+    ['24비트 픽셀','선택한 화질로 손실 인코딩','근사한 픽셀, 크기 동일'],
+    ['해상도에 묶인 파일 크기','JPG 압축으로 대체','사진은 약 10분의 1'],
+    ['32비트 BMP의 알파(있다면)','JPG 배경색 위에 칠함','알파 없음'],
+    ['DPI 헤더 값','복사하지 않음','없음']]},
+   verify:{steps:[
+    'BMP와 JPG의 경계와 세밀한 질감을 100%로 비교하세요.',
+    '스크린샷이나 그림이라면 선 주변의 번짐을 보세요. 보이면 PNG로 바꾸는 편이 낫습니다.',
+    '맞춰야 할 제한과 바이트 수를 비교하세요.']},
+   trouble:{rows:[
+    ['글자나 선 주변이 번짐','JPG는 손실 압축이라 선명한 경계에 약합니다','경계를 확대','그래픽은 [[image/bmp-to-png|BMP → PNG]]를 쓰세요'],
+    ['JPG가 여전히 너무 큼','화질 92가 제한보다 높습니다','바이트 수 확인','[[image/compress-to-100kb|100KB 이하로 압축]]처럼 필요한 크기로 압축하세요'],
+    ['BMP가 열리지 않음','브라우저가 디코딩하지 못하는 BMP 변형입니다','브라우저에서 BMP를 직접 열기','원래 프로그램에서 표준 24비트 BMP나 PNG로 다시 저장하세요'],
+    ['인쇄 크기가 바뀜','DPI 값이 복사되지 않습니다','편집 프로그램에서 DPI 확인','거기서 인쇄 크기를 지정하세요. 픽셀 수는 그대로입니다']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-png|BMP → PNG]]','스크린샷·그림·도트 그림. 픽셀이 정확하고 JPG보다 작은 경우도 많습니다.'],
+    ['목표 용량으로 [[image/compress|압축]]','바이트 제한이 있을 때. 화질(과 JPG·WebP 중 형식)을 대신 골라 줍니다.']]},
+   limits:['JPG는 손실 압축이라 정확한 픽셀이 유지되지 않습니다.','DPI 정보는 복사되지 않고 투명한 부분이 있다면 채워집니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`와 `tests/fixtures/kenney/tiny-dungeon-tilemap.png`로 Pillow 12.3이 만든 BMP를 측정했습니다. 형식 특성은 MDN을 따랐습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'BMPをJPGにすると、非圧縮のBMP写真がおよそ10分の1になります。512 × 512の写真は画質92で786,486バイトから73,755バイト（9.4%、SSIM 0.9874）になりました。JPGは非可逆なので、カメラの写真には向きますが、スクリーンショット・図・ドット絵には向きません。203 × 186のタイルシートはほぼ全ピクセルが変わった28,506バイトのJPGになり、[[image/bmp-to-png|BMP → PNG]]ならピクセルが正確な16,685バイトのファイルでした。',
+   concept:{title:'非圧縮から非可逆へ：写真にだけ向く選択',body:[
+    'BMPは1ピクセルに3バイトを使うので、どんな圧縮でも得るものが大きい形式です。JPGは細かな周波数成分を捨てても目立ちにくい写真で最も効き、画質92でNASAの写真は10分の1未満の容量で見た目の変化がありませんでした。',
+    'くっきりした輪郭のあるグラフィックではJPGが不利になります。輪郭ごとにリンギングと色のにじみが生じ、その誤差にもバイトを使います。Kenneyのタイルシートでは37,758ピクセル中37,393個が変わり（最大誤差104/255）、JPGは可逆のPNGより70%大きくなりました。'],
+    terms:[['画質','JPGエンコーダーの設定20〜100、初期値92。'],['リンギング','高周波を捨てることでくっきりした輪郭の横に出る波紋。'],['SSIM','類似度。1.0で同一。ここでの写真は0.9874。']]},
+   example:{title:'写真とグラフィックの比較（実測）',lead:'リポジトリのテスト素材からPillow 12.3で作ったBMP、2026-09-28にChromium 153上のNerulioの変換、画質92。',lines:[
+    '写真    astronaut.bmp   512 x 512   786,486 バイト',
+    '  -> JPG q92    73,755 バイト    9.4 %   SSIM 0.9874',
+    '  -> PNG       575,694 バイト   73.2 %   同一',
+    '',
+    'タイル  dungeon.bmp     203 x 186   113,886 バイト',
+    '  -> JPG q92    28,506 バイト   25.0 %   37,758ピクセル中37,393個が変化',
+    '  -> PNG        16,685 バイト   14.7 %   同一'],
+    after:'この2ファイルから言える目安：写真はJPG、描いた絵はPNG。'},
+   mapping:{title:'JPGに残るもの',head:['BMPにあったもの','変換での処理','JPGでは'],rows:[
+    ['24ビットのピクセル','選んだ画質で非可逆エンコード','近似したピクセル、サイズは同じ'],
+    ['解像度で決まる容量','JPG圧縮に置き換え','写真ではおよそ10分の1'],
+    ['32ビットBMPのアルファ（あれば）','JPGの背景色の上に描く','アルファなし'],
+    ['DPIのヘッダー情報','コピーしない','なし']]},
+   verify:{steps:[
+    'BMPとJPGの輪郭と細かな質感を100%で比べます。',
+    'スクリーンショットや絵なら、線の周りのにじみを見ます。にじみがあればPNGにしたほうがよい画像です。',
+    '守るべき上限とバイト数を比べます。']},
+   trouble:{rows:[
+    ['文字や線の周りがにじむ','JPGは非可逆で、くっきりした輪郭に弱い','輪郭を拡大','グラフィックは[[image/bmp-to-png|BMP → PNG]]にします'],
+    ['JPGがまだ大きすぎる','画質92が上限に対して高すぎる','バイト数を確認','[[image/compress-to-100kb|100KB以下に圧縮]]など必要なサイズに圧縮します'],
+    ['BMPが開けない','ブラウザが展開できないBMPの種類','ブラウザでBMPを直接開く','元のソフトで標準の24ビットBMPかPNGとして保存し直します'],
+    ['印刷サイズが変わった','DPI情報がコピーされない','レイアウトソフトでDPIを確認','そちらで印刷サイズを指定します。ピクセル数は変わっていません']]},
+   alternatives:{rows:[
+    ['[[image/bmp-to-png|BMP → PNG]]','スクリーンショット・絵・ドット絵。ピクセルが正確で、JPGより小さいことも多い形式です。'],
+    ['目標容量を決めて[[image/compress|圧縮]]','バイト数の上限がある場合。画質（とJPG・WebPの形式）を代わりに選びます。']]},
+   limits:['JPGは非可逆なので、ピクセルは正確には残りません。','DPI情報はコピーされず、透明部分があれば塗りつぶされます。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` と `tests/fixtures/kenney/tiny-dungeon-tilemap.png` からPillow 12.3で作ったBMPを計測しました。形式の特性はMDNに従っています。'],sources:[MDN.ja]}
+  }
+ },
 };
