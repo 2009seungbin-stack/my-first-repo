@@ -37,7 +37,7 @@ ${d.plugins?html`<p class="fine pad">${s.plugins(d.plugins)}</p>`:''}`:html`<p c
  /** @type {Map<string,{name:string,href:string,cells:any[]}>} */const byTarget=new Map();
  for(const x of [...d.os.map(o=>({t:o.os,c:o.c})),...d.hosts.map(h=>({t:h.app,c:h.c}))]){const r=byTarget.get(x.t.id)||{name:nameOf(x.t,l),href:channelUrl(l,x.t),cells:[]};r.cells.push(x.c);byTarget.set(x.t.id,r);}
  const rows=[...byTarget.values()].slice(0,8);
- const cell=(/** @type {any} */ c)=>{const st=label(/** @type {any} */(COMPAT_STATUS_LABEL)[c.status],l),v=c.subject_version&&c.subject_version!=='*'?c.subject_version.replace(/\.\*$/,''):'';return html`<span class="st ${CLS[c.status]||'u'}" title="${v?`${nameOf(ctx.entity,l)} ${v}: `:''}${st}${c.note?` — ${c.note}`:''}">${v?`${v} `:''}${MARK[c.status]||st}</span>`;};
+ const cell=(/** @type {any} */ c)=>{const st=label(/** @type {any} */(COMPAT_STATUS_LABEL)[c.status],l),v=c.subject_version&&c.subject_version!=='*'?c.subject_version.replace(/\.\*$/,''):'';return html`<span class="st ${CLS[c.status]||'u'}" title="${v?`${nameOf(ctx.entity,l)} ${v}: `:''}${st}${c.note?` — ${c.note}`:''}">${v?`${v} `:''}<span aria-hidden="true">${MARK[c.status]||st}</span><span class="sr-only">${st}</span></span>`;};
  const upgrade=box({title:s.upgrade,extra:rows.length?badge('OFFICIAL',l):'',note:s.osCompat},rows.length?html`<ul class="rows">${rows.map(r=>html`<li><a class="tt" href="${r.href}">${r.name}</a><span class="osv">${r.cells.sort((a,b)=>String(b.subject_version).localeCompare(String(a.subject_version),undefined,{numeric:true})).map(cell)}</span></li>`)}</ul>`:html`<p class="empty">${l==='ko'?'등록된 OS 호환 정보가 없습니다.':'No OS compatibility listed yet.'}</p>`);
  return html`<div class="g2 a">${version}${upgrade}</div>`;
 }

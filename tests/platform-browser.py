@@ -74,6 +74,14 @@ def main():
                 m.goto(B + path); m.wait_for_timeout(300)
                 w = m.evaluate('document.documentElement.scrollWidth')
                 assert w <= 390, f'{path} scrolls sideways at 390px ({w})'
+            # WCAG 2 A/AA with axe-core when available (AXE_CORE=/path/to/axe.min.js); skipped otherwise.
+            axe = os.environ.get('AXE_CORE')
+            if axe and os.path.exists(axe):
+                src = open(axe).read(); ctx = b.new_context(bypass_csp=True); ap = ctx.new_page()
+                for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/local-llm', '/ko/ai/claude/status', '/ko/radar/']:
+                    ap.goto(B + path); ap.wait_for_timeout(300); ap.add_script_tag(content=src)
+                    v = ap.evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa']}}).then(r=>r.violations.map(x=>x.id+' '+x.nodes[0].target.join(' ')))")
+                    assert not v, f'{path}: {v}'
             b.close()
         assert not errors, errors
         print('platform browser E2E: ok')
