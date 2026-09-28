@@ -444,13 +444,13 @@ async function myRadar(db,userId,l){
  const raw=await changesFor(db,ids,{minImportance:1,limit:30});
  // Schedule items carry the event's own date (a broadcast on 10/20 is not "09/26", when it was found).
  const evIds=[...new Set(raw.filter(c=>String(c.kind).startsWith('event_')&&c.ref_id).map(c=>Number(c.ref_id)))];
- /** @type {Map<number,{starts:number|null,precision:string}>} */const evAt=new Map();
- if(evIds.length)for(const r of (await db.prepare(`SELECT id,starts_at,date_precision FROM events WHERE id IN (${evIds.map(()=>'?').join(',')})`).bind(...evIds).all()).results||[])evAt.set(Number(r.id),{starts:r.starts_at==null?null:Number(r.starts_at),precision:String(r.date_precision||'day')});
+ /** @type {Map<number,{starts:number|null,ends:number|null,precision:string}>} */const evAt=new Map();
+ if(evIds.length)for(const r of (await db.prepare(`SELECT id,starts_at,ends_at,date_precision FROM events WHERE id IN (${evIds.map(()=>'?').join(',')})`).bind(...evIds).all()).results||[])evAt.set(Number(r.id),{starts:r.starts_at==null?null:Number(r.starts_at),ends:r.ends_at==null?null:Number(r.ends_at),precision:String(r.date_precision||'day')});
  const changes=raw.map(c=>{const e=ents.get(c.entity_id),name=e?nameOf(e,l):'';const d=describeChange(c,{name},l);
   // The channel name is shown once, beside the item: drop it from the start of the text.
   const title=name&&d.title.startsWith(name+': ')?d.title.slice(name.length+2):d.title;
   const ev=c.ref_id&&String(c.kind).startsWith('event_')?evAt.get(Number(c.ref_id)):undefined;
-  return {id:c.id,at:c.detected_at,eventAt:ev?.starts??null,title,detail:d.detail,unread:c.id>seen,url:e?channelUrl(l,e):null,channel:name};});
+  return {id:c.id,at:c.detected_at,eventAt:ev?.starts??null,eventEnd:ev?.ends??null,title,detail:d.detail,unread:c.id>seen,url:e?channelUrl(l,e):null,channel:name};});
  const q=ids.slice(0,40);
  const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
   .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});

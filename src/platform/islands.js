@@ -89,7 +89,9 @@ async function main(){
   if(mr.ok){
    const d=mr.data;
    const nav=$('.hd .hn');
-   if(nav&&d.unread>0){const a=document.createElement('a');a.className='hb';a.href=`/${L}/radar/#mine`;a.textContent=(L==='ko'?'알림 ':'Alerts ')+d.unread;nav.append(a);}
+   // The unread count rides on the Radar link (a separate link squeezed the search box on phones).
+   const rl=nav&&$('a[href$="/radar/"]',nav);
+   if(rl&&d.unread>0){rl.href=`/${L}/radar/#mine`;const b=document.createElement('b');b.className='bdg';b.textContent=String(Math.min(99,d.unread));b.setAttribute('aria-label',(L==='ko'?'새 알림 ':'new alerts ')+d.unread);rl.append(' ',b);}
    if(mine){
     const ul=$(':scope > ul.rows',mine);mine.hidden=false;
     // 내 글의 새 댓글 / 내 댓글에 달린 답글, above the channel news.
@@ -102,13 +104,20 @@ async function main(){
       li.append(t,a,c);ru.append(li);}
      if(d.unreadReplies>0)api('/my-radar/seen',{lastChangeId:0,repliesSeenAt:Math.max(...d.replies.map(r=>r.at))});
     }
-    const items=[...d.changes.map(c=>({at:c.at,eventAt:c.eventAt,channel:c.channel,text:`${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,channel:p.channel,text:`${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))].sort((a,b)=>b.at-a.at).slice(0,30);
+    const nowMs=Date.now();
+    const all=[...d.changes.map(c=>({at:c.at,eventAt:c.eventAt,eventEnd:c.eventEnd,channel:c.channel,text:`${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,channel:p.channel,text:`${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))];
+    // Coming dates first, soonest first; then what is running now; then news by when it happened.
+    const coming=all.filter(x=>x.eventAt&&x.eventAt>=nowMs).sort((a,b)=>a.eventAt-b.eventAt);
+    const running=all.filter(x=>x.eventAt&&x.eventAt<nowMs&&x.eventEnd&&x.eventEnd>=nowMs).sort((a,b)=>a.eventEnd-b.eventEnd);
+    const rest=all.filter(x=>!coming.includes(x)&&!running.includes(x)).map(x=>x.eventAt?{...x,eventAt:null,at:x.eventAt}:x).sort((a,b)=>b.at-a.at);
+    const items=[...coming,...running.map(x=>({...x,running:true})),...rest].slice(0,30);
     if(!items.length){const li=document.createElement('li');li.textContent=d.following?(L==='ko'?'구독한 채널에 아직 새 소식이 없어요.':'Nothing new in your channels yet.'):(L==='ko'?'채널을 구독하면 바뀐 것과 새 글이 여기에 모입니다.':'Follow channels to see their changes and posts here.');ul.append(li);}
     const md=ms=>{const x=new Date(ms);return `${String(x.getMonth()+1).padStart(2,'0')}.${String(x.getDate()).padStart(2,'0')}`;};
     const dd=ms=>{const n=Math.round((new Date(ms).setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);return n===0?'D-DAY':n>0?`D-${n}`:`D+${-n}`;};
     for(const it of items){
      const li=document.createElement('li');li.className='mr';
-     const t=document.createElement('span');t.className='tm';t.textContent=it.eventAt?dd(it.eventAt):md(it.at);
+     const t=document.createElement('span');t.className='tm';t.textContent=it.running?(L==='ko'?'진행 중':'Now'):it.eventAt?dd(it.eventAt):md(it.at);
+     if(it.running&&it.eventEnd)it.text+=L==='ko'?` · 마감 ${dd(it.eventEnd)}`:` · ends ${dd(it.eventEnd)}`;
      if(it.eventAt)t.title=(L==='ko'?'일정 ':'On ')+new Date(it.eventAt).toLocaleDateString(L==='ko'?'ko-KR':'en-US');
      const a=document.createElement('a');a.className='tt';a.href=it.url||'#';a.textContent=it.text;if(it.unread)a.classList.add('unread');
      const c=document.createElement('span');c.className='chn fine';c.textContent=it.channel;
@@ -122,8 +131,11 @@ async function main(){
       const bh=$('.bh',bx);if(!bh)continue;
       const b=document.createElement('button');b.type='button';b.className='btn x';b.textContent=L==='ko'?'내 구독만':'Mine only';b.setAttribute('aria-pressed','false');
       b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));b.classList.toggle('on',on);
-       for(const li of $$('.rows > li',bx)){const hit=$$('a[href]',li).some(a=>mine.has(new URL(a.href).pathname));li.hidden=on&&!hit;}
-       for(const g of $$('.hist > li',bx))g.hidden=on&&!$$('.rows > li',g).some(li=>!li.hidden);});
+       for(const li of $$('.rows > li:not(.mfe)',bx)){const hit=$$('a[href]',li).some(a=>mine.has(new URL(a.href).pathname))||(li.dataset.ch||'').split(' ').some(p=>mine.has(p));li.hidden=on&&!hit;}
+       for(const g of $$('.hist > li',bx))g.hidden=on&&!$$('.rows > li',g).some(li=>!li.hidden);
+       // Say so when nothing is left, instead of an empty box.
+       let em=$('.mfe',bx);const any=$$('.rows > li:not(.mfe)',bx).some(li=>!li.hidden&&!li.closest('li[hidden]'));
+       if(on&&!any){if(!em){em=document.createElement('p');em.className='empty mfe';em.textContent=L==='ko'?'구독한 채널에 해당하는 항목이 없어요.':'Nothing here from channels you follow.';bx.append(em);}em.hidden=false;}else if(em)em.hidden=true;});
       bh.append(b);
      }
     }

@@ -301,6 +301,20 @@ export async function searchPosts(db,q,o={}){
  if(o.entityId){where.push('d.entity_id=?');params.push(o.entityId);}
  return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY d.created_at DESC LIMIT ?`,[...params,o.limit??30])).map(postRow);
 }
+/** Channels an item belongs to, two relation hops out (goods → character → work), for the Radar's
+ * "내 구독만" filter. @param {D1} db @param {string[]} ids @returns {Promise<Map<string,Set<string>>>} */
+export async function channelsAround(db,ids){
+ /** @type {Map<string,Set<string>>} */const out=new Map(ids.map(id=>[id,new Set([id])]));
+ let frontier=new Map(ids.map(id=>[id,[id]]));
+ for(let hop=0;hop<2;hop++){
+  const all_=[...new Set([...frontier.values()].flat())];if(!all_.length)break;
+  const rows=await inChunks(db,all_,ph=>`SELECT subject_id,object_id FROM relations WHERE valid_until IS NULL AND subject_id IN (${ph})`);
+  /** @type {Map<string,string[]>} */const next=new Map();
+  for(const [root,list] of frontier){const nx=[];for(const r of rows)if(list.includes(String(r.subject_id))){const o=String(r.object_id);if(!out.get(root)?.has(o)){out.get(root)?.add(o);nx.push(o);}}next.set(root,nx);}
+  frontier=next;
+ }
+ return out;
+}
 /** Versions released recently across all channels (Radar). @param {D1} db @param {{since:number,until:number,vertical?:string|null,limit?:number}} o */
 export async function recentVersions(db,o){
  const rows=await all(db,`SELECT v.version,v.released_at,v.notes_url,v.verification,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM versions v JOIN entities e ON e.id=v.entity_id
@@ -309,10 +323,10 @@ export async function recentVersions(db,o){
 }
 /** Upcoming events across all channels with the first linked entity (Radar). @param {D1} db @param {{from:number,to:number,vertical?:string|null,limit?:number}} o */
 export async function upcomingEvents(db,o){
- const rows=await all(db,`SELECT ev.id,ev.kind,ev.title,ev.starts_at,ev.date_precision,ev.url,ev.verification,MIN(x.entity_id) AS eid FROM events ev JOIN event_entities x ON x.event_id=ev.id JOIN entities e ON e.id=x.entity_id
+ const rows=await all(db,`SELECT ev.id,ev.kind,ev.title,ev.starts_at,ev.date_precision,ev.url,ev.verification,MIN(x.entity_id) AS eid,GROUP_CONCAT(x.entity_id) AS eids FROM events ev JOIN event_entities x ON x.event_id=ev.id JOIN entities e ON e.id=x.entity_id
   WHERE ev.starts_at BETWEEN ? AND ? AND ev.status NOT IN ('cancelled','ended') AND e.status='active'${o.vertical?' AND e.vertical=?':''} GROUP BY ev.id ORDER BY ev.starts_at LIMIT ?`,[o.from,o.to,...(o.vertical?[o.vertical]:[]),o.limit??40]);
  const ents=await entitiesByIds(db,rows.map(r=>String(r.eid)));
- return rows.map(r=>({id:Number(r.id),kind:String(r.kind),title:json(r.title,{}),starts_at:Number(r.starts_at),precision:String(r.date_precision),url:r.url??null,verification:String(r.verification),entity:ents.get(String(r.eid))||null})).filter(r=>r.entity);
+ return rows.map(r=>({id:Number(r.id),kind:String(r.kind),title:json(r.title,{}),starts_at:Number(r.starts_at),precision:String(r.date_precision),url:r.url??null,verification:String(r.verification),entity:ents.get(String(r.eid))||null,about:String(r.eids||'').split(',').filter(Boolean)})).filter(r=>r.entity);
 }
 
 /* ---------- SEO ---------- */
