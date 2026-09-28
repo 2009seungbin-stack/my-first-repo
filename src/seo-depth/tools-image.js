@@ -1282,4 +1282,494 @@ export default {
    versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` と `tests/fixtures/kenney/tiny-dungeon-tilemap.png` からPillow 12.3で作ったBMPを計測しました。形式の特性はMDNに従っています。'],sources:[MDN.ja]}
   }
  },
+ 'image/compress':{
+  type:'tool',
+  intent:{primary:'compress an image (reduce file size) without visible quality loss',secondary:['which level to choose','why the original was kept','compress PNG with transparency'],
+   goal:'the smallest file that still looks like the original, in a format the destination accepts',input:'PNG, JPG, WebP, AVIF, BMP, HEIC (still)',output:'PNG, JPG or WebP (`<name>-min.<ext>`), resolution kept by default',target:'web pages, e-mail, chat, upload forms',support:'full',
+   evidence:['src/task/compress.js (LEVELS, FLOOR)','src/compression.js (candidates, SSIM score, quality mode)','measured 2026-09-28, Chromium 153: astronaut.png, astronaut-q75.jpg, bricks_Color.png'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'Compressing an image here means trying real encodes and keeping the smallest one that still looks close to the original, not applying one fixed quality. Pick Smallest, Balanced (default) or High quality: Nerulio encodes PNG, JPG and WebP candidates in your browser, decodes each one again, scores it with SSIM and returns the smallest candidate above that level\'s similarity floor. Resolution is kept unless you set a maximum width, and the original comes back untouched when nothing beats it. For a hard byte limit set Target size under Advanced, or open a size page such as [[image/compress-to-100kb|100 KB]].',
+   concept:{title:'Candidates, a similarity floor and the smallest survivor',body:[
+    'Each level is a starting quality plus a floor: Smallest 0.60 / 0.93, Balanced 0.80 / 0.965, High 0.92 / 0.985. Auto format tries every format the browser can encode (PNG, JPG and WebP in Chromium) and leaves JPG out when any pixel is transparent, so transparency is never lost silently.',
+    'Every candidate is decoded again and compared with the source: an 8 × 8 SSIM on the brightness, computed on copies at most 512 px on the long side, once over black and once over white, keeping the worse score so colours hidden under transparency cannot cheat. The smallest lossy candidate above the floor wins; the untouched original and a PNG re-encode compete too. Grainy photos that never reach the floor get the smallest candidate within 0.01 of the best score.',
+    'The result is never bigger than what you dropped in: if every candidate is larger, the original file is returned and marked "Already small — original kept".'],
+    terms:[['SSIM floor','Minimum similarity a candidate must reach at the chosen level (0.93, 0.965 or 0.985).'],['Candidate','One real encode (format + quality) that is decoded and scored.'],['Auto format','All formats this browser can encode; JPG is skipped for images with transparency.']]},
+   example:{title:'Three levels on two versions of one photo (measured)',lead:'Nerulio\'s compressor with the task\'s exact options, Chromium 153, 2026-09-28. The PNG is the repository\'s NASA fixture; the JPG is the same photo saved by Pillow at quality 75.',lines:[
+    'astronaut.png   512 x 512   791,555 bytes',
+    '  Smallest   WebP q0.60    22,048 bytes   SSIM 0.9626   (floor 0.93)',
+    '  Balanced   WebP q0.80    32,200 bytes   SSIM 0.9749   (floor 0.965)',
+    '  High       WebP q0.92    59,824 bytes   SSIM 0.9883   (floor 0.985)',
+    '',
+    'astronaut-q75.jpg   512 x 512   40,240 bytes',
+    '  Balanced   WebP q0.80    31,538 bytes   SSIM 0.9834',
+    '  High       original kept (the passing JPG q0.92 was 51,005 bytes)'],
+    after:'At High the only candidates above 0.985 were bigger than the file itself, so the JPG came back unchanged. That is the expected outcome for pictures that were already compressed.'},
+   mapping:{title:'What each setting does',head:['Setting','Encoder behaviour','Winner'],rows:[
+    ['Smallest','Quality 0.60 for JPG/WebP','Smallest candidate with SSIM ≥ 0.93'],
+    ['Balanced (default)','Quality 0.80','Smallest candidate with SSIM ≥ 0.965'],
+    ['High quality','Quality 0.92','Smallest candidate with SSIM ≥ 0.985'],
+    ['Target size set (Advanced)','Quality searched down until it fits','Highest SSIM at or under the target'],
+    ['Max width set (Advanced)','Resized first (Pica, mks2013)','As above, at the new width']]},
+   verify:{steps:[
+    'Read the line under each file, e.g. "773 KB → 31 KB · 512×512 kept": sizes use 1,024-byte kilobytes.',
+    'Open the result at 100 % and look at faces, text and smooth gradients, where loss shows first.',
+    'Check the extension (`-min.webp`, `-min.jpg`, `-min.png`) against what the destination accepts.']},
+   trouble:{rows:[
+    ['The result is WebP but the site needs JPG','Auto keeps the smallest passing candidate, often WebP','The file name ends in `-min.webp`','Advanced → Output format → JPG'],
+    ['"Already small — original kept"','No candidate above the floor was smaller than the input','Compare the level with how the file was made','Try Smallest, or set a Target size'],
+    ['A grainy photo is still large at Smallest','It never reaches the floor, so the near-best candidate is used','The SSIM of all candidates stays below the floor','Set a Target size or a Max width'],
+    ['Small text got soft on a big screenshot','Similarity is scored on a copy at most 512 px wide, which can hide fine damage','Zoom in on the text at 100 %','Use High quality or PNG output for screenshots'],
+    ['A transparent PNG never becomes JPG','JPG is left out of Auto when any pixel is transparent','—','Pick JPG explicitly; transparency then takes the JPG background colour']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-100kb|A size page]] (20 KB – 1 MB)','A form or site names a maximum file size.'],
+    ['[[image/resize|Resize]] first','The image has far more pixels than it will be shown at — fewer pixels save more than any quality setting.'],
+    ['[[image/convert|Convert]]','You need one specific format and quality, without any automatic choice.']]},
+   limits:['Scores are computed on copies at most 512 px on the long side; tiny details on large images can be damaged without lowering the score.','Encoders are the browser\'s own, so another browser can give different sizes; EXIF is not written and animated files are refused.'],
+   versions:{body:['All sizes and scores were measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes (quality and floor per level, `original` = the dropped file), on `tests/fixtures/astronaut.png`, a Pillow 12.3 JPG of it at quality 75 and `tests/fixtures/texture/bricks_Color.png`.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'여기서 이미지 압축은 하나의 고정 화질을 적용하는 것이 아니라, 실제로 여러 번 인코딩해 보고 원본과 가깝게 보이는 것 중 가장 작은 파일을 남기는 작업입니다. 가장 작게·균형(기본)·고화질 중 하나를 고르면 Nerulio가 브라우저에서 PNG·JPG·WebP 후보를 만들고, 각각 다시 디코딩해 SSIM으로 채점한 뒤 그 단계의 유사도 기준을 넘는 가장 작은 후보를 돌려줍니다. 최대 너비를 정하지 않으면 해상도는 유지되고, 원본보다 나은 후보가 없으면 원본을 그대로 돌려줍니다. 정확한 용량 제한이 있다면 고급 설정의 목표 용량이나 [[image/compress-to-100kb|100KB]] 같은 용량별 페이지를 쓰세요.',
+   concept:{title:'후보, 유사도 기준, 그리고 살아남은 가장 작은 파일',body:[
+    '단계마다 시작 화질과 기준값이 있습니다. 가장 작게 0.60 / 0.93, 균형 0.80 / 0.965, 고화질 0.92 / 0.985입니다. 자동 형식은 브라우저가 인코딩할 수 있는 모든 형식(Chromium에서는 PNG·JPG·WebP)을 시도하되, 투명한 픽셀이 하나라도 있으면 JPG를 빼서 투명도가 몰래 사라지지 않게 합니다.',
+    '후보는 모두 다시 디코딩해 원본과 비교합니다. 긴 변이 최대 512px인 사본에서 밝기 기준 8 × 8 SSIM을 검은 배경과 흰 배경 위에서 각각 계산하고 더 나쁜 점수를 씁니다. 그래서 투명 영역 아래 숨은 색이 점수를 속일 수 없습니다. 기준을 넘는 손실 후보 중 가장 작은 것이 이기며, 손대지 않은 원본과 PNG 재인코딩도 함께 경쟁합니다. 기준에 끝내 닿지 못하는 거친 사진은 최고 점수와 0.01 이내인 후보 중 가장 작은 것을 받습니다.',
+    '결과는 넣은 파일보다 커지지 않습니다. 모든 후보가 더 크면 원본 파일을 돌려주고 "이미 충분히 작아 원본을 유지했습니다"라고 표시합니다.'],
+    terms:[['SSIM 기준','선택한 단계에서 후보가 넘어야 하는 최소 유사도(0.93, 0.965, 0.985).'],['후보','실제로 한 번 인코딩한 결과(형식 + 화질). 다시 디코딩해 채점합니다.'],['자동 형식','이 브라우저가 인코딩할 수 있는 모든 형식. 투명한 이미지에는 JPG를 쓰지 않습니다.']]},
+   example:{title:'같은 사진 두 버전에 세 단계 적용(실측)',lead:'압축 작업과 같은 옵션의 Nerulio 압축기, Chromium 153, 2026-09-28. PNG는 저장소의 NASA 테스트 사진이고 JPG는 같은 사진을 Pillow 화질 75로 저장한 것입니다.',lines:[
+    'astronaut.png   512 x 512   791,555 바이트',
+    '  가장 작게   WebP q0.60    22,048 바이트   SSIM 0.9626   (기준 0.93)',
+    '  균형        WebP q0.80    32,200 바이트   SSIM 0.9749   (기준 0.965)',
+    '  고화질      WebP q0.92    59,824 바이트   SSIM 0.9883   (기준 0.985)',
+    '',
+    'astronaut-q75.jpg   512 x 512   40,240 바이트',
+    '  균형        WebP q0.80    31,538 바이트   SSIM 0.9834',
+    '  고화질      원본 유지 (기준을 넘은 JPG q0.92는 51,005 바이트)'],
+    after:'고화질에서 0.985를 넘은 후보는 모두 원래 파일보다 커서 JPG가 그대로 돌아왔습니다. 이미 압축된 사진에서는 이것이 정상적인 결과입니다.'},
+   mapping:{title:'설정별 동작',head:['설정','인코더 동작','선택되는 결과'],rows:[
+    ['가장 작게','JPG·WebP 화질 0.60','SSIM ≥ 0.93인 가장 작은 후보'],
+    ['균형(기본)','화질 0.80','SSIM ≥ 0.965인 가장 작은 후보'],
+    ['고화질','화질 0.92','SSIM ≥ 0.985인 가장 작은 후보'],
+    ['목표 용량 지정(고급)','맞을 때까지 화질을 낮춰 탐색','목표 이하 중 SSIM이 가장 높은 후보'],
+    ['최대 너비 지정(고급)','먼저 크기 변경(Pica, mks2013)','새 너비에서 위와 같음']]},
+   verify:{steps:[
+    '파일 아래 줄을 읽으세요. 예: "773 KB → 31 KB · 해상도 512×512 유지". 용량은 1,024바이트 단위 KB입니다.',
+    '결과를 100%로 열어 손실이 먼저 드러나는 얼굴·글자·매끈한 그라데이션을 확인하세요.',
+    '확장자(`-min.webp`, `-min.jpg`, `-min.png`)가 받는 곳에서 허용하는 형식인지 확인하세요.']},
+   trouble:{rows:[
+    ['결과가 WebP인데 사이트는 JPG만 받음','자동은 기준을 넘는 가장 작은 후보를 남기며 WebP인 경우가 많습니다','파일 이름이 `-min.webp`로 끝남','고급 → 저장 형식 → JPG'],
+    ['"이미 충분히 작아 원본을 유지했습니다"','기준을 넘는 후보 중 원본보다 작은 것이 없었습니다','파일이 어떻게 만들어졌는지와 단계를 비교','가장 작게를 고르거나 목표 용량을 지정하세요'],
+    ['거친 사진이 가장 작게에서도 큼','기준에 닿지 못해 최고 점수에 가까운 후보가 쓰였습니다','모든 후보의 SSIM이 기준 아래','목표 용량이나 최대 너비를 지정하세요'],
+    ['큰 스크린샷의 작은 글자가 흐려짐','최대 512px 사본으로 채점해 미세한 손상을 놓칠 수 있습니다','글자를 100%로 확대','스크린샷은 고화질이나 PNG 출력을 쓰세요'],
+    ['투명 PNG가 JPG로 바뀌지 않음','투명한 픽셀이 있으면 자동에서 JPG를 뺍니다','—','JPG를 직접 고르세요. 투명 부분은 JPG 배경색이 됩니다']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-100kb|용량별 페이지]](20KB~1MB)','양식이나 사이트가 최대 파일 크기를 정해 둔 경우.'],
+    ['먼저 [[image/resize|크기 변경]]','보여질 크기보다 픽셀이 훨씬 많은 경우. 픽셀을 줄이는 것이 어떤 화질 설정보다 효과가 큽니다.'],
+    ['[[image/convert|형식 변환]]','자동 선택 없이 특정 형식과 화질이 필요한 경우.']]},
+   limits:['점수는 긴 변 최대 512px 사본에서 계산하므로 큰 이미지의 미세한 디테일은 점수가 떨어지지 않은 채 손상될 수 있습니다.','인코더는 브라우저의 것이라 다른 브라우저에서는 크기가 다를 수 있습니다. EXIF는 기록하지 않고 움직이는 파일은 거부합니다.'],
+   versions:{body:['모든 크기와 점수는 2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 넘기는 옵션(단계별 화질과 기준, `original` = 넣은 파일) 그대로 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`, 이를 Pillow 12.3 화질 75로 저장한 JPG, `tests/fixtures/texture/bricks_Color.png`에서 측정했습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'ここでの画像圧縮は、決まった画質を1つ当てはめるのではなく、実際に何通りかエンコードしてみて、元に近く見えるものの中で最も小さいファイルを残す処理です。最小・バランス（初期値）・高画質から選ぶと、NerulioがブラウザでPNG・JPG・WebPの候補を作り、それぞれを展開し直してSSIMで採点し、その段階の類似度の基準を超える最も小さい候補を返します。最大幅を指定しなければ解像度はそのままで、元より良い候補がなければ元のファイルをそのまま返します。容量の上限が決まっているなら、詳細設定の目標サイズか[[image/compress-to-100kb|100KB]]などの容量別ページを使います。',
+   concept:{title:'候補、類似度の基準、生き残った最小のファイル',body:[
+    '各段階には開始画質と基準値があります。最小は0.60 / 0.93、バランスは0.80 / 0.965、高画質は0.92 / 0.985です。自動形式はブラウザがエンコードできるすべての形式（ChromiumではPNG・JPG・WebP）を試しますが、透明なピクセルが1つでもあればJPGを外し、透過が知らないうちに消えないようにしています。',
+    '候補はすべて展開し直して元画像と比べます。長辺が最大512pxのコピーで明るさの8 × 8 SSIMを黒背景と白背景の上でそれぞれ計算し、悪いほうの点数を使うので、透明部分の下に隠れた色が点数をごまかせません。基準を超える非可逆候補のうち最小のものが選ばれ、手を加えていない元ファイルとPNGの再エンコードも一緒に競います。どうしても基準に届かない粒子の粗い写真は、最高点から0.01以内の候補のうち最小のものになります。',
+    '結果が入れたファイルより大きくなることはありません。すべての候補のほうが大きければ元のファイルを返し、「すでに十分小さいため元のままです」と表示します。'],
+    terms:[['SSIMの基準','選んだ段階で候補が超えるべき最低の類似度（0.93、0.965、0.985）。'],['候補','実際に1回エンコードした結果（形式 + 画質）。展開し直して採点します。'],['自動形式','このブラウザがエンコードできるすべての形式。透過のある画像ではJPGを使いません。']]},
+   example:{title:'1枚の写真の2つの版に3段階を適用（実測）',lead:'圧縮タスクと同じ設定のNerulioの圧縮、Chromium 153、2026-09-28。PNGはリポジトリのNASAのテスト写真、JPGは同じ写真をPillowの画質75で保存したものです。',lines:[
+    'astronaut.png   512 x 512   791,555 バイト',
+    '  最小       WebP q0.60    22,048 バイト   SSIM 0.9626   （基準 0.93）',
+    '  バランス   WebP q0.80    32,200 バイト   SSIM 0.9749   （基準 0.965）',
+    '  高画質     WebP q0.92    59,824 バイト   SSIM 0.9883   （基準 0.985）',
+    '',
+    'astronaut-q75.jpg   512 x 512   40,240 バイト',
+    '  バランス   WebP q0.80    31,538 バイト   SSIM 0.9834',
+    '  高画質     元のまま（基準を超えたJPG q0.92は51,005 バイト）'],
+    after:'高画質では0.985を超えた候補がどれも元のファイルより大きかったため、JPGがそのまま返りました。すでに圧縮済みの写真ではこれが想定どおりの結果です。'},
+   mapping:{title:'設定ごとの動作',head:['設定','エンコーダーの動作','選ばれる結果'],rows:[
+    ['最小','JPG・WebPの画質0.60','SSIM ≥ 0.93の最小の候補'],
+    ['バランス（初期値）','画質0.80','SSIM ≥ 0.965の最小の候補'],
+    ['高画質','画質0.92','SSIM ≥ 0.985の最小の候補'],
+    ['目標サイズを指定（詳細）','収まるまで画質を下げて探索','目標以下でSSIMが最も高い候補'],
+    ['最大幅を指定（詳細）','先にサイズ変更（Pica、mks2013）','新しい幅で上と同じ']]},
+   verify:{steps:[
+    '各ファイルの下の行を読みます。例：「773 KB → 31 KB · 解像度 512×512 を維持」。容量は1,024バイト単位のKBです。',
+    '結果を100%で開き、劣化が先に出る顔・文字・なめらかなグラデーションを確認します。',
+    '拡張子（`-min.webp`、`-min.jpg`、`-min.png`）が提出先の受け付ける形式か確認します。']},
+   trouble:{rows:[
+    ['結果がWebPなのにサイトはJPGしか受け付けない','自動は基準を超える最小の候補を残し、WebPになることが多い','ファイル名が `-min.webp` で終わる','詳細 → 保存形式 → JPG'],
+    ['「すでに十分小さいため元のままです」','基準を超える候補の中に元より小さいものがなかった','ファイルの作られ方と段階を見比べる','最小を選ぶか、目標サイズを指定します'],
+    ['粗い写真が最小でも大きい','基準に届かず、最高点に近い候補が使われた','すべての候補のSSIMが基準を下回る','目標サイズか最大幅を指定します'],
+    ['大きなスクリーンショットの小さな文字がぼやけた','最大512pxのコピーで採点するため、細かな劣化を見逃すことがある','文字を100%で拡大','スクリーンショットは高画質かPNG出力にします'],
+    ['透過PNGがJPGにならない','透明なピクセルがあると自動からJPGを外す','—','JPGを明示的に選びます。透明部分はJPGの背景色になります']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-100kb|容量別ページ]]（20KB〜1MB）','フォームやサイトがファイルサイズの上限を決めている場合。'],
+    ['先に[[image/resize|サイズ変更]]','表示される大きさよりピクセルがずっと多い場合。ピクセルを減らすほうがどんな画質設定より効きます。'],
+    ['[[image/convert|形式の変換]]','自動の選択なしに、特定の形式と画質が必要な場合。']]},
+   limits:['点数は長辺最大512pxのコピーで計算するため、大きな画像の細かな部分は点数を下げずに劣化することがあります。','エンコーダーはブラウザのものなので、別のブラウザでは容量が変わることがあります。EXIFは書き込まず、アニメーションファイルは拒否します。'],
+   versions:{body:['すべての容量と点数は、2026-09-28にPlaywright Chromium 153で `src/task/compress.js` が渡す設定（段階ごとの画質と基準、`original` = 入れたファイル）のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png`、それをPillow 12.3の画質75で保存したJPG、`tests/fixtures/texture/bricks_Color.png` で計測しました。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/compress-to-20kb':{
+  type:'tool',
+  intent:{primary:'compress an image to 20 KB or less',secondary:['photo under 20 KB for an application form','why the target cannot be reached','20 KB = 20,000 or 20,480 bytes'],
+   goal:'a file at or under the form\'s 20 KB limit that still shows the face or document clearly',input:'photo or scan (PNG, JPG, WebP, AVIF, BMP, HEIC)',output:'JPG or WebP (or PNG) of at most 20,480 bytes; pixels reduced only when allowed',target:'online application and ID-photo forms, small avatars',support:'full',
+   evidence:['src/task/compress.js','src/compression.js (quality search, shrink levels)','src/core.js bytes()','measured 2026-09-28, Chromium 153: astronaut.png, astronaut.jpg, astronaut-q75.jpg, bricks_Color.png'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'"20 KB" here means at most 20 × 1,024 = 20,480 bytes. Nerulio encodes JPG and WebP candidates, searches each one\'s quality down until it fits, decodes every candidate and keeps the one closest to the original: on the 512 × 512 NASA photo that was a WebP at quality 0.52, 20,206 bytes, SSIM 0.959. Resolution is kept unless you allow shrinking, and a full-size phone photo cannot get under 20 KB without it. If the form counts 20 KB as 20,000 bytes, type 19 in Target size.',
+   concept:{title:'20 KB is a pixel budget',body:[
+    'With a target, each lossy format is first encoded at the level\'s quality (Balanced: 0.80). If that is too big, the quality is searched in 8 halving steps between 0.05 and 0.80 and the largest quality that fits is kept. PNG is never quality-searched. Of all candidates at or under 20,480 bytes, the one with the highest SSIM wins — not the smallest.',
+    '20,480 bytes are 163,840 bits. Spread over the 512 × 512 fixture that is 0.63 bits per pixel, which scored SSIM 0.96 as WebP. A 4032 × 3024 phone photo would get 0.013 bits per pixel: no quality setting can reach that. The tool then returns its smallest attempt with "Target size not reached. Try allowing smaller dimensions."',
+    'With "Reduce dimensions if the target cannot be met" ticked, up to five smaller widths are tried, each 55–85 % of the previous one. Smaller versions are scored after being scaled back up, so they only win when they genuinely look closer to the original: on the fixture the 435-px WebP scored 0.9581 and the full-size one 0.9593, so the full size stayed.'],
+    terms:[['KB','1,024 bytes in Nerulio\'s target and display; some forms use 1,000.'],['Quality search','Halving steps between 0.05 and the level quality until the file fits.'],['Reduce dimensions','Opt-in: lets the tool try smaller widths when the target cannot be met.']]},
+   example:{title:'The NASA photo squeezed into 20 KB (measured)',lead:'Balanced level, Auto format, Chromium 153, 2026-09-28. Bits per pixel are arithmetic from the target.',lines:[
+    'Target 20 KB = 20 x 1,024 = 20,480 bytes',
+    '',
+    'astronaut.png   512 x 512   791,555 bytes',
+    '  WebP  q0.516   20,206 bytes   SSIM 0.9593   <- chosen',
+    '  JPG   q0.293   20,117 bytes   SSIM 0.9463',
+    '  PNG           575,694 bytes   over the target',
+    'Shrink on: best smaller try 435 x 435 WebP, SSIM 0.9581 (not chosen)',
+    '',
+    'Budget  163,840 bits / 262,144 px    = 0.63 bits per pixel',
+    '        163,840 bits / 12,192,768 px = 0.013 bits per pixel (4032 x 3024)'],
+    after:'At the density that scored about 0.96 here, 20 KB holds roughly 0.27 megapixels — about 595 × 446 for a 4:3 photo. Resize a phone photo to that first with [[image/resize|resize]], or allow shrinking. Note that 20,206 bytes is over 20,000.'},
+   mapping:{title:'What to type for the limit your form means',head:['The form says','Target size to enter','Largest file you get'],rows:[
+    ['20 KB, counted as 1,024 bytes','20 (preset)','20,480 bytes'],
+    ['20 KB, counted as 1,000 bytes','19','19,456 bytes'],
+    ['20 KB and the file must be JPG','20, Output format JPG','JPG q0.293, 20,117 bytes on the fixture (SSIM 0.9463)'],
+    ['Under 20 KB, exact pixel size given (e.g. an ID photo)','20, after resizing to that size','Fewer pixels, higher quality']]},
+   verify:{steps:[
+    'Check the exact byte count in your file manager before uploading: the result list rounds 20,206 bytes to "20 KB".',
+    'Open the file at 100 %: faces, eyes and small print are where 20 KB shows first.',
+    'Check the extension: Auto may give `.webp`; many forms want `.jpg`.']},
+   trouble:{rows:[
+    ['"Target size not reached"','Too many pixels for 20,480 bytes even at quality 0.05','The warning under the file','Tick "Reduce dimensions if the target cannot be met", or resize to about 600 px wide first'],
+    ['The form says the 20 KB file is too large','The form counts 1 KB as 1,000 bytes','File properties show e.g. 20,206 bytes','Enter 19 as Target size (at most 19,456 bytes)'],
+    ['The result is .webp but the form wants .jpg','Auto chose WebP because it scored higher','The name ends in `-min.webp`','Advanced → Output format → JPG'],
+    ['The face is blocky or the text unreadable','20 KB forces a very low quality at this pixel count','Zoom in at 100 %','Crop to what matters with [[image/crop|crop]] or shrink the dimensions, then compress again']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-50kb|Compress to 50 KB]]','The form allows more; at 50 KB the same photo kept quality 0.80.'],
+    ['[[image/resize|Resize]] to the displayed size first','The form shows a known pixel size (for example a small ID photo), so larger pixels are wasted bytes.']]},
+   limits:['Scores come from copies at most 512 px long, so they can miss damage to fine print on large scans.','The same target can give slightly different byte counts in another browser, because the encoders are the browser\'s.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for `?kb=20` (quality 0.80, Auto, background `#ffffff`), with and without shrinking, on `tests/fixtures/astronaut.png` and Pillow JPGs of it.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'여기서 "20KB"는 최대 20 × 1,024 = 20,480바이트입니다. Nerulio는 JPG·WebP 후보를 만들어 각각 맞을 때까지 화질을 낮춰 찾고, 모든 후보를 다시 디코딩해 원본에 가장 가까운 것을 남깁니다. 512 × 512 NASA 사진에서는 화질 0.52의 WebP, 20,206바이트, SSIM 0.959였습니다. 축소를 허용하지 않으면 해상도는 유지되며, 원본 크기의 휴대폰 사진은 축소 없이 20KB 아래로 내려갈 수 없습니다. 양식이 20KB를 20,000바이트로 센다면 목표 용량에 19를 입력하세요.',
+   concept:{title:'20KB는 픽셀 예산입니다',body:[
+    '목표가 있으면 손실 형식마다 먼저 단계 화질(균형: 0.80)로 인코딩합니다. 너무 크면 0.05와 0.80 사이를 8번 반으로 나누며 찾아 맞는 것 중 가장 높은 화질을 남깁니다. PNG는 화질 탐색을 하지 않습니다. 20,480바이트 이하 후보 중 가장 작은 것이 아니라 SSIM이 가장 높은 것이 선택됩니다.',
+    '20,480바이트는 163,840비트입니다. 512 × 512 테스트 사진에 나누면 픽셀당 0.63비트이고, WebP로 SSIM 0.96이 나왔습니다. 4032 × 3024 휴대폰 사진이라면 픽셀당 0.013비트라 어떤 화질로도 불가능합니다. 이때 도구는 가장 작은 시도를 "목표 용량에 맞추지 못했습니다. 크기 줄이기를 켜 보세요."와 함께 돌려줍니다.',
+    '"목표 용량을 못 맞추면 크기도 줄이기"를 켜면 이전 너비의 55~85%씩 최대 다섯 번 더 작은 너비를 시도합니다. 작은 버전은 다시 확대해서 채점하므로 실제로 원본에 더 가까울 때만 이깁니다. 테스트 사진에서는 435px WebP가 0.9581, 원래 크기가 0.9593이라 원래 크기가 남았습니다.'],
+    terms:[['KB','Nerulio의 목표와 표시에서는 1,024바이트. 1,000으로 세는 양식도 있습니다.'],['화질 탐색','파일이 맞을 때까지 0.05와 단계 화질 사이를 반씩 좁혀 가는 과정.'],['크기도 줄이기','선택 사항. 목표를 못 맞추면 더 작은 너비를 시도하게 합니다.']]},
+   example:{title:'NASA 사진을 20KB에 넣기(실측)',lead:'균형 단계, 자동 형식, Chromium 153, 2026-09-28. 픽셀당 비트는 목표에서 계산한 값입니다.',lines:[
+    '목표 20KB = 20 x 1,024 = 20,480 바이트',
+    '',
+    'astronaut.png   512 x 512   791,555 바이트',
+    '  WebP  q0.516   20,206 바이트   SSIM 0.9593   <- 선택',
+    '  JPG   q0.293   20,117 바이트   SSIM 0.9463',
+    '  PNG           575,694 바이트   목표 초과',
+    '축소 허용: 가장 나은 작은 버전 435 x 435 WebP, SSIM 0.9581 (선택 안 됨)',
+    '',
+    '예산  163,840 비트 / 262,144 픽셀    = 픽셀당 0.63 비트',
+    '      163,840 비트 / 12,192,768 픽셀 = 픽셀당 0.013 비트 (4032 x 3024)'],
+    after:'여기서 0.96 정도가 나온 밀도라면 20KB에는 약 0.27메가픽셀, 4:3 사진으로 약 595 × 446이 들어갑니다. 휴대폰 사진은 먼저 [[image/resize|크기 변경]]으로 그 크기에 맞추거나 축소를 허용하세요. 20,206바이트는 20,000보다 크다는 점도 기억하세요.'},
+   mapping:{title:'양식이 뜻하는 제한별 입력값',head:['양식 문구','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['20KB, 1KB = 1,024바이트','20 (기본값)','20,480 바이트'],
+    ['20KB, 1KB = 1,000바이트','19','19,456 바이트'],
+    ['20KB이고 JPG여야 함','20, 저장 형식 JPG','테스트 사진에서 JPG q0.293, 20,117 바이트 (SSIM 0.9463)'],
+    ['20KB 이하, 픽셀 크기도 지정됨(예: 증명사진)','그 크기로 줄인 뒤 20','픽셀은 적게, 화질은 높게']]},
+   verify:{steps:[
+    '올리기 전에 파일 탐색기에서 정확한 바이트 수를 확인하세요. 결과 목록은 20,206바이트를 "20 KB"로 반올림해 보여 줍니다.',
+    '파일을 100%로 열어 보세요. 얼굴·눈·작은 글씨에서 20KB의 한계가 먼저 드러납니다.',
+    '확장자를 확인하세요. 자동은 `.webp`를 줄 수 있고 많은 양식은 `.jpg`를 원합니다.']},
+   trouble:{rows:[
+    ['"목표 용량에 맞추지 못했습니다"','화질 0.05로도 20,480바이트에 비해 픽셀이 너무 많습니다','파일 아래 경고 문구','"목표 용량을 못 맞추면 크기도 줄이기"를 켜거나 먼저 너비 600px 정도로 줄이세요'],
+    ['양식이 20KB 파일을 너무 크다고 함','양식이 1KB를 1,000바이트로 셉니다','파일 속성에 예: 20,206바이트','목표 용량에 19를 입력하세요(최대 19,456바이트)'],
+    ['결과가 .webp인데 양식은 .jpg를 원함','점수가 더 높아서 자동이 WebP를 골랐습니다','이름이 `-min.webp`로 끝남','고급 → 저장 형식 → JPG'],
+    ['얼굴이 깨지거나 글자를 읽을 수 없음','이 픽셀 수에서 20KB는 매우 낮은 화질을 강요합니다','100%로 확대','[[image/crop|자르기]]로 필요한 부분만 남기거나 크기를 줄인 뒤 다시 압축하세요']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-50kb|50KB 이하로 압축]]','양식이 더 허용할 때. 50KB에서는 같은 사진이 화질 0.80을 유지했습니다.'],
+    ['표시 크기로 먼저 [[image/resize|크기 변경]]','양식이 정해진 픽셀 크기(예: 작은 증명사진)로 보여 준다면 그보다 큰 픽셀은 낭비입니다.']]},
+   limits:['점수는 긴 변 최대 512px 사본에서 계산하므로 큰 스캔본의 작은 글씨 손상을 놓칠 수 있습니다.','인코더가 브라우저의 것이라 같은 목표라도 다른 브라우저에서는 바이트 수가 조금 다를 수 있습니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 `?kb=20`에 넘기는 옵션(화질 0.80, 자동, 배경 `#ffffff`)으로 축소 허용 여부를 바꿔 가며 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`와 그 Pillow JPG들로 측정했습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'ここでの「20KB」は最大20 × 1,024 = 20,480バイトです。NerulioはJPG・WebPの候補を作り、それぞれ収まるまで画質を下げて探し、すべての候補を展開し直して元に最も近いものを残します。512 × 512のNASAの写真では、画質0.52のWebP、20,206バイト、SSIM 0.959でした。縮小を許可しなければ解像度はそのままで、元サイズのスマホ写真は縮小なしでは20KBを下回れません。フォームが20KBを20,000バイトと数えるなら、目標サイズに19と入力します。',
+   concept:{title:'20KBはピクセルの予算',body:[
+    '目標があると、非可逆形式ごとにまず段階の画質（バランスは0.80）でエンコードします。大きすぎれば0.05から0.80の間を8回半分に区切って探し、収まるうちで最も高い画質を残します。PNGは画質の探索をしません。20,480バイト以下の候補のうち、最小のものではなくSSIMが最も高いものが選ばれます。',
+    '20,480バイトは163,840ビットです。512 × 512のテスト写真に割り振ると1ピクセルあたり0.63ビットで、WebPでSSIM 0.96になりました。4032 × 3024のスマホ写真なら1ピクセルあたり0.013ビットで、どの画質でも届きません。そのときツールは最も小さい試行結果を「目標サイズに届きませんでした。サイズの縮小を許可してみてください。」と一緒に返します。',
+    '「目標に届かない場合はサイズも縮小」をオンにすると、前の幅の55〜85%ずつ、最大5回小さな幅を試します。小さい版は拡大し直してから採点するので、本当に元に近いときだけ勝ちます。テスト写真では435pxのWebPが0.9581、元のサイズが0.9593で、元のサイズが残りました。'],
+    terms:[['KB','Nerulioの目標と表示では1,024バイト。1,000で数えるフォームもあります。'],['画質の探索','ファイルが収まるまで0.05と段階の画質の間を半分ずつ絞り込む処理。'],['サイズも縮小','任意。目標に届かないとき、より小さな幅を試させます。']]},
+   example:{title:'NASAの写真を20KBに収める（実測）',lead:'バランス、自動形式、Chromium 153、2026-09-28。1ピクセルあたりのビット数は目標から計算した値です。',lines:[
+    '目標 20KB = 20 x 1,024 = 20,480 バイト',
+    '',
+    'astronaut.png   512 x 512   791,555 バイト',
+    '  WebP  q0.516   20,206 バイト   SSIM 0.9593   <- 採用',
+    '  JPG   q0.293   20,117 バイト   SSIM 0.9463',
+    '  PNG           575,694 バイト   目標超過',
+    '縮小を許可: 最良の小さい版 435 x 435 WebP、SSIM 0.9581（不採用）',
+    '',
+    '予算  163,840 ビット / 262,144 ピクセル    = 1ピクセル 0.63 ビット',
+    '      163,840 ビット / 12,192,768 ピクセル = 1ピクセル 0.013 ビット（4032 x 3024）'],
+    after:'ここで0.96程度になった密度なら、20KBに入るのは約0.27メガピクセル、4:3の写真で約595 × 446です。スマホ写真は先に[[image/resize|サイズ変更]]でその大きさにするか、縮小を許可します。20,206バイトは20,000を超えている点にも注意してください。'},
+   mapping:{title:'フォームの上限ごとの入力値',head:['フォームの表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['20KB（1KB = 1,024バイト）','20（プリセット）','20,480 バイト'],
+    ['20KB（1KB = 1,000バイト）','19','19,456 バイト'],
+    ['20KBでJPG必須','20、保存形式JPG','テスト写真でJPG q0.293、20,117 バイト（SSIM 0.9463）'],
+    ['20KB以下でピクセルサイズも指定（例：証明写真）','そのサイズに縮小してから20','ピクセルを減らして画質を上げる']]},
+   verify:{steps:[
+    'アップロード前にファイル管理ソフトで正確なバイト数を確認します。結果一覧では20,206バイトが「20 KB」と丸めて表示されます。',
+    'ファイルを100%で開きます。顔・目・小さな文字に20KBの限界が最初に出ます。',
+    '拡張子を確認します。自動では `.webp` になることがあり、多くのフォームは `.jpg` を求めます。']},
+   trouble:{rows:[
+    ['「目標サイズに届きませんでした」','画質0.05でも20,480バイトに対してピクセルが多すぎる','ファイルの下の警告','「目標に届かない場合はサイズも縮小」をオンにするか、先に幅600px程度に縮小します'],
+    ['フォームが20KBのファイルを大きすぎると言う','フォームが1KBを1,000バイトで数えている','ファイルのプロパティで例：20,206バイト','目標サイズに19を入力します（最大19,456バイト）'],
+    ['結果が.webpなのにフォームは.jpgを求める','点数が高かったため自動がWebPを選んだ','名前が `-min.webp` で終わる','詳細 → 保存形式 → JPG'],
+    ['顔がブロック状・文字が読めない','このピクセル数で20KBだと画質を大きく下げるしかない','100%で拡大','[[image/crop|切り抜き]]で必要な部分だけ残すかサイズを縮小してから、もう一度圧縮します']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-50kb|50KB以下に圧縮]]','フォームがもっと許す場合。50KBでは同じ写真が画質0.80を保ちました。'],
+    ['表示サイズに先に[[image/resize|サイズ変更]]','フォームが決まったピクセルサイズ（例：小さな証明写真）で表示するなら、それを超えるピクセルは無駄なバイトです。']]},
+   limits:['点数は長辺最大512pxのコピーで計算するため、大きなスキャン画像の小さな文字の劣化を見逃すことがあります。','エンコーダーはブラウザのものなので、同じ目標でも別のブラウザではバイト数が少し変わることがあります。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=20` に渡す設定（画質0.80、自動、背景 `#ffffff`）のまま、縮小の有無を切り替えて `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png` とそのPillow製JPGで計測しました。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/compress-to-50kb':{
+  type:'tool',
+  intent:{primary:'compress an image to 50 KB or less',secondary:['photo under 50 KB for a form or forum','50 KB JPG','how many pixels fit in 50 KB'],
+   goal:'a file at or under 50 KB with as little visible loss as possible',input:'photo, scan or graphic (PNG, JPG, WebP, AVIF, BMP, HEIC)',output:'JPG, WebP or PNG of at most 51,200 bytes',target:'forms, forums, e-mail signatures, small web images',support:'full',
+   evidence:['src/task/compress.js','src/compression.js','measured 2026-09-28, Chromium 153: astronaut.png, astronaut.jpg, astronaut-q75.jpg'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'"50 KB" is a ceiling of 50 × 1,024 = 51,200 bytes. For a small photo that is room enough to keep the Balanced quality 0.80 without any search: the 512 × 512 NASA photo came out as a 45,813-byte JPG with SSIM 0.9785. The tool picks the candidate that looks closest, not the smallest — here the JPG beat a 32,200-byte WebP that scored 0.9749. JPG, PNG or WebP files already under 50 KB are returned unchanged, and a form that counts 50 KB as 50,000 bytes needs 48 in Target size.',
+   concept:{title:'When the budget is not the limit',body:[
+    'Each format is first encoded at the level\'s quality. Only if that exceeds 51,200 bytes does the quality search start. For the 512 × 512 fixture both JPG and WebP at 0.80 fitted at once, so the choice came down to the score: JPG 0.9785 against WebP 0.9749. The target is a ceiling, not a goal — the tool does not raise the quality to fill the remaining 5 KB.',
+    'How many pixels fit depends on how much loss you accept. On the fixture, WebP at 0.62 bits per pixel scored 0.96 and JPG at 1.40 bits per pixel scored 0.98. Applied to 51,200 bytes (409,600 bits) that is roughly 0.29 megapixels at the higher score (about 624 × 468) and 0.66 megapixels at the lower one (about 941 × 705).',
+    'When the dropped file itself fits and is a format Auto can write, it competes with a perfect score — that is why the 40,240-byte JPG below was returned untouched.'],
+    terms:[['Ceiling','The largest allowed size; results can be well below it.'],['Bits per pixel','File size × 8 ÷ pixel count; a rough measure of how hard a picture is compressed.'],['Original kept','The dropped file fits and scores 1.0, so no re-encode can beat it.']]},
+   example:{title:'Three inputs, one 50 KB target (measured)',lead:'Balanced level, Auto format, Chromium 153, 2026-09-28; all three are the 512 × 512 NASA photo in different files.',lines:[
+    'Target 50 KB = 51,200 bytes',
+    '',
+    'astronaut.png      791,555 bytes  ->  JPG q0.80   45,813 bytes  SSIM 0.9785',
+    '                   (WebP q0.80 32,200 bytes, SSIM 0.9749, lost on score)',
+    'astronaut.jpg       75,758 bytes  ->  JPG q0.80   44,435 bytes  SSIM 0.9822',
+    'astronaut-q75.jpg   40,240 bytes  ->  original kept, already under 51,200',
+    '',
+    'Room at 0.62 / 1.40 bits per pixel: 0.66 / 0.29 megapixels'],
+    after:'Shrinking was also allowed in a second run: none of the five smaller widths scored higher, so the results above did not change.'},
+   mapping:{title:'Entering the right limit',head:['The form says','Target size to enter','Largest file you get'],rows:[
+    ['50 KB, counted as 1,024 bytes','50 (preset)','51,200 bytes'],
+    ['50 KB, counted as 1,000 bytes','48','49,152 bytes'],
+    ['50 KB and JPG only','50, Output format JPG','On the fixture the same JPG as Auto chose'],
+    ['50 KB, fill it with quality','50, level High quality','Starts at 0.92 before searching down']]},
+   verify:{steps:[
+    'Read the size in the result list (1,024-byte KB) and the exact byte count in your file manager.',
+    'Look for "kept" in the result line: the original was already small enough, which is not an error.',
+    'Check faces and fine print at 100 %.']},
+   trouble:{rows:[
+    ['The file is far below 50 KB','The target is a ceiling; Balanced starts at 0.80 and never goes higher','Result line shows e.g. 45 KB','Choose High quality to start at 0.92'],
+    ['The form rejects a "50 KB" file','The form counts 50,000 bytes','Exact bytes in file properties','Enter 48 as Target size'],
+    ['"Target size not reached" on a phone photo','Several megapixels do not fit in 51,200 bytes','Warning under the file','Allow smaller dimensions or [[image/resize|resize]] to about 900 px wide first'],
+    ['Nothing changed','The file was already under 50 KB and returned as it was','"original kept" in the result line','Use it as it is, or choose a smaller target']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-20kb|Compress to 20 KB]]','The limit is tighter; expect WebP around quality 0.5 on a 512-px photo.'],
+    ['[[image/compress-to-100kb|Compress to 100 KB]]','The form allows 100 KB; larger photos keep more detail.'],
+    ['[[image/png-to-jpg|PNG to JPG]]','A photo saved as PNG usually fits once it is a JPG at quality 92.']]},
+   limits:['Quality is never raised above the chosen level to use the whole budget.','Similarity is judged on a copy at most 512 px long; check fine print yourself.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for `?kb=50`, with and without shrinking, on `tests/fixtures/astronaut.png` and two Pillow JPGs of it (quality 92 and 75). The pixel estimates are arithmetic from those measured densities, not measurements of other photos.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'"50KB"는 50 × 1,024 = 51,200바이트가 상한입니다. 작은 사진이라면 탐색 없이 균형 화질 0.80을 그대로 쓸 여유가 있습니다. 512 × 512 NASA 사진은 45,813바이트 JPG, SSIM 0.9785로 나왔습니다. 도구는 가장 작은 후보가 아니라 원본에 가장 가까워 보이는 후보를 고릅니다. 여기서는 JPG가 0.9749를 받은 32,200바이트 WebP를 이겼습니다. 이미 50KB 이하인 JPG·PNG·WebP 파일은 그대로 돌려주며, 50KB를 50,000바이트로 세는 양식이라면 목표 용량에 48을 넣으세요.',
+   concept:{title:'예산이 제한이 되지 않을 때',body:[
+    '형식마다 먼저 단계 화질로 인코딩합니다. 그 결과가 51,200바이트를 넘을 때만 화질 탐색이 시작됩니다. 512 × 512 테스트 사진은 JPG와 WebP 모두 0.80에서 바로 들어가서 점수로 결정됐습니다. JPG 0.9785 대 WebP 0.9749입니다. 목표는 상한이지 목표치가 아니라서 남은 5KB를 채우려고 화질을 올리지는 않습니다.',
+    '몇 픽셀이 들어가는지는 손실을 얼마나 받아들이느냐에 달려 있습니다. 테스트 사진에서 WebP는 픽셀당 0.62비트로 0.96, JPG는 1.40비트로 0.98을 받았습니다. 51,200바이트(409,600비트)에 적용하면 높은 점수 기준 약 0.29메가픽셀(약 624 × 468), 낮은 점수 기준 약 0.66메가픽셀(약 941 × 705)입니다.',
+    '넣은 파일 자체가 들어가고 자동이 쓸 수 있는 형식이면 만점으로 경쟁합니다. 아래 40,240바이트 JPG가 손대지 않고 돌아온 이유입니다.'],
+    terms:[['상한','허용되는 최대 크기. 결과는 그보다 훨씬 작을 수 있습니다.'],['픽셀당 비트','파일 크기 × 8 ÷ 픽셀 수. 그림이 얼마나 강하게 압축됐는지의 대략적인 척도.'],['원본 유지','넣은 파일이 들어가고 점수가 1.0이라 어떤 재인코딩도 이길 수 없는 경우.']]},
+   example:{title:'입력 세 개, 목표 50KB(실측)',lead:'균형 단계, 자동 형식, Chromium 153, 2026-09-28. 세 파일 모두 같은 512 × 512 NASA 사진입니다.',lines:[
+    '목표 50KB = 51,200 바이트',
+    '',
+    'astronaut.png      791,555 바이트  ->  JPG q0.80   45,813 바이트  SSIM 0.9785',
+    '                   (WebP q0.80 32,200 바이트, SSIM 0.9749, 점수에서 짐)',
+    'astronaut.jpg       75,758 바이트  ->  JPG q0.80   44,435 바이트  SSIM 0.9822',
+    'astronaut-q75.jpg   40,240 바이트  ->  원본 유지, 이미 51,200 이하',
+    '',
+    '픽셀당 0.62 / 1.40 비트일 때 여유: 0.66 / 0.29 메가픽셀'],
+    after:'두 번째 실행에서는 축소도 허용했지만 다섯 가지 작은 너비 중 더 높은 점수는 없어 결과가 바뀌지 않았습니다.'},
+   mapping:{title:'제한값 제대로 입력하기',head:['양식 문구','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['50KB, 1KB = 1,024바이트','50 (기본값)','51,200 바이트'],
+    ['50KB, 1KB = 1,000바이트','48','49,152 바이트'],
+    ['50KB이고 JPG만','50, 저장 형식 JPG','테스트 사진에서는 자동과 같은 JPG'],
+    ['50KB를 화질로 채우고 싶음','50, 고화질 단계','0.92에서 시작해 필요하면 낮춤']]},
+   verify:{steps:[
+    '결과 목록의 용량(1,024바이트 KB)과 파일 탐색기의 정확한 바이트 수를 확인하세요.',
+    '결과 줄에 원본 유지 표시가 있는지 보세요. 원본이 이미 충분히 작았다는 뜻이며 오류가 아닙니다.',
+    '얼굴과 작은 글씨를 100%로 확인하세요.']},
+   trouble:{rows:[
+    ['파일이 50KB보다 훨씬 작음','목표는 상한입니다. 균형은 0.80에서 시작하고 더 올리지 않습니다','결과 줄에 예: 45 KB','0.92에서 시작하도록 고화질을 고르세요'],
+    ['양식이 "50KB" 파일을 거부','양식이 50,000바이트로 셉니다','파일 속성의 정확한 바이트 수','목표 용량에 48을 입력하세요'],
+    ['휴대폰 사진에서 "목표 용량에 맞추지 못했습니다"','수 메가픽셀은 51,200바이트에 들어가지 않습니다','파일 아래 경고','크기 줄이기를 허용하거나 먼저 너비 900px 정도로 [[image/resize|크기 변경]]하세요'],
+    ['아무것도 바뀌지 않음','파일이 이미 50KB 이하라 그대로 돌아왔습니다','결과 줄의 원본 유지 표시','그대로 쓰거나 더 작은 목표를 고르세요']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-20kb|20KB 이하로 압축]]','제한이 더 엄격할 때. 512px 사진이면 화질 0.5 안팎의 WebP를 예상하세요.'],
+    ['[[image/compress-to-100kb|100KB 이하로 압축]]','양식이 100KB까지 허용할 때. 큰 사진이 디테일을 더 지킵니다.'],
+    ['[[image/png-to-jpg|PNG → JPG]]','PNG로 저장된 사진은 화질 92 JPG로만 바꿔도 대개 들어갑니다.']]},
+   limits:['예산을 다 쓰려고 선택한 단계보다 화질을 올리지는 않습니다.','유사도는 긴 변 최대 512px 사본으로 판단하므로 작은 글씨는 직접 확인하세요.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 `?kb=50`에 넘기는 옵션으로 축소 허용 여부를 바꿔 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`와 그 Pillow JPG 두 개(화질 92, 75)를 측정했습니다. 픽셀 수 추정은 측정한 밀도에서 계산한 값이며 다른 사진을 측정한 것이 아닙니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'「50KB」は50 × 1,024 = 51,200バイトが上限です。小さな写真なら、探索なしでバランスの画質0.80をそのまま使える余裕があります。512 × 512のNASAの写真は45,813バイトのJPG、SSIM 0.9785になりました。ツールが選ぶのは最小の候補ではなく最も元に近く見える候補で、ここではJPGが0.9749だった32,200バイトのWebPに勝ちました。すでに50KB以下のJPG・PNG・WebPファイルはそのまま返し、50KBを50,000バイトと数えるフォームなら目標サイズに48と入力します。',
+   concept:{title:'予算が制約にならないとき',body:[
+    '形式ごとにまず段階の画質でエンコードし、それが51,200バイトを超えたときだけ画質の探索が始まります。512 × 512のテスト写真ではJPGもWebPも0.80ですぐに収まり、点数で決まりました。JPG 0.9785対WebP 0.9749です。目標は上限であってねらう値ではないので、残りの5KBを埋めるために画質を上げることはしません。',
+    '何ピクセル入るかは、どこまで劣化を許すかで変わります。テスト写真ではWebPが1ピクセル0.62ビットで0.96、JPGが1.40ビットで0.98でした。51,200バイト（409,600ビット）に当てはめると、高いほうの点数で約0.29メガピクセル（約624 × 468）、低いほうで約0.66メガピクセル（約941 × 705）です。',
+    '入れたファイル自体が収まり、自動で書ける形式なら、満点で競います。下の40,240バイトのJPGが手を加えずに返ってきたのはこのためです。'],
+    terms:[['上限','許される最大のサイズ。結果はそれよりかなり小さいこともあります。'],['1ピクセルあたりのビット','ファイルサイズ × 8 ÷ ピクセル数。どれだけ強く圧縮されているかのおおよその目安。'],['元のまま','入れたファイルが収まり点数1.0なので、どの再エンコードも勝てない場合。']]},
+   example:{title:'3つの入力、目標50KB（実測）',lead:'バランス、自動形式、Chromium 153、2026-09-28。3つとも同じ512 × 512のNASAの写真です。',lines:[
+    '目標 50KB = 51,200 バイト',
+    '',
+    'astronaut.png      791,555 バイト  ->  JPG q0.80   45,813 バイト  SSIM 0.9785',
+    '                   （WebP q0.80 32,200 バイト、SSIM 0.9749、点数で敗退）',
+    'astronaut.jpg       75,758 バイト  ->  JPG q0.80   44,435 バイト  SSIM 0.9822',
+    'astronaut-q75.jpg   40,240 バイト  ->  元のまま、すでに51,200以下',
+    '',
+    '1ピクセル0.62 / 1.40ビットでの余裕: 0.66 / 0.29 メガピクセル'],
+    after:'2回目の実行では縮小も許可しましたが、5つの小さな幅のどれも点数が上回らず、結果は変わりませんでした。'},
+   mapping:{title:'上限を正しく入力する',head:['フォームの表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['50KB（1KB = 1,024バイト）','50（プリセット）','51,200 バイト'],
+    ['50KB（1KB = 1,000バイト）','48','49,152 バイト'],
+    ['50KBでJPGのみ','50、保存形式JPG','テスト写真では自動と同じJPG'],
+    ['50KBを画質で埋めたい','50、段階は高画質','0.92から始めて必要なら下げる']]},
+   verify:{steps:[
+    '結果一覧の容量（1,024バイト単位のKB）と、ファイル管理ソフトの正確なバイト数を確認します。',
+    '結果の行に元のままの表示があるか見ます。元がすでに十分小さかったという意味で、エラーではありません。',
+    '顔と小さな文字を100%で確認します。']},
+   trouble:{rows:[
+    ['ファイルが50KBよりずっと小さい','目標は上限で、バランスは0.80から始めてそれ以上は上げない','結果の行に例：45 KB','0.92から始まるように高画質を選びます'],
+    ['フォームが「50KB」のファイルを拒否','フォームが50,000バイトで数えている','ファイルのプロパティで正確なバイト数','目標サイズに48を入力します'],
+    ['スマホ写真で「目標サイズに届きませんでした」','数メガピクセルは51,200バイトに収まらない','ファイルの下の警告','縮小を許可するか、先に幅900px程度に[[image/resize|サイズ変更]]します'],
+    ['何も変わらない','ファイルがすでに50KB以下で、そのまま返された','結果の行の元のままの表示','そのまま使うか、より小さな目標を選びます']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-20kb|20KB以下に圧縮]]','上限がもっと厳しい場合。512pxの写真なら画質0.5前後のWebPになります。'],
+    ['[[image/compress-to-100kb|100KB以下に圧縮]]','フォームが100KBまで許す場合。大きな写真ほど細部が残ります。'],
+    ['[[image/png-to-jpg|PNG → JPG]]','PNGで保存された写真は、画質92のJPGにするだけでたいてい収まります。']]},
+   limits:['予算を使い切るために、選んだ段階より画質を上げることはしません。','類似度は長辺最大512pxのコピーで判断するので、小さな文字は自分で確認してください。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=50` に渡す設定のまま縮小の有無を切り替えて `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png` とそのPillow製JPG 2つ（画質92と75）を計測しました。ピクセル数の見積もりは計測した密度からの計算で、ほかの写真を計測したものではありません。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/compress-to-100kb':{
+  type:'tool',
+  intent:{primary:'compress an image to 100 KB or less',secondary:['photo under 100 KB for a website or form','100 KB JPG from a phone photo','use more of the 100 KB'],
+   goal:'a file at or under 100 KB, as close to the original as that allows',input:'photo, scan or graphic',output:'JPG, WebP or PNG of at most 102,400 bytes',target:'web forms, marketplaces, CMS uploads',support:'full',
+   evidence:['src/task/compress.js','src/compression.js','measured 2026-09-28, Chromium 153: astronaut.png, astronaut.jpg, bricks_Color.png'],
+   external:['MDN image format guide']},
+  en:{
+   answer:'"100 KB" allows up to 100 × 1,024 = 102,400 bytes. Small images usually fit at the Balanced quality straight away: the 512 × 512 NASA photo became a 45,813-byte JPG (SSIM 0.9785), a 256 × 256 brick texture a 14,214-byte WebP, and a 75,758-byte JPG was returned untouched because it already fitted. For larger photos 100 KB holds roughly 0.6–1.3 megapixels. If the form counts 100,000 bytes, type 97; to use more of the budget, pick High quality.',
+   concept:{title:'A ceiling, and how many pixels sit under it',body:[
+    'The target only limits; it does not attract. Every format is first encoded at the level\'s quality, and only candidates above 102,400 bytes are searched down. Among those that fit, the highest score wins. So a 512-px photo at Balanced lands near 45 KB, not near 100 KB.',
+    'Choosing High quality moves the starting point to 0.92. The High candidates measured on the same photo were a 59,824-byte WebP (SSIM 0.9883) and a 73,755-byte JPG (0.9874); both fit under 102,400, so the WebP would win.',
+    'For photos larger than the test file, the budget is what matters: 819,200 bits. At the two densities measured on the fixture (0.62 and 1.40 bits per pixel) that is 1.33 or 0.59 megapixels — roughly 1330 × 998 or 883 × 662 for a 4:3 photo. A 12-megapixel phone photo needs its dimensions reduced first.'],
+    terms:[['102,400 bytes','100 × 1,024; the exact ceiling the preset uses.'],['Level quality','The starting quality (0.60 / 0.80 / 0.92); a target never raises it.'],['Megapixel budget','Target bits ÷ bits per pixel; a rough guide to the dimensions that fit.']]},
+   example:{title:'100 KB on three real files (measured)',lead:'Balanced level, Auto format, Chromium 153, 2026-09-28.',lines:[
+    'Target 100 KB = 102,400 bytes',
+    '',
+    'astronaut.png     512 x 512   791,555 bytes  ->  JPG q0.80   45,813 bytes  SSIM 0.9785',
+    'bricks_Color.png  256 x 256   127,956 bytes  ->  WebP q0.80  14,214 bytes  SSIM 0.9701',
+    'astronaut.jpg     512 x 512    75,758 bytes  ->  original kept (fits already)',
+    '',
+    'Budget 819,200 bits: 1.33 MP at 0.62 bits/px, 0.59 MP at 1.40 bits/px'],
+    after:'The brick texture is ambientCG\'s CC0 Bricks076C, reduced to 256 × 256 in the repository; its WebP scored higher than the 15,653-byte JPG (0.9573).'},
+   mapping:{title:'Entering the right limit',head:['The form says','Target size to enter','Largest file you get'],rows:[
+    ['100 KB, counted as 1,024 bytes','100 (preset)','102,400 bytes'],
+    ['100 KB, counted as 1,000 bytes','97','99,328 bytes'],
+    ['100 KB, as good as possible','100 + High quality','Starts at quality 0.92'],
+    ['100 KB and a maximum width','100 + Max width','Resized first, then compressed']]},
+   verify:{steps:[
+    'Compare the size in the result list with the form\'s limit, and the exact bytes in the file properties.',
+    'If the result is far below 100 KB and you want more detail, run again at High quality.',
+    'Open at 100 % and check the parts the viewer will look at first.']},
+   trouble:{rows:[
+    ['A phone photo shows "Target size not reached"','Twelve megapixels do not fit in 819,200 bits','Warning under the file','Allow smaller dimensions, or set Max width to about 1,300 px'],
+    ['The result is much smaller than 100 KB','Balanced never goes above quality 0.80','Result line, e.g. 45 KB','Pick High quality'],
+    ['Rejected by a form that says 100 KB','It counts 100,000 bytes','Exact byte count','Enter 97'],
+    ['The texture or pattern looks smeared','WebP was chosen and smooths fine repeating detail','Zoom in on the pattern','Set Output format to PNG if the limit allows, or JPG and compare']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-200kb|Compress to 200 KB]]','The destination allows it and the photo is larger than about a megapixel.'],
+    ['[[image/resize|Resize]]','You know the display width (for example a 1200-px wide blog column).'],
+    ['[[image/jpg-to-webp|JPG to WebP]]','You only want a lighter web copy and there is no fixed limit.']]},
+   limits:['The target cannot be used as a minimum; results can be far below it.','The megapixel figures are estimates from one photo; detailed or noisy pictures need more bytes.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 by calling `src/compression.js` with the options `src/task/compress.js` passes for `?kb=100`, on `tests/fixtures/astronaut.png`, its Pillow JPG (quality 92) and `tests/fixtures/texture/bricks_Color.png`. The High-quality figures are the level\'s measured candidates on the same photo.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'"100KB"는 최대 100 × 1,024 = 102,400바이트입니다. 작은 이미지는 대개 균형 화질에서 바로 들어갑니다. 512 × 512 NASA 사진은 45,813바이트 JPG(SSIM 0.9785), 256 × 256 벽돌 텍스처는 14,214바이트 WebP가 됐고, 75,758바이트 JPG는 이미 들어가서 그대로 돌아왔습니다. 큰 사진이라면 100KB에는 대략 0.6~1.3메가픽셀이 들어갑니다. 양식이 100,000바이트로 센다면 97을, 예산을 더 쓰고 싶다면 고화질을 고르세요.',
+   concept:{title:'상한, 그리고 그 아래 들어가는 픽셀 수',body:[
+    '목표는 제한할 뿐 끌어당기지 않습니다. 모든 형식을 먼저 단계 화질로 인코딩하고, 102,400바이트를 넘는 후보만 화질을 낮춰 찾습니다. 들어가는 후보 중에서는 점수가 가장 높은 것이 이깁니다. 그래서 균형 단계의 512px 사진은 100KB가 아니라 45KB 근처에 머뭅니다.',
+    '고화질을 고르면 시작점이 0.92로 옮겨집니다. 같은 사진에서 측정한 고화질 후보는 59,824바이트 WebP(SSIM 0.9883)와 73,755바이트 JPG(0.9874)였고, 둘 다 102,400 이하라 WebP가 선택됩니다.',
+    '테스트 파일보다 큰 사진에서는 예산이 중요합니다. 819,200비트입니다. 테스트 사진에서 측정한 두 밀도(픽셀당 0.62비트와 1.40비트)로 보면 1.33 또는 0.59메가픽셀, 4:3 사진으로 대략 1330 × 998 또는 883 × 662입니다. 1,200만 화소 휴대폰 사진은 먼저 크기를 줄여야 합니다.'],
+    terms:[['102,400바이트','100 × 1,024. 프리셋이 쓰는 정확한 상한.'],['단계 화질','시작 화질(0.60 / 0.80 / 0.92). 목표가 이를 올리지는 않습니다.'],['메가픽셀 예산','목표 비트 ÷ 픽셀당 비트. 들어갈 크기의 대략적인 기준.']]},
+   example:{title:'실제 파일 세 개에 100KB 적용(실측)',lead:'균형 단계, 자동 형식, Chromium 153, 2026-09-28.',lines:[
+    '목표 100KB = 102,400 바이트',
+    '',
+    'astronaut.png     512 x 512   791,555 바이트  ->  JPG q0.80   45,813 바이트  SSIM 0.9785',
+    'bricks_Color.png  256 x 256   127,956 바이트  ->  WebP q0.80  14,214 바이트  SSIM 0.9701',
+    'astronaut.jpg     512 x 512    75,758 바이트  ->  원본 유지 (이미 들어감)',
+    '',
+    '예산 819,200 비트: 픽셀당 0.62비트면 1.33MP, 1.40비트면 0.59MP'],
+    after:'벽돌 텍스처는 ambientCG의 CC0 Bricks076C를 저장소에서 256 × 256으로 줄인 것입니다. WebP가 15,653바이트 JPG(0.9573)보다 높은 점수를 받았습니다.'},
+   mapping:{title:'제한값 제대로 입력하기',head:['양식 문구','입력할 목표 용량','최대 파일 크기'],rows:[
+    ['100KB, 1KB = 1,024바이트','100 (기본값)','102,400 바이트'],
+    ['100KB, 1KB = 1,000바이트','97','99,328 바이트'],
+    ['100KB, 최대한 좋은 화질로','100 + 고화질','화질 0.92에서 시작'],
+    ['100KB와 최대 너비','100 + 최대 너비','먼저 크기 변경 후 압축']]},
+   verify:{steps:[
+    '결과 목록의 용량을 양식 제한과, 파일 속성의 정확한 바이트 수와 비교하세요.',
+    '결과가 100KB보다 훨씬 작고 디테일을 더 원한다면 고화질로 다시 실행하세요.',
+    '100%로 열어 보는 사람이 가장 먼저 볼 부분을 확인하세요.']},
+   trouble:{rows:[
+    ['휴대폰 사진에 "목표 용량에 맞추지 못했습니다"','1,200만 화소는 819,200비트에 들어가지 않습니다','파일 아래 경고','크기 줄이기를 허용하거나 최대 너비를 1,300px 정도로 지정하세요'],
+    ['결과가 100KB보다 훨씬 작음','균형은 화질 0.80보다 올라가지 않습니다','결과 줄, 예: 45 KB','고화질을 고르세요'],
+    ['100KB라고 적힌 양식이 거부','100,000바이트로 셉니다','정확한 바이트 수','97을 입력하세요'],
+    ['텍스처나 무늬가 뭉개져 보임','WebP가 선택되어 반복되는 미세한 디테일을 부드럽게 만들었습니다','무늬를 확대','제한이 허락하면 저장 형식을 PNG로, 아니면 JPG로 바꿔 비교하세요']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-200kb|200KB 이하로 압축]]','받는 곳이 허용하고 사진이 1메가픽셀보다 클 때.'],
+    ['[[image/resize|크기 변경]]','표시 너비(예: 1200px 블로그 본문)를 알고 있을 때.'],
+    ['[[image/jpg-to-webp|JPG → WebP]]','정해진 제한 없이 가벼운 웹용 사본만 원할 때.']]},
+   limits:['목표를 최솟값으로 쓸 수는 없으며 결과는 그보다 훨씬 작을 수 있습니다.','메가픽셀 수치는 사진 한 장에서 얻은 추정이며, 세밀하거나 노이즈가 많은 그림은 바이트가 더 필요합니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 `src/task/compress.js`가 `?kb=100`에 넘기는 옵션으로 `src/compression.js`를 호출해 `tests/fixtures/astronaut.png`, 그 Pillow JPG(화질 92), `tests/fixtures/texture/bricks_Color.png`를 측정했습니다. 고화질 수치는 같은 사진에서 측정한 해당 단계의 후보입니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'「100KB」は最大100 × 1,024 = 102,400バイトです。小さな画像はたいていバランスの画質ですぐに収まります。512 × 512のNASAの写真は45,813バイトのJPG（SSIM 0.9785）、256 × 256のレンガのテクスチャは14,214バイトのWebPになり、75,758バイトのJPGはすでに収まっていたのでそのまま返りました。大きな写真なら、100KBに入るのはおよそ0.6〜1.3メガピクセルです。フォームが100,000バイトで数えるなら97を、予算をもっと使いたいなら高画質を選びます。',
+   concept:{title:'上限と、その下に入るピクセル数',body:[
+    '目標は制限するだけで、そこへ近づけるものではありません。すべての形式をまず段階の画質でエンコードし、102,400バイトを超えた候補だけ画質を下げて探します。収まる候補の中では点数が最も高いものが勝ちます。そのためバランスの512pxの写真は100KBではなく45KB付近にとどまります。',
+    '高画質を選ぶと開始点が0.92になります。同じ写真で計測した高画質の候補は59,824バイトのWebP（SSIM 0.9883）と73,755バイトのJPG（0.9874）で、どちらも102,400以下なのでWebPが選ばれます。',
+    'テストファイルより大きな写真では予算が効いてきます。819,200ビットです。テスト写真で計測した2つの密度（1ピクセル0.62ビットと1.40ビット）では1.33または0.59メガピクセル、4:3の写真でおよそ1330 × 998または883 × 662です。1,200万画素のスマホ写真は先にサイズを縮める必要があります。'],
+    terms:[['102,400バイト','100 × 1,024。プリセットが使う正確な上限。'],['段階の画質','開始画質（0.60 / 0.80 / 0.92）。目標がこれを上げることはありません。'],['メガピクセルの予算','目標のビット数 ÷ 1ピクセルあたりのビット。収まるサイズのおおよその目安。']]},
+   example:{title:'実際の3ファイルに100KBを適用（実測）',lead:'バランス、自動形式、Chromium 153、2026-09-28。',lines:[
+    '目標 100KB = 102,400 バイト',
+    '',
+    'astronaut.png     512 x 512   791,555 バイト  ->  JPG q0.80   45,813 バイト  SSIM 0.9785',
+    'bricks_Color.png  256 x 256   127,956 バイト  ->  WebP q0.80  14,214 バイト  SSIM 0.9701',
+    'astronaut.jpg     512 x 512    75,758 バイト  ->  元のまま（すでに収まる）',
+    '',
+    '予算 819,200 ビット: 1ピクセル0.62ビットで1.33MP、1.40ビットで0.59MP'],
+    after:'レンガのテクスチャはambientCGのCC0素材Bricks076Cをリポジトリで256 × 256に縮小したものです。WebPが15,653バイトのJPG（0.9573）より高い点数でした。'},
+   mapping:{title:'上限を正しく入力する',head:['フォームの表記','入力する目標サイズ','最大のファイルサイズ'],rows:[
+    ['100KB（1KB = 1,024バイト）','100（プリセット）','102,400 バイト'],
+    ['100KB（1KB = 1,000バイト）','97','99,328 バイト'],
+    ['100KBでできるだけ高画質に','100 + 高画質','画質0.92から開始'],
+    ['100KBと最大幅','100 + 最大幅','先にサイズ変更してから圧縮']]},
+   verify:{steps:[
+    '結果一覧の容量をフォームの上限と、ファイルのプロパティの正確なバイト数と比べます。',
+    '結果が100KBよりずっと小さく、もっと細部が欲しいなら高画質でやり直します。',
+    '100%で開き、見る人が最初に目を向ける部分を確認します。']},
+   trouble:{rows:[
+    ['スマホ写真で「目標サイズに届きませんでした」','1,200万画素は819,200ビットに収まらない','ファイルの下の警告','縮小を許可するか、最大幅を1,300px程度にします'],
+    ['結果が100KBよりずっと小さい','バランスは画質0.80より上げない','結果の行、例：45 KB','高画質を選びます'],
+    ['100KBと書かれたフォームで拒否される','100,000バイトで数えている','正確なバイト数','97を入力します'],
+    ['テクスチャや模様がぼやける','WebPが選ばれ、細かい繰り返し模様をなめらかにした','模様を拡大','上限が許せば保存形式をPNGに、だめならJPGにして比べます']]},
+   alternatives:{rows:[
+    ['[[image/compress-to-200kb|200KB以下に圧縮]]','提出先が許し、写真が1メガピクセルより大きい場合。'],
+    ['[[image/resize|サイズ変更]]','表示幅（例：幅1200pxのブログ本文）が分かっている場合。'],
+    ['[[image/jpg-to-webp|JPG → WebP]]','決まった上限はなく、軽いWeb用コピーだけが欲しい場合。']]},
+   limits:['目標を最低値として使うことはできず、結果はずっと小さくなることがあります。','メガピクセルの数値は1枚の写真からの推定で、細かい絵やノイズの多い絵にはもっとバイトが必要です。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、`src/task/compress.js` が `?kb=100` に渡す設定のまま `src/compression.js` を呼び出し、`tests/fixtures/astronaut.png`、そのPillow製JPG（画質92）、`tests/fixtures/texture/bricks_Color.png` を計測しました。高画質の数値は同じ写真で計測したその段階の候補です。'],sources:[MDN.ja]}
+  }
+ },
 };
