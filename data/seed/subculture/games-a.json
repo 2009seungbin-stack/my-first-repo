@@ -79,6 +79,31 @@
    "publisher": "Inven (reporting HoYoverse Korea's 2026-09-28 announcement)",
    "retrieved": "2026-09-28",
    "note": "Press report of HoYoverse Korea's announcement; no official web page for the collaboration was reachable. Verify on the official channels before promoting."
+  },
+  {
+   "id": "src:sc-games-a-nikke-kr-site",
+   "kind": "OFFICIAL",
+   "url": "https://nikke-kr.com/",
+   "title": "승리의 여신: 니케 한국 공식 사이트",
+   "publisher": "SHIFT UP / Proxima Beta (Level Infinite)",
+   "retrieved": "2026-09-28",
+   "note": "Read in a browser: footer lists iOS/Android, release year 2022, ©Proxima Beta Pte. Limited ©SHIFT UP CORP.; news list shows \"9월 17일 업데이트 개선사항\" dated 2026.09.17; character section credits CVs."
+  },
+  {
+   "id": "src:sc-games-a-shiftup-site",
+   "kind": "OFFICIAL",
+   "url": "https://shiftup.co.kr/",
+   "title": "SHIFT UP",
+   "publisher": "SHIFT UP Corp.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-a-levelinfinite-site",
+   "kind": "OFFICIAL",
+   "url": "https://www.levelinfinite.com/",
+   "title": "Level Infinite - Jump Into the Infinite",
+   "publisher": "Level Infinite",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -737,6 +762,207 @@
      "ver": "OFFICIAL"
     }
    ]
+  },
+  {
+   "id": "studio_org:shift-up",
+   "type": "studio_org",
+   "slug": "shift-up",
+   "names": {
+    "en": "SHIFT UP",
+    "ko": "시프트업"
+   },
+   "description": {
+    "en": "Korean developer of Goddess of Victory: NIKKE and Stellar Blade.",
+    "ko": "승리의 여신: 니케와 스텔라 블레이드를 개발한 국내 게임사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://shiftup.co.kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-shiftup-site"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:level-infinite",
+   "type": "studio_org",
+   "slug": "level-infinite",
+   "names": {
+    "en": "Level Infinite (Proxima Beta)",
+    "ko": "레벨 인피니트"
+   },
+   "aliases": [
+    "Proxima Beta"
+   ],
+   "description": {
+    "en": "Publishing label (Proxima Beta Pte. Limited) that operates Goddess of Victory: NIKKE.",
+    "ko": "승리의 여신: 니케를 서비스하는 퍼블리싱 레이블(Proxima Beta Pte. Limited)."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.levelinfinite.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-levelinfinite-site"
+    }
+   ]
+  },
+  {
+   "id": "franchise:goddess-of-victory-nikke",
+   "type": "franchise",
+   "slug": "goddess-of-victory-nikke",
+   "names": {
+    "en": "Goddess of Victory: NIKKE",
+    "ko": "승리의 여신: 니케"
+   },
+   "aliases": [
+    "NIKKE",
+    "니케"
+   ],
+   "description": {
+    "en": "Gun-shooting RPG franchise by SHIFT UP about the android soldiers called Nikke; the game launched in 2022.",
+    "ko": "니케라 불리는 인간형 병기를 그린 시프트업의 건슈팅 RPG 프랜차이즈로, 게임은 2022년 출시됐다."
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://nikke-kr.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://nikke-kr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:shift-up",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:goddess-of-victory-nikke-game",
+   "type": "work",
+   "slug": "goddess-of-victory-nikke-game",
+   "names": {
+    "en": "Goddess of Victory: NIKKE",
+    "ko": "승리의 여신: 니케"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://nikke-kr.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "ios",
+      "android"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    },
+    {
+     "p": "release_date",
+     "v": "2022",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    },
+    {
+     "p": "homepage",
+     "v": "https://nikke-kr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-nikke-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:shift-up",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:level-infinite",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:bona-kim",
+   "type": "voice_actor",
+   "slug": "bona-kim",
+   "names": {
+    "en": "Kim Bo-na",
+    "ko": "김보나"
+   },
+   "description": {
+    "en": "Korean voice actor credited for Rapi on the NIKKE Korean official site.",
+    "ko": "승리의 여신: 니케 한국 공식 사이트에 라피 역으로 표기된 성우."
+   }
+  },
+  {
+   "id": "character:goddess-of-victory-nikke-rapi",
+   "type": "character",
+   "slug": "goddess-of-victory-nikke-rapi",
+   "names": {
+    "en": "Rapi",
+    "ko": "라피"
+   },
+   "description": {
+    "en": "Member of the Counters squad and one of the protagonist's companions in NIKKE.",
+    "ko": "카운터스 스쿼드 소속으로, 니케 주인공 일행 중 한 명."
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:goddess-of-victory-nikke-game",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:bona-kim",
+     "src": "src:sc-games-a-nikke-kr-site",
+     "ver": "OFFICIAL",
+     "note": "CV as credited on the Korean official site"
+    }
+   ]
   }
  ],
  "events": [
@@ -913,6 +1139,23 @@
    ],
    "entity": "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026",
    "src": "src:sc-games-a-hsr-mgc-press"
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Goddess of Victory: NIKKE update (17 September 2026)",
+    "ko": "승리의 여신: 니케 9월 17일 업데이트"
+   },
+   "starts": "2026-09-17",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "KR",
+   "url": "https://nikke-kr.com/",
+   "entities": [
+    "work:goddess-of-victory-nikke-game"
+   ],
+   "src": "src:sc-games-a-nikke-kr-site"
   }
  ]
 }
