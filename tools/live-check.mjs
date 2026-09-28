@@ -7,6 +7,8 @@ import {configuration} from './site-config.mjs';
  *
  *   SITE_URL=https://nerulio.com/ node tools/live-check.mjs
  *   LEGACY_ORIGINS="https://nerulio.pages.dev/ …"   hosts that must 301/308 to the same path on SITE_URL
+ *   LIVE_COMMIT=<sha>                                first wait (up to 30 min) until /build.txt names this commit,
+ *                                                    i.e. the deploy of this push has finished
  *
  * .github/workflows/indexnow.yml runs it after every production deploy. Exits nonzero on any problem. */
 const attr=(tag,name)=>tag.match(new RegExp(`\\s${name}="([^"]*)"`,'i'))?.[1]??null;
@@ -32,6 +34,17 @@ async function get(u){
  return {status:r.status,headers:Object.fromEntries(r.headers),html:r.status===200?await r.text():''};
 }
 async function pool(items,n,fn){const out=[];let i=0;await Promise.all(Array.from({length:n},async()=>{while(i<items.length){const k=i++;out[k]=await fn(items[k]);}}));return out;}
+/** Resolves once the live /build.txt (tools/build.mjs) names `commit`; throws after `timeoutMs`. */
+export async function waitForCommit(siteURL,commit,{timeoutMs=30*60e3,everyMs=20e3}={}){
+ const until=Date.now()+timeoutMs,url=new URL('build.txt',siteURL);
+ for(;;){
+  let seen='';try{const r=await fetch(url,{cache:'no-store'});seen=r.ok?(await r.text()).trim():`HTTP ${r.status}`;}catch(e){seen=String(e?.message||e);}
+  if(seen===commit)return;
+  if(Date.now()>=until)throw Error(`After ${timeoutMs/60e3} minutes ${url} still says "${seen}", not ${commit}: the deploy did not finish.`);
+  console.log(`Waiting for the deploy of ${commit.slice(0,7)}: live build is "${seen.slice(0,12)}".`);
+  await new Promise(r=>setTimeout(r,everyMs));
+ }
+}
 export async function liveCheck(siteURL,legacy=[]){
  const site=new URL(siteURL),errors=[],fail=(where,what)=>errors.push(`${where}: ${what}`);
  const robots=await get(new URL('robots.txt',site));
@@ -62,6 +75,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const config=configuration();
  if(config.preview||!config.siteURL)throw Error('A production SITE_URL is required');
  const legacy=(process.env.LEGACY_ORIGINS||'').split(/\s+/).filter(Boolean);
+ if(process.env.LIVE_COMMIT)await waitForCommit(config.siteURL,process.env.LIVE_COMMIT.trim());
  const {pages,errors}=await liveCheck(config.siteURL,legacy);
  for(const e of errors.slice(0,100))console.log(e);
  if(errors.length){console.log(`${errors.length} problems on the live site ${config.siteURL} (${pages} sitemap pages checked).`);process.exit(1);}
