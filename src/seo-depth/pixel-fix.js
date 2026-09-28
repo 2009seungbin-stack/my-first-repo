@@ -329,5 +329,235 @@ export default {
    limits:['バンドルはカメラを追加も設定もしません。Pixel Perfect Camera、Crop Frame、Grid Snappingは自分で行います。','Pixels Per UnitはStudioでは決めません。取り込む前に書き出したJSONの`pixelsPerUnit`を直してください（そのままなら100）。','カメラの手順はUnity 6.0 URPのマニュアルに基づくもので、私たちのUnityでの実行はインポートを検証したものです。'],
    versions:{body:['検証の実行ではUnity 6000.5.3f1がバッチモードでNerulioのバンドルを取り込み、スプライト範囲・ピボット・ピクセル・クリップのキーと時間が書き出しどおりに戻り、インポーターがPoint・無圧縮・ミップマップなしに設定しました。Pixel Perfect Camera、スナップ、インポート設定の説明はUnity 6.0と6.6のマニュアルに従っています。'],sources:UNITY_DOCS}
   }
+ },
+ 'game/pixel-art-downscaler':{
+  type:'tool',
+  intent:{primary:'downscale upscaled pixel art back to its real 1× pixel size',secondary:['find the pixel size of an upscale','fractional and smooth (bilinear) resizes','off-grid crops','why a plain 25 % resize fails'],
+   goal:'a 1× sprite with one image pixel per art pixel and the original colours',input:'an upscaled or resized PNG, JPEG, WebP, GIF or .aseprite (one frame or an animation)',output:'a new 1× sprite in the Pixel workspace, exported as PNG / .aseprite or through Pack & Export',target:'any engine or editor (1× PNG)',support:'full',
+   evidence:['src/game/pixel-snap.js (findGrid, sampleBlocks inner 0.5, sampleSmooth least squares)','src/game/pixel-check.js (detectScale, recoverSource)','src/studio/pixel/cleanup.js (one scale per animation)','docs/STUDIO-PIXEL.md §5 (69-case benchmark), §6 T9/T10 (Sumo Hulk ×4 / ×3.78 vs Aseprite 1.3.18)'],
+   external:['Aseprite docs: Sprite › Sprite Size']},
+  en:{
+   answer:'To take upscaled pixel art back to 1×, first find its pixel size, then keep one colour per block: a 128 × 128 image that is a 4× nearest upscale is made of 4 × 4 blocks and becomes 32 × 32. A plain “resize to 25 %” only works when the factor is a whole number you already know and the grid starts at pixel 0; fractional (×3.3) and smooth (bilinear) resizes need the grid measured. Nerulio’s Cleanup panel measures it, shows it with a confidence and creates the 1× sprite as a new sprite, in the browser.',
+   concept:{title:'Why “resize to 25 %” is not enough',body:[
+    'A clean nearest-neighbour upscale by a whole number k turns every art pixel into a k × k block of one colour, so every colour change sits on a multiple of k. Going back is exact when you know k and where the grid starts: any pixel of a block has the block’s colour. Nerulio proves k from the positions of the colour changes; if the picture was cropped a few pixels off the grid, the shared remainder of those positions gives the offset.',
+    'A fractional nearest upscale has blocks of two widths in turn: at ×2.5 the runs are 3, 2, 3, 2 pixels. A fixed 40 % resize samples some blocks on their border, so one-pixel lines vanish or double. Nerulio puts a cut at every measured edge and reads each cell from its inner half (the outer quarter on each side is dropped), taking the most common colour, never an average.',
+    'A smooth resize (bilinear, bicubic, Lanczos) has no flat blocks: every edge is a ramp. Nerulio treats the picture as a linear interpolation between the original pixel centres and solves for those centres by least squares, then merges near-identical colours, so the edges are hard again. For a true bilinear resize that is an inversion; after JPEG or blur it is the closest bilinear explanation, not the exact original.'],
+    terms:[['Pixel size (scale)','How many image pixels one art pixel covers: 4 for a ×4 upscale, about 3.78 for a 96 px wide sprite stored 363 px wide.'],['Offset (phase)','Where the first full block starts when the image was cropped off the grid.'],['Cell sample','One colour per cell: the most common colour of its inner half, or the Oklab medoid when no colour dominates.']]},
+   example:{title:'Example: one 96 × 144 sprite, upscaled two ways',lead:'The same CC0 sheet (Sumo Hulk by Eris, 9 colours) was enlarged by ×4 nearest and by ×3.78 bilinear, then brought back to 1×:',lines:[
+    'truth              96 × 144, 9 colours',
+    '',
+    '×4 nearest         384 × 576      384/4 = 96    576/4 = 144',
+    '  Nerulio          96 × 144 found by itself, 100 % of pixels exact',
+    '  Aseprite 1.3.18  Sprite Size 25 %, nearest: 96 × 144, 100 % exact',
+    '',
+    '×3.78 bilinear     363 × 544      363/96 = 3.78   544/144 = 3.78',
+    '  Nerulio          96 × 144 found by itself, 99.7 % exact, 13 colours',
+    '  Aseprite         true size typed (96 × 144), nearest: 81.5 % exact',
+    '  Aseprite         25 % guessed: 91 × 136, 54.4 % exact'],
+    after:'The ×4 case is easy for any tool once you know the factor. The bilinear one is where measuring matters: 25 % of 363 × 544 is 90.75 × 136, which is neither the right size nor on the grid.'},
+   verify:{steps:[
+    'Read the verdict before applying: “Upscaled ×4 (exact block grid)” is proof; “Smoothly resized ≈ ×3.78” is a measurement with a confidence; “… too weak to trust” is not applied.',
+    'Check the result size: input ÷ pixel size (384 ÷ 4 = 96, 576 ÷ 4 = 144).',
+    'Compare before and after in Preview at a whole-number zoom: outlines should stay one pixel wide and unbroken.',
+    'Compare the colour count with what the art should have (9 for the sprite above); many more means noise survived — set a colour limit.']},
+   trouble:{rows:[
+    ['Result is half or double the expected size','The grid locked onto a multiple or a half of the real block (flat art with long runs)','Show the grid on the canvas: does each cell hold exactly one art pixel?','Type the pixel size (for example 4) in the Cleanup panel and measure again'],
+    ['A one-pixel line is missing or doubled','A fixed-percentage resize sampled block borders (fractional factor or off-grid crop)','Lay the grid over the line','Use the measured grid instead of a percentage; the offset of a crop is found automatically'],
+    ['Colours are slightly off everywhere','JPEG input or a smooth resize: no pixel is bit-exact','The report lists far more colours than the art should have','Keep the background, set a colour limit, or quantize to the sprite’s palette ([[game/pixel-art-palette-editor|palette editor]])'],
+    ['The background became transparent but belongs to the picture','Background “Make transparent” (the default) removes the detected border colour','The report names the colour and its share of the border','Set Background to Keep before Apply'],
+    ['“A grid of ≈ … px was found, but it is too weak to trust”','No consistent grid, typical for generated images ([[game/fix-ai-pixel-art|fixing AI pixel art]])','The dashed amber grid on the canvas','Type the size you see, or redraw the part that matters']]},
+   alternatives:{rows:[
+    ['Aseprite: Sprite › Sprite Size, 25 %, nearest-neighbour','A clean whole-number upscale whose factor you know: three steps and 100 % exact in our test. There is no grid detection, so fractional or smooth resizes need the true size typed in (81.5 % in our test).'],
+    ['[[game/pixel-perfect-checker|Pixel-perfect checker]] (Pixel Lab)','You only need to know whether an image is an exact integer upscale and recover it pixel for pixel; it offers recovery only when a block grid is proven.'],
+    ['[[image/resize|Ordinary image resize]]','The picture is not pixel art (a photo or a painting), where smooth resampling is what you want.']]},
+   limits:['One pixel size per cleanup: frames that were upscaled by different factors have to be cleaned separately.','The grid is measured along rows and columns; rotated or perspective-distorted screenshots have no axis-aligned grid to find.','Blurred upscales are the weakest kind in the benchmark: the size was right in 67 % of those cases.'],
+   versions:{body:['Numbers from Nerulio’s cleanup benchmark (69 CC0 cases with a known 1× original; exact size 81 %, within 1 px 90 %) and the head-to-head on the Sumo Hulk sheet, where Aseprite 1.3.18 was run through its command line (docs/STUDIO-PIXEL.md §5–§6). Aseprite’s menu path follows its documentation.'],sources:['[Aseprite docs: Resize](https://www.aseprite.org/docs/resize/)']}
+  },
+  ko:{
+   answer:'확대된 도트를 1배로 되돌리려면 먼저 도트 크기를 찾고, 블록마다 색 하나만 남기면 됩니다. 4배 최근접 확대인 128 × 128 이미지는 4 × 4 블록으로 되어 있어 32 × 32가 됩니다. 단순히 "25 %로 줄이기"는 배율이 이미 아는 정수이고 격자가 0번 픽셀에서 시작할 때만 맞습니다. 소수 배율(×3.3)이나 부드러운(쌍선형) 확대는 격자를 재야 합니다. Nerulio의 정리 패널은 격자를 재서 확신 정도와 함께 보여 주고, 브라우저 안에서 1배 스프라이트를 새 스프라이트로 만듭니다.',
+   concept:{title:'"25 %로 줄이기"로는 부족한 이유',body:[
+    '정수 k배 최근접 확대는 도트 하나를 한 색의 k × k 블록으로 만들기 때문에 색이 바뀌는 위치가 모두 k의 배수에 놓입니다. k와 격자의 시작점을 알면 되돌리기는 정확합니다. 블록 안 어느 픽셀이든 그 블록의 색이기 때문입니다. Nerulio는 색이 바뀌는 위치로 k를 증명하고, 그림이 격자에서 몇 픽셀 어긋나게 잘렸다면 그 위치들이 공통으로 갖는 나머지로 오프셋을 구합니다.',
+    '소수 배율 최근접 확대는 폭이 다른 두 종류의 블록이 번갈아 나옵니다. ×2.5라면 연속 구간이 3, 2, 3, 2픽셀입니다. 40 %로 고정해 줄이면 일부 블록을 경계에서 읽어 1픽셀 선이 사라지거나 두 줄이 됩니다. Nerulio는 잰 가장자리마다 경계를 두고, 칸의 안쪽 절반(양쪽 바깥 4분의 1은 버림)에서 가장 많은 색을 고르며 평균을 내지 않습니다.',
+    '부드러운 확대(쌍선형·쌍삼차·Lanczos)에는 평평한 블록이 없고 모든 가장자리가 경사입니다. Nerulio는 그림을 원래 픽셀 중심 사이의 선형 보간으로 보고 최소제곱으로 그 중심값을 풀어낸 뒤 거의 같은 색을 합쳐서 가장자리를 다시 딱딱하게 만듭니다. 진짜 쌍선형 확대라면 역변환이고, JPEG나 흐림이 더해졌다면 원본 그대로가 아니라 가장 가까운 쌍선형 해석입니다.'],
+    terms:[['도트 크기(배율)','도트 하나가 차지하는 이미지 픽셀 수. ×4 확대면 4, 폭 96px 스프라이트를 363px로 저장했다면 약 3.78.'],['오프셋(위상)','격자에서 어긋나게 잘린 이미지에서 첫 번째 온전한 블록이 시작하는 위치.'],['칸 샘플','칸마다 색 하나. 안쪽 절반에서 가장 많은 색, 두드러진 색이 없으면 Oklab 메도이드.']]},
+   example:{title:'예시: 96 × 144 스프라이트를 두 가지 방법으로 확대',lead:'같은 CC0 시트(Eris의 Sumo Hulk, 9색)를 ×4 최근접과 ×3.78 쌍선형으로 키운 뒤 1배로 되돌렸습니다.',lines:[
+    '정답               96 × 144, 9색',
+    '',
+    '×4 최근접          384 × 576      384/4 = 96    576/4 = 144',
+    '  Nerulio          96 × 144를 스스로 찾음, 픽셀 100 % 일치',
+    '  Aseprite 1.3.18  Sprite Size 25 %, 최근접: 96 × 144, 100 % 일치',
+    '',
+    '×3.78 쌍선형       363 × 544      363/96 = 3.78   544/144 = 3.78',
+    '  Nerulio          96 × 144를 스스로 찾음, 99.7 % 일치, 13색',
+    '  Aseprite         정확한 크기(96 × 144) 입력, 최근접: 81.5 % 일치',
+    '  Aseprite         25 %로 짐작: 91 × 136, 54.4 % 일치'],
+    after:'×4는 배율만 알면 어떤 도구로도 쉽습니다. 차이가 나는 것은 쌍선형 쪽입니다. 363 × 544의 25 %는 90.75 × 136으로, 크기도 맞지 않고 격자에도 놓이지 않습니다.'},
+   verify:{steps:[
+    '적용 전에 판정을 읽습니다. "×4 확대(정확한 블록 격자)"는 증명이고, "부드럽게 약 ×3.78 크기 변경"은 확신 정도가 붙은 측정이며, "너무 약해 믿을 수 없음"은 적용되지 않습니다.',
+    '결과 크기를 확인합니다: 입력 ÷ 도트 크기(384 ÷ 4 = 96, 576 ÷ 4 = 144).',
+    '미리보기에서 정수 배율로 전후를 비교합니다. 외곽선이 1픽셀 두께로 끊기지 않아야 합니다.',
+    '색 수를 원래 그림의 색 수(위 스프라이트는 9)와 비교합니다. 훨씬 많으면 잡음이 남은 것이니 색 제한을 거세요.']},
+   trouble:{rows:[
+    ['결과가 예상의 절반이나 두 배 크기','격자가 실제 블록의 배수나 절반에 맞춰짐(긴 단색 구간이 많은 그림)','캔버스에 격자를 표시해 칸마다 도트가 정확히 하나인지 보기','정리 패널에 도트 크기(예: 4)를 입력하고 다시 측정'],
+    ['1픽셀 선이 사라지거나 두 줄이 됨','퍼센트로 고정한 축소가 블록 경계를 읽음(소수 배율이나 어긋난 자르기)','선 위에 격자를 겹쳐 보기','퍼센트 대신 잰 격자를 쓰기. 잘린 이미지의 오프셋은 자동으로 찾음'],
+    ['전체 색이 조금씩 틀림','JPEG 입력이나 부드러운 확대라 비트까지 같은 픽셀이 없음','보고서의 색 수가 원래 그림보다 훨씬 많음','배경 유지, 색 제한, 또는 스프라이트 팔레트로 양자화([[game/pixel-art-palette-editor|팔레트 편집기]])'],
+    ['그림의 일부인 배경이 투명해짐','배경 "투명하게"(기본값)가 감지한 테두리 색을 지움','보고서에 그 색과 테두리 비율이 나옴','적용 전에 배경을 유지로'],
+    ['"약 … px 격자를 찾았지만 너무 약해 믿을 수 없음"','일관된 격자가 없음. 생성 이미지에서 흔함([[game/fix-ai-pixel-art|AI 도트 보정]])','캔버스의 주황 점선 격자','눈에 보이는 크기를 입력하거나 중요한 부분을 다시 그리기']]},
+   alternatives:{rows:[
+    ['Aseprite: Sprite › Sprite Size, 25 %, 최근접','배율을 아는 깨끗한 정수 확대. 우리 시험에서 세 단계로 100 % 일치했습니다. 격자 감지가 없어 소수·부드러운 확대는 정확한 크기를 직접 입력해야 합니다(우리 시험에서 81.5 %).'],
+    ['[[game/pixel-perfect-checker|픽셀 퍼펙트 검사기]](픽셀 랩)','이미지가 정확한 정수 확대인지만 알고 픽셀 단위로 되살리면 될 때. 블록 격자가 증명될 때만 복원을 제공합니다.'],
+    ['[[image/resize|일반 이미지 크기 조절]]','도트가 아닌 그림(사진, 회화)이라 부드러운 리샘플링이 원하는 결과일 때.']]},
+   limits:['정리 한 번에 도트 크기는 하나입니다. 서로 다른 배율로 확대된 프레임은 따로 정리하세요.','격자는 가로·세로 방향으로 잽니다. 회전하거나 원근으로 비틀린 스크린숏에는 찾을 격자가 없습니다.','흐림이 더해진 확대가 벤치마크에서 가장 약한 경우로, 크기를 맞힌 비율이 67 %였습니다.'],
+   versions:{body:['수치는 Nerulio 정리 벤치마크(1배 원본을 아는 CC0 사례 69개. 정확한 크기 81 %, 1px 이내 90 %)와 Sumo Hulk 시트 맞비교에서 나왔으며, Aseprite 1.3.18은 명령줄로 실행했습니다(docs/STUDIO-PIXEL.md §5–§6). Aseprite 메뉴 경로는 공식 문서를 따랐습니다.'],sources:['[Aseprite 문서: Resize](https://www.aseprite.org/docs/resize/)']}
+  },
+  ja:{
+   answer:'拡大されたドット絵を1倍に戻すには、まずドットの大きさを見つけ、ブロックごとに色を1つだけ残します。4倍ニアレスト拡大の128 × 128の画像は4 × 4のブロックでできているので32 × 32になります。単純な「25 %に縮小」が合うのは、倍率がわかっている整数で、グリッドが0番目のピクセルから始まるときだけです。小数倍（×3.3）やなめらかな（バイリニア）拡大はグリッドを測る必要があります。Nerulioの整理パネルはグリッドを測って確かさと一緒に示し、ブラウザ内で1倍のスプライトを新しいスプライトとして作ります。',
+   concept:{title:'「25 %に縮小」では足りない理由',body:[
+    '整数k倍のニアレスト拡大は1ドットを1色のk × kブロックにするため、色が変わる位置はすべてkの倍数に並びます。kとグリッドの始まりがわかれば戻すのは正確です。ブロック内のどのピクセルもそのブロックの色だからです。Nerulioは色が変わる位置からkを証明し、絵がグリッドから数ピクセルずれて切られていれば、それらの位置に共通する余りからオフセットを求めます。',
+    '小数倍のニアレスト拡大では、幅の違う2種類のブロックが交互に並びます。×2.5なら連続区間は3、2、3、2ピクセルです。40 %に固定して縮小すると一部のブロックを境目で読むため、1ピクセルの線が消えたり二重になったりします。Nerulioは測った縁ごとに区切りを置き、セルの内側半分（両側の外側4分の1は捨てる）で最も多い色を選び、平均は取りません。',
+    'なめらかな拡大（バイリニア・バイキュービック・Lanczos）には平らなブロックがなく、縁はすべて坂です。Nerulioは絵を元のピクセル中心の間の線形補間とみなし、最小二乗でその中心の値を解いてから、ほぼ同じ色をまとめて縁をくっきりさせます。本当のバイリニア拡大なら逆変換になり、JPEGやぼかしが加わっていれば元どおりではなく最も近いバイリニアの解釈になります。'],
+    terms:[['ドットの大きさ（倍率）','1ドットが占める画像のピクセル数。×4拡大なら4、幅96pxのスプライトを363pxで保存したものなら約3.78。'],['オフセット（位相）','グリッドからずれて切られた画像で、最初の完全なブロックが始まる位置。'],['セルのサンプル','セルごとに1色。内側半分で最も多い色、目立つ色がなければOklabのメドイド。']]},
+   example:{title:'例：96 × 144のスプライトを2通りに拡大',lead:'同じCC0シート（ErisのSumo Hulk、9色）を×4ニアレストと×3.78バイリニアで拡大し、1倍に戻しました。',lines:[
+    '正解               96 × 144、9色',
+    '',
+    '×4ニアレスト       384 × 576      384/4 = 96    576/4 = 144',
+    '  Nerulio          96 × 144を自動で検出、ピクセル100 %一致',
+    '  Aseprite 1.3.18  Sprite Size 25 %、ニアレスト：96 × 144、100 %一致',
+    '',
+    '×3.78バイリニア    363 × 544      363/96 = 3.78   544/144 = 3.78',
+    '  Nerulio          96 × 144を自動で検出、99.7 %一致、13色',
+    '  Aseprite         正しいサイズ（96 × 144）を入力、ニアレスト：81.5 %一致',
+    '  Aseprite         25 %と推測：91 × 136、54.4 %一致'],
+    after:'×4は倍率さえわかればどのツールでも簡単です。差が出るのはバイリニアのほうです。363 × 544の25 %は90.75 × 136で、サイズも合わずグリッドにも乗りません。'},
+   verify:{steps:[
+    '適用する前に判定を読みます。「×4に拡大（正確なブロックグリッド）」は証明、「なめらかに約×3.78へ変更」は確かさ付きの測定、「弱すぎて信頼できない」は適用されません。',
+    '結果のサイズを確認：入力 ÷ ドットの大きさ（384 ÷ 4 = 96、576 ÷ 4 = 144）。',
+    'プレビューで整数倍の表示にして前後を比べます。輪郭が1ピクセル幅で途切れていないはずです。',
+    '色数を本来の色数（上のスプライトなら9）と比べます。ずっと多ければノイズが残っているので色数の上限を設定します。']},
+   trouble:{rows:[
+    ['結果が予想の半分か2倍のサイズ','グリッドが実際のブロックの倍数か半分に合ってしまった（単色の長い区間が多い絵）','キャンバスにグリッドを表示し、1セルに1ドットちょうどか確認','整理パネルにドットの大きさ（例：4）を入力して測り直す'],
+    ['1ピクセルの線が消える・二重になる','パーセント固定の縮小がブロックの境目を読んだ（小数倍やずれた切り抜き）','線にグリッドを重ねてみる','パーセントではなく測ったグリッドを使う。切り抜きのオフセットは自動で見つかる'],
+    ['全体の色が少しずつ違う','JPEG入力やなめらかな拡大で、ビット単位で同じピクセルがない','レポートの色数が本来よりずっと多い','背景を残す、色数の上限、またはスプライトのパレットへ減色（[[game/pixel-art-palette-editor|パレットエディタ]]）'],
+    ['絵の一部である背景が透明になった','背景「透明にする」（既定）が検出した縁の色を消す','レポートにその色と縁に占める割合が出る','適用前に背景を「残す」に'],
+    ['「約…pxのグリッドが見つかったが、弱すぎて信頼できない」','一貫したグリッドがない。生成画像でよくある（[[game/fix-ai-pixel-art|AIドット絵の修正]]）','キャンバス上の黄色の破線グリッド','見える大きさを入力するか、大事な部分を描き直す']]},
+   alternatives:{rows:[
+    ['Aseprite：Sprite › Sprite Size、25 %、ニアレスト','倍率のわかっているきれいな整数倍の拡大。私たちのテストでは3手順で100 %一致しました。グリッド検出はないので、小数倍やなめらかな拡大は正しいサイズを入力する必要があります（テストでは81.5 %）。'],
+    ['[[game/pixel-perfect-checker|ピクセルパーフェクト チェッカー]]（ピクセルラボ）','画像が正確な整数倍の拡大かどうかを知り、ピクセル単位で戻せればよいとき。ブロックのグリッドが証明されたときだけ復元を出します。'],
+    ['[[image/resize|通常の画像リサイズ]]','ドット絵ではない絵（写真や絵画）で、なめらかな再サンプリングが望む結果のとき。']]},
+   limits:['1回の整理でドットの大きさは1つです。違う倍率で拡大されたフレームは別々に整理してください。','グリッドは縦横の方向で測ります。回転や遠近でゆがんだスクリーンショットには見つけるべきグリッドがありません。','ぼかしの加わった拡大がベンチマークで最も弱い種類で、サイズが合ったのは67 %でした。'],
+   versions:{body:['数値はNerulioの整理ベンチマーク（1倍の元画像がわかっているCC0のケース69件。サイズ一致81 %、1px以内90 %）と、Sumo Hulkシートでの直接比較によるもので、Aseprite 1.3.18はコマンドラインで実行しました（docs/STUDIO-PIXEL.md §5–§6）。Asepriteのメニューの場所は公式ドキュメントに従っています。'],sources:['[Asepriteドキュメント：Resize](https://www.aseprite.org/docs/resize/)']}
+  }
+ },
+ 'game/fix-ai-pixel-art':{
+  type:'create',
+  intent:{primary:'turn AI-generated “pixel art” into real pixel art on a grid',secondary:['uneven pseudo-pixels (mixels)','colour noise and palette reduction','why most generated images have no single grid','when to redraw instead'],
+   goal:'a 1× sprite with a limited palette, or an honest answer that no reliable grid exists',input:'a generated image (PNG, JPEG or WebP) that imitates pixel art',output:'a new 1× sprite in the Pixel workspace when a grid is trusted or typed; otherwise the unchanged image with a suggested size',target:'any pixel editor or engine (1× PNG / .aseprite)',support:'partial',
+   evidence:['src/game/pixel-snap.js (trackedGrid rules: noisy, off-lattice ≥ 0.1, cell ≥ 3 px, aspect ≤ 1.25; trackBoundaries 0.7–1.35)','src/studio/pixel/cleanup.js (only integer or high/medium grids are applied)','docs/STUDIO-PIXEL.md §5 (ai-sim 10 cases, ai-real 7 images all unsure)','docs/pixel-bench/H2H.md §1, §3 (ai-sim construction, competitor outputs on ai-real)'],
+   external:[]},
+  en:{
+   answer:'Images from image generators imitate pixel art but are not drawn on a grid: the “pixels” are blocks of uneven width with colour noise and soft edges. A fix needs one cell size, one colour per cell and a smaller palette — and for many generated images no single cell size fits the whole picture. Nerulio’s Cleanup panel measures first and applies only a grid it trusts; all 7 real generated images we tested were judged “unsure” and nothing was applied automatically. It shows its best candidate so you can type a size and check the result yourself.',
+   concept:{title:'Why generated “pixel art” has no grid to snap to',body:[
+    'Real pixel art is drawn on a grid, so an upscale of it has one block size everywhere. An image generator paints at its own resolution and only imitates the look: blocks drift in width (our simulation uses 80–120 % of the nominal size), neighbouring “pixels” differ by a few colour levels, edges are soft, and the file is often JPEG-compressed or carries a drawn background grid.',
+    'A snapping tool has to choose one cell size. When widths drift, a regular lattice fits one part of the picture and cuts through the middle of blocks elsewhere. Nerulio tries a lattice first; for noisy pictures whose edges sit at least 0.1 cell off it, it follows the edges instead — cells between 0.7 and 1.35 of the typical size, the largest size whose cuts land on at least 97 % of the edge energy — but only when that tracked cell is at least 3 px and roughly square.',
+    'When none of that holds, the panel says “A grid of ≈ … px was found, but it is too weak to trust” and applies nothing. That happened to all seven real generated images we tested. On the 630 × 500 previews Nerulio’s weak candidate was about 3.3 px; for one of them unfake.js output 209 × 166 (a size of 3) and Pixel Snapper 106 × 84 (about 6): the tools disagree by a factor of two, which is exactly why a guess should not be applied silently.'],
+    terms:[['Pseudo-pixel','A block that looks like one pixel but differs in width, colour and edge sharpness from its neighbours.'],['Mixels','Pixels of different sizes in one picture; generated images have them by construction.'],['sure · likely · unsure','The confidence shown by the Cleanup panel. Only sure and likely grids are applied without you typing a size.']]},
+   example:{title:'What the benchmark measured on generated art',lead:'Ten simulated cases have a known 1× original (cells of 5–10 px, widths 80–120 %, colour drift and noise, some blur or JPEG); the seven real images have none:',lines:[
+    'simulated generated art (10 cases)',
+    '  size exactly right         20 %        within 1 px        80 %',
+    '  pixels exact               36.1 % (defaults)    70.3 % (background kept)',
+    '  pixels within ΔE 0.02      92.8 % (background kept)',
+    '',
+    'real generated images (7, no truth)',
+    '  Nerulio      7 of 7 “unsure”: size left unchanged, candidate shown',
+    '  others       always return a guess, e.g. 630 × 500 → 209 × 166 (unfake.js) or 106 × 84 (Pixel Snapper)'],
+    after:'Being within 1 px of the right size is not enough for exact pixels: one column too many shifts every cut after it. That is why the simulated cases reach 92.8 % of pixels within a small colour distance but only 70.3 % exact.'},
+   verify:{steps:[
+    'Read the confidence first: a tracked grid (“Uneven pseudo-pixels ≈ 6×6 px”, likely) is applied; “too weak to trust” is not.',
+    'If you type a size, turn on “Show the grid on the canvas” and zoom in: cuts should run between blocks across the whole picture, not only in one corner.',
+    'Compare before and after in Preview at 2× or 4×: eyes, outlines and highlights should survive as single pixels.',
+    'Check the colour count in the report and set a colour limit (16–32) if it stays high.']},
+   trouble:{rows:[
+    ['“A grid of ≈ 3.3 px was found, but it is too weak to trust”','Block widths drift, or JPEG noise and a drawn background grid hide the real cell size','Zoom to 800 % and measure a few blocks: do they differ by a pixel or more?','Type the size you measure; if blocks differ too much, clean a cropped region separately or redraw'],
+    ['Result looks like a smaller, blurrier copy','The typed size is half the real block, so each block became 2 × 2 mixed pixels','Two cuts inside one block on the canvas grid','Type the double size'],
+    ['Eyes or one-pixel highlights vanished','The typed size is too large, or colour merging removed them','Preview; the report lists merges and fixes','Smaller size, Merge colours Light or Off, keep stray-pixel removal off (its default)'],
+    ['Still hundreds of colours','Generated colour noise inside each block','Report: colour count and “noisy”','Colour limit 16–32, or quantize to a palette ([[game/lospec-palette|Lospec palettes]])'],
+    ['A background or checkerboard pattern remains','The generator painted a background or a fake transparency pattern','Report: detected background and its share of the border','Background removal takes one solid border colour; select a checkerboard with the magic wand and delete it']]},
+   alternatives:{rows:[
+    ['Redraw it at 1× in the [[game/pixel-art-editor|pixel editor]]','The generated image is a concept: tracing it on a real grid gives cleaner art than any snapping, and you choose the resolution.'],
+    ['[[game/pixel-snapper-alternative|Pixel Snapper, unfake.js or perfectPixel]]','You want a result for every image without a confidence check, or a command line or library for batches. On simulated generated art perfectPixel found the exact size more often (40 % against 20 %).'],
+    ['[[game/pixel-lab|Pixel Lab]] after snapping','Several frames of one generated animation need one shared palette and anti-alias cleanup.']]},
+   limits:['No generated image in our tests was snapped automatically: expect to type the size.','Nothing is redrawn: missing detail stays missing and uneven shapes stay uneven at 1×.','The real images have no ground truth, so how good a typed size is can only be judged by eye.'],
+   versions:{body:['Benchmark 2026-09-25 (docs/STUDIO-PIXEL.md §5, docs/pixel-bench/H2H.md): 10 simulated cases with truth and 7 real CC0 generated images from OpenGameArt; competitors run with their own defaults.']}
+  },
+  ko:{
+   answer:'이미지 생성기가 만든 그림은 도트를 흉내 낼 뿐 격자 위에 그려지지 않습니다. "픽셀"은 폭이 고르지 않은 덩어리이고 색에 잡음이 있으며 가장자리가 흐립니다. 고치려면 칸 크기 하나, 칸마다 색 하나, 줄인 팔레트가 필요한데, 생성 이미지 대부분은 그림 전체에 맞는 칸 크기가 하나로 정해지지 않습니다. Nerulio 정리 패널은 먼저 재고 믿을 수 있는 격자만 적용합니다. 시험한 실제 생성 이미지 7장은 모두 "불확실"로 판정되어 자동으로 적용된 것이 없습니다. 대신 가장 나은 후보를 보여 주므로 크기를 입력하고 결과를 직접 확인할 수 있습니다.',
+   concept:{title:'생성된 "도트"에 맞출 격자가 없는 이유',body:[
+    '진짜 도트는 격자 위에 그리므로 그것을 확대하면 어디서나 블록 크기가 같습니다. 이미지 생성기는 자기 해상도로 그리면서 모양만 흉내 냅니다. 블록 폭이 조금씩 달라지고(우리 모의 데이터는 기준 크기의 80~120 %), 이웃한 "픽셀"끼리 색이 몇 단계씩 다르며, 가장자리가 흐리고, JPEG로 압축되거나 배경에 격자가 그려져 있는 경우도 많습니다.',
+    '맞추는 도구는 칸 크기를 하나 골라야 합니다. 폭이 흔들리면 규칙적인 격자가 그림 한쪽에는 맞고 다른 곳에서는 블록 한가운데를 자릅니다. Nerulio는 먼저 규칙 격자를 시도하고, 잡음이 있으면서 가장자리가 격자에서 0.1칸 이상 벗어난 그림이면 가장자리를 따라갑니다. 칸은 대표 크기의 0.7~1.35배, 경계가 가장자리 에너지의 97 % 이상에 놓이는 가장 큰 크기를 고르되, 그렇게 찾은 칸이 3px 이상이고 거의 정사각형일 때만 씁니다.',
+    '어느 것도 성립하지 않으면 패널은 "약 … px 격자를 찾았지만 너무 약해 믿을 수 없음"이라고 알리고 아무것도 적용하지 않습니다. 시험한 실제 생성 이미지 7장이 모두 그랬습니다. 630 × 500 미리보기들에서 Nerulio의 약한 후보는 약 3.3px였고, 그중 한 장에 unfake.js는 209 × 166(크기 3), Pixel Snapper는 106 × 84(약 6)를 내놓았습니다. 도구끼리 두 배나 다르다는 것이 추측을 몰래 적용하면 안 되는 이유입니다.'],
+    terms:[['가짜 픽셀','픽셀 하나처럼 보이지만 이웃과 폭·색·가장자리 선명도가 다른 덩어리.'],['믹셀','한 그림 안에 크기가 다른 픽셀이 섞인 것. 생성 이미지는 구조상 이렇게 됩니다.'],['확실 · 가능성 높음 · 불확실','정리 패널이 보여 주는 확신 정도. 확실과 가능성 높음만 크기를 입력하지 않아도 적용됩니다.']]},
+   example:{title:'벤치마크가 생성 그림에서 잰 것',lead:'모의 사례 10개는 1배 원본을 압니다(칸 5~10px, 폭 80~120 %, 색 흔들림과 잡음, 일부는 흐림이나 JPEG). 실제 이미지 7장은 정답이 없습니다.',lines:[
+    '모의 생성 그림 (10개)',
+    '  크기 정확히 맞음           20 %        1px 이내          80 %',
+    '  픽셀 정확히 일치           36.1 % (기본값)     70.3 % (배경 유지)',
+    '  ΔE 0.02 이내 픽셀          92.8 % (배경 유지)',
+    '',
+    '실제 생성 이미지 (7장, 정답 없음)',
+    '  Nerulio      7장 모두 "불확실": 크기 그대로, 후보만 표시',
+    '  다른 도구    항상 추측을 내놓음. 예: 630 × 500 → 209 × 166 (unfake.js), 106 × 84 (Pixel Snapper)'],
+    after:'크기가 1px 이내로 맞아도 픽셀이 정확히 맞지는 않습니다. 열이 하나 더 생기면 그 뒤의 경계가 전부 밀리기 때문입니다. 그래서 모의 사례에서 색 차이가 작은 픽셀은 92.8 %인데 정확히 같은 픽셀은 70.3 %에 그칩니다.'},
+   verify:{steps:[
+    '먼저 확신 정도를 읽습니다. 가장자리를 따라간 격자("고르지 않은 가짜 픽셀 약 6×6px", 가능성 높음)는 적용되고, "너무 약해 믿을 수 없음"은 적용되지 않습니다.',
+    '크기를 입력했다면 "캔버스에 격자 표시"를 켜고 확대합니다. 경계가 한쪽 구석만이 아니라 그림 전체에서 블록 사이를 지나야 합니다.',
+    '미리보기에서 2배나 4배로 전후를 비교합니다. 눈, 외곽선, 하이라이트가 한 픽셀로 살아 있어야 합니다.',
+    '보고서의 색 수를 보고 여전히 많으면 색 제한(16~32)을 겁니다.']},
+   trouble:{rows:[
+    ['"약 3.3px 격자를 찾았지만 너무 약해 믿을 수 없음"','블록 폭이 흔들리거나, JPEG 잡음과 배경에 그려진 격자가 실제 칸 크기를 가림','800 %로 확대해 블록 몇 개를 재 보고 1픽셀 이상 차이 나는지 확인','잰 크기를 입력. 블록 차이가 너무 크면 일부를 잘라 따로 정리하거나 다시 그리기'],
+    ['결과가 더 작고 흐린 복사본처럼 보임','입력한 크기가 실제 블록의 절반이라 블록마다 섞인 2 × 2 픽셀이 됨','캔버스 격자에서 한 블록 안에 경계가 두 개','두 배 크기를 입력'],
+    ['눈이나 1픽셀 하이라이트가 사라짐','입력한 크기가 너무 크거나 색 합치기가 지움','미리보기와 보고서의 합치기·수정 목록','크기를 줄이고, 색 합치기를 약하게나 끔으로, 외톨이 픽셀 제거는 끈 채로(기본값)'],
+    ['여전히 색이 수백 개','블록마다 들어 있는 생성 색 잡음','보고서의 색 수와 "잡음 있음" 표시','색 제한 16~32, 또는 팔레트로 양자화([[game/lospec-palette|Lospec 팔레트]])'],
+    ['배경이나 체크무늬가 남음','생성기가 배경이나 가짜 투명 무늬를 그려 넣음','보고서의 감지된 배경과 테두리 비율','배경 제거는 단색 테두리 색 하나만 지웁니다. 체크무늬는 마술봉으로 선택해 지우세요']]},
+   alternatives:{rows:[
+    ['[[game/pixel-art-editor|도트 편집기]]에서 1배로 다시 그리기','생성 이미지가 콘셉트일 때. 진짜 격자 위에서 따라 그리면 어떤 맞추기보다 깨끗하고 해상도도 직접 정합니다.'],
+    ['[[game/pixel-snapper-alternative|Pixel Snapper, unfake.js, perfectPixel]]','확신 정도 확인 없이 모든 이미지에 결과가 필요하거나, 대량 처리용 명령줄·라이브러리가 필요할 때. 모의 생성 그림에서는 perfectPixel이 크기를 더 자주 정확히 찾았습니다(40 % 대 20 %).'],
+    ['맞춘 뒤 [[game/pixel-lab|픽셀 랩]]','생성된 애니메이션의 여러 프레임에 팔레트 하나와 안티앨리어싱 정리가 필요할 때.']]},
+   limits:['시험한 생성 이미지 중 자동으로 맞춘 것은 없습니다. 크기를 입력할 생각을 하세요.','아무것도 다시 그리지 않습니다. 없는 디테일은 없는 채로, 고르지 않은 모양은 1배에서도 고르지 않습니다.','실제 이미지에는 정답이 없어서 입력한 크기가 얼마나 좋은지는 눈으로만 판단할 수 있습니다.'],
+   versions:{body:['2026-09-25 벤치마크(docs/STUDIO-PIXEL.md §5, docs/pixel-bench/H2H.md): 정답이 있는 모의 사례 10개와 OpenGameArt의 실제 CC0 생성 이미지 7장. 경쟁 도구는 각자의 기본값으로 실행했습니다.']}
+  },
+  ja:{
+   answer:'画像生成で作られた絵はドット絵をまねているだけで、グリッドの上に描かれていません。「ピクセル」は幅の揃わない塊で、色にノイズがあり、縁はぼけています。直すにはセルの大きさ1つ、セルごとに1色、減らしたパレットが必要ですが、生成画像の多くは絵全体に合うセルの大きさが1つに決まりません。Nerulioの整理パネルはまず測り、信頼できるグリッドだけを適用します。試した実際の生成画像7枚はすべて「不確か」と判定され、自動では何も適用されませんでした。代わりに最良の候補を示すので、大きさを入力して結果を自分で確かめられます。',
+   concept:{title:'生成された「ドット絵」に合わせるグリッドがない理由',body:[
+    '本物のドット絵はグリッドの上に描かれるので、拡大してもどこでもブロックの大きさが同じです。画像生成は自分の解像度で描き、見た目だけをまねます。ブロックの幅が少しずつ揺れ（私たちの模擬データは基準の80〜120 %）、隣り合う「ピクセル」の色が数段階ずつ違い、縁はぼけ、JPEGで圧縮されていたり背景にグリッドが描き込まれていたりします。',
+    '合わせるツールはセルの大きさを1つ選ばなければなりません。幅が揺れていると、規則的な格子は絵の一部には合っても、別の場所ではブロックの真ん中を切ります。Nerulioはまず規則的な格子を試し、ノイズがあって縁が格子から0.1セル以上ずれている絵なら縁をたどります。セルは代表的な大きさの0.7〜1.35倍、区切りが縁のエネルギーの97 %以上に乗る最大の大きさを選びますが、そうして見つけたセルが3px以上でほぼ正方形のときだけ使います。',
+    'どれも成り立たなければ、パネルは「約…pxのグリッドが見つかったが、弱すぎて信頼できない」と伝え、何も適用しません。試した実際の生成画像7枚はすべてそうなりました。630 × 500のプレビューでは、Nerulioの弱い候補は約3.3pxでした。そのうち1枚でunfake.jsは209 × 166（大きさ3）、Pixel Snapperは106 × 84（約6）を出力しました。ツール同士で2倍も違うことこそ、推測を黙って適用してはいけない理由です。'],
+    terms:[['疑似ピクセル','1ピクセルに見えるが、隣と幅・色・縁のくっきりさが違う塊。'],['ミクセル','1枚の絵の中に大きさの違うピクセルが混ざること。生成画像は仕組み上こうなります。'],['確実 · おそらく · 不確か','整理パネルが示す確かさ。確実とおそらくだけが、大きさを入力しなくても適用されます。']]},
+   example:{title:'ベンチマークが生成画像で測ったこと',lead:'模擬ケース10件は1倍の元画像がわかっています（セル5〜10px、幅80〜120 %、色の揺れとノイズ、一部はぼかしやJPEG）。実際の画像7枚には正解がありません。',lines:[
+    '模擬生成画像（10件）',
+    '  サイズが完全一致           20 %        1px以内           80 %',
+    '  ピクセル完全一致           36.1 %（初期設定）  70.3 %（背景を残す）',
+    '  ΔE 0.02以内のピクセル      92.8 %（背景を残す）',
+    '',
+    '実際の生成画像（7枚、正解なし）',
+    '  Nerulio      7枚すべて「不確か」：サイズはそのまま、候補を表示',
+    '  ほかのツール 必ず推定を返す。例：630 × 500 → 209 × 166（unfake.js）、106 × 84（Pixel Snapper）'],
+    after:'サイズが1px以内で合っても、ピクセルが完全に合うとは限りません。列が1つ多いと、その後の区切りが全部ずれるからです。そのため模擬ケースでは色の差が小さいピクセルが92.8 %なのに、完全一致は70.3 %にとどまります。'},
+   verify:{steps:[
+    'まず確かさを読みます。縁をたどったグリッド（「不揃いな疑似ピクセル 約6×6px」、おそらく）は適用され、「弱すぎて信頼できない」は適用されません。',
+    '大きさを入力したら「キャンバスにグリッドを表示」をオンにして拡大します。区切りが片隅だけでなく絵全体でブロックの間を通っているはずです。',
+    'プレビューで2倍か4倍にして前後を比べます。目、輪郭、ハイライトが1ピクセルとして残っているはずです。',
+    'レポートの色数を見て、多いままなら色数の上限（16〜32）を設定します。']},
+   trouble:{rows:[
+    ['「約3.3pxのグリッドが見つかったが、弱すぎて信頼できない」','ブロックの幅が揺れている、またはJPEGノイズや背景に描かれたグリッドが本当のセルの大きさを隠している','800 %に拡大していくつかのブロックを測り、1ピクセル以上違うか確認','測った大きさを入力。違いが大きすぎれば、一部を切り出して別に整理するか描き直す'],
+    ['結果が小さくぼけたコピーのよう','入力した大きさが実際のブロックの半分で、ブロックごとに混ざった2 × 2ピクセルになった','キャンバスのグリッドで1つのブロックの中に区切りが2本','2倍の大きさを入力'],
+    ['目や1ピクセルのハイライトが消えた','入力した大きさが大きすぎる、または色まとめが消した','プレビューと、レポートのまとめ・修正の一覧','大きさを小さく、色まとめを弱いかオフに、孤立ピクセル除去はオフのまま（既定）'],
+    ['まだ色が数百ある','ブロックごとに含まれる生成時の色ノイズ','レポートの色数と「ノイズあり」の表示','色数の上限16〜32、またはパレットへの減色（[[game/lospec-palette|Lospecパレット]]）'],
+    ['背景や市松模様が残る','画像生成が背景や偽の透明模様を描き込んだ','レポートの検出した背景と縁に占める割合','背景の除去は単色の縁の色1つだけを消します。市松模様は自動選択で選んで消してください']]},
+   alternatives:{rows:[
+    ['[[game/pixel-art-editor|ドット絵エディタ]]で1倍に描き直す','生成画像がコンセプトのとき。本物のグリッドでなぞれば、どんな自動合わせよりきれいになり、解像度も自分で決められます。'],
+    ['[[game/pixel-snapper-alternative|Pixel Snapper、unfake.js、perfectPixel]]','確かさの確認なしにすべての画像で結果がほしいとき、または一括処理のためのコマンドラインやライブラリがほしいとき。模擬生成画像ではperfectPixelのほうがサイズを正確に当てる回数が多くありました（40 %対20 %）。'],
+    ['合わせたあとで[[game/pixel-lab|ピクセルラボ]]','生成したアニメーションの複数フレームに、共通のパレット1つとアンチエイリアスの整理が必要なとき。']]},
+   limits:['試した生成画像で自動的に合わせられたものはありません。大きさを入力するつもりでいてください。','何も描き直しません。ないディテールはないまま、不揃いな形は1倍でも不揃いなままです。','実際の画像には正解がないので、入力した大きさがどれだけ良いかは目で判断するしかありません。'],
+   versions:{body:['2026-09-25のベンチマーク（docs/STUDIO-PIXEL.md §5、docs/pixel-bench/H2H.md）：正解のある模擬ケース10件と、OpenGameArtの実際のCC0生成画像7枚。競合ツールはそれぞれの初期設定で実行しました。']}
+  }
  }
 };
