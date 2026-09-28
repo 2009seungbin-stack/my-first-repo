@@ -5,6 +5,9 @@ import {text,toast,download,track,onLocale,page as route} from './shell.js';
 import * as NS from '../game/nine-slice.js';
 import * as ST from '../game/ui-states.js';
 import * as BM from '../game/bmfont.js';
+import {parseBdf} from '../game/font-bdf.js';
+import * as FP from '../game/font-project.js';
+import {writePixelTtf} from '../game/font-ttf.js';
 import * as SDF from '../game/sdf.js';
 import * as LAY from '../game/ui-layout.js';
 import {contrastRatio,wcag,round2} from '../game/contrast.js';
@@ -58,11 +61,11 @@ export function mount({el,def}){
   states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
   font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null,
-   detected:undefined,keyed:null,charsAuto:true},
+   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,past:[],future:[],stroke:false,strokeInkBefore:null},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
- const needsImage=s=>s!=='check';
+ const needsImage=s=>s!=='check'&&(s!=='font'||!S.font.project);
  const $=s=>el.querySelector(s);
  /** A shared link carries settings only — borders, mode, sizes, the stage — never image data.
   * `settingsLink()` writes the same keys back, so a link is round-trippable. */
@@ -75,7 +78,7 @@ export function mount({el,def}){
   ['px',()=>S.slice.pixelated?1:0,v=>S.slice.pixelated=v!=='0'],
   ['cw',()=>S.font.cellW,v=>S.font.cellW=int(v,1,4096)],['ch',()=>S.font.cellH,v=>S.font.cellH=int(v,1,4096)],
   ['base',()=>S.font.baseline,v=>S.font.baseline=int(v,0,4096)],
-  ['fmode',()=>S.font.mode,v=>{if(['grid','measured','ttf'].includes(v))S.font.mode=v;}],
+  ['fmode',()=>S.font.mode,v=>{if(['grid','measured','ttf','draw'].includes(v))S.font.mode=v;}],
   ['pad',()=>S.atlas.padding,v=>S.atlas.padding=int(v,0,32)],['merge',()=>S.atlas.merge,v=>S.atlas.merge=int(v,0,64)],
   ['ext',()=>S.atlas.extrude,v=>S.atlas.extrude=int(v,0,8)]];
  for(const [key,,apply] of PRESET){const raw=route.query.get(key);if(raw!==null)apply(raw);}
@@ -93,7 +96,8 @@ export function mount({el,def}){
  // ---------- shell ----------
  function empty(){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span>
-<div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="ui-sample">${esc(text('sample'))}</button><button type="button" class="ghost" data-action="ui-stage" data-stage="check">${esc(T('openCheck'))}</button></div>
+<div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="ui-sample">${esc(text('sample'))}</button>${stage==='font'?`<button type="button" class="ghost" data-action="ui-font-new">${esc(T('fontNew'))}</button>`:''}<button type="button" class="ghost" data-action="ui-stage" data-stage="check">${esc(T('openCheck'))}</button></div>
+${stage==='font'?`<div class="ui-font-import"><label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label><label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label></div>`:''}
 <small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
@@ -284,6 +288,7 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
 <div class="atlas-canvas" id="fontHost"><canvas id="fontCanvas"></canvas><svg id="fontSvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <div id="fontSampleWrap"><div class="view-head"><strong>${esc(T('fontSample'))}</strong></div>
 <div class="ui-fontsample"><canvas id="fontSampleCanvas"></canvas></div></div>
+${S.font.mode==='draw'?`<div class="view-head"><strong>${esc(T('fontEdit'))}</strong><span id="fontEditCode"></span></div><div class="ui-font-editor"><canvas id="fontEditCanvas" tabindex="0" role="img" aria-label="${esc(T('fontEditHelp'))}"></canvas></div><p class="hint">${esc(T('fontEditHelp'))}</p>`:''}
 <p class="viewer-note" id="fontNote"></p>`;
    },
    side(){
@@ -291,16 +296,23 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
     const d=f.detected;
     return `<div class="summary" id="fontSummary" role="status" aria-live="polite"></div>
 ${f.mode!=='ttf'&&d!==undefined?(d?`<p class="hint" id="fontDetected" data-cell="${d.cellW}x${d.cellH}" data-preset="${d.preset}" data-first="${d.first}" data-confidence="${d.confidence}">${esc(T('fontDetected',{cw:d.cellW,ch:d.cellH,cols:d.cols,rows:d.rows,order:fontOrder(d),conf:text('confidence.'+d.confidence)}))}${f.cellW!==d.cellW||f.cellH!==d.cellH||!f.charsAuto?` <button type="button" class="mini-button" data-action="ui-font-detected">${esc(T('fontApplyDetected'))}</button>`:''}</p>`:`<p class="hint" id="fontDetected" data-cell="">${esc(T('fontUndetected'))}</p>`):''}
-<div class="segmented" role="group">${['grid','measured','ttf'].map(m=>`<button type="button" data-action="ui-set" data-key="font.mode" data-value="${m}" aria-pressed="${f.mode===m}">${esc(T('fontMode.'+m))}</button>`).join('')}</div>
+<div class="segmented" role="group">${['grid','measured','ttf','draw'].map(m=>`<button type="button" data-action="${m==='draw'?'ui-font-new':'ui-set'}" data-key="font.mode" data-value="${m}" aria-pressed="${f.mode===m}">${esc(T('fontMode.'+m))}</button>`).join('')}</div>
+<label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label>
+<label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label>
+${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>${esc(T('fontGlyph'))}</span><select id="fontGlyph">${f.project.glyphs.map(g=>`<option value="${g.codepoint}" ${g.codepoint===f.selected?'selected':''}>${esc(g.codepoint<32?'U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'):String.fromCodePoint(g.codepoint)+' · U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'))}</option>`).join('')}</select></label><label class="field"><span>${esc(T('fontAdvance'))}</span><input id="fontAdvance" type="number" min="0" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xAdvance??0}"></label></div>
+<div class="field-row"><label class="field"><span>${esc(T('fontBearingX'))}</span><input id="fontBearingX" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xOffset??0}"></label><label class="field"><span>${esc(T('fontBearingY'))}</span><input id="fontBearingY" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.yOffset??0}"></label></div>
+<div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
+<div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
+<div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>`:''}
 <form class="options" autocomplete="off">
-${f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
+${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="font.size" min="6" max="128" value="${f.size}" inputmode="numeric"></label><label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label></div>
 <p class="hint">${esc(f.fileName?T('fontLoaded',{name:f.fileName}):T('fontFileHint'))}</p>`
  :`<div class="field-row"><label class="field"><span>${esc(t('kit.cellW'))}</span><input type="number" id="rc-cellW" data-opt="font.cellW" min="1" max="4096" value="${f.cellW}" inputmode="numeric"></label>
 <label class="field"><span>${esc(t('kit.cellH'))}</span><input type="number" id="rc-cellH" data-opt="font.cellH" min="1" max="4096" value="${f.cellH}" inputmode="numeric"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('baseline'))}</span><input type="number" id="rc-baseline" data-opt="font.baseline" min="0" max="4096" value="${f.baseline}" inputmode="numeric"></label>
 ${f.mode==='measured'?`<label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label>`:''}</div>`}
-<span class="opt-label">${esc(T('charset'))}</span>
+${f.mode==='draw'?'':`<span class="opt-label">${esc(T('charset'))}</span>
 <label class="field"><span>${esc(T('chars'))}</span><textarea id="rc-chars" data-opt="font.chars" rows="3" spellcheck="false">${esc(f.chars)}</textarea></label>
 <details class="options-advanced" id="optionsAdvanced"><summary>${esc(T('charsetBuilder'))}</summary>
 <label class="field"><span>${esc(T('fromText'))}</span><textarea data-opt="font.sample" rows="3" spellcheck="false" placeholder="${esc(T('fromTextHint'))}">${esc(f.sample)}</textarea></label>
@@ -308,8 +320,8 @@ ${f.mode==='measured'?`<label class="field"><span>${esc(T('glyphSpacing'))}</spa
 <p class="hint">${esc(T('charsetHint'))}</p>
 <label class="check"><input type="checkbox" data-opt="font.sdf" ${f.sdf?'checked':''}> ${esc(T('sdfOption'))}</label>
 ${f.sdf?`<label class="field"><span>${esc(T('sdfSpread'))}</span><input type="number" data-opt="font.spread" min="2" max="32" value="${f.spread}" inputmode="numeric"></label><p class="hint">${esc(T('sdfNote'))}</p>`:''}
-</details></form>
-<button type="button" class="primary big" data-action="ui-export-font">${esc(T('exportFont'))}</button>
+</details>`}</form>
+<button type="button" class="primary big" data-action="ui-export-font">${esc(T(f.mode==='draw'?'fontExportProject':'fontExportV2'))}</button>
 <small class="local-note">${esc(text('local'))}</small>`;
    },
    paint(){buildFont();}
@@ -410,6 +422,10 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const chars=fontChars();
   releaseFontSheet();
   try{
+   if(f.mode==='draw'){
+    const result=FP.renderFontProject(f.project);
+    f.sheet=fromRGBA(result.data,result.width,result.height);f.built=result.font;
+   }else{
    if(!chars)throw Error(T('needChars'));
    if(f.mode==='ttf'){
     if(!f.family)throw Error(T('needFontFile'));
@@ -426,12 +442,15 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
      baseline:f.sheet?f.sheet.baseline:(f.baseline||f.cellH),spacing:f.spacing,advances:f.sheet?f.sheet.advances:null,
      face:f.sheet?`Nerulio ${f.fileName||'font'}`:'Nerulio Measured'});
    }
+   }
+   const sheet=f.sheet||f.keyed||source;
    drawFontPreview(sheet,f.built);
    info.textContent=`${sheet.width} × ${sheet.height}`;
    summary.className='summary';
    summary.innerHTML=`<div class="summary-big">${f.built.glyphs.length}</div><div class="summary-line">${esc(T('glyphCount',{n:f.built.glyphs.length,mode:T('fontMode.'+f.mode)}))}</div>`;
-   note.textContent=T(f.mode==='grid'?'fontNoteGrid':f.mode==='measured'?'fontNoteMeasured':'fontNoteTtf');
+   note.textContent=T(f.mode==='grid'?'fontNoteGrid':f.mode==='measured'?'fontNoteMeasured':f.mode==='draw'?'fontNoteDraw':'fontNoteTtf');
    $('#fontHost').hidden=false;$('#fontSampleWrap').hidden=false;
+   if(f.mode==='draw')paintFontEdit();
   }catch(error){
    f.built=null;summary.className='summary warn';summary.innerHTML=`<div class="summary-line">${esc(error.message)}</div>`;info.textContent='';
    const canvas=$('#fontCanvas');canvas.width=canvas.height=1;$('#fontSvg').innerHTML='';
@@ -473,6 +492,38 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   // the line height and the box is given the room that transform alone would not reserve.
   const zoom=clamp(Math.floor(72/Math.max(1,font.lineHeight)),1,4);
   sample.classList.add('px');sample.style.width=sample.width*zoom+'px';sample.style.height=sample.height*zoom+'px';
+ }
+ function selectedGlyph(){return S.font.project?.glyphs.find(g=>g.codepoint===S.font.selected);}
+ function rememberFont(){
+  const f=S.font;if(!f.project)return;
+  f.past.push(structuredClone(f.project));if(f.past.length>32)f.past.shift();f.future.length=0;
+ }
+ function stepFont(from,to){
+  const f=S.font;if(!from.length)return;
+  to.push(structuredClone(f.project));f.project=from.pop();refresh();
+ }
+ function paintFontEdit(){
+  const canvas=$('#fontEditCanvas'),g=selectedGlyph();if(!canvas||!g)return;
+  const scale=Math.max(10,Math.min(24,Math.floor(320/Math.max(g.w,g.h,1))));
+  canvas.width=Math.max(1,g.w*scale);canvas.height=Math.max(1,g.h*scale);
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let y=0;y<g.h;y++)for(let x=0;x<g.w;x++){
+   if(g.pixels[y*g.w+x]){ctx.fillStyle='#152638';ctx.fillRect(x*scale,y*scale,scale,scale);}
+   ctx.strokeStyle='#cbd5e1';ctx.strokeRect(x*scale+.5,y*scale+.5,scale,scale);
+  }
+  const baseline=S.font.project.ascent-g.yOffset;
+  if(baseline>=0&&baseline<=g.h){ctx.strokeStyle='#c33b45';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,baseline*scale);ctx.lineTo(canvas.width,baseline*scale);ctx.stroke();}
+  ctx.strokeStyle='#1465ad';ctx.lineWidth=2;ctx.strokeRect(S.font.editX*scale+2,S.font.editY*scale+2,scale-4,scale-4);
+  $('#fontEditCode').textContent=`U+${g.codepoint.toString(16).toUpperCase().padStart(4,'0')} · ${g.w}×${g.h}`;
+ }
+ function fontPixelAt(event){
+  const canvas=$('#fontEditCanvas'),g=selectedGlyph(),r=canvas?.getBoundingClientRect();if(!g||!r||!r.width||!r.height)return null;
+  return {x:clamp(Math.floor((event.clientX-r.left)/r.width*g.w),0,g.w-1),y:clamp(Math.floor((event.clientY-r.top)/r.height*g.h),0,g.h-1)};
+ }
+ function fontPaint(x,y){
+  const f=S.font,g=selectedGlyph();if(!g||x<0||x>=g.w||y<0||y>=g.h)return;
+  f.editX=x;f.editY=y;if(g.pixels[y*g.w+x]!==f.ink){FP.setGlyphPixel(f.project,g.codepoint,x,y,f.ink);buildFont();}
+  else paintFontEdit();
  }
  // ---------- check stage ----------
  function paintCheck(){
@@ -631,7 +682,15 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  async function exportFont(){
   const f=S.font;if(!f.built)throw Error(T('needChars'));
   const sheet=f.sheet||f.keyed||source,entries=[await pngFile('font.png',sheet),
-   jsonFile('font.json',f.built),textFile('font.fnt',BM.fntText(f.built)),textFile('README.txt',T('fontReadme'))];
+   jsonFile('font.json',f.built),textFile('font.fnt',BM.fntText(f.built)),
+   {name:'font.xml',blob:new Blob([BM.fntXml(f.built)],{type:'application/xml'})},
+   {name:'font-binary.fnt',blob:new Blob([BM.fntBinary(f.built)],{type:'application/octet-stream'})},
+   textFile('README.txt',T(f.mode==='draw'?'fontReadmeV2':'fontReadme'))];
+  if(f.mode==='draw'&&f.project){
+   entries.push(jsonFile('font-project.json',f.project));
+   try{entries.push({name:'font.ttf',blob:new Blob([writePixelTtf(f.project)],{type:'font/ttf'})},textFile('TTF-NOTES.txt',T('fontTtfNote')));}
+   catch(error){entries.push(textFile('TTF-UNAVAILABLE.txt',T('fontTtfUnavailable',{reason:error.message})));}
+  }
   if(f.sdf){
    const sdfSheet=buildSDFSheet(sheet,f.built,f.spread);
    entries.push(await pngFile('font-sdf.png',sdfSheet.canvas),jsonFile('font-sdf.json',sdfSheet.meta),textFile('font-sdf.txt',T('sdfReadme',{spread:f.spread,shader:SDF.SHADER_NOTE(f.spread)})));
@@ -768,6 +827,16 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(force||!presetCell){f.cellW=d.cellW;f.cellH=d.cellH;}
   if(force||f.charsAuto||!f.chars){f.chars=d.chars;f.charsAuto=true;}
  }
+ function startFontEditor(){
+  const f=S.font;
+  if(!f.project){
+   const chars=fontChars()||'ABCDEFGH';
+   f.project=source?FP.projectFromGrid(rgba(f.keyed||source),source.width,source.height,{cellW:f.cellW,cellH:f.cellH,chars,baseline:f.baseline||f.cellH}):FP.blankFontProject(chars,{cellW:f.cellW,cellH:f.cellH,baseline:f.baseline||f.cellH});
+   f.selected=f.project.glyphs.find(g=>g.codepoint===65)?.codepoint??f.project.glyphs[0].codepoint;
+   f.past.length=0;f.future.length=0;
+  }
+  f.mode='draw';frame();
+ }
  const fontOrder=d=>T('fontOrders.'+(d.preset==='cp437'?'cp437':d.first===33?'ascii33':'ascii'));
  function setStage(next){
   if(!STAGES.includes(next)||next===stage)return;
@@ -785,7 +854,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    S.atlas.elements=null;S.atlas.editing=null;releaseStates();
    S.suggestion=null;borderPast.length=0;borderFuture.length=0;
    if(S.font.keyed){Im.release(S.font.keyed);S.font.keyed=null;}
-   S.font.detected=undefined;S.font.charsAuto=true;
+   S.font.detected=undefined;S.font.charsAuto=true;S.font.project=null;S.font.past.length=0;S.font.future.length=0;
+   if(S.font.mode==='draw')S.font.mode='grid';
    S.border=firstFile?NS.clampBorders(presetBorder,decoded.width,decoded.height):{left:0,right:0,top:0,bottom:0};
    firstFile=false;
    if(stage==='slice')suggest({silent:true});
@@ -813,6 +883,16 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     const face=new FontFace(family,await file.arrayBuffer());await face.load();document.fonts.add(face);
     S.font.family=family;S.font.fileName=file.name;refresh();return;
    }
+   if(kind==='bdf'){
+    const bdf=parseBdf(await file.text());S.font.project=FP.projectFromBdf(bdf);
+    S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
+    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;frame();return;
+   }
+   if(kind==='fontProject'){
+    S.font.project=FP.validateFontProject(JSON.parse(await file.text()));
+    S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
+    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;frame();return;
+   }
    const body=await file.text();
    if(kind==='fnt'){S.check.imported=BM.parseFnt(body);S.check.importedName=file.name;S.check.source='fnt';refresh();return;}
    S.check.text=BM.extractText(file.name,body);refresh();
@@ -825,6 +905,14 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   try{
    if(action==='ui-stage')setStage(button.dataset.stage);
    else if(action==='ui-sample')await add(await sample());
+   else if(action==='ui-font-new')startFontEditor();
+   else if(action==='ui-font-undo')stepFont(S.font.past,S.font.future);
+   else if(action==='ui-font-redo')stepFont(S.font.future,S.font.past);
+   else if(action==='ui-font-erase'){S.font.ink=S.font.ink?0:1;button.setAttribute('aria-pressed',String(!S.font.ink));}
+   else if(action==='ui-font-kerning'){
+    const pair=[...($('#fontKerningPair')?.value||'')];if(pair.length!==2)throw Error(T('fontKerningPairError'));
+    rememberFont();FP.setKerning(S.font.project,pair[0].codePointAt(0),pair[1].codePointAt(0),int($('#fontKerningAmount').value,-128,128));refresh();
+   }
    else if(action==='ui-set'){
     const [group,key]=button.dataset.key.split('.');let value=button.dataset.value;
     S[group][key]=/^-?\d+$/.test(value)?Number(value):value;
@@ -883,12 +971,32 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  });
  el.addEventListener('change',e=>{
   if(e.target.id==='fontFile')loadLocalFile(e.target,'font');
+  else if(e.target.id==='fontBdf')loadLocalFile(e.target,'bdf');
+  else if(e.target.id==='fontProjectFile')loadLocalFile(e.target,'fontProject');
   else if(e.target.id==='fntFile')loadLocalFile(e.target,'fnt');
   else if(e.target.id==='localeFile')loadLocalFile(e.target,'locale');
+  else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;refresh();}
+  else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent'].includes(e.target.id)){
+   const f=S.font,g=selectedGlyph();if(!g)return;
+   rememberFont();const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
+   if(e.target.id==='fontAdvance')g.xAdvance=n;
+   else if(e.target.id==='fontBearingX')g.xOffset=n;
+   else if(e.target.id==='fontBearingY')g.yOffset=n;
+   else if(e.target.id==='fontAscent')f.project.ascent=n;
+   else f.project.descent=n;
+   f.project.lineHeight=f.project.ascent+f.project.descent;refresh();
+  }
  });
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}
+  if(e.target.id==='fontEditCanvas'){
+   const g=selectedGlyph();if(!g)return;
+   const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+   if(delta){e.preventDefault();S.font.editX=clamp(S.font.editX+delta[0],0,g.w-1);S.font.editY=clamp(S.font.editY+delta[1],0,g.h-1);paintFontEdit();return;}
+   if(e.key===' '||e.key==='Enter'){e.preventDefault();rememberFont();fontPaint(S.font.editX,S.font.editY);refresh();return;}
+   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?stepFont(S.font.future,S.font.past):stepFont(S.font.past,S.font.future);return;}
+  }
   const guide=e.target.closest?.('.ns-guide');
   if(!guide||!source)return;
   const side=guide.dataset.guide,step=e.shiftKey?10:1;
@@ -905,12 +1013,18 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  });
  // Dragging a guide, and dragging the custom preview's corner, both work in source pixels.
  el.addEventListener('pointerdown',e=>{
+  if(e.target.id==='fontEditCanvas'){
+   const at=fontPixelAt(e);if(!at)return;
+   rememberFont();S.font.stroke=true;S.font.strokeInkBefore=S.font.ink;S.font.ink=e.button===2?0:S.font.ink;
+   fontPaint(at.x,at.y);e.target.setPointerCapture?.(e.pointerId);e.preventDefault();return;
+  }
   const guide=e.target.closest?.('.ns-guide');
   if(guide&&source){rememberBorder();drag={kind:'guide',side:guide.dataset.guide,zoom:sliceZoom(),rect:$('#nsArt').getBoundingClientRect()};guide.setPointerCapture?.(e.pointerId);e.preventDefault();return;}
   const handle=e.target.closest?.('[data-action="ui-resize"]');
   if(handle){const box=handle.closest('.ns-box').getBoundingClientRect();drag={kind:'resize',x:e.clientX,y:e.clientY,w:S.slice.customW,h:S.slice.customH,scale:S.slice.customW/box.width};handle.setPointerCapture?.(e.pointerId);e.preventDefault();}
  });
  el.addEventListener('pointermove',e=>{
+  if(S.font.stroke&&e.target.id==='fontEditCanvas'){const at=fontPixelAt(e);if(at)fontPaint(at.x,at.y);return;}
   if(!drag)return;
   if(drag.kind==='guide'){
    const b=drag.rect,at=drag.side==='left'||drag.side==='right'?(e.clientX-b.left)/drag.zoom:(e.clientY-b.top)/drag.zoom;
@@ -924,9 +1038,12 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   VIEWS.slice.paint();
  });
  for(const type of ['pointerup','pointercancel'])el.addEventListener(type,()=>{
+  const fontStroke=S.font.stroke;S.font.stroke=false;
+  if(S.font.strokeInkBefore!==null){S.font.ink=S.font.strokeInkBefore;S.font.strokeInkBefore=null;}
   // A click on a guide that moved nothing leaves no undo step behind.
   if(drag?.kind==='guide'){const last=borderPast.at(-1);if(last&&SIDES.every(side=>last[side]===S.border[side]))borderPast.pop();refreshUndo();}
-  drag=null;});
+  drag=null;if(fontStroke)refresh();});
+ el.addEventListener('contextmenu',e=>{if(e.target.id==='fontEditCanvas')e.preventDefault();});
  const refreshUndo=()=>{const u=$('#nsUndo'),r=$('#nsRedo');if(u)u.disabled=!borderPast.length;if(r)r.disabled=!borderFuture.length;};
  // A .fnt, a .txt or a font file can be dropped straight onto its own field; the page-level
  // intake only accepts images, so those drops must not reach it.
@@ -934,13 +1051,13 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const field=e.target.closest?.('input[data-local-drop]');
   if(!field||!e.dataTransfer?.files?.length)return;
   e.preventDefault();e.stopPropagation();
-  const kind=field.id==='fontFile'?'font':field.id==='fntFile'?'fnt':'locale';
+  const kind=field.id==='fontFile'?'font':field.id==='fontBdf'?'bdf':field.id==='fontProjectFile'?'fontProject':field.id==='fntFile'?'fnt':'locale';
   loadLocalFile({files:e.dataTransfer.files},kind);
  },true);
  el.addEventListener('dragover',e=>{if(e.target.closest?.('input[data-local-drop]')){e.preventDefault();e.stopPropagation();}},true);
  onLocale(()=>{if(source||!needsImage(stage))frame();else empty();});
  // Work lives only in this tab: leaving it with an image loaded asks first.
- addEventListener('beforeunload',e=>{if(el.isConnected&&source){e.preventDefault();e.returnValue='';}});
+ addEventListener('beforeunload',e=>{if(el.isConnected&&(source||S.font.project)){e.preventDefault();e.returnValue='';}});
  if(needsImage(stage))empty();else frame();
  return {add};
 }
