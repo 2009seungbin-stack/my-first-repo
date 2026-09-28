@@ -11,13 +11,21 @@ import {D1Shim} from '../../tests/d1-shim.mjs';
 import {seedDatabase} from './seed-db.mjs';
 import {insertDemoContent} from './demo-posts.mjs';
 import {entityBySlug} from '../../platform/db/channel.js';
-import {loadChannel,renderChannel} from '../../platform/render/channel.js';
-import {loadPost,renderPost} from '../../platform/render/post.js';
-import {loadFront,renderFront} from '../../platform/render/front.js';
-import {channelUrl,postUrl,frontUrl,CSS_HREF} from '../../platform/render/ui.js';
+import {CSS_HREF} from '../../platform/render/ui.js';
+import {renderPlatformPage} from '../../server/platform/pages.js';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 export const SHOWCASE=[['ai','claude'],['games','caves-of-qud'],['hardware','rtx-5070'],['studio','ableton-live'],['subculture','bleach-tybw-the-calamity']];
+/** [path, title] of every previewed page. */
+export const PREVIEW_PATHS=Object.freeze([
+ ['/ko/community/','커뮤니티 홈'],['/ko/ai/claude/','Claude 채널'],['/ko/ai/claude/status','지금 Claude 장애?'],['/ko/ai/claude/history','Claude 변경 기록'],
+ ['/ko/ai/claude-opus-5-5/','Claude Opus 5.5 (모델 채널)'],['/ko/ai/gemma-4-12b/','Gemma 4 12B (공개 모델 채널)'],
+ ['/ko/games/caves-of-qud/','Caves of Qud (게임 채널)'],['/ko/games/wasteland-3-korean-patch/','Wasteland 3 한글패치 (패치 채널)'],
+ ['/ko/hardware/rtx-5070/','RTX 5070 채널'],['/ko/hardware/rtx-5070/local-llm','RTX 5070에서 돌아가는 로컬 LLM'],
+ ['/ko/studio/ableton-live/','에이블톤 라이브 채널'],['/ko/subculture/bleach-tybw-the-calamity/','블리치 천년혈전 채널'],
+ ['/ko/radar/','레이더'],['/ko/games/','게임 채널 모음 (허브)'],['/ko/search/?q=5070','검색: 5070'],['/ko/community/best/','념글'],
+ ['/ko/games/caves-of-qud/write','글쓰기 (구조화 리포트)'],['/ko/community/transparency','운영 투명성'],['/en/ai/claude/','Claude channel (English)'],
+]);
 const SITE={origin:'https://nerulio.com'};
 
 /** Channel bar for anonymous readers (an island replaces it with the reader's subscriptions). */
@@ -35,28 +43,28 @@ export async function buildPreview(outDir=path.join(ROOT,'.n2/preview'),now=Date
  const demo=await insertDemoContent(db,now);
  rmSync(outDir,{recursive:true,force:true});mkdirSync(outDir,{recursive:true});
  /** @type {{url:string,file:string,html:string,title:string}[]} */const pages=[];
- for(const l of ['ko','en']){
-  const channels=await channelBar(db,l);
-  pages.push({url:frontUrl(l),file:`${l}-community.html`,title:l==='ko'?'커뮤니티 홈':'Community front',html:String(renderFront(await loadFront(db,{l,now,channels}),SITE))});
-  for(const [v,slug] of SHOWCASE){
-   const {entity}=await entityBySlug(db,v,slug);if(!entity)throw Error(`missing showcase channel ${v}/${slug}`);
-   if(l==='en'&&slug!=='claude')continue;
-   pages.push({url:channelUrl(l,entity),file:`${l}-${slug}.html`,title:(entity.names[l]||entity.names.en)+(l==='ko'?' 채널':''),html:String(renderChannel(await loadChannel(db,entity,{l,now,channels}),SITE))});
-   if(l==='ko'&&(slug==='claude'||slug==='caves-of-qud')){
-    const top=(await db.prepare('SELECT post_no FROM discussions WHERE entity_id=? AND comment_count>0 ORDER BY post_no DESC LIMIT 1').bind(entity.id).first())?.post_no;
-    if(top){const m=await loadPost(db,entity,Number(top),{l,now,channels});if(m)pages.push({url:postUrl(l,entity,Number(top)),file:`${l}-${slug}-${top}.html`,title:m.post.title,html:String(renderPost(m,SITE))});}
-   }
-  }
+ // Every page goes through the Worker's router, exactly as production renders it.
+ const paths=[...PREVIEW_PATHS];
+ for(const [v,slug] of [['ai','claude'],['games','caves-of-qud']]){
+  const {entity}=await entityBySlug(db,v,slug);
+  const top=entity?(await db.prepare('SELECT post_no FROM discussions WHERE entity_id=? AND comment_count>0 ORDER BY post_no DESC LIMIT 1').bind(entity.id).first())?.post_no:null;
+  if(top)paths.push([`/ko/${v}/${slug}/${top}`,`글 보기 — ${slug}`]);
+ }
+ for(const [url,title] of paths){
+  const res=await renderPlatformPage(new Request(SITE.origin+url),{DB:db},{origin:SITE.origin,now:()=>now});
+  if(!res||res.status!==200)throw Error(`preview: ${url} → ${res?.status}`);
+  pages.push({url:url.split('?')[0]===url?url:url,file:url.replace(/^\//,'').replace(/[/?=&.]+/g,'-').replace(/-+$/,'')+'.html',title,html:await res.text()});
  }
  const files=new Map(pages.map(p=>[p.url,p.file]));
  const banner=`<div style="background:#1d2433;color:#fff;font:600 13px/1.4 system-ui,sans-serif;padding:8px 16px;text-align:center">미리보기 · 정보(모델·가격·스펙·일정)는 실제 시드 데이터, 게시판 글은 샘플입니다 · Preview: facts are real seed data, board posts are samples · <a href="index.html" style="color:#8fbaff">페이지 목록</a></div>`;
  for(const p of pages){
   const html=p.html.replace(/href="([^"]*)"/g,(m,href)=>{
    if(href===CSS_HREF)return 'href="n2.css"';
+   if(href.endsWith('.xml'))return 'href="#"';
    if(!href.startsWith('/'))return m;
    const bare=href.split(/[?#]/)[0];
    return files.has(bare)?`href="${files.get(bare)}"`:'href="#"';
-  }).replace(/<body class="n2">/,`<body class="n2">${banner}`);
+  }).replace(/<script type="module" src="[^"]*"><\/script>\n?/,'').replace(/<body class="n2">/,`<body class="n2">${banner}`);
   writeFileSync(path.join(outDir,p.file),html);
  }
  copyFileSync(path.join(ROOT,'src/platform/n2.css'),path.join(outDir,'n2.css'));
