@@ -342,6 +342,9 @@ async function state(db,context,q){
   const cv=(await db.prepare(`SELECT entity_id,COALESCE(target_version,'*') AS tv,result FROM community_reports WHERE kind='compat' AND user_id=? AND target_id=? AND status='published' ORDER BY created_at DESC,rowid DESC LIMIT 20`).bind(user.id,entityId).all()).results||[];
   out.compat={};for(const r of cv){const k=`${r.entity_id}|${r.tv}`;if(!(k in out.compat))out.compat[k]=String(r.result);}
  }
+ const flag=q.get('flag');
+ if(flag){const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(flag);
+  if(m){const f=await db.prepare("SELECT reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],user.id).first();out.flagged=f?{reason:String(f.reason)}:null;}}
  const post=q.get('post');
  if(post&&/^[\w-]{1,64}$/.test(post)){
   const own=await db.prepare('SELECT author_id FROM discussions WHERE id=?').bind(post).first();
@@ -525,7 +528,10 @@ async function modQueue(db,_p){
   const def=propertyDef(e.vertical,String(r.property));
   proposals.push({target:`proposal:${r.id}`,channel:nameOf(e,'ko'),url:channelUrl('ko',e),property:def?.label?.ko||r.property,value:JSON.parse(String(r.value)),unit:r.unit??null,current:cur?{value:JSON.parse(String(cur.value)),unit:cur.unit??null,verification:String(cur.verification)}:null,source:String(r.source_url),note:r.note??null,author:String(r.author),at:Number(r.created_at)});
  }
- const log=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
+ const logRows=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
+ // The log names what was acted on (title or comment excerpt), not an internal id.
+ const logTargets=await modTargets(db,logRows.filter((/** @type {any} */ r)=>r.target_kind==='discussion'||r.target_kind==='comment').map((/** @type {any} */ r)=>[String(r.target_kind),String(r.target_id)]));
+ const log=logRows.map((/** @type {any} */ r)=>({...r,label:logTargets.get(`${r.target_kind}:${r.target_id}`)?.preview?.slice(0,40)??null}));
  return {items,hidden,proposals,log};
 }
 const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null});
@@ -539,7 +545,7 @@ async function modTargets(db,list){
  const ids=(/** @type {string} */ kind)=>[...new Set(list.filter(([k])=>k===kind).map(([,id])=>id))];
  const d=ids('discussion'),c=ids('comment');
  for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d))
-  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,300),status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no))});
+  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no))});
  for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c))
   out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title)});
  return out;

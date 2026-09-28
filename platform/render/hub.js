@@ -109,11 +109,14 @@ function gpuVersus(pair,l){
  const ROWS=/** @type {[string,string,(r:any)=>number|null,(n:number)=>string,boolean][]} */([
   ['VRAM','VRAM',r=>num(r,'vram_gb'),n=>`${n} GB`,true],
   ['대역폭','Bandwidth',r=>num(r,'memory_bandwidth_gbs'),n=>`${int(n,l)} GB/s`,true],
+  ['메모리 버스','Memory bus',r=>num(r,'memory_bus_bits'),n=>`${n}-bit`,true],
   ['보드 전력','Board power',r=>num(r,'board_power_w'),n=>`${int(n,l)} W`,false],
   ['출시가','MSRP',r=>num(r,'launch_price_usd'),n=>money(n,'USD',l),false],
   ['Q4 최대 모델 (추정)','Q4 max (est.)',r=>{const v=num(r,'vram_gb');return v?q4Max(v):null;},n=>`≈ ${n}B`,true]]);
  const [a,b]=pair;
- return box({title:ko?`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`:`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`,extra:badge('OFFICIAL',l),note:ko?'공식 스펙 · Q4 최대는 추정':'Official specs · Q4 max is an estimate'},html`<div class="tw"><table class="mt vs"><thead><tr><th></th><th><a href="${channelUrl(l,a.e)}">${nameOf(a.e,l)}</a></th><th><a href="${channelUrl(l,b.e)}">${nameOf(b.e,l)}</a></th></tr></thead><tbody>
+ const memType=(/** @type {any} */ r)=>r.f('memory_type')?.value?String(r.f('memory_type').value):'–';
+ return box({title:ko?`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`:`${nameOf(a.e,l)} vs ${nameOf(b.e,l)}`,extra:badge('OFFICIAL',l),note:ko?'공식 스펙 · 공식 수치가 없으면 – · Q4 최대는 추정':'Official specs · – where no official figure · Q4 max is an estimate'},html`<div class="tw"><table class="mt vs"><thead><tr><th></th><th><a href="${channelUrl(l,a.e)}">${nameOf(a.e,l)}</a></th><th><a href="${channelUrl(l,b.e)}">${nameOf(b.e,l)}</a></th></tr></thead><tbody>
+<tr><th>${ko?'메모리':'Memory'}</th><td>${memType(a)}</td><td>${memType(b)}</td></tr>
 ${ROWS.map(([k,e,get,fmt,higher])=>{const x=get(a),y=get(b);const win=x==null||y==null||x===y?0:(higher?x>y:x<y)?1:2;return html`<tr><th>${ko?k:e}</th><td>${x==null?'–':win===1?html`<b>${fmt(x)}</b>`:fmt(x)}</td><td>${y==null?'–':win===2?html`<b>${fmt(y)}</b>`:fmt(y)}</td></tr>`;})}
 </tbody></table></div><p class="fine pad"><a href="${channelUrl(l,a.e)}local-llm">${nameOf(a.e,l)} 로컬 LLM ›</a> · <a href="${channelUrl(l,b.e)}local-llm">${nameOf(b.e,l)} 로컬 LLM ›</a></p>`);
 }

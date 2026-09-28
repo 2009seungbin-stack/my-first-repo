@@ -24,6 +24,9 @@ function toast(text){
  if(!el){el=document.createElement('div');el.id='n2-toast';el.className='toast';el.setAttribute('role','status');document.body.append(el);}
  el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.hidden=true;},2600);
 }
+/** A message that must survive the reload or redirect right after an action. */
+function toastNext(text){try{sessionStorage.setItem('n2-toast',text);}catch{}}
+function toastPending(){try{const t=sessionStorage.getItem('n2-toast');if(t){sessionStorage.removeItem('n2-toast');toast(t);}}catch{}}
 const loginUrl=()=>`/api/v1/auth/google/start?return=${encodeURIComponent(location.pathname+location.search)}`;
 /** The API's messages are English; Korean pages show these instead (unknown ones fall back to T.error). */
 const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다른 닉네임을 골라 주세요.'],[/^This nickname is reserved/,'사용할 수 없는 닉네임이에요.'],[/^displayName must be (\d+)–(\d+)/,'닉네임은 $1~$2자로 써 주세요.'],
@@ -60,6 +63,7 @@ async function main(){
  const q=new URLSearchParams();if(entity)q.set('entity',entity);if(post)q.set('post',post);
  const st=(await api('/state?'+q)).data||{signedIn:false,votes:{}};
  const signedIn=!!st.signedIn;
+ toastPending();
 
  // Header search inside a channel: × drops the channel scope.
  for(const x of $$('[data-unscope]'))x.addEventListener('click',()=>{const f=x.closest('form');$('input[name="in"]',f)?.remove();x.parentElement.remove();const q=$('input[name="q"]',f);if(q){q.placeholder=L==='ko'?'검색':'Search';q.focus();}});
@@ -317,7 +321,7 @@ async function main(){
     r=await write('/posts?l='+L,{entityId:wf.dataset.entity,kind,title:String(fd.get('title')||''),body:String(fd.get('body')||'')},signedIn);
    }
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
-   if(r?.url){store.set(null);location.href=r.url;}
+   if(r?.url){store.set(null);toastNext(L==='ko'?'등록했어요.':'Posted.');location.href=r.url;}
   });
   const subj=$('select[name="subjectId"]',wf),sv=$('input[name="subjectVersion"]',wf);
   // Picking a patch fills in its latest known version (the reader can still change it).
@@ -331,7 +335,7 @@ async function main(){
  const bf=$('form[data-island="bench-form"]');
  if(bf)bf.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(bf);
   const r=await write('/reports',{kind:'benchmark',entityId:String(fd.get('model')),targetId:bf.dataset.gpu,metrics:{tokens_per_s:Number(String(fd.get('tps')).replace(',','.'))},env:Object.fromEntries([['runtime',fd.get('runtime')],['quant',fd.get('quant')],['ctx',fd.get('ctx')],['os',fd.get('os')]].filter(([,v])=>v).map(([k,v])=>[k,String(v)]))},signedIn);
-  if(r){toast(T.thanks);setTimeout(()=>location.reload(),900);}});
+  if(r){toastNext(L==='ko'?'측정값을 올렸어요. 표의 중앙값에 반영됐어요.':'Measurement added to the median.');location.reload();}});
 
  // 정보 제안 (wiki box): values are typed by the property (number, yes/no, list) before sending.
  for(const pf of $$('form[data-island="propose"]')){
@@ -352,8 +356,11 @@ async function main(){
   const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
   if(!r)return;
   const reasons=[...$('select[name="reason"]',ff).options].reduce((o,x)=>(o[x.value]=x.textContent,o),{});
-  toast(r.updated?T.flagUpdated(reasons[r.previousReason]||r.previousReason):T.flagged);$('button[type="submit"]',ff).disabled=true;
-  const back=ff.dataset.back;if(back)setTimeout(()=>{location.href=back;},1600);});
+  const msg=r.updated?T.flagUpdated(reasons[r.previousReason]||r.previousReason):T.flagged;$('button[type="submit"]',ff).disabled=true;
+  const back=ff.dataset.back;if(back){toastNext(msg);location.href=back;}else toast(msg);});
+ // Already reported this? Say so before the form is filled in again.
+ if(ff&&signedIn){const fs=await api(`/state?flag=${encodeURIComponent(ff.dataset.target)}`);const prev=fs.data?.flagged;
+  if(prev){const sel=$('select[name="reason"]',ff);const lab=[...sel.options].find(o=>o.value===prev.reason)?.textContent||prev.reason;const p=document.createElement('p');p.className='needlogin';p.textContent=L==='ko'?`이미 “${lab}” 사유로 신고했어요. 다시 보내면 사유가 바뀝니다.`:`You already reported this (${lab}). Sending again changes the reason.`;ff.prepend(p);}}
 
  // 내 정보: nickname and followed channels
  const me=$('[data-island="me"]');
@@ -394,7 +401,7 @@ async function main(){
    const STATUS=ko?{hidden:'임시조치 중',deleted:'작성자가 삭제',locked:'댓글 잠김'}:{};
    const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려'}:{};
    const KIND=ko?{discussion:'글',comment:'댓글',user:'계정',proposal:'정보 제안'}:{};
-   const when=t=>new Date(t).toLocaleString(ko?'ko-KR':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+   const when=t=>new Date(t).toLocaleString(ko?'ko-KR':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false,...(ko?{timeZone:'Asia/Seoul'}:{})});
    const act_=async(...a)=>act(...a);
    const act=async(target,action,label)=>{const reason=prompt(`${label} — ${ko?'사유(처리 기록에 남습니다)':'reason (kept in the log)'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok){toast(ko?`${label} 처리했어요`:'Done');setTimeout(()=>location.reload(),700);}else explain(x);};
    /** One row: title (linked while it is public), who wrote it and where, the excerpt, then the actions that apply. */
@@ -406,7 +413,10 @@ async function main(){
     t.textContent=it.preview||it.target;top.append(' ',t);li.append(top);
     const meta=[`${KIND[it.target.split(':')[0]]||it.target.split(':')[0]}`,it.author&&(ko?`작성 ${it.author}`:`by ${it.author}`),it.context&&(ko?`「${it.context}」의 댓글`:`on “${it.context}”`),it.status&&it.status!=='published'&&(STATUS[it.status]||it.status)].filter(Boolean);
     const m=document.createElement('p');m.className='fine';m.textContent=meta.join(' · ');li.append(m);
-    if(it.excerpt){const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt;li.append(ex);}
+    if(it.excerpt){
+     // The whole text is here: a hidden post is 404 on the site, even for moderators.
+     if(it.excerpt.length>300){const dt=document.createElement('details');const sm=document.createElement('summary');sm.textContent=ko?'본문 전체 보기':'Full text';const pre=document.createElement('p');pre.className='mqx full';pre.textContent=it.excerpt;dt.append(sm,pre);const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt.slice(0,300)+'…';li.append(ex,dt);}
+     else{const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt;li.append(ex);}}
     if(it.note){const n=document.createElement('p');n.className='mqn';n.textContent=(ko?'신고자 설명: ':'Reporter: ')+it.note;li.append(n);}
     const bar=document.createElement('p');bar.className='mqa';
     for(const [a,lab] of actions){const b=document.createElement('button');b.type='button';b.className='btn'+(a==='hide'?' p':'');b.textContent=lab;b.addEventListener('click',()=>act(it.target,a,lab));bar.append(b);}
@@ -442,7 +452,7 @@ async function main(){
     }
    }
    const lg=$('[data-log]');
-   for(const x of log){const li=document.createElement('li');li.className='fine';li.textContent=`${when(x.created_at)} · ${ACTION[x.action]||x.action} · ${KIND[x.target_kind]||x.target_kind} ${String(x.target_id).slice(0,14)} · ${x.reason||''}`;lg.append(li);}
+   for(const x of log){const li=document.createElement('li');li.className='fine';li.textContent=`${when(x.created_at)} · ${ACTION[x.action]||x.action} · ${KIND[x.target_kind]||x.target_kind} ${x.label?`「${x.label}」`:String(x.target_id).slice(0,14)} · ${x.reason||''}`;lg.append(li);}
   }
  }
 
