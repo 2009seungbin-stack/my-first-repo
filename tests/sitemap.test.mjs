@@ -5,12 +5,13 @@ import {LOCALES} from '../src/i18n.js';
 import {INTENTS} from '../src/intents.js';
 import {mayPromote} from '../src/capabilities.js';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
-import {entry,ALL_ROUTES} from '../tools/build.mjs';
+import {entry,ALL_ROUTES,noEmailObfuscation} from '../tools/build.mjs';
 import {sitemapFiles,sitemapGroups,SITEMAP_FILES,SITEMAP_LIMITS,W3C_DATETIME} from '../tools/sitemaps.mjs';
 import {contentText,contentHash,pageHashes,lastmodResolver,readLedger,staleRoutes} from '../tools/lastmod.mjs';
 import {gamePageFor} from '../tools/game-landing-build.mjs';
 import {GUIDES} from '../tools/guides-registry.mjs';
 import {builtPages,changedSince,submission} from '../tools/indexnow.mjs';
+import {pageProblems,liveCheck} from '../tools/live-check.mjs';
 /** Structural checks of what sitemaps.org's sitemap.xsd / siteindex.xsd require, without network or
  * lxml (CI). The full schema validation, with the official XSDs, is tools/validate-sitemaps.py. */
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),origin='https://nerulio.example.test/';
@@ -88,4 +89,35 @@ test('IndexNow follows the index and submits only new or changed pages',async()=
   const body=submission({siteURL:origin,indexNowKey:'abcd1234'},changedSince(pages,before));
   assert.equal(body.urlList.length,2);assert.equal(body.keyLocation,origin+'abcd1234.txt');
  }finally{await rm(dir,{recursive:true,force:true});}
+});
+test('every built page opts out of Cloudflare Email Address Obfuscation without changing its content',()=>{
+ for(const route of ['','en/','en/game/pixijs-2x-spritesheet-scale/','ko/image/resize/','ja/privacy/']){
+  const page=entry(html,route,origin,{}),out=noEmailObfuscation(page);
+  assert.match(out,/^<!doctype html><html\b[^>]*><!--email_off-->(?![\s\S]*<!--email_off-->)[\s\S]*<!--\/email_off-->\n$/i,route);
+  assert.equal(out.replace('<!--email_off-->','').replace('<!--/email_off-->\n',''),page.replace(/\s*$/,''),route);
+ }
+});
+test('the live check reads the served site: canonical origin, noindex, edge rewrites, retired hosts',async()=>{
+ const site='https://nerulio.example.test/',url=site+'en/game/',good=`<html><head><link rel="canonical" href="${url}"><meta property="og:url" content="${url}"><link rel="alternate" hreflang="ko" href="${site}ko/game/"></head><body><h1>x</h1></body></html>`;
+ assert.deepEqual(pageProblems(url,{status:200,html:good},site),[]);
+ assert.deepEqual(pageProblems(url,{status:301,headers:{location:'https://x.test/'}},site),['HTTP 301 → https://x.test/']);
+ const old=good.replaceAll(site,'https://nerulio.pages.dev/');
+ assert.deepEqual(pageProblems(url,{status:200,html:old},site),['canonical https://nerulio.pages.dev/en/game/','og:url https://nerulio.pages.dev/en/game/','hreflang off-origin https://nerulio.pages.dev/ko/game/']);
+ assert.deepEqual(pageProblems(url,{status:200,headers:{'x-robots-tag':'noindex'},html:good.replace('<head>','<head><meta name="robots" content="noindex,follow">')},site),['X-Robots-Tag noindex','meta robots noindex']);
+ assert.deepEqual(pageProblems(url,{status:200,html:good.replace('<h1>x</h1>','hero<a href="/cdn-cgi/l/email-protection" class="__cf_email__">[email&#160;protected]</a>')},site),['text rewritten by Cloudflare Email Address Obfuscation']);
+ const served={
+  [site+'robots.txt']:`User-agent: *\nAllow: /\nSitemap: ${site}sitemap.xml\n`,
+  [site+'sitemap.xml']:`<sitemapindex><sitemap><loc>${site}sitemap-game.xml</loc></sitemap><sitemap><loc>${site}sitemap-images.xml</loc></sitemap></sitemapindex>`,
+  [site+'sitemap-game.xml']:`<urlset><url><loc>${url}</loc></url><url><loc>https://nerulio.pages.dev/ko/game/</loc></url></urlset>`,
+  [site+'sitemap-images.xml']:`<urlset><url><loc>${url}</loc></url></urlset>`,[url]:good};
+ const real=globalThis.fetch;
+ globalThis.fetch=async u=>{u=String(u);
+  if(u.startsWith('https://old.example.test/'))return new Response('',{status:301,headers:{location:u.replace('https://old.example.test/',site)}});
+  if(u.startsWith('https://stale.example.test/'))return new Response('same site twice',{status:200});
+  return u in served?new Response(served[u],{status:200}):new Response('',{status:404});};
+ try{
+  const {pages,errors}=await liveCheck(site,['https://old.example.test/','https://stale.example.test/']);
+  assert.equal(pages,1);
+  assert.deepEqual(errors,[`${site}sitemap-game.xml: lists https://nerulio.pages.dev/ko/game/`,`https://stale.example.test/en/game/: expected a permanent redirect to ${url}, got HTTP 200 `]);
+ }finally{globalThis.fetch=real;}
 });

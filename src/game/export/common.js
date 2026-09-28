@@ -8,7 +8,7 @@
  * what an engine is NOT given is said, never silently dropped. */
 import {playbackOrder} from '../model.js';
 import {frameNames} from '../exporters/generic-json.js';
-export const GENERATOR=Object.freeze({tool:'nerulio-studio',name:'Nerulio Studio',version:'1',url:'https://nerulio.pages.dev/game/studio/'});
+export const GENERATOR=Object.freeze({tool:'nerulio-studio',name:'Nerulio Studio',version:'1',url:'https://nerulio.com/game/studio/'});
 export const SCHEMA_VERSION=1;
 export const stemOf=s=>String(s||'atlas').replace(/\.[^.]*$/,'').replace(/[^\w.-]+/g,'_').replace(/^[._-]+|[._-]+$/g,'')||'atlas';
 /** Page image names of a variant: "hero.png" or "hero-0.png"…, with the scale suffix ("hero@2x.png"). */

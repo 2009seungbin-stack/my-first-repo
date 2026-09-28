@@ -27,6 +27,11 @@ export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
 export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
+ * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
+ * The site publishes no e-mail addresses, so every page opts out. Applied after entry(), so the
+ * content hashes behind <lastmod> (tools/lastmod.mjs) are unchanged. tools/live-check.mjs verifies it live. */
+export const noEmailObfuscation=html=>html.replace(/(<html\b[^>]*>)/i,'$1<!--email_off-->').replace(/\s*$/,'<!--/email_off-->\n');
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
  html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
@@ -97,7 +102,7 @@ export async function build(options={}){
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
- for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
+ for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(entry(html,route,siteURL,config)));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));

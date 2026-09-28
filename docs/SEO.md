@@ -6,7 +6,7 @@
 
 HTML contains its title, description, translated heading and tool instructions, crawlable related links and examples before JavaScript runs. The focused upload remains above editorial content. Canonical, reciprocal en/ko/ja/x-default alternates, OG and X metadata are generated from the same registry. File-tool intent pages use WebApplication and visible BreadcrumbList data; game pages and home use SoftwareApplication with a free offer (below). No page has ratings, review counts or invented organization information.
 
-`SITE_URL` must be the final HTTP(S) base including a subdirectory if used. It is currently `https://fileforge-studio.pages.dev/`. No configured origin means no invented production canonicals or absolute social URLs. Production social assets are committed 1200×630 PNGs, generated for each intent and locale. Policy pages retain their own canonical/title/description and language links.
+`SITE_URL` must be the final HTTP(S) base including a subdirectory if used. It is currently `https://nerulio.com/` (Cloudflare Pages production variable; the pages.dev hosts 301 to it). No configured origin means no invented production canonicals or absolute social URLs. Production social assets are committed 1200×630 PNGs, generated for each intent and locale. Policy pages retain their own canonical/title/description and language links.
 
 ## Game pages (game editor first, 2026-09-23)
 
@@ -141,7 +141,7 @@ Google reads the sitemap index (robots.txt, Search Console).
 By hand, with the same `SITE_URL`:
 
 ```sh
-SITE_URL=https://nerulio.pages.dev/ node tools/build.mjs
+SITE_URL=https://nerulio.com/ node tools/build.mjs
 node tools/indexnow.mjs                                   # dry run: every page URL
 node tools/indexnow.mjs --since ../previous/dist          # dry run: new or changed only
 node tools/indexnow.mjs --since ../previous/dist --wait-live --submit
@@ -150,6 +150,13 @@ node tools/indexnow.mjs --since ../previous/dist --wait-live --submit
 `--submit` first checks that the public key file is live, then POSTs to api.indexnow.org. It rejects
 foreign-host/path URLs, queries, preview builds and lists over 10,000 URLs. HTTP 200/202 is
 submission acceptance, not indexing proof.
+
+After that step the workflow runs `node tools/live-check.mjs` against the live site (same
+`SITE_URL`, plus `LEGACY_ORIGINS` that must 301 to it). It fails when a sitemap page is not 200, is
+noindex, has a canonical/og:url other than itself or hreflang on another origin, when robots.txt or
+the sitemaps point elsewhere, or when Cloudflare rewrote page text (Email Address Obfuscation; the
+build wraps every page in `<!--email_off-->`). Run it by hand the same way:
+`SITE_URL=https://nerulio.com/ node tools/live-check.mjs`.
 
 ## Sources checked
 

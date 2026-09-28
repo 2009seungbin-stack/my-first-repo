@@ -16,7 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      SITE_URL: https://nerulio.pages.dev/
+      # Must equal the Cloudflare Pages production SITE_URL: every canonical, sitemap <loc> and the
+      # IndexNow host come from it. A repository variable SITE_URL overrides the default.
+      SITE_URL: ${{ vars.SITE_URL || 'https://nerulio.com/' }}
+      # Retired hosts that must answer with a permanent redirect to SITE_URL (tools/live-check.mjs).
+      LEGACY_ORIGINS: https://nerulio.pages.dev/ https://fileforge-studio.pages.dev/ https://www.nerulio.com/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,3 +41,8 @@ jobs:
           else
             node tools/indexnow.mjs --wait-live --submit
           fi
+      - name: Check the live site against this build
+        # After the deploy is live (or the step above gave up waiting): canonical origin, noindex,
+        # robots.txt, sitemaps, retired-host redirects and edge rewrites of every sitemap page.
+        if: always()
+        run: node tools/live-check.mjs

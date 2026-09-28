@@ -4,13 +4,23 @@
 
 > **계정·Free/Pro·결제 계층(선택)**: `SERVICE_API=on`일 때만 빌드된다. 켜기 전에 [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md)의 D1·secret·OAuth 순서를 먼저 완료한다. 설계는 [docs/SERVICE-ARCHITECTURE.md](docs/SERVICE-ARCHITECTURE.md), 인증은 [docs/AUTH.md](docs/AUTH.md), 결제는 [docs/BILLING.md](docs/BILLING.md), 요금 정책은 [docs/PRICING-MODEL.md](docs/PRICING-MODEL.md). 서비스 빌드에서 AdSense는 `/api/v1/me`가 `ads:true`일 때만 런타임에 로드된다(Pro는 광고 요청 0).
 
-### 주소 이전: nerulio.pages.dev (2026-09-21)
+### 현재 운영 주소: https://nerulio.com (2026-09-28 확인)
+
+**정본(canonical) 주소는 `https://nerulio.com/` 하나다.** Cloudflare Pages 프로젝트 `nerulio`의 Production 변수 `SITE_URL`이 이 값이어야 하며, 모든 canonical·hreflang·og:url·sitemap `<loc>`·robots.txt의 Sitemap 줄·IndexNow 제출 호스트가 이 값에서 만들어진다. `https://nerulio.pages.dev/`, `https://fileforge-studio.pages.dev/`, `https://www.nerulio.com/`, `http://nerulio.com/`은 같은 경로의 nerulio.com으로 301 이동한다(2026-09-28 실측).
+
+- `.github/workflows/indexnow.yml`의 `SITE_URL`도 같은 값이어야 한다(저장소 변수 `SITE_URL`이 있으면 그것을 쓰고, 없으면 `https://nerulio.com/`). 다르면 IndexNow가 "live sitemaps still differ … on N pages"로 30분 뒤 실패한다(2026-09-27 #40에서 실제 발생).
+- 같은 워크플로가 배포 뒤 `node tools/live-check.mjs`로 **운영 사이트 자체**를 검사한다: robots.txt, sitemap 출처, 모든 sitemap 페이지의 200·noindex 부재·자기 canonical·og:url·hreflang 출처, Cloudflare가 본문을 바꿨는지(Email Address Obfuscation), 이전 호스트의 301. CI(`tools/regression.py`)는 가짜 출처 `https://fileforge.example.test/`로 빌드하므로 운영 설정 오류는 이 검사만 잡는다.
+- 새 주소로 다시 옮길 때: 새 Production `SITE_URL` → 재배포 → 위 워크플로 `SITE_URL`/`LEGACY_ORIGINS` 변경 → Search Console 새 속성 + 주소 변경 도구. `REDIRECT_TO`는 **퇴역하는 별도 Pages 프로젝트에만** 넣는다(운영 프로젝트에 넣으면 사이트 전체가 리디렉션만 배포한다).
+
+아래 두 절은 이전 주소 시절의 기록이다.
+
+### (기록) 주소 이전: nerulio.pages.dev (2026-09-21)
 
 `*.pages.dev` 주소는 Pages 프로젝트 이름으로 고정되어 바꿀 수 없으므로 같은 저장소에 새 Pages 프로젝트 `nerulio`(→ https://nerulio.pages.dev)를 만든다. 설정은 아래 `fileforge-studio`와 같고 `SITE_URL`만 `https://nerulio.pages.dev`로 둔다. 새 주소 배포가 성공한 **뒤에** 기존 `fileforge-studio` 프로젝트의 Production 변수에 `REDIRECT_TO=https://nerulio.pages.dev`를 추가하고 재배포하면, 그 프로젝트는 `_redirects` 한 줄(`/* https://nerulio.pages.dev/:splat 301`)만 배포해 모든 경로·쿼리를 새 주소로 영구 이동시킨다. 순서를 바꾸면 이전 주소가 존재하지 않는 곳으로 이동하므로 주의한다. Search Console과 AdSense에는 새 주소를 새 사이트로 등록해야 한다. `*.pages.dev` 하위 도메인은 AdSense 승인이 어려울 수 있으며, 소유 도메인을 구입하면 같은 방식(`REDIRECT_TO`)으로 한 번 더 옮긴다.
 
-### 현재 공개 배포 (2026-09-20)
+### (기록) 첫 공개 배포 (2026-09-20)
 
-공개 주소는 https://fileforge-studio.pages.dev/ 이다. Cloudflare Pages 프로젝트 `fileforge-studio`에 `2009seungbin-stack/my-first-repo`를 연결했다. **`main`에 push하면 Cloudflare가 자동으로 빌드·배포한다.** 수동 ZIP 업로드는 운영 업데이트 절차로 사용하지 않는다.
+당시 공개 주소는 https://fileforge-studio.pages.dev/ 였다(현재는 nerulio.com으로 301). Cloudflare Pages 프로젝트 `fileforge-studio`에 `2009seungbin-stack/my-first-repo`를 연결했다. **`main`에 push하면 Cloudflare가 자동으로 빌드·배포한다.** 수동 ZIP 업로드는 운영 업데이트 절차로 사용하지 않는다.
 
 프로젝트 **Settings → Build**에서 `npm run build`, 출력 `dist`, 루트 디렉터리 비움, 운영 브랜치 `main`, Automatic deployments Enabled, Build system Version 3으로 설정했다. GitHub 앱 접근 범위는 이 저장소 하나다. 운영 환경 변수는 아래와 같으며, `ADSENSE_CLIENT`·광고 슬롯·`ADSENSE_CMP_READY`는 아직 설정하지 않았다.
 
