@@ -64,7 +64,7 @@ export function nearestZeroCrossing(channels,sampleRate,index,{radiusMs=10}={}){
 export function edit(channels,sampleRate,{start=0,end=channels[0].length/sampleRate,fadeIn=0,fadeOut=0,speed=1,semitones=0,removeSilence=false,snapToZero=false}={}){
  validateAudio(channels,sampleRate);let a=clamp(Math.round(start*sampleRate),0,channels[0].length),b=clamp(Math.round(end*sampleRate),a,channels[0].length);
  if(snapToZero){a=nearestZeroCrossing(channels,sampleRate,a);b=nearestZeroCrossing(channels,sampleRate,b);if(b<=a)b=Math.min(channels[0].length,a+1);}
- if(removeSilence){const bound=silenceBounds(channels.map(c=>c.subarray(a,b)),sampleRate),base=a;a=base+bound.start;b=base+bound.end;}
+ if(removeSilence){const bound=silenceBounds(channels.map(c=>c.subarray(a,b)),sampleRate),base=a;if(bound.silent)throw Error('Selected range is silent; turn off silence trim or choose another range');a=base+bound.start;b=base+bound.end;}
  const outputFrames=Math.ceil((b-a)/speed);if(outputFrames>sampleRate*180||outputFrames*channels.length*4>96*1048576)throw Error('Output exceeds the 3 minute / 96 MiB memory limit; shorten selection or increase speed');
  let out=channels.map(c=>c.subarray(a,b));out=shift(out,{speed,semitones});if(speed===1&&semitones===0)out=out.map(c=>new Float32Array(c));
  const fi=Math.round(clamp(fadeIn,0,out[0].length/sampleRate)*sampleRate),fo=Math.round(clamp(fadeOut,0,out[0].length/sampleRate)*sampleRate);
