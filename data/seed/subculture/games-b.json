@@ -69,6 +69,15 @@
    "title": "우마무스메 프리티 더비 한국 공식 사이트",
    "publisher": "Kakao Games",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-b-trickcal-3rd-anniversary",
+   "kind": "OFFICIAL",
+   "url": "https://trickcal.com/event/3rdanniversary",
+   "title": "3주년 사전 예약 이벤트 | 트릭컬 리바이브",
+   "publisher": "EPIDGames (트릭컬 리바이브 공식 사이트)",
+   "retrieved": "2026-09-28",
+   "note": "Read in a browser; event details are partly given as image alt text on the official page."
   }
  ],
  "entities": [
@@ -526,6 +535,132 @@
      "ver": "OFFICIAL"
     }
    ]
+  },
+  {
+   "id": "studio_org:epid-games",
+   "type": "studio_org",
+   "slug": "epid-games",
+   "names": {
+    "en": "EPIDGames",
+    "ko": "에피드게임즈"
+   },
+   "description": {
+    "en": "Korean developer and operator of Trickcal Revive.",
+    "ko": "트릭컬 리바이브를 개발·서비스하는 국내 게임사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://trickcal.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "note": "Game site; the page footer names EPIDGames Inc."
+    }
+   ]
+  },
+  {
+   "id": "franchise:trickcal",
+   "type": "franchise",
+   "slug": "trickcal",
+   "names": {
+    "en": "Trickcal",
+    "ko": "트릭컬"
+   },
+   "description": {
+    "en": "Korean mobile RPG franchise by EPIDGames; its current game is Trickcal Revive, which celebrates its third anniversary in autumn 2026.",
+    "ko": "에피드게임즈의 모바일 RPG 프랜차이즈로, 현재 서비스작 트릭컬 리바이브가 2026년 가을 3주년을 맞았다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://trickcal.com/"
+    },
+    {
+     "label": "Official Naver Game Lounge",
+     "url": "https://game.naver.com/lounge/Trickcal/home"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://trickcal.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:epid-games",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:trickcal-revive-game",
+   "type": "work",
+   "slug": "trickcal-revive-game",
+   "names": {
+    "en": "Trickcal Revive",
+    "ko": "트릭컬 리바이브"
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://trickcal.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "ios",
+      "android"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "note": "App Store and Google Play download links on the official page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://trickcal.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:trickcal",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:epid-games",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:epid-games",
+     "src": "src:sc-games-b-trickcal-3rd-anniversary",
+     "ver": "OFFICIAL"
+    }
+   ]
   }
  ],
  "events": [
@@ -564,6 +699,60 @@
     "work:limbus-company-game"
    ],
    "src": "src:sc-games-b-lc-0924-update"
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "event",
+   "title": {
+    "en": "Trickcal Revive 3rd anniversary pre-registration",
+    "ko": "트릭컬 리바이브 3주년 사전 예약 이벤트"
+   },
+   "starts": "2026-09-14T18:00+09:00",
+   "ends": "2026-10-22T10:59+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://trickcal.com/event/3rdanniversary",
+   "entities": [
+    "work:trickcal-revive-game"
+   ],
+   "src": "src:sc-games-b-trickcal-3rd-anniversary",
+   "note": "Pre-registration coupons can be redeemed until the 2026-10-22 regular maintenance. The page also announces a collaboration café with Golden Crema (dates not stated on the page)."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "event",
+   "title": {
+    "en": "Trickcal Revive 3rd anniversary in-game events",
+    "ko": "트릭컬 리바이브 3주년 게임 내 이벤트"
+   },
+   "starts": "2026-09-24",
+   "ends": "2026-10-22T10:59+09:00",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://trickcal.com/event/3rdanniversary",
+   "entities": [
+    "work:trickcal-revive-game"
+   ],
+   "src": "src:sc-games-b-trickcal-3rd-anniversary"
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Trickcal Revive regular maintenance (22 October 2026)",
+    "ko": "트릭컬 리바이브 10월 22일 정기점검"
+   },
+   "starts": "2026-10-22",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "KR",
+   "url": "https://trickcal.com/event/3rdanniversary",
+   "entities": [
+    "work:trickcal-revive-game"
+   ],
+   "src": "src:sc-games-b-trickcal-3rd-anniversary"
   }
  ]
 }
