@@ -1,0 +1,143 @@
+{
+ "615": {
+  "type": "new feature branch",
+  "driver_info": [
+   {
+    "release_version": "615.71.09",
+    "release_date": "2026-09-09",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-615-71-09/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/615.71.09/NVIDIA-Linux-x86_64-615.71.09.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/615.71.09/NVIDIA-Linux-aarch64-615.71.09.run"
+    }
+   }
+  ]
+ },
+ "595": {
+  "type": "production branch",
+  "driver_info": [
+   {
+    "release_version": "595.91.07",
+    "release_date": "2026-08-03",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-595-91-07/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/595.91.07/NVIDIA-Linux-x86_64-595.91.07.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/595.91.07/NVIDIA-Linux-aarch64-595.91.07.run"
+    }
+   },
+   {
+    "release_version": "595.71.05",
+    "release_date": "2026-04-28",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-595-71-05/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/595.71.05/NVIDIA-Linux-x86_64-595.71.05.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/595.71.05/NVIDIA-Linux-aarch64-595.71.05.run"
+    }
+   },
+   {
+    "release_version": "595.58.03",
+    "release_date": "2026-03-24",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-595-58-03/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/595.58.03/NVIDIA-Linux-x86_64-595.58.03.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/595.58.03/NVIDIA-Linux-aarch64-595.58.03.run"
+    }
+   }
+  ]
+ },
+ "580": {
+  "type": "lts branch",
+  "driver_info": [
+   {
+    "release_version": "580.178.04",
+    "release_date": "2026-08-03",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-580-178-04/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/580.178.04/NVIDIA-Linux-x86_64-580.178.04.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/580.178.04/NVIDIA-Linux-aarch64-580.178.04.run"
+    }
+   },
+   {
+    "release_version": "580.173.02",
+    "release_date": "2026-06-29",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-580-173-02/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/580.173.02/NVIDIA-Linux-x86_64-580.173.02.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/580.173.02/NVIDIA-Linux-aarch64-580.173.02.run"
+    }
+   },
+   {
+    "release_version": "580.65.06",
+    "release_date": "2025-08-04",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-580-65-06/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/580.65.06/NVIDIA-Linux-x86_64-580.65.06.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/580.65.06/NVIDIA-Linux-aarch64-580.65.06.run"
+    }
+   }
+  ]
+ },
+ "460": {
+  "type": "production branch",
+  "driver_info": [
+   {
+    "release_version": "460.106.00",
+    "release_date": "2021-10-26",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-460-106-00/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64",
+     "ppc64le"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/460.106.00/NVIDIA-Linux-x86_64-460.106.00.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/460.106.00/NVIDIA-Linux-aarch64-460.106.00.run",
+     "ppc64le": "https://us.download.nvidia.com/tesla/460.106.00/NVIDIA-Linux-ppc64le-460.106.00.run"
+    }
+   },
+   {
+    "release_version": "460.32.03",
+    "release_date": "",
+    "release_notes": "https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-460-32-03/index.html",
+    "architectures": [
+     "x86_64",
+     "aarch64",
+     "ppc64le"
+    ],
+    "runfile_url": {
+     "x86_64": "https://us.download.nvidia.com/tesla/460.32.03/NVIDIA-Linux-x86_64-460.32.03.run",
+     "aarch64": "https://us.download.nvidia.com/tesla/460.32.03/NVIDIA-Linux-aarch64-460.32.03.run",
+     "ppc64le": "https://us.download.nvidia.com/tesla/460.32.03/NVIDIA-Linux-ppc64le-460.32.03.run"
+    }
+   }
+  ]
+ }
+}

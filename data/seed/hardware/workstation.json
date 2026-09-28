@@ -1,0 +1,2432 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {
+   "id": "src:ws-nv-rtx-pro-6000-we-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/rtx-pro-6000-blackwell-workstation-edition/workstation-blackwell-rtx-pro-6000-workstation-edition-nvidia-us-3519208-web.pdf",
+   "title": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-6000-maxq-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-6000-max-q/workstation-datasheet-blackwell-rtx-pro-6000-max-q-nvidia-us-5349650-web.pdf",
+   "title": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-5500-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5500/",
+   "title": "RTX PRO 5500 Blackwell Workstation GPU",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Page marks the product 'Coming Soon' and the specifications as preliminary and subject to change."
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-5000-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-5000-blackwell/workstation-datasheet-blackwell-rtx-pro-5000-5488550-nvidia.pdf",
+   "title": "NVIDIA RTX PRO 5000 Blackwell Datasheet (48GB and 72GB)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "One spec table with a column each for the RTX PRO 5000 Blackwell (48 GB) and RTX PRO 5000 72GB Blackwell; shared cells span both columns."
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-4500-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/rtx-pro-4500-blackwell/workstation-datasheet-blackwell-rtx-pro-4500-we-nvidia-us-5108623-web.pdf",
+   "title": "NVIDIA RTX PRO 4500 Blackwell Workstation Edition Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-4000-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-4000/workstation-datasheet-rtx-pro-4000-nvidia-us-web.pdf",
+   "title": "NVIDIA RTX PRO 4000 Blackwell Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-4000-sff-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/workstation-datasheet-blackwell-rtx-pro-4000-sff-nvidia-us-4016700.pdf",
+   "title": "NVIDIA RTX PRO 4000 Blackwell SFF Edition Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-pro-2000-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-2000/workstation-datasheet-blackwell-rtx-pro-2000-nvidia-us-4016661.pdf",
+   "title": "NVIDIA RTX PRO 2000 Blackwell Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-6000-ada-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/design-visualization/rtx-6000/proviz-print-rtx6000-datasheet-web-2504660.pdf",
+   "title": "NVIDIA RTX 6000 Ada Generation Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-5000-ada-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://resources.nvidia.com/en-us-briefcase-for-datasheets/rtx-5000-ada-datashe",
+   "title": "NVIDIA RTX 5000 Ada Generation Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Linked from the NVIDIA product page; the PDF is served by NVIDIA's datasheet library at cdn.pathfactory.com/assets/10412/contents/1095460/b57d512c-c1b8-4fea-b9e5-cb95bcb33c44.pdf"
+  },
+  {
+   "id": "src:ws-nv-rtx-4500-ada-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4500-datasheet.pdf",
+   "title": "NVIDIA RTX 4500 Ada Generation Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-4000-ada-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4000-datasheet.pdf",
+   "title": "NVIDIA RTX 4000 Ada Generation Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-4000-sff-ada-datasheet",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4000-sff-datasheet.pdf",
+   "title": "NVIDIA RTX 4000 SFF Ada Generation Datasheet",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-nv-rtx-2000-ada-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/products/workstations/rtx-2000/",
+   "title": "RTX 2000 Ada Generation Graphics Card",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "The linked datasheet (resources.nvidia.com) redirected to the NVIDIA homepage on the retrieval date; specs taken from the product page."
+  },
+  {
+   "id": "src:ws-nv-news-rtx-6000-ada-2022-09-20",
+   "kind": "OFFICIAL",
+   "url": "https://nvidianews.nvidia.com/news/nvidias-new-ada-lovelace-rtx-gpu-arrives-for-designers-and-creators",
+   "title": "NVIDIA's New Ada Lovelace RTX GPU Arrives for Designers and Creators",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Press release dated 2022-09-20; no price stated."
+  },
+  {
+   "id": "src:ws-nv-news-rtx-4000-sff-ada-2023-03-21",
+   "kind": "OFFICIAL",
+   "url": "https://nvidianews.nvidia.com/news/nvidia-redefines-workstations-to-power-new-era-of-ai-design-industrial-metaverse",
+   "title": "NVIDIA Redefines Workstations to Power New Era of AI, Design, Industrial Metaverse",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Press release dated 2023-03-21."
+  },
+  {
+   "id": "src:ws-nv-blog-rtx-2000-ada-2024-02-12",
+   "kind": "OFFICIAL",
+   "url": "https://blogs.nvidia.com/blog/rtx-2000-ada/",
+   "title": "NVIDIA RTX 2000 Ada Generation GPU Brings Performance, Versatility for Next Era of AI-Accelerated Design and Visualization",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "NVIDIA blog post dated 2024-02-12; no price stated."
+  },
+  {
+   "id": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+   "kind": "OFFICIAL",
+   "url": "https://nvidianews.nvidia.com/news/nvidia-blackwell-rtx-pro-workstations-servers-agentic-ai",
+   "title": "NVIDIA Blackwell RTX PRO Comes to Workstations and Servers for Designers, Developers, Data Scientists and Creatives to Build and Collaborate With Agentic AI",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Press release dated 2025-03-18; no prices stated."
+  },
+  {
+   "id": "src:ws-nv-blog-rtx-pro-5000-72gb",
+   "kind": "OFFICIAL",
+   "url": "https://blogs.nvidia.com/blog/rtx-pro-5000-72gb-blackwell-gpu/",
+   "title": "Now Generally Available, NVIDIA RTX PRO 5000 72GB Blackwell GPU Expands Memory Options for Desktop Agentic AI",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "NVIDIA blog post dated 2025-12-18; no price stated."
+  },
+  {
+   "id": "src:ws-nv-blog-rtx-pro-4000-sff-2000",
+   "kind": "OFFICIAL",
+   "url": "https://blogs.nvidia.com/blog/blackwell-ai-acceleration-workstation-rtx-pro/",
+   "title": "Mini Footprint, Mighty AI: NVIDIA Blackwell Architecture Powers AI Acceleration in Compact Workstations",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "NVIDIA blog post dated 2025-08-11; says the cards are 'coming later this year'; no prices stated."
+  },
+  {
+   "id": "src:ws-nv-news-rtx-ada-workstations-2023-08-08",
+   "kind": "OFFICIAL",
+   "url": "https://nvidianews.nvidia.com/news/nvidia-global-workstation-manufacturers-to-launch-powerful-systems-for-generative-ai-and-llm-development-content-creation-data-science",
+   "title": "NVIDIA, Global Workstation Manufacturers to Launch Powerful Systems for Generative AI and LLM Development, Content Creation, Data Science",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "Press release dated 2023-08-08; no prices stated."
+  },
+  {
+   "id": "src:ws-amd-w7900-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7900.html",
+   "title": "AMD Radeon PRO W7900 Professional Graphics (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-w7900-dual-slot-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7900-dual-slot.html",
+   "title": "AMD Radeon PRO W7900 Dual Slot Professional Graphics (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-w7800-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7800.html",
+   "title": "AMD Radeon PRO W7800 Professional Graphics (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-w7800-48gb-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7800-48gb.html",
+   "title": "AMD Radeon PRO W7800 48GB Professional Graphics (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-r9700-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9700.html",
+   "title": "AMD Radeon AI PRO R9700 (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-r9700s-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9700s.html",
+   "title": "AMD Radeon AI PRO R9700S (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-r9600d-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9600d.html",
+   "title": "AMD Radeon AI PRO R9600D (specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ws-amd-pr-w7000-2023-04-13",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2023-4-13-amd-unveils-the-most-powerful-amd-radeon-pro-graph.html",
+   "title": "AMD Unveils the Most Powerful AMD Radeon PRO Graphics Cards, Offering Unique Features and Leadership Performance to Tackle Heavy to Extreme Professional Workloads",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28",
+   "note": "Press release dated 2023-04-13; prices given as SEP (suggested e-tail price); retail availability expected from Q2 2023."
+  },
+  {
+   "id": "src:ws-amd-blog-r9700-si-workstations",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/blogs/2025/amd-radeon-ai-pro-r9700-to-be-available-in-workstation.html",
+   "title": "AMD Radeon AI PRO R9700 available in SI Partner Workstations",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28",
+   "note": "AMD blog dated 2025-07-17: SI-built workstation sales start 2025-07-23; standalone cards later in Q3 2025; no price stated."
+  }
+ ],
+ "entities": [
+  {
+   "id": "gpu:rtx-pro-6000-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-6000-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "ko": "엔비디아 RTX PRO 6000 Blackwell 워크스테이션 에디션"
+   },
+   "aliases": [
+    "RTX PRO 6000 Blackwell",
+    "RTX PRO 6000",
+    "RTX PRO 6000 Workstation Edition",
+    "RTX PRO 6000 블랙웰",
+    "RTX 프로 6000"
+   ],
+   "description": {
+    "en": "Professional desktop workstation graphics card in NVIDIA's RTX PRO Blackwell line, with 96 GB of GDDR7 ECC memory and a 600 W board power rating.",
+    "ko": "엔비디아 RTX PRO Blackwell 라인의 워크스테이션용 데스크톱 그래픽카드로, 96GB GDDR7 ECC 메모리와 600W 보드 전력 사양을 갖췄습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/rtx-pro-6000-blackwell-workstation-edition/workstation-blackwell-rtx-pro-6000-workstation-edition-nvidia-us-3519208-web.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+     "note": "Announced 2025-03-18; the announcement says availability through global distribution partners starts in April 2025 (systems from manufacturers from May)."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "24064 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 96,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1792,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 600,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-6000-we-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-6000-blackwell-max-q",
+   "type": "gpu",
+   "slug": "rtx-pro-6000-blackwell-max-q",
+   "names": {
+    "en": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "ko": "엔비디아 RTX PRO 6000 Blackwell Max-Q 워크스테이션 에디션"
+   },
+   "aliases": [
+    "RTX PRO 6000 Max-Q",
+    "RTX PRO 6000 Blackwell Max-Q",
+    "RTX PRO 6000 Max-Q Workstation Edition",
+    "RTX 프로 6000 Max-Q"
+   ],
+   "description": {
+    "en": "Lower-power variant of NVIDIA's RTX PRO 6000 Blackwell workstation card, keeping 96 GB of GDDR7 ECC memory with a 300 W board power rating.",
+    "ko": "엔비디아 RTX PRO 6000 Blackwell 워크스테이션 카드의 저전력 버전으로, 96GB GDDR7 ECC 메모리를 유지하면서 보드 전력은 300W입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000-max-q/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-6000-max-q/workstation-datasheet-blackwell-rtx-pro-6000-max-q-nvidia-us-5349650-web.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+     "note": "Announced 2025-03-18; the announcement says availability through global distribution partners starts in April 2025 (systems from manufacturers from May)."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "24064 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 96,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1792,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-6000-maxq-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-5500-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-5500-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 5500 Blackwell Workstation Edition",
+    "ko": "엔비디아 RTX PRO 5500 Blackwell 워크스테이션 에디션"
+   },
+   "aliases": [
+    "RTX PRO 5500 Blackwell",
+    "RTX PRO 5500",
+    "RTX 프로 5500"
+   ],
+   "description": {
+    "en": "NVIDIA RTX PRO Blackwell workstation card with 84 GB of GDDR7 ECC memory, intended for rack-mounted workstation deployment; NVIDIA lists it as coming soon with preliminary specifications.",
+    "ko": "84GB GDDR7 ECC 메모리를 탑재한 엔비디아 RTX PRO Blackwell 워크스테이션 카드로, 랙 장착형 워크스테이션 배치를 위한 제품입니다. 엔비디아는 출시 예정 제품으로 표기하고 사양을 잠정치로 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5500/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page"
+    },
+    {
+     "p": "vram_gb",
+     "v": 84,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page",
+     "note": "GDDR7 with ECC; preliminary specification"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1398,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page",
+     "note": "Preliminary specification"
+    },
+    {
+     "p": "board_power_w",
+     "v": 600,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page",
+     "note": "NVIDIA 'Max Power Consumption: Up to 600 W'; preliminary specification"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5500-page",
+     "note": "Stated as 'PCIe Gen 5 x16'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-5500-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-5000-blackwell-48gb",
+   "type": "gpu",
+   "slug": "rtx-pro-5000-blackwell-48gb",
+   "names": {
+    "en": "NVIDIA RTX PRO 5000 Blackwell 48GB",
+    "ko": "엔비디아 RTX PRO 5000 Blackwell 48GB"
+   },
+   "aliases": [
+    "RTX PRO 5000 48GB",
+    "RTX PRO 5000 Blackwell 48GB",
+    "RTX PRO 5000 Blackwell",
+    "RTX PRO 5000"
+   ],
+   "description": {
+    "en": "NVIDIA RTX PRO Blackwell workstation card in its 48 GB GDDR7 ECC memory configuration; NVIDIA's datasheet lists it alongside the 72 GB model with the same core count and memory bandwidth.",
+    "ko": "48GB GDDR7 ECC 메모리 구성의 엔비디아 RTX PRO Blackwell 워크스테이션 카드로, 엔비디아 데이터시트에서 코어 수와 메모리 대역폭이 같은 72GB 모델과 함께 표기됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-5000-blackwell/workstation-datasheet-blackwell-rtx-pro-5000-5488550-nvidia.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+     "note": "Year of availability as stated by the source (announced 2025-03-18). The press release says availability in summer 2025 from BOXX, Dell, HP and Lenovo and through distribution partners, without a specific date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "14080 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 48,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1344,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-5000-blackwell-72gb",
+   "type": "gpu",
+   "slug": "rtx-pro-5000-blackwell-72gb",
+   "names": {
+    "en": "NVIDIA RTX PRO 5000 Blackwell 72GB",
+    "ko": "엔비디아 RTX PRO 5000 Blackwell 72GB"
+   },
+   "aliases": [
+    "RTX PRO 5000 72GB",
+    "RTX PRO 5000 Blackwell 72GB",
+    "RTX PRO 5000 72GB Blackwell"
+   ],
+   "description": {
+    "en": "NVIDIA RTX PRO Blackwell workstation card in its 72 GB GDDR7 ECC memory configuration; NVIDIA's datasheet lists it alongside the 48 GB model with the same core count and memory bandwidth.",
+    "ko": "72GB GDDR7 ECC 메모리 구성의 엔비디아 RTX PRO Blackwell 워크스테이션 카드로, 엔비디아 데이터시트에서 코어 수와 메모리 대역폭이 같은 48GB 모델과 함께 표기됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-5000-blackwell/workstation-datasheet-blackwell-rtx-pro-5000-5488550-nvidia.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-12-18",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-blog-rtx-pro-5000-72gb",
+     "note": "NVIDIA blog of 2025-12-18 says the 72GB model is now generally available from partners; broader availability through system builders from early 2026."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "14080 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 72,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1344,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-5000-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-4500-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-4500-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 4500 Blackwell Workstation Edition",
+    "ko": "엔비디아 RTX PRO 4500 Blackwell 워크스테이션 에디션"
+   },
+   "aliases": [
+    "RTX PRO 4500 Blackwell",
+    "RTX PRO 4500",
+    "RTX 프로 4500"
+   ],
+   "description": {
+    "en": "Dual-slot NVIDIA RTX PRO Blackwell workstation card with 32 GB of GDDR7 ECC memory on a 256-bit bus and a 200 W board power rating.",
+    "ko": "256비트 버스의 32GB GDDR7 ECC 메모리와 200W 보드 전력 사양을 갖춘 듀얼 슬롯 엔비디아 RTX PRO Blackwell 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4500/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/rtx-pro-4500-blackwell/workstation-datasheet-blackwell-rtx-pro-4500-we-nvidia-us-5108623-web.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+     "note": "Year of availability as stated by the source (announced 2025-03-18). The press release says availability in summer 2025 from BOXX, Dell, HP and Lenovo and through distribution partners, without a specific date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "10496 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 896,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 200,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-4500-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-4000-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-4000-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 4000 Blackwell",
+    "ko": "엔비디아 RTX PRO 4000 Blackwell"
+   },
+   "aliases": [
+    "RTX PRO 4000 Blackwell",
+    "RTX PRO 4000",
+    "RTX 프로 4000"
+   ],
+   "description": {
+    "en": "Single-slot NVIDIA RTX PRO Blackwell workstation card with 24 GB of GDDR7 ECC memory on a 192-bit bus and a 145 W board power rating.",
+    "ko": "192비트 버스의 24GB GDDR7 ECC 메모리와 145W 보드 전력 사양을 갖춘 싱글 슬롯 엔비디아 RTX PRO Blackwell 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-4000/workstation-datasheet-rtx-pro-4000-nvidia-us-web.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-pro-blackwell-2025-03-18",
+     "note": "Year of availability as stated by the source (announced 2025-03-18). The press release says availability in summer 2025 from BOXX, Dell, HP and Lenovo and through distribution partners, without a specific date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "8960 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 24,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 672,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 145,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-4000-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-4000-sff-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-4000-sff-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 4000 Blackwell SFF Edition",
+    "ko": "엔비디아 RTX PRO 4000 Blackwell SFF 에디션"
+   },
+   "aliases": [
+    "RTX PRO 4000 SFF",
+    "RTX PRO 4000 Blackwell SFF",
+    "RTX PRO 4000 SFF Edition",
+    "RTX 프로 4000 SFF"
+   ],
+   "description": {
+    "en": "Half-height, dual-slot small-form-factor NVIDIA RTX PRO Blackwell card with 24 GB of GDDR7 ECC memory and a 70 W board power rating.",
+    "ko": "하프 하이트 듀얼 슬롯 소형 폼팩터 엔비디아 RTX PRO Blackwell 카드로, 24GB GDDR7 ECC 메모리와 70W 보드 전력 사양을 갖췄습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/workstation-datasheet-blackwell-rtx-pro-4000-sff-nvidia-us-4016700.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-blog-rtx-pro-4000-sff-2000",
+     "note": "Year of availability as stated by the source (announced 2025-08-11). The post says the card is coming later in 2025 without a specific availability date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "8960 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 24,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 432,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 70,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x8",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet",
+     "note": "Datasheet footnote: uses full-length PCIe interface"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-4000-sff-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-pro-2000-blackwell",
+   "type": "gpu",
+   "slug": "rtx-pro-2000-blackwell",
+   "names": {
+    "en": "NVIDIA RTX PRO 2000 Blackwell",
+    "ko": "엔비디아 RTX PRO 2000 Blackwell"
+   },
+   "aliases": [
+    "RTX PRO 2000 Blackwell",
+    "RTX PRO 2000",
+    "RTX 프로 2000"
+   ],
+   "description": {
+    "en": "Compact dual-slot NVIDIA RTX PRO Blackwell workstation card with 16 GB of GDDR7 ECC memory on a 128-bit bus and 70 W maximum power consumption.",
+    "ko": "128비트 버스의 16GB GDDR7 ECC 메모리와 최대 70W 소비 전력을 갖춘 소형 듀얼 슬롯 엔비디아 RTX PRO Blackwell 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-2000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/professional-desktop-gpus/rtx-pro-2000/workstation-datasheet-blackwell-rtx-pro-2000-nvidia-us-4016661.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-blog-rtx-pro-4000-sff-2000",
+     "note": "Year of availability as stated by the source (announced 2025-08-11). The post says the card is coming later in 2025 without a specific availability date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "4352 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet",
+     "note": "GDDR7 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 288,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 70,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet",
+     "note": "NVIDIA 'Max power consumption'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x8",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet",
+     "note": "Datasheet footnote: uses full-length PCIe interface"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-pro-2000-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-6000-ada",
+   "type": "gpu",
+   "slug": "rtx-6000-ada",
+   "names": {
+    "en": "NVIDIA RTX 6000 Ada Generation",
+    "ko": "엔비디아 RTX 6000 Ada 세대"
+   },
+   "aliases": [
+    "RTX 6000 Ada",
+    "RTX 6000 Ada Generation",
+    "RTX 6000 Ada 세대",
+    "RTX 6000"
+   ],
+   "description": {
+    "en": "NVIDIA professional workstation card built on the Ada Lovelace architecture, with 48 GB of GDDR6 ECC memory on a 384-bit bus and a 300 W board power rating.",
+    "ko": "에이다 러브레이스 아키텍처 기반의 엔비디아 전문가용 워크스테이션 카드로, 384비트 버스의 48GB GDDR6 ECC 메모리와 300W 보드 전력 사양을 갖췄습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-6000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/design-visualization/rtx-6000/proviz-print-rtx6000-datasheet-web-2504660.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-12",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-6000-ada-2022-09-20",
+     "note": "Announced 2022-09-20; the press release says availability from distribution partners and manufacturers starting in December 2022."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "18176 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 48,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 960,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-6000-ada-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5000-ada",
+   "type": "gpu",
+   "slug": "rtx-5000-ada",
+   "names": {
+    "en": "NVIDIA RTX 5000 Ada Generation",
+    "ko": "엔비디아 RTX 5000 Ada 세대"
+   },
+   "aliases": [
+    "RTX 5000 Ada",
+    "RTX 5000 Ada Generation",
+    "RTX 5000 Ada 세대"
+   ],
+   "description": {
+    "en": "NVIDIA Ada Lovelace workstation card with 32 GB of GDDR6 ECC memory on a 256-bit bus and a 250 W board power rating.",
+    "ko": "256비트 버스의 32GB GDDR6 ECC 메모리와 250W 보드 전력 사양을 갖춘 엔비디아 에이다 러브레이스 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-5000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://resources.nvidia.com/en-us-briefcase-for-datasheets/rtx-5000-ada-datashe"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023-08-08",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-ada-workstations-2023-08-08",
+     "note": "Press release of 2023-08-08 says the RTX 5000 is available and shipping starting that day."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "12800 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 576,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 250,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-5000-ada-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-4500-ada",
+   "type": "gpu",
+   "slug": "rtx-4500-ada",
+   "names": {
+    "en": "NVIDIA RTX 4500 Ada Generation",
+    "ko": "엔비디아 RTX 4500 Ada 세대"
+   },
+   "aliases": [
+    "RTX 4500 Ada",
+    "RTX 4500 Ada Generation",
+    "RTX 4500 Ada 세대"
+   ],
+   "description": {
+    "en": "NVIDIA Ada Lovelace workstation card with 24 GB of GDDR6 ECC memory on a 192-bit bus and a 210 W board power rating.",
+    "ko": "192비트 버스의 24GB GDDR6 ECC 메모리와 210W 보드 전력 사양을 갖춘 엔비디아 에이다 러브레이스 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-4500/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4500-datasheet.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-ada-workstations-2023-08-08",
+     "note": "Year of availability as stated by the source (announced 2023-08-08). The press release says the RTX 4500 and RTX 4000 will be available in fall 2023, without a specific date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "7680 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 24,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 432,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 210,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-4500-ada-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-4000-ada",
+   "type": "gpu",
+   "slug": "rtx-4000-ada",
+   "names": {
+    "en": "NVIDIA RTX 4000 Ada Generation",
+    "ko": "엔비디아 RTX 4000 Ada 세대"
+   },
+   "aliases": [
+    "RTX 4000 Ada",
+    "RTX 4000 Ada Generation",
+    "RTX 4000 Ada 세대"
+   ],
+   "description": {
+    "en": "Single-slot NVIDIA Ada Lovelace workstation card with 20 GB of GDDR6 ECC memory on a 160-bit bus and a 130 W board power rating.",
+    "ko": "160비트 버스의 20GB GDDR6 ECC 메모리와 130W 보드 전력 사양을 갖춘 싱글 슬롯 엔비디아 에이다 러브레이스 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-4000/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4000-datasheet.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-ada-workstations-2023-08-08",
+     "note": "Year of availability as stated by the source (announced 2023-08-08). The press release says the RTX 4500 and RTX 4000 will be available in fall 2023, without a specific date."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 20,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 160,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 360,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 130,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-4000-ada-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-4000-sff-ada",
+   "type": "gpu",
+   "slug": "rtx-4000-sff-ada",
+   "names": {
+    "en": "NVIDIA RTX 4000 SFF Ada Generation",
+    "ko": "엔비디아 RTX 4000 SFF Ada 세대"
+   },
+   "aliases": [
+    "RTX 4000 SFF Ada",
+    "RTX 4000 SFF Ada Generation",
+    "RTX 4000 SFF"
+   ],
+   "description": {
+    "en": "Half-height small-form-factor NVIDIA Ada Lovelace workstation card with 20 GB of GDDR6 ECC memory and a 70 W board power rating.",
+    "ko": "20GB GDDR6 ECC 메모리와 70W 보드 전력 사양을 갖춘 하프 하이트 소형 폼팩터 엔비디아 에이다 러브레이스 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-4000-sff/"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-4000-sff-datasheet.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023-04",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-4000-sff-ada-2023-03-21",
+     "note": "Announced 2023-03-21; the press release says availability from distribution partners starting in April 2023."
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 1250,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-news-rtx-4000-sff-ada-2023-03-21",
+     "note": "Stated in the press release as an 'estimated price of $1,250'"
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "vram_gb",
+     "v": 20,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 160,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 280,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    },
+    {
+     "p": "board_power_w",
+     "v": 70,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet",
+     "note": "NVIDIA 'Total board power'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-4000-sff-ada-datasheet"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-2000-ada",
+   "type": "gpu",
+   "slug": "rtx-2000-ada",
+   "names": {
+    "en": "NVIDIA RTX 2000 Ada Generation",
+    "ko": "엔비디아 RTX 2000 Ada 세대"
+   },
+   "aliases": [
+    "RTX 2000 Ada",
+    "RTX 2000 Ada Generation",
+    "RTX 2000 Ada 세대"
+   ],
+   "description": {
+    "en": "Compact NVIDIA Ada Lovelace workstation card with 16 GB of GDDR6 ECC memory and 70 W maximum power consumption.",
+    "ko": "16GB GDDR6 ECC 메모리와 최대 70W 소비 전력을 갖춘 소형 엔비디아 에이다 러브레이스 워크스테이션 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/products/workstations/rtx-2000/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2024-02-12",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-blog-rtx-2000-ada-2024-02-12",
+     "note": "NVIDIA blog of 2024-02-12 says the card is available now through distribution partners (from Dell, HP and Lenovo from April 2024)."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page"
+    },
+    {
+     "p": "architecture",
+     "v": "Ada Lovelace",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page",
+     "note": "GDDR6 with ECC"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page"
+    },
+    {
+     "p": "board_power_w",
+     "v": 70,
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page",
+     "note": "NVIDIA 'Max Power Consumption'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x8",
+     "ver": "OFFICIAL",
+     "src": "src:ws-nv-rtx-2000-ada-page",
+     "note": "Stated as 'PCIe Gen 4 x 8'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:ws-nv-rtx-2000-ada-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-pro-w7900",
+   "type": "gpu",
+   "slug": "radeon-pro-w7900",
+   "names": {
+    "en": "AMD Radeon PRO W7900",
+    "ko": "AMD 라데온 PRO W7900"
+   },
+   "aliases": [
+    "Radeon PRO W7900",
+    "W7900",
+    "라데온 PRO W7900",
+    "라데온 프로 W7900"
+   ],
+   "description": {
+    "en": "AMD workstation graphics card in the Radeon PRO W7000 series, built on RDNA 3 with 48 GB of GDDR6 memory on a 384-bit bus.",
+    "ko": "RDNA 3 기반의 AMD 라데온 PRO W7000 시리즈 워크스테이션 그래픽카드로, 384비트 버스의 48GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7900.html"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.amd.com/content/dam/amd/en/documents/products/graphics/workstation/radeon-pro-w7900-datasheet.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-pr-w7000-2023-04-13",
+     "note": "Year of availability as stated by the source (announced 2023-04-13). The press release expected availability from e-tailers/retailers starting in Q2 2023."
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 3999,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-pr-w7000-2023-04-13",
+     "note": "AMD 'SEP' (suggested e-tail price) in the launch press release"
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 stream processors (96 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 48,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 864,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 295,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-specs",
+     "note": "Stated as 'PCIe 4.0 x16 (3.0 Backward Compatible)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-w7900-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-pro-w7900-dual-slot",
+   "type": "gpu",
+   "slug": "radeon-pro-w7900-dual-slot",
+   "names": {
+    "en": "AMD Radeon PRO W7900 Dual Slot",
+    "ko": "AMD 라데온 PRO W7900 듀얼 슬롯"
+   },
+   "aliases": [
+    "Radeon PRO W7900 Dual Slot",
+    "W7900 Dual Slot",
+    "W7900 DS",
+    "라데온 PRO W7900 듀얼 슬롯"
+   ],
+   "description": {
+    "en": "Dual-slot version of AMD's Radeon PRO W7900 workstation card, listed by AMD with the same RDNA 3 GPU configuration and 48 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 PRO W7900 워크스테이션 카드의 듀얼 슬롯 버전으로, AMD는 동일한 RDNA 3 GPU 구성과 48GB GDDR6 메모리로 표기합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7900-dual-slot.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 stream processors (96 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 48,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 864,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 295,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7900-dual-slot-specs",
+     "note": "Stated as 'PCIe 4.0 x16 (3.0 Backward Compatible)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-w7900-dual-slot-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-pro-w7800-32gb",
+   "type": "gpu",
+   "slug": "radeon-pro-w7800-32gb",
+   "names": {
+    "en": "AMD Radeon PRO W7800 32GB",
+    "ko": "AMD 라데온 PRO W7800 32GB"
+   },
+   "aliases": [
+    "Radeon PRO W7800",
+    "W7800",
+    "W7800 32GB",
+    "Radeon PRO W7800 32GB",
+    "라데온 PRO W7800"
+   ],
+   "description": {
+    "en": "AMD Radeon PRO W7000 series workstation card built on RDNA 3, in its original 32 GB GDDR6 configuration on a 256-bit bus.",
+    "ko": "RDNA 3 기반의 AMD 라데온 PRO W7000 시리즈 워크스테이션 카드로, 256비트 버스의 32GB GDDR6 메모리를 탑재한 기본 구성입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7800.html"
+    },
+    {
+     "label": "Datasheet",
+     "url": "https://www.amd.com/content/dam/amd/en/documents/products/graphics/workstation/radeon-pro-w7800-datasheet.pdf"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-pr-w7000-2023-04-13",
+     "note": "Year of availability as stated by the source (announced 2023-04-13). The press release expected availability from e-tailers/retailers starting in Q2 2023."
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 2499,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-pr-w7000-2023-04-13",
+     "note": "AMD 'SEP' (suggested e-tail price) in the launch press release"
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4480 stream processors (70 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 576,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 260,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-specs",
+     "note": "Stated as 'PCIe 4.0 x16 (3.0 Backward Compatible)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-w7800-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-pro-w7800-48gb",
+   "type": "gpu",
+   "slug": "radeon-pro-w7800-48gb",
+   "names": {
+    "en": "AMD Radeon PRO W7800 48GB",
+    "ko": "AMD 라데온 PRO W7800 48GB"
+   },
+   "aliases": [
+    "Radeon PRO W7800 48GB",
+    "W7800 48GB",
+    "라데온 PRO W7800 48GB"
+   ],
+   "description": {
+    "en": "48 GB version of AMD's Radeon PRO W7800 workstation card, with a 384-bit GDDR6 memory bus and the same 70-compute-unit RDNA 3 GPU as the 32 GB model.",
+    "ko": "AMD 라데온 PRO W7800 워크스테이션 카드의 48GB 버전으로, 384비트 GDDR6 메모리 버스와 32GB 모델과 같은 70 CU RDNA 3 GPU를 갖췄습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-pro/w7800-48gb.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4480 stream processors (70 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 48,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 864,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 260,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-w7800-48gb-specs",
+     "note": "Stated as 'PCIe 4.0 x16 (3.0 Backward Compatible)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-w7800-48gb-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-ai-pro-r9700",
+   "type": "gpu",
+   "slug": "radeon-ai-pro-r9700",
+   "names": {
+    "en": "AMD Radeon AI PRO R9700",
+    "ko": "AMD 라데온 AI PRO R9700"
+   },
+   "aliases": [
+    "Radeon AI PRO R9700",
+    "R9700",
+    "AI PRO R9700",
+    "라데온 AI PRO R9700"
+   ],
+   "description": {
+    "en": "AMD workstation graphics card in the Radeon AI PRO R9000 series, built on RDNA 4 with 32 GB of GDDR6 memory and an actively cooled blower design aimed at local AI work.",
+    "ko": "RDNA 4 기반의 AMD 라데온 AI PRO R9000 시리즈 워크스테이션 그래픽카드로, 32GB GDDR6 메모리와 블로워 방식 액티브 쿨링을 갖춰 로컬 AI 작업을 겨냥합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9700.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-07-23",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-blog-r9700-si-workstations",
+     "note": "Start of sales in SI-built workstations per AMD's blog; standalone cards from board partners followed later in Q3 2025 (announced 2025-05-20 at COMPUTEX)."
+    },
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4096 stream processors (64 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2920,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs",
+     "note": "Up to (AMD 'Boost Frequency')"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 640,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700-specs"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-r9700-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-ai-pro-r9700s",
+   "type": "gpu",
+   "slug": "radeon-ai-pro-r9700s",
+   "names": {
+    "en": "AMD Radeon AI PRO R9700S",
+    "ko": "AMD 라데온 AI PRO R9700S"
+   },
+   "aliases": [
+    "Radeon AI PRO R9700S",
+    "R9700S",
+    "AI PRO R9700S",
+    "라데온 AI PRO R9700S"
+   ],
+   "description": {
+    "en": "Passively cooled variant of AMD's Radeon AI PRO R9700, listed with the same 64-compute-unit RDNA 4 GPU and 32 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 AI PRO R9700의 패시브 쿨링 버전으로, 동일한 64 CU RDNA 4 GPU와 32GB GDDR6 메모리로 표기됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9700s.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4096 stream processors (64 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2920,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs",
+     "note": "Up to (AMD 'Boost Frequency')"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 640,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9700s-specs"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-r9700s-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:radeon-ai-pro-r9600d",
+   "type": "gpu",
+   "slug": "radeon-ai-pro-r9600d",
+   "names": {
+    "en": "AMD Radeon AI PRO R9600D",
+    "ko": "AMD 라데온 AI PRO R9600D"
+   },
+   "aliases": [
+    "Radeon AI PRO R9600D",
+    "R9600D",
+    "AI PRO R9600D",
+    "라데온 AI PRO R9600D"
+   ],
+   "description": {
+    "en": "Passively cooled AMD Radeon AI PRO R9000 series card with a 48-compute-unit RDNA 4 GPU, 32 GB of GDDR6 memory and a 150 W board power rating.",
+    "ko": "48 CU RDNA 4 GPU와 32GB GDDR6 메모리, 150W 보드 전력 사양을 갖춘 패시브 쿨링 방식의 AMD 라데온 AI PRO R9000 시리즈 카드입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/workstations/radeon-ai-pro/ai-9000-series/amd-radeon-ai-pro-r9600d.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "workstation",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "3072 stream processors (48 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2020,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs",
+     "note": "Up to (AMD 'Boost Frequency')"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 640,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs",
+     "note": "AMD 'Peak Memory Bandwidth'"
+    },
+    {
+     "p": "board_power_w",
+     "v": 150,
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs",
+     "note": "AMD 'Total Board Power (TBP)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:ws-amd-r9600d-specs"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:ws-amd-r9600d-specs"
+    }
+   ]
+  }
+ ]
+}
