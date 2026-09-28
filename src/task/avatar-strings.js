@@ -10,3 +10,6 @@ Object.assign(COPY.ja,{pickBackground:'端末の背景を選択',removeBackgroun
 Object.assign(COPY.en,{nativeShare:'Share card file',shareUnavailable:'This browser cannot share image files; download the card instead.',shareCanceled:'Sharing was canceled.'});
 Object.assign(COPY.ko,{nativeShare:'카드 파일 공유',shareUnavailable:'이 브라우저는 이미지 파일 공유를 지원하지 않습니다. 카드를 다운로드하세요.',shareCanceled:'공유를 취소했습니다.'});
 Object.assign(COPY.ja,{nativeShare:'カード画像を共有',shareUnavailable:'このブラウザは画像ファイルの共有に非対応です。カードを保存してください。',shareCanceled:'共有を中止しました。'});
+Object.assign(COPY.en,{skinPalette:'Skin tone',skin:'Light',skinTan:'Tan',skinDeep:'Deep'});
+Object.assign(COPY.ko,{skinPalette:'피부 색',skin:'밝은 피부',skinTan:'중간 피부',skinDeep:'짙은 피부'});
+Object.assign(COPY.ja,{skinPalette:'肌の色',skin:'明るい肌',skinTan:'中間の肌',skinDeep:'濃い肌'});

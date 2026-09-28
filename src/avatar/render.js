@@ -6,7 +6,7 @@ export function renderLogical(input={}){
  const s=normalize(input),pixels=new Uint8ClampedArray(WIDTH*WIDTH*4);
  const put=(x,y,c)=>{if(x<0||y<0||x>=16||y>=16)return;pixels.set(c,(y*16+x)*4)};
  const rect=(x0,y0,x1,y1,c)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)put(x,y,c)};
- const skin=RAMPS.skin,hair=RAMPS[s.hairPalette],cloth=RAMPS[s.outfitPalette],eye=RAMPS.eye;
+ const skin=RAMPS[s.skinPalette],hair=RAMPS[s.hairPalette],cloth=RAMPS[s.outfitPalette],eye=RAMPS.eye;
  if(s.background==='sky')rect(0,0,15,15,[205,235,238,255]);
  if(s.background==='plum')rect(0,0,15,15,[58,42,79,255]);
  if(s.hair==='swept'){

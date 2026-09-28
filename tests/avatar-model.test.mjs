@@ -21,6 +21,7 @@ test('seeded random is repeatable and category locks preserve values',()=>{
  assert.deepEqual(a,b);
  assert.equal(a.face,DEFAULT.face);
  assert.equal(a.hair,DEFAULT.hair);
+ assert.equal(a.hairPalette,DEFAULT.hairPalette);
  assert.equal(a.seed,41328);
  assert.notDeepEqual(randomize(DEFAULT,{},41329),a);
 });

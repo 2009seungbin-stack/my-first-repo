@@ -12,12 +12,12 @@ const NAME='nerulio-pixel-avatar';
 export function mount({el}){
  if(!document.querySelector('[data-avatar-css]')){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./pixel-avatar.css',import.meta.url).href;link.dataset.avatarCss='';document.head.append(link);}
  const initial=parse(location.search),C=()=>COPY[getLocale()]||COPY.en;
- let state=initial.state,tab='face',past=[],future=[],locks={},size=256,busy=false,job=null,status=initial.valid?'statusReady':'statusBadURL';
+ let state=initial.state,tab='face',past=[],future=[],locks={},size=256,busy=false,job=null,status=initial.valid?'statusReady':'statusBadURL',statusDetail='';
  let backgroundFile=null,backgroundBitmap=null;
  const $=sel=>el.querySelector(sel);
  const link=()=>{const url=new URL(location.href);url.search=serialize(state);return url.href};
  function syncURL(){history.replaceState({},'',link());}
- function say(key,message=''){status=key;const node=$('#avatarStatus');if(node)node.textContent=(C()[key]||key)+message;}
+ function say(key,message=''){status=key;statusDetail=message;const node=$('#avatarStatus');if(node)node.textContent=(C()[key]||key)+message;}
  function preview(){
   const canvas=$('#avatarCanvas');if(!canvas)return;
   const logical=renderLogical(state);canvas.width=16;canvas.height=16;
@@ -36,10 +36,10 @@ export function mount({el}){
   el.innerHTML=`<div class="avatar-app"><div class="avatar-intro"><p>${esc(c.lead)}</p><small>${esc(c.version)}</small></div>
   <div class="avatar-layout"><section class="avatar-stage" aria-label="${esc(c.preview)}"><div class="avatar-art"><canvas id="avatarCanvas" width="16" height="16" role="img" aria-label="${esc(c.preview)}"></canvas></div>
   <div class="avatar-main-actions"><button type="button" data-action="random">↝ ${esc(c.random)}</button><button type="button" data-action="undo" ${past.length?'':'disabled'}>${esc(c.undo)}</button><button type="button" data-action="redo" ${future.length?'':'disabled'}>${esc(c.redo)}</button><button type="button" data-action="reset">${esc(c.reset)}</button></div>
-  <p class="avatar-status" id="avatarStatus" role="status" aria-live="polite">${esc(c[status]||status)}</p></section>
+  <p class="avatar-status" id="avatarStatus" role="status" aria-live="polite">${esc((c[status]||status)+statusDetail)}</p></section>
   <section class="avatar-controls" aria-label="${esc(c.face)}"><div class="avatar-tabs" role="group" aria-label="Parts">${CATEGORIES.map(key=>`<button type="button" data-tab="${key}" aria-pressed="${tab===key}" class="${tab===key?'active':''}">${esc(c[key])}${locks[key]?' 🔒':''}</button>`).join('')}</div>
   <div class="avatar-option-head"><h2>${esc(c[tab])}</h2><button type="button" data-action="lock" aria-pressed="${!!locks[tab]}">${locks[tab]?esc(c.unlock):esc(c.lock)}</button></div><div class="avatar-options" role="group" aria-label="${esc(c[tab])}">${options(tab)}</div>
-  <div class="avatar-palettes"><label>${esc(c.hairPalette)}<select data-palette="hairPalette">${PALETTES.hair.map(id=>`<option value="${id}" ${state.hairPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label>
+  <div class="avatar-palettes"><label>${esc(c.skinPalette)}<select data-palette="skinPalette">${PALETTES.skin.map(id=>`<option value="${id}" ${state.skinPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label><label>${esc(c.hairPalette)}<select data-palette="hairPalette">${PALETTES.hair.map(id=>`<option value="${id}" ${state.hairPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label>
   <label>${esc(c.outfitPalette)}<select data-palette="outfitPalette">${PALETTES.outfit.map(id=>`<option value="${id}" ${state.outfitPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label></div>
   <div class="avatar-background"><button type="button" data-action="pick">${esc(c.pickBackground)}</button>${backgroundFile?`<button type="button" data-action="remove-background">${esc(c.removeBackground)}</button><span>${esc(c.backgroundLoaded+backgroundFile.name)}</span>`:''}<small>${esc(c.backgroundHint)}</small></div>
   <div class="avatar-export"><h2>${esc(c.png)}</h2><label>${esc(c.size)}<select id="avatarSize">${[32,48,64,128,256,512,1024,4096].map(n=>`<option value="${n}" ${size===n?'selected':''}>${n} × ${n}</option>`).join('')}</select></label>
@@ -54,7 +54,7 @@ export function mount({el}){
  }
  function update(next){
   next=normalize(next);if(JSON.stringify(next)===JSON.stringify(state))return;
-  past.push(state);if(past.length>60)past.shift();future=[];state=next;syncURL();render();
+  past.push(state);if(past.length>60)past.shift();future=[];state=next;syncURL();say('statusReady');render();
  }
  function restore(stack,to){if(!stack.length)return;to.push(state);state=stack.pop();syncURL();render();}
  async function exportFile(kind){

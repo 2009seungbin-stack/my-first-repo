@@ -1,9 +1,9 @@
 import {CATALOG_VERSION,CATEGORIES,IDS,PALETTES} from './catalog.js';
 
-export const DEFAULT=Object.freeze({v:CATALOG_VERSION,seed:1,face:'round',hair:'bob',eyes:'bright',outfit:'hoodie',accessory:'none',background:'transparent',hairPalette:'dark',outfitPalette:'blue'});
+export const DEFAULT=Object.freeze({v:CATALOG_VERSION,seed:1,face:'round',hair:'bob',eyes:'bright',outfit:'hoodie',accessory:'none',background:'transparent',skinPalette:'skin',hairPalette:'dark',outfitPalette:'blue'});
 const ID_KEYS=Object.freeze([...CATEGORIES]);
-const ALLOWED=Object.freeze({...IDS,hairPalette:PALETTES.hair,outfitPalette:PALETTES.outfit});
-const URL_KEYS=Object.freeze([...ID_KEYS,'hairPalette','outfitPalette']);
+const ALLOWED=Object.freeze({...IDS,skinPalette:PALETTES.skin,hairPalette:PALETTES.hair,outfitPalette:PALETTES.outfit});
+const URL_KEYS=Object.freeze([...ID_KEYS,'skinPalette','hairPalette','outfitPalette']);
 
 export function normalize(input={}){
  const state={...DEFAULT};
@@ -20,7 +20,8 @@ export function randomize(state,locks={},seed=(Date.now()>>>0)){
  const next=normalize({...state,seed}),rnd=xorshift32(seed);
  for(const key of URL_KEYS){
   const value=ALLOWED[key][Math.floor(rnd()*ALLOWED[key].length)];
-  if(!locks[key])next[key]=value;
+  const part=key==='skinPalette'?'face':key.endsWith('Palette')?key.slice(0,-7):key;
+  if(!locks[key]&&!locks[part])next[key]=value;
  }
  return next;
 }
