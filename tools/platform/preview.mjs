@@ -25,6 +25,8 @@ export const PREVIEW_PATHS=Object.freeze([
  ['/ko/studio/ableton-live/','에이블톤 라이브 채널'],['/ko/subculture/bleach-tybw-the-calamity/','블리치 천년혈전 채널'],
  ['/ko/radar/','레이더'],['/ko/games/','게임 채널 모음 (허브)'],['/ko/search/?q=5070','검색: 5070'],['/ko/community/best/','념글'],
  ['/ko/games/caves-of-qud/write','글쓰기 (구조화 리포트)'],['/ko/community/transparency','운영 투명성'],['/en/ai/claude/','Claude channel (English)'],
+ ['/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070','RTX 4070 vs RTX 5070 비교'],['/ko/ai/?type=model&org=anthropic&sort=cheap','AI 모델 API 가격 비교 (회사·정렬)'],['/ko/ai/?type=plan','AI 요금제 비교'],
+ ['/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0','검색: Claude 장애'],['/ko/community/policy','운영정책 (계산식 공개)'],['/ko/ai/claude-pro/','Claude Pro (요금제 채널)'],
 ]);
 const SITE={origin:'https://nerulio.com'};
 
@@ -53,7 +55,7 @@ export async function buildPreview(outDir=path.join(ROOT,'.n2/preview'),now=Date
  for(const [url,title] of paths){
   const res=await renderPlatformPage(new Request(SITE.origin+url),{DB:db},{origin:SITE.origin,now:()=>now});
   if(!res||res.status!==200)throw Error(`preview: ${url} → ${res?.status}`);
-  pages.push({url:url.split('?')[0]===url?url:url,file:url.replace(/^\//,'').replace(/[/?=&.]+/g,'-').replace(/-+$/,'')+'.html',title,html:await res.text()});
+  pages.push({url:url.split('?')[0]===url?url:url,file:url.replace(/^\//,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/-+$/,'')+'.html',title,html:await res.text()});
  }
  const files=new Map(pages.map(p=>[p.url,p.file]));
  const banner=`<div style="background:#1d2433;color:#fff;font:600 13px/1.4 system-ui,sans-serif;padding:8px 16px;text-align:center">미리보기 · 정보(모델·가격·스펙·일정)는 실제 시드 데이터, 게시판 글은 샘플입니다 · Preview: facts are real seed data, board posts are samples · <a href="index.html" style="color:#8fbaff">페이지 목록</a></div>`;
@@ -62,8 +64,9 @@ export async function buildPreview(outDir=path.join(ROOT,'.n2/preview'),now=Date
    if(href===CSS_HREF)return 'href="n2.css"';
    if(href.endsWith('.xml'))return 'href="#"';
    if(!href.startsWith('/'))return m;
-   const bare=href.split(/[?#]/)[0];
-   return files.has(bare)?`href="${files.get(bare)}"`:'href="#"';
+   // Pages with a query (a GPU pair, a filtered table) match in full first, then by path.
+   const full=href.replace(/&amp;/g,'&').split('#')[0],bare=href.split(/[?#]/)[0];
+   return files.has(full)?`href="${files.get(full)}"`:files.has(bare)?`href="${files.get(bare)}"`:'href="#"';
   }).replace(/<script type="module" src="[^"]*"><\/script>\n?/,'').replace(/<body class="n2">/,`<body class="n2">${banner}`);
   writeFileSync(path.join(outDir,p.file),html);
  }
