@@ -258,23 +258,41 @@ const likeEscape=(/** @type {string} */ s)=>s.replace(/[\\%_]/g,c=>'\\'+c);
  * analyzer). @param {D1} db @param {string} q @param {{vertical?:string|null,limit?:number}} [o]
  */
 export async function searchEntities(db,q,o={}){
- const limit=o.limit??20,norm=String(q).normalize('NFKC').toLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');
- if(!norm)return [];
+ const limit=o.limit??20,tokens=searchTokens(q),whole=tokens.join('');
+ if(!whole)return [];
  /** @type {Map<string,number>} */const score=new Map();
- const add=(/** @type {string} */ id,/** @type {number} */ s)=>score.set(id,Math.max(score.get(id)||0,s));
- // Prefix as an index range (LIKE cannot use the BINARY index on norm).
- for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60`,[norm,norm+'\u{10FFFF}']))add(String(r.entity_id),r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length));
- if([...q.trim()].length>=3){
-  const phrase='"'+q.trim().replace(/"/g,'""')+'"';
-  try{for(const [i,r] of (await all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,[phrase])).entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),40-Math.min(39,i*0.5));}}catch{}
- }
+ /** @type {Map<string,Set<number>>} */const hits=new Map();
+ const add=(/** @type {string} */ id,/** @type {number} */ s,/** @type {number} */ t)=>{score.set(id,Math.max(score.get(id)||0,s));if(t>=0){let h=hits.get(id);if(!h)hits.set(id,h=new Set());h.add(t);}};
+ /** Alias prefix (an index range: LIKE cannot use the BINARY index on norm) plus the trigram index. */
+ const match=async(/** @type {string} */ norm,/** @type {string} */ phrase,/** @type {number} */ w,/** @type {number} */ t)=>{
+  for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60`,[norm,norm+'\u{10FFFF}']))add(String(r.entity_id),w*(r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length)),t);
+  if([...phrase].length>=3){
+   try{for(const [i,r] of (await all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,['"'+phrase.replace(/"/g,'""')+'"'])).entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),w*(40-Math.min(39,i*0.5)),t);}}catch{}
+  }
+ };
+ await match(whole,String(q).trim(),1,-1);
+ // Several words: each word on its own too ("5070 4070" → both cards, "caves qud" → Caves of Qud);
+ // a channel that matches more of the words ranks higher.
+ if(tokens.length>1)for(const [t,w] of tokens.entries())if([...w].length>=2)await match(w,w,0.6,t);
+ for(const [id,h] of hits)if(h.size>1)score.set(id,(score.get(id)||0)+15*(h.size-1));
+ // A Korean patch's name is often the only Korean name of its game ("테라리아 한글패치"): the game
+ // itself ranks just above its patch.
+ const ids=[...score.keys()];
+ for(const r of await inChunks(db,ids.filter(id=>id.startsWith('translation_patch:')),ph=>`SELECT subject_id,object_id FROM relations WHERE predicate='translates' AND subject_id IN (${ph})`))
+  add(String(r.object_id),(score.get(String(r.subject_id))||0)+1,-1);
  const ents=await entitiesByIds(db,[...score.keys()]);
  return [...ents.values()].filter(e=>!o.vertical||e.vertical===o.vertical).sort((a,b)=>(score.get(b.id)||0)-(score.get(a.id)||0)).slice(0,limit);
 }
-/** Posts whose title contains the query (optionally inside one channel), newest first. @param {D1} db @param {string} q @param {{entityId?:string|null,limit?:number}} [o] */
+/** Search words: NFKC, lower case, punctuation dropped, at most 6. @param {string} q */
+export function searchTokens(q){
+ return String(q).normalize('NFKC').toLowerCase().split(/\s+/).map(t=>t.replace(/[\p{P}\p{S}]+/gu,'')).filter(Boolean).slice(0,6);
+}
+/** Posts whose title contains every word of the query (optionally inside one channel), newest first.
+ * @param {D1} db @param {string} q @param {{entityId?:string|null,limit?:number}} [o] */
 export async function searchPosts(db,q,o={}){
- const s=String(q).trim();if(!s)return [];
- const where=["d.status='published'","e.status='active'","d.title LIKE ? ESCAPE '\\'"],params=['%'+likeEscape(s)+'%'];
+ const words=String(q).trim().split(/\s+/).filter(Boolean).slice(0,6);if(!words.length)return [];
+ const where=["d.status='published'","e.status='active'"],params=[];
+ for(const w of words){where.push("d.title LIKE ? ESCAPE '\\'");params.push('%'+likeEscape(w)+'%');}
  if(o.entityId){where.push('d.entity_id=?');params.push(o.entityId);}
  return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY d.created_at DESC LIMIT ?`,[...params,o.limit??30])).map(postRow);
 }

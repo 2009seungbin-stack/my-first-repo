@@ -182,6 +182,11 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  for(const p of ['/ko/search/?q=claude','/ko/radar/','/ko/community/best/','/ko/community/report?target=discussion:abc'])assert.equal((await go(p)).status,200,p);
  const search=await (await go('/ko/search/?q=5070')).text();
  assert(search.includes('/ko/hardware/rtx-5070/'),'model numbers find the GPU channel');
+ const both=await (await go('/ko/search/?q=5070+4070')).text();
+ assert(both.includes('/ko/hardware/rtx-5070/')&&both.includes('/ko/hardware/rtx-4070/'),'several words: each word finds its channel');
+ const down=await (await go('/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0')).text();
+ assert(down.includes('href="/ko/ai/claude/status"'),'"Claude 장애" leads to the status page');
+ assert(down.includes('href="/ko/ai/claude/"'),'and still lists the channel');
 });
 
 test('facts shown on a channel are the current rows',{skip:!sqliteAvailable},async()=>{
