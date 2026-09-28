@@ -21,7 +21,7 @@ test('task UI copy is complete in ko/en/ja',()=>{
  assert.equal(ui('ko','files',{n:3}),'3개 파일');assert.equal(ui('xx','pick'),'Choose files');
 });
 test('file kinds are recognised by type or extension',()=>{
- for(const [name,type,kind] of [['a.PNG','','image'],['x','image/webp','image'],['doc.pdf','','pdf'],['x','application/pdf','pdf'],['clip.MOV','','media'],['s','audio/mpeg','media'],['notes.txt','text/plain','']])assert.equal(kindOf({name,type}),kind,name+type);
+ for(const [name,type,kind] of [['a.PNG','','image'],['x','image/webp','image'],['doc.pdf','','pdf'],['x','application/pdf','pdf'],['clip.MOV','','media'],['s','audio/mpeg','media'],['notes.txt','text/plain','text']])assert.equal(kindOf({name,type}),kind,name+type);
 });
 test('migrated tools and their landing pages render the task page; others keep the editor',()=>{
  const task=entry(html,'ko/image/compress',origin);

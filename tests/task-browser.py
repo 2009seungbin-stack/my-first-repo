@@ -26,7 +26,7 @@ with sync_playwright() as pw:
     requests=[];page.on('request',lambda r:requests.append(r.url))
     # --- home ---
     page.goto(BASE+'/ko/',wait_until='networkidle')
-    ok('home is a tool directory with categories',page.locator('.directory section').count()==4 and page.locator('.tool-card').count()>=35)
+    ok('home is a tool directory with categories',page.locator('.directory section').count()==5 and page.locator('.tool-card').count()>=35)
     ok('home has one h1 and no editor shell',page.locator('h1').count()==1 and page.locator('#workspace').count()==0)
     page.fill('#toolQuery','pdf 합치기');page.wait_for_timeout(150)
     ok('search narrows to the matching tool',page.locator('.tool-card:visible').evaluate_all('ns=>ns.map(n=>n.dataset.tool)')==['pdf-merge'])
