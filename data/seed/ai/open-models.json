@@ -211,7 +211,7 @@
    "title": "DeepSeek Privacy Policy",
    "publisher": "DeepSeek",
    "retrieved": "2026-09-28",
-   "note": "Names Hangzhou DeepSeek Artificial Intelligence Co., Ltd. as the service provider."
+   "note": "Names Hangzhou DeepSeek Artificial Intelligence Co., Ltd. as the service provider. Fetched from Korea, the URL redirected to the ko-KR version of the same policy."
   },
   {
    "id": "src:open-mistral-home",
@@ -434,14 +434,6 @@
    "retrieved": "2026-09-28"
   },
   {
-   "id": "src:open-deepseek-news-v4-pro-ga",
-   "kind": "OFFICIAL",
-   "url": "https://api-docs.deepseek.com/news/news260813",
-   "title": "DeepSeek-V4-Pro GA Release (2026/08/13)",
-   "publisher": "DeepSeek",
-   "retrieved": "2026-09-28"
-  },
-  {
    "id": "src:open-deepseek-news-v4-preview",
    "kind": "OFFICIAL",
    "url": "https://api-docs.deepseek.com/news/news260424",
@@ -470,14 +462,6 @@
    "kind": "OFFICIAL",
    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
    "title": "deepseek-ai/DeepSeek-V4-Pro model card (DeepSeek-V4 preview series)",
-   "publisher": "DeepSeek (Hugging Face)",
-   "retrieved": "2026-09-28"
-  },
-  {
-   "id": "src:open-hf-deepseek-v4-pro-0813",
-   "kind": "OFFICIAL",
-   "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813",
-   "title": "deepseek-ai/DeepSeek-V4-Pro-0813 model card",
    "publisher": "DeepSeek (Hugging Face)",
    "retrieved": "2026-09-28"
   },
@@ -810,22 +794,6 @@
      "ver": "OFFICIAL",
      "src": "src:open-hf-grok-2-license",
      "note": "The model README calls it the \"Grok 2 Community License Agreement\"; the linked LICENSE file is titled \"xAI Community License Agreement\"."
-    },
-    {
-     "p": "input_modalities",
-     "v": [
-      "text"
-     ],
-     "ver": "OFFICIAL",
-     "src": "src:open-hf-grok-2"
-    },
-    {
-     "p": "output_modalities",
-     "v": [
-      "text"
-     ],
-     "ver": "OFFICIAL",
-     "src": "src:open-hf-grok-2"
     }
    ],
    "relations": [
@@ -4193,6 +4161,10 @@
     {
      "label": "Hugging Face",
      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813"
+    },
+    {
+     "label": "GA announcement",
+     "url": "https://api-docs.deepseek.com/news/news260813"
     }
    ],
    "facts": [
