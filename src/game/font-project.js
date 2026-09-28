@@ -23,6 +23,20 @@ export function projectFromGrid(data,width,height,{cellW,cellH,chars,baseline=ce
  });
  return project;
 }
+/** Copy a v1 grid/measured/font-file atlas into editable glyphs without changing source bytes. */
+export function projectFromAtlas(data,font,{threshold=8}={}){
+ if(!font?.glyphs?.length||data.length!==font.width*font.height*4)throw Error('Invalid font atlas');
+ const ascent=validInt(font.baseline,0,4096,'baseline'),lineHeight=validInt(font.lineHeight,1,4096,'line height');
+ if(ascent>lineHeight)throw Error('Baseline exceeds line height');
+ const project={format:PROJECT_FORMAT,face:String(font.face||'Nerulio Pixel'),ascent,descent:lineHeight-ascent,lineHeight,glyphs:[],kernings:(font.kernings||[]).map(k=>({...k}))};
+ for(const source of font.glyphs){
+  const {x,y,w,h}=source;
+  if(![x,y,w,h].every(Number.isInteger)||x<0||y<0||x+w>font.width||y+h>font.height)throw Error('Glyph rectangle outside atlas');
+  const pixels=[];for(let row=0;row<h;row++)for(let column=0;column<w;column++)pixels.push(data[((y+row)*font.width+x+column)*4+3]>threshold?1:0);
+  project.glyphs.push(glyph(source.codepoint,w,h,source.xOffset,source.yOffset,source.xAdvance,pixels));
+ }
+ return validateFontProject(project);
+}
 export function projectFromBdf(bdf){
  if(!bdf?.glyphs?.length)throw Error('BDF has no encoded glyphs');
  return {format:PROJECT_FORMAT,face:bdf.face,ascent:bdf.ascent,descent:bdf.descent,lineHeight:bdf.lineHeight,

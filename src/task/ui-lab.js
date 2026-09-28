@@ -861,7 +861,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   const f=S.font;
   if(!f.project){
    const chars=fontChars()||'ABCDEFGH';
-   f.project=source?FP.projectFromGrid(rgba(f.keyed||source),source.width,source.height,{cellW:f.cellW,cellH:f.cellH,chars,baseline:f.baseline||f.cellH}):FP.blankFontProject(chars,{cellW:f.cellW,cellH:f.cellH,baseline:f.baseline||f.cellH});
+   const atlas=f.sheet||f.keyed||source;
+   f.project=f.built&&atlas?FP.projectFromAtlas(rgba(atlas),f.built):FP.blankFontProject(chars,{cellW:f.cellW,cellH:f.cellH,baseline:f.baseline||f.cellH});
    f.selected=f.project.glyphs.find(g=>g.codepoint===65)?.codepoint??f.project.glyphs[0].codepoint;
    f.past.length=0;f.future.length=0;f.rectStart=null;
   }

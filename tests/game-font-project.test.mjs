@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseBdf} from '../src/game/font-bdf.js';
-import {blankFontProject,projectFromBdf,projectFromGrid,renderFontProject,setGlyphPixel,setKerning,validateFontProject,addGlyph,fillGlyph,rectangleGlyph,PROJECT_FORMAT} from '../src/game/font-project.js';
+import {blankFontProject,projectFromBdf,projectFromGrid,projectFromAtlas,renderFontProject,setGlyphPixel,setKerning,validateFontProject,addGlyph,fillGlyph,rectangleGlyph,PROJECT_FORMAT} from '../src/game/font-project.js';
 
 test('editable project renders its own pixels and metrics, including kerning',()=>{
  const project=blankFontProject('AB',{cellW:4,cellH:5,baseline:4});
@@ -47,4 +47,18 @@ test('a new Unicode glyph can be drawn with a bounded fill and rectangle',()=>{
  fillGlyph(project,0x3042,0,0,1);
  assert.deepEqual(project.glyphs[1].pixels,[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
  assert.equal(renderFontProject(project).font.glyphs[1].xAdvance,5);
+});
+
+test('v1 measured atlas becomes editable with metrics and source pixels intact',()=>{
+ const source=new Uint8ClampedArray(8*4*4);source[(1*8+2)*4+3]=255;source[(2*8+5)*4+3]=255;
+ const font={face:'measured',width:8,height:4,lineHeight:4,baseline:3,
+  glyphs:[{codepoint:65,x:2,y:1,w:1,h:1,xOffset:-1,yOffset:1,xAdvance:4},
+   {codepoint:86,x:5,y:2,w:1,h:1,xOffset:2,yOffset:2,xAdvance:5}],
+  kernings:[{first:65,second:86,amount:-1}]};
+ const project=projectFromAtlas(source,font);
+ assert.deepEqual(project.glyphs.map(g=>[g.codepoint,g.xOffset,g.yOffset,g.xAdvance,g.pixels]),
+  [[65,-1,1,4,[1]],[86,2,2,5,[1]]]);
+ assert.deepEqual(project.kernings,font.kernings);
+ rectangleGlyph(project,65,0,0,0,0,0);
+ assert.equal(source[(1*8+2)*4+3],255);
 });
