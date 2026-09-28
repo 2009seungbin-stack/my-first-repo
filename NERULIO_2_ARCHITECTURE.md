@@ -64,7 +64,12 @@ the static shells, the new header/home, `_routes.json` entries for SSR prefixes 
 owner flips it after D1 is provisioned and seeded (`NERULIO_2_MIGRATION_PLAN.md` §4). Free/Pro
 metering stays controlled by `SERVICE_API` independently; auth/sessions are shared.
 
-### D6. Collectors run in GitHub Actions, ingest through the Worker
+### D6. Collectors run in GitHub Actions, write to D1 through its REST API
+_Updated 2026-09-29_: collectors call the ingest pipeline locally in the Action and write through
+`platform/db/d1-rest.js` (D1 REST API) instead of POSTing to an ingest endpoint — no bulk writes
+through the Worker's CPU limit, no ingest token on the public Worker. The original text follows.
+
+### D6 (original). Collectors run in GitHub Actions, ingest through the Worker
 Pages has no cron. Collectors (`collectors/<source>/`) run on a GitHub Actions schedule (public repo →
 free), fetch official APIs/feeds, keep the raw snapshot metadata, normalize, and POST observations to
 `/api/v2/admin/ingest` (bearer `INGEST_TOKEN`). The Worker runs the one shared ingest pipeline

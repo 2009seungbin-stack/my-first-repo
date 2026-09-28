@@ -1,0 +1,40 @@
+name: Nerulio 2.0 collectors
+# Official feeds → ingest pipeline → D1 (REST API). Off until the owner sets the repository variable
+# PLATFORM_COLLECTORS=on and the secrets CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_API_TOKEN
+# (a token with D1 edit permission on that one database). See NERULIO_2_MIGRATION_PLAN.md §5.
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # status pages: the "지금 장애?" panels trust data for 2 hours
+    - cron: '17 */6 * * *'   # releases, Steam news/store, prices, schedules
+  workflow_dispatch:
+    inputs:
+      adapters:
+        description: 'Comma-separated adapter ids (empty = all)'
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: collectors-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: ${{ vars.PLATFORM_COLLECTORS == 'on' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run collectors into D1
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_ADAPTERS: ${{ github.event.inputs.adapters }}
+        run: |
+          if [ -n "$INPUT_ADAPTERS" ]; then set -- --adapters "$INPUT_ADAPTERS"
+          elif [ "$SCHEDULE" = '*/30 * * * *' ]; then set -- --adapters claude-status,openai-status
+          else set -- --all; fi
+          node tools/platform/collect.mjs "$@" --d1

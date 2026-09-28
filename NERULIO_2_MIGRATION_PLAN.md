@@ -46,10 +46,16 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
 - Sign in, follow, write, comment, report; check `/ko/ai/claude/status` and a GPU's `local-llm` page.
 - Status panels say "확인 전" until the status collectors run (step 5): intended.
 
-## 5. Collectors (owner: a D1 API token as a GitHub secret)
-Collectors (`collectors/*`, `tools/platform/collect.mjs`) fetch official feeds and write through the
-ingest pipeline. Scheduling them on GitHub Actions against D1's REST API is the next engineering task
-(architecture D6 to be updated: D1 REST instead of an ingest endpoint).
+## 5. Collectors (owner: GitHub secrets + one variable)
+`.github/workflows/collectors.yml` runs `tools/platform/collect.mjs --d1`: official feeds → the ingest
+pipeline → D1 through the REST API (`platform/db/d1-rest.js`), with every run recorded in
+`collectors`/`collector_runs`. Status pages every 30 minutes, everything else every 6 hours.
+1. Cloudflare API token with **D1 Edit** on the production database only.
+2. GitHub → Settings → Secrets: `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_API_TOKEN`.
+3. GitHub → Settings → Variables: `PLATFORM_COLLECTORS=on` (until then the workflow does nothing).
+4. Run it once by hand (Actions → Nerulio 2.0 collectors → Run workflow) and check
+   `SELECT adapter,last_success_at,last_error FROM collectors`.
+The status panels switch from "확인 전" to "보고된 장애 없음 / 장애 조사 중" after the first successful run.
 
 ## 6. Production (owner)
 Same as steps 2–3 on production, then:
