@@ -24,14 +24,20 @@ export const statusChecked=(c,now)=>!!c?.last_success_at&&now-c.last_success_at<
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
  const {db,entity:e,now}=ctx;
- const provider=(await related(db,e.id,'in',['offers']))[0]?.entity||null;
- const siblings=provider?(await related(db,provider.id,'out',['offers'])).map(r=>r.entity).filter(x=>x.type==='service'):[];
+ // Independent reads run together (every D1 query is a round trip): first the relations…
+ const [offeredBy,partRows,planRel]=await Promise.all([related(db,e.id,'in',['offers']),related(db,e.id,'in',['part_of']),related(db,e.id,'out',['has_plan'])]);
+ const provider=offeredBy[0]?.entity||null;
+ const [siblingRel,madeBy]=provider?await Promise.all([related(db,provider.id,'out',['offers']),related(db,provider.id,'in',['made_by'])]):[[],[]];
+ const siblings=siblingRel.map(r=>r.entity).filter(x=>x.type==='service');
  const services=[e,...siblings.filter(x=>x.id!==e.id)].slice(0,4);
- const parts=(await related(db,e.id,'in',['part_of'])).map(r=>r.entity);
- const features=parts.filter(x=>x.type==='feature');
- const plans=(await related(db,e.id,'out',['has_plan'])).map(r=>r.entity);
- const models=provider?(await related(db,provider.id,'in',['made_by'])).map(r=>r.entity).filter(x=>x.type==='model'):[];
- const facts=await factsFor(db,[...plans,...models,...features,...services].map(x=>x.id));
+ const features=partRows.map(r=>r.entity).filter(x=>x.type==='feature');
+ const plans=planRel.map(r=>r.entity);
+ const models=madeBy.map(r=>r.entity).filter(x=>x.type==='model');
+ // …then everything that needs them.
+ const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
+ const [facts,incidentRows,collectorMap,issueRows]=await Promise.all([factsFor(db,[...plans,...models,...features,...services].map(x=>x.id)),
+  eventsFor(db,[...services.map(s=>s.id),...(provider?[provider.id]:[])],{kinds:['incident','other'],from:now-14*DAY,desc:true,limit:20}),
+  adapter?collectorState(db,[adapter]):Promise.resolve(new Map()),issueReportsSince(db,services.map(x=>x.id),now-8*DAY)]);
  const f=(/** @type {string} */ id,/** @type {string} */ p)=>pickFact(facts.get(id),p,{region:ctx.region})?.value;
  // Models: current (active/preview) first, newest release first.
  const modelRows=models.map(m=>({m,status:f(m.id,'status'),released:f(m.id,'release_date'),ctx:f(m.id,'context_window'),in:pickFact(facts.get(m.id),'api_input_price'),out:pickFact(facts.get(m.id),'api_output_price'),open:f(m.id,'open_weights')}))
@@ -40,24 +46,22 @@ async function load(ctx){
  const planRows=plans.map(p=>({p,monthly:pickFact(facts.get(p.id),'price_monthly',{region:ctx.region}),note:pickFact(facts.get(p.id),'price_note',{region:ctx.region,language:ctx.l})?.value}))
   .sort((a,b)=>(a.monthly?.value??1e9)-(b.monthly?.value??1e9));
  // Status: incidents on the service family in the last 14 days, open ones first.
- const incidents=(await eventsFor(db,[...services.map(s=>s.id),...(provider?[provider.id]:[])],{kinds:['incident','other'],from:now-14*DAY,desc:true,limit:20}))
-  .filter(x=>x.url&&/status\./.test(x.url));
- const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
- const collector=adapter?(await collectorState(db,[adapter])).get(adapter)||null:null;
+ const incidents=incidentRows.filter(x=>x.url&&/status\./.test(x.url));
+ const collector=adapter?collectorMap.get(adapter)||null:null;
  // Nerulio users' outage reports per service: the same signal as the status page.
  /** @type {Map<string,ReturnType<typeof reportSignal>>} */const signals=new Map();
- for(const svc of services)signals.set(svc.id,reportSignal(await issueReportsSince(db,[svc.id],now-8*DAY),now));
+ for(const svc of services)signals.set(svc.id,reportSignal(issueRows.filter(r=>r.entity_id===svc.id),now));
  // Timeline: Radar changes + dated official facts (model releases, service versions) in 90 days.
  const family=[e,...services,...features,...models,...plans,...(provider?[provider]:[])];
  const names=Object.fromEntries(family.map(x=>[x.id,nameOf(x,ctx.l)]));
- const changes=await changesFor(db,family.map(x=>x.id),{minImportance:1,limit:10});
+ const [changes,serviceVersions,avail]=await Promise.all([changesFor(db,family.map(x=>x.id),{minImportance:1,limit:10}),
+  Promise.all(services.map(x=>versionsOf(db,x.id,3))),availabilityFor(db,features.map(x=>x.id))]);
  /** @type {{at:number,title:string,ver:string,href?:string}[]} */const timeline=changes.map(c=>{const d=describeChange(c,{name:names[c.entity_id]||'',names},/** @type {'ko'|'en'} */(ctx.l));return {at:c.detected_at,title:d.detail?`${d.title} — ${d.detail}`:d.title,ver:'AUTOMATED'};});
  for(const r of modelRows){if(!r.released)continue;const at=dateMs(String(r.released));if(now-at<=90*DAY&&at<=now)timeline.push({at,title:ctx.l==='ko'?`${nameOf(r.m,'ko')} 출시`:`${nameOf(r.m,'en')} released`,ver:'OFFICIAL',href:channelUrl(ctx.l,r.m)});}
- for(const s of services)for(const v of await versionsOf(db,s.id,3)){const at=v.released_at??v.detected_at;if(now-at<=90*DAY)timeline.push({at,title:ctx.l==='ko'?`${nameOf(s,'ko')} ${v.version} 출시`:`${nameOf(s,'en')} ${v.version} released`,ver:v.verification,href:v.notes_url||undefined});}
+ for(const [i,s] of services.entries())for(const v of serviceVersions[i]){const at=v.released_at??v.detected_at;if(now-at<=90*DAY)timeline.push({at,title:ctx.l==='ko'?`${nameOf(s,'ko')} ${v.version} 출시`:`${nameOf(s,'en')} ${v.version} released`,ver:v.verification,href:v.notes_url||undefined});}
  for(const x of incidents.slice(0,3))timeline.push({at:x.starts_at??x.updated_at,title:x.title[ctx.l]||x.title.en,ver:'AUTOMATED',href:x.url||undefined});
  timeline.sort((a,b)=>b.at-a.at);
  // Rollouts: features that are officially rolling out/in preview/limited somewhere, plus user votes.
- const avail=await availabilityFor(db,features.map(x=>x.id));
  const rollingIds=[...new Set(avail.filter(a=>a.state==='rolling_out'||a.state==='preview').map(a=>a.entity_id))];
  const votes=await rolloutVotes(db,rollingIds);
  const rollouts=rollingIds.slice(0,3).map(id=>({feature:/** @type {any} */(features.find(x=>x.id===id)),summary:rolloutSummary(votes.get(id)||[],now),avail:avail.filter(a=>a.entity_id===id)}));

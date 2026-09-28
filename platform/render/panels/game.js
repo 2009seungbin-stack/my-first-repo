@@ -13,13 +13,13 @@ const DAY=864e5;
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
  const {db,entity:e,now}=ctx;
- const versions=await versionsOf(db,e.id,12);
- const patches=(await related(db,e.id,'in',['translates'])).map(r=>r.entity);
- const pf=await factsFor(db,patches.map(p=>p.id));
- const compat=(await compatibilityOf(db,{target:e.id})).filter(c=>patches.some(p=>p.id===c.subject_id));
- const counts=new Map();for(const p of patches)counts.set(p.id,await compatReportCounts(db,p.id,e.id));
- const orgs=await related(db,e.id,'out',['developed_by','published_by']);
- const events=await eventsFor(db,[e.id,...patches.map(p=>p.id)],{from:now,to:now+14*DAY,limit:5});
+ // Independent reads run together (every D1 query is a round trip).
+ const [versions,patchRel,compatAll,orgs]=await Promise.all([versionsOf(db,e.id,12),related(db,e.id,'in',['translates']),compatibilityOf(db,{target:e.id}),related(db,e.id,'out',['developed_by','published_by'])]);
+ const patches=patchRel.map(r=>r.entity);
+ const compat=compatAll.filter(c=>patches.some(p=>p.id===c.subject_id));
+ const [pf,countList,events]=await Promise.all([factsFor(db,patches.map(p=>p.id)),Promise.all(patches.map(p=>compatReportCounts(db,p.id,e.id))),
+  eventsFor(db,[e.id,...patches.map(p=>p.id)],{from:now,to:now+14*DAY,limit:5})]);
+ const counts=new Map(patches.map((p,i)=>[p.id,countList[i]]));
  return {versions,patches:patches.map(p=>({p,facts:pf.get(p.id)||[],counts:counts.get(p.id)||[]})),compat,orgs,events};
 }
 /** "Caves of Qud 한글패치 (qudkorean)" → "한글패치 (qudkorean)" inside the game's channel. */

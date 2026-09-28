@@ -14,23 +14,26 @@ const QUANT='Q4_K_M';
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
  const {db,entity:e}=ctx;
- const vendor=(await related(db,e.id,'out',['made_by']))[0]?.entity||null;
+ const vram=Number(pickFact(ctx.facts,'vram_gb')?.value||0);
+ // Independent reads run together (every D1 query is a round trip).
+ const [madeBy,driverRel,bench,models,succOut,succIn,sameVram,benchPage]=await Promise.all([related(db,e.id,'out',['made_by']),related(db,e.id,'in',['related_to','runs_on']),
+  benchmarksOn(db,e.id),vram>0?openModels(db):Promise.resolve([]),related(db,e.id,'out',['successor_of']),related(db,e.id,'in',['successor_of']),
+  vram?entitiesWithFact(db,'gpu','vram_gb',vram,8):Promise.resolve([]),channelPosts(db,e.id,{kind:'benchmark',sort:'top',limit:3})]);
+ const vendor=madeBy[0]?.entity||null;
  // Only drivers linked to this card (a data-center branch is not a GeForce card's driver).
- const drivers=(await related(db,e.id,'in',['related_to','runs_on'])).map(r=>r.entity).filter(x=>x.type==='driver');
- const df=await factsFor(db,drivers.map(x=>x.id));
+ const drivers=driverRel.map(r=>r.entity).filter(x=>x.type==='driver');
+ const [df,driverVersions]=await Promise.all([factsFor(db,drivers.map(x=>x.id)),Promise.all(drivers.map(dr=>versionsOf(db,dr.id,1)))]);
  let driver=null;
- for(const dr of drivers){
-  const v=(await versionsOf(db,dr.id,1))[0];const latest=v?.version||pickFact(df.get(dr.id),'latest_version')?.value;
+ for(const [i,dr] of drivers.entries()){
+  const v=driverVersions[i][0];const latest=v?.version||pickFact(df.get(dr.id),'latest_version')?.value;
   if(!latest)continue;
   const at=v?(v.released_at??v.detected_at):0;
   if(!driver||at>driver.at)driver={entity:dr,version:String(latest),at,notes:v?.notes_url||null,issues:await issueCounts(db,dr.id,String(latest))};
  }
- const vram=Number(pickFact(ctx.facts,'vram_gb')?.value||0);
  // Representative open models: the two largest that fit, the largest that is tight, the smallest that does not fit.
- const bench=await benchmarksOn(db,e.id);
  /** @type {any[]} */let fit=[];
  if(vram>0){
-  const est=(await openModels(db)).map(m=>({...m,r:estimateLlmMemory({paramsB:m.paramsB,quant:QUANT,vramGiB:vram})})).sort((a,b)=>a.paramsB-b.paramsB);
+  const est=models.map(m=>({...m,r:estimateLlmMemory({paramsB:m.paramsB,quant:QUANT,vramGiB:vram})})).sort((a,b)=>a.paramsB-b.paramsB);
   const fits=est.filter(x=>x.r.verdict==='fits'),tight=est.filter(x=>x.r.verdict==='tight'),no=est.filter(x=>x.r.verdict==='does_not_fit');
   const pickSizes=(/** @type {typeof est} */ list,/** @type {number} */ n)=>{const out=[];const seen=new Set();for(const x of [...list].reverse()){const k=Math.round(x.paramsB);if(seen.has(k))continue;seen.add(k);out.push(x);if(out.length===n)break;}return out.reverse();};
   fit=[...pickSizes(fits,2),...pickSizes(tight,1),...no.slice(0,1)].map(x=>({...x,measured:bench.filter(b=>b.entity_id===x.entity.id&&typeof b.metrics.tokens_per_s==='number').map(b=>b.metrics.tokens_per_s)}));
@@ -38,15 +41,14 @@ async function load(ctx){
  // Benchmark board: median per (model, runtime, quant).
  /** @type {Map<string,{model:string,runtime:string,quant:string,values:number[]}>} */const groups=new Map();
  for(const b of bench){const v=b.metrics.tokens_per_s;if(typeof v!=='number')continue;const k=[b.entity_id,b.env.runtime||'',b.env.quant||''].join('|');const g=groups.get(k)||{model:b.entity_id,runtime:String(b.env.runtime||''),quant:String(b.env.quant||''),values:[]};g.values.push(v);groups.set(k,g);}
- const benchNames=await entitiesByIds(db,[...groups.values()].map(g=>g.model));
- const board=[...groups.values()].sort((a,b)=>b.values.length-a.values.length).slice(0,6).map(g=>({...g,name:benchNames.get(g.model)?nameOf(/** @type {any} */(benchNames.get(g.model)),ctx.l):g.model,median:median(g.values)}));
- const succ=[...(await related(db,e.id,'out',['successor_of'])),...(await related(db,e.id,'in',['successor_of']))].map(r=>r.entity);
- const same=vram?(await entitiesWithFact(db,'gpu','vram_gb',vram,8)).filter(x=>x.id!==e.id):[];
+ const succ=[...succOut,...succIn].map(r=>r.entity);
+ const same=sameVram.filter(x=>x.id!==e.id);
  const similar=[...new Map([...succ,...same].map(x=>[x.id,x])).values()].slice(0,5);
- const sf=await factsFor(db,similar.map(x=>x.id));
+ const [sf,benchNames]=await Promise.all([factsFor(db,similar.map(x=>x.id)),entitiesByIds(db,[...groups.values()].map(g=>g.model))]);
+ const board=[...groups.values()].sort((a,b)=>b.values.length-a.values.length).slice(0,6).map(g=>({...g,name:benchNames.get(g.model)?nameOf(/** @type {any} */(benchNames.get(g.model)),ctx.l):g.model,median:median(g.values)}));
  // 벤치 posts on this channel: shown with the board, so a measurement written as a post is not
  // hidden behind "no reports yet".
- const benchPosts=(await channelPosts(db,e.id,{kind:'benchmark',sort:'top',limit:3})).posts;
+ const benchPosts=benchPage.posts;
  return {vendor,driver,vram,fit,board,benchPosts,similar:similar.map(x=>({e:x,vram:pickFact(sf.get(x.id),'vram_gb')?.value}))};
 }
 const median=(/** @type {number[]} */ v)=>{const s=[...v].sort((a,b)=>a-b),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};

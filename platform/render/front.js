@@ -17,17 +17,16 @@ const DAY=864e5;
 /** @param {any} db @param {{l:string,now:number,vertical?:string|null,channels?:{name:string,href:string}[]}} o */
 export async function loadFront(db,o){
  const vertical=o.vertical&&VERTICALS.includes(/** @type {any} */(o.vertical))?o.vertical:null;
- const best=await frontPosts(db,{mode:'best',vertical,since:o.now-3*DAY,limit:15});
- const news=await frontPosts(db,{mode:'news',limit:8});
- // One line per entity and kind (several schedule edits to one work read as one).
+ // Independent reads run together: on D1 every query is a round trip.
+ const [best,news,radar,reports,questions,popular,versions,upcoming]=await Promise.all([
+  frontPosts(db,{mode:'best',vertical,since:o.now-3*DAY,limit:15}),frontPosts(db,{mode:'news',limit:8}),radarChanges(db,{limit:30,minImportance:2}),
+  frontPosts(db,{mode:'kind',kind:'report',limit:6}),frontPosts(db,{mode:'kind',kind:'question',unanswered:true,limit:6}),activeChannels(db,o.now-7*DAY,10),
+  recentVersions(db,{since:o.now-7*DAY,until:o.now,vertical,limit:16}),upcomingEvents(db,{from:o.now,to:o.now+7*DAY,vertical,limit:6})]);
+ // One line per entity and kind (several schedule edits to one work read as one); only when there is no bot news.
  const seen=new Set();
- const changes=news.length?[]:(await radarChanges(db,{limit:30,minImportance:2})).filter(c=>{const k=`${c.entity_id}|${c.kind}`;return seen.has(k)?false:(seen.add(k),true);}).slice(0,8);
- const reports=await frontPosts(db,{mode:'kind',kind:'report',limit:6});
- const questions=await frontPosts(db,{mode:'kind',kind:'question',unanswered:true,limit:6});
- const popular=await activeChannels(db,o.now-7*DAY,10);
+ const changes=news.length?[]:radar.filter(c=>{const k=`${c.entity_id}|${c.kind}`;return seen.has(k)?false:(seen.add(k),true);}).slice(0,8);
  // Facts that make the front useful before the boards fill up.
- const releases=collapseVersions(await recentVersions(db,{since:o.now-7*DAY,until:o.now,vertical,limit:16}),o.l).slice(0,8);
- const upcoming=await upcomingEvents(db,{from:o.now,to:o.now+7*DAY,vertical,limit:6});
+ const releases=collapseVersions(versions,o.l).slice(0,8);
  return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,releases,upcoming,channels:o.channels||[]};
 }
 

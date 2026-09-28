@@ -33,14 +33,12 @@ export async function loadChannel(db,entity,o){
  const facts=(await factsFor(db,[entity.id])).get(entity.id)||[];
  const ctx={db,entity,facts,l:o.l,now:o.now,region};
  const panel=panelFor(entity);
- const data=await panel.load(ctx);
  const kind=o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,sort=SORTS.includes(/** @type {any} */(o.sort))?/** @type {string} */(o.sort):'new';
- const board=await channelPosts(db,entity.id,{kind,sort,best:!!o.best,page:o.page||1,limit:PAGE_SIZE,now:o.now});
- const stats=await channelStats(db,entity.id,dayStart(o.now,o.l));
- const titles=await recentTitles(db,entity.id,o.now-2*864e5);
- const counts=await contentCounts(db,entity.id);
- const bestMin=await channelBestThreshold(db,entity.id,o.now);
- const relatedList=await relatedChannels(db,entity.id,8);
+ // Independent reads run together: on D1 every query is a round trip.
+ const [data,board,stats,titles,counts,bestMin,relatedList]=await Promise.all([panel.load(ctx),
+  channelPosts(db,entity.id,{kind,sort,best:!!o.best,page:o.page||1,limit:PAGE_SIZE,now:o.now}),
+  channelStats(db,entity.id,dayStart(o.now,o.l)),recentTitles(db,entity.id,o.now-2*864e5),contentCounts(db,entity.id),
+  channelBestThreshold(db,entity.id,o.now),relatedChannels(db,entity.id,8)]);
  const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
  return {entity,ctx,panel,data,index,bestMin,relatedList,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
