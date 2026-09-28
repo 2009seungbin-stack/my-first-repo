@@ -98,6 +98,8 @@ ${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_
 </tbody></table></div>`);
  }
  const live=rows.filter((/** @type {any} */ r)=>r.f('api_input_price')&&['active','preview',undefined].includes(r.f('status')?.value));
+ // Older and retiring models stay reachable from the table (else they are only in the sitemap).
+ const older=rows.filter((/** @type {any} */ r)=>!live.includes(r)&&r.f('status')?.value!=='open_weights'&&(!m.org||r.owner?.slug===m.org));
  /** @type {Map<string,{e:any,n:number}>} */const orgs=new Map();for(const r of live)if(r.owner){const o=orgs.get(r.owner.slug)||{e:r.owner,n:0};o.n++;orgs.set(r.owner.slug,o);}
  const org=m.org&&orgs.has(m.org)?m.org:null;
  const price=(/** @type {any} */ r)=>Number(r.f('api_input_price').value);
@@ -107,7 +109,8 @@ ${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_
 <span class="sp"></span><span class="chips">${[[null,ko?'비싼 순':'Priciest'],['cheap',ko?'싼 순':'Cheapest'],['new',ko?'최신순':'Newest']].map(([so,name])=>html`<a class="chipf${(so||null)===(m.sort||null)?' on':''}" href="${q(org,/** @type {any} */(so))}">${name}</a>`)}</span></div>`;
  return box({title:ko?`API로 쓸 수 있는 모델 ${list.length}개`:`${list.length} models with API prices`},html`${chips}<div class="tw" tabindex="0"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th class="nm">${ko?'회사':'Provider'}</th><th>${ko?'입력':'Input'}</th><th>${ko?'출력':'Output'}</th><th class="nm">${ko?'캐시 입력':'Cached'}</th><th>${ko?'컨텍스트':'Context'}</th><th class="nm">${ko?'출시':'Released'}</th></tr></thead><tbody>
 ${list.map((/** @type {any} */ r)=>{const i=r.f('api_input_price'),o=r.f('api_output_price'),c=r.f('api_cached_input_price'),ctx=r.f('context_window'),rel=r.f('release_date');return html`<tr><td><a href="${channelUrl(l,r.e)}"><b>${nameOf(r.e,l)}</b></a></td><td class="nm">${r.owner?nameOf(r.owner,l):'–'}</td><td>${money(Number(i.value),i.unit||'USD',l)}</td><td>${o?money(Number(o.value),o.unit||'USD',l):'–'}</td><td class="nm">${c?money(Number(c.value),c.unit||'USD',l):'–'}</td><td>${ctx?tokens(Number(ctx.value)):'–'}</td><td class="nm">${rel?isoDateText(String(rel.value)):'–'}</td></tr>`;})}
-</tbody></table></div><p class="fine pad">${ko?'가격은 100만 토큰당 USD. 모델 이름을 누르면 가격 변경 이력이 있습니다.':'USD per 1M tokens. Open a model for its price history.'}</p>`);
+</tbody></table></div><p class="fine pad">${ko?'가격은 100만 토큰당 USD. 모델 이름을 누르면 가격 변경 이력이 있습니다.':'USD per 1M tokens. Open a model for its price history.'}</p>
+${older.length?html`<details class="more"><summary>${ko?`이전·지원 종료 예정 모델 ${older.length}개`:`${older.length} older or retiring models`}</summary><ul class="hubg">${older.map((/** @type {any} */ r)=>html`<li><a href="${channelUrl(l,r.e)}">${nameOf(r.e,l)}</a></li>`)}</ul></details>`:''}`);
 }
 
 /** Largest open-model size (billions) that fits at Q4_K_M, from the same estimate as the GPU pages. @param {number} vram */
