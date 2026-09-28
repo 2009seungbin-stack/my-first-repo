@@ -3,7 +3,7 @@
  * Reference: https://drpetter.se/project_sfxr.html (MIT); https://github.com/chr15m/jsfxr (Unlicense).
  */
 export const RATE=[44100,48000];
-export const WAVES=['square','saw','sine','triangle','white','pink','brown','bitnoise','pulse','breaker','tan','whistle','rasp','fm'];
+export const WAVES=['square','saw','sine','triangle','white','pink','brown','bitnoise','pulse','breaker','tan','whistle','rasp','voice','fm'];
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,Number.isFinite(+v)?+v:a));
 const frac=x=>x-Math.floor(x);
 export function rng(seed){let n=(Number(seed)>>>0)||1;return ()=>{n^=n<<13;n^=n>>>17;n^=n<<5;return (n>>>0)/4294967296;};}
@@ -30,10 +30,10 @@ export function validate(input){if(!input||typeof input!=='object')throw Error('
  return p;
 }
 function env(t,x){if(t<0)return 0;if(t<x.attack)return x.attack?Math.max(0,t/x.attack):1;t-=x.attack;if(t<x.decay)return 1-(1-x.sustain)*(x.decay?t/x.decay:1);t-=x.decay;if(t<x.hold)return x.sustain;t-=x.hold;return x.release?x.sustain*Math.max(0,1-t/x.release):0;}
-function osc(w,phase,duty,random,noise){const f=frac(phase);switch(w){case 'square':case 'pulse':return f<duty?1:-1;case 'saw':return 2*f-1;case 'triangle':return 1-4*Math.abs(f-.5);case 'sine':return Math.sin(phase*2*Math.PI);case 'white':return random()*2-1;case 'pink':noise.pink=.97*noise.pink+.03*(random()*2-1);return noise.pink*3;case 'brown':noise.brown=clamp(noise.brown+(random()-.5)*.12,-1,1);return noise.brown;case 'bitnoise':return (Math.floor(phase*13)&1)?1:-1;case 'breaker':return Math.abs(2*f-1)*2-1;case 'tan':return Math.tanh(3*Math.sin(phase*2*Math.PI));case 'whistle':return .75*Math.sin(phase*2*Math.PI)+.25*Math.sin(phase*8*Math.PI);case 'rasp':return Math.sign(Math.sin(phase*2*Math.PI))*(.6+.4*(random()*2-1));case 'fm':return Math.sin(2*Math.PI*(phase+.2*Math.sin(phase*4*Math.PI)));default:return 0;}}
+function osc(w,phase,duty,random,noise){const f=frac(phase);switch(w){case 'square':case 'pulse':return f<duty?1:-1;case 'saw':return 2*f-1;case 'triangle':return 1-4*Math.abs(f-.5);case 'sine':return Math.sin(phase*2*Math.PI);case 'white':return random()*2-1;case 'pink':noise.pink=.97*noise.pink+.03*(random()*2-1);return noise.pink*3;case 'brown':noise.brown=clamp(noise.brown+(random()-.5)*.12,-1,1);return noise.brown;case 'bitnoise':return (Math.floor(phase*13)&1)?1:-1;case 'breaker':return Math.abs(2*f-1)*2-1;case 'tan':return Math.tanh(3*Math.sin(phase*2*Math.PI));case 'whistle':return .75*Math.sin(phase*2*Math.PI)+.25*Math.sin(phase*8*Math.PI);case 'rasp':return Math.sign(Math.sin(phase*2*Math.PI))*(.6+.4*(random()*2-1));case 'voice':return .55*Math.sin(phase*2*Math.PI)+.3*Math.sin(phase*6*Math.PI)+.15*Math.sin(phase*10*Math.PI);case 'fm':return Math.sin(2*Math.PI*(phase+.2*Math.sin(phase*4*Math.PI)));default:return 0;}}
 function renderVoice(dstL,dstR,x,seed,rate,at=0,pitch=0,gain=1,sample=null){const random=rng(seed);const duration=x.attack+x.decay+x.hold+x.release;const start=Math.round((at+x.start)*rate),max=Math.min(dstL.length-start,Math.ceil(duration*rate));if(max<=0)return;let phase=0,lp=0,lp2=0,hp=0,pink=0,brown=0,crush=0,last=-1;const noise={pink,brown};const delayLen=Math.max(1,Math.ceil(.1*rate)),delay=new Float32Array(delayLen);let prev=0;
  for(let i=0;i<max;i++){let t=i/rate;if(x.repeatHz)t=t%(1/x.repeatHz);const e=env(t,x);if(e<=0)continue;let hz=x.freq+x.slide*t+.5*x.delta*t*t;if(x.arpHz)hz*=2**(x.arpSemitones/12*Math.floor(t*x.arpHz));if(x.vibDepth)hz*=2**(x.vibDepth*Math.sin(t*x.vibHz*2*Math.PI));hz=clamp(hz*2**(pitch/12),1,rate*.45);phase+=hz/rate;
- let v;if(x.kind==='sample'&&sample){const j=Math.floor(t*rate*2**(pitch/12));v=j<sample.length?sample[j]:0;}else v=osc(x.wave,phase,clamp(x.duty+x.dutySweep*t,.01,.99),random,noise);
+ let v;if(x.kind==='sample'){const j=Math.floor(t*rate*2**(pitch/12));v=sample&&j<sample.length?sample[j]:0;}else v=osc(x.wave,phase,clamp(x.duty+x.dutySweep*t,.01,.99),random,noise);
  // Two-stage low-pass with a feedback term, followed by a one-pole high-pass.
  const lpCoef=Math.min(.99,2*Math.PI*Math.min(x.lp,rate*.45)/rate);lp+=(v-lp-x.resonance*(lp-lp2))*lpCoef;lp2+=(lp-lp2)*lpCoef;v=lp2;
  if(x.hp){const hpc=Math.exp(-2*Math.PI*x.hp/rate);hp=hpc*(hp+v-prev);prev=v;v=hp;}
