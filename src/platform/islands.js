@@ -291,6 +291,9 @@ async function main(){
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
    if(r?.url){store.set(null);location.href=r.url;}
   });
+  const subj=$('select[name="subjectId"]',wf),sv=$('input[name="subjectVersion"]',wf);
+  // Picking a patch fills in its latest known version (the reader can still change it).
+  subj?.addEventListener('change',()=>{const v=subj.selectedOptions[0]?.dataset.v;if(sv&&v)sv.value=v;});
   const kindSel=$('select[name="kind"]',wf),rep=$('.repf',wf);
   const title=$('input[name="title"]',wf);
   const sync=()=>{const r=kindSel.value==='report'&&!!rep;if(rep){rep.hidden=!r;for(const el of $$('select,input',rep))el.disabled=!r;}if(title)title.required=!r;};kindSel?.addEventListener('change',sync);sync();

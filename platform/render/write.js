@@ -16,7 +16,10 @@ export async function loadWrite(db,entity,o){
  if(entity.type==='game')subjects=(await related(db,entity.id,'in',['translates'])).map(r=>r.entity);
  else if(entity.type==='app')subjects=(await related(db,entity.id,'in',['supports_host'])).map(r=>r.entity).slice(0,80);
  const versions=subjects.length?(await versionsOf(db,entity.id,8)).map(v=>v.version):[];
- return {entity,subjects,versions,l:o.l,kind:o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,channels:o.channels||[]};
+ // Each patch's latest known version, filled in when it is picked (games have a few patches).
+ /** @type {Record<string,string>} */const subjectVersion={};
+ for(const x of subjects.slice(0,10)){const v=(await versionsOf(db,x.id,1))[0];if(v)subjectVersion[x.id]=v.version;}
+ return {entity,subjects,versions,subjectVersion,l:o.l,kind:o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,channels:o.channels||[]};
 }
 
 /** @param {Awaited<ReturnType<typeof loadWrite>>} m @param {{origin:string}} site */
@@ -27,9 +30,9 @@ export function renderWrite(m,site){
  const chosen=m.kind&&kinds.includes(m.kind)?m.kind:(kinds.includes('question')?'question':kinds[0]);
  const rep=m.subjects.length?html`<fieldset class="repf"><legend>${ko?'구조화 리포트 (호환 여부)':'Structured report (compatibility)'}</legend>
 <input type="hidden" name="targetId" value="${e.id}">
-<div class="row"><label>${e.type==='game'?(ko?'한글패치':'Korean patch'):(ko?'플러그인':'Plugin')}<select name="subjectId" required>${m.subjects.map(x=>html`<option value="${x.id}">${nameOf(x,l)}</option>`)}</select></label>
-<label>${ko?'패치/플러그인 버전':'Patch/plugin version'}<input name="subjectVersion" maxlength="${LIMITS.version}" placeholder="${ko?'예: 1.7':'e.g. 1.7'}"></label>
-<label>${e.type==='game'?(ko?'게임 버전':'Game version'):(ko?'앱 버전':'App version')}<input name="targetVersion" maxlength="${LIMITS.version}" list="tv" placeholder="${m.versions[0]||''}"><datalist id="tv">${m.versions.map(v=>html`<option value="${v}"></option>`)}</datalist></label></div>
+<div class="row"><label>${e.type==='game'?(ko?'한글패치':'Korean patch'):(ko?'플러그인':'Plugin')}<select name="subjectId" required>${m.subjects.map(x=>html`<option value="${x.id}" data-v="${m.subjectVersion[x.id]||''}">${nameOf(x,l)}</option>`)}</select></label>
+<label>${ko?'패치/플러그인 버전':'Patch/plugin version'}<input name="subjectVersion" maxlength="${LIMITS.version}" value="${m.subjects[0]?m.subjectVersion[m.subjects[0].id]||'':''}" placeholder="${ko?'예: 1.7':'e.g. 1.7'}"></label>
+<label>${e.type==='game'?(ko?'게임 버전':'Game version'):(ko?'앱 버전':'App version')}<input name="targetVersion" maxlength="${LIMITS.version}" list="tv" value="${m.versions[0]||''}" placeholder="${m.versions[0]||''}"><datalist id="tv">${m.versions.map(v=>html`<option value="${v}"></option>`)}</datalist></label></div>
 <div class="row"><label>${ko?'결과':'Result'}<select name="result" required><option value="works">${ko?'✓ 작동':'✓ Works'}</option><option value="works_with_issues">${ko?'◐ 일부 문제':'◐ Works with issues'}</option><option value="broken">${ko?'✕ 안 됨':'✕ Broken'}</option></select></label>
 <label>${ko?'OS':'OS'}<input name="env_os" maxlength="60" placeholder="${ko?'예: Windows 11 24H2':'e.g. Windows 11 24H2'}"></label>
 <label>${ko?'기기':'Device'}<input name="env_device" maxlength="60" placeholder="${ko?'예: Steam Deck, RTX 4070':'e.g. Steam Deck'}"></label></div>
