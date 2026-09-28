@@ -31,7 +31,7 @@ async function harness(){
    if(method==='POST'&&origin)headers.set('origin',origin);
    if(body!==undefined)headers.set('content-type','application/json');
    const r=await handlePlatformApi(new Request(ORIGIN+'/api/v2'+path,{method,headers,body:body!==undefined?JSON.stringify(body):undefined}),env,null,{now:()=>clock.now,limiter});
-   return {status:r.status,json:await r.json()};
+   return {status:r.status,headers:r.headers,json:await r.json()};
   }};
  return h;
 }
@@ -151,6 +151,18 @@ test('내 정보: my posts and comments, newest first, only mine',{skip},async()
  assert.deepEqual(r.posts.map(x=>x.title),['내 글']);assert.match(r.posts[0].url,/^\/ko\/games\/test-game\/\d+$/);
  assert.deepEqual(r.comments.map(x=>x.text),['내 댓글']);
  assert.equal((await h.call('GET','/mine')).status,401);
+});
+
+test('open data: published compat reports by month, no account data, cacheable',{skip},async()=>{
+ const h=await harness();await h.signIn('a');
+ await h.call('POST','/reports',{as:'a',body:{kind:'compat',entityId:'translation_patch:test-game-ko',subjectVersion:'1.7',targetId:'game:steam-1',targetVersion:'2.3.1',result:'works',env:{os:'Windows 11',note:'비밀 메모'},comment:'내 PC에서 됨'}});
+ const idx=await h.call('GET','/open-data/compat');
+ assert.equal(idx.status,200);assert.equal(idx.json.license,'ODbL-1.0');assert.equal(idx.json.months.length,1);
+ const r=await h.call('GET',idx.json.months[0].url.replace('/api/v2',''));
+ assert.match(r.headers.get('cache-control'),/public/);
+ const row=r.json.reports[0];
+ assert.deepEqual({...row,day:undefined},{subject:'translation_patch:test-game-ko',subjectVersion:'1.7',target:'game:steam-1',targetVersion:'2.3.1',env:{os:'Windows 11'},result:'works',day:undefined});
+ assert(!JSON.stringify(r.json).includes('u-a')&&!JSON.stringify(r.json).includes('비밀')&&!JSON.stringify(r.json).includes('내 PC'),'no user ids, notes or comments');
 });
 
 test('rollout votes: one per user per feature, features only',{skip},async()=>{

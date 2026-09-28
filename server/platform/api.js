@@ -17,7 +17,7 @@ import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -82,6 +82,9 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   const cfg=runtimeConfig(env),now=(deps.now||Date.now)(),db=env.DB;
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
   if(request.method==='POST')assertSameOrigin(request,cfg);
+  // Open data (ODbL): published compat reports by month, with no account data. Public and cacheable,
+  // so it is answered before any session lookup.
+  if(key==='GET /open-data/compat')return json(await openCompat(db,url.searchParams.get('month')),200,{'Cache-Control':'public, max-age=3600','Access-Control-Allow-Origin':'*'});
   context=await resolveContext(request,cfg,db,now);
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   const origin=cfg.siteOrigin||url.origin;
@@ -410,6 +413,25 @@ async function myRadar(db,userId,l){
  const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
   .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
  return {following:ids.length,unread:changes.filter(c=>c.unread).length,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts};
+}
+
+/* ---------- open data ---------- */
+
+export const OPEN_DATA=Object.freeze({schema:'nerulio.compat-reports/1',license:'ODbL-1.0',licenseUrl:'https://opendatacommons.org/licenses/odbl/1-0/',attribution:'Nerulio community (nerulio.com)'});
+/** ?month=YYYY-MM → that month's published compatibility reports (subject/target ids and versions,
+ * setup, result, day). Without a month: the months that have reports, with counts. Never user ids,
+ * comments or free text. @param {any} db @param {string|null} month */
+async function openCompat(db,month){
+ const MONTH=/^(\d{4})-(0[1-9]|1[0-2])$/;
+ if(!month||!MONTH.test(month)){
+  const rows=(await db.prepare(`SELECT strftime('%Y-%m',created_at/1000,'unixepoch') AS m,COUNT(*) AS n FROM community_reports WHERE kind='compat' AND status='published' AND visibility<>'private' GROUP BY 1 ORDER BY 1 DESC`).all()).results||[];
+  return {...OPEN_DATA,months:rows.map((/** @type {any} */ r)=>({month:String(r.m),reports:Number(r.n),url:`/api/v2/open-data/compat?month=${r.m}`}))};
+ }
+ const from=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7))-1,1),to=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),1);
+ const rows=(await db.prepare(`SELECT entity_id,subject_version,target_id,target_version,env,result,created_at FROM community_reports WHERE kind='compat' AND status='published' AND visibility<>'private' AND created_at>=? AND created_at<? ORDER BY created_at LIMIT 50000`).bind(from,to).all()).results||[];
+ const SAFE_ENV=['os','device','runtime','quant'];
+ return {...OPEN_DATA,month,reports:rows.map((/** @type {any} */ r)=>{const env=/** @type {Record<string,string>} */({});try{const e=/** @type {Record<string,unknown>} */(JSON.parse(String(r.env||'{}')));for(const k of SAFE_ENV){const v=e[k];if(typeof v==='string')env[k]=v.slice(0,60);}}catch{}
+  return {subject:String(r.entity_id),subjectVersion:r.subject_version??null,target:r.target_id??null,targetVersion:r.target_version??null,env,result:String(r.result),day:new Date(Number(r.created_at)).toISOString().slice(0,10)};})};
 }
 
 /* ---------- moderation (신고 → 임시조치 → 처리 기록) ---------- */
