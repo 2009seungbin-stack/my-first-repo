@@ -1553,6 +1553,16 @@
    "note": "Developer posts; store view: https://store.steampowered.com/news/app/3609080"
   },
   {
+   "id": "src:steam-news-3639520",
+   "kind": "OFFICIAL_API",
+   "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=3639520&count=50&maxlength=300&feeds=steam_community_announcements&format=json",
+   "title": "Steam developer announcements for app 3639520",
+   "publisher": "Valve Corporation (Steam Web API, ISteamNews)",
+   "retrieved": "2026-09-28",
+   "adapter": "steam-news",
+   "note": "Developer posts; store view: https://store.steampowered.com/news/app/3639520"
+  },
+  {
    "id": "src:steam-news-3669870",
    "kind": "OFFICIAL_API",
    "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=3669870&count=50&maxlength=300&feeds=steam_community_announcements&format=json",
@@ -2303,16 +2313,6 @@
    "note": "Developer posts; store view: https://store.steampowered.com/news/app/962130"
   },
   {
-   "id": "src:steam-news-985810",
-   "kind": "OFFICIAL_API",
-   "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=985810&count=50&maxlength=300&feeds=steam_community_announcements&format=json",
-   "title": "Steam developer announcements for app 985810",
-   "publisher": "Valve Corporation (Steam Web API, ISteamNews)",
-   "retrieved": "2026-09-28",
-   "adapter": "steam-news",
-   "note": "Developer posts; store view: https://store.steampowered.com/news/app/985810"
-  },
-  {
    "id": "src:steam-store-app-1030300",
    "kind": "OFFICIAL",
    "url": "https://store.steampowered.com/app/1030300/",
@@ -2951,6 +2951,16 @@
    "retrieved": "2026-09-28",
    "adapter": "steam-store",
    "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=1817070&l=english&cc=us and https://store.steampowered.com/api/appdetails?appids=1817070&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
+  },
+  {
+   "id": "src:steam-store-app-1825750",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/1825750/",
+   "title": "Soulworker : Your Destiny Awaits on Steam",
+   "publisher": "Valve Corporation (Steam store)",
+   "retrieved": "2026-09-28",
+   "adapter": "steam-store",
+   "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=1825750&l=english&cc=kr and https://store.steampowered.com/api/appdetails?appids=1825750&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
   },
   {
    "id": "src:steam-store-app-1867240",
@@ -3903,6 +3913,16 @@
    "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=3241660&l=english&cc=us and https://store.steampowered.com/api/appdetails?appids=3241660&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
   },
   {
+   "id": "src:steam-store-app-3308670",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/3308670/",
+   "title": "GIRLS' FRONTLINE 2: EXILIUM on Steam",
+   "publisher": "Valve Corporation (Steam store)",
+   "retrieved": "2026-09-28",
+   "adapter": "steam-store",
+   "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=3308670&l=english&cc=kr and https://store.steampowered.com/api/appdetails?appids=3308670&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
+  },
+  {
    "id": "src:steam-store-app-3321460",
    "kind": "OFFICIAL",
    "url": "https://store.steampowered.com/app/3321460/",
@@ -4081,6 +4101,16 @@
    "retrieved": "2026-09-28",
    "adapter": "steam-store",
    "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=3609080&l=english&cc=us and https://store.steampowered.com/api/appdetails?appids=3609080&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
+  },
+  {
+   "id": "src:steam-store-app-3639520",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/3639520/",
+   "title": "Togainu no Chi: True Blood NITRO ARCHIVE on Steam",
+   "publisher": "Valve Corporation (Steam store)",
+   "retrieved": "2026-09-28",
+   "adapter": "steam-store",
+   "note": "Machine-read from https://store.steampowered.com/api/appdetails?appids=3639520&l=english&cc=us and https://store.steampowered.com/api/appdetails?appids=3639520&l=koreana&cc=kr (undocumented store JSON endpoint behind this page)."
   },
   {
    "id": "src:steam-store-app-3669870",
@@ -5027,17 +5057,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-09-24",
+     "v": "2026-06-12",
      "ver": "AUTOMATED",
      "src": "src:steam-news-251570",
-     "note": "Newest update post: \"V3.3.0 EXP\" (2026-09-24T18:18:03Z)."
+     "note": "Newest update post: \"V3.0 \"Dead Hot Summer\" Release Notes\" (2026-06-12T03:38:26Z)."
     },
     {
      "p": "current_build",
-     "v": "3.3.0",
+     "v": "3.0",
      "ver": "AUTOMATED",
      "src": "src:steam-news-251570",
-     "note": "Version stated in the update post of 2026-09-24."
+     "note": "Version stated in the update post of 2026-06-12."
     }
    ],
    "relations": [
@@ -5056,46 +5086,6 @@
    ],
    "versions": [
     {
-     "version": "3.3.0",
-     "released": "2026-09-24",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844751498222345",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-251570"
-    },
-    {
-     "version": "3.2.0",
-     "released": "2026-08-19",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1841579228663821",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-251570"
-    },
-    {
-     "version": "3.1.0",
-     "released": "2026-07-25",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357032749",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-251570"
-    },
-    {
-     "version": "3.0.1",
-     "released": "2026-07-09",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055355316",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-251570"
-    },
-    {
-     "version": "3.0.0",
-     "released": "2026-06-22",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835871199314073",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-251570"
-    },
-    {
      "version": "3.0",
      "released": "2026-06-12",
      "channel": "stable",
@@ -5104,18 +5094,26 @@
      "src": "src:steam-news-251570"
     },
     {
-     "version": "2.6",
-     "released": "2026-02-25",
+     "version": "2.5",
+     "released": "2026-01-16",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1825727806706209",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1821922921816808",
      "ver": "AUTOMATED",
      "src": "src:steam-news-251570"
     },
     {
-     "version": "2.5",
-     "released": "2025-12-12",
+     "version": "2.4",
+     "released": "2025-10-02",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592128580",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1811772772459231",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-251570"
+    },
+    {
+     "version": "2.0",
+     "released": "2025-06-27",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1803527891548507",
      "ver": "AUTOMATED",
      "src": "src:steam-news-251570"
     }
@@ -5428,10 +5426,10 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-04-24",
+     "v": "2025-11-06",
      "ver": "AUTOMATED",
      "src": "src:steam-news-813780",
-     "note": "Newest update post: \"New Public Update Preview - May\" (2026-04-24T21:03:06Z)."
+     "note": "Newest update post: \"Age of Empires II: Definitive Edition – Minor Update 160062\" (2025-11-06T18:17:13Z)."
     }
    ],
    "relations": [
@@ -6024,14 +6022,6 @@
      "released": "2025-10-14",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1813041031377403",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-945360"
-    },
-    {
-     "version": "17.0.0",
-     "released": "2025-09-09",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1809869180202783",
      "ver": "AUTOMATED",
      "src": "src:steam-news-945360"
     },
@@ -7568,7 +7558,7 @@
      "version": "1.11",
      "released": "2016-12-20",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/91593398117553640",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3819571572130571281",
      "ver": "AUTOMATED",
      "src": "src:steam-news-244210"
     },
@@ -7584,7 +7574,7 @@
      "version": "1.9",
      "released": "2016-10-25",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/234577531180718779",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3819571572130571481",
      "ver": "AUTOMATED",
      "src": "src:steam-news-244210"
     },
@@ -7592,7 +7582,7 @@
      "version": "1.8",
      "released": "2016-08-26",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/250335145783981059",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3819571572130571586",
      "ver": "AUTOMATED",
      "src": "src:steam-news-244210"
     }
@@ -8317,10 +8307,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-06-25",
+     "v": "2026-06-16",
      "ver": "AUTOMATED",
      "src": "src:steam-news-2499520",
-     "note": "Newest update post: \"SUMMER SALE AND PATCH, or How Are We Doing (Part 17)\" (2026-06-25T17:04:40Z)."
+     "note": "Newest update post: \"Hotfix Patch 0.14.5\" (2026-06-16T10:35:43Z)."
+    },
+    {
+     "p": "current_build",
+     "v": "0.14.5",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-2499520",
+     "note": "Version stated in the update post of 2026-06-16."
     }
    ],
    "relations": [
@@ -8521,65 +8518,65 @@
    "versions": [
     {
      "version": "0.39",
-     "released": "2026-07-29",
+     "released": "2026-07-30",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055883019",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055886080",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.38",
-     "released": "2025-12-10",
+     "released": "2025-12-15",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592120408",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592133475",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.37",
-     "released": "2025-09-16",
+     "released": "2025-09-19",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1810503566575618",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1811138915427053",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.36",
-     "released": "2025-06-17",
+     "released": "2025-06-19",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1802354289721777",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1802893906732967",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.35",
-     "released": "2025-04-02",
+     "released": "2025-04-03",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1795917897292047",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1795917897326205",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.34",
-     "released": "2024-12-10",
+     "released": "2024-12-12",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1785321795767594",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1785774543526288",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.33",
-     "released": "2024-09-18",
+     "released": "2024-09-19",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6341720536499341146",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6341720536502818299",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     },
     {
      "version": "0.32",
-     "released": "2024-04-16",
+     "released": "2024-04-24",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/6474562312199292483",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5759616966661080189",
      "ver": "AUTOMATED",
      "src": "src:steam-news-284160"
     }
@@ -9827,14 +9824,6 @@
      "src": "src:steam-news-291550"
     },
     {
-     "version": "10.09",
-     "released": "2026-07-28",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357038892",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-291550"
-    },
-    {
      "version": "10.08",
      "released": "2026-06-16",
      "channel": "stable",
@@ -9871,6 +9860,14 @@
      "released": "2026-03-17",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1826992588604555",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-291550"
+    },
+    {
+     "version": "10.4",
+     "released": "2026-03-13",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1826992588596360",
      "ver": "AUTOMATED",
      "src": "src:steam-news-291550"
     }
@@ -10862,10 +10859,10 @@
      "src": "src:steam-news-949230"
     },
     {
-     "version": "1.5.4",
-     "released": "2026-02-18",
+     "version": "1.5.3",
+     "released": "2025-12-10",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1825093633181729",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592120113",
      "ver": "AUTOMATED",
      "src": "src:steam-news-949230"
     }
@@ -13096,10 +13093,10 @@
      "src": "src:steam-news-381210"
     },
     {
-     "version": "10.0.1",
-     "released": "2026-06-23",
+     "version": "10.0.0",
+     "released": "2026-05-26",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835871199315739",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1833334318579520",
      "ver": "AUTOMATED",
      "src": "src:steam-news-381210"
     }
@@ -13410,13 +13407,6 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-548430",
      "note": "Newest update post: \"PATCH NOTES - S06.05.02\" (2026-08-06T09:12:17Z)."
-    },
-    {
-     "p": "current_build",
-     "v": "06.05.02",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-548430",
-     "note": "Version stated in the update post of 2026-08-06."
     }
    ],
    "relations": [
@@ -13431,40 +13421,6 @@
      "o": "org:coffee-stain-publishing",
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-548430"
-    }
-   ],
-   "versions": [
-    {
-     "version": "06.05.02",
-     "released": "2026-08-06",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840310314341287",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-548430"
-    },
-    {
-     "version": "06.03.1",
-     "released": "2026-02-12",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1824459501606311",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-548430"
-    },
-    {
-     "version": "05.10.2",
-     "released": "2025-07-14",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1805065414322962",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-548430"
-    },
-    {
-     "version": "05.10.1",
-     "released": "2025-07-02",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1803527891702612",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-548430"
     }
    ]
   },
@@ -14270,34 +14226,10 @@
      "src": "src:steam-news-2402680"
     },
     {
-     "version": "0.98.4201",
-     "released": "2025-10-05",
+     "version": "0.90.913",
+     "released": "2025-01-02",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1811772772574721",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-2402680"
-    },
-    {
-     "version": "0.97.2693",
-     "released": "2025-07-04",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1803527891768307",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-2402680"
-    },
-    {
-     "version": "0.96.2265",
-     "released": "2025-06-02",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1800991756433146",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-2402680"
-    },
-    {
-     "version": "0.95.1669",
-     "released": "2025-04-01",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1795283637987044",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1786573931068936",
      "ver": "AUTOMATED",
      "src": "src:steam-news-2402680"
     }
@@ -14629,10 +14561,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-09-14",
+     "v": "2026-08-13",
      "ver": "AUTOMATED",
      "src": "src:steam-news-960170",
-     "note": "Newest update post: \"2026.09.14 Emergency Server Maintenance Notice\" (2026-09-14T08:46:42Z)."
+     "note": "Newest update post: \"Clear Pass Season 20 Update (26.08.20)\" (2026-08-13T06:00:08Z)."
+    },
+    {
+     "p": "current_build",
+     "v": "26.08.20",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-960170",
+     "note": "Version stated in the update post of 2026-08-13."
     }
    ],
    "relations": [
@@ -14663,14 +14602,6 @@
      "released": "2026-04-30",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1831432155566894",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-960170"
-    },
-    {
-     "version": "25.12.11",
-     "released": "2025-12-04",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818118366171939",
      "ver": "AUTOMATED",
      "src": "src:steam-news-960170"
     },
@@ -15661,14 +15592,6 @@
      "src": "src:steam-news-3405690"
     },
     {
-     "version": "1.6.2",
-     "released": "2026-06-16",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835236783574045",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-3405690"
-    },
-    {
      "version": "1.6.1",
      "released": "2026-06-03",
      "channel": "stable",
@@ -15939,30 +15862,6 @@
      "released": "2026-07-15",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1838407329254465",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4128400"
-    },
-    {
-     "version": "1.2.0",
-     "released": "2026-05-11",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832065502820191",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4128400"
-    },
-    {
-     "version": "1.1.2",
-     "released": "2026-04-06",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1828894815564530",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4128400"
-    },
-    {
-     "version": "1.1.1",
-     "released": "2026-03-06",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1826362059923360",
      "ver": "AUTOMATED",
      "src": "src:steam-news-4128400"
     }
@@ -16889,10 +16788,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2017-10-05",
+     "v": "2017-03-24",
      "ver": "AUTOMATED",
      "src": "src:steam-news-311690",
-     "note": "Newest update post: \"Enter the Gungeon x PAYDAY 2 Crossover\" (2017-10-05T15:40:15Z)."
+     "note": "Newest update post: \"Patch 1.1.3\" (2017-03-24T22:52:20Z)."
+    },
+    {
+     "p": "current_build",
+     "v": "1.1.3",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-311690",
+     "note": "Version stated in the update post of 2017-03-24."
     }
    ],
    "relations": [
@@ -17438,14 +17344,6 @@
      "src": "src:steam-news-4560660"
     },
     {
-     "version": "0.60.1",
-     "released": "2026-09-24",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844751498220664",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4560660"
-    },
-    {
      "version": "0.52.1",
      "released": "2026-09-21",
      "channel": "stable",
@@ -17466,6 +17364,14 @@
      "released": "2026-09-21",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010500553",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-4560660"
+    },
+    {
+     "version": "0.52.4",
+     "released": "2026-09-21",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010502057",
      "ver": "AUTOMATED",
      "src": "src:steam-news-4560660"
     }
@@ -18395,14 +18301,6 @@
      "released": "2016-09-29",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/243582826884886881",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-377160"
-    },
-    {
-     "version": "1.7.15",
-     "released": "2016-09-06",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4249665521682981614",
      "ver": "AUTOMATED",
      "src": "src:steam-news-377160"
     },
@@ -19765,6 +19663,95 @@
    ]
   },
   {
+   "id": "game:steam-3308670",
+   "type": "game",
+   "slug": "girls-frontline-2-exilium",
+   "names": {
+    "en": "GIRLS' FRONTLINE 2: EXILIUM",
+    "ko": "소녀전선2: 망명"
+   },
+   "description": {
+    "en": "RPG/Strategy game for PC developed by SUNBORN Information Co., Ltd. and published by HAOPLAY Limited, released on Steam on 10 February 2025. The Steam store lists Korean with full audio support.",
+    "ko": "SUNBORN Information Co., Ltd. 개발, HAOPLAY Limited 배급의 PC RPG/전략 게임으로 2025년 2월 10일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/3308670/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "steam_appid",
+     "v": 3308670,
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-02-10",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    },
+    {
+     "p": "korean_official",
+     "v": "full_audio",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670",
+     "note": "Steam lists Korean with the full-audio marker."
+    },
+    {
+     "p": "official_languages",
+     "v": [
+      "English",
+      "French",
+      "German",
+      "Japanese",
+      "Thai",
+      "Simplified Chinese",
+      "Traditional Chinese",
+      "Portuguese - Brazil",
+      "Spanish - Latin America",
+      "Korean"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    },
+    {
+     "p": "genres",
+     "v": [
+      "RPG",
+      "Strategy",
+      "Free To Play"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    }
+   ],
+   "relations": [
+    {
+     "p": "developed_by",
+     "o": "org:sunborn-information-co-ltd",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    },
+    {
+     "p": "published_by",
+     "o": "org:haoplay-limited",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3308670"
+    }
+   ]
+  },
+  {
    "id": "game:steam-1593500",
    "type": "game",
    "slug": "god-of-war",
@@ -20534,13 +20521,6 @@
      "v": "https://www.koggames.com/grandchase-classic/",
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-985810"
-    },
-    {
-     "p": "last_update_at",
-     "v": "2026-09-23",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-985810",
-     "note": "Newest update post: \"[Announcement] Bug Fixes/Improvements\" (2026-09-23T07:32:17Z)."
     }
    ],
    "relations": [
@@ -20948,17 +20928,10 @@
     },
     {
      "p": "last_update_at",
-     "v": "2025-09-25",
+     "v": "2022-02-15",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1145360",
-     "note": "Newest update post: \"Hades II v1.0 Is Now Available!\" (2025-09-25T16:11:33Z)."
-    },
-    {
-     "p": "current_build",
-     "v": "1.0",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1145360",
-     "note": "Version stated in the update post of 2025-09-25."
+     "note": "Newest update post: \"Post-Launch Patch - February 2022\" (2022-02-15T22:05:46Z)."
     }
    ],
    "relations": [
@@ -21162,9 +21135,9 @@
    "versions": [
     {
      "version": "1.0",
-     "released": "2025-09-12",
+     "released": "2025-09-25",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1810503566450820",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1811772772248733",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1145350"
     },
@@ -21802,14 +21775,6 @@
      "src": "src:steam-news-553850"
     },
     {
-     "version": "7.1.0",
-     "released": "2026-09-22",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010503588",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-553850"
-    },
-    {
      "version": "7.0.2",
      "released": "2026-08-25",
      "channel": "stable",
@@ -21826,14 +21791,6 @@
      "src": "src:steam-news-553850"
     },
     {
-     "version": "7.0.0",
-     "released": "2026-08-12",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840944183773413",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-553850"
-    },
-    {
      "version": "6.3.1",
      "released": "2026-07-07",
      "channel": "stable",
@@ -21842,18 +21799,34 @@
      "src": "src:steam-news-553850"
     },
     {
-     "version": "6.3.0",
-     "released": "2026-06-16",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835236783573530",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-553850"
-    },
-    {
      "version": "6.2.6",
      "released": "2026-06-09",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1834602721201568",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-553850"
+    },
+    {
+     "version": "6.2.4",
+     "released": "2026-05-19",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592800413",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-553850"
+    },
+    {
+     "version": "6.2.3",
+     "released": "2026-05-06",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832065502808266",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-553850"
+    },
+    {
+     "version": "6.2.2",
+     "released": "2026-04-28",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1830797770244667",
      "ver": "AUTOMATED",
      "src": "src:steam-news-553850"
     }
@@ -23167,17 +23140,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2022-06-22",
+     "v": "2022-03-17",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1092790",
-     "note": "Newest update post: \"Inscryption V1.10 - Now on Mac and Linux!\" (2022-06-22T18:50:07Z)."
+     "note": "Newest update post: \"Kaycee's Mod V0.34\" (2022-03-17T01:49:59Z)."
     },
     {
      "p": "current_build",
-     "v": "1.10",
+     "v": "0.34",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1092790",
-     "note": "Version stated in the update post of 2022-06-22."
+     "note": "Version stated in the update post of 2022-03-17."
     }
    ],
    "relations": [
@@ -23195,14 +23168,6 @@
     }
    ],
    "versions": [
-    {
-     "version": "1.10",
-     "released": "2022-06-22",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4474904295727010628",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1092790"
-    },
     {
      "version": "0.34",
      "released": "2022-03-17",
@@ -23256,6 +23221,14 @@
      "released": "2022-02-03",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4235074931847701456",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-1092790"
+    },
+    {
+     "version": "0.27",
+     "released": "2022-01-27",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4237326104320426389",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1092790"
     }
@@ -24915,18 +24888,18 @@
      "src": "src:steam-news-568220"
     },
     {
-     "version": "1.0.2.12",
-     "released": "2018-07-13",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2838841185436406968",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-568220"
-    },
-    {
      "version": "1.0.2.11a",
      "released": "2018-06-27",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2499943313652027020",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-568220"
+    },
+    {
+     "version": "1.0.2.11",
+     "released": "2018-06-16",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2842216343266671982",
      "ver": "AUTOMATED",
      "src": "src:steam-news-568220"
     }
@@ -25162,22 +25135,6 @@
      "src": "src:steam-news-4108000"
     },
     {
-     "version": "2.0",
-     "released": "2026-08-12",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840944183774444",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4108000"
-    },
-    {
-     "version": "1.5",
-     "released": "2026-08-04",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055897684",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-4108000"
-    },
-    {
      "version": "1.0.7",
      "released": "2026-08-01",
      "channel": "stable",
@@ -25265,10 +25222,10 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-09-08",
+     "v": "2026-07-22",
      "ver": "AUTOMATED",
      "src": "src:steam-news-216150",
-     "note": "Newest update post: \"v.271- MapleStory x Frieren: Beyond Journey's End Patch Notes\" (2026-09-08T23:37:17Z)."
+     "note": "Newest update post: \"v.270 - Ride the Lightning Patch Notes\" (2026-07-22T00:10:37Z)."
     }
    ],
    "relations": [
@@ -26795,17 +26752,10 @@
     },
     {
      "p": "last_update_at",
-     "v": "2021-09-29",
+     "v": "2021-07-13",
      "ver": "AUTOMATED",
      "src": "src:steam-news-524220",
-     "note": "Newest update post: \"35% off NieR Replicant ver.1.22474487139…\" (2021-09-29T18:08:15Z)."
-    },
-    {
-     "p": "current_build",
-     "v": "1.22474487139",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-524220",
-     "note": "Version stated in the update post of 2021-09-29."
+     "note": "Newest update post: \"Notice about the planned release of the Steam patch\" (2021-07-13T13:00:10Z)."
     }
    ],
    "relations": [
@@ -26826,16 +26776,6 @@
      "o": "org:square-enix",
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-524220"
-    }
-   ],
-   "versions": [
-    {
-     "version": "1.22474487139",
-     "released": "2021-02-26",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4060529371706251581",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-524220"
     }
    ]
   },
@@ -27830,9 +27770,9 @@
    "versions": [
     {
      "version": "3.0.6",
-     "released": "2026-09-16",
+     "released": "2026-09-20",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010488654",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010498245",
      "ver": "AUTOMATED",
      "src": "src:steam-news-2139460"
     },
@@ -28716,18 +28656,18 @@
      "src": "src:steam-news-1623730"
     },
     {
-     "version": "0.7.3",
-     "released": "2026-04-06",
+     "version": "1.0",
+     "released": "2026-07-10",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1828894815564607",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055355658",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1623730"
     },
     {
-     "version": "0.7.2",
-     "released": "2026-02-16",
+     "version": "0.6.9.82911",
+     "released": "2025-11-10",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1824644522844567",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1815580768377452",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1623730"
     }
@@ -28940,14 +28880,6 @@
     }
    ],
    "versions": [
-    {
-     "version": "0.5.5",
-     "released": "2026-08-27",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1842212951301197",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-2694490"
-    },
     {
      "version": "0.5.4b",
      "released": "2026-07-02",
@@ -30040,26 +29972,10 @@
      "src": "src:steam-news-739630"
     },
     {
-     "version": "0.19.0.0",
-     "released": "2026-08-25",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1841579228678571",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-739630"
-    },
-    {
      "version": "0.18.0.1",
      "released": "2026-07-28",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357037983",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-739630"
-    },
-    {
-     "version": "0.18.0.0",
-     "released": "2026-07-21",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1838407329268874",
      "ver": "AUTOMATED",
      "src": "src:steam-news-739630"
     },
@@ -30084,6 +30000,22 @@
      "released": "2026-05-19",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592800634",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-739630"
+    },
+    {
+     "version": "0.17.1.2",
+     "released": "2026-05-15",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592792331",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-739630"
+    },
+    {
+     "version": "0.17.1.1",
+     "released": "2026-05-13",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592787161",
      "ver": "AUTOMATED",
      "src": "src:steam-news-739630"
     }
@@ -30201,14 +30133,6 @@
      "src": "src:steam-news-2231450"
     },
     {
-     "version": "1.1.1",
-     "released": "2024-08-27",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5875595438706707544",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-2231450"
-    },
-    {
      "version": "1.1.062",
      "released": "2024-03-20",
      "channel": "stable",
@@ -30253,6 +30177,14 @@
      "released": "2024-03-13",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5686429670869131617",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-2231450"
+    },
+    {
+     "version": "1.0.5951",
+     "released": "2023-10-26",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5229301621574431560",
      "ver": "AUTOMATED",
      "src": "src:steam-news-2231450"
     }
@@ -31123,10 +31055,10 @@
      "src": "src:steam-news-3985950"
     },
     {
-     "version": "0.8.4",
-     "released": "2026-06-08",
+     "version": "0.8.3.5",
+     "released": "2026-05-22",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1834602721199111",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1833334318572103",
      "ver": "AUTOMATED",
      "src": "src:steam-news-3985950"
     }
@@ -31910,24 +31842,6 @@
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-1196590"
     }
-   ],
-   "versions": [
-    {
-     "version": "3.9.2023",
-     "released": "2023-03-03",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5070528176563930818",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1196590"
-    },
-    {
-     "version": "6.13.2022",
-     "released": "2022-06-13",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4480532686363469228",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1196590"
-    }
    ]
   },
   {
@@ -32358,14 +32272,6 @@
      "released": "2025-12-09",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818118366186197",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-632360"
-    },
-    {
-     "version": "1.1.0",
-     "released": "2025-08-29",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1809235871629923",
      "ver": "AUTOMATED",
      "src": "src:steam-news-632360"
     },
@@ -33126,9 +33032,9 @@
     },
     {
      "version": "0.12.1",
-     "released": "2026-07-08",
+     "released": "2026-07-29",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1836506165581094",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055882020",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1374490"
     },
@@ -34741,17 +34647,10 @@
     },
     {
      "p": "last_update_at",
-     "v": "2025-06-23",
+     "v": "2024-11-25",
      "ver": "AUTOMATED",
      "src": "src:steam-news-289070",
-     "note": "Newest update post: \"Civilization VII Update 1.2.2 – Jun 23\" (2025-06-23T14:23:09Z)."
-    },
-    {
-     "p": "current_build",
-     "v": "1.2.2",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-289070",
-     "note": "Version stated in the update post of 2025-06-23."
+     "note": "Newest update post: \"2K Launcher Removal\" (2024-11-25T21:11:06Z)."
     }
    ],
    "relations": [
@@ -34790,16 +34689,6 @@
      "o": "org:aspyr-linux",
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-289070"
-    }
-   ],
-   "versions": [
-    {
-     "version": "1.2.2",
-     "released": "2025-06-23",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1802893906860405",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-289070"
     }
    ]
   },
@@ -34945,9 +34834,9 @@
     },
     {
      "version": "1.4.0",
-     "released": "2026-05-15",
+     "released": "2026-05-19",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592793193",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592801415",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1295660"
     }
@@ -35731,14 +35620,6 @@
    ],
    "versions": [
     {
-     "version": "1.0",
-     "released": "2024-02-22",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5728086065182647154",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1326470"
-    },
-    {
      "version": "Patch 15",
      "released": "2023-11-30",
      "channel": "stable",
@@ -35791,6 +35672,14 @@
      "released": "2023-08-17",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5127964289174027833",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-1326470"
+    },
+    {
+     "version": "Patch 08",
+     "released": "2023-07-20",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/5124584051970861703",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1326470"
     }
@@ -35929,6 +35818,87 @@
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1813674388965769",
      "ver": "AUTOMATED",
      "src": "src:steam-news-3447040"
+    }
+   ]
+  },
+  {
+   "id": "game:steam-1825750",
+   "type": "game",
+   "slug": "soulworker-your-destiny-awaits",
+   "names": {
+    "en": "Soulworker : Your Destiny Awaits",
+    "ko": "소울워커"
+   },
+   "description": {
+    "en": "Action/RPG game for PC developed by VALOFE, released on Steam on 16 March 2022. The Steam store lists Korean with full audio support.",
+    "ko": "VALOFE 개발의 PC 액션/RPG 게임으로 2022년 3월 16일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/1825750/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "steam_appid",
+     "v": 1825750,
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    },
+    {
+     "p": "release_date",
+     "v": "2022-03-16",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    },
+    {
+     "p": "korean_official",
+     "v": "full_audio",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750",
+     "note": "Steam lists Korean with the full-audio marker."
+    },
+    {
+     "p": "official_languages",
+     "v": [
+      "Korean"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    },
+    {
+     "p": "genres",
+     "v": [
+      "Action",
+      "Massively Multiplayer",
+      "RPG",
+      "Free To Play"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    }
+   ],
+   "relations": [
+    {
+     "p": "developed_by",
+     "o": "org:valofe",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
+    },
+    {
+     "p": "published_by",
+     "o": "org:valofe",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-1825750"
     }
    ]
   },
@@ -38594,14 +38564,6 @@
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1841579228663704",
      "ver": "AUTOMATED",
      "src": "src:steam-news-105600"
-    },
-    {
-     "version": "1.4.5",
-     "released": "2026-01-27",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1822556746169234",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-105600"
     }
    ]
   },
@@ -39556,34 +39518,10 @@
      "src": "src:steam-news-242760"
     },
     {
-     "version": "1.11",
-     "released": "2019-01-23",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2425653583379330859",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-242760"
-    },
-    {
      "version": "1.10d",
      "released": "2018-12-12",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2415516677184265379",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-242760"
-    },
-    {
-     "version": "1.10",
-     "released": "2018-12-10",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2416641943187838615",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-242760"
-    },
-    {
-     "version": "1.09",
-     "released": "2018-08-16",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2444779293763257070",
      "ver": "AUTOMATED",
      "src": "src:steam-news-242760"
     },
@@ -39596,18 +39534,42 @@
      "src": "src:steam-news-242760"
     },
     {
-     "version": "1.07",
-     "released": "2018-05-17",
+     "version": "Patch 03",
+     "released": "2018-04-30",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2391853754536099325",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2394103650901458764",
      "ver": "AUTOMATED",
      "src": "src:steam-news-242760"
     },
     {
-     "version": "1.06",
-     "released": "2018-05-14",
+     "version": "Patch 04",
+     "released": "2018-04-30",
      "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3822871998325468859",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2394103650903123655",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-242760"
+    },
+    {
+     "version": "Patch 02",
+     "released": "2018-04-29",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2394103650899516376",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-242760"
+    },
+    {
+     "version": "0.72b",
+     "released": "2018-01-19",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3819571572130556075",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-242760"
+    },
+    {
+     "version": "0.71b",
+     "released": "2017-12-19",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3819571572130556323",
      "ver": "AUTOMATED",
      "src": "src:steam-news-242760"
     }
@@ -40639,6 +40601,126 @@
    ]
   },
   {
+   "id": "game:steam-3639520",
+   "type": "game",
+   "slug": "togainu-no-chi-true-blood-nitro-archive",
+   "names": {
+    "en": "Togainu no Chi: True Blood NITRO ARCHIVE",
+    "ko": "咎狗の血 True Blood NITRO ARCHIVE"
+   },
+   "description": {
+    "en": "Action/Adventure game for PC developed by NITRO PLUS and NITRO CHiRAL and published by NITRO PLUS, released on Steam on 23 July 2025. The Steam store lists no official Korean support.",
+    "ko": "NITRO PLUS, NITRO CHiRAL 개발, NITRO PLUS 배급의 PC 액션/어드벤처 게임으로 2025년 7월 23일 Steam에 출시되었습니다. Steam 스토어 기준 공식 한국어를 지원하지 않습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/3639520/"
+    },
+    {
+     "label": "Official site",
+     "url": "http://www.togainu.com/windows/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "steam_appid",
+     "v": 3639520,
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-07-23",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "korean_official",
+     "v": "none",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "official_languages",
+     "v": [
+      "Japanese",
+      "English",
+      "Simplified Chinese"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "genres",
+     "v": [
+      "Action",
+      "Adventure"
+     ],
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "homepage",
+     "v": "http://www.togainu.com/windows/",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "last_update_at",
+     "v": "2025-12-19",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-3639520",
+     "note": "Newest update post: \"Localization (English and Simplified Chinese) Update (Ver 1.01)\" (2025-12-19T03:00:39Z)."
+    },
+    {
+     "p": "current_build",
+     "v": "1.01",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-3639520",
+     "note": "Version stated in the update post of 2025-12-19."
+    }
+   ],
+   "relations": [
+    {
+     "p": "developed_by",
+     "o": "org:nitro-plus",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "developed_by",
+     "o": "org:nitro-chiral",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    },
+    {
+     "p": "published_by",
+     "o": "org:nitro-plus",
+     "ver": "AUTOMATED",
+     "src": "src:steam-store-app-3639520"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.01",
+     "released": "2025-12-19",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1819386365093404",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-3639520"
+    }
+   ]
+  },
+  {
    "id": "game:steam-359550",
    "type": "game",
    "slug": "tom-clancys-rainbow-six-siege",
@@ -40732,13 +40814,6 @@
      "ver": "AUTOMATED",
      "src": "src:steam-news-359550",
      "note": "Newest update post: \"Y11S3.1 PATCH NOTES\" (2026-09-23T09:41:20Z)."
-    },
-    {
-     "p": "current_build",
-     "v": "3.1",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550",
-     "note": "Version stated in the update post of 2026-09-23."
     }
    ],
    "relations": [
@@ -40753,72 +40828,6 @@
      "o": "org:ubisoft",
      "ver": "AUTOMATED",
      "src": "src:steam-store-app-359550"
-    }
-   ],
-   "versions": [
-    {
-     "version": "3.1",
-     "released": "2026-09-23",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844751498217908",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "2.3",
-     "released": "2026-08-04",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055897412",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "2.1",
-     "released": "2026-06-25",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1836506165548781",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "1.3",
-     "released": "2026-05-05",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1831432155579580",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "1.2",
-     "released": "2026-04-14",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1829528821317689",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "1.1",
-     "released": "2026-03-24",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1827626365765437",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "4.2",
-     "released": "2026-01-19",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1821922921821411",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
-    },
-    {
-     "version": "4.1",
-     "released": "2025-12-11",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592123190",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-359550"
     }
    ]
   },
@@ -41943,17 +41952,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-09-17",
+     "v": "2026-08-19",
      "ver": "AUTOMATED",
      "src": "src:steam-news-529340",
-     "note": "Newest update post: \"Victoria 3 – Dev Diary #189 - Free Update 1.15 Features and Improvements\" (2026-09-17T14:00:12Z)."
+     "note": "Newest update post: \"Hotfix 1.13.11 is now LIVE! - Not for Problem Reports!\" (2026-08-19T12:12:04Z)."
     },
     {
      "p": "current_build",
-     "v": "1.15",
+     "v": "1.13.11",
      "ver": "AUTOMATED",
      "src": "src:steam-news-529340",
-     "note": "Version stated in the update post of 2026-09-17."
+     "note": "Version stated in the update post of 2026-08-19."
     }
    ],
    "relations": [
@@ -41971,14 +41980,6 @@
     }
    ],
    "versions": [
-    {
-     "version": "1.15",
-     "released": "2026-09-17",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010492106",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-529340"
-    },
     {
      "version": "1.13.11",
      "released": "2026-08-19",
@@ -42032,6 +42033,14 @@
      "released": "2026-05-12",
      "channel": "stable",
      "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832065502823987",
+     "ver": "AUTOMATED",
+     "src": "src:steam-news-529340"
+    },
+    {
+     "version": "1.13.4",
+     "released": "2026-05-07",
+     "channel": "stable",
+     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832065502811429",
      "ver": "AUTOMATED",
      "src": "src:steam-news-529340"
     }
@@ -42408,17 +42417,17 @@
     },
     {
      "p": "last_update_at",
-     "v": "2026-09-12",
+     "v": "2026-09-10",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1867240",
-     "note": "Newest update post: \"SCHEDULED MAINTENANCE & PATCH 0.11\" (2026-09-12T22:26:39Z)."
+     "note": "Newest update post: \"Launch Stability Hotfix #1\" (2026-09-10T20:20:33Z)."
     },
     {
      "p": "current_build",
-     "v": "0.11",
+     "v": "Hotfix #1",
      "ver": "AUTOMATED",
      "src": "src:steam-news-1867240",
-     "note": "Version stated in the update post of 2026-09-12."
+     "note": "Version stated in the update post of 2026-09-10."
     }
    ],
    "relations": [
@@ -42436,14 +42445,6 @@
     }
    ],
    "versions": [
-    {
-     "version": "0.11",
-     "released": "2026-09-12",
-     "channel": "stable",
-     "notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1843481262698449",
-     "ver": "AUTOMATED",
-     "src": "src:steam-news-1867240"
-    },
     {
      "version": "Hotfix #1",
      "released": "2026-09-10",
@@ -45058,6 +45059,15 @@
    "facts": []
   },
   {
+   "id": "org:haoplay-limited",
+   "type": "org",
+   "slug": "haoplay-limited",
+   "names": {
+    "en": "HAOPLAY Limited"
+   },
+   "facts": []
+  },
+  {
    "id": "org:harebrained-schemes",
    "type": "org",
    "slug": "harebrained-schemes",
@@ -45751,6 +45761,24 @@
    "facts": []
   },
   {
+   "id": "org:nitro-chiral",
+   "type": "org",
+   "slug": "nitro-chiral",
+   "names": {
+    "en": "NITRO CHiRAL"
+   },
+   "facts": []
+  },
+  {
+   "id": "org:nitro-plus",
+   "type": "org",
+   "slug": "nitro-plus",
+   "names": {
+    "en": "NITRO PLUS"
+   },
+   "facts": []
+  },
+  {
    "id": "org:nixxes-software",
    "type": "org",
    "slug": "nixxes-software",
@@ -46390,6 +46418,15 @@
    "facts": []
   },
   {
+   "id": "org:sunborn-information-co-ltd",
+   "type": "org",
+   "slug": "sunborn-information-co-ltd",
+   "names": {
+    "en": "SUNBORN Information Co., Ltd."
+   },
+   "facts": []
+  },
+  {
    "id": "org:supergiant-games",
    "type": "org",
    "slug": "supergiant-games",
@@ -46746,6 +46783,15 @@
    "slug": "unknown-worlds-entertainment",
    "names": {
     "en": "Unknown Worlds Entertainment"
+   },
+   "facts": []
+  },
+  {
+   "id": "org:valofe",
+   "type": "org",
+   "slug": "valofe",
+   "names": {
+    "en": "VALOFE"
    },
    "facts": []
   },
