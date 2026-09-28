@@ -8,7 +8,11 @@ export function monoView(channels,limit=Infinity){
  if(!Array.isArray(channels)||!channels.length||channels.length>8)throw Error('channels');
  const n=Math.min(limit,channels[0].length);if(!Number.isInteger(n)||n<0||channels.some(c=>!(c instanceof Float32Array)||c.length<n))throw Error('samples');
  if(channels.length===1)return channels[0].subarray(0,n);
- const out=new Float32Array(n);for(let i=0;i<n;i++){let v=0;for(const c of channels)v+=c[i];out[i]=v/channels.length;}return out;
+ const out=new Float32Array(n),power=new Float64Array(channels.length);let midPower=0;
+ for(let i=0;i<n;i++){let v=0;for(let c=0;c<channels.length;c++){const sample=channels[c][i];v+=sample;power[c]+=sample*sample;}out[i]=v/channels.length;midPower+=out[i]*out[i];}
+ // A wide stereo recording can contain anti-phase material. Do not assign
+ // 'silence' solely because averaging its channels canceled the music.
+ const strongest=power.indexOf(Math.max(...power));return midPower<power[strongest]*.1?channels[strongest].subarray(0,n):out;
 }
 export function decimate(input,factor){
  if(!Number.isInteger(factor)||factor<1)throw Error('factor');if(factor===1)return input;

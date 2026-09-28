@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {estimateTempo,estimateKey,fft} from '../src/audio-lab/analysis.js';
+import {estimateTempo,estimateKey,fft,monoView} from '../src/audio-lab/analysis.js';
 import {edit,loudness,nearestZeroCrossing,normalize,protectSamplePeakInPlace,shift,silenceBounds,validateAudio} from '../src/audio-lab/dsp.js';
 import {encodeWav} from '../src/audio-lab/encode.js';
 const sr=22050;
@@ -22,6 +22,7 @@ test('CC0 WAV corpus is intact and constructed tempo/key cases meet the stated s
 });
 test('silent and short inputs report uncertainty',()=>{assert.equal(estimateTempo(new Float32Array(sr),sr).reason,'too-short');assert.equal(estimateKey(new Float32Array(sr*3),sr).key,null);assert.throws(()=>validateAudio([new Float32Array(sr*181)],sr),/3 minute/);});
 test('a single sustained pitch is not assigned a major or minor key',()=>{const result=estimateKey(tone(440,4),sr);assert.equal(result.key,null);assert.equal(result.reason,'insufficient-harmony');});
+test('opposed stereo channels keep an analyzable signal',()=>{const left=tone(440,2),right=Float32Array.from(left,v=>-v),mono=monoView([left,right]);assert.ok(mono.reduce((p,v)=>p+v*v,0)>100);});
 test('speed changes length while preserving a steady tone',()=>{const out=shift([tone()],{speed:1.5,semitones:0})[0];assert.ok(Math.abs(out.length/sr-2/1.5)<.001);assert.ok(Math.abs(frequency(out.subarray(4000,15000),sr)-440)<8);});
 test('pitch raises a tone without changing length',()=>{const out=shift([tone()],{speed:1,semitones:12})[0];assert.ok(Math.abs(out.length/sr-2)<.001);assert.ok(Math.abs(frequency(out.subarray(4000,15000),sr)-880)<15);});
 test('trim, silence bounds and fades are explicit',()=>{const x=new Float32Array(sr*2);x.set(tone(440,1),sr/2);const bound=silenceBounds([x],sr,{padMs:0});assert.ok(Math.abs(bound.start/sr-.5)<.02);assert.ok(Math.abs(bound.end/sr-1.5)<.02);const y=edit([x],sr,{start:0,end:2,removeSilence:true,fadeIn:.1,fadeOut:.1})[0];assert.ok(Math.abs(y.length/sr-1)<.05);assert.equal(y[0],0);assert.ok(Math.abs(y.at(-1))<1e-4);});
