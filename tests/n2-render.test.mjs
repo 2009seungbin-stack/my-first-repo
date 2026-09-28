@@ -277,3 +277,13 @@ test('hub pages list a vertical by type; RSS feeds for channels and the Radar',{
  assert((await (await go('/ko/radar/feed.xml')).text()).includes('<channel><title>Nerulio 레이더</title>'));
  assert((await (await go('/ko/ai/claude/')).text()).includes('type="application/rss+xml" href="/ko/ai/claude/feed.xml"'));
 });
+
+test('AI hub: plan and model price comparison tables from official facts',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const go=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const plans=await go('/ko/ai/?type=plan');
+ assert(plans.includes('AI 요금제 비교')&&plans.includes('Claude Pro')&&plans.includes('$20'));
+ assert(!plans.includes('noindex'),'the comparison is indexable');
+ const models=await go('/ko/ai/?type=model');
+ assert(models.includes('AI 모델 API 가격 비교')&&models.includes('Claude Opus 5.5'));
+});
