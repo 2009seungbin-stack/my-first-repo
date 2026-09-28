@@ -51,8 +51,17 @@ export function silenceBounds(channels,sampleRate,{thresholdDb=-42,dwellMs=80,pa
  // Preserve internal silence; short quiet edges below dwell are intentional.
  return {start:first>=dwell?clamp(first-pad,0,n):0,end:n-last>=dwell?clamp(last+pad,0,n):n,silent:false,dwellSamples:dwell};
 }
-export function edit(channels,sampleRate,{start=0,end=channels[0].length/sampleRate,fadeIn=0,fadeOut=0,speed=1,semitones=0,removeSilence=false}={}){
+export function nearestZeroCrossing(channels,sampleRate,index,{radiusMs=10}={}){
+ validateAudio(channels,sampleRate);const n=channels[0].length,center=clamp(Math.round(index),0,n),radius=Math.round(clamp(radiusMs,0,20)*sampleRate/1000);let best=center,bestScore=Infinity;
+ for(let i=Math.max(1,center-radius);i<Math.min(n,center+radius+1);i++){
+  let score=0,crossings=0;for(const channel of channels){const a=channel[i-1],b=channel[i];score+=Math.abs(a)+Math.abs(b);if(a===0||b===0||(a<0)!==(b<0))crossings++;}
+  if(!crossings)continue;score+=Math.abs(i-center)/Math.max(1,radius)*.01;if(score<bestScore){bestScore=score;best=i;}
+ }
+ return best;
+}
+export function edit(channels,sampleRate,{start=0,end=channels[0].length/sampleRate,fadeIn=0,fadeOut=0,speed=1,semitones=0,removeSilence=false,snapToZero=false}={}){
  validateAudio(channels,sampleRate);let a=clamp(Math.round(start*sampleRate),0,channels[0].length),b=clamp(Math.round(end*sampleRate),a,channels[0].length);
+ if(snapToZero){a=nearestZeroCrossing(channels,sampleRate,a);b=nearestZeroCrossing(channels,sampleRate,b);if(b<=a)b=Math.min(channels[0].length,a+1);}
  if(removeSilence){const bound=silenceBounds(channels.map(c=>c.subarray(a,b)),sampleRate),base=a;a=base+bound.start;b=base+bound.end;}
  let out=channels.map(c=>c.subarray(a,b));out=shift(out,{speed,semitones});if(speed===1&&semitones===0)out=out.map(c=>new Float32Array(c));
  const fi=Math.round(clamp(fadeIn,0,out[0].length/sampleRate)*sampleRate),fo=Math.round(clamp(fadeOut,0,out[0].length/sampleRate)*sampleRate);

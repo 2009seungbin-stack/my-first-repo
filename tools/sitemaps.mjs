@@ -18,6 +18,7 @@ import {GAME_HUB_PATH} from '../src/game-seo.js';
 import {gameSitemapPaths} from './game-landing-build.mjs';
 import {GUIDE_ROUTES,guideLastmod} from './guides-registry.mjs';
 import {imageSitemap} from './growth-build.mjs';
+import {AUDIO_LAB_PATH} from './audio-lab-build.mjs';
 
 export const SITEMAP_LIMITS=Object.freeze({urls:50000,bytes:50*1024*1024});
 export const SITEMAP_INDEX='sitemap.xml';
@@ -32,7 +33,7 @@ export function sitemapGroups(extra=[]){
  const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
  const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p))])];
  const inGame=new Set(game);
- const tools=[...new Set([...indexable,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
+ const tools=[...new Set([...indexable,AUDIO_LAB_PATH,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
  return {game,guides:[...GUIDE_ROUTES],tools};
 }
 /** The <url> entries of `paths` in every language. `lastmod(route)` → W3C datetime or null, where
