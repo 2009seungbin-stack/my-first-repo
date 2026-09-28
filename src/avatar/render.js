@@ -72,6 +72,8 @@ export function renderMotionFrame(state,mode){
  if(mode!=='breathe')return base;
  const cloth=RAMPS[normalize(state).outfitPalette];
  const put=(x,y,color)=>base.data.set(color,(y*16+x)*4);
+ for(const x of [3,4,5,10,11])put(x,11,cloth[0]);
+ for(const x of [4,5,10,11])put(x,11,cloth[2]);
  for(const x of [3,12])put(x,12,cloth[0]);
  for(const x of [4,11])put(x,12,cloth[2]);
  return base;
