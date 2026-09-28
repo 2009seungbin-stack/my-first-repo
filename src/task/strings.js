@@ -997,6 +997,15 @@ S.ja.uiLab.fontCell='セル {x}列 {y}行';
 S.ko.uiLab.fontAdvanced='글자 크기·간격 설정';
 S.en.uiLab.fontAdvanced='Glyph size and spacing';
 S.ja.uiLab.fontAdvanced='文字サイズと間隔の設定';
+S.ko.uiLab.fontBakeGlyphLimit='로컬 글꼴 굽기는 현재 최대 1,024자입니다. 문자 집합을 줄여 주세요.';
+S.en.uiLab.fontBakeGlyphLimit='Local font baking currently allows up to 1,024 glyphs. Choose a smaller set.';
+S.ja.uiLab.fontBakeGlyphLimit='ローカルフォントの焼き込みは現在最大1,024文字です。文字数を減らしてください。';
+S.ko.uiLab.fontBakeAtlasLimit='이 기기의 단일 아틀라스 한도를 넘습니다. 글자 크기나 문자 수를 줄여 주세요.';
+S.en.uiLab.fontBakeAtlasLimit='This exceeds the one-page atlas limit on this device. Reduce the glyph size or count.';
+S.ja.uiLab.fontBakeAtlasLimit='この端末の単一アトラス上限を超えます。文字サイズか文字数を減らしてください。';
+S.ko.uiLab.fontBakePreflight='선택한 고유 문자 {count}자 · 최대 1,024자 · 이 기기 아틀라스 한 변 {cap}px. 굽기 전에 실제 글자 크기로 검사합니다.';
+S.en.uiLab.fontBakePreflight='{count} unique characters selected · 1,024 maximum · {cap}px atlas side cap on this device. Actual glyph dimensions are checked before baking.';
+S.ja.uiLab.fontBakePreflight='選択した固有文字{count}字 · 最大1,024字 · この端末のアトラス一辺{cap}px。焼き込み前に実際の文字寸法を確認します。';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

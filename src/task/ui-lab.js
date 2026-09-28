@@ -7,7 +7,7 @@ import * as ST from '../game/ui-states.js';
 import * as BM from '../game/bmfont.js';
 import {parseBdf} from '../game/font-bdf.js';
 import * as FP from '../game/font-project.js';
-import {HANGUL_COUNT,ksX1001Hangul,estimateGlyphAtlas} from '../game/font-hangul.js';
+import {HANGUL_COUNT,ksX1001Hangul,estimateGlyphAtlas,planFontGrid} from '../game/font-hangul.js';
 import * as SDF from '../game/sdf.js';
 import * as LAY from '../game/ui-layout.js';
 import {contrastRatio,wcag,round2} from '../game/contrast.js';
@@ -326,6 +326,7 @@ ${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontF
 ${f.mode==='measured'?`<label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label>`:''}</div>`}
 ${f.mode==='draw'?'':`<span class="opt-label">${esc(T('charset'))}</span>
 <label class="field"><span>${esc(T('chars'))}</span><textarea id="rc-chars" data-opt="font.chars" rows="3" spellcheck="false">${esc(f.chars)}</textarea></label>
+${f.mode==='ttf'?`<p class="hint" id="fontBakePreflight">${esc(T('fontBakePreflight',{count:new Set([...f.chars].filter(ch=>!/[\r\n]/.test(ch))).size,cap:fontAtlasLimits().maxSide}))}</p>`:''}
 <details class="options-advanced" id="optionsAdvanced"><summary>${esc(T('charsetBuilder'))}</summary>
 <label class="field"><span>${esc(T('fromText'))}</span><textarea data-opt="font.sample" rows="3" spellcheck="false" placeholder="${esc(T('fromTextHint'))}">${esc(f.sample)}</textarea></label>
 <div class="chips-row">${BM.PRESETS.map(p=>`<button type="button" class="chip" data-action="ui-charset" data-preset="${p}">${esc(T('preset.'+p))}</button>`).join('')}</div>
@@ -474,14 +475,18 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   * metric code measures that raster: the sheet the user downloads is the sheet we measured. */
  function renderTTFSheet(chars){
   const f=S.font,list=Array.from(chars),probe=Im.canvas(8,8),pc=probe.getContext('2d');
+  if(list.length>1024){Im.release(probe);throw Error(T('fontBakeGlyphLimit'));}
   pc.font=`${f.size}px "${f.family}"`;
   const metrics=pc.measureText('Hg');
   const ascent=Math.ceil(metrics.fontBoundingBoxAscent||f.size*.8),descent=Math.ceil(metrics.fontBoundingBoxDescent||f.size*.25);
   const advances=new Map(list.map(ch=>[ch,pc.measureText(ch).width]));
   const pad=f.sdf?f.spread:1;
   const cellW=Math.ceil(Math.max(...advances.values(),f.size*.5))+pad*2,cellH=ascent+descent+pad*2;
-  const columns=Math.min(list.length,Math.ceil(Math.sqrt(list.length))),rows=Math.ceil(list.length/columns);
-  const canvas=Im.canvas(columns*cellW,rows*cellH),x=canvas.getContext('2d');
+  let plan;
+  try{plan=planFontGrid(list.length,cellW,cellH,fontAtlasLimits());}
+  catch(error){Im.release(probe);throw Error(T('fontBakeAtlasLimit'));}
+  const {columns,width,height}=plan;
+  const canvas=Im.canvas(width,height),x=canvas.getContext('2d');
   x.font=`${f.size}px "${f.family}"`;x.textBaseline='alphabetic';x.fillStyle='#fff';
   Im.release(probe);
   list.forEach((ch,i)=>x.fillText(ch,(i%columns)*cellW+pad,Math.floor(i/columns)*cellH+pad+ascent));

@@ -40,3 +40,14 @@ export function estimateGlyphAtlas(count,cellW,cellH,{maxSide=4096,maxPixels=16_
  return {glyphs:count,cellW,cellH,pixels,rawRgbaBytes:pixels*4,minimumPages:pages,
   onePageFits:pages===1&&pixels<=maxPixels,warning:pages>1?'Multi-page engine import is unverified for this size':null};
 }
+/** Plan the actual uniform grid before creating a canvas. One-page output only. */
+export function planFontGrid(count,cellW,cellH,{maxSide=4096,maxPixels=16_777_216,maxGlyphs=1024}={}){
+ if(![count,cellW,cellH,maxSide,maxPixels,maxGlyphs].every(Number.isSafeInteger)||count<1||cellW<1||cellH<1||maxSide<1||maxPixels<1||maxGlyphs<1)throw Error('Invalid font grid input');
+ if(count>maxGlyphs)throw Error(`Font bake exceeds ${maxGlyphs} glyphs; choose a smaller subset`);
+ const maxColumns=Math.floor(maxSide/cellW),maxRows=Math.floor(maxSide/cellH);
+ if(!maxColumns||!maxRows||count>maxColumns*maxRows)throw Error('Font bake exceeds one atlas page');
+ const columns=Math.min(maxColumns,Math.max(Math.ceil(count/maxRows),Math.ceil(Math.sqrt(count*cellH/cellW))));
+ const rows=Math.ceil(count/columns),width=columns*cellW,height=rows*cellH;
+ if(width*height>maxPixels)throw Error('Font bake exceeds this device atlas pixel limit');
+ return {columns,rows,width,height,pixels:width*height,rawRgbaBytes:width*height*4};
+}

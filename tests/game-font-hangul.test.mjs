@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {hangulParts,composeHangul,ksX1001Hangul,isKsX1001Hangul,kanaSet,estimateGlyphAtlas} from '../src/game/font-hangul.js';
+import {hangulParts,composeHangul,ksX1001Hangul,isKsX1001Hangul,kanaSet,estimateGlyphAtlas,planFontGrid} from '../src/game/font-hangul.js';
 
 test('Unicode modern Hangul decomposition and composition are a full 11,172-way bijection',()=>{
  for(let cp=0xac00;cp<=0xd7a3;cp++){
@@ -27,4 +27,14 @@ test('kana is explicit and large atlas estimates block one-page claims',()=>{
  assert.equal(estimateGlyphAtlas(2350,16,16).onePageFits,true);
  const full=estimateGlyphAtlas(11172,32,32,{maxSide:2048,maxPixels:4_194_304});
  assert.equal(full.onePageFits,false);assert(full.minimumPages>1);
+});
+
+test('local font baking plans one bounded canvas before allocation',()=>{
+ const ascii=planFontGrid(95,12,18,{maxSide:2048,maxPixels:4_194_304});
+ assert.equal(ascii.columns*ascii.rows>=95,true);
+ assert(ascii.width<=2048&&ascii.height<=2048);
+ assert.equal(ascii.pixels,ascii.width*ascii.height);
+ assert.throws(()=>planFontGrid(2350,16,16),/1024 glyphs/);
+ assert.throws(()=>planFontGrid(50,64,64,{maxSide:512,maxPixels:30_000}),/pixel limit/);
+ assert.throws(()=>planFontGrid(512,64,64,{maxSide:256,maxPixels:1_000_000}),/one atlas page/);
 });
