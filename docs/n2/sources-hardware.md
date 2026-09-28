@@ -63,7 +63,30 @@ Tests: `tests/n2-estimates.test.mjs` (reproduces the README's Llama-3.1-8B sizes
 
 ## 4. Coverage
 
-(see §4 table below — filled at integration)
+93 entities (90 `gpu`, 3 `vendor`), 969 facts (all `OFFICIAL`), 101 relations (93 `made_by`, 11
+`successor_of`), 135 sources (134 `OFFICIAL`, 1 `ESTIMATE_METHOD`). The collector adds 20 `driver` entities at run time.
+
+Per-file GPU coverage (number of GPUs having each property):
+release_date / segment / architecture / vram_gb / memory_type / memory_bus_bits / memory_bandwidth_gbs /
+shader_units / boost_clock_mhz / board_power_w / launch_price_usd / pcie
+
+| File | GPUs | Facts | Sources | Coverage |
+| --- | --- | --- | --- | --- |
+| nvidia-rtx50.json (RTX 5090…5050) | 8 | 92 | 14 | 8 / 8 / 8 / 8 / 8 / 8 / 4 / 8 / 8 / 8 / 8 / 8 |
+| nvidia-rtx40-30.json (RTX 4090…3050) | 22 | 238 | 29 | 20 / 22 / 22 / 22 / 22 / 22 / 1 / 22 / 22 / 22 / 19 / 22 |
+| amd-radeon.json (RX 9070 XT…6600) | 26 | 283 | 41 | 19 / 26 / 26 / 26 / 26 / 26 / 26 / 26 / 24 / 26 / 20 / 12 |
+| intel-arc.json (Arc B/A, Arc Pro B50–B70) | 12 | 134 | 17 | 7 / 12 / 12 / 12 / 12 / 12 / 12 / 12 / 12 / 12 / 7 / 12 |
+| workstation.json (RTX PRO Blackwell, RTX Ada, Radeon PRO / AI PRO) | 22 | 216 | 30 | 17 / 22 / 22 / 22 / 22 / 20 / 21 / 20 / 3 / 22 / 3 / 22 |
+
+`successor_of` rules: NVIDIA RTX 50 → 40 (7 links; NVIDIA's CES 2025 and RTX 5060 family articles compare each card with
+its RTX 40 counterpart, and the 5060 Ti 8GB/16GB links go to the 4060 Ti with the same memory as an
+inference), RTX 40 → 30 only for identical tier names (4090→3090, 4070 Ti→3070 Ti, 4070→3070, 4060 Ti 8GB→3060 Ti). There are no AMD,
+Intel or workstation links, because no official source names a predecessor.
+
+Naming (ko): NVIDIA uses "엔비디아 지포스 RTX …" (NVIDIA's ko-kr pages use "지포스 RTX" in running text,
+product titles stay "GeForce"). AMD uses "AMD 라데온 RX …": AMD's Korean site writes "Radeon" in Latin letters,
+so the Hangul form is the widely used transliteration and the Latin names are aliases. Intel uses
+"인텔 Arc … 그래픽", as on Intel's Korean spec pages.
 
 ## 5. Known gaps / stale risks
 - NVIDIA RTX 50 spec pages do not state memory bandwidth; 5090/5080/5070 Ti/5070 values come from NVIDIA's
@@ -72,3 +95,22 @@ Tests: `tests/n2-estimates.test.mjs` (reproduces the README's Llama-3.1-8B sizes
 - Product pages show current "Starting at" prices (often redacted as `$XXX.XX`); launch MSRP always comes
   from the launch announcement, never from the product page.
 - `releases.json` covers NVIDIA's *data center* Linux driver branches; GeForce/Windows drivers are manual.
+- NVIDIA 40/30 spec pages do not state bandwidth; the only 40/30 bandwidth value (4070 Ti SUPER) comes from
+  the RTX 40 SUPER press release. NVIDIA workstation pages state no boost clock.
+- Shared spec columns: the 3080 10/12GB, 3060 12/8GB and 4060 Ti 8/16GB values were assigned to variants by
+  their order in NVIDIA's combined cells (e.g. 4060 Ti TGP "165 or 160" next to "16 GB or 8 GB"); each fact
+  has a note saying so.
+- Launch price and date are missing where the vendor published none: RX 9060 / 9050 / 9060 XT LP / 7700, RX 9060 XT
+  dates, 7900 GRE price, Arc A380/A310, Arc Pro B50/B60, RTX 3080 12GB, 3060 8GB, and most workstation cards
+  (their launch prices are rarely announced). The only official workstation prices are RTX 4000 SFF Ada, W7900 and W7800.
+- Release dates: when the source gives only a season or quarter ("summer 2025", "Q2 2023"), we store
+  year precision and quote the source text in the note. Rows where the vendor stated a month
+  ("starting in April") use month precision.
+- Newer SKUs found on official pages (not in training data): Arc Pro B65/B70 (Q1 2026), RX 9070 GRE global
+  launch (2026-06-02, $549), RX 9050 8GB/4GB, RX 9060, RTX PRO 5500 Blackwell (page says "Coming Soon", specs
+  preliminary), RTX PRO 5000 Blackwell 72GB, Radeon AI PRO R9700S/R9600D. There is no official page for an RTX 50 Super
+  or an Arc B770 as of 2026-09-28.
+- RX 7900 XT board power: the product page says 315 W and the 2022 launch release said 300 W. We store 315 W,
+  and the note records the difference.
+- Skipped: RX 7400 (in AMD's spec database, no desktop product page), RX 6700/6500 XT/6400 (out of this pass),
+  mobile/embedded SKUs.
