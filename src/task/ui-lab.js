@@ -1194,7 +1194,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(S.font.strokeInkBefore!==null){S.font.ink=S.font.strokeInkBefore;S.font.strokeInkBefore=null;}
   // A click on a guide that moved nothing leaves no undo step behind.
   if(drag?.kind==='guide'){const last=borderPast.at(-1);if(last&&SIDES.every(side=>last[side]===S.border[side]))borderPast.pop();refreshUndo();}
-  drag=null;if(fontStroke||hangulStroke)refresh();});
+  drag=null;if(fontStroke||hangulStroke){refresh();$(hangulStroke?'#fontHangulCanvas':'#fontEditCanvas')?.focus();}});
  el.addEventListener('contextmenu',e=>{if(e.target.id==='fontEditCanvas'||e.target.id==='fontHangulCanvas')e.preventDefault();});
  const refreshUndo=()=>{const u=$('#nsUndo'),r=$('#nsRedo');if(u)u.disabled=!borderPast.length;if(r)r.disabled=!borderFuture.length;};
  // A .fnt, a .txt or a font file can be dropped straight onto its own field; the page-level

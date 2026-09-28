@@ -192,6 +192,7 @@ def main():
                 p2.screenshot(path=str(OUT / 'font-en-1440.png'), full_page=True)
                 p2.locator('#hangulComposer').evaluate('(element) => { element.open = true }')
                 p2.locator('#fontHangulCanvas').click(position={'x': 5, 'y': 5})
+                assert p2.locator('#fontHangulCanvas').evaluate('(element) => document.activeElement === element')
                 p2.locator('#fontHangulPart').select_option('vowel')
                 p2.locator('#fontHangulCanvas').click(position={'x': 5, 'y': 5})
                 assert '1 overlapping' in p2.locator('#fontHangulStatus').inner_text()
