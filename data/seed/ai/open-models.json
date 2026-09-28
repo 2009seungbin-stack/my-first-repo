@@ -6,8 +6,6 @@
     {"id":"src:open-hf-gpt-oss-20b","kind":"OFFICIAL","url":"https://huggingface.co/openai/gpt-oss-20b","title":"openai/gpt-oss-20b","publisher":"OpenAI (Hugging Face)","retrieved":"2026-09-28"},
     {"id":"src:open-hf-gpt-oss-120b","kind":"OFFICIAL","url":"https://huggingface.co/openai/gpt-oss-120b","title":"openai/gpt-oss-120b","publisher":"OpenAI (Hugging Face)","retrieved":"2026-09-28"},
     {"id":"src:open-grok-1-github","kind":"OFFICIAL","url":"https://github.com/xai-org/grok-1","title":"xai-org/grok-1 (README: Model Specifications, License)","publisher":"xAI","retrieved":"2026-09-28"},
-    {"id":"src:open-hf-grok-2","kind":"OFFICIAL","url":"https://huggingface.co/xai-org/grok-2","title":"xai-org/grok-2","publisher":"xAI (Hugging Face)","retrieved":"2026-09-28"},
-    {"id":"src:open-hf-grok-2-license","kind":"OFFICIAL","url":"https://huggingface.co/xai-org/grok-2/blob/main/LICENSE","title":"Grok 2 LICENSE (xAI Community License Agreement)","publisher":"xAI (Hugging Face)","retrieved":"2026-09-28"},
     {"id":"src:open-llama4-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama4/MODEL_CARD.md","title":"Llama 4 Model Card","publisher":"Meta","retrieved":"2026-09-28"},
     {"id":"src:open-llama3-3-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_3/MODEL_CARD.md","title":"Llama 3.3 Model Card","publisher":"Meta","retrieved":"2026-09-28"},
     {"id":"src:open-llama3-2-model-card","kind":"OFFICIAL","url":"https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md","title":"Llama 3.2 Model Card (1B/3B)","publisher":"Meta","retrieved":"2026-09-28"},
@@ -52,7 +50,6 @@
     {"id":"src:open-hf-devstral-2-123b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512","title":"mistralai/Devstral-2-123B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
     {"id":"src:open-mistral-doc-devstral-small-2","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/devstral-small-2-25-12","title":"Devstral Small 2 (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
     {"id":"src:open-hf-devstral-small-2-24b-instruct-2512","kind":"OFFICIAL","url":"https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512","title":"mistralai/Devstral-Small-2-24B-Instruct-2512 model card","publisher":"Mistral AI (Hugging Face)","retrieved":"2026-09-28"},
-    {"id":"src:open-mistral-doc-codestral","kind":"OFFICIAL","url":"https://docs.mistral.ai/models/codestral-25-08","title":"Codestral (Mistral docs)","publisher":"Mistral AI","retrieved":"2026-09-28"},
     {"id":"src:open-deepseek-pricing","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/quick_start/pricing","title":"Models & Pricing","publisher":"DeepSeek","retrieved":"2026-09-28","note":"USD per 1M tokens with peak/off-peak rates; off-peak is half of peak."},
     {"id":"src:open-deepseek-news-v4-1-flash","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/news/news260910","title":"DeepSeek-V4.1-Flash Release (2026/09/10)","publisher":"DeepSeek","retrieved":"2026-09-28"},
     {"id":"src:open-deepseek-news-v4-preview","kind":"OFFICIAL","url":"https://api-docs.deepseek.com/news/news260424","title":"DeepSeek V4 Preview Release (2026/04/24)","publisher":"DeepSeek","retrieved":"2026-09-28"},
@@ -356,50 +353,6 @@
           "p": "made_by",
           "o": "provider:xai",
           "src": "src:open-grok-1-github"
-        }
-      ]
-    },
-    {
-      "id": "model:grok-2",
-      "type": "model",
-      "slug": "grok-2",
-      "names": {
-        "en": "Grok 2"
-      },
-      "aliases": [
-        "grok-2",
-        "xai-org/grok-2"
-      ],
-      "description": {
-        "en": "Weights of the Grok 2 model that xAI trained and served in 2024; the official checkpoint is about 500 GB and is meant for 8-GPU tensor-parallel serving.",
-        "ko": "xAI가 2024년에 학습·운영한 Grok 2의 가중치로, 공식 체크포인트는 약 500GB이며 GPU 8장 텐서 병렬 서빙을 전제로 합니다."
-      },
-      "official_urls": [
-        {
-          "label": "Hugging Face",
-          "url": "https://huggingface.co/xai-org/grok-2"
-        }
-      ],
-      "facts": [
-        {
-          "p": "open_weights",
-          "v": true,
-          "ver": "OFFICIAL",
-          "src": "src:open-hf-grok-2"
-        },
-        {
-          "p": "license",
-          "v": "xAI Community License Agreement",
-          "ver": "OFFICIAL",
-          "src": "src:open-hf-grok-2-license",
-          "note": "The model README calls it the \"Grok 2 Community License Agreement\"; the linked LICENSE file is titled \"xAI Community License Agreement\"."
-        }
-      ],
-      "relations": [
-        {
-          "p": "made_by",
-          "o": "provider:xai",
-          "src": "src:open-hf-grok-2"
         }
       ]
     },
@@ -2206,7 +2159,8 @@
           "ver": "OFFICIAL",
           "src": "src:open-xai-docs-index"
         }
-      ]
+      ],
+      "relations": []
     },
     {
       "id": "provider:deepseek",
@@ -2248,7 +2202,8 @@
           "ver": "OFFICIAL",
           "src": "src:open-deepseek-home"
         }
-      ]
+      ],
+      "relations": []
     },
     {
       "id": "provider:alibaba",
@@ -2285,7 +2240,8 @@
           "ver": "OFFICIAL",
           "src": "src:open-qwen-home"
         }
-      ]
+      ],
+      "relations": []
     },
     {
       "id": "provider:meta",
@@ -2322,7 +2278,8 @@
           "src": "src:open-meta-dev-site",
           "note": "Llama developer site; redirects to dev.meta.ai."
         }
-      ]
+      ],
+      "relations": []
     },
     {
       "id": "provider:mistral",
@@ -2363,7 +2320,8 @@
           "ver": "OFFICIAL",
           "src": "src:open-mistral-home"
         }
-      ]
+      ],
+      "relations": []
     },
     {
       "id": "model:gemma-4-31b",
@@ -3859,86 +3817,6 @@
           "o": "runtime:llama-cpp",
           "src": "src:rt-llama-app-models",
           "ver": "OFFICIAL"
-        }
-      ]
-    },
-    {
-      "id": "model:codestral-2508",
-      "type": "model",
-      "slug": "codestral-2508",
-      "names": {
-        "en": "Codestral 25.08"
-      },
-      "aliases": [
-        "codestral-2508",
-        "codestral-latest",
-        "Codestral"
-      ],
-      "description": {
-        "en": "Mistral's API code model for low-latency fill-in-the-middle completion and code generation.",
-        "ko": "저지연 FIM(중간 채우기) 자동완성과 코드 생성에 특화된 Mistral의 API 코드 모델입니다."
-      },
-      "official_urls": [
-        {
-          "label": "Docs",
-          "url": "https://docs.mistral.ai/models/codestral-25-08"
-        }
-      ],
-      "facts": [
-        {
-          "p": "status",
-          "v": "active",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-codestral",
-          "note": "Listed as GA."
-        },
-        {
-          "p": "api_model_id",
-          "v": "codestral-2508",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-codestral",
-          "note": "Alias: codestral-latest."
-        },
-        {
-          "p": "context_window",
-          "v": 128000,
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-codestral",
-          "note": "Stated as \"128k\" on the source page."
-        },
-        {
-          "p": "release_date",
-          "v": "2025-07-30",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-codestral"
-        },
-        {
-          "p": "api_input_price",
-          "v": 0.3,
-          "unit": "USD",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-pricing"
-        },
-        {
-          "p": "api_cached_input_price",
-          "v": 0.03,
-          "unit": "USD",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-pricing"
-        },
-        {
-          "p": "api_output_price",
-          "v": 0.9,
-          "unit": "USD",
-          "ver": "OFFICIAL",
-          "src": "src:open-mistral-pricing"
-        }
-      ],
-      "relations": [
-        {
-          "p": "made_by",
-          "o": "provider:mistral",
-          "src": "src:open-mistral-doc-codestral"
         }
       ]
     },
