@@ -376,7 +376,7 @@ export default {
     '다섯 작업은 필요한 것이 다릅니다. GIF와 정지 프레임은 영상 트랙을 디코딩합니다. 음성 추출은 오디오 트랙만 디코딩하고 화면은 버리므로 영상 코덱을 지원하지 않아도 됩니다. 정밀 자르기와 압축은 두 트랙을 모두 디코딩해 다시 인코딩합니다. 빠른 자르기는 압축된 패킷을 디코딩 없이 복사하므로, 그 코덱을 받아 주는 컨테이너만 있으면 됩니다.',
     '결과는 가능하면 메모리에 쌓지 않고 브라우저 전용 저장소(OPFS)의 임시 파일에 쓰며, 결과를 지우면 삭제되고 7일이 지나면 정리됩니다. WebCodecs가 없으면 실시간으로 녹화하는 호환 모드로 바뀌는데, 영상 10분, 음성은 원본 20분, GIF는 20초·8fps·480px이라는 상한이 있습니다.'],
     terms:[['컨테이너','트랙과 그 타이밍을 담는 파일 형식. MP4, MOV, WebM, MKV, WAV 등.'],['코덱','트랙 하나를 압축하는 방식. 영상은 H.264·HEVC·VP9·AV1, 음성은 AAC·Opus·MP3·PCM 등.'],['디먹스·먹스','컨테이너를 트랙으로 나누는 것과, 트랙을 새 컨테이너에 쓰는 것.'],['WebCodecs','웹 페이지가 기기의 오디오·영상 디코더와 인코더를 쓸 수 있게 하는 브라우저 API.']]},
-   example:{title:'예시: 아이폰 영상 하나로 다섯 작업',lead:'카메라 설정 "고효율"로 찍은 1920 × 1080 MOV(HEVC 영상, AAC 음성)를 HEVC 디코더가 없는 브라우저에서 열었을 때:',lines:[
+   example:{title:'예시: 아이폰 영상 하나로 다섯 작업',lead:'카메라 설정 `High Efficiency`로 찍은 1920 × 1080 MOV(HEVC 영상, AAC 음성)를 HEVC 디코더가 없는 브라우저에서 열었을 때:',lines:[
     '열기         컨테이너 QuickTime, 영상 hevc 1920 × 1080, 음성 aac  → 열림',
     '음성         영상 트랙은 버리고 AAC만 디코딩          → MP3 성공',
     '자르기·빠르게 패킷을 MP4로 복사, 디코딩 없음          → 복사 경로라 HEVC 디코더가 필요 없음',
@@ -414,7 +414,7 @@ export default {
     '5つの作業は必要なものが違います。GIFと静止フレームは映像トラックをデコードします。音声の書き出しは音声トラックだけをデコードして映像は捨てるので、映像コーデックに非対応でも動きます。精密カットと圧縮は両方のトラックをデコードして再エンコードします。高速カットは圧縮済みのパケットをデコードせずにコピーするので、そのコーデックを受け入れるコンテナさえあれば済みます。',
     '結果は可能ならメモリにためず、ブラウザ専用の保存領域（OPFS）の一時ファイルに書き込みます。結果を消すと削除され、7日たつと整理されます。WebCodecsがない場合はリアルタイムで録画する互換モードになり、動画10分、音声は元ファイル20分まで、GIFは20秒・8fps・480pxという上限があります。'],
     terms:[['コンテナ','トラックとそのタイミングを入れるファイル形式。MP4、MOV、WebM、MKV、WAVなど。'],['コーデック','1本のトラックの圧縮方式。映像はH.264・HEVC・VP9・AV1、音声はAAC・Opus・MP3・PCMなど。'],['デマックス・マックス','コンテナをトラックに分けること、トラックを新しいコンテナに書き込むこと。'],['WebCodecs','Webページが端末の音声・映像のデコーダーとエンコーダーを使えるようにするブラウザーAPI。']]},
-   example:{title:'例：iPhoneの動画1本で5つの作業',lead:'カメラ設定「高効率」で撮った1920 × 1080のMOV（HEVC映像、AAC音声）を、HEVCデコーダーのないブラウザで開いた場合：',lines:[
+   example:{title:'例：iPhoneの動画1本で5つの作業',lead:'カメラ設定`High Efficiency`で撮った1920 × 1080のMOV（HEVC映像、AAC音声）を、HEVCデコーダーのないブラウザで開いた場合：',lines:[
     '開く         コンテナ QuickTime、映像 hevc 1920 × 1080、音声 aac  → 開ける',
     '音声         映像トラックは捨て、AACだけデコード        → MP3は成功',
     'カット・高速  パケットをMP4にコピー、デコードなし       → コピー経路なのでHEVCデコーダー不要',
@@ -1037,6 +1037,345 @@ export default {
     ['このページのWAV','後で編集・ミックス・再エンコードする音声なら、ここで非可逆の段階を増やさずに済みます。']]},
    limits:['MP3は固定ビットレートでのみ書き出し、VBRのオプションはありません。','ID3タグ（タイトル、アーティスト、カバー）は書き込みません。','3チャンネル以上の元ファイルは、この経路ではテストしていません。'],
    versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。1920 × 1080のMP4から切り出した4秒の192 kbit/s MP3と44.1 kHzのWAVは長さが0.12秒以内で一致し、静かなテスト音の正規化はピークを0.2未満と測って2倍を超えて持ち上げ、1秒のフェードは長さを変えませんでした。MP3のエンコードはWebAssemblyにコンパイルしたLAME 3.100（mediabunny-mp3-encoder 1.58.1）です。FFmpegのオプションは公式ドキュメントに従っています。'],sources:['[FFmpegコーデック：libmp3lame](https://ffmpeg.org/ffmpeg-codecs.html)']}
+  }
+ },
+ 'video/mp4-to-gif':{
+  type:'tool',
+  intent:{primary:'convert an MP4 video to a GIF',secondary:['phone MP4 to GIF upright','60 fps MP4 to GIF','HEVC MP4 fails'],
+   goal:'a GIF from an MP4 section, upright and evenly paced, knowing which MP4 codecs the browser decodes',input:'MP4 (H.264, HEVC or AV1 video)',output:'animated GIF (<name>.gif)',support:'full',
+   evidence:['src/media-modern-worker.js gifFrames (CanvasSink width → display size with rotation, times start + i × speed ÷ fps, crop after scaling)','assets/vendor/mediabunny-1.58.1/src/media-sink.ts (last frame at or before t; rotation from metadata)','tests/media-browser.mjs (H.264 MP4 → GIF 640 px, 24 frames)'],
+   external:['MDN containers: MP4 video codecs','caniuse: HEVC support']},
+  en:{
+   answer:'Open the MP4, choose a few seconds, pick a width and a frame rate, and Nerulio decodes the MP4\'s video track with your browser\'s WebCodecs decoder and writes a GIF. Most MP4s carry H.264 video, which browsers decode widely; MP4s from newer phones and cameras may carry HEVC or AV1, whose support depends on the browser and device. The audio track is ignored, a phone\'s rotation flag is applied, and a variable-frame-rate recording becomes an evenly paced GIF.',
+   concept:{title:'What is inside an MP4, and what the GIF keeps',body:[
+    'MP4 is a container. The video inside is usually H.264 (AVC); MDN also lists AV1 and VP9 as MP4 video codecs, and many phones write HEVC. The container stores a timestamp for every frame and, for phone recordings, a rotation flag. Nerulio reads those with Mediabunny and decodes only the frames it needs, in time order, in a background worker.',
+    'Phone MP4s are often recorded at 30 or 60 fps and with a variable frame rate. A GIF has fixed delays, so Nerulio samples the section at even steps of 1 ÷ fps seconds and takes whichever frame is on screen at each step: a 60 fps recording at 15 fps keeps one frame in four, and uneven source timing comes out evenly paced.',
+    'A portrait phone MP4 is usually stored as landscape pixels plus a 90° rotation flag. Frames are turned upright before scaling, so the width you pick applies to the upright picture: 480 px wide from a 1080 × 1920 clip gives 480 × 853.'],
+    terms:[['H.264 (AVC)','The most common MP4 video codec, widely decoded by browsers.'],['Variable frame rate','Frame timestamps that are not evenly spaced, common in phone and screen recordings.'],['Rotation flag','Metadata saying the stored picture must be turned for display.']]},
+   example:{title:'Example: a 4-second portrait phone MP4 at 60 fps',lead:'Width 480 px, 15 fps, crop 4:5:',lines:[
+    'Source        1080 × 1920 as displayed (stored 1920 × 1080 + 90° flag), 60 fps, H.264 + AAC',
+    'Width 480     480 × 853 px after turning upright',
+    'Frames        4 s × 15 fps = 60 frames: one source frame in four',
+    'Crop 4:5      480 × 600 px, centred (253 px cut: 126 at the top, 127 at the bottom)',
+    'Index data    480 × 600 × 60 = 17.3 million bytes before LZW',
+    'AAC audio     not read'],
+    after:'Without the crop the same GIF is 480 × 853 × 60 = 24.6 million bytes of index data, which is why tall phone clips are worth cropping or narrowing.'},
+   mapping:{title:'From the MP4 to the GIF',head:['In the MP4','In Nerulio','In the GIF'],rows:[
+    ['H.264, HEVC or AV1 video track','Decoded frame by frame with WebCodecs','Palette images of up to 256 colours'],
+    ['Frame timestamps, even or variable','Sampled every 1 ÷ fps s inside the section','Delays in 1/100 s, e.g. 70-60-70 ms at 15 fps'],
+    ['Rotation flag','Applied before scaling','Upright frames'],
+    ['AAC audio track','Not read','No sound'],
+    ['Other tracks, chapters, subtitles','Ignored','—']]},
+   verify:{steps:[
+    'After opening, the file line shows the upright dimensions and the duration; a sideways size means the MP4 has no rotation flag.',
+    'The frame count in the summary should be seconds × fps ÷ speed.',
+    'Compare the GIF\'s first frame with the MP4 at the section start using the Result and Source tabs.']},
+   trouble:{rows:[
+    ['Decoder error as soon as the GIF starts','The MP4 holds HEVC or AV1 and this browser has no decoder for it','`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1 clip.mp4`','Use a browser that decodes it, or export the MP4 again as H.264'],
+    ['The GIF looks choppier than the MP4','A 60 fps MP4 sampled at 15 fps keeps one frame in four','Frame count in the summary','Choose 24 fps, or keep a short MP4 with [[video/trim|trim]]'],
+    ['The GIF is sideways','The MP4 carries no rotation flag, or one the reader does not apply','Compare with the phone\'s own player','Export the MP4 again from the phone or editor'],
+    ['The file is far too big for a portrait clip','Tall frames: 853 px high at 480 px wide','Result dimensions','Crop to 4:5 or 1:1, or choose 320 px']]},
+   alternatives:{rows:[
+    ['FFmpeg with `palettegen` and `paletteuse` on the MP4','Scripts and batches, with one palette for the whole clip.'],
+    ['Keep it as a short MP4','Where the platform plays MP4: smaller than a GIF and with sound; cut it with [[video/trim|trim]].']]},
+   limits:['The browser must decode the MP4\'s video codec; HEVC and AV1 support varies by browser and device.','Only the primary video track is used.'],
+   versions:{body:['Checked in tests/media-browser.mjs with a 1920 × 1080 H.264/AAC MP4 in Chromium 153 and Firefox 155: 2 s at 640 px and 12 fps gave 24 frames 640 px wide. MP4 codec facts follow MDN; HEVC browser support is from caniuse.'],sources:['[MDN: Media container formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[caniuse: HEVC/H.265 video format](https://caniuse.com/hevc)']}
+  },
+  ko:{
+   answer:'MP4를 열고 몇 초를 고른 뒤 폭과 프레임레이트를 정하면, Nerulio가 브라우저의 WebCodecs 디코더로 MP4의 영상 트랙을 디코딩해 GIF를 만듭니다. 대부분의 MP4에는 브라우저가 널리 디코딩하는 H.264 영상이 들어 있지만, 최신 휴대폰·카메라의 MP4에는 HEVC나 AV1이 들어 있을 수 있고 그 지원은 브라우저와 기기에 따라 다릅니다. 음성 트랙은 무시하고, 휴대폰의 회전 정보는 적용하며, 프레임 간격이 불규칙한 녹화도 일정한 속도의 GIF가 됩니다.',
+   concept:{title:'MP4 안에 든 것과 GIF에 남는 것',body:[
+    'MP4는 컨테이너입니다. 안의 영상은 보통 H.264(AVC)이고, MDN은 MP4 영상 코덱으로 AV1과 VP9도 꼽으며, 많은 휴대폰이 HEVC로 기록합니다. 컨테이너에는 프레임마다 시각이, 휴대폰 녹화라면 회전 정보가 들어 있습니다. Nerulio는 Mediabunny로 이를 읽고, 필요한 프레임만 시간 순서대로 백그라운드 워커에서 디코딩합니다.',
+    '휴대폰 MP4는 30fps나 60fps에, 프레임 간격이 일정하지 않은 가변 프레임레이트로 녹화되는 일이 많습니다. GIF는 지연이 고정이므로 Nerulio는 구간을 1 ÷ fps초 간격으로 똑같이 나눠 각 순간에 화면에 있는 프레임을 가져옵니다. 60fps 녹화를 15fps로 만들면 네 프레임 중 하나가 남고, 불규칙한 원본 타이밍은 일정한 속도가 됩니다.',
+    '세로 휴대폰 MP4는 보통 가로 픽셀에 90° 회전 정보를 붙여 저장됩니다. 프레임을 먼저 똑바로 세운 뒤 크기를 줄이므로, 고른 폭은 세운 그림에 적용됩니다. 1080 × 1920 클립을 폭 480 px로 하면 480 × 853입니다.'],
+    terms:[['H.264(AVC)','가장 흔한 MP4 영상 코덱으로, 브라우저가 널리 디코딩합니다.'],['가변 프레임레이트','프레임 시각의 간격이 일정하지 않은 것. 휴대폰·화면 녹화에서 흔합니다.'],['회전 정보','저장된 그림을 돌려서 보여야 한다는 메타데이터.']]},
+   example:{title:'예시: 60fps로 찍은 4초짜리 세로 휴대폰 MP4',lead:'폭 480 px, 15fps, 4:5 자르기:',lines:[
+    '원본          표시 크기 1080 × 1920(저장 1920 × 1080 + 90° 정보), 60 fps, H.264 + AAC',
+    '폭 480        똑바로 세운 뒤 480 × 853 px',
+    '프레임        4 s × 15 fps = 60 프레임: 원본 네 프레임 중 하나',
+    '4:5 자르기    480 × 600 px, 가운데 기준(253 px 잘림: 위 126, 아래 127)',
+    '번호 데이터   480 × 600 × 60 = LZW 전 1,730만 바이트',
+    'AAC 음성      읽지 않음'],
+    after:'자르지 않으면 같은 GIF가 480 × 853 × 60 = 번호 데이터 2,460만 바이트입니다. 그래서 긴 세로 클립은 자르거나 폭을 줄일 가치가 있습니다.'},
+   mapping:{title:'MP4에서 GIF로',head:['MP4에서','Nerulio에서','GIF에서'],rows:[
+    ['H.264·HEVC·AV1 영상 트랙','WebCodecs로 프레임마다 디코딩','최대 256색 팔레트 이미지'],
+    ['프레임 시각(일정하거나 가변)','구간 안에서 1 ÷ fps초마다 뽑음','1/100초 단위 지연, 예: 15fps에서 70-60-70 ms'],
+    ['회전 정보','크기 조정 전에 적용','똑바로 선 프레임'],
+    ['AAC 음성 트랙','읽지 않음','소리 없음'],
+    ['기타 트랙, 챕터, 자막','무시','—']]},
+   verify:{steps:[
+    '파일을 열면 파일 줄에 세운 상태의 크기와 길이가 나옵니다. 가로세로가 뒤바뀌어 있다면 MP4에 회전 정보가 없는 것입니다.',
+    '요약의 프레임 수는 초 × fps ÷ 속도여야 합니다.',
+    '결과 탭과 원본 탭으로 GIF의 첫 프레임과 구간 시작의 MP4를 비교하세요.']},
+   trouble:{rows:[
+    ['GIF를 시작하자마자 디코더 오류','MP4에 HEVC나 AV1이 들어 있고 이 브라우저에 그 디코더가 없음','`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1 clip.mp4`','디코딩되는 브라우저를 쓰거나 MP4를 H.264로 다시 내보내기'],
+    ['GIF가 MP4보다 끊겨 보임','60fps MP4를 15fps로 뽑으면 네 프레임 중 하나만 남음','요약의 프레임 수','24fps를 고르거나 [[video/trim|자르기]]로 짧은 MP4를 유지'],
+    ['GIF가 옆으로 누움','MP4에 회전 정보가 없거나 읽기 도구가 적용하지 않는 방식','휴대폰 기본 플레이어와 비교','휴대폰이나 편집기에서 MP4를 다시 내보내기'],
+    ['세로 클립인데 파일이 너무 큼','세로로 긴 프레임: 폭 480 px에 높이 853 px','결과 크기','4:5나 1:1로 자르거나 320 px 선택']]},
+   alternatives:{rows:[
+    ['MP4에 `palettegen`·`paletteuse`를 쓰는 FFmpeg','클립 전체에 팔레트 하나를 쓰는 스크립트·일괄 작업.'],
+    ['짧은 MP4로 그대로 두기','플랫폼이 MP4를 재생한다면 GIF보다 작고 소리도 있습니다. [[video/trim|자르기]]로 잘라 두세요.']]},
+   limits:['브라우저가 MP4의 영상 코덱을 디코딩해야 하며, HEVC와 AV1 지원은 브라우저와 기기마다 다릅니다.','기본 영상 트랙 하나만 씁니다.'],
+   versions:{body:['tests/media-browser.mjs로 1920 × 1080 H.264/AAC MP4를 써서 Chromium 153과 Firefox 155에서 확인했습니다. 2초를 640 px·12fps로 만들면 폭 640 px의 24프레임이 나왔습니다. MP4 코덱 내용은 MDN, HEVC 브라우저 지원은 caniuse를 따랐습니다.'],sources:['[MDN: 미디어 컨테이너 형식](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[caniuse: HEVC/H.265](https://caniuse.com/hevc)']}
+  },
+  ja:{
+   answer:'MP4を開いて数秒を選び、幅とフレームレートを決めると、NerulioがブラウザのWebCodecsデコーダーでMP4の映像トラックをデコードしてGIFを作ります。多くのMP4には、ブラウザが広くデコードできるH.264の映像が入っていますが、新しいスマホやカメラのMP4にはHEVCやAV1が入っていることがあり、その対応はブラウザと端末によります。音声トラックは無視し、スマホの回転情報は反映し、フレーム間隔が不規則な録画も一定のテンポのGIFになります。',
+   concept:{title:'MP4の中身と、GIFに残るもの',body:[
+    'MP4はコンテナです。中の映像はたいていH.264（AVC）で、MDNはMP4の映像コーデックとしてAV1とVP9も挙げており、多くのスマホはHEVCで記録します。コンテナにはフレームごとの時刻と、スマホの録画なら回転情報が入っています。NerulioはMediabunnyでそれを読み、必要なフレームだけを時刻順にバックグラウンドのワーカーでデコードします。',
+    'スマホのMP4は30fpsや60fpsで、フレーム間隔が一定でない可変フレームレートで記録されることがよくあります。GIFの遅延は固定なので、Nerulioは区間を1 ÷ fps秒の等間隔で区切り、各瞬間に表示されているフレームを取ります。60fpsの録画を15fpsにすると4フレームに1つが残り、不規則な元のタイミングは一定のテンポになります。',
+    '縦長のスマホMP4は、たいてい横長の画素に90°の回転情報を付けて保存されています。先にフレームを正しい向きにしてから縮小するので、選んだ幅は正しい向きの絵に適用されます。1080 × 1920のクリップを幅480 pxにすると480 × 853です。'],
+    terms:[['H.264（AVC）','最も一般的なMP4の映像コーデックで、ブラウザが広くデコードできます。'],['可変フレームレート','フレームの時刻の間隔が一定でないこと。スマホや画面録画でよくあります。'],['回転情報','保存された絵を回して表示するよう示すメタデータ。']]},
+   example:{title:'例：60fpsで撮った4秒の縦長スマホMP4',lead:'幅480 px、15fps、4:5で切り抜き：',lines:[
+    '元の動画      表示サイズ1080 × 1920（保存は1920 × 1080 + 90°の情報）、60 fps、H.264 + AAC',
+    '幅480         正しい向きにして480 × 853 px',
+    'フレーム      4 s × 15 fps = 60フレーム：元の4フレームに1つ',
+    '4:5切り抜き   480 × 600 px、中央基準（253 px削る：上126、下127）',
+    '番号データ    480 × 600 × 60 = LZW前で1,730万バイト',
+    'AAC音声       読まない'],
+    after:'切り抜かなければ同じGIFは480 × 853 × 60 = 番号データ2,460万バイトになります。縦に長いスマホのクリップは、切り抜くか幅を狭める価値があります。'},
+   mapping:{title:'MP4からGIFへ',head:['MP4の中','Nerulioで','GIFでは'],rows:[
+    ['H.264・HEVC・AV1の映像トラック','WebCodecsで1フレームずつデコード','最大256色のパレット画像'],
+    ['フレームの時刻（一定または可変）','区間内で1 ÷ fps秒ごとに取り出す','1/100秒単位の遅延。15fpsなら70-60-70 ms'],
+    ['回転情報','縮小の前に適用','正しい向きのフレーム'],
+    ['AAC音声トラック','読まない','音なし'],
+    ['その他のトラック、チャプター、字幕','無視','—']]},
+   verify:{steps:[
+    '開くと、ファイルの行に正しい向きでのサイズと長さが出ます。縦横が逆なら、MP4に回転情報がありません。',
+    '要約のフレーム数は、秒数 × fps ÷ 速度になるはずです。',
+    '「結果」と「元の動画」のタブで、GIFの最初のフレームと区間の始まりのMP4を比べます。']},
+   trouble:{rows:[
+    ['GIFを始めてすぐデコーダーのエラー','MP4にHEVCかAV1が入っていて、このブラウザにそのデコーダーがない','`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1 clip.mp4`','デコードできるブラウザを使うか、MP4をH.264で書き出し直す'],
+    ['GIFがMP4よりカクカクする','60fpsのMP4を15fpsで取り出すと4フレームに1つしか残らない','要約のフレーム数','24fpsを選ぶか、[[video/trim|切り出し]]で短いMP4のままにする'],
+    ['GIFが横向きになる','MP4に回転情報がない、または読み込み側が適用しない形式','スマホ標準のプレーヤーと比べる','スマホや編集ソフトからMP4を書き出し直す'],
+    ['縦長のクリップでファイルが大きすぎる','縦に長いフレーム：幅480 pxで高さ853 px','結果のサイズ','4:5か1:1で切り抜くか、320 pxを選ぶ']]},
+   alternatives:{rows:[
+    ['MP4に`palettegen`と`paletteuse`を使うFFmpeg','クリップ全体で1つのパレットを使うスクリプトや一括処理。'],
+    ['短いMP4のままにする','投稿先がMP4を再生できるなら、GIFより小さく音声も付きます。[[video/trim|切り出し]]で切っておきましょう。']]},
+   limits:['ブラウザがMP4の映像コーデックをデコードできる必要があり、HEVCとAV1の対応はブラウザと端末によって違います。','使うのは主な映像トラック1本だけです。'],
+   versions:{body:['tests/media-browser.mjsで、1920 × 1080のH.264/AAC MP4を使いChromium 153とFirefox 155で確認しました。2秒を640 px・12fpsにすると幅640 pxの24フレームになりました。MP4のコーデックはMDN、HEVCのブラウザー対応はcaniuseに基づきます。'],sources:['[MDN：メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[caniuse：HEVC/H.265](https://caniuse.com/hevc)']}
+  }
+ },
+ 'video/mov-to-gif':{
+  type:'tool',
+  intent:{primary:'convert a MOV (iPhone or QuickTime) video to a GIF',secondary:['iPhone video to GIF','MOV not supported in the browser','HEVC or ProRes MOV'],
+   goal:'a GIF from a MOV, or a clear diagnosis of why this MOV cannot be decoded here and what to change',input:'MOV (QuickTime) with H.264, HEVC or ProRes video',output:'animated GIF (<name>.gif)',support:'partial',
+   evidence:['assets/vendor/mediabunny-1.58.1/src/input-format.ts (QuickTime input format in ALL_FORMATS)','src/media.js openMedia (continues when the browser preview fails but the probe succeeded)','src/media-modern-worker.js gifFrames (WebCodecs decode required)','tests/media-browser.mjs has no MOV case'],
+   external:['Apple: HEIF/HEVC and Most Compatible','Apple: ProRes on iPhone','caniuse: HEVC','W3C WebCodecs codec registry','MDN: containers (QuickTime)']},
+  en:{
+   answer:'MOV is Apple\'s QuickTime container, and whether it becomes a GIF depends on the video codec inside. An iPhone set to Most Compatible records H.264, which browsers decode widely; the default High Efficiency setting records HEVC, which only some browsers and devices decode; ProRes, recorded by Pro iPhones and used by cameras and editors, is not a codec browsers decode. Nerulio reads the MOV container itself, so a MOV your browser will not preview can still work when its codec is decodable.',
+   concept:{title:'Why the same .mov works on one computer and fails on another',body:[
+    'A .mov file is a QuickTime container. MDN lists QuickTime as a format that only older Safari played in the browser, but Nerulio does not rely on the browser for the container: Mediabunny reads the MOV structure itself and hands the compressed frames to WebCodecs. What decides success is the video codec.',
+    'The WebCodecs codec registry defines AV1, H.264 (AVC), HEVC, VP8 and VP9 for video. H.264 is decoded widely. HEVC is uneven: caniuse lists partial support in Chrome from version 107 and Firefox from 137 and full support in Safari from 13, and MDN notes that Chrome relies on hardware support on Windows. ProRes is not in the registry, so a ProRes MOV cannot be turned into a GIF in a browser.',
+    'Apple\'s camera setting decides the codec of new iPhone videos: Settings › Camera › Formats › Most Compatible records H.264 instead of HEVC. Apple also notes that when you share HEVC media, it may be sent in a more compatible format such as H.264 if the receiving device lacks support.'],
+    terms:[['QuickTime (MOV)','Apple\'s container format, the ancestor of the MP4 box structure, allowing more codecs.'],['HEVC (H.265)','The video codec of iPhones set to High Efficiency; decoding depends on the browser and hardware.'],['ProRes','Apple\'s editing codec; Pro iPhones can record it, and Apple says ProRes files are up to 30 times larger than HEVC.']]},
+   example:{title:'Example: read the codec before you start',lead:'FFmpeg\'s ffprobe prints a MOV\'s video codec in one command:',lines:[
+    '$ ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of default=nw=1 IMG_0420.MOV',
+    'codec_name=hevc',
+    'width=1920',
+    'height=1080',
+    'h264 → works · hevc → only where the browser decodes HEVC · prores → not in browsers',
+    'GIF at 480 px, 15 fps, 5 s → 480 × 270 × 75 = 9.7 million bytes of index data'],
+    after:'Without ffprobe, open the file here: if it opens (duration and size shown) but the GIF stops with a decoder error, the codec is the problem, not the file.'},
+   mapping:{title:'MOV codecs and what happens',head:['Inside the MOV','Where it comes from','GIF in the browser'],rows:[
+    ['H.264 video','iPhone set to Most Compatible','Works'],
+    ['HEVC video','iPhone default (High Efficiency)','Works only where the browser and device decode HEVC'],
+    ['ProRes video','Pro iPhones with Apple ProRes on, cameras, editing exports','Not decodable in browsers'],
+    ['Audio track (AAC or PCM)','Most MOVs','Ignored; a GIF has no sound']]},
+   verify:{steps:[
+    'Open the MOV: the file line should show dimensions and duration even if the preview stays black.',
+    'Wait for the size estimate: it decodes three real frames, so an estimate appearing means the codec decodes in this browser.',
+    'Check that the GIF is upright: iPhone portrait clips carry a rotation flag that Nerulio applies.']},
+   trouble:{rows:[
+    ['The preview stays black but the file opened','The browser\'s own player does not play this MOV, while Nerulio\'s reader can','The file line shows duration and size','Try the GIF anyway; if it stops with a decoder error, see the next rows'],
+    ['Decoder error on an iPhone clip','HEVC video in a browser or on a device without an HEVC decoder','ffprobe shows codec_name=hevc','Try another browser or device, set the iPhone to Most Compatible for new clips, or share the clip in a compatible format first'],
+    ['Decoder error on a large MOV from a camera or editor','ProRes video, which browsers do not decode','ffprobe shows codec_name=prores','Export an H.264 MP4 or MOV from the editor first'],
+    ['Colours look flat compared with the Photos app','An HDR recording is converted to 8-bit when it is drawn, and the browser decides how','Check whether the clip was recorded in HDR','Record in SDR for GIFs, or accept the conversion']]},
+   alternatives:{rows:[
+    ['FFmpeg with `palettegen` and `paletteuse`','HEVC or ProRes MOVs that no browser here decodes, since FFmpeg decodes these codecs itself.'],
+    ['Convert the clip to H.264 first on the Mac or iPhone','When you make many GIFs from HEVC clips: afterwards every browser path works.']]},
+   limits:['ProRes MOVs cannot be converted in a browser.','HEVC works only where the browser and device decode it; Nerulio adds no HEVC decoder.'],
+   versions:{body:['Nerulio\'s media suite (tests/media-browser.mjs) uses H.264 MP4 and VP9 WebM test files; MOV input is not part of it. The MOV behaviour here follows the QuickTime reader in Mediabunny 1.58.1 and the official documentation below: Apple for camera formats and ProRes, caniuse and MDN for HEVC support, and the W3C registry for the codec list.'],sources:['[Apple: Using HEIF or HEVC media on Apple devices](https://support.apple.com/en-us/116944)','[Apple: About Apple ProRes on iPhone](https://support.apple.com/en-us/109041)','[caniuse: HEVC/H.265 video format](https://caniuse.com/hevc)','[W3C: WebCodecs Codec Registry](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ko:{
+   answer:'MOV는 Apple의 QuickTime 컨테이너이고, GIF가 되는지는 안에 든 영상 코덱에 달려 있습니다. `Most Compatible`로 설정한 아이폰은 브라우저가 널리 디코딩하는 H.264로 찍고, 기본값인 `High Efficiency`는 일부 브라우저·기기만 디코딩하는 HEVC로 찍습니다. Pro 아이폰과 카메라·편집기가 쓰는 ProRes는 브라우저가 디코딩하는 코덱이 아닙니다. Nerulio는 MOV 컨테이너를 직접 읽으므로, 브라우저가 미리보기를 못 하는 MOV도 코덱이 디코딩되면 변환할 수 있습니다.',
+   concept:{title:'같은 .mov가 어떤 컴퓨터에서는 되고 어떤 곳에서는 안 되는 이유',body:[
+    '.mov 파일은 QuickTime 컨테이너입니다. MDN은 QuickTime을 예전 Safari만 브라우저에서 재생하던 형식으로 적고 있지만, Nerulio는 컨테이너를 브라우저에 맡기지 않습니다. Mediabunny가 MOV 구조를 직접 읽고 압축된 프레임을 WebCodecs에 넘깁니다. 성공 여부를 가르는 것은 영상 코덱입니다.',
+    'WebCodecs 코덱 레지스트리가 정의하는 영상 코덱은 AV1, H.264(AVC), HEVC, VP8, VP9입니다. H.264는 널리 디코딩됩니다. HEVC는 들쭉날쭉해서, caniuse는 크롬 107부터와 파이어폭스 137부터 부분 지원, 사파리 13부터 전체 지원으로 적고 있고, MDN은 윈도우의 크롬이 하드웨어 지원에 기댄다고 설명합니다. ProRes는 레지스트리에 없으므로 ProRes MOV는 브라우저에서 GIF로 만들 수 없습니다.',
+    '새 아이폰 영상의 코덱은 카메라 설정이 정합니다. `Settings › Camera › Formats`에서 `Most Compatible`을 고르면 HEVC 대신 H.264로 찍습니다. Apple은 HEVC 미디어를 공유할 때 받는 기기가 지원하지 않으면 H.264 같은 호환 형식으로 보내질 수 있다고도 안내합니다.'],
+    terms:[['QuickTime(MOV)','Apple의 컨테이너 형식. MP4 박스 구조의 원형으로, 더 많은 코덱을 허용합니다.'],['HEVC(H.265)','`High Efficiency`로 설정한 아이폰의 영상 코덱. 디코딩은 브라우저와 하드웨어에 달려 있습니다.'],['ProRes','Apple의 편집용 코덱. Pro 아이폰이 기록할 수 있고, Apple에 따르면 ProRes 파일은 HEVC보다 최대 30배 큽니다.']]},
+   example:{title:'예시: 시작하기 전에 코덱 읽기',lead:'FFmpeg의 ffprobe 명령 하나로 MOV의 영상 코덱을 볼 수 있습니다.',lines:[
+    '$ ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of default=nw=1 IMG_0420.MOV',
+    'codec_name=hevc',
+    'width=1920',
+    'height=1080',
+    'h264 → 됨 · hevc → 브라우저가 HEVC를 디코딩할 때만 · prores → 브라우저에서는 안 됨',
+    '480 px, 15 fps, 5초 GIF → 480 × 270 × 75 = 번호 데이터 970만 바이트'],
+    after:'ffprobe가 없다면 여기서 파일을 열어 보세요. 열리는데(길이와 용량 표시) GIF가 디코더 오류로 멈춘다면 파일이 아니라 코덱이 문제입니다.'},
+   mapping:{title:'MOV의 코덱과 결과',head:['MOV 안에','어디서 오나','브라우저에서 GIF'],rows:[
+    ['H.264 영상','`Most Compatible`로 설정한 아이폰','됨'],
+    ['HEVC 영상','아이폰 기본값(`High Efficiency`)','브라우저와 기기가 HEVC를 디코딩할 때만 됨'],
+    ['ProRes 영상','Apple ProRes를 켠 Pro 아이폰, 카메라, 편집기 내보내기','브라우저에서 디코딩 불가'],
+    ['음성 트랙(AAC나 PCM)','대부분의 MOV','무시함. GIF에는 소리가 없음']]},
+   verify:{steps:[
+    'MOV를 여세요. 미리보기가 검게 남아도 파일 줄에 크기와 길이가 나와야 합니다.',
+    '예상 용량이 뜨는지 보세요. 실제 프레임 3장을 디코딩하므로, 예상치가 나오면 이 브라우저에서 코덱이 디코딩된다는 뜻입니다.',
+    'GIF가 똑바로 서 있는지 보세요. 아이폰 세로 영상의 회전 정보를 Nerulio가 적용합니다.']},
+   trouble:{rows:[
+    ['파일은 열렸는데 미리보기가 검음','브라우저 자체 플레이어는 이 MOV를 재생하지 못하지만 Nerulio의 읽기 도구는 읽을 수 있음','파일 줄에 길이와 용량이 나옴','일단 GIF를 만들어 보고, 디코더 오류가 나면 아래 행 참고'],
+    ['아이폰 영상에서 디코더 오류','HEVC 디코더가 없는 브라우저·기기에서 HEVC 영상을 엶','ffprobe에 codec_name=hevc','다른 브라우저·기기를 쓰거나, 새 영상은 `Most Compatible`로 찍거나, 먼저 호환 형식으로 공유하기'],
+    ['카메라·편집기의 큰 MOV에서 디코더 오류','브라우저가 디코딩하지 않는 ProRes 영상','ffprobe에 codec_name=prores','편집기에서 먼저 H.264 MP4나 MOV로 내보내기'],
+    ['사진 앱보다 색이 밋밋함','HDR 녹화는 그릴 때 8비트로 바뀌며 방식은 브라우저가 정함','HDR로 찍었는지 확인','GIF용이면 SDR로 찍거나 변환 결과를 받아들이기']]},
+   alternatives:{rows:[
+    ['`palettegen`·`paletteuse`를 쓰는 FFmpeg','여기 브라우저가 디코딩하지 못하는 HEVC·ProRes MOV. FFmpeg는 이 코덱들을 자체적으로 디코딩합니다.'],
+    ['맥이나 아이폰에서 먼저 H.264로 변환','HEVC 영상으로 GIF를 많이 만들 때. 그 뒤에는 어느 브라우저에서도 됩니다.']]},
+   limits:['ProRes MOV는 브라우저에서 변환할 수 없습니다.','HEVC는 브라우저와 기기가 디코딩할 때만 됩니다. Nerulio가 HEVC 디코더를 따로 더하지 않습니다.'],
+   versions:{body:['Nerulio의 미디어 테스트(tests/media-browser.mjs)는 H.264 MP4와 VP9 WebM 파일을 쓰며, MOV 입력은 포함하지 않습니다. 여기의 MOV 동작은 Mediabunny 1.58.1의 QuickTime 읽기와 아래 공식 문서를 따릅니다. 카메라 형식과 ProRes는 Apple, HEVC 지원은 caniuse와 MDN, 코덱 목록은 W3C 레지스트리입니다.'],sources:['[Apple: Apple 기기에서 HEIF 또는 HEVC 미디어 사용하기](https://support.apple.com/en-us/116944)','[Apple: iPhone의 Apple ProRes](https://support.apple.com/en-us/109041)','[caniuse: HEVC/H.265](https://caniuse.com/hevc)','[W3C: WebCodecs 코덱 레지스트리](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ja:{
+   answer:'MOVはAppleのQuickTimeコンテナで、GIFにできるかは中の映像コーデック次第です。`Most Compatible`にしたiPhoneは、ブラウザが広くデコードできるH.264で記録し、既定の`High Efficiency`は一部のブラウザと端末しかデコードできないHEVCで記録します。ProiPhoneやカメラ、編集ソフトが使うProResは、ブラウザがデコードするコーデックではありません。NerulioはMOVのコンテナを自分で読むので、ブラウザがプレビューできないMOVでも、コーデックがデコードできれば変換できます。',
+   concept:{title:'同じ.movがあるパソコンでは動き、別の環境では失敗する理由',body:[
+    '.movファイルはQuickTimeのコンテナです。MDNはQuickTimeを、ブラウザでは古いSafariだけが再生していた形式として挙げていますが、Nerulioはコンテナをブラウザに任せません。MediabunnyがMOVの構造を自分で読み、圧縮されたフレームをWebCodecsに渡します。成否を分けるのは映像コーデックです。',
+    'WebCodecsのコーデックレジストリが定める映像コーデックは、AV1、H.264（AVC）、HEVC、VP8、VP9です。H.264は広くデコードできます。HEVCはまちまちで、caniuseはChromeで107から、Firefoxで137から部分対応、Safariで13から完全対応としており、MDNはWindowsのChromeがハードウェアの対応に頼ると説明しています。ProResはレジストリにないため、ProResのMOVはブラウザではGIFにできません。',
+    '新しいiPhoneの動画のコーデックはカメラの設定で決まります。`Settings › Camera › Formats`で`Most Compatible`を選ぶと、HEVCではなくH.264で記録します。AppleはHEVCのメディアを共有するとき、受け取る端末が非対応ならH.264などの互換性の高い形式で送られることがあるとも案内しています。'],
+    terms:[['QuickTime（MOV）','Appleのコンテナ形式。MP4のボックス構造の原型で、より多くのコーデックを許します。'],['HEVC（H.265）','`High Efficiency`にしたiPhoneの映像コーデック。デコードはブラウザとハードウェア次第です。'],['ProRes','Appleの編集用コーデック。Pro iPhoneで記録でき、AppleによればProResのファイルはHEVCの最大30倍の大きさです。']]},
+   example:{title:'例：始める前にコーデックを調べる',lead:'FFmpegのffprobeなら、1つのコマンドでMOVの映像コーデックが分かります。',lines:[
+    '$ ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of default=nw=1 IMG_0420.MOV',
+    'codec_name=hevc',
+    'width=1920',
+    'height=1080',
+    'h264 → 可 · hevc → ブラウザがHEVCをデコードできる場合のみ · prores → ブラウザでは不可',
+    '480 px、15 fps、5秒のGIF → 480 × 270 × 75 = 番号データ970万バイト'],
+    after:'ffprobeがなければ、ここでファイルを開いてみてください。開けて（長さと容量が表示される）GIFがデコーダーのエラーで止まるなら、問題はファイルではなくコーデックです。'},
+   mapping:{title:'MOVのコーデックと結果',head:['MOVの中身','どこで作られるか','ブラウザでのGIF'],rows:[
+    ['H.264の映像','`Most Compatible`にしたiPhone','可'],
+    ['HEVCの映像','iPhoneの既定（`High Efficiency`）','ブラウザと端末がHEVCをデコードできる場合のみ可'],
+    ['ProResの映像','Apple ProResをオンにしたPro iPhone、カメラ、編集ソフトの書き出し','ブラウザではデコード不可'],
+    ['音声トラック（AACやPCM）','ほとんどのMOV','無視。GIFに音はない']]},
+   verify:{steps:[
+    'MOVを開きます。プレビューが黒いままでも、ファイルの行に解像度と長さが出るはずです。',
+    '予想容量が出るのを待ちます。実際のフレーム3枚をデコードするので、予想が出ればこのブラウザでコーデックがデコードできています。',
+    'GIFが正しい向きか確認します。iPhoneの縦向き動画の回転情報をNerulioが適用します。']},
+   trouble:{rows:[
+    ['ファイルは開けたがプレビューが黒い','ブラウザ自身のプレーヤーはこのMOVを再生できないが、Nerulioの読み込み側は読める','ファイルの行に長さと容量が出る','とりあえずGIFを作り、デコーダーのエラーが出たら下の行を参照'],
+    ['iPhoneの動画でデコーダーのエラー','HEVCデコーダーのないブラウザや端末でHEVCの映像を開いた','ffprobeでcodec_name=hevc','別のブラウザや端末を使う、新しい動画は`Most Compatible`で撮る、または先に互換形式で共有する'],
+    ['カメラや編集ソフトの大きなMOVでデコーダーのエラー','ブラウザがデコードしないProResの映像','ffprobeでcodec_name=prores','編集ソフトから先にH.264のMP4かMOVで書き出す'],
+    ['写真アプリより色が平板','HDRの録画は描画時に8ビットへ変換され、方法はブラウザが決める','HDRで撮影したか確認','GIF用ならSDRで撮るか、変換結果を受け入れる']]},
+   alternatives:{rows:[
+    ['`palettegen`と`paletteuse`を使うFFmpeg','ここのブラウザがデコードできないHEVCやProResのMOV。FFmpegはこれらのコーデックを自前でデコードします。'],
+    ['MacやiPhoneで先にH.264に変換する','HEVCの動画からGIFをたくさん作るとき。その後はどのブラウザでも動きます。']]},
+   limits:['ProResのMOVはブラウザでは変換できません。','HEVCはブラウザと端末がデコードできる場合だけです。NerulioがHEVCデコーダーを追加することはありません。'],
+   versions:{body:['Nerulioのメディアテスト（tests/media-browser.mjs）はH.264のMP4とVP9のWebMを使っており、MOVの入力は含みません。ここでのMOVの動作は、Mediabunny 1.58.1のQuickTime読み込みと以下の公式ドキュメントに基づきます。カメラの形式とProResはApple、HEVCの対応はcaniuseとMDN、コーデックの一覧はW3Cのレジストリです。'],sources:['[Apple：AppleデバイスでHEIFまたはHEVCメディアを使う](https://support.apple.com/en-us/116944)','[Apple：iPhoneのApple ProRes](https://support.apple.com/en-us/109041)','[caniuse：HEVC/H.265](https://caniuse.com/hevc)','[W3C：WebCodecsコーデックレジストリ](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  }
+ },
+ 'video/webm-to-gif':{
+  type:'tool',
+  intent:{primary:'convert a WebM video to a GIF',secondary:['screen recording WebM to GIF','VP9 or AV1 WebM','transparent WebM to GIF'],
+   goal:'a GIF from a WebM section with the right length, knowing that transparency is not kept',input:'WebM (VP8, VP9 or AV1 video; Opus or Vorbis audio)',output:'animated GIF (<name>.gif)',support:'full',
+   evidence:['src/media-modern-worker.js inspect (computeDuration from packets), gifPass (gifenc writeFrame without transparent index)','assets/vendor/mediabunny-1.58.1/src/input.ts computeDuration vs getDurationFromMetadata','tests/media-browser.mjs (60 fps VP9 WebM without audio decodes)'],
+   external:['MDN: WebM codecs, VP9 mandated by WebM','caniuse: AV1']},
+  en:{
+   answer:'A WebM holds VP8, VP9 or AV1 video with Opus or Vorbis audio. Nerulio decodes the video with your browser\'s WebCodecs decoder and writes a GIF from the section you choose. VP8 and VP9 are widely decoded in Chrome, Edge and Firefox; AV1 depends more on the browser and device. Nerulio measures the duration from the packets rather than trusting the header, which matters for WebM written by live recorders. A WebM\'s transparency does not carry over: every GIF frame is opaque.',
+   concept:{title:'VP8, VP9, AV1, and what a WebM GIF keeps',body:[
+    'WebM is a Matroska-based container restricted to open codecs: VP8, VP9 or AV1 for video and Opus or Vorbis for audio. MDN describes VP9 and VP8 as the two video codecs WebM mandates; AV1 was added later, and its decoding depends more on the browser and device. Nerulio uses the video track only.',
+    'Nerulio computes the length from the last packets in the file instead of trusting the header, which matters for WebM written by live recorders such as browser screen capture, where the header value can be missing. The timeline and the default 6-second section then use the real length.',
+    'VP8 and VP9 can carry an alpha channel for transparent video. GIF can only mark one palette colour as fully transparent, and Nerulio\'s GIF writer does not use that, so transparent areas become opaque. For animation with transparency, keep the WebM or export a PNG sequence from the tool that made it.'],
+    terms:[['Matroska','The container WebM is based on; WebM limits it to web codecs.'],['VP9','An open, royalty-free video codec, one of the two WebM mandates.'],['Alpha channel','Per-pixel transparency; VP8 and VP9 in WebM can carry it, GIF only on/off transparency.']]},
+   example:{title:'Example: a 60 fps screen recording in WebM',lead:'6 seconds of a 1280 × 720 recording at 640 px and 24 fps:',lines:[
+    'Source        1280 × 720 VP9, 60 fps, Opus audio, 20 s',
+    'Section       8.0 → 14.0 s (6 s)',
+    'Frames        6 s × 24 fps = 144 frames at 640 × 360 px (one source frame in 2.5)',
+    'Delays        40 or 50 ms: 12 frames = 500 ms, a 24 fps average',
+    'Index data    640 × 360 × 144 = 33.2 million bytes before LZW',
+    'Flat UI       interface colours fit a 256-colour palette; leave dithering off'],
+    after:'For screen recordings, a narrower width or 15 fps does more for the size than fewer colours, because flat interface colours already fit the palette.'},
+   mapping:{title:'From the WebM to the GIF',head:['In the WebM','In Nerulio','In the GIF'],rows:[
+    ['VP8, VP9 or AV1 video','Decoded with WebCodecs','Palette frames of up to 256 colours'],
+    ['Duration in the header (may be missing)','Measured from the packets','Correct timeline and section'],
+    ['Alpha channel','Not used by the GIF writer','Opaque frames'],
+    ['Opus or Vorbis audio','Not read','No sound']]},
+   verify:{steps:[
+    'After opening, check that the length on the timeline matches the recording.',
+    'Check the frame count and the size estimate before running.',
+    'For a transparent WebM, view the GIF on a light and a dark background: it will be opaque.']},
+   trouble:{rows:[
+    ['Decoder error on an AV1 WebM','This browser or device has no AV1 decoder','ffprobe shows codec_name=av1','Use a browser that decodes AV1, or record in VP9'],
+    ['A transparent background came out solid','The GIF writer here uses no transparent colour','—','Keep the WebM, or export a PNG sequence from the original tool'],
+    ['Small text in a screen recording is fuzzy','Scaling 1280 px down to 480 px blurs small text','Compare at 100 %','Choose the original width, or crop to the part that matters and lower the fps instead'],
+    ['The GIF is much bigger than the WebM','VP9 compresses the changes between frames; GIF stores every frame whole','Compare the two sizes','Keep the WebM where it plays; for the GIF, shorten the section or lower the fps']]},
+   alternatives:{rows:[
+    ['Keep the WebM','Browsers play WebM directly; it is smaller and keeps transparency and sound.'],
+    ['FFmpeg with `palettegen` and `paletteuse`','Scripts, batches, and one palette for the whole clip.']]},
+   limits:['No transparent GIF output.','An AV1 WebM needs a browser with an AV1 decoder.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155: a 60 fps VP9 WebM without audio was decoded and re-encoded at 60 fps without an invented audio track. GIF encoding is gifenc 1.0.3. WebM codec facts follow MDN; AV1 browser support is from caniuse.'],sources:['[MDN: Media container formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[MDN: Web video codec guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)','[caniuse: AV1 video format](https://caniuse.com/av1)']}
+  },
+  ko:{
+   answer:'WebM에는 VP8·VP9·AV1 영상과 Opus·Vorbis 음성이 들어 있습니다. Nerulio는 브라우저의 WebCodecs 디코더로 영상을 디코딩해 고른 구간으로 GIF를 만듭니다. VP8·VP9는 크롬·엣지·파이어폭스에서 널리 디코딩되고, AV1은 브라우저와 기기에 더 많이 좌우됩니다. 헤더를 믿지 않고 패킷에서 길이를 재므로 실시간 녹화기가 쓴 WebM에서도 길이가 맞습니다. WebM의 투명도는 옮겨지지 않아 모든 GIF 프레임이 불투명합니다.',
+   concept:{title:'VP8·VP9·AV1, 그리고 WebM GIF에 남는 것',body:[
+    'WebM은 Matroska 기반 컨테이너로, 공개 코덱만 씁니다. 영상은 VP8·VP9·AV1, 음성은 Opus·Vorbis입니다. MDN은 VP9와 VP8을 WebM이 의무로 정한 두 영상 코덱이라고 설명하며, AV1은 나중에 더해졌고 디코딩이 브라우저와 기기에 더 좌우됩니다. Nerulio는 영상 트랙만 씁니다.',
+    'Nerulio는 헤더 값을 믿지 않고 파일 끝의 패킷에서 길이를 계산합니다. 브라우저 화면 녹화처럼 실시간 녹화기가 쓴 WebM은 헤더 값이 빠져 있을 수 있어서 중요합니다. 타임라인과 기본 6초 구간은 실제 길이를 씁니다.',
+    'VP8·VP9는 투명 영상을 위한 알파 채널을 담을 수 있습니다. GIF는 팔레트 색 하나만 완전 투명으로 표시할 수 있는데, Nerulio의 GIF 작성기는 이를 쓰지 않으므로 투명한 부분이 불투명해집니다. 투명한 애니메이션이 필요하면 WebM을 그대로 쓰거나 만든 도구에서 PNG 시퀀스로 내보내세요.'],
+    terms:[['Matroska','WebM의 바탕이 된 컨테이너. WebM은 이를 웹 코덱으로 한정합니다.'],['VP9','공개·무료 영상 코덱으로, WebM이 의무로 정한 둘 중 하나.'],['알파 채널','픽셀별 투명도. WebM의 VP8·VP9는 담을 수 있고, GIF는 켜고 끄는 투명만 있습니다.']]},
+   example:{title:'예시: 60fps 화면 녹화 WebM',lead:'1280 × 720 녹화 6초를 640 px·24fps로:',lines:[
+    '원본          1280 × 720 VP9, 60 fps, Opus 음성, 20 s',
+    '구간          8.0 → 14.0 s (6 s)',
+    '프레임        6 s × 24 fps = 640 × 360 px 144 프레임(원본 2.5 프레임 중 하나)',
+    '지연          40 또는 50 ms: 12 프레임 = 500 ms, 평균 24 fps',
+    '번호 데이터   640 × 360 × 144 = LZW 전 3,320만 바이트',
+    '평평한 UI     인터페이스 색은 256색 팔레트에 들어감. 디더링은 끄기'],
+    after:'화면 녹화라면 색 수를 줄이기보다 폭을 좁히거나 15fps로 하는 편이 용량에 더 효과적입니다. 평평한 인터페이스 색은 이미 팔레트에 들어가기 때문입니다.'},
+   mapping:{title:'WebM에서 GIF로',head:['WebM에서','Nerulio에서','GIF에서'],rows:[
+    ['VP8·VP9·AV1 영상','WebCodecs로 디코딩','최대 256색 팔레트 프레임'],
+    ['헤더의 길이(빠져 있을 수 있음)','패킷에서 잼','올바른 타임라인과 구간'],
+    ['알파 채널','GIF 작성기가 쓰지 않음','불투명 프레임'],
+    ['Opus·Vorbis 음성','읽지 않음','소리 없음']]},
+   verify:{steps:[
+    '파일을 연 뒤 타임라인의 길이가 녹화 길이와 맞는지 확인하세요.',
+    '실행 전에 프레임 수와 예상 용량을 확인하세요.',
+    '투명 WebM이었다면 GIF를 밝은 배경과 어두운 배경에서 보세요. 불투명하게 나옵니다.']},
+   trouble:{rows:[
+    ['AV1 WebM에서 디코더 오류','이 브라우저·기기에 AV1 디코더가 없음','ffprobe에 codec_name=av1','AV1을 디코딩하는 브라우저를 쓰거나 VP9로 녹화'],
+    ['투명 배경이 단색으로 나옴','여기 GIF 작성기는 투명 색을 쓰지 않음','—','WebM을 그대로 쓰거나 원래 도구에서 PNG 시퀀스로 내보내기'],
+    ['화면 녹화의 작은 글씨가 흐림','1280 px를 480 px로 줄이면 작은 글씨가 뭉개짐','100 %로 비교','원본 폭을 고르거나, 중요한 부분만 자르고 대신 fps를 낮추기'],
+    ['GIF가 WebM보다 훨씬 큼','VP9는 프레임 사이 변화만 압축하지만 GIF는 프레임을 통째로 저장','두 용량 비교','재생되는 곳이면 WebM을 쓰고, GIF는 구간을 줄이거나 fps를 낮추기']]},
+   alternatives:{rows:[
+    ['WebM 그대로 쓰기','브라우저는 WebM을 바로 재생합니다. 더 작고 투명도와 소리도 유지됩니다.'],
+    ['`palettegen`·`paletteuse`를 쓰는 FFmpeg','스크립트, 일괄 작업, 클립 전체에 팔레트 하나.']]},
+   limits:['투명 GIF는 만들지 않습니다.','AV1 WebM은 AV1 디코더가 있는 브라우저가 필요합니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 확인했습니다. 음성 없는 60fps VP9 WebM을 디코딩해 60fps로 다시 인코딩했고, 없는 음성 트랙을 만들어 내지 않았습니다. GIF 인코딩은 gifenc 1.0.3입니다. WebM 코덱 내용은 MDN, AV1 브라우저 지원은 caniuse를 따랐습니다.'],sources:['[MDN: 미디어 컨테이너 형식](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[MDN: 웹 영상 코덱 안내](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)','[caniuse: AV1](https://caniuse.com/av1)']}
+  },
+  ja:{
+   answer:'WebMにはVP8・VP9・AV1の映像と、Opus・Vorbisの音声が入っています。NerulioはブラウザのWebCodecsデコーダーで映像をデコードし、選んだ区間からGIFを作ります。VP8とVP9はChrome・Edge・Firefoxで広くデコードでき、AV1はブラウザと端末にもっと左右されます。ヘッダーを信用せずパケットから長さを測るので、リアルタイムの録画ツールが書いたWebMでも長さが合います。WebMの透明はGIFに引き継がれず、すべてのフレームが不透明になります。',
+   concept:{title:'VP8・VP9・AV1と、WebMのGIFに残るもの',body:[
+    'WebMはMatroskaをもとにしたコンテナで、オープンなコーデックだけを使います。映像はVP8・VP9・AV1、音声はOpus・Vorbisです。MDNはVP9とVP8をWebMが必須とする2つの映像コーデックと説明しており、AV1は後から加わり、デコードはブラウザと端末にもっと左右されます。Nerulioが使うのは映像トラックだけです。',
+    'Nerulioはヘッダーの値を信用せず、ファイル末尾のパケットから長さを計算します。ブラウザの画面録画のようなリアルタイムの録画ツールが書いたWebMでは、ヘッダーの値が欠けていることがあるため重要です。タイムラインと既定の6秒の区間は実際の長さを使います。',
+    'VP8とVP9は、透明な動画のためのアルファチャンネルを持てます。GIFはパレットの1色を完全な透明にできるだけで、NerulioのGIF書き出しはそれを使わないため、透明な部分は不透明になります。透明なアニメーションが必要なら、WebMのまま使うか、作ったツールから連番PNGで書き出してください。'],
+    terms:[['Matroska','WebMのもとになったコンテナ。WebMはWeb向けのコーデックに限定しています。'],['VP9','オープンでロイヤリティフリーの映像コーデック。WebMが必須とする2つのうちの1つ。'],['アルファチャンネル','画素ごとの透明度。WebMのVP8・VP9は持てますが、GIFは透明のオン・オフだけです。']]},
+   example:{title:'例：60fpsの画面録画のWebM',lead:'1280 × 720の録画6秒を640 px・24fpsで：',lines:[
+    '元の動画      1280 × 720 VP9、60 fps、Opus音声、20 s',
+    '区間          8.0 → 14.0 s（6 s）',
+    'フレーム      6 s × 24 fps = 640 × 360 pxで144フレーム（元の2.5フレームに1つ）',
+    '遅延          40または50 ms：12フレーム = 500 ms、平均24 fps',
+    '番号データ    640 × 360 × 144 = LZW前で3,320万バイト',
+    '平坦なUI      画面の色は256色のパレットに収まる。ディザリングはオフ'],
+    after:'画面録画では、色数を減らすより幅を狭めたり15fpsにしたりするほうが容量に効きます。平坦な画面の色はすでにパレットに収まっているからです。'},
+   mapping:{title:'WebMからGIFへ',head:['WebMの中','Nerulioで','GIFでは'],rows:[
+    ['VP8・VP9・AV1の映像','WebCodecsでデコード','最大256色のパレットフレーム'],
+    ['ヘッダーの長さ（欠けていることがある）','パケットから測る','正しいタイムラインと区間'],
+    ['アルファチャンネル','GIFの書き出しでは使わない','不透明なフレーム'],
+    ['Opus・Vorbisの音声','読まない','音なし']]},
+   verify:{steps:[
+    '開いたら、タイムラインの長さが録画の長さと合っているか確認します。',
+    '実行前に、フレーム数と予想容量を確認します。',
+    '透明なWebMだった場合は、GIFを明るい背景と暗い背景で見ます。不透明になっています。']},
+   trouble:{rows:[
+    ['AV1のWebMでデコーダーのエラー','このブラウザや端末にAV1デコーダーがない','ffprobeでcodec_name=av1','AV1をデコードできるブラウザを使うか、VP9で録画する'],
+    ['透明な背景がべた塗りになった','ここのGIF書き出しは透明色を使わない','—','WebMのまま使うか、元のツールから連番PNGで書き出す'],
+    ['画面録画の小さな文字がぼやける','1280 pxを480 pxに縮めると小さな文字がつぶれる','100 %で比べる','元の幅を選ぶか、必要な部分だけ切り抜き、代わりにfpsを下げる'],
+    ['GIFがWebMよりずっと大きい','VP9はフレーム間の変化を圧縮するが、GIFはフレームを丸ごと保存する','2つの容量を比べる','再生できる場所ならWebMを使い、GIFは区間を短くするかfpsを下げる']]},
+   alternatives:{rows:[
+    ['WebMのまま使う','ブラウザはWebMをそのまま再生できます。小さく、透明も音声も保てます。'],
+    ['`palettegen`と`paletteuse`を使うFFmpeg','スクリプト、一括処理、クリップ全体で1つのパレット。']]},
+   limits:['透過GIFは書き出しません。','AV1のWebMにはAV1デコーダーのあるブラウザが必要です。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。音声なしの60fps VP9のWebMをデコードして60fpsで再エンコードし、存在しない音声トラックを作りませんでした。GIFのエンコードはgifenc 1.0.3です。WebMのコーデックはMDN、AV1のブラウザー対応はcaniuseに基づきます。'],sources:['[MDN：メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[MDN：Web動画コーデックガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)','[caniuse：AV1](https://caniuse.com/av1)']}
   }
  }
 };
