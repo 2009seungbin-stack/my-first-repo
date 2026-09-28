@@ -278,15 +278,14 @@ export async function searchEntities(db,q,o={}){
  const add=(/** @type {string} */ id,/** @type {number} */ s,/** @type {number} */ t)=>{score.set(id,Math.max(score.get(id)||0,s));if(t>=0){let h=hits.get(id);if(!h)hits.set(id,h=new Set());h.add(t);}};
  /** Alias prefix (an index range: LIKE cannot use the BINARY index on norm) plus the trigram index. */
  const match=async(/** @type {string} */ norm,/** @type {string} */ phrase,/** @type {number} */ w,/** @type {number} */ t)=>{
-  for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60`,[norm,norm+'\u{10FFFF}']))add(String(r.entity_id),w*(r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length)),t);
-  if([...phrase].length>=3){
-   try{for(const [i,r] of (await all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,['"'+phrase.replace(/"/g,'""')+'"'])).entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),w*(40-Math.min(39,i*0.5)),t);}}catch{}
-  }
+  const [prefix,fts]=await Promise.all([all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60`,[norm,norm+'\u{10FFFF}']),
+   [...phrase].length>=3?all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,['"'+phrase.replace(/"/g,'""')+'"']).catch(()=>[]):Promise.resolve([])]);
+  for(const r of prefix)add(String(r.entity_id),w*(r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length)),t);
+  for(const [i,r] of fts.entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),w*(40-Math.min(39,i*0.5)),t);}
  };
- await match(whole,String(q).trim(),1,-1);
- // Several words: each word on its own too ("5070 4070" → both cards, "caves qud" → Caves of Qud);
- // a channel that matches more of the words ranks higher.
- if(tokens.length>1)for(const [t,w] of tokens.entries())if([...w].length>=2)await match(w,w,0.6,t);
+ // The whole query, and with several words each word on its own too ("5070 4070" → both cards,
+ // "caves qud" → Caves of Qud); a channel that matches more of the words ranks higher. In parallel.
+ await Promise.all([match(whole,String(q).trim(),1,-1),...(tokens.length>1?[...tokens.entries()].filter(([,w])=>[...w].length>=2).map(([t,w])=>match(w,w,0.6,t)):[])]);
  for(const [id,h] of hits)if(h.size>1)score.set(id,(score.get(id)||0)+15*(h.size-1));
  // A Korean patch's name is often the only Korean name of its game ("테라리아 한글패치"): the game
  // itself ranks just above its patch.
