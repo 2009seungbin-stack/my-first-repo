@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {estimateTempo,estimateKey,fft} from '../src/audio-lab/analysis.js';
 import {edit,loudness,normalize,shift,silenceBounds,validateAudio} from '../src/audio-lab/dsp.js';
+import {encodeWav} from '../src/audio-lab/encode.js';
 const sr=22050;
 function music(bpm=120,seconds=16){const out=new Float32Array(sr*seconds),freqs=[[261.63,329.63,392],[349.23,440,523.25],[392,493.88,587.33],[261.63,329.63,392]];
  for(let i=0;i<out.length;i++){const t=i/sr,beat=Math.floor(t*bpm/60),phase=(t*bpm/60)%1,chord=freqs[Math.floor(t/4)%4],click=phase<.012?(.4*(1-phase/.012)*Math.sin(2*Math.PI*1800*t))*(beat%4===0?1.2:1):0;out[i]=.12*chord.reduce((a,f)=>a+Math.sin(2*Math.PI*f*t),0)+click;}return out;}
@@ -15,3 +16,4 @@ test('speed changes length while preserving a steady tone',()=>{const out=shift(
 test('pitch raises a tone without changing length',()=>{const out=shift([tone()],{speed:1,semitones:12})[0];assert.ok(Math.abs(out.length/sr-2)<.001);assert.ok(Math.abs(frequency(out.subarray(4000,15000),sr)-880)<15);});
 test('trim, silence bounds and fades are explicit',()=>{const x=new Float32Array(sr*2);x.set(tone(440,1),sr/2);const bound=silenceBounds([x],sr,{padMs:0});assert.ok(Math.abs(bound.start/sr-.5)<.02);assert.ok(Math.abs(bound.end/sr-1.5)<.02);const y=edit([x],sr,{start:0,end:2,removeSilence:true,fadeIn:.1,fadeOut:.1})[0];assert.ok(Math.abs(y.length/sr-1)<.05);assert.equal(y[0],0);assert.ok(Math.abs(y.at(-1))<1e-4);});
 test('LUFS meter is finite, silent material is unmeasurable, normalization limits peak',()=>{const x=tone(440,2),m=loudness([x],sr);assert.ok(Number.isFinite(m.integrated));assert.equal(loudness([new Float32Array(sr)],sr).integrated,null);const n=normalize([x],sr,{targetLufs:-14,ceilingDb:-1});assert.ok(n.after.integrated>m.integrated);assert.ok(Math.abs(n.after.integrated+14)<.2);assert.ok(n.channels[0].every(Number.isFinite));assert.ok(n.channels[0].reduce((a,v)=>Math.max(a,Math.abs(v)),0)<=10**(-1/20)+1e-6);});
+test('WAV output has independently readable PCM header and exact frames',()=>{const bytes=encodeWav([tone(440,1)],sr),d=new DataView(bytes.buffer);assert.equal(String.fromCharCode(...bytes.slice(0,4)),'RIFF');assert.equal(d.getUint32(4,true),bytes.length-8);assert.equal(d.getUint16(20,true),1);assert.equal(d.getUint32(24,true),sr);assert.equal(d.getUint32(40,true),sr*2);assert.ok(d.getInt16(44+Math.floor(sr/4)*2,true)>-32768);});
