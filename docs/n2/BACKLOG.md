@@ -29,11 +29,11 @@ AI, 한글패치 and GPU channels first, facts before boards, legal basics befor
 8. [x] Post page: best comment id duplicate, cross-locale canonical, sign-in `?return=` — AUDIT runners-up (S)
 9. [x] Security headers on SSR responses, `form-action 'self'` for n2 forms in ad builds — AUDIT 11 (S)
 10. [x] GPU local-LLM page `/{l}/hardware/{gpu}/local-llm` (estimate vs measured) + benchmark report form — COMPETITORS #8, #9 (M)
-11. [ ] Board: 념글 tabs today/week/month; per-channel best threshold — COMPETITORS #6 (S)
+11. [x] Board: 념글 tabs today/week/month; per-channel best threshold — COMPETITORS #6 (S)
 12. [x] Tool ↔ channel mapping fix (labs on Godot/Blender, not on every game) — AUDIT 14 (S)
 13. [x] Structured data per type (Event, BreadcrumbList, SoftwareApplication, Product) — AUDIT 12, MARKET #5 (M)
 14. [x] Model price history table on AI channels (official USD only; KRW as note) — COMPETITORS #10, MARKET #1 (S)
-15. [ ] Korean name backfill + validator warning for missing ko names (69 % of entities lack one) — AUDIT 18 (L)
+15. [~] Korean name backfill + validator warning for missing ko names (69 % of entities lack one) — AUDIT 18 (L). `validate-seed --korean` reports coverage; search now finds games through their Korean patch names. The backfill itself needs sourced names (steam-store collector, Laftel) — not invented.
 16. [x] `tsconfig.json` + `tsc --noEmit` in CI; `NERULIO_2_SCHEMA.md`, `NERULIO_2_MIGRATION_PLAN.md` — AUDIT 25 (S)
 
 ## Also done tonight
@@ -42,6 +42,17 @@ AI, 한글패치 and GPU channels first, facts before boards, legal basics befor
 - [x] Collectors on GitHub Actions → D1 REST with run health (off until the owner enables it)
 - [x] My Radar + unread count; moderation queue (임시조치/복구/기각/제한, action log)
 - [x] Seed export for D1 + `NERULIO_2_MIGRATION_PLAN.md`
+
+## UX walkthrough fixes (2026-09-29, research/UX-WALKTHROUGH.md)
+- [x] Moderators see and restore hidden content (was a blocker); 신고 flow names its target
+- [x] Compat click = one vote per person, never a post; counts agree
+- [x] Search: several words, Korean names via patches, intent shortcuts (장애 / 가격 / 로컬)
+- [x] AI channel status box shows the user-report spike; cheapest model kept; model table filters
+- [x] Signed-in front box, mobile Radar link, 내 정보 (my posts, sign-out), Radar filter and pre-orders
+- [x] Tables in posts, comment edit, post tag change, 404 page for missing posts, write drafts
+- [x] GPU side-by-side comparison (`?type=gpu&vs=a,b`)
+- [ ] KRW approximation of USD plan prices (needs a sourced exchange rate — owner decision)
+- [ ] Korean names for subculture people and goods (data with sources)
 
 ## Later / owner
 - Naver Search Advisor + Google Search Console registration, sitemaps submit (owner)
