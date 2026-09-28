@@ -59,7 +59,8 @@ async function purge(origin,paths){
  const cache=/** @type {any} */(globalThis).caches?.default;if(!cache)return;
  await Promise.all(paths.map(p=>cache.delete(new Request(origin+p)).catch(()=>false)));
 }
-const bothLocales=(/** @type {(l:string)=>string} */ f)=>['ko','en'].map(f);
+/** @template T @param {(l:string)=>T} f @returns {T[]} */
+const bothLocales=f=>['ko','en'].map(f);
 /** Every cached page a post or its channel appears on (both languages): the post, the channel's
  * default board and feed, the community front and 념글. Filtered board views (?sort, ?kind, ?page)
  * expire on their own within a minute. @param {{vertical:string,slug:string}} e @param {number|null} [no] */
@@ -237,9 +238,13 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     if(!await db.prepare(`SELECT 1 FROM ${TABLE[m[1]]} WHERE ${m[1]==='user'?'id':'id'}=?`).bind(m[1]==='wiki_revision'||m[1]==='fact'?Number(m[2])||-1:m[2]).first())throw new ApiError('NOT_FOUND','Nothing to report at this address.',{field:'target'});
     await limit('flag',10);
     // One open flag per reporter and target; repeats update the reason instead of piling up.
-    const open=await db.prepare("SELECT id FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
-    if(open)await db.prepare('UPDATE content_flags SET reason=?,note=? WHERE id=?').bind(body.reason,note,open.id).run();
-    else await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
+    const open=await db.prepare("SELECT id,reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
+    if(open){
+     // Tell the reporter instead of silently replacing the reason they gave before.
+     await db.prepare('UPDATE content_flags SET reason=?,note=COALESCE(?,note) WHERE id=?').bind(body.reason,note,open.id).run();
+     return done({ok:true,updated:true,previousReason:String(open.reason)});
+    }
+    await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
     return done({ok:true},201);
    }
    case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
@@ -370,18 +375,38 @@ async function moderator(db,context){
 }
 /** Staff rank: an action on an account needs a strictly higher rank than the account's. */
 const RANK=/** @type {Record<string,number>} */({user:0,moderator:1,curator:2,admin:3});
-/** Open flags grouped by target, oldest first, with a preview of the flagged text. @param {any} db @param {any} _p */
+/** Open flags grouped by target, oldest first, with a preview of the flagged text; the content
+ * currently hidden (임시조치 중) with the reason it was hidden, so a moderator can restore it; and the
+ * action log. @param {any} db @param {any} _p */
 async function modQueue(db,_p){
- const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,MAX(note) AS note FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
+ const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,GROUP_CONCAT(note,' / ') AS notes FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
  const items=[];
  for(const r of rows){
-  let preview=null,status=null,url=null;
-  if(r.target_kind==='discussion'){const d=await db.prepare('SELECT d.title,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?').bind(r.target_id).first();if(d){preview=d.title;status=d.status;url=postUrl('ko',{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no));}}
-  if(r.target_kind==='comment'){const c=await db.prepare('SELECT body_md,status FROM comments WHERE id=?').bind(r.target_id).first();if(c){preview=String(c.body_md).slice(0,200);status=c.status;}}
-  items.push({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.note??null,preview,status,url});
+  const t=await modTarget(db,String(r.target_kind),String(r.target_id));
+  items.push({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...t});
+ }
+ const hiddenRows=(await db.prepare(`SELECT kind,id,updated_at FROM (SELECT 'discussion' AS kind,id,updated_at FROM discussions WHERE status='hidden' UNION ALL SELECT 'comment',id,updated_at FROM comments WHERE status='hidden') ORDER BY updated_at DESC LIMIT 50`).all()).results||[];
+ const hidden=[];
+ for(const r of hiddenRows){
+  const a=await db.prepare("SELECT reason,created_at FROM moderation_actions WHERE target_kind=? AND target_id=? AND action='hide' ORDER BY id DESC LIMIT 1").bind(r.kind,r.id).first();
+  hidden.push({target:`${r.kind}:${r.id}`,hiddenAt:Number(a?.created_at??r.updated_at),reason:a?.reason??null,...await modTarget(db,String(r.kind),String(r.id))});
  }
  const log=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
- return {items,log};
+ return {items,hidden,log};
+}
+/** What a moderator needs to judge a flagged or hidden target without opening it (a hidden post is
+ * 404 on the public page): title or excerpt, author, status, and the post it belongs to.
+ * @param {any} db @param {string} kind @param {string} id */
+async function modTarget(db,kind,id){
+ if(kind==='discussion'){
+  const d=await db.prepare(`SELECT d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id=?`).bind(id).first();
+  if(d)return {preview:String(d.title),excerpt:String(d.body_md).slice(0,300),status:String(d.status),author:String(d.author),authorId:String(d.author_id),url:postUrl('ko',{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no))};
+ }
+ if(kind==='comment'){
+  const c=await db.prepare(`SELECT c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id=?`).bind(id).first();
+  if(c)return {preview:String(c.body_md).slice(0,200),excerpt:null,status:String(c.status),author:String(c.author),authorId:String(c.author_id),url:postUrl('ko',{vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)),context:String(c.title)};
+ }
+ return {preview:null,excerpt:null,status:null,author:null,authorId:null,url:null};
 }
 const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict']);
 /** Apply one moderator action; always logged in moderation_actions with its reason.

@@ -6,9 +6,9 @@
 const L=document.documentElement.lang==='en'?'en':'ko';
 const T={
  ko:{login:'로그인',needLogin:'로그인하면 참여할 수 있어요. 로그인 페이지로 이동할까요?',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.'},
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
  en:{login:'Sign in',needLogin:'Sign in to take part. Go to the sign-in page?',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.'},
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
 }[L];
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 async function api(path,body){
@@ -25,10 +25,24 @@ function toast(text){
  el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.hidden=true;},2600);
 }
 const loginUrl=()=>`/api/v1/auth/google/start?return=${encodeURIComponent(location.pathname+location.search)}`;
+/** The API's messages are English; Korean pages show these instead (unknown ones fall back to T.error). */
+const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다른 닉네임을 골라 주세요.'],[/^This nickname is reserved/,'사용할 수 없는 닉네임이에요.'],[/^displayName must be (\d+)–(\d+)/,'닉네임은 $1~$2자로 써 주세요.'],
+ [/^(title|body|reason|note) must be (\d+)–(\d+)/,(m,f,a,b)=>`${{title:'제목은',body:'내용은',reason:'사유는',note:'설명은'}[f]} ${a}~${b}자로 써 주세요.`],[/^(\w+) is required/,'필수 항목을 입력해 주세요.'],
+ [/^You cannot vote on your own/,'내 글에는 추천할 수 없어요.'],[/^This account is temporarily restricted/,'이용이 잠시 제한된 계정이에요.'],[/^This account cannot post/,'이 계정은 글을 쓸 수 없어요.'],
+ [/^Comments are closed/,'댓글이 닫힌 글이에요.'],[/^Post not found|^No such post/,'글을 찾을 수 없어요. 삭제되었거나 숨겨졌을 수 있어요.'],[/^The comment you replied to is gone/,'답글을 단 댓글이 사라졌어요.'],
+ [/^This tag cannot be used/,'이 채널에서는 쓸 수 없는 말머리예요.'],[/^Not hidden/,'숨겨진 상태가 아니에요. 새로고침해 주세요.'],[/^Already hidden/,'이미 임시조치된 대상이에요.'],[/^Already deleted/,'작성자가 이미 삭제했어요.'],
+ [/^Only a higher role/,'더 높은 권한만 이 계정을 처리할 수 있어요.'],[/^You cannot moderate your own/,'자기 계정은 처리할 수 없어요.'],[/^This action does not apply/,'이 대상에는 쓸 수 없는 조치예요.'],
+ [/^Only questions have an accepted/,'질문 글만 답변을 채택할 수 있어요.'],[/^Invalid reason/,'사유를 선택해 주세요.'],[/^Nothing to report at this address/,'신고할 대상을 찾을 수 없어요.'],[/^tokens_per_s must be/,'토큰/초는 0~5000 사이로 적어 주세요.'],
+ [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
+function message(m){
+ if(L!=='ko')return m;
+ for(const [re,ko] of KO_ERR){const x=re.exec(m);if(x)return typeof ko==='function'?ko(...x):ko.replace(/\$(\d)/g,(_,i)=>x[i]);}
+ return T.error;
+}
 function explain(res){
  if(res.code==='LOGIN_REQUIRED'){if(confirm(T.needLogin))location.href=loginUrl();return;}
  if(res.code==='RATE_LIMITED')return toast(T.rate);
- if(res.data?.error?.message&&res.status<500)return toast(res.data.error.message);
+ if(res.data?.error?.message&&res.status<500)return toast(message(res.data.error.message));
  toast(T.error);
 }
 /** Run a write; signed-out readers are sent to sign in first. */
@@ -210,7 +224,10 @@ async function main(){
  const ff=$('form[data-island="flag-form"]');
  if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);
   const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
-  if(r){toast(T.thanks);$('button[type="submit"]',ff).disabled=true;}});
+  if(!r)return;
+  const reasons=[...$('select[name="reason"]',ff).options].reduce((o,x)=>(o[x.value]=x.textContent,o),{});
+  toast(r.updated?T.flagUpdated(reasons[r.previousReason]||r.previousReason):T.flagged);$('button[type="submit"]',ff).disabled=true;
+  const back=ff.dataset.back;if(back)setTimeout(()=>{location.href=back;},1600);});
 
  // 내 정보: nickname and followed channels
  const me=$('[data-island="me"]');
@@ -231,17 +248,43 @@ async function main(){
  if(mq&&signedIn){
   const r=await api('/mod/queue');
   if(r.ok){
-   const {items,log}=r.data,ul=$('[data-items]',mq),empty=$('[data-empty]',mq);
-   empty.textContent=items.length?'':(L==='ko'?'열린 신고가 없습니다.':'No open reports.');empty.hidden=!!items.length;
-   const act=async(target,action,label)=>{const reason=prompt(`${label} — ${L==='ko'?'사유':'reason'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok)location.reload();else explain(x);};
-   for(const it of items){
+   const {items,hidden=[],log}=r.data,ko=L==='ko';
+   const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타'}:{};
+   const STATUS=ko?{hidden:'임시조치 중',deleted:'작성자가 삭제',locked:'댓글 잠김'}:{};
+   const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제'}:{};
+   const KIND=ko?{discussion:'글',comment:'댓글',user:'계정'}:{};
+   const when=t=>new Date(t).toLocaleString(ko?'ko-KR':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+   const act=async(target,action,label)=>{const reason=prompt(`${label} — ${ko?'사유(처리 기록에 남습니다)':'reason (kept in the log)'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok){toast(ko?`${label} 처리했어요`:'Done');setTimeout(()=>location.reload(),700);}else explain(x);};
+   /** One row: title (linked while it is public), who wrote it and where, the excerpt, then the actions that apply. */
+   const row=(it,head,actions)=>{
     const li=document.createElement('li');li.className='mq';
-    const t=document.createElement(it.url?'a':'span');t.className='tt';if(it.url)t.href=it.url;t.textContent=`[${it.reasons.join(', ')}] ×${it.count} · ${it.preview||it.target}${it.status&&it.status!=='published'?` (${it.status})`:''}`;
-    li.append(t);
-    for(const [a,lab] of [['hide',L==='ko'?'임시조치':'Hide'],['unhide',L==='ko'?'복구':'Restore'],['dismiss',L==='ko'?'기각':'Dismiss']]){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=lab;b.addEventListener('click',()=>act(it.target,a,lab));li.append(b);}
-    ul.append(li);
+    const top=document.createElement('p');top.className='mqh';
+    const tag=document.createElement('span');tag.className='mqt';tag.textContent=head;top.append(tag);
+    const t=document.createElement(it.url&&it.status!=='hidden'?'a':'b');t.className='tt';if(it.url&&it.status!=='hidden')t.href=it.url;
+    t.textContent=it.preview||it.target;top.append(' ',t);li.append(top);
+    const meta=[`${KIND[it.target.split(':')[0]]||it.target.split(':')[0]}`,it.author&&(ko?`작성 ${it.author}`:`by ${it.author}`),it.context&&(ko?`「${it.context}」의 댓글`:`on “${it.context}”`),it.status&&it.status!=='published'&&(STATUS[it.status]||it.status)].filter(Boolean);
+    const m=document.createElement('p');m.className='fine';m.textContent=meta.join(' · ');li.append(m);
+    if(it.excerpt){const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt;li.append(ex);}
+    if(it.note){const n=document.createElement('p');n.className='mqn';n.textContent=(ko?'신고자 설명: ':'Reporter: ')+it.note;li.append(n);}
+    const bar=document.createElement('p');bar.className='mqa';
+    for(const [a,lab] of actions){const b=document.createElement('button');b.type='button';b.className='btn'+(a==='hide'?' p':'');b.textContent=lab;b.addEventListener('click',()=>act(it.target,a,lab));bar.append(b);}
+    if(it.authorId){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=ACTION.restrict||'Restrict author';b.addEventListener('click',()=>act('user:'+it.authorId,'restrict',ACTION.restrict||'Restrict'));bar.append(b);}
+    li.append(bar);return li;
+   };
+   const ul=$('[data-items]',mq),empty=$('[data-empty]',mq);
+   empty.textContent=items.length?'':(ko?'열린 신고가 없습니다.':'No open reports.');empty.hidden=!!items.length;
+   for(const it of items){
+    const head=`${it.reasons.map(x=>REASON[x]||x).join(', ')}${it.count>1?` ×${it.count}`:''} · ${when(it.firstAt)}`;
+    const acts=it.status==='hidden'?[['unhide',ACTION.unhide||'Restore'],['dismiss',ACTION.dismiss||'Dismiss']]:it.status==='deleted'?[['dismiss',ACTION.dismiss||'Dismiss']]:[['hide',ACTION.hide||'Hide'],['dismiss',ACTION.dismiss||'Dismiss']];
+    ul.append(row(it,head,acts));
    }
-   const lg=$('[data-log]');for(const x of log){const li=document.createElement('li');li.textContent=`${new Date(x.created_at).toLocaleString(L==='ko'?'ko-KR':'en-US')} · ${x.action} · ${x.target_kind}:${x.target_id} · ${x.reason||''}`;lg.append(li);}
+   const hb=$('[data-hidden]'),hu=$('ul',hb);
+   if(hb){hb.hidden=false;
+    if(!hidden.length){const li=document.createElement('li');li.className='empty';li.textContent=ko?'임시조치 중인 글·댓글이 없습니다.':'Nothing is hidden.';hu.append(li);}
+    for(const it of hidden)hu.append(row(it,`${ko?'임시조치':'Hidden'} ${when(it.hiddenAt)}${it.reason?` · ${it.reason}`:''}`,[['unhide',ACTION.unhide||'Restore']]));
+   }
+   const lg=$('[data-log]');
+   for(const x of log){const li=document.createElement('li');li.className='fine';li.textContent=`${when(x.created_at)} · ${ACTION[x.action]||x.action} · ${KIND[x.target_kind]||x.target_kind} ${String(x.target_id).slice(0,14)} · ${x.reason||''}`;lg.append(li);}
   }
  }
 

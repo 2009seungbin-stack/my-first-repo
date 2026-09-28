@@ -144,7 +144,8 @@ test('flags: one open flag per reporter and target, validated reason and target'
  const h=await harness();await h.signIn('a');
  const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'신고될 글',body:'x'}})).json;
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'copyright',note:'원본은 여기'}})).status,201);
- assert.equal((await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'spam'}})).status,201);
+ const again=await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'spam'}});
+ assert.equal(again.status,200);assert.deepEqual([again.json.updated,again.json.previousReason],[true,'copyright'],'the reporter is told the earlier reason was replaced');
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:does-not-exist',reason:'spam'}})).status,404,'nothing to report');
  const rows=h.db.raw.prepare("SELECT reason FROM content_flags WHERE target_id=?").all(p.id);
  assert.deepEqual(rows.map(r=>r.reason),['spam'],'the repeat updates the open flag');
@@ -192,9 +193,13 @@ test('moderation: queue is hidden from members; hide = 임시조치 with a logge
  assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'hide'}})).status,400,'a reason is required');
  assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'hide',reason:'권리 침해 신고로 임시조치'}})).status,200);
  assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'hidden');
- assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.items.length,0,'the flag is resolved');
+ const after=(await h.call('GET','/mod/queue',{as:'mod'})).json;
+ assert.equal(after.items.length,0,'the flag is resolved');
+ assert.equal(after.hidden[0].target,`discussion:${p.id}`,'hidden content stays reachable for moderators');
+ assert.deepEqual([after.hidden[0].preview,after.hidden[0].reason,after.hidden[0].status],['문제 있는 글','권리 침해 신고로 임시조치','hidden']);
  await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'unhide',reason:'게시자 소명 확인'}});
  assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'published');
+ assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.hidden.length,0,'restored content leaves the hidden list');
  await h.call('POST','/mod/action',{as:'mod',body:{target:'user:u-a',action:'restrict',reason:'도배',days:3}});
  assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'또 올림',body:'x'}})).status,403);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM moderation_actions').get().n,3,'every action is logged');

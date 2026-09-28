@@ -19,7 +19,7 @@ import {loadHistory,renderHistory} from '../../platform/render/history.js';
 import {loadStatus,renderStatus} from '../../platform/render/status.js';
 import {loadSearch,renderSearch} from '../../platform/render/search.js';
 import {loadRadar,renderRadar} from '../../platform/render/radar.js';
-import {renderFlag,FLAG_TARGET} from '../../platform/render/flag.js';
+import {renderFlag,loadFlagTarget,FLAG_TARGET} from '../../platform/render/flag.js';
 import {renderMod} from '../../platform/render/mod.js';
 import {renderMe} from '../../platform/render/me.js';
 import {loadTransparency,renderTransparency} from '../../platform/render/transparency.js';
@@ -109,7 +109,7 @@ export async function renderPlatformPage(request,env,site){
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',vertical:q.get('v'),channels:await bar()}),s)));
-  case 'flag':return html(String(renderFlag({l,target:q.get('target'),channels:await bar()},s)));
+  case 'flag':return html(String(renderFlag({l,target:q.get('target'),about:await loadFlagTarget(db,q.get('target'),l),channels:await bar()},s)));
   case 'policy':return html(String(renderPolicy({l,channels:await bar()},s)));
   case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
   case 'me':return html(String(renderMe({l,channels:await bar()},s)));
