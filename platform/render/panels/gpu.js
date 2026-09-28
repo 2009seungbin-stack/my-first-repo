@@ -77,7 +77,7 @@ function wiki(d,ctx){
 /** @param {Awaited<ReturnType<typeof load>>} d @param {import('./index.js').PanelContext} ctx */
 function side(d,ctx){
  const {l}=ctx,s=t(l).panel;
- return d.similar.length?box({title:s.similar},html`<ul class="rows">${d.similar.map(x=>html`<li><a class="tt" href="${channelUrl(l,x.e)}">${nameOf(x.e,l)}</a>${x.vram?html`<span class="fine">${x.vram} GB</span>`:''}<a class="fine" href="/${l}/hardware/?type=gpu&vs=${ctx.entity.slug},${x.e.slug}">${l==='ko'?'비교 ›':'Compare ›'}</a></li>`)}</ul>`):'';
+ return d.similar.length?box({title:s.similar},html`<ul class="rows">${d.similar.map(x=>html`<li><a class="tt" href="${channelUrl(l,x.e)}">${nameOf(x.e,l)}</a>${x.vram?html`<span class="fine">${x.vram} GB</span>`:''}<a class="fine" href="/${l}/hardware/?type=gpu&vs=${[ctx.entity.slug,x.e.slug].sort().join(',')}">${l==='ko'?'비교 ›':'Compare ›'}</a></li>`)}</ul>`):'';
 }
 
 /** @type {import('./index.js').Panel} */
