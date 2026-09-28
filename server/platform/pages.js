@@ -168,6 +168,16 @@ export async function renderSitemap(db,vertical,origin){
    for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc>${e.lastmod?`<lastmod>${new Date(e.lastmod).toISOString().slice(0,10)}</lastmod>`:''}<xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(alt.en)}"/></url>`);
   }
  }
+ // GPU pairs worth a page of their own: a card and the card it succeeds (RTX 4070 → RTX 5070).
+ if(vertical==='hardware'){
+  const ok=new Set(rows.filter(e=>e.type==='gpu').map(e=>e.id)),slug=new Map(rows.map(e=>[e.id,e.slug]));
+  const pairs=((await db.prepare("SELECT subject_id,object_id FROM relations WHERE predicate='successor_of' AND valid_until IS NULL").all()).results||[])
+   .filter((/** @type {any} */ r)=>ok.has(r.subject_id)&&ok.has(r.object_id)).map((/** @type {any} */ r)=>[slug.get(r.subject_id),slug.get(r.object_id)].sort().join(','));
+  for(const pr of [...new Set(pairs)]){
+   const alt={ko:`${origin}/ko/hardware/?type=gpu&vs=${pr}`,en:`${origin}/en/hardware/?type=gpu&vs=${pr}`};
+   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
+  }
+ }
  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
 }
 

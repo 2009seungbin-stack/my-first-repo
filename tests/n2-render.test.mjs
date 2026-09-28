@@ -237,6 +237,7 @@ test('content gate: thin name-only channels are noindex and left out of the enti
  const {renderSitemap}=await import('../server/platform/pages.js');
  const xml=await renderSitemap(d,'hardware','https://nerulio.com');
  assert(xml.startsWith('<?xml')&&xml.includes('https://nerulio.com/ko/hardware/rtx-5070/')&&xml.includes('hreflang="en"'));
+ assert(xml.includes('/ko/hardware/?type=gpu&amp;vs=rtx-3090,rtx-4090'),'successor GPU pairs are listed');
  const ai=await renderSitemap(d,'ai','https://nerulio.com');
  assert(ai.includes('/ko/ai/claude/status'),'service status pages are listed');
  // A company page with only a name and a relation or two is not indexable.
