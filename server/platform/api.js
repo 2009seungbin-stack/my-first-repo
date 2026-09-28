@@ -17,7 +17,7 @@ import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -104,6 +104,17 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    const p=await db.prepare("SELECT title,body_md,author_id,status FROM discussions WHERE id=?").bind(String(url.searchParams.get('id')||'')).first();
    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
    return done({title:String(p.title),body:String(p.body_md)});
+  }
+  if(key==='GET /mine'){
+   // 내 글·댓글 for the 내 정보 page (the author's own, including locked posts).
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const l=url.searchParams.get('l')==='en'?'en':'ko';
+   const ent=(/** @type {any} */ r)=>({vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))});
+   const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.up_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.author_id=? AND d.status IN ('published','locked') ORDER BY d.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),up:Number(r.up_count),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no)),channel:nameOf(ent(r),l)}));
+   const comments=((await db.prepare(`SELECT c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.author_id=? AND c.status='published' AND d.status IN ('published','locked') ORDER BY c.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no))+`#c-${r.id}`}));
+   return done({posts,comments});
   }
   if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
   if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko'));}

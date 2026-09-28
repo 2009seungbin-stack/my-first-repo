@@ -265,8 +265,23 @@ async function main(){
  if(me&&signedIn){
   $('[data-signed-out]',me).hidden=true;
   const nf=$('form[data-nickname]',me);nf.hidden=false;$('input',nf).value=st.user?.name||'';
-  nf.addEventListener('submit',async e=>{e.preventDefault();const r=await write('/profile',{displayName:$('input',nf).value},signedIn);if(r)toast(T.sent);});
-  const fr=await api(`/follows?l=${L}`),box=$('[data-follows]',me);
+  const auto=/^user-[0-9a-z]{1,6}$/.test(st.user?.name||'');$('[data-autonick]',nf).hidden=!auto;
+  nf.addEventListener('submit',async e=>{e.preventDefault();const name=$('input',nf).value.trim();const r=await write('/profile',{displayName:name},signedIn);
+   if(r){toast(T.sent);$('[data-autonick]',nf).hidden=true;const h=$('.hd [data-island="account"] a');if(h)h.textContent=name;}});
+  const lo=$('[data-logout]',me);lo.hidden=false;
+  lo.addEventListener('click',async()=>{
+   try{await fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{}'});}catch{}
+   location.href=`/${L}/community/`;});
+  const [mr,fr0]=await Promise.all([api(`/mine?l=${L}`),api(`/follows?l=${L}`)]);
+  if(mr.ok){
+   for(const sec of $$('[data-mine]',me))sec.hidden=false;
+   const fill=(ul,list,emptyText,row)=>{if(!list.length){const li=document.createElement('li');li.className='empty';li.textContent=emptyText;ul.append(li);}for(const x of list)ul.append(row(x));};
+   const md=ms=>{const x=new Date(ms);return `${String(x.getMonth()+1).padStart(2,'0')}.${String(x.getDate()).padStart(2,'0')}`;};
+   const line=(at,text,href,side)=>{const li=document.createElement('li');li.className='mr';const t=document.createElement('span');t.className='tm';t.textContent=md(at);const a=document.createElement('a');a.className='tt';a.href=href;a.textContent=text;const c=document.createElement('span');c.className='chn fine';c.textContent=side;li.append(t,a,c);return li;};
+   fill($('[data-posts]',me),mr.data.posts,L==='ko'?'아직 쓴 글이 없어요.':'No posts yet.',p=>line(p.at,`${p.title}${p.comments?` [${p.comments}]`:''}`,p.url,p.channel));
+   fill($('[data-comments]',me),mr.data.comments,L==='ko'?'아직 쓴 댓글이 없어요.':'No comments yet.',c=>line(c.at,c.text,c.url,c.on));
+  }
+  const fr=fr0,box=$('[data-follows]',me);
   if(fr.ok){box.hidden=false;const ul=$('ul',box);
    if(!fr.data.follows.length){const li=document.createElement('li');li.textContent=L==='ko'?'아직 구독한 채널이 없어요.':'No channels yet.';ul.append(li);}
    for(const f of fr.data.follows){const li=document.createElement('li');const a=document.createElement('a');a.className='tt';a.href=f.url;a.textContent=f.name;const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=L==='ko'?'구독 취소':'Unfollow';

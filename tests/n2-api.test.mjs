@@ -142,6 +142,17 @@ test('a bare compat click is one vote per person: no post, a repeat changes the 
  assert.deepEqual(after,{works:2},'people, not clicks');
 });
 
+test('내 정보: my posts and comments, newest first, only mine',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'내 글',body:'x'}})).json;
+ await h.call('POST','/comments',{as:'a',body:{postId:p.id,body:'내 댓글'}});
+ await h.call('POST','/posts',{as:'b',body:{entityId:'game:steam-1',kind:'free',title:'남의 글',body:'x'}});
+ const r=(await h.call('GET','/mine?l=ko',{as:'a'})).json;
+ assert.deepEqual(r.posts.map(x=>x.title),['내 글']);assert.match(r.posts[0].url,/^\/ko\/games\/test-game\/\d+$/);
+ assert.deepEqual(r.comments.map(x=>x.text),['내 댓글']);
+ assert.equal((await h.call('GET','/mine')).status,401);
+});
+
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  assert.equal((await h.call('POST','/rollout',{as:'a',body:{featureId:'feature:feat',hasIt:true,country:'KR',platform:'ios'}})).status,200);

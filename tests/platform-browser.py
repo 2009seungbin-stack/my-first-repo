@@ -74,9 +74,10 @@ def main():
             assert hidden.count() >= 1, 'the moderator still sees the hidden post'
             hidden.first.locator('button', has_text='복구').click(); mod.wait_for_timeout(1200)
             assert pg.request.get(B + post_url).status == 200, 'restored'
-            pg.goto(B + '/ko/community/me'); pg.wait_for_timeout(800)
+            pg.goto(B + '/ko/community/me'); pg.wait_for_selector('[data-follows]:not([hidden]) li', timeout=5000)
             pg.fill('form[data-nickname] input', '밤샘테스터'); pg.click('form[data-nickname] button'); pg.wait_for_timeout(500)
             assert pg.locator('[data-follows] li').count() >= 1, 'followed channels listed'
+            assert pg.locator('[data-posts] li a').count() >= 1 and pg.locator('[data-comments] li a').count() >= 1, 'my posts and comments listed'
             pg.goto(B + '/ko/ai/claude/'); pg.wait_for_timeout(600)
             assert pg.locator('.hd [data-island=account]').inner_text() == '밤샘테스터'
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
