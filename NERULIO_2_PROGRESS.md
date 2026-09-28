@@ -14,7 +14,7 @@ Branch `nerulio/n2-platform` (worktree `C:\Users\2009s\Desktop\SITE-n2`). Baseli
 
 ## In progress
 - Wave-1 data agents (brief `C:\Users\2009s\nerulio-handoff\N2-DATA-AGENT-BRIEF.md`), branches `nerulio/n2-data-{ai,games,hardware,studio,subculture}`.
-- UI mockups (시안) for the owner: Design canvas created at https://claude.ai/artifact/FkbKnfqfrbmLKgo4tixbqz (empty so far). Screens to draw, from the study §6–7: anonymous home, My Radar home, Radar feed, GPU entity, game entity (Korean patch matrix), AI feature + rollout widget, /community, thread, report form, Studio preflight, subculture upcoming, search; desktop 1120 grid + mobile.
+- UI mockups (시안) DONE, awaiting owner review: https://claude.ai/artifact/FkbKnfqfrbmLKgo4tixbqz (16 boards). Screens to draw, from the study §6–7: anonymous home, My Radar home, Radar feed, GPU entity, game entity (Korean patch matrix), AI feature + rollout widget, /community, thread, report form, Studio preflight, subculture upcoming, search; desktop 1120 grid + mobile.
 
 ## Next
 1. Draw the mockups → owner review → only then renderers/islands.
