@@ -24,12 +24,28 @@ export function writableKinds(vertical){
 export const LIMITS=Object.freeze({title:/** @type {[number,number]} */([2,120]),body:/** @type {[number,number]} */([1,20000]),comment:/** @type {[number,number]} */([1,4000]),nickname:/** @type {[number,number]} */([2,20]),version:40,postsPerMinute:3,commentsPerMinute:10,votesPerMinute:60});
 
 /** ★ best (념글): shown openly in the UI so it is never a black box. */
-export const BEST_RULE=Object.freeze({minUp:10,minRatio:0.7,windowMs:24*3600e3});
-/** @param {{up_count:number,down_count:number,created_at:number,best_at?:number|null}} p @param {number} now */
-export function qualifiesBest(p,now){
+export const BEST_RULE=Object.freeze({minUp:10,minRatio:0.7,windowMs:24*3600e3,floor:5,cap:100,sampleDays:7});
+/**
+ * The channel's ★ threshold follows its activity (as DC minor galleries do, capped at 100): the
+ * upvotes of the top 10 % of its posts in the last 7 days, never below 5 — a quiet channel still
+ * gets 념글, a busy one does not flood them. With fewer than 20 recent posts the default (10) holds.
+ * @param {number[]} recentUps upvote counts of the channel's posts in the sample window
+ */
+export function bestThreshold(recentUps){
+ if(recentUps.length<20)return BEST_RULE.minUp;
+ const s=[...recentUps].sort((a,b)=>a-b),p90=s[Math.floor(s.length*0.9)];
+ return Math.max(BEST_RULE.floor,Math.min(BEST_RULE.cap,p90));
+}
+/** @param {{up_count:number,down_count:number,created_at:number,best_at?:number|null}} p @param {number} now @param {number} [minUp] */
+export function qualifiesBest(p,now,minUp=BEST_RULE.minUp){
  if(p.best_at)return true;
  const total=p.up_count+p.down_count;
- return now-p.created_at<=BEST_RULE.windowMs&&p.up_count>=BEST_RULE.minUp&&total>0&&p.up_count/total>=BEST_RULE.minRatio;
+ return now-p.created_at<=BEST_RULE.windowMs&&p.up_count>=minUp&&total>0&&p.up_count/total>=BEST_RULE.minRatio;
+}
+/** @param {any} db @param {string} entityId @param {number} now */
+export async function channelBestThreshold(db,entityId,now){
+ const rows=(await db.prepare("SELECT up_count FROM discussions WHERE entity_id=? AND status='published' AND created_at>=? LIMIT 2000").bind(entityId,now-BEST_RULE.sampleDays*864e5).all()).results||[];
+ return bestThreshold(rows.map((/** @type {any} */ r)=>Number(r.up_count)));
 }
 
 /** Trust weight of a contributor tier in verification. */
@@ -129,9 +145,10 @@ export async function castVote(db,v,now){
   :db.prepare('INSERT INTO votes (target_kind,target_id,user_id,value,created_at) VALUES (?,?,?,?,?) ON CONFLICT(target_kind,target_id,user_id) DO UPDATE SET value=excluded.value').bind(v.kind,v.id,v.userId,v.value,now),
   db.prepare(`UPDATE ${table} SET up_count=(SELECT COUNT(*) FROM votes WHERE target_kind=? AND target_id=? AND value=1),down_count=(SELECT COUNT(*) FROM votes WHERE target_kind=? AND target_id=? AND value=-1) WHERE id=?`).bind(v.kind,v.id,v.kind,v.id,v.id)];
  await db.batch(stmts);
- const row=await db.prepare(`SELECT up_count,down_count,created_at${v.kind==='discussion'?',best_at':''} FROM ${table} WHERE id=?`).bind(v.id).first();
- if(row&&v.kind==='discussion'&&!row.best_at&&qualifiesBest(row,now))await db.prepare('UPDATE discussions SET best_at=? WHERE id=? AND best_at IS NULL').bind(now,v.id).run();
- return row?{up:Number(row.up_count),down:Number(row.down_count),best:v.kind==='discussion'?!!(row.best_at||qualifiesBest(row,now)):false}:null;
+ const row=await db.prepare(`SELECT up_count,down_count,created_at${v.kind==='discussion'?',best_at,entity_id':''} FROM ${table} WHERE id=?`).bind(v.id).first();
+ const minUp=row&&v.kind==='discussion'&&!row.best_at?await channelBestThreshold(db,String(row.entity_id),now):BEST_RULE.minUp;
+ if(row&&v.kind==='discussion'&&!row.best_at&&qualifiesBest(row,now,minUp))await db.prepare('UPDATE discussions SET best_at=? WHERE id=? AND best_at IS NULL').bind(now,v.id).run();
+ return row?{up:Number(row.up_count),down:Number(row.down_count),best:v.kind==='discussion'?!!(row.best_at||qualifiesBest(row,now,minUp)):false,bestThreshold:minUp}:null;
 }
 
 /**

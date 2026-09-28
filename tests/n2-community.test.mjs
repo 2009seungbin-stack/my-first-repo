@@ -58,7 +58,7 @@ test('posts get per-channel numbers, votes update counters and ★ best',{skip:!
  assert.equal(await createPost(db,{id:'p3',entityId:'game:steam-2',kind:'free',title:'f',body:'b',locale:'ko',authorId:'system:radar-bot'},NOW),1,'numbers are per channel');
  await assert.rejects(createPost(db,{id:'p4',entityId:'game:steam-1',kind:'bogus',title:'x',body:'b',locale:'ko',authorId:'u1'},NOW));
  let r=await castVote(db,{kind:'discussion',id:'p1',userId:'u2',value:1},NOW);
- assert.deepEqual(r,{up:1,down:0,best:false});
+ assert.deepEqual({up:r.up,down:r.down,best:r.best},{up:1,down:0,best:false});assert.equal(r.bestThreshold,10,'default threshold under 20 recent posts');
  r=await castVote(db,{kind:'discussion',id:'p1',userId:'u2',value:-1},NOW);
  assert.deepEqual([r.up,r.down],[0,1],'changing a vote does not double count');
  for(let i=0;i<10;i++){db.raw.exec(`INSERT INTO users (id,provider,provider_subject,created_at) VALUES ('v${i}','google','v${i}',0)`);await castVote(db,{kind:'discussion',id:'p2',userId:'v'+i,value:1},NOW);}
@@ -80,4 +80,15 @@ test('community compatibility is recomputed, but official rows are never overwri
  const row=db.raw.prepare("SELECT status,verification,confirmations FROM compatibility WHERE is_current=1 AND target_version='2.3.1'").get();
  assert.deepEqual({...row},{status:'works',verification:'COMMUNITY_VERIFIED',confirmations:3});
  assert.equal(db.raw.prepare("SELECT COUNT(*) n FROM changes WHERE kind='compat_changed' AND importance=2").get().n,1);
+});
+
+test('념글 threshold follows the channel: default under 20 posts, p90 of recent upvotes, floor 5, cap 100',async()=>{
+ const {bestThreshold,qualifiesBest}=await import('../platform/community.js');
+ assert.equal(bestThreshold([1,2,3]),10);
+ assert.equal(bestThreshold(Array(40).fill(0)),5,'quiet channel: floor');
+ assert.equal(bestThreshold([...Array(36).fill(3),40,50,60,70]),40,'p90');
+ assert.equal(bestThreshold(Array(40).fill(500)),100,'cap');
+ const t=Date.UTC(2026,8,29);
+ assert.equal(qualifiesBest({up_count:6,down_count:0,created_at:t-1000},t,5),true);
+ assert.equal(qualifiesBest({up_count:6,down_count:0,created_at:t-1000},t),false,'default 10');
 });

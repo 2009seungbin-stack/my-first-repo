@@ -10,7 +10,7 @@ import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,SORTS} fro
 import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
-import {POST_KINDS,writableKinds} from '../community.js';
+import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE} from '../community.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
 import {label} from '../labels.js';
 import {TZ} from './format.js';
@@ -38,8 +38,9 @@ export async function loadChannel(db,entity,o){
  const stats=await channelStats(db,entity.id,dayStart(o.now,o.l));
  const titles=await recentTitles(db,entity.id,o.now-2*864e5);
  const counts=await contentCounts(db,entity.id);
+ const bestMin=await channelBestThreshold(db,entity.id,o.now);
  const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
- return {entity,ctx,panel,data,index,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ return {entity,ctx,panel,data,index,bestMin,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -86,7 +87,7 @@ export function renderChannel(m,site){
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
  const tabOrder=Object.keys(POST_KINDS).filter(k=>kinds.includes(k));
  const tabs=html`<nav class="mtabs" aria-label="${l==='ko'?'말머리':'Tags'}"><a href="${q({kind:null})}"${!m.kind?html` class="on" aria-current="page"`:''}>${s.all}</a>${tabOrder.map(k=>html`<a href="${q({kind:k,page:null})}"${m.kind===k?html` class="on" aria-current="page"`:''}>${/** @type {any} */(s.kind)[k]}</a>`)}</nav>`;
- const sortBar=html`<div class="sb">${[['new',s.sortNew],['hot',s.sortHot],['top',s.sortTop],['activity',s.sortActivity]].map(([k,lab])=>html`<a href="${q({sort:k==='new'?null:k,page:null})}"${m.sort===k&&!m.best?html` class="on"`:''}>${lab}</a>`)}<span class="sp"></span><a class="best${m.best?' on':''}" href="${q({best:m.best?null:1,page:null})}" title="${s.bestRule}">${s.best}</a></div>`;
+ const sortBar=html`<div class="sb">${[['new',s.sortNew],['hot',s.sortHot],['top',s.sortTop],['activity',s.sortActivity]].map(([k,lab])=>html`<a href="${q({sort:k==='new'?null:k,page:null})}"${m.sort===k&&!m.best?html` class="on"`:''}>${lab}</a>`)}<span class="sp"></span><a class="best${m.best?' on':''}" href="${q({best:m.best?null:1,page:null})}" title="${l==='ko'?`★ 념글: 24시간 안에 추천 ${m.bestMin} 이상, 추천 비율 ${BEST_RULE.minRatio*100}% 이상 (이 채널 최근 7일 활동 기준)`:`★ Best: ${m.bestMin}+ upvotes and ${BEST_RULE.minRatio*100}%+ ratio within 24 h (this channel's last 7 days)`}">${s.best}</a></div>`;
  const rows=m.board.posts.map(p=>postRow(p,{l,now,href:postUrl(l,e,p.post_no)}));
  const pager=m.page>1||m.board.more?html`<nav class="pager" aria-label="${s.page}">${m.page>1?html`<a class="btn" href="${q({page:m.page-1===1?null:m.page-1})}">‹ ${s.prev}</a>`:''}<span class="fine">${m.page}</span>${m.board.more?html`<a class="btn" href="${q({page:m.page+1})}">${s.next} ›</a>`:''}</nav>`:'';
  const boardBox=html`<section class="box board" id="board">${tabs}${sortBar}<div class="newbar" data-island="new-posts" data-entity="${e.id}" hidden></div>
