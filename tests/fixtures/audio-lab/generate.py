@@ -30,8 +30,8 @@ def render(bpm,key,kind):
         if kind=='silence':v=0.
         elif kind=='tone':v=.2*math.sin(2*math.pi*440*t)
         else:
-            # Four bars of specified I-IV-V-I or i-iv-v-i notes. Each chord
-            # lasts 2 s. Beeps are mathematical sines, no borrowed recording.
+            # Four 2-second spans of specified I-IV-V-I or i-iv-v-i notes.
+            # These are harmonic spans, not tempo-dependent bar boundaries. Beeps are mathematical sines, no borrowed recording.
             notes=chords[min(3,int(t/2))]
             harmonic=.12*sum(math.sin(2*math.pi*440*2**((m-69)/12)*t) for m in notes)
             phase=(t*bpm/60)%1;beat=int(t*bpm/60)
