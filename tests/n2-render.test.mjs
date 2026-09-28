@@ -273,7 +273,7 @@ test('model channels: official API price, price history area, local-run estimate
  const g=await channel('ai','gemma-4-12b');
  assert(g.out.includes('로컬에서 돌리려면')&&g.out.includes('12GB 카드부터'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec((await channel('games','caves-of-qud')).out)[1]);
- assert.equal(ld['@graph'][0].about['@type'],'VideoGame');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
+ assert.equal(ld['@graph'][0].about.additionalType,'https://schema.org/VideoGame','typed without claiming a rich result it cannot fill');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
  assert(!(await channel('games','caves-of-qud')).out.includes('스프라이트 랩'),'game-asset tools are not linked from every game');
 });
 

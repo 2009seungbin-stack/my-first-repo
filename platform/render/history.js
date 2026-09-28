@@ -30,6 +30,6 @@ ${m.rows.length?html`<ol class="hist">${[...days.entries()].map(([d,rows])=>html
 <p class="fine pad">${ko?'값이 바뀌면 이전 값은 지우지 않고 기간을 닫아 남깁니다. 공식 값은 커뮤니티 제보로 덮어쓰지 않습니다.':'When a value changes the old one is kept with its period closed. Community reports never overwrite official values.'}</p></section>`;
  return page({l,title:ko?`${name} 변경 기록 — 버전·가격·스펙 이력 | Nerulio`:`${name} change history | Nerulio`,
   description:ko?`${name}의 버전, 가격, 스펙, 일정이 언제 어떻게 바뀌었는지 출처와 함께 정리한 기록.`:`When and how ${name}'s versions, prices, specs and dates changed, with sources.`,
-  canonical:site.origin+base+'history',alternates:{[l]:site.origin+base+'history',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'history'},noindex:m.rows.length<3,
+  canonical:site.origin+base+'history',alternates:{[l]:site.origin+base+'history',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'history'},noindex:m.rows.filter(r=>r.kind!=='fact_added').length<3,
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body});
 }

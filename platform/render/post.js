@@ -93,7 +93,8 @@ function postJsonLd(m,url,s){
  const text=plainExcerpt(p.body_md,500)||p.title;
  const comments=m.comments.filter((/** @type {any} */ c)=>!c.deleted);
  const asComment=(/** @type {any} */ c)=>({'@type':p.kind==='question'?'Answer':'Comment',text:plainExcerpt(c.body_md,500),datePublished:new Date(c.created_at).toISOString(),author:person(c.author_name,false),upvoteCount:c.up,url:`${url}#c-${c.id}`});
- if(p.kind==='question'){
+ // A question is a QAPage once it has an answer; before that it is a forum post like any other.
+ if(p.kind==='question'&&comments.length){
   const acc=p.solved?comments.find((/** @type {any} */ c)=>c.id===p.solved):null;
   return {'@context':'https://schema.org','@type':'QAPage',mainEntity:{'@type':'Question',name:p.title,text,dateCreated:new Date(p.created_at).toISOString(),author:person(p.author_name,p.bot),answerCount:comments.length,upvoteCount:p.up,
    ...(acc?{acceptedAnswer:asComment(acc)}:{}),suggestedAnswer:comments.filter((/** @type {any} */ c)=>!acc||c.id!==acc.id).slice(0,10).map(asComment)}};
