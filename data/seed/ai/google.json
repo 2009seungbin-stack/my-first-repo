@@ -1,0 +1,2391 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "ai",
+ "sources": [
+  {
+   "id": "src:google-api-models",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models",
+   "title": "Gemini API — Models",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-api-pricing",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/pricing",
+   "title": "Gemini Developer API pricing",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-api-changelog",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/changelog",
+   "title": "Gemini API — Release notes",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-api-deprecations",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+   "title": "Gemini API — Deprecations",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.8-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+   "title": "Gemini API model page — gemini-3.8-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.7-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
+   "title": "Gemini API model page — gemini-3.7-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.6-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash",
+   "title": "Gemini API model page — gemini-3.6-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.5-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+   "title": "Gemini API model page — gemini-3.5-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.5-flash-lite",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite",
+   "title": "Gemini API model page — gemini-3.5-flash-lite",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.1-flash-lite",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite",
+   "title": "Gemini API model page — gemini-3.1-flash-lite",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.1-pro-preview",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+   "title": "Gemini API model page — gemini-3.1-pro-preview",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3-pro-preview",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-preview",
+   "title": "Gemini API model page — gemini-3-pro-preview",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3-flash-preview",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview",
+   "title": "Gemini API model page — gemini-3-flash-preview",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.8-live",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live",
+   "title": "Gemini API model page — gemini-3.8-live",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.8-live-extended-thinking",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live-extended-thinking",
+   "title": "Gemini API model page — gemini-3.8-live-extended-thinking",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.8-flash-tts",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash-tts",
+   "title": "Gemini API model page — gemini-3.8-flash-tts",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.8-flash-lite-tts",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash-lite-tts",
+   "title": "Gemini API model page — gemini-3.8-flash-lite-tts",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3.1-flash-image",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image",
+   "title": "Gemini API model page — gemini-3.1-flash-image",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-3-pro-image",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-image",
+   "title": "Gemini API model page — gemini-3-pro-image",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-2.5-pro",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro",
+   "title": "Gemini API model page — gemini-2.5-pro",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-2.5-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash",
+   "title": "Gemini API model page — gemini-2.5-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-2.5-flash-lite",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-lite",
+   "title": "Gemini API model page — gemini-2.5-flash-lite",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-2.5-flash-image",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+   "title": "Gemini API model page — gemini-2.5-flash-image",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-embedding-2",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-embedding-2",
+   "title": "Gemini API model page — gemini-embedding-2",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-gemini-omni-flash",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/gemini-omni-flash",
+   "title": "Gemini API model page — gemini-omni-flash",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-page-veo-3.1-generate-preview",
+   "kind": "OFFICIAL",
+   "url": "https://ai.google.dev/gemini-api/docs/models/veo-3.1-generate-preview",
+   "title": "Gemini API model page — veo-3.1-generate-preview",
+   "publisher": "Google",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-8-flash",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+   "title": "Gemini 3.8 Flash model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-7-flash",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-7-flash/",
+   "title": "Gemini 3.7 Flash model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-6-flash",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-6-flash/",
+   "title": "Gemini 3.6 Flash model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-5-flash-lite",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-5-flash-lite/",
+   "title": "Gemini 3.5 Flash-Lite model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-8-audio",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-8-audio/",
+   "title": "Gemini 3.8 Audio model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:google-model-card-gemini-3-1-flash-image",
+   "kind": "OFFICIAL",
+   "url": "https://deepmind.google/models/model-cards/gemini-3-1-flash-image/",
+   "title": "Gemini 3.1 Flash Image model card",
+   "publisher": "Google DeepMind",
+   "retrieved": "2026-09-28"
+  }
+ ],
+ "entities": [
+  {
+   "id": "provider:google",
+   "type": "provider",
+   "slug": "google",
+   "names": {
+    "en": "Google",
+    "ko": "구글"
+   },
+   "aliases": [
+    "Google DeepMind",
+    "Google AI"
+   ],
+   "description": {
+    "en": "Google develops the Gemini family of models through Google DeepMind and offers them in the Gemini app, the Gemini API and Google AI Studio.",
+    "ko": "Google은 Google DeepMind를 통해 Gemini 모델 제품군을 개발하며, Gemini 앱·Gemini API·Google AI Studio로 제공합니다."
+   },
+   "facts": [],
+   "relations": []
+  },
+  {
+   "id": "model:gemini-3.8-flash",
+   "type": "model",
+   "slug": "gemini-3-8-flash",
+   "names": {
+    "en": "Gemini 3.8 Flash"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Stable Gemini 3 series Flash model released in September 2026, aimed at long-running coding, agent and enterprise workloads. Takes text, image, video, audio and PDF input and returns text.",
+    "ko": "2026년 9월 정식 출시된 Gemini 3 시리즈 Flash 모델로, 장시간 코딩·에이전트·기업 업무용으로 설계되었습니다. 텍스트·이미지·동영상·오디오·PDF를 입력받아 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-02",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.8-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2026-03",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-8-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: input $1.50 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 3.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: output $7.50 per 1M tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.075,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $0.15 per 1M tokens. Storage $0.50 per 1M tokens per hour through 2026-12-31, $1.00 from 2027-01-01."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.7-flash",
+   "type": "model",
+   "slug": "gemini-3-7-flash",
+   "names": {
+    "en": "Gemini 3.7 Flash"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Stable Gemini 3 series Flash model released in August 2026 for coding, agentic tool use and multi-step tasks. Takes text, image, video, audio and PDF input and returns text.",
+    "ko": "2026년 8월 정식 출시된 Gemini 3 시리즈 Flash 모델로, 코딩·에이전트 도구 사용·다단계 작업용입니다. 텍스트·이미지·동영상·오디오·PDF를 입력받아 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-08-13",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.7-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.7-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.7-flash"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.7-flash"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2026-03",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-7-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.7-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.7-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Introductory price. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: input $1.50 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 3.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: output $7.50 per 1M tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.075,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $0.15 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.6-flash",
+   "type": "model",
+   "slug": "gemini-3-6-flash",
+   "names": {
+    "en": "Gemini 3.6 Flash"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Stable Gemini 3 series Flash model released in July 2026, positioned by Google as more token-efficient and cheaper than 3.5 Flash. Takes text, image, video, audio and PDF input and returns text.",
+    "ko": "2026년 7월 정식 출시된 Gemini 3 시리즈 Flash 모델로, Google은 3.5 Flash보다 토큰 효율이 높고 저렴하다고 설명합니다. 텍스트·이미지·동영상·오디오·PDF를 입력받아 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-07-21",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.6-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.6-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.6-flash"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.6-flash"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2026-03",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-6-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.6-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.6-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: input $1.50 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 3.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: output $7.50 per 1M tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.075,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $0.15 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "successor_of",
+     "o": "model:gemini-3-flash",
+     "src": "src:google-api-deprecations",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.5-flash",
+   "type": "model",
+   "slug": "gemini-3-5-flash",
+   "names": {
+    "en": "Gemini 3.5 Flash"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Stable Gemini 3 series Flash model released in May 2026; the models page now calls it the legacy Flash model. Takes text, image, video, audio and PDF input and returns text.",
+    "ko": "2026년 5월 정식 출시된 Gemini 3 시리즈 Flash 모델로, 현재 모델 페이지에서는 이전(레거시) Flash 모델로 분류됩니다. 텍스트·이미지·동영상·오디오·PDF를 입력받아 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-05-19",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.5-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 1.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing"
+    },
+    {
+     "p": "api_output_price",
+     "v": 9,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.15,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.5-flash-lite",
+   "type": "model",
+   "slug": "gemini-3-5-flash-lite",
+   "names": {
+    "en": "Gemini 3.5 Flash-Lite"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Low-cost, low-latency Gemini 3 series model released in July 2026 for high-volume and sub-agent tasks. Takes text, image, video, audio and PDF input and returns text.",
+    "ko": "2026년 7월 출시된 저비용·저지연 Gemini 3 시리즈 모델로, 대량 처리와 서브에이전트 작업용입니다. 텍스트·이미지·동영상·오디오·PDF를 입력받아 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-07-21",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.5-flash-lite",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash-lite"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash-lite"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash-lite"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2026-03",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-5-flash-lite"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash-lite"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.5-flash-lite"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.3,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Same price for text, image, video and audio input."
+    },
+    {
+     "p": "api_output_price",
+     "v": 2.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.03,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "successor_of",
+     "o": "model:gemini-3.1-flash-lite",
+     "src": "src:google-api-deprecations",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.1-flash-lite",
+   "type": "model",
+   "slug": "gemini-3-1-flash-lite",
+   "names": {
+    "en": "Gemini 3.1 Flash-Lite"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Cost-efficient Gemini 3 series model made generally available in May 2026. The deprecations page lists an earliest shutdown date of May 7, 2027, with Gemini 3.5 Flash-Lite as the replacement.",
+    "ko": "2026년 5월 정식 출시된 저비용 Gemini 3 시리즈 모델입니다. 지원 중단 페이지에 가장 이른 종료 예정일이 2027년 5월 7일로 표시되며, 대체 모델은 Gemini 3.5 Flash-Lite입니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-05-07",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.1-flash-lite",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-lite"
+    },
+    {
+     "p": "deprecation_date",
+     "v": "2027-05-07",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "Listed as the earliest possible shutdown date; recommended replacement gemini-3.5-flash-lite."
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-lite"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-lite"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-lite"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-lite"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.25,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video input; audio input $0.50 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 1.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.025,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video; audio $0.05 per 1M tokens. Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.1-pro",
+   "type": "model",
+   "slug": "gemini-3-1-pro",
+   "names": {
+    "en": "Gemini 3.1 Pro"
+   },
+   "aliases": [
+    "gemini-3.1-pro-preview"
+   ],
+   "description": {
+    "en": "Gemini 3 series Pro model, offered in the Gemini API as a preview since February 2026 and succeeding Gemini 3 Pro Preview. A separate gemini-3.1-pro-preview-customtools endpoint favours custom tools and bash.",
+    "ko": "2026년 2월부터 Gemini API에서 프리뷰로 제공되는 Gemini 3 시리즈 Pro 모델로, Gemini 3 Pro 프리뷰를 대체합니다. 커스텀 도구와 bash를 우선하는 gemini-3.1-pro-preview-customtools 엔드포인트가 별도로 있습니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-02-19",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.1-pro-preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-pro-preview"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-pro-preview"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-pro-preview"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-pro-preview"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-pro-preview"
+    },
+    {
+     "p": "api_input_price",
+     "v": 2,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Prompts <= 200k tokens; $4.00 for prompts > 200k tokens. No free tier."
+    },
+    {
+     "p": "api_output_price",
+     "v": 12,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens; prompts <= 200k tokens. $18.00 for prompts > 200k tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.2,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Prompts <= 200k tokens; $0.40 for prompts > 200k. Storage $4.50 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "successor_of",
+     "o": "model:gemini-3-pro",
+     "src": "src:google-api-deprecations",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3-pro",
+   "type": "model",
+   "slug": "gemini-3-pro",
+   "names": {
+    "en": "Gemini 3 Pro"
+   },
+   "aliases": [
+    "gemini-3-pro-preview"
+   ],
+   "description": {
+    "en": "First Gemini 3 Pro model, offered in the Gemini API only as gemini-3-pro-preview. It was shut down on March 9, 2026, with Gemini 3.1 Pro Preview as the replacement.",
+    "ko": "Gemini API에서 gemini-3-pro-preview로만 제공되었던 첫 Gemini 3 Pro 모델입니다. 2026년 3월 9일 종료되었으며 대체 모델은 Gemini 3.1 Pro 프리뷰입니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "retired",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-11-18",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "deprecation_date",
+     "v": "2026-03-09",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "Shutdown date of gemini-3-pro-preview."
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3-pro-preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-preview"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-preview"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-preview"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-preview"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-preview"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3-flash",
+   "type": "model",
+   "slug": "gemini-3-flash",
+   "names": {
+    "en": "Gemini 3 Flash"
+   },
+   "aliases": [
+    "gemini-3-flash-preview"
+   ],
+   "description": {
+    "en": "First Gemini 3 Flash model, still served in the Gemini API as the preview gemini-3-flash-preview; the deprecations page recommends Gemini 3.6 Flash as its replacement.",
+    "ko": "첫 Gemini 3 Flash 모델로, Gemini API에서 여전히 gemini-3-flash-preview 프리뷰로 제공됩니다. 지원 중단 페이지는 대체 모델로 Gemini 3.6 Flash를 권장합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-12-17",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3-flash-preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-flash-preview"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-flash-preview"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-flash-preview"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-flash-preview"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-flash-preview"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video input; audio input $1.00 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 3,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.05,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video; audio $0.10 per 1M tokens. Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.8-live",
+   "type": "model",
+   "slug": "gemini-3-8-live",
+   "names": {
+    "en": "Gemini 3.8 Live"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Audio-to-audio model for the Live API, released in September 2026 as the default choice for low-latency voice agents. Accepts text, image, audio and video and returns text and audio.",
+    "ko": "2026년 9월 출시된 Live API용 오디오-투-오디오 모델로, 저지연 음성 에이전트의 기본 선택지입니다. 텍스트·이미지·오디오·동영상을 입력받아 텍스트와 오디오를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-15",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.8-live",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live"
+    },
+    {
+     "p": "context_window",
+     "v": 131072,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-8-audio"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "audio",
+      "video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text",
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text input; audio input $3.00 per 1M tokens (or $0.005/min), image/video input $1.00 per 1M tokens (or $0.002/min)."
+    },
+    {
+     "p": "api_output_price",
+     "v": 4.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text output, including thinking tokens; audio output $12.00 per 1M tokens (or $0.018/min)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.8-live-extended-thinking",
+   "type": "model",
+   "slug": "gemini-3-8-live-extended-thinking",
+   "names": {
+    "en": "Gemini 3.8 Live Extended Thinking"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Live API audio-to-audio model released in September 2026 that keeps reasoning and running asynchronous tool calls in the background while it streams audio. Accepts text, image, audio and video and returns text and audio.",
+    "ko": "2026년 9월 출시된 Live API 오디오-투-오디오 모델로, 오디오를 스트리밍하는 동안 백그라운드에서 추론과 비동기 도구 호출을 이어갑니다. 텍스트·이미지·오디오·동영상을 입력받아 텍스트와 오디오를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-15",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.8-live-extended-thinking",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live-extended-thinking"
+    },
+    {
+     "p": "context_window",
+     "v": 131072,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live-extended-thinking"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live-extended-thinking"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-8-audio"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "audio",
+      "video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live-extended-thinking"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text",
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-live-extended-thinking"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.75,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text input; audio input $3.00 per 1M tokens (or $0.005/min), image/video input $1.00 per 1M tokens (or $0.002/min)."
+    },
+    {
+     "p": "api_output_price",
+     "v": 4.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text output, including thinking tokens; audio output $12.00 per 1M tokens (or $0.018/min)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.8-flash-tts",
+   "type": "model",
+   "slug": "gemini-3-8-flash-tts",
+   "names": {
+    "en": "Gemini 3.8 Flash TTS"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Text-to-speech model released in September 2026, the higher-fidelity of the two Gemini 3.8 TTS models; its model page lists 130 supported languages. Takes text and returns audio.",
+    "ko": "2026년 9월 출시된 텍스트 음성 변환(TTS) 모델로, 두 가지 Gemini 3.8 TTS 모델 중 음질 중심 모델입니다. 모델 페이지 기준 130개 언어를 지원하며 텍스트를 입력받아 오디오를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-22",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.8-flash-tts",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-tts"
+    },
+    {
+     "p": "context_window",
+     "v": 8192,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-tts"
+    },
+    {
+     "p": "max_output",
+     "v": 16384,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-tts",
+     "note": "Gemini API serving limit."
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-tts"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-tts"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text input. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $1.00 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 9,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Audio output. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $18.00 per 1M tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.125,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $0.25 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.8-flash-lite-tts",
+   "type": "model",
+   "slug": "gemini-3-8-flash-lite-tts",
+   "names": {
+    "en": "Gemini 3.8 Flash-Lite TTS"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Lower-cost text-to-speech model released in September 2026 for high-volume and real-time voice use; it replaces Gemini 3.1 Flash TTS Preview. Takes text and returns audio.",
+    "ko": "2026년 9월 출시된 저비용 텍스트 음성 변환(TTS) 모델로, 대량·실시간 음성 용도이며 Gemini 3.1 Flash TTS 프리뷰를 대체합니다. 텍스트를 입력받아 오디오를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-22",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.8-flash-lite-tts",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-lite-tts"
+    },
+    {
+     "p": "context_window",
+     "v": 8192,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-lite-tts"
+    },
+    {
+     "p": "max_output",
+     "v": 16384,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-lite-tts",
+     "note": "Gemini API serving limit."
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-lite-tts"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.8-flash-lite-tts"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text input. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $1.00 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 6,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Audio output. Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $12.00 per 1M tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.125,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Paid-tier standard price through 2026-12-31; the pricing page lists a higher price from 2027-01-01: $0.25 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3.1-flash-image",
+   "type": "model",
+   "slug": "gemini-3-1-flash-image",
+   "names": {
+    "en": "Gemini 3.1 Flash Image (Nano Banana 2)"
+   },
+   "aliases": [
+    "Nano Banana 2"
+   ],
+   "description": {
+    "en": "Image generation and editing model marketed as Nano Banana 2; a preview appeared in February 2026 and the stable version on May 28, 2026. Accepts text, image, video and PDF and returns images and text.",
+    "ko": "Nano Banana 2라는 이름으로 소개된 이미지 생성·편집 모델로, 2026년 2월 프리뷰를 거쳐 2026년 5월 28일 정식 버전이 나왔습니다. 텍스트·이미지·동영상·PDF를 입력받아 이미지와 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-05-28",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "Stable release; gemini-3.1-flash-image-preview was released on 2026-02-26."
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3.1-flash-image",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-image"
+    },
+    {
+     "p": "context_window",
+     "v": 131072,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-image"
+    },
+    {
+     "p": "max_output",
+     "v": 32768,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-image"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-card-gemini-3-1-flash-image"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-image"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "image",
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3.1-flash-image"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image input."
+    },
+    {
+     "p": "api_output_price",
+     "v": 60,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Image output tokens (about $0.067 per 1K image per the pricing page); text and thinking output $3.00 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "successor_of",
+     "o": "model:gemini-2.5-flash-image",
+     "src": "src:google-api-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-3-pro-image",
+   "type": "model",
+   "slug": "gemini-3-pro-image",
+   "names": {
+    "en": "Gemini 3 Pro Image (Nano Banana Pro)"
+   },
+   "aliases": [
+    "Nano Banana Pro"
+   ],
+   "description": {
+    "en": "Higher-end image generation and editing model marketed as Nano Banana Pro; preview since November 2025, stable version released on May 28, 2026. Accepts images and text and returns images and text.",
+    "ko": "Nano Banana Pro라는 이름으로 소개된 상위 이미지 생성·편집 모델로, 2025년 11월 프리뷰를 거쳐 2026년 5월 28일 정식 버전이 나왔습니다. 이미지와 텍스트를 입력받아 이미지와 텍스트를 출력합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-05-28",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "Stable release; gemini-3-pro-image-preview was released on 2025-11-20."
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-3-pro-image",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-image"
+    },
+    {
+     "p": "context_window",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-image"
+    },
+    {
+     "p": "max_output",
+     "v": 32768,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-image"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "image",
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-image"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "image",
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-3-pro-image"
+    },
+    {
+     "p": "api_input_price",
+     "v": 2,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image input."
+    },
+    {
+     "p": "api_output_price",
+     "v": 120,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Image output tokens (about $0.134 per 1K/2K image, $0.24 per 4K image); text and thinking output $12.00 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-2.5-pro",
+   "type": "model",
+   "slug": "gemini-2-5-pro",
+   "names": {
+    "en": "Gemini 2.5 Pro"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Gemini 2.5 generation Pro reasoning model, stable since June 2025. Google now limits API access to users who have used it before, but it is not deprecated.",
+    "ko": "2025년 6월 정식 출시된 Gemini 2.5 세대 Pro 추론 모델입니다. 현재 Google은 기존 사용자에게만 API 접근을 허용하지만 지원 중단 모델은 아닙니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models",
+     "note": "Google limits access to Gemini 2.5 models to users who have used them before; they are not deprecated."
+    },
+    {
+     "p": "release_date",
+     "v": "2025-06-17",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-2.5-pro",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "audio",
+      "image",
+      "video",
+      "text",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-pro"
+    },
+    {
+     "p": "api_input_price",
+     "v": 1.25,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Prompts <= 200k tokens; $2.50 for prompts > 200k tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 10,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens; prompts <= 200k tokens. $15.00 for prompts > 200k."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.125,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Prompts <= 200k tokens; $0.25 for prompts > 200k. Storage $4.50 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-2.5-flash",
+   "type": "model",
+   "slug": "gemini-2-5-flash",
+   "names": {
+    "en": "Gemini 2.5 Flash"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Gemini 2.5 generation Flash model with thinking budgets, stable since June 2025. Google now limits API access to users who have used it before, but it is not deprecated.",
+    "ko": "2025년 6월 정식 출시된 Gemini 2.5 세대 Flash 모델로, 사고 예산(thinking budget)을 지원합니다. 현재 Google은 기존 사용자에게만 API 접근을 허용하지만 지원 중단 모델은 아닙니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models",
+     "note": "Google limits access to Gemini 2.5 models to users who have used them before; they are not deprecated."
+    },
+    {
+     "p": "release_date",
+     "v": "2025-06-17",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-2.5-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.3,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video input; audio input $1.00 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 2.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.03,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video; audio $0.10 per 1M tokens. Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-2.5-flash-lite",
+   "type": "model",
+   "slug": "gemini-2-5-flash-lite",
+   "names": {
+    "en": "Gemini 2.5 Flash-Lite"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Smallest and cheapest Gemini 2.5 model, stable since July 2025. Google now limits API access to users who have used it before, but it is not deprecated.",
+    "ko": "2025년 7월 정식 출시된 가장 작고 저렴한 Gemini 2.5 모델입니다. 현재 Google은 기존 사용자에게만 API 접근을 허용하지만 지원 중단 모델은 아닙니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models",
+     "note": "Google limits access to Gemini 2.5 models to users who have used them before; they are not deprecated."
+    },
+    {
+     "p": "release_date",
+     "v": "2025-07-22",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-2.5-flash-lite",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "max_output",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-01",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-lite"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.1,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video input; audio input $0.30 per 1M tokens."
+    },
+    {
+     "p": "api_output_price",
+     "v": 0.4,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Includes thinking tokens."
+    },
+    {
+     "p": "api_cached_input_price",
+     "v": 0.01,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video; audio $0.03 per 1M tokens. Storage $1.00 per 1M tokens per hour."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-2.5-flash-image",
+   "type": "model",
+   "slug": "gemini-2-5-flash-image",
+   "names": {
+    "en": "Gemini 2.5 Flash Image (Nano Banana)"
+   },
+   "aliases": [
+    "Nano Banana"
+   ],
+   "description": {
+    "en": "The original Nano Banana image generation and editing model, released in October 2025. It is deprecated and scheduled to shut down on October 2, 2026; Google points users to Gemini 3.1 Flash Image or 3.1 Flash Lite Image.",
+    "ko": "2025년 10월 출시된 최초의 Nano Banana 이미지 생성·편집 모델입니다. 지원 중단되어 2026년 10월 2일 종료 예정이며, Google은 Gemini 3.1 Flash Image 또는 3.1 Flash Lite Image로의 이전을 안내합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "deprecated",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-10-02",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "deprecation_date",
+     "v": "2026-10-02",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "Shutdown date."
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-2.5-flash-image",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "context_window",
+     "v": 65536,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "max_output",
+     "v": 32768,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "knowledge_cutoff",
+     "v": "2025-06",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "image",
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "image",
+      "text"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-2.5-flash-image"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.3,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image input."
+    },
+    {
+     "p": "api_output_price",
+     "v": 30,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Image output tokens; about $0.039 per image up to 1024x1024. Text output priced as Gemini 2.5 Flash."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-embedding-2",
+   "type": "model",
+   "slug": "gemini-embedding-2",
+   "names": {
+    "en": "Gemini Embedding 2"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Google's first multimodal embedding model, generally available since April 2026; it maps text, images, video, audio and PDFs into one embedding space.",
+    "ko": "2026년 4월 정식 출시된 Google의 첫 멀티모달 임베딩 모델로, 텍스트·이미지·동영상·오디오·PDF를 하나의 임베딩 공간에 매핑합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-04-22",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-embedding-2",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-embedding-2",
+     "note": "The models overview table lists the endpoint as gemini-embedding-2-preview; the model page and deprecations page list gemini-embedding-2 as stable."
+    },
+    {
+     "p": "context_window",
+     "v": 8192,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-embedding-2",
+     "note": "Input token limit. Output dimensions 128-3072."
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video",
+      "audio",
+      "pdf"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-embedding-2"
+    },
+    {
+     "p": "api_input_price",
+     "v": 0.2,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text input; image $0.45, audio $6.50, video $12.00 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:gemini-omni-flash",
+   "type": "model",
+   "slug": "gemini-omni-flash",
+   "names": {
+    "en": "Gemini Omni Flash"
+   },
+   "aliases": [
+    "gemini-omni-1.1-flash"
+   ],
+   "description": {
+    "en": "Video generation and conversational video editing model, generally available as gemini-omni-1.1-flash since August 27, 2026. Generates 3-10 second videos from text, images and video.",
+    "ko": "동영상 생성 및 대화형 동영상 편집 모델로, 2026년 8월 27일부터 gemini-omni-1.1-flash로 정식 제공됩니다. 텍스트·이미지·동영상으로 3~10초 길이의 동영상을 생성합니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-08-27",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations",
+     "note": "GA release; gemini-omni-flash-preview was released on 2026-06-30 and shuts down on 2026-09-30."
+    },
+    {
+     "p": "api_model_id",
+     "v": "gemini-omni-1.1-flash",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-omni-flash"
+    },
+    {
+     "p": "context_window",
+     "v": 1048576,
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-omni-flash"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image",
+      "video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-omni-flash"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-gemini-omni-flash"
+    },
+    {
+     "p": "api_input_price",
+     "v": 1.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Text/image/video/audio input. Paid tier only."
+    },
+    {
+     "p": "api_output_price",
+     "v": 17.5,
+     "unit": "USD",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-pricing",
+     "note": "Video output tokens (5,792 tokens per second of 720p, about $0.10 per second); text output $9.00 per 1M tokens."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "model:veo-3.1",
+   "type": "model",
+   "slug": "veo-3-1",
+   "names": {
+    "en": "Veo 3.1"
+   },
+   "aliases": [],
+   "description": {
+    "en": "Google's video generation model with natively generated audio, offered in the Gemini API as a preview since October 2025, with Fast and Lite variants. It is billed per second of video rather than per token.",
+    "ko": "오디오를 함께 생성하는 Google의 동영상 생성 모델로, 2025년 10월부터 Gemini API에서 프리뷰로 제공되며 Fast·Lite 변형이 있습니다. 토큰이 아닌 동영상 길이(초) 단위로 과금됩니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-models"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-10-15",
+     "ver": "OFFICIAL",
+     "src": "src:google-api-deprecations"
+    },
+    {
+     "p": "api_model_id",
+     "v": "veo-3.1-generate-preview",
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-veo-3.1-generate-preview"
+    },
+    {
+     "p": "input_modalities",
+     "v": [
+      "text",
+      "image"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-veo-3.1-generate-preview"
+    },
+    {
+     "p": "output_modalities",
+     "v": [
+      "video",
+      "audio"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:google-model-page-veo-3.1-generate-preview"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "provider:google",
+     "src": "src:google-api-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  }
+ ],
+ "availability": []
+}

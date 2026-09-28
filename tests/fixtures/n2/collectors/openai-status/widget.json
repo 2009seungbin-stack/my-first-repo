@@ -1,0 +1,182 @@
+{
+ "summary": {
+  "id": "01JMDK9XYNY6RXSED6SDWW50WY",
+  "name": "OpenAI",
+  "structure": {
+   "items": [
+    {
+     "group": {
+      "id": "01K5H8S53SY1KMS4GQMNMQM1K5",
+      "name": "APIs",
+      "components": [
+       {
+        "component_id": "01JMXBRMFE6N2NNT7DG6XZQ6PW",
+        "name": "Chat Completions"
+       },
+       {
+        "component_id": "01JP8CD9JR3HR6Y7G4Q75N4DVW",
+        "name": "Responses"
+       },
+       {
+        "component_id": "01JMXBRMFEMZK0HPK19RYET250",
+        "name": "Fine-tuning"
+       },
+       {
+        "component_id": "01JMXBRMFEV0AJ0VVS68N9CD6R",
+        "name": "Embeddings"
+       },
+       {
+        "component_id": "01JMXBRMFE4MAP2BHSJNZ787WX",
+        "name": "Images"
+       },
+       {
+        "component_id": "01JMXBRMFE5ESNNV8JDHVCGSRD",
+        "name": "Batch"
+       },
+       {
+        "component_id": "01JMXBRMFEKVBWKK82B44QFMCE",
+        "name": "Audio"
+       },
+       {
+        "component_id": "01JMXBRMFEVZ7E0X9GD9FWR9WX",
+        "name": "Moderations"
+       },
+       {
+        "component_id": "01JMXBRMFEQW613TFE89F45035",
+        "name": "Realtime"
+       },
+       {
+        "component_id": "01JMXBRMFESJCBGJR10PDD3WCQ",
+        "name": "Files"
+       },
+       {
+        "component_id": "01JSM5RTJWHRWDTS6Q604VEW3B",
+        "name": "Login"
+       }
+      ]
+     }
+    },
+    {
+     "group": {
+      "id": "01K5H8S53SY1KMS4GQMNMZXTR1",
+      "name": "ChatGPT",
+      "components": [
+       {
+        "component_id": "01JMXBNJXGV1T5GT2M9XA83XNG",
+        "name": "Conversations"
+       },
+       {
+        "component_id": "01JMXBNJXG1S2D9V65P1ZZTD94",
+        "name": "Login"
+       },
+       {
+        "component_id": "01KX45G1SH21AX5DT93D4HMF0P",
+        "name": "ChatGPT Work"
+       },
+       {
+        "component_id": "01KMKFAMWKQ81YWSE1Z18R6VHR",
+        "name": "Codex in ChatGPT Desktop"
+       },
+       {
+        "component_id": "01JNKS9D9S72PMP1938PVFFQN4",
+        "name": "Compliance API"
+       },
+       {
+        "component_id": "01JMXBNJXGKKP51D4DEJ2HZJ8Q",
+        "name": "Search"
+       },
+       {
+        "component_id": "01JMXBNJXG1YMQPPCPCQX3MPA2",
+        "name": "File uploads"
+       },
+       {
+        "component_id": "01JMXBNJXGGT5SR5DB9J7GYY48",
+        "name": "Voice mode"
+       },
+       {
+        "component_id": "01JSFK5QX36ZRW0TW0ZV0ZYFXQ",
+        "name": "GPTs"
+       },
+       {
+        "component_id": "01JQ7EKW990MSPSWVXC7VPV2ZJ",
+        "name": "Image Generation"
+       },
+       {
+        "component_id": "01JSYVYQSWMJ9QG35XHP08BHA7",
+        "name": "Deep Research"
+       },
+       {
+        "component_id": "01JSG1XMJ9RVJJQ0E85NVSJ2AZ",
+        "name": "Agent"
+       },
+       {
+        "component_id": "01K8C008QVXHA6JX98PAS42VPD",
+        "name": "ChatGPT Atlas"
+       },
+       {
+        "component_id": "01KX45G1SHQQ9DTAX9S4W7FV8G",
+        "name": "Sites"
+       },
+       {
+        "component_id": "01K6TVGGGDCP0PPGCHXAG3AQX8",
+        "name": "Connectors/Apps"
+       }
+      ]
+     }
+    },
+    {
+     "group": {
+      "id": "01KMKF9EBTCD8BN9PG8DJZXRSQ",
+      "name": "Codex",
+      "components": [
+       {
+        "component_id": "01JVCV8YSWZFRSM1G5CVP253SK",
+        "name": "Codex Web"
+       },
+       {
+        "component_id": "01KMP3KP5MGE23B80K1EK4S8PV",
+        "name": "Codex API"
+       },
+       {
+        "component_id": "01KMKFAMWKNQ84Z1766MV08ZDE",
+        "name": "CLI"
+       },
+       {
+        "component_id": "01KMP3KP5M8X0EBTVW6KN327EE",
+        "name": "VS Code extension"
+       }
+      ]
+     }
+    },
+    {
+     "group": {
+      "id": "01KKACDSZF5G5JTBJY83GF176Z",
+      "name": "FedRAMP",
+      "components": [
+       {
+        "component_id": "01KKAD7C71MCCH3FTREMJH4AAS",
+        "name": "FedRAMP"
+       }
+      ]
+     }
+    },
+    {
+     "group": {
+      "id": "01KTQBYDGR2AKA7D6HW6RVAGZC",
+      "name": "Ads Platform",
+      "components": [
+       {
+        "component_id": "01KTQBYVARFJ5KMCSECM06VKCF",
+        "name": "Ads Manager"
+       },
+       {
+        "component_id": "01KVR95C58GGWHV7RYBT32NP11",
+        "name": "Ads API"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,42 @@
+[
+ {
+  "tag_name": "v0.30.0",
+  "name": "v0.30.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-09-22T05:20:54Z",
+  "html_url": "https://github.com/vllm-project/vllm/releases/tag/v0.30.0"
+ },
+ {
+  "tag_name": "v0.29.0",
+  "name": "v0.29.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-09-09T08:54:49Z",
+  "html_url": "https://github.com/vllm-project/vllm/releases/tag/v0.29.0"
+ },
+ {
+  "tag_name": "v0.28.0",
+  "name": "v0.28.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-08-26T09:46:30Z",
+  "html_url": "https://github.com/vllm-project/vllm/releases/tag/v0.28.0"
+ },
+ {
+  "tag_name": "v0.27.1",
+  "name": "v0.27.1",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-08-11T10:47:49Z",
+  "html_url": "https://github.com/vllm-project/vllm/releases/tag/v0.27.1"
+ },
+ {
+  "tag_name": "v0.27.0",
+  "name": "v0.27.0",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-08-10T21:18:11Z",
+  "html_url": "https://github.com/vllm-project/vllm/releases/tag/v0.27.0"
+ }
+]

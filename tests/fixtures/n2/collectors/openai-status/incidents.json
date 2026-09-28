@@ -1,0 +1,100 @@
+{
+ "page": {
+  "id": "01JMDK9XYNY6RXSED6SDWW50WY",
+  "name": "OpenAI",
+  "url": "https://status.openai.com/",
+  "updated_at": "2026-09-25T23:54:41Z"
+ },
+ "incidents": [
+  {
+   "id": "01M3DCNWMW57HYK8FJ5FBFPA39",
+   "name": "Issues with Codex ",
+   "status": "resolved",
+   "created_at": "2026-09-25T22:58:48Z",
+   "updated_at": "2026-09-25T23:54:41Z",
+   "resolved_at": "2026-09-25T23:54:41Z",
+   "impact": "critical",
+   "page_id": "01JMDK9XYNY6RXSED6SDWW50WY",
+   "incident_updates": [
+    {
+     "id": "01M3DFW76KT7DP81D9NAQQYDZM",
+     "body": "All impacted services have now fully recovered.",
+     "created_at": "2026-09-25T23:54:41Z",
+     "display_at": "2026-09-25T23:54:41Z",
+     "incident_id": "01M3DCNWMW57HYK8FJ5FBFPA39",
+     "status": "resolved",
+     "updated_at": "2026-09-25T23:54:41Z"
+    },
+    {
+     "id": "01M3DFB9XWMH5SCX40CFT8NXTD",
+     "body": "We have applied the mitigation and are monitoring the recovery.",
+     "created_at": "2026-09-25T23:45:27Z",
+     "display_at": "2026-09-25T23:45:27Z",
+     "incident_id": "01M3DCNWMW57HYK8FJ5FBFPA39",
+     "status": "monitoring",
+     "updated_at": "2026-09-25T23:45:27Z"
+    }
+   ]
+  },
+  {
+   "id": "01M3ACKDE4GYY67FXXNRRSC0CE",
+   "name": "Elevated Error Rates on GPT-6 Astra Pro",
+   "status": "resolved",
+   "created_at": "2026-09-24T18:59:44Z",
+   "updated_at": "2026-09-24T19:46:28Z",
+   "resolved_at": "2026-09-24T19:46:28Z",
+   "impact": "none",
+   "page_id": "01JMDK9XYNY6RXSED6SDWW50WY",
+   "incident_updates": [
+    {
+     "id": "01M3AF90CVV1VVYW625ET1J8YY",
+     "body": "All impacted services have now fully recovered.",
+     "created_at": "2026-09-24T19:46:28Z",
+     "display_at": "2026-09-24T19:46:28Z",
+     "incident_id": "01M3ACKDE4GYY67FXXNRRSC0CE",
+     "status": "resolved",
+     "updated_at": "2026-09-24T19:46:28Z"
+    },
+    {
+     "id": "01M3AEFVSZSF53Y5ZR7E5JV1YE",
+     "body": "We have applied the mitigation and are monitoring the recovery.",
+     "created_at": "2026-09-24T19:32:45Z",
+     "display_at": "2026-09-24T19:32:45Z",
+     "incident_id": "01M3ACKDE4GYY67FXXNRRSC0CE",
+     "status": "monitoring",
+     "updated_at": "2026-09-24T19:32:45Z"
+    }
+   ]
+  },
+  {
+   "id": "01M389CDQ97B11QPMSRAAYSE5S",
+   "name": "Mobile users unable to see Work Mode and the Model Picker",
+   "status": "resolved",
+   "created_at": "2026-09-23T23:25:00Z",
+   "updated_at": "2026-09-23T23:49:06Z",
+   "resolved_at": "2026-09-23T23:49:06Z",
+   "impact": "minor",
+   "page_id": "01JMDK9XYNY6RXSED6SDWW50WY",
+   "incident_updates": [
+    {
+     "id": "01M38ARJ0CNKAN1X1RBNB4N41M",
+     "body": "All impacted services have now fully recovered.",
+     "created_at": "2026-09-23T23:49:06Z",
+     "display_at": "2026-09-23T23:49:06Z",
+     "incident_id": "01M389CDQ97B11QPMSRAAYSE5S",
+     "status": "resolved",
+     "updated_at": "2026-09-23T23:49:06Z"
+    },
+    {
+     "id": "01M389TVE1X2D032PTAJVY5A3W",
+     "body": "We have applied the mitigation and are monitoring the recovery.",
+     "created_at": "2026-09-23T23:32:53Z",
+     "display_at": "2026-09-23T23:32:53Z",
+     "incident_id": "01M389CDQ97B11QPMSRAAYSE5S",
+     "status": "monitoring",
+     "updated_at": "2026-09-23T23:32:53Z"
+    }
+   ]
+  }
+ ]
+}
