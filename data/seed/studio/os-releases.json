@@ -63,6 +63,24 @@
    "publisher": "Microsoft",
    "retrieved": "2026-09-28",
    "note": "States Windows 10 reached end of support on 2025-10-14; ESU program available."
+  },
+  {
+   "id": "src:ms-lifecycle-win11-home-pro",
+   "kind": "OFFICIAL",
+   "url": "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro",
+   "title": "Windows 11 Home and Pro - Microsoft Lifecycle",
+   "publisher": "Microsoft",
+   "retrieved": "2026-09-28",
+   "note": "Listing start 2021-10-04, in support; per-version start/end dates."
+  },
+  {
+   "id": "src:ms-lifecycle-win10-home-pro",
+   "kind": "OFFICIAL",
+   "url": "https://learn.microsoft.com/en-us/lifecycle/products/windows-10-home-and-pro",
+   "title": "Windows 10 Home and Pro - Microsoft Lifecycle",
+   "publisher": "Microsoft",
+   "retrieved": "2026-09-28",
+   "note": "Listing start 2015-07-29, retirement 2025-10-14 (PT); 22H2 is the final version."
   }
  ],
  "entities": [
@@ -432,7 +450,14 @@
    "description": {
     "en": "The final Windows 10 feature update. Microsoft ended Windows 10 support on 14 October 2025; security fixes continue only through the ESU program.",
     "ko": "Windows 10의 마지막 기능 업데이트입니다. Microsoft는 2025년 10월 14일 Windows 10 지원을 종료했으며, 이후 보안 업데이트는 ESU 프로그램으로만 제공됩니다."
-   }
+   },
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "os_release:windows-10",
+     "src": "src:ms-lifecycle-win10-home-pro"
+    }
+   ]
   },
   {
    "id": "os_release:windows-11-23h2",
@@ -489,7 +514,14 @@
    "description": {
     "en": "Windows 11 feature update released on 31 October 2023 (OS build 22631). Home and Pro editions no longer receive updates.",
     "ko": "2023년 10월 31일 배포된 Windows 11 기능 업데이트(OS 빌드 22631)입니다. Home·Pro 에디션은 업데이트가 종료되었습니다."
-   }
+   },
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "os_release:windows-11",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    }
+   ]
   },
   {
    "id": "os_release:windows-11-24h2",
@@ -546,7 +578,14 @@
    "description": {
     "en": "Windows 11 feature update released on 1 October 2024 (OS build 26100). Home and Pro editions stop receiving updates on 13 October 2026.",
     "ko": "2024년 10월 1일 배포된 Windows 11 기능 업데이트(OS 빌드 26100)입니다. Home·Pro 에디션은 2026년 10월 13일 업데이트가 종료됩니다."
-   }
+   },
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "os_release:windows-11",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    }
+   ]
   },
   {
    "id": "os_release:windows-11-25h2",
@@ -603,7 +642,14 @@
    "description": {
     "en": "Windows 11 feature update released on 30 September 2025 (OS build 26200); the current in-place feature update for existing PCs.",
     "ko": "2025년 9월 30일 배포된 Windows 11 기능 업데이트(OS 빌드 26200)로, 기존 PC에 제공되는 현재 기능 업데이트입니다."
-   }
+   },
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "os_release:windows-11",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    }
+   ]
   },
   {
    "id": "os_release:windows-11-26h1",
@@ -660,7 +706,115 @@
    "description": {
     "en": "Windows 11 release (OS build 28000) made for new devices that shipped in early 2026. Microsoft does not offer it as an in-place update from 24H2 or 25H2.",
     "ko": "2026년 초 출시된 신규 기기용 Windows 11 버전(OS 빌드 28000)입니다. Microsoft는 24H2·25H2에서 제자리 업그레이드로 제공하지 않습니다."
-   }
+   },
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "os_release:windows-11",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    }
+   ]
+  },
+  {
+   "id": "os_release:windows-10",
+   "type": "os_release",
+   "slug": "windows-10",
+   "names": {
+    "en": "Windows 10",
+    "ko": "Windows 10"
+   },
+   "aliases": [
+    "Win10",
+    "Windows 10 Home",
+    "Windows 10 Pro"
+   ],
+   "description": {
+    "en": "Microsoft's Windows 10 family. Home and Pro support ended on 14 October 2025, and version 22H2 is the final feature update.",
+    "ko": "Microsoft Windows 10 제품군입니다. Home·Pro 지원은 2025년 10월 14일 종료되었고 22H2가 마지막 기능 업데이트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Microsoft Lifecycle",
+     "url": "https://learn.microsoft.com/en-us/lifecycle/products/windows-10-home-and-pro"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win10-home-pro"
+    },
+    {
+     "p": "version_number",
+     "v": "10",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win10-home-pro"
+    },
+    {
+     "p": "release_date",
+     "v": "2015-07-29",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win10-home-pro"
+    },
+    {
+     "p": "status",
+     "v": "retired",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win10-home-pro",
+     "note": "Home/Pro retirement 2025-10-14; ESU program continues security updates."
+    }
+   ]
+  },
+  {
+   "id": "os_release:windows-11",
+   "type": "os_release",
+   "slug": "windows-11",
+   "names": {
+    "en": "Windows 11",
+    "ko": "Windows 11"
+   },
+   "aliases": [
+    "Win11",
+    "Windows 11 Home",
+    "Windows 11 Pro"
+   ],
+   "description": {
+    "en": "Microsoft's Windows 11 family, first released on 4 October 2021, with one feature update per year (21H2 to 25H2, plus 26H1 for new devices).",
+    "ko": "2021년 10월 4일 처음 출시된 Microsoft Windows 11 제품군으로, 매년 기능 업데이트가 나옵니다(21H2~25H2, 신규 기기용 26H1)."
+   },
+   "official_urls": [
+    {
+     "label": "Microsoft Lifecycle",
+     "url": "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    },
+    {
+     "p": "version_number",
+     "v": "11",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    },
+    {
+     "p": "release_date",
+     "v": "2021-10-04",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:ms-lifecycle-win11-home-pro"
+    }
+   ]
   }
  ]
 }
