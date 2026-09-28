@@ -19,8 +19,8 @@ async function load(ctx){
  if(e.type==='work')characters=(await related(db,e.id,'in',['appears_in'])).map(r=>r.entity);
  if(e.type==='character')works=(await related(db,e.id,'out',['appears_in'])).map(r=>r.entity);
  const family=[e,...works,...characters];
- const events=await eventsFor(db,family.map(x=>x.id),{from:now,limit:8});
- const merchRel=(await Promise.all(family.map(x=>related(db,x.id,'in',['merchandise_of'])))).flat().map(r=>r.entity);
+ const [events,merchLists]=await Promise.all([eventsFor(db,family.map(x=>x.id),{from:now,limit:8}),Promise.all(family.map(x=>related(db,x.id,'in',['merchandise_of'])))]);
+ const merchRel=merchLists.flat().map(r=>r.entity);
  const merch=[...new Map(merchRel.map(m=>[m.id,m])).values()];
  const mf=await factsFor(db,merch.map(m=>m.id));
  const goods=merch.map(m=>({m,price:pickFact(mf.get(m.id),'price',{region:ctx.region}),end:pickFact(mf.get(m.id),'preorder_end')?.value,release:pickFact(mf.get(m.id),'release_date')?.value,maker:pickFact(mf.get(m.id),'manufacturer_name')?.value}))

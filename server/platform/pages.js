@@ -84,9 +84,9 @@ const barCache=new Map();
 /** @param {any} db @param {string} l @param {number} now */
 export async function channelBar(db,l,now){
  const hit=barCache.get(l);if(hit&&now-hit.at<60e3)return hit.bar;
- const active=(await activeChannels(db,now-7*864e5,8)).map(c=>c.entity);
- const ids=new Set(active.map(e=>e.id));
- const featured=FEATURED.filter(id=>!ids.has(id)),byId=await entitiesByIds(db,featured);
+ const [act,byId]=await Promise.all([activeChannels(db,now-7*864e5,8),entitiesByIds(db,[...FEATURED])]);
+ const active=act.map(c=>c.entity),ids=new Set(active.map(e=>e.id));
+ const featured=FEATURED.filter(id=>!ids.has(id));
  const bar=[...active,...featured.map(id=>byId.get(id)).filter(Boolean)].slice(0,9).map(e=>({name:nameOf(/** @type {any} */(e),l),href:channelUrl(l,/** @type {any} */(e))}));
  barCache.set(l,{at:now,bar});
  return bar;

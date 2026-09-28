@@ -12,15 +12,16 @@ import {factRows} from './generic.js';
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
  const {db,entity:e}=ctx;
- const versions=await versionsOf(db,e.id,5);
- const compat=await compatibilityOf(db,{subject:e.id});
+ // Independent reads run together (every D1 query is a round trip).
+ const [versions,compat,pluginRel,makerRel]=await Promise.all([versionsOf(db,e.id,5),compatibilityOf(db,{subject:e.id}),
+  e.type==='app'?related(db,e.id,'in',['supports_host']):Promise.resolve([]),related(db,e.id,'out',['made_by','developed_by'])]);
  const targets=await entitiesByIds(db,compat.map(c=>c.target_id));
  const tf=await factsFor(db,[...targets.keys()]);
  const os=compat.filter(c=>targets.get(c.target_id)?.type==='os_release').map(c=>({c,os:/** @type {any} */(targets.get(c.target_id)),released:String(pickFact(tf.get(c.target_id),'release_date')?.value||''),family:String(pickFact(tf.get(c.target_id),'os_family')?.value||'')}))
   .sort((a,b)=>a.family.localeCompare(b.family)||b.released.localeCompare(a.released));
  const hosts=compat.filter(c=>targets.get(c.target_id)?.type==='app').map(c=>({c,app:/** @type {any} */(targets.get(c.target_id))}));
- const plugins=e.type==='app'?(await related(db,e.id,'in',['supports_host'])).length:0;
- const maker=(await related(db,e.id,'out',['made_by','developed_by']))[0]?.entity||null;
+ const plugins=pluginRel.length;
+ const maker=makerRel[0]?.entity||null;
  return {versions,os,hosts,plugins,maker};
 }
 const MARK=/** @type {Record<string,string>} */({supported:'✓',works:'✓',works_with_issues:'◐',broken:'✕',unsupported:'✕',unverified_after_update:'?',unknown:'?'});
