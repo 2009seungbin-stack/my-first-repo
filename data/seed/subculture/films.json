@@ -314,6 +314,126 @@
    "publisher": "AniList (third-party community database)",
    "retrieved": "2026-09-28",
    "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-films-profile-miyu-tomita",
+   "kind": "OFFICIAL",
+   "url": "https://www.amuse.co.jp/artist/A8701/",
+   "title": "富田 美憂 | アミューズWEBサイト",
+   "publisher": "アミューズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-mariya-ise",
+   "kind": "OFFICIAL",
+   "url": "https://across-ent.com/voice_actor/detail.html?id=110",
+   "title": "伊瀬 茉莉也 | 株式会社アクロスエンタテインメン公式HP │ ACROSS ENTERTAINMENT",
+   "publisher": "ACROSS ENTERTAINMENT",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-shiori-izawa",
+   "kind": "OFFICIAL",
+   "url": "https://voicekit.jp/talent/izawashiori/",
+   "title": "井澤詩織 | VOICE KIT",
+   "publisher": "VOICE KIT",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-haruka-tomatsu",
+   "kind": "OFFICIAL",
+   "url": "https://musicrayn.com/tomatsu_haruka",
+   "title": "戸松 遥｜MusicRay'n コーポレートサイト",
+   "publisher": "MusicRay'n",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-kana-hanazawa",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/women/hanazawakana/",
+   "title": "花澤 香菜 （はなざわ かな） – Kana Hanazawa – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-yusuke-kobayashi",
+   "kind": "OFFICIAL",
+   "url": "https://yu-rin.com/pro-man/kobayashi-yusuke",
+   "title": "voice_actor:yusuke-kobayashi",
+   "publisher": "ゆーりんプロ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-manaka-iwami",
+   "kind": "OFFICIAL",
+   "url": "https://www.raccoon-dog.co.jp/talent/r10-iwami.html",
+   "title": "石見舞菜香",
+   "publisher": "RaccoonDog",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-kurumi-mamiya",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%BE%E8%A1%8C&label=1&cell004=&name=%E9%96%93%E5%AE%AE%E3%80%80%E3%81%8F%E3%82%8B%E3%81%BF&id=301",
+   "title": "間宮 くるみ - （ま行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-konomi-kohara",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/women/koharakonomi/",
+   "title": "小原 好美 （こはら このみ） – Konomi Kohara – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-natsumi-haruse",
+   "kind": "OFFICIAL",
+   "url": "https://mausu.net/talent/haruse-natsumi.html",
+   "title": "春瀬 なつみ | 所属タレント | マウスプロモーション",
+   "publisher": "マウスプロモーション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-chiwa-saito",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=33",
+   "title": "アイムエンタープライズ",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-kinema-citrus",
+   "kind": "OFFICIAL",
+   "url": "https://kinemacitrus.biz/",
+   "title": "KINEMA CITRUS ｜ キネマシトラス",
+   "publisher": "株式会社キネマシトラス",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-enishiya",
+   "kind": "OFFICIAL",
+   "url": "https://www.enishiya-inc.co.jp/",
+   "title": "ENISHIYA Inc.",
+   "publisher": "ENISHIYA Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-engi",
+   "kind": "OFFICIAL",
+   "url": "https://engi-st.net/",
+   "title": "株式会社ENGI公式サイト",
+   "publisher": "ENGI Co.Ltd.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-profile-shaft",
+   "kind": "OFFICIAL",
+   "url": "https://www.shaft-web.co.jp/",
+   "title": "SHAFT Animation Studio",
+   "publisher": "株式会社シャフト",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -328,7 +448,15 @@
    "description": {
     "en": "Japanese animation studio that produces the Made in Abyss anime.",
     "ko": "메이드 인 어비스 애니메이션을 제작하는 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://kinemacitrus.biz/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-kinema-citrus"
+    }
+   ]
   },
   {
    "id": "studio_org:enishiya",
@@ -341,7 +469,15 @@
    "description": {
     "en": "Japanese animation studio that produced the Takopi's Original Sin anime.",
     "ko": "타코피의 원죄 애니메이션을 제작한 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.enishiya-inc.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-enishiya"
+    }
+   ]
   },
   {
    "id": "studio_org:engi",
@@ -354,7 +490,15 @@
    "description": {
     "en": "Japanese animation studio producing the Medalist anime.",
     "ko": "메달리스트 애니메이션을 제작하는 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://engi-st.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-engi"
+    }
+   ]
   },
   {
    "id": "studio_org:shaft",
@@ -372,6 +516,14 @@
     {
      "label": "Laftel (Korean credit)",
      "url": "https://laftel.net/item/40977"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.shaft-web.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-shaft"
     }
    ]
   },
@@ -579,7 +731,21 @@
    "names": {
     "en": "Miyu Tomita",
     "ja": "富田美憂"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アミューズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-miyu-tomita"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.amuse.co.jp/artist/A8701/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-miyu-tomita"
+    }
+   ]
   },
   {
    "id": "voice_actor:mariya-ise",
@@ -588,7 +754,21 @@
    "names": {
     "en": "Mariya Ise",
     "ja": "伊瀬茉莉也"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ACROSS ENTERTAINMENT",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-mariya-ise"
+    },
+    {
+     "p": "homepage",
+     "v": "https://across-ent.com/voice_actor/detail.html?id=110",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-mariya-ise"
+    }
+   ]
   },
   {
    "id": "voice_actor:shiori-izawa",
@@ -597,7 +777,21 @@
    "names": {
     "en": "Shiori Izawa",
     "ja": "井澤詩織"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "VOICE KIT",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-shiori-izawa"
+    },
+    {
+     "p": "homepage",
+     "v": "https://voicekit.jp/talent/izawashiori/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-shiori-izawa"
+    }
+   ]
   },
   {
    "id": "character:made-in-abyss-riko",
@@ -844,7 +1038,21 @@
    "names": {
     "en": "Haruka Tomatsu",
     "ja": "戸松遥"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "MusicRay'n",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-haruka-tomatsu"
+    },
+    {
+     "p": "homepage",
+     "v": "https://musicrayn.com/tomatsu_haruka",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-haruka-tomatsu"
+    }
+   ]
   },
   {
    "id": "voice_actor:kana-hanazawa",
@@ -853,7 +1061,21 @@
    "names": {
     "en": "Kana Hanazawa",
     "ja": "花澤香菜"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-kana-hanazawa"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/women/hanazawakana/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-kana-hanazawa"
+    }
+   ]
   },
   {
    "id": "voice_actor:yusuke-kobayashi",
@@ -862,7 +1084,21 @@
    "names": {
     "en": "Yusuke Kobayashi",
     "ja": "小林裕介"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ゆーりんプロ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-yusuke-kobayashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://yu-rin.com/pro-man/kobayashi-yusuke",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-yusuke-kobayashi"
+    }
+   ]
   },
   {
    "id": "character:witch-on-the-holy-night-aoko",
@@ -1067,7 +1303,21 @@
    "names": {
     "en": "Manaka Iwami",
     "ja": "石見舞菜香"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "RaccoonDog",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-manaka-iwami"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.raccoon-dog.co.jp/talent/r10-iwami.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-manaka-iwami"
+    }
+   ]
   },
   {
    "id": "character:rascal-does-not-dream-sakuta",
@@ -1266,7 +1516,21 @@
    "names": {
     "en": "Kurumi Mamiya",
     "ja": "間宮くるみ"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-kurumi-mamiya"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%BE%E8%A1%8C&label=1&cell004=&name=%E9%96%93%E5%AE%AE%E3%80%80%E3%81%8F%E3%82%8B%E3%81%BF&id=301",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-kurumi-mamiya"
+    }
+   ]
   },
   {
    "id": "voice_actor:konomi-kohara",
@@ -1275,7 +1539,21 @@
    "names": {
     "en": "Konomi Kohara",
     "ja": "小原好美"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-konomi-kohara"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/women/koharakonomi/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-konomi-kohara"
+    }
+   ]
   },
   {
    "id": "character:takopis-original-sin-takopi",
@@ -1479,7 +1757,21 @@
    "names": {
     "en": "Natsumi Haruse",
     "ja": "春瀬なつみ"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "マウスプロモーション",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-natsumi-haruse"
+    },
+    {
+     "p": "homepage",
+     "v": "https://mausu.net/talent/haruse-natsumi.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-natsumi-haruse"
+    }
+   ]
   },
   {
    "id": "character:medalist-inori",
@@ -1919,7 +2211,21 @@
    "names": {
     "en": "Chiwa Saito",
     "ja": "斎藤千和"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-chiwa-saito"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=33",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-profile-chiwa-saito"
+    }
+   ]
   },
   {
    "id": "character:puella-magi-madoka-magica-madoka",

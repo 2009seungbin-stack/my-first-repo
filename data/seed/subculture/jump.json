@@ -520,6 +520,126 @@
    "publisher": "AniList (third-party community database)",
    "retrieved": "2026-09-28",
    "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-jump-profile-kazuya-nakai",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/nakai-kazuya.html",
+   "title": "中井　和哉 | 株式会社青二プロダクション",
+   "publisher": "青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-akemi-okamura",
+   "kind": "OFFICIAL",
+   "url": "https://mausu.net/talent/okamura-akemi.html",
+   "title": "岡村 明美 | 所属タレント | マウスプロモーション",
+   "publisher": "マウスプロモーション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-kikunosuke-toya",
+   "kind": "OFFICIAL",
+   "url": "https://www.sma.co.jp/s/sma/artist/495",
+   "title": "戸谷菊之介 | Sony Music Artists",
+   "publisher": "Sony Music Artists",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-tomori-kusunoki",
+   "kind": "OFFICIAL",
+   "url": "https://www.sma.co.jp/s/sma/artist/441",
+   "title": "楠木ともり | Sony Music Artists",
+   "publisher": "Sony Music Artists",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-junya-enoki",
+   "kind": "OFFICIAL",
+   "url": "https://asleben.jp/talents/junya-enoki",
+   "title": "榎木 淳弥 – asleben",
+   "publisher": "asleben",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-yuma-uchida",
+   "kind": "OFFICIAL",
+   "url": "https://intention-k.com/profile/yuma_uchida",
+   "title": "Yuma Uchida | Intention",
+   "publisher": "INTENTION",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-mikako-komatsu",
+   "kind": "OFFICIAL",
+   "url": "https://hirata-office.jp/talent_profile/woman/mikako_komatsu.html",
+   "title": "小松未可子 プロフィール",
+   "publisher": "ヒラタオフィス",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-chiaki-kobayashi",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/men/kobayashichiaki/",
+   "title": "小林 千晃 （こばやし ちあき） – Chiaki Kobayashi – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-hiro-shimono",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=38",
+   "title": "アイムエンタープライズ",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-tomokazu-sugita",
+   "kind": "OFFICIAL",
+   "url": "https://agrs.co.jp/voiceact/",
+   "title": "声優業 | 株式会社ＡＧＲＳ",
+   "publisher": "AGRS",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-takuya-eguchi",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&label=1&page=3&cell004=&name=%E6%B1%9F%E5%8F%A3%E3%80%80%E6%8B%93%E4%B9%9F&id=18",
+   "title": "江口 拓也 - （あ行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-saori-hayami",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=74",
+   "title": "アイムエンタープライズ",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-shion-wakayama",
+   "kind": "OFFICIAL",
+   "url": "https://profile.himawari.net/view/1595",
+   "title": "若山 詩音 | 俳優プロフィール検索 | 劇団ひまわり",
+   "publisher": "劇団ひまわり",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-yurie-igoma",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=&cell028=&cell004=&name=%E4%BC%8A%E9%A7%92%E3%80%80%E3%82%86%E3%82%8A%E3%81%88&id=395&label=1",
+   "title": "伊駒 ゆりえ - （あ行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-rie-takahashi",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%9F%E8%A1%8C&label=1&name=%E9%AB%98%E6%A9%8B%E3%80%80%E6%9D%8E%E4%BE%9D&id=236",
+   "title": "高橋 李依 - （た行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -1282,7 +1402,21 @@
    "names": {
     "en": "Kazuya Nakai",
     "ja": "中井和哉"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "青二プロダクション",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kazuya-nakai"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/nakai-kazuya.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kazuya-nakai"
+    }
+   ]
   },
   {
    "id": "character:one-piece-zoro",
@@ -1325,7 +1459,21 @@
    "names": {
     "en": "Akemi Okamura",
     "ja": "岡村明美"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "マウスプロモーション",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-akemi-okamura"
+    },
+    {
+     "p": "homepage",
+     "v": "https://mausu.net/talent/okamura-akemi.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-akemi-okamura"
+    }
+   ]
   },
   {
    "id": "character:one-piece-nami",
@@ -1551,7 +1699,21 @@
    "names": {
     "en": "Kikunosuke Toya",
     "ja": "戸谷菊之介"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "Sony Music Artists",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kikunosuke-toya"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.sma.co.jp/s/sma/artist/495",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kikunosuke-toya"
+    }
+   ]
   },
   {
    "id": "character:chainsaw-man-denji",
@@ -1587,7 +1749,21 @@
    "names": {
     "en": "Tomori Kusunoki",
     "ja": "楠木ともり"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "Sony Music Artists",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomori-kusunoki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.sma.co.jp/s/sma/artist/441",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomori-kusunoki"
+    }
+   ]
   },
   {
    "id": "character:chainsaw-man-makima",
@@ -1850,7 +2026,21 @@
    "names": {
     "en": "Junya Enoki",
     "ja": "榎木淳弥"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "asleben",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-junya-enoki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://asleben.jp/talents/junya-enoki",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-junya-enoki"
+    }
+   ]
   },
   {
    "id": "character:jujutsu-kaisen-yuji",
@@ -1898,7 +2088,21 @@
    "names": {
     "en": "Yuma Uchida",
     "ja": "内田雄馬"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "INTENTION",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yuma-uchida"
+    },
+    {
+     "p": "homepage",
+     "v": "https://intention-k.com/profile/yuma_uchida",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yuma-uchida"
+    }
+   ]
   },
   {
    "id": "character:jujutsu-kaisen-megumi",
@@ -1939,7 +2143,21 @@
    "names": {
     "en": "Mikako Komatsu",
     "ja": "小松未可子"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ヒラタオフィス",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-mikako-komatsu"
+    },
+    {
+     "p": "homepage",
+     "v": "https://hirata-office.jp/talent_profile/woman/mikako_komatsu.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-mikako-komatsu"
+    }
+   ]
   },
   {
    "id": "character:jujutsu-kaisen-maki",
@@ -2304,6 +2522,20 @@
      "label": "Korean name source (Laftel)",
      "url": "https://laftel.net/item/44281"
     }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-chiaki-kobayashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/men/kobayashichiaki/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-chiaki-kobayashi"
+    }
    ]
   },
   {
@@ -2581,7 +2813,21 @@
    "names": {
     "en": "Hiro Shimono",
     "ja": "下野紘"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-hiro-shimono"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=38",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-hiro-shimono"
+    }
+   ]
   },
   {
    "id": "character:demon-slayer-zenitsu",
@@ -2841,7 +3087,15 @@
    "names": {
     "en": "Tomokazu Sugita",
     "ja": "杉田智和"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "AGRS",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomokazu-sugita"
+    }
+   ]
   },
   {
    "id": "character:sakamoto-days-taro",
@@ -3182,15 +3436,6 @@
    ]
   },
   {
-   "id": "voice_actor:katsuya-fukunishi",
-   "type": "voice_actor",
-   "slug": "katsuya-fukunishi",
-   "names": {
-    "en": "Katsuya Fukunishi",
-    "ja": "福西勝也"
-   }
-  },
-  {
    "id": "character:kaiju-no-8-kafka",
    "type": "character",
    "slug": "kaiju-no-8-kafka",
@@ -3211,7 +3456,7 @@
     },
     {
      "p": "voiced_by",
-     "o": "voice_actor:katsuya-fukunishi",
+     "o": "voice_actor:masaya-fukunishi",
      "src": "src:sc-jump-k8-top",
      "note": "Japanese voice"
     }
@@ -3434,7 +3679,21 @@
    "names": {
     "en": "Takuya Eguchi",
     "ja": "江口拓也"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-takuya-eguchi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&label=1&page=3&cell004=&name=%E6%B1%9F%E5%8F%A3%E3%80%80%E6%8B%93%E4%B9%9F&id=18",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-takuya-eguchi"
+    }
+   ]
   },
   {
    "id": "character:spy-x-family-loid",
@@ -3504,7 +3763,21 @@
    "names": {
     "en": "Saori Hayami",
     "ja": "早見沙織"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-saori-hayami"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=74",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-saori-hayami"
+    }
+   ]
   },
   {
    "id": "character:spy-x-family-yor",
@@ -3743,7 +4016,21 @@
    "names": {
     "en": "Shion Wakayama",
     "ja": "若山詩音"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "劇団ひまわり",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-shion-wakayama"
+    },
+    {
+     "p": "homepage",
+     "v": "https://profile.himawari.net/view/1595",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-shion-wakayama"
+    }
+   ]
   },
   {
    "id": "character:dandadan-momo",
@@ -4061,7 +4348,21 @@
    "names": {
     "en": "Yurie Igoma",
     "ja": "伊駒ゆりえ"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yurie-igoma"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=&cell028=&cell004=&name=%E4%BC%8A%E9%A7%92%E3%80%80%E3%82%86%E3%82%8A%E3%81%88&id=395&label=1",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yurie-igoma"
+    }
+   ]
   },
   {
    "id": "character:oshi-no-ko-ruby",
@@ -4114,6 +4415,20 @@
     {
      "label": "Korean name source (Laftel)",
      "url": "https://laftel.net/item/44283"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-rie-takahashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%9F%E8%A1%8C&label=1&name=%E9%AB%98%E6%A9%8B%E3%80%80%E6%9D%8E%E4%BE%9D&id=236",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-rie-takahashi"
     }
    ]
   },

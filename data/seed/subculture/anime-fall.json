@@ -673,6 +673,62 @@
    "publisher": "AniList (third-party community database)",
    "retrieved": "2026-09-28",
    "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-anime-fall-profile-olm",
+   "kind": "OFFICIAL",
+   "url": "https://www.olm.co.jp/",
+   "title": "OLM Group | オー・エル・エム グループ",
+   "publisher": "OLM Group",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-toho-animation-studio",
+   "kind": "OFFICIAL",
+   "url": "https://www.ta-studio.co.jp/",
+   "title": "株式会社TOHO animation STUDIO",
+   "publisher": "株式会社TOHO animation STUDIO",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-electric-circus",
+   "kind": "OFFICIAL",
+   "url": "https://e-circus.co.jp/",
+   "title": "株式会社エレクトリックサーカス",
+   "publisher": "ELECTRIC CIRCUS Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-david-production",
+   "kind": "OFFICIAL",
+   "url": "https://davidproduction.jp/",
+   "title": "株式会社デイヴィッドプロダクション",
+   "publisher": "David Production Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-liden-films",
+   "kind": "OFFICIAL",
+   "url": "https://lidenfilms.jp/",
+   "title": "LIDENFILMS - 株式会社ライデンフィルム",
+   "publisher": "株式会社ライデンフィルム",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-profile-trigger",
+   "kind": "OFFICIAL",
+   "url": "https://www.st-trigger.co.jp/",
+   "title": "株式会社トリガー | ANIMATION STUDIO TRIGGER Inc.",
+   "publisher": "TRIGGER Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-masaya-fukunishi",
+   "kind": "OFFICIAL",
+   "url": "https://www.kenproduction.co.jp/talent/182",
+   "title": "賢プロダクション [Kenproduction] 声優事務所・タレント事務所・声優プロダクション",
+   "publisher": "賢プロダクション",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -687,7 +743,15 @@
    "description": {
     "en": "Japanese animation studio credited with animation production of The Apothecary Diaries Season 3.",
     "ko": "약사의 혼잣말 3기의 애니메이션 제작을 맡은 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.olm.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-olm"
+    }
+   ]
   },
   {
    "id": "studio_org:toho-animation-studio",
@@ -700,7 +764,15 @@
    "description": {
     "en": "Toho-affiliated animation studio credited with the 2026 Apothecary Diaries film.",
     "ko": "2026년 극장판 약사의 혼잣말의 애니메이션 제작을 맡은 토호 계열 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.ta-studio.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-toho-animation-studio"
+    }
+   ]
   },
   {
    "id": "studio_org:studio-pierrot",
@@ -740,7 +812,15 @@
    "description": {
     "en": "Animation studio credited with Blue Box Season 2.",
     "ko": "푸른 상자(아오의 하코) 2기의 애니메이션 제작사."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://e-circus.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-electric-circus"
+    }
+   ]
   },
   {
    "id": "studio_org:david-production",
@@ -753,7 +833,15 @@
    "description": {
     "en": "Studio credited with the Steel Ball Run anime of JoJo's Bizarre Adventure.",
     "ko": "스틸 볼 런: 죠죠의 기묘한 모험 애니메이션의 제작 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://davidproduction.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-david-production"
+    }
+   ]
   },
   {
    "id": "studio_org:toei-animation",
@@ -793,7 +881,15 @@
    "description": {
     "en": "Animation studio credited with every Tokyo Revengers TV arc, including the Three Titans War arc.",
     "ko": "삼천전쟁편을 포함한 도쿄 리벤저스 TV 시리즈 전편의 애니메이션 제작사."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://lidenfilms.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-liden-films"
+    }
+   ]
   },
   {
    "id": "studio_org:mappa",
@@ -833,7 +929,15 @@
    "description": {
     "en": "Japanese animation studio that co-creates Cyberpunk: Edgerunners 2 with CD PROJEKT RED.",
     "ko": "CD 프로젝트 레드와 함께 사이버펑크: 엣지러너 2를 만드는 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.st-trigger.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-anime-fall-profile-trigger"
+    }
+   ]
   },
   {
    "id": "studio_org:tms-entertainment",

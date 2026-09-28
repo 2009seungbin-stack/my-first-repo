@@ -83,16 +83,16 @@ release month; re-check monthly and on delay notices (history is kept by the dif
 
 ## 4. Coverage (2026-09-28)
 
-**47 IPs (franchises)** across 9 seed files, **440 entities**, **780 facts** (734 OFFICIAL, 46 COMMUNITY =
-AniList ids), **670 relations**, **170 dated events** (144 upcoming or running on 2026-09-28), **303 sources**
-(298 OFFICIAL, 4 FEED, 1 CURATED). 161 entities carry an official Korean name.
+**47 IPs (franchises)** across 9 seed files, **439 entities**, **850 facts** (804 OFFICIAL, 46 COMMUNITY =
+AniList ids), **670 relations**, **170 dated events** (144 upcoming or running on 2026-09-28), **346 sources**
+(341 OFFICIAL, 4 FEED, 1 CURATED). 161 entities carry an official Korean name.
 
 | Entity type | Count | | Event kind | Count |
 | --- | --- | --- | --- | --- |
 | franchise | 47 | | broadcast | 27 |
 | work | 84 | | release (films, games, volumes) | 19 |
 | character | 112 | | update (game versions) | 10 |
-| voice_actor | 66 | | event (conventions, fan events) | 27 |
+| voice_actor | 65 | | event (conventions, fan events) | 27 |
 | studio_org | 41 | | collab / popup / exhibition | 9 / 3 / 3 |
 | creator | 36 | | merch_release / sale (pre-order windows) | 41 / 28 |
 | merchandise | 41 | | other | 3 |
@@ -139,7 +139,7 @@ Gaps
   Hongdae (to 10-11), Omniscient Reader animate café (to 10-13), JJK Phantom Parade pop-up, Haikyu!! SMG Store Suwon.
 - HSR × Mega MGC Coffee is sourced from a press report of HoYoverse Korea's announcement (`CURATED`); replace it with
   the official post when found.
-- Some voice actors/studios have no facts beyond their roles; Japanese voice actors carry no Korean name (unofficial
+- Agency/homepage facts were added for 31 voice actors and 12 studios from agency/company pages; still without facts: Megumi Hayashibara (no agency site), Kim Bo-na (freelance), Netmarble Neo (no own site); Japanese voice actors carry no Korean name (unofficial
   transliterations were removed on purpose).
 - English romanisations not taken from an official English page: Park Saenal, Cha Hae-in, Desir Arman, Romantica Eru,
   Kim Gongja (their Korean/Japanese names are sourced), and some descriptive English names of ALTER/MegaHouse products.

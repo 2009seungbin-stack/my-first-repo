@@ -326,6 +326,54 @@
    "publisher": "AniList (third-party community database)",
    "retrieved": "2026-09-28",
    "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-kr-origin-profile-taito-ban",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/men/bantaito/",
+   "title": "坂 泰斗 （ばん たいと） – Taito Ban – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-tatsumaru-tachibana",
+   "kind": "OFFICIAL",
+   "url": "https://stay-luck.com/talent/tachibana-tatsumaru/",
+   "title": "橘 龍丸 | ステイラック公式サイト",
+   "publisher": "ステイラック",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-takuma-terashima",
+   "kind": "OFFICIAL",
+   "url": "https://www.axl-one.com/talent/terashima.html",
+   "title": "寺島 拓篤｜タレント｜アクセルワン",
+   "publisher": "アクセルワン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-sayumi-suzushiro",
+   "kind": "OFFICIAL",
+   "url": "https://www.artsvision.co.jp/talent/14408/",
+   "title": "鈴代 紗弓 | 株式会社アーツビジョン",
+   "publisher": "アーツビジョン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-jc-staff",
+   "kind": "OFFICIAL",
+   "url": "http://www.jcstaff.co.jp/",
+   "title": "J.C.STAFF オフィシャルホームページ",
+   "publisher": "J.C.STAFF",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-studio-fu",
+   "kind": "OFFICIAL",
+   "url": "https://www.studiofu.co.jp/",
+   "title": "スタジオ fu｜STUDIO fu",
+   "publisher": "STUDIO fu Inc.",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -850,7 +898,21 @@
    "names": {
     "en": "Taito Ban",
     "ja": "坂 泰斗"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-taito-ban"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/men/bantaito/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-taito-ban"
+    }
+   ]
   },
   {
    "id": "creator:chugong",
@@ -1138,7 +1200,21 @@
    "names": {
     "en": "Tatsumaru Tachibana",
     "ja": "橘 龍丸"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ステイラック",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-tatsumaru-tachibana"
+    },
+    {
+     "p": "homepage",
+     "v": "https://stay-luck.com/talent/tachibana-tatsumaru/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-tatsumaru-tachibana"
+    }
+   ]
   },
   {
    "id": "voice_actor:asami-seto",
@@ -1514,7 +1590,21 @@
    "names": {
     "en": "Takuma Terashima",
     "ja": "寺島拓篤"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アクセルワン",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-takuma-terashima"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.axl-one.com/talent/terashima.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-takuma-terashima"
+    }
+   ]
   },
   {
    "id": "voice_actor:sayumi-suzushiro",
@@ -1523,7 +1613,21 @@
    "names": {
     "en": "Sayumi Suzushiro",
     "ja": "鈴代紗弓"
-   }
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アーツビジョン",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-sayumi-suzushiro"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.artsvision.co.jp/talent/14408/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-sayumi-suzushiro"
+    }
+   ]
   },
   {
    "id": "creator:usonan",
@@ -2082,7 +2186,15 @@
    "description": {
     "en": "Japanese animation studio credited with the Overgeared TV anime.",
     "ko": "'템빨' TV 애니메이션 제작사로 표기된 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "http://www.jcstaff.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-jc-staff"
+    }
+   ]
   },
   {
    "id": "studio_org:arvo-animation",
@@ -2108,7 +2220,15 @@
    "description": {
     "en": "Japanese animation studio credited with the SSS-Class Revival Hunter TV anime.",
     "ko": "'SSS급 죽어야 사는 헌터' TV 애니메이션 제작사로 표기된 일본 애니메이션 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.studiofu.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-studio-fu"
+    }
+   ]
   },
   {
    "id": "studio_org:the-answer-studio",
