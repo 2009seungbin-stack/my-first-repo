@@ -137,7 +137,7 @@ export async function collectorState(db,adapters){
 /* ---------- community (게시판) ---------- */
 
 const POST_COLS=`d.id,d.entity_id,d.post_no,d.kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,
- COALESCE(p.display_name,u.display_name) AS author_name,COALESCE(p.tier,'new') AS author_tier,COALESCE(p.role,'user') AS author_role`;
+ COALESCE(p.display_name,CASE WHEN u.provider='system' THEN u.display_name ELSE 'user-'||lower(substr(u.id,1,6)) END) AS author_name,COALESCE(p.tier,'new') AS author_tier,COALESCE(p.role,'user') AS author_role`;
 /** @param {any} r */
 const postRow=r=>({id:String(r.id),entity_id:String(r.entity_id),post_no:Number(r.post_no),kind:String(r.kind),title:String(r.title),locale:String(r.locale),author_id:String(r.author_id),author_name:r.author_name??null,author_tier:String(r.author_tier),author_role:String(r.author_role),
  bot:String(r.author_id).startsWith('system:'),change_id:r.change_id??null,report_id:r.report_id??null,status:String(r.status),pinned:!!r.pinned,up:Number(r.up_count),down:Number(r.down_count),views:Number(r.view_count),comments:Number(r.comment_count),has_image:!!r.has_image,
@@ -168,7 +168,7 @@ export async function postByNo(db,entityId,postNo){
 }
 /** Oldest first; the renderer threads replies under their parents. @param {D1} db @param {string} discussionId */
 export async function commentsOf(db,discussionId){
- const rows=await all(db,`SELECT c.id,c.parent_id,c.author_id,c.body_md,c.status,c.up_count,c.down_count,c.created_at,c.edited_at,COALESCE(p.display_name,u.display_name) AS author_name,COALESCE(p.tier,'new') AS author_tier
+ const rows=await all(db,`SELECT c.id,c.parent_id,c.author_id,c.body_md,c.status,c.up_count,c.down_count,c.created_at,c.edited_at,COALESCE(p.display_name,'user-'||lower(substr(u.id,1,6))) AS author_name,COALESCE(p.tier,'new') AS author_tier
   FROM comments c JOIN users u ON u.id=c.author_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.discussion_id=? AND c.status<>'hidden' ORDER BY c.created_at,c.id`,[discussionId]);
  return rows.map(r=>({id:String(r.id),parent_id:r.parent_id??null,author_id:String(r.author_id),author_name:r.author_name??null,author_tier:String(r.author_tier),body_md:String(r.body_md),deleted:r.status==='deleted',up:Number(r.up_count),down:Number(r.down_count),created_at:Number(r.created_at),edited_at:r.edited_at??null}));
 }

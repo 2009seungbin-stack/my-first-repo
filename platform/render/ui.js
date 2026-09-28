@@ -8,6 +8,7 @@ import {VERIFICATION_LABEL,label} from '../labels.js';
 import {boardTime,compact} from './format.js';
 
 export const CSS_HREF='/src/platform/n2.css';
+export const ISLANDS_SRC='/src/platform/islands.js';
 
 /** @typedef {import('../db/channel.js').Entity} Entity */
 /** @param {{names:Record<string,string>}} e @param {string} l */
@@ -86,6 +87,7 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:site_name" content="Nerulio">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="${CSS_HREF}">
+<script type="module" src="${ISLANDS_SRC}"></script>
 ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld).replace(/</g,'\\u003c'))}</script>
 `:''}</head>
 <body class="n2">

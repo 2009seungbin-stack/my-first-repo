@@ -20,6 +20,9 @@ export function writableKinds(vertical){
  return Object.entries(POST_KINDS).filter(([,k])=>!('staff' in k)&&(!('verticals' in k)||/** @type {string[]} */(k.verticals).includes(vertical))).map(([id])=>id).filter(id=>id!=='news');
 }
 
+/** Input limits shared by the write API and the write form. */
+export const LIMITS=Object.freeze({title:/** @type {[number,number]} */([2,120]),body:/** @type {[number,number]} */([1,20000]),comment:/** @type {[number,number]} */([1,4000]),nickname:/** @type {[number,number]} */([2,20]),version:40,postsPerMinute:3,commentsPerMinute:10,votesPerMinute:60});
+
 /** ★ best (념글): shown openly in the UI so it is never a black box. */
 export const BEST_RULE=Object.freeze({minUp:10,minRatio:0.7,windowMs:24*3600e3});
 /** @param {{up_count:number,down_count:number,created_at:number,best_at?:number|null}} p @param {number} now */
