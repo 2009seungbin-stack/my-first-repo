@@ -68,5 +68,6 @@ export const SOURCE_HOSTS=new Set([
  'www.pdfa.org',
  'www.rfc-editor.org',
  'www.rpgmakerweb.com',
+ 'www.spritefusion.com', // Sprite Fusion's own documentation (compared on game/sprite-fusion-alternative)
  'www.w3.org',
 ]);
