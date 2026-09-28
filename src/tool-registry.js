@@ -1,5 +1,14 @@
 /** Catalog metadata only: imported by both static build and runtime. ko/en/ja. */
 export const TOOLS = Object.freeze({
+  "pixel-avatar-maker": {
+    "path": "game/pixel-avatar-maker",
+    "category": "game",
+    "icon": "pixel",
+    "title": ["픽셀 아바타 만들기","Pixel Avatar Maker","ピクセルアバター作成"],
+    "description": ["오리지널 CC0 파츠로 캐릭터를 조합하고 픽셀 PNG·GIF·공유 카드를 기기에서 만드세요.","Compose original CC0 character parts and export exact-pixel PNG, GIF and a share card on your device.","オリジナルCC0パーツを組み合わせ、正確なピクセルPNG・GIF・共有カードを端末上で作成。"],
+    "limit": ["설정 링크에는 이미지가 없으며, SNS 링크의 미리보기는 공통 카드입니다.","Settings links contain no image; social link previews use a generic card.","設定リンクに画像は含まれず、SNSのリンクプレビューは共通カードです。"],
+    "next": ["pixel-lab","sprite-sheet-maker","palette-swap"]
+  },
   "refiner": {
     "path": "game-asset-pixelizer",
     "category": "game",
