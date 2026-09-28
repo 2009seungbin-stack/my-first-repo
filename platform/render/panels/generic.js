@@ -29,7 +29,9 @@ export function factRows(ctx,only){
  const order=only||typeDef(e.vertical,e.type)?.props||[];
  const rows=[];
  for(const p of order){
-  const f=facts.find(x=>x.property===p&&x.plan==='*'&&(x.region===ctx.region||x.region==='*'||x.region==='GLOBAL'))||facts.find(x=>x.property===p&&x.plan==='*');
+  const lr=(/** @type {any} */ x)=>x.language===l?0:!x.language||x.language==='*'?1:2;
+  const cand=facts.filter(x=>x.property===p&&x.plan==='*').sort((a,b)=>lr(a)-lr(b));
+  const f=cand.find(x=>x.region===ctx.region||x.region==='*'||x.region==='GLOBAL')||cand[0];
   const def=propertyDef(e.vertical,p);
   if(!f||p==='homepage'||def?.public===false)continue;
   rows.push(html`<tr><th>${def?label(def.label,l):p}</th><td>${factText(e.vertical,f,l)}${f.verification!=='OFFICIAL'?html` ${badge(f.verification,l)}`:''}</td></tr>`);

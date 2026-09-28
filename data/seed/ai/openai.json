@@ -2946,6 +2946,14 @@
           "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
           "ver": "OFFICIAL",
           "src": "src:openai-help-pro-tiers"
+        },
+        {
+          "p": "price_note",
+          "v": "Go·Plus·Pro는 연간 결제 옵션이 없음(OpenAI 도움말 기준).",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-help-pro-tiers"
         }
       ],
       "relations": [
@@ -3002,6 +3010,14 @@
         {
           "p": "price_note",
           "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-help-pro-tiers"
+        },
+        {
+          "p": "price_note",
+          "v": "Go·Plus·Pro는 연간 결제 옵션이 없음(OpenAI 도움말 기준).",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
           "ver": "OFFICIAL",
           "src": "src:openai-help-pro-tiers"
         }
@@ -3069,6 +3085,14 @@
           "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
           "ver": "OFFICIAL",
           "src": "src:openai-help-pro-tiers"
+        },
+        {
+          "p": "price_note",
+          "v": "Go·Plus·Pro는 연간 결제 옵션이 없음(OpenAI 도움말 기준).",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-help-pro-tiers"
         }
       ],
       "relations": [
@@ -3123,6 +3147,14 @@
         {
           "p": "price_note",
           "v": "New sign-ups and upgrades to Pro $200 temporarily paused as of 2026-09-10; existing subscriptions unaffected. No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-help-pro-tiers"
+        },
+        {
+          "p": "price_note",
+          "v": "2026-09-10부터 Pro $200 신규 가입·업그레이드가 일시 중단됨(기존 구독은 유지). 연간 결제 옵션 없음.",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
           "ver": "OFFICIAL",
           "src": "src:openai-help-pro-tiers"
         }
@@ -3180,6 +3212,14 @@
           "src": "src:openai-learn-pricing"
         },
         {
+          "p": "price_note",
+          "v": "Standard 좌석 1인당 연간 결제 시 월 $20, 월간 결제 시 $25(2인 이상). Premium 좌석도 있음.",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-learn-pricing"
+        },
+        {
           "p": "seats_min",
           "v": 2,
           "ver": "OFFICIAL",
@@ -3223,6 +3263,14 @@
         {
           "p": "price_note",
           "v": "Contact sales; shown together with Edu as 'Enterprise & Edu'.",
+          "ver": "OFFICIAL",
+          "src": "src:openai-learn-pricing"
+        },
+        {
+          "p": "price_note",
+          "v": "영업 상담. 요금표에는 Edu와 함께 “Enterprise & Edu”로 표시됨.",
+          "language": "ko",
+          "note": "Nerulio Korean summary of the official English text.",
           "ver": "OFFICIAL",
           "src": "src:openai-learn-pricing"
         }

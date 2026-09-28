@@ -45,11 +45,15 @@ export async function factsFor(db,ids){
 /**
  * The fact to show for a property: the reader's region first (KR on Korean pages), then the global
  * row, then any row. Plan/platform-scoped rows are only used when asked for.
- * @param {Fact[]|undefined} facts @param {string} property @param {{region?:string,plan?:string,platform?:string}} [scope]
+ * @param {Fact[]|undefined} facts @param {string} property @param {{region?:string,plan?:string,platform?:string,language?:string}} [scope]
  */
 export function pickFact(facts,property,scope={}){
  const rows=(facts||[]).filter(f=>f.property===property&&f.plan===(scope.plan||'*')&&(scope.platform?f.platform===scope.platform:true));
  if(!rows.length)return null;
+ // Text facts may have a translation (language 'ko'): the reader's language first, then the
+ // language-neutral row, then any other.
+ const lr=(/** @type {any} */ f)=>scope.language&&f.language===scope.language?0:!f.language||f.language==='*'?1:2;
+ rows.sort((a,b)=>lr(a)-lr(b));
  return rows.find(f=>scope.region&&f.region===scope.region)||rows.find(f=>f.region==='*'||f.region==='GLOBAL')||rows[0];
 }
 /** Relations of an entity, with the entity on the other side. dir 'out' = entity is subject.

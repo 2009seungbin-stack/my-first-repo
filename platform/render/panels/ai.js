@@ -37,7 +37,7 @@ async function load(ctx){
  const modelRows=models.map(m=>({m,status:f(m.id,'status'),released:f(m.id,'release_date'),ctx:f(m.id,'context_window'),in:pickFact(facts.get(m.id),'api_input_price'),out:pickFact(facts.get(m.id),'api_output_price'),open:f(m.id,'open_weights')}))
   .filter(r=>(r.status==='active'||r.status==='preview')&&!r.open)
   .sort((a,b)=>String(b.released||'').localeCompare(String(a.released||'')));
- const planRows=plans.map(p=>({p,monthly:pickFact(facts.get(p.id),'price_monthly',{region:ctx.region}),note:f(p.id,'price_note')}))
+ const planRows=plans.map(p=>({p,monthly:pickFact(facts.get(p.id),'price_monthly',{region:ctx.region}),note:pickFact(facts.get(p.id),'price_note',{region:ctx.region,language:ctx.l})?.value}))
   .sort((a,b)=>(a.monthly?.value??1e9)-(b.monthly?.value??1e9));
  // Status: incidents on the service family in the last 14 days, open ones first.
  const incidents=(await eventsFor(db,[...services.map(s=>s.id),...(provider?[provider.id]:[])],{kinds:['incident','other'],from:now-14*DAY,desc:true,limit:20}))

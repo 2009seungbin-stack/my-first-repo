@@ -203,6 +203,9 @@ test('status, history and write pages render; status is only for services',{skip
  assert(html.includes('지금 Claude 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
+ const pro=await (await get('/ko/ai/claude-pro/')).text(),proEn=await (await get('/en/ai/claude-pro/')).text();
+ assert(pro.includes('연간 결제 시 월 $17')&&!pro.includes('with annual billing'),'Korean pages show the Korean price note');
+ assert(proEn.includes('with annual billing'),'English pages keep the official text');
  const ch=await (await get('/ko/ai/claude/')).text();
  assert(ch.includes('사용자 리포트 급증'),'the channel status box says what the status page says');
  assert(!ch.includes('>확인 전<'),'no bare "not checked" when users are reporting');
