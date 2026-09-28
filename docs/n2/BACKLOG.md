@@ -51,6 +51,13 @@ AI, 한글패치 and GPU channels first, facts before boards, legal basics befor
 - [x] Signed-in front box, mobile Radar link, 내 정보 (my posts, sign-out), Radar filter and pre-orders
 - [x] Tables in posts, comment edit, post tag change, 404 page for missing posts, write drafts
 - [x] GPU side-by-side comparison (`?type=gpu&vs=a,b`)
+- [x] Second walkthrough (UX-WALKTHROUGH-2): radar filter by related channels, one voice per person,
+      search aliases, phone header, messages across reloads, moderator full text
+- [x] Code review 2 (12 findings incl. 2 High) and SEO audit (og cards, Korean spellings in titles,
+      sitemaps, nofollow filters, structured data, descriptions, hub links) — see the status tables
+- [x] 정보 제안 (0007), reply alerts (0008), open data, link-crawl test, parallel D1 reads
+- [ ] SEO follow-ups: status pages without data (index after collectors run), posts in sitemaps
+      after boards open, games reachable only via hub pages 2+
 - [ ] KRW approximation of USD plan prices (needs a sourced exchange rate — owner decision)
 - [ ] Korean names for subculture people and goods (data with sources)
 
