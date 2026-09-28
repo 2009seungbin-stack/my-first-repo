@@ -1,5 +1,6 @@
 """SFX Generator UI and independently reopened output. TEST_URL=http://127.0.0.1:4706 python tests/sfx-browser.py"""
 import io
+import array
 import base64
 import json
 import math
@@ -114,6 +115,11 @@ def run():
             if info:
                 assert info['streams'][0]['codec_name'] == codec, info
                 assert info['streams'][0]['sample_rate'] == '44100', info
+            if shutil.which('ffmpeg'):
+                decoded=subprocess.check_output(['ffmpeg','-v','error','-i',str(target),'-ac','1','-f','f32le','-'],timeout=20)
+                samples=array.array('f'); samples.frombytes(decoded)
+                assert len(samples)>1000 and all(math.isfinite(x) for x in samples)
+                assert max(abs(x) for x in samples)>.001 and max(abs(x) for x in samples)<=1.05
             checks += 1
         assert page.locator('#format option[value="mp3"]').get_attribute('disabled') is None
         assert page.locator('.sfx-codec a').count() == 4
