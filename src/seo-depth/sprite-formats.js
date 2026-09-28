@@ -506,5 +506,333 @@ export default {
    versions:{body:['スプライト › .aseprite書き出し…は、実ファイル231個で確認した書き出し処理を使います。読み込んで書き直し、Aseprite 1.3.18.6で開いたところ、231個すべてが警告なしでタグ・長さ・ピクセルとも一致しました。パック＆書き出しの`.aseprite`ターゲットは、Aseprite 1.3.18のコマンドラインで開いて全フレームをレンダリングしました。上のAsepriteの手順はAsepriteの公式ドキュメントに基づきます。'],sources:[ASE_SHEET,ASE_TAGS,ASE_SLICES,ASE_CLI]}
   }
  },
+/* ============================================================================ sprite-sheet-to-video */
+ 'game/sprite-sheet-to-video':{
+  type:'conversion',
+  intent:{primary:'turn a sprite sheet animation into a video file',secondary:['sprite sheet to MP4','pixel art video without blur','devlog or trailer clip of a sprite animation'],
+   goal:'a crisp video of each animation, enlarged without blur, with the frame timing of the sheet, ready to post or to convert to MP4',input:'sprite sheet (or any Studio sprite) cut into animations',output:'ZIP with one .webm (VP9, or VP8) per animation; no MP4, no audio',target:'video posts, trailers, store pages (via ffmpeg for MP4)',support:'partial',
+   evidence:['src/game/export/webm.js (VideoEncoder vp09.00.10.08 → vp8, scale ≤ 4 with sides ≤ 1920, even size, background rgb(32,34,40), bitrate max(500k, W·H·8), own muxer)','src/studio/pack-worker.js (one .webm per animation, one cycle from animationFrames)','tests/studio-pack-browser.py (EBML header, ffprobe, Chromium plays 0.6 s)','docs/STUDIO-PACK.md'],
+   external:['MDN: VideoEncoder availability (limited, secure context, workers)','ffmpeg docs: -c:v, -pix_fmt, -stream_loop; ffmpeg codecs: libx264']},
+  en:{
+   answer:"Nerulio turns each animation of a sprite sheet into its own WebM video (VP9, or VP8 where the browser has no VP9 encoder), encoded by the browser's WebCodecs `VideoEncoder`. Frames are enlarged 4× with nearest-neighbour (less when a side would pass 1920 px), drawn on a solid dark background, and each keeps its own duration; one file holds one cycle. It does not write MP4 or audio: convert the WebM with a tool such as ffmpeg when a platform wants MP4.",
+   concept:{title:'Why pixel art needs care in a video',body:[
+    "Video codecs such as VP9 and VP8 are lossy and normally store colour at half resolution in both directions (4:2:0): one colour sample per 2 × 2 pixels. A one-pixel outline in a 32 × 32 sprite would smear into its neighbours. Enlarging every pixel to a 4 × 4 block with nearest-neighbour before encoding gives each source pixel whole colour samples, so edges stay square after compression.",
+    "There is no transparency in this export. VP9 can carry alpha in WebM, but many players ignore it, so every frame is blended onto a solid rgb(32, 34, 40) background; a semi-transparent pixel is mixed with that colour in proportion to its alpha.",
+    "Timing is stored as timestamps, not as one fixed frame rate: each frame starts where the previous ones end (whole milliseconds in the file), so a 250 ms hold stays a hold. A file contains one cycle of the animation in playback order, ping-pong written out; looping is up to the player."],
+    terms:[['4:2:0','Chroma subsampling: colour at half width and half height, brightness at full size.'],
+     ['VP9 / VP8','Video codecs carried in WebM. Nerulio asks the browser for VP9 (`vp09.00.10.08`) and falls back to VP8.'],
+     ['VideoEncoder','The WebCodecs browser API that encodes the frames. It is not available in every browser and only works on secure (HTTPS) pages.'],
+     ['Nearest-neighbour','Scaling that copies each pixel into a k × k block without blending.']]},
+   example:{title:'Example: sizes, bitrate and length',lines:[
+    'frames 64 × 64, walk = 6 frames × 100 ms',
+    'scale     4× → 256 × 256 px   (largest factor ≤ 4 with both sides ≤ 1920 px)',
+    'bitrate   max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    'length    6 × 100 ms = 0.6 s, one cycle',
+    'file      hero_webm/hero_walk.webm',
+    '',
+    'boss 700 × 300:  4× = 2800 px wide (too wide), 3× = 2100 (too wide) → 2× = 1400 × 600',
+    'odd  545 × 201:  4× = 2180 (too wide) → 3× = 1635 × 603 → padded to 1636 × 604 (even sides)'],
+    after:'The export notes repeat this per animation, for example “walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).”'},
+   mapping:{head:['In the Studio','In the WebM','Note'],rows:[
+    ['Animation (tag)','One `.webm` file','Export name + animation name, e.g. `hero_walk.webm`'],
+    ['Frame duration','Timestamp of the next frame','Whole milliseconds; uneven timing is kept'],
+    ['Direction, ping-pong','Frames in playback order','One cycle; the repeat count is not stored'],
+    ['Pixel','k × k block, k = 4 unless the frame is large','Nearest-neighbour, then lossy compression'],
+    ['Transparency','Blended onto rgb(32, 34, 40)','No alpha channel in the file'],
+    ['Frames of different sizes','One cell per animation, frames aligned on their pivots','Same alignment as the GIF export']]},
+   outputs:{rows:[
+    ['hero_webm.zip','The download, with a folder `hero_webm/` (named after the export name).'],
+    ['hero_webm/hero_walk.webm','One cycle of `walk`: VP9 (or VP8) video in a WebM container, no audio track.']]},
+   target:{title:'After export: MP4, longer clips, posting',steps:[
+    'Unzip; there is one `.webm` per animation. Chromium played these files in our checks.',
+    'Need MP4? Re-encode with ffmpeg, for example `ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`. The enlargement is already in the pixels, so the MP4 keeps the square blocks.',
+    'A 0.6 s clip is short for a post. `-stream_loop` repeats the input before encoding: `ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4` gives ten cycles, 6 s.',
+    'Keep the sheet or an APNG next to the video: the WebM is lossy and meant for showing the animation, not for loading into an engine.']},
+   verify:{steps:[
+    'Play the file and time one cycle: 6 frames × 100 ms should last 0.6 s.',
+    'Pause and zoom in: each source pixel is a 4 × 4 block, with slightly soft colour edges from compression.',
+    '`ffprobe hero_walk.webm` reports the codec (vp9 or vp8) and the width and height given in the notes.']},
+   trouble:{rows:[
+    ['The WebM button is disabled','This browser has no WebCodecs `VideoEncoder`, or the page is not served over HTTPS','The button\'s tooltip says so','Use a current Chrome or Edge; GIF and APNG export work without it'],
+    ['The video ends after a fraction of a second','A file holds one cycle; looping is the player\'s job','Its length equals the sum of the frame times','Loop it in the player, or repeat the input with ffmpeg `-stream_loop` before posting'],
+    ['A dark fringe around soft edges','Semi-transparent pixels were blended with the dark background','Look at glows and anti-aliased edges','Export APNG to keep transparency; the background colour is fixed in this export'],
+    ['Large sprites look soft','The scale drops below 4× to keep both sides ≤ 1920 px, so fewer pixels per source pixel survive compression','The notes show the factor, for example “(2× nearest)”','Export smaller animations separately, or accept 2×'],
+    ['A site rejects the file','It accepts MP4 (H.264) but not WebM','Its upload help lists the formats','Convert with ffmpeg as above']]},
+   alternatives:{rows:[
+    ['[[game/sprite-sheet-to-gif|Animated GIF]] or APNG from the same panel','Chat or forum posts where transparency matters; APNG keeps soft edges and exact colours.'],
+    ['Screen-record the floating preview (F7, up to 8×)','You want your own background, several animations side by side, or a long take.'],
+    ['Export PNG frames and build the video in a video editor','You need MP4 directly, a custom frame rate or sound; see [[game/sprite-sheet-to-png-frames|sprite sheet to PNG frames]].']]},
+   limits:['WebM only: no MP4 and no audio track.','The background colour and the scale are fixed: rgb(32, 34, 40), 4× whenever both sides stay within 1920 px.','One cycle per file; repeat counts are not stored.'],
+   versions:{body:['The WebM export was checked in Chromium: the file starts with the WebM (EBML) header, ffprobe reads the video stream and its frames, and Chromium plays a 6 × 100 ms animation in 0.6 s at 4× size. The encoder is the browser\'s own, so whether you get VP9 or VP8 depends on that browser. Browser availability of VideoEncoder follows MDN; the ffmpeg options follow the ffmpeg documentation.'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  },
+  ko:{
+   answer:'Nerulio는 스프라이트 시트의 애니메이션마다 WebM 동영상을 하나씩 만듭니다(VP9, 브라우저에 VP9 인코더가 없으면 VP8). 인코딩은 브라우저의 WebCodecs `VideoEncoder`가 합니다. 프레임은 최근접 이웃으로 4배 키우고(한 변이 1920 px를 넘으면 그보다 작게), 단색 어두운 배경 위에 그리며, 프레임마다 자기 길이를 유지합니다. 파일 하나에 한 사이클이 들어갑니다. MP4나 오디오는 쓰지 않으니, MP4가 필요한 곳에는 ffmpeg 같은 도구로 WebM을 변환하세요.',
+   concept:{title:'픽셀아트를 동영상으로 만들 때 조심할 점',body:[
+    'VP9·VP8 같은 동영상 코덱은 손실 압축이고 보통 색을 가로세로 절반 해상도(4:2:0)로 저장합니다. 2 × 2 픽셀마다 색 샘플이 하나입니다. 32 × 32 스프라이트의 1픽셀 외곽선은 옆 픽셀로 번집니다. 인코딩 전에 최근접 이웃으로 모든 픽셀을 4 × 4 블록으로 키우면 원래 픽셀 하나가 색 샘플을 온전히 가지게 되어, 압축 뒤에도 가장자리가 네모로 남습니다.',
+    '이 내보내기에는 투명이 없습니다. VP9는 WebM에서 알파를 담을 수 있지만 무시하는 재생기가 많아서, 모든 프레임을 단색 rgb(32, 34, 40) 배경 위에 섞습니다. 반투명 픽셀은 알파 비율만큼 이 색과 섞입니다.',
+    '타이밍은 고정 프레임레이트가 아니라 타임스탬프로 저장됩니다. 각 프레임은 앞 프레임들이 끝나는 시점에 시작하고(파일 안에서는 정수 밀리초), 250 ms 멈춤 동작도 그대로 멈춥니다. 파일에는 재생 순서(핑퐁은 펼친 순서)로 애니메이션 한 사이클이 들어가며, 반복은 재생기가 맡습니다.'],
+    terms:[['4:2:0','크로마 서브샘플링. 색은 가로·세로 절반 해상도, 밝기는 원래 해상도로 저장합니다.'],
+     ['VP9 / VP8','WebM에 담기는 동영상 코덱. Nerulio는 브라우저에 VP9(`vp09.00.10.08`)를 요청하고, 안 되면 VP8을 씁니다.'],
+     ['VideoEncoder','프레임을 인코딩하는 WebCodecs 브라우저 API. 모든 브라우저에 있지는 않고 보안(HTTPS) 페이지에서만 동작합니다.'],
+     ['최근접 이웃','픽셀을 섞지 않고 k × k 블록으로 복사하는 확대 방식.']]},
+   example:{title:'예시: 크기, 비트레이트, 길이',lines:[
+    '프레임 64 × 64, walk = 6프레임 × 100 ms',
+    '배율      4× → 256 × 256 px   (두 변 모두 1920 px 이하인 4 이하 최대 배율)',
+    '비트레이트 max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    '길이      6 × 100 ms = 0.6 s, 한 사이클',
+    '파일      hero_webm/hero_walk.webm',
+    '',
+    '보스 700 × 300:  4× = 가로 2800 (초과), 3× = 2100 (초과) → 2× = 1400 × 600',
+    '홀수 545 × 201:  4× = 2180 (초과) → 3× = 1635 × 603 → 1636 × 604로 채움 (짝수 변)'],
+    after:'내보내기 안내가 애니메이션마다 이 내용을 알려 줍니다. 예: “walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).”'},
+   mapping:{head:['Studio에서','WebM에서','참고'],rows:[
+    ['애니메이션(태그)','`.webm` 파일 하나','내보내기 이름 + 애니메이션 이름, 예: `hero_walk.webm`'],
+    ['프레임 길이','다음 프레임의 타임스탬프','정수 밀리초, 들쭉날쭉한 타이밍 유지'],
+    ['방향, 핑퐁','재생 순서대로 프레임','한 사이클, 반복 횟수는 저장 안 됨'],
+    ['픽셀','k × k 블록, 프레임이 크지 않으면 k = 4','최근접 이웃 확대 후 손실 압축'],
+    ['투명','rgb(32, 34, 40) 위에 섞음','파일에 알파 채널 없음'],
+    ['크기가 다른 프레임','애니메이션마다 한 칸, 프레임을 피벗에 맞춤','GIF 내보내기와 같은 정렬']]},
+   outputs:{rows:[
+    ['hero_webm.zip','내려받는 파일. 안에 `hero_webm/` 폴더가 있습니다(내보내기 이름을 따름).'],
+    ['hero_webm/hero_walk.webm','`walk` 한 사이클: WebM 컨테이너의 VP9(또는 VP8) 동영상, 오디오 트랙 없음.']]},
+   target:{title:'내보낸 뒤: MP4, 더 긴 클립, 게시',steps:[
+    'ZIP을 풉니다. 애니메이션마다 `.webm`이 하나 있습니다. 검증에서 Chromium이 이 파일을 재생했습니다.',
+    'MP4가 필요하면 ffmpeg로 다시 인코딩하세요. 예: `ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`. 확대는 이미 픽셀에 들어가 있어 MP4에서도 네모 블록이 유지됩니다.',
+    '0.6초짜리 클립은 게시물로는 짧습니다. `-stream_loop`은 인코딩 전에 입력을 반복합니다. `ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4`면 열 사이클, 6초가 됩니다.',
+    '동영상 옆에 시트나 APNG를 함께 보관하세요. WebM은 손실 압축이라 애니메이션을 보여 주는 용도이지 엔진에 넣는 용도가 아닙니다.']},
+   verify:{steps:[
+    '재생해서 한 사이클 시간을 재 보세요. 6프레임 × 100 ms면 0.6초입니다.',
+    '멈추고 확대해 보세요. 원래 픽셀 하나가 4 × 4 블록이고, 압축 때문에 색 경계가 약간 부드럽습니다.',
+    '`ffprobe hero_walk.webm`이 코덱(vp9 또는 vp8)과, 안내에 나온 너비·높이를 보여 줍니다.']},
+   trouble:{rows:[
+    ['WebM 버튼이 꺼져 있음','이 브라우저에 WebCodecs `VideoEncoder`가 없거나, 페이지가 HTTPS가 아닙니다','버튼 툴팁이 알려 줍니다','최신 Chrome이나 Edge를 쓰세요. GIF와 APNG 내보내기는 없이도 됩니다'],
+    ['동영상이 1초도 안 돼 끝남','파일 하나는 한 사이클이고, 반복은 재생기 몫입니다','길이가 프레임 시간의 합과 같습니다','재생기에서 반복하거나, 게시 전에 ffmpeg `-stream_loop`로 입력을 반복하세요'],
+    ['부드러운 가장자리에 어두운 테두리','반투명 픽셀이 어두운 배경과 섞였습니다','빛 번짐이나 안티에일리어싱된 가장자리를 봅니다','투명이 필요하면 APNG로 내보내세요. 이 내보내기의 배경색은 고정입니다'],
+    ['큰 스프라이트가 흐릿함','두 변을 1920 px 이하로 맞추려고 배율이 4배 아래로 내려가, 원래 픽셀당 남는 픽셀이 적어졌습니다','안내에 “(2× nearest)”처럼 배율이 나옵니다','애니메이션을 작게 나눠 내보내거나 2배를 받아들이세요'],
+    ['사이트가 파일을 거부함','WebM이 아니라 MP4(H.264)만 받습니다','업로드 도움말의 형식 목록','위처럼 ffmpeg로 변환하세요']]},
+   alternatives:{rows:[
+    ['같은 패널의 [[game/sprite-sheet-to-gif|Animated GIF]]나 APNG','투명이 중요한 채팅·커뮤니티 게시물. APNG는 부드러운 가장자리와 정확한 색을 유지합니다.'],
+    ['플로팅 미리보기(F7, 최대 8배)를 화면 녹화','원하는 배경, 여러 애니메이션 나란히, 긴 녹화가 필요할 때.'],
+    ['PNG 프레임을 내보내 영상 편집기에서 만들기','MP4를 바로, 원하는 프레임레이트나 소리와 함께 만들어야 할 때. [[game/sprite-sheet-to-png-frames|스프라이트 시트를 PNG 프레임으로]] 참고.']]},
+   limits:['WebM만 씁니다. MP4와 오디오 트랙은 없습니다.','배경색과 배율은 고정입니다. rgb(32, 34, 40), 두 변이 1920 px 안이면 4배.','파일마다 한 사이클이며 반복 횟수는 저장하지 않습니다.'],
+   versions:{body:['WebM 내보내기는 Chromium에서 확인했습니다. 파일이 WebM(EBML) 헤더로 시작하고, ffprobe가 동영상 스트림과 프레임을 읽고, Chromium이 6 × 100 ms 애니메이션을 4배 크기로 0.6초 동안 재생했습니다. 인코더는 브라우저 자체의 것이라 VP9가 나올지 VP8이 나올지는 브라우저에 달려 있습니다. VideoEncoder 지원 범위는 MDN, ffmpeg 옵션은 ffmpeg 공식 문서를 따릅니다.'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  },
+  ja:{
+   answer:'Nerulioはスプライトシートのアニメーションごとに、WebM動画を1本ずつ作ります（VP9、ブラウザにVP9エンコーダがなければVP8）。エンコードはブラウザのWebCodecs `VideoEncoder`が行います。フレームはニアレストネイバーで4倍に拡大し（一辺が1920 pxを超えるならそれより小さく）、暗い単色の背景に描き、フレームごとの長さを保ちます。1ファイルに1サイクルが入ります。MP4や音声は書き出さないので、MP4が必要な場所にはffmpegなどでWebMを変換してください。',
+   concept:{title:'ピクセルアートを動画にするときの注意点',body:[
+    'VP9やVP8などの動画コーデックは非可逆で、通常は色を縦横半分の解像度（4:2:0）で保存します。2 × 2ピクセルごとに色のサンプルが1つです。32 × 32スプライトの1ピクセルの輪郭線は隣へにじみます。エンコード前にニアレストネイバーで全ピクセルを4 × 4ブロックに拡大すれば、元の1ピクセルが色のサンプルを丸ごと持つので、圧縮後も縁が四角いまま残ります。',
+    'この書き出しに透明はありません。VP9はWebMでアルファを持てますが無視するプレーヤーが多いため、全フレームを単色のrgb(32, 34, 40)の背景に合成します。半透明のピクセルはアルファの割合でこの色と混ざります。',
+    'タイミングは固定フレームレートではなく、タイムスタンプとして保存されます。各フレームは前のフレームが終わる時点から始まり（ファイル内では整数ミリ秒）、250 msの溜めは溜めのまま残ります。ファイルには再生順（ピンポンは展開済み）で1サイクルが入り、ループはプレーヤー側の仕事です。'],
+    terms:[['4:2:0','クロマサブサンプリング。色は縦横半分の解像度、明るさは元の解像度で保存します。'],
+     ['VP9 / VP8','WebMに入る動画コーデック。NerulioはブラウザにVP9（`vp09.00.10.08`）を求め、だめならVP8にします。'],
+     ['VideoEncoder','フレームをエンコードするWebCodecsのブラウザAPI。すべてのブラウザにあるわけではなく、安全な（HTTPS）ページでのみ動きます。'],
+     ['ニアレストネイバー','ピクセルを混ぜずにk × kブロックへ複製する拡大方法。']]},
+   example:{title:'具体例：サイズ、ビットレート、長さ',lines:[
+    'フレーム 64 × 64、walk = 6フレーム × 100 ms',
+    '倍率      4× → 256 × 256 px   (両辺とも1920 px以下になる4以下の最大倍率)',
+    'ビットレート max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    '長さ      6 × 100 ms = 0.6 s、1サイクル',
+    'ファイル  hero_webm/hero_walk.webm',
+    '',
+    'ボス 700 × 300:  4× = 横2800 (超過)、3× = 2100 (超過) → 2× = 1400 × 600',
+    '奇数 545 × 201:  4× = 2180 (超過) → 3× = 1635 × 603 → 1636 × 604 に拡張 (偶数辺)'],
+    after:'書き出し後のメモがアニメーションごとにこの内容を示します。例：「walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).」'},
+   mapping:{head:['Studioでは','WebMでは','補足'],rows:[
+    ['アニメーション（タグ）','`.webm`ファイル1つ','書き出し名＋アニメーション名、例：`hero_walk.webm`'],
+    ['フレームの長さ','次のフレームのタイムスタンプ','整数ミリ秒、不均一なタイミングも保持'],
+    ['方向、ピンポン','再生順のフレーム','1サイクル、繰り返し回数は保存されない'],
+    ['ピクセル','k × kブロック、フレームが大きくなければ k = 4','ニアレストネイバー拡大のあと非可逆圧縮'],
+    ['透明','rgb(32, 34, 40)の上に合成','ファイルにアルファチャンネルなし'],
+    ['サイズの違うフレーム','アニメーションごとに1セル、フレームをピボットで揃える','GIF書き出しと同じ揃え方']]},
+   outputs:{rows:[
+    ['hero_webm.zip','ダウンロードされるファイル。中に`hero_webm/`フォルダがあります（書き出し名に従います）。'],
+    ['hero_webm/hero_walk.webm','`walk`の1サイクル：WebMコンテナのVP9（またはVP8）動画、音声トラックなし。']]},
+   target:{title:'書き出したあと：MP4、長いクリップ、投稿',steps:[
+    'ZIPを展開します。アニメーションごとに`.webm`が1本あります。検証ではChromiumがこれらのファイルを再生しました。',
+    'MP4が必要ならffmpegで再エンコードします。例：`ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`。拡大はすでにピクセルに入っているので、MP4でも四角いブロックが保たれます。',
+    '0.6秒のクリップは投稿には短すぎます。`-stream_loop`はエンコード前に入力を繰り返します。`ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4`で10サイクル、6秒になります。',
+    '動画の横にシートやAPNGも残しておいてください。WebMは非可逆で、アニメーションを見せるためのもので、エンジンに読み込むものではありません。']},
+   verify:{steps:[
+    '再生して1サイクルの時間を測ります。6フレーム × 100 msなら0.6秒です。',
+    '一時停止して拡大します。元の1ピクセルが4 × 4ブロックになり、圧縮のため色の境目がわずかに柔らかくなります。',
+    '`ffprobe hero_walk.webm`がコーデック（vp9またはvp8）と、メモにある幅・高さを表示します。']},
+   trouble:{rows:[
+    ['WebMのボタンが無効','このブラウザにWebCodecsの`VideoEncoder`がないか、ページがHTTPSで配信されていません','ボタンのツールチップに理由が出ます','最新のChromeかEdgeを使ってください。GIFとAPNGの書き出しはなくても動きます'],
+    ['動画が1秒足らずで終わる','1ファイルは1サイクルで、ループはプレーヤーの役目です','長さがフレーム時間の合計と一致します','プレーヤーでループするか、投稿前にffmpegの`-stream_loop`で入力を繰り返してください'],
+    ['柔らかい縁に暗い縁取りが出る','半透明のピクセルが暗い背景と混ざりました','グローやアンチエイリアスされた縁を見ます','透明が必要ならAPNGで書き出してください。この書き出しの背景色は固定です'],
+    ['大きなスプライトがぼやける','両辺を1920 px以内にするため倍率が4倍未満に下がり、元の1ピクセルあたりのピクセルが減りました','メモに「(2× nearest)」のように倍率が出ます','アニメーションを小さく分けて書き出すか、2倍で妥協してください'],
+    ['サイトがファイルを受け付けない','WebMではなくMP4（H.264）しか受け付けません','アップロードのヘルプにある形式一覧','上のとおりffmpegで変換してください']]},
+   alternatives:{rows:[
+    ['同じパネルの[[game/sprite-sheet-to-gif|Animated GIF]]やAPNG','透明が大事なチャットや掲示板への投稿。APNGは柔らかい縁と正確な色を保ちます。'],
+    ['フローティングプレビュー（F7、最大8倍）を画面録画','好きな背景、複数のアニメーションを並べる、長い録画が必要なとき。'],
+    ['PNGフレームを書き出して動画編集ソフトで作る','MP4を直接、好きなフレームレートや音付きで作りたいとき。[[game/sprite-sheet-to-png-frames|スプライトシートをPNGフレームに]]を参照。']]},
+   limits:['WebMのみです。MP4と音声トラックはありません。','背景色と倍率は固定です：rgb(32, 34, 40)、両辺が1920 px以内なら4倍。','1ファイル1サイクルで、繰り返し回数は保存しません。'],
+   versions:{body:['WebM書き出しはChromiumで確認しました。ファイルがWebM（EBML）ヘッダーで始まり、ffprobeが動画ストリームとフレームを読み、Chromiumが6 × 100 msのアニメーションを4倍サイズで0.6秒再生しました。エンコーダはブラウザ自身のものなので、VP9になるかVP8になるかはブラウザ次第です。VideoEncoderの対応状況はMDN、ffmpegのオプションはffmpeg公式ドキュメントに基づきます。'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  }
+ },
+/* ============================================================================ fnf-spritesheet-to-gif */
+ 'game/fnf-spritesheet-to-gif':{
+  type:'conversion',
+  intent:{primary:'convert a Friday Night Funkin\' character spritesheet (PNG + XML) into animated GIFs',secondary:['FNF sprite XML to GIF','preview FNF animations','set the right FNF frame rate'],
+   goal:'one GIF per character animation at the game\'s frame rate, frames aligned by their trim offsets',input:'character PNG + its Sparrow/Starling XML',output:'ZIP with one GIF (or APNG, or WebM) per animation prefix',target:'sharing a preview of an FNF character (browsers, chats, wikis)',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js (Starling XML: frameX/Y negated, frameWidth/Height, pivotX/Y, rotated flag, 100 ms, name grouping)','src/studio/sprite/import-plan.js frameKey (trailing digits = frame number)','src/game/export/anim.js + bundle.js (GIF per animation, pivot cell, file names via stemOf)','docs/STUDIO-SPRITE.md (rotated atlas frames UNVERIFIED)'],
+   external:['Starling TextureAtlas XML (frameX/Y, rotated 90° clockwise)','FNF modding docs: renderType sparrow, assetPath, prefix, frameRate default 24, frameIndices, looped, offsets']},
+  en:{
+   answer:"A Friday Night Funkin' character is a PNG plus a Sparrow (Starling) XML atlas: each `SubTexture` is one frame, and frames that share a name prefix (`BF idle dance0000`, `…0001`) form one animation. Drop both files: Nerulio groups the prefixes into animations, keeps the trim offsets, and exports one GIF (or APNG, or WebM) per animation. The XML has no timing, so set each animation to the character's `frameRate` (24 fps when the character file gives none); a GIF stores 41.67 ms as 40 ms.",
+   concept:{title:'How FNF describes a character\'s frames',body:[
+    "The XML format comes from the Sparrow and Starling frameworks. Each `SubTexture` names a rectangle of the PNG (`x`, `y`, `width`, `height`). A trimmed frame adds `frameX`, `frameY`, `frameWidth` and `frameHeight`: the full frame size and where the trimmed rectangle sits inside it, written as negative numbers, so `frameX=\"-3\"` means 3 px from the left. `rotated=\"true\"` means the region was turned 90° clockwise on the sheet.",
+    "The game adds a JSON file per character in `data/characters`. With `renderType` `sparrow`, `assetPath` points at the PNG and XML (same name, no extension), and each animation lists a `prefix` (the SubTexture name without its frame number), a `frameRate` (24 by default) and optionally `frameIndices`, `looped` and `offsets`. The timing is therefore not in the XML.",
+    "Nerulio reads only the PNG and the XML. It groups names by stripping the trailing frame number, keeps every frame at its place inside `frameWidth` × `frameHeight`, and starts at 100 ms per frame. The character JSON is not read, so the rate, the frame subset and the loop setting are yours to set."],
+    terms:[['SubTexture','One frame: its name and its rectangle on the PNG.'],['Prefix','The animation name the game looks up: the SubTexture name without the trailing frame number.'],['frameX / frameY','Negative offsets of the trimmed rectangle inside the full frame.'],['frameRate','Frames per second of an animation in the character JSON; 24 when not given.']]},
+   example:{title:'Example: one SubTexture and the timing maths',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    'animation   "BF idle dance", 4th frame (0003)',
+    'region      402 × 390 at (1024, 0) on the PNG',
+    'full frame  408 × 394, region drawn at (3, 2)',
+    'timing      24 fps → 1000 / 24 = 41.67 ms per frame',
+    'GIF         41.67 ms → 4 /100 s = 40 ms',
+    '14 frames   583 ms in the game → 560 ms in the GIF (4 % faster); APNG writes 42 ms → 588 ms'],
+    after:'The numbers are an illustration; your character\'s XML has its own. The rounding rule is fixed: GIF keeps whole hundredths, APNG whole milliseconds.'},
+   mapping:{head:['In the XML / character JSON','In Nerulio','In the GIF'],rows:[
+    ['SubTexture name prefix','One animation per prefix, frames in natural order','One file per animation'],
+    ['x, y, width, height','The frame\'s region on the PNG','Frame pixels'],
+    ['frameX, frameY, frameWidth, frameHeight','Offset inside the full frame','Trimmed frames stay in place'],
+    ['pivotX, pivotY (if present)','Frame pivot; otherwise the bottom centre of the full frame','Frames aligned on the pivot'],
+    ['rotated="true"','Imported still turned; its export is UNVERIFIED','—'],
+    ['frameRate (character JSON)','Not read: frames start at 100 ms','Set it with Set all to fps before export'],
+    ['frameIndices, looped, offsets (character JSON)','Not read','Make a tag over the frames you need; repeat ×1 for a non-looping animation']]},
+   outputs:{rows:[
+    ['bf_gif.zip','The download for the export name `bf`, with a folder `bf_gif/`.'],
+    ['bf_gif/bf_BF_idle_dance.gif','One animation. Spaces and other characters outside letters, digits, dot and hyphen become `_` in the file name.']]},
+   target:{title:'Match the game\'s timing, then export',steps:[
+    'Open the character\'s JSON in `data/characters/` and note, per animation, the `prefix`, `frameRate` (24 if missing), `frameIndices` and `looped`.',
+    'In Nerulio select the tag with that prefix and use Set all to fps with the `frameRate`: 24 fps gives 41.67 ms per frame.',
+    'If the animation uses `frameIndices`, drag a new tag over just those frames; if `looped` is false, set its repeat to ×1.',
+    'Press Enter to preview; onion skin (F3) shows whether the trimmed frames line up.',
+    'Open Pack & Export, choose Animated GIF (or APNG for exact colours and soft edges) and export: one file per animation.']},
+   verify:{steps:[
+    'The number of frames in a GIF equals the number of SubTextures with that prefix, or the length of `frameIndices`.',
+    'A 14-frame animation at 24 fps loops about every 0.56 s in the GIF (14 × 40 ms).',
+    'Step with `,` and `.`: the character\'s feet stay in place when the offsets were read correctly.']},
+   trouble:{rows:[
+    ['The GIF plays at the wrong speed','Sparrow XML has no timing, so every frame started at 100 ms','The Frame panel shows 100 ms','Set all to fps with the JSON\'s `frameRate` (24 by default)'],
+    ['Two animations merged into one','Their prefixes differ only by a trailing digit: `left20000` reads as prefix `left`, frame 20000','Import panel: how the names were grouped','Drag tags on the Timeline to split the frames by hand'],
+    ['Some frames are sideways','Their SubTexture has `rotated="true"`; the Studio keeps them as they lie on the sheet','Search the XML for `rotated`','Repack the character without rotation in the tool that made it; exporting rotated frames is UNVERIFIED'],
+    ['Frames are missing','Their rectangles lie outside the PNG, usually an XML from another version of the sheet','The Import panel counts frames outside the image','Use the PNG that belongs to this XML'],
+    ['Colours band or look posterised','Hi-res FNF art has far more than 255 colours; GIF\'s palette is reduced by median cut without dithering','The export note “More than 255 colours”','Export APNG (exact) or WebM video']]},
+   alternatives:{rows:[
+    ['APNG from the same export','Exact colours, soft edges and millisecond timing: 24 fps becomes 42 ms per frame instead of 40.'],
+    ['[[game/sparrow-xml-spritesheet|Repack as Sparrow XML]]','You want to change or repack the character for the game rather than share a preview.'],
+    ['Record the game itself','You need the character with in-game offsets, camera and music.']]},
+   limits:['The character JSON (`frameRate`, `frameIndices`, `looped`, `offsets`) is not read.','Adobe Animate texture atlases (`animateatlas`) and Packer TXT sheets are not read; only Sparrow XML.','No real FNF character is part of the recorded checks.'],
+   versions:{body:['The XML reader is the Studio\'s general atlas importer, run on real assets through the UI (atlas data included); no actual FNF character is part of the recorded checks, and rotated frames stay UNVERIFIED. GIF output is checked by decoding with Pillow. The format description follows the Starling documentation; the character fields follow the official Friday Night Funkin\' modding documentation.'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  },
+  ko:{
+   answer:'프라이데이 나이트 펑킨(FNF) 캐릭터는 PNG와 Sparrow(Starling) XML 아틀라스로 되어 있습니다. `SubTexture` 하나가 프레임 하나이고, 이름 앞부분이 같은 프레임(`BF idle dance0000`, `…0001`)이 애니메이션 하나를 이룹니다. 두 파일을 함께 넣으면 Nerulio가 앞부분별로 애니메이션을 묶고 트림 오프셋을 유지해, 애니메이션마다 GIF(또는 APNG, WebM)를 하나씩 내보냅니다. XML에는 타이밍이 없으니 애니메이션마다 캐릭터의 `frameRate`(캐릭터 파일에 없으면 24 fps)를 설정하세요. GIF는 41.67 ms를 40 ms로 저장합니다.',
+   concept:{title:'FNF가 캐릭터 프레임을 적는 방식',body:[
+    '이 XML 형식은 Sparrow와 Starling 프레임워크에서 왔습니다. `SubTexture`마다 PNG의 사각형(`x`, `y`, `width`, `height`)을 가리킵니다. 트림된 프레임에는 `frameX`, `frameY`, `frameWidth`, `frameHeight`가 더 붙습니다. 원래 프레임 크기와 그 안에서 잘린 사각형의 위치이며, 음수로 적으므로 `frameX="-3"`은 왼쪽에서 3 px 떨어졌다는 뜻입니다. `rotated="true"`는 시트에서 그 영역을 시계 방향으로 90° 돌려 놓았다는 뜻입니다.',
+    '게임은 캐릭터마다 `data/characters`에 JSON 파일을 둡니다. `renderType`이 `sparrow`면 `assetPath`가 PNG와 XML(같은 이름, 확장자 없이)을 가리키고, 애니메이션마다 `prefix`(프레임 번호를 뺀 SubTexture 이름), `frameRate`(기본 24), 그리고 선택적으로 `frameIndices`, `looped`, `offsets`가 있습니다. 즉 타이밍은 XML에 없습니다.',
+    'Nerulio는 PNG와 XML만 읽습니다. 이름 끝의 프레임 번호를 떼어 묶고, 모든 프레임을 `frameWidth` × `frameHeight` 안의 제자리에 두며, 프레임당 100 ms로 시작합니다. 캐릭터 JSON은 읽지 않으므로 속도, 프레임 부분 집합, 반복 설정은 직접 정해야 합니다.'],
+    terms:[['SubTexture','프레임 하나. 이름과 PNG 위의 사각형.'],['접두사(prefix)','게임이 찾는 애니메이션 이름. SubTexture 이름에서 끝의 프레임 번호를 뺀 부분.'],['frameX / frameY','원래 프레임 안에서 잘린 사각형의 위치를 나타내는 음수 오프셋.'],['frameRate','캐릭터 JSON에 적힌 애니메이션의 초당 프레임 수. 없으면 24.']]},
+   example:{title:'예시: SubTexture 하나와 타이밍 계산',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    '애니메이션  "BF idle dance", 4번째 프레임 (0003)',
+    '영역        PNG의 (1024, 0)에서 402 × 390',
+    '원래 프레임 408 × 394, 영역을 (3, 2)에 그림',
+    '타이밍      24 fps → 1000 / 24 = 41.67 ms / 프레임',
+    'GIF         41.67 ms → 4 /100 s = 40 ms',
+    '14프레임    게임 583 ms → GIF 560 ms (4 % 빠름), APNG는 42 ms → 588 ms'],
+    after:'숫자는 설명용이며 실제 캐릭터 XML에는 제 값이 있습니다. 반올림 규칙은 고정입니다. GIF는 1/100초 단위, APNG는 밀리초 단위로 저장합니다.'},
+   mapping:{head:['XML / 캐릭터 JSON에서','Nerulio에서','GIF에서'],rows:[
+    ['SubTexture 이름 접두사','접두사마다 애니메이션 하나, 자연 정렬 순서','애니메이션마다 파일 하나'],
+    ['x, y, width, height','PNG 위 프레임 영역','프레임 픽셀'],
+    ['frameX, frameY, frameWidth, frameHeight','원래 프레임 안의 오프셋','트림된 프레임이 제자리에 있음'],
+    ['pivotX, pivotY (있을 때)','프레임 피벗, 없으면 원래 프레임의 아래 가운데','피벗에 맞춰 정렬'],
+    ['rotated="true"','돌아간 채로 가져옴, 내보내기는 미검증(UNVERIFIED)','—'],
+    ['frameRate (캐릭터 JSON)','읽지 않음: 프레임당 100 ms로 시작','내보내기 전에 fps로 일괄 설정'],
+    ['frameIndices, looped, offsets (캐릭터 JSON)','읽지 않음','필요한 프레임에 태그를 만들고, 반복하지 않는 애니메이션은 반복 ×1']]},
+   outputs:{rows:[
+    ['bf_gif.zip','내보내기 이름이 `bf`일 때 내려받는 파일. 안에 `bf_gif/` 폴더가 있습니다.'],
+    ['bf_gif/bf_BF_idle_dance.gif','애니메이션 하나. 파일 이름에서 영문자·숫자·점·하이픈이 아닌 문자는 `_`가 됩니다.']]},
+   target:{title:'게임 타이밍에 맞춘 뒤 내보내기',steps:[
+    '`data/characters/`의 캐릭터 JSON을 열어 애니메이션마다 `prefix`, `frameRate`(없으면 24), `frameIndices`, `looped`를 적어 둡니다.',
+    'Nerulio에서 그 접두사의 태그를 고르고 `frameRate` 값으로 fps 일괄 설정을 합니다. 24 fps면 프레임당 41.67 ms입니다.',
+    '`frameIndices`를 쓰는 애니메이션이면 해당 프레임에만 새 태그를 드래그해 만들고, `looped`가 false면 반복을 ×1로 합니다.',
+    'Enter로 미리 보세요. 어니언 스킨(F3)으로 트림된 프레임이 제자리에 맞는지 볼 수 있습니다.',
+    '패킹·내보내기에서 Animated GIF(정확한 색과 부드러운 가장자리가 필요하면 APNG)를 골라 내보내면 애니메이션마다 파일이 하나씩 나옵니다.']},
+   verify:{steps:[
+    'GIF의 프레임 수는 그 접두사를 가진 SubTexture 수, 또는 `frameIndices`의 길이와 같아야 합니다.',
+    '24 fps인 14프레임 애니메이션은 GIF에서 약 0.56초마다 반복됩니다(14 × 40 ms).',
+    '`,`와 `.`로 넘겨 보세요. 오프셋이 제대로 읽혔다면 캐릭터의 발이 제자리에 있습니다.']},
+   trouble:{rows:[
+    ['GIF 속도가 틀림','Sparrow XML에는 타이밍이 없어 모든 프레임이 100 ms로 시작했습니다','프레임 패널에 100 ms가 보입니다','JSON의 `frameRate`(기본 24)로 fps 일괄 설정을 하세요'],
+    ['애니메이션 두 개가 하나로 합쳐짐','접두사가 끝자리 숫자만 다릅니다. `left20000`은 접두사 `left`, 프레임 20000으로 읽힙니다','가져오기 패널: 이름을 어떻게 묶었는지','타임라인에서 태그를 드래그해 직접 나누세요'],
+    ['일부 프레임이 옆으로 누움','SubTexture에 `rotated="true"`가 있어 Studio가 시트에 놓인 그대로 둡니다','XML에서 `rotated`를 검색합니다','만든 도구에서 회전 없이 다시 패킹하세요. 회전된 프레임 내보내기는 미검증입니다'],
+    ['프레임이 빠짐','사각형이 PNG 밖에 있습니다. 보통 다른 버전 시트의 XML입니다','가져오기 패널이 이미지 밖 프레임 수를 알려 줍니다','이 XML과 짝인 PNG를 쓰세요'],
+    ['색 띠가 생기거나 포스터처럼 보임','고해상도 FNF 그림은 색이 255개보다 훨씬 많아, GIF 팔레트를 디더링 없는 메디안 컷으로 줄였습니다','“More than 255 colours” 안내','APNG(정확)나 WebM 동영상으로 내보내세요']]},
+   alternatives:{rows:[
+    ['같은 내보내기의 APNG','정확한 색, 부드러운 가장자리, 밀리초 타이밍. 24 fps는 프레임당 40 ms가 아니라 42 ms가 됩니다.'],
+    ['[[game/sparrow-xml-spritesheet|Sparrow XML로 다시 패킹]]','미리보기 공유가 아니라 게임용으로 캐릭터를 고치거나 다시 묶고 싶을 때.'],
+    ['게임 화면을 직접 녹화','게임 안의 오프셋, 카메라, 음악까지 함께 보여 줘야 할 때.']]},
+   limits:['캐릭터 JSON(`frameRate`, `frameIndices`, `looped`, `offsets`)은 읽지 않습니다.','Adobe Animate 텍스처 아틀라스(`animateatlas`)와 Packer TXT 시트는 읽지 않고, Sparrow XML만 읽습니다.','실제 FNF 캐릭터는 기록된 검증에 포함되지 않았습니다.'],
+   versions:{body:['XML 읽기는 Studio의 범용 아틀라스 가져오기로, 실제 에셋을 UI로 가져오는 검증(아틀라스 데이터 포함)을 거쳤습니다. 실제 FNF 캐릭터는 기록된 검증에 없고, 회전된 프레임은 미검증입니다. GIF 결과는 Pillow로 디코딩해 확인합니다. 형식 설명은 Starling 문서, 캐릭터 필드는 FNF 공식 모딩 문서를 따릅니다.'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  },
+  ja:{
+   answer:'Friday Night Funkin\'（FNF）のキャラクターは、PNGとSparrow（Starling）形式のXMLアトラスでできています。`SubTexture`1つが1フレームで、名前の前半が同じフレーム（`BF idle dance0000`、`…0001`）が1つのアニメーションになります。2つのファイルを一緒にドロップすると、Nerulioが前半部分ごとにアニメーションをまとめ、トリムのオフセットを保ったまま、アニメーションごとにGIF（またはAPNG、WebM）を1つ書き出します。XMLにタイミングはないので、アニメーションごとにキャラクターの`frameRate`（キャラクターファイルになければ24 fps）を設定してください。GIFでは41.67 msが40 msになります。',
+   concept:{title:'FNFがキャラクターのフレームを記述する方法',body:[
+    'このXML形式はSparrowとStarlingフレームワークに由来します。各`SubTexture`はPNG上の矩形（`x`、`y`、`width`、`height`）を指します。トリムされたフレームには`frameX`、`frameY`、`frameWidth`、`frameHeight`が加わります。元のフレームサイズと、その中での切り抜き矩形の位置で、負の数で書くので`frameX="-3"`は左から3 pxという意味です。`rotated="true"`はその領域がシート上で時計回りに90°回されていることを示します。',
+    'ゲーム側はキャラクターごとに`data/characters`にJSONを置きます。`renderType`が`sparrow`なら`assetPath`がPNGとXML（同名、拡張子なし）を指し、アニメーションごとに`prefix`（フレーム番号を除いたSubTexture名）、`frameRate`（既定24）、任意で`frameIndices`、`looped`、`offsets`を持ちます。つまりタイミングはXMLにはありません。',
+    'Nerulioが読むのはPNGとXMLだけです。名前の末尾のフレーム番号を外してまとめ、全フレームを`frameWidth` × `frameHeight`の中の元の位置に置き、1フレーム100 msから始めます。キャラクターJSONは読まないので、速度、使うフレーム、ループ設定は自分で決めます。'],
+    terms:[['SubTexture','1フレーム。名前とPNG上の矩形。'],['プレフィックス','ゲームが探すアニメーション名。SubTexture名から末尾のフレーム番号を除いた部分。'],['frameX / frameY','元のフレーム内での切り抜き矩形の位置を示す負のオフセット。'],['frameRate','キャラクターJSONにあるアニメーションの毎秒フレーム数。なければ24。']]},
+   example:{title:'具体例：SubTexture 1つとタイミングの計算',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    'アニメーション "BF idle dance"、4番目のフレーム (0003)',
+    '領域          PNG の (1024, 0) から 402 × 390',
+    '元のフレーム  408 × 394、領域を (3, 2) に描く',
+    'タイミング    24 fps → 1000 / 24 = 41.67 ms / フレーム',
+    'GIF           41.67 ms → 4 /100 s = 40 ms',
+    '14フレーム    ゲーム 583 ms → GIF 560 ms (4 % 速い)、APNG は 42 ms → 588 ms'],
+    after:'数値は説明用で、実際のキャラクターのXMLには固有の値があります。丸めの規則は固定です。GIFは1/100秒単位、APNGはミリ秒単位で保存します。'},
+   mapping:{head:['XML／キャラクターJSONでは','Nerulioでは','GIFでは'],rows:[
+    ['SubTexture名のプレフィックス','プレフィックスごとに1アニメーション、自然順','アニメーションごとに1ファイル'],
+    ['x, y, width, height','PNG上のフレーム領域','フレームのピクセル'],
+    ['frameX, frameY, frameWidth, frameHeight','元のフレーム内のオフセット','トリムされたフレームが元の位置に'],
+    ['pivotX, pivotY（あれば）','フレームのピボット、なければ元フレームの下中央','ピボットで揃える'],
+    ['rotated="true"','回転したまま読み込み、書き出しは未検証（UNVERIFIED）','—'],
+    ['frameRate（キャラクターJSON）','読まない：1フレーム100 msから開始','書き出し前にfpsで一括設定'],
+    ['frameIndices, looped, offsets（キャラクターJSON）','読まない','必要なフレームにタグを作り、ループしないものは繰り返し×1']]},
+   outputs:{rows:[
+    ['bf_gif.zip','書き出し名が`bf`のときのダウンロード。中に`bf_gif/`フォルダがあります。'],
+    ['bf_gif/bf_BF_idle_dance.gif','アニメーション1つ。ファイル名では英数字・ドット・ハイフン以外の文字が`_`になります。']]},
+   target:{title:'ゲームのタイミングに合わせて書き出す',steps:[
+    '`data/characters/`のキャラクターJSONを開き、アニメーションごとに`prefix`、`frameRate`（なければ24）、`frameIndices`、`looped`を控えます。',
+    'Nerulioでそのプレフィックスのタグを選び、`frameRate`の値でfps一括設定をします。24 fpsなら1フレーム41.67 msです。',
+    '`frameIndices`を使うアニメーションなら、そのフレームだけに新しいタグをドラッグで作り、`looped`がfalseなら繰り返しを×1にします。',
+    'Enterでプレビューします。オニオンスキン（F3）でトリムされたフレームが揃っているか確認できます。',
+    'パック＆書き出しでAnimated GIF（正確な色と柔らかい縁が要るならAPNG）を選んで書き出すと、アニメーションごとに1ファイルになります。']},
+   verify:{steps:[
+    'GIFのフレーム数は、そのプレフィックスを持つSubTextureの数、または`frameIndices`の長さと同じはずです。',
+    '24 fpsの14フレームのアニメーションは、GIFでは約0.56秒ごとにループします（14 × 40 ms）。',
+    '`,`と`.`で送ってみます。オフセットが正しく読めていればキャラクターの足元は動きません。']},
+   trouble:{rows:[
+    ['GIFの速度が違う','Sparrow XMLにはタイミングがなく、全フレームが100 msで始まりました','フレームパネルに100 msと出ます','JSONの`frameRate`（既定24）でfps一括設定をしてください'],
+    ['2つのアニメーションが1つにまとまる','プレフィックスが末尾の数字しか違いません。`left20000`はプレフィックス`left`、フレーム20000と読まれます','インポートパネル：名前のまとめ方','タイムラインでタグをドラッグして手で分けてください'],
+    ['一部のフレームが横倒しになる','SubTextureに`rotated="true"`があり、Studioはシート上の向きのまま保持します','XMLで`rotated`を検索します','作ったツールで回転なしにパックし直してください。回転フレームの書き出しは未検証です'],
+    ['フレームが足りない','矩形がPNGの外にあります。多くは別バージョンのシートのXMLです','インポートパネルが画像外のフレーム数を示します','このXMLと対になるPNGを使ってください'],
+    ['色の帯やポスタリゼーションが出る','高解像度のFNFの絵は255色をはるかに超え、GIFのパレットをディザなしのメディアンカットで減らしました','「More than 255 colours」のメモ','APNG（正確）かWebM動画で書き出してください']]},
+   alternatives:{rows:[
+    ['同じ書き出しのAPNG','正確な色、柔らかい縁、ミリ秒のタイミング。24 fpsは1フレーム40 msではなく42 msになります。'],
+    ['[[game/sparrow-xml-spritesheet|Sparrow XMLとしてパックし直す]]','プレビューの共有ではなく、ゲーム用にキャラクターを直したり詰め直したりしたいとき。'],
+    ['ゲーム画面を直接録画','ゲーム内のオフセット、カメラ、音楽まで一緒に見せたいとき。']]},
+   limits:['キャラクターJSON（`frameRate`、`frameIndices`、`looped`、`offsets`）は読みません。','Adobe Animateのテクスチャアトラス（`animateatlas`）とPackerのTXTシートは読まず、Sparrow XMLだけを読みます。','実際のFNFキャラクターは記録された検証に含まれていません。'],
+   versions:{body:['XMLの読み込みはStudio共通のアトラス取り込みで、実際のアセットをUIから読み込む検証（アトラスデータを含む）を経ています。実際のFNFキャラクターは記録された検証になく、回転フレームは未検証です。GIFの出力はPillowでデコードして確認しています。形式の説明はStarlingのドキュメント、キャラクターの項目はFNF公式のModdingドキュメントに基づきます。'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  }
+ },
 //@@NEXT
 };
