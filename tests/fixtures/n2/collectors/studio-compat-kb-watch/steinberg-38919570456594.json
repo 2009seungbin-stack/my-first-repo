@@ -1,0 +1,11 @@
+{
+ "article": {
+  "id": 38919570456594,
+  "title": "macOS Golden Gate: Steinberg Product Compatibility",
+  "html_url": "https://helpcenter.steinberg.de/hc/en-us/articles/38919570456594-macOS-Golden-Gate-Steinberg-Product-Compatibility",
+  "locale": "en-us",
+  "edited_at": "2026-09-15T07:28:16Z",
+  "updated_at": "2026-09-25T08:36:42Z",
+  "body": "<p>On September 15, 2026, Apple released macOS Golden Gate (macOS 27), the successor to macOS Tahoe (macOS 26).</p><zd-callout class=\"wysiwyg-callout wysiwyg-callout-warning\" role=\"note\"><span class=\"wysiwyg-callout-icon\" aria-hidden=\"true\"></span><p><span data-olk-copy-source=\"MailCompose\">If you rely on your Steinberg software and hardware to run smoothly, we recommend that you refrain from updating to macOS Golden Gate for now.</span></p></zd-callout><p>A compatibility chart for relevant Steinberg products will be available as soon as we have the initial test results.</p>"
+ }
+}
