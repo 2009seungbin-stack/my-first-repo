@@ -44,6 +44,31 @@
    "publisher": "ProjectMoon — Steam news hub",
    "retrieved": "2026-09-28",
    "note": "Post of 2026-09-24 naming the client version 1.115.0 after the 24 September update."
+  },
+  {
+   "id": "src:sc-games-b-uma-google-play",
+   "kind": "OFFICIAL",
+   "url": "https://play.google.com/store/apps/details?id=com.kakaogames.umamusume&gl=KR&hl=ko",
+   "title": "우마무스메 프리티 더비 — Google Play (KR)",
+   "publisher": "Kakao Games Corp. (Google Play listing)",
+   "retrieved": "2026-09-28",
+   "note": "Store listing shows developer Kakao Games Corp. and last update 2026-08-26."
+  },
+  {
+   "id": "src:sc-games-b-uma-jp-portal",
+   "kind": "OFFICIAL",
+   "url": "https://umamusume.jp/",
+   "title": "ウマ娘 プリティーダービー 公式ポータルサイト",
+   "publisher": "Cygames, Inc.",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-b-uma-kr-site",
+   "kind": "OFFICIAL",
+   "url": "https://umamusume.kakaogames.com/",
+   "title": "우마무스메 프리티 더비 한국 공식 사이트",
+   "publisher": "Kakao Games",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -356,6 +381,150 @@
      "channel": "stable",
      "notes_url": "https://store.steampowered.com/news/app/1973530/view/713412856137122695",
      "src": "src:sc-games-b-lc-0924-update"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:cygames",
+   "type": "studio_org",
+   "slug": "cygames",
+   "names": {
+    "en": "Cygames",
+    "ko": "사이게임즈",
+    "ja": "Cygames"
+   },
+   "description": {
+    "en": "Japanese developer and rights holder of Uma Musume Pretty Derby.",
+    "ko": "우마무스메 프리티 더비를 개발한 일본 게임사이자 권리 보유사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.cygames.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-jp-portal"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:kakao-games",
+   "type": "studio_org",
+   "slug": "kakao-games",
+   "names": {
+    "en": "Kakao Games",
+    "ko": "카카오게임즈"
+   },
+   "description": {
+    "en": "Korean publisher that operates the Korean service of Uma Musume Pretty Derby.",
+    "ko": "우마무스메 프리티 더비 국내 서비스를 운영하는 퍼블리셔."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.kakaogames.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-google-play",
+     "note": "Named as the app's developer/offerer on Google Play (KR)."
+    }
+   ]
+  },
+  {
+   "id": "franchise:uma-musume-pretty-derby",
+   "type": "franchise",
+   "slug": "uma-musume-pretty-derby",
+   "names": {
+    "en": "Uma Musume Pretty Derby",
+    "ko": "우마무스메 프리티 더비",
+    "ja": "ウマ娘 プリティーダービー"
+   },
+   "aliases": [
+    "우마무스메",
+    "ウマ娘",
+    "Umamusume"
+   ],
+   "description": {
+    "en": "Cygames multimedia franchise about horse girls named after real racehorses; its Korean game service is run by Kakao Games.",
+    "ko": "실존 경주마의 이름을 이어받은 우마무스메들을 그린 사이게임즈의 미디어믹스 프랜차이즈로, 국내 게임 서비스는 카카오게임즈가 맡고 있다."
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://umamusume.kakaogames.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://umamusume.kakaogames.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-kr-site"
+    },
+    {
+     "p": "origin_media",
+     "v": "Multimedia project (game, anime)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-jp-portal"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:cygames",
+     "src": "src:sc-games-b-uma-jp-portal",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:uma-musume-pretty-derby-game-kr",
+   "type": "work",
+   "slug": "uma-musume-pretty-derby-game-kr",
+   "names": {
+    "en": "Uma Musume Pretty Derby (Korean service)",
+    "ko": "우마무스메 프리티 더비"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://umamusume.kakaogames.com/"
+    },
+    {
+     "label": "Google Play (KR)",
+     "url": "https://play.google.com/store/apps/details?id=com.kakaogames.umamusume&gl=KR"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-google-play"
+    },
+    {
+     "p": "homepage",
+     "v": "https://umamusume.kakaogames.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-b-uma-kr-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-games-b-uma-kr-site",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:cygames",
+     "src": "src:sc-games-b-uma-jp-portal",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:kakao-games",
+     "src": "src:sc-games-b-uma-google-play",
+     "ver": "OFFICIAL"
     }
    ]
   }
