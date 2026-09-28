@@ -81,9 +81,13 @@ def main():
             assert pg.locator('.hd [data-island=account]').inner_text() == '밤샘테스터'
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
             assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
+            assert pg.locator('#mine .mr .chn').count() >= 1, 'each item names its channel once'
+            pg.goto(B + '/ko/community/'); pg.wait_for_timeout(800)
+            assert '내 구독 채널' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s channels'
             m = b.new_page(viewport={'width': 390, 'height': 900})
             for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/ai/claude/write', '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
+                assert m.locator('.hd .hn a[href$="/radar/"]').is_visible(), f'{path}: Radar is reachable from the mobile header'
                 w = m.evaluate('document.documentElement.scrollWidth')
                 assert w <= 390, f'{path} scrolls sideways at 390px ({w})'
             # WCAG 2 A/AA with axe-core when available (AXE_CORE=/path/to/axe.min.js); skipped otherwise.

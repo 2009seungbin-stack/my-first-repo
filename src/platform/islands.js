@@ -6,9 +6,9 @@
 const L=document.documentElement.lang==='en'?'en':'ko';
 const T={
  ko:{login:'로그인',needLogin:'로그인하면 참여할 수 있어요. 로그인 페이지로 이동할까요?',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
  en:{login:'Sign in',needLogin:'Sign in to take part. Go to the sign-in page?',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
 }[L];
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 async function api(path,body){
@@ -63,6 +63,20 @@ async function main(){
  // Account
  const acc=$('[data-island="account"]');
  if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/community/me`;a.textContent=st.user.name;acc.append(a);}
+ // Signed in: the comment box no longer says "sign-in needed", and the front page's sign-in box
+ // becomes the reader's own channels.
+ if(signedIn){
+  for(const ta of $$('#comment-form textarea'))ta.placeholder=T.commentPh;
+  const lb=$('.box.login[data-island="account"]');
+  if(lb){
+   const fr=await api(`/follows?l=${L}`);
+   lb.textContent='';const h=document.createElement('b');h.textContent=L==='ko'?'내 구독 채널':'My channels';lb.append(h);
+   const list=fr.ok?fr.data.follows.slice(0,8):[];
+   if(!list.length){const p=document.createElement('span');p.className='fine';p.textContent=L==='ko'?'채널 화면의 “구독”을 누르면 여기와 내 레이더에 모입니다.':'Follow channels to see them here and in My Radar.';lb.append(p);}
+   else{const ul=document.createElement('ul');ul.className='rows';for(const f of list){const li=document.createElement('li');const a=document.createElement('a');a.className='tt';a.href=f.url;a.textContent=f.name;li.append(a);ul.append(li);}lb.append(ul);}
+   const r=document.createElement('a');r.className='btn';r.href=`/${L}/radar/#mine`;r.textContent=L==='ko'?'내 레이더 ›':'My Radar ›';lb.append(r);
+  }
+ }
 
  // My Radar (radar page) and the unread count in the header
  if(signedIn){
@@ -74,9 +88,17 @@ async function main(){
    if(nav&&d.unread>0){const a=document.createElement('a');a.className='hb';a.href=`/${L}/radar/#mine`;a.textContent=(L==='ko'?'알림 ':'Alerts ')+d.unread;nav.append(a);}
    if(mine){
     const ul=$('ul',mine);mine.hidden=false;
-    const items=[...d.changes.map(c=>({at:c.at,text:`${c.channel} · ${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,text:`${p.channel} · ${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))].sort((a,b)=>b.at-a.at).slice(0,30);
+    const items=[...d.changes.map(c=>({at:c.at,eventAt:c.eventAt,channel:c.channel,text:`${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,channel:p.channel,text:`${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))].sort((a,b)=>b.at-a.at).slice(0,30);
     if(!items.length){const li=document.createElement('li');li.textContent=d.following?(L==='ko'?'구독한 채널에 아직 새 소식이 없어요.':'Nothing new in your channels yet.'):(L==='ko'?'채널을 구독하면 바뀐 것과 새 글이 여기에 모입니다.':'Follow channels to see their changes and posts here.');ul.append(li);}
-    for(const it of items){const li=document.createElement('li');const t=document.createElement('span');t.className='tm';t.textContent=new Date(it.at).toLocaleDateString(L==='ko'?'ko-KR':'en-US',{month:'2-digit',day:'2-digit'});const a=document.createElement('a');a.className='tt';a.href=it.url||'#';a.textContent=it.text;if(it.unread)a.classList.add('unread');li.append(t,a);ul.append(li);}
+    const md=ms=>{const x=new Date(ms);return `${String(x.getMonth()+1).padStart(2,'0')}.${String(x.getDate()).padStart(2,'0')}`;};
+    const dd=ms=>{const n=Math.round((new Date(ms).setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);return n===0?'D-DAY':n>0?`D-${n}`:`D+${-n}`;};
+    for(const it of items){
+     const li=document.createElement('li');li.className='mr';
+     const t=document.createElement('span');t.className='tm';t.textContent=it.eventAt?dd(it.eventAt):md(it.at);
+     if(it.eventAt)t.title=(L==='ko'?'일정 ':'On ')+new Date(it.eventAt).toLocaleDateString(L==='ko'?'ko-KR':'en-US');
+     const a=document.createElement('a');a.className='tt';a.href=it.url||'#';a.textContent=it.text;if(it.unread)a.classList.add('unread');
+     const c=document.createElement('span');c.className='chn fine';c.textContent=it.channel;
+     li.append(t,a,c);ul.append(li);}
     if(d.unread>0)api('/my-radar/seen',{lastChangeId:d.lastChangeId});
    }
   }
