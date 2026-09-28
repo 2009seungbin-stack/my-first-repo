@@ -1,0 +1,1021 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {
+   "id": "src:nv50-5090-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/",
+   "title": "GeForce RTX 5090 Graphics Cards (specifications)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:nv50-5080-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/",
+   "title": "GeForce RTX 5080 Graphics Cards (specifications)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:nv50-5070-family-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/",
+   "title": "GeForce RTX 5070 Family Graphics Cards (specifications)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "One spec table covering RTX 5070 Ti and RTX 5070."
+  },
+  {
+   "id": "src:nv50-5060-family-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/",
+   "title": "GeForce RTX 5060 Family Graphics Cards (specifications)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "One spec table covering RTX 5060 Ti (memory listed as '16 GB / 8 GB GDDR7') and RTX 5060."
+  },
+  {
+   "id": "src:nv50-5050-specs",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5050/",
+   "title": "GeForce RTX 5050 Graphics Cards (specifications)",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:nv50-ces2025-pr",
+   "kind": "OFFICIAL",
+   "url": "https://nvidianews.nvidia.com/news/nvidia-blackwell-geforce-rtx-50-series-opens-new-world-of-ai-computer-graphics",
+   "title": "NVIDIA Blackwell GeForce RTX 50 Series Opens New World of AI Computer Graphics",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "NVIDIA Newsroom press release dated January 6, 2025 (CES); states desktop launch prices and availability."
+  },
+  {
+   "id": "src:nv50-ces2025-news",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-50-series-graphics-cards-gpu-laptop-announcements/",
+   "title": "New GeForce RTX 50 Series Graphics Cards & Laptops Powered By NVIDIA Blackwell Bring Game-Changing AI and Neural Rendering Capabilities To Gamers and Creators",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated January 6, 2025; states total memory bandwidth for RTX 5090/5080/5070 Ti/5070."
+  },
+  {
+   "id": "src:nv50-5090-5080-out-now",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5090-5080-out-now/",
+   "title": "GeForce RTX 5090 & GeForce RTX 5080 Out Now",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated January 30, 2025."
+  },
+  {
+   "id": "src:nv50-5070ti-out-now",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5070-ti-out-now/",
+   "title": "GeForce RTX 5070 Ti Out Now",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated February 20, 2025."
+  },
+  {
+   "id": "src:nv50-5070-out-now",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5070-out-now/",
+   "title": "GeForce RTX 5070 Out Now",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated March 5, 2025."
+  },
+  {
+   "id": "src:nv50-5060-family-announce",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5060-desktop-family-laptop-5060-coming-soon/",
+   "title": "Announcing The GeForce RTX 5060 Desktop Family",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated April 15, 2025; states RTX 5060 Ti 8GB/16GB and RTX 5060 starting prices."
+  },
+  {
+   "id": "src:nv50-5060ti-launch",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/geforce-rtx-5060-ti-game-ready-driver/",
+   "title": "GeForce RTX 5060 Ti Game Ready Driver Released",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated April 16, 2025, stating the RTX 5060 Ti releases 'starting today'."
+  },
+  {
+   "id": "src:nv50-5060-out-now",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5060-out-now/",
+   "title": "GeForce RTX 5060 Out Now",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated May 19, 2025."
+  },
+  {
+   "id": "src:nv50-5050-announce",
+   "kind": "OFFICIAL",
+   "url": "https://www.nvidia.com/en-us/geforce/news/rtx-5050-desktop-gpu-and-laptops/",
+   "title": "GeForce RTX 5050 Desktop & Laptops GPUs Bring Blackwell RTX To Gamers Everywhere, Starting At $249",
+   "publisher": "NVIDIA",
+   "retrieved": "2026-09-28",
+   "note": "GeForce News article dated June 24, 2025."
+  }
+ ],
+ "entities": [
+  {
+   "id": "gpu:rtx-5090",
+   "type": "gpu",
+   "slug": "rtx-5090",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5090",
+    "ko": "엔비디아 지포스 RTX 5090"
+   },
+   "aliases": [
+    "RTX 5090",
+    "GeForce RTX 5090",
+    "지포스 RTX 5090",
+    "5090"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 32 GB of GDDR7 memory on a 512-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 512비트 버스에 32GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-01-30",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-5080-out-now",
+     "note": "Availability date; announced January 6, 2025 at CES"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 32,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 1792,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-news",
+     "note": "NVIDIA 'total memory bandwidth'"
+    },
+    {
+     "p": "shader_units",
+     "v": "21760 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2410,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 575,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 1999,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-pr"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5090-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5080",
+   "type": "gpu",
+   "slug": "rtx-5080",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5080",
+    "ko": "엔비디아 지포스 RTX 5080"
+   },
+   "aliases": [
+    "RTX 5080",
+    "GeForce RTX 5080",
+    "지포스 RTX 5080",
+    "5080"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 16 GB of GDDR7 memory on a 256-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 256비트 버스에 16GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-01-30",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5090-5080-out-now",
+     "note": "Availability date; announced January 6, 2025 at CES"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 960,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-news",
+     "note": "NVIDIA 'total memory bandwidth'"
+    },
+    {
+     "p": "shader_units",
+     "v": "10752 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2620,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 360,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 999,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-pr"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5080-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5080-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5070-ti",
+   "type": "gpu",
+   "slug": "rtx-5070-ti",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5070 Ti",
+    "ko": "엔비디아 지포스 RTX 5070 Ti"
+   },
+   "aliases": [
+    "RTX 5070 Ti",
+    "GeForce RTX 5070 Ti",
+    "지포스 RTX 5070 Ti",
+    "5070 Ti"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 16 GB of GDDR7 memory on a 256-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 256비트 버스에 16GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-02-20",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070ti-out-now",
+     "note": "Date of NVIDIA's 'Out Now' article; announced January 6, 2025 at CES"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 896,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-news",
+     "note": "NVIDIA 'total memory bandwidth'"
+    },
+    {
+     "p": "shader_units",
+     "v": "8960 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2450,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 749,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-pr"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5070-family-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5070",
+   "type": "gpu",
+   "slug": "rtx-5070",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5070",
+    "ko": "엔비디아 지포스 RTX 5070"
+   },
+   "aliases": [
+    "RTX 5070",
+    "GeForce RTX 5070",
+    "지포스 RTX 5070",
+    "5070"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 12 GB of GDDR7 memory on a 192-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 192비트 버스에 12GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-03-05",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-out-now",
+     "note": "Date of NVIDIA's 'Out Now' article (partner cards); Founders Edition stated to follow later in March 2025"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 672,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-news",
+     "note": "NVIDIA 'total memory bandwidth'"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2510,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 250,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 549,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-ces2025-pr"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5070-family-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5070-family-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5060-ti-16gb",
+   "type": "gpu",
+   "slug": "rtx-5060-ti-16gb",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5060 Ti 16GB",
+    "ko": "엔비디아 지포스 RTX 5060 Ti 16GB"
+   },
+   "aliases": [
+    "RTX 5060 Ti 16GB",
+    "GeForce RTX 5060 Ti 16GB",
+    "지포스 RTX 5060 Ti 16GB",
+    "5060 Ti 16GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 16 GB of GDDR7 memory on a 128-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 128비트 버스에 16GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04-16",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060ti-launch",
+     "note": "RTX 5060 Ti launch date (8GB and 16GB configurations launched together)"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Spec page lists RTX 5060 Ti memory as '16 GB / 8 GB GDDR7'; this is the 16 GB configuration"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4608 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2570,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 180,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 429,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-announce",
+     "note": "'Starting at' price for the 16GB configuration"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5060-family-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5060-ti-8gb",
+   "type": "gpu",
+   "slug": "rtx-5060-ti-8gb",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5060 Ti 8GB",
+    "ko": "엔비디아 지포스 RTX 5060 Ti 8GB"
+   },
+   "aliases": [
+    "RTX 5060 Ti 8GB",
+    "GeForce RTX 5060 Ti 8GB",
+    "지포스 RTX 5060 Ti 8GB",
+    "5060 Ti 8GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 8 GB of GDDR7 memory on a 128-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 128비트 버스에 8GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04-16",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060ti-launch",
+     "note": "RTX 5060 Ti launch date (8GB and 16GB configurations launched together)"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Spec page lists RTX 5060 Ti memory as '16 GB / 8 GB GDDR7'; this is the 8 GB configuration"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "4608 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2570,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 180,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 379,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-announce",
+     "note": "'Starting at' price for the 8GB configuration"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5060-family-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5060",
+   "type": "gpu",
+   "slug": "rtx-5060",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5060",
+    "ko": "엔비디아 지포스 RTX 5060"
+   },
+   "aliases": [
+    "RTX 5060",
+    "GeForce RTX 5060",
+    "지포스 RTX 5060",
+    "5060"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 8 GB of GDDR7 memory on a 128-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 128비트 버스에 8GB GDDR7 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-05-19",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-out-now",
+     "note": "Date of NVIDIA's 'Out Now' article"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR7",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "3840 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2500,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 145,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 299,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-announce",
+     "note": "'Starting at' price"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5060-family-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5060-family-specs"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rtx-5050",
+   "type": "gpu",
+   "slug": "rtx-5050",
+   "names": {
+    "en": "NVIDIA GeForce RTX 5050",
+    "ko": "엔비디아 지포스 RTX 5050"
+   },
+   "aliases": [
+    "RTX 5050",
+    "GeForce RTX 5050",
+    "지포스 RTX 5050",
+    "5050"
+   ],
+   "description": {
+    "en": "Desktop graphics card in NVIDIA's GeForce RTX 50 series, built on the Blackwell architecture with 8 GB of GDDR6 memory on a 128-bit bus.",
+    "ko": "블랙웰 아키텍처 기반의 엔비디아 지포스 RTX 50 시리즈 데스크톱 그래픽카드로, 128비트 버스에 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "regions": [
+    "GLOBAL"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5050/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-07",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-announce",
+     "note": "NVIDIA stated cards arrive starting in the second half of July 2025; exact on-sale day not given (announced June 24, 2025)"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "architecture",
+     "v": "Blackwell",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "shader_units",
+     "v": "2560 CUDA cores",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2570,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs",
+     "note": "Reference boost clock from NVIDIA's spec table; partner cards vary."
+    },
+    {
+     "p": "board_power_w",
+     "v": 130,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs",
+     "note": "NVIDIA 'Total Graphics Power'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 249,
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-announce",
+     "note": "'Starting at' price"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0",
+     "ver": "OFFICIAL",
+     "src": "src:nv50-5050-specs",
+     "note": "Spec table lists 'PCI Express Gen 5: Yes'; lane width not stated"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:nvidia",
+     "src": "src:nv50-5050-specs"
+    }
+   ]
+  }
+ ]
+}

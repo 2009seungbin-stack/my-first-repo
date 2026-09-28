@@ -1,0 +1,2564 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {
+   "id": "src:amdrx-rx-9070-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070xt.html",
+   "title": "AMD Radeon RX 9070 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9070-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070.html",
+   "title": "AMD Radeon RX 9070 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9070-gre-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070-gre.html",
+   "title": "AMD Radeon RX 9070 GRE (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9060-xt-16gb-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt.html",
+   "title": "AMD Radeon RX 9060 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9060-xt-8gb-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt-8gb.html",
+   "title": "AMD Radeon RX 9060 XT (8GB) (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9060-xt-lp-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt-lp.html",
+   "title": "AMD Radeon RX 9060 XT LP (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9060-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060.html",
+   "title": "AMD Radeon RX 9060 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9050-8gb-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9050.html",
+   "title": "AMD Radeon RX 9050 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-9050-4gb-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9050-4gb.html",
+   "title": "AMD Radeon RX 9050 (4GB) (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7900-xtx-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900xtx.html",
+   "title": "AMD Radeon RX 7900 XTX (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7900-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900xt.html",
+   "title": "AMD Radeon RX 7900 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7900-gre-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html",
+   "title": "AMD Radeon RX 7900 GRE (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7800-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html",
+   "title": "AMD Radeon RX 7800 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7700-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html",
+   "title": "AMD Radeon RX 7700 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7700-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700.html",
+   "title": "AMD Radeon RX 7700 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7600-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7600-xt.html",
+   "title": "AMD Radeon RX 7600 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-7600-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7600.html",
+   "title": "AMD Radeon RX 7600 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6950-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6950-xt.html",
+   "title": "AMD Radeon RX 6950 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6900-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6900-xt.html",
+   "title": "AMD Radeon RX 6900 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6800-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6800-xt.html",
+   "title": "AMD Radeon RX 6800 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6800-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6800.html",
+   "title": "AMD Radeon RX 6800 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6750-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6750-xt.html",
+   "title": "AMD Radeon RX 6750 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6700-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html",
+   "title": "AMD Radeon RX 6700 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6650-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6650-xt.html",
+   "title": "AMD Radeon RX 6650 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6600-xt-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600-xt.html",
+   "title": "AMD Radeon RX 6600 XT (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-rx-6600-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html",
+   "title": "AMD Radeon RX 6600 (AMD product page, specifications)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  }
+ ],
+ "entities": [
+  {
+   "id": "gpu:rx-9070-xt",
+   "type": "gpu",
+   "slug": "rx-9070-xt",
+   "names": {
+    "en": "AMD Radeon RX 9070 XT",
+    "ko": "AMD 라데온 RX 9070 XT"
+   },
+   "aliases": [
+    "RX 9070 XT",
+    "Radeon RX 9070 XT",
+    "라데온 RX 9070 XT",
+    "9070 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 640,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "4096 stream processors (64 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2970,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 304,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-xt-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9070-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9070",
+   "type": "gpu",
+   "slug": "rx-9070",
+   "names": {
+    "en": "AMD Radeon RX 9070",
+    "ko": "AMD 라데온 RX 9070"
+   },
+   "aliases": [
+    "RX 9070",
+    "Radeon RX 9070",
+    "라데온 RX 9070",
+    "9070"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 640,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "3584 stream processors (56 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2520,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 220,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9070-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9070-gre",
+   "type": "gpu",
+   "slug": "rx-9070-gre",
+   "names": {
+    "en": "AMD Radeon RX 9070 GRE",
+    "ko": "AMD 라데온 RX 9070 GRE"
+   },
+   "aliases": [
+    "RX 9070 GRE",
+    "Radeon RX 9070 GRE",
+    "라데온 RX 9070 GRE",
+    "9070 GRE"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 12 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070-gre.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 432,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "3072 stream processors (48 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2790,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 220,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9070-gre-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9070-gre-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9060-xt-16gb",
+   "type": "gpu",
+   "slug": "rx-9060-xt-16gb",
+   "names": {
+    "en": "AMD Radeon RX 9060 XT 16GB",
+    "ko": "AMD 라데온 RX 9060 XT 16GB"
+   },
+   "aliases": [
+    "RX 9060 XT 16GB",
+    "Radeon RX 9060 XT 16GB",
+    "라데온 RX 9060 XT 16GB",
+    "9060 XT 16GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 320,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 3130,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 160,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9060-xt-16gb-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9060-xt-8gb",
+   "type": "gpu",
+   "slug": "rx-9060-xt-8gb",
+   "names": {
+    "en": "AMD Radeon RX 9060 XT 8GB",
+    "ko": "AMD 라데온 RX 9060 XT 8GB"
+   },
+   "aliases": [
+    "RX 9060 XT 8GB",
+    "Radeon RX 9060 XT 8GB",
+    "라데온 RX 9060 XT 8GB",
+    "9060 XT 8GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt-8gb.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 320,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 3130,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 150,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9060-xt-8gb-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9060-xt-lp",
+   "type": "gpu",
+   "slug": "rx-9060-xt-lp",
+   "names": {
+    "en": "AMD Radeon RX 9060 XT LP",
+    "ko": "AMD 라데온 RX 9060 XT LP"
+   },
+   "aliases": [
+    "RX 9060 XT LP",
+    "Radeon RX 9060 XT LP",
+    "라데온 RX 9060 XT LP",
+    "9060 XT LP"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt-lp.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 320,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    },
+    {
+     "p": "board_power_w",
+     "v": 140,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page",
+     "note": "AMD 'Typical Board Power (Desktop)' (stated as up to)"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9060-xt-lp-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9060",
+   "type": "gpu",
+   "slug": "rx-9060",
+   "names": {
+    "en": "AMD Radeon RX 9060",
+    "ko": "AMD 라데온 RX 9060"
+   },
+   "aliases": [
+    "RX 9060",
+    "Radeon RX 9060",
+    "라데온 RX 9060",
+    "9060"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 288,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "1792 stream processors (28 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2990,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 132,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9060-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9060-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9050-8gb",
+   "type": "gpu",
+   "slug": "rx-9050-8gb",
+   "names": {
+    "en": "AMD Radeon RX 9050 8GB",
+    "ko": "AMD 라데온 RX 9050 8GB"
+   },
+   "aliases": [
+    "RX 9050 8GB",
+    "Radeon RX 9050 8GB",
+    "라데온 RX 9050 8GB",
+    "9050 8GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9050.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 288,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "1024 stream processors (16 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2600,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 92,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9050-8gb-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-9050-4gb",
+   "type": "gpu",
+   "slug": "rx-9050-4gb",
+   "names": {
+    "en": "AMD Radeon RX 9050 4GB",
+    "ko": "AMD 라데온 RX 9050 4GB"
+   },
+   "aliases": [
+    "RX 9050 4GB",
+    "Radeon RX 9050 4GB",
+    "라데온 RX 9050 4GB",
+    "9050 4GB"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 4 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 4GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9050-4gb.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 4,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 64,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 144,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "1024 stream processors (16 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2600,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 92,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 5.0 x16",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-9050-4gb-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7900-xtx",
+   "type": "gpu",
+   "slug": "rx-7900-xtx",
+   "names": {
+    "en": "AMD Radeon RX 7900 XTX",
+    "ko": "AMD 라데온 RX 7900 XTX"
+   },
+   "aliases": [
+    "RX 7900 XTX",
+    "Radeon RX 7900 XTX",
+    "라데온 RX 7900 XTX",
+    "7900 XTX"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 24 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 24GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900xtx.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-12-13",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 24,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 960,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "6144 stream processors (96 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2500,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 355,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xtx-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7900-xtx-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7900-xt",
+   "type": "gpu",
+   "slug": "rx-7900-xt",
+   "names": {
+    "en": "AMD Radeon RX 7900 XT",
+    "ko": "AMD 라데온 RX 7900 XT"
+   },
+   "aliases": [
+    "RX 7900 XT",
+    "Radeon RX 7900 XT",
+    "라데온 RX 7900 XT",
+    "7900 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 20 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 20GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-12-13",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 20,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 800,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "5376 stream processors (84 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2400,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 315,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7900-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7900-gre",
+   "type": "gpu",
+   "slug": "rx-7900-gre",
+   "names": {
+    "en": "AMD Radeon RX 7900 GRE",
+    "ko": "AMD 라데온 RX 7900 GRE"
+   },
+   "aliases": [
+    "RX 7900 GRE",
+    "Radeon RX 7900 GRE",
+    "라데온 RX 7900 GRE",
+    "7900 GRE"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023-07-27",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 576,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "5120 stream processors (80 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2245,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 260,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7900-gre-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7900-gre-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7800-xt",
+   "type": "gpu",
+   "slug": "rx-7800-xt",
+   "names": {
+    "en": "AMD Radeon RX 7800 XT",
+    "ko": "AMD 라데온 RX 7800 XT"
+   },
+   "aliases": [
+    "RX 7800 XT",
+    "Radeon RX 7800 XT",
+    "라데온 RX 7800 XT",
+    "7800 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 624,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "3840 stream processors (60 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2430,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 263,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7800-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7800-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7700-xt",
+   "type": "gpu",
+   "slug": "rx-7700-xt",
+   "names": {
+    "en": "AMD Radeon RX 7700 XT",
+    "ko": "AMD 라데온 RX 7700 XT"
+   },
+   "aliases": [
+    "RX 7700 XT",
+    "Radeon RX 7700 XT",
+    "라데온 RX 7700 XT",
+    "7700 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 12 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 432,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "3456 stream processors (54 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2544,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 245,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7700-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7700",
+   "type": "gpu",
+   "slug": "rx-7700",
+   "names": {
+    "en": "AMD Radeon RX 7700",
+    "ko": "AMD 라데온 RX 7700"
+   },
+   "aliases": [
+    "RX 7700",
+    "Radeon RX 7700",
+    "라데온 RX 7700",
+    "7700"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 624,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2560 stream processors (40 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page"
+    },
+    {
+     "p": "board_power_w",
+     "v": 263,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7700-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7700-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7600-xt",
+   "type": "gpu",
+   "slug": "rx-7600-xt",
+   "names": {
+    "en": "AMD Radeon RX 7600 XT",
+    "ko": "AMD 라데온 RX 7600 XT"
+   },
+   "aliases": [
+    "RX 7600 XT",
+    "Radeon RX 7600 XT",
+    "라데온 RX 7600 XT",
+    "7600 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7600-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 288,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2755,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 190,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7600-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-7600",
+   "type": "gpu",
+   "slug": "rx-7600",
+   "names": {
+    "en": "AMD Radeon RX 7600",
+    "ko": "AMD 라데온 RX 7600"
+   },
+   "aliases": [
+    "RX 7600",
+    "Radeon RX 7600",
+    "라데온 RX 7600",
+    "7600"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7600.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 288,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2655,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 165,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-7600-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-7600-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6950-xt",
+   "type": "gpu",
+   "slug": "rx-6950-xt",
+   "names": {
+    "en": "AMD Radeon RX 6950 XT",
+    "ko": "AMD 라데온 RX 6950 XT"
+   },
+   "aliases": [
+    "RX 6950 XT",
+    "Radeon RX 6950 XT",
+    "라데온 RX 6950 XT",
+    "6950 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6950-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-05-10",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 576,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "5120 stream processors (80 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2310,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 335,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6950-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6950-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6900-xt",
+   "type": "gpu",
+   "slug": "rx-6900-xt",
+   "names": {
+    "en": "AMD Radeon RX 6900 XT",
+    "ko": "AMD 라데온 RX 6900 XT"
+   },
+   "aliases": [
+    "RX 6900 XT",
+    "Radeon RX 6900 XT",
+    "라데온 RX 6900 XT",
+    "6900 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6900-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2020-12-08",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "5120 stream processors (80 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2250,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6900-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6900-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6800-xt",
+   "type": "gpu",
+   "slug": "rx-6800-xt",
+   "names": {
+    "en": "AMD Radeon RX 6800 XT",
+    "ko": "AMD 라데온 RX 6800 XT"
+   },
+   "aliases": [
+    "RX 6800 XT",
+    "Radeon RX 6800 XT",
+    "라데온 RX 6800 XT",
+    "6800 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6800-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2020-11-18",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "4608 stream processors (72 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2250,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 300,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6800-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6800",
+   "type": "gpu",
+   "slug": "rx-6800",
+   "names": {
+    "en": "AMD Radeon RX 6800",
+    "ko": "AMD 라데온 RX 6800"
+   },
+   "aliases": [
+    "RX 6800",
+    "Radeon RX 6800",
+    "라데온 RX 6800",
+    "6800"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6800.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2020-11-18",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 16,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 512,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "3840 stream processors (60 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2105,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 250,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6800-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6800-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6750-xt",
+   "type": "gpu",
+   "slug": "rx-6750-xt",
+   "names": {
+    "en": "AMD Radeon RX 6750 XT",
+    "ko": "AMD 라데온 RX 6750 XT"
+   },
+   "aliases": [
+    "RX 6750 XT",
+    "Radeon RX 6750 XT",
+    "라데온 RX 6750 XT",
+    "6750 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 12 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6750-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-05-10",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 432,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2560 stream processors (40 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2600,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 250,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6750-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6750-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6700-xt",
+   "type": "gpu",
+   "slug": "rx-6700-xt",
+   "names": {
+    "en": "AMD Radeon RX 6700 XT",
+    "ko": "AMD 라데온 RX 6700 XT"
+   },
+   "aliases": [
+    "RX 6700 XT",
+    "Radeon RX 6700 XT",
+    "라데온 RX 6700 XT",
+    "6700 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 12 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2021-03-01",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 192,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2560 stream processors (40 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2581,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 230,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6700-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6700-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6650-xt",
+   "type": "gpu",
+   "slug": "rx-6650-xt",
+   "names": {
+    "en": "AMD Radeon RX 6650 XT",
+    "ko": "AMD 라데온 RX 6650 XT"
+   },
+   "aliases": [
+    "RX 6650 XT",
+    "Radeon RX 6650 XT",
+    "라데온 RX 6650 XT",
+    "6650 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6650-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-05-10",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 280,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2635,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 180,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6650-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6650-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6600-xt",
+   "type": "gpu",
+   "slug": "rx-6600-xt",
+   "names": {
+    "en": "AMD Radeon RX 6600 XT",
+    "ko": "AMD 라데온 RX 6600 XT"
+   },
+   "aliases": [
+    "RX 6600 XT",
+    "Radeon RX 6600 XT",
+    "라데온 RX 6600 XT",
+    "6600 XT"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600-xt.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2021-08-11",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 256,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "2048 stream processors (32 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2589,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 160,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-xt-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6600-xt-page"
+    }
+   ]
+  },
+  {
+   "id": "gpu:rx-6600",
+   "type": "gpu",
+   "slug": "rx-6600",
+   "names": {
+    "en": "AMD Radeon RX 6600",
+    "ko": "AMD 라데온 RX 6600"
+   },
+   "aliases": [
+    "RX 6600",
+    "Radeon RX 6600",
+    "라데온 RX 6600",
+    "6600"
+   ],
+   "description": {
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
+    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2021-10-13",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page",
+     "note": "'Launch Date' in AMD's product specifications"
+    },
+    {
+     "p": "segment",
+     "v": "desktop",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page",
+     "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "vram_gb",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page"
+    },
+    {
+     "p": "memory_type",
+     "v": "GDDR6",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 128,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page"
+    },
+    {
+     "p": "memory_bandwidth_gbs",
+     "v": 224,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page",
+     "note": "Up to; raw memory bandwidth (excludes Infinity Cache effective bandwidth)"
+    },
+    {
+     "p": "shader_units",
+     "v": "1792 stream processors (28 compute units)",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page"
+    },
+    {
+     "p": "boost_clock_mhz",
+     "v": 2491,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page",
+     "note": "AMD 'Boost Frequency' (up to)"
+    },
+    {
+     "p": "board_power_w",
+     "v": 132,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-rx-6600-page",
+     "note": "AMD 'Typical Board Power (Desktop)'"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:amd",
+     "src": "src:amdrx-rx-6600-page"
+    }
+   ]
+  }
+ ]
+}

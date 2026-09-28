@@ -1,0 +1,275 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {"id":"src:intelarc-b580-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/241598/intel-arc-b580-graphics/specifications.html","title":"Intel Arc B580 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-b570-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/241676/intel-arc-b570-graphics/specifications.html","title":"Intel Arc B570 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-b-series-launch","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/newsroom/news/intel-launches-arc-b-series-graphics-cards.html","title":"Intel Launches Arc B-Series Graphics Cards","publisher":"Intel","retrieved":"2026-09-28","note":"Intel Newsroom, December 3, 2024"},
+  {"id":"src:intelarc-a770-16gb-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/229151/intel-arc-a770-graphics-16gb/specifications.html","title":"Intel Arc A770 Graphics (16GB) - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a770-8gb-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/227955/intel-arc-a770-graphics-8gb/specifications.html","title":"Intel Arc A770 Graphics (8GB) - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a750-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/227954/intel-arc-a750-graphics/specifications.html","title":"Intel Arc A750 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a580-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/227961/intel-arc-a580-graphics/specifications.html","title":"Intel Arc A580 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a380-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/227959/intel-arc-a380-graphics/specifications.html","title":"Intel Arc A380 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a310-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/227958/intel-arc-a310-graphics/specifications.html","title":"Intel Arc A310 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-a7-price-availability","kind":"OFFICIAL","url":"https://game.intel.com/stories/intel-arc-graphics-a7series-perf-per-dollar/","title":"Bringing Balance Back: Intel Arc A750 & A770 Performance per Dollar Details, available Oct 12th","publisher":"Intel","retrieved":"2026-09-28","note":"Intel Gaming Access, September 29, 2022"},
+  {"id":"src:intelarc-a580-launch","kind":"OFFICIAL","url":"https://download.intel.com/newsroom/archive/2025/en-us-2023-10-10-intel-arc-a580-graphics-available-worldwide.pdf","title":"Intel Arc A580 Graphics Available Worldwide","publisher":"Intel","retrieved":"2026-09-28","note":"Intel Newsroom archive PDF of the October 10, 2023 release (original newsroom.intel.com URL now redirects)"},
+  {"id":"src:intelarc-pro-b50-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/242615/intel-arc-pro-b50-graphics/specifications.html","title":"Intel Arc Pro B50 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-pro-b60-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/243916/intel-arc-pro-b60-graphics/specifications.html","title":"Intel Arc Pro B60 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-pro-b65-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/245796/intel-arc-pro-b65-graphics/specifications.html","title":"Intel Arc Pro B65 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-pro-b70-specs","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/sku/245797/intel-arc-pro-b70-graphics/specifications.html","title":"Intel Arc Pro B70 Graphics - Product Specifications","publisher":"Intel","retrieved":"2026-09-28"},
+  {"id":"src:intelarc-pro-b-series","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html","title":"Intel Arc Pro B-Series Graphics Cards - Workstation Graphics Built for the AI Era","publisher":"Intel","retrieved":"2026-09-28","note":"Intel's workstation product family page listing Arc Pro B70, B65, B60 and B50"}
+ ],
+ "entities": [
+  {
+   "id":"gpu:arc-b580","type":"gpu","slug":"arc-b580",
+   "names":{"en":"Intel Arc B580","ko":"인텔 Arc B580 그래픽"},
+   "aliases":["Arc B580","B580","Intel Arc B580 Graphics","인텔 Arc B580"],
+   "description":{"en":"Desktop graphics card in Intel's Arc B-Series, built on the Xe2 architecture with 12 GB of GDDR6 memory.","ko":"Xe2 아키텍처 기반의 인텔 Arc B 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/241598/intel-arc-b580-graphics/specifications.html"}],
+   "facts":[
+    {"p":"release_date","v":"2024-12-13","ver":"OFFICIAL","src":"src:intelarc-b-series-launch","note":"Availability date of the Limited Edition and partner cards per Intel's launch release"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-b580-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-b580-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":12,"ver":"OFFICIAL","src":"src:intelarc-b580-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-b580-specs"},
+    {"p":"memory_bus_bits","v":192,"ver":"OFFICIAL","src":"src:intelarc-b580-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":456,"ver":"OFFICIAL","src":"src:intelarc-b580-specs"},
+    {"p":"shader_units","v":"20 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-b580-specs"},
+    {"p":"boost_clock_mhz","v":2670,"ver":"OFFICIAL","src":"src:intelarc-b580-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":190,"ver":"OFFICIAL","src":"src:intelarc-b580-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":249,"ver":"OFFICIAL","src":"src:intelarc-b-series-launch","note":"'from $249' for the Limited Edition and partner cards"},
+    {"p":"pcie","v":"PCIe 4.0 x8","ver":"OFFICIAL","src":"src:intelarc-b580-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-b580-specs"}]
+  },
+  {
+   "id":"gpu:arc-b570","type":"gpu","slug":"arc-b570",
+   "names":{"en":"Intel Arc B570","ko":"인텔 Arc B570 그래픽"},
+   "aliases":["Arc B570","B570","Intel Arc B570 Graphics","인텔 Arc B570"],
+   "description":{"en":"Desktop graphics card in Intel's Arc B-Series, built on the Xe2 architecture with 10 GB of GDDR6 memory.","ko":"Xe2 아키텍처 기반의 인텔 Arc B 시리즈 데스크톱 그래픽카드로, 10GB GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/241676/intel-arc-b570-graphics/specifications.html"}],
+   "facts":[
+    {"p":"release_date","v":"2025-01-16","ver":"OFFICIAL","src":"src:intelarc-b-series-launch","note":"Availability date of partner cards per Intel's launch release"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-b570-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-b570-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":10,"ver":"OFFICIAL","src":"src:intelarc-b570-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-b570-specs"},
+    {"p":"memory_bus_bits","v":160,"ver":"OFFICIAL","src":"src:intelarc-b570-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":380,"ver":"OFFICIAL","src":"src:intelarc-b570-specs"},
+    {"p":"shader_units","v":"18 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-b570-specs"},
+    {"p":"boost_clock_mhz","v":2500,"ver":"OFFICIAL","src":"src:intelarc-b570-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":150,"ver":"OFFICIAL","src":"src:intelarc-b570-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":219,"ver":"OFFICIAL","src":"src:intelarc-b-series-launch","note":"'from $219' for partner cards"},
+    {"p":"pcie","v":"PCIe 4.0 x8","ver":"OFFICIAL","src":"src:intelarc-b570-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-b570-specs"}]
+  },
+  {
+   "id":"gpu:arc-a770-16gb","type":"gpu","slug":"arc-a770-16gb",
+   "names":{"en":"Intel Arc A770 16GB","ko":"인텔 Arc A770 그래픽 (16GB)"},
+   "aliases":["Arc A770 16GB","A770 16GB","Intel Arc A770 Graphics (16GB)","인텔 Arc A770 16GB"],
+   "description":{"en":"16 GB version of Intel's Arc A770 desktop graphics card, built on the Xe HPG architecture (Alchemist) with GDDR6 memory on a 256-bit bus.","ko":"Xe HPG(Alchemist) 아키텍처 기반 인텔 Arc A770 데스크톱 그래픽카드의 16GB 모델로, 256비트 버스의 GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/229151/intel-arc-a770-graphics-16gb/specifications.html"}],
+   "facts":[
+    {"p":"release_date","v":"2022-10-12","ver":"OFFICIAL","src":"src:intelarc-a7-price-availability","note":"Availability date of the A770 16GB Limited Edition per Intel"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":16,"ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":560,"ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs"},
+    {"p":"shader_units","v":"32 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs"},
+    {"p":"boost_clock_mhz","v":2100,"ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":225,"ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":349,"ver":"OFFICIAL","src":"src:intelarc-a7-price-availability","note":"Price of the Intel A770 16GB Limited Edition card"},
+    {"p":"pcie","v":"PCIe 4.0 x16","ver":"OFFICIAL","src":"src:intelarc-a770-16gb-specs","note":"Intel: 'Up to PCI Express 4.0 x16'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a770-16gb-specs"}]
+  },
+  {
+   "id":"gpu:arc-a770-8gb","type":"gpu","slug":"arc-a770-8gb",
+   "names":{"en":"Intel Arc A770 8GB","ko":"인텔 Arc A770 그래픽 (8GB)"},
+   "aliases":["Arc A770 8GB","A770 8GB","Intel Arc A770 Graphics (8GB)","인텔 Arc A770 8GB"],
+   "description":{"en":"8 GB version of Intel's Arc A770 desktop graphics card, built on the Xe HPG architecture (Alchemist) with GDDR6 memory on a 256-bit bus.","ko":"Xe HPG(Alchemist) 아키텍처 기반 인텔 Arc A770 데스크톱 그래픽카드의 8GB 모델로, 256비트 버스의 GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/227955/intel-arc-a770-graphics-8gb/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":8,"ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":512,"ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs"},
+    {"p":"shader_units","v":"32 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs"},
+    {"p":"boost_clock_mhz","v":2100,"ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":225,"ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":329,"ver":"OFFICIAL","src":"src:intelarc-a7-price-availability","note":"'A770 8GB models starting at $329' from partners; Intel gave no exact availability date for the 8GB model"},
+    {"p":"pcie","v":"PCIe 4.0 x16","ver":"OFFICIAL","src":"src:intelarc-a770-8gb-specs","note":"Intel: 'Up to PCI Express 4.0 x16'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a770-8gb-specs"}]
+  },
+  {
+   "id":"gpu:arc-a750","type":"gpu","slug":"arc-a750",
+   "names":{"en":"Intel Arc A750","ko":"인텔 Arc A750 그래픽"},
+   "aliases":["Arc A750","A750","Intel Arc A750 Graphics","인텔 Arc A750"],
+   "description":{"en":"Desktop graphics card in Intel's Arc A-Series, built on the Xe HPG architecture (Alchemist) with 8 GB of GDDR6 memory.","ko":"Xe HPG(Alchemist) 아키텍처 기반의 인텔 Arc A 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/227954/intel-arc-a750-graphics/specifications.html"}],
+   "facts":[
+    {"p":"release_date","v":"2022-10-12","ver":"OFFICIAL","src":"src:intelarc-a7-price-availability","note":"Availability date per Intel"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":8,"ver":"OFFICIAL","src":"src:intelarc-a750-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a750-specs"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":512,"ver":"OFFICIAL","src":"src:intelarc-a750-specs"},
+    {"p":"shader_units","v":"28 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a750-specs"},
+    {"p":"boost_clock_mhz","v":2050,"ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":225,"ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":289,"ver":"OFFICIAL","src":"src:intelarc-a7-price-availability","note":"Starting price per Intel's pre-launch announcement"},
+    {"p":"pcie","v":"PCIe 4.0 x16","ver":"OFFICIAL","src":"src:intelarc-a750-specs","note":"Intel: 'Up to PCI Express 4.0 x16'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a750-specs"}]
+  },
+  {
+   "id":"gpu:arc-a580","type":"gpu","slug":"arc-a580",
+   "names":{"en":"Intel Arc A580","ko":"인텔 Arc A580 그래픽"},
+   "aliases":["Arc A580","A580","Intel Arc A580 Graphics","인텔 Arc A580"],
+   "description":{"en":"Desktop graphics card in Intel's Arc A-Series, built on the Xe HPG architecture (Alchemist) with 8 GB of GDDR6 memory, sold through board partners.","ko":"Xe HPG(Alchemist) 아키텍처 기반의 인텔 Arc A 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했으며 보드 파트너를 통해 판매됩니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/227961/intel-arc-a580-graphics/specifications.html"}],
+   "facts":[
+    {"p":"release_date","v":"2023-10-10","ver":"OFFICIAL","src":"src:intelarc-a580-launch","note":"Partner cards 'immediately available worldwide' per Intel's release"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":8,"ver":"OFFICIAL","src":"src:intelarc-a580-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a580-specs"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":512,"ver":"OFFICIAL","src":"src:intelarc-a580-specs"},
+    {"p":"shader_units","v":"24 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a580-specs"},
+    {"p":"boost_clock_mhz","v":1700,"ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":185,"ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"launch_price_usd","v":179,"ver":"OFFICIAL","src":"src:intelarc-a580-launch","note":"Partner cards 'from $179'"},
+    {"p":"pcie","v":"PCIe 4.0 x16","ver":"OFFICIAL","src":"src:intelarc-a580-specs","note":"Intel: 'Up to PCI Express 4.0 x16'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a580-specs"}]
+  },
+  {
+   "id":"gpu:arc-a380","type":"gpu","slug":"arc-a380",
+   "names":{"en":"Intel Arc A380","ko":"인텔 Arc A380 그래픽"},
+   "aliases":["Arc A380","A380","Intel Arc A380 Graphics","인텔 Arc A380"],
+   "description":{"en":"Entry-level desktop graphics card in Intel's Arc A-Series, built on the Xe HPG architecture (Alchemist) with 6 GB of GDDR6 memory and a 75 W board power.","ko":"Xe HPG(Alchemist) 아키텍처 기반의 인텔 Arc A 시리즈 보급형 데스크톱 그래픽카드로, 6GB GDDR6 메모리와 75W 보드 전력을 갖췄습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/227959/intel-arc-a380-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":6,"ver":"OFFICIAL","src":"src:intelarc-a380-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a380-specs"},
+    {"p":"memory_bus_bits","v":96,"ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":186,"ver":"OFFICIAL","src":"src:intelarc-a380-specs"},
+    {"p":"shader_units","v":"8 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a380-specs"},
+    {"p":"boost_clock_mhz","v":2000,"ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":75,"ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"pcie","v":"PCIe 4.0 x8","ver":"OFFICIAL","src":"src:intelarc-a380-specs","note":"Intel: 'Up to PCI Express 4.0 x8 (x16 slot required)'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a380-specs"}]
+  },
+  {
+   "id":"gpu:arc-a310","type":"gpu","slug":"arc-a310",
+   "names":{"en":"Intel Arc A310","ko":"인텔 Arc A310 그래픽"},
+   "aliases":["Arc A310","A310","Intel Arc A310 Graphics","인텔 Arc A310"],
+   "description":{"en":"Entry-level desktop graphics card in Intel's Arc A-Series, built on the Xe HPG architecture (Alchemist) with 4 GB of GDDR6 memory on a 64-bit bus.","ko":"Xe HPG(Alchemist) 아키텍처 기반의 인텔 Arc A 시리즈 보급형 데스크톱 그래픽카드로, 64비트 버스의 4GB GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/227958/intel-arc-a310-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel 'Vertical Segment: Desktop'"},
+    {"p":"architecture","v":"Xe HPG","ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel 'Microarchitecture'; code name Alchemist"},
+    {"p":"vram_gb","v":4,"ver":"OFFICIAL","src":"src:intelarc-a310-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-a310-specs"},
+    {"p":"memory_bus_bits","v":64,"ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":124,"ver":"OFFICIAL","src":"src:intelarc-a310-specs"},
+    {"p":"shader_units","v":"6 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-a310-specs"},
+    {"p":"boost_clock_mhz","v":2000,"ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel 'Graphics Clock'; low-profile cards: 'Graphics Clock - LP' 1000 MHz"},
+    {"p":"board_power_w","v":75,"ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel 'Total Board Power' (TBP); low-profile cards: 'TBP - LP' 40-75 W"},
+    {"p":"pcie","v":"PCIe 4.0 x8","ver":"OFFICIAL","src":"src:intelarc-a310-specs","note":"Intel: 'Up to PCI Express 4.0 x8 (x16 slot required)'"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-a310-specs"}]
+  },
+  {
+   "id":"gpu:arc-pro-b50","type":"gpu","slug":"arc-pro-b50",
+   "names":{"en":"Intel Arc Pro B50","ko":"인텔 Arc Pro B50 그래픽"},
+   "aliases":["Arc Pro B50","Pro B50","Intel Arc Pro B50 Graphics","인텔 Arc Pro B50"],
+   "description":{"en":"Workstation graphics card in Intel's Arc Pro B-Series, built on the Xe2 architecture with 16 GB of GDDR6 ECC-capable memory and a 70 W board power.","ko":"Xe2 아키텍처 기반의 인텔 Arc Pro B 시리즈 워크스테이션 그래픽카드로, ECC를 지원하는 16GB GDDR6 메모리와 70W 보드 전력을 갖췄습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html"},{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/242615/intel-arc-pro-b50-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"workstation","ver":"OFFICIAL","src":"src:intelarc-pro-b-series","note":"Listed on Intel's Arc Pro B-Series workstation graphics page; the spec page gives no 'Vertical Segment'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":16,"ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs","note":"ECC memory supported per Intel"},
+    {"p":"memory_bus_bits","v":128,"ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":224,"ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs"},
+    {"p":"shader_units","v":"16 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs"},
+    {"p":"boost_clock_mhz","v":1700,"ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs","note":"Intel 'Graphics Clock'; Intel separately lists 'Graphics Max Dynamic Clock' 2600 MHz"},
+    {"p":"board_power_w","v":70,"ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"pcie","v":"PCIe 5.0 x8","ver":"OFFICIAL","src":"src:intelarc-pro-b50-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-pro-b50-specs"}]
+  },
+  {
+   "id":"gpu:arc-pro-b60","type":"gpu","slug":"arc-pro-b60",
+   "names":{"en":"Intel Arc Pro B60","ko":"인텔 Arc Pro B60 그래픽"},
+   "aliases":["Arc Pro B60","Pro B60","Intel Arc Pro B60 Graphics","인텔 Arc Pro B60"],
+   "description":{"en":"Workstation graphics card in Intel's Arc Pro B-Series, built on the Xe2 architecture with 24 GB of GDDR6 memory on a 192-bit bus.","ko":"Xe2 아키텍처 기반의 인텔 Arc Pro B 시리즈 워크스테이션 그래픽카드로, 192비트 버스의 24GB GDDR6 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html"},{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/243916/intel-arc-pro-b60-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"workstation","ver":"OFFICIAL","src":"src:intelarc-pro-b-series","note":"Listed on Intel's Arc Pro B-Series workstation graphics page; the spec page gives no 'Vertical Segment'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":24,"ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs"},
+    {"p":"memory_bus_bits","v":192,"ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":456,"ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs"},
+    {"p":"shader_units","v":"20 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs"},
+    {"p":"boost_clock_mhz","v":2400,"ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs","note":"Intel 'Graphics Clock'; low-profile cards: 'Graphics Clock - LP' 2000 MHz"},
+    {"p":"board_power_w","v":200,"ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs","note":"Intel 'Total Board Power' (TBP); low-profile cards: 'TBP - LP' 120-200 W"},
+    {"p":"pcie","v":"PCIe 5.0 x8","ver":"OFFICIAL","src":"src:intelarc-pro-b60-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-pro-b60-specs"}]
+  },
+  {
+   "id":"gpu:arc-pro-b65","type":"gpu","slug":"arc-pro-b65",
+   "names":{"en":"Intel Arc Pro B65","ko":"인텔 Arc Pro B65 그래픽"},
+   "aliases":["Arc Pro B65","Pro B65","Intel Arc Pro B65 Graphics","인텔 Arc Pro B65"],
+   "description":{"en":"Workstation graphics card in Intel's Arc Pro B-Series, built on the Xe2 architecture with 20 Xe-cores and 32 GB of GDDR6 memory on a 256-bit bus.","ko":"Xe2 아키텍처 기반의 인텔 Arc Pro B 시리즈 워크스테이션 그래픽카드로, 20개의 Xe 코어와 256비트 버스의 32GB GDDR6 메모리를 갖췄습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html"},{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/245796/intel-arc-pro-b65-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"workstation","ver":"OFFICIAL","src":"src:intelarc-pro-b-series","note":"Listed on Intel's Arc Pro B-Series workstation graphics page; the spec page gives no 'Vertical Segment'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":32,"ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":608,"ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs"},
+    {"p":"shader_units","v":"20 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs"},
+    {"p":"boost_clock_mhz","v":2400,"ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs","note":"Intel 'Graphics Clock'"},
+    {"p":"board_power_w","v":200,"ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs","note":"Intel 'Total Board Power' (TBP)"},
+    {"p":"pcie","v":"PCIe 5.0 x16","ver":"OFFICIAL","src":"src:intelarc-pro-b65-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-pro-b65-specs"}]
+  },
+  {
+   "id":"gpu:arc-pro-b70","type":"gpu","slug":"arc-pro-b70",
+   "names":{"en":"Intel Arc Pro B70","ko":"인텔 Arc Pro B70 그래픽"},
+   "aliases":["Arc Pro B70","Pro B70","Intel Arc Pro B70 Graphics","인텔 Arc Pro B70"],
+   "description":{"en":"Workstation graphics card in Intel's Arc Pro B-Series, built on the Xe2 architecture with 32 Xe-cores and 32 GB of GDDR6 ECC-capable memory.","ko":"Xe2 아키텍처 기반의 인텔 Arc Pro B 시리즈 워크스테이션 그래픽카드로, 32개의 Xe 코어와 ECC를 지원하는 32GB GDDR6 메모리를 갖췄습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.intel.com/content/www/us/en/products/details/discrete-gpus/arc/workstations/b-series.html"},{"label":"Specifications","url":"https://www.intel.com/content/www/us/en/products/sku/245797/intel-arc-pro-b70-graphics/specifications.html"}],
+   "facts":[
+    {"p":"segment","v":"workstation","ver":"OFFICIAL","src":"src:intelarc-pro-b-series","note":"Listed on Intel's Arc Pro B-Series workstation graphics page; the spec page gives no 'Vertical Segment'"},
+    {"p":"architecture","v":"Xe2","ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs","note":"Intel 'Microarchitecture'; code name Battlemage"},
+    {"p":"vram_gb","v":32,"ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs"},
+    {"p":"memory_type","v":"GDDR6","ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs","note":"ECC memory supported per Intel"},
+    {"p":"memory_bus_bits","v":256,"ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs","note":"Intel 'Graphics Memory Interface'"},
+    {"p":"memory_bandwidth_gbs","v":608,"ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs"},
+    {"p":"shader_units","v":"32 Xe-cores","ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs"},
+    {"p":"boost_clock_mhz","v":2280,"ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs","note":"Intel 'Graphics Clock'; Intel separately lists 'Graphics Max Dynamic Clock' 2800 MHz"},
+    {"p":"board_power_w","v":230,"ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs","note":"Intel 'Total Board Power' (TBP); Intel also lists 'TBP - LP' 160-290"},
+    {"p":"pcie","v":"PCIe 5.0 x16","ver":"OFFICIAL","src":"src:intelarc-pro-b70-specs"}
+   ],
+   "relations":[{"p":"made_by","o":"vendor:intel","src":"src:intelarc-pro-b70-specs"}]
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [
+  {"id":"src:nv4030-rtx4090-specs","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/","title":"GeForce RTX 4090 Graphics Card","publisher":"NVIDIA","retrieved":"2026-09-28"},
+  {"id":"src:nv4030-rtx3090-family-specs","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/","title":"NVIDIA GeForce RTX 3090 & 3090 Ti Graphics Cards","publisher":"NVIDIA","retrieved":"2026-09-28"},
+  {"id":"src:nv4030-news-rtx40-announce","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/news/rtx-40-series-graphics-cards-announcements/","title":"GeForce RTX 40 Series graphics cards announcements (GeForce News, September 20, 2022)","publisher":"NVIDIA","retrieved":"2026-09-28"},
+  {"id":"src:nv4030-news-rtx4090-out-now","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/news/geforce-rtx-4090-out-now/","title":"GeForce RTX 4090 out now (GeForce News, October 12, 2022)","publisher":"NVIDIA","retrieved":"2026-09-28"},
+  {"id":"src:nv4030-news-rtx30-intro","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/news/introducing-rtx-30-series-graphics-cards/","title":"Introducing GeForce RTX 30 Series GPUs (GeForce News, September 1, 2020)","publisher":"NVIDIA","retrieved":"2026-09-28"},
+  {"id":"src:nv4030-news-rtx3090ti-out-now","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/geforce/news/geforce-rtx-3090-ti-out-now/","title":"GeForce RTX 3090 Ti Is Here (GeForce News, March 29, 2022)","publisher":"NVIDIA","retrieved":"2026-09-28"}
+ ],
+ "entities": [
+  {"id":"gpu:rtx-4090","type":"gpu","slug":"rtx-4090",
+   "names":{"en":"NVIDIA GeForce RTX 4090","ko":"엔비디아 지포스 RTX 4090"},
+   "aliases":["RTX 4090","GeForce RTX 4090","지포스 RTX 4090","4090"],
+   "description":{"en":"Desktop graphics card in NVIDIA's GeForce RTX 40 series, built on the Ada Lovelace architecture with 24 GB of GDDR6X memory.","ko":"에이다 러브레이스 아키텍처 기반의 엔비디아 지포스 RTX 40 시리즈 데스크톱 그래픽카드로, 24GB GDDR6X 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/"}],
+   "facts":[
+    {"p":"release_date","v":"2022-10-12","ver":"OFFICIAL","src":"src:nv4030-news-rtx4090-out-now"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"architecture","v":"Ada Lovelace","ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"vram_gb","v":24,"ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"memory_type","v":"GDDR6X","ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"memory_bus_bits","v":384,"ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"shader_units","v":"16384 CUDA cores","ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs"},
+    {"p":"boost_clock_mhz","v":2520,"ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs","note":"Founders Edition / reference boost clock (2.52 GHz)"},
+    {"p":"board_power_w","v":450,"ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs","note":"NVIDIA 'Total Graphics Power'"},
+    {"p":"launch_price_usd","v":1599,"ver":"OFFICIAL","src":"src:nv4030-news-rtx40-announce","note":"'starting at $1599'"},
+    {"p":"pcie","v":"PCIe 4.0","ver":"OFFICIAL","src":"src:nv4030-rtx4090-specs","note":"Spec table lists 'PCI Express Gen 4'; lane width not stated"}
+   ],
+   "relations":[
+    {"p":"made_by","o":"vendor:nvidia","src":"src:nv4030-rtx4090-specs"}
+   ]},
+  {"id":"gpu:rtx-3090-ti","type":"gpu","slug":"rtx-3090-ti",
+   "names":{"en":"NVIDIA GeForce RTX 3090 Ti","ko":"엔비디아 지포스 RTX 3090 Ti"},
+   "aliases":["RTX 3090 Ti","GeForce RTX 3090 Ti","지포스 RTX 3090 Ti","3090 Ti"],
+   "description":{"en":"Desktop graphics card in NVIDIA's GeForce RTX 30 series, built on the Ampere architecture with 24 GB of GDDR6X memory.","ko":"암페어 아키텍처 기반의 엔비디아 지포스 RTX 30 시리즈 데스크톱 그래픽카드로, 24GB GDDR6X 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/"}],
+   "facts":[
+    {"p":"release_date","v":"2022-03-29","ver":"OFFICIAL","src":"src:nv4030-news-rtx3090ti-out-now"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"architecture","v":"Ampere","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"vram_gb","v":24,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"memory_type","v":"GDDR6X","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"memory_bus_bits","v":384,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"shader_units","v":"10752 CUDA cores","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"boost_clock_mhz","v":1860,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"Founders Edition / reference boost clock (1.86 GHz)"},
+    {"p":"board_power_w","v":450,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"NVIDIA 'Graphics Card Power'"},
+    {"p":"launch_price_usd","v":1999,"ver":"OFFICIAL","src":"src:nv4030-news-rtx3090ti-out-now","note":"'Starting at $1,999'"},
+    {"p":"pcie","v":"PCIe 4.0","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"Spec table lists 'PCI Express Gen 4'; lane width not stated"}
+   ],
+   "relations":[
+    {"p":"made_by","o":"vendor:nvidia","src":"src:nv4030-rtx3090-family-specs"}
+   ]},
+  {"id":"gpu:rtx-3090","type":"gpu","slug":"rtx-3090",
+   "names":{"en":"NVIDIA GeForce RTX 3090","ko":"엔비디아 지포스 RTX 3090"},
+   "aliases":["RTX 3090","GeForce RTX 3090","지포스 RTX 3090","3090"],
+   "description":{"en":"Desktop graphics card in NVIDIA's GeForce RTX 30 series, built on the Ampere architecture with 24 GB of GDDR6X memory.","ko":"암페어 아키텍처 기반의 엔비디아 지포스 RTX 30 시리즈 데스크톱 그래픽카드로, 24GB GDDR6X 메모리를 탑재했습니다."},
+   "official_urls":[{"label":"Product page","url":"https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/"}],
+   "facts":[
+    {"p":"release_date","v":"2020-09-24","ver":"OFFICIAL","src":"src:nv4030-news-rtx30-intro"},
+    {"p":"segment","v":"desktop","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"architecture","v":"Ampere","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"vram_gb","v":24,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"memory_type","v":"GDDR6X","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"memory_bus_bits","v":384,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"shader_units","v":"10496 CUDA cores","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs"},
+    {"p":"boost_clock_mhz","v":1700,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"Founders Edition / reference boost clock (1.70 GHz)"},
+    {"p":"board_power_w","v":350,"ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"NVIDIA 'Graphics Card Power'"},
+    {"p":"launch_price_usd","v":1499,"ver":"OFFICIAL","src":"src:nv4030-news-rtx30-intro","note":"'Prices Starting At $1499'"},
+    {"p":"pcie","v":"PCIe 4.0","ver":"OFFICIAL","src":"src:nv4030-rtx3090-family-specs","note":"Spec table lists 'PCI Express Gen 4'; lane width not stated"}
+   ],
+   "relations":[
+    {"p":"made_by","o":"vendor:nvidia","src":"src:nv4030-rtx3090-family-specs"}
+   ]}
+ ]
+}

@@ -1,10 +1,32 @@
 {
  "schema": "nerulio.seed/1",
  "vertical": "hardware",
- "sources": [],
+ "sources": [
+  {"id":"src:vendor-nvidia-contact","kind":"OFFICIAL","url":"https://www.nvidia.com/en-us/contact/","title":"Contact NVIDIA","publisher":"NVIDIA","retrieved":"2026-09-28","note":"Headquarters: 2788 San Tomas Expressway, Santa Clara, CA 95051"},
+  {"id":"src:vendor-amd-ir","kind":"OFFICIAL","url":"https://ir.amd.com/","title":"AMD Investor Relations","publisher":"AMD","retrieved":"2026-09-28","note":"Organization structured data on the page: 2485 Augustine Drive, Santa Clara, CA 95054 (legalName Advanced Micro Devices)"},
+  {"id":"src:vendor-intel-offices","kind":"OFFICIAL","url":"https://www.intel.com/content/www/us/en/support/articles/000015122/programs.html","title":"Where to Find Intel Office Locations, and How to Contact Some within Your Community","publisher":"Intel","retrieved":"2026-09-28","note":"Corporate office: 2200 Mission College Blvd., Santa Clara, CA 95054, USA"}
+ ],
  "entities": [
-  {"id":"vendor:nvidia","type":"vendor","slug":"nvidia","names":{"en":"NVIDIA","ko":"엔비디아"},"aliases":["NVIDIA Corporation","Nvidia","엔비디아"]},
-  {"id":"vendor:amd","type":"vendor","slug":"amd","names":{"en":"AMD","ko":"AMD"},"aliases":["Advanced Micro Devices","AMD"]},
-  {"id":"vendor:intel","type":"vendor","slug":"intel","names":{"en":"Intel","ko":"인텔"},"aliases":["Intel Corporation","인텔"]}
+  {"id":"vendor:nvidia","type":"vendor","slug":"nvidia","names":{"en":"NVIDIA","ko":"엔비디아"},"aliases":["NVIDIA Corporation","Nvidia","엔비디아"],
+   "description":{"en":"US company that designs GPUs, including the GeForce RTX consumer graphics cards and the RTX PRO workstation line.","ko":"지포스 RTX 소비자용 그래픽카드와 RTX PRO 워크스테이션 제품군 등 GPU를 설계하는 미국 기업입니다."},
+   "official_urls":[{"label":"Official site","url":"https://www.nvidia.com/"}],
+   "facts":[
+    {"p":"hq_country","v":"United States (Santa Clara, California)","ver":"OFFICIAL","src":"src:vendor-nvidia-contact"},
+    {"p":"homepage","v":"https://www.nvidia.com/","ver":"OFFICIAL","src":"src:vendor-nvidia-contact"}
+   ]},
+  {"id":"vendor:amd","type":"vendor","slug":"amd","names":{"en":"AMD","ko":"AMD"},"aliases":["Advanced Micro Devices","AMD"],
+   "description":{"en":"US semiconductor company (Advanced Micro Devices) that makes Radeon graphics cards alongside its CPUs.","ko":"CPU와 함께 라데온 그래픽카드를 만드는 미국 반도체 기업(Advanced Micro Devices)입니다."},
+   "official_urls":[{"label":"Official site","url":"https://www.amd.com/"}],
+   "facts":[
+    {"p":"hq_country","v":"United States (Santa Clara, California)","ver":"OFFICIAL","src":"src:vendor-amd-ir"},
+    {"p":"homepage","v":"https://www.amd.com/","ver":"OFFICIAL","src":"src:vendor-amd-ir"}
+   ]},
+  {"id":"vendor:intel","type":"vendor","slug":"intel","names":{"en":"Intel","ko":"인텔"},"aliases":["Intel Corporation","인텔"],
+   "description":{"en":"US semiconductor company whose discrete graphics cards are sold under the Arc brand.","ko":"Arc 브랜드로 외장 그래픽카드를 판매하는 미국 반도체 기업입니다."},
+   "official_urls":[{"label":"Official site","url":"https://www.intel.com/"}],
+   "facts":[
+    {"p":"hq_country","v":"United States (Santa Clara, California)","ver":"OFFICIAL","src":"src:vendor-intel-offices"},
+    {"p":"homepage","v":"https://www.intel.com/","ver":"OFFICIAL","src":"src:vendor-intel-offices"}
+   ]}
  ]
 }
