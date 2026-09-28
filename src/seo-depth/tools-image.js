@@ -507,4 +507,446 @@ export default {
    versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い宇宙飛行士の写真とKenneyのCC0ファイル2つ（`pixel-platformer-characters.png`、`kenney-blue-button.png`）を計測しました。WebPの非可逆・可逆の方式と4:2:0の色の持ち方はMDNの説明に従っています。'],sources:[MDN.ja]}
   }
  },
+ 'image/webp-to-png':{
+  type:'tool',
+  intent:{primary:'convert WebP to PNG',secondary:['open a WebP in an app that only reads PNG','keep transparency from WebP','why the PNG is so large'],
+   goal:'a PNG that the refusing app opens, with transparency kept and no new loss',input:'WebP (still, lossy or lossless, with or without alpha)',output:'PNG, lossless, same dimensions, alpha kept',target:'editors, game engines, forms that read PNG but not WebP',support:'full',
+   evidence:['src/task/convert.js','src/image-container.js (animated WebP rejected)','measured 2026-09-28, Chromium 153: astronaut.webp (Pillow q80 from tests/fixtures/astronaut.png)'],
+   external:['MDN: WebP lossy/lossless, PNG lossless']},
+  en:{
+   answer:'WebP to PNG decodes the WebP and saves its pixels losslessly, so nothing more is lost — but whatever the WebP already lost stays lost. The usual reason is compatibility: an editor, game engine or upload form that reads PNG but not WebP. Expect a much bigger file for photos: a 31,724-byte WebP photo (512 × 512) became a 431,041-byte PNG, 13.6 times larger. Transparency in the WebP is kept; animated WebP is refused.',
+   concept:{title:'Freezing a web copy into a lossless file',body:[
+    'Most WebPs on the web are lossy; some are lossless. In both cases the browser decodes the file to RGBA pixels and PNG stores those exactly. For a lossless WebP the round trip is perfect; for a lossy one the PNG keeps the WebP\'s smoothing and block edges as they are.',
+    'The PNG is bigger because it cannot throw information away, while lossy WebP already threw away exactly the fine noise PNG compresses worst. Logos and screenshots with flat colour grow far less than photos, because PNG handles flat areas well.'],
+    terms:[['Lossy WebP','VP8-based WebP; its smoothing is baked into the decoded pixels.'],['Lossless WebP','Exact pixels; converting it to PNG loses nothing at all.'],['RGBA','Red, green, blue and alpha per pixel — what both formats hold after decoding.']]},
+   example:{title:'Every way out of one WebP (measured)',lead:'A 512 × 512 WebP made from the NASA fixture with Pillow at quality 80, converted with Nerulio\'s code in Chromium 153 on 2026-09-28.',lines:[
+    'Source: astronaut.webp   31,724 bytes',
+    '',
+    '-> PNG          431,041 bytes   13.6 x   identical to the decoded WebP',
+    '-> WebP q100    248,758 bytes    7.8 x   lossless copy',
+    '-> WebP q92      40,364 bytes    1.3 x   re-encoded, SSIM 0.9955',
+    '-> JPG q92       68,975 bytes    2.2 x   re-encoded, SSIM 0.9941'],
+    after:'Every route out of a lossy WebP is bigger than the WebP itself; PNG and lossless WebP are the only ones that add no new loss.'},
+   mapping:{title:'What reaches the PNG',head:['In the WebP','What the converter does','In the PNG'],rows:[
+    ['Decoded pixels (lossy smoothing included)','Stored losslessly','Identical pixels'],
+    ['Alpha channel','Kept','Alpha kept'],
+    ['Animation (`ANIM` / `ANMF` frames)','Refused before converting','—'],
+    ['`EXIF`, `XMP`, `ICCP` chunks','Not copied','No metadata, no profile chunk']]},
+   verify:{steps:[
+    'Open the PNG in the program that refused the WebP; it should load without any import plug-in.',
+    'If the WebP was transparent, check the PNG on a checkered background: the same areas should be see-through.',
+    'Compare width and height with the original; they are never changed by conversion.']},
+   trouble:{rows:[
+    ['The app still refuses the file','The download still has a `.webp` name or was renamed, not converted','The file must start with the bytes `‰PNG`','Save the converted file again from the result list and open that one'],
+    ['The PNG is enormous','Lossless PNG of a photo','Byte count in the result list','For photos use [[image/webp-to-jpg|WebP to JPG]]; keep PNG for graphics and transparency'],
+    ['An animated WebP is refused','Only still images are converted','The source plays as an animation in the browser','Export a single frame with another tool first'],
+    ['Blocky or smeared edges remain','The WebP was lossy and the PNG keeps its artefacts','Zoom in on edges in both files','Ask for the original PNG or layered file instead of the web copy']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-jpg|WebP to JPG]]','Photos for apps that accept JPG: 68,975 instead of 431,041 bytes here.'],
+    ['The original from the author or site','When the WebP is a web copy of an image that also exists as PNG or PSD, that original has more detail.']]},
+   limits:['Lossy WebP loss is not undone; the PNG is exactly the decoded WebP.','Animated WebP is refused; EXIF, XMP and colour-profile chunks are not carried over.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path on a WebP written by Pillow 12.3 (quality 80) from `tests/fixtures/astronaut.png`. WebP\'s two modes and PNG\'s lossless compression follow MDN.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'WebP를 PNG로 바꾸면 WebP를 디코딩한 픽셀을 무손실로 저장하므로 더 잃는 것은 없지만, WebP가 이미 잃은 부분은 돌아오지 않습니다. 보통은 호환성 때문입니다. PNG는 읽지만 WebP는 못 읽는 편집기·게임 엔진·업로드 양식에 넣으려는 경우죠. 사진이면 파일이 크게 커집니다. 31,724바이트 WebP 사진(512 × 512)이 431,041바이트 PNG로, 13.6배가 됐습니다. WebP의 투명도는 유지되고 움직이는 WebP는 거부합니다.',
+   concept:{title:'웹용 사본을 무손실 파일로 굳히기',body:[
+    '웹의 WebP는 대부분 손실 압축이고 일부는 무손실입니다. 어느 쪽이든 브라우저가 RGBA 픽셀로 디코딩하고 PNG는 그 픽셀을 정확히 저장합니다. 무손실 WebP라면 완벽하게 옮겨지고, 손실 WebP라면 WebP의 뭉개짐과 블록 경계가 그대로 PNG에 남습니다.',
+    'PNG가 큰 이유는 정보를 버릴 수 없기 때문입니다. 손실 WebP는 PNG가 가장 압축하기 어려워하는 미세한 노이즈를 이미 버린 상태입니다. 단색 위주의 로고나 스크린샷은 PNG가 평평한 영역을 잘 압축하므로 사진보다 훨씬 덜 커집니다.'],
+    terms:[['손실 WebP','VP8 기반 WebP. 뭉개짐이 디코딩된 픽셀에 그대로 들어 있습니다.'],['무손실 WebP','픽셀이 정확한 WebP. PNG로 바꿔도 잃는 것이 전혀 없습니다.'],['RGBA','픽셀마다 빨강·초록·파랑·알파. 디코딩 후 두 형식이 담는 내용입니다.']]},
+   example:{title:'WebP 한 장을 여러 형식으로(실측)',lead:'NASA 테스트 사진을 Pillow 화질 80으로 저장한 512 × 512 WebP를 2026-09-28 Chromium 153에서 Nerulio 코드로 변환했습니다.',lines:[
+    '원본: astronaut.webp    31,724 바이트',
+    '',
+    '-> PNG          431,041 바이트   13.6배   디코딩한 WebP와 동일',
+    '-> WebP q100    248,758 바이트    7.8배   무손실 사본',
+    '-> WebP q92      40,364 바이트    1.3배   재인코딩, SSIM 0.9955',
+    '-> JPG q92       68,975 바이트    2.2배   재인코딩, SSIM 0.9941'],
+    after:'손실 WebP에서 나가는 모든 경로가 원래 WebP보다 큽니다. 새 손실을 더하지 않는 것은 PNG와 무손실 WebP뿐입니다.'},
+   mapping:{title:'PNG로 넘어가는 것',head:['WebP에 있던 것','변환기가 하는 일','PNG에서는'],rows:[
+    ['디코딩된 픽셀(손실 뭉개짐 포함)','무손실로 저장','픽셀 동일'],
+    ['알파 채널','유지','알파 유지'],
+    ['애니메이션(`ANIM` / `ANMF` 프레임)','변환 전에 거부','—'],
+    ['`EXIF`, `XMP`, `ICCP` 청크','복사하지 않음','메타데이터·프로필 청크 없음']]},
+   verify:{steps:[
+    'WebP를 거부하던 프로그램에서 PNG를 열어 보세요. 별도 플러그인 없이 열려야 합니다.',
+    'WebP가 투명했다면 체크무늬 배경에서 PNG를 확인하세요. 같은 영역이 비쳐 보여야 합니다.',
+    '가로·세로를 원본과 비교하세요. 변환은 크기를 절대 바꾸지 않습니다.']},
+   trouble:{rows:[
+    ['앱이 여전히 파일을 거부','내려받은 파일이 아직 `.webp`이거나 변환이 아니라 이름만 바꿨습니다','파일은 `‰PNG` 바이트로 시작해야 합니다','결과 목록에서 변환된 파일을 다시 저장해 그 파일을 여세요'],
+    ['PNG가 너무 큼','사진을 무손실 PNG로 저장했습니다','결과 목록의 바이트 수','사진은 [[image/webp-to-jpg|WebP → JPG]]를 쓰고, 그래픽·투명 이미지만 PNG로 두세요'],
+    ['움직이는 WebP가 거부됨','정지 이미지만 변환합니다','원본이 브라우저에서 애니메이션으로 재생됨','다른 도구로 한 프레임을 먼저 내보내세요'],
+    ['뭉개진 경계가 그대로 남음','WebP가 손실 압축이었고 PNG가 그 흔적을 보존했습니다','두 파일의 경계를 확대','웹용 사본 대신 원본 PNG나 레이어 파일을 요청하세요']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-jpg|WebP → JPG]]','JPG를 받는 앱에 넣을 사진. 여기서는 431,041바이트 대신 68,975바이트였습니다.'],
+    ['작성자나 사이트의 원본','WebP가 PNG·PSD 원본의 웹용 사본이라면 원본 쪽이 디테일이 더 많습니다.']]},
+   limits:['손실 WebP의 손실은 되돌려지지 않으며 PNG는 디코딩한 WebP와 정확히 같습니다.','움직이는 WebP는 거부하며 EXIF·XMP·색상 프로필 청크는 옮기지 않습니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`를 Pillow 12.3 화질 80으로 저장한 WebP를 측정했습니다. WebP의 두 방식과 PNG의 무손실 압축은 MDN을 따랐습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'WebPをPNGにすると、WebPを展開したピクセルを可逆で保存するので、これ以上は劣化しません。ただしWebPがすでに失ったものは戻りません。よくある理由は互換性で、PNGは読めてもWebPは読めない編集ソフト・ゲームエンジン・アップロードフォームに渡したい場合です。写真ならファイルは大きく増えます。31,724バイトのWebP写真（512 × 512）が431,041バイトのPNGになり、13.6倍でした。WebPの透過は残り、アニメーションWebPは拒否します。',
+   concept:{title:'Web用のコピーを可逆ファイルとして固定する',body:[
+    'Web上のWebPの多くは非可逆で、一部は可逆です。どちらでもブラウザがRGBAピクセルに展開し、PNGはそのピクセルを正確に保存します。可逆WebPなら完全にそのまま移り、非可逆WebPならWebPのぼかしやブロックの境目がそのままPNGに残ります。',
+    'PNGが大きくなるのは情報を捨てられないからです。非可逆WebPは、PNGが最も圧縮しにくい細かなノイズをすでに捨てています。単色主体のロゴやスクリーンショットは、PNGが平坦な部分をうまく圧縮できるので、写真ほどは増えません。'],
+    terms:[['非可逆WebP','VP8ベースのWebP。ぼかしが展開後のピクセルにそのまま入っています。'],['可逆WebP','ピクセルが正確なWebP。PNGにしても何も失いません。'],['RGBA','ピクセルごとの赤・緑・青・アルファ。展開後に両形式が持つ内容です。']]},
+   example:{title:'1枚のWebPを各形式に（実測）',lead:'NASAのテスト写真をPillowの画質80で保存した512 × 512のWebPを、2026-09-28にChromium 153でNerulioのコードを使って変換しました。',lines:[
+    '元画像: astronaut.webp    31,724 バイト',
+    '',
+    '-> PNG          431,041 バイト   13.6倍   展開したWebPと同一',
+    '-> WebP q100    248,758 バイト    7.8倍   可逆コピー',
+    '-> WebP q92      40,364 バイト    1.3倍   再エンコード、SSIM 0.9955',
+    '-> JPG q92       68,975 バイト    2.2倍   再エンコード、SSIM 0.9941'],
+    after:'非可逆WebPからの変換はどの経路でも元のWebPより大きくなります。新たな劣化を加えないのはPNGと可逆WebPだけです。'},
+   mapping:{title:'PNGに引き継がれるもの',head:['WebPにあったもの','変換での処理','PNGでは'],rows:[
+    ['展開したピクセル（非可逆のぼかし込み）','可逆で保存','ピクセル同一'],
+    ['アルファチャンネル','保持','アルファを保持'],
+    ['アニメーション（`ANIM` / `ANMF` フレーム）','変換前に拒否','—'],
+    ['`EXIF`・`XMP`・`ICCP` チャンク','コピーしない','メタデータ・プロファイルのチャンクなし']]},
+   verify:{steps:[
+    'WebPを拒否していたソフトでPNGを開きます。追加のプラグインなしで開けるはずです。',
+    'WebPが透過していたなら、市松模様の背景でPNGを確認します。同じ部分が透けて見えるはずです。',
+    '幅と高さを元と比べます。変換でサイズが変わることはありません。']},
+   trouble:{rows:[
+    ['アプリがまだファイルを拒否する','ダウンロードしたファイルがまだ `.webp` のまま、または変換せずに名前だけ変えた','ファイルは `‰PNG` のバイトで始まるはず','結果一覧から変換済みファイルを保存し直し、それを開きます'],
+    ['PNGが大きすぎる','写真を可逆のPNGで保存した','結果一覧のバイト数','写真は[[image/webp-to-jpg|WebP → JPG]]にし、グラフィックや透過画像だけPNGにします'],
+    ['アニメーションWebPが拒否される','静止画だけを変換する','元ファイルがブラウザでアニメーション再生される','別のツールで1コマを先に書き出します'],
+    ['ぼやけた縁がそのまま残る','WebPが非可逆で、PNGがその跡を保存した','両方の縁を拡大','Web用のコピーではなく、元のPNGやレイヤー付きファイルを入手します']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-jpg|WebP → JPG]]','JPGを受け付けるアプリに渡す写真。ここでは431,041バイトではなく68,975バイトでした。'],
+    ['作者やサイトの元データ','WebPがPNGやPSDの原本のWeb用コピーなら、原本のほうが細部が多く残っています。']]},
+   limits:['非可逆WebPの劣化は元に戻らず、PNGは展開したWebPとまったく同じです。','アニメーションWebPは拒否し、EXIF・XMP・カラープロファイルのチャンクは引き継ぎません。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` をPillow 12.3の画質80で保存したWebPを計測しました。WebPの2方式とPNGの可逆圧縮はMDNに従っています。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/jpg-to-webp':{
+  type:'tool',
+  intent:{primary:'convert JPG to WebP',secondary:['make photos smaller for a website','how much smaller is WebP than JPG','WebP quality setting'],
+   goal:'a smaller WebP of a JPG photo with no visible extra loss',input:'JPG/JPEG',output:'WebP (lossy at quality < 100, lossless at 100 in Chromium), same dimensions',target:'websites, apps that accept WebP',support:'full',
+   evidence:['src/task/convert.js','measured 2026-09-28, Chromium 153: astronaut.jpg (Pillow q92 from tests/fixtures/astronaut.png)'],
+   external:['MDN: lossy WebP 25–35 % smaller than JPEG on average']},
+  en:{
+   answer:'JPG to WebP re-encodes a photo with WebP\'s lossy encoder, usually so a web page loads faster. On a 512 × 512 photo the 75,758-byte JPG became a 58,210-byte WebP at quality 92 — 23 % smaller, SSIM 0.9918 against the decoded JPG. It is a second lossy generation, so start from the best JPG you have and keep the JPG for places that do not accept WebP. Quality 100 gives a lossless WebP instead: exact, but 3.6 times the size of the JPG.',
+   concept:{title:'Lossy to lossy: what the saving depends on',body:[
+    'Both formats are lossy but lose different things: JPG rounds 8 × 8 frequency blocks, lossy WebP predicts blocks from their neighbours and keeps colour at half resolution. When the input is already a JPG, the WebP encoder has to reproduce the JPG\'s artefacts as if they were detail, so the saving is smaller than when encoding from the original. MDN quotes lossy WebP at 25–35 % smaller than JPEG on average; this photo, already a JPG, saved 23 %.',
+    'The converter encodes once, at the slider\'s quality (default 92). It does not compare formats. If you want a byte limit or an automatic JPG-versus-WebP choice, [[image/compress|compress]] scores both and keeps the better one.'],
+    terms:[['Second generation','A lossy file made from another lossy file; the errors of both add up.'],['SSIM','Structural similarity, 1.0 = identical; used here to compare the WebP with the decoded JPG.'],['Quality 100 in Chromium','Switches to lossless WebP: exact pixels, much larger file.']]},
+   example:{title:'The same JPG at two WebP settings (measured)',lead:'JPG made from the NASA fixture with Pillow at quality 92; Nerulio\'s converter code, Chromium 153, 2026-09-28.',lines:[
+    'Source: astronaut.jpg     75,758 bytes   512 x 512',
+    '',
+    '-> WebP q92       58,210 bytes    -23 %   SSIM 0.9918',
+    '-> WebP q100     276,100 bytes   +264 %   lossless, identical pixels',
+    '',
+    'From the original PNG instead:',
+    '   WebP q92       59,824 bytes            SSIM 0.9883 vs the PNG'],
+    after:'If 23 % is not enough, lower the quality, or let [[image/compress-to-50kb|compress to 50 KB]] decide: on this same JPG it chose a 44,435-byte JPG (SSIM 0.9822) over the WebP candidate, because the JPG scored higher.'},
+   mapping:{title:'What the WebP receives from the JPG',head:['In the JPG','What the converter does','In the WebP'],rows:[
+    ['Decoded pixels','Encoded with lossy VP8 at the chosen quality','Approximate pixels, same width and height'],
+    ['EXIF orientation','Applied to the pixels while decoding','Upright pixels, no orientation tag'],
+    ['EXIF date, camera, GPS','Not copied','None'],
+    ['ICC profile','Drawn in the browser\'s sRGB canvas','sRGB `ICCP` chunk from Chromium']]},
+   verify:{steps:[
+    'Compare JPG and WebP side by side at 100 % on smooth areas (sky, skin): new banding or smearing means the quality is too low for this picture.',
+    'Check the byte counts; if the saving is only a few per cent, keep the JPG.',
+    'Load the WebP where it will be used (your site, CMS or app) to make sure it is accepted.']},
+   trouble:{rows:[
+    ['The WebP is hardly smaller','The JPG was already strongly compressed; its artefacts cost WebP bits','Compare the sizes','Lower the quality to 80 or encode from the original photo instead of the JPG'],
+    ['The WebP is much bigger','Quality 100 writes lossless WebP','The quality slider shows 100','Use 92 or lower for photos'],
+    ['Colours look a little different','The output is tagged sRGB; a source tagged with another profile may shift','Check the source\'s colour profile in an image viewer','Export an sRGB JPG from the original first'],
+    ['Nothing appears on the site','The page or CMS does not accept WebP','Open the WebP directly in the browser','Serve the JPG, or keep both']]},
+   alternatives:{rows:[
+    ['Keep the JPG','E-mail attachments, print services and older apps where WebP support is uncertain.'],
+    ['[[image/compress|Compress with Auto]]','You have a size limit or want JPG and WebP compared by score before choosing.'],
+    ['Encode from the original','A camera original or PNG export avoids the second generation and saves more.']]},
+   limits:['Every lossy re-encode adds error; there is no way to go JPG → lossy WebP without it.','EXIF (including GPS) is not copied; the WebP carries an sRGB profile.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path and, for the 50 KB comparison, `src/compression.js` with the compress task\'s options, on a JPG written by Pillow 12.3 (quality 92) from `tests/fixtures/astronaut.png`. The 25–35 % figure is MDN\'s, not ours.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'JPG를 WebP로 바꾸면 사진을 WebP 손실 인코더로 다시 저장합니다. 보통 웹페이지를 빨리 뜨게 하려는 목적입니다. 512 × 512 사진에서 75,758바이트 JPG가 화질 92의 58,210바이트 WebP가 됐습니다. 23% 작고, 디코딩한 JPG와의 SSIM은 0.9918입니다. 두 번째 손실 단계이므로 가진 것 중 가장 좋은 JPG에서 시작하고, WebP를 받지 않는 곳에는 JPG를 쓰세요. 화질 100이면 무손실 WebP가 되어 정확하지만 JPG의 3.6배 크기입니다.',
+   concept:{title:'손실에서 손실로: 절감 폭을 정하는 것',body:[
+    '두 형식 모두 손실 압축이지만 잃는 것이 다릅니다. JPG는 8 × 8 주파수 블록을 반올림하고, 손실 WebP는 이웃 블록으로 예측하며 색을 절반 해상도로 저장합니다. 입력이 이미 JPG이면 WebP 인코더가 JPG의 흔적까지 디테일처럼 재현해야 해서 원본에서 인코딩할 때보다 덜 줄어듭니다. MDN은 손실 WebP가 평균 25~35% 작다고 설명하지만, 이미 JPG였던 이 사진은 23% 줄었습니다.',
+    '변환기는 슬라이더 화질(기본 92)로 한 번만 인코딩하고 형식을 비교하지 않습니다. 바이트 제한이 있거나 JPG와 WebP를 자동으로 고르고 싶다면 [[image/compress|압축]]이 둘을 채점해 더 나은 쪽을 남깁니다.'],
+    terms:[['2세대 손실','손실 파일로 만든 또 다른 손실 파일. 두 단계의 오차가 더해집니다.'],['SSIM','구조적 유사도. 1.0이면 동일하며 여기서는 WebP와 디코딩한 JPG를 비교합니다.'],['Chromium의 화질 100','무손실 WebP로 바뀝니다. 픽셀은 정확하지만 파일이 훨씬 큽니다.']]},
+   example:{title:'같은 JPG를 두 가지 WebP 설정으로(실측)',lead:'NASA 테스트 사진을 Pillow 화질 92로 저장한 JPG, Nerulio 변환 코드, Chromium 153, 2026-09-28.',lines:[
+    '원본: astronaut.jpg      75,758 바이트   512 x 512',
+    '',
+    '-> WebP q92       58,210 바이트    -23 %   SSIM 0.9918',
+    '-> WebP q100     276,100 바이트   +264 %   무손실, 픽셀 동일',
+    '',
+    '원본 PNG에서 만들었다면:',
+    '   WebP q92       59,824 바이트            PNG 대비 SSIM 0.9883'],
+    after:'23%로 부족하면 화질을 낮추거나 [[image/compress-to-50kb|50KB 이하로 압축]]에 맡겨 보세요. 같은 JPG에서 이 도구는 WebP 후보보다 점수가 높은 44,435바이트 JPG(SSIM 0.9822)를 골랐습니다.'},
+   mapping:{title:'JPG에서 WebP로 넘어가는 것',head:['JPG에 있던 것','변환기가 하는 일','WebP에서는'],rows:[
+    ['디코딩된 픽셀','선택한 화질의 손실 VP8로 인코딩','근사한 픽셀, 가로·세로 동일'],
+    ['EXIF 회전 정보','디코딩할 때 픽셀에 적용','바로 선 픽셀, 회전 태그 없음'],
+    ['EXIF 날짜·카메라·GPS','복사하지 않음','없음'],
+    ['ICC 프로필','브라우저 sRGB 캔버스에 그림','Chromium의 sRGB `ICCP` 청크']]},
+   verify:{steps:[
+    '하늘·피부처럼 매끈한 부분을 100%로 나란히 비교하세요. 새로운 계단 현상이나 뭉개짐이 보이면 이 사진에는 화질이 너무 낮습니다.',
+    '바이트 수를 확인해 절감이 몇 퍼센트뿐이라면 JPG를 유지하세요.',
+    '실제로 쓸 곳(내 사이트, CMS, 앱)에 WebP를 올려 받아 주는지 확인하세요.']},
+   trouble:{rows:[
+    ['WebP가 거의 줄지 않음','이미 강하게 압축된 JPG라 그 흔적에 WebP 비트가 쓰였습니다','용량 비교','화질을 80으로 낮추거나 JPG 대신 원본 사진에서 인코딩하세요'],
+    ['WebP가 훨씬 커짐','화질 100은 무손실 WebP를 만듭니다','화질 슬라이더가 100인지 확인','사진은 92 이하를 쓰세요'],
+    ['색이 조금 달라 보임','출력은 sRGB로 표시되며 다른 프로필이 붙은 원본은 달라질 수 있습니다','이미지 뷰어에서 원본의 색상 프로필 확인','원본에서 sRGB JPG를 먼저 내보내세요'],
+    ['사이트에 아무것도 안 보임','페이지나 CMS가 WebP를 받지 않습니다','WebP를 브라우저에서 직접 열어 보기','JPG를 쓰거나 둘 다 준비하세요']]},
+   alternatives:{rows:[
+    ['JPG 그대로 쓰기','이메일 첨부, 인화 서비스, WebP 지원이 불확실한 오래된 앱.'],
+    ['[[image/compress|자동 형식으로 압축]]','용량 제한이 있거나 고르기 전에 JPG와 WebP를 점수로 비교하고 싶을 때.'],
+    ['원본에서 인코딩','카메라 원본이나 PNG에서 만들면 2세대 손실이 없고 더 많이 줄어듭니다.']]},
+   limits:['손실 재인코딩은 매번 오차를 더하며, JPG → 손실 WebP를 오차 없이 할 방법은 없습니다.','EXIF(GPS 포함)는 복사되지 않고 WebP에는 sRGB 프로필이 들어갑니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로와, 50KB 비교에는 압축 작업과 같은 옵션의 `src/compression.js`로 측정했습니다. 입력은 `tests/fixtures/astronaut.png`를 Pillow 12.3 화질 92로 저장한 JPG입니다. 25~35%는 우리 측정이 아니라 MDN의 수치입니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'JPGをWebPにすると、写真をWebPの非可逆エンコーダーで保存し直します。多くはWebページの表示を速くするためです。512 × 512の写真では75,758バイトのJPGが画質92で58,210バイトのWebPになりました。23%小さく、展開したJPGとのSSIMは0.9918です。2回目の非可逆処理なので手元でいちばん良いJPGから変換し、WebPを受け付けない場所にはJPGを使います。画質100なら可逆WebPになり正確ですが、JPGの3.6倍の大きさです。',
+   concept:{title:'非可逆から非可逆へ：削減幅を決めるもの',body:[
+    'どちらも非可逆ですが、失うものが違います。JPGは8 × 8の周波数ブロックを丸め、非可逆WebPは隣のブロックから予測し、色を半分の解像度で持ちます。入力がすでにJPGだと、WebPエンコーダーはJPGのノイズまで細部として再現しなければならず、元データから変換するより削減幅が小さくなります。MDNは非可逆WebPを平均25〜35%小さいとしていますが、JPG済みのこの写真では23%でした。',
+    '変換はスライダーの画質（初期値92）で1回エンコードするだけで、形式の比較はしません。容量の上限がある場合や、JPGとWebPを自動で選ばせたい場合は、[[image/compress|圧縮]]が両方を採点して良いほうを残します。'],
+    terms:[['第2世代','非可逆ファイルから作った非可逆ファイル。両方の誤差が重なります。'],['SSIM','構造的類似度。1.0で同一。ここではWebPと展開したJPGを比べています。'],['Chromiumの画質100','可逆WebPに切り替わります。ピクセルは正確ですがファイルはずっと大きくなります。']]},
+   example:{title:'同じJPGを2つのWebP設定で（実測）',lead:'NASAのテスト写真をPillowの画質92で保存したJPG、Nerulioの変換コード、Chromium 153、2026-09-28。',lines:[
+    '元画像: astronaut.jpg     75,758 バイト   512 x 512',
+    '',
+    '-> WebP q92       58,210 バイト    -23 %   SSIM 0.9918',
+    '-> WebP q100     276,100 バイト   +264 %   可逆、ピクセル同一',
+    '',
+    '元のPNGから作った場合:',
+    '   WebP q92       59,824 バイト            PNGに対するSSIM 0.9883'],
+    after:'23%で足りなければ画質を下げるか、[[image/compress-to-50kb|50KB以下に圧縮]]に任せます。同じJPGで、このツールはWebPの候補より点数の高い44,435バイトのJPG（SSIM 0.9822）を選びました。'},
+   mapping:{title:'JPGからWebPに引き継がれるもの',head:['JPGにあったもの','変換での処理','WebPでは'],rows:[
+    ['展開したピクセル','選んだ画質の非可逆VP8でエンコード','近似したピクセル、幅・高さは同じ'],
+    ['EXIFの回転情報','展開時にピクセルへ適用','正しい向きのピクセル、回転タグなし'],
+    ['EXIFの日時・カメラ・GPS','コピーしない','なし'],
+    ['ICCプロファイル','ブラウザのsRGBキャンバスに描画','ChromiumのsRGB `ICCP` チャンク']]},
+   verify:{steps:[
+    '空や肌のようななめらかな部分を100%で並べて比べます。新しい階調の段差やぼやけがあれば、この写真には画質が低すぎます。',
+    'バイト数を確認し、削減が数パーセントだけならJPGのままにします。',
+    '実際に使う場所（自分のサイト、CMS、アプリ）にWebPを載せ、受け付けられるか確認します。']},
+   trouble:{rows:[
+    ['WebPがほとんど小さくならない','すでに強く圧縮されたJPGで、そのノイズにWebPのビットが使われた','容量を比べる','画質を80に下げるか、JPGではなく元の写真から変換します'],
+    ['WebPのほうがずっと大きい','画質100では可逆WebPになる','画質スライダーが100になっている','写真では92以下にします'],
+    ['色が少し違って見える','出力はsRGBで、別のプロファイル付きの元画像は色がずれることがある','画像ビューアで元画像のカラープロファイルを確認','先に元データからsRGBのJPGを書き出します'],
+    ['サイトに何も表示されない','ページやCMSがWebPを受け付けない','WebPをブラウザで直接開いてみる','JPGを使うか、両方を用意します']]},
+   alternatives:{rows:[
+    ['JPGのまま使う','メール添付、プリントサービス、WebP対応が不確かな古いアプリ。'],
+    ['[[image/compress|自動形式で圧縮]]','容量の上限がある場合や、選ぶ前にJPGとWebPを点数で比べたい場合。'],
+    ['元データから変換する','カメラの元データやPNGから作れば第2世代の劣化がなく、もっと小さくなります。']]},
+   limits:['非可逆の再エンコードは毎回誤差を加え、JPG → 非可逆WebPを誤差なしで行う方法はありません。','EXIF（GPSを含む）はコピーされず、WebPにはsRGBプロファイルが入ります。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路と、50KBの比較には圧縮タスクと同じ設定の `src/compression.js` を使って計測しました。入力は `tests/fixtures/astronaut.png` をPillow 12.3の画質92で保存したJPGです。25〜35%は私たちの計測ではなくMDNの数値です。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/webp-to-jpg':{
+  type:'tool',
+  intent:{primary:'convert WebP to JPG',secondary:['open WebP images in apps that need JPG','save a WebP from a website as JPG','WebP with transparency to JPG'],
+   goal:'a JPG any program opens, with a sensible background where the WebP was transparent',input:'WebP (still)',output:'JPG, same dimensions, quality 20–100 (default 92), background default white',target:'older photo apps, upload forms, print services',support:'full',
+   evidence:['src/task/convert.js (Im.background for JPG)','measured 2026-09-28, Chromium 153: astronaut.webp (Pillow q80)'],
+   external:['MDN: JPEG no alpha; WebP lossy/lossless']},
+  en:{
+   answer:'WebP to JPG is for software that cannot open WebP — older photo apps, some upload forms, print services. Expect the file to grow: a 31,724-byte WebP photo became a 68,975-byte JPG at quality 92 (2.2 times larger, SSIM 0.9941). JPG has no transparency, so a transparent WebP (a sticker or a cut-out) is flattened onto the background colour, white by default. Choose PNG instead when the WebP is a logo, a screenshot or has transparency.',
+   concept:{title:'Why the JPG is bigger than the WebP it came from',body:[
+    'The WebP is decoded to pixels and encoded again with a different lossy method. The JPG encoder treats the WebP\'s smoothing and block edges as picture content and spends bytes reproducing them, so the JPG ends up larger even though it cannot look better than its source.',
+    'Lowering the quality brings the size down but adds JPG blocks on top of the WebP\'s smoothing. When the destination has a byte limit, use [[image/compress|compress]] with the format set to JPG and a target size instead of guessing a quality.'],
+    terms:[['Transcoding','Converting one lossy format into another; the errors of both encoders combine.'],['JPG background','Colour used where the WebP was transparent (`#ffffff` unless changed under Advanced).'],['Quality','JPG encoder setting 20–100, default 92.']]},
+   example:{title:'A WebP photo leaving WebP (measured)',lead:'A 512 × 512 WebP written by Pillow at quality 80 from the NASA fixture; Nerulio\'s converter in Chromium 153, 2026-09-28.',lines:[
+    'Source: astronaut.webp    31,724 bytes',
+    '',
+    '-> JPG q92      68,975 bytes    2.2 x larger    SSIM 0.9941',
+    '-> PNG         431,041 bytes   13.6 x larger    identical pixels',
+    '',
+    'Transparency: JPG has no alpha channel; transparent pixels',
+    '              become the JPG background colour (default #ffffff)'],
+    after:'The same filling was measured on a transparent sprite sheet on [[image/png-to-jpg|PNG to JPG]] (all 8,095 transparent pixels turned white). To keep transparency, use [[image/webp-to-png|WebP to PNG]].'},
+   mapping:{title:'What happens to the WebP\'s contents',head:['In the WebP','What the converter does','In the JPG'],rows:[
+    ['Decoded pixels','Encoded lossily at the chosen quality','Approximate pixels, same width and height'],
+    ['Alpha channel','Painted onto the JPG background colour','No alpha; background colour where it was transparent'],
+    ['Animation frames','Refused before converting','—'],
+    ['`EXIF`, `XMP`, `ICCP` chunks','Not copied','sRGB profile from Chromium, no EXIF']]},
+   verify:{steps:[
+    'Open the JPG in the program that refused the WebP.',
+    'If the source had transparency, check that the filled areas have the colour you wanted.',
+    'Compare the byte counts; if the destination accepts PNG and the picture is a graphic, PNG may be the better file.']},
+   trouble:{rows:[
+    ['The JPG is twice the size of the WebP','Transcoding: JPG spends bytes reproducing WebP artefacts','Compare sizes in the result list','Accept it, lower the quality, or use [[image/compress|compress]] with a target size'],
+    ['A white box appeared around a sticker','The WebP was transparent and JPG cannot store alpha','Look at the WebP on a checkered background','Use [[image/webp-to-png|WebP to PNG]], or set the destination\'s background colour under Advanced'],
+    ['The file still will not open','It was renamed, not converted, or the download kept `.webp`','A JPG starts with the bytes `ÿØÿ`','Save the converted file from the result list again'],
+    ['Text on the image looks worse','Two lossy encoders in a row around sharp edges','Zoom in on the text','Convert to PNG for screenshots and graphics']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-png|WebP to PNG]]','Logos, screenshots and anything transparent; no new loss.'],
+    ['Ask for the original JPG','When the WebP is a web copy made by a CMS or CDN, the uploader usually still has the JPG.']]},
+   limits:['Transparency cannot be kept in JPG.','EXIF and XMP from the WebP are not copied; animated WebP is refused.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path on a WebP written by Pillow 12.3 at quality 80 from `tests/fixtures/astronaut.png`; the transparency fill uses the same `Im.background` call measured on the PNG to JPG page. Format properties follow MDN.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'WebP를 JPG로 바꾸는 것은 WebP를 열지 못하는 소프트웨어(오래된 사진 앱, 일부 업로드 양식, 인화 서비스)를 위해서입니다. 파일은 커진다고 보세요. 31,724바이트 WebP 사진이 화질 92에서 68,975바이트 JPG가 됐습니다(2.2배, SSIM 0.9941). JPG는 투명도가 없어서 투명한 WebP(스티커, 누끼)는 배경색(기본 흰색) 위에 합쳐집니다. 로고·스크린샷·투명 이미지라면 PNG를 고르세요.',
+   concept:{title:'JPG가 원본 WebP보다 커지는 이유',body:[
+    'WebP를 픽셀로 디코딩한 뒤 다른 손실 방식으로 다시 인코딩합니다. JPG 인코더는 WebP의 뭉개짐과 블록 경계를 그림 내용으로 여기고 그것을 재현하는 데 바이트를 쓰므로, 원본보다 나아질 수 없는데도 JPG가 더 커집니다.',
+    '화질을 낮추면 용량은 줄지만 WebP의 뭉개짐 위에 JPG 블록이 더해집니다. 받는 곳에 바이트 제한이 있다면 화질을 짐작하지 말고 [[image/compress|압축]]에서 형식을 JPG로, 목표 용량을 지정하세요.'],
+    terms:[['트랜스코딩','손실 형식을 다른 손실 형식으로 바꾸는 것. 두 인코더의 오차가 합쳐집니다.'],['JPG 배경색','WebP가 투명했던 곳에 쓰는 색(고급 설정에서 바꾸지 않으면 `#ffffff`).'],['화질','JPG 인코더 설정 20~100, 기본 92.']]},
+   example:{title:'WebP 사진을 다른 형식으로(실측)',lead:'NASA 테스트 사진을 Pillow 화질 80으로 저장한 512 × 512 WebP, Chromium 153의 Nerulio 변환기, 2026-09-28.',lines:[
+    '원본: astronaut.webp     31,724 바이트',
+    '',
+    '-> JPG q92      68,975 바이트    2.2배    SSIM 0.9941',
+    '-> PNG         431,041 바이트   13.6배    픽셀 동일',
+    '',
+    '투명도: JPG에는 알파 채널이 없어 투명 픽셀은',
+    '        JPG 배경색(기본 #ffffff)이 됩니다'],
+    after:'같은 채우기 동작은 [[image/png-to-jpg|PNG → JPG]]에서 투명 스프라이트 시트로 측정했습니다(투명 픽셀 8,095개가 모두 흰색). 투명도를 유지하려면 [[image/webp-to-png|WebP → PNG]]를 쓰세요.'},
+   mapping:{title:'WebP의 내용은 어떻게 되나',head:['WebP에 있던 것','변환기가 하는 일','JPG에서는'],rows:[
+    ['디코딩된 픽셀','선택한 화질로 손실 인코딩','근사한 픽셀, 가로·세로 동일'],
+    ['알파 채널','JPG 배경색 위에 칠함','알파 없음. 투명했던 곳은 배경색'],
+    ['애니메이션 프레임','변환 전에 거부','—'],
+    ['`EXIF`, `XMP`, `ICCP` 청크','복사하지 않음','Chromium의 sRGB 프로필, EXIF 없음']]},
+   verify:{steps:[
+    'WebP를 거부하던 프로그램에서 JPG를 열어 보세요.',
+    '원본에 투명한 부분이 있었다면 채워진 색이 원하던 색인지 확인하세요.',
+    '바이트 수를 비교하세요. 받는 곳이 PNG를 받고 그림이 그래픽이라면 PNG가 더 나은 파일일 수 있습니다.']},
+   trouble:{rows:[
+    ['JPG가 WebP의 두 배','트랜스코딩: JPG가 WebP의 흔적을 재현하는 데 바이트를 씁니다','결과 목록에서 용량 비교','그대로 쓰거나 화질을 낮추거나, 목표 용량을 정해 [[image/compress|압축]]하세요'],
+    ['스티커 주변에 흰 상자','WebP가 투명했고 JPG는 알파를 저장하지 못합니다','체크무늬 배경에서 WebP 확인','[[image/webp-to-png|WebP → PNG]]를 쓰거나, 고급 설정에서 실제 배경색을 지정하세요'],
+    ['파일이 여전히 열리지 않음','변환이 아니라 이름만 바꿨거나, 내려받은 파일이 아직 `.webp`입니다','JPG는 `ÿØÿ` 바이트로 시작합니다','결과 목록에서 변환된 파일을 다시 저장하세요'],
+    ['그림 속 글자가 더 나빠 보임','선명한 경계에 손실 인코더 두 개가 연달아 적용됐습니다','글자를 확대','스크린샷·그래픽은 PNG로 바꾸세요']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-png|WebP → PNG]]','로고·스크린샷·투명한 이미지. 새 손실이 없습니다.'],
+    ['원본 JPG 요청하기','CMS나 CDN이 만든 웹용 WebP라면 올린 사람이 대개 JPG를 갖고 있습니다.']]},
+   limits:['JPG에서는 투명도를 유지할 수 없습니다.','WebP의 EXIF·XMP는 복사되지 않으며 움직이는 WebP는 거부합니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`를 Pillow 12.3 화질 80으로 저장한 WebP를 측정했습니다. 투명 채우기는 PNG → JPG 페이지에서 측정한 것과 같은 `Im.background` 호출입니다. 형식 특성은 MDN을 따랐습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'WebPをJPGにするのは、WebPを開けないソフト（古い写真アプリ、一部のアップロードフォーム、プリントサービス）のためです。ファイルは大きくなると考えてください。31,724バイトのWebP写真が画質92で68,975バイトのJPGになりました（2.2倍、SSIM 0.9941）。JPGには透明がないため、透過WebP（ステッカーや切り抜き）は背景色（初期値は白）の上に合成されます。ロゴ・スクリーンショット・透過画像ならPNGを選びます。',
+   concept:{title:'JPGが元のWebPより大きくなる理由',body:[
+    'WebPをピクセルに展開し、別の非可逆方式でエンコードし直します。JPGエンコーダーはWebPのぼかしやブロックの境目を絵の内容とみなし、それを再現するためにバイトを使うので、元より良くはならないのにJPGのほうが大きくなります。',
+    '画質を下げれば容量は減りますが、WebPのぼかしの上にJPGのブロックが重なります。提出先に容量の上限があるなら、画質を推測せずに[[image/compress|圧縮]]で形式をJPG、目標容量を指定します。'],
+    terms:[['トランスコード','非可逆形式を別の非可逆形式に変えること。2つのエンコーダーの誤差が重なります。'],['JPGの背景色','WebPが透明だった部分に入る色（詳細設定で変えなければ `#ffffff`）。'],['画質','JPGエンコーダーの設定20〜100、初期値92。']]},
+   example:{title:'WebP写真を別の形式に（実測）',lead:'NASAのテスト写真をPillowの画質80で保存した512 × 512のWebP、Chromium 153上のNerulioの変換、2026-09-28。',lines:[
+    '元画像: astronaut.webp     31,724 バイト',
+    '',
+    '-> JPG q92      68,975 バイト    2.2倍    SSIM 0.9941',
+    '-> PNG         431,041 バイト   13.6倍    ピクセル同一',
+    '',
+    '透明: JPGにはアルファチャンネルがなく、透明ピクセルは',
+    '      JPGの背景色（初期値 #ffffff）になります'],
+    after:'同じ塗りつぶしは[[image/png-to-jpg|PNG → JPG]]で透過スプライトシートを使って計測しました（透明ピクセル8,095個がすべて白に）。透過を残すなら[[image/webp-to-png|WebP → PNG]]を使います。'},
+   mapping:{title:'WebPの中身はどうなるか',head:['WebPにあったもの','変換での処理','JPGでは'],rows:[
+    ['展開したピクセル','選んだ画質で非可逆エンコード','近似したピクセル、幅・高さは同じ'],
+    ['アルファチャンネル','JPGの背景色の上に描く','アルファなし。透明だった部分は背景色'],
+    ['アニメーションのフレーム','変換前に拒否','—'],
+    ['`EXIF`・`XMP`・`ICCP` チャンク','コピーしない','ChromiumのsRGBプロファイル、EXIFなし']]},
+   verify:{steps:[
+    'WebPを拒否していたソフトでJPGを開きます。',
+    '元画像に透明部分があったなら、塗られた色が意図した色か確認します。',
+    'バイト数を比べます。提出先がPNGを受け付け、画像がグラフィックならPNGのほうが良いファイルかもしれません。']},
+   trouble:{rows:[
+    ['JPGがWebPの2倍の大きさ','トランスコードでJPGがWebPのノイズの再現にバイトを使った','結果一覧で容量を比べる','そのまま使うか、画質を下げるか、目標容量を決めて[[image/compress|圧縮]]します'],
+    ['ステッカーの周りに白い四角','WebPが透過していて、JPGはアルファを保存できない','市松模様の背景でWebPを確認','[[image/webp-to-png|WebP → PNG]]を使うか、詳細設定で実際の背景色を指定します'],
+    ['まだファイルが開けない','変換ではなく名前だけ変えた、またはダウンロードしたファイルがまだ `.webp`','JPGは `ÿØÿ` のバイトで始まる','結果一覧から変換済みファイルを保存し直します'],
+    ['画像内の文字が悪化した','くっきりした輪郭に非可逆エンコーダーが2回続けてかかった','文字を拡大','スクリーンショットやグラフィックはPNGにします']]},
+   alternatives:{rows:[
+    ['[[image/webp-to-png|WebP → PNG]]','ロゴ・スクリーンショット・透過画像。新たな劣化がありません。'],
+    ['元のJPGをもらう','CMSやCDNが作ったWeb用のWebPなら、アップロードした人がたいていJPGを持っています。']]},
+   limits:['JPGでは透過を残せません。','WebPのEXIF・XMPはコピーされず、アニメーションWebPは拒否します。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` をPillow 12.3の画質80で保存したWebPを計測しました。透過の塗りつぶしは、PNG → JPGのページで計測したのと同じ `Im.background` の呼び出しです。形式の特性はMDNに従っています。'],sources:[MDN.ja]}
+  }
+ },
+ 'image/avif-to-jpg':{
+  type:'tool',
+  intent:{primary:'convert AVIF to JPG',secondary:['open AVIF files on older software','AVIF to JPG without upload','why is the JPG bigger than the AVIF'],
+   goal:'a JPG any program opens, made from an AVIF the browser can decode',input:'AVIF (still image; decoding depends on the browser)',output:'JPG, same dimensions, quality 20–100 (default 92)',target:'software and forms without AVIF support',support:'full',
+   evidence:['src/task/convert.js','src/image-container.js (AVIF sequences rejected)','measured 2026-09-28, Chromium 153: astronaut.avif (Pillow 12.3, q60)'],
+   external:['MDN: AVIF = AV1 in HEIF, lossy/lossless, alpha, HDR; include fallbacks']},
+  en:{
+   answer:'AVIF to JPG decodes an AVIF image and writes a JPG that practically every program opens. It works wherever the browser can decode AVIF — Chromium 153 did in our run. The JPG is larger: a 25,255-byte AVIF photo became 62,610 bytes at quality 92 (2.5 times, SSIM 0.9966 against the decoded AVIF). Transparent areas are filled with the background colour, and animated AVIF sequences are refused.',
+   concept:{title:'From AV1 intra frames to JPEG blocks',body:[
+    'AVIF stores a still picture as an AV1-coded frame inside a HEIF container. AV1 is a modern video codec, so AVIF usually reaches a given quality in fewer bytes than JPG; MDN notes it also supports transparency, higher bit depths and HDR. Converting to JPG gives up that efficiency in exchange for compatibility.',
+    'The browser decodes the AVIF into an ordinary 8-bit canvas and Nerulio encodes that canvas as JPG. An HDR or high-bit-depth AVIF is therefore reduced to what the canvas holds, and bright highlights may look different from the original on an HDR screen.'],
+    terms:[['AVIF','AV1 Image File Format: AV1 bitstreams in a HEIF container (MDN).'],['Decode support','Nerulio can only convert AVIFs the browser itself can open.'],['HDR','High dynamic range; an ordinary canvas does not keep it.']]},
+   example:{title:'A small AVIF becomes a larger JPG (measured)',lead:'An AVIF written by Pillow 12.3 at quality 60 from the 512 × 512 NASA fixture; Nerulio\'s converter in Chromium 153, 2026-09-28.',lines:[
+    'Source: astronaut.avif    25,255 bytes   512 x 512',
+    '',
+    '-> JPG q92     62,610 bytes    2.5 x   SSIM 0.9966',
+    '-> PNG        428,230 bytes   17.0 x   identical pixels',
+    '-> WebP q92    48,530 bytes    1.9 x   SSIM 0.9938'],
+    after:'The JPG is 2.5 times the AVIF and still cannot be sharper than it. If size matters more than compatibility, keep the AVIF where it is accepted.'},
+   mapping:{title:'What the JPG keeps from the AVIF',head:['In the AVIF','What the converter does','In the JPG'],rows:[
+    ['Decoded pixels','Encoded lossily at the chosen quality','Approximate pixels, same size'],
+    ['Alpha channel','Painted onto the JPG background colour','No alpha'],
+    ['High bit depth / HDR','Decoded into an 8-bit canvas by the browser','8-bit, sRGB-tagged JPG'],
+    ['Image sequence (animated AVIF)','Refused before converting','—']]},
+   verify:{steps:[
+    'Open the JPG in the software that could not open the AVIF.',
+    'Compare it with the AVIF in a browser at 100 %: they should match apart from slight JPG softening.',
+    'If the AVIF was HDR, check highlights and skies; they are rendered for a standard display now.']},
+   trouble:{rows:[
+    ['"This image cannot be opened"','Your browser cannot decode this AVIF (older browser or unusual AVIF features)','Open the AVIF directly in the same browser','Try an up-to-date Chromium, Firefox or Safari; if none opens it, the file may be damaged'],
+    ['An animated AVIF is refused','It is an AVIF image sequence; still images only','The file plays as an animation in the browser','Export one frame in another tool first'],
+    ['Highlights look dull or clipped','HDR AVIF reduced to an 8-bit canvas','View the AVIF on the same screen in the browser','Ask for an SDR export if the difference matters'],
+    ['The JPG is much larger than the AVIF','JPG is less efficient than AV1 intra coding','Compare sizes','Lower the quality, or keep the AVIF where it is accepted']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-png|AVIF to PNG]]','Graphics, screenshots or transparent AVIFs, when the file size does not matter.'],
+    ['Keep the AVIF','Web pages and apps that already accept AVIF; MDN recommends providing fallbacks rather than replacing it.']]},
+   limits:['Only AVIFs the browser can decode can be converted.','HDR and high-bit-depth detail and transparency do not survive in JPG; EXIF is not written.'],
+   versions:{body:['Measured on 2026-09-28 in Playwright Chromium 153 with Nerulio\'s converter path on an AVIF written by Pillow 12.3 (quality 60) from `tests/fixtures/astronaut.png`. What AVIF is and supports is taken from MDN.'],sources:[MDN.en]}
+  },
+  ko:{
+   answer:'AVIF를 JPG로 바꾸면 AVIF 이미지를 디코딩해 거의 모든 프로그램이 여는 JPG로 저장합니다. 브라우저가 AVIF를 디코딩할 수 있으면 동작하며, 이번 측정에서 Chromium 153은 가능했습니다. JPG는 더 큽니다. 25,255바이트 AVIF 사진이 화질 92에서 62,610바이트가 됐습니다(2.5배, 디코딩한 AVIF 대비 SSIM 0.9966). 투명한 부분은 배경색으로 채워지고 움직이는 AVIF 시퀀스는 거부합니다.',
+   concept:{title:'AV1 프레임에서 JPEG 블록으로',body:[
+    'AVIF는 정지 그림을 AV1로 부호화한 프레임 하나로 HEIF 컨테이너에 담습니다. AV1은 최신 영상 코덱이라 같은 화질을 JPG보다 적은 바이트로 내는 경우가 많고, MDN에 따르면 투명도·높은 비트 심도·HDR도 지원합니다. JPG로 바꾸면 이 효율을 포기하고 호환성을 얻습니다.',
+    '브라우저가 AVIF를 일반적인 8비트 캔버스로 디코딩하고, Nerulio가 그 캔버스를 JPG로 인코딩합니다. 그래서 HDR이나 높은 비트 심도의 AVIF는 캔버스가 담을 수 있는 범위로 줄어들고, HDR 화면에서 보던 밝은 부분이 다르게 보일 수 있습니다.'],
+    terms:[['AVIF','AV1 Image File Format. AV1 비트스트림을 HEIF 컨테이너에 담은 형식(MDN).'],['디코딩 지원','Nerulio는 브라우저가 직접 열 수 있는 AVIF만 변환할 수 있습니다.'],['HDR','높은 명암 범위. 일반 캔버스에서는 유지되지 않습니다.']]},
+   example:{title:'작은 AVIF가 더 큰 JPG로(실측)',lead:'512 × 512 NASA 테스트 사진을 Pillow 12.3 화질 60으로 저장한 AVIF, Chromium 153의 Nerulio 변환기, 2026-09-28.',lines:[
+    '원본: astronaut.avif     25,255 바이트   512 x 512',
+    '',
+    '-> JPG q92     62,610 바이트    2.5배   SSIM 0.9966',
+    '-> PNG        428,230 바이트   17.0배   픽셀 동일',
+    '-> WebP q92    48,530 바이트    1.9배   SSIM 0.9938'],
+    after:'JPG는 AVIF의 2.5배이면서도 AVIF보다 선명해질 수는 없습니다. 호환성보다 용량이 중요하다면 AVIF를 받는 곳에서는 AVIF를 그대로 쓰세요.'},
+   mapping:{title:'AVIF에서 JPG로 남는 것',head:['AVIF에 있던 것','변환기가 하는 일','JPG에서는'],rows:[
+    ['디코딩된 픽셀','선택한 화질로 손실 인코딩','근사한 픽셀, 크기 동일'],
+    ['알파 채널','JPG 배경색 위에 칠함','알파 없음'],
+    ['높은 비트 심도·HDR','브라우저가 8비트 캔버스로 디코딩','8비트, sRGB 태그 JPG'],
+    ['이미지 시퀀스(움직이는 AVIF)','변환 전에 거부','—']]},
+   verify:{steps:[
+    'AVIF를 열지 못하던 소프트웨어에서 JPG를 열어 보세요.',
+    '브라우저에서 AVIF와 100%로 비교하세요. JPG 특유의 약간의 흐림 말고는 같아야 합니다.',
+    'AVIF가 HDR이었다면 하이라이트와 하늘을 확인하세요. 이제 일반 디스플레이 기준으로 표현됩니다.']},
+   trouble:{rows:[
+    ['"이미지를 열 수 없습니다"','브라우저가 이 AVIF를 디코딩하지 못합니다(오래된 브라우저나 특이한 AVIF 기능)','같은 브라우저에서 AVIF를 직접 열어 보기','최신 Chromium·Firefox·Safari를 써 보고, 어디서도 안 열리면 파일이 손상됐을 수 있습니다'],
+    ['움직이는 AVIF가 거부됨','AVIF 이미지 시퀀스이며 정지 이미지만 처리합니다','브라우저에서 애니메이션으로 재생됨','다른 도구로 한 프레임을 먼저 내보내세요'],
+    ['밝은 부분이 칙칙하거나 날아감','HDR AVIF가 8비트 캔버스로 줄었습니다','같은 화면의 브라우저에서 AVIF 보기','차이가 중요하면 SDR로 내보낸 파일을 요청하세요'],
+    ['JPG가 AVIF보다 훨씬 큼','JPG는 AV1 프레임 부호화보다 효율이 낮습니다','용량 비교','화질을 낮추거나, AVIF를 받는 곳에서는 AVIF를 쓰세요']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-png|AVIF → PNG]]','그래픽·스크린샷·투명 AVIF이고 용량이 중요하지 않을 때.'],
+    ['AVIF 그대로 쓰기','이미 AVIF를 받는 웹페이지와 앱. MDN은 AVIF를 바꾸기보다 대체 형식을 함께 제공하라고 권합니다.']]},
+   limits:['브라우저가 디코딩할 수 있는 AVIF만 변환할 수 있습니다.','HDR·높은 비트 심도의 정보와 투명도는 JPG에 남지 않고 EXIF도 기록하지 않습니다.'],
+   versions:{body:['2026-09-28 Playwright Chromium 153에서 Nerulio 변환 경로로, `tests/fixtures/astronaut.png`를 Pillow 12.3 화질 60으로 저장한 AVIF를 측정했습니다. AVIF의 구조와 기능은 MDN 설명을 따랐습니다.'],sources:[MDN.ko]}
+  },
+  ja:{
+   answer:'AVIFをJPGにすると、AVIF画像を展開して、ほぼすべてのソフトで開けるJPGとして保存します。ブラウザがAVIFを展開できれば動作し、今回の計測ではChromium 153で展開できました。JPGのほうが大きくなります。25,255バイトのAVIF写真が画質92で62,610バイトになりました（2.5倍、展開したAVIFに対するSSIM 0.9966）。透明部分は背景色で塗られ、アニメーションのAVIFシーケンスは拒否します。',
+   concept:{title:'AV1のフレームからJPEGのブロックへ',body:[
+    'AVIFは静止画をAV1で符号化した1フレームとしてHEIFコンテナに収めます。AV1は新しい動画コーデックで、同じ画質をJPGより少ないバイト数で実現できることが多く、MDNによれば透過・高ビット深度・HDRにも対応します。JPGに変換すると、この効率を手放す代わりに互換性を得ます。',
+    'ブラウザがAVIFを通常の8ビットのキャンバスに展開し、Nerulioがそのキャンバスをエンコードします。そのためHDRや高ビット深度のAVIFはキャンバスが扱える範囲に縮められ、HDR画面で見ていた明るい部分が違って見えることがあります。'],
+    terms:[['AVIF','AV1 Image File Format。AV1のビットストリームをHEIFコンテナに入れた形式（MDN）。'],['展開の対応','Nerulioが変換できるのは、ブラウザ自身が開けるAVIFだけです。'],['HDR','広いダイナミックレンジ。通常のキャンバスでは保持されません。']]},
+   example:{title:'小さなAVIFが大きなJPGに（実測）',lead:'512 × 512のNASAのテスト写真をPillow 12.3の画質60で保存したAVIF、Chromium 153上のNerulioの変換、2026-09-28。',lines:[
+    '元画像: astronaut.avif     25,255 バイト   512 x 512',
+    '',
+    '-> JPG q92     62,610 バイト    2.5倍   SSIM 0.9966',
+    '-> PNG        428,230 バイト   17.0倍   ピクセル同一',
+    '-> WebP q92    48,530 バイト    1.9倍   SSIM 0.9938'],
+    after:'JPGはAVIFの2.5倍の大きさなのに、AVIFより鮮明にはなりません。互換性より容量が大事なら、AVIFを受け付ける場所ではAVIFのまま使います。'},
+   mapping:{title:'AVIFからJPGに残るもの',head:['AVIFにあったもの','変換での処理','JPGでは'],rows:[
+    ['展開したピクセル','選んだ画質で非可逆エンコード','近似したピクセル、サイズは同じ'],
+    ['アルファチャンネル','JPGの背景色の上に描く','アルファなし'],
+    ['高ビット深度・HDR','ブラウザが8ビットのキャンバスに展開','8ビット、sRGBタグ付きのJPG'],
+    ['画像シーケンス（アニメーションAVIF）','変換前に拒否','—']]},
+   verify:{steps:[
+    'AVIFを開けなかったソフトでJPGを開きます。',
+    'ブラウザでAVIFと100%で比べます。JPG特有のわずかなぼやけ以外は同じはずです。',
+    'AVIFがHDRだったなら、ハイライトや空を確認します。今は通常のディスプレイ向けに表現されています。']},
+   trouble:{rows:[
+    ['「画像を開けません」と出る','ブラウザがこのAVIFを展開できない（古いブラウザや特殊なAVIFの機能）','同じブラウザでAVIFを直接開いてみる','最新のChromium・Firefox・Safariで試し、どれでも開けなければファイルの破損を疑います'],
+    ['アニメーションAVIFが拒否される','AVIFの画像シーケンスで、静止画しか扱わない','ブラウザでアニメーションとして再生される','別のツールで1コマを先に書き出します'],
+    ['明るい部分がくすむ・白飛びする','HDRのAVIFが8ビットのキャンバスに縮められた','同じ画面のブラウザでAVIFを見る','違いが重要ならSDRで書き出したファイルを依頼します'],
+    ['JPGがAVIFよりずっと大きい','JPGはAV1のフレーム符号化より効率が低い','容量を比べる','画質を下げるか、AVIFを受け付ける場所ではAVIFを使います']]},
+   alternatives:{rows:[
+    ['[[image/avif-to-png|AVIF → PNG]]','グラフィック・スクリーンショット・透過AVIFで、容量が問題にならない場合。'],
+    ['AVIFのまま使う','すでにAVIFを受け付けるWebページやアプリ。MDNはAVIFを置き換えるより代替形式を併用するよう勧めています。']]},
+   limits:['変換できるのは、ブラウザが展開できるAVIFだけです。','HDR・高ビット深度の情報と透過はJPGに残らず、EXIFも書き込みません。'],
+   versions:{body:['2026-09-28にPlaywright Chromium 153で、Nerulioの変換経路を使い、`tests/fixtures/astronaut.png` をPillow 12.3の画質60で保存したAVIFを計測しました。AVIFの構造と機能はMDNの説明に従っています。'],sources:[MDN.ja]}
+  }
+ },
 };
