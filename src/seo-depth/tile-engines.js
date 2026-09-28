@@ -942,4 +942,285 @@ export default {
    versions:{body:['Godot 4.7.2で、保存したTileSetを読み戻して確認しました。半タイルのずらしの後、全ポリゴンが点単位で一致しました。コーパスのブロブセットで49/49、48/48、47/47タイル、辺・角のテンプレートで16/16、4地形のデュアルグリッドパックで80/80。エディターの手順はGodot 4.7の公式ドキュメントに基づきます。'],sources:[GODOT_TILESETS,GODOT_TILEDATA,GODOT_TILESET,GODOT_LAYER,GODOT_DEBUG]}
   }
  },
+ 'game/gamemaker-autotile-to-godot':{
+  type:'conversion',
+  intent:{primary:'move a GameMaker 47-tile autotile tileset to Godot 4 terrains (or Tiled, Unity, LDtk)',secondary:['GameMaker autotile template order','GameMaker autotile to Godot terrain peering bits','16-tile GameMaker autotiles'],
+   goal:'the same 47-tile sheet autotiling in Godot 4 without re-entering every slot',input:'tile set sprite drawn in GameMaker\'s 47-tile template order (8 × 6 cells, top-left cell empty)',output:'Godot 4 TileSet files (PNG + JSON + import script), Tiled .tsx, Unity RuleTile, LDtk project',target:'Godot 4 (verified 4.7.2); no export back to GameMaker',support:'partial',
+   evidence:['src/game/tiles/layouts.js (blob47-gamemaker table, cell 0 empty)','docs/STUDIO-TILE.md (GameMaker 47 template high 1.000, 47/47; cave art 64 px medium 0.964, 47/47; Godot 485/485)','src/game/tiles/godot-export.js'],
+   external:['GameMaker Manual: Auto Tiles (47 and 16 templates, Autotile Editor)','GameMaker Manual: Tile Sets (top-left cell always empty)','Godot 4.7 docs: terrain sets']},
+  en:{
+   answer:'GameMaker\'s 47-tile auto tile is a template of 47 slots that you fill in the Autotile Editor; the mapping is stored in the tile set asset, not in the PNG. A tile set sprite drawn in that template\'s own order — 8 × 6 cells with the top-left cell empty, as GameMaker requires — is recognised by Nerulio from its pixels. Every slot becomes a Godot 4 tile with its peering bits (Match Corners and Sides), and the same bits give a Tiled Wang set, Unity Rule Tiles or LDtk rules. Nothing goes back into GameMaker, and GameMaker itself was not run.',
+   concept:{title:'What GameMaker stores, and what Godot needs instead',body:[
+    'The GameMaker manual offers two auto tile types, 47 and 16 tiles, and fills them in the Autotile Editor: click the 47 tile template, then click each template cell and pick the tile from the tile set (light grey marks the outside edge, dark grey the fill). The Tile Set Editor page adds that the top-left grid cell must always be empty, because GameMaker uses it as the "empty" tile. So the auto tile is a list of slot → tile assignments kept in the project, and only the PNG leaves GameMaker.',
+    'Nerulio can therefore read a sheet whose tiles sit in the template\'s order, which is how GameMaker template sheets and many packs "for GameMaker" are drawn. It scores that order (and every other published 47 order) by how seamlessly neighbouring tiles join. If your sprite holds the tiles in another arrangement and the auto tile library does the mapping, the order is not in the pixels: pick another recognised layout, or paint the bits.',
+    'Godot needs no fixed order at all: each tile carries its own terrain and peering bits. So the sheet keeps GameMaker\'s layout, and the TileSet only records which atlas cell stands for which neighbourhood.'],
+    terms:[['Auto tile library','GameMaker\'s list of auto tiles in a tile set asset: template slots mapped to tiles.'],['47-tile template','GameMaker\'s slot order for corners-and-sides autotiling; cell 0 of the sheet stays empty.'],['Match Corners and Sides','The Godot 4 mode that matches all 8 neighbours, the equivalent of a 47-tile set.'],['cr31 mask','The neighbour mask each template cell stands for (N 1 … NW 128), used to write the bits.']]},
+   example:{title:'Example: GameMaker template cells as Godot tiles',lines:[
+    '8 × 6 cells of 64 px → a 512 × 384 px sheet; cell (0,0) left empty',
+    'cell (7,5)  full tile        mask 255   8 peering bits',
+    'cell (6,5)  isolated tile    mask 0     no peering bits',
+    'cell (0,2)  mask 31 = N NE E SE S    → top_side, top_right_corner, right_side,',
+    '                                       bottom_right_corner, bottom_side = 0',
+    'cell (1,0)  mask 127 = all but NW    → 4 sides + 3 corners: an inner corner at the top-left',
+    'whole sheet  47 tiles, 188 peering bits, one terrain set in Match Corners and Sides'],
+    after:'In `nerulio-tileset.json` the atlas coordinates are those cells, so cell (0,2) becomes `"atlas":{"x":0,"y":2}` with exactly those five bits.'},
+   mapping:{head:['In GameMaker','In Nerulio','In Godot 4'],rows:[
+    ['Tile set sprite (fixed grid, top-left cell empty)','Grid measured from the pixels; a size where the 47 layout fits exactly is ranked','A `TileSetAtlasSource` with the same tile size, margins and separation'],
+    ['47-tile template slot','The slot\'s neighbour mask → a terrain pattern for that tile','The tile\'s terrain 0 and its peering bits'],
+    ['Auto tile library in the tile set asset','Not read: only the PNG is imported','—'],
+    ['Room editor: painting with the auto tile brush','Test map painted with the Godot rule (a port of `set_cells_terrain_connect`)','Terrains tab in Connect mode, or `set_cells_terrain_connect()`'],
+    ['Open Or Closed Edges button','Not applied: outside the painted area counts as empty','Cells beyond your terrain are empty, so edges get rims'],
+    ['16-tile auto tile','Not recognised as a GameMaker layout (it may still match edge16 or corner16)','Match Sides or Match Corners, if a layout matched'],
+    ['Collision written in GML','Optional: polygons traced from each tile\'s alpha','Physics layer 0 with one polygon per tile']]},
+   outputs:{lead:'One ZIP, one folder per target, for a sheet called cave.png:',rows:[
+    ['godot/nerulio-tileset.json + nerulio_tileset_import.gd','Builds the Godot 4 TileSet: 47 tiles, 188 peering bits, Match Corners and Sides.'],
+    ['tiled/cave.tsx + sample.tmx','A mixed Wang set (46 marked tiles; the isolated one has no colour) and a sample map.'],
+    ['unity/nerulio-ruletile.json + Editor/NerulioRuleTileImporter.cs','One RuleTile with 47 rules.'],
+    ['ldtk/cave.ldtk','47 auto-layer rules on an IntGrid layer (partly verified).']]},
+   target:{title:'From the GameMaker sheet to a painted Godot map',steps:[
+    'Export with Godot 4 ticked; copy the PNG, `nerulio-tileset.json` and `nerulio_tileset_import.gd` into the project root (or set `JSON_PATH` / `OUTPUT_PATH` in the script).',
+    'After the PNG is imported, run the script with File › Run; the Output panel should report 47 tiles and 188 peering bits.',
+    'Load `nerulio-tileset.tres` into a `TileMapLayer`\'s Tile Set property.',
+    'Paint with the Terrains tab in Connect mode — the closest thing to GameMaker\'s auto tile brush — or from code with `set_cells_terrain_connect(cells, 0, 0)`.',
+    'For GameMaker\'s "closed edges" look at the room border, paint the terrain one cell beyond the visible area, so the border cells have neighbours and no rim.']},
+   verify:{steps:[
+    'The Output line says 47 tiles; atlas cell (0,0) has no tile in the TileSet editor.',
+    'Paint a 3 × 3 block, a single cell and an L shape: 9 different tiles, the isolated tile at cell (6,5) and an inner corner — the same pieces the GameMaker room editor would place.',
+    'Paint the same shapes on the Studio\'s test map with the Godot rule: in our runs Godot 4.7.2 matched it cell for cell.']},
+   trouble:{rows:[
+    ['"GameMaker 47" is not among the layout candidates','The sprite is not in template order (the auto tile library did the mapping), or the grid is off','Layout candidates and their "at col,row" placement','Use the grid GameMaker used (Tile Set Properties: tile size, offset, separation), apply another recognised layout, or paint the bits'],
+    ['Inner corners land in the wrong places in Godot','The layout was applied one cell off (an extra row or column in the sheet)','The placement shown with the candidate','Apply the candidate at the right placement and export again'],
+    ['A 16-tile GameMaker sheet is not recognised as GameMaker','Only the 47-tile GameMaker order is known','Candidates list edge16 / corner16 or nothing','Apply the matching 16 layout, or paint the side bits'],
+    ['Map borders show rims that GameMaker hid','GameMaker\'s closed-edges option has no equivalent in the TileSet','Rims only on the map border','Paint terrain one cell past the edge'],
+    ['Seams between tiles in Godot','The sprite has an offset or separation between tiles (GameMaker Tile Set Properties) that the grid does not know','Tileset panel: margin and spacing','Set the grid\'s margin and spacing to the sprite\'s real layout and export again']]},
+   alternatives:{rows:[
+    ['Assign the bits by hand in Godot\'s TileSet editor','A small set, or a sprite whose order only GameMaker\'s auto tile library knows.'],
+    ['Keep the level work in GameMaker','You are staying on GameMaker; nothing here writes GameMaker files.'],
+    ['Go through Tiled: [[game/tiled-wang-set|Tiled Wang set]]','You want to paint maps in Tiled first and bring them to one or more engines later.']]},
+   limits:['Only GameMaker\'s 47-tile order is recognised; its 16-tile order is not among the known layouts.','No export back to GameMaker; GameMaker was never run in a check.','The auto tile library itself (the slot assignments in the .yy asset) is not read.'],
+   versions:{body:['GameMaker\'s 47 template was recognised with high confidence (seam AUC 1.000, bits 47/47) and real 64 px cave platformer art in that order with medium confidence (0.964, bits 47/47). On both, Godot 4.7.2 painted 485 of 485 test cells as predicted, and the Tiled, LDtk and Unity exports passed their checks. GameMaker facts come from the GameMaker manual.'],sources:[GM_AUTO,GM_TILESETS,GODOT_TILESETS]}
+  },
+  ko:{
+   answer:'GameMaker의 47타일 오토타일은 Autotile Editor에서 채우는 47칸짜리 템플릿이며, 그 연결 정보는 PNG가 아니라 타일셋 에셋에 저장됩니다. 템플릿 순서 그대로 그린 타일셋 스프라이트(8 × 6칸, GameMaker 규칙대로 왼쪽 위 칸은 비움)는 Nerulio가 픽셀만 보고 알아봅니다. 칸마다 피어링 비트가 있는 Godot 4 타일(Match Corners and Sides)이 되고, 같은 비트로 Tiled Wang 세트·Unity Rule Tile·LDtk 규칙도 만듭니다. GameMaker로 되돌리는 기능은 없고 GameMaker 자체는 실행하지 않았습니다.',
+   concept:{title:'GameMaker가 저장하는 것과 Godot에 필요한 것',body:[
+    'GameMaker 매뉴얼은 47타일과 16타일 두 가지 오토타일을 제공하고, Autotile Editor에서 채웁니다. 47 tile 템플릿을 누른 뒤 템플릿 칸마다 타일셋에서 타일을 고르는 방식입니다(연한 회색은 바깥 가장자리, 진한 회색은 채움). Tile Set Editor 문서는 GameMaker가 왼쪽 위 칸을 "빈" 타일로 쓰므로 그 칸은 항상 비어 있어야 한다고 덧붙입니다. 즉 오토타일은 프로젝트 안에 저장된 칸 → 타일 지정 목록이고, GameMaker 밖으로 나가는 것은 PNG뿐입니다.',
+    '그래서 Nerulio가 읽을 수 있는 것은 타일이 템플릿 순서대로 놓인 시트입니다. GameMaker 템플릿 시트와 "GameMaker용" 팩 상당수가 이렇게 그려져 있습니다. 이웃 타일이 얼마나 매끄럽게 이어지는지로 이 순서(와 다른 공개 47 순서 전부)를 점수 매깁니다. 스프라이트가 다른 배열이고 오토타일 라이브러리가 연결을 맡고 있다면 순서 정보는 픽셀에 없으니, 인식된 다른 배치를 쓰거나 비트를 직접 칠하세요.',
+    'Godot에는 정해진 순서가 필요 없습니다. 타일마다 자기 지형과 피어링 비트를 가지므로, 시트는 GameMaker 배치 그대로 두고 TileSet에는 어느 아틀라스 칸이 어떤 이웃 조합을 맡는지만 기록합니다.'],
+    terms:[['오토타일 라이브러리','타일셋 에셋 안의 GameMaker 오토타일 목록. 템플릿 칸과 타일을 연결합니다.'],['47타일 템플릿','모서리+변 오토타일용 GameMaker 칸 순서. 시트의 0번 칸은 비어 있습니다.'],['Match Corners and Sides','이웃 8칸을 모두 맞추는 Godot 4 모드. 47타일 세트에 해당합니다.'],['cr31 마스크','템플릿 칸마다 대응하는 이웃 마스크(N 1 … NW 128). 비트를 쓸 때 사용합니다.']]},
+   example:{title:'예시: GameMaker 템플릿 칸을 Godot 타일로',lines:[
+    '64px 칸 8 × 6개 → 512 × 384px 시트; (0,0) 칸은 비움',
+    '(7,5) 칸  가득 찬 타일   마스크 255   피어링 비트 8개',
+    '(6,5) 칸  고립 타일      마스크 0     피어링 비트 없음',
+    '(0,2) 칸  마스크 31 = N NE E SE S   → top_side, top_right_corner, right_side,',
+    '                                      bottom_right_corner, bottom_side = 0',
+    '(1,0) 칸  마스크 127 = NW 빼고 전부 → 변 4 + 모서리 3: 왼쪽 위에 안쪽 모서리',
+    '시트 전체  타일 47개, 피어링 비트 188개, Match Corners and Sides 지형 세트 하나'],
+    after:'`nerulio-tileset.json`의 아틀라스 좌표가 곧 그 칸이므로, (0,2) 칸은 딱 그 다섯 비트를 가진 `"atlas":{"x":0,"y":2}`가 됩니다.'},
+   mapping:{head:['GameMaker','Nerulio','Godot 4'],rows:[
+    ['타일셋 스프라이트(고정 격자, 왼쪽 위 칸 비움)','픽셀에서 격자를 재고, 47 배치가 딱 맞는 크기를 순위에 올림','같은 타일 크기·여백·간격의 `TileSetAtlasSource`'],
+    ['47타일 템플릿 칸','칸의 이웃 마스크 → 그 타일의 지형 패턴','타일의 지형 0과 피어링 비트'],
+    ['타일셋 에셋의 오토타일 라이브러리','읽지 않음: PNG만 가져옴','—'],
+    ['룸 편집기의 오토타일 브러시로 칠하기','Godot 규칙(`set_cells_terrain_connect` 이식)으로 칠하는 테스트 맵','Connect 모드의 Terrains 탭, 또는 `set_cells_terrain_connect()`'],
+    ['Open Or Closed Edges 버튼','적용 안 함: 칠한 영역 밖은 빈칸','지형 바깥 칸은 비어 있어 가장자리에 테두리가 생김'],
+    ['16타일 오토타일','GameMaker 배치로는 인식 안 함(edge16이나 corner16과 맞을 수는 있음)','배치가 맞았다면 Match Sides나 Match Corners'],
+    ['GML로 짠 충돌','선택: 타일 알파에서 폴리곤을 땀','타일마다 폴리곤 하나가 든 물리 레이어 0']]},
+   outputs:{lead:'ZIP 하나에 대상마다 폴더가 하나씩 들어 있습니다(cave.png라는 시트 기준).',rows:[
+    ['godot/nerulio-tileset.json + nerulio_tileset_import.gd','Godot 4 TileSet을 만듭니다: 타일 47개, 피어링 비트 188개, Match Corners and Sides.'],
+    ['tiled/cave.tsx + sample.tmx','혼합 Wang 세트(표시된 타일 46개, 고립 타일은 색이 없음)와 샘플 맵.'],
+    ['unity/nerulio-ruletile.json + Editor/NerulioRuleTileImporter.cs','규칙 47개짜리 RuleTile 하나.'],
+    ['ldtk/cave.ldtk','IntGrid 레이어의 자동 레이어 규칙 47개(일부 검증).']]},
+   target:{title:'GameMaker 시트에서 Godot 맵까지',steps:[
+    'Godot 4를 체크해 내보내고 PNG, `nerulio-tileset.json`, `nerulio_tileset_import.gd`를 프로젝트 루트에 복사합니다(또는 스크립트의 `JSON_PATH`·`OUTPUT_PATH` 설정).',
+    'PNG를 가져온 뒤 File › Run으로 스크립트를 실행합니다. 출력 패널에 타일 47개와 피어링 비트 188개가 나와야 합니다.',
+    '`TileMapLayer`의 Tile Set 속성에 `nerulio-tileset.tres`를 넣습니다.',
+    'GameMaker 오토타일 브러시에 가장 가까운 Terrains 탭의 Connect 모드로 칠하거나, 코드에서 `set_cells_terrain_connect(cells, 0, 0)`를 부릅니다.',
+    '룸 경계에서 GameMaker의 "닫힌 가장자리"처럼 보이게 하려면, 보이는 영역보다 한 칸 더 지형을 칠해 경계 칸에도 이웃이 있게 하면 테두리가 생기지 않습니다.']},
+   verify:{steps:[
+    '출력 줄에 타일 47개가 나오고, TileSet 편집기에서 (0,0) 아틀라스 칸에는 타일이 없습니다.',
+    '3 × 3 영역, 외딴 한 칸, ㄱ자 모양을 칠합니다. 서로 다른 타일 9개, (6,5) 칸의 고립 타일, 안쪽 모서리가 나와야 하며 GameMaker 룸 편집기가 놓을 조각과 같습니다.',
+    'Studio 테스트 맵에서 같은 모양을 Godot 규칙으로 칠해 봅니다. 저희 실행에서 Godot 4.7.2는 칸 단위로 같았습니다.']},
+   trouble:{rows:[
+    ['배치 후보에 "GameMaker 47"이 없음','스프라이트가 템플릿 순서가 아니거나(오토타일 라이브러리가 연결을 맡음) 격자가 어긋남','배치 후보와 "at col,row" 위치','GameMaker에서 쓴 격자(Tile Set Properties의 타일 크기·오프셋·간격)를 쓰거나, 인식된 다른 배치를 적용하거나, 비트를 직접 칠하기'],
+    ['Godot에서 안쪽 모서리가 엉뚱한 곳에 나옴','배치가 한 칸 어긋나게 적용됨(시트에 행이나 열이 더 있음)','후보와 함께 표시되는 위치','올바른 위치로 후보를 적용해 다시 내보내기'],
+    ['16타일 GameMaker 시트가 GameMaker로 인식되지 않음','알고 있는 GameMaker 순서는 47타일뿐','후보에 edge16·corner16만 있거나 아무것도 없음','맞는 16 배치를 적용하거나 변 비트를 직접 칠하기'],
+    ['GameMaker에서는 없던 테두리가 맵 경계에 생김','GameMaker의 닫힌 가장자리 옵션에 해당하는 설정이 TileSet에 없음','맵 경계에만 테두리가 있음','가장자리 밖으로 한 칸 더 지형을 칠하기'],
+    ['Godot에서 타일 사이에 이음새가 보임','스프라이트에 격자가 모르는 오프셋이나 타일 간격(GameMaker Tile Set Properties)이 있음','타일셋 패널의 여백과 간격','격자의 여백과 간격을 스프라이트의 실제 배치에 맞추고 다시 내보내기']]},
+   alternatives:{rows:[
+    ['Godot TileSet 편집기에서 비트를 직접 지정','세트가 작거나, 순서를 GameMaker 오토타일 라이브러리만 알고 있는 스프라이트일 때.'],
+    ['레벨 작업은 GameMaker에 그대로 두기','GameMaker를 계속 쓸 때. 여기서는 GameMaker 파일을 쓰지 않습니다.'],
+    ['Tiled를 거치기: [[game/tiled-wang-set|Tiled Wang 세트]]','먼저 Tiled에서 맵을 칠하고 나중에 여러 엔진으로 가져가고 싶을 때.']]},
+   limits:['GameMaker 47타일 순서만 인식합니다. 16타일 순서는 알려진 배치에 없습니다.','GameMaker로 되돌리는 내보내기는 없고, 어떤 점검에서도 GameMaker를 실행하지 않았습니다.','오토타일 라이브러리 자체(.yy 에셋의 칸 지정)는 읽지 않습니다.'],
+   versions:{body:['GameMaker 47 템플릿은 높은 신뢰도(이음새 AUC 1.000, 비트 47/47)로, 같은 순서의 실제 64px 동굴 플랫포머 그림은 중간 신뢰도(0.964, 비트 47/47)로 인식됐습니다. 두 경우 모두 Godot 4.7.2가 테스트 칸 485개 중 485개를 예측대로 칠했고, Tiled·LDtk·Unity 내보내기도 점검을 통과했습니다. GameMaker 관련 내용은 GameMaker 매뉴얼을 따릅니다.'],sources:[GM_AUTO,GM_TILESETS,GODOT_TILESETS]}
+  },
+  ja:{
+   answer:'GameMakerの47タイルのオートタイルは、Autotile Editorで埋める47枠のテンプレートで、その対応づけはPNGではなくタイルセットアセットに保存されます。テンプレートの順序どおりに描いたタイルセットのスプライト（8 × 6セル、GameMakerの決まりどおり左上のセルは空）なら、Nerulioがピクセルだけで認識します。各枠はピアリングビット付きのGodot 4のタイル（Match Corners and Sides）になり、同じビットからTiledのWangセット、UnityのRule Tile、LDtkのルールも作れます。GameMakerへ戻す機能はなく、GameMaker自体は実行していません。',
+   concept:{title:'GameMakerが保存するものと、Godotが必要とするもの',body:[
+    'GameMakerのマニュアルは47タイルと16タイルの2種類のオートタイルを用意しており、Autotile Editorで埋めます。47 tileテンプレートを押し、テンプレートのセルごとにタイルセットからタイルを選ぶ方式です（薄い灰色が外側の縁、濃い灰色が塗り）。Tile Set Editorのページは、GameMakerは左上のセルを「空」のタイルとして使うため、そこは常に空でなければならないと補足しています。つまりオートタイルはプロジェクト内に保存される枠 → タイルの割り当てで、GameMakerの外に出るのはPNGだけです。',
+    'そのためNerulioが読めるのは、タイルがテンプレートの順序で並んだシートです。GameMakerのテンプレートシートや「GameMaker向け」のパックの多くはこのように描かれています。隣り合うタイルがどれだけ滑らかにつながるかで、この順序（とほかの公開された47の並びすべて）を採点します。スプライトが別の並びで、オートタイルライブラリが対応づけを担っている場合、順序はピクセルにありません。認識された別の配置を使うか、ビットを手で塗ってください。',
+    'Godotには決まった順序は要りません。タイルごとに自分の地形とピアリングビットを持つので、シートはGameMakerの配置のままで、TileSetにはどのアトラスセルがどの近傍を担うかだけを記録します。'],
+    terms:[['オートタイルライブラリ','タイルセットアセット内のGameMakerのオートタイルのリスト。テンプレートの枠とタイルを対応づけます。'],['47タイルテンプレート','角＋辺のオートタイル用のGameMakerの枠の順序。シートの0番セルは空です。'],['Match Corners and Sides','8方向すべてを合わせるGodot 4のモード。47タイルのセットに相当します。'],['cr31マスク','テンプレートの各セルが表す近傍マスク（N 1 … NW 128）。ビットを書くときに使います。']]},
+   example:{title:'例：GameMakerのテンプレートのセルをGodotのタイルに',lines:[
+    '64pxのセル8 × 6 → 512 × 384pxのシート；セル(0,0)は空',
+    'セル(7,5)  全面タイル    マスク255   ピアリングビット8個',
+    'セル(6,5)  孤立タイル    マスク0     ピアリングビットなし',
+    'セル(0,2)  マスク31 = N NE E SE S   → top_side, top_right_corner, right_side,',
+    '                                      bottom_right_corner, bottom_side = 0',
+    'セル(1,0)  マスク127 = NW以外すべて → 4辺 + 3角：左上に内角',
+    'シート全体  タイル47、ピアリングビット188、Match Corners and Sidesの地形セット1つ'],
+    after:'`nerulio-tileset.json`のアトラス座標はそのセルそのものなので、セル(0,2)はちょうどその5ビットを持つ`"atlas":{"x":0,"y":2}`になります。'},
+   mapping:{head:['GameMaker','Nerulio','Godot 4'],rows:[
+    ['タイルセットのスプライト（固定グリッド、左上セルは空）','ピクセルからグリッドを測り、47の配置がぴったり合うサイズを上位に','同じタイルサイズ・余白・間隔の`TileSetAtlasSource`'],
+    ['47タイルテンプレートの枠','枠の近傍マスク → そのタイルの地形パターン','タイルの地形0とピアリングビット'],
+    ['タイルセットアセットのオートタイルライブラリ','読まない：PNGだけを取り込む','—'],
+    ['ルームエディターでオートタイルブラシで塗る','Godotルール（`set_cells_terrain_connect`の移植）で塗るテストマップ','ConnectモードのTerrainsタブ、または`set_cells_terrain_connect()`'],
+    ['Open Or Closed Edgesボタン','適用しない：塗った範囲の外は空','地形の外のセルは空なので、端に縁が付く'],
+    ['16タイルのオートタイル','GameMakerの配置としては認識しない（edge16やcorner16に合う場合はある）','配置が合えばMatch SidesかMatch Corners'],
+    ['GMLで書いた衝突','任意：タイルのアルファからポリゴンを取る','タイルごとにポリゴン1つの物理レイヤー0']]},
+   outputs:{lead:'1つのZIPに、対象ごとのフォルダーが1つずつ入ります（cave.pngというシートの場合）。',rows:[
+    ['godot/nerulio-tileset.json + nerulio_tileset_import.gd','Godot 4のTileSetを作ります：タイル47、ピアリングビット188、Match Corners and Sides。'],
+    ['tiled/cave.tsx + sample.tmx','混合Wangセット（印付きタイル46、孤立タイルは色なし）とサンプルマップ。'],
+    ['unity/nerulio-ruletile.json + Editor/NerulioRuleTileImporter.cs','ルール47個のRuleTile 1つ。'],
+    ['ldtk/cave.ldtk','IntGridレイヤーのオートレイヤールール47個（一部検証）。']]},
+   target:{title:'GameMakerのシートからGodotのマップへ',steps:[
+    'Godot 4にチェックして書き出し、PNG、`nerulio-tileset.json`、`nerulio_tileset_import.gd`をプロジェクトのルートにコピーします（またはスクリプトの`JSON_PATH`・`OUTPUT_PATH`を設定）。',
+    'PNGの取り込み後、File › Runでスクリプトを実行します。出力パネルにタイル47とピアリングビット188と出るはずです。',
+    '`TileMapLayer`のTile Setプロパティに`nerulio-tileset.tres`を設定します。',
+    'GameMakerのオートタイルブラシに最も近いTerrainsタブのConnectモードで塗るか、コードから`set_cells_terrain_connect(cells, 0, 0)`を呼びます。',
+    'ルームの境界でGameMakerの「閉じた端」のように見せたいなら、見える範囲より1セル外まで地形を塗り、境界のセルにも隣があるようにすると縁が付きません。']},
+   verify:{steps:[
+    '出力行にタイル47と出て、TileSetエディターでアトラスセル(0,0)にはタイルがありません。',
+    '3 × 3の範囲、孤立した1セル、L字を塗ります。異なるタイル9枚、セル(6,5)の孤立タイル、内角が出るはずで、GameMakerのルームエディターが置くパーツと同じです。',
+    'Studioのテストマップで同じ形をGodotルールで塗ります。私たちの実行では、Godot 4.7.2とセル単位で一致しました。']},
+   trouble:{rows:[
+    ['配置の候補に「GameMaker 47」がない','スプライトがテンプレート順でない（オートタイルライブラリが対応づけている）、またはグリッドがずれている','配置の候補と「at col,row」の位置','GameMakerで使ったグリッド（Tile Set Propertiesのタイルサイズ・オフセット・間隔）を使う、認識された別の配置を適用する、またはビットを手で塗る'],
+    ['Godotで内角が違う場所に出る','配置が1セルずれて適用された（シートに余分な行や列がある）','候補と一緒に表示される位置','正しい位置で候補を適用して書き出し直す'],
+    ['16タイルのGameMakerシートがGameMakerとして認識されない','既知のGameMakerの並びは47タイルだけ','候補がedge16・corner16だけ、または何もない','合う16の配置を適用するか、辺のビットを手で塗る'],
+    ['GameMakerではなかった縁がマップの端に出る','GameMakerの閉じた端のオプションに当たる設定がTileSetにない','縁がマップの端にだけある','端の外まで1セル多く地形を塗る'],
+    ['Godotでタイルの間に継ぎ目が見える','スプライトに、グリッドが知らないオフセットやタイル間隔（GameMakerのTile Set Properties）がある','タイルセットパネルの余白と間隔','グリッドの余白と間隔をスプライトの実際の配置に合わせて書き出し直す']]},
+   alternatives:{rows:[
+    ['GodotのTileSetエディターでビットを手で割り当てる','セットが小さいとき、または並びをGameMakerのオートタイルライブラリだけが知っているスプライトのとき。'],
+    ['レベル作業はGameMakerに残す','GameMakerを使い続けるとき。ここではGameMakerのファイルは書きません。'],
+    ['Tiledを経由する：[[game/tiled-wang-set|TiledのWangセット]]','まずTiledでマップを塗り、後で1つ以上のエンジンへ持っていきたいとき。']]},
+   limits:['認識するのはGameMakerの47タイルの並びだけです。16タイルの並びは既知の配置にありません。','GameMakerへ戻す書き出しはなく、どのチェックでもGameMakerは実行していません。','オートタイルライブラリそのもの（.yyアセットの枠の割り当て）は読みません。'],
+   versions:{body:['GameMakerの47テンプレートは高い信頼度（継ぎ目のAUC 1.000、ビット47/47）で、同じ並びの実在する64pxの洞窟プラットフォーマーの絵は中程度の信頼度（0.964、ビット47/47）で認識されました。どちらもGodot 4.7.2がテストセル485個中485個を予測どおりに塗り、Tiled・LDtk・Unityの書き出しもチェックを通りました。GameMakerに関する記述はGameMakerのマニュアルに基づきます。'],sources:[GM_AUTO,GM_TILESETS,GODOT_TILESETS]}
+  }
+ },
+ 'game/godot-terrain-wrong-tiles':{
+  type:'troubleshoot',
+  intent:{primary:'fix Godot 4 terrain painting the wrong tile or leaving cells empty',secondary:['godot terrain not working','godot autotile wrong corner','missing isolated tile','terrain set / match mode mistakes'],
+   goal:'know which of the four causes applies, check it, and get a set that paints every cell correctly',input:'a Godot 4 TileSet with terrains that paints wrong (or its tileset image)',output:'a diagnosis per symptom; a corrected, complete set exported with a fresh importer',target:'Godot 4 (behaviour verified against 4.7.2)',support:'partial',
+   evidence:['src/game/tiles/godot-terrain.js (port of set_cells_terrain_connect, empty pattern always a candidate)','tests/fixtures/tile/godot-terrain-picks.json (recorded Godot 4.7.2 picks for incomplete and multi-terrain sets)','src/game/tiles/patterns.js (required patterns, invalid corner bits, duplicates)'],
+   external:['Godot 4.7 docs: Using TileSets (Terrain Set / Terrain IDs, -1, peering bits)','Using TileMaps (Terrains tab)','TileMapLayer.set_cells_terrain_connect note on required combinations; get_cell_source_id']},
+  en:{
+   answer:'Godot 4 terrains paint a wrong tile or leave a cell empty for four reasons: the terrain set has no tile for that neighbourhood (most often the isolated tile, one-tile-wide strips or an inner corner), the set\'s match mode does not fit the art, a tile\'s peering bits name the wrong position or terrain, or tiles and brush are in different terrain sets. Godot does not warn — it takes the closest pattern, which can be the empty one. Check the four in the table below; the Studio shows the first three before you open Godot.',
+   concept:{title:'How Godot picks a tile, and why it goes wrong',body:[
+    'When you paint (Terrains tab or `set_cells_terrain_connect`), Godot sets constraints on the painted cells\' centres, sides and corners, then solves the cells one by one — painted cells in reverse order, then their neighbours. For each cell it scores every pattern the terrain set has, plus the always-present empty pattern, and keeps the lowest score. The TileMapLayer reference states the condition: the TileSet needs "all required terrain combinations. Otherwise, it may produce unexpected results."',
+    'Missing combinations are the main cause. One terrain against empty needs 47 tiles under Match Corners and Sides, 16 under Match Sides and 16 under Match Corners; a pair of terrains needs its transitions on top. Commonly missing: the isolated tile, the four dead ends and two straights of a side set (a 3 × 3 box has only 9 of the 16), and inner corners. The second cause is the mode: blob art under Match Sides collapses 47 tiles onto 16 patterns, so tiles with different inner corners become duplicates Godot picks among at random.',
+    'The other two are data errors. The Godot docs say Terrain Set and Terrain IDs start at 0 and −1 means none; a tile left at Terrain Set −1, or in terrain set 1 while you paint set 0, is never chosen. A peering bit on the wrong side, or naming terrain 1 instead of 0, makes a tile answer a neighbourhood no map produces. Nerulio cannot open your `.tres` to fix these in place; it rebuilds the TileSet from the image and correct bits.'],
+    terms:[['Empty pattern','The "no tile" candidate Godot always considers; it wins when nothing else fits well enough.'],['Required combinations','Every neighbourhood a map can ask for in a given mode: 47, 16 or 16 per terrain against empty.'],['Duplicate pattern','Two tiles with identical terrain and bits; Godot picks between them by probability.'],['Corner bit behind an open side','A corner set while a side next to it is open: no map ever asks for it, so the tile is dead.']]},
+   example:{title:'Example: what Godot does with incomplete sets (Godot rule, same as 4.7.2)',lines:[
+    'blob set without the isolated tile, one painted cell',
+    '  set_cells_terrain_connect([Vector2i(1, 1)], 0, 0)   →  the cell stays empty',
+    '3 × 3 box (9 of 16 side tiles) in Match Sides, a 4-cell horizontal strip',
+    '  →  all 4 cells stay empty: no tile is open above and below',
+    'blob set without mask 223, map    X X X',
+    '                                   X C X     C wants N NE E SE S W NW = 223',
+    '                                   . X X     Godot draws 215: inner corners bottom-left AND bottom-right',
+    'blob art in Match Sides  →  47 tiles on 16 side patterns, 31 tiles duplicate another'],
+    after:'In the third case one extra inner corner appears at the bottom-right of C, where the map is solid — the typical "wrong corner" people report.'},
+   trouble:{lead:'Check the causes in this order; each row names the check in Godot and, where it helps, in the Studio.',rows:[
+    ['A single painted cell stays empty','No isolated tile (mask 0) in the set','TileSet editor: is there a terrain tile with all 8 peering bits −1? Studio Check panel lists it as missing','Draw it, or [[game/tileset-generator|generate]] the set so it includes four outer corners'],
+    ['One-tile-wide paths or strips stay empty or get rims','A side set with only the 9 tiles of a 3 × 3 box: dead ends and straights are missing','Count the terrain tiles: Match Sides needs 16','Add the 7 missing side tiles, or generate the full 16'],
+    ['An inner corner shows on the wrong side','The set lacks that inner-corner combination; Godot substitutes the closest tile','Studio test map (Godot rule) outlines the substituted cell and names the missing pattern','Draw the missing corner tile'],
+    ['Identical spots get different tiles, inner corners ignored','Match mode too coarse for the art (blob set in Match Sides)','TileSet inspector › Terrain Sets › Mode','Set Match Corners and Sides for 47-tile art, Match Corners for 16-corner art'],
+    ['A drawn tile is never used','A peering bit on the wrong position (a corner behind an open side) or the wrong terrain ID','TileSet editor › Select mode › Terrains section of that tile; Studio counts "corner bit behind an open side"','Clear or move the bit; bits name terrain IDs starting at 0'],
+    ['The brush paints nothing, or never picks certain tiles','The tiles have Terrain Set −1, or belong to another terrain set than the one selected in the Terrains tab','Terrain Set field of the tile vs the set chosen in the Terrains tab','Put all tiles of the terrain into the same terrain set'],
+    ['The result changes with painting order','Godot solves cells one after another, so gaps in the set are filled differently each stroke','Paint the same area in one call vs several strokes','Complete the set; then the order no longer matters for a full set'],
+    ['Two terrains meet with gaps','No transition tiles between A and B','Studio Check panel for the pair A–B','Generate A-over-B transitions, or draw them']]},
+   verify:{steps:[
+    'Paint a test shape with a lone cell, a one-tile-wide strip, a 3 × 3 square and an L-shaped inner corner: every cell shows a tile with continuous edges.',
+    'From code, `get_cell_source_id(coords)` returns −1 for a cell that stayed empty; loop over the painted cells to find any left.',
+    'In the Studio, the Check panel says every combination has one tile with no invalid bits, and the test map with the Godot rule outlines no cell.']},
+   alternatives:{rows:[
+    ['Fix the bits by hand in the TileSet editor','One or two wrong tiles in an otherwise complete set.'],
+    ['Rebuild the TileSet from the image: [[game/godot-autotile|Godot 4 autotile]]','Many wrong or missing bits, or you do not trust the existing `.tres`.'],
+    ['Test the set before Godot: [[game/autotile-tester|autotile tester]]','You are still drawing the tiles and want to see gaps as you go.']]},
+   limits:['Nerulio cannot open an existing `.tres`: it rebuilds the TileSet from the image and bits, so keep your old resource until you have compared.','Art that does not exist cannot be fixed by bits: a missing tile has to be drawn or generated.','Godot\'s painting stays path-dependent for incomplete sets; the Studio shows one row-by-row fill per terrain.'],
+   versions:{body:['The Studio\'s Godot rule is a port of Godot 4\'s terrain matcher; on the corpus it equalled Godot 4.7.2 cell for cell, including the substitutions and empty cells of incomplete and multi-terrain sets, which are recorded as test fixtures. The examples above were computed with that port. Terrain settings and IDs follow the Godot 4.7 documentation.'],sources:[GODOT_TILESETS,GODOT_TILEMAPS,GODOT_LAYER]}
+  },
+  ko:{
+   answer:'Godot 4 지형이 틀린 타일을 칠하거나 칸을 비워 두는 이유는 네 가지입니다. 지형 세트에 그 이웃 조합용 타일이 없거나(대개 고립 타일, 한 칸 너비 띠, 안쪽 모서리), 세트의 매칭 모드가 그림과 맞지 않거나, 타일의 피어링 비트가 틀린 위치나 지형을 가리키거나, 타일과 브러시가 서로 다른 지형 세트에 있는 경우입니다. Godot는 경고 없이 가장 가까운 패턴을 고르며 그것이 빈 패턴일 수도 있습니다. 아래 표 순서대로 확인하세요. 앞의 세 가지는 Godot를 열기 전에 Studio에서 보입니다.',
+   concept:{title:'Godot가 타일을 고르는 방식과 틀어지는 이유',body:[
+    'Terrains 탭이나 `set_cells_terrain_connect`로 칠하면, Godot는 칠한 칸의 가운데·변·모서리에 제약을 걸고 칸을 하나씩 풉니다. 칠한 칸은 역순으로, 그다음 이웃 칸입니다. 칸마다 지형 세트의 모든 패턴과 항상 있는 빈 패턴의 점수를 매겨 가장 낮은 것을 고릅니다. TileMapLayer 레퍼런스는 조건을 밝힙니다. TileSet에 "필요한 모든 지형 조합"이 있어야 하며 "그렇지 않으면 예상치 못한 결과가 나올 수 있다"고 합니다.',
+    '가장 큰 원인은 빠진 조합입니다. 빈칸을 상대로 한 지형 하나에 Match Corners and Sides는 47개, Match Sides는 16개, Match Corners는 16개가 필요하고, 지형 쌍에는 전환 타일이 더 필요합니다. 흔히 빠지는 것은 고립 타일, 변 세트의 막다른 끝 4개와 직선 2개(3 × 3 상자는 16개 중 9개뿐), 그리고 안쪽 모서리입니다. 두 번째 원인은 모드입니다. 블롭 그림을 Match Sides로 두면 47타일이 16패턴으로 뭉쳐, 안쪽 모서리가 다른 타일들이 Godot가 무작위로 고르는 중복이 됩니다.',
+    '나머지 둘은 데이터 오류입니다. Godot 문서에 따르면 Terrain Set과 Terrain 번호는 0부터 시작하고 −1은 없음입니다. Terrain Set이 −1로 남은 타일이나, 세트 0을 칠하는데 세트 1에 있는 타일은 선택되지 않습니다. 피어링 비트가 틀린 변에 있거나 지형 0 대신 1을 가리키면, 그 타일은 어떤 맵에도 나오지 않는 조합에만 맞게 됩니다. Nerulio는 기존 `.tres`를 열어 고치지 못하며, 이미지와 올바른 비트로 TileSet을 새로 만듭니다.'],
+    terms:[['빈 패턴','Godot가 항상 고려하는 "타일 없음" 후보. 다른 것이 충분히 맞지 않으면 이것이 이깁니다.'],['필요한 조합','모드별로 맵이 요구할 수 있는 모든 이웃 조합. 빈칸 상대 지형 하나에 47, 16, 16.'],['중복 패턴','지형과 비트가 같은 두 타일. Godot는 확률로 그중 하나를 고릅니다.'],['열린 변 뒤의 모서리 비트','옆 변이 열려 있는데 켜진 모서리 비트. 어떤 맵도 요구하지 않으므로 그 타일은 쓰이지 않습니다.']]},
+   example:{title:'예시: 불완전한 세트에서 Godot가 하는 일(Godot 규칙, 4.7.2와 같음)',lines:[
+    '고립 타일이 없는 블롭 세트, 한 칸만 칠함',
+    '  set_cells_terrain_connect([Vector2i(1, 1)], 0, 0)   →  칸이 빈 채로 남음',
+    'Match Sides의 3 × 3 상자(변 타일 16개 중 9개), 가로 4칸 띠',
+    '  →  4칸 모두 빈칸: 위아래가 열린 타일이 없음',
+    '마스크 223이 없는 블롭 세트, 맵   X X X',
+    '                                   X C X     C가 원하는 것 N NE E SE S W NW = 223',
+    '                                   . X X     Godot는 215를 그림: 왼쪽 아래와 오른쪽 아래 모두 안쪽 모서리',
+    'Match Sides의 블롭 그림  →  타일 47개가 변 패턴 16개에, 31개가 다른 타일과 중복'],
+    after:'세 번째 경우 맵이 꽉 찬 C의 오른쪽 아래에 안쪽 모서리가 하나 더 생깁니다. 사람들이 말하는 전형적인 "틀린 모서리"입니다.'},
+   trouble:{lead:'이 순서로 원인을 확인하세요. 행마다 Godot에서, 도움이 되면 Studio에서 확인하는 방법을 적었습니다.',rows:[
+    ['한 칸만 칠하면 빈칸으로 남음','세트에 고립 타일(마스크 0)이 없음','TileSet 편집기: 피어링 비트 8개가 모두 −1인 지형 타일이 있는지. Studio 점검 패널에는 빠진 것으로 표시','그리거나, 바깥 모서리 네 개가 들어간 세트를 [[game/tileset-generator|생성]]'],
+    ['한 칸 너비 길이나 띠가 비거나 테두리가 생김','3 × 3 상자 9타일뿐인 변 세트라 막다른 끝과 직선이 없음','지형 타일 개수 세기: Match Sides는 16개 필요','빠진 변 타일 7개를 추가하거나 16개 전체를 생성'],
+    ['안쪽 모서리가 엉뚱한 쪽에 나옴','세트에 그 안쪽 모서리 조합이 없어 Godot가 가장 가까운 타일로 대체','Studio 테스트 맵(Godot 규칙)이 대체된 칸을 표시하고 빠진 패턴을 알려 줌','빠진 모서리 타일 그리기'],
+    ['같은 모양의 자리에 서로 다른 타일이 놓이고 안쪽 모서리가 무시됨','그림에 비해 매칭 모드가 거침(블롭 세트를 Match Sides로)','TileSet 인스펙터 › Terrain Sets › Mode','47타일 그림은 Match Corners and Sides, 모서리 16 그림은 Match Corners'],
+    ['그린 타일이 전혀 쓰이지 않음','피어링 비트가 틀린 위치(열린 변 뒤의 모서리)에 있거나 지형 번호가 틀림','TileSet 편집기 › Select 모드 › 그 타일의 Terrains 섹션. Studio는 "열린 변 뒤의 모서리 비트"를 셈','비트를 지우거나 옮기기. 비트 값은 0부터 시작하는 지형 번호'],
+    ['브러시가 아무것도 안 칠하거나 특정 타일을 고르지 않음','타일의 Terrain Set이 −1이거나 Terrains 탭에서 고른 세트와 다른 세트에 있음','타일의 Terrain Set 값과 Terrains 탭에서 고른 세트 비교','그 지형의 타일을 모두 같은 지형 세트에 넣기'],
+    ['칠하는 순서에 따라 결과가 바뀜','Godot가 칸을 차례로 풀기 때문에 세트의 빈 곳이 획마다 다르게 채워짐','같은 영역을 한 번에 칠할 때와 여러 획으로 칠할 때 비교','세트를 완성하기. 완전한 세트면 순서가 결과에 영향을 주지 않음'],
+    ['두 지형이 만나는 곳에 틈이 생김','A와 B 사이의 전환 타일이 없음','A–B 쌍에 대한 Studio 점검 패널','A 위 B 전환을 생성하거나 그리기']]},
+   verify:{steps:[
+    '외딴 한 칸, 한 칸 너비 띠, 3 × 3 사각형, ㄱ자 안쪽 모서리가 든 시험 모양을 칠합니다. 모든 칸에 가장자리가 이어진 타일이 보여야 합니다.',
+    '코드에서는 빈칸으로 남은 칸에 대해 `get_cell_source_id(coords)`가 −1을 돌려줍니다. 칠한 칸을 돌며 남은 칸을 찾으세요.',
+    'Studio 점검 패널이 모든 조합에 타일이 하나씩 있고 잘못된 비트가 없다고 하며, Godot 규칙 테스트 맵에 표시된 칸이 없어야 합니다.']},
+   alternatives:{rows:[
+    ['TileSet 편집기에서 비트를 직접 고치기','나머지는 완전한 세트에서 틀린 타일이 한두 개일 때.'],
+    ['이미지로 TileSet을 다시 만들기: [[game/godot-autotile|Godot 4 오토타일]]','틀리거나 빠진 비트가 많거나 기존 `.tres`를 믿기 어려울 때.'],
+    ['Godot 전에 세트를 시험: [[game/autotile-tester|오토타일 테스터]]','아직 타일을 그리는 중이고 빈 곳을 바로바로 보고 싶을 때.']]},
+   limits:['Nerulio는 기존 `.tres`를 열지 못합니다. 이미지와 비트로 TileSet을 새로 만드니, 비교할 때까지 예전 리소스를 보관하세요.','없는 그림은 비트로 고칠 수 없습니다. 빠진 타일은 그리거나 생성해야 합니다.','불완전한 세트에서 Godot의 칠하기는 순서에 따라 달라집니다. Studio는 지형마다 행 단위로 한 번 채운 결과를 보여 줍니다.'],
+   versions:{body:['Studio의 Godot 규칙은 Godot 4 지형 매칭을 이식한 것이며, 코퍼스에서 불완전한 세트와 여러 지형 세트의 대체 타일과 빈칸까지 포함해 Godot 4.7.2와 칸 단위로 같았습니다(테스트 고정 데이터로 기록). 위의 예시는 이 이식으로 계산했습니다. 지형 설정과 번호는 Godot 4.7 공식 문서를 따릅니다.'],sources:[GODOT_TILESETS,GODOT_TILEMAPS,GODOT_LAYER]}
+  },
+  ja:{
+   answer:'Godot 4の地形が違うタイルを塗ったりセルを空にしたりする原因は4つです。地形セットにその近傍用のタイルがない（多くは孤立タイル、1タイル幅の帯、内角）、セットのマッチモードが絵に合っていない、タイルのピアリングビットが違う位置や地形を指している、タイルとブラシが別の地形セットにある、のいずれかです。Godotは警告せずに最も近いパターンを選び、それが空のパターンのこともあります。下の表の順に確認してください。最初の3つはGodotを開く前にStudioで見えます。',
+   concept:{title:'Godotがタイルを選ぶ仕組みと、おかしくなる理由',body:[
+    'Terrainsタブや`set_cells_terrain_connect`で塗ると、Godotは塗ったセルの中央・辺・角に制約を置き、セルを1つずつ解きます。塗ったセルは逆順に、その後で隣のセルです。セルごとに地形セットの全パターンと、常に存在する空のパターンを採点し、最も低いものを選びます。TileMapLayerのリファレンスは条件を明記しています。TileSetには「必要なすべての地形の組み合わせ」が必要で、「そうでなければ予期しない結果になることがある」とあります。',
+    '最大の原因は欠けた組み合わせです。空に対する地形1つに、Match Corners and Sidesでは47枚、Match Sidesでは16枚、Match Cornersでは16枚が必要で、地形のペアにはさらに遷移タイルが要ります。よく欠けるのは孤立タイル、辺セットの行き止まり4枚と直線2枚（3 × 3のボックスは16枚中9枚だけ）、そして内角です。2つ目の原因はモードです。ブロブの絵をMatch Sidesにすると47枚が16パターンにまとまり、内角の違うタイルがGodotがランダムに選ぶ重複になります。',
+    '残りの2つはデータの誤りです。Godotのドキュメントによれば、Terrain SetとTerrainの番号は0から始まり、−1はなしを意味します。Terrain Setが−1のままのタイルや、セット0を塗っているのにセット1にあるタイルは選ばれません。ピアリングビットが違う辺にあったり、地形0ではなく1を指していたりすると、そのタイルはどのマップにも現れない近傍にしか合いません。Nerulioは既存の`.tres`を開いてその場で直すことはできず、画像と正しいビットからTileSetを作り直します。'],
+    terms:[['空のパターン','Godotが常に候補にする「タイルなし」。ほかが十分に合わないとこれが勝ちます。'],['必要な組み合わせ','モードごとにマップが求めうるすべての近傍。空に対する地形1つにつき47、16、16。'],['重複パターン','地形とビットが同じ2枚のタイル。Godotは確率でどちらかを選びます。'],['開いた辺の後ろの角ビット','隣の辺が開いているのに立っている角ビット。どのマップも求めないので、そのタイルは使われません。']]},
+   example:{title:'例：不完全なセットでGodotがすること（Godotルール、4.7.2と同じ）',lines:[
+    '孤立タイルのないブロブセット、1セルだけ塗る',
+    '  set_cells_terrain_connect([Vector2i(1, 1)], 0, 0)   →  セルは空のまま',
+    'Match Sidesの3 × 3ボックス（辺タイル16枚中9枚）、横4セルの帯',
+    '  →  4セルとも空：上下が開いたタイルがない',
+    'マスク223のないブロブセット、マップ  X X X',
+    '                                   X C X     Cが求めるもの N NE E SE S W NW = 223',
+    '                                   . X X     Godotは215を描く：左下と右下の両方に内角',
+    'Match Sidesのブロブの絵  →  47枚が16の辺パターンに、31枚がほかと重複'],
+    after:'3つ目のケースでは、マップが埋まっているCの右下に内角が1つ余分に出ます。よく報告される典型的な「角の間違い」です。'},
+   trouble:{lead:'この順に原因を確認してください。各行にGodotでの確認方法と、役立つ場合はStudioでの確認方法を書いています。',rows:[
+    ['1セルだけ塗ると空のまま','セットに孤立タイル（マスク0）がない','TileSetエディター：ピアリングビット8つがすべて−1の地形タイルがあるか。Studioのチェックパネルでは欠けとして表示','描くか、外角4つを含むセットを[[game/tileset-generator|生成]]する'],
+    ['1タイル幅の道や帯が空になる、または縁が付く','3 × 3ボックスの9枚だけの辺セットで、行き止まりと直線がない','地形タイルの数を数える：Match Sidesには16枚必要','欠けている辺タイル7枚を足すか、16枚すべてを生成'],
+    ['内角が違う側に出る','セットにその内角の組み合わせがなく、Godotが最も近いタイルで代用','Studioのテストマップ（Godotルール）が代用されたセルを示し、欠けたパターンを表示','欠けている角のタイルを描く'],
+    ['同じ形の場所に別々のタイルが置かれ、内角が無視される','絵に対してマッチモードが粗い（ブロブセットをMatch Sidesに）','TileSetインスペクター › Terrain Sets › Mode','47タイルの絵はMatch Corners and Sides、角16の絵はMatch Corners'],
+    ['描いたタイルがまったく使われない','ピアリングビットが違う位置（開いた辺の後ろの角）にある、または地形番号が違う','TileSetエディター › Selectモード › そのタイルのTerrainsセクション。Studioは「開いた辺の後ろの角ビット」を数える','ビットを消すか移す。ビットの値は0から始まる地形番号'],
+    ['ブラシが何も塗らない、または特定のタイルを選ばない','タイルのTerrain Setが−1、またはTerrainsタブで選んだセットと別のセットにある','タイルのTerrain Setの値とTerrainsタブで選んだセットを比べる','その地形のタイルをすべて同じ地形セットに入れる'],
+    ['塗る順番で結果が変わる','Godotはセルを順に解くので、セットの穴がストロークごとに違う形で埋まる','同じ範囲を1回で塗った場合と複数ストロークの場合を比べる','セットを完成させる。完全なセットなら順番は結果に影響しない'],
+    ['2つの地形の境目に隙間が出る','AとBの間の遷移タイルがない','A–BのペアについてのStudioのチェックパネル','AからBの遷移を生成するか描く']]},
+   verify:{steps:[
+    '孤立した1セル、1タイル幅の帯、3 × 3の四角、L字の内角を含むテスト形状を塗ります。全セルに縁のつながったタイルが表示されるはずです。',
+    'コードでは、空のまま残ったセルに対して`get_cell_source_id(coords)`が−1を返します。塗ったセルを順に調べて残りを見つけてください。',
+    'Studioのチェックパネルがすべての組み合わせにタイルが1枚ずつあり不正なビットがないと表示し、Godotルールのテストマップに印の付いたセルがないはずです。']},
+   alternatives:{rows:[
+    ['TileSetエディターでビットを手で直す','ほかは完全なセットで、間違ったタイルが1〜2枚のとき。'],
+    ['画像からTileSetを作り直す：[[game/godot-autotile|Godot 4のオートタイル]]','間違ったビットや欠けたビットが多い、または既存の`.tres`が信用できないとき。'],
+    ['Godotの前にセットを試す：[[game/autotile-tester|オートタイルテスター]]','まだタイルを描いている途中で、穴をその場で確認したいとき。']]},
+   limits:['Nerulioは既存の`.tres`を開けません。画像とビットからTileSetを作り直すので、比べ終わるまで古いリソースは残しておいてください。','存在しない絵はビットでは直せません。欠けたタイルは描くか生成する必要があります。','不完全なセットでは、Godotの塗りは順番に左右されます。Studioは地形ごとに行単位で1回塗った結果を示します。'],
+   versions:{body:['StudioのGodotルールはGodot 4の地形マッチングの移植で、コーパスでは不完全なセットや複数地形のセットの代用タイルと空セルも含め、Godot 4.7.2とセル単位で一致しました（テストのフィクスチャとして記録）。上の例はこの移植で計算しました。地形の設定と番号はGodot 4.7の公式ドキュメントに基づきます。'],sources:[GODOT_TILESETS,GODOT_TILEMAPS,GODOT_LAYER]}
+  }
+ }
 };
