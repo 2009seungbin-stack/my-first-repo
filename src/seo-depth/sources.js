@@ -42,6 +42,8 @@ export const SOURCE_HOSTS=new Set([
  'pixijs.com',
  'pixijs.download',
  'registry.khronos.org',
+ 'rpgmakerofficial.com', // RPG Maker MZ official help (Gotcha Gotcha Games): Asset Standards
+
  'spec.lottiefiles.com',
  'support.apple.com',
  'support.discord.com',
