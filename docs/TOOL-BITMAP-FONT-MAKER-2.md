@@ -1,6 +1,6 @@
 # T7 — Bitmap Font Maker 2 design gate
 
-Status: **design only; implementation awaits coordinator review**. Investigated on 2026-09-28 in `nerulio/tool-t7-bitmap-font`. This document separates observed competitor behaviour, documented capabilities, and planned Nerulio work. It is not a parity or release claim.
+Status: **design approved; implementation and verification in progress**. Investigated on 2026-09-28 in `nerulio/tool-t7-bitmap-font`. This document separates observed competitor behaviour, documented capabilities, and planned Nerulio work. Current evidence and missing release gates are recorded in `docs/TOOL-BITMAP-FONT-MAKER-2-RESULTS.md`. It is not a parity or release claim.
 
 ## User job and existing foundation
 
