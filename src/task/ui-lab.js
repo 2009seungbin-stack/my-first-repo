@@ -65,7 +65,7 @@ export function mount({el,def}){
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
- const needsImage=s=>s!=='check'&&(s!=='font'||!S.font.project);
+ const needsImage=s=>s!=='check'&&(s!=='font'||(!S.font.project&&!(S.font.mode==='ttf'&&S.font.family)));
  const $=s=>el.querySelector(s);
  /** A shared link carries settings only — borders, mode, sizes, the stage — never image data.
   * `settingsLink()` writes the same keys back, so a link is round-trippable. */
@@ -97,7 +97,7 @@ export function mount({el,def}){
  function empty(){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span>
 <div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="ui-sample">${esc(text('sample'))}</button>${stage==='font'?`<button type="button" class="ghost" data-action="ui-font-new">${esc(T('fontNew'))}</button>`:''}<button type="button" class="ghost" data-action="ui-stage" data-stage="check">${esc(T('openCheck'))}</button></div>
-${stage==='font'?`<div class="ui-font-import"><label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label><label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label></div>`:''}
+${stage==='font'?`<div class="ui-font-import" data-action="ui-font-input"><label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label><label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label><label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label></div>`:''}
 <small class="local-note">${esc(text('local'))}</small></div>`;
  }
  function frame(){
@@ -914,7 +914,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    if(kind==='font'){
     const family='uilab-'+Math.random().toString(36).slice(2,8);
     const face=new FontFace(family,await file.arrayBuffer());await face.load();document.fonts.add(face);
-    S.font.family=family;S.font.fileName=file.name;refresh();return;
+    S.font.family=family;S.font.fileName=file.name;S.font.mode='ttf';
+    if(!S.font.chars)S.font.chars=Array.from({length:95},(_,i)=>String.fromCharCode(32+i)).join('');
+    if(!el.querySelector('.ui-lab'))frame();else refresh();return;
    }
    if(kind==='bdf'){
     const bdf=parseBdf(await file.text());S.font.project=FP.projectFromBdf(bdf);
@@ -1119,7 +1121,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  el.addEventListener('dragover',e=>{if(e.target.closest?.('input[data-local-drop]')){e.preventDefault();e.stopPropagation();}},true);
  onLocale(()=>{if(source||!needsImage(stage))frame();else empty();});
  // Work lives only in this tab: leaving it with an image loaded asks first.
- addEventListener('beforeunload',e=>{if(el.isConnected&&(source||S.font.project)){e.preventDefault();e.returnValue='';}});
+ addEventListener('beforeunload',e=>{if(el.isConnected&&(source||S.font.project||S.font.family)){e.preventDefault();e.returnValue='';}});
  if(needsImage(stage))empty();else frame();
  return {add};
 }
