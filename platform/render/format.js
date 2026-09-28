@@ -120,6 +120,8 @@ export function collapseVersions(list,l){
   /** @type {V[]} */(groups.get(k)).push(v);
  }
  return order.map(k=>{const g=/** @type {V[]} */(groups.get(k));if(g.length===1)return g[0];
-  const newest=g[0],oldest=g[g.length-1];
+  // Same-day builds may share a timestamp: order them by version number, not by arrival.
+  const byVer=[...g].sort((a,b)=>String(a.version).localeCompare(String(b.version),undefined,{numeric:true}));
+  const newest=byVer[byVer.length-1],oldest=byVer[0];
   return {...newest,version:`${oldest.version} → ${newest.version} (${l==='ko'?`${g.length}건`:`${g.length} builds`})`};});
 }
