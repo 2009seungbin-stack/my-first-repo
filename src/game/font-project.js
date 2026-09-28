@@ -1,4 +1,5 @@
 import {FORMAT as FONT_FORMAT} from './bmfont.js';
+import {validateHangulTemplates} from './font-hangul-compose.js';
 
 export const PROJECT_FORMAT='nerulio-bitmap-font-project-v2';
 const cp=ch=>ch.codePointAt(0);
@@ -46,6 +47,7 @@ export function validateFontProject(project){
  if(project?.format!==PROJECT_FORMAT||!Array.isArray(project.glyphs)||!project.glyphs.length)throw Error('Invalid font project');
  validInt(project.ascent,0,4096,'ascent');validInt(project.descent,0,4096,'descent');
  validInt(project.lineHeight,1,4096,'line height');
+ if(project.hangulTemplates)validateHangulTemplates(project.hangulTemplates);
  if(project.glyphs.length>12000)throw Error('Glyph count exceeds project limit');
  const seen=new Set();for(const g of project.glyphs){
   glyph(g.codepoint,g.w,g.h,g.xOffset,g.yOffset,g.xAdvance);

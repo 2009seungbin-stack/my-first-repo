@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {composeHangulMask,vowelLayout} from '../src/game/font-hangul-compose.js';
+import {composeHangulMask,vowelLayout,blankHangulTemplates,hangulTemplateSlot,paintHangulTemplate,missingHangulTemplates,validateHangulTemplates} from '../src/game/font-hangul-compose.js';
+import {blankFontProject,validateFontProject} from '../src/game/font-project.js';
 
 const one=index=>Array.from({length:16},(_,at)=>at===index?1:0);
 const templates={width:4,height:4,leading:Array.from({length:19},()=>({})),vowel:Array.from({length:21},()=>({})),trailing:Array.from({length:28},()=>({}))};
@@ -31,4 +32,22 @@ test('open/final and corner syllables use separate hand-drawn mask slots',()=>{
  assert.throws(()=>composeHangulMask(0xac1c,templates),/Invalid.*component mask/);
  const override=composeHangulMask(0xac00,templates,{override:one(8)});
  assert.deepEqual(override.pixels,one(8));assert(override.overridden);
+});
+
+test('an editable template kit selects position variants and survives project validation',()=>{
+ const kit=blankHangulTemplates(8,8);
+ assert.deepEqual(hangulTemplateSlot(0xac00,'leading'),{part:'leading',index:0,key:'vertical-open'});
+ assert.deepEqual(hangulTemplateSlot(0xac01,'leading'),{part:'leading',index:0,key:'vertical-final'});
+ assert.deepEqual(missingHangulTemplates(kit,0xac00),['leading','vowel']);
+ paintHangulTemplate(kit,0xac00,'leading',0,1,1);
+ paintHangulTemplate(kit,0xac00,'vowel',5,2,1);
+ assert.deepEqual(missingHangulTemplates(kit,0xac00),[]);
+ assert.deepEqual(missingHangulTemplates(kit,0xac01),['leading','vowel','trailing']);
+ const made=composeHangulMask(0xac00,kit);
+ assert.deepEqual(made.pixels.flatMap((value,i)=>value?[i]:[]),[8,21]);
+ const project=blankFontProject('A');project.hangulTemplates=kit;
+ assert.equal(validateFontProject(structuredClone(project)).hangulTemplates.width,8);
+ assert.throws(()=>paintHangulTemplate(kit,0xac00,'trailing',1,1,1),/no trailing/);
+ kit.leading[0]['vertical-open'][0]=2;
+ assert.throws(()=>validateHangulTemplates(kit),/Invalid Hangul template/);
 });
