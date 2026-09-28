@@ -651,5 +651,355 @@ export default {
     ['アニメーションの最後に空のフレームが付く','シートに使っていないセルがある','埋まったセルを数える。Nerulioは「M個中N個のセルにピクセル」と表示','Phaserの`endFrame`、UnityのKeep Empty Rectsをオフ、またはNerulio（空のセルは飛ばす）']]},
    versions:{body:['グリッドの測定はNerulio独自の実装（src/game/grid-detect.js）で、UIから読み込んだ実在の素材16件では既定の選択で16件すべてのフレームが正しく切れました。フィールド名はPhaser、Unity 6、Godot 4.7のドキュメントとエディターのソースに基づき、手入力のこれらの設定をエンジンで実行したわけではありません。Godot 4.7.2、Unity 6000.5.3f1、Phaser 3.90・4.2で実際に動かした経路はアトラスの書き出しです。'],sources:[PHASER_DOCS[1],UNITY_DOCS[0],UNITY_DOCS[1],GODOT_DOCS[2],GODOT_SHEET[0]]}
   }
+ },
+ // ------------------------------------------------------------------ Unity: sprite sheet
+ // Nerulio: src/game/export/unity.js (rect y flip, pivot normalised y-up, PPU 100, Point, Uncompressed, no mipmaps,
+ // one .anim per tag with SpriteRenderer.m_Sprite keys + closing key, DeleteAsset before CreateAsset), README-UNITY,
+ // docs/STUDIO-PACK.md + docs/ENGINE-VERIFY.md (Unity 6000.5.3f1 batch mode; Apply/CreateClips by reflection;
+ // Animator playback not checked; needs com.unity.2d.sprite).
+ 'game/unity-sprite-sheet':{
+  type:'engine',
+  intent:{primary:'slice a sprite sheet into sprites and an animation in Unity 6',secondary:['Sprite Mode Multiple and Grid By Cell Size settings','Pixels Per Unit, Filter Mode Point, Compression None for pixel art','sprite pivots and AnimationClips from a sheet'],
+   goal:'sliced sprites with correct rects and pivots and one AnimationClip per animation in a Unity 6 project, sharp for pixel art',input:'a sprite sheet PNG',output:'PNG + .unity.json + Editor/NerulioSpriteImporter.cs (creates sprite rects and .anim clips in Unity)',target:'Unity 6 (verified 6000.5.3f1)',support:'full',
+   evidence:['src/game/export/unity.js','docs/STUDIO-PACK.md (Unity 6000.5.3f1)','docs/ENGINE-VERIFY.md (what the Unity probe checks and does not)'],
+   external:['Unity 6.5 Manual: Sprite Editor slicing, Sprite (2D and UI) import settings','Unity Sprite Editor tab reference','2D Pixel Perfect: Point, Compression None, same PPU','Unity Manual: Create a new Animation Clip']},
+  en:{
+   answer:'To use a sprite sheet in Unity 6, set the PNG\'s Texture Type to Sprite (2D and UI) and Sprite Mode to Multiple, open the Sprite Editor and choose Slice › Grid By Cell Size: Pixel Size is the frame size, Offset the margin and Padding the spacing. For pixel art also set Filter Mode to Point (no filter), Compression to None and one Pixels Per Unit for every sprite, then build an AnimationClip from the sprites. Nerulio can do the measuring and the clip building: it exports the PNG, a JSON and an editor script that writes every sprite rect with its pivot and one clip per animation. Checked in Unity 6000.5.3f1.',
+   concept:{title:'How Unity turns one texture into many sprites',body:[
+    'Unity keeps a sprite sheet as one texture asset with several Sprite sub-assets. Sprite Mode Multiple says the image holds several elements; the Sprite Editor stores one rectangle and one pivot per sprite. Its Slice menu offers Automatic (islands separated by transparency), Grid By Cell Size, Grid By Cell Count and Isometric Grid. For a grid, Pixel Size is the cell, Offset shifts the grid from the top-left corner, Padding is the space between sprites, and Keep Empty Rects decides whether blank cells become sprites.',
+    'Pixels Per Unit sets how many texture pixels make one world unit: a 64 px frame is 0.64 units at the default 100 and exactly 1 unit at 64. The 2D Pixel Perfect documentation asks for the same PPU on all sprites, Filter Mode Point and Compression None; Bilinear filtering and compression are what make pixel art look soft or smeared.',
+    'An animation in Unity is an AnimationClip whose keys swap the SpriteRenderer\'s sprite at given times, played by an Animator through an Animator Controller. Creating a clip in the Animation window also creates the controller and the Animator component for you. A clip made by hand from a sheet usually has one fixed frame rate for every sprite.',
+    'Nerulio measures the grid (with a confidence you can overrule), lets you name the row animations, set per-frame times and pivots, and exports three files. Its editor script sets the texture to Sprite / Multiple / Point / Uncompressed / no mipmaps / PPU 100, writes one sprite rect per frame with its pivot, and creates one `.anim` per animation whose keys sit at each frame\'s own start time.'],
+    terms:[['Sprite Mode Multiple','The texture holds several sprites whose rects are set in the Sprite Editor.'],['Pixels Per Unit (PPU)','Texture pixels per world unit; keep it the same on every sprite of a game.'],['Grid By Cell Size','Slice type with Pixel Size (cell), Offset (margin) and Padding (spacing).'],['Pivot','The sprite\'s origin; normalised 0–1 inside the rect, y up.'],['AnimationClip','Keys that change SpriteRenderer.sprite over time; played by an Animator.']]},
+   example:{title:'Worked example: 384 × 128 sheet, two animations',lines:[
+    'Sheet 384 × 128 px: 2 rows × 6 columns of 64 × 64, no margin, no spacing',
+    '  Grid By Cell Size: Pixel Size 64 × 64, Offset 0 × 0, Padding 0 × 0 → 12 sprites',
+    '  world size: 64 px / PPU 100 = 0.64 units      64 px / PPU 64 = 1 unit',
+    '',
+    'Nerulio export (rows named idle and run, frames 125 ms, pivot bottom centre):',
+    '  rect y in Unity (origin bottom-left) = page height − (y + h)',
+    '  pivot bottom centre → (0.5, 0) inside each rect',
+    '  run.anim keys: 0, 0.125, 0.25, 0.375, 0.5, 0.625 s + closing key at 0.75 s',
+    '  loop on (repeat ∞)      clip frame rate 10'],
+    after:'The closing key repeats the last sprite so that it also lasts its full 125 ms before the clip wraps.'},
+   outputs:{lead:'Pack & Export › Unity 6 writes (named after your file; `hero` here):',rows:[
+    ['hero.png','The packed frames (trim on, 2 px apart, never rotated); several pages for large sets.'],
+    ['hero.unity.json','Every sprite rect already in Unity\'s bottom-left coordinates, its normalised pivot, and the clips with each frame\'s milliseconds.'],
+    ['Editor/NerulioSpriteImporter.cs','The editor script behind Tools › Nerulio › Import Studio JSON: import settings, sprite rects, AnimationClips.'],
+    ['README-UNITY.md','The steps below for this bundle.']]},
+   target:{title:'Bring it into Unity 6',steps:[
+    'Copy the unzipped folder into `Assets/`, for example `Assets/Characters/Hero/`, keeping the PNG next to the JSON. The `Editor` folder with `NerulioSpriteImporter.cs` is compiled by Unity; it needs the 2D Sprite package (`com.unity.2d.sprite`), which every 2D template includes.',
+    'Choose Tools › Nerulio › Import Studio JSON and pick `hero.unity.json` inside your project.',
+    'The script sets the texture to Sprite (2D and UI), Multiple, Point (no filter), Uncompressed, no mipmaps, PPU 100, and writes one sprite per frame with its pivot. Open the Sprite Editor to see the rects.',
+    'It also writes one clip per animation next to the JSON (`idle.anim`, `run.anim`), keying the SpriteRenderer\'s sprite at each frame\'s time, with Loop Time as tagged.',
+    'Put the clips in an Animator Controller and assign it to an Animator on a GameObject with a SpriteRenderer.',
+    'If your game uses another PPU (16 for 16 px tiles, say), change Pixels Per Unit on the texture afterwards, the same for every sprite.'],
+    note:['Without Nerulio: select the PNG, set Texture Type to Sprite (2D and UI), Sprite Mode to Multiple, Filter Mode to Point (no filter) and Compression to None, and apply. Open the Sprite Editor, choose Slice › Grid By Cell Size, enter Pixel Size, Offset and Padding and a Pivot, press Slice and then Apply. Then open Window › Animation › Animation, create a clip for your GameObject and key its sprite at a fixed rate.']},
+   verify:{steps:[
+    'The Sprite Editor shows one rect per filled cell, each with its pivot marker at the feet.',
+    'The texture Inspector reads Filter Mode Point (no filter) and Compression None.',
+    'In the Animation window `run.anim` has six keys 0.125 s apart and ends at 0.75 s.',
+    'At an integer zoom in the Game view the pixel edges stay hard, and the feet do not move between frames.']},
+   trouble:{rows:[
+    ['Sprites look soft or smeared','Bilinear filtering or texture compression','Texture Inspector: Filter Mode and Compression','Point (no filter) and None; see [[game/unity-pixel-art-blurry|blurry pixel art in Unity]]'],
+    ['Slices drift or cut sprites in half','Pixel Size includes the gap, or Offset / Padding are wrong','Compare the red slice outlines with the art at the last column','Enter the measured cell, margin and spacing; see [[game/sprite-sheet-frame-size|frame size]]'],
+    ['Tools › Nerulio is missing or the script does not compile','The script is not in a folder called Editor, or the 2D Sprite package is missing (3D template)','Console errors about `UnityEditor.U2D.Sprites`','Keep `Editor/NerulioSpriteImporter.cs`; install 2D Sprite in the Package Manager'],
+    ['"is not inside this project\'s Assets folder"','The JSON picked in the file dialog lies outside `Assets/`','Path shown in the error','Copy the bundle into `Assets/` and pick that copy'],
+    ['Sprites have the wrong size next to your tiles','The export uses PPU 100 and your tiles another value','Compare Pixels Per Unit on both textures','Set the same PPU on every sprite texture'],
+    ['Your own import changes are gone','Running Import Studio JSON again re-applies Point, Uncompressed, PPU 100 and recreates clips of the same name','Did you re-run the menu after editing?','Re-apply your changes after each import, or rename clips you edited by hand']]},
+   alternatives:{rows:[
+    ['Unity\'s own Sprite Editor slicing (manual route above)','A uniform sheet and a few clips at one frame rate: nothing extra in the project.'],
+    ['Slice › Automatic','Sprites separated by transparency and no need for equal cells; check the pivots, because each rect gets its own size.'],
+    ['The .aseprite source instead','Tags and per-frame timing come along: [[game/aseprite-to-unity|Aseprite to Unity]].'],
+    ['A TexturePacker atlas','Frames already packed with their data: [[game/texturepacker-to-unity|TexturePacker to Unity]].']]},
+   limits:['The export always writes PPU 100; change it in Unity if your game uses another value.','The verification checked rects, pivots, pixels and clip keys, not clips playing through an Animator at runtime.','Hitboxes and collision polygons are not written for Unity; they stay in the generic JSON.'],
+   versions:{body:['Nerulio\'s Unity bundle was run in Unity 6000.5.3f1 batch mode: the shipped importer\'s Apply and CreateClips were called (by reflection, because the menu opens a file dialog), and Point filtering, Uncompressed, Multiple mode, 60 of 60 sprite rects of a 288 × 480 samurai sheet, identical art, one common pivot anchor and the clip keys and times were read back. The Unity steps and settings named above follow the Unity 6 manual and the 2D Pixel Perfect package documentation.'],sources:UNITY_DOCS}
+  },
+  ko:{
+   answer:'유니티 6에서 스프라이트 시트를 쓰려면 PNG의 Texture Type을 Sprite (2D and UI), Sprite Mode를 Multiple로 하고 Sprite Editor에서 Slice › Grid By Cell Size를 고릅니다. Pixel Size는 프레임 크기, Offset은 여백, Padding은 간격입니다. 픽셀아트라면 Filter Mode를 Point (no filter), Compression을 None으로 하고 모든 스프라이트의 Pixels Per Unit을 같게 한 뒤 스프라이트로 AnimationClip을 만듭니다. Nerulio는 격자 측정과 클립 만들기를 대신합니다. PNG, JSON, 스프라이트 영역을 피벗과 함께 쓰고 애니메이션마다 클립을 만드는 편집기 스크립트를 내보냅니다. Unity 6000.5.3f1에서 확인했습니다.',
+   concept:{title:'유니티가 텍스처 한 장을 여러 스프라이트로 나누는 방식',body:[
+    '유니티는 스프라이트 시트를 스프라이트 하위 에셋 여러 개를 가진 텍스처 에셋 하나로 다룹니다. Sprite Mode Multiple은 이미지에 요소가 여러 개 있다는 뜻이고, Sprite Editor가 스프라이트마다 사각형 하나와 피벗 하나를 저장합니다. Slice 메뉴에는 Automatic(투명으로 떨어진 덩어리), Grid By Cell Size, Grid By Cell Count, Isometric Grid가 있습니다. 격자에서는 Pixel Size가 칸, Offset이 왼쪽 위 기준 격자 이동, Padding이 스프라이트 사이 간격이고, Keep Empty Rects는 빈 칸도 스프라이트로 남길지 정합니다.',
+    'Pixels Per Unit은 텍스처 몇 픽셀이 월드 1유닛인지 정합니다. 64px 프레임은 기본값 100에서 0.64유닛, 64에서는 정확히 1유닛입니다. 2D Pixel Perfect 문서는 모든 스프라이트에 같은 PPU, Filter Mode Point, Compression None을 권합니다. Bilinear 필터와 압축이 픽셀아트를 뭉개고 번지게 만드는 원인입니다.',
+    '유니티의 애니메이션은 정해진 시각에 SpriteRenderer의 스프라이트를 바꾸는 키를 가진 AnimationClip이고, Animator가 Animator Controller를 통해 재생합니다. Animation 창에서 클립을 만들면 컨트롤러와 Animator 컴포넌트도 자동으로 생깁니다. 시트로 직접 만든 클립은 보통 모든 스프라이트에 같은 프레임 속도를 씁니다.',
+    'Nerulio는 격자를 재고(신뢰도를 보고 바꿀 수 있음) 행 애니메이션 이름, 프레임별 시간, 피벗을 정하게 한 뒤 파일 세 개를 내보냅니다. 편집기 스크립트가 텍스처를 Sprite / Multiple / Point / 무압축 / 밉맵 없음 / PPU 100으로 설정하고, 프레임마다 피벗이 있는 스프라이트 영역을 쓰고, 프레임마다 제 시작 시각에 키가 있는 `.anim`을 애니메이션마다 만듭니다.'],
+    terms:[['Sprite Mode Multiple','텍스처에 스프라이트가 여러 개 있고, 영역은 Sprite Editor에서 정함.'],['Pixels Per Unit (PPU)','월드 1유닛당 텍스처 픽셀 수. 한 게임의 모든 스프라이트에서 같게 유지.'],['Grid By Cell Size','Pixel Size(칸), Offset(여백), Padding(간격)을 받는 슬라이스 방식.'],['피벗','스프라이트의 원점. 영역 안에서 0~1로 정규화, y는 위쪽.'],['AnimationClip','시간에 따라 SpriteRenderer.sprite를 바꾸는 키 모음. Animator가 재생.']]},
+   example:{title:'예시: 384 × 128 시트, 애니메이션 두 개',lines:[
+    '시트 384 × 128 px: 64 × 64 칸이 2행 × 6열, 여백·간격 없음',
+    '  Grid By Cell Size: Pixel Size 64 × 64, Offset 0 × 0, Padding 0 × 0 → 스프라이트 12개',
+    '  월드 크기: 64 px / PPU 100 = 0.64유닛      64 px / PPU 64 = 1유닛',
+    '',
+    'Nerulio 내보내기(행 이름 idle·run, 프레임 125 ms, 피벗 하단 중앙):',
+    '  유니티 영역 y(원점 왼쪽 아래) = 페이지 높이 − (y + h)',
+    '  하단 중앙 피벗 → 각 영역 안에서 (0.5, 0)',
+    '  run.anim 키: 0, 0.125, 0.25, 0.375, 0.5, 0.625초 + 마무리 키 0.75초',
+    '  loop on(반복 ∞)      클립 프레임 속도 10'],
+    after:'마무리 키는 마지막 스프라이트를 한 번 더 넣어, 클립이 처음으로 돌아가기 전에 마지막 프레임도 125ms를 온전히 보여 주게 합니다.'},
+   outputs:{lead:'패킹·내보내기 › Unity 6이 쓰는 파일(파일 이름을 따르며 여기서는 `hero`)입니다.',rows:[
+    ['hero.png','패킹된 프레임(트림, 2px 간격, 회전 없음). 양이 많으면 페이지가 늘어납니다.'],
+    ['hero.unity.json','유니티의 왼쪽 아래 기준 좌표로 변환한 스프라이트 영역, 정규화한 피벗, 프레임별 밀리초가 든 클립 정보.'],
+    ['Editor/NerulioSpriteImporter.cs','Tools › Nerulio › Import Studio JSON 메뉴의 편집기 스크립트: 가져오기 설정, 스프라이트 영역, AnimationClip.'],
+    ['README-UNITY.md','이 번들에 맞춘 아래 단계.']]},
+   target:{title:'유니티 6로 가져오기',steps:[
+    '압축을 푼 폴더를 `Assets/` 아래(예: `Assets/Characters/Hero/`)에 복사하고 PNG는 JSON 옆에 둡니다. `NerulioSpriteImporter.cs`가 든 `Editor` 폴더는 유니티가 컴파일하며, 모든 2D 템플릿에 있는 2D Sprite 패키지(`com.unity.2d.sprite`)가 필요합니다.',
+    'Tools › Nerulio › Import Studio JSON을 고르고 프로젝트 안의 `hero.unity.json`을 선택합니다.',
+    '스크립트가 텍스처를 Sprite (2D and UI), Multiple, Point (no filter), 무압축, 밉맵 없음, PPU 100으로 바꾸고 프레임마다 피벗이 있는 스프라이트를 씁니다. Sprite Editor를 열면 영역이 보입니다.',
+    'JSON 옆에 애니메이션마다 클립(`idle.anim`, `run.anim`)도 씁니다. 프레임마다 제 시각에 SpriteRenderer의 스프라이트를 키로 잡고, Loop Time은 태그대로입니다.',
+    '클립을 Animator Controller에 넣고, SpriteRenderer가 있는 게임 오브젝트의 Animator에 그 컨트롤러를 지정합니다.',
+    '게임이 다른 PPU(예: 16px 타일이면 16)를 쓴다면 가져온 뒤 텍스처의 Pixels Per Unit을 모든 스프라이트에서 같은 값으로 바꿉니다.'],
+    note:['Nerulio 없이 하려면: PNG를 고르고 Texture Type을 Sprite (2D and UI), Sprite Mode를 Multiple, Filter Mode를 Point (no filter), Compression을 None으로 해서 적용합니다. Sprite Editor에서 Slice › Grid By Cell Size를 고르고 Pixel Size, Offset, Padding, Pivot을 넣은 뒤 Slice와 Apply를 누릅니다. 그다음 Window › Animation › Animation을 열어 게임 오브젝트의 클립을 만들고 일정한 간격으로 스프라이트 키를 잡습니다.']},
+   verify:{steps:[
+    'Sprite Editor에서 채워진 칸마다 영역이 하나씩 있고, 피벗 표시가 발 위치에 있어야 합니다.',
+    '텍스처 인스펙터가 Filter Mode Point (no filter), Compression None이어야 합니다.',
+    'Animation 창에서 `run.anim`의 키 6개가 0.125초 간격이고 0.75초에 끝나야 합니다.',
+    'Game 뷰를 정수 배율로 보면 픽셀 경계가 선명하고, 프레임이 바뀌어도 발이 움직이지 않아야 합니다.']},
+   trouble:{rows:[
+    ['스프라이트가 흐리거나 번짐','Bilinear 필터나 텍스처 압축','텍스처 인스펙터의 Filter Mode와 Compression','Point (no filter)와 None으로. [[game/unity-pixel-art-blurry|유니티 픽셀아트 흐림]] 참고'],
+    ['슬라이스가 밀리거나 스프라이트를 반으로 자름','Pixel Size에 간격이 포함됐거나 Offset·Padding이 틀림','마지막 열에서 빨간 슬라이스 윤곽과 그림을 비교','잰 칸·여백·간격을 입력. [[game/sprite-sheet-frame-size|프레임 크기]] 참고'],
+    ['Tools › Nerulio 메뉴가 없거나 스크립트가 컴파일되지 않음','스크립트가 Editor라는 폴더에 없거나 2D Sprite 패키지가 없음(3D 템플릿)','콘솔의 `UnityEditor.U2D.Sprites` 관련 오류','`Editor/NerulioSpriteImporter.cs` 위치를 유지하고 패키지 관리자에서 2D Sprite 설치'],
+    ['"is not inside this project\'s Assets folder" 오류','파일 대화상자에서 고른 JSON이 `Assets/` 밖에 있음','오류에 나온 경로','번들을 `Assets/`에 복사하고 그 사본을 선택'],
+    ['타일 옆에서 스프라이트 크기가 맞지 않음','내보내기는 PPU 100인데 타일은 다른 값','두 텍스처의 Pixels Per Unit 비교','모든 스프라이트 텍스처의 PPU를 같게'],
+    ['직접 바꾼 가져오기 설정이 사라짐','Import Studio JSON을 다시 돌리면 Point·무압축·PPU 100을 다시 적용하고 같은 이름의 클립을 새로 만듦','수정 후 메뉴를 다시 실행했는지 확인','가져올 때마다 설정을 다시 적용하거나, 손으로 고친 클립은 이름을 바꾸기']]},
+   alternatives:{rows:[
+    ['유니티 자체 Sprite Editor 슬라이스(위의 수동 방법)','균일한 시트에 프레임 속도가 하나인 클립 몇 개라면 프로젝트에 더할 것이 없습니다.'],
+    ['Slice › Automatic','투명으로 떨어진 스프라이트이고 칸 크기가 같을 필요가 없을 때. 영역마다 크기가 달라지니 피벗을 확인하세요.'],
+    ['원본 .aseprite 파일로','태그와 프레임별 시간까지 옮겨집니다: [[game/aseprite-to-unity|Aseprite를 유니티로]].'],
+    ['TexturePacker 아틀라스','데이터와 함께 이미 패킹된 프레임: [[game/texturepacker-to-unity|TexturePacker를 유니티로]].']]},
+   limits:['내보내기는 항상 PPU 100을 씁니다. 게임이 다른 값을 쓰면 유니티에서 바꾸세요.','검증에서는 영역·피벗·픽셀·클립 키를 확인했고, 실행 중 Animator로 클립이 재생되는지는 확인하지 않았습니다.','히트박스와 충돌 폴리곤은 유니티용으로 쓰지 않고 범용 JSON에만 남습니다.'],
+   versions:{body:['Nerulio의 유니티 번들을 Unity 6000.5.3f1 배치 모드에서 실행했습니다. 함께 온 가져오기 스크립트의 Apply와 CreateClips를 호출하고(메뉴가 파일 대화상자를 열기 때문에 리플렉션으로 호출), Point 필터, 무압축, Multiple 모드, 288 × 480 사무라이 시트의 스프라이트 영역 60개 중 60개, 동일한 그림, 하나의 공통 피벗 기준, 클립 키와 시간을 다시 읽어 확인했습니다. 위에 적은 유니티 단계와 설정은 유니티 6 매뉴얼과 2D Pixel Perfect 패키지 문서를 따릅니다.'],sources:UNITY_DOCS}
+  },
+  ja:{
+   answer:'Unity 6でスプライトシートを使うには、PNGのTexture TypeをSprite (2D and UI)、Sprite ModeをMultipleにし、Sprite EditorでSlice › Grid By Cell Sizeを選びます。Pixel Sizeがフレームサイズ、Offsetが余白、Paddingが間隔です。ドット絵ならFilter ModeをPoint (no filter)、CompressionをNoneにし、全スプライトのPixels Per Unitをそろえてから、スプライトでAnimationClipを作ります。Nerulioは測定とクリップ作りを肩代わりします。PNG、JSON、スプライトの範囲をピボット付きで書きアニメーションごとにクリップを作るエディタースクリプトを書き出します。Unity 6000.5.3f1で確認済みです。',
+   concept:{title:'Unityが1枚のテクスチャを複数のスプライトに分ける仕組み',body:[
+    'Unityはスプライトシートを、複数のSpriteサブアセットを持つ1つのテクスチャアセットとして扱います。Sprite Mode Multipleは画像に複数の要素があるという意味で、Sprite Editorがスプライトごとに矩形1つとピボット1つを保存します。SliceメニューにはAutomatic（透明で分かれた塊）、Grid By Cell Size、Grid By Cell Count、Isometric Gridがあります。グリッドではPixel Sizeがセル、Offsetが左上からのグリッドのずらし、Paddingがスプライト間の間隔で、Keep Empty Rectsは空のセルもスプライトにするかを決めます。',
+    'Pixels Per Unitは、テクスチャの何ピクセルをワールドの1ユニットにするかを決めます。64pxのフレームは既定値100では0.64ユニット、64ならちょうど1ユニットです。2D Pixel Perfectのドキュメントは、全スプライトで同じPPU、Filter Mode Point、Compression Noneを求めています。Bilinearフィルターと圧縮が、ドット絵をぼかしたりにじませたりする原因です。',
+    'Unityのアニメーションは、決まった時刻にSpriteRendererのスプライトを切り替えるキーを持つAnimationClipで、AnimatorがAnimator Controllerを通して再生します。Animationウィンドウでクリップを作ると、コントローラーとAnimatorコンポーネントも自動で作られます。シートから手作業で作ったクリップは、ふつう全スプライトに同じフレームレートを使います。',
+    'Nerulioはグリッドを測り（信頼度を見て変更可能）、行アニメーションの名前、フレームごとの時間、ピボットを決めさせてから3つのファイルを書き出します。エディタースクリプトはテクスチャをSprite / Multiple / Point / 無圧縮 / ミップマップなし / PPU 100に設定し、フレームごとにピボット付きのスプライト範囲を書き、各フレーム自身の開始時刻にキーを持つ`.anim`をアニメーションごとに作ります。'],
+    terms:[['Sprite Mode Multiple','テクスチャに複数のスプライトがあり、範囲はSprite Editorで決める。'],['Pixels Per Unit（PPU）','ワールド1ユニットあたりのテクスチャのピクセル数。ゲーム内の全スプライトでそろえる。'],['Grid By Cell Size','Pixel Size（セル）、Offset（余白）、Padding（間隔）を受け取るスライス方式。'],['ピボット','スプライトの原点。範囲内で0〜1に正規化し、yは上向き。'],['AnimationClip','時間とともにSpriteRenderer.spriteを変えるキーの集まり。Animatorが再生する。']]},
+   example:{title:'例：384 × 128のシート、アニメーション2つ',lines:[
+    'シート384 × 128 px：64 × 64のセルが2行 × 6列、余白・間隔なし',
+    '  Grid By Cell Size：Pixel Size 64 × 64、Offset 0 × 0、Padding 0 × 0 → スプライト12個',
+    '  ワールドでの大きさ：64 px / PPU 100 = 0.64ユニット     64 px / PPU 64 = 1ユニット',
+    '',
+    'Nerulioの書き出し（行名idle・run、フレーム125 ms、ピボット下中央）：',
+    '  Unityの範囲のy（原点は左下）= ページの高さ −（y + h）',
+    '  下中央のピボット → 各範囲内で(0.5, 0)',
+    '  run.animのキー：0, 0.125, 0.25, 0.375, 0.5, 0.625秒 + 締めのキー0.75秒',
+    '  loop on（繰り返し∞）      クリップのフレームレート10'],
+    after:'締めのキーは最後のスプライトをもう一度置き、クリップが先頭に戻る前に最後のフレームも125msきちんと表示されるようにします。'},
+   outputs:{lead:'パック＆書き出し › Unity 6が書き出すファイル（ファイル名に由来し、ここでは`hero`）です。',rows:[
+    ['hero.png','パックしたフレーム（トリム、2px間隔、回転なし）。数が多ければページが増えます。'],
+    ['hero.unity.json','Unityの左下基準の座標に直したスプライト範囲、正規化したピボット、フレームごとのミリ秒入りのクリップ情報。'],
+    ['Editor/NerulioSpriteImporter.cs','Tools › Nerulio › Import Studio JSONメニューのエディタースクリプト：インポート設定、スプライト範囲、AnimationClip。'],
+    ['README-UNITY.md','このバンドル用の下記の手順。']]},
+   target:{title:'Unity 6に取り込む',steps:[
+    '展開したフォルダーを`Assets/`以下（例：`Assets/Characters/Hero/`）にコピーし、PNGはJSONの隣に置きます。`NerulioSpriteImporter.cs`の入った`Editor`フォルダーはUnityがコンパイルし、どの2Dテンプレートにも入っている2D Spriteパッケージ（`com.unity.2d.sprite`）が必要です。',
+    'Tools › Nerulio › Import Studio JSONを選び、プロジェクト内の`hero.unity.json`を指定します。',
+    'スクリプトがテクスチャをSprite (2D and UI)、Multiple、Point (no filter)、無圧縮、ミップマップなし、PPU 100にし、フレームごとにピボット付きのスプライトを書きます。Sprite Editorを開くと範囲が見えます。',
+    'JSONの隣にアニメーションごとのクリップ（`idle.anim`、`run.anim`）も書きます。各フレームの時刻にSpriteRendererのスプライトをキーにし、Loop Timeはタグのとおりです。',
+    'クリップをAnimator Controllerに入れ、SpriteRendererを持つゲームオブジェクトのAnimatorにそのコントローラーを割り当てます。',
+    'ゲームが別のPPU（16pxタイルなら16など）を使うなら、取り込み後にテクスチャのPixels Per Unitを全スプライトで同じ値に変えます。'],
+    note:['Nerulioを使わない場合：PNGを選び、Texture TypeをSprite (2D and UI)、Sprite ModeをMultiple、Filter ModeをPoint (no filter)、CompressionをNoneにして適用します。Sprite EditorでSlice › Grid By Cell Sizeを選び、Pixel Size・Offset・Padding・Pivotを入れてSliceとApplyを押します。続いてWindow › Animation › Animationを開き、ゲームオブジェクトのクリップを作って一定間隔でスプライトのキーを打ちます。']},
+   verify:{steps:[
+    'Sprite Editorで、埋まったセルごとに範囲が1つあり、ピボットの印が足元にあるはずです。',
+    'テクスチャのインスペクターがFilter Mode Point (no filter)、Compression Noneになっているはずです。',
+    'Animationウィンドウで`run.anim`のキー6つが0.125秒間隔で並び、0.75秒で終わるはずです。',
+    'Gameビューを整数倍で見ると、ピクセルの境界がくっきりし、フレームが変わっても足が動かないはずです。']},
+   trouble:{rows:[
+    ['スプライトがぼやける・にじむ','Bilinearフィルターかテクスチャ圧縮','テクスチャのインスペクターのFilter ModeとCompression','Point (no filter)とNoneに。[[game/unity-pixel-art-blurry|Unityのドット絵のぼやけ]]を参照'],
+    ['スライスがずれる、スプライトを半分に切る','Pixel Sizeに間隔が含まれている、またはOffset・Paddingが違う','最後の列で赤いスライスの枠と絵を比べる','測ったセル・余白・間隔を入れる。[[game/sprite-sheet-frame-size|フレームサイズ]]を参照'],
+    ['Tools › Nerulioがない、スクリプトがコンパイルされない','スクリプトがEditorという名前のフォルダーにない、または2D Spriteパッケージがない（3Dテンプレート）','コンソールの`UnityEditor.U2D.Sprites`関連のエラー','`Editor/NerulioSpriteImporter.cs`の場所を保ち、パッケージマネージャーで2D Spriteを入れる'],
+    ['「is not inside this project\'s Assets folder」と出る','ファイルダイアログで選んだJSONが`Assets/`の外にある','エラーに出ているパス','バンドルを`Assets/`にコピーし、そのコピーを選ぶ'],
+    ['タイルと並べるとスプライトの大きさが合わない','書き出しはPPU 100で、タイルは別の値','2つのテクスチャのPixels Per Unitを比べる','全スプライトのテクスチャでPPUをそろえる'],
+    ['自分で変えたインポート設定が消えた','Import Studio JSONを再実行すると、Point・無圧縮・PPU 100を再適用し、同名のクリップを作り直す','編集後にメニューを再実行したか確認','取り込みのたびに設定をかけ直すか、手で直したクリップは名前を変える']]},
+   alternatives:{rows:[
+    ['Unity自体のSprite Editorでのスライス（上の手作業の方法）','均一なシートで、フレームレートが1つのクリップが少しなら、プロジェクトに何も足さずに済みます。'],
+    ['Slice › Automatic','透明で分かれたスプライトで、セルの大きさをそろえる必要がないとき。範囲ごとに大きさが変わるのでピボットを確認してください。'],
+    ['元の.asepriteファイルから','タグとフレームごとの時間も移せます：[[game/aseprite-to-unity|AsepriteをUnityへ]]。'],
+    ['TexturePackerのアトラス','データ付きですでにパック済みのフレーム：[[game/texturepacker-to-unity|TexturePackerをUnityへ]]。']]},
+   limits:['書き出しは常にPPU 100です。ゲームが別の値を使うならUnityで変えてください。','検証では範囲・ピボット・ピクセル・クリップのキーを確かめましたが、実行時にAnimatorでクリップが再生されるかは確かめていません。','ヒットボックスと当たり判定のポリゴンはUnity向けには書かず、汎用JSONにだけ残ります。'],
+   versions:{body:['NerulioのUnityバンドルをUnity 6000.5.3f1のバッチモードで実行しました。同梱のインポートスクリプトのApplyとCreateClipsを呼び出し（メニューがファイルダイアログを開くためリフレクションで呼び出し）、Pointフィルター、無圧縮、Multipleモード、288 × 480のサムライのシートのスプライト範囲60個中60個、同一の絵、1つの共通ピボット基準、クリップのキーと時間を読み戻して確認しました。上に書いたUnityの手順と設定は、Unity 6のマニュアルと2D Pixel Perfectパッケージのドキュメントに基づきます。'],sources:UNITY_DOCS}
+  }
+ },
+ // ------------------------------------------------------------------ Aseprite → Unity
+ // Nerulio: aseprite import (studio/sprite/aseprite-bridge.js: tags, repeat, reverse, pivot slice), export/unity.js
+ // (clip keys = cumulative ms, closing key, loopTime = repeat 0, pivot y-up), common.js playback (ping-pong 0-1-2-1).
+ // Unity's own importer: com.unity.2d.aseprite 4.0 docs (forward only, slices unsupported, ∞ → loop, 1..N → no loop).
+ 'game/aseprite-to-unity':{
+  type:'conversion',
+  intent:{primary:'convert an .aseprite file into Unity 6 sprites and animation clips',secondary:['keep tags and per-frame durations','pivot from an Aseprite slice','compare with Unity\'s 2D Aseprite Importer'],
+   goal:'one Unity AnimationClip per Aseprite tag with each frame\'s own duration, on Point-filtered sprites with the right pivots',input:'.aseprite / .ase file (tags, per-frame durations, optional pivot slice)',output:'packed PNG + .unity.json + Editor/NerulioSpriteImporter.cs → sprites and .anim clips in Unity',target:'Unity 6 (verified 6000.5.3f1)',support:'full',
+   evidence:['src/studio/sprite/aseprite-bridge.js','src/game/export/unity.js','src/game/export/common.js playback()','docs/STUDIO-PACK.md (Unity 6000.5.3f1)','docs/STUDIO-SPRITE.md §10 (231 .aseprite files)'],
+   external:['2D Aseprite Importer 4.0: supported features and limits','Unity 6.5 Manual: Sprite import settings','2D Pixel Perfect import settings']},
+  en:{
+   answer:'Unity cannot play an `.aseprite` file by itself: it needs sprites on a texture and an AnimationClip per animation. Drop the file into Nerulio, check its tags, and export for Unity 6: you get the packed PNG, a JSON and an editor script that, from Tools › Nerulio › Import Studio JSON, slices the texture (Point, uncompressed, pivots from your pivot slice) and writes one `.anim` per tag with every frame\'s own duration. Reverse and ping-pong tags are written out frame by frame. Checked in Unity 6000.5.3f1; Unity\'s own 2D Aseprite Importer package is the alternative.',
+   concept:{title:'From Aseprite tags to Unity clips',body:[
+    'An `.aseprite` file stores frames with a duration in milliseconds each, tags that name a frame range with a direction (forward, reverse, ping-pong) and a repeat count, layers, and slices that can carry a pivot. Unity\'s equivalent is a texture in Sprite Mode Multiple, one sprite per frame with a normalised pivot, and an AnimationClip whose keys swap the SpriteRenderer\'s sprite at given times.',
+    'Nerulio composites the visible layers of every frame, packs the frames and writes their rects in Unity\'s bottom-left coordinates. Each tag becomes a clip whose keys sit at the running sum of the frame durations, plus a closing key so the last frame lasts its full time. A tag that repeats forever gets Loop Time on; a tag with a repeat count gets Loop Time off, because a clip has no repeat count.',
+    'Unity\'s own 2D Aseprite Importer (version 4.x needs Unity 6.4 or later) imports the file directly and reimports it on save. According to its documentation it supports individual frame timings and turns ∞ into a looping clip, but only the Forward direction is supported and slices are not imported.'],
+    terms:[['Tag','A named frame range in Aseprite with a direction and a repeat count.'],['Pivot slice','An Aseprite slice with a pivot point; Nerulio uses it as each frame\'s pivot.'],['Loop Time','The AnimationClip setting that makes a clip repeat.'],['Closing key','A final key that repeats the last sprite so it keeps its own duration.']]},
+   example:{title:'Example: a 32 × 32 hero with three tags',lines:[
+    'Aseprite                                 Unity 6 AnimationClip (key times, s)',
+    'idle    4 frames × 125 ms, ∞             idle.anim    0, 0.125, 0.25, 0.375 | end 0.5    loop on',
+    'attack  100, 100, 150, 250 ms, ×1         attack.anim  0, 0.1, 0.2, 0.35 | end 0.6        loop off',
+    'jump    3 frames × 80 ms, ping-pong       jump.anim    frames 0-1-2-1: 0, 0.08, 0.16, 0.24 | end 0.32',
+    '',
+    'pivot slice at (16, 31) on the 32 × 32 canvas, frame not trimmed',
+    '  Unity pivot = (16 / 32, (32 − 31) / 32) = (0.5, 0.03125)   (y counts up)'],
+    after:'The ping-pong tag is written as the order 0-1-2-1, so it plays the same in Unity without relying on a direction setting.'},
+   mapping:{title:'What survives the conversion',head:['In Aseprite','In Nerulio','In Unity 6'],rows:[
+    ['Frame pixels (visible layers)','Composited frame, packed into the PNG','One sprite rect of that texture'],
+    ['Frame duration (ms)','Kept per frame','Key time: each frame starts at the sum of the previous durations'],
+    ['Tag','One animation of the same name','One `.anim` clip of the same name'],
+    ['Direction reverse / ping-pong','Playback order written out','Keys in that order'],
+    ['Repeat ∞','Loop','Loop Time on'],
+    ['Repeat 1, 2, 3…','Plays that many times in the preview','Loop Time off: the clip plays once'],
+    ['Pivot slice (or a pivot set with P)','Frame pivot (default bottom centre)','Sprite pivot, Custom alignment, y up'],
+    ['Hit / hurt slices','Boxes per frame','Not written for Unity (they are in the generic JSON)'],
+    ['Layers','Composited','One sprite per frame, no per-layer sprites']]},
+   outputs:{rows:[
+    ['hero.png','The packed frames (Point-friendly: trimmed, 2 px apart, never rotated).'],
+    ['hero.unity.json','Sprite rects in Unity coordinates, normalised pivots, and one clip per tag with each frame\'s milliseconds and loop flag.'],
+    ['Editor/NerulioSpriteImporter.cs','The editor script: texture settings, sprite rects, `.anim` clips.'],
+    ['README-UNITY.md','The import steps for this bundle.']]},
+   target:{title:'Import it into Unity 6',steps:[
+    'Copy the bundle folder into `Assets/`, PNG next to the JSON, with its `Editor` subfolder. Unity compiles the script; the 2D Sprite package must be installed (it is in every 2D template).',
+    'Run Tools › Nerulio › Import Studio JSON and pick `hero.unity.json`.',
+    'Check the texture: Sprite (2D and UI), Multiple, Point (no filter), Compression None, PPU 100; the Sprite Editor shows one rect per frame with its pivot.',
+    'Find `idle.anim`, `attack.anim` and `jump.anim` next to the JSON; open one in the Animation window to see its keys.',
+    'Add the clips to an Animator Controller on a GameObject with a SpriteRenderer; for a play-once tag such as `attack`, add a transition back to `idle` when it ends.',
+    'Keep the `.aseprite` file itself out of `Assets/` if Unity\'s Aseprite Importer package is installed, or Unity imports it a second time its own way.']},
+   verify:{steps:[
+    '`attack.anim` has keys at 0, 0.1, 0.2 and 0.35 s and ends at 0.6 s, the total of the tag in Aseprite.',
+    'Loop Time is on for `idle` and off for `attack`.',
+    'Play `jump` next to Aseprite\'s preview: the order 0-1-2-1 and the 80 ms steps match.',
+    'Switch clips: the feet stay on the pivot point.']},
+   trouble:{rows:[
+    ['A clip plays once instead of looping','The tag has a repeat count in Aseprite (anything but ∞)','Loop Time in the clip\'s Inspector','Set the tag to ∞ and export again, or tick Loop Time in Unity'],
+    ['Console: "clip … names a missing sprite"','The PNG was renamed or moved away from the JSON before importing','Is the PNG next to the JSON with its exported name?','Keep the files together and run the import again'],
+    ['The sprite is blurry','Filter Mode or compression was changed after the import','Texture Inspector','Point (no filter) and Compression None; see [[game/unity-pixel-art-blurry|blurry pixel art in Unity]]'],
+    ['The character jumps between frames','No pivot slice, so each frame uses the default bottom centre, or pivots differ per frame','Sprite Editor: pivot markers across frames','Add one pivot slice in Aseprite or set pivots with P in Nerulio; see [[game/sprite-pivot-editor|the pivot editor]]'],
+    ['Two copies of every sprite appear','Unity\'s Aseprite Importer also imported the `.aseprite` file placed in `Assets/`','Project window shows the .aseprite asset expanded','Use one route: remove the .aseprite from `Assets/`, or skip this bundle'],
+    ['A ping-pong tag plays only forwards','That is Unity\'s own importer (forward only), not this bundle','Which asset does the Animator use?','Use the `.anim` from this bundle, which has the order written out']]},
+   alternatives:{rows:[
+    ['Unity\'s 2D Aseprite Importer package','You edit in Aseprite all day and want Unity to reimport on save, with per-layer import; accept forward-only tags and no slices.'],
+    ['Export a PNG sheet from Aseprite and slice it in the Sprite Editor','One or two animations at an even frame rate; see [[game/unity-sprite-sheet|slicing a sprite sheet in Unity]].'],
+    ['The same file for another engine','[[game/aseprite-to-godot|Aseprite to Godot]] or [[game/aseprite-to-phaser|Aseprite to Phaser]].']]},
+   limits:['Layers arrive flattened into one sprite per frame.','A repeat count above one is not kept: the clip plays once.','Hit and hurt boxes are not written for Unity.'],
+   versions:{body:['Nerulio\'s Unity bundle was checked in Unity 6000.5.3f1 batch mode (sprite rects, pivots, pixels, Point / Uncompressed / Multiple, clip keys and times); clips playing through an Animator at runtime were not checked. The .aseprite reader reopened 231 real files in Aseprite 1.3.18 with the same tags, durations and pixels. What is said about Unity\'s own Aseprite Importer comes from its version 4.0 documentation.'],sources:[...UNITY_ASE,UNITY_DOCS[2],UNITY_DOCS[3],'[Aseprite docs: Tags](https://www.aseprite.org/docs/tags/)']}
+  },
+  ko:{
+   answer:'유니티는 `.aseprite` 파일을 그대로 재생하지 못하고, 텍스처 위의 스프라이트와 애니메이션마다 AnimationClip이 필요합니다. 파일을 Nerulio에 넣고 태그를 확인한 뒤 Unity 6으로 내보내면 패킹된 PNG, JSON, 편집기 스크립트가 나옵니다. Tools › Nerulio › Import Studio JSON을 실행하면 스크립트가 텍스처를 자르고(Point, 무압축, 피벗 슬라이스의 피벗) 태그마다 프레임별 길이가 그대로인 `.anim`을 씁니다. 역재생·핑퐁 태그는 프레임 단위로 풀어 씁니다. Unity 6000.5.3f1에서 확인했고, 유니티 자체의 2D Aseprite Importer 패키지가 대안입니다.',
+   concept:{title:'Aseprite 태그에서 유니티 클립으로',body:[
+    '`.aseprite` 파일에는 프레임마다 밀리초 길이, 방향(정방향·역방향·핑퐁)과 반복 횟수가 있는 태그, 레이어, 피벗을 담을 수 있는 슬라이스가 들어 있습니다. 유니티에서 이에 해당하는 것은 Sprite Mode Multiple 텍스처, 정규화한 피벗을 가진 프레임별 스프라이트, 그리고 정해진 시각에 SpriteRenderer의 스프라이트를 바꾸는 키를 가진 AnimationClip입니다.',
+    'Nerulio는 프레임마다 보이는 레이어를 합성해 패킹하고, 영역을 유니티의 왼쪽 아래 기준 좌표로 씁니다. 태그 하나는 클립 하나가 되며, 키는 프레임 길이의 누적 합 위치에 놓이고, 마지막 프레임도 제 길이를 채우도록 마무리 키가 붙습니다. 무한 반복 태그는 Loop Time 켬, 반복 횟수가 있는 태그는 Loop Time 끔입니다. 클립에는 반복 횟수가 없기 때문입니다.',
+    '유니티 자체의 2D Aseprite Importer(4.x는 Unity 6.4 이상 필요)는 파일을 직접 가져오고 저장할 때마다 다시 가져옵니다. 문서에 따르면 프레임별 시간을 지원하고 ∞를 반복 클립으로 만들지만, 방향은 Forward만 지원하고 슬라이스는 가져오지 않습니다.'],
+    terms:[['태그','Aseprite에서 방향과 반복 횟수가 있는, 이름 붙은 프레임 구간.'],['피벗 슬라이스','피벗 점을 가진 Aseprite 슬라이스. Nerulio는 이를 프레임 피벗으로 씁니다.'],['Loop Time','클립을 반복시키는 AnimationClip 설정.'],['마무리 키','마지막 스프라이트를 한 번 더 넣어 제 길이를 유지하게 하는 마지막 키.']]},
+   example:{title:'예시: 태그가 3개인 32 × 32 캐릭터',lines:[
+    'Aseprite                                 Unity 6 AnimationClip (키 시각, 초)',
+    'idle    4프레임 × 125 ms, ∞              idle.anim    0, 0.125, 0.25, 0.375 | 끝 0.5    loop on',
+    'attack  100, 100, 150, 250 ms, ×1         attack.anim  0, 0.1, 0.2, 0.35 | 끝 0.6        loop off',
+    'jump    3프레임 × 80 ms, 핑퐁             jump.anim    프레임 0-1-2-1: 0, 0.08, 0.16, 0.24 | 끝 0.32',
+    '',
+    '32 × 32 캔버스의 (16, 31)에 피벗 슬라이스, 트림하지 않은 프레임',
+    '  유니티 피벗 = (16 / 32, (32 − 31) / 32) = (0.5, 0.03125)   (y는 위로 증가)'],
+    after:'핑퐁 태그는 0-1-2-1 순서로 풀어 쓰므로 유니티에서 방향 설정에 기대지 않고도 똑같이 재생됩니다.'},
+   mapping:{title:'변환 후에도 남는 것',head:['Aseprite','Nerulio','Unity 6'],rows:[
+    ['프레임 픽셀(보이는 레이어)','합성한 프레임을 PNG에 패킹','그 텍스처의 스프라이트 영역 하나'],
+    ['프레임 길이(ms)','프레임마다 유지','키 시각: 각 프레임은 앞 프레임 길이의 합에서 시작'],
+    ['태그','같은 이름의 애니메이션 하나','같은 이름의 `.anim` 클립 하나'],
+    ['방향: 역방향·핑퐁','재생 순서를 풀어서 기록','그 순서대로 놓인 키'],
+    ['반복 ∞','반복 재생','Loop Time 켬'],
+    ['반복 1, 2, 3…','미리보기에서 그 횟수만큼 재생','Loop Time 끔: 한 번 재생'],
+    ['피벗 슬라이스(또는 P로 찍은 피벗)','프레임 피벗(기본값 하단 중앙)','스프라이트 피벗, Custom 정렬, y는 위쪽'],
+    ['hit / hurt 슬라이스','프레임별 박스','유니티용으로는 쓰지 않음(범용 JSON에 있음)'],
+    ['레이어','합성됨','프레임마다 스프라이트 하나, 레이어별 스프라이트 없음']]},
+   outputs:{rows:[
+    ['hero.png','패킹된 프레임(트림, 2px 간격, 회전 없음).'],
+    ['hero.unity.json','유니티 좌표의 스프라이트 영역, 정규화한 피벗, 태그마다 프레임별 밀리초와 반복 여부가 든 클립 정보.'],
+    ['Editor/NerulioSpriteImporter.cs','편집기 스크립트: 텍스처 설정, 스프라이트 영역, `.anim` 클립.'],
+    ['README-UNITY.md','이 번들의 가져오기 순서.']]},
+   target:{title:'유니티 6로 가져오기',steps:[
+    '번들 폴더를 `Editor` 하위 폴더째 `Assets/`에 복사하고 PNG는 JSON 옆에 둡니다. 유니티가 스크립트를 컴파일하며, 2D Sprite 패키지가 있어야 합니다(모든 2D 템플릿에 포함).',
+    'Tools › Nerulio › Import Studio JSON을 실행하고 `hero.unity.json`을 고릅니다.',
+    '텍스처가 Sprite (2D and UI), Multiple, Point (no filter), Compression None, PPU 100인지 확인합니다. Sprite Editor에는 프레임마다 피벗이 있는 영역이 보입니다.',
+    'JSON 옆의 `idle.anim`, `attack.anim`, `jump.anim`을 Animation 창에서 열어 키를 확인합니다.',
+    'SpriteRenderer가 있는 게임 오브젝트의 Animator Controller에 클립을 넣습니다. `attack`처럼 한 번만 나오는 태그는 끝나면 `idle`로 돌아가는 전이를 추가합니다.',
+    '유니티의 Aseprite Importer 패키지가 설치되어 있다면 `.aseprite` 파일 자체는 `Assets/`에 두지 마세요. 유니티가 자기 방식으로 한 번 더 가져옵니다.']},
+   verify:{steps:[
+    '`attack.anim`의 키가 0, 0.1, 0.2, 0.35초에 있고 Aseprite 태그 전체 길이인 0.6초에 끝나야 합니다.',
+    '`idle`은 Loop Time 켬, `attack`은 끔이어야 합니다.',
+    '`jump`를 Aseprite 미리보기와 나란히 재생합니다. 0-1-2-1 순서와 80ms 간격이 같아야 합니다.',
+    '클립을 바꿔도 발이 피벗 위치에 머물러야 합니다.']},
+   trouble:{rows:[
+    ['클립이 반복되지 않고 한 번만 재생됨','Aseprite에서 태그에 반복 횟수(∞ 이외)가 설정됨','클립 인스펙터의 Loop Time','태그를 ∞로 바꿔 다시 내보내거나 유니티에서 Loop Time 체크'],
+    ['콘솔에 "clip … names a missing sprite"','가져오기 전에 PNG 이름을 바꾸거나 JSON과 떨어뜨림','PNG가 내보낸 이름 그대로 JSON 옆에 있는지','파일을 함께 두고 다시 가져오기'],
+    ['스프라이트가 흐림','가져온 뒤 Filter Mode나 압축 설정을 바꿈','텍스처 인스펙터','Point (no filter)와 Compression None. [[game/unity-pixel-art-blurry|유니티 픽셀아트 흐림]] 참고'],
+    ['프레임마다 캐릭터가 튐','피벗 슬라이스가 없어 기본 하단 중앙을 쓰거나 프레임마다 피벗이 다름','Sprite Editor에서 프레임별 피벗 표시 비교','Aseprite에 피벗 슬라이스 하나를 두거나 Nerulio에서 P로 피벗 지정. [[game/sprite-pivot-editor|피벗 편집기]] 참고'],
+    ['스프라이트가 두 벌씩 생김','`Assets/`에 둔 `.aseprite`를 유니티 Aseprite Importer도 가져옴','프로젝트 창에서 .aseprite 에셋이 펼쳐져 있음','한 가지 방법만 사용: `Assets/`에서 .aseprite를 빼거나 이 번들을 쓰지 않기'],
+    ['핑퐁 태그가 정방향으로만 재생됨','유니티 자체 가져오기(정방향만 지원)의 결과이지 이 번들이 아님','Animator가 어느 에셋의 클립을 쓰는지','순서를 풀어 쓴 이 번들의 `.anim` 사용']]},
+   alternatives:{rows:[
+    ['유니티 2D Aseprite Importer 패키지','하루 종일 Aseprite로 작업하며 저장할 때마다 유니티가 다시 가져오고 레이어별로 가져오길 원할 때. 태그는 정방향만, 슬라이스는 안 된다는 점을 감안해야 합니다.'],
+    ['Aseprite에서 PNG 시트로 내보내 Sprite Editor로 자르기','애니메이션이 한두 개이고 프레임 속도가 일정할 때. [[game/unity-sprite-sheet|유니티에서 스프라이트 시트 자르기]] 참고.'],
+    ['같은 파일을 다른 엔진으로','[[game/aseprite-to-godot|Aseprite를 Godot로]], [[game/aseprite-to-phaser|Aseprite를 Phaser로]].']]},
+   limits:['레이어는 프레임마다 스프라이트 하나로 합쳐집니다.','2 이상의 반복 횟수는 유지되지 않고 클립은 한 번 재생됩니다.','히트·허트 박스는 유니티용으로 쓰지 않습니다.'],
+   versions:{body:['Nerulio의 유니티 번들을 Unity 6000.5.3f1 배치 모드에서 확인했습니다(스프라이트 영역, 피벗, 픽셀, Point·무압축·Multiple, 클립 키와 시간). 실행 중 Animator로 클립이 재생되는지는 확인하지 않았습니다. .aseprite 읽기는 실제 파일 231개가 Aseprite 1.3.18에서 같은 태그·길이·픽셀로 다시 열리는 것으로 확인했습니다. 유니티 자체 Aseprite Importer에 관한 내용은 4.0 버전 문서를 따릅니다.'],sources:[...UNITY_ASE,UNITY_DOCS[2],UNITY_DOCS[3],'[Aseprite 문서: Tags](https://www.aseprite.org/docs/tags/)']}
+  },
+  ja:{
+   answer:'Unityは`.aseprite`ファイルをそのまま再生できず、テクスチャ上のスプライトとアニメーションごとのAnimationClipが必要です。ファイルをNerulioに入れてタグを確認し、Unity 6向けに書き出すと、パック済みPNG、JSON、エディタースクリプトが得られます。Tools › Nerulio › Import Studio JSONを実行すると、スクリプトがテクスチャを切り（Point・無圧縮・ピボットスライスのピボット）、タグごとにフレームごとの長さそのままの`.anim`を書きます。逆再生・ピンポンのタグはフレーム単位で展開します。Unity 6000.5.3f1で確認済みで、Unity自体の2D Aseprite Importerパッケージが代替手段です。',
+   concept:{title:'AsepriteのタグからUnityのクリップへ',body:[
+    '`.aseprite`ファイルには、フレームごとのミリ秒の長さ、方向（順・逆・ピンポン）と繰り返し回数を持つタグ、レイヤー、ピボットを持てるスライスが入っています。Unityでこれに当たるのは、Sprite Mode Multipleのテクスチャ、正規化したピボットを持つフレームごとのスプライト、そして決まった時刻にSpriteRendererのスプライトを切り替えるキーを持つAnimationClipです。',
+    'Nerulioはフレームごとに表示中のレイヤーを合成してパックし、範囲をUnityの左下基準の座標で書きます。タグ1つがクリップ1つになり、キーはフレームの長さの累計の位置に置かれ、最後のフレームも自分の長さを保つよう締めのキーが付きます。無限に繰り返すタグはLoop Timeオン、回数のあるタグはLoop Timeオフです。クリップには繰り返し回数がないためです。',
+    'Unity自体の2D Aseprite Importer（4.xはUnity 6.4以降が必要）はファイルを直接取り込み、保存のたびに再インポートします。ドキュメントによればフレームごとの時間に対応し、∞をループするクリップにしますが、方向はForwardのみ対応で、スライスは取り込みません。'],
+    terms:[['タグ','Asepriteで方向と繰り返し回数を持つ、名前付きのフレーム範囲。'],['ピボットスライス','ピボット点を持つAsepriteのスライス。Nerulioはこれをフレームのピボットに使います。'],['Loop Time','クリップを繰り返させるAnimationClipの設定。'],['締めのキー','最後のスプライトをもう一度置き、その長さを保つための最後のキー。']]},
+   example:{title:'例：タグが3つある32 × 32のキャラクター',lines:[
+    'Aseprite                                 Unity 6 AnimationClip（キーの時刻、秒）',
+    'idle    4フレーム × 125 ms、∞            idle.anim    0, 0.125, 0.25, 0.375 | 終了 0.5    loop on',
+    'attack  100, 100, 150, 250 ms、×1         attack.anim  0, 0.1, 0.2, 0.35 | 終了 0.6        loop off',
+    'jump    3フレーム × 80 ms、ピンポン       jump.anim    フレーム0-1-2-1：0, 0.08, 0.16, 0.24 | 終了 0.32',
+    '',
+    '32 × 32のキャンバスの(16, 31)にピボットスライス、トリムなしのフレーム',
+    '  Unityのピボット = (16 / 32, (32 − 31) / 32) = (0.5, 0.03125)   （yは上向き）'],
+    after:'ピンポンのタグは0-1-2-1の順に展開して書くので、Unityで方向の設定に頼らなくても同じように再生されます。'},
+   mapping:{title:'変換後に残るもの',head:['Aseprite','Nerulio','Unity 6'],rows:[
+    ['フレームのピクセル（表示中のレイヤー）','合成したフレームをPNGにパック','そのテクスチャのスプライト範囲1つ'],
+    ['フレームの長さ（ms）','フレームごとに保持','キーの時刻：各フレームは前のフレームの長さの合計から始まる'],
+    ['タグ','同じ名前のアニメーション1つ','同じ名前の`.anim`クリップ1つ'],
+    ['方向：逆方向・ピンポン','再生順を展開して記録','その順に並んだキー'],
+    ['繰り返し ∞','ループ','Loop Timeオン'],
+    ['繰り返し 1、2、3…','プレビューではその回数再生','Loop Timeオフ：1回再生'],
+    ['ピボットスライス（またはPで打ったピボット）','フレームのピボット（既定は下中央）','スプライトのピボット、Customの配置、yは上向き'],
+    ['hit / hurtのスライス','フレームごとのボックス','Unity向けには書かない（汎用JSONにある）'],
+    ['レイヤー','合成','フレームごとにスプライト1つ、レイヤー別のスプライトはなし']]},
+   outputs:{rows:[
+    ['hero.png','パックしたフレーム（トリム、2px間隔、回転なし）。'],
+    ['hero.unity.json','Unity座標のスプライト範囲、正規化したピボット、タグごとにフレームごとのミリ秒とループの有無を持つクリップ情報。'],
+    ['Editor/NerulioSpriteImporter.cs','エディタースクリプト：テクスチャの設定、スプライト範囲、`.anim`クリップ。'],
+    ['README-UNITY.md','このバンドルの取り込み手順。']]},
+   target:{title:'Unity 6に取り込む',steps:[
+    'バンドルのフォルダーを`Editor`サブフォルダーごと`Assets/`にコピーし、PNGはJSONの隣に置きます。Unityがスクリプトをコンパイルします。2D Spriteパッケージが必要です（どの2Dテンプレートにも入っています）。',
+    'Tools › Nerulio › Import Studio JSONを実行し、`hero.unity.json`を選びます。',
+    'テクスチャがSprite (2D and UI)、Multiple、Point (no filter)、Compression None、PPU 100になっているか確認します。Sprite Editorにはフレームごとにピボット付きの範囲が見えます。',
+    'JSONの隣の`idle.anim`・`attack.anim`・`jump.anim`をAnimationウィンドウで開いてキーを確認します。',
+    'SpriteRendererを持つゲームオブジェクトのAnimator Controllerにクリップを入れます。`attack`のような1回きりのタグには、終わったら`idle`に戻る遷移を加えます。',
+    'UnityのAseprite Importerパッケージが入っているなら、`.aseprite`ファイル自体は`Assets/`に置かないでください。Unityが独自の方法でもう一度取り込みます。']},
+   verify:{steps:[
+    '`attack.anim`のキーが0・0.1・0.2・0.35秒にあり、Asepriteのタグ全体の長さである0.6秒で終わるはずです。',
+    '`idle`はLoop Timeオン、`attack`はオフのはずです。',
+    '`jump`をAsepriteのプレビューと並べて再生します。0-1-2-1の順序と80ms刻みが一致するはずです。',
+    'クリップを切り替えても足がピボットの位置にとどまるはずです。']},
+   trouble:{rows:[
+    ['クリップがループせず1回だけ再生される','Asepriteでタグに繰り返し回数（∞以外）が設定されている','クリップのインスペクターのLoop Time','タグを∞にして書き出し直すか、UnityでLoop Timeにチェック'],
+    ['コンソールに「clip … names a missing sprite」','取り込む前にPNGの名前を変えたか、JSONから離した','PNGが書き出したときの名前のままJSONの隣にあるか','ファイルを一緒に置いて取り込み直す'],
+    ['スプライトがぼやける','取り込み後にFilter Modeや圧縮の設定を変えた','テクスチャのインスペクター','Point (no filter)とCompression None。[[game/unity-pixel-art-blurry|Unityのドット絵のぼやけ]]を参照'],
+    ['フレームごとにキャラクターが跳ねる','ピボットスライスがなく既定の下中央を使っている、またはフレームごとにピボットが違う','Sprite Editorでフレームごとのピボットの印を比べる','Asepriteにピボットスライスを1つ置くか、NerulioでPを使ってピボットを指定。[[game/sprite-pivot-editor|ピボットエディター]]を参照'],
+    ['スプライトが2組できる','`Assets/`に置いた`.aseprite`をUnityのAseprite Importerも取り込んだ','プロジェクトウィンドウで.asepriteアセットが展開されている','方法を1つに絞る：`Assets/`から.asepriteを外すか、このバンドルを使わない'],
+    ['ピンポンのタグが順方向にしか再生されない','Unity自体のインポーター（順方向のみ対応）の結果で、このバンドルではない','Animatorがどのアセットのクリップを使っているか','順序を展開したこのバンドルの`.anim`を使う']]},
+   alternatives:{rows:[
+    ['Unityの2D Aseprite Importerパッケージ','一日中Asepriteで描き、保存のたびにUnityに再インポートさせ、レイヤーごとに取り込みたいとき。タグは順方向のみ、スライスは非対応という点を受け入れる必要があります。'],
+    ['AsepriteからPNGシートを書き出してSprite Editorで切る','アニメーションが1〜2個でフレームレートが一定のとき。[[game/unity-sprite-sheet|Unityでスプライトシートを切る]]を参照。'],
+    ['同じファイルを別のエンジンで','[[game/aseprite-to-godot|AsepriteをGodotへ]]、[[game/aseprite-to-phaser|AsepriteをPhaserへ]]。']]},
+   limits:['レイヤーはフレームごとに1つのスプライトへ統合されます。','2回以上の繰り返し回数は保たれず、クリップは1回再生になります。','ヒット・ハートボックスはUnity向けには書き出しません。'],
+   versions:{body:['NerulioのUnityバンドルはUnity 6000.5.3f1のバッチモードで確認しました（スプライト範囲、ピボット、ピクセル、Point・無圧縮・Multiple、クリップのキーと時間）。実行時にAnimatorでクリップが再生されるかは確認していません。.asepriteの読み込みは、実在の231ファイルがAseprite 1.3.18で同じタグ・長さ・ピクセルのまま開き直せることで確認しました。Unity自体のAseprite Importerについての記述は、そのバージョン4.0のドキュメントに基づきます。'],sources:[...UNITY_ASE,UNITY_DOCS[2],UNITY_DOCS[3],'[Asepriteドキュメント：Tags](https://www.aseprite.org/docs/tags/)']}
+  }
  }
 };
