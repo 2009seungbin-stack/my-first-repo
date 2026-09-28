@@ -30,12 +30,17 @@ test('sample import remains silent when missing and seed changes do not alter pu
  const p=project(333);p.layers=[layer('sine',{freq:440,hold:.04,release:.02})];const a=render(p);p.seed++;const b=render(p);assert.deepEqual(a.left,b.left);
  p.layers=[layer('sine',{kind:'sample',sampleId:'unavailable',attack:0,decay:0,sustain:1,hold:.03,release:0})];const missing=render(p);assert.equal(missing.metrics.rms,0);
 });
+test('sample trim and loop choose the requested local PCM segment',()=>{
+ const p=project(4),pcm=new Float32Array(4410);pcm.fill(.8,882,1764);p.layers=[layer('sine',{kind:'sample',sampleId:'clip',sampleStart:.02,sampleEnd:.04,sampleLoop:false,attack:0,decay:0,sustain:1,hold:.08,release:0,lp:20000})];
+ const source={clip:{pcm,rate:44100}},one=render(p,source),early=one.left.slice(300,500).reduce((s,x)=>s+Math.abs(x),0),late=one.left.slice(1800,2000).reduce((s,x)=>s+Math.abs(x),0);assert(early>1);assert(late<.001);
+ p.layers[0].sampleLoop=true;const repeated=render(p,source),lateLoop=repeated.left.slice(1800,2000).reduce((s,x)=>s+Math.abs(x),0);assert(lateLoop>1);
+});
 test('WAV 16/24-bit header, frame count and signed sample bytes are correct',()=>{
  for(const bits of [16,24]){const pcm=[Float32Array.of(-1,0,1),Float32Array.of(0,.5,-.5)],wav=encodeWav(pcm,48000,bits),view=new DataView(wav.buffer);assert.equal(String.fromCharCode(...wav.subarray(0,4)),'RIFF');assert.equal(String.fromCharCode(...wav.subarray(8,12)),'WAVE');assert.equal(view.getUint32(4,true),wav.length-8);assert.equal(view.getUint32(40,true),3*2*bits/8);assert.equal(view.getUint16(34,true),bits);assert.equal(view.getUint32(24,true),48000);assert.equal(view.getUint16(32,true),2*bits/8);if(bits===16)assert.equal(view.getInt16(44,true),-32768);else assert.deepEqual([...wav.subarray(44,47)],[0,0,128]);}
 });
 test('vendored jsfxr JSON and Base58 round-trip; reference waveform matches upstream',()=>{
- const upstream=originalJsfxr(),p=new upstream.Params();p.wave_type=2;p.p_env_decay=.3;p.p_base_freq=.42;p.sample_rate=44100;p.sample_size=16;const code=toJsfxrBase58(p),back=parseJsfxr(code);assert.equal(back.wave_type,p.wave_type);assert(Math.abs(back.p_base_freq-p.p_base_freq)<1e-5);assert.deepEqual(renderJsfxr(back).pcm,upstream.sfxr.toBuffer(back));assert.throws(()=>parseJsfxr('not-a-code'),/Unrecognized/);
+ const upstream=originalJsfxr(),p=new upstream.Params();p.wave_type=2;p.p_env_decay=.3;p.p_base_freq=.42;p.sample_rate=44100;p.sample_size=16;const code=toJsfxrBase58(p),back=parseJsfxr(code);assert.equal(back.wave_type,p.wave_type);assert(Math.abs(back.p_base_freq-p.p_base_freq)<1e-5);assert.deepEqual(renderJsfxr(back).pcm,upstream.sfxr.toBuffer(back));assert.throws(()=>parseJsfxr('not-a-code'),/Unrecognized/);assert.throws(()=>parseJsfxr('{"sound_vol":"NaN"}'),/output settings/);assert.throws(()=>parseJsfxr('x'.repeat(16385)),/too large/);
 });
-test('Ogg Vorbis and MP3 encoders produce recognizable, nonempty containers locally',async()=>{
- const rate=44100,pcm=Float32Array.from({length:rate/10},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));const ogg=await encodeCompressed([pcm],rate,'ogg'),mp3=await encodeCompressed([pcm],rate,'mp3');assert.equal(String.fromCharCode(...ogg.subarray(0,4)),'OggS');assert(ogg.length>1000);assert(mp3.length>1000);assert(mp3[0]===0xff||String.fromCharCode(...mp3.subarray(0,3))==='ID3');
+test('Ogg Vorbis encoder produces a recognizable container; MP3 is disabled',async()=>{
+ const rate=44100,pcm=Float32Array.from({length:rate/10},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));const ogg=await encodeCompressed([pcm],rate,'ogg');assert.equal(String.fromCharCode(...ogg.subarray(0,4)),'OggS');assert(ogg.length>1000);await assert.rejects(()=>encodeCompressed([pcm],rate,'mp3'),/Only Ogg/);
 });
