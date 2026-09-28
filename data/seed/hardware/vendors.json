@@ -1,0 +1,10 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "hardware",
+ "sources": [],
+ "entities": [
+  {"id":"vendor:nvidia","type":"vendor","slug":"nvidia","names":{"en":"NVIDIA","ko":"엔비디아"},"aliases":["NVIDIA Corporation","Nvidia","엔비디아"]},
+  {"id":"vendor:amd","type":"vendor","slug":"amd","names":{"en":"AMD","ko":"AMD"},"aliases":["Advanced Micro Devices","AMD"]},
+  {"id":"vendor:intel","type":"vendor","slug":"intel","names":{"en":"Intel","ko":"인텔"},"aliases":["Intel Corporation","인텔"]}
+ ]
+}
