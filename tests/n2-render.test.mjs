@@ -289,3 +289,12 @@ test('AI hub: plan and model price comparison tables from official facts',{skip:
  const models=await go('/ko/ai/?type=model');
  assert(models.includes('AI 모델 API 가격 비교')&&models.includes('Claude Opus 5.5'));
 });
+
+test('games hub lists Korean patches a game update left unconfirmed (real version order only)',{skip:!sqliteAvailable},async()=>{
+ const {versionCompare,stalePatches}=await import('../platform/db/channel.js');
+ assert.equal(versionCompare('1.4.5.7','1.4.5.3'),1);assert.equal(versionCompare('v0.14.7','0.14.5'),1);assert.equal(versionCompare('0.14.5','v0.14.7'),-1);assert.equal(versionCompare('2.0','2.0.0'),0);
+ const d=await seeded();
+ for(const s of await stalePatches(d,20))assert(versionCompare(s.current,s.lastOk)>0,`${s.game.slug}: ${s.current} vs ${s.lastOk}`);
+ const html=await (await renderPlatformPage(new Request('https://nerulio.com/ko/games/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ assert(html.includes('업데이트로 한글패치 확인이 필요한 게임'));
+});

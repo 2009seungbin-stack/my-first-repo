@@ -327,3 +327,38 @@ export async function hubEntities(db,vertical,o={}){
 export async function typeCounts(db,vertical){
  return Object.fromEntries((await all(db,"SELECT type,COUNT(*) AS n FROM entities WHERE vertical=? AND status='active' GROUP BY type",[vertical])).map(r=>[String(r.type),Number(r.n)]));
 }
+
+/** Korean patches a game update has left unconfirmed: the game's newest version has no
+ * compatibility row for the patch, while an older version was reported working (games hub).
+ * @param {D1} db @param {number} [limit] */
+export async function stalePatches(db,limit=12){
+ const rows=await all(db,`WITH latest AS (SELECT entity_id,version,MAX(COALESCE(released_at,detected_at)) AS at FROM versions GROUP BY entity_id)
+  SELECT p.id AS pid,p.vertical AS pv,p.slug AS pslug,p.names AS pnames,g.id AS gid,g.vertical AS gv,g.slug AS gslug,g.names AS gnames,latest.version AS current,latest.at AS updated_at,
+   (SELECT c2.target_version FROM compatibility c2 WHERE c2.subject_id=p.id AND c2.target_id=g.id AND c2.is_current=1 AND c2.status IN ('works','works_with_issues','supported') AND c2.target_version<>'*' ORDER BY c2.updated_at DESC LIMIT 1) AS last_ok
+  FROM relations r JOIN entities p ON p.id=r.subject_id JOIN entities g ON g.id=r.object_id JOIN latest ON latest.entity_id=g.id
+  WHERE r.predicate='translates' AND p.status='active' AND g.status='active'
+   AND NOT EXISTS (SELECT 1 FROM compatibility c WHERE c.subject_id=p.id AND c.target_id=g.id AND c.is_current=1 AND c.target_version=latest.version)
+  ORDER BY latest.at DESC LIMIT ?`,[limit*3]);
+ // Only when the game really moved past the confirmed version ("v0.14.7" vs "0.14.5" is not an update).
+ return rows.filter(r=>r.last_ok&&versionCompare(String(r.current),String(r.last_ok))>0).slice(0,limit).map(r=>({patch:entityRow({id:r.pid,vertical:r.pv,type:'translation_patch',slug:r.pslug,names:r.pnames,descriptions:'{}',official_urls:'[]',status:'active',updated_at:0}),
+  game:entityRow({id:r.gid,vertical:r.gv,type:'game',slug:r.gslug,names:r.gnames,descriptions:'{}',official_urls:'[]',status:'active',updated_at:0}),current:String(r.current),lastOk:String(r.last_ok),updatedAt:Number(r.updated_at)}));
+}
+/** Pre-orders closing soonest (subculture hub). @param {D1} db @param {number} now @param {number} [limit] */
+export async function preorderDeadlines(db,now,limit=8){
+ const today=new Date(now).toISOString().slice(0,10);
+ const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},json_extract(f.value,'$') AS ends FROM facts f JOIN entities e ON e.id=f.entity_id
+  WHERE f.property='preorder_end' AND f.is_current=1 AND e.status='active' AND json_extract(f.value,'$')>=? ORDER BY ends LIMIT ?`,[today,limit]);
+ return rows.map(r=>({entity:entityRow(r),ends:String(r.ends)}));
+}
+
+/** Compare version strings numerically part by part ("v1.4.10" > "1.4.9"); non-numeric parts as text. @param {string} a @param {string} b */
+export function versionCompare(a,b){
+ const norm=(/** @type {string} */ s)=>s.trim().replace(/^v(?=\d)/i,'').split(/[.\-_+ ]+/);
+ const x=norm(a),y=norm(b);
+ for(let i=0;i<Math.max(x.length,y.length);i++){
+  const p=x[i]??'0',q=y[i]??'0',np=/^\d+$/.test(p),nq=/^\d+$/.test(q);
+  const c=np&&nq?Number(p)-Number(q):p.localeCompare(q);
+  if(c)return c>0?1:-1;
+ }
+ return 0;
+}

@@ -116,7 +116,7 @@ export async function renderPlatformPage(request,env,site){
   case 'radar-feed':return xml(await radarFeed(db,l,s.origin));
   case 'radar':return html(String(renderRadar(await loadRadar(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
  }
- if(route.page==='hub'){const m=await loadHub(db,/** @type {string} */(route.vertical),{l,type:q.get('type'),page:Number(q.get('page'))||1,channels:await bar()});return m?html(String(renderHub(m,s))):null;}
+ if(route.page==='hub'){const m=await loadHub(db,/** @type {string} */(route.vertical),{l,now,type:q.get('type'),page:Number(q.get('page'))||1,channels:await bar()});return m?html(String(renderHub(m,s))):null;}
  const {entity,redirect:moved}=await entityBySlug(db,/** @type {string} */(route.vertical),/** @type {string} */(route.slug));
  if(!entity){
   if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'||route.page==='post'?route.no??'':route.page==='feed'?'feed.xml':route.page}${search}`,url).href);
