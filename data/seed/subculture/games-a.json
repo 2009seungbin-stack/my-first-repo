@@ -1,0 +1,918 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-games-a-genshin-7-1",
+   "kind": "OFFICIAL",
+   "url": "https://genshin.hoyoverse.com/ko/news/detail/166383",
+   "title": "「죽음의 진혼곡」 7.1 버전 업데이트 안내",
+   "publisher": "HoYoverse (원신 공식 사이트)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-09-23; read in a browser (the page renders client-side)."
+  },
+  {
+   "id": "src:sc-games-a-hsr-4-6",
+   "kind": "OFFICIAL",
+   "url": "https://hsr.hoyoverse.com/ko-kr/news/166468",
+   "title": "4.6 버전 「달 뜨기 전, 괴수와 춤을」 버전 업데이트 안내",
+   "publisher": "HoYoverse (붕괴: 스타레일 공식 사이트)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-09-28; read in a browser."
+  },
+  {
+   "id": "src:sc-games-a-zzz-3-2",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/news/app/4162040/view/714537487845820569",
+   "title": "3.2 버전 「그녀들의 숨겨진 과거」 업데이트 공지",
+   "publisher": "COGNOSPHERE (HoYoverse) — Steam announcement",
+   "retrieved": "2026-09-28",
+   "note": "Publisher post on the game's Steam news hub, 2026-09-08 23:00 UTC."
+  },
+  {
+   "id": "src:sc-games-a-zzz-steam",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/4162040/",
+   "title": "젠레스 존 제로 — Steam store page",
+   "publisher": "COGNOSPHERE PTE. LTD. (Steam)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-a-ww-3-6",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/news/app/3513350/view/681884487904133208",
+   "title": "『명조:워더링 웨이브』 3.6 버전 「신기루 속 등불 그림자, 속세에 깃든 검의 결심」 업데이트 내용",
+   "publisher": "KURO GAMES — Steam announcement",
+   "retrieved": "2026-09-28",
+   "note": "Publisher post on the game's Steam news hub, 2026-08-19 20:00 UTC."
+  },
+  {
+   "id": "src:sc-games-a-ww-3-7-x",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/WW_KR_Official/status/2101268817095844331",
+   "title": "『명조:워더링 웨이브』 3.7 버전 필드 미리보기",
+   "publisher": "명조:워더링 웨이브 Korean official X account (@WW_KR_Official)",
+   "retrieved": "2026-09-28",
+   "note": "Posted 2026-09-19; read via the documented X oEmbed endpoint."
+  },
+  {
+   "id": "src:sc-games-a-ww-steam",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/3513350/",
+   "title": "Wuthering Waves — Steam store page",
+   "publisher": "KURO GAMES (Steam)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-a-hoyoland-2026",
+   "kind": "OFFICIAL",
+   "url": "https://sites.google.com/mihoyo.com/hoyoland2026/hoyoland2026/%ED%96%89%EC%82%AC-%ED%86%B5%ED%95%A9-%EC%A3%BC%EC%9D%98%EC%82%AC%ED%95%AD",
+   "title": "호요랜드2026 통합 주의사항",
+   "publisher": "HoYoverse (official HoYoLAND2026 event site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-games-a-hsr-mgc-press",
+   "kind": "CURATED",
+   "url": "https://www.inven.co.kr/webzine/news/?news=321480",
+   "title": "붕괴: 스타레일, 메가MGC커피와 컬래버",
+   "publisher": "Inven (reporting HoYoverse Korea's 2026-09-28 announcement)",
+   "retrieved": "2026-09-28",
+   "note": "Press report of HoYoverse Korea's announcement; no official web page for the collaboration was reachable. Verify on the official channels before promoting."
+  }
+ ],
+ "entities": [
+  {
+   "id": "studio_org:hoyoverse",
+   "type": "studio_org",
+   "slug": "hoyoverse",
+   "names": {
+    "en": "HoYoverse",
+    "ko": "호요버스"
+   },
+   "aliases": [
+    "miHoYo",
+    "COGNOSPHERE"
+   ],
+   "description": {
+    "en": "Game developer and publisher behind Genshin Impact, Honkai: Star Rail and Zenless Zone Zero; COGNOSPHERE PTE. LTD. is the publishing entity named on its Steam listings.",
+    "ko": "원신, 붕괴: 스타레일, 젠레스 존 제로를 개발·서비스하는 게임사로, Steam 등록 법인명은 COGNOSPHERE PTE. LTD.이다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.hoyoverse.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam",
+     "note": "Company site; Steam lists COGNOSPHERE PTE. LTD. as developer and publisher of Zenless Zone Zero."
+    }
+   ]
+  },
+  {
+   "id": "studio_org:kuro-games",
+   "type": "studio_org",
+   "slug": "kuro-games",
+   "names": {
+    "en": "Kuro Games",
+    "ko": "쿠로 게임즈"
+   },
+   "aliases": [
+    "KURO GAMES"
+   ],
+   "description": {
+    "en": "Developer and publisher of Wuthering Waves.",
+    "ko": "명조: 워더링 웨이브의 개발·서비스사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://wutheringwaves.kurogames.com/main/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam",
+     "note": "Website linked from the Steam store page."
+    }
+   ]
+  },
+  {
+   "id": "franchise:genshin-impact",
+   "type": "franchise",
+   "slug": "genshin-impact",
+   "names": {
+    "en": "Genshin Impact",
+    "ko": "원신",
+    "ja": "原神"
+   },
+   "description": {
+    "en": "Open-world action RPG franchise by HoYoverse; the game marked its sixth anniversary on 2026-09-28.",
+    "ko": "호요버스의 오픈월드 액션 RPG 프랜차이즈로, 2026년 9월 28일 서비스 6주년을 맞았다."
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://genshin.hoyoverse.com/ko/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://genshin.hoyoverse.com/ko/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-genshin-7-1",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:genshin-impact-game",
+   "type": "work",
+   "slug": "genshin-impact-game",
+   "names": {
+    "en": "Genshin Impact",
+    "ko": "원신",
+    "ja": "原神"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://genshin.hoyoverse.com/ko/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows",
+      "ios",
+      "android",
+      "playstation",
+      "xbox-series"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1",
+     "note": "Client update methods listed in the 7.1 notice: PC, iOS, Android, PlayStation, Xbox Series X|S."
+    },
+    {
+     "p": "current_version",
+     "v": "7.1",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1"
+    },
+    {
+     "p": "homepage",
+     "v": "https://genshin.hoyoverse.com/ko/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-genshin-7-1"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:genshin-impact",
+     "src": "src:sc-games-a-genshin-7-1",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-genshin-7-1",
+     "ver": "OFFICIAL"
+    }
+   ],
+   "versions": [
+    {
+     "version": "7.1",
+     "released": "2026-09-23",
+     "channel": "stable",
+     "notes_url": "https://genshin.hoyoverse.com/ko/news/detail/166383",
+     "src": "src:sc-games-a-genshin-7-1"
+    }
+   ]
+  },
+  {
+   "id": "franchise:honkai-star-rail",
+   "type": "franchise",
+   "slug": "honkai-star-rail",
+   "names": {
+    "en": "Honkai: Star Rail",
+    "ko": "붕괴: 스타레일",
+    "ja": "崩壊：スターレイル"
+   },
+   "description": {
+    "en": "Turn-based space-fantasy RPG franchise by HoYoverse, part of its wider Honkai series.",
+    "ko": "호요버스의 턴제 우주 판타지 RPG 프랜차이즈로, 붕괴 시리즈에 속한다."
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://hsr.hoyoverse.com/ko-kr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://hsr.hoyoverse.com/ko-kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-hsr-4-6",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:honkai-star-rail-game",
+   "type": "work",
+   "slug": "honkai-star-rail-game",
+   "names": {
+    "en": "Honkai: Star Rail",
+    "ko": "붕괴: 스타레일",
+    "ja": "崩壊：スターレイル"
+   },
+   "official_urls": [
+    {
+     "label": "Korean official site",
+     "url": "https://hsr.hoyoverse.com/ko-kr/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows",
+      "ios",
+      "android",
+      "playstation-5"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6",
+     "note": "Update methods listed in the 4.6 notice: PC client, Android, iOS, PS5."
+    },
+    {
+     "p": "current_version",
+     "v": "4.6",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6"
+    },
+    {
+     "p": "homepage",
+     "v": "https://hsr.hoyoverse.com/ko-kr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-4-6"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:honkai-star-rail",
+     "src": "src:sc-games-a-hsr-4-6",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-hsr-4-6",
+     "ver": "OFFICIAL"
+    }
+   ],
+   "versions": [
+    {
+     "version": "4.6",
+     "released": "2026-09-28",
+     "channel": "stable",
+     "notes_url": "https://hsr.hoyoverse.com/ko-kr/news/166468",
+     "src": "src:sc-games-a-hsr-4-6"
+    }
+   ]
+  },
+  {
+   "id": "franchise:zenless-zone-zero",
+   "type": "franchise",
+   "slug": "zenless-zone-zero",
+   "names": {
+    "en": "Zenless Zone Zero",
+    "ko": "젠레스 존 제로",
+    "ja": "ゼンレスゾーンゼロ"
+   },
+   "description": {
+    "en": "Urban-fantasy action game franchise by HoYoverse.",
+    "ko": "호요버스의 어반 판타지 액션 게임 프랜차이즈."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://zenless.hoyoverse.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://zenless.hoyoverse.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-zzz-steam",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:zenless-zone-zero-game",
+   "type": "work",
+   "slug": "zenless-zone-zero-game",
+   "names": {
+    "en": "Zenless Zone Zero",
+    "ko": "젠레스 존 제로",
+    "ja": "ゼンレスゾーンゼロ"
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://zenless.hoyoverse.com/"
+    },
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/4162040/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-3-2"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows",
+      "android",
+      "ios",
+      "playstation-5",
+      "xbox-series"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-3-2",
+     "note": "Update methods listed in the 3.2 notice: PC, Android, iOS, PS5/PS5 Pro, Xbox Series X|S."
+    },
+    {
+     "p": "current_version",
+     "v": "3.2",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-3-2"
+    },
+    {
+     "p": "steam_appid",
+     "v": 4162040,
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-06-16",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam",
+     "platform": "windows",
+     "note": "Steam version release date as shown on the Steam store page (the game itself launched earlier on other clients)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://zenless.hoyoverse.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-zzz-steam"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:zenless-zone-zero",
+     "src": "src:sc-games-a-zzz-3-2",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-zzz-steam",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:hoyoverse",
+     "src": "src:sc-games-a-zzz-steam",
+     "ver": "OFFICIAL"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.2",
+     "released": "2026-09-09",
+     "channel": "stable",
+     "notes_url": "https://store.steampowered.com/news/app/4162040/view/714537487845820569",
+     "src": "src:sc-games-a-zzz-3-2"
+    }
+   ]
+  },
+  {
+   "id": "franchise:wuthering-waves",
+   "type": "franchise",
+   "slug": "wuthering-waves",
+   "names": {
+    "en": "Wuthering Waves",
+    "ko": "명조: 워더링 웨이브",
+    "ja": "鳴潮"
+   },
+   "description": {
+    "en": "Open-world action RPG franchise developed and published by Kuro Games.",
+    "ko": "쿠로 게임즈가 개발·서비스하는 오픈월드 액션 RPG 프랜차이즈."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://wutheringwaves.kurogames.com/main/"
+    },
+    {
+     "label": "Korean official X",
+     "url": "https://x.com/WW_KR_Official"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://wutheringwaves.kurogames.com/main/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam"
+    },
+    {
+     "p": "origin_media",
+     "v": "Game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "studio_org:kuro-games",
+     "src": "src:sc-games-a-ww-steam",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "work:wuthering-waves-game",
+   "type": "work",
+   "slug": "wuthering-waves-game",
+   "names": {
+    "en": "Wuthering Waves",
+    "ko": "명조: 워더링 웨이브",
+    "ja": "鳴潮"
+   },
+   "aliases": [
+    "명조",
+    "WuWa"
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://wutheringwaves.kurogames.com/main/"
+    },
+    {
+     "label": "Steam",
+     "url": "https://store.steampowered.com/app/3513350/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam"
+    },
+    {
+     "p": "steam_appid",
+     "v": 3513350,
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-04-28",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam",
+     "platform": "windows",
+     "note": "Steam version release date as shown on the Steam store page."
+    },
+    {
+     "p": "current_version",
+     "v": "3.6",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-3-6",
+     "note": "3.7 is scheduled for 2026-09-30 per the Korean official X account."
+    },
+    {
+     "p": "homepage",
+     "v": "https://wutheringwaves.kurogames.com/main/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-ww-steam"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:wuthering-waves",
+     "src": "src:sc-games-a-ww-steam",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:kuro-games",
+     "src": "src:sc-games-a-ww-steam",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:kuro-games",
+     "src": "src:sc-games-a-ww-steam",
+     "ver": "OFFICIAL"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.6",
+     "released": "2026-08-20",
+     "channel": "stable",
+     "notes_url": "https://store.steampowered.com/news/app/3513350/view/681884487904133208",
+     "src": "src:sc-games-a-ww-3-6"
+    }
+   ]
+  },
+  {
+   "id": "event:hoyoland-2026",
+   "type": "event",
+   "slug": "hoyoland-2026",
+   "names": {
+    "en": "HoYoLAND 2026",
+    "ko": "호요랜드2026"
+   },
+   "description": {
+    "en": "HoYoverse's offline fan festival in Korea, held at KINTEX in Goyang from 2 to 5 October 2026.",
+    "ko": "호요버스가 2026년 10월 2~5일 고양 킨텍스에서 여는 오프라인 팬 페스티벌."
+   },
+   "official_urls": [
+    {
+     "label": "Official event site",
+     "url": "https://sites.google.com/mihoyo.com/hoyoland2026/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "HoYoverse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hoyoland-2026"
+    },
+    {
+     "p": "venue",
+     "v": "KINTEX Exhibition Center 2, Halls 7–8 and outdoor plazas (Goyang)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hoyoland-2026"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sites.google.com/mihoyo.com/hoyoland2026/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hoyoland-2026"
+    },
+    {
+     "p": "status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hoyoland-2026"
+    }
+   ],
+   "relations": [
+    {
+     "p": "related_to",
+     "o": "franchise:genshin-impact",
+     "src": "src:sc-games-a-hoyoland-2026",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "related_to",
+     "o": "franchise:honkai-star-rail",
+     "src": "src:sc-games-a-hoyoland-2026",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "related_to",
+     "o": "franchise:zenless-zone-zero",
+     "src": "src:sc-games-a-hoyoland-2026",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026",
+   "type": "collaboration",
+   "slug": "honkai-star-rail-x-mega-mgc-coffee-2026",
+   "names": {
+    "en": "Honkai: Star Rail × Mega MGC Coffee (2026)",
+    "ko": "붕괴: 스타레일 × 메가MGC커피 (2026)"
+   },
+   "description": {
+    "en": "Nationwide Korean café collaboration themed on Blade and Silver Wolf LV.999, with collaboration drinks, limited goods and a themed store.",
+    "ko": "블레이드와 은랑 LV.999를 테마로 한 전국 메가MGC커피 컬래버레이션으로, 컬래버 음료·한정 굿즈·테마 매장을 운영한다."
+   },
+   "facts": [
+    {
+     "p": "organizer",
+     "v": "HoYoverse Korea × Mega MGC Coffee",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-mgc-press"
+    },
+    {
+     "p": "venue",
+     "v": "Mega MGC Coffee stores nationwide; themed store at Yeoksam GFC branch (Seoul)",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-mgc-press"
+    },
+    {
+     "p": "status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-games-a-hsr-mgc-press"
+    }
+   ],
+   "relations": [
+    {
+     "p": "collab_with",
+     "o": "franchise:honkai-star-rail",
+     "src": "src:sc-games-a-hsr-mgc-press",
+     "ver": "OFFICIAL"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Genshin Impact version 7.1 \"Requiem of the Dead\" update",
+    "ko": "원신 7.1 버전 「죽음의 진혼곡」 업데이트"
+   },
+   "starts": "2026-09-23T06:00+08:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "GLOBAL",
+   "url": "https://genshin.hoyoverse.com/ko/news/detail/166383",
+   "entities": [
+    "work:genshin-impact-game"
+   ],
+   "src": "src:sc-games-a-genshin-7-1",
+   "note": "Maintenance from 06:00 UTC+8 (07:00 KST), about 5 hours. New 5-star characters Vesna and Vodyanitsa per the notice. English title is Nerulio's translation."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Genshin Impact: new Imaginarium Theater season",
+    "ko": "원신 현실 속 환상극 신규 회차 오픈"
+   },
+   "starts": "2026-10-01",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "GLOBAL",
+   "url": "https://genshin.hoyoverse.com/ko/news/detail/166383",
+   "entities": [
+    "work:genshin-impact-game"
+   ],
+   "src": "src:sc-games-a-genshin-7-1",
+   "note": "Second 7.1 season opens 2026-11-01 per the same notice."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Honkai: Star Rail version 4.6 update",
+    "ko": "붕괴: 스타레일 4.6 버전 「달 뜨기 전, 괴수와 춤을」 업데이트"
+   },
+   "starts": "2026-09-28T07:00+09:00",
+   "ends": "2026-11-11T07:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://hsr.hoyoverse.com/ko-kr/news/166468",
+   "entities": [
+    "work:honkai-star-rail-game"
+   ],
+   "src": "src:sc-games-a-hsr-4-6",
+   "note": "Maintenance starts 07:00 KST (about 5 hours); the 4.6 version period runs until 2026-11-11 07:00 KST."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Zenless Zone Zero version 3.2 update",
+    "ko": "젠레스 존 제로 3.2 버전 「그녀들의 숨겨진 과거」 업데이트"
+   },
+   "starts": "2026-09-09T07:00+09:00",
+   "ends": "2026-10-21T07:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://store.steampowered.com/news/app/4162040/view/714537487845820569",
+   "entities": [
+    "work:zenless-zone-zero-game"
+   ],
+   "src": "src:sc-games-a-zzz-3-2",
+   "note": "The notice states version 3.2 ends 2026-10-21 07:00 KST (42 days)."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Wuthering Waves version 3.6 update",
+    "ko": "명조: 워더링 웨이브 3.6 버전 「신기루 속 등불 그림자, 속세에 깃든 검의 결심」 업데이트"
+   },
+   "starts": "2026-08-20",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "GLOBAL",
+   "url": "https://store.steampowered.com/news/app/3513350/view/681884487904133208",
+   "entities": [
+    "work:wuthering-waves-game"
+   ],
+   "src": "src:sc-games-a-ww-3-6",
+   "note": "Date of the publisher's update-contents post (2026-08-19 20:00 UTC = 2026-08-20 KST)."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "update",
+   "title": {
+    "en": "Wuthering Waves version 3.7 update",
+    "ko": "명조: 워더링 웨이브 3.7 버전 「거울에 잠긴 허상, 마음이 비추는 인간 세상」 업데이트"
+   },
+   "starts": "2026-09-30",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "GLOBAL",
+   "url": "https://x.com/WW_KR_Official/status/2101268817095844331",
+   "entities": [
+    "work:wuthering-waves-game"
+   ],
+   "src": "src:sc-games-a-ww-3-7-x",
+   "note": "Adds the new region 「몽추천라」 per the post."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "event",
+   "title": {
+    "en": "HoYoLAND 2026",
+    "ko": "호요랜드2026"
+   },
+   "starts": "2026-10-02",
+   "ends": "2026-10-05",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "KINTEX 제2전시장 7·8홀, 고양",
+   "url": "https://sites.google.com/mihoyo.com/hoyoland2026/",
+   "entities": [
+    "event:hoyoland-2026",
+    "franchise:genshin-impact",
+    "franchise:honkai-star-rail",
+    "franchise:zenless-zone-zero"
+   ],
+   "entity": "event:hoyoland-2026",
+   "src": "src:sc-games-a-hoyoland-2026",
+   "note": "Hours: 2–3 Oct 10:00–18:00, 4–5 Oct 10:00–19:00. Tickets online only via Ticketlink, one per account per day."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "collab",
+   "title": {
+    "en": "Honkai: Star Rail × Mega MGC Coffee collaboration",
+    "ko": "붕괴: 스타레일 × 메가MGC커피 컬래버레이션"
+   },
+   "starts": "2026-10-15",
+   "ends": "2026-11-18",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "KR",
+   "location": "전국 메가MGC커피 (테마 매장: 역삼GFC점)",
+   "url": "https://www.inven.co.kr/webzine/news/?news=321480",
+   "entities": [
+    "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026",
+    "franchise:honkai-star-rail"
+   ],
+   "entity": "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026",
+   "src": "src:sc-games-a-hsr-mgc-press",
+   "note": "Goods pre-orders run until 2026-10-11 per the announcement."
+  },
+  {
+   "ver": "OFFICIAL",
+   "kind": "sale",
+   "title": {
+    "en": "Honkai: Star Rail × Mega MGC Coffee goods pre-order",
+    "ko": "붕괴: 스타레일 × 메가MGC커피 한정 굿즈 사전예약"
+   },
+   "ends": "2026-10-11",
+   "date_precision": "day",
+   "status": "announced",
+   "region": "KR",
+   "url": "https://www.inven.co.kr/webzine/news/?news=321480",
+   "entities": [
+    "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026"
+   ],
+   "entity": "collaboration:honkai-star-rail-x-mega-mgc-coffee-2026",
+   "src": "src:sc-games-a-hsr-mgc-press"
+  }
+ ]
+}
