@@ -238,6 +238,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5090-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4090",
+     "src": "src:nv50-ces2025-news"
     }
    ]
   },
@@ -352,6 +357,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5080-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4080",
+     "src": "src:nv50-ces2025-news"
     }
    ]
   },
@@ -466,6 +476,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4070-ti",
+     "src": "src:nv50-ces2025-news"
     }
    ]
   },
@@ -580,6 +595,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5070-family-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4070",
+     "src": "src:nv50-ces2025-news"
     }
    ]
   },
@@ -689,6 +709,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4060-ti-16gb",
+     "src": "src:nv50-5060-family-announce"
     }
    ]
   },
@@ -798,6 +823,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4060-ti-8gb",
+     "src": "src:nv50-5060-family-announce"
     }
    ]
   },
@@ -906,6 +936,11 @@
      "p": "made_by",
      "o": "vendor:nvidia",
      "src": "src:nv50-5060-family-specs"
+    },
+    {
+     "p": "successor_of",
+     "o": "gpu:rtx-4060",
+     "src": "src:nv50-5060-family-announce"
     }
    ]
   },
