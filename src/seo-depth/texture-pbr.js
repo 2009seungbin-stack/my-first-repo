@@ -351,4 +351,242 @@ export default {
     sources:[S.hdrpMask,S.urpPacked,S.unityMetallic,S.gltfMR,S.godotBase,S.godotSrc]}
   }
  },
+ // ------------------------------------------------------------------ PBR texture validator
+ 'game/pbr-texture-validator':{
+  type:'tool',
+  intent:{primary:'validate a PBR texture set: naming, sizes, missing maps, grey and normal maps',secondary:['which maps a workflow needs','power of two','file naming conventions','JSON report for a pipeline'],
+   goal:'a list of every problem in the set, each with its file and the measured number, before the maps reach an engine',input:'the maps of one material (PNG exact; JPEG/WebP decoded by the browser)',output:'on-screen issue list + texture-report.json',target:'generic; workflows for glTF/separate maps, Unity HDRP, Unity URP, Godot ORM, Unreal ORM',support:'full',
+   evidence:['src/game/texture-set.js (RULES, WORKFLOWS, validateTextureSet thresholds)','src/game/texture-normal.js (validateNormalMap: tolerance 0.12, 1 % / 5 %)','src/game/texture-channels.js (colorSpread ≤ 2, alphaStats)','docs/TEXTURE-LAB.md (report fields verified)'],
+   external:['glTF 2.0 non-power-of-two textures','Unity import Non Power of 2']},
+  en:{
+   answer:'A PBR validator checks a texture set before import: every map has a role, all maps are the same size, the chosen workflow\'s required and recommended maps are there, sizes are powers of two, grey maps really are grey and a normal map really decodes to unit vectors. Drop one material\'s maps: roles come from the file names (`_basecolor`, `_normal`, `_roughness`, `_ORM` …), you choose the workflow, and every issue is listed with its file and the measured number. The JSON report keeps the measurements; no file is renamed or changed.',
+   concept:{title:'What is checked, and against which numbers',body:[
+    'Roles from names. The file name is lower-cased, separators become `_`, and the first matching token wins, most specific first: packed (`orm`, `arm`, `rma`, `mra`, `maskmap`, `mask`), albedo (`albedo`, `basecolor`, `diffuse`, `color` …), normal (`normalgl`, `normaldx`, `normal`, `nrm`, `n`), roughness, smoothness (`gloss`), metallic, AO (`ao`, `occlusion`, `ambientocclusion`), height (`height`, `displacement`, `bump`), emission, opacity, specular. Tokens of one or two letters (`_n`, `_m`, `_r`) count as low confidence. Every role is a drop-down, so you correct a wrong guess instead of renaming files.',
+    'Workflows decide what is missing. Separate maps (glTF / generic): albedo required; normal, roughness, metallic recommended. Unity HDRP: albedo and the mask map required, normal recommended. Unity URP: albedo required; normal and metallic recommended. Godot ORM and Unreal ORM: albedo required; normal and the ORM texture recommended — and when roughness and metallic are present but the ORM is not, you get "pack available" instead of a bare "missing". A roughness map satisfies smoothness and the other way round.',
+    'Measurements, not guesses. A single-channel role (roughness, metallic, AO, height, opacity) stored as RGB is "grey stored as RGB" when no texel\'s channels differ by more than 2, and "channels differ" (probably packed) when they do. A normal map is decoded texel by texel: a sample is off-unit when its length is more than 0.12 from 1; the map passes when at most 1 % of samples are off-unit and no blue is below 128 (a vector pointing into the surface). A map assigned another role that passes the normal-map test (≤ 5 % off-unit, ≤ 0.1 % negative blue) is flagged "looks like a normal map".',
+    'Power of two is a warning, not an error. glTF 2.0 says clients SHOULD resize non-power-of-two textures on platforms with limited support when the sampler repeats or uses mipmaps; Unity\'s importer has a Non Power of 2 option that scales such textures. Whether that matters depends on your target, so the validator reports it and leaves the decision to you.'],
+    terms:[['Workflow','The set of maps an engine\'s material expects, including how they are packed.'],['Set name','What is left of the file name after the role token; different set names in one drop trigger "naming inconsistent".'],['Off-unit sample','A decoded normal whose length differs from 1 by more than 0.12.'],['Power of two','A size of 2ⁿ pixels: 256, 512, 1024, 2048 …']]},
+   example:{title:'Example: a rock set checked for Godot 4 ORM',lead:'Four PNGs dropped together, workflow Godot 4 ORM. This is what the validator returns:',lines:[
+    'rock_basecolor.png   2048 × 2048   albedo',
+    'rock_normal.png      2048 × 2048   normal',
+    'rock_roughness.png   1000 × 1000   roughness',
+    'rock_metallic.png    2048 × 2048   metallic',
+    '',
+    'error  dimension-mismatch    2048x2048 vs 1000x1000 (rock_roughness.png)',
+    'warn   missing-recommended   orm',
+    'info   pack-available        roughness + metallic → Godot 4 ORM preset',
+    'warn   not-power-of-two      rock_roughness.png 1000 × 1000',
+    '',
+    'set ok: no (1 error)'],
+    after:'One re-export of the roughness at 2048 × 2048 clears the error and the power-of-two warning; packing roughness and metallic (with AO if you have one) in the [[texture-mask-packer|mask packer]] clears "missing orm".'},
+   verify:{steps:[
+    'After fixing, drop the new files and keep the same workflow: the summary shows ✓ when there are no errors and no warnings.',
+    'Download `texture-report.json` and read `issues`: each entry has `id`, `level`, the files and the numbers (sizes, `maxDeviation`, `ratio`, `minBlue`).',
+    'For a normal map, `normalCheck.meanLength` should be close to 1 and `blueNonNegative` true.']},
+   trouble:{rows:[
+    ['`unclassified` for a file you know','The name has no known token (`rock_03.png`), or a token outside the English list','The role column shows Unknown','Pick the role in its drop-down; the report keeps your choice'],
+    ['`duplicate-role` for the normal map','Both `_NormalGL` and `_NormalDX` from one download were dropped','Two files carry the role normal','Keep the one your engine expects (GL for Unity and Godot); convert with the [[game/normal-map-converter|normal map converter]] if you only have the other'],
+    ['`gray-channels-differ` on a roughness or metallic file','It is really a packed texture (or a coloured preview) with a single-map name','The issue gives the largest channel spread and the share of texels that differ','Set its role to the packed map, or unpack it with the [[game/channel-unpacker|channel unpacker]]'],
+    ['`looks-like-normal` on a height or bump file','A normal map saved as `_bump`, which the name rules read as height','It passes the unit-length and blue test','Change its role to normal'],
+    ['`normal-blue-negative` or `normal-not-unit`','Not a tangent-space normal map (a height or object-space map, or a map resized as colour)','The issue shows `minBlue` and the off-unit share','Use the right file, or generate one from height with the [[normal-map-generator|normal map generator]]'],
+    ['`unexpected-alpha` on a roughness, metallic or AO map','The exporter added an alpha channel the engine will not read','The issue lists the lowest alpha and the number of alpha-0 texels','Export without alpha; the colour under alpha 0 is kept by the Lab, but most engines ignore it']]},
+   alternatives:{rows:[
+    ['[[game/texture-lab|The full Texture Lab]]','You also need to fix what the check finds: convert normals, unpack or pack channels, bleed edges, resize, and export a batch.'],
+    ['Checking in the engine','One material and one engine: import settings and missing slots show up in the material inspector, but sizes, grey-stored-as-RGB and normal validity are not measured there.']]},
+   limits:['Colour space is not detected: no ICC profile or gamma is read; the report states which roles an engine expects as sRGB or linear and whether a PNG has an sRGB chunk.','The OpenGL/DirectX convention of a normal map is not detected here (only a `_NormalGL`/`_NormalDX` name is read); the Studio\'s Texture workspace has a detector.','Name rules know English tokens only; files are never renamed.','The report is generic JSON; no engine imports it.'],
+   versions:{body:['The check report was verified on the Texture Lab (docs/TEXTURE-LAB.md): `schemaVersion` 1, `engineTarget` generic, `alpha.zeroPixels` = 2048 matching the fixture, `exactChannels` true; a JPEG input gives `exactChannels: false`. The numbers on this page are the thresholds in `src/game/texture-set.js` and `src/game/texture-normal.js`.'],
+    sources:[S.gltf,S.unityImport,S.godotShading]}
+  },
+  ko:{
+   answer:'PBR 검사기는 가져오기 전에 텍스처 세트를 점검합니다. 맵마다 역할이 있는지, 모든 맵의 크기가 같은지, 고른 워크플로의 필수·권장 맵이 있는지, 크기가 2의 거듭제곱인지, 회색 맵이 정말 회색인지, 노멀맵이 정말 단위 벡터로 디코딩되는지 확인합니다. 머티리얼 하나의 맵을 넣으면 파일 이름(`_basecolor`, `_normal`, `_roughness`, `_ORM` 등)으로 역할을 정하고, 워크플로를 고르면 문제마다 파일과 측정값이 나옵니다. JSON 보고서에 측정값이 남으며 파일 이름이나 내용은 바꾸지 않습니다.',
+   concept:{title:'무엇을 어떤 기준으로 점검하나',body:[
+    '이름으로 정하는 역할. 파일 이름을 소문자로 바꾸고 구분자를 `_`로 통일한 뒤, 더 구체적인 것부터 처음 맞는 토큰을 씁니다. 패킹(`orm`·`arm`·`rma`·`mra`·`maskmap`·`mask`), 알베도(`albedo`·`basecolor`·`diffuse`·`color` 등), 노멀(`normalgl`·`normaldx`·`normal`·`nrm`·`n`), 러프니스, 스무스니스(`gloss`), 메탈릭, AO(`ao`·`occlusion`·`ambientocclusion`), 하이트(`height`·`displacement`·`bump`), 에미션, 불투명도, 스페큘러 순입니다. 한두 글자 토큰(`_n`·`_m`·`_r`)은 신뢰도 낮음으로 봅니다. 역할은 모두 선택 상자라서 파일 이름을 바꾸지 않고 잘못된 추측을 고치면 됩니다.',
+    '누락은 워크플로가 정합니다. 개별 맵(glTF·공통): 알베도 필수, 노멀·러프니스·메탈릭 권장. Unity HDRP: 알베도와 마스크 맵 필수, 노멀 권장. Unity URP: 알베도 필수, 노멀·메탈릭 권장. Godot ORM·Unreal ORM: 알베도 필수, 노멀과 ORM 텍스처 권장이며, 러프니스와 메탈릭은 있는데 ORM이 없으면 그냥 "누락" 대신 "패킹 가능"이 나옵니다. 러프니스 맵은 스무스니스를, 스무스니스 맵은 러프니스를 대신합니다.',
+    '추측이 아니라 측정. 단일 채널 역할(러프니스·메탈릭·AO·하이트·불투명도)이 RGB로 저장돼 있을 때, 어느 텍셀도 채널 차이가 2를 넘지 않으면 "RGB로 저장된 회색", 넘으면 "채널이 서로 다름"(패킹된 것일 가능성)으로 보고합니다. 노멀맵은 텍셀마다 디코딩해, 길이가 1에서 0.12보다 멀면 단위 밖 샘플로 셉니다. 단위 밖이 1% 이하이고 파랑이 128 미만(표면 안쪽을 향하는 벡터)인 곳이 없어야 통과입니다. 다른 역할로 지정됐는데 노멀맵 시험(단위 밖 5% 이하, 음의 파랑 0.1% 이하)을 통과하면 "노멀맵처럼 보임"으로 알립니다.',
+    '2의 거듭제곱은 오류가 아니라 경고입니다. glTF 2.0은 샘플러가 반복하거나 밉맵을 쓸 때, 지원이 제한된 플랫폼에서는 2의 거듭제곱이 아닌 텍스처의 크기를 바꾸는 것이 좋다(SHOULD)고 하고, Unity 임포터에는 그런 텍스처의 크기를 조정하는 Non Power of 2 옵션이 있습니다. 중요한지는 대상에 따라 다르므로 검사기는 알리기만 하고 판단은 맡깁니다.'],
+    terms:[['워크플로','엔진 머티리얼이 기대하는 맵 구성(패킹 방식 포함).'],['세트 이름','파일 이름에서 역할 토큰을 뺀 나머지. 한 번에 넣은 파일의 세트 이름이 다르면 "이름 불일치"가 나옵니다.'],['단위 밖 샘플','디코딩한 노멀의 길이가 1과 0.12보다 더 차이 나는 샘플.'],['2의 거듭제곱','2ⁿ 픽셀 크기: 256, 512, 1024, 2048 …']]},
+   example:{title:'예시: Godot 4 ORM으로 점검한 바위 세트',lead:'PNG 네 장을 함께 넣고 워크플로를 Godot 4 ORM으로 골랐을 때 검사기가 돌려주는 결과입니다.',lines:[
+    'rock_basecolor.png   2048 × 2048   albedo',
+    'rock_normal.png      2048 × 2048   normal',
+    'rock_roughness.png   1000 × 1000   roughness',
+    'rock_metallic.png    2048 × 2048   metallic',
+    '',
+    'error  dimension-mismatch    2048x2048 대 1000x1000 (rock_roughness.png)',
+    'warn   missing-recommended   orm',
+    'info   pack-available        roughness + metallic → Godot 4 ORM 프리셋',
+    'warn   not-power-of-two      rock_roughness.png 1000 × 1000',
+    '',
+    '세트 통과: 아니요 (오류 1)'],
+    after:'러프니스를 2048 × 2048로 다시 내보내면 오류와 2의 거듭제곱 경고가 함께 사라집니다. [[texture-mask-packer|마스크 패커]]에서 러프니스와 메탈릭(AO가 있으면 AO도)을 패킹하면 "orm 누락"도 사라집니다.'},
+   verify:{steps:[
+    '고친 뒤 새 파일을 넣고 같은 워크플로를 유지합니다. 오류와 경고가 없으면 요약에 ✓가 나옵니다.',
+    '`texture-report.json`을 받아 `issues`를 봅니다. 항목마다 `id`·`level`·파일·수치(크기, `maxDeviation`, `ratio`, `minBlue`)가 있습니다.',
+    '노멀맵은 `normalCheck.meanLength`가 1에 가깝고 `blueNonNegative`가 true여야 합니다.']},
+   trouble:{rows:[
+    ['아는 파일인데 `unclassified`','이름에 아는 토큰이 없거나(`rock_03.png`) 영어 목록에 없는 토큰','역할 칸이 알 수 없음으로 표시됨','선택 상자에서 역할을 고르기. 보고서에도 그 선택이 남음'],
+    ['노멀맵에 `duplicate-role`','한 다운로드의 `_NormalGL`과 `_NormalDX`를 둘 다 넣음','역할이 노멀인 파일이 두 개','엔진이 기대하는 쪽만 남기기(Unity·Godot는 GL). 다른 쪽만 있으면 [[game/normal-map-converter|노멀맵 변환기]]로 변환'],
+    ['러프니스·메탈릭 파일에 `gray-channels-differ`','이름은 단일 맵인데 실제로는 패킹 텍스처(또는 색이 든 미리보기)','문제 항목에 가장 큰 채널 차이와 차이 나는 텍셀 비율이 나옴','역할을 패킹 맵으로 바꾸거나 [[game/channel-unpacker|채널 분리기]]로 분리'],
+    ['하이트·범프 파일에 `looks-like-normal`','노멀맵을 `_bump`로 저장해 이름 규칙이 하이트로 읽음','단위 길이와 파랑 시험을 통과함','역할을 노멀로 바꾸기'],
+    ['`normal-blue-negative`나 `normal-not-unit`','탄젠트 공간 노멀맵이 아님(하이트·오브젝트 공간 맵, 또는 색처럼 크기를 바꾼 맵)','문제 항목에 `minBlue`와 단위 밖 비율이 나옴','맞는 파일을 쓰거나 [[normal-map-generator|노멀맵 생성기]]로 하이트에서 만들기'],
+    ['러프니스·메탈릭·AO 맵에 `unexpected-alpha`','내보내기 프로그램이 엔진이 읽지 않을 알파를 붙임','문제 항목에 가장 낮은 알파와 알파 0 텍셀 수가 나옴','알파 없이 다시 내보내기. 알파 0 아래 색은 랩이 유지하지만 대부분의 엔진은 무시함']]},
+   alternatives:{rows:[
+    ['[[game/texture-lab|텍스처 랩 전체]]','점검에서 나온 문제를 고치는 것까지 필요할 때: 노멀 변환, 채널 분리·패킹, 가장자리 번짐, 크기 변경, 일괄 내보내기.'],
+    ['엔진에서 점검하기','머티리얼 하나, 엔진 하나일 때. 가져오기 설정과 빈 슬롯은 머티리얼 인스펙터에서 보이지만, 크기·RGB로 저장된 회색·노멀 유효성은 거기서 측정되지 않습니다.']]},
+   limits:['색 공간은 감지하지 않습니다. ICC 프로필이나 감마를 읽지 않고, 엔진이 역할별로 sRGB와 리니어 중 무엇을 기대하는지와 PNG에 sRGB 청크가 있는지만 알립니다.','노멀맵의 OpenGL·DirectX 규약은 여기서 감지하지 않습니다(`_NormalGL`·`_NormalDX` 이름만 읽음). 감지기는 Studio 텍스처 작업 공간에 있습니다.','이름 규칙은 영어 토큰만 알며, 파일 이름은 절대 바꾸지 않습니다.','보고서는 일반 JSON이며 엔진이 가져가는 형식이 아닙니다.'],
+   versions:{body:['점검 보고서는 텍스처 랩에서 확인했습니다(docs/TEXTURE-LAB.md): `schemaVersion` 1, `engineTarget` generic, 시험 파일과 같은 `alpha.zeroPixels` = 2048, `exactChannels` true. JPEG 입력은 `exactChannels: false`. 이 페이지의 수치는 `src/game/texture-set.js`와 `src/game/texture-normal.js`의 기준값입니다.'],
+    sources:[S.gltf,S.unityImport,S.godotShading]}
+  },
+  ja:{
+   answer:'PBRバリデーターは読み込み前にテクスチャセットを確認します。各マップに役割があるか、全マップのサイズが同じか、選んだワークフローの必須・推奨マップがそろっているか、サイズが2のべき乗か、グレーマップが本当にグレーか、ノーマルマップが本当に単位ベクトルにデコードされるかを見ます。1つのマテリアルのマップを入れると、ファイル名（`_basecolor`、`_normal`、`_roughness`、`_ORM`など）から役割を決め、ワークフローを選ぶと問題ごとにファイルと測定値が出ます。JSONレポートに測定値が残り、ファイル名や中身は一切変えません。',
+   concept:{title:'何を、どの基準で確認するか',body:[
+    '名前から決まる役割。ファイル名を小文字にし、区切りを`_`にそろえてから、具体的なものから順に最初に一致したトークンを使います。パック（`orm`・`arm`・`rma`・`mra`・`maskmap`・`mask`）、アルベド（`albedo`・`basecolor`・`diffuse`・`color`など）、ノーマル（`normalgl`・`normaldx`・`normal`・`nrm`・`n`）、ラフネス、スムースネス（`gloss`）、メタリック、AO（`ao`・`occlusion`・`ambientocclusion`）、ハイト（`height`・`displacement`・`bump`）、エミッション、不透明度、スペキュラーの順です。1〜2文字のトークン（`_n`・`_m`・`_r`）は信頼度低とします。役割はすべてプルダウンなので、ファイル名を変えずに誤った推定を直せます。',
+    '不足はワークフローが決めます。個別マップ（glTF・汎用）：アルベド必須、ノーマル・ラフネス・メタリック推奨。Unity HDRP：アルベドとマスクマップが必須、ノーマル推奨。Unity URP：アルベド必須、ノーマル・メタリック推奨。Godot ORM・Unreal ORM：アルベド必須、ノーマルとORMテクスチャ推奨で、ラフネスとメタリックはあるのにORMがない場合は、単なる「不足」ではなく「パック可能」と出ます。ラフネスのマップはスムースネスの代わりになり、その逆も同様です。',
+    '推測ではなく測定。単一チャンネルの役割（ラフネス・メタリック・AO・ハイト・不透明度）がRGBで保存されているとき、どのテクセルでもチャンネル差が2以下なら「RGBで保存されたグレー」、超えれば「チャンネルが異なる」（パック済みの可能性）と報告します。ノーマルマップはテクセルごとにデコードし、長さが1から0.12より離れたサンプルを単位外と数えます。単位外が1%以下で、青が128未満（面の内側を向くベクトル）のものがなければ合格です。別の役割なのにノーマルマップの判定（単位外5%以下、負の青0.1%以下）を通るものは「ノーマルマップに見える」と警告します。',
+    '2のべき乗はエラーではなく警告です。glTF 2.0は、サンプラーがリピートやミップマップを使う場合、対応が限られるプラットフォームでは2のべき乗でないテクスチャをリサイズすべき（SHOULD）としており、UnityのインポーターにはそうしたテクスチャをスケールするNon Power of 2の設定があります。問題になるかは対象次第なので、バリデーターは報告だけして判断は任せます。'],
+    terms:[['ワークフロー','エンジンのマテリアルが期待するマップの構成（パックの仕方を含む）。'],['セット名','ファイル名から役割のトークンを除いた残り。一度に入れたファイルのセット名が違うと「名前の不統一」が出ます。'],['単位外のサンプル','デコードしたノーマルの長さが1から0.12より離れているサンプル。'],['2のべき乗','2ⁿピクセルのサイズ：256、512、1024、2048 …']]},
+   example:{title:'例：Godot 4 ORMで確認した岩のセット',lead:'PNGを4枚まとめて入れ、ワークフローをGodot 4 ORMにしたときにバリデーターが返す結果です。',lines:[
+    'rock_basecolor.png   2048 × 2048   albedo',
+    'rock_normal.png      2048 × 2048   normal',
+    'rock_roughness.png   1000 × 1000   roughness',
+    'rock_metallic.png    2048 × 2048   metallic',
+    '',
+    'error  dimension-mismatch    2048x2048 と 1000x1000 (rock_roughness.png)',
+    'warn   missing-recommended   orm',
+    'info   pack-available        roughness + metallic → Godot 4 ORMプリセット',
+    'warn   not-power-of-two      rock_roughness.png 1000 × 1000',
+    '',
+    'セット合格：いいえ（エラー1）'],
+    after:'ラフネスを2048 × 2048で書き出し直せば、エラーと2のべき乗の警告が同時に消えます。[[texture-mask-packer|マスクパッカー]]でラフネスとメタリック（AOがあればAOも）をパックすれば「orm不足」も消えます。'},
+   verify:{steps:[
+    '修正後に新しいファイルを入れ、同じワークフローのままにします。エラーも警告もなければサマリーに✓が出ます。',
+    '`texture-report.json`をダウンロードして`issues`を読みます。各項目に`id`・`level`・ファイル・数値（サイズ、`maxDeviation`、`ratio`、`minBlue`）があります。',
+    'ノーマルマップでは`normalCheck.meanLength`が1に近く、`blueNonNegative`がtrueのはずです。']},
+   trouble:{rows:[
+    ['分かっているファイルなのに`unclassified`','名前に既知のトークンがない（`rock_03.png`）、または英語の一覧にないトークン','役割の欄が不明になっている','プルダウンで役割を選ぶ。レポートにもその選択が残る'],
+    ['ノーマルマップに`duplicate-role`','1つのダウンロードの`_NormalGL`と`_NormalDX`を両方入れた','役割がノーマルのファイルが2つある','エンジンが期待する方だけ残す（Unity・GodotはGL）。もう一方しかなければ[[game/normal-map-converter|ノーマルマップ変換]]で変換'],
+    ['ラフネス・メタリックのファイルに`gray-channels-differ`','単一マップの名前だが、実はパックテクスチャ（または色付きのプレビュー）','問題の項目に最大のチャンネル差と、差のあるテクセルの割合が出る','役割をパックマップに変えるか、[[game/channel-unpacker|チャンネル分解]]で分ける'],
+    ['ハイト・バンプのファイルに`looks-like-normal`','ノーマルマップを`_bump`で保存し、名前のルールがハイトと読んだ','単位長と青の判定を通っている','役割をノーマルに変える'],
+    ['`normal-blue-negative`や`normal-not-unit`','接空間ノーマルマップではない（ハイトやオブジェクト空間のマップ、色としてリサイズしたマップ）','問題の項目に`minBlue`と単位外の割合が出る','正しいファイルを使うか、[[normal-map-generator|ノーマルマップ生成]]でハイトから作る'],
+    ['ラフネス・メタリック・AOに`unexpected-alpha`','書き出したソフトが、エンジンが読まないアルファを付けた','問題の項目に最小のアルファとアルファ0のテクセル数が出る','アルファなしで書き出し直す。アルファ0の下の色はラボでは保持されるが、多くのエンジンは無視する']]},
+   alternatives:{rows:[
+    ['[[game/texture-lab|テクスチャラボ全体]]','チェックで見つかった問題の修正まで必要なとき：ノーマル変換、チャンネルの分解・パック、エッジブリード、リサイズ、一括書き出し。'],
+    ['エンジン上で確認する','マテリアル1つ、エンジン1つのとき。インポート設定や空きスロットはマテリアルのインスペクターで分かりますが、サイズ・RGBで保存されたグレー・ノーマルの妥当性はそこでは測定されません。']]},
+   limits:['色空間は判定しません。ICCプロファイルやガンマを読まず、エンジンが役割ごとにsRGBとリニアのどちらを期待するかと、PNGにsRGBチャンクがあるかだけを示します。','ノーマルマップのOpenGL・DirectXの規約はここでは判定しません（`_NormalGL`・`_NormalDX`の名前だけを読む）。判定機能はStudioのテクスチャ作業画面にあります。','名前のルールは英語のトークンだけで、ファイル名は決して変更しません。','レポートは汎用JSONで、エンジンが読み込む形式ではありません。'],
+   versions:{body:['チェックレポートはテクスチャラボで確認しました（docs/TEXTURE-LAB.md）：`schemaVersion` 1、`engineTarget` generic、テスト用ファイルと一致する`alpha.zeroPixels` = 2048、`exactChannels` true。JPEG入力では`exactChannels: false`。このページの数値は`src/game/texture-set.js`と`src/game/texture-normal.js`の基準値です。'],
+    sources:[S.gltf,S.unityImport,S.godotShading]}
+  }
+ },
+ // ------------------------------------------------------------------ Edge bleed
+ 'game/texture-edge-bleed':{
+  type:'troubleshoot',
+  intent:{primary:'fix dark or white halos around transparent sprites and textures (alpha bleed / edge padding / dilation)',secondary:['why transparent pixels\' RGB shows at mipmaps and bilinear edges','how many pixels to bleed','engine import options that do the same'],
+   goal:'edges that keep their own colour when filtered and when the engine shows smaller mip levels',input:'a PNG with transparency',output:'NAME-bleed.png (RGB changed only where alpha is 0) or a batch ZIP',target:'any engine that filters or mipmaps straight-alpha textures',support:'full',
+   evidence:['src/game/texture-fix.js (dilateEdges, mipChain)','docs/TEXTURE-LAB.md (448 texels, alpha 0 differing bytes, (210,40,30,0))','src/task/texture-lab-fix.js (default 4 px, export order resize → bleed → encode)'],
+   external:['Godot 4.7 import: Process › Fix Alpha Border','Unity 6 import: Alpha is Transparency']},
+  en:{
+   answer:'A dark (or white) outline around a transparent sprite, leaf or decal means the texture\'s fully transparent pixels still hold black or white RGB, and bilinear filtering or smaller mipmap levels average that hidden colour into the visible edge. The fix is to fill those pixels with the edge\'s own colour — edge bleed, also called dilation or alpha padding — or to let the engine do it on import (Godot\'s Fix Alpha Border, Unity\'s Alpha is Transparency). Nerulio\'s Edge bleed pushes RGB 2, 4, 8 or 16 px into texels with alpha 0 and never writes alpha.',
+   concept:{title:'Where the halo comes from',body:[
+    'A PNG stores colour and alpha separately (straight alpha), so a texel with alpha 0 still has an RGB value. Most programs write (0, 0, 0) or (255, 255, 255) there. You never see it at 1:1, because alpha 0 hides it.',
+    'Filtering and mipmaps mix neighbours. A bilinear sample halfway between an opaque edge texel and a transparent one averages both colours and both alphas; a mip level averages each 2 × 2 block of the level above. The result has the right, half-way alpha but a colour pulled towards the hidden black or white, so the edge darkens or glows — more at every smaller mip level, which is why the outline often appears only when the object is far away or scaled down.',
+    'Edge bleed replaces the hidden colour. Nerulio grows the colour one ring per round: every transparent texel next to one that already has colour takes the average RGB of those neighbours (all 8 directions), so after N rounds everything within N px of the sprite carries its edge colour. Texels with alpha above 0 are never touched and no alpha byte is written. Premultiplied-alpha textures avoid the problem in another way: their colour is already multiplied by alpha, so a transparent texel adds nothing.',
+    'How far to bleed. In a box-filtered mip chain a texel of level k covers 2ᵏ × 2ᵏ source texels, so a transparent texel mixed into an edge block is at most 2ᵏ − 1 px from the sprite. A 4 px bleed therefore keeps the levels down to 1/4 clean, 8 px down to 1/8 and 16 px down to 1/16 — the three levels the Lab\'s mipmap preview shows.'],
+    terms:[['Straight alpha','Colour and alpha stored independently; RGB exists even where alpha is 0.'],['Edge bleed (dilation)','Copying edge colour outwards into transparent texels without changing their alpha.'],['Mip level','A pre-shrunk copy (1/2, 1/4, 1/8 …) the GPU uses when the texture is drawn small.'],['Premultiplied alpha','Colour already multiplied by alpha; hidden colour cannot leak.']]},
+   example:{title:'Example: one edge block, before and after',lead:'A red sprite texel (210, 40, 30, 255) sits next to a transparent texel that holds black. Mip level 1 averages the 2 × 2 block (two opaque, two transparent):',lines:[
+    'Without bleed   (210+210+0+0)/4, (40+40+0+0)/4, (30+30+0+0)/4, alpha (255+255+0+0)/4',
+    '              = (105, 20, 15, 128)    half transparent and half as bright: the dark rim',
+    'With bleed      transparent texels now hold (210, 40, 30, 0)',
+    '              = (210, 40, 30, 128)    half transparent, same red',
+    '',
+    'Texels filled around a 24 × 24 opaque square (bleed N px: (24 + 2N)² − 24²):',
+    '  2 px → 208    4 px → 448    8 px → 1024    16 px → 2560'],
+    after:'The 4 px figure is the one the Lab measured on its test sprite: 448 texels changed, all with alpha 0, and not a single alpha byte changed.'},
+   trouble:{rows:[
+    ['Dark or white outline only when the object is small or far away','Mip levels average the hidden RGB into the edge','Fix › Mipmaps: compare 1/4, 1/8, 1/16 before and after bleeding','Bleed at least as far as the smallest level you see (4 px → 1/4, 8 px → 1/8, 16 px → 1/16), or turn on the engine\'s import option'],
+    ['A thin fringe at 1:1 when the sprite moves, rotates or is scaled','Bilinear filtering samples between the edge and the transparent neighbour','Zoom the engine view: the fringe follows the silhouette','Bleed 2 px or more; for pixel art use Nearest filtering instead ([[game/godot-pixel-art-blurry|blurry pixel art in Godot]])'],
+    ['The bleed disappeared after resizing the texture','The resize went through a canvas, which discards colour under alpha 0','Open the resized file in the Channels stage: RGB under alpha 0 is 0 again','Resize first and bleed last — the Lab\'s Export runs resize → bleed → encode in that order'],
+    ['The bleed is gone after saving as WebP or JPEG','Those formats are encoded through the browser canvas; JPEG has no alpha at all','Compare the PNG and the WebP in the Channels stage','Keep bled textures as PNG'],
+    ['Colour of the neighbouring sprite shows at the edge in an atlas','Sprites are packed without gaps, so filtering reaches the next sprite','Look at the atlas: are sprites touching?','That needs padding or extrusion between sprites, not bleed: see [[atlas-padding|atlas padding]] and [[sprite-sheet-maker|the sprite sheet packer]]'],
+    ['Semi-transparent edge pixels themselves are dark','The art was exported against a black matte, so the colour is baked into pixels with alpha 1–254','The dark pixels have alpha above 0','Nerulio cannot fix this (bleed never touches alpha > 0): re-export from the source without a matte']]},
+   verify:{steps:[
+    'In Fix › Mipmaps, the edge at 1/4 … 1/16 should keep the sprite\'s colour after bleeding instead of turning darker.',
+    'The result note says how many transparent texels were filled; open the saved PNG in the Channels stage: the A channel is unchanged and RGB under alpha 0 now carries the edge colour.',
+    'In the engine, view the object small or far away with mipmaps on: the outline should be gone.']},
+   alternatives:{rows:[
+    ['Godot 4: Process › Fix Alpha Border (import option)','Textures imported into Godot: it fills transition pixels with the surrounding colour on import and is on by default, so a bled PNG is usually not needed there.'],
+    ['Unity: Alpha is Transparency (import option)','Textures imported into Unity: it dilates the colour channels to avoid filtering artifacts at alpha edges.'],
+    ['Premultiplied alpha','Your renderer blends premultiplied textures: hidden colour cannot leak at all.']]},
+   versions:{body:['Measured on the Texture Lab (docs/TEXTURE-LAB.md): edge bleed changed 448 texels around a 24 × 24 square (exactly four rings), none with alpha above 0; the alpha plane had 0 differing bytes; the first ring read (210, 40, 30, 0). The mipmap preview is the same per-channel box average as `mipChain` in `src/game/texture-fix.js`. Engine import options are quoted from the Godot 4.7 and Unity 6 documentation.'],
+    sources:[S.godotImport,S.unityImport]}
+  },
+  ko:{
+   answer:'투명한 스프라이트·잎·데칼 주위의 검은(또는 흰) 테두리는 텍스처의 완전히 투명한 픽셀에 검정이나 흰색 RGB가 남아 있고, 이중선형 필터나 작은 밉맵 레벨이 그 숨은 색을 보이는 가장자리에 섞기 때문에 생깁니다. 해결책은 그 픽셀을 가장자리 자신의 색으로 채우는 것(가장자리 번짐, 딜레이션, 알파 패딩)이거나, 엔진이 가져올 때 하게 하는 것(Godot의 Fix Alpha Border, Unity의 Alpha is Transparency)입니다. Nerulio의 가장자리 번짐은 알파 0 텍셀로 RGB를 2·4·8·16px 밀어 넣으며 알파는 절대 쓰지 않습니다.',
+   concept:{title:'테두리가 생기는 곳',body:[
+    'PNG는 색과 알파를 따로 저장하므로(스트레이트 알파) 알파가 0인 텍셀에도 RGB 값이 있습니다. 대부분의 프로그램은 거기에 (0, 0, 0)이나 (255, 255, 255)를 씁니다. 1:1에서는 알파 0이 가려서 보이지 않습니다.',
+    '필터링과 밉맵은 이웃을 섞습니다. 불투명한 가장자리 텍셀과 투명한 텍셀 사이 한가운데의 이중선형 샘플은 두 색과 두 알파를 평균하고, 밉맵 레벨은 위 레벨의 2 × 2 블록을 평균합니다. 결과의 알파는 맞게 절반이지만 색은 숨은 검정이나 흰색 쪽으로 끌려가 가장자리가 어두워지거나 빛납니다. 밉맵 레벨이 작아질수록 심해지므로 물체가 멀리 있거나 작게 그려질 때만 테두리가 보이는 경우가 많습니다.',
+    '가장자리 번짐은 숨은 색을 바꿔 줍니다. Nerulio는 한 바퀴씩 색을 넓힙니다. 이미 색이 있는 텍셀 옆의 투명 텍셀은 그런 이웃(8방향)의 RGB 평균을 받으므로, N바퀴 뒤에는 스프라이트에서 N px 안의 모든 텍셀이 가장자리 색을 가집니다. 알파가 0보다 큰 텍셀은 건드리지 않고 알파 바이트는 하나도 쓰지 않습니다. 미리 곱한 알파 텍스처는 다른 방식으로 문제를 피합니다. 색에 이미 알파가 곱해져 있어 투명 텍셀이 아무것도 더하지 않기 때문입니다.',
+    '얼마나 번지게 할까. 박스 필터 밉맵에서 레벨 k의 텍셀 하나는 원본 2ᵏ × 2ᵏ 텍셀을 덮으므로, 가장자리 블록에 섞이는 투명 텍셀은 스프라이트에서 최대 2ᵏ − 1 px 떨어져 있습니다. 따라서 4px 번짐은 1/4 레벨까지, 8px는 1/8까지, 16px는 1/16까지 깨끗하게 지킵니다. 랩의 밉맵 미리보기가 보여 주는 세 레벨입니다.'],
+    terms:[['스트레이트 알파','색과 알파를 따로 저장하는 방식. 알파가 0인 곳에도 RGB가 있습니다.'],['가장자리 번짐(딜레이션)','투명 텍셀의 알파는 그대로 두고 가장자리 색을 바깥으로 복사하는 것.'],['밉맵 레벨','텍스처가 작게 그려질 때 GPU가 쓰는 미리 줄인 사본(1/2, 1/4, 1/8 …).'],['미리 곱한 알파','색에 알파를 이미 곱해 둔 방식. 숨은 색이 새어 나올 수 없습니다.']]},
+   example:{title:'예시: 가장자리 블록 하나의 전후',lead:'빨간 스프라이트 텍셀 (210, 40, 30, 255) 옆에 검정이 든 투명 텍셀이 있습니다. 밉맵 레벨 1은 2 × 2 블록(불투명 둘, 투명 둘)을 평균합니다.',lines:[
+    '번짐 없음   (210+210+0+0)/4, (40+40+0+0)/4, (30+30+0+0)/4, 알파 (255+255+0+0)/4',
+    '          = (105, 20, 15, 128)    반투명이면서 밝기도 절반: 어두운 테두리',
+    '번짐 있음   투명 텍셀에 이제 (210, 40, 30, 0)이 들어 있음',
+    '          = (210, 40, 30, 128)    반투명, 빨강은 그대로',
+    '',
+    '24 × 24 불투명 사각형 주변에서 채워지는 텍셀 수 (N px 번짐: (24 + 2N)² − 24²):',
+    '  2 px → 208    4 px → 448    8 px → 1024    16 px → 2560'],
+    after:'4px 값은 랩이 시험 스프라이트에서 측정한 수치와 같습니다. 텍셀 448개가 바뀌었고 모두 알파 0이었으며, 알파 바이트는 하나도 바뀌지 않았습니다.'},
+   trouble:{rows:[
+    ['물체가 작거나 멀 때만 검은·흰 테두리가 보임','밉맵 레벨이 숨은 RGB를 가장자리에 섞음','보정 › 밉맵에서 번짐 전후의 1/4·1/8·1/16을 비교','보이는 가장 작은 레벨만큼 번지게 하거나(4px → 1/4, 8px → 1/8, 16px → 1/16) 엔진의 가져오기 옵션을 켜기'],
+    ['스프라이트가 움직이거나 회전·확대될 때 1:1에서도 얇은 테두리','이중선형 필터가 가장자리와 투명한 이웃 사이를 샘플링','엔진 화면을 확대하면 테두리가 실루엣을 따라감','2px 이상 번지게 하기. 도트 그림은 대신 Nearest 필터 사용([[game/godot-pixel-art-blurry|Godot에서 흐린 도트]])'],
+    ['텍스처 크기를 바꾼 뒤 번짐이 사라짐','크기 변경이 캔버스를 거쳐 알파 0 아래의 색을 버림','바꾼 파일을 채널 단계에서 열면 알파 0 아래 RGB가 다시 0','크기를 먼저 바꾸고 번짐은 마지막에. 랩의 내보내기는 크기 변경 → 번짐 → 인코딩 순서로 돌아감'],
+    ['WebP·JPEG로 저장하자 번짐이 없어짐','이 형식은 브라우저 캔버스를 거쳐 인코딩되며 JPEG에는 알파가 아예 없음','PNG와 WebP를 채널 단계에서 비교','번짐을 준 텍스처는 PNG로 보관'],
+    ['아틀라스에서 옆 스프라이트의 색이 가장자리에 보임','스프라이트를 틈 없이 패킹해 필터가 다음 스프라이트까지 닿음','아틀라스에서 스프라이트끼리 붙어 있는지 확인','번짐이 아니라 스프라이트 사이 여백·익스트루드가 필요: [[atlas-padding|아틀라스 여백]], [[sprite-sheet-maker|스프라이트 시트 패커]]'],
+    ['반투명한 가장자리 픽셀 자체가 어두움','검은 매트 위에서 내보내 알파 1~254인 픽셀에 색이 구워져 있음','어두운 픽셀의 알파가 0보다 큼','Nerulio로는 고칠 수 없음(번짐은 알파가 0보다 큰 텍셀을 건드리지 않음). 원본에서 매트 없이 다시 내보내기']]},
+   verify:{steps:[
+    '보정 › 밉맵에서 번짐 뒤에는 1/4~1/16의 가장자리가 어두워지지 않고 스프라이트 색을 유지해야 합니다.',
+    '결과 안내에 채운 투명 텍셀 수가 나옵니다. 저장한 PNG를 채널 단계에서 열면 A 채널은 그대로이고 알파 0 아래 RGB에 가장자리 색이 들어 있습니다.',
+    '엔진에서 밉맵을 켠 채 물체를 작게 또는 멀리 봅니다. 테두리가 없어야 합니다.']},
+   alternatives:{rows:[
+    ['Godot 4: Process › Fix Alpha Border (가져오기 옵션)','Godot로 가져오는 텍스처. 가져올 때 경계 픽셀을 주변 색으로 채우며 기본으로 켜져 있어, 보통은 번짐 PNG가 필요 없습니다.'],
+    ['Unity: Alpha is Transparency (가져오기 옵션)','Unity로 가져오는 텍스처. 알파 가장자리의 필터링 결함을 피하려고 색 채널을 딜레이션합니다.'],
+    ['미리 곱한 알파','렌더러가 미리 곱한 텍스처로 블렌딩할 때. 숨은 색이 새어 나올 수 없습니다.']]},
+   versions:{body:['텍스처 랩에서 측정(docs/TEXTURE-LAB.md): 24 × 24 사각형 주변 텍셀 448개(정확히 네 바퀴)가 바뀌었고 알파가 0보다 큰 텍셀은 없었습니다. 알파 평면은 다른 바이트 0개, 첫 바퀴는 (210, 40, 30, 0). 밉맵 미리보기는 `src/game/texture-fix.js`의 `mipChain`과 같은 채널별 박스 평균입니다. 엔진 가져오기 옵션은 Godot 4.7과 Unity 6 문서에서 인용했습니다.'],
+    sources:[S.godotImport,S.unityImport]}
+  },
+  ja:{
+   answer:'透明なスプライト・葉・デカールの周りの黒い（または白い）ふちは、テクスチャの完全に透明なピクセルに黒や白のRGBが残っていて、バイリニアフィルターや小さなミップマップレベルがその隠れた色を見える縁に混ぜるために出ます。直し方は、そのピクセルを縁自身の色で埋める（エッジブリード、ダイレーション、アルファパディング）か、エンジンに読み込み時にやらせる（GodotのFix Alpha Border、UnityのAlpha is Transparency）かです。Nerulioのエッジブリードはアルファ0のテクセルへRGBを2・4・8・16px押し広げ、アルファは一切書き換えません。',
+   concept:{title:'ふちはどこから来るか',body:[
+    'PNGは色とアルファを別々に保存するので（ストレートアルファ）、アルファ0のテクセルにもRGBの値があります。多くのソフトはそこに(0, 0, 0)か(255, 255, 255)を書きます。等倍ではアルファ0が隠すので見えません。',
+    'フィルタリングとミップマップは隣同士を混ぜます。不透明な縁のテクセルと透明なテクセルのちょうど中間のバイリニアサンプルは、2つの色と2つのアルファを平均し、ミップマップの各レベルは上のレベルの2 × 2ブロックを平均します。結果のアルファは正しく半分ですが、色は隠れた黒や白に引っぱられ、縁が暗くなったり光ったりします。レベルが小さくなるほど強まるため、物体が遠いときや小さく描かれたときだけふちが見えることがよくあります。',
+    'エッジブリードは隠れた色を置き換えます。Nerulioは1周ずつ色を広げます。すでに色のあるテクセルに隣接する透明テクセルは、その隣（8方向）のRGBの平均を受け取るので、N周の後にはスプライトからN px以内のすべてが縁の色を持ちます。アルファが0より大きいテクセルには触れず、アルファのバイトは1つも書きません。乗算済みアルファのテクスチャは別の方法でこの問題を避けます。色にアルファが掛かっているので、透明なテクセルは何も加えないからです。',
+    'どこまでにじませるか。ボックスフィルターのミップマップでは、レベルkの1テクセルが元の2ᵏ × 2ᵏテクセルを覆うため、縁のブロックに混ざる透明テクセルはスプライトから最大2ᵏ − 1 px離れています。したがって4pxのブリードで1/4まで、8pxで1/8まで、16pxで1/16までのレベルがきれいに保たれます。ラボのミップマッププレビューが表示する3つのレベルです。'],
+    terms:[['ストレートアルファ','色とアルファを独立に保存する方式。アルファ0の場所にもRGBがあります。'],['エッジブリード（ダイレーション）','透明テクセルのアルファは変えずに、縁の色を外側へコピーすること。'],['ミップマップレベル','テクスチャが小さく描かれるときにGPUが使う縮小済みのコピー（1/2、1/4、1/8 …）。'],['乗算済みアルファ','色にアルファを掛けておく方式。隠れた色が漏れ出すことはありません。']]},
+   example:{title:'例：縁のブロック1つの前後',lead:'赤いスプライトのテクセル(210, 40, 30, 255)の隣に、黒を持つ透明なテクセルがあります。ミップマップのレベル1は2 × 2ブロック（不透明2つ、透明2つ）を平均します。',lines:[
+    'ブリードなし   (210+210+0+0)/4, (40+40+0+0)/4, (30+30+0+0)/4, アルファ (255+255+0+0)/4',
+    '             = (105, 20, 15, 128)    半透明で明るさも半分：暗いふち',
+    'ブリードあり   透明テクセルが (210, 40, 30, 0) を持つ',
+    '             = (210, 40, 30, 128)    半透明、赤はそのまま',
+    '',
+    '24 × 24の不透明な正方形の周りで埋まるテクセル数（N pxのブリード：(24 + 2N)² − 24²）：',
+    '  2 px → 208    4 px → 448    8 px → 1024    16 px → 2560'],
+    after:'4pxの値は、ラボがテスト用スプライトで測定した数値と同じです。448テクセルが変わり、すべてアルファ0で、アルファのバイトは1つも変わりませんでした。'},
+   trouble:{rows:[
+    ['物体が小さいときや遠いときだけ黒・白のふちが出る','ミップマップのレベルが隠れたRGBを縁に混ぜている','補正 › ミップマップでブリード前後の1/4・1/8・1/16を比べる','見える最小のレベルまでにじませる（4px → 1/4、8px → 1/8、16px → 1/16）か、エンジンのインポート設定を使う'],
+    ['スプライトが動く・回る・拡大されると等倍でも細いふちが出る','バイリニアフィルターが縁と透明な隣の間をサンプリングしている','エンジンの画面を拡大するとふちがシルエットに沿っている','2px以上にじませる。ドット絵なら代わりにNearestフィルター（[[game/godot-pixel-art-blurry|Godotでぼやけるドット絵]]）'],
+    ['テクスチャをリサイズしたらブリードが消えた','リサイズがCanvasを通り、アルファ0の下の色を捨てた','リサイズ後のファイルをチャンネルステージで開くと、アルファ0の下のRGBが0に戻っている','リサイズを先に、ブリードは最後に。ラボの書き出しはリサイズ → ブリード → エンコードの順で動く'],
+    ['WebPやJPEGで保存したらブリードが消えた','これらの形式はブラウザのCanvasを通してエンコードされ、JPEGにはアルファ自体がない','PNGとWebPをチャンネルステージで比べる','ブリードしたテクスチャはPNGで保存する'],
+    ['アトラスで隣のスプライトの色が縁に出る','スプライトが隙間なくパックされ、フィルターが隣のスプライトまで届く','アトラスでスプライト同士が接しているか見る','必要なのはブリードではなくスプライト間の余白・押し出し：[[atlas-padding|アトラスの余白]]、[[sprite-sheet-maker|スプライトシートのパッカー]]'],
+    ['半透明の縁のピクセル自体が暗い','黒いマット上で書き出され、アルファ1〜254のピクセルに色が焼き込まれている','暗いピクセルのアルファが0より大きい','Nerulioでは直せない（ブリードはアルファが0より大きいテクセルに触れない）。元データからマットなしで書き出し直す']]},
+   verify:{steps:[
+    '補正 › ミップマップで、ブリード後は1/4〜1/16の縁が暗くならずスプライトの色を保つはずです。',
+    '結果の注記に埋めた透明テクセルの数が出ます。保存したPNGをチャンネルステージで開くと、Aチャンネルは変わらず、アルファ0の下のRGBに縁の色が入っています。',
+    'エンジンでミップマップを有効にしたまま物体を小さく、または遠くに表示します。ふちが消えているはずです。']},
+   alternatives:{rows:[
+    ['Godot 4：Process › Fix Alpha Border（インポート設定）','Godotに読み込むテクスチャ。読み込み時に境目のピクセルを周囲の色で埋め、既定でオンなので、通常はブリード済みPNGは不要です。'],
+    ['Unity：Alpha is Transparency（インポート設定）','Unityに読み込むテクスチャ。アルファの縁のフィルタリングの乱れを避けるため、色チャンネルをダイレーションします。'],
+    ['乗算済みアルファ','レンダラーが乗算済みテクスチャでブレンドする場合。隠れた色が漏れることはありません。']]},
+   versions:{body:['テクスチャラボで測定（docs/TEXTURE-LAB.md）：24 × 24の正方形の周りで448テクセル（ちょうど4周）が変わり、アルファが0より大きいものはなし。アルファ平面の差は0バイト、最初の周は(210, 40, 30, 0)。ミップマッププレビューは`src/game/texture-fix.js`の`mipChain`と同じチャンネルごとのボックス平均です。エンジンのインポート設定はGodot 4.7とUnity 6のドキュメントから引用しました。'],
+    sources:[S.godotImport,S.unityImport]}
+  }
+ },
 };
