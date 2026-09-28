@@ -143,6 +143,7 @@ def main():
             page.screenshot(path=str(OUT / f'font-{locale}-390.png'), full_page=True)
             assert not errors, errors
             if locale == 'ko':
+                page.locator('#fontEditCanvas').scroll_into_view_if_needed()
                 box = page.locator('#fontEditCanvas').bounding_box()
                 page.touchscreen.tap(box['x'] + 5, box['y'] + 5)
                 assert page.locator('[data-action="ui-font-undo"]').is_enabled()
