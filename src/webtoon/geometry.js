@@ -10,15 +10,18 @@ export function validateCuts(height,cuts){
  return [0,...cuts,height].slice(1).map((end,i)=>({y:[0,...cuts][i],height:end-[0,...cuts][i]}));
 }
 export function suggestedCuts(height,target,rowInk,{radius=80,minPart=128}={}){
- const coarse=evenlySpaced(height,target),cuts=[],warnings=[];let previous=0;
- for(const expected of coarse){
+ if(!Number.isSafeInteger(height)||height<1||!Number.isSafeInteger(target)||target<1)throw new RangeError('Invalid image height or cut height');
+ const cuts=[],warnings=[];let previous=0;
+ while(previous+target<height){
+  const expected=previous+target;
   let best=expected,score=Infinity;
-  for(let y=Math.max(previous+minPart,expected-radius);y<=Math.min(height-minPart,expected+radius);y++){
+  for(let y=Math.max(previous+minPart,expected-radius);y<=Math.min(height-minPart,expected);y++){
    const v=rowInk[y]??1,penalty=Math.abs(y-expected)/Math.max(1,radius)*0.15,s=v+penalty;
    if(s<score){score=s;best=y;}
   }
   if(best<=previous||best>=height)continue;
   cuts.push(best);warnings.push(score>0.35?'uncertain':'candidate');previous=best;
+  if(cuts.length>200)throw new RangeError('More than 200 cuts would be needed');
  }
  validateCuts(height,cuts);return {cuts,warnings};
 }

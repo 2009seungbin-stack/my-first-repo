@@ -2,6 +2,7 @@
 import io
 import json
 import os
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -18,7 +19,7 @@ with sync_playwright() as pw:
     page = browser.new_page(accept_downloads=True, viewport={'width': 1440, 'height': 900})
     errors = []
     page.on('pageerror', lambda err: errors.append(str(err)))
-    page.goto(BASE + '/en/image/webtoon-manga-toolkit/', wait_until='networkidle')
+    page.goto(BASE + '/en/image/webtoon-manga-toolkit/?cuts=1280%2C2560', wait_until='networkidle')
     page.locator('#fileInput').set_input_files(str(SAMPLE))
     page.locator('.webtoon-preview img').wait_for(timeout=30000)
     assert page.locator('[data-cut]').count() == 2
@@ -61,4 +62,46 @@ with sync_playwright() as pw:
         assert image.getpixel((7, 20)) == (5, 35, 245, 255)
     assert not errors, errors
     print('T8 browser join + independent pixel oracle: PASS', joined.stat().st_size, 'bytes')
+    # Genuine CC0 comic-art page: three framed scenes, dialogue and white gutters.
+    comic = ROOT / 'tests' / 'fixtures' / 'webtoon' / 'comic-page.png'
+    source = Image.open(comic).convert('RGB')
+    page.goto(BASE + '/en/image/webtoon-manga-toolkit/?profile=custom&format=png&cuts=1000%2C2000', wait_until='networkidle')
+    page.locator('#fileInput').set_input_files(str(comic))
+    page.locator('.webtoon-preview img').wait_for(timeout=30000)
+    page.screenshot(path=str(ROOT / 'test-results' / 't8' / 'nerulio-comic-desktop.png'), full_page=True)
+    with page.expect_download(timeout=60000) as dl:
+        page.locator('#webtoonRun').click()
+    comic_zip = ROOT / 'test-results' / 't8' / 'nerulio-comic-png.zip'
+    dl.value.save_as(comic_zip)
+    with ZipFile(comic_zip) as z:
+        for i, top in enumerate([0, 1000, 2000], 1):
+            image = Image.open(io.BytesIO(z.read(f'episode-{i:02d}.png'))).convert('RGB')
+            assert image.size == (800, 1000)
+            assert image.tobytes() == source.crop((0, top, 800, top+1000)).tobytes(), i
+    print('T8 genuine comic art: 3 PNGs, source rows pixel-exact')
+    # All three transparent effects: SVG is parsed as XML and PNG reopens with alpha.
+    for kind in ['speed', 'balloon', 'tone']:
+        page.goto(BASE + f'/en/image/webtoon-manga-toolkit/?mode={kind}', wait_until='networkidle')
+        page.locator('#webtoonEffectRun').wait_for(timeout=30000)
+        if kind == 'balloon':
+            page.locator('#webtoonText').fill('안녕 <script> & こんにちは')
+            page.locator('#webtoonText').press('Tab')
+        with page.expect_download(timeout=60000) as dl:
+            page.locator('#webtoonEffectRun').click()
+        effect_zip = ROOT / 'test-results' / 't8' / f'nerulio-{kind}.zip'
+        dl.value.save_as(effect_zip)
+        with ZipFile(effect_zip) as z:
+            vector = ET.fromstring(z.read(f'{kind}.svg'))
+            assert vector.tag.endswith('svg')
+            assert all(not node.tag.endswith('script') for node in vector.iter())
+            image = Image.open(io.BytesIO(z.read(f'{kind}.png')))
+            assert image.size == (800, 600) and image.mode == 'RGBA'
+            assert image.getextrema()[3][0] == 0, 'transparent overlay has transparent pixels'
+        print('T8 effect independently reopened:', kind)
+    small = browser.new_page(accept_downloads=True, viewport={'width': 390, 'height': 844})
+    small.goto(BASE + '/ko/image/webtoon-manga-toolkit/?mode=tone', wait_until='networkidle')
+    assert small.locator('html').get_attribute('lang') == 'ko'
+    assert small.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    small.screenshot(path=str(ROOT / 'test-results' / 't8' / 'nerulio-tone-mobile.png'), full_page=True)
+    small.close()
     browser.close()

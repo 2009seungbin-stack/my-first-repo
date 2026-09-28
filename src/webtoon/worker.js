@@ -18,8 +18,9 @@ function canvas(w,h){const c=new OffscreenCanvas(w,h);if(!c.getContext('2d'))thr
 function ctx(c){return c.getContext('2d',{alpha:true,willReadFrequently:false});}
 function inkRows(bitmap){
  const w=64,h=Math.min(bitmap.height,8192),c=canvas(w,h),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(bitmap,0,0,w,h);
- const data=g.getImageData(0,0,w,h).data,rows=new Float32Array(bitmap.height).fill(1);
- for(let y=0;y<h;y++){let ink=0;for(let x=0;x<w;x++){const i=(y*w+x)*4;ink+=1-(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;}rows[Math.min(bitmap.height-1,Math.floor(y*bitmap.height/h))]=ink/w;}
+ const data=g.getImageData(0,0,w,h).data,rows=new Float32Array(bitmap.height),sample=new Float32Array(h);
+ for(let y=0;y<h;y++){let ink=0;for(let x=0;x<w;x++){const i=(y*w+x)*4;ink+=1-(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;}sample[y]=ink/w;}
+ for(let y=0;y<bitmap.height;y++)rows[y]=sample[Math.min(h-1,Math.floor(y*h/bitmap.height))];
  // Low-resolution analysis is advisory only; manually selected rows are authoritative.
  return rows;
 }
@@ -43,6 +44,7 @@ async function runSplit(id,files,opts){
   send(id,'progress',{stage:'decode',done:index,total:files.length});
   const bmp=await createImageBitmap(f);try{
    if(bmp.width!==d.width||bmp.height!==d.height)throw new Error('Image header and decoded size disagree');
+   if(p.width&&d.width<p.width)throw new Error(`Source width ${d.width} px is narrower than this exact ${p.width} px profile. Choose Custom to avoid silent upscaling.`);
    const outWidth=p.width||Math.min(d.width,p.maxWidth||d.width);
    const scale=outWidth/d.width,scaledHeight=Math.round(d.height*scale);
    if(outWidth>MAX_SIDE||scaledHeight>MAX_SIDE||outWidth*scaledHeight>MAX_PIXELS)throw new Error('Resized image exceeds safe canvas budget');
@@ -51,6 +53,7 @@ async function runSplit(id,files,opts){
    const sourceTarget=Math.max(1,Math.floor(target/scale));
    const cuts=files.length===1&&Array.isArray(opts.cuts)&&opts.cuts.length?opts.cuts:evenlySpaced(d.height,sourceTarget);
    const segments=validateCuts(d.height,cuts);
+   if(segments.length>200)throw new Error('More than 200 output slices would be needed. Use a taller target or split the source in a drawing app.');
    for(const segment of segments){
     pending(id);const h=Math.max(1,Math.round((segment.y+segment.height)*scale)-Math.round(segment.y*scale));
     if(p.maxHeight&&h>p.maxHeight)throw new Error('Manual cut exceeds profile height');
@@ -76,8 +79,8 @@ async function runJoin(id,files,opts){
 }
 async function runInspect(id,files){
  const sizes=[];for(const f of files){if(f.size>MAX_INPUT_BYTES)throw new Error(`${f.name}: input exceeds 80 MB safe budget`);const d=await dimensions(f);memoryGate(d);sizes.push({...d,name:f.name,bytes:f.size});}
- const first=await createImageBitmap(files[0]);let preview;try{const width=Math.min(360,first.width),height=Math.max(1,Math.round(first.height*width/first.width));const c=canvas(width,Math.min(600,height)),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(first,0,0,c.width,c.height);preview=await c.convertToBlob({type:'image/png'});}finally{first.close();}
- send(id,'inspect',{sizes,preview});
+ const first=await createImageBitmap(files[0]);let preview,rowInk;try{rowInk=inkRows(first);const width=Math.min(360,first.width),height=Math.max(1,Math.round(first.height*width/first.width));const c=canvas(width,Math.min(600,height)),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(first,0,0,c.width,c.height);preview=await c.convertToBlob({type:'image/png'});}finally{first.close();}
+ send(id,'inspect',{sizes,preview,rowInk});
 }
 async function runEffect(id,options){
  const kind=options.kind,make=EFFECTS[kind];if(!make)throw new Error('Unknown effect');

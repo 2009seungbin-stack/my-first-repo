@@ -838,3 +838,4 @@ Object.assign(TOOL_MESSAGES,Object.fromEntries(['tile-lab','autotile-tester','ti
 Object.assign(TOOL_MESSAGES,Object.fromEntries(['title','headline','description'].map(k=>[
  `intent.webtoon-manga-toolkit.${k}`,TOOLS['webtoon-manga-toolkit'][k==='headline'?'title':k]
 ])));
+TOOL_MESSAGES['intent.webtoon-manga-toolkit.action']=['열기','Open','開く'];
