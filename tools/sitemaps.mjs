@@ -15,7 +15,7 @@ import {LANDINGS,LANDING_PATHS} from '../src/landings.js';
 import {POLICY_ROUTES} from '../src/policies.js';
 import {pagePath,X_DEFAULT_LOCALE} from '../src/seo.js';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
-import {gameSitemapPaths} from './game-landing-build.mjs';
+import {gamePageFor,gameSitemapPaths} from './game-landing-build.mjs';
 import {GUIDE_ROUTES,guideLastmod} from './guides-registry.mjs';
 import {imageSitemap} from './growth-build.mjs';
 
@@ -30,7 +30,9 @@ export const W3C_DATETIME=/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|[+-]\d\
 /** Language-neutral page paths per sitemap, in listing order. `extra` adds paths (pricing). */
 export function sitemapGroups(extra=[]){
  const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
- const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p))])];
+ // Some game-related task tools (for example /pixel/) are not game landing pages. Keep their
+ // canonical URL in the tools sitemap; the game renderer has no gamePageFor record for them.
+ const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p)&&gamePageFor(p))])];
  const inGame=new Set(game);
  const tools=[...new Set([...indexable,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
  return {game,guides:[...GUIDE_ROUTES],tools};

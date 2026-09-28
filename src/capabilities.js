@@ -7,7 +7,7 @@ const engines = {
  home:'local browser dispatch', image:'Canvas / immutable transforms / proxy preview', upscale:'Pica / nearest; optional experimental tiled Swin2SR',
  'remove-bg':'border flood fill / BiRefNet general foreground (experimental)', compress:'browser codecs / proxy SSIM candidate search',
  convert:'browser image codecs', heic:'browser / heic2any', crop:'Canvas region copy', resize:'Pica tiled mks2013 / Lanczos',
- pixel:'Oklab palette / locked colors / serpentine FS / Bayer dither', pdf:'PDF worker / ranged PDF.js / native annotations',
+ pixel:'browser Pixel Studio: area-average cells / Wu palette / ordered, error-diffusion and blue-noise dithers / indexed and animation export', pdf:'PDF worker / ranged PDF.js / native annotations',
  'pdf-merge':'PDF worker / native page objects', 'pdf-split':'PDF worker / ranges, groups, odd-even', 'pdf-compress':'placement-aware image resampling / reference-resolved recompression / TrueType glyph trimming / object dedupe / optional raster mode',
  'jpg-to-pdf':'pdf-lib image embedding', 'pdf-to-jpg':'PDF.js rasterizer',
  'pdf-protect':'WebCrypto AES-256 standard security handler (revision 6)', 'pdf-unlock':'byte-level object rewriter / AES-256, AES-128 and RC4 standard security handlers',
@@ -121,6 +121,12 @@ const LAB_EVIDENCE={
 };
 const EVIDENCE={
  'character-counter':[ev('workflow','tests/character-counter-browser.py','UTF-8 text file and typed ko/en/ja text yield visible counts in Chromium and Firefox'),ev('quality','tests/character-counter-browser.py','A 한 😀 has five graphemes and ten UTF-8 bytes; 뷁 is unavailable in strict EUC-KR but two bytes in CP949 in both engines')],
+ pixel:[
+  Object.freeze({kind:'workflow',suite:'tests/pixel-converter-browser.py',check:'Chromium CC0 photograph opens in Pixel Studio and its 32x32 PNG reopens with matching pixels',engines:['chromium']}),
+  Object.freeze({kind:'quality',suite:'tests/pixel-converter-browser.py',check:'Chromium indexed PNG, scaled PNG, .aseprite and finite-loop GIF independently reopen; original survives Apply and undo',engines:['chromium']}),
+  Object.freeze({kind:'workflow',suite:'tests/pixel-converter-firefox.py',check:'Firefox CC0 photograph converts with default Box and Wu and independently reopened PNG matches all RGBA pixels',engines:['firefox']}),
+  Object.freeze({kind:'quality',suite:'tests/pixel-converter-firefox.py',check:'Firefox conversion preserves source asset, adds output asset, and makes no outside requests',engines:['firefox']})
+ ],
  image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
  resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],
  compress:[ev('workflow',IMG,'NASA portrait: decoded full-resolution quality and target'),ev('quality',IMG,'compression quality on illustration fixture'),ev('quality',IMG,'already-compressed source candidate avoids unnecessary growth')],
