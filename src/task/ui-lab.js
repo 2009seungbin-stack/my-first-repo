@@ -66,6 +66,10 @@ export function mount({el,def}){
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
  const needsImage=s=>s!=='check'&&(s!=='font'||(!S.font.project&&!(S.font.mode==='ttf'&&S.font.family)));
+ const fontAtlasLimits=()=>{
+  const compact=(Number(navigator.deviceMemory)||8)<=4||Boolean(globalThis.matchMedia?.('(pointer: coarse)')?.matches);
+  return compact?{maxSide:2048,maxPixels:4_194_304}:{maxSide:4096,maxPixels:16_777_216};
+ };
  const $=s=>el.querySelector(s);
  /** A shared link carries settings only — borders, mode, sizes, the stage — never image data.
   * `settingsLink()` writes the same keys back, so a link is round-trippable. */
@@ -308,7 +312,7 @@ ${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
 <div class="field-row">${['pencil','fill','rectangle'].map(tool=>`<button type="button" class="mini-button" data-action="ui-font-tool" data-tool="${tool}" aria-pressed="${f.tool===tool}">${esc(T('fontTool.'+tool))}</button>`).join('')}</div>
 <div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>
-<label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p><p class="hint" id="fontSizeEstimate"></p>`:''}
+<label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p><p class="hint" id="fontSizeEstimate">${esc(fontEstimateText(f.project))}</p>`:''}
 <form class="options" autocomplete="off">
 ${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="font.size" min="6" max="128" value="${f.size}" inputmode="numeric"></label><label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label></div>
@@ -428,7 +432,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   releaseFontSheet();
   try{
    if(f.mode==='draw'){
-    const result=FP.renderFontProject(f.project);
+    const result=FP.renderFontProject(f.project,fontAtlasLimits());
     f.sheet=fromRGBA(result.data,result.width,result.height);f.built=result.font;
    }else{
    if(!chars)throw Error(T('needChars'));
@@ -502,13 +506,14 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    const present=new Set(font.glyphs.map(g=>g.codepoint)),requested=[...new Set([...S.font.preview].filter(ch=>!/[\r\n]/.test(ch)).map(ch=>ch.codePointAt(0)))];
    const missing=requested.filter(code=>!present.has(code));coverage.textContent=T('fontCoverage',{present:requested.length-missing.length,total:requested.length,missing:missing.slice(0,12).map(code=>`U+${code.toString(16).toUpperCase().padStart(4,'0')}`).join(', ')||T('fontNone')});
   }
-  const estimate=$('#fontSizeEstimate');if(estimate){
-   const project=S.font.project,w=Math.max(1,...project.glyphs.map(g=>g.w)),h=Math.max(1,...project.glyphs.map(g=>g.h));
-   const current=estimateGlyphAtlas(project.glyphs.length,w,h);
-   const covered=new Set(project.glyphs.map(g=>g.codepoint));
-   const ks=ksX1001Hangul().filter(cp=>covered.has(cp)).length;
-   estimate.textContent=T('fontSizeEstimate',{glyphs:project.glyphs.length,pages:current.minimumPages,mib:(current.rawRgbaBytes/1048576).toFixed(1),ks,ksTotal:2350,all:HANGUL_COUNT});
-  }
+ }
+ function fontEstimateText(project){
+  if(!project)return '';
+  const w=Math.max(1,...project.glyphs.map(g=>g.w)),h=Math.max(1,...project.glyphs.map(g=>g.h));
+  const limits=fontAtlasLimits(),current=estimateGlyphAtlas(project.glyphs.length,w,h,limits);
+  const covered=new Set(project.glyphs.map(g=>g.codepoint));
+  const ks=ksX1001Hangul().filter(code=>covered.has(code)).length;
+  return T('fontSizeEstimate',{glyphs:project.glyphs.length,pages:current.minimumPages,mib:(current.rawRgbaBytes/1048576).toFixed(1),cap:limits.maxSide,ks,ksTotal:2350,all:HANGUL_COUNT});
  }
  function selectedGlyph(){return S.font.project?.glyphs.find(g=>g.codepoint===S.font.selected);}
  function rememberFont(){
