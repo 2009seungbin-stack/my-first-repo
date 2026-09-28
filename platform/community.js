@@ -15,6 +15,13 @@ export const POST_KINDS=Object.freeze({
  screenshot:{ko:'스샷',en:'Screenshot'},
  free:{ko:'자유',en:'Talk'},
 });
+/** Channels whose boards are open for members' posts and comments (owner decision 2026-09-29, after
+ * docs/n2/research/MARKET.md: AI, 한글패치 and GPU first). Other channels keep their facts, history
+ * and one-click reports; their boards say "준비 중". Staff may post notices anywhere.
+ * Change this map to open more boards. */
+export const OPEN_BOARDS=Object.freeze(/** @type {Record<string,'*'|string[]>} */({ai:'*',games:['game','translation_patch'],hardware:['gpu']}));
+/** @param {{vertical:string,type:string}} e */
+export function boardOpen(e){const v=OPEN_BOARDS[e.vertical];return v==='*'||(Array.isArray(v)&&v.includes(e.type));}
 /** Kinds a member may pick when writing in a channel of this vertical. @param {string} vertical */
 export function writableKinds(vertical){
  return Object.entries(POST_KINDS).filter(([,k])=>!('staff' in k)&&(!('verticals' in k)||/** @type {string[]} */(k.verticals).includes(vertical))).map(([id])=>id).filter(id=>id!=='news');

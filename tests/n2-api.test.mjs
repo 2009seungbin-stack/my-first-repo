@@ -217,6 +217,15 @@ test('reply alerts: comments on my posts and replies to my comments, unread unti
  assert.equal((await h.call('GET','/my-radar?l=ko',{as:'b'})).json.replies.length,0,'b wrote them');
 });
 
+test('boards open on AI, 한글패치 and GPU channels only; staff may post notices anywhere',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('mod');
+ h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0)").run();
+ await ingest(h.db,{schema:'nerulio.seed/1',vertical:'studio',sources:[{id:'src:s',kind:'OFFICIAL',url:'https://example.com/s',retrieved:'2026-09-01'}],entities:[{id:'app:test-daw',type:'app',slug:'test-daw',names:{en:'Test DAW'}}]},{mode:'seed',actor:'seed',now:T0});
+ assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'app:test-daw',kind:'free',title:'열리지 않은 게시판',body:'x'}})).status,403);
+ assert.equal((await h.call('POST','/posts',{as:'mod',body:{entityId:'app:test-daw',kind:'notice',title:'공지',body:'x'}})).status,201,'staff notice');
+ assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'열린 게시판',body:'x'}})).status,201);
+});
+
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  assert.equal((await h.call('POST','/rollout',{as:'a',body:{featureId:'feature:feat',hasIt:true,country:'KR',platform:'ios'}})).status,200);

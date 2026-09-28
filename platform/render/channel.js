@@ -11,7 +11,7 @@ import {PREDICATES} from '../schema.js';
 import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
-import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE} from '../community.js';
+import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE,boardOpen} from '../community.js';
 import {typeDef,verticalOf,propertyDef} from '../verticals/index.js';
 import {label} from '../labels.js';
 import {TZ,dateText,factText} from './format.js';
@@ -75,6 +75,7 @@ export function trendingTerms(titles,channelName){
 export function renderChannel(m,site){
  const {entity:e,ctx}=m,{l,now}=ctx,s=t(l);
  const name=nameOf(e,l),v=verticalOf(e.vertical),td=typeDef(e.vertical,e.type);
+ const open=boardOpen(e);
  const base=channelUrl(l,e);
  const q=(/** @type {Record<string,string|number|null>} */ p)=>{const u=new URLSearchParams();/** @type {Record<string,string|number|null>} */const all={kind:m.kind,sort:m.sort==='new'?null:m.sort,best:m.best?1:null,...p};for(const [k,x] of Object.entries(all))if(x!==null&&x!==undefined&&x!=='')u.set(k,String(x));const str=u.toString();return str?`${base}?${str}`:base;};
  const live=m.panel.live?.(m.data,ctx)||false;
@@ -83,7 +84,7 @@ export function renderChannel(m,site){
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
 <div class="chm"><div class="chn1"><h1>${s.channel(name)}${m.alias?html` <span class="ha">${m.alias}</span>`:''}</h1><span class="fine">${v&&label(v.label,l)===subtitle?'':subtitle}${v?html`${label(v.label,l)===subtitle?'':' · '}<a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} <span data-followers="${m.stats.followers}">${compact(m.stats.followers,l)}</span> · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
-<div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
+<div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a>${open?html`<a class="btn p" href="${base}write">${s.write}</a>`:''}</div></section>`;
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
  // Tag, sort, 념글 and page links are noindex views: nofollow keeps crawlers on the channels.
  const tabOrder=Object.keys(POST_KINDS).filter(k=>kinds.includes(k));
@@ -93,7 +94,7 @@ export function renderChannel(m,site){
  const pager=m.page>1||m.board.more?html`<nav class="pager" aria-label="${s.page}">${m.page>1?html`<a class="btn" rel="nofollow" href="${q({page:m.page-1===1?null:m.page-1})}">‹ ${s.prev}</a>`:''}<span class="fine">${m.page}</span>${m.board.more?html`<a class="btn" rel="nofollow" href="${q({page:m.page+1})}">${s.next} ›</a>`:''}</nav>`:'';
  const boardBox=html`<section class="box board" id="board">${tabs}${sortBar}<div class="newbar" data-island="new-posts" data-entity="${e.id}" hidden></div>
 <ol class="plist" aria-label="${s.channel(name)}"><li class="pr ph" aria-hidden="true"><span class="no">${s.colNo}</span><span class="tt">${s.colTitle}</span><span class="nick">${s.colAuthor}</span><span class="num w">${s.colDate}</span><span class="num v">${s.colViews}</span><span class="num u">${s.colUp}</span></li>${rows}</ol>
-${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard}</p>`}${pager}</section>`;
+${open?'':html`<p class="empty closed">${l==='ko'?'이 채널 게시판은 준비 중입니다. 정보와 변경 기록, “✓ 작동” 같은 원클릭 리포트는 계속 쓸 수 있어요.':'This channel\'s board opens later. Facts, history and one-click reports work already.'}</p>`}${rows.length||!open?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard}</p>`}${pager}</section>`;
  const trending=m.trending.length?html`<section class="box kwb"><b>${s.trending}</b>${m.trending.map(k=>html`<a class="kw" href="/${l}/search/?in=${encodeURIComponent(e.id)}&amp;q=${encodeURIComponent(k)}">${k}</a>`)}</section>`:'';
  const wikiRows=m.panel.wiki(m.data,ctx);
  const links=officialLinks(e.official_urls,l);

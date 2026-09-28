@@ -9,7 +9,7 @@ import {fullTime,boardTime,compact} from './format.js';
 import {postByNo,commentsOf,reportById,channelPosts,channelStats,entitiesByIds,compatibilityOf} from '../db/channel.js';
 import {renderMarkdown,plainExcerpt} from '../markdown.js';
 import {COMPAT_STATUS_LABEL,label} from '../labels.js';
-import {confirmationsNeeded} from '../community.js';
+import {confirmationsNeeded,boardOpen} from '../community.js';
 import {dayStart,proposeForm} from './channel.js';
 import {typeDef} from '../verticals/index.js';
 
@@ -75,7 +75,7 @@ ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 ${propose?html`<section class="box">${propose}</section>`:''}
 <section class="box" id="comments"><div class="cmh">${s.commentsN(m.comments.filter(x=>!x.deleted).length)}<span class="srt"><span>${s.byOrder}</span></span></div>
 <ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol>
-<form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea></div><button class="btn p" type="submit">${s.submit}</button></form></section>
+${boardOpen(e)?html`<form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea></div><button class="btn p" type="submit">${s.submit}</button></form>`:html`<p class="empty closed">${l==='ko'?'이 채널 게시판은 준비 중이라 댓글을 쓸 수 없어요.':'Comments open when this channel\'s board opens.'}</p>`}</section>
 <section class="box"><div class="cmh">${s.channelList(name)}</div><ol class="plist">${m.around.map(x=>postRow(x,{l,now,href:postUrl(l,e,x.post_no),current:x.post_no===p.post_no}))}</ol><div class="pager"><a class="btn" href="${base}">${s.moreList}</a></div></section>`;
  const description=plainExcerpt(p.body_md,150)||p.title;
  // A post exists in the language it was written in: that URL is canonical and the only one indexed.

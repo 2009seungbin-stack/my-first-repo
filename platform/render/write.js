@@ -7,7 +7,7 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,nameOf,channelUrl,signInUrl} from './ui.js';
 import {related,versionsOf} from '../db/channel.js';
-import {POST_KINDS,writableKinds,LIMITS} from '../community.js';
+import {POST_KINDS,writableKinds,LIMITS,boardOpen} from '../community.js';
 
 /** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,kind?:string|null,result?:string|null,channels?:{name:string,href:string}[]}} o */
 export async function loadWrite(db,entity,o){
@@ -37,7 +37,9 @@ export function renderWrite(m,site){
 <label>${ko?'OS':'OS'}<input name="env_os" maxlength="60" placeholder="${ko?'예: Windows 11 24H2':'e.g. Windows 11 24H2'}"></label>
 <label>${ko?'기기':'Device'}<input name="env_device" maxlength="60" placeholder="${ko?'예: Steam Deck, RTX 4070':'e.g. Steam Deck'}"></label></div>
 <p class="fine">${ko?'같은 조합에 리포트가 3명 이상 모이고 반대가 적으면 ● 커뮤니티 검증으로 바뀝니다. 패치 파일은 올리지 말고 제작자 배포처를 안내해 주세요.':'With 3+ independent reports and few contradictions the combination becomes ● community verified. Do not upload patch files; link to the author.'}</p></fieldset>`:'';
- const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>
+ // Boards not open yet (OPEN_BOARDS): say so instead of a form that would be refused.
+ const closed=!boardOpen(e)?html`<div class="narrow"><section class="box"><div class="bh"><h1 class="wt">${ko?'게시판 준비 중':'Board opens later'}</h1></div><p class="empty">${ko?`${name} 채널 게시판은 아직 열지 않았어요. 지금은 AI, 한글패치, GPU 채널 게시판부터 운영합니다. 정보와 변경 기록, 원클릭 리포트는 계속 쓸 수 있어요.`:`This board opens later; AI, Korean-patch and GPU channels come first.`}</p><p class="pad"><a class="btn" href="${base}">${ko?'채널로 돌아가기':'Back to the channel'}</a></p></section></div>`:null;
+ const body=closed||html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>
 <section class="box"><div class="bh"><h1 class="wt">${ko?`${name} 채널에 글쓰기`:`Write in ${name}`}</h1></div>
 <form class="wform" data-island="write-form" data-entity="${e.id}">
 <p class="needlogin" hidden>${ko?'글을 등록하려면 로그인이 필요합니다. 쓰던 내용은 이 브라우저에 임시저장되어 로그인 후에도 남아 있어요.':'Sign in to post.'} <a href="${signInUrl(base+'write')}" rel="nofollow">${s.login} ›</a></p>

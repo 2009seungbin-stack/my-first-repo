@@ -10,7 +10,7 @@ import {resolveContext} from '../identity.js';
 import {allowRequest} from '../ratelimit.js';
 import {randomToken} from '../crypto.js';
 import {assertSameOrigin} from '../api.js';
-import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,LIMITS} from '../../platform/community.js';
+import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,boardOpen,LIMITS} from '../../platform/community.js';
 export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
 import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
@@ -54,10 +54,10 @@ function assertMayWrite(profile,now){
 /** @param {any} db @param {string} id */
 async function entity(db,id){
  if(typeof id!=='string'||!ENTITY_ID.test(id))throw new ApiError('BAD_REQUEST','Invalid channel.');
- const e=await db.prepare("SELECT id,vertical,slug,names FROM entities WHERE id=? AND status='active'").bind(id).first();
+ const e=await db.prepare("SELECT id,vertical,type,slug,names FROM entities WHERE id=? AND status='active'").bind(id).first();
  if(!e)throw new ApiError('NOT_FOUND','Channel not found.');
  let names={};try{names=JSON.parse(String(e.names));}catch{}
- return /** @type {{id:string,vertical:string,slug:string,names:Record<string,string>}} */({id:String(e.id),vertical:String(e.vertical),slug:String(e.slug),names});
+ return /** @type {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>}} */({id:String(e.id),vertical:String(e.vertical),type:String(e.type),slug:String(e.slug),names});
 }
 /** Purge the cached HTML of pages a write changed (both languages). @param {string} origin @param {string[]} paths */
 async function purge(origin,paths){
@@ -177,6 +177,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const kind=String(body.kind||'');
     const staff=profile.role==='moderator'||profile.role==='curator'||profile.role==='admin';
     if(!(kind in POST_KINDS)||!(writableKinds(e.vertical).includes(kind)||(staff&&kind==='notice')))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+    if(!staff&&!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
     await limit('post',LIMITS.postsPerMinute);
     const id=randomToken(12);
@@ -186,8 +187,9 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    }
    case 'POST /comments':{
     only(body,['postId','parentId','body']);
-    const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.type,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
     if(!post||post.status==='hidden'||post.status==='deleted')throw new ApiError('NOT_FOUND','Post not found.');
+    if(!boardOpen(/** @type {any} */(post))&&!['moderator','curator','admin'].includes(String(profile.role)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
     if(post.status==='locked')throw new ApiError('FORBIDDEN','Comments are closed on this post.');
     let parent=null;
     if(body.parentId!==undefined&&body.parentId!==null&&body.parentId!==''){
@@ -396,6 +398,8 @@ async function report(db,context,body,now,limit,origin){
  const titleIn=body.title?text(body.title,[2,120],'title'):null;
  const sv=optVersion(body.subjectVersion),tv=optVersion(body.targetVersion);
  const quick=!comment&&!body.title&&(body.kind==='issue'||!Object.keys(env).length);
+ // A report with text becomes a post, so it needs an open board (a one-click vote works anywhere).
+ if(!quick&&!boardOpen(target&&body.kind==='compat'?target:subject))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
  await limit(quick?'vote':'report',quick?LIMITS.votesPerMinute:LIMITS.postsPerMinute);
  const id=randomToken(12);
  // A bare click ("✓ 작동" on a game channel, "안 돼요" on a status page) is a vote: one per user and

@@ -193,6 +193,11 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert(/<title>[^<]*RTX 4070 vs [^<]*RTX 5070 비교/.test(vs)&&vs.includes('<link rel="canonical" href="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070"'),'the pair is its own page');
  assert(/4070 vs [^<]*5070/.test(vs),'two cards side by side');
  assert(vs.includes('class="mt vs"'));
+ // Boards open first on AI, 한글패치 and GPU channels (OPEN_BOARDS); others read "준비 중".
+ const studio=await (await go('/ko/studio/ableton-live/')).text();
+ assert(studio.includes('게시판은 준비 중')&&!studio.includes('href="/ko/studio/ableton-live/write"'),'closed board: no write button');
+ assert((await (await go('/ko/studio/ableton-live/write')).text()).includes('게시판 준비 중'));
+ assert((await (await go('/ko/hardware/rtx-5070/')).text()).includes('href="/ko/hardware/rtx-5070/write"'),'GPU boards are open');
  const gone=await go('/ko/ai/claude/999999');
  assert.equal(gone.status,404);assert((await gone.text()).includes('href="/ko/ai/claude/"'),'a missing post leads back to its channel');
  const both=await (await go('/ko/search/?q=5070+4070')).text();
