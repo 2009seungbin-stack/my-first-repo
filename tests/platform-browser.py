@@ -50,6 +50,18 @@ def main():
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_url(re.compile(r'/ko/games/caves-of-qud/\d+$'), timeout=8000)
             assert '작동' in pg.locator('h1').inner_text()
+            # flag the post, then handle it as a moderator (임시조치 with a reason)
+            pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(300)
+            post_url = pg.locator('.plist a.tt').first.get_attribute('href')
+            pg.goto(B + post_url); pg.wait_for_timeout(300)
+            pg.goto(B + pg.locator('.pact a', has_text='신고').get_attribute('href')); pg.wait_for_timeout(400)
+            pg.select_option('select[name=reason]', 'spam'); pg.click('form[data-island=flag-form] button[type=submit]'); pg.wait_for_timeout(600)
+            mod = b.new_page(); mod.on('dialog', lambda d: d.accept('도배 확인'))
+            mod.goto(B + '/__dev/login?as=mod1&role=moderator&next=/ko/community/mod'); mod.wait_for_timeout(900)
+            assert mod.locator('.mq').count() >= 1, 'the flagged post is in the queue'
+            mod.locator('.mq button', has_text='임시조치').first.click(); mod.wait_for_timeout(1200)
+            assert '도배 확인' in mod.locator('[data-log]').inner_text()
+            assert pg.request.get(B + post_url).status == 404, 'hidden posts are gone from the site'
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
             assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
             m = b.new_page(viewport={'width': 390, 'height': 900})

@@ -178,3 +178,24 @@ test('My Radar: changes and posts of followed channels, unread until seen',{skip
  assert.equal((await h.call('GET','/my-radar',{as:'a'})).json.unread,0);
  assert.equal((await h.call('GET','/my-radar')).status,401);
 });
+
+test('moderation: queue is hidden from members; hide = 임시조치 with a logged reason, restore, restrict',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('mod');
+ h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0)").run();
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'문제 있는 글',body:'x'}})).json;
+ await h.call('POST','/flags',{as:'mod',body:{target:`discussion:${p.id}`,reason:'copyright',note:'권리자 요청'}});
+ assert.equal((await h.call('GET','/mod/queue',{as:'a'})).status,404,'members do not see the queue');
+ const q=(await h.call('GET','/mod/queue',{as:'mod'})).json;
+ assert.equal(q.items[0].target,`discussion:${p.id}`);assert.deepEqual(q.items[0].reasons,['copyright']);
+ assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'hide'}})).status,400,'a reason is required');
+ assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'hide',reason:'권리 침해 신고로 임시조치'}})).status,200);
+ assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'hidden');
+ assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.items.length,0,'the flag is resolved');
+ await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'unhide',reason:'게시자 소명 확인'}});
+ assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'published');
+ await h.call('POST','/mod/action',{as:'mod',body:{target:'user:u-a',action:'restrict',reason:'도배',days:3}});
+ assert.equal((await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'또 올림',body:'x'}})).status,403);
+ assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM moderation_actions').get().n,3,'every action is logged');
+ await h.signIn('b');
+ assert.equal((await h.call('POST','/mod/action',{as:'b',body:{target:'user:u-mod',action:'restrict',reason:'보복'}})).status,404,'members cannot moderate');
+});

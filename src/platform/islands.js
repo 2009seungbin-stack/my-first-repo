@@ -187,6 +187,25 @@ async function main(){
   const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
   if(r){toast(T.thanks);$('button[type="submit"]',ff).disabled=true;}});
 
+ // Moderator queue
+ const mq=$('[data-island="mod-queue"]');
+ if(mq&&signedIn){
+  const r=await api('/mod/queue');
+  if(r.ok){
+   const {items,log}=r.data,ul=$('[data-items]',mq),empty=$('[data-empty]',mq);
+   empty.textContent=items.length?'':(L==='ko'?'열린 신고가 없습니다.':'No open reports.');empty.hidden=!!items.length;
+   const act=async(target,action,label)=>{const reason=prompt(`${label} — ${L==='ko'?'사유':'reason'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok)location.reload();else explain(x);};
+   for(const it of items){
+    const li=document.createElement('li');li.className='mq';
+    const t=document.createElement(it.url?'a':'span');t.className='tt';if(it.url)t.href=it.url;t.textContent=`[${it.reasons.join(', ')}] ×${it.count} · ${it.preview||it.target}${it.status&&it.status!=='published'?` (${it.status})`:''}`;
+    li.append(t);
+    for(const [a,lab] of [['hide',L==='ko'?'임시조치':'Hide'],['unhide',L==='ko'?'복구':'Restore'],['dismiss',L==='ko'?'기각':'Dismiss']]){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=lab;b.addEventListener('click',()=>act(it.target,a,lab));li.append(b);}
+    ul.append(li);
+   }
+   const lg=$('[data-log]');for(const x of log){const li=document.createElement('li');li.textContent=`${new Date(x.created_at).toLocaleString(L==='ko'?'ko-KR':'en-US')} · ${x.action} · ${x.target_kind}:${x.target_id} · ${x.reason||''}`;lg.append(li);}
+  }
+ }
+
  // New posts bar (polls once a minute while the tab is visible)
  const bar=$('[data-island="new-posts"]');
  if(bar){

@@ -2,7 +2,7 @@
 /** Local Nerulio 2.0 server: the Worker's platform handlers (pages + /api/v2) over a node:sqlite
  * database with every seed file and the SAMPLE boards, plus the repository's static files.
  *   node tools/platform/dev-server.mjs [port]      → http://localhost:8788/ko/community/
- * Sign in locally with /__dev/login?as=<name> (creates a test account and a session cookie; this
+ * Sign in locally with /__dev/login?as=<name>[&role=moderator] (creates a test account and a session cookie; this
  * route exists only in this dev server, never in the Worker). */
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
@@ -32,6 +32,8 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
     const id='dev-'+name,token=base64url(crypto.getRandomValues(new Uint8Array(32)));
     await db.prepare("INSERT OR IGNORE INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES(?1,NULL,?2,'dev',?1,?3)").bind(id,name,Date.now()-30*864e5).run();
     await db.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?1,?2,?3,?4)').bind(await sha256(token),id,Date.now(),Date.now()+864e5).run();
+    const role=url.searchParams.get('role');
+    if(role==='moderator'||role==='admin')await db.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES (?1,?2,?3,?4,?4) ON CONFLICT(user_id) DO UPDATE SET role=excluded.role").bind(id,name,role,Date.now()).run();
     res.writeHead(302,{'set-cookie':`nerulio_session=${token}; Path=/; HttpOnly; SameSite=Lax`,location:url.searchParams.get('next')||'/ko/community/'});return res.end();
    }
    const body=req.method==='POST'?await new Promise(r=>{const c=[];req.on('data',d=>c.push(d));req.on('end',()=>r(Buffer.concat(c)));}):undefined;

@@ -17,7 +17,7 @@ import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -88,6 +88,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    const r=await db.prepare("SELECT COUNT(*) AS n,MAX(post_no) AS last FROM discussions WHERE entity_id=? AND post_no>? AND status='published'").bind(e.id,after).first();
    return done({count:Number(r?.n||0),last:Number(r?.last||after)});
   }
+  if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
   if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko'));}
   // Writes.
   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
@@ -156,6 +157,10 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await limit('vote',LIMITS.votesPerMinute);
     const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
     return done(r);
+   }
+   case 'POST /mod/action':{
+    await moderator(db,context);
+    return done(await modAction(db,context.user.id,body,now,origin));
    }
    case 'POST /my-radar/seen':{
     only(body,['lastChangeId']);
@@ -285,4 +290,56 @@ async function myRadar(db,userId,l){
  const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
   .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
  return {following:ids.length,unread:changes.filter(c=>c.unread).length,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts};
+}
+
+/* ---------- moderation (신고 → 임시조치 → 처리 기록) ---------- */
+
+/** Moderators, curators and admins only; everyone else gets 404 (the queue's existence is not advertised). @param {any} db @param {any} context */
+async function moderator(db,context){
+ if(!context.user)throw new ApiError('NOT_FOUND');
+ const p=await db.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(context.user.id).first();
+ if(!p||!['moderator','curator','admin'].includes(String(p.role)))throw new ApiError('NOT_FOUND');
+ return p;
+}
+/** Open flags grouped by target, oldest first, with a preview of the flagged text. @param {any} db @param {any} _p */
+async function modQueue(db,_p){
+ const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,MAX(note) AS note FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
+ const items=[];
+ for(const r of rows){
+  let preview=null,status=null,url=null;
+  if(r.target_kind==='discussion'){const d=await db.prepare('SELECT d.title,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?').bind(r.target_id).first();if(d){preview=d.title;status=d.status;url=postUrl('ko',{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no));}}
+  if(r.target_kind==='comment'){const c=await db.prepare('SELECT body_md,status FROM comments WHERE id=?').bind(r.target_id).first();if(c){preview=String(c.body_md).slice(0,200);status=c.status;}}
+  items.push({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.note??null,preview,status,url});
+ }
+ const log=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
+ return {items,log};
+}
+const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict']);
+/** Apply one moderator action; always logged in moderation_actions with its reason.
+ * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
+ * @param {any} db @param {string} actor @param {any} body @param {number} now @param {string} origin */
+async function modAction(db,actor,body,now,origin){
+ only(body,['target','action','reason','days']);
+ const m=/^(discussion|comment|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
+ if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+ const action=String(body.action);if(!MOD_ACTIONS.includes(action))throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
+ const reason=text(body.reason,[2,500],'reason');
+ const [,kind,id]=m,w=[];
+ if(kind==='discussion'||kind==='comment'){
+  const table=kind==='discussion'?'discussions':'comments';
+  if(action==='hide')w.push(db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=?`).bind(now,id));
+  if(action==='unhide')w.push(db.prepare(`UPDATE ${table} SET status='published',updated_at=? WHERE id=? AND status='hidden'`).bind(now,id));
+  if(kind==='comment'&&(action==='hide'||action==='unhide'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+ }
+ if(kind==='user'){
+  const days=Math.min(365,Math.max(1,Number(body.days)||7));
+  if(action==='restrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=?,strikes=strikes+1,updated_at=? WHERE user_id=?').bind(now+days*864e5,now,id));
+  if(action==='unrestrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=NULL,updated_at=? WHERE user_id=?').bind(now,id));
+ }
+ if(!w.length&&action!=='dismiss')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
+ w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
+ w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:{}),now));
+ await db.batch(w);
+ if(kind==='discussion'){const d=await db.prepare('SELECT d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?').bind(id).first();if(d)await purge(origin,[...bothLocales(l=>postUrl(l,{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no))),...bothLocales(l=>channelUrl(l,{vertical:String(d.vertical),slug:String(d.slug)}))]);}
+ return {ok:true};
 }

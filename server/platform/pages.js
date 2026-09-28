@@ -20,6 +20,7 @@ import {loadStatus,renderStatus} from '../../platform/render/status.js';
 import {loadSearch,renderSearch} from '../../platform/render/search.js';
 import {loadRadar,renderRadar} from '../../platform/render/radar.js';
 import {renderFlag,FLAG_TARGET} from '../../platform/render/flag.js';
+import {renderMod} from '../../platform/render/mod.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {channelUrl,nameOf} from '../../platform/render/ui.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
@@ -28,7 +29,7 @@ import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report))?|(search|radar)/|(${V})/([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm))?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod))?|(search|radar)/|(${V})/([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm))?)$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=600';
 /** Channel bar for anonymous readers: the week's most active channels, topped up with featured ones. */
 export const FEATURED=Object.freeze(['service:claude','service:chatgpt','service:gemini-app','service:claude-code','gpu:rtx-5070','app:blender','app:ableton-live']);
@@ -39,13 +40,13 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'best'|'flag'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm',vertical?:string,slug?:string,no?:number|null}} Route */
+/** @typedef {{l:string,page:'front'|'best'|'flag'|'mod'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm',vertical?:string,slug?:string,no?:number|null}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const m=ROUTE.exec(pathname);
  if(!m)return null;
  const [,l,community,best,report,top,vertical,slug,no,sub]=m;
- if(community)return {l,page:best?'best':report?'flag':'front'};
+ if(community)return {l,page:best?'best':report==='mod'?'mod':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
  return {l,page:no?'post':/** @type {'write'|'history'|'status'|'local-llm'|undefined} */(sub)||'channel',vertical,slug,no:no?Number(no):null};
 }
@@ -100,6 +101,7 @@ export async function renderPlatformPage(request,env,site){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',vertical:q.get('v'),channels:await bar()}),s)));
   case 'flag':return html(String(renderFlag({l,target:q.get('target'),channels:await bar()},s)));
+  case 'mod':return html(String(renderMod({l,channels:await bar()},s)),'private, no-store');
   case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),channels:await bar()}),s)),'private, no-store');
   case 'radar':return html(String(renderRadar(await loadRadar(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
  }

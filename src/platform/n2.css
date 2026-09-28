@@ -326,6 +326,8 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .tt.unread{font-weight:700}
 .tt.unread::before{content:'● ';color:var(--hot);font-size:10px;vertical-align:2px}
 
+.mq{flex-wrap:wrap}.mq .tt{flex:1 1 100%;white-space:normal}
+
 /* narrow screens */
 @media (max-width:1000px){
  .cols,.front{grid-template-columns:minmax(0,1fr)}
