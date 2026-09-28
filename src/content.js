@@ -165,7 +165,7 @@ const POPULAR={ko:'자주 하는 작업',en:'Popular tasks',ja:'よく使う作�
 /** Task-specific copy for a landing page, then links to sibling tasks of the same tool. */
 function landingHTML(id,locale,path){
  const land=landingText(path,locale),tasks=LANDING_PATHS.filter(p=>LANDINGS[p].intent===id&&p!==path);
- const pixelStudio=path==='image-to-pixel-art'?`<p><a href="${locale}/game/studio/?ws=pixel&amp;mode=convert">${esc({en:'Open advanced Pixel Studio conversion',ko:'Pixel Studio 고급 변환 열기',ja:'Pixel Studio の高度な変換を開く'}[locale])}</a></p>`:'';
+ const pixelStudio=(id==='pixel'&&(path==='pixel'||path==='image-to-pixel-art'))?`<p><a href="${locale}/game/studio/?ws=pixel&amp;mode=convert">${esc({en:'Open Pixel Studio for exact dimensions, palette and animation controls',ko:'정확한 크기·팔레트·애니메이션 설정은 Pixel Studio에서 열기',ja:'寸法・パレット・アニメーションを指定して Pixel Studio を開く'}[locale])}</a></p>`:'';
  const intro=(land?`<h2>${esc(land.title)}</h2>${land.intro.map(p=>`<p>${esc(p)}</p>`).join('')}`:'')+pixelStudio;
  const links=tasks.length?`<nav class="landing-links" aria-label="${esc(POPULAR[locale])}"><h3>${esc(POPULAR[locale])}</h3>${tasks.map(p=>`<a href="${locale}/${p}/">${esc(landingText(p,locale).title)}</a>`).join('')}</nav>`:'';
  return {intro,links};
