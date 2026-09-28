@@ -963,4 +963,5 @@ export function ui(locale,key,vars={}){
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
 }
 export const UI_LOCALES=Object.keys(S);
+for(const [locale,label,kind] of [['ko','글쓰기','텍스트'],['en','Writing','text'],['ja','文章','テキスト']]){S[locale].cat.text=label;S[locale].kinds.text=kind;}
 export const UI_STRINGS=S;

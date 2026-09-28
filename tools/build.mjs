@@ -72,10 +72,10 @@ export function entry(html,route='',siteURL='',config={}){
  // route keeps the classic editor until its task page is a superset of that flow.
  if(!parts.path||isTask(id)){
   // <game route>/classic: the old Lab behind a Studio landing — reachable, never indexed.
-  const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':'';
+  const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':parts.path==='image-to-pixel-art'?'<meta data-alias-robots name="robots" content="noindex,follow">':'';
   // The home page at / adapts to the visitor's language: its own canonical and the x-default (src/seo.js).
   const neutralHome=!parts.locale&&!parts.path;
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,neutralHome?{...config,client:''}:config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,neutralHome?{...config,client:''}:config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing||parts.path);
   // / is the language entry (tools/language-entry-build.mjs), not a second copy of the English home.
   // No AdSense loader there (client:'' above): it is a redirect page without content of its own.
   if(neutralHome)return languageEntryPage({base,headHTML});

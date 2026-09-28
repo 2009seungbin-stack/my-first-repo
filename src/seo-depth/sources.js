@@ -75,4 +75,5 @@ export const SOURCE_HOSTS=new Set([
  'www.rpgmakerweb.com',
  'www.spritefusion.com', // Sprite Fusion's own documentation (compared on game/sprite-fusion-alternative)
  'www.w3.org',
+ 'www.unicode.org', // Unicode grapheme segmentation standard
 ]);

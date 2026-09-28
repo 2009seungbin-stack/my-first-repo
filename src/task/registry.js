@@ -3,6 +3,7 @@
  * A tool moves here only when its task page is a superset of the old editor flow for that
  * job; until then its route keeps the classic editor (docs/PRODUCT-ROADMAP.md). */
 export const TASK_TOOLS=Object.freeze({
+ 'character-counter':{module:'character-counter',kinds:['text'],next:[]},
  compress:{module:'compress',kinds:['image'],next:['convert','resize','image']},
  convert:{module:'convert',kinds:['image'],next:['compress','resize','image']},
  heic:{module:'convert',kinds:['image'],next:['compress','resize','image']},
@@ -58,6 +59,7 @@ export const TASK_TOOLS=Object.freeze({
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
 export const DIRECTORY=Object.freeze([
+ ['text',['character-counter']],
  ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
@@ -74,6 +76,7 @@ export const CATEGORY_BADGE=Object.freeze({image:'IMG',pdf:'PDF',video:'VID',gam
 export const SUGGEST=Object.freeze({image:['compress','convert','resize','remove-bg','jpg-to-pdf'],pdf:['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','pdf-protect','pdf'],media:['video-gif','video-mp3','video-compress','video-trim']});
 export function kindOf(file){
  const name=String(file?.name||'').toLowerCase(),type=String(file?.type||'');
+ if(type==='text/plain'||/\.(txt|md|text)$/i.test(name))return 'text';
  if(type==='application/pdf'||name.endsWith('.pdf'))return 'pdf';
  if(type.startsWith('image/')||/\.(png|jpe?g|webp|avif|gif|bmp|heic|heif|svg)$/.test(name))return 'image';
  if(type.startsWith('video/')||type.startsWith('audio/')||/\.(mp4|mov|webm|mkv|m4v|mp3|wav|m4a|ogg)$/.test(name))return 'media';

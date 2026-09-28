@@ -48,7 +48,7 @@ def run_mode(browser,mode,index):
             ok(mode+' locale '+route,page.locator('html').get_attribute('lang')==lang)
             ok(mode+' title and h1 '+route,page.title()==('Nerulio — '+page.locator('h1').inner_text() if route=='/en/' else page.locator('h1').inner_text()+' · Nerulio'))
             ok(mode+' description '+route,len(page.locator('meta[name="description"]').get_attribute('content'))>10)
-            ok(mode+' guide and FAQ '+route,page.locator('.reading-content ol li').count()==3 and page.locator('.faq details').count()==3)
+            ok(mode+' guide and FAQ '+route,page.locator('.reading-content article > ol > li').count()==3 and page.locator('.faq details').count()==3)
             if mode=='disabled':
                 ok('no-domain omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0 and page.locator('link[hreflang]').count()==0)
             else:
