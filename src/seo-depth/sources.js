@@ -20,6 +20,7 @@ export const SOURCE_HOSTS=new Set([
  'docs.substance3d.com',
  'docs.unity.com',
  'docs.unity3d.com',
+ 'ezgif.com', // ezgif's own tool pages (formats, limits, retention), for game/ezgif-sprite-cutter-alternative
  'en.esotericsoftware.com',
  'esotericsoftware.com',
  'ffmpeg.org',
