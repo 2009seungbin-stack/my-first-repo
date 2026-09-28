@@ -750,5 +750,304 @@ export default {
    versions:{body:['Spriteコンポーネントを1つ持つ使い捨てのプロジェクトで、Defold bob.jar 1.13.1（Java 25）によりビルドしました。ビルドされたテクスチャセットからアニメーションのid、タイル範囲、fps、再生方法を読み、ビルドされたテクスチャからUVで全フレームを切り出して元画像と比較しました。Defoldエディターや実行中のゲームは使っていないため、表示は「検証済み」ではなく「ビルド済み」です。Defoldの用語は公式マニュアルに従います。'],sources:[S.defoldAtlas,S.defoldTile,S.defoldSprite,S.defoldProject]}
   }
  },
+ 'game/love2d-quads':{
+  type:'engine',
+  intent:{primary:'get quads for a sprite atlas in LÖVE (Love2D) without typing rectangles by hand',secondary:['newQuad parameters','drawing trimmed frames from their pivot','animation timing in Lua'],
+   goal:'LÖVE draws every frame and plays the animations from a packed atlas, sharp at integer zoom',input:'frame images, a GIF, an .aseprite file or a sheet',output:'atlas PNG + Lua table of quads + nerulio_atlas.lua helper + main.lua',target:'LÖVE 11 (verified 11.5)',support:'full',
+   evidence:['src/game/export/engines.js (loveFiles: table, helper, main.lua)','src/game/export/targets.js (LÖVE preset: extrude 1, no rotation)','docs/STUDIO-PACK.md, docs/ENGINE-VERIFY.md (love_runner, LÖVE 11.5)'],
+   external:['LÖVE 11.5 source: love.graphics.newQuad(x, y, w, h, sw, sh), setDefaultFilter(min, mag)']},
+  en:{
+   answer:'LÖVE has no atlas file format: you load the PNG with `love.graphics.newImage`, describe each frame as a Quad with `love.graphics.newQuad(x, y, w, h, pageW, pageH)`, and draw it with `love.graphics.draw(image, quad, x, y, r, sx, sy, ox, oy)`. Nerulio packs the frames and writes those numbers as a Lua table (rectangle, trim offset, pivot, animations with durations in seconds), plus `nerulio_atlas.lua`, a small helper that builds the quads and steps animations. LÖVE 11.5 drew every frame and animation through that helper.',
+   concept:{title:'Quads, origins and trimmed frames',body:[
+    'A Quad is only a rectangle of an image. Drawing it puts the rectangle\'s top-left corner at x, y, unless you pass an origin offset `ox, oy` as the last arguments of `love.graphics.draw`; that offset is how a frame is drawn from its feet or its centre, and it is also the point scaling and rotation happen around.',
+    'A trimmed frame stores only its visible pixels, so the origin has to be corrected by the trim: origin = pivot − trim offset. In the exported table `px, py` is the pivot on the full frame canvas and `ox, oy` is where the stored pixels start on that canvas; the helper draws with the origin `(px − ox, py − oy)`.',
+    'The LÖVE preset packs with 1 px extrude and 2 px padding and never rotates, so every quad is upright and has a copy of its edge pixels around it. The helper calls `love.graphics.setDefaultFilter("nearest", "nearest")` before it loads the image, which keeps pixel art sharp at 4×.'],
+    terms:[['Quad','A rectangle of an image, made with `love.graphics.newQuad` from x, y, width, height and the image\'s size.'],['ox, oy in draw','The origin offset of `love.graphics.draw`: the point that lands on x, y.'],['ox, oy in the table','Where a trimmed frame\'s stored pixels start on its original canvas.'],['durations','Seconds per frame of an animation, converted from the tag\'s milliseconds.']]},
+   example:{title:'Example: one frame from table to screen',lines:[
+    'run.lua   (page run.png 64 × 37: extrude 1, padding 2, no rotation)',
+    '["run_0"] = { page = 1, x = 1, y = 20, w = 18, h = 15, ox = 10, oy = 10, sw = 40, sh = 29, px = 20, py = 29 }',
+    '["run"]   = { loop = true, frames = { "run_0", …, "run_5" }, durations = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 } }',
+    '',
+    'quad   = love.graphics.newQuad(1, 20, 18, 15, 64, 37)',
+    'origin = (px − ox, py − oy) = (20 − 10, 29 − 10) = (10, 19)',
+    'love.graphics.draw(image, quad, 200, 200, 0, 4, 4, 10, 19)',
+    '       → the frame\'s feet at (200, 200), drawn 4× larger',
+    '',
+    'spacing on the page: run_5 covers x = 1–21, its extrude column is x = 22,',
+    'padding x = 23–24, run_3\'s extrude column x = 25, run_3 starts at x = 26'],
+    after:'Each stored piece sits 1 px in from its own extrude belt and at least 4 px (1 + 2 + 1) from the next piece, so a quad drawn at a fractional position or scale still samples its own colours at the edge.'},
+   outputs:{rows:[
+    ['run.lua','`images`, `pages` (w, h), `frames` (x, y, w, h, trim ox/oy, canvas sw/sh, pivot px/py), `order` and `animations` (loop, frames, durations in seconds).'],
+    ['nerulio_atlas.lua','`Atlas.load(path)` builds images and quads; `atlas:draw(key, x, y, sx, sy)` draws from the pivot; `atlas:play(name)` returns a small player with `update(dt)` and `draw`.'],
+    ['main.lua','An example that plays the first animation at 4× (`love .` in the folder).'],
+    ['run.png','The page, with a 1 px extrude around every frame.']]},
+   target:{title:'Use it in LÖVE 11',steps:[
+    'Put `run.png`, `run.lua` and `nerulio_atlas.lua` in your game folder, next to `main.lua` or in a subfolder whose path you pass to `Atlas.load`.',
+    'In `love.load`: `Atlas = require("nerulio_atlas")`, `atlas = Atlas.load("run.lua")`, `anim = atlas:play("run")`.',
+    'In `love.update(dt)` call `anim:update(dt)`; in `love.draw()` call `anim:draw(x, y, 4)`, which draws with the pivot at x, y at 4× scale.',
+    'Without the helper: `local data = love.filesystem.load("run.lua")()`, create one `love.graphics.newQuad(f.x, f.y, f.w, f.h, page.w, page.h)` per frame, and draw with the origin `f.px − f.ox, f.py − f.oy`.']},
+   verify:{steps:[
+    'Run `love .` inside the exported folder: `main.lua` plays the first animation at 4×, with square pixel edges.',
+    'Draw run_0 and run_4 at the same point: the feet stay on one line although their pieces start at different trim offsets, (10, 10) and (10, 8).',
+    'One cycle of `run` lasts 0.6 s: six durations of 0.1 s.']},
+   trouble:{rows:[
+    ['Frames jump up and down while the animation plays','Each quad is drawn from its own top-left corner, without the trim and pivot origin','Draw two frames at one point and compare with the Studio preview','Pass the origin `px − ox, py − oy`, or use the helper\'s `draw`'],
+    ['Pixels are blurry when scaled','The image was loaded before `setDefaultFilter("nearest", "nearest")`, or your own image has a linear filter','Where the filter is set relative to `newImage`','Set the default filter first (the helper does), or call `image:setFilter("nearest", "nearest")`'],
+    ['Thin lines from neighbouring frames at fractional positions or scales','A hand-made sheet without extrude or padding around the quads','Watch a frame edge at 4× while moving it by half a pixel','Repack with the LÖVE preset: extrude 1, padding 2'],
+    ['`module \'nerulio_atlas\' not found`','The helper is not on the require path','`love.filesystem.getInfo("nerulio_atlas.lua")`','Put it next to `main.lua`, or require it with its folder, for example `require("lib.nerulio_atlas")`'],
+    ['An animation stops on its last frame','The tag does not loop, so the player holds the last frame','`data.animations.run.loop`','Set the tag to repeat forever before exporting, or start the player again with `atlas:play("run")`']]},
+   alternatives:{rows:[
+    ['A uniform grid and quads computed in a loop','All frames have the same size and no trim: `love.graphics.newQuad(col * w, row * h, w, h, sheetW, sheetH)` for each cell, no data file needed.'],
+    ['A TexturePacker JSON read with a Lua JSON library','You already have a JSON atlas: create quads from each `frame` rectangle the same way; trimmed frames still need the `spriteSourceSize` offset in the origin.'],
+    ['The same frames for another engine','[[game/defold-atlas|Defold atlas]] or [[game/phaser-texture-atlas|Phaser texture atlas]].']]},
+   versions:{body:['LÖVE 11.5 (portable build) ran a probe that `require`s the exported `nerulio_atlas.lua`, drew every frame into a Canvas, stepped every animation through the helper\'s player and drew one frame at 4×; the pixels were read back and compared with the source frames. Function signatures are those of the LÖVE 11.5 source.'],sources:[S.loveSrc,S.loveWiki]}
+  },
+  ko:{
+   answer:'LÖVE에는 아틀라스 파일 형식이 없습니다. `love.graphics.newImage`로 PNG를 불러오고, 프레임마다 `love.graphics.newQuad(x, y, w, h, 페이지너비, 페이지높이)`로 쿼드를 만들어 `love.graphics.draw(image, quad, x, y, r, sx, sy, ox, oy)`로 그립니다. Nerulio는 프레임을 패킹하고 이 숫자들을 Lua 테이블(사각형, 트림 오프셋, 피벗, 초 단위 길이가 있는 애니메이션)로 쓰며, 쿼드를 만들고 애니메이션을 넘겨 주는 작은 도우미 `nerulio_atlas.lua`를 함께 줍니다. LÖVE 11.5가 이 도우미로 모든 프레임과 애니메이션을 그렸습니다.',
+   concept:{title:'쿼드, 원점, 트림된 프레임',body:[
+    '쿼드는 이미지의 사각형일 뿐입니다. 그리면 사각형의 왼쪽 위가 x, y에 놓입니다. `love.graphics.draw`의 마지막 인수로 원점 오프셋 `ox, oy`를 주면 달라지는데, 이것으로 프레임을 발이나 가운데 기준으로 그리며 확대·회전도 이 점을 중심으로 일어납니다.',
+    '트림된 프레임은 보이는 픽셀만 저장하므로 원점을 트림만큼 보정해야 합니다. 원점 = 피벗 − 트림 오프셋. 내보낸 테이블에서 `px, py`는 전체 프레임 캔버스 위의 피벗이고 `ox, oy`는 저장된 픽셀이 그 캔버스에서 시작하는 위치입니다. 도우미는 원점 `(px − ox, py − oy)`로 그립니다.',
+    'LÖVE 프리셋은 확장 1px, 간격 2px로 패킹하고 회전하지 않으므로 모든 쿼드가 똑바로 서 있고 둘레에 가장자리 픽셀 복사본이 있습니다. 도우미는 이미지를 불러오기 전에 `love.graphics.setDefaultFilter("nearest", "nearest")`를 호출해 4배에서도 도트 그림을 선명하게 유지합니다.'],
+    terms:[['쿼드','x, y, 너비, 높이와 이미지 크기로 `love.graphics.newQuad`가 만드는 이미지의 사각형.'],['draw의 ox, oy','`love.graphics.draw`의 원점 오프셋. x, y에 놓이는 점.'],['테이블의 ox, oy','트림된 프레임의 저장 픽셀이 원래 캔버스에서 시작하는 위치.'],['durations','애니메이션 프레임마다의 초. 태그의 밀리초를 변환한 값.']]},
+   example:{title:'예시: 테이블에서 화면까지 프레임 하나',lines:[
+    'run.lua   (페이지 run.png 64 × 37: 확장 1, 간격 2, 회전 없음)',
+    '["run_0"] = { page = 1, x = 1, y = 20, w = 18, h = 15, ox = 10, oy = 10, sw = 40, sh = 29, px = 20, py = 29 }',
+    '["run"]   = { loop = true, frames = { "run_0", …, "run_5" }, durations = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 } }',
+    '',
+    'quad   = love.graphics.newQuad(1, 20, 18, 15, 64, 37)',
+    '원점   = (px − ox, py − oy) = (20 − 10, 29 − 10) = (10, 19)',
+    'love.graphics.draw(image, quad, 200, 200, 0, 4, 4, 10, 19)',
+    '       → 프레임의 발이 (200, 200)에 오고 4배로 그려짐',
+    '',
+    '페이지 위 간격: run_5는 x = 1–21, 그 확장 열은 x = 22,',
+    '간격 x = 23–24, run_3의 확장 열 x = 25, run_3은 x = 26에서 시작'],
+    after:'저장된 조각은 자기 확장 띠 안쪽 1px에 있고 다음 조각과는 적어도 4px(1 + 2 + 1) 떨어져 있습니다. 그래서 소수 위치나 배율로 그려도 가장자리에서 자기 색을 읽습니다.'},
+   outputs:{rows:[
+    ['run.lua','`images`, `pages`(w, h), `frames`(x, y, w, h, 트림 ox/oy, 캔버스 sw/sh, 피벗 px/py), `order`, `animations`(반복, 프레임, 초 단위 길이).'],
+    ['nerulio_atlas.lua','`Atlas.load(path)`가 이미지와 쿼드를 만들고, `atlas:draw(key, x, y, sx, sy)`가 피벗 기준으로 그리며, `atlas:play(name)`이 `update(dt)`와 `draw`가 있는 작은 플레이어를 돌려줌.'],
+    ['main.lua','첫 애니메이션을 4배로 재생하는 예제(폴더에서 `love .`).'],
+    ['run.png','모든 프레임 둘레에 1px 확장이 있는 페이지.']]},
+   target:{title:'LÖVE 11에서 쓰기',steps:[
+    '`run.png`, `run.lua`, `nerulio_atlas.lua`를 게임 폴더에 넣습니다. `main.lua` 옆이나, 경로를 `Atlas.load`에 넘기는 하위 폴더에 둡니다.',
+    '`love.load`에서 `Atlas = require("nerulio_atlas")`, `atlas = Atlas.load("run.lua")`, `anim = atlas:play("run")`.',
+    '`love.update(dt)`에서 `anim:update(dt)`, `love.draw()`에서 `anim:draw(x, y, 4)`를 호출하면 피벗이 x, y에 오도록 4배로 그립니다.',
+    '도우미 없이: `local data = love.filesystem.load("run.lua")()`로 읽고 프레임마다 `love.graphics.newQuad(f.x, f.y, f.w, f.h, page.w, page.h)`를 만든 뒤 원점 `f.px − f.ox, f.py − f.oy`로 그립니다.']},
+   verify:{steps:[
+    '내보낸 폴더 안에서 `love .`를 실행하면 `main.lua`가 첫 애니메이션을 4배로, 픽셀 가장자리가 네모나게 재생합니다.',
+    'run_0과 run_4를 같은 점에 그립니다. 트림 오프셋이 (10, 10), (10, 8)로 달라도 발이 한 선에 있어야 합니다.',
+    '`run` 한 바퀴는 0.6초입니다. 0.1초짜리 길이 6개.']},
+   trouble:{rows:[
+    ['애니메이션 재생 중 프레임이 위아래로 튐','쿼드를 트림·피벗 원점 없이 각자의 왼쪽 위 기준으로 그림','두 프레임을 같은 점에 그려 Studio 미리보기와 비교','원점 `px − ox, py − oy`를 넘기거나 도우미의 `draw` 사용'],
+    ['확대하면 픽셀이 흐림','`setDefaultFilter("nearest", "nearest")` 전에 이미지를 불러왔거나, 직접 만든 이미지의 필터가 선형','`newImage`보다 필터 설정이 먼저인지 확인','기본 필터를 먼저 설정(도우미는 그렇게 함)하거나 `image:setFilter("nearest", "nearest")` 호출'],
+    ['소수 위치나 배율에서 이웃 프레임의 가는 선이 보임','쿼드 둘레에 확장이나 간격이 없는 손으로 만든 시트','프레임을 반 픽셀씩 움직이며 가장자리를 4배로 관찰','LÖVE 프리셋(확장 1, 간격 2)으로 다시 패킹'],
+    ['`module \'nerulio_atlas\' not found`','도우미가 require 경로에 없음','`love.filesystem.getInfo("nerulio_atlas.lua")`','`main.lua` 옆에 두거나 폴더를 붙여 require. 예: `require("lib.nerulio_atlas")`'],
+    ['애니메이션이 마지막 프레임에서 멈춤','태그가 반복하지 않아서 플레이어가 마지막 프레임을 유지함','`data.animations.run.loop`','내보내기 전에 태그를 무한 반복으로 바꾸거나 `atlas:play("run")`으로 플레이어를 다시 시작']]},
+   alternatives:{rows:[
+    ['균일한 격자와 반복문으로 계산한 쿼드','모든 프레임 크기가 같고 트림이 없을 때. 칸마다 `love.graphics.newQuad(col * w, row * h, w, h, sheetW, sheetH)`, 데이터 파일이 필요 없습니다.'],
+    ['Lua JSON 라이브러리로 읽는 TexturePacker JSON','이미 JSON 아틀라스가 있을 때. 각 `frame` 사각형으로 같은 방식의 쿼드를 만들되, 트림된 프레임은 원점에 `spriteSourceSize` 오프셋을 반영해야 합니다.'],
+    ['같은 프레임을 다른 엔진으로','[[game/defold-atlas|Defold 아틀라스]], [[game/phaser-texture-atlas|Phaser 텍스처 아틀라스]].']]},
+   versions:{body:['LÖVE 11.5(포터블 빌드)에서 내보낸 `nerulio_atlas.lua`를 `require`하는 검사용 스크립트를 실행해, 모든 프레임을 Canvas에 그리고 도우미의 플레이어로 모든 애니메이션을 넘기고 프레임 하나를 4배로 그렸습니다. 픽셀을 다시 읽어 원본 프레임과 비교했습니다. 함수 시그니처는 LÖVE 11.5 소스를 따릅니다.'],sources:[S.loveSrc,S.loveWiki]}
+  },
+  ja:{
+   answer:'LÖVEにはアトラスのファイル形式がありません。`love.graphics.newImage`でPNGを読み込み、フレームごとに`love.graphics.newQuad(x, y, w, h, ページ幅, ページ高さ)`でQuadを作り、`love.graphics.draw(image, quad, x, y, r, sx, sy, ox, oy)`で描きます。Nerulioはフレームをパックしてこれらの数値をLuaのテーブル（矩形、トリムのオフセット、ピボット、秒単位の長さを持つアニメーション）として書き、Quadを作ってアニメーションを進める小さなヘルパー`nerulio_atlas.lua`を添えます。LÖVE 11.5がこのヘルパーで全フレームとアニメーションを描画しました。',
+   concept:{title:'Quad、原点、トリムしたフレーム',body:[
+    'Quadは画像の矩形にすぎません。描くと矩形の左上がx, yに置かれます。`love.graphics.draw`の最後の引数で原点のオフセット`ox, oy`を渡すと変わり、これでフレームを足元や中心を基準に描けます。拡大や回転もこの点を中心に行われます。',
+    'トリムしたフレームは見えるピクセルだけを保存しているので、原点をトリム分だけ補正する必要があります。原点 = ピボット − トリムのオフセット。書き出したテーブルでは、`px, py`がフレーム全体のキャンバス上のピボット、`ox, oy`が保存ピクセルのキャンバス上の開始位置です。ヘルパーは原点`(px − ox, py − oy)`で描きます。',
+    'LÖVEプリセットは押し出し1px、間隔2pxでパックし、回転しません。そのためどのQuadも正立していて、周りに縁のピクセルの複製があります。ヘルパーは画像を読み込む前に`love.graphics.setDefaultFilter("nearest", "nearest")`を呼ぶので、4倍でもドット絵がくっきりしたままです。'],
+    terms:[['Quad','x、y、幅、高さと画像の大きさから`love.graphics.newQuad`で作る、画像の矩形。'],['drawのox, oy','`love.graphics.draw`の原点オフセット。x, yに来る点。'],['テーブルのox, oy','トリムしたフレームの保存ピクセルが、元のキャンバス上で始まる位置。'],['durations','アニメーションのフレームごとの秒数。タグのミリ秒から変換した値。']]},
+   example:{title:'例：テーブルから画面までの1フレーム',lines:[
+    'run.lua   （ページ run.png 64 × 37：押し出し1、間隔2、回転なし）',
+    '["run_0"] = { page = 1, x = 1, y = 20, w = 18, h = 15, ox = 10, oy = 10, sw = 40, sh = 29, px = 20, py = 29 }',
+    '["run"]   = { loop = true, frames = { "run_0", …, "run_5" }, durations = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 } }',
+    '',
+    'quad   = love.graphics.newQuad(1, 20, 18, 15, 64, 37)',
+    '原点   = (px − ox, py − oy) = (20 − 10, 29 − 10) = (10, 19)',
+    'love.graphics.draw(image, quad, 200, 200, 0, 4, 4, 10, 19)',
+    '       → フレームの足元が (200, 200) に来て、4倍で描かれる',
+    '',
+    'ページ上の間隔：run_5はx = 1–21、その押し出し列はx = 22、',
+    '間隔x = 23–24、run_3の押し出し列x = 25、run_3はx = 26から'],
+    after:'保存された断片は自分の押し出しの帯の1px内側にあり、次の断片とは少なくとも4px（1 + 2 + 1）離れています。そのため小数の位置や倍率で描いても、縁では自分の色を読みます。'},
+   outputs:{rows:[
+    ['run.lua','`images`、`pages`（w, h）、`frames`（x, y, w, h、トリムのox/oy、キャンバスのsw/sh、ピボットpx/py）、`order`、`animations`（ループ、フレーム、秒単位の長さ）。'],
+    ['nerulio_atlas.lua','`Atlas.load(path)`が画像とQuadを作り、`atlas:draw(key, x, y, sx, sy)`がピボット基準で描き、`atlas:play(name)`が`update(dt)`と`draw`を持つ小さなプレーヤーを返す。'],
+    ['main.lua','最初のアニメーションを4倍で再生する例（フォルダーで`love .`）。'],
+    ['run.png','全フレームの周りに1pxの押し出しがあるページ。']]},
+   target:{title:'LÖVE 11で使う',steps:[
+    '`run.png`、`run.lua`、`nerulio_atlas.lua`をゲームのフォルダーに入れます。`main.lua`の隣か、パスを`Atlas.load`に渡すサブフォルダーに置きます。',
+    '`love.load`で`Atlas = require("nerulio_atlas")`、`atlas = Atlas.load("run.lua")`、`anim = atlas:play("run")`。',
+    '`love.update(dt)`で`anim:update(dt)`、`love.draw()`で`anim:draw(x, y, 4)`を呼ぶと、ピボットがx, yに来るように4倍で描きます。',
+    'ヘルパーなしなら：`local data = love.filesystem.load("run.lua")()`で読み、フレームごとに`love.graphics.newQuad(f.x, f.y, f.w, f.h, page.w, page.h)`を作って、原点`f.px − f.ox, f.py − f.oy`で描きます。']},
+   verify:{steps:[
+    '書き出したフォルダーで`love .`を実行すると、`main.lua`が最初のアニメーションを4倍、ピクセルの縁が四角いまま再生します。',
+    'run_0とrun_4を同じ点に描きます。トリムのオフセットが(10, 10)と(10, 8)で違っても、足元は一直線にそろうはずです。',
+    '`run`の1周は0.6秒です。0.1秒の長さが6つ。']},
+   trouble:{rows:[
+    ['アニメーション中にフレームが上下に跳ねる','Quadをトリムとピボットの原点なしで、それぞれの左上基準で描いている','2つのフレームを同じ点に描き、Studioのプレビューと比べる','原点`px − ox, py − oy`を渡すか、ヘルパーの`draw`を使う'],
+    ['拡大するとピクセルがぼやける','`setDefaultFilter("nearest", "nearest")`より前に画像を読み込んだ、または自分の画像のフィルターが線形','`newImage`との順番でフィルター設定を確認','既定のフィルターを先に設定する（ヘルパーはそうしている）か、`image:setFilter("nearest", "nearest")`を呼ぶ'],
+    ['小数の位置や倍率で、隣のフレームの細い線が見える','Quadの周りに押し出しも間隔もない手作りのシート','フレームを半ピクセルずつ動かし、縁を4倍で見る','LÖVEプリセット（押し出し1、間隔2）でパックし直す'],
+    ['`module \'nerulio_atlas\' not found`','ヘルパーがrequireのパスにない','`love.filesystem.getInfo("nerulio_atlas.lua")`','`main.lua`の隣に置くか、フォルダー付きでrequireする。例：`require("lib.nerulio_atlas")`'],
+    ['アニメーションが最後のフレームで止まる','タグがループしないため、プレーヤーが最後のフレームを保持している','`data.animations.run.loop`','書き出し前にタグを無限ループにするか、`atlas:play("run")`でプレーヤーを作り直す']]},
+   alternatives:{rows:[
+    ['均一なグリッドとループで計算したQuad','全フレームが同じ大きさでトリムがないとき。セルごとに`love.graphics.newQuad(col * w, row * h, w, h, sheetW, sheetH)`で、データファイルは不要です。'],
+    ['LuaのJSONライブラリで読むTexturePackerのJSON','すでにJSONのアトラスがあるとき。各`frame`の矩形から同じようにQuadを作りますが、トリムしたフレームは原点に`spriteSourceSize`のオフセットを反映する必要があります。'],
+    ['同じフレームを別のエンジンで','[[game/defold-atlas|Defoldアトラス]]、[[game/phaser-texture-atlas|Phaserのテクスチャアトラス]]。']]},
+   versions:{body:['LÖVE 11.5（ポータブル版）で、書き出した`nerulio_atlas.lua`を`require`する検査用スクリプトを実行し、全フレームをCanvasに描き、ヘルパーのプレーヤーで全アニメーションを進め、1フレームを4倍で描きました。ピクセルを読み戻して元のフレームと比較しています。関数のシグネチャはLÖVE 11.5のソースに従います。'],sources:[S.loveSrc,S.loveWiki]}
+  }
+ },
+ 'game/spine-atlas':{
+  type:'format',
+  intent:{primary:'pack images into a Spine / libGDX .atlas and understand its fields',secondary:['bounds, offsets and rotate','trim and rotation in the atlas','use with a Spine skeleton or libGDX TextureAtlas'],
+   goal:'an .atlas + PNG pages the Spine runtime reads, with every region drawn in the right place',input:'images or animation frames',output:'.atlas text file + PNG page(s)',target:'Spine runtimes (verified spine-canvas 4.2); libGDX reads the same format (not run)',support:'partial',
+   evidence:['src/game/export/engines.js (spineFiles: bounds, offsets from the bottom, rotate:90)','src/game/pack/sprites.js (counter-clockwise rotation for Spine)','docs/STUDIO-PACK.md, docs/ENGINE-VERIFY.md (spine-canvas 4.2.120 runs)'],
+   external:['Spine docs: texture atlas format (page and region fields)','Spine docs: texture packing settings']},
+  en:{
+   answer:'A Spine / libGDX `.atlas` is a text file that describes one or more page images and the named regions on them: for each region `bounds` (x, y, width, height on the page), optional `offsets` (whitespace stripped from the left and bottom, then the original size) and `rotate` when the region was packed turned. Spine skeletons find their attachment images by region name. Nerulio writes this format from any frames, with trim and 90° rotation, and the official Spine runtime spine-canvas 4.2 drew every region, rotated and trimmed ones included. libGDX reads the same format but was not run.',
+   concept:{title:'Reading a .atlas file',body:[
+    'The file starts with a page: the image file name, then lines such as `size`, `filter` and `pma` (premultiplied alpha). Each region follows as its name and its property lines until the next name; a new page starts with another image name.',
+    'Offsets are measured from the bottom-left of the original image, the opposite of JSON atlases, which measure from the top. For a 40 × 29 frame whose visible 18 × 15 pixels start 10 px from the top, the bottom offset is 29 − 10 − 15 = 4.',
+    'A rotated region lies turned 90° counter-clockwise on the page, which is the Spine format\'s direction (TexturePacker JSON stores rotated frames clockwise), and `bounds` keeps the unrotated width and height. The runtime turns the region back when it draws it.'],
+    terms:[['Page','An image file with its size, texture filter and premultiplied-alpha flag.'],['Region','A named rectangle on a page; skeleton attachments reference it by name.'],['bounds','x and y on the page, then the packed (unrotated) width and height.'],['offsets','Pixels stripped from the left and from the bottom, then the original width and height.'],['rotate','90 (or true) = stored turned 90° counter-clockwise.']]},
+   example:{title:'Example: the six run frames as a .atlas (rotation allowed)',lines:[
+    'run.png',
+    'size:33,57',
+    'filter:Nearest,Nearest',
+    'pma:false',
+    'run_0',
+    'bounds:17,23,18,15',
+    'offsets:10,4,40,29',
+    'rotate:90',
+    'run_4',
+    'bounds:0,0,16,16',
+    'offsets:10,5,40,29',
+    '',
+    'run_0: 18 × 15 visible pixels, stored turned → covers 15 × 18 on the page at (17, 23)',
+    'offsets: left 10, bottom 29 − 10 − 15 = 4, original 40 × 29',
+    'run_4: not rotated (16 × 16); bottom 29 − 8 − 16 = 5'],
+    after:'Five of the six frames were stored turned, and the page is 33 × 57 instead of 38 × 50 without rotation. Every region keeps its full 40 × 29 size through `offsets`, so attachments do not shift between frames.'},
+   mapping:{title:'From a JSON atlas entry to a .atlas region',head:['TexturePacker-style JSON','Spine / libGDX .atlas','How it converts'],rows:[
+    ['`frame` {x, y, w, h}','`bounds:x,y,w,h`','Same numbers (unrotated size)'],
+    ['`spriteSourceSize` {x, y}','`offsets:` left, bottom','bottom = sourceSize.h − y − h'],
+    ['`sourceSize` {w, h}','`offsets:` …, width, height','Same numbers'],
+    ['`rotated: true` (stored clockwise)','`rotate:90` (stored counter-clockwise)','The pixels are turned the other way, so the page is drawn again, not relabelled'],
+    ['`meta.image`, `meta.size`','page name line, `size:w,h`','Same']]},
+   outputs:{rows:[
+    ['run.atlas','Pages (`size`, `filter:Nearest,Nearest`, `pma:false`) and one region per frame with `bounds`, `offsets` for trimmed frames and `rotate:90` for turned ones.'],
+    ['run.png (run-0.png, run-1.png …)','The page images; several when multipack needs them.'],
+    ['README-SPINE-LIBGDX.md','How the format is laid out, and the libGDX loading call.']]},
+   target:{title:'Use it with Spine or libGDX',steps:[
+    'Name your skeleton\'s attachments (or their paths) like the regions, for example `run_0`: the runtime looks up regions by that name.',
+    'Load the `.atlas` with your Spine runtime\'s atlas loader next to the skeleton data; keep the PNG pages in the same folder, because the atlas names them without a path.',
+    'libGDX: `new TextureAtlas(Gdx.files.internal("run.atlas"))`, then `findRegion("run_0")`. This path was not run in Nerulio\'s checks.',
+    'Allow rotation only when every program that reads the file handles `rotate`; the Spine preset allows it by default.']},
+   trouble:{rows:[
+    ['A region is missing at runtime','The attachment name and the region name differ: case, file extension or a folder prefix','Search the .atlas for the exact name','Rename the frame before export, or the attachment path in Spine'],
+    ['Trimmed regions sit too high or too low in a custom loader','The loader reads the second offset as a top offset','With `offsets:10,4,40,29`, 4 is the margin at the bottom','Use a Spine or libGDX loader, or convert: top = height − bottom − region height'],
+    ['Rotated regions appear sideways or mirrored in a custom loader','It ignores `rotate`, or turns the wrong way','Regions with `rotate:90`','Turn rotation off before exporting, or turn the region back clockwise'],
+    ['Dark or light fringes around soft edges','The page\'s alpha does not match the `pma` flag and the blend mode','`pma:false` in the page lines','Keep premultiplied alpha off for this export: its page lines always say `pma:false`']]},
+   alternatives:{rows:[
+    ['Spine\'s own texture packer','You export skeletons from the Spine editor: it packs attachments while exporting and has settings Nerulio lacks, such as a polygon packing mode, bleed and duplicate padding.'],
+    ['A JSON atlas instead','The frames are sprite animation rather than skeleton attachments: a JSON atlas carries the animations too; see [[game/pixi-spritesheet-json|PixiJS]] or [[game/phaser-texture-atlas|Phaser]].']]},
+   versions:{body:['The official Spine runtime spine-canvas 4.2.120 parsed Nerulio\'s .atlas and drew every region as a region attachment through its SkeletonRenderer, for trimmed ninja frames and rotated archer frames; the pixels matched the source frames. libGDX (Java) was not run. Field meanings follow the Spine atlas format documentation.'],sources:[S.spineAtlas,S.spinePacker]}
+  },
+  ko:{
+   answer:'Spine / libGDX의 `.atlas`는 페이지 이미지 하나 이상과 그 위의 이름 붙은 영역을 설명하는 텍스트 파일입니다. 영역마다 `bounds`(페이지 위 x, y, 너비, 높이), 필요하면 `offsets`(왼쪽과 아래에서 잘라 낸 여백, 그다음 원래 크기), 돌려서 패킹했으면 `rotate`가 붙습니다. Spine 스켈레톤은 영역 이름으로 첨부 이미지를 찾습니다. Nerulio는 어떤 프레임으로든 트림과 90도 회전을 포함해 이 형식을 쓰며, 공식 Spine 런타임 spine-canvas 4.2가 회전·트림된 영역까지 모두 그렸습니다. libGDX도 같은 형식을 읽지만 실행해 보지는 않았습니다.',
+   concept:{title:'.atlas 파일 읽는 법',body:[
+    '파일은 페이지로 시작합니다. 이미지 파일 이름 다음에 `size`, `filter`, `pma`(미리 곱한 알파) 같은 줄이 옵니다. 이어서 영역마다 이름과 속성 줄이 다음 이름이 나올 때까지 이어지고, 다른 이미지 이름이 나오면 새 페이지입니다.',
+    '오프셋은 원래 이미지의 왼쪽 아래를 기준으로 잽니다. 위에서부터 재는 JSON 아틀라스와 반대입니다. 40 × 29 프레임에서 보이는 18 × 15 픽셀이 위에서 10px 아래부터 시작하면, 아래쪽 오프셋은 29 − 10 − 15 = 4입니다.',
+    '회전된 영역은 페이지에 반시계 방향 90도로 누워 있습니다. Spine 형식의 방향이며(TexturePacker JSON은 시계 방향으로 저장), `bounds`에는 회전 전 너비와 높이가 그대로 남습니다. 런타임이 그릴 때 영역을 다시 돌려 세웁니다.'],
+    terms:[['페이지','크기, 텍스처 필터, 미리 곱한 알파 표시가 있는 이미지 파일.'],['영역(region)','페이지 위의 이름 붙은 사각형. 스켈레톤 첨부가 이름으로 참조합니다.'],['bounds','페이지 위 x, y와 패킹된(회전 전) 너비, 높이.'],['offsets','왼쪽과 아래에서 잘라 낸 픽셀 수, 그다음 원래 너비와 높이.'],['rotate','90(또는 true) = 반시계 방향 90도로 돌려 저장.']]},
+   example:{title:'예시: 달리기 프레임 6장을 .atlas로(회전 허용)',lines:[
+    'run.png',
+    'size:33,57',
+    'filter:Nearest,Nearest',
+    'pma:false',
+    'run_0',
+    'bounds:17,23,18,15',
+    'offsets:10,4,40,29',
+    'rotate:90',
+    'run_4',
+    'bounds:0,0,16,16',
+    'offsets:10,5,40,29',
+    '',
+    'run_0: 보이는 픽셀 18 × 15, 돌려서 저장 → 페이지 (17, 23)에서 15 × 18을 차지',
+    'offsets: 왼쪽 10, 아래 29 − 10 − 15 = 4, 원래 40 × 29',
+    'run_4: 회전 없음(16 × 16), 아래 29 − 8 − 16 = 5'],
+    after:'6장 중 5장이 돌려 저장됐고, 페이지는 회전 없을 때의 38 × 50 대신 33 × 57입니다. `offsets` 덕분에 모든 영역이 40 × 29 전체 크기를 유지하므로 프레임이 바뀌어도 첨부가 밀리지 않습니다.'},
+   mapping:{title:'JSON 아틀라스 항목에서 .atlas 영역으로',head:['TexturePacker 방식 JSON','Spine / libGDX .atlas','변환 방법'],rows:[
+    ['`frame` {x, y, w, h}','`bounds:x,y,w,h`','같은 숫자(회전 전 크기)'],
+    ['`spriteSourceSize` {x, y}','`offsets:` 왼쪽, 아래','아래 = sourceSize.h − y − h'],
+    ['`sourceSize` {w, h}','`offsets:` …, 너비, 높이','같은 숫자'],
+    ['`rotated: true`(시계 방향 저장)','`rotate:90`(반시계 방향 저장)','픽셀이 반대로 돌아가 있어 이름만 바꾸는 게 아니라 페이지를 다시 그림'],
+    ['`meta.image`, `meta.size`','페이지 이름 줄, `size:w,h`','같음']]},
+   outputs:{rows:[
+    ['run.atlas','페이지(`size`, `filter:Nearest,Nearest`, `pma:false`)와 프레임마다 영역 하나: `bounds`, 트림된 프레임의 `offsets`, 돌린 프레임의 `rotate:90`.'],
+    ['run.png (run-0.png, run-1.png …)','페이지 이미지. 여러 페이지가 필요하면 여러 장.'],
+    ['README-SPINE-LIBGDX.md','형식의 구성과 libGDX 불러오기 코드.']]},
+   target:{title:'Spine이나 libGDX에서 쓰기',steps:[
+    '스켈레톤의 첨부(또는 경로) 이름을 영역 이름과 같게 합니다(예: `run_0`). 런타임이 이 이름으로 영역을 찾습니다.',
+    'Spine 런타임의 아틀라스 로더로 스켈레톤 데이터 옆의 `.atlas`를 불러옵니다. 아틀라스가 PNG 페이지를 경로 없이 이름으로만 적으므로 같은 폴더에 두세요.',
+    'libGDX: `new TextureAtlas(Gdx.files.internal("run.atlas"))` 후 `findRegion("run_0")`. 이 경로는 Nerulio 검증에서 실행하지 않았습니다.',
+    '파일을 읽는 모든 프로그램이 `rotate`를 처리할 때만 회전을 허용하세요. Spine 프리셋은 기본으로 허용합니다.']},
+   trouble:{rows:[
+    ['런타임에서 영역을 찾지 못함','첨부 이름과 영역 이름이 다름: 대소문자, 확장자, 폴더 접두어','.atlas에서 정확한 이름을 검색','내보내기 전에 프레임 이름을 바꾸거나 Spine의 첨부 경로를 수정'],
+    ['직접 만든 로더에서 트림된 영역이 너무 높거나 낮게 놓임','로더가 두 번째 오프셋을 위쪽 여백으로 읽음','`offsets:10,4,40,29`에서 4는 아래쪽 여백','Spine·libGDX 로더를 쓰거나 변환: 위 = 높이 − 아래 − 영역 높이'],
+    ['직접 만든 로더에서 회전된 영역이 옆으로 눕거나 뒤집힘','`rotate`를 무시하거나 반대로 돌림','`rotate:90`이 있는 영역','내보내기 전에 회전을 끄거나 영역을 시계 방향으로 되돌림'],
+    ['부드러운 가장자리에 어둡거나 밝은 테두리','페이지의 알파가 `pma` 표시·블렌드 모드와 맞지 않음','페이지 줄의 `pma:false`','이 내보내기에서는 미리 곱한 알파를 끄세요. 페이지 줄이 항상 `pma:false`라고 씁니다']]},
+   alternatives:{rows:[
+    ['Spine 자체 텍스처 패커','Spine 에디터에서 스켈레톤을 내보낼 때. 내보내면서 첨부를 패킹하며 폴리곤 패킹 모드, 블리드, 중복 간격처럼 Nerulio에 없는 설정이 있습니다.'],
+    ['대신 JSON 아틀라스','프레임이 스켈레톤 첨부가 아니라 스프라이트 애니메이션일 때. JSON 아틀라스는 애니메이션도 담습니다. [[game/pixi-spritesheet-json|PixiJS]]나 [[game/phaser-texture-atlas|Phaser]] 참고.']]},
+   versions:{body:['공식 Spine 런타임 spine-canvas 4.2.120이 Nerulio의 .atlas를 읽고 SkeletonRenderer로 모든 영역을 영역 첨부로 그렸습니다. 트림된 닌자 프레임과 회전된 궁수 프레임에서 픽셀이 원본과 일치했습니다. libGDX(Java)는 실행하지 않았습니다. 필드의 뜻은 Spine 아틀라스 형식 문서를 따릅니다.'],sources:[S.spineAtlas,S.spinePacker]}
+  },
+  ja:{
+   answer:'Spine / libGDXの`.atlas`は、1枚以上のページ画像と、その上の名前付き領域を記述するテキストファイルです。領域ごとに`bounds`（ページ上のx, y、幅、高さ）、必要なら`offsets`（左と下から取り除いた余白、続いて元の大きさ）、回転してパックしたなら`rotate`が付きます。Spineのスケルトンは領域名でアタッチメントの画像を探します。Nerulioはどんなフレームからでも、トリムと90度回転を含めてこの形式を書き出し、公式のSpineランタイムspine-canvas 4.2が回転・トリムした領域も含めて全領域を描画しました。libGDXも同じ形式を読みますが、実行はしていません。',
+   concept:{title:'.atlasファイルの読み方',body:[
+    'ファイルはページから始まります。画像ファイル名の後に`size`、`filter`、`pma`（乗算済みアルファ）などの行が続きます。その後、領域ごとに名前とプロパティの行が次の名前まで続き、別の画像名が出てきたら新しいページです。',
+    'オフセットは元画像の左下を基準に測ります。上から測るJSONアトラスとは逆です。40 × 29のフレームで、見える18 × 15ピクセルが上から10pxの位置から始まるなら、下のオフセットは29 − 10 − 15 = 4です。',
+    '回転した領域は、ページ上で反時計回りに90度寝かせてあります。これがSpine形式の向きで（TexturePackerのJSONは時計回りで保存）、`bounds`には回転前の幅と高さがそのまま残ります。ランタイムは描くときに領域を元に戻します。'],
+    terms:[['ページ','大きさ、テクスチャフィルター、乗算済みアルファのフラグを持つ画像ファイル。'],['領域（region）','ページ上の名前付きの矩形。スケルトンのアタッチメントが名前で参照します。'],['bounds','ページ上のx、yと、パックした（回転前の）幅と高さ。'],['offsets','左と下から取り除いたピクセル数、続いて元の幅と高さ。'],['rotate','90（またはtrue）= 反時計回りに90度回して保存。']]},
+   example:{title:'例：走りの6フレームを.atlasに（回転あり）',lines:[
+    'run.png',
+    'size:33,57',
+    'filter:Nearest,Nearest',
+    'pma:false',
+    'run_0',
+    'bounds:17,23,18,15',
+    'offsets:10,4,40,29',
+    'rotate:90',
+    'run_4',
+    'bounds:0,0,16,16',
+    'offsets:10,5,40,29',
+    '',
+    'run_0：見えるピクセル18 × 15、回して保存 → ページの (17, 23) で15 × 18を占める',
+    'offsets：左10、下 29 − 10 − 15 = 4、元の大きさ40 × 29',
+    'run_4：回転なし（16 × 16）、下 29 − 8 − 16 = 5'],
+    after:'6フレーム中5枚が回して保存され、ページは回転なしの38 × 50ではなく33 × 57です。`offsets`によってどの領域も40 × 29の大きさを保つので、フレームが変わってもアタッチメントはずれません。'},
+   mapping:{title:'JSONアトラスの項目から.atlasの領域へ',head:['TexturePacker形式のJSON','Spine / libGDX .atlas','変換のしかた'],rows:[
+    ['`frame` {x, y, w, h}','`bounds:x,y,w,h`','同じ数値（回転前のサイズ）'],
+    ['`spriteSourceSize` {x, y}','`offsets:` 左、下','下 = sourceSize.h − y − h'],
+    ['`sourceSize` {w, h}','`offsets:` …、幅、高さ','同じ数値'],
+    ['`rotated: true`（時計回りで保存）','`rotate:90`（反時計回りで保存）','ピクセルの向きが逆なので、名前の付け替えではなくページを描き直す'],
+    ['`meta.image`、`meta.size`','ページ名の行、`size:w,h`','同じ']]},
+   outputs:{rows:[
+    ['run.atlas','ページ（`size`、`filter:Nearest,Nearest`、`pma:false`）と、フレームごとの領域：`bounds`、トリムしたフレームの`offsets`、回したフレームの`rotate:90`。'],
+    ['run.png（run-0.png、run-1.png …）','ページ画像。マルチパックが必要なら複数枚。'],
+    ['README-SPINE-LIBGDX.md','形式の構成と、libGDXで読み込むコード。']]},
+   target:{title:'SpineやlibGDXで使う',steps:[
+    'スケルトンのアタッチメント（またはそのパス）の名前を、領域名と同じにします（例：`run_0`）。ランタイムはこの名前で領域を探します。',
+    'Spineランタイムのアトラスローダーで、スケルトンデータの隣の`.atlas`を読み込みます。アトラスはPNGのページをパスなしの名前で書いているので、同じフォルダーに置いてください。',
+    'libGDX：`new TextureAtlas(Gdx.files.internal("run.atlas"))`のあと`findRegion("run_0")`。この経路はNerulioの検証では実行していません。',
+    'ファイルを読むすべてのプログラムが`rotate`を扱えるときだけ回転を許可してください。Spineプリセットは既定で許可しています。']},
+   trouble:{rows:[
+    ['ランタイムで領域が見つからない','アタッチメント名と領域名が違う：大文字小文字、拡張子、フォルダーの接頭辞','.atlasで正確な名前を検索','書き出し前にフレーム名を変えるか、Spine側のアタッチメントのパスを直す'],
+    ['自作ローダーで、トリムした領域が高すぎる・低すぎる','ローダーが2番目のオフセットを上の余白として読んでいる','`offsets:10,4,40,29`の4は下の余白','SpineかlibGDXのローダーを使うか、上 = 高さ − 下 − 領域の高さ で変換'],
+    ['自作ローダーで、回転した領域が横倒し・反転する','`rotate`を無視している、または逆向きに回している','`rotate:90`のある領域','書き出し前に回転をオフにするか、領域を時計回りに戻す'],
+    ['柔らかい縁の周りに暗い・明るい縁取り','ページのアルファが`pma`フラグやブレンドモードと合っていない','ページ行の`pma:false`','この書き出しでは乗算済みアルファをオフに。ページ行は常に`pma:false`と書かれる']]},
+   alternatives:{rows:[
+    ['Spine自体のテクスチャパッカー','Spineエディターからスケルトンを書き出すとき。書き出しと同時にアタッチメントをパックし、ポリゴンのパッキングモード、ブリード、複製パディングなどNerulioにない設定があります。'],
+    ['代わりにJSONアトラス','フレームがスケルトンのアタッチメントではなくスプライトアニメーションのとき。JSONアトラスはアニメーションも運べます。[[game/pixi-spritesheet-json|PixiJS]]や[[game/phaser-texture-atlas|Phaser]]を参照。']]},
+   versions:{body:['公式のSpineランタイムspine-canvas 4.2.120がNerulioの.atlasを読み、SkeletonRendererで全領域を領域アタッチメントとして描きました。トリムした忍者のフレームと回転した弓兵のフレームで、ピクセルが元画像と一致しています。libGDX（Java）は実行していません。フィールドの意味はSpineのアトラス形式のドキュメントに従います。'],sources:[S.spineAtlas,S.spinePacker]}
+  }
+ },
  // @@PAGES@@
 };
