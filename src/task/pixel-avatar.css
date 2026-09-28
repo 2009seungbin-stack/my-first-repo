@@ -14,7 +14,7 @@
 .avatar-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:7px}.avatar-tabs button{white-space:nowrap}
 .avatar-tabs button.active,.avatar-choice.active{background:#dff3ef;border-color:#218279;color:#0b5758}
 .avatar-option-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.avatar-option-head h2,.avatar-export h2{font-size:1.1rem;margin:16px 0 12px}
-.avatar-options{display:flex;gap:8px;flex-wrap:wrap;min-height:48px}.avatar-choice{min-width:105px}
+.avatar-options{display:flex;gap:8px;flex-wrap:wrap;min-height:48px}.avatar-app button.avatar-choice{display:flex;min-width:105px;min-height:94px;align-items:center;justify-content:center;flex-direction:column;gap:4px}.avatar-choice img{image-rendering:pixelated;width:56px;height:56px;object-fit:contain}
 .avatar-palettes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.avatar-palettes label,.avatar-export label{display:grid;gap:6px;font-weight:600}.avatar-palettes select,.avatar-export select{width:100%}
 .avatar-background{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:18px}.avatar-background small{flex-basis:100%;line-height:1.45;color:#53687b}.avatar-background span{max-width:100%;overflow-wrap:anywhere;font-size:.9rem}
 .avatar-export{border-top:1px solid #d7e1e8;margin-top:24px;padding-top:5px}.avatar-export-buttons{margin-top:16px}

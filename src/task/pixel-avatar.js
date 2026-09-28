@@ -33,7 +33,7 @@ export function mount({el}){
    layer.getContext('2d').putImageData(new ImageData(top.data,16,16),0,0);ctx.drawImage(layer,0,0);
   }else ctx.putImageData(new ImageData(logical.data,16,16),0,0);
  }
- function options(key){return PARTS[key].map(([id])=>`<button type="button" class="avatar-choice ${state[key]===id?'active':''}" data-category="${key}" data-choice="${id}" aria-pressed="${state[key]===id}">${esc(C()[id]||id)}</button>`).join('');}
+ function options(key){return PARTS[key].map(([id])=>{const preview=new URL(`../../assets/avatar-parts/${key}-${id}.png`,import.meta.url).href;return `<button type="button" class="avatar-choice ${state[key]===id?'active':''}" data-category="${key}" data-choice="${id}" aria-pressed="${state[key]===id}"><img src="${esc(preview)}" width="56" height="56" alt="" loading="lazy" decoding="async"><span>${esc(C()[id]||id)}</span></button>`;}).join('');}
  function render(){
   const old=document.activeElement,focus=old&&el.contains(old)?{choice:old.dataset.choice,tab:old.dataset.tab,action:old.dataset.action,palette:old.dataset.palette}:null;
   const c=C(),share=link(),x=`https://x.com/intent/tweet?text=${encodeURIComponent(share)}`,line=`https://line.me/R/share?text=${encodeURIComponent(share)}`;
