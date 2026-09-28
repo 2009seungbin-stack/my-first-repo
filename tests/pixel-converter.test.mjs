@@ -17,10 +17,17 @@ const frame=(width,height,colors)=>({width,height,data:Uint8Array.from(colors.fl
 test('cell samplers handle noninteger dimensions and preserve the input',()=>{
  const source=frame(3,2,[[255,0,0,255],[255,0,0,255],[0,0,255,255],[255,0,0,255],[0,0,255,255],[0,0,255,255]]);
  const before=source.data.slice();
- for(const method of ['nearest','median','mode','k-centroid']){
+ for(const method of ['nearest','box','median','mode','k-centroid']){
   const r=sampleToGrid(source,2,1,{method});assert.equal(r.width,2);assert.equal(r.height,1);assert.equal(r.data.length,8);
  }
  assert.deepEqual(source.data,before);
+});
+
+test('box sampler area-weights fractional cells and prevents transparent RGB bleed',()=>{
+ const source=frame(2,1,[[255,0,0,255],[0,0,255,0]]);
+ assert.deepEqual([...sampleToGrid(source,1,1,{method:'box'}).data],[255,0,0,128]);
+ const opaque=frame(3,1,[[0,0,0,255],[120,120,120,255],[240,240,240,255]]);
+ assert.deepEqual([...sampleToGrid(opaque,2,1,{method:'box'}).data],[40,40,40,255,200,200,200,255]);
 });
 
 test('transparent RGB cannot win modal sampling',()=>{

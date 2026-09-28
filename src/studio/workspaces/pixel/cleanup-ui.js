@@ -33,7 +33,7 @@ export function createCleanup(W){
  const {t,ctx,images}=W;
  const saved=storage.get(PREFS,{});
  const query=new URLSearchParams(location.search),queryMode=query.get('mode');
- const o={intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'median',paletteAlgorithm:'median-cut',palettePreset:'auto',ditherStrength:100,background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
+ const o={intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'box',paletteAlgorithm:'wu',palettePreset:'auto',ditherStrength:100,background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
  if(queryMode==='convert'||queryMode==='restore')o.intent=queryMode;
  const S={scope:'frame',scale:'',analysis:null,inputs:null,frameIds:[],assetRef:null,assetId:null,state:'idle',result:null,error:'',view:0,showGrid:true,token:0};
  const root=h('div.px-clean',{'data-px':'cleanup','data-state':'idle'});
@@ -45,7 +45,7 @@ export function createCleanup(W){
   else if(key==='maxColors')o[key]=Math.max(2,Math.min(256,Math.round(Number(v)||16)));
   else if(key==='ditherStrength')o[key]=Math.max(0,Math.min(100,Math.round(Number(v)||0)));
   else if(key==='intent'&&['restore','convert'].includes(v))o[key]=v;
-  else if(key==='sampleMethod'&&['nearest','median','mode','k-centroid'].includes(v))o[key]=v;
+  else if(key==='sampleMethod'&&['nearest','box','median','mode','k-centroid'].includes(v))o[key]=v;
   else if(key==='paletteAlgorithm'&&['median-cut','k-means','wu'].includes(v))o[key]=v;
   else if(key==='palettePreset'&&(v==='auto'||Object.hasOwn(PALETTES,v)))o[key]=v;
   else if(key==='dither'&&['none','bayer2','bayer4','bayer8','floyd-steinberg','atkinson','blue-noise'].includes(v))o[key]=v;
@@ -189,7 +189,7 @@ export function createCleanup(W){
    const maxC=h('input.st-input.px-num',{type:'number',min:'0',max:'256',value:String(o.maxColors),'data-px':'clean-maxColors','aria-label':t('px.clean.opt.maxColors')});maxC.addEventListener('change',()=>setOpt('maxColors',Math.max(0,Math.min(256,Number(maxC.value)||0))));
    const alpha=h('input.st-input.px-num',{type:'number',min:'0',max:'255',value:String(o.alphaCut),'data-px':'clean-alphaCut','aria-label':t('px.clean.opt.alphaCut')});alpha.addEventListener('change',()=>setOpt('alphaCut',Math.max(0,Math.min(255,Number(alpha.value)||0))));
    const hasPal=!!a.palette?.colors?.length;
-   const sampler=select('sampleMethod',o.sampleMethod,[['nearest',t('px.conv.sampleNearest')],['median',t('px.conv.sampleMedian')],['mode',t('px.conv.sampleMode')],['k-centroid',t('px.conv.sampleCentroid')]],v2=>setOpt('sampleMethod',v2));
+   const sampler=select('sampleMethod',o.sampleMethod,[['nearest',t('px.conv.sampleNearest')],['box',t('px.conv.sampleBox')],['median',t('px.conv.sampleMedian')],['mode',t('px.conv.sampleMode')],['k-centroid',t('px.conv.sampleCentroid')]],v2=>setOpt('sampleMethod',v2));
    const quantizer=select('paletteAlgorithm',o.paletteAlgorithm,[['median-cut',t('px.conv.quantMedian')],['k-means',t('px.conv.quantKmeans')],['wu',t('px.conv.quantWu')]],v2=>setOpt('paletteAlgorithm',v2));
    const presets=select('palettePreset',o.palettePreset,[['auto',t('px.conv.autoPalette')],['gameboy','Game Boy'],['nes','NES'],['pico8','PICO-8']],v2=>{setOpt('palettePreset',v2);render();});
    const dithers=[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8'],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson'],['blue-noise',t('px.conv.blueNoise')]];

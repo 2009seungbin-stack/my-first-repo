@@ -22,7 +22,7 @@ import {removeAntiAlias,detect,applyChanges} from '../../game/pixel-cleanup.js';
 import {indicesFromRGBA,keyOf} from './indexed.js';
 import {planeFromRGBA,rgbaView,outline as outlinePlane,dropShadow,pack} from './raster.js';
 import {sampleToGrid,paletteFromFrames,quantizeFrames} from './converter.js';
-export const DEFAULTS=Object.freeze({intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'mode',paletteAlgorithm:'median-cut',ditherStrength:1,scale:'auto',snap:true,background:'auto',alphaCut:128,merge:'auto',maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
+export const DEFAULTS=Object.freeze({intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'box',paletteAlgorithm:'wu',ditherStrength:1,scale:'auto',snap:true,background:'auto',alphaCut:128,merge:'auto',maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
 const copy=img=>({data:new Uint8Array(img.data),width:img.width,height:img.height});
 /** What the frames are (no changes): the verdict of the first frame, the shared grid, background. */
 export function analyse(frames,opts={}){

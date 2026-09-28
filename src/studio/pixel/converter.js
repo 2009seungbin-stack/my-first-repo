@@ -8,7 +8,7 @@ const labDistance=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;
 const rgbaKey=(d,i)=>(d[i]|d[i+1]<<8|d[i+2]<<16|d[i+3]<<24)>>>0;
 const unpack=k=>[k&255,k>>>8&255,k>>>16&255,k>>>24&255];
 
-export const SAMPLE_METHODS=Object.freeze(['nearest','median','mode','k-centroid']);
+export const SAMPLE_METHODS=Object.freeze(['nearest','box','median','mode','k-centroid']);
 /** Integer-only nearest export; RGBA bytes (including alpha) repeat exactly. */
 export function scaleNearest(frame,factor,{maxPixels=48e6}={}){
  if(!Number.isInteger(factor)||factor<1||factor>16)throw Error('Scale must be an integer from 1 to 16');
@@ -36,6 +36,17 @@ export function sampleToGrid(frame,width,height,{method='mode',offsetX=0,offsetY
   if(method==='nearest'){
    const px=Math.max(0,Math.min(sw-1,Math.floor(offsetX+(x+.5)*sx))),py=Math.max(0,Math.min(sh-1,Math.floor(offsetY+(y+.5)*sy)));
    c=Array.from(data.subarray((py*sw+px)*4,(py*sw+px)*4+4));
+  }else if(method==='box'){
+   // Area-weighted mean, with RGB weighted by coverage and alpha. Fractional cell edges
+   // contribute only their overlap, so a 32×24 target preserves the source's aspect ratio.
+   let area=0,alpha=0,r=0,g=0,b=0;
+   for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){
+    const weight=Math.max(0,Math.min(offsetX+(x+1)*sx,xx+1)-Math.max(offsetX+x*sx,xx))*
+      Math.max(0,Math.min(offsetY+(y+1)*sy,yy+1)-Math.max(offsetY+y*sy,yy));
+    if(!weight)continue;const i=(yy*sw+xx)*4,a=data[i+3]/255*weight;
+    area+=weight;alpha+=a;r+=data[i]*a;g+=data[i+1]*a;b+=data[i+2]*a;
+   }
+   c=alpha?[clamp(r/alpha),clamp(g/alpha),clamp(b/alpha),clamp(alpha/area*255)]:[0,0,0,0];
   }else if(method==='mode'){
    const counts=new Map();for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){const i=(yy*sw+xx)*4,k=data[i+3]?rgbaKey(data,i):0;counts.set(k,(counts.get(k)||0)+1);}
    let best=0,n=-1;for(const [k,v] of counts)if(v>n){best=k;n=v;}c=unpack(best);
