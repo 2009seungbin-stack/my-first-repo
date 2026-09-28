@@ -10,7 +10,8 @@ import {postByNo,commentsOf,reportById,channelPosts,channelStats,entitiesByIds,c
 import {renderMarkdown,plainExcerpt} from '../markdown.js';
 import {COMPAT_STATUS_LABEL,label} from '../labels.js';
 import {confirmationsNeeded} from '../community.js';
-import {dayStart} from './channel.js';
+import {dayStart,proposeForm} from './channel.js';
+import {typeDef} from '../verticals/index.js';
 
 /** Best comment: most upvotes, at least 5, and ahead of the runner-up. */
 export const BEST_COMMENT_MIN=5;
@@ -51,6 +52,8 @@ export function renderPost(m,site){
  /** @param {string|null} parent @param {number} depth @returns {unknown[]} */
  const thread=(parent,depth)=>(kids.get(parent)||[]).flatMap(c=>[comment(c,Math.min(depth,2)),...thread(c.id,depth+1)]);
  const rep=m.report;
+ // 정보 제안 from this post: the post becomes the evidence linked to the proposal.
+ const propose=proposeForm(e,l,typeDef(e.vertical,e.type)?.props||[],p.id);
  const nm=(/** @type {string|null|undefined} */ id)=>{const x=id?m.reportNames.get(id):null;return x?html`<a href="${channelUrl(l,x)}">${nameOf(x,l)}</a>`:id||'';};
  const RESULT=/** @type {Record<string,string>} */({works:'c',works_with_issues:'u',broken:'d'});
  const envText=rep?Object.entries(rep.env||{}).map(([,v])=>String(v)).join(' · '):'';
@@ -69,6 +72,7 @@ ${Object.keys(rep.metrics||{}).length?html`<tr><th>${s.report.metrics}</th><td>$
 ${facts}<div class="pbody">${raw(renderMarkdown(p.body_md))}</div>${vstate}
 <div class="vote" data-island="post-vote" data-post="${p.id}"${rep?.kind==='compat'?html` data-report="${JSON.stringify({kind:'compat',entityId:rep.entity_id,targetId:rep.target_id,subjectVersion:rep.subject_version||undefined,targetVersion:rep.target_version||undefined,result:rep.result})}"`:''}><button class="up" type="button" disabled><b>${p.up}</b><span>${s.up}</span></button>${rep?.kind==='compat'?html`<button type="button" disabled><b>0</b><span>${s.sameHere}</span></button><button type="button" disabled><b>0</b><span>${s.notRepro}</span></button>`:html`<button type="button" disabled><b>${p.down}</b><span>${s.down}</span></button>`}</div>
 <div class="pact"><span class="own" data-island="own-post" data-post="${p.id}" hidden><button class="btn" type="button" data-edit>${l==='ko'?'수정':'Edit'}</button><button class="btn" type="button" data-delete>${l==='ko'?'삭제':'Delete'}</button></span><button class="btn" type="button" data-island="share">${s.share}</button><a class="btn" href="${url}">${s.copyLink}</a><a class="btn" href="/${l}/community/report?target=discussion:${p.id}">${s.flag}</a></div></article>
+${propose?html`<section class="box">${propose}</section>`:''}
 <section class="box" id="comments"><div class="cmh">${s.commentsN(m.comments.filter(x=>!x.deleted).length)}<span class="srt"><span>${s.byOrder}</span></span></div>
 <ol class="cl">${accepted?comment(accepted,0,true):best?comment(best,0,true):''}${thread(null,0)}</ol>
 <form class="cform" id="comment-form" data-island="comment-form" data-post="${p.id}"><input type="hidden" name="parentId" value=""><div class="cfw"><p class="replying" hidden><span></span> <button type="button" class="lnk" data-cancel>${l==='ko'?'취소':'Cancel'}</button></p><textarea name="body" rows="3" maxlength="4000" placeholder="${s.writeComment}" aria-label="${s.writeComment}"></textarea></div><button class="btn p" type="submit">${s.submit}</button></form></section>

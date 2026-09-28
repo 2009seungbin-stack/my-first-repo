@@ -119,13 +119,14 @@ const TOOL_NAMES=/** @type {Record<string,{ko:string,en:string}>} */({'vram-fit'
 
 /** 정보 제안: a member suggests a value with a source; a moderator accepts it into the wiki
  * (COMMUNITY_VERIFIED — an official value is never replaced). The islands send it to /api/v2/facts/propose.
- * @param {any} e @param {string} l @param {string[]} props */
-function proposeForm(e,l,props){
+ * @param {any} e @param {string} l @param {string[]} props @param {string|null} [postId] the post the value comes from
+ */
+export function proposeForm(e,l,props,postId=null){
  const ko=l==='ko';
  const opts=props.map(p=>({p,def:/** @type {any} */(propertyDef(e.vertical,p))})).filter(x=>x.def&&x.def.public!==false&&x.def.type!=='url');
  if(!opts.length)return '';
- return html`<details class="prop"><summary>${ko?'틀리거나 빠진 정보가 있나요? 제안하기':'Wrong or missing? Suggest a value'}</summary>
-<form class="wform" data-island="propose" data-entity="${e.id}"><label>${ko?'항목':'Field'}<select name="property" required>${opts.map(x=>html`<option value="${x.p}" data-type="${x.def.type||'text'}" data-unit="${x.def.unit||''}">${label(x.def.label,l)}</option>`)}</select></label>
+ return html`<details class="prop"><summary>${postId?(ko?'이 글의 내용으로 위키 정보 제안하기':'Suggest a wiki value from this post'):(ko?'틀리거나 빠진 정보가 있나요? 제안하기':'Wrong or missing? Suggest a value')}</summary>
+<form class="wform" data-island="propose" data-entity="${e.id}"${postId?html` data-post="${postId}"`:''}><label>${ko?'항목':'Field'}<select name="property" required>${opts.map(x=>html`<option value="${x.p}" data-type="${x.def.type||'text'}" data-unit="${x.def.unit||''}">${label(x.def.label,l)}</option>`)}</select></label>
 <label>${ko?'값':'Value'}<input name="value" required maxlength="200" placeholder="${ko?'예: 2026-10-20, 12, 공식 표기 그대로':'e.g. 2026-10-20, 12'}"></label>
 <label>${ko?'통화 (가격일 때)':'Currency (prices)'}<input name="unit" maxlength="3" placeholder="USD"></label>
 <label>${ko?'출처 링크 (공식 페이지 우선)':'Source link (official first)'}<input name="sourceUrl" type="url" required placeholder="https://"></label>

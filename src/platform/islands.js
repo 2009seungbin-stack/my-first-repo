@@ -346,7 +346,7 @@ async function main(){
    else if(type==='bool')value=/^(예|yes|true|y|o|있음)$/i.test(raw);
    else if(type==='list')value=raw.split(/[,·]/).map(x=>x.trim()).filter(Boolean);
    const unit=String(fd.get('unit')||'').trim().toUpperCase()||(type==='money'?opt?.dataset.unit||undefined:undefined);
-   const r=await write('/facts/propose',{entityId:pf.dataset.entity,property:String(fd.get('property')),value,...(unit&&type==='money'?{unit}:{}),sourceUrl:String(fd.get('sourceUrl')||''),note:String(fd.get('note')||'')||undefined},signedIn);
+   const r=await write('/facts/propose',{entityId:pf.dataset.entity,property:String(fd.get('property')),value,...(unit&&type==='money'?{unit}:{}),sourceUrl:String(fd.get('sourceUrl')||''),note:String(fd.get('note')||'')||undefined,...(pf.dataset.post?{postId:pf.dataset.post}:{})},signedIn);
    if(r){toast(L==='ko'?'제안을 보냈어요. 운영자가 출처를 확인한 뒤 반영합니다.':'Sent. A moderator will check the source.');pf.reset();pf.closest('details').open=false;}});
  }
 
