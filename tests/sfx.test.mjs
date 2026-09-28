@@ -13,6 +13,14 @@ test('seeded noise, repeat rendering and sequence are deterministic',()=>{
 test('all waveforms generate finite, nonempty PCM and are not all the same',()=>{
  const sig=[];for(const wave of WAVES){const p=project(7);p.layers=[layer(wave,{hold:.02,release:.03})];const r=render(p);assert(r.left.every(Number.isFinite),wave);assert(r.metrics.rms>.001,wave);sig.push(Array.from(r.left.subarray(500,530)).join(','));}assert(new Set(sig).size>=10);
 });
+test('pitch jump, harmonics and compression change a bounded deterministic signal',()=>{
+ const p=project(17);p.layers=[layer('sine',{freq:440,attack:0,decay:0,sustain:1,hold:.12,release:0,lp:20000})];
+ const base=render(p);p.layers[0].jumpSemitones=12;p.layers[0].jumpAt=.5;
+ const jumped=render(p);assert.deepEqual(jumped.left.subarray(200,1800),base.left.subarray(200,1800));assert.notDeepEqual(jumped.left.subarray(3300,4000),base.left.subarray(3300,4000));
+ p.layers[0].harmonics=4;p.layers[0].harmonicFalloff=.25;const rich=render(p);assert.notDeepEqual(rich.left.subarray(300,500),jumped.left.subarray(300,500));
+ p.layers[0].compression=.75;const compressed=render(p);assert.notDeepEqual(compressed.left.subarray(300,500),rich.left.subarray(300,500));assert(compressed.left.every(Number.isFinite));assert.deepEqual(compressed.left,render(p).left);
+ const bounded=validate({...p,layers:[{...p.layers[0],jumpSemitones:999,harmonics:99,compression:4}]});assert.equal(bounded.layers[0].jumpSemitones,48);assert.equal(bounded.layers[0].harmonics,8);assert.equal(bounded.layers[0].compression,1);
+});
 test('sampler uses imported samples and project bounds reject untrusted state',()=>{
  const p=project(7);p.layers=[layer('sine',{kind:'sample',sampleId:'local',hold:.01,release:0,attack:0,decay:0,sustain:1})];const sample=Float32Array.from({length:1000},(_,i)=>i<500?.6:0),r=render(p,{local:sample}),empty=render(p);assert(r.metrics.rms>empty.metrics.rms);assert.throws(()=>validate({...p,layers:Array(5).fill(layer())}),/1–4/);assert.equal(validate({...p,master:Infinity}).master,0);
 });
@@ -41,6 +49,6 @@ test('WAV 16/24-bit header, frame count and signed sample bytes are correct',()=
 test('vendored jsfxr JSON and Base58 round-trip; reference waveform matches upstream',()=>{
  const upstream=originalJsfxr(),p=new upstream.Params();p.wave_type=2;p.p_env_decay=.3;p.p_base_freq=.42;p.sample_rate=44100;p.sample_size=16;const code=toJsfxrBase58(p),back=parseJsfxr(code);assert.equal(back.wave_type,p.wave_type);assert(Math.abs(back.p_base_freq-p.p_base_freq)<1e-5);assert.deepEqual(renderJsfxr(back).pcm,upstream.sfxr.toBuffer(back));assert.throws(()=>parseJsfxr('not-a-code'),/Unrecognized/);assert.throws(()=>parseJsfxr('{"sound_vol":"NaN"}'),/output settings/);assert.throws(()=>parseJsfxr('x'.repeat(16385)),/too large/);
 });
-test('Ogg Vorbis encoder produces a recognizable container; MP3 is disabled',async()=>{
- const rate=44100,pcm=Float32Array.from({length:rate/10},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));const ogg=await encodeCompressed([pcm],rate,'ogg');assert.equal(String.fromCharCode(...ogg.subarray(0,4)),'OggS');assert(ogg.length>1000);await assert.rejects(()=>encodeCompressed([pcm],rate,'mp3'),/Only Ogg/);
+test('Ogg Vorbis encoder produces a recognizable container; unsupported formats fail',async()=>{
+ const rate=44100,pcm=Float32Array.from({length:rate/10},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));const ogg=await encodeCompressed([pcm],rate,'ogg');assert.equal(String.fromCharCode(...ogg.subarray(0,4)),'OggS');assert(ogg.length>1000);await assert.rejects(()=>encodeCompressed([pcm],rate,'flac'),/Unsupported compressed format/);
 });

@@ -44,12 +44,17 @@ def run():
         context = browser.new_context(**options)
         page = context.new_page(); errors = []; external = []
         page.on('pageerror', lambda e: errors.append(str(e.stack or e)))
-        page.on('request', lambda req: external.append(req.url) if not req.url.startswith(BASE) and not req.url.startswith('data:') else None)
+        page.on('request', lambda req: external.append(req.url) if not req.url.startswith((BASE, 'data:', 'blob:')) else None)
         page.goto(BASE + '/en/game/sfx-generator/', wait_until='domcontentloaded')
         page.locator('#metrics').filter(has_text='Duration').wait_for()
         assert page.locator('.sfx-preset').count() == 8; checks += 1
         page.locator('[data-preset="laser"]').click(); page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 1
         page.locator('#advanced').evaluate('(x) => x.open = true')
+        for field, value in [('jumpSemitones','12'),('jumpAt','0.25'),('harmonics','3'),('harmonicFalloff','0.4'),('compression','0.6')]:
+            control=page.locator(f'#layers [data-layer="0"][data-field="{field}"]')
+            control.fill(value); control.dispatch_event('change')
+            expect(page.locator(f'#layers [data-layer="0"][data-field="{field}"]')).to_have_value(value)
+        page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 5
         page.locator('#addLayer').click(); assert page.locator('.sfx-layer').count() == 2; checks += 1
         page.locator('#addNote').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
         page.locator('#timeline [data-step="2"][data-tone="3"]').click(); assert page.locator('#sequence .sfx-note').count() == 2; checks += 1
@@ -100,7 +105,7 @@ def run():
         with wave.open(str(wav), 'rb') as w:
             assert w.getframerate() == 44100 and w.getsampwidth() == 3 and w.getnchannels() == 2 and w.getnframes() > 1000
         checks += 1
-        for fmt, codec in [('ogg', 'vorbis')]:
+        for fmt, codec in [('ogg', 'vorbis'), ('mp3', 'mp3')]:
             page.locator('#format').select_option(fmt)
             with page.expect_download(timeout=30000) as item: page.locator('#saveAudio').click()
             target = temp / ('effect.' + fmt); item.value.save_as(target)
@@ -110,8 +115,12 @@ def run():
                 assert info['streams'][0]['codec_name'] == codec, info
                 assert info['streams'][0]['sample_rate'] == '44100', info
             checks += 1
-        assert page.locator('#format option[value="mp3"]').get_attribute('disabled') is not None
-        assert 'UNVERIFIED' in page.locator('#format option[value="mp3"]').inner_text(); checks += 1
+        assert page.locator('#format option[value="mp3"]').get_attribute('disabled') is None
+        assert page.locator('.sfx-codec a').count() == 4
+        for link in page.locator('.sfx-codec a').all():
+            response=context.request.get(link.evaluate('(x) => x.href'))
+            assert response.status == 200 and len(response.body()) > 100
+        checks += 1
         page.locator('#format').select_option('wav')
         with page.expect_download(timeout=30000) as item: page.locator('#batch').click()
         zpath = temp / 'variants.zip'; item.value.save_as(zpath)
