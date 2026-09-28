@@ -1629,5 +1629,319 @@ export default {
    versions:{body:['Unity 6000.5.3f1のバッチモードで、書き出したバンドルに`NerulioSpriteImporter.cs`を実行し、矩形、ピボット（共通の基準点1つ）、ピクセル、クリップのキーと長さを読み戻しました。TexturePackerの取り込みは`src/studio/sprite/atlas-data.js`で、TexturePacker純正のUnityインポーターは試していません。Unityの用語はUnity 6のマニュアルに従います。'],sources:[S.tpExporter,S.tpSettings,S.unitySprite]}
   }
  },
- // @@PAGES@@
+ 'game/phaser-atlas-frames-wrong':{
+  type:'troubleshoot',
+  intent:{primary:'fix Phaser atlas frames that are mirrored, sideways, clipped or shifted',secondary:['rotated frames in Phaser 3.90 and 4.2','trimmed Sparrow XML in Phaser 3.90','name and file mismatches'],
+   goal:'know which of the causes applies from the data file, and repack with settings Phaser reads',input:'an existing atlas (PNG + JSON or XML) or the original frames',output:'a diagnosis and a repacked atlas without rotation (and without trim for Phaser 3.90 XML)',target:'Phaser 3.90 / 4.2',support:'partial',
+   evidence:['docs/STUDIO-PACK.md (49 engine runs, 2 FAIL = trimmed XML in Phaser 3.90)','docs/H2H-PAID.md (TexturePacker rotated export: archer 6/10, samurai 40/60, toon 9/45 matched)','src/game/export/targets.js (Phaser preset refuses rotation)','src/studio/sprite/atlas-data.js (existing atlases read back, rotated frames stay turned)'],
+   external:['Phaser 3.90 source: AtlasXML setTrim argument order; JSONHash setTrim order, rotated flag and pivot','Phaser LoaderPlugin: atlas, atlasXML']},
+  en:{
+   answer:'When some atlas frames come out wrong in Phaser, check the data file before the code. Entries with `"rotated": true`: Phaser 3.90 and 4.2 did not turn such frames back in our runs, so repack without rotation. Trimmed Starling/Sparrow XML (`frameX` present) in Phaser 3.90: its XML parser passes the trimmed and full sizes in the wrong order, so use the JSON atlas, trim off, or Phaser 4.2. Otherwise compare frame names and files with the loader call. Nerulio cannot patch an existing atlas; it repacks the frames with settings Phaser reads.',
+   concept:{title:'Three causes, three places to look',body:[
+    'Rotation. A packer may store a frame turned by 90° to save space and mark it `rotated`. Phaser\'s JSON parser flags the frame and changes its texture coordinates, but in our runs with Phaser 3.90 and 4.2 exactly the rotated frames came out wrong while the upright frames of the same atlas were right: with TexturePacker\'s own rotated export, 6 of 10 archer frames, 40 of 60 samurai frames and 9 of 45 toon frames matched.',
+    'Trim in XML. The Sparrow format stores the trim as `frameX`, `frameY`, `frameWidth` and `frameHeight`. Phaser 3.90\'s AtlasXML calls `setTrim(width, height, frameX, frameY, frameWidth, frameHeight)`, but setTrim expects the full size first and the trimmed size last. JSON atlases are not affected, because the JSON parser passes `sourceSize` first.',
+    'Data mismatches. A frame name that is not in the atlas, a JSON from a different export than the PNG, or a PNG resized after packing all give wrong frames without any engine bug; they show up as wrong rectangles or missing names in `this.textures.get(key)`.'],
+    terms:[['rotated','Flag on a frame stored turned by 90° on the page.'],['setTrim','The Phaser Frame method that places a trimmed piece inside its full-size box.'],['frameX, frameY','Sparrow XML\'s negative offset of the full frame from the stored pixels.']]},
+   example:{title:'Is it rotation or trim? Read the entry',lines:[
+    'JSON entry, rotated (TexturePacker layout):',
+    '"run_0": { "frame": {"x":17,"y":23,"w":18,"h":15}, "rotated": true, … }',
+    '   → stored as 15 × 18 on the page; Phaser 3.90 and 4.2 drew such frames wrong → repack, rotation off',
+    '',
+    'Sparrow XML, trimmed:',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15" frameX="-10" frameY="-10" frameWidth="40" frameHeight="29"',
+    '   Phaser 3.90 calls   setTrim(18, 15, 10, 10, 40, 29)',
+    '   setTrim expects     setTrim(40, 29, 10, 10, 18, 15)   → wrong size and offset',
+    '   Phaser 4.2: correct.  Fix for 3.90: the JSON atlas, or XML with trim off',
+    '',
+    'JSON, trimmed (not a bug): setTrim(40, 29, 10, 10, 18, 15) from sourceSize + spriteSourceSize'],
+    after:'If neither flag is in the file and frames are still wrong, the cause is almost always the data: a stale JSON, a renamed frame or a resized PNG.'},
+   trouble:{rows:[
+    ['Only some frames are mirrored, turned or clipped','Those frames are stored rotated','`"rotated": true` on exactly those entries','Repack with rotation off; Nerulio\'s Phaser preset refuses rotation, and in TexturePacker turn Allow rotation off'],
+    ['Trimmed frames sit shifted or cropped, only in Phaser 3.90, only with XML','The AtlasXML setTrim order','The XML has `frameX` on those frames; the same files look right in Phaser 4.2','"Sparrow XML (Phaser 3)" preset (trim off), the JSON atlas, or Phaser 4'],
+    ['Every frame is offset by the same amount','With a `pivot` in the JSON, Phaser sets it as the sprite\'s origin; without one the origin is the centre','`sprite.originX`, `sprite.originY`','Expect the pivot as origin (0.5, 1 = feet), or remove `pivot` from the JSON if you position by the centre'],
+    ['Frames show pictures from other frames','The JSON and the PNG come from different exports, or frame names changed','Compare `meta.image` and `meta.size` with the PNG; list `this.textures.get(key).getFrameNames()`','Export both files again, together'],
+    ['Frames blur or show seams while moving','Linear filtering and positions between pixels, not the atlas data','The game config','`pixelArt: true`, and keep 2 px padding in the atlas']]},
+   verify:{steps:[
+    'Draw every frame as a still image in a grid (`this.add.image(x, y, key, name)` for each name) and compare it with the source frames side by side.',
+    'If you can, try the other Phaser major version: a problem only in 3.90 with XML is the trim order; a problem in both with rotated frames is rotation.',
+    'After repacking, the data file has no `"rotated": true`, and for Phaser 3.90 XML no `frameX` attributes.']},
+   alternatives:{rows:[
+    ['Aseprite JSON with `this.load.aseprite`','Drawn correctly in Phaser 3.90 and 4.2 in our runs; one page, no rotation. See [[game/aseprite-to-phaser|Aseprite to Phaser]].'],
+    ['Repack from the original frames','Best when you have them: the Phaser 3 / 4 preset keeps trim and never rotates; see [[game/phaser-texture-atlas|Phaser texture atlas]]. Reading frames back from an existing atlas keeps rotated frames turned.']]},
+   versions:{body:['In Nerulio\'s engine runs of 2026-09-23, 49 Studio exports were loaded in real engines: 47 passed and the 2 failures were trimmed Starling XML in Phaser 3.90. Rotated TexturePacker frames failed in both Phaser 3.90.0 and 4.2.1, including TexturePacker 8.3.0\'s own export with rotation enabled (2026-09-25). The setTrim orders are quoted from the Phaser 3.90 source.'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader]}
+  },
+  ko:{
+   answer:'Phaser에서 아틀라스 프레임 일부가 잘못 나오면 코드보다 데이터 파일을 먼저 보세요. `"rotated": true`인 항목: 검증 실행에서 Phaser 3.90과 4.2가 이런 프레임을 되돌려 그리지 못했으니 회전 없이 다시 패킹합니다. Phaser 3.90에서 트림된 Starling/Sparrow XML(`frameX`가 있음): XML 파서가 트림 크기와 전체 크기를 거꾸로 넘기므로 JSON 아틀라스, 트림 끄기, 또는 Phaser 4.2를 쓰세요. 그 밖에는 프레임 이름과 파일을 로더 호출과 비교합니다. Nerulio는 기존 아틀라스를 고쳐 주지 않고, Phaser가 읽는 설정으로 프레임을 다시 패킹합니다.',
+   concept:{title:'원인 세 가지, 확인할 곳 세 군데',body:[
+    '회전. 패커는 공간을 아끼려고 프레임을 90도 돌려 저장하고 `rotated`로 표시할 수 있습니다. Phaser JSON 파서는 그 프레임에 표시를 하고 텍스처 좌표를 바꾸지만, Phaser 3.90과 4.2 검증에서는 정확히 회전된 프레임만 틀렸고 같은 아틀라스의 바로 선 프레임은 맞았습니다. TexturePacker 자체의 회전 내보내기로 궁수 10프레임 중 6, 사무라이 60프레임 중 40, 툰 45프레임 중 9만 일치했습니다.',
+    'XML의 트림. Sparrow 형식은 트림을 `frameX`, `frameY`, `frameWidth`, `frameHeight`로 저장합니다. Phaser 3.90의 AtlasXML은 `setTrim(width, height, frameX, frameY, frameWidth, frameHeight)`를 호출하지만, setTrim은 전체 크기를 먼저, 트림된 크기를 마지막에 받습니다. JSON 파서는 `sourceSize`를 먼저 넘기므로 JSON 아틀라스는 영향이 없습니다.',
+    '데이터 불일치. 아틀라스에 없는 프레임 이름, PNG와 다른 내보내기에서 나온 JSON, 패킹 뒤 크기를 바꾼 PNG는 엔진 버그 없이도 프레임을 틀리게 만듭니다. `this.textures.get(key)`에서 틀린 사각형이나 없는 이름으로 드러납니다.'],
+    terms:[['rotated','페이지에 90도 돌려 저장된 프레임의 표시.'],['setTrim','트림된 조각을 원래 크기 상자 안에 놓는 Phaser Frame 메서드.'],['frameX, frameY','Sparrow XML에서 저장된 픽셀 기준 전체 프레임의 음수 오프셋.']]},
+   example:{title:'회전인가 트림인가? 항목을 읽어 보기',lines:[
+    '회전된 JSON 항목(TexturePacker 배치):',
+    '"run_0": { "frame": {"x":17,"y":23,"w":18,"h":15}, "rotated": true, … }',
+    '   → 페이지에 15 × 18로 저장됨. Phaser 3.90과 4.2가 이런 프레임을 틀리게 그림 → 회전 끄고 다시 패킹',
+    '',
+    '트림된 Sparrow XML:',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15" frameX="-10" frameY="-10" frameWidth="40" frameHeight="29"',
+    '   Phaser 3.90 호출     setTrim(18, 15, 10, 10, 40, 29)',
+    '   setTrim이 기대하는 값 setTrim(40, 29, 10, 10, 18, 15)   → 크기와 오프셋이 틀림',
+    '   Phaser 4.2: 정상.  3.90 해결책: JSON 아틀라스, 또는 트림을 끈 XML',
+    '',
+    '트림된 JSON(버그 아님): sourceSize + spriteSourceSize로 setTrim(40, 29, 10, 10, 18, 15)'],
+    after:'파일에 두 표시가 모두 없는데도 프레임이 틀리면 원인은 거의 항상 데이터입니다. 오래된 JSON, 이름이 바뀐 프레임, 크기가 바뀐 PNG.'},
+   trouble:{rows:[
+    ['일부 프레임만 뒤집히거나 돌아가거나 잘림','그 프레임들이 회전된 채 저장됨','바로 그 항목들에 `"rotated": true`','회전을 끄고 다시 패킹. Nerulio Phaser 프리셋은 회전을 거부하며, TexturePacker에서는 Allow rotation을 끔'],
+    ['Phaser 3.90에서, XML에서만 트림된 프레임이 밀리거나 잘림','AtlasXML의 setTrim 순서','그 프레임에 XML `frameX`가 있고, 같은 파일이 Phaser 4.2에서는 정상','"Sparrow XML (Phaser 3)" 프리셋(트림 끔), JSON 아틀라스, 또는 Phaser 4'],
+    ['모든 프레임이 같은 만큼 어긋남','JSON에 `pivot`이 있으면 Phaser가 스프라이트 원점으로 쓰고, 없으면 원점은 가운데','`sprite.originX`, `sprite.originY`','피벗이 원점(0.5, 1 = 발)이라고 보고 배치하거나, 가운데 기준으로 놓는다면 JSON에서 `pivot`을 뺌'],
+    ['프레임에 다른 프레임 그림이 나옴','JSON과 PNG가 서로 다른 내보내기에서 나왔거나 프레임 이름이 바뀜','`meta.image`·`meta.size`를 PNG와 비교하고 `this.textures.get(key).getFrameNames()` 확인','두 파일을 함께 다시 내보냄'],
+    ['움직일 때 프레임이 흐리거나 이음선이 보임','아틀라스 데이터가 아니라 선형 필터와 픽셀 사이 위치 때문','게임 설정','`pixelArt: true`, 아틀라스 간격 2px 유지']]},
+   verify:{steps:[
+    '모든 프레임을 정지 이미지로 격자에 그려(`this.add.image(x, y, key, name)`를 이름마다) 원본 프레임과 나란히 비교합니다.',
+    '가능하면 다른 Phaser 주 버전에서도 봅니다. 3.90의 XML에서만 생기면 트림 순서, 두 버전 모두 회전된 프레임에서 생기면 회전입니다.',
+    '다시 패킹한 뒤 데이터 파일에 `"rotated": true`가 없어야 하고, Phaser 3.90용 XML에는 `frameX` 속성이 없어야 합니다.']},
+   alternatives:{rows:[
+    ['`this.load.aseprite`로 읽는 Aseprite JSON','검증 실행에서 Phaser 3.90과 4.2 모두 올바르게 그렸습니다. 한 페이지, 회전 없음. [[game/aseprite-to-phaser|Aseprite를 Phaser로]] 참고.'],
+    ['원본 프레임에서 다시 패킹','원본이 있다면 가장 좋습니다. Phaser 3 / 4 프리셋은 트림을 유지하고 절대 회전하지 않습니다. [[game/phaser-texture-atlas|Phaser 텍스처 아틀라스]] 참고. 기존 아틀라스에서 프레임을 되읽으면 회전된 프레임은 돌려진 채로 남습니다.']]},
+   versions:{body:['2026-09-23 Nerulio 엔진 검증에서 Studio 내보내기 49개를 실제 엔진에 불러왔고 47개가 통과했으며, 실패 2개는 Phaser 3.90의 트림된 Starling XML이었습니다. 회전된 TexturePacker 프레임은 TexturePacker 8.3.0이 회전을 켜고 직접 내보낸 것(2026-09-25)을 포함해 Phaser 3.90.0과 4.2.1 모두에서 실패했습니다. setTrim 순서는 Phaser 3.90 소스에서 인용했습니다.'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader]}
+  },
+  ja:{
+   answer:'Phaserでアトラスの一部のフレームがおかしいときは、コードより先にデータファイルを見てください。`"rotated": true`の項目：検証の実行でPhaser 3.90と4.2はこうしたフレームを戻して描けなかったので、回転なしでパックし直します。Phaser 3.90でトリムしたStarling/Sparrow XML（`frameX`がある）：XMLパーサーがトリム後と元の大きさを逆の順で渡すため、JSONアトラス、トリムなし、またはPhaser 4.2を使います。それ以外は、フレーム名とファイルをローダーの呼び出しと照らし合わせます。Nerulioは既存のアトラスを修正せず、Phaserが読める設定でフレームをパックし直します。',
+   concept:{title:'3つの原因と、見るべき3つの場所',body:[
+    '回転。パッカーは面積を節約するためにフレームを90度回して保存し、`rotated`と印を付けることがあります。PhaserのJSONパーサーはそのフレームに印を付けてテクスチャ座標を変えますが、Phaser 3.90と4.2での検証では、まさに回転したフレームだけが崩れ、同じアトラスの正立したフレームは正しく描かれました。TexturePacker自身の回転ありの書き出しで一致したのは、弓兵10フレーム中6、サムライ60フレーム中40、トゥーン45フレーム中9でした。',
+    'XMLのトリム。Sparrow形式はトリムを`frameX`、`frameY`、`frameWidth`、`frameHeight`で保存します。Phaser 3.90のAtlasXMLは`setTrim(width, height, frameX, frameY, frameWidth, frameHeight)`を呼びますが、setTrimは元の大きさを先に、トリム後の大きさを最後に受け取ります。JSONパーサーは`sourceSize`を先に渡すので、JSONアトラスは影響を受けません。',
+    'データの不一致。アトラスにないフレーム名、PNGとは別の書き出しのJSON、パック後に大きさを変えたPNGは、エンジンのバグがなくてもフレームを狂わせます。`this.textures.get(key)`で、違う矩形や存在しない名前として現れます。'],
+    terms:[['rotated','ページ上に90度回して保存されたフレームの印。'],['setTrim','トリムした断片を元の大きさの枠に置く、PhaserのFrameのメソッド。'],['frameX, frameY','Sparrow XMLで、保存ピクセルから見たフレーム全体の負のオフセット。']]},
+   example:{title:'回転かトリムか？項目を読む',lines:[
+    '回転したJSONの項目（TexturePacker形式）：',
+    '"run_0": { "frame": {"x":17,"y":23,"w":18,"h":15}, "rotated": true, … }',
+    '   → ページには15 × 18で保存。Phaser 3.90と4.2はこうしたフレームを崩して描いた → 回転なしでパックし直す',
+    '',
+    'トリムしたSparrow XML：',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15" frameX="-10" frameY="-10" frameWidth="40" frameHeight="29"',
+    '   Phaser 3.90の呼び出し   setTrim(18, 15, 10, 10, 40, 29)',
+    '   setTrimが期待する値     setTrim(40, 29, 10, 10, 18, 15)   → 大きさとオフセットが狂う',
+    '   Phaser 4.2：正常。  3.90での対処：JSONアトラス、またはトリムなしのXML',
+    '',
+    'トリムしたJSON（バグではない）：sourceSize + spriteSourceSizeから setTrim(40, 29, 10, 10, 18, 15)'],
+    after:'ファイルにどちらの印もないのにフレームがおかしいなら、原因はほぼ必ずデータです。古いJSON、名前の変わったフレーム、大きさの変わったPNG。'},
+   trouble:{rows:[
+    ['一部のフレームだけ反転・回転・欠ける','そのフレームが回転して保存されている','まさにその項目に`"rotated": true`','回転なしでパックし直す。NerulioのPhaserプリセットは回転を拒否し、TexturePackerならAllow rotationをオフに'],
+    ['Phaser 3.90で、XMLのときだけトリムしたフレームがずれる・欠ける','AtlasXMLのsetTrimの順番','そのフレームのXMLに`frameX`があり、同じファイルがPhaser 4.2では正常','「Sparrow XML (Phaser 3)」プリセット（トリムなし）、JSONアトラス、またはPhaser 4'],
+    ['全フレームが同じだけずれる','JSONに`pivot`があるとPhaserはそれをスプライトの原点にし、なければ原点は中央','`sprite.originX`、`sprite.originY`','ピボットが原点（0.5, 1 = 足元）だと考えて配置するか、中央基準で置くならJSONから`pivot`を外す'],
+    ['フレームに別のフレームの絵が出る','JSONとPNGが別々の書き出しのもの、またはフレーム名が変わった','`meta.image`と`meta.size`をPNGと比べ、`this.textures.get(key).getFrameNames()`を確認','両方のファイルを一緒に書き出し直す'],
+    ['動くとフレームがぼやける・継ぎ目が出る','アトラスのデータではなく、線形フィルターとピクセルの間の位置が原因','ゲーム設定','`pixelArt: true`、アトラスの間隔は2pxを保つ']]},
+   verify:{steps:[
+    '全フレームを静止画としてグリッドに描き（名前ごとに`this.add.image(x, y, key, name)`）、元のフレームと並べて比べます。',
+    'できればPhaserの別のメジャーバージョンでも試します。3.90のXMLでだけ起きるならトリムの順番、両方で回転したフレームに起きるなら回転です。',
+    'パックし直した後のデータファイルに`"rotated": true`がなく、Phaser 3.90用のXMLには`frameX`属性がないこと。']},
+   alternatives:{rows:[
+    ['`this.load.aseprite`で読むAsepriteのJSON','検証の実行ではPhaser 3.90と4.2の両方で正しく描かれました。1ページ、回転なし。[[game/aseprite-to-phaser|AsepriteからPhaserへ]]を参照。'],
+    ['元のフレームからパックし直す','元のフレームがあるならこれが一番です。Phaser 3 / 4プリセットはトリムを保ち、決して回転しません。[[game/phaser-texture-atlas|Phaserのテクスチャアトラス]]を参照。既存のアトラスからフレームを読み戻すと、回転したフレームは回ったままです。']]},
+   versions:{body:['2026-09-23のNerulioのエンジン検証では、Studioの書き出し49件を実際のエンジンに読み込み、47件が合格し、失敗の2件はPhaser 3.90でのトリムしたStarling XMLでした。回転したTexturePackerのフレームは、TexturePacker 8.3.0が回転ありで書き出したもの（2026-09-25）も含めて、Phaser 3.90.0と4.2.1の両方で失敗しました。setTrimの順番はPhaser 3.90のソースから引用しています。'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader]}
+  }
+ },
+ 'game/pixijs-2x-spritesheet-scale':{
+  type:'troubleshoot',
+  intent:{primary:'fix a PixiJS @2x spritesheet that draws at double size',secondary:['how meta.scale sets the texture resolution','checking what PixiJS actually loaded','padding and page size of @2x variants'],
+   goal:'@1x and @2x sheets draw at the same size in PixiJS 8, the @2x one sharper, with no scale workaround in game code',input:'a spritesheet JSON + PNG at @2x (or the original frames)',output:'a diagnosis and per-variant JSON files with matching meta.scale',target:'PixiJS 8 (checked 8.21, @2x only)',support:'full',
+   evidence:['tools/engine-verify/results/pixi-scale-2026-09-24.json (resolution 1 and 2, sizes, anchors, negative control)','src/game/export/atlas-json.js (meta.scale per variant, animations on every variant)','src/game/pack/packer.js (scale variants, padding in pixels of each variant)'],
+   external:['PixiJS API: Spritesheet (meta.scale for resolution variants)','PixiJS API: TextureSource (resolution, scaleMode)']},
+  en:{
+   answer:'PixiJS 8 sizes a texture by its pixels divided by its resolution, and a spritesheet\'s resolution comes from `meta.scale` in its JSON. An @2x sheet whose JSON still says `"scale": "1"` therefore draws twice as large; with `"2"` it draws at the @1x size with twice the detail. Check `sheet.data.meta.scale` and `texture.source.resolution` for the file you actually loaded, make the value match the file, and keep game code in @1x units. Nerulio writes every scale variant with its own matching JSON; checked for @2x in PixiJS 8.21.',
+   concept:{title:'Why meta.scale decides the size',body:[
+    'PixiJS separates pixels from units. A texture of 80 × 58 pixels at resolution 2 measures 40 × 29 units, the same as a 40 × 29 pixel texture at resolution 1, so sprite sizes, positions and hit tests stay the same and the screen only gets more detail.',
+    'For a spritesheet the resolution is taken from `meta.scale` in the JSON. A packer that copies the @1x JSON next to an @2x image, or writes "1" for every variant, makes PixiJS read the extra pixels as extra size. In our negative control, an @2x JSON edited to "1" made PixiJS report an 80 × 58 texture for a 40 × 29 frame.',
+    'Padding is counted in the pixels of each variant. Nerulio keeps 2 px padding at @2x, so the @2x page of the six-frame test set is 74 × 96 rather than 76 × 100, while each @2x frame is an exact 2× nearest copy of its @1x frame.'],
+    terms:[['resolution','Pixels per PixiJS unit of a texture source: 1 for @1x, 2 for @2x.'],['meta.scale','The JSON field PixiJS reads the spritesheet\'s resolution from, written as a string.'],['scale variant','The same atlas packed at another scale, with its own PNG and JSON (run@2x.png, run@2x.json).']]},
+   example:{title:'The numbers for one 40 × 29 frame',lines:[
+    'file            meta.scale    pixels     ÷ resolution    sprite width × height',
+    'run.json        "1"           40 × 29    ÷ 1             40 × 29',
+    'run@2x.json     "2"           80 × 58    ÷ 2             40 × 29',
+    'run@2x.json     "1" (wrong)   80 × 58    ÷ 1             80 × 58   ← double size',
+    '',
+    'pages of the 6-frame set: @1x 38 × 50, @2x 74 × 96 (padding stays 2 px)',
+    'run_0 at @2x: stored 36 × 30 at (0, 64), trim (20, 20), canvas 80 × 58'],
+    after:'The first three rows are what PixiJS 8.21 reported in the check of 2026-09-24: resolution 1 and 2 read from `meta.scale`, the same 40 × 29 size and (0.5, 1) anchor for both variants, and double size in the negative control.'},
+   trouble:{rows:[
+    ['@2x sprites draw twice as large','`meta.scale` is "1" in the @2x JSON','`sheet.data.meta.scale`','Set it to "2", or export scale variants so each JSON matches its PNG'],
+    ['The right size but blurry','Linear scaling, or the @1x sheet loaded on a high-density screen and stretched','`texture.source.scaleMode` and `texture.source.resolution`','Nearest scale mode for pixel art; load the @2x variant where the screen needs resolution 2'],
+    ['@2x frames sit a pixel off from @1x','Positions or anchors set in pixels instead of units, or variants packed separately with different trims','Compare anchors and `sprite.width` of both variants','Keep the exported 0–1 anchors, and export all variants in one pack'],
+    ['Game code scales every sprite by 0.5','A workaround for a wrong `meta.scale`','Search the code for scale 0.5','Fix the JSON, then remove the extra scaling'],
+    ['The @2x sheet has no animations','Its JSON lacks the `animations` map; some tools write it into one file only','Open the @2x JSON','Nerulio writes `animations` into the first page of every variant']]},
+   verify:{steps:[
+    'Log `sheet.data.meta.scale` and `sheet.textures.run_0.source.resolution` for the file you loaded: "2" and 2 for @2x.',
+    '`new Sprite(sheet.textures.run_0).width` is the same for @1x and @2x (40 for this frame).',
+    'Screenshot both variants at the same zoom: identical layout, only sharper edges at @2x.']},
+   alternatives:{rows:[
+    ['Ship @1x only','Pixel art shown at whole-number zoom with nearest scaling needs no @2x file: the extra pixels would be exact copies anyway.'],
+    ['Edit `meta.scale` by hand','A single sheet you cannot re-export: change the string to "2" in the @2x JSON and nothing else.'],
+    ['Export variants from the frames','Several sheets or frequent changes: [[game/pixi-spritesheet-json|PixiJS spritesheet JSON]] with the @2x variant ticked.']]},
+   versions:{body:['`tools/engine-verify/pixi_scale.py` (2026-09-24) loaded the @1x and @2x export of one six-frame CC0 set in PixiJS 8.21.0 with WebGL: resolution 1 and 2 were read from `meta.scale`, sizes and anchors matched, and every @2x frame was an exact 2× nearest copy; editing `meta.scale` to "1" in the @2x JSON doubled the drawn size. @0.5x, @3x and @4x were not loaded in PixiJS.'],sources:[S.pixiSheet,S.pixiSource]}
+  },
+  ko:{
+   answer:'PixiJS 8은 텍스처 크기를 픽셀 수 ÷ 해상도로 정하고, 스프라이트시트의 해상도는 JSON의 `meta.scale`에서 가져옵니다. 그래서 JSON에 아직 `"scale": "1"`이라고 적힌 @2x 시트는 두 배 크기로 그려지고, `"2"`면 @1x와 같은 크기에 세밀함만 두 배가 됩니다. 실제로 불러온 파일의 `sheet.data.meta.scale`과 `texture.source.resolution`을 확인하고, 값을 파일에 맞춘 뒤 게임 코드는 @1x 단위로 두세요. Nerulio는 배율 변형마다 맞는 JSON을 따로 씁니다. PixiJS 8.21에서 @2x로 확인했습니다.',
+   concept:{title:'meta.scale이 크기를 정하는 이유',body:[
+    'PixiJS는 픽셀과 단위를 나눕니다. 해상도 2의 80 × 58픽셀 텍스처는 40 × 29단위로, 해상도 1의 40 × 29픽셀 텍스처와 같습니다. 그래서 스프라이트 크기, 위치, 충돌 판정은 그대로이고 화면만 더 세밀해집니다.',
+    '스프라이트시트의 해상도는 JSON의 `meta.scale`에서 읽습니다. @2x 이미지 옆에 @1x JSON을 복사해 두거나 모든 변형에 "1"을 쓰는 패커를 쓰면, PixiJS는 늘어난 픽셀을 늘어난 크기로 읽습니다. 음성 대조 실험에서 @2x JSON을 "1"로 고치자 PixiJS는 40 × 29 프레임을 80 × 58 텍스처로 보고했습니다.',
+    '간격은 변형마다 그 변형의 픽셀로 셉니다. Nerulio는 @2x에서도 간격을 2px로 두므로, 6프레임 시험 세트의 @2x 페이지는 76 × 100이 아니라 74 × 96입니다. 그래도 @2x 프레임 하나하나는 @1x 프레임을 최근접 이웃으로 정확히 2배 한 것입니다.'],
+    terms:[['해상도(resolution)','텍스처 소스의 PixiJS 단위당 픽셀 수. @1x는 1, @2x는 2.'],['meta.scale','PixiJS가 스프라이트시트 해상도를 읽는 JSON 필드. 문자열로 적힘.'],['배율 변형','같은 아틀라스를 다른 배율로 패킹한 것. 자기 PNG와 JSON이 있음(run@2x.png, run@2x.json).']]},
+   example:{title:'40 × 29 프레임 하나의 숫자',lines:[
+    '파일            meta.scale    픽셀       ÷ 해상도        스프라이트 너비 × 높이',
+    'run.json        "1"           40 × 29    ÷ 1             40 × 29',
+    'run@2x.json     "2"           80 × 58    ÷ 2             40 × 29',
+    'run@2x.json     "1" (틀림)    80 × 58    ÷ 1             80 × 58   ← 두 배 크기',
+    '',
+    '6프레임 세트의 페이지: @1x 38 × 50, @2x 74 × 96 (간격은 2px 그대로)',
+    '@2x의 run_0: 저장 36 × 30, 위치 (0, 64), 트림 (20, 20), 캔버스 80 × 58'],
+    after:'위 세 줄은 2026-09-24 검사에서 PixiJS 8.21이 보고한 값입니다. `meta.scale`에서 해상도 1과 2를 읽었고, 두 변형 모두 크기 40 × 29와 앵커 (0.5, 1)이 같았으며, 음성 대조에서는 두 배 크기였습니다.'},
+   trouble:{rows:[
+    ['@2x 스프라이트가 두 배 크기로 그려짐','@2x JSON의 `meta.scale`이 "1"','`sheet.data.meta.scale`','"2"로 고치거나, JSON이 PNG와 맞도록 배율 변형으로 내보냄'],
+    ['크기는 맞는데 흐림','선형 배율이거나, 고밀도 화면에서 @1x 시트를 늘려 씀','`texture.source.scaleMode`와 `texture.source.resolution`','도트 그림은 최근접 배율. 해상도 2가 필요한 화면에는 @2x 변형을 불러옴'],
+    ['@2x 프레임이 @1x보다 한 픽셀 어긋남','위치나 앵커를 단위가 아니라 픽셀로 정했거나, 트림이 다르게 따로 패킹한 변형','두 변형의 앵커와 `sprite.width` 비교','내보낸 0–1 앵커를 유지하고 모든 변형을 한 번에 내보냄'],
+    ['게임 코드가 모든 스프라이트를 0.5배로 줄임','틀린 `meta.scale`을 피하려던 임시방편','코드에서 0.5 배율 검색','JSON을 고친 뒤 추가 배율을 없앰'],
+    ['@2x 시트에 애니메이션이 없음','그 JSON에 animations 맵이 없음. 한 파일에만 쓰는 도구가 있음','@2x JSON 열어 보기','Nerulio는 모든 변형의 첫 페이지에 `animations`를 씀']]},
+   verify:{steps:[
+    '불러온 파일의 `sheet.data.meta.scale`과 `sheet.textures.run_0.source.resolution`을 출력합니다. @2x면 "2"와 2.',
+    '`new Sprite(sheet.textures.run_0).width`가 @1x와 @2x에서 같아야 합니다(이 프레임은 40).',
+    '두 변형을 같은 확대율로 캡처합니다. 배치는 똑같고 @2x의 가장자리만 더 선명해야 합니다.']},
+   alternatives:{rows:[
+    ['@1x만 배포','정수 배율과 최근접 배율로 보여 주는 도트 그림은 @2x 파일이 필요 없습니다. 늘어난 픽셀이 어차피 똑같은 복사본입니다.'],
+    ['`meta.scale`을 손으로 고치기','다시 내보낼 수 없는 시트 한 장이라면 @2x JSON의 문자열만 "2"로 바꾸세요.'],
+    ['프레임에서 변형 내보내기','시트가 여러 장이거나 자주 바뀔 때: @2x 변형을 켜고 [[game/pixi-spritesheet-json|PixiJS 스프라이트시트 JSON]]으로 내보냄.']]},
+   versions:{body:['`tools/engine-verify/pixi_scale.py`(2026-09-24)가 6프레임 CC0 세트의 @1x·@2x 내보내기를 PixiJS 8.21.0(WebGL)에서 불러왔습니다. `meta.scale`에서 해상도 1과 2를 읽었고 크기와 앵커가 같았으며, @2x 프레임은 모두 최근접으로 정확히 2배였습니다. @2x JSON의 `meta.scale`을 "1"로 고치자 그려진 크기가 두 배가 됐습니다. @0.5x, @3x, @4x는 PixiJS에서 불러오지 않았습니다.'],sources:[S.pixiSheet,S.pixiSource]}
+  },
+  ja:{
+   answer:'PixiJS 8はテクスチャの大きさを「ピクセル数 ÷ 解像度」で決め、スプライトシートの解像度はJSONの`meta.scale`から取ります。そのため、JSONに`"scale": "1"`と書かれたままの@2xシートは2倍の大きさで描かれ、`"2"`なら@1xと同じ大きさで細かさだけが2倍になります。実際に読み込んだファイルの`sheet.data.meta.scale`と`texture.source.resolution`を確認し、値をファイルに合わせ、ゲームのコードは@1xの単位のままにしてください。Nerulioは倍率違いごとに合ったJSONを書きます。PixiJS 8.21で@2xを確認しています。',
+   concept:{title:'meta.scaleが大きさを決める理由',body:[
+    'PixiJSはピクセルと単位を分けています。解像度2の80 × 58ピクセルのテクスチャは40 × 29単位で、解像度1の40 × 29ピクセルのテクスチャと同じです。そのためスプライトの大きさ、位置、当たり判定は変わらず、画面だけがより細かくなります。',
+    'スプライトシートの解像度はJSONの`meta.scale`から読まれます。@2xの画像の隣に@1xのJSONをコピーしたり、どの倍率にも"1"と書くパッカーを使ったりすると、PixiJSは増えたピクセルを大きさの増加として読みます。対照実験で@2xのJSONを"1"に書き換えると、PixiJSは40 × 29のフレームを80 × 58のテクスチャとして報告しました。',
+    '間隔は倍率ごとにそのピクセルで数えます。Nerulioは@2xでも間隔を2pxに保つので、6フレームの試験セットの@2xページは76 × 100ではなく74 × 96です。それでも@2xの各フレームは、@1xのフレームを最近傍で正確に2倍したものです。'],
+    terms:[['解像度（resolution）','テクスチャソースのPixiJS単位あたりのピクセル数。@1xは1、@2xは2。'],['meta.scale','PixiJSがスプライトシートの解像度を読むJSONの項目。文字列で書かれる。'],['倍率違い','同じアトラスを別の倍率でパックしたもの。自分のPNGとJSONを持つ（run@2x.png、run@2x.json）。']]},
+   example:{title:'40 × 29のフレーム1つの数値',lines:[
+    'ファイル        meta.scale    ピクセル   ÷ 解像度        スプライトの幅 × 高さ',
+    'run.json        "1"           40 × 29    ÷ 1             40 × 29',
+    'run@2x.json     "2"           80 × 58    ÷ 2             40 × 29',
+    'run@2x.json     "1"（誤り）   80 × 58    ÷ 1             80 × 58   ← 2倍の大きさ',
+    '',
+    '6フレームのセットのページ：@1x 38 × 50、@2x 74 × 96（間隔は2pxのまま）',
+    '@2xのrun_0：保存36 × 30、位置 (0, 64)、トリム (20, 20)、キャンバス80 × 58'],
+    after:'上の3行は、2026-09-24の検査でPixiJS 8.21が報告した値です。`meta.scale`から解像度1と2を読み、両方の倍率で大きさ40 × 29とアンカー(0.5, 1)が同じで、対照実験では2倍の大きさでした。'},
+   trouble:{rows:[
+    ['@2xのスプライトが2倍の大きさで描かれる','@2xのJSONの`meta.scale`が"1"','`sheet.data.meta.scale`','"2"に直すか、JSONがPNGと合うよう倍率違いで書き出す'],
+    ['大きさは合っているがぼやける','線形スケーリング、または高密度の画面で@1xのシートを引き伸ばしている','`texture.source.scaleMode`と`texture.source.resolution`','ドット絵は最近傍のスケールモード。解像度2が必要な画面では@2xを読み込む'],
+    ['@2xのフレームが@1xより1ピクセルずれる','位置やアンカーを単位ではなくピクセルで決めた、またはトリムの違う別々のパックの倍率違い','両方の倍率のアンカーと`sprite.width`を比べる','書き出した0–1のアンカーを使い、全倍率を1回のパックで書き出す'],
+    ['ゲームのコードで全スプライトを0.5倍にしている','誤った`meta.scale`を避けるための回避策','コードで0.5の倍率を検索','JSONを直してから余計な倍率を外す'],
+    ['@2xのシートにアニメーションがない','そのJSONにanimationsマップがない。1つのファイルにしか書かないツールもある','@2xのJSONを開く','Nerulioは全倍率の最初のページに`animations`を書く']]},
+   verify:{steps:[
+    '読み込んだファイルの`sheet.data.meta.scale`と`sheet.textures.run_0.source.resolution`を出力します。@2xなら"2"と2。',
+    '`new Sprite(sheet.textures.run_0).width`は@1xでも@2xでも同じはずです（このフレームは40）。',
+    '両方の倍率を同じ拡大率でキャプチャします。配置は同一で、@2xの縁だけがくっきりしているはずです。']},
+   alternatives:{rows:[
+    ['@1xだけを配布','整数倍と最近傍で表示するドット絵なら@2xのファイルは不要です。増えたピクセルはどのみち同じ色の複製です。'],
+    ['`meta.scale`を手で直す','書き出し直せないシート1枚なら、@2xのJSONの文字列を"2"に変えるだけにします。'],
+    ['フレームから倍率違いを書き出す','シートが複数あったり頻繁に変わったりするとき：@2xにチェックを入れて[[game/pixi-spritesheet-json|PixiJSのスプライトシートJSON]]で書き出す。']]},
+   versions:{body:['`tools/engine-verify/pixi_scale.py`（2026-09-24）が、6フレームのCC0セットの@1xと@2xの書き出しをPixiJS 8.21.0（WebGL）で読み込みました。`meta.scale`から解像度1と2を読み、大きさとアンカーが一致し、@2xの全フレームが最近傍で正確に2倍でした。@2xのJSONの`meta.scale`を"1"にすると、描かれる大きさが2倍になりました。@0.5x、@3x、@4xはPixiJSで読み込んでいません。'],sources:[S.pixiSheet,S.pixiSource]}
+  }
+ },
+ 'game/sprite-sheet-packers-compared':{
+  type:'compare',
+  intent:{primary:'compare sprite sheet packers (free web packers, free-tex-packer, Nerulio) on real frames',secondary:['sheet size and efficiency','pixel-exact frames and canvas colour drift','duplicates and page limits'],
+   goal:'choose a packer knowing what each does better, with numbers from the same frame sets',input:'five CC0 frame sets from the corpus',output:'measured sheet sizes, exactness, duplicate and multipack behaviour',target:'packer choice',support:'full',
+   evidence:['docs/STUDIO-PACK-H2H.md (2026-09-23)','docs/H2H-PAID.md (TexturePacker Pro comparison)','docs/STUDIO-PACK.md'],
+   external:['CodeAndWeb free sprite sheet packer','free-tex-packer-core repository','Aseprite CLI sheet options']},
+  en:{
+   answer:'Four free packers were run on the same five CC0 frame sets with trim on, padding 2 and max 4096: CodeAndWeb\'s free web packer, GAPTools, free-tex-packer\'s npm core 0.3.9 and Nerulio\'s Pack & Export. They differ less in the packing rule than in what they keep: two browser tools changed pixel colours on the way through a canvas, two stored every duplicate frame again, and one ignored the page limit. Nerulio made the smallest sheet on all five sets with rotation and on four of five without; free-tex-packer runs from a command line, which Nerulio cannot.',
+   concept:{title:'What to compare in a packer',body:[
+    'Sheet area: how much of the page is frames. Efficiency here is the sum of the frames\' opaque bounding boxes divided by the page area, so 0.84 means 16 % of the page is padding or empty space. A long strip can have a small area but may not fit an engine\'s maximum texture size.',
+    'Exact pixels: each frame is cut back out of the sheet with its data (trim offsets, rotation) and compared with the source file pixel by pixel. A browser tool that draws frames through an image element and a 2D canvas can change colours: grey (50, 50, 50) came back as (46, 46, 46) on frames with gAMA/cHRM colour chunks, and soft edges moved by up to 10 levels through premultiplied alpha.',
+    'Behaviour at the edges of the task: identical frames stored once or every time, a maximum page size kept by spreading frames over pages or ignored, and whether the output was ever loaded by a game engine.'],
+    terms:[['Efficiency','Opaque bounding-box area of all frames ÷ total page area.'],['Exact','Every frame restored from the atlas equals its source file, ignoring colour under fully transparent pixels.'],['Alias / dedupe','Identical frames stored once and referenced by several names.']]},
+   example:{title:'Worked example: efficiency and exactness on the ninja set',lead:'Six frames of 40 × 29 px; the sum of their opaque bounding boxes is 1,591 px² (docs/STUDIO-PACK-H2H.md, 2026-09-23).',lines:[
+    'tool                          sheet        area     efficiency   exact frames',
+    'Nerulio (rotation off)         38 × 50     1,900    0.84         6 / 6',
+    'Nerulio (rotation on)          33 × 57     1,881    0.85         6 / 6',
+    'GAPTools                       64 × 36     2,304    0.69         0 / 6',
+    'free-tex-packer-core 0.3.9    129 × 20     2,580    0.62         6 / 6',
+    'CodeAndWeb free (no trim)     126 × 62     7,812    0.20         0 / 6',
+    '',
+    'efficiency = 1,591 / area, e.g. 1,591 / 1,900 = 0.84'],
+    after:'On archer without rotation the order changes: free-tex-packer\'s 3037 × 540 strip (1,639,980 px²) is 0.3 % smaller than Nerulio\'s 1543 × 1066 page (1,644,838 px²).'},
+   alternatives:{rows:[
+    ['free-tex-packer (npm core 0.3.9)','You pack in a build script or CI: it is a Node package with a command line, its frames came back exact and duplicates were stored once. Its web app is gone.'],
+    ['GAPTools or CodeAndWeb\'s free web packer','A one-off sheet from a single web page when exact colours do not matter; both restored only the samurai set exactly, and CodeAndWeb\'s free version does not trim or rotate.'],
+    ['TexturePacker Pro (paid)','Polygon packing, GPU texture formats, 68 data formats and a command line; measured against Nerulio on [[game/texture-packer-free|the TexturePacker comparison]].'],
+    ['Aseprite\'s packed sheet export','The art is in Aseprite and one page with tags is enough: `--sheet-pack` with `--trim` and `--merge-duplicates`. It was not part of this measurement.'],
+    ['Nerulio Pack & Export','Frames must stay exact, duplicates merged and a page limit kept, and the result should load straight into an engine: [[sprite-sheet-maker|sprite sheet maker]].']]},
+   limits:{title:'What Nerulio lacks in this comparison',items:[
+    'No command line or npm package: packing needs the browser.',
+    'On archer without rotation, free-tex-packer\'s sheet was 0.3 % smaller (as a 3037 × 540 strip).',
+    'Rectangles only; no polygon packing.',
+    'Pack time was not compared between tools; only Nerulio\'s own times were measured (2–60 ms per set in Node, spaceshooter 0.42 s).',
+    'The web tools were measured as they were on 2026-09-23; they change without version numbers.']},
+   versions:{body:['Measured on 2026-09-23: CodeAndWeb\'s free web packer and GAPTools live through Playwright, free-tex-packer-core 0.3.9 from npm, and Nerulio with the modules the Studio runs. The judge restored every frame with TexturePacker-JSON rules. Nerulio\'s exports were loaded in Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90 and 4.2, PixiJS 8.21, spine-canvas 4.2 and LÖVE 11.5; Defold bob.jar 1.13.1 built the Defold files.'],sources:[S.tpFree,S.ftp,S.aseCli]}
+  },
+  ko:{
+   answer:'무료 패커 네 개를 같은 CC0 프레임 세트 다섯 개에 트림 켬, 간격 2, 최대 4096으로 돌렸습니다. CodeAndWeb 무료 웹 패커, GAPTools, free-tex-packer의 npm 코어 0.3.9, Nerulio 패킹·내보내기입니다. 패킹 규칙보다 무엇을 지키느냐에서 차이가 컸습니다. 브라우저 도구 두 개는 캔버스를 거치며 픽셀 색을 바꿨고, 두 개는 중복 프레임을 매번 다시 저장했으며, 하나는 페이지 한도를 무시했습니다. Nerulio는 회전을 허용하면 다섯 세트 모두, 끄면 네 세트에서 가장 작은 시트를 만들었습니다. free-tex-packer는 명령줄에서 돌아가지만 Nerulio는 그렇지 못합니다.',
+   concept:{title:'패커에서 비교할 것',body:[
+    '시트 면적: 페이지 중 프레임이 차지하는 비율입니다. 여기서 효율은 프레임들의 불투명 바운딩 박스 합 ÷ 페이지 면적이며, 0.84는 페이지의 16%가 간격이나 빈 공간이라는 뜻입니다. 길쭉한 띠는 면적이 작아도 엔진의 최대 텍스처 크기에 들어가지 않을 수 있습니다.',
+    '정확한 픽셀: 각 프레임을 데이터(트림 오프셋, 회전)대로 시트에서 다시 잘라 내 원본 파일과 픽셀 단위로 비교합니다. 이미지 요소와 2D 캔버스를 거쳐 프레임을 그리는 브라우저 도구는 색을 바꿀 수 있습니다. gAMA/cHRM 색 청크가 있는 프레임에서 회색 (50, 50, 50)이 (46, 46, 46)으로 돌아왔고, 미리 곱한 알파 때문에 부드러운 가장자리가 최대 10단계 움직였습니다.',
+    '작업의 경계에서의 동작: 같은 프레임을 한 번만 저장하는지 매번 저장하는지, 최대 페이지 크기를 여러 페이지로 나눠 지키는지 무시하는지, 결과를 실제 게임 엔진에서 불러 본 적이 있는지입니다.'],
+    terms:[['효율','모든 프레임의 불투명 바운딩 박스 면적 ÷ 페이지 전체 면적.'],['정확','아틀라스에서 되살린 모든 프레임이 원본 파일과 같음(완전히 투명한 픽셀의 색은 무시).'],['별칭 / 중복 제거','같은 프레임을 한 번만 저장하고 여러 이름이 가리키게 함.']]},
+   example:{title:'계산 예시: 닌자 세트의 효율과 정확도',lead:'40 × 29px 프레임 6장. 불투명 바운딩 박스 합은 1,591 px²입니다(docs/STUDIO-PACK-H2H.md, 2026-09-23).',lines:[
+    '도구                          시트         면적     효율         정확한 프레임',
+    'Nerulio (회전 끔)              38 × 50     1,900    0.84         6 / 6',
+    'Nerulio (회전 켬)              33 × 57     1,881    0.85         6 / 6',
+    'GAPTools                       64 × 36     2,304    0.69         0 / 6',
+    'free-tex-packer-core 0.3.9    129 × 20     2,580    0.62         6 / 6',
+    'CodeAndWeb 무료(트림 없음)    126 × 62     7,812    0.20         0 / 6',
+    '',
+    '효율 = 1,591 / 면적, 예: 1,591 / 1,900 = 0.84'],
+    after:'궁수 세트를 회전 없이 패킹하면 순서가 바뀝니다. free-tex-packer의 3037 × 540 띠(1,639,980 px²)가 Nerulio의 1543 × 1066 페이지(1,644,838 px²)보다 0.3% 작습니다.'},
+   alternatives:{rows:[
+    ['free-tex-packer (npm 코어 0.3.9)','빌드 스크립트나 CI에서 패킹할 때. 명령줄이 있는 Node 패키지이고, 프레임이 정확히 돌아왔으며 중복은 한 번만 저장했습니다. 웹 앱은 사라졌습니다.'],
+    ['GAPTools나 CodeAndWeb 무료 웹 패커','정확한 색이 중요하지 않은 일회성 시트를 웹 페이지 하나에서 만들 때. 두 도구 모두 사무라이 세트만 정확히 복원했고, CodeAndWeb 무료판은 트림과 회전을 하지 않습니다.'],
+    ['TexturePacker Pro(유료)','폴리곤 패킹, GPU 텍스처 형식, 데이터 형식 68개, 명령줄. Nerulio와의 측정은 [[game/texture-packer-free|TexturePacker 비교]]에 있습니다.'],
+    ['Aseprite의 패킹 시트 내보내기','그림이 Aseprite에 있고 태그가 있는 한 페이지면 충분할 때: `--trim`, `--merge-duplicates`와 함께 `--sheet-pack`. 이번 측정에는 포함하지 않았습니다.'],
+    ['Nerulio 패킹·내보내기','프레임이 정확해야 하고, 중복은 합치고, 페이지 한도를 지키며, 결과를 바로 엔진에서 불러야 할 때: [[sprite-sheet-maker|스프라이트 시트 만들기]].']]},
+   limits:{title:'이 비교에서 Nerulio에 없는 것',items:[
+    '명령줄이나 npm 패키지가 없습니다. 패킹에는 브라우저가 필요합니다.',
+    '회전 없는 궁수 세트에서는 free-tex-packer의 시트가 0.3% 작았습니다(3037 × 540 띠).',
+    '사각형만 되고 폴리곤 패킹은 없습니다.',
+    '도구 간 패킹 시간은 비교하지 않았습니다. Nerulio 자체 시간만 쟀습니다(Node에서 세트당 2–60ms, spaceshooter 0.42초).',
+    '웹 도구는 2026-09-23 당시 상태로 측정했으며, 버전 번호 없이 바뀝니다.']},
+   versions:{body:['2026-09-23 측정: CodeAndWeb 무료 웹 패커와 GAPTools는 Playwright로 실제 사이트에서, free-tex-packer-core 0.3.9는 npm에서, Nerulio는 Studio가 쓰는 모듈로 돌렸습니다. 판정기는 TexturePacker JSON 규칙으로 모든 프레임을 되살렸습니다. Nerulio 내보내기는 Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90·4.2, PixiJS 8.21, spine-canvas 4.2, LÖVE 11.5에서 불러왔고, Defold 파일은 bob.jar 1.13.1로 빌드했습니다.'],sources:[S.tpFree,S.ftp,S.aseCli]}
+  },
+  ja:{
+   answer:'4つの無料パッカーを、同じ5つのCC0フレームセットに、トリムあり・間隔2・最大4096で実行しました。CodeAndWebの無料Webパッカー、GAPTools、free-tex-packerのnpmコア0.3.9、Nerulioのパック＆書き出しです。差はパッキングの規則よりも、何を保つかに出ました。ブラウザのツール2つはcanvasを通る間にピクセルの色を変え、2つは重複フレームを毎回保存し、1つはページの上限を無視しました。Nerulioは回転ありなら5セットすべて、なしなら4セットで最小のシートを作りました。free-tex-packerはコマンドラインで動きますが、Nerulioにはそれができません。',
+   concept:{title:'パッカーで比べるべきこと',body:[
+    'シートの面積：ページのうちフレームが占める割合です。ここでの効率はフレームの不透明なバウンディングボックスの合計 ÷ ページの面積で、0.84ならページの16%が間隔か空白です。細長い帯は面積が小さくても、エンジンの最大テクスチャサイズに収まらないことがあります。',
+    '正確なピクセル：各フレームをデータ（トリムのオフセット、回転）に従ってシートから切り出し直し、元ファイルとピクセル単位で比べます。画像要素と2D canvasを通してフレームを描くブラウザのツールは色を変えることがあります。gAMA/cHRMの色チャンクを持つフレームで灰色(50, 50, 50)が(46, 46, 46)になり、乗算済みアルファによって柔らかい縁が最大10段階ずれました。',
+    '作業の端での振る舞い：同一フレームを1回だけ保存するか毎回保存するか、最大ページサイズを複数ページに分けて守るか無視するか、出力を実際のゲームエンジンで読み込んだことがあるかです。'],
+    terms:[['効率','全フレームの不透明なバウンディングボックスの面積 ÷ ページ全体の面積。'],['正確','アトラスから戻した全フレームが元ファイルと一致（完全に透明なピクセルの色は無視）。'],['エイリアス / 重複除去','同一フレームを1回だけ保存し、複数の名前から参照すること。']]},
+   example:{title:'計算例：忍者セットの効率と正確さ',lead:'40 × 29pxのフレーム6枚。不透明なバウンディングボックスの合計は1,591 px²です（docs/STUDIO-PACK-H2H.md、2026-09-23）。',lines:[
+    'ツール                        シート       面積     効率         正確なフレーム',
+    'Nerulio（回転なし）            38 × 50     1,900    0.84         6 / 6',
+    'Nerulio（回転あり）            33 × 57     1,881    0.85         6 / 6',
+    'GAPTools                       64 × 36     2,304    0.69         0 / 6',
+    'free-tex-packer-core 0.3.9    129 × 20     2,580    0.62         6 / 6',
+    'CodeAndWeb無料（トリムなし）  126 × 62     7,812    0.20         0 / 6',
+    '',
+    '効率 = 1,591 / 面積、例：1,591 / 1,900 = 0.84'],
+    after:'弓兵のセットを回転なしでパックすると順位が変わります。free-tex-packerの3037 × 540の帯（1,639,980 px²）が、Nerulioの1543 × 1066のページ（1,644,838 px²）より0.3%小さくなります。'},
+   alternatives:{rows:[
+    ['free-tex-packer（npmコア0.3.9）','ビルドスクリプトやCIでパックするとき。コマンドラインのあるNodeパッケージで、フレームは正確に戻り、重複は1回だけ保存されました。Webアプリはなくなっています。'],
+    ['GAPToolsやCodeAndWebの無料Webパッカー','色の正確さが問題にならない一回限りのシートを、1つのWebページで作るとき。どちらもサムライのセットしか正確に復元できず、CodeAndWebの無料版はトリムも回転もしません。'],
+    ['TexturePacker Pro（有料）','ポリゴンパッキング、GPUテクスチャ形式、68のデータ形式、コマンドライン。Nerulioとの計測は[[game/texture-packer-free|TexturePackerとの比較]]にあります。'],
+    ['Asepriteのパック済みシート書き出し','絵がAsepriteにあり、タグ付きの1ページで足りるとき：`--trim`と`--merge-duplicates`を付けた`--sheet-pack`。今回の計測には含めていません。'],
+    ['Nerulio パック＆書き出し','フレームを正確に保ち、重複をまとめ、ページの上限を守り、結果をそのままエンジンで読み込みたいとき：[[sprite-sheet-maker|スプライトシート作成]]。']]},
+   limits:{title:'この比較でNerulioにないもの',items:[
+    'コマンドラインやnpmパッケージがありません。パックにはブラウザが必要です。',
+    '回転なしの弓兵セットでは、free-tex-packerのシートが0.3%小さくなりました（3037 × 540の帯）。',
+    '矩形のみで、ポリゴンパッキングはありません。',
+    'ツール間でパック時間は比べていません。Nerulio自身の時間だけを計測しました（Nodeでセットあたり2–60ms、spaceshooterは0.42秒）。',
+    'Webツールは2026-09-23時点の状態で計測しており、バージョン番号なしに変わります。']},
+   versions:{body:['2026-09-23に計測：CodeAndWebの無料WebパッカーとGAPToolsは実際のサイトをPlaywrightで、free-tex-packer-core 0.3.9はnpmから、NerulioはStudioが使うモジュールで実行しました。判定ではTexturePackerのJSONの規則で全フレームを復元しました。Nerulioの書き出しはGodot 4.7.2、Unity 6000.5.3f1、Phaser 3.90と4.2、PixiJS 8.21、spine-canvas 4.2、LÖVE 11.5で読み込み、DefoldのファイルはDefoldのbob.jar 1.13.1でビルドしました。'],sources:[S.tpFree,S.ftp,S.aseCli]}
+  }
+ }
 };
