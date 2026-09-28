@@ -20,4 +20,8 @@ for(const locale of ['ko','en','ja'])test(`${locale} Audio Lab is indexable, loc
  assert.ok(['ko','en','ja'].every(lang=>page.includes(`hreflang="${lang}"`)));
  const preview=entry(shell,`${locale}/audio-lab`,origin,{preview:true});assert.match(preview,/name="robots" content="noindex,nofollow"/);
 });
+for(const locale of ['ko','en','ja'])test(`${locale} media guide links to Audio Lab`,()=>{
+ const page=entry(shell,`${locale}/media`,origin,{});
+ assert.ok(page.includes(`href="${locale}/audio-lab/"`));
+});
 test('Audio Lab belongs to the tools sitemap',()=>assert.ok(sitemapGroups().tools.includes('audio-lab')));
