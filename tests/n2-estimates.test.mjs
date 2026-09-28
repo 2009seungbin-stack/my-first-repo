@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {estimateLlmMemory,kvCacheBytes,bestQuantFor,QUANTS,QUANT_ORDER,TYPE_BPW,KV_CACHE_BYTES,METHOD,VERDICT_LABELS} from '../platform/estimates/llm-memory.js';
 import {SOURCE_KINDS} from '../platform/schema.js';
 import {validateSeed} from '../platform/seed.js';
+import {readFileSync} from 'node:fs';
 
 const GIB=1024**3;
 
@@ -95,4 +96,7 @@ test('METHOD is a valid ESTIMATE_METHOD source with en+ko text', ()=>{
  const {id,kind,title,publisher,retrieved,note}=METHOD;
  const doc={schema:'nerulio.seed/1',vertical:'hardware',sources:[{id,kind,title,publisher,retrieved,note}],entities:[]};
  assert.deepEqual(validateSeed(doc),[]);
+ // The seeded ESTIMATE_METHOD source stays identical to the code.
+ const seeded=JSON.parse(readFileSync(new URL('../data/seed/hardware/estimate-methods.json',import.meta.url),'utf8')).sources.find((/** @type {any} */ s)=>s.id===METHOD.id);
+ assert.deepEqual(seeded,{id,kind,title,publisher,retrieved,note});
 });
