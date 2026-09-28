@@ -1,0 +1,5 @@
+# Character counter real-text fixtures
+
+- `korean-constitution-excerpt.txt`: short extract from [대한민국헌법 (제10호)](https://ko.wikisource.org/wiki/대한민국헌법_(제10호)), preamble and Article 1, accessed 2026-09-28. The constitutional text is public domain under Korean copyright law Article 7, as noted on the source page. The excerpt joins a shortened preamble to Article 1, so it is a test extract, not a complete or legally authoritative version.
+- `rashomon-excerpt.txt`: first prose paragraph of Akutagawa Ryūnosuke, [羅生門](https://www.aozora.gr.jp/cards/000879/card127.html), from Aozora Bunko's Shift_JIS ruby text `127_ruby_150.zip`, accessed 2026-09-28. Akutagawa died in 1927; this short excerpt is used only to exercise real Japanese text, punctuation and ruby notation.
+- The 1 MiB performance source is Project Gutenberg [*War and Peace* #2600](https://www.gutenberg.org/ebooks/2600). Its 3.36 MB text stays in ignored `test-results/character-counter/war-and-peace.txt` and is not redistributed here. `tests/character-counter-performance.py` slices 1,048,576 decoded characters from it. Gutenberg labels the work public domain in the USA; outside-USA status may vary.

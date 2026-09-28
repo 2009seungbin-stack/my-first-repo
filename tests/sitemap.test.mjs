@@ -53,9 +53,19 @@ test('game sitemap: home, the hub, then every indexable game page; file tools on
  assert.deepEqual(game.slice(0,7),['ko/','en/','ja/','',`ko/${GAME_HUB_PATH}/`,`en/${GAME_HUB_PATH}/`,`ja/${GAME_HUB_PATH}/`],'home in ko/en/ja and at / (its x-default), then the hub');
  for(const p of g.game.slice(2))assert(gamePageFor(p)||INTENTS[Object.keys(INTENTS).find(k=>INTENTS[k].path===p)],`${p} is a game page`);
  for(const p of ['image/compress','pdf/split','video/to-gif','about'])assert(tools.includes(`en/${p}/`)&&!game.includes(`en/${p}/`),p);
+ for(const l of LOCALES){assert(tools.includes(`${l}/pixel/`)&&!game.includes(`${l}/pixel/`),`${l}/pixel/ is the one indexed task converter`);assert(![...game,...tools].includes(`${l}/image-to-pixel-art/`),`${l} legacy photo alias is excluded`);}
  for(const p of g.game)assert(p===''||p===GAME_HUB_PATH||mayPromote(gamePageFor(p)?.id||Object.keys(INTENTS).find(k=>INTENTS[k].path===p)),`${p} listed only when indexable`);
  for(const p of ['game/studio','sprite-slicer/classic','game/pixel-lab/app'])assert(!game.includes(`en/${p}/`)&&!tools.includes(`en/${p}/`),`${p} (app or noindex tool page) is never listed`);
  assert(g.game.length>=60,`at least 60 game pages (${g.game.length})`);
+});
+test('photo conversion has one indexable canonical path and a noindex alias',()=>{
+ for(const l of LOCALES){
+  const main=entry(html,`${l}/pixel`,origin),alias=entry(html,`${l}/image-to-pixel-art`,origin);
+  assert.match(main,new RegExp(`rel="canonical" href="${origin}${l}/pixel/"`));
+  assert.doesNotMatch(main,/<meta[^>]+name="robots"[^>]*>/);
+  assert.match(alias,/data-alias-robots name="robots" content="noindex,follow"/);
+  assert.match(alias,new RegExp(`rel="canonical" href="${origin}${l}/pixel/"`));
+ }
 });
 test('preview builds publish no URL; the image sitemap stays a urlset',()=>{
  const p=sitemapFiles('');assert(!p['sitemap.xml'].includes('<loc>'));assert(!p[SITEMAP_FILES.images].includes('<loc>'));

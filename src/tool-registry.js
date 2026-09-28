@@ -910,4 +910,4 @@ export const TOOLS = Object.freeze({
   }
 });
 export const RECIPE_INTENTS = Object.fromEntries(Object.entries(TOOLS).map(([id,d]) => [id,{path:d.path,editor:"image",tool:"recipe",icon:d.icon,action:"recipe",accept:"image",next:d.next}]));
-export const RECIPE_ALIASES = {"image-to-pixel-art":"refiner","32x32-pixel-art-converter":"refiner","etsy-image-resizer":"marketplace-pack","brand-icon-pack":"favicon-pack"};
+export const RECIPE_ALIASES = {"image-to-pixel-art":"pixel","32x32-pixel-art-converter":"refiner","etsy-image-resizer":"marketplace-pack","brand-icon-pack":"favicon-pack"};

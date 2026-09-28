@@ -7,7 +7,7 @@ const engines = {
  home:'local browser dispatch', image:'Canvas / immutable transforms / proxy preview', upscale:'Pica / nearest; optional experimental tiled Swin2SR',
  'remove-bg':'border flood fill / BiRefNet general foreground (experimental)', compress:'browser codecs / proxy SSIM candidate search',
  convert:'browser image codecs', heic:'browser / heic2any', crop:'Canvas region copy', resize:'Pica tiled mks2013 / Lanczos',
- pixel:'Oklab palette / locked colors / serpentine FS / Bayer dither', pdf:'PDF worker / ranged PDF.js / native annotations',
+ pixel:'browser Pixel Studio: area-average cells / Wu palette / ordered, error-diffusion and blue-noise dithers / indexed and animation export', pdf:'PDF worker / ranged PDF.js / native annotations',
  'pdf-merge':'PDF worker / native page objects', 'pdf-split':'PDF worker / ranges, groups, odd-even', 'pdf-compress':'placement-aware image resampling / reference-resolved recompression / TrueType glyph trimming / object dedupe / optional raster mode',
  'jpg-to-pdf':'pdf-lib image embedding', 'pdf-to-jpg':'PDF.js rasterizer',
  'pdf-protect':'WebCrypto AES-256 standard security handler (revision 6)', 'pdf-unlock':'byte-level object rewriter / AES-256, AES-128 and RC4 standard security handlers',
@@ -120,6 +120,13 @@ const LAB_EVIDENCE={
  'atlas-padding':[gl('workflow','atlas-padding: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first'),gl('workflow','atlas-padding: the Tile Lab opens with extrusion on and writes a padded atlas')]
 };
 const EVIDENCE={
+ 'character-counter':[ev('workflow','tests/character-counter-browser.py','UTF-8 text file and typed ko/en/ja text yield visible counts in Chromium and Firefox'),ev('quality','tests/character-counter-browser.py','A 한 😀 has five graphemes and ten UTF-8 bytes; 뷁 is unavailable in strict EUC-KR but two bytes in CP949 in both engines')],
+ pixel:[
+  Object.freeze({kind:'workflow',suite:'tests/pixel-converter-browser.py',check:'Chromium CC0 photograph opens in Pixel Studio and its 32x32 PNG reopens with matching pixels',engines:['chromium']}),
+  Object.freeze({kind:'quality',suite:'tests/pixel-converter-browser.py',check:'Chromium indexed PNG, scaled PNG, .aseprite and finite-loop GIF independently reopen; original survives Apply and undo',engines:['chromium']}),
+  Object.freeze({kind:'workflow',suite:'tests/pixel-converter-firefox.py',check:'Firefox CC0 photograph converts with default Box and Wu and independently reopened PNG matches all RGBA pixels',engines:['firefox']}),
+  Object.freeze({kind:'quality',suite:'tests/pixel-converter-firefox.py',check:'Firefox conversion preserves source asset, adds output asset, and makes no outside requests',engines:['firefox']})
+ ],
  image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
  resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],
  compress:[ev('workflow',IMG,'NASA portrait: decoded full-resolution quality and target'),ev('quality',IMG,'compression quality on illustration fixture'),ev('quality',IMG,'already-compressed source candidate avoids unnecessary growth')],
@@ -146,7 +153,7 @@ const STUDIO_ENGINE={sprite:'Studio Sprite workspace: measured grid (margin, spa
 const STUDIO_CAPABILITY=Object.fromEntries(Object.entries(GAME_INTENT_PAGES).map(([id,p])=>[id,{engine:STUDIO_ENGINE[p.ws],studio:Object.freeze({workspace:p.ws,route:'game/studio/?ws='+p.ws,docs:p.ws==='tile'?['docs/STUDIO-TILE.md']:['docs/STUDIO-SPRITE.md','docs/STUDIO-PACK.md','docs/STUDIO-PACK-H2H.md']}),verifiedBrowsers:['Chromium 153 and Firefox 155: landing page → Studio workflow on CC0 fixtures (tests/game-landing-browser.py)','Exports loaded in the engines themselves; the engine runs drove the Studio in Chromium'],limitations:WORKSPACES[p.ws].limits.en}]));
 const LAB_CAPABILITY=Object.fromEntries(Object.entries(GAME_LAB_PAGES).map(([id,p])=>[id,{verifiedBrowsers:['Chromium 153 and Firefox 155: landing page → Lab workflow on CC0 fixtures, downloads measured (tests/game-landing-browser.py parts 4 and 5)','No Lab output was loaded in a game engine'],limitations:LAB_KINDS[p.ws].limits.en}]));
 export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTENTS).map(([id,intent])=>{
- const pdf=intent.editor==='pdf',media=intent.editor==='media',recipe=intent.action==='recipe';
+ const pdf=intent.editor==='pdf',media=intent.editor==='media',recipe=intent.action==='recipe',textTool=id==='character-counter';
  const modern=['image','upscale','crop','resize','compress','convert','heic'].includes(id);
  return [id,Object.freeze({
   maturity:qualifies(EVIDENCE[id])?'advanced':'basic', seoPromotable:qualifies(EVIDENCE[id]), qualification:qualifies(EVIDENCE[id])?'advanced-evidence':'in-progress', evidence:Object.freeze(EVIDENCE[id]||[]),
@@ -157,7 +164,7 @@ export const CAPABILITIES = Object.freeze(Object.fromEntries(Object.entries(INTE
   ai:id==='upscale'?'optional experimental Swin2SR (2x / 4x); explicit classical fallback':id==='remove-bg'?'optional experimental BiRefNet (people and objects)':false, hardwareAcceleration:'browser dependent',
   streaming:media?'ranged input; OPFS output (video and GIF) when supported':pdf?'ranged preview reader; writer still parses whole document':false,tiled:['upscale','resize','compress','pixel','refiner','marketplace-pack','print-pack','palette-swap','texture-map','mask-packer','atlas-padding'].includes(id),verifiedBrowsers:pdf?['Chromium 153 / Firefox 155 / WebKit 26.6 synthetic PDF suite']:media?['Chromium 153 and Firefox 155 synthetic media suite, outputs re-decoded with FFprobe/Pillow']:modern?['Chromium 153','Firefox 155 quick image suite','WebKit 26.6 quick image suite']:[],qualityEvidence:[...new Set([...(pdf?['tests/pdf-browser.mjs']:media?['tests/media-browser.mjs']:modern?['tests/quality-browser.mjs']:[]),...(EVIDENCE[id]||[]).map(e=>e.suite)])],
   limitations:pdf?['Full writer parse; forms flatten; signatures not retained.','Preserve compression only optimizes compatible RGB JPEG image objects.','Aggressive raster mode loses native text, search and vectors.']:media?['Codec support is browser-dependent. Fast cut shrinks to keyframes; precise cut re-encodes.','Compatibility recorder (no WebCodecs) records in real time for up to 10 minutes; compatibility audio decodes sources up to 20 minutes in memory.','A size target is met by measuring each encode; it may lower the resolution, and if the browser encoder cannot go smaller the result is reported as not met instead of silently missing it.','Synthetic benchmarks do not establish arbitrary codec/HDR/multitrack fidelity.']:['8-bit browser color; metadata/profile retention not guaranteed.','AI flagship and broad natural-image quality acceptance remain incomplete.'],
-  ...(LAB_CAPABILITY[id]||{}),...(STUDIO_CAPABILITY[id]||{})
+  ...(LAB_CAPABILITY[id]||{}),...(STUDIO_CAPABILITY[id]||{}),...(textTool?{engine:'local Web Worker; Intl.Segmenter; verified legacy encoding tables; official twitter-text 3.1.0',maxInput:{bytes:8388608,policy:'UTF-8 text files only; interactive performance measured at 1 MiB'},maxOutput:{bytes:null,policy:'on-screen values, no file output'},supportedFormats:['UTF-8 plain text (.txt, .md, .text)'],preservesAlpha:false,preservesMetadata:false,lossless:'input text remains unchanged in the editor',streaming:false,tiled:false,verifiedBrowsers:['Chromium and Firefox: tests/character-counter-browser.py; 1 MiB War and Peace in tests/character-counter-performance.py'],limitations:['Manuscript page count is an arithmetic estimate, not exact layout.','No verified Saramin or JobKorea compatibility preset.','A character not encodable in a legacy charset makes that byte total unavailable.']}:{}),
  })];
 })));
 export function capabilitySummary(id,locale='en') {

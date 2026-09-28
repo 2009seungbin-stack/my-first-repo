@@ -21,7 +21,7 @@ export const QUOTA_CLASSES=Object.freeze({
  // small canvas work on one asset at a time, so none of them meter.
  'ui-lab':'none','9-slice-editor':'none','button-state-generator':'none','missing-glyph-checker':'none','ui-scale-preview':'none',
  // Image
- home:'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
+ home:'none','character-counter':'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.
  pdf:'none','pdf-merge':'none','pdf-split':'none','pdf-compress':'heavy','jpg-to-pdf':'none','pdf-to-jpg':'none','pdf-protect':'none','pdf-unlock':'none',
  // Media: every encoded export is heavy; a single still frame is not.

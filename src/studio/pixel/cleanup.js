@@ -21,11 +21,15 @@ import {recoverSource} from '../../game/pixel-check.js';
 import {removeAntiAlias,detect,applyChanges} from '../../game/pixel-cleanup.js';
 import {indicesFromRGBA,keyOf} from './indexed.js';
 import {planeFromRGBA,rgbaView,outline as outlinePlane,dropShadow,pack} from './raster.js';
-export const DEFAULTS=Object.freeze({scale:'auto',snap:true,background:'auto',alphaCut:128,merge:'auto',maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
+import {sampleToGrid,paletteFromFrames,quantizeFrames} from './converter.js';
+export const DEFAULTS=Object.freeze({intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'box',paletteAlgorithm:'wu',ditherStrength:1,scale:'auto',snap:true,background:'auto',alphaCut:128,merge:'auto',maxColors:0,palette:null,dither:'none',fringe:true,orphans:false,align:'off',alignRadius:4,outline:null,shadow:null,grow:0});
 const copy=img=>({data:new Uint8Array(img.data),width:img.width,height:img.height});
 /** What the frames are (no changes): the verdict of the first frame, the shared grid, background. */
 export function analyse(frames,opts={}){
  const o={...DEFAULTS,...opts},first=frames[0];
+ // Photo conversion has an explicit output grid. Inspecting a 4K photo for an inherited
+ // pixel lattice would spend CPU on a verdict that this workflow never uses.
+ if(o.intent==='convert')return {check:null,grid:null,candidate:null,background:null,noise:null,frames:frames.length};
  const check=inspect(first);
  const forced=typeof o.scale==='number'&&o.scale>1?o.scale:null;
  let grid=null;
@@ -46,20 +50,30 @@ export function runCleanup(frames,opts={},analysis=null){
  const o={...DEFAULTS,...opts},A=analysis||analyse(frames,o),report={steps:[]};
  let out=frames.map(copy);
  // 1. snap to 1×
- if(o.snap&&A.grid&&A.grid.kind!=='unit'){
+ if(o.intent==='convert'){
+  const w=Math.round(o.targetWidth),h=Math.round(o.targetHeight);
+  if(!Number.isInteger(w)||!Number.isInteger(h)||w<1||h<1||w>512||h>512)throw Error('Conversion size must be 1–512 pixels per side');
+  out=out.map(f=>sampleToGrid(f,w,h,{method:o.sampleMethod}));
+  report.steps.push({id:'convert',method:o.sampleMethod,size:[w,h]});
+ }else if(o.snap&&A.grid&&A.grid.kind!=='unit'){
   out=out.map((f,i)=>{const g=A.grid.perFrame[i]||A.grid;
    if(g.kind==='integer'){const r=recoverSource(f,g.scale,{x:(g.scale-g.phaseX)%g.scale,y:(g.scale-g.phaseY)%g.scale});return {data:new Uint8Array(r.data),width:r.width,height:r.height};}
    return sampleCells(f,g,{noisy:A.noise.noisy});});
   report.steps.push({id:'snap',kind:A.grid.kind,scale:A.grid.scale,scaleX:A.grid.scaleX,scaleY:A.grid.scaleY,confidence:A.grid.confidence,size:out.map(f=>[f.width,f.height]),moved:A.grid.moved||0});
  }
  // 2. background → transparent
- const bgColor=o.background==='auto'?A.background?.color:Array.isArray(o.background)?o.background:null;
+ const bgColor=o.intent==='convert'?null:o.background==='auto'?A.background?.color:Array.isArray(o.background)?o.background:null;
  if(bgColor){let removed=0;out=out.map(f=>{const r=removeBackground(f,bgColor);removed+=r.removed;return r;});report.steps.push({id:'background',color:bgColor,removed,share:A.background?.share??null});}
  // 3. hard alpha
  if(o.alphaCut!=null){let n=0;out=out.map(f=>{const r=hardAlpha(f,o.alphaCut);n+=r.changed;return r;});report.steps.push({id:'alpha',cut:o.alphaCut,changed:n});}
  // 4. colours: one palette for every frame
  let palette=null;
- if(o.palette?.length){
+ if(o.intent==='convert'&&(o.palette?.length||o.maxColors)){
+  palette=o.palette?.length?o.palette.map(c=>c.slice(0,3)):paletteFromFrames(out,o.maxColors||16,{algorithm:o.paletteAlgorithm});
+  const mapped=quantizeFrames(out,palette,{dither:o.dither,strength:o.ditherStrength});let changed=0;
+  out=out.map((f,i)=>{const d=new Uint8Array(mapped[i].data);for(let j=0;j<d.length;j+=4)if(d[j+3]&&(d[j]!==f.data[j]||d[j+1]!==f.data[j+1]||d[j+2]!==f.data[j+2]))changed++;return {data:d,width:f.width,height:f.height};});
+  report.steps.push({id:'quantize',colors:palette.length,changed,dither:o.dither||'none',algorithm:o.palette?.length?'fixed':o.paletteAlgorithm});
+ }else if(o.palette?.length){
   const pal=o.palette.map(c=>[c[0],c[1],c[2],255]),dither=o.dither&&o.dither!=='none'?{pattern:o.dither}:null;let changed=0;
   out=out.map(f=>{const opaque=Uint8Array.from(f.data);for(let i=3;i<opaque.length;i+=4)if(opaque[i])opaque[i]=255;
    const {indices}=indicesFromRGBA(opaque,f.width,f.height,pal,{transparentIndex:-1,dither}),d=new Uint8Array(f.data);
