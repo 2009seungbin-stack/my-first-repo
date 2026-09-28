@@ -101,6 +101,19 @@ async function main(){
      const c=document.createElement('span');c.className='chn fine';c.textContent=it.channel;
      li.append(t,a,c);ul.append(li);}
     if(d.unread>0)api('/my-radar/seen',{lastChangeId:d.lastChangeId});
+    // "내 구독만": the Radar's lists narrowed to followed channels (items link to their channel).
+    if(d.following){
+     const fr=await api(`/follows?l=${L}`);
+     const mine=new Set(fr.ok?fr.data.follows.map(f=>f.url):[]);
+     for(const bx of $$('.box.mf')){
+      const bh=$('.bh',bx);if(!bh)continue;
+      const b=document.createElement('button');b.type='button';b.className='btn x';b.textContent=L==='ko'?'내 구독만':'Mine only';b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));b.classList.toggle('on',on);
+       for(const li of $$('.rows > li',bx)){const hit=$$('a[href]',li).some(a=>mine.has(new URL(a.href).pathname));li.hidden=on&&!hit;}
+       for(const g of $$('.hist > li',bx))g.hidden=on&&!$$('.rows > li',g).some(li=>!li.hidden);});
+      bh.append(b);
+     }
+    }
    }
   }
  }

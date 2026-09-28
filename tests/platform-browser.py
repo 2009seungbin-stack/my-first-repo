@@ -83,6 +83,8 @@ def main():
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
             assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
             assert pg.locator('#mine .mr .chn').count() >= 1, 'each item names its channel once'
+            pg.locator('.box.mf .bh button').first.click(); pg.wait_for_timeout(200)
+            assert pg.locator('.box.mf .bh button[aria-pressed=true]').count() == 1, '내 구독만 filter toggles'
             pg.goto(B + '/ko/community/'); pg.wait_for_timeout(800)
             assert '내 구독 채널' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s channels'
             m = b.new_page(viewport={'width': 390, 'height': 900})
