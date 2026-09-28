@@ -15,8 +15,9 @@ export function normalizeSiteURL(value){
 }
 export function pagePath(path,locale){return `${locale?locale+'/':''}${path?path+'/':''}`;}
 /** Canonical, og:url and hreflang. Every hreflang target is itself a canonical URL:
- *  - the home page's language-neutral URL (/) adapts to the visitor's language, so it is its own
- *    canonical page and the x-default of the home cluster (also where Google reads the WebSite name);
+ *  - the home page's language-neutral URL (/) is the language entry (tools/language-entry-build.mjs,
+ *    src/lang-entry.js sends visitors on to /ko/, /en/ or /ja/), so it is its own canonical page and
+ *    the x-default of the home cluster (also where Google reads the WebSite name);
  *  - every other language-neutral URL is a duplicate whose canonical is the English page, so the
  *    English page is also that cluster's x-default.
  * `locale` null = the page is being served at its language-neutral URL. */

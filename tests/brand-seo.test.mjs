@@ -31,7 +31,7 @@ test('the brand name is in the title, the first paragraph, og:site_name and appl
  for(const route of ['',...LOCALES]){
   const h=entry(html,route,origin);
   assert(attr(h,/<title>([^<]*)<\/title>/).startsWith(BRAND.name),route);
-  assert(attr(h,/<p class="page-lead" id="taskLead">([^<]*)</).startsWith(BRAND.name),`${route}: the lead starts with the brand`);
+  assert(attr(h,/<p class="(?:page-lead" id="taskLead|le-lead)">([^<]*)</).startsWith(BRAND.name),`${route}: the lead starts with the brand`);
   assert(attr(h,/<meta name="description" content="([^"]*)"/).includes(BRAND.name),route);
   assert.equal(attr(h,/property="og:site_name" content="([^"]*)"/),BRAND.name);assert.equal(attr(h,/name="application-name" content="([^"]*)"/),BRAND.name);
  }

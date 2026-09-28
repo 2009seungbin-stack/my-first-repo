@@ -7,6 +7,7 @@ import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
 import {isTask} from '../src/task/registry.js';
 import {homePage,taskPage} from './task-build.mjs';
+import {languageEntryPage} from './language-entry-build.mjs';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -27,6 +28,11 @@ export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
 export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
+ * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
+ * The site publishes no e-mail addresses, so every page opts out. Applied after entry(), so the
+ * content hashes behind <lastmod> (tools/lastmod.mjs) are unchanged. tools/live-check.mjs verifies it live. */
+export const noEmailObfuscation=html=>html.replace(/(<html\b[^>]*>)/i,'$1<!--email_off-->').replace(/\s*$/,'<!--/email_off-->\n');
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
  html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
@@ -52,7 +58,10 @@ export function entry(html,route='',siteURL='',config={}){
   const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':'';
   // The home page at / adapts to the visitor's language: its own canonical and the x-default (src/seo.js).
   const neutralHome=!parts.locale&&!parts.path;
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,neutralHome?{...config,client:''}:config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  // / is the language entry (tools/language-entry-build.mjs), not a second copy of the English home.
+  // No AdSense loader there (client:'' above): it is a redirect page without content of its own.
+  if(neutralHome)return languageEntryPage({base,headHTML});
   return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
@@ -97,7 +106,7 @@ export async function build(options={}){
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
- for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),entry(html,route,siteURL,config));}
+ for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(entry(html,route,siteURL,config)));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));

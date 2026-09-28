@@ -1,6 +1,6 @@
 """Validate a built sitemap set against the official XML schemas and Google's limits.
 
-    SITE_URL=https://nerulio.pages.dev/ node tools/build.mjs
+    SITE_URL=https://nerulio.com/ node tools/build.mjs
     python tools/validate-sitemaps.py [dist]
 
 Schemas (downloaded once into a cache folder, never committed — Google's image schema is not openly

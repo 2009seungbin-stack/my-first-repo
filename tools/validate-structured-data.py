@@ -1,6 +1,6 @@
 """Validate the JSON-LD of built game pages with the Schema.org validator (validator.schema.org).
 
-    SITE_URL=https://nerulio.pages.dev/ node tools/build.mjs
+    SITE_URL=https://nerulio.com/ node tools/build.mjs
     python tools/validate-structured-data.py [dist] [--all]
 
 Sends each page's HTML to https://validator.schema.org/validate (network; nothing else is sent) and

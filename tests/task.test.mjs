@@ -32,5 +32,9 @@ test('migrated tools and their landing pages render the task page; others keep t
  assert(page.includes(`data-landing="${landing}"`)&&page.includes(`rel="canonical" href="${origin}en/${landing}/"`)&&page.includes('src/task/shell.js'));
  const editor=entry(html,'en/image/editor',origin);assert(editor.includes('src/app.js')&&!editor.includes('src/task/shell.js'));
  const home=entry(html,'ja',origin);assert(home.includes('class="task-page home-page game-home"')&&home.includes(`rel="canonical" href="${origin}ja/"`)&&!home.includes('noindex'));
- assert(entry(html,'',origin).includes('href="image/compress/"'),'language-neutral home links stay language-neutral');
+ // / is the language entry: it sends visitors on to their language and is not a copy of the English home.
+ const root=entry(html,'',origin);
+ assert(root.includes('<script src="src/lang-entry.js"></script>')&&!root.includes('src/task/shell.js')&&!root.includes('game-home'),'/ is the language entry, not the home page');
+ assert(['ko','en','ja'].every(l=>root.includes(`<a href="${l}/" hreflang="${l}" lang="${l}"`)),'/ links every language home');
+ assert(entry(html,'image/compress',origin).includes(`rel="canonical" href="${origin}en/image/compress/"`),'other language-neutral URLs keep the English canonical');
 });

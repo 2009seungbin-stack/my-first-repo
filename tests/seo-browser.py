@@ -40,20 +40,20 @@ def run_mode(browser,mode,index):
             mock='''function fill(){document.querySelectorAll('ins.adsbygoogle:not([data-mock])').forEach(ad=>{ad.dataset.mock='true';const frame=document.createElement('iframe');frame.src='/favicon.svg?ad-fixture='+ad.dataset.adSlot;frame.width='180';frame.height='90';frame.title='Mock ad';ad.append(frame);});}window.adsbygoogle={push:fill};fill();'''
             context.route(re.compile(r'https://.*(?:googlesyndication|doubleclick|googleadservices|google\.com|gstatic)'),lambda r:r.fulfill(status=200,content_type='text/javascript',body=mock))
         page=context.new_page(); base=f'http://127.0.0.1:{port}'
-        routes=['/','/en/image/upscale/','/ko/image/remove-bg/','/ja/pdf/merge/','/ko/image/compress/','/en/pixel/']
+        routes=['/en/','/en/image/upscale/','/ko/image/remove-bg/','/ja/pdf/merge/','/ko/image/compress/','/en/pixel/']
         for route in routes:
             response=page.goto(base+route,wait_until='networkidle');idle(page)
             ok(mode+' direct '+route,response.status==200)
             lang=route.split('/')[1] if route.split('/')[1] in ['ko','en','ja'] else 'en'
             ok(mode+' locale '+route,page.locator('html').get_attribute('lang')==lang)
-            ok(mode+' title and h1 '+route,page.title()==('Nerulio — '+page.locator('h1').inner_text() if route=='/' else page.locator('h1').inner_text()+' · Nerulio'))
+            ok(mode+' title and h1 '+route,page.title()==('Nerulio — '+page.locator('h1').inner_text() if route=='/en/' else page.locator('h1').inner_text()+' · Nerulio'))
             ok(mode+' description '+route,len(page.locator('meta[name="description"]').get_attribute('content'))>10)
             ok(mode+' guide and FAQ '+route,page.locator('.reading-content ol li').count()==3 and page.locator('.faq details').count()==3)
             if mode=='disabled':
                 ok('no-domain omits absolute SEO '+route,page.locator('link[rel=canonical]').count()==0 and page.locator('link[hreflang]').count()==0)
             else:
                 canonical=page.locator('link[rel=canonical]').get_attribute('href')
-                # / adapts to the visitor's language: its own canonical and the home cluster's x-default (src/seo.js).
+                # /en/ is the English home; / is the language entry and the home cluster's x-default (src/seo.js).
                 ok(mode+' canonical '+route,canonical=='https://fileforge.example.test'+route)
                 xdefault=page.locator('link[hreflang="x-default"]').get_attribute('href')
                 ok(mode+' x-default is a canonical page '+route,xdefault=='https://fileforge.example.test'+('/' if route in ['/','/en/'] or route.count('/')==2 else '/en/'+route.split('/',2)[2]))
@@ -64,6 +64,13 @@ def run_mode(browser,mode,index):
                 ok('ads separated from editor '+route,first['y']>editor['y']+editor['height']+100)
             else:ok(mode+' no ad markup '+route,page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0)
             page.reload(wait_until='networkidle');idle(page);ok(mode+' refresh '+route,page.locator('h1').inner_text()!='')
+        # / is the language entry (tools/language-entry-build.mjs): it sends visitors on and is not a copy of /en/.
+        page.goto(base+'/',wait_until='networkidle');ok(mode+' / sends an en-US browser to /en/',page.url==base+'/en/')
+        page.goto(base+'/?choose',wait_until='networkidle')
+        ok(mode+' /?choose shows the language entry: three language links, one h1, no ads',page.url==base+'/?choose' and page.locator('.le-list a').count()==3 and page.locator('h1').count()==1 and page.locator('.ad-slot,ins.adsbygoogle,script[src*="adsbygoogle"]').count()==0)
+        if mode!='disabled':ok(mode+' / is its own canonical and the x-default',page.locator('link[rel=canonical]').get_attribute('href')=='https://fileforge.example.test/' and page.locator('link[hreflang="x-default"]').get_attribute('href')=='https://fileforge.example.test/')
+        ko=browser.new_context(locale='ko-KR');kp=ko.new_page();kp.on('pageerror',lambda e:errors.append(str(e)))
+        kp.goto(base+'/?utm_source=t#x',wait_until='networkidle');ok(mode+' / sends a Korean browser to /ko/ and keeps the query and hash',kp.url==base+'/ko/?utm_source=t#x');ko.close()
         if mode!='ads':ok(mode+' initial load has no external requests',all(u.startswith(base) or u.startswith('blob:') for u in requests))
         # Game landing pages (tools/game-landing-build.mjs): indexable, reciprocal, ad-free, Studio-first.
         for route in ['/ko/sprite-slicer/','/en/game/','/ja/game/texture-packer-free/']:
