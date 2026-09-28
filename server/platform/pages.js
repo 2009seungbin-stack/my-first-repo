@@ -34,7 +34,7 @@ import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency))?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
-export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=600';
+export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=60';
 /** Channel bar for anonymous readers: the week's most active channels, topped up with featured ones. */
 export const FEATURED=Object.freeze(['service:claude','service:chatgpt','service:gemini-app','service:claude-code','gpu:rtx-5070','app:blender','app:ableton-live']);
 /** Security headers of every server-rendered page (the static site's _headers do not apply to Worker responses). */
@@ -119,7 +119,7 @@ export async function renderPlatformPage(request,env,site){
  if(route.page==='hub'){const m=await loadHub(db,/** @type {string} */(route.vertical),{l,type:q.get('type'),page:Number(q.get('page'))||1,channels:await bar()});return m?html(String(renderHub(m,s))):null;}
  const {entity,redirect:moved}=await entityBySlug(db,/** @type {string} */(route.vertical),/** @type {string} */(route.slug));
  if(!entity){
-  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'||route.page==='post'?route.no??'':route.page}${search}`,url).href);
+  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'||route.page==='post'?route.no??'':route.page==='feed'?'feed.xml':route.page}${search}`,url).href);
   return null;
  }
  const channels=await bar();
@@ -167,7 +167,11 @@ export async function handlePlatformPage(request,env,ctx,site){
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);
  if(sm){
   if(!PLATFORM_SITEMAPS.includes(`sitemap-n2-${sm[1]}.xml`)||!env.DB)return null;
-  return new Response(await renderSitemap(env.DB,sm[1],site.origin),{headers:{'content-type':'application/xml; charset=utf-8','cache-control':'public, max-age=3600, s-maxage=3600','x-content-type-options':'nosniff'}});
+  const cache=/** @type {any} */(globalThis).caches?.default,key=new Request(request.url,{method:'GET'});
+  const hit=cache?await cache.match(key):null;if(hit)return hit;
+  const res=new Response(await renderSitemap(env.DB,sm[1],site.origin),{headers:{'content-type':'application/xml; charset=utf-8','cache-control':'public, max-age=3600, s-maxage=3600','x-content-type-options':'nosniff'}});
+  if(cache)ctx?.waitUntil?.(cache.put(key,res.clone()));
+  return res;
  }
  if(!matchPlatformRoute(path))return null;
  const cache=/** @type {any} */(globalThis).caches?.default;

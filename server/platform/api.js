@@ -60,6 +60,10 @@ async function purge(origin,paths){
  await Promise.all(paths.map(p=>cache.delete(new Request(origin+p)).catch(()=>false)));
 }
 const bothLocales=(/** @type {(l:string)=>string} */ f)=>['ko','en'].map(f);
+/** Every cached page a post or its channel appears on (both languages): the post, the channel's
+ * default board and feed, the community front and 념글. Filtered board views (?sort, ?kind, ?page)
+ * expire on their own within a minute. @param {{vertical:string,slug:string}} e @param {number|null} [no] */
+const pagesOf=(e,no=null)=>bothLocales(l=>[...(no?[postUrl(l,e,no)]:[]),channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${l}/community/`,`/${l}/community/best/`]).flat();
 
 /**
  * @param {Request} request @param {any} env @param {any} ctx
@@ -106,10 +110,13 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    case 'POST /profile':{
     only(body,['displayName']);
     const name=text(body.displayName,LIMITS.nickname,'displayName');
-    if(/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'displayName'});
-    const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE display_name=? AND user_id<>?').bind(name,context.user.id).first();
+    // Reserved: staff-looking names and the "user-xxxxxx" form every new account starts with.
+    if(/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'displayName'});
+    await limit('profile',5);
+    const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?) AND user_id<>?').bind(name,context.user.id).first();
     if(taken)throw new ApiError('OPERATION_CONFLICT','This nickname is taken.',{field:'displayName'});
-    await db.prepare('UPDATE user_profiles SET display_name=?,updated_at=? WHERE user_id=?').bind(name,now,context.user.id).run();
+    try{await db.prepare('UPDATE user_profiles SET display_name=?,updated_at=? WHERE user_id=?').bind(name,now,context.user.id).run();}
+    catch(e){if(/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw new ApiError('OPERATION_CONFLICT','This nickname is taken.',{field:'displayName'});throw e;}
     return done({displayName:name});
    }
    case 'POST /follow':{
@@ -130,7 +137,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await limit('post',LIMITS.postsPerMinute);
     const id=randomToken(12);
     const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:url.searchParams.get('l')==='en'?'en':'ko',authorId:context.user.id},now);
-    await purge(origin,bothLocales(l=>channelUrl(l,e)));
+    await purge(origin,pagesOf(e));
     return done({id,postNo:no,url:postUrl(url.searchParams.get('l')==='en'?'en':'ko',e,no)},201);
    }
    case 'POST /comments':{
@@ -149,7 +156,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await db.batch([
      db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,created_at,updated_at) VALUES (?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,now,now),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
-    await purge(origin,[...bothLocales(l=>postUrl(l,post,Number(post.post_no))),...bothLocales(l=>channelUrl(l,post))]);
+    await purge(origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
     return done({id},201);
    }
    case 'POST /votes':{
@@ -157,16 +164,16 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const kind=body.kind==='comment'?'comment':body.kind==='discussion'?'discussion':null;
     const value=body.value===1||body.value===-1||body.value===0?body.value:null;
     if(!kind||value===null||typeof body.id!=='string')throw new ApiError('BAD_REQUEST','Invalid vote.');
-    const own=await db.prepare(`SELECT author_id FROM ${kind==='discussion'?'discussions':'comments'} WHERE id=?`).bind(body.id).first();
-    if(!own)throw new ApiError('NOT_FOUND');
+    const own=await db.prepare(`SELECT author_id,status FROM ${kind==='discussion'?'discussions':'comments'} WHERE id=?`).bind(body.id).first();
+    if(!own||!(own.status==='published'||(kind==='discussion'&&own.status==='locked')))throw new ApiError('NOT_FOUND');
     if(own.author_id===context.user.id)throw new ApiError('FORBIDDEN','You cannot vote on your own writing.');
     await limit('vote',LIMITS.votesPerMinute);
     const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
     return done(r);
    }
    case 'POST /mod/action':{
-    await moderator(db,context);
-    return done(await modAction(db,context.user.id,body,now,origin));
+    const me=await moderator(db,context);
+    return done(await modAction(db,context.user.id,String(me.role),body,now,origin));
    }
    case 'POST /my-radar/seen':{
     only(body,['lastChangeId']);
@@ -180,6 +187,8 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
     if(!['spam','abuse','wrong_info','source_dispute','duplicate','copyright','other'].includes(String(body.reason)))throw new ApiError('BAD_REQUEST','Invalid reason.',{field:'reason'});
     const note=body.note===undefined||body.note===''?null:text(body.note,[1,1000],'note');
+    const TABLE=/** @type {Record<string,string>} */({discussion:'discussions',comment:'comments',report:'community_reports',wiki_revision:'wiki_revisions',fact:'facts',entity:'entities',user:'users'});
+    if(!await db.prepare(`SELECT 1 FROM ${TABLE[m[1]]} WHERE ${m[1]==='user'?'id':'id'}=?`).bind(m[1]==='wiki_revision'||m[1]==='fact'?Number(m[2])||-1:m[2]).first())throw new ApiError('NOT_FOUND','Nothing to report at this address.',{field:'target'});
     await limit('flag',10);
     // One open flag per reporter and target; repeats update the reason instead of piling up.
     const open=await db.prepare("SELECT id FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
@@ -251,10 +260,11 @@ async function report(db,context,body,now,limit,origin){
  const id=randomToken(12);
  await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,subject_version,target_id,target_version,env,result,comment,user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
   .bind(id,body.kind,subject.id,sv,target?.id??null,tv,JSON.stringify(env),result,comment,context.user.id,now,now).run();
- let verdict=null;
- if(body.kind==='compat'&&target)verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;
+ /** @type {any} */let verdict=null;
+ const recompute=async()=>{if(body.kind==='compat'&&target){try{verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}
+  catch(e){if(!/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw e;verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}}};
  // A compat report (or any report with text) is also a post; a bare "it's down" click is only counted.
- if(body.kind==='issue'&&!comment&&!body.title)return {id,verdict:null,postNo:null,url:null};
+ if(body.kind==='issue'&&!comment&&!body.title){await recompute();return {id,verdict,postNo:null,url:null};}
  const board=target&&body.kind==='compat'?target:subject;
  const RESULT_KO=/** @type {Record<string,string>} */({works:'작동',works_with_issues:'일부 문제',broken:'안 됨'});
  // "테스트 게임 한글패치 1.7 × 테스트 게임 2.3.1: 작동" — names in Korean, the report language.
@@ -262,7 +272,8 @@ async function report(db,context,body,now,limit,origin){
  const title=body.title?text(body.title,[2,120],'title'):(target?`${nm(subject)}${sv?' '+sv:''} × ${nm(target)}${tv?' '+tv:''}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
  const postId=randomToken(12);
  const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
- await purge(origin,[...bothLocales(l=>channelUrl(l,board)),...(board.id!==subject.id?bothLocales(l=>channelUrl(l,subject)):[])]);
+ await recompute();
+ await purge(origin,[...pagesOf(board),...(board.id!==subject.id?pagesOf(subject):[])]);
  return {id,verdict,postNo:no,url:postUrl('ko',board,no)};
 }
 
@@ -277,6 +288,8 @@ async function benchmark(db,context,body,now,limit,origin){
  for(const [k,v] of Object.entries(body.env&&typeof body.env==='object'?body.env:{}).slice(0,6)){if(!/^[a-z_]{1,20}$/.test(k)||typeof v!=='string'||v.length>60)throw new ApiError('BAD_REQUEST','Invalid env field.');env[k]=v.trim();}
  await limit('report',LIMITS.postsPerMinute);
  const id=randomToken(12);
+ // One measurement per user per model × GPU × runtime × quantization: a repeat replaces the old one.
+ await db.prepare("DELETE FROM community_reports WHERE kind='benchmark' AND user_id=? AND entity_id=? AND target_id=? AND COALESCE(json_extract(env,'$.runtime'),'')=? AND COALESCE(json_extract(env,'$.quant'),'')=?").bind(context.user.id,model.id,gpu.id,env.runtime||'',env.quant||'').run();
  await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,target_id,env,metrics,user_id,created_at,updated_at) VALUES (?,'benchmark',?,?,?,?,?,?,?)`)
   .bind(id,model.id,gpu.id,JSON.stringify(env),JSON.stringify({tokens_per_s:Math.round(tps*100)/100}),context.user.id,now,now).run();
  await purge(origin,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
@@ -307,6 +320,8 @@ async function moderator(db,context){
  if(!p||!['moderator','curator','admin'].includes(String(p.role)))throw new ApiError('NOT_FOUND');
  return p;
 }
+/** Staff rank: an action on an account needs a strictly higher rank than the account's. */
+const RANK=/** @type {Record<string,number>} */({user:0,moderator:1,curator:2,admin:3});
 /** Open flags grouped by target, oldest first, with a preview of the flagged text. @param {any} db @param {any} _p */
 async function modQueue(db,_p){
  const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,MAX(note) AS note FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
@@ -323,29 +338,50 @@ async function modQueue(db,_p){
 const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict']);
 /** Apply one moderator action; always logged in moderation_actions with its reason.
  * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
- * @param {any} db @param {string} actor @param {any} body @param {number} now @param {string} origin */
-async function modAction(db,actor,body,now,origin){
+ * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin */
+async function modAction(db,actor,actorRole,body,now,origin){
  only(body,['target','action','reason','days']);
  const m=/^(discussion|comment|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
  if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
  const action=String(body.action);if(!MOD_ACTIONS.includes(action))throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
  const reason=text(body.reason,[2,500],'reason');
  const [,kind,id]=m,w=[];
+ /** @type {Record<string,unknown>} */let meta={};
  if(kind==='discussion'||kind==='comment'){
   const table=kind==='discussion'?'discussions':'comments';
-  if(action==='hide')w.push(db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=?`).bind(now,id));
-  if(action==='unhide')w.push(db.prepare(`UPDATE ${table} SET status='published',updated_at=? WHERE id=? AND status='hidden'`).bind(now,id));
+  const cur=await db.prepare(`SELECT status FROM ${table} WHERE id=?`).bind(id).first();
+  if(!cur)throw new ApiError('NOT_FOUND','No such post or comment.');
+  if(action==='hide'){
+   if(cur.status==='hidden'||cur.status==='deleted')throw new ApiError('OPERATION_CONFLICT',`Already ${cur.status}.`);
+   meta={previous:cur.status};   // restored exactly by unhide (a locked post stays locked)
+   w.push(db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=?`).bind(now,id));
+  }
+  if(action==='unhide'){
+   if(cur.status!=='hidden')throw new ApiError('OPERATION_CONFLICT','Not hidden.');
+   const last=await db.prepare("SELECT meta FROM moderation_actions WHERE target_kind=? AND target_id=? AND action='hide' ORDER BY id DESC LIMIT 1").bind(kind,id).first();
+   let prev='published';try{const p=JSON.parse(String(last?.meta||'{}')).previous;if(p==='published'||p==='locked')prev=p;}catch{}
+   w.push(db.prepare(`UPDATE ${table} SET status=?,updated_at=? WHERE id=? AND status='hidden'`).bind(prev,now,id));
+  }
   if(kind==='comment'&&(action==='hide'||action==='unhide'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
  }
  if(kind==='user'){
+  if(id===actor)throw new ApiError('FORBIDDEN','You cannot moderate your own account.');
+  if(!await db.prepare('SELECT 1 FROM users WHERE id=?').bind(id).first())throw new ApiError('NOT_FOUND','No such account.');
+  const target=await db.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(id).first();
+  if((RANK[String(target?.role||'user')]??0)>=(RANK[actorRole]??0))throw new ApiError('FORBIDDEN','Only a higher role can act on this account.');
+  // A member who never wrote has no profile yet: create it so the restriction applies.
+  await db.prepare("INSERT OR IGNORE INTO user_profiles (user_id,display_name,created_at,updated_at) VALUES (?,?,?,?)").bind(id,defaultNickname(id),now,now).run();
   const days=Math.min(365,Math.max(1,Number(body.days)||7));
   if(action==='restrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=?,strikes=strikes+1,updated_at=? WHERE user_id=?').bind(now+days*864e5,now,id));
   if(action==='unrestrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=NULL,updated_at=? WHERE user_id=?').bind(now,id));
  }
  if(!w.length&&action!=='dismiss')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
  w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
- w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:{}),now));
+ w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:meta),now));
  await db.batch(w);
- if(kind==='discussion'){const d=await db.prepare('SELECT d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?').bind(id).first();if(d)await purge(origin,[...bothLocales(l=>postUrl(l,{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no))),...bothLocales(l=>channelUrl(l,{vertical:String(d.vertical),slug:String(d.slug)}))]);}
+ if(kind==='discussion'||kind==='comment'){
+  const d=await db.prepare(`SELECT d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
+  if(d)await purge(origin,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+ }
  return {ok:true};
 }

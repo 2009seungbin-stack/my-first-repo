@@ -54,7 +54,7 @@ ${m.hours.map((h,i)=>i%6===0||i===23?html`<text class="ax" x="${PL+i*bw+bw/2}" y
 export function renderStatus(m,site){
  const {entity:e,l,now}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e);
  const open=m.incidents.filter(x=>x.status!=='ended');
- const headline=open.length?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):m.spike?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):m.checked?(ko?`${name}: 보고된 장애 없음`:`${name}: no reported incident`):(ko?`${name}: 공식 상태 확인 전`:`${name}: official status not checked yet`);
+ const headline=open.length?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):m.spike?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):m.checked?(ko?`${name}: 공식 장애 없음${m.total24?` · 사용자 리포트 ${m.total24}건(평소 수준)`:''}`:`${name}: no official incident${m.total24?` · ${m.total24} user reports (usual level)`:''}`):(ko?`${name}: 공식 상태 확인 전`:`${name}: official status not checked yet`);
  const state=open.length?'bad':m.spike?'warn':m.checked?'ok':'unk';
  const top=html`<section class="box sthero ${state}"><span class="dot ${state}" aria-hidden="true"></span><div><h1>${headline}</h1>
 <p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div></section>`;

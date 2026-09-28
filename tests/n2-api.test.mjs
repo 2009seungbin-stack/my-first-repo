@@ -142,9 +142,11 @@ test('banned and restricted accounts cannot write',{skip},async()=>{
 
 test('flags: one open flag per reporter and target, validated reason and target',{skip},async()=>{
  const h=await harness();await h.signIn('a');
- assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:abc',reason:'copyright',note:'원본은 여기'}})).status,201);
- assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:abc',reason:'spam'}})).status,201);
- const rows=h.db.raw.prepare("SELECT reason FROM content_flags WHERE target_id='abc'").all();
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'신고될 글',body:'x'}})).json;
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'copyright',note:'원본은 여기'}})).status,201);
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'spam'}})).status,201);
+ assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'discussion:does-not-exist',reason:'spam'}})).status,404,'nothing to report');
+ const rows=h.db.raw.prepare("SELECT reason FROM content_flags WHERE target_id=?").all(p.id);
  assert.deepEqual(rows.map(r=>r.reason),['spam'],'the repeat updates the open flag');
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'javascript:alert(1)',reason:'spam'}})).status,400);
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'comment:x',reason:'because'}})).status,400);
@@ -210,4 +212,29 @@ test('transparency page shows monthly aggregates only',{skip},async()=>{
  const out=String(renderTransparency(await loadTransparency(h.db,{l:'ko',now:T0+1000}),{origin:ORIGIN}));
  assert(out.includes('2026-09')&&out.includes('임시조치(숨김)'));
  assert(!out.includes('비밀 제목')&&!out.includes(p.id)&&!out.includes('운영자1'),'no targets or moderators');
+});
+
+test('review fixes: role hierarchy, reserved and case-insensitive nicknames, no votes on hidden posts, restore keeps the previous state',{skip},async()=>{
+ const h=await harness();for(const n of ['a','b','mod','mod2','adm'])await h.signIn(n);
+ h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0),('u-mod2','운영자2','moderator',0,0),('u-adm','관리1','admin',0,0)").run();
+ const act=(as,target,action)=>h.call('POST','/mod/action',{as,body:{target,action,reason:'테스트 사유'}});
+ assert.equal((await act('mod','user:u-adm','restrict')).status,403,'a moderator cannot restrict an admin');
+ assert.equal((await act('mod','user:u-mod2','restrict')).status,403,'nor another moderator');
+ assert.equal((await act('mod','user:u-mod','restrict')).status,403,'nor themselves');
+ assert.equal((await act('mod','user:nobody','restrict')).status,404);
+ assert.equal((await act('adm','user:u-mod','restrict')).status,200,'an admin can restrict a moderator');
+ assert.equal((await act('mod','discussion:missing','hide')).status,403,'a restricted moderator cannot act');
+ // nicknames
+ assert.equal((await h.call('POST','/profile',{as:'a',body:{displayName:'user-abcdef'}})).status,400,'default form is reserved');
+ assert.equal((await h.call('POST','/profile',{as:'a',body:{displayName:'Rogue'}})).status,200);
+ assert.equal((await h.call('POST','/profile',{as:'b',body:{displayName:'rogue'}})).status,409,'case-insensitive');
+ // votes on hidden posts; restore keeps "locked"
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'잠긴 글',body:'x'}})).json;
+ h.db.raw.prepare("UPDATE discussions SET status='locked' WHERE id=?").run(p.id);
+ assert.equal((await act('adm',`discussion:${p.id}`,'hide')).status,200);
+ assert.equal((await h.call('POST','/votes',{as:'b',body:{kind:'discussion',id:p.id,value:1}})).status,404,'no votes on hidden posts');
+ assert.equal((await act('adm',`discussion:${p.id}`,'unhide')).status,200);
+ assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'locked','restored to its previous state');
+ h.db.raw.prepare("UPDATE discussions SET status='deleted' WHERE id=?").run(p.id);
+ assert.equal((await act('adm',`discussion:${p.id}`,'hide')).status,409,'an author-deleted post is not hidden (and so never republished)');
 });

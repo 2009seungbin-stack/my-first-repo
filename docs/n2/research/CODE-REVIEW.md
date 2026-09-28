@@ -243,3 +243,19 @@ than by a URL substring.
 * **Vote counts:** recomputed from `votes` in the same batch. Self-votes are rejected.
 * **Dev server:** `/__dev/login` exists only in `tools/platform/dev-server.mjs`, which is referenced
   only by the `dev:platform` npm script. `server/index.js` does not import it.
+
+
+---
+## Status (2026-09-29, same night)
+Fixed with regression tests in `tests/n2-api.test.mjs`: #1 role hierarchy (strictly higher rank, no
+self-moderation), #2 nicknames (case-insensitive unique index `migrations/0006`, `user-…` reserved,
+rate limit — also #13), #3 no votes on hidden/deleted content, #4 hide stores the previous status and
+restore returns to it (deleted posts cannot be hidden/republished), #5 purge covers post, channel,
+feed, front and 념글 in both languages and hidden comments; stale window cut to 60 s, #6 report post is
+created before the verdict and a concurrent recompute retries once, #7 flags need an existing target,
+#8 moderator actions on missing targets are 404 and a never-written member gets a profile so a
+restriction applies, #9 feed redirect, #10 sitemaps go through the edge cache with a LIMIT, #12 one
+benchmark per user per model × GPU × runtime × quantization, #14 the status headline states the
+official status and the user-report count separately.
+Not changed: #11 (the moderator queue is capped at 100 items; one extra query per item is acceptable
+until the queue is busy).

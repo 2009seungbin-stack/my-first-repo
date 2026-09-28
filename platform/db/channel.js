@@ -304,7 +304,7 @@ export async function sitemapEntities(db,vertical){
   (SELECT COUNT(*) FROM relations r WHERE r.subject_id=e.id AND r.valid_until IS NULL)+(SELECT COUNT(*) FROM relations r WHERE r.object_id=e.id AND r.valid_until IS NULL) AS relations,
   (SELECT COUNT(*) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS posts,
   (SELECT MAX(d.last_activity_at) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS active_at
-  FROM entities e WHERE e.vertical=? AND e.status='active' ORDER BY e.id`,[vertical]);
+  FROM entities e WHERE e.vertical=? AND e.status='active' ORDER BY e.id LIMIT 20000`,[vertical]);
  return rows.map(r=>({id:String(r.id),vertical:String(r.vertical),type:String(r.type),slug:String(r.slug),names:json(r.names,{}),descriptions:json(r.descriptions,{}),index_state:String(r.index_state||'auto'),
   lastmod:Math.max(Number(r.updated_at)||0,Number(r.active_at)||0),facts:Number(r.facts),relations:Number(r.relations),posts:Number(r.posts)}));
 }
