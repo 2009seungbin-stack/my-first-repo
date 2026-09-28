@@ -11,6 +11,7 @@ export const SOURCE_HOSTS=new Set([
  'datatracker.ietf.org',
  'defold.com',
  'developer.apple.com',
+ 'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
  'developers.google.com',
  'doc.mapeditor.org',

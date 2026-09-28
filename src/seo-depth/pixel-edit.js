@@ -490,5 +490,356 @@ export default {
    versions:{body:['Nerulio：96×144のCC0比較用スプライトで、キャンバスサイズ+1・アウトライン・ドロップシャドウが1846pxと705pxを追加し、Aseprite 1.3.18で作った結果とピクセル単位で一致しました（docs/STUDIO-PIXEL.md §6、T8）。上の正方形の数値はsrc/studio/pixel/raster.jsで計算しました。Asepriteのオプションは公式ドキュメントに基づきます。'],
     sources:[s('Asepriteドキュメント：FX（Outline）',A.fx),s('Asepriteドキュメント：Canvas Size',A.canvas)]}
   }
+ },
+ // ───────────────────────────────────────────────────────────────── Pixel Lab (palette lock)
+ 'game/pixel-lab':{
+  type:'create',
+  intent:{primary:'lock every frame of a pixel-art animation to one shared palette',secondary:['frames exported from different tools have drifting colours','dither without flicker','prove every exported colour is in the palette'],
+   goal:'PNG frames that all use exactly the same palette, with no flicker, plus the palette as .gpl',
+   input:'several PNG frames (or one image), each at most 4096×4096',output:'ZIP of PNG frames (1×–8× nearest), palette .gpl, pixel-lab.json',
+   target:'any engine or editor that loads PNG frames; the .gpl opens in GIMP and Aseprite',support:'full',
+   evidence:['docs/PIXEL-LAB.md §1, §3 and Verification (Chromium, files re-read with Pillow)','src/game/palette.js extract(), lockFrame(), flickers()','src/pixel-engine.js accumulate() (5-bit alpha-weighted histogram), Bayer matrices','src/task/pixel-lab.js (2–256 colours, default 16; scale 1–8; 4096×4096 per frame)'],
+   external:['GIMP Palette format (.gpl) specification']},
+  en:{
+   answer:'Frames exported from different tools, or resized and re-saved, drift apart: the same shade becomes three slightly different colours, and the animation shimmers. Locking fixes that: build one palette from all frames together (2–256 colours, 16 by default, or a preset such as PICO-8), map every pixel of every frame to it, and keep dithering off or ordered so still areas do not flicker. The Pixel Lab does this in the browser and exports the frames as PNG at 1×–8×, the palette as `.gpl` and a `pixel-lab.json` summary; every exported colour is checked to be in the palette.',
+   concept:{title:'Why frames drift, and how one palette and the right dither stop it',body:[
+    'Each tool that touches a frame can nudge its colours: resampling blends neighbours, JPEG or lossy WebP adds noise, and a canvas that stores colour premultiplied by alpha shifts semi-transparent pixels. Quantising each frame on its own then gives each frame its own palette. The Lab instead feeds all frames into one histogram weighted by alpha, splits it by median cut in Oklab (so both frequency and visible difference count), and refines the result, which yields one palette shared by every frame.',
+    'Dithering decides whether the animation flickers. Ordered (Bayer) dithering adds a bias that depends only on the pixel\'s position, so an area that does not change gets the same pixels in every frame. Error diffusion (Floyd–Steinberg, Atkinson) carries the rounding error across the whole frame, so one moving pixel changes the decisions of every pixel after it, and a still wall can flicker. The Lab defaults to None and warns when diffusion is chosen with more than one frame loaded.',
+    'The Lab writes the PNGs from the RGBA values directly instead of through a canvas, because a canvas rounds semi-transparent colours through premultiplied alpha. Before that change, 68 of 84 exported colours fell outside a 16-colour locked palette; after it, none did.'],
+    terms:[['Palette lock','Mapping every pixel of every frame onto one fixed palette.'],['Median cut','Splitting the colour histogram repeatedly at the median of its widest axis until the target count is reached.'],['Ordered (Bayer) dither','A fixed threshold pattern by pixel position; it cannot flicker between frames.'],['Error diffusion','Dithering that spreads each pixel\'s rounding error to its neighbours; it can flicker in animation.']]},
+   example:{title:'Example: eight anti-aliased frames locked to 16 colours',lead:'The Lab\'s browser test, with the exported files re-read by an independent decoder:',lines:[
+    'input      8 frames × 48×48 px = 18,432 px, anti-aliased edges',
+    'extract    one palette of 16 colours from all 8 frames',
+    'lock       every pixel → nearest of the 16 in Oklab, dither None',
+    'check      colours in all exported PNGs: 16; outside the palette: 0',
+    'flicker    an unchanging band: 1 distinct version across 8 frames (None and Bayer 4×4)',
+    'counting   exact up to 4 MP of frame area in total; here 0.018 MP',
+    'size cap   each frame at most 4096 × 4096 px'],
+    after:'The last check is the one that matters for a game: open the exported PNGs, not the preview, and count their colours. The Lab\'s test does exactly that with Pillow.'},
+   verify:{title:'Check the locked frames',steps:[
+    'Step through the frames with ← and →: the same shade should show the same swatch in the palette on every frame.',
+    'Open two exported PNGs in any image editor and sample the same spot of a still area: the values must be identical.',
+    'Count the colours of one exported frame in another tool: the count must not exceed the palette size.',
+    'Load the exported `.gpl` in GIMP or Aseprite: it lists the same colours in the same order.']},
+   trouble:{rows:[
+    ['The animation flickers after locking','An error-diffusion dither (Floyd–Steinberg or Atkinson) is on','The Convert stage shows the flicker warning','Switch to None or a Bayer matrix; compare them side by side in the dither grid'],
+    ['A small detail colour disappeared','Median cut weights colours by how many pixels use them; a 2-pixel eye highlight loses to large areas','Look for the colour in the Palette stage after extraction','Lock that colour, then press Extract again, or raise the colour count'],
+    ['A dropped sprite sheet came out as one frame','The Lab treats one image as one frame; it does not slice sheets','The frame strip shows a single frame','Slice the sheet first with [[sprite-slicer|the sprite slicer]], then drop the frames'],
+    ['The Lab refuses an image','A frame larger than 4096 × 4096 px would freeze the tab, so it is refused','The message names the size and the limit','Scale or crop it first, or slice it into frames'],
+    ['The colour counts cover only one frame','Above 4 MP of frame area in total, counting is limited to the visible frame','The panel says so next to the counts','Load fewer frames at once if you need exact totals']]},
+   alternatives:{rows:[
+    ['Converting inside the Studio\'s Pixel workspace','The frames belong to a layered sprite with a timeline: Colour mode… makes it indexed and keeps layers and tags. See [[game/pixel-art-palette-editor|the palette editor]].'],
+    ['A published palette instead of an extracted one','The art must match a known palette such as PICO-8 or Endesga 32: see [[game/lospec-palette|applying a Lospec palette]].'],
+    ['Cleaning anti-aliased edges and stray pixels','Locking left odd edge pixels or specks: the Lab\'s Cleanup stage, described on [[game/pixel-art-cleanup|pixel-art cleanup]].']]},
+   limits:['No animation playback: frames are stepped, not played.','Everything runs on the main thread with no cancel button; very large batches block the tab until they finish.','Verified in Chromium only.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md, measured in Chromium through Playwright on a built site, with every number read back from the downloaded files (Pillow, zipfile, json); unit tests in tests/game-palette.test.mjs. The .gpl written follows the GIMP palette format.'],
+    sources:[s('GIMP developer docs: GIMP Palette format (.gpl)',GIMP_GPL)]}
+  },
+  ko:{
+   answer:'여러 도구에서 내보냈거나 크기를 바꿔 다시 저장한 프레임은 색이 조금씩 어긋납니다. 같은 명암이 미묘하게 다른 세 색이 되고 애니메이션이 반짝거립니다. 고정(lock)은 이를 바로잡습니다. 모든 프레임을 함께 보고 팔레트 하나를 만들고(2~256색, 기본 16색, 또는 PICO-8 같은 프리셋), 모든 프레임의 모든 픽셀을 거기에 맞추며, 디더링은 끄거나 순서형으로 두어 멈춘 부분이 깜박이지 않게 합니다. 픽셀 랩은 브라우저에서 이를 처리하고 프레임을 1×~8× PNG로, 팔레트를 `.gpl`로, 요약을 `pixel-lab.json`으로 내보내며, 내보낸 모든 색이 팔레트 안에 있는지 확인합니다.',
+   concept:{title:'프레임 색이 어긋나는 이유와, 팔레트 하나와 알맞은 디더로 막는 방법',body:[
+    '프레임을 거치는 도구마다 색을 조금씩 바꿀 수 있습니다. 리샘플링은 이웃 픽셀을 섞고, JPEG나 손실 WebP는 잡음을 더하며, 색을 알파로 미리 곱해 저장하는 캔버스는 반투명 픽셀을 틀어지게 합니다. 이런 프레임을 하나씩 따로 양자화하면 프레임마다 팔레트가 달라집니다. 랩은 대신 모든 프레임을 알파로 가중한 히스토그램 하나에 넣고, Oklab에서 중앙값 분할로 나눈 뒤(빈도와 눈에 보이는 차이를 함께 반영) 다듬어, 모든 프레임이 함께 쓰는 팔레트 하나를 만듭니다.',
+    '깜박임은 디더링이 좌우합니다. 순서형(Bayer) 디더는 픽셀 위치에만 따르는 치우침을 더하므로, 바뀌지 않은 영역은 모든 프레임에서 같은 픽셀이 됩니다. 오차 확산(Floyd–Steinberg, Atkinson)은 반올림 오차를 프레임 전체로 넘기므로 픽셀 하나가 움직여도 그 뒤 모든 픽셀의 결정이 바뀌고, 가만히 있는 벽도 깜박일 수 있습니다. 랩의 기본값은 없음이며, 프레임이 둘 이상인데 오차 확산을 고르면 경고합니다.',
+    '랩은 캔버스를 거치지 않고 RGBA 값으로 바로 PNG를 씁니다. 캔버스는 반투명 색을 미리 곱한 알파로 반올림하기 때문입니다. 이렇게 바꾸기 전에는 16색으로 고정한 팔레트 밖으로 내보낸 색 84개 중 68개가 벗어났고, 바꾼 뒤에는 하나도 벗어나지 않았습니다.'],
+    terms:[['팔레트 고정','모든 프레임의 모든 픽셀을 정해진 팔레트 하나에 맞추는 것.'],['중앙값 분할','목표 개수가 될 때까지 색 히스토그램을 가장 넓은 축의 중앙값에서 계속 나누는 방법.'],['순서형(Bayer) 디더','픽셀 위치로 정해지는 고정 문턱값 무늬. 프레임 사이에서 깜박일 수 없음.'],['오차 확산','픽셀마다 반올림 오차를 이웃에 퍼뜨리는 디더. 애니메이션에서 깜박일 수 있음.']]},
+   example:{title:'예시: 안티앨리어싱된 프레임 8장을 16색으로 고정',lead:'랩의 브라우저 테스트이며, 내보낸 파일은 별도 디코더로 다시 읽었습니다.',lines:[
+    '입력      프레임 8장 × 48×48 px = 18,432 px, 안티앨리어싱된 가장자리',
+    '추출      8장 전체에서 팔레트 하나(16색)',
+    '고정      모든 픽셀 → Oklab 기준 16색 중 가장 가까운 색, 디더 없음',
+    '확인      내보낸 모든 PNG의 색: 16개, 팔레트 밖: 0개',
+    '깜박임    변하지 않는 띠: 8장에서 모두 한 가지 모양(없음, Bayer 4×4 모두)',
+    '개수 세기 전체 프레임 면적 4MP까지 정확, 여기서는 0.018MP',
+    '크기 제한 프레임 한 장당 최대 4096 × 4096 px'],
+    after:'게임에 중요한 것은 마지막 확인입니다. 미리보기가 아니라 내보낸 PNG를 열어 색을 세세요. 랩의 테스트도 Pillow로 바로 그렇게 합니다.'},
+   verify:{title:'고정된 프레임 확인하기',steps:[
+    '← →로 프레임을 넘깁니다. 같은 명암은 모든 프레임에서 팔레트의 같은 칸으로 표시돼야 합니다.',
+    '내보낸 PNG 두 장을 아무 이미지 편집기에서 열어 멈춘 영역의 같은 지점 색을 찍어 봅니다. 값이 완전히 같아야 합니다.',
+    '내보낸 프레임 한 장의 색 수를 다른 도구로 셉니다. 팔레트 크기를 넘으면 안 됩니다.',
+    '내보낸 `.gpl`을 김프나 에이스프라이트에서 불러옵니다. 같은 색이 같은 순서로 보여야 합니다.']},
+   trouble:{rows:[
+    ['고정한 뒤 애니메이션이 깜박임','오차 확산 디더(Floyd–Steinberg 또는 Atkinson)가 켜져 있음','변환 단계에 깜박임 경고가 표시됨','없음이나 Bayer로 바꾸고 디더 비교 격자에서 나란히 보기'],
+    ['작은 디테일 색이 사라짐','중앙값 분할은 쓰는 픽셀 수로 색에 가중치를 주므로 2픽셀짜리 눈 하이라이트가 큰 면적에 밀림','추출 뒤 팔레트 단계에 그 색이 있는지 확인','그 색을 잠그고 다시 추출하거나 색 개수를 늘리기'],
+    ['끌어다 놓은 스프라이트 시트가 프레임 하나가 됨','랩은 이미지 한 장을 프레임 하나로 다루며 시트를 자르지 않음','프레임 줄에 프레임이 하나뿐','먼저 [[sprite-slicer|스프라이트 슬라이서]]로 자른 뒤 프레임을 놓기'],
+    ['랩이 이미지를 거부함','4096 × 4096px보다 큰 프레임은 탭을 멈추게 하므로 거부함','메시지에 크기와 제한이 나옴','먼저 줄이거나 자르거나, 프레임으로 나누기'],
+    ['색 개수가 한 프레임만 셈','전체 프레임 면적이 4MP를 넘으면 보이는 프레임만 셈','개수 옆 패널에 그렇게 표시됨','정확한 합계가 필요하면 한 번에 넣는 프레임 수 줄이기']]},
+   alternatives:{rows:[
+    ['Studio 픽셀 작업 공간에서 변환','프레임이 타임라인이 있는 레이어 스프라이트라면 색 모드…가 레이어와 태그를 유지한 채 인덱스로 바꿉니다. [[game/pixel-art-palette-editor|팔레트 편집기]] 참고.'],
+    ['추출 대신 공개된 팔레트','PICO-8이나 Endesga 32처럼 정해진 팔레트에 맞춰야 한다면 [[game/lospec-palette|Lospec 팔레트 적용]].'],
+    ['안티앨리어싱 가장자리와 외톨이 픽셀 정리','고정 뒤에도 이상한 가장자리 픽셀이나 점이 남았다면 랩의 정리 단계. [[game/pixel-art-cleanup|도트 정리]] 참고.']]},
+   limits:['애니메이션 재생은 없고 프레임을 한 장씩 넘겨 봅니다.','모든 처리가 메인 스레드에서 돌고 취소 버튼이 없어, 아주 큰 묶음은 끝날 때까지 탭이 멈춥니다.','Chromium에서만 확인했습니다.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md. 빌드한 사이트에서 Playwright로 Chromium을 돌려 측정했고, 모든 수치는 내려받은 파일을 다시 읽어(Pillow, zipfile, json) 확인했습니다. 단위 테스트는 tests/game-palette.test.mjs입니다. 쓰는 .gpl은 김프 팔레트 형식을 따릅니다.'],
+    sources:[s('GIMP 개발자 문서: GIMP Palette 형식(.gpl)',GIMP_GPL)]}
+  },
+  ja:{
+   answer:'別々のツールから書き出したり、サイズを変えて保存し直したりしたフレームは、色が少しずつずれます。同じ陰影が微妙に違う3色になり、アニメがちらつきます。ロックはこれを直します。全フレームを合わせて1つのパレットを作り（2〜256色、既定16色、またはPICO-8などのプリセット）、全フレームの全ピクセルをそこへ対応づけ、ディザはオフか組織的ディザにして止まっている部分がちらつかないようにします。ピクセルラボはこれをブラウザで行い、フレームを1×〜8×のPNG、パレットを`.gpl`、概要を`pixel-lab.json`で書き出し、書き出した全色がパレット内にあることを確認します。',
+   concept:{title:'フレームの色がずれる理由と、1つのパレットと適切なディザで防ぐ方法',body:[
+    'フレームを通るツールはどれも色を少し動かし得ます。リサンプリングは隣のピクセルを混ぜ、JPEGや非可逆WebPはノイズを加え、色をアルファで乗算して保持するキャンバスは半透明のピクセルをずらします。そうしたフレームを1枚ずつ減色すると、フレームごとに違うパレットになります。ラボは代わりに全フレームをアルファで重み付けした1つのヒストグラムに入れ、Oklabでメディアンカットして（頻度と見た目の差の両方を反映）整え、全フレームが共有する1つのパレットを作ります。',
+    'ちらつくかどうかはディザ次第です。組織的（Bayer）ディザはピクセルの位置だけで決まる偏りを加えるので、変わらない部分はどのフレームでも同じピクセルになります。誤差拡散（Floyd–Steinberg、Atkinson）は丸めの誤差をフレーム全体へ運ぶため、1ピクセル動くだけでその後の全ピクセルの判定が変わり、止まっている壁までちらつくことがあります。ラボの既定は「なし」で、複数フレームで誤差拡散を選ぶと警告します。',
+    'ラボはキャンバスを通さず、RGBAの値から直接PNGを書きます。キャンバスは半透明の色を乗算済みアルファで丸めてしまうからです。この変更の前は、16色にロックしたパレットの外に書き出した84色のうち68色がはみ出していましたが、変更後は1色もはみ出しません。'],
+    terms:[['パレットロック','全フレームの全ピクセルを、決まった1つのパレットに対応づけること。'],['メディアンカット','目標の色数になるまで、色のヒストグラムを最も広い軸の中央値で分け続ける方法。'],['組織的（Bayer）ディザ','ピクセルの位置で決まる固定のしきい値パターン。フレーム間でちらつかない。'],['誤差拡散','各ピクセルの丸め誤差を隣へ広げるディザ。アニメではちらつくことがある。']]},
+   example:{title:'例：アンチエイリアスのかかった8フレームを16色にロック',lead:'ラボのブラウザテストで、書き出したファイルは別のデコーダーで読み直しています。',lines:[
+    '入力        8フレーム × 48×48 px = 18,432 px、アンチエイリアスの縁',
+    '抽出        8フレーム全体から16色のパレットを1つ',
+    'ロック      全ピクセル → Oklabで16色中最も近い色、ディザなし',
+    '確認        書き出した全PNGの色：16色、パレット外：0色',
+    'ちらつき    変化しない帯：8フレームで1通りだけ（なし、Bayer 4×4とも）',
+    '色数の計数  全フレーム面積4MPまで正確、ここでは0.018MP',
+    'サイズ上限  1フレームあたり最大4096 × 4096 px'],
+    after:'ゲームにとって大事なのは最後の確認です。プレビューではなく書き出したPNGを開いて色を数えてください。ラボのテストもPillowでまさにそうしています。'},
+   verify:{title:'ロックしたフレームを確認する',steps:[
+    '← →でフレームを移ります。同じ陰影はどのフレームでもパレットの同じ見本として表示されるはずです。',
+    '書き出したPNGを2枚、任意の画像エディタで開き、止まっている部分の同じ位置の色を調べます。値は完全に一致するはずです。',
+    '書き出した1フレームの色数を別のツールで数えます。パレットの色数を超えてはいけません。',
+    '書き出した`.gpl`をGIMPかAsepriteで読み込みます。同じ色が同じ順で並ぶはずです。']},
+   trouble:{rows:[
+    ['ロック後にアニメがちらつく','誤差拡散のディザ（Floyd–SteinbergかAtkinson）がオン','変換の工程にちらつきの警告が出る','「なし」かBayerに切り替え、ディザ比較のグリッドで並べて見る'],
+    ['小さなディテールの色が消えた','メディアンカットは使われるピクセル数で色を重み付けするので、2ピクセルの目のハイライトは広い面に負ける','抽出後、パレットの工程にその色があるか確認','その色をロックして「もう一度抽出」するか、色数を増やす'],
+    ['ドロップしたスプライトシートが1フレームになった','ラボは1枚の画像を1フレームとして扱い、シートは分割しない','フレームの列が1つだけ','先に[[sprite-slicer|スプライトスライサー]]で分割してからフレームをドロップ'],
+    ['ラボが画像を受け付けない','4096 × 4096pxを超えるフレームはタブを固めるので拒否する','メッセージにサイズと上限が表示される','先に縮小・トリミングするか、フレームに分割する'],
+    ['色数が1フレーム分しか数えられていない','全フレーム面積が4MPを超えると、表示中のフレームだけを数える','数値の横のパネルにその旨が出る','正確な合計が必要なら一度に読み込むフレームを減らす']]},
+   alternatives:{rows:[
+    ['Studioのピクセル作業画面で変換','フレームがタイムライン付きのレイヤースプライトなら、カラーモード…がレイヤーとタグを保ったままインデックスにします。[[game/pixel-art-palette-editor|パレットエディタ]]を参照。'],
+    ['抽出ではなく公開パレットを使う','PICO-8やEndesga 32など決まったパレットに合わせるなら[[game/lospec-palette|Lospecパレットの適用]]。'],
+    ['アンチエイリアスの縁と孤立ピクセルの整理','ロック後も変な縁のピクセルや点が残るなら、ラボの整理の工程。[[game/pixel-art-cleanup|ドット絵の整理]]を参照。']]},
+   limits:['アニメーションの再生はなく、フレームは1枚ずつ送って確認します。','処理はすべてメインスレッドで動き、キャンセルボタンがないため、とても大きな一括処理は終わるまでタブが止まります。','確認はChromiumのみです。'],
+   versions:{body:['Nerulio：docs/PIXEL-LAB.md。ビルドしたサイトでPlaywrightによりChromiumを動かして測定し、すべての数値はダウンロードしたファイルを読み直して（Pillow、zipfile、json）確認しました。単体テストはtests/game-palette.test.mjsです。書き出す.gplはGIMPのパレット形式に従います。'],
+    sources:[s('GIMP開発者ドキュメント：GIMP Palette形式（.gpl）',GIMP_GPL)]}
+  }
+ },
+ // ───────────────────────────────────────────────────────────────── palette extractor
+ 'game/palette-extractor':{
+  type:'create',
+  intent:{primary:'extract the colour palette of a sprite or pixel-art image',secondary:['per-colour pixel counts','colour budget: merge the rarest colours','export .gpl / .hex / .json','exact colour list vs reduced palette'],
+   goal:'the palette a sprite really uses, with counts, reduced to a budget if needed, saved in a format other tools read',
+   input:'one image or several animation frames (PNG etc.)',output:'palette as .gpl, .hex or .json; optionally the recoloured frames',
+   target:'GIMP, Aseprite, Lospec-style tools and any program that reads .gpl or a HEX list',support:'full',
+   evidence:['src/game/palette.js extract(), usage(), auditBudget(), mergePlan(), parseGPL/parseHexList/parsePaletteJSON, toPaletteJSON','src/pixel-engine.js accumulate() (5-bit buckets)','src/studio/pixel/indexed.js exactPalette() (Studio: exact colours)','docs/PIXEL-LAB.md §1, §2, §6 (budget: 16 → 8 verified)'],
+   external:['GIMP Palette format (.gpl)','Lospec download formats']},
+  en:{
+   answer:'Extracting a palette lists the colours a sprite uses and how many pixels each covers, so you can spot accidental near-duplicates and keep a colour budget. Drop one image or all frames of an animation; the Palette stage builds one palette for all of them (16 colours by default, 2–256), shows each colour\'s exact pixel count and share, sorts it, and can merge the rarest colours into their nearest survivor to meet a target. Save it as GIMP `.gpl`, a HEX list or JSON; nothing is uploaded.',
+   concept:{title:'An exact colour list and an extracted palette are not the same thing',body:[
+    'The Lab\'s extraction is a reduction. Pixels are first collected into buckets of 5 bits per channel (32 levels instead of 256), weighted by alpha, and the buckets are then split by median cut in Oklab. Two colours that differ by less than 8 levels in every channel land in the same bucket and come out as one averaged colour. That is what you want for a noisy or resized image, but not when you need the literal colours of hand-made pixel art.',
+    'For the literal list, use the Studio\'s Pixel workspace: Palette from the picture collects every exact colour (up to 255 plus the transparent entry), ordered by how often it is used. The Lab\'s counts, on the other hand, are exact for its palette: every pixel is assigned to its nearest palette colour in Oklab, with an exact-match shortcut, across every frame while the frames total under 4 megapixels.',
+    'A colour budget turns the counts into a decision. Set a target, and the rarest colours over the target are listed; merging moves each of them into its nearest surviving colour in Oklab, never into another colour that is also being removed, so the result really uses the target number of colours.'],
+    terms:[['Colour budget','The maximum number of colours a sprite or a frame may use.'],['5-bit bucket','A group of colours whose red, green and blue agree in their top 5 bits (32 levels each).'],['Share','A colour\'s pixel count divided by all opaque pixels.'],['.gpl','GIMP\'s text palette: a "GIMP Palette" header, optional Name and Columns, then one "R G B name" line per colour.']]},
+   example:{title:'Example: why two greens become one, and a budget from 16 to 8',lead:'Bucket arithmetic, then the budget test from the Lab\'s verification:',lines:[
+    '#3e8948 = (62,137,72)  → buckets 62>>3=7, 137>>3=17, 72>>3=9',
+    '#3f8a4a = (63,138,74)  → buckets 63>>3=7, 138>>3=17, 74>>3=9   same bucket',
+    'extracted: one colour, the pixel-weighted average of both',
+    'exact list (Studio, Palette from the picture): both colours, sorted by use',
+    'budget: 16 colours, target 8 → the 8 rarest are listed',
+    'merge: each goes to its nearest survivor in Oklab',
+    'export: the frames really use 8 colours, 0 outside the palette'],
+    after:'If the two greens were drawn on purpose, count them in the Studio; if they came from resizing or compression, the merged colour is the one to keep.'},
+   outputs:{title:'Palette files the Lab writes',rows:[
+    ['palette.gpl','GIMP Palette text: `Name:`, `Columns:`, then `R G B` and the hex code as the colour name. Opens in GIMP and Aseprite.'],
+    ['palette.hex','One `#rrggbb` per line, the plain list Lospec also offers.'],
+    ['palette.json','`name`, `colors` as `#rrggbb`, `rgb` as [r,g,b] triples, `count` and `source`.']]},
+   verify:{title:'Check the extracted palette',steps:[
+    'Compare the colour count with the Studio\'s exact list: a big difference means the image was noisy or resized.',
+    'Sort by frequency: colours with a share near 0 % are candidates for the budget merge or stray-pixel cleanup.',
+    'Import the exported file again (paste or file): it must give back the same number of colours.',
+    'After a merge, export the frames and count their colours in another tool: the count must equal the target.']},
+   trouble:{rows:[
+    ['Two colours that should stay separate were merged','They fall into the same 5-bit bucket (less than 8 levels apart per channel)','Compare with Palette from the picture in the Studio\'s Pixel workspace','Use the Studio\'s exact list, or make the colours more distinct'],
+    ['Asked for 32 colours, got fewer','The image has fewer distinct buckets than requested; a box cannot be split below one colour','The palette shows fewer swatches than the count','Nothing is wrong: the image uses that many colours'],
+    ['A palette file will not import','The Lab reads GIMP .gpl, HEX lists and JSON only; a JASC .pal, a Paint.net .txt with AARRGGBB values, or a .gpl with Aseprite\'s "Channels: RGBA" line is rejected','The error names the line it could not read','Download the .gpl or .hex version, or load the file in the Studio\'s Pixel workspace, which reads more formats'],
+    ['Counts cover only the visible frame','All frames together exceed 4 megapixels','The panel says so next to the counts','Load fewer frames for exact totals']]},
+   alternatives:{rows:[
+    ['Studio Pixel workspace: Palette from the picture','You need the literal colours of hand-drawn art, or palette formats beyond .gpl/.hex/.json (.pal, .ase, .act). See [[game/pixel-art-palette-editor|the palette editor]].'],
+    ['Starting from a published palette','You want the sprite to follow a known palette instead of its own: [[game/lospec-palette|Lospec palettes]].'],
+    ['Checking scale and blur before extracting','The image may be an upscale: counts from a blurred upscale are meaningless until it is snapped to 1×; see [[game/pixel-perfect-checker|the pixel-perfect checker]].']]},
+   limits:['Extraction merges colours closer than 8 levels per channel; it is not an exact inventory.','Reads and writes .gpl, HEX and JSON only.','Exact counts stop at 4 megapixels of total frame area.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md (Chromium; the budget merge from 16 to 8 colours was re-counted in the exported PNGs; .gpl, .hex and JSON round trips 16 → 16 colours). The bucket arithmetic follows src/pixel-engine.js. File layouts follow the GIMP specification and Lospec\'s own downloads.'],
+    sources:[s('GIMP developer docs: GIMP Palette format (.gpl)',GIMP_GPL),s('Lospec: PICO-8 palette and its download formats',LOSPEC.pico)]}
+  },
+  ko:{
+   answer:'팔레트 추출은 스프라이트가 쓰는 색과 색마다 몇 픽셀을 차지하는지 보여 주므로, 실수로 생긴 거의 같은 색을 찾고 색 예산을 지킬 수 있습니다. 이미지 한 장이나 애니메이션의 모든 프레임을 끌어다 놓으면 팔레트 단계가 전체에 쓸 팔레트 하나(기본 16색, 2~256)를 만들고, 색마다 정확한 픽셀 수와 비율을 보여 주고, 정렬하며, 목표에 맞게 가장 드문 색을 가장 가까운 남는 색으로 합칠 수 있습니다. GIMP `.gpl`, HEX 목록, JSON으로 저장하며 아무것도 업로드하지 않습니다.',
+   concept:{title:'정확한 색 목록과 추출한 팔레트는 다릅니다',body:[
+    '랩의 추출은 색을 줄이는 과정입니다. 먼저 픽셀을 채널당 5비트(256단계 대신 32단계) 칸에 알파로 가중해 모으고, 그 칸들을 Oklab에서 중앙값 분할로 나눕니다. 모든 채널에서 8단계 미만으로 차이 나는 두 색은 같은 칸에 들어가 평균한 색 하나로 나옵니다. 잡음이 있거나 크기가 바뀐 이미지에는 바람직하지만, 손으로 찍은 도트의 색을 그대로 알아야 할 때는 맞지 않습니다.',
+    '그대로의 목록이 필요하면 Studio 픽셀 작업 공간의 그림에서 팔레트 만들기를 쓰세요. 정확한 색을 모두(투명 칸 외에 최대 255개) 모아 많이 쓰인 순으로 늘어놓습니다. 반면 랩의 개수는 랩 팔레트 기준으로 정확합니다. 모든 픽셀을 Oklab 기준 가장 가까운 팔레트 색에 배정하며(정확히 같은 색은 바로 배정), 프레임 합계가 4메가픽셀 미만이면 모든 프레임을 셉니다.',
+    '색 예산은 개수를 결정으로 바꿔 줍니다. 목표를 정하면 목표를 넘는 가장 드문 색이 나열되고, 합치기는 각 색을 Oklab에서 가장 가까운 남는 색으로 옮깁니다. 함께 지워질 색끼리는 합치지 않으므로 결과는 정말로 목표 개수의 색만 씁니다.'],
+    terms:[['색 예산','스프라이트나 프레임 하나가 쓸 수 있는 최대 색 수.'],['5비트 칸','빨강·초록·파랑의 상위 5비트(각 32단계)가 같은 색들의 묶음.'],['비율','한 색의 픽셀 수를 불투명 픽셀 전체로 나눈 값.'],['.gpl','김프의 텍스트 팔레트. "GIMP Palette" 머리말, 선택적인 Name과 Columns, 그 뒤 색마다 "R G B 이름" 한 줄.']]},
+   example:{title:'예시: 초록 둘이 하나가 되는 이유, 그리고 16색에서 8색으로',lead:'칸 계산과, 랩 검증에 쓴 예산 시험입니다.',lines:[
+    '#3e8948 = (62,137,72)  → 칸 62>>3=7, 137>>3=17, 72>>3=9',
+    '#3f8a4a = (63,138,74)  → 칸 63>>3=7, 138>>3=17, 74>>3=9   같은 칸',
+    '추출 결과: 두 색을 픽셀 수로 가중 평균한 색 하나',
+    '정확한 목록(Studio, 그림에서 팔레트 만들기): 두 색 모두, 사용량 순',
+    '예산: 16색, 목표 8 → 가장 드문 8색이 나열됨',
+    '합치기: 각각 Oklab에서 가장 가까운 남는 색으로',
+    '내보내기: 프레임이 실제로 8색만 씀, 팔레트 밖 0'],
+    after:'두 초록을 일부러 칠했다면 Studio에서 세고, 크기 변경이나 압축 때문에 생긴 색이라면 합쳐진 색을 남기세요.'},
+   outputs:{title:'랩이 쓰는 팔레트 파일',rows:[
+    ['palette.gpl','김프 팔레트 텍스트: `Name:`, `Columns:`, 그 뒤 `R G B`와 색 이름으로 쓴 hex 코드. 김프와 에이스프라이트에서 열립니다.'],
+    ['palette.hex','한 줄에 `#rrggbb` 하나. Lospec도 제공하는 단순 목록.'],
+    ['palette.json','`name`, `#rrggbb` 형식의 `colors`, [r,g,b] 형식의 `rgb`, `count`, `source`.']]},
+   verify:{title:'추출한 팔레트 확인하기',steps:[
+    '색 개수를 Studio의 정확한 목록과 비교합니다. 차이가 크면 이미지에 잡음이 있거나 크기가 바뀐 것입니다.',
+    '빈도순으로 정렬합니다. 비율이 0 %에 가까운 색은 예산 합치기나 외톨이 픽셀 정리 대상입니다.',
+    '내보낸 파일을 다시 가져옵니다(붙여 넣기나 파일). 같은 수의 색이 돌아와야 합니다.',
+    '합친 뒤 프레임을 내보내 다른 도구로 색을 셉니다. 목표와 같아야 합니다.']},
+   trouble:{rows:[
+    ['따로 남아야 할 두 색이 합쳐짐','같은 5비트 칸에 들어감(채널마다 8단계 미만 차이)','Studio 픽셀 작업 공간의 그림에서 팔레트 만들기와 비교','Studio의 정확한 목록을 쓰거나 두 색의 차이를 키우기'],
+    ['32색을 요청했는데 더 적게 나옴','이미지의 서로 다른 칸이 요청보다 적음. 한 색 아래로는 나눌 수 없음','팔레트 견본이 요청 수보다 적음','문제 아님. 이미지가 그만큼의 색만 씀'],
+    ['팔레트 파일을 가져올 수 없음','랩은 김프 .gpl, HEX 목록, JSON만 읽음. JASC .pal, AARRGGBB 값의 Paint.net .txt, 에이스프라이트의 "Channels: RGBA" 줄이 있는 .gpl은 거부됨','오류 메시지가 읽지 못한 줄을 알려 줌','.gpl이나 .hex 판을 받거나, 더 많은 형식을 읽는 Studio 픽셀 작업 공간에서 불러오기'],
+    ['개수가 보이는 프레임만 셈','전체 프레임 합계가 4메가픽셀을 넘음','개수 옆 패널에 그렇게 표시됨','정확한 합계가 필요하면 프레임을 적게 넣기']]},
+   alternatives:{rows:[
+    ['Studio 픽셀 작업 공간: 그림에서 팔레트 만들기','손으로 찍은 그림의 색을 그대로 알아야 하거나 .gpl·.hex·.json 밖의 형식(.pal, .ase, .act)이 필요할 때. [[game/pixel-art-palette-editor|팔레트 편집기]] 참고.'],
+    ['공개된 팔레트에서 시작','스프라이트 자체 색 대신 알려진 팔레트를 따르게 하려면 [[game/lospec-palette|Lospec 팔레트]].'],
+    ['추출 전에 배율과 흐림 확인','확대된 이미지일 수 있다면, 흐리게 확대된 그림의 개수는 1배로 맞추기 전까지 의미가 없습니다. [[game/pixel-perfect-checker|픽셀 퍼펙트 검사]] 참고.']]},
+   limits:['추출은 채널마다 8단계보다 가까운 색을 합치므로 정확한 목록이 아닙니다.','.gpl, HEX, JSON만 읽고 씁니다.','정확한 개수는 전체 프레임 면적 4메가픽셀까지입니다.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md(Chromium. 16색에서 8색으로 합친 결과를 내보낸 PNG에서 다시 셌고, .gpl·.hex·JSON 왕복은 16색 → 16색). 칸 계산은 src/pixel-engine.js를 따릅니다. 파일 구조는 김프 사양과 Lospec이 실제로 내려주는 파일을 따릅니다.'],
+    sources:[s('GIMP 개발자 문서: GIMP Palette 형식(.gpl)',GIMP_GPL),s('Lospec: PICO-8 팔레트와 다운로드 형식',LOSPEC.pico)]}
+  },
+  ja:{
+   answer:'パレットの抽出は、スプライトが使っている色と、それぞれが何ピクセルを占めるかを示すので、うっかりできたほぼ同じ色を見つけ、色数の予算を守れます。画像1枚かアニメの全フレームをドロップすると、パレットの工程が全体で使うパレットを1つ作り（既定16色、2〜256）、色ごとの正確なピクセル数と割合を表示し、並べ替え、目標に合わせて最も少ない色を最も近い残りの色へ統合できます。GIMPの`.gpl`、HEXリスト、JSONで保存でき、何もアップロードしません。',
+   concept:{title:'正確な色の一覧と、抽出したパレットは別物',body:[
+    'ラボの抽出は色を減らす処理です。まずピクセルをチャンネルあたり5ビット（256段階ではなく32段階）の箱にアルファで重み付けして集め、その箱をOklabでメディアンカットします。すべてのチャンネルで差が8段階未満の2色は同じ箱に入り、平均した1色として出てきます。ノイズのある画像やサイズを変えた画像には望ましい動きですが、手で打ったドット絵の色をそのまま知りたいときには向きません。',
+    'そのままの一覧が必要なら、Studioのピクセル作業画面で「絵からパレットを作る」を使います。正確な色をすべて（透明の枠のほかに最大255色）集め、使用量の多い順に並べます。一方ラボの数値は、ラボのパレットに対しては正確です。すべてのピクセルをOklabで最も近いパレット色へ割り当て（完全一致はそのまま）、フレームの合計が4メガピクセル未満なら全フレームを数えます。',
+    '色数の予算は、数値を判断に変えてくれます。目標を決めると、目標を超える最も少ない色が並び、統合は各色をOklabで最も近い残る色へ移します。一緒に消える色どうしは統合しないので、結果は本当に目標の色数だけを使います。'],
+    terms:[['色数の予算','スプライトやフレーム1枚が使ってよい最大の色数。'],['5ビットの箱','赤・緑・青の上位5ビット（各32段階）が一致する色のまとまり。'],['割合','ある色のピクセル数を不透明ピクセル全体で割った値。'],['.gpl','GIMPのテキストパレット。「GIMP Palette」のヘッダー、任意のNameとColumns、その後に色ごとの「R G B 名前」の行。']]},
+   example:{title:'例：2つの緑が1つになる理由と、16色から8色への予算',lead:'箱の計算と、ラボの検証で使った予算のテストです。',lines:[
+    '#3e8948 = (62,137,72)  → 箱 62>>3=7、137>>3=17、72>>3=9',
+    '#3f8a4a = (63,138,74)  → 箱 63>>3=7、138>>3=17、74>>3=9   同じ箱',
+    '抽出結果：2色をピクセル数で重み付け平均した1色',
+    '正確な一覧（Studio、絵からパレットを作る）：2色とも、使用量順',
+    '予算：16色、目標8 → 最も少ない8色が並ぶ',
+    '統合：それぞれOklabで最も近い残る色へ',
+    '書き出し：フレームは実際に8色だけ、パレット外0'],
+    after:'2つの緑をわざと塗り分けたならStudioで数え、リサイズや圧縮でできた色なら統合後の色を残してください。'},
+   outputs:{title:'ラボが書き出すパレットファイル',rows:[
+    ['palette.gpl','GIMPパレットのテキスト：`Name:`、`Columns:`、その後に`R G B`と色名としてのhexコード。GIMPとAsepriteで開けます。'],
+    ['palette.hex','1行に`#rrggbb`を1つ。Lospecも配布している素朴な一覧。'],
+    ['palette.json','`name`、`#rrggbb`形式の`colors`、[r,g,b]形式の`rgb`、`count`、`source`。']]},
+   verify:{title:'抽出したパレットを確認する',steps:[
+    '色数をStudioの正確な一覧と比べます。差が大きければ、画像にノイズがあるかリサイズされています。',
+    '頻度順に並べます。割合が0 %近い色は、予算の統合か孤立ピクセルの整理の候補です。',
+    '書き出したファイルを読み込み直します（貼り付けかファイル）。同じ色数が戻るはずです。',
+    '統合後にフレームを書き出し、別のツールで色を数えます。目標と一致するはずです。']},
+   trouble:{rows:[
+    ['分けておきたい2色がまとめられた','同じ5ビットの箱に入る（チャンネルごとの差が8段階未満）','Studioのピクセル作業画面の「絵からパレットを作る」と比べる','Studioの正確な一覧を使うか、2色の差を広げる'],
+    ['32色を指定したのに少なく出た','画像の異なる箱が指定より少ない。1色より細かくは分けられない','パレットの見本が指定数より少ない','問題なし。画像がその色数しか使っていない'],
+    ['パレットファイルを読み込めない','ラボが読むのはGIMPの.gpl、HEXリスト、JSONだけ。JASCの.pal、AARRGGBBのPaint.net .txt、Asepriteの「Channels: RGBA」行がある.gplは拒否される','エラーが読めなかった行を示す','.gplか.hex版をダウンロードするか、より多くの形式を読むStudioのピクセル作業画面で読み込む'],
+    ['数値が表示中のフレームだけ','全フレームの合計が4メガピクセルを超えている','数値の横のパネルにその旨が出る','正確な合計が必要ならフレームを減らして読み込む']]},
+   alternatives:{rows:[
+    ['Studioのピクセル作業画面：絵からパレットを作る','手描きの絵の色をそのまま知りたいとき、または.gpl・.hex・.json以外の形式（.pal、.ase、.act）が必要なとき。[[game/pixel-art-palette-editor|パレットエディタ]]を参照。'],
+    ['公開パレットから始める','スプライト固有の色ではなく、知られたパレットに従わせたいなら[[game/lospec-palette|Lospecパレット]]。'],
+    ['抽出の前に倍率とぼけを確認','拡大画像かもしれないなら、ぼやけた拡大画像の色数は等倍に戻すまで意味がありません。[[game/pixel-perfect-checker|ピクセルパーフェクトチェッカー]]を参照。']]},
+   limits:['抽出はチャンネルあたり8段階より近い色をまとめるので、正確な一覧ではありません。','読み書きできるのは.gpl、HEX、JSONだけです。','正確な数値は全フレーム面積4メガピクセルまでです。'],
+   versions:{body:['Nerulio：docs/PIXEL-LAB.md（Chromium。16色から8色への統合結果を書き出したPNGで数え直し、.gpl・.hex・JSONの往復は16色 → 16色）。箱の計算はsrc/pixel-engine.jsに従います。ファイルの構造はGIMPの仕様と、Lospecが実際に配布するファイルに基づきます。'],
+    sources:[s('GIMP開発者ドキュメント：GIMP Palette形式（.gpl）',GIMP_GPL),s('Lospec：PICO-8パレットとダウンロード形式',LOSPEC.pico)]}
+  }
+ },
+ // ───────────────────────────────────────────────────────────────── palette swap / ramps
+ 'game/palette-swap-ramp':{
+  type:'create',
+  intent:{primary:'recolour a pixel-art sprite by swapping whole shading ramps (palette swap, team colours)',secondary:['map a ramp by lightness position, not nearest colour','generate a target ramp from one base colour','team colour variants for every frame','status tints (frozen, poison)'],
+   goal:'recoloured frames where every shade keeps its place in the ramp, one set per team colour',
+   input:'PNG frames of a sprite',output:'recoloured PNG frames; team variants as a ZIP with one folder and one .gpl per variant',
+   target:'any engine that loads PNG frames',support:'full',
+   evidence:['src/game/palette.js rampMap(), generateRamp() (hueShift 12, chromaCurve .35), teamVariants(), hueReplace(), STATUS_PRESETS','docs/PIXEL-LAB.md §4 and Verification (4 variants × 8 frames: 3 slots changed, 13 byte-identical)','src/studio/workspaces/pixel/panels.js variantsDialog (Studio alternative)'],
+   external:['Aseprite docs: Replace Color (tolerance, Selected/All)']},
+  en:{
+   answer:'A palette swap recolours a sprite by mapping each colour of one shading ramp onto the step in the same position of another ramp: the darkest red of a cloak becomes the darkest blue, the highlight becomes the highlight, and nothing else changes. In the Pixel Lab\'s Recolour stage you select the source colours, generate a target ramp from one base colour (or pick one), and apply it to every frame; team variants (red, blue, green, yellow or any #RRGGBB) export as one ZIP with a folder and a .gpl per variant.',
+   concept:{title:'Map by position in the ramp, never by nearest colour',body:[
+    'Replacing each colour by its nearest match in the new palette breaks shading: two neighbouring shades of red can both land on the same blue, and a light red can land on a darker blue than its shadow. The Lab sorts the selected source colours by Oklab lightness and maps them onto the target ramp by position, so the first becomes the darkest target, the last the lightest, and the order cannot invert.',
+    'A target ramp can be generated from a single base colour. It keeps the source ramp\'s lightness steps, takes the base colour\'s hue and chroma (so the base\'s own lightness is not used), boosts chroma in the mid-tones and rotates hue by up to 12° across the ramp, darker end one way and lighter end the other. The result is a starting point to adjust, not a finished art decision.',
+    'Every recolour is a palette transform: a pixel keeps its palette index and only the colour behind the index changes. Two frames that shared a shade still share it, which is why the swap cannot introduce flicker or stray colours between frames.'],
+    terms:[['Ramp swap','Mapping selected source colours onto a target ramp by their position from dark to light.'],['Team variant','The same sprite recoloured with a different base colour for each team or player.'],['Hue window','A range of hues (centre ± degrees) whose colours are replaced while keeping their own lightness.'],['Status tint','A recipe that pulls every colour toward one hue (frozen, poison, burn, ghost, damage flash).']]},
+   example:{title:'Example: a red cloak ramp turned into team blue',lead:'Computed with the Lab\'s own functions (L = Oklab lightness, h = hue):',lines:[
+    'source (red cloak)   #5a1e28 L0.33 h13 | #a02c3a L0.48 h18 | #dc5a50 L0.63 h27 | #f5a08c L0.79 h34',
+    'base: team blue      #3467d6 (L0.54 is ignored; hue 263°, chroma 0.18 are used)',
+    'generated ramp       #002d8c L0.35 | #004ed5 L0.48 | #4f7bff L0.62 | #99acff L0.76',
+    'hue along the ramp   262° → 262° → 267° → 273°',
+    'mapping by position  darkest→darkest … lightest→lightest; black and white untouched',
+    '3 colours onto a 5-step ramp: positions 0, 0.5, 1 → steps 0, 2, 4',
+    'test: 4 variants × 8 frames = 32 PNGs; 3 selected slots changed, 13 byte-identical'],
+    after:'The generated lightness follows the source within 0.03; the lightest blue lands a little lower because sRGB cannot hold that blue at full chroma. Nudge it by hand if the highlight looks dull.'},
+   verify:{title:'Check a swap',steps:[
+    'Before applying, compare the source and target swatches side by side: both rows should run dark to light.',
+    'Step through the frames: every frame should change only the selected colours, and outlines, skin and eyes stay as they were.',
+    'Open one variant\'s .gpl: the untouched slots have the original colours in the original order.',
+    'Put the variants next to each other at 1×: the teams should be distinguishable at game size, not only zoomed in.']},
+   trouble:{rows:[
+    ['The shading came out inverted or flat','A colour outside the ramp (outline, skin) was selected with it','The selected swatches do not form one dark-to-light sequence','Select only the ramp\'s colours; the order you click in does not matter, lightness decides'],
+    ['Other parts changed colour too','The cloak shares a palette entry with another part of the sprite','Select that swatch and compare its pixel count with the cloak alone: other parts use it too','Give that part its own colour first (for example in the Studio\'s Pixel workspace), then swap'],
+    ['The team colour is much darker or lighter than the base I picked','The generated ramp keeps the source lightness steps and uses only the base\'s hue and chroma','Compare the base swatch with the middle of the generated ramp','Pick a target ramp by hand, or choose a base with the hue you want and adjust the steps'],
+    ['The hue window catches too much or nothing','The window (± degrees) is too wide or too narrow, and near-grey colours are ignored','The preview marks the matching colours with a tick','Narrow or widen the window; greys need the ramp swap instead']]},
+   alternatives:{rows:[
+    ['Team-colour variants in the Studio\'s Pixel workspace','The sprite has layers and tags: variants apply to every frame and layer and each becomes a new sprite; in an indexed sprite a single palette edit recolours every frame. See [[game/pixel-art-palette-editor|the palette editor]].'],
+    ['One-colour palette swap with a tolerance','You only need to replace a single colour, with a shading offset: [[palette-swap|palette swap]].'],
+    ['Aseprite: Edit › Replace Color','You work in Aseprite and replace colours one at a time, with a tolerance, on the selection or on all cels.']]},
+   limits:['Variants export as PNG frames and .gpl files, not as .aseprite.','One palette for all loaded frames: a sheet with two unrelated characters must be split first.','Status presets are recipes, not authored art.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md (Chromium; 4 team variants × 8 frames exported as 32 PNGs in 4 folders, each changing exactly the 3 selected palette slots and leaving the other 13 byte-identical). The ramp above was computed with src/game/palette.js. Aseprite\'s Replace Color follows its documentation.'],
+    sources:[s('Aseprite docs: Replace Color',A.replace)]}
+  },
+  ko:{
+   answer:'팔레트 교체는 명암 램프의 각 색을 다른 램프의 같은 위치 단계로 옮겨 스프라이트를 다시 칠합니다. 망토의 가장 어두운 빨강은 가장 어두운 파랑이 되고, 하이라이트는 하이라이트가 되며, 나머지는 바뀌지 않습니다. 픽셀 랩의 재채색 단계에서 원본 색을 고르고, 기준 색 하나로 목표 램프를 만들거나 직접 골라 모든 프레임에 적용합니다. 팀 변형(빨강·파랑·초록·노랑 또는 임의 #RRGGBB)은 변형마다 폴더와 .gpl이 든 ZIP 하나로 내보냅니다.',
+   concept:{title:'가장 가까운 색이 아니라 램프 속 위치로 옮기기',body:[
+    '색마다 새 팔레트에서 가장 가까운 색으로 바꾸면 명암이 깨집니다. 이웃한 빨강 두 단계가 같은 파랑으로 가 버리거나, 밝은 빨강이 그림자보다 더 어두운 파랑으로 갈 수 있습니다. 랩은 고른 원본 색을 Oklab 명도로 정렬한 뒤 위치대로 목표 램프에 대응시킵니다. 첫 색은 목표의 가장 어두운 색, 마지막 색은 가장 밝은 색이 되고 순서가 뒤집힐 수 없습니다.',
+    '목표 램프는 기준 색 하나로 만들 수 있습니다. 원본 램프의 명도 간격은 그대로 두고, 기준 색의 색상과 채도만 가져오며(기준 색 자체의 명도는 쓰지 않음), 중간 톤의 채도를 높이고 램프를 따라 색상을 최대 12°까지 한쪽 끝은 이쪽, 다른 끝은 저쪽으로 돌립니다. 결과는 다듬기 위한 출발점이지 완성된 아트 결정이 아닙니다.',
+    '모든 재채색은 팔레트 변환입니다. 픽셀은 팔레트 번호를 그대로 유지하고 그 번호 뒤의 색만 바뀝니다. 같은 명암을 쓰던 두 프레임은 계속 같은 명암을 쓰므로, 교체 때문에 프레임 사이에 깜박임이나 튀는 색이 생길 수 없습니다.'],
+    terms:[['램프 교체','고른 원본 색을 어두운 것부터 밝은 것까지의 위치대로 목표 램프에 대응시키는 것.'],['팀 변형','팀이나 플레이어마다 기준 색을 달리해 같은 스프라이트를 다시 칠한 것.'],['색상 범위','중심 ± 각도로 정한 색상 구간. 그 안의 색은 자기 명도를 유지한 채 바뀜.'],['상태 색조','모든 색을 한 색상 쪽으로 당기는 레시피(얼음, 독, 화상, 유령, 피격 번쩍임).']]},
+   example:{title:'예시: 빨간 망토 램프를 팀 파랑으로',lead:'랩의 함수로 직접 계산한 값입니다(L = Oklab 명도, h = 색상).',lines:[
+    '원본(빨간 망토)      #5a1e28 L0.33 h13 | #a02c3a L0.48 h18 | #dc5a50 L0.63 h27 | #f5a08c L0.79 h34',
+    '기준: 팀 파랑        #3467d6 (L0.54는 무시, 색상 263°와 채도 0.18을 사용)',
+    '만들어진 램프        #002d8c L0.35 | #004ed5 L0.48 | #4f7bff L0.62 | #99acff L0.76',
+    '램프를 따른 색상     262° → 262° → 267° → 273°',
+    '위치로 대응          가장 어두운 것→가장 어두운 것 … 가장 밝은 것→가장 밝은 것, 검정·흰색은 그대로',
+    '3색을 5단계 램프로: 위치 0, 0.5, 1 → 단계 0, 2, 4',
+    '시험: 변형 4개 × 프레임 8장 = PNG 32장, 고른 3칸만 바뀌고 13칸은 바이트 그대로'],
+    after:'만들어진 명도는 원본과 0.03 이내로 맞습니다. 가장 밝은 파랑이 조금 낮게 나온 것은 sRGB가 그 파랑을 최대 채도로 담지 못하기 때문입니다. 하이라이트가 칙칙해 보이면 손으로 조금 올리세요.'},
+   verify:{title:'교체 결과 확인하기',steps:[
+    '적용하기 전에 원본과 목표 견본을 나란히 봅니다. 두 줄 모두 어두운 것에서 밝은 것으로 이어져야 합니다.',
+    '프레임을 넘겨 봅니다. 모든 프레임에서 고른 색만 바뀌고 외곽선·피부·눈은 그대로여야 합니다.',
+    '변형 하나의 .gpl을 엽니다. 건드리지 않은 칸은 원래 색이 원래 순서대로 있어야 합니다.',
+    '변형들을 1배로 나란히 놓습니다. 확대해서가 아니라 게임 크기에서 팀이 구별돼야 합니다.']},
+   trouble:{rows:[
+    ['명암이 뒤집히거나 밋밋해짐','램프가 아닌 색(외곽선, 피부)까지 함께 골랐음','고른 견본이 어두운 것에서 밝은 것으로 한 줄로 이어지지 않음','램프의 색만 고르기. 클릭 순서는 상관없고 명도가 순서를 정함'],
+    ['다른 부분 색까지 바뀜','망토가 스프라이트의 다른 부분과 팔레트 칸을 함께 씀','그 견본을 골라 픽셀 수를 망토만의 면적과 비교하면 다른 부분도 쓰고 있음','먼저 그 부분에 따로 색을 주고(예: Studio 픽셀 작업 공간) 교체'],
+    ['팀 색이 고른 기준 색보다 훨씬 어둡거나 밝음','만들어진 램프는 원본 명도 간격을 유지하고 기준 색에서는 색상과 채도만 씀','기준 견본과 만들어진 램프의 가운데를 비교','목표 램프를 직접 고르거나, 원하는 색상의 기준을 골라 단계를 조정'],
+    ['색상 범위가 너무 많이 잡거나 아무것도 못 잡음','범위(± 각도)가 너무 넓거나 좁고, 회색에 가까운 색은 무시됨','미리보기에서 해당 색에 체크 표시가 붙음','범위를 좁히거나 넓히기. 회색은 램프 교체로']]},
+   alternatives:{rows:[
+    ['Studio 픽셀 작업 공간의 팀 색 변형','레이어와 태그가 있는 스프라이트라면. 변형이 모든 프레임과 레이어에 적용되고 각각 새 스프라이트가 되며, 인덱스 스프라이트는 팔레트 한 번 수정으로 모든 프레임이 바뀝니다. [[game/pixel-art-palette-editor|팔레트 편집기]] 참고.'],
+    ['허용 오차가 있는 한 색 교체','색 하나만 명암 오프셋과 함께 바꾸면 될 때: [[palette-swap|팔레트 교체]].'],
+    ['에이스프라이트: Edit › Replace Color','에이스프라이트에서 작업하며 색을 하나씩, 허용 오차를 두고 선택 영역이나 모든 셀에서 바꿀 때.']]},
+   limits:['변형은 PNG 프레임과 .gpl로 내보내며 .aseprite는 아닙니다.','불러온 모든 프레임에 팔레트 하나를 씁니다. 관련 없는 캐릭터 둘이 든 시트는 먼저 나눠야 합니다.','상태 프리셋은 레시피이지 직접 그린 아트가 아닙니다.'],
+   versions:{body:['Nerulio: docs/PIXEL-LAB.md(Chromium. 팀 변형 4개 × 프레임 8장을 폴더 4개의 PNG 32장으로 내보냈고, 각각 고른 팔레트 3칸만 바뀌고 나머지 13칸은 바이트 그대로였음). 위 램프는 src/game/palette.js로 계산했습니다. 에이스프라이트의 Replace Color 설명은 공식 문서를 따릅니다.'],
+    sources:[s('Aseprite 문서: Replace Color',A.replace)]}
+  },
+  ja:{
+   answer:'パレットスワップは、陰影のランプの各色を別のランプの同じ位置の段へ置き換えてスプライトの色を変えます。マントの最も暗い赤は最も暗い青に、ハイライトはハイライトになり、ほかは変わりません。ピクセルラボの色替えの工程で元の色を選び、基準色1つから目標ランプを作るか自分で選んで、全フレームに適用します。チームの色違い（赤・青・緑・黄、または任意の#RRGGBB）は、色違いごとのフォルダーと.gplが入ったZIP1つで書き出します。',
+   concept:{title:'最も近い色ではなく、ランプ内の位置で置き換える',body:[
+    '色ごとに新しいパレットで最も近い色へ置き換えると、陰影が崩れます。隣り合う赤の2段が同じ青になったり、明るい赤が影よりも暗い青になったりします。ラボは選んだ元の色をOklabの明度で並べ、位置で目標ランプに対応づけます。最初の色は目標の最も暗い色、最後の色は最も明るい色になり、順番が逆転することはありません。',
+    '目標ランプは基準色1つから作れます。元のランプの明度の段差はそのまま、基準色の色相と彩度だけを使い（基準色そのものの明度は使わない）、中間調の彩度を上げ、ランプに沿って色相を最大12°、暗い端と明るい端で逆向きに回します。結果は調整のための出発点で、完成したアートの判断ではありません。',
+    '色替えはすべてパレットの変換です。ピクセルはパレット番号を保ち、番号の裏の色だけが変わります。同じ陰影を使っていた2フレームは同じ陰影のままなので、スワップによってフレーム間にちらつきや飛んだ色が生じることはありません。'],
+    terms:[['ランプの置き換え','選んだ元の色を、暗い順から明るい順の位置で目標ランプに対応づけること。'],['チームの色違い','チームやプレイヤーごとに基準色を変えて、同じスプライトを色替えしたもの。'],['色相範囲','中心 ± 角度で決める色相の区間。範囲内の色は自分の明度を保って置き換わる。'],['状態の色味','すべての色を1つの色相へ寄せるレシピ（凍結、毒、炎上、ゴースト、被弾フラッシュ）。']]},
+   example:{title:'例：赤いマントのランプをチームの青に',lead:'ラボの関数で計算した値です（L = Oklabの明度、h = 色相）。',lines:[
+    '元（赤いマント）     #5a1e28 L0.33 h13 | #a02c3a L0.48 h18 | #dc5a50 L0.63 h27 | #f5a08c L0.79 h34',
+    '基準：チームの青     #3467d6（L0.54は無視、色相263°と彩度0.18を使用）',
+    '作られたランプ       #002d8c L0.35 | #004ed5 L0.48 | #4f7bff L0.62 | #99acff L0.76',
+    'ランプに沿った色相   262° → 262° → 267° → 273°',
+    '位置で対応           最も暗い→最も暗い … 最も明るい→最も明るい、黒と白はそのまま',
+    '3色を5段のランプへ：位置0、0.5、1 → 段0、2、4',
+    'テスト：色違い4つ × 8フレーム = PNG 32枚、選んだ3枠だけが変わり13枠はバイト一致'],
+    after:'作られた明度は元と0.03以内で一致します。最も明るい青が少し低いのは、sRGBがその青を最大の彩度で表せないためです。ハイライトがくすんで見えるなら手で少し上げてください。'},
+   verify:{title:'スワップを確認する',steps:[
+    '適用する前に、元と目標の見本を並べて見ます。どちらの列も暗い色から明るい色へ続くはずです。',
+    'フレームを送ります。どのフレームでも選んだ色だけが変わり、縁取り・肌・目はそのままのはずです。',
+    '色違い1つの.gplを開きます。触れていない枠は元の色が元の順で並ぶはずです。',
+    '色違いを等倍で並べます。拡大時だけでなく、ゲームの大きさでチームを見分けられるはずです。']},
+   trouble:{rows:[
+    ['陰影が逆転した・平板になった','ランプ以外の色（縁取り、肌）も一緒に選んでいる','選んだ見本が暗い順から明るい順の1列になっていない','ランプの色だけを選ぶ。クリックの順は関係なく、明度が順番を決める'],
+    ['ほかの部分の色まで変わった','マントがスプライトの別の部分とパレットの枠を共有している','その見本を選び、ピクセル数をマントだけの面積と比べると、ほかの部分でも使われている','先にその部分へ別の色を割り当ててから（例：Studioのピクセル作業画面）スワップ'],
+    ['チームの色が選んだ基準色よりずっと暗い・明るい','作られたランプは元の明度の段差を保ち、基準色からは色相と彩度だけを使う','基準の見本と作られたランプの中央を比べる','目標ランプを手で選ぶか、欲しい色相の基準を選んで段を調整'],
+    ['色相範囲が拾いすぎる・何も拾わない','範囲（± 角度）が広すぎるか狭すぎ、灰色に近い色は無視される','プレビューで該当する色にチェックが付く','範囲を狭める・広げる。灰色はランプの置き換えで']]},
+   alternatives:{rows:[
+    ['Studioのピクセル作業画面のチームカラー','レイヤーとタグのあるスプライトなら。色違いは全フレーム・全レイヤーに適用され、それぞれ新しいスプライトになり、インデックスのスプライトならパレットを1回直すだけで全フレームが変わります。[[game/pixel-art-palette-editor|パレットエディタ]]を参照。'],
+    ['許容範囲つきの単色スワップ','1色だけを陰影オフセット付きで置き換えれば済むなら：[[palette-swap|パレットスワップ]]。'],
+    ['Aseprite：Edit › Replace Color','Asepriteで作業していて、色を1つずつ許容範囲付きで、選択範囲か全セルで置き換えるとき。']]},
+   limits:['色違いはPNGフレームと.gplで書き出し、.asepriteではありません。','読み込んだ全フレームに1つのパレットを使います。無関係なキャラ2体が入ったシートは先に分けてください。','状態のプリセットはレシピで、描き起こしたアートではありません。'],
+   versions:{body:['Nerulio：docs/PIXEL-LAB.md（Chromium。チームの色違い4つ × 8フレームを4フォルダーのPNG 32枚で書き出し、それぞれ選んだパレット3枠だけが変わり残り13枠はバイト一致）。上のランプはsrc/game/palette.jsで計算しました。AsepriteのReplace Colorの説明は公式ドキュメントに基づきます。'],
+    sources:[s('Asepriteドキュメント：Replace Color',A.replace)]}
+  }
  }
 };
