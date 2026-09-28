@@ -6,7 +6,8 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,signInUrl} from './ui.js';
 import {compact} from './format.js';
-import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,SORTS} from '../db/channel.js';
+import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,relatedChannels,SORTS} from '../db/channel.js';
+import {PREDICATES} from '../schema.js';
 import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
@@ -39,8 +40,9 @@ export async function loadChannel(db,entity,o){
  const titles=await recentTitles(db,entity.id,o.now-2*864e5);
  const counts=await contentCounts(db,entity.id);
  const bestMin=await channelBestThreshold(db,entity.id,o.now);
+ const relatedList=await relatedChannels(db,entity.id,8);
  const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
- return {entity,ctx,panel,data,index,bestMin,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ return {entity,ctx,panel,data,index,bestMin,relatedList,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -101,7 +103,8 @@ ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard
 ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;
  const toolIds=(ENTITY_TOOLS[e.id]||(e.type==='game'?[]:td?.tools||[])).filter(id=>id in TOOL_PATHS);
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';
- const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${tools}</aside></div>`;
+ const rel=m.relatedList.length?box({title:s.related},html`<ul class="rows">${m.relatedList.map(r=>{const pd=/** @type {any} */(PREDICATES)[r.predicate];const how=pd?label(r.dir==='out'?pd:pd.inverse,l):'';return html`<li><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a><span class="fine">${how}</span></li>`;})}</ul>`):'';
+ const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${rel}${tools}</aside></div>`;
  const title=l==='ko'?`${name} 채널 — 소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
  const description=desc||(l==='ko'?`${name}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
  const other=l==='ko'?'en':'ko';

@@ -371,3 +371,12 @@ export async function relatedManyIn(db,ids,predicate){
  for(const r of rows){const l=out.get(r.to_id)||[];l.push(entityRow(r));out.set(r.to_id,l);}
  return out;
 }
+/** Channels linked to this one by any relation, both directions, with the predicate (sidebar
+ * "관련 채널"). @param {D1} db @param {string} id @param {number} [limit] */
+export async function relatedChannels(db,id,limit=8){
+ const cols=ENTITY_COLS.split(',').map(c=>'e.'+c).join(',');
+ const rows=await all(db,`SELECT * FROM (SELECT r.predicate,'out' AS dir,${cols} FROM relations r JOIN entities e ON e.id=r.object_id WHERE r.subject_id=? AND r.valid_until IS NULL AND e.status='active'
+  UNION ALL SELECT r.predicate,'in' AS dir,${cols} FROM relations r JOIN entities e ON e.id=r.subject_id WHERE r.object_id=? AND r.valid_until IS NULL AND e.status='active') LIMIT ?`,[id,id,limit*4]);
+ const seen=new Set();
+ return rows.filter(r=>seen.has(r.id)?false:(seen.add(r.id),true)).slice(0,limit).map(r=>({predicate:String(r.predicate),dir:/** @type {'in'|'out'} */(r.dir),entity:entityRow(r)}));
+}
