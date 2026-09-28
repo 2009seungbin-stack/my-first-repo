@@ -389,3 +389,7 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .go{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-left:4px solid var(--brand)}.go:hover{text-decoration:none;border-color:var(--brand)}.go b{font-size:15px}
 .mr .tm{width:48px}.mr .tt{white-space:normal;min-width:0}.mr .chn{flex:none;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 .mdt{border-collapse:collapse;font-size:13.5px;margin:6px 0;font-variant-numeric:tabular-nums}.mdt th,.mdt td{border:1px solid var(--line);padding:5px 10px;text-align:left}.mdt th{background:var(--bg);font-weight:700}.mdt .ar{text-align:right}.mdt .ac{text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chips .sp{flex:1}
+.chipf{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--ink2);background:var(--card)}
+.chipf:hover{text-decoration:none;border-color:var(--brand)}.chipf.on{background:var(--brand);border-color:var(--brand);color:#fff}.chipf.on .fine{color:inherit}
+@media (max-width:640px){.mt .nm{display:none}}

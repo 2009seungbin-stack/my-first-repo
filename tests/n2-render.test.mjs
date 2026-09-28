@@ -185,6 +185,9 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  for(const p of ['/ko/search/?q=claude','/ko/radar/','/ko/community/best/','/ko/community/report?target=discussion:abc'])assert.equal((await go(p)).status,200,p);
  const search=await (await go('/ko/search/?q=5070')).text();
  assert(search.includes('/ko/hardware/rtx-5070/'),'model numbers find the GPU channel');
+ const cheap=await (await go('/ko/ai/?type=model&org=anthropic&sort=cheap')).text();
+ assert(cheap.indexOf('Claude Haiku 4.5')<cheap.indexOf('Claude Sonnet 5')&&!cheap.includes('GPT-'),'company filter and cheapest-first sort');
+ assert.equal((await go('/ko/ai/?sort=cheap&org=anthropic&type=model')).headers.get('location'),'https://nerulio.com/ko/ai/?type=model&org=anthropic&sort=cheap');
  const gone=await go('/ko/ai/claude/999999');
  assert.equal(gone.status,404);assert((await gone.text()).includes('href="/ko/ai/claude/"'),'a missing post leads back to its channel');
  const both=await (await go('/ko/search/?q=5070+4070')).text();

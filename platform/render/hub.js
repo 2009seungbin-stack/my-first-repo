@@ -13,7 +13,7 @@ import {verticalOf,typeDef} from '../verticals/index.js';
 import {label} from '../labels.js';
 
 export const HUB_PAGE_SIZE=60;
-/** @param {any} db @param {string} vertical @param {{l:string,now?:number,type?:string|null,page?:number,channels?:{name:string,href:string}[]}} o */
+/** @param {any} db @param {string} vertical @param {{l:string,now?:number,type?:string|null,org?:string|null,sort?:string|null,page?:number,channels?:{name:string,href:string}[]}} o */
 export async function loadHub(db,vertical,o){
  const v=verticalOf(vertical);if(!v)return null;
  const counts=await typeCounts(db,vertical);
@@ -43,7 +43,7 @@ export async function loadHub(db,vertical,o){
  if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=collapseVersions(await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:20}),o.l).slice(0,10);}
  if(type==='work'&&vertical==='subculture')now_.week=(await upcomingEvents(db,{from:now,to:now+7*864e5,vertical:'subculture',limit:60})).filter((/** @type {any} */ e)=>e.kind==='broadcast'||e.kind==='release');
  if(!type&&vertical==='subculture'){now_.events=await upcomingEvents(db,{from:now,to:now+14*864e5,vertical:'subculture',limit:10});now_.preorders=await preorderDeadlines(db,now,8);}
- return {vertical,v,type,page:pageNo,counts,groups,compare,now:now_,at:now,l:o.l,channels:o.channels||[]};
+ return {vertical,v,type,page:pageNo,counts,groups,compare,org:o.org||null,sort:o.sort||null,now:now_,at:now,l:o.l,channels:o.channels||[]};
 }
 /** @param {NonNullable<Awaited<ReturnType<typeof loadHub>>>} m @param {{origin:string}} site */
 export function renderHub(m,site){
@@ -73,13 +73,21 @@ ${list.map((/** @type {any} */ r)=>{const v=Number(r.f('vram_gb').value),price=r
 </tbody></table></div>`);
  }
  if(m.type==='plan'){
-  const list=rows.filter((/** @type {any} */ r)=>r.f('price_monthly')).sort((/** @type {any} */ a,/** @type {any} */ b)=>String(a.owner?.slug||'').localeCompare(String(b.owner?.slug||''))||String(a.f('price_monthly').unit||'USD').localeCompare(String(b.f('price_monthly').unit||'USD'))||Number(a.f('price_monthly').value)-Number(b.f('price_monthly').value));
-  return box({title:ko?`요금제 ${list.length}개`:`${list.length} plans`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'서비스':'Service'}</th><th>${ko?'요금제':'Plan'}</th><th>${ko?'월 요금':'Monthly'}</th><th>${ko?'연 요금':'Yearly'}</th><th>${ko?'최소 인원':'Min seats'}</th></tr></thead><tbody>
-${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_yearly'),seats=r.f('seats_min');return html`<tr><td>${r.owner?html`<a href="${channelUrl(l,r.owner)}">${nameOf(r.owner,l)}</a>`:'–'}</td><td><a href="${channelUrl(l,r.e)}">${nameOf(r.e,l)}</a></td><td><b>${money(Number(mo.value),mo.unit||'USD',l)}</b></td><td>${yr?money(Number(yr.value),yr.unit||'USD',l):'–'}</td><td>${seats?seats.value:'–'}</td></tr>`;})}
+  // Plans without a list price (Enterprise) stay in the table as "문의", so the count matches the tab.
+  const list=rows.slice().sort((/** @type {any} */ a,/** @type {any} */ b)=>(a.f('price_monthly')?0:1)-(b.f('price_monthly')?0:1)).sort((/** @type {any} */ a,/** @type {any} */ b)=>String(a.owner?.slug||'').localeCompare(String(b.owner?.slug||''))||(a.f('price_monthly')?0:1)-(b.f('price_monthly')?0:1)||String(a.f('price_monthly')?.unit||'USD').localeCompare(String(b.f('price_monthly')?.unit||'USD'))||Number(a.f('price_monthly')?.value)-Number(b.f('price_monthly')?.value));
+  return box({title:ko?`요금제 ${list.length}개`:`${list.length} plans`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'서비스':'Service'}</th><th>${ko?'요금제':'Plan'}</th><th>${ko?'월 요금':'Monthly'}</th><th>${ko?'연 요금':'Yearly'}</th><th class="nm">${ko?'최소 인원':'Min seats'}</th></tr></thead><tbody>
+${list.map((/** @type {any} */ r)=>{const mo=r.f('price_monthly'),yr=r.f('price_yearly'),seats=r.f('seats_min');return html`<tr><td>${r.owner?html`<a href="${channelUrl(l,r.owner)}">${nameOf(r.owner,l)}</a>`:'–'}</td><td><a href="${channelUrl(l,r.e)}">${nameOf(r.e,l)}</a></td><td>${mo?html`<b>${money(Number(mo.value),mo.unit||'USD',l)}</b>`:html`<span class="fine">${ko?'문의':'Contact'}</span>`}</td><td>${yr?money(Number(yr.value),yr.unit||'USD',l):'–'}</td><td class="nm">${seats?seats.value:'–'}</td></tr>`;})}
 </tbody></table></div>`);
  }
- const list=rows.filter((/** @type {any} */ r)=>r.f('api_input_price')&&['active','preview',undefined].includes(r.f('status')?.value)).sort((/** @type {any} */ a,/** @type {any} */ b)=>Number(b.f('api_input_price').value)-Number(a.f('api_input_price').value));
- return box({title:ko?`API로 쓸 수 있는 모델 ${list.length}개`:`${list.length} models with API prices`},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'회사':'Provider'}</th><th>${ko?'입력':'Input'}</th><th>${ko?'출력':'Output'}</th><th>${ko?'캐시 입력':'Cached'}</th><th>${ko?'컨텍스트':'Context'}</th><th>${ko?'출시':'Released'}</th></tr></thead><tbody>
+ const live=rows.filter((/** @type {any} */ r)=>r.f('api_input_price')&&['active','preview',undefined].includes(r.f('status')?.value));
+ /** @type {Map<string,{e:any,n:number}>} */const orgs=new Map();for(const r of live)if(r.owner){const o=orgs.get(r.owner.slug)||{e:r.owner,n:0};o.n++;orgs.set(r.owner.slug,o);}
+ const org=m.org&&orgs.has(m.org)?m.org:null;
+ const price=(/** @type {any} */ r)=>Number(r.f('api_input_price').value);
+ const list=live.filter((/** @type {any} */ r)=>!org||r.owner?.slug===org).sort((/** @type {any} */ a,/** @type {any} */ b)=>m.sort==='cheap'?price(a)-price(b):m.sort==='new'?String(b.f('release_date')?.value||'').localeCompare(String(a.f('release_date')?.value||'')):price(b)-price(a));
+ const q=(/** @type {string|null} */ o,/** @type {string|null} */ so)=>`?type=model${o?`&org=${o}`:''}${so?`&sort=${so}`:''}`;
+ const chips=html`<div class="chips pad">${[[null,ko?'전체':'All',live.length],...[...orgs.values()].sort((a,b)=>b.n-a.n).map(o=>[o.e.slug,nameOf(o.e,l),o.n])].map(([slug,name,n])=>html`<a class="chipf${(slug||null)===org?' on':''}" href="${q(/** @type {any} */(slug),m.sort)}">${name} <span class="fine">${n}</span></a>`)}
+<span class="sp"></span>${[[null,ko?'비싼 순':'Priciest'],['cheap',ko?'싼 순':'Cheapest'],['new',ko?'최신순':'Newest']].map(([so,name])=>html`<a class="chipf${(so||null)===(m.sort||null)?' on':''}" href="${q(org,/** @type {any} */(so))}">${name}</a>`)}</div>`;
+ return box({title:ko?`API로 쓸 수 있는 모델 ${list.length}개`:`${list.length} models with API prices`},html`${chips}<div class="tw"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'회사':'Provider'}</th><th>${ko?'입력':'Input'}</th><th>${ko?'출력':'Output'}</th><th>${ko?'캐시 입력':'Cached'}</th><th>${ko?'컨텍스트':'Context'}</th><th>${ko?'출시':'Released'}</th></tr></thead><tbody>
 ${list.map((/** @type {any} */ r)=>{const i=r.f('api_input_price'),o=r.f('api_output_price'),c=r.f('api_cached_input_price'),ctx=r.f('context_window'),rel=r.f('release_date');return html`<tr><td><a href="${channelUrl(l,r.e)}"><b>${nameOf(r.e,l)}</b></a></td><td>${r.owner?nameOf(r.owner,l):'–'}</td><td>${money(Number(i.value),i.unit||'USD',l)}</td><td>${o?money(Number(o.value),o.unit||'USD',l):'–'}</td><td>${c?money(Number(c.value),c.unit||'USD',l):'–'}</td><td>${ctx?tokens(Number(ctx.value)):'–'}</td><td>${rel?isoDateText(String(rel.value)):'–'}</td></tr>`;})}
 </tbody></table></div><p class="fine pad">${ko?'가격은 100만 토큰당 USD. 모델 이름을 누르면 가격 변경 이력이 있습니다.':'USD per 1M tokens. Open a model for its price history.'}</p>`);
 }
