@@ -636,12 +636,12 @@
     {
      "p": "plugin_formats",
      "v": [
-      "VST3",
+      "VST",
       "CLAP"
      ],
      "ver": "OFFICIAL",
      "src": "src:bitwig-overview",
-     "note": "Overview says \"VST/CLAP plug-ins\"; the VST version(s) are not itemised there."
+     "note": "Overview says \"VST/CLAP plug-ins\"; the VST version(s) are not itemised there (\"VST\" = version unspecified)."
     },
     {
      "p": "license_model",
