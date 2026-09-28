@@ -7,7 +7,6 @@ import * as ST from '../game/ui-states.js';
 import * as BM from '../game/bmfont.js';
 import {parseBdf} from '../game/font-bdf.js';
 import * as FP from '../game/font-project.js';
-import {writePixelTtf} from '../game/font-ttf.js';
 import {HANGUL_COUNT,ksX1001Hangul,estimateGlyphAtlas} from '../game/font-hangul.js';
 import * as SDF from '../game/sdf.js';
 import * as LAY from '../game/ui-layout.js';
@@ -706,7 +705,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    textFile('README.txt',T(f.mode==='draw'?'fontReadmeV2':'fontReadme'))];
   if(f.mode==='draw'&&f.project){
    entries.push(jsonFile('font-project.json',f.project));
-   try{entries.push({name:'font.ttf',blob:new Blob([writePixelTtf(f.project)],{type:'font/ttf'})},textFile('TTF-NOTES.txt',T('fontTtfNote')));}
+   try{entries.push({name:'font.ttf',blob:new Blob([await writeTtfInWorker(f.project)],{type:'font/ttf'})},textFile('TTF-NOTES.txt',T('fontTtfNote')));}
    catch(error){entries.push(textFile('TTF-UNAVAILABLE.txt',T('fontTtfUnavailable',{reason:error.message})));}
   }
   if(f.sdf){
@@ -715,6 +714,19 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    Im.release(sdfSheet.canvas);
   }
   await save(entries,'bitmap-font.zip');
+ }
+ function writeTtfInWorker(project){
+  return new Promise((resolve,reject)=>{
+   if(typeof Worker==='undefined'){reject(Error('Web Worker unavailable'));return;}
+   let worker;
+   try{worker=new Worker(new URL('../game/font-ttf-worker.js',import.meta.url),{type:'module'});}
+   catch(error){reject(error);return;}
+   const done=(error,buffer)=>{clearTimeout(timeout);worker.terminate();error?reject(error):resolve(buffer);};
+   const timeout=setTimeout(()=>done(Error('TTF worker timed out after 30 seconds')),30000);
+   worker.onmessage=event=>event.data?.error?done(Error(event.data.error)):done(null,event.data.buffer);
+   worker.onerror=event=>done(Error(event.message||'TTF worker failed'));
+   worker.postMessage(project);
+  });
  }
  /** Per-glyph signed distance field: each glyph's own padded cell is rasterised at 4×, the exact
   * distance transform runs on that cell alone (so a neighbour can never bleed into its ramp),
