@@ -27,7 +27,8 @@ import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
-import {channelUrl,nameOf} from '../../platform/render/ui.js';
+import {channelUrl,nameOf,page} from '../../platform/render/ui.js';
+import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
@@ -131,7 +132,16 @@ export async function renderPlatformPage(request,env,site){
   case 'local-llm':return entity.type==='gpu'?html(String(renderLocalLlm(await loadLocalLlm(db,entity,{l,now,channels}),s))):null;
   case 'status':return entity.type==='service'?html(String(renderStatus(await loadStatus(db,entity,{l,now,channels}),s))):null;
   case 'write':return html(String(renderWrite(await loadWrite(db,entity,{l,kind:q.get('kind'),channels}),s)));
-  case 'post':{const m=await loadPost(db,entity,/** @type {number} */(route.no),{l,now,channels});return m?html(String(renderPost(m,s))):null;}
+  case 'post':{
+   const m=await loadPost(db,entity,/** @type {number} */(route.no),{l,now,channels});
+   if(m)return html(String(renderPost(m,s)));
+   // A deleted or hidden post (or a number never used) in a real channel: say so and lead back to
+   // the channel, with a real 404 status so search engines drop the URL.
+   const ko=l==='ko',base=channelUrl(l,entity);
+   const body=page({l,title:ko?'글을 찾을 수 없습니다 | Nerulio':'Post not found | Nerulio',description:'',canonical:s.origin+base,noindex:true,channels,
+    body:rawHtml`<div class="narrow"><section class="box"><div class="bh"><h1 class="wt">${ko?'삭제되었거나 숨겨진 글입니다':'This post was deleted or hidden'}</h1></div><p class="empty">${ko?'작성자가 삭제했거나, 신고로 임시조치된 글일 수 있어요.':'The author deleted it, or it was hidden after a report.'}</p><p class="pad"><a class="btn p" href="${base}">${ko?`${nameOf(entity,l)} 채널로 가기 ›`:`Go to ${nameOf(entity,l)} ›`}</a></p></section></div>`});
+   return new Response(String(body),{status:404,headers:{...PAGE_HEADERS,'cache-control':CACHE_CONTROL}});
+  }
  }
  return html(String(renderChannel(await loadChannel(db,entity,{l,now,kind:q.get('kind'),sort:q.get('sort')||'new',best:q.get('best')==='1',page:Number(q.get('page'))||1,channels}),s)));
 }
