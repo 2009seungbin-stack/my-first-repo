@@ -7,7 +7,7 @@ CORPUS=ROOT/'tests'/'fixtures'/'store-art'
 OUT=ROOT/'test-results'/'store-art';OUT.mkdir(parents=True,exist_ok=True)
 JPEG=CORPUS/'scribe-space-key-art-4k.jpg';LOGO=CORPUS/'alloy-transparent-logo.png'
 SHOTS=[CORPUS/f'kenney-gameplay-{i:02d}.png' for i in range(1,6)]
-BASE=os.environ.get('STORE_ART_URL','http://127.0.0.1:4702')
+BASE=os.environ.get('STORE_ART_URL','http://127.0.0.1:4173')
 ART=OUT/'scribe-space-key-art-4k.png'
 Image.open(JPEG).save(ART)
 results={}
