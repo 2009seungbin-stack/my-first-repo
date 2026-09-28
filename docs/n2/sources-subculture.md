@@ -83,8 +83,87 @@ release month; re-check monthly and on delay notices (history is kept by the dif
 
 ## 4. Coverage (2026-09-28)
 
-_Filled at integration — see §4 table below._
+**47 IPs (franchises)** across 9 seed files, **440 entities**, **780 facts** (734 OFFICIAL, 46 COMMUNITY =
+AniList ids), **670 relations**, **170 dated events** (144 upcoming or running on 2026-09-28), **303 sources**
+(298 OFFICIAL, 4 FEED, 1 CURATED). 161 entities carry an official Korean name.
+
+| Entity type | Count | | Event kind | Count |
+| --- | --- | --- | --- | --- |
+| franchise | 47 | | broadcast | 27 |
+| work | 84 | | release (films, games, volumes) | 19 |
+| character | 112 | | update (game versions) | 10 |
+| voice_actor | 66 | | event (conventions, fan events) | 27 |
+| studio_org | 41 | | collab / popup / exhibition | 9 / 3 / 3 |
+| creator | 36 | | merch_release / sale (pre-order windows) | 41 / 28 |
+| merchandise | 41 | | other | 3 |
+| event | 8 | | **date precision**: time 34 · day 84 · month 48 · year 4 | |
+| collaboration | 5 | | **region**: JP 130 · KR 28 · GLOBAL 12 | |
+
+| File | IPs | Highlights |
+| --- | --- | --- |
+| `anime-fall.json` | Apothecary Diaries, Black Clover, Blue Box, JoJo (SBR), Dragon Ball, Tokyo Revengers, Ranma ½, Cyberpunk, Aoashi, Mission: Yozakura Family, BLEACH | Fall 2026 premieres with JST times, Netflix KR / Laftel availability, casts with agency facts, Apothecary film 2026-12-11 (JP), BLEACH schedule changes, BLEACH FES. 2027 |
+| `kr-origin.json` | Solo Leveling, Overgeared, Returner's Magic, SSS-Class Revival Hunter, Tower of God, Omniscient Reader | Korean original titles from KakaoPage/Naver Webtoon, Overgeared on Laftel (KR 2026-10-02), Returner's Magic S2 (2026-10-08 00:45 JST), Solo Leveling games (ARISE OVERDRIVE on Steam, KARMA pre-registration) |
+| `jump.json` | One Piece, Chainsaw Man, JJK, Frieren, Demon Slayer, Sakamoto Days, Kaiju No. 8, Spy×Family, Dandadan, Oshi no Ko | THE ONE PIECE (Netflix, 2027-02), GOD VALLEY (2027) / BAAD (2029), Frieren S3 (2027-10), Sakamoto Days S2 (2027-01, Netflix KR), JJK exhibition, fan events |
+| `films.json` | Made in Abyss, Witch on the Holy Night, Rascal, Takopi, Medalist, Detective Conan, Haikyu!!, Madoka | JP release dates; **KR: Conan 29th film 2026-08-12 (Megabox), Madoka Walpurgisnacht Nov 2026 (Lotte Cinema)**; Conan 30th-anniversary exhibition at AK PLAZA Hongdae |
+| `games-a.json` | Genshin Impact, Honkai: Star Rail, Zenless Zone Zero, Wuthering Waves, NIKKE | Current versions (7.1 / 4.6 / 3.2 / 3.6 → 3.7 on 09-30), version windows, **HoYoLAND 2026 (KINTEX, 10-02–05)**, **HSR × Mega MGC Coffee (10-15–11-18)** |
+| `games-b.json` | Blue Archive, Limbus Company, Uma Musume (KR), Trickcal | BA 09-29 update (11:00–14:00 KST), Limbus 1.115.0, Trickcal 3rd anniversary (to 10-22) |
+| `game-characters.json` | Arknights, Fate | Arknights: Endfield on Steam (coming soon), FGO KR; characters referenced by figure pages |
+| `events.json` | Chiikawa (+ conventions) | **G-STAR 2026 (BEXCO 11-18–22), AGF Korea 2026 (KINTEX 12-04–06), ILLUSTAR FES 14 (10-10–11), Comic World ×4**, C109, AnimeJapan 2027, Jump Festa 2027, Aniplus collab cafés, JUMP SHOP Seoul pop-up |
+| `merch.json` | 15 IPs | 41 figures (GSC 27, ALTER 8, MegaHouse 6): JPY list price, pre-order window, shipping month |
+
+Live collector runs (2026-09-28):
+- `node tools/platform/collect.mjs --adapter steam-news-subculture` → 4 feeds, 0 validation errors, 2 works with
+  versions (ZZZ 3.2 @ 2026-09-09, Wuthering Waves 3.6 @ 2026-08-20) and 4 update events (Blue Archive 2026-09-29 announced).
+- `node tools/platform/collect.mjs --adapter anilist-schedule --limit 1000` → **1 request**, 46 works, 0 validation
+  errors, 17 upcoming broadcast/release events. It surfaced two disagreements with official sites, which is exactly
+  why its output is COMMUNITY-labelled: Aoashi S2 (AniList 23:00 vs NHK E-tele 17:00 official) and Tokyo Revengers
+  (01:53 vs 01:23 official).
+- `--limit 5` returns 0 entities because `collect.mjs` slices targets before the adapter filters for `anilist_id`
+  (the first five subculture targets are studios). See §5.
 
 ## 5. Known gaps, staleness and suggested core changes
 
-_Filled at integration._
+Gaps
+- **Korean theatrical dates** confirmed only for Detective Conan (2026-08-12) and Madoka (Nov 2026). No official Korean
+  release yet for Made in Abyss, Witch on the Holy Night, Rascal, Takopi, Medalist, Haikyu!!, the Apothecary film or
+  the Chiikawa film (press says 2026-09-30 via Daewon Media — unconfirmed, omitted).
+- The Madoka KR source is the X account 애니무비(ANI MOVIE) (@Animovie_ofc), which tags #애니플러스; no link from
+  aniplustv.com to the account was found — noted on the source.
+- Game characters for Genshin/HSR/ZZZ/WuWa are not seeded (official sites render CV credits client-side; time-boxed out).
+  NIKKE has one Korean CV credit (Rapi — 김보나, Korean official site).
+- Uma Musume KR, FGO KR and Arknights are thin (homepage/publisher only); no dated KR items verified.
+- VTubers (hololive, stellive) not defined: the franchise type allows only homepage/origin_media, so ≥3 official facts
+  were not reachable; the hololive FLOW GLOW Aniplus café is recorded as a collaboration without a franchise link.
+- AGF 2026 (Tokyo) skipped (organizer site 503). The December Comiket is **C109** (not C107).
+- Press-only Korean leads not seeded (manual pass needed): JJK café at AK PLAZA Hongdae (09-23–12-01), BLEACH TYBW café
+  Hongdae (to 10-11), Omniscient Reader animate café (to 10-13), JJK Phantom Parade pop-up, Haikyu!! SMG Store Suwon.
+- HSR × Mega MGC Coffee is sourced from a press report of HoYoverse Korea's announcement (`CURATED`); replace it with
+  the official post when found.
+- Some voice actors/studios have no facts beyond their roles; Japanese voice actors carry no Korean name (unofficial
+  transliterations were removed on purpose).
+- English romanisations not taken from an official English page: Park Saenal, Cha Hae-in, Desir Arman, Romantica Eru,
+  Kim Gongja (their Korean/Japanese names are sourced), and some descriptive English names of ALTER/MegaHouse products.
+
+Research-time access notes (not used by collectors): Laftel item pages were read via the JSON the page itself loads;
+Aniplus shop collab-café list via `api.aniplustv.com:3060/api/v2/offline-collabo`; ILLUSTAR via `api.illustar.net`;
+GSC pre-order calendar via `/en/calendar-preorder/list`. All are undocumented and were only observed responding — they
+are **not** automated. Jump Festa has a working RSS (`https://www.jumpfesta.com/feed/`), a candidate for a future FEED
+adapter. No manufacturer RSS was found (GSC `/en/news/rss` 500, ALTER `/rss/` 404, MegaHouse `/feed/` returns HTML).
+
+Staleness to watch: game version facts (fast SLA), BLEACH episode reschedules, the "coming soon" AGF Korea programme,
+figure shipping months (delays), the Arknights: Endfield Steam date.
+
+Suggested core changes
+1. `collectors/_runtime.js`: add `ctx.post(url, body, o)` with the same allowlist/politeness/snapshot handling —
+   GraphQL APIs (AniList) are POST-only; the AniList adapter carries a local helper until then.
+2. `tools/platform/validate-seed.mjs`: a relative directory argument loads each file twice (relative + absolute path)
+   and reports every entity as "also defined in" itself; normalise with `path.resolve`.
+3. `tools/platform/collect.mjs`: apply `--limit` after the adapter selects relevant targets (or let adapters declare a
+   target filter); avoid `process.exit()` right after `fetch` on Windows (libuv `UV_HANDLE_CLOSING` assertion, exit
+   code 127 after a successful run) — set `process.exitCode` instead.
+4. Seed format / ingest: document and ingest the event fields `date_precision`, `status` and `entity` (the event's own
+   page; the `events` table already has these columns). This vertical sets them on every event.
+5. Relation qualifiers: `voiced_by` needs a language/scope (Japanese original vs Korean dub); it is in `note` for now.
+6. Ingest de-duplication: a collector event (AUTOMATED/COMMUNITY) for the same entity + kind + day as a curated OFFICIAL
+   event should attach as corroboration instead of creating a second row.
+7. Renderers should honour `public:false` properties (`anilist_id`).
