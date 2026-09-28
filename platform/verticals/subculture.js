@@ -7,13 +7,13 @@ export default defineVertical({
  hubTypes:['franchise','work','character','event','collaboration','merchandise','voice_actor','creator','studio_org'],
  types:{
   franchise:{label:{en:'Franchise',ko:'프랜차이즈'},plural:{en:'Franchises',ko:'프랜차이즈'},icon:'layers',props:['homepage','origin_media'],sections:['overview','upcoming','works','characters','changes','community'],indexMin:3},
-  work:{label:{en:'Work',ko:'작품'},plural:{en:'Works',ko:'작품'},icon:'film',props:['media_type','release_date','end_date','airing_status','episodes','homepage'],sections:['overview','upcoming','characters','changes','community'],indexMin:3},
+  work:{label:{en:'Work',ko:'작품'},plural:{en:'Works',ko:'작품'},icon:'film',props:['media_type','release_date','end_date','airing_status','episodes','streaming_services','platforms','current_version','homepage','anilist_id','steam_appid'],sections:['overview','upcoming','characters','changes','community'],indexMin:3},
   character:{label:{en:'Character',ko:'캐릭터'},plural:{en:'Characters',ko:'캐릭터'},icon:'user',props:[],sections:['overview','upcoming','merch','changes','community'],indexMin:3},
   creator:{label:{en:'Creator',ko:'원작자'},plural:{en:'Creators',ko:'원작자'},icon:'pen',props:['homepage'],sections:['overview','works','changes'],indexMin:3},
   voice_actor:{label:{en:'Voice actor',ko:'성우'},plural:{en:'Voice actors',ko:'성우'},icon:'mic',props:['agency','homepage'],sections:['overview','roles','upcoming','changes'],indexMin:3},
   studio_org:{label:{en:'Studio',ko:'제작사'},plural:{en:'Studios',ko:'제작사'},icon:'building',props:['homepage'],sections:['overview','works','changes'],indexMin:3},
-  event:{label:{en:'Event',ko:'이벤트'},plural:{en:'Events',ko:'이벤트'},icon:'calendar',props:['homepage'],sections:['overview','changes','community'],indexMin:2},
-  collaboration:{label:{en:'Collaboration',ko:'콜라보'},plural:{en:'Collaborations',ko:'콜라보'},icon:'link',props:['homepage'],sections:['overview','changes','community'],indexMin:2},
+  event:{label:{en:'Event',ko:'이벤트'},plural:{en:'Events',ko:'이벤트'},icon:'calendar',props:['organizer','venue','homepage'],sections:['overview','changes','community'],indexMin:2},
+  collaboration:{label:{en:'Collaboration',ko:'콜라보'},plural:{en:'Collaborations',ko:'콜라보'},icon:'link',props:['organizer','venue','homepage'],sections:['overview','changes','community'],indexMin:2},
   merchandise:{label:{en:'Merchandise',ko:'굿즈'},plural:{en:'Merchandise',ko:'굿즈'},icon:'box',props:['manufacturer_name','price','preorder_start','preorder_end','release_date','homepage'],sections:['overview','changes','community'],indexMin:3},
  },
  properties:{
@@ -28,5 +28,13 @@ export default defineVertical({
   price:prop({en:'Price',ko:'가격'},'money',{volatility:'medium'}),
   preorder_start:prop({en:'Pre-order opens',ko:'예약 시작'},'date',{volatility:'medium'}),
   preorder_end:prop({en:'Pre-order closes',ko:'예약 마감'},'date',{volatility:'medium'}),
+ // Added by the subculture data wave (N2 wave 1):
+ streaming_services:prop({en:'Where to watch',ko:'시청 가능 서비스'},'list',{volatility:'medium'}),
+ platforms:prop({en:'Platforms',ko:'플랫폼'},'list',{volatility:'medium'}),
+ current_version:prop({en:'Current version',ko:'현재 버전'},'text',{volatility:'fast',group:'versions'}),
+ organizer:prop({en:'Organizer',ko:'주최'},'text',{volatility:'slow'}),
+ venue:prop({en:'Venue',ko:'장소'},'text',{volatility:'medium'}),
+ anilist_id:prop({en:'AniList id',ko:'AniList ID'},'number',{volatility:'static',public:false}),
+ steam_appid:prop({en:'Steam app id',ko:'Steam 앱 ID'},'number',{volatility:'static'}),
  },
 });
