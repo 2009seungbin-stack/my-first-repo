@@ -1,6 +1,6 @@
 # Pixel Art Converter & Cleanup Pro — design for coordinator review
 
-Status: **design only**, 2026-09-28, branch `nerulio/tool-t1-pixel` based on `origin/main` `cd1e69a`. No product implementation or new quality claim is authorized by this document. Dedicated development port: 4701. Review gate: coordinator approval before code.
+Status: **implementation in verification**, 2026-09-28, branch `nerulio/tool-t1-pixel` based on `origin/main` `cd1e69a`. The coordinator approved implementation after the design review. Measurements and remaining gaps are in `docs/PIXEL-CONVERTER-RESULTS.md`. Dedicated development port: 4701.
 
 ## 1. Product boundary and current baseline
 
