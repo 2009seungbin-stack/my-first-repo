@@ -288,7 +288,7 @@ ${s?`<div class="ui-suggest ${s.confident?'':'weak'}"><strong>${esc(T('suggestTi
 <div class="atlas-canvas" id="fontHost"><canvas id="fontCanvas"></canvas><svg id="fontSvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <div id="fontSampleWrap"><div class="view-head"><strong>${esc(T('fontSample'))}</strong></div>
 <div class="ui-fontsample"><canvas id="fontSampleCanvas"></canvas></div></div>
-${S.font.mode==='draw'?`<div class="view-head"><strong>${esc(T('fontEdit'))}</strong><span id="fontEditCode"></span></div><div class="ui-font-editor"><canvas id="fontEditCanvas" tabindex="0" role="img" aria-label="${esc(T('fontEditHelp'))}"></canvas></div><p class="hint">${esc(T('fontEditHelp'))}</p>`:''}
+${S.font.mode==='draw'?`<div class="view-head"><strong>${esc(T('fontEdit'))}</strong><span id="fontEditCode" role="status" aria-live="polite"></span></div><div class="ui-font-editor"><canvas id="fontEditCanvas" tabindex="0" aria-label="${esc(T('fontEditHelp'))}"></canvas></div><p class="hint">${esc(T('fontEditHelp'))}</p>`:''}
 <p class="viewer-note" id="fontNote"></p>`;
    },
    side(){
@@ -533,7 +533,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   if(S.font.rectStart){const a=S.font.rectStart,x=Math.min(a.x,S.font.editX),y=Math.min(a.y,S.font.editY),w=Math.abs(a.x-S.font.editX)+1,h=Math.abs(a.y-S.font.editY)+1;
    ctx.fillStyle='rgba(20,101,173,.25)';ctx.fillRect(x*scale,y*scale,w*scale,h*scale);ctx.strokeStyle='#1465ad';ctx.strokeRect(x*scale+.5,y*scale+.5,w*scale-1,h*scale-1);}
   ctx.strokeStyle='#1465ad';ctx.lineWidth=2;ctx.strokeRect(S.font.editX*scale+2,S.font.editY*scale+2,scale-4,scale-4);
-  $('#fontEditCode').textContent=`U+${g.codepoint.toString(16).toUpperCase().padStart(4,'0')} · ${g.w}×${g.h}`;
+  $('#fontEditCode').textContent=`U+${g.codepoint.toString(16).toUpperCase().padStart(4,'0')} · ${g.w}×${g.h} · ${T('fontCell',{x:S.font.editX+1,y:S.font.editY+1})}`;
  }
  function fontPixelAt(event){
   const canvas=$('#fontEditCanvas'),g=selectedGlyph(),r=canvas?.getBoundingClientRect();if(!g||!r||!r.width||!r.height)return null;

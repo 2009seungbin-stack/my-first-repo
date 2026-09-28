@@ -991,6 +991,9 @@ Object.assign(S.ja.uiLab,{fontGlyphW:'グリフ幅(px)',fontGlyphH:'グリフ高
 S.ko.uiLab.fontBdfNote='BDF는 흑백 픽셀만 가져옵니다. 원본의 색상·레이어는 보존되지 않습니다.';
 S.en.uiLab.fontBdfNote='BDF imports monochrome pixels. Source colours and layers are not preserved.';
 S.ja.uiLab.fontBdfNote='BDFからは白黒の画素だけを読み込みます。元の色やレイヤーは保持されません。';
+S.ko.uiLab.fontCell='셀 {x}열 {y}행';
+S.en.uiLab.fontCell='cell column {x}, row {y}';
+S.ja.uiLab.fontCell='セル {x}列 {y}行';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
