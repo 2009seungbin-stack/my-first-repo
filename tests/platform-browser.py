@@ -62,6 +62,11 @@ def main():
             mod.locator('.mq button', has_text='임시조치').first.click(); mod.wait_for_timeout(1200)
             assert '도배 확인' in mod.locator('[data-log]').inner_text()
             assert pg.request.get(B + post_url).status == 404, 'hidden posts are gone from the site'
+            pg.goto(B + '/ko/community/me'); pg.wait_for_timeout(800)
+            pg.fill('form[data-nickname] input', '밤샘테스터'); pg.click('form[data-nickname] button'); pg.wait_for_timeout(500)
+            assert pg.locator('[data-follows] li').count() >= 1, 'followed channels listed'
+            pg.goto(B + '/ko/ai/claude/'); pg.wait_for_timeout(600)
+            assert pg.locator('.hd [data-island=account]').inner_text() == '밤샘테스터'
             pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
             assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
             m = b.new_page(viewport={'width': 390, 'height': 900})

@@ -19,29 +19,36 @@ AI, 한글패치 and GPU channels first, facts before boards, legal basics befor
 - [x] Local dev server + browser E2E (`npm run dev:platform`, `npm run test:platform`)
 
 ## Now (no external accounts)
-1. [ ] Search page on alias + FTS5 index; Radar page; 념글 page; 신고 form + `/api/v2/flags` — AUDIT 4, 15, 16, 21 (M)
-2. [ ] Cache key: only allowed params, integer page, `Object.hasOwn` for kind, 301 others — AUDIT bug 1 (S)
-3. [ ] Status box says "not checked yet" until a status collector run exists — AUDIT bug 3 (S)
-4. [ ] `public:false` properties never rendered; `safeHref` refuses `/\` — AUDIT bug 5 (S)
-5. [ ] Migration 0005: indexes for board/front/stats queries; channel bar after entity lookup — AUDIT bug 2, 8, 9 (M)
-6. [ ] SEO content gate `platform/seo.js` (indexMin, facts, relations, posts) → noindex thin pages — AUDIT 7 (M)
-7. [ ] Entity sitemaps (per vertical) from D1 + sitemap index entry — AUDIT 17, MARKET #4 (M)
-8. [ ] Post page: best comment id duplicate, cross-locale canonical, sign-in `?return=` — AUDIT runners-up (S)
-9. [ ] Security headers on SSR responses, `form-action 'self'` for n2 forms in ad builds — AUDIT 11 (S)
-10. [ ] GPU local-LLM page `/{l}/hardware/{gpu}/local-llm` (estimate vs measured) + benchmark report form — COMPETITORS #8, #9 (M)
+1. [x] Search page on alias + FTS5 index; Radar page; 념글 page; 신고 form + `/api/v2/flags` — AUDIT 4, 15, 16, 21 (M)
+2. [x] Cache key: only allowed params, integer page, `Object.hasOwn` for kind, 301 others — AUDIT bug 1 (S)
+3. [x] Status box says "not checked yet" until a status collector run exists — AUDIT bug 3 (S)
+4. [x] `public:false` properties never rendered; `safeHref` refuses `/\` — AUDIT bug 5 (S)
+5. [x] Migration 0005: indexes for board/front/stats queries; channel bar after entity lookup — AUDIT bug 2, 8, 9 (M)
+6. [x] SEO content gate `platform/seo.js` (indexMin, facts, relations, posts) → noindex thin pages — AUDIT 7 (M)
+7. [x] Entity sitemaps (per vertical) from D1 + sitemap index entry — AUDIT 17, MARKET #4 (M)
+8. [x] Post page: best comment id duplicate, cross-locale canonical, sign-in `?return=` — AUDIT runners-up (S)
+9. [x] Security headers on SSR responses, `form-action 'self'` for n2 forms in ad builds — AUDIT 11 (S)
+10. [x] GPU local-LLM page `/{l}/hardware/{gpu}/local-llm` (estimate vs measured) + benchmark report form — COMPETITORS #8, #9 (M)
 11. [ ] Board: 념글 tabs today/week/month; per-channel best threshold — COMPETITORS #6 (S)
-12. [ ] Tool ↔ channel mapping fix (labs on Godot/Blender, not on every game) — AUDIT 14 (S)
-13. [ ] Structured data per type (Event, BreadcrumbList, SoftwareApplication, Product) — AUDIT 12, MARKET #5 (M)
-14. [ ] Model price history table on AI channels (official USD only; KRW as note) — COMPETITORS #10, MARKET #1 (S)
+12. [x] Tool ↔ channel mapping fix (labs on Godot/Blender, not on every game) — AUDIT 14 (S)
+13. [x] Structured data per type (Event, BreadcrumbList, SoftwareApplication, Product) — AUDIT 12, MARKET #5 (M)
+14. [x] Model price history table on AI channels (official USD only; KRW as note) — COMPETITORS #10, MARKET #1 (S)
 15. [ ] Korean name backfill + validator warning for missing ko names (69 % of entities lack one) — AUDIT 18 (L)
-16. [ ] `tsconfig.json` + `tsc --noEmit` in CI; `NERULIO_2_SCHEMA.md`, `NERULIO_2_MIGRATION_PLAN.md` — AUDIT 25 (S)
+16. [x] `tsconfig.json` + `tsc --noEmit` in CI; `NERULIO_2_SCHEMA.md`, `NERULIO_2_MIGRATION_PLAN.md` — AUDIT 25 (S)
+
+## Also done tonight
+- [x] Korean patch channels + "업데이트 이후 미확인" warning on game channels (COMPETITORS #4)
+- [x] Model channels (price, history, availability, local-run estimate)
+- [x] Collectors on GitHub Actions → D1 REST with run health (off until the owner enables it)
+- [x] My Radar + unread count; moderation queue (임시조치/복구/기각/제한, action log)
+- [x] Seed export for D1 + `NERULIO_2_MIGRATION_PLAN.md`
 
 ## Later / owner
 - Naver Search Advisor + Google Search Console registration, sitemaps submit (owner)
 - D1 provisioning, bind, migrations, secrets, `PLATFORM=on` (owner)
-- Collectors on GitHub Actions via D1 REST (needs token) — AUDIT 22; GeForce driver collector — AUDIT 23
+- Collectors: set the secrets + PLATFORM_COLLECTORS=on (owner); GeForce driver collector — AUDIT 23
 - GitHub/Discord sign-in (OAuth apps) — AUDIT 24
-- Moderator queue `/admin/`, 임시조치 log, transparency page (before public boards) — MARKET #7
+- Transparency page (public summary of moderation actions) — MARKET #7
 - Image uploads only after the illegal-image filter duty is covered (MARKET: 100k DAU / all images from 2026-07-01)
 - Affiliate links with automatic 광고 disclosure; ads only on fact panels (MARKET #9, #10)
 - Alerts: follow → My Radar → email digest (COMPETITORS #5)

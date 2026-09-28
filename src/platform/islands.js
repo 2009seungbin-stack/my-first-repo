@@ -48,7 +48,7 @@ async function main(){
 
  // Account
  const acc=$('[data-island="account"]');
- if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/account/`;a.textContent=st.user.name;acc.append(a);}
+ if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/community/me`;a.textContent=st.user.name;acc.append(a);}
 
  // My Radar (radar page) and the unread count in the header
  if(signedIn){
@@ -186,6 +186,20 @@ async function main(){
  if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);
   const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
   if(r){toast(T.thanks);$('button[type="submit"]',ff).disabled=true;}});
+
+ // 내 정보: nickname and followed channels
+ const me=$('[data-island="me"]');
+ if(me&&signedIn){
+  $('[data-signed-out]',me).hidden=true;
+  const nf=$('form[data-nickname]',me);nf.hidden=false;$('input',nf).value=st.user?.name||'';
+  nf.addEventListener('submit',async e=>{e.preventDefault();const r=await write('/profile',{displayName:$('input',nf).value},signedIn);if(r)toast(T.sent);});
+  const fr=await api(`/follows?l=${L}`),box=$('[data-follows]',me);
+  if(fr.ok){box.hidden=false;const ul=$('ul',box);
+   if(!fr.data.follows.length){const li=document.createElement('li');li.textContent=L==='ko'?'아직 구독한 채널이 없어요.':'No channels yet.';ul.append(li);}
+   for(const f of fr.data.follows){const li=document.createElement('li');const a=document.createElement('a');a.className='tt';a.href=f.url;a.textContent=f.name;const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=L==='ko'?'구독 취소':'Unfollow';
+    b.addEventListener('click',async()=>{const r=await write('/follow',{entityId:f.id,follow:false},signedIn);if(r)li.remove();});li.append(a,b);ul.append(li);}
+  }
+ }
 
  // Moderator queue
  const mq=$('[data-island="mod-queue"]');
