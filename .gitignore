@@ -9,3 +9,4 @@ __pycache__/
 ops/distribution-ledger.json.lock
 ops/distribution-ledger.json.tmp
 *.log
+.n2/

@@ -288,7 +288,7 @@ test('Google OAuth: state + PKCE + nonce, subject-keyed identity, anonymous usag
  const s3=await h.call('GET','/api/v1/auth/google/start'),l3=new URL(s3.headers.get('location'));
  h.setFetch(async()=>Response.json({id_token:idToken({iss:'accounts.google.com',aud:'client-1',exp:Math.floor(h.clock.now/1000)+300,nonce:l3.searchParams.get('nonce'),sub:'1098',email:'changed@example.test',email_verified:true})}));
  await h.call('GET',`/api/v1/auth/google/callback?code=x&state=${l3.searchParams.get('state')}`);
- assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM users').get().n,1);
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) n FROM users WHERE provider<>'system'").get().n,1);
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM sessions').get().n,1,'re-login replaces the previous session');
 });
 

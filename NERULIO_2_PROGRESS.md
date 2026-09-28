@@ -12,14 +12,22 @@ Branch `nerulio/n2-platform` (worktree `C:\Users\2009s\Desktop\SITE-n2`). Baseli
 - `platform/markdown.js` safe renderer — `tests/n2-markdown.test.mjs` 3/3 (XSS vectors).
 - UI research of DC Inside / Quasarzone / Arca.live (live) + Reddit (from knowledge; the site blocks automation): `C:\Users\2009s\nerulio-handoff\research\COMMUNITY-UI-STUDY.md` (§7 component specs).
 
-## In progress
-- Wave-1 data agents (brief `C:\Users\2009s\nerulio-handoff\N2-DATA-AGENT-BRIEF.md`), branches `nerulio/n2-data-{ai,games,hardware,studio,subculture}`.
-- UI mockups (시안) DONE, awaiting owner review: https://claude.ai/artifact/FkbKnfqfrbmLKgo4tixbqz (16 boards). Screens to draw, from the study §6–7: anonymous home, My Radar home, Radar feed, GPU entity, game entity (Korean patch matrix), AI feature + rollout widget, /community, thread, report form, Studio preflight, subculture upcoming, search; desktop 1120 grid + mobile.
+- All five wave-1 data branches merged (ai, hardware, games, studio, subculture): 32 seed files, 1,580 entities, 0 invalid.
+- `tools/platform/seed-db.mjs` imports every seed file through `platform/ingest.js` (two passes for cross-file references). Fixed while doing so: duplicate compatibility/availability keys in one document (validator now refuses them; ingest keeps the last row), the same relation cited twice (stored once, first source wins).
+- v3 "channel" UI in code (owner-approved direction: channel header → channel-specific live panel → trending → 말머리 board, wiki on the right):
+  - `platform/db/channel.js` (all read SQL), `platform/render/{html,format,strings,ui,channel,post,front}.js`, `src/platform/n2.css` (1180 grid, one column < 1000px, two-line board rows < 640px, dark mode).
+  - Panels `platform/render/panels/`: `ai` (status from status-page incidents, recent changes, models + API prices, plans, rollouts), `game` (Steam update, Korean patch compat strip + matrix, official Korean), `gpu` (driver, VRAM-fit ESTIMATE with method, community bench board, specs), `studio` (latest version, OS compatibility per app version), `ip` (countdown, D-days, merch, cast), `generic` fallback.
+  - Worker: `server/platform/pages.js` (routes `/{ko,en}/community/`, `/{l}/{vertical}/{slug}/`, `/{l}/{vertical}/{slug}/{no}`, slug redirects, edge cache 60 s + SWR), wired in `server/index.js` behind the build flag `PLATFORM=on` (requires `SERVICE_API=on`; `_routes.json` adds only the platform prefixes).
+  - `tools/platform/preview.mjs` renders a local preview (real seed facts + SAMPLE boards from `tools/platform/demo-posts.mjs`, never used in production). Published: https://claude.ai/artifact/6VHYBiwFzrznBeAYNwdU2T
+  - Tests: `tests/n2-render.test.mjs` (escaping, formats, every entity type renders ko/en, panels, post, front, routes); `service-build` platform build test. Fixed the admin user count, which counted the Radar bot.
+
+## Not built on purpose (no data source yet)
+- Steam concurrent players, "people viewing now", and the Claude usage-limit poll from the v3 mockup: no collector/table yet, so they are left out instead of showing invented numbers.
 
 ## Next
-1. Draw the mockups → owner review → only then renderers/islands.
-2. Community logic (verification score, rollout aggregation, reputation tiers), search queries, radar/my-radar feeds, analytics ingestion, preflight evaluator, API v2 router, GitHub/Discord OAuth.
-3. Merge data branches, D1 local seeding, SSR renderers, build integration behind `PLATFORM=on`, E2E, docs `NERULIO_2_MIGRATION_PLAN.md`, `docs/NERULIO_2_SCHEMA.md` (ERD).
+1. Islands (`src/platform/*`): follow, vote (post/compat/rollout/driver issue), new-post bar, countdown tick, comment form; API v2 write endpoints they call.
+2. Write page (글쓰기, report forms), search page, Radar feed, My Radar.
+3. D1 provisioning + seeding via D1 REST, collectors on GitHub Actions, per-vertical sitemaps, E2E with wrangler; docs `NERULIO_2_MIGRATION_PLAN.md`, `docs/NERULIO_2_SCHEMA.md`.
 
 ## Known risks
 - Workers Free plan: 10 ms CPU + 100k requests/day for SSR pages → Workers Paid ($5/mo) likely at launch.

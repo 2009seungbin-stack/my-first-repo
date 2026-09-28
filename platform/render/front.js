@@ -1,0 +1,45 @@
+// @ts-check
+/** Community front (/{l}/community/): best posts across channels (tab per vertical), what is
+ * changing now (Radar bot news posts, or Radar changes before any post exists), new reports,
+ * unanswered questions; sign-in, popular channels and tools on the right. */
+import {html} from './html.js';
+import {t} from './strings.js';
+import {page,box,nameOf,channelUrl,postUrl,frontUrl,kindChip,monogram,TILE,badge} from './ui.js';
+import {boardTime,compact} from './format.js';
+import {frontPosts,activeChannels,radarChanges} from '../db/channel.js';
+import {VERTICALS} from '../schema.js';
+import {verticalOf} from '../verticals/index.js';
+import {describeChange} from '../change-text.js';
+import {label} from '../labels.js';
+
+const DAY=864e5;
+/** @param {any} db @param {{l:string,now:number,vertical?:string|null,channels?:{name:string,href:string}[]}} o */
+export async function loadFront(db,o){
+ const vertical=o.vertical&&VERTICALS.includes(/** @type {any} */(o.vertical))?o.vertical:null;
+ const best=await frontPosts(db,{mode:'best',vertical,since:o.now-3*DAY,limit:15});
+ const news=await frontPosts(db,{mode:'news',limit:8});
+ const changes=news.length?[]:await radarChanges(db,{limit:8,minImportance:2});
+ const reports=await frontPosts(db,{mode:'kind',kind:'report',limit:6});
+ const questions=await frontPosts(db,{mode:'kind',kind:'question',unanswered:true,limit:6});
+ const popular=await activeChannels(db,o.now-7*DAY,10);
+ return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,channels:o.channels||[]};
+}
+
+/** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string}} site */
+export function renderFront(m,site){
+ const {l,now}=m,s=t(l),base=frontUrl(l);
+ const chName=(/** @type {any} */ p)=>p.entity?html`<a class="chn" href="${channelUrl(l,p.entity)}">${nameOf(p.entity,l)}</a>`:'';
+ const tabs=html`<nav class="ftabs" aria-label="${s.liveBest}"><a href="${base}"${!m.vertical?html` class="on"`:''}>${s.all}</a>${VERTICALS.map(v=>html`<a href="${base}?v=${v}"${m.vertical===v?html` class="on"`:''}>${label(/** @type {any} */(verticalOf(v)).label,l)}</a>`)}</nav>`;
+ const best=box({title:s.liveBest,extra:tabs},m.best.length?html`<ol class="plist">${m.best.map((p,i)=>html`<li class="lr"><span class="rank">${i+1}</span><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip(p.kind,l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="up">▲ ${p.up}</span></li>`)}</ol>`:html`<p class="empty">${s.frontEmpty} <span class="fine">${s.bestRule}</span></p>`);
+ const radar=box({title:s.changingNow,note:html`<a href="/${l}/radar/">${s.radar} ›</a>`},m.news.length?html`<ol class="plist">${m.news.map(p=>html`<li class="lr"><span class="fine">${boardTime(p.created_at,now,l)}</span><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip('news',l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="fine">⚙</span></li>`)}</ol>`
+  :m.changes.length?html`<ol class="plist">${m.changes.map(c=>{const d=describeChange(c,{name:nameOf(c.entity,l)},/** @type {'ko'|'en'} */(l));return html`<li class="lr"><span class="fine">${boardTime(c.detected_at,now,l)}</span><a class="tt" href="${channelUrl(l,c.entity)}">${d.title}${d.detail?` — ${d.detail}`:''}</a><a class="chn" href="${channelUrl(l,c.entity)}">${nameOf(c.entity,l)}</a>${badge('AUTOMATED',l,'⚙')}</li>`;})}</ol>`:html`<p class="empty">${s.frontEmpty}</p>`);
+ const small=(/** @type {string} */ title,/** @type {typeof m.reports} */ list)=>box({title},list.length?html`<ol class="rows">${list.map(p=>html`<li><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip(p.kind,l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="fine">${boardTime(p.created_at,now,l)}</span></li>`)}</ol>`:html`<p class="empty">${s.frontEmpty}</p>`);
+ const side=html`<section class="box login" data-island="account"><b>${s.loginTitle}</b><span class="fine">${s.loginNote}</span><a class="btn" href="/${l}/account/?provider=google">${s.continueWith('Google')}</a></section>
+${box({title:s.popularChannels},m.popular.length?html`<ol class="rows">${m.popular.map((c,i)=>html`<li><span class="rank">${i+1}</span><span class="tile sm ${TILE[c.entity.vertical]||''}" aria-hidden="true">${monogram(c.entity,l)}</span><a class="tt" href="${channelUrl(l,c.entity)}">${nameOf(c.entity,l)}</a><span class="fine">${compact(c.posts,l)}</span></li>`)}</ol>`:html`<ol class="rows">${m.channels.map(c=>html`<li><a class="tt" href="${c.href}">${c.name}</a></li>`)}</ol>`)}
+${box({title:s.toolsBox,note:html`<a href="/${l}/">${l==='ko'?'전체 ›':'All ›'}</a>`},html`<div class="toolsg"><a href="/${l}/image/compress/">${l==='ko'?'이미지 압축':'Compress images'}</a><a href="/${l}/game/sprite-lab/">${l==='ko'?'스프라이트 랩':'Sprite Lab'}</a><a href="/${l}/game/pixel-lab/">${l==='ko'?'픽셀 랩':'Pixel Lab'}</a><a href="/${l}/game/tile-lab/">${l==='ko'?'타일 랩':'Tile Lab'}</a></div>`)}`;
+ const body=html`<div class="front"><main class="mainc">${best}${radar}<div class="g2">${small(s.newReports,m.reports)}${small(s.openQuestions,m.questions)}</div></main><aside class="side">${side}</aside></div>`;
+ const title=l==='ko'?'Nerulio 커뮤니티 — AI·게임·하드웨어·창작 채널':'Nerulio community — AI, games, hardware and creator channels';
+ const other=l==='ko'?'en':'ko';
+ return page({l,title,description:l==='ko'?'채널별 실시간 소식, 공식 정보와 커뮤니티 리포트.':'Live changes, official facts and community reports per channel.',canonical:site.origin+base+(m.vertical?`?v=${m.vertical}`:''),
+  alternates:{[l]:site.origin+base,[other]:site.origin+frontUrl(other),'x-default':site.origin+frontUrl('en')},noindex:!!m.vertical,channels:m.channels,homeOn:true,body});
+}

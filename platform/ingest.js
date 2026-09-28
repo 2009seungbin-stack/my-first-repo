@@ -140,9 +140,11 @@ export async function ingest(db,doc,opts){
  }
  await flush(db,writes);
 
- // 4a. relations
+ // 4a. relations (the same relation cited twice, e.g. once per work, is stored once: first source wins)
+ const seenRel=new Set();
  for(const e of list)for(const r of e.relations||[]){
-  const subject=resolveId(e.id),object=resolveId(r.o),region=r.region||'*';
+  const subject=resolveId(e.id),object=resolveId(r.o),region=r.region||'*',relKey=[subject,r.p,object,region].join('\u0001');
+  if(seenRel.has(relKey))continue;seenRel.add(relKey);
   const cur=await db.prepare('SELECT id FROM relations WHERE subject_id=? AND predicate=? AND object_id=? AND region=?').bind(subject,r.p,object,region).first();
   if(cur){W('UPDATE relations SET meta=?,verification=?,source_id=COALESCE(?,source_id),updated_at=? WHERE id=?',JSON.stringify(r.meta||{}),r.ver||'OFFICIAL',r.src??null,now,cur.id);continue;}
   W(`INSERT INTO relations (subject_id,predicate,object_id,meta,region,valid_from,verification,source_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)`,subject,r.p,object,JSON.stringify(r.meta||{}),region,r.from?dateMs(r.from):null,r.ver||'OFFICIAL',r.src??null,now,now);
@@ -152,8 +154,10 @@ export async function ingest(db,doc,opts){
  await flush(db,writes);
 
  // 4b. versions (+ compatibility state machine for updated targets)
+ const seenVer=new Set();
  for(const e of list)for(const x of e.versions||[]){
-  const id=resolveId(e.id),channel=x.channel||'stable';
+  const id=resolveId(e.id),channel=x.channel||'stable',verKey=[id,channel,x.version].join('\u0001');
+  if(seenVer.has(verKey))continue;seenVer.add(verKey);
   const cur=await db.prepare('SELECT id FROM versions WHERE entity_id=? AND channel=? AND version=?').bind(id,channel,x.version).first();
   if(cur)continue;
   const released=x.released?dateMs(x.released):null;
@@ -195,8 +199,9 @@ export async function ingest(db,doc,opts){
  }
  await flush(db,writes);
 
- // 4d. availability
- for(const a of doc.availability||[]){
+ // 4d. availability (a repeated key in one document: the last row wins)
+ const availRows=[...new Map((doc.availability||[]).map((/** @type {any} */ a)=>[[a.entity,a.plan||'*',a.platform||'*',a.region||'*'].join('\u0001'),a])).values()];
+ for(const a of availRows){
   const id=resolveId(a.entity),plan=a.plan||'*',platform=a.platform||'*',region=a.region||'*';
   const cur=await db.prepare('SELECT id,state,verification FROM availability WHERE is_current=1 AND entity_id=? AND plan_id=? AND platform=? AND region=?').bind(id,plan,platform,region).first();
   if(cur&&cur.state===a.state){W('UPDATE availability SET observed_at=? WHERE id=?',now,cur.id);continue;}
@@ -209,8 +214,9 @@ export async function ingest(db,doc,opts){
  }
  await flush(db,writes);
 
- // 4e. official/curated compatibility
- for(const c of doc.compatibility||[]){
+ // 4e. official/curated compatibility (a repeated key in one document: the last row wins)
+ const compatRows=[...new Map((doc.compatibility||[]).map((/** @type {any} */ c)=>[[c.subject,c.subject_version||'*',c.target,c.target_version||'*',envKey(c.env||{})].join('\u0001'),c])).values()];
+ for(const c of compatRows){
   const subject=resolveId(c.subject),target=resolveId(c.target),sv=c.subject_version||'*',tv=c.target_version||'*',env=c.env||{},ek=envKey(env);
   const cur=await db.prepare('SELECT id,status,verification FROM compatibility WHERE is_current=1 AND subject_id=? AND subject_version=? AND target_id=? AND target_version=? AND env_key=?').bind(subject,sv,target,tv,ek).first();
   if(cur&&cur.status===c.status){W('UPDATE compatibility SET last_confirmed_at=?,updated_at=? WHERE id=?',now,now,cur.id);continue;}

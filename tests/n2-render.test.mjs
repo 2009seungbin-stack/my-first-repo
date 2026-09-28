@@ -1,0 +1,175 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
+import {seedDatabase} from '../tools/platform/seed-db.mjs';
+import {insertDemoContent} from '../tools/platform/demo-posts.mjs';
+import {html,raw,safeHref} from '../platform/render/html.js';
+import {compact,boardTime,dday,money} from '../platform/render/format.js';
+import {entityBySlug,factsFor} from '../platform/db/channel.js';
+import {loadChannel,renderChannel,trendingTerms,dayStart} from '../platform/render/channel.js';
+import {loadPost,renderPost} from '../platform/render/post.js';
+import {loadFront,renderFront} from '../platform/render/front.js';
+import {panelFor} from '../platform/render/panels/index.js';
+import {createPost} from '../platform/community.js';
+import {matchPlatformRoute,renderPlatformPage} from '../server/platform/pages.js';
+
+const NOW=Date.UTC(2026,8,28,6,0);   // 2026-09-28 15:00 KST
+const SITE={origin:'https://nerulio.com'};
+let db=null;
+async function seeded(){
+ if(db)return db;
+ db=D1Shim.migrated();
+ await seedDatabase(db,undefined,NOW-2*864e5);
+ await insertDemoContent(db,NOW);
+ return db;
+}
+const channel=async(vertical,slug,o={})=>{const d=await seeded();const {entity}=await entityBySlug(d,vertical,slug);assert(entity,`${vertical}/${slug} exists`);const m=await loadChannel(d,entity,{l:'ko',now:NOW,...o});return {m,out:String(renderChannel(m,SITE))};};
+
+test('html`` escapes every value and only trusts raw()/nested templates',()=>{
+ const x='<img src=x onerror=alert(1)>';
+ assert.equal(String(html`<b>${x}</b>`),'<b>&lt;img src=x onerror=alert(1)&gt;</b>');
+ assert.equal(String(html`<i>${html`<u>${'&'}</u>`}${raw('<br>')}${null}${false}${[1,'<']}</i>`),'<i><u>&amp;</u><br>1&lt;</i>');
+ assert.equal(String(html`<a title="${'"q"'}">`),'<a title="&quot;q&quot;">');
+ assert.equal(safeHref('javascript:alert(1)'),'#');assert.equal(safeHref('//evil.example'),'#');assert.equal(safeHref('/ko/ai/claude/'),'/ko/ai/claude/');
+});
+
+test('board formatting: counts, times in Korea time, D-day, money',()=>{
+ assert.equal(compact(12480,'ko'),'1.2만');assert.equal(compact(1900,'ko'),'1.9천');assert.equal(compact(640,'ko'),'640');assert.equal(compact(12480,'en'),'12.5K');
+ assert.equal(boardTime(NOW-60e3,NOW,'ko'),'14:59');                          // same KST day
+ assert.equal(boardTime(Date.UTC(2026,8,27,16,0),NOW,'ko'),'01:00');          // 01:00 KST today
+ assert.equal(boardTime(Date.UTC(2026,8,26,1,0),NOW,'ko'),'09.26');
+ assert.equal(boardTime(Date.UTC(2025,0,2),NOW,'ko'),'2025.01.02');
+ assert.equal(dday(Date.UTC(2026,9,2,15,0),NOW,'ko'),'D-5');                    // Oct 3 00:00 KST
+ assert.equal(money(4,'USD','ko'),'$4');assert.equal(money(0.25,'USD','en'),'$0.25');
+ assert.equal(dayStart(NOW,'ko'),Date.UTC(2026,8,27,15,0));
+});
+
+test('trending terms need two posts and skip the channel name and filler words',()=>{
+ const t=trendingTerms([{title:'API 지연 있나요',weight:1},{title:'지금 API 느림',weight:2},{title:'Claude 한도 질문',weight:1},{title:'혹시 Claude 한도',weight:1},{title:'혼자 나온 단어',weight:9}],'Claude');
+ assert.deepEqual(t.slice(0,2).sort(),['API','한도']);
+ assert(!t.includes('Claude')&&!t.includes('단어'));
+});
+
+test('seed import loads every seed file through the ingest pipeline',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const n=Number((await d.prepare('SELECT COUNT(*) AS n FROM entities').first()).n);
+ assert(n>=1500,`entities: ${n}`);
+ assert.equal(Number((await d.prepare("SELECT COUNT(*) AS n FROM changes WHERE importance>0 AND kind IN ('fact_added','entity_added')").first()).n),0,'seed history is not Radar news');
+});
+
+test('AI service channel: status, models with official API prices, plans in the wiki',{skip:!sqliteAvailable},async()=>{
+ const {m,out}=await channel('ai','claude');
+ assert.equal(m.panel.id,'ai-service');
+ assert.match(out,/<h1>Claude 채널<\/h1>/);
+ assert(out.includes('서비스 상태')&&out.includes('보고된 장애 없음'),'status block (no invented "정상")');
+ assert(out.includes('Claude Opus 5.5')&&out.includes('$4 / $20'),'Opus 5.5 at $4 / $20 from the seed');
+ assert(out.includes('Claude 위키')&&out.includes('>Pro<')&&out.includes('$20'),'plans table');
+ assert(out.includes('rel="canonical" href="https://nerulio.com/ko/ai/claude/"'));
+ assert(out.includes('hreflang="en" href="https://nerulio.com/en/ai/claude/"'));
+ assert(/class="pr[^"]*"><span class="no">\d+<\/span><a class="tt" href="\/ko\/ai\/claude\/\d+">/.test(out),'board rows link to posts');
+});
+
+test('game channel: latest Steam update, Korean patch compatibility, official Korean',{skip:!sqliteAvailable},async()=>{
+ const {m,out}=await channel('games','caves-of-qud');
+ assert.equal(m.panel.id,'game');
+ assert(out.includes('최신 업데이트')&&out.includes('1.04'));
+ assert(out.includes('공식 한국어 없음'));
+ assert(out.includes('한글패치 호환표')&&out.includes('2.0.212.31'));
+});
+
+test('GPU channel: official specs and a labelled VRAM estimate, never a speed estimate',{skip:!sqliteAvailable},async()=>{
+ const {m,out}=await channel('hardware','rtx-5070');
+ assert.equal(m.panel.id,'gpu');
+ assert(out.includes('12 GB')&&out.includes('Blackwell')&&out.includes('$549'));
+ assert(out.includes('≈ 추정')&&out.includes('추정 방법'),'estimate is labelled and explained');
+ assert(!/≈[^<]*tok\/s/.test(out),'tokens/s only from community measurements');
+ for(const f of m.data.fit)assert.equal(f.r.label,'ESTIMATE');
+});
+
+test('studio and IP channels render their panels from seed data',{skip:!sqliteAvailable},async()=>{
+ const a=await channel('studio','ableton-live');
+ assert.equal(a.m.panel.id,'studio');assert(a.out.includes('업그레이드해도 될까?')&&a.out.includes('12.4.6'));
+ const b=await channel('subculture','bleach-tybw-the-calamity');
+ assert.equal(b.m.panel.id,'ip');assert(b.out.includes('다음 일정')&&b.out.includes('class="cd"'));
+});
+
+test('filtered/paged board views are noindex and keep the filter in links',{skip:!sqliteAvailable},async()=>{
+ const {out}=await channel('ai','claude',{kind:'question',sort:'top'});
+ assert(out.includes('<meta name="robots" content="noindex,follow">'));
+ assert(out.includes('href="/ko/ai/claude/?kind=question&amp;sort=top"')||out.includes('kind=question'));
+ const plain=(await channel('ai','claude')).out;
+ assert(!plain.includes('noindex'));
+});
+
+test('user text is escaped in board rows and on the post page',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();const {entity}=await entityBySlug(d,'ai','claude');
+ const no=await createPost(d,{id:'xss-1',entityId:entity.id,kind:'free',title:'<script>alert(1)</script>',body:'<img src=x onerror=alert(1)> **굵게**',locale:'ko',authorId:'demo:u3'},NOW-1000);
+ const {out}=await channel('ai','claude');
+ assert(!out.includes('<script>alert(1)</script>')&&out.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+ const page=String(renderPost(await loadPost(d,entity,no,{l:'ko',now:NOW}),SITE));
+ assert(!page.includes('<img src=x')&&page.includes('<strong>굵게</strong>'));
+ await d.prepare("DELETE FROM discussions WHERE id='xss-1'").run();
+});
+
+test('post page: meta, threaded comments with the best comment on top, board around it',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();const {entity}=await entityBySlug(d,'ai','claude');
+ const row=await d.prepare("SELECT post_no FROM discussions WHERE entity_id=? AND title LIKE 'Opus 5.5로%'").bind(entity.id).first();
+ const m=await loadPost(d,entity,Number(row.post_no),{l:'ko',now:NOW});
+ const out=String(renderPost(m,SITE));
+ assert(out.includes('댓글 2')&&out.includes('class="co bestc"')&&out.includes('class="co re"'));
+ assert(out.includes('aria-current="page"'),'current post marked in the list');
+ assert(out.includes('"@type":"DiscussionForumPosting"'));
+ assert.equal(await loadPost(d,entity,999999,{l:'ko',now:NOW}),null);
+});
+
+test('community front: best, Radar bot news only, questions, popular channels',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const m=await loadFront(d,{l:'ko',now:NOW});
+ const out=String(renderFront(m,SITE));
+ assert(out.includes('실시간 베스트')&&out.includes('5070 vs 4070 SUPER'));
+ assert(m.news.every(p=>p.bot),'"changing now" lists Radar bot posts only');
+ assert(out.includes('답을 기다리는 질문')&&out.includes('인기 채널'));
+});
+
+test('every entity type renders a channel page in both languages',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const types=(await d.prepare("SELECT vertical,type,MIN(slug) AS slug FROM entities WHERE status='active' GROUP BY vertical,type").all()).results;
+ assert(types.length>=20);
+ for(const t of types)for(const l of ['ko','en']){
+  const {entity}=await entityBySlug(d,t.vertical,t.slug);
+  const out=String(renderChannel(await loadChannel(d,entity,{l,now:NOW}),SITE));
+  assert(out.startsWith('<!doctype html>')&&out.includes('</html>'),`${t.vertical}:${t.type} ${l}`);
+  assert(!/undefined|NaN|\[object Object\]/.test(out.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,'')),`${t.vertical}:${t.type} ${l} has no undefined/NaN`);
+ }
+ // English pages use English chrome.
+ const {out}=await channel('ai','claude',{l:'en'});
+ assert(out.includes('<html lang="en">')&&out.includes('Service status')&&!out.includes('서비스 상태'));
+});
+
+test('panel registry picks a panel per channel kind',()=>{
+ const e=(vertical,type)=>({vertical,type});
+ assert.equal(panelFor(e('ai','service')).id,'ai-service');assert.equal(panelFor(e('games','game')).id,'game');
+ assert.equal(panelFor(e('hardware','gpu')).id,'gpu');assert.equal(panelFor(e('studio','plugin')).id,'studio');
+ assert.equal(panelFor(e('subculture','work')).id,'ip');assert.equal(panelFor(e('ai','plan')).id,'generic');
+});
+
+test('Worker routes: platform paths only, renamed slugs redirect, unknown channels fall through',{skip:!sqliteAvailable},async()=>{
+ assert.deepEqual(matchPlatformRoute('/ko/ai/claude/'),{l:'ko',page:'channel',vertical:'ai',slug:'claude',no:null});
+ assert.deepEqual(matchPlatformRoute('/en/games/caves-of-qud/12'),{l:'en',page:'post',vertical:'games',slug:'caves-of-qud',no:12});
+ assert.deepEqual(matchPlatformRoute('/ko/community/'),{l:'ko',page:'front'});
+ for(const p of ['/ko/ai/claude','/ja/ai/claude/','/ko/image/compress/','/ko/ai/Claude/','/ko/ai/claude/x'])assert.equal(matchPlatformRoute(p),null,p);
+ const d=await seeded();
+ const res=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ assert.equal(res.status,200);assert.match(res.headers.get('cache-control'),/s-maxage=60/);
+ assert((await res.text()).includes('Claude 채널'));
+ assert.equal(await renderPlatformPage(new Request('https://nerulio.com/ko/ai/no-such-channel/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW}),null);
+ await d.prepare("INSERT INTO entity_redirects (vertical,slug,entity_id,created_at) VALUES ('ai','claude-ai','service:claude',0)").run();
+ const r=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude-ai/3?x=1'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ assert.equal(r.status,301);assert.equal(r.headers.get('location'),'https://nerulio.com/ko/ai/claude/3?x=1');
+});
+
+test('facts shown on a channel are the current rows',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const f=(await factsFor(d,['gpu:rtx-5070'])).get('gpu:rtx-5070');
+ assert(f.find(x=>x.property==='vram_gb'&&x.value===12));
+});

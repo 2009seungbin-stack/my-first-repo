@@ -2424,18 +2424,8 @@
    "target_version": "*",
    "status": "supported",
    "ver": "OFFICIAL",
-   "src": "src:universal-audio-apollo-x-requirements",
-   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26."
-  },
-  {
-   "subject": "audio_device:universal-audio-apollo-x",
-   "subject_version": "*",
-   "target": "os_release:macos-26",
-   "target_version": "*",
-   "status": "supported",
-   "ver": "OFFICIAL",
    "src": "src:universal-audio-uad-macos-26",
-   "note": "Latest UAD DSP software compatible with macOS 26; manual security steps required after install."
+   "note": "UA lists macOS Big Sur 11 through Sequoia 15 and Tahoe 26; the latest UAD DSP software is compatible with macOS 26, with manual security steps after install."
   },
   {
    "subject": "audio_device:universal-audio-apollo-x",

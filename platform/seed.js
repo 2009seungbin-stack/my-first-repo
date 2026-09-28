@@ -2,7 +2,7 @@
 /** Seed documents: curated, sourced graph data under data/seed/<vertical>/*.json
  * (format: docs/n2/SEED-FORMAT.md). validateSeed() is strict on purpose: a seed file that
  * passes can be imported by the same ingest pipeline collectors use. */
-import {VERIFICATION,SOURCE_KINDS,COMPAT_STATUS,AVAILABILITY_STATE,EVENT_KINDS,PREDICATES,PLATFORMS,ENTITY_ID,SLUG,SOURCE_ID,ISO_DATE,REGION,isObject,isHttpURL,VERTICALS} from './schema.js';
+import {VERIFICATION,SOURCE_KINDS,COMPAT_STATUS,AVAILABILITY_STATE,EVENT_KINDS,PREDICATES,PLATFORMS,ENTITY_ID,SLUG,SOURCE_ID,ISO_DATE,REGION,isObject,isHttpURL,VERTICALS,envKey} from './schema.js';
 import {verticalOf} from './verticals/index.js';
 
 export const SEED_SCHEMA='nerulio.seed/1';
@@ -105,14 +105,19 @@ export function validateSeed(doc,known={}){
   if(x.region!==undefined&&!REGION.test(x.region))err(`${w}: region invalid`);
   ver(x.ver,w);src(x.src,w);
  }
+ const compatKeys=new Set(),availKeys=new Set();
  for(const a of doc.availability||[]){
   const w=`availability ${a?.entity}`;
+  const key=[a?.entity,a?.plan||'*',a?.platform||'*',a?.region||'*'].join('|');
+  if(availKeys.has(key))err(`${w}: duplicate row for the same plan, platform and region`);availKeys.add(key);
   if(!exists(a?.entity))err(`${w}: unknown entity`);
   if(!AVAILABILITY_STATE.includes(a.state))err(`${w}: state must be one of ${AVAILABILITY_STATE.join(', ')}`);
   scope(a,w);ver(a.ver,w);src(a.src,w);
  }
  for(const c of doc.compatibility||[]){
   const w=`compatibility ${c?.subject}→${c?.target}`;
+  const key=[c?.subject,c?.subject_version||'*',c?.target,c?.target_version||'*',envKey(isObject(c?.env)?c.env:{})].join('|');
+  if(compatKeys.has(key))err(`${w}: duplicate row for the same versions and env (merge them)`);compatKeys.add(key);
   if(!exists(c?.subject))err(`${w}: unknown subject`);
   if(!exists(c?.target))err(`${w}: unknown target`);
   if(!COMPAT_STATUS.includes(c.status))err(`${w}: status must be one of ${COMPAT_STATUS.join(', ')}`);

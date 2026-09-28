@@ -17,10 +17,12 @@ export function serviceMeta(config){
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
+/** Server-rendered platform prefixes (PLATFORM=on): community front and the vertical channels. */
+export const PLATFORM_ROUTES=Object.freeze(['ko','en'].flatMap(l=>['community','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)));
 export function serviceRoutes(config){
- // Without ads only /api/* is dynamic. With ads, HTML also needs a per-response nonce.
- // /_worker.js/* is routed only so the Worker can refuse to serve its own source.
- return config.client?{version:1,include:['/*'],exclude:[...STATIC_EXCLUDES]}:{version:1,include:['/api/*','/_worker.js/*'],exclude:[]};
+ // Without ads only /api/* (and, with PLATFORM=on, the platform pages) is dynamic. With ads, HTML also
+ // needs a per-response nonce. /_worker.js/* is routed only so the Worker can refuse to serve its own source.
+ return config.client?{version:1,include:['/*'],exclude:[...STATIC_EXCLUDES]}:{version:1,include:['/api/*','/_worker.js/*',...(config.platform?PLATFORM_ROUTES:[])],exclude:[]};
 }
 /** Appended after the site-wide block. The Turnstile frame needs its own CSP: it loads
  * challenges.cloudflare.com and may be framed by our own pages only. */
@@ -54,9 +56,11 @@ export async function emitService(dist,config,head){
  const root=new URL('../',import.meta.url),worker=path.join(dist,'_worker.js');
  await rm(worker,{recursive:true,force:true});
  await cp(new URL('server/',root),path.join(worker,'server'),{recursive:true});
+ // Platform renderers/repositories (server/platform/pages.js imports them; they run only with PLATFORM=on).
+ await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});await cp(new URL('src/quota.js',root),path.join(worker,'src','quota.js'));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
- await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,siteURL:config.siteURL||''})});\n`);
+ await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||''})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
 }
