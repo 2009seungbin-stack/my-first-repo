@@ -70,7 +70,11 @@ with sync_playwright() as p:
             assert gif.n_frames==8 and gif.info.get('loop')==0
             assert all(frame.info.get('duration')==200 for frame in ImageSequence.Iterator(gif))
         assert (OUT/f'{engine}-blink.gif').read_bytes()!=(OUT/f'{engine}-breathe.gif').read_bytes()
-        times['card']=saved(page,'card',OUT/f'{engine}-card.png')
+        page.locator('[data-action="card"]').focus()
+        start=time.perf_counter()
+        with page.expect_download(timeout=30000) as download:page.keyboard.press('Enter')
+        download.value.save_as(OUT/f'{engine}-card.png')
+        times['cardKeyboard']=round((time.perf_counter()-start)*1000)
         with Image.open(OUT/f'{engine}-card.png') as card:assert card.size==(1200,630) and card.mode=='RGBA'
         page.locator('[data-tab="face"]').click()
         page.locator('[data-category="face"][data-choice="angular"]').click()
@@ -82,8 +86,19 @@ with sync_playwright() as p:
         page.locator('[data-action="lock"]').click()
         page.locator('[data-action="random"]').click()
         assert 'face=angular' in page.url
+        page.locator('[data-tab="hair"]').click()
+        page.locator('[data-category="hair"][data-choice="bob"]').click()
+        page.locator('[data-tab="hair"]').focus()
+        page.keyboard.press('Enter')
+        assert page.locator('[data-tab="hair"]').get_attribute('aria-pressed')=='true'
+        page.locator('[data-category="hair"][data-choice="swept"]').focus()
+        page.keyboard.press('Space')
+        assert 'hair=swept' in page.url
+        page.keyboard.press('Control+z')
+        assert 'hair=bob' in page.url
         replay=page.url
         other=browser.new_page(viewport={'width':390,'height':844})
+        other.on('request',lambda req:posts.append(req.url) if req.method not in ('GET','HEAD') else None)
         other.goto(replay)
         assert other.locator('[data-category="face"][data-choice="angular"]').get_attribute('aria-pressed')=='true'
         assert other.evaluate('document.documentElement.scrollWidth-innerWidth')==0
@@ -100,6 +115,9 @@ with sync_playwright() as p:
             other.goto(BASE+f'/{language}/game/pixel-avatar-maker/')
             assert other.locator('#taskTitle').inner_text()==title
             assert other.evaluate('document.documentElement.scrollWidth-innerWidth')==0
+        reduced=browser.new_page(reduced_motion='reduce')
+        reduced.goto(BASE+PATH)
+        assert reduced.locator('[data-action="toggle-motion"]').is_disabled()
         assert not errors,errors
         assert not posts,posts
         result[engine]={'timesMs':times,'mobileOverflow':0,'pngSizes':[32,48,64,4096],'gifFrames':8,'localBackground':True,'urlRoundTrip':True}
