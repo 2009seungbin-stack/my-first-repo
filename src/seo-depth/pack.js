@@ -457,5 +457,298 @@ export default {
    versions:{body:['Nerulioのアトラスとアニメーションのファイルを、実在のCC0フレームセットでPhaser 3.90.0と4.2.1（Chromium上の実際の`phaser.min.js`）に読み込み、全フレームを元画像と比較しました。ローダーとアニメーションの呼び出しはPhaser公式ドキュメントに、ピボットが原点になる動作とフレームの長さの扱いはPhaser 3.90のソースに基づきます。'],sources:[S.phaserLoader,S.phaserAnims,S.phaserCore,S.phaserAnimSrc,S.phaserHashSrc]}
   }
  },
+ 'game/pixi-spritesheet-json':{
+  type:'engine',
+  intent:{primary:'make a PixiJS 8 spritesheet JSON with animations from frame images',secondary:['animations map and per-frame timing','anchors from pivots','@2x variants and multi-page sheets'],
+   goal:'Assets.load returns a Spritesheet whose textures and animations play in PixiJS 8 at the right size and anchor',input:'frame images, a GIF, an .aseprite file or a sheet',output:'spritesheet JSON (+ @2x variants) + PNG page(s)',target:'PixiJS 8 (verified 8.21)',support:'full',
+   evidence:['src/game/export/atlas-json.js (pixiFiles)','docs/STUDIO-PACK.md (PixiJS 8.21, rotated and multi-page)','tools/engine-verify/results/pixi-scale-2026-09-24.json (textures, anchors, sizes read back)'],
+   external:['PixiJS API: Spritesheet (frames, animations, meta.scale)','PixiJS API: AnimatedSprite (frame objects with time, animationSpeed)']},
+  en:{
+   answer:'PixiJS 8 loads a spritesheet from one JSON file: `const sheet = await Assets.load("run.json")` also loads the PNG named in `meta.image`, then `sheet.textures["run_0"]` is one frame and `sheet.animations["run"]` the list of textures of one animation. Nerulio writes that JSON with the animations map in playback order, an `anchor` per frame taken from your pivot, `meta.scale` for each @2x variant and `related_multi_packs` for extra pages; per-frame milliseconds go in `meta.nerulio`. Checked in PixiJS 8.21, rotated and multi-page sheets included.',
+   concept:{title:'What PixiJS reads from the JSON',body:[
+    'Each entry under `frames` becomes a Texture. `frame` is the rectangle on the page, `rotated` says the piece lies turned, `spriteSourceSize` and `sourceSize` restore a trimmed frame to its full size, and `anchor` becomes the texture\'s default anchor, so a Sprite made from it is placed by that point (0.5, 1 = bottom centre).',
+    'The `animations` map lists frame names per animation and carries no timing. An AnimatedSprite built from plain textures plays them at one rate, scaled by `animationSpeed`. For per-frame timing, pass objects `{ texture, time }` with `time` in milliseconds; Nerulio stores those milliseconds in `meta.nerulio.animations`, because the standard format has no field for them.',
+    '`meta.scale` is the resolution of the page: at "2" the textures of an @2x page have the same size in PixiJS units as those of the @1x page, with twice the detail. Extra pages are named in `meta.related_multi_packs` and load together with the first JSON.'],
+    terms:[['Texture','One frame: a rectangle of the page plus trim, rotation and default anchor.'],['anchor','The point of the texture placed at the sprite\'s position, 0–1 on each axis.'],['animations','Name → ordered list of frame names; PixiJS turns each list into an array of textures.'],['meta.scale','The page\'s resolution: "1" for @1x, "2" for @2x.']]},
+   example:{title:'Example: one frame of the run cycle, file and PixiJS side by side',lines:[
+    'run.json (page run.png 38 × 50, "scale": "1")',
+    '"run_0": { "frame": {"x":0,"y":34,"w":18,"h":15}, "rotated": false, "trimmed": true,',
+    '           "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15}, "sourceSize": {"w":40,"h":29},',
+    '           "anchor": {"x":0.5,"y":1} }',
+    '"animations": { "run": ["run_0","run_1","run_2","run_3","run_4","run_5"] }',
+    '"meta": { …, "nerulio": { "animations": { "run": { "fps":10, "durationsMs":[100,100,100,100,100,100] } } } }',
+    '',
+    'PixiJS 8.21 read back for run_0:',
+    '  frame 18 × 15 at (0, 34)   trim at (10, 10)   orig 40 × 29   rotate 0',
+    '  new Sprite(texture): width 40, height 29, anchor (0.5, 1)'],
+    after:'With rotation allowed, the same six frames pack into 33 × 57 and five of them are stored turned; PixiJS 8.21 drew rotated frames upright in the verification runs, so the PixiJS preset allows rotation.'},
+   outputs:{rows:[
+    ['run.json','Frames with `anchor`, the `animations` map (on the first page), `meta.scale`, `meta.related_multi_packs` when there are several pages, and `meta.nerulio` with fps, loop, direction and `durationsMs` per animation.'],
+    ['run.png','The page; with scale variants also `run@2x.png` with its own `run@2x.json`, and so on.'],
+    ['README-PIXI.md','Loading code for this bundle, including an AnimatedSprite that uses the exported frame times.']]},
+   target:{title:'Use it in PixiJS 8',steps:[
+    'Put `run.json` and `run.png` in the same folder of your app\'s public assets; the JSON names its PNG in `meta.image`.',
+    'For pixel art, before loading anything: `TextureSource.defaultOptions.scaleMode = "nearest"`.',
+    '`const sheet = await Assets.load("assets/run.json")`; a still frame is `new Sprite(sheet.textures["run_0"])`.',
+    'One rate for the whole animation: `const hero = new AnimatedSprite(sheet.animations["run"])`, `hero.animationSpeed = …`, `hero.play()`.',
+    'With the exported timing: `const ms = sheet.data.meta.nerulio.animations.run.durationsMs`, then `new AnimatedSprite(sheet.animations.run.map((texture, i) => ({ texture, time: ms[i] })))`, `hero.play()` and `app.stage.addChild(hero)`.']},
+   verify:{steps:[
+    '`Object.keys(sheet.textures)` lists run_0 … run_5.',
+    '`new Sprite(sheet.textures.run_0)` is 40 wide and 29 high: the full frame, not the 18 × 15 stored piece.',
+    'Zoom to 4×: with nearest scaling the edges stay square; soft edges mean the scale mode was not set before loading.']},
+   trouble:{rows:[
+    ['`sheet.animations` is undefined or empty','The JSON has no `animations` map (many exports write frames only), or you look at a later page of a multi-page sheet','Open the JSON: is there a top-level `animations`? With several pages it is on the first','Export with tags, or build the list yourself: `["run_0", …].map(n => sheet.textures[n])`'],
+    ['Sprites hang from their top-left corner or sit at the wrong spot','No `anchor` in the JSON, or your code overrides it','`sprite.anchor.x`, `sprite.anchor.y`','Keep the exported anchor, or set pivots in [[game/sprite-pivot-editor|the pivot editor]] before exporting'],
+    ['An @2x sheet draws twice as large','Its JSON says `"scale": "1"`','`sheet.data.meta.scale`','Set it to "2", or export scale variants; see [[game/pixijs-2x-spritesheet-scale|the @2x scale fix]]'],
+    ['The animation plays faster or slower than in the editor','Plain textures play at one rate set by `animationSpeed` (default 1), not at the tag\'s milliseconds','Compare `hero.animationSpeed` with the timing you want','Use `{ texture, time }` objects with the exported milliseconds, or tune `animationSpeed`'],
+    ['Pixel art looks soft','Linear scaling, PixiJS\'s default','The texture source\'s `scaleMode`','Set `TextureSource.defaultOptions.scaleMode = "nearest"` before `Assets.load`']]},
+   alternatives:{rows:[
+    ['Aseprite\'s JSON loaded by PixiJS','The art is already exported from Aseprite; PixiJS reads its frames but builds no animations from `frameTags`. See [[game/aseprite-json-to-pixi|Aseprite JSON to PixiJS]].'],
+    ['TexturePacker\'s PixiJS export','You already use TexturePacker; its `pixijs4` output, which rotates by default, passed in PixiJS 8.21 on the four sets we tested.'],
+    ['Loose PNGs, one `Assets.load` each','A prototype with a handful of frames; one request and one texture per frame, no atlas.']]},
+   versions:{body:['Loaded in PixiJS 8.21.0 (WebGL in Chromium) with a plain `Assets.load`: rectangles, trim, anchors, animations, rotated frames and multi-page sheets were read back and every frame compared with its source; the numbers in the example are that run\'s read-back. API names follow the PixiJS 8 API reference.'],sources:[S.pixiSheet,S.pixiAnim,S.pixiSource]}
+  },
+  ko:{
+   answer:'PixiJS 8은 JSON 파일 하나로 스프라이트시트를 불러옵니다. `const sheet = await Assets.load("run.json")`이 `meta.image`에 적힌 PNG까지 읽고 나면, `sheet.textures["run_0"]`이 프레임 하나, `sheet.animations["run"]`이 애니메이션 하나의 텍스처 목록입니다. Nerulio는 재생 순서대로 된 animations 맵, 피벗에서 가져온 프레임별 `anchor`, @2x 변형마다 맞춘 `meta.scale`, 추가 페이지용 `related_multi_packs`를 담아 이 JSON을 쓰고, 프레임별 밀리초는 `meta.nerulio`에 넣습니다. 회전·여러 페이지 시트까지 PixiJS 8.21에서 확인했습니다.',
+   concept:{title:'PixiJS가 JSON에서 읽는 것',body:[
+    '`frames` 아래 항목 하나가 텍스처 하나가 됩니다. `frame`은 페이지 위 사각형, `rotated`는 조각이 돌려져 저장됐다는 표시, `spriteSourceSize`와 `sourceSize`는 트림된 프레임을 원래 크기로 되돌리는 값입니다. `anchor`는 텍스처의 기본 앵커가 되어, 이 텍스처로 만든 스프라이트는 그 점을 기준으로 놓입니다(0.5, 1 = 아래쪽 가운데).',
+    'animations 맵은 애니메이션마다 프레임 이름을 나열할 뿐 시간 정보가 없습니다. 텍스처만으로 만든 AnimatedSprite는 `animationSpeed`로 조절되는 한 가지 속도로 재생합니다. 프레임마다 시간을 주려면 `time`을 밀리초로 둔 `{ texture, time }` 객체를 넘기세요. 표준 형식에 이 값을 넣을 자리가 없어서 Nerulio는 `meta.nerulio.animations`에 밀리초를 저장합니다.',
+    '`meta.scale`은 페이지의 해상도입니다. "2"이면 @2x 페이지의 텍스처가 PixiJS 단위로 @1x와 같은 크기가 되고 세밀함만 두 배가 됩니다. 추가 페이지는 `meta.related_multi_packs`에 이름이 있으며 첫 JSON과 함께 불러와집니다.'],
+    terms:[['텍스처','프레임 하나: 페이지의 사각형과 트림, 회전, 기본 앵커.'],['anchor','스프라이트 위치에 놓이는 텍스처의 점. 각 축 0–1.'],['animations','이름 → 프레임 이름의 순서 목록. PixiJS가 텍스처 배열로 바꿉니다.'],['meta.scale','페이지 해상도. @1x는 "1", @2x는 "2".']]},
+   example:{title:'예시: 달리기 프레임 하나를 파일과 PixiJS에서 나란히',lines:[
+    'run.json (페이지 run.png 38 × 50, "scale": "1")',
+    '"run_0": { "frame": {"x":0,"y":34,"w":18,"h":15}, "rotated": false, "trimmed": true,',
+    '           "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15}, "sourceSize": {"w":40,"h":29},',
+    '           "anchor": {"x":0.5,"y":1} }',
+    '"animations": { "run": ["run_0","run_1","run_2","run_3","run_4","run_5"] }',
+    '"meta": { …, "nerulio": { "animations": { "run": { "fps":10, "durationsMs":[100,100,100,100,100,100] } } } }',
+    '',
+    'PixiJS 8.21이 run_0에 대해 읽어 낸 값:',
+    '  frame 18 × 15, 위치 (0, 34)   trim (10, 10)   orig 40 × 29   rotate 0',
+    '  new Sprite(texture): 너비 40, 높이 29, anchor (0.5, 1)'],
+    after:'회전을 허용하면 같은 6프레임이 33 × 57에 들어가고 그중 5장이 돌려 저장됩니다. 검증 실행에서 PixiJS 8.21은 회전된 프레임을 바로 세워 그렸기 때문에 PixiJS 프리셋은 회전을 허용합니다.'},
+   outputs:{rows:[
+    ['run.json','`anchor`가 있는 프레임, 첫 페이지의 animations 맵, `meta.scale`, 페이지가 여럿이면 `meta.related_multi_packs`, 애니메이션마다 fps·반복·방향·`durationsMs`가 든 `meta.nerulio`.'],
+    ['run.png','페이지. 배율 변형이 있으면 `run@2x.png`와 전용 `run@2x.json` 등이 함께 생김.'],
+    ['README-PIXI.md','이 번들을 불러오는 코드. 내보낸 프레임 시간을 쓰는 AnimatedSprite 포함.']]},
+   target:{title:'PixiJS 8에서 쓰기',steps:[
+    '`run.json`과 `run.png`를 앱의 공개 에셋 폴더 한곳에 둡니다. JSON의 `meta.image`가 PNG 이름입니다.',
+    '도트 그림이면 무엇이든 불러오기 전에 `TextureSource.defaultOptions.scaleMode = "nearest"`를 설정합니다.',
+    '`const sheet = await Assets.load("assets/run.json")`. 정지 프레임은 `new Sprite(sheet.textures["run_0"])`입니다.',
+    '애니메이션 전체를 한 속도로: `const hero = new AnimatedSprite(sheet.animations["run"])`, `hero.animationSpeed = …`, `hero.play()`.',
+    '내보낸 시간 그대로: `const ms = sheet.data.meta.nerulio.animations.run.durationsMs` 뒤 `new AnimatedSprite(sheet.animations.run.map((texture, i) => ({ texture, time: ms[i] })))`, `hero.play()`, `app.stage.addChild(hero)`.']},
+   verify:{steps:[
+    '`Object.keys(sheet.textures)`에 run_0 … run_5가 있어야 합니다.',
+    '`new Sprite(sheet.textures.run_0)`의 너비 40, 높이 29: 저장된 18 × 15 조각이 아니라 전체 프레임 크기여야 합니다.',
+    '4배로 확대합니다. 최근접 배율이면 가장자리가 네모납니다. 흐리면 불러오기 전에 배율 모드를 설정하지 않은 것입니다.']},
+   trouble:{rows:[
+    ['`sheet.animations`가 undefined이거나 비어 있음','JSON에 animations 맵이 없음(프레임만 쓰는 내보내기가 많음), 또는 여러 페이지 시트의 뒤쪽 페이지를 보고 있음','JSON 최상위에 `animations`가 있는지 확인. 여러 페이지면 첫 페이지에 있음','태그를 넣어 내보내거나 목록을 직접 만듦: `["run_0", …].map(n => sheet.textures[n])`'],
+    ['스프라이트가 왼쪽 위 모서리에 매달리거나 엉뚱한 곳에 놓임','JSON에 `anchor`가 없거나 코드가 덮어씀','`sprite.anchor.x`, `sprite.anchor.y`','내보낸 앵커를 유지하거나 내보내기 전에 [[game/sprite-pivot-editor|피벗 편집기]]에서 피벗 설정'],
+    ['@2x 시트가 두 배 크기로 그려짐','그 JSON에 `"scale": "1"`이 적혀 있음','`sheet.data.meta.scale`','"2"로 고치거나 배율 변형으로 내보냄. [[game/pixijs-2x-spritesheet-scale|@2x 배율 문제]] 참고'],
+    ['애니메이션이 편집기보다 빠르거나 느림','텍스처만 넘기면 태그의 밀리초가 아니라 `animationSpeed`(기본 1)로 정해지는 한 속도로 재생됨','원하는 시간과 `hero.animationSpeed` 비교','내보낸 밀리초로 `{ texture, time }` 객체를 쓰거나 `animationSpeed` 조정'],
+    ['도트 그림이 뿌옇게 보임','PixiJS 기본값인 선형 배율','텍스처 소스의 `scaleMode`','`Assets.load` 전에 `TextureSource.defaultOptions.scaleMode = "nearest"`']]},
+   alternatives:{rows:[
+    ['PixiJS로 읽는 Aseprite JSON','이미 Aseprite에서 내보낸 그림일 때. PixiJS는 프레임은 읽지만 `frameTags`로 애니메이션을 만들지 않습니다. [[game/aseprite-json-to-pixi|Aseprite JSON을 PixiJS로]] 참고.'],
+    ['TexturePacker의 PixiJS 내보내기','이미 TexturePacker를 쓸 때. 기본으로 회전하는 `pixijs4` 출력이 시험한 네 세트 모두 PixiJS 8.21에서 통과했습니다.'],
+    ['PNG 낱장을 하나씩 `Assets.load`','프레임이 몇 장뿐인 시제품. 프레임마다 요청 하나, 텍스처 하나, 아틀라스 없음.']]},
+   versions:{body:['PixiJS 8.21.0(Chromium의 WebGL)에서 일반 `Assets.load`로 불러와 사각형, 트림, 앵커, 애니메이션, 회전 프레임, 여러 페이지 시트를 다시 읽고 모든 프레임을 원본과 비교했습니다. 예시의 수치는 그 실행에서 읽어 낸 값입니다. API 이름은 PixiJS 8 API 문서를 따릅니다.'],sources:[S.pixiSheet,S.pixiAnim,S.pixiSource]}
+  },
+  ja:{
+   answer:'PixiJS 8はJSONファイル1つからスプライトシートを読み込みます。`const sheet = await Assets.load("run.json")`が`meta.image`に書かれたPNGまで読み込むと、`sheet.textures["run_0"]`が1フレーム、`sheet.animations["run"]`が1つのアニメーションのテクスチャ一覧になります。Nerulioは再生順のanimationsマップ、ピボットから取ったフレームごとの`anchor`、@2xの倍率違いごとに合わせた`meta.scale`、追加ページ用の`related_multi_packs`を入れてこのJSONを書き、フレームごとのミリ秒は`meta.nerulio`に入れます。回転や複数ページのシートも含め、PixiJS 8.21で確認しています。',
+   concept:{title:'PixiJSがJSONから読むもの',body:[
+    '`frames`の項目1つがテクスチャ1つになります。`frame`はページ上の矩形、`rotated`は断片が回転して保存されている印、`spriteSourceSize`と`sourceSize`はトリムしたフレームを元の大きさに戻す値です。`anchor`はテクスチャの既定のアンカーになり、そこから作ったスプライトはその点を基準に置かれます（0.5, 1 = 下中央）。',
+    'animationsマップはアニメーションごとにフレーム名を並べるだけで、時間の情報はありません。テクスチャだけで作ったAnimatedSpriteは、`animationSpeed`で調整する1つの速さで再生します。フレームごとに時間を与えるには、`time`をミリ秒にした`{ texture, time }`オブジェクトを渡します。標準の形式にこの値の置き場がないため、Nerulioは`meta.nerulio.animations`にミリ秒を保存します。',
+    '`meta.scale`はページの解像度です。"2"なら@2xページのテクスチャはPixiJSの単位で@1xと同じ大きさになり、細かさだけが2倍になります。追加ページは`meta.related_multi_packs`に名前があり、最初のJSONと一緒に読み込まれます。'],
+    terms:[['テクスチャ','1フレーム：ページの矩形とトリム、回転、既定のアンカー。'],['anchor','スプライトの位置に置かれるテクスチャ上の点。各軸0–1。'],['animations','名前 → フレーム名の順序付きリスト。PixiJSがテクスチャの配列に変えます。'],['meta.scale','ページの解像度。@1xは"1"、@2xは"2"。']]},
+   example:{title:'例：走りの1フレームを、ファイルとPixiJSで並べて見る',lines:[
+    'run.json（ページ run.png 38 × 50、"scale": "1"）',
+    '"run_0": { "frame": {"x":0,"y":34,"w":18,"h":15}, "rotated": false, "trimmed": true,',
+    '           "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15}, "sourceSize": {"w":40,"h":29},',
+    '           "anchor": {"x":0.5,"y":1} }',
+    '"animations": { "run": ["run_0","run_1","run_2","run_3","run_4","run_5"] }',
+    '"meta": { …, "nerulio": { "animations": { "run": { "fps":10, "durationsMs":[100,100,100,100,100,100] } } } }',
+    '',
+    'PixiJS 8.21がrun_0について読み戻した値：',
+    '  frame 18 × 15、位置 (0, 34)   trim (10, 10)   orig 40 × 29   rotate 0',
+    '  new Sprite(texture)：幅40、高さ29、anchor (0.5, 1)'],
+    after:'回転を許可すると同じ6フレームが33 × 57に収まり、うち5枚が回転して保存されます。検証の実行でPixiJS 8.21は回転したフレームを正しい向きで描いたため、PixiJSプリセットは回転を許可しています。'},
+   outputs:{rows:[
+    ['run.json','`anchor`付きのフレーム、最初のページのanimationsマップ、`meta.scale`、複数ページなら`meta.related_multi_packs`、アニメーションごとのfps・ループ・方向・`durationsMs`を持つ`meta.nerulio`。'],
+    ['run.png','ページ。倍率違いがあれば`run@2x.png`と専用の`run@2x.json`なども。'],
+    ['README-PIXI.md','このバンドルを読み込むコード。書き出したフレーム時間を使うAnimatedSprite付き。']]},
+   target:{title:'PixiJS 8で使う',steps:[
+    '`run.json`と`run.png`をアプリの公開アセットの同じフォルダーに置きます。JSONの`meta.image`がPNGの名前です。',
+    'ドット絵なら、何かを読み込む前に`TextureSource.defaultOptions.scaleMode = "nearest"`を設定します。',
+    '`const sheet = await Assets.load("assets/run.json")`。静止フレームは`new Sprite(sheet.textures["run_0"])`です。',
+    'アニメーション全体を1つの速さで：`const hero = new AnimatedSprite(sheet.animations["run"])`、`hero.animationSpeed = …`、`hero.play()`。',
+    '書き出した時間どおりに：`const ms = sheet.data.meta.nerulio.animations.run.durationsMs`のあと`new AnimatedSprite(sheet.animations.run.map((texture, i) => ({ texture, time: ms[i] })))`、`hero.play()`、`app.stage.addChild(hero)`。']},
+   verify:{steps:[
+    '`Object.keys(sheet.textures)`にrun_0 … run_5があるはずです。',
+    '`new Sprite(sheet.textures.run_0)`は幅40・高さ29：保存された18 × 15の断片ではなく、フレーム全体の大きさのはずです。',
+    '4倍に拡大します。最近傍なら縁は四角いままです。ぼやけるなら、読み込み前にスケールモードを設定していません。']},
+   trouble:{rows:[
+    ['`sheet.animations`がundefinedか空','JSONにanimationsマップがない（フレームだけを書く書き出しは多い）、または複数ページのシートの後ろのページを見ている','JSONの最上位に`animations`があるか確認。複数ページなら最初のページにある','タグ付きで書き出すか、リストを自分で作る：`["run_0", …].map(n => sheet.textures[n])`'],
+    ['スプライトが左上の角でぶら下がる・違う場所に置かれる','JSONに`anchor`がない、またはコードで上書きしている','`sprite.anchor.x`、`sprite.anchor.y`','書き出したアンカーを使うか、書き出し前に[[game/sprite-pivot-editor|ピボットエディター]]でピボットを設定'],
+    ['@2xシートが2倍の大きさで描かれる','そのJSONに`"scale": "1"`と書かれている','`sheet.data.meta.scale`','"2"に直すか、倍率違いで書き出す。[[game/pixijs-2x-spritesheet-scale|@2xの倍率の問題]]を参照'],
+    ['アニメーションがエディターより速い・遅い','テクスチャだけを渡すと、タグのミリ秒ではなく`animationSpeed`（既定1）で決まる1つの速さで再生される','望む時間と`hero.animationSpeed`を比べる','書き出したミリ秒で`{ texture, time }`オブジェクトを使うか、`animationSpeed`を調整'],
+    ['ドット絵がぼやける','PixiJS既定の線形スケーリング','テクスチャソースの`scaleMode`','`Assets.load`の前に`TextureSource.defaultOptions.scaleMode = "nearest"`']]},
+   alternatives:{rows:[
+    ['PixiJSで読むAsepriteのJSON','すでにAsepriteから書き出した絵のとき。PixiJSはフレームは読みますが、`frameTags`からアニメーションは作りません。[[game/aseprite-json-to-pixi|AsepriteのJSONをPixiJSへ]]を参照。'],
+    ['TexturePackerのPixiJS書き出し','すでにTexturePackerを使っているとき。既定で回転する`pixijs4`の出力は、試した4セットすべてでPixiJS 8.21に合格しました。'],
+    ['PNGを1枚ずつ`Assets.load`','フレームが数枚だけの試作。フレームごとにリクエスト1つとテクスチャ1つ、アトラスなし。']]},
+   versions:{body:['PixiJS 8.21.0（ChromiumのWebGL）で通常の`Assets.load`により読み込み、矩形、トリム、アンカー、アニメーション、回転したフレーム、複数ページのシートを読み戻して、全フレームを元画像と比較しました。例の数値はその実行で読み戻した値です。API名はPixiJS 8のAPIリファレンスに従います。'],sources:[S.pixiSheet,S.pixiAnim,S.pixiSource]}
+  }
+ },
+ 'game/defold-atlas':{
+  type:'engine',
+  intent:{primary:'turn frames or a sprite sheet into a Defold atlas with animation groups',secondary:['why Defold needs separate frame images','atlas vs tile source','fps per animation group'],
+   goal:'a Defold sprite component that plays the animations from an .atlas or .tilesource',input:'a sheet (after Apply), numbered frames, a GIF or an .aseprite file',output:'frame PNGs + .atlas + tile image + .tilesource under assets/run/ (named after the frames)',target:'Defold (built with bob.jar 1.13.1)',support:'partial',
+   evidence:['src/game/export/engines.js (defoldFiles)','docs/STUDIO-PACK.md (Defold bob.jar 1.13.1 builds, UVs read back)','docs/ENGINE-VERIFY.md (defold_runner: built, not run)'],
+   external:['Defold manual: Atlas (animation groups, extrude borders)','Defold manual: Tile source (1-based tiles, start/end tile)','Defold API: sprite.play_flipbook','Defold manual: project settings (texture filters)']},
+  en:{
+   answer:'A Defold `.atlas` is not a packed image: it lists separate image files and animation groups, and Defold packs them itself when the project builds. A sheet you already have therefore has to go back to one PNG per frame. Nerulio writes those frame PNGs (full canvas, so frames stay aligned), an `.atlas` with one animation group per tag and a `.tilesource` with the same animations on a grid, all in one folder, `/assets/run/` for frames named run. Defold\'s builder bob.jar 1.13.1 built both and the built texture was read back; the editor and a running game were not used.',
+   concept:{title:'How Defold turns images into an animation',body:[
+    'An atlas resource is a list of images plus animation groups. Each group has an Id, a playback mode such as Loop Forward or Once Ping Pong, and one Fps; its images play in the listed order. At build time Defold packs every image into texture pages, and the atlas properties Margin, Inner Padding and Extrude Borders control spacing and the repeated edge pixels.',
+    'A tile source instead cuts one image into equal tiles, numbered from 1 at the top left, left to right and row by row. An animation there is a run of adjacent tiles from Start Tile to End Tile, again with a playback mode and an fps.',
+    'A Sprite component takes an atlas or a tile source as its Image and plays one animation: its Default Animation, or the one a script starts with `sprite.play_flipbook`. There is no per-frame duration: every frame of a group lasts 1 ÷ fps seconds.'],
+    terms:[['Animation group','A named list of images in an atlas, with a playback mode and an fps.'],['Extrude Borders','How many times the edge pixels are repeated around each image; Nerulio\'s .atlas sets 2.'],['Tile source','One grid image with tile size, margin, spacing and tile-range animations.'],['Playback','PLAYBACK_LOOP_FORWARD, PLAYBACK_ONCE_PINGPONG and so on, as written in the file.']]},
+   example:{title:'Example: the six-frame run as a Defold bundle',lines:[
+    'input: 6 frames of 40 × 29, tag "run" at 10 fps, looping',
+    '',
+    'assets/run/frames/run_0.png … run_5.png   6 images, 40 × 29 each (trim off)',
+    'assets/run/run.atlas',
+    '  images { image: "/assets/run/frames/run_0.png"  sprite_trim_mode: SPRITE_TRIM_MODE_OFF } …',
+    '  animations { id: "run"  images {…} × 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '  margin: 0   extrude_borders: 2   inner_padding: 0',
+    'assets/run/run.tilesource',
+    '  image: "/assets/run/run_tiles.png"   3 × 2 tiles = 120 × 58 px',
+    '  tile_width: 40   tile_height: 29',
+    '  animations { id: "run"  start_tile: 1  end_tile: 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '',
+    'one frame = 1 / 10 fps = 100 ms; one cycle of 6 frames = 0.6 s'],
+    after:'Mixed durations cannot be kept: frames of 100, 100 and 150 ms play at the group\'s single fps, and the export notes say so. A reverse tag is written as reversed image order with forward playback; a ping-pong tag uses Defold\'s own ping-pong mode.'},
+   outputs:{rows:[
+    ['frames/run_0.png …','One full-canvas PNG per frame (trim off, so every frame keeps its place).'],
+    ['run.atlas','The frame images plus one animation group per tag (playback, fps) and `extrude_borders: 2`.'],
+    ['run_tiles.png, run.tilesource','The same frames on one grid with a shared pivot, and the animations as tile ranges.'],
+    ['README-DEFOLD.md','Where the folder must go and how to pick an animation.']]},
+   target:{title:'Use it in Defold',steps:[
+    'Copy the exported folder into the project so that it sits at `/assets/run/`: the paths inside the `.atlas` and `.tilesource` start with that prefix. If you put it elsewhere, search and replace the prefix in both files.',
+    'Add a Sprite component to a game object, set its Image to `run.atlas` (or `run.tilesource`) and its Default Animation to `run`.',
+    'From a script, switch animations with `sprite.play_flipbook("#sprite", "run")`; an optional third argument is a function called when a non-looping animation has finished.',
+    'For pixel art, set Default Texture Min Filter and Default Texture Mag Filter in the Graphics section of `game.project` to nearest filtering.',
+    'Build the project: Defold packs the frame images into its own texture pages at this point, so Nerulio\'s page layout does not matter for this target.']},
+   verify:{steps:[
+    'Open `run.atlas` in the editor: the `run` group lists six images in order.',
+    'Run the game: `run` repeats every 0.6 s (six frames at 10 fps).',
+    'Frames do not shift while playing, because every frame image is the full 40 × 29 canvas.']},
+   trouble:{rows:[
+    ['Build error about an image that is not found','The folder is not at `/assets/run/`, so the absolute paths in the `.atlas` point nowhere','Open the .atlas as text and compare the paths with where the files are','Move the folder, or replace the `/assets/run/` prefix in both files'],
+    ['Frames with different durations all play at one speed','A Defold animation group has one fps','The export notes; `fps:` in the group','Split the tag into groups with their own fps, or even out the durations in the Studio'],
+    ['A fractional frame rate became a whole number','Defold stores fps as an integer, so 7.5 fps is rounded','The export notes say fractional fps were rounded','Choose durations that give a whole fps: 125 ms → 8 fps, 100 ms → 10 fps'],
+    ['Pixel art looks blurry','Linear texture filtering','The Graphics filters in game.project, or the sprite material\'s sampler','Switch both filters to nearest'],
+    ['Edges pick up neighbouring pixels when the sprite is scaled','Too little padding in Defold\'s own packing for the filter used','`extrude_borders` and `inner_padding` in the .atlas','Raise Extrude Borders or Inner Padding in the atlas properties']]},
+   alternatives:{rows:[
+    ['Your own frame PNGs in a new atlas in the Defold editor','You already have the frames as separate files: this is Defold\'s native route and needs no export. If you only have a sheet, [[game/sprite-sheet-to-png-frames|split it into PNG frames]] first.'],
+    ['A tile source pointed at the original sheet','The sheet is a clean grid of equal cells: set tile width, height, margin and spacing and define the animations as tile ranges yourself.']]},
+   versions:{body:['Built with Defold bob.jar 1.13.1 (Java 25) in a throw-away project with one Sprite component. Animation ids, tile ranges, fps and playback were read from the built texture set, and every frame was cut from the built texture with its UVs and compared with its source. The Defold editor and a running game were not used, so the label is "built", not "verified". Defold terms follow the Defold manuals.'],sources:[S.defoldAtlas,S.defoldTile,S.defoldSprite,S.defoldProject]}
+  },
+  ko:{
+   answer:'Defold의 `.atlas`는 패킹된 이미지가 아닙니다. 개별 이미지 파일과 애니메이션 그룹을 나열해 두면 프로젝트를 빌드할 때 Defold가 직접 패킹합니다. 그래서 이미 있는 시트는 프레임마다 PNG 한 장으로 되돌려야 합니다. Nerulio는 그 프레임 PNG(프레임이 어긋나지 않도록 전체 캔버스), 태그마다 애니메이션 그룹이 하나씩 있는 `.atlas`, 같은 애니메이션을 격자로 담은 `.tilesource`를 한 폴더(프레임 이름이 run이면 `/assets/run/`)에 씁니다. Defold 빌더 bob.jar 1.13.1로 둘 다 빌드하고 빌드된 텍스처를 다시 읽어 확인했으며, 에디터와 실행 중인 게임에서는 확인하지 않았습니다.',
+   concept:{title:'Defold가 이미지를 애니메이션으로 만드는 방식',body:[
+    '아틀라스 리소스는 이미지 목록과 애니메이션 그룹입니다. 그룹마다 Id, Loop Forward나 Once Ping Pong 같은 재생 방식, 하나의 Fps가 있고, 이미지가 나열된 순서대로 재생됩니다. 빌드할 때 Defold가 모든 이미지를 텍스처 페이지로 패킹하며, 아틀라스 속성의 Margin, Inner Padding, Extrude Borders가 간격과 가장자리 반복 픽셀을 정합니다.',
+    '타일 소스는 이미지 한 장을 같은 크기 타일로 자릅니다. 번호는 왼쪽 위의 1부터 왼쪽에서 오른쪽, 위에서 아래 순서입니다. 여기서 애니메이션은 Start Tile부터 End Tile까지 이어진 타일 구간이며, 역시 재생 방식과 fps를 가집니다.',
+    '스프라이트 컴포넌트는 아틀라스나 타일 소스를 Image로 받아 애니메이션 하나를 재생합니다. 기본 애니메이션(Default Animation)이거나 스크립트가 `sprite.play_flipbook`으로 시작한 것입니다. 프레임별 길이는 없고, 그룹의 모든 프레임이 1 ÷ fps초씩 보입니다.'],
+    terms:[['애니메이션 그룹','아틀라스 안의 이름 붙은 이미지 목록. 재생 방식과 fps가 있음.'],['Extrude Borders','각 이미지 주변에 가장자리 픽셀을 몇 번 반복할지. Nerulio의 .atlas는 2.'],['타일 소스','타일 크기·여백·간격과 타일 구간 애니메이션이 있는 격자 이미지 한 장.'],['재생 방식','파일에 적히는 PLAYBACK_LOOP_FORWARD, PLAYBACK_ONCE_PINGPONG 등.']]},
+   example:{title:'예시: 6프레임 달리기를 Defold 번들로',lines:[
+    '입력: 40 × 29 프레임 6장, 태그 "run" 10fps, 반복',
+    '',
+    'assets/run/frames/run_0.png … run_5.png   이미지 6장, 각 40 × 29 (트림 끔)',
+    'assets/run/run.atlas',
+    '  images { image: "/assets/run/frames/run_0.png"  sprite_trim_mode: SPRITE_TRIM_MODE_OFF } …',
+    '  animations { id: "run"  images {…} × 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '  margin: 0   extrude_borders: 2   inner_padding: 0',
+    'assets/run/run.tilesource',
+    '  image: "/assets/run/run_tiles.png"   타일 3 × 2 = 120 × 58 px',
+    '  tile_width: 40   tile_height: 29',
+    '  animations { id: "run"  start_tile: 1  end_tile: 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '',
+    '한 프레임 = 1 / 10fps = 100ms, 6프레임 한 바퀴 = 0.6초'],
+    after:'서로 다른 길이는 유지되지 않습니다. 100, 100, 150ms 프레임도 그룹의 fps 하나로 재생되며, 내보내기 안내에 그렇게 표시됩니다. 역방향 태그는 이미지 순서를 뒤집고 정방향 재생으로 쓰고, 핑퐁 태그는 Defold 자체 핑퐁 모드를 씁니다.'},
+   outputs:{rows:[
+    ['frames/run_0.png …','프레임마다 전체 캔버스 PNG 한 장(트림 끔, 그래서 모든 프레임이 제자리).'],
+    ['run.atlas','프레임 이미지들과 태그마다 애니메이션 그룹 하나(재생 방식, fps), `extrude_borders: 2`.'],
+    ['run_tiles.png, run.tilesource','같은 프레임을 피벗을 맞춘 격자 한 장에 담고, 애니메이션을 타일 구간으로 기록.'],
+    ['README-DEFOLD.md','폴더를 둘 위치와 애니메이션 고르는 법.']]},
+   target:{title:'Defold에서 쓰기',steps:[
+    '내보낸 폴더를 프로젝트 안 `/assets/run/` 위치에 복사합니다. `.atlas`와 `.tilesource` 안의 경로가 이 접두어로 시작합니다. 다른 곳에 두면 두 파일에서 접두어를 찾아 바꾸세요.',
+    '게임 오브젝트에 Sprite 컴포넌트를 추가하고 Image를 `run.atlas`(또는 `run.tilesource`)로, Default Animation을 `run`으로 설정합니다.',
+    '스크립트에서는 `sprite.play_flipbook("#sprite", "run")`으로 애니메이션을 바꿉니다. 세 번째 인수로 반복하지 않는 애니메이션이 끝났을 때 부를 함수를 줄 수 있습니다.',
+    '도트 그림이면 `game.project`의 Graphics 항목에서 Default Texture Min Filter와 Default Texture Mag Filter를 최근접 필터로 바꿉니다.',
+    '프로젝트를 빌드합니다. 이때 Defold가 프레임 이미지를 자체 텍스처 페이지로 패킹하므로, 이 대상에서는 Nerulio의 페이지 배치가 상관없습니다.']},
+   verify:{steps:[
+    '에디터에서 `run.atlas`를 열면 `run` 그룹에 이미지 6장이 순서대로 있어야 합니다.',
+    '게임을 실행하면 `run`이 0.6초마다 반복돼야 합니다(10fps로 6프레임).',
+    '모든 프레임 이미지가 40 × 29 전체 캔버스이므로 재생 중 프레임이 밀리지 않아야 합니다.']},
+   trouble:{rows:[
+    ['이미지를 찾을 수 없다는 빌드 오류','폴더가 `/assets/run/`에 없어서 `.atlas`의 절대 경로가 가리키는 곳에 파일이 없음','.atlas를 텍스트로 열어 경로와 실제 파일 위치 비교','폴더를 옮기거나 두 파일에서 `/assets/run/` 접두어를 바꿈'],
+    ['길이가 다른 프레임이 모두 같은 속도로 재생됨','Defold 애니메이션 그룹은 fps가 하나뿐','내보내기 안내와 그룹의 `fps:` 확인','태그를 fps가 다른 여러 그룹으로 나누거나 Studio에서 길이를 고르게 맞춤'],
+    ['소수 프레임 속도가 정수가 됨','Defold는 fps를 정수로 저장해서 7.5fps가 반올림됨','내보내기 안내에 소수 fps를 반올림했다고 표시됨','정수 fps가 되는 길이를 고름: 125ms → 8fps, 100ms → 10fps'],
+    ['도트 그림이 흐림','선형 텍스처 필터','game.project의 Graphics 필터나 스프라이트 머티리얼의 샘플러','두 필터를 최근접으로'],
+    ['확대하면 가장자리에 이웃 픽셀이 묻어남','쓰는 필터에 비해 Defold 자체 패킹의 여백이 부족함','.atlas의 `extrude_borders`와 `inner_padding`','아틀라스 속성에서 Extrude Borders나 Inner Padding을 올림']]},
+   alternatives:{rows:[
+    ['Defold 에디터에서 새 아틀라스에 직접 프레임 PNG 넣기','이미 프레임이 낱장 파일로 있을 때. Defold의 기본 방식이라 내보내기가 필요 없습니다. 시트만 있다면 먼저 [[game/sprite-sheet-to-png-frames|PNG 프레임으로 나누세요]].'],
+    ['원본 시트를 가리키는 타일 소스','시트가 같은 크기 칸으로 된 깔끔한 격자일 때. 타일 너비·높이·여백·간격을 정하고 애니메이션을 타일 구간으로 직접 정의합니다.']]},
+   versions:{body:['Sprite 컴포넌트 하나가 있는 임시 프로젝트에서 Defold bob.jar 1.13.1(Java 25)로 빌드했습니다. 빌드된 텍스처 세트에서 애니메이션 id, 타일 구간, fps, 재생 방식을 읽고, 빌드된 텍스처에서 UV로 모든 프레임을 잘라 원본과 비교했습니다. Defold 에디터와 실행 중인 게임은 쓰지 않았으므로 표시는 "검증"이 아니라 "빌드"입니다. Defold 용어는 공식 매뉴얼을 따릅니다.'],sources:[S.defoldAtlas,S.defoldTile,S.defoldSprite,S.defoldProject]}
+  },
+  ja:{
+   answer:'Defoldの`.atlas`はパック済みの画像ではありません。個別の画像ファイルとアニメーショングループを並べておくと、プロジェクトのビルド時にDefold自身がパックします。そのため手元のシートは、フレームごとに1枚のPNGへ戻す必要があります。Nerulioはそのフレーム画像（位置がずれないようキャンバス全体）、タグごとにアニメーショングループを1つ持つ`.atlas`、同じアニメーションをグリッドにした`.tilesource`を、1つのフォルダー（フレーム名がrunなら`/assets/run/`）に書き出します。Defoldのビルダーbob.jar 1.13.1で両方をビルドし、ビルドされたテクスチャを読み戻して確認しました。エディターや実行中のゲームでは確認していません。',
+   concept:{title:'Defoldが画像をアニメーションにする仕組み',body:[
+    'アトラスのリソースは、画像のリストとアニメーショングループです。グループごとにId、Loop ForwardやOnce Ping Pongのような再生方法、1つのFpsがあり、画像は並べた順に再生されます。ビルド時にDefoldがすべての画像をテクスチャページへパックし、アトラスのプロパティMargin、Inner Padding、Extrude Bordersが間隔と縁のピクセルの複製を決めます。',
+    'タイルソースは1枚の画像を同じ大きさのタイルに切ります。番号は左上の1から始まり、左から右、上から下へ進みます。ここでのアニメーションはStart TileからEnd Tileまでの連続したタイルで、やはり再生方法とfpsを持ちます。',
+    'スプライトコンポーネントは、アトラスかタイルソースをImageとして受け取り、アニメーションを1つ再生します。Default Animationか、スクリプトが`sprite.play_flipbook`で始めたものです。フレームごとの長さはなく、グループのどのフレームも1 ÷ fps秒ずつ表示されます。'],
+    terms:[['アニメーショングループ','アトラス内の名前付きの画像リスト。再生方法とfpsを持つ。'],['Extrude Borders','各画像の周りに縁のピクセルを何回複製するか。Nerulioの.atlasは2。'],['タイルソース','タイルの大きさ・余白・間隔とタイル範囲のアニメーションを持つグリッド画像1枚。'],['再生方法','ファイルに書かれるPLAYBACK_LOOP_FORWARD、PLAYBACK_ONCE_PINGPONGなど。']]},
+   example:{title:'例：6フレームの走りをDefold用バンドルに',lines:[
+    '入力：40 × 29のフレーム6枚、タグ "run" 10fps、ループ',
+    '',
+    'assets/run/frames/run_0.png … run_5.png   画像6枚、各40 × 29（トリムなし）',
+    'assets/run/run.atlas',
+    '  images { image: "/assets/run/frames/run_0.png"  sprite_trim_mode: SPRITE_TRIM_MODE_OFF } …',
+    '  animations { id: "run"  images {…} × 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '  margin: 0   extrude_borders: 2   inner_padding: 0',
+    'assets/run/run.tilesource',
+    '  image: "/assets/run/run_tiles.png"   タイル3 × 2 = 120 × 58 px',
+    '  tile_width: 40   tile_height: 29',
+    '  animations { id: "run"  start_tile: 1  end_tile: 6  playback: PLAYBACK_LOOP_FORWARD  fps: 10 }',
+    '',
+    '1フレーム = 1 / 10fps = 100ms、6フレームで1周 = 0.6秒'],
+    after:'異なる長さは保てません。100、100、150msのフレームもグループのfps 1つで再生され、書き出しの注意にそう表示されます。逆方向のタグは画像の順を逆にして順方向で再生し、ピンポンのタグはDefold自身のピンポンモードを使います。'},
+   outputs:{rows:[
+    ['frames/run_0.png …','フレームごとのキャンバス全体のPNG 1枚（トリムなしなので、全フレームが元の位置）。'],
+    ['run.atlas','フレーム画像と、タグごとのアニメーショングループ（再生方法、fps）、`extrude_borders: 2`。'],
+    ['run_tiles.png、run.tilesource','同じフレームをピボットをそろえたグリッド1枚にまとめ、アニメーションをタイル範囲で記録。'],
+    ['README-DEFOLD.md','フォルダーを置く場所とアニメーションの選び方。']]},
+   target:{title:'Defoldで使う',steps:[
+    '書き出したフォルダーを、プロジェクト内の`/assets/run/`になるようにコピーします。`.atlas`と`.tilesource`内のパスはこの接頭辞で始まります。別の場所に置くなら、両方のファイルで接頭辞を置換してください。',
+    'ゲームオブジェクトにSpriteコンポーネントを追加し、Imageを`run.atlas`（または`run.tilesource`）、Default Animationを`run`にします。',
+    'スクリプトからは`sprite.play_flipbook("#sprite", "run")`でアニメーションを切り替えます。3番目の引数に、ループしないアニメーションが終わったときに呼ぶ関数を渡せます。',
+    'ドット絵なら、`game.project`のGraphicsセクションでDefault Texture Min FilterとDefault Texture Mag Filterを最近傍フィルターにします。',
+    'プロジェクトをビルドします。このときDefoldがフレーム画像を独自のテクスチャページにパックするので、この書き出し先ではNerulioのページ配置は関係ありません。']},
+   verify:{steps:[
+    'エディターで`run.atlas`を開くと、`run`グループに画像が6枚、順番どおり並んでいるはずです。',
+    'ゲームを実行すると、`run`は0.6秒ごとに繰り返すはずです（10fpsで6フレーム）。',
+    'どのフレーム画像も40 × 29のキャンバス全体なので、再生中にフレームがずれないはずです。']},
+   trouble:{rows:[
+    ['画像が見つからないというビルドエラー','フォルダーが`/assets/run/`になく、`.atlas`の絶対パスの先にファイルがない','.atlasをテキストで開き、パスと実際の置き場所を比べる','フォルダーを移すか、両ファイルの`/assets/run/`という接頭辞を置換'],
+    ['長さの違うフレームがすべて同じ速さで再生される','Defoldのアニメーショングループはfpsが1つだけ','書き出しの注意と、グループの`fps:`','タグをfpsの違う複数グループに分けるか、Studioで長さをそろえる'],
+    ['小数のフレームレートが整数になった','Defoldはfpsを整数で持つため、7.5fpsは丸められる','書き出しの注意に、小数のfpsを丸めたと出る','整数のfpsになる長さにする：125ms → 8fps、100ms → 10fps'],
+    ['ドット絵がぼやける','線形のテクスチャフィルター','game.projectのGraphicsのフィルター、またはスプライトのマテリアルのサンプラー','両方のフィルターを最近傍に'],
+    ['拡大すると縁に隣のピクセルが混じる','使うフィルターに対して、Defold自身のパックの余白が足りない','.atlasの`extrude_borders`と`inner_padding`','アトラスのプロパティでExtrude BordersかInner Paddingを上げる']]},
+   alternatives:{rows:[
+    ['Defoldエディターで新しいアトラスに自分のフレームPNGを入れる','すでにフレームが1枚ずつのファイルであるとき。Defold本来の方法で、書き出しは不要です。シートしかないなら、先に[[game/sprite-sheet-to-png-frames|PNGフレームに分割]]してください。'],
+    ['元のシートを指すタイルソース','シートが同じ大きさのセルのきれいなグリッドのとき。タイルの幅・高さ・余白・間隔を設定し、アニメーションをタイル範囲で自分で定義します。']]},
+   versions:{body:['Spriteコンポーネントを1つ持つ使い捨てのプロジェクトで、Defold bob.jar 1.13.1（Java 25）によりビルドしました。ビルドされたテクスチャセットからアニメーションのid、タイル範囲、fps、再生方法を読み、ビルドされたテクスチャからUVで全フレームを切り出して元画像と比較しました。Defoldエディターや実行中のゲームは使っていないため、表示は「検証済み」ではなく「ビルド済み」です。Defoldの用語は公式マニュアルに従います。'],sources:[S.defoldAtlas,S.defoldTile,S.defoldSprite,S.defoldProject]}
+  }
+ },
  // @@PAGES@@
 };
