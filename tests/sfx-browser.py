@@ -1,5 +1,6 @@
 """SFX Generator UI and independently reopened output. TEST_URL=http://127.0.0.1:4706 python tests/sfx-browser.py"""
 import io
+import base64
 import json
 import math
 import os
@@ -14,6 +15,7 @@ from playwright.sync_api import sync_playwright
 from playwright.sync_api import expect
 
 BASE = os.environ.get('TEST_URL', 'http://127.0.0.1:4173').rstrip('/')
+BROWSER = os.environ.get('SFX_BROWSER', 'chromium')
 CORPUS = Path(os.environ.get('NERULIO_CORPUS', r'C:\Users\2009s\nerulio-asset-corpus\_adhoc\nerulio-tool-t6-sfx\back_001.ogg'))
 
 
@@ -36,8 +38,10 @@ def run():
     checks = 0
     with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
         temp = Path(tmp)
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True, permissions=['clipboard-read', 'clipboard-write'])
+        browser = getattr(p, BROWSER).launch(headless=True)
+        options={'viewport': {'width': 1440, 'height': 900}, 'accept_downloads': True}
+        if BROWSER == 'chromium': options['permissions']=['clipboard-read', 'clipboard-write']
+        context = browser.new_context(**options)
         page = context.new_page(); errors = []; external = []
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.on('request', lambda req: external.append(req.url) if not req.url.startswith(BASE) and not req.url.startswith('data:') else None)
@@ -60,6 +64,13 @@ def run():
         expect(page.locator('#layers select[data-field="kind"]').first).to_have_value('sample')
         assert 'Sample' in page.locator('#layers').inner_text(); checks += 1
         page.locator('#undo').click(); page.wait_for_timeout(200); checks += 1
+        if BROWSER == 'chromium':
+            fallback=temp/'drop.wav'; make_wav(fallback)
+            b64=base64.b64encode(fallback.read_bytes()).decode()
+            page.evaluate('''(b64) => {const raw=atob(b64),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));const file=new File([bytes],'dropped.wav',{type:'audio/wav'}),dt=new DataTransfer();dt.items.add(file);window.dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true}));}''', b64)
+            expect(page.locator('#layers select[data-field="kind"] option[value="sample"]').first).to_contain_text('local-2'); checks += 1
+            page.evaluate('''(b64) => {const raw=atob(b64),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));const file=new File([bytes],'pasted.wav',{type:'audio/wav'}),dt=new DataTransfer();dt.items.add(file);window.dispatchEvent(new ClipboardEvent('paste',{clipboardData:dt,bubbles:true,cancelable:true}));}''', b64)
+            expect(page.locator('#layers select[data-field="kind"] option[value="sample"]').first).to_contain_text('local-3'); checks += 1
         page.locator('#format').select_option('wav'); page.locator('#bits').select_option('24')
         with page.expect_download() as item: page.locator('#saveAudio').click()
         wav = temp / 'effect-24.wav'; item.value.save_as(wav)
@@ -93,17 +104,17 @@ def run():
         page.locator('#foreign').fill('not-a-native-sfs-file'); page.locator('#useLegacy').click()
         expect(page.locator('#status')).to_contain_text('Unrecognized'); checks += 1
         page.locator('#share').click(); expect(page.locator('#status')).to_contain_text('?s=')
-        link=page.locator('#status').inner_text(); page.goto(link); page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 1
+        link=page.locator('#status').inner_text().split()[-1]; page.goto(link); page.locator('#metrics').filter(has_text='Duration').wait_for(); checks += 1
         assert not errors, errors; assert not external, external; checks += 1
         context.close(); browser.close()
-        mobile = p.chromium.launch(headless=True)
+        mobile = getattr(p, BROWSER).launch(headless=True)
         for locale in ('ko','ja'):
             q=mobile.new_page(viewport={'width':390,'height':844});q.goto(BASE+f'/{locale}/game/sfx-generator/');q.locator('#metrics').filter(has_text='').wait_for()
             assert q.locator('html').get_attribute('lang') == locale and q.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), locale
             assert q.locator('h1').inner_text() and q.locator('.sfx-seo .sd-block').count() >= 3
             checks += 1;q.close()
         mobile.close()
-    print(f'SFX browser checks passed: {checks}; real CC0 sample: {CORPUS.exists()}; ffprobe: {bool(shutil.which("ffprobe"))}')
+    print(f'SFX browser checks passed: {checks}; engine: {BROWSER}; real CC0 sample: {CORPUS.exists()}; ffprobe: {bool(shutil.which("ffprobe"))}')
 
 
 if __name__ == '__main__': run()
