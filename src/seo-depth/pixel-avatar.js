@@ -1,8 +1,8 @@
 /** Specific, indexable help for the original local pixel avatar composer. */
 const SOURCES={
- en:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)'],
- ko:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)'],
- ja:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)'],
+ en:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)','[X share button help](https://help.x.com/en/using-x/add-x-share-button)','[LINE share URL](https://developers.line.biz/en/docs/messaging-api/using-line-url-scheme/)','[Kakao JavaScript Share](https://developers.kakao.com/docs/en/tutorial/js-share)'],
+ ko:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)','[X 공유 버튼 도움말](https://help.x.com/en/using-x/add-x-share-button)','[LINE 공유 URL](https://developers.line.biz/en/docs/messaging-api/using-line-url-scheme/)','[Kakao JavaScript Share](https://developers.kakao.com/docs/en/tutorial/js-share)'],
+ ja:['[Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)','[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)','[X共有ボタンのヘルプ](https://help.x.com/en/using-x/add-x-share-button)','[LINE共有URL](https://developers.line.biz/en/docs/messaging-api/using-line-url-scheme/)','[Kakao JavaScript Share](https://developers.kakao.com/docs/en/tutorial/js-share)'],
 };
 export default {
  'game/pixel-avatar-maker':{

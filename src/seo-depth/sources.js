@@ -14,6 +14,8 @@ export const SOURCE_HOSTS=new Set([
  'developer.apple.com',
  'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
+ 'developers.kakao.com', // Kakao JavaScript Share setup and app key/domain requirements
+ 'developers.line.biz', // LINE's own share URL and media restrictions
  'developers.google.com',
  'doc.mapeditor.org',
  'doc.starling-framework.org', // Starling framework API reference: owner of the Sparrow/Starling TextureAtlas XML format
