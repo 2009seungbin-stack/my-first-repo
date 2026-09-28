@@ -1006,6 +1006,9 @@ S.ja.uiLab.fontBakeAtlasLimit='この端末の単一アトラス上限を超え�
 S.ko.uiLab.fontBakePreflight='선택한 고유 문자 {count}자 · 최대 1,024자 · 이 기기 아틀라스 한 변 {cap}px. 굽기 전에 실제 글자 크기로 검사합니다.';
 S.en.uiLab.fontBakePreflight='{count} unique characters selected · 1,024 maximum · {cap}px atlas side cap on this device. Actual glyph dimensions are checked before baking.';
 S.ja.uiLab.fontBakePreflight='選択した固有文字{count}字 · 最大1,024字 · この端末のアトラス一辺{cap}px。焼き込み前に実際の文字寸法を確認します。';
+S.ko.uiLab.fontBakeBeforeEdit='글꼴 굽기가 끝난 뒤 픽셀 글자를 편집할 수 있습니다. 문자 수나 크기를 줄여 주세요.';
+S.en.uiLab.fontBakeBeforeEdit='Bake the font before editing its pixels. Reduce the glyph count or size.';
+S.ja.uiLab.fontBakeBeforeEdit='フォントを焼き込んでから画素を編集できます。文字数かサイズを減らしてください。';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

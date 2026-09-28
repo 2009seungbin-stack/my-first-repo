@@ -429,7 +429,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   }catch(error){S.atlas.packed=null;summary.className='summary warn';summary.innerHTML=`<div class="summary-line">${esc(error.message)}</div>`;}
  }
  // ---------- font building ----------
- function fontChars(){return Array.from(S.font.chars).filter((c,i,a)=>a.indexOf(c)===i&&!/[\n\r]/.test(c)).join('');}
+ function fontChars(){const seen=new Set();for(const ch of S.font.chars)if(ch!=='\n'&&ch!=='\r')seen.add(ch);return [...seen].join('');}
  function buildFont(){
   const f=S.font,summary=$('#fontSummary'),info=$('#fontInfo'),note=$('#fontNote');
   const chars=fontChars();
@@ -874,6 +874,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  }
  function startFontEditor(){
   const f=S.font;
+  if(f.mode==='ttf'&&!f.built)throw Error(T('fontBakeBeforeEdit'));
   if(!f.project){
    const chars=fontChars()||'ABCDEFGH';
    const atlas=f.sheet||f.keyed||source;
