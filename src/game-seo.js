@@ -410,7 +410,7 @@ const BASE_KEYWORD_PAGES=Object.freeze({
    faq:[['Unity 자체 Aseprite 가져오기와는 무엇이 다른가요?','그것을 써도 됩니다. 이 방법은 같은 타이밍으로 패킹된 아틀라스와 클립을 주며, 가져오기 패키지가 없는 환경에서도 작동합니다.'],['프레임마다 피벗이 따로 들어가나요?','네. 각 스프라이트 영역에 해당 프레임의 피벗이 들어갑니다(프레임이 같은 기준점을 쓰면 공통 기준점).']]},
   ja:{title:'AsepriteをUnity 6へ · スプライトとアニメーションクリップ',description:'.asepriteをブラウザでUnity 6のスプライトとAnimationClipに変換。Pointフィルター・無圧縮・フレームごとのピボット・タグごとにクリップ。Unity 6000.5のバッチモードで確認。',lead:'.asepriteをドロップしてUnityバンドルで書き出し。アトラス、JSON、スプライトを切り（Point・無圧縮）タグごとにフレーム時間入りのAnimationClipを作る小さなエディタースクリプトが入っています。',
    what:['タグはフレームごとの長さを持つAnimationClipに。ピボットはAsepriteのスライスかStudioのピボットツールから。','Sprite Mode Multiple、Pointフィルター、圧縮なし — ドット絵に必要な設定です。','範囲・ピボット・ピクセル・クリップのキーと長さをUnity 6000.5.3f1のバッチモードで確認。','Unityパッケージやインポーターは不要です。'],
-   steps:['.asepriteをドロップしてタグを確認。','パック＆書き出しでUnity 6を選ぶ。','バンドルをAssets/にコピー（Editorフォルダーごと）。','Tools › Nerulio › Import Studio JSONを実行すると、シートを切ってクリップを作成。'],
+   steps:['.asepriteをドロップしてタグを確認。','パック＆書き出しでUnity 6を選ぶ。','バンドルをAssets/にコピー（Editorフォルダーごと）。','Nerulioのメニューから取り込みを実行し、スプライトとクリップを作成。'],
    faq:[['Unity純正のAsepriteインポーターとの違いは？','そちらを使っても構いません。この方法は同じタイミングでパック済みアトラスとクリップを作り、インポーターパッケージがない環境でも動きます。'],['フレームごとのピボットは保たれますか？','はい。各スプライト範囲にそのフレームのピボットが入ります（共通の基準点なら共通）。']]}
  },{related:['game/aseprite-to-godot','game/unity-sprite-sheet','game/aseprite-to-phaser','sprite-lab','game/texturepacker-to-unity'],highlight:['unity','aseprite']}),
  'game/aseprite-to-phaser':kw('sprite-lab','sprite','pack',{
