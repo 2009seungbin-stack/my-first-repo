@@ -392,7 +392,11 @@ export async function preorderDeadlines(db,now,limit=8){
  const today=new Date(now).toISOString().slice(0,10);
  const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},json_extract(f.value,'$') AS ends FROM facts f JOIN entities e ON e.id=f.entity_id
   WHERE f.property='preorder_end' AND f.is_current=1 AND e.status='active' AND json_extract(f.value,'$')>=? ORDER BY ends LIMIT ?`,[today,limit]);
- return rows.map(r=>({entity:entityRow(r),ends:String(r.ends)}));
+ // What the goods are of (a character or a work), so an English product name still says whose it is.
+ const of=await relatedMany(db,rows.map(r=>String(r.id)),'merchandise_of');
+ const chars=[...of.values()].map(l=>l[0]).filter(e=>e&&e.type==='character').map(e=>e.id);
+ const work=chars.length?await relatedMany(db,chars,'appears_in'):new Map();
+ return rows.map(r=>{const o=of.get(String(r.id))?.[0]||null;return {entity:entityRow(r),ends:String(r.ends),of:o,work:o&&o.type==='character'?work.get(o.id)?.[0]||null:null};});
 }
 
 /** Compare version strings numerically part by part ("v1.4.10" > "1.4.9"); non-numeric parts as text. @param {string} a @param {string} b */
