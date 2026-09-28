@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {readFileSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import {countText,quickCountText,legacyBytes,X_RULE} from '../src/task/character-core.js';
 import {parseTweet} from '../assets/vendor/twitter-text-3.1.0.mjs';
 
-const ICONV='C:/Program Files/Git/usr/bin/iconv.exe';
+const WINDOWS_ICONV='C:/Program Files/Git/usr/bin/iconv.exe';
+const ICONV=process.env.ICONV_BIN||(process.platform==='win32'&&existsSync(WINDOWS_ICONV)?WINDOWS_ICONV:'iconv');
 const cases={shift_jis:['ABCかな漢字','Shift_JIS'],euc_kr:['가각한글漢字','EUC-KR'],cp949:['가뷁힣漢字','CP949']};
 test('legacy byte mappings agree with independent GNU iconv output',()=>{
  for(const [name,[sample,encoding]] of Object.entries(cases)){
