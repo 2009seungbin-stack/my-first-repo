@@ -197,6 +197,9 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert.equal(gone.status,404);assert((await gone.text()).includes('href="/ko/ai/claude/"'),'a missing post leads back to its channel');
  const both=await (await go('/ko/search/?q=5070+4070')).text();
  assert(both.includes('/ko/hardware/rtx-5070/')&&both.includes('/ko/hardware/rtx-4070/'),'several words: each word finds its channel');
+ const claudeAll=await (await go('/ko/search/?q=claude')).text();
+ assert(claudeAll.includes('more=1'),'a long result list offers more');
+ assert.equal((await go('/ko/search/?q=claude&more=1')).status,200);
  const gpt=await (await go('/ko/search/?q='+encodeURIComponent('챗GPT'))).text();
  assert(gpt.includes('href="/ko/ai/chatgpt/"'),'Korean spelling finds ChatGPT');
  const down=await (await go('/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0')).text();

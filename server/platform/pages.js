@@ -68,7 +68,7 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  best:{period:v=>hasOwn(BEST_PERIODS,v)&&v!=='day'?v:null,v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
  radar:{v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
  hub:{type:v=>/^[a-z_]{2,20}$/.test(v)?v:null,org:v=>/^[a-z0-9][a-z0-9-]{0,40}$/.test(v)?v:null,sort:v=>v==='cheap'||v==='new'?v:null,vs:v=>/^[a-z0-9][a-z0-9-]{0,60},[a-z0-9][a-z0-9-]{0,60}$/.test(v)&&v.split(',')[0]!==v.split(',')[1]?v.split(',').sort().join(','):null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
- search:{q:v=>v.trim().slice(0,80)||null,in:v=>ENTITY_ID.test(v)?v:null},
+ search:{q:v=>v.trim().slice(0,80)||null,in:v=>ENTITY_ID.test(v)?v:null,more:v=>v==='1'?'1':null},
  flag:{target:v=>FLAG_TARGET.test(v)?v:null},
  write:{kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
 });
@@ -116,7 +116,7 @@ export async function renderPlatformPage(request,env,site){
   case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
   case 'me':return html(String(renderMe({l,channels:await bar()},s)));
   case 'mod':return html(String(renderMod({l,channels:await bar()},s)),'private, no-store');
-  case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),channels:await bar()}),s)),'private, no-store');
+  case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),more:q.get('more')==='1',channels:await bar()}),s)),'private, no-store');
   case 'radar-feed':return xml(await radarFeed(db,l,s.origin));
   case 'radar':return html(String(renderRadar(await loadRadar(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
  }
