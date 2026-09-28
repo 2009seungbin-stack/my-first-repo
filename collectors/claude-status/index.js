@@ -21,11 +21,12 @@ const WINDOW_DAYS=120;
 const STATUS_END=/^(Resolved|Completed)$/i;
 
 /** Parse the update list inside one entry's HTML content. Year is taken from the entry's published date
- * (an update in a later month than the entry is from the previous year). */
+ * (an update in a later month than the entry is from the previous year). Statuspage pads one-digit days
+ * inside the tag (`<var data-var='date'> 3</var>`); missing that drops the update, and with it "Resolved". */
 export function parseUpdates(/** @type {string} */ html,/** @type {string|undefined} */ published){
  const pub=published?new Date(published):new Date();const py=pub.getUTCFullYear(),pm=pub.getUTCMonth();
  const out=[];
- for(const m of html.matchAll(/<small>\s*([A-Za-z]{3,9})\s*<var[^>]*>(\d{1,2})<\/var>,\s*<var[^>]*>(\d\d):(\d\d)<\/var>\s*UTC\s*<\/small>\s*<br\s*\/?>\s*<strong>([^<]+)<\/strong>\s*-?\s*([\s\S]*?)(?=<\/p>|$)/g)){
+ for(const m of html.matchAll(/<small>\s*([A-Za-z]{3,9})\s*<var[^>]*>\s*(\d{1,2})\s*<\/var>,\s*<var[^>]*>\s*(\d\d):(\d\d)\s*<\/var>\s*UTC\s*<\/small>\s*<br\s*\/?>\s*<strong>([^<]+)<\/strong>\s*-?\s*([\s\S]*?)(?=<\/p>|$)/g)){
   const mi=MONTHS.findIndex(x=>x.startsWith(m[1].toLowerCase().slice(0,3)));if(mi<0)continue;
   const y=mi>pm?py-1:py;
   const t=`${y}-${String(mi+1).padStart(2,'0')}-${m[2].padStart(2,'0')}T${m[3]}:${m[4]}:00Z`;
