@@ -21,6 +21,9 @@ jobs:
       SITE_URL: ${{ vars.SITE_URL || 'https://nerulio.com/' }}
       # Retired hosts that must answer with a permanent redirect to SITE_URL (tools/live-check.mjs).
       LEGACY_ORIGINS: https://nerulio.pages.dev/ https://fileforge-studio.pages.dev/ https://www.nerulio.com/
+      # live-check waits until production's /build.txt names this commit (a push that changes no
+      # lastmod submits nothing to IndexNow and so never waits for the deploy itself).
+      LIVE_COMMIT: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
