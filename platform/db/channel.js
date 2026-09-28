@@ -326,12 +326,13 @@ export async function channelsAround(db,ids){
  }
  return out;
 }
-/** The Korean name people search for when the channel's own name is not Korean ("Claude" →
- * "클로드", "ChatGPT" → "챗GPT"): the first Hangul alias that differs from the name, or null.
+/** The other spelling people search for: for a non-Korean name the first Hangul alias ("Claude" →
+ * "클로드"), for a Korean name the original ("에이블톤 라이브" → "Ableton Live"); or null.
  * @param {D1} db @param {string} id @param {string} name */
 export async function koAlias(db,id,name){
+ // A Korean name gets its original name alongside ("에이블톤 라이브" → "Ableton Live").
+ if(/[가-힣]/.test(name)){const r=await db.prepare('SELECT names FROM entities WHERE id=?').bind(id).first();const en=json(r?.names,{}).en;return en&&en!==name&&!/[가-힣]/.test(en)?String(en):null;}
  const rows=await all(db,`SELECT alias FROM entity_aliases WHERE entity_id=? AND kind='alias'`,[id]);
- if(/[가-힣]/.test(name))return null;
  const a=rows.map(r=>String(r.alias)).find(x=>/[가-힣]/.test(x)&&x!==name);
  return a||null;
 }

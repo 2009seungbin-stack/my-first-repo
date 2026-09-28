@@ -109,7 +109,9 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const parent=e.type==='feature'?m.relatedList.find(r=>r.predicate==='part_of'&&r.dir==='out')?.entity:null;
  const pname=parent?nameOf(parent,l):'';
  const shown=(pname&&!name.startsWith(pname)?`${pname} `:'')+(m.alias?`${name}(${m.alias})`:name);
- const title=l==='ko'?`${shown} 채널 — ${td?label(td.label,l)+' ':''}정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
+ // The other spelling goes into the title only while the title stays short.
+ const tname=m.alias&&[...m.alias].length>16?shown.replace(`(${m.alias})`,''):shown;
+ const title=l==='ko'?`${tname} 채널 — ${td?label(td.label,l)+' ':''}정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
  let description=(m.alias&&desc?`${shown}: ${desc}`:desc)||(l==='ko'?`${shown}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
  // A short description is filled out with the channel's own sourced facts (no invented text).
  if([...description].length<80){
