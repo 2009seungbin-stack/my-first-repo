@@ -3,6 +3,7 @@
  * documentation (engine, tool, format owner, standards body, platform help centre), with a comment
  * when the reason is not obvious. github.com only for the official repository of that project. */
 export const SOURCE_HOSTS=new Set([
+ 'creativecommons.org', // CC0 1.0 legal and human-readable terms for original avatar parts
  'ambientcg.com',
  'aomedia.org',
  'aseprite.org',
