@@ -54,6 +54,9 @@ def run():
         page.locator('#addNote').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
         page.locator('#timeline [data-step="2"][data-tone="3"]').click(); assert page.locator('#sequence .sfx-note').count() == 2; checks += 1
         page.locator('#timeline [data-step="2"][data-tone="3"]').click(); assert page.locator('#sequence .sfx-note').count() == 1; checks += 1
+        cell=page.locator('#timeline [data-step="3"][data-tone="2"]')
+        cell.focus(); cell.press('Enter'); expect(page.locator('#timeline [data-step="3"][data-tone="2"]')).to_have_attribute('aria-pressed','true')
+        page.locator('#timeline [data-step="3"][data-tone="2"]').press('Enter'); checks += 1
         page.locator('#bpm').fill('90'); expect(page.locator('#bpm')).to_have_value('90'); checks += 1
         page.locator('#undo').click(); expect(page.locator('#bpm')).to_have_value('120'); checks += 1
         page.locator('#redo').click(); expect(page.locator('#bpm')).to_have_value('90'); checks += 1
