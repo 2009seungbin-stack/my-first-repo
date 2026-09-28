@@ -12,6 +12,8 @@
     "test:browser": "python tools/regression.py",
     "test:service": "python tests/service-browser.py",
     "indexnow": "node tools/indexnow.mjs",
+    "distribution": "node tools/distribution/cli.mjs",
+    "test:distribution": "node --test tests/distribution.test.mjs",
     "vendor": "node tools/vendor.mjs",
     "benchmark": "python tools/benchmark.py",
     "benchmark:full": "python tools/benchmark.py --full",

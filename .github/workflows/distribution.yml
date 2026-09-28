@@ -1,0 +1,65 @@
+name: Nerulio content distribution
+on:
+  schedule:
+    - cron: '17 8 * * 1,4'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Local preview, private DEV draft, or opt-in public publication
+        type: choice
+        options: [dry-run, draft, publish]
+        default: dry-run
+      route:
+        description: Optional exact English source route
+        type: string
+        default: ''
+      force:
+        description: Bypass cadence for this manual run (never create a duplicate)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: nerulio-distribution
+  cancel-in-progress: false
+jobs:
+  distribute:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # journal branch only; source/main is never committed by this workflow
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test distribution safety
+        run: node --test tests/distribution.test.mjs
+      - name: Select, validate and distribute at most one article
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          DISTRIBUTION_PUBLISH: ${{ vars.DISTRIBUTION_PUBLISH }}
+          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || vars.DISTRIBUTION_MODE || 'dry-run' }}
+          RUN_ROUTE: ${{ inputs.route }}
+          RUN_FORCE: ${{ inputs.force }}
+        shell: bash
+        run: |
+          args=(--mode "$RUN_MODE" --state-git)
+          if [ -n "$RUN_ROUTE" ]; then args+=(--route "$RUN_ROUTE"); fi
+          if [ "$RUN_FORCE" = 'true' ]; then args+=(--force); fi
+          node tools/distribution/cli.mjs "${args[@]}"
+      - name: Current distribution report
+        if: always()
+        run: node tools/distribution/cli.mjs --state-git --report
+      - name: Preserve article, payload, validation and journal snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/distribution/
+            ops/distribution-ledger.json
+          retention-days: 30
