@@ -823,15 +823,6 @@
    }
   },
   {
-   "id": "voice_actor:reina-ueda",
-   "type": "voice_actor",
-   "slug": "reina-ueda",
-   "names": {
-    "en": "Reina Ueda",
-    "ja": "上田麗奈"
-   }
-  },
-  {
    "id": "creator:chugong",
    "type": "creator",
    "slug": "chugong",
@@ -1679,15 +1670,6 @@
      "note": "Japanese voice"
     }
    ]
-  },
-  {
-   "id": "voice_actor:takeo-otsuka",
-   "type": "voice_actor",
-   "slug": "takeo-otsuka",
-   "names": {
-    "en": "Takeo Otsuka",
-    "ja": "大塚剛央"
-   }
   },
   {
    "id": "franchise:tower-of-god",
