@@ -94,3 +94,11 @@ export function normalize(channels,sampleRate,{targetLufs=-23,ceilingDb=-1}={}){
  const requested=targetLufs-before.integrated,limit=ceilingDb-before.samplePeak,appliedDb=Math.min(requested,limit),scale=gain(appliedDb);
  const out=channels.map(c=>Float32Array.from(c,v=>v*scale));return {channels:out,measured:before,after:loudness(out,sampleRate),appliedDb,limited:appliedDb<requested-.01};
 }
+/** Guard decoded floating-point peaks above 0 dBFS before integer or lossy encoding. */
+export function protectSamplePeakInPlace(channels,{ceilingDb=0}={}){
+ if(!Number.isFinite(ceilingDb)||ceilingDb>0||ceilingDb<-6)throw Error('sample peak ceiling');
+ let peak=0;for(const channel of channels)for(const value of channel)peak=Math.max(peak,Math.abs(value));
+ const ceiling=gain(ceilingDb);if(peak<=ceiling)return {appliedDb:0,inputPeakDb:peak?db(peak):null};
+ const scale=ceiling/peak;for(const channel of channels)for(let i=0;i<channel.length;i++)channel[i]*=scale;
+ return {appliedDb:db(scale),inputPeakDb:db(peak)};
+}

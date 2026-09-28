@@ -1,5 +1,5 @@
 import {analyze,monoView} from './analysis.js';
-import {edit,loudness,normalize,validateAudio} from './dsp.js';
+import {edit,loudness,normalize,protectSamplePeakInPlace,validateAudio} from './dsp.js';
 import {encodeWav,encodeCompressed} from './encode.js';
 
 let source=null,generation=0;
@@ -23,7 +23,7 @@ self.onmessage=async event=>{const {id,type}=event.data||{};try{
  if(type==='analyze'){const mono=monoView(source.channels),result=analyze(mono,source.rate),meter=loudness(source.channels,source.rate);self.postMessage({id,type:'analysis',result,meter});return;}
  if(type==='render'){const settings=event.data.settings||{},format=event.data.format||'wav';if(format==='m4r')throw Error('UNVERIFIED: AAC-in-MP4 ringtone export is not enabled');
   let channels=edit(source.channels,source.rate,settings),normalization=null;if(settings.targetLufs!==null&&settings.targetLufs!==undefined){normalization=normalize(channels,source.rate,{targetLufs:Number(settings.targetLufs),ceilingDb:-1});channels=normalization.channels;}
-  const meter=loudness(channels,source.rate),bytes=format==='wav'?encodeWav(channels,source.rate):await encodeCompressed(channels,source.rate,format);
-  self.postMessage({id,type:'rendered',format,bytes,duration:channels[0].length/source.rate,meter,normalization:normalization&&{appliedDb:normalization.appliedDb,limited:normalization.limited}},[bytes.buffer]);return;}
+  const peakProtection=protectSamplePeakInPlace(channels),meter=loudness(channels,source.rate),bytes=format==='wav'?encodeWav(channels,source.rate):await encodeCompressed(channels,source.rate,format);
+  self.postMessage({id,type:'rendered',format,bytes,duration:channels[0].length/source.rate,meter,peakProtection,normalization:normalization&&{appliedDb:normalization.appliedDb,limited:normalization.limited}},[bytes.buffer]);return;}
  throw Error('Unknown Audio Lab request');
  }catch(error){fail(id,error);}};
