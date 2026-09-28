@@ -432,5 +432,286 @@ export default {
    versions:{body:['計算式と矩形はsrc/game/tile-grid.jsの`tileRects`そのものです。検出は合成シート10枚で確認し（10枚すべてで本当のグリッドが1位）、上のKenneyの数値は2026-09-28にコーパスのファイルで測りました。2026-09-22のGodot 4.7.2の実行では、作成したTileSetから余白1と間隔2がそのまま読み戻せました。エンジンの項目名はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.godotTilesets,S.ja.tiledTilesets,S.ja.sfImport]}
   }
  },
+ 'game/blob-47-tileset':{
+  type:'format',
+  intent:{primary:'understand the 47-tile blob autotile set: why 47, which layout a sheet uses, and how engines store it',secondary:['8-neighbour bitmask','256 to 47','blob tileset layouts (cr31, GameMaker, Godot 3)','blob set in Godot 4, Tiled, Unity'],
+   goal:'know which of the 47 neighbour patterns each tile is, in which published order the sheet is, and get it into the engine as a working terrain',input:'a 47-tile blob sheet (any published order) or a base block to generate one',output:'the tileset with its bits, exported as a Godot 4 terrain set, Tiled mixed Wang set, Unity Rule Tile or LDtk rules',target:'Godot 4, Tiled, Unity 6, LDtk',support:'full',
+   evidence:['src/game/tiles/patterns.js (reduceBlob, BLOB47: 47 masks, 188 bits in total)','src/game/tiles/layouts.js (5 blob orders)','src/game/autotile.js + tests/game-autotile.test.mjs (256 → 47 verified)','docs/STUDIO-TILE.md (corpus: four templates high 1.000, cave 0.964; exports; Tiled all-zero Wang ID)'],
+   external:['Tiled Terrain: mixed set 256 tiles, 47-tile blob compatible','Godot 4.7 Using TileSets: Match Corners and Sides','Unity 2D Tilemap Extras 8.0: Rule Tile']},
+  en:{
+   answer:'A blob tileset has one tile for every way a terrain cell can look given all eight of its neighbours. Eight neighbours give 2⁸ = 256 combinations, but a diagonal neighbour is only visible when both sides next to it are the same terrain, and that folds the 256 into exactly 47 tiles. Godot 4 stores such a set as a terrain set in Match Corners and Sides mode, Tiled as a mixed Wang set, Unity as a Rule Tile with eight-neighbour rules. The 47 tiles are published in several incompatible orders; the Studio tells you which one a sheet uses and exports the bits.',
+   concept:{title:'From 256 neighbour masks to 47 tiles',body:[
+    'Give each neighbour a bit: N 1, NE 2, E 4, SE 8, S 16, SW 32, W 64, NW 128 (y grows downwards). A cell\'s mask is the sum of the neighbours that are the same terrain, 0 to 255. Without a rule, that would need 256 tiles.',
+    'But a corner is hidden behind an open side. If the cell above is empty, the tile already draws a rim along its top edge, and whether the cell up-right is land changes nothing you can see. So NE counts only when N and E are both land, and the same for the other three corners. Applying that rule to all 256 masks leaves 47 different ones — the table under "Worked example" counts them.',
+    'Nothing inside a PNG says in which order those 47 tiles are laid out. cr31\'s ascending order, the 7×7 "wang blob", the caeles templates, GameMaker\'s template and Godot 3\'s 12×4 template all put different tiles in the same cell. Importing with the wrong table puts every tile under the wrong rule, which is why the Studio scores every known order against the seams of your art before writing any bit ([[game/tile-lab|how the layout is recognised]]).',
+    'For one terrain the complete set carries 188 neighbour bits in total: 8 on the full tile, none on the isolated tile. Godot writes them as peering bits, Tiled as Wang IDs (Tiled\'s manual calls a complete two-terrain mixed set 256 tiles and says a reduced set such as the 47-tile blob is compatible), Unity as Rule Tile neighbours.'],
+    terms:[['Neighbour mask','The sum of the bits of the neighbours that share the terrain: 0 (alone) to 255 (surrounded).'],['Reduced mask','The mask after dropping every corner whose two sides are not both set; only 47 values remain.'],['Inner corner','A tile whose four sides connect but one diagonal is open, e.g. 127 = everything except NW.'],['Isolated and full tile','Mask 0 (a lone cell, rim all round) and 255 (land on every side, no rim).']]},
+   example:{title:'Counting the 47',lead:'Group the masks by how many sides are set; each corner that has both of its sides set can be on or off:',lines:[
+    'sides set       side patterns      corners that can count     tiles',
+    '0               1                  0                          1 × 2⁰ =  1',
+    '1               4                  0                          4 × 2⁰ =  4',
+    '2 opposite      2 (N+S, E+W)       0                          2 × 2⁰ =  2',
+    '2 adjacent      4 (N+E, E+S, …)    1                          4 × 2¹ =  8',
+    '3               4                  2                          4 × 2² = 16',
+    '4               1                  4                          1 × 2⁴ = 16',
+    '                                                              total  = 47',
+    '',
+    'raw N + NE = 1 + 2 = 3     → reduced 1   (NE is behind the open E side)',
+    'raw 255 − NW = 127         → stays 127   (an inner corner: all sides set)'],
+    after:'The first reduced masks in ascending order are 0, 1, 4, 5, 7, 16, 17, 20 and the last is 255: that list, eight per row, is the cr31 ascending layout.'},
+   mapping:{title:'The published 47-tile orders the Studio recognises',head:['Layout','Sheet','How to tell it'],rows:[
+    ['cr31 ascending ID','8 × 6: 47 tiles + 1 empty cell','Masks in ascending order: the isolated tile first, the full tile last; also the classic Tile Lab template'],
+    ['cr31 wang blob','7 × 7 = 49 cells','Mask 0 in three corner cells; Tiled\'s wangblob example uses it'],
+    ['caeles seamless template II','7 × 7 or 8 × 6','The OpenGameArt template sheets; a different order from both cr31 layouts'],
+    ['GameMaker Studio 2 47-tile','8 × 6, first cell unused','The full tile sits in the last cell'],
+    ['Godot 3 "3×3 minimal" template','12 × 4: 47 masks + 1 blank','Sampled from the template image in the Godot 3.5 documentation']],
+    note:'In the corpus run, all four blob templates were identified with high confidence (seam AUC 1.000) and a real 64 px cave tileset as GameMaker 47 with medium confidence (0.964), all 47 tiles with the right bits.'},
+   outputs:{lead:'What the Studio writes for a blob set, here from a sheet named `cave.png` (each target in its own ZIP):',rows:[
+    ['nerulio_tileset_import.gd','Godot 4: run it (File › Run) beside the PNG and `nerulio-tileset.json`; it saves `nerulio-tileset.tres` with one Match Corners and Sides terrain set — for one terrain, 47 tiles and 188 peering bits.'],
+    ['cave.tsx','Tiled: a mixed Wang set, one colour per terrain, plus `sample.tmx` drawn with it. The isolated tile of a one-colour set is left out, because Tiled drops a Wang ID of all zeros.'],
+    ['nerulio-ruletile.json','Unity 6: with `Editor/NerulioRuleTileImporter.cs`, one Rule Tile per terrain, sprites sliced with Point filtering.'],
+    ['cave.ldtk','LDtk 1.5.3: an IntGrid value per terrain and one 3×3 rule per tile (checked against the schema and loader, not opened in the app).'],
+    ['tileset.json','Generic: per tile its pattern, cr31 mask, Tiled Wang ID, Godot peering names and rectangle.']]},
+   trouble:{rows:[
+    ['Rims appear inside the land in the engine, everywhere','The sheet was read with the wrong 47-tile order','Compare the Studio\'s top layout candidate with the order you assumed','Apply the identified layout and export again; the mapping above lists the orders'],
+    ['Holes or odd tiles at lake corners and one-tile paths','The set has fewer than 47 distinct patterns: a missing inner corner, or a duplicate in a 48-cell sheet','Check panel: missing masks as ghost tiles, duplicates listed','Draw the missing tiles or generate the set from a base block ([[game/tileset-generator|tileset generator]])'],
+    ['The Check panel reports corner bits behind open sides','A tile carries a corner whose sides are not both set (e.g. N + NE without E) — not one of the 47','Click the listed tile and read its 3×3 bits','Clear the corner bit; that combination is the same tile as the one without it'],
+    ['Lone single tiles never appear in Tiled','Tiled drops the all-zero Wang ID of the isolated tile in a one-colour set','The `.tsx` has 46 Wang tiles for 47 on the sheet','Expected for one-colour sets; lone cells work in Godot, Unity and LDtk'],
+    ['Godot paints transitions to another terrain badly','The blob set covers one terrain against empty; transitions need their own tiles','Paint two terrains next to each other on the test map','Generate an A-over-B set, one pair at a time, or draw the transition tiles']]},
+   alternatives:{rows:[
+    ['A dual-grid set of 16 corner tiles','You are drawing a new set and can accept a display layer offset by half a tile: 16 tiles instead of 47 ([[game/dual-grid-tileset|dual grid explained]]).'],
+    ['A 16-tile side set','Roads, fences, pipes and platforms, where only the four sides matter and inner corners are not drawn.'],
+    ['Generate the 47 from a base block','You have an RPG Maker A2 block or a 2×3 base: the [[game/tileset-generator|tileset generator]] assembles the whole set from 20 quarters.']]},
+   limits:['One terrain against empty per blob set; A-over-B transitions are generated one pair at a time.','Orders not in the list (Tilesetter\'s output order is not published) need the bits painted or suggested from the pixels.','Unity gets one Rule Tile per terrain, with no transitions between terrains.'],
+   versions:{body:['The 256 → 47 reduction is checked by `tests/game-autotile.test.mjs` for all 256 masks. The layout tables were verified against their sheets in the corpus manifest; the Godot 3 table was sampled from the Godot 3.5 documentation\'s template image. Exports verified 2026-09-23: Godot 4.7.2 (485/485 cells on each blob set), Tiled 1.12.2, Unity 6000.5.3f1; LDtk 1.5.3 by schema and loader only. The engine terms follow the linked documentation.'],sources:[S.en.tiledTerrain,S.en.godotTilesets,S.en.unityRule]}
+  },
+  ko:{
+   answer:'블롭 타일셋은 지형 칸이 여덟 이웃에 따라 보일 수 있는 모든 모양마다 타일을 한 장씩 둡니다. 이웃 여덟 칸은 2⁸ = 256가지 조합이 되지만, 대각선 이웃은 양옆 두 변이 같은 지형일 때만 보이므로 256가지가 정확히 47장으로 줄어듭니다. 고도 4는 이런 세트를 Match Corners and Sides 모드의 지형 세트로, Tiled는 혼합 Wang 세트로, 유니티는 8방향 룰 타일로 저장합니다. 47장은 서로 호환되지 않는 여러 순서로 배포되며, Studio는 시트가 어느 순서인지 알려 주고 비트를 내보냅니다.',
+   concept:{title:'이웃 마스크 256가지에서 타일 47장으로',body:[
+    '이웃마다 비트를 줍니다. N 1, NE 2, E 4, SE 8, S 16, SW 32, W 64, NW 128(y는 아래로 증가). 칸의 마스크는 같은 지형인 이웃의 비트를 더한 값으로 0부터 255까지입니다. 아무 규칙이 없다면 타일이 256장 필요합니다.',
+    '하지만 모서리는 열린 변 뒤에 가려집니다. 위 칸이 비어 있으면 타일 윗변에 이미 테두리가 그려지므로, 오른쪽 위 칸이 땅이든 아니든 눈에 보이는 차이가 없습니다. 그래서 NE는 N과 E가 모두 땅일 때만 셈에 넣고, 나머지 세 모서리도 똑같이 합니다. 이 규칙을 256가지 마스크 모두에 적용하면 서로 다른 값이 47개 남습니다. 아래 예시 표가 그 개수를 셉니다.',
+    'PNG 안에는 이 47장이 어떤 순서로 놓였는지 적혀 있지 않습니다. cr31 오름차순, 7×7 "wang blob", caeles 템플릿, 게임메이커 템플릿, 고도 3의 12×4 템플릿은 같은 칸에 서로 다른 타일을 둡니다. 잘못된 표로 가져오면 모든 타일이 엉뚱한 규칙에 들어가므로, Studio는 비트를 쓰기 전에 알려진 모든 순서를 그림의 이음새로 채점합니다([[game/tile-lab|배치를 알아내는 방법]]).',
+    '지형 하나짜리 완전한 세트에는 이웃 비트가 모두 188개 들어갑니다. 가득 찬 타일에 8개, 외딴 타일에는 0개입니다. 고도는 이것을 피어링 비트로, Tiled는 Wang ID로(Tiled 설명서는 지형 두 개의 완전한 혼합 세트를 256장이라 하고, 47장 블롭 같은 축소 세트도 호환된다고 합니다), 유니티는 룰 타일의 이웃 규칙으로 씁니다.'],
+    terms:[['이웃 마스크','같은 지형인 이웃의 비트 합. 0(혼자)부터 255(사방이 둘러싸임)까지.'],['줄인 마스크','양옆 두 변이 모두 켜지지 않은 모서리를 뺀 마스크. 값이 47가지만 남습니다.'],['안쪽 모서리','네 변은 이어지고 대각선 하나만 열린 타일. 예: 127 = NW만 빼고 모두.'],['외딴 타일과 가득 찬 타일','마스크 0(혼자 있는 칸, 사방에 테두리)과 255(사방이 땅, 테두리 없음).']]},
+   example:{title:'47장 세어 보기',lead:'켜진 변의 개수로 마스크를 묶습니다. 양옆 변이 모두 켜진 모서리는 켜지거나 꺼질 수 있습니다.',lines:[
+    '켜진 변         변 패턴            셈에 드는 모서리           타일',
+    '0               1                  0                          1 × 2⁰ =  1',
+    '1               4                  0                          4 × 2⁰ =  4',
+    '마주 보는 2     2 (N+S, E+W)       0                          2 × 2⁰ =  2',
+    '이웃한 2        4 (N+E, E+S, …)    1                          4 × 2¹ =  8',
+    '3               4                  2                          4 × 2² = 16',
+    '4               1                  4                          1 × 2⁴ = 16',
+    '                                                              합계   = 47',
+    '',
+    '원래 N + NE = 1 + 2 = 3     → 줄이면 1   (NE는 열린 E 변 뒤에 있음)',
+    '원래 255 − NW = 127         → 그대로 127 (안쪽 모서리: 네 변 모두 켜짐)'],
+    after:'줄인 마스크를 오름차순으로 놓으면 0, 1, 4, 5, 7, 16, 17, 20으로 시작해 255로 끝납니다. 이 목록을 한 줄에 여덟 개씩 놓은 것이 cr31 오름차순 배치입니다.'},
+   mapping:{title:'Studio가 알아보는 47장 배포 순서',head:['배치','시트','구별하는 법'],rows:[
+    ['cr31 오름차순 ID','8 × 6: 타일 47장 + 빈 칸 1개','마스크 오름차순: 외딴 타일이 처음, 가득 찬 타일이 마지막. 기존 타일 작업실 템플릿도 이 순서'],
+    ['cr31 wang blob','7 × 7 = 49칸','모서리 세 칸이 마스크 0. Tiled의 wangblob 예제가 이 순서'],
+    ['caeles seamless template II','7 × 7 또는 8 × 6','OpenGameArt의 템플릿 시트. 두 cr31 배치와 다른 순서'],
+    ['게임메이커 스튜디오 2 47타일','8 × 6, 첫 칸은 비움','가득 찬 타일이 마지막 칸'],
+    ['고도 3 "3×3 minimal" 템플릿','12 × 4: 마스크 47개 + 빈 칸 1개','고도 3.5 문서의 템플릿 이미지에서 추출']],
+    note:'코퍼스 실행에서 블롭 템플릿 네 장은 모두 높은 신뢰도(이음새 AUC 1.000)로, 실제 64px 동굴 타일셋은 게임메이커 47로 중간 신뢰도(0.964)로 인식됐고 47장 모두 비트가 맞았습니다.'},
+   outputs:{lead:'블롭 세트에서 Studio가 쓰는 파일. `cave.png`라는 시트를 예로 들었습니다(대상마다 ZIP 하나).',rows:[
+    ['nerulio_tileset_import.gd','고도 4: PNG와 `nerulio-tileset.json` 옆에 두고 실행(File › Run)하면 Match Corners and Sides 지형 세트 하나가 든 `nerulio-tileset.tres`를 저장합니다. 지형 하나면 타일 47장, 피어링 비트 188개.'],
+    ['cave.tsx','Tiled: 지형마다 색 하나인 혼합 Wang 세트와 그것으로 그린 `sample.tmx`. Tiled가 모두 0인 Wang ID를 버리므로 한 가지 색 세트의 외딴 타일은 빠집니다.'],
+    ['nerulio-ruletile.json','유니티 6: `Editor/NerulioRuleTileImporter.cs`와 함께 지형마다 룰 타일 하나, 스프라이트는 Point 필터로 잘림.'],
+    ['cave.ldtk','LDtk 1.5.3: 지형마다 IntGrid 값 하나, 타일마다 3×3 규칙 하나(스키마와 로더로 확인, 앱에서 열지는 않음).'],
+    ['tileset.json','범용: 타일마다 패턴, cr31 마스크, Tiled Wang ID, 고도 피어링 이름, 사각형.']]},
+   trouble:{rows:[
+    ['엔진에서 땅 한가운데에 테두리가 곳곳에 보임','시트를 틀린 47장 순서로 읽음','Studio의 첫 배치 후보를 내가 가정한 순서와 비교','인식된 배치를 적용하고 다시 내보내기. 위 표에 순서가 정리돼 있음'],
+    ['호수 모서리와 한 칸 폭 길에서 구멍이나 이상한 타일','서로 다른 패턴이 47개보다 적음: 안쪽 모서리 누락, 또는 48칸 시트의 중복','점검 패널: 빠진 마스크는 반투명 타일로, 중복은 목록으로','빠진 타일을 그리거나 기본 블록에서 세트를 생성([[game/tileset-generator|타일셋 생성기]])'],
+    ['점검 패널에 "열린 변 뒤의 모서리 비트"','양옆 변이 다 켜지지 않은 모서리를 가진 타일(예: E 없이 N + NE): 47가지에 속하지 않음','목록의 타일을 눌러 3×3 비트를 확인','모서리 비트를 지움. 그 조합은 모서리 없는 타일과 같은 타일임'],
+    ['Tiled에서 외딴 한 칸이 나오지 않음','Tiled는 한 가지 색 세트에서 외딴 타일의 모두 0인 Wang ID를 버림','`.tsx`에 시트의 47장 대신 Wang 타일 46장','한 가지 색 세트에서는 정상. 외딴 칸은 고도·유니티·LDtk에서는 됨'],
+    ['고도에서 다른 지형과의 전환이 어색함','블롭 세트는 지형 하나와 빈 곳만 다룸. 전환에는 전용 타일이 필요','테스트 맵에서 두 지형을 나란히 칠해 보기','A 위 B 세트를 한 쌍씩 생성하거나 전환 타일을 그림']]},
+   alternatives:{rows:[
+    ['모서리 타일 16장짜리 듀얼 그리드 세트','새 세트를 그리는 중이고 반 칸 밀린 표시 레이어를 받아들일 수 있을 때. 47장 대신 16장입니다([[game/dual-grid-tileset|듀얼 그리드 설명]]).'],
+    ['변 타일 16장 세트','길, 울타리, 파이프, 발판처럼 네 변만 중요하고 안쪽 모서리를 그리지 않을 때.'],
+    ['기본 블록에서 47장 생성','알만툴 A2 블록이나 2×3 기본 블록이 있을 때. [[game/tileset-generator|타일셋 생성기]]가 조각 20개로 세트 전체를 조립합니다.']]},
+   limits:['블롭 세트 하나는 지형 하나와 빈 곳만 다룹니다. A 위 B 전환은 한 쌍씩 생성합니다.','목록에 없는 순서(Tilesetter의 출력 순서는 공개되지 않음)는 비트를 칠하거나 픽셀에서 제안받아야 합니다.','유니티에는 지형마다 룰 타일 하나가 가며 지형 사이 전환은 없습니다.'],
+   versions:{body:['256 → 47 축소는 `tests/game-autotile.test.mjs`가 256개 마스크 전부에 대해 확인합니다. 배치 표는 코퍼스 매니페스트에서 각 시트와 대조했고, 고도 3 표는 고도 3.5 문서의 템플릿 이미지에서 추출했습니다. 내보내기 검증(2026-09-23): Godot 4.7.2(블롭 세트마다 485/485칸), Tiled 1.12.2, Unity 6000.5.3f1. LDtk 1.5.3은 스키마와 로더로만 확인했습니다. 엔진 용어는 링크한 공식 문서를 따릅니다.'],sources:[S.ko.tiledTerrain,S.ko.godotTilesets,S.ko.unityRule]}
+  },
+  ja:{
+   answer:'ブロブタイルセットは、地形のマスが8つの隣に応じて取りうる見た目ごとに1枚ずつタイルを持ちます。8つの隣は2⁸ = 256通りの組み合わせになりますが、斜めの隣は両側の2辺が同じ地形のときしか見えないため、256通りがちょうど47枚にまとまります。Godot 4はこのセットをMatch Corners and Sidesモードの地形セットとして、Tiledは混合Wangセットとして、Unityは8方向のRule Tileとして保存します。47枚は互換性のない複数の並びで配布されており、Studioはシートがどの並びかを判定してビットを書き出します。',
+   concept:{title:'256通りの隣接マスクから47枚へ',body:[
+    '隣ごとにビットを割り当てます。N 1、NE 2、E 4、SE 8、S 16、SW 32、W 64、NW 128（yは下向きに増加）。マスの値は同じ地形の隣のビットを足したもので、0から255です。何のルールもなければタイルは256枚必要です。',
+    'しかし角は開いた辺の奥に隠れます。上のマスが空なら、タイルの上辺にはすでに縁が描かれるので、右上のマスが陸でもそうでなくても見た目は変わりません。そこでNEはNとEの両方が陸のときだけ数え、残りの3つの角も同じにします。このルールを256通りすべてに当てはめると、異なる値は47個残ります。下の具体例の表でその数を数えています。',
+    'PNGの中には、47枚がどの順に並んでいるかは書かれていません。cr31昇順、7×7の「wang blob」、caelesのテンプレート、GameMakerのテンプレート、Godot 3の12×4テンプレートは、同じマスに違うタイルを置きます。間違った表で読み込むと全タイルが違うルールに入るため、Studioはビットを書く前に既知のすべての並びを絵の継ぎ目で採点します（[[game/tile-lab|配置の見分け方]]）。',
+    '地形1つの完全なセットには、隣接ビットが合計188個入ります。全面タイルに8個、孤立タイルには0個です。Godotはこれをピアリングビットとして、TiledはWang IDとして（Tiledのマニュアルは地形2つの完全な混合セットを256枚とし、47枚のブロブのような縮小セットも互換だとしています）、UnityはRule Tileの隣接ルールとして書きます。'],
+    terms:[['隣接マスク','同じ地形の隣のビットの合計。0（ひとりぼっち）から255（四方を囲まれる）まで。'],['縮約マスク','両側の2辺がそろっていない角を除いたマスク。値は47通りだけ残る。'],['内側の角','4辺はつながり、斜め1つだけが開いたタイル。例：127 = NW以外すべて。'],['孤立タイルと全面タイル','マスク0（ひとつだけのマス、四方に縁）と255（四方が陸、縁なし）。']]},
+   example:{title:'47枚を数える',lead:'つながっている辺の数でマスクを分けます。両側の辺がそろった角は、オンでもオフでもよいものです。',lines:[
+    'つながる辺      辺のパターン       数える角                   タイル',
+    '0               1                  0                          1 × 2⁰ =  1',
+    '1               4                  0                          4 × 2⁰ =  4',
+    '向かい合う2     2 (N+S, E+W)       0                          2 × 2⁰ =  2',
+    '隣り合う2       4 (N+E, E+S, …)    1                          4 × 2¹ =  8',
+    '3               4                  2                          4 × 2² = 16',
+    '4               1                  4                          1 × 2⁴ = 16',
+    '                                                              合計   = 47',
+    '',
+    '元 N + NE = 1 + 2 = 3       → 縮約 1     （NEは開いたEの辺の奥）',
+    '元 255 − NW = 127           → 127のまま  （内側の角：4辺すべてつながる）'],
+    after:'縮約マスクを昇順に並べると0、1、4、5、7、16、17、20と始まり255で終わります。この一覧を1行8個ずつ並べたものがcr31昇順の配置です。'},
+   mapping:{title:'Studioが見分ける47枚の配布順',head:['配置','シート','見分け方'],rows:[
+    ['cr31昇順ID','8 × 6：47枚＋空きマス1','マスクの昇順：孤立タイルが最初、全面タイルが最後。従来のタイルセット工房のテンプレートも同じ'],
+    ['cr31 wang blob','7 × 7 = 49マス','角の3マスがマスク0。Tiledのwangblobサンプルがこの並び'],
+    ['caeles seamless template II','7 × 7または8 × 6','OpenGameArtのテンプレートシート。2つのcr31配置とは別の並び'],
+    ['GameMaker Studio 2の47タイル','8 × 6、最初のマスは未使用','全面タイルが最後のマス'],
+    ['Godot 3「3×3 minimal」テンプレート','12 × 4：マスク47個＋空き1','Godot 3.5ドキュメントのテンプレート画像から採取']],
+    note:'コーパスの実行では、ブロブテンプレート4枚すべてが高信頼度（継ぎ目AUC 1.000）で、実在の64px洞窟タイルセットはGameMaker 47として中信頼度（0.964）で判定され、47枚すべてのビットが正解でした。'},
+   outputs:{lead:'ブロブセットでStudioが書き出すファイル。`cave.png`というシートの例です（書き出し先ごとにZIP 1つ）。',rows:[
+    ['nerulio_tileset_import.gd','Godot 4：PNGと`nerulio-tileset.json`の隣で実行（File › Run）すると、Match Corners and Sidesの地形セットを1つ持つ`nerulio-tileset.tres`を保存します。地形1つならタイル47枚、ピアリングビット188個。'],
+    ['cave.tsx','Tiled：地形ごとに1色の混合Wangセットと、それで描いた`sample.tmx`。TiledはすべてゼロのWang IDを捨てるため、単色セットの孤立タイルは含まれません。'],
+    ['nerulio-ruletile.json','Unity 6：`Editor/NerulioRuleTileImporter.cs`と組み合わせて地形ごとにRule Tileを1つ作り、スプライトはPointフィルターで切り出し。'],
+    ['cave.ldtk','LDtk 1.5.3：地形ごとにIntGridの値1つ、タイルごとに3×3ルール1つ（スキーマとローダーで確認、アプリでは未確認）。'],
+    ['tileset.json','汎用：タイルごとのパターン、cr31マスク、TiledのWang ID、Godotのピアリング名、矩形。']]},
+   trouble:{rows:[
+    ['エンジンで陸の真ん中のあちこちに縁が出る','シートを違う47枚の並びで読んだ','Studioの最初の配置候補と、自分が想定した並びを比べる','判定された配置を適用して書き出し直す。上の表に並びをまとめています'],
+    ['湖の角や1マス幅の道で穴や変なタイルが出る','異なるパターンが47未満：内側の角の欠け、または48マスのシートでの重複','チェックパネル：足りないマスクは半透明タイルで、重複は一覧で','足りないタイルを描くか、基本ブロックからセットを生成（[[game/tileset-generator|タイルセットジェネレーター]]）'],
+    ['チェックパネルに「開いた辺の奥の角ビット」','両側の辺がそろっていない角を持つタイル（例：EなしでN + NE）：47通りに含まれない','一覧のタイルをクリックして3×3のビットを見る','角ビットを消す。その組み合わせは角のないタイルと同じもの'],
+    ['Tiledで孤立した1マスが出ない','Tiledは単色セットの孤立タイルが持つすべてゼロのWang IDを捨てる','`.tsx`のWangタイルがシートの47枚ではなく46枚','単色セットでは正常。孤立マスはGodot・Unity・LDtkでは使える'],
+    ['Godotで別の地形との境目が不自然','ブロブセットは地形1つと空きだけを扱う。境目には専用のタイルが要る','テストマップで2つの地形を隣に塗ってみる','A over Bのセットを1組ずつ生成するか、遷移タイルを描く']]},
+   alternatives:{rows:[
+    ['角タイル16枚のデュアルグリッドセット','新しくセットを描いていて、半タイルずれた表示レイヤーを受け入れられるとき。47枚ではなく16枚です（[[game/dual-grid-tileset|デュアルグリッドの解説]]）。'],
+    ['辺タイル16枚のセット','道、柵、パイプ、足場のように4辺だけが大事で、内側の角を描かないとき。'],
+    ['基本ブロックから47枚を生成','RPGツクールA2のブロックや2×3の基本ブロックがあるとき。[[game/tileset-generator|タイルセットジェネレーター]]が20個のパーツからセット全体を組み立てます。']]},
+   limits:['ブロブセット1つで扱うのは地形1つと空きだけです。A over Bの遷移は1組ずつ生成します。','一覧にない並び（Tilesetterの出力順は公開されていない）は、ビットを塗るかピクセルから提案させる必要があります。','Unityには地形ごとにRule Tileが1つ渡り、地形間の遷移はありません。'],
+   versions:{body:['256 → 47の縮約は`tests/game-autotile.test.mjs`が256通りすべてで確かめています。配置の表はコーパスのマニフェストで各シートと照合し、Godot 3の表はGodot 3.5ドキュメントのテンプレート画像から採取しました。書き出しの検証（2026-09-23）：Godot 4.7.2（各ブロブセットで485/485セル）、Tiled 1.12.2、Unity 6000.5.3f1。LDtk 1.5.3はスキーマとローダーでのみ確認しています。エンジンの用語はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.tiledTerrain,S.ja.godotTilesets,S.ja.unityRule]}
+  }
+ },
+ 'game/dual-grid-tileset':{
+  type:'format',
+  intent:{primary:'understand dual-grid (16 corner tile) tilesets and why they need 16 tiles instead of 47',secondary:['dual grid vs blob 47','corner Wang set','dual grid in Godot 4 and Tiled','several terrains in one dual-grid pack'],
+   goal:'a 16-tile corner set whose tiles are known, placed half a tile off in the right engine, with several terrains if the pack has them',input:'a 4×4 corner / dual-grid sheet (one or several blocks), or a base block to generate one',output:'Godot 4 Match Corners terrain set, Tiled corner Wang set with an offset sample map, LDtk rules with a half-tile offset',target:'Godot 4, Tiled, LDtk (not Unity)',support:'partial',
+   evidence:['src/game/tiles/generator.js (assembleDual: 16 tiles from the same quarters; side-only sources refused)','src/game/tiles/tiled.js (corner sets on grid points, (w+1)×(h+1), layer offset -w/2)','src/game/tiles/ldtk.js (half-tile tile offset)','src/game/tiles/unity.js (corner sets skipped)','src/game/tiles/layouts.js (corner16-cr31 = Godot 3 2×2 = dual-grid 4×4)','docs/STUDIO-TILE.md (dual-grid pack: 5 blocks, 4 terrains, 80/80, 251/251)'],
+   external:['Tiled Terrain: corner set, complete 2-terrain set = 16 tiles','Godot 4.7 Using TileSets: Match Corners']},
+  en:{
+   answer:'A dual grid keeps the terrain on the map\'s cells but draws the tiles on the points between them, half a tile off. Each drawn tile covers one corner of four cells, so it only has to know which of those four are terrain: 2⁴ = 16 tiles instead of the blob\'s 47. The price is a display layer shifted by half a tile — (W+1) × (H+1) tiles for a map of W × H cells — and art whose edges run through the middle of the tiles. The Studio recognises 16-corner sheets (several terrains per pack), generates them from the same quarters as a blob set, and exports Godot 4 Match Corners terrains, Tiled corner Wang sets and LDtk rules; a Unity Rule Tile cannot hold one.',
+   concept:{title:'Why 16 tiles are enough when the grid moves half a tile',body:[
+    'In a blob set the tile at a cell has to draw all four quarters of that cell. Each quarter depends on three neighbours — the top-left quarter on N, W and NW — and has five looks: outer corner, rim along the top, rim along the side, inner corner, full. The four quarters must agree along their shared sides, and the combinations that are possible come to 47.',
+    'Shift the drawn grid by half a tile and each drawn tile shows one quarter of each of four different cells: the cells that meet at its centre point. Which of the five looks a quarter needs now follows from the other three cells in the same tile, so the tile needs just one bit per cell, terrain or not. Four bits give 16 tiles: 1 empty, 4 with one terrain cell (outer corners), 4 with two side by side (straight edges), 2 with two diagonal cells, 4 with three (inner corners), 1 full.',
+    'Because each quarter is chosen from the same three neighbours either way, Nerulio\'s generator builds a blob-47 set and a dual-grid 16 set from the same 20 drawn quarters (4 corners × 5 looks). What changes is where the tiles sit, not what the art has to show.',
+    'The costs are real: the display layer is offset and one tile larger in each direction than the data grid, collision and game logic stay on the data grid, and not every engine can place tiles on grid points. Do not confuse it with a 16-tile side set: that one matches the four sides of a cell (roads, fences, platforms) and its tiles are not interchangeable with corner tiles.'],
+    terms:[['Data grid','The cells you paint and your game logic reads: terrain or not.'],['Display grid','The drawn tiles, one per grid point between four cells, offset by half a tile.'],['Corner mask','NW 1 + NE 2 + SE 4 + SW 8 over the four cells around a point: 0 (empty) to 15 (full).'],['Side set','16 tiles matched on the four sides (N 1, E 2, S 4, W 8), drawn on the cells; a different set.']]},
+   example:{title:'Example: which tile a grid point gets',lead:'A 4 × 3 map with a 2 × 2 block of land in the middle:',lines:[
+    'data grid (# = land)        display tiles on the grid points: (4 + 1) × (3 + 1) = 20',
+    '. . . .',
+    '. # # .                     the point between cells (1,0) (2,0) (1,1) (2,1):',
+    '. # # .                       NW . = 0   NE . = 0   SE # = 4   SW # = 8   → mask 12',
+    '                              = land in the bottom half: a straight top edge',
+    '',
+    'land cells around a point   0   1        2 side by side   2 diagonal   3              4',
+    'look                        -   outer    straight edge    diagonal     inner corner   full',
+    'tiles                       1 + 4      + 4              + 2          + 4            + 1   = 16'],
+    after:'The same 2 × 2 block on a blob set is four cells, each picking one of 47 tiles by its eight neighbours; on the dual grid it is nine grid points, each picking one of 16 tiles by four cells.'},
+   mapping:{title:'Where each engine puts a corner set',head:['Engine','How a corner set is stored','Nerulio export'],rows:[
+    ['Godot 4','A terrain set in Match Corners mode: four corner peering bits per tile','Verified: a 4-terrain dual-grid pack painted 251 of 251 cells as predicted in Godot 4.7.2, including 3 maps with several terrains'],
+    ['Tiled','A corner Wang set (Tiled\'s manual: a complete two-terrain corner set has 16 tiles); the sample map layer is offset by half a tile','Verified with Tiled 1.12.2\'s own readers'],
+    ['LDtk','One rule per tile, the tile drawn with a half-tile offset','Partly verified: 1.5.3 schema, official loader, rules re-run'],
+    ['Unity','A Rule Tile draws on cells, not on the points between them','Not exported'],
+    ['Godot 3 and templates','Godot 3\'s "2×2" template, cr31\'s 2-corner Wang set and the 4×4 dual-grid sheet share one order','Recognised as corner16 cr31']]},
+   outputs:{lead:'For a dual-grid sheet named `grass.png`:',rows:[
+    ['nerulio_tileset_import.gd','Godot 4: builds `nerulio-tileset.tres` with a Match Corners terrain set; a pack with several blocks keeps its terrains.'],
+    ['grass.tsx','Tiled: a corner Wang set, one colour per terrain; `sample.tmx` draws the set on a layer shifted by half a tile.'],
+    ['grass.ldtk','LDtk: an IntGrid value per terrain and one rule per tile with a half-tile tile offset.']]},
+   trouble:{rows:[
+    ['Everything looks half a tile off in the engine','Blob-style art (edges on the tile border) used as a corner set, or corner art placed on an unshifted layer','On the test map with the Tiled rule, see where the rims fall relative to the painted cells','Draw corner tiles with the terrain edge through the middle of the tile, and keep the display layer offset'],
+    ['The Unity export has no terrain for the set','A Rule Tile draws on cells; corner sets need grid points','The export notes say corner sets are skipped for Unity','Use Godot, Tiled or LDtk, or a blob-47 set for Unity'],
+    ['A multi-terrain pack gets its terrains mixed up','Terrains are grouped by plain fills that are the same picture; a fill that differs slightly makes a new terrain','Read the terrain list after Apply','Merge or rename the terrains, or make the fills identical'],
+    ['The outer ring of the map shows gaps with the Tiled rule','Grid points on the map\'s edge touch cells outside the map','These points are not reported as problems','Expected; paint one extra cell of border if the edge must be drawn'],
+    ['The generator will not make a dual grid from an A4 wall block','A side-only source has no corner pieces to build corner tiles from','The error says a side-only source cannot draw corner tiles','Use an RPG Maker A2, Blobsmith, five-tile or procedural rim source']]},
+   alternatives:{rows:[
+    ['A 47-tile blob set','You need Unity Rule Tiles, or want tiles to sit on the cells with no offset layer ([[game/blob-47-tileset|the blob explained]]).'],
+    ['Tiled\'s corner set on its own','Your levels live in Tiled and you mark the Wang colours there; see [[game/tiled-wang-set|Tiled Wang sets]].'],
+    ['Generate the 16 from a base block','You have drawn an A2 block or a 2×3 base: the [[game/tileset-generator|tileset generator]] assembles the dual-grid set from the same quarters as the blob.']]},
+   limits:['No Unity export for corner sets.','Transitions between terrains come from the art in the pack or from A-over-B generation, one pair at a time.','The test map shows grid points on the map\'s outer ring without checking them.'],
+   versions:{body:['Verified by Nerulio (docs/STUDIO-TILE.md, 2026-09-23): the MIT-licensed GlitchedinOrbit dual-grid sheet was read as 5 corner16 blocks with 4 terrains (80 of 80 corner terrains right, seam AUC 1.000), Godot 4.7.2 painted 251 of 251 cells as predicted, Tiled 1.12.2 and the LDtk 1.5.3 checks passed. The engine terms follow the linked documentation.'],sources:[S.en.tiledTerrain,S.en.godotTilesets]}
+  },
+  ko:{
+   answer:'듀얼 그리드는 지형은 맵의 칸에 두고, 타일은 칸 사이의 점, 즉 반 칸 어긋난 자리에 그립니다. 그려지는 타일 하나가 네 칸의 모서리를 하나씩 덮으므로, 그 네 칸 중 어느 칸이 지형인지만 알면 됩니다. 2⁴ = 16장이면 되고 블롭의 47장이 필요 없습니다. 대가는 반 칸 밀린 표시 레이어(W × H 칸 맵에 (W+1) × (H+1) 타일)와, 가장자리가 타일 한가운데를 지나도록 그린 그림입니다. Studio는 모서리 16장 시트(한 팩에 여러 지형 포함)를 인식하고, 블롭 세트와 같은 조각으로 생성하며, Godot 4 Match Corners 지형, Tiled 모서리 Wang 세트, LDtk 규칙으로 내보냅니다. 유니티 룰 타일에는 담을 수 없습니다.',
+   concept:{title:'격자를 반 칸 옮기면 16장으로 충분한 이유',body:[
+    '블롭 세트에서는 한 칸의 타일이 그 칸의 네 조각을 모두 그려야 합니다. 조각마다 이웃 셋에 좌우되고(왼쪽 위 조각은 N, W, NW), 모양은 다섯 가지입니다. 바깥 모서리, 위쪽 테두리, 옆쪽 테두리, 안쪽 모서리, 가득 참. 네 조각은 맞닿는 변에서 서로 맞아야 하고, 가능한 조합을 세면 47가지입니다.',
+    '그린 격자를 반 칸 옮기면 타일 하나가 서로 다른 네 칸의 조각을 하나씩 보여 줍니다. 타일 중심점에서 만나는 네 칸입니다. 조각이 다섯 모양 중 무엇이어야 하는지는 같은 타일 안의 나머지 세 칸으로 정해지므로, 타일은 칸마다 비트 하나(지형인지 아닌지)만 알면 됩니다. 비트 네 개로 16장: 빈 것 1, 지형 칸 하나(바깥 모서리) 4, 나란한 두 칸(곧은 가장자리) 4, 대각선 두 칸 2, 세 칸(안쪽 모서리) 4, 가득 참 1입니다.',
+    '어느 쪽이든 조각은 같은 이웃 셋으로 정해지므로, Nerulio 생성기는 그린 조각 20개(모서리 4 × 모양 5)로 블롭 47 세트와 듀얼 그리드 16 세트를 모두 만듭니다. 바뀌는 것은 타일이 놓이는 자리이지, 그림이 보여 줘야 할 내용이 아닙니다.',
+    '대가도 분명합니다. 표시 레이어는 밀려 있고 데이터 격자보다 가로세로로 한 장씩 크며, 충돌과 게임 로직은 데이터 격자에 남고, 모든 엔진이 격자점에 타일을 놓을 수 있는 것은 아닙니다. 변 타일 16장 세트와 혼동하지 마세요. 그쪽은 칸의 네 변을 맞추며(길, 울타리, 발판) 모서리 타일과 서로 바꿔 쓸 수 없습니다.'],
+    terms:[['데이터 격자','칠하는 칸이자 게임 로직이 읽는 칸. 지형이거나 아니거나.'],['표시 격자','그려지는 타일. 네 칸 사이의 격자점마다 하나, 반 칸 밀려 있음.'],['모서리 마스크','한 점을 둘러싼 네 칸에 대해 NW 1 + NE 2 + SE 4 + SW 8. 0(빈 것)부터 15(가득)까지.'],['변 세트','네 변(N 1, E 2, S 4, W 8)으로 맞추고 칸 위에 그리는 16장. 다른 세트입니다.']]},
+   example:{title:'예시: 격자점마다 어떤 타일이 오나',lead:'가운데에 2 × 2 땅이 있는 4 × 3 맵:',lines:[
+    '데이터 격자 (# = 땅)       격자점 위의 표시 타일: (4 + 1) × (3 + 1) = 20',
+    '. . . .',
+    '. # # .                     칸 (1,0) (2,0) (1,1) (2,1) 사이의 점:',
+    '. # # .                       NW . = 0   NE . = 0   SE # = 4   SW # = 8   → 마스크 12',
+    '                              = 아래쪽 절반이 땅: 곧은 위쪽 가장자리',
+    '',
+    '점 주변의 땅 칸            0   1         나란한 2        대각선 2     3              4',
+    '모양                        -   바깥      곧은 가장자리   대각선       안쪽 모서리    가득',
+    '타일                        1 + 4       + 4             + 2          + 4            + 1   = 16'],
+    after:'같은 2 × 2 덩어리가 블롭 세트에서는 네 칸이고, 칸마다 여덟 이웃으로 47장 중 하나를 고릅니다. 듀얼 그리드에서는 격자점 아홉 개가 각각 네 칸을 보고 16장 중 하나를 고릅니다.'},
+   mapping:{title:'엔진마다 모서리 세트를 두는 곳',head:['엔진','모서리 세트를 저장하는 방식','Nerulio 내보내기'],rows:[
+    ['고도 4','Match Corners 모드 지형 세트: 타일마다 모서리 피어링 비트 네 개','검증: 지형 4개짜리 듀얼 그리드 팩을 Godot 4.7.2가 251칸 모두 예측대로 칠함(여러 지형 맵 3개 포함)'],
+    ['Tiled','모서리 Wang 세트(Tiled 설명서: 지형 두 개의 완전한 모서리 세트는 16장). 샘플 맵 레이어는 반 칸 밀림','Tiled 1.12.2 자체 읽기 도구로 검증'],
+    ['LDtk','타일마다 규칙 하나, 타일은 반 칸 오프셋으로 그림','일부 검증: 1.5.3 스키마, 공식 로더, 규칙 재실행'],
+    ['유니티','룰 타일은 칸 위에 그리며 칸 사이의 점에는 그리지 않음','내보내지 않음'],
+    ['고도 3과 템플릿','고도 3의 "2×2" 템플릿, cr31 2-corner Wang 세트, 4×4 듀얼 그리드 시트는 같은 순서','corner16 cr31로 인식']]},
+   outputs:{lead:'`grass.png`라는 듀얼 그리드 시트의 경우:',rows:[
+    ['nerulio_tileset_import.gd','고도 4: Match Corners 지형 세트가 든 `nerulio-tileset.tres`를 만듭니다. 블록이 여러 개인 팩은 지형을 그대로 유지합니다.'],
+    ['grass.tsx','Tiled: 지형마다 색 하나인 모서리 Wang 세트. `sample.tmx`는 반 칸 밀린 레이어에 세트를 그립니다.'],
+    ['grass.ldtk','LDtk: 지형마다 IntGrid 값 하나, 반 칸 타일 오프셋이 있는 타일별 규칙.']]},
+   trouble:{rows:[
+    ['엔진에서 전부 반 칸 어긋나 보임','블롭식 그림(가장자리가 타일 테두리에 있음)을 모서리 세트로 썼거나, 모서리 그림을 밀리지 않은 레이어에 놓음','테스트 맵에서 Tiled 규칙으로 칠한 칸과 테두리 위치를 비교','지형 가장자리가 타일 한가운데를 지나도록 모서리 타일을 그리고, 표시 레이어 오프셋을 유지'],
+    ['유니티 내보내기에 이 세트의 지형이 없음','룰 타일은 칸 위에 그림. 모서리 세트는 격자점이 필요','내보내기 안내에 유니티는 모서리 세트를 건너뛴다고 나옴','고도·Tiled·LDtk를 쓰거나, 유니티에는 블롭 47 세트를 사용'],
+    ['여러 지형 팩에서 지형이 뒤섞임','지형은 같은 그림인 단색 채움으로 묶음. 채움이 조금만 달라도 새 지형이 됨','적용 후 지형 목록 확인','지형을 합치거나 이름을 바꾸거나, 채움을 똑같이 맞춤'],
+    ['Tiled 규칙에서 맵 바깥 테두리에 틈이 보임','맵 가장자리의 격자점은 맵 밖의 칸에 닿음','이 점들은 문제로 보고되지 않음','정상. 가장자리까지 그려야 하면 테두리에 칸을 하나 더 칠함'],
+    ['생성기가 A4 벽 블록으로 듀얼 그리드를 만들지 않음','변만 있는 원본에는 모서리 타일을 만들 조각이 없음','변만 있는 원본은 모서리 타일을 그릴 수 없다는 오류','알만툴 A2, Blobsmith, 5칸, 절차적 테두리 원본을 사용']]},
+   alternatives:{rows:[
+    ['블롭 47장 세트','유니티 룰 타일이 필요하거나, 오프셋 레이어 없이 타일이 칸 위에 놓이길 원할 때([[game/blob-47-tileset|블롭 설명]]).'],
+    ['Tiled의 모서리 세트만 쓰기','레벨을 Tiled에서 만들고 거기서 Wang 색을 표시할 때. [[game/tiled-wang-set|Tiled Wang 세트]] 참고.'],
+    ['기본 블록에서 16장 생성','A2 블록이나 2×3 기본 블록을 그렸을 때. [[game/tileset-generator|타일셋 생성기]]가 블롭과 같은 조각으로 듀얼 그리드 세트를 조립합니다.']]},
+   limits:['모서리 세트는 유니티로 내보내지 않습니다.','지형 사이 전환은 팩의 그림이나 A 위 B 생성에서 오며, 한 쌍씩입니다.','테스트 맵은 맵 바깥 테두리의 격자점을 보여 주되 점검하지는 않습니다.'],
+   versions:{body:['Nerulio 검증(docs/STUDIO-TILE.md, 2026-09-23): MIT 라이선스인 GlitchedinOrbit 듀얼 그리드 시트를 corner16 블록 5개, 지형 4개로 읽었고(모서리 지형 80/80, 이음새 AUC 1.000), Godot 4.7.2가 251칸 모두 예측대로 칠했으며, Tiled 1.12.2와 LDtk 1.5.3 점검을 통과했습니다. 엔진 용어는 링크한 공식 문서를 따릅니다.'],sources:[S.ko.tiledTerrain,S.ko.godotTilesets]}
+  },
+  ja:{
+   answer:'デュアルグリッドは、地形はマップのマスに置いたまま、タイルをマスの間の点、つまり半タイルずれた位置に描きます。描くタイル1枚が4つのマスの角を1つずつ覆うので、その4マスのどれが地形かさえわかればよく、2⁴ = 16枚で済み、ブロブの47枚は要りません。その代わり、半タイルずれた表示レイヤー（W × Hマスのマップに(W+1) × (H+1)枚）と、境目がタイルの真ん中を通るように描いた絵が必要です。Studioは角16枚のシート（1パックに複数の地形も）を認識し、ブロブと同じパーツから生成し、Godot 4のMatch Corners地形、Tiledの角Wangセット、LDtkのルールとして書き出します。UnityのRule Tileには入れられません。',
+   concept:{title:'グリッドを半タイル動かすと16枚で足りる理由',body:[
+    'ブロブセットでは、マスのタイルがそのマスの4つのパーツをすべて描かなければなりません。パーツはそれぞれ3つの隣で決まり（左上ならN・W・NW）、見た目は5種類です。外側の角、上の縁、横の縁、内側の角、全面。4つのパーツは接する辺でかみ合う必要があり、ありうる組み合わせを数えると47通りになります。',
+    '描くグリッドを半タイルずらすと、1枚のタイルは異なる4マスのパーツを1つずつ見せることになります。タイルの中心点で出会う4マスです。パーツが5種類のどれになるかは同じタイル内のほかの3マスで決まるので、タイルはマスごとに1ビット（地形かどうか）だけ知っていればよくなります。4ビットで16枚：空1、地形のマス1つ（外側の角）4、並んだ2マス（まっすぐな縁）4、斜めの2マス2、3マス（内側の角）4、全面1です。',
+    'どちらの場合もパーツは同じ3つの隣で選ばれるので、Nerulioのジェネレーターは描いた20個のパーツ（角4 × 見た目5）から、ブロブ47のセットとデュアルグリッド16のセットの両方を作ります。変わるのはタイルを置く場所で、絵が見せるべき内容ではありません。',
+    '代償もはっきりしています。表示レイヤーはずれていて、データのグリッドより縦横1枚ずつ大きく、当たり判定やゲームのロジックはデータのグリッドに残り、格子点にタイルを置けないエンジンもあります。辺タイル16枚のセットと混同しないでください。あちらはマスの4辺で合わせるもので（道・柵・足場）、角タイルとは入れ替えられません。'],
+    terms:[['データのグリッド','塗るマスであり、ゲームのロジックが読むマス。地形かそうでないか。'],['表示のグリッド','描かれるタイル。4マスの間の格子点ごとに1枚、半タイルずれている。'],['角マスク','1点を囲む4マスについてNW 1 + NE 2 + SE 4 + SW 8。0（空）から15（全面）まで。'],['辺セット','4辺（N 1、E 2、S 4、W 8）で合わせ、マスの上に描く16枚。別のセットです。']]},
+   example:{title:'例：格子点にどのタイルが来るか',lead:'中央に2 × 2の陸がある4 × 3のマップ：',lines:[
+    'データのグリッド（# = 陸）  格子点上の表示タイル：(4 + 1) × (3 + 1) = 20',
+    '. . . .',
+    '. # # .                     マス(1,0) (2,0) (1,1) (2,1)の間の点：',
+    '. # # .                       NW . = 0   NE . = 0   SE # = 4   SW # = 8   → マスク12',
+    '                              = 下半分が陸：まっすぐな上の縁',
+    '',
+    '点の周りの陸マス           0   1         並んだ2         斜めの2      3              4',
+    '見た目                      -   外側の角  まっすぐな縁    斜め         内側の角       全面',
+    'タイル                      1 + 4       + 4             + 2          + 4            + 1   = 16'],
+    after:'同じ2 × 2の塊は、ブロブセットでは4マスで、それぞれが8つの隣から47枚の1枚を選びます。デュアルグリッドでは9つの格子点が、それぞれ4マスを見て16枚の1枚を選びます。'},
+   mapping:{title:'エンジンごとの角セットの置き場所',head:['エンジン','角セットの保存のしかた','Nerulioの書き出し'],rows:[
+    ['Godot 4','Match Cornersモードの地形セット：タイルごとに角のピアリングビット4つ','検証済み：地形4つのデュアルグリッドパックをGodot 4.7.2が251マスすべて予測どおりに塗った（複数地形のマップ3つを含む）'],
+    ['Tiled','角Wangセット（Tiledのマニュアル：地形2つの完全な角セットは16枚）。サンプルマップのレイヤーは半タイルずらす','Tiled 1.12.2自身の読み込み機能で検証'],
+    ['LDtk','タイルごとにルール1つ、タイルは半タイルのオフセットで描く','一部検証：1.5.3スキーマ、公式ローダー、ルールの再実行'],
+    ['Unity','Rule Tileはマスの上に描き、マスの間の点には描かない','書き出さない'],
+    ['Godot 3とテンプレート','Godot 3の「2×2」テンプレート、cr31の2-corner Wangセット、4×4のデュアルグリッドシートは同じ並び','corner16 cr31として認識']]},
+   outputs:{lead:'`grass.png`というデュアルグリッドシートの場合：',rows:[
+    ['nerulio_tileset_import.gd','Godot 4：Match Cornersの地形セットを持つ`nerulio-tileset.tres`を作ります。ブロックが複数あるパックは地形をそのまま保ちます。'],
+    ['grass.tsx','Tiled：地形ごとに1色の角Wangセット。`sample.tmx`は半タイルずらしたレイヤーにセットを描きます。'],
+    ['grass.ldtk','LDtk：地形ごとにIntGridの値1つ、半タイルのタイルオフセット付きのタイルごとのルール。']]},
+   trouble:{rows:[
+    ['エンジンで全体が半タイルずれて見える','ブロブ式の絵（縁がタイルの境界にある）を角セットとして使った、または角の絵をずらしていないレイヤーに置いた','テストマップでTiledルールにして、塗ったマスと縁の位置を比べる','地形の境目がタイルの真ん中を通るように角タイルを描き、表示レイヤーのオフセットを保つ'],
+    ['Unityの書き出しにこのセットの地形がない','Rule Tileはマスの上に描く。角セットには格子点が必要','書き出しの注意に、Unityでは角セットを省くとある','Godot・Tiled・LDtkを使うか、Unityにはブロブ47のセットを使う'],
+    ['複数地形のパックで地形が混ざる','地形は同じ絵の単色の塗りでまとめる。塗りが少しでも違うと別の地形になる','適用後の地形一覧を読む','地形をまとめるか名前を変える、または塗りをそろえる'],
+    ['Tiledルールでマップの外周にすき間が見える','マップの端の格子点はマップ外のマスに接している','これらの点は問題として報告されない','正常。端まで描く必要があれば外周にマスを1つ足して塗る'],
+    ['ジェネレーターがA4の壁ブロックからデュアルグリッドを作らない','辺だけの素材には角タイルを作るパーツがない','辺だけの素材は角タイルを描けないというエラー','RPGツクールA2、Blobsmith、5タイル、手続き的な縁の素材を使う']]},
+   alternatives:{rows:[
+    ['ブロブ47枚のセット','UnityのRule Tileが必要なとき、またはオフセットのレイヤーなしでタイルをマスの上に置きたいとき（[[game/blob-47-tileset|ブロブの解説]]）。'],
+    ['Tiledの角セットだけを使う','レベルをTiledで作り、そこでWangの色を付けるとき。[[game/tiled-wang-set|TiledのWangセット]]を参照。'],
+    ['基本ブロックから16枚を生成','A2ブロックや2×3の基本ブロックを描いたとき。[[game/tileset-generator|タイルセットジェネレーター]]がブロブと同じパーツでデュアルグリッドのセットを組み立てます。']]},
+   limits:['角セットはUnityへ書き出しません。','地形間の遷移はパックの絵かA over Bの生成によるもので、1組ずつです。','テストマップはマップ外周の格子点を表示しますが、チェックはしません。'],
+   versions:{body:['Nerulioの検証（docs/STUDIO-TILE.md、2026-09-23）：MITライセンスのGlitchedinOrbitのデュアルグリッドシートをcorner16ブロック5つ、地形4つとして読み（角の地形80/80、継ぎ目AUC 1.000）、Godot 4.7.2が251マスすべてを予測どおりに塗り、Tiled 1.12.2とLDtk 1.5.3の確認も通りました。エンジンの用語はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.tiledTerrain,S.ja.godotTilesets]}
+  }
+ },
 /*END*/
 };
