@@ -38,5 +38,5 @@ export function renderRadar(m,site){
  const other=ko?'en':'ko';
  return page({l,title:ko?'레이더 — AI·게임·하드웨어·창작 도구의 최신 변경 | Nerulio':'Radar — latest changes in AI, games, hardware and creator tools | Nerulio',
   description:ko?'모델 출시, 게임 업데이트, 드라이버, DAW 버전, 애니 방영 일정까지 출처와 함께 모아 봅니다.':'Model launches, game updates, drivers, DAW versions and anime dates, with sources.',
-  canonical:site.origin+base+(m.vertical?`?v=${m.vertical}`:''),alternates:{[l]:site.origin+base,[other]:site.origin+`/${other}/radar/`},noindex:!!m.vertical,channels:m.channels,body});
+  feed:base+'feed.xml',canonical:site.origin+base+(m.vertical?`?v=${m.vertical}`:''),alternates:{[l]:site.origin+base,[other]:site.origin+`/${other}/radar/`},noindex:!!m.vertical,channels:m.channels,body});
 }

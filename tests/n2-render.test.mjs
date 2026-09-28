@@ -261,3 +261,19 @@ test('Korean patch: a game update past the last confirmed version is flagged; pa
  assert.equal(m.panel.id,'patch');
  assert(out.includes('패치 정보')&&out.includes('Nerulio는 패치 파일을 올리거나 보관하지 않습니다'));
 });
+
+test('hub pages list a vertical by type; RSS feeds for channels and the Radar',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const go=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const hub=await (await go('/ko/hardware/')).text();
+ assert(hub.includes('/ko/hardware/rtx-5070/')&&hub.includes('그래픽카드'));
+ const typed=await go('/ko/games/?type=translation_patch');assert.equal(typed.status,200);
+ assert((await typed.text()).includes('한글패치'));
+ assert.equal((await go('/ko/games/?type=zzz')).status,200,'unknown type falls back to all');
+ const feed=await go('/ko/ai/claude/feed.xml');
+ assert.match(feed.headers.get('content-type'),/rss\+xml/);
+ const xml=await feed.text();assert(xml.startsWith('<?xml')&&xml.includes('<rss version="2.0">')&&xml.includes('https://nerulio.com/ko/ai/claude/'));
+ assert(!xml.includes('<script'),'escaped');
+ assert((await (await go('/ko/radar/feed.xml')).text()).includes('<channel><title>Nerulio 레이더</title>'));
+ assert((await (await go('/ko/ai/claude/')).text()).includes('type="application/rss+xml" href="/ko/ai/claude/feed.xml"'));
+});

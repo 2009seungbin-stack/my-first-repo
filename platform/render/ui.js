@@ -68,7 +68,7 @@ const LOGO=html`<svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="tru
  * Page shell. `channels` = the channel bar (popular channels for anonymous visitors; an island swaps in
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
- *  channels:{name:string,href:string,on?:boolean}[],homeOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null}} o
+ *  channels:{name:string,href:string,on?:boolean}[],homeOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null}} o
  */
 export function page(o){
  const s=t(o.l);
@@ -88,6 +88,8 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:url" content="${o.canonical}">
 <meta property="og:site_name" content="Nerulio">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="RSS">
+`:''}
 <link rel="stylesheet" href="${CSS_HREF}">
 <script type="module" src="${ISLANDS_SRC}"></script>
 ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld).replace(/</g,'\\u003c'))}</script>

@@ -77,10 +77,10 @@ export function renderChannel(m,site){
  const base=channelUrl(l,e);
  const q=(/** @type {Record<string,string|number|null>} */ p)=>{const u=new URLSearchParams();/** @type {Record<string,string|number|null>} */const all={kind:m.kind,sort:m.sort==='new'?null:m.sort,best:m.best?1:null,...p};for(const [k,x] of Object.entries(all))if(x!==null&&x!==undefined&&x!=='')u.set(k,String(x));const str=u.toString();return str?`${base}?${str}`:base;};
  const live=m.panel.live?.(m.data,ctx)||false;
- const subtitle=[td?label(td.label,l):'',v?label(v.label,l):''].filter(Boolean).join(' · ');
+ const subtitle=td?label(td.label,l):'';
  const desc=e.descriptions[l]||e.descriptions.en||'';
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
-<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${subtitle}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
+<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${subtitle}${v?html` · <a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} ${compact(m.stats.followers,l)} · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
 <div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
@@ -106,7 +106,7 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const canonical=site.origin+(m.kind||m.sort!=='new'||m.best||m.page>1?q({}):base);
  return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},
   noindex:!!(m.kind||m.sort!=='new'||m.best||m.page>1)||!m.index,channels:m.channels.map(c=>({...c,on:c.href===base})),scope:{name,id:e.id},body,
-  jsonld:channelJsonLd(e,ctx.facts,l,site.origin+base,site.origin)});
+  jsonld:channelJsonLd(e,ctx.facts,l,site.origin+base,site.origin),feed:base+'feed.xml'});
 }
 /** Channels whose readers make things with Nerulio's game-asset tools. */
 const ENTITY_TOOLS=/** @type {Record<string,string[]>} */({'app:godot':['sprite-lab','tile-lab','pixel-lab','ui-lab'],'app:blender':['texture-lab'],'app:unity':['sprite-lab','texture-lab','ui-lab'],'app:aseprite':['pixel-lab','sprite-lab']});

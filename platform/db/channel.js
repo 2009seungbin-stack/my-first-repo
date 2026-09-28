@@ -315,3 +315,15 @@ export async function factHistory(db,id,props){
  const rows=await all(db,`SELECT property,value,unit,region,plan,verification,valid_from,valid_until,is_current,source_id FROM facts WHERE entity_id=? AND property IN (${qs(props.length)}) ORDER BY valid_from,id`,[id,...props]);
  return rows.map(r=>({property:String(r.property),value:json(r.value,null),unit:r.unit??null,region:String(r.region),plan:String(r.plan),verification:String(r.verification),valid_from:Number(r.valid_from),valid_until:r.valid_until===null?null:Number(r.valid_until),current:!!r.is_current}));
 }
+
+/** Channels of a vertical for its hub page, most active first, then by name; with post counts.
+ * @param {D1} db @param {string} vertical @param {{type?:string|null,limit?:number,offset?:number}} [o] */
+export async function hubEntities(db,vertical,o={}){
+ const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},(SELECT COUNT(*) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS posts,(SELECT COUNT(*) FROM follows f WHERE f.entity_id=e.id) AS followers
+  FROM entities e WHERE e.vertical=? AND e.status='active'${o.type?' AND e.type=?':''} ORDER BY posts DESC,followers DESC,e.updated_at DESC LIMIT ? OFFSET ?`,[vertical,...(o.type?[o.type]:[]),o.limit??60,o.offset??0]);
+ return rows.map(r=>({entity:entityRow(r),posts:Number(r.posts),followers:Number(r.followers)}));
+}
+/** Entity counts per type of a vertical. @param {D1} db @param {string} vertical */
+export async function typeCounts(db,vertical){
+ return Object.fromEntries((await all(db,"SELECT type,COUNT(*) AS n FROM entities WHERE vertical=? AND status='active' GROUP BY type",[vertical])).map(r=>[String(r.type),Number(r.n)]));
+}
