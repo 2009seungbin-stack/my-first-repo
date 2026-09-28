@@ -17,7 +17,7 @@ import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -189,6 +189,22 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     }else await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
     await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
     return done({ok:true});
+   }
+   case 'POST /posts/solve':{
+    only(body,['postId','commentId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.kind,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+    if(p.kind!=='question')throw new ApiError('BAD_REQUEST','Only questions have an accepted answer.');
+    let cid=null;
+    if(body.commentId!==null&&body.commentId!==undefined&&body.commentId!==''){
+     const c=await db.prepare("SELECT id,author_id FROM comments WHERE id=? AND discussion_id=? AND status='published'").bind(String(body.commentId),p.id).first();
+     if(!c)throw new ApiError('NOT_FOUND','No such comment on this post.');
+     if(c.author_id===context.user.id)throw new ApiError('BAD_REQUEST','Pick someone else\'s answer.');
+     cid=String(c.id);
+    }
+    await db.prepare('UPDATE discussions SET solved_comment_id=?,updated_at=? WHERE id=?').bind(cid,now,p.id).run();
+    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    return done({solved:cid});
    }
    case 'POST /comments/edit':case 'POST /comments/delete':{
     only(body,key==='POST /comments/edit'?['commentId','body']:['commentId']);

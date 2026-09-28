@@ -148,6 +148,11 @@ async function main(){
    f.addEventListener('submit',async e=>{e.preventDefault();const r=await write('/posts/edit',{postId:own.dataset.post,title:ti.value,body:ta.value},signedIn);if(r)location.reload();});
   });
  }
+ // The question's author accepts an answer
+ if(st.mine?.post)for(const b of $$('[data-accept]')){
+  if(st.mine.comments?.includes(b.dataset.accept))continue;b.hidden=false;
+  b.addEventListener('click',async()=>{const r=await write('/posts/solve',{postId:own?.dataset.post,commentId:b.dataset.accept},signedIn);if(r)location.reload();});
+ }
  for(const b of $$('[data-own-comment]')){
   if(!st.mine?.comments?.includes(b.dataset.ownComment))continue;b.hidden=false;
   b.addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 댓글을 삭제할까요?':'Delete this comment?'))return;const r=await write('/comments/delete',{commentId:b.dataset.ownComment},signedIn);if(r)location.reload();});

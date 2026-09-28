@@ -58,7 +58,7 @@ export const kindChip=(kind,l)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${
  */
 export function postRow(p,o){
  const {l,now}=o;
- const title=html`${kindChip(p.kind,l)}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
+ const title=html`${kindChip(p.kind,l)}${/** @type {any} */(p).solved?html`<span class="solved">${l==='ko'?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
  return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.post_no}</span>${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${o.href}">${title}</a>`}${o.channel?html`<span class="chn">${o.channel}</span>`:''}${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
 }
 

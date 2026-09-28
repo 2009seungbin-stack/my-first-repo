@@ -136,12 +136,12 @@ export async function collectorState(db,adapters){
 
 /* ---------- community (게시판) ---------- */
 
-const POST_COLS=`d.id,d.entity_id,d.post_no,d.kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,
+const POST_COLS=`d.id,d.entity_id,d.post_no,d.kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.solved_comment_id,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,
  COALESCE(p.display_name,CASE WHEN u.provider='system' THEN u.display_name ELSE 'user-'||lower(substr(u.id,1,6)) END) AS author_name,COALESCE(p.tier,'new') AS author_tier,COALESCE(p.role,'user') AS author_role`;
 /** @param {any} r */
 const postRow=r=>({id:String(r.id),entity_id:String(r.entity_id),post_no:Number(r.post_no),kind:String(r.kind),title:String(r.title),locale:String(r.locale),author_id:String(r.author_id),author_name:r.author_name??null,author_tier:String(r.author_tier),author_role:String(r.author_role),
  bot:String(r.author_id).startsWith('system:'),change_id:r.change_id??null,report_id:r.report_id??null,status:String(r.status),pinned:!!r.pinned,up:Number(r.up_count),down:Number(r.down_count),views:Number(r.view_count),comments:Number(r.comment_count),has_image:!!r.has_image,
- best_at:r.best_at===null||r.best_at===undefined?null:Number(r.best_at),created_at:Number(r.created_at),edited_at:r.edited_at===null||r.edited_at===undefined?null:Number(r.edited_at),last_activity_at:Number(r.last_activity_at),
+ solved:r.solved_comment_id?String(r.solved_comment_id):null,best_at:r.best_at===null||r.best_at===undefined?null:Number(r.best_at),created_at:Number(r.created_at),edited_at:r.edited_at===null||r.edited_at===undefined?null:Number(r.edited_at),last_activity_at:Number(r.last_activity_at),
  entity:r.e_id?entityRow({id:r.e_id,vertical:r.e_vertical,type:r.e_type,slug:r.e_slug,names:r.e_names,descriptions:'{}',official_urls:'[]',image_url:null,status:'active',updated_at:0}):null});
 export const SORTS=/** @type {const} */(['new','hot','top','activity']);
 /**

@@ -256,3 +256,20 @@ test('authors edit and delete their own posts and comments; nobody else can',{sk
  assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'deleted');
  assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'되살리기',body:'x'}})).status,404,'deleted stays deleted');
 });
+
+test('question authors accept an answer; the post becomes a QAPage with acceptedAnswer and leaves "unanswered"',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ const q=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'question',title:'패치 어디서 받아요?',body:'질문'}})).json;
+ const c=(await h.call('POST','/comments',{as:'b',body:{postId:q.id,body:'제작자 블로그에서요'}})).json;
+ const mine=(await h.call('POST','/comments',{as:'a',body:{postId:q.id,body:'감사합니다'}})).json;
+ assert.equal((await h.call('POST','/posts/solve',{as:'b',body:{postId:q.id,commentId:c.id}})).status,404,'only the asker');
+ assert.equal((await h.call('POST','/posts/solve',{as:'a',body:{postId:q.id,commentId:mine.id}})).status,400,'not your own comment');
+ assert.equal((await h.call('POST','/posts/solve',{as:'a',body:{postId:q.id,commentId:c.id}})).json.solved,c.id);
+ const {loadPost,renderPost}=await import('../platform/render/post.js');const {entitiesByIds,frontPosts}=await import('../platform/db/channel.js');
+ const game=(await entitiesByIds(h.db,['game:steam-1'])).get('game:steam-1');
+ const out=String(renderPost(await loadPost(h.db,game,1,{l:'ko',now:T0}),{origin:ORIGIN}));
+ assert(out.includes('✓ 채택된 답변'));
+ const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(out)[1]);
+ assert.equal(ld['@type'],'QAPage');assert.equal(ld.mainEntity.acceptedAnswer.text,'제작자 블로그에서요');
+ assert.equal((await frontPosts(h.db,{mode:'kind',kind:'question',unanswered:true})).length,0);
+});
