@@ -559,5 +559,372 @@ export default {
    limits:['試した生成画像で自動的に合わせられたものはありません。大きさを入力するつもりでいてください。','何も描き直しません。ないディテールはないまま、不揃いな形は1倍でも不揃いなままです。','実際の画像には正解がないので、入力した大きさがどれだけ良いかは目で判断するしかありません。'],
    versions:{body:['2026-09-25のベンチマーク（docs/STUDIO-PIXEL.md §5、docs/pixel-bench/H2H.md）：正解のある模擬ケース10件と、OpenGameArtの実際のCC0生成画像7枚。競合ツールはそれぞれの初期設定で実行しました。']}
   }
+ },
+ 'game/pixel-art-upscaler':{
+  type:'tool',
+  intent:{primary:'upscale pixel art without blur (integer nearest-neighbour)',secondary:['why 4.25× or 4.8× breaks the pixel grid','fitting a trailer or store size','do not upscale an image that is already upscaled','keep it sharp on a web page'],
+   goal:'an enlarged PNG in which every art pixel is an equal square block',input:'1× pixel-art PNG frames (or an image the checker finds to be an exact upscale)',output:'PNG frames scaled 1×–8× by nearest-neighbour',target:'store pages, trailers, social posts, web pages',support:'full',
+   evidence:['src/game/pixel-check.js (nearestScale, detectScale, recoverSource)','docs/PIXEL-LAB.md §6 and Verification (1×/2×/3×/4×/8× detected exactly, 2.5× read 2.500×, 3× recovered pixel-identical)'],
+   external:['MDN: image-rendering (pixelated, crisp-edges)','Aseprite docs: Export (Resize field)']},
+  en:{
+   answer:'To enlarge pixel art without blur, multiply it by a whole number with nearest-neighbour: at 4× a 32 × 32 sprite becomes 128 × 128 and every pixel an exact 4 × 4 block. Fractional factors (4.25×) make some pixels wider than others, and smooth or AI upscalers add blur or invented detail. Nerulio’s Pixel Lab scales frames 1×–8× nearest and first checks whether the image is already an upscale, so you enlarge the 1× original rather than an enlarged copy.',
+   concept:{title:'Whole factors keep the grid; everything else bends it',body:[
+    'Nearest-neighbour copies each source pixel into a block and computes nothing new. With a whole factor k every block is k × k, so a one-pixel line stays one block thick, diagonals stay regular stairs and the colours stay exactly the palette.',
+    'With 4.25× a 32-pixel row becomes 136 pixels, and 136 screen pixels cannot be split into 32 equal blocks: nearest gives widths 5, 4, 4, 4, 5, 4, 4, 4 … so every fourth pixel is 25 % wider and a clean diagonal turns into stairs of uneven steps. Bilinear or bicubic hide the unevenness by blending neighbours, which is exactly the blur you wanted to avoid.',
+    'For a target that is not a multiple of the art — a 1920 × 1080 trailer from 400 × 225 art is 4.8× — scale by the largest whole factor (4× → 1600 × 900) and pad or frame the rest. And check the input first: a 3× screenshot scaled 4× again is 12×, with any unevenness it already had multiplied; the checker recovers the 1× source when the image is an exact integer upscale.'],
+    terms:[['Nearest-neighbour','Every output pixel copies the closest source pixel; no blending.'],['Integer scale','2×, 3×, 4× …: every art pixel becomes an equal square block.'],['Logical size','The 1× size of the art: 32 × 32 for a sprite shown at 128 × 128.']]},
+   example:{title:'Example: sizes and block widths',lead:'A 32 × 32 sprite and a 400 × 225 scene:',lines:[
+    '32 × 32   ×2 →  64 × 64    every pixel 2 × 2',
+    '32 × 32   ×4 → 128 × 128   every pixel 4 × 4',
+    '32 × 32   ×8 → 256 × 256   every pixel 8 × 8',
+    '32 × 32   ×4.25 → 136      widths 5,4,4,4,5,4,4,4 …  (uneven)',
+    '',
+    '400 × 225 for a 1920 × 1080 trailer: 1920/400 = 4.8, 1080/225 = 4.8',
+    '  largest whole factor 4 → 1600 × 900, pad 160 px left/right, 90 px top/bottom'],
+    after:'The pattern 5, 4, 4, 4 comes from nearest sampling: output pixel x shows source pixel ⌊x ÷ 4.25⌋, so source pixel 0 covers x = 0–4 (5 pixels) and source pixel 1 covers x = 5–8 (4 pixels).'},
+   verify:{steps:[
+    'The output size is the input size times the factor exactly (32 × 4 = 128).',
+    'Run the result through the [[game/pixel-perfect-checker|checker]]: it should report an exact integer scale with offset 0, 0.',
+    'Look at it at 100 % where it will be shown (store page, video editor): soft edges there mean the platform rescaled it.']},
+   trouble:{rows:[
+    ['The upscaled PNG looks soft on a web page','The page displays it at a different size and the browser smooths it','Compare the CSS size with the file size','Show it at its own size, or set CSS `image-rendering: pixelated` (per MDN: nearest to the closest whole multiple, then smooth for the remainder)'],
+    ['Uneven pixels in a trailer or on a store page','The editor or store resized it to a non-multiple (4.8×)','Compare the file size with the output resolution','Upscale by the largest whole factor that fits and pad instead of stretching'],
+    ['The result is much bigger and blockier than expected','The input was already an upscale (3× then 4× = 12×)','The checker reports an exact integer scale on the input','Recover 1× first, then scale'],
+    ['Coloured noise around outlines after uploading','The platform re-encoded the image as JPEG','Zoom into an edge of the uploaded copy','Upload PNG where the platform keeps it']]},
+   alternatives:{rows:[
+    ['Scale variants in Pack & Export ([[sprite-sheet-maker|sprite sheet maker]])','You need an engine atlas at @2x or @4x next to the 1× one; those variants are nearest-neighbour only.'],
+    ['Aseprite: File › Export › Export As with the Resize field','You already work in Aseprite; its docs suggest scales such as 400 % for posting animations.'],
+    ['Let the engine scale the 1× art','Inside a game, keep 1× textures and scale the view by whole numbers ([[game/godot-pixel-art-blurry|Godot]], [[game/unity-pixel-art-blurry|Unity]]); pre-scaled textures only cost memory.']]},
+   limits:['Whole factors 1×–8× only; there is no fractional or smooth mode.','A sheet is scaled as one picture: 2 px of padding between frames becomes 8 px at 4×.','No detail is added — right for pixel art, wrong if you wanted a photo upscaler.'],
+   versions:{body:['From the Pixel Lab tests in Chromium: 1×, 2×, 3×, 4× and 8× nearest upscales were detected exactly with offset 0, 0; a 2.5× nearest resize read 2.500×; a 3× sprite was recovered to 16 × 16 pixel-identical. The CSS behaviour is as described by MDN; Aseprite’s export dialog as described in its docs.'],sources:['[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)','[Aseprite docs: Exporting](https://www.aseprite.org/docs/exporting/)']}
+  },
+  ko:{
+   answer:'도트를 흐리지 않게 키우려면 최근접 방식으로 정수배를 하면 됩니다. 4배면 32 × 32 스프라이트가 128 × 128이 되고 모든 픽셀이 정확한 4 × 4 블록이 됩니다. 4.25배 같은 소수 배율은 일부 픽셀을 더 넓게 만들고, 부드러운 확대나 AI 업스케일러는 흐림이나 지어낸 디테일을 더합니다. Nerulio 픽셀 랩은 프레임을 1×~8× 최근접으로 키우며, 먼저 이미지가 이미 확대본인지 확인해 확대된 사본이 아니라 1배 원본을 키우게 합니다.',
+   concept:{title:'정수 배율은 격자를 지키고, 나머지는 격자를 휘게 합니다',body:[
+    '최근접 방식은 원본 픽셀을 블록으로 복사할 뿐 새 값을 계산하지 않습니다. 정수 k배면 모든 블록이 k × k라서 1픽셀 선은 한 블록 두께로, 대각선은 규칙적인 계단으로, 색은 팔레트 그대로 남습니다.',
+    '4.25배면 32픽셀 한 줄이 136픽셀이 되는데, 136을 32개의 같은 블록으로 나눌 수는 없습니다. 최근접으로 하면 폭이 5, 4, 4, 4, 5, 4, 4, 4 … 가 되어 네 번째 픽셀마다 25 % 넓어지고, 깨끗한 대각선이 고르지 않은 계단이 됩니다. 쌍선형·쌍삼차는 이웃을 섞어 고르지 않음을 감추는데, 그것이 바로 피하려던 흐림입니다.',
+    '목표 크기가 도트의 배수가 아닐 때 — 400 × 225 그림으로 1920 × 1080 트레일러를 만들면 4.8배 — 가장 큰 정수 배율(4배 → 1600 × 900)로 키우고 남는 부분은 여백이나 테두리로 채우세요. 입력도 먼저 확인해야 합니다. 3배 스크린숏을 다시 4배 하면 12배가 되고 원래 있던 고르지 않음도 함께 커집니다. 검사기는 이미지가 정확한 정수 확대본이면 1배 원본을 되살립니다.'],
+    terms:[['최근접(Nearest-neighbour)','결과 픽셀마다 가장 가까운 원본 픽셀을 복사. 섞지 않음.'],['정수 배율','2×, 3×, 4× …: 모든 도트가 같은 정사각 블록이 됨.'],['논리 크기','그림의 1배 크기. 128 × 128로 보이는 스프라이트라면 32 × 32.']]},
+   example:{title:'예시: 크기와 블록 폭',lead:'32 × 32 스프라이트와 400 × 225 장면:',lines:[
+    '32 × 32   ×2 →  64 × 64    모든 픽셀 2 × 2',
+    '32 × 32   ×4 → 128 × 128   모든 픽셀 4 × 4',
+    '32 × 32   ×8 → 256 × 256   모든 픽셀 8 × 8',
+    '32 × 32   ×4.25 → 136      폭 5,4,4,4,5,4,4,4 …  (고르지 않음)',
+    '',
+    '1920 × 1080 트레일러용 400 × 225: 1920/400 = 4.8, 1080/225 = 4.8',
+    '  가장 큰 정수 배율 4 → 1600 × 900, 좌우 160px·위아래 90px 여백'],
+    after:'5, 4, 4, 4 패턴은 최근접 샘플링에서 나옵니다. 결과 픽셀 x는 원본 픽셀 ⌊x ÷ 4.25⌋를 보여 주므로 원본 0번은 x = 0~4(5픽셀), 원본 1번은 x = 5~8(4픽셀)을 차지합니다.'},
+   verify:{steps:[
+    '결과 크기가 입력 크기 × 배율과 정확히 같습니다(32 × 4 = 128).',
+    '결과를 [[game/pixel-perfect-checker|검사기]]에 넣으면 오프셋 0, 0의 정확한 정수 배율이 나와야 합니다.',
+    '보여 줄 곳(스토어 페이지, 영상 편집기)에서 100 %로 봅니다. 거기서 가장자리가 흐리면 플랫폼이 크기를 다시 바꾼 것입니다.']},
+   trouble:{rows:[
+    ['확대한 PNG가 웹 페이지에서 흐리게 보임','페이지가 다른 크기로 표시하면서 브라우저가 부드럽게 보간함','CSS 크기와 파일 크기 비교','원래 크기로 표시하거나 CSS `image-rendering: pixelated` 지정(MDN 기준: 가장 가까운 정수배까지는 최근접, 나머지는 부드럽게)'],
+    ['트레일러나 스토어 페이지에서 도트가 고르지 않음','편집기나 스토어가 배수가 아닌 크기(4.8배)로 바꿈','파일 크기와 출력 해상도 비교','맞는 가장 큰 정수 배율로 키우고 늘리는 대신 여백을 둠'],
+    ['결과가 예상보다 훨씬 크고 각짐','입력이 이미 확대본이었음(3배 후 4배 = 12배)','검사기가 입력에서 정확한 정수 배율을 보고함','먼저 1배로 되살린 뒤 확대'],
+    ['올린 뒤 외곽선 주변에 색 잡음','플랫폼이 JPEG로 다시 인코딩함','올라간 사본의 가장자리를 확대','PNG를 그대로 두는 곳이면 PNG로 올리기']]},
+   alternatives:{rows:[
+    ['패킹·내보내기의 배율 변형([[sprite-sheet-maker|스프라이트 시트 메이커]])','1배와 함께 @2x·@4x 엔진 아틀라스가 필요할 때. 이 변형은 최근접 방식만 씁니다.'],
+    ['Aseprite: File › Export › Export As의 Resize 칸','이미 Aseprite로 작업할 때. Aseprite 문서는 애니메이션을 올릴 때 400 % 같은 배율을 권합니다.'],
+    ['엔진이 1배 그림을 키우게 하기','게임 안에서는 1배 텍스처를 두고 화면을 정수배로 키우세요([[game/godot-pixel-art-blurry|Godot]], [[game/unity-pixel-art-blurry|Unity]]). 미리 키운 텍스처는 메모리만 씁니다.']]},
+   limits:['1×~8× 정수 배율만 있고 소수·부드러운 방식은 없습니다.','시트는 그림 한 장으로 확대됩니다. 프레임 사이 2px 여백은 4배에서 8px이 됩니다.','디테일을 더하지 않습니다. 도트에는 맞지만 사진 업스케일러를 원했다면 맞지 않습니다.'],
+   versions:{body:['Chromium의 픽셀 랩 시험 결과: 1×·2×·3×·4×·8× 최근접 확대를 오프셋 0, 0으로 정확히 감지했고, 2.5배 최근접은 2.500배로 읽었으며, 3배 스프라이트를 16 × 16으로 픽셀까지 같게 되살렸습니다. CSS 동작은 MDN 설명을, Aseprite 내보내기 창은 공식 문서를 따릅니다.'],sources:['[MDN: image-rendering](https://developer.mozilla.org/ko/docs/Web/CSS/image-rendering)','[Aseprite 문서: Exporting](https://www.aseprite.org/docs/exporting/)']}
+  },
+  ja:{
+   answer:'ドット絵をぼかさずに拡大するには、ニアレストネイバーで整数倍にします。4倍なら32 × 32のスプライトは128 × 128になり、すべてのピクセルが正確な4 × 4のブロックになります。4.25倍のような小数倍は一部のピクセルを太くし、なめらかな拡大やAIアップスケーラーはぼけや作られたディテールを加えます。Nerulioのピクセルラボはフレームを1×〜8×のニアレストで拡大し、先に画像がすでに拡大済みかを調べるので、拡大されたコピーではなく1倍の元画像を拡大できます。',
+   concept:{title:'整数倍はグリッドを守り、それ以外はグリッドをゆがめる',body:[
+    'ニアレストネイバーは元のピクセルをブロックに写すだけで、新しい値を計算しません。整数k倍ならすべてのブロックがk × kなので、1ピクセルの線は1ブロックの太さのまま、斜め線は規則的な階段のまま、色はパレットのままです。',
+    '4.25倍では32ピクセルの1行が136ピクセルになりますが、136を32個の等しいブロックに分けることはできません。ニアレストだと幅が5、4、4、4、5、4、4、4…となり、4つに1つのピクセルが25 %太くなって、きれいな斜め線が不揃いな階段になります。バイリニアやバイキュービックは隣を混ぜて不揃いを隠しますが、それこそ避けたかったぼけです。',
+    '目標サイズが絵の倍数でないとき — 400 × 225の絵から1920 × 1080のトレーラーを作ると4.8倍 — は最大の整数倍（4倍 → 1600 × 900）で拡大し、残りは余白や枠で埋めます。入力も先に確認しましょう。3倍のスクリーンショットをさらに4倍すると12倍になり、元からあった不揃いも一緒に大きくなります。チェッカーは画像が正確な整数倍の拡大なら1倍の元画像を復元します。'],
+    terms:[['ニアレストネイバー','出力の各ピクセルが最も近い元のピクセルをコピー。混ぜない。'],['整数倍','2×、3×、4×…：すべてのドットが同じ正方形のブロックになる。'],['論理サイズ','絵の1倍のサイズ。128 × 128で表示するスプライトなら32 × 32。']]},
+   example:{title:'例：サイズとブロックの幅',lead:'32 × 32のスプライトと400 × 225の場面：',lines:[
+    '32 × 32   ×2 →  64 × 64    全ピクセル2 × 2',
+    '32 × 32   ×4 → 128 × 128   全ピクセル4 × 4',
+    '32 × 32   ×8 → 256 × 256   全ピクセル8 × 8',
+    '32 × 32   ×4.25 → 136      幅5,4,4,4,5,4,4,4 …（不揃い）',
+    '',
+    '1920 × 1080のトレーラー用に400 × 225：1920/400 = 4.8、1080/225 = 4.8',
+    '  最大の整数倍4 → 1600 × 900、左右160px・上下90pxの余白'],
+    after:'5、4、4、4のパターンはニアレストのサンプリングから生まれます。出力のピクセルxは元のピクセル⌊x ÷ 4.25⌋を表示するので、元の0番はx = 0〜4（5ピクセル）、1番はx = 5〜8（4ピクセル）を占めます。'},
+   verify:{steps:[
+    '出力サイズが入力サイズ × 倍率とぴったり同じです（32 × 4 = 128）。',
+    '結果を[[game/pixel-perfect-checker|チェッカー]]に通すと、オフセット0, 0の正確な整数倍率と出るはずです。',
+    '表示される場所（ストアページ、動画編集ソフト）で100 %で見ます。そこで縁がぼけていれば、プラットフォームがサイズを変え直しています。']},
+   trouble:{rows:[
+    ['拡大したPNGがWebページでぼやける','ページが別のサイズで表示し、ブラウザがなめらかに補間している','CSSのサイズとファイルのサイズを比べる','元のサイズで表示するか、CSSで`image-rendering: pixelated`を指定（MDNによれば、最も近い整数倍まではニアレスト、残りはなめらかに）'],
+    ['トレーラーやストアページでドットが不揃い','編集ソフトやストアが倍数でないサイズ（4.8倍）に変えた','ファイルのサイズと出力解像度を比べる','収まる最大の整数倍で拡大し、引き伸ばさずに余白を付ける'],
+    ['結果が予想よりずっと大きくカクカク','入力がすでに拡大済みだった（3倍のあと4倍 = 12倍）','チェッカーが入力に正確な整数倍率を報告する','先に1倍に戻してから拡大'],
+    ['アップロード後に輪郭のまわりに色のノイズ','プラットフォームがJPEGで再エンコードした','アップロードされたコピーの縁を拡大','PNGのまま扱う場所ならPNGでアップロード']]},
+   alternatives:{rows:[
+    ['パック＆書き出しの拡大バリエーション（[[sprite-sheet-maker|スプライトシートメーカー]]）','1倍と一緒に@2x・@4xのエンジン用アトラスが必要なとき。このバリエーションはニアレストのみです。'],
+    ['Aseprite：File › Export › Export AsのResize欄','すでにAsepriteで作業しているとき。Asepriteのドキュメントはアニメーションの投稿に400 %のような倍率を勧めています。'],
+    ['エンジンに1倍の絵を拡大させる','ゲーム内では1倍のテクスチャのまま、画面を整数倍で拡大します（[[game/godot-pixel-art-blurry|Godot]]、[[game/unity-pixel-art-blurry|Unity]]）。事前に拡大したテクスチャはメモリを使うだけです。']]},
+   limits:['1×〜8×の整数倍だけで、小数倍やなめらかな方式はありません。','シートは1枚の絵として拡大されます。フレーム間の2pxの余白は4倍で8pxになります。','ディテールは足しません。ドット絵には正しい動作ですが、写真のアップスケーラーを求めているなら向きません。'],
+   versions:{body:['Chromiumでのピクセルラボのテストより：1×・2×・3×・4×・8×のニアレスト拡大をオフセット0, 0で正確に検出し、2.5倍ニアレストは2.500倍と読み、3倍のスプライトを16 × 16でピクセル単位まで同じに復元しました。CSSの動作はMDNの説明に、Asepriteの書き出しダイアログは公式ドキュメントに従っています。'],sources:['[MDN: image-rendering](https://developer.mozilla.org/ja/docs/Web/CSS/image-rendering)','[Asepriteドキュメント：Exporting](https://www.aseprite.org/docs/exporting/)']}
+  }
+ },
+ 'game/pixel-art-cleanup':{
+  type:'create',
+  intent:{primary:'clean up pixel art: remove anti-aliasing, stray pixels, holes and outline gaps',secondary:['snap anti-aliased edge pixels to the palette without moving the silhouette','one palette for all frames','review candidates before changing anything'],
+   goal:'hard-edged frames that use only the palette colours, with the same silhouette',input:'PNG frames (several share one palette), at 1×',output:'cleaned PNG frames (optionally 1×–8×), the palette as .gpl, pixel-lab.json',target:'any engine or editor (PNG)',support:'full',
+   evidence:['src/game/pixel-cleanup.js (removeAntiAlias, detect)','docs/PIXEL-LAB.md §5 and Verification (271 → 16 colours, 0 alpha pixels changed)'],
+   external:[]},
+  en:{
+   answer:'Cleaning pixel art means removing what does not belong in a hard-edged, limited-palette sprite: anti-aliased in-between colours along edges, stray single pixels, tiny clusters, one-pixel holes and gaps in the outline. Nerulio’s Pixel Lab lists every candidate first — highlighted and counted — and changes only what you tick. Its anti-alias remover snaps each in-between pixel to one of the two palette colours it sits between, so the silhouette does not move. Input: 1× PNG frames; output: cleaned PNG frames and one shared palette.',
+   concept:{title:'What counts as dirt, and how each kind is fixed',body:[
+    'Anti-aliasing helps an illustration and hurts a sprite: an edge pixel mixed from the outline and the fill is a new colour that is neither, and the test frames — meant for a 16-colour palette — carried 271 colours. Snapping such a pixel to the nearest palette colour is not enough: a colour half-way between dark outline and orange fill can be nearest to some unrelated brown. The Lab snaps it to the nearer end of the neighbour pair whose Oklab segment it lies on, and uses the globally nearest palette colour only when there is no such pair.',
+    'Strays, clusters and holes come from one scan of connected regions of the same palette index (4-connected). A stray is a region of one pixel, a tiny cluster is smaller than the size you set, a hole is a transparent region that never reaches the image edge and is ringed by opaque pixels. Each is filled with the colour around it; because one scan produces all three lists, the counts agree with each other.',
+    'Outline checks look only at straight edges, where exactly one of the four neighbours is outside the silhouette; corners are skipped because thickness there is ambiguous. The automatic fix closes gaps and never thins a doubled outline, since removing a pixel would move the silhouette.'],
+    terms:[['Anti-alias pixel','An edge pixel whose colour lies between two palette colours that meet there.'],['Stray (orphan) pixel','A one-pixel region: none of its four neighbours has its colour.'],['Oklab','A perceptual colour space; distances in it follow what the eye sees more closely than RGB.']]},
+   example:{title:'Example: eight anti-aliased 48 × 48 frames',lead:'A bobbing ball drawn with smoothing, then cleaned with one palette for all frames:',lines:[
+    'input            8 frames, 271 distinct colours (edges anti-aliased)',
+    'palette          16 colours, extracted from all 8 frames together',
+    '',
+    'anti-alias remover, threshold 0.08 (Oklab distance)',
+    '  colours        271 → 16, every exported colour inside the palette',
+    '  alpha pixels   0 changed — the silhouette did not move',
+    '',
+    'edge pixel half-way between outline and fill → the nearer of those two, never a third colour'],
+    after:'The decisions are read from the original pixels, not from pixels already rewritten, so the result does not depend on the order in which the image is scanned.'},
+   verify:{steps:[
+    'Read the counts before ticking anything: stray, cluster, hole and anti-alias candidates are listed separately and highlighted on the image.',
+    'After export, check the colours: every colour of the frames should be in the palette.',
+    'Compare the silhouette before and after (Check stage): the shape should be identical.']},
+   trouble:{rows:[
+    ['A dithered area is reported as hundreds of strays','Dithering is made of single pixels on purpose','Is a dither mode on in Convert?','Set dithering to None before cleaning, or leave strays unticked'],
+    ['An eye or a one-pixel highlight disappeared','It was a stray candidate and strays were ticked','Look at the highlighted candidates before applying','Untick strays, or undo (Ctrl+Z) and fix those pixels by hand'],
+    ['Edge pixels went to the wrong side','The threshold is wide enough to catch colours that belong to neither pair','Lower the anti-alias threshold (default 0.08)','Lower it, or touch up in the [[game/pixel-art-editor|pixel editor]]'],
+    ['The outline is still doubled after the fix','The fix only closes gaps; thinning would move the silhouette','The outline report counts doubled runs','Thin it by hand where you want it'],
+    ['An upscaled or generated picture is far too noisy to clean','The image is not at 1× yet','The [[game/pixel-perfect-checker|checker]] reports an integer scale or a resize','Bring it to 1× first with the [[game/pixel-art-downscaler|downscaler]], then clean']]},
+   alternatives:{rows:[
+    ['The Cleanup panel of the Studio’s Pixel workspace ([[game/fix-ai-pixel-art|for upscaled or generated art]])','The picture is not at 1×: it re-grids and removes fringes in one pass and makes a new sprite you can keep editing.'],
+    ['Any pixel editor by hand','A few frames where you want to decide every pixel; there are no automatic candidates to review.'],
+    ['[[game/palette-extractor|Palette extractor]]','You only need one shared palette for many frames, without changing any shapes.']]},
+   limits:['Outline gaps are the only outline problem fixed automatically; doubled pixels are reported, not removed.','Counts above 4 megapixels of total frame area cover the visible frame only.'],
+   versions:{body:['Numbers from the Pixel Lab browser tests in Chromium (Firefox and WebKit not run), measured by re-opening the exported files outside the page.']}
+  },
+  ko:{
+   answer:'도트 정리는 가장자리가 딱딱하고 색이 제한된 스프라이트에 어울리지 않는 것을 없애는 일입니다. 가장자리의 안티앨리어싱 중간색, 외톨이 픽셀, 작은 덩어리, 한 칸 구멍, 외곽선 틈이 그 대상입니다. Nerulio 픽셀 랩은 모든 후보를 먼저 표시하고 개수를 센 뒤 체크한 것만 바꿉니다. 안티앨리어싱 제거는 중간색 픽셀을 그 양쪽 팔레트 색 중 하나로 맞추므로 실루엣이 움직이지 않습니다. 입력은 1배 PNG 프레임, 출력은 정리된 PNG 프레임과 공유 팔레트 하나입니다.',
+   concept:{title:'무엇이 지저분한 것이고, 각각 어떻게 고치나',body:[
+    '안티앨리어싱은 일러스트에는 도움이 되지만 스프라이트에는 해가 됩니다. 외곽선과 채움이 섞인 가장자리 픽셀은 둘 다 아닌 새 색이며, 16색 팔레트용 시험 프레임에는 색이 271개 있었습니다. 그런 픽셀을 가장 가까운 팔레트 색으로 맞추는 것만으로는 부족합니다. 어두운 외곽선과 주황 채움 사이 중간색이 엉뚱한 갈색에 가장 가까울 수 있기 때문입니다. 픽셀 랩은 그 픽셀이 놓인 Oklab 선분을 이루는 이웃 색 쌍에서 가까운 쪽으로 맞추고, 그런 쌍이 없을 때만 전체에서 가장 가까운 팔레트 색을 씁니다.',
+    '외톨이·덩어리·구멍은 같은 팔레트 색이 이어진 영역(4방향 연결)을 한 번 훑어 찾습니다. 외톨이는 1픽셀짜리 영역, 작은 덩어리는 지정한 크기보다 작은 영역, 구멍은 이미지 가장자리에 닿지 않고 불투명 픽셀로 둘러싸인 투명 영역입니다. 각각 주변 색으로 채우며, 한 번의 검사로 세 목록을 만들기 때문에 개수가 서로 어긋나지 않습니다.',
+    '외곽선 점검은 네 이웃 중 정확히 하나만 실루엣 밖인 직선 가장자리만 봅니다. 모서리에서는 두께를 한 가지로 말할 수 없어 건너뜁니다. 자동 수정은 틈만 메우고 두 겹 외곽선을 얇게 만들지는 않습니다. 픽셀을 지우면 실루엣이 움직이기 때문입니다.'],
+    terms:[['안티앨리어싱 픽셀','그 자리에서 만나는 두 팔레트 색 사이의 색을 가진 가장자리 픽셀.'],['외톨이 픽셀','1픽셀짜리 영역. 네 이웃 중 같은 색이 없음.'],['Oklab','지각 기반 색 공간. 이 공간의 거리가 RGB보다 눈에 보이는 차이에 가깝습니다.']]},
+   example:{title:'예시: 안티앨리어싱된 48 × 48 프레임 8개',lead:'부드럽게 그린 통통 튀는 공을 모든 프레임에 팔레트 하나로 정리했습니다.',lines:[
+    '입력             프레임 8개, 서로 다른 색 271개 (가장자리 안티앨리어싱)',
+    '팔레트           16색, 8프레임 전체에서 함께 추출',
+    '',
+    '안티앨리어싱 제거, 기준값 0.08 (Oklab 거리)',
+    '  색 수          271 → 16, 내보낸 모든 색이 팔레트 안',
+    '  알파 픽셀      0개 바뀜 — 실루엣이 움직이지 않음',
+    '',
+    '외곽선과 채움 사이 중간 픽셀 → 둘 중 가까운 쪽, 세 번째 색은 절대 아님'],
+    after:'판단은 이미 바뀐 픽셀이 아니라 원래 픽셀에서 읽으므로 이미지를 훑는 순서에 따라 결과가 달라지지 않습니다.'},
+   verify:{steps:[
+    '체크하기 전에 개수를 읽습니다. 외톨이·덩어리·구멍·안티앨리어싱 후보가 따로 나오고 이미지에 표시됩니다.',
+    '내보낸 뒤 색을 확인합니다. 프레임의 모든 색이 팔레트 안에 있어야 합니다.',
+    '검사 단계에서 정리 전후 실루엣을 비교합니다. 모양이 같아야 합니다.']},
+   trouble:{rows:[
+    ['디더링한 부분이 외톨이 수백 개로 보고됨','디더링은 일부러 한 픽셀씩 찍은 무늬','변환 단계에서 디더링이 켜져 있는지 확인','정리 전에 디더링을 없음으로 두거나 외톨이를 체크하지 않기'],
+    ['눈이나 1픽셀 하이라이트가 사라짐','외톨이 후보였고 외톨이를 체크함','적용 전에 표시된 후보 확인','외톨이 체크를 풀거나, 되돌리기(Ctrl+Z) 후 그 픽셀을 손으로 고치기'],
+    ['가장자리 픽셀이 반대쪽 색으로 감','기준값이 넓어서 어느 쌍에도 속하지 않는 색까지 잡힘','안티앨리어싱 기준값(기본 0.08) 낮춰 보기','기준값을 낮추거나 [[game/pixel-art-editor|도트 편집기]]에서 손보기'],
+    ['수정 후에도 외곽선이 두 겹','수정은 틈만 메움. 얇게 하면 실루엣이 움직임','외곽선 보고서에 두 겹 구간 수가 나옴','원하는 곳만 손으로 얇게'],
+    ['확대되거나 생성된 그림이라 정리하기엔 잡음이 너무 많음','아직 1배가 아님','[[game/pixel-perfect-checker|검사기]]가 정수 배율이나 크기 변경을 보고함','먼저 [[game/pixel-art-downscaler|1배 복원]]으로 줄인 뒤 정리']]},
+   alternatives:{rows:[
+    ['Studio 픽셀 작업 공간의 정리 패널([[game/fix-ai-pixel-art|확대·생성 그림용]])','그림이 1배가 아닐 때. 격자를 다시 잡고 가장자리 번짐을 한 번에 없애며, 계속 편집할 수 있는 새 스프라이트를 만듭니다.'],
+    ['아무 도트 편집기에서 손으로','프레임이 몇 개뿐이고 모든 픽셀을 직접 정하고 싶을 때. 검토할 자동 후보는 없습니다.'],
+    ['[[game/palette-extractor|팔레트 추출기]]','모양은 바꾸지 않고 여러 프레임이 함께 쓸 팔레트 하나만 필요할 때.']]},
+   limits:['외곽선 문제 중 자동으로 고치는 것은 틈뿐이며, 두 겹 픽셀은 보고만 하고 지우지 않습니다.','프레임 전체 면적이 4메가픽셀을 넘으면 개수는 보이는 프레임만 셉니다.'],
+   versions:{body:['수치는 Chromium의 픽셀 랩 브라우저 시험에서 내보낸 파일을 페이지 밖에서 다시 열어 잰 것입니다(Firefox·WebKit은 실행하지 않음).']}
+  },
+  ja:{
+   answer:'ドット絵の整理とは、縁がくっきりして色数の限られたスプライトにそぐわないものを取り除くことです。縁のアンチエイリアスの中間色、孤立したピクセル、小さな塊、1ピクセルの穴、輪郭のすき間が対象です。Nerulioのピクセルラボはすべての候補をまず表示して数え、チェックしたものだけを変えます。アンチエイリアス除去は中間色のピクセルを両側のパレット色のどちらかに合わせるので、シルエットは動きません。入力は1倍のPNGフレーム、出力は整理したPNGフレームと共通のパレット1つです。',
+   concept:{title:'何が汚れで、それぞれどう直すか',body:[
+    'アンチエイリアスはイラストには役立ちますが、スプライトには害になります。輪郭と塗りが混ざった縁のピクセルはどちらでもない新しい色で、16色パレット用のテストフレームには271色ありました。そのピクセルを最も近いパレット色に合わせるだけでは足りません。暗い輪郭とオレンジの塗りの中間色が、無関係な茶色に一番近いこともあるからです。ピクセルラボは、そのピクセルが乗っているOklabの線分をつくる隣の色の組のうち近い方に合わせ、そうした組がないときだけ全体で最も近いパレット色を使います。',
+    '孤立ピクセル・塊・穴は、同じパレット色がつながった領域（4方向の連結）を1回走査して見つけます。孤立ピクセルは1ピクセルの領域、小さな塊は設定した大きさより小さい領域、穴は画像の端に届かず不透明ピクセルに囲まれた透明な領域です。それぞれ周りの色で埋め、1回の走査で3つの一覧を作るので件数が食い違いません。',
+    '輪郭のチェックは、4つの隣のうちちょうど1つだけがシルエットの外にある直線の縁だけを見ます。角では太さを1つに決められないので飛ばします。自動修正はすき間を埋めるだけで、二重の輪郭を細くはしません。ピクセルを消すとシルエットが動くからです。'],
+    terms:[['アンチエイリアスのピクセル','そこで接する2つのパレット色の中間の色を持つ縁のピクセル。'],['孤立ピクセル','1ピクセルだけの領域。4つの隣に同じ色がない。'],['Oklab','知覚にもとづく色空間。この空間の距離はRGBより見た目の差に近くなります。']]},
+   example:{title:'例：アンチエイリアスのかかった48 × 48のフレーム8枚',lead:'なめらかに描いた弾むボールを、全フレーム共通のパレット1つで整理しました。',lines:[
+    '入力             8フレーム、異なる色271（縁にアンチエイリアス）',
+    'パレット         16色、8フレーム全体からまとめて抽出',
+    '',
+    'アンチエイリアス除去、しきい値0.08（Oklabの距離）',
+    '  色数           271 → 16、書き出した色はすべてパレット内',
+    '  アルファ       0ピクセル変化 — シルエットは動いていない',
+    '',
+    '輪郭と塗りの中間のピクセル → 2色のうち近い方、3つ目の色には決してならない'],
+    after:'判定はすでに書き換えたピクセルではなく元のピクセルから読むので、画像を走査する順番で結果が変わることはありません。'},
+   verify:{steps:[
+    'チェックする前に件数を読みます。孤立・塊・穴・アンチエイリアスの候補が別々に表示され、画像上でハイライトされます。',
+    '書き出したあと色を確認します。フレームのすべての色がパレットの中にあるはずです。',
+    'チェックの段階で整理前後のシルエットを比べます。形が同じはずです。']},
+   trouble:{rows:[
+    ['ディザーをかけた部分が孤立ピクセル数百個と報告される','ディザーはわざと1ピクセルずつ置いた模様','変換の段階でディザーがオンか確認','整理の前にディザーを「なし」にするか、孤立ピクセルにチェックしない'],
+    ['目や1ピクセルのハイライトが消えた','孤立ピクセルの候補で、孤立ピクセルにチェックしていた','適用前にハイライトされた候補を見る','孤立ピクセルのチェックを外すか、元に戻して（Ctrl+Z）そのピクセルを手で直す'],
+    ['縁のピクセルが反対側の色になった','しきい値が広く、どちらの組にも属さない色まで拾った','アンチエイリアスのしきい値（既定0.08）を下げてみる','しきい値を下げるか、[[game/pixel-art-editor|ドット絵エディタ]]で手直し'],
+    ['修正後も輪郭が二重','修正はすき間を埋めるだけ。細くするとシルエットが動く','輪郭のレポートに二重の区間の数が出る','必要な所だけ手で細くする'],
+    ['拡大や生成の絵で、整理するにはノイズが多すぎる','まだ1倍になっていない','[[game/pixel-perfect-checker|チェッカー]]が整数倍率かサイズ変更を報告する','先に[[game/pixel-art-downscaler|1倍復元]]で縮めてから整理']]},
+   alternatives:{rows:[
+    ['Studioのピクセル作業画面の整理パネル（[[game/fix-ai-pixel-art|拡大・生成された絵向け]]）','絵が1倍でないとき。グリッドを取り直し、縁のにじみを一度に取り除いて、編集を続けられる新しいスプライトを作ります。'],
+    ['どのドット絵エディタでも手作業で','フレームが数枚で、すべてのピクセルを自分で決めたいとき。確認すべき自動の候補はありません。'],
+    ['[[game/palette-extractor|パレット抽出]]','形は変えずに、多くのフレームで共有するパレットが1つほしいだけのとき。']]},
+   limits:['輪郭の問題で自動修正するのはすき間だけで、二重のピクセルは報告するだけで消しません。','フレームの合計面積が4メガピクセルを超えると、件数は表示中のフレームだけを数えます。'],
+   versions:{body:['数値はChromiumでのピクセルラボのブラウザテストで、書き出したファイルをページの外で開き直して測ったものです（Firefox・WebKitは未実行）。']}
+  }
+ },
+ 'game/pixel-perfect-checker':{
+  type:'tool',
+  intent:{primary:'check whether pixel art is pixel-perfect and detect its pixel size',secondary:['exact integer scale and grid offset','fractional scale estimate','blur / in-between colour count','recover the 1× source'],
+   goal:'know the logical size of an image and whether an exact 1× recovery exists',input:'one PNG image (sprite, screenshot, upscaled art)',output:'a report (scale, offset, logical size, blurred edges) and, for exact grids, the recovered 1× PNG or an integer upscale',target:'any editor or engine',support:'full',
+   evidence:['src/game/pixel-check.js (gridAnalysis, detectScale up to 16×, runLengths shortMean, edgeQuality, recoverSource)','tests/game-pixel-check.test.mjs (off-grid crop offset 2,3; 2.5× nearest)','docs/PIXEL-LAB.md §6 and Verification (1243 edge pixels, 86.3 %, 700 soft-alpha)'],
+   external:[]},
+  en:{
+   answer:'A pixel-perfect checker tells you what state a pixel-art image is in: already 1×, an exact integer upscale (with its factor and grid offset), a fractional or smooth resize, or blurred. Nerulio’s checker finds the rows and columns where the colour changes: if they all sit on multiples of 3 (after one common offset), the image is exactly 3× and the 1× source can be recovered pixel for pixel. Anything else is reported as a measurement with a “not confident” flag where needed — never repaired as if it were exact.',
+   concept:{title:'How the checker decides, without sampling or guessing',body:[
+    'Integer detection is arithmetic. In a clean k× upscale the colour only changes at block borders, so every changing column index leaves the same remainder when divided by k, and so does every changing row. The checker records those positions in one pass and tries k from 16 down to 2; the largest k that fits both axes is the scale, a grid starting at 0 is preferred, and a shared non-zero remainder is the offset of an off-grid crop.',
+    'Without an integer grid, runs of identical colour give an estimate. A 2.5× nearest resize alternates runs of 3 and 2 pixels, so the mean of the shortest runs (those within 1.5× of the minimum) reads 2.500×. Averaging every run over-estimates, because a flat border is one long run of many blocks: 2.885× on the same test sprite.',
+    'Blur shows as in-between colours: an edge pixel whose colour lies strictly between its two opposite neighbours in Oklab. Nearest-scaled art has none; the bilinear 2.5× version of the test sprite had 1243 such pixels (86.3 % of its edges) and 700 partially transparent ones. One noisy pixel inside a block is enough to break the exact proof — which is why JPEG images are never reported as exact integer upscales.'],
+    terms:[['Scale','Screen pixels per art pixel: exact for a proven block grid, an estimate otherwise.'],['Offset','Pixels cut from the left and top of the grid; a 4× sprite cropped by 2 and 3 pixels reads offset 2, 3.'],['In-between pixel','An edge colour between its neighbours — evidence of smoothing.'],['Not confident','A one-colour image, or one that changes on only one axis, has no grid to measure.']]},
+   example:{title:'Example: one 16 × 16 sprite, four versions',lead:'Reports for a 16 × 16 test sprite after different treatments:',lines:[
+    'input                              report',
+    '64 × 64   4× nearest               scale 4 (exact), offset 0, 0, logical size 16 × 16',
+    '62 × 61   same, cropped 2 and 3 px  scale 4 (exact), offset 2, 3, off-grid',
+    '40 × 40   2.5× nearest             no integer grid, estimate 2.500× (runs 3, 2, 3, 2 …)',
+    '40 × 40   2.5× bilinear            not integer; 1243 in-between edge pixels (86.3 %)',
+    '',
+    'recover 1× of the crop: ceil((62 + 2) / 4) × ceil((61 + 3) / 4) = 16 × 16'],
+    after:'The 2.5× versions have no exact 1× inside them: blocks are 2 and 3 pixels wide in turn, so the checker offers no recovery and points to the cleanup instead.'},
+   verify:{steps:[
+    'For an exact result, the logical size is ceil((width + offset) ÷ scale) on each axis.',
+    'Upscale the recovered sprite by the same factor: for an uncropped input it matches the input pixel for pixel.',
+    'A “not confident” result on a flat or striped image is correct — there is nothing to measure.']},
+   trouble:{rows:[
+    ['Reads 1× although the image is clearly enlarged','Smoothing or JPEG removed the flat blocks, so no integer grid exists','The blur count shows many in-between edge pixels','Use the Cleanup panel ([[game/pixel-art-downscaler|downscaler]]), which measures smooth and fractional resizes'],
+    ['Reads 2× for art you believe is 4×','Some colour changes sit between the 4-pixel borders: the art was edited after upscaling, or it has 2-pixel details','Zoom into the edges that break the 4-pixel grid','Accept 2×, or remove the later edits first'],
+    ['An estimate such as 2.500× but no Recover button','A fractional scale: blocks have two widths, so no exact 1× exists','The report says “no integer grid”','Rebuild 1× in the Cleanup panel, which cuts at the measured edges'],
+    ['“Not confident”','One colour, or changes on one axis only','Look at the image: a flat fill or stripes','Nothing to fix; check a frame with detail']]},
+   alternatives:{rows:[
+    ['[[game/pixel-art-downscaler|Cleanup panel in the Pixel workspace]]','The image was resized by a fraction, smoothed, JPEG-compressed or generated: it measures those grids and rebuilds 1× as a new sprite.'],
+    ['A grid overlay in any pixel editor','One clean image: set the grid to the block size you see and check that every edge falls on it.']]},
+   limits:['Integer scales up to 16× are detected (and never more than the image’s shorter side).','The exact proof needs exact colours: one noisy pixel inside a block and the image is reported as not an integer upscale.'],
+   versions:{body:['Checked in the Pixel Lab tests (Chromium): 1×, 2×, 3×, 4× and 8× nearest detected exactly; a 4× sprite cropped by 2 and 3 px read offset 2, 3; 2.5× nearest read 2.500×; a 3× sprite recovered to 16 × 16 pixel-identical.']}
+  },
+  ko:{
+   answer:'픽셀 퍼펙트 검사기는 도트 이미지가 어떤 상태인지 알려 줍니다. 이미 1배인지, 정확한 정수 확대(배율과 격자 오프셋 포함)인지, 소수·부드러운 크기 변경인지, 흐려졌는지입니다. Nerulio 검사기는 색이 바뀌는 행과 열을 찾습니다. 그 위치가 모두(하나의 공통 오프셋을 빼면) 3의 배수에 있으면 이미지는 정확히 3배이고 1배 원본을 픽셀 단위로 되살릴 수 있습니다. 그 밖의 경우는 필요하면 "확신 없음"을 붙인 측정값으로 보고하며, 정확한 것처럼 고치지 않습니다.',
+   concept:{title:'표본 추출도 추측도 없이 판단하는 방법',body:[
+    '정수 감지는 산수입니다. 깨끗한 k배 확대에서는 색이 블록 경계에서만 바뀌므로, 색이 바뀌는 열 번호를 k로 나눈 나머지가 모두 같고 행도 마찬가지입니다. 검사기는 그 위치를 한 번에 기록하고 k를 16부터 2까지 시도합니다. 두 축 모두 맞는 가장 큰 k가 배율이고, 0에서 시작하는 격자를 우선하며, 0이 아닌 공통 나머지는 어긋나게 잘린 이미지의 오프셋입니다.',
+    '정수 격자가 없으면 같은 색이 이어지는 구간 길이로 추정합니다. 2.5배 최근접 확대는 3픽셀과 2픽셀 구간이 번갈아 나오므로 가장 짧은 구간들(최솟값의 1.5배 이내)의 평균이 2.500배가 됩니다. 모든 구간을 평균하면 과대평가됩니다. 단색 테두리는 여러 블록이 이어진 긴 구간 하나이기 때문이며, 같은 시험 스프라이트에서 2.885배가 나왔습니다.',
+    '흐림은 중간색으로 드러납니다. 반대편 두 이웃 사이의 색을 Oklab에서 정확히 사이에 둔 가장자리 픽셀입니다. 최근접으로 키운 그림에는 없고, 시험 스프라이트의 쌍선형 2.5배 버전에는 1243개(가장자리의 86.3 %)와 반투명 픽셀 700개가 있었습니다. 블록 안에 잡음 픽셀 하나만 있어도 정확한 증명이 깨지므로 JPEG 이미지는 정확한 정수 확대로 보고되지 않습니다.'],
+    terms:[['배율','도트 하나당 화면 픽셀 수. 증명된 블록 격자면 정확값, 아니면 추정값.'],['오프셋','격자 왼쪽·위에서 잘려 나간 픽셀 수. 2px·3px 잘린 4배 스프라이트는 오프셋 2, 3.'],['중간색 픽셀','이웃 사이의 색을 가진 가장자리 픽셀. 부드럽게 보간된 흔적.'],['확신 없음','한 색뿐이거나 한 축으로만 바뀌는 이미지에는 잴 격자가 없음.']]},
+   example:{title:'예시: 16 × 16 스프라이트의 네 가지 버전',lead:'16 × 16 시험 스프라이트를 여러 방법으로 처리한 뒤의 보고서:',lines:[
+    '입력                               보고서',
+    '64 × 64   4배 최근접               배율 4 (정확), 오프셋 0, 0, 논리 크기 16 × 16',
+    '62 × 61   같은 것, 2·3px 잘림       배율 4 (정확), 오프셋 2, 3, 격자 어긋남',
+    '40 × 40   2.5배 최근접             정수 격자 없음, 추정 2.500배 (구간 3, 2, 3, 2 …)',
+    '40 × 40   2.5배 쌍선형             정수 아님, 중간색 가장자리 픽셀 1243개 (86.3 %)',
+    '',
+    '잘린 이미지의 1배 복원: ceil((62 + 2) / 4) × ceil((61 + 3) / 4) = 16 × 16'],
+    after:'2.5배 버전에는 정확한 1배가 들어 있지 않습니다. 블록 폭이 2와 3으로 번갈아 나오므로 검사기는 복원을 제공하지 않고 정리 기능을 안내합니다.'},
+   verify:{steps:[
+    '정확한 결과라면 논리 크기는 축마다 ceil((너비 + 오프셋) ÷ 배율)입니다.',
+    '되살린 스프라이트를 같은 배율로 키우면, 잘리지 않은 입력과 픽셀 단위로 같습니다.',
+    '단색이나 줄무늬 이미지에서 "확신 없음"은 올바른 결과입니다. 잴 것이 없습니다.']},
+   trouble:{rows:[
+    ['분명히 확대된 이미지인데 1배로 나옴','부드러운 보간이나 JPEG가 평평한 블록을 없애 정수 격자가 없음','흐림 수치에 중간색 가장자리 픽셀이 많음','부드러운·소수 배율 크기 변경을 재는 정리 패널([[game/pixel-art-downscaler|1배 복원]]) 사용'],
+    ['4배라고 생각한 그림이 2배로 나옴','색 변화 일부가 4픽셀 경계 사이에 있음: 확대 후에 수정했거나 2픽셀 디테일이 있음','4픽셀 격자를 깨는 가장자리를 확대','2배로 받아들이거나, 나중에 한 수정을 먼저 지우기'],
+    ['2.500배 같은 추정만 있고 복원 버튼이 없음','소수 배율이라 블록 폭이 두 가지여서 정확한 1배가 없음','보고서에 "정수 격자 없음"','측정한 가장자리에서 자르는 정리 패널로 1배를 다시 만들기'],
+    ['"확신 없음"','한 색뿐이거나 한 축으로만 바뀜','이미지를 보면 단색이나 줄무늬','고칠 것 없음. 디테일이 있는 프레임을 검사']]},
+   alternatives:{rows:[
+    ['[[game/pixel-art-downscaler|픽셀 작업 공간의 정리 패널]]','소수 배율 크기 변경, 부드러운 보간, JPEG 압축, 생성 이미지일 때. 그런 격자를 재서 1배를 새 스프라이트로 다시 만듭니다.'],
+    ['아무 도트 편집기의 격자 표시','깨끗한 이미지 한 장일 때. 보이는 블록 크기로 격자를 맞추고 모든 가장자리가 그 위에 오는지 확인합니다.']]},
+   limits:['정수 배율은 16배까지(그리고 이미지의 짧은 변 이하까지) 감지합니다.','정확한 증명에는 정확한 색이 필요합니다. 블록 안에 잡음 픽셀이 하나만 있어도 정수 확대가 아니라고 보고합니다.'],
+   versions:{body:['픽셀 랩 시험(Chromium)에서 확인: 1×·2×·3×·4×·8× 최근접을 정확히 감지, 2px·3px 잘린 4배 스프라이트는 오프셋 2, 3, 2.5배 최근접은 2.500배, 3배 스프라이트는 16 × 16으로 픽셀까지 같게 복원.']}
+  },
+  ja:{
+   answer:'ピクセルパーフェクト チェッカーは、ドット絵の画像がどんな状態かを教えます。すでに1倍か、正確な整数倍の拡大（倍率とグリッドのオフセット付き）か、小数倍やなめらかなサイズ変更か、ぼけているかです。Nerulioのチェッカーは色が変わる行と列を探します。その位置がすべて（共通のオフセットを1つ除いて）3の倍数にあれば、画像はちょうど3倍で、1倍の元画像をピクセル単位で復元できます。それ以外は、必要に応じて「確信なし」を付けた測定値として報告し、正確であるかのように直すことはしません。',
+   concept:{title:'サンプリングも推測もせずに判定する方法',body:[
+    '整数倍の検出は算数です。きれいなk倍拡大では色はブロックの境目でしか変わらないので、色が変わる列の番号をkで割った余りはすべて同じになり、行も同じです。チェッカーはその位置を1回の走査で記録し、kを16から2まで試します。両方の軸に合う最大のkが倍率で、0から始まるグリッドを優先し、0でない共通の余りはずれて切られた画像のオフセットです。',
+    '整数のグリッドがなければ、同じ色が続く区間の長さから推定します。2.5倍のニアレスト拡大では3ピクセルと2ピクセルの区間が交互に並ぶので、最も短い区間（最小値の1.5倍以内）の平均が2.500倍になります。すべての区間を平均すると大きく出ます。単色の縁は多くのブロックが続いた長い区間1つだからで、同じテスト用スプライトでは2.885倍になりました。',
+    'ぼけは中間色として表れます。向かい合う2つの隣の色の、Oklabでちょうど間にある色を持つ縁のピクセルです。ニアレストで拡大した絵にはなく、テスト用スプライトのバイリニア2.5倍版には1243個（縁の86.3 %）と半透明のピクセル700個がありました。ブロックの中にノイズのピクセルが1つあるだけで正確な証明は崩れるので、JPEG画像が正確な整数倍の拡大と報告されることはありません。'],
+    terms:[['倍率','1ドットあたりの画面ピクセル数。証明されたブロックのグリッドなら正確な値、そうでなければ推定値。'],['オフセット','グリッドの左と上から切られたピクセル数。2px・3px切られた4倍のスプライトはオフセット2, 3。'],['中間色のピクセル','隣同士の間の色を持つ縁のピクセル。なめらかに補間された跡。'],['確信なし','単色の画像や一方向にしか変化しない画像には、測るグリッドがない。']]},
+   example:{title:'例：16 × 16のスプライトの4つの版',lead:'16 × 16のテスト用スプライトを別々に処理したあとのレポート：',lines:[
+    '入力                               レポート',
+    '64 × 64   4倍ニアレスト            倍率4（正確）、オフセット0, 0、論理サイズ16 × 16',
+    '62 × 61   同じもの、2・3px切り抜き  倍率4（正確）、オフセット2, 3、グリッドずれ',
+    '40 × 40   2.5倍ニアレスト          整数グリッドなし、推定2.500倍（区間3, 2, 3, 2 …）',
+    '40 × 40   2.5倍バイリニア          整数ではない、中間色の縁ピクセル1243個（86.3 %）',
+    '',
+    '切り抜いた画像の1倍復元：ceil((62 + 2) / 4) × ceil((61 + 3) / 4) = 16 × 16'],
+    after:'2.5倍の版には正確な1倍が含まれていません。ブロックの幅が2と3で交互になるので、チェッカーは復元を出さず、整理の機能を案内します。'},
+   verify:{steps:[
+    '正確な結果なら、論理サイズは各軸でceil((幅 + オフセット) ÷ 倍率)です。',
+    '復元したスプライトを同じ倍率で拡大すると、切り抜いていない入力とピクセル単位で一致します。',
+    '単色や縞模様の画像で「確信なし」と出るのは正しい結果です。測るものがありません。']},
+   trouble:{rows:[
+    ['明らかに拡大された画像なのに1倍と出る','なめらかな補間やJPEGが平らなブロックを消し、整数のグリッドがない','ぼけの数値で中間色の縁ピクセルが多い','なめらかな拡大や小数倍を測る整理パネル（[[game/pixel-art-downscaler|1倍復元]]）を使う'],
+    ['4倍のはずの絵が2倍と出る','色の変化の一部が4ピクセルの境目の間にある：拡大後に修正した、または2ピクセルのディテールがある','4ピクセルのグリッドを崩す縁を拡大して見る','2倍として受け入れるか、あとからの修正を先に消す'],
+    ['2.500倍のような推定だけで復元ボタンがない','小数倍でブロックの幅が2種類あり、正確な1倍が存在しない','レポートに「整数グリッドなし」','測った縁で区切る整理パネルで1倍を作り直す'],
+    ['「確信なし」','単色、または一方向にしか変化しない','画像を見ると単色の塗りか縞模様','直すものはありません。ディテールのあるフレームを調べる']]},
+   alternatives:{rows:[
+    ['[[game/pixel-art-downscaler|ピクセル作業画面の整理パネル]]','小数倍のサイズ変更、なめらかな補間、JPEG圧縮、生成画像のとき。そうしたグリッドを測り、1倍を新しいスプライトとして作り直します。'],
+    ['どのドット絵エディタでもグリッド表示','きれいな画像が1枚のとき。見えるブロックの大きさにグリッドを合わせ、すべての縁がその上にあるか確かめます。']]},
+   limits:['整数倍率は16倍まで（かつ画像の短辺以下）検出します。','正確な証明には正確な色が必要です。ブロックの中にノイズのピクセルが1つでもあると、整数倍の拡大ではないと報告します。'],
+   versions:{body:['ピクセルラボのテスト（Chromium）で確認：1×・2×・3×・4×・8×のニアレストを正確に検出、2px・3px切り抜いた4倍のスプライトはオフセット2, 3、2.5倍ニアレストは2.500倍、3倍のスプライトは16 × 16でピクセル単位まで同じに復元。']}
+  }
+ },
+ 'game/pixel-snapper-alternative':{
+  type:'compare',
+  intent:{primary:'compare Sprite Fusion Pixel Snapper, unfake.js and perfectPixel with an alternative',secondary:['which tool for which kind of fake pixel art','command line and library use','what each tool does better'],
+   goal:'choose the right snapping tool for one’s images, knowing each one’s strengths and failure modes',input:'upscaled, resized or generated pixel art',output:'a choice of tool (and, with Nerulio, a 1× sprite in the Pixel workspace)',target:'—',support:'full',
+   evidence:['docs/STUDIO-PIXEL.md §5 (69-case benchmark, per-kind results)','docs/pixel-bench/H2H.md §2–§3 (versions, settings, per-kind tables, failures)'],
+   external:['Pixel Snapper README (CLI, k colours default 16, --pixel-size, --palette, web version, MIT)','unfake.js README (scale detection, downscaling methods, quantization, vectorizer, MIT)','perfectPixel README (pip perfect-pixel, FFT + Sobel, sample_method, min_size, ComfyUI node, MIT)']},
+  en:{
+   answer:'Sprite Fusion’s Pixel Snapper, unfake.js and perfectPixel all turn “fake” pixel art — upscaled, resized or generated — into a 1× image on a grid, but they measure differently and fail differently. Pixel Snapper (Rust, command line and web page) always snaps and quantizes, to 16 colours by default; unfake.js (JavaScript library and browser tool) works with whole-number scales and also vectorizes; perfectPixel (Python) finds the grid by FFT and gives up below 4 px cells. Nerulio’s Cleanup panel runs in a browser editor, shows the grid with a confidence first and does not snap when unsure.',
+   concept:{title:'What each tool actually does',body:[
+    'Pixel Snapper (MIT, by Hugo Duprez) is written in Rust. Its command line is `spritefusion-pixel-snapper input.png output.png 16`: it detects a pixel size, snaps to it and quantizes to a fixed palette — 16 colours by default, or your own hex colours with `--palette`; `--pixel-size` overrides the detection. The same engine runs on spritefusion.com. Its README targets generated art for tilemaps and game assets.',
+    'unfake.js (MIT) is a JavaScript library with a browser tool: runs-based or edge-aware scale detection, dominant, median or content-adaptive downscaling, colour quantization and morphological cleanup — plus a vectorizer that turns images into SVG. perfectPixel (MIT, `pip install perfect-pixel`) finds the grid with an FFT, refines it with Sobel edges and samples by center, median or majority; there is a ComfyUI node and a web demo.',
+    'Nerulio proves integer block grids exactly, measures fractional and smooth resizes with a lattice (a least-squares inverse for bilinear), follows uneven pseudo-pixels by edge tracking, and labels the result sure, likely or unsure; only sure and likely grids are applied. The output is a new sprite inside a pixel editor, where the pixels any tool gets wrong can be fixed by hand.'],
+    terms:[['Quantize','Reduce the picture to a fixed number of colours (a palette).'],['Grid detection','Finding the cell size (and offset) of the fake pixels.'],['Confidence','Whether the tool says how sure it is — Nerulio does; the others return their result either way.']]},
+   alternatives:{title:'When to use which',rows:[
+    ['Pixel Snapper','You want a result for every image with a fixed palette size in one command, or you already use spritefusion.com. In our runs it did best with large cells (the ×5 and ×7 tile cases came back with every pixel right, at a size within 1 px) and on simulated generated art (size within 1 px in 80 % of cases); on whole-number upscales it over-segmented and never hit the exact size.'],
+    ['unfake.js','Clean whole-number upscales inside a JavaScript pipeline: with the grid set to auto it found 85 % of the exact sizes on nearest ×2–×8. It also vectorizes images to SVG, which Nerulio does not do.'],
+    ['perfectPixel','Python or ComfyUI batches with cells of 4 px or more: when it detects the grid of a clean upscale the result is exact (10 perfect cases), and it found the exact size of simulated generated art in 40 % of cases. Below its default `min_size` of 4 px it returns nothing (11 of its 15 failures).'],
+    ['Nerulio Cleanup panel','Fractional and smooth resizes (exact size in 100 % and 93 % of those cases), animations that must share one grid and one palette, and when you want to see the grid before anything changes.'],
+    ['Redraw by hand','Generated concept art where no tool finds a consistent grid; on simulated generated art no tool got more than 70.3 % of pixels exact.']]},
+   limits:['No command line or library: Nerulio’s cleanup runs only inside the Studio in a browser.','No SVG vectorizer.','On real generated images it leaves the size unchanged until you type one — all 7 in our test.','Default settings remove a solid border background, which costs exact pixels on art whose background is part of the picture (63.2 % vs 74.0 % with the background kept).'],
+   versions:{body:['Competitors as run on 2026-09-23/24 with their own defaults: Pixel Snapper = the WebAssembly build fetched from spritefusion.com (repository at ae20461, 1.0.0), 16 colours — byte identity with the live page was not confirmed; unfake.js at b2bee10 (library defaults, browser-tool defaults, and grid auto); perfectPixel 0.1.4 (72096de) with OpenCV, which drops alpha. Nerulio’s runs 2026-09-25 (docs/pixel-bench/H2H.md, docs/STUDIO-PIXEL.md §5). Tool descriptions come from each project’s README.'],sources:SNAPPER_DOCS}
+  },
+  ko:{
+   answer:'Sprite Fusion의 Pixel Snapper, unfake.js, perfectPixel은 모두 확대·크기 변경·생성된 "가짜" 도트를 격자 위의 1배 이미지로 바꾸지만, 재는 방법도 실패하는 방식도 다릅니다. Pixel Snapper(Rust, 명령줄과 웹 페이지)는 항상 맞추고 색을 줄이며 기본은 16색입니다. unfake.js(자바스크립트 라이브러리와 브라우저 도구)는 정수 배율을 다루고 벡터화도 합니다. perfectPixel(파이썬)은 FFT로 격자를 찾으며 칸이 4px보다 작으면 포기합니다. Nerulio 정리 패널은 브라우저 편집기 안에서 돌고, 먼저 격자와 확신 정도를 보여 주며 불확실하면 맞추지 않습니다.',
+   concept:{title:'각 도구가 실제로 하는 일',body:[
+    'Pixel Snapper(MIT, Hugo Duprez)는 Rust로 만들어졌습니다. 명령줄은 `spritefusion-pixel-snapper input.png output.png 16`이며, 픽셀 크기를 감지해 맞추고 고정 팔레트로 양자화합니다. 기본 16색이고 `--palette`로 직접 고른 헥스 색을 줄 수 있으며, `--pixel-size`로 감지 결과를 덮어씁니다. 같은 엔진이 spritefusion.com에서도 돌고, README는 타일맵과 게임 에셋용 생성 그림을 대상으로 합니다.',
+    'unfake.js(MIT)는 브라우저 도구가 딸린 자바스크립트 라이브러리입니다. 구간 기반 또는 가장자리 인식 배율 감지, 우세 색·중앙값·내용 적응 축소, 색 양자화, 형태학적 정리에 더해 이미지를 SVG로 바꾸는 벡터화 기능이 있습니다. perfectPixel(MIT, `pip install perfect-pixel`)은 FFT로 격자를 찾고 Sobel 가장자리로 다듬은 뒤 중심·중앙값·다수결로 샘플링하며, ComfyUI 노드와 웹 데모가 있습니다.',
+    'Nerulio는 정수 블록 격자를 정확히 증명하고, 소수·부드러운 크기 변경은 격자로 재며(쌍선형은 최소제곱 역변환), 고르지 않은 가짜 픽셀은 가장자리를 따라가고, 결과에 확실·가능성 높음·불확실을 붙입니다. 확실과 가능성 높음만 적용합니다. 결과는 도트 편집기 안의 새 스프라이트라서 어느 도구든 틀리는 픽셀을 손으로 고칠 수 있습니다.'],
+    terms:[['양자화','그림을 정해진 개수의 색(팔레트)으로 줄이는 것.'],['격자 감지','가짜 픽셀의 칸 크기(와 오프셋)를 찾는 것.'],['확신 정도','도구가 얼마나 확실한지 알려 주는지 여부. Nerulio는 알려 주고, 다른 도구는 어느 경우든 결과를 내놓습니다.']]},
+   alternatives:{title:'언제 무엇을 쓰나',rows:[
+    ['Pixel Snapper','모든 이미지에 명령 한 번으로 정해진 색 수의 결과가 필요하거나, 이미 spritefusion.com을 쓸 때. 우리 실행에서 칸이 클 때(×5·×7 타일 사례는 크기 1px 이내에 픽셀 전부 일치) 그리고 모의 생성 그림(80 %에서 크기 1px 이내)에서 가장 좋았고, 정수 배율 확대에서는 너무 잘게 나눠 정확한 크기를 한 번도 맞히지 못했습니다.'],
+    ['unfake.js','자바스크립트 파이프라인 안의 깨끗한 정수 확대. 격자를 auto로 두면 ×2~×8 최근접에서 정확한 크기의 85 %를 찾았습니다. 이미지를 SVG로 벡터화하는 기능도 있는데 Nerulio에는 없습니다.'],
+    ['perfectPixel','칸이 4px 이상인 파이썬·ComfyUI 대량 처리. 깨끗한 확대에서 격자를 찾으면 결과가 정확하고(완벽한 사례 10개), 모의 생성 그림의 크기를 40 %에서 정확히 찾았습니다. 기본 `min_size` 4px보다 작으면 아무것도 내놓지 않습니다(실패 15건 중 11건).'],
+    ['Nerulio 정리 패널','소수·부드러운 크기 변경(해당 사례에서 정확한 크기 100 %·93 %), 격자와 팔레트를 하나로 맞춰야 하는 애니메이션, 무엇이든 바꾸기 전에 격자를 보고 싶을 때.'],
+    ['손으로 다시 그리기','어떤 도구도 일관된 격자를 못 찾는 생성 콘셉트 그림. 모의 생성 그림에서 정확한 픽셀이 70.3 %를 넘은 도구는 없었습니다.']]},
+   limits:['명령줄도 라이브러리도 없습니다. Nerulio 정리는 브라우저의 Studio 안에서만 돕니다.','SVG 벡터화 기능이 없습니다.','실제 생성 이미지는 크기를 입력할 때까지 그대로 둡니다. 우리 시험에서 7장 모두 그랬습니다.','기본 설정은 단색 테두리 배경을 지우므로, 배경이 그림의 일부인 경우 정확한 픽셀이 줄어듭니다(배경 유지 74.0 % 대 63.2 %).'],
+   versions:{body:['경쟁 도구는 2026-09-23/24에 각자의 기본값으로 실행했습니다. Pixel Snapper = spritefusion.com에서 받은 WebAssembly 빌드(저장소 ae20461, 1.0.0), 16색 — 실제 페이지와 바이트까지 같은지는 확인하지 못함. unfake.js는 b2bee10(라이브러리 기본값, 브라우저 도구 기본값, 격자 auto). perfectPixel 0.1.4(72096de)는 OpenCV로 실행했으며 알파를 버립니다. Nerulio는 2026-09-25에 실행(docs/pixel-bench/H2H.md, docs/STUDIO-PIXEL.md §5). 도구 설명은 각 프로젝트의 README를 따랐습니다.'],sources:SNAPPER_DOCS}
+  },
+  ja:{
+   answer:'Sprite FusionのPixel Snapper、unfake.js、perfectPixelは、どれも拡大・サイズ変更・生成された「偽物」のドット絵をグリッド上の1倍画像にしますが、測り方も失敗の仕方も違います。Pixel Snapper（Rust、コマンドラインとWebページ）は常に合わせて減色し、既定は16色です。unfake.js（JavaScriptのライブラリとブラウザツール）は整数倍を扱い、ベクター化もできます。perfectPixel（Python）はFFTでグリッドを探し、セルが4px未満だとあきらめます。Nerulioの整理パネルはブラウザのエディタ内で動き、まずグリッドと確かさを示し、不確かなら合わせません。',
+   concept:{title:'それぞれのツールが実際にすること',body:[
+    'Pixel Snapper（MIT、Hugo Duprez作）はRustで書かれています。コマンドラインは`spritefusion-pixel-snapper input.png output.png 16`で、ピクセルの大きさを検出して合わせ、固定のパレットに減色します。既定は16色で、`--palette`で自分のHEX色を渡せ、`--pixel-size`で検出結果を上書きできます。同じエンジンがspritefusion.comでも動き、READMEはタイルマップやゲーム素材向けの生成画像を対象にしています。',
+    'unfake.js（MIT）はブラウザツール付きのJavaScriptライブラリです。区間ベースまたはエッジを考慮した倍率検出、優勢色・中央値・内容適応の縮小、減色、モルフォロジーによる整理に加え、画像をSVGにするベクター化機能があります。perfectPixel（MIT、`pip install perfect-pixel`）はFFTでグリッドを探し、Sobelの縁で調整してから中心・中央値・多数決でサンプリングします。ComfyUIのノードとWebデモがあります。',
+    'Nerulioは整数のブロックグリッドを正確に証明し、小数倍やなめらかなサイズ変更は格子で測り（バイリニアは最小二乗の逆変換）、不揃いな疑似ピクセルは縁をたどり、結果に確実・おそらく・不確かを付けます。適用するのは確実とおそらくだけです。結果はドット絵エディタ内の新しいスプライトなので、どのツールでも間違えるピクセルを手で直せます。'],
+    terms:[['減色（量子化）','絵を決まった数の色（パレット）に減らすこと。'],['グリッド検出','偽のピクセルのセルの大きさ（とオフセット）を見つけること。'],['確かさ','ツールがどれだけ確かかを示すかどうか。Nerulioは示し、ほかのツールはどちらの場合も結果を返します。']]},
+   alternatives:{title:'どれをいつ使うか',rows:[
+    ['Pixel Snapper','すべての画像に1コマンドで決まった色数の結果がほしいとき、またはすでにspritefusion.comを使っているとき。私たちの実行では、セルが大きいとき（×5と×7のタイルはサイズ1px以内でピクセルすべて一致）と模擬生成画像（80 %でサイズ1px以内）で最も良く、整数倍の拡大では細かく分けすぎて正確なサイズを一度も当てませんでした。'],
+    ['unfake.js','JavaScriptのパイプライン内のきれいな整数倍の拡大。グリッドをautoにすると、×2〜×8のニアレストで正確なサイズの85 %を当てました。画像をSVGにベクター化する機能もあり、Nerulioにはありません。'],
+    ['perfectPixel','セルが4px以上のPython・ComfyUIでの一括処理。きれいな拡大でグリッドを検出できれば結果は正確で（完全一致10件）、模擬生成画像のサイズを40 %で正確に当てました。既定の`min_size`である4pxより小さいと何も返しません（失敗15件中11件）。'],
+    ['Nerulioの整理パネル','小数倍やなめらかなサイズ変更（該当ケースで正確なサイズ100 %・93 %）、グリッドとパレットを1つにそろえる必要のあるアニメーション、何かを変える前にグリッドを見たいとき。'],
+    ['手で描き直す','どのツールも一貫したグリッドを見つけられない生成コンセプト画。模擬生成画像で完全一致ピクセルが70.3 %を超えたツールはありません。']]},
+   limits:['コマンドラインもライブラリもありません。Nerulioの整理はブラウザのStudio内でしか動きません。','SVGへのベクター化機能はありません。','実際の生成画像はサイズを入力するまでそのままにします。テストでは7枚すべてでした。','初期設定は単色の縁の背景を消すため、背景が絵の一部の場合は完全一致ピクセルが減ります（背景を残すと74.0 %、初期設定63.2 %）。'],
+   versions:{body:['競合ツールは2026-09-23/24にそれぞれの初期設定で実行：Pixel Snapper = spritefusion.comから取得したWebAssemblyビルド（リポジトリはae20461、1.0.0）、16色 — 実際のページとのバイト一致は確認できていません。unfake.jsはb2bee10（ライブラリ初期設定、ブラウザツール初期設定、グリッドauto）。perfectPixel 0.1.4（72096de）はOpenCVで実行し、アルファは捨てられます。Nerulioは2026-09-25に実行（docs/pixel-bench/H2H.md、docs/STUDIO-PIXEL.md §5）。ツールの説明は各プロジェクトのREADMEに従っています。'],sources:SNAPPER_DOCS}
+  }
  }
 };
