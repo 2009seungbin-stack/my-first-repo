@@ -116,7 +116,8 @@ def main():
             axe = os.environ.get('AXE_CORE')
             if axe and os.path.exists(axe):
                 src = open(axe).read(); ctx = b.new_context(bypass_csp=True); ap = ctx.new_page()
-                for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/local-llm', '/ko/ai/claude/status', '/ko/radar/']:
+                for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/local-llm', '/ko/ai/claude/status', '/ko/radar/',
+                             '/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070', '/ko/ai/?type=model&org=anthropic&sort=cheap', '/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0', '/ko/community/policy', '/ko/games/caves-of-qud/write']:
                     ap.goto(B + path); ap.wait_for_timeout(300); ap.add_script_tag(content=src)
                     v = ap.evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa']}}).then(r=>r.violations.map(x=>x.id+' '+x.nodes[0].target.join(' ')))")
                     assert not v, f'{path}: {v}'

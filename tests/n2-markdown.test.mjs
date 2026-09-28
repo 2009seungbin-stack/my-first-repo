@@ -35,7 +35,7 @@ test('safeHref and excerpts',()=>{
 
 test('GFM tables (benchmark posts) render escaped, with alignment; a lone pipe line stays text',()=>{
  const out=renderMarkdown('| GPU | tok/s |\n|---|--:|\n| 5070 <b> | **42** |\n| 4070 | 35 |');
- assert(out.startsWith('<div class="tw"><table class="mdt"><thead><tr><th>GPU</th><th class="ar">tok/s</th>'));
+ assert(out.startsWith('<div class="tw" tabindex="0"><table class="mdt"><thead><tr><th>GPU</th><th class="ar">tok/s</th>'));
  assert(out.includes('<td>5070 &lt;b&gt;</td>')&&out.includes('<strong>42</strong>'));
  assert.equal(renderMarkdown('| not a table'),'<p>| not a table</p>');
 });

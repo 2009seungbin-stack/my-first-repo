@@ -51,7 +51,7 @@ export function renderMarkdown(md,o={}){
    i+=2;const rows=[];
    while(i<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i])&&rows.length<200)rows.push(cells(lines[i++]));
    const td=(/** @type {string} */ tag,/** @type {string} */ c,/** @type {number} */ k)=>`<${tag}${align[k]?` class="${align[k]==='right'?'ar':'ac'}"`:''}>${inline(c)}</${tag}>`;
-   out.push(`<div class="tw"><table class="mdt"><thead><tr>${head.slice(0,20).map((c,k)=>td('th',c,k)).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${head.slice(0,20).map((_,k)=>td('td',r[k]??'',k)).join('')}</tr>`).join('')}</tbody></table></div>`);
+   out.push(`<div class="tw" tabindex="0"><table class="mdt"><thead><tr>${head.slice(0,20).map((c,k)=>td('th',c,k)).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${head.slice(0,20).map((_,k)=>td('td',r[k]??'',k)).join('')}</tr>`).join('')}</tbody></table></div>`);
    continue;
   }
   if(!line.trim()){i++;continue;}

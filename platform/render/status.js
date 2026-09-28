@@ -38,7 +38,7 @@ function chart(m){
  const bw=(W-PL)/24,y=(/** @type {number} */ v)=>PT+(H-PT-PB)*(1-v/max);
  const hourLabel=(/** @type {number} */ ms)=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ[l]||'UTC',hour:'2-digit',hourCycle:'h23'}).format(new Date(ms));
  const ticks=[0,Math.round(max/2),max];
- return html`<div class="tw"><svg class="hchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${l==='ko'?`최근 24시간 사용자 리포트, 시간당. 합계 ${m.total24}건`:`User reports per hour, last 24 hours. Total ${m.total24}`}">
+ return html`<div class="tw" tabindex="0"><svg class="hchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${l==='ko'?`최근 24시간 사용자 리포트, 시간당. 합계 ${m.total24}건`:`User reports per hour, last 24 hours. Total ${m.total24}`}">
 ${ticks.map(v=>html`<line class="gl" x1="${PL}" x2="${W}" y1="${y(v)}" y2="${y(v)}"></line><text class="ax" x="${PL-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`)}
 ${m.hours.map((h,i)=>{const x=PL+i*bw+1,hh=Math.max(0,H-PB-y(h.n));return html`<g class="bar"><rect class="hit" x="${PL+i*bw}" y="${PT}" width="${bw}" height="${H-PT-PB}"></rect>${h.n?html`<path class="b${i===23?' now':''}" d="M${x},${H-PB} v${-Math.max(0,hh-4)} q0,-4 4,-4 h${bw-10} q4,0 4,4 v${Math.max(0,hh-4)} z"></path>`:''}<title>${hourLabel(h.from)}:00 — ${h.n}${l==='ko'?'건':''}</title></g>`;})}
 ${m.baseline>0?html`<line class="base" x1="${PL}" x2="${W}" y1="${y(m.baseline)}" y2="${y(m.baseline)}"></line>`:''}

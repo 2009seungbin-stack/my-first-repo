@@ -404,3 +404,4 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 @media (max-width:640px){.hq{flex:1 1 90px;min-width:90px}.hq input{min-width:0;width:100%}.hu .hb.solid{max-width:72px}.hn .hb{padding:0 6px}}
 @media (max-width:420px){.qchip{max-width:56px}.hu .hb.solid{max-width:60px}.hq{padding-inline:8px;gap:4px}.hr{gap:4px}}
 .mqx.full{max-height:none}
+.ftabs .on>.fine,.on>.fine{color:inherit}
