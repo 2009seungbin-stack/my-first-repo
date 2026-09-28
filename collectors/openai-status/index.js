@@ -18,6 +18,8 @@ const BASE='https://status.openai.com';
 /** Status-page component group → Nerulio entity. */
 export const GROUP_ENTITY=Object.freeze({'APIs':'service:openai-api','ChatGPT':'service:chatgpt','Codex':'service:codex'});
 export const PROVIDER='provider:openai';
+/** Only when an incident lists no components: product names in its title → service. */
+export const TITLE_PATTERNS=Object.freeze([[/\bCodex\b/,'service:codex'],[/\bChatGPT\b/,'service:chatgpt'],[/\bAPIs?\b/,'service:openai-api']]);
 const WINDOW_DAYS=120;
 
 /** Component name → group name, from the widget JSON. */
@@ -48,6 +50,7 @@ export function buildEvents(/** @type {any} */ incidentsJson,/** @type {Map<stri
   const names=comps.get(inc.id)||(inc.components||[]).map((/** @type {any} */ c)=>c.name).filter(Boolean);
   const ids=new Set();
   for(const n of names){const g=groups.get(n);const e=g&&GROUP_ENTITY[/** @type {keyof typeof GROUP_ENTITY} */(g)];if(e)ids.add(e);}
+  if(!names.length)for(const [re,id] of TITLE_PATTERNS)if(/** @type {RegExp} */(re).test(inc.name||''))ids.add(/** @type {string} */(id));
   const text=[inc.name,...(inc.incident_updates||[]).map((/** @type {any} */ u)=>u.body)].join('\n');
   for(const m of matchModels(text))ids.add(m);
   if(!ids.size)ids.add(PROVIDER);

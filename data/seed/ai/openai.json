@@ -250,6 +250,162 @@
    "title": "GPT-Realtime-2.1 Model | OpenAI API",
    "publisher": "OpenAI",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-chatgpt-pricing-kr",
+   "kind": "OFFICIAL",
+   "url": "https://chatgpt.com/ko-KR/pricing/",
+   "title": "요금제 | ChatGPT (Korean storefront)",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28",
+   "note": "Viewed from South Korea in a browser; personal tab shows Free/Go/Plus/Pro prices in KRW, the '비즈니스 및 엔터프라이즈' tab (?type=team) shows Business seat prices in KRW. No tax statement next to the prices."
+  },
+  {
+   "id": "src:openai-learn-pricing",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/pricing",
+   "title": "Pricing | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28",
+   "note": "Plan cards list USD prices (Free $0, Go $8, Plus $20, Pro from $100, Business $20/user/month billed annually or $25 billed monthly, 2+ users) and a plan x feature availability matrix for ChatGPT Work and Codex."
+  },
+  {
+   "id": "src:openai-help-pro-tiers",
+   "kind": "OFFICIAL",
+   "url": "https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers",
+   "title": "About ChatGPT Pro tiers | OpenAI Help Center",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28",
+   "note": "Pro $100 = 5x Plus usage, Pro $200 = 20x; new sign-ups/upgrades to Pro $200 paused since 2026-09-10; no annual billing for Go, Plus or Pro."
+  },
+  {
+   "id": "src:openai-learn-models",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/models",
+   "title": "Models | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-introducing-chatgpt",
+   "kind": "OFFICIAL",
+   "url": "https://openai.com/index/chatgpt/",
+   "title": "Introducing ChatGPT | OpenAI",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28",
+   "note": "Dated November 30, 2022."
+  },
+  {
+   "id": "src:openai-learn-quickstart",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/quickstart",
+   "title": "Quickstart | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-codex-cloud",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/cloud",
+   "title": "Codex cloud | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-codex-cli",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/codex/cli",
+   "title": "Codex CLI | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-work",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/get-started-with-work",
+   "title": "Get started with ChatGPT Work | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-voice",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/features/voice",
+   "title": "ChatGPT Voice | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-memories",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/customization/memories",
+   "title": "Memories | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-projects",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/projects",
+   "title": "Projects and chats | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-scheduled-tasks",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/automations",
+   "title": "Scheduled tasks | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-image-generation",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/image-generation",
+   "title": "Image generation | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-web-search",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/web-search",
+   "title": "Web search | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-browser",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/browser",
+   "title": "Browser | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-sites",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/sites",
+   "title": "Sites | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-computer-use",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/computer-use",
+   "title": "Computer Use | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:openai-learn-plugins",
+   "kind": "OFFICIAL",
+   "url": "https://learn.chatgpt.com/docs/plugins",
+   "title": "Plugins | ChatGPT docs",
+   "publisher": "OpenAI",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -286,7 +442,26 @@
      "src": "src:openai-privacy-policy"
     }
    ],
-   "relations": []
+   "relations": [
+    {
+     "p": "offers",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-quickstart",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "offers",
+     "o": "service:openai-api",
+     "src": "src:openai-api-models",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "offers",
+     "o": "service:codex",
+     "src": "src:openai-learn-codex-cli",
+     "ver": "OFFICIAL"
+    }
+   ]
   },
   {
    "id": "model:gpt-6-astra",
@@ -2515,7 +2690,7 @@
      "ver": "OFFICIAL",
      "src": "src:openai-api-pricing",
      "unit": "USD",
-     "note": "Prices for the default snapshot gpt-4o-2024-08-06 tier listed as gpt-4o; the older gpt-4o-2024-05-13 snapshot is priced higher and shuts down 2026-10-23."
+     "note": "Pricing-page row gpt-4o; the older gpt-4o-2024-05-13 snapshot is priced separately ($5 input / $15 output) and shuts down 2026-10-23."
     },
     {
      "p": "api_output_price",
@@ -2920,7 +3095,1602 @@
      "ver": "OFFICIAL"
     }
    ]
+  },
+  {
+   "id": "service:chatgpt",
+   "type": "service",
+   "slug": "chatgpt",
+   "names": {
+    "en": "ChatGPT",
+    "ko": "ChatGPT"
+   },
+   "description": {
+    "en": "OpenAI's assistant app on the web, mobile and desktop, with Chat for conversation and ChatGPT Work for delegated multi-step tasks.",
+    "ko": "웹·모바일·데스크톱에서 쓰는 OpenAI의 AI 어시스턴트로, 대화용 Chat과 여러 단계 작업을 맡기는 ChatGPT Work를 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "ChatGPT",
+     "url": "https://chatgpt.com/"
+    },
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2022-11-30",
+     "ver": "OFFICIAL",
+     "src": "src:openai-introducing-chatgpt"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "web",
+      "ios",
+      "android",
+      "windows",
+      "macos",
+      "linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-quickstart",
+     "note": "Desktop app for macOS, Windows and Linux and ChatGPT on the web per the quickstart; iOS and Android access is listed on chatgpt.com/pricing."
+    },
+    {
+     "p": "homepage",
+     "v": "https://chatgpt.com/",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-quickstart"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.openai.com/",
+     "ver": "OFFICIAL",
+     "src": "src:openai-status"
+    }
+   ],
+   "relations": [
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-free",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-go",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-plus",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-pro-5x",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-pro-20x",
+     "src": "src:openai-help-pro-tiers",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-business",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:chatgpt-enterprise",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "service:openai-api",
+   "type": "service",
+   "slug": "openai-api",
+   "names": {
+    "en": "OpenAI API",
+    "ko": "OpenAI API"
+   },
+   "aliases": [
+    "OpenAI Platform",
+    "OpenAI API platform"
+   ],
+   "description": {
+    "en": "OpenAI's developer platform for using its models over HTTP APIs such as Responses, Chat Completions, Realtime and Images, billed per token.",
+    "ko": "Responses, Chat Completions, Realtime, Images 등 HTTP API로 OpenAI 모델을 쓰는 개발자 플랫폼으로, 토큰 단위로 과금됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "API docs",
+     "url": "https://developers.openai.com/api/docs"
+    },
+    {
+     "label": "API pricing",
+     "url": "https://developers.openai.com/api/docs/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "platforms",
+     "v": [
+      "api"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:openai-api-models"
+    },
+    {
+     "p": "homepage",
+     "v": "https://developers.openai.com/api/docs",
+     "ver": "OFFICIAL",
+     "src": "src:openai-api-models"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.openai.com/",
+     "ver": "OFFICIAL",
+     "src": "src:openai-status"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "service:codex",
+   "type": "service",
+   "slug": "codex",
+   "names": {
+    "en": "Codex",
+    "ko": "Codex"
+   },
+   "description": {
+    "en": "OpenAI's coding agent, available as the Codex CLI, an IDE extension, Codex cloud on the web and inside the ChatGPT apps; included with ChatGPT plans or usable with an API key.",
+    "ko": "Codex CLI, IDE 확장, 웹의 Codex cloud, ChatGPT 앱 안에서 쓰는 OpenAI의 코딩 에이전트로, ChatGPT 요금제에 포함되거나 API 키로 사용할 수 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Codex",
+     "url": "https://chatgpt.com/codex"
+    },
+    {
+     "label": "Codex CLI docs",
+     "url": "https://learn.chatgpt.com/docs/codex/cli"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04-16",
+     "ver": "OFFICIAL",
+     "src": "src:openai-api-changelog",
+     "note": "API changelog: 'Launched Codex, our code generation CLI tool.'"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "cli",
+      "ide",
+      "web",
+      "ios",
+      "windows",
+      "macos",
+      "linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing",
+     "note": "Plus card: Codex on the web, in the CLI, in the IDE extension and on iOS; Codex also runs in the ChatGPT desktop app (macOS, Windows, Linux)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://chatgpt.com/codex",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-codex-cloud"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.openai.com/",
+     "ver": "OFFICIAL",
+     "src": "src:openai-status"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "plan:chatgpt-free",
+   "type": "plan",
+   "slug": "chatgpt-free",
+   "names": {
+    "en": "ChatGPT Free",
+    "ko": "ChatGPT Free"
+   },
+   "description": {
+    "en": "Free ChatGPT tier with limited access to tools, image generation, voice, deep research and Codex.",
+    "ko": "도구, 이미지 생성, 음성, 심층 리서치, Codex를 제한적으로 쓸 수 있는 무료 ChatGPT 요금제입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 0,
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing",
+     "unit": "USD",
+     "region": "US",
+     "note": "Listed in USD on the English-language pricing doc; region not stated."
+    },
+    {
+     "p": "price_monthly",
+     "v": 0,
+     "ver": "OFFICIAL",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "unit": "KRW",
+     "region": "KR"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-5.6-luna",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-go",
+   "type": "plan",
+   "slug": "chatgpt-go",
+   "names": {
+    "en": "ChatGPT Go",
+    "ko": "ChatGPT Go"
+   },
+   "description": {
+    "en": "Low-cost individual ChatGPT plan with higher limits than Free; the pricing page says it may include ads.",
+    "ko": "Free보다 사용 한도가 높은 저가형 개인 요금제로, 요금제 페이지에 광고가 포함될 수 있다고 안내되어 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 8,
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing",
+     "unit": "USD",
+     "region": "US",
+     "note": "Listed in USD on the English-language pricing doc; region not stated."
+    },
+    {
+     "p": "price_monthly",
+     "v": 13000,
+     "ver": "OFFICIAL",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "unit": "KRW",
+     "region": "KR"
+    },
+    {
+     "p": "price_note",
+     "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-5.6-luna",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-plus",
+   "type": "plan",
+   "slug": "chatgpt-plus",
+   "names": {
+    "en": "ChatGPT Plus",
+    "ko": "ChatGPT Plus"
+   },
+   "description": {
+    "en": "Individual paid ChatGPT plan with advanced reasoning models, projects, scheduled tasks, custom GPTs and more Codex usage.",
+    "ko": "고급 추론 모델, 프로젝트, 예약 작업, 맞춤형 GPT, 확대된 Codex 사용량을 제공하는 개인 유료 요금제입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 20,
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing",
+     "unit": "USD",
+     "region": "US",
+     "note": "Listed in USD on the English-language pricing doc; region not stated."
+    },
+    {
+     "p": "price_monthly",
+     "v": 29000,
+     "ver": "OFFICIAL",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "unit": "KRW",
+     "region": "KR"
+    },
+    {
+     "p": "price_note",
+     "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-astra",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-sol",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-pro-5x",
+   "type": "plan",
+   "slug": "chatgpt-pro-5x",
+   "names": {
+    "en": "ChatGPT Pro (5x, $100)",
+    "ko": "ChatGPT Pro (5배)"
+   },
+   "description": {
+    "en": "Entry Pro tier with about 5x the usage of Plus, Pro reasoning on GPT-6 Astra and maximum Codex and deep research limits.",
+    "ko": "Plus 대비 약 5배 사용량과 GPT-6 Astra 기반 Pro 추론, 최대 Codex·심층 리서치 한도를 제공하는 Pro 기본 등급입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 100,
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers",
+     "unit": "USD",
+     "region": "US",
+     "note": "'Pro $100' tier (5x Plus usage)."
+    },
+    {
+     "p": "price_monthly",
+     "v": 159000,
+     "ver": "OFFICIAL",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "unit": "KRW",
+     "region": "KR",
+     "note": "Shown as 'From ₩159,000/월' on the Pro card, which lists 5x usage."
+    },
+    {
+     "p": "price_note",
+     "v": "No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-astra",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-sol",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-pro-20x",
+   "type": "plan",
+   "slug": "chatgpt-pro-20x",
+   "names": {
+    "en": "ChatGPT Pro (20x, $200)",
+    "ko": "ChatGPT Pro (20배)"
+   },
+   "description": {
+    "en": "Highest individual ChatGPT tier with about 20x the usage of Plus; new sign-ups and upgrades have been paused since 2026-09-10.",
+    "ko": "Plus 대비 약 20배 사용량을 제공하는 최상위 개인 요금제로, 2026년 9월 10일부터 신규 가입과 업그레이드가 일시 중단되었습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 200,
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers",
+     "unit": "USD",
+     "region": "US",
+     "note": "'Pro $200' tier (20x Plus usage)."
+    },
+    {
+     "p": "price_note",
+     "v": "New sign-ups and upgrades to Pro $200 temporarily paused as of 2026-09-10; existing subscriptions unaffected. No annual billing option for Go, Plus or Pro per the OpenAI Help Center.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-help-pro-tiers"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-sol",
+     "src": "src:openai-learn-models",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-business",
+   "type": "plan",
+   "slug": "chatgpt-business",
+   "names": {
+    "en": "ChatGPT Business",
+    "ko": "ChatGPT Business"
+   },
+   "description": {
+    "en": "Per-seat workspace plan for teams with ChatGPT, ChatGPT Work and Codex, admin controls, SAML SSO and no training on business data by default.",
+    "ko": "ChatGPT, ChatGPT Work, Codex와 관리자 기능, SAML SSO를 제공하고 기본적으로 비즈니스 데이터를 학습에 쓰지 않는 팀용 좌석제 요금제입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 25,
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing",
+     "unit": "USD",
+     "region": "US",
+     "note": "Per user per month when billed monthly; $20 per user per month billed annually. Listed in USD; region not stated."
+    },
+    {
+     "p": "price_monthly",
+     "v": 36100,
+     "ver": "OFFICIAL",
+     "src": "src:openai-chatgpt-pricing-kr",
+     "unit": "KRW",
+     "region": "KR",
+     "note": "Standard seat, billed monthly; ₩28,900/month when billed annually. Premium seat (5x Standard usage): ₩144,500/month billed annually, ₩180,500 billed monthly."
+    },
+    {
+     "p": "price_note",
+     "v": "Standard seat $20/user/month billed annually or $25 billed monthly (2+ users). A Premium seat type also exists.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing"
+    },
+    {
+     "p": "seats_min",
+     "v": 2,
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-sol",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "plan:chatgpt-enterprise",
+   "type": "plan",
+   "slug": "chatgpt-enterprise",
+   "names": {
+    "en": "ChatGPT Enterprise",
+    "ko": "ChatGPT Enterprise"
+   },
+   "description": {
+    "en": "Sales-negotiated organisation plan (grouped with Edu) adding SCIM, EKM, RBAC, audit logs and data residency controls.",
+    "ko": "영업 협의로 계약하는 조직용 요금제(Edu와 함께 안내)로 SCIM, EKM, RBAC, 감사 로그, 데이터 레지던시 제어를 추가합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://chatgpt.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_note",
+     "v": "Contact sales; shown together with Edu as 'Enterprise & Edu'.",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-sol",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:gpt-6-luna",
+     "src": "src:openai-learn-pricing",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-work",
+   "type": "feature",
+   "slug": "chatgpt-work",
+   "names": {
+    "en": "ChatGPT Work",
+    "ko": "ChatGPT Work"
+   },
+   "description": {
+    "en": "Mode of ChatGPT for delegating tasks with a defined outcome, using files, plugins and tools to produce reviewable deliverables.",
+    "ko": "파일·플러그인·도구를 활용해 결과물이 분명한 작업을 ChatGPT에 맡기고 검토 가능한 산출물을 받는 모드입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/get-started-with-work",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-work"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-work",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-deep-research",
+   "type": "feature",
+   "slug": "chatgpt-deep-research",
+   "names": {
+    "en": "Deep research",
+    "ko": "심층 리서치"
+   },
+   "description": {
+    "en": "Multi-source investigation that produces a sourced report; started from the + menu in Work.",
+    "ko": "여러 출처를 조사해 출처가 달린 보고서를 만드는 기능으로, Work의 + 메뉴에서 시작합니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/web-search",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-web-search"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-web-search",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-voice",
+   "type": "feature",
+   "slug": "chatgpt-voice",
+   "names": {
+    "en": "ChatGPT Voice",
+    "ko": "음성"
+   },
+   "description": {
+    "en": "Spoken conversation with ChatGPT; in the desktop app it is powered by GPT-Live and can work on tasks while you talk.",
+    "ko": "ChatGPT와 음성으로 대화하는 기능으로, 데스크톱 앱에서는 GPT-Live 기반으로 대화 중에 작업도 진행합니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/features/voice",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-voice"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-voice",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-memory",
+   "type": "feature",
+   "slug": "chatgpt-memory",
+   "names": {
+    "en": "Memory",
+    "ko": "메모리"
+   },
+   "description": {
+    "en": "Lets ChatGPT and Codex carry useful context from earlier chats into later work, managed under Settings > Personalization.",
+    "ko": "이전 대화의 유용한 맥락을 이후 작업에 이어 쓰게 하는 기능으로, 설정 > 개인 맞춤에서 관리합니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/customization/memories",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-memories"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-memories",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-projects",
+   "type": "feature",
+   "slug": "chatgpt-projects",
+   "names": {
+    "en": "Projects",
+    "ko": "프로젝트"
+   },
+   "description": {
+    "en": "Groups related chats, files and sources together so ChatGPT can reuse that context.",
+    "ko": "관련 대화·파일·자료를 한곳에 묶어 ChatGPT가 그 맥락을 재사용하게 하는 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/projects",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-projects"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-projects",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-scheduled-tasks",
+   "type": "feature",
+   "slug": "chatgpt-scheduled-tasks",
+   "names": {
+    "en": "Scheduled tasks",
+    "ko": "예약 작업"
+   },
+   "description": {
+    "en": "Runs tasks on a schedule, or on eligible plans from Gmail, Slack or GitHub events, in the background.",
+    "ko": "정해진 일정이나(대상 요금제에서) Gmail·Slack·GitHub 이벤트에 따라 백그라운드로 작업을 실행합니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/automations",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-scheduled-tasks"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-scheduled-tasks",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-image-generation",
+   "type": "feature",
+   "slug": "chatgpt-image-generation",
+   "names": {
+    "en": "Image generation",
+    "ko": "이미지 생성"
+   },
+   "description": {
+    "en": "Creates and edits images inside ChatGPT conversations; limits depend on plan and workspace settings.",
+    "ko": "ChatGPT 대화 안에서 이미지를 만들고 편집하는 기능으로, 한도는 요금제와 워크스페이스 설정에 따라 다릅니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/image-generation",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-image-generation"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-image-generation",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-web-search",
+   "type": "feature",
+   "slug": "chatgpt-web-search",
+   "names": {
+    "en": "Web search",
+    "ko": "검색"
+   },
+   "description": {
+    "en": "Lets ChatGPT search the web for current information while it works.",
+    "ko": "작업 중 최신 정보를 위해 ChatGPT가 웹을 검색하는 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/web-search",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-web-search"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-web-search",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-browser",
+   "type": "feature",
+   "slug": "chatgpt-browser",
+   "names": {
+    "en": "Browser",
+    "ko": "브라우저"
+   },
+   "description": {
+    "en": "Built-in browser in ChatGPT on the web and the desktop app that lets ChatGPT research and interact with websites; not available in Codex CLI or the IDE extension.",
+    "ko": "웹과 데스크톱 앱의 ChatGPT에 내장된 브라우저로 웹사이트를 조사하고 조작합니다. Codex CLI와 IDE 확장에서는 쓸 수 없습니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/browser",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-browser"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-browser",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-sites",
+   "type": "feature",
+   "slug": "chatgpt-sites",
+   "names": {
+    "en": "Sites",
+    "ko": "Sites"
+   },
+   "description": {
+    "en": "Builds and shares hosted websites from ChatGPT; in public beta.",
+    "ko": "ChatGPT에서 호스팅되는 웹사이트를 만들고 공유하는 기능으로, 공개 베타 상태입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/sites",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-sites"
+    },
+    {
+     "p": "status",
+     "v": "preview",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-sites",
+     "note": "Public beta"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-sites",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-computer-use",
+   "type": "feature",
+   "slug": "chatgpt-computer-use",
+   "names": {
+    "en": "Computer Use",
+    "ko": "컴퓨터 사용"
+   },
+   "description": {
+    "en": "Lets ChatGPT see and operate desktop apps on macOS or Windows from the ChatGPT desktop app, in supported regions.",
+    "ko": "지원 지역에서 ChatGPT 데스크톱 앱이 macOS·Windows의 데스크톱 앱 화면을 보고 조작하게 하는 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/computer-use",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-computer-use"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-computer-use",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:chatgpt-plugins",
+   "type": "feature",
+   "slug": "chatgpt-plugins",
+   "names": {
+    "en": "Plugins",
+    "ko": "플러그인"
+   },
+   "description": {
+    "en": "Installable plugins that connect ChatGPT and Codex to external services and bundle skills; replaces custom GPT workflows for some workspaces.",
+    "ko": "ChatGPT와 Codex를 외부 서비스에 연결하고 스킬을 묶어 제공하는 설치형 플러그인입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/plugins",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-plugins"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:chatgpt",
+     "src": "src:openai-learn-plugins",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "feature:codex-cloud",
+   "type": "feature",
+   "slug": "codex-cloud",
+   "names": {
+    "en": "Codex cloud",
+    "ko": "Codex cloud"
+   },
+   "description": {
+    "en": "Runs Codex coding tasks in isolated cloud environments, started from the web, GitHub, GitLab, Linear or Slack.",
+    "ko": "격리된 클라우드 환경에서 Codex 코딩 작업을 실행하며, 웹·GitHub·GitLab·Linear·Slack에서 시작할 수 있습니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://learn.chatgpt.com/docs/cloud",
+     "ver": "OFFICIAL",
+     "src": "src:openai-learn-codex-cloud"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:codex",
+     "src": "src:openai-learn-codex-cloud",
+     "ver": "OFFICIAL"
+    }
+   ]
   }
  ],
- "availability": []
+ "availability": [
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-plus",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Work on the web'"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Work on the web'"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Work on the web'"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-business",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Work on the web'"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Work on the web'"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr",
+   "note": "Pricing page: limited ChatGPT Work in the desktop app"
+  },
+  {
+   "entity": "feature:chatgpt-work",
+   "plan": "plan:chatgpt-go",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr",
+   "note": "Pricing page: limited ChatGPT Work in the desktop app"
+  },
+  {
+   "entity": "feature:codex-cloud",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:codex-cloud",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:codex-cloud",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:codex-cloud",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:codex-cloud",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Voice' (desktop app voice)"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Voice' (desktop app voice)"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Voice' (desktop app voice)"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Voice' (desktop app voice)"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'ChatGPT Voice' (desktop app voice)"
+  },
+  {
+   "entity": "feature:chatgpt-web-search",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-web-search",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-web-search",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-web-search",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-web-search",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-scheduled-tasks",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-scheduled-tasks",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-scheduled-tasks",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-scheduled-tasks",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-scheduled-tasks",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-browser",
+   "plan": "plan:chatgpt-plus",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'Browser in ChatGPT Web'"
+  },
+  {
+   "entity": "feature:chatgpt-browser",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'Browser in ChatGPT Web'"
+  },
+  {
+   "entity": "feature:chatgpt-browser",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'Browser in ChatGPT Web'"
+  },
+  {
+   "entity": "feature:chatgpt-browser",
+   "plan": "plan:chatgpt-business",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'Browser in ChatGPT Web'"
+  },
+  {
+   "entity": "feature:chatgpt-browser",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "web",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Matrix row 'Browser in ChatGPT Web'"
+  },
+  {
+   "entity": "feature:chatgpt-computer-use",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Limited to specific regions per the matrix footnote"
+  },
+  {
+   "entity": "feature:chatgpt-computer-use",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Limited to specific regions per the matrix footnote"
+  },
+  {
+   "entity": "feature:chatgpt-computer-use",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Limited to specific regions per the matrix footnote"
+  },
+  {
+   "entity": "feature:chatgpt-computer-use",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Limited to specific regions per the matrix footnote"
+  },
+  {
+   "entity": "feature:chatgpt-computer-use",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing",
+   "note": "Limited to specific regions per the matrix footnote"
+  },
+  {
+   "entity": "feature:chatgpt-plugins",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-plugins",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-plugins",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-plugins",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-plugins",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-pricing"
+  },
+  {
+   "entity": "feature:chatgpt-sites",
+   "plan": "plan:chatgpt-business",
+   "platform": "*",
+   "region": "*",
+   "state": "preview",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-sites",
+   "note": "Public beta"
+  },
+  {
+   "entity": "feature:chatgpt-sites",
+   "plan": "plan:chatgpt-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "preview",
+   "ver": "OFFICIAL",
+   "src": "src:openai-learn-sites",
+   "note": "Public beta"
+  },
+  {
+   "entity": "feature:chatgpt-deep-research",
+   "plan": "plan:chatgpt-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-deep-research",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-deep-research",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-deep-research",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr",
+   "note": "Card: limited and slower image generation"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-go",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-image-generation",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-voice",
+   "plan": "plan:chatgpt-go",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-memory",
+   "plan": "plan:chatgpt-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-memory",
+   "plan": "plan:chatgpt-go",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-memory",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-memory",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-memory",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-projects",
+   "plan": "plan:chatgpt-plus",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-projects",
+   "plan": "plan:chatgpt-pro-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  },
+  {
+   "entity": "feature:chatgpt-projects",
+   "plan": "plan:chatgpt-pro-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:openai-chatgpt-pricing-kr"
+  }
+ ]
 }

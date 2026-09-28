@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import adapter,{GROUP_ENTITY,PROVIDER,componentGroups,atomComponents} from '../collectors/openai-status/index.js';
+import adapter,{GROUP_ENTITY,PROVIDER,TITLE_PATTERNS,componentGroups,atomComponents} from '../collectors/openai-status/index.js';
 import {fixture,run,validate,seedEntityIds} from './fixtures/n2/collectors/_ai-helpers.mjs';
 
 const routes={
@@ -42,10 +42,11 @@ test('openai-status: incidents become valid, linked events',async()=>{
  assert.equal(doc.sources[0].adapter,'openai-status');
 });
 
-test('openai-status: works without the atom/widget documents (falls back to provider)',async()=>{
+test('openai-status: works without the atom/widget documents (title patterns, else provider)',async()=>{
  const r=await run(adapter,{'https://status.openai.com/api/v2/incidents.json':routes['https://status.openai.com/api/v2/incidents.json']});
  assert.equal(r.error,null);
  assert.ok(r.doc.events.every(e=>e.entities.length>0));
+ assert.deepEqual(r.doc.events.find(e=>/Issues with Codex/.test(e.title.en)).entities,['service:codex']);
  assert.ok(r.doc.events.some(e=>e.entities.includes(PROVIDER)));
 });
 
@@ -56,5 +57,5 @@ test('openai-status: incidents.json failure is an adapter error',async()=>{
 
 test('openai-status: mapped entity ids exist in the AI seed',()=>{
  const ids=seedEntityIds();if(!ids.size)return;
- for(const id of [...Object.values(GROUP_ENTITY),PROVIDER])assert.ok(ids.has(id),`${id} missing from data/seed/ai`);
+ for(const id of [...Object.values(GROUP_ENTITY),...TITLE_PATTERNS.map(p=>p[1]),PROVIDER])assert.ok(ids.has(id),`${id} missing from data/seed/ai`);
 });
