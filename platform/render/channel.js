@@ -6,7 +6,7 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,signInUrl} from './ui.js';
 import {compact} from './format.js';
-import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,relatedChannels,SORTS} from '../db/channel.js';
+import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,SORTS} from '../db/channel.js';
 import {PREDICATES} from '../schema.js';
 import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
@@ -35,12 +35,12 @@ export async function loadChannel(db,entity,o){
  const panel=panelFor(entity);
  const kind=o.kind&&Object.prototype.hasOwnProperty.call(POST_KINDS,o.kind)?o.kind:null,sort=SORTS.includes(/** @type {any} */(o.sort))?/** @type {string} */(o.sort):'new';
  // Independent reads run together: on D1 every query is a round trip.
- const [data,board,stats,titles,counts,bestMin,relatedList]=await Promise.all([panel.load(ctx),
+ const [data,board,stats,titles,counts,bestMin,relatedList,alias]=await Promise.all([panel.load(ctx),
   channelPosts(db,entity.id,{kind,sort,best:!!o.best,page:o.page||1,limit:PAGE_SIZE,now:o.now}),
   channelStats(db,entity.id,dayStart(o.now,o.l)),recentTitles(db,entity.id,o.now-2*864e5),contentCounts(db,entity.id),
-  channelBestThreshold(db,entity.id,o.now),relatedChannels(db,entity.id,8)]);
+  channelBestThreshold(db,entity.id,o.now),relatedChannels(db,entity.id,8),o.l==='ko'?koAlias(db,entity.id,nameOf(entity,'ko')):Promise.resolve(null)]);
  const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
- return {entity,ctx,panel,data,index,bestMin,relatedList,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ return {entity,ctx,panel,data,index,bestMin,relatedList,alias,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -81,7 +81,7 @@ export function renderChannel(m,site){
  const subtitle=td?label(td.label,l):'';
  const desc=e.descriptions[l]||e.descriptions.en||'';
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
-<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${v&&label(v.label,l)===subtitle?'':subtitle}${v?html`${label(v.label,l)===subtitle?'':' · '}<a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
+<div class="chm"><div class="chn1"><h1>${s.channel(name)}${m.alias?html` <span class="ha">${m.alias}</span>`:''}</h1><span class="fine">${v&&label(v.label,l)===subtitle?'':subtitle}${v?html`${label(v.label,l)===subtitle?'':' · '}<a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} <span data-followers="${m.stats.followers}">${compact(m.stats.followers,l)}</span> · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
 <div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
@@ -103,8 +103,10 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';
  const rel=m.relatedList.length?box({title:s.related},html`<ul class="rows">${m.relatedList.map(r=>{const pd=/** @type {any} */(PREDICATES)[r.predicate];const how=pd?label(r.dir==='out'?pd:pd.inverse,l):'';return html`<li><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a><span class="fine">${how}</span></li>`;})}</ul>`):'';
  const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${rel}${tools}</aside></div>`;
- const title=l==='ko'?`${name} 채널 — 소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
- const description=desc||(l==='ko'?`${name}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
+ // The Korean spelling people type ("클로드") goes into the title and description too.
+ const shown=m.alias?`${name}(${m.alias})`:name;
+ const title=l==='ko'?`${shown} 채널 — ${td?label(td.label,l)+' · ':''}소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
+ const description=(m.alias&&desc?`${shown}: ${desc}`:desc)||(l==='ko'?`${shown}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
  const other=l==='ko'?'en':'ko';
  const canonical=site.origin+(m.kind||m.sort!=='new'||m.best||m.page>1?q({}):base);
  return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},

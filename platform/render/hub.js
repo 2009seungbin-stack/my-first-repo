@@ -5,7 +5,7 @@ import {html} from './html.js';
 import {page,nameOf,channelUrl,box,monogram,TILE} from './ui.js';
 import {compact,collapseVersions} from './format.js';
 import {kindTag} from './radar.js';
-import {hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions} from '../db/channel.js';
+import {hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions,entitiesByIds} from '../db/channel.js';
 import {dday,eventTime,boardTime} from './format.js';
 import {money,tokens,isoDateText,int} from './format.js';
 import {estimateLlmMemory} from '../estimates/llm-memory.js';
@@ -43,6 +43,13 @@ export async function loadHub(db,vertical,o){
  /** @type {any} */const now_={};
  if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=collapseVersions(await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:20}),o.l).slice(0,10);}
  if(type==='work'&&vertical==='subculture')now_.week=(await upcomingEvents(db,{from:now,to:now+7*864e5,vertical:'subculture',limit:60})).filter((/** @type {any} */ e)=>e.kind==='broadcast'||e.kind==='release');
+ // Entry pages people search for, linked from the hub (else they are only in the sitemap).
+ if(!type&&vertical==='ai')now_.status=(await hubEntities(db,'ai',{type:'service',limit:20})).map((/** @type {any} */ r)=>r.entity);
+ if(!type&&vertical==='hardware'){
+  const pairs=((await db.prepare("SELECT r.subject_id AS a,r.object_id AS b FROM relations r JOIN entities x ON x.id=r.subject_id JOIN entities y ON y.id=r.object_id WHERE r.predicate='successor_of' AND r.valid_until IS NULL AND x.type='gpu' AND y.type='gpu' AND x.status='active' AND y.status='active' LIMIT 12").all()).results||[]);
+  const ents=await entitiesByIds(db,pairs.flatMap((/** @type {any} */ p)=>[String(p.a),String(p.b)]));
+  now_.pairs=pairs.map((/** @type {any} */ p)=>[ents.get(String(p.b)),ents.get(String(p.a))]).filter((/** @type {any[]} */ [x,y])=>x&&y);
+ }
  if(!type&&vertical==='subculture'){now_.events=await upcomingEvents(db,{from:now,to:now+14*864e5,vertical:'subculture',limit:10});now_.preorders=await preorderDeadlines(db,now,8);}
  return {vertical,v,type,page:pageNo,counts,groups,compare,org:o.org||null,sort:o.sort||null,vs:o.vs?o.vs.split(','):null,now:now_,at:now,l:o.l,channels:o.channels||[]};
 }
@@ -58,11 +65,14 @@ export function renderHub(m,site){
  const body=cmp?html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${m.type==='gpu'?(ko?'그래픽카드 VRAM·스펙 비교':'GPU VRAM and spec comparison'):m.type==='plan'?(ko?'AI 요금제 비교':'AI plan comparison'):(ko?'AI 모델 API 가격 비교':'AI model API price comparison')}</h1>${badge('OFFICIAL',l)}</div><span class="fine">${m.type==='gpu'?(ko?'제조사 공식 스펙 기준. "Q4 최대"는 Q4_K_M에서 여유 있게 들어가는 모델 크기 추정(KV 캐시 제외)입니다.':'Official specs. "Q4 max" is an estimate of the largest model that fits at Q4_K_M (KV cache excluded).'):m.type==='plan'?(ko?'각 회사 공식 요금 페이지 기준. 한국 요금이 공식으로 나와 있으면 원화, 아니면 달러로 적었습니다(달러 요금은 결제 시 환율·세금에 따라 달라짐).':'From each company\'s official pricing page, in the local currency where one is published.'):(ko?'각 회사 공식 가격 문서 기준, 100만 토큰당 달러.':'From each company\'s official pricing docs, USD per 1M tokens.')}</span>${tabs}</div></section>${cmp}`:html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${label(v.label,l)}</h1><span class="fine">${label(v.tagline,l)}</span></div>${tabs}</div></section>${nowBoxes(m)}${groups}${pager}`;
  const other=ko?'en':'ko';
  // A pair of cards (?type=gpu&vs=a,b) is its own page: "RTX 5070 vs RTX 4070" is a common search.
- const vsSlugs=m.vs||[];const pair=m.type==='gpu'&&m.compare?vsSlugs.map((/** @type {string} */ x)=>/** @type {any} */(m.compare).rows.find((/** @type {any} */ r)=>r.e.slug===x)?.e).filter(Boolean):[];
- if(cmp&&pair.length===2){const [a,b]=pair.map((/** @type {any} */ x)=>nameOf(x,l)),q=`?type=gpu&vs=${vsSlugs.join(',')}`;
-  return page({l,title:ko?`${a} vs ${b} 비교 — VRAM·대역폭·전력·로컬 LLM | Nerulio`:`${a} vs ${b} — VRAM, bandwidth, power, local LLMs | Nerulio`,description:ko?`${a}와 ${b}의 공식 스펙과 로컬 LLM 적합성(추정)을 나란히 비교합니다.`:`Official specs and estimated local-LLM fit of ${a} and ${b}, side by side.`,
-   canonical:site.origin+base+q,alternates:{[l]:site.origin+base+q,[ko?'en':'ko']:site.origin+`/${ko?'en':'ko'}/${vertical}/${q}`},channels:m.channels,body});}
- if(cmp)return page({l,title:m.type==='gpu'?(ko?'그래픽카드 VRAM·스펙 비교 — 로컬 LLM 추정 포함 | Nerulio':'GPU VRAM and spec comparison | Nerulio'):m.type==='plan'?(ko?'AI 요금제 비교 — ChatGPT·Claude·Gemini 월 요금 (공식) | Nerulio':'AI plan comparison — ChatGPT, Claude, Gemini | Nerulio'):(ko?'AI 모델 API 가격 비교 — 입력·출력 100만 토큰당 (공식) | Nerulio':'AI model API prices — per 1M tokens | Nerulio'),description:ko?'공식 가격 페이지 기준 요금·API 가격을 한 표로. 바뀌면 기록이 남습니다.':'Official prices in one table, with change history.',canonical:site.origin+base+`?type=${m.type}`,alternates:{[l]:site.origin+base+`?type=${m.type}`,[other]:site.origin+`/${other}/${vertical}/?type=${m.type}`},channels:m.channels,body});
+ const vsSlugs=m.vs||[];const pairRows=m.type==='gpu'&&m.compare?vsSlugs.map((/** @type {string} */ x)=>/** @type {any} */(m.compare).rows.find((/** @type {any} */ r)=>r.e.slug===x)).filter(Boolean):[];
+ if(pairRows.length===2){const [a,b]=pairRows.map((/** @type {any} */ x)=>nameOf(x.e,l)),q=`?type=gpu&vs=${vsSlugs.join(',')}`;
+  // Only the two cards (not the whole table again): a page of its own for "A vs B".
+  const pbody=html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${ko?`${a} vs ${b} 비교`:`${a} vs ${b}`}</h1></div><span class="fine">${ko?'제조사 공식 스펙을 나란히 놓고, 로컬 LLM이 어디까지 들어가는지 추정했습니다.':'Official specs side by side, with an estimate of the local LLMs each can run.'}</span></div></section>
+${gpuVersus(pairRows,l)}<p class="pad"><a href="${channelUrl(l,pairRows[0].e)}">${a} ›</a> · <a href="${channelUrl(l,pairRows[1].e)}">${b} ›</a> · <a href="${base}?type=gpu">${ko?'전체 그래픽카드 비교표 ›':'All GPUs ›'}</a></p>`;
+  return page({l,title:ko?`${a} vs ${b} 비교 — VRAM·대역폭·전력·로컬 LLM | Nerulio`:`${a} vs ${b} — VRAM, bandwidth, power, local LLMs | Nerulio`,description:ko?`${a}와 ${b}의 VRAM·메모리·전력·출시가를 공식 스펙으로 나란히 비교하고, 각 카드에서 돌아가는 로컬 LLM 크기(추정)를 보여 줍니다.`:`Official specs and estimated local-LLM fit of ${a} and ${b}, side by side.`,
+   canonical:site.origin+base+q,alternates:{[l]:site.origin+base+q,[ko?'en':'ko']:site.origin+`/${ko?'en':'ko'}/${vertical}/${q}`},channels:m.channels,body:pbody});}
+ if(cmp)return page({l,title:m.type==='gpu'?(ko?'그래픽카드 VRAM·스펙 비교 — 로컬 LLM 추정 포함 | Nerulio':'GPU VRAM and spec comparison | Nerulio'):m.type==='plan'?(ko?'AI 요금제 비교 — ChatGPT·Claude·Gemini 월 요금 (공식) | Nerulio':'AI plan comparison — ChatGPT, Claude, Gemini | Nerulio'):(ko?'AI 모델 API 가격 비교 — 입력·출력 100만 토큰당 (공식) | Nerulio':'AI model API prices — per 1M tokens | Nerulio'),description:(ko?{gpu:'엔비디아·AMD·인텔 그래픽카드의 VRAM, 메모리 대역폭, 전력, 출시가를 공식 스펙으로 한 표에 모았습니다. 카드마다 돌아가는 로컬 LLM 크기(추정)도 함께 봅니다.',plan:'ChatGPT·Claude·Gemini 등 AI 요금제의 월 요금과 연 요금을 공식 가격 페이지 기준으로 한 표에 모았습니다. 가격이 바뀌면 기록이 남습니다.',model:'OpenAI·Anthropic·구글 등 AI 모델의 API 입력·출력 가격(100만 토큰당)과 컨텍스트를 공식 문서 기준으로 비교합니다. 회사별 필터와 정렬, 가격 변경 이력.'}:{gpu:'VRAM, bandwidth, power and launch price of NVIDIA, AMD and Intel GPUs from official specs, with the local LLMs each can run (estimate).',plan:'Monthly and yearly prices of ChatGPT, Claude, Gemini and other AI plans from official pricing pages, with change history.',model:'API input/output prices per 1M tokens and context of AI models from official docs, by company.'})[/** @type {'gpu'|'plan'|'model'} */(m.type)]||'',canonical:site.origin+base+`?type=${m.type}`,alternates:{[l]:site.origin+base+`?type=${m.type}`,[other]:site.origin+`/${other}/${vertical}/?type=${m.type}`},channels:m.channels,body});
  return page({l,title:ko?`${label(v.label,l)} 채널 — ${label(v.tagline,l)} | Nerulio`:`${label(v.label,l)} channels — ${label(v.tagline,l)} | Nerulio`,description:label(v.tagline,l),
   canonical:site.origin+base+(m.type?`?type=${m.type}${m.page>1?`&page=${m.page}`:''}`:''),alternates:{[l]:site.origin+base,[other]:site.origin+`/${other}/${vertical}/`},noindex:m.page>1,channels:m.channels,body});
 }
@@ -127,6 +137,8 @@ function nowBoxes(m){
  const {l,at}=m,ko=l==='ko',n=m.now||{};
  const out=[];
  if(n.week)return weekTable(m);
+ if(n.status?.length)out.push(box({title:ko?'지금 장애? 서비스 상태':'Is it down? Service status'},html`<ul class="rows">${n.status.map((/** @type {any} */ e)=>html`<li><a class="tt" href="${channelUrl(l,e)}status">${ko?`지금 ${nameOf(e,l)} 장애?`:`Is ${nameOf(e,l)} down?`}</a></li>`)}</ul>`));
+ if(n.pairs?.length)out.push(box({title:ko?'그래픽카드 1:1 비교':'GPU head-to-head'},html`<ul class="rows">${n.pairs.map((/** @type {any} */ [x,y])=>{const q=[x.slug,y.slug].sort().join(',');return html`<li><a class="tt" href="/${l}/hardware/?type=gpu&vs=${q}">${nameOf(x,l)} vs ${nameOf(y,l)}</a><a class="fine" href="${channelUrl(l,y)}local-llm">${ko?'로컬 LLM ›':'Local LLMs ›'}</a></li>`;})}</ul>`));
  if(n.stale?.length)out.push(box({title:ko?'업데이트로 한글패치 확인이 필요한 게임':'Korean patches to re-check after an update',extra:html`<span class="st u">${ko?'미확인':'unchecked'}</span>`},html`<ul class="rows">${n.stale.map((/** @type {any} */ s)=>html`<li><a class="tt" href="${channelUrl(l,s.game)}">${nameOf(s.game,l)} <b>${s.current}</b></a><span class="fine">${ko?`패치는 ${s.lastOk}에서 작동`:`patch worked on ${s.lastOk}`}</span><a class="fine" href="${channelUrl(l,s.patch)}">${ko?'패치 채널 ›':'patch ›'}</a></li>`)}</ul>`));
  if(n.updates?.length)out.push(box({title:ko?'이번 주 업데이트된 게임':'Updated this week',extra:badge('AUTOMATED',l)},html`<ul class="rows">${n.updates.map((/** @type {any} */ r)=>html`<li><span class="tm">${boardTime(r.released_at,at,l)}</span><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)} <b>${r.version}</b></a></li>`)}</ul>`));
  if(n.events?.length)out.push(box({title:ko?'2주 안의 방송·이벤트':'Next two weeks',extra:badge('OFFICIAL',l)},html`<ul class="rows">${n.events.map((/** @type {any} */ ev)=>html`<li class="ev"><span class="dday">${dday(ev.starts_at,at,l)}</span><a class="tt" href="${channelUrl(l,ev.entity)}">${kindTag(ev.kind,l)}${ev.title[l]||ev.title.en}</a><span class="fine">${eventTime(ev.starts_at,ev.precision,l)}</span></li>`)}</ul>`));

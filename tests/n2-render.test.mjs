@@ -60,7 +60,7 @@ test('seed import loads every seed file through the ingest pipeline',{skip:!sqli
 test('AI service channel: status, models with official API prices, plans in the wiki',{skip:!sqliteAvailable},async()=>{
  const {m,out}=await channel('ai','claude');
  assert.equal(m.panel.id,'ai-service');
- assert.match(out,/<h1>Claude 채널<\/h1>/);
+ assert.match(out,/<h1>Claude 채널 <span class="ha">클로드<\/span><\/h1>/);
  assert(out.includes('서비스 상태')&&out.includes('확인 전')&&!out.includes('보고된 장애 없음'),'no status claim before the status collector has run');
  const d=await seeded();
  await d.prepare("INSERT OR REPLACE INTO collectors (adapter,vertical,last_success_at) VALUES ('claude-status','ai',?)").bind(NOW-600e3).run();
@@ -215,7 +215,7 @@ test('status, history and write pages render; status is only for services',{skip
  const get=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
  const st=await get('/ko/ai/claude/status');
  const html=await st.text();
- assert(html.includes('지금 Claude 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('지금 Claude(클로드) 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
  const pro=await (await get('/ko/ai/claude-pro/')).text(),proEn=await (await get('/en/ai/claude-pro/')).text();

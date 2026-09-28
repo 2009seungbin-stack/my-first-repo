@@ -68,7 +68,7 @@ const LOGO=html`<svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="tru
  * Page shell. `channels` = the channel bar (popular channels for anonymous visitors; an island swaps in
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
- *  channels:{name:string,href:string,on?:boolean}[],homeOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null}} o
+ *  channels:{name:string,href:string,on?:boolean}[],homeOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,ogType?:string}} o
  */
 export function page(o){
  const s=t(o.l);
@@ -87,6 +87,11 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:description" content="${o.description}">
 <meta property="og:url" content="${o.canonical}">
 <meta property="og:site_name" content="Nerulio">
+<meta property="og:type" content="${o.ogType||'website'}">
+<meta property="og:locale" content="${o.l==='ko'?'ko_KR':'en_US'}">
+<meta property="og:image" content="${new URL(o.canonical).origin}/assets/social/${o.l==='ko'?'ko':'en'}-home.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="RSS">
 `:''}
