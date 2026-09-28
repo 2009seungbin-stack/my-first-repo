@@ -84,7 +84,7 @@ export function mount({el}){
    }
   };
   worker.onerror=e=>{say('statusError',e.message);busy=false;worker.terminate();job=null;render();};
-  worker.postMessage({id,kind:kind==='native-share'?'card':kind,state,size:outputSize,delay:state.delay,motion:state.motion,background:backgroundFile});
+  worker.postMessage({id,kind:kind==='native-share'?'card':kind,state,size:outputSize,delay:state.delay,motion:state.motion,background:backgroundFile,locale:getLocale()});
  }
  el.addEventListener('click',async event=>{
   const choice=event.target.closest('[data-choice]');if(choice){update({...state,[choice.dataset.category]:choice.dataset.choice});return;}

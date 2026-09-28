@@ -19,19 +19,20 @@ function canvasFromLogical(state,size,backgroundPixels){
  ctx.imageSmoothingEnabled=false;ctx.drawImage(source,0,0,size,size);
  return output;
 }
-function cardCanvas(state,backgroundPixels){
+function cardCanvas(state,backgroundPixels,locale){
  const canvas=new OffscreenCanvas(1200,630),ctx=canvas.getContext('2d');
  ctx.fillStyle='#172b43';ctx.fillRect(0,0,1200,630);
  ctx.fillStyle='#24445a';ctx.fillRect(54,72,440,486);
  ctx.imageSmoothingEnabled=false;ctx.drawImage(canvasFromLogical(state,320,backgroundPixels),114,155);
- ctx.fillStyle='#f8e7c5';ctx.font='bold 62px system-ui,sans-serif';ctx.fillText('PIXEL AVATAR',550,260);
- ctx.fillStyle='#a5d5d1';ctx.font='34px system-ui,sans-serif';ctx.fillText('Made locally with Nerulio',554,322);
- ctx.fillStyle='#d0dce4';ctx.font='26px system-ui,sans-serif';ctx.fillText('Original CC0 parts · 16 px grid',554,388);
+ const copy={en:['PIXEL AVATAR','Made locally with Nerulio','Original CC0 parts · 16 px grid'],ko:['픽셀 아바타','Nerulio에서 로컬 제작','오리지널 CC0 파츠 · 16px 격자'],ja:['ピクセルアバター','Nerulioで端末内制作','オリジナルCC0パーツ · 16pxグリッド']}[locale]||['PIXEL AVATAR','Made locally with Nerulio','Original CC0 parts · 16 px grid'];
+ ctx.fillStyle='#f8e7c5';ctx.font='bold 60px system-ui,sans-serif';ctx.fillText(copy[0],550,260);
+ ctx.fillStyle='#a5d5d1';ctx.font='32px system-ui,sans-serif';ctx.fillText(copy[1],554,322);
+ ctx.fillStyle='#d0dce4';ctx.font='26px system-ui,sans-serif';ctx.fillText(copy[2],554,388);
  return canvas;
 }
 
 self.onmessage=async event=>{
- const {id,kind,state,size=256,delay=125,motion='blink',background=null}=event.data||{};
+ const {id,kind,state,size=256,delay=125,motion='blink',background=null,locale='en'}=event.data||{};
  try{
   self.postMessage({id,type:'progress',phase:'render'});
   const backgroundPixels=await localPixels(background);
@@ -40,7 +41,7 @@ self.onmessage=async event=>{
    const result=encodeAvatarGif(state,{size,delay,motion,backgroundPixels});
    blob=new Blob([result.bytes],{type:'image/gif'});
   }else if(kind==='card'){
-   blob=await cardCanvas(state,backgroundPixels).convertToBlob({type:'image/png'});
+   blob=await cardCanvas(state,backgroundPixels,locale).convertToBlob({type:'image/png'});
   }else if(kind==='png'){
    if(!Number.isInteger(size)||size<32||size>4096||size%16)throw new RangeError('Invalid PNG size');
    blob=await canvasFromLogical(state,size,backgroundPixels).convertToBlob({type:'image/png'});
