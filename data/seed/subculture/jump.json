@@ -511,6 +511,15 @@
    "publisher": "Laftel",
    "retrieved": "2026-09-28",
    "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
   }
  ],
  "entities": [
@@ -1000,6 +1009,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-netflix-kr-one-piece",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 21,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1087,6 +1103,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-netflix-kr-the-one-piece",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 171630,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1139,6 +1162,13 @@
      "src": "src:sc-jump-op-films-2027-2029",
      "region": "JP",
      "note": "Summer 2027 per the source"
+    },
+    {
+     "p": "anilist_id",
+     "v": 215855,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1180,6 +1210,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-op-films-2027-2029",
      "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 215856,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1441,6 +1478,13 @@
      "src": "src:sc-jump-csm-reze-prime-video",
      "region": "JP",
      "note": "Exclusive subscription streaming from 2026-09-19 00:00 JST"
+    },
+    {
+     "p": "anilist_id",
+     "v": 171627,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1721,6 +1765,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-laftel-jjk-s3",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 172463,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1765,6 +1816,13 @@
      "v": "upcoming",
      "ver": "OFFICIAL",
      "src": "src:sc-jump-jjk-s4-super-teaser"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209895,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2058,6 +2116,13 @@
      "src": "src:sc-jump-frieren-onair",
      "region": "JP",
      "note": "Subset of the subscription services listed on the official page"
+    },
+    {
+     "p": "anilist_id",
+     "v": 182255,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2109,6 +2174,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-frieren-s3-oct-2027",
      "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209939,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2405,6 +2477,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-laftel-ks-infinity-castle-1",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178788,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2659,6 +2738,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-netflix-kr-sakamoto-days",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 177709,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2726,6 +2812,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-netflix-kr-sakamoto-days",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 204363,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2972,6 +3065,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-laftel-k8-narumi",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 204431,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3021,6 +3121,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-laftel-k8-s2",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178754,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3288,6 +3395,13 @@
      "src": "src:sc-jump-laftel-spy-s3",
      "region": "KR",
      "note": "Subtitled and Korean-dubbed versions listed"
+    },
+    {
+     "p": "anilist_id",
+     "v": 177937,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3544,6 +3658,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-netflix-kr-dandadan",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 185660,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3595,6 +3716,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-dd-s3-2027",
      "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 198966,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3822,6 +3950,13 @@
      "ver": "OFFICIAL",
      "src": "src:sc-jump-laftel-onk-s3",
      "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 182587,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3866,6 +4001,13 @@
      "v": "upcoming",
      "ver": "OFFICIAL",
      "src": "src:sc-jump-onk-s4-teaser"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209827,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [

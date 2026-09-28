@@ -664,6 +664,15 @@
    "title": "TMS Entertainment official website",
    "publisher": "TMS Entertainment",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-anime-fall-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
   }
  ],
  "entities": [
@@ -1101,6 +1110,13 @@
      "v": "https://kusuriyanohitorigoto.jp/season3/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-kusuriya-s3"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195516,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1162,6 +1178,13 @@
      "v": "https://kusuriyanohitorigoto.jp/movie/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-kusuriya-film-staffcast"
+    },
+    {
+     "p": "anilist_id",
+     "v": 200929,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1368,6 +1391,13 @@
      "v": "https://bclover.jp/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-bclover-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195604,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1586,6 +1616,13 @@
      "v": "https://aonohako-anime.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-aonohako-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 189123,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2003,6 +2040,13 @@
      "v": "https://dragonball-super.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-dbs-beerus-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 206814,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2180,6 +2224,13 @@
      "v": "https://tokyo-revengers-anime.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-tokyo-revengers-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178083,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2391,6 +2442,13 @@
      "v": "https://ranma-pr.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-ranma-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209872,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2575,6 +2633,13 @@
      "v": "https://www.cyberpunk.net/en/edgerunners2",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-edgerunners2-en"
+    },
+    {
+     "p": "anilist_id",
+     "v": 195539,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2779,6 +2844,13 @@
      "v": "https://aoashi-pr.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-aoashi-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 191788,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -2995,6 +3067,13 @@
      "v": "https://mission-yozakura-family.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-yozakura-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 213657,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -3220,6 +3299,13 @@
      "v": "https://bleach-anime.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-bleach-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 185874,
+     "ver": "COMMUNITY",
+     "src": "src:sc-anime-fall-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [

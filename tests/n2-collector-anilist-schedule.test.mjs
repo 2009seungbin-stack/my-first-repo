@@ -12,6 +12,7 @@ const targets=[
  {id:'work:the-apothecary-diaries-tv-s3',type:'work',vertical:'subculture',names:{en:'The Apothecary Diaries Season 3',ko:'약사의 혼잣말 3기'},facts:{anilist_id:195516}},
  {id:'work:bleach-tybw-calamity',type:'work',vertical:'subculture',names:{en:'Bleach: Thousand-Year Blood War – The Calamity'},facts:{anilist_id:185874}},
  {id:'work:one-piece-tv',type:'work',vertical:'subculture',names:{en:'One Piece'},facts:{anilist_id:21}},
+ {id:'work:the-apothecary-diaries-film-2026',type:'work',vertical:'subculture',names:{en:'The Apothecary Diaries the Movie'},facts:{anilist_id:200929}},
  {id:'work:no-anilist',type:'work',vertical:'subculture',names:{en:'Untracked'},facts:{}},
  {id:'franchise:x',type:'franchise',vertical:'subculture',names:{en:'X'},facts:{anilist_id:1}},
 ];
@@ -41,7 +42,7 @@ test('collect posts one batched query for tracked works only and returns a valid
  assert.equal(calls[0].url,'https://graphql.anilist.co/');
  const sent=JSON.parse(calls[0].init.body);
  assert.equal(sent.query,QUERY);
- assert.deepEqual(sent.variables.ids.sort((a,b)=>a-b),[21,185874,195516]);
+ assert.deepEqual(sent.variables.ids.sort((a,b)=>a-b),[21,185874,195516,200929]);
  assert.equal(run.snapshots.length,1);
  assert.equal(run.snapshots[0].http_status,200);
  assert.match(run.snapshots[0].checksum,/^[0-9a-f]{64}$/);
@@ -62,11 +63,13 @@ test('collect posts one batched query for tracked works only and returns a valid
  const bleach=doc.entities.find(e=>e.id==='work:bleach-tybw-calamity');
  assert.equal(bleach.facts.find(x=>x.p==='episodes').v,10);
  assert.equal(bleach.facts.find(x=>x.p==='end_date'),undefined,'end_date only once finished');
+ const film=doc.events.find(e=>e.entities[0]==='work:the-apothecary-diaries-film-2026');
+ assert.equal(film.kind,'release');assert.equal(film.title.en,'The Apothecary Diaries the Movie — release');
 });
 
 test('no tracked works → no request', async()=>{
  const {f,calls}=fakeFetch();
- const run=await runAdapter({...adapter,_fetch:f},{targets:[targets[3]],now:()=>NOW});
+ const run=await runAdapter({...adapter,_fetch:f},{targets:[targets.find(t=>t.id==='work:no-anilist')],now:()=>NOW});
  assert.equal(run.error,null);assert.equal(calls.length,0);
  assert.deepEqual(run.doc.entities,[]);
 });

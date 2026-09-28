@@ -305,6 +305,15 @@
    "publisher": "Laftel (Korean streaming service)",
    "retrieved": "2026-09-28",
    "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
   }
  ],
  "entities": [
@@ -536,6 +545,13 @@
      "v": "https://miabyss.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-mia-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 160275,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -789,6 +805,13 @@
      "v": "https://mahoyo-movie.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-mahoyo-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 143103,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1010,6 +1033,13 @@
      "v": "https://ao-buta.com/dearfriend/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 199340,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1202,6 +1232,13 @@
      "v": "https://www.tbs.co.jp/anime/takopi_project/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-takopi-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 212539,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1408,6 +1445,13 @@
      "v": "https://medalist-pr.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 206298,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1624,6 +1668,13 @@
      "v": "https://www.conan-movie.jp/2026/index.html",
      "ver": "OFFICIAL",
      "src": "src:sc-films-conan-2026-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 198369,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1839,6 +1890,13 @@
      "v": "https://www.madoka-magica.com/wr/",
      "ver": "OFFICIAL",
      "src": "src:sc-films-madoka-wr"
+    },
+    {
+     "p": "anilist_id",
+     "v": 133007,
+     "ver": "COMMUNITY",
+     "src": "src:sc-films-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [

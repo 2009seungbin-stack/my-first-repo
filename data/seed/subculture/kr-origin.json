@@ -317,6 +317,15 @@
    "title": "TVアニメ「全知的な読者の視点から」公式サイト",
    "publisher": "Omniscient Reader Animation Partners (Aniplex)",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
   }
  ],
  "entities": [
@@ -461,6 +470,13 @@
      "v": "https://sololeveling-anime.net/1st/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-sl-anime-1st-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 151807,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -525,6 +541,13 @@
      "v": "https://sololeveling-anime.net/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 176496,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -569,6 +592,13 @@
      "v": "upcoming",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-sl-film-news"
+    },
+    {
+     "p": "anilist_id",
+     "v": 213846,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1012,6 +1042,13 @@
      "v": "https://tempal-anime.net/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-tempal-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 212888,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1287,6 +1324,13 @@
      "v": "https://returners-magic.com/1st/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-rm-1st-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 163142,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1364,6 +1408,13 @@
      "v": "https://returners-magic.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-rm-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 172192,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1617,6 +1668,13 @@
      "v": "https://sss-revival.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-sss-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 216624,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1797,6 +1855,13 @@
      "v": "https://tog-anime.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-tog-anime-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 153406,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [
@@ -1958,6 +2023,13 @@
      "v": "https://zendokushi-anime.com/",
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-orv-anime-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 179068,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
     }
    ],
    "relations": [

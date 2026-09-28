@@ -4,6 +4,7 @@
    "media": [
     {
      "id": 21,
+     "format": "TV",
      "status": "RELEASING",
      "episodes": null,
      "startDate": {
@@ -24,6 +25,7 @@
     },
     {
      "id": 185874,
+     "format": "TV",
      "status": "RELEASING",
      "episodes": 10,
      "startDate": {
@@ -44,6 +46,7 @@
     },
     {
      "id": 195516,
+     "format": "TV",
      "status": "NOT_YET_RELEASED",
      "episodes": null,
      "startDate": {
@@ -61,6 +64,27 @@
       "airingAt": 1790949600
      },
      "siteUrl": "https://anilist.co/anime/195516"
+    },
+    {
+     "id": 200929,
+     "format": "MOVIE",
+     "status": "NOT_YET_RELEASED",
+     "episodes": 1,
+     "startDate": {
+      "year": 2026,
+      "month": 12,
+      "day": 11
+     },
+     "endDate": {
+      "year": 2026,
+      "month": 12,
+      "day": 11
+     },
+     "nextAiringEpisode": {
+      "episode": 1,
+      "airingAt": 1796914800
+     },
+     "siteUrl": "https://anilist.co/anime/200929"
     }
    ]
   }

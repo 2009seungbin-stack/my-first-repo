@@ -24,7 +24,7 @@ const SOURCE_ID='src:anilist-graphql-api';
 const BATCH=50;
 const UA='NerulioCollector/1.0 (+https://nerulio.com/about/)';
 
-export const QUERY=`query($ids:[Int]){Page(page:1,perPage:${BATCH}){media(id_in:$ids,type:ANIME){id status episodes startDate{year month day} endDate{year month day} nextAiringEpisode{episode airingAt} siteUrl}}}`;
+export const QUERY=`query($ids:[Int]){Page(page:1,perPage:${BATCH}){media(id_in:$ids,type:ANIME){id format status episodes startDate{year month day} endDate{year month day} nextAiringEpisode{episode airingAt} siteUrl}}}`;
 
 /** AniList MediaStatus → subculture airing_status. */
 const STATUS={RELEASING:'airing',FINISHED:'finished',NOT_YET_RELEASED:'upcoming',HIATUS:'hiatus'};
@@ -82,10 +82,11 @@ export function toSeed(/** @type {any[]} */ media,/** @type {Map<number,any>} */
   if(facts.length)entities.push({id:t.id,facts});
   const n=m.nextAiringEpisode;
   if(n&&Number.isInteger(n.episode)&&Number.isFinite(n.airingAt)&&n.airingAt*1000>nowMs){
-   const en=t.names?.en||t.id,ko=t.names?.ko;
-   events.push({kind:'broadcast',title:ko?{en:`${en} — episode ${n.episode}`,ko:`${ko} ${n.episode}화`}:{en:`${en} — episode ${n.episode}`},
+   const en=t.names?.en||t.id,ko=t.names?.ko,movie=m.format==='MOVIE';
+   const title=movie?(ko?{en:`${en} — release`,ko:`${ko} 개봉`}:{en:`${en} — release`}):(ko?{en:`${en} — episode ${n.episode}`,ko:`${ko} ${n.episode}화`}:{en:`${en} — episode ${n.episode}`});
+   events.push({kind:movie?'release':'broadcast',title,
     starts:jstTime(n.airingAt),date_precision:'time',status:'announced',region:'JP',url:m.siteUrl,entities:[t.id],ver:'COMMUNITY',src:SOURCE_ID,
-    note:'Japanese first-broadcast time as listed by AniList (third-party community database); verify on the official site.'});
+    note:movie?'Japanese release date as listed by AniList (third-party community database); verify on the official site.':'Japanese first-broadcast time as listed by AniList (third-party community database); verify on the official site.'});
   }
  }
  return {schema:'nerulio.seed/1',vertical:'subculture',
