@@ -75,7 +75,7 @@ export function renderChannel(m,site){
  const {entity:e,ctx}=m,{l,now}=ctx,s=t(l);
  const name=nameOf(e,l),v=verticalOf(e.vertical),td=typeDef(e.vertical,e.type);
  const base=channelUrl(l,e);
- const q=(/** @type {Record<string,string|number|null|boolean>} */ p)=>{const u=new URLSearchParams();const all={kind:m.kind,sort:m.sort==='new'?null:m.sort,best:m.best?1:null,...p};for(const [k,x] of Object.entries(all))if(x!==null&&x!==undefined&&x!==false&&x!=='')u.set(k,String(x));const str=u.toString();return str?`${base}?${str}`:base;};
+ const q=(/** @type {Record<string,string|number|null>} */ p)=>{const u=new URLSearchParams();/** @type {Record<string,string|number|null>} */const all={kind:m.kind,sort:m.sort==='new'?null:m.sort,best:m.best?1:null,...p};for(const [k,x] of Object.entries(all))if(x!==null&&x!==undefined&&x!=='')u.set(k,String(x));const str=u.toString();return str?`${base}?${str}`:base;};
  const live=m.panel.live?.(m.data,ctx)||false;
  const subtitle=[td?label(td.label,l):'',v?label(v.label,l):''].filter(Boolean).join(' · ');
  const desc=e.descriptions[l]||e.descriptions.en||'';

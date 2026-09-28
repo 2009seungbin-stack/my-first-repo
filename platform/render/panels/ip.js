@@ -13,7 +13,8 @@ import {dateMs} from '../../schema.js';
 /** @param {import('./index.js').PanelContext} ctx */
 async function load(ctx){
  const {db,entity:e,now}=ctx;
- /** @type {import('../ui.js').Entity[]} */let works=[],characters=[];
+ /** @type {import('../ui.js').Entity[]} */let works=[];
+ /** @type {import('../ui.js').Entity[]} */let characters=[];
  if(e.type==='franchise')works=(await related(db,e.id,'in',['belongs_to'])).map(r=>r.entity);
  if(e.type==='work')characters=(await related(db,e.id,'in',['appears_in'])).map(r=>r.entity);
  if(e.type==='character')works=(await related(db,e.id,'out',['appears_in'])).map(r=>r.entity);

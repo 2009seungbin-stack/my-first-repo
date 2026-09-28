@@ -60,7 +60,7 @@ async function load(ctx){
  return {provider,services,plans:planRows,models:modelRows.slice(0,6),incidents,collector,timeline:dedupe(timeline).slice(0,6),rollouts};
 }
 /** @param {{title:string}[]} list */
-const dedupe=list=>{const seen=new Set();return list.filter(x=>seen.has(x.title)?false:(seen.add(x.title),true));};
+const dedupe=/** @template {{title:string}} T @param {T[]} list @returns {T[]} */ list=>{const seen=new Set();return list.filter(x=>seen.has(x.title)?false:(seen.add(x.title),true));};
 
 /** @param {Awaited<ReturnType<typeof load>>} d @param {import('./index.js').PanelContext} ctx */
 function top(d,ctx){
@@ -116,4 +116,4 @@ ${r.summary.total.pct!==null?html`<div class="meter"><span class="bar"><i style=
 }
 
 /** @type {import('./index.js').Panel} */
-export default {id:'ai-service',types:['ai:service'],load,top,wiki,side,live:d=>d.incidents.some(x=>x.status!=='ended')};
+export default {id:'ai-service',types:['ai:service'],load,top,wiki,side,live:d=>d.incidents.some((/** @type {{status:string}} */ x)=>x.status!=='ended')};

@@ -12,7 +12,7 @@ import {POST_KINDS,writableKinds,LIMITS} from '../community.js';
 /** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,kind?:string|null,channels?:{name:string,href:string}[]}} o */
 export async function loadWrite(db,entity,o){
  // Report subjects: patches that translate this game, plugins hosted by this app.
- let subjects=[];
+ /** @type {import('../db/channel.js').Entity[]} */let subjects=[];
  if(entity.type==='game')subjects=(await related(db,entity.id,'in',['translates'])).map(r=>r.entity);
  else if(entity.type==='app')subjects=(await related(db,entity.id,'in',['supports_host'])).map(r=>r.entity).slice(0,80);
  const versions=subjects.length?(await versionsOf(db,entity.id,8)).map(v=>v.version):[];

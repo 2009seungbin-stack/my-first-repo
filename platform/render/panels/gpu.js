@@ -28,7 +28,7 @@ async function load(ctx){
  const vram=Number(pickFact(ctx.facts,'vram_gb')?.value||0);
  // Representative open models: the two largest that fit, the largest that is tight, the smallest that does not fit.
  const bench=await benchmarksOn(db,e.id);
- let fit=[];
+ /** @type {any[]} */let fit=[];
  if(vram>0){
   const est=(await openModels(db)).map(m=>({...m,r:estimateLlmMemory({paramsB:m.paramsB,quant:QUANT,vramGiB:vram})})).sort((a,b)=>a.paramsB-b.paramsB);
   const fits=est.filter(x=>x.r.verdict==='fits'),tight=est.filter(x=>x.r.verdict==='tight'),no=est.filter(x=>x.r.verdict==='does_not_fit');

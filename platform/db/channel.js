@@ -14,9 +14,9 @@ const json=(s,fallback)=>{if(s===null||s===undefined)return fallback;try{return 
 /** @param {any} r @returns {Entity} */
 export const entityRow=r=>({id:r.id,vertical:r.vertical,type:r.type,slug:r.slug,names:json(r.names,{}),descriptions:json(r.descriptions,{}),official_urls:json(r.official_urls,[]),image_url:r.image_url??null,status:r.status,index_state:r.index_state||'auto',updated_at:Number(r.updated_at)});
 const ENTITY_COLS='id,vertical,type,slug,names,descriptions,official_urls,image_url,status,index_state,updated_at';
-/** @param {D1} db @param {string} sql @param {any[]} params */
+/** @param {D1} db @param {string} sql @param {any[]} params @returns {Promise<any[]>} */
 const all=async(db,sql,params=[])=>(await db.prepare(sql).bind(...params).all()).results||[];
-/** Run an IN (...) query in chunks. @param {D1} db @param {string[]} ids @param {(ph:string)=>string} sql @param {any[]} [pre] @param {any[]} [post] */
+/** Run an IN (...) query in chunks. @param {D1} db @param {string[]} ids @param {(ph:string)=>string} sql @param {any[]} [pre] @param {any[]} [post] @returns {Promise<any[]>} */
 async function inChunks(db,ids,sql,pre=[],post=[]){
  const out=[];const uniq=[...new Set(ids)];
  for(let i=0;i<uniq.length;i+=CHUNK){const c=uniq.slice(i,i+CHUNK);out.push(...await all(db,sql(qs(c.length)),[...pre,...c,...post]));}

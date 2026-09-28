@@ -31,6 +31,10 @@ jobs:
         run: python tools/regression.py
       - name: Service layer end-to-end (wrangler pages dev + local D1, no production resources)
         run: python tests/service-browser.py
+      - name: Nerulio 2.0 platform (strict JSDoc types, browser E2E on the dev server)
+        run: |
+          npm run typecheck
+          python tests/platform-browser.py
       - name: Decoded image quality and PDF preservation benchmarks
         run: |
           npm run benchmark

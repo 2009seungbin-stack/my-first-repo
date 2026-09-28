@@ -96,7 +96,7 @@ export function rolloutSummary(votes,now){
  const by=(/** @type {'country'|'plan_id'|'platform'} */ key)=>{
   /** @type {Record<string,any>} */const out={};
   for(const v of established)(out[v[key]]??=[]).push(v);
-  return Object.fromEntries(Object.entries(out).filter(([k])=>k!=='*').map(([k,l])=>[k,cell(l)]).sort((a,b)=>b[1].n-a[1].n));
+  return Object.fromEntries(Object.entries(out).filter(([k])=>k!=='*').map(([k,l])=>/** @type {[string,{n:number,has:number,pct:number|null}]} */([k,cell(l)])).sort((a,b)=>b[1].n-a[1].n));
  };
  /** @type {Record<string,any>} */const countryPlatform={};
  for(const v of established)if(v.country!=='*'&&v.platform!=='*')(countryPlatform[v.country]??={})[v.platform]=null;
