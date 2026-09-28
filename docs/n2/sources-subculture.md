@@ -147,7 +147,7 @@ Gaps
 Research-time access notes (not used by collectors): Laftel item pages were read via the JSON the page itself loads;
 Aniplus shop collab-café list via `api.aniplustv.com:3060/api/v2/offline-collabo`; ILLUSTAR via `api.illustar.net`;
 GSC pre-order calendar via `/en/calendar-preorder/list`. All are undocumented and were only observed responding — they
-are **not** automated. Jump Festa has a working RSS (`https://www.jumpfesta.com/feed/`), a candidate for a future FEED
+are **not** automated. After the web-search budget ran out, researchers located candidate pages through Naver/Yahoo Japan result pages (discovery only; every value was read from the official page itself). Jump Festa has a working RSS (`https://www.jumpfesta.com/feed/`), a candidate for a future FEED
 adapter. No manufacturer RSS was found (GSC `/en/news/rss` 500, ALTER `/rss/` 404, MegaHouse `/feed/` returns HTML).
 
 Staleness to watch: game version facts (fast SLA), BLEACH episode reschedules, the "coming soon" AGF Korea programme,
