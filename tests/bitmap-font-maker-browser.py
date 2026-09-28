@@ -14,6 +14,7 @@ from xml.etree import ElementTree as ET
 from PIL import Image
 from fontTools.ttLib import TTFont
 from playwright.sync_api import sync_playwright
+from font_hangul_visual import hand_kit
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 't7-browser'
@@ -210,6 +211,27 @@ def main():
                 assert composed['glyphs'][-1]['codepoint'] == 0xac00
                 p2.screenshot(path=str(OUT / 'font-hangul-composer-1440.png'), full_page=True)
                 ctx2.close()
+                ctx3 = browser.new_context(viewport={'width': 390, 'height': 844}, accept_downloads=True)
+                p3 = ctx3.new_page()
+                p3.goto(f'{BASE}/en/bitmap-font-maker/app/', wait_until='networkidle')
+                visual_project = {**project, 'hangulTemplates': hand_kit()}
+                p3.locator('#fontProjectFile').set_input_files(
+                    {'name': 'hand-kit.json', 'mimeType': 'application/json',
+                     'buffer': json.dumps(visual_project).encode('utf-8')})
+                p3.locator('#hangulComposer').evaluate('(element) => { element.open = true }')
+                assert '0 overlapping' in p3.locator('#fontHangulStatus').inner_text()
+                p3.screenshot(path=str(OUT / 'font-hangul-handkit-390.png'), full_page=True)
+                p3.locator('[data-action="ui-font-hangul-apply"]').click()
+                with p3.expect_download() as got_handkit:
+                    p3.locator('[data-action="ui-export-font"]').click()
+                handkit_zip = OUT / 'font-hangul-handkit.zip'
+                got_handkit.value.save_as(handkit_zip)
+                handkit_project = verify_zip(handkit_zip, 193)
+                glyph = next(g for g in handkit_project['glyphs'] if g['codepoint'] == 0xac00)
+                kit = hand_kit()
+                assert glyph['pixels'] == [int(a or b) for a, b in zip(
+                    kit['leading']['0']['vertical-open'], kit['vowel']['0']['open'])]
+                ctx3.close()
             ctx.close()
         mulmaru = ROOT / 'test-results/t7-research/mulmaru/unpacked/Mulmaru.ttf'
         if mulmaru.exists():
