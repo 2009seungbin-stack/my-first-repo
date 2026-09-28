@@ -23,6 +23,8 @@ import {renderFlag,FLAG_TARGET} from '../../platform/render/flag.js';
 import {channelUrl,nameOf} from '../../platform/render/ui.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
+import {sitemapEntities} from '../../platform/db/channel.js';
+import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report))?|(search|radar)/|(${V})/([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status))?)$`);
@@ -117,12 +119,37 @@ export async function renderPlatformPage(request,env,site){
 const html=(/** @type {string} */ body,cache=CACHE_CONTROL)=>new Response(body,{headers:{...PAGE_HEADERS,'cache-control':cache}});
 const redirect=(/** @type {string} */ to)=>new Response(null,{status:301,headers:{location:to,'cache-control':'public, max-age=3600'}});
 
+const SITEMAP=/^\/sitemap-n2-([a-z]+)\.xml$/;
+const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Record<string,string>} */({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'})[c]);
+/**
+ * Entity sitemap of one vertical: only channels that pass the content gate, both languages with
+ * hreflang alternates, lastmod = last visible change or post. Service status pages are listed too.
+ * @param {any} db @param {string} vertical @param {string} origin
+ */
+export async function renderSitemap(db,vertical,origin){
+ const rows=(await sitemapEntities(db,vertical)).filter(e=>indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
+ const urls=[];
+ for(const e of rows){
+  const paths=[''];if(e.type==='service')paths.push('status');
+  for(const p of paths){
+   const alt={ko:origin+channelUrl('ko',e)+p,en:origin+channelUrl('en',e)+p};
+   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc>${e.lastmod?`<lastmod>${new Date(e.lastmod).toISOString().slice(0,10)}</lastmod>`:''}<xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(alt.en)}"/></url>`);
+  }
+ }
+ return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
+}
+
 /** Edge cache in front of renderPlatformPage (GET only). The key is the canonical URL, so junk
  * parameters are answered by a cacheable redirect instead of a fresh render.
  * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
- if(!matchPlatformRoute(new URL(request.url).pathname))return null;
+ const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);
+ if(sm){
+  if(!PLATFORM_SITEMAPS.includes(`sitemap-n2-${sm[1]}.xml`)||!env.DB)return null;
+  return new Response(await renderSitemap(env.DB,sm[1],site.origin),{headers:{'content-type':'application/xml; charset=utf-8','cache-control':'public, max-age=3600, s-maxage=3600','x-content-type-options':'nosniff'}});
+ }
+ if(!matchPlatformRoute(path))return null;
  const cache=/** @type {any} */(globalThis).caches?.default;
  const key=new Request(request.url,{method:'GET'});
  const hit=cache?await cache.match(key):null;

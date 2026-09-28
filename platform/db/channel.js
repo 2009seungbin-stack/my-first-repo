@@ -4,7 +4,7 @@
  * Works on any object with the D1 binding API (Cloudflare D1, node:sqlite shim). */
 
 /** @typedef {{prepare(sql:string):any,batch?(stmts:any[]):Promise<any[]>}} D1 */
-/** @typedef {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>,descriptions:Record<string,string>,official_urls:{label:string,url:string}[],image_url:string|null,status:string,updated_at:number}} Entity */
+/** @typedef {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>,descriptions:Record<string,string>,official_urls:{label:string,url:string}[],image_url:string|null,status:string,index_state:string,updated_at:number}} Entity */
 /** @typedef {{entity_id:string,property:string,value:any,unit:string|null,verification:string,region:string,language:string,platform:string,plan:string,source_id:string|null,observed_at:number,note:string|null}} Fact */
 
 const CHUNK=40;
@@ -12,8 +12,8 @@ const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
 /** @param {string|null|undefined} s @param {any} fallback */
 const json=(s,fallback)=>{if(s===null||s===undefined)return fallback;try{return JSON.parse(s);}catch{return fallback;}};
 /** @param {any} r @returns {Entity} */
-export const entityRow=r=>({id:r.id,vertical:r.vertical,type:r.type,slug:r.slug,names:json(r.names,{}),descriptions:json(r.descriptions,{}),official_urls:json(r.official_urls,[]),image_url:r.image_url??null,status:r.status,updated_at:Number(r.updated_at)});
-const ENTITY_COLS='id,vertical,type,slug,names,descriptions,official_urls,image_url,status,updated_at';
+export const entityRow=r=>({id:r.id,vertical:r.vertical,type:r.type,slug:r.slug,names:json(r.names,{}),descriptions:json(r.descriptions,{}),official_urls:json(r.official_urls,[]),image_url:r.image_url??null,status:r.status,index_state:r.index_state||'auto',updated_at:Number(r.updated_at)});
+const ENTITY_COLS='id,vertical,type,slug,names,descriptions,official_urls,image_url,status,index_state,updated_at';
 /** @param {D1} db @param {string} sql @param {any[]} params */
 const all=async(db,sql,params=[])=>(await db.prepare(sql).bind(...params).all()).results||[];
 /** Run an IN (...) query in chunks. @param {D1} db @param {string[]} ids @param {(ph:string)=>string} sql @param {any[]} [pre] @param {any[]} [post] */
@@ -259,7 +259,8 @@ export async function searchEntities(db,q,o={}){
  if(!norm)return [];
  /** @type {Map<string,number>} */const score=new Map();
  const add=(/** @type {string} */ id,/** @type {number} */ s)=>score.set(id,Math.max(score.get(id)||0,s));
- for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm=? OR norm LIKE ? ESCAPE '\\' LIMIT 60`,[norm,likeEscape(norm)+'%']))add(String(r.entity_id),r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length));
+ // Prefix as an index range (LIKE cannot use the BINARY index on norm).
+ for(const r of await all(db,`SELECT entity_id,norm FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60`,[norm,norm+'\u{10FFFF}']))add(String(r.entity_id),r.norm===norm?100:60-Math.min(40,String(r.norm).length-norm.length));
  if([...q.trim()].length>=3){
   const phrase='"'+q.trim().replace(/"/g,'""')+'"';
   try{for(const [i,r] of (await all(db,`SELECT doc_key FROM search_docs WHERE search_docs MATCH ? ORDER BY bm25(search_docs,0,0,0,0,10,1) LIMIT 60`,[phrase])).entries()){const k=String(r.doc_key);if(k.startsWith('entity:'))add(k.slice(7),40-Math.min(39,i*0.5));}}catch{}
@@ -286,4 +287,24 @@ export async function upcomingEvents(db,o){
   WHERE ev.starts_at BETWEEN ? AND ? AND ev.status NOT IN ('cancelled','ended') AND e.status='active'${o.vertical?' AND e.vertical=?':''} GROUP BY ev.id ORDER BY ev.starts_at LIMIT ?`,[o.from,o.to,...(o.vertical?[o.vertical]:[]),o.limit??40]);
  const ents=await entitiesByIds(db,rows.map(r=>String(r.eid)));
  return rows.map(r=>({id:Number(r.id),kind:String(r.kind),title:json(r.title,{}),starts_at:Number(r.starts_at),precision:String(r.date_precision),url:r.url??null,verification:String(r.verification),entity:ents.get(String(r.eid))||null})).filter(r=>r.entity);
+}
+
+/* ---------- SEO ---------- */
+
+/** Content counts of one entity for the content gate (platform/seo.js). @param {D1} db @param {string} id */
+export async function contentCounts(db,id){
+ const r=await db.prepare(`SELECT (SELECT COUNT(*) FROM facts WHERE entity_id=?1 AND is_current=1) AS facts,(SELECT COUNT(*) FROM relations WHERE subject_id=?1 AND valid_until IS NULL)+(SELECT COUNT(*) FROM relations WHERE object_id=?1 AND valid_until IS NULL) AS relations,
+  (SELECT COUNT(*) FROM discussions WHERE entity_id=?1 AND status='published') AS posts`).bind(id).first();
+ return {facts:Number(r?.facts||0),relations:Number(r?.relations||0),posts:Number(r?.posts||0)};
+}
+/** Every active entity of a vertical with its content counts and last change (entity sitemaps). @param {D1} db @param {string} vertical */
+export async function sitemapEntities(db,vertical){
+ const rows=await all(db,`SELECT e.id,e.vertical,e.type,e.slug,e.names,e.descriptions,e.index_state,e.updated_at,
+  (SELECT COUNT(*) FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AS facts,
+  (SELECT COUNT(*) FROM relations r WHERE r.subject_id=e.id AND r.valid_until IS NULL)+(SELECT COUNT(*) FROM relations r WHERE r.object_id=e.id AND r.valid_until IS NULL) AS relations,
+  (SELECT COUNT(*) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS posts,
+  (SELECT MAX(d.last_activity_at) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS active_at
+  FROM entities e WHERE e.vertical=? AND e.status='active' ORDER BY e.id`,[vertical]);
+ return rows.map(r=>({id:String(r.id),vertical:String(r.vertical),type:String(r.type),slug:String(r.slug),names:json(r.names,{}),descriptions:json(r.descriptions,{}),index_state:String(r.index_state||'auto'),
+  lastmod:Math.max(Number(r.updated_at)||0,Number(r.active_at)||0),facts:Number(r.facts),relations:Number(r.relations),posts:Number(r.posts)}));
 }

@@ -1,4 +1,5 @@
 import {mayPromote} from '../src/capabilities.js';
+import {PLATFORM_SITEMAPS} from '../platform/seo.js';
 import {verificationHead,notFound} from './growth-build.mjs';
 // Sitemap index + per-area sitemaps with hreflang and real lastmod (tools/sitemaps.mjs, tools/lastmod.mjs).
 import {sitemapFiles,allPagesSitemap,SITEMAP_INDEX} from './sitemaps.mjs';import {lastmodResolver,pageHashes} from './lastmod.mjs';
@@ -129,7 +130,7 @@ export async function build(options={}){
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
- for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod})))await writeFile(path.join(dist,file),xml);
+ for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod,dynamic:config.platform?PLATFORM_SITEMAPS:[]})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
  // The commit this build is made from (Cloudflare Pages / GitHub Actions), so tools/live-check.mjs can
  // wait until production serves this build before it checks it.

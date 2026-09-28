@@ -207,3 +207,33 @@ test('status, history and write pages render; status is only for services',{skip
  assert(!w2.includes('구조화 리포트'),'no report form where there is nothing to report on');
  assert(!w2.includes('value="patch"'),'한글패치 tag only on game channels');
 });
+
+test('content gate: thin name-only channels are noindex and left out of the entity sitemaps',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const {renderSitemap}=await import('../server/platform/pages.js');
+ const xml=await renderSitemap(d,'hardware','https://nerulio.com');
+ assert(xml.startsWith('<?xml')&&xml.includes('https://nerulio.com/ko/hardware/rtx-5070/')&&xml.includes('hreflang="en"'));
+ const ai=await renderSitemap(d,'ai','https://nerulio.com');
+ assert(ai.includes('/ko/ai/claude/status'),'service status pages are listed');
+ // A company page with only a name and a relation or two is not indexable.
+ const thin=(await d.prepare("SELECT e.slug FROM entities e WHERE e.type='org' AND NOT EXISTS (SELECT 1 FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AND e.descriptions='{}' LIMIT 1").first());
+ if(thin){
+  const {out}=await channel('games',thin.slug);
+  assert(out.includes('noindex'),`${thin.slug} is thin`);
+  assert(!(await renderSitemap(d,'games','https://nerulio.com')).includes(`/games/${thin.slug}/`));
+ }
+ assert(!(await channel('hardware','rtx-5070')).out.includes('noindex'),'a rich channel is indexed');
+});
+
+test('per-page queries use indexes (D1 bills rows read)',{skip:!sqliteAvailable},async()=>{
+ const d=D1Shim.migrated();
+ const plan=(sql,...p)=>d.raw.prepare('EXPLAIN QUERY PLAN '+sql).all(...p).map(r=>r.detail).join(' | ');
+ for(const [name,sql,params] of [
+  ['popular channels',"SELECT e.id,COUNT(d.id) FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.created_at>=? AND e.status='active' GROUP BY e.id",[0]],
+  ['today count',"SELECT COUNT(*) FROM discussions WHERE entity_id=? AND status='published' AND created_at>=?",['a',0]],
+  ['board',"SELECT id FROM discussions d WHERE d.entity_id=? AND d.status IN ('published','locked') ORDER BY d.pinned DESC,d.post_no DESC LIMIT 31",['a']],
+  ['by tag',"SELECT id FROM discussions d WHERE d.status='published' AND d.kind='report' ORDER BY d.created_at DESC LIMIT 6",[]],
+  ['alias prefix','SELECT entity_id FROM entity_aliases WHERE norm>=? AND norm<? LIMIT 60',['a','b']],
+  ['releases','SELECT * FROM versions WHERE released_at BETWEEN ? AND ?',[0,1]],
+ ]){const p=plan(sql,...params);assert(!/\bSCAN (d|discussions|entity_aliases|versions)\b/.test(p),`${name}: ${p}`);}
+});

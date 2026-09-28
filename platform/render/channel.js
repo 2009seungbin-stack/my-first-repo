@@ -6,7 +6,8 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,signInUrl} from './ui.js';
 import {compact} from './format.js';
-import {factsFor,channelPosts,channelStats,recentTitles,SORTS} from '../db/channel.js';
+import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,SORTS} from '../db/channel.js';
+import {indexable} from '../seo.js';
 import {panelFor} from './panels/index.js';
 import {POST_KINDS,writableKinds} from '../community.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
@@ -35,7 +36,9 @@ export async function loadChannel(db,entity,o){
  const board=await channelPosts(db,entity.id,{kind,sort,best:!!o.best,page:o.page||1,limit:PAGE_SIZE,now:o.now});
  const stats=await channelStats(db,entity.id,dayStart(o.now,o.l));
  const titles=await recentTitles(db,entity.id,o.now-2*864e5);
- return {entity,ctx,panel,data,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
+ const counts=await contentCounts(db,entity.id);
+ const index=indexable(entity,{...counts,description:!!(entity.descriptions[o.l]||entity.descriptions.en)});
+ return {entity,ctx,panel,data,index,kind,sort,best:!!o.best,page:Math.max(1,Math.floor(o.page||1)),board,stats,trending:trendingTerms(titles,nameOf(entity,o.l)),channels:o.channels||[]};
 }
 
 const STOP=new Set(['the','and','for','with','this','that','what','how','why','are','you','is','in','on','of','to','a','an','it','질문','후기','정리','이거','이게','그냥','근데','진짜','혹시','어떻게','뭐가','있나요','되나요','있음','없음','해봄','ㅋㅋ','ㅠㅠ','vs','다시','최신','새','후','이번','오늘','지금','같음','좋아짐','해봤는데']);
@@ -101,7 +104,7 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const other=l==='ko'?'en':'ko';
  const canonical=site.origin+(m.kind||m.sort!=='new'||m.best||m.page>1?q({}):base);
  return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},
-  noindex:!!(m.kind||m.sort!=='new'||m.best||m.page>1),channels:m.channels.map(c=>({...c,on:c.href===base})),scope:{name,id:e.id},body,
+  noindex:!!(m.kind||m.sort!=='new'||m.best||m.page>1)||!m.index,channels:m.channels.map(c=>({...c,on:c.href===base})),scope:{name,id:e.id},body,
   jsonld:{'@context':'https://schema.org','@type':'CollectionPage',name:title,url:site.origin+base,about:{'@type':'Thing',name}}});
 }
 /** Tool ids used in vertical configs → existing tool pages (ids without a page yet are not linked). */

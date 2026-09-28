@@ -18,7 +18,7 @@ export function serviceMeta(config){
 /** Static assets that must never wake the Worker, even in advertising builds. */
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
 /** Server-rendered platform prefixes (PLATFORM=on): community front and the vertical channels. */
-export const PLATFORM_ROUTES=Object.freeze(['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)));
+export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*']);
 export function serviceRoutes(config){
  // Without ads only /api/* (and, with PLATFORM=on, the platform pages) is dynamic. With ads, HTML also
  // needs a per-response nonce. /_worker.js/* is routed only so the Worker can refuse to serve its own source.

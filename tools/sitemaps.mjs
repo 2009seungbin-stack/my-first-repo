@@ -54,7 +54,8 @@ const newest=dates=>dates.filter(Boolean).reduce((a,d)=>!a||Date.parse(d)>Date.p
 const guideDate=route=>guideLastmod(route.replace(/^(ko|en|ja)\//,''));
 /** Every sitemap file of a build: {file name: XML}. Without a site URL (preview builds) the index
  * is an empty urlset, as before, and nothing else is listed. */
-export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null}={}){
+/** `dynamic`: sitemap files served by the Worker (PLATFORM=on entity sitemaps), listed in the index only. */
+export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null,dynamic=[]}={}){
  if(!siteURL)return {[SITEMAP_INDEX]:urlset(''),[SITEMAP_FILES.images]:imageSitemap('')};
  const g=sitemapGroups(extra),out={},dated={};
  const add=(key,paths,dateOf)=>{
@@ -64,7 +65,7 @@ export function sitemapFiles(siteURL,{extra=[],lastmod=()=>null}={}){
  };
  add('game',g.game,lastmod);add('guides',g.guides,guideDate);add('tools',g.tools,lastmod);
  out[SITEMAP_FILES.images]=imageSitemap(siteURL);
- const entries=Object.keys(out).map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc>${dated[f]?`<lastmod>${dated[f]}</lastmod>`:''}</sitemap>`).join('');
+ const entries=Object.keys(out).map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc>${dated[f]?`<lastmod>${dated[f]}</lastmod>`:''}</sitemap>`).join('')+dynamic.map(f=>`<sitemap><loc>${esc(new URL(f,siteURL).href)}</loc></sitemap>`).join('');
  return {[SITEMAP_INDEX]:`<?xml version="1.0" encoding="UTF-8"?><sitemapindex ${NS}>${entries}</sitemapindex>`,...out};
 }
 /** Every page URL of the site in one urlset (game, guides, then tools): what IndexNow submits and
