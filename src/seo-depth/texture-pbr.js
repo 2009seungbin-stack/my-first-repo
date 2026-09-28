@@ -589,4 +589,317 @@ export default {
     sources:[S.godotImport,S.unityImport]}
   }
  },
+ // ------------------------------------------------------------------ Mask / ORM packer
+ 'texture-mask-packer':{
+  type:'conversion',
+  intent:{primary:'pack separate grey maps into one ORM / mask map texture for an engine',secondary:['Unity HDRP mask map layout','Unity URP metallic + smoothness','ORM for glTF and Godot','invert roughness to smoothness while packing','keep bytes under alpha 0'],
+   goal:'one PNG whose R, G, B and A hold the right maps in the order the engine reads, imported as linear data',input:'up to four grey maps of the same size (PNG, JPEG, WebP)',output:'FIRSTINPUT-mask.png',target:'Unity HDRP Mask Map, Unity URP Lit metallic/occlusion, Godot 4 ORMMaterial3D, glTF 2.0 metallicRoughness + occlusion (documentation; engine import not run)',support:'partial',
+   evidence:['src/mask-packer.js (Rec. 709 luminance per input, invert per channel, own PNG encoder)','src/task/mask-packer.js (presets: ignored → 0, unused alpha → 255; inputs fill channels in order)','docs/TEXTURE-LAB.md (ORM (10,80,220,255), custom (220,10,80,0), inverted R (245,80,220,255))','src/capabilities.js mask-packer checks'],
+   external:['Unity HDRP mask map table and import settings','Unity URP channel-packed texture','glTF 2.0 metallicRoughness/occlusion','Godot ORMMaterial3D']},
+  en:{
+   answer:'Channel packing puts separate grey maps into the R, G, B and A of one PNG in the order your engine reads: Unity HDRP Mask Map = R metallic, G ambient occlusion, B detail mask, A smoothness; Unity URP channel-packed texture = R metallic, G occlusion, A smoothness; ORM for glTF 2.0 and Godot 4 = R occlusion, G roughness, B metallic. Drop up to four same-size grey maps, pick a preset or map each channel yourself, tick Invert where the engine wants smoothness instead of roughness, and download `…-mask.png`. The packed bytes were measured; import into an engine was not run.',
+   concept:{title:'How the packer fills each channel',body:[
+    'Each input is read as a grey value per texel: its Rec. 709 luminance, 0.2126 R + 0.7152 G + 0.0722 B, rounded. For a real grey map (R = G = B) that is exactly the stored value, so a grey byte goes into its channel unchanged. A coloured image would be mixed down to luminance, which is rarely what you want for a data map.',
+    'Presets only choose where inputs go. Inputs fill the meaningful channels in the order you dropped them; a channel the layout ignores is written as 0 and an unused alpha as 255, so the file stays opaque. Nothing is inverted automatically: Unity\'s smoothness is 1 − roughness, so if you hold a roughness map you tick Invert on the smoothness channel (255 − value).',
+    'Alpha is data here. In an HDRP or URP texture, smoothness 0 means alpha 0. The packer writes the PNG with its own encoder (32 rows at a time), not through a canvas, so the metallic and AO bytes under those texels survive. Its inputs are read by the browser\'s image decoder, so feed it plain grey PNGs rather than files with transparency.',
+    'Import it as data. Unity\'s HDRP page asks you to disable `sRGB (Color Texture)` and use Texture Type Default for the mask map, and URP\'s page asks for sRGB off on its channel-packed texture; glTF 2.0 requires metallic and roughness values to be linear.'],
+    terms:[['Mask map','Unity HDRP\'s packed texture: R metallic, G AO, B detail mask, A smoothness.'],['ORM','Occlusion, roughness, metallic in R, G, B — glTF 2.0\'s order, also Godot\'s ORMMaterial3D.'],['Constant channel','A channel written as 0 or 255 everywhere because the layout needs no map there.'],['Invert','255 − value, the 8-bit form of 1 − x; turns roughness into smoothness and back.']]},
+   example:{title:'Example: the same three maps in three layouts',lead:'Three grey maps of one texel: AO 10, roughness 80, metallic 220. The mapping line is how the packer shows it (number = dropped file, ⁻ = inverted):',lines:[
+    'ORM (glTF 2.0, Godot 4)   files: ao, roughness, metallic     R←1 · G←2 · B←3 · A←255   → (10, 80, 220, 255)',
+    'Unity HDRP mask map       files: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    'Unity URP packed          files: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    '',
+    'smoothness = 255 − 80 = 175  (1 − 0.314 = 0.686)',
+    'Measured in the Lab: ORM preset (10, 80, 220, 255); custom mapping (220, 10, 80, 0); R inverted (245, 80, 220, 255)'],
+    after:'The HDRP and URP rows are identical here because there is no detail mask; HDRP would read B as detail mask, URP ignores it. With the HDRP preset and only three files dropped, the third file lands in B, so set B to 0 and A to file 3 with Invert, as shown.'},
+   mapping:{title:'Where each grey map goes',head:['Grey map you have','Unity HDRP Mask Map','Unity URP channel-packed','glTF 2.0 / Godot ORM'],rows:[
+    ['Metallic','R','R','B'],
+    ['Ambient occlusion','G','G (read when the texture is also assigned to Occlusion)','R'],
+    ['Roughness','A, inverted (smoothness)','A, inverted (smoothness)','G'],
+    ['Detail mask','B','—','—'],
+    ['No map for a channel','Constant 0 (e.g. B without detail)','B = 0','A = 255 (unused)']],
+    note:'Nerulio\'s "Unity metallic + smoothness" preset follows the Built-in Standard shader page (G and B unused) and writes G = 0. For URP with occlusion, choose Custom and map the AO file to G.'},
+   outputs:{rows:[
+    ['rock_metallic-mask.png','The packed texture, named after the first file you dropped: 8-bit RGBA PNG, RGB kept where alpha is 0.'],
+    ['rock_metallic-mask-channels.zip','Optional check: open the packed file in the [[game/channel-unpacker|channel unpacker]] and save its four planes to compare with your inputs.']]},
+   target:{title:'Use the packed texture in the engine',lead:'Steps from the engines\' documentation; Nerulio did not run these imports.',steps:[
+    'Unity HDRP: import the PNG, disable `sRGB (Color Texture)`, set Texture Type to `Default`, and assign it to Mask Map under Surface Inputs of the HDRP Lit material. Metallic, Smoothness and AO Remapping sliders appear once a mask map is assigned.',
+    'Unity URP: import with `sRGB (Color Texture)` off, set the Lit material\'s Workflow Mode to `Metallic`, assign the texture to Metallic Map and to Occlusion Map, and keep Smoothness › Source at `Metallic Alpha` (the default).',
+    'Godot 4: create an `ORMMaterial3D` and assign the ORM PNG as its ORM texture. A `StandardMaterial3D` can read the same file by setting `ao_texture_channel` to Red, `roughness_texture_channel` to Green and `metallic_texture_channel` to Blue.',
+    'glTF 2.0: reference the ORM image as the material\'s metallicRoughness texture and, if it carries occlusion, as its occlusion texture too; base colour stays a separate sRGB image.']},
+   verify:{steps:[
+    'Open the packed PNG in the [[game/channel-unpacker|channel unpacker]] with the same layout: each plane should match the grey map you put there (the capability check measured byte-identical channels on ambientCG grey maps), and inverted channels read 255 − value.',
+    'A constant channel shows min = max (0 or 255) in the channel stats.',
+    'In the engine, a rough area should look dull and a polished one sharp; if it is the other way round, the smoothness channel was not inverted.']},
+   trouble:{rows:[
+    ['Rough areas look polished in Unity','Roughness went into alpha without Invert','Unpack A: it equals the roughness map instead of 255 − roughness','Tick Invert on A and pack again'],
+    ['A map landed in the wrong channel','Inputs fill channels in the order they were dropped','The mapping line (e.g. `R←1 · G←2 · B←3 · A←255`) under the preview','Pick the right file in each channel\'s drop-down'],
+    ['"All channel inputs must have the same dimensions"','One grey map has another size','The file list shows each size','Export every map at the same size first'],
+    ['URP material goes dark in ambient light','The texture is assigned to Occlusion, and the Unity preset wrote G = 0','Unpack G: min = max = 0','Map the AO file to G with Custom, or leave Occlusion Map empty'],
+    ['Everything too glossy or too matte after import','The packed texture was imported with sRGB on','Unity: the texture\'s `sRGB (Color Texture)` checkbox','Turn sRGB off; the values are data'],
+    ['A channel has unexpected values','A coloured input was reduced to its luminance','The input is not grey (R, G, B differ)','Unpack the coloured source to its real channel first, then pack that plane']]},
+   alternatives:{rows:[
+    ['Godot\'s channel selectors, no packing','Godot only: `StandardMaterial3D` reads each map from a chosen channel of one texture, so an existing packed file in another order needs no repacking.'],
+    ['Your texturing application\'s export preset','The maps come from a painting tool that can export in the engine\'s layout directly; Godot\'s docs name Substance Painter and ArmorPaint (Unreal Engine preset) for ORM.'],
+    ['Shader Graph (Unity)','Your textures use a layout no preset covers; Unity\'s URP page points to Shader Graph for channels packed differently.']]},
+   versions:{body:['Measured on the Texture Lab (docs/TEXTURE-LAB.md): the ORM preset over AO 10 / roughness 80 / metallic 220 wrote (10, 80, 220, 255) from inside the Lab and from this page; a custom mapping gave (220, 10, 80, 0) and an inverted R (245, 80, 220, 255). The browser capability check packs three ambientCG grey maps and finds each channel byte-identical to its input. The layouts come from the documentation below (Godot\'s ORM order from its engine source); no engine import was run.'],
+    sources:[S.hdrpMask,S.hdrpLit,S.urpPacked,S.urpLit,S.gltfMR,S.godotOrm,S.godotSrc]}
+  },
+  ko:{
+   answer:'채널 패킹은 따로 있는 회색 맵을 엔진이 읽는 순서대로 PNG 한 장의 R·G·B·A에 넣는 일입니다. Unity HDRP 마스크 맵은 R 메탈릭·G 앰비언트 오클루전·B 디테일 마스크·A 스무스니스, Unity URP 채널 패킹 텍스처는 R 메탈릭·G 오클루전·A 스무스니스, glTF 2.0과 Godot 4용 ORM은 R 오클루전·G 러프니스·B 메탈릭입니다. 크기가 같은 회색 맵을 네 장까지 넣고 프리셋을 고르거나 채널을 직접 배치한 뒤, 엔진이 러프니스 대신 스무스니스를 원하는 채널에 "반전"을 체크하고 `…-mask.png`를 받으세요. 패킹된 바이트는 측정했고 엔진 가져오기는 실행하지 않았습니다.',
+   concept:{title:'패커가 채널을 채우는 방식',body:[
+    '입력은 텍셀마다 회색 값 하나로 읽힙니다. Rec. 709 휘도, 곧 0.2126 R + 0.7152 G + 0.0722 B를 반올림한 값입니다. 진짜 회색 맵(R = G = B)이면 저장된 값과 정확히 같으므로 회색 바이트가 바뀌지 않고 채널에 들어갑니다. 색이 있는 이미지는 휘도로 섞여 버리는데, 데이터 맵에서 원하는 결과는 거의 아닙니다.',
+    '프리셋은 입력이 들어갈 자리만 정합니다. 입력은 넣은 순서대로 의미 있는 채널을 채우고, 배치가 무시하는 채널은 0, 쓰지 않는 알파는 255로 써서 파일이 불투명하게 유지됩니다. 자동 반전은 없습니다. Unity의 스무스니스는 1 − 러프니스이므로 러프니스 맵을 가졌다면 스무스니스 채널에 "반전"(255 − 값)을 체크합니다.',
+    '여기서 알파는 데이터입니다. HDRP·URP 텍스처에서 스무스니스 0은 알파 0입니다. 패커는 캔버스가 아니라 자체 인코더로(32줄씩) PNG를 쓰므로 그런 텍셀 아래의 메탈릭·AO 바이트가 살아남습니다. 입력은 브라우저 이미지 디코더로 읽으므로 투명도가 있는 파일보다 평범한 회색 PNG를 넣으세요.',
+    '데이터로 가져오세요. Unity HDRP 문서는 마스크 맵의 `sRGB (Color Texture)`를 끄고 Texture Type을 Default로 두라고, URP 문서는 채널 패킹 텍스처의 sRGB를 끄라고 안내하며, glTF 2.0은 메탈릭·러프니스 값이 리니어여야 한다고 규정합니다.'],
+    terms:[['마스크 맵','Unity HDRP의 패킹 텍스처. R 메탈릭·G AO·B 디테일 마스크·A 스무스니스.'],['ORM','R·G·B에 오클루전·러프니스·메탈릭. glTF 2.0의 순서이며 Godot ORMMaterial3D도 같습니다.'],['상수 채널','배치상 맵이 필요 없어 전체를 0이나 255로 쓴 채널.'],['반전','255 − 값. 1 − x의 8비트 형태로, 러프니스와 스무스니스를 서로 바꿉니다.']]},
+   example:{title:'예시: 같은 맵 세 장을 세 가지 배치로',lead:'텍셀 하나의 회색 맵 세 장: AO 10, 러프니스 80, 메탈릭 220. 배치 줄은 패커가 보여 주는 형식입니다(숫자 = 넣은 파일, ⁻ = 반전).',lines:[
+    'ORM (glTF 2.0, Godot 4)   파일: ao, roughness, metallic     R←1 · G←2 · B←3 · A←255   → (10, 80, 220, 255)',
+    'Unity HDRP 마스크 맵      파일: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    'Unity URP 패킹            파일: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    '',
+    '스무스니스 = 255 − 80 = 175  (1 − 0.314 = 0.686)',
+    '랩 측정: ORM 프리셋 (10, 80, 220, 255), 직접 배치 (220, 10, 80, 0), R 반전 (245, 80, 220, 255)'],
+    after:'디테일 마스크가 없어서 HDRP와 URP 줄이 같습니다. HDRP는 B를 디테일 마스크로 읽고 URP는 무시합니다. HDRP 프리셋에 파일을 세 장만 넣으면 세 번째 파일이 B에 들어가므로, 위처럼 B를 0으로, A를 3번 파일 반전으로 바꾸세요.'},
+   mapping:{title:'회색 맵마다 들어갈 곳',head:['가진 회색 맵','Unity HDRP 마스크 맵','Unity URP 채널 패킹','glTF 2.0 / Godot ORM'],rows:[
+    ['메탈릭','R','R','B'],
+    ['앰비언트 오클루전','G','G(텍스처를 Occlusion에도 지정하면 읽음)','R'],
+    ['러프니스','A, 반전(스무스니스)','A, 반전(스무스니스)','G'],
+    ['디테일 마스크','B','—','—'],
+    ['채널에 넣을 맵이 없음','상수 0(예: 디테일 없는 B)','B = 0','A = 255(사용 안 함)']],
+    note:'Nerulio의 "Unity 메탈릭+스무스니스" 프리셋은 내장 Standard 셰이더 문서(G·B 사용 안 함)를 따라 G에 0을 씁니다. URP에서 오클루전도 쓰려면 직접 배치를 골라 AO 파일을 G에 두세요.'},
+   outputs:{rows:[
+    ['rock_metallic-mask.png','패킹한 텍스처. 처음 넣은 파일 이름을 따릅니다. 8비트 RGBA PNG이며 알파 0인 곳의 RGB도 유지됩니다.'],
+    ['rock_metallic-mask-channels.zip','선택 확인용: 패킹한 파일을 [[game/channel-unpacker|채널 분리기]]로 열어 네 평면을 저장하고 입력과 비교합니다.']]},
+   target:{title:'패킹한 텍스처를 엔진에서 쓰기',lead:'엔진 문서에 있는 단계이며 Nerulio가 이 가져오기를 실행하지는 않았습니다.',steps:[
+    'Unity HDRP: PNG를 가져와 `sRGB (Color Texture)`를 끄고 Texture Type을 `Default`로 둔 뒤, HDRP Lit 머티리얼의 Surface Inputs에서 Mask Map에 지정합니다. 마스크 맵을 지정하면 Metallic·Smoothness·AO Remapping 슬라이더가 나타납니다.',
+    'Unity URP: `sRGB (Color Texture)`를 끄고 가져와 Lit 머티리얼의 Workflow Mode를 `Metallic`으로 두고, 텍스처를 Metallic Map과 Occlusion Map에 지정한 뒤 Smoothness › Source는 기본값 `Metallic Alpha`로 둡니다.',
+    'Godot 4: `ORMMaterial3D`를 만들고 ORM PNG를 ORM 텍스처로 지정합니다. `StandardMaterial3D`도 `ao_texture_channel`을 Red, `roughness_texture_channel`을 Green, `metallic_texture_channel`을 Blue로 두면 같은 파일을 읽습니다.',
+    'glTF 2.0: ORM 이미지를 머티리얼의 metallicRoughness 텍스처로, 오클루전을 담았다면 오클루전 텍스처로도 참조합니다. 베이스 컬러는 별도의 sRGB 이미지로 둡니다.']},
+   verify:{steps:[
+    '패킹한 PNG를 같은 배치로 [[game/channel-unpacker|채널 분리기]]에서 엽니다. 각 평면이 넣은 회색 맵과 같아야 하고(기능 점검에서 ambientCG 회색 맵으로 바이트 동일 확인), 반전한 채널은 255 − 값이어야 합니다.',
+    '상수 채널은 채널 통계에서 최소 = 최대(0 또는 255)로 보입니다.',
+    '엔진에서 거친 곳은 흐리게, 연마된 곳은 날카롭게 보여야 합니다. 반대라면 스무스니스 채널을 반전하지 않은 것입니다.']},
+   trouble:{rows:[
+    ['Unity에서 거친 곳이 매끈해 보임','러프니스를 반전 없이 알파에 넣음','A를 분리하면 255 − 러프니스가 아니라 러프니스 그대로','A의 "반전"을 체크하고 다시 패킹'],
+    ['맵이 엉뚱한 채널에 들어감','입력은 넣은 순서대로 채널을 채움','미리보기 아래 배치 줄(예: `R←1 · G←2 · B←3 · A←255`)','채널마다 선택 상자에서 맞는 파일 고르기'],
+    ['"All channel inputs must have the same dimensions"','회색 맵 하나의 크기가 다름','파일 목록에 크기가 나옴','모든 맵을 먼저 같은 크기로 내보내기'],
+    ['URP 머티리얼이 주변광에서 어두워짐','텍스처를 Occlusion에 지정했는데 Unity 프리셋이 G에 0을 씀','G를 분리하면 최소 = 최대 = 0','직접 배치로 AO 파일을 G에 두거나 Occlusion Map을 비워 두기'],
+    ['가져온 뒤 전체가 너무 번들거리거나 무광','패킹 텍스처를 sRGB 켠 채로 가져옴','Unity 텍스처의 `sRGB (Color Texture)` 체크','sRGB 끄기. 값은 데이터임'],
+    ['채널 값이 예상과 다름','색이 있는 입력이 휘도로 줄어듦','입력이 회색이 아님(R·G·B가 다름)','색이 있는 원본을 먼저 실제 채널로 분리한 뒤 그 평면을 패킹']]},
+   alternatives:{rows:[
+    ['패킹 없이 Godot 채널 선택 사용','Godot 전용. `StandardMaterial3D`가 텍스처 한 장의 원하는 채널에서 맵을 읽으므로, 순서만 다른 기존 패킹 파일은 다시 패킹할 필요가 없습니다.'],
+    ['텍스처링 프로그램의 내보내기 프리셋','맵을 그린 도구가 엔진 배치로 바로 내보낼 수 있을 때. Godot 문서는 ORM용으로 Substance Painter와 ArmorPaint(Unreal Engine 프리셋)를 꼽습니다.'],
+    ['Shader Graph (Unity)','어느 프리셋에도 없는 배치를 쓸 때. Unity URP 문서도 채널을 다르게 패킹했다면 Shader Graph를 쓰라고 안내합니다.']]},
+   versions:{body:['텍스처 랩에서 측정(docs/TEXTURE-LAB.md): AO 10 / 러프니스 80 / 메탈릭 220에 ORM 프리셋을 쓰면 랩 안에서도 이 페이지에서도 (10, 80, 220, 255). 직접 배치는 (220, 10, 80, 0), R 반전은 (245, 80, 220, 255). 브라우저 기능 점검은 ambientCG 회색 맵 세 장을 패킹해 채널마다 입력과 바이트가 같음을 확인합니다. 배치는 아래 문서(Godot ORM 순서는 엔진 소스)에서 왔으며 엔진 가져오기는 실행하지 않았습니다.'],
+    sources:[S.hdrpMask,S.hdrpLit,S.urpPacked,S.urpLit,S.gltfMR,S.godotOrm,S.godotSrc]}
+  },
+  ja:{
+   answer:'チャンネルパックとは、別々のグレーマップを、エンジンが読む順番どおりにPNG 1枚のR・G・B・Aへ入れることです。Unity HDRPのマスクマップはRメタリック・Gアンビエントオクルージョン・Bディテールマスク・Aスムースネス、Unity URPのチャンネルパックテクスチャはRメタリック・Gオクルージョン・Aスムースネス、glTF 2.0とGodot 4向けのORMはRオクルージョン・Gラフネス・Bメタリックです。同じサイズのグレーマップを4枚まで入れ、プリセットを選ぶかチャンネルを手動で割り当て、エンジンがラフネスではなくスムースネスを求めるチャンネルに「反転」を付けて`…-mask.png`をダウンロードします。パック後のバイトは測定済みで、エンジンへの読み込みは実行していません。',
+   concept:{title:'パッカーが各チャンネルを埋める仕組み',body:[
+    '入力はテクセルごとに1つのグレー値として読まれます。Rec. 709の輝度、つまり0.2126 R + 0.7152 G + 0.0722 Bを丸めた値です。本物のグレーマップ（R = G = B）なら保存値とぴったり同じなので、グレーのバイトは変わらずチャンネルに入ります。色のある画像は輝度に混ぜられてしまい、データマップとしては望む結果になることはまずありません。',
+    'プリセットが決めるのは入力の行き先だけです。入力は入れた順に意味のあるチャンネルを埋め、配置が無視するチャンネルは0、使わないアルファは255で書くので、ファイルは不透明のままです。自動の反転はありません。Unityのスムースネスは1 − ラフネスなので、ラフネスマップを持っているならスムースネスのチャンネルで「反転」（255 − 値）を付けます。',
+    'ここではアルファもデータです。HDRP・URPのテクスチャではスムースネス0がアルファ0です。パッカーはCanvasではなく自前のエンコーダーで（32行ずつ）PNGを書くので、そうしたテクセルの下のメタリックやAOのバイトも残ります。入力はブラウザの画像デコーダーで読むため、透明度のあるファイルではなく普通のグレーPNGを入れてください。',
+    'データとして読み込みます。UnityのHDRPのページはマスクマップの`sRGB (Color Texture)`をオフにしTexture TypeをDefaultにするよう、URPのページはチャンネルパックテクスチャのsRGBをオフにするよう案内し、glTF 2.0はメタリックとラフネスの値をリニアと規定しています。'],
+    terms:[['マスクマップ','Unity HDRPのパックテクスチャ。Rメタリック・G AO・Bディテールマスク・Aスムースネス。'],['ORM','R・G・Bにオクルージョン・ラフネス・メタリック。glTF 2.0の順で、GodotのORMMaterial3Dも同じです。'],['定数チャンネル','配置上マップが要らないため、全体を0か255で書いたチャンネル。'],['反転','255 − 値。1 − xの8ビット版で、ラフネスとスムースネスを相互に変換します。']]},
+   example:{title:'例：同じ3枚のマップを3つの配置で',lead:'1テクセル分のグレーマップ3枚：AO 10、ラフネス 80、メタリック 220。割り当ての行はパッカーの表示形式です（数字 = 入れたファイル、⁻ = 反転）。',lines:[
+    'ORM (glTF 2.0, Godot 4)   ファイル: ao, roughness, metallic     R←1 · G←2 · B←3 · A←255   → (10, 80, 220, 255)',
+    'Unity HDRPマスクマップ    ファイル: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    'Unity URPパック           ファイル: metallic, ao, roughness     R←1 · G←2 · B←0 · A←3⁻    → (220, 10, 0, 175)',
+    '',
+    'スムースネス = 255 − 80 = 175  (1 − 0.314 = 0.686)',
+    'ラボで測定：ORMプリセット (10, 80, 220, 255)、手動割り当て (220, 10, 80, 0)、R反転 (245, 80, 220, 255)'],
+    after:'ディテールマスクがないので、HDRPとURPの行は同じです。HDRPはBをディテールマスクとして読み、URPは無視します。HDRPプリセットにファイルを3枚だけ入れると3枚目がBに入るため、上のようにBを0に、Aを3番のファイルの反転にしてください。'},
+   mapping:{title:'グレーマップごとの入れ先',head:['手元のグレーマップ','Unity HDRPマスクマップ','Unity URPチャンネルパック','glTF 2.0 / Godot ORM'],rows:[
+    ['メタリック','R','R','B'],
+    ['アンビエントオクルージョン','G','G（テクスチャをOcclusionにも割り当てると読まれる）','R'],
+    ['ラフネス','A、反転（スムースネス）','A、反転（スムースネス）','G'],
+    ['ディテールマスク','B','—','—'],
+    ['そのチャンネルに入れるマップがない','定数0（例：ディテールなしのB）','B = 0','A = 255（未使用）']],
+    note:'Nerulioの「Unity メタリック+スムースネス」プリセットは組み込みStandardシェーダーのページ（G・Bは未使用）に従い、Gに0を書きます。URPでオクルージョンも使うなら、手動割り当てでAOのファイルをGにしてください。'},
+   outputs:{rows:[
+    ['rock_metallic-mask.png','パックしたテクスチャ。最初に入れたファイルの名前になります。8ビットRGBAのPNGで、アルファ0の場所のRGBも保持します。'],
+    ['rock_metallic-mask-channels.zip','任意の確認用：パックしたファイルを[[game/channel-unpacker|チャンネル分解]]で開き、4つの平面を保存して入力と比べます。']]},
+   target:{title:'パックしたテクスチャをエンジンで使う',lead:'各エンジンのドキュメントにある手順で、Nerulioがこの読み込みを実行したわけではありません。',steps:[
+    'Unity HDRP：PNGを読み込み、`sRGB (Color Texture)`をオフ、Texture Typeを`Default`にして、HDRP LitマテリアルのSurface InputsでMask Mapに割り当てます。マスクマップを割り当てるとMetallic・Smoothness・AOのRemappingスライダーが現れます。',
+    'Unity URP：`sRGB (Color Texture)`をオフにして読み込み、LitマテリアルのWorkflow Modeを`Metallic`にし、テクスチャをMetallic MapとOcclusion Mapに割り当て、Smoothness › Sourceは既定の`Metallic Alpha`のままにします。',
+    'Godot 4：`ORMMaterial3D`を作り、ORMのPNGをORMテクスチャとして割り当てます。`StandardMaterial3D`でも、`ao_texture_channel`をRed、`roughness_texture_channel`をGreen、`metallic_texture_channel`をBlueにすれば同じファイルを読めます。',
+    'glTF 2.0：ORM画像をマテリアルのmetallicRoughnessテクスチャとして、オクルージョンを含むならオクルージョンテクスチャとしても参照します。ベースカラーは別のsRGB画像のままです。']},
+   verify:{steps:[
+    'パックしたPNGを同じ配置で[[game/channel-unpacker|チャンネル分解]]で開きます。各平面は入れたグレーマップと同じはずで（機能チェックでambientCGのグレーマップによりバイト一致を確認）、反転したチャンネルは255 − 値のはずです。',
+    '定数チャンネルは、チャンネルの統計で最小 = 最大（0か255）と表示されます。',
+    'エンジンで、粗い部分はにぶく、磨いた部分は鋭く見えるはずです。逆ならスムースネスのチャンネルを反転していません。']},
+   trouble:{rows:[
+    ['Unityで粗い部分がつるつるに見える','ラフネスを反転せずにアルファに入れた','Aを分解すると255 − ラフネスではなくラフネスそのもの','Aの「反転」を付けてパックし直す'],
+    ['マップが違うチャンネルに入った','入力は入れた順にチャンネルを埋める','プレビュー下の割り当ての行（例：`R←1 · G←2 · B←3 · A←255`）','各チャンネルのプルダウンで正しいファイルを選ぶ'],
+    ['「All channel inputs must have the same dimensions」','1枚だけサイズが違う','ファイル一覧に各サイズが出る','先に全マップを同じサイズで書き出す'],
+    ['URPのマテリアルが環境光で暗くなる','テクスチャをOcclusionにも割り当てたが、UnityプリセットがGに0を書いた','Gを分解すると最小 = 最大 = 0','手動割り当てでAOのファイルをGにするか、Occlusion Mapを空にする'],
+    ['読み込み後、全体がてかりすぎ・つや消しすぎ','パックテクスチャをsRGBオンのまま読み込んだ','Unityのテクスチャの`sRGB (Color Texture)`','sRGBをオフにする。値はデータ'],
+    ['チャンネルの値が想定と違う','色のある入力が輝度にまとめられた','入力がグレーでない（R・G・Bが異なる）','色のある元画像を先に実際のチャンネルへ分解し、その平面をパックする']]},
+   alternatives:{rows:[
+    ['パックせずGodotのチャンネル選択を使う','Godotのみ。`StandardMaterial3D`は1枚のテクスチャの任意のチャンネルからマップを読むため、順番が違うだけの既存のパックファイルはパックし直す必要がありません。'],
+    ['テクスチャリングソフトの書き出しプリセット','マップを描いたツールがエンジンの配置で直接書き出せるとき。GodotのドキュメントはORM用としてSubstance PainterとArmorPaint（Unreal Engineプリセット）を挙げています。'],
+    ['Shader Graph（Unity）','どのプリセットにもない配置を使うとき。UnityのURPのページも、チャンネルを別の順でパックした場合はShader Graphを案内しています。']]},
+   versions:{body:['テクスチャラボで測定（docs/TEXTURE-LAB.md）：AO 10 / ラフネス 80 / メタリック 220にORMプリセットを使うと、ラボ内でもこのページでも(10, 80, 220, 255)。手動割り当ては(220, 10, 80, 0)、R反転は(245, 80, 220, 255)。ブラウザの機能チェックはambientCGのグレーマップ3枚をパックし、各チャンネルが入力とバイト一致することを確認します。配置は下記のドキュメント（GodotのORMの順序はエンジンのソース）に基づき、エンジンへの読み込みは実行していません。'],
+    sources:[S.hdrpMask,S.hdrpLit,S.urpPacked,S.urpLit,S.gltfMR,S.godotOrm,S.godotSrc]}
+  }
+ },
+ // ------------------------------------------------------------------ Roughness → smoothness
+ 'game/roughness-to-smoothness':{
+  type:'conversion',
+  intent:{primary:'convert a roughness map to the smoothness map Unity expects',secondary:['smoothness = 1 − roughness','where Unity reads smoothness (metallic alpha, HDRP mask alpha)','linear vs sRGB for data maps','gloss maps are already smoothness'],
+   goal:'a smoothness channel equal to 255 − roughness, packed where the Unity material reads it and imported as linear data',input:'a roughness map (grey PNG) or the G channel of an ORM texture',output:'NAME-g-inverted-roughness.png, or a packed NAME-mask.png with smoothness in alpha',target:'Unity 6 URP Lit / Built-in Standard / HDRP Lit (documentation; import not run)',support:'partial',
+   evidence:['src/game/texture-channels.js (invertPlane: exactly 255 − v)','docs/TEXTURE-LAB.md (Roughness → smoothness inversion VERIFIED: saved plane equals 255 − roughness)','src/capabilities.js (roughness-to-smoothness check)','src/task/texture-lab-maps.js (file names)'],
+   external:['Unity CommonMaterial.hlsl PerceptualSmoothnessToPerceptualRoughness = 1 − s','URP Lit Smoothness Source','URP channel-packed texture','HDRP mask map','Unity sRGB (Color Texture)']},
+  en:{
+   answer:'Unity\'s metallic workflow reads smoothness, while glTF, Godot and most PBR texture sources give roughness. Unity\'s own shader library defines perceptual roughness as 1 − smoothness, so the conversion is an exact inversion: smoothness = 1 − roughness, which is 255 − value in an 8-bit PNG (roughness 80 → smoothness 175). Do it on linear data and put the result where Unity reads it — the alpha of the URP / Built-in metallic map or of the HDRP mask map. Nerulio inverts the channel byte-exactly in the browser (measured); Unity import was not run.',
+   concept:{title:'Roughness, smoothness and why gamma matters',body:[
+    'Both maps describe the same thing from opposite ends: roughness 0 is a mirror, roughness 1 fully rough; smoothness 1 is a mirror. In Unity\'s render-pipeline shader library, `PerceptualSmoothnessToPerceptualRoughness` returns 1 − smoothness, and only afterwards is the value squared (`PerceptualRoughnessToRoughness`). Both maps store the perceptual value an artist paints, so you invert — you do not square or take a square root.',
+    'Inversion is exact only on linear data. The bytes of a roughness map are numbers, not colours. If a map is treated as sRGB anywhere — a colour-managed editor or an importer with sRGB on — the values move: a smoothness byte of 175 means 0.686 as linear data but about 0.429 when decoded as sRGB. So import the result with `sRGB (Color Texture)` off, and do not "correct" it with a gamma curve.',
+    'Where the smoothness goes. URP Lit takes it from the alpha of the Metallic Map (Smoothness › Source `Metallic Alpha`, the default) or from the base map\'s alpha; URP\'s channel-packed texture and the Built-in Standard shader\'s metallic map both hold it in A; HDRP\'s Mask Map holds it in A. A lone grey smoothness PNG is only useful for a custom shader or for packing.',
+    'A gloss or glossiness map already is smoothness. Nerulio\'s name rules classify `gloss` as smoothness for that reason; inverting it would give roughness back.'],
+    terms:[['Roughness','0 = mirror-smooth, 1 (255) = fully rough; the glTF, Godot and Unreal convention.'],['Smoothness','Unity\'s inverse: 1 − roughness.'],['Perceptual roughness','The painted value; engines square it before lighting.'],['Linear (non-colour) data','Values used as stored, without sRGB decoding.']]},
+   example:{title:'Example: the numbers',lead:'Four roughness bytes, inverted exactly as the Lab writes them:',lines:[
+    'roughness byte   roughness   smoothness = 1 − r   smoothness byte (255 − v)',
+    '  0              0.000       1.000                255',
+    ' 80              0.314       0.686                175',
+    '128              0.502       0.498                127',
+    '255              1.000       0.000                  0',
+    '',
+    'Same byte 175 imported with sRGB (Color Texture) on:',
+    '175 / 255 = 0.686 → sRGB decode → 0.429   (a noticeably rougher surface)'],
+    after:'Inverting twice returns the original bytes, so the conversion loses nothing. The Lab measured it on the downloaded file: the saved plane equals 255 − roughness at every texel.'},
+   mapping:{title:'From your roughness to Unity\'s smoothness',head:['You have','In Nerulio','In Unity'],rows:[
+    ['A grey roughness PNG','Channels: Invert the channel labelled roughness, save it','A grey smoothness map (for packing or a custom shader)'],
+    ['Roughness + metallic PNGs','Mask packer, preset "Unity metallic + smoothness": R ← metallic, A ← roughness inverted','URP / Built-in: Metallic Map, smoothness from Metallic Alpha'],
+    ['Roughness + metallic + AO (+ detail)','Mask packer, preset "Unity HDRP mask": R metallic, G AO, B detail or 0, A roughness inverted','HDRP Lit: Mask Map'],
+    ['An ORM texture (roughness in G)','Channels, layout ORM: Invert G, save; then pack it into A','Alpha of the metallic map or mask map'],
+    ['A gloss / glossiness map','Nothing to invert: it is already smoothness','Pack it into A as it is']]},
+   outputs:{rows:[
+    ['rock_roughness-g-inverted-roughness.png','The inverted plane as an 8-bit grey PNG. The name keeps the source role (`roughness`) with `inverted-` in front, so its content is smoothness.'],
+    ['rock_metallic-mask.png','From the mask packer: metallic in R and the inverted roughness in A (plus AO and detail for HDRP), ready for the Unity material.']]},
+   target:{title:'Put the smoothness where Unity reads it',lead:'Unity steps follow the Unity 6 / HDRP 17.1 documentation; Nerulio did not run the import.',steps:[
+    'Open the [[texture-mask-packer|mask packer]], drop the metallic map first and the roughness map second, and choose "Unity metallic + smoothness" (URP / Built-in) or "Unity HDRP mask" (then map AO to G and set B to 0 if you have no detail mask).',
+    'Tick Invert on the A channel and download the packed PNG. For URP with ambient occlusion, switch to Custom and put the AO file in G.',
+    'In Unity, select the texture and turn off `sRGB (Color Texture)`; for HDRP also set Texture Type to `Default`.',
+    'URP Lit: Workflow Mode `Metallic`, assign the texture to Metallic Map (and Occlusion Map if G holds AO), keep Smoothness › Source on `Metallic Alpha`.',
+    'HDRP Lit: assign it to Mask Map under Surface Inputs; the Smoothness Remapping slider rescales the range if the result needs tuning.']},
+   verify:{steps:[
+    'Unpack the packed PNG in the [[game/channel-unpacker|channel unpacker]]: A should read 255 − roughness everywhere (a texel of roughness 80 reads 175).',
+    'In Unity, compare a known rough area (dull, broad highlight) with a polished one (sharp highlight). Reversed means the channel was not inverted, or was inverted twice.',
+    'Check the texture\'s Inspector: `sRGB (Color Texture)` must be off for the packed map.']},
+   trouble:{rows:[
+    ['Everything looks wet or mirror-like','Roughness went into alpha without inversion','Unpack A and compare it with the roughness map: identical instead of inverted','Tick Invert on A and pack again'],
+    ['Surfaces look rougher than in the texturing app','The packed map is imported as sRGB (175 is read as about 0.429)','Unity Inspector: `sRGB (Color Texture)` is on','Turn it off; do not apply a gamma curve to compensate'],
+    ['The smoothness map has no effect','Smoothness › Source is `Albedo Alpha`, or a tool saved the PNG without its alpha channel','Material Inspector; unpack the PNG and check that A is not constant 255','Set Source to `Metallic Alpha`, and save packed maps as RGBA PNG'],
+    ['A gloss map ended up rough where it was shiny','A gloss map is already smoothness and was inverted','The source file name contains `gloss` or `glossiness`','Pack it without Invert'],
+    ['URP material darkens in ambient light','The packed texture is also assigned to Occlusion but G was written as 0','Unpack G: constant 0','Put the AO file in G with Custom mapping, or leave Occlusion Map empty']]},
+   alternatives:{rows:[
+    ['Invert in an image editor','A grey 8-bit roughness map in an editor that does not colour-manage it: Invert gives the same 255 − v; you still have to pack it into alpha yourself.'],
+    ['Shader Graph (Unity)','You would rather keep the roughness texture and invert in the shader; Unity\'s URP page points to Shader Graph for layouts other than the default packing.'],
+    ['[[game/channel-unpacker|Channel unpacker]]','The roughness is inside another packed texture (an ORM\'s G) and has to come out first.']]},
+   versions:{body:['Measured on the Texture Lab (docs/TEXTURE-LAB.md): inverting G of a roughness map and downloading it gave a plane equal to 255 − roughness exactly, and the stage showed the in → out pair; the packer\'s inverted-R check gave (245, 80, 220, 255) from an AO of 10. The 1 − smoothness relation is from Unity\'s render-pipeline source; channel locations and import settings are from the Unity pages below. Unity import was not run.'],
+    sources:[S.unitySmooth,S.urpLit,S.urpPacked,S.hdrpMask,S.unityMetallic,S.unityImport]}
+  },
+  ko:{
+   answer:'Unity 메탈릭 워크플로는 스무스니스를 읽는데, glTF·Godot와 대부분의 PBR 텍스처 소스는 러프니스를 줍니다. Unity 셰이더 라이브러리는 지각 러프니스를 1 − 스무스니스로 정의하므로 변환은 정확한 반전입니다. 스무스니스 = 1 − 러프니스, 8비트 PNG로는 255 − 값입니다(러프니스 80 → 스무스니스 175). 리니어 데이터 상태에서 반전하고, 결과를 Unity가 읽는 곳, 곧 URP·내장 메탈릭 맵의 알파나 HDRP 마스크 맵의 알파에 넣으세요. Nerulio는 브라우저에서 채널을 바이트 단위로 정확히 반전하며(측정함), Unity 가져오기는 실행하지 않았습니다.',
+   concept:{title:'러프니스·스무스니스와 감마가 중요한 이유',body:[
+    '두 맵은 같은 성질을 반대쪽에서 나타냅니다. 러프니스 0은 거울, 1은 완전히 거칢이고, 스무스니스 1이 거울입니다. Unity 렌더 파이프라인 셰이더 라이브러리의 `PerceptualSmoothnessToPerceptualRoughness`는 1 − 스무스니스를 돌려주고, 그 뒤에야 값을 제곱합니다(`PerceptualRoughnessToRoughness`). 두 맵 모두 아티스트가 칠하는 지각 값을 저장하므로 반전만 하면 되고 제곱이나 제곱근은 하지 않습니다.',
+    '반전이 정확한 것은 리니어 데이터일 때뿐입니다. 러프니스 맵의 바이트는 색이 아니라 숫자입니다. 색 관리를 하는 편집기나 sRGB를 켠 임포터처럼 어디서든 sRGB로 취급되면 값이 움직입니다. 스무스니스 바이트 175는 리니어 데이터로는 0.686이지만 sRGB로 디코딩하면 약 0.429입니다. 그러니 결과는 `sRGB (Color Texture)`를 끄고 가져오고, 감마 곡선으로 "보정"하지 마세요.',
+    '스무스니스가 들어갈 곳. URP Lit은 Metallic Map의 알파(Smoothness › Source `Metallic Alpha`, 기본값)나 베이스 맵의 알파에서 읽습니다. URP 채널 패킹 텍스처와 내장 Standard 셰이더의 메탈릭 맵은 A에, HDRP 마스크 맵도 A에 담습니다. 회색 스무스니스 PNG 한 장은 커스텀 셰이더나 패킹에만 쓸모가 있습니다.',
+    '글로스(glossiness) 맵은 이미 스무스니스입니다. 그래서 Nerulio의 이름 규칙은 `gloss`를 스무스니스로 분류하며, 반전하면 러프니스로 되돌아갑니다.'],
+    terms:[['러프니스','0 = 거울처럼 매끈, 1(255) = 완전히 거칢. glTF·Godot·Unreal의 규약.'],['스무스니스','Unity의 반대값: 1 − 러프니스.'],['지각 러프니스','칠해서 저장하는 값. 엔진은 조명 계산 전에 제곱합니다.'],['리니어(비색상) 데이터','sRGB 디코딩 없이 저장된 그대로 쓰는 값.']]},
+   example:{title:'예시: 숫자로 보기',lead:'러프니스 바이트 네 개를 랩이 쓰는 방식 그대로 반전한 값입니다.',lines:[
+    '러프니스 바이트   러프니스   스무스니스 = 1 − r   스무스니스 바이트 (255 − v)',
+    '  0              0.000       1.000                255',
+    ' 80              0.314       0.686                175',
+    '128              0.502       0.498                127',
+    '255              1.000       0.000                  0',
+    '',
+    '같은 바이트 175를 sRGB (Color Texture) 켠 채로 가져오면:',
+    '175 / 255 = 0.686 → sRGB 디코딩 → 0.429   (눈에 띄게 거친 표면)'],
+    after:'두 번 반전하면 원래 바이트로 돌아오므로 변환에 손실이 없습니다. 랩은 내려받은 파일에서 저장된 평면이 모든 텍셀에서 255 − 러프니스와 같음을 측정했습니다.'},
+   mapping:{title:'러프니스에서 Unity 스무스니스로',head:['가진 것','Nerulio에서','Unity에서'],rows:[
+    ['회색 러프니스 PNG','채널: 러프니스로 표시된 채널을 반전해 저장','회색 스무스니스 맵(패킹이나 커스텀 셰이더용)'],
+    ['러프니스 + 메탈릭 PNG','마스크 패커, "Unity 메탈릭+스무스니스" 프리셋: R ← 메탈릭, A ← 러프니스 반전','URP·내장: Metallic Map, 스무스니스는 Metallic Alpha에서'],
+    ['러프니스 + 메탈릭 + AO(+ 디테일)','마스크 패커, "Unity HDRP 마스크" 프리셋: R 메탈릭, G AO, B 디테일 또는 0, A 러프니스 반전','HDRP Lit: Mask Map'],
+    ['ORM 텍스처(G에 러프니스)','채널, ORM 배치: G 반전 후 저장, 그다음 A에 패킹','메탈릭 맵이나 마스크 맵의 알파'],
+    ['글로스·glossiness 맵','반전할 것 없음: 이미 스무스니스','그대로 A에 패킹']]},
+   outputs:{rows:[
+    ['rock_roughness-g-inverted-roughness.png','반전한 평면을 담은 8비트 회색 PNG. 이름은 원래 역할(`roughness`) 앞에 `inverted-`가 붙으므로 내용은 스무스니스입니다.'],
+    ['rock_metallic-mask.png','마스크 패커 결과: R에 메탈릭, A에 반전한 러프니스(HDRP면 AO와 디테일도). Unity 머티리얼에 바로 씁니다.']]},
+   target:{title:'Unity가 읽는 곳에 스무스니스 넣기',lead:'Unity 단계는 Unity 6·HDRP 17.1 문서를 따르며, Nerulio가 가져오기를 실행하지는 않았습니다.',steps:[
+    '[[texture-mask-packer|마스크 패커]]를 열고 메탈릭 맵을 먼저, 러프니스 맵을 두 번째로 넣은 뒤 "Unity 메탈릭+스무스니스"(URP·내장)나 "Unity HDRP 마스크"를 고릅니다(HDRP에서 디테일 마스크가 없으면 AO를 G에, B는 0으로).',
+    'A 채널의 "반전"을 체크하고 패킹한 PNG를 받습니다. URP에서 앰비언트 오클루전도 쓰려면 직접 배치로 바꿔 AO 파일을 G에 둡니다.',
+    'Unity에서 텍스처를 선택해 `sRGB (Color Texture)`를 끕니다. HDRP는 Texture Type도 `Default`로 둡니다.',
+    'URP Lit: Workflow Mode `Metallic`, 텍스처를 Metallic Map(G에 AO가 있으면 Occlusion Map에도)에 지정하고 Smoothness › Source는 `Metallic Alpha`로 둡니다.',
+    'HDRP Lit: Surface Inputs의 Mask Map에 지정합니다. 결과를 조정해야 하면 Smoothness Remapping 슬라이더로 범위를 다시 맞춥니다.']},
+   verify:{steps:[
+    '패킹한 PNG를 [[game/channel-unpacker|채널 분리기]]에서 풉니다. A는 어디서나 255 − 러프니스여야 합니다(러프니스 80인 텍셀은 175).',
+    'Unity에서 거친 곳(흐리고 넓은 하이라이트)과 연마된 곳(날카로운 하이라이트)을 비교합니다. 반대라면 반전하지 않았거나 두 번 반전한 것입니다.',
+    '텍스처 인스펙터에서 패킹 맵의 `sRGB (Color Texture)`가 꺼져 있어야 합니다.']},
+   trouble:{rows:[
+    ['전부 젖은 듯하거나 거울처럼 보임','러프니스를 반전 없이 알파에 넣음','A를 풀어 러프니스 맵과 비교하면 반전되지 않고 똑같음','A의 "반전"을 체크하고 다시 패킹'],
+    ['텍스처링 프로그램보다 표면이 거칠어 보임','패킹 맵을 sRGB로 가져옴(175가 약 0.429로 읽힘)','Unity 인스펙터에서 `sRGB (Color Texture)`가 켜짐','끄기. 감마 곡선으로 보정하지 않기'],
+    ['스무스니스 맵이 효과가 없음','Smoothness › Source가 `Albedo Alpha`이거나, 어떤 도구가 알파 채널 없이 PNG를 저장함','머티리얼 인스펙터 확인, PNG를 풀어 A가 상수 255가 아닌지 확인','Source를 `Metallic Alpha`로, 패킹 맵은 RGBA PNG로 저장'],
+    ['반짝이던 곳이 거칠어진 글로스 맵','글로스 맵은 이미 스무스니스인데 반전함','원본 파일 이름에 `gloss`나 `glossiness`가 있음','반전 없이 패킹'],
+    ['URP 머티리얼이 주변광에서 어두워짐','패킹 텍스처를 Occlusion에도 지정했는데 G가 0으로 쓰임','G를 풀면 상수 0','직접 배치로 AO 파일을 G에 두거나 Occlusion Map 비우기']]},
+   alternatives:{rows:[
+    ['이미지 편집기에서 반전','색 관리를 하지 않는 편집기에서 8비트 회색 러프니스 맵을 다룰 때. 반전 결과는 똑같이 255 − v지만 알파로 패킹하는 것은 직접 해야 합니다.'],
+    ['Shader Graph (Unity)','러프니스 텍스처를 그대로 두고 셰이더에서 반전하고 싶을 때. Unity URP 문서는 기본 패킹과 다른 배치에 Shader Graph를 안내합니다.'],
+    ['[[game/channel-unpacker|채널 분리기]]','러프니스가 다른 패킹 텍스처(ORM의 G) 안에 있어 먼저 꺼내야 할 때.']]},
+   versions:{body:['텍스처 랩에서 측정(docs/TEXTURE-LAB.md): 러프니스 맵의 G를 반전해 내려받으면 평면이 정확히 255 − 러프니스였고, 단계 화면에 원본 → 결과가 나란히 나왔습니다. 패커의 R 반전 점검은 AO 10에서 (245, 80, 220, 255)를 냈습니다. 1 − 스무스니스 관계는 Unity 렌더 파이프라인 소스에서, 채널 위치와 가져오기 설정은 아래 Unity 문서에서 왔습니다. Unity 가져오기는 실행하지 않았습니다.'],
+    sources:[S.unitySmooth,S.urpLit,S.urpPacked,S.hdrpMask,S.unityMetallic,S.unityImport]}
+  },
+  ja:{
+   answer:'Unityのメタリックワークフローはスムースネスを読みますが、glTF・Godotや多くのPBRテクスチャの素材はラフネスを提供します。Unityのシェーダーライブラリは知覚ラフネスを1 − スムースネスと定義しているので、変換は厳密な反転です。スムースネス = 1 − ラフネス、8ビットのPNGでは255 − 値です（ラフネス80 → スムースネス175）。リニアなデータのまま反転し、結果をUnityが読む場所、つまりURP・組み込みのメタリックマップのアルファか、HDRPのマスクマップのアルファに入れます。Nerulioはブラウザ上でチャンネルをバイト単位で正確に反転し（測定済み）、Unityへの読み込みは実行していません。',
+   concept:{title:'ラフネス・スムースネスと、ガンマが問題になる理由',body:[
+    '2つのマップは同じ性質を逆側から表します。ラフネス0が鏡、1が完全に粗い面で、スムースネスは1が鏡です。Unityのレンダーパイプラインのシェーダーライブラリでは`PerceptualSmoothnessToPerceptualRoughness`が1 − スムースネスを返し、その後で値を2乗します（`PerceptualRoughnessToRoughness`）。どちらのマップもアーティストが描く知覚値を保存しているので、反転するだけで、2乗や平方根はとりません。',
+    '反転が厳密なのはリニアなデータのときだけです。ラフネスマップのバイトは色ではなく数値です。カラーマネジメントをする編集ソフトやsRGBをオンにしたインポーターなど、どこかでsRGBとして扱われると値がずれます。スムースネスのバイト175はリニアなら0.686ですが、sRGBとしてデコードすると約0.429です。結果は`sRGB (Color Texture)`をオフにして読み込み、ガンマカーブで「補正」しないでください。',
+    'スムースネスの入れ先。URPのLitはMetallic Mapのアルファ（Smoothness › Source `Metallic Alpha`、既定）かベースマップのアルファから読みます。URPのチャンネルパックテクスチャと組み込みStandardシェーダーのメタリックマップはAに、HDRPのマスクマップもAに持ちます。グレーのスムースネスPNG単体は、カスタムシェーダーかパック用にしか使えません。',
+    'グロス（glossiness）マップはすでにスムースネスです。そのためNerulioの名前のルールは`gloss`をスムースネスに分類し、反転するとラフネスに戻ってしまいます。'],
+    terms:[['ラフネス','0 = 鏡のように滑らか、1（255）= 完全に粗い。glTF・Godot・Unrealの規約。'],['スムースネス','Unityの逆値：1 − ラフネス。'],['知覚ラフネス','描いて保存する値。エンジンはライティングの前に2乗します。'],['リニア（非カラー）データ','sRGBデコードせず保存値のまま使う値。']]},
+   example:{title:'例：数値で見る',lead:'ラフネスのバイト4つを、ラボが書くとおりに反転した値です。',lines:[
+    'ラフネスのバイト  ラフネス    スムースネス = 1 − r   スムースネスのバイト (255 − v)',
+    '  0              0.000       1.000                255',
+    ' 80              0.314       0.686                175',
+    '128              0.502       0.498                127',
+    '255              1.000       0.000                  0',
+    '',
+    '同じバイト175をsRGB (Color Texture)オンで読み込むと：',
+    '175 / 255 = 0.686 → sRGBデコード → 0.429   （目に見えて粗い面）'],
+    after:'2回反転すると元のバイトに戻るので、変換で何も失いません。ラボはダウンロードしたファイルで、保存した平面がすべてのテクセルで255 − ラフネスと一致することを測定しました。'},
+   mapping:{title:'ラフネスからUnityのスムースネスへ',head:['手元にあるもの','Nerulioで','Unityで'],rows:[
+    ['グレーのラフネスPNG','チャンネル：ラフネスと表示されたチャンネルを反転して保存','グレーのスムースネスマップ（パックやカスタムシェーダー用）'],
+    ['ラフネス + メタリックのPNG','マスクパッカー、「Unity メタリック+スムースネス」プリセット：R ← メタリック、A ← ラフネス反転','URP・組み込み：Metallic Map、スムースネスはMetallic Alphaから'],
+    ['ラフネス + メタリック + AO（+ ディテール）','マスクパッカー、「Unity HDRP マスク」プリセット：Rメタリック、G AO、Bディテールか0、Aラフネス反転','HDRP Lit：Mask Map'],
+    ['ORMテクスチャ（Gにラフネス）','チャンネル、ORM配置：Gを反転して保存し、Aにパック','メタリックマップかマスクマップのアルファ'],
+    ['グロス・glossinessマップ','反転不要：すでにスムースネス','そのままAにパック']]},
+   outputs:{rows:[
+    ['rock_roughness-g-inverted-roughness.png','反転した平面の8ビットグレーPNG。名前は元の役割（`roughness`）の前に`inverted-`が付くので、中身はスムースネスです。'],
+    ['rock_metallic-mask.png','マスクパッカーの結果：Rにメタリック、Aに反転したラフネス（HDRPならAOとディテールも）。Unityのマテリアルにそのまま使えます。']]},
+   target:{title:'Unityが読む場所にスムースネスを入れる',lead:'Unityの手順はUnity 6・HDRP 17.1のドキュメントに従ったもので、Nerulioは読み込みを実行していません。',steps:[
+    '[[texture-mask-packer|マスクパッカー]]を開き、メタリックマップを1枚目、ラフネスマップを2枚目に入れて、「Unity メタリック+スムースネス」（URP・組み込み）か「Unity HDRP マスク」を選びます（HDRPでディテールマスクがなければAOをGに、Bは0に）。',
+    'Aチャンネルの「反転」を付け、パックしたPNGをダウンロードします。URPでアンビエントオクルージョンも使うなら手動割り当てに切り替え、AOのファイルをGにします。',
+    'Unityでテクスチャを選び、`sRGB (Color Texture)`をオフにします。HDRPではTexture Typeも`Default`にします。',
+    'URP Lit：Workflow Mode `Metallic`、テクスチャをMetallic Map（GにAOがあればOcclusion Mapにも）に割り当て、Smoothness › Sourceは`Metallic Alpha`のままにします。',
+    'HDRP Lit：Surface InputsのMask Mapに割り当てます。調整が必要ならSmoothness Remappingのスライダーで範囲を合わせ直します。']},
+   verify:{steps:[
+    'パックしたPNGを[[game/channel-unpacker|チャンネル分解]]で開きます。Aはどこでも255 − ラフネスのはずです（ラフネス80のテクセルは175）。',
+    'Unityで粗い部分（にぶく広いハイライト）と磨いた部分（鋭いハイライト）を比べます。逆なら反転していないか、2回反転しています。',
+    'テクスチャのインスペクターで、パックマップの`sRGB (Color Texture)`がオフになっているはずです。']},
+   trouble:{rows:[
+    ['全体が濡れたよう、鏡のように見える','ラフネスを反転せずアルファに入れた','Aを分解してラフネスマップと比べると、反転されず同じ','Aの「反転」を付けてパックし直す'],
+    ['テクスチャリングソフトより面が粗く見える','パックマップをsRGBで読み込んだ（175が約0.429になる）','Unityのインスペクターで`sRGB (Color Texture)`がオン','オフにする。ガンマカーブで補正しない'],
+    ['スムースネスマップが効かない','Smoothness › Sourceが`Albedo Alpha`、またはどこかのツールがアルファなしでPNGを保存した','マテリアルのインスペクターを確認し、PNGを分解してAが定数255でないか見る','Sourceを`Metallic Alpha`にし、パックマップはRGBAのPNGで保存'],
+    ['つやのあった部分が粗くなったグロスマップ','グロスマップはすでにスムースネスなのに反転した','元のファイル名に`gloss`や`glossiness`がある','反転せずにパックする'],
+    ['URPのマテリアルが環境光で暗くなる','パックテクスチャをOcclusionにも割り当てたが、Gが0で書かれている','Gを分解すると定数0','手動割り当てでAOのファイルをGにするか、Occlusion Mapを空にする']]},
+   alternatives:{rows:[
+    ['画像編集ソフトで反転','カラーマネジメントをしないソフトで8ビットのグレーのラフネスマップを扱うとき。反転結果は同じ255 − vですが、アルファへのパックは自分で行う必要があります。'],
+    ['Shader Graph（Unity）','ラフネスのテクスチャのまま、シェーダー内で反転したいとき。UnityのURPのページは、既定と違うパックにはShader Graphを案内しています。'],
+    ['[[game/channel-unpacker|チャンネル分解]]','ラフネスが別のパックテクスチャ（ORMのG）の中にあり、先に取り出す必要があるとき。']]},
+   versions:{body:['テクスチャラボで測定（docs/TEXTURE-LAB.md）：ラフネスマップのGを反転してダウンロードすると、平面は正確に255 − ラフネスで、ステージには元 → 結果が並んで表示されました。パッカーのR反転のチェックはAO 10から(245, 80, 220, 255)を出しました。1 − スムースネスの関係はUnityのレンダーパイプラインのソース、チャンネルの位置とインポート設定は下記のUnityのページに基づきます。Unityへの読み込みは実行していません。'],
+    sources:[S.unitySmooth,S.urpLit,S.urpPacked,S.hdrpMask,S.unityMetallic,S.unityImport]}
+  }
+ },
 };
