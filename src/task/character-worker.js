@@ -1,4 +1,6 @@
-import {countText} from './character-core.js';
+import {countText,quickCountText} from './character-core.js';
 self.onmessage=e=>{const {revision,text,settings}=e.data;
- try{self.postMessage({revision,result:countText(text,settings)});}catch(error){self.postMessage({revision,error:String(error?.message||error)});}
+ try{const start=performance.now(),quick=quickCountText(text,settings.locale);self.postMessage({revision,quick,quickMs:performance.now()-start});
+  const fullStart=performance.now(),result=countText(text,settings,quick);self.postMessage({revision,result,workerMs:performance.now()-fullStart});
+ }catch(error){self.postMessage({revision,error:String(error?.message||error)});}
 };

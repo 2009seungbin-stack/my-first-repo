@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
-import {countText,legacyBytes,X_RULE} from '../src/task/character-core.js';
+import {countText,quickCountText,legacyBytes,X_RULE} from '../src/task/character-core.js';
 import {parseTweet} from '../assets/vendor/twitter-text-3.1.0.mjs';
 
 const ICONV='C:/Program Files/Git/usr/bin/iconv.exe';
@@ -28,6 +28,12 @@ test('script proportions and literal forbidden terms are explicit',()=>{
  assert.equal(r.scripts.hangul,2);assert.equal(r.scripts.han,2);
  assert.deepEqual(r.forbidden,[{phrase:'한글',count:1},{phrase:'test',count:2}]);
  assert.deepEqual(r.repetitions,[{phrase:'test',count:1}]);
+});
+test('early exact grapheme result equals the detailed result',()=>{
+ for(const s of ['', 'A 한 😀\nＢ é', '👨‍👩‍👧‍👦🇯🇵\r\nカナ', '뷁\t한글']){
+  const quick=quickCountText(s,'ko'),full=countText(s,{locale:'ko'},quick);
+  for(const key of ['graphemes','noSpaces','noLineBreaks','content'])assert.equal(quick[key],full[key],`${key}: ${s}`);
+ }
 });
 test('official twitter-text weighted conformance fixtures',()=>{
  const python=spawnSync('python',['-c',`import yaml,json,sys;d=yaml.safe_load(open(sys.argv[1],encoding='utf8'))['tests'];sys.stdout.buffer.write(json.dumps([x for k in ('WeightedTweetsWithDiscountedEmojiCounterTest','UnicodeDirectionalMarkerCounterTest') for x in d[k]],ensure_ascii=False).encode('utf8'))`,'tests/fixtures/twitter-validate.yml'],{encoding:'utf8',maxBuffer:1024*1024});

@@ -45,7 +45,7 @@ function forbiddenPhrases(text,terms,locale){
  }
  return out;
 }
-export function countText(text,{locale='en',readRate=250,forbidden=[]}={}){
+export function quickCountText(text,locale='en'){
  const seg=new Intl.Segmenter(locale,{granularity:'grapheme'});
  let graphemes=0,noSpaces=0,noLineBreaks=0,content=0,half=0,full=0;
  for(const {segment:g} of seg.segment(text)){
@@ -55,15 +55,25 @@ export function countText(text,{locale='en',readRate=250,forbidden=[]}={}){
   if(/^[\x20-\x7e\uff61-\uff9f]$/u.test(g))half++;
   else if(/^[\uff01-\uff60\uffe0-\uffe6]$/u.test(g))full++;
  }
+ return {graphemes,noSpaces,noLineBreaks,content,half,full};
+}
+export function countText(text,{locale='en',readRate=250,forbidden=[]}={},quick=null){
+ const start=performance.now();
+ const {graphemes,noSpaces,noLineBreaks,content,half,full}=quick||quickCountText(text,locale);
  const logical=text.replace(/\r\n|\r/gu,'\n');
  const paragraphs=logical.trim()?logical.trim().split(/\n\s*\n+/u).filter(Boolean).length:0;
  const words=countWordLike(text,locale),sentences=text.trim()?countSegments(text,locale,'sentence'):0;
+ const linguisticMs=performance.now()-start;
  const x=parseTweet(text);
+ const xMs=performance.now()-start-linguisticMs;
  const legacy=Object.fromEntries(Object.keys(tables).map(name=>[name,legacyBytes(text,name)]));
+ const legacyMs=performance.now()-start-linguisticMs-xMs;
+ const extraStart=performance.now(),scriptCounts=scripts(text),repetitions=repeatPhrases(text,locale),flags=forbiddenPhrases(text,forbidden,locale);
  return {graphemes,noSpaces,noLineBreaks,content,codePoints:[...text].length,utf16:text.length,
   spaces:graphemes-noSpaces,lines:text?logical.split('\n').length:0,nonblankLines:countNonblankLines(text),paragraphs,words,sentences,
   utf8:new TextEncoder().encode(text).length,legacy,x:{weighted:x.weightedLength,remaining:xConfig.maxWeightedTweetLength-x.weightedLength,valid:x.valid,rule:X_RULE},
   paper:{ja:content?Math.ceil(content/400):0,ko:content?Math.ceil(content/200):0},
   readSeconds:words?Math.max(1,Math.ceil(words/Math.max(1,readRate)*60)):0,
-  scripts:scripts(text),width:{half,full,other:graphemes-half-full},repetitions:repeatPhrases(text,locale),forbidden:forbiddenPhrases(text,forbidden,locale)};
+  scripts:scriptCounts,width:{half,full,other:graphemes-half-full},repetitions,forbidden:flags,
+  profile:{linguisticMs,xMs,legacyMs,extraMs:performance.now()-extraStart}};
 }

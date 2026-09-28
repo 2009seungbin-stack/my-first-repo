@@ -28,6 +28,9 @@ def check(browser_type):
     byte_rows = page.locator('#characterBytes .cc-metric').all_inner_texts()
     assert '—' in byte_rows[1] and 'Cannot encode' in byte_rows[1], byte_rows
     assert '2' in byte_rows[2] and 'Cannot encode' not in byte_rows[2], byte_rows
+    page.locator('#characterForbidden').fill('뷁')
+    expect(page.locator('#characterFlagged')).to_contain_text('뷁 ×1')
+    page.locator('#characterForbidden').fill('')
     page.locator('#characterInput').fill('A 한 😀')
     expect(page.locator('#characterPrimary')).to_have_text('5')
     page.screenshot(path=str(OUT / f'{browser_type.name}-desktop.png'), full_page=True)
@@ -48,14 +51,14 @@ def check(browser_type):
     page.close()
     phone = browser.new_page(viewport={'width':390,'height':844}, device_scale_factor=1)
     phone.goto(BASE + '/ko/character-counter/', wait_until='networkidle')
-    phone.locator('#characterInput').fill('자기소개서 첫 문장입니다.\n다음 문장입니다.')
+    phone.locator('#fileInput').set_input_files(str(ROOT / 'tests/fixtures/character-corpus/korean-constitution-excerpt.txt'))
     expect(phone.locator('#characterPrimary')).not_to_have_text('0')
     assert phone.locator('body').evaluate('(e) => e.scrollWidth <= innerWidth')
     phone.screenshot(path=str(OUT / f'{browser_type.name}-mobile.png'), full_page=True)
     phone.goto(BASE + '/ja/character-counter/', wait_until='networkidle')
-    phone.locator('#characterInput').fill('吾輩は猫である。名前はまだ無い。')
+    phone.locator('#fileInput').set_input_files(str(ROOT / 'tests/fixtures/character-corpus/rashomon-excerpt.txt'))
     expect(phone.locator('#characterPrimary')).not_to_have_text('0')
-    assert '書記素' in phone.locator('#characterStatus').inner_text()
+    expect(phone.locator('#characterStatus')).to_contain_text('書記素')
     browser.close()
 
 with sync_playwright() as playwright:
