@@ -1009,6 +1009,9 @@ S.ja.uiLab.fontBakePreflight='選択した固有文字{count}字 · 最大1,024�
 S.ko.uiLab.fontBakeBeforeEdit='글꼴 굽기가 끝난 뒤 픽셀 글자를 편집할 수 있습니다. 문자 수나 크기를 줄여 주세요.';
 S.en.uiLab.fontBakeBeforeEdit='Bake the font before editing its pixels. Reduce the glyph count or size.';
 S.ja.uiLab.fontBakeBeforeEdit='フォントを焼き込んでから画素を編集できます。文字数かサイズを減らしてください。';
+S.ko.uiLab.fontBakeMeasured='고유 문자 {count}자 · 아틀라스 {width}×{height}px 1장 · 원시 RGBA 약 {mib} MiB · 이 기기 한 변 한도 {cap}px.';
+S.en.uiLab.fontBakeMeasured='{count} unique glyphs · one {width}×{height}px atlas · about {mib} MiB raw RGBA · {cap}px side cap on this device.';
+S.ja.uiLab.fontBakeMeasured='固有文字{count}字 · {width}×{height}pxのアトラス1枚 · 生RGBA約{mib} MiB · この端末の一辺上限{cap}px。';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

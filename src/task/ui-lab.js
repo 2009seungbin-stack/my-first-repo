@@ -486,6 +486,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   try{plan=planFontGrid(list.length,cellW,cellH,fontAtlasLimits());}
   catch(error){Im.release(probe);throw Error(T('fontBakeAtlasLimit'));}
   const {columns,width,height}=plan;
+  const preflight=$('#fontBakePreflight');if(preflight)preflight.textContent=T('fontBakeMeasured',{count:list.length,width,height,mib:(plan.rawRgbaBytes/1048576).toFixed(1),cap:fontAtlasLimits().maxSide});
   const canvas=Im.canvas(width,height),x=canvas.getContext('2d');
   x.font=`${f.size}px "${f.family}"`;x.textBaseline='alphabetic';x.fillStyle='#fff';
   Im.release(probe);
