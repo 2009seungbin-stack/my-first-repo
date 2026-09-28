@@ -1151,5 +1151,376 @@ export default {
    limits:['Spine / libGDXの.atlasファイルは読みません。','回転したフレームは読み込めますが、その書き出しはUNVERIFIEDです。','ポリゴン（メッシュ）アトラスは読みも書きもしません。'],
    versions:{body:['上の項目の意味は、Phaser 3.90のパーサーとAseprite CLIのjson-hash・json-array形式に一致します。TexturePackerのトリムモードが何を保存するかはTexturePacker公式ドキュメントにあります。アトラスデータの読み込みは実在アセット16件の確認に含まれています（既定の選択でフレームは正常）。'],sources:[S.phaserJson,S.aseCli,S.tpTrim]}
   }
+ },
+ // ------------------------------------------------------------------ game/sprite-sheet-to-png-frames
+ 'game/sprite-sheet-to-png-frames':{
+  type:'tool',
+  intent:{primary:'split a sprite sheet into separate PNG files, one per frame',secondary:['ZIP of frames','file naming and order','frames keep their box size'],
+   goal:'a ZIP with one PNG per frame, same size per grid cell, in frame order',input:'PNG sprite sheet',output:'<sheet>-frames.zip with <sheet>_001.png …',support:'full',
+   evidence:['src/task/sprite-lab.js framesZip (one PNG per frame canvas, name = frame name)','src/game/frame-ops.js framesFromRects (prefix, frameNumber, skipEmpty)','src/primitives.js frameNumber (zero-padded, at least 3 digits)','tests/game-landing-browser.py (each PNG equals its outlined region; Chromium and Firefox)'],
+   external:['ezgif sprite cutter: ZIP output']},
+  en:{
+   answer:'Turning a sprite sheet into separate PNG files means cutting it into frame boxes, by a grid with margin and spacing or along transparent gaps, and saving each box as its own image. Nerulio\'s classic Sprite Lab does this in your browser and downloads one ZIP with a PNG per outlined frame, named after the sheet and numbered in frame order (hero_001.png, hero_002.png …). Every PNG is its box copied pixel for pixel: no resampling, no position data. For animations, pivots or engine files, cut the same sheet in the Studio instead.',
+   concept:{title:'Boxes, sizes and names',body:[
+    'Loose frame files are what you want when a tool builds animations from a folder of images, or when frames are edited one by one elsewhere. The files carry no timing and no position: a frame\'s place is only its size and its transparent border. That is why each PNG keeps the full box, transparent margin included: frames cut from one grid all have the same size and still line up when a tool stacks them.',
+    'On an irregular sheet cut by transparent gaps, each box has its own size, so the PNGs differ in size and a tool that draws each from its corner will make the animation hop. Align the frames on one canvas first (the classic Lab has a normalize step; the Studio has [[normalize-sprite-frames|Align frames]]) if they must line up.',
+    'Names are the sheet\'s name plus a zero-padded number, at least three digits (more for sheets of 1,000 frames or more), so sorting by name gives frame order in every file manager. Cells without any pixels are skipped rather than written as blank images.'],
+    terms:[['Frame box','The rectangle cut from the sheet; the PNG has exactly this size.'],['Zero-padded number','001, 002 … 010, so that text sorting equals frame order.']]},
+   example:{title:'Example: a 256 × 128 sheet of 64 × 64 frames',lead:'No margin and no gaps, 4 columns × 2 rows:',lines:[
+    'grid 64 × 64            → 256 ÷ 64 = 4 columns, 128 ÷ 64 = 2 rows = 8 frames',
+    'download                → hero-frames.zip',
+    'files                   → hero_001.png … hero_008.png, each 64 × 64, row by row',
+    'pixel check             → 8 × 64 × 64 = 32,768 = 256 × 128: every pixel is in one file',
+    '',
+    'same art with a 1 px margin and 2 px gaps (263 × 131 sheet)',
+    '                        → still eight 64 × 64 PNGs; margin and gaps belong to no frame'],
+    after:'263 = 1 + 4 × 64 + 3 × 2 + 0 and 131 = 1 + 2 × 64 + 1 × 2 + 0 (no right or bottom margin). If boxes land on the art instead of the gaps, see [[game/sprite-sheet-slicing-off|slicing that is off]].'},
+   verify:{steps:[
+    'Before downloading, look at the box outlines on the sheet: each box should hold one whole sprite and nothing of its neighbour.',
+    'Open the ZIP: the number of PNGs equals the number of outlined boxes, and consecutive frames of a grid sheet have the same pixel size.',
+    'Step through the files in an image viewer in name order; the animation should run in the order you expect.']},
+   trouble:{rows:[
+    ['A PNG contains a sliver of its neighbour','The grid ignores a gap or a margin, so boxes overlap the next sprite','The outlines on the sheet cross the art','Set the gap and offset, or drag the box, before downloading'],
+    ['Frames hop when played from the files','Islands gave boxes of different sizes, and the tool draws each PNG from its corner','Compare the pixel sizes of two PNGs','Cut by an equal grid, or align the frames on one canvas before exporting'],
+    ['A frame you expected is missing','Its cell holds no opaque pixels, so it was skipped','Count the drawn cells on the sheet','Nothing to fix if the cell is blank; if it holds faint pixels, lower the alpha threshold'],
+    ['A coloured box surrounds every frame','The sheet has an opaque background colour','The corners of each PNG are not transparent','Make the background transparent first: [[game/remove-sprite-background|remove the sprite background]]']]},
+   alternatives:{rows:[
+    ['ezgif\'s sprite cutter','You also want JPG, BMP or WebP frames, or you continue in its GIF tools; the sheet is uploaded to ezgif\'s server. Compared on [[game/ezgif-sprite-cutter-alternative|ezgif alternative]].'],
+    ['The Studio\'s Sprite workspace','The frames are for a game engine: tags, timing, pivots and one packed atlas instead of loose files. Start at the [[sprite-slicer|sprite sheet slicer]].']]},
+   limits:['The ZIP holds PNGs only, with no position or timing data.','Loose frame files are a classic Sprite Lab export; the Studio does not write them yet.'],
+   versions:{body:['In the browser test suite each PNG of the ZIP was compared with its outlined region of a real CC0 sheet and matched pixel for pixel, in Chromium and Firefox. ezgif\'s output formats are quoted from its own page.'],sources:[S.ezCutter]}
+  },
+  ko:{
+   answer:'스프라이트 시트를 PNG 파일 여러 개로 나눈다는 건, 마진·간격이 있는 격자나 투명한 틈을 따라 프레임 상자로 자르고 상자마다 이미지 하나로 저장한다는 뜻입니다. Nerulio의 기존 스프라이트 랩은 이를 브라우저에서 하고, 윤곽을 그린 프레임마다 PNG 하나가 든 ZIP을 내려받게 합니다. 이름은 시트 이름에 프레임 순서 번호를 붙입니다(hero_001.png, hero_002.png …). 모든 PNG는 상자를 픽셀 그대로 복사한 것이며 다시 샘플링하지 않고 위치 정보도 없습니다. 애니메이션, 피벗, 엔진 파일이 필요하면 같은 시트를 Studio에서 자르세요.',
+   concept:{title:'상자, 크기, 이름',body:[
+    '낱장 프레임 파일은 이미지 폴더로 애니메이션을 만드는 도구에 넣거나, 프레임을 다른 곳에서 하나씩 편집할 때 필요합니다. 파일에는 타이밍도 위치도 없습니다. 프레임의 자리는 크기와 투명한 테두리뿐입니다. 그래서 PNG마다 투명 여백을 포함한 상자 전체를 유지합니다. 한 격자에서 자른 프레임은 모두 크기가 같아서, 도구가 겹쳐 쌓아도 맞습니다.',
+    '투명한 틈으로 자른 불규칙한 시트는 상자마다 크기가 달라 PNG 크기도 달라지고, 모서리를 기준으로 그리는 도구에서는 애니메이션이 튑니다. 맞춰야 한다면 먼저 한 캔버스에 정렬하세요(기존 랩의 정규화 단계, 또는 Studio의 [[normalize-sprite-frames|프레임 정렬]]).',
+    '이름은 시트 이름 + 0으로 채운 번호(최소 세 자리, 프레임이 1,000개 이상이면 더 길게)라서, 어느 파일 관리자에서든 이름순 정렬이 프레임 순서와 같습니다. 픽셀이 하나도 없는 칸은 빈 이미지로 쓰지 않고 건너뜁니다.'],
+    terms:[['프레임 상자','시트에서 잘라낸 사각형. PNG는 정확히 이 크기.'],['0으로 채운 번호','001, 002 … 010처럼 써서 글자순 정렬이 프레임 순서와 같게 함.']]},
+   example:{title:'예시: 64 × 64 프레임으로 된 256 × 128 시트',lead:'마진과 간격 없이 4열 × 2행:',lines:[
+    '격자 64 × 64            → 256 ÷ 64 = 4열, 128 ÷ 64 = 2행 = 프레임 8개',
+    '내려받기                → hero-frames.zip',
+    '파일                    → hero_001.png … hero_008.png, 각 64 × 64, 행 순서',
+    '픽셀 검산               → 8 × 64 × 64 = 32,768 = 256 × 128: 모든 픽셀이 한 파일에 들어감',
+    '',
+    '같은 그림에 마진 1px, 간격 2px(263 × 131 시트)',
+    '                        → 여전히 64 × 64 PNG 8개. 마진과 간격은 어느 프레임에도 속하지 않음'],
+    after:'263 = 1 + 4 × 64 + 3 × 2 + 0, 131 = 1 + 2 × 64 + 1 × 2 + 0입니다(오른쪽·아래 마진 없음). 상자가 틈이 아니라 그림 위에 놓이면 [[game/sprite-sheet-slicing-off|자르기가 어긋날 때]]를 보세요.'},
+   verify:{steps:[
+    '내려받기 전에 시트 위 상자 윤곽을 봅니다. 상자마다 스프라이트 하나가 온전히 들어 있고 이웃 것은 없어야 합니다.',
+    'ZIP을 엽니다. PNG 수가 윤곽 수와 같고, 격자 시트라면 이어진 프레임의 픽셀 크기가 같습니다.',
+    '이미지 뷰어에서 이름순으로 넘겨 봅니다. 기대한 순서대로 애니메이션이 이어져야 합니다.']},
+   trouble:{rows:[
+    ['PNG에 이웃 스프라이트 조각이 들어감','격자가 간격이나 마진을 무시해 상자가 다음 스프라이트에 겹침','시트 위 윤곽이 그림을 가로지름','내려받기 전에 간격·오프셋을 넣거나 상자를 드래그'],
+    ['파일로 재생하면 프레임이 튐','아일랜드로 잘라 상자 크기가 제각각이고, 도구가 PNG를 모서리 기준으로 그림','PNG 두 개의 픽셀 크기 비교','같은 크기 격자로 자르거나, 내보내기 전에 한 캔버스로 정렬'],
+    ['있어야 할 프레임이 없음','그 칸에 불투명 픽셀이 없어 건너뜀','시트에서 그림이 있는 칸 세기','빈 칸이면 정상. 옅은 픽셀이 있다면 알파 임계값을 낮추기'],
+    ['프레임마다 색 있는 상자가 둘러쌈','시트에 불투명한 배경색이 있음','PNG 모서리가 투명하지 않음','먼저 배경을 투명하게: [[game/remove-sprite-background|스프라이트 배경 제거]]']]},
+   alternatives:{rows:[
+    ['ezgif 스프라이트 커터','JPG, BMP, WebP 프레임도 필요하거나 이어서 GIF 도구를 쓸 때. 시트는 ezgif 서버로 업로드됩니다. 비교는 [[game/ezgif-sprite-cutter-alternative|ezgif 대안]]에 있습니다.'],
+    ['Studio의 스프라이트 작업 공간','프레임을 게임 엔진에 쓸 때: 낱장 파일 대신 태그, 타이밍, 피벗, 패킹된 아틀라스 하나. [[sprite-slicer|스프라이트 시트 자르기]]에서 시작하세요.']]},
+   limits:['ZIP에는 PNG만 들어가며 위치나 타이밍 정보는 없습니다.','낱장 프레임 파일은 기존 스프라이트 랩의 내보내기이며, Studio는 아직 쓰지 않습니다.'],
+   versions:{body:['브라우저 테스트에서 실제 CC0 시트로 만든 ZIP의 각 PNG를 윤곽 영역과 비교해 Chromium과 Firefox 모두 픽셀 단위로 일치했습니다. ezgif의 출력 형식은 ezgif 페이지에서 인용했습니다.'],sources:[S.ezCutter]}
+  },
+  ja:{
+   answer:'スプライトシートを個別のPNGファイルにするとは、マージンと間隔のあるグリッドか透明なすき間に沿ってフレームの枠に切り、枠ごとに1枚の画像として保存することです。Nerulioの従来のスプライトラボはこれをブラウザで行い、枠を付けたフレームごとに1枚のPNGを入れたZIPをダウンロードさせます。名前はシート名にフレーム順の番号を付けたもの（hero_001.png、hero_002.png …）です。どのPNGも枠をピクセルどおりに写したもので、再サンプリングも位置データもありません。アニメーションやピボット、エンジン用ファイルが要るなら、同じシートをStudioで切ってください。',
+   concept:{title:'枠・大きさ・名前',body:[
+    'ばらばらのフレーム画像が欲しいのは、画像のフォルダーからアニメーションを作るツールに渡すときや、フレームを別のところで1枚ずつ編集するときです。ファイルにはタイミングも位置もありません。フレームの位置を伝えるのは大きさと透明な縁だけです。だから各PNGは透明な余白を含めた枠全体を保ちます。1つのグリッドから切ったフレームはすべて同じ大きさなので、ツールが重ねてもそろいます。',
+    '透明なすき間で切った不規則なシートでは枠ごとに大きさが違い、PNGの大きさもばらばらになるため、角を基準に描くツールではアニメーションが跳ねます。そろえる必要があるなら、先に1つのキャンバスにそろえてください（従来のラボの正規化、またはStudioの[[normalize-sprite-frames|フレームをそろえる]]）。',
+    '名前はシート名 + ゼロ埋めの番号（最低3桁、1,000フレーム以上ならさらに桁が増える）なので、どのファイル管理ソフトでも名前順がフレーム順になります。ピクセルが1つもないセルは、空の画像として書かずに飛ばします。'],
+    terms:[['フレームの枠','シートから切り出す矩形。PNGはちょうどこの大きさ。'],['ゼロ埋めの番号','001、002 … 010のように書いて、文字順の並びをフレーム順と一致させる。']]},
+   example:{title:'例：64 × 64のフレームでできた256 × 128のシート',lead:'マージンも間隔もなく、4列 × 2行：',lines:[
+    'グリッド 64 × 64        → 256 ÷ 64 = 4列、128 ÷ 64 = 2行 = 8フレーム',
+    'ダウンロード            → hero-frames.zip',
+    'ファイル                → hero_001.png … hero_008.png、各 64 × 64、行ごとの順',
+    'ピクセルの検算          → 8 × 64 × 64 = 32,768 = 256 × 128：すべてのピクセルがどれか1枚に入る',
+    '',
+    '同じ絵にマージン1px・間隔2px（263 × 131のシート）',
+    '                        → やはり64 × 64のPNGが8枚。マージンと間隔はどのフレームにも属さない'],
+    after:'263 = 1 + 4 × 64 + 3 × 2 + 0、131 = 1 + 2 × 64 + 1 × 2 + 0 です（右と下のマージンなし）。枠がすき間ではなく絵にかかる場合は[[game/sprite-sheet-slicing-off|切り位置がずれるとき]]を参照してください。'},
+   verify:{steps:[
+    'ダウンロード前にシート上の枠を見ます。どの枠にもスプライトが1体まるごと入り、隣のものが入っていないはずです。',
+    'ZIPを開きます。PNGの数が枠の数と同じで、グリッドのシートなら連続するフレームのピクセルサイズが同じです。',
+    '画像ビューアーで名前順に送ってみます。思ったとおりの順でアニメーションが進むはずです。']},
+   trouble:{rows:[
+    ['PNGに隣のスプライトの切れ端が入る','グリッドが間隔やマージンを無視し、枠が隣のスプライトにかかっている','シート上の枠が絵を横切っている','ダウンロード前に間隔とオフセットを入れるか、枠をドラッグする'],
+    ['画像から再生するとフレームが跳ねる','島モードで枠の大きさがばらばらになり、ツールがPNGを角基準で描いている','2枚のPNGのピクセルサイズを比べる','同じ大きさのグリッドで切るか、書き出し前に1つのキャンバスにそろえる'],
+    ['あるはずのフレームがない','そのセルに不透明なピクセルがなく、飛ばされた','シート上で絵のあるセルを数える','空のセルなら正常。淡いピクセルがあるならアルファのしきい値を下げる'],
+    ['各フレームの周りに色の付いた枠が残る','シートに不透明な背景色がある','PNGの四隅が透明でない','先に背景を透明にする：[[game/remove-sprite-background|スプライトの背景を消す]]']]},
+   alternatives:{rows:[
+    ['ezgifのスプライトカッター','JPG・BMP・WebPのフレームも欲しい、あるいはそのままGIFツールを使うとき。シートはezgifのサーバーにアップロードされます。比較は[[game/ezgif-sprite-cutter-alternative|ezgifの代わり]]にあります。'],
+    ['Studioのスプライト作業画面','フレームをゲームエンジンで使うとき：ばらばらのファイルではなく、タグ・タイミング・ピボットと1枚のパック済みアトラス。[[sprite-slicer|スプライトシート分割]]から始めてください。']]},
+   limits:['ZIPに入るのはPNGだけで、位置やタイミングのデータはありません。','ばらばらのフレーム画像は従来のスプライトラボの書き出しで、Studioはまだ書き出しません。'],
+   versions:{body:['ブラウザのテストで、実在のCC0シートから作ったZIPの各PNGを枠の領域と比べ、ChromiumとFirefoxの両方でピクセル単位で一致しました。ezgifの出力形式はezgif自身のページから引用しています。'],sources:[S.ezCutter]}
+  }
+ },
+ // ------------------------------------------------------------------ game/sprite-sheet-slicing-off
+ 'game/sprite-sheet-slicing-off':{
+  type:'troubleshoot',
+  intent:{primary:'find out why sprite sheet slices are misaligned and fix the grid',secondary:['wrong cell size','margin and spacing','non-uniform sheets','trimmed atlases vs grids'],
+   goal:'know which of cell, margin, spacing or sheet type is wrong, with the numbers to type',input:'a sprite sheet that slices wrongly (in any tool)',output:'correct cell, offset and gap values, or the right cut method',support:'partial',
+   evidence:['src/game/grid-detect.js (count = floor((dim − 2·margin + spacing) ÷ pitch), MAX_MARGIN 64, spacing ≤ min(16, cell/4))','src/studio/sprite/import-plan.js customFit','src/studio/sprite/grid-rerank.js (tank.png 288×26, samurai 48×96, hit-yellow 1024×8 cases)'],
+   external:['Unity 6 Sprite Editor Offset and Padding','Godot Add frames from a Sprite Sheet']},
+  en:{
+   answer:'Slices that are off come from one of five causes: the wrong cell size (sprites split or two per frame), spacing between cells that the grid ignores (the error grows by the gap every column), a margin around the sheet (every cut off by the same amount), a sheet with no regular grid, or a packed atlas that never had one. Measure before re-cutting: where the cut first goes wrong and how fast the error grows tell you which number is wrong. Nerulio\'s import measures cell, margin and spacing from the transparent gaps and previews the cut first; it cannot rebuild a trimmed atlas without its data file.',
+   concept:{title:'Five causes, each with its own pattern',body:[
+    'Wrong cell size shows at once: the frame count is double or half, or cuts land inside sprites from the second column on. The width of the sheet divided by the number of frames is only the cell when there are no gaps and no margin.',
+    'Spacing ignored makes the error grow: with a gap of g pixels, column n is off by n × g, so the first column is right and the last one can be off by half a frame. A margin ignored makes the error constant: every cut is early by the margin, and the last column or row shows extra pixels. Unity\'s Sprite Editor calls the same two numbers Offset and Padding; Nerulio calls them Offset X / Y and Gap X / Y.',
+    'Some sheets have no single grid: sprites of different sizes packed side by side, or cells whose content sticks out. Any grid then either cuts sprites or leaves pixels outside every cell, so the right cut is along the transparent gaps (islands). A packed atlas from TexturePacker, Aseprite\'s packed layout or another packer is worse: frames are trimmed to different sizes, sometimes rotated, and placed wherever they fit, so only the JSON or XML that came with it knows where each frame is.'],
+    terms:[['Cell','Width × height of one frame\'s box.'],['Offset / margin','Blank pixels before the first cell.'],['Gap / spacing / padding','Blank pixels between cells (Unity calls it Padding).'],['Packed atlas','Frames placed wherever they fit, described by a data file instead of a grid.']]},
+   example:{title:'The numbers behind each symptom',lead:'A strip of 8 frames of 32 × 32 with 2 px gaps and no margin: 8 × 32 + 7 × 2 = 270 px wide.',lines:[
+    'right          W 32, Gap 2  → x = 34n → 0, 34, 68 … 238; 8 whole cells, 0 px left over',
+    'gap ignored    W 32         → x = 32n; frame n is off by 2n → 0, 2, 4 … 14 px at frame 8',
+    'cell = 270 ÷ 8 ≈ 34         → (270 + 0) ÷ 34 = 7.9 → 7 whole cells, 32 px left over: frame 8 is lost',
+    'margin 4 px ignored         → every cut 4 px early in every column (constant, not growing)',
+    '',
+    'real case: tank.png 288 × 26 read as 32 × 24 leaves 2 px rows outside every cell;',
+    '           32 × 26 covers it exactly → 288 ÷ 32 = 9 frames'],
+    after:'The general rule the importer uses: whole cells per row = floor((width − 2 × margin + gap) ÷ (cell + gap)). If that is not your frame count, one of the three numbers is wrong.'},
+   verify:{steps:[
+    'In Nerulio\'s Custom grid the fit line must read your frame count as whole cells, with the pixels left over no larger than the right and bottom margins.',
+    'In Sheet view (`) every region outline runs through the gaps from the first column to the last, not only at the start.',
+    'Play one row: nothing jumps by a gap width between frames.']},
+   trouble:{rows:[
+    ['The first column is right and each later one is further off','Spacing between cells is not set','Measure the error at the last column and divide by its index: that is the gap','Set Gap X (and Gap Y if rows drift too)'],
+    ['Every column is off by the same amount; the last one shows extra pixels','A margin around the sheet','Count the blank pixels before the first opaque column and row','Set Offset X / Y to that margin'],
+    ['The last frame of each row disappears','The cell was rounded up from width ÷ frames, so the last cell no longer fits','The fit line shows fewer whole cells and many pixels left over','Use the real cell plus the gap instead of the rounded size'],
+    ['Sprites are cut in half, or two share a frame','The cell is half or double the real one','The frame count is double or half of what you see','Pick the other size from the list, or type the real cell'],
+    ['Some sprites fit, others are cut, whatever the grid','The sheet has no regular grid (mixed sprite sizes)','Different sprites need different cells','Switch to Islands (cut along transparent gaps)'],
+    ['Frames are scattered, of different sizes, some sideways','It is a packed atlas, not a grid','A .json, .xml or .atlas file came with the PNG','Open the PNG with its data in the [[game/sprite-atlas-viewer|atlas viewer]]; without the data file no tool can recover the frames']]},
+   alternatives:{rows:[
+    ['Ask for, or re-export, the data file','The sheet came from a packer or from Aseprite: its JSON describes every frame exactly and removes all guessing.'],
+    ['Slice in the engine with the corrected numbers','Unity\'s Sprite Editor takes Pixel Size, Offset and Padding; In Godot\'s SpriteFrames panel, Add frames from a Sprite Sheet starts from the number of horizontal and vertical frames.']]},
+   limits:['Automatic detection searches margins up to 64 px and gaps up to 16 px (a quarter of the cell for small cells); wider layouts need the Custom grid.','Sprites whose boxes overlap on the sheet cannot be separated by islands.','A trimmed or rotated atlas cannot be rebuilt from the PNG alone.'],
+   versions:{body:['The detector and the fit line follow src/game/grid-detect.js and src/studio/sprite/import-plan.js; the tank.png case is one of the real sheets the grid re-ranking was built on. Unity and Godot slicer settings are quoted from the Unity 6 manual and the Godot 4.7 documentation.'],sources:[S.unityEditor,S.godotTut]}
+  },
+  ko:{
+   answer:'자른 위치가 어긋나는 원인은 다섯 가지 중 하나입니다. 칸 크기가 틀렸거나(스프라이트가 반으로 잘리거나 한 프레임에 둘), 격자가 칸 사이 간격을 무시했거나(열마다 간격만큼 오차가 커짐), 시트 둘레에 마진이 있거나(모든 자르기가 같은 만큼 어긋남), 규칙적인 격자가 없는 시트이거나, 애초에 격자가 없던 패킹된 아틀라스입니다. 다시 자르기 전에 재 보세요. 처음 틀어지는 위치와 오차가 커지는 속도로 어떤 값이 틀렸는지 알 수 있습니다. Nerulio의 가져오기는 투명한 틈에서 칸·마진·간격을 재고 먼저 미리 보여 주지만, 데이터 파일 없는 트림된 아틀라스는 되살리지 못합니다.',
+   concept:{title:'원인 다섯 가지, 저마다의 패턴',body:[
+    '칸 크기가 틀리면 바로 보입니다. 프레임 수가 두 배나 절반이 되거나, 두 번째 열부터 스프라이트 안쪽을 자릅니다. 시트 너비 ÷ 프레임 수가 칸 크기가 되는 건 간격과 마진이 없을 때뿐입니다.',
+    '간격을 무시하면 오차가 커집니다. 간격이 g픽셀이면 n번째 열은 n × g만큼 어긋나서, 첫 열은 맞고 마지막 열은 프레임 반쪽만큼 틀어질 수도 있습니다. 마진을 무시하면 오차가 일정합니다. 모든 자르기가 마진만큼 일찍 시작하고, 마지막 열이나 행에 픽셀이 남습니다. Unity Sprite Editor는 같은 두 값을 Offset과 Padding이라 부르고, Nerulio는 오프셋 X / Y와 간격 X / Y라고 부릅니다.',
+    '격자가 하나로 정해지지 않는 시트도 있습니다. 크기가 다른 스프라이트를 나란히 채웠거나, 칸 밖으로 그림이 삐져나온 경우입니다. 그러면 어떤 격자든 스프라이트를 자르거나 어느 칸에도 속하지 않는 픽셀을 남기므로, 투명한 틈을 따라(아일랜드) 잘라야 합니다. TexturePacker, Aseprite의 packed 배치 같은 패커가 만든 아틀라스는 더 까다롭습니다. 프레임이 제각각 트림되고 때로는 회전된 채 빈자리에 놓이므로, 함께 온 JSON이나 XML만이 각 프레임의 위치를 압니다.'],
+    terms:[['칸','프레임 상자 하나의 너비 × 높이.'],['오프셋 / 마진','첫 칸 앞의 빈 픽셀.'],['간격 / 스페이싱 / 패딩','칸 사이의 빈 픽셀(Unity는 Padding).'],['패킹된 아틀라스','격자 대신 데이터 파일이 위치를 설명하는, 빈자리마다 놓인 프레임.']]},
+   example:{title:'증상 뒤의 숫자',lead:'32 × 32 프레임 8개, 간격 2px, 마진 없는 스트립: 너비 8 × 32 + 7 × 2 = 270px.',lines:[
+    '올바름        W 32, 간격 2  → x = 34n → 0, 34, 68 … 238, 온전한 칸 8개, 남는 픽셀 0',
+    '간격 무시     W 32          → x = 32n, n번째 프레임은 2n만큼 어긋남 → 0, 2, 4 … 8번째에서 14px',
+    '칸 = 270 ÷ 8 ≈ 34          → (270 + 0) ÷ 34 = 7.9 → 온전한 칸 7개, 32px 남음: 8번째 프레임이 사라짐',
+    '마진 4px 무시               → 모든 열에서 4px씩 일찍 자름(커지지 않고 일정)',
+    '',
+    '실제 사례: tank.png 288 × 26을 32 × 24로 읽으면 모든 칸 밖에 2px 줄이 남음.',
+    '           32 × 26이면 정확히 덮음 → 288 ÷ 32 = 프레임 9개'],
+    after:'가져오기가 쓰는 일반 규칙: 한 줄의 온전한 칸 수 = floor((너비 − 2 × 마진 + 간격) ÷ (칸 + 간격)). 이 값이 프레임 수와 다르면 세 값 중 하나가 틀린 것입니다.'},
+   verify:{steps:[
+    'Nerulio 직접 격자의 맞춤 줄이 프레임 수만큼 온전한 칸을 보여 주고, 남는 픽셀은 오른쪽·아래 마진보다 크지 않아야 합니다.',
+    '시트 보기(`)에서 모든 영역 윤곽이 처음뿐 아니라 마지막 열까지 틈을 지나야 합니다.',
+    '한 줄을 재생합니다. 프레임 사이에 간격 폭만큼 튀는 곳이 없어야 합니다.']},
+   trouble:{rows:[
+    ['첫 열은 맞고 뒤로 갈수록 더 어긋남','칸 사이 간격을 넣지 않음','마지막 열의 오차를 그 열 번호로 나누면 간격','간격 X(행도 밀리면 간격 Y) 입력'],
+    ['모든 열이 같은 만큼 어긋나고 마지막 열에 픽셀이 남음','시트 둘레의 마진','첫 불투명 열과 행 앞의 빈 픽셀 수 세기','오프셋 X / Y를 그 마진으로'],
+    ['줄마다 마지막 프레임이 사라짐','너비 ÷ 프레임 수를 올림해 칸으로 써서 마지막 칸이 들어가지 않음','맞춤 줄에 온전한 칸이 적고 남는 픽셀이 많음','반올림한 크기 대신 실제 칸과 간격 입력'],
+    ['스프라이트가 반으로 잘리거나 둘이 한 프레임에 들어감','칸이 실제의 절반이나 두 배','프레임 수가 보이는 수의 두 배나 절반','목록에서 다른 크기를 고르거나 실제 칸 입력'],
+    ['어떤 격자든 일부는 맞고 일부는 잘림','규칙적인 격자가 없는 시트(스프라이트 크기가 제각각)','스프라이트마다 필요한 칸이 다름','아일랜드(투명한 틈을 따라 자르기)로 전환'],
+    ['프레임이 흩어져 있고 크기가 다르며 일부는 누워 있음','격자가 아니라 패킹된 아틀라스','PNG와 함께 .json, .xml, .atlas 파일이 왔음','PNG를 데이터와 함께 [[game/sprite-atlas-viewer|아틀라스 뷰어]]로 열기. 데이터 파일 없이는 어떤 도구도 프레임을 되살리지 못함']]},
+   alternatives:{rows:[
+    ['데이터 파일을 받거나 다시 내보내기','시트가 패커나 Aseprite에서 왔다면 JSON이 모든 프레임을 정확히 설명하므로 추측이 필요 없습니다.'],
+    ['고친 값으로 엔진에서 자르기','Unity Sprite Editor는 Pixel Size, Offset, Padding을 받습니다. Godot SpriteFrames 패널의 Add frames from a Sprite Sheet는 가로·세로 프레임 수를 정하는 데서 시작합니다.']]},
+   limits:['자동 감지는 마진 64px, 간격 16px(작은 칸은 칸의 4분의 1)까지 찾습니다. 더 넓으면 직접 격자로 입력하세요.','시트 위에서 상자가 서로 겹친 스프라이트는 아일랜드로도 나눌 수 없습니다.','트림되거나 회전된 아틀라스는 PNG만으로 되살릴 수 없습니다.'],
+   versions:{body:['감지기와 맞춤 줄은 src/game/grid-detect.js와 src/studio/sprite/import-plan.js를 따르며, tank.png는 격자 재정렬을 만들 때 쓴 실제 시트 중 하나입니다. Unity와 Godot의 자르기 설정은 Unity 6 매뉴얼과 Godot 4.7 문서에서 인용했습니다.'],sources:[S.unityEditor,S.godotTut]}
+  },
+  ja:{
+   answer:'切り位置がずれる原因は5つのうちのどれかです。セルの大きさが違う（スプライトが半分に切れる、1フレームに2体入る）、グリッドがセル間の間隔を無視している（列ごとに間隔ぶんずれが増える）、シートの周囲にマージンがある（すべての切り位置が同じだけずれる）、規則的なグリッドのないシート、そもそもグリッドのないパック済みアトラス、です。切り直す前に測ってください。最初にずれる位置と、ずれの増え方から、どの値が違うかがわかります。Nerulioのインポートは透明なすき間からセル・マージン・間隔を測り、先にプレビューしますが、データファイルのないトリム済みアトラスは復元できません。',
+   concept:{title:'5つの原因と、それぞれの現れ方',body:[
+    'セルの大きさが違うとすぐわかります。フレーム数が2倍か半分になる、または2列目からスプライトの内側を切ります。シートの幅 ÷ フレーム数がセルの大きさになるのは、間隔もマージンもないときだけです。',
+    '間隔を無視するとずれが増えていきます。間隔がgピクセルなら、n列目はn × gずれるので、1列目は正しく、最後の列はフレームの半分ほどずれることもあります。マージンを無視するとずれは一定です。すべての切り位置がマージンぶん早く始まり、最後の列や行にピクセルが余ります。UnityのSprite Editorはこの2つの値をOffsetとPaddingと呼び、NerulioはオフセットX / Yと間隔X / Yと呼びます。',
+    'グリッドが1つに決まらないシートもあります。大きさの違うスプライトを並べて詰めたもの、セルから絵がはみ出したものです。どんなグリッドでもスプライトを切るか、どのセルにも入らないピクセルが残るので、透明なすき間に沿って（島で）切るのが正解です。TexturePackerやAsepriteのpacked配置などのパッカーが作ったアトラスはさらに厄介で、フレームはばらばらにトリムされ、ときには回転して空いた場所に置かれるため、各フレームの位置を知っているのは一緒に来たJSONやXMLだけです。'],
+    terms:[['セル','フレーム1つの枠の幅 × 高さ。'],['オフセット／マージン','最初のセルの手前の空きピクセル。'],['間隔／スペーシング／パディング','セル間の空きピクセル（UnityではPadding）。'],['パック済みアトラス','グリッドではなくデータファイルが位置を記述する、空いた場所に置かれたフレーム。']]},
+   example:{title:'症状の裏にある数字',lead:'32 × 32のフレーム8枚、間隔2px、マージンなしのストリップ：幅は 8 × 32 + 7 × 2 = 270px。',lines:[
+    '正しい       W 32、間隔 2  → x = 34n → 0, 34, 68 … 238、まるごとのセル8、余り0px',
+    '間隔を無視   W 32          → x = 32n、n番目のフレームは2nずれる → 0, 2, 4 … 8枚目で14px',
+    'セル = 270 ÷ 8 ≈ 34        → (270 + 0) ÷ 34 = 7.9 → まるごとのセル7、32px余る：8枚目が消える',
+    'マージン4pxを無視          → どの列でも4pxずつ早く切る（増えずに一定）',
+    '',
+    '実例：tank.png 288 × 26 を 32 × 24 と読むと、どのセルにも入らない2pxの行が残る。',
+    '      32 × 26 ならぴったり覆う → 288 ÷ 32 = 9フレーム'],
+    after:'インポートが使う一般則：1行のまるごとのセル数 = floor((幅 − 2 × マージン + 間隔) ÷ (セル + 間隔))。これがフレーム数と違えば、3つの値のどれかが違います。'},
+   verify:{steps:[
+    'Nerulioのカスタムグリッドで、収まり具合の行がフレーム数ぶんのまるごとのセルを示し、余りのピクセルが右と下のマージン以下であること。',
+    'シート表示（`）で、どの領域の枠も最初だけでなく最後の列まですき間を通っていること。',
+    '1行を再生して、フレーム間で間隔の幅ぶん跳ねるところがないこと。']},
+   trouble:{rows:[
+    ['1列目は合っていて、後ろの列ほどずれる','セル間の間隔を入れていない','最後の列のずれをその列番号で割ると間隔になる','間隔X（行もずれるなら間隔Y）を入れる'],
+    ['どの列も同じだけずれ、最後の列にピクセルが余る','シートの周囲にマージンがある','最初の不透明な列と行の手前の空きピクセルを数える','オフセットX / Yをそのマージンにする'],
+    ['各行の最後のフレームが消える','幅 ÷ フレーム数を切り上げてセルにしたため、最後のセルが収まらない','収まり具合の行でまるごとのセルが少なく、余りのピクセルが多い','丸めた値ではなく、実際のセルと間隔を入れる'],
+    ['スプライトが半分に切れる／2体が1フレームに入る','セルが実際の半分か2倍','フレーム数が見た目の2倍か半分','一覧から別の大きさを選ぶか、実際のセルを入れる'],
+    ['どんなグリッドでも、合うものと切れるものがある','規則的なグリッドのないシート（スプライトの大きさがまちまち）','スプライトごとに必要なセルが違う','島モード（透明なすき間に沿って切る）に切り替える'],
+    ['フレームが散らばり、大きさがばらばらで、横倒しのものもある','グリッドではなくパック済みのアトラス','PNGと一緒に.json・.xml・.atlasファイルが来ている','PNGをデータと一緒に[[game/sprite-atlas-viewer|アトラスビューア]]で開く。データファイルなしでは、どのツールでもフレームは復元できない']]},
+   alternatives:{rows:[
+    ['データファイルをもらう、または書き出し直す','シートがパッカーやAsepriteから来たなら、JSONがすべてのフレームを正確に記述しているので推測が要りません。'],
+    ['直した値でエンジン側で切る','UnityのSprite EditorはPixel Size・Offset・Paddingを受け付けます。GodotのSpriteFramesパネルのAdd frames from a Sprite Sheetは、横と縦のフレーム数を決めるところから始まります。']]},
+   limits:['自動検出が探すのはマージン64px・間隔16px（小さなセルではセルの4分の1）までです。それより広い場合はカスタムグリッドで入力します。','シート上で枠どうしが重なっているスプライトは、島モードでも分けられません。','トリムや回転をしたアトラスは、PNGだけでは復元できません。'],
+   versions:{body:['検出器と収まり具合の行はsrc/game/grid-detect.jsとsrc/studio/sprite/import-plan.jsに従い、tank.pngはグリッドの並べ替えを作る際に使った実在のシートの1つです。UnityとGodotの分割設定はUnity 6マニュアルとGodot 4.7ドキュメントから引用しています。'],sources:[S.unityEditor,S.godotTut]}
+  }
+ },
+ // ------------------------------------------------------------------ game/sprite-jitter-after-trim
+ 'game/sprite-jitter-after-trim':{
+  type:'troubleshoot',
+  intent:{primary:'fix a sprite animation that wobbles after the frames were trimmed or packed',secondary:['why trim changes each frame\'s canvas and origin','pivot per crop vs pivot on the full canvas','measure the wobble in pixels','keep intended motion'],
+   goal:'the character stands still (or moves only as drawn) in the engine after packing with trim',input:'trimmed atlas or trimmed frames that wobble in an engine',output:'offsets and pivots restored, wobble measured under 1.5 px',support:'partial',
+   evidence:['src/game/jitter.js (jitterReport window 5 quadratic, warnPx 1.5, autoFixJitter preserveTrend / pin, maxShift 64); the example numbers were computed with it','src/studio/workspaces/sprite.js measureJitter / fixJitter','src/game/export/* (trim offsets per target)','docs/ENGINE-VERIFY.md frames.placement, frames.anchor, Phaser 3.90 odd-size quirk','docs/STUDIO-PACK.md (Phaser 3.90 trimmed Sparrow XML bug)'],
+   external:['TexturePacker trim modes','Phaser 3.90 JSONHash setTrim / pivot','Unity Sprite Editor pivot units','Godot AnimatedSprite2D offset']},
+  en:{
+   answer:'Trimming crops each frame to its visible pixels, so every frame gets its own size and its own top-left corner. If the engine then places frames by that cropped rectangle, by its corner or by a "centre" pivot of the crop, each frame is drawn from a different point of the body and the character wobbles by the difference. The fix is to keep each frame\'s original size and offset (sourceSize and spriteSourceSize, Godot AtlasTexture margins, Unity pivots computed on the full canvas) or to put the frames back on one canvas, and then to measure what is left. Nerulio\'s Measure reports the wobble in pixels, and its fixes remove it while keeping motion you drew on purpose.',
+   concept:{title:'What trimming changes, and how that becomes wobble',body:[
+    'Before trimming, every frame of a 48 × 64 animation shares one canvas, so a pivot at pixel (24, 64) is the same point of the body on every frame. Trimming keeps only the opaque rectangle: a standing frame becomes 20 × 30 at (14, 34), a frame with the sword out becomes 34 × 30 at the same corner. Size and origin now differ per frame, and the only link back to the original position is the offset the packer writes: sourceSize and spriteSourceSize in JSON atlases, the AtlasTexture margin in Godot, offsets in a Spine atlas, frameX and frameY in Sparrow XML.',
+    'The wobble equals how far the reference point moves on the body. With a pivot at the centre of each crop, the standing frame\'s centre is at x = 14 + 10 = 24 but the sword frame\'s at 14 + 17 = 31: the engine puts both centres on the object\'s position, so the body jumps 7 px left whenever the sword is out. With a top-left origin and the offset ignored, a crop that starts 3 px lower is drawn 3 px higher. Three things cause it: the offset was never written, it was written but the loader ignored it, or the pivot was defined per crop instead of on the full canvas.',
+    'Not every wobble comes from the packer; frames drawn or cut unevenly wobble too. Nerulio measures it on the frames themselves: Measure (Align panel) takes one reference point per frame (bottom-centre of the art, centre of the art, alpha centroid or pivot), fits a smooth path through them with a local quadratic five frames wide, and reports how far each frame sits off that path, as the maximum and RMS in pixels, marked on the timeline. Above 1.5 px it warns. Movement from frame to frame is shown separately, because a walk or a bob is motion you want to keep.',
+    'That is also the rule for fixing. Fix (keep motion) moves each frame only by the rounded distance to the smooth path, so a drawn bob or a travelling walk survives. Pin to first frame puts every frame\'s reference on frame 1\'s point: right for an idle that must stand still, wrong for anything that travels, and wrong when the game moves the character itself and the frames carry no motion (then the motion was never in the frames to begin with). Both move art by whole pixels only.'],
+    terms:[['sourceSize / spriteSourceSize','The frame\'s original size, and where its trimmed rectangle sat on it.'],['Pivot on the full canvas','A pivot measured on the untrimmed frame, so it stays on the same body point after trimming.'],['Wobble (residual)','Distance of a frame\'s reference point from the smoothed path, in pixels.']]},
+   example:{title:'Example: measuring and fixing, with and without intended motion',lead:'Numbers from Nerulio\'s jitter measure (bottom-centre of the art, default settings).',lines:[
+    'idle, 8 frames, x of the art\'s bottom-centre: 24, 24, 27, 24, 24, 21, 24, 24',
+    'Measure            wobble max 1.54 px, RMS 0.86 px; movement up to 3.0 px; warning: over 1.5 px shows',
+    'Fix (keep motion)  shifts 0, +1, −2, +1, −1, +2, −1, 0 px → wobble 0.51 px',
+    'Pin to first frame shifts 0, 0, −3, 0, 0, +3, 0, 0 px     → wobble 0.00 px',
+    '',
+    'walk that travels 2 px per frame with a 1 px bob: x 18, 20, 22 … 32',
+    'Measure            wobble max 0.34 px, no warning; movement up to 2 px',
+    'Pin to first frame would shift the frames by 0, −2, −4 … −14 px and erase the walk'],
+    after:'The idle is a case for pinning (it must stand still), the walk for keeping motion, or for no fix at all. Frames must share one canvas before a fix: see [[normalize-sprite-frames|aligning frames on one canvas]].'},
+   verify:{steps:[
+    'Before export, play the tag with onion skin (F3): the feet of neighbouring frames overlap.',
+    'Press Measure in the Align panel: no warning, and wobble under 1.5 px.',
+    'In the engine, pause on two frames with very different crop sizes and compare where the feet are, in pixels: they must be at the same position.',
+    'In Unity, a trimmed frame\'s Custom Pivot may lie outside 0–1; that is expected and keeps the frames aligned.']},
+   trouble:{rows:[
+    ['The body shifts sideways whenever a weapon or limb sticks out','The pivot is the centre of each cropped rectangle','Compare crop widths: the shift equals the difference between crop centres','Measure pivots on the full canvas; Nerulio writes every target\'s pivot that way. In another packer set the pivot before trimming, or turn trim off'],
+    ['Frames bob after packing but not in the editor','The loader ignores the trim offset (spriteSourceSize, frameX / frameY)','Draw one trimmed frame and the untrimmed original at the same position','Use a loader that reads the offset. Phaser 3.90 draws trimmed Sparrow XML wrongly: use the Sparrow XML (Phaser 3) preset, which turns trim off'],
+    ['Godot: steady inside one animation, a jump when switching','AnimatedSprite2D has one offset per node, taken from the first frame\'s pivot, and other animations use other pivots','The Godot export notes warn about differing pivots','Give the character one pivot for all tags, or set the offset from `metadata/nerulio` in a script'],
+    ['Some trimmed frames sit 1 px off in Phaser 3.90','With pixelArt or roundPixels, Phaser 3.90 draws a trimmed frame 1 px right (down) when its source width (height) is odd; Phaser 4 and PixiJS 8 draw the same files exactly','The shifted frames have an odd canvas width or height','Use even frame canvases (align the tag to an even size), or Phaser 4'],
+    ['The wobble is already in the source frames, before any trim','The art was drawn or cut unevenly: a drawing problem, not a packing one','Measure the untrimmed frames in Nerulio','Fix (keep motion) or Pin to first frame; no tool can tell a deliberate bob from a mistake, so choose per tag']]},
+   alternatives:{rows:[
+    ['Pack with trim off','Always stable, at the cost of atlas space; CSS sprites never trim for this reason.'],
+    ['TexturePacker\'s Trim mode (the sprite keeps its original size)','You pack with TexturePacker: its Trim mode stores the offsets, while Crop modes make frames smaller. See [[game/texture-packer-free|free alternatives to TexturePacker]].']]},
+   limits:['Nerulio cannot change how an engine or loader reads offsets; it can only write them in each target\'s own form.','A pivot a game sets in code overrides the exported one.'],
+   versions:{body:['Nerulio\'s trimmed frames were drawn by Godot 4.7.2, Phaser 3.90 and 4.2 and PixiJS 8.21 and compared with the original frames (placement check), and Unity 6000.5.3f1 read back pivots that keep every frame on one anchor. The Phaser 3.90 odd-size shift and the trimmed-XML bug were measured in the same runs. TexturePacker\'s modes and Phaser\'s parser are described from their own documentation and source.'],sources:[S.tpTrim,S.phaserJson,S.unityEditor,S.godotAnim]}
+  },
+  ko:{
+   answer:'트림은 프레임마다 보이는 픽셀만 남기므로 프레임마다 크기와 왼쪽 위 모서리가 달라집니다. 엔진이 그 잘린 사각형을 기준으로, 즉 모서리나 잘린 영역의 "가운데" 피벗으로 프레임을 놓으면 프레임마다 몸의 다른 점에서 그려져 그 차이만큼 캐릭터가 흔들립니다. 해결책은 프레임의 원래 크기와 오프셋(sourceSize와 spriteSourceSize, Godot AtlasTexture margin, 전체 캔버스로 계산한 Unity 피벗)을 유지하거나 프레임을 다시 한 캔버스에 올리고, 남은 흔들림을 재는 것입니다. Nerulio의 측정은 흔들림을 픽셀로 보여 주고, 보정은 일부러 그린 움직임은 살린 채 흔들림을 없앱니다.',
+   concept:{title:'트림이 바꾸는 것, 그리고 그것이 흔들림이 되는 과정',body:[
+    '트림 전에는 48 × 64 애니메이션의 모든 프레임이 캔버스 하나를 공유하므로 픽셀 (24, 64)의 피벗은 모든 프레임에서 몸의 같은 점입니다. 트림은 불투명한 사각형만 남깁니다. 서 있는 프레임은 (14, 34)의 20 × 30, 칼을 뻗은 프레임은 같은 모서리의 34 × 30이 됩니다. 이제 크기와 원점이 프레임마다 다르고, 원래 자리로 돌아갈 단서는 패커가 쓰는 오프셋뿐입니다. JSON 아틀라스의 sourceSize와 spriteSourceSize, Godot의 AtlasTexture margin, Spine 아틀라스의 offsets, Sparrow XML의 frameX와 frameY입니다.',
+    '흔들림의 크기는 기준점이 몸 위에서 움직인 거리와 같습니다. 잘린 영역의 가운데를 피벗으로 쓰면 서 있는 프레임의 가운데는 x = 14 + 10 = 24, 칼 프레임은 14 + 17 = 31입니다. 엔진이 두 가운데를 오브젝트 위치에 놓으므로 칼을 뻗을 때마다 몸이 왼쪽으로 7px 튑니다. 원점이 왼쪽 위이고 오프셋을 무시하면, 3px 아래에서 시작하는 잘린 영역은 3px 위에 그려집니다. 원인은 셋입니다. 오프셋을 쓰지 않았거나, 썼는데 로더가 무시했거나, 피벗을 전체 캔버스가 아니라 잘린 영역마다 정했거나.',
+    '흔들림이 모두 패커 탓은 아닙니다. 고르지 않게 그리거나 자른 프레임도 흔들립니다. Nerulio는 프레임 자체에서 잽니다. 정렬 패널의 측정은 프레임마다 기준점 하나(그림의 아래 가운데, 그림의 가운데, 알파 무게중심, 피벗)를 잡고, 5프레임 폭의 국소 2차식으로 매끄러운 경로를 맞춘 뒤, 각 프레임이 경로에서 벗어난 거리를 최대값과 RMS(픽셀)로 보여 주고 타임라인에 표시합니다. 1.5px를 넘으면 경고합니다. 프레임 간 이동은 따로 보여 주는데, 걷기나 들썩임은 남겨야 할 움직임이기 때문입니다.',
+    '보정의 원칙도 같습니다. 보정(움직임 유지)은 각 프레임을 매끄러운 경로까지의 거리를 반올림한 만큼만 옮기므로 그려 둔 들썩임이나 이동하는 걷기가 남습니다. 첫 프레임에 고정은 모든 프레임의 기준점을 1번 프레임의 점에 둡니다. 제자리에 서 있어야 하는 idle에는 맞고, 이동하는 동작에는 틀립니다. 게임 코드가 캐릭터를 움직이고 프레임에는 이동이 없다면 애초에 프레임에 이동이 들어 있지 않은 것입니다. 두 보정 모두 그림을 정수 픽셀로만 옮깁니다.'],
+    terms:[['sourceSize / spriteSourceSize','프레임의 원래 크기와, 트림된 사각형이 그 안의 어디에 있었는지.'],['전체 캔버스 기준 피벗','트림 전 프레임에서 잰 피벗. 트림 뒤에도 몸의 같은 점에 머묾.'],['흔들림(잔차)','프레임의 기준점이 매끄러운 경로에서 떨어진 거리(픽셀).']]},
+   example:{title:'예시: 의도한 움직임이 있을 때와 없을 때의 측정과 보정',lead:'Nerulio 흔들림 측정(그림의 아래 가운데, 기본 설정)으로 계산한 값입니다.',lines:[
+    'idle, 프레임 8개, 그림 아래 가운데의 x: 24, 24, 27, 24, 24, 21, 24, 24',
+    '측정              흔들림 최대 1.54px, RMS 0.86px, 이동 최대 3.0px, 경고: 1.5px 초과는 보임',
+    '보정(움직임 유지) 이동 0, +1, −2, +1, −1, +2, −1, 0px → 흔들림 0.51px',
+    '첫 프레임에 고정  이동 0, 0, −3, 0, 0, +3, 0, 0px     → 흔들림 0.00px',
+    '',
+    '프레임마다 2px 이동하며 1px 들썩이는 걷기: x 18, 20, 22 … 32',
+    '측정              흔들림 최대 0.34px, 경고 없음, 이동 최대 2px',
+    '첫 프레임에 고정하면 프레임을 0, −2, −4 … −14px 옮겨 걷기가 지워짐'],
+    after:'idle은 고정이 맞고(제자리에 서야 함), 걷기는 움직임 유지나 아예 보정하지 않는 쪽이 맞습니다. 보정 전에 프레임이 한 캔버스를 공유해야 합니다: [[normalize-sprite-frames|프레임을 한 캔버스에 정렬하기]].'},
+   verify:{steps:[
+    '내보내기 전에 어니언 스킨(F3)을 켜고 태그를 재생합니다. 이웃 프레임의 발이 겹쳐야 합니다.',
+    '정렬 패널에서 측정을 누릅니다. 경고가 없고 흔들림이 1.5px 미만이어야 합니다.',
+    '엔진에서 잘린 크기가 크게 다른 두 프레임에서 멈추고 발의 위치를 픽셀로 비교합니다. 같은 자리여야 합니다.',
+    'Unity에서 트림된 프레임의 Custom Pivot은 0~1 밖일 수 있습니다. 정상이며 그래야 프레임이 맞습니다.']},
+   trouble:{rows:[
+    ['무기나 팔다리가 나올 때마다 몸이 옆으로 밀림','피벗이 잘린 사각형마다의 가운데','잘린 너비 비교: 밀림 = 잘린 영역 가운데의 차이','피벗을 전체 캔버스에서 재기. Nerulio는 모든 대상에 그렇게 씀. 다른 패커라면 트림 전에 피벗을 정하거나 트림을 끄기'],
+    ['편집기에서는 멀쩡한데 패킹 후 위아래로 들썩임','로더가 트림 오프셋(spriteSourceSize, frameX / frameY)을 무시함','트림된 프레임과 트림 전 원본을 같은 위치에 그려 비교','오프셋을 읽는 로더 사용. Phaser 3.90은 트림된 Sparrow XML을 잘못 그리므로 트림을 끄는 Sparrow XML (Phaser 3) 프리셋 사용'],
+    ['Godot: 한 애니메이션 안에서는 괜찮고 바꿀 때 튐','AnimatedSprite2D는 첫 프레임 피벗에서 온 오프셋 하나뿐이고 다른 애니메이션은 피벗이 다름','Godot 내보내기 안내의 피벗 불일치 경고','캐릭터의 모든 태그에 피벗 하나를 쓰거나, 스크립트로 `metadata/nerulio`에서 오프셋 설정'],
+    ['Phaser 3.90에서 일부 트림 프레임만 1px 어긋남','pixelArt나 roundPixels를 켜면 Phaser 3.90은 원본 너비(높이)가 홀수인 트림 프레임을 오른쪽(아래)으로 1px 옮겨 그림. Phaser 4와 PixiJS 8은 같은 파일을 정확히 그림','어긋난 프레임의 캔버스 너비나 높이가 홀수','프레임 캔버스를 짝수 크기로(태그를 짝수 크기로 정렬), 또는 Phaser 4 사용'],
+    ['트림 전 원본 프레임에서부터 흔들림','그림을 고르지 않게 그리거나 자름: 패킹이 아니라 그림의 문제','Nerulio에서 트림 전 프레임을 측정','보정(움직임 유지)이나 첫 프레임에 고정. 일부러 넣은 들썩임과 실수를 구별하는 도구는 없으니 태그마다 선택']]},
+   alternatives:{rows:[
+    ['트림을 끄고 패킹','항상 안정적이지만 아틀라스 공간이 늘어납니다. CSS 스프라이트가 트림하지 않는 이유이기도 합니다.'],
+    ['TexturePacker의 Trim 모드(스프라이트가 원래 크기를 유지)','TexturePacker로 패킹할 때. Trim 모드는 오프셋을 저장하고, Crop 모드는 프레임을 작게 만듭니다. [[game/texture-packer-free|TexturePacker 무료 대안]] 참고.']]},
+   limits:['엔진이나 로더가 오프셋을 읽는 방식은 Nerulio가 바꿀 수 없습니다. 대상마다의 형식으로 쓸 수 있을 뿐입니다.','게임 코드에서 정한 피벗은 내보낸 피벗보다 우선합니다.'],
+   versions:{body:['Nerulio의 트림된 프레임은 Godot 4.7.2, Phaser 3.90·4.2, PixiJS 8.21이 그려 원본 프레임과 비교했고(배치 검사), Unity 6000.5.3f1은 모든 프레임을 한 기준점에 두는 피벗을 다시 읽었습니다. Phaser 3.90의 홀수 크기 밀림과 트림 XML 버그도 같은 실행에서 측정했습니다. TexturePacker 모드와 Phaser 파서는 각자의 문서와 소스를 따릅니다.'],sources:[S.tpTrim,S.phaserJson,S.unityEditor,S.godotAnim]}
+  },
+  ja:{
+   answer:'トリムはフレームごとに見えるピクセルだけを残すので、フレームごとに大きさと左上の角が変わります。エンジンがその切り詰めた矩形を基準に、つまり角や、切り詰めた範囲の「中央」のピボットでフレームを置くと、フレームごとに体の別の点から描かれ、その差のぶんキャラクターがぶれます。対処は、各フレームの元の大きさとオフセット（sourceSizeとspriteSourceSize、GodotのAtlasTextureのmargin、キャンバス全体で計算したUnityのピボット）を保つか、フレームを1つのキャンバスに戻し、そのうえで残りを測ることです。Nerulioの測定はブレをピクセルで示し、補正は意図して描いた動きを残したままブレを取り除きます。',
+   concept:{title:'トリムが変えるもの、それがブレになる仕組み',body:[
+    'トリム前は、48 × 64のアニメーションの全フレームが1つのキャンバスを共有するので、ピクセル (24, 64) のピボットはどのフレームでも体の同じ点です。トリムは不透明な矩形だけを残します。立ちフレームは (14, 34) の20 × 30、剣を突き出したフレームは同じ角の34 × 30になります。大きさと原点がフレームごとに変わり、元の位置へ戻る手がかりはパッカーが書くオフセットだけです。JSONアトラスのsourceSizeとspriteSourceSize、GodotのAtlasTextureのmargin、Spineアトラスのoffsets、Sparrow XMLのframeXとframeYです。',
+    'ブレの大きさは、基準点が体の上で動いた距離に等しくなります。切り詰めた範囲の中央をピボットにすると、立ちフレームの中央は x = 14 + 10 = 24、剣のフレームは 14 + 17 = 31。エンジンは両方の中央をオブジェクトの位置に置くので、剣を出すたびに体が左へ7px跳びます。原点が左上でオフセットを無視すると、3px下から始まる範囲は3px上に描かれます。原因は3つです。オフセットが書かれていない、書かれているのにローダーが無視した、ピボットをキャンバス全体ではなく切り詰めた範囲ごとに決めた。',
+    'ブレがすべてパッカーのせいとは限りません。不ぞろいに描いたり切ったりしたフレームもぶれます。Nerulioはフレームそのもので測ります。揃えパネルの測定は、フレームごとに基準点を1つ（絵の下中央、絵の中央、アルファの重心、ピボット）取り、5フレーム幅の局所2次式で滑らかな軌道を当てはめ、各フレームが軌道から外れた距離を最大値とRMS（ピクセル）で示してタイムラインに印を付けます。1.5pxを超えると警告します。フレーム間の移動量は別に示します。歩きや上下動は残したい動きだからです。',
+    '補正の原則も同じです。補正（動きを保つ）は各フレームを滑らかな軌道までの距離を丸めたぶんだけ動かすので、描いた上下動や進む歩きは残ります。最初のフレームに固定は、全フレームの基準点を1枚目の点に置きます。その場に立っているべきidleには正しく、進む動きには誤りです。ゲームのコードがキャラを動かしフレームに移動が含まれないなら、そもそもフレームに動きは入っていません。どちらの補正も絵を整数ピクセルでしか動かしません。'],
+    terms:[['sourceSize / spriteSourceSize','フレームの元の大きさと、切り詰めた矩形がその中のどこにあったか。'],['キャンバス全体基準のピボット','トリム前のフレームで測ったピボット。トリム後も体の同じ点に留まる。'],['ブレ（残差）','フレームの基準点が滑らかな軌道から離れている距離（ピクセル）。']]},
+   example:{title:'例：意図した動きがある場合とない場合の測定と補正',lead:'Nerulioのブレ測定（絵の下中央、既定の設定）で計算した値です。',lines:[
+    'idle、8フレーム、絵の下中央のx：24, 24, 27, 24, 24, 21, 24, 24',
+    '測定               ブレ最大 1.54px、RMS 0.86px、移動最大 3.0px、警告：1.5px超は見える',
+    '補正（動きを保つ） 移動 0, +1, −2, +1, −1, +2, −1, 0px → ブレ 0.51px',
+    '最初のフレームに固定 移動 0, 0, −3, 0, 0, +3, 0, 0px   → ブレ 0.00px',
+    '',
+    '1フレームごとに2px進み1px上下する歩き：x 18, 20, 22 … 32',
+    '測定               ブレ最大 0.34px、警告なし、移動最大 2px',
+    '最初のフレームに固定すると 0, −2, −4 … −14px 動かして歩きが消える'],
+    after:'idleは固定が正解（その場に立つべき）、歩きは動きを保つか、補正しないのが正解です。補正の前にフレームが1つのキャンバスを共有している必要があります：[[normalize-sprite-frames|フレームを1つのキャンバスにそろえる]]。'},
+   verify:{steps:[
+    '書き出す前にオニオンスキン（F3）を付けてタグを再生します。隣り合うフレームの足が重なるはずです。',
+    '揃えパネルで測定を押します。警告が出ず、ブレが1.5px未満であること。',
+    'エンジンで、切り詰めた大きさが大きく違う2フレームで止め、足の位置をピクセルで比べます。同じ位置のはずです。',
+    'Unityでは、トリムしたフレームのCustom Pivotが0〜1の外になることがあります。正常で、それでフレームがそろいます。']},
+   trouble:{rows:[
+    ['武器や手足が出るたびに体が横にずれる','ピボットが切り詰めた矩形ごとの中央になっている','切り詰めた幅を比べる：ずれ = 範囲の中央の差','ピボットをキャンバス全体で測る。Nerulioはどの書き出し先にもそう書く。ほかのパッカーならトリム前にピボットを決めるか、トリムを切る'],
+    ['エディターでは平気なのに、パック後に上下に揺れる','ローダーがトリムのオフセット（spriteSourceSize、frameX / frameY）を無視している','トリムしたフレームとトリム前の元画像を同じ位置に描いて比べる','オフセットを読むローダーを使う。Phaser 3.90はトリムしたSparrow XMLを正しく描けないので、トリムを切るSparrow XML (Phaser 3) プリセットを使う'],
+    ['Godot：1つのアニメーション内は安定、切り替えで跳ぶ','AnimatedSprite2Dのオフセットは最初のフレームのピボットから取った1つだけで、ほかのアニメーションはピボットが違う','Godot書き出しの注記のピボット不一致の警告','キャラの全タグでピボットを1つにするか、スクリプトで `metadata/nerulio` からオフセットを設定する'],
+    ['Phaser 3.90で一部のトリム済みフレームだけ1pxずれる','pixelArtかroundPixelsがオンだと、Phaser 3.90は元の幅（高さ）が奇数のトリム済みフレームを右（下）に1pxずらして描く。Phaser 4とPixiJS 8は同じファイルを正確に描く','ずれたフレームのキャンバスの幅か高さが奇数','フレームのキャンバスを偶数サイズにする（タグを偶数サイズにそろえる）か、Phaser 4を使う'],
+    ['トリム前の元のフレームからすでにぶれている','絵が不ぞろいに描かれた・切られた：パックではなく作画の問題','Nerulioでトリム前のフレームを測る','補正（動きを保つ）か最初のフレームに固定。意図した上下動と誤りを見分けられるツールはないので、タグごとに選ぶ']]},
+   alternatives:{rows:[
+    ['トリムなしでパックする','常に安定しますが、アトラスの容量が増えます。CSSスプライトがトリムしない理由でもあります。'],
+    ['TexturePackerのTrimモード（スプライトが元の大きさを保つ）','TexturePackerでパックするとき。Trimモードはオフセットを保存し、Cropモードはフレームを小さくします。[[game/texture-packer-free|TexturePackerの無料の代わり]]も参照。']]},
+   limits:['エンジンやローダーがオフセットをどう読むかをNerulioは変えられません。書き出し先ごとの形式で書けるだけです。','ゲームのコードで設定したピボットは、書き出したピボットより優先されます。'],
+   versions:{body:['Nerulioのトリム済みフレームはGodot 4.7.2、Phaser 3.90・4.2、PixiJS 8.21が描画し、元のフレームと比較しました（配置の検査）。Unity 6000.5.3f1は全フレームを1つの基準点に置くピボットを読み戻しました。Phaser 3.90の奇数サイズのずれとトリムXMLの不具合も同じ実行で測定しています。TexturePackerのモードとPhaserのパーサーは、それぞれのドキュメントとソースに基づきます。'],sources:[S.tpTrim,S.phaserJson,S.unityEditor,S.godotAnim]}
+  }
+ },
+ // ------------------------------------------------------------------ game/ezgif-sprite-cutter-alternative
+ 'game/ezgif-sprite-cutter-alternative':{
+  type:'compare',
+  intent:{primary:'compare ezgif\'s sprite cutter with an alternative that does not upload the sheet',secondary:['what ezgif does well','what Nerulio lacks','when to use which'],
+   goal:'choose the right tool for cutting a sprite sheet, knowing what each does better',input:'a sprite sheet',output:'frames, a GIF, or engine files',support:'partial',
+   evidence:['docs/SEO-KEYWORDS.md §4 (ezgif hands-on, 2026-09-23)','src/game/export/anim.js (GIF writer: disposal 2, min 2 cs)','src/studio/app.js (drop, pick, paste; no URL import)','src/game/export/targets.js'],
+   external:['ezgif.com/sprite-cutter (formats, 200 MB, 1-hour deletion, tile size or columns/rows, offsets, spacing, outputs)','ezgif.com/maker (1/100 s delays, crossfade, 2000 files)','GIF89a disposal methods']},
+  en:{
+   answer:'ezgif\'s sprite cutter and Nerulio both cut a sprite sheet into frames, but they are built for different jobs. ezgif uploads the sheet to its server (files are deleted one hour after upload), cuts it by a tile size or by columns and rows with the offsets and spacing you type, and hands the frames to a large image toolbox: single frames as PNG, GIF, JPG, BMP or WebP, a ZIP, or an animated GIF, APNG, WebP, AVIF or MNG. Nerulio cuts in your browser tab, measures the grid itself or cuts along transparent gaps, and keeps the frames as timed animations for GIF, APNG, WebM or game-engine files. Which one fits depends on what the frames are for.',
+   concept:{title:'Same cut, different jobs around it',body:[
+    'The cut itself is the same arithmetic in both: a cell size, an offset for the margin and a spacing between cells. The difference is who finds those numbers. In ezgif you type them; in a hands-on test on 2026-09-23 the tile size started at 100 × 100 with no detection. Nerulio measures candidate grids from the transparent gaps, shows its confidence and reasons, and cuts sheets without a grid by islands.',
+    'After the cut, the paths part. ezgif is an image and GIF toolbox: frames go on to its GIF maker (delays in hundredths of a second, a crossfade option, and a "don\'t stack frames" box that transparent sprites need, or frames pile up), to optimisers, resizing and effects, or out as files in many formats. Nerulio keeps frames as a project: tags, per-frame milliseconds, pivots and boxes, exported to Godot 4, Unity 6, Phaser and other engines as well as to GIF, APNG and WebM. Its GIF writer always clears each frame before the next (the GIF "restore to background" disposal), so there is no stacking box to forget.',
+    'Where the file goes can matter for unreleased art: ezgif\'s pages say uploads are deleted one hour after upload; Nerulio reads and cuts the sheet in the tab and sends nothing to a server.'],
+    terms:[['Tile size','ezgif\'s name for the cell size of the cut.'],['Stacking','Transparent GIF frames drawn over the previous frame instead of replacing it.'],['Islands','Cutting along transparent gaps when the sheet has no grid.']]},
+   alternatives:{title:'When each one is the better choice',rows:[
+    ['ezgif sprite cutter','A one-off sheet whose tile size you know, when you want frames as JPG, BMP or WebP, an animated WebP, AVIF or MNG, or a video, or you will continue with ezgif\'s optimise, resize or effects tools. It also takes an image URL, and the server does the work on any device.'],
+    ['Nerulio Studio','The frames are for a game: the grid is unknown or irregular, frames need per-frame timing, pivots or hitboxes, or the result must be an engine file. Also when the sheet must not leave your machine.'],
+    ['The engine\'s own slicer (Unity Sprite Editor, Godot SpriteFrames panel)','You only need the frames inside that engine project and know the cell size.']]},
+   limits:{title:'What Nerulio lacks compared with ezgif',items:['No import from a URL: the file has to be dropped, chosen or pasted.','Separate frame files only as PNG, and only from the classic Sprite Lab\'s ZIP; no JPG, BMP or WebP frames.','Animated output is GIF, APNG or WebM only: no animated WebP, AVIF, MNG or JXL.','No crossfade, effects, text or GIF optimiser in the Studio.']},
+   versions:{body:['ezgif facts are from its own sprite cutter and GIF maker pages (read 2026-09-28: the cutter takes GIF, JPG, PNG, APNG and WebP up to 200 MB and deletes files one hour after upload; the GIF maker takes up to 2,000 files, 200 MB in total) and from a hands-on test on 2026-09-23 with a 128 × 64 sheet of eight 32 px frames (default tile size 100 × 100, the "don\'t stack frames" box). Nerulio facts are from its repository. GIF disposal methods follow the GIF89a specification.'],sources:[S.ezCutter,S.ezMaker,S.gif]}
+  },
+  ko:{
+   answer:'ezgif 스프라이트 커터와 Nerulio는 둘 다 스프라이트 시트를 프레임으로 자르지만, 만들어진 목적이 다릅니다. ezgif는 시트를 서버에 올리고(업로드 1시간 뒤 삭제), 직접 입력한 타일 크기나 열·행 수, 오프셋, 간격으로 자른 뒤 큰 이미지 도구 모음으로 넘깁니다. PNG·GIF·JPG·BMP·WebP 낱장 프레임, ZIP, 또는 GIF·APNG·WebP·AVIF·MNG 애니메이션으로요. Nerulio는 브라우저 탭 안에서 자르고, 격자를 스스로 재거나 투명한 틈을 따라 자르며, 프레임을 GIF·APNG·WebM이나 게임 엔진 파일용 타이밍 있는 애니메이션으로 유지합니다. 어느 쪽이 맞는지는 프레임을 어디에 쓰느냐에 달려 있습니다.',
+   concept:{title:'같은 자르기, 그 주변의 다른 일',body:[
+    '자르기 자체는 둘 다 같은 계산입니다. 칸 크기, 마진을 위한 오프셋, 칸 사이 간격. 차이는 그 값을 누가 찾느냐입니다. ezgif에서는 직접 입력합니다. 2026-09-23 직접 해 본 시험에서 타일 크기는 100 × 100에서 시작했고 감지는 없었습니다. Nerulio는 투명한 틈에서 후보 격자를 재고 신뢰도와 근거를 보여 주며, 격자가 없는 시트는 아일랜드로 자릅니다.',
+    '자른 뒤에는 길이 갈립니다. ezgif는 이미지·GIF 도구 모음입니다. 프레임은 GIF 메이커(100분의 1초 단위 지연, 크로스페이드 옵션, 투명 스프라이트라면 켜야 하는 "don\'t stack frames" 상자, 안 켜면 프레임이 쌓임), 최적화, 크기 조절, 효과로 가거나 여러 형식의 파일로 나갑니다. Nerulio는 프레임을 프로젝트로 유지합니다. 태그, 프레임별 밀리초, 피벗, 박스를 Godot 4, Unity 6, Phaser 등 엔진과 GIF, APNG, WebM으로 내보냅니다. GIF 쓰기는 다음 프레임 전에 항상 화면을 지우므로(GIF의 "restore to background" disposal) 잊을 상자가 없습니다.',
+    '공개 전 그림이라면 파일이 어디로 가는지가 중요할 수 있습니다. ezgif 페이지는 업로드 1시간 뒤 삭제한다고 밝히고, Nerulio는 탭 안에서 시트를 읽고 자르며 서버로 아무것도 보내지 않습니다.'],
+    terms:[['타일 크기','ezgif가 자르기의 칸 크기를 부르는 이름.'],['쌓임(stacking)','투명 GIF 프레임이 이전 프레임을 대체하지 않고 그 위에 그려지는 현상.'],['아일랜드','격자가 없는 시트를 투명한 틈을 따라 자르기.']]},
+   alternatives:{title:'각각 더 나은 경우',rows:[
+    ['ezgif 스프라이트 커터','타일 크기를 아는 일회성 시트이고, 프레임을 JPG·BMP·WebP로, 또는 WebP·AVIF·MNG 애니메이션이나 동영상으로 원하거나, 이어서 ezgif의 최적화·크기 조절·효과 도구를 쓸 때. 이미지 URL도 받고, 서버가 작업하므로 기기를 가리지 않습니다.'],
+    ['Nerulio Studio','프레임을 게임에 쓸 때: 격자를 모르거나 불규칙하고, 프레임별 타이밍·피벗·히트박스가 필요하거나, 결과가 엔진 파일이어야 할 때. 시트가 내 컴퓨터를 떠나면 안 될 때도.'],
+    ['엔진 자체 자르기(Unity Sprite Editor, Godot SpriteFrames 패널)','그 엔진 프로젝트 안에서만 프레임이 필요하고 칸 크기를 알 때.']]},
+   limits:{title:'ezgif와 비교해 Nerulio에 없는 것',items:['URL로 가져오기가 없습니다. 파일을 놓거나, 고르거나, 붙여 넣어야 합니다.','낱장 프레임 파일은 PNG뿐이고 기존 스프라이트 랩의 ZIP으로만 나옵니다. JPG·BMP·WebP 프레임은 없습니다.','애니메이션 출력은 GIF·APNG·WebM뿐이며 WebP·AVIF·MNG·JXL 애니메이션은 없습니다.','Studio에는 크로스페이드, 효과, 텍스트, GIF 최적화가 없습니다.']},
+   versions:{body:['ezgif 정보는 ezgif의 스프라이트 커터와 GIF 메이커 페이지(2026-09-28 확인: 커터는 GIF·JPG·PNG·APNG·WebP를 200MB까지 받고 업로드 1시간 뒤 삭제, GIF 메이커는 파일 2,000개·합계 200MB까지)와, 32px 프레임 8개로 된 128 × 64 시트로 2026-09-23 직접 해 본 시험(기본 타일 100 × 100, "don\'t stack frames" 상자)에서 왔습니다. Nerulio 정보는 저장소에서 왔습니다. GIF disposal은 GIF89a 규격을 따릅니다.'],sources:[S.ezCutter,S.ezMaker,S.gif]}
+  },
+  ja:{
+   answer:'ezgifのスプライトカッターとNerulioは、どちらもスプライトシートをフレームに切り分けますが、想定している仕事が違います。ezgifはシートをサーバーにアップロードし（アップロードの1時間後に削除）、入力したタイルサイズか列・行の数、オフセット、間隔で切り、大きな画像ツール群へ渡します。PNG・GIF・JPG・BMP・WebPの単体フレーム、ZIP、あるいはGIF・APNG・WebP・AVIF・MNGのアニメーションです。Nerulioはブラウザのタブ内で切り、グリッドを自分で測るか透明なすき間に沿って切り、フレームをGIF・APNG・WebMやゲームエンジン用ファイルのための、タイミング付きアニメーションとして保ちます。どちらが合うかはフレームの用途しだいです。',
+   concept:{title:'切り方は同じ、その前後の仕事が違う',body:[
+    '切る計算自体はどちらも同じです。セルの大きさ、マージンのためのオフセット、セル間の間隔。違いは、その値を誰が見つけるかです。ezgifでは自分で入力します。2026-09-23の実地テストでは、タイルサイズは100 × 100から始まり、検出はありませんでした。Nerulioは透明なすき間から候補のグリッドを測り、信頼度と根拠を示し、グリッドのないシートは島で切ります。',
+    '切ったあとは道が分かれます。ezgifは画像・GIFのツール群です。フレームはGIFメーカー（1/100秒単位のディレイ、クロスフェードの選択肢、透明なスプライトなら必要な「don\'t stack frames」のチェック。付けないとフレームが積み重なる）、最適化、リサイズ、エフェクトへ進むか、多くの形式のファイルとして出ていきます。Nerulioはフレームをプロジェクトとして保ちます。タグ、フレームごとのミリ秒、ピボット、ボックスを、Godot 4・Unity 6・Phaserなどのエンジンと、GIF・APNG・WebMへ書き出します。GIFの書き出しは次のフレームの前に必ず画面を消す（GIFの「restore to background」のdisposal）ので、付け忘れるチェックはありません。',
+    '公開前の絵なら、ファイルの行き先が重要なこともあります。ezgifのページはアップロードの1時間後に削除すると明記しています。Nerulioはタブの中でシートを読み、切り、サーバーには何も送りません。'],
+    terms:[['タイルサイズ','ezgifでの、切り分けるセルの大きさの呼び名。'],['スタッキング','透明なGIFのフレームが前のフレームを置き換えず、その上に重ねて描かれること。'],['島（アイランド）','グリッドのないシートを透明なすき間に沿って切ること。']]},
+   alternatives:{title:'それぞれが向いている場面',rows:[
+    ['ezgifのスプライトカッター','タイルサイズがわかっている単発のシートで、フレームをJPG・BMP・WebPで、あるいはWebP・AVIF・MNGのアニメーションや動画で欲しいとき、またはそのままezgifの最適化・リサイズ・エフェクトを使うとき。画像のURLも受け付け、処理はサーバーが行うので端末を選びません。'],
+    ['Nerulio Studio','フレームをゲームに使うとき：グリッドが不明または不規則、フレームごとのタイミング・ピボット・ヒットボックスが要る、結果がエンジン用ファイルでなければならない。シートを自分のPCの外に出したくないときも。'],
+    ['エンジン側の分割機能（UnityのSprite Editor、GodotのSpriteFramesパネル）','そのエンジンのプロジェクト内でだけフレームが要り、セルの大きさがわかっているとき。']]},
+   limits:{title:'ezgifと比べてNerulioに足りないもの',items:['URLからの読み込みがありません。ファイルをドロップするか、選ぶか、貼り付ける必要があります。','単体のフレーム画像はPNGだけで、従来のスプライトラボのZIPからしか出せません。JPG・BMP・WebPのフレームはありません。','アニメーションの出力はGIF・APNG・WebMだけで、WebP・AVIF・MNG・JXLのアニメーションはありません。','Studioにはクロスフェード、エフェクト、文字入れ、GIFの最適化がありません。']},
+   versions:{body:['ezgifの情報は、ezgif自身のスプライトカッターとGIFメーカーのページ（2026-09-28に確認：カッターはGIF・JPG・PNG・APNG・WebPを200MBまで受け付け、アップロードの1時間後に削除。GIFメーカーは最大2,000ファイル・合計200MBまで）と、32pxのフレーム8枚でできた128 × 64のシートで2026-09-23に行った実地テスト（既定のタイルサイズ100 × 100、「don\'t stack frames」のチェック）によるものです。Nerulioの情報はリポジトリによります。GIFのdisposalはGIF89a仕様に従います。'],sources:[S.ezCutter,S.ezMaker,S.gif]}
+  }
  }
 };
