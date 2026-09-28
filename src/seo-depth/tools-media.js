@@ -672,5 +672,371 @@ export default {
    limits:['1回の保存で1フレームだけです。N秒ごとの一括書き出しはありません。','HDRのフレームは8ビット画像になり、HDRの静止画形式では書き出しません。'],
    versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。3840 × 2160のテスト動画の1秒のフレームが3840 × 2160のPNGとして保存され、JPEGでもサイズは同じで容量は小さくなりました。フレームはMediabunny 1.58.1とWebCodecsでデコードし、WebCodecsがない場合はブラウザ自身の動画プレーヤーから元の大きさで描画します。'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)']}
   }
+ },
+ 'video/compress':{
+  type:'tool',
+  intent:{primary:'reduce video file size online, or compress a video to a target size in MB',secondary:['compress video for email or chat limits','lower resolution to 720p','MP4 or WebM output'],
+   goal:'a smaller MP4 or WebM, under a target size when one is given, with a known quality cost',input:'a video file',output:'MP4 (H.264) or WebM (VP9/VP8/AV1), <name>-small.mp4',support:'full',
+   evidence:['src/media-modern-worker.js convert (95 % budget minus audio, 50 kbit/s floor, up to 4 measured passes via trackBytes, width shrink, preset → Quality low/medium/high)','src/task/media.js (caps 1080/720/480 as height, audio bitrate default 192)','tests/media-browser.mjs (640 px width result, 0.35 MB target met)'],
+   external:['MDN video codec guide']},
+  en:{
+   answer:'Pick a quality (Small, Balanced, High) or type a size to fit under in MB, optionally cap the resolution at 1080p, 720p or 480p or remove the sound, and Nerulio re-encodes the video in your browser: MP4 with H.264 when the browser can encode it, otherwise WebM with VP9, VP8 or AV1. A target is not a guess: the first pass is sized from the duration, and each later pass is corrected by the bytes actually produced, up to four passes, with the resolution lowered when bitrate alone cannot get there.',
+   concept:{title:'What decides the size of a video',body:[
+    'File size is bitrate × duration. A 60-second clip at 3 Mbit/s of video plus 192 kbit/s of audio is about 60 × 3.192 ÷ 8 ≈ 24 MB, whatever the resolution. Resolution and frame rate decide how good that bitrate looks: the same 3 Mbit/s spread over 1920 × 1080 must drop more detail per pixel than over 1280 × 720.',
+    'Without a target, the quality presets tell the encoder how hard to compress and the size follows from the content: a static talk shrinks a lot, confetti and grass do not. A source that was already compressed hard can even grow, and the result box then shows the increase in percent.',
+    'With a target, Nerulio budgets 95 % of it, subtracts the audio (bitrate × duration) and gives the rest to video. After each pass it measures the real video and audio bytes in the output, because browser encoders overshoot the bitrate they are asked for, and corrects the next pass. When lowering the bitrate stops paying off, it scales the frame down too. Below 50 kbit/s for video it refuses and asks for a bigger target or a shorter section.'],
+    terms:[['Bitrate','Bits per second of a stream; video and audio add up. 1 Mbit/s for 60 s is 7.5 MB.'],['Resolution cap','Limits the output height: 720p keeps a 16:9 video at 1280 × 720 and turns a portrait 1080 × 1920 video into 404 × 718.'],['Pass','One complete encode. A target can take up to four, each one measured.']]},
+   example:{title:'Example: fitting a 60-second clip under 25 MB',lead:'With the default 192 kbit/s audio:',lines:[
+    'Target          25 MB = 25 × 1,048,576 = 26,214,400 bytes',
+    'Budget (95 %)   24,903,680 bytes',
+    'Audio           192,000 bit/s × 60 s ÷ 8 = 1,440,000 bytes',
+    'Video, pass 1   (24,903,680 − 1,440,000) × 8 ÷ 60 = 3,128,490 bit/s ≈ 3.13 Mbit/s',
+    'If still over   next bitrate = current × (97 % of target − audio − container) ÷ video bytes produced',
+    'Passes 2–4      same correction; the width shrinks when the bitrate alone stops helping'],
+    after:'"MB" here is 1,048,576 bytes, the same unit the result box uses. Removing the sound frees those 1.44 MB for the picture; lowering the audio bitrate under Advanced frees less.'},
+   mapping:{title:'Settings and what each one costs',head:['Setting','What it does','Cost'],rows:[
+    ['Small / Balanced / High','Encoder quality level when no target is set','The size follows the content and can exceed a well-compressed source'],
+    ['Fit under (MB)','Measured passes until the file fits, up to four','Time; may lower the resolution'],
+    ['Resolution cap 1080p / 720p / 480p','Limits the output height and never upscales','Detail; portrait video becomes narrow'],
+    ['Remove sound','Drops the audio track entirely','No sound'],
+    ['Format MP4 / WebM (Advanced)','H.264 in MP4 when the browser has an encoder; otherwise VP9, VP8 or AV1 in WebM','Some apps accept only MP4']]},
+   verify:{steps:[
+    'The result box shows the size before and after and, with a target, whether it was met and how many passes it took.',
+    'Check the output dimensions there too: a smaller width than you chose means the target forced a smaller frame.',
+    'Play the result full screen and look at dark gradients, fast motion and small text, which show compression first.']},
+   trouble:{rows:[
+    ['The result is larger than the original','The source was already compressed hard and the preset asked for more bits','The result box says it grew by a percentage','Choose Small, or set a target below the original size'],
+    ['"Target size leaves less than 50 kbit/s for video"','The target is too small for the duration once the audio is subtracted','Target ÷ seconds; audio alone takes 24 KB per second at 192 kbit/s','Raise the target, shorten the section, or remove the sound'],
+    ['The target was missed after four passes','The encoder could not go lower at the frame sizes tried','The result note reports the target and the actual size','Set a lower resolution cap yourself, or shorten the clip'],
+    ['An error says the audio alone needs more than the target','A long section at 192 kbit/s audio','The message names the kilobytes the audio needs','Lower the audio bitrate under Advanced, or remove the sound'],
+    ['MP4 is not offered','The browser has no H.264 encoder','Only WebM appears under Advanced','Use WebM, or another browser']]},
+   alternatives:{rows:[
+    ['FFmpeg with libx264 and `-crf`','Constant-quality encodes, slower presets for smaller files and batch work; a size target means computing the bitrate yourself.'],
+    ['The export settings of the app that recorded or edited the video','When you still have the project: exporting once at the final size avoids compressing twice.'],
+    ['[[video/trim|Trim first]]','When most of the clip is not needed, a shorter file is the cheapest reduction.']]},
+   limits:['A target is measured, not guaranteed: after four passes the note says if it was missed.','The simple options do not lower the frame rate, and only the primary audio track is kept.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155 on a 1920 × 1080 test clip: an encode capped at 640 px came out 640 px wide and smaller than the source, and a 0.35 MB target was met with the width kept between 320 and 640 px. The measured correction exists because Firefox\'s H.264 and Opus encoders produced about 10 % and 9 % more than the requested bitrate. Engine: Mediabunny 1.58.1 with WebCodecs.'],sources:['[MDN: Web video codec guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  },
+  ko:{
+   answer:'화질(작게·균형·고화질)을 고르거나 맞출 용량을 MB로 입력하고, 필요하면 해상도 상한(1080p·720p·480p)이나 소리 없애기를 고르면 Nerulio가 브라우저에서 영상을 다시 인코딩합니다. 브라우저가 인코딩할 수 있으면 H.264의 MP4, 아니면 VP9·VP8·AV1의 WebM입니다. 목표 용량은 추측이 아닙니다. 첫 번째 인코딩은 길이로 크기를 정하고, 이후에는 실제로 나온 바이트로 보정하며 최대 네 번까지 인코딩하고, 비트레이트만으로 안 되면 해상도도 낮춥니다.',
+   concept:{title:'영상 용량을 정하는 것',body:[
+    '파일 크기는 비트레이트 × 길이입니다. 영상 3 Mbit/s와 음성 192 kbit/s로 된 60초 클립은 해상도와 상관없이 60 × 3.192 ÷ 8 ≈ 24 MB입니다. 해상도와 프레임레이트는 그 비트레이트가 얼마나 좋아 보이는지를 정합니다. 같은 3 Mbit/s라도 1920 × 1080에 나누면 1280 × 720보다 픽셀마다 더 많은 세부를 버려야 합니다.',
+    '목표 용량이 없으면 화질 설정이 인코더에 압축 강도를 알려 주고, 크기는 내용에 따라 정해집니다. 가만히 말하는 영상은 많이 줄고, 꽃가루나 풀밭은 잘 줄지 않습니다. 이미 강하게 압축된 원본은 오히려 커질 수 있으며, 그때 결과 상자에 증가율이 나옵니다.',
+    '목표가 있으면 그 95 %를 예산으로 잡고 음성(비트레이트 × 길이)을 뺀 나머지를 영상에 씁니다. 브라우저 인코더는 요청한 비트레이트를 넘기곤 하므로, 한 번 인코딩할 때마다 결과의 실제 영상·음성 바이트를 재서 다음 인코딩을 보정합니다. 비트레이트를 낮춰도 효과가 줄어들면 화면 크기도 줄입니다. 영상에 50 kbit/s도 남지 않으면 더 큰 목표나 더 짧은 구간을 요청하며 거절합니다.'],
+    terms:[['비트레이트','스트림의 초당 비트 수. 영상과 음성을 더합니다. 1 Mbit/s로 60초면 7.5 MB입니다.'],['해상도 상한','출력 높이를 제한합니다. 720p에서 16:9 영상은 1280 × 720, 세로 1080 × 1920 영상은 404 × 718이 됩니다.'],['패스','한 번의 전체 인코딩. 목표 용량은 최대 네 번까지 걸리며 매번 크기를 잽니다.']]},
+   example:{title:'예시: 60초 클립을 25 MB 아래로 맞추기',lead:'기본 음성 192 kbit/s일 때:',lines:[
+    '목표            25 MB = 25 × 1,048,576 = 26,214,400 bytes',
+    '예산(95 %)      24,903,680 bytes',
+    '음성            192,000 bit/s × 60 s ÷ 8 = 1,440,000 bytes',
+    '영상, 1회차     (24,903,680 − 1,440,000) × 8 ÷ 60 = 3,128,490 bit/s ≈ 3.13 Mbit/s',
+    '아직 크면       다음 비트레이트 = 현재 × (목표의 97 % − 음성 − 컨테이너) ÷ 실제 영상 바이트',
+    '2~4회차         같은 보정, 비트레이트만으로 안 되면 폭을 줄임'],
+    after:'여기서 MB는 1,048,576바이트로, 결과 상자와 같은 단위입니다. 소리를 없애면 음성의 1.44 MB가 그대로 화질에 쓰이고, 고급 설정에서 음성 비트레이트를 낮추는 것은 그보다 효과가 작습니다.'},
+   mapping:{title:'설정과 각각의 대가',head:['설정','하는 일','대가'],rows:[
+    ['작게·균형·고화질','목표가 없을 때의 인코더 화질 단계','크기는 내용을 따르며 잘 압축된 원본보다 커질 수 있음'],
+    ['목표 용량(MB)','맞을 때까지 크기를 재며 최대 네 번 인코딩','시간이 걸리고 해상도가 낮아질 수 있음'],
+    ['해상도 상한 1080p·720p·480p','출력 높이를 제한하며 키우지는 않음','세부 손실, 세로 영상은 폭이 좁아짐'],
+    ['소리 없이','음성 트랙을 통째로 뺌','소리 없음'],
+    ['형식 MP4·WebM(고급)','브라우저에 인코더가 있으면 H.264의 MP4, 아니면 VP9·VP8·AV1의 WebM','MP4만 받는 앱이 있음']]},
+   verify:{steps:[
+    '결과 상자에 전후 용량과, 목표가 있으면 달성 여부와 인코딩 횟수가 나옵니다.',
+    '출력 해상도도 거기서 확인하세요. 고른 것보다 폭이 작다면 목표 때문에 화면 크기가 줄어든 것입니다.',
+    '결과를 전체 화면으로 재생해 어두운 그라데이션, 빠른 움직임, 작은 글씨를 보세요. 압축 흔적이 가장 먼저 드러나는 곳입니다.']},
+   trouble:{rows:[
+    ['결과가 원본보다 큼','원본이 이미 강하게 압축돼 있었고 화질 설정이 더 많은 비트를 요구함','결과 상자에 증가율이 표시됨','작게를 고르거나 원본보다 작은 목표 용량 입력'],
+    ['"Target size leaves less than 50 kbit/s for video"','음성을 빼고 나면 길이에 비해 목표가 너무 작음','목표 ÷ 초. 192 kbit/s 음성만 해도 초당 24 KB','목표를 키우거나 구간을 줄이거나 소리를 없애기'],
+    ['네 번 인코딩한 뒤에도 목표를 못 맞춤','시도한 화면 크기에서 인코더가 더 줄이지 못함','결과 안내에 목표와 실제 용량이 나옴','해상도 상한을 직접 낮추거나 클립을 줄이기'],
+    ['음성만으로 목표를 넘는다는 오류','192 kbit/s 음성의 긴 구간','메시지에 음성이 차지하는 KB가 나옴','고급 설정에서 음성 비트레이트를 낮추거나 소리를 없애기'],
+    ['MP4가 선택지에 없음','브라우저에 H.264 인코더가 없음','고급 설정에 WebM만 있음','WebM을 쓰거나 다른 브라우저 사용']]},
+   alternatives:{rows:[
+    ['libx264와 `-crf`를 쓴 FFmpeg','일정 화질 인코딩, 더 작게 만드는 느린 프리셋, 일괄 작업. 목표 용량은 비트레이트를 직접 계산해야 합니다.'],
+    ['영상을 찍거나 편집한 앱의 내보내기 설정','프로젝트가 남아 있다면 최종 크기로 한 번에 내보내 두 번 압축하지 않을 수 있습니다.'],
+    ['[[video/trim|먼저 자르기]]','클립 대부분이 필요 없다면 짧게 만드는 것이 가장 싼 용량 줄이기입니다.']]},
+   limits:['목표 용량은 측정해 맞추는 것이지 보장이 아닙니다. 네 번 뒤에도 못 맞추면 안내에 표시됩니다.','기본 설정으로는 프레임레이트를 낮추지 않으며, 기본 음성 트랙 하나만 남습니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 1920 × 1080 테스트 클립을 써서 확인했습니다. 640 px로 제한한 인코딩은 폭 640 px에 원본보다 작았고, 0.35 MB 목표는 폭을 320~640 px로 유지하며 달성했습니다. 측정 기반 보정이 있는 이유는 Firefox의 H.264와 Opus 인코더가 요청한 비트레이트보다 약 10 %, 9 % 더 많이 냈기 때문입니다. 엔진은 Mediabunny 1.58.1과 WebCodecs입니다.'],sources:['[MDN: 웹 영상 코덱 안내](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  },
+  ja:{
+   answer:'画質（小さめ・バランス・高画質）を選ぶか、収めたい容量をMBで入力し、必要なら解像度の上限（1080p・720p・480p）や音声の削除を選ぶと、Nerulioがブラウザ内で動画を再エンコードします。ブラウザがエンコードできればH.264のMP4、できなければVP9・VP8・AV1のWebMです。目標容量は推測ではありません。1回目は長さから大きさを決め、以降は実際に出たバイト数で補正して最大4回までエンコードし、ビットレートだけで届かなければ解像度も下げます。',
+   concept:{title:'動画の容量を決めるもの',body:[
+    'ファイルサイズはビットレート × 長さです。映像3 Mbit/sと音声192 kbit/sの60秒のクリップは、解像度に関係なく60 × 3.192 ÷ 8 ≈ 24 MBです。解像度とフレームレートは、そのビットレートがどれだけきれいに見えるかを決めます。同じ3 Mbit/sでも1920 × 1080に割り振ると、1280 × 720より画素あたり多くの細部を捨てることになります。',
+    '目標容量がなければ、画質の設定がエンコーダーに圧縮の強さを伝え、サイズは内容次第です。動きの少ない話の動画は大きく縮み、紙吹雪や草原はあまり縮みません。すでに強く圧縮された元動画はかえって大きくなることがあり、そのとき結果の欄に増加率が出ます。',
+    '目標があると、その95 %を予算とし、音声（ビットレート × 長さ）を引いた残りを映像に回します。ブラウザのエンコーダーは頼んだビットレートを超えがちなので、毎回出力の実際の映像・音声のバイト数を測って次のエンコードを補正します。ビットレートを下げても効果が薄れてきたら、画面サイズも縮めます。映像に50 kbit/sも残らない場合は、より大きな目標か短い区間を求めて処理を断ります。'],
+    terms:[['ビットレート','ストリームの1秒あたりのビット数。映像と音声を足します。1 Mbit/sで60秒なら7.5 MBです。'],['解像度の上限','出力の高さを制限します。720pなら16:9の動画は1280 × 720、縦長の1080 × 1920の動画は404 × 718になります。'],['パス','1回分の全体のエンコード。目標容量には最大4回かかり、毎回サイズを測ります。']]},
+   example:{title:'例：60秒のクリップを25 MB以下に収める',lead:'既定の音声192 kbit/sの場合：',lines:[
+    '目標            25 MB = 25 × 1,048,576 = 26,214,400 bytes',
+    '予算（95 %）    24,903,680 bytes',
+    '音声            192,000 bit/s × 60 s ÷ 8 = 1,440,000 bytes',
+    '映像、1回目     (24,903,680 − 1,440,000) × 8 ÷ 60 = 3,128,490 bit/s ≈ 3.13 Mbit/s',
+    'まだ大きければ  次のビットレート = 現在 × (目標の97 % − 音声 − コンテナ) ÷ 実際の映像バイト数',
+    '2〜4回目        同じ補正。ビットレートだけで効かなくなれば幅を縮める'],
+    after:'ここでのMBは1,048,576バイトで、結果の欄と同じ単位です。音声を削除すればその1.44 MBがそのまま映像に回り、詳細設定で音声ビットレートを下げるより効果があります。'},
+   mapping:{title:'設定とそれぞれの代償',head:['設定','働き','代償'],rows:[
+    ['小さめ・バランス・高画質','目標がないときのエンコーダーの画質段階','サイズは内容次第で、よく圧縮された元動画より大きくなることもある'],
+    ['目標容量（MB）','収まるまでサイズを測りながら最大4回エンコード','時間がかかり、解像度が下がることがある'],
+    ['解像度の上限 1080p・720p・480p','出力の高さを制限し、拡大はしない','細部が減り、縦長の動画は幅が狭くなる'],
+    ['音声なし','音声トラックを丸ごと外す','音が出ない'],
+    ['形式 MP4・WebM（詳細）','エンコーダーがあればH.264のMP4、なければVP9・VP8・AV1のWebM','MP4しか受け付けないアプリがある']]},
+   verify:{steps:[
+    '結果の欄に前後の容量と、目標があれば達成したか、何回エンコードしたかが出ます。',
+    '出力の解像度もそこで確認します。選んだより幅が小さければ、目標のために画面サイズが縮められています。',
+    '結果を全画面で再生し、暗いグラデーション、速い動き、小さな文字を見ます。圧縮の跡が最初に出るところです。']},
+   trouble:{rows:[
+    ['結果が元より大きい','元がすでに強く圧縮されており、画質の設定がより多くのビットを求めた','結果の欄に増加率が出る','小さめを選ぶか、元より小さい目標容量を入れる'],
+    ['「Target size leaves less than 50 kbit/s for video」と出る','音声を引くと、長さに対して目標が小さすぎる','目標 ÷ 秒数。192 kbit/sの音声だけで毎秒24 KB','目標を上げるか、区間を短くするか、音声を削除'],
+    ['4回エンコードしても目標に届かない','試した画面サイズでは、エンコーダーがそれ以上縮められなかった','結果の案内に目標と実際の容量が出る','解像度の上限を自分で下げるか、クリップを短くする'],
+    ['音声だけで目標を超えるというエラー','192 kbit/sの音声で長い区間','メッセージに音声が必要とするKBが出る','詳細設定で音声ビットレートを下げるか、音声を削除'],
+    ['MP4が選べない','ブラウザにH.264エンコーダーがない','詳細設定にWebMしかない','WebMを使うか、別のブラウザを使う']]},
+   alternatives:{rows:[
+    ['libx264と`-crf`を使うFFmpeg','一定画質のエンコード、より小さくする遅いプリセット、一括処理。目標容量はビットレートを自分で計算する必要があります。'],
+    ['撮影・編集したアプリの書き出し設定','プロジェクトが残っているなら、最終サイズで一度に書き出せば二重に圧縮せずに済みます。'],
+    ['[[video/trim|先に切り出す]]','クリップの大半が不要なら、短くするのが一番手軽な容量削減です。']]},
+   limits:['目標容量は測って合わせるもので、保証ではありません。4回で届かなければ案内に表示されます。','基本の設定ではフレームレートを下げず、主な音声トラック1本だけが残ります。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使い、1920 × 1080のテストクリップで確認しました。640 pxに制限したエンコードは幅640 pxで元より小さく、0.35 MBの目標は幅を320〜640 pxに保ったまま達成しました。測定による補正があるのは、FirefoxのH.264とOpusのエンコーダーが指定より約10 %、9 %多く出力したためです。エンジンはMediabunny 1.58.1とWebCodecsです。'],sources:['[MDN：Web動画コーデックガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  }
+ },
+ 'video/to-gif':{
+  type:'tool',
+  intent:{primary:'convert a video clip to an animated GIF online',secondary:['make a GIF from a video section','smaller GIF file size','GIF colours and dithering','GIF under a size limit'],
+   goal:'a looping GIF of the chosen moment at a size and smoothness that fit where it will be posted',input:'a video file',output:'GIF (<name>.gif)',support:'full',
+   evidence:['src/task/media.js (width 320/480/640/original, fps 10/15/24, speed, loop, reverse, crop, colours 256–32, dither 0/0.5/1, default 480 px / 15 fps / 6 s)','src/media-modern-worker.js gifPlan/gifPass/shrinkGif/gifEstimate (per-frame gifenc palette, Floyd–Steinberg via pixel-engine, delays rounded to 10 ms, reverse 64 MB cap)','assets/vendor/gifenc-1.0.3 (delay ms → 1/100 s)','tests/media-browser.mjs'],
+   external:['W3C GIF89a specification: delay in 1/100 s, colour table up to 256, local colour table per image','FFmpeg filters: palettegen, paletteuse']},
+  en:{
+   answer:'Choose a section of the video, a width (320, 480 or 640 px, or the original), a frame rate (10, 15 or 24 fps) and, if you like, speed, loop, reverse, a crop ratio or a size to fit under, and Nerulio decodes those frames and writes a GIF. GIF holds at most 256 colours per frame and stores each frame\'s delay in hundredths of a second, so size and smoothness are a trade: width × height × frame count decides the size. The default is 480 px at 15 fps, each frame gets its own palette, and dithering is optional.',
+   concept:{title:'What a GIF can store, and why it gets big',body:[
+    'A GIF frame is a grid of palette indexes, one byte per pixel before LZW compression, with a colour table of at most 256 entries; the GIF89a specification allows a local table for every image. Nerulio builds a palette for each frame from that frame\'s own colours, so a new shot does not have to share colours with the previous one.',
+    'Video has far more than 256 colours, so smooth gradients (sky, skin, shadows) turn into bands. Dithering at 50 % or 100 % spreads the rounding error with Floyd–Steinberg diffusion, so bands become fine grain instead. Grain is noise to the LZW compressor, so dithered GIFs are larger. Fewer colours (128, 64, 32) shrink the file and make banding worse.',
+    'GIF has no sound and none of the motion compression a video codec has, so its size grows with every pixel of every frame. Delays are stored in 1/100 s: 15 fps (66.7 ms) cannot be stored exactly, so Nerulio alternates 70 and 60 ms and keeps the average right. Speed changes which moments are sampled, not the delay: 2× makes the GIF half as long at the same smoothness.'],
+    terms:[['Palette (colour table)','Up to 256 colours a frame can use; each pixel stores an index into it.'],['Dithering','Mixing neighbouring palette colours in a pattern to imitate colours the palette lacks.'],['Frame delay','How long a frame stays on screen, stored in hundredths of a second.']]},
+   example:{title:'Example: 6 seconds of 1920 × 1080 video at the defaults',lead:'The default section for a GIF is the first 6 seconds:',lines:[
+    'Frame size       480 × 270 px = 129,600 pixels',
+    'Frames           6 s × 15 fps = 90 frames',
+    'Delays           70, 60, 70, 70, 60, 70 … ms   (3 frames = 200 ms)',
+    'Index data       129,600 × 90 = 11.7 million bytes before LZW compression',
+    'At 24 fps        144 frames, delays 40, 40, 50 … ms, 18.7 million bytes of index data',
+    'At 640 px        640 × 360 × 90 = 20.7 million bytes of index data'],
+    after:'LZW then shrinks the index data by an amount that depends on the picture, which is why the size estimate encodes three real frames of your clip instead of guessing. At speed 2× the same 6 seconds become 45 frames and a 3-second GIF.'},
+   mapping:{title:'Settings and their effect on size',head:['Setting','Choices','Effect on size'],rows:[
+    ['Width','320, 480, 640 px or original','Pixels per frame grow with the square of the width'],
+    ['Frame rate','10, 15, 24 fps','Frame count grows in proportion'],
+    ['Colours (Advanced)','256, 128, 64, 32','Fewer colours compress better, with more banding'],
+    ['Dithering (Advanced)','Off, 50 %, 100 %','Smoother gradients, larger file'],
+    ['Speed','0.5×, 1×, 2×','2× halves the frames and the length'],
+    ['Crop','None, 1:1, 4:5, 16:9, centred','Fewer pixels per frame'],
+    ['Fit under (MB)','Any value','Up to four measured passes']]},
+   verify:{steps:[
+    'Before running, the summary shows the frame count and a size estimate measured from three encoded frames.',
+    'After running, the result box shows width × height, frame count and size and, with a target, whether it was met.',
+    'Open the GIF in a browser and in the app you will post it to, and check that it loops (or stops after one play if you turned Loop off).']},
+   trouble:{rows:[
+    ['Sky and skin show bands','256 colours per frame are not enough for smooth gradients','Look at the widest gradient in a frame','Turn dithering on at 50 % or 100 %, and keep 256 colours'],
+    ['The GIF is far too large','Width and frame count multiply: 640 px at 24 fps is 2.8 times the pixels of 480 px at 15 fps','Compare the estimate before running','Lower the width or fps, shorten the section, crop, or set Fit under (MB)'],
+    ['A size target was met but the GIF looks worse than set','To fit, the passes first cut colours to 64 (then 32), then width and fps together','The result box shows the final width and frame count','Raise the target, or shorten the section instead'],
+    ['A long clip is slow, or Reverse stops with a memory message','Every frame is decoded, quantised and compressed; Reverse also keeps all frames until the end, capped at 64 MB of index data','Progress shows frame n of the total','Shorten the section or lower width or fps; turn Reverse off for long clips'],
+    ['A phone video stops with a decoder error','The browser cannot decode the video codec, often HEVC','See [[video/mov-to-gif|the MOV guide]] for reading the codec','Use a browser that decodes it, or record in H.264']]},
+   alternatives:{rows:[
+    ['FFmpeg with the `palettegen` and `paletteuse` filters','One palette optimised for the whole clip and five dithering methods (Sierra-2-4A by default), scripted; command line only.'],
+    ['A short MP4 or WebM instead of a GIF','Where the platform accepts video: far smaller at the same quality, and with sound. See [[video/compress|video compression]].'],
+    ['[[game/sprite-sheet-to-gif|Sprite sheet to GIF]]','For pixel-art animation frames rather than filmed video.']]},
+   limits:['No transparent GIFs: every frame is opaque.','No text or sticker overlays, and the palette is built per frame, not shared across the clip.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155: 2 s at 640 px and 12 fps gave 24 frames 640 px wide; a 0.25 MB target was met by measured passes; a reversed, 2× speed, 1:1-cropped GIF kept its planned 5 frames and a square size; and the three-frame estimate was within 25 % of the real size. Frames are decoded with Mediabunny 1.58.1 and WebCodecs and encoded with gifenc 1.0.3. The GIF limits are from the GIF89a specification.'],sources:['[W3C: GIF89a specification](https://www.w3.org/Graphics/GIF/spec-gif89a.txt)','[FFmpeg filters: palettegen, paletteuse](https://ffmpeg.org/ffmpeg-filters.html)']}
+  },
+  ko:{
+   answer:'영상의 구간, 폭(320·480·640 px 또는 원본), 프레임레이트(10·15·24fps)를 고르고, 원하면 속도·반복·역재생·자르기 비율·맞출 용량까지 정하면 Nerulio가 그 프레임을 디코딩해 GIF를 만듭니다. GIF는 프레임당 최대 256색이고 프레임마다 머무는 시간을 100분의 1초 단위로 저장하므로, 용량과 부드러움은 서로 맞바꾸는 관계입니다. 폭 × 높이 × 프레임 수가 용량을 정합니다. 기본값은 480 px·15fps이고, 프레임마다 팔레트를 따로 만들며 디더링은 선택입니다.',
+   concept:{title:'GIF가 담을 수 있는 것과 커지는 이유',body:[
+    'GIF 프레임은 팔레트 번호의 격자로, LZW 압축 전에는 픽셀당 1바이트이고 색상표는 최대 256색입니다. GIF89a 규격은 이미지마다 로컬 색상표를 허용합니다. Nerulio는 각 프레임의 색으로 그 프레임만의 팔레트를 만들기 때문에, 장면이 바뀌어도 앞 장면과 색을 나눠 쓸 필요가 없습니다.',
+    '영상에는 256색보다 훨씬 많은 색이 있어서 하늘·피부·그림자 같은 부드러운 그라데이션은 띠처럼 끊어집니다. 디더링 50 %나 100 %는 플로이드-스타인버그 확산으로 반올림 오차를 퍼뜨려 띠를 고운 입자로 바꿉니다. 입자는 LZW 압축에는 잡음이라 디더링한 GIF는 더 큽니다. 색을 줄이면(128·64·32) 파일은 작아지고 띠는 심해집니다.',
+    'GIF에는 소리도, 영상 코덱 같은 움직임 압축도 없어서 모든 프레임의 모든 픽셀만큼 커집니다. 머무는 시간은 1/100초 단위라 15fps(66.7ms)는 정확히 저장할 수 없고, Nerulio는 70ms와 60ms를 번갈아 써서 평균을 맞춥니다. 속도는 머무는 시간이 아니라 뽑아낼 순간을 바꿉니다. 2배속이면 부드러움은 같고 GIF 길이가 절반입니다.'],
+    terms:[['팔레트(색상표)','한 프레임이 쓸 수 있는 최대 256색. 각 픽셀은 그 안의 번호를 저장합니다.'],['디더링','팔레트에 없는 색을 흉내 내려고 주변 팔레트 색을 무늬처럼 섞는 것.'],['프레임 지연','프레임이 화면에 머무는 시간. 100분의 1초 단위로 저장됩니다.']]},
+   example:{title:'예시: 1920 × 1080 영상 6초를 기본값으로',lead:'GIF의 기본 구간은 처음 6초입니다.',lines:[
+    '프레임 크기      480 × 270 px = 129,600 픽셀',
+    '프레임 수        6 s × 15 fps = 90 프레임',
+    '지연             70, 60, 70, 70, 60, 70 … ms   (3프레임 = 200 ms)',
+    '번호 데이터      129,600 × 90 = LZW 압축 전 1,170만 바이트',
+    '24 fps라면       144 프레임, 지연 40, 40, 50 … ms, 번호 데이터 1,870만 바이트',
+    '640 px라면       640 × 360 × 90 = 번호 데이터 2,070만 바이트'],
+    after:'이후 LZW가 번호 데이터를 줄이는 정도는 그림에 따라 달라서, 예상 용량은 추측하지 않고 실제 클립의 프레임 3장을 인코딩해 계산합니다. 2배속이면 같은 6초가 45프레임, 3초짜리 GIF가 됩니다.'},
+   mapping:{title:'설정과 용량에 미치는 영향',head:['설정','선택지','용량 영향'],rows:[
+    ['폭','320·480·640 px 또는 원본','프레임당 픽셀은 폭의 제곱으로 늘어남'],
+    ['프레임레이트','10·15·24 fps','프레임 수가 비례해 늘어남'],
+    ['색상 수(고급)','256·128·64·32','색이 적을수록 잘 압축되지만 띠가 늘어남'],
+    ['디더링(고급)','끔·50 %·100 %','그라데이션이 부드러워지고 파일이 커짐'],
+    ['속도','0.5배·1배·2배','2배면 프레임 수와 길이가 절반'],
+    ['자르기','없음·1:1·4:5·16:9, 가운데 기준','프레임당 픽셀이 줄어듦'],
+    ['목표 용량(MB)','임의의 값','크기를 재며 최대 네 번 인코딩']]},
+   verify:{steps:[
+    '실행 전에 요약에 프레임 수와, 실제로 인코딩한 프레임 3장으로 잰 예상 용량이 나옵니다.',
+    '실행 후 결과 상자에 폭 × 높이, 프레임 수, 용량과, 목표가 있으면 달성 여부가 나옵니다.',
+    'GIF를 브라우저와 올릴 앱에서 열어 반복되는지(반복을 껐다면 한 번 재생 후 멈추는지) 확인하세요.']},
+   trouble:{rows:[
+    ['하늘과 피부에 띠가 생김','부드러운 그라데이션에 프레임당 256색이 부족함','프레임에서 가장 넓은 그라데이션을 보기','디더링을 50 %나 100 %로 켜고 256색 유지'],
+    ['GIF가 너무 큼','폭과 프레임 수가 곱해짐. 640 px·24fps는 480 px·15fps의 2.8배 픽셀','실행 전 예상 용량 비교','폭이나 fps를 낮추거나 구간을 줄이거나 자르기, 또는 목표 용량 입력'],
+    ['목표 용량은 맞췄는데 설정보다 품질이 나빠 보임','맞추려고 먼저 색을 64(다음은 32)로, 그다음 폭과 fps를 함께 줄임','결과 상자에 최종 폭과 프레임 수가 나옴','목표를 키우거나 대신 구간을 줄이기'],
+    ['긴 클립이 느리거나, 역재생이 메모리 메시지로 멈춤','모든 프레임을 디코딩·양자화·압축하며, 역재생은 끝날 때까지 모든 프레임을 들고 있음(번호 데이터 64 MB 상한)','진행 표시에 전체 중 몇 번째 프레임인지 나옴','구간이나 폭·fps를 줄이고, 긴 클립은 역재생 끄기'],
+    ['휴대폰 영상에서 디코더 오류가 남','브라우저가 영상 코덱(주로 HEVC)을 디코딩하지 못함','코덱 확인법은 [[video/mov-to-gif|MOV 안내]] 참고','디코딩되는 브라우저를 쓰거나 H.264로 촬영']]},
+   alternatives:{rows:[
+    ['`palettegen`·`paletteuse` 필터를 쓴 FFmpeg','클립 전체에 최적화한 팔레트 하나와 다섯 가지 디더링(기본 Sierra-2-4A)을 스크립트로. 명령줄 전용입니다.'],
+    ['GIF 대신 짧은 MP4·WebM','플랫폼이 영상을 받는다면 같은 화질에 훨씬 작고 소리도 있습니다. [[video/compress|영상 압축]] 참고.'],
+    ['[[game/sprite-sheet-to-gif|스프라이트 시트를 GIF로]]','촬영한 영상이 아니라 도트 애니메이션 프레임일 때.']]},
+   limits:['투명 GIF는 만들지 않습니다. 모든 프레임이 불투명합니다.','글자·스티커 얹기는 없고, 팔레트는 클립 전체가 아니라 프레임마다 만듭니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 확인했습니다. 2초를 640 px·12fps로 만들면 폭 640 px의 24프레임이 나오고, 0.25 MB 목표는 측정 인코딩으로 달성했으며, 역재생·2배속·1:1 자르기 GIF는 계획한 5프레임과 정사각형 크기를 지켰고, 프레임 3장 예상치는 실제 용량과 25 % 이내였습니다. 프레임은 Mediabunny 1.58.1과 WebCodecs로 디코딩하고 gifenc 1.0.3으로 인코딩합니다. GIF의 한계는 GIF89a 규격에 따른 것입니다.'],sources:['[W3C: GIF89a 규격](https://www.w3.org/Graphics/GIF/spec-gif89a.txt)','[FFmpeg 필터: palettegen, paletteuse](https://ffmpeg.org/ffmpeg-filters.html)']}
+  },
+  ja:{
+   answer:'動画の区間、幅（320・480・640 pxまたは元のまま）、フレームレート（10・15・24fps）を選び、必要なら速度・ループ・逆再生・切り抜きの比率・収める容量も決めると、Nerulioがそのフレームをデコードしてアニメーションを作ります。GIFは1フレーム最大256色で、各フレームの表示時間を100分の1秒単位で保存するため、容量と滑らかさは引き換えです。幅 × 高さ × フレーム数が容量を決めます。既定は480 px・15fpsで、フレームごとにパレットを作り、ディザリングは任意です。',
+   concept:{title:'GIFが保存できるものと、大きくなる理由',body:[
+    'GIFのフレームはパレット番号の格子で、LZW圧縮前は1画素1バイト、カラーテーブルは最大256色です。GIF89aの仕様では画像ごとにローカルカラーテーブルを持てます。Nerulioは各フレームの色からそのフレーム専用のパレットを作るので、場面が変わっても前の場面と色を分け合う必要がありません。',
+    '動画には256色よりはるかに多くの色があるため、空・肌・影のような滑らかなグラデーションは帯状に分かれます。ディザリング50 %や100 %は、フロイド–スタインバーグ法で丸め誤差を拡散し、帯を細かい粒に変えます。粒はLZW圧縮にとってノイズなので、ディザリングしたGIFは大きくなります。色数を減らす（128・64・32）とファイルは小さくなり、帯は目立ちます。',
+    'GIFには音声も、動画コーデックのような動きの圧縮もないため、全フレームの全画素の分だけ大きくなります。表示時間は1/100秒単位なので15fps（66.7ms）はそのまま保存できず、Nerulioは70msと60msを交互に使って平均を合わせます。速度は表示時間ではなく、取り出す瞬間を変えます。2倍速なら滑らかさはそのままで長さが半分になります。'],
+    terms:[['パレット（カラーテーブル）','1フレームで使える最大256色。各画素はその中の番号を持ちます。'],['ディザリング','パレットにない色を表すため、近くのパレット色を模様のように混ぜること。'],['フレームの遅延','フレームが表示される時間。100分の1秒単位で保存されます。']]},
+   example:{title:'例：1920 × 1080の動画6秒を既定の設定で',lead:'GIFの既定の区間は最初の6秒です。',lines:[
+    'フレームサイズ   480 × 270 px = 129,600画素',
+    'フレーム数       6 s × 15 fps = 90フレーム',
+    '遅延             70, 60, 70, 70, 60, 70 … ms   （3フレーム = 200 ms）',
+    '番号データ       129,600 × 90 = LZW圧縮前で1,170万バイト',
+    '24 fpsなら       144フレーム、遅延40, 40, 50 … ms、番号データ1,870万バイト',
+    '640 pxなら       640 × 360 × 90 = 番号データ2,070万バイト'],
+    after:'その後LZWが番号データをどれだけ縮めるかは絵によって違うため、予想容量は推測ではなく、実際のクリップのフレーム3枚をエンコードして計算します。2倍速なら同じ6秒が45フレーム、3秒のGIFになります。'},
+   mapping:{title:'設定と容量への影響',head:['設定','選択肢','容量への影響'],rows:[
+    ['幅','320・480・640 pxまたは元のまま','1フレームの画素数は幅の2乗で増える'],
+    ['フレームレート','10・15・24 fps','フレーム数が比例して増える'],
+    ['色数（詳細）','256・128・64・32','色が少ないほど圧縮が効くが、帯が増える'],
+    ['ディザリング（詳細）','オフ・50 %・100 %','グラデーションが滑らかになり、ファイルは大きくなる'],
+    ['速度','0.5倍・1倍・2倍','2倍ならフレーム数と長さが半分'],
+    ['切り抜き','なし・1:1・4:5・16:9、中央基準','1フレームの画素数が減る'],
+    ['目標容量（MB）','任意の値','サイズを測りながら最大4回エンコード']]},
+   verify:{steps:[
+    '実行前に、要約にフレーム数と、実際にエンコードしたフレーム3枚から測った予想容量が出ます。',
+    '実行後、結果の欄に幅 × 高さ、フレーム数、容量と、目標があれば達成したかが出ます。',
+    'GIFをブラウザと投稿先のアプリで開き、ループするか（ループをオフにしたなら1回で止まるか）確認します。']},
+   trouble:{rows:[
+    ['空や肌に帯が出る','滑らかなグラデーションには1フレーム256色では足りない','フレーム内で最も広いグラデーションを見る','ディザリングを50 %か100 %にし、256色のままにする'],
+    ['GIFが大きすぎる','幅とフレーム数が掛け算になる。640 px・24fpsは480 px・15fpsの2.8倍の画素','実行前に予想容量を比べる','幅かfpsを下げる、区間を短くする、切り抜く、または目標容量を入れる'],
+    ['目標容量には収まったが、設定より画質が悪い','収めるため、まず色数を64（次に32）に、次に幅とfpsを一緒に下げる','結果の欄に最終的な幅とフレーム数が出る','目標を上げるか、代わりに区間を短くする'],
+    ['長いクリップが遅い、または逆再生がメモリのメッセージで止まる','全フレームをデコード・減色・圧縮し、逆再生は最後まで全フレームを保持する（番号データ64 MBまで）','進行表示に全体の何フレーム目かが出る','区間や幅・fpsを減らし、長いクリップでは逆再生をオフにする'],
+    ['スマホの動画でデコーダーのエラーが出る','ブラウザが映像コーデック（主にHEVC）をデコードできない','コーデックの調べ方は[[video/mov-to-gif|MOVのガイド]]を参照','デコードできるブラウザを使うか、H.264で撮影する']]},
+   alternatives:{rows:[
+    ['`palettegen`と`paletteuse`フィルターを使うFFmpeg','クリップ全体に最適化したパレット1つと5種類のディザリング（既定はSierra-2-4A）をスクリプトで。コマンドラインのみです。'],
+    ['GIFの代わりに短いMP4・WebM','投稿先が動画を受け付けるなら、同じ画質でずっと小さく、音声も付きます。[[video/compress|動画の圧縮]]を参照。'],
+    ['[[game/sprite-sheet-to-gif|スプライトシートをGIFに]]','撮影した動画ではなくドット絵のアニメーションのフレームのとき。']]},
+   limits:['透過GIFは作りません。すべてのフレームが不透明です。','文字やスタンプの重ね合わせはなく、パレットはクリップ全体ではなくフレームごとに作ります。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。2秒を640 px・12fpsにすると幅640 pxの24フレームになり、0.25 MBの目標は測定しながらのエンコードで達成し、逆再生・2倍速・1:1切り抜きのGIFは予定どおり5フレームで正方形になり、3フレームからの予想は実際の容量と25 %以内でした。フレームはMediabunny 1.58.1とWebCodecsでデコードし、gifenc 1.0.3でエンコードします。GIFの制約はGIF89aの仕様に基づきます。'],sources:['[W3C：GIF89a仕様](https://www.w3.org/Graphics/GIF/spec-gif89a.txt)','[FFmpegフィルター：palettegen、paletteuse](https://ffmpeg.org/ffmpeg-filters.html)']}
+  }
+ },
+ 'video/to-mp3':{
+  type:'tool',
+  intent:{primary:'extract the audio of a video as MP3 online',secondary:['which MP3 bitrate to choose','video to WAV','normalise or fade the extracted audio'],
+   goal:'an MP3 (or WAV) of the chosen section at a sensible bitrate, without re-encoding more than once',input:'a video or audio file with an audio track',output:'MP3 (CBR 128–320 kbit/s) or 16-bit WAV',support:'full',
+   evidence:['src/task/media.js (bitrates 128/192/256/320, default 192; WAV; fades; normalise; 44.1/48 kHz)','src/media-modern-worker.js convert (video discarded, gain to 0.98 of the measured peak, clamp 0.05–32, fades up to half the section)','assets/vendor/mediabunny-mp3-encoder-1.58.1 (LAME 3.100, lame_set_brate: constant bitrate)','tests/media-browser.mjs (mp3/wav duration, normalisation, fades)'],
+   external:['FFmpeg codecs: libmp3lame b (CBR/ABR) and q (VBR)']},
+  en:{
+   answer:'Open a video, choose the section, and Nerulio decodes only its audio track and encodes it as MP3 at 128, 192 (default), 256 or 320 kbit/s constant bitrate with the LAME 3.100 encoder, or as uncompressed 16-bit WAV. The picture is discarded without being decoded, so the video codec does not matter; the browser only has to decode the audio codec (AAC, Opus, MP3, PCM…). Fades, peak normalisation and resampling to 44.1 or 48 kHz are under Advanced.',
+   concept:{title:'Bitrate, size, and what MP3 cannot restore',body:[
+    'At a constant bitrate an MP3 spends the same number of bits every second, so its size is bitrate × duration ÷ 8. At 192 kbit/s that is 24 KB per second, about 1.4 MB a minute. WAV at 44.1 kHz, 16-bit stereo runs at 1411.2 kbit/s, about 10 MB a minute.',
+    'The audio in a video is nearly always compressed already, usually as AAC or Opus. Converting it to MP3 decodes and re-encodes it, which cannot bring back detail the first encoder removed: 320 kbit/s from a 128 kbit/s source only makes the file bigger. Pick a bitrate at or a little above the source\'s, or WAV when you will keep editing the audio.',
+    'Normalise measures the loudest sample in the section and scales the whole section so that this peak reaches 0.98 of full scale (about −0.2 dBFS). It does not compress dynamics, so one loud peak limits how far a quiet recording can be raised. Fades are linear and measured from the start and end of the section, up to half its length each.'],
+    terms:[['kbit/s','Thousand bits per second: 192 kbit/s is 24,000 bytes per second.'],['CBR','Constant bitrate: every second of the MP3 uses the same number of bits.'],['Peak normalisation','One gain for the whole section, chosen so the loudest sample stays just below clipping.']]},
+   example:{title:'Example: a music video of 3 min 20 s (200 s)',lead:'Size of the audio at each choice, as the result box shows it (1 MB = 1,048,576 bytes):',lines:[
+    '128 kbit/s    128,000 × 200 ÷ 8 = 3,200,000 bytes ≈ 3.1 MB',
+    '192 kbit/s    192,000 × 200 ÷ 8 = 4,800,000 bytes ≈ 4.6 MB   (default)',
+    '256 kbit/s    6,400,000 bytes ≈ 6.1 MB',
+    '320 kbit/s    8,000,000 bytes ≈ 7.6 MB',
+    'WAV 44.1 kHz 16-bit stereo   1,411,200 × 200 ÷ 8 = 35,280,000 bytes ≈ 33.6 MB',
+    'Normalise     measured peak 0.25 → gain 0.98 ÷ 0.25 = 3.92 (+11.9 dB)'],
+    after:'File headers add a few bytes on top. If the source audio is AAC at 128 kbit/s, 192 kbit/s MP3 keeps what is there; 320 kbit/s adds 3.2 MB and nothing audible.'},
+   mapping:{title:'From the source audio to the MP3',head:['In the source','What happens','In the result'],rows:[
+    ['Audio codec (AAC, Opus, MP3, PCM…)','Decoded by the browser; PCM is decoded by the reader itself','Encoded by LAME 3.100 (or written as PCM for WAV)'],
+    ['Sample rate','Kept, or resampled to 44.1 or 48 kHz if chosen','Same rate'],
+    ['Video track','Discarded without decoding','—'],
+    ['Section start and end','Samples outside are dropped; fades are measured from the section','Starts at 0 s'],
+    ['Extra audio tracks, chapters, cover art','Not read','—']]},
+   verify:{steps:[
+    'Play the result in the result player: it should start and end where the section does, with the fades you set.',
+    'Check the size in the result box against bitrate × duration ÷ 8.',
+    'If you normalised, compare the loudness with the source: the loudest moment should sit just under clipping.']},
+   trouble:{rows:[
+    ['"This file has no audio track"','The video was recorded or exported without sound','Play the source with sound on; ffprobe lists no audio stream','There is nothing to extract; find a version with audio'],
+    ['It stops with a decoder error','The browser cannot decode this audio codec (for example a surround codec)','ffprobe shows the audio codec','Convert the audio with a desktop tool, or try another browser'],
+    ['320 kbit/s sounds no better than 192','The source audio was lossy at a lower bitrate; re-encoding cannot add detail','ffprobe shows the source audio bit_rate','Pick 192 or the source bitrate; use WAV for editing'],
+    ['Normalise barely changed the volume','One loud peak (a clap, a door) is already near full scale','Look for a single spike in an audio editor','Leave the spike out of the section, or use a loudness tool that compresses dynamics'],
+    ['Compatibility mode refuses a long file','Without WebCodecs the whole source is decoded in memory, limited to 20 minutes','The compatibility note is shown','Use a browser with WebCodecs, which reads the file in pieces without a length cap']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i in.mp4 -vn -c:a libmp3lame -b:a 192k out.mp3`','Batch conversion or codecs your browser cannot decode; libmp3lame also offers VBR with `-q:a`.'],
+    ['WAV from this page','When you will edit, mix or encode the audio again later: no extra lossy step now.']]},
+   limits:['MP3 is written at a constant bitrate only; there is no VBR option.','No ID3 tags (title, artist, cover) are written.','Sources with more than two channels have not been tested in this path.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155: a 4 s MP3 at 192 kbit/s and a 44.1 kHz WAV cut from a 1920 × 1080 MP4 kept their length within 0.12 s; normalising a quiet test tone measured a peak below 0.2 and raised it by more than 2×; 1 s fades left the length unchanged. MP3 encoding is LAME 3.100 compiled to WebAssembly (mediabunny-mp3-encoder 1.58.1). The FFmpeg options are from its documentation.'],sources:['[FFmpeg codecs: libmp3lame](https://ffmpeg.org/ffmpeg-codecs.html)']}
+  },
+  ko:{
+   answer:'영상을 열고 구간을 고르면 Nerulio가 오디오 트랙만 디코딩해 LAME 3.100 인코더로 128·192(기본)·256·320 kbit/s 고정 비트레이트 MP3를 만들거나, 압축하지 않은 16비트 WAV로 저장합니다. 화면은 디코딩하지 않고 버리므로 영상 코덱은 상관없고, 브라우저가 음성 코덱(AAC, Opus, MP3, PCM 등)만 디코딩하면 됩니다. 페이드, 피크 정규화, 44.1·48 kHz 리샘플링은 고급 설정에 있습니다.',
+   concept:{title:'비트레이트와 용량, 그리고 MP3가 되살리지 못하는 것',body:[
+    '고정 비트레이트 MP3는 매초 같은 비트를 쓰므로 크기는 비트레이트 × 길이 ÷ 8입니다. 192 kbit/s면 초당 24 KB, 1분에 약 1.4 MB입니다. 44.1 kHz·16비트 스테레오 WAV는 1411.2 kbit/s로 1분에 약 10 MB입니다.',
+    '영상 속 음성은 거의 언제나 이미 AAC나 Opus로 압축돼 있습니다. 이를 MP3로 바꾸면 디코딩했다가 다시 인코딩하므로, 처음 인코더가 버린 세부는 돌아오지 않습니다. 128 kbit/s 원본을 320 kbit/s로 만들면 파일만 커집니다. 원본과 같거나 조금 높은 비트레이트를 고르고, 계속 편집할 음성이라면 WAV를 쓰세요.',
+    '정규화는 구간에서 가장 큰 샘플을 재고, 그 피크가 최대값의 0.98(약 −0.2 dBFS)이 되도록 구간 전체를 같은 배율로 키웁니다. 다이내믹을 압축하지 않으므로, 큰 피크 하나가 있으면 조용한 녹음을 많이 키울 수 없습니다. 페이드는 직선이며 구간의 시작과 끝에서 재고, 각각 구간 길이의 절반까지입니다.'],
+    terms:[['kbit/s','초당 천 비트. 192 kbit/s는 초당 24,000바이트입니다.'],['CBR','고정 비트레이트. MP3의 모든 초가 같은 비트 수를 씁니다.'],['피크 정규화','가장 큰 샘플이 클리핑 바로 아래에 오도록 구간 전체에 하나의 배율을 적용하는 것.']]},
+   example:{title:'예시: 3분 20초(200초)짜리 뮤직비디오',lead:'선택지별 음성 용량을 결과 상자와 같은 단위(1 MB = 1,048,576바이트)로 보면:',lines:[
+    '128 kbit/s    128,000 × 200 ÷ 8 = 3,200,000 bytes ≈ 3.1 MB',
+    '192 kbit/s    192,000 × 200 ÷ 8 = 4,800,000 bytes ≈ 4.6 MB   (기본)',
+    '256 kbit/s    6,400,000 bytes ≈ 6.1 MB',
+    '320 kbit/s    8,000,000 bytes ≈ 7.6 MB',
+    'WAV 44.1 kHz 16비트 스테레오  1,411,200 × 200 ÷ 8 = 35,280,000 bytes ≈ 33.6 MB',
+    '정규화        측정 피크 0.25 → 배율 0.98 ÷ 0.25 = 3.92 (+11.9 dB)'],
+    after:'파일 헤더만큼 몇 바이트가 더해집니다. 원본 음성이 128 kbit/s AAC라면 192 kbit/s MP3로 있는 것을 다 담을 수 있고, 320 kbit/s는 3.2 MB를 더할 뿐 들리는 차이는 없습니다.'},
+   mapping:{title:'원본 음성에서 MP3까지',head:['원본에서','처리','결과에서'],rows:[
+    ['음성 코덱(AAC, Opus, MP3, PCM 등)','브라우저가 디코딩, PCM은 읽기 도구가 직접 디코딩','LAME 3.100으로 인코딩(WAV는 PCM으로 기록)'],
+    ['샘플레이트','유지, 또는 고르면 44.1·48 kHz로 리샘플링','같은 샘플레이트'],
+    ['영상 트랙','디코딩 없이 버림','—'],
+    ['구간 시작·끝','바깥 샘플은 버리고 페이드는 구간 기준으로 잼','0초부터 시작'],
+    ['추가 음성 트랙, 챕터, 표지 이미지','읽지 않음','—']]},
+   verify:{steps:[
+    '결과 플레이어에서 재생해 보세요. 구간과 같은 곳에서 시작하고 끝나며, 정한 페이드가 들어가 있어야 합니다.',
+    '결과 상자의 용량을 비트레이트 × 길이 ÷ 8과 비교하세요.',
+    '정규화를 했다면 원본과 소리 크기를 비교하세요. 가장 큰 순간이 클리핑 바로 아래에 있어야 합니다.']},
+   trouble:{rows:[
+    ['"This file has no audio track"','영상을 소리 없이 녹화하거나 내보냄','소리를 켜고 원본을 재생, ffprobe에 음성 스트림이 없음','뽑을 소리가 없습니다. 소리가 있는 버전을 찾으세요'],
+    ['디코더 오류로 멈춤','브라우저가 이 음성 코덱(예: 서라운드 코덱)을 디코딩하지 못함','ffprobe로 음성 코덱 확인','데스크톱 도구로 변환하거나 다른 브라우저 시도'],
+    ['320 kbit/s가 192보다 좋게 들리지 않음','원본 음성이 더 낮은 비트레이트의 손실 압축이라, 다시 인코딩해도 세부가 늘지 않음','ffprobe로 원본 음성의 bit_rate 확인','192나 원본 비트레이트를 고르고, 편집용이면 WAV'],
+    ['정규화해도 소리가 거의 안 커짐','큰 피크 하나(박수, 문소리)가 이미 최대값 근처임','오디오 편집기에서 튀는 한 지점 찾기','그 지점을 구간에서 빼거나, 다이내믹을 압축하는 음량 도구 사용'],
+    ['호환 모드가 긴 파일을 거절함','WebCodecs가 없으면 원본 전체를 메모리에서 디코딩하므로 20분까지만 가능','호환 모드 안내가 떠 있음','파일을 조각씩 읽어 길이 제한이 없는 WebCodecs 지원 브라우저 사용']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i in.mp4 -vn -c:a libmp3lame -b:a 192k out.mp3`','일괄 변환이나 브라우저가 디코딩하지 못하는 코덱. libmp3lame은 `-q:a`로 VBR도 지원합니다.'],
+    ['이 페이지의 WAV','나중에 편집·믹스하거나 다시 인코딩할 음성이라면, 지금 손실 단계를 하나 더하지 않습니다.']]},
+   limits:['MP3는 고정 비트레이트로만 씁니다. VBR 옵션은 없습니다.','ID3 태그(제목, 아티스트, 표지)는 쓰지 않습니다.','채널이 셋 이상인 원본은 이 경로에서 테스트하지 않았습니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 확인했습니다. 1920 × 1080 MP4에서 자른 4초짜리 192 kbit/s MP3와 44.1 kHz WAV는 길이가 0.12초 이내로 맞았고, 조용한 테스트 음의 정규화는 피크를 0.2 미만으로 재서 2배 넘게 키웠으며, 1초 페이드는 길이를 바꾸지 않았습니다. MP3 인코딩은 WebAssembly로 컴파일한 LAME 3.100(mediabunny-mp3-encoder 1.58.1)입니다. FFmpeg 옵션은 공식 문서를 따랐습니다.'],sources:['[FFmpeg 코덱: libmp3lame](https://ffmpeg.org/ffmpeg-codecs.html)']}
+  },
+  ja:{
+   answer:'動画を開いて区間を選ぶと、Nerulioは音声トラックだけをデコードし、LAME 3.100エンコーダーで128・192（既定）・256・320 kbit/sの固定ビットレートMP3にするか、非圧縮の16ビットWAVで保存します。映像はデコードせずに捨てるので映像コーデックは関係なく、ブラウザが音声コーデック（AAC、Opus、MP3、PCMなど）をデコードできれば十分です。フェード、ピークの正規化、44.1・48 kHzへのリサンプリングは詳細設定にあります。',
+   concept:{title:'ビットレートと容量、そしてMP3が取り戻せないもの',body:[
+    '固定ビットレートのMP3は毎秒同じビット数を使うので、サイズはビットレート × 長さ ÷ 8です。192 kbit/sなら毎秒24 KB、1分で約1.4 MBです。44.1 kHz・16ビットのステレオWAVは1411.2 kbit/sで、1分あたり約10 MBです。',
+    '動画の音声はほぼ必ず、AACやOpusですでに圧縮されています。MP3にするとデコードして再エンコードするため、最初のエンコーダーが捨てた細部は戻りません。128 kbit/sの元音声を320 kbit/sにしてもファイルが大きくなるだけです。元と同じか少し高いビットレートを選び、編集を続ける音声ならWAVにしてください。',
+    '正規化は区間で最も大きいサンプルを測り、そのピークが最大値の0.98（約−0.2 dBFS）になるよう区間全体を同じ倍率で持ち上げます。ダイナミクスは圧縮しないので、大きなピークが1つあると静かな録音をあまり上げられません。フェードは直線的で、区間の始まりと終わりから測り、それぞれ区間の長さの半分までです。'],
+    terms:[['kbit/s','1秒あたり千ビット。192 kbit/sは毎秒24,000バイトです。'],['CBR','固定ビットレート。MP3のどの1秒も同じビット数を使います。'],['ピークの正規化','最も大きいサンプルがクリップの直前に来るよう、区間全体に1つの倍率をかけること。']]},
+   example:{title:'例：3分20秒（200秒）のミュージックビデオ',lead:'選択肢ごとの音声の容量を、結果の欄と同じ単位（1 MB = 1,048,576バイト）で見ると：',lines:[
+    '128 kbit/s    128,000 × 200 ÷ 8 = 3,200,000 bytes ≈ 3.1 MB',
+    '192 kbit/s    192,000 × 200 ÷ 8 = 4,800,000 bytes ≈ 4.6 MB   （既定）',
+    '256 kbit/s    6,400,000 bytes ≈ 6.1 MB',
+    '320 kbit/s    8,000,000 bytes ≈ 7.6 MB',
+    'WAV 44.1 kHz 16ビット ステレオ  1,411,200 × 200 ÷ 8 = 35,280,000 bytes ≈ 33.6 MB',
+    '正規化        測定ピーク0.25 → 倍率 0.98 ÷ 0.25 = 3.92（+11.9 dB）'],
+    after:'ファイルのヘッダー分が少し加わります。元の音声が128 kbit/sのAACなら、192 kbit/sのMP3で中身はすべて収まり、320 kbit/sは3.2 MB増えるだけで聞こえる違いはありません。'},
+   mapping:{title:'元の音声からMP3まで',head:['元のファイル','処理','結果'],rows:[
+    ['音声コーデック（AAC、Opus、MP3、PCMなど）','ブラウザがデコード。PCMは読み込み側が自分でデコード','LAME 3.100でエンコード（WAVはPCMで書き込み）'],
+    ['サンプルレート','そのまま、または選べば44.1・48 kHzにリサンプリング','同じサンプルレート'],
+    ['映像トラック','デコードせずに捨てる','—'],
+    ['区間の始まりと終わり','外側のサンプルは捨て、フェードは区間を基準に測る','0秒から始まる'],
+    ['追加の音声トラック、チャプター、カバー画像','読まない','—']]},
+   verify:{steps:[
+    '結果のプレーヤーで再生します。区間と同じところで始まって終わり、設定したフェードが入っているはずです。',
+    '結果の欄の容量を、ビットレート × 長さ ÷ 8と比べます。',
+    '正規化した場合は元と音量を比べます。最も大きい瞬間がクリップの少し手前にあるはずです。']},
+   trouble:{rows:[
+    ['「This file has no audio track」と出る','動画が音声なしで録画・書き出しされた','音を出して元を再生し、ffprobeに音声ストリームがない','取り出す音がありません。音声付きの版を探してください'],
+    ['デコーダーのエラーで止まる','ブラウザがこの音声コーデック（サラウンドのコーデックなど）をデコードできない','ffprobeで音声コーデックを確認','デスクトップのツールで変換するか、別のブラウザで試す'],
+    ['320 kbit/sが192より良く聞こえない','元の音声がより低いビットレートの非可逆圧縮で、再エンコードしても細部は増えない','ffprobeで元音声のbit_rateを確認','192か元のビットレートを選び、編集用ならWAV'],
+    ['正規化しても音量がほとんど変わらない','大きなピーク1つ（拍手、ドアの音）がすでに最大値近くにある','音声編集ソフトで突出した1点を探す','その点を区間から外すか、ダイナミクスを圧縮する音量ツールを使う'],
+    ['互換モードが長いファイルを断る','WebCodecsがないと元ファイル全体をメモリでデコードするため、20分まで','互換モードの案内が出ている','ファイルを少しずつ読み、長さの上限がないWebCodecs対応のブラウザを使う']]},
+   alternatives:{rows:[
+    ['FFmpeg：`ffmpeg -i in.mp4 -vn -c:a libmp3lame -b:a 192k out.mp3`','一括変換や、ブラウザがデコードできないコーデック。libmp3lameは`-q:a`でVBRにも対応します。'],
+    ['このページのWAV','後で編集・ミックス・再エンコードする音声なら、ここで非可逆の段階を増やさずに済みます。']]},
+   limits:['MP3は固定ビットレートでのみ書き出し、VBRのオプションはありません。','ID3タグ（タイトル、アーティスト、カバー）は書き込みません。','3チャンネル以上の元ファイルは、この経路ではテストしていません。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。1920 × 1080のMP4から切り出した4秒の192 kbit/s MP3と44.1 kHzのWAVは長さが0.12秒以内で一致し、静かなテスト音の正規化はピークを0.2未満と測って2倍を超えて持ち上げ、1秒のフェードは長さを変えませんでした。MP3のエンコードはWebAssemblyにコンパイルしたLAME 3.100（mediabunny-mp3-encoder 1.58.1）です。FFmpegのオプションは公式ドキュメントに従っています。'],sources:['[FFmpegコーデック：libmp3lame](https://ffmpeg.org/ffmpeg-codecs.html)']}
+  }
  }
 };
