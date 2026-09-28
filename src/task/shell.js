@@ -48,7 +48,7 @@ function renderChrome(){
  for(const el of document.querySelectorAll('[data-ui]'))el.textContent=text(el.dataset.ui);
  for(const a of document.querySelectorAll('[data-home-link]'))a.setAttribute('href',pagePrefix());
  for(const a of document.querySelectorAll('[data-studio-link]'))a.setAttribute('href',pagePrefix()+'game/studio/'+(a.dataset.studioWs?'?ws='+a.dataset.studioWs:''));
- updateSiteContent(page.id,l,page.landing);
+ updateSiteContent(page.id,l,page.landing||page.path);
 }
 function changeLanguage(value){
  page.auto=value==='auto';savePreference(page.auto?null:value,storage);

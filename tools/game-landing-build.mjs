@@ -56,7 +56,8 @@ export function targetOf(game){
   // Sprite before the Texture workspace lights it frame by frame); the empty Studio opens the page's own.
   const via=game.page.via;
   if(via&&via!==id)return {type:'studio',entry:via,then:id,route:`${STUDIO_ROUTE}/?ws=${via}`,empty:`${STUDIO_ROUTE}/?ws=${id}`};
-  return {type:'studio',entry:id,then:'',route:`${STUDIO_ROUTE}/?ws=${id}`,empty:`${STUDIO_ROUTE}/?ws=${id}`};
+  const mode=game.key==='game/fix-ai-pixel-art'?'&mode=restore':'';
+  return {type:'studio',entry:id,then:'',route:`${STUDIO_ROUTE}/?ws=${id}${mode}`,empty:`${STUDIO_ROUTE}/?ws=${id}${mode}`};
  }
  const route=toolRoute(game.kind==='keyword'?game.page.intent:game.key)+'/';
  return {type:'lab',entry:'',then:'',route,empty:route};

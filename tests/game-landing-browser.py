@@ -183,7 +183,8 @@ def part1(browser):
             if v.get('lab') or (key in PAGES['keywords'] and not v.get('studio')):
                 ok('a Lab page\'s primary action opens its Lab (<route>/app/ or the classic Lab) and the header still links the Studio', 'data-gl-drop' in h and re.search(r'data-target="lab" data-href="(?:\w\w/)?[\w/-]+/(app|classic)/"', h) and 'data-studio-link' in h, key)
             else:
-                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile|texture|pixel)"', h) and 'data-studio-link' in h, key)
+                ok('the primary action opens the Studio (link to /game/studio/ in the drop zone and the header)', 'data-gl-drop' in h and 'href="' in h and re.search(r'href="(?:\w\w/)?game/studio/\?ws=(sprite|pack|tile|texture|pixel)(?:&amp;mode=restore)?"', h) and 'data-studio-link' in h, key)
+                if key=='game/fix-ai-pixel-art':ok('the enlarged-pixel repair page opens restore mode', 'ws=pixel&amp;mode=restore' in h,key)
             ok('the page shows a real screenshot of the Studio or its Lab (WebP, with its size and alt text)', re.search(r'<img src="assets/studio/[\w-]+\.webp" width="1440" height="900" alt="[^"]{20,}"', h), key)
             ok('engine badges carry their verification label', h.count('class="gl-badge') >= (2 if lab else 3 if v.get('ws') == 'normalmap' else 4) and (lab or 'Godot' in h), key)
             if key != 'game':
