@@ -362,3 +362,12 @@ export function versionCompare(a,b){
  }
  return 0;
 }
+/** Inverse of relatedMany: for each object id, the subjects pointing at it (e.g. the service that
+ * has_plan a plan). @param {D1} db @param {string[]} ids @param {string} predicate */
+export async function relatedManyIn(db,ids,predicate){
+ const rows=await inChunks(db,ids,ph=>`SELECT r.object_id AS to_id,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM relations r JOIN entities e ON e.id=r.subject_id
+  WHERE r.predicate=? AND r.valid_until IS NULL AND e.status='active' AND r.object_id IN (${ph})`,[predicate]);
+ /** @type {Map<string,Entity[]>} */const out=new Map();
+ for(const r of rows){const l=out.get(r.to_id)||[];l.push(entityRow(r));out.set(r.to_id,l);}
+ return out;
+}

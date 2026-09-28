@@ -4,7 +4,7 @@
 import {html} from './html.js';
 import {page,nameOf,channelUrl,box,monogram,TILE} from './ui.js';
 import {compact} from './format.js';
-import {hubEntities,typeCounts,factsFor,pickFact,related,stalePatches,preorderDeadlines,upcomingEvents,recentVersions} from '../db/channel.js';
+import {hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions} from '../db/channel.js';
 import {dday,eventTime,boardTime} from './format.js';
 import {money,tokens,isoDateText,int} from './format.js';
 import {estimateLlmMemory} from '../estimates/llm-memory.js';
@@ -32,8 +32,9 @@ export async function loadHub(db,vertical,o){
  if(vertical==='ai'&&(type==='plan'||type==='model')){
   const all=await hubEntities(db,'ai',{type,limit:200});
   const facts=await factsFor(db,all.map(r=>r.entity.id));
-  const owner=new Map();
-  for(const r of all){const rel=await related(db,r.entity.id,type==='plan'?'in':'out',[type==='plan'?'has_plan':'made_by']);owner.set(r.entity.id,rel[0]?.entity||null);}
+  const ids=all.map(r=>r.entity.id);
+  const byId=type==='plan'?await relatedManyIn(db,ids,'has_plan'):await relatedMany(db,ids,'made_by');
+  const owner=new Map(ids.map(id=>[id,byId.get(id)?.[0]||null]));
   compare={rows:all.map(r=>({e:r.entity,owner:owner.get(r.entity.id),f:(/** @type {string} */ p)=>pickFact(facts.get(r.entity.id),p,{region:o.l==='ko'?'KR':'US'})}))};
  }
  // "Right now" boxes on the vertical's front page (no type filter).
