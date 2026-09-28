@@ -25,7 +25,7 @@ function spectrum(input,start,re,im){for(let i=0;i<re.length;i++){re[i]=(input[s
 function pearson(a,b){const n=a.length;let sa=0,sb=0,saa=0,sbb=0,sab=0;for(let i=0;i<n;i++){sa+=a[i];sb+=b[i];saa+=a[i]*a[i];sbb+=b[i]*b[i];sab+=a[i]*b[i];}const num=sab-sa*sb/n,den=Math.sqrt(Math.max(0,saa-sa*sa/n)*Math.max(0,sbb-sb*sb/n));return den?num/den:0;}
 export function estimateTempo(input,sampleRate){
  if(!(input instanceof Float32Array)||!(sampleRate>=8000&&sampleRate<=192000))throw Error('audio');
- const factor=Math.max(1,Math.floor(sampleRate/11025)),x=decimate(input,factor),sr=sampleRate/factor,nfft=1024,hop=256;
+ const factor=Math.max(1,Math.floor(sampleRate/11025)),x=decimate(input,factor),sr=sampleRate/factor,nfft=1024,hop=128;
  if(x.length<sr*3)return {bpm:null,confidence:0,candidates:[],reason:'too-short'};
  const frames=Math.floor((x.length-nfft)/hop)+1;if(frames<16)return {bpm:null,confidence:0,candidates:[],reason:'too-short'};
  const re=new Float64Array(nfft),im=new Float64Array(nfft),prev=new Float64Array(nfft/2),onset=new Float64Array(frames);let total=0;
@@ -34,14 +34,26 @@ export function estimateTempo(input,sampleRate){
  // Local mean removal makes slowly varying level changes less likely to masquerade as beats.
  const norm=new Float64Array(frames);for(let i=0;i<frames;i++){let m=0,c=0;for(let j=Math.max(0,i-8);j<=Math.min(frames-1,i+8);j++){m+=onset[j];c++;}norm[i]=Math.max(0,onset[i]-m/c);}
  const rate=sr/hop,lo=Math.floor(rate*60/220),hi=Math.ceil(rate*60/50),scores=[];
+ // Strong onset spacing provides an independent pulse cue when an accented
+ // downbeat makes the autocorrelation prefer half time.
+ const floor=Math.max(...norm)*.18,events=[];
+ for(let i=1;i<frames-1;i++)if(norm[i]>floor&&norm[i]>=norm[i-1]&&norm[i]>norm[i+1]){
+  if(events.length&&i-events.at(-1)<rate*.19){if(norm[i]>norm[events.at(-1)])events[events.length-1]=i;}
+  else events.push(i);
+ }
+ const gaps=events.slice(1).map((v,i)=>v-events[i]).filter(g=>g>=rate*60/240&&g<=rate*60/50).sort((a,b)=>a-b);
+ const pulseBpm=gaps.length>=5?60*rate/gaps[Math.floor(gaps.length/2)]:null;
  for(let lag=lo;lag<=hi;lag++){let sum=0,a=0,b=0;for(let i=lag;i<frames;i++){sum+=norm[i]*norm[i-lag];a+=norm[i]*norm[i];b+=norm[i-lag]*norm[i-lag];}const c=sum/Math.sqrt(a*b||1),bpm=60*rate/lag;if(bpm>=50&&bpm<=220)scores.push({bpm,score:c,lag});}
  // A regular accent every other click produces a stronger 60 BPM lag than the
  // constructed 120 BPM pulse. Prefer the common beat band mildly, but expose
  // both candidates rather than hiding a musically real half-time reading.
- scores.sort((a,b)=>b.score*(b.bpm>=80&&b.bpm<=180?1.3:1)-a.score*(a.bpm>=80&&a.bpm<=180?1.3:1));const best=scores[0];if(!best||best.score<.08)return {bpm:null,confidence:0,candidates:[],reason:'weak-beat'};
+ scores.sort((a,b)=>b.score*(b.bpm>=80&&b.bpm<=180?1.3:1)-a.score*(a.bpm>=80&&a.bpm<=180?1.3:1));
+ if(pulseBpm&&pulseBpm>=50&&pulseBpm<=220){const index=scores.findIndex(v=>Math.abs(Math.log2(v.bpm/pulseBpm))<.06),leader=scores[0],pulse=scores[index];if(pulse&&leader&&pulse.score>leader.score*.7&&Math.abs(Math.log2(pulse.bpm/leader.bpm))>.7)scores.unshift(...scores.splice(index,1));}
+ const best=scores[0];if(!best||best.score<.08)return {bpm:null,confidence:0,candidates:[],reason:'weak-beat'};
  const rivals=scores.filter(x=>Math.abs(Math.log2(x.bpm/best.bpm))>.08&&Math.abs(Math.log2(x.bpm/best.bpm)-1)>.08&&Math.abs(Math.log2(x.bpm/best.bpm)+1)>.08);
  const harmonic=scores.filter(x=>Math.abs(Math.abs(Math.log2(x.bpm/best.bpm))-1)<.08).sort((a,b)=>b.score-a.score)[0];
  const margin=best.score-(rivals[0]?.score||0),ambiguous=!!harmonic&&harmonic.score/best.score>.75,confidence=clamp(.55*best.score+.45*margin*2,0,1)*(ambiguous?.65:1);
+ if(confidence<.2)return {bpm:null,confidence,candidates:[],reason:'weak-beat'};
  const left=scores.find(x=>x.lag===best.lag-1)?.score,right=scores.find(x=>x.lag===best.lag+1)?.score;
  const denominator=left!==undefined&&right!==undefined?left-2*best.score+right:0;
  const offset=denominator<-.0001?clamp(.5*(left-right)/denominator,-.5,.5):0;

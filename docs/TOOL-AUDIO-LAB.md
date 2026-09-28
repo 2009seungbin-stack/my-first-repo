@@ -1,6 +1,18 @@
 # Audio Lab — stage 1 design gate (T5)
 
-Status: **design and competitor research only; implementation has not started**. Prepared 2026-09-28 on `nerulio/tool-t5-audio-lab` from `origin/main` at `cd1e69a`. The scope follows the T5 brief and shared Studio agent rules. The intended release comprises local BPM/key analysis, independently adjustable pitch and tempo, waveform cutting/fades/silence trim, EBU R128 loudness measurement and adjustment, and ringtone exports. This document proposes acceptance gates; no Nerulio Audio Lab result or codec is yet verified.
+Status: **implementation in progress; browser and listening gates pending**. Stage-1 research was prepared 2026-09-28 on `nerulio/tool-t5-audio-lab` from `origin/main` at `cd1e69a`, and coordinator review approved implementation. This document keeps the original design targets below; the measured implementation state is recorded next. No release or competitor-superiority claim is made.
+
+## Implementation audit — 2026-09-28
+
+| Area | Current evidence | Remaining gate |
+| --- | --- | --- |
+| Local DSP | `src/audio-lab/analysis.js` and `dsp.js` use bounded spectral onset/chroma, WSOLA plus resampling, trim/fade/zero-crossing snap, gated K-weighted LUFS and sample-peak-limited gain. `tests/audio-lab.test.mjs` passes 11/11. | Perceived pitch/time quality, stereo/transient AB listening, full EBU conformance signals, momentary/short-term and oversampled true peak. The page explicitly labels sample peak. |
+| CC0 truth | Thirteen original mathematical WAVs with generator, SHA-256, exact construction metadata and CC0 declaration are committed in `tests/fixtures/audio-lab/`. Six construction BPMs (60–180) and six construction keys pass the ±1 BPM/exact-key synthetic gate; a sustained tone and silence return no forced BPM/key. | Synthetic construction is not music-population accuracy. Kenney CC0 music and independently annotated real recordings remain to be tested. |
+| Local formats | The Worker decodes through the existing Mediabunny package, applies the same edit graph for preview and save, and exposes WAV PCM 16, Ogg Vorbis and MP3. M4R is visibly disabled/UNVERIFIED. | Actual browser encode/download, FFprobe reopen, independent player decode, and source/phone playback. Existing package licences are referenced in the UI; distribution facts require final audit. |
+| UX and search | ko/en/ja editor and explanatory content, disabled M4R, localized canonical/hreflang/sitemap, and ad-free page have passed syntax/build, `seo-depth` 7/7, sitemap 11/11, and static SEO audit (475 pages, 0 errors). | Chromium/Firefox/mobile touch, keyboard, network POST trace, download semantics, screen-reader inspection and real visual QA. |
+| Resource use | Decode is capped at 3 minutes, two channels, 128 MiB input and 96 MiB decoded PCM; the main thread gets waveform bins rather than full PCM. A 3-minute stereo/48 kHz Node benchmark on Windows measured 1.19 s analysis at 181 MiB process RSS, 152 ms loudness, 53 ms plain render and 883 ms shifted render at 202 MiB RSS. | Browser peak memory on a real mid-range mobile device and 3-minute render timing; Node RSS is not a mobile memory measurement. |
+
+The target list below includes capabilities not yet implemented: undo/redo, onset snapping, measured tuning offset, phase-vocoder comparison, true-peak limiting, momentary/short-term loudness, and a verified AAC-in-MP4 M4R/phone workflow. They must not be inferred from the current interface. A standard `wave`/FFprobe reopen and browser acceptance script are prepared but were not run at this audit point.
 
 ## User job and product boundary
 
@@ -69,4 +81,4 @@ Reopen every output with FFprobe/FFmpeg and a second player/decoder; verify WAV 
 3. Set corpus and confidence thresholds based on measured results. The one synthetic probe correctly read ~120 BPM/C major in two online analyzers but is insufficient to support accuracy claims.
 4. Request human listening and phone-install QA before release. Implementation tests can establish numeric behavior and successful decode, not perceived audio quality.
 
-No stage-2 source files or user-facing pages are changed by this design gate.
+Stage-2 source files and localized pages now exist as described in the implementation audit. The original stage-1 open decisions remain a record of the design review, not a current implementation claim.

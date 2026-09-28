@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {estimateTempo,estimateKey,fft} from '../src/audio-lab/analysis.js';
 import {edit,loudness,nearestZeroCrossing,normalize,shift,silenceBounds,validateAudio} from '../src/audio-lab/dsp.js';
 import {encodeWav} from '../src/audio-lab/encode.js';
@@ -10,6 +12,14 @@ function tone(hz=440,seconds=2){return Float32Array.from({length:Math.round(sr*s
 function frequency(samples,sampleRate){let best={f:0,m:0};for(let f=180;f<1100;f+=.5){let re=0,im=0;for(let i=0;i<Math.min(samples.length,4096);i++){re+=samples[i]*Math.cos(2*Math.PI*f*i/sampleRate);im-=samples[i]*Math.sin(2*Math.PI*f*i/sampleRate);}const m=re*re+im*im;if(m>best.m)best={f,m};}return best.f;}
 test('radix FFT locates a bin-aligned sine',()=>{const re=Float64Array.from({length:1024},(_,i)=>Math.sin(2*Math.PI*32*i/1024)),im=new Float64Array(1024);fft(re,im);const peak=Array.from(re.slice(0,512),(_,i)=>Math.hypot(re[i],im[i])).indexOf(Math.max(...Array.from(re.slice(0,512),(_,i)=>Math.hypot(re[i],im[i]))));assert.equal(peak,32);});
 test('known 120 BPM and C major fixture, including half-time alternative',()=>{const x=music(),t=estimateTempo(x,sr),k=estimateKey(x,sr);assert.ok(Math.abs(t.bpm-120)<1,JSON.stringify(t));assert.ok(t.candidates.some(n=>Math.abs(n-60)<1));assert.equal(k.key,'C major');assert.ok(k.confidence>0&&k.confidence<1);});
+test('CC0 WAV corpus is intact and constructed tempo/key cases meet the stated synthetic gate',()=>{
+ const dir=new URL('./fixtures/audio-lab/',import.meta.url),manifest=JSON.parse(readFileSync(new URL('manifest.json',dir),'utf8'));
+ assert.equal(manifest.cases.length,13);
+ for(const entry of manifest.cases){const bytes=readFileSync(new URL(entry.file,dir));assert.equal(createHash('sha256').update(bytes).digest('hex'),entry.sha256,entry.file);assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.readUInt32LE(24),sr);const n=bytes.readUInt32LE(40)/2,x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=bytes.readInt16LE(44+i*2)/32768;
+  const tempo=estimateTempo(x,sr),key=estimateKey(x,sr);if(entry.constructionTempoBpm!==null)assert.ok(Math.abs(tempo.bpm-entry.constructionTempoBpm)<=1,`${entry.file}: ${tempo.bpm}`);else assert.equal(tempo.bpm,null,entry.file);
+  assert.equal(key.key,entry.constructionKey,entry.file);
+ }
+});
 test('silent and short inputs report uncertainty',()=>{assert.equal(estimateTempo(new Float32Array(sr),sr).reason,'too-short');assert.equal(estimateKey(new Float32Array(sr*3),sr).key,null);assert.throws(()=>validateAudio([new Float32Array(sr*181)],sr),/3 minute/);});
 test('a single sustained pitch is not assigned a major or minor key',()=>{const result=estimateKey(tone(440,4),sr);assert.equal(result.key,null);assert.equal(result.reason,'insufficient-harmony');});
 test('speed changes length while preserving a steady tone',()=>{const out=shift([tone()],{speed:1.5,semitones:0})[0];assert.ok(Math.abs(out.length/sr-2/1.5)<.001);assert.ok(Math.abs(frequency(out.subarray(4000,15000),sr)-440)<8);});
