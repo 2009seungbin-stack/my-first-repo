@@ -1,0 +1,159 @@
+{
+ "appnews": {
+  "appid": 367520,
+  "newsitems": [
+   {
+    "gid": "1828441623103525",
+    "title": "Patch Version 1.5.12620 Now Live",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1828441623103525",
+    "is_external_url": true,
+    "author": "jack",
+    "contents": "Patch NotesAdded Traditional Chinese translationFixed low audio volume when navi",
+    "feedlabel": "Community Announcements",
+    "date": 1774585536,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "1823825466498013",
+    "title": "Patch Version 1.5.12459 Now Live",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1823825466498013",
+    "is_external_url": true,
+    "author": "jack",
+    "contents": "Patch NotesAdded support for 21:9 & 16:10 resolutions.Game now pauses while in i",
+    "feedlabel": "Community Announcements",
+    "date": 1770334105,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "4607764924148396062",
+    "title": "Cross-platform Cloud Saves",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4607764924148396062",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "Soon we'll be making some changes in order to support cross-platform cloud saves",
+    "feedlabel": "Community Announcements",
+    "date": 1660184162,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "4103335143104482015",
+    "title": "Update notes for v1.5.78.11833",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4103335143104482015",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "- Fixed Aspid Hunters and Primal Aspids sometimes spitting immediately after bre",
+    "feedlabel": "Community Announcements",
+    "date": 1634794513,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "4032392655076673127",
+    "title": "Update notes for v1.5.75.11827",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4032392655076673127",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "- Fixed pantheons getting stuck at end screen when not using a controller - Fixe",
+    "feedlabel": "Community Announcements",
+    "date": 1624847201,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "4032392655065513694",
+    "title": "Update notes for v1.5.72.11824",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4032392655065513694",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "- Fixed achievements for macOS (not firing in v1.5.68.11808) - Fixed nail art da",
+    "feedlabel": "Community Announcements",
+    "date": 1624582242,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "4093189347056151647",
+    "title": "Update notes for v1.5.68.11808",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/4093189347056151647",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "- Added \"Borderless\" option to fullscreen in video options - 64-bit is now requi",
+    "feedlabel": "Community Announcements",
+    "date": 1623039733,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "3702426087238730135",
+    "title": "Hollow Knight: Silksong Store Page Goes Live!",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/3702426087238730135",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/clans/27062031/7966",
+    "feedlabel": "Community Announcements",
+    "date": 1550168589,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520
+   },
+   {
+    "gid": "2444779293787690656",
+    "title": "Hollow Knight: Godmaster is out now for all players!",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2444779293787690656",
+    "is_external_url": true,
+    "author": "Team Cherry",
+    "contents": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/clans/27062031/1b39",
+    "feedlabel": "Community Announcements",
+    "date": 1535043616,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520
+   },
+   {
+    "gid": "2838841185449488480",
+    "title": "Gods & Glory Release Date! Epic New Album! New Merch!",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/2838841185449488480",
+    "is_external_url": true,
+    "author": "Leth",
+    "contents": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/clans/27062031/98f2",
+    "feedlabel": "Community Announcements",
+    "date": 1531792456,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 367520
+   }
+  ],
+  "count": 31
+ }
+}

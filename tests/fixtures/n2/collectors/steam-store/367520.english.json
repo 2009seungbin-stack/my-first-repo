@@ -1,0 +1,41 @@
+{
+ "367520": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "Hollow Knight",
+   "steam_appid": 367520,
+   "supported_languages": "English<strong>*</strong>, French<strong>*</strong>, German<strong>*</strong>, Spanish - Spain<strong>*</strong>, Korean<strong>*</strong>, Simplified Chinese<strong>*</strong>, Italian<strong>*</strong>, Portuguese - Brazil<strong>*</strong>, Russian<strong>*</strong>, Japanese<strong>*</strong>, Traditional Chinese<strong>*</strong><br><strong>*</strong>languages with full audio support",
+   "developers": [
+    "Team Cherry"
+   ],
+   "publishers": [
+    "Team Cherry"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "Feb 24, 2017"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": true,
+    "linux": true
+   },
+   "genres": [
+    {
+     "id": "1",
+     "description": "Action"
+    },
+    {
+     "id": "25",
+     "description": "Adventure"
+    },
+    {
+     "id": "23",
+     "description": "Indie"
+    }
+   ],
+   "website": "http://hollowknight.com"
+  }
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "377160": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "Fallout 4",
+   "steam_appid": 377160,
+   "supported_languages": "English<strong>*</strong>, French<strong>*</strong>, Italian<strong>*</strong>, German<strong>*</strong>, Spanish - Spain<strong>*</strong>, Polish, Portuguese - Brazil, Russian, Traditional Chinese, Japanese<strong>*</strong><br><strong>*</strong>languages with full audio support",
+   "developers": [
+    "Bethesda Game Studios"
+   ],
+   "publishers": [
+    "Bethesda Softworks"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "Nov 9, 2015"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": false,
+    "linux": false
+   },
+   "genres": [
+    {
+     "id": "3",
+     "description": "RPG"
+    }
+   ],
+   "website": "http://www.fallout4.com"
+  }
+ }
+}
