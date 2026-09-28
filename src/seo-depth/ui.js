@@ -33,7 +33,7 @@ const S={
  tiled:'[Tiled manual: Editing tilesets](https://doc.mapeditor.org/en/stable/manual/editing-tilesets/)',
  tpSettings:'[TexturePacker documentation: texture settings (padding, extrude)](https://www.codeandweb.com/texturepacker/documentation/texture-settings)'
 };
-export default {
+const CONTENT={
  'game/ui-lab':{
   type:'create',
   intent:{primary:'turn a game UI sheet into named elements and a padded UI atlas',secondary:['detect buttons, panels and icons on one transparent PNG','padding and extrude for a UI atlas','keep nine-slice borders per element'],
@@ -1065,3 +1065,30 @@ export default {
  }
 
 };
+
+// Keep the existing worked grid examples; the v2 editor adds import and output paths.
+// Update claims here in one place while the engine matrix is being independently rerun.
+const fontV2=CONTENT['bitmap-font-maker'];
+fontV2.intent.input='A local glyph-sheet PNG, BDF font, editable project JSON, or local TTF/OTF for bitmap baking';
+fontV2.intent.output='font.png + BMFont text/XML/binary + font.json; editable projects also include v2 source JSON and a guarded pixel-outline TTF';
+fontV2.intent.target='Godot 4 BMFont text, Phaser XML, and PixiJS 8; verify a generated bundle in your target version';
+fontV2.intent.evidence.push('src/game/font-bdf.js, font-project.js, font-ttf.js, font-hangul.js and tests/bitmap-font-maker-browser.py');
+fontV2.en.answer='Draw pixel glyphs locally or import a PNG sheet, BDF, or editable project. The maker writes one PNG atlas and matching BMFont text, XML and version-3 binary descriptors; editable projects also include the v2 source and, within stated limits, a TrueType pixel-outline font. A live missing-character count and kerning preview help check the actual text you plan to render. No file is uploaded. Exported text, XML, binary, PNG and TTF from two CC0 BDFs were independently reopened; engine loading of the new BDF path remains a separate check.';
+fontV2.ko.answer='로컬에서 픽셀 글리프를 그리거나 PNG 시트·BDF·편집 프로젝트를 가져올 수 있습니다. 도구는 PNG 아틀라스 한 장과 같은 수치의 BMFont 텍스트·XML·버전 3 바이너리를 내보냅니다. 편집 프로젝트에는 v2 원본과 한도 안에서 TrueType 픽셀 윤곽선 폰트도 들어갑니다. 입력한 문장의 누락 글자 수와 커닝 미리보기를 볼 수 있으며 파일은 업로드하지 않습니다. CC0 BDF 두 종의 출력은 독립적으로 재열었지만 새 BDF 경로의 엔진 적재는 별도 검증 대상입니다.';
+fontV2.ja.answer='ピクセルグリフを端末内で描くか、PNGシート・BDF・編集用プロジェクトを読み込めます。1枚のPNGアトラスと同じメトリクスのBMFontテキスト・XML・バージョン3バイナリを書き出します。編集用プロジェクトにはv2原本と、制限内でTrueTypeのピクセル輪郭フォントも含まれます。入力文の不足文字数とカーニングをプレビューでき、ファイルはアップロードされません。CC0のBDF 2種類の出力は独立して再読込済みですが、新しいBDF経路のエンジン読み込みは別途確認が必要です。';
+fontV2.en.concept.body[0]=fontV2.en.concept.body[0].replace('Nerulio writes none, because a bitmap sheet carries no kerning data.','The editable project records pair kerning, while a plain image sheet has no kerning metadata to import.');
+fontV2.ko.concept.body[0]=fontV2.ko.concept.body[0].replace('비트맵 시트에는 커닝 정보가 없어 Nerulio는 쓰지 않습니다.','편집 프로젝트는 글자 쌍 커닝을 저장하지만 이미지 시트에는 가져올 커닝 정보가 없습니다.');
+fontV2.ja.concept.body[0]=fontV2.ja.concept.body[0].replace('ビットマップのシートにはカーニングの情報がないので、Nerulioは書きません。','編集用プロジェクトには文字ペアのカーニングを保存できますが、画像シート自体には読み込むカーニング情報がありません。');
+fontV2.en.target.steps[3]='Phaser: use `this.load.bitmapFont(key, \'font.png\', \'font.xml\')`. The ZIP contains the XML descriptor alongside the PNG; test the loaded result in your Phaser version.';
+fontV2.ko.target.steps[3]='Phaser: `this.load.bitmapFont(key, \'font.png\', \'font.xml\')`를 사용하세요. ZIP에 PNG와 XML 설명자가 함께 들어 있습니다. 사용 중인 Phaser 버전에서 실제 표시를 확인하세요.';
+fontV2.ja.target.steps[3]='Phaser：`this.load.bitmapFont(key, \'font.png\', \'font.xml\')`を使います。ZIPにはPNGとXML記述子が入っています。利用するPhaserのバージョンで実際の表示を確認してください。';
+fontV2.en.trouble.rows[1][3]='Use the included `font.xml` next to `font.png`, then check Phaser console and file paths.';
+fontV2.ko.trouble.rows[1][3]='포함된 `font.xml`을 `font.png` 옆에 놓고 Phaser 콘솔과 파일 경로를 확인';
+fontV2.ja.trouble.rows[1][3]='同梱の`font.xml`を`font.png`の隣に置き、Phaserのコンソールとパスを確認する';
+fontV2.en.alternatives.rows[1][1]='You need verified multi-page atlases, effects, or advanced font features; this editor currently writes one atlas page.';
+fontV2.ko.alternatives.rows[1][1]='검증된 여러 텍스처 페이지, 효과 또는 고급 폰트 기능이 필요할 때. 이 편집기는 현재 아틀라스 한 장을 씁니다.';
+fontV2.ja.alternatives.rows[1][1]='検証済みの複数テクスチャページ、エフェクト、高度なフォント機能が必要な場合。このエディターは現在1ページのアトラスを書きます。';
+fontV2.en.limits=['One atlas page, no verified multi-page CJK output or OTF download; SDF remains Beta. A coverage count does not prove that Hangul composition is legible.','The editable TTF uses pixel-square outlines; two CC0 BDFs reopened with fontTools, but default FreeType hinting moved the detached dots in i and j. Unity TextMeshPro loading is unverified.','The existing local-font bake can use browser fallback glyphs and antialiasing. Inspect every downloaded atlas in the target engine.'];
+fontV2.ko.limits=['아틀라스 1장만 출력하며 여러 페이지 CJK 출력·OTF 다운로드는 검증되지 않았습니다. SDF는 베타입니다. 문자 수가 맞아도 조합 한글의 가독성은 보장되지 않습니다.','편집 TTF는 픽셀 사각형 윤곽선을 사용합니다. CC0 BDF 두 종은 fontTools로 재열었지만 FreeType 기본 힌팅에서 i·j의 분리된 점이 움직였습니다. Unity TextMeshPro 적재는 미검증입니다.','기존 로컬 폰트 굽기는 브라우저 대체 글리프와 안티앨리어싱이 섞일 수 있습니다. 대상 엔진에서 다운로드한 아틀라스를 확인하세요.'];
+fontV2.ja.limits=['アトラスは1ページです。複数ページのCJK出力とOTFダウンロードは未検証で、SDFはベータです。文字数が合っても合成ハングルの可読性は保証されません。','編集用TTFはピクセルの四角形を輪郭にします。CC0のBDF 2種類をfontToolsで再読込しましたが、FreeTypeの標準ヒンティングではiとjの離れた点が移動しました。Unity TextMeshProでの読み込みは未検証です。','従来のローカルフォント焼き込みではブラウザーの代替グリフやアンチエイリアスが混ざることがあります。対象エンジンで出力アトラスを確認してください。'];
+export default CONTENT;
