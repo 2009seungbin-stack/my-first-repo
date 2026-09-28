@@ -229,7 +229,8 @@ async function adminStats(ctx,cfg,db,now){
  if(!u||!cfg.adminSubjects.includes(u.provider_subject)||u.provider!=='google'||now-Number(u.session_created)>12*3600e3)throw new ApiError('NOT_FOUND');
  const day=quotaDay(now),since=now-864e5;
  const [users,pro,usage,jobs,events,flags,refusals,sharing,pastDue]=await db.batch([
-  db.prepare('SELECT COUNT(*) n FROM users'),
+  // System accounts (the Radar bot that authors platform news posts) are not people.
+  db.prepare("SELECT COUNT(*) n FROM users WHERE provider<>'system'"),
   db.prepare(`SELECT COUNT(DISTINCT user_id) n FROM subscriptions WHERE plan='pro' AND disputed_at IS NULL AND ((status IN ('active','trialing','canceled') AND current_period_end>?1) OR (status='past_due' AND past_due_since>?2))`).bind(now,now-cfg.pastDueGraceDays*864e5),
   db.prepare(`SELECT COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN 0 ELSE used END),0) n,COALESCE(SUM(CASE WHEN subject_id LIKE ?2 THEN used ELSE 0 END),0) studio FROM daily_usage WHERE day=?1 AND subject_id NOT LIKE 'n:%' AND subject_id NOT LIKE 'w:%'`).bind(day,'%'+STUDIO_SUBJECT_SUFFIX),
   db.prepare('SELECT COALESCE(SUM(allowed=0),0) denied,COUNT(*) total FROM job_authorizations WHERE created_at>=?1').bind(Date.parse(day)),

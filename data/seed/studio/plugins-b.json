@@ -1,0 +1,2238 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:native-instruments-macos-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.native-instruments.com/support/solutions/articles/69000879296-native-instruments-macos-compatibility",
+   "title": "Compatibility of Native Instruments Products on macOS",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "Tables: Apple Silicon native/Rosetta status; macOS 27: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; first supported versions for macOS 26/15/14/13."
+  },
+  {
+   "id": "src:native-instruments-windows-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.native-instruments.com/support/solutions/articles/69000879301-compatibility-of-native-instruments-products-on-windows",
+   "title": "Compatibility of Native Instruments Products on Windows",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "First supported versions on Windows 11; \"Windows ARM systems are currently not supported\"."
+  },
+  {
+   "id": "src:native-instruments-kontakt-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/kontakt",
+   "title": "Kontakt – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:native-instruments-battery-4-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/battery",
+   "title": "Battery 4 – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac Intel Mac (i5 or higher): macOS 13, 14 or 15 (latest update), 4 GB RAM | Apple Silicon Mac (native mode or using Rosetta 2): macOS 13, 14 or 15 (latest update) | Win Windows 10, 11 (latest Service Pack), Intel Core i5 or equivalent CPU, 4 GB RAM. | An Internet connection and a graphics card that supports OpenGL 2.1 or higher are required to download and activate this product. Once installed and activated, the product can be used offline. | Supported interfaces: Windows (64-bit only): Stand-alone, VST, VST3, AAX | Mac OS X (64-bit only): Stand-alone, VST, VST3, AU, AAX | Native BATTERY Files | File Type: Related Software (File Extension, Possible Drag-and-Drop Targets"
+  },
+  {
+   "id": "src:native-instruments-fm8-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/fm8",
+   "title": "FM8 – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Mac (native mode or using Rosetta 2) | SUPPORTED INTERFACES | Windows (64-bit only): VST, VST3, AAX | Mac OS X (64-bit only): VST, VST3, AU, AAX | ADDITIONAL INFO"
+  },
+  {
+   "id": "src:native-instruments-guitar-rig-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/guitar-rig-pro",
+   "title": "Guitar Rig 7 Pro – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac Intel Macs (i5 or higher), macOS 13, 14 or 15 (latest update) | Apple Silicon Macs (via Rosetta 2 & natively on ARM in Stand-alone or in hosts that support it): macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (latest Service Pack), Intel Core i5 or equivalent CPU, 4 GB RAM | Graphics hardware support for Direct 3D 11.1 (Feature Level 11_1) or higher | Plug-in Formats: | Windows (64-bit only): Stand-alone, VST3, AAX | macOS (64-bit only): Stand-alone, VST3, AU, AAX | Related products"
+  },
+  {
+   "id": "src:native-instruments-massive-x-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/massive-x",
+   "title": "Massive X – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Macs (native mode or using Rosetta 2) | Please note: MASSIVE X requires an Intel processor with [AVX](<https://support.native-instruments.com/hc/en-us/articles/360001544678-MASSIVE-X-Requires-AVX-Compatible-Processor>) or an Apple Silicon processor. | MASSIVE X does not currently run in standalone mode. | In case of graphics issues, please install the latest drivers for your graphics card. This can be necessary even if Windows reports them as up to date. | An Internet connection and a graphics card that"
+  },
+  {
+   "id": "src:native-instruments-massive-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/massive",
+   "title": "Massive – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Macs (native mode or using Rosetta 2) | An Internet connection and a graphics card that supports OpenGL 2.1 or higher are required to download and activate this product. Once installed and activated, the product can be used offline. | SUPPORTED INTERFACES | Supports ASIO, Core Audio, WASAPI | Win Windows (64-bit only): Stand-alone, VST, VST3, AAX"
+  },
+  {
+   "id": "src:native-instruments-reaktor-6-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/reaktor",
+   "title": "Reaktor 6 – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14, and 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Macs (native mode or using Rosetta 2) | An Internet connection and a graphics card that supports OpenGL 2.1 or higher are required to download and activate this product. Once installed and activated, the product can be used offline. | 4 GB RAM | SUPPORTED INTERFACES | Mac macOS (64-bit only): Stand-alone, VST, AU, AAX"
+  },
+  {
+   "id": "src:native-instruments-absynth-6-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/absynth",
+   "title": "Absynth 6 – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: macOS 14, 15, 26 (latest update) | Windows 10 or 11 (latest Service Pack) | Intel Core i5 or equivalent CPU, or Apple Silicon | 4 GB RAM (6 GB recommended) | Runs in 64-bit VST3, AU, and AAX hosts | An Internet connection and a graphics card that supports OpenGL 2.1 or higher, or DirectX 9 or 11, are required to download and activate this product. Once installed and activated, the product can be used offline. Please see the [Native Access system requirements](</pages/native-access>) . | Compatibility and integration | Seamless hardware integration with Kontrol keyboards and Maschine via Komplete Kontrol and Maschine software"
+  },
+  {
+   "id": "src:native-instruments-superstarsaw-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/superstarsaw",
+   "title": "SuperStarSaw – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: macOS 14, 15, 26 (latest update) | Windows 10 or 11 (latest Service Pack) | Intel Core i5 or equivalent CPU, or Apple Silicon | 4 GB RAM (6 GB recommended) | Runs in 64-bit VST3, AU, and AAX hosts | Internet connection required for installation and activation (offline use possible afterwards) | Related products | Company"
+  },
+  {
+   "id": "src:native-instruments-raum-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/raum",
+   "title": "Raum – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent AMD CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Mac (native mode or using Rosetta 2) | An Internet connection and a graphics card that supports OpenGL 2.1 or higher or Direct X 9 or 11 are required to download and activate this product. In case of graphics issues, please install the latest drivers for your GPU. This can be necessary even if Windows reports them as up to date. Once installed and activated, the product can be used offline. | Supported interfaces: | Windows (64-bit only): VST, VST3, AAX | Mac OS X (64-bit only): VST, VST3, AU, AAX"
+  },
+  {
+   "id": "src:native-instruments-replika-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/replika",
+   "title": "Replika – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent AMD CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Mac (native mode or using Rosetta 2) | An Internet connection and a graphics card that supports OpenGL 2.1 or higher or Direct X 9 or 11 are required to download and activate this product. In case of graphics issues, please install the latest drivers for your GPU. This can be necessary even if Windows reports them as up to date. Once installed and activated, the product can be used offline. | Supported interfaces: | Windows (64-bit only): VST, VST3, AAX | Mac OS X (64-bit only): VST, VST3, AU, AAX"
+  },
+  {
+   "id": "src:native-instruments-supercharger-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.native-instruments.com/products/supercharger",
+   "title": "Supercharger – Native Instruments",
+   "publisher": "Native Instruments",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: Mac macOS 13, 14 or 15 (latest update) | Win Windows 10 or 11 (64-bit, latest Service Pack) | Intel Core i5 or equivalent AMD CPU, 4 GB RAM (6 GB recommended) | Apple Silicon Mac (native mode or using Rosetta 2) | An Internet connection and a graphics card that supports OpenGL 2.1 or higher are required to download and activate this product. Once installed and activated, the product can be used offline. | Supported interfaces: | Windows (64-bit only): VST, VST3, AAX | Mac OS X (64-bit only): VST, VST3, AU, AAX"
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:native-instruments",
+   "type": "vendor",
+   "slug": "native-instruments",
+   "names": {
+    "en": "Native Instruments",
+    "ko": "네이티브 인스트루먼츠"
+   },
+   "aliases": [
+    "NI",
+    "Native Instruments GmbH"
+   ],
+   "description": {
+    "en": "Berlin-founded maker of Kontakt, Komplete, Maschine and Traktor.",
+    "ko": "Kontakt·Komplete·Maschine·Traktor를 만든 베를린 출신 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.native-instruments.com/"
+    },
+    {
+     "label": "Support",
+     "url": "https://support.native-instruments.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-kontakt",
+   "type": "plugin",
+   "slug": "native-instruments-kontakt",
+   "names": {
+    "en": "Kontakt"
+   },
+   "aliases": [
+    "Kontakt 8",
+    "Kontakt 7",
+    "Kontakt 6",
+    "NI Kontakt",
+    "Kontakt Player",
+    "Kontakt 8 Player",
+    "Native Instruments Kontakt"
+   ],
+   "description": {
+    "en": "Native Instruments' sampler; the free Kontakt Player runs third-party Kontakt libraries.",
+    "ko": "Native Instruments의 샘플러로, 무료 Kontakt Player로 서드파티 라이브러리를 실행할 수 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/kontakt"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-kontakt-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-kontakt-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-kontakt-product",
+     "note": "macOS* 14, 15 and 26 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-kontakt-product",
+     "note": "Windows 10 or 11 (latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/kontakt",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-kontakt-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-kontakt-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-battery-4",
+   "type": "plugin",
+   "slug": "native-instruments-battery-4",
+   "names": {
+    "en": "Battery 4"
+   },
+   "aliases": [
+    "Battery",
+    "NI Battery 4",
+    "Native Instruments Battery 4"
+   ],
+   "description": {
+    "en": "Drum sampler plug-in.",
+    "ko": "드럼 샘플러 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/battery"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-battery-4-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-battery-4-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-battery-4-product",
+     "note": "Mac Intel Mac (i5 or higher): macOS 13, 14 or 15 (latest update), 4 GB RAM"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-battery-4-product",
+     "note": "Win Windows 10, 11 (latest Service Pack), Intel Core i5 or equivalent CPU, 4 GB RAM."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/battery",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-battery-4-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-battery-4-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-fm8",
+   "type": "plugin",
+   "slug": "native-instruments-fm8",
+   "names": {
+    "en": "FM8"
+   },
+   "aliases": [
+    "NI FM8",
+    "Native Instruments FM8"
+   ],
+   "description": {
+    "en": "FM synthesizer plug-in.",
+    "ko": "FM 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/fm8"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-fm8-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-fm8-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-fm8-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-fm8-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/fm8",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-fm8-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-fm8-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-guitar-rig",
+   "type": "plugin",
+   "slug": "native-instruments-guitar-rig",
+   "names": {
+    "en": "Guitar Rig 7 Pro"
+   },
+   "aliases": [
+    "Guitar Rig",
+    "Guitar Rig 7",
+    "Guitar Rig 6",
+    "Guitar Rig Pro",
+    "Native Instruments Guitar Rig 7 Pro"
+   ],
+   "description": {
+    "en": "Amp and effects modelling plug-in and standalone app.",
+    "ko": "앰프·이펙트 모델링 플러그인이자 독립 실행형 앱입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/guitar-rig-pro"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-guitar-rig-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-guitar-rig-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-guitar-rig-product",
+     "note": "Mac Intel Macs (i5 or higher), macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-guitar-rig-product",
+     "note": "Win Windows 10 or 11 (latest Service Pack), Intel Core i5 or equivalent CPU, 4 GB RAM"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/guitar-rig-pro",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-guitar-rig-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-guitar-rig-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-massive-x",
+   "type": "plugin",
+   "slug": "native-instruments-massive-x",
+   "names": {
+    "en": "Massive X"
+   },
+   "aliases": [
+    "MASSIVE X",
+    "NI Massive X",
+    "Native Instruments Massive X"
+   ],
+   "description": {
+    "en": "Wavetable synthesizer plug-in.",
+    "ko": "웨이브테이블 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/massive-x"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-x-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-x-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-x-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-x-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/massive-x",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-x-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-massive-x-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-massive",
+   "type": "plugin",
+   "slug": "native-instruments-massive",
+   "names": {
+    "en": "Massive"
+   },
+   "aliases": [
+    "MASSIVE",
+    "NI Massive",
+    "Native Instruments Massive"
+   ],
+   "description": {
+    "en": "Virtual-analogue/wavetable synthesizer plug-in.",
+    "ko": "버추얼 아날로그·웨이브테이블 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/massive"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/massive",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-massive-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-massive-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-reaktor-6",
+   "type": "plugin",
+   "slug": "native-instruments-reaktor-6",
+   "names": {
+    "en": "Reaktor 6"
+   },
+   "aliases": [
+    "Reaktor",
+    "REAKTOR 6",
+    "Native Instruments Reaktor 6"
+   ],
+   "description": {
+    "en": "Modular synthesis and sound-design environment.",
+    "ko": "모듈러 신시시스·사운드 디자인 환경입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/reaktor"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "Standalone",
+      "VST2",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-reaktor-6-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-reaktor-6-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-reaktor-6-product",
+     "note": "Mac macOS 13, 14, and 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-reaktor-6-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/reaktor",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-reaktor-6-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-reaktor-6-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-absynth-6",
+   "type": "plugin",
+   "slug": "native-instruments-absynth-6",
+   "names": {
+    "en": "Absynth 6"
+   },
+   "aliases": [
+    "Absynth",
+    "Native Instruments Absynth 6"
+   ],
+   "description": {
+    "en": "Semi-modular synthesizer plug-in.",
+    "ko": "세미 모듈러 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/absynth"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-absynth-6-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-absynth-6-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-absynth-6-product",
+     "note": "macOS 14, 15, 26 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-absynth-6-product",
+     "note": "Windows 10 or 11 (latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/absynth",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-absynth-6-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-absynth-6-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-superstarsaw",
+   "type": "plugin",
+   "slug": "native-instruments-superstarsaw",
+   "names": {
+    "en": "SuperStarSaw"
+   },
+   "aliases": [
+    "Super Star Saw",
+    "Native Instruments SuperStarSaw"
+   ],
+   "description": {
+    "en": "Supersaw synthesizer plug-in.",
+    "ko": "슈퍼쏘우 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/superstarsaw"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-superstarsaw-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-superstarsaw-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-superstarsaw-product",
+     "note": "macOS 14, 15, 26 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-superstarsaw-product",
+     "note": "Windows 10 or 11 (latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/superstarsaw",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-superstarsaw-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-superstarsaw-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-raum",
+   "type": "plugin",
+   "slug": "native-instruments-raum",
+   "names": {
+    "en": "Raum"
+   },
+   "aliases": [
+    "NI Raum",
+    "Native Instruments Raum"
+   ],
+   "description": {
+    "en": "Reverb plug-in (part of Komplete Effects).",
+    "ko": "리버브 플러그인입니다(Komplete Effects 포함)."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/raum"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-raum-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-raum-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-raum-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-raum-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/raum",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-raum-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-raum-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-replika",
+   "type": "plugin",
+   "slug": "native-instruments-replika",
+   "names": {
+    "en": "Replika"
+   },
+   "aliases": [
+    "Replika XT",
+    "NI Replika",
+    "Native Instruments Replika"
+   ],
+   "description": {
+    "en": "Delay plug-in (part of Komplete Effects).",
+    "ko": "딜레이 플러그인입니다(Komplete Effects 포함)."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/replika"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-replika-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-replika-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-replika-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-replika-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/replika",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-replika-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-replika-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:native-instruments-supercharger",
+   "type": "plugin",
+   "slug": "native-instruments-supercharger",
+   "names": {
+    "en": "Supercharger"
+   },
+   "aliases": [
+    "Supercharger GT",
+    "NI Supercharger",
+    "Native Instruments Supercharger"
+   ],
+   "description": {
+    "en": "Tube compressor plug-in (part of Komplete Effects).",
+    "ko": "튜브 컴프레서 플러그인입니다(Komplete Effects 포함)."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.native-instruments.com/products/supercharger"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-supercharger-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-supercharger-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-supercharger-product",
+     "note": "Mac macOS 13, 14 or 15 (latest update)"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-supercharger-product",
+     "note": "Win Windows 10 or 11 (64-bit, latest Service Pack)"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-macos-compatibility",
+     "note": "Listed as natively compatible with Apple Silicon (Rosetta 2 also possible)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.native-instruments.com/products/supercharger",
+     "ver": "OFFICIAL",
+     "src": "src:native-instruments-supercharger-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:native-instruments",
+     "src": "src:native-instruments-supercharger-product"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "8.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "8.8.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "8.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "8.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "7.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.10.7",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "8.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "8.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "7.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.9.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "7.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.1.5",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "8.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "8.1.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "8.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "8.0.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "7.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "7.0.11",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "6.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "6.7.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-kontakt-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.3.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.3.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.3.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "4.3.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "4.2.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-battery-4",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-battery-4-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.6",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.6",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.6",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.6",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-fm8",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-fm8-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "7.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "7.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "7.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "7.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.0.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "6.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.3.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "7.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "7.0.2",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "6.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "6.2.3",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-guitar-rig",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-guitar-rig-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI macOS 26 table lists Massive X as \"Testing in progress\"."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.5",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.4",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.4.3",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.4.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-massive-x",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-massive-x-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.7.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.7.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.6.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.5.12",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "1.5.9",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-massive",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-massive-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 13."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "min_subject_version": "6.5.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI first supported version on Windows 11."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-reaktor-6",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-reaktor-6-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.0.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.0.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "6.0.1",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-absynth-6",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-absynth-6-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.0.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 26 Tahoe."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.0.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 15."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "1.0.0",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI first supported version on macOS 14."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-superstarsaw",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-superstarsaw-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-raum",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-raum-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-replika",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-replika-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "NI: \"Currently, Native Instruments Hardware & Software is not supported on macOS 27 Golden Gate\"; NI asks users not to update yet."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "Komplete Effects (Raum, Replika, Supercharger and others) are listed as a group; first supported version depends on the product."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-windows-compatibility",
+   "note": "NI: Windows ARM systems are currently not supported."
+  },
+  {
+   "subject": "plugin:native-instruments-supercharger",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-supercharger-product",
+   "note": "Product page lists Windows 10 or 11 (latest Service Pack)."
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": ">=8.8",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-kontakt-product",
+   "note": "NI: \"As of Kontakt 8.8, macOS 13 is no longer supported.\""
+  },
+  {
+   "subject": "plugin:native-instruments-kontakt",
+   "subject_version": "7.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "OFFICIAL",
+   "src": "src:native-instruments-macos-compatibility",
+   "note": "Kontakt 7 is not listed in NI's macOS 26 Tahoe table (only Kontakt 8 8.8.0+)."
+  }
+ ]
+}

@@ -1,0 +1,4862 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-jump-studio-wit-studio",
+   "kind": "OFFICIAL",
+   "url": "https://www.witstudio.co.jp/",
+   "title": "WIT STUDIO official website",
+   "publisher": "WIT STUDIO",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-madhouse",
+   "kind": "OFFICIAL",
+   "url": "https://madhouse.co.jp/",
+   "title": "Madhouse official website",
+   "publisher": "Madhouse",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-ufotable",
+   "kind": "OFFICIAL",
+   "url": "https://www.ufotable.com/",
+   "title": "ufotable official website",
+   "publisher": "ufotable",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-production-ig",
+   "kind": "OFFICIAL",
+   "url": "https://www.production-ig.co.jp/",
+   "title": "Production I.G official website",
+   "publisher": "Production I.G",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-cloverworks",
+   "kind": "OFFICIAL",
+   "url": "https://cloverworks.co.jp/",
+   "title": "CloverWorks official website",
+   "publisher": "CloverWorks",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-science-saru",
+   "kind": "OFFICIAL",
+   "url": "https://sciencesaru.com/",
+   "title": "Science SARU official website",
+   "publisher": "Science SARU",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-doga-kobo",
+   "kind": "OFFICIAL",
+   "url": "https://www.dogakobo.com/",
+   "title": "Doga Kobo official website",
+   "publisher": "Doga Kobo",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-films-2027-2029",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/news/81811/index.html",
+   "title": "新作映画公開決定！2027年夏『ONE PIECE FILM GOD VALLEY』、2029年『ONE PIECE FILM BAAD』が公開!!",
+   "publisher": "ONE PIECE.com (Shueisha / Fuji TV / Toei Animation)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-tv-episodes",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/anime/index.html",
+   "title": "TVアニメ（各話あらすじ・次回予告）",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/staffcast_broadcast/index.html",
+   "title": "スタッフキャスト・放送局",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-theop-keyart",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/news/81766/index.html",
+   "title": "2027年2月から配信のアニメ『THE ONE PIECE』のキーアートを解禁",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-theop-teaser",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/news/80222/index.html",
+   "title": "『THE ONE PIECE』ティザー予告を公開＆ルフィの日本語版キャストは田中真弓さんに決定",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-vol115",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/news/80124/index.html",
+   "title": "『ONE PIECE』最新115巻、7月3日(金)に発売決定！",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-op-harakado-collab",
+   "kind": "OFFICIAL",
+   "url": "https://one-piece.com/news/82262/index.html",
+   "title": "麦わらストア14周年を記念して「ハラカド」飲食店コラボ開催決定",
+   "publisher": "ONE PIECE.com",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-netflix-kr-one-piece",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/80107103",
+   "title": "원피스 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Korean Netflix title page"
+  },
+  {
+   "id": "src:sc-jump-netflix-kr-the-one-piece",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81594317",
+   "title": "THE ONE PIECE 더 원피스 | 넷플릭스 공식 사이트",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Korean Netflix title page; shows \"2027년 2월 공개\""
+  },
+  {
+   "id": "src:sc-jump-csm-assassins-announce",
+   "kind": "OFFICIAL",
+   "url": "https://chainsawman.dog/news/251221_01/",
+   "title": "『チェンソーマン 刺客篇』制作決定！",
+   "publisher": "Chainsaw Man anime official site (MAPPA)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-csm-assassins-teaser",
+   "kind": "OFFICIAL",
+   "url": "https://chainsawman.dog/news/260619_01/",
+   "title": "『チェンソーマン 刺客篇』最新ティザーPV公開！",
+   "publisher": "Chainsaw Man anime official site (MAPPA)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-csm-reze-prime-video",
+   "kind": "OFFICIAL",
+   "url": "https://chainsawman.dog/news/260825_01/",
+   "title": "劇場版『チェンソーマン レゼ篇』Prime Videoにて9月19日より見放題独占配信決定！",
+   "publisher": "Chainsaw Man anime official site (MAPPA)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-csm-cinema-live-2027",
+   "kind": "OFFICIAL",
+   "url": "https://chainsawman.dog/news/260921_01/",
+   "title": "劇場版『チェンソーマン レゼ篇』-CINEMA LIVE 2027- 開催決定！",
+   "publisher": "Chainsaw Man anime official site (MAPPA)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-csm-reze-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://chainsawman.dog/movie_reze/staffcast/",
+   "title": "STAFF/CAST | 劇場版『チェンソーマン レゼ篇』公式サイト",
+   "publisher": "Chainsaw Man anime official site (MAPPA)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-csm-reze",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42894",
+   "title": "극장판 체인소 맨 레제편",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-jjk-top",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/",
+   "title": "TVアニメ「呪術廻戦」公式サイト",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-jjk-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/staffcast/",
+   "title": "STAFF / CAST | TVアニメ「呪術廻戦」公式サイト",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-jjk-s4-teaser",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/news/20260619_01.php",
+   "title": "TVアニメ第4期「死滅回游 後編」ティザーPV公開！",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-jjk-s4-super-teaser",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/news/20260829_01.php",
+   "title": "TVアニメ『呪術廻戦』第4期「死滅回游 後編」スーパーティザービジュアル公開！",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-jjk-final-exhibition",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/news/20260830_01.php",
+   "title": "芥見下々『呪術廻戦』完結展が新宿にて開催決定！",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-jjk-popup-culling-game",
+   "kind": "OFFICIAL",
+   "url": "https://jujutsukaisen.jp/news/20260821_01.php",
+   "title": "アニメ『呪術廻戦』POP UP STORE～死滅回游 前編～の開催が決定！",
+   "publisher": "Jujutsu Kaisen anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-jjk-s3",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/44282",
+   "title": "주술회전 3기 : 사멸회유 전편",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-frieren-s3-oct-2027",
+   "kind": "OFFICIAL",
+   "url": "https://frieren-anime.jp/news/5417/",
+   "title": "第3期【黄金郷編】2027年10月放送決定!!",
+   "publisher": "Frieren anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-frieren-onair",
+   "kind": "OFFICIAL",
+   "url": "https://frieren-anime.jp/onair/",
+   "title": "ON AIR｜アニメ『葬送のフリーレン』公式サイト",
+   "publisher": "Frieren anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-frieren-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://frieren-anime.jp/staffcast/",
+   "title": "STAFF&CAST｜アニメ『葬送のフリーレン』公式サイト",
+   "publisher": "Frieren anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-frieren-3rd-anniv-screening",
+   "kind": "OFFICIAL",
+   "url": "https://frieren-anime.jp/news/6080/",
+   "title": "放送3周年記念！【第2期ピックアップ上映会】開催決定！",
+   "publisher": "Frieren anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-frieren-s2",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/44281",
+   "title": "(자막) 장송의 프리렌 2기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-ks-infinity-castle-intro",
+   "kind": "OFFICIAL",
+   "url": "https://kimetsu.com/anime/mugenjyohen_movie/intro/",
+   "title": "イントロダクション｜劇場版「鬼滅の刃」無限城編 第一章 猗窩座再来",
+   "publisher": "Demon Slayer official portal (Aniplex / ufotable)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-ks-infinity-castle-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://kimetsu.com/anime/mugenjyohen_movie/staffcast/",
+   "title": "スタッフ/キャスト｜劇場版「鬼滅の刃」無限城編 第一章 猗窩座再来",
+   "publisher": "Demon Slayer official portal (Aniplex / ufotable)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-ks-reair-2026",
+   "kind": "OFFICIAL",
+   "url": "https://kimetsu.com/anime/re-air2026/",
+   "title": "テレビアニメ「鬼滅の刃」シリーズ全編再放送",
+   "publisher": "Demon Slayer official portal",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-ks-machiasobi-31",
+   "kind": "OFFICIAL",
+   "url": "https://kimetsu.com/news/?id=71348&p=1",
+   "title": "「マチ★アソビ vol.31」ステージ情報公開！",
+   "publisher": "Demon Slayer official portal",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-ks-news",
+   "kind": "OFFICIAL",
+   "url": "https://kimetsu.com/news/",
+   "title": "最新情報 | 「鬼滅の刃」公式ポータルサイト",
+   "publisher": "Demon Slayer official portal",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-ks-infinity-castle-1",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/46208",
+   "title": "(자막) 극장판 귀멸의 칼날: 무한성편 제1장",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-sd-onair",
+   "kind": "OFFICIAL",
+   "url": "https://sakamotodays.jp/onair/",
+   "title": "ON AIR｜TVアニメ『SAKAMOTO DAYS』公式サイト",
+   "publisher": "SAKAMOTO DAYS anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-sd-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://sakamotodays.jp/staffcast/",
+   "title": "STAFF&CAST｜TVアニメ『SAKAMOTO DAYS』公式サイト",
+   "publisher": "SAKAMOTO DAYS anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-netflix-kr-sakamoto-days",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81663325",
+   "title": "사카모토 데이즈 | 넷플릭스 공식 사이트",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Korean Netflix title page; lists \"시즌 2: 2027년 1월 공개\""
+  },
+  {
+   "id": "src:sc-jump-k8-top",
+   "kind": "OFFICIAL",
+   "url": "https://kaiju-no8.net/",
+   "title": "怪獣8号｜アニメ公式サイト (STAFF/CAST)",
+   "publisher": "Kaiju No.8 anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-k8-final-chapter",
+   "kind": "OFFICIAL",
+   "url": "https://kaiju-no8.net/news/detail_251220_01.html",
+   "title": "完結編製作決定!!",
+   "publisher": "Kaiju No.8 anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-k8-narumi-weekdays",
+   "kind": "OFFICIAL",
+   "url": "https://kaiju-no8.net/news/detail_260905_01.html",
+   "title": "「鳴海の平日」配信開始！",
+   "publisher": "Kaiju No.8 anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-k8-bootcamp-tachikawa",
+   "kind": "OFFICIAL",
+   "url": "https://kaiju-no8.net/bootcamp2026/",
+   "title": "防衛隊ブートキャンプinタチカワ",
+   "publisher": "Kaiju No.8 anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-k8-narumi",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47185",
+   "title": "괴수 8호 나루미의 평일",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-laftel-k8-s2",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42889",
+   "title": "(자막) 괴수 8호 2기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-spy-tvseries",
+   "kind": "OFFICIAL",
+   "url": "https://spy-family.net/tvseries/",
+   "title": "TVアニメ『SPY×FAMILY』 (STAFF&CAST)",
+   "publisher": "SPY×FAMILY anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-spy-portal",
+   "kind": "OFFICIAL",
+   "url": "https://spy-family.net/",
+   "title": "アニメ『SPY×FAMILY』ポータル",
+   "publisher": "SPY×FAMILY anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-spy-extra-mission-2",
+   "kind": "OFFICIAL",
+   "url": "https://spy-family.net/tvseries/specialevent2/",
+   "title": "『SPY×FAMILY』ANIME EXTRA MISSION Ⅱ",
+   "publisher": "SPY×FAMILY anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-spy-s3",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/43393",
+   "title": "(자막) SPY×FAMILY Season 3",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-laftel-spy-code-white",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42807",
+   "title": "(자막) 극장판 스파이 패밀리 코드 : 화이트",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-dd-s3-2027",
+   "kind": "OFFICIAL",
+   "url": "https://anime-dandadan.com/news/2673/",
+   "title": "TVアニメ第3期 2027年放送決定！",
+   "publisher": "DAN DA DAN anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-dd-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://anime-dandadan.com/staffcast/",
+   "title": "STAFF&CAST｜TVアニメ『ダンダダン』",
+   "publisher": "DAN DA DAN anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-dd-s2",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42902",
+   "title": "단다단 2기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-netflix-kr-dandadan",
+   "kind": "OFFICIAL",
+   "url": "https://www.netflix.com/kr/title/81736884",
+   "title": "단다단 | 넷플릭스",
+   "publisher": "Netflix Korea",
+   "retrieved": "2026-09-28",
+   "note": "Korean Netflix title page (2 seasons listed)"
+  },
+  {
+   "id": "src:sc-jump-onk-s4-teaser",
+   "kind": "OFFICIAL",
+   "url": "https://ichigoproduction.com/Season4/news/index00010000.html",
+   "title": "第4期 Final Season ティザービジュアル＆ムービーを公開",
+   "publisher": "[Oshi no Ko] anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-onk-s4-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://ichigoproduction.com/Season4/staffcast/",
+   "title": "STAFF/CAST -アニメ『【推しの子】』公式サイト- (Season 4)",
+   "publisher": "[Oshi no Ko] anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-onk-s4-top",
+   "kind": "OFFICIAL",
+   "url": "https://ichigoproduction.com/Season4/",
+   "title": "アニメ『【推しの子】』公式サイト Season 4",
+   "publisher": "[Oshi no Ko] anime official site",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-laftel-onk-s3",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/44283",
+   "title": "【최애의 아이】 3기",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel item data (official Korean streaming service), read via Laftel's public item API"
+  },
+  {
+   "id": "src:sc-jump-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-jump-profile-kazuya-nakai",
+   "kind": "OFFICIAL",
+   "url": "https://www.aoni.co.jp/search/nakai-kazuya.html",
+   "title": "中井　和哉 | 株式会社青二プロダクション",
+   "publisher": "青二プロダクション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-akemi-okamura",
+   "kind": "OFFICIAL",
+   "url": "https://mausu.net/talent/okamura-akemi.html",
+   "title": "岡村 明美 | 所属タレント | マウスプロモーション",
+   "publisher": "マウスプロモーション",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-kikunosuke-toya",
+   "kind": "OFFICIAL",
+   "url": "https://www.sma.co.jp/s/sma/artist/495",
+   "title": "戸谷菊之介 | Sony Music Artists",
+   "publisher": "Sony Music Artists",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-tomori-kusunoki",
+   "kind": "OFFICIAL",
+   "url": "https://www.sma.co.jp/s/sma/artist/441",
+   "title": "楠木ともり | Sony Music Artists",
+   "publisher": "Sony Music Artists",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-junya-enoki",
+   "kind": "OFFICIAL",
+   "url": "https://asleben.jp/talents/junya-enoki",
+   "title": "榎木 淳弥 – asleben",
+   "publisher": "asleben",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-yuma-uchida",
+   "kind": "OFFICIAL",
+   "url": "https://intention-k.com/profile/yuma_uchida",
+   "title": "Yuma Uchida | Intention",
+   "publisher": "INTENTION",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-mikako-komatsu",
+   "kind": "OFFICIAL",
+   "url": "https://hirata-office.jp/talent_profile/woman/mikako_komatsu.html",
+   "title": "小松未可子 プロフィール",
+   "publisher": "ヒラタオフィス",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-chiaki-kobayashi",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/men/kobayashichiaki/",
+   "title": "小林 千晃 （こばやし ちあき） – Chiaki Kobayashi – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-hiro-shimono",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=38",
+   "title": "アイムエンタープライズ",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-tomokazu-sugita",
+   "kind": "OFFICIAL",
+   "url": "https://agrs.co.jp/voiceact/",
+   "title": "声優業 | 株式会社ＡＧＲＳ",
+   "publisher": "AGRS",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-takuya-eguchi",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&label=1&page=3&cell004=&name=%E6%B1%9F%E5%8F%A3%E3%80%80%E6%8B%93%E4%B9%9F&id=18",
+   "title": "江口 拓也 - （あ行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-saori-hayami",
+   "kind": "OFFICIAL",
+   "url": "https://www.imenterprise.jp/profile.php?id=74",
+   "title": "アイムエンタープライズ",
+   "publisher": "アイムエンタープライズ",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-shion-wakayama",
+   "kind": "OFFICIAL",
+   "url": "https://profile.himawari.net/view/1595",
+   "title": "若山 詩音 | 俳優プロフィール検索 | 劇団ひまわり",
+   "publisher": "劇団ひまわり",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-yurie-igoma",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=&cell028=&cell004=&name=%E4%BC%8A%E9%A7%92%E3%80%80%E3%82%86%E3%82%8A%E3%81%88&id=395&label=1",
+   "title": "伊駒 ゆりえ - （あ行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-profile-rie-takahashi",
+   "kind": "OFFICIAL",
+   "url": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%9F%E8%A1%8C&label=1&name=%E9%AB%98%E6%A9%8B%E3%80%80%E6%9D%8E%E4%BE%9D&id=236",
+   "title": "高橋 李依 - （た行）：株式会社81プロデュース‐声優プロダクション",
+   "publisher": "81プロデュース",
+   "retrieved": "2026-09-28"
+  }
+ ],
+ "entities": [
+  {
+   "id": "studio_org:wit-studio",
+   "type": "studio_org",
+   "slug": "wit-studio",
+   "names": {
+    "en": "WIT STUDIO",
+    "ja": "WIT STUDIO"
+   },
+   "description": {
+    "en": "Japanese animation studio producing the Netflix series THE ONE PIECE and co-producing SPY×FAMILY.",
+    "ko": "넷플릭스 시리즈 『THE ONE PIECE』를 제작하고 『SPY×FAMILY』를 공동 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.witstudio.co.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.witstudio.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-wit-studio"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:madhouse",
+   "type": "studio_org",
+   "slug": "madhouse",
+   "names": {
+    "en": "Madhouse",
+    "ja": "マッドハウス"
+   },
+   "description": {
+    "en": "Japanese animation studio that produces the Frieren: Beyond Journey's End TV anime.",
+    "ko": "TV 애니메이션 『장송의 프리렌』을 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://madhouse.co.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://madhouse.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-madhouse"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:ufotable",
+   "type": "studio_org",
+   "slug": "ufotable",
+   "names": {
+    "en": "ufotable",
+    "ja": "ufotable"
+   },
+   "description": {
+    "en": "Japanese animation studio that has produced every Demon Slayer anime series and film.",
+    "ko": "『귀멸의 칼날』 TV 시리즈와 극장판을 모두 제작한 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.ufotable.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.ufotable.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-ufotable"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:production-ig",
+   "type": "studio_org",
+   "slug": "production-ig",
+   "names": {
+    "en": "Production I.G",
+    "ja": "Production I.G"
+   },
+   "description": {
+    "en": "Japanese animation studio producing the Kaiju No. 8 anime.",
+    "ko": "애니메이션 『괴수 8호』를 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.production-ig.co.jp/"
+    },
+    {
+     "label": "Laftel (Korean credit)",
+     "url": "https://laftel.net/item/23661"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.production-ig.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-production-ig"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:cloverworks",
+   "type": "studio_org",
+   "slug": "cloverworks",
+   "names": {
+    "en": "CloverWorks",
+    "ja": "CloverWorks"
+   },
+   "description": {
+    "en": "Japanese animation studio that co-produces the SPY×FAMILY TV anime with WIT STUDIO.",
+    "ko": "WIT STUDIO와 함께 TV 애니메이션 『SPY×FAMILY』를 공동 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://cloverworks.co.jp/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://cloverworks.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-cloverworks"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:science-saru",
+   "type": "studio_org",
+   "slug": "science-saru",
+   "names": {
+    "en": "Science SARU",
+    "ja": "サイエンスSARU"
+   },
+   "description": {
+    "en": "Japanese animation studio producing the DAN DA DAN TV anime.",
+    "ko": "TV 애니메이션 『단다단』을 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://sciencesaru.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://sciencesaru.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-science-saru"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:doga-kobo",
+   "type": "studio_org",
+   "slug": "doga-kobo",
+   "names": {
+    "en": "Doga Kobo",
+    "ja": "動画工房"
+   },
+   "description": {
+    "en": "Japanese animation studio producing the [Oshi no Ko] TV anime.",
+    "ko": "TV 애니메이션 【최애의 아이】를 제작하는 일본 애니메이션 제작사."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.dogakobo.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.dogakobo.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-doga-kobo"
+    }
+   ]
+  },
+  {
+   "id": "creator:eiichiro-oda",
+   "type": "creator",
+   "slug": "eiichiro-oda",
+   "names": {
+    "en": "Eiichiro Oda",
+    "ja": "尾田栄一郎"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of ONE PIECE, serialized in Weekly Shonen Jump since 1997.",
+    "ko": "1997년부터 주간 소년 점프에 연재 중인 『원피스』의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:tatsuki-fujimoto",
+   "type": "creator",
+   "slug": "tatsuki-fujimoto",
+   "names": {
+    "en": "Tatsuki Fujimoto",
+    "ja": "藤本タツキ"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of Chainsaw Man (Shueisha).",
+    "ko": "『체인소 맨』(슈에이샤)의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:gege-akutami",
+   "type": "creator",
+   "slug": "gege-akutami",
+   "names": {
+    "en": "Gege Akutami",
+    "ja": "芥見下々"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of Jujutsu Kaisen (Shueisha Jump Comics).",
+    "ko": "『주술회전』(슈에이샤 점프 코믹스)의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:kanehito-yamada",
+   "type": "creator",
+   "slug": "kanehito-yamada",
+   "names": {
+    "en": "Kanehito Yamada",
+    "ja": "山田鐘人"
+   },
+   "description": {
+    "en": "Japanese manga writer of Frieren: Beyond Journey's End, serialized in Shogakukan's Weekly Shonen Sunday with artist Tsukasa Abe.",
+    "ko": "작화가 아베 츠카사와 함께 쇼가쿠칸 주간 소년 선데이에 『장송의 프리렌』을 연재하는 일본 만화 스토리 작가."
+   }
+  },
+  {
+   "id": "creator:tsukasa-abe",
+   "type": "creator",
+   "slug": "tsukasa-abe",
+   "names": {
+    "en": "Tsukasa Abe",
+    "ja": "アベツカサ"
+   },
+   "description": {
+    "en": "Japanese manga artist who draws Frieren: Beyond Journey's End, written by Kanehito Yamada.",
+    "ko": "야마다 카네히토 원작 『장송의 프리렌』의 작화를 맡은 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:koyoharu-gotouge",
+   "type": "creator",
+   "slug": "koyoharu-gotouge",
+   "names": {
+    "en": "Koyoharu Gotouge",
+    "ja": "吾峠呼世晴"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of Demon Slayer: Kimetsu no Yaiba, serialized in Weekly Shonen Jump from 2016 to 2020.",
+    "ko": "2016년부터 2020년까지 주간 소년 점프에 연재된 『귀멸의 칼날』의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:yuto-suzuki",
+   "type": "creator",
+   "slug": "yuto-suzuki",
+   "names": {
+    "en": "Yuto Suzuki",
+    "ja": "鈴木祐斗"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of SAKAMOTO DAYS (Shueisha).",
+    "ko": "『사카모토 데이즈』(슈에이샤)의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:naoya-matsumoto",
+   "type": "creator",
+   "slug": "naoya-matsumoto",
+   "names": {
+    "en": "Naoya Matsumoto",
+    "ja": "松本直也"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of Kaiju No. 8, serialized on Shonen Jump+.",
+    "ko": "소년 점프+에 연재된 『괴수 8호』의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:tatsuya-endo",
+   "type": "creator",
+   "slug": "tatsuya-endo",
+   "names": {
+    "en": "Tatsuya Endo",
+    "ja": "遠藤達哉"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of SPY×FAMILY, serialized on Shonen Jump+.",
+    "ko": "소년 점프+에 연재 중인 『SPY×FAMILY』의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:yukinobu-tatsu",
+   "type": "creator",
+   "slug": "yukinobu-tatsu",
+   "names": {
+    "en": "Yukinobu Tatsu",
+    "ja": "龍幸伸"
+   },
+   "description": {
+    "en": "Japanese manga artist, creator of DAN DA DAN, serialized on Shonen Jump+.",
+    "ko": "소년 점프+에 연재 중인 『단다단』의 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:aka-akasaka",
+   "type": "creator",
+   "slug": "aka-akasaka",
+   "names": {
+    "en": "Aka Akasaka",
+    "ja": "赤坂アカ"
+   },
+   "description": {
+    "en": "Japanese manga writer of [Oshi no Ko], drawn by Mengo Yokoyari (Shueisha Young Jump Comics).",
+    "ko": "요코야리 멘고가 작화를 맡은 【최애의 아이】(슈에이샤 영 점프 코믹스)의 스토리 작가인 일본 만화가."
+   }
+  },
+  {
+   "id": "creator:mengo-yokoyari",
+   "type": "creator",
+   "slug": "mengo-yokoyari",
+   "names": {
+    "en": "Mengo Yokoyari",
+    "ja": "横槍メンゴ"
+   },
+   "description": {
+    "en": "Japanese manga artist who draws [Oshi no Ko], written by Aka Akasaka.",
+    "ko": "아카사카 아카 원작 【최애의 아이】의 작화를 맡은 일본 만화가."
+   }
+  },
+  {
+   "id": "franchise:one-piece",
+   "type": "franchise",
+   "slug": "one-piece",
+   "names": {
+    "en": "ONE PIECE",
+    "ja": "ONE PIECE",
+    "ko": "원피스"
+   },
+   "aliases": [
+    "원피스",
+    "ワンピース"
+   ],
+   "description": {
+    "en": "Pirate adventure franchise by Eiichiro Oda that began in Weekly Shonen Jump in 1997; its TV anime by Toei Animation is in the Elbaf arc as of September 2026.",
+    "ko": "오다 에이치로가 1997년 주간 소년 점프에서 시작한 해적 모험 프랜차이즈로, 토에이 애니메이션의 TV 애니메이션은 2026년 9월 현재 엘바프 편을 방송 중이다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://one-piece.com/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/80107103"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://one-piece.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-vol115"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:eiichiro-oda",
+     "src": "src:sc-jump-op-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:one-piece-manga",
+   "type": "work",
+   "slug": "one-piece-manga",
+   "names": {
+    "en": "ONE PIECE (manga)",
+    "ja": "ONE PIECE",
+    "ko": "원피스"
+   },
+   "description": {
+    "en": "Eiichiro Oda's manga serialized in Weekly Shonen Jump; volume 115 was released in Japan on July 3, 2026.",
+    "ko": "오다 에이치로가 주간 소년 점프에 연재 중인 만화로, 일본에서 2026년 7월 3일 115권이 발매되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-vol115"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-vol115",
+     "note": "Serialization ongoing (chapter 1194 previewed 2026-09-25 on the official site)"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-vol115"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:eiichiro-oda",
+     "src": "src:sc-jump-op-vol115"
+    }
+   ]
+  },
+  {
+   "id": "work:one-piece-tv",
+   "type": "work",
+   "slug": "one-piece-tv",
+   "names": {
+    "en": "ONE PIECE (TV anime)",
+    "ja": "ONE PIECE",
+    "ko": "원피스"
+   },
+   "description": {
+    "en": "Toei Animation's TV anime that has aired on Fuji TV since 1999; the Elbaf arc began with episode 1156 on April 5, 2026.",
+    "ko": "1999년부터 후지TV에서 방송 중인 토에이 애니메이션의 TV 애니메이션으로, 2026년 4월 5일 1156화부터 엘바프 편이 시작되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Official TV anime page",
+     "url": "https://one-piece.com/anime/index.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-tv-episodes"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-tv-episodes"
+    },
+    {
+     "p": "release_date",
+     "v": "1999-10-20",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029",
+     "note": "The source gives 2029-10-20 as the TV anime's 30th broadcast anniversary"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-one-piece",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 21,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-tv-episodes"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:one-piece-manga",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:toei-animation",
+     "src": "src:sc-jump-op-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:one-piece-the-one-piece",
+   "type": "work",
+   "slug": "one-piece-the-one-piece",
+   "names": {
+    "en": "THE ONE PIECE",
+    "ja": "THE ONE PIECE",
+    "ko": "THE ONE PIECE 더 원피스"
+   },
+   "description": {
+    "en": "New anime series by WIT STUDIO that re-adapts ONE PIECE from the first East Blue chapter, streaming worldwide on Netflix from February 2027.",
+    "ko": "『원피스』를 동쪽 바다 편 1화부터 새롭게 애니메이션화하는 WIT STUDIO의 신작 시리즈로, 2027년 2월부터 넷플릭스에서 전 세계 공개된다."
+   },
+   "official_urls": [
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81594317"
+    },
+    {
+     "label": "Official X",
+     "url": "https://x.com/theop_official"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "ona",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-theop-keyart"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-theop-keyart"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-theop-keyart",
+     "region": "GLOBAL"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-theop-keyart",
+     "region": "GLOBAL"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-the-one-piece",
+     "region": "KR"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-the-one-piece",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 171630,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-theop-keyart"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:one-piece-manga",
+     "src": "src:sc-jump-op-theop-teaser"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:wit-studio",
+     "src": "src:sc-jump-op-theop-keyart"
+    }
+   ]
+  },
+  {
+   "id": "work:one-piece-film-god-valley",
+   "type": "work",
+   "slug": "one-piece-film-god-valley",
+   "names": {
+    "en": "ONE PIECE FILM GOD VALLEY",
+    "ja": "ONE PIECE FILM GOD VALLEY"
+   },
+   "description": {
+    "en": "The first new ONE PIECE feature film since FILM RED (2022), scheduled for a nationwide Japanese release in summer 2027, the manga's 30th-anniversary year.",
+    "ko": "『ONE PIECE FILM RED』(2022) 이후 첫 극장판 신작으로, 원작 연재 30주년인 2027년 여름 일본 전국 개봉 예정이다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029"
+    },
+    {
+     "p": "release_date",
+     "v": "2027",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029",
+     "region": "JP",
+     "note": "Summer 2027 per the source"
+    },
+    {
+     "p": "anilist_id",
+     "v": 215855,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-films-2027-2029"
+    }
+   ]
+  },
+  {
+   "id": "work:one-piece-film-baad",
+   "type": "work",
+   "slug": "one-piece-film-baad",
+   "names": {
+    "en": "ONE PIECE FILM BAAD",
+    "ja": "ONE PIECE FILM BAAD"
+   },
+   "description": {
+    "en": "ONE PIECE feature film announced for a 2029 Japanese release, the TV anime's 30th-anniversary year.",
+    "ko": "TV 애니메이션 방송 30주년인 2029년 일본 개봉이 발표된 『원피스』 극장판."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029"
+    },
+    {
+     "p": "release_date",
+     "v": "2029",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-op-films-2027-2029",
+     "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 215856,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-films-2027-2029"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:mayumi-tanaka",
+   "type": "voice_actor",
+   "slug": "mayumi-tanaka",
+   "names": {
+    "en": "Mayumi Tanaka",
+    "ja": "田中真弓"
+   }
+  },
+  {
+   "id": "character:one-piece-luffy",
+   "type": "character",
+   "slug": "one-piece-luffy",
+   "names": {
+    "en": "Monkey D. Luffy",
+    "ja": "モンキー・D・ルフィ",
+    "ko": "루피"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:one-piece-tv",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:one-piece-the-one-piece",
+     "src": "src:sc-jump-op-theop-teaser"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:mayumi-tanaka",
+     "src": "src:sc-jump-op-staffcast",
+     "note": "Japanese voice (TV anime)"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:mayumi-tanaka",
+     "src": "src:sc-jump-op-theop-teaser",
+     "note": "Japanese voice (THE ONE PIECE)"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kazuya-nakai",
+   "type": "voice_actor",
+   "slug": "kazuya-nakai",
+   "names": {
+    "en": "Kazuya Nakai",
+    "ja": "中井和哉"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "青二プロダクション",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kazuya-nakai"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.aoni.co.jp/search/nakai-kazuya.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kazuya-nakai"
+    }
+   ]
+  },
+  {
+   "id": "character:one-piece-zoro",
+   "type": "character",
+   "slug": "one-piece-zoro",
+   "names": {
+    "en": "Roronoa Zoro",
+    "ja": "ロロノア・ゾロ",
+    "ko": "조로"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:one-piece-tv",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kazuya-nakai",
+     "src": "src:sc-jump-op-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Netflix Korea)",
+     "url": "https://www.netflix.com/kr/title/80107103"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:akemi-okamura",
+   "type": "voice_actor",
+   "slug": "akemi-okamura",
+   "names": {
+    "en": "Akemi Okamura",
+    "ja": "岡村明美"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "マウスプロモーション",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-akemi-okamura"
+    },
+    {
+     "p": "homepage",
+     "v": "https://mausu.net/talent/okamura-akemi.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-akemi-okamura"
+    }
+   ]
+  },
+  {
+   "id": "character:one-piece-nami",
+   "type": "character",
+   "slug": "one-piece-nami",
+   "names": {
+    "en": "Nami",
+    "ja": "ナミ",
+    "ko": "나미"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:one-piece-tv",
+     "src": "src:sc-jump-op-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:akemi-okamura",
+     "src": "src:sc-jump-op-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Netflix Korea)",
+     "url": "https://www.netflix.com/kr/title/80107103"
+    }
+   ]
+  },
+  {
+   "id": "franchise:chainsaw-man",
+   "type": "franchise",
+   "slug": "chainsaw-man",
+   "names": {
+    "en": "Chainsaw Man",
+    "ja": "チェンソーマン",
+    "ko": "체인소 맨"
+   },
+   "aliases": [
+    "체인소맨",
+    "CSM"
+   ],
+   "description": {
+    "en": "Tatsuki Fujimoto's manga franchise; MAPPA followed the TV anime with the film Chainsaw Man – The Movie: Reze Arc and is producing the Assassins Arc.",
+    "ko": "후지모토 타츠키의 만화 프랜차이즈로, MAPPA가 TV 애니메이션에 이어 『극장판 체인소 맨 레제편』을 내놓았고 『자객편』을 제작 중이다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime portal (JP)",
+     "url": "https://chainsawman.dog/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/42894"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://chainsawman.dog/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:tatsuki-fujimoto",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:chainsaw-man-manga",
+   "type": "work",
+   "slug": "chainsaw-man-manga",
+   "names": {
+    "en": "Chainsaw Man (manga)",
+    "ja": "チェンソーマン"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tatsuki-fujimoto",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:chainsaw-man-film-reze",
+   "type": "work",
+   "slug": "chainsaw-man-film-reze",
+   "names": {
+    "en": "Chainsaw Man – The Movie: Reze Arc",
+    "ja": "劇場版『チェンソーマン レゼ篇』",
+    "ko": "극장판 체인소 맨 레제편"
+   },
+   "description": {
+    "en": "MAPPA's first Chainsaw Man feature film, adapting the Reze arc; it began exclusive subscription streaming on Prime Video in Japan on September 19, 2026.",
+    "ko": "레제 편을 그린 MAPPA의 첫 『체인소 맨』 극장판으로, 2026년 9월 19일부터 일본 Prime Video에서 독점 정액 배신을 시작했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official film site (JP)",
+     "url": "https://chainsawman.dog/movie_reze/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/42894"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-reze-prime-video"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Prime Video"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-reze-prime-video",
+     "region": "JP",
+     "note": "Exclusive subscription streaming from 2026-09-19 00:00 JST"
+    },
+    {
+     "p": "anilist_id",
+     "v": 171627,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-reze-prime-video"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:chainsaw-man-manga",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:mappa",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:chainsaw-man-assassins-arc",
+   "type": "work",
+   "slug": "chainsaw-man-assassins-arc",
+   "names": {
+    "en": "Chainsaw Man: Assassins Arc",
+    "ja": "チェンソーマン 刺客篇"
+   },
+   "description": {
+    "en": "Announced sequel to the Reze Arc film depicting the assassins who target Denji's heart; a new teaser was shown at MAPPA's 15th-anniversary lineup presentation on June 19, 2026. No release date or format has been announced.",
+    "ko": "덴지의 심장을 노리는 자객들을 그리는 레제편의 후속작으로, 2026년 6월 19일 MAPPA 15주년 라인업 발표회에서 새 티저가 공개되었다. 공개 시기와 형식은 아직 발표되지 않았다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://chainsawman.dog/assassin/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-csm-assassins-teaser"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-assassins-announce"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:chainsaw-man-manga",
+     "src": "src:sc-jump-csm-assassins-announce"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kikunosuke-toya",
+   "type": "voice_actor",
+   "slug": "kikunosuke-toya",
+   "names": {
+    "en": "Kikunosuke Toya",
+    "ja": "戸谷菊之介"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "Sony Music Artists",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kikunosuke-toya"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.sma.co.jp/s/sma/artist/495",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-kikunosuke-toya"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-denji",
+   "type": "character",
+   "slug": "chainsaw-man-denji",
+   "names": {
+    "en": "Denji",
+    "ja": "デンジ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:chainsaw-man-film-reze",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kikunosuke-toya",
+     "src": "src:sc-jump-csm-reze-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:tomori-kusunoki",
+   "type": "voice_actor",
+   "slug": "tomori-kusunoki",
+   "names": {
+    "en": "Tomori Kusunoki",
+    "ja": "楠木ともり"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "Sony Music Artists",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomori-kusunoki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.sma.co.jp/s/sma/artist/441",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomori-kusunoki"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-makima",
+   "type": "character",
+   "slug": "chainsaw-man-makima",
+   "names": {
+    "en": "Makima",
+    "ja": "マキマ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:chainsaw-man-film-reze",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:tomori-kusunoki",
+     "src": "src:sc-jump-csm-reze-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-reze",
+   "type": "character",
+   "slug": "chainsaw-man-reze",
+   "names": {
+    "en": "Reze",
+    "ja": "レゼ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:chainsaw-man-film-reze",
+     "src": "src:sc-jump-csm-reze-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:reina-ueda",
+     "src": "src:sc-jump-csm-reze-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:jujutsu-kaisen",
+   "type": "franchise",
+   "slug": "jujutsu-kaisen",
+   "names": {
+    "en": "Jujutsu Kaisen",
+    "ja": "呪術廻戦",
+    "ko": "주술회전"
+   },
+   "aliases": [
+    "JJK",
+    "呪術"
+   ],
+   "description": {
+    "en": "Gege Akutami's dark-fantasy manga franchise; MAPPA's TV anime reached the Culling Game arc, whose second half airs as season 4.",
+    "ko": "아쿠타미 게게의 다크 판타지 만화 프랜차이즈로, MAPPA의 TV 애니메이션은 사멸회유 편에 들어섰으며 그 후편이 4기로 방송된다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://jujutsukaisen.jp/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/44282"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://jujutsukaisen.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:gege-akutami",
+     "src": "src:sc-jump-jjk-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:jujutsu-kaisen-manga",
+   "type": "work",
+   "slug": "jujutsu-kaisen-manga",
+   "names": {
+    "en": "Jujutsu Kaisen (manga)",
+    "ja": "呪術廻戦"
+   },
+   "description": {
+    "en": "Gege Akutami's completed manga; a \"completion exhibition\" closing its touring exhibition runs in Shinjuku from December 2026.",
+    "ko": "완결된 아쿠타미 게게의 만화로, 순회 전시를 마무리하는 「완결전」이 2026년 12월부터 신주쿠에서 열린다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-final-exhibition"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:gege-akutami",
+     "src": "src:sc-jump-jjk-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:jujutsu-kaisen-tv-s3",
+   "type": "work",
+   "slug": "jujutsu-kaisen-tv-s3",
+   "names": {
+    "en": "Jujutsu Kaisen Season 3: The Culling Game Part 1",
+    "ja": "呪術廻戦 死滅回游 前編",
+    "ko": "주술회전 3기 : 사멸회유 전편"
+   },
+   "description": {
+    "en": "Third TV season by MAPPA covering the first half of the Culling Game; its final episode 59 aired on March 26, 2026 (Japan).",
+    "ko": "사멸회유 전반부를 그린 MAPPA의 TV 애니메이션 3기로, 마지막 59화가 2026년 3월 26일(일본) 방송되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-jjk-s3"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-jjk-s3"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-jjk-s3",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 172463,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:jujutsu-kaisen-manga",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:mappa",
+     "src": "src:sc-jump-jjk-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:jujutsu-kaisen-tv-s4",
+   "type": "work",
+   "slug": "jujutsu-kaisen-tv-s4",
+   "names": {
+    "en": "Jujutsu Kaisen Season 4: The Culling Game Part 2",
+    "ja": "呪術廻戦 死滅回游 後編"
+   },
+   "description": {
+    "en": "Fourth TV season covering the second half of the Culling Game, directed by Takumi Sato; a super-teaser visual was released on August 29, 2026, with the broadcast date not yet announced.",
+    "ko": "사멸회유 후반부를 그리는 TV 애니메이션 4기로 사토 타쿠미가 감독을 맡는다. 2026년 8월 29일 슈퍼 티저 비주얼이 공개되었으며 방송일은 미정이다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-s4-teaser"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-jjk-s4-super-teaser"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209895,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-s4-teaser"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:jujutsu-kaisen-manga",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:mappa",
+     "src": "src:sc-jump-jjk-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:junya-enoki",
+   "type": "voice_actor",
+   "slug": "junya-enoki",
+   "names": {
+    "en": "Junya Enoki",
+    "ja": "榎木淳弥"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "asleben",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-junya-enoki"
+    },
+    {
+     "p": "homepage",
+     "v": "https://asleben.jp/talents/junya-enoki",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-junya-enoki"
+    }
+   ]
+  },
+  {
+   "id": "character:jujutsu-kaisen-yuji",
+   "type": "character",
+   "slug": "jujutsu-kaisen-yuji",
+   "names": {
+    "en": "Yuji Itadori",
+    "ja": "虎杖悠仁",
+    "ko": "이타도리 유지"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jujutsu-kaisen-tv-s3",
+     "src": "src:sc-jump-laftel-jjk-s3"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jujutsu-kaisen-tv-s4",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:junya-enoki",
+     "src": "src:sc-jump-jjk-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44282"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yuma-uchida",
+   "type": "voice_actor",
+   "slug": "yuma-uchida",
+   "names": {
+    "en": "Yuma Uchida",
+    "ja": "内田雄馬"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "INTENTION",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yuma-uchida"
+    },
+    {
+     "p": "homepage",
+     "v": "https://intention-k.com/profile/yuma_uchida",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yuma-uchida"
+    }
+   ]
+  },
+  {
+   "id": "character:jujutsu-kaisen-megumi",
+   "type": "character",
+   "slug": "jujutsu-kaisen-megumi",
+   "names": {
+    "en": "Megumi Fushiguro",
+    "ja": "伏黒恵"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jujutsu-kaisen-tv-s3",
+     "src": "src:sc-jump-laftel-jjk-s3"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jujutsu-kaisen-tv-s4",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yuma-uchida",
+     "src": "src:sc-jump-jjk-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:mikako-komatsu",
+   "type": "voice_actor",
+   "slug": "mikako-komatsu",
+   "names": {
+    "en": "Mikako Komatsu",
+    "ja": "小松未可子"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ヒラタオフィス",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-mikako-komatsu"
+    },
+    {
+     "p": "homepage",
+     "v": "https://hirata-office.jp/talent_profile/woman/mikako_komatsu.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-mikako-komatsu"
+    }
+   ]
+  },
+  {
+   "id": "character:jujutsu-kaisen-maki",
+   "type": "character",
+   "slug": "jujutsu-kaisen-maki",
+   "names": {
+    "en": "Maki Zen'in",
+    "ja": "禪院真希"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:jujutsu-kaisen-tv-s4",
+     "src": "src:sc-jump-jjk-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:mikako-komatsu",
+     "src": "src:sc-jump-jjk-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:frieren",
+   "type": "franchise",
+   "slug": "frieren",
+   "names": {
+    "en": "Frieren: Beyond Journey's End",
+    "ja": "葬送のフリーレン",
+    "ko": "장송의 프리렌"
+   },
+   "aliases": [
+    "Sousou no Frieren",
+    "프리렌",
+    "フリーレン"
+   ],
+   "description": {
+    "en": "Fantasy manga by Kanehito Yamada and Tsukasa Abe (Weekly Shonen Sunday, Shogakukan); Madhouse's TV anime returns with season 3, the Golden Land arc, in October 2027.",
+    "ko": "야마다 카네히토·아베 츠카사의 판타지 만화(쇼가쿠칸 주간 소년 선데이)로, 매드하우스의 TV 애니메이션은 2027년 10월 3기 「황금향 편」으로 돌아온다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://frieren-anime.jp/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/44281"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://frieren-anime.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:kanehito-yamada",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tsukasa-abe",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:frieren-manga",
+   "type": "work",
+   "slug": "frieren-manga",
+   "names": {
+    "en": "Frieren: Beyond Journey's End (manga)",
+    "ja": "葬送のフリーレン"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:kanehito-yamada",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tsukasa-abe",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:frieren-tv-s2",
+   "type": "work",
+   "slug": "frieren-tv-s2",
+   "names": {
+    "en": "Frieren: Beyond Journey's End Season 2",
+    "ja": "葬送のフリーレン 第2期",
+    "ko": "장송의 프리렌 2기"
+   },
+   "description": {
+    "en": "Second TV season by Madhouse, broadcast from January 16, 2026 on Nippon TV's FRIDAY ANIME NIGHT block.",
+    "ko": "매드하우스가 제작한 TV 애니메이션 2기로, 2026년 1월 16일부터 니혼TV 「FRIDAY ANIME NIGHT」 편성으로 방송되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-01-16",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-onair",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-frieren-s2"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-frieren-s2",
+     "region": "KR",
+     "note": "Subtitled and Korean-dubbed versions listed"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "ABEMA",
+      "Prime Video",
+      "Disney+",
+      "DMM TV",
+      "dAnime Store",
+      "Hulu",
+      "Netflix",
+      "U-NEXT"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-onair",
+     "region": "JP",
+     "note": "Subset of the subscription services listed on the official page"
+    },
+    {
+     "p": "anilist_id",
+     "v": 182255,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-onair"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:frieren-manga",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:madhouse",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:frieren-tv-s3",
+   "type": "work",
+   "slug": "frieren-tv-s3",
+   "names": {
+    "en": "Frieren: Beyond Journey's End Season 3 (Golden Land arc)",
+    "ja": "葬送のフリーレン 第3期【黄金郷編】"
+   },
+   "description": {
+    "en": "Third TV season adapting the Golden Land arc, in which Frieren's party faces Macht of the Golden Land; it airs on Nippon TV from October 2027.",
+    "ko": "프리렌 일행이 「황금향의 마하트」와 맞서는 황금향 편을 그리는 TV 애니메이션 3기로, 2027년 10월부터 니혼TV에서 방송된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-s3-oct-2027"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-s3-oct-2027"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-10",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-frieren-s3-oct-2027",
+     "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209939,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-s3-oct-2027"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:frieren-manga",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:madhouse",
+     "src": "src:sc-jump-frieren-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:atsumi-tanezaki",
+   "type": "voice_actor",
+   "slug": "atsumi-tanezaki",
+   "names": {
+    "en": "Atsumi Tanezaki",
+    "ja": "種﨑敦美"
+   }
+  },
+  {
+   "id": "character:frieren-frieren",
+   "type": "character",
+   "slug": "frieren-frieren",
+   "names": {
+    "en": "Frieren",
+    "ja": "フリーレン",
+    "ko": "프리렌"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s2",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s3",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:atsumi-tanezaki",
+     "src": "src:sc-jump-frieren-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kana-ichinose",
+   "type": "voice_actor",
+   "slug": "kana-ichinose",
+   "names": {
+    "en": "Kana Ichinose",
+    "ja": "市ノ瀬加那"
+   }
+  },
+  {
+   "id": "character:frieren-fern",
+   "type": "character",
+   "slug": "frieren-fern",
+   "names": {
+    "en": "Fern",
+    "ja": "フェルン",
+    "ko": "페른"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s2",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s3",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kana-ichinose",
+     "src": "src:sc-jump-frieren-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44281"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:chiaki-kobayashi",
+   "type": "voice_actor",
+   "slug": "chiaki-kobayashi",
+   "names": {
+    "en": "Chiaki Kobayashi",
+    "ja": "小林千晃"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44281"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-chiaki-kobayashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/men/kobayashichiaki/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-chiaki-kobayashi"
+    }
+   ]
+  },
+  {
+   "id": "character:frieren-stark",
+   "type": "character",
+   "slug": "frieren-stark",
+   "names": {
+    "en": "Stark",
+    "ja": "シュタルク",
+    "ko": "슈타르크"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:frieren",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s2",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:frieren-tv-s3",
+     "src": "src:sc-jump-frieren-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:chiaki-kobayashi",
+     "src": "src:sc-jump-frieren-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44281"
+    }
+   ]
+  },
+  {
+   "id": "franchise:demon-slayer",
+   "type": "franchise",
+   "slug": "demon-slayer",
+   "names": {
+    "en": "Demon Slayer: Kimetsu no Yaiba",
+    "ja": "鬼滅の刃",
+    "ko": "귀멸의 칼날"
+   },
+   "aliases": [
+    "Kimetsu no Yaiba",
+    "鬼滅",
+    "귀칼"
+   ],
+   "description": {
+    "en": "Koyoharu Gotouge's manga franchise (Weekly Shonen Jump, 2016–2020, 23 volumes); ufotable is adapting the final Infinity Castle arc as a film trilogy, of which only Chapter 1 has a release date so far.",
+    "ko": "고토게 코요하루의 만화(주간 소년 점프, 2016~2020년, 전 23권) 프랜차이즈로, ufotable이 최종장 「무한성편」을 극장판 3부작으로 제작 중이며 현재까지 개봉일이 공개된 것은 제1장뿐이다."
+   },
+   "official_urls": [
+    {
+     "label": "Official portal (JP)",
+     "url": "https://kimetsu.com/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/46208"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://kimetsu.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:koyoharu-gotouge",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    }
+   ]
+  },
+  {
+   "id": "work:demon-slayer-manga",
+   "type": "work",
+   "slug": "demon-slayer-manga",
+   "names": {
+    "en": "Demon Slayer: Kimetsu no Yaiba (manga)",
+    "ja": "鬼滅の刃"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "end_date",
+     "v": "2020-05",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:demon-slayer",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:koyoharu-gotouge",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    }
+   ]
+  },
+  {
+   "id": "work:demon-slayer-film-infinity-castle-1",
+   "type": "work",
+   "slug": "demon-slayer-film-infinity-castle-1",
+   "names": {
+    "en": "Demon Slayer: Kimetsu no Yaiba – The Movie: Infinity Castle (Chapter 1: Akaza Returns)",
+    "ja": "劇場版「鬼滅の刃」無限城編 第一章 猗窩座再来",
+    "ko": "극장판 귀멸의 칼날: 무한성편 제1장"
+   },
+   "description": {
+    "en": "First chapter of ufotable's Infinity Castle film trilogy, released in Japan on July 18, 2025; its Blu-ray/DVD came out on July 29, 2026 and it streams in Korea on Laftel.",
+    "ko": "ufotable의 무한성편 극장판 3부작 제1장으로 2025년 7월 18일 일본 개봉했고, 2026년 7월 29일 블루레이/DVD가 발매되었으며 한국에서는 라프텔에서 볼 수 있다."
+   },
+   "official_urls": [
+    {
+     "label": "Official film site (JP)",
+     "url": "https://kimetsu.com/anime/mugenjyohen_movie/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-07-18",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-ks-infinity-castle-intro",
+     "region": "JP"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-ks-infinity-castle-1",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178788,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:demon-slayer",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:demon-slayer-manga",
+     "src": "src:sc-jump-ks-infinity-castle-intro"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:ufotable",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:natsuki-hanae",
+   "type": "voice_actor",
+   "slug": "natsuki-hanae",
+   "names": {
+    "en": "Natsuki Hanae",
+    "ja": "花江夏樹"
+   }
+  },
+  {
+   "id": "character:demon-slayer-tanjiro",
+   "type": "character",
+   "slug": "demon-slayer-tanjiro",
+   "names": {
+    "en": "Tanjiro Kamado",
+    "ja": "竈門炭治郎",
+    "ko": "카마도 탄지로"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:demon-slayer",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:demon-slayer-film-infinity-castle-1",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:natsuki-hanae",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:demon-slayer-nezuko",
+   "type": "character",
+   "slug": "demon-slayer-nezuko",
+   "names": {
+    "en": "Nezuko Kamado",
+    "ja": "竈門禰豆子"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:demon-slayer",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:demon-slayer-film-infinity-castle-1",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:akari-kito",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/46208"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:hiro-shimono",
+   "type": "voice_actor",
+   "slug": "hiro-shimono",
+   "names": {
+    "en": "Hiro Shimono",
+    "ja": "下野紘"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-hiro-shimono"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=38",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-hiro-shimono"
+    }
+   ]
+  },
+  {
+   "id": "character:demon-slayer-zenitsu",
+   "type": "character",
+   "slug": "demon-slayer-zenitsu",
+   "names": {
+    "en": "Zenitsu Agatsuma",
+    "ja": "我妻善逸",
+    "ko": "아가츠마 젠이츠"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:demon-slayer",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:demon-slayer-film-infinity-castle-1",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:hiro-shimono",
+     "src": "src:sc-jump-ks-infinity-castle-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/46208"
+    }
+   ]
+  },
+  {
+   "id": "franchise:sakamoto-days",
+   "type": "franchise",
+   "slug": "sakamoto-days",
+   "names": {
+    "en": "SAKAMOTO DAYS",
+    "ja": "SAKAMOTO DAYS",
+    "ko": "사카모토 데이즈"
+   },
+   "aliases": [
+    "사카모토데이즈",
+    "坂本デイズ"
+   ],
+   "description": {
+    "en": "Action-comedy manga by Yuto Suzuki about a retired legendary hitman; TMS Entertainment's TV anime returns for season 2 in January 2027.",
+    "ko": "은퇴한 전설의 킬러를 그린 스즈키 유토의 액션 코미디 만화로, 토무스 엔터테인먼트의 TV 애니메이션이 2027년 1월 2기로 돌아온다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://sakamotodays.jp/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81663325"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://sakamotodays.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:yuto-suzuki",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:sakamoto-days-manga",
+   "type": "work",
+   "slug": "sakamoto-days-manga",
+   "names": {
+    "en": "SAKAMOTO DAYS (manga)",
+    "ja": "SAKAMOTO DAYS"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:yuto-suzuki",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:sakamoto-days-tv-s1",
+   "type": "work",
+   "slug": "sakamoto-days-tv-s1",
+   "names": {
+    "en": "SAKAMOTO DAYS (TV anime season 1)",
+    "ja": "SAKAMOTO DAYS",
+    "ko": "사카모토 데이즈"
+   },
+   "description": {
+    "en": "First season of the TMS Entertainment TV anime, streaming on Netflix in Japan and Korea.",
+    "ko": "토무스 엔터테인먼트가 제작한 TV 애니메이션 1기로, 일본과 한국 넷플릭스에서 볼 수 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair",
+     "region": "JP"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-sakamoto-days",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 177709,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:sakamoto-days-manga",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:tms-entertainment",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:sakamoto-days-tv-s2",
+   "type": "work",
+   "slug": "sakamoto-days-tv-s2",
+   "names": {
+    "en": "SAKAMOTO DAYS Season 2",
+    "ja": "SAKAMOTO DAYS 第2期"
+   },
+   "description": {
+    "en": "Second TV season, airing in Japan from January 2027; Netflix Korea lists it for January 2027.",
+    "ko": "2027년 1월 일본에서 방송되는 TV 애니메이션 2기로, 한국 넷플릭스에도 2027년 1월 공개로 올라와 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-sd-onair",
+     "region": "JP"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-sakamoto-days",
+     "region": "KR"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-netflix-kr-sakamoto-days",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 204363,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-onair"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:sakamoto-days-manga",
+     "src": "src:sc-jump-sd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:tomokazu-sugita",
+   "type": "voice_actor",
+   "slug": "tomokazu-sugita",
+   "names": {
+    "en": "Tomokazu Sugita",
+    "ja": "杉田智和"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "AGRS",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-tomokazu-sugita"
+    }
+   ]
+  },
+  {
+   "id": "character:sakamoto-days-taro",
+   "type": "character",
+   "slug": "sakamoto-days-taro",
+   "names": {
+    "en": "Taro Sakamoto",
+    "ja": "坂本太郎"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:sakamoto-days-tv-s1",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:tomokazu-sugita",
+     "src": "src:sc-jump-sd-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:sakamoto-days-shin",
+   "type": "character",
+   "slug": "sakamoto-days-shin",
+   "names": {
+    "en": "Shin Asakura",
+    "ja": "朝倉シン"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:sakamoto-days-tv-s1",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:nobunaga-shimazaki",
+     "src": "src:sc-jump-sd-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:sakamoto-days-nagumo",
+   "type": "character",
+   "slug": "sakamoto-days-nagumo",
+   "names": {
+    "en": "Nagumo",
+    "ja": "南雲"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sakamoto-days",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:sakamoto-days-tv-s1",
+     "src": "src:sc-jump-sd-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:natsuki-hanae",
+     "src": "src:sc-jump-sd-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:kaiju-no-8",
+   "type": "franchise",
+   "slug": "kaiju-no-8",
+   "names": {
+    "en": "Kaiju No. 8",
+    "ja": "怪獣8号",
+    "ko": "괴수 8호"
+   },
+   "aliases": [
+    "Kaiju No.8",
+    "怪獣８号",
+    "괴수8호"
+   ],
+   "description": {
+    "en": "Naoya Matsumoto's Shonen Jump+ manga about a man who becomes a kaiju; Production I.G's anime has aired two seasons and a concluding \"final chapter\" production has been announced.",
+    "ko": "괴수가 되어버린 남자를 그린 마츠모토 나오야의 소년 점프+ 만화로, Production I.G의 애니메이션은 2기까지 방송되었고 「완결편」 제작이 발표되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://kaiju-no8.net/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/47185"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://kaiju-no8.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:naoya-matsumoto",
+     "src": "src:sc-jump-k8-top"
+    }
+   ]
+  },
+  {
+   "id": "work:kaiju-no-8-manga",
+   "type": "work",
+   "slug": "kaiju-no-8-manga",
+   "names": {
+    "en": "Kaiju No. 8 (manga)",
+    "ja": "怪獣8号"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:naoya-matsumoto",
+     "src": "src:sc-jump-k8-top"
+    }
+   ]
+  },
+  {
+   "id": "work:kaiju-no-8-narumis-weekdays",
+   "type": "work",
+   "slug": "kaiju-no-8-narumis-weekdays",
+   "names": {
+    "en": "Kaiju No. 8: Narumi's Weekdays",
+    "ja": "鳴海の平日",
+    "ko": "괴수 8호 나루미의 평일"
+   },
+   "description": {
+    "en": "Four-episode original short anime about First Division captain Gen Narumi, released weekly on Saturdays from September 5 to 26, 2026 on the TOHO animation YouTube channel and other services.",
+    "ko": "제1부대 대장 나루미 겐을 주인공으로 한 4화 분량의 오리지널 숏 애니메이션으로, 2026년 9월 5일부터 26일까지 매주 토요일 TOHO animation 유튜브 채널 등에서 공개되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "ona",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays"
+    },
+    {
+     "p": "episodes",
+     "v": 4,
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-05",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays",
+     "region": "JP"
+    },
+    {
+     "p": "end_date",
+     "v": "2026-09-26",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "YouTube (TOHO animation)"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-narumi-weekdays",
+     "region": "JP"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-k8-narumi",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 204431,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-narumi-weekdays"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:production-ig",
+     "src": "src:sc-jump-k8-top"
+    }
+   ]
+  },
+  {
+   "id": "work:kaiju-no-8-tv-s2",
+   "type": "work",
+   "slug": "kaiju-no-8-tv-s2",
+   "names": {
+    "en": "Kaiju No. 8 Season 2",
+    "ja": "怪獣8号 第2期",
+    "ko": "괴수 8호 2기"
+   },
+   "description": {
+    "en": "Second season of Production I.G's anime (episodes 13–23), which aired in 2025; it streams in Korea on Laftel.",
+    "ko": "Production I.G가 제작한 애니메이션 2기(13~23화)로 2025년에 방송되었으며, 한국에서는 라프텔에서 볼 수 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-k8-s2",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 178754,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:kaiju-no-8-manga",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:production-ig",
+     "src": "src:sc-jump-k8-top"
+    }
+   ]
+  },
+  {
+   "id": "work:kaiju-no-8-final-chapter",
+   "type": "work",
+   "slug": "kaiju-no-8-final-chapter",
+   "names": {
+    "en": "Kaiju No. 8 final chapter (anime)",
+    "ja": "怪獣8号 完結編"
+   },
+   "description": {
+    "en": "Concluding anime installment announced on December 20, 2025, covering the final battle against Kaiju No. 9; format and date have not been announced.",
+    "ko": "2025년 12월 20일 발표된 애니메이션 완결편으로, 괴수 9호와의 최종 결전을 그린다. 형식과 공개 시기는 미정이다."
+   },
+   "facts": [
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-k8-final-chapter"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-final-chapter"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:kaiju-no-8-manga",
+     "src": "src:sc-jump-k8-top"
+    }
+   ]
+  },
+  {
+   "id": "character:kaiju-no-8-kafka",
+   "type": "character",
+   "slug": "kaiju-no-8-kafka",
+   "names": {
+    "en": "Kafka Hibino",
+    "ja": "日比野カフカ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:kaiju-no-8-tv-s2",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:masaya-fukunishi",
+     "src": "src:sc-jump-k8-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:kaiju-no-8-mina",
+   "type": "character",
+   "slug": "kaiju-no-8-mina",
+   "names": {
+    "en": "Mina Ashiro",
+    "ja": "亜白ミナ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:kaiju-no-8-tv-s2",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:asami-seto",
+     "src": "src:sc-jump-k8-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:kaiju-no-8-narumi",
+   "type": "character",
+   "slug": "kaiju-no-8-narumi",
+   "names": {
+    "en": "Gen Narumi",
+    "ja": "鳴海弦",
+    "ko": "나루미 겐"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:kaiju-no-8",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:kaiju-no-8-tv-s2",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:kaiju-no-8-narumis-weekdays",
+     "src": "src:sc-jump-k8-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:koki-uchiyama",
+     "src": "src:sc-jump-k8-top",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/47185"
+    }
+   ]
+  },
+  {
+   "id": "franchise:spy-x-family",
+   "type": "franchise",
+   "slug": "spy-x-family",
+   "names": {
+    "en": "SPY×FAMILY",
+    "ja": "SPY×FAMILY",
+    "ko": "스파이 패밀리"
+   },
+   "aliases": [
+    "SPY x FAMILY",
+    "スパイファミリー",
+    "스파패"
+   ],
+   "description": {
+    "en": "Tatsuya Endo's Shonen Jump+ spy-comedy manga; the TV anime by WIT STUDIO × CloverWorks has aired three seasons alongside the film SPY×FAMILY CODE: White.",
+    "ko": "엔도 타츠야의 소년 점프+ 스파이 코미디 만화로, WIT STUDIO×CloverWorks의 TV 애니메이션이 3기까지 방송되었고 극장판 『코드: 화이트』도 공개되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Official portal (JP)",
+     "url": "https://spy-family.net/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/43393"
+    },
+    {
+     "label": "Laftel (KR) – CODE: White",
+     "url": "https://laftel.net/item/42807"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://spy-family.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-spy-portal"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-spy-tvseries"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:tatsuya-endo",
+     "src": "src:sc-jump-spy-tvseries"
+    }
+   ]
+  },
+  {
+   "id": "work:spy-x-family-manga",
+   "type": "work",
+   "slug": "spy-x-family-manga",
+   "names": {
+    "en": "SPY×FAMILY (manga)",
+    "ja": "SPY×FAMILY"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-spy-tvseries"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:spy-x-family",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tatsuya-endo",
+     "src": "src:sc-jump-spy-tvseries"
+    }
+   ]
+  },
+  {
+   "id": "work:spy-x-family-tv-s3",
+   "type": "work",
+   "slug": "spy-x-family-tv-s3",
+   "names": {
+    "en": "SPY×FAMILY Season 3",
+    "ja": "SPY×FAMILY Season 3",
+    "ko": "SPY×FAMILY Season 3"
+   },
+   "description": {
+    "en": "Third TV season by WIT STUDIO × CloverWorks; regional Japanese broadcasts are still being added (e.g. Miyagi TV from October 6, 2026), and it streams in Korea on Laftel.",
+    "ko": "WIT STUDIO×CloverWorks가 제작한 TV 애니메이션 3기로, 일본 지역 방송이 계속 추가되고 있으며(예: 2026년 10월 6일부터 미야기TV) 한국에서는 라프텔에서 볼 수 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-spy-s3"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-spy-s3",
+     "region": "KR",
+     "note": "Subtitled and Korean-dubbed versions listed"
+    },
+    {
+     "p": "anilist_id",
+     "v": 177937,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:spy-x-family",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:spy-x-family-manga",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:wit-studio",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:cloverworks",
+     "src": "src:sc-jump-spy-tvseries"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:takuya-eguchi",
+   "type": "voice_actor",
+   "slug": "takuya-eguchi",
+   "names": {
+    "en": "Takuya Eguchi",
+    "ja": "江口拓也"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-takuya-eguchi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&label=1&page=3&cell004=&name=%E6%B1%9F%E5%8F%A3%E3%80%80%E6%8B%93%E4%B9%9F&id=18",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-takuya-eguchi"
+    }
+   ]
+  },
+  {
+   "id": "character:spy-x-family-loid",
+   "type": "character",
+   "slug": "spy-x-family-loid",
+   "names": {
+    "en": "Loid Forger",
+    "ja": "ロイド・フォージャー",
+    "ko": "로이드 포저"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:spy-x-family",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:spy-x-family-tv-s3",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takuya-eguchi",
+     "src": "src:sc-jump-spy-tvseries",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/43393"
+    }
+   ]
+  },
+  {
+   "id": "character:spy-x-family-anya",
+   "type": "character",
+   "slug": "spy-x-family-anya",
+   "names": {
+    "en": "Anya Forger",
+    "ja": "アーニャ・フォージャー"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:spy-x-family",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:spy-x-family-tv-s3",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:atsumi-tanezaki",
+     "src": "src:sc-jump-spy-tvseries",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:saori-hayami",
+   "type": "voice_actor",
+   "slug": "saori-hayami",
+   "names": {
+    "en": "Saori Hayami",
+    "ja": "早見沙織"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アイムエンタープライズ",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-saori-hayami"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.imenterprise.jp/profile.php?id=74",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-saori-hayami"
+    }
+   ]
+  },
+  {
+   "id": "character:spy-x-family-yor",
+   "type": "character",
+   "slug": "spy-x-family-yor",
+   "names": {
+    "en": "Yor Forger",
+    "ja": "ヨル・フォージャー"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:spy-x-family",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:spy-x-family-tv-s3",
+     "src": "src:sc-jump-spy-tvseries"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:saori-hayami",
+     "src": "src:sc-jump-spy-tvseries",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:dandadan",
+   "type": "franchise",
+   "slug": "dandadan",
+   "names": {
+    "en": "DAN DA DAN",
+    "ja": "ダンダダン",
+    "ko": "단다단"
+   },
+   "aliases": [
+    "Dandadan",
+    "ダンダダン"
+   ],
+   "description": {
+    "en": "Yukinobu Tatsu's Shonen Jump+ occult-action manga; Science SARU's TV anime has two seasons, with season 3 set for 2027.",
+    "ko": "타츠 유키노부의 소년 점프+ 오컬트 액션 만화로, 사이언스SARU의 TV 애니메이션이 2기까지 방송되었고 3기는 2027년 방송 예정이다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://anime-dandadan.com/"
+    },
+    {
+     "label": "Netflix Korea",
+     "url": "https://www.netflix.com/kr/title/81736884"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/42902"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://anime-dandadan.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:yukinobu-tatsu",
+     "src": "src:sc-jump-dd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:dandadan-manga",
+   "type": "work",
+   "slug": "dandadan-manga",
+   "names": {
+    "en": "DAN DA DAN (manga)",
+    "ja": "ダンダダン"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dandadan",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:yukinobu-tatsu",
+     "src": "src:sc-jump-dd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:dandadan-tv-s2",
+   "type": "work",
+   "slug": "dandadan-tv-s2",
+   "names": {
+    "en": "DAN DA DAN Season 2",
+    "ja": "ダンダダン 第2期",
+    "ko": "단다단 2기"
+   },
+   "description": {
+    "en": "Second TV season by Science SARU, streaming in Korea on Laftel and Netflix.",
+    "ko": "사이언스SARU가 제작한 TV 애니메이션 2기로, 한국에서는 라프텔과 넷플릭스에서 볼 수 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-dd-s2"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-dd-s2"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel",
+      "Netflix"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-dd-s2",
+     "region": "KR",
+     "note": "Netflix per src:sc-jump-netflix-kr-dandadan."
+    },
+    {
+     "p": "anilist_id",
+     "v": 185660,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dandadan",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:dandadan-manga",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:science-saru",
+     "src": "src:sc-jump-dd-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:dandadan-tv-s3",
+   "type": "work",
+   "slug": "dandadan-tv-s3",
+   "names": {
+    "en": "DAN DA DAN Season 3",
+    "ja": "ダンダダン 第3期"
+   },
+   "description": {
+    "en": "Third TV season, again produced by Science SARU, set to air in 2027.",
+    "ko": "이번에도 사이언스SARU가 제작하는 TV 애니메이션 3기로, 2027년 방송 예정이다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-s3-2027"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-s3-2027"
+    },
+    {
+     "p": "release_date",
+     "v": "2027",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-dd-s3-2027",
+     "region": "JP"
+    },
+    {
+     "p": "anilist_id",
+     "v": 198966,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dandadan",
+     "src": "src:sc-jump-dd-s3-2027"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:dandadan-manga",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:science-saru",
+     "src": "src:sc-jump-dd-s3-2027"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:shion-wakayama",
+   "type": "voice_actor",
+   "slug": "shion-wakayama",
+   "names": {
+    "en": "Shion Wakayama",
+    "ja": "若山詩音"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "劇団ひまわり",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-shion-wakayama"
+    },
+    {
+     "p": "homepage",
+     "v": "https://profile.himawari.net/view/1595",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-shion-wakayama"
+    }
+   ]
+  },
+  {
+   "id": "character:dandadan-momo",
+   "type": "character",
+   "slug": "dandadan-momo",
+   "names": {
+    "en": "Momo Ayase",
+    "ja": "綾瀬桃",
+    "ko": "모모"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dandadan",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:dandadan-tv-s2",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:shion-wakayama",
+     "src": "src:sc-jump-dd-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/42902"
+    }
+   ]
+  },
+  {
+   "id": "character:dandadan-okarun",
+   "type": "character",
+   "slug": "dandadan-okarun",
+   "names": {
+    "en": "Okarun (Ken Takakura)",
+    "ja": "オカルン（高倉健）",
+    "ko": "오카룽"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:dandadan",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:dandadan-tv-s2",
+     "src": "src:sc-jump-dd-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:natsuki-hanae",
+     "src": "src:sc-jump-dd-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/42902"
+    }
+   ]
+  },
+  {
+   "id": "franchise:oshi-no-ko",
+   "type": "franchise",
+   "slug": "oshi-no-ko",
+   "names": {
+    "en": "[Oshi no Ko]",
+    "ja": "【推しの子】",
+    "ko": "최애의 아이"
+   },
+   "aliases": [
+    "Oshi no Ko",
+    "推しの子",
+    "【최애의 아이】"
+   ],
+   "description": {
+    "en": "Showbiz drama manga by Aka Akasaka and Mengo Yokoyari (Young Jump); Doga Kobo's TV anime ends with a fourth, \"Final Season\", which has a teaser but no air date yet.",
+    "ko": "아카사카 아카·요코야리 멘고의 연예계 드라마 만화(영 점프)로, 동화공방의 TV 애니메이션은 4기 「Final Season」으로 마무리되며 티저만 공개되고 방송일은 미정이다."
+   },
+   "official_urls": [
+    {
+     "label": "Official anime site (JP)",
+     "url": "https://ichigoproduction.com/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/44283"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://ichigoproduction.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:aka-akasaka",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:mengo-yokoyari",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:oshi-no-ko-manga",
+   "type": "work",
+   "slug": "oshi-no-ko-manga",
+   "names": {
+    "en": "[Oshi no Ko] (manga)",
+    "ja": "【推しの子】"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:aka-akasaka",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:mengo-yokoyari",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "work:oshi-no-ko-tv-s3",
+   "type": "work",
+   "slug": "oshi-no-ko-tv-s3",
+   "names": {
+    "en": "[Oshi no Ko] Season 3",
+    "ja": "【推しの子】第3期",
+    "ko": "【최애의 아이】 3기"
+   },
+   "description": {
+    "en": "Third TV season by Doga Kobo, broadcast from January 14, 2026 on TOKYO MX and other stations, with same-time streaming on ABEMA; it streams in Korea on Laftel.",
+    "ko": "동화공방이 제작한 TV 애니메이션 3기로, 2026년 1월 14일부터 TOKYO MX 등에서 방송되고 ABEMA에서 동시 배신되었으며 한국에서는 라프텔에서 볼 수 있다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-onk-s3"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-01-14",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-top",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-onk-s3"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-laftel-onk-s3",
+     "region": "KR"
+    },
+    {
+     "p": "anilist_id",
+     "v": 182587,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-laftel-onk-s3"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:oshi-no-ko-manga",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:doga-kobo",
+     "src": "src:sc-jump-laftel-onk-s3"
+    }
+   ]
+  },
+  {
+   "id": "work:oshi-no-ko-tv-s4",
+   "type": "work",
+   "slug": "oshi-no-ko-tv-s4",
+   "names": {
+    "en": "[Oshi no Ko] Season 4 (Final Season)",
+    "ja": "【推しの子】第4期 Final Season"
+   },
+   "description": {
+    "en": "Final TV season, whose teaser visual and movie were released on August 16, 2026; the broadcast date has not been announced.",
+    "ko": "2026년 8월 16일 티저 비주얼과 영상이 공개된 마지막 TV 시즌으로, 방송일은 아직 발표되지 않았다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-teaser"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-onk-s4-teaser"
+    },
+    {
+     "p": "anilist_id",
+     "v": 209827,
+     "ver": "COMMUNITY",
+     "src": "src:sc-jump-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-onk-s4-teaser"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:oshi-no-ko-manga",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:doga-kobo",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "character:oshi-no-ko-aqua",
+   "type": "character",
+   "slug": "oshi-no-ko-aqua",
+   "names": {
+    "en": "Aqua",
+    "ja": "アクア",
+    "ko": "아쿠아"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:oshi-no-ko-tv-s3",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:oshi-no-ko-tv-s4",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takeo-otsuka",
+     "src": "src:sc-jump-onk-s4-staffcast",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:yurie-igoma",
+   "type": "voice_actor",
+   "slug": "yurie-igoma",
+   "names": {
+    "en": "Yurie Igoma",
+    "ja": "伊駒ゆりえ"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yurie-igoma"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%82%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=&cell028=&cell004=&name=%E4%BC%8A%E9%A7%92%E3%80%80%E3%82%86%E3%82%8A%E3%81%88&id=395&label=1",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-yurie-igoma"
+    }
+   ]
+  },
+  {
+   "id": "character:oshi-no-ko-ruby",
+   "type": "character",
+   "slug": "oshi-no-ko-ruby",
+   "names": {
+    "en": "Ruby",
+    "ja": "ルビー",
+    "ko": "루비"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:oshi-no-ko-tv-s3",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:oshi-no-ko-tv-s4",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yurie-igoma",
+     "src": "src:sc-jump-onk-s4-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44283"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:rie-takahashi",
+   "type": "voice_actor",
+   "slug": "rie-takahashi",
+   "names": {
+    "en": "Rie Takahashi",
+    "ja": "高橋李依"
+   },
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44283"
+    }
+   ],
+   "facts": [
+    {
+     "p": "agency",
+     "v": "81プロデュース",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-rie-takahashi"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%9F%E8%A1%8C&label=1&name=%E9%AB%98%E6%A9%8B%E3%80%80%E6%9D%8E%E4%BE%9D&id=236",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-profile-rie-takahashi"
+    }
+   ]
+  },
+  {
+   "id": "character:oshi-no-ko-ai",
+   "type": "character",
+   "slug": "oshi-no-ko-ai",
+   "names": {
+    "en": "Ai",
+    "ja": "アイ",
+    "ko": "아이"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:oshi-no-ko-tv-s4",
+     "src": "src:sc-jump-onk-s4-staffcast"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:rie-takahashi",
+     "src": "src:sc-jump-onk-s4-staffcast",
+     "note": "Japanese voice"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Korean name source (Laftel)",
+     "url": "https://laftel.net/item/44283"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "kind": "release",
+   "title": {
+    "en": "ONE PIECE FILM GOD VALLEY opens in Japan (summer 2027)",
+    "ko": "ONE PIECE FILM GOD VALLEY 일본 개봉 (2027년 여름)"
+   },
+   "starts": "2027",
+   "date_precision": "year",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://one-piece.com/news/81811/index.html",
+   "entities": [
+    "work:one-piece-film-god-valley",
+    "franchise:one-piece"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-op-films-2027-2029",
+   "note": "Official wording: 2027年夏 全国公開"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "ONE PIECE FILM BAAD opens in Japan (2029)",
+    "ko": "ONE PIECE FILM BAAD 일본 개봉 (2029년)"
+   },
+   "starts": "2029",
+   "date_precision": "year",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://one-piece.com/news/81811/index.html",
+   "entities": [
+    "work:one-piece-film-baad",
+    "franchise:one-piece"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-op-films-2027-2029"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "THE ONE PIECE starts streaming worldwide on Netflix",
+    "ko": "『THE ONE PIECE』 넷플릭스 전 세계 공개 시작"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "confirmed",
+   "region": "GLOBAL",
+   "url": "https://one-piece.com/news/81766/index.html",
+   "entities": [
+    "work:one-piece-the-one-piece",
+    "franchise:one-piece"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-op-theop-keyart"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "THE ONE PIECE premieres on Netflix Korea",
+    "ko": "『THE ONE PIECE 더 원피스』 넷플릭스 한국 공개"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://www.netflix.com/kr/title/81594317",
+   "entities": [
+    "work:one-piece-the-one-piece"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-netflix-kr-the-one-piece",
+   "note": "Netflix Korea page: 2027년 2월 공개"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "ONE PIECE manga volume 115 released in Japan",
+    "ko": "『원피스』 115권 일본 발매"
+   },
+   "starts": "2026-07-03",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "JP",
+   "url": "https://one-piece.com/news/80124/index.html",
+   "entities": [
+    "work:one-piece-manga"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-op-vol115",
+   "note": "594 JPY incl. tax; collects up to chapter 1179"
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "ONE PIECE MUGIWARA STORE HARAJUKU x Harakado restaurant collaboration (Mugiwara Store 14th anniversary)",
+    "ko": "원피스 무기와라 스토어 하라주쿠 × 하라카도 음식점 콜라보 (무기와라 스토어 14주년)"
+   },
+   "starts": "2026-10-03",
+   "ends": "2026-10-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Tokyu Plaza Harajuku \"Harakado\" 5F/6F, Tokyo",
+   "url": "https://one-piece.com/news/82262/index.html",
+   "entities": [
+    "franchise:one-piece"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-op-harakado-collab"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Chainsaw Man – The Movie: Reze Arc starts exclusive streaming on Prime Video (Japan)",
+    "ko": "『극장판 체인소 맨 레제편』 일본 Prime Video 독점 배신 시작"
+   },
+   "starts": "2026-09-19T00:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://chainsawman.dog/news/260825_01/",
+   "entities": [
+    "work:chainsaw-man-film-reze"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-csm-reze-prime-video"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Chainsaw Man – The Movie: Reze Arc -CINEMA LIVE 2027- (film screening with live orchestra/band)",
+    "ko": "『극장판 체인소 맨 레제편』 -CINEMA LIVE 2027- (라이브 연주 상영회)"
+   },
+   "starts": "2027-02-13",
+   "ends": "2027-02-14",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Pacifico Yokohama National Convention Hall, Yokohama",
+   "url": "https://chainsawman.dog/news/260921_01/",
+   "entities": [
+    "work:chainsaw-man-film-reze",
+    "franchise:chainsaw-man"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-csm-cinema-live-2027",
+   "note": "Organised by MAPPA / Sony Music Solutions; ticket details TBA. Official site: https://chainsawmancinemalive.com/"
+  },
+  {
+   "kind": "exhibition",
+   "title": {
+    "en": "Gege Akutami \"Jujutsu Kaisen\" Completion Exhibition (Shinjuku, final venue)",
+    "ko": "아쿠타미 게게 『주술회전』 완결전 (신주쿠, 최종 회장)"
+   },
+   "starts": "2026-12-25",
+   "ends": "2027-01-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Shinjuku Sumitomo Building Triangle Plaza, Tokyo",
+   "url": "https://jujutsuten.com/",
+   "entities": [
+    "work:jujutsu-kaisen-manga",
+    "franchise:jujutsu-kaisen"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-jjk-final-exhibition",
+   "note": "Closed 2027-01-01; timed-entry tickets"
+  },
+  {
+   "kind": "popup",
+   "title": {
+    "en": "Jujutsu Kaisen POP UP STORE ~The Culling Game Part 1~ (Tokyo)",
+    "ko": "주술회전 POP UP STORE ~사멸회유 전편~ (도쿄)"
+   },
+   "starts": "2026-08-27",
+   "ends": "2026-09-09",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "JP",
+   "location": "Ikebukuro PARCO B2F, Tokyo",
+   "url": "https://jujutsukaisen.jp/news/20260821_01.php",
+   "entities": [
+    "work:jujutsu-kaisen-tv-s3"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-jjk-popup-culling-game"
+  },
+  {
+   "kind": "popup",
+   "title": {
+    "en": "Jujutsu Kaisen POP UP STORE ~The Culling Game Part 1~ (Osaka)",
+    "ko": "주술회전 POP UP STORE ~사멸회유 전편~ (오사카)"
+   },
+   "starts": "2026-09-18",
+   "ends": "2026-10-04",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Grand Front Osaka 6F, Osaka",
+   "url": "https://jujutsukaisen.jp/news/20260821_01.php",
+   "entities": [
+    "work:jujutsu-kaisen-tv-s3"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-jjk-popup-culling-game"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Frieren Season 3 (Golden Land arc) begins airing on Nippon TV",
+    "ko": "『장송의 프리렌』 3기 「황금향 편」 니혼TV 방송 시작"
+   },
+   "starts": "2027-10",
+   "date_precision": "month",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://frieren-anime.jp/news/5417/",
+   "entities": [
+    "work:frieren-tv-s3",
+    "franchise:frieren"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-frieren-s3-oct-2027"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Frieren 3rd-anniversary Season 2 pickup screening with cast stage greeting",
+    "ko": "『장송의 프리렌』 방송 3주년 기념 2기 픽업 상영회 (무대 인사)"
+   },
+   "starts": "2026-09-26T12:10+09:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "JP",
+   "location": "TOHO Cinemas Hibiya (stage greeting) + live viewing at 8 theaters",
+   "url": "https://frieren-anime.jp/news/6080/",
+   "entities": [
+    "work:frieren-tv-s2"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-frieren-3rd-anniv-screening"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Demon Slayer stage at Machi★Asobi vol.31 (Natsuki Hanae, Yoshitsugu Matsuoka, Makoto Furukawa)",
+    "ko": "마치★아소비 vol.31 『귀멸의 칼날』 스테이지 (하나에 나츠키·마츠오카 요시츠구·후루카와 마코토)"
+   },
+   "starts": "2026-10-18T10:00+09:00",
+   "ends": "2026-10-18T10:45+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Aibahama Park, Tokushima",
+   "url": "https://kimetsu.com/news/?id=71348&p=1",
+   "entities": [
+    "franchise:demon-slayer"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-ks-machiasobi-31"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "SAKAMOTO DAYS Season 2 begins airing in Japan",
+    "ko": "『사카모토 데이즈』 2기 일본 방송 시작"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://sakamotodays.jp/onair/",
+   "entities": [
+    "work:sakamoto-days-tv-s2",
+    "franchise:sakamoto-days"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-sd-onair"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "SAKAMOTO DAYS Season 2 premieres on Netflix Korea",
+    "ko": "『사카모토 데이즈』 시즌 2 넷플릭스 한국 공개"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://www.netflix.com/kr/title/81663325",
+   "entities": [
+    "work:sakamoto-days-tv-s2"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-netflix-kr-sakamoto-days",
+   "note": "Netflix Korea page: 시즌 2: 2027년 1월 공개"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Kaiju No. 8: Narumi's Weekdays (4 episodes, Saturdays 20:00 JST)",
+    "ko": "『괴수 8호』 나루미의 평일 (전 4화, 매주 토 20시)"
+   },
+   "starts": "2026-09-05T20:00+09:00",
+   "ends": "2026-09-26",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "JP",
+   "url": "https://kaiju-no8.net/news/detail_260905_01.html",
+   "entities": [
+    "work:kaiju-no-8-narumis-weekdays"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-k8-narumi-weekdays"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Kaiju No. 8 \"Defense Force Boot Camp in Tachikawa\" cast event",
+    "ko": "『괴수 8호』 「방위대 부트캠프 in 타치카와」 캐스트 이벤트"
+   },
+   "starts": "2026-10-24T13:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Tachikawa Stage Garden, Tokyo",
+   "url": "https://kaiju-no8.net/bootcamp2026/",
+   "entities": [
+    "franchise:kaiju-no-8"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-k8-bootcamp-tachikawa",
+   "note": "Doors 12:00; general ticket sales until 2026-10-04"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "SPY×FAMILY special event \"ANIME EXTRA MISSION II\"",
+    "ko": "『SPY×FAMILY』 스페셜 이벤트 「ANIME EXTRA MISSION Ⅱ」"
+   },
+   "starts": "2026-11-08T13:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Bellesalle Takadanobaba, Tokyo",
+   "url": "https://spy-family.net/tvseries/specialevent2/",
+   "entities": [
+    "franchise:spy-x-family"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-spy-extra-mission-2",
+   "note": "Day show 13:00, evening show 18:00; organised by the SPY×FAMILY production committee"
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "SPY×FAMILY × J-Oil Mills \"Kamiraku Pack\" tie-up",
+    "ko": "『SPY×FAMILY』 × J-오일밀스 「카미라쿠 팩」 타이업"
+   },
+   "starts": "2026-10-01",
+   "ends": "2027-02-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://spy-family.net/",
+   "entities": [
+    "franchise:spy-x-family"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-spy-portal"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "DAN DA DAN Season 3 airs (2027)",
+    "ko": "『단다단』 3기 방송 (2027년)"
+   },
+   "starts": "2027",
+   "date_precision": "year",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://anime-dandadan.com/news/2673/",
+   "entities": [
+    "work:dandadan-tv-s3",
+    "franchise:dandadan"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-jump-dd-s3-2027"
+  }
+ ]
+}

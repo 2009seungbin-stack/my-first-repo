@@ -1,0 +1,180 @@
+{
+ "appnews": {
+  "appid": 1245620,
+  "newsitems": [
+   {
+    "gid": "1842846814452378",
+    "title": "New Elden Ring Mini Replicas Arrive: Malenia, Messmer & Wylder",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1842846814452378",
+    "is_external_url": true,
+    "author": "[BNE] *****",
+    "contents": "Tarnished, collectors, and champions of the Lands Between, we're excited to unve",
+    "feedlabel": "Community Announcements",
+    "date": 1788765952,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1842846814440454",
+    "title": "ELDEN RING - Community Quests",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1842846814440454",
+    "is_external_url": true,
+    "author": "[BNE] *****",
+    "contents": "In celebration of the recently released ELDEN RING Tarnished Edition for Nintend",
+    "feedlabel": "Community Announcements",
+    "date": 1788358231,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1842212951303612",
+    "title": "ELDEN RING - Tarnished Pack DLC is available now",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1842212951303612",
+    "is_external_url": true,
+    "author": "[BNE]plt",
+    "contents": "Go forth, Tarnished, and claim the Elden Throne.The ELDEN RING Tarnished Pack gr",
+    "feedlabel": "Community Announcements",
+    "date": 1787931582,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1842212951300120",
+    "title": "Patch Notes Version 1.17",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1842212951300120",
+    "is_external_url": true,
+    "author": "maki_takizawa",
+    "contents": "Patch 1.17 has been released for ELDEN RING. This patch aims to bring support th",
+    "feedlabel": "Community Announcements",
+    "date": 1787839222,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620,
+    "tags": [
+     "mod_reviewed",
+     "ModAct_1607812438_1787839944_0",
+     "mod_require_rereview"
+    ]
+   },
+   {
+    "gid": "1832700592786543",
+    "title": "ELDEN RING - RAGING WOLF 1/6 SCALE STATUE",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1832700592786543",
+    "is_external_url": true,
+    "author": "[BNE] *****",
+    "contents": "Who is the Raging Wolf? Among the first Tarnished to join the Roundtable Hold wa",
+    "feedlabel": "Community Announcements",
+    "date": 1778682038,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620,
+    "tags": [
+     "mod_reviewed",
+     "ModAct_1713390233_1778686920_0",
+     "mod_require_rereview"
+    ]
+   },
+   {
+    "gid": "1830163047259363",
+    "title": "ELDEN RING: SHADOW OF THE ERDTREE – Official Vinyl Soundtrack",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1830163047259363",
+    "is_external_url": true,
+    "author": "[BNE] *****",
+    "contents": "Follow in the foosteps of Miquella once more with this exclusive 2 disc vinyl co",
+    "feedlabel": "Community Announcements",
+    "date": 1776412823,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1823191198601680",
+    "title": "Discover the ELDEN RING Blaidd The Half-Wolf Lamp",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1823191198601680",
+    "is_external_url": true,
+    "author": "[BNE] *****",
+    "contents": "Summon the legendary warrior into your world with the Blaidd The Half-Wolf Lamp,",
+    "feedlabel": "Community Announcements",
+    "date": 1769677243,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1818752592134836",
+    "title": "Release Note for 2025/12/16",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1818752592134836",
+    "is_external_url": true,
+    "author": "katsuki_honjo",
+    "contents": "To address the security vulnerability announced by Unity Technologies on October",
+    "feedlabel": "Community Announcements",
+    "date": 1765868757,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "1808601382443022",
+    "title": "ELDEN RING - Patch Notes Version 1.16.1",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1808601382443022",
+    "is_external_url": true,
+    "author": "[BNE]plt",
+    "contents": "Bug FixesFixed a bug wherewhere the wrong affinity or status ailments could be a",
+    "feedlabel": "Community Announcements",
+    "date": 1755778145,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620,
+    "tags": [
+     "patchnotes"
+    ]
+   },
+   {
+    "gid": "1806064758611881",
+    "title": "To all who wander the Lands Between",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1806064758611881",
+    "is_external_url": true,
+    "author": "rwaymel",
+    "contents": "The flame of thy passion burns ever bright in these shadowed lands. To all who w",
+    "feedlabel": "Community Announcements",
+    "date": 1753366627,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1798454487766910",
+    "title": "ELDEN RING SHADOW OF THE ERDTREE - THE VINYL COLLECTION",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1798454487766910",
+    "is_external_url": true,
+    "author": "chachani",
+    "contents": "Exclusive Vinyl Set Brings Shadow of the Erdtree’s Soundtrack to Your Collection",
+    "feedlabel": "Community Announcements",
+    "date": 1746543705,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   },
+   {
+    "gid": "1797820624615454",
+    "title": "30 Million Tarnished",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1797820624615454",
+    "is_external_url": true,
+    "author": "[BNE]plt",
+    "contents": "Dearest Tarnished, we are profoundly thankful for your lasting devotion. May you",
+    "feedlabel": "Community Announcements",
+    "date": 1745914394,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 1245620
+   }
+  ],
+  "count": 96
+ }
+}

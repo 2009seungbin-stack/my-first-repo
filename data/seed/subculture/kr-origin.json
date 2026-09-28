@@ -1,0 +1,2513 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-kr-origin-tempal-top",
+   "kind": "OFFICIAL",
+   "url": "https://tempal-anime.net/",
+   "title": "TVアニメ『テムパル～アイテムの力～』公式サイト",
+   "publisher": "TEMPAL Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-tempal-onair",
+   "kind": "OFFICIAL",
+   "url": "https://tempal-anime.net/onair/index.html",
+   "title": "ON AIR - TVアニメ『テムパル～アイテムの力～』公式サイト",
+   "publisher": "TEMPAL Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-tempal-staff",
+   "kind": "OFFICIAL",
+   "url": "https://tempal-anime.net/staffcast/index.html",
+   "title": "STAFF&CAST - TVアニメ『テムパル～アイテムの力～』公式サイト",
+   "publisher": "TEMPAL Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-tempal-collab",
+   "kind": "OFFICIAL",
+   "url": "https://tempal-anime.net/news/index00230000.html",
+   "title": "『テムパル～アイテムの力～』×『俺だけレベルアップな件』原作コラボイラスト公開！",
+   "publisher": "TEMPAL Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-laftel-tempal",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47088",
+   "title": "템빨 ~아이템의 힘~ | 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Korean streaming page; item data (title, open-date notice, cast, studio) read from Laftel's own item API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-laftel-tempal-preview",
+   "kind": "OFFICIAL",
+   "url": "https://help.laftel.net/hc/ko/articles/17545516796815",
+   "title": "[공지] <템빨 ~아이템의 힘~> 선행 상영회 안내",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "Laftel help-center notice"
+  },
+  {
+   "id": "src:sc-kr-origin-kakaopage-tempal",
+   "kind": "OFFICIAL",
+   "url": "https://page.kakao.com/content/54727849?tab_type=about",
+   "title": "템빨 - 웹툰 | 카카오페이지",
+   "publisher": "Kakao Entertainment",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-top",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/",
+   "title": "TVアニメ「帰還者の魔法は特別です」公式サイト",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-onair",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/onair/",
+   "title": "ON AIR | TVアニメ「帰還者の魔法は特別です」公式サイト",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-staff",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/staffcast/",
+   "title": "STAFF&CAST | TVアニメ「帰還者の魔法は特別です」公式サイト",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-s2-news",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/news/?id=71277",
+   "title": "第二期 放送情報・配信情報公開！",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-screening",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/news/?id=71066",
+   "title": "TVアニメ「帰還者の魔法は特別です」第二期 先行上映会 開催決定！",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-keiba",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/news/?id=71350",
+   "title": "船橋競馬にて冠レース「帰還者の魔法は特別です デジール杯」開催決定︕",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-1st-onair",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/1st/onair/",
+   "title": "ONAIR (第一期) | TVアニメ「帰還者の魔法は特別です」公式サイト",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-rm-1st-staff",
+   "kind": "OFFICIAL",
+   "url": "https://returners-magic.com/1st/staffcast/",
+   "title": "STAFF&CAST (第一期) | TVアニメ「帰還者の魔法は特別です」公式サイト",
+   "publisher": "A Returner's Magic Should Be Special Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-kw-rm",
+   "kind": "OFFICIAL",
+   "url": "https://webtoon.kakao.com/content/%EA%B7%80%ED%99%98%EC%9E%90%EC%9D%98-%EB%A7%88%EB%B2%95%EC%9D%80-%ED%8A%B9%EB%B3%84%ED%95%B4%EC%95%BC-%ED%95%A9%EB%8B%88%EB%8B%A4/2323",
+   "title": "귀환자의 마법은 특별해야 합니다 | 카카오웹툰",
+   "publisher": "Kakao Entertainment",
+   "retrieved": "2026-09-28",
+   "note": "title, credits and status read from Kakao Webtoon's own content API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-aniplus-rm",
+   "kind": "OFFICIAL",
+   "url": "https://www.aniplustv.com/items/3006",
+   "title": "귀환자의 마법은 특별해야 합니다 - 애니플러스",
+   "publisher": "ANIPLUS",
+   "retrieved": "2026-09-28",
+   "note": "Korean simulcast channel page (season 1)"
+  },
+  {
+   "id": "src:sc-kr-origin-laftel-rm",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41668",
+   "title": "(자막) 귀환자의 마법은 특별해야 합니다 | 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "item data read from Laftel's own item API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-sss-top",
+   "kind": "OFFICIAL",
+   "url": "https://sss-revival.com/",
+   "title": "TVアニメ『死して生きるSSS級ハンター』公式サイト",
+   "publisher": "「死して生きるSSS級ハンター」製作委員会",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-sss-news",
+   "kind": "OFFICIAL",
+   "url": "https://sss-revival.com/news/index00010000.html",
+   "title": "2027年1月アニメ放送決定！ティザービジュアル＆PV解禁！",
+   "publisher": "「死して生きるSSS級ハンター」製作委員会",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-kw-sss",
+   "kind": "OFFICIAL",
+   "url": "https://webtoon.kakao.com/content/SSS%EA%B8%89-%EC%A3%BD%EC%96%B4%EC%95%BC-%EC%82%AC%EB%8A%94-%ED%97%8C%ED%84%B0/2454",
+   "title": "SSS급 죽어야 사는 헌터 | 카카오웹툰",
+   "publisher": "Kakao Entertainment",
+   "retrieved": "2026-09-28",
+   "note": "title, credits and status read from Kakao Webtoon's own content API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-sl-anime-top",
+   "kind": "OFFICIAL",
+   "url": "https://sololeveling-anime.net/",
+   "title": "TVアニメ「俺だけレベルアップな件」公式サイト",
+   "publisher": "Solo Leveling Animation Partners (Aniplex)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-sl-anime-onair",
+   "kind": "OFFICIAL",
+   "url": "https://sololeveling-anime.net/onair/",
+   "title": "ON AIR (Season 2) | TVアニメ「俺だけレベルアップな件」公式サイト",
+   "publisher": "Solo Leveling Animation Partners (Aniplex)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-sl-anime-1st-onair",
+   "kind": "OFFICIAL",
+   "url": "https://sololeveling-anime.net/1st/onair/",
+   "title": "ON AIR (Season 1) | TVアニメ「俺だけレベルアップな件」公式サイト",
+   "publisher": "Solo Leveling Animation Partners (Aniplex)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-sl-film-news",
+   "kind": "OFFICIAL",
+   "url": "https://sololeveling-anime.net/news/?id=70715",
+   "title": "『劇場版 俺だけレベルアップな件 -Beyond the System-』制作決定！",
+   "publisher": "Solo Leveling Animation Partners (Aniplex)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-kw-sl",
+   "kind": "OFFICIAL",
+   "url": "https://webtoon.kakao.com/content/%EB%82%98-%ED%98%BC%EC%9E%90%EB%A7%8C-%EB%A0%88%EB%B2%A8%EC%97%85/2320",
+   "title": "나 혼자만 레벨업 | 카카오웹툰",
+   "publisher": "Kakao Entertainment",
+   "retrieved": "2026-09-28",
+   "note": "title, credits and status read from Kakao Webtoon's own content API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-laftel-sl-s1",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41919",
+   "title": "(자막) 나 혼자만 레벨업 | 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "item data read from Laftel's own item API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-laftel-sl-s2",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42644",
+   "title": "(자막) 나 혼자만 레벨업 -ARISE FROM THE SHADOW- | 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-28",
+   "note": "item data read from Laftel's own item API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-steam-overdrive",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/2373990/",
+   "title": "Solo Leveling: ARISE OVERDRIVE on Steam",
+   "publisher": "Valve / Netmarble",
+   "retrieved": "2026-09-28",
+   "note": "Steam store page and appdetails data published by the developer"
+  },
+  {
+   "id": "src:sc-kr-origin-overdrive-site",
+   "kind": "OFFICIAL",
+   "url": "https://slvariseoverdrive.netmarble.com/ko",
+   "title": "나 혼자만 레벨업: 어라이즈 오버드라이브",
+   "publisher": "Netmarble",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-arise-appstore",
+   "kind": "OFFICIAL",
+   "url": "https://apps.apple.com/kr/app/id1662742277",
+   "title": "나 혼자만 레벨업:어라이즈 - App Store (KR)",
+   "publisher": "Netmarble Corporation (Apple App Store listing)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-karma-site",
+   "kind": "OFFICIAL",
+   "url": "https://sololeveling-karma.netmarble.com/ko",
+   "title": "[나 혼자만 레벨업: 카르마] 사전등록",
+   "publisher": "Netmarble",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-naver-tog",
+   "kind": "OFFICIAL",
+   "url": "https://comic.naver.com/webtoon/list?titleId=183559",
+   "title": "신의 탑 | 네이버 웹툰",
+   "publisher": "NAVER WEBTOON",
+   "retrieved": "2026-09-28",
+   "note": "title, artist and serialization status read from Naver Webtoon's own title-info API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-tog-anime-onair",
+   "kind": "OFFICIAL",
+   "url": "https://tog-anime.com/onair/index.html",
+   "title": "ONAIR - TVアニメ『神之塔 -Tower of God-』公式サイト",
+   "publisher": "Tower of God 2 Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-tog-anime-staff",
+   "kind": "OFFICIAL",
+   "url": "https://tog-anime.com/staffcast/index.html",
+   "title": "STAFF & CAST - TVアニメ『神之塔 -Tower of God-』公式サイト",
+   "publisher": "Tower of God 2 Animation Partners",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-naver-orv",
+   "kind": "OFFICIAL",
+   "url": "https://comic.naver.com/webtoon/list?titleId=747269",
+   "title": "전지적 독자 시점 | 네이버 웹툰",
+   "publisher": "NAVER WEBTOON",
+   "retrieved": "2026-09-28",
+   "note": "title, artists and serialization status read from Naver Webtoon's own title-info API for this page"
+  },
+  {
+   "id": "src:sc-kr-origin-orv-aniplex",
+   "kind": "OFFICIAL",
+   "url": "https://www.aniplex.co.jp/lineup/zendokushi/",
+   "title": "全知的な読者の視点から | アニメ | アニプレックス オフィシャルサイト",
+   "publisher": "Aniplex",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-orv-anime-top",
+   "kind": "OFFICIAL",
+   "url": "https://zendokushi-anime.com/",
+   "title": "TVアニメ「全知的な読者の視点から」公式サイト",
+   "publisher": "Omniscient Reader Animation Partners (Aniplex)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-anilist-ids",
+   "kind": "FEED",
+   "url": "https://anilist.co/",
+   "title": "AniList — media ids for tracked works",
+   "publisher": "AniList (third-party community database)",
+   "retrieved": "2026-09-28",
+   "note": "Third-party, community-edited; not the rights holder. Ids looked up via the documented GraphQL API (https://docs.anilist.co/)."
+  },
+  {
+   "id": "src:sc-kr-origin-profile-taito-ban",
+   "kind": "OFFICIAL",
+   "url": "https://osawa-inc.co.jp/men/bantaito/",
+   "title": "坂 泰斗 （ばん たいと） – Taito Ban – – 大沢事務所",
+   "publisher": "大沢事務所",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-tatsumaru-tachibana",
+   "kind": "OFFICIAL",
+   "url": "https://stay-luck.com/talent/tachibana-tatsumaru/",
+   "title": "橘 龍丸 | ステイラック公式サイト",
+   "publisher": "ステイラック",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-takuma-terashima",
+   "kind": "OFFICIAL",
+   "url": "https://www.axl-one.com/talent/terashima.html",
+   "title": "寺島 拓篤｜タレント｜アクセルワン",
+   "publisher": "アクセルワン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-sayumi-suzushiro",
+   "kind": "OFFICIAL",
+   "url": "https://www.artsvision.co.jp/talent/14408/",
+   "title": "鈴代 紗弓 | 株式会社アーツビジョン",
+   "publisher": "アーツビジョン",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-jc-staff",
+   "kind": "OFFICIAL",
+   "url": "http://www.jcstaff.co.jp/",
+   "title": "J.C.STAFF オフィシャルホームページ",
+   "publisher": "J.C.STAFF",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-kr-origin-profile-studio-fu",
+   "kind": "OFFICIAL",
+   "url": "https://www.studiofu.co.jp/",
+   "title": "スタジオ fu｜STUDIO fu",
+   "publisher": "STUDIO fu Inc.",
+   "retrieved": "2026-09-28"
+  }
+ ],
+ "entities": [
+  {
+   "id": "franchise:solo-leveling",
+   "type": "franchise",
+   "slug": "solo-leveling",
+   "names": {
+    "en": "Solo Leveling",
+    "ko": "나 혼자만 레벨업",
+    "ja": "俺だけレベルアップな件"
+   },
+   "aliases": [
+    "나혼렙"
+   ],
+   "description": {
+    "en": "Korean fantasy franchise by Chugong that began as a web novel and a Kakao webtoon, later adapted into Japanese TV anime by A-1 Pictures and Netmarble games.",
+    "ko": "추공의 웹소설과 카카오 웹툰에서 시작된 한국 판타지 IP로, A-1 Pictures의 일본 TV 애니메이션과 넷마블 게임으로 확장되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Kakao Webtoon (KR)",
+     "url": "https://webtoon.kakao.com/content/%EB%82%98-%ED%98%BC%EC%9E%90%EB%A7%8C-%EB%A0%88%EB%B2%A8%EC%97%85/2320"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://sololeveling-anime.net/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Web novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sl",
+     "note": "Kakao Webtoon links the webtoon to its original novel (원작 소설)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sololeveling-anime.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:chugong",
+     "src": "src:sc-kr-origin-kw-sl"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-webtoon",
+   "type": "work",
+   "slug": "solo-leveling-webtoon",
+   "names": {
+    "en": "Solo Leveling (webtoon)",
+    "ko": "나 혼자만 레벨업",
+    "ja": "俺だけレベルアップな件"
+   },
+   "description": {
+    "en": "Webtoon adaptation of Chugong's novel, adapted by h-goon (현군) and drawn by DUBU (장성락, REDICE STUDIO); published by D&C Webtoon and marked completed on Kakao Webtoon.",
+    "ko": "추공의 원작 소설을 현군이 각색하고 장성락(REDICE STUDIO)이 그린 웹툰으로, 디앤씨웹툰이 발행했으며 카카오웹툰에서 완결 상태다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sl"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sl",
+     "note": "COMPLETED badge on Kakao Webtoon"
+    },
+    {
+     "p": "homepage",
+     "v": "https://webtoon.kakao.com/content/%EB%82%98-%ED%98%BC%EC%9E%90%EB%A7%8C-%EB%A0%88%EB%B2%A8%EC%97%85/2320",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sl"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-kw-sl"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:chugong",
+     "src": "src:sc-kr-origin-kw-sl",
+     "note": "original story (원작)"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-tv-s1",
+   "type": "work",
+   "slug": "solo-leveling-tv-s1",
+   "names": {
+    "en": "Solo Leveling (TV anime season 1)",
+    "ko": "나 혼자만 레벨업",
+    "ja": "俺だけレベルアップな件"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-1st-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2024-01-06",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-1st-onair",
+     "note": "TOKYO MX / BS11 from Sat 6 Jan 2024 24:00; Prime Video from 24:30"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-sl-s1"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-sl-s1"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sololeveling-anime.net/1st/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-1st-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 151807,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:solo-leveling-webtoon",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:a-1-pictures",
+     "src": "src:sc-kr-origin-laftel-sl-s1"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-tv-s2",
+   "type": "work",
+   "slug": "solo-leveling-tv-s2",
+   "names": {
+    "en": "Solo Leveling Season 2 -Arise from the Shadow-",
+    "ko": "나 혼자만 레벨업 -ARISE FROM THE SHADOW-",
+    "ja": "俺だけレベルアップな件 Season 2 -Arise from the Shadow-"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-01-04",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-onair",
+     "note": "TOKYO MX etc. from Sat 4 Jan 2025 24:00; Prime Video exclusive-first from 24:30"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-sl-s2"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-sl-s2"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sololeveling-anime.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 176496,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:solo-leveling-webtoon",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:a-1-pictures",
+     "src": "src:sc-kr-origin-sl-anime-top"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-film-beyond-the-system",
+   "type": "work",
+   "slug": "solo-leveling-film-beyond-the-system",
+   "names": {
+    "en": "Solo Leveling -Beyond the System- (film)",
+    "ja": "劇場版 俺だけレベルアップな件 -Beyond the System-"
+   },
+   "description": {
+    "en": "Theatrical anime announced on 4 July 2026 as the sequel to TV season 2; no release date has been announced on the official site.",
+    "ko": "TV 애니메이션 2기의 후속편으로 2026년 7월 4일 제작이 발표된 극장판 애니메이션이며, 공식 사이트에 개봉일은 아직 없다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-film-news"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sl-film-news"
+    },
+    {
+     "p": "anilist_id",
+     "v": 213846,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-sl-film-news"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-arise-overdrive-game",
+   "type": "work",
+   "slug": "solo-leveling-arise-overdrive-game",
+   "names": {
+    "en": "Solo Leveling: ARISE OVERDRIVE",
+    "ko": "나 혼자만 레벨업:어라이즈 오버드라이브",
+    "ja": "俺だけレベルアップな件：ARISE OVERDRIVE"
+   },
+   "description": {
+    "en": "Paid action RPG for PC and Xbox developed by Netmarble Neo and published by Netmarble, featuring Sung Jinwoo's story and four-player co-op raids.",
+    "ko": "넷마블네오가 개발하고 넷마블이 서비스하는 PC·Xbox용 유료 액션 RPG로, 성진우의 이야기와 4인 협동 레이드를 담았다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-steam-overdrive"
+    },
+    {
+     "p": "steam_appid",
+     "v": 2373990,
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-steam-overdrive"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-11-24",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-steam-overdrive",
+     "platform": "windows",
+     "note": "Steam release date"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "windows",
+      "xbox"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-overdrive-site",
+     "note": "store links on the official site"
+    },
+    {
+     "p": "homepage",
+     "v": "https://slvariseoverdrive.netmarble.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-overdrive-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-overdrive-site"
+    },
+    {
+     "p": "developed_by",
+     "o": "studio_org:netmarble-neo",
+     "src": "src:sc-kr-origin-steam-overdrive"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:netmarble",
+     "src": "src:sc-kr-origin-steam-overdrive"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-arise-game",
+   "type": "work",
+   "slug": "solo-leveling-arise-game",
+   "names": {
+    "en": "Solo Leveling: ARISE",
+    "ko": "나 혼자만 레벨업:어라이즈"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-arise-appstore"
+    },
+    {
+     "p": "current_version",
+     "v": "1.4.55",
+     "platform": "ios",
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-arise-appstore",
+     "note": "App Store (KR) build version, updated 2026-09-16 UTC"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sololeveling.netmarble.com/ko",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-arise-appstore"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-arise-appstore"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:netmarble",
+     "src": "src:sc-kr-origin-arise-appstore",
+     "note": "seller on the App Store listing: Netmarble Corporation"
+    }
+   ]
+  },
+  {
+   "id": "work:solo-leveling-karma-game",
+   "type": "work",
+   "slug": "solo-leveling-karma-game",
+   "names": {
+    "en": "Solo Leveling: KARMA",
+    "ko": "나 혼자만 레벨업: 카르마"
+   },
+   "description": {
+    "en": "Upcoming Netmarble mobile roguelite RPG in the Solo Leveling franchise; pre-registration opened on 16 September 2026 and no launch date has been announced.",
+    "ko": "넷마블의 '나 혼자만 레벨업' IP 기반 모바일 로그라이트 RPG로, 2026년 9월 16일 사전등록을 시작했으며 출시일은 아직 발표되지 않았다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-karma-site"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "android",
+      "ios"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-karma-site",
+     "note": "Google Play and App Store pre-registration links"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sololeveling-karma.netmarble.com/ko",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-karma-site"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-karma-site"
+    },
+    {
+     "p": "published_by",
+     "o": "studio_org:netmarble",
+     "src": "src:sc-kr-origin-karma-site"
+    }
+   ]
+  },
+  {
+   "id": "character:solo-leveling-sung-jinwoo",
+   "type": "character",
+   "slug": "solo-leveling-sung-jinwoo",
+   "names": {
+    "en": "Sung Jinwoo",
+    "ko": "성진우",
+    "ja": "水篠 旬"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-kw-sl"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:solo-leveling-webtoon",
+     "src": "src:sc-kr-origin-kw-sl"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:solo-leveling-tv-s1",
+     "src": "src:sc-kr-origin-laftel-sl-s1"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:solo-leveling-tv-s2",
+     "src": "src:sc-kr-origin-laftel-sl-s2"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:solo-leveling-arise-overdrive-game",
+     "src": "src:sc-kr-origin-overdrive-site"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:taito-ban",
+     "src": "src:sc-kr-origin-sl-anime-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:solo-leveling-cha-hae-in",
+   "type": "character",
+   "slug": "solo-leveling-cha-hae-in",
+   "names": {
+    "en": "Cha Hae-in",
+    "ko": "차해인",
+    "ja": "向坂 雫"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-kr-origin-laftel-sl-s2"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:solo-leveling-tv-s2",
+     "src": "src:sc-kr-origin-laftel-sl-s2"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:reina-ueda",
+     "src": "src:sc-kr-origin-sl-anime-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:taito-ban",
+   "type": "voice_actor",
+   "slug": "taito-ban",
+   "names": {
+    "en": "Taito Ban",
+    "ja": "坂 泰斗"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "大沢事務所",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-taito-ban"
+    },
+    {
+     "p": "homepage",
+     "v": "https://osawa-inc.co.jp/men/bantaito/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-taito-ban"
+    }
+   ]
+  },
+  {
+   "id": "creator:chugong",
+   "type": "creator",
+   "slug": "chugong",
+   "names": {
+    "en": "Chugong",
+    "ko": "추공"
+   },
+   "description": {
+    "en": "Korean web novelist credited with the original story of Solo Leveling.",
+    "ko": "'나 혼자만 레벨업'의 원작자로 표기되는 한국 웹소설 작가."
+   }
+  },
+  {
+   "id": "franchise:overgeared",
+   "type": "franchise",
+   "slug": "overgeared",
+   "names": {
+    "en": "Overgeared",
+    "ko": "템빨",
+    "ja": "テムパル"
+   },
+   "aliases": [
+    "템빨 ~아이템의 힘~",
+    "テムパル～アイテムの力～"
+   ],
+   "description": {
+    "en": "Korean game-fantasy franchise from Park Saenal's web novel about the player Grid in the VR game SATISFY; the webtoon runs on KakaoPage and a Japanese TV anime by J.C.STAFF started in autumn 2026.",
+    "ko": "VR 게임 <SATISFY> 속 플레이어 그리드를 다룬 박새날 원작의 한국 게임 판타지 IP로, 카카오페이지에서 웹툰이 연재 중이며 2026년 가을 J.C.STAFF 제작 일본 TV 애니메이션이 시작됐다."
+   },
+   "official_urls": [
+    {
+     "label": "KakaoPage webtoon (KR)",
+     "url": "https://page.kakao.com/content/54727849"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://tempal-anime.net/"
+    },
+    {
+     "label": "Laftel (KR)",
+     "url": "https://laftel.net/item/47088"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Web novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kakaopage-tempal",
+     "note": "webtoon credits 박새날 as 원작; KakaoPage lists the 템빨 web novel as the same work"
+    },
+    {
+     "p": "homepage",
+     "v": "https://tempal-anime.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:saenal-park",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    }
+   ]
+  },
+  {
+   "id": "work:overgeared-webtoon",
+   "type": "work",
+   "slug": "overgeared-webtoon",
+   "names": {
+    "en": "Overgeared (webtoon)",
+    "ko": "템빨",
+    "ja": "テムパル"
+   },
+   "description": {
+    "en": "Webtoon adaptation of Park Saenal's original, written by 이동욱 (REDICE STUDIO) and drawn by Team Argo, serialized on KakaoPage every Saturday.",
+    "ko": "박새날 원작을 이동욱(REDICE STUDIO)이 글, Team Argo가 그림을 맡은 웹툰으로 카카오페이지에서 매주 토요일 연재된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kakaopage-tempal",
+     "note": "토 연재 (weekly on Saturdays)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://page.kakao.com/content/54727849",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:overgeared",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:saenal-park",
+     "src": "src:sc-kr-origin-kakaopage-tempal",
+     "note": "original story (원작)"
+    }
+   ]
+  },
+  {
+   "id": "work:overgeared-tv",
+   "type": "work",
+   "slug": "overgeared-tv",
+   "names": {
+    "en": "Overgeared (TV anime)",
+    "ko": "템빨 ~아이템의 힘~",
+    "ja": "テムパル～アイテムの力～"
+   },
+   "description": {
+    "en": "Japanese TV anime directed by Ayako Kono at J.C.STAFF; Prime Video streams it first from 27 September 2026 and TV broadcast starts on 2 October 2026.",
+    "ko": "코노 아야코 감독, J.C.STAFF 제작의 일본 TV 애니메이션으로, 2026년 9월 27일 Prime Video 선행 공개 후 10월 2일 TV 방송을 시작한다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-27",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-onair",
+     "note": "Prime Video terrestrial-first streaming, Sundays 23:30; TV (TOKYO MX, BS11) from 2026-10-02"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-02",
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-tempal",
+     "note": "Laftel open date per the item notice"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Prime Video",
+      "ABEMA",
+      "Disney+",
+      "DMM TV",
+      "dAnime Store",
+      "FOD",
+      "Hulu",
+      "Lemino",
+      "Netflix",
+      "U-NEXT"
+     ],
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-onair",
+     "note": "partial list of subscription services from 2026-10-04; Prime Video first from 2026-09-27"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "Laftel"
+     ],
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-tempal"
+    },
+    {
+     "p": "homepage",
+     "v": "https://tempal-anime.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tempal-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 212888,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:overgeared",
+     "src": "src:sc-kr-origin-tempal-staff"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:overgeared-webtoon",
+     "src": "src:sc-kr-origin-tempal-staff",
+     "note": "staff page credits the webtoon art team (Team Argo) and adaptation (Monohumbug, REDICE STUDIO)"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:jc-staff",
+     "src": "src:sc-kr-origin-tempal-staff"
+    }
+   ]
+  },
+  {
+   "id": "character:overgeared-grid",
+   "type": "character",
+   "slug": "overgeared-grid",
+   "names": {
+    "en": "Grid",
+    "ko": "그리드",
+    "ja": "グリード"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:overgeared",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:overgeared-webtoon",
+     "src": "src:sc-kr-origin-kakaopage-tempal"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:overgeared-tv",
+     "src": "src:sc-kr-origin-tempal-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:tatsumaru-tachibana",
+     "src": "src:sc-kr-origin-tempal-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:overgeared-yura",
+   "type": "character",
+   "slug": "overgeared-yura",
+   "names": {
+    "en": "Yura",
+    "ko": "유라",
+    "ja": "ユラ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:overgeared",
+     "src": "src:sc-kr-origin-laftel-tempal"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:overgeared-tv",
+     "src": "src:sc-kr-origin-tempal-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:asami-seto",
+     "src": "src:sc-kr-origin-tempal-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:tatsumaru-tachibana",
+   "type": "voice_actor",
+   "slug": "tatsumaru-tachibana",
+   "names": {
+    "en": "Tatsumaru Tachibana",
+    "ja": "橘 龍丸"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "ステイラック",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-tatsumaru-tachibana"
+    },
+    {
+     "p": "homepage",
+     "v": "https://stay-luck.com/talent/tachibana-tatsumaru/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-tatsumaru-tachibana"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:asami-seto",
+   "type": "voice_actor",
+   "slug": "asami-seto",
+   "names": {
+    "en": "Asami Seto",
+    "ja": "瀬戸麻沙美"
+   }
+  },
+  {
+   "id": "creator:saenal-park",
+   "type": "creator",
+   "slug": "saenal-park",
+   "names": {
+    "en": "Park Saenal",
+    "ko": "박새날"
+   },
+   "aliases": [
+    "Saenal"
+   ],
+   "description": {
+    "en": "Korean web novelist credited with the original story of Overgeared.",
+    "ko": "'템빨'의 원작자로 표기되는 한국 웹소설 작가."
+   }
+  },
+  {
+   "id": "franchise:a-returners-magic-should-be-special",
+   "type": "franchise",
+   "slug": "a-returners-magic-should-be-special",
+   "names": {
+    "en": "A Returner's Magic Should Be Special",
+    "ko": "귀환자의 마법은 특별해야 합니다",
+    "ja": "帰還者の魔法は特別です"
+   },
+   "aliases": [
+    "귀마특",
+    "Returner's Magic"
+   ],
+   "description": {
+    "en": "Korean fantasy franchise from Usonan's web novel, adapted into a webtoon by Wookjakga and into a Japanese TV anime whose second season starts in October 2026.",
+    "ko": "유소난의 웹소설을 원작으로 욱작가가 웹툰화했으며, 일본 TV 애니메이션 2기가 2026년 10월 방송을 시작하는 한국 판타지 IP."
+   },
+   "official_urls": [
+    {
+     "label": "Kakao Webtoon (KR)",
+     "url": "https://webtoon.kakao.com/content/%EA%B7%80%ED%99%98%EC%9E%90%EC%9D%98-%EB%A7%88%EB%B2%95%EC%9D%80-%ED%8A%B9%EB%B3%84%ED%95%B4%EC%95%BC-%ED%95%A9%EB%8B%88%EB%8B%A4/2323"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://returners-magic.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Web novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-rm",
+     "note": "Kakao Webtoon links the webtoon to its original novel (원작 소설)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://returners-magic.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:usonan",
+     "src": "src:sc-kr-origin-kw-rm"
+    }
+   ]
+  },
+  {
+   "id": "work:a-returners-magic-should-be-special-webtoon",
+   "type": "work",
+   "slug": "a-returners-magic-should-be-special-webtoon",
+   "names": {
+    "en": "A Returner's Magic Should Be Special (webtoon)",
+    "ko": "귀환자의 마법은 특별해야 합니다"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-rm"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-rm",
+     "note": "COMPLETED badge on Kakao Webtoon"
+    },
+    {
+     "p": "homepage",
+     "v": "https://webtoon.kakao.com/content/%EA%B7%80%ED%99%98%EC%9E%90%EC%9D%98-%EB%A7%88%EB%B2%95%EC%9D%80-%ED%8A%B9%EB%B3%84%ED%95%B4%EC%95%BC-%ED%95%A9%EB%8B%88%EB%8B%A4/2323",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-rm"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:a-returners-magic-should-be-special",
+     "src": "src:sc-kr-origin-kw-rm"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:wookjakga",
+     "src": "src:sc-kr-origin-kw-rm",
+     "note": "story and art"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:usonan",
+     "src": "src:sc-kr-origin-kw-rm",
+     "note": "original story (원작)"
+    }
+   ]
+  },
+  {
+   "id": "work:a-returners-magic-should-be-special-tv-s1",
+   "type": "work",
+   "slug": "a-returners-magic-should-be-special-tv-s1",
+   "names": {
+    "en": "A Returner's Magic Should Be Special (TV anime season 1)",
+    "ko": "귀환자의 마법은 특별해야 합니다",
+    "ja": "帰還者の魔法は特別です"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-1st-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2023-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-1st-onair",
+     "note": "earliest streaming start (d Anime Store etc., Sat 24:30)"
+    },
+    {
+     "p": "release_date",
+     "v": "2023-10-09",
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-aniplus-rm",
+     "note": "ANIPLUS first broadcast Mon 22:00"
+    },
+    {
+     "p": "episodes",
+     "v": 12,
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-aniplus-rm"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-rm"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "ANIPLUS",
+      "Laftel"
+     ],
+     "region": "KR",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-laftel-rm",
+     "note": "ANIPLUS page: src:sc-kr-origin-aniplus-rm"
+    },
+    {
+     "p": "homepage",
+     "v": "https://returners-magic.com/1st/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-1st-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 163142,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:a-returners-magic-should-be-special",
+     "src": "src:sc-kr-origin-rm-1st-staff"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:a-returners-magic-should-be-special-webtoon",
+     "src": "src:sc-kr-origin-rm-1st-staff",
+     "note": "original credited as Wookjakga / Usonan (D&C MEDIA)"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:arvo-animation",
+     "src": "src:sc-kr-origin-rm-1st-staff"
+    }
+   ]
+  },
+  {
+   "id": "work:a-returners-magic-should-be-special-tv-s2",
+   "type": "work",
+   "slug": "a-returners-magic-should-be-special-tv-s2",
+   "names": {
+    "en": "A Returner's Magic Should Be Special (TV anime season 2)",
+    "ja": "帰還者の魔法は特別です 第二期"
+   },
+   "description": {
+    "en": "Second season (from episode 13) directed by Taishi Kawaguchi at Arvo Animation; it starts on Fuji TV's +Ultra block on 7 October 2026 with streaming on d Anime Store, U-NEXT and Anime Hodai the same night.",
+    "ko": "카와구치 타이시 감독, 아르보 애니메이션 제작의 2기(13화부터)로, 2026년 10월 7일 후지TV '+Ultra'에서 방송을 시작하며 같은 날 밤 d애니메스토어·U-NEXT·애니메 호다이에서 선행 배포된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-s2-news",
+     "note": "Fuji TV +Ultra, Wednesdays 24:45 (i.e. early Thursday)"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-onair"
+    },
+    {
+     "p": "streaming_services",
+     "v": [
+      "dAnime Store",
+      "U-NEXT",
+      "Anime Hodai",
+      "FOD",
+      "ABEMA",
+      "Hulu",
+      "Lemino",
+      "Prime Video",
+      "DMM TV"
+     ],
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-onair",
+     "note": "first three stream from 10-07 25:15; others from 10-11 12:00 (partial list)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://returners-magic.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-rm-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 172192,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:a-returners-magic-should-be-special",
+     "src": "src:sc-kr-origin-rm-staff"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:a-returners-magic-should-be-special-webtoon",
+     "src": "src:sc-kr-origin-rm-staff",
+     "note": "original credited as Wookjakga / Usonan (D&C MEDIA)"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:arvo-animation",
+     "src": "src:sc-kr-origin-rm-staff"
+    }
+   ]
+  },
+  {
+   "id": "character:a-returners-magic-should-be-special-desir-arman",
+   "type": "character",
+   "slug": "a-returners-magic-should-be-special-desir-arman",
+   "names": {
+    "en": "Desir Arman",
+    "ko": "데지르 아르망",
+    "ja": "デジール・アルマン"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:a-returners-magic-should-be-special",
+     "src": "src:sc-kr-origin-kw-rm"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:a-returners-magic-should-be-special-webtoon",
+     "src": "src:sc-kr-origin-kw-rm"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:a-returners-magic-should-be-special-tv-s1",
+     "src": "src:sc-kr-origin-aniplus-rm"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:a-returners-magic-should-be-special-tv-s2",
+     "src": "src:sc-kr-origin-rm-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takuma-terashima",
+     "src": "src:sc-kr-origin-rm-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:a-returners-magic-should-be-special-romantica-eru",
+   "type": "character",
+   "slug": "a-returners-magic-should-be-special-romantica-eru",
+   "names": {
+    "en": "Romantica Eru",
+    "ko": "로맨티카 에루",
+    "ja": "ロマンティカ・エル"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:a-returners-magic-should-be-special",
+     "src": "src:sc-kr-origin-aniplus-rm"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:a-returners-magic-should-be-special-tv-s1",
+     "src": "src:sc-kr-origin-aniplus-rm"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:a-returners-magic-should-be-special-tv-s2",
+     "src": "src:sc-kr-origin-rm-staff"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:sayumi-suzushiro",
+     "src": "src:sc-kr-origin-rm-staff",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:takuma-terashima",
+   "type": "voice_actor",
+   "slug": "takuma-terashima",
+   "names": {
+    "en": "Takuma Terashima",
+    "ja": "寺島拓篤"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アクセルワン",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-takuma-terashima"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.axl-one.com/talent/terashima.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-takuma-terashima"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:sayumi-suzushiro",
+   "type": "voice_actor",
+   "slug": "sayumi-suzushiro",
+   "names": {
+    "en": "Sayumi Suzushiro",
+    "ja": "鈴代紗弓"
+   },
+   "facts": [
+    {
+     "p": "agency",
+     "v": "アーツビジョン",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-sayumi-suzushiro"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.artsvision.co.jp/talent/14408/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-sayumi-suzushiro"
+    }
+   ]
+  },
+  {
+   "id": "creator:usonan",
+   "type": "creator",
+   "slug": "usonan",
+   "names": {
+    "en": "Usonan",
+    "ko": "유소난"
+   },
+   "description": {
+    "en": "Korean web novelist credited with the original story of A Returner's Magic Should Be Special.",
+    "ko": "'귀환자의 마법은 특별해야 합니다'의 원작자로 표기되는 한국 웹소설 작가."
+   }
+  },
+  {
+   "id": "creator:wookjakga",
+   "type": "creator",
+   "slug": "wookjakga",
+   "names": {
+    "en": "Wookjakga",
+    "ko": "욱작가"
+   },
+   "description": {
+    "en": "Korean webtoon artist credited with the story and art of the A Returner's Magic Should Be Special webtoon.",
+    "ko": "'귀환자의 마법은 특별해야 합니다' 웹툰의 글·그림으로 표기되는 한국 웹툰 작가."
+   }
+  },
+  {
+   "id": "franchise:sss-class-revival-hunter",
+   "type": "franchise",
+   "slug": "sss-class-revival-hunter",
+   "names": {
+    "en": "SSS-Class Revival Hunter",
+    "ko": "SSS급 죽어야 사는 헌터",
+    "ja": "死して生きるSSS級ハンター"
+   },
+   "description": {
+    "en": "Korean hunter-fantasy franchise from a web novel by 신노아 about F-rank hunter Kim Gongja, serialized as a Kakao webtoon; a Japanese TV anime is set for January 2027.",
+    "ko": "F급 헌터 김공자를 주인공으로 한 신노아 원작의 한국 헌터 판타지 IP로, 카카오 웹툰으로 연재 중이며 일본 TV 애니메이션이 2027년 1월 방송 예정이다."
+   },
+   "official_urls": [
+    {
+     "label": "Kakao Webtoon (KR)",
+     "url": "https://webtoon.kakao.com/content/SSS%EA%B8%89-%EC%A3%BD%EC%96%B4%EC%95%BC-%EC%82%AC%EB%8A%94-%ED%97%8C%ED%84%B0/2454"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://sss-revival.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Web novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sss",
+     "note": "Kakao Webtoon links the webtoon to its original novel (원작 소설)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sss-revival.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sss-top"
+    }
+   ]
+  },
+  {
+   "id": "work:sss-class-revival-hunter-webtoon",
+   "type": "work",
+   "slug": "sss-class-revival-hunter-webtoon",
+   "names": {
+    "en": "SSS-Class Revival Hunter (webtoon)",
+    "ko": "SSS급 죽어야 사는 헌터"
+   },
+   "description": {
+    "en": "Webtoon adaptation of the original novel by 신노아, written by 네이다 and drawn by Bill K, published by 판시아 and updated on Fridays on Kakao Webtoon.",
+    "ko": "신노아 원작을 네이다가 각색하고 Bill K가 그린 웹툰으로, 판시아가 발행하며 카카오웹툰에서 금요일마다 연재된다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sss"
+    },
+    {
+     "p": "airing_status",
+     "v": "airing",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sss",
+     "note": "EPISODES_PUBLISHING, Fridays"
+    },
+    {
+     "p": "homepage",
+     "v": "https://webtoon.kakao.com/content/SSS%EA%B8%89-%EC%A3%BD%EC%96%B4%EC%95%BC-%EC%82%AC%EB%8A%94-%ED%97%8C%ED%84%B0/2454",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-kw-sss"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sss-class-revival-hunter",
+     "src": "src:sc-kr-origin-kw-sss"
+    }
+   ]
+  },
+  {
+   "id": "work:sss-class-revival-hunter-tv",
+   "type": "work",
+   "slug": "sss-class-revival-hunter-tv",
+   "names": {
+    "en": "SSS-Class Revival Hunter (TV anime)",
+    "ja": "死して生きるSSS級ハンター"
+   },
+   "description": {
+    "en": "Japanese TV anime directed by Hiroaki Sakurai at Studio fu, with character design by Takahiro Yoshimatsu; broadcast is set for January 2027.",
+    "ko": "사쿠라이 히로아키 감독, 스튜디오 fu 제작, 요시마츠 타카히로 캐릭터 디자인의 일본 TV 애니메이션으로 2027년 1월 방송 예정이다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sss-news"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sss-news"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sss-news"
+    },
+    {
+     "p": "homepage",
+     "v": "https://sss-revival.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-sss-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 216624,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sss-class-revival-hunter",
+     "src": "src:sc-kr-origin-sss-news"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:sss-class-revival-hunter-webtoon",
+     "src": "src:sc-kr-origin-sss-top",
+     "note": "introduction cites the Piccoma SMARTOON series"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:studio-fu",
+     "src": "src:sc-kr-origin-sss-top"
+    }
+   ]
+  },
+  {
+   "id": "character:sss-class-revival-hunter-kim-gongja",
+   "type": "character",
+   "slug": "sss-class-revival-hunter-kim-gongja",
+   "names": {
+    "en": "Kim Gongja",
+    "ko": "김공자",
+    "ja": "金 孔子"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:sss-class-revival-hunter",
+     "src": "src:sc-kr-origin-kw-sss"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:sss-class-revival-hunter-webtoon",
+     "src": "src:sc-kr-origin-kw-sss"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:sss-class-revival-hunter-tv",
+     "src": "src:sc-kr-origin-sss-news"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takeo-otsuka",
+     "src": "src:sc-kr-origin-sss-news",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:tower-of-god",
+   "type": "franchise",
+   "slug": "tower-of-god",
+   "names": {
+    "en": "Tower of God",
+    "ko": "신의 탑",
+    "ja": "神之塔 -Tower of God-"
+   },
+   "description": {
+    "en": "Korean fantasy webtoon by SIU serialized on Naver Webtoon and adapted into Japanese TV anime; the webtoon is currently on break.",
+    "ko": "SIU가 네이버 웹툰에 연재해 온 한국 판타지 웹툰으로 일본 TV 애니메이션으로도 제작되었으며, 현재 웹툰은 휴재 중이다."
+   },
+   "official_urls": [
+    {
+     "label": "Naver Webtoon (KR)",
+     "url": "https://comic.naver.com/webtoon/list?titleId=183559"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://tog-anime.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-tog"
+    },
+    {
+     "p": "homepage",
+     "v": "https://comic.naver.com/webtoon/list?titleId=183559",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-tog"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:siu",
+     "src": "src:sc-kr-origin-naver-tog"
+    }
+   ]
+  },
+  {
+   "id": "work:tower-of-god-webtoon",
+   "type": "work",
+   "slug": "tower-of-god-webtoon",
+   "names": {
+    "en": "Tower of God (webtoon)",
+    "ko": "신의 탑"
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-tog"
+    },
+    {
+     "p": "airing_status",
+     "v": "hiatus",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-tog",
+     "note": "Naver lists it as a Monday webtoon currently on rest (휴재), not finished"
+    },
+    {
+     "p": "homepage",
+     "v": "https://comic.naver.com/webtoon/list?titleId=183559",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-tog"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tower-of-god",
+     "src": "src:sc-kr-origin-naver-tog"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:siu",
+     "src": "src:sc-kr-origin-naver-tog",
+     "note": "story and art"
+    }
+   ]
+  },
+  {
+   "id": "work:tower-of-god-tv-s2",
+   "type": "work",
+   "slug": "tower-of-god-tv-s2",
+   "names": {
+    "en": "Tower of God Season 2",
+    "ja": "神之塔 -Tower of God- 第2期"
+   },
+   "description": {
+    "en": "Second TV anime season, animated by The Answer Studio, released in two parts in Japan (from July and October 2024).",
+    "ko": "더 앤서 스튜디오가 제작한 TV 애니메이션 2기로, 일본에서 2024년 7월과 10월부터 두 파트로 공개되었다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tog-anime-onair"
+    },
+    {
+     "p": "release_date",
+     "v": "2024-07-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tog-anime-onair",
+     "note": "streaming start of part 1 (王子の帰還); part 2 (工房戦) from 2024-10-06"
+    },
+    {
+     "p": "airing_status",
+     "v": "finished",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tog-anime-onair"
+    },
+    {
+     "p": "homepage",
+     "v": "https://tog-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-tog-anime-onair"
+    },
+    {
+     "p": "anilist_id",
+     "v": 153406,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:tower-of-god",
+     "src": "src:sc-kr-origin-tog-anime-staff"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:tower-of-god-webtoon",
+     "src": "src:sc-kr-origin-tog-anime-staff"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:the-answer-studio",
+     "src": "src:sc-kr-origin-tog-anime-staff"
+    }
+   ]
+  },
+  {
+   "id": "creator:siu",
+   "type": "creator",
+   "slug": "siu",
+   "names": {
+    "en": "SIU",
+    "ko": "SIU"
+   },
+   "description": {
+    "en": "Korean webtoon creator credited with both story and art of Tower of God.",
+    "ko": "'신의 탑'의 글과 그림을 맡은 한국 웹툰 작가."
+   }
+  },
+  {
+   "id": "franchise:omniscient-readers-viewpoint",
+   "type": "franchise",
+   "slug": "omniscient-readers-viewpoint",
+   "names": {
+    "en": "Omniscient Reader's Viewpoint",
+    "ko": "전지적 독자 시점",
+    "ja": "全知的な読者の視点から"
+   },
+   "aliases": [
+    "전독시",
+    "ORV"
+   ],
+   "description": {
+    "en": "Korean franchise from singNsong's web novel, adapted into a Naver webtoon; Aniplex has announced a Japanese TV anime without a broadcast date.",
+    "ko": "싱숑의 웹소설을 원작으로 네이버 웹툰으로 만들어진 한국 IP로, 아니플렉스가 일본 TV 애니메이션화를 발표했으나 방송 시기는 공개되지 않았다."
+   },
+   "official_urls": [
+    {
+     "label": "Naver Webtoon (KR)",
+     "url": "https://comic.naver.com/webtoon/list?titleId=747269"
+    },
+    {
+     "label": "Anime official site (JP)",
+     "url": "https://zendokushi-anime.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Web novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-orv-aniplex"
+    },
+    {
+     "p": "homepage",
+     "v": "https://comic.naver.com/webtoon/list?titleId=747269",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-orv"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:singnsong",
+     "src": "src:sc-kr-origin-naver-orv"
+    }
+   ]
+  },
+  {
+   "id": "work:omniscient-readers-viewpoint-webtoon",
+   "type": "work",
+   "slug": "omniscient-readers-viewpoint-webtoon",
+   "names": {
+    "en": "Omniscient Reader's Viewpoint (webtoon)",
+    "ko": "전지적 독자 시점",
+    "ja": "全知的な読者の視点から"
+   },
+   "description": {
+    "en": "Webtoon written by UMI and drawn by Sleepy-C from singNsong's novel; Naver lists it as a Wednesday webtoon currently on break.",
+    "ko": "싱숑의 원작 소설을 UMI가 글, 슬리피-C가 그림을 맡은 웹툰으로, 네이버 웹툰에서 수요웹툰으로 분류되며 현재 휴재 중이다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "webtoon",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-orv"
+    },
+    {
+     "p": "airing_status",
+     "v": "hiatus",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-orv",
+     "note": "rest (휴재) flag on Naver, not finished"
+    },
+    {
+     "p": "homepage",
+     "v": "https://comic.naver.com/webtoon/list?titleId=747269",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-naver-orv"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:omniscient-readers-viewpoint",
+     "src": "src:sc-kr-origin-naver-orv"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:singnsong",
+     "src": "src:sc-kr-origin-naver-orv",
+     "note": "original novel"
+    }
+   ]
+  },
+  {
+   "id": "work:omniscient-readers-viewpoint-tv",
+   "type": "work",
+   "slug": "omniscient-readers-viewpoint-tv",
+   "names": {
+    "en": "Omniscient Reader's Viewpoint (TV anime)",
+    "ja": "全知的な読者の視点から"
+   },
+   "description": {
+    "en": "Japanese TV anime adaptation of the webtoon announced by Aniplex; the official site gives no broadcast date yet.",
+    "ko": "아니플렉스가 발표한 웹툰 원작 일본 TV 애니메이션으로, 공식 사이트에 방송 시기는 아직 없다."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "tv_anime",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-orv-aniplex"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-orv-aniplex",
+     "note": "TVアニメ化決定 (announced)"
+    },
+    {
+     "p": "homepage",
+     "v": "https://zendokushi-anime.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-orv-anime-top"
+    },
+    {
+     "p": "anilist_id",
+     "v": 179068,
+     "ver": "COMMUNITY",
+     "src": "src:sc-kr-origin-anilist-ids",
+     "note": "Identifier in the third-party AniList database, used only by the anilist-schedule collector (matched on the official Japanese title and start date)."
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:omniscient-readers-viewpoint",
+     "src": "src:sc-kr-origin-orv-aniplex"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:omniscient-readers-viewpoint-webtoon",
+     "src": "src:sc-kr-origin-orv-aniplex"
+    }
+   ]
+  },
+  {
+   "id": "creator:singnsong",
+   "type": "creator",
+   "slug": "singnsong",
+   "names": {
+    "en": "singNsong",
+    "ko": "싱숑"
+   },
+   "description": {
+    "en": "Korean web novelist credited with the original novel of Omniscient Reader's Viewpoint.",
+    "ko": "'전지적 독자 시점'의 원작 소설 작가로 표기되는 한국 웹소설 작가."
+   }
+  },
+  {
+   "id": "studio_org:a-1-pictures",
+   "type": "studio_org",
+   "slug": "a-1-pictures",
+   "names": {
+    "en": "A-1 Pictures",
+    "ja": "A-1 Pictures"
+   },
+   "description": {
+    "en": "Japanese animation studio credited with the Solo Leveling TV anime.",
+    "ko": "'나 혼자만 레벨업' TV 애니메이션 제작사로 표기된 일본 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:jc-staff",
+   "type": "studio_org",
+   "slug": "jc-staff",
+   "names": {
+    "en": "J.C.STAFF",
+    "ja": "J.C.STAFF"
+   },
+   "description": {
+    "en": "Japanese animation studio credited with the Overgeared TV anime.",
+    "ko": "'템빨' TV 애니메이션 제작사로 표기된 일본 애니메이션 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "http://www.jcstaff.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-jc-staff"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:arvo-animation",
+   "type": "studio_org",
+   "slug": "arvo-animation",
+   "names": {
+    "en": "Arvo Animation",
+    "ja": "アルボアニメーション"
+   },
+   "description": {
+    "en": "Japanese animation studio credited with both seasons of the A Returner's Magic Should Be Special TV anime.",
+    "ko": "'귀환자의 마법은 특별해야 합니다' TV 애니메이션 1·2기 제작사로 표기된 일본 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:studio-fu",
+   "type": "studio_org",
+   "slug": "studio-fu",
+   "names": {
+    "en": "Studio fu",
+    "ja": "スタジオ fu"
+   },
+   "description": {
+    "en": "Japanese animation studio credited with the SSS-Class Revival Hunter TV anime.",
+    "ko": "'SSS급 죽어야 사는 헌터' TV 애니메이션 제작사로 표기된 일본 애니메이션 스튜디오."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.studiofu.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-profile-studio-fu"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:the-answer-studio",
+   "type": "studio_org",
+   "slug": "the-answer-studio",
+   "names": {
+    "en": "The Answer Studio",
+    "ja": "アンサー・スタジオ"
+   },
+   "description": {
+    "en": "Animation studio credited with Tower of God season 2.",
+    "ko": "'신의 탑' 애니메이션 2기 제작사로 표기된 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:netmarble",
+   "type": "studio_org",
+   "slug": "netmarble",
+   "names": {
+    "en": "Netmarble",
+    "ko": "넷마블"
+   },
+   "description": {
+    "en": "Korean game publisher of the Solo Leveling games ARISE, ARISE OVERDRIVE and KARMA.",
+    "ko": "'나 혼자만 레벨업' 게임(어라이즈, 어라이즈 오버드라이브, 카르마)을 서비스하는 한국 게임사."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.netmarble.net/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-kr-origin-overdrive-site"
+    }
+   ]
+  },
+  {
+   "id": "studio_org:netmarble-neo",
+   "type": "studio_org",
+   "slug": "netmarble-neo",
+   "names": {
+    "en": "Netmarble Neo",
+    "ko": "넷마블네오"
+   },
+   "description": {
+    "en": "Netmarble development studio credited as developer of Solo Leveling: ARISE OVERDRIVE on Steam.",
+    "ko": "Steam에서 '나 혼자만 레벨업:어라이즈 오버드라이브'의 개발사로 표기된 넷마블 계열 개발 스튜디오."
+   }
+  }
+ ],
+ "events": [
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Overgeared TV anime: Prime Video first streaming begins (Japan)",
+    "ko": "템빨 TV 애니메이션 일본 Prime Video 선행 배포 시작"
+   },
+   "starts": "2026-09-27T23:30+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://tempal-anime.net/onair/index.html",
+   "entities": [
+    "work:overgeared-tv",
+    "franchise:overgeared"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-tempal-onair",
+   "note": "weekly on Sundays 23:30; other services from 2026-10-04"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Overgeared TV anime: broadcast premiere on TOKYO MX and BS11",
+    "ko": "템빨 TV 애니메이션 일본 TOKYO MX·BS11 방송 시작"
+   },
+   "starts": "2026-10-02T23:30+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://tempal-anime.net/onair/index.html",
+   "entities": [
+    "work:overgeared-tv",
+    "franchise:overgeared"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-tempal-onair",
+   "note": "weekly on Fridays; AT-X from 2026-10-05"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "Overgeared TV anime opens on Laftel (Korea)",
+    "ko": "템빨 ~아이템의 힘~ 라프텔 공개"
+   },
+   "starts": "2026-10-02",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://laftel.net/item/47088",
+   "entities": [
+    "work:overgeared-tv",
+    "franchise:overgeared"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-laftel-tempal"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Laftel watch-party preview of Overgeared episodes 1-2",
+    "ko": "라프텔 <템빨 ~아이템의 힘~> 1~2화 선행 상영회"
+   },
+   "starts": "2026-09-13T17:00+09:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "KR",
+   "location": "Laftel app/web (online)",
+   "url": "https://help.laftel.net/hc/ko/articles/17545516796815",
+   "entities": [
+    "work:overgeared-tv",
+    "franchise:overgeared"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-laftel-tempal-preview"
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "Overgeared x Solo Leveling original-art collaboration illustration released",
+    "ko": "템빨 × 나 혼자만 레벨업 원작 콜라보 일러스트 공개"
+   },
+   "starts": "2026-09-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://tempal-anime.net/news/index00230000.html",
+   "entities": [
+    "franchise:overgeared",
+    "franchise:solo-leveling",
+    "character:overgeared-grid",
+    "character:solo-leveling-sung-jinwoo"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-tempal-collab"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "A Returner's Magic Should Be Special season 2 premieres on Fuji TV +Ultra",
+    "ko": "귀환자의 마법은 특별해야 합니다 2기 후지TV '+Ultra' 방송 시작"
+   },
+   "starts": "2026-10-08T00:45+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://returners-magic.com/onair/",
+   "entities": [
+    "work:a-returners-magic-should-be-special-tv-s2",
+    "franchise:a-returners-magic-should-be-special"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-rm-onair",
+   "note": "listed as Wednesday 7 October 24:45; Kansai TV from 10-08, Tokai TV and AT-X from 10-10; d Anime Store/U-NEXT/Anime Hodai stream from 10-07 25:15"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "A Returner's Magic Should Be Special season 2 advance screening with main cast (Shinjuku Wald 9)",
+    "ko": "귀환자의 마법은 특별해야 합니다 2기 선행 상영회 (신주쿠 발트9)"
+   },
+   "starts": "2026-10-03T18:50+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Shinjuku Wald 9, Tokyo",
+   "url": "https://returners-magic.com/news/?id=71066",
+   "entities": [
+    "work:a-returners-magic-should-be-special-tv-s2",
+    "voice_actor:takuma-terashima",
+    "voice_actor:sayumi-suzushiro",
+    "voice_actor:asami-seto"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-rm-screening",
+   "note": "ticket 2,800 JPY; stage greeting by Terashima, Suzushiro, Fujiwara and Seto"
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "\"Desir Cup\" sponsored race at Funabashi Keiba",
+    "ko": "후나바시 경마장 관명 레이스 '귀환자의 마법은 특별해야 합니다 데지르배'"
+   },
+   "starts": "2026-10-02T17:20+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "Funabashi Racecourse, Chiba",
+   "url": "https://returners-magic.com/news/?id=71350",
+   "entities": [
+    "franchise:a-returners-magic-should-be-special",
+    "character:a-returners-magic-should-be-special-desir-arman"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-rm-keiba",
+   "note": "race 6; first-come postcard giveaway from 14:00 gate opening"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "A Returner's Magic Should Be Special season 1 broadcast on Fuji TV",
+    "ko": "귀환자의 마법은 특별해야 합니다 1기 후지TV 방송"
+   },
+   "starts": "2026-07-03T02:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://returners-magic.com/1st/onair/",
+   "entities": [
+    "work:a-returners-magic-should-be-special-tv-s1"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-rm-1st-onair",
+   "note": "listed as Thursday 2 July 26:00 for the first episode, then Thursdays 25:45; Kansai TV from 2026-07-05"
+  },
+  {
+   "kind": "broadcast",
+   "title": {
+    "en": "SSS-Class Revival Hunter TV anime premiere",
+    "ko": "SSS급 죽어야 사는 헌터 TV 애니메이션 방송 시작"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://sss-revival.com/news/index00010000.html",
+   "entities": [
+    "work:sss-class-revival-hunter-tv",
+    "franchise:sss-class-revival-hunter"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-sss-news"
+  },
+  {
+   "kind": "other",
+   "title": {
+    "en": "Solo Leveling -Beyond the System- theatrical anime announced",
+    "ko": "극장판 나 혼자만 레벨업 -Beyond the System- 제작 발표"
+   },
+   "starts": "2026-07-04",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://sololeveling-anime.net/news/?id=70715",
+   "entities": [
+    "work:solo-leveling-film-beyond-the-system",
+    "franchise:solo-leveling"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-sl-film-news",
+   "note": "release date not announced"
+  },
+  {
+   "kind": "other",
+   "title": {
+    "en": "Solo Leveling: KARMA pre-registration opens (Korea)",
+    "ko": "나 혼자만 레벨업: 카르마 사전등록 시작"
+   },
+   "starts": "2026-09-16",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "url": "https://sololeveling-karma.netmarble.com/ko",
+   "entities": [
+    "work:solo-leveling-karma-game",
+    "franchise:solo-leveling"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-kr-origin-karma-site",
+   "note": "runs until the grand launch (date not announced)"
+  }
+ ]
+}

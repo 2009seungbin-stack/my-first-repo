@@ -100,3 +100,18 @@ test('REDIRECT_TO builds a redirect-only deployment for a retired address',async
   assert.deepEqual(await readdir(out),['_redirects'],'nothing else is served from the old address');
  });
 });
+test('platform build: PLATFORM=on routes the channel/community prefixes to the Worker and ships the renderers',async()=>{
+ assert.throws(()=>configuration({SITE_URL:origin,PLATFORM:'on'}),/SERVICE_API=on/);
+ assert.throws(()=>configuration({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'yes'}),/PLATFORM must be on or off/);
+ await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on'},async(out,read)=>{
+  const routes=JSON.parse(await read('_routes.json'));
+  for(const p of ['/api/*','/ko/community/*','/en/ai/*','/ko/games/*','/ko/subculture/*'])assert(routes.include.includes(p),p);
+  assert(!routes.include.includes('/*')&&!routes.include.some(r=>r.startsWith('/ko/image')),'tool pages stay static');
+  assert.match(await read('_worker.js/server/build-info.js'),/"platform":true/);
+  assert((await read('_worker.js/platform/render/channel.js')).includes('renderChannel'));
+  assert((await read('src/platform/n2.css')).includes('.pr{'));
+  assert(routes.include.includes('/sitemap-n2-*'));
+  assert((await read('sitemap.xml')).includes('sitemap-n2-games.xml'),'entity sitemaps are listed in the index');
+  assert((await read('_worker.js/platform/seo.js')).includes('indexable'));
+ });
+});

@@ -1,0 +1,63 @@
+{
+ "appnews": {
+  "appid": 2767030,
+  "newsitems": [
+   {
+    "gid": "1844751498220444",
+    "title": "Marvel Rivals Version 20260924 Patch Notes",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844751498220444",
+    "is_external_url": true,
+    "author": "Marvel Rivals",
+    "contents": "Greetings, Rivals!We're thrilled to announce the upcoming patch drops on Septemb",
+    "feedlabel": "Community Announcements",
+    "date": 1790232844,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 2767030
+   },
+   {
+    "gid": "1844115010491291",
+    "title": "Marvel Rivals Version 20260917 Patch Notes",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010491291",
+    "is_external_url": true,
+    "author": "Marvel Rivals",
+    "contents": "Greetings, Rivals!We're thrilled to announce the upcoming patch drops on Septemb",
+    "feedlabel": "Community Announcements",
+    "date": 1789634727,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 2767030
+   },
+   {
+    "gid": "1843481262691410",
+    "title": "Marvel Rivals Version 20260911 Patch Notes - Season 10 Arrives",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1843481262691410",
+    "is_external_url": true,
+    "author": "Marvel Rivals",
+    "contents": "Greetings, Rivals!After assassinating two deities back-to-back, the mysterious G",
+    "feedlabel": "Community Announcements",
+    "date": 1789025617,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 2767030,
+    "tags": [
+     "vo_marketing_message"
+    ]
+   },
+   {
+    "gid": "1843481262691409",
+    "title": "Season 10: Butcher's Blasphemy // Dev Vision Vol. 21 | Marvel Rivals",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1843481262691409",
+    "is_external_url": true,
+    "author": "Marvel Rivals",
+    "contents": "Guangguang and Zhiyong are back again and ready to dive into Dev Vision Vol. 21!",
+    "feedlabel": "Community Announcements",
+    "date": 1789025603,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 2767030
+   }
+  ],
+  "count": 155
+ }
+}

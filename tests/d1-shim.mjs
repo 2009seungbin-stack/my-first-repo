@@ -24,11 +24,11 @@ class Statement{
  async run(){return this.execute();}
 }
 export class D1Shim{
- constructor(){
+ constructor(file=':memory:'){
   if(!DatabaseSync)throw Error('node:sqlite unavailable');
-  this.raw=new DatabaseSync(':memory:');this.raw.exec('PRAGMA foreign_keys=ON');
+  this.raw=new DatabaseSync(file);this.raw.exec('PRAGMA foreign_keys=ON');
  }
- static migrated(){const db=new D1Shim();for(const f of migrationFiles())db.raw.exec(readFileSync(new URL(f,MIGRATIONS),'utf8'));return db;}
+ static migrated(file=':memory:'){const db=new D1Shim(file);for(const f of migrationFiles())db.raw.exec(readFileSync(new URL(f,MIGRATIONS),'utf8'));return db;}
  prepare(sql){return new Statement(this,sql);}
  async batch(statements){
   this.raw.exec('BEGIN IMMEDIATE');

@@ -1,0 +1,2866 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "games",
+ "sources": [
+  {
+   "id": "src:patch-amnesia-memories-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://thirdmelt.blogspot.com/2025/07/amnesia-steamgog.html",
+   "title": "암네시아 한국어 패치",
+   "publisher": "Neidhardt (나이트하르트) with 데이반, 하늘소라, 소운",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own author post; the page shows a last update of 2025-07-18. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-be-my-horde-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/vmxlf/BeMyHorde-Korean-Mod",
+   "title": "비 마이 호드 유저 한국어 패치",
+   "publisher": "vmxlf",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2026-09-07. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-caves-of-qud-korean-patch-qudkorean",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/qudkorean/qud_korean_localization",
+   "title": "케이브 오브 커드 한글화",
+   "publisher": "qudkorean (community team)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2026-01-26. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-caves-of-qud-korean-patch-spelunky",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3735379743",
+   "title": "Caves of Qud 한국어 번역 모드",
+   "publisher": "Spelunky",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2026-09-28. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-chaos-head-noah-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://thirdmelt.blogspot.com/2024/04/chaoshead-noah-gog.html",
+   "title": "카오스;헤드 노아 한국어 패치",
+   "publisher": "구내 / Neidhardt (나이트하르트)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own author post; the page shows a last update of 2025-12-07. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-cultist-simulator-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2236735768",
+   "title": "컬티스트 시뮬레이터 한국어 번역 모드 (main branch 지원!)",
+   "publisher": "SAMARITAN (khj5798 for Exile DLC)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2024-10-20. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-distant-worlds-2-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3684914325",
+   "title": "Distant Worlds 2 한국어 번역 모드 (Korean Translation)",
+   "publisher": "KuiKui",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2026-03-20. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-europa-universalis-iv-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2714934430",
+   "title": "유로파 유니버셜리스 4 한국어번역 모드 (Korean Language Mod - stability)",
+   "publisher": "Catnyangi(켓냥이), Rusa98",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2025-06-13. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-fallout-4-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/dhrgusdlrns4/224383866246",
+   "title": "폴아웃 4 업데이트 대응 한글패치 배포 (신규 + 구버전)",
+   "publisher": "TeamWaldo 2 (blog: 팀왈도)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2026-08-19. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-fallout-new-vegas-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://arca.live/b/falloutnv/171125953",
+   "title": "바람브라민 구매자도 할 수 있는 뉴베가스 ESP 한패 설명서",
+   "publisher": "케플라",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own author post; the page shows a last update of 2026-06-05. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-higurashi-when-they-cry-hou-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/s485lee/HouPlusKor",
+   "title": "쓰르라미 울 적에 봉+ 한글패치",
+   "publisher": "s485lee",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2025-07-26. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-imperator-rome-korean-patch-mcja",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3375561855",
+   "title": "임페라토르:롬 비공식 한국어 번역 모드 (Korean Language)",
+   "publisher": "MCJA",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2025-03-17. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-imperator-rome-korean-patch-tiger-invictus",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3802240004",
+   "title": "한글화 통합 개선 패치 (인빅투스)",
+   "publisher": "Tiger",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2026-09-18. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-jagged-alliance-3-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3354939882",
+   "title": "한국어 번역 모드",
+   "publisher": "Goldman Park (Team Waldo)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2024-10-26. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-neverwinter-nights-enhanced-edition-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/alagondar/224159541284",
+   "title": "Neverwinter Nights: Enhanced Edition 한글 패치",
+   "publisher": "Nasher (alagondar) / GitHub wonilclone",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2026-05-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-nier-automata-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/aiden1212356/222834163725",
+   "title": "니어 오토마타 한국어패치",
+   "publisher": "우민 (aiden1212356, Team 임시)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2022-07-29. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/Akintos/pathfinder-translation",
+   "title": "패스파인더: 킹메이커 한국어 패치",
+   "publisher": "Akintos (아킨토스)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2021-07-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/akintos47/223407932004",
+   "title": "패스파인더: 의인의 분노 한국어 패치",
+   "publisher": "아킨토스 (akintos47) / 의인의 분노 번역팀",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2024-04-07. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-pathologic-2-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2533489773",
+   "title": "패솔로직 2 비공식 한국어화",
+   "publisher": "Photis",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam guide; the page shows a last update of 2026-05-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-rift-wizard-2-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3756335146",
+   "title": "Rift Wizard 2 한국어 지원 MOD",
+   "publisher": "Killterm",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2026-07-03. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-road-96-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/aiden1212356/222865159969",
+   "title": "로드96 한국어패치",
+   "publisher": "팀 임시 (우민, 역물음표)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2022-09-23. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-robotics-notes-dash-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/aisaka_p/222917336753",
+   "title": "로보틱스;노츠 DaSH 한글패치",
+   "publisher": "T4KiNA (aisaka_p)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2026-09-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/aiden1212356/223018314112",
+   "title": "섀도우런 홍콩 Extended Edition 한국어패치",
+   "publisher": "팀 임시 (우민, butnine)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2024-05-12. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-shadowrun-returns-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://blog.naver.com/physics1114/220933268528",
+   "title": "섀도우런 리턴즈 본편 검수 완료 한글 패치 1.0",
+   "publisher": "프기니 (physics1114) / Lussaphi, asm987",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2021-09-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-starbound-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=1815801455",
+   "title": "스타바운드 Union 한국어 패치",
+   "publisher": "Blue_ON",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2022-10-16. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-starfield-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/dhrgusdlrns4/223532045871",
+   "title": "스타필드+DLC 한글패치 100% 버전 배포 [260822 수정]",
+   "publisher": "TeamWaldo 2 (blog: 팀왈도)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2026-08-22. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-tales-of-zestiria-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/physics1114/220906915934",
+   "title": "테일즈 오브 제스티리아 한글 패치",
+   "publisher": "프기니 (Team 한글화의 궤적, physics1114)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2021-09-25. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-terraria-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2855376675",
+   "title": "테라리아 한글화 리소스팩",
+   "publisher": "farnic, ansayo",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2026-02-04. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.dcinside.com/board/skyrim/259457",
+   "title": "오블리비언 리마스터 한글패치",
+   "publisher": "드로거",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own author post; the page shows a last update of 2026-03-24. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://thirdmelt.blogspot.com/2025/08/true-blood-steamdlsite.html",
+   "title": "토가이누의 피 True Blood 한국어 패치",
+   "publisher": "Neidhardt (나이트하르트)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own author post; the page shows a last update of 2025-12-19. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-warhammer-40-000-rogue-trader-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/geungogma/RogueTrader-KoreanPatch",
+   "title": "로그 트레이더 한국어 자동 갱신 패치 & 1.5 버전 한국어 폰트 모드",
+   "publisher": "군고그마 (geungogma)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2026-09-21. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://github.com/kimjh-eclipse/musou-orochi-2-ultimate-steam-kor",
+   "title": "스팀판 무쌍 오로치2 얼티밋 유저 한글화",
+   "publisher": "kimjh-eclipse",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own GitHub repository; the page shows a last update of 2026-09-28. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-wasteland-3-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://m.blog.naver.com/dhrgusdlrns4/222716860645",
+   "title": "웨이스트랜드 3 한글패치 검수판",
+   "publisher": "팀왈도 시즌2 (TeamWaldo 2)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Naver blog post; the page shows a last update of 2022-04-30. Nerulio links only; it does not host patch files."
+  },
+  {
+   "id": "src:patch-wildermyth-korean-patch",
+   "kind": "COMMUNITY",
+   "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3096231021",
+   "title": "와일더미스 한글화 중간배포",
+   "publisher": "jsnuguri (게이머존삼)",
+   "retrieved": "2026-09-28",
+   "note": "The translator's own Steam Workshop item; the page shows a last update of 2024-07-21. Nerulio links only; it does not host patch files."
+  }
+ ],
+ "entities": [
+  {
+   "id": "translation_patch:amnesia-memories-korean-patch",
+   "type": "translation_patch",
+   "slug": "amnesia-memories-korean-patch",
+   "names": {
+    "en": "Amnesia: Memories Korean patch (나이트하르트)",
+    "ko": "Amnesia: Memories 한글패치 (나이트하르트)"
+   },
+   "aliases": [
+    "AMNESIA Korean Patch (Steam/GOG)",
+    "암네시아 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean patch for AMNESIA: Memories (Steam and GOG) by Neidhardt and collaborators, installed by overwriting game files. The author notes the Steam version is region-locked in Korea.",
+    "ko": "나이트하르트 외 번역진의 암네시아 한국어 패치(Steam·GOG)로, 게임 파일을 덮어써 설치합니다. Steam판은 한국에서 지역 제한이 걸려 있다고 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://thirdmelt.blogspot.com/2025/07/amnesia-steamgog.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-amnesia-memories-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Neidhardt (나이트하르트) with 데이반, 하늘소라, 소운",
+     "ver": "COMMUNITY",
+     "src": "src:patch-amnesia-memories-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-amnesia-memories-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://thirdmelt.blogspot.com/2025/07/amnesia-steamgog.html",
+     "ver": "COMMUNITY",
+     "src": "src:patch-amnesia-memories-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-359390",
+     "ver": "COMMUNITY",
+     "src": "src:patch-amnesia-memories-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:be-my-horde-korean-patch",
+   "type": "translation_patch",
+   "slug": "be-my-horde-korean-patch",
+   "names": {
+    "en": "Be My Horde Korean patch (vmxlf)",
+    "ko": "Be My Horde 한글패치 (vmxlf)"
+   },
+   "aliases": [
+    "Be My Horde Korean Translation Mod",
+    "비 마이 호드 유저 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean translation mod for Be My Horde by vmxlf, installed by placing a .pak file in the game's ~mods folder. The author states it matches game version v0.14.7.",
+    "ko": "vmxlf의 비 마이 호드 한국어 모드로, 게임의 ~mods 폴더에 .pak 파일을 넣어 설치합니다. 제작자는 게임 버전 v0.14.7에 맞춰져 있다고 밝혔습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/vmxlf/BeMyHorde-Korean-Mod"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "vmxlf",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/vmxlf/BeMyHorde-Korean-Mod",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "v0.14.7",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-2499520",
+     "ver": "COMMUNITY",
+     "src": "src:patch-be-my-horde-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:caves-of-qud-korean-patch-qudkorean",
+   "type": "translation_patch",
+   "slug": "caves-of-qud-korean-patch-qudkorean",
+   "names": {
+    "en": "Caves of Qud Korean patch (qudkorean)",
+    "ko": "Caves of Qud 한글패치 (qudkorean)"
+   },
+   "aliases": [
+    "Caves of Qud Korean Localization",
+    "케이브 오브 커드 한글화"
+   ],
+   "description": {
+    "en": "Korean localisation mod by the qudkorean team, installed into the game's Mods folder (latest release v1.0.2). The README warns that it mixes AI and hand translation and that random name generation may fail.",
+    "ko": "qudkorean 팀의 한국어 모드로, 게임의 Mods 폴더에 설치합니다(최신 릴리스 v1.0.2). AI 번역과 직접 번역이 섞여 있고 무작위 이름 생성이 실패할 수 있다고 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/qudkorean/qud_korean_localization"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    },
+    {
+     "p": "author_name",
+     "v": "qudkorean (community team)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/qudkorean/qud_korean_localization",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    },
+    {
+     "p": "patch_version",
+     "v": "v1.0.2",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-333640",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v1.0.2",
+     "released": "2026-01-26",
+     "channel": "stable",
+     "notes_url": "https://github.com/qudkorean/qud_korean_localization",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-qudkorean"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:caves-of-qud-korean-patch-spelunky",
+   "type": "translation_patch",
+   "slug": "caves-of-qud-korean-patch-spelunky",
+   "names": {
+    "en": "Caves of Qud Korean patch (Spelunky)",
+    "ko": "Caves of Qud 한글패치 (Spelunky)"
+   },
+   "aliases": [
+    "Caves of Qud Korean Translation",
+    "Caves of Qud 한국어 번역 모드"
+   ],
+   "description": {
+    "en": "Korean translation mod for Caves of Qud on Steam Workshop that the author says supports game update 2.0.212.31 on the lang-experimental beta branch. Some text still appears in English.",
+    "ko": "Steam 창작마당의 Caves of Qud 한국어 번역 모드로, 제작자는 lang-experimental 베타 브랜치의 게임 업데이트 2.0.212.31을 지원한다고 밝혔습니다. 일부 텍스트는 아직 영어로 표시됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3735379743"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    },
+    {
+     "p": "author_name",
+     "v": "Spelunky",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3735379743",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    },
+    {
+     "p": "patch_version",
+     "v": "v0.7.5",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "2.0.212.31 (lang-experimental branch)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-333640",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v0.7.5",
+     "channel": "stable",
+     "notes_url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3735379743",
+     "ver": "COMMUNITY",
+     "src": "src:patch-caves-of-qud-korean-patch-spelunky"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:chaos-head-noah-korean-patch",
+   "type": "translation_patch",
+   "slug": "chaos-head-noah-korean-patch",
+   "names": {
+    "en": "CHAOS;HEAD NOAH Korean patch (나이트하르트)",
+    "ko": "CHAOS;HEAD NOAH 한글패치 (나이트하르트)"
+   },
+   "aliases": [
+    "CHAOS;HEAD NOAH Korean Patch (Steam/GOG)",
+    "카오스;헤드 노아 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean patch for CHAOS;HEAD NOAH with separate Steam and GOG installers, published by Neidhardt and built on the Committee of Zero patch. The game is launched in English after patching.",
+    "ko": "나이트하르트가 배포하는 카오스;헤드 노아 한국어 패치로 Steam판과 GOG판 설치 프로그램이 따로 있으며, Committee of Zero 패치를 기반으로 합니다. 패치 후 영어로 실행합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://thirdmelt.blogspot.com/2024/04/chaoshead-noah-gog.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-chaos-head-noah-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "구내 / Neidhardt (나이트하르트)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-chaos-head-noah-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-chaos-head-noah-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://thirdmelt.blogspot.com/2024/04/chaoshead-noah-gog.html",
+     "ver": "COMMUNITY",
+     "src": "src:patch-chaos-head-noah-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1961950",
+     "ver": "COMMUNITY",
+     "src": "src:patch-chaos-head-noah-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:cultist-simulator-korean-patch",
+   "type": "translation_patch",
+   "slug": "cultist-simulator-korean-patch",
+   "names": {
+    "en": "Cultist Simulator Korean patch (SAMARITAN)",
+    "ko": "Cultist Simulator 한글패치 (SAMARITAN)"
+   },
+   "aliases": [
+    "CS: Korean Translation",
+    "컬티스트 시뮬레이터 한국어 번역 모드 (main branch 지원!)"
+   ],
+   "description": {
+    "en": "Korean translation mod for Cultist Simulator and its DLC on Steam Workshop; the author says it supports the game's latest version without naming it. A separate font patch described in the author's guide is required.",
+    "ko": "Steam 창작마당의 컬티스트 시뮬레이터 본편·DLC 한국어 번역 모드입니다. 제작자는 최신 버전을 지원한다고 밝혔지만 버전명은 적지 않았고, 제작자 가이드의 별도 폰트 패치가 필요합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2236735768"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-cultist-simulator-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "SAMARITAN (khj5798 for Exile DLC)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-cultist-simulator-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-cultist-simulator-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=2236735768",
+     "ver": "COMMUNITY",
+     "src": "src:patch-cultist-simulator-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-718670",
+     "ver": "COMMUNITY",
+     "src": "src:patch-cultist-simulator-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:distant-worlds-2-korean-patch",
+   "type": "translation_patch",
+   "slug": "distant-worlds-2-korean-patch",
+   "names": {
+    "en": "Distant Worlds 2 Korean patch (KuiKui)",
+    "ko": "Distant Worlds 2 한글패치 (KuiKui)"
+   },
+   "aliases": [
+    "Distant Worlds 2 Korean translation mod (KuiKui)",
+    "Distant Worlds 2 한국어 번역 모드 (Korean Translation)"
+   ],
+   "description": {
+    "en": "Korean translation mod for Distant Worlds 2 on Steam Workshop, translated with AI on top of the Chinese mod's structure. The author warns that testing is limited and crashes are possible; it needs a Steam launch option that loads the mod's DLL.",
+    "ko": "중국어 모드 구조를 바탕으로 AI로 번역한 Distant Worlds 2 한국어 모드(Steam 창작마당)입니다. 검수가 부족해 충돌이 날 수 있다고 경고하며, 모드 DLL을 불러오는 Steam 실행 옵션이 필요합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3684914325"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-distant-worlds-2-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "KuiKui",
+     "ver": "COMMUNITY",
+     "src": "src:patch-distant-worlds-2-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-distant-worlds-2-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3684914325",
+     "ver": "COMMUNITY",
+     "src": "src:patch-distant-worlds-2-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1531540",
+     "ver": "COMMUNITY",
+     "src": "src:patch-distant-worlds-2-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:europa-universalis-iv-korean-patch",
+   "type": "translation_patch",
+   "slug": "europa-universalis-iv-korean-patch",
+   "names": {
+    "en": "Europa Universalis IV Korean patch (Catnyangi, Rusa98)",
+    "ko": "Europa Universalis IV 한글패치 (Catnyangi, Rusa98)"
+   },
+   "aliases": [
+    "EU4 Korean Language Mod – stability (Rusa98 / Catnyangi)",
+    "유로파 유니버셜리스 4 한국어번역 모드 (Korean Language Mod - stability)"
+   ],
+   "description": {
+    "en": "Korean language mod for Europa Universalis IV on Steam Workshop (stability variant) by Catnyangi and Rusa98, stating 94.81% translated. Sister variants with Korean or English place names exist; only one should be enabled.",
+    "ko": "켓냥이·Rusa98의 유로파 유니버설리스 4 한국어 번역 모드(stability, Steam 창작마당)로, 번역률 94.81%라고 밝히고 있습니다. 지명 한국어/영어 변형판이 따로 있으며 하나만 켜야 합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2714934430"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-europa-universalis-iv-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Catnyangi(켓냥이), Rusa98",
+     "ver": "COMMUNITY",
+     "src": "src:patch-europa-universalis-iv-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-europa-universalis-iv-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=2714934430",
+     "ver": "COMMUNITY",
+     "src": "src:patch-europa-universalis-iv-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-236850",
+     "ver": "COMMUNITY",
+     "src": "src:patch-europa-universalis-iv-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:fallout-4-korean-patch",
+   "type": "translation_patch",
+   "slug": "fallout-4-korean-patch",
+   "names": {
+    "en": "Fallout 4 Korean patch (팀왈도)",
+    "ko": "Fallout 4 한글패치 (팀왈도)"
+   },
+   "aliases": [
+    "Fallout 4 update-compatible Korean patch (Team Waldo maintainer)",
+    "폴아웃 4 업데이트 대응 한글패치 배포 (신규 + 구버전)"
+   ],
+   "description": {
+    "en": "Korean patch for Fallout 4 maintained from the Team Waldo user translation, labelled for game version 1.11.240 on Steam, with a separate archive for older builds. The author states it is not an official release.",
+    "ko": "팀왈도 유저 번역을 이어 관리하는 폴아웃 4 한글패치로, Steam 게임 버전 1.11.240용으로 표기되어 있고 구버전용 파일이 따로 있습니다. 공식 배포가 아니라고 밝히고 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/dhrgusdlrns4/224383866246"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "TeamWaldo 2 (blog: 팀왈도)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/dhrgusdlrns4/224383866246",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "1.11.240 (Steam)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-377160",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-4-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:fallout-new-vegas-korean-patch",
+   "type": "translation_patch",
+   "slug": "fallout-new-vegas-korean-patch",
+   "names": {
+    "en": "Fallout: New Vegas Korean patch (케플라)",
+    "ko": "Fallout: New Vegas 한글패치 (케플라)"
+   },
+   "aliases": [
+    "New Vegas ESP-based Korean patch (arca.live channel admin 케플라)",
+    "바람브라민 구매자도 할 수 있는 뉴베가스 ESP 한패 설명서"
+   ],
+   "description": {
+    "en": "ESP-based Korean patch for Fallout: New Vegas documented by the arca.live channel owner 케플라 and installed through Mod Organizer 2. It requires several script-extender plugins (xNVSE, JIP LN NVSE, tNVSE) and the 4GB patcher.",
+    "ko": "아카라이브 채널 관리자 케플라가 설명서를 올린 뉴 베가스 ESP 기반 한글패치로, Mod Organizer 2로 설치합니다. xNVSE·JIP LN NVSE·tNVSE 등 스크립트 확장과 4GB 패처가 필요합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://arca.live/b/falloutnv/171125953"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-new-vegas-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "케플라",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-new-vegas-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-new-vegas-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://arca.live/b/falloutnv/171125953",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-new-vegas-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-22380",
+     "ver": "COMMUNITY",
+     "src": "src:patch-fallout-new-vegas-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:higurashi-when-they-cry-hou-korean-patch",
+   "type": "translation_patch",
+   "slug": "higurashi-when-they-cry-hou-korean-patch",
+   "names": {
+    "en": "Higurashi When They Cry Hou+ Korean patch (s485lee)",
+    "ko": "Higurashi When They Cry Hou+ 한글패치 (s485lee)"
+   },
+   "aliases": [
+    "Higurashi Hou+ Korean Patch",
+    "쓰르라미 울 적에 봉+ 한글패치"
+   ],
+   "description": {
+    "en": "Korean patch for Higurashi When They Cry Hou+ (Steam) by s485lee, version 1.3.4 for Windows and macOS. It ships bundled with the 07th-Mod voice and graphics patch it is built on.",
+    "ko": "s485lee의 쓰르라미 울 적에 봉+ (Steam) 한글패치 1.3.4(Windows·macOS)입니다. 기반이 되는 07th-Mod 음성·그래픽 패치가 함께 들어 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/s485lee/HouPlusKor"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "s485lee",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/s485lee/HouPlusKor",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "1.3.4",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-2491040",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.3.4",
+     "released": "2025-07-26",
+     "channel": "stable",
+     "notes_url": "https://github.com/s485lee/HouPlusKor",
+     "ver": "COMMUNITY",
+     "src": "src:patch-higurashi-when-they-cry-hou-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:imperator-rome-korean-patch-mcja",
+   "type": "translation_patch",
+   "slug": "imperator-rome-korean-patch-mcja",
+   "names": {
+    "en": "Imperator: Rome Korean patch (MCJA)",
+    "ko": "Imperator: Rome 한글패치 (MCJA)"
+   },
+   "aliases": [
+    "Imperator: Rome unofficial Korean translation mod (MCJA)",
+    "임페라토르:롬 비공식 한국어 번역 모드 (Korean Language)"
+   ],
+   "description": {
+    "en": "Unofficial Korean translation mod for Imperator: Rome on Steam Workshop, stating 85.02% translated and that achievements remain available.",
+    "ko": "Steam 창작마당의 임페라토르: 롬 비공식 한국어 번역 모드로, 번역률 85.02%이며 도전 과제 달성이 가능하다고 밝히고 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3375561855"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-mcja"
+    },
+    {
+     "p": "author_name",
+     "v": "MCJA",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-mcja"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-mcja"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3375561855",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-mcja"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-859580",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-mcja"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:imperator-rome-korean-patch-tiger-invictus",
+   "type": "translation_patch",
+   "slug": "imperator-rome-korean-patch-tiger-invictus",
+   "names": {
+    "en": "Imperator: Rome Korean patch (Tiger)",
+    "ko": "Imperator: Rome 한글패치 (Tiger)"
+   },
+   "aliases": [
+    "Imperator: Invictus integrated Korean + fix patch (Tiger)",
+    "한글화 통합 개선 패치 (인빅투스)"
+   ],
+   "description": {
+    "en": "Korean translation and fix patch for Imperator: Rome played with the Invictus mod, made by one person with AI translation according to the author. It must load last in the playset and needs Invictus and 2.0 Better UI.",
+    "ko": "인빅투스 모드용 임페라토르: 롬 한글화 통합 개선 패치로, 제작자에 따르면 AI 번역으로 혼자 제작했습니다. 플레이셋 맨 마지막에 두어야 하며 Invictus와 2.0 Better UI가 필요합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3802240004"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-tiger-invictus"
+    },
+    {
+     "p": "author_name",
+     "v": "Tiger",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-tiger-invictus"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-tiger-invictus"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3802240004",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-tiger-invictus"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-859580",
+     "ver": "COMMUNITY",
+     "src": "src:patch-imperator-rome-korean-patch-tiger-invictus"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:jagged-alliance-3-korean-patch",
+   "type": "translation_patch",
+   "slug": "jagged-alliance-3-korean-patch",
+   "names": {
+    "en": "Jagged Alliance 3 Korean patch (팀왈도)",
+    "ko": "Jagged Alliance 3 한글패치 (팀왈도)"
+   },
+   "aliases": [
+    "Korean Localization Mod [NEW]",
+    "한국어 번역 모드"
+   ],
+   "description": {
+    "en": "Korean localisation mod for Jagged Alliance 3 by Team Waldo on Steam Workshop, replacing the team's older Workshop item after a team change. The October 2024 update finished the lines of several more mercenaries.",
+    "ko": "팀왈도가 Steam 창작마당에 올린 재기드 얼라이언스 3 한국어 번역 모드로, 팀 변경 후 이전 항목을 대체합니다. 2024년 10월 업데이트에서 용병 여러 명의 대사 번역이 추가로 완료되었습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3354939882"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-jagged-alliance-3-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Goldman Park (Team Waldo)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-jagged-alliance-3-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-jagged-alliance-3-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3354939882",
+     "ver": "COMMUNITY",
+     "src": "src:patch-jagged-alliance-3-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1084160",
+     "ver": "COMMUNITY",
+     "src": "src:patch-jagged-alliance-3-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:neverwinter-nights-enhanced-edition-korean-patch",
+   "type": "translation_patch",
+   "slug": "neverwinter-nights-enhanced-edition-korean-patch",
+   "names": {
+    "en": "Neverwinter Nights: Enhanced Edition Korean patch (Nasher)",
+    "ko": "Neverwinter Nights: Enhanced Edition 한글패치 (Nasher)"
+   },
+   "aliases": [
+    "NWN:EE Korean patch",
+    "Neverwinter Nights: Enhanced Edition 한글 패치"
+   ],
+   "description": {
+    "en": "Korean patch for Neverwinter Nights: Enhanced Edition that the author says works on Steam build 8193.35 and later; its installer patches the user's own game executable and injects a DLL. On Windows some screens (options, module lists) still show garbled text.",
+    "ko": "제작자가 Steam 빌드 8193.35 이상에서 작동한다고 밝힌 네버윈터 나이츠: 인핸스드 에디션 한글 패치로, 설치 프로그램이 사용자의 게임 실행 파일을 패치하고 DLL을 주입합니다. Windows에서는 옵션·모듈 화면 일부 글자가 깨진다고 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/alagondar/224159541284"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Nasher (alagondar) / GitHub wonilclone",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/alagondar/224159541284",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "v0.2.0",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "8193.35+ (Steam)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-704450",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v0.2.0",
+     "released": "2026-05-25",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/alagondar/224159541284",
+     "ver": "COMMUNITY",
+     "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:nier-automata-korean-patch",
+   "type": "translation_patch",
+   "slug": "nier-automata-korean-patch",
+   "names": {
+    "en": "NieR:Automata Korean patch (팀 임시)",
+    "ko": "NieR:Automata 한글패치 (팀 임시)"
+   },
+   "aliases": [
+    "NieR: Automata Korean Patch",
+    "니어 오토마타 한국어패치"
+   ],
+   "description": {
+    "en": "Korean patch for NieR:Automata by Team 임시, reworked for the game's final July 2021 update. It is installed with an installer or manually into the data folder and used with English text and Japanese voices.",
+    "ko": "팀 임시의 니어 오토마타 한국어 패치로, 2021년 7월 최종 업데이트에 맞춰 다시 제작되었습니다. 설치 프로그램 또는 data 폴더 수동 덮어쓰기로 설치하며, 텍스트는 영어·음성은 일본어로 설정합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/aiden1212356/222834163725"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "우민 (aiden1212356, Team 임시)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/aiden1212356/222834163725",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "July 2021 final Steam update",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-524220",
+     "ver": "COMMUNITY",
+     "src": "src:patch-nier-automata-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:pathfinder-kingmaker-enhanced-plus-edition-korean-patch",
+   "type": "translation_patch",
+   "slug": "pathfinder-kingmaker-enhanced-plus-edition-korean-patch",
+   "names": {
+    "en": "Pathfinder: Kingmaker — Enhanced Plus Edition Korean patch (Akintos)",
+    "ko": "Pathfinder: Kingmaker — Enhanced Plus Edition 한글패치 (Akintos)"
+   },
+   "aliases": [
+    "Pathfinder: Kingmaker Korean translation",
+    "패스파인더: 킹메이커 한국어 패치"
+   ],
+   "description": {
+    "en": "Community Korean translation of Pathfinder: Kingmaker published on the translator's GitHub; the latest release (v210725) reports 98.86% of strings translated. It replaces the game's Chinese localisation files and needs the author's font patch, with Chinese selected in game.",
+    "ko": "아킨토스가 GitHub에 공개한 패스파인더: 킹메이커 유저 한국어 번역입니다. 최신 릴리스(v210725) 기준 문자열 98.86%가 번역되었으며, 게임의 중국어 현지화 파일을 교체하고 제작자의 폰트 패치를 적용한 뒤 게임에서 중국어를 선택해 사용합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/Akintos/pathfinder-translation"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Akintos (아킨토스)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/Akintos/pathfinder-translation",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "v210725",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-640820",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v210725",
+     "released": "2021-07-25",
+     "channel": "stable",
+     "notes_url": "https://github.com/Akintos/pathfinder-translation",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch",
+   "type": "translation_patch",
+   "slug": "pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch",
+   "names": {
+    "en": "Pathfinder: Wrath of the Righteous - Enhanced Edition Korean patch (아킨토스)",
+    "ko": "Pathfinder: Wrath of the Righteous - Enhanced Edition 한글패치 (아킨토스)"
+   },
+   "aliases": [
+    "Pathfinder: WotR Korean patch (WrathKoreanMod)",
+    "패스파인더: 의인의 분노 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean mod for Pathfinder: Wrath of the Righteous from Akintos and the translation team, loaded through a bundled mod loader; the translation data updates itself when the game starts. The author notes some main-game and DLC lines are still untranslated and shown as machine translation.",
+    "ko": "아킨토스와 의인의 분노 번역팀이 배포하는 한국어 모드로, 동봉된 모드 로더로 불러오며 게임 실행 시 번역 데이터가 자동 갱신됩니다. 제작자에 따르면 본편과 DLC 일부 문장은 아직 번역되지 않아 기계 번역으로 표시됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/akintos47/223407932004"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "아킨토스 (akintos47) / 의인의 분노 번역팀",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/akintos47/223407932004",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "WrathKoreanMod_240407",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1184370",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "WrathKoreanMod_240407",
+     "released": "2024-04-07",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/akintos47/223407932004",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:pathologic-2-korean-patch",
+   "type": "translation_patch",
+   "slug": "pathologic-2-korean-patch",
+   "names": {
+    "en": "Pathologic 2 Korean patch (Photis)",
+    "ko": "Pathologic 2 한글패치 (Photis)"
+   },
+   "aliases": [
+    "Pathologic 2 unofficial Korean localization",
+    "패솔로직 2 비공식 한국어화"
+   ],
+   "description": {
+    "en": "Unofficial Korean localisation of Pathologic 2 and The Marble Nest DLC, published as a Steam guide by Photis (latest version 260317). It overwrites English text files and two .asset files, so the author advises backing up the originals.",
+    "ko": "Photis가 Steam 가이드로 배포하는 패솔로직 2 및 The Marble Nest DLC 비공식 한국어화입니다(최신 버전 260317). 영어 텍스트 파일과 .asset 파일 두 개를 덮어쓰므로 원본 백업을 권장합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2533489773"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Photis",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=2533489773",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "260317",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-505230",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "260317",
+     "channel": "stable",
+     "notes_url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2533489773",
+     "ver": "COMMUNITY",
+     "src": "src:patch-pathologic-2-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:rift-wizard-2-korean-patch",
+   "type": "translation_patch",
+   "slug": "rift-wizard-2-korean-patch",
+   "names": {
+    "en": "Rift Wizard 2 Korean patch (Killterm)",
+    "ko": "Rift Wizard 2 한글패치 (Killterm)"
+   },
+   "aliases": [
+    "KoreanLocalization",
+    "Rift Wizard 2 한국어 지원 MOD"
+   ],
+   "description": {
+    "en": "Korean localisation mod for Rift Wizard 2 on Steam Workshop, based on a Japanese translation mod and enabled from the game's Mods screen. The author suggests rolling back to the prev_main beta branch if a game patch breaks it.",
+    "ko": "일본어 번역 모드를 바탕으로 만든 Rift Wizard 2 한국어 모드로, Steam 창작마당에서 구독한 뒤 게임의 Mods 화면에서 켭니다. 게임 패치로 작동하지 않으면 prev_main 베타 브랜치로 되돌리라고 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3756335146"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Killterm",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3756335146",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    },
+    {
+     "p": "license_note",
+     "v": "The author releases the mod under CC0.",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-2058570",
+     "ver": "COMMUNITY",
+     "src": "src:patch-rift-wizard-2-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:road-96-korean-patch",
+   "type": "translation_patch",
+   "slug": "road-96-korean-patch",
+   "names": {
+    "en": "Road 96 🛣️ Korean patch (팀 임시)",
+    "ko": "Road 96 🛣️ 한글패치 (팀 임시)"
+   },
+   "aliases": [
+    "Road 96 Korean patch",
+    "로드96 한국어패치"
+   ],
+   "description": {
+    "en": "Korean patch 1.0 for Road 96 by Team 임시, revised after a second review; textures are not localised. It overwrites game files and is used with the game language set to Japanese.",
+    "ko": "팀 임시의 로드 96 한국어 패치 1.0으로, 2차 검수를 거쳤으며 텍스처는 번역되지 않았습니다. 게임 파일을 덮어쓰고 게임 언어를 일본어로 설정해 사용합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/aiden1212356/222865159969"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "팀 임시 (우민, 역물음표)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/aiden1212356/222865159969",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "1.0",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1466640",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0",
+     "released": "2022-09-23",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/aiden1212356/222865159969",
+     "ver": "COMMUNITY",
+     "src": "src:patch-road-96-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:robotics-notes-dash-korean-patch",
+   "type": "translation_patch",
+   "slug": "robotics-notes-dash-korean-patch",
+   "names": {
+    "en": "ROBOTICS;NOTES DaSH Korean patch (T4KiNA)",
+    "ko": "ROBOTICS;NOTES DaSH 한글패치 (T4KiNA)"
+   },
+   "aliases": [
+    "Robotics;Notes DaSH Korean Patch",
+    "로보틱스;노츠 DaSH 한글패치"
+   ],
+   "description": {
+    "en": "Korean patch for the Steam (English) version of ROBOTICS;NOTES DaSH by T4KiNA, latest version V1.3 (2026-05-16). The author states it is for owners of the legitimate game only.",
+    "ko": "T4KiNA의 로보틱스;노츠 DaSH Steam(영어판)용 한글패치로, 최신 버전은 V1.3(2026-05-16)입니다. 정품 사용자 전용이라고 밝히고 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/aisaka_p/222917336753"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "T4KiNA (aisaka_p)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/aisaka_p/222917336753",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "V1.3",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1111390",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "V1.3",
+     "released": "2026-05-16",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/aisaka_p/222917336753",
+     "ver": "COMMUNITY",
+     "src": "src:patch-robotics-notes-dash-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:shadowrun-hong-kong-extended-edition-korean-patch",
+   "type": "translation_patch",
+   "slug": "shadowrun-hong-kong-extended-edition-korean-patch",
+   "names": {
+    "en": "Shadowrun: Hong Kong - Extended Edition Korean patch (팀 임시)",
+    "ko": "Shadowrun: Hong Kong - Extended Edition 한글패치 (팀 임시)"
+   },
+   "aliases": [
+    "Shadowrun: Hong Kong Extended Edition Korean patch",
+    "섀도우런 홍콩 Extended Edition 한국어패치"
+   ],
+   "description": {
+    "en": "Korean patch 1.0 for Shadowrun: Hong Kong – Extended Edition by Team 임시; a May 2024 update added the bonus campaign. It is installed by overwriting game files and running an included registry file that switches the game language.",
+    "ko": "팀 임시의 섀도우런: 홍콩 Extended Edition 한국어 패치 1.0이며, 2024년 5월 업데이트로 보너스 캠페인 번역이 추가되었습니다. 게임 파일을 덮어쓰고 동봉된 레지스트리 파일로 게임 언어를 전환해 설치합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/aiden1212356/223018314112"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "팀 임시 (우민, butnine)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/aiden1212356/223018314112",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "1.0",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-346940",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0",
+     "released": "2023-02-16",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/aiden1212356/223018314112",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:shadowrun-returns-korean-patch",
+   "type": "translation_patch",
+   "slug": "shadowrun-returns-korean-patch",
+   "names": {
+    "en": "Shadowrun Returns Korean patch (프기니)",
+    "ko": "Shadowrun Returns 한글패치 (프기니)"
+   },
+   "aliases": [
+    "Shadowrun Returns main-campaign reviewed Korean patch 1.0",
+    "섀도우런 리턴즈 본편 검수 완료 한글 패치 1.0"
+   ],
+   "description": {
+    "en": "Korean patch 1.0 for Shadowrun Returns whose main campaign was reviewed in game; items, skills and UI text were not reviewed. It is extracted into Shadowrun_Data and used with the game language set to Chinese.",
+    "ko": "본편 캠페인을 게임 안에서 검수한 섀도우런 리턴즈 한글 패치 1.0입니다(아이템·스킬·UI는 미검수). Shadowrun_Data에 압축을 풀고 게임 언어를 중국어로 설정해 사용합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://blog.naver.com/physics1114/220933268528"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "프기니 (physics1114) / Lussaphi, asm987",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://blog.naver.com/physics1114/220933268528",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "1.0",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-234650",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0",
+     "released": "2017-02-12",
+     "channel": "stable",
+     "notes_url": "https://blog.naver.com/physics1114/220933268528",
+     "ver": "COMMUNITY",
+     "src": "src:patch-shadowrun-returns-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:starbound-korean-patch",
+   "type": "translation_patch",
+   "slug": "starbound-korean-patch",
+   "names": {
+    "en": "Starbound Korean patch (Blue_ON)",
+    "ko": "Starbound 한글패치 (Blue_ON)"
+   },
+   "aliases": [
+    "Starbound Korean Translation - Union",
+    "스타바운드 Union 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean translation mod for Starbound on Steam Workshop that merges an older, deleted patch with the author's 'Continued' patch. It needs a separate Korean font mod from the author's GitHub.",
+    "ko": "삭제된 이전 패치와 제작자의 'Continued' 패치를 합친 스타바운드 한국어 모드(Steam 창작마당)입니다. 제작자 GitHub의 별도 한국어 폰트 모드가 필요합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=1815801455"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starbound-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Blue_ON",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starbound-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starbound-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=1815801455",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starbound-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-211820",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starbound-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:starfield-korean-patch",
+   "type": "translation_patch",
+   "slug": "starfield-korean-patch",
+   "names": {
+    "en": "Starfield Korean patch (팀왈도)",
+    "ko": "Starfield 한글패치 (팀왈도)"
+   },
+   "aliases": [
+    "Starfield + Shattered Space Korean patch (Team Waldo)",
+    "스타필드+DLC 한글패치 100% 버전 배포 [260822 수정]"
+   ],
+   "description": {
+    "en": "Korean patch for Starfield and the Shattered Space DLC by Team Waldo; its update log records an adjustment for game version 1.15.216. The author states the text is about two-thirds human and one-third AI translated.",
+    "ko": "팀왈도의 스타필드 및 Shattered Space DLC 한글패치로, 업데이트 기록에 게임 버전 1.15.216 대응이 남아 있습니다. 제작자에 따르면 약 67%는 직접 번역, 33%는 AI 번역입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/dhrgusdlrns4/223532045871"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "TeamWaldo 2 (blog: 팀왈도)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/dhrgusdlrns4/223532045871",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "1.15.216",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1716740",
+     "ver": "COMMUNITY",
+     "src": "src:patch-starfield-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:tales-of-zestiria-korean-patch",
+   "type": "translation_patch",
+   "slug": "tales-of-zestiria-korean-patch",
+   "names": {
+    "en": "Tales of Zestiria Korean patch (프기니)",
+    "ko": "Tales of Zestiria 한글패치 (프기니)"
+   },
+   "aliases": [
+    "Tales of Zestiria Korean Patch + DLC",
+    "테일즈 오브 제스티리아 한글 패치"
+   ],
+   "description": {
+    "en": "Korean patch 1.03 for Tales of Zestiria by Team 한글화의 궤적, including the base DLC and the Alisha story DLC. Its patcher must be run on an unmodified original TLFILE.TLDAT.",
+    "ko": "한글화의 궤적 팀의 테일즈 오브 제스티리아 한글 패치 1.03으로, 기본 DLC와 알리샤 스토리 DLC 번역을 포함합니다. 패처는 수정되지 않은 원본 TLFILE.TLDAT에 실행해야 합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/physics1114/220906915934"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "프기니 (Team 한글화의 궤적, physics1114)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/physics1114/220906915934",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "1.03",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-351970",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.03",
+     "released": "2017-01-09",
+     "channel": "stable",
+     "notes_url": "https://m.blog.naver.com/physics1114/220906915934",
+     "ver": "COMMUNITY",
+     "src": "src:patch-tales-of-zestiria-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:terraria-korean-patch",
+   "type": "translation_patch",
+   "slug": "terraria-korean-patch",
+   "names": {
+    "en": "Terraria Korean patch (farnic, ansayo)",
+    "ko": "Terraria 한글패치 (farnic, ansayo)"
+   },
+   "aliases": [
+    "Terraria Korean Translation",
+    "테라리아 한글화 리소스팩"
+   ],
+   "description": {
+    "en": "Korean translation resource pack for Terraria on Steam Workshop, updated for game version 1.4.5.3 according to its changelog. Most text added in 1.4.5 is not yet translated.",
+    "ko": "Steam 창작마당의 테라리아 한글화 리소스팩으로, 변경 기록상 게임 버전 1.4.5.3에 맞춰 갱신되었습니다. 1.4.5에서 추가된 텍스트는 대부분 아직 번역되지 않았습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2855376675"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "farnic, ansayo",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=2855376675",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    },
+    {
+     "p": "verified_game_version",
+     "v": "1.4.5.3",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-105600",
+     "ver": "COMMUNITY",
+     "src": "src:patch-terraria-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:the-elder-scrolls-iv-oblivion-remastered-korean-patch",
+   "type": "translation_patch",
+   "slug": "the-elder-scrolls-iv-oblivion-remastered-korean-patch",
+   "names": {
+    "en": "The Elder Scrolls IV: Oblivion Remastered Korean patch (드로거)",
+    "ko": "The Elder Scrolls IV: Oblivion Remastered 한글패치 (드로거)"
+   },
+   "aliases": [
+    "Oblivion Remastered Korean patch (dcinside, 드로거)",
+    "오블리비언 리마스터 한글패치"
+   ],
+   "description": {
+    "en": "Korean patch for The Elder Scrolls IV: Oblivion Remastered distributed in the author's DC Inside gallery post as a .pak placed in Paks\\~mods, used with the game language set to Japanese. Its log records a fix for strings broken by the August 2025 game update.",
+    "ko": "제작자의 디시인사이드 갤러리 글로 배포되는 오블리비언 리마스터 한글패치로, Paks\\~mods 폴더에 .pak 파일을 넣고 게임 언어를 일본어로 설정해 사용합니다. 2025년 8월 게임 업데이트로 깨진 문장을 고친 기록이 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.dcinside.com/board/skyrim/259457"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "드로거",
+     "ver": "COMMUNITY",
+     "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.dcinside.com/board/skyrim/259457",
+     "ver": "COMMUNITY",
+     "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-2623190",
+     "ver": "COMMUNITY",
+     "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:togainu-no-chi-true-blood-nitro-archive-korean-patch",
+   "type": "translation_patch",
+   "slug": "togainu-no-chi-true-blood-nitro-archive-korean-patch",
+   "names": {
+    "en": "Togainu no Chi: True Blood NITRO ARCHIVE Korean patch (나이트하르트)",
+    "ko": "咎狗の血 True Blood NITRO ARCHIVE 한글패치 (나이트하르트)"
+   },
+   "aliases": [
+    "Togainu no Chi True Blood Korean Patch (Steam/DLsite)",
+    "토가이누의 피 True Blood 한국어 패치"
+   ],
+   "description": {
+    "en": "Korean patch for Togainu no Chi: True Blood (Steam/DLsite) by Neidhardt, based on an earlier patch for the Windows 7 edition. The game language must be set to Japanese before patching.",
+    "ko": "나이트하르트의 토가이누의 피 True Blood 한국어 패치(Steam/DLsite)로, 윈도우 7판용 기존 패치를 바탕으로 합니다. 패치 전에 게임 언어를 일본어로 설정해야 합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://thirdmelt.blogspot.com/2025/08/true-blood-steamdlsite.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "Neidhardt (나이트하르트)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://thirdmelt.blogspot.com/2025/08/true-blood-steamdlsite.html",
+     "ver": "COMMUNITY",
+     "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-3639520",
+     "ver": "COMMUNITY",
+     "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:warhammer-40-000-rogue-trader-korean-patch",
+   "type": "translation_patch",
+   "slug": "warhammer-40-000-rogue-trader-korean-patch",
+   "names": {
+    "en": "Warhammer 40,000: Rogue Trader Korean patch (군고그마)",
+    "ko": "Warhammer 40,000: Rogue Trader 한글패치 (군고그마)"
+   },
+   "aliases": [
+    "Rogue Trader Korean auto-update patch & 1.5 Korean font mod",
+    "로그 트레이더 한국어 자동 갱신 패치 & 1.5 버전 한국어 폰트 모드"
+   ],
+   "description": {
+    "en": "Korean patch for Warhammer 40,000: Rogue Trader that downloads the latest Korean text on launch, plus a Korean font mod for game version 1.5 and later. The README says the hand translation is partial and AI translation fills the rest.",
+    "ko": "실행할 때 최신 한국어 텍스트를 내려받는 로그 트레이더 한국어 패치와, 게임 1.5 이상용 한국어 폰트 모드입니다. README에 따르면 일부는 직접 번역, 나머지는 AI 번역입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/geungogma/RogueTrader-KoreanPatch"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "군고그마 (geungogma)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/geungogma/RogueTrader-KoreanPatch",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "v1.0.0",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-2186680",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v1.0.0",
+     "channel": "stable",
+     "notes_url": "https://github.com/geungogma/RogueTrader-KoreanPatch",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:warriors-orochi-3-ultimate-definitive-edition-korean-patch",
+   "type": "translation_patch",
+   "slug": "warriors-orochi-3-ultimate-definitive-edition-korean-patch",
+   "names": {
+    "en": "WARRIORS OROCHI 3 Ultimate Definitive Edition Korean patch (kimjh-eclipse)",
+    "ko": "WARRIORS OROCHI 3 Ultimate Definitive Edition 한글패치 (kimjh-eclipse)"
+   },
+   "aliases": [
+    "Warriors Orochi 3 Ultimate (Steam) Korean Patch",
+    "스팀판 무쌍 오로치2 얼티밋 유저 한글화"
+   ],
+   "description": {
+    "en": "Korean patch for the Steam version of WARRIORS OROCHI 3 Ultimate Definitive Edition, first released on the day this entry was recorded. It replaces the Simplified Chinese language slot, checks the user's own files by SHA-256 and adds dinput8.dll without modifying the game executable.",
+    "ko": "무쌍 오로치2 얼티밋(WARRIORS OROCHI 3 Ultimate Definitive Edition) Steam판 유저 한글화로, 이 항목을 기록한 날 공개되었습니다. 중국어 간체 슬롯을 대체하고 사용자 파일을 SHA-256으로 확인하며, 실행 파일은 수정하지 않고 dinput8.dll을 추가합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://github.com/kimjh-eclipse/musou-orochi-2-ultimate-steam-kor"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "kimjh-eclipse",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://github.com/kimjh-eclipse/musou-orochi-2-ultimate-steam-kor",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    },
+    {
+     "p": "patch_version",
+     "v": "v20260928c",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-1879330",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    }
+   ],
+   "versions": [
+    {
+     "version": "v20260928c",
+     "released": "2026-09-28",
+     "channel": "stable",
+     "notes_url": "https://github.com/kimjh-eclipse/musou-orochi-2-ultimate-steam-kor",
+     "ver": "COMMUNITY",
+     "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:wasteland-3-korean-patch",
+   "type": "translation_patch",
+   "slug": "wasteland-3-korean-patch",
+   "names": {
+    "en": "Wasteland 3 Korean patch (팀왈도)",
+    "ko": "Wasteland 3 한글패치 (팀왈도)"
+   },
+   "aliases": [
+    "Wasteland 3 Korean patch (reviewed build)",
+    "웨이스트랜드 3 한글패치 검수판"
+   ],
+   "description": {
+    "en": "Reviewed Korean patch for Wasteland 3 by Team Waldo, extracted into the game folder. The author notes it fails when the Windows or account name is in Korean and may have issues without the DLC.",
+    "ko": "팀왈도의 웨이스트랜드 3 한글패치 검수판으로, 게임 폴더에 압축을 풀어 설치합니다. PC 또는 계정 이름이 한글이면 작동하지 않고 DLC가 없으면 문제가 있을 수 있다고 안내합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://m.blog.naver.com/dhrgusdlrns4/222716860645"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wasteland-3-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "팀왈도 시즌2 (TeamWaldo 2)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wasteland-3-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "link_only",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wasteland-3-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://m.blog.naver.com/dhrgusdlrns4/222716860645",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wasteland-3-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-719040",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wasteland-3-korean-patch"
+    }
+   ]
+  },
+  {
+   "id": "translation_patch:wildermyth-korean-patch",
+   "type": "translation_patch",
+   "slug": "wildermyth-korean-patch",
+   "names": {
+    "en": "Wildermyth Korean patch (jsnuguri)",
+    "ko": "Wildermyth 한글패치 (jsnuguri)"
+   },
+   "aliases": [
+    "WM_KR_Patch (Unofficial)",
+    "와일더미스 한글화 중간배포"
+   ],
+   "description": {
+    "en": "Partial Korean translation of Wildermyth distributed through Steam Workshop plus files from the author's Google Drive. The author states the DLC is untranslated and that translation work is currently paused.",
+    "ko": "Steam 창작마당과 제작자의 구글 드라이브 파일로 배포되는 와일더미스 부분 한글화입니다. DLC는 번역되지 않았고 현재 번역 작업을 쉬고 있다고 밝혔습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Author page",
+     "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3096231021"
+    }
+   ],
+   "facts": [
+    {
+     "p": "patch_language",
+     "v": "Korean",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wildermyth-korean-patch"
+    },
+    {
+     "p": "author_name",
+     "v": "jsnuguri (게이머존삼)",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wildermyth-korean-patch"
+    },
+    {
+     "p": "distribution",
+     "v": "official_mod_platform",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wildermyth-korean-patch"
+    },
+    {
+     "p": "homepage",
+     "v": "https://steamcommunity.com/sharedfiles/filedetails/?id=3096231021",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wildermyth-korean-patch"
+    }
+   ],
+   "relations": [
+    {
+     "p": "translates",
+     "o": "game:steam-763890",
+     "ver": "COMMUNITY",
+     "src": "src:patch-wildermyth-korean-patch"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "translation_patch:amnesia-memories-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-359390",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-amnesia-memories-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:be-my-horde-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-2499520",
+   "target_version": "v0.14.7",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-be-my-horde-korean-patch",
+   "note": "Release notes and the author's Steam guide state game version v0.14.7 (updated 2026-09-07)."
+  },
+  {
+   "subject": "translation_patch:caves-of-qud-korean-patch-qudkorean",
+   "subject_version": "v1.0.2",
+   "target": "game:steam-333640",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-caves-of-qud-korean-patch-qudkorean",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:caves-of-qud-korean-patch-spelunky",
+   "subject_version": "v0.7.5",
+   "target": "game:steam-333640",
+   "target_version": "2.0.212.31",
+   "env": {
+    "branch": "lang-experimental"
+   },
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-caves-of-qud-korean-patch-spelunky",
+   "note": "Changelog v0.7.4: supports game update 2.0.212.31 (lang-experimental beta branch)."
+  },
+  {
+   "subject": "translation_patch:chaos-head-noah-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-1961950",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-chaos-head-noah-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:cultist-simulator-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-718670",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-cultist-simulator-korean-patch",
+   "note": "The author says it supports the latest game version but names no version or date."
+  },
+  {
+   "subject": "translation_patch:distant-worlds-2-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-1531540",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-distant-worlds-2-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:europa-universalis-iv-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-236850",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-europa-universalis-iv-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:fallout-4-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-377160",
+   "target_version": "1.11.240",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-fallout-4-korean-patch",
+   "note": "File Fallout4_Korean_20260819.7z labelled for 1.11.240 (Steam) / 1.10.163 (GOG)."
+  },
+  {
+   "subject": "translation_patch:fallout-new-vegas-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-22380",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-fallout-new-vegas-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:higurashi-when-they-cry-hou-korean-patch",
+   "subject_version": "1.3.4",
+   "target": "game:steam-2491040",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-higurashi-when-they-cry-hou-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:imperator-rome-korean-patch-mcja",
+   "subject_version": "*",
+   "target": "game:steam-859580",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-imperator-rome-korean-patch-mcja",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:imperator-rome-korean-patch-tiger-invictus",
+   "subject_version": "*",
+   "target": "game:steam-859580",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-imperator-rome-korean-patch-tiger-invictus",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:jagged-alliance-3-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-1084160",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-jagged-alliance-3-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:neverwinter-nights-enhanced-edition-korean-patch",
+   "subject_version": "v0.2.0",
+   "target": "game:steam-704450",
+   "target_version": "8193.35",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-neverwinter-nights-enhanced-edition-korean-patch",
+   "note": "The author states build 8193.35 or later (Steam); partial on Windows (some screens garbled)."
+  },
+  {
+   "subject": "translation_patch:nier-automata-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-524220",
+   "target_version": "July 2021 update",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-nier-automata-korean-patch",
+   "note": "The author states the patch was reworked for the final Steam update of July 2021."
+  },
+  {
+   "subject": "translation_patch:pathfinder-kingmaker-enhanced-plus-edition-korean-patch",
+   "subject_version": "v210725",
+   "target": "game:steam-640820",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-pathfinder-kingmaker-enhanced-plus-edition-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch",
+   "subject_version": "WrathKoreanMod_240407",
+   "target": "game:steam-1184370",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-pathfinder-wrath-of-the-righteous-enhanced-edition-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:pathologic-2-korean-patch",
+   "subject_version": "260317",
+   "target": "game:steam-505230",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-pathologic-2-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:rift-wizard-2-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-2058570",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-rift-wizard-2-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:road-96-korean-patch",
+   "subject_version": "1.0",
+   "target": "game:steam-1466640",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-road-96-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:robotics-notes-dash-korean-patch",
+   "subject_version": "V1.3",
+   "target": "game:steam-1111390",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-robotics-notes-dash-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:shadowrun-hong-kong-extended-edition-korean-patch",
+   "subject_version": "1.0",
+   "target": "game:steam-346940",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-shadowrun-hong-kong-extended-edition-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:shadowrun-returns-korean-patch",
+   "subject_version": "1.0",
+   "target": "game:steam-234650",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-shadowrun-returns-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:starbound-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-211820",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-starbound-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:starfield-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-1716740",
+   "target_version": "1.15.216",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-starfield-korean-patch",
+   "note": "Update log entry '06-18 1.15.216 버전 대응 업데이트'."
+  },
+  {
+   "subject": "translation_patch:tales-of-zestiria-korean-patch",
+   "subject_version": "1.03",
+   "target": "game:steam-351970",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-tales-of-zestiria-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:terraria-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-105600",
+   "target_version": "1.4.5.3",
+   "status": "works",
+   "ver": "COMMUNITY",
+   "src": "src:patch-terraria-korean-patch",
+   "note": "Changelog: updated for 1.4.5.3 on 2026-02-01; most new 1.4.5 text untranslated."
+  },
+  {
+   "subject": "translation_patch:the-elder-scrolls-iv-oblivion-remastered-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-2623190",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-the-elder-scrolls-iv-oblivion-remastered-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:togainu-no-chi-true-blood-nitro-archive-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-3639520",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-togainu-no-chi-true-blood-nitro-archive-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:warhammer-40-000-rogue-trader-korean-patch",
+   "subject_version": "v1.0.0",
+   "target": "game:steam-2186680",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-warhammer-40-000-rogue-trader-korean-patch",
+   "note": "The author states the font mod works only on game version 1.5 or later; no tested version is named."
+  },
+  {
+   "subject": "translation_patch:warriors-orochi-3-ultimate-definitive-edition-korean-patch",
+   "subject_version": "v20260928c",
+   "target": "game:steam-1879330",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-warriors-orochi-3-ultimate-definitive-edition-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:wasteland-3-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-719040",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-wasteland-3-korean-patch",
+   "note": "The author does not name a tested game version."
+  },
+  {
+   "subject": "translation_patch:wildermyth-korean-patch",
+   "subject_version": "*",
+   "target": "game:steam-763890",
+   "target_version": "*",
+   "status": "unknown",
+   "ver": "COMMUNITY",
+   "src": "src:patch-wildermyth-korean-patch",
+   "note": "The author does not name a tested game version."
+  }
+ ]
+}

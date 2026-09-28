@@ -1,0 +1,653 @@
+// @ts-check
+/** /api/v2 — the platform's write API for the page islands (PLATFORM=on builds only).
+ * Same conventions as /api/v1: JSON bodies only, same-origin POSTs, no CORS, session cookie auth,
+ * app-level burst limits, error codes as the client contract. Reading is anonymous; every write
+ * needs a signed-in account (architecture D7). After a write, the edge-cached page it changes is
+ * purged so the author sees it at once. */
+import {runtimeConfig} from '../config.js';
+import {ApiError,json,errorResponse,readJSON} from '../http.js';
+import {resolveContext} from '../identity.js';
+import {allowRequest} from '../ratelimit.js';
+import {randomToken} from '../crypto.js';
+import {assertSameOrigin} from '../api.js';
+import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,boardOpen,LIMITS} from '../../platform/community.js';
+export {LIMITS};
+import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
+import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
+import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
+import {describeChange} from '../../platform/change-text.js';
+import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
+import {ingest} from '../../platform/ingest.js';
+import {typeDef,propertyDef} from '../../platform/verticals/index.js';
+
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+
+/** @param {unknown} v @param {[number,number]} range @param {string} field */
+function text(v,[min,max],field){
+ if(typeof v!=='string')throw new ApiError('BAD_REQUEST',`${field} is required.`);
+ const s=v.replace(/\r\n?/g,'\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g,'').trim();
+ if([...s].length<min||[...s].length>max)throw new ApiError('BAD_REQUEST',`${field} must be ${min}–${max} characters.`,{field});
+ return s;
+}
+/** @param {unknown} v */
+// Real version names include "Hotfix #36", "v1.0.2", "2.0.212.31 (beta)", "Patch 8"; control
+// characters and markup never. The value is stored as text and always escaped on output.
+const optVersion=v=>{if(v===undefined||v===null||v==='')return null;if(typeof v!=='string'||v.length>LIMITS.version||!/^[\p{L}\p{N}._+\-# ()*:/,']+$/u.test(v))throw new ApiError('BAD_REQUEST','Invalid version.');return v.trim();};
+/** @param {Record<string,unknown>} body @param {string[]} allowed */
+function only(body,allowed){for(const k of Object.keys(body))if(!allowed.includes(k))throw new ApiError('BAD_REQUEST',`Unexpected field: ${k.slice(0,40)}`);return body;}
+
+/** Until a member picks a nickname: "user-" + the first characters of the account id. @param {string} id */
+export const defaultNickname=id=>`user-${String(id).replace(/[^A-Za-z0-9]/g,'').slice(0,6).toLowerCase()}`;
+/** Public nickname: never the Google account name. Created on first write. @param {any} db @param {any} user @param {number} now */
+export async function ensureProfile(db,user,now){
+ const row=await db.prepare('SELECT user_id,display_name,tier,role,banned_at,restricted_until FROM user_profiles WHERE user_id=?').bind(user.id).first();
+ if(row)return row;
+ const name=defaultNickname(user.id);
+ await db.prepare("INSERT OR IGNORE INTO user_profiles (user_id,display_name,created_at,updated_at) VALUES (?,?,?,?)").bind(user.id,name,now,now).run();
+ return {user_id:user.id,display_name:name,tier:'new',role:'user',banned_at:null,restricted_until:null};
+}
+/** @param {any} profile @param {number} now */
+function assertMayWrite(profile,now){
+ if(profile.banned_at)throw new ApiError('FORBIDDEN','This account cannot post.');
+ if(profile.restricted_until&&Number(profile.restricted_until)>now)throw new ApiError('FORBIDDEN','This account is temporarily restricted.',{until:new Date(Number(profile.restricted_until)).toISOString()});
+}
+/** @param {any} db @param {string} id */
+async function entity(db,id){
+ if(typeof id!=='string'||!ENTITY_ID.test(id))throw new ApiError('BAD_REQUEST','Invalid channel.');
+ const e=await db.prepare("SELECT id,vertical,type,slug,names FROM entities WHERE id=? AND status='active'").bind(id).first();
+ if(!e)throw new ApiError('NOT_FOUND','Channel not found.');
+ let names={};try{names=JSON.parse(String(e.names));}catch{}
+ return /** @type {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>}} */({id:String(e.id),vertical:String(e.vertical),type:String(e.type),slug:String(e.slug),names});
+}
+/** Purge the cached HTML of pages a write changed (both languages). @param {string} origin @param {string[]} paths */
+async function purge(origin,paths){
+ const cache=/** @type {any} */(globalThis).caches?.default;if(!cache)return;
+ await Promise.all(paths.map(p=>cache.delete(new Request(origin+p)).catch(()=>false)));
+}
+/** @template T @param {(l:string)=>T} f @returns {T[]} */
+const bothLocales=f=>['ko','en'].map(f);
+/** Every cached page a post or its channel appears on (both languages): the post, the channel's
+ * default board and feed, the community front and 념글. Filtered board views (?sort, ?kind, ?page)
+ * expire on their own within a minute. @param {{vertical:string,slug:string}} e @param {number|null} [no] */
+const pagesOf=(e,no=null)=>bothLocales(l=>[...(no?[postUrl(l,e,no)]:[]),channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${l}/community/`,`/${l}/community/best/`]).flat();
+
+/**
+ * @param {Request} request @param {any} env @param {any} ctx
+ * @param {{now?:()=>number,limiter?:any,fetch?:any}} [deps]
+ */
+export async function handlePlatformApi(request,env,ctx,deps={}){
+ const url=new URL(request.url),route=url.pathname.replace(/^\/api\/v2/,'').replace(/\/+$/,'')||'/',key=`${request.method} ${route}`;
+ /** @type {any} */let context=null;
+ try{
+  if(!ROUTES[key]){
+   const methods=['GET','POST'].filter(m=>ROUTES[`${m} ${route}`]);
+   if(methods.length)return errorResponse(new ApiError('METHOD_NOT_ALLOWED'),{Allow:methods.join(', ')});
+   throw new ApiError('NOT_FOUND');
+  }
+  const cfg=runtimeConfig(env),now=(deps.now||Date.now)(),db=env.DB;
+  if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
+  if(request.method==='POST')assertSameOrigin(request,cfg);
+  // Open data (ODbL): published compat reports by month, with no account data. Public and cacheable,
+  // so it is answered before any session lookup.
+  if(key==='GET /open-data/compat'){
+   // Served from the edge cache for an hour: anonymous, so it must not run a scan on every hit.
+   const month=url.searchParams.get('month'),cache=/** @type {any} */(globalThis).caches?.default,ck=new Request(`${url.origin}/api/v2/open-data/compat${month?`?month=${encodeURIComponent(month)}`:''}`);
+   const hit=cache?await cache.match(ck):null;if(hit)return hit;
+   const res=json(await openCompat(db,month),200,{'Cache-Control':'public, max-age=3600, s-maxage=3600','Access-Control-Allow-Origin':'*'});
+   if(cache)ctx?.waitUntil?.(cache.put(ck,res.clone()));
+   return res;
+  }
+  context=await resolveContext(request,cfg,db,now);
+  const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
+  const origin=cfg.siteOrigin||url.origin;
+  // Reads (anonymous allowed).
+  if(key==='GET /state')return done(await state(db,context,url.searchParams));
+  if(key==='GET /new-posts'){
+   const e=await entity(db,String(url.searchParams.get('entity')||''));
+   const after=Number(url.searchParams.get('after'))||0;
+   const r=await db.prepare("SELECT COUNT(*) AS n,MAX(post_no) AS last FROM discussions WHERE entity_id=? AND post_no>? AND status='published'").bind(e.id,after).first();
+   return done({count:Number(r?.n||0),last:Number(r?.last||after)});
+  }
+  if(key==='GET /follows'){
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const l=url.searchParams.get('l')==='en'?'en':'ko';
+   const rows=(await db.prepare("SELECT e.id,e.vertical,e.slug,e.names FROM follows f JOIN entities e ON e.id=f.entity_id WHERE f.user_id=? AND e.status='active' ORDER BY f.created_at DESC LIMIT 500").bind(context.user.id).all()).results||[];
+   return done({follows:rows.map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {id:String(r.id),name:nameOf(e,l),url:channelUrl(l,e)};})});
+  }
+  if(key==='GET /comments/source'){
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const c=await db.prepare("SELECT body_md,author_id,status FROM comments WHERE id=?").bind(String(url.searchParams.get('id')||'')).first();
+   if(!c||c.author_id!==context.user.id||c.status!=='published')throw new ApiError('NOT_FOUND');
+   return done({body:String(c.body_md)});
+  }
+  if(key==='GET /posts/source'){
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const p=await db.prepare("SELECT d.title,d.body_md,d.author_id,d.status,d.kind,e.vertical FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(url.searchParams.get('id')||'')).first();
+   if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+   // The tags the author may switch to (a 리포트 post stays one: it carries a structured report).
+   const l=url.searchParams.get('l')==='en'?'en':'ko';
+   // The post's own tag is always offered first (a staff 공지 stays a 공지 when its text is edited).
+   const ids=p.kind==='report'?[]:[...new Set([String(p.kind),...writableKinds(String(p.vertical)).filter(k=>k!=='report')])];
+   const kinds=ids.filter(k=>k in POST_KINDS).map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][l]}));
+   return done({title:String(p.title),body:String(p.body_md),kind:String(p.kind),kinds});
+  }
+  if(key==='GET /mine'){
+   // 내 글·댓글 for the 내 정보 page (the author's own, including locked posts).
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const l=url.searchParams.get('l')==='en'?'en':'ko';
+   const ent=(/** @type {any} */ r)=>({vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))});
+   const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.up_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.author_id=? AND d.status IN ('published','locked') ORDER BY d.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),up:Number(r.up_count),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no)),channel:nameOf(ent(r),l)}));
+   const comments=((await db.prepare(`SELECT c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.author_id=? AND c.status='published' AND d.status IN ('published','locked') ORDER BY c.created_at DESC LIMIT 30`).bind(context.user.id).all()).results||[])
+    .map((/** @type {any} */ r)=>({text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),at:Number(r.created_at),url:postUrl(l,ent(r),Number(r.post_no))+`#c-${r.id}`}));
+   return done({posts,comments});
+  }
+  if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
+  if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko',now));}
+  // Writes.
+  if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+  const limit=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await allowRequest({env,limiter:deps.limiter,key:`v2:${name}|u:${context.user.id}`,limit:n,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});};
+  const profile=await ensureProfile(db,context.user,now);
+  assertMayWrite(profile,now);
+  const body=await readJSON(request,key==='POST /posts'?64*1024:8192);
+  switch(key){
+   case 'POST /profile':{
+    only(body,['displayName']);
+    const name=text(body.displayName,LIMITS.nickname,'displayName');
+    // Reserved: staff-looking names and the "user-xxxxxx" form every new account starts with.
+    if(/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'displayName'});
+    await limit('profile',5);
+    const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?) AND user_id<>?').bind(name,context.user.id).first();
+    if(taken)throw new ApiError('OPERATION_CONFLICT','This nickname is taken.',{field:'displayName'});
+    try{await db.prepare('UPDATE user_profiles SET display_name=?,updated_at=? WHERE user_id=?').bind(name,now,context.user.id).run();}
+    catch(e){if(/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw new ApiError('OPERATION_CONFLICT','This nickname is taken.',{field:'displayName'});throw e;}
+    return done({displayName:name});
+   }
+   case 'POST /follow':{
+    only(body,['entityId','follow']);
+    const e=await entity(db,/** @type {string} */(body.entityId));await limit('follow',LIMITS.votesPerMinute);
+    if(body.follow===false)await db.prepare('DELETE FROM follows WHERE user_id=? AND entity_id=?').bind(context.user.id,e.id).run();
+    else await db.prepare('INSERT OR IGNORE INTO follows (user_id,entity_id,created_at) VALUES (?,?,?)').bind(context.user.id,e.id,now).run();
+    const n=await db.prepare('SELECT COUNT(*) AS n FROM follows WHERE entity_id=?').bind(e.id).first();
+    return done({following:body.follow!==false,followers:Number(n?.n||0)});
+   }
+   case 'POST /posts':{
+    only(body,['entityId','kind','title','body']);
+    const e=await entity(db,/** @type {string} */(body.entityId));
+    const kind=String(body.kind||'');
+    const staff=profile.role==='moderator'||profile.role==='curator'||profile.role==='admin';
+    if(!(kind in POST_KINDS)||!(writableKinds(e.vertical).includes(kind)||(staff&&kind==='notice')))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+    if(!staff&&!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+    const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
+    await limit('post',LIMITS.postsPerMinute);
+    const id=randomToken(12);
+    const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:url.searchParams.get('l')==='en'?'en':'ko',authorId:context.user.id},now);
+    await purge(origin,pagesOf(e));
+    return done({id,postNo:no,url:postUrl(url.searchParams.get('l')==='en'?'en':'ko',e,no)},201);
+   }
+   case 'POST /comments':{
+    only(body,['postId','parentId','body']);
+    const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.type,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    if(!post||post.status==='hidden'||post.status==='deleted')throw new ApiError('NOT_FOUND','Post not found.');
+    if(!boardOpen(/** @type {any} */(post))&&!['moderator','curator','admin'].includes(String(profile.role)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+    if(post.status==='locked')throw new ApiError('FORBIDDEN','Comments are closed on this post.');
+    let parent=null;
+    if(body.parentId!==undefined&&body.parentId!==null&&body.parentId!==''){
+     parent=await db.prepare("SELECT id FROM comments WHERE id=? AND discussion_id=? AND status<>'hidden'").bind(String(body.parentId),post.id).first();
+     if(!parent)throw new ApiError('BAD_REQUEST','The comment you replied to is gone.',{field:'parentId'});
+    }
+    const md=text(body.body,LIMITS.comment,'body');
+    await limit('comment',LIMITS.commentsPerMinute);
+    const id=randomToken(12);
+    await db.batch([
+     db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,created_at,updated_at) VALUES (?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,now,now),
+     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
+    await purge(origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+    return done({id},201);
+   }
+   case 'POST /votes':{
+    only(body,['kind','id','value']);
+    const kind=body.kind==='comment'?'comment':body.kind==='discussion'?'discussion':null;
+    const value=body.value===1||body.value===-1||body.value===0?body.value:null;
+    if(!kind||value===null||typeof body.id!=='string')throw new ApiError('BAD_REQUEST','Invalid vote.');
+    const own=await db.prepare(`SELECT author_id,status FROM ${kind==='discussion'?'discussions':'comments'} WHERE id=?`).bind(body.id).first();
+    if(!own||!(own.status==='published'||(kind==='discussion'&&own.status==='locked')))throw new ApiError('NOT_FOUND');
+    if(own.author_id===context.user.id)throw new ApiError('FORBIDDEN','You cannot vote on your own writing.');
+    await limit('vote',LIMITS.votesPerMinute);
+    const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
+    return done(r);
+   }
+   case 'POST /posts/edit':case 'POST /posts/delete':{
+    only(body,key==='POST /posts/edit'?['postId','title','body','kind']:['postId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.status,d.post_no,d.kind,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    // Only the author, and only while the post is visible (a moderator-hidden post stays as the moderator left it).
+    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+    await limit('post-edit',10);
+    if(key==='POST /posts/edit'){
+     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
+     let kind=String(p.kind);
+     if(body.kind!==undefined&&body.kind!==kind){
+      if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+      kind=String(body.kind);
+     }
+     await db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,now,now,p.id).run();
+    }else await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    return done({ok:true});
+   }
+   case 'POST /posts/solve':{
+    only(body,['postId','commentId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.kind,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+    if(p.kind!=='question')throw new ApiError('BAD_REQUEST','Only questions have an accepted answer.');
+    let cid=null;
+    if(body.commentId!==null&&body.commentId!==undefined&&body.commentId!==''){
+     const c=await db.prepare("SELECT id,author_id FROM comments WHERE id=? AND discussion_id=? AND status='published'").bind(String(body.commentId),p.id).first();
+     if(!c)throw new ApiError('NOT_FOUND','No such comment on this post.');
+     if(c.author_id===context.user.id)throw new ApiError('BAD_REQUEST','Pick someone else\'s answer.');
+     cid=String(c.id);
+    }
+    await db.prepare('UPDATE discussions SET solved_comment_id=?,updated_at=? WHERE id=?').bind(cid,now,p.id).run();
+    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    return done({solved:cid});
+   }
+   case 'POST /comments/edit':case 'POST /comments/delete':{
+    only(body,key==='POST /comments/edit'?['commentId','body']:['commentId']);
+    const c=await db.prepare("SELECT c.id,c.author_id,c.status,c.discussion_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(body.commentId||'')).first();
+    if(!c||c.author_id!==context.user.id||c.status!=='published')throw new ApiError('NOT_FOUND');
+    await limit('post-edit',10);
+    if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
+    else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,c.id),
+     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(c.discussion_id,c.discussion_id)]);
+    await purge(origin,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
+    return done({ok:true});
+   }
+   case 'POST /mod/action':{
+    const me=await moderator(db,context);
+    return done(await modAction(db,context.user.id,String(me.role),body,now,origin));
+   }
+   case 'POST /my-radar/seen':{
+    only(body,['lastChangeId','repliesSeenAt']);
+    const id=Number(body.lastChangeId??0);if(!Number.isInteger(id)||id<0)throw new ApiError('BAD_REQUEST','Invalid lastChangeId.');
+    // Replies are marked seen up to a time the reader actually saw (never in the future).
+    const rs=Math.min(now,Math.max(0,Number(body.repliesSeenAt)||0));
+    await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,replies_seen_at,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),replies_seen_at=MAX(radar_state.replies_seen_at,excluded.replies_seen_at),updated_at=excluded.updated_at').bind(context.user.id,id,rs,now).run();
+    return done({ok:true});
+   }
+   case 'POST /facts/propose':{
+    only(body,['entityId','property','value','unit','sourceUrl','note','postId']);
+    const e=await entity(db,/** @type {string} */(body.entityId));
+    const full=(await db.prepare('SELECT type FROM entities WHERE id=?').bind(e.id).first());
+    const prop=String(body.property||''),def=propertyDef(String(e.vertical),prop);
+    // Only the properties this kind of channel shows in its wiki, never hidden ones.
+    if(!def||def.public===false||def.type==='url'||!(typeDef(String(e.vertical),String(full?.type))?.props||[]).includes(prop))throw new ApiError('BAD_REQUEST','This property cannot be proposed here.',{field:'property'});
+    // A unit only where the property takes one (a currency for a price without a fixed currency).
+    if(body.unit!==undefined&&body.unit!==''&&!(def.type==='money'&&!def.unit&&/^[A-Z]{3}$/.test(String(body.unit))))throw new ApiError('BAD_REQUEST','The value does not fit this property.',{field:'unit'});
+    // At most 20 open proposals per member, so one person cannot bury everyone else's in the queue.
+    const openN=Number((await db.prepare("SELECT COUNT(*) AS n FROM fact_proposals WHERE user_id=? AND status='open'").bind(context.user.id).first())?.n||0);
+    if(openN>=20)throw new ApiError('RATE_LIMITED','Too many open proposals. Please wait for a review.');
+    const sourceUrl=String(body.sourceUrl||'');
+    if(!/^https?:\/\/[^\s]{4,2000}$/.test(sourceUrl))throw new ApiError('BAD_REQUEST','A source link (http/https) is required.',{field:'sourceUrl'});
+    const note=body.note===undefined||body.note===''?null:text(body.note,[1,500],'note');
+    const src=`src:proposal-${randomToken(8).toLowerCase().replace(/[^a-z0-9]/g,'')}`;
+    const fact={p:prop,v:body.value,...(body.unit?{unit:String(body.unit)}:{}),ver:'COMMUNITY_VERIFIED',src};
+    const doc={schema:SEED_SCHEMA,vertical:String(e.vertical),sources:[{id:src,kind:'COMMUNITY',url:sourceUrl,retrieved:new Date(now).toISOString().slice(0,10)}],entities:[{id:e.id,facts:[fact]}]};
+    // The same validation as seed files (types, units, currencies): a proposal is a one-fact seed.
+    const errors=validateSeed(doc,{entities:new Set([e.id])});
+    if(errors.length)throw new ApiError('BAD_REQUEST','The value does not fit this property.',{field:'value',detail:errors[0].slice(0,200)});
+    let discussion=null;
+    if(body.postId){const d=await db.prepare("SELECT id FROM discussions WHERE id=? AND entity_id=? AND status IN ('published','locked')").bind(String(body.postId),e.id).first();discussion=d?String(d.id):null;}
+    await limit('proposal',5);
+    const id=randomToken(12);
+    await db.prepare('INSERT INTO fact_proposals (id,entity_id,property,value,unit,source_url,note,discussion_id,user_id,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
+     .bind(id,e.id,prop,JSON.stringify(body.value),body.unit?String(body.unit):null,sourceUrl,note,discussion,context.user.id,now).run();
+    return done({ok:true,id},201);
+   }
+   case 'POST /flags':{
+    only(body,['target','reason','note']);
+    const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
+    if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+    if(!['spam','abuse','wrong_info','source_dispute','duplicate','copyright','other'].includes(String(body.reason)))throw new ApiError('BAD_REQUEST','Invalid reason.',{field:'reason'});
+    const note=body.note===undefined||body.note===''?null:text(body.note,[1,1000],'note');
+    const TABLE=/** @type {Record<string,string>} */({discussion:'discussions',comment:'comments',report:'community_reports',wiki_revision:'wiki_revisions',fact:'facts',entity:'entities',user:'users'});
+    if(!await db.prepare(`SELECT 1 FROM ${TABLE[m[1]]} WHERE ${m[1]==='user'?'id':'id'}=?`).bind(m[1]==='wiki_revision'||m[1]==='fact'?Number(m[2])||-1:m[2]).first())throw new ApiError('NOT_FOUND','Nothing to report at this address.',{field:'target'});
+    await limit('flag',10);
+    // One open flag per reporter and target; repeats update the reason instead of piling up.
+    const open=await db.prepare("SELECT id,reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
+    if(open){
+     // Tell the reporter instead of silently replacing the reason they gave before.
+     await db.prepare('UPDATE content_flags SET reason=?,note=COALESCE(?,note) WHERE id=?').bind(body.reason,note,open.id).run();
+     return done({ok:true,updated:true,previousReason:String(open.reason)});
+    }
+    await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
+    return done({ok:true},201);
+   }
+   case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
+   case 'POST /rollout':{
+    only(body,['featureId','hasIt','country','planId','platform','appVersion']);
+    const f=await entity(db,/** @type {string} */(body.featureId));
+    if(!f.id.startsWith('feature:'))throw new ApiError('BAD_REQUEST','Not a feature.');
+    if(typeof body.hasIt!=='boolean')throw new ApiError('BAD_REQUEST','hasIt must be true or false.');
+    const country=typeof body.country==='string'&&/^[A-Z]{2}$/.test(body.country)?body.country:'*';
+    const platform=typeof body.platform==='string'&&PLATFORMS.includes(/** @type {any} */(body.platform))?body.platform:'*';
+    const plan=typeof body.planId==='string'&&/^plan:[a-z0-9][a-z0-9.-]{0,95}$/.test(body.planId)?body.planId:'*';
+    await limit('vote',LIMITS.votesPerMinute);
+    await db.prepare(`INSERT INTO rollout_votes (feature_id,user_id,has_it,country,plan_id,platform,app_version,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)
+     ON CONFLICT(feature_id,user_id) DO UPDATE SET has_it=excluded.has_it,country=excluded.country,plan_id=excluded.plan_id,platform=excluded.platform,app_version=excluded.app_version,updated_at=excluded.updated_at`)
+     .bind(f.id,context.user.id,body.hasIt?1:0,country,plan,platform,optVersion(body.appVersion),now,now).run();
+    return done({ok:true});
+   }
+  }
+  throw new ApiError('NOT_FOUND');
+ }catch(error){
+  if(!(error instanceof ApiError))console.error('api/v2',key,/** @type {any} */(error)?.name,/** @type {any} */(error)?.message);
+  return errorResponse(error,context?{'Set-Cookie':context.setCookies}:{});
+ }
+}
+
+/** What the islands need for one page: who is signed in, follow state, the reader's votes.
+ * @param {any} db @param {any} context @param {URLSearchParams} q */
+async function state(db,context,q){
+ const user=context.user;
+ const out=/** @type {any} */({signedIn:!!user,user:null,following:false,votes:{}});
+ if(!user)return out;
+ const p=await db.prepare('SELECT display_name,tier FROM user_profiles WHERE user_id=?').bind(user.id).first();
+ out.user={name:p?.display_name||defaultNickname(user.id),tier:p?.tier||'new'};
+ const entityId=q.get('entity');
+ if(entityId&&ENTITY_ID.test(entityId)){
+  out.following=!!(await db.prepare('SELECT 1 FROM follows WHERE user_id=? AND entity_id=?').bind(user.id,entityId).first());
+  // The reader's latest compat result per patch on this game (the strip highlights it after a reload).
+  const cv=(await db.prepare(`SELECT entity_id,COALESCE(target_version,'*') AS tv,result FROM community_reports WHERE kind='compat' AND user_id=? AND target_id=? AND status='published' ORDER BY created_at DESC,rowid DESC LIMIT 20`).bind(user.id,entityId).all()).results||[];
+  out.compat={};for(const r of cv){const k=`${r.entity_id}|${r.tv}`;if(!(k in out.compat))out.compat[k]=String(r.result);}
+ }
+ const flag=q.get('flag');
+ if(flag){const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(flag);
+  if(m){const f=await db.prepare("SELECT reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],user.id).first();out.flagged=f?{reason:String(f.reason)}:null;}}
+ const post=q.get('post');
+ if(post&&/^[\w-]{1,64}$/.test(post)){
+  const own=await db.prepare('SELECT author_id FROM discussions WHERE id=?').bind(post).first();
+  out.mine={post:own?.author_id===user.id,comments:((await db.prepare("SELECT id FROM comments WHERE discussion_id=? AND author_id=? AND status='published'").bind(post,user.id).all()).results||[]).map((/** @type {any} */ r)=>String(r.id))};
+  const rows=(await db.prepare(`SELECT target_kind,target_id,value FROM votes WHERE user_id=? AND ((target_kind='discussion' AND target_id=?) OR (target_kind='comment' AND target_id IN (SELECT id FROM comments WHERE discussion_id=?)))`).bind(user.id,post,post).all()).results||[];
+  for(const r of rows)out.votes[r.target_id]=Number(r.value);
+ }
+ return out;
+}
+
+/** An outage click counts for an hour: a user who is still affected later can click again (the
+ * status page shows reports per hour), but repeated clicks within the hour count once. */
+const ISSUE_VOTE_MS=36e5;
+/** Structured compat/issue report (ProtonDB-style): stored as a community report, recomputes the
+ * community verdict, and becomes a 리포트 post so it can be discussed.
+ * @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
+async function report(db,context,body,now,limit,origin){
+ only(body,['kind','entityId','subjectVersion','targetId','targetVersion','result','env','comment','title','metrics']);
+ if(body.kind==='benchmark')return benchmark(db,context,body,now,limit,origin);
+ if(body.kind!=='compat'&&body.kind!=='issue')throw new ApiError('BAD_REQUEST','kind must be compat, issue or benchmark.');
+ const subject=await entity(db,body.entityId);
+ const target=body.targetId?await entity(db,body.targetId):null;
+ if(body.kind==='compat'&&!target)throw new ApiError('BAD_REQUEST','A compatibility report needs a target.',{field:'targetId'});
+ const result=['works','works_with_issues','broken'].includes(body.result)?body.result:null;
+ if(!result)throw new ApiError('BAD_REQUEST','result must be works, works_with_issues or broken.',{field:'result'});
+ /** @type {Record<string,string>} */const env={};
+ if(body.env!==undefined){
+  if(!body.env||typeof body.env!=='object'||Array.isArray(body.env))throw new ApiError('BAD_REQUEST','env must be an object.');
+  for(const [k,v] of Object.entries(body.env).slice(0,8)){if(!/^[a-z_]{1,20}$/.test(k)||typeof v!=='string'||v.length>60)throw new ApiError('BAD_REQUEST','Invalid env field.');env[k]=v.trim();}
+ }
+ const comment=body.comment===undefined||body.comment===''?null:text(body.comment,[1,2000],'comment');
+ // Everything is validated before the first write (a 400 must leave nothing behind).
+ const titleIn=body.title?text(body.title,[2,120],'title'):null;
+ const sv=optVersion(body.subjectVersion),tv=optVersion(body.targetVersion);
+ const quick=!comment&&!body.title&&(body.kind==='issue'||!Object.keys(env).length);
+ // A report with text becomes a post, so it needs an open board (a one-click vote works anywhere).
+ if(!quick&&!boardOpen(target&&body.kind==='compat'?target:subject))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+ await limit(quick?'vote':'report',quick?LIMITS.votesPerMinute:LIMITS.postsPerMinute);
+ const id=randomToken(12);
+ // A bare click ("✓ 작동" on a game channel, "안 돼요" on a status page) is a vote: one per user and
+ // combination, a new click replaces the old one, and it never becomes a post. A report with text
+ // or a title is a post on the board (and still counts once per user: see compatVerdict).
+ // A person's bare vote on this patch × game version is replaced by their next click and by their
+ // detailed report (whatever patch version it names): one person, one voice per game version.
+ const replaced=quick||body.kind==='compat'?await db.prepare(`DELETE FROM community_reports WHERE kind=? AND user_id=? AND entity_id=?${quick?" AND COALESCE(subject_version,'*')=?":''} AND COALESCE(target_id,'')=? AND COALESCE(target_version,'*')=? AND comment IS NULL
+  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=community_reports.id)${body.kind==='issue'?' AND created_at>?':''} RETURNING COALESCE(subject_version,'*') AS sv`)
+  .bind(body.kind,context.user.id,subject.id,...(quick?[sv||'*']:[]),target?.id??'',tv||'*',...(body.kind==='issue'?[now-ISSUE_VOTE_MS]:[])).all():{results:[]};
+ const staleSv=[...new Set(((replaced.results||[])).map((/** @type {any} */ r)=>String(r.sv)))].filter(x=>x!==(sv||'*'));
+ await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,subject_version,target_id,target_version,env,result,comment,user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+  .bind(id,body.kind,subject.id,sv,target?.id??null,tv,JSON.stringify(env),result,comment,context.user.id,now,now).run();
+ /** @type {any} */let verdict=null;
+ /** The verdicts of other patch versions this person's removed vote counted in. */
+ const recomputeStale=async()=>{if(body.kind==='compat'&&target)for(const x of staleSv)await recomputeCompat(db,{subject:subject.id,subjectVersion:x,target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now);};
+ const recompute=async()=>{await recomputeStale();if(body.kind==='compat'&&target){try{verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}
+  catch(e){if(!/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw e;verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}}};
+ if(quick){
+  await recompute();
+  if(body.kind==='compat'&&target)await purge(origin,[...pagesOf(target),...pagesOf(subject)]);
+  return {id,verdict,postNo:null,url:null,vote:true};
+ }
+ const board=target&&body.kind==='compat'?target:subject;
+ const RESULT_KO=/** @type {Record<string,string>} */({works:'작동',works_with_issues:'일부 문제',broken:'안 됨'});
+ // "테스트 게임 한글패치 1.7 × 테스트 게임 2.3.1: 작동" — names in Korean, the report language.
+ const nm=(/** @type {{names:Record<string,string>}} */ x)=>x.names.ko||x.names.en||'';
+ // The game's name is not repeated: "Caves of Qud 한글패치 (qudkorean) × Caves of Qud 1.04" → "한글패치 (qudkorean) × 1.04".
+ const subj=target&&nm(subject).startsWith(nm(target)+' ')?nm(subject).slice(nm(target).length+1):nm(subject);
+ const title=titleIn?titleIn:(target?`${subj}${sv?' '+sv:''} × ${subj===nm(subject)?nm(target)+(tv?' '+tv:''):(tv||nm(target))}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
+ const postId=randomToken(12);
+ const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
+ await recompute();
+ await purge(origin,[...pagesOf(board),...(board.id!==subject.id?pagesOf(subject):[])]);
+ return {id,verdict,postNo:no,url:postUrl('ko',board,no)};
+}
+
+/** A measured benchmark (model × GPU): tokens/s with runtime, quantization and context. Never an
+ * estimate; the GPU page shows the median and the count. @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
+async function benchmark(db,context,body,now,limit,origin){
+ const model=await entity(db,body.entityId),gpu=await entity(db,body.targetId);
+ if(!model.id.startsWith('model:')||!gpu.id.startsWith('gpu:'))throw new ApiError('BAD_REQUEST','A benchmark is a model measured on a GPU.');
+ const tps=body.metrics&&typeof body.metrics==='object'?Number(body.metrics.tokens_per_s):NaN;
+ if(!Number.isFinite(tps)||tps<=0||tps>5000)throw new ApiError('BAD_REQUEST','tokens_per_s must be between 0 and 5000.',{field:'tokens_per_s'});
+ /** @type {Record<string,string>} */const env={};
+ for(const [k,v] of Object.entries(body.env&&typeof body.env==='object'?body.env:{}).slice(0,6)){if(!/^[a-z_]{1,20}$/.test(k)||typeof v!=='string'||v.length>60)throw new ApiError('BAD_REQUEST','Invalid env field.');env[k]=v.trim();}
+ await limit('report',LIMITS.postsPerMinute);
+ const id=randomToken(12);
+ // One measurement per user per model × GPU × runtime × quantization: a repeat replaces the old one.
+ await db.prepare("DELETE FROM community_reports WHERE kind='benchmark' AND user_id=? AND entity_id=? AND target_id=? AND COALESCE(json_extract(env,'$.runtime'),'')=? AND COALESCE(json_extract(env,'$.quant'),'')=?").bind(context.user.id,model.id,gpu.id,env.runtime||'',env.quant||'').run();
+ await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,target_id,env,metrics,user_id,created_at,updated_at) VALUES (?,'benchmark',?,?,?,?,?,?,?)`)
+  .bind(id,model.id,gpu.id,JSON.stringify(env),JSON.stringify({tokens_per_s:Math.round(tps*100)/100}),context.user.id,now,now).run();
+ await purge(origin,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
+ return {id};
+}
+
+/** My Radar: changes and new posts in the channels the reader follows, with an unread count.
+ * @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} [now] */
+async function myRadar(db,userId,l,now=Date.now()){
+ const ids=((await db.prepare('SELECT entity_id FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 200').bind(userId).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
+ const st=await db.prepare('SELECT last_seen_change_id AS n,replies_seen_at AS r FROM radar_state WHERE user_id=?').bind(userId).first();
+ const seen=Number(st?.n||0),repliesSeen=Number(st?.r||0);
+ const replies=await repliesTo(db,userId,l,repliesSeen);
+ // The fate of my 정보 제안 (last 30 days) shows up with the replies.
+ const reviewed=((await db.prepare(`SELECT f.id,f.property,f.status,f.reason,f.reviewed_at,e.vertical,e.slug,e.names FROM fact_proposals f JOIN entities e ON e.id=f.entity_id WHERE f.user_id=? AND f.status<>'open' AND f.reviewed_at>? ORDER BY f.reviewed_at DESC LIMIT 10`).bind(userId,now-30*864e5).all()).results||[]);
+ for(const r of reviewed){const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};const def=propertyDef(e.vertical,String(r.property));
+  replies.push({at:Number(r.reviewed_at),author:l==='ko'?'운영자':'Moderator',text:r.status==='accepted'?(l==='ko'?`정보 제안을 반영했어요 (${def?.label?.ko||r.property})`:`Your proposal was accepted (${def?.label?.en||r.property})`):(l==='ko'?`정보 제안을 반려했어요: ${r.reason||''}`:`Your proposal was declined: ${r.reason||''}`),on:nameOf(e,l),why:'proposal',url:channelUrl(l,e),unread:Number(r.reviewed_at)>repliesSeen});}
+ replies.sort((a,b)=>b.at-a.at);
+ const unreadReplies=replies.filter(r=>r.unread).length;
+ if(!ids.length)return {following:0,unread:unreadReplies,unreadReplies,lastChangeId:seen,changes:[],posts:[],replies};
+ const ents=await entitiesByIds(db,ids);
+ const raw=await changesFor(db,ids,{minImportance:1,limit:30});
+ // Schedule items carry the event's own date (a broadcast on 10/20 is not "09/26", when it was found).
+ const evIds=[...new Set(raw.filter(c=>String(c.kind).startsWith('event_')&&c.ref_id).map(c=>Number(c.ref_id)))];
+ /** @type {Map<number,{starts:number|null,ends:number|null,precision:string}>} */const evAt=new Map();
+ if(evIds.length)for(const r of (await db.prepare(`SELECT id,starts_at,ends_at,date_precision FROM events WHERE id IN (${evIds.map(()=>'?').join(',')})`).bind(...evIds).all()).results||[])evAt.set(Number(r.id),{starts:r.starts_at==null?null:Number(r.starts_at),ends:r.ends_at==null?null:Number(r.ends_at),precision:String(r.date_precision||'day')});
+ const changes=raw.map(c=>{const e=ents.get(c.entity_id),name=e?nameOf(e,l):'';const d=describeChange(c,{name},l);
+  // The channel name is shown once, beside the item: drop it from the start of the text.
+  const title=name&&d.title.startsWith(name+': ')?d.title.slice(name.length+2):d.title;
+  const ev=c.ref_id&&String(c.kind).startsWith('event_')?evAt.get(Number(c.ref_id)):undefined;
+  return {id:c.id,at:c.detected_at,eventAt:ev?.starts??null,eventEnd:ev?.ends??null,title,detail:d.detail,unread:c.id>seen,url:e?channelUrl(l,e):null,channel:name};});
+ const q=ids.slice(0,40);
+ const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
+  .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
+ return {following:ids.length,unread:changes.filter(c=>c.unread).length+unreadReplies,unreadReplies,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts,replies};
+}
+/** Comments on the reader's posts and replies to the reader's comments (not their own), newest first.
+ * Two indexed queries instead of one OR. @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} seenAt */
+async function repliesTo(db,userId,l,seenAt){
+ const COLS=`c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
+ const FROM=`FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id`;
+ const OK=`c.status='published' AND d.status IN ('published','locked') AND c.author_id<>?`;
+ const [onPosts,onComments]=await Promise.all([
+  db.prepare(`SELECT ${COLS},'post' AS why ${FROM} WHERE d.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all(),
+  db.prepare(`SELECT ${COLS},'comment' AS why ${FROM} JOIN comments pc ON pc.id=c.parent_id WHERE pc.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all()]);
+ /** @type {Map<string,any>} */const byId=new Map();
+ for(const r of [...(onComments.results||[]),...(onPosts.results||[])])if(!byId.has(String(r.id)))byId.set(String(r.id),r);
+ return [...byId.values()].sort((a,b)=>Number(b.created_at)-Number(a.created_at)).slice(0,20).map(r=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
+  return {at:Number(r.created_at),author:String(r.author),text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),why:String(r.why),url:postUrl(l,e,Number(r.post_no))+`#c-${r.id}`,unread:Number(r.created_at)>seenAt};});
+}
+
+/* ---------- open data ---------- */
+
+export const OPEN_DATA=Object.freeze({schema:'nerulio.compat-reports/1',license:'ODbL-1.0',licenseUrl:'https://opendatacommons.org/licenses/odbl/1-0/',attribution:'Nerulio community (nerulio.com)'});
+/** ?month=YYYY-MM → that month's published compatibility reports (subject/target ids and versions,
+ * setup, result, day). Without a month: the months that have reports, with counts. Never user ids,
+ * comments or free text. @param {any} db @param {string|null} month */
+async function openCompat(db,month){
+ const MONTH=/^(\d{4})-(0[1-9]|1[0-2])$/;
+ if(!month||!MONTH.test(month)){
+  const rows=(await db.prepare(`SELECT strftime('%Y-%m',created_at/1000,'unixepoch') AS m,COUNT(*) AS n FROM community_reports WHERE kind='compat' AND status='published' AND visibility<>'private' GROUP BY 1 ORDER BY 1 DESC`).all()).results||[];
+  return {...OPEN_DATA,months:rows.map((/** @type {any} */ r)=>({month:String(r.m),reports:Number(r.n),url:`/api/v2/open-data/compat?month=${r.m}`}))};
+ }
+ const from=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7))-1,1),to=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),1);
+ // Public reports only, and only while the post they belong to (if any) is still public.
+ const rows=(await db.prepare(`SELECT r.entity_id,r.subject_version,r.target_id,r.target_version,r.env,r.result,r.created_at FROM community_reports r
+  WHERE r.kind='compat' AND r.status='published' AND r.visibility='public' AND r.created_at>=? AND r.created_at<?
+  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=r.id AND d.status NOT IN ('published','locked')) ORDER BY r.created_at LIMIT 50001`).bind(from,to).all()).results||[];
+ const truncated=rows.length>50000;if(truncated)rows.length=50000;
+ // Free text never leaves: the OS is reduced to its family; runtime and quantization are short codes.
+ const OS=[[/windows/i,'windows'],[/mac|os x/i,'macos'],[/steam ?deck|steamos/i,'steamos'],[/linux|ubuntu|fedora|arch/i,'linux'],[/android/i,'android'],[/ios|iphone|ipad/i,'ios']];
+ const SAFE_ENV=['runtime','quant'];
+ return {...OPEN_DATA,month,reports:rows.map((/** @type {any} */ r)=>{const env=/** @type {Record<string,string>} */({});try{const e=/** @type {Record<string,unknown>} */(JSON.parse(String(r.env||'{}')));for(const k of SAFE_ENV){const v=e[k];if(typeof v==='string'&&/^[\w.\- ]{1,24}$/.test(v))env[k]=v;}
+  const os=typeof e.os==='string'?OS.find(([re])=>/** @type {RegExp} */(re).test(/** @type {string} */(e.os)))?.[1]:undefined;if(os)env.os=String(os);}catch{}
+  return {subject:String(r.entity_id),subjectVersion:r.subject_version??null,target:r.target_id??null,targetVersion:r.target_version??null,env,result:String(r.result),day:new Date(Number(r.created_at)).toISOString().slice(0,10)};}),truncated};
+}
+
+/* ---------- moderation (신고 → 임시조치 → 처리 기록) ---------- */
+
+/** Moderators, curators and admins only; everyone else gets 404 (the queue's existence is not advertised). @param {any} db @param {any} context */
+async function moderator(db,context){
+ if(!context.user)throw new ApiError('NOT_FOUND');
+ const p=await db.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(context.user.id).first();
+ if(!p||!['moderator','curator','admin'].includes(String(p.role)))throw new ApiError('NOT_FOUND');
+ return p;
+}
+/** Staff rank: an action on an account needs a strictly higher rank than the account's. */
+const RANK=/** @type {Record<string,number>} */({user:0,moderator:1,curator:2,admin:3});
+/** Open flags grouped by target, oldest first, with a preview of the flagged text; the content
+ * currently hidden (임시조치 중) with the reason it was hidden, so a moderator can restore it; and the
+ * action log. @param {any} db @param {any} _p */
+async function modQueue(db,_p){
+ const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,GROUP_CONCAT(note,' / ') AS notes FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
+ const hiddenRows=(await db.prepare(`SELECT kind,id,updated_at FROM (SELECT 'discussion' AS kind,id,updated_at FROM discussions WHERE status='hidden' UNION ALL SELECT 'comment',id,updated_at FROM comments WHERE status='hidden') ORDER BY updated_at DESC LIMIT 50`).all()).results||[];
+ // One query per kind for every target on the page (no per-row lookups).
+ const targets=await modTargets(db,[...rows.map((/** @type {any} */ r)=>[String(r.target_kind),String(r.target_id)]),...hiddenRows.map((/** @type {any} */ r)=>[String(r.kind),String(r.id)])]);
+ const items=rows.map((/** @type {any} */ r)=>({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...(targets.get(`${r.target_kind}:${r.target_id}`)||EMPTY_TARGET)}));
+ /** @type {Map<string,{reason:string,created_at:number}>} */const hides=new Map();
+ const hk=hiddenRows.map((/** @type {any} */ r)=>`${r.kind}:${r.id}`);
+ if(hk.length)for(const a of (await db.prepare(`SELECT target_kind,target_id,reason,created_at FROM moderation_actions WHERE action='hide' AND (target_kind||':'||target_id) IN (${hk.map(()=>'?').join(',')}) ORDER BY id`).bind(...hk).all()).results||[])
+  hides.set(`${a.target_kind}:${a.target_id}`,{reason:String(a.reason),created_at:Number(a.created_at)});   // the latest hide wins
+ const hidden=hiddenRows.map((/** @type {any} */ r)=>{const k=`${r.kind}:${r.id}`,a=hides.get(k);return {target:k,hiddenAt:a?.created_at??Number(r.updated_at),reason:a?.reason??null,...(targets.get(k)||EMPTY_TARGET)};});
+ // Fact proposals waiting for review, with the value the wiki shows now.
+ const props=(await db.prepare(`SELECT f.id,f.entity_id,f.property,f.value,f.unit,f.source_url,f.note,f.discussion_id,f.created_at,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(f.user_id,1,6))) AS author
+  FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`).all()).results||[];
+ const proposals=[];
+ for(const r of props){
+  // The most trusted current value (an official one for any region), so the moderator compares against it.
+  const cur=await db.prepare("SELECT value,unit,verification,region FROM facts WHERE entity_id=? AND property=? AND is_current=1 AND plan='*' ORDER BY CASE verification WHEN 'OFFICIAL' THEN 0 WHEN 'AUTOMATED' THEN 1 WHEN 'COMMUNITY_VERIFIED' THEN 2 ELSE 3 END,CASE region WHEN 'KR' THEN 0 WHEN '*' THEN 1 ELSE 2 END LIMIT 1").bind(r.entity_id,r.property).first();
+  const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
+  const def=propertyDef(e.vertical,String(r.property));
+  proposals.push({target:`proposal:${r.id}`,channel:nameOf(e,'ko'),url:channelUrl('ko',e),property:def?.label?.ko||r.property,value:JSON.parse(String(r.value)),unit:r.unit??null,current:cur?{value:JSON.parse(String(cur.value)),unit:cur.unit??null,verification:String(cur.verification),region:String(cur.region)}:null,source:String(r.source_url),note:r.note??null,author:String(r.author),at:Number(r.created_at)});
+ }
+ const logRows=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
+ // The log names what was acted on (title or comment excerpt), not an internal id.
+ const logTargets=await modTargets(db,logRows.filter((/** @type {any} */ r)=>r.target_kind==='discussion'||r.target_kind==='comment').map((/** @type {any} */ r)=>[String(r.target_kind),String(r.target_id)]));
+ const log=logRows.map((/** @type {any} */ r)=>({...r,label:logTargets.get(`${r.target_kind}:${r.target_id}`)?.preview?.slice(0,40)??null}));
+ return {items,hidden,proposals,log};
+}
+const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null});
+/** What a moderator needs to judge a flagged or hidden target without opening it (a hidden post is
+ * 404 on the public page): title or excerpt, author, status, and the post it belongs to.
+ * @param {any} db @param {[string,string][]} list @returns {Promise<Map<string,any>>} */
+async function modTargets(db,list){
+ const out=new Map();
+ /** D1 binds at most 100 parameters per statement. @param {string} sql @param {string[]} xs */
+ const rowsIn=async(sql,xs)=>{const all=[];for(let i=0;i<xs.length;i+=90){const part=xs.slice(i,i+90);all.push(...((await db.prepare(sql.replace('(?*)',`(${part.map(()=>'?').join(',')})`)).bind(...part).all()).results||[]));}return all;};
+ const ids=(/** @type {string} */ kind)=>[...new Set(list.filter(([k])=>k===kind).map(([,id])=>id))];
+ const d=ids('discussion'),c=ids('comment');
+ for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d))
+  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no))});
+ for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c))
+  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title)});
+ return out;
+}
+const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict','accept','reject']);
+/** Apply one moderator action; always logged in moderation_actions with its reason.
+ * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
+ * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin */
+async function modAction(db,actor,actorRole,body,now,origin){
+ only(body,['target','action','reason','days']);
+ const m=/^(discussion|comment|user|proposal):([\w:.-]{1,100})$/.exec(String(body.target||''));
+ if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+ const action=String(body.action);if(!MOD_ACTIONS.includes(action))throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
+ const reason=text(body.reason,[2,500],'reason');
+ const [,kind,id]=m,w=[];
+ /** @type {Record<string,unknown>} */let meta={};
+ if(kind==='discussion'||kind==='comment'){
+  const table=kind==='discussion'?'discussions':'comments';
+  const cur=await db.prepare(`SELECT status FROM ${table} WHERE id=?`).bind(id).first();
+  if(!cur)throw new ApiError('NOT_FOUND','No such post or comment.');
+  if(action==='hide'){
+   if(cur.status==='hidden'||cur.status==='deleted')throw new ApiError('OPERATION_CONFLICT',`Already ${cur.status}.`);
+   meta={previous:cur.status};   // restored exactly by unhide (a locked post stays locked)
+   w.push(db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=?`).bind(now,id));
+  }
+  if(action==='unhide'){
+   if(cur.status!=='hidden')throw new ApiError('OPERATION_CONFLICT','Not hidden.');
+   const last=await db.prepare("SELECT meta FROM moderation_actions WHERE target_kind=? AND target_id=? AND action='hide' ORDER BY id DESC LIMIT 1").bind(kind,id).first();
+   let prev='published';try{const p=JSON.parse(String(last?.meta||'{}')).previous;if(p==='published'||p==='locked')prev=p;}catch{}
+   w.push(db.prepare(`UPDATE ${table} SET status=?,updated_at=? WHERE id=? AND status='hidden'`).bind(prev,now,id));
+  }
+  if(kind==='comment'&&(action==='hide'||action==='unhide'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+ }
+ if(kind==='proposal'){
+  // accept = the value goes into the graph through the ingest pipeline (COMMUNITY_VERIFIED, so an
+  // official value is never replaced; a conflict is recorded instead); reject = closed with the reason.
+  if(action!=='accept'&&action!=='reject')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
+  const pr=await db.prepare("SELECT f.*,e.vertical FROM fact_proposals f JOIN entities e ON e.id=f.entity_id WHERE f.id=?").bind(id).first();
+  if(!pr)throw new ApiError('NOT_FOUND','No such proposal.');
+  if(pr.status!=='open')throw new ApiError('OPERATION_CONFLICT','Already reviewed.');
+  // Claim the proposal first, so two moderators acting at once cannot both apply it.
+  const claim=await db.prepare("UPDATE fact_proposals SET status=?,reviewer_id=?,reviewed_at=?,reason=? WHERE id=? AND status='open'").bind(action==='accept'?'accepted':'rejected',actor,now,reason,id).run();
+  if(!Number(claim?.meta?.changes))throw new ApiError('OPERATION_CONFLICT','Already reviewed.');
+  if(action==='accept'){
+   const src=`src:proposal-${String(id).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,40)}`;
+   await ingest(db,{schema:SEED_SCHEMA,vertical:String(pr.vertical),sources:[{id:src,kind:'COMMUNITY',url:String(pr.source_url),retrieved:new Date(Number(pr.created_at)).toISOString().slice(0,10)}],
+    entities:[{id:String(pr.entity_id),facts:[{p:String(pr.property),v:JSON.parse(String(pr.value)),...(pr.unit?{unit:String(pr.unit)}:{}),ver:'COMMUNITY_VERIFIED',src,note:`Proposed by a member, accepted by a moderator (${reason})`.slice(0,300)}]}]},{mode:'community',actor:`moderator:${actor}`,now});
+  }
+ }
+ if(kind==='user'){
+  if(id===actor)throw new ApiError('FORBIDDEN','You cannot moderate your own account.');
+  if(!await db.prepare('SELECT 1 FROM users WHERE id=?').bind(id).first())throw new ApiError('NOT_FOUND','No such account.');
+  const target=await db.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(id).first();
+  if((RANK[String(target?.role||'user')]??0)>=(RANK[actorRole]??0))throw new ApiError('FORBIDDEN','Only a higher role can act on this account.');
+  // A member who never wrote has no profile yet: create it so the restriction applies.
+  await db.prepare("INSERT OR IGNORE INTO user_profiles (user_id,display_name,created_at,updated_at) VALUES (?,?,?,?)").bind(id,defaultNickname(id),now,now).run();
+  const days=Math.min(365,Math.max(1,Number(body.days)||7));
+  if(action==='restrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=?,strikes=strikes+1,updated_at=? WHERE user_id=?').bind(now+days*864e5,now,id));
+  if(action==='unrestrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=NULL,updated_at=? WHERE user_id=?').bind(now,id));
+ }
+ if(!w.length&&action!=='dismiss'&&kind!=='proposal')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
+ w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
+ w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:meta),now));
+ await db.batch(w);
+ if(kind==='discussion'||kind==='comment'){
+  const d=await db.prepare(`SELECT d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
+  if(d)await purge(origin,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+ }
+ return {ok:true};
+}
