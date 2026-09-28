@@ -1,4 +1,6 @@
 import test from 'node:test';
+import {DEPTH} from '../src/seo-depth/index.js';
+import {plain} from '../src/seo-depth/render.js';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,SHOTS,SPRITE_EXPORTS,TILE_EXPORTS,COMMON_FAQ,HUB,UI,classicPath,appPath,kindOf} from '../src/game-seo.js';
@@ -112,8 +114,11 @@ test('structured data: SoftwareApplication, BreadcrumbList, and FAQPage / HowTo 
   if(!hub){
    const steps=[...(h.match(/<ol class="gl-steps">([\s\S]*?)<\/ol>/)||['',''])[1].matchAll(/<li>([^<]*)<\/li>/g)].map(m=>unescape(m[1]));
    const [how]=by('HowTo');
-   assert(steps.length>=3,path);assert.deepEqual(how.step.map(s=>s.text),steps,`${l}/${path}: HowTo = the visible steps`);
-   assert(how.name===unescape(h.match(/<h1>([^<]*)<\/h1>/)[1])&&how.step.every((s,i)=>s['@type']==='HowToStep'&&s.position===i+1&&s.url===`${origin}${l}/${path}/#how`)&&h.includes('id="how"'),path);
+   // The visible "How it works" steps, then the visible engine steps (#target, src/seo-depth) when the page has them.
+   const target=(DEPTH[path]?.[l]?.target?.steps||[]).map(plain),all=[...steps,...target];
+   assert(steps.length>=3,path);assert.deepEqual(how.step.map(s=>s.text),all,`${l}/${path}: HowTo = the visible steps`);
+   if(target.length)assert(h.includes('id="target"'),`${l}/${path}: #target steps are visible`);
+   assert(how.name===unescape(h.match(/<h1>([^<]*)<\/h1>/)[1])&&how.step.every((s,i)=>s['@type']==='HowToStep'&&s.position===i+1&&s.url===`${origin}${l}/${path}/${i<steps.length?'#how':'#target'}`)&&h.includes('id="how"'),path);
   }
   n++;
  }
