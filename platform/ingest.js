@@ -171,19 +171,28 @@ export async function ingest(db,doc,opts){
   touched.add(id);
  }
 
- // 4c. events
+ // 4c. events. One page can announce several dates (episode 49 and 50 on one news page), so an
+ // event is (url, kind, title); a changed title still matches when that url has exactly one event.
+ /** @type {Map<string,number>} */const perUrl=new Map();
+ for(const x of doc.events||[])if(x.url){const k=`${x.url}\u0001${x.kind}`;perUrl.set(k,(perUrl.get(k)||0)+1);}
  for(const x of doc.events||[]){
   const starts=x.starts?Date.parse(x.starts.length<=10?x.starts+'T00:00:00Z':x.starts):null;
   const ends=x.ends?Date.parse(x.ends.length<=10?x.ends+'T00:00:00Z':x.ends):null;
   const precision=x.precision||(x.starts&&x.starts.length>10?'time':x.starts?datePrecision(x.starts):'day');
   const ids=x.entities.map(resolveId),title=JSON.stringify(x.title);
-  const cur=x.url?await db.prepare('SELECT id,starts_at,ends_at,status,title FROM events WHERE url=? AND kind=?').bind(x.url,x.kind).first():
-   await db.prepare('SELECT id,starts_at,ends_at,status,title FROM events WHERE title=? AND kind=?').bind(title,x.kind).first();
+  let cur=null;
+  if(x.url){
+   cur=await db.prepare('SELECT id,starts_at,ends_at,status,title FROM events WHERE url=? AND kind=? AND title=?').bind(x.url,x.kind,title).first();
+   if(!cur&&perUrl.get(`${x.url}\u0001${x.kind}`)===1){
+    const same=(await db.prepare('SELECT id,starts_at,ends_at,status,title FROM events WHERE url=? AND kind=? LIMIT 2').bind(x.url,x.kind).all()).results||[];
+    if(same.length===1)cur=same[0];
+   }
+  }else cur=await db.prepare('SELECT id,starts_at,ends_at,status,title FROM events WHERE title=? AND kind=?').bind(title,x.kind).first();
   if(cur){
    const status=x.status||'announced';
    if(cur.starts_at!==starts||cur.ends_at!==ends||cur.status!==status||cur.title!==title){
     W('UPDATE events SET title=?,starts_at=?,ends_at=?,date_precision=?,status=?,location=?,region=?,updated_at=? WHERE id=?',title,starts,ends,precision,status,x.location??null,x.region||'*',now,cur.id);
-    for(const id of ids)change({entity_id:id,vertical:vOf(id),kind:'event_changed',new_value:canon({starts:x.starts??null,ends:x.ends??null,status}),old_value:canon({starts_at:cur.starts_at,ends_at:cur.ends_at,status:cur.status}),importance:2,source_id:x.src??null,ref_id:String(cur.id),effective_at:now});
+    for(const id of ids)change({entity_id:id,vertical:vOf(id),kind:'event_changed',new_value:canon({starts:x.starts??null,ends:x.ends??null,status}),old_value:canon({starts_at:cur.starts_at,ends_at:cur.ends_at,status:cur.status}),importance:quiet?0:2,source_id:x.src??null,ref_id:String(cur.id),effective_at:now});
    }
    continue;
   }

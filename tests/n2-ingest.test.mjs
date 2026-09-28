@@ -74,3 +74,28 @@ test('events are deduplicated by url and their changes recorded; availability ke
  const av=rows(db,"SELECT importance,old_value,new_value FROM changes WHERE kind='availability_changed' ORDER BY id").at(-1);
  assert.deepEqual([av.importance,JSON.parse(av.old_value),JSON.parse(av.new_value)],[3,'rolling_out','available']);
 });
+
+test('seed imports never put schedule edits on the Radar',{skip:!sqliteAvailable},async()=>{
+ const db=D1Shim.migrated();
+ const src=[{id:'src:o',kind:'OFFICIAL',url:'https://example.com/',retrieved:'2026-09-01'}];
+ const ent=[{id:'game:steam-9',type:'game',slug:'g9',names:{en:'G9'}}];
+ const ev=starts=>({schema:'nerulio.seed/1',vertical:'games',sources:src,entities:ent,events:[{kind:'event',title:{en:'Fest'},starts,entities:['game:steam-9'],url:'https://example.com/fest',ver:'OFFICIAL',src:'src:o'}]});
+ await ingest(db,ev('2026-10-01'),{mode:'seed',actor:'seed',now:T0});
+ await ingest(db,ev('2026-10-02'),{mode:'seed',actor:'seed',now:T0+DAY});
+ assert.deepEqual(rows(db,"SELECT importance FROM changes WHERE kind='event_changed'").map(r=>r.importance),[0]);
+ await ingest(db,ev('2026-10-03'),{mode:'collector',actor:'collector:x',now:T0+2*DAY});
+ assert.equal(rows(db,"SELECT importance FROM changes WHERE kind='event_changed' ORDER BY id DESC")[0].importance,2,'a collector-detected change is news');
+});
+
+test('two dates announced on one page stay two events; a retitled incident stays one',{skip:!sqliteAvailable},async()=>{
+ const db=D1Shim.migrated();
+ const src=[{id:'src:o',kind:'OFFICIAL',url:'https://example.com/',retrieved:'2026-09-01'}];
+ const ent=[{id:'game:steam-8',type:'game',slug:'g8',names:{en:'G8'}}];
+ const e=(title,starts)=>({kind:'broadcast',title:{en:title},starts,entities:['game:steam-8'],url:'https://example.com/news/1',ver:'OFFICIAL',src:'src:o'});
+ await ingest(db,{schema:'nerulio.seed/1',vertical:'games',sources:src,entities:ent,events:[e('Episode 49','2026-10-20'),e('Episode 50','2026-10-27')]},{mode:'seed',actor:'seed',now:T0});
+ assert.equal(rows(db,'SELECT COUNT(*) n FROM events')[0].n,2);
+ const inc=title=>({schema:'nerulio.seed/1',vertical:'games',sources:src,entities:ent,events:[{kind:'incident',title:{en:title},starts:'2026-09-29T01:00:00Z',entities:['game:steam-8'],url:'https://status.example.com/incidents/x',ver:'OFFICIAL',src:'src:o'}]});
+ await ingest(db,inc('Elevated errors'),{mode:'collector',actor:'c',now:T0});
+ await ingest(db,inc('Elevated errors on API'),{mode:'collector',actor:'c',now:T0+1000});
+ assert.equal(rows(db,"SELECT COUNT(*) n FROM events WHERE kind='incident'")[0].n,1);
+});

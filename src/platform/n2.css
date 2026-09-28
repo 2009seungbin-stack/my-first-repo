@@ -344,6 +344,9 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .week ul .tm{width:auto}
 @media (max-width:1000px){.week{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+.rows li.vtl{flex-direction:column;align-items:flex-start;gap:2px}
+.rows li.vtl .tt{flex:none}
+
 /* narrow screens */
 @media (max-width:1000px){
  .cols,.front{grid-template-columns:minmax(0,1fr)}

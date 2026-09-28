@@ -6,7 +6,8 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,frontUrl,kindChip,monogram,TILE,badge,signInUrl} from './ui.js';
 import {boardTime,compact} from './format.js';
-import {frontPosts,activeChannels,radarChanges} from '../db/channel.js';
+import {frontPosts,activeChannels,radarChanges,recentVersions,upcomingEvents} from '../db/channel.js';
+import {dday,eventTime} from './format.js';
 import {VERTICALS} from '../schema.js';
 import {verticalOf} from '../verticals/index.js';
 import {describeChange} from '../change-text.js';
@@ -18,11 +19,16 @@ export async function loadFront(db,o){
  const vertical=o.vertical&&VERTICALS.includes(/** @type {any} */(o.vertical))?o.vertical:null;
  const best=await frontPosts(db,{mode:'best',vertical,since:o.now-3*DAY,limit:15});
  const news=await frontPosts(db,{mode:'news',limit:8});
- const changes=news.length?[]:await radarChanges(db,{limit:8,minImportance:2});
+ // One line per entity and kind (several schedule edits to one work read as one).
+ const seen=new Set();
+ const changes=news.length?[]:(await radarChanges(db,{limit:30,minImportance:2})).filter(c=>{const k=`${c.entity_id}|${c.kind}`;return seen.has(k)?false:(seen.add(k),true);}).slice(0,8);
  const reports=await frontPosts(db,{mode:'kind',kind:'report',limit:6});
  const questions=await frontPosts(db,{mode:'kind',kind:'question',unanswered:true,limit:6});
  const popular=await activeChannels(db,o.now-7*DAY,10);
- return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,channels:o.channels||[]};
+ // Facts that make the front useful before the boards fill up.
+ const releases=await recentVersions(db,{since:o.now-7*DAY,until:o.now,vertical,limit:8});
+ const upcoming=await upcomingEvents(db,{from:o.now,to:o.now+7*DAY,vertical,limit:6});
+ return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,releases,upcoming,channels:o.channels||[]};
 }
 
 /** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string}} site */
@@ -36,9 +42,12 @@ export function renderFront(m,site){
  const small=(/** @type {string} */ title,/** @type {typeof m.reports} */ list)=>box({title},list.length?html`<ol class="rows">${list.map(p=>html`<li><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip(p.kind,l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="fine">${boardTime(p.created_at,now,l)}</span></li>`)}</ol>`:html`<p class="empty">${s.frontEmpty}</p>`);
  const side=html`<section class="box login" data-island="account"><b>${s.loginTitle}</b><span class="fine">${s.loginNote}</span><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.continueWith('Google')}</a></section>
 ${box({title:s.popularChannels},m.popular.length?html`<ol class="rows">${m.popular.map((c,i)=>html`<li><span class="rank">${i+1}</span><span class="tile sm ${TILE[c.entity.vertical]||''}" aria-hidden="true">${monogram(c.entity,l)}</span><a class="tt" href="${channelUrl(l,c.entity)}">${nameOf(c.entity,l)}</a><span class="fine">${compact(c.posts,l)}</span></li>`)}</ol>`:html`<ol class="rows">${m.channels.map(c=>html`<li><a class="tt" href="${c.href}">${c.name}</a></li>`)}</ol>`)}
-${box({title:l==='ko'?'분야별 채널':'Channels by area'},html`<ul class="rows">${VERTICALS.map(v=>html`<li><a class="tt" href="/${l}/${v}/">${label(/** @type {any} */(verticalOf(v)).label,l)}</a><span class="fine">${label(/** @type {any} */(verticalOf(v)).tagline,l)}</span></li>`)}</ul>`)}
+${box({title:l==='ko'?'분야별 채널':'Channels by area'},html`<ul class="rows">${VERTICALS.map(v=>html`<li class="vtl"><a class="tt" href="/${l}/${v}/">${label(/** @type {any} */(verticalOf(v)).label,l)}</a><span class="fine">${label(/** @type {any} */(verticalOf(v)).tagline,l)}</span></li>`)}</ul>`)}
 ${box({title:s.toolsBox,note:html`<a href="/${l}/">${l==='ko'?'전체 ›':'All ›'}</a>`},html`<div class="toolsg"><a href="/${l}/image/compress/">${l==='ko'?'이미지 압축':'Compress images'}</a><a href="/${l}/game/sprite-lab/">${l==='ko'?'스프라이트 랩':'Sprite Lab'}</a><a href="/${l}/game/pixel-lab/">${l==='ko'?'픽셀 랩':'Pixel Lab'}</a><a href="/${l}/game/tile-lab/">${l==='ko'?'타일 랩':'Tile Lab'}</a></div>`)}`;
- const body=html`<div class="front"><main class="mainc">${best}${radar}<div class="g2">${small(s.newReports,m.reports)}${small(s.openQuestions,m.questions)}</div></main><aside class="side">${side}</aside></div>`;
+ const ko=l==='ko';
+ const releases=m.releases.length?box({title:ko?'이번 주 출시·업데이트':'Released this week',note:html`<a href="/${l}/radar/">${ko?'레이더 ›':'Radar ›'}</a>`},html`<ul class="rows">${m.releases.map(r=>html`<li><span class="tm">${boardTime(r.released_at,now,l)}</span><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)} <b>${r.version}</b></a></li>`)}</ul>`):'';
+ const upcoming=m.upcoming.length?box({title:ko?'이번 주 일정':'This week'},html`<ul class="rows">${m.upcoming.map(ev=>html`<li class="ev"><span class="dday">${dday(ev.starts_at,now,l)}</span><a class="tt" href="${channelUrl(l,/** @type {any} */(ev.entity))}">${ev.title[l]||ev.title.en}</a><span class="fine">${eventTime(ev.starts_at,ev.precision,l)}</span></li>`)}</ul>`):'';
+ const body=html`<div class="front"><main class="mainc">${best}${radar}<div class="g2">${releases}${upcoming}</div><div class="g2">${small(s.newReports,m.reports)}${small(s.openQuestions,m.questions)}</div></main><aside class="side">${side}</aside></div>`;
  const title=l==='ko'?'Nerulio 커뮤니티 — AI·게임·하드웨어·창작 채널':'Nerulio community — AI, games, hardware and creator channels';
  const other=l==='ko'?'en':'ko';
  return page({l,title,description:l==='ko'?'채널별 실시간 소식, 공식 정보와 커뮤니티 리포트.':'Live changes, official facts and community reports per channel.',canonical:site.origin+base+(m.vertical?`?v=${m.vertical}`:''),
