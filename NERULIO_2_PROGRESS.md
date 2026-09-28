@@ -41,8 +41,29 @@ backlog in `docs/n2/BACKLOG.md`, then built and tested (all on `claude/epic-heis
   identity fix (9 seed events had been merged), WCAG A/AA clean (axe-core), strict type check.
 - Operations: seed export for D1 (`npm run seed-sql:platform`), collectors → D1 REST on GitHub Actions
   (off until `PLATFORM_COLLECTORS=on`), `NERULIO_2_MIGRATION_PLAN.md`, `docs/NERULIO_2_SCHEMA.md`.
-- Checks: `npm test` (2,430+ pass), `npm run typecheck` (0), `npm run test:platform` (browser E2E incl.
-  moderation), local `npm run dev:platform`, preview https://claude.ai/artifact/6VHYBiwFzrznBeAYNwdU2T
+- Checks: `npm test` (2,443 pass), `npm run typecheck` (0), `npm run test:platform` (browser E2E incl.
+  moderation, votes, proposals, comment edit, 360/390 px layouts), local `npm run dev:platform`,
+  preview https://claude.ai/artifact/6VHYBiwFzrznBeAYNwdU2T
+
+### After two UX walkthroughs (03:10–04:35 KST)
+Two agents used the site as four personas (AI user, Korean-patch gamer, GPU/local-LLM user, anime fan)
+plus a moderator, at 1280 and 390 px (`research/UX-WALKTHROUGH.md`, `UX-WALKTHROUGH-2.md`, each with a
+status table). Fixed:
+- Moderation: hidden content listed with full text and restorable (was a blocker); readable log.
+- Votes: a compat click is one voice per person per game version, never a post; detailed reports
+  replace the person's vote; counts agree across strip, wiki table and verdict; my choice persists.
+- Search: several words, Korean names (via patches, aliases 챗GPT/제미나이/클로드), intent shortcuts
+  (장애 → status page, 가격 → price table, 로컬 → local-LLM page), services ranked above model lists.
+- AI channel: user-report spike in the status box, cheapest model kept, company filter + sort on the
+  model price table, Korean price notes.
+- Signed-in experience: 내 구독 on the front, 내 정보 (my posts/comments, sign-out), reply alerts
+  (migration 0008), Radar '내 구독만' filter and pre-order deadlines, D-day ordering.
+- Writing: tables in posts, comment edit, tag change on edit, drafts kept in the browser, 404 page for
+  missing posts, messages that survive reloads.
+- New: 정보 제안 (members propose a sourced value, moderators accept it as COMMUNITY_VERIFIED —
+  migration 0007), GPU pair pages (`?type=gpu&vs=a,b`, in the sitemap), open data
+  (`/api/v2/open-data/compat`, ODbL), published formulas on the policy page.
+- Speed: independent D1 reads run in parallel (Claude channel 226 → 88 ms at 10 ms per query).
 
 ## Not built on purpose
 - Steam concurrent players, "people viewing now", the Claude usage-limit poll: no data source yet.
@@ -50,11 +71,12 @@ backlog in `docs/n2/BACKLOG.md`, then built and tested (all on `claude/epic-heis
 - Wiki free-text editing: the wiki box stays "sourced fact rows" (COMPETITORS: free-text channel wikis go unused).
 
 ## Next (owner decisions and accounts)
-1. D1 + `PLATFORM=on` on preview (migration plan §2–4), then collectors (§5).
+1. D1 + `PLATFORM=on` on preview (migration plan §2–4, migrations 0003–0008), then collectors (§5).
 2. Which channels open boards first (research: AI, 한글패치, GPU; studio/anime panels only at first).
 3. Naver Search Advisor / Search Console: submit `sitemap.xml` (lists the `sitemap-n2-*` files) and RSS.
 4. GitHub/Discord sign-in (OAuth apps), GeForce driver collector, Korean names for games (Steam koreana
    via the steam-store collector).
+5. KRW next to USD prices needs a sourced exchange rate (which source, how often) — left out on purpose.
 
 ## Known risks
 - Workers Free plan: 10 ms CPU + 100k requests/day for SSR pages → Workers Paid ($5/mo) likely at launch.
