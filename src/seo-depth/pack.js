@@ -1,3 +1,461 @@
-/** Intent content for the pack pages (docs/SEO-CONTENT-MODEL.md). Keys are canonical paths. */
+/** Intent content for the pack pages (docs/SEO-CONTENT-MODEL.md). Keys are canonical paths.
+ * Nerulio behaviour: src/game/pack/*, src/game/export/* (targets.js: which engine may rotate),
+ * src/studio/sprite/atlas-data.js (TexturePacker JSON / Starling XML import), docs/STUDIO-PACK.md,
+ * docs/STUDIO-PACK-H2H.md, docs/H2H-PAID.md, docs/ENGINE-VERIFY.md and
+ * tools/engine-verify/results/pixi-scale-2026-09-24.json. Every atlas number in the examples is the
+ * real output of the exporters on the six CC0 ninja frames in tests/fixtures/game/corpus/ninja
+ * (40 × 29 px each; the same frames as the "ninja" set of the head-to-heads). Engine behaviour: the
+ * official docs and sources cited in each page's `versions.sources`. */
+const S={
+ phaserLoader:'[Phaser docs: LoaderPlugin (atlas, multiatlas, atlasXML)](https://docs.phaser.io/api-documentation/class/loader-loaderplugin)',
+ phaserAnims:'[Phaser docs: AnimationManager (create, fromJSON, generateFrameNames)](https://docs.phaser.io/api-documentation/class/animations-animationmanager)',
+ phaserCore:'[Phaser docs: game config (pixelArt)](https://docs.phaser.io/api-documentation/typedef/types-core)',
+ phaserAnimSrc:'[Phaser 3.90 source: Animation.js](https://github.com/phaserjs/phaser/blob/v3.90.0/src/animations/Animation.js)',
+ phaserXmlSrc:'[Phaser 3.90 source: AtlasXML parser](https://github.com/phaserjs/phaser/blob/v3.90.0/src/textures/parsers/AtlasXML.js)',
+ phaserHashSrc:'[Phaser 3.90 source: JSONHash parser](https://github.com/phaserjs/phaser/blob/v3.90.0/src/textures/parsers/JSONHash.js)',
+ pixiSheet:'[PixiJS API: Spritesheet](https://pixijs.download/release/docs/assets.Spritesheet.html)',
+ pixiAnim:'[PixiJS API: AnimatedSprite](https://pixijs.download/release/docs/scene.AnimatedSprite.html)',
+ pixiSource:'[PixiJS API: TextureSource](https://pixijs.download/release/docs/rendering.TextureSource.html)',
+ loveSrc:'[LÖVE 11.5 source: newQuad, draw, setDefaultFilter](https://github.com/love2d/love/blob/11.5/src/modules/graphics/wrap_Graphics.cpp)',
+ loveWiki:'[LÖVE wiki: love.graphics.newQuad](https://love2d.org/wiki/love.graphics.newQuad)',
+ defoldAtlas:'[Defold manual: Atlas](https://defold.com/manuals/atlas/)',
+ defoldTile:'[Defold manual: Tile source](https://defold.com/manuals/tilesource/)',
+ defoldSprite:'[Defold API: sprite.play_flipbook](https://defold.com/ref/sprite/)',
+ defoldProject:'[Defold manual: Project settings](https://defold.com/manuals/project-settings/)',
+ spineAtlas:'[Spine docs: Texture atlas format](https://esotericsoftware.com/spine-atlas-format)',
+ spinePacker:'[Spine docs: Texture packing](https://esotericsoftware.com/spine-texture-packer)',
+ tpSettings:'[TexturePacker docs: Texture settings](https://www.codeandweb.com/texturepacker/documentation/texture-settings)',
+ tpExporter:'[TexturePacker docs: Custom exporter (sprite values)](https://www.codeandweb.com/texturepacker/documentation/custom-exporter)',
+ tpGodot:'[CodeAndWeb: TexturePacker and Godot](https://www.codeandweb.com/texturepacker/tutorials/how-to-create-sprite-sheets-for-godot)',
+ tpFree:'[CodeAndWeb: free sprite sheet packer](https://www.codeandweb.com/free-sprite-sheet-packer)',
+ ftp:'[free-tex-packer-core (official repository)](https://github.com/odrick/free-tex-packer-core)',
+ aseCli:'[Aseprite docs: command line (sheet options)](https://www.aseprite.org/docs/cli/)',
+ mdnRendering:'[MDN: image-rendering](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)',
+ mdnPosition:'[MDN: background-position](https://developer.mozilla.org/en-US/docs/Web/CSS/background-position)',
+ godotAtlas:'[Godot 4.7 docs: AtlasTexture](https://docs.godotengine.org/en/stable/classes/class_atlastexture.html)',
+ godotFrames:'[Godot 4.7 docs: SpriteFrames](https://docs.godotengine.org/en/stable/classes/class_spriteframes.html)',
+ godotSprite:'[Godot 4.7 docs: AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html)',
+ unitySprite:'[Unity 6 manual: Sprite texture import settings](https://docs.unity3d.com/Manual/texture-type-sprite.html)'
+};
+/** The run_0 entry of the Phaser / Generic JSON export of the ninja frames (page 38 × 50). */
+const RUN0=['"run_0": { "frame": {"x":0,"y":34,"w":18,"h":15},','           "spriteSourceSize": {"x":10,"y":10,"w":18,"h":15},','           "sourceSize": {"w":40,"h":29}, "rotated": false, "trimmed": true }'];
 export default {
+ 'sprite-sheet-maker':{
+  type:'create',
+  intent:{primary:'make a sprite sheet (texture atlas) from separate frame images',secondary:['grid sheet or packed atlas','trim, padding and extrude settings','get the data file the engine reads'],
+   goal:'one PNG page (or a few) plus a data file that names every frame and its rectangle, loadable in the target engine',input:'numbered frame PNGs, a folder, a GIF, an .aseprite file or an existing sheet',output:'atlas PNG page(s) + engine data file (JSON, XML, .atlas, Lua, .tres, .unity.json, CSS …)',target:'17 export targets (Godot 4, Unity 6, Phaser 3/4, PixiJS 8, Spine, LÖVE, Defold, CSS …)',support:'full',
+   evidence:['src/game/pack/layout.js (padding and extrude geometry)','src/game/pack/packer.js (defaults: trim, padding 2, extrude 0)','src/game/export/targets.js (rotation per engine)','docs/STUDIO-PACK.md','docs/STUDIO-PACK-H2H.md (ninja 38×50, opaque area 1,591)'],
+   external:['TexturePacker docs: shape padding, extrude','Aseprite CLI: --sheet-pack, --trim, --merge-duplicates','Spine docs: texture packing']},
+  en:{
+   answer:'A sprite sheet puts many frames on one image so a game loads one texture instead of dozens; a packed atlas also writes a data file that names every frame and gives its rectangle. Drop numbered PNGs, a GIF or an .aseprite file, pick your engine\'s preset, and Nerulio packs the frames in your browser (MaxRects, trim on, 2 px padding by default) and exports the PNG with that engine\'s data file. For a plain grid of equal cells, the classic maker is linked further down.',
+   concept:{title:'Grid sheet or packed atlas',body:[
+    'A grid sheet gives every frame the same cell, so an engine finds frame n by arithmetic: column = n mod columns, row = n ÷ columns, rounded down. It needs no data file, but every cell is as large as the largest frame, transparent border included.',
+    'A packed atlas trims each frame to its visible pixels and fits the pieces wherever they fit. Positions are no longer predictable, so the packer writes a data file: for each frame its name, where the stored pixels are on the page (`frame`), where they sat on the original canvas (`spriteSourceSize`), the original canvas size (`sourceSize`) and whether the piece lies turned by 90° (`rotated`). The engine uses those numbers to draw the frame at full size, so a trimmed frame does not move.',
+    'Two settings protect the edges. Shape padding leaves transparent pixels between frames, and extrude repeats each frame\'s outermost pixels around it, so a texture filter that samples just past an edge reads the same colour instead of a neighbour. Rotation saves a little area, but only some engines turn a rotated frame back; Nerulio\'s presets allow it only for PixiJS and Spine, where the engine runs drew rotated frames correctly.'],
+    terms:[['Page','One atlas image. Frames that do not fit the maximum size go on further pages (multipack, up to 64).'],['Trim','Cutting the transparent border off a frame and recording the offset, so it is drawn at its old place.'],['Shape padding','Transparent pixels between two frames: 2 px by default.'],['Extrude','Copies of a frame\'s edge pixels placed around it: 0 by default, 1 in the LÖVE preset.'],['Alias','Frames with identical visible pixels share one stored region.']]},
+   example:{title:'Example: six 40 × 29 running frames',lead:'The six frames of a CC0 ninja run cycle (40 × 29 px each, mostly transparent), packed by Nerulio with the Phaser preset (trim on, padding 2, no rotation) and compared with other layouts:',lines:[
+    'layout                           page        area        vs strip',
+    'horizontal strip, 6 × 40 px      240 × 29    6,960 px²   100 %',
+    'packed, trim off, padding 2       82 × 91    7,462 px²   107 %',
+    'packed, trim on, padding 2        38 × 50    1,900 px²    27 %',
+    'packed, trim on, rotation         33 × 57    1,881 px²    27 %',
+    '',
+    'visible pixels (6 bounding boxes)             1,591 px²',
+    'share of the trimmed page used     1,591 / 1,900 = 0.84',
+    '',
+    ...RUN0],
+    after:'Only 18 × 15 pixels of run_0 are stored; the engine draws them 10 px right and 10 px down inside a 40 × 29 box, exactly where they were. Trim does the saving here: without it the packed page is slightly larger than a plain strip, because padding is added between frames.'},
+   target:{title:'Load the sheet in your engine',steps:[
+    'Export for the engine you use and keep the PNG and its data file together; the data names its image (`meta.image` in JSON, `imagePath` in XML, the page line in a Spine .atlas).',
+    'Phaser: `this.load.atlas("run", "run.png", "run.json")`, then `this.add.sprite(x, y, "run", "run_0")`; details on [[game/phaser-texture-atlas|the Phaser atlas page]].',
+    'PixiJS 8: `const sheet = await Assets.load("run.json")`, then `sheet.textures["run_0"]` or `sheet.animations["run"]`; see [[game/pixi-spritesheet-json|PixiJS spritesheet JSON]].',
+    'Godot 4 and Unity 6 get a ready resource or an importer script instead of a bare atlas: see [[game/godot-sprite-sheet|sprite sheets in Godot]] and [[game/unity-sprite-sheet|sprite sheets in Unity]].',
+    'LÖVE, Defold, Spine / libGDX and CSS each have their own format: [[game/love2d-quads|LÖVE quads]], [[game/defold-atlas|Defold atlas]], [[game/spine-atlas|Spine atlas]], [[game/css-sprite-generator|CSS sprites]].']},
+   verify:{steps:[
+    'Read the used share in Pack & Export: 0.84 means 84 % of the page is visible frame area. A low figure usually means trim is off or one frame is much larger than the rest.',
+    'Hover the rows of the Packed frames list: each shows canvas → stored size, its page and flags such as trimmed, rotated or "same as" (an alias).',
+    'In the engine, draw one trimmed frame at the same point as its untrimmed neighbour; if it is shifted, the loader ignores `spriteSourceSize` (see troubleshooting).']},
+   trouble:{rows:[
+    ['Frames jump or wobble while the animation plays','Trimmed frames drawn without their offset: the loader or your code uses `frame` but ignores `spriteSourceSize` and `sourceSize`','Draw two frames with different trims at one point; they should line up','Use a loader that reads trim data, or pack with trim off (larger page); more in [[game/sprite-jitter-after-trim|jitter after trimming]]'],
+    ['Thin lines or colour fringes at frame edges when the sprite is scaled or moves by fractions of a pixel','The texture filter reads pixels just outside the frame: a neighbour, or transparent padding','Zoom in on the edge: the line has a neighbour\'s colour, or is see-through','Keep shape padding at 2 or more, add extrude 1, use nearest filtering for pixel art; see [[atlas-padding|atlas padding]]'],
+    ['Some frames appear sideways, mirrored or clipped','Rotation was allowed for an engine or loader that does not turn frames back','Those entries have `"rotated": true`','Pack with rotation off; Nerulio\'s Godot, Unity, Phaser, LÖVE, XML and CSS exports refuse a rotated pack'],
+    ['An error says sprites do not fit the page','One frame plus its padding and extrude is larger than the maximum page size','The message names the frame and its size','Raise the maximum size (up to 16384 px), allow rotation where the engine reads it, or scale that frame down']]},
+   alternatives:{rows:[
+    ['A plain grid sheet (the classic maker below)','Every frame already has the same size and your engine slices by cell, for example GameMaker strips or Godot\'s Add Frames from Sprite Sheet. There is no data file to keep in sync.'],
+    ['Aseprite\'s own sheet export (`--sheet-pack`, `--trim`, `--merge-duplicates` on its command line)','The art lives in Aseprite and its JSON with tags and durations is all you need. It writes no engine bundles such as Godot SpriteFrames.'],
+    ['TexturePacker Pro','You need polygon packing, GPU texture formats or a command line in a build pipeline; measured against Nerulio on [[game/texture-packer-free|the TexturePacker alternative page]].'],
+    ['The engine\'s own packer (Defold atlas, Spine\'s texture packer)','The engine packs separate images at build or export time anyway; then you only need the frame images, for example from [[game/sprite-sheet-to-png-frames|a sheet split into PNG frames]].']]},
+   versions:{body:['The sizes above are the output of Nerulio\'s packer on the six ninja frames of the repository\'s test corpus, the same numbers as the 2026-09-23 head-to-head. Exports were loaded in Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90 and 4.2, PixiJS 8.21, spine-canvas 4.2 and LÖVE 11.5; Defold bob.jar 1.13.1 built the Defold files. The other tools\' option names follow their documentation.'],sources:[S.aseCli,S.tpSettings,S.spinePacker]}
+  },
+  ko:{
+   answer:'스프라이트 시트는 여러 프레임을 이미지 한 장에 모아 게임이 텍스처 수십 장 대신 한 장만 읽게 합니다. 촘촘하게 패킹한 아틀라스는 여기에 프레임마다 이름과 사각 영역을 적은 데이터 파일이 붙습니다. 번호 붙은 PNG, GIF, .aseprite 파일을 넣고 엔진 프리셋을 고르면 Nerulio가 브라우저 안에서 패킹하고(기본값: MaxRects, 트림 켬, 간격 2px) 그 엔진이 읽는 데이터 파일과 함께 PNG를 내보냅니다. 칸 크기가 모두 같은 단순 격자 시트는 아래에 연결된 기존 만들기 도구를 쓰세요.',
+   concept:{title:'격자 시트와 패킹 아틀라스',body:[
+    '격자 시트는 모든 프레임에 같은 크기의 칸을 줍니다. 그래서 엔진은 계산만으로 n번째 프레임을 찾습니다. 열 = n mod 열 수, 행 = n ÷ 열 수(내림). 데이터 파일이 필요 없지만, 칸마다 가장 큰 프레임만큼 자리를 차지하고 투명한 테두리까지 그대로 저장됩니다.',
+    '패킹 아틀라스는 프레임마다 보이는 픽셀만 남기고 잘라 빈자리에 끼워 넣습니다. 위치를 계산으로 알 수 없으니 패커가 데이터 파일을 씁니다. 프레임 이름, 페이지 위 저장 위치(`frame`), 원래 캔버스에서의 위치(`spriteSourceSize`), 원래 캔버스 크기(`sourceSize`), 90도 돌려 저장했는지(`rotated`)입니다. 엔진은 이 숫자로 프레임을 원래 크기 상자 안에 그리므로 트림한 프레임도 제자리에 있습니다.',
+    '가장자리를 지키는 설정이 두 가지 있습니다. 모양 간격은 프레임 사이에 투명 픽셀을 두고, 확장(extrude)은 프레임 바깥쪽 픽셀을 한 겹 더 복사해 둡니다. 텍스처 필터가 가장자리 바로 바깥을 읽어도 이웃 프레임 대신 같은 색을 읽게 됩니다. 회전은 면적을 조금 줄이지만 회전된 프레임을 되돌려 그리는 엔진은 일부뿐이라, Nerulio 프리셋은 엔진 검증에서 올바르게 그려진 PixiJS와 Spine에서만 회전을 허용합니다.'],
+    terms:[['페이지','아틀라스 이미지 한 장. 최대 크기에 다 들어가지 않으면 다음 페이지로 넘어갑니다(최대 64장).'],['트림','프레임의 투명 테두리를 잘라 내고 오프셋을 기록하는 것. 그래서 원래 자리에 그려집니다.'],['모양 간격(shape padding)','프레임 사이의 투명 픽셀. 기본 2px.'],['확장(extrude)','프레임 가장자리 픽셀을 바깥에 복사한 띠. 기본 0, LÖVE 프리셋은 1.'],['별칭(alias)','보이는 픽셀이 똑같은 프레임은 저장 영역 하나를 함께 씁니다.']]},
+   example:{title:'예시: 40 × 29 달리기 프레임 6장',lead:'CC0 닌자 달리기 동작 6프레임(각 40 × 29px, 대부분 투명)을 Nerulio의 Phaser 프리셋(트림 켬, 간격 2, 회전 없음)으로 패킹한 결과를 다른 배치와 비교했습니다.',lines:[
+    '배치                             페이지      면적        가로 띠 대비',
+    '가로 띠, 6 × 40px                240 × 29    6,960 px²   100 %',
+    '패킹, 트림 끔, 간격 2             82 × 91    7,462 px²   107 %',
+    '패킹, 트림 켬, 간격 2             38 × 50    1,900 px²    27 %',
+    '패킹, 트림 켬, 회전 허용          33 × 57    1,881 px²    27 %',
+    '',
+    '보이는 픽셀(바운딩 박스 6개 합)              1,591 px²',
+    '트림 페이지의 사용 비율          1,591 / 1,900 = 0.84',
+    '',
+    ...RUN0],
+    after:'run_0은 18 × 15픽셀만 저장됩니다. 엔진은 이 조각을 40 × 29 상자 안에서 오른쪽으로 10px, 아래로 10px 옮겨 원래 자리에 그립니다. 절약은 트림 덕분입니다. 트림 없이 패킹하면 프레임 사이 간격 때문에 오히려 가로 띠보다 조금 커집니다.'},
+   target:{title:'엔진에서 시트 불러오기',steps:[
+    '쓰는 엔진용으로 내보내고 PNG와 데이터 파일을 함께 둡니다. 데이터 파일이 이미지 이름을 적고 있습니다(JSON의 `meta.image`, XML의 `imagePath`, Spine .atlas의 페이지 줄).',
+    'Phaser: `this.load.atlas("run", "run.png", "run.json")` 후 `this.add.sprite(x, y, "run", "run_0")`. 자세한 내용은 [[game/phaser-texture-atlas|Phaser 아틀라스 페이지]].',
+    'PixiJS 8: `const sheet = await Assets.load("run.json")` 후 `sheet.textures["run_0"]`이나 `sheet.animations["run"]`. [[game/pixi-spritesheet-json|PixiJS 스프라이트시트 JSON]] 참고.',
+    'Godot 4와 Unity 6은 아틀라스 대신 바로 쓰는 리소스나 가져오기 스크립트를 받습니다. [[game/godot-sprite-sheet|Godot에서 스프라이트 시트]], [[game/unity-sprite-sheet|Unity에서 스프라이트 시트]] 참고.',
+    'LÖVE, Defold, Spine / libGDX, CSS는 각자 형식이 있습니다. [[game/love2d-quads|LÖVE 쿼드]], [[game/defold-atlas|Defold 아틀라스]], [[game/spine-atlas|Spine 아틀라스]], [[game/css-sprite-generator|CSS 스프라이트]].']},
+   verify:{steps:[
+    '패킹·내보내기의 사용 비율을 봅니다. 0.84는 페이지의 84%가 보이는 프레임 면적이라는 뜻입니다. 낮으면 대개 트림이 꺼져 있거나 프레임 하나가 유난히 큽니다.',
+    '패킹된 프레임 목록의 줄에 마우스를 올리면 캔버스 → 저장 크기, 페이지, 트림·회전·"같은 프레임"(별칭) 표시가 보입니다.',
+    '엔진에서 트림된 프레임 하나를 트림 안 된 이웃 프레임과 같은 점에 그려 봅니다. 어긋나면 로더가 `spriteSourceSize`를 무시하는 것입니다(문제 해결 참고).']},
+   trouble:{rows:[
+    ['애니메이션 재생 중 프레임이 튀거나 흔들림','트림된 프레임을 오프셋 없이 그림. 로더나 코드가 `frame`만 쓰고 `spriteSourceSize`·`sourceSize`는 무시함','트림이 서로 다른 두 프레임을 같은 점에 그려 봄. 맞아야 정상','트림 정보를 읽는 로더를 쓰거나 트림을 끄고 패킹(페이지가 커짐). [[game/sprite-jitter-after-trim|트림 후 흔들림]] 참고'],
+    ['확대하거나 소수 픽셀만큼 움직일 때 프레임 가장자리에 가는 선이나 색 번짐','텍스처 필터가 프레임 바로 바깥 픽셀(이웃 프레임이나 투명 간격)을 읽음','가장자리를 확대해 선이 이웃의 색인지, 비쳐 보이는지 확인','모양 간격 2 이상 유지, 확장 1 추가, 도트 그림은 최근접 필터. [[atlas-padding|아틀라스 간격]] 참고'],
+    ['일부 프레임이 옆으로 눕거나 뒤집히거나 잘림','회전된 프레임을 되돌리지 않는 엔진·로더인데 회전을 허용함','해당 항목에 `"rotated": true`가 있음','회전을 끄고 패킹. Nerulio의 Godot·Unity·Phaser·LÖVE·XML·CSS 내보내기는 회전된 패킹을 거부함'],
+    ['스프라이트가 페이지에 들어가지 않는다는 오류','간격과 확장을 더한 프레임 하나가 최대 페이지보다 큼','메시지에 프레임 이름과 크기가 나옴','최대 크기를 올리거나(최대 16384px), 엔진이 읽을 수 있으면 회전 허용, 또는 그 프레임을 축소']]},
+   alternatives:{rows:[
+    ['단순 격자 시트(아래의 기존 만들기 도구)','모든 프레임 크기가 같고 엔진이 칸 단위로 자를 때. 예: GameMaker 스트립, Godot의 Add Frames from Sprite Sheet. 맞춰 둘 데이터 파일이 없습니다.'],
+    ['Aseprite 자체 시트 내보내기(명령줄의 `--sheet-pack`, `--trim`, `--merge-duplicates`)','그림을 Aseprite에서 관리하고 태그와 길이가 담긴 JSON만 있으면 될 때. Godot SpriteFrames 같은 엔진 번들은 만들지 않습니다.'],
+    ['TexturePacker Pro','폴리곤 패킹, GPU 텍스처 형식, 빌드 파이프라인용 명령줄이 필요할 때. Nerulio와의 측정 비교는 [[game/texture-packer-free|TexturePacker 대안 페이지]].'],
+    ['엔진 자체 패커(Defold 아틀라스, Spine 텍스처 패커)','엔진이 빌드·내보내기 때 개별 이미지를 어차피 패킹할 때. 프레임 이미지만 있으면 됩니다. [[game/sprite-sheet-to-png-frames|시트를 PNG 프레임으로 나누기]] 참고.']]},
+   versions:{body:['위 크기는 저장소 테스트 코퍼스의 닌자 프레임 6장에 Nerulio 패커를 돌린 실제 결과이며, 2026-09-23 비교 측정의 수치와 같습니다. 내보낸 파일은 Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90·4.2, PixiJS 8.21, spine-canvas 4.2, LÖVE 11.5에서 불러왔고, Defold 파일은 bob.jar 1.13.1로 빌드했습니다. 다른 도구의 옵션 이름은 각 공식 문서를 따릅니다.'],sources:[S.aseCli,S.tpSettings,S.spinePacker]}
+  },
+  ja:{
+   answer:'スプライトシートは多数のフレームを1枚の画像にまとめ、ゲームがテクスチャを何十枚も読まずに済むようにします。詰めてパックしたアトラスには、フレームごとの名前と矩形を書いたデータファイルが付きます。連番PNG、GIF、.asepriteファイルを入れてエンジンのプリセットを選ぶと、Nerulioがブラウザ内でパックし（既定：MaxRects、トリムあり、間隔2px）、そのエンジンが読むデータファイルと一緒にPNGを書き出します。セルがすべて同じ大きさの単純なグリッドシートは、下にリンクした従来の作成ツールを使ってください。',
+   concept:{title:'グリッドシートとパック済みアトラス',body:[
+    'グリッドシートは全フレームに同じ大きさのセルを割り当てます。そのためエンジンは計算だけでn番目のフレームを見つけられます。列 = n mod 列数、行 = n ÷ 列数（切り捨て）。データファイルは不要ですが、どのセルも一番大きなフレームの大きさになり、透明な余白もそのまま保存されます。',
+    'パック済みアトラスは各フレームを見えるピクセルだけに切り詰め、空いた場所に詰め込みます。位置を計算では求められないので、パッカーがデータファイルを書きます。フレーム名、ページ上の保存位置（`frame`）、元のキャンバス上の位置（`spriteSourceSize`）、元のキャンバスの大きさ（`sourceSize`）、90度回して保存したか（`rotated`）です。エンジンはこの数値で元の大きさの枠内に描くので、トリムしたフレームも位置がずれません。',
+    '縁を守る設定が2つあります。シェイプ間隔はフレームの間に透明ピクセルを空け、押し出し（extrude）はフレームの最も外側のピクセルを周りに複製します。テクスチャフィルターが縁のすぐ外を読んでも、隣のフレームではなく同じ色を読むようになります。回転は面積を少し減らしますが、回転したフレームを戻して描けるエンジンは一部だけです。Nerulioのプリセットは、エンジン検証で正しく描かれたPixiJSとSpineでのみ回転を許可します。'],
+    terms:[['ページ','アトラス画像1枚。最大サイズに収まらないフレームは次のページへ（最大64枚）。'],['トリム','フレームの透明な余白を切り取り、オフセットを記録すること。元の位置に描かれます。'],['シェイプ間隔（shape padding）','フレーム間の透明ピクセル。既定は2px。'],['押し出し（extrude）','フレームの縁のピクセルを外側に複製した帯。既定は0、LÖVEプリセットは1。'],['エイリアス','見えるピクセルが同一のフレームは、保存領域を1つ共有します。']]},
+   example:{title:'例：40 × 29の走りフレーム6枚',lead:'CC0の忍者の走りモーション6フレーム（各40 × 29px、大半が透明）を、NerulioのPhaserプリセット（トリムあり、間隔2、回転なし）でパックし、ほかの並べ方と比べました。',lines:[
+    '並べ方                           ページ      面積        横一列比',
+    '横一列、6 × 40px                 240 × 29    6,960 px²   100 %',
+    'パック、トリムなし、間隔2          82 × 91    7,462 px²   107 %',
+    'パック、トリムあり、間隔2          38 × 50    1,900 px²    27 %',
+    'パック、トリムあり、回転あり       33 × 57    1,881 px²    27 %',
+    '',
+    '見えるピクセル（バウンディングボックス6個の合計） 1,591 px²',
+    'トリム版ページの使用率           1,591 / 1,900 = 0.84',
+    '',
+    ...RUN0],
+    after:'run_0は18 × 15ピクセルだけが保存されます。エンジンはこの断片を40 × 29の枠の中で右へ10px、下へ10pxずらし、元の位置に描きます。節約できたのはトリムのおかげです。トリムなしでパックすると、フレーム間の間隔のぶん横一列より少し大きくなります。'},
+   target:{title:'エンジンでシートを読み込む',steps:[
+    '使うエンジン向けに書き出し、PNGとデータファイルは一緒に置きます。データ側が画像名を持っています（JSONの`meta.image`、XMLの`imagePath`、Spine .atlasのページ行）。',
+    'Phaser：`this.load.atlas("run", "run.png", "run.json")`のあと`this.add.sprite(x, y, "run", "run_0")`。詳しくは[[game/phaser-texture-atlas|Phaserアトラスのページ]]。',
+    'PixiJS 8：`const sheet = await Assets.load("run.json")`のあと`sheet.textures["run_0"]`または`sheet.animations["run"]`。[[game/pixi-spritesheet-json|PixiJSのスプライトシートJSON]]を参照。',
+    'Godot 4とUnity 6には、アトラスの代わりにそのまま使えるリソースやインポートスクリプトが入ります。[[game/godot-sprite-sheet|Godotでスプライトシート]]、[[game/unity-sprite-sheet|Unityでスプライトシート]]を参照。',
+    'LÖVE、Defold、Spine / libGDX、CSSはそれぞれ独自の形式です。[[game/love2d-quads|LÖVEのQuad]]、[[game/defold-atlas|Defoldアトラス]]、[[game/spine-atlas|Spineアトラス]]、[[game/css-sprite-generator|CSSスプライト]]。']},
+   verify:{steps:[
+    'パック＆書き出しの使用率を見ます。0.84はページの84%が見えるフレーム面積という意味です。低いときは、たいていトリムがオフか、1枚だけ極端に大きなフレームがあります。',
+    'パック済みフレーム一覧の行にカーソルを合わせると、キャンバス → 保存サイズ、ページ、トリム・回転・「同じフレーム」（エイリアス）の印が出ます。',
+    'エンジンで、トリムしたフレームをトリムしていない隣のフレームと同じ点に描きます。ずれるならローダーが`spriteSourceSize`を無視しています（トラブルシューティング参照）。']},
+   trouble:{rows:[
+    ['アニメーション再生中にフレームが跳ねる・揺れる','トリムしたフレームをオフセットなしで描いている。ローダーやコードが`frame`だけを使い`spriteSourceSize`・`sourceSize`を無視','トリム量の違う2フレームを同じ点に描く。そろえば正常','トリム情報を読むローダーを使うか、トリムなしでパック（ページは大きくなる）。[[game/sprite-jitter-after-trim|トリム後の揺れ]]を参照'],
+    ['拡大時や小数ピクセルの移動時に、フレームの縁に細い線や色のにじみ','テクスチャフィルターがフレームのすぐ外（隣のフレームか透明な間隔）を読んでいる','縁を拡大し、線が隣の色か、透けているかを見る','シェイプ間隔を2以上に保ち、押し出し1を追加、ドット絵は最近傍フィルター。[[atlas-padding|アトラスの間隔]]を参照'],
+    ['一部のフレームが横倒し・反転・欠ける','回転したフレームを戻さないエンジンやローダーなのに回転を許可した','その項目に`"rotated": true`がある','回転なしでパック。NerulioのGodot・Unity・Phaser・LÖVE・XML・CSS書き出しは回転したパックを拒否する'],
+    ['スプライトがページに収まらないというエラー','間隔と押し出しを足したフレーム1枚が最大ページより大きい','メッセージにフレーム名とサイズが出る','最大サイズを上げる（最大16384px）、エンジンが読めるなら回転を許可、またはそのフレームを縮小']]},
+   alternatives:{rows:[
+    ['単純なグリッドシート（下の従来の作成ツール）','全フレームが同じ大きさで、エンジンがセル単位で切り出すとき。例：GameMakerのストリップ、GodotのAdd Frames from Sprite Sheet。同期させるデータファイルがありません。'],
+    ['Aseprite自体のシート書き出し（コマンドラインの`--sheet-pack`、`--trim`、`--merge-duplicates`）','絵をAsepriteで管理し、タグと長さ入りのJSONだけあればよいとき。Godot SpriteFramesのようなエンジン用バンドルは作りません。'],
+    ['TexturePacker Pro','ポリゴンパッキング、GPUテクスチャ形式、ビルドパイプライン用のコマンドラインが必要なとき。Nerulioとの計測比較は[[game/texture-packer-free|TexturePacker代替のページ]]。'],
+    ['エンジン自身のパッカー（Defoldアトラス、Spineのテクスチャパッカー）','エンジンがビルドや書き出しの時に個別画像をどのみちパックするとき。フレーム画像だけあれば足ります。[[game/sprite-sheet-to-png-frames|シートをPNGフレームに分割]]を参照。']]},
+   versions:{body:['上のサイズは、リポジトリのテスト用コーパスにある忍者6フレームをNerulioのパッカーで処理した実際の出力で、2026-09-23の比較計測と同じ数値です。書き出したファイルはGodot 4.7.2、Unity 6000.5.3f1、Phaser 3.90と4.2、PixiJS 8.21、spine-canvas 4.2、LÖVE 11.5で読み込み、DefoldのファイルはDefoldのbob.jar 1.13.1でビルドしました。ほかのツールのオプション名は各公式ドキュメントに従います。'],sources:[S.aseCli,S.tpSettings,S.spinePacker]}
+  }
+ },
+ 'game/texture-packer-free':{
+  type:'compare',
+  intent:{primary:'a free alternative to TexturePacker for packing sprite sheets',secondary:['which TexturePacker settings have an equivalent','where TexturePacker Pro is still ahead','measured sheet sizes against TexturePacker Pro'],
+   goal:'decide whether the free browser packer covers the TexturePacker features the visitor actually uses',input:'frame images, a GIF or an .aseprite file',output:'packed PNG page(s) + engine data files',target:'Godot, Unity, Phaser, PixiJS, Spine, LÖVE, Defold, CSS (17 targets)',support:'partial',
+   evidence:['docs/H2H-PAID.md §1 (TexturePacker 8.3.0 Pro trial vs Studio, 2026-09-25)','docs/STUDIO-PACK-H2H.md (free packers)','src/game/pack/layout.js, sprites.js (settings and ranges)','src/game/export/targets.js'],
+   external:['TexturePacker docs: texture settings (trim modes, extrude, padding, rotation, identical sprites, multipack)','CodeAndWeb: TexturePacker Godot importer']},
+  en:{
+   answer:'Nerulio\'s Pack & Export is a free, browser-based packer that covers TexturePacker\'s rectangle packing: MaxRects, trim modes, rotation, merging identical sprites, extrude, border and shape padding, multipack and scale variants. Against TexturePacker Pro 8.3.0 on five real frame sets, with rotation allowed, it made smaller sheets on four and a 2.1 % larger one on the fifth; both tools restored every frame exactly. TexturePacker Pro stays ahead on polygon packing, GPU texture formats, its 68 data formats and a command line for build pipelines.',
+   concept:{title:'What a TexturePacker alternative has to cover',body:[
+    'TexturePacker\'s settings come down to a few decisions: how to cut each sprite (trim mode), how to space them (border padding, shape padding, extrude), whether to rotate, whether identical sprites are stored once, how large a page may be, and which data format to write. Nerulio has an equivalent for each of these rectangle settings; the table below maps the names.',
+    'The two differ outside rectangle packing. TexturePacker can trace a polygon around each sprite and pack the polygons, writes compressed GPU formats and reduced pixel formats, and has a command line and `.tps` project files for build scripts. Nerulio writes PNG only and has no command line; in exchange it carries animations (tags, per-frame durations, pivots, hit boxes) into engine bundles that were loaded in the engines themselves.',
+    'Sheet size depends on the page shape you accept. TexturePacker\'s Best mode keeps the smallest area even when the page becomes a long strip (3551 × 102 on one set); Nerulio scores squarer pages higher. That is why the measurement also compares both tools with square pages forced.']},
+   mapping:{title:'TexturePacker settings and their Nerulio equivalents',head:['TexturePacker','Nerulio Pack & Export','Note'],rows:[
+    ['Trim mode None / Trim / Crop, keep position / Crop, flush position','none / trim / crop-keep / crop, plus an alpha threshold','Same four ideas; crop-keep moves the pivot so the art stays in place'],
+    ['Trim mode Polygon, algorithm Polygon','—','Not available: rectangles only'],
+    ['Algorithm MaxRects','MaxRects with BSSF, BLSF, BAF, BL and CP, plus Skyline and Guillotine; "try all" keeps the smallest page','Effort fast / normal / best instead of pack modes'],
+    ['Extrude, Border padding, Shape padding','extrude 0–32, border padding 0–64, shape padding 0–64 (default 2)','Same meaning, in pixels'],
+    ['Allow rotation','Allow rotation, set by each engine preset and enforced at export','Refused for Godot, Unity, Phaser, LÖVE, XML and CSS'],
+    ['Detect identical sprites','Alias (hash + byte check), on by default','Both stored the 18 ninja frames of the duplicate test as 6'],
+    ['Multipack, max size, size constraints POT, force squared','Multipack up to 64 pages, 8–16384 px, POT, square, fixed, multiple-of','—'],
+    ['Scale variants','@0.5x, @1x, @2x, @3x, @4x','Nearest-neighbour only; no smooth filters, no Scale2x/Hq2x'],
+    ['Texture format and pixel format (PVR, ETC, ASTC, DXT, Basis, WebP, RGBA4444 …)','PNG only, indexed when a page has 256 colours or fewer','Convert afterwards if a platform needs GPU formats']]},
+   example:{title:'Measured: TexturePacker Pro 8.3.0 and Nerulio, same settings',lead:'Trim on, shape padding 2, max 4096, identical sprites merged, best effort on both sides. Δ is Nerulio\'s sheet area relative to TexturePacker\'s; negative means Nerulio\'s sheet is smaller (docs/H2H-PAID.md, 2026-09-25).',lines:[
+    'set (frames)          rotation allowed   rotation off                    square pages',
+    'ninja (6)             −17.7 %            −16.9 %                         −20.6 %',
+    'archer (10)            −3.6 %             +0.8 %  (TP: 3034 × 538 strip)   −2.6 %',
+    'samurai (60)           −5.8 %             −8.7 %                         −10.0 %',
+    'toon (45)              −2.0 %             +3.0 %  (TP: 3551 × 102 strip)   −3.6 %',
+    'spaceshooter (294)     +2.1 % (TP: 3575 × 256)  +1.2 %                    +0.8 %',
+    '',
+    'power-of-two pages     identical sizes on all five sets',
+    'frames restored exact  415 / 415 for both tools in every configuration',
+    'polygon mode (TP only) spaceshooter 892,581 px² = 4.5 % below Nerulio\'s best;',
+    '                       the four character sets 15–27 % larger than TP\'s own rectangles'],
+    after:'So neither tool wins every row. TexturePacker is ahead on the spaceshooter pack (294 sprites in 96 sizes) and on two sets when rotation is off and long strips are acceptable; Nerulio is ahead on the character sets and with square pages.'},
+   alternatives:{rows:[
+    ['TexturePacker Pro','Mobile or console builds that need PVRTC, ETC2, ASTC or Basis textures; sprite packs with angular shapes, where polygon packing saved 4.5 % on the spaceshooter set; build pipelines driven by its command line and `.tps` files; engines Nerulio has no target for, such as cocos2d, SpriteKit, Unreal Paper2D or MonoGame.'],
+    ['TexturePacker\'s own Godot importer plugin','You already publish from TexturePacker and want Godot to reimport on every change. According to CodeAndWeb it creates one AtlasTexture per sprite and an AnimationLibrary running at 10 fps, not SpriteFrames; compared on [[game/texturepacker-to-godot|TexturePacker to Godot]].'],
+    ['Nerulio Pack & Export','Free and nothing to install; animations with per-frame durations, pivots and boxes must reach Godot, Unity, Phaser, PixiJS, LÖVE or Spine; you want to see which engine run backs each export before you click.'],
+    ['Free web packers and free-tex-packer','Measured on [[game/sprite-sheet-packers-compared|the free packer comparison]]; free-tex-packer\'s npm core runs in a build script, which Nerulio cannot.']]},
+   limits:{title:'What Nerulio lacks compared with TexturePacker Pro',items:[
+    'No polygon packing, rectangles only: TexturePacker\'s polygon mode was 4.5 % smaller on the spaceshooter set and 15–27 % larger on the four character sets than its own rectangles.',
+    'PNG pages only: no PVRTC, ETC1/2, ASTC, DXT, Basis, KTX, WebP or JPG, and no reduced pixel formats such as RGBA4444 or RGB565 with dithering.',
+    '17 export targets against TexturePacker\'s 68 data formats; no cocos2d, SpriteKit, Unreal Paper2D, MonoGame or Solar2D output.',
+    'No command line, smart folders or project file for automated builds; packing runs in the browser.',
+    'Scale variants use nearest-neighbour only, which suits pixel art but not smooth art that needs filtered downscaling.',
+    'Pack speed was not compared fairly: the browser worker was not timed on the same five sets.']},
+   versions:{body:['Measured on 2026-09-25 with TexturePacker 8.3.0 (Pro trial, command line) and the same modules the Studio runs. Every frame was restored from each tool\'s JSON and compared pixel by pixel; engine checks ran in Phaser 3.90.0 and 4.2.1, PixiJS 8.21.0, spine-canvas 4.2.120 and Godot 4.7.2. TexturePacker\'s setting names are taken from its documentation.'],sources:[S.tpSettings,S.tpExporter,S.tpGodot]}
+  },
+  ko:{
+   answer:'Nerulio의 패킹·내보내기는 브라우저에서 쓰는 무료 패커로, TexturePacker의 사각형 패킹 기능을 갖추고 있습니다. MaxRects, 트림 방식, 회전, 같은 스프라이트 합치기, 확장, 테두리·모양 간격, 여러 페이지, 배율 변형입니다. 실제 프레임 세트 5개로 TexturePacker Pro 8.3.0과 비교했을 때 회전을 허용하면 4개 세트에서 시트가 더 작았고 나머지 하나에서는 2.1% 컸으며, 두 도구 모두 모든 프레임을 정확히 복원했습니다. 폴리곤 패킹, GPU 텍스처 형식, 68개 데이터 형식, 빌드 파이프라인용 명령줄은 TexturePacker Pro가 앞섭니다.',
+   concept:{title:'TexturePacker 대안이 갖춰야 할 것',body:[
+    'TexturePacker의 설정은 몇 가지 결정으로 정리됩니다. 스프라이트를 어떻게 자를지(트림 방식), 얼마나 띄울지(테두리 간격, 모양 간격, 확장), 회전할지, 같은 스프라이트를 한 번만 저장할지, 페이지를 얼마나 크게 둘지, 어떤 데이터 형식으로 쓸지입니다. 이 사각형 설정마다 Nerulio에 대응 기능이 있으며 아래 표에 이름을 짝지어 두었습니다.',
+    '차이는 사각형 패킹 바깥에 있습니다. TexturePacker는 스프라이트 윤곽을 다각형으로 따서 패킹할 수 있고, 압축 GPU 형식과 줄인 픽셀 형식을 쓰며, 빌드 스크립트용 명령줄과 `.tps` 프로젝트 파일이 있습니다. Nerulio는 PNG만 쓰고 명령줄이 없습니다. 대신 애니메이션(태그, 프레임별 길이, 피벗, 히트박스)을 엔진 번들에 담으며, 그 번들은 실제 엔진에서 불러와 확인했습니다.',
+    '시트 크기는 어떤 페이지 모양을 받아들이느냐에 달려 있습니다. TexturePacker의 Best 모드는 페이지가 길쭉한 띠가 되어도 면적이 가장 작은 쪽을 고릅니다(한 세트에서 3551 × 102). Nerulio는 정사각형에 가까운 페이지에 점수를 더 줍니다. 그래서 측정에서는 두 도구 모두 정사각형 페이지를 강제한 경우도 비교했습니다.']},
+   mapping:{title:'TexturePacker 설정과 Nerulio의 대응 기능',head:['TexturePacker','Nerulio 패킹·내보내기','메모'],rows:[
+    ['Trim mode None / Trim / Crop, keep position / Crop, flush position','none / trim / crop-keep / crop, 알파 임계값 추가','같은 네 가지 개념. crop-keep은 그림이 제자리에 있도록 피벗을 옮김'],
+    ['Trim mode Polygon, 알고리즘 Polygon','—','없음: 사각형만'],
+    ['알고리즘 MaxRects','MaxRects의 BSSF·BLSF·BAF·BL·CP와 Skyline·Guillotine. "모두 시도"는 가장 작은 페이지를 선택','팩 모드 대신 노력 단계 fast / normal / best'],
+    ['Extrude, Border padding, Shape padding','확장 0–32, 테두리 간격 0–64, 모양 간격 0–64(기본 2)','뜻은 같음, 단위 픽셀'],
+    ['Allow rotation','회전 허용. 엔진 프리셋이 정하고 내보낼 때 강제','Godot·Unity·Phaser·LÖVE·XML·CSS에서는 거부'],
+    ['Detect identical sprites','별칭(해시 + 바이트 비교), 기본 켬','중복 테스트의 닌자 18프레임을 두 도구 모두 6개로 저장'],
+    ['Multipack, 최대 크기, POT 제약, 정사각형 강제','최대 64페이지, 8–16384px, POT·정사각형·고정·배수','—'],
+    ['배율 변형','@0.5x, @1x, @2x, @3x, @4x','최근접 이웃만. 부드러운 필터와 Scale2x/Hq2x 없음'],
+    ['텍스처·픽셀 형식(PVR, ETC, ASTC, DXT, Basis, WebP, RGBA4444 …)','PNG만. 색이 256개 이하인 페이지는 인덱스 PNG','GPU 형식이 필요하면 나중에 변환']]},
+   example:{title:'측정: 같은 설정의 TexturePacker Pro 8.3.0과 Nerulio',lead:'트림 켬, 모양 간격 2, 최대 4096, 같은 스프라이트 합침, 양쪽 모두 최고 노력. Δ는 TexturePacker 대비 Nerulio 시트 면적이며, 음수면 Nerulio 쪽이 작습니다(docs/H2H-PAID.md, 2026-09-25).',lines:[
+    '세트(프레임 수)       회전 허용          회전 끔                         정사각형 페이지',
+    'ninja (6)             −17.7 %            −16.9 %                         −20.6 %',
+    'archer (10)            −3.6 %             +0.8 %  (TP: 3034 × 538 띠)      −2.6 %',
+    'samurai (60)           −5.8 %             −8.7 %                         −10.0 %',
+    'toon (45)              −2.0 %             +3.0 %  (TP: 3551 × 102 띠)      −3.6 %',
+    'spaceshooter (294)     +2.1 % (TP: 3575 × 256)  +1.2 %                    +0.8 %',
+    '',
+    '2의 거듭제곱 페이지    다섯 세트 모두 같은 크기',
+    '정확히 복원된 프레임   모든 설정에서 두 도구 모두 415 / 415',
+    '폴리곤 모드(TP만)      spaceshooter 892,581 px² = Nerulio 최선보다 4.5% 작음,',
+    '                       캐릭터 세트 4개는 TP 자체 사각형보다 15–27% 큼'],
+    after:'어느 도구도 모든 줄에서 이기지는 않습니다. 스프라이트 294개·크기 96종인 spaceshooter 세트와, 회전을 끄고 긴 띠 페이지를 허용한 두 세트에서는 TexturePacker가 앞서고, 캐릭터 세트와 정사각형 페이지에서는 Nerulio가 앞섭니다.'},
+   alternatives:{rows:[
+    ['TexturePacker Pro','PVRTC·ETC2·ASTC·Basis 텍스처가 필요한 모바일·콘솔 빌드, 폴리곤 패킹이 spaceshooter 세트에서 4.5% 줄인 것처럼 각진 모양의 스프라이트 팩, 명령줄과 `.tps` 파일로 돌리는 빌드 파이프라인, Nerulio에 대상이 없는 엔진(cocos2d, SpriteKit, Unreal Paper2D, MonoGame 등).'],
+    ['TexturePacker의 Godot 가져오기 플러그인','이미 TexturePacker에서 퍼블리시하고 있고 바뀔 때마다 Godot가 다시 가져오길 원할 때. CodeAndWeb 설명에 따르면 스프라이트마다 AtlasTexture를, 10fps로 도는 AnimationLibrary를 만들며 SpriteFrames는 만들지 않습니다. [[game/texturepacker-to-godot|TexturePacker를 Godot로]]에서 비교.'],
+    ['Nerulio 패킹·내보내기','무료이고 설치가 없음. 프레임별 길이·피벗·박스가 있는 애니메이션을 Godot, Unity, Phaser, PixiJS, LÖVE, Spine으로 넘겨야 할 때. 내보내기마다 어떤 엔진 실행으로 확인했는지 누르기 전에 보고 싶을 때.'],
+    ['무료 웹 패커와 free-tex-packer','[[game/sprite-sheet-packers-compared|무료 패커 비교]]에서 측정. free-tex-packer의 npm 코어는 빌드 스크립트 안에서 돌릴 수 있지만 Nerulio는 그렇지 못합니다.']]},
+   limits:{title:'TexturePacker Pro와 비교해 Nerulio에 없는 것',items:[
+    '폴리곤 패킹이 없고 사각형만 됩니다. TexturePacker 폴리곤 모드는 자체 사각형 패킹보다 spaceshooter 세트에서 4.5% 작았고 캐릭터 세트 4개에서는 15–27% 컸습니다.',
+    'PNG 페이지만 씁니다. PVRTC, ETC1/2, ASTC, DXT, Basis, KTX, WebP, JPG가 없고, 디더링을 곁들인 RGBA4444·RGB565 같은 줄인 픽셀 형식도 없습니다.',
+    '내보내기 대상 17개 대 TexturePacker 데이터 형식 68개. cocos2d, SpriteKit, Unreal Paper2D, MonoGame, Solar2D 출력이 없습니다.',
+    '자동 빌드용 명령줄, 스마트 폴더, 프로젝트 파일이 없습니다. 패킹은 브라우저에서 합니다.',
+    '배율 변형은 최근접 이웃 방식뿐입니다. 도트 그림에는 맞지만 필터링된 축소가 필요한 부드러운 그림에는 맞지 않습니다.',
+    '패킹 속도는 공정하게 비교하지 못했습니다. 브라우저 워커 시간을 같은 다섯 세트로 재지 않았습니다.']},
+   versions:{body:['2026-09-25에 TexturePacker 8.3.0(Pro 체험판, 명령줄)과 Studio가 쓰는 것과 같은 모듈로 측정했습니다. 각 도구의 JSON으로 모든 프레임을 복원해 픽셀 단위로 비교했고, 엔진 확인은 Phaser 3.90.0·4.2.1, PixiJS 8.21.0, spine-canvas 4.2.120, Godot 4.7.2에서 했습니다. TexturePacker 설정 이름은 공식 문서를 따릅니다.'],sources:[S.tpSettings,S.tpExporter,S.tpGodot]}
+  },
+  ja:{
+   answer:'Nerulioのパック＆書き出しは、ブラウザで使える無料のパッカーで、TexturePackerの矩形パッキングの機能を備えています。MaxRects、トリムの方式、回転、同一スプライトの統合、押し出し、外周・シェイプ間隔、マルチパック、倍率違いです。実在の5つのフレームセットでTexturePacker Pro 8.3.0と比べたところ、回転を許可すると4セットでシートが小さく、残る1セットでは2.1%大きくなりました。どちらのツールも全フレームを正確に復元しています。ポリゴンパッキング、GPUテクスチャ形式、68のデータ形式、ビルドパイプライン向けのコマンドラインはTexturePacker Proが上です。',
+   concept:{title:'TexturePackerの代わりに求められること',body:[
+    'TexturePackerの設定は、いくつかの判断にまとめられます。スプライトをどう切り詰めるか（トリム方式）、どれだけ離すか（外周間隔、シェイプ間隔、押し出し）、回転するか、同一スプライトを1回だけ保存するか、ページをどこまで大きくするか、どのデータ形式で書くかです。これらの矩形の設定にはそれぞれNerulio側の対応機能があり、下の表で名前を対応させています。',
+    '違いは矩形パッキングの外にあります。TexturePackerはスプライトの輪郭を多角形でなぞってパックでき、圧縮GPU形式や減色したピクセル形式を書き出し、ビルドスクリプト向けのコマンドラインと`.tps`プロジェクトファイルを持っています。NerulioはPNGだけでコマンドラインもありません。その代わり、アニメーション（タグ、フレームごとの長さ、ピボット、ヒットボックス）をエンジン用バンドルに載せ、そのバンドルは実際のエンジンで読み込んで確認しています。',
+    'シートの大きさは、どんなページの形を許すかで変わります。TexturePackerのBestモードは、ページが細長い帯になっても面積が最小のものを選びます（あるセットで3551 × 102）。Nerulioは正方形に近いページを高く評価します。そのため計測では、両方に正方形ページを強制した場合も比べています。']},
+   mapping:{title:'TexturePackerの設定とNerulioの対応機能',head:['TexturePacker','Nerulio パック＆書き出し','メモ'],rows:[
+    ['Trim mode None / Trim / Crop, keep position / Crop, flush position','none / trim / crop-keep / crop、アルファしきい値つき','同じ4つの考え方。crop-keepは絵が元の位置に残るようピボットを動かす'],
+    ['Trim mode Polygon、アルゴリズムPolygon','—','なし：矩形のみ'],
+    ['アルゴリズムMaxRects','MaxRectsのBSSF・BLSF・BAF・BL・CPとSkyline・Guillotine。「すべて試す」で最小のページを採用','パックモードの代わりに労力 fast / normal / best'],
+    ['Extrude、Border padding、Shape padding','押し出し0–32、外周間隔0–64、シェイプ間隔0–64（既定2）','意味は同じ、単位はピクセル'],
+    ['Allow rotation','回転を許可。エンジンのプリセットが決め、書き出し時に強制','Godot・Unity・Phaser・LÖVE・XML・CSSでは拒否'],
+    ['Detect identical sprites','エイリアス（ハッシュ＋バイト比較）、既定でオン','重複テストの忍者18フレームを両ツールとも6つで保存'],
+    ['Multipack、最大サイズ、POT制約、正方形の強制','最大64ページ、8–16384px、POT・正方形・固定・倍数','—'],
+    ['倍率違い','@0.5x、@1x、@2x、@3x、@4x','最近傍のみ。なめらかなフィルターやScale2x/Hq2xはない'],
+    ['テクスチャ形式・ピクセル形式（PVR、ETC、ASTC、DXT、Basis、WebP、RGBA4444 …）','PNGのみ。256色以下のページはインデックスPNG','GPU形式が必要なら後で変換']]},
+   example:{title:'計測：同じ設定のTexturePacker Pro 8.3.0とNerulio',lead:'トリムあり、シェイプ間隔2、最大4096、同一スプライトを統合、両方とも最高の労力。ΔはTexturePackerに対するNerulioのシート面積で、マイナスならNerulioのほうが小さいことを示します（docs/H2H-PAID.md、2026-09-25）。',lines:[
+    'セット（フレーム数）  回転あり           回転なし                        正方形ページ',
+    'ninja (6)             −17.7 %            −16.9 %                         −20.6 %',
+    'archer (10)            −3.6 %             +0.8 %  (TP: 3034 × 538の帯)     −2.6 %',
+    'samurai (60)           −5.8 %             −8.7 %                         −10.0 %',
+    'toon (45)              −2.0 %             +3.0 %  (TP: 3551 × 102の帯)     −3.6 %',
+    'spaceshooter (294)     +2.1 % (TP: 3575 × 256)  +1.2 %                    +0.8 %',
+    '',
+    '2のべき乗ページ        5セットとも同じサイズ',
+    '正確に復元したフレーム 全設定で両ツールとも415 / 415',
+    'ポリゴンモード（TPのみ）spaceshooter 892,581 px² = Nerulioの最良より4.5%小さい、',
+    '                       キャラクター4セットはTP自身の矩形より15–27%大きい'],
+    after:'どちらのツールもすべての行で勝つわけではありません。スプライト294個・96サイズのspaceshooterセットと、回転なしで細長い帯のページを許した2セットではTexturePackerが上回り、キャラクターのセットと正方形ページではNerulioが上回ります。'},
+   alternatives:{rows:[
+    ['TexturePacker Pro','PVRTC・ETC2・ASTC・Basisテクスチャが必要なモバイルやコンソールのビルド、ポリゴンパッキングがspaceshooterセットで4.5%減らしたような角ばった形のスプライト集、コマンドラインと`.tps`ファイルで回すビルドパイプライン、Nerulioに書き出し先がないエンジン（cocos2d、SpriteKit、Unreal Paper2D、MonoGameなど）。'],
+    ['TexturePacker純正のGodotインポーター（プラグイン）','すでにTexturePackerからパブリッシュしていて、変更のたびにGodotに再インポートさせたいとき。CodeAndWebの説明では、スプライトごとのAtlasTextureと10fpsで動くAnimationLibraryを作り、SpriteFramesは作りません。[[game/texturepacker-to-godot|TexturePackerからGodotへ]]で比較しています。'],
+    ['Nerulio パック＆書き出し','無料でインストール不要。フレームごとの長さ・ピボット・ボックスを持つアニメーションをGodot、Unity、Phaser、PixiJS、LÖVE、Spineへ渡したいとき。書き出しごとに、どのエンジンでの確認が裏づけか押す前に見たいとき。'],
+    ['無料のWebパッカーとfree-tex-packer','[[game/sprite-sheet-packers-compared|無料パッカーの比較]]で計測。free-tex-packerのnpmコアはビルドスクリプトの中で動かせますが、Nerulioはできません。']]},
+   limits:{title:'TexturePacker Proと比べてNerulioにないもの',items:[
+    'ポリゴンパッキングはなく、矩形のみです。TexturePackerのポリゴンモードは、自身の矩形パッキングと比べてspaceshooterセットで4.5%小さく、キャラクター4セットでは15–27%大きくなりました。',
+    'ページはPNGのみです。PVRTC、ETC1/2、ASTC、DXT、Basis、KTX、WebP、JPGはなく、ディザリング付きのRGBA4444やRGB565のような減色形式もありません。',
+    '書き出し先は17、TexturePackerのデータ形式は68です。cocos2d、SpriteKit、Unreal Paper2D、MonoGame、Solar2D向けの出力はありません。',
+    '自動ビルド用のコマンドライン、スマートフォルダー、プロジェクトファイルはありません。パックはブラウザで行います。',
+    '倍率違いは最近傍のみです。ドット絵には合いますが、フィルターをかけた縮小が必要な滑らかな絵には向きません。',
+    'パック速度は公平に比べていません。ブラウザのワーカーの時間を同じ5セットで計測していないためです。']},
+   versions:{body:['2026-09-25に、TexturePacker 8.3.0（Pro体験版、コマンドライン）とStudioが使うものと同じモジュールで計測しました。各ツールのJSONから全フレームを復元してピクセル単位で比較し、エンジンでの確認はPhaser 3.90.0・4.2.1、PixiJS 8.21.0、spine-canvas 4.2.120、Godot 4.7.2で行いました。TexturePackerの設定名は公式ドキュメントに従います。'],sources:[S.tpSettings,S.tpExporter,S.tpGodot]}
+  }
+ },
+ 'game/phaser-texture-atlas':{
+  type:'engine',
+  intent:{primary:'make a texture atlas (JSON + PNG) that Phaser 3 or 4 loads with this.load.atlas',secondary:['frame names and animations','multiatlas for several pages','why rotation is off for Phaser'],
+   goal:'a sprite in Phaser that shows named frames and plays animations with the right timing',input:'frame images, a GIF, an .aseprite file or a sheet',output:'atlas JSON hash (or multiatlas) + PNG + .anims.json',target:'Phaser 3.90 / 4.2',support:'full',
+   evidence:['src/game/export/atlas-json.js (phaserFiles)','src/game/export/common.js (tpFrame)','src/game/export/targets.js (rotation refused for Phaser)','docs/STUDIO-PACK.md (Phaser 3.90 and 4.2 runs)','docs/H2H-PAID.md (rotated TexturePacker frames fail in Phaser)'],
+   external:['Phaser LoaderPlugin: atlas, multiatlas','AnimationManager: fromJSON, generateFrameNames, create','Game config pixelArt','Phaser 3.90 source: JSONHash pivot → origin, Animation frame duration']},
+  en:{
+   answer:'Phaser loads a texture atlas as a PNG plus a JSON hash or array in TexturePacker\'s layout, with `this.load.atlas(key, png, json)`; every frame is then addressed by its name, as in `this.add.sprite(x, y, key, "run_0")`. Nerulio packs your frames into that layout and adds an `.anims.json` with every tag and per-frame duration for `this.anims.fromJSON`. Rotation stays off, because Phaser 3.90 and 4.2 did not turn rotated frames back in our runs; trimmed frames are drawn correctly. Checked in Phaser 3.90 and 4.2.',
+   concept:{title:'How Phaser finds a frame in an atlas',body:[
+    'The loader turns every entry under `frames` into a named frame of one texture key. `frame` is the rectangle cut from the PNG. When `trimmed` is true, Phaser passes `sourceSize` and `spriteSourceSize` to the frame\'s trim, so the cut pixels are drawn inside a box of the original size and the sprite behaves as if nothing was trimmed. A `pivot` in the entry becomes the sprite\'s origin when the frame is set.',
+    'Animations refer to those names. Build them in code with `this.anims.generateFrameNames(key, {prefix, start, end, zeroPad})`, or load them as data with `this.anims.fromJSON`. Each animation frame may carry its own `duration` in milliseconds: in Phaser 3.90\'s animation code the next frame is due after that duration, and after the animation\'s ms-per-frame when it is 0.',
+    'When the frames need several pages, `this.load.multiatlas(key, json, path)` reads one JSON with a `textures` list, one entry per page image. Frame names stay unique across pages, so your code does not care which page a frame is on.'],
+    terms:[['Texture key','The name given to the loader ("run"); every frame lives under it.'],['Frame name','The key of an entry in `frames` ("run_0"); what `add.sprite` and animations refer to.'],['JSON hash / array','The same frame data as an object keyed by name, or as a list with a `filename` field. Phaser reads both.'],['multiatlas','One JSON with a `textures` list, one entry per page image.']]},
+   example:{title:'Example: the run cycle as Phaser receives it',lines:[
+    'run.png   38 × 50 px, 6 frames of 40 × 29, trim on, padding 2, no rotation',
+    '',
+    ...RUN0,
+    '"pivot": {"x":0.5,"y":1}   → sprite origin (0.5, 1): the point between the feet',
+    '',
+    'run.anims.json   { "key":"run", "frameRate":10, "repeat":-1, "yoyo":false,',
+    '                   "frames":[ {"key":"run","frame":"run_0","duration":100}, … ×6 ] }',
+    '',
+    'this.add.sprite(100, 100, "run", "run_0")',
+    '  → a 40 × 29 sprite whose feet stand on (100, 100); the 18 × 15 piece is drawn at (10, 10) inside it',
+    '6 frames × 100 ms = one cycle every 0.6 s; repeat -1 = loop forever'],
+    after:'Phaser\'s `repeat` counts the extra plays, so a tag set to play 3 times in Aseprite or in the Studio is written as `repeat: 2`, and a ping-pong tag becomes `yoyo: true`.'},
+   outputs:{rows:[
+    ['run.json','Atlas JSON hash for one page: `frames` with `frame`, `trimmed`, `spriteSourceSize`, `sourceSize`, `rotated` and a normalised `pivot`; `meta.image` and `meta.size`.'],
+    ['run.multiatlas.json','Instead of run.json when the frames need several pages: a `textures` list with `run-0.png`, `run-1.png` … and their frames.'],
+    ['run.anims.json','One animation per tag: frames with `duration` in ms, `frameRate`, `repeat` (−1 = loop) and `yoyo` for ping-pong. Not written when the project has no tags.'],
+    ['run.png','The packed page, as an indexed PNG when it has 256 colours or fewer.'],
+    ['README-PHASER.md','The preload and create code for this bundle.']]},
+   target:{title:'Use it in Phaser 3 or 4',steps:[
+    'Copy the PNG and JSON files together into your game\'s assets folder; a multiatlas finds its pages through the image names inside the JSON.',
+    'In `preload()`: `this.load.atlas("run", "assets/run.png", "assets/run.json")` (or `this.load.multiatlas("run", "assets/run.multiatlas.json", "assets/")`) and `this.load.json("run-anims", "assets/run.anims.json")`.',
+    'In `create()`: `this.anims.fromJSON(this.cache.json.get("run-anims"))` registers the animations; then `const hero = this.add.sprite(160, 120, "run", "run_0")` and `hero.play("run")`.',
+    'For pixel art, create the game with `pixelArt: true`, which sets `antialias` to false and `roundPixels` to true.',
+    'To build an animation yourself instead: `this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`.']},
+   verify:{steps:[
+    '`this.textures.get("run").getFrameNames()` lists run_0 … run_5 (no file extensions).',
+    'Place `this.add.image(100, 100, "run", "run_0")` and `"run_4"` at the same point: the feet stay on one line, although the stored pieces start at different offsets.',
+    '`this.anims.exists("run")` is true, and one cycle of `hero.play("run")` takes 0.6 s.']},
+   trouble:{rows:[
+    ['A frame name shows the wrong picture or nothing','That name is not in the atlas under this key: a typo, a file extension kept, or another texture key','`this.textures.get(key).getFrameNames()`','Use the names exactly as in the JSON; Nerulio drops the extension (run_0, not run_0.png)'],
+    ['Only some frames are mirrored or turned','The atlas was packed with rotation, for example by TexturePacker with rotation enabled; Phaser 3.90 and 4.2 did not turn such frames back','Those entries have `"rotated": true`','Repack with rotation off; see [[game/phaser-atlas-frames-wrong|Phaser atlas frames wrong]]'],
+    ['Pixel art is blurry or shimmers while moving','Linear filtering and positions between pixels','The game config has no `pixelArt: true`','Set `pixelArt: true`, or `antialias: false` and `roundPixels: true`'],
+    ['`play("run")` does nothing','The animations were never registered: `fromJSON` ran before the JSON was loaded, or read another cache key','`this.anims.exists("run")`','Call `this.anims.fromJSON(this.cache.json.get("run-anims"))` in `create()`, after preload'],
+    ['The timing differs from the editor','A `frameRate` passed to `play()` differs from the animation\'s, so Phaser uses its ms-per-frame instead of each frame\'s `duration`','Look at the play config','Play without overriding `frameRate`; change durations in the tag instead']]},
+   alternatives:{rows:[
+    ['Phaser\'s Aseprite loader: `this.load.aseprite` and `this.anims.createFromAseprite`','The art is in Aseprite and you want its tags straight from the JSON; one page only, no rotation. See [[game/aseprite-to-phaser|Aseprite to Phaser]].'],
+    ['Starling / Sparrow XML with `this.load.atlasXML`','A pipeline that already uses XML (FNF-style assets); in Phaser 3.90 keep trim off. See [[game/sparrow-xml-spritesheet|Sparrow XML]].'],
+    ['TexturePacker\'s Phaser export','You already own TexturePacker: its Phaser format does not rotate by default and passed in Phaser 3.90 and 4.2 on all four sets we tested.']]},
+   versions:{body:['Nerulio\'s atlas and animation files were loaded by Phaser 3.90.0 and 4.2.1 (the real `phaser.min.js` in Chromium) on real CC0 frame sets and every frame was compared with its source. The loader and animation calls follow the Phaser documentation; the pivot-to-origin and frame-duration behaviour is read from the Phaser 3.90 source.'],sources:[S.phaserLoader,S.phaserAnims,S.phaserCore,S.phaserAnimSrc,S.phaserHashSrc]}
+  },
+  ko:{
+   answer:'Phaser는 텍스처 아틀라스를 PNG와 TexturePacker 배치의 JSON(해시 또는 배열)으로 불러옵니다. `this.load.atlas(key, png, json)`로 읽은 뒤에는 `this.add.sprite(x, y, key, "run_0")`처럼 프레임 이름으로 부릅니다. Nerulio는 프레임을 이 배치로 패킹하고, `this.anims.fromJSON`용으로 모든 태그와 프레임별 길이를 담은 `.anims.json`을 덧붙입니다. 검증 실행에서 Phaser 3.90과 4.2가 회전된 프레임을 되돌려 그리지 못했기 때문에 회전은 끄며, 트림된 프레임은 제대로 그려집니다. Phaser 3.90과 4.2에서 확인했습니다.',
+   concept:{title:'Phaser가 아틀라스에서 프레임을 찾는 방법',body:[
+    '로더는 `frames` 아래 항목마다 하나의 텍스처 키에 속한 이름 있는 프레임을 만듭니다. `frame`은 PNG에서 잘라 낼 사각형입니다. `trimmed`가 참이면 Phaser가 `sourceSize`와 `spriteSourceSize`를 프레임의 트림 정보로 넘기므로, 잘린 조각이 원래 크기의 상자 안에 그려지고 스프라이트는 트림하지 않은 것처럼 동작합니다. 항목에 `pivot`이 있으면 프레임을 지정할 때 스프라이트의 원점이 됩니다.',
+    '애니메이션은 이 이름을 가리킵니다. 코드에서 `this.anims.generateFrameNames(key, {prefix, start, end, zeroPad})`로 만들거나, 데이터로 `this.anims.fromJSON`에 넘길 수 있습니다. 애니메이션 프레임마다 밀리초 단위 `duration`을 둘 수 있습니다. Phaser 3.90의 애니메이션 코드에서는 그 길이가 지나면 다음 프레임으로 넘어가고, 값이 0이면 애니메이션의 프레임당 밀리초를 씁니다.',
+    '프레임이 여러 페이지에 걸치면 `this.load.multiatlas(key, json, path)`가 `textures` 목록이 있는 JSON 하나를 읽습니다. 페이지 이미지마다 항목이 하나씩 있고 프레임 이름은 페이지를 넘어 고유하므로, 코드에서는 프레임이 어느 페이지에 있는지 신경 쓰지 않아도 됩니다.'],
+    terms:[['텍스처 키','로더에 준 이름("run"). 모든 프레임이 이 아래에 있습니다.'],['프레임 이름','`frames` 항목의 키("run_0"). `add.sprite`와 애니메이션이 이 이름을 씁니다.'],['JSON 해시 / 배열','같은 프레임 데이터를 이름을 키로 한 객체로, 또는 `filename` 필드가 있는 목록으로 쓴 것. Phaser는 둘 다 읽습니다.'],['multiatlas','`textures` 목록이 있는 JSON 하나. 페이지 이미지마다 항목 하나.']]},
+   example:{title:'예시: Phaser가 받는 달리기 동작',lines:[
+    'run.png   38 × 50px, 40 × 29 프레임 6장, 트림 켬, 간격 2, 회전 없음',
+    '',
+    ...RUN0,
+    '"pivot": {"x":0.5,"y":1}   → 스프라이트 원점 (0.5, 1): 두 발 사이의 점',
+    '',
+    'run.anims.json   { "key":"run", "frameRate":10, "repeat":-1, "yoyo":false,',
+    '                   "frames":[ {"key":"run","frame":"run_0","duration":100}, … ×6 ] }',
+    '',
+    'this.add.sprite(100, 100, "run", "run_0")',
+    '  → 발이 (100, 100)에 서는 40 × 29 스프라이트. 18 × 15 조각은 그 안의 (10, 10)에 그려짐',
+    '6프레임 × 100ms = 0.6초마다 한 바퀴. repeat -1 = 무한 반복'],
+    after:'Phaser의 `repeat`는 추가 재생 횟수를 셉니다. Aseprite나 Studio에서 3번 재생으로 설정한 태그는 `repeat: 2`로 쓰이고, 핑퐁 태그는 `yoyo: true`가 됩니다.'},
+   outputs:{rows:[
+    ['run.json','한 페이지용 아틀라스 JSON 해시: `frame`, `trimmed`, `spriteSourceSize`, `sourceSize`, `rotated`, 정규화된 `pivot`이 있는 `frames`와 `meta.image`, `meta.size`.'],
+    ['run.multiatlas.json','프레임이 여러 페이지에 걸칠 때 run.json 대신 생성: `run-0.png`, `run-1.png` …와 각 프레임이 든 `textures` 목록.'],
+    ['run.anims.json','태그마다 애니메이션 하나: ms 단위 `duration`이 있는 프레임, `frameRate`, `repeat`(−1 = 반복), 핑퐁용 `yoyo`. 태그가 없으면 만들지 않음.'],
+    ['run.png','패킹된 페이지. 색이 256개 이하면 인덱스 PNG.'],
+    ['README-PHASER.md','이 번들용 preload·create 코드.']]},
+   target:{title:'Phaser 3·4에서 쓰기',steps:[
+    'PNG와 JSON 파일을 함께 게임의 assets 폴더에 복사합니다. multiatlas는 JSON 안의 이미지 이름으로 페이지를 찾습니다.',
+    '`preload()`에서 `this.load.atlas("run", "assets/run.png", "assets/run.json")`(또는 `this.load.multiatlas("run", "assets/run.multiatlas.json", "assets/")`)와 `this.load.json("run-anims", "assets/run.anims.json")`을 호출합니다.',
+    '`create()`에서 `this.anims.fromJSON(this.cache.json.get("run-anims"))`로 애니메이션을 등록하고, `const hero = this.add.sprite(160, 120, "run", "run_0")` 뒤 `hero.play("run")`을 호출합니다.',
+    '도트 그림이면 게임을 `pixelArt: true`로 만듭니다. `antialias`를 끄고 `roundPixels`를 켜는 설정입니다.',
+    '애니메이션을 직접 만들려면 `this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`를 씁니다.']},
+   verify:{steps:[
+    '`this.textures.get("run").getFrameNames()`에 run_0 … run_5가 확장자 없이 나와야 합니다.',
+    '`this.add.image(100, 100, "run", "run_0")`와 `"run_4"`를 같은 점에 놓습니다. 저장된 조각의 오프셋이 달라도 발이 한 선에 있어야 합니다.',
+    '`this.anims.exists("run")`이 참이고, `hero.play("run")`의 한 바퀴가 0.6초여야 합니다.']},
+   trouble:{rows:[
+    ['프레임 이름에 엉뚱한 그림이 나오거나 아무것도 안 나옴','이 키 아래에 그 이름이 없음: 오타, 확장자가 남아 있음, 다른 텍스처 키','`this.textures.get(key).getFrameNames()`','JSON에 있는 이름 그대로 사용. Nerulio는 확장자를 뺌(run_0, run_0.png 아님)'],
+    ['일부 프레임만 뒤집히거나 돌아감','회전을 켠 아틀라스(예: 회전을 켠 TexturePacker). Phaser 3.90과 4.2는 이런 프레임을 되돌리지 못했음','해당 항목에 `"rotated": true`','회전을 끄고 다시 패킹. [[game/phaser-atlas-frames-wrong|Phaser 아틀라스 프레임 오류]] 참고'],
+    ['도트 그림이 흐리거나 움직일 때 반짝임','선형 필터와 픽셀 사이 위치','게임 설정에 `pixelArt: true`가 없음','`pixelArt: true`, 또는 `antialias: false`와 `roundPixels: true`'],
+    ['`play("run")`이 아무 일도 안 함','애니메이션이 등록되지 않음: JSON을 불러오기 전에 `fromJSON`을 실행했거나 다른 캐시 키를 읽음','`this.anims.exists("run")`','preload가 끝난 뒤 `create()`에서 `this.anims.fromJSON(this.cache.json.get("run-anims"))` 호출'],
+    ['재생 속도가 편집기와 다름','`play()`에 준 `frameRate`가 애니메이션 값과 달라서 Phaser가 프레임별 `duration` 대신 프레임당 밀리초를 씀','재생 설정 확인','`frameRate`를 덮어쓰지 말고 태그에서 길이를 바꿈']]},
+   alternatives:{rows:[
+    ['Phaser의 Aseprite 로더: `this.load.aseprite`와 `this.anims.createFromAseprite`','그림이 Aseprite에 있고 JSON의 태그를 바로 쓰고 싶을 때. 한 페이지만, 회전 없음. [[game/aseprite-to-phaser|Aseprite를 Phaser로]] 참고.'],
+    ['`this.load.atlasXML`로 읽는 Starling / Sparrow XML','이미 XML을 쓰는 파이프라인(FNF 방식 에셋). Phaser 3.90에서는 트림을 끄세요. [[game/sparrow-xml-spritesheet|Sparrow XML]] 참고.'],
+    ['TexturePacker의 Phaser 내보내기','이미 TexturePacker가 있을 때. Phaser 형식은 기본으로 회전하지 않으며, 시험한 네 세트 모두 Phaser 3.90과 4.2에서 통과했습니다.']]},
+   versions:{body:['Nerulio의 아틀라스와 애니메이션 파일을 실제 CC0 프레임 세트로 Phaser 3.90.0과 4.2.1(Chromium에서 실제 `phaser.min.js`)에 불러와, 모든 프레임을 원본과 비교했습니다. 로더와 애니메이션 호출은 Phaser 공식 문서를 따르며, 피벗이 원점이 되는 동작과 프레임 길이 처리는 Phaser 3.90 소스에서 확인했습니다.'],sources:[S.phaserLoader,S.phaserAnims,S.phaserCore,S.phaserAnimSrc,S.phaserHashSrc]}
+  },
+  ja:{
+   answer:'Phaserはテクスチャアトラスを、PNGとTexturePacker形式のJSON（ハッシュまたは配列）として`this.load.atlas(key, png, json)`で読み込みます。読み込んだ後は`this.add.sprite(x, y, key, "run_0")`のようにフレーム名で指定します。Nerulioはフレームをこの形式にパックし、`this.anims.fromJSON`向けに全タグとフレームごとの長さを入れた`.anims.json`を添えます。検証の実行でPhaser 3.90と4.2は回転したフレームを戻して描けなかったため回転はオフにし、トリムしたフレームは正しく描かれます。Phaser 3.90と4.2で確認済みです。',
+   concept:{title:'Phaserがアトラスからフレームを探す仕組み',body:[
+    'ローダーは`frames`の各項目から、1つのテクスチャキーに属する名前付きフレームを作ります。`frame`はPNGから切り出す矩形です。`trimmed`が真なら、Phaserは`sourceSize`と`spriteSourceSize`をフレームのトリム情報として渡すので、切り出した断片は元の大きさの枠の中に描かれ、スプライトはトリムしていないかのように振る舞います。項目に`pivot`があれば、フレームを設定したときにスプライトの原点になります。',
+    'アニメーションはこの名前を参照します。コードで`this.anims.generateFrameNames(key, {prefix, start, end, zeroPad})`を使って作るか、データとして`this.anims.fromJSON`に渡します。アニメーションのフレームごとにミリ秒単位の`duration`を持てます。Phaser 3.90のアニメーションのコードでは、その長さが過ぎると次のフレームに進み、0ならアニメーションの1フレームあたりのミリ秒を使います。',
+    'フレームが複数ページにまたがるときは、`this.load.multiatlas(key, json, path)`が`textures`リストを持つJSONを1つ読みます。ページ画像ごとに項目が1つあり、フレーム名はページをまたいで一意なので、コード側はフレームがどのページにあるかを気にしなくて済みます。'],
+    terms:[['テクスチャキー','ローダーに渡した名前（"run"）。すべてのフレームがこの下にあります。'],['フレーム名','`frames`の項目のキー（"run_0"）。`add.sprite`やアニメーションが参照します。'],['JSONハッシュ / 配列','同じフレームデータを、名前をキーにしたオブジェクトか、`filename`を持つリストで書いたもの。Phaserは両方読めます。'],['multiatlas','`textures`リストを持つJSON 1つ。ページ画像ごとに1項目。']]},
+   example:{title:'例：Phaserが受け取る走りモーション',lines:[
+    'run.png   38 × 50px、40 × 29のフレーム6枚、トリムあり、間隔2、回転なし',
+    '',
+    ...RUN0,
+    '"pivot": {"x":0.5,"y":1}   → スプライトの原点 (0.5, 1)：両足の間の点',
+    '',
+    'run.anims.json   { "key":"run", "frameRate":10, "repeat":-1, "yoyo":false,',
+    '                   "frames":[ {"key":"run","frame":"run_0","duration":100}, … ×6 ] }',
+    '',
+    'this.add.sprite(100, 100, "run", "run_0")',
+    '  → 足が (100, 100) に立つ40 × 29のスプライト。18 × 15の断片はその中の (10, 10) に描かれる',
+    '6フレーム × 100ms = 0.6秒で1周。repeat -1 = 無限ループ'],
+    after:'Phaserの`repeat`は追加の再生回数を数えます。AsepriteやStudioで3回再生にしたタグは`repeat: 2`と書かれ、ピンポンのタグは`yoyo: true`になります。'},
+   outputs:{rows:[
+    ['run.json','1ページ用のアトラスJSONハッシュ：`frame`、`trimmed`、`spriteSourceSize`、`sourceSize`、`rotated`、正規化した`pivot`を持つ`frames`と、`meta.image`、`meta.size`。'],
+    ['run.multiatlas.json','フレームが複数ページにまたがるときにrun.jsonの代わりに作成：`run-0.png`、`run-1.png` …とそのフレームを持つ`textures`リスト。'],
+    ['run.anims.json','タグごとに1つのアニメーション：ms単位の`duration`付きフレーム、`frameRate`、`repeat`（−1 = ループ）、ピンポン用の`yoyo`。タグがなければ作らない。'],
+    ['run.png','パックしたページ。256色以下ならインデックスPNG。'],
+    ['README-PHASER.md','このバンドル用のpreloadとcreateのコード。']]},
+   target:{title:'Phaser 3・4で使う',steps:[
+    'PNGとJSONファイルを一緒にゲームのassetsフォルダーへコピーします。multiatlasはJSON内の画像名でページを探します。',
+    '`preload()`で`this.load.atlas("run", "assets/run.png", "assets/run.json")`（または`this.load.multiatlas("run", "assets/run.multiatlas.json", "assets/")`）と`this.load.json("run-anims", "assets/run.anims.json")`を呼びます。',
+    '`create()`で`this.anims.fromJSON(this.cache.json.get("run-anims"))`によりアニメーションを登録し、`const hero = this.add.sprite(160, 120, "run", "run_0")`のあと`hero.play("run")`を呼びます。',
+    'ドット絵ならゲームを`pixelArt: true`で作成します。`antialias`をオフ、`roundPixels`をオンにする設定です。',
+    'アニメーションを自分で作るなら`this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`を使います。']},
+   verify:{steps:[
+    '`this.textures.get("run").getFrameNames()`にrun_0 … run_5が拡張子なしで並ぶはずです。',
+    '`this.add.image(100, 100, "run", "run_0")`と`"run_4"`を同じ点に置きます。保存された断片のオフセットが違っても、足は一直線にそろうはずです。',
+    '`this.anims.exists("run")`が真で、`hero.play("run")`の1周が0.6秒になるはずです。']},
+   trouble:{rows:[
+    ['フレーム名で違う絵が出る・何も出ない','このキーの下にその名前がない：打ち間違い、拡張子が残っている、別のテクスチャキー','`this.textures.get(key).getFrameNames()`','JSONにある名前をそのまま使う。Nerulioは拡張子を外す（run_0であってrun_0.pngではない）'],
+    ['一部のフレームだけ反転・回転して見える','回転ありでパックしたアトラス（例：回転を有効にしたTexturePacker）。Phaser 3.90と4.2はこうしたフレームを戻せなかった','その項目に`"rotated": true`','回転なしでパックし直す。[[game/phaser-atlas-frames-wrong|Phaserのアトラスのフレームがおかしい]]を参照'],
+    ['ドット絵がぼやける・動くとちらつく','線形フィルターとピクセルの間の位置','ゲーム設定に`pixelArt: true`がない','`pixelArt: true`、または`antialias: false`と`roundPixels: true`'],
+    ['`play("run")`で何も起きない','アニメーションが登録されていない：JSONの読み込み前に`fromJSON`を実行した、または別のキャッシュキーを読んだ','`this.anims.exists("run")`','preload後の`create()`で`this.anims.fromJSON(this.cache.json.get("run-anims"))`を呼ぶ'],
+    ['再生速度がエディターと違う','`play()`に渡した`frameRate`がアニメーションの値と違い、Phaserがフレームごとの`duration`ではなく1フレームあたりのミリ秒を使う','再生設定を見る','`frameRate`を上書きせず、長さはタグ側で変える']]},
+   alternatives:{rows:[
+    ['PhaserのAsepriteローダー：`this.load.aseprite`と`this.anims.createFromAseprite`','絵がAsepriteにあり、JSONのタグをそのまま使いたいとき。1ページのみ、回転なし。[[game/aseprite-to-phaser|AsepriteからPhaserへ]]を参照。'],
+    ['`this.load.atlasXML`で読むStarling / Sparrow XML','すでにXMLを使うパイプライン（FNF形式の素材）。Phaser 3.90ではトリムをオフに。[[game/sparrow-xml-spritesheet|Sparrow XML]]を参照。'],
+    ['TexturePackerのPhaser書き出し','TexturePackerを持っているとき。Phaser形式は既定で回転せず、試した4セットすべてでPhaser 3.90と4.2に合格しました。']]},
+   versions:{body:['Nerulioのアトラスとアニメーションのファイルを、実在のCC0フレームセットでPhaser 3.90.0と4.2.1（Chromium上の実際の`phaser.min.js`）に読み込み、全フレームを元画像と比較しました。ローダーとアニメーションの呼び出しはPhaser公式ドキュメントに、ピボットが原点になる動作とフレームの長さの扱いはPhaser 3.90のソースに基づきます。'],sources:[S.phaserLoader,S.phaserAnims,S.phaserCore,S.phaserAnimSrc,S.phaserHashSrc]}
+  }
+ },
+ // @@PAGES@@
 };
