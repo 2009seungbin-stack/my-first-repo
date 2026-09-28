@@ -982,12 +982,16 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     if(!el.querySelector('.ui-lab'))frame();else refresh();return;
    }
    if(kind==='bdf'){
-    const bdf=parseBdf(await file.text());S.font.project=FP.projectFromBdf(bdf);
+    const bdf=parseBdf(await file.text()),project=FP.projectFromBdf(bdf);
+    if(project.glyphs.length>1024)throw Error(T('fontImportGlyphLimit'));
+    S.font.project=project;
     S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
     S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;S.font.rectStart=null;frame();return;
    }
    if(kind==='fontProject'){
-    S.font.project=FP.validateFontProject(JSON.parse(await file.text()));
+    const project=FP.validateFontProject(JSON.parse(await file.text()));
+    if(project.glyphs.length>1024)throw Error(T('fontImportGlyphLimit'));
+    S.font.project=project;
     S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
     S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;S.font.rectStart=null;frame();return;
    }

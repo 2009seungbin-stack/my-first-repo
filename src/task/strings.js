@@ -1019,6 +1019,9 @@ S.ko.uiLab.fontHangulPreview='조합 미리보기';S.en.uiLab.fontHangulPreview=
 S.ko.uiLab.fontHangulReplaceNote='적용하면 그 음절의 현재 도트를 교체합니다. 되돌리기로 복원할 수 있습니다. 템플릿은 최대 128×128 셀입니다.';
 S.en.uiLab.fontHangulReplaceNote='Apply replaces that syllable’s current pixels; Undo restores them. Templates are capped at 128×128 cells.';
 S.ja.uiLab.fontHangulReplaceNote='適用するとその音節の現在の画素を置き換えます。元に戻すで復元できます。テンプレートは最大128×128セルです。';
+S.ko.uiLab.fontImportGlyphLimit='편집 UI는 현재 최대 1,024자를 가져옵니다. 문자 집합을 줄여 주세요.';
+S.en.uiLab.fontImportGlyphLimit='The editor currently imports up to 1,024 glyphs. Choose a smaller character set.';
+S.ja.uiLab.fontImportGlyphLimit='編集画面は現在最大1,024文字を読み込めます。文字数を減らしてください。';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
