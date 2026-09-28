@@ -63,6 +63,7 @@ export function edit(channels,sampleRate,{start=0,end=channels[0].length/sampleR
  validateAudio(channels,sampleRate);let a=clamp(Math.round(start*sampleRate),0,channels[0].length),b=clamp(Math.round(end*sampleRate),a,channels[0].length);
  if(snapToZero){a=nearestZeroCrossing(channels,sampleRate,a);b=nearestZeroCrossing(channels,sampleRate,b);if(b<=a)b=Math.min(channels[0].length,a+1);}
  if(removeSilence){const bound=silenceBounds(channels.map(c=>c.subarray(a,b)),sampleRate),base=a;a=base+bound.start;b=base+bound.end;}
+ const outputFrames=Math.ceil((b-a)/speed);if(outputFrames>sampleRate*180||outputFrames*channels.length*4>96*1048576)throw Error('Output exceeds the 3 minute / 96 MiB memory limit; shorten selection or increase speed');
  let out=channels.map(c=>c.subarray(a,b));out=shift(out,{speed,semitones});if(speed===1&&semitones===0)out=out.map(c=>new Float32Array(c));
  const fi=Math.round(clamp(fadeIn,0,out[0].length/sampleRate)*sampleRate),fo=Math.round(clamp(fadeOut,0,out[0].length/sampleRate)*sampleRate);
  for(const c of out)for(let i=0;i<c.length;i++){let v=1;if(fi&&i<fi)v*=i/fi;if(fo&&i>=c.length-fo)v*=Math.max(0,(c.length-1-i)/fo);c[i]*=v;}
