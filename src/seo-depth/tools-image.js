@@ -2605,4 +2605,588 @@ export default {
    versions:{body:['2026-09-28にInstagramヘルプセンターで確認：リールのページは縦横比1.91:1〜9:16、最低30FPSと720ピクセル、420 × 654pxのカバーを示しています。ヘルプセンターの検索ではストーリーズのサイズは見つかりませんでした。切り抜きの数値は `src/task/resize.js` と `fitQuality()` に従います。'],sources:['[Instagram ヘルプセンター: リールのサイズと縦横比](https://help.instagram.com/1038071743007909)']}
   }
  },
+ 'image/resize/youtube-thumbnail':{
+  type:'tool',
+  intent:{primary:'resize an image for a YouTube thumbnail',secondary:['YouTube thumbnail size 2026','1280x720 or 3840x2160','thumbnail too large to upload'],
+   goal:'a 16:9 thumbnail YouTube accepts, at the size its help page recommends when the source allows',input:'photo, screenshot or designed image',output:'1280 × 720 by default (16:9); 3840 × 2160 if typed; JPG or PNG',target:'YouTube Studio custom thumbnail',support:'full',
+   evidence:['src/landings.js SOCIAL youtube-thumbnail (1280×720)','src/task/resize.js (fit=cover)'],
+   external:['YouTube Help 72431, checked 2026-09-28: 3840×2160 recommended, min width 640, JPG/PNG, 2 MB mobile / 50 MB desktop, 16:9']},
+  en:{
+   answer:'The preset makes a 1280 × 720 image (16:9). YouTube Help, checked on 2026-09-28, recommends 3840 × 2160 for video thumbnails with a minimum width of 640 px, JPG or PNG, a 16:9 ratio, and an upload limit of 2 MB from mobile (50 MB on desktop). 1280 × 720 has the right ratio and is double the minimum width; when your source is at least 3840 px wide, type 3840 × 2160 to match the recommendation. From a 4032 × 3024 photo, 378 px are cut from the top and bottom to reach 16:9.',
+   concept:{title:'16:9, and which size to type',body:[
+    'A 16:9 box is wider than a 4:3 photo, so the preset\'s fill-and-crop keeps the full width and trims the height: 4032 × 3024 becomes a centred 4032 × 2268 before scaling. A portrait photo keeps only 42 % of its height, which is why designed thumbnails are usually composed at 16:9 from the start.',
+    'The preset stays at 1280 × 720, a ninth of the pixels of 3840 × 2160. Typing 3840 × 2160 only helps when the source has that many pixels; resizing a smaller picture up adds no detail. Larger PNGs can pass the 2 MB mobile limit — choose JPG output, or compress with a target, when you upload from a phone.',
+    'YouTube also lists 2160 × 3840 (9:16) for Shorts thumbnails and 1:1 for podcast playlists, and notes that vertical videos with a 16:9 custom thumbnail get an auto-generated 4:5 thumbnail on the home, explore and subscription pages.'],
+    terms:[['16:9','Width ÷ height = 1.78; 1280 × 720 and 3840 × 2160 both have it.'],['Minimum width','640 px for video thumbnails, per YouTube Help.'],['Verified account','Needed to upload custom thumbnails, per the same page.']]},
+   example:{title:'Preset versus the recommended size (computed from the code)',lead:'The source is an example 12-megapixel photo; the crop follows the resize task\'s cover calculation.',lines:[
+    'Preset              1280 x 720    =   921,600 px',
+    'Recommended         3840 x 2160   = 8,294,400 px  (9 x the preset)',
+    'Minimum width        640 px',
+    '',
+    '4032 x 3024 photo  -> crop 4032 x 2268 (378 px off top and bottom)',
+    '                   -> 1280 x 720 (x 0.317)  or  3840 x 2160 (x 0.952)',
+    '3024 x 4032 photo  -> crop 3024 x 1701, 42 % of the height kept'],
+    after:'Both sizes are reductions for this source, so neither invents detail; for a 1920 × 1080 screenshot, 3840 × 2160 would be a 2× enlargement and gains nothing over keeping 1920 × 1080.'},
+   target:{title:'Upload it in YouTube Studio',steps:[
+    'Sign in to YouTube Studio.',
+    'From the left menu, select Content.',
+    'Open the video you want to edit.',
+    'Below "Thumbnail", click Upload file and choose the resized image.',
+    'Click SAVE. YouTube notes that the change can take a while to appear.'],
+    note:'Steps as written in YouTube Help (computer) on 2026-09-28; custom thumbnails require a verified account.'},
+   verify:{steps:[
+    'The result list shows `1280×720` (or `3840×2160`), and the file name ends with that size.',
+    'For uploads from a phone, check that the file is under 2 MB.',
+    'In YouTube Studio, look at the thumbnail preview: text near the edges should still be readable at small sizes.']},
+   trouble:{rows:[
+    ['There is no Upload file option','Custom thumbnails need a verified account','YouTube Studio offers only generated options','Verify the channel, then upload'],
+    ['"File too large" on the phone','Mobile uploads allow 2 MB for video thumbnails','File size in the result list','Choose JPG output, or [[image/compress|compress]] with Target size 2000 (1953 for 2,000,000 bytes)'],
+    ['The thumbnail shows as 4:5 on the home page','Vertical video with a 16:9 custom thumbnail; YouTube shows an auto-generated 4:5 there','The video is vertical','Expected per YouTube Help; your thumbnail still appears in the watch feed and history'],
+    ['"Daily custom thumbnail limit reached"','Channels have a daily upload limit','The error message','Try again in 24 hours, as the help page says'],
+    ['Faces cut at the top of a photo','Cover removed 378 px at the top and bottom','Compare with the original','Frame it with [[image/crop|crop]] (16:9 preset) before resizing']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-story|The 9:16 preset]]','A Shorts thumbnail: YouTube asks for 9:16 (2160 × 3840 recommended); the preset gives 1080 × 1920, type 2160 × 3840 if the source allows.'],
+    ['Get suggestions in YouTube Studio','You have no designed thumbnail and are happy with generated options.']]},
+   limits:['The preset is 1280 × 720, below YouTube\'s current 3840 × 2160 recommendation; the larger size is a manual entry.','Nerulio cannot check YouTube\'s thumbnail policies or your account\'s verification.'],
+   versions:{body:['Sizes, formats, limits and steps are quoted from YouTube Help "Add custom thumbnails", read on 2026-09-28. Crop numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[YouTube Help: Add custom thumbnails](https://support.google.com/youtube/answer/72431)']}
+  },
+  ko:{
+   answer:'프리셋은 1280 × 720(16:9) 이미지를 만듭니다. 2026-09-28에 확인한 YouTube 고객센터는 동영상 썸네일로 3840 × 2160을 권장하며, 최소 너비 640px, JPG 또는 PNG, 16:9 비율, 모바일 업로드 2MB(데스크톱 50MB) 제한을 안내합니다. 1280 × 720은 비율이 맞고 최소 너비의 두 배입니다. 원본 너비가 3840px 이상이라면 권장 크기에 맞게 3840 × 2160을 입력하세요. 4032 × 3024 사진은 16:9가 되도록 위아래에서 378px씩 잘립니다.',
+   concept:{title:'16:9, 그리고 어떤 크기를 입력할지',body:[
+    '16:9 상자는 4:3 사진보다 가로로 넓어서 프리셋의 채우고 자르기는 너비를 모두 남기고 높이를 줄입니다. 4032 × 3024는 배율을 바꾸기 전에 가운데 4032 × 2268이 됩니다. 세로 사진은 높이의 42%만 남기 때문에, 디자인한 썸네일은 보통 처음부터 16:9로 구성합니다.',
+    '프리셋은 1280 × 720으로, 3840 × 2160 픽셀 수의 9분의 1입니다. 3840 × 2160을 입력하는 것은 원본에 그만큼 픽셀이 있을 때만 의미가 있고, 작은 그림을 키워도 디테일은 늘지 않습니다. 큰 PNG는 모바일 2MB 제한을 넘을 수 있으니 휴대폰으로 올릴 때는 JPG로 저장하거나 목표 용량을 정해 압축하세요.',
+    'YouTube는 Shorts 썸네일로 2160 × 3840(9:16), 팟캐스트 재생목록으로 1:1도 안내합니다. 또한 세로 동영상에 16:9 맞춤 썸네일을 쓰면 홈·탐색·구독 페이지에서는 자동 생성된 4:5 썸네일로 바뀐다고 적혀 있습니다.'],
+    terms:[['16:9','너비 ÷ 높이 = 1.78. 1280 × 720과 3840 × 2160 모두 이 비율입니다.'],['최소 너비','YouTube 고객센터 기준 동영상 썸네일 640px.'],['인증된 계정','같은 페이지에 따르면 맞춤 썸네일을 올리려면 필요합니다.']]},
+   example:{title:'프리셋과 권장 크기 비교(코드로 계산)',lead:'원본은 1,200만 화소 사진의 예이며, 자르기는 크기 변경 작업의 cover 계산을 따릅니다.',lines:[
+    '프리셋              1280 x 720    =   921,600 px',
+    '권장                3840 x 2160   = 8,294,400 px  (프리셋의 9배)',
+    '최소 너비            640 px',
+    '',
+    '4032 x 3024 사진  -> 4032 x 2268 자르기 (위아래 378 px씩)',
+    '                  -> 1280 x 720 (x 0.317)  또는  3840 x 2160 (x 0.952)',
+    '3024 x 4032 사진  -> 3024 x 1701 자르기, 높이의 42 % 유지'],
+    after:'이 원본에서는 두 크기 모두 축소라 디테일을 지어내지 않습니다. 1920 × 1080 스크린샷이라면 3840 × 2160은 2배 확대이며 1920 × 1080을 그대로 쓰는 것보다 나을 것이 없습니다.'},
+   target:{title:'YouTube 스튜디오에 올리기',steps:[
+    'YouTube 스튜디오에 로그인합니다.',
+    '왼쪽 메뉴에서 Content(콘텐츠)를 선택합니다.',
+    '수정할 동영상을 엽니다.',
+    '"Thumbnail(미리보기 이미지)" 아래에서 Upload file(파일 업로드)을 눌러 크기를 바꾼 이미지를 고릅니다.',
+    'SAVE(저장)를 누릅니다. YouTube는 변경이 반영되기까지 시간이 걸릴 수 있다고 안내합니다.'],
+    note:'2026-09-28 YouTube 고객센터(컴퓨터)의 절차이며, 괄호 안 한국어 메뉴명은 참고용입니다. 맞춤 썸네일에는 인증된 계정이 필요합니다.'},
+   verify:{steps:[
+    '결과 목록에 `1280×720`(또는 `3840×2160`)이 나오고 파일 이름도 그 크기로 끝납니다.',
+    '휴대폰으로 올린다면 파일이 2MB 미만인지 확인하세요.',
+    'YouTube 스튜디오의 썸네일 미리보기에서 가장자리 근처 글자가 작은 크기에서도 읽히는지 보세요.']},
+   trouble:{rows:[
+    ['파일 업로드 버튼이 없음','맞춤 썸네일에는 인증된 계정이 필요합니다','스튜디오가 자동 생성 옵션만 보여 줌','채널을 인증한 뒤 올리세요'],
+    ['휴대폰에서 "파일이 너무 큼"','모바일에서는 동영상 썸네일이 2MB까지입니다','결과 목록의 파일 크기','JPG로 저장하거나 목표 용량 2000(2,000,000바이트면 1953)으로 [[image/compress|압축]]하세요'],
+    ['홈 화면에서 썸네일이 4:5로 보임','세로 동영상에 16:9 맞춤 썸네일을 쓰면 그곳에서는 자동 생성 4:5가 보입니다','동영상이 세로임','YouTube 고객센터에 따른 정상 동작입니다. 시청 피드와 기록에는 맞춤 썸네일이 나옵니다'],
+    ['"일일 맞춤 썸네일 한도 도달"','채널마다 하루 업로드 한도가 있습니다','오류 메시지','도움말대로 24시간 뒤에 다시 시도하세요'],
+    ['사진 위쪽에서 얼굴이 잘림','cover가 위아래 378px씩 잘랐습니다','원본과 비교','크기를 바꾸기 전에 [[image/crop|자르기]](16:9 프리셋)로 구도를 잡으세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-story|9:16 프리셋]]','Shorts 썸네일. YouTube는 9:16(권장 2160 × 3840)을 요구하며, 프리셋은 1080 × 1920이니 원본이 크면 2160 × 3840을 입력하세요.'],
+    ['YouTube 스튜디오의 추천 받기','디자인한 썸네일이 없고 자동 생성 옵션으로 충분할 때.']]},
+   limits:['프리셋은 1280 × 720으로 YouTube의 현재 권장 크기 3840 × 2160보다 작습니다. 큰 크기는 직접 입력해야 합니다.','Nerulio는 YouTube 썸네일 정책이나 계정 인증 여부를 확인할 수 없습니다.'],
+   versions:{body:['크기·형식·제한·절차는 2026-09-28에 읽은 YouTube 고객센터 "맞춤 썸네일 추가"에서 인용했습니다. 자르기 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[YouTube 고객센터: 맞춤 썸네일 추가](https://support.google.com/youtube/answer/72431)']}
+  },
+  ja:{
+   answer:'プリセットは1280 × 720（16:9）の画像を作ります。2026-09-28に確認したYouTubeヘルプは、動画のサムネイルに3840 × 2160を推奨し、最小幅640px、JPGまたはPNG、16:9の比率、モバイルからのアップロードは2MBまで（パソコンは50MB）としています。1280 × 720は比率が合い、最小幅の2倍です。元画像の幅が3840px以上なら、推奨に合わせて3840 × 2160と入力します。4032 × 3024の写真は、16:9にするため上下から378pxずつ切られます。',
+   concept:{title:'16:9と、入力すべきサイズ',body:[
+    '16:9の枠は4:3の写真より横長なので、プリセットの埋めて切り取るは幅をすべて残して高さを削ります。4032 × 3024は拡大縮小の前に中央の4032 × 2268になります。縦長写真は高さの42%しか残らないため、デザインしたサムネイルはたいてい最初から16:9で作ります。',
+    'プリセットは1280 × 720のままで、3840 × 2160のピクセル数の9分の1です。3840 × 2160と入力する意味があるのは元画像にそれだけのピクセルがある場合だけで、小さな画像を拡大しても細部は増えません。大きなPNGはモバイルの2MBを超えることがあるので、スマホからアップロードするならJPGで保存するか、目標サイズを決めて圧縮します。',
+    'YouTubeはショート動画のサムネイルに2160 × 3840（9:16）、ポッドキャストの再生リストに1:1も挙げ、縦長動画に16:9のカスタムサムネイルを付けると、ホーム・探索・登録チャンネルのページでは自動生成の4:5サムネイルに置き換わると書いています。'],
+    terms:[['16:9','幅 ÷ 高さ = 1.78。1280 × 720も3840 × 2160もこの比率です。'],['最小幅','YouTubeヘルプによると動画のサムネイルは640px。'],['確認済みのアカウント','同じページによれば、カスタムサムネイルのアップロードに必要です。']]},
+   example:{title:'プリセットと推奨サイズの比較（コードから計算）',lead:'元画像は1,200万画素の写真の例で、切り抜きはサイズ変更タスクのcoverの計算に従います。',lines:[
+    'プリセット          1280 x 720    =   921,600 px',
+    '推奨                3840 x 2160   = 8,294,400 px （プリセットの9倍）',
+    '最小幅               640 px',
+    '',
+    '4032 x 3024の写真 -> 4032 x 2268を切り出し（上下378 pxずつ）',
+    '                  -> 1280 x 720（x 0.317）または 3840 x 2160（x 0.952）',
+    '3024 x 4032の写真 -> 3024 x 1701を切り出し、高さの42 %を残す'],
+    after:'この元画像ではどちらのサイズも縮小なので、細部を作り出すことはありません。1920 × 1080のスクリーンショットなら3840 × 2160は2倍の拡大で、1920 × 1080のままより良くはなりません。'},
+   target:{title:'YouTube Studioでアップロードする',steps:[
+    'YouTube Studioにログインします。',
+    '左のメニューでContent（コンテンツ）を選びます。',
+    '編集したい動画を開きます。',
+    '「Thumbnail（サムネイル）」の下のUpload file（ファイルをアップロード）をクリックし、サイズを変えた画像を選びます。',
+    'SAVE（保存）をクリックします。YouTubeは反映まで時間がかかることがあると説明しています。'],
+    note:'2026-09-28のYouTubeヘルプ（パソコン）の手順で、かっこ内の日本語メニュー名は参考です。カスタムサムネイルには確認済みのアカウントが必要です。'},
+   verify:{steps:[
+    '結果一覧に `1280×720`（または `3840×2160`）と出て、ファイル名もそのサイズで終わります。',
+    'スマホからアップロードするなら、ファイルが2MB未満か確認します。',
+    'YouTube Studioのサムネイルのプレビューで、端の近くの文字が小さな表示でも読めるか確認します。']},
+   trouble:{rows:[
+    ['ファイルをアップロードのボタンがない','カスタムサムネイルには確認済みのアカウントが必要','Studioに自動生成の候補しか出ない','チャンネルを確認してからアップロードします'],
+    ['スマホで「ファイルが大きすぎます」','モバイルでは動画のサムネイルは2MBまで','結果一覧のファイルサイズ','JPGで保存するか、目標サイズ2000（2,000,000バイトなら1953）で[[image/compress|圧縮]]します'],
+    ['ホームでサムネイルが4:5になる','縦長動画に16:9のカスタムサムネイルを付けると、そこでは自動生成の4:5が表示される','動画が縦長','YouTubeヘルプどおりの動作です。視聴フィードや履歴にはカスタムサムネイルが出ます'],
+    ['「1日のカスタムサムネイルの上限に達しました」','チャンネルごとに1日のアップロード上限がある','エラーメッセージ','ヘルプのとおり24時間後にもう一度試します'],
+    ['写真の上のほうで顔が切れた','coverが上下378pxずつ切った','元画像と比べる','サイズを変える前に[[image/crop|切り抜き]]（16:9のプリセット）で構図を決めます']]},
+   alternatives:{rows:[
+    ['[[image/resize/instagram-story|9:16のプリセット]]','ショート動画のサムネイル。YouTubeは9:16（推奨2160 × 3840）を求め、プリセットは1080 × 1920なので、元画像が大きければ2160 × 3840と入力します。'],
+    ['YouTube Studioの候補を表示','デザインしたサムネイルがなく、自動生成の候補で足りる場合。']]},
+   limits:['プリセットは1280 × 720で、YouTubeの現在の推奨3840 × 2160より小さいサイズです。大きいサイズは手で入力します。','NerulioはYouTubeのサムネイルのポリシーやアカウントの確認状況を確かめられません。'],
+   versions:{body:['サイズ・形式・上限・手順は、2026-09-28に読んだYouTubeヘルプ「カスタムサムネイルを追加する」から引用しています。切り抜きの数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[YouTube ヘルプ: カスタムサムネイルを追加する](https://support.google.com/youtube/answer/72431)']}
+  }
+ },
+ 'image/resize/youtube-banner':{
+  type:'tool',
+  intent:{primary:'resize an image for a YouTube channel banner (2560 × 1440)',secondary:['YouTube banner safe area','banner looks cut off on mobile','minimum banner size'],
+   goal:'a 2560 × 1440 banner with text and logos inside the area every device shows',input:'photo or designed banner',output:'2560 × 1440 (16:9), centre-cropped by default',target:'YouTube channel banner (YouTube Studio › Customization)',support:'full',
+   evidence:['src/landings.js SOCIAL youtube-banner (2560×1440)','src/task/resize.js'],
+   external:['YouTube Help 10456525, checked 2026-09-28: min 2048×1152 16:9, safe area 1235×338 at the minimum, recommended 2560×1440, ≤ 6 MB']},
+  en:{
+   answer:'The preset makes a 2560 × 1440 banner, the size YouTube Help recommends (checked 2026-09-28), especially for TV. The same page sets the minimum upload at 2048 × 1152 (16:9), a file size of 6 MB or less, and a safe area for text and logos of 1235 × 338 px at the minimum size; the rest of the banner is cropped on some devices. Scaled to 2560 × 1440, that safe area is about 1544 × 423 px in the centre — put anything that must be read there.',
+   concept:{title:'One image, many crops: the safe area',body:[
+    'YouTube uses the same banner on computers, phones and TVs but shows a different part of it on each. TVs show the whole 16:9 image; smaller views crop to a wide strip around the centre. The help page therefore gives a safe area — the part every view shows — of 1235 × 338 px on a 2048 × 1152 banner.',
+    'Scaled by 2560 ÷ 2048 = 1.25 for the preset, the safe area becomes 1543.75 × 422.5 px, centred: roughly x 508 to 2052 and y 509 to 931. That scaled figure is our arithmetic, not a number YouTube publishes. The preset\'s crop is centred as well, so a photo\'s centre lands in the safe area automatically; text you add must be placed there yourself.'],
+    terms:[['Safe area','The central strip shown on every device: 1235 × 338 at 2048 × 1152 per YouTube Help.'],['Minimum dimension','2048 × 1152; smaller banners are not accepted by YouTube, per the same page.'],['16:9','2560 × 1440 and 2048 × 1152 share this ratio.']]},
+   example:{title:'Safe area and a photo crop (computed)',lead:'The safe-area scaling is arithmetic from YouTube\'s figures; the photo crop follows the resize task\'s cover calculation for an example 4032 × 3024 photo.',lines:[
+    'YouTube minimum   2048 x 1152   safe area 1235 x 338',
+    'Scale to preset   x 1.25        -> 1543.75 x 422.5',
+    'Centred in 2560 x 1440: x 508.1 .. 2051.9,  y 508.75 .. 931.25',
+    '',
+    '4032 x 3024 photo -> crop 4032 x 2268 (378 px off top and bottom)',
+    '                  -> scaled x 0.635 to 2560 x 1440',
+    '   safe area covers the middle 2431 x 665 px of that crop'],
+    after:'1543.75 ÷ 0.635 ≈ 2431 and 422.5 ÷ 0.635 ≈ 665: only that central part of the photo is guaranteed to be visible everywhere.'},
+   target:{title:'Set it as your banner',steps:[
+    'Sign in to YouTube Studio.',
+    'From the left menu, select Customization, then Profile.',
+    'Under the banner image, click CHANGE and select the resized file.',
+    'Adjust the crop in the preview if needed and click DONE.',
+    'Click PUBLISH.'],
+    note:'Steps as written in YouTube Help (computer) on 2026-09-28. The same page advises no shadows, borders or frames in the file.'},
+   verify:{steps:[
+    'The result shows `2560×1440`.',
+    'Check the file size is 6 MB or less; a PNG of a detailed photo can be large, JPG output is smaller.',
+    'After publishing, look at the channel on a phone and a computer: text should sit inside the central strip on both.']},
+   trouble:{rows:[
+    ['Text is cut off on phones','It lies outside the safe area','Compare its position with x 508–2052, y 509–931','Move text and logos into the central 1544 × 423 area'],
+    ['YouTube rejects the file','Over 6 MB, or smaller than 2048 × 1152 if you changed the size','File size and dimensions','Export JPG, and keep at least 2048 × 1152'],
+    ['The banner looks soft on TV','A small source was enlarged to 2560 × 1440','Source size in the result line','Use a source at least 2560 px wide'],
+    ['A frame or shadow looks odd','YouTube advises against borders, shadows and frames','Look at the edges of the design','Remove them from the design and export again']]},
+   alternatives:{rows:[
+    ['[[image/editor|Image editor]]','You need to crop a specific part or fill a background colour before resizing.'],
+    ['YouTube\'s crop in the upload preview','Your file is already 16:9 and you only need to nudge what is visible.']]},
+   limits:['There is no safe-area overlay in Nerulio; place text using the coordinates above.','The scaled safe area is our arithmetic from YouTube\'s 2048 × 1152 figures.'],
+   versions:{body:['Banner sizes, safe area, file limit and steps are from YouTube Help "Manage your channel branding" (computer), read on 2026-09-28. Crop and scale numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[YouTube Help: Manage your channel branding](https://support.google.com/youtube/answer/10456525)']}
+  },
+  ko:{
+   answer:'프리셋은 2560 × 1440 배너를 만듭니다. YouTube 고객센터(2026-09-28 확인)가 특히 TV용으로 권장하는 크기입니다. 같은 페이지는 최소 업로드 크기 2048 × 1152(16:9), 파일 크기 6MB 이하, 그리고 최소 크기 기준 글자·로고용 안전 영역 1235 × 338px을 안내하며, 나머지 부분은 일부 기기에서 잘린다고 설명합니다. 2560 × 1440으로 환산하면 안전 영역은 가운데 약 1544 × 423px입니다. 반드시 읽혀야 하는 것은 그 안에 두세요.',
+   concept:{title:'이미지 하나, 여러 잘림: 안전 영역',body:[
+    'YouTube는 컴퓨터·휴대폰·TV에 같은 배너를 쓰지만 기기마다 보이는 부분이 다릅니다. TV는 16:9 이미지 전체를 보여 주고, 작은 화면은 가운데를 중심으로 넓은 띠만 보여 줍니다. 그래서 도움말은 모든 화면에서 보이는 부분인 안전 영역을 2048 × 1152 배너 기준 1235 × 338px로 제시합니다.',
+    '프리셋에 맞춰 2560 ÷ 2048 = 1.25배 하면 안전 영역은 가운데 1543.75 × 422.5px, 대략 x 508~2052, y 509~931입니다. 이 환산값은 YouTube가 공개한 숫자가 아니라 우리의 계산입니다. 프리셋의 자르기도 가운데 기준이라 사진의 중심은 자연스럽게 안전 영역에 들어가지만, 직접 넣는 글자는 그 안에 배치해야 합니다.'],
+    terms:[['안전 영역','모든 기기에서 보이는 가운데 띠. YouTube 고객센터 기준 2048 × 1152에서 1235 × 338.'],['최소 크기','2048 × 1152. 같은 페이지에 따르면 그보다 작은 배너는 받지 않습니다.'],['16:9','2560 × 1440과 2048 × 1152의 공통 비율.']]},
+   example:{title:'안전 영역과 사진 자르기(계산)',lead:'안전 영역 환산은 YouTube 수치에서 계산했고, 사진 자르기는 4032 × 3024 예시 사진에 대한 크기 변경 작업의 cover 계산입니다.',lines:[
+    'YouTube 최소      2048 x 1152   안전 영역 1235 x 338',
+    '프리셋으로 환산   x 1.25        -> 1543.75 x 422.5',
+    '2560 x 1440 가운데: x 508.1 .. 2051.9,  y 508.75 .. 931.25',
+    '',
+    '4032 x 3024 사진 -> 4032 x 2268 자르기 (위아래 378 px씩)',
+    '                 -> x 0.635 배율로 2560 x 1440',
+    '   안전 영역 = 그 자른 사진의 가운데 2431 x 665 px'],
+    after:'1543.75 ÷ 0.635 ≈ 2431, 422.5 ÷ 0.635 ≈ 665입니다. 모든 곳에서 보장되는 것은 사진의 그 가운데 부분뿐입니다.'},
+   target:{title:'배너로 설정하기',steps:[
+    'YouTube 스튜디오에 로그인합니다.',
+    '왼쪽 메뉴에서 Customization(맞춤설정)을 고른 뒤 Profile(프로필)을 선택합니다.',
+    '배너 이미지 아래의 CHANGE(변경)를 눌러 크기를 바꾼 파일을 고릅니다.',
+    '필요하면 미리보기에서 자르기를 조정하고 DONE(완료)을 누릅니다.',
+    'PUBLISH(게시)를 누릅니다.'],
+    note:'2026-09-28 YouTube 고객센터(컴퓨터)의 절차이며 괄호 안 한국어 메뉴명은 참고용입니다. 같은 페이지는 파일에 그림자·테두리·액자를 넣지 말라고 권합니다.'},
+   verify:{steps:[
+    '결과에 `2560×1440`이 나옵니다.',
+    '파일이 6MB 이하인지 확인하세요. 세밀한 사진의 PNG는 클 수 있고 JPG가 더 작습니다.',
+    '게시한 뒤 휴대폰과 컴퓨터에서 채널을 보세요. 두 곳 모두 글자가 가운데 띠 안에 있어야 합니다.']},
+   trouble:{rows:[
+    ['휴대폰에서 글자가 잘림','안전 영역 밖에 있습니다','위치를 x 508~2052, y 509~931과 비교','글자와 로고를 가운데 1544 × 423 영역으로 옮기세요'],
+    ['YouTube가 파일을 거부','6MB 초과, 또는 크기를 바꿨다면 2048 × 1152 미만','파일 크기와 치수','JPG로 저장하고 2048 × 1152 이상을 유지하세요'],
+    ['TV에서 배너가 흐릿함','작은 원본이 2560 × 1440으로 확대됐습니다','결과 줄의 원본 크기','너비 2560px 이상의 원본을 쓰세요'],
+    ['테두리나 그림자가 어색함','YouTube는 테두리·그림자·액자를 권하지 않습니다','디자인 가장자리 확인','디자인에서 빼고 다시 내보내세요']]},
+   alternatives:{rows:[
+    ['[[image/editor|이미지 편집기]]','크기를 바꾸기 전에 특정 부분을 자르거나 배경색을 채워야 할 때.'],
+    ['업로드 미리보기의 YouTube 자르기','파일이 이미 16:9이고 보이는 부분만 살짝 옮기면 될 때.']]},
+   limits:['Nerulio에는 안전 영역 표시가 없으니 위 좌표를 기준으로 글자를 배치하세요.','환산한 안전 영역은 YouTube의 2048 × 1152 수치에서 우리가 계산한 값입니다.'],
+   versions:{body:['배너 크기·안전 영역·파일 제한·절차는 2026-09-28에 읽은 YouTube 고객센터 "채널 브랜딩 관리"(컴퓨터)에서 가져왔습니다. 자르기와 배율 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[YouTube 고객센터: 채널 브랜딩 관리](https://support.google.com/youtube/answer/10456525)']}
+  },
+  ja:{
+   answer:'プリセットは2560 × 1440のバナーを作ります。YouTubeヘルプ（2026-09-28確認）が特にテレビ向けに推奨するサイズです。同じページは、最小のアップロードサイズを2048 × 1152（16:9）、ファイルサイズを6MB以下とし、最小サイズでの文字・ロゴ用のセーフエリアを1235 × 338pxとしています。それ以外の部分は一部のデバイスで切り取られます。2560 × 1440に換算するとセーフエリアは中央の約1544 × 423pxで、必ず読ませたいものはそこに置きます。',
+   concept:{title:'1枚の画像、いくつもの切り取られ方：セーフエリア',body:[
+    'YouTubeはパソコン・スマホ・テレビで同じバナーを使いますが、見える部分はデバイスごとに違います。テレビは16:9の画像全体を表示し、小さな画面では中央付近の横長の帯だけを表示します。そのためヘルプは、どの表示でも見える部分であるセーフエリアを2048 × 1152のバナーで1235 × 338pxと示しています。',
+    'プリセットに合わせて2560 ÷ 2048 = 1.25倍すると、セーフエリアは中央の1543.75 × 422.5px、およそx 508〜2052、y 509〜931です。この換算値はYouTubeが公開している数字ではなく私たちの計算です。プリセットの切り抜きも中央基準なので写真の中心は自然にセーフエリアに入りますが、追加する文字は自分でそこに配置する必要があります。'],
+    terms:[['セーフエリア','どのデバイスでも見える中央の帯。YouTubeヘルプでは2048 × 1152で1235 × 338。'],['最小サイズ','2048 × 1152。同じページによると、それより小さいバナーは受け付けられません。'],['16:9','2560 × 1440と2048 × 1152に共通の比率。']]},
+   example:{title:'セーフエリアと写真の切り抜き（計算）',lead:'セーフエリアの換算はYouTubeの数値からの計算で、写真の切り抜きは4032 × 3024の例の写真に対するサイズ変更タスクのcoverの計算です。',lines:[
+    'YouTubeの最小     2048 x 1152   セーフエリア 1235 x 338',
+    'プリセットに換算  x 1.25        -> 1543.75 x 422.5',
+    '2560 x 1440の中央: x 508.1 .. 2051.9、 y 508.75 .. 931.25',
+    '',
+    '4032 x 3024の写真 -> 4032 x 2268を切り出し（上下378 pxずつ）',
+    '                  -> x 0.635倍で2560 x 1440',
+    '   セーフエリア = その切り出しの中央 2431 x 665 px'],
+    after:'1543.75 ÷ 0.635 ≈ 2431、422.5 ÷ 0.635 ≈ 665です。どこでも見えることが保証されるのは、写真のその中央部分だけです。'},
+   target:{title:'バナーとして設定する',steps:[
+    'YouTube Studioにログインします。',
+    '左のメニューでCustomization（カスタマイズ）を選び、Profile（プロフィール）を選びます。',
+    'バナー画像の下のCHANGE（変更）をクリックし、サイズを変えたファイルを選びます。',
+    '必要ならプレビューで切り抜きを調整し、DONE（完了）をクリックします。',
+    'PUBLISH（公開）をクリックします。'],
+    note:'2026-09-28のYouTubeヘルプ（パソコン）の手順で、かっこ内の日本語メニュー名は参考です。同じページはファイルに影・枠線・フレームを入れないよう勧めています。'},
+   verify:{steps:[
+    '結果に `2560×1440` と出ます。',
+    'ファイルが6MB以下か確認します。細かい写真のPNGは大きくなることがあり、JPGのほうが小さくなります。',
+    '公開後、スマホとパソコンでチャンネルを見ます。どちらでも文字が中央の帯の中にあるはずです。']},
+   trouble:{rows:[
+    ['スマホで文字が切れる','セーフエリアの外にある','位置をx 508〜2052、y 509〜931と比べる','文字とロゴを中央の1544 × 423の範囲に移します'],
+    ['YouTubeがファイルを拒否する','6MBを超えている、またはサイズを変えて2048 × 1152未満にした','ファイルサイズと寸法','JPGで保存し、2048 × 1152以上を保ちます'],
+    ['テレビでバナーがぼやける','小さな元画像が2560 × 1440に拡大された','結果の行の元のサイズ','幅2560px以上の元画像を使います'],
+    ['枠や影が不自然','YouTubeは枠線・影・フレームを勧めていない','デザインの端を確認','デザインから外して書き出し直します']]},
+   alternatives:{rows:[
+    ['[[image/editor|画像エディター]]','サイズ変更の前に特定の部分を切り抜いたり、背景色を塗ったりしたい場合。'],
+    ['アップロード時のプレビューでのYouTubeの切り抜き','ファイルがすでに16:9で、見える部分を少し動かすだけでよい場合。']]},
+   limits:['Nerulioにはセーフエリアの表示がないので、上の座標を基準に文字を配置してください。','換算したセーフエリアは、YouTubeの2048 × 1152の数値から私たちが計算したものです。'],
+   versions:{body:['バナーのサイズ・セーフエリア・ファイルの上限・手順は、2026-09-28に読んだYouTubeヘルプ「チャンネルのブランディングを管理する」（パソコン）からです。切り抜きと倍率の数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[YouTube ヘルプ: チャンネルのブランディングを管理する](https://support.google.com/youtube/answer/10456525)']}
+  }
+ },
+ 'image/resize/x-header':{
+  type:'tool',
+  intent:{primary:'resize an image for an X (Twitter) header (1500 × 500)',secondary:['X header size','Twitter banner cut off','3:1 header from a photo'],
+   goal:'a 1500 × 500 header whose important part survives X\'s own cropping',input:'photo or designed image',output:'1500 × 500 (3:1), centre-cropped by default; JPG or PNG',target:'X profile header',support:'full',
+   evidence:['src/landings.js SOCIAL x-header (1500×500)','src/task/resize.js'],
+   external:['help.x.com how-to-customize-your-profile and common-issues-when-uploading-profile-photo, checked 2026-09-28']},
+  en:{
+   answer:'The preset makes a 1500 × 500 header (3:1), the dimensions X\'s Help Center recommends (checked 2026-09-28). X accepts JPG, GIF and PNG but not animated GIFs for headers, and warns that up to 60 px at the top and bottom can be cropped depending on the monitor and browser — so keep text within the middle 1500 × 380. A 3:1 box is much wider than a photo: from a 4032 × 3024 photo only the central 4032 × 1344 band (44 %) is used.',
+   concept:{title:'A 3:1 strip, trimmed again by X',body:[
+    'Fill and crop keeps the full width of a landscape photo and cuts 840 px from its top and bottom; from a portrait photo only a quarter of the height remains. Pick the band yourself with [[image/crop|crop]] when the subject is not in the vertical middle.',
+    'After upload, X may cut up to 60 px from the top and bottom of the recommended 1500 × 500 image, depending on screen and browser. The area that always shows is therefore about y 60 to 440: 380 px of the 500. X\'s help page does not describe any other safe zone, so other overlaps are not covered here.'],
+    terms:[['3:1','1500 × 500; three times as wide as tall.'],['Top/bottom crop','Up to 60 px each, per X\'s help page.'],['Static only','Animated GIFs are not supported for profile or header images.']]},
+   example:{title:'From photo to 1500 × 500 (computed from the code)',lead:'Example 12-megapixel sources; cover arithmetic from the resize task, the 60 px margins from X\'s help page.',lines:[
+    'Landscape 4032 x 3024 -> crop 4032 x 1344 (840 px off top and bottom), 44 % kept',
+    '                         scaled x 0.372 -> 1500 x 500',
+    'Portrait  3024 x 4032 -> crop 3024 x 1008 (1512 px off top and bottom), 25 % kept',
+    '',
+    'Always visible: 500 - 2 x 60 = 380 px high (y 60 .. 440)',
+    'In the landscape source that is 380 / 0.372 = about 1021 px of height'],
+    after:'So only about a third of the landscape photo\'s height is guaranteed to be seen. Put the subject in the middle of the band before resizing.'},
+   target:{title:'Set it as your header on X',steps:[
+    'Sign in to X.com or open the X app.',
+    'Go to your profile and click or tap Edit profile.',
+    'Click or tap the camera icon on the header and select Upload photo.',
+    'Click Apply — X notes that the image is not saved until you do.',
+    'Click or tap Save.'],
+    note:'Steps and the 1500 × 500 recommendation as written in X\'s Help Center on 2026-09-28.'},
+   verify:{steps:[
+    'The result shows `1500×500`.',
+    'Check your profile on a wide monitor and on a phone: text should not touch the top or bottom 60 px.',
+    'If you uploaded a GIF, make sure it is a still image.']},
+   trouble:{rows:[
+    ['The top and bottom of the header are cut','X crops up to 60 px each depending on the display','Measure: is the content within y 60–440?','Keep text inside the middle 380 px and re-export'],
+    ['Only a thin slice of the photo is left','3:1 cover of a 4:3 or portrait photo','Compare with the original','Choose the band yourself with [[image/crop|crop]] first'],
+    ['The animated GIF does not move','X does not support animated GIFs for headers','—','Use a still image'],
+    ['Upload does not finish','The change was not applied or the browser is outdated, per X\'s help page','The Apply button was not clicked','Click Apply, then Save; try another browser']]},
+   alternatives:{rows:[
+    ['[[image/resize/linkedin-banner|LinkedIn banner]]','The same artwork for LinkedIn, which uses a wider 4:1 strip.'],
+    ['X\'s header gallery','X offers ready-sized header images; its help page suggests them as a template when uploads fail.']]},
+   limits:['X names only the 60 px top and bottom crop; no other safe zone is documented, so none is claimed here.','X\'s maximum file size for headers is not stated on the pages checked (2 MB is given for profile photos).'],
+   versions:{body:['Dimensions, formats, the 60 px crop and the steps come from X\'s Help Center pages "How to customize your profile" and "Help with uploading a profile photo", read on 2026-09-28. Crop numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[X Help Center: How to customize your profile](https://help.x.com/en/managing-your-account/how-to-customize-your-profile)','[X Help Center: Help with uploading a profile photo](https://help.x.com/en/managing-your-account/common-issues-when-uploading-profile-photo)']}
+  },
+  ko:{
+   answer:'프리셋은 X 고객센터(2026-09-28 확인)가 권장하는 1500 × 500(3:1) 헤더를 만듭니다. X는 헤더에 JPG·GIF·PNG를 받지만 움직이는 GIF는 받지 않으며, 모니터와 브라우저에 따라 위아래 최대 60px이 잘릴 수 있다고 경고합니다. 그러니 글자는 가운데 1500 × 380 안에 두세요. 3:1 상자는 사진보다 훨씬 넓어서 4032 × 3024 사진이라면 가운데 4032 × 1344 띠(44%)만 쓰입니다.',
+   concept:{title:'3:1 띠, 그리고 X의 추가 자르기',body:[
+    '채우고 자르기는 가로 사진의 너비를 모두 남기고 위아래에서 840px씩 잘라냅니다. 세로 사진이라면 높이의 4분의 1만 남습니다. 피사체가 세로 가운데에 있지 않다면 [[image/crop|자르기]]로 띠를 직접 고르세요.',
+    '업로드 후 X는 화면과 브라우저에 따라 권장 크기 1500 × 500 이미지의 위아래를 최대 60px씩 자를 수 있습니다. 항상 보이는 부분은 대략 y 60~440, 500 중 380px입니다. X 도움말은 그 밖의 안전 영역을 설명하지 않으므로 다른 겹침은 여기서 다루지 않습니다.'],
+    terms:[['3:1','1500 × 500. 너비가 높이의 세 배.'],['위아래 잘림','X 도움말 기준 각각 최대 60px.'],['정지 이미지만','프로필·헤더 이미지에는 움직이는 GIF를 지원하지 않습니다.']]},
+   example:{title:'사진에서 1500 × 500으로(코드로 계산)',lead:'1,200만 화소 원본을 예로 든 크기 변경 작업의 cover 계산이며, 60px 여백은 X 도움말 수치입니다.',lines:[
+    '가로 4032 x 3024 -> 4032 x 1344 자르기 (위아래 840 px씩), 44 % 유지',
+    '                    x 0.372 배율 -> 1500 x 500',
+    '세로 3024 x 4032 -> 3024 x 1008 자르기 (위아래 1512 px씩), 25 % 유지',
+    '',
+    '항상 보이는 부분: 500 - 2 x 60 = 380 px 높이 (y 60 .. 440)',
+    '가로 원본에서는 380 / 0.372 = 약 1021 px 높이'],
+    after:'즉 가로 사진 높이의 약 3분의 1만 보이는 것이 보장됩니다. 크기를 바꾸기 전에 피사체를 띠 가운데에 두세요.'},
+   target:{title:'X 헤더로 설정하기',steps:[
+    'X.com에 로그인하거나 X 앱을 엽니다.',
+    '프로필로 가서 Edit profile(프로필 수정)을 누릅니다.',
+    '헤더의 카메라 아이콘을 누르고 Upload photo(사진 업로드)를 선택합니다.',
+    'Apply(적용)를 누릅니다. 누르지 않으면 이미지가 저장되지 않는다고 X는 안내합니다.',
+    'Save(저장)를 누릅니다.'],
+    note:'2026-09-28 X 고객센터에 적힌 절차와 1500 × 500 권장값이며, 괄호 안 한국어 메뉴명은 참고용입니다.'},
+   verify:{steps:[
+    '결과에 `1500×500`이 나옵니다.',
+    '넓은 모니터와 휴대폰에서 프로필을 확인하세요. 글자가 위아래 60px에 닿지 않아야 합니다.',
+    'GIF를 올렸다면 정지 이미지인지 확인하세요.']},
+   trouble:{rows:[
+    ['헤더 위아래가 잘림','X가 화면에 따라 위아래 최대 60px씩 자릅니다','내용이 y 60~440 안에 있는지 확인','글자를 가운데 380px 안에 두고 다시 내보내세요'],
+    ['사진이 얇은 조각만 남음','4:3이나 세로 사진을 3:1로 cover했습니다','원본과 비교','먼저 [[image/crop|자르기]]로 띠를 직접 고르세요'],
+    ['움직이는 GIF가 멈춰 있음','X는 헤더에 움직이는 GIF를 지원하지 않습니다','—','정지 이미지를 쓰세요'],
+    ['업로드가 끝나지 않음','X 도움말에 따르면 적용을 누르지 않았거나 브라우저가 오래됐습니다','Apply를 누르지 않았음','Apply 후 Save를 누르고, 다른 브라우저로도 시도하세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/linkedin-banner|링크드인 배너]]','같은 그림을 더 넓은 4:1 띠를 쓰는 링크드인에도 쓸 때.'],
+    ['X 헤더 갤러리','X가 크기가 맞는 헤더 이미지를 제공하며, 업로드가 안 될 때 템플릿으로 쓰라고 도움말이 권합니다.']]},
+   limits:['X는 위아래 60px 잘림만 밝히고 다른 안전 영역은 문서화하지 않았으므로 여기서도 주장하지 않습니다.','확인한 페이지에는 헤더의 최대 파일 크기가 없습니다(프로필 사진은 2MB).'],
+   versions:{body:['크기·형식·60px 잘림·절차는 2026-09-28에 읽은 X 고객센터 "프로필을 사용자 지정하는 방법"과 "프로필 사진 업로드 도움말"에서 가져왔습니다. 자르기 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[X 고객센터: 프로필을 사용자 지정하는 방법](https://help.x.com/en/managing-your-account/how-to-customize-your-profile)','[X 고객센터: 프로필 사진 업로드 도움말](https://help.x.com/en/managing-your-account/common-issues-when-uploading-profile-photo)']}
+  },
+  ja:{
+   answer:'プリセットは、Xヘルプセンター（2026-09-28確認）が推奨する1500 × 500（3:1）のヘッダーを作ります。Xはヘッダーに JPG・GIF・PNGを受け付けますがアニメーションGIFは使えず、モニターやブラウザによって上下最大60pxが切れることがあると注意しています。そのため文字は中央の1500 × 380に収めます。3:1の枠は写真よりずっと横長で、4032 × 3024の写真なら中央の4032 × 1344の帯（44%）しか使われません。',
+   concept:{title:'3:1の帯と、Xによる追加の切り取り',body:[
+    '埋めて切り取るは、横長写真の幅をすべて残して上下から840pxずつ切ります。縦長写真なら高さの4分の1しか残りません。被写体が縦方向の中央にないときは、[[image/crop|切り抜き]]で帯を自分で選びます。',
+    'アップロード後、Xは画面やブラウザによって、推奨サイズ1500 × 500の画像の上下を最大60pxずつ切ることがあります。常に見えるのはおよそy 60〜440、500のうち380pxです。Xのヘルプはそれ以外のセーフゾーンを説明していないので、ほかの重なりはここでは扱いません。'],
+    terms:[['3:1','1500 × 500。幅が高さの3倍。'],['上下の切り取り','Xのヘルプによるとそれぞれ最大60px。'],['静止画のみ','プロフィール画像やヘッダーにアニメーションGIFは使えません。']]},
+   example:{title:'写真から1500 × 500へ（コードから計算）',lead:'1,200万画素の元画像を例にしたサイズ変更タスクのcoverの計算で、60pxの余白はXのヘルプの数値です。',lines:[
+    '横長 4032 x 3024 -> 4032 x 1344を切り出し（上下840 pxずつ）、44 %を残す',
+    '                    x 0.372倍 -> 1500 x 500',
+    '縦長 3024 x 4032 -> 3024 x 1008を切り出し（上下1512 pxずつ）、25 %を残す',
+    '',
+    '常に見える部分: 500 - 2 x 60 = 高さ380 px（y 60 .. 440）',
+    '横長の元画像では 380 / 0.372 = 高さ約1021 px'],
+    after:'つまり横長写真の高さのおよそ3分の1しか、見えることが保証されません。サイズを変える前に被写体を帯の中央に置きます。'},
+   target:{title:'Xのヘッダーに設定する',steps:[
+    'X.comにログインするか、Xのアプリを開きます。',
+    'プロフィールに移動し、Edit profile（プロフィールを編集）をクリックまたはタップします。',
+    'ヘッダーのカメラアイコンをクリックまたはタップし、Upload photo（写真をアップロード）を選びます。',
+    'Apply（適用）をクリックします。押さないと画像は保存されないとXは説明しています。',
+    'Save（保存）をクリックまたはタップします。'],
+    note:'2026-09-28のXヘルプセンターに書かれた手順と1500 × 500の推奨値で、かっこ内の日本語メニュー名は参考です。'},
+   verify:{steps:[
+    '結果に `1500×500` と出ます。',
+    '横長のモニターとスマホでプロフィールを確認します。文字が上下60pxにかかっていないはずです。',
+    'GIFをアップロードしたなら、静止画であることを確認します。']},
+   trouble:{rows:[
+    ['ヘッダーの上下が切れる','Xが表示環境によって上下最大60pxずつ切る','内容がy 60〜440の中にあるか測る','文字を中央の380pxに収めて書き出し直します'],
+    ['写真の細い部分しか残らない','4:3や縦長の写真を3:1でcoverした','元画像と比べる','先に[[image/crop|切り抜き]]で帯を自分で選びます'],
+    ['アニメーションGIFが動かない','Xはヘッダーのアニメーションを扱わない','—','静止画を使います'],
+    ['アップロードが終わらない','Xのヘルプによれば、適用を押していないかブラウザが古い','Applyを押していない','Applyを押してからSaveし、別のブラウザでも試します']]},
+   alternatives:{rows:[
+    ['[[image/resize/linkedin-banner|LinkedInのバナー]]','同じ絵を、さらに横長の4:1の帯を使うLinkedInにも使う場合。'],
+    ['Xのヘッダーギャラリー','Xはサイズの合ったヘッダー画像を用意しており、アップロードできないときのテンプレートとしてヘルプが勧めています。']]},
+   limits:['Xが示しているのは上下60pxの切り取りだけで、それ以外のセーフゾーンは文書化されていないため、ここでも主張しません。','確認したページにはヘッダーの最大ファイルサイズの記載がありません（プロフィール写真は2MB）。'],
+   versions:{body:['サイズ・形式・60pxの切り取り・手順は、2026-09-28に読んだXヘルプセンターの「プロフィールをカスタマイズする方法」と「プロフィール画像のアップロードに関するヘルプ」から取りました。切り抜きの数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[X ヘルプセンター: プロフィールをカスタマイズする方法](https://help.x.com/en/managing-your-account/how-to-customize-your-profile)','[X ヘルプセンター: プロフィール画像のアップロードに関するヘルプ](https://help.x.com/en/managing-your-account/common-issues-when-uploading-profile-photo)']}
+  }
+ },
+ 'image/resize/linkedin-banner':{
+  type:'tool',
+  intent:{primary:'resize an image for a LinkedIn profile banner (cover image, 1584 × 396)',secondary:['LinkedIn background photo size','LinkedIn banner blurry','4:1 banner from a photo'],
+   goal:'a 1584 × 396 cover image LinkedIn accepts and shows sharply',input:'photo or designed banner',output:'1584 × 396 (4:1), JPG or PNG, well under 8 MB',target:'LinkedIn profile cover image',support:'full',
+   evidence:['src/landings.js SOCIAL linkedin-banner (1584×396)','src/task/resize.js'],
+   external:['LinkedIn Help a568217, checked 2026-09-28: JPG or PNG, < 8 MB, 1584 × 396 recommended']},
+  en:{
+   answer:'The preset makes a 1584 × 396 cover image — exactly 4:1 — which LinkedIn Help recommends for the profile cover (checked 2026-09-28), together with JPG or PNG and a file under 8 MB. LinkedIn also says the display changes with browser window size and screen resolution, but it publishes no safe zone, so none is claimed here. A 4:1 strip keeps only a third of a 4032 × 3024 photo\'s height (the middle 4032 × 1008), so choose the band carefully.',
+   concept:{title:'A very wide strip',body:[
+    '4:1 is the widest of the presets. Fill and crop keeps the full width of a landscape photo and removes 1008 px at both the top and bottom; a portrait photo keeps under a fifth of its height. Landscape panoramas, textures and designed banners suit it best.',
+    'LinkedIn\'s advice for a blurry or pixelated cover is to choose an image with a larger file size, and it notes that photos look better than images with logos. The preset writes JPG at quality 0.92 or lossless PNG, both far below 8 MB at this size; blurriness usually comes from enlarging a small source, which the preset does when the source is narrower than 1584 px.'],
+    terms:[['4:1','1584 × 396; four times as wide as tall.'],['Cover image','LinkedIn\'s name for the profile background photo.'],['Recommended size','1584 (w) × 396 (h) px on LinkedIn Help.']]},
+   example:{title:'Photos into 4:1 (computed from the code)',lead:'Example 12-megapixel sources; cover arithmetic from the resize task.',lines:[
+    'Landscape 4032 x 3024 -> crop 4032 x 1008 (1008 px off top and bottom)',
+    '                         33 % kept, scaled x 0.393 -> 1584 x 396',
+    'Portrait  3024 x 4032 -> crop 3024 x 756 (1638 px off top and bottom)',
+    '                         19 % kept, scaled x 0.524',
+    '',
+    'Small source 1200 x 800 -> crop 1200 x 300, enlarged x 1.32'],
+    after:'The last line is the typical cause of a blurry banner: a source narrower than 1584 px is enlarged, and LinkedIn then shows it large on wide screens.'},
+   target:{title:'Add it on LinkedIn (desktop)',steps:[
+    'Click the Me icon at the top of your LinkedIn homepage.',
+    'Click View Profile.',
+    'Click the Camera icon in the upper-right corner of your introduction section.',
+    'Choose Upload a single photo and select the resized file.',
+    'Crop, reposition or adjust if needed, then click Apply.'],
+    note:'Steps as written in LinkedIn Help for desktop on 2026-09-28; the mobile app uses a different path.'},
+   verify:{steps:[
+    'The result shows `1584×396` and the file is JPG or PNG.',
+    'View your profile at a narrow and a wide browser width: LinkedIn says the visible part changes.',
+    'If it looks soft, check the source width in the result line (at least 1584 px avoids enlargement).']},
+   trouble:{rows:[
+    ['The banner looks blurry','A source narrower than 1584 px was enlarged','Source size in the result line','Use a wider original; LinkedIn also suggests an image with a larger file size'],
+    ['The subject is cut away','4:1 cover keeps only the central third of a 4:3 photo','Compare with the original','Pick the strip with [[image/crop|crop]] first'],
+    ['Upload refused','Not JPG/PNG, or 8 MB or more','File type and size','Export JPG or PNG from Nerulio; this size is far below 8 MB'],
+    ['Part of the design is hidden on some screens','The display changes with window size and resolution; no safe zone is published','Check at several window widths','Keep key content near the centre and test again']]},
+   alternatives:{rows:[
+    ['[[image/resize/x-header|X header]]','The same artwork for X, which uses 3:1.'],
+    ['LinkedIn\'s built-in images','LinkedIn\'s upload dialog also offers ready images to choose from.']]},
+   limits:['LinkedIn publishes no safe area for the cover image; none is given here.','The steps shown are for desktop; the iOS and Android apps use different menus.'],
+   versions:{body:['Size, formats, file limit, advice and steps come from LinkedIn Help "Add or change the cover image on your profile", read on 2026-09-28. Crop numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[LinkedIn Help: Add or change the cover image on your profile](https://www.linkedin.com/help/linkedin/answer/a568217)']}
+  },
+  ko:{
+   answer:'프리셋은 정확히 4:1인 1584 × 396 커버 이미지를 만듭니다. 링크드인 고객센터(2026-09-28 확인)가 프로필 커버로 권장하는 크기이며, JPG 또는 PNG, 8MB 미만 파일이라는 조건도 함께 안내합니다. 링크드인은 브라우저 창 크기와 화면 해상도에 따라 표시가 달라진다고 하지만 안전 영역은 공개하지 않으므로 여기서도 주장하지 않습니다. 4:1 띠는 4032 × 3024 사진 높이의 3분의 1(가운데 4032 × 1008)만 남기니 띠를 신중히 고르세요.',
+   concept:{title:'아주 넓은 띠',body:[
+    '4:1은 프리셋 중 가장 넓습니다. 채우고 자르기는 가로 사진의 너비를 모두 남기고 위아래에서 각각 1008px을 잘라냅니다. 세로 사진은 높이의 5분의 1도 남지 않습니다. 가로 파노라마, 질감 이미지, 디자인한 배너가 가장 잘 맞습니다.',
+    '링크드인은 커버가 흐리거나 깨져 보이면 파일 크기가 더 큰 이미지를 고르라고 조언하며, 로고가 든 이미지보다 사진이 더 좋아 보인다고 적고 있습니다. 프리셋은 화질 0.92 JPG나 무손실 PNG를 쓰며 이 크기에서는 둘 다 8MB보다 훨씬 작습니다. 흐림은 대개 작은 원본을 키운 탓이며, 원본 너비가 1584px보다 좁으면 프리셋이 확대합니다.'],
+    terms:[['4:1','1584 × 396. 너비가 높이의 네 배.'],['커버 이미지','링크드인이 프로필 배경 사진을 부르는 이름.'],['권장 크기','링크드인 고객센터 기준 1584(가로) × 396(세로)px.']]},
+   example:{title:'사진을 4:1로(코드로 계산)',lead:'1,200만 화소 원본을 예로 든 크기 변경 작업의 cover 계산입니다.',lines:[
+    '가로 4032 x 3024 -> 4032 x 1008 자르기 (위아래 1008 px씩)',
+    '                    33 % 유지, x 0.393 배율 -> 1584 x 396',
+    '세로 3024 x 4032 -> 3024 x 756 자르기 (위아래 1638 px씩)',
+    '                    19 % 유지, x 0.524 배율',
+    '',
+    '작은 원본 1200 x 800 -> 1200 x 300 자르기, x 1.32 확대'],
+    after:'마지막 줄이 흐릿한 배너의 흔한 원인입니다. 1584px보다 좁은 원본이 확대되고, 링크드인은 넓은 화면에서 그것을 크게 보여 줍니다.'},
+   target:{title:'링크드인에 올리기(데스크톱)',steps:[
+    '링크드인 홈 상단의 Me(나) 아이콘을 누릅니다.',
+    'View Profile(프로필 보기)을 누릅니다.',
+    '소개 섹션 오른쪽 위의 카메라 아이콘을 누릅니다.',
+    'Upload a single photo(사진 한 장 업로드)를 고르고 크기를 바꾼 파일을 선택합니다.',
+    '필요하면 자르기·위치·보정을 하고 Apply(적용)를 누릅니다.'],
+    note:'2026-09-28 링크드인 고객센터의 데스크톱 절차이며 괄호 안 한국어 메뉴명은 참고용입니다. 모바일 앱은 경로가 다릅니다.'},
+   verify:{steps:[
+    '결과에 `1584×396`이 나오고 파일이 JPG나 PNG인지 확인하세요.',
+    '브라우저 창을 좁게, 넓게 바꿔 가며 프로필을 보세요. 링크드인은 보이는 부분이 달라진다고 안내합니다.',
+    '흐려 보이면 결과 줄의 원본 너비를 확인하세요(1584px 이상이면 확대되지 않습니다).']},
+   trouble:{rows:[
+    ['배너가 흐릿함','1584px보다 좁은 원본이 확대됐습니다','결과 줄의 원본 크기','더 넓은 원본을 쓰세요. 링크드인도 파일 크기가 더 큰 이미지를 권합니다'],
+    ['피사체가 잘려 나감','4:1 cover는 4:3 사진의 가운데 3분의 1만 남깁니다','원본과 비교','먼저 [[image/crop|자르기]]로 띠를 고르세요'],
+    ['업로드가 거부됨','JPG·PNG가 아니거나 8MB 이상','파일 형식과 크기','Nerulio에서 JPG나 PNG로 내보내세요. 이 크기는 8MB보다 훨씬 작습니다'],
+    ['일부 화면에서 디자인 일부가 가려짐','창 크기와 해상도에 따라 표시가 바뀌며 안전 영역은 공개되지 않았습니다','여러 창 너비에서 확인','핵심 내용을 가운데 가까이 두고 다시 확인하세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/x-header|X 헤더]]','같은 그림을 3:1을 쓰는 X에도 쓸 때.'],
+    ['링크드인 기본 제공 이미지','링크드인 업로드 창에서 바로 고를 수 있는 이미지도 제공합니다.']]},
+   limits:['링크드인은 커버 이미지의 안전 영역을 공개하지 않으며 여기서도 제시하지 않습니다.','위 절차는 데스크톱용이며 iOS·안드로이드 앱은 메뉴가 다릅니다.'],
+   versions:{body:['크기·형식·파일 제한·조언·절차는 2026-09-28에 읽은 링크드인 고객센터 "프로필 커버 이미지 추가 또는 변경"에서 가져왔습니다. 자르기 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[LinkedIn 고객센터: 프로필 커버 이미지 추가 또는 변경](https://www.linkedin.com/help/linkedin/answer/a568217)']}
+  },
+  ja:{
+   answer:'プリセットはちょうど4:1の1584 × 396のカバー画像を作ります。LinkedInヘルプ（2026-09-28確認）がプロフィールのカバーとして推奨するサイズで、JPGまたはPNG、8MB未満という条件も示されています。LinkedInはブラウザのウィンドウサイズや画面の解像度で表示が変わると説明していますが、セーフゾーンは公開していないので、ここでも示しません。4:1の帯は4032 × 3024の写真の高さの3分の1（中央の4032 × 1008）しか残さないので、帯は慎重に選びます。',
+   concept:{title:'とても横長の帯',body:[
+    '4:1はプリセットの中で最も横長です。埋めて切り取るは横長写真の幅をすべて残し、上下からそれぞれ1008pxを切ります。縦長写真では高さの5分の1も残りません。横長のパノラマ、テクスチャ、デザインしたバナーがいちばん合います。',
+    'LinkedInは、カバーがぼやけたり粗く見えたりするときはファイルサイズの大きい画像を選ぶよう勧め、ロゴ入りの画像より写真のほうがきれいに見えるとしています。プリセットは画質0.92のJPGか可逆のPNGで書き出し、このサイズではどちらも8MBよりずっと小さくなります。ぼやけの原因はたいてい小さな元画像の拡大で、元画像の幅が1584pxより狭いとプリセットが拡大します。'],
+    terms:[['4:1','1584 × 396。幅が高さの4倍。'],['カバー画像','LinkedInでのプロフィール背景写真の呼び名。'],['推奨サイズ','LinkedInヘルプでは1584（幅）× 396（高さ）px。']]},
+   example:{title:'写真を4:1に（コードから計算）',lead:'1,200万画素の元画像を例にしたサイズ変更タスクのcoverの計算です。',lines:[
+    '横長 4032 x 3024 -> 4032 x 1008を切り出し（上下1008 pxずつ）',
+    '                    33 %を残す、x 0.393倍 -> 1584 x 396',
+    '縦長 3024 x 4032 -> 3024 x 756を切り出し（上下1638 pxずつ）',
+    '                    19 %を残す、x 0.524倍',
+    '',
+    '小さな元画像 1200 x 800 -> 1200 x 300を切り出し、x 1.32に拡大'],
+    after:'最後の行がぼやけたバナーのよくある原因です。1584pxより狭い元画像が拡大され、LinkedInは広い画面でそれを大きく表示します。'},
+   target:{title:'LinkedInで追加する（パソコン）',steps:[
+    'LinkedInのホーム上部のMe（ホーム）アイコンをクリックします。',
+    'View Profile（プロフィールを表示）をクリックします。',
+    '自己紹介セクションの右上にあるカメラアイコンをクリックします。',
+    'Upload a single photo（写真を1枚アップロード）を選び、サイズを変えたファイルを選択します。',
+    '必要なら切り抜き・位置・調整をして、Apply（適用）をクリックします。'],
+    note:'2026-09-28のLinkedInヘルプに書かれたパソコン用の手順で、かっこ内の日本語メニュー名は参考です。モバイルアプリは手順が異なります。'},
+   verify:{steps:[
+    '結果に `1584×396` と出て、ファイルがJPGかPNGであることを確認します。',
+    'ブラウザのウィンドウを狭くしたり広くしたりしてプロフィールを見ます。LinkedInは見える部分が変わると説明しています。',
+    'ぼやけて見えるなら、結果の行で元画像の幅を確認します（1584px以上なら拡大されません）。']},
+   trouble:{rows:[
+    ['バナーがぼやける','1584pxより狭い元画像が拡大された','結果の行の元のサイズ','もっと幅の広い元画像を使います。LinkedInもファイルサイズの大きい画像を勧めています'],
+    ['被写体が切れてしまう','4:1のcoverは4:3の写真の中央3分の1しか残さない','元画像と比べる','先に[[image/crop|切り抜き]]で帯を選びます'],
+    ['アップロードが拒否される','JPG・PNGでない、または8MB以上','ファイル形式とサイズ','NerulioからJPGかPNGで書き出します。このサイズなら8MBよりずっと小さくなります'],
+    ['画面によってデザインの一部が隠れる','ウィンドウサイズと解像度で表示が変わり、セーフゾーンは公開されていない','いくつかのウィンドウ幅で確認','大事な内容を中央寄りに置いて、もう一度確認します']]},
+   alternatives:{rows:[
+    ['[[image/resize/x-header|Xのヘッダー]]','同じ絵を3:1のXにも使う場合。'],
+    ['LinkedInの用意した画像','LinkedInのアップロード画面では、そのまま選べる画像も用意されています。']]},
+   limits:['LinkedInはカバー画像のセーフエリアを公開しておらず、ここでも示しません。','上の手順はパソコン用で、iOS・Androidのアプリはメニューが異なります。'],
+   versions:{body:['サイズ・形式・ファイルの上限・助言・手順は、2026-09-28に読んだLinkedInヘルプ「プロフィールのカバー画像を追加・変更する」から取りました。切り抜きの数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[LinkedIn ヘルプ: プロフィールのカバー画像を追加・変更する](https://www.linkedin.com/help/linkedin/answer/a568217)']}
+  }
+ },
+ 'image/resize/discord-banner':{
+  type:'tool',
+  intent:{primary:'resize an image for a Discord server banner (960 × 540)',secondary:['Discord server banner size','banner boost level','server name covers the banner'],
+   goal:'a 16:9 server banner at Discord\'s recommended size with the top kept calm for the server name',input:'photo, key art or designed image',output:'960 × 540 (16:9), centre-cropped by default',target:'Discord server banner (Server Settings › Overview)',support:'full',
+   evidence:['src/landings.js SOCIAL discord-banner (960×540)','src/task/resize.js'],
+   external:['Discord Support 360028716472, checked 2026-09-28: ≥ 960×540 16:9, 1920×1080 auto-resized, top 48 px simple, Boost Level 2 (animated: Level 3)']},
+  en:{
+   answer:'The preset makes a 960 × 540 banner (16:9), the size Discord Support recommends for server banners (checked 2026-09-28): at least 960 × 540 in 16:9, with 1920 × 1080 images resized automatically on upload. Discord asks you to keep the top 48 px simple because the server name sits over it, and to avoid logos or text. A server needs Boosting Level 2 for a banner (Level 3 for an animated one; Partner servers have it without boosting).',
+   concept:{title:'A 16:9 banner under the server name',body:[
+    'The banner sits at the top of the channel list with the server\'s name over its upper edge. That is why Discord recommends a calm top 48 px — 8.9 % of the 540-px height — and art without text or logos: key art, a character still or a subtle background.',
+    'From a 4:3 photo the 16:9 crop removes 378 px at the top and bottom (4032 × 2268 kept), and the scale to 960 × 540 is 0.238, so the top 48 px of the banner come from about 202 px of the cropped photo. If that part is busy, move the crop down with [[image/crop|crop]] first. You can also type 1920 × 1080: Discord says it resizes that on upload.'],
+    terms:[['16:9','960 × 540 and 1920 × 1080 both have this ratio.'],['Top 48 px','The strip behind the server name; keep it free of busy imagery (Discord).'],['Boosting Level 2','Needed for a static banner; Level 3 unlocks animated banners.']]},
+   example:{title:'A photo into 960 × 540 (computed from the code)',lead:'Example 12-megapixel source; cover arithmetic from the resize task, the 48 px from Discord Support.',lines:[
+    '4032 x 3024 photo -> crop 4032 x 2268 (378 px off top and bottom), 75 % kept',
+    '                  -> scaled x 0.238 -> 960 x 540',
+    'Top 48 px of the banner = 48 / 0.238 = about 202 px of the cropped photo',
+    '',
+    '3024 x 4032 photo -> crop 3024 x 1701, 42 % of the height kept',
+    'Alternative size  -> 1920 x 1080 (Discord resizes it on upload)'],
+    after:'48 px is 8.9 % of 540; the same share of a 1920 × 1080 upload is 96 px.'},
+   target:{title:'Set it as your server banner',steps:[
+    'Make sure the server has Boosting Level 2 (or is a Partner server) and that you are the owner or have the Manage Server or Administrator permission.',
+    'Open Server Settings › Overview.',
+    'Scroll to the bottom of the page to the Server Banner Background section.',
+    'Upload the resized image.'],
+    note:'Requirements and location as written in Discord Support on 2026-09-28.'},
+   verify:{steps:[
+    'The result shows `960×540` (or `1920×1080` if you typed it).',
+    'Look at the server in Discord: the server name should be readable over the top of the banner.',
+    'Check that the image has no text or logo that competes with the name, as Discord recommends.']},
+   trouble:{rows:[
+    ['There is no banner option','The server is below Boosting Level 2 and not a Partner server','Server boost status','Reach Level 2, or use the server icon instead'],
+    ['The server name is hard to read','Busy imagery in the top 48 px','Look at the top strip of the banner','Crop lower with [[image/crop|crop]] or pick calmer art, then resize again'],
+    ['An animated banner stays still','Animated banners need Level 3; at Level 2 the same image is static','Boost level','Reach Level 3, or use a still image'],
+    ['The banner looks soft','A small source was enlarged to 960 × 540','Source size in the result line','Use a source at least 960 px wide']]},
+   alternatives:{rows:[
+    ['[[image/resize/youtube-banner|YouTube banner]]','The same 16:9 artwork at 2560 × 1440 for a YouTube channel.'],
+    ['[[video/to-gif|Video to GIF]]','An animated banner for a Level 3 server; Discord recommends the same 960 × 540 size.']]},
+   limits:['Nerulio resizes still images; an animated banner has to be made as a GIF elsewhere (for example from video).','Discord\'s maximum banner file size is not stated on the page checked.'],
+   versions:{body:['Sizes, the 48 px advice, boost levels, permissions and location come from Discord Support "Server Banners", read on 2026-09-28. Crop numbers follow `src/task/resize.js` and `fitQuality()` in `src/image.js`.'],sources:['[Discord Support: Server Banners](https://support.discord.com/hc/en-us/articles/360028716472-Server-Banners)']}
+  },
+  ko:{
+   answer:'프리셋은 디스코드 고객지원(2026-09-28 확인)이 서버 배너로 권장하는 960 × 540(16:9) 배너를 만듭니다. 16:9에서 최소 960 × 540이며, 1920 × 1080 이미지는 업로드할 때 자동으로 크기가 조정됩니다. 서버 이름이 위에 겹치므로 위쪽 48px은 단순하게 두고 로고나 글자는 피하라고 안내합니다. 배너를 쓰려면 서버 부스트 레벨 2가 필요합니다(움직이는 배너는 레벨 3, 파트너 서버는 부스트 없이 가능).',
+   concept:{title:'서버 이름 아래의 16:9 배너',body:[
+    '배너는 채널 목록 맨 위에 있고 서버 이름이 윗부분에 겹쳐 표시됩니다. 그래서 디스코드는 위쪽 48px(540px 높이의 8.9%)을 차분하게 두고, 글자나 로고 없는 그림—대표 일러스트, 캐릭터 장면, 은은한 배경—을 권합니다.',
+    '4:3 사진에서 16:9로 자르면 위아래 378px씩 잘려 4032 × 2268이 남고, 960 × 540으로의 배율은 0.238이므로 배너 위쪽 48px은 자른 사진의 약 202px에서 옵니다. 그 부분이 복잡하다면 먼저 [[image/crop|자르기]]로 영역을 아래로 옮기세요. 1920 × 1080을 입력해도 되며, 디스코드가 업로드 때 크기를 조정한다고 안내합니다.'],
+    terms:[['16:9','960 × 540과 1920 × 1080 모두 이 비율입니다.'],['위쪽 48px','서버 이름 뒤의 띠. 복잡한 그림을 피하라고 디스코드가 권합니다.'],['부스트 레벨 2','정지 배너에 필요하며, 레벨 3에서 움직이는 배너가 열립니다.']]},
+   example:{title:'사진을 960 × 540으로(코드로 계산)',lead:'1,200만 화소 원본을 예로 든 크기 변경 작업의 cover 계산이며, 48px은 디스코드 고객지원의 수치입니다.',lines:[
+    '4032 x 3024 사진 -> 4032 x 2268 자르기 (위아래 378 px씩), 75 % 유지',
+    '                 -> x 0.238 배율 -> 960 x 540',
+    '배너 위쪽 48 px = 48 / 0.238 = 자른 사진의 약 202 px',
+    '',
+    '3024 x 4032 사진 -> 3024 x 1701 자르기, 높이의 42 % 유지',
+    '다른 크기        -> 1920 x 1080 (업로드할 때 디스코드가 조정)'],
+    after:'48px은 540의 8.9%이고, 1920 × 1080으로 올린다면 같은 비율은 96px입니다.'},
+   target:{title:'서버 배너로 설정하기',steps:[
+    '서버가 부스트 레벨 2(또는 파트너 서버)인지, 내가 소유자이거나 서버 관리 또는 관리자 권한이 있는지 확인합니다.',
+    'Server Settings(서버 설정) › Overview(일반)를 엽니다.',
+    '페이지 맨 아래의 Server Banner Background(서버 배너 배경) 항목으로 내려갑니다.',
+    '크기를 바꾼 이미지를 올립니다.'],
+    note:'2026-09-28 디스코드 고객지원에 적힌 조건과 위치이며, 괄호 안 한국어 메뉴명은 참고용입니다.'},
+   verify:{steps:[
+    '결과에 `960×540`(또는 입력했다면 `1920×1080`)이 나옵니다.',
+    '디스코드에서 서버를 보세요. 배너 위쪽에 겹친 서버 이름이 잘 읽혀야 합니다.',
+    '디스코드 권고대로 이름과 경쟁하는 글자나 로고가 없는지 확인하세요.']},
+   trouble:{rows:[
+    ['배너 옵션이 없음','서버가 부스트 레벨 2 미만이고 파트너 서버도 아닙니다','서버 부스트 상태','레벨 2에 도달하거나 서버 아이콘을 대신 쓰세요'],
+    ['서버 이름이 잘 안 읽힘','위쪽 48px에 복잡한 그림이 있습니다','배너 위쪽 띠 확인','[[image/crop|자르기]]로 더 아래를 고르거나 차분한 그림을 골라 다시 크기를 바꾸세요'],
+    ['움직이는 배너가 멈춰 있음','움직이는 배너는 레벨 3이 필요하고 레벨 2에서는 같은 이미지가 정지합니다','부스트 레벨','레벨 3에 도달하거나 정지 이미지를 쓰세요'],
+    ['배너가 흐릿함','작은 원본이 960 × 540으로 확대됐습니다','결과 줄의 원본 크기','너비 960px 이상의 원본을 쓰세요']]},
+   alternatives:{rows:[
+    ['[[image/resize/youtube-banner|유튜브 배너]]','같은 16:9 그림을 2560 × 1440으로 유튜브 채널에 쓸 때.'],
+    ['[[video/to-gif|영상 → GIF]]','레벨 3 서버의 움직이는 배너. 디스코드는 같은 960 × 540을 권합니다.']]},
+   limits:['Nerulio는 정지 이미지의 크기를 바꿉니다. 움직이는 배너는 다른 곳에서(예: 영상에서) GIF로 만들어야 합니다.','확인한 페이지에는 배너의 최대 파일 크기가 적혀 있지 않습니다.'],
+   versions:{body:['크기·48px 권고·부스트 레벨·권한·위치는 2026-09-28에 읽은 디스코드 고객지원 "Server Banners"에서 가져왔습니다. 자르기 숫자는 `src/task/resize.js`와 `src/image.js`의 `fitQuality()`를 따릅니다.'],sources:['[Discord 고객지원: Server Banners](https://support.discord.com/hc/en-us/articles/360028716472-Server-Banners)']}
+  },
+  ja:{
+   answer:'プリセットは、Discordサポート（2026-09-28確認）がサーバーバナーに推奨する960 × 540（16:9）のバナーを作ります。16:9で960 × 540以上とされ、1920 × 1080の画像はアップロード時に自動でリサイズされます。サーバー名が上に重なるため上部48pxはシンプルにし、ロゴや文字は避けるよう案内されています。バナーを使うにはサーバーブーストのレベル2が必要です（アニメーションバナーはレベル3、パートナーサーバーはブーストなしで利用可）。',
+   concept:{title:'サーバー名の下にある16:9のバナー',body:[
+    'バナーはチャンネル一覧の最上部にあり、上端にサーバー名が重なって表示されます。そのためDiscordは、上部48px（高さ540pxの8.9%）を落ち着いた状態にし、文字やロゴのない絵、たとえばキービジュアル、キャラクターの一場面、控えめな背景を勧めています。',
+    '4:3の写真を16:9に切り抜くと上下378pxずつが切られて4032 × 2268が残り、960 × 540への倍率は0.238なので、バナー上部の48pxは切り抜いた写真の約202pxに当たります。そこがごちゃごちゃしているなら、先に[[image/crop|切り抜き]]で範囲を下にずらします。1920 × 1080と入力してもよく、Discordはアップロード時にリサイズすると説明しています。'],
+    terms:[['16:9','960 × 540も1920 × 1080もこの比率です。'],['上部48px','サーバー名の後ろの帯。ごちゃごちゃした絵を避けるようDiscordが勧めています。'],['ブーストレベル2','静止画のバナーに必要。レベル3でアニメーションバナーが使えます。']]},
+   example:{title:'写真を960 × 540に（コードから計算）',lead:'1,200万画素の元画像を例にしたサイズ変更タスクのcoverの計算で、48pxはDiscordサポートの数値です。',lines:[
+    '4032 x 3024の写真 -> 4032 x 2268を切り出し（上下378 pxずつ）、75 %を残す',
+    '                  -> x 0.238倍 -> 960 x 540',
+    'バナー上部48 px = 48 / 0.238 = 切り抜いた写真の約202 px',
+    '',
+    '3024 x 4032の写真 -> 3024 x 1701を切り出し、高さの42 %を残す',
+    '別のサイズ        -> 1920 x 1080（アップロード時にDiscordがリサイズ）'],
+    after:'48pxは540の8.9%で、1920 × 1080でアップロードするなら同じ割合は96pxです。'},
+   target:{title:'サーバーバナーに設定する',steps:[
+    'サーバーがブーストレベル2（またはパートナーサーバー）で、自分がオーナーか、サーバー管理または管理者の権限を持っているか確認します。',
+    'Server Settings（サーバー設定）› Overview（概要）を開きます。',
+    'ページの一番下のServer Banner Background（サーバーバナー背景）の項目までスクロールします。',
+    'サイズを変えた画像をアップロードします。'],
+    note:'2026-09-28のDiscordサポートに書かれた条件と場所で、かっこ内の日本語メニュー名は参考です。'},
+   verify:{steps:[
+    '結果に `960×540`（入力したなら `1920×1080`）と出ます。',
+    'Discordでサーバーを見ます。バナー上部に重なるサーバー名が読みやすいはずです。',
+    'Discordの勧めどおり、名前と競合する文字やロゴがないことを確認します。']},
+   trouble:{rows:[
+    ['バナーの項目がない','サーバーがブーストレベル2未満で、パートナーサーバーでもない','サーバーのブースト状況','レベル2に達するか、代わりにサーバーアイコンを使います'],
+    ['サーバー名が読みにくい','上部48pxにごちゃごちゃした絵がある','バナー上部の帯を見る','[[image/crop|切り抜き]]でもっと下を選ぶか落ち着いた絵にして、サイズを変え直します'],
+    ['アニメーションバナーが動かない','アニメーションバナーにはレベル3が必要で、レベル2では同じ画像が静止する','ブーストレベル','レベル3に達するか、静止画を使います'],
+    ['バナーがぼやける','小さな元画像が960 × 540に拡大された','結果の行の元のサイズ','幅960px以上の元画像を使います']]},
+   alternatives:{rows:[
+    ['[[image/resize/youtube-banner|YouTubeのバナー]]','同じ16:9の絵を2560 × 1440でYouTubeチャンネルに使う場合。'],
+    ['[[video/to-gif|動画 → GIF]]','レベル3のサーバーのアニメーションバナー。Discordは同じ960 × 540を勧めています。']]},
+   limits:['Nerulioがサイズを変えるのは静止画です。アニメーションバナーはほかの方法で（例：動画から）GIFとして作る必要があります。','確認したページにはバナーの最大ファイルサイズが書かれていません。'],
+   versions:{body:['サイズ・48pxの助言・ブーストレベル・権限・場所は、2026-09-28に読んだDiscordサポート「Server Banners」から取りました。切り抜きの数値は `src/task/resize.js` と `src/image.js` の `fitQuality()` に従います。'],sources:['[Discord サポート: Server Banners](https://support.discord.com/hc/en-us/articles/360028716472-Server-Banners)']}
+  }
+ },
 };
