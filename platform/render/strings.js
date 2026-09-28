@@ -41,7 +41,7 @@ const S={
    // game
    latestUpdate:'최신 업데이트',currentVersion:'현재 버전',previous:(/** @type {string} */ v,/** @type {number} */ d)=>`이전 ${v} · ${d}일 만`,patchNotes:'패치 노트 원문 ↗',noVersion:'수집된 업데이트 기록이 없습니다.',
    koreanOfficial:'공식 한국어',koreanPatch:'한글패치',noPatch:'등록된 한글패치 없음',patchAuthor:'제작자',linkOnly:'배포처로 이동',
-   compatWith:(/** @type {string} */ v)=>`${v} 호환`,works:'✓ 작동',partial:'◐ 일부',broken:'✕ 안 됨',thisWeek:'이번 주',noEvents:'예정된 공식 일정 없음',
+   compatWith:(/** @type {string} */ v)=>`· 현재 게임 ${v}에서`,works:'✓ 작동',partial:'◐ 일부',broken:'✕ 안 됨',thisWeek:'이번 주',noEvents:'예정된 공식 일정 없음',
    compatTable:'한글패치 호환표',lastUpdate:'마지막 업데이트',
    // gpu
    driver:'최신 드라이버',driverOk:'업데이트 후 괜찮나요?',noProblem:'문제 없음',problem:'문제 있음',noDriver:'드라이버 정보 없음',
@@ -91,7 +91,7 @@ const S={
    plans:'Plans (monthly)',apps:'Apps',developer:'Developers',provider:'Provider',priceNote:'Tax not included · from the official pricing page',
    latestUpdate:'Latest update',currentVersion:'Current version',previous:(/** @type {string} */ v,/** @type {number} */ d)=>`previous ${v} · ${d} days before`,patchNotes:'Patch notes ↗',noVersion:'No update history collected yet.',
    koreanOfficial:'Official Korean',koreanPatch:'Korean patch',noPatch:'No Korean patch listed',patchAuthor:'Author',linkOnly:'Link to the author only',
-   compatWith:(/** @type {string} */ v)=>`with ${v}`,works:'✓ Works',partial:'◐ Issues',broken:'✕ Broken',thisWeek:'This week',noEvents:'No official events scheduled',
+   compatWith:(/** @type {string} */ v)=>`· on the current game ${v}:`,works:'✓ Works',partial:'◐ Issues',broken:'✕ Broken',thisWeek:'This week',noEvents:'No official events scheduled',
    compatTable:'Korean patch compatibility',lastUpdate:'Last update',
    driver:'Latest driver',driverOk:'Any problems after updating?',noProblem:'No problems',problem:'Problems',noDriver:'No driver data',
    localAi:'Local AI on this card',estimateMethod:'≈ Estimate · method',fits:'Fits',tight:'Tight',noFit:'No',measured:(/** @type {number} */ n)=>`${n} measured`,noMeasure:'No measurements yet',
