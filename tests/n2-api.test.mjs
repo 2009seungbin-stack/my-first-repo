@@ -166,8 +166,12 @@ test('open data: published compat reports by month, no account data, cacheable',
  const r=await h.call('GET',idx.json.months[0].url.replace('/api/v2',''));
  assert.match(r.headers.get('cache-control'),/public/);
  const row=r.json.reports[0];
- assert.deepEqual({...row,day:undefined},{subject:'translation_patch:test-game-ko',subjectVersion:'1.7',target:'game:steam-1',targetVersion:'2.3.1',env:{os:'Windows 11'},result:'works',day:undefined});
+ assert.deepEqual({...row,day:undefined},{subject:'translation_patch:test-game-ko',subjectVersion:'1.7',target:'game:steam-1',targetVersion:'2.3.1',env:{os:'windows'},result:'works',day:undefined});
  assert(!JSON.stringify(r.json).includes('u-a')&&!JSON.stringify(r.json).includes('비밀')&&!JSON.stringify(r.json).includes('내 PC'),'no user ids, notes or comments');
+ // A report whose post was deleted leaves the export.
+ const post=h.db.raw.prepare("SELECT id FROM discussions WHERE report_id IS NOT NULL LIMIT 1").get();
+ h.db.raw.prepare("UPDATE discussions SET status='deleted' WHERE id=?").run(post.id);
+ assert.equal((await h.call('GET',idx.json.months[0].url.replace('/api/v2',''))).json.reports.length,0);
 });
 
 test('fact proposals: validated like seed facts, reviewed by a moderator, never above an official value',{skip},async()=>{
@@ -180,6 +184,7 @@ test('fact proposals: validated like seed facts, reviewed by a moderator, never 
  assert.equal((await send({value:'next friday'})).status,400,'a date must be a date');
  assert.equal((await send({value:'2026-10-20',sourceUrl:'javascript:1'})).status,400,'a real source link');
  assert.equal((await send({property:'no_such_prop',value:'x'})).status,400);
+ assert.equal((await send({value:'2026-10-20',unit:'<b>'})).status,400,'a unit only where the property takes one');
  const ok=await send({value:'2026-10-20',note:'공식 공지'});assert.equal(ok.status,201);
  const q=(await h.call('GET','/mod/queue',{as:'mod'})).json;
  assert.equal(q.proposals.length,1);assert.equal(q.proposals[0].value,'2026-10-20');

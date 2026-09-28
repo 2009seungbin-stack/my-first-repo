@@ -235,3 +235,22 @@ their own items, so real proposals never reach the first page.
 
 Fix: cap open proposals per user (for example 20) and per entity+property+user (1: a repeat
 updates the existing one). Use a per-day rate limit. Order or group the queue by author.
+
+---
+
+## Status (2026-09-29 ~04:55 KST)
+
+| # | Status | Fix |
+|---|---|---|
+| 1 | Fixed | One `tableAt()` test for both the table branch and the paragraph stop; the paragraph loop always consumes its first line. Regression test with five pipe-line shapes. |
+| 2 | Fixed | `pickFact`: without a row for the reader's region, the most trusted row wins (region-neutral on a tie); wiki rows use `pickFact`; the moderator sees the most trusted current value with its region. |
+| 3 | Fixed | `recomputeCompat` closes a verdict built from reports (confirmations + contradictions > 0) when none are left; seeded rows stay. |
+| 4 | Fixed | Open data: `visibility='public'` only, reports whose post is deleted/hidden are left out, OS reduced to a family, `device`/free text dropped, `truncated` flag. |
+| 5 | Fixed | The report title is validated before the first write. |
+| 6 | Fixed | The post's own tag is always the first option in the edit form (a 공지 stays a 공지). |
+| 7 | Fixed | Version names allow `#`, `:`, `/`, `,`, `'` and letters in any script ("Hotfix #36"). |
+| 8 | Fixed | The proposal is claimed with `UPDATE … WHERE status='open'` before ingest; a second reviewer gets 409. |
+| 9 | Fixed | URL properties cannot be proposed; a unit only for money without a fixed currency (ISO code). |
+| 10 | Fixed | Edge cache (Cache API, 1 h) in front of `/open-data/compat`; `truncated` marker. |
+| 11 | Fixed | `discussions_report` partial index in migration 0008. |
+| 12 | Fixed | At most 20 open proposals per member. |

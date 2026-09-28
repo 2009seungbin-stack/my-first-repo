@@ -36,7 +36,7 @@ const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다�
  [/^This tag cannot be used/,'이 채널에서는 쓸 수 없는 말머리예요.'],[/^Not hidden/,'숨겨진 상태가 아니에요. 새로고침해 주세요.'],[/^Already hidden/,'이미 임시조치된 대상이에요.'],[/^Already deleted/,'작성자가 이미 삭제했어요.'],
  [/^Only a higher role/,'더 높은 권한만 이 계정을 처리할 수 있어요.'],[/^You cannot moderate your own/,'자기 계정은 처리할 수 없어요.'],[/^This action does not apply/,'이 대상에는 쓸 수 없는 조치예요.'],
  [/^Only questions have an accepted/,'질문 글만 답변을 채택할 수 있어요.'],[/^Invalid reason/,'사유를 선택해 주세요.'],[/^Nothing to report at this address/,'신고할 대상을 찾을 수 없어요.'],[/^tokens_per_s must be/,'토큰/초는 0~5000 사이로 적어 주세요.'],
- [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^This property cannot be proposed/,'이 항목은 제안할 수 없어요.'],[/^A source link/,'출처 링크(https://…)를 넣어 주세요.'],[/^The value does not fit/,'값의 형식이 이 항목과 맞지 않아요. (날짜는 2026-10-20, 숫자는 숫자만)'],[/^Already reviewed/,'이미 처리된 제안이에요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
+ [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^This property cannot be proposed/,'이 항목은 제안할 수 없어요.'],[/^A source link/,'출처 링크(https://…)를 넣어 주세요.'],[/^The value does not fit/,'값의 형식이 이 항목과 맞지 않아요. (날짜는 2026-10-20, 숫자는 숫자만)'],[/^Already reviewed/,'이미 처리된 제안이에요.'],[/^Too many open proposals/,'검토를 기다리는 제안이 많아요. 처리된 뒤에 다시 보내 주세요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
 function message(m){
  if(L!=='ko')return m;
  for(const [re,ko] of KO_ERR){const x=re.exec(m);if(x)return typeof ko==='function'?ko(...x):ko.replace(/\$(\d)/g,(_,i)=>x[i]);}
@@ -44,7 +44,7 @@ function message(m){
 }
 function explain(res){
  if(res.code==='LOGIN_REQUIRED'){if(confirm(T.needLogin))location.href=loginUrl();return;}
- if(res.code==='RATE_LIMITED')return toast(T.rate);
+ if(res.code==='RATE_LIMITED'&&!/open proposals/.test(res.data?.error?.message||''))return toast(T.rate);
  if(res.data?.error?.message&&res.status<500)return toast(message(res.data.error.message));
  toast(T.error);
 }

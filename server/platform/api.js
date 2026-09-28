@@ -30,7 +30,9 @@ function text(v,[min,max],field){
  return s;
 }
 /** @param {unknown} v */
-const optVersion=v=>{if(v===undefined||v===null||v==='')return null;if(typeof v!=='string'||v.length>LIMITS.version||!/^[\w.+\- ()*]+$/.test(v))throw new ApiError('BAD_REQUEST','Invalid version.');return v.trim();};
+// Real version names include "Hotfix #36", "v1.0.2", "2.0.212.31 (beta)", "Patch 8"; control
+// characters and markup never. The value is stored as text and always escaped on output.
+const optVersion=v=>{if(v===undefined||v===null||v==='')return null;if(typeof v!=='string'||v.length>LIMITS.version||!/^[\p{L}\p{N}._+\-# ()*:/,']+$/u.test(v))throw new ApiError('BAD_REQUEST','Invalid version.');return v.trim();};
 /** @param {Record<string,unknown>} body @param {string[]} allowed */
 function only(body,allowed){for(const k of Object.keys(body))if(!allowed.includes(k))throw new ApiError('BAD_REQUEST',`Unexpected field: ${k.slice(0,40)}`);return body;}
 
@@ -87,7 +89,14 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   if(request.method==='POST')assertSameOrigin(request,cfg);
   // Open data (ODbL): published compat reports by month, with no account data. Public and cacheable,
   // so it is answered before any session lookup.
-  if(key==='GET /open-data/compat')return json(await openCompat(db,url.searchParams.get('month')),200,{'Cache-Control':'public, max-age=3600','Access-Control-Allow-Origin':'*'});
+  if(key==='GET /open-data/compat'){
+   // Served from the edge cache for an hour: anonymous, so it must not run a scan on every hit.
+   const month=url.searchParams.get('month'),cache=/** @type {any} */(globalThis).caches?.default,ck=new Request(`${url.origin}/api/v2/open-data/compat${month?`?month=${encodeURIComponent(month)}`:''}`);
+   const hit=cache?await cache.match(ck):null;if(hit)return hit;
+   const res=json(await openCompat(db,month),200,{'Cache-Control':'public, max-age=3600, s-maxage=3600','Access-Control-Allow-Origin':'*'});
+   if(cache)ctx?.waitUntil?.(cache.put(ck,res.clone()));
+   return res;
+  }
   context=await resolveContext(request,cfg,db,now);
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   const origin=cfg.siteOrigin||url.origin;
@@ -117,7 +126,9 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
    // The tags the author may switch to (a 리포트 post stays one: it carries a structured report).
    const l=url.searchParams.get('l')==='en'?'en':'ko';
-   const kinds=p.kind==='report'?[]:writableKinds(String(p.vertical)).filter(k=>k!=='report').map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][l]}));
+   // The post's own tag is always offered first (a staff 공지 stays a 공지 when its text is edited).
+   const ids=p.kind==='report'?[]:[...new Set([String(p.kind),...writableKinds(String(p.vertical)).filter(k=>k!=='report')])];
+   const kinds=ids.filter(k=>k in POST_KINDS).map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][l]}));
    return done({title:String(p.title),body:String(p.body_md),kind:String(p.kind),kinds});
   }
   if(key==='GET /mine'){
@@ -267,7 +278,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const full=(await db.prepare('SELECT type FROM entities WHERE id=?').bind(e.id).first());
     const prop=String(body.property||''),def=propertyDef(String(e.vertical),prop);
     // Only the properties this kind of channel shows in its wiki, never hidden ones.
-    if(!def||def.public===false||!(typeDef(String(e.vertical),String(full?.type))?.props||[]).includes(prop))throw new ApiError('BAD_REQUEST','This property cannot be proposed here.',{field:'property'});
+    if(!def||def.public===false||def.type==='url'||!(typeDef(String(e.vertical),String(full?.type))?.props||[]).includes(prop))throw new ApiError('BAD_REQUEST','This property cannot be proposed here.',{field:'property'});
+    // A unit only where the property takes one (a currency for a price without a fixed currency).
+    if(body.unit!==undefined&&body.unit!==''&&!(def.type==='money'&&!def.unit&&/^[A-Z]{3}$/.test(String(body.unit))))throw new ApiError('BAD_REQUEST','The value does not fit this property.',{field:'unit'});
+    // At most 20 open proposals per member, so one person cannot bury everyone else's in the queue.
+    const openN=Number((await db.prepare("SELECT COUNT(*) AS n FROM fact_proposals WHERE user_id=? AND status='open'").bind(context.user.id).first())?.n||0);
+    if(openN>=20)throw new ApiError('RATE_LIMITED','Too many open proposals. Please wait for a review.');
     const sourceUrl=String(body.sourceUrl||'');
     if(!/^https?:\/\/[^\s]{4,2000}$/.test(sourceUrl))throw new ApiError('BAD_REQUEST','A source link (http/https) is required.',{field:'sourceUrl'});
     const note=body.note===undefined||body.note===''?null:text(body.note,[1,500],'note');
@@ -376,6 +392,8 @@ async function report(db,context,body,now,limit,origin){
   for(const [k,v] of Object.entries(body.env).slice(0,8)){if(!/^[a-z_]{1,20}$/.test(k)||typeof v!=='string'||v.length>60)throw new ApiError('BAD_REQUEST','Invalid env field.');env[k]=v.trim();}
  }
  const comment=body.comment===undefined||body.comment===''?null:text(body.comment,[1,2000],'comment');
+ // Everything is validated before the first write (a 400 must leave nothing behind).
+ const titleIn=body.title?text(body.title,[2,120],'title'):null;
  const sv=optVersion(body.subjectVersion),tv=optVersion(body.targetVersion);
  const quick=!comment&&!body.title&&(body.kind==='issue'||!Object.keys(env).length);
  await limit(quick?'vote':'report',quick?LIMITS.votesPerMinute:LIMITS.postsPerMinute);
@@ -407,7 +425,7 @@ async function report(db,context,body,now,limit,origin){
  const nm=(/** @type {{names:Record<string,string>}} */ x)=>x.names.ko||x.names.en||'';
  // The game's name is not repeated: "Caves of Qud 한글패치 (qudkorean) × Caves of Qud 1.04" → "한글패치 (qudkorean) × 1.04".
  const subj=target&&nm(subject).startsWith(nm(target)+' ')?nm(subject).slice(nm(target).length+1):nm(subject);
- const title=body.title?text(body.title,[2,120],'title'):(target?`${subj}${sv?' '+sv:''} × ${subj===nm(subject)?nm(target)+(tv?' '+tv:''):(tv||nm(target))}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
+ const title=titleIn?titleIn:(target?`${subj}${sv?' '+sv:''} × ${subj===nm(subject)?nm(target)+(tv?' '+tv:''):(tv||nm(target))}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
  const postId=randomToken(12);
  const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
  await recompute();
@@ -487,10 +505,17 @@ async function openCompat(db,month){
   return {...OPEN_DATA,months:rows.map((/** @type {any} */ r)=>({month:String(r.m),reports:Number(r.n),url:`/api/v2/open-data/compat?month=${r.m}`}))};
  }
  const from=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7))-1,1),to=Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),1);
- const rows=(await db.prepare(`SELECT entity_id,subject_version,target_id,target_version,env,result,created_at FROM community_reports WHERE kind='compat' AND status='published' AND visibility<>'private' AND created_at>=? AND created_at<? ORDER BY created_at LIMIT 50000`).bind(from,to).all()).results||[];
- const SAFE_ENV=['os','device','runtime','quant'];
- return {...OPEN_DATA,month,reports:rows.map((/** @type {any} */ r)=>{const env=/** @type {Record<string,string>} */({});try{const e=/** @type {Record<string,unknown>} */(JSON.parse(String(r.env||'{}')));for(const k of SAFE_ENV){const v=e[k];if(typeof v==='string')env[k]=v.slice(0,60);}}catch{}
-  return {subject:String(r.entity_id),subjectVersion:r.subject_version??null,target:r.target_id??null,targetVersion:r.target_version??null,env,result:String(r.result),day:new Date(Number(r.created_at)).toISOString().slice(0,10)};})};
+ // Public reports only, and only while the post they belong to (if any) is still public.
+ const rows=(await db.prepare(`SELECT r.entity_id,r.subject_version,r.target_id,r.target_version,r.env,r.result,r.created_at FROM community_reports r
+  WHERE r.kind='compat' AND r.status='published' AND r.visibility='public' AND r.created_at>=? AND r.created_at<?
+  AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.report_id=r.id AND d.status NOT IN ('published','locked')) ORDER BY r.created_at LIMIT 50001`).bind(from,to).all()).results||[];
+ const truncated=rows.length>50000;if(truncated)rows.length=50000;
+ // Free text never leaves: the OS is reduced to its family; runtime and quantization are short codes.
+ const OS=[[/windows/i,'windows'],[/mac|os x/i,'macos'],[/steam ?deck|steamos/i,'steamos'],[/linux|ubuntu|fedora|arch/i,'linux'],[/android/i,'android'],[/ios|iphone|ipad/i,'ios']];
+ const SAFE_ENV=['runtime','quant'];
+ return {...OPEN_DATA,month,reports:rows.map((/** @type {any} */ r)=>{const env=/** @type {Record<string,string>} */({});try{const e=/** @type {Record<string,unknown>} */(JSON.parse(String(r.env||'{}')));for(const k of SAFE_ENV){const v=e[k];if(typeof v==='string'&&/^[\w.\- ]{1,24}$/.test(v))env[k]=v;}
+  const os=typeof e.os==='string'?OS.find(([re])=>/** @type {RegExp} */(re).test(/** @type {string} */(e.os)))?.[1]:undefined;if(os)env.os=String(os);}catch{}
+  return {subject:String(r.entity_id),subjectVersion:r.subject_version??null,target:r.target_id??null,targetVersion:r.target_version??null,env,result:String(r.result),day:new Date(Number(r.created_at)).toISOString().slice(0,10)};}),truncated};
 }
 
 /* ---------- moderation (신고 → 임시조치 → 처리 기록) ---------- */
@@ -587,12 +612,14 @@ async function modAction(db,actor,actorRole,body,now,origin){
   const pr=await db.prepare("SELECT f.*,e.vertical FROM fact_proposals f JOIN entities e ON e.id=f.entity_id WHERE f.id=?").bind(id).first();
   if(!pr)throw new ApiError('NOT_FOUND','No such proposal.');
   if(pr.status!=='open')throw new ApiError('OPERATION_CONFLICT','Already reviewed.');
+  // Claim the proposal first, so two moderators acting at once cannot both apply it.
+  const claim=await db.prepare("UPDATE fact_proposals SET status=?,reviewer_id=?,reviewed_at=?,reason=? WHERE id=? AND status='open'").bind(action==='accept'?'accepted':'rejected',actor,now,reason,id).run();
+  if(!Number(claim?.meta?.changes))throw new ApiError('OPERATION_CONFLICT','Already reviewed.');
   if(action==='accept'){
    const src=`src:proposal-${String(id).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,40)}`;
    await ingest(db,{schema:SEED_SCHEMA,vertical:String(pr.vertical),sources:[{id:src,kind:'COMMUNITY',url:String(pr.source_url),retrieved:new Date(Number(pr.created_at)).toISOString().slice(0,10)}],
     entities:[{id:String(pr.entity_id),facts:[{p:String(pr.property),v:JSON.parse(String(pr.value)),...(pr.unit?{unit:String(pr.unit)}:{}),ver:'COMMUNITY_VERIFIED',src,note:`Proposed by a member, accepted by a moderator (${reason})`.slice(0,300)}]}]},{mode:'community',actor:`moderator:${actor}`,now});
   }
-  w.push(db.prepare('UPDATE fact_proposals SET status=?,reviewer_id=?,reviewed_at=?,reason=? WHERE id=?').bind(action==='accept'?'accepted':'rejected',actor,now,reason,id));
  }
  if(kind==='user'){
   if(id===actor)throw new ApiError('FORBIDDEN','You cannot moderate your own account.');
@@ -605,7 +632,7 @@ async function modAction(db,actor,actorRole,body,now,origin){
   if(action==='restrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=?,strikes=strikes+1,updated_at=? WHERE user_id=?').bind(now+days*864e5,now,id));
   if(action==='unrestrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=NULL,updated_at=? WHERE user_id=?').bind(now,id));
  }
- if(!w.length&&action!=='dismiss')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
+ if(!w.length&&action!=='dismiss'&&kind!=='proposal')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
  w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
  w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:meta),now));
  await db.batch(w);

@@ -161,9 +161,17 @@ export async function recomputeCompat(db,k,now){
   WHERE r.kind='compat' AND r.status='published' AND r.visibility<>'private' AND r.entity_id=? AND COALESCE(r.subject_version,'*')=? AND r.target_id=? AND COALESCE(r.target_version,'*')=?`)
   .bind(k.subject,k.subjectVersion,k.target,k.targetVersion).all()).results;
  const v=compatVerdict(reports,now);
- const cur=await db.prepare('SELECT id,status,verification FROM compatibility WHERE is_current=1 AND subject_id=? AND subject_version=? AND target_id=? AND target_version=? AND env_key=?').bind(k.subject,k.subjectVersion,k.target,k.targetVersion,k.envKey).first();
+ const cur=await db.prepare('SELECT id,status,verification,confirmations,contradictions FROM compatibility WHERE is_current=1 AND subject_id=? AND subject_version=? AND target_id=? AND target_version=? AND env_key=?').bind(k.subject,k.subjectVersion,k.target,k.targetVersion,k.envKey).first();
  if(cur&&cur.verification==='OFFICIAL')return {verdict:v,changed:false};
- if(v.status==='unknown')return {verdict:v,changed:false};
+ if(v.status==='unknown'){
+  // Every report behind a community verdict was withdrawn: close it (a seeded row, which no report
+  // built, stays).
+  if(cur&&cur.verification!=='AUTOMATED'&&Number(cur.confirmations)+Number(cur.contradictions)>0){
+   await db.prepare('UPDATE compatibility SET is_current=0,valid_until=?,updated_at=? WHERE id=?').bind(now,now,cur.id).run();
+   return {verdict:v,changed:true};
+  }
+  return {verdict:v,changed:false};
+ }
  if(cur&&cur.status===v.status&&cur.verification===v.verification){
   await db.prepare('UPDATE compatibility SET confirmations=?,contradictions=?,score=?,last_confirmed_at=?,updated_at=? WHERE id=?').bind(v.confirmations,v.contradictions,v.score,now,now,cur.id).run();
   return {verdict:v,changed:false};
