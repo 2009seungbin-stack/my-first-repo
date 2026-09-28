@@ -12,6 +12,9 @@ export function updateSiteContent(id,locale,path=''){
   for(const selector of regions)host.querySelector(selector).replaceWith(next.content.querySelector(selector));
  }else host.replaceChildren(next.content);
  host.dataset.rendered=key;
+ // Intent content is static HTML in the page's own language (tools/build.mjs toolDepth): hide it
+ // when the page is shown in another one; the prefixed URL of that language has it.
+ for(const el of document.querySelectorAll('[data-sd]'))el.hidden=el.lang!==locale;
  for(const label of host.querySelectorAll('[data-ad-label]'))label.textContent=labels[locale].ad;
  updateSEO(id,locale,document.querySelector('meta[name="site-url"]')?.content||'',path);
 }

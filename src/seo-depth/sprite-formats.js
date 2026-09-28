@@ -1,0 +1,1728 @@
+/** Intent content for the sprite-formats pages (docs/SEO-CONTENT-MODEL.md). Keys are canonical paths.
+ * Nerulio behaviour: src/game/aseprite.js (reader/writer, toSpriteProject), src/studio/sprite/aseprite-bridge.js
+ * (Sprite › Export .aseprite), src/studio/sprite/{gif-decode,apng-decode,atlas-data,import-plan,importers}.js,
+ * src/game/color-key.js, src/game/export/{anim,webm,bundle,atlas-json,common}.js, docs/STUDIO-SPRITE.md §10
+ * (231-file .aseprite corpus), docs/STUDIO-PACK.md (export verification), docs/ENGINE-VERIFY.md.
+ * Format and engine behaviour: the official documents cited in each page's `versions.sources`. */
+const ASE_SPEC='[Aseprite file format specification](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md)';
+const ASE_CLI='[Aseprite docs: Command line interface](https://www.aseprite.org/docs/cli/)';
+const ASE_TAGS='[Aseprite docs: Tags](https://www.aseprite.org/docs/tags/)';
+const ASE_SLICES='[Aseprite docs: Slices](https://www.aseprite.org/docs/slices/)';
+const ASE_SHEET='[Aseprite docs: Sprite sheet](https://www.aseprite.org/docs/sprite-sheet/)';
+const ASE_EXPORT='[Aseprite docs: Exporting](https://www.aseprite.org/docs/exporting/)';
+const GIF_SPEC='[W3C: GIF89a specification](https://www.w3.org/Graphics/GIF/spec-gif89a.txt)';
+const WEBKIT_DELAY='[WebKit source: ImageDecoderCG::frameDurationAtIndex](https://github.com/WebKit/WebKit/blob/main/Source/WebCore/platform/graphics/cg/ImageDecoderCG.cpp)';
+const PNG3='[W3C: PNG Third Edition (APNG chunks acTL, fcTL)](https://www.w3.org/TR/png-3/)';
+const MDN_IMAGES='[MDN: Image file type and format guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)';
+const MDN_ENCODER='[MDN: VideoEncoder](https://developer.mozilla.org/en-US/docs/Web/API/VideoEncoder)';
+const FFMPEG='[ffmpeg documentation](https://ffmpeg.org/ffmpeg.html)';
+const FFMPEG_CODECS='[ffmpeg codecs: libx264](https://ffmpeg.org/ffmpeg-codecs.html)';
+const PHASER_ANIMS='[Phaser docs: AnimationManager.createFromAseprite](https://docs.phaser.io/api-documentation/class/animations-animationmanager)';
+const PHASER_LOADER='[Phaser docs: LoaderPlugin.aseprite](https://docs.phaser.io/api-documentation/class/loader-loaderplugin)';
+const PHASER_CONFIG='[Phaser docs: GameConfig pixelArt](https://docs.phaser.io/api-documentation/typedef/types-core)';
+const PIXI_SHEET='[PixiJS docs: Spritesheet](https://pixijs.download/v8.11.0/docs/assets.Spritesheet.html)';
+const PIXI_ANIM='[PixiJS docs: AnimatedSprite](https://pixijs.download/dev/docs/scene.AnimatedSprite.html)';
+const PIXI_SCALE='[PixiJS docs: SCALE_MODE](https://pixijs.download/dev/docs/rendering.SCALE_MODE.html)';
+const STARLING='[Starling docs: TextureAtlas XML format](https://doc.starling-framework.org/current/starling/textures/TextureAtlas.html)';
+const FNF_CHAR='[Friday Night Funkin\' modding docs: Creating a character](https://github.com/FunkinCrew/funkin-modding-docs/blob/main/src/03-custom-characters/03-02-creating-a-character.md)';
+export default {
+/* ============================================================================ aseprite-viewer */
+ 'game/aseprite-viewer':{
+  type:'format',
+  intent:{primary:'open and inspect an .aseprite or .ase file without Aseprite installed',secondary:['what is inside an .aseprite file','play the tags and see frame durations','convert .aseprite to PNG, GIF or JSON'],
+   goal:'see every frame, layer, tag, duration and slice of the file exactly as Aseprite exports it, and save it in a format other tools read',input:'.aseprite / .ase (RGBA, grayscale or indexed; layers, tags, slices, tilemaps optional)',output:'on-screen playback; optional PNG sheet + Aseprite JSON, GIF/APNG per tag, or a re-written .aseprite',target:'any machine with a browser (no Aseprite install)',support:'full',
+   evidence:['src/game/aseprite.js (reader, renderFrame, toSpriteProject slice mapping)','src/studio/sprite/aseprite-bridge.js (layered vs flattened decision)','docs/STUDIO-SPRITE.md §10 (231 files: 222 layered, 9 flattened; 231/231 reopen in Aseprite 1.3.18.6)'],
+   external:['Aseprite file format spec: header, frame duration, cel opacity and z-index, linked cels, tag repeat, slice keys','Aseprite docs: tags, slices, CLI']},
+  en:{
+   answer:"An `.aseprite` or `.ase` file is Aseprite's own binary document, not an image: it stores every frame with its duration in milliseconds, the layers with blend mode and opacity, the cels, tags, slices and palette. Browsers and image viewers cannot open it. Drop it here: Nerulio parses it inside this tab, composites each frame the way Aseprite's PNG export does (checked on 231 real files against Aseprite 1.3.18.6), plays the tags, and can save a PNG sheet with Aseprite JSON, a GIF or APNG per tag, or a new `.aseprite`. Nothing is uploaded.",
+   concept:{title:'What is inside an .aseprite file',body:[
+    "The format is documented by the Aseprite project. A 128-byte header holds the magic number `0xA5E0`, the canvas size and the colour depth: 32 bits per pixel is RGBA, 16 is grayscale with alpha, 8 is indexed, where every pixel is a palette index and one index can be transparent. Then come the frames. Each frame has a 16-byte header with its own duration in milliseconds, followed by chunks: layers (in the first frame), cels, palette, tags, slices, user data and, for tilemap layers, tilesets.",
+    "What you see in Aseprite is not stored anywhere as a finished picture. A frame is built by drawing the visible layers from bottom to top: each cel (one layer's pixels at one frame, at its own x and y) with the layer opacity times the cel opacity, mixed by one of 19 blend modes from Normal to Divide. A cel can be linked, reusing another frame's pixels, and it can carry a z-index that moves it above or below other layers for that frame only. A viewer that shows the first layer, or ignores blend modes, shows a picture Aseprite would never export.",
+    "Nerulio keeps the layers only when drawing them again with its own compositor gives exactly the pixels Aseprite renders; otherwise it shows the flattened frames and names the reason. On the 231-file test corpus 222 files stayed layered and 9 were flattened: 5 whose group composition differs and 4 that reorder layers with cel z-index. The frames are identical either way."],
+    terms:[['Cel','One layer\'s pixels at one frame, with its own position and opacity. A linked cel points at the cel of another frame instead of storing pixels.'],
+     ['Tag','A named frame range (`from`–`to`) with a direction (forward, reverse, ping-pong, ping-pong reverse) and a repeat count. Repeat 0 means “not specified”: endless in Aseprite\'s editor, once on export.'],
+     ['Slice','A named rectangle, optionally with a 9-patch centre or a pivot point. Its keys are per frame: a key holds from its frame until the next key.'],
+     ['Colour mode','RGBA, grayscale or indexed. In an indexed file the palette can change during the animation and one index is the transparent colour.']]},
+   example:{title:'Example: reading a small character file',lead:'What the Import panel and the Timeline show for a 32 × 32 RGBA file with three layers and three tags, and the timing that follows from it:',lines:[
+    'hero.aseprite  32 × 32 px · RGBA · 16 frames · 3 layers · 3 tags · 2 slices',
+    'layers  outline  Normal    255',
+    '        shadow   Multiply  128   (drawn at 128/255 ≈ 50 % over the layers below)',
+    '        body     Normal    255',
+    'tags    idle    0–3    4 × 125 ms                    forward ∞   one cycle 500 ms',
+    '        walk    4–9    6 × 100 ms                    forward ∞   one cycle 600 ms',
+    '        attack  10–15  100,100,100,100,150,250 ms    forward ×1  plays once, 800 ms',
+    'slices  pivot  point (16, 31) on every frame  → frame pivot, confidence high (name)',
+    '        hit    20 × 8 from frame 12           → hit box, confidence medium (name)'],
+    after:'Set `idle` to ping-pong and one cycle becomes 0-1-2-3-2-1: six steps, 750 ms. The two slice guesses are decisions in the Import panel; click one to turn `hit` into a hurt box or to ignore it.'},
+   outputs:{title:'What you can save from the viewer',rows:[
+    ['hero.png + hero.json','Pack & Export › Aseprite JSON (hash or array): one packed sheet with `frames`, `meta.frameTags` and `meta.slices`, in the layout of Aseprite\'s own sprite sheet export. See [[game/aseprite-to-sprite-sheet|Aseprite to sprite sheet]].'],
+    ['hero_idle.gif …','Pack & Export › Animated GIF: one file per tag, delays rounded to 1/100 s. See [[game/aseprite-to-gif|Aseprite to GIF]].'],
+    ['hero_idle.png …','Pack & Export › APNG: one animated PNG per tag, every pixel and millisecond exact.'],
+    ['hero.aseprite','Sprite › Export .aseprite…: a new file Aseprite opens, with layers, tags, durations and slices. The original you dropped is never changed.']]},
+   verify:{steps:[
+    'Import panel, layer decision: “layered” means the layer rows reproduce Aseprite\'s render on every frame; “flattened” gives the reason and the first frame that differed.',
+    'Step through a tag with `,` and `.` and read each frame\'s duration in the Frame panel; the sum is one cycle (walk: 6 × 100 ms = 600 ms).',
+    'Play the tag with Enter: a repeat of ×1 stops on its last frame, ∞ keeps looping.']},
+   trouble:{rows:[
+    ['“Not an Aseprite file” or “ends early”','The header does not start with Aseprite\'s magic number `0xA5E0` (another program\'s `.ase` file), or the download was cut off','Compare the file size with the source; open it in Aseprite if you can','Get the complete original file; `.ase` files made by other programs cannot be read here'],
+    ['Layers show as one “Flattened” layer','The file uses cel z-index or group composition that cannot be rebuilt exactly from separate layers','The layer decision in the Import panel names the reason and the frame','The frames are still exact; to work on single layers, edit the layer structure in Aseprite and import again'],
+    ['A layer you see in Aseprite is not in the frames','It is hidden (eye closed) or a reference layer; Aseprite\'s export leaves both out, and so does Nerulio','The layer list in the Import panel, or the eye icon in Aseprite','Make the layer visible in Aseprite and save; reference layers are never part of the frames'],
+    ['A slice became the wrong kind of box, or there is no pivot','Box types are guessed from slice names (hit, hurt …); the pivot is the slice named pivot, origin or anchor, else the first slice that has a pivot point','Import panel: each slice decision with its confidence','Pick the right type (hit, hurt, interact, custom) or ignore it; frames without a pivot slice use the bottom centre'],
+    ['Colours differ slightly from Aseprite\'s canvas','The file has an ICC colour profile; it is kept but not applied, as in Aseprite\'s PNG export','Aseprite\'s colour profile setting','Compare with a PNG exported from Aseprite rather than with the editor canvas']]},
+   alternatives:{rows:[
+    ['Aseprite itself','You want to change the file with every Aseprite feature (layers, groups, tilemaps, scripts). Opening here is read-only.'],
+    ['Aseprite\'s command line (`aseprite -b`)','You have Aseprite and want output from scripts: `--sheet`, `--data`, `--list-tags`, `--list-slices`, and `--save-as` with `{tag}` for one GIF per tag.'],
+    ['[[game/aseprite-alternative|A browser alternative to Aseprite]]','You want to draw and animate rather than only open a file.']]},
+   limits:['Group layers are not kept as groups: each leaf layer becomes a row named with its group path, such as `arms/left`.','Reference layers are skipped, as in Aseprite\'s export.'],
+   versions:{body:['The reader follows the Aseprite file format specification and was checked on 231 real `.aseprite` files: each was imported, written back with Nerulio\'s writer and opened in Aseprite 1.3.18.6 without a warning, with the same tags (231/231), durations (231/231) and pixels (231/231). The layer decisions come from the same corpus: 222 layered, 9 flattened. What this page says about the format follows the specification and the Aseprite documentation.'],sources:[ASE_SPEC,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  },
+  ko:{
+   answer:'`.aseprite`·`.ase` 파일은 이미지가 아니라 Aseprite 전용 바이너리 문서입니다. 프레임마다 밀리초 단위 길이, 블렌드 모드와 불투명도가 있는 레이어, 셀, 태그, 슬라이스, 팔레트가 들어 있어 브라우저나 일반 이미지 뷰어로는 열리지 않습니다. 여기에 끌어다 놓으면 Nerulio가 이 탭 안에서 파일을 해석해 Aseprite의 PNG 내보내기와 같은 방식으로 프레임을 합성하고(실제 파일 231개를 Aseprite 1.3.18.6과 비교해 확인), 태그를 재생하며, Aseprite JSON이 딸린 PNG 시트, 태그별 GIF·APNG, 새 `.aseprite`로 저장할 수 있습니다. 업로드는 없습니다.',
+   concept:{title:'.aseprite 파일 안에 든 것',body:[
+    '이 형식은 Aseprite 프로젝트가 직접 문서로 공개합니다. 128바이트 헤더에 매직 넘버 `0xA5E0`, 캔버스 크기, 색 깊이가 있습니다. 픽셀당 32비트면 RGBA, 16비트면 알파가 있는 그레이스케일, 8비트면 인덱스 컬러로, 모든 픽셀이 팔레트 번호이고 그중 하나를 투명색으로 씁니다. 그 뒤에 프레임이 이어집니다. 프레임마다 16바이트 헤더에 자기 길이(ms)가 있고, 이어서 레이어(첫 프레임), 셀, 팔레트, 태그, 슬라이스, 사용자 데이터, 타일맵 레이어용 타일셋 같은 청크가 옵니다.',
+    'Aseprite 화면에 보이는 그림은 완성된 이미지로 저장돼 있지 않습니다. 보이는 레이어를 아래에서 위로 그려서 프레임을 만듭니다. 셀(한 레이어의 한 프레임 픽셀, 자기 x·y 위치)을 레이어 불투명도 × 셀 불투명도로, Normal부터 Divide까지 19가지 블렌드 모드 중 하나로 섞습니다. 셀은 다른 프레임의 픽셀을 그대로 가리키는 링크 셀일 수 있고, 그 프레임에서만 레이어 순서를 바꾸는 z-index를 가질 수도 있습니다. 첫 레이어만 보여 주거나 블렌드 모드를 무시하는 뷰어는 Aseprite가 절대 내보내지 않을 그림을 보여 줍니다.',
+    'Nerulio는 자체 합성기로 레이어를 다시 그렸을 때 Aseprite 렌더와 픽셀이 완전히 같을 때만 레이어를 유지합니다. 아니면 합쳐진 프레임을 보여 주고 이유를 적습니다. 테스트용 실제 파일 231개 중 222개는 레이어가 유지됐고 9개는 합쳐졌습니다(그룹 합성이 달라지는 5개, 셀 z-index로 레이어 순서를 바꾸는 4개). 어느 쪽이든 프레임 픽셀은 같습니다.'],
+    terms:[['셀(Cel)','한 레이어의 한 프레임 픽셀. 위치와 불투명도를 따로 가집니다. 링크 셀은 픽셀 대신 다른 프레임의 셀을 가리킵니다.'],
+     ['태그','이름 붙은 프레임 구간(`from`–`to`). 방향(정방향·역방향·핑퐁·역핑퐁)과 반복 횟수가 있습니다. 반복 0은 “지정 안 함”으로, Aseprite 편집기에서는 무한, 내보낼 때는 한 번입니다.'],
+     ['슬라이스','이름 붙은 사각형. 9-패치 중앙이나 피벗 점을 가질 수 있고, 키가 프레임별로 있어 한 키는 다음 키가 나올 때까지 유지됩니다.'],
+     ['컬러 모드','RGBA, 그레이스케일, 인덱스. 인덱스 파일은 애니메이션 도중 팔레트가 바뀔 수 있고 번호 하나가 투명색입니다.']]},
+   example:{title:'예시: 작은 캐릭터 파일 읽기',lead:'레이어 3개, 태그 3개인 32 × 32 RGBA 파일을 넣었을 때 가져오기 패널과 타임라인이 보여 주는 내용, 그리고 거기서 계산되는 타이밍입니다.',lines:[
+    'hero.aseprite  32 × 32 px · RGBA · 16프레임 · 레이어 3 · 태그 3 · 슬라이스 2',
+    'layers  outline  Normal    255',
+    '        shadow   Multiply  128   (아래 레이어 위에 128/255 ≈ 50 %로 그림)',
+    '        body     Normal    255',
+    'tags    idle    0–3    4 × 125 ms                    정방향 ∞   한 사이클 500 ms',
+    '        walk    4–9    6 × 100 ms                    정방향 ∞   한 사이클 600 ms',
+    '        attack  10–15  100,100,100,100,150,250 ms    정방향 ×1  한 번 재생, 800 ms',
+    'slices  pivot  점 (16, 31), 모든 프레임       → 프레임 피벗, 신뢰도 높음(이름)',
+    '        hit    20 × 8, 12번 프레임부터         → 히트 박스, 신뢰도 중간(이름)'],
+    after:'`idle`을 핑퐁으로 바꾸면 한 사이클이 0-1-2-3-2-1, 여섯 단계 750 ms가 됩니다. 슬라이스 두 개의 추정은 가져오기 패널의 결정 항목이라, 클릭해서 `hit`을 허트 박스로 바꾸거나 무시할 수 있습니다.'},
+   outputs:{title:'뷰어에서 저장할 수 있는 것',rows:[
+    ['hero.png + hero.json','패킹·내보내기 › Aseprite JSON(해시 또는 배열): `frames`, `meta.frameTags`, `meta.slices`가 있는 패킹 시트 한 장. Aseprite 자체 스프라이트 시트 내보내기와 같은 구조입니다. [[game/aseprite-to-sprite-sheet|Aseprite를 스프라이트 시트로]] 참고.'],
+    ['hero_idle.gif …','패킹·내보내기 › Animated GIF: 태그마다 파일 하나, 지연은 1/100초 단위로 반올림. [[game/aseprite-to-gif|Aseprite를 GIF로]] 참고.'],
+    ['hero_idle.png …','패킹·내보내기 › APNG: 태그마다 애니메이션 PNG 하나, 모든 픽셀과 밀리초가 그대로.'],
+    ['hero.aseprite','스프라이트 › .aseprite 내보내기…: 레이어·태그·길이·슬라이스를 담은, Aseprite가 여는 새 파일. 넣은 원본은 바뀌지 않습니다.']]},
+   verify:{steps:[
+    '가져오기 패널의 레이어 결정: “layered”는 레이어 행이 모든 프레임에서 Aseprite 렌더를 그대로 재현한다는 뜻이고, “flattened”에는 이유와 처음 달라진 프레임이 적힙니다.',
+    '`,`와 `.`로 태그를 한 프레임씩 넘기며 프레임 패널에서 길이를 읽으세요. 합이 한 사이클입니다(walk: 6 × 100 ms = 600 ms).',
+    'Enter로 태그를 재생하세요. 반복 ×1이면 마지막 프레임에서 멈추고, ∞이면 계속 돕니다.']},
+   trouble:{rows:[
+    ['“Aseprite 파일이 아님” 또는 “일찍 끝남”','헤더가 Aseprite 매직 넘버 `0xA5E0`으로 시작하지 않거나(다른 프로그램의 `.ase` 파일), 내려받기가 중간에 끊겼습니다','원본과 파일 크기를 비교하고, 가능하면 Aseprite로 열어 봅니다','완전한 원본 파일을 받으세요. 다른 프로그램이 만든 `.ase`는 여기서 읽을 수 없습니다'],
+    ['레이어가 “Flattened” 한 줄로 보임','셀 z-index나 그룹 합성처럼 레이어를 따로 두면 똑같이 재현되지 않는 기능을 씁니다','가져오기 패널의 레이어 결정에 이유와 프레임이 있습니다','프레임 픽셀은 정확합니다. 레이어별로 작업하려면 Aseprite에서 레이어 구조를 고친 뒤 다시 가져오세요'],
+    ['Aseprite에서 보이던 레이어가 프레임에 없음','숨긴 레이어(눈 꺼짐)이거나 참조 레이어입니다. Aseprite 내보내기도 둘 다 빼고, Nerulio도 같습니다','가져오기 패널의 레이어 목록, 또는 Aseprite의 눈 아이콘','Aseprite에서 레이어를 보이게 하고 저장하세요. 참조 레이어는 프레임에 들어가지 않습니다'],
+    ['슬라이스가 엉뚱한 박스가 되거나 피벗이 없음','박스 종류는 슬라이스 이름(hit, hurt …)으로 추정하고, 피벗은 이름이 pivot·origin·anchor인 슬라이스, 없으면 피벗 점이 있는 첫 슬라이스입니다','가져오기 패널: 슬라이스마다 결정과 신뢰도','맞는 종류(hit, hurt, interact, custom)를 고르거나 무시하세요. 피벗 슬라이스가 없는 프레임은 아래 가운데를 씁니다'],
+    ['색이 Aseprite 캔버스와 조금 다름','파일에 ICC 색 프로필이 있습니다. 프로필은 보존하지만 적용하지 않으며, Aseprite의 PNG 내보내기도 같습니다','Aseprite의 색 프로필 설정','편집기 캔버스가 아니라 Aseprite에서 내보낸 PNG와 비교하세요']]},
+   alternatives:{rows:[
+    ['Aseprite 본체','레이어·그룹·타일맵·스크립트까지 모든 기능으로 파일을 고쳐야 할 때. 여기서 여는 것은 읽기 전용입니다.'],
+    ['Aseprite 명령줄(`aseprite -b`)','Aseprite가 있고 스크립트로 결과물을 뽑고 싶을 때: `--sheet`, `--data`, `--list-tags`, `--list-slices`, 태그별 GIF는 `--save-as`에 `{tag}`.'],
+    ['[[game/aseprite-alternative|브라우저용 Aseprite 대안]]','파일을 열기만 하는 게 아니라 그리고 애니메이션을 만들고 싶을 때.']]},
+   limits:['그룹 레이어는 그룹으로 남지 않습니다. 가장 안쪽 레이어마다 `arms/left`처럼 그룹 경로를 이름으로 단 행이 됩니다.','참조 레이어는 Aseprite 내보내기처럼 건너뜁니다.'],
+   versions:{body:['읽기 코드는 Aseprite 파일 형식 명세를 따르며 실제 `.aseprite` 파일 231개로 확인했습니다. 파일마다 가져온 뒤 Nerulio 기록기로 다시 써서 Aseprite 1.3.18.6에서 열었고, 경고 없이 태그(231/231), 길이(231/231), 픽셀(231/231)이 같았습니다. 레이어 결정도 같은 파일 묶음에서 나온 결과입니다(222개 유지, 9개 합침). 형식에 관한 설명은 명세와 Aseprite 공식 문서를 따릅니다.'],sources:[ASE_SPEC,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  },
+  ja:{
+   answer:'`.aseprite`・`.ase`ファイルは画像ではなく、Aseprite独自のバイナリ文書です。フレームごとのミリ秒単位の長さ、ブレンドモードと不透明度を持つレイヤー、セル、タグ、スライス、パレットが入っているため、ブラウザや一般的な画像ビューアでは開けません。ここにドロップすると、Nerulioがこのタブの中で解析し、AsepriteのPNG書き出しと同じ方法でフレームを合成し（実ファイル231個をAseprite 1.3.18.6と照合済み）、タグを再生します。Aseprite JSON付きのPNGシート、タグごとのGIF・APNG、新しい`.aseprite`として保存もできます。アップロードはありません。',
+   concept:{title:'.asepriteファイルの中身',body:[
+    'この形式はAsepriteプロジェクト自身が仕様を公開しています。128バイトのヘッダーにはマジックナンバー`0xA5E0`、キャンバスサイズ、色深度があります。1ピクセル32ビットならRGBA、16ビットならアルファ付きグレースケール、8ビットならインデックスカラーで、全ピクセルがパレット番号になり、そのうち1つを透明色に使えます。その後にフレームが続きます。各フレームは16バイトのヘッダーに自分の長さ（ms）を持ち、レイヤー（最初のフレーム）、セル、パレット、タグ、スライス、ユーザーデータ、タイルマップレイヤー用のタイルセットといったチャンクが続きます。',
+    'Asepriteの画面で見える絵は、完成画像としてはどこにも保存されていません。表示中のレイヤーを下から上へ描いてフレームを作ります。セル（1レイヤーの1フレーム分のピクセル、固有のx・y位置）を、レイヤー不透明度×セル不透明度で、NormalからDivideまで19種類のブレンドモードのどれかで重ねます。セルは別フレームのピクセルを参照するリンクセルのこともあり、そのフレームだけレイヤー順を入れ替えるz-indexを持つこともあります。最初のレイヤーしか見せない、あるいはブレンドモードを無視するビューアは、Asepriteが決して書き出さない絵を表示します。',
+    'Nerulioは、自前の合成処理でレイヤーを描き直した結果がAsepriteのレンダリングとピクセル単位で一致する場合だけレイヤーを保持します。一致しなければ統合したフレームを表示し、理由を記録します。テスト用の実ファイル231個では222個がレイヤー保持、9個が統合でした（グループ合成が再現できない5個、セルz-indexでレイヤー順を変える4個）。どちらでもフレームのピクセルは同じです。'],
+    terms:[['セル（Cel）','1レイヤーの1フレーム分のピクセル。位置と不透明度を個別に持ちます。リンクセルはピクセルの代わりに別フレームのセルを参照します。'],
+     ['タグ','名前付きのフレーム範囲（`from`–`to`）。方向（順方向・逆方向・ピンポン・逆ピンポン）と繰り返し回数を持ちます。繰り返し0は「指定なし」で、Asepriteのエディタでは無限、書き出し時は1回です。'],
+     ['スライス','名前付きの矩形。9パッチの中央やピボット点を持てます。キーはフレーム単位で、あるキーは次のキーまで有効です。'],
+     ['カラーモード','RGBA、グレースケール、インデックス。インデックスのファイルはアニメーションの途中でパレットが変わることがあり、番号の1つが透明色です。']]},
+   example:{title:'具体例：小さなキャラクターファイルを読む',lead:'レイヤー3枚・タグ3つの32 × 32 RGBAファイルを読み込んだときに、インポートパネルとタイムラインに出る内容と、そこから計算できるタイミングです。',lines:[
+    'hero.aseprite  32 × 32 px · RGBA · 16フレーム · レイヤー3 · タグ3 · スライス2',
+    'layers  outline  Normal    255',
+    '        shadow   Multiply  128   (下のレイヤーの上に 128/255 ≈ 50 % で描画)',
+    '        body     Normal    255',
+    'tags    idle    0–3    4 × 125 ms                    順方向 ∞   1サイクル 500 ms',
+    '        walk    4–9    6 × 100 ms                    順方向 ∞   1サイクル 600 ms',
+    '        attack  10–15  100,100,100,100,150,250 ms    順方向 ×1  1回再生、800 ms',
+    'slices  pivot  点 (16, 31)、全フレーム        → フレームのピボット、信頼度 高（名前）',
+    '        hit    20 × 8、フレーム12から          → ヒットボックス、信頼度 中（名前）'],
+    after:'`idle`をピンポンにすると1サイクルは0-1-2-3-2-1の6ステップ、750 msになります。2つのスライスの推定はインポートパネルの判断項目なので、クリックして`hit`をハートボックスに変えたり無視したりできます。'},
+   outputs:{title:'ビューアから保存できるもの',rows:[
+    ['hero.png + hero.json','パック＆書き出し › Aseprite JSON（ハッシュまたは配列）：`frames`、`meta.frameTags`、`meta.slices`を持つパック済みシート1枚。Aseprite自身のスプライトシート書き出しと同じ構造です。[[game/aseprite-to-sprite-sheet|Asepriteからスプライトシートへ]]を参照。'],
+    ['hero_idle.gif …','パック＆書き出し › Animated GIF：タグごとに1ファイル、ディレイは1/100秒単位に丸め。[[game/aseprite-to-gif|AsepriteからGIFへ]]を参照。'],
+    ['hero_idle.png …','パック＆書き出し › APNG：タグごとにアニメーションPNG 1つ、全ピクセルとミリ秒がそのまま。'],
+    ['hero.aseprite','スプライト › .aseprite書き出し…：レイヤー・タグ・長さ・スライスを持つ、Asepriteで開ける新しいファイル。ドロップした元ファイルは変わりません。']]},
+   verify:{steps:[
+    'インポートパネルのレイヤー判断：「layered」はレイヤー行が全フレームでAsepriteのレンダリングを再現するという意味、「flattened」には理由と最初に食い違ったフレームが書かれます。',
+    '`,`と`.`でタグを1フレームずつ送り、フレームパネルで長さを読みます。合計が1サイクルです（walk：6 × 100 ms = 600 ms）。',
+    'Enterでタグを再生します。繰り返し×1なら最後のフレームで止まり、∞ならループし続けます。']},
+   trouble:{rows:[
+    ['「Asepriteファイルではない」「途中で終わっている」','ヘッダーがAsepriteのマジックナンバー`0xA5E0`で始まっていない（別のプログラムの`.ase`）、またはダウンロードが途中で切れています','元ファイルとサイズを比べ、可能ならAsepriteで開いてみます','完全な元ファイルを入手してください。別のプログラムが作った`.ase`はここでは読めません'],
+    ['レイヤーが「Flattened」1枚になる','セルz-indexやグループ合成など、レイヤーを分けたままでは同じ結果にならない機能を使っています','インポートパネルのレイヤー判断に理由とフレームがあります','フレームのピクセルは正確です。レイヤー単位で作業するならAsepriteでレイヤー構成を直して読み込み直してください'],
+    ['Asepriteで見えていたレイヤーがフレームにない','非表示（目のアイコンがオフ）か参照レイヤーです。Asepriteの書き出しも両方を除外し、Nerulioも同じです','インポートパネルのレイヤー一覧、またはAsepriteの目のアイコン','Asepriteでレイヤーを表示にして保存してください。参照レイヤーはフレームに含まれません'],
+    ['スライスが違う種類のボックスになる、ピボットがない','ボックスの種類はスライス名（hit、hurt …）から推定し、ピボットは名前がpivot・origin・anchorのスライス、なければピボット点を持つ最初のスライスです','インポートパネル：スライスごとの判断と信頼度','正しい種類（hit、hurt、interact、custom）を選ぶか無視します。ピボットスライスのないフレームは下中央を使います'],
+    ['色がAsepriteのキャンバスと少し違う','ファイルにICCカラープロファイルがあります。保持はしますが適用はせず、AsepriteのPNG書き出しと同じ扱いです','Asepriteのカラープロファイル設定','エディタのキャンバスではなく、Asepriteから書き出したPNGと比べてください']]},
+   alternatives:{rows:[
+    ['Aseprite本体','レイヤー・グループ・タイルマップ・スクリプトまで、すべての機能でファイルを編集したいとき。ここで開くのは読み取り専用です。'],
+    ['Asepriteのコマンドライン（`aseprite -b`）','Asepriteがあり、スクリプトで出力したいとき：`--sheet`、`--data`、`--list-tags`、`--list-slices`、タグごとのGIFは`--save-as`に`{tag}`。'],
+    ['[[game/aseprite-alternative|ブラウザで使えるAseprite代替]]','ファイルを開くだけでなく、描いてアニメーションを作りたいとき。']]},
+   limits:['グループレイヤーはグループとして残りません。末端のレイヤーごとに`arms/left`のようなグループパスを名前にした行になります。','参照レイヤーはAsepriteの書き出しと同じく除外します。'],
+   versions:{body:['読み込み処理はAsepriteファイル形式の仕様に従い、実際の`.aseprite`ファイル231個で確認しました。各ファイルを読み込み、Nerulioの書き出し処理で書き直してAseprite 1.3.18.6で開いたところ、警告なしでタグ（231/231）、長さ（231/231）、ピクセル（231/231）が一致しました。レイヤーの判断も同じファイル群の結果です（保持222、統合9）。形式の説明は仕様書とAseprite公式ドキュメントに基づきます。'],sources:[ASE_SPEC,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  }
+ },
+/* ============================================================================ aseprite-to-gif */
+ 'game/aseprite-to-gif':{
+  type:'conversion',
+  intent:{primary:'convert an .aseprite animation into animated GIFs',secondary:['one GIF per tag','keep frame timing in a GIF','GIF transparency and colours from Aseprite','why a GIF plays slower than Aseprite'],
+   goal:'one GIF per tag that plays at the drawn speed with clean on/off transparency',input:'.aseprite / .ase with tags (optional)',output:'ZIP with one .gif per tag',target:'browsers, chats and forums that play GIF',support:'full',
+   evidence:['src/game/export/anim.js (encodeGIF: cs = max(2, round(ms/10)), alpha ≥ 128, ≤ 255 colours exact, disposal 2)','src/game/export/bundle.js (animationFrames, loop count from repeat)','docs/STUDIO-PACK.md (GIF decoded by Pillow, every frame and delay)'],
+   external:['W3C GIF89a: delay in 1/100 s, disposal methods, transparency index, colour table ≤ 256','WebKit: frames ≤ 10 ms play as 100 ms','Aseprite docs: Export As, CLI --save-as {tag}']},
+  en:{
+   answer:"Drop the `.aseprite` file, open Pack & Export and choose Animated GIF: you get one GIF per tag (`hero_walk.gif`) with the frames in playback order on one pivot-aligned cell. GIF stores delays in hundredths of a second, so each frame's milliseconds are rounded (125 ms → 130 ms, 16 ms → 20 ms, never below 20 ms); alpha becomes on/off at 128, and up to 255 colours stay exact. It all runs in the browser, without Aseprite installed.",
+   concept:{title:'What a GIF can store, and what an Aseprite frame has',body:[
+    "A GIF (GIF89a) is a series of images on one logical screen. Before each image a Graphic Control Extension sets the delay in hundredths of a second, the disposal method (what happens to the image before the next one: 0 not specified, 1 leave it, 2 restore to background, 3 restore to previous) and an optional transparent colour index. Colours come from tables of at most 256 entries. The loop count is not in the GIF89a specification; players read it from the NETSCAPE2.0 application extension.",
+    "An Aseprite frame has millisecond timing, 256 levels of alpha per pixel and, in RGBA mode, any number of colours. Converting therefore means three decisions: round the timing to 1/100 s, cut alpha to on/off, and fit the colours into one table. Nerulio writes every frame as a full image with disposal 2, so transparent areas never pile up from one frame to the next.",
+    "Very short delays are a trap. WebKit's image decoder plays any frame of 10 ms or less for 100 ms, and its source says this follows Firefox; a delay of 1/100 s can therefore play ten times slower than intended. Nerulio never writes less than 2/100 s (20 ms) and lists how many delays it rounded."],
+    terms:[['Delay time','Hundredths of a second per frame, stored in the Graphic Control Extension: 13 means 130 ms.'],
+     ['Disposal method','What the decoder does with a frame before drawing the next. Nerulio writes 2, restore to background, on every full-size frame.'],
+     ['Transparent index','One palette entry that is not drawn. Nerulio uses index 0 for every pixel with alpha below 128.'],
+     ['Loop count','The NETSCAPE2.0 value; 0 loops forever. Nerulio writes repeat − 1 for a finite repeat and no loop block for a tag that plays once.']]},
+   example:{title:'Example: what common frame times become',lines:[
+    'Aseprite frame    GIF delay                  plays as   change',
+    '125 ms  ( 8 fps)  12.5 → 13 /100 s           130 ms     +5 ms',
+    '100 ms  (10 fps)  10 /100 s                  100 ms     exact',
+    ' 83 ms  (12 fps)  8.3 → 8 /100 s              80 ms     −3 ms',
+    ' 50 ms  (20 fps)  5 /100 s                    50 ms     exact',
+    ' 33 ms  (30 fps)  3.3 → 3 /100 s              30 ms     −3 ms',
+    ' 16 ms  (60 fps)  1.6 → 2 /100 s              20 ms     +4 ms',
+    ' 10 ms            1 → raised to 2 /100 s      20 ms     (1 would play as 100 ms in WebKit)',
+    '',
+    'walk    6 × 83 ms = 498 ms in Aseprite  →  6 × 80 ms = 480 ms in the GIF',
+    'effect 12 × 16 ms = 192 ms at 60 fps    → 12 × 20 ms = 240 ms (25 % slower)'],
+    after:'Frame times that are whole hundredths (10, 20, 30 … ms, so 10, 20, 25 or 50 fps) survive exactly. When the timing must stay to the millisecond, export APNG from the same panel: it stores each delay as a fraction of a second.'},
+   mapping:{head:['In Aseprite','In Nerulio','In the GIF'],rows:[
+    ['Tag','One animation; a file without tags becomes one animation with every frame','One file per tag, e.g. `hero_walk.gif`'],
+    ['Frame duration (ms)','Kept per frame, rounded on export','Delay in 1/100 s, at least 2'],
+    ['Direction reverse / ping-pong','Playback order written out (ping-pong 0-1-2-3-2-1)','Frames stored in that order'],
+    ['Repeat ∞ / n / 1','Loop forever / n plays / once','Loop count 0 / n − 1 / no loop block'],
+    ['Pixel alpha 0–255','Threshold at 128','Opaque colour, or the transparent index'],
+    ['Colours (RGBA)','≤ 255: exact; more: median cut over all frames, nearest colour, no dithering','One global colour table'],
+    ['Layers, blend modes, opacity','Composited as Aseprite\'s export draws them','Flat frames'],
+    ['Pivot','All frames of the tag on one cell, pivots on the same point','Full-size frames, disposal 2'],
+    ['Slices, hit boxes, user data','Kept in the Studio','Not stored: GIF has no field for them']]},
+   outputs:{rows:[
+    ['hero_gif.zip','The download, with a folder `hero_gif/` (the name follows the export name in Pack & Export).'],
+    ['hero_gif/hero_walk.gif','The `walk` tag: its frames, delays and loop count. The frame size is the smallest cell that holds every frame of the tag aligned on its pivot.']]},
+   target:{title:'Use the GIF',steps:[
+    'Unzip the download. Each tag is its own GIF named after the tag, so rename a tag on the Timeline before export if you want another file name.',
+    'Open the GIF in a browser tab to check the speed: the browser plays the stored delays, so a 6 × 80 ms walk loops every 0.48 s.',
+    'Look at it on the background where it will appear. GIF transparency is on/off: an edge pixel that was 40 % opaque in Aseprite is now fully transparent, one at 60 % fully opaque.',
+    'Where soft edges or exact timing matter, export APNG from the same tags; for a video post, export [[game/sprite-sheet-to-video|WebM video]] (4× nearest) instead.']},
+   verify:{steps:[
+    'Count the frames of a ping-pong tag: 4 frames give 6 GIF frames (0-1-2-3-2-1).',
+    'Read the export notes: “n frame delay(s) rounded to GIF\'s 1/100 s (minimum 20 ms)” tells you which tags changed speed.',
+    'A tag with repeat ×1 stops on its last frame; a tag with ∞ keeps looping.']},
+   trouble:{rows:[
+    ['Edges look jagged or have a hard halo','GIF has 1-bit transparency: alpha ≥ 128 became opaque, the rest transparent','The export note says semi-transparent pixels were changed','Export APNG for soft edges, or draw the edge with fully opaque pixels in Aseprite'],
+    ['The animation is slower or faster than in Aseprite','Delays are rounded to 1/100 s and very short frames are raised to 20 ms','Compare the frame times with the table above; the note counts rounded delays','Use frame times in whole hundredths (10, 20, 25, 50 fps), or export APNG'],
+    ['Colour banding or wrong shades','More than 255 colours in the tag, so the palette was reduced by median cut without dithering','The note “More than 255 colours” appears','Reduce the colours in Aseprite (indexed mode) or export APNG'],
+    ['The GIF plays once and stops','The tag\'s repeat is a number (×1 = once) rather than ∞','Animation panel: Repeat of that tag','Set the repeat to ∞ and export again'],
+    ['Only one GIF for the whole file','The file has no tags, so every frame is one animation','Look for tag lanes above the Timeline','Drag tags on the Timeline (or add them in Aseprite) and export again']]},
+   alternatives:{rows:[
+    ['Aseprite\'s own export: File > Export > Export As, or `aseprite -b hero.aseprite --save-as hero-{tag}.gif`','You have Aseprite and want its options, such as resizing the output; the `{tag}` form writes one GIF per tag from the command line.'],
+    ['APNG from the same export panel','Exact colours, soft alpha and millisecond timing matter more than GIF\'s reach. APNG is supported by Chrome, Edge, Firefox, Opera and Safari.'],
+    ['[[game/sprite-sheet-to-video|WebM video]]','The animation goes into a video post or trailer: enlarged 4× with nearest-neighbour on a solid background.']]},
+   limits:['GIF transparency is on/off; Nerulio does not dither or blend edges against a background colour.','The GIF keeps the sprite\'s pixel size: the Studio has no scale option for GIF export.'],
+   versions:{body:['The GIF export was checked by decoding the files with Pillow: every frame and every delay came back as written. The rounding, the 20 ms floor and the alpha threshold are Nerulio\'s own rules. The GIF structure described here follows the W3C GIF89a specification; the short-delay behaviour comes from WebKit\'s source; the Aseprite commands from the Aseprite documentation.'],sources:[GIF_SPEC,WEBKIT_DELAY,MDN_IMAGES,ASE_EXPORT,ASE_CLI]}
+  },
+  ko:{
+   answer:'`.aseprite` 파일을 넣고 패킹·내보내기에서 Animated GIF를 고르면 태그마다 GIF가 하나씩(`hero_walk.gif`) 나오고, 프레임은 재생 순서대로 피벗을 맞춘 한 칸에 들어갑니다. GIF는 지연을 1/100초 단위로 저장하므로 프레임의 밀리초가 반올림되고(125 ms → 130 ms, 16 ms → 20 ms, 20 ms 미만은 없음), 알파는 128을 기준으로 켜짐/꺼짐이 되며, 255색까지는 색이 정확히 유지됩니다. 모두 브라우저에서 처리되고 Aseprite 설치는 필요 없습니다.',
+   concept:{title:'GIF가 담을 수 있는 것과 Aseprite 프레임에 있는 것',body:[
+    'GIF(GIF89a)는 논리 화면 하나에 그리는 이미지의 연속입니다. 이미지마다 앞에 붙는 그래픽 제어 확장(Graphic Control Extension)이 1/100초 단위 지연, 폐기 방식(다음 이미지 전에 이 이미지를 어떻게 할지: 0 지정 안 함, 1 그대로 둠, 2 배경으로 복원, 3 이전 상태로 복원), 선택적인 투명 색 번호를 정합니다. 색은 최대 256개짜리 표에서 가져옵니다. 반복 횟수는 GIF89a 명세에 없고, 재생기는 NETSCAPE2.0 애플리케이션 확장에서 읽습니다.',
+    'Aseprite 프레임은 밀리초 타이밍, 픽셀당 256단계 알파, RGBA 모드라면 색 수 제한이 없습니다. 그래서 변환에는 세 가지 결정이 필요합니다. 타이밍을 1/100초로 반올림하고, 알파를 켜짐/꺼짐으로 자르고, 색을 표 하나에 맞춥니다. Nerulio는 모든 프레임을 폐기 방식 2의 전체 크기 이미지로 써서 투명한 부분이 프레임마다 겹쳐 쌓이지 않습니다.',
+    '아주 짧은 지연은 함정입니다. WebKit의 이미지 디코더는 10 ms 이하 프레임을 100 ms로 재생하며, 소스 주석에는 Firefox의 동작을 따른 것이라고 적혀 있습니다. 1/100초 지연은 의도보다 열 배 느리게 재생될 수 있다는 뜻입니다. Nerulio는 2/100초(20 ms) 미만을 쓰지 않고, 반올림한 지연이 몇 개인지 알려 줍니다.'],
+    terms:[['지연 시간','프레임당 1/100초 단위 값으로, 그래픽 제어 확장에 저장됩니다. 13은 130 ms입니다.'],
+     ['폐기 방식','다음 프레임을 그리기 전에 디코더가 현재 프레임을 처리하는 방법. Nerulio는 전체 크기 프레임마다 2(배경으로 복원)를 씁니다.'],
+     ['투명 색 번호','그리지 않는 팔레트 항목 하나. Nerulio는 알파가 128 미만인 픽셀을 모두 0번으로 보냅니다.'],
+     ['반복 횟수','NETSCAPE2.0 값. 0이면 무한 반복입니다. Nerulio는 유한 반복이면 반복 − 1을 쓰고, 한 번 재생하는 태그에는 반복 블록을 넣지 않습니다.']]},
+   example:{title:'예시: 흔한 프레임 시간이 GIF에서 어떻게 되나',lines:[
+    'Aseprite 프레임   GIF 지연                   재생 시간  차이',
+    '125 ms  ( 8 fps)  12.5 → 13 /100 s           130 ms     +5 ms',
+    '100 ms  (10 fps)  10 /100 s                  100 ms     정확',
+    ' 83 ms  (12 fps)  8.3 → 8 /100 s              80 ms     −3 ms',
+    ' 50 ms  (20 fps)  5 /100 s                    50 ms     정확',
+    ' 33 ms  (30 fps)  3.3 → 3 /100 s              30 ms     −3 ms',
+    ' 16 ms  (60 fps)  1.6 → 2 /100 s              20 ms     +4 ms',
+    ' 10 ms            1 → 2 /100 s로 올림         20 ms     (1이면 WebKit에서 100 ms로 재생)',
+    '',
+    'walk    Aseprite 6 × 83 ms = 498 ms  →  GIF 6 × 80 ms = 480 ms',
+    '이펙트 60 fps 12 × 16 ms = 192 ms   →  12 × 20 ms = 240 ms (25 % 느려짐)'],
+    after:'프레임 시간이 1/100초의 정수배(10, 20, 30 … ms, 즉 10·20·25·50 fps)면 그대로 유지됩니다. 밀리초까지 정확해야 한다면 같은 패널에서 APNG로 내보내세요. APNG는 지연을 초의 분수로 저장합니다.'},
+   mapping:{head:['Aseprite에서','Nerulio에서','GIF에서'],rows:[
+    ['태그','애니메이션 하나. 태그가 없는 파일은 모든 프레임이 애니메이션 하나','태그마다 파일 하나, 예: `hero_walk.gif`'],
+    ['프레임 길이(ms)','프레임별로 유지, 내보낼 때 반올림','1/100초 단위 지연, 최소 2'],
+    ['방향 역방향·핑퐁','재생 순서를 펼쳐서 기록(핑퐁 0-1-2-3-2-1)','그 순서대로 프레임 저장'],
+    ['반복 ∞ / n / 1','무한 / n번 / 한 번','반복 횟수 0 / n − 1 / 반복 블록 없음'],
+    ['픽셀 알파 0–255','128 기준으로 자름','불투명 색 또는 투명 색 번호'],
+    ['색(RGBA)','255색 이하: 정확, 초과: 전체 프레임 기준 메디안 컷, 가장 가까운 색, 디더링 없음','전역 색 표 하나'],
+    ['레이어·블렌드 모드·불투명도','Aseprite 내보내기와 같게 합성','평평한 프레임'],
+    ['피벗','태그의 모든 프레임을 한 칸에, 피벗을 같은 점에','전체 크기 프레임, 폐기 방식 2'],
+    ['슬라이스·히트박스·사용자 데이터','Studio 안에서는 유지','저장 안 됨: GIF에 해당 필드가 없음']]},
+   outputs:{rows:[
+    ['hero_gif.zip','내려받는 파일. 안에 `hero_gif/` 폴더가 있습니다(이름은 패킹·내보내기의 내보내기 이름을 따름).'],
+    ['hero_gif/hero_walk.gif','`walk` 태그: 프레임, 지연, 반복 횟수. 크기는 태그의 모든 프레임을 피벗에 맞춰 담는 가장 작은 칸입니다.']]},
+   target:{title:'GIF 쓰기',steps:[
+    '내려받은 ZIP을 풉니다. 태그마다 태그 이름을 단 GIF가 하나씩 있으니, 다른 파일 이름을 원하면 내보내기 전에 타임라인에서 태그 이름을 바꾸세요.',
+    'GIF를 브라우저 탭에서 열어 속도를 확인하세요. 브라우저는 저장된 지연대로 재생하므로 6 × 80 ms짜리 walk는 0.48초마다 반복됩니다.',
+    '실제로 올라갈 배경 위에서 보세요. GIF 투명은 켜짐/꺼짐뿐이라 Aseprite에서 40 % 불투명했던 가장자리 픽셀은 완전히 투명해지고, 60 %였던 픽셀은 완전히 불투명해집니다.',
+    '부드러운 가장자리나 정확한 타이밍이 중요하면 같은 태그를 APNG로, 동영상 게시물에는 [[game/sprite-sheet-to-video|WebM 동영상]](최근접 4배)으로 내보내세요.']},
+   verify:{steps:[
+    '핑퐁 태그의 프레임 수를 세어 보세요. 4프레임이면 GIF 프레임은 6개(0-1-2-3-2-1)입니다.',
+    '내보내기 안내를 읽으세요. “n frame delay(s) rounded to GIF\'s 1/100 s (minimum 20 ms)”가 속도가 바뀐 태그를 알려 줍니다.',
+    '반복 ×1 태그는 마지막 프레임에서 멈추고, ∞ 태그는 계속 반복합니다.']},
+   trouble:{rows:[
+    ['가장자리가 계단처럼 보이거나 딱딱한 테두리가 생김','GIF 투명은 1비트라 알파 128 이상은 불투명, 나머지는 투명이 됐습니다','내보내기 안내에 반투명 픽셀을 바꿨다는 문구가 있습니다','부드러운 가장자리는 APNG로 내보내거나, Aseprite에서 가장자리를 완전 불투명 픽셀로 그리세요'],
+    ['Aseprite보다 느리거나 빠름','지연을 1/100초로 반올림하고, 아주 짧은 프레임은 20 ms로 올렸습니다','위 표와 프레임 시간을 비교하고, 안내의 반올림 개수를 봅니다','1/100초 정수배 프레임 시간(10·20·25·50 fps)을 쓰거나 APNG로 내보내세요'],
+    ['색 띠가 생기거나 색조가 틀림','태그에 색이 255개를 넘어 디더링 없는 메디안 컷으로 팔레트를 줄였습니다','“More than 255 colours” 안내가 나옵니다','Aseprite에서 색 수를 줄이거나(인덱스 모드) APNG로 내보내세요'],
+    ['GIF가 한 번 재생하고 멈춤','태그 반복이 ∞가 아니라 숫자(×1 = 한 번)입니다','애니메이션 패널: 그 태그의 반복','반복을 ∞로 바꾸고 다시 내보내세요'],
+    ['파일 전체가 GIF 하나로 나옴','파일에 태그가 없어 모든 프레임이 애니메이션 하나입니다','타임라인 위에 태그 줄이 있는지 봅니다','타임라인에서 태그를 드래그해 만들거나 Aseprite에서 추가한 뒤 다시 내보내세요']]},
+   alternatives:{rows:[
+    ['Aseprite 자체 내보내기: File > Export > Export As, 또는 `aseprite -b hero.aseprite --save-as hero-{tag}.gif`','Aseprite가 있고 출력 크기 조절 같은 옵션이 필요할 때. `{tag}`를 쓰면 명령줄에서 태그마다 GIF를 씁니다.'],
+    ['같은 내보내기 패널의 APNG','GIF의 범용성보다 정확한 색, 부드러운 알파, 밀리초 타이밍이 중요할 때. APNG는 Chrome, Edge, Firefox, Opera, Safari가 지원합니다.'],
+    ['[[game/sprite-sheet-to-video|WebM 동영상]]','애니메이션을 영상 게시물이나 트레일러에 넣을 때. 최근접 이웃으로 4배 키우고 단색 배경을 깝니다.']]},
+   limits:['GIF 투명은 켜짐/꺼짐뿐입니다. Nerulio는 가장자리를 디더링하거나 배경색과 섞지 않습니다.','GIF는 스프라이트의 픽셀 크기 그대로입니다. Studio에는 GIF 내보내기용 확대 옵션이 없습니다.'],
+   versions:{body:['GIF 내보내기는 결과 파일을 Pillow로 디코딩해 확인했습니다. 모든 프레임과 지연이 쓴 그대로 나왔습니다. 반올림, 20 ms 하한, 알파 기준은 Nerulio 자체 규칙입니다. GIF 구조 설명은 W3C GIF89a 명세, 짧은 지연 동작은 WebKit 소스, Aseprite 명령은 Aseprite 공식 문서를 따릅니다.'],sources:[GIF_SPEC,WEBKIT_DELAY,MDN_IMAGES,ASE_EXPORT,ASE_CLI]}
+  },
+  ja:{
+   answer:'`.aseprite`ファイルをドロップしてパック＆書き出しでAnimated GIFを選ぶと、タグごとにGIFが1つ（`hero_walk.gif`）でき、フレームは再生順にピボットを揃えた1つのセルに入ります。GIFはディレイを1/100秒単位で持つため、フレームのミリ秒は丸められ（125 ms → 130 ms、16 ms → 20 ms、20 ms未満にはしない）、アルファは128を境にオン／オフになり、255色までは色がそのまま保たれます。すべてブラウザ内で処理され、Asepriteのインストールは不要です。',
+   concept:{title:'GIFが持てるものと、Asepriteのフレームが持つもの',body:[
+    'GIF（GIF89a）は1つの論理画面に描かれる画像の連続です。各画像の前に置くグラフィック制御拡張（Graphic Control Extension）が、1/100秒単位のディレイ、廃棄方法（次の画像の前にこの画像をどうするか：0 指定なし、1 そのまま残す、2 背景に戻す、3 直前の状態に戻す）、任意の透明色インデックスを決めます。色は最大256色の表から取ります。ループ回数はGIF89aの仕様にはなく、再生側はNETSCAPE2.0アプリケーション拡張から読みます。',
+    'Asepriteのフレームはミリ秒単位のタイミング、ピクセルごとに256段階のアルファを持ち、RGBAモードなら色数に制限がありません。そのため変換には3つの判断が必要です。タイミングを1/100秒に丸める、アルファをオン／オフに切る、色を1つの表に収める。Nerulioは全フレームを廃棄方法2のフルサイズ画像として書くので、透明部分がフレームごとに積み重なることはありません。',
+    'ごく短いディレイには落とし穴があります。WebKitの画像デコーダは10 ms以下のフレームを100 msで再生し、ソースのコメントにはFirefoxの挙動に合わせたと書かれています。1/100秒のディレイは意図の10倍遅く再生されうるということです。Nerulioは2/100秒（20 ms）未満を書かず、丸めたディレイの数を知らせます。'],
+    terms:[['ディレイ','フレームごとの1/100秒単位の値で、グラフィック制御拡張に入ります。13なら130 msです。'],
+     ['廃棄方法','次のフレームを描く前にデコーダが現在のフレームをどう扱うか。Nerulioはフルサイズの全フレームに2（背景に戻す）を書きます。'],
+     ['透明色インデックス','描画しないパレット項目1つ。Nerulioはアルファ128未満のピクセルをすべて0番に割り当てます。'],
+     ['ループ回数','NETSCAPE2.0の値で、0なら無限ループ。Nerulioは有限の繰り返しなら繰り返し−1を書き、1回再生のタグにはループブロックを入れません。']]},
+   example:{title:'具体例：よくあるフレーム時間がGIFでどうなるか',lines:[
+    'Asepriteのフレーム  GIFのディレイ              再生時間   差',
+    '125 ms  ( 8 fps)    12.5 → 13 /100 s           130 ms     +5 ms',
+    '100 ms  (10 fps)    10 /100 s                  100 ms     一致',
+    ' 83 ms  (12 fps)    8.3 → 8 /100 s              80 ms     −3 ms',
+    ' 50 ms  (20 fps)    5 /100 s                    50 ms     一致',
+    ' 33 ms  (30 fps)    3.3 → 3 /100 s              30 ms     −3 ms',
+    ' 16 ms  (60 fps)    1.6 → 2 /100 s              20 ms     +4 ms',
+    ' 10 ms              1 → 2 /100 s に引き上げ     20 ms     (1だとWebKitでは100 ms)',
+    '',
+    'walk     Aseprite 6 × 83 ms = 498 ms  →  GIF 6 × 80 ms = 480 ms',
+    'エフェクト 60 fps 12 × 16 ms = 192 ms  →  12 × 20 ms = 240 ms (25 % 遅い)'],
+    after:'フレーム時間が1/100秒の整数倍（10、20、30 … ms、つまり10・20・25・50 fps）ならそのまま保たれます。ミリ秒単位で正確である必要があるなら、同じパネルからAPNGで書き出してください。APNGはディレイを秒の分数で持ちます。'},
+   mapping:{head:['Asepriteでは','Nerulioでは','GIFでは'],rows:[
+    ['タグ','アニメーション1つ。タグのないファイルは全フレームで1アニメーション','タグごとに1ファイル、例：`hero_walk.gif`'],
+    ['フレームの長さ（ms）','フレームごとに保持し、書き出し時に丸め','1/100秒単位のディレイ、最小2'],
+    ['方向 逆方向・ピンポン','再生順を展開して記録（ピンポン 0-1-2-3-2-1）','その順にフレームを格納'],
+    ['繰り返し ∞ / n / 1','無限 / n回 / 1回','ループ回数 0 / n − 1 / ループブロックなし'],
+    ['ピクセルのアルファ 0–255','128で二値化','不透明の色、または透明色インデックス'],
+    ['色（RGBA）','255色以下：そのまま、超過：全フレームでメディアンカット、最近傍色、ディザなし','グローバルカラーテーブル1つ'],
+    ['レイヤー・ブレンドモード・不透明度','Asepriteの書き出しと同じく合成','平らなフレーム'],
+    ['ピボット','タグの全フレームを1つのセルに、ピボットを同じ点に','フルサイズのフレーム、廃棄方法2'],
+    ['スライス・当たり判定・ユーザーデータ','Studio内では保持','保存されない：GIFに該当するフィールドがない']]},
+   outputs:{rows:[
+    ['hero_gif.zip','ダウンロードされるファイル。中に`hero_gif/`フォルダがあります（名前はパック＆書き出しの書き出し名に従います）。'],
+    ['hero_gif/hero_walk.gif','`walk`タグ：フレーム、ディレイ、ループ回数。サイズはタグの全フレームをピボットで揃えて収める最小のセルです。']]},
+   target:{title:'GIFを使う',steps:[
+    'ダウンロードしたZIPを展開します。タグごとにタグ名のGIFがあるので、別のファイル名にしたいなら書き出し前にタイムラインでタグ名を変えてください。',
+    'GIFをブラウザのタブで開いて速度を確かめます。ブラウザは保存されたディレイどおりに再生するので、6 × 80 msのwalkは0.48秒ごとにループします。',
+    '実際に載せる背景の上で見てください。GIFの透明はオン／オフだけなので、Asepriteで40 %不透明だった縁のピクセルは完全に透明に、60 %だったものは完全に不透明になります。',
+    '柔らかい縁や正確なタイミングが大事なら同じタグをAPNGで、動画投稿には[[game/sprite-sheet-to-video|WebM動画]]（ニアレスト4倍）で書き出してください。']},
+   verify:{steps:[
+    'ピンポンのタグのフレーム数を数えます。4フレームならGIFは6フレーム（0-1-2-3-2-1）です。',
+    '書き出し後のメモを読みます。「n frame delay(s) rounded to GIF\'s 1/100 s (minimum 20 ms)」が速度の変わったタグを示します。',
+    '繰り返し×1のタグは最後のフレームで止まり、∞のタグはループし続けます。']},
+   trouble:{rows:[
+    ['縁がギザギザになる、硬い縁取りが出る','GIFの透明は1ビットなので、アルファ128以上は不透明、それ未満は透明になりました','書き出しメモに半透明ピクセルを変更した旨が出ます','柔らかい縁はAPNGで書き出すか、Asepriteで縁を完全不透明のピクセルで描いてください'],
+    ['Asepriteより遅い・速い','ディレイを1/100秒に丸め、ごく短いフレームは20 msに引き上げました','上の表とフレーム時間を比べ、メモの丸め数を見ます','1/100秒の整数倍のフレーム時間（10・20・25・50 fps）にするか、APNGで書き出してください'],
+    ['色の帯が出る、色味が違う','タグの色が255色を超え、ディザなしのメディアンカットでパレットを減らしました','「More than 255 colours」のメモが出ます','Asepriteで色数を減らす（インデックスモード）か、APNGで書き出してください'],
+    ['GIFが1回再生して止まる','タグの繰り返しが∞ではなく回数（×1 = 1回）になっています','アニメーションパネル：そのタグの繰り返し','繰り返しを∞にして書き出し直してください'],
+    ['ファイル全体でGIFが1つだけ','ファイルにタグがなく、全フレームが1つのアニメーションです','タイムラインの上にタグのレーンがあるか見ます','タイムラインでタグをドラッグして作るか、Asepriteで追加してから書き出し直してください']]},
+   alternatives:{rows:[
+    ['Aseprite自身の書き出し：File > Export > Export As、または`aseprite -b hero.aseprite --save-as hero-{tag}.gif`','Asepriteがあり、出力サイズの変更などのオプションが欲しいとき。`{tag}`を使うとコマンドラインでタグごとにGIFを書き出せます。'],
+    ['同じ書き出しパネルのAPNG','GIFの対応範囲より、正確な色・柔らかいアルファ・ミリ秒のタイミングが大事なとき。APNGはChrome、Edge、Firefox、Opera、Safariが対応しています。'],
+    ['[[game/sprite-sheet-to-video|WebM動画]]','アニメーションを動画投稿やトレーラーに入れるとき。ニアレストネイバーで4倍にし、単色の背景に載せます。']]},
+   limits:['GIFの透明はオン／オフだけです。Nerulioは縁をディザ処理したり背景色と混ぜたりしません。','GIFはスプライトのピクセルサイズのままです。StudioにはGIF書き出し用の拡大オプションがありません。'],
+   versions:{body:['GIF書き出しは、出力ファイルをPillowでデコードして確認しました。すべてのフレームとディレイが書いたとおりに戻りました。丸め、20 msの下限、アルファの閾値はNerulio独自の規則です。GIFの構造はW3CのGIF89a仕様、短いディレイの挙動はWebKitのソース、AsepriteのコマンドはAseprite公式ドキュメントに基づきます。'],sources:[GIF_SPEC,WEBKIT_DELAY,MDN_IMAGES,ASE_EXPORT,ASE_CLI]}
+  }
+ },
+/* ============================================================================ sprite-sheet-to-aseprite */
+ 'game/sprite-sheet-to-aseprite':{
+  type:'conversion',
+  intent:{primary:'turn a PNG sprite sheet into an .aseprite file with frames and tags',secondary:['import a sprite sheet into Aseprite','keep timing, pivot and hitboxes as slices','what a sheet cannot tell Aseprite'],
+   goal:'an .aseprite file that opens in Aseprite with one frame per cell, named tags, real timing and pivot/box slices',input:'PNG sprite sheet (grid with margin/spacing, or irregular; key colour optional)',output:'.aseprite (Sprite › Export .aseprite…) or a pivot-aligned .aseprite from Pack & Export',target:'Aseprite 1.3',support:'full',
+   evidence:['src/studio/sprite/aseprite-bridge.js asepriteFromAsset (tags consecutive only, durations whole ms, pivot slice unless default, rect boxes only)','src/game/aseprite.js documentFromImages/writeAseprite','src/studio/sprite/import-plan.js (row_n tags, 100 ms timing decision)','docs/STUDIO-SPRITE.md §10 (231/231 reopen in Aseprite 1.3.18.6)','docs/STUDIO-PACK.md (.aseprite target: Aseprite 1.3.18 CLI renders every frame)'],
+   external:['Aseprite docs: Import Sprite Sheet (offset, size, padding), Export Sprite Sheet, tags, slices, CLI --list-tags']},
+  en:{
+   answer:"A PNG sprite sheet is one picture: it has no frame boundaries, timing, animation names or pivot. To make an `.aseprite` file, Nerulio measures the grid (or finds each sprite as an island), keys out a flat background, starts one tag per row at 100 ms per frame, lets you fix tags, timing, pivot and hitboxes, and then Sprite › Export .aseprite… writes frames, tags, durations and slices. The same writer produced 231 of 231 files that Aseprite 1.3.18.6 opened without a warning.",
+   concept:{title:'What a sheet has, and what an .aseprite file needs',body:[
+    "A sheet only holds pixels. Cell size, margin (the empty border around the sheet) and spacing (the gap between cells) are implied by the layout, and the animations by the rows, if the artist was consistent. Frame timing, animation names, loop settings and the pivot are not in the file at all; they live in a game's code or in the artist's notes.",
+    "An `.aseprite` file needs each of those explicitly: a canvas size, frames with a duration in milliseconds, tags with `from`–`to`, a direction and a repeat count, and slices for points and boxes. Nerulio fills in what can be measured (grid, islands, key colour, one tag per row), shows each guess with a confidence, and uses 100 ms per frame (Aseprite's default) until you set the real timing.",
+    "Aseprite tags are ranges, so a tag must be a run of consecutive frames. Nerulio writes a run in timeline order as it is, writes a backwards run as a reverse tag, and names any tag whose frames are scattered instead of bending it into a wrong range."],
+    terms:[['Cell','One frame\'s rectangle in the grid.'],['Margin / spacing','Empty pixels around the whole sheet / between neighbouring cells.'],['Islands','Separate groups of opaque pixels, used to cut a sheet that has no regular grid.'],['Slice','Aseprite\'s named rectangle; Nerulio writes the pivot and each rectangle box as one.']]},
+   example:{title:'Example: an 8 × 4 sheet with margin and spacing',lines:[
+    'sheet         267 × 135 px, magenta background',
+    'grid          32 × 32 cells, margin 2 px, spacing 1 px',
+    'check width   2 + 8 × 32 + 7 × 1 + 2 = 267 px',
+    'check height  2 + 4 × 32 + 3 × 1 + 2 = 135 px',
+    'frames        8 × 4 = 32 → tags row_1 … row_4, 8 frames each',
+    'timing        row_2 at 12 fps: 1000 / 12 = 83.33 ms → written as 83 ms',
+    '.aseprite     32 × 32 canvas, 32 frames, 1 layer, 4 tags, magenta → transparent'],
+    after:'Rename `row_1` … `row_4` on the Timeline (idle, walk, jump, hurt) before export: Aseprite shows the tag names exactly as written.'},
+   mapping:{head:['From the sheet / Studio','Written into the .aseprite','What to know'],rows:[
+    ['Frames cut by grid or islands','One frame each on a canvas as large as the largest frame','Each frame keeps its offset from the top left; frames of different sizes do not share a pivot'],
+    ['Tag over consecutive frames','Tag with `from`, `to`, direction and repeat','A backwards run becomes reverse; ping-pong stays ping-pong'],
+    ['Tag over scattered frames','Not written','Named in the export message; drag the frames together and export again'],
+    ['Frame duration','Whole milliseconds, at least 1','83.33 ms → 83 ms; untouched frames stay at 100 ms'],
+    ['Pivot','A slice named `pivot` with a pivot point, keyed where it changes','Left out while every frame keeps the default bottom centre'],
+    ['Rectangle boxes','One slice per type and slot (`hit`, `hit2`, `hurt` …)','An empty key where a box stops, so it does not carry on'],
+    ['Circle and polygon boxes, collision polygons','Not written','Aseprite slices are rectangles; the export message lists skipped boxes'],
+    ['Key colour','Transparent pixels, RGBA colour mode','The untouched sheet stays in the Studio for undo'],
+    ['Layers','The Studio\'s layers (a cut sheet has one)','Identical cels on a layer are stored as linked cels']]},
+   outputs:{rows:[
+    ['hero.aseprite','Sprite › Export .aseprite…: frames at their own offsets, the Studio\'s layers, tags, durations, and pivot and box slices.'],
+    ['hero_aseprite.zip › hero_aseprite/hero.aseprite','Pack & Export › .aseprite file: every frame on one pivot-aligned canvas, and a frame used by two tags repeated so each tag stays one range. The Aseprite 1.3.18 command line opened it and rendered every frame in our checks.']]},
+   target:{title:'Continue in Aseprite',steps:[
+    'Open `hero.aseprite` in Aseprite. The canvas is the frame size (32 × 32 in the example), not the sheet size.',
+    'Check the tags above the frames: names, ranges and direction as set in Nerulio. A tag the export message listed as skipped is missing; fix its frame order in Nerulio and export again.',
+    'Choose the Slice tool to see the `pivot` slice and the box slices; each keeps its keys per frame.',
+    'Work on the animation. To get a sheet back for an engine, use File > Export Sprite Sheet, or bring the `.aseprite` back to Nerulio for [[game/aseprite-to-godot|Godot]], [[game/aseprite-to-unity|Unity]] or [[game/aseprite-to-phaser|Phaser]].']},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags` prints the tag names from first to last; compare them with the Timeline.',
+    'Play each tag in Aseprite: `row_2` at 83 ms per frame loops every 8 × 83 = 664 ms.',
+    'Show a checkered background: areas that were magenta must be transparent, not pink.']},
+   trouble:{rows:[
+    ['A tag is missing in Aseprite','Its frames are not consecutive on the Timeline','The export message names the skipped tag','Drag its frames next to each other (duplicate shared frames with Alt+N) and export again'],
+    ['Frames jump or drift when played in Aseprite','Frames were cut as islands of different sizes and sit at different offsets on the shared canvas','Step through the frames and compare their sizes in the Frame panel','Use Align › one canvas size with an anchor before export, or export the pivot-aligned file from Pack & Export; see [[game/sprite-jitter-after-trim|jitter after trimming]]'],
+    ['Circle or polygon hitboxes are gone','Aseprite slices are rectangles only','The export message lists every skipped box','Redraw them as rectangles (B), or keep them in the Godot or generic JSON export'],
+    ['Pink or green pixels remain around the art','The key colour was not applied (confidence below high), or the art was anti-aliased against it','Import panel: the Background colour decision','Apply the detected colour; blended edge pixels need retouching, see [[game/remove-sprite-background|removing a sprite background]]'],
+    ['Every frame is 100 ms','A PNG stores no timing, so the import starts at 100 ms','Frame panel: duration','Set all to fps per tag, or type milliseconds per frame, before export']]},
+   alternatives:{rows:[
+    ['Aseprite\'s File > Import Sprite Sheet','The grid is regular and you prefer to work in Aseprite: it asks for the offset (x, y), the sprite width and height and the padding, then takes the frames in the order of the sheet type. Tags, timing and slices you add by hand.'],
+    ['Pack & Export › .aseprite file','You want every frame already aligned on its pivot, for example after cutting islands of different sizes.'],
+    ['[[sprite-slicer|The sprite slicer]]','You only need the frames as separate PNGs, not an Aseprite document.']]},
+   limits:['Scattered tags and non-rectangular boxes are reported, not written.','A sheet with semi-transparent edges against a key colour keeps those blended pixels.'],
+   versions:{body:['Sprite › Export .aseprite… uses the writer that was checked on 231 real files: imported, written back and opened in Aseprite 1.3.18.6 without a warning, with tags, durations and pixels identical on all 231. The Pack & Export `.aseprite` target was opened and rendered frame by frame by the Aseprite 1.3.18 command line. The Aseprite steps above follow the Aseprite documentation.'],sources:[ASE_SHEET,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  },
+  ko:{
+   answer:'PNG 스프라이트 시트는 그림 한 장이라 프레임 경계, 타이밍, 애니메이션 이름, 피벗이 없습니다. `.aseprite` 파일을 만들기 위해 Nerulio는 격자를 재거나 스프라이트를 덩어리(아일랜드)로 찾고, 단색 배경을 투명하게 만들고, 행마다 태그를 하나씩 프레임당 100 ms로 시작합니다. 태그·타이밍·피벗·히트박스를 고친 뒤 스프라이트 › .aseprite 내보내기…가 프레임, 태그, 길이, 슬라이스를 씁니다. 같은 기록기로 만든 파일 231개를 Aseprite 1.3.18.6이 모두 경고 없이 열었습니다.',
+   concept:{title:'시트에 있는 것과 .aseprite 파일에 필요한 것',body:[
+    '시트에는 픽셀만 있습니다. 칸 크기, 여백(시트 둘레의 빈 공간), 간격(칸 사이의 틈)은 배치에서 짐작할 뿐이고, 애니메이션 구분은 작가가 일관되게 그렸다면 행으로 드러납니다. 프레임 타이밍, 애니메이션 이름, 반복 설정, 피벗은 파일 어디에도 없고 게임 코드나 작가의 메모에 있습니다.',
+    '`.aseprite` 파일은 이것들을 모두 명시해야 합니다. 캔버스 크기, 밀리초 길이를 가진 프레임, `from`–`to`·방향·반복 횟수를 가진 태그, 점과 박스를 위한 슬라이스입니다. Nerulio는 잴 수 있는 것(격자, 아일랜드, 키 색, 행마다 태그 하나)을 채우고 추정마다 신뢰도를 보여 주며, 실제 타이밍을 정할 때까지 프레임당 100 ms(Aseprite 기본값)를 씁니다.',
+    'Aseprite 태그는 구간이라서 태그 하나는 연속된 프레임이어야 합니다. Nerulio는 타임라인 순서대로 이어진 구간은 그대로, 거꾸로 이어진 구간은 역방향 태그로 쓰고, 프레임이 흩어진 태그는 틀린 구간으로 억지로 만들지 않고 이름을 알려 줍니다.'],
+    terms:[['칸(셀)','격자 안에서 프레임 하나의 사각형.'],['여백 / 간격','시트 전체 둘레의 빈 픽셀 / 이웃한 칸 사이의 빈 픽셀.'],['아일랜드','불투명 픽셀이 따로 뭉친 덩어리. 격자가 일정하지 않은 시트를 자를 때 씁니다.'],['슬라이스','Aseprite의 이름 붙은 사각형. Nerulio는 피벗과 사각형 박스를 각각 슬라이스로 씁니다.']]},
+   example:{title:'예시: 여백과 간격이 있는 8 × 4 시트',lines:[
+    '시트          267 × 135 px, 마젠타 배경',
+    '격자          32 × 32 칸, 여백 2 px, 간격 1 px',
+    '가로 검산     2 + 8 × 32 + 7 × 1 + 2 = 267 px',
+    '세로 검산     2 + 4 × 32 + 3 × 1 + 2 = 135 px',
+    '프레임        8 × 4 = 32 → 태그 row_1 … row_4, 각 8프레임',
+    '타이밍        row_2를 12 fps로: 1000 / 12 = 83.33 ms → 83 ms로 기록',
+    '.aseprite     32 × 32 캔버스, 32프레임, 레이어 1, 태그 4, 마젠타 → 투명'],
+    after:'내보내기 전에 타임라인에서 `row_1` … `row_4`의 이름을 idle, walk, jump, hurt처럼 바꾸세요. Aseprite는 태그 이름을 쓴 그대로 보여 줍니다.'},
+   mapping:{head:['시트 / Studio에서','.aseprite에 기록','알아 둘 점'],rows:[
+    ['격자나 아일랜드로 자른 프레임','가장 큰 프레임만 한 캔버스에 프레임 하나씩','프레임마다 왼쪽 위 기준 오프셋 유지. 크기가 다른 프레임끼리 피벗을 맞추지는 않습니다'],
+    ['연속된 프레임의 태그','`from`, `to`, 방향, 반복이 있는 태그','거꾸로 이어진 구간은 역방향, 핑퐁은 핑퐁 그대로'],
+    ['흩어진 프레임의 태그','기록 안 됨','내보내기 메시지에 이름이 나옵니다. 프레임을 붙여 놓고 다시 내보내세요'],
+    ['프레임 길이','정수 밀리초, 최소 1','83.33 ms → 83 ms, 손대지 않은 프레임은 100 ms'],
+    ['피벗','피벗 점이 있는 `pivot` 슬라이스, 바뀌는 프레임에 키','모든 프레임이 기본값(아래 가운데)이면 생략'],
+    ['사각형 박스','종류와 순번마다 슬라이스 하나(`hit`, `hit2`, `hurt` …)','박스가 사라지는 프레임에 빈 키를 넣어 이어지지 않게 함'],
+    ['원·폴리곤 박스, 충돌 폴리곤','기록 안 됨','Aseprite 슬라이스는 사각형뿐. 건너뛴 박스는 내보내기 메시지에 나옵니다'],
+    ['키 색','투명 픽셀, RGBA 컬러 모드','되돌리기용으로 원본 시트가 Studio에 남습니다'],
+    ['레이어','Studio의 레이어(자른 시트는 1개)','한 레이어의 똑같은 셀은 링크 셀로 저장']]},
+   outputs:{rows:[
+    ['hero.aseprite','스프라이트 › .aseprite 내보내기…: 프레임별 오프셋, Studio의 레이어, 태그, 길이, 피벗·박스 슬라이스.'],
+    ['hero_aseprite.zip › hero_aseprite/hero.aseprite','패킹·내보내기 › .aseprite file: 모든 프레임을 피벗에 맞춘 한 캔버스에 놓고, 두 태그가 함께 쓰는 프레임은 반복해 넣어 태그마다 한 구간을 유지. 검증에서 Aseprite 1.3.18 명령줄이 열어 모든 프레임을 렌더링했습니다.']]},
+   target:{title:'Aseprite에서 이어 작업하기',steps:[
+    'Aseprite에서 `hero.aseprite`를 엽니다. 캔버스는 시트 크기가 아니라 프레임 크기(예시에서는 32 × 32)입니다.',
+    '프레임 위의 태그를 확인하세요. 이름·구간·방향이 Nerulio에서 정한 그대로입니다. 내보내기 메시지에서 건너뛰었다고 한 태그는 없으니, Nerulio에서 프레임 순서를 고쳐 다시 내보내세요.',
+    '슬라이스 도구를 고르면 `pivot` 슬라이스와 박스 슬라이스가 보입니다. 각각 프레임별 키를 유지합니다.',
+    '애니메이션을 다듬습니다. 엔진용 시트가 다시 필요하면 File > Export Sprite Sheet를 쓰거나, `.aseprite`를 Nerulio로 가져와 [[game/aseprite-to-godot|Godot]], [[game/aseprite-to-unity|Unity]], [[game/aseprite-to-phaser|Phaser]]용으로 내보내세요.']},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags`가 태그 이름을 처음부터 끝까지 출력합니다. 타임라인과 비교하세요.',
+    'Aseprite에서 태그를 재생해 보세요. 프레임당 83 ms인 `row_2`는 8 × 83 = 664 ms마다 반복됩니다.',
+    '체크무늬 배경을 켜 보세요. 마젠타였던 곳은 분홍이 아니라 투명해야 합니다.']},
+   trouble:{rows:[
+    ['Aseprite에 태그가 없음','그 태그의 프레임이 타임라인에서 이어져 있지 않습니다','내보내기 메시지에 건너뛴 태그 이름이 나옵니다','프레임을 나란히 끌어 놓고(함께 쓰는 프레임은 Alt+N으로 복제) 다시 내보내세요'],
+    ['Aseprite에서 재생하면 프레임이 튀거나 흘러감','크기가 다른 아일랜드로 잘린 프레임이 공용 캔버스에서 서로 다른 오프셋에 있습니다','프레임을 넘기며 프레임 패널에서 크기를 비교합니다','내보내기 전에 정렬 › 기준점을 정한 캔버스 크기 통일을 쓰거나, 패킹·내보내기의 피벗 정렬 파일을 쓰세요. [[game/sprite-jitter-after-trim|트림 후 흔들림]] 참고'],
+    ['원·폴리곤 히트박스가 사라짐','Aseprite 슬라이스는 사각형만 됩니다','내보내기 메시지에 건너뛴 박스가 모두 나옵니다','사각형(B)으로 다시 그리거나, Godot 또는 범용 JSON 내보내기에서 유지하세요'],
+    ['그림 둘레에 분홍·초록 픽셀이 남음','키 색이 적용되지 않았거나(신뢰도가 높음 미만), 그림이 키 색 위에서 안티에일리어싱됐습니다','가져오기 패널: 배경색 결정','감지된 색을 적용하세요. 섞인 가장자리 픽셀은 손봐야 합니다. [[game/remove-sprite-background|스프라이트 배경 제거]] 참고'],
+    ['모든 프레임이 100 ms','PNG에는 타이밍이 없어 가져올 때 100 ms로 시작합니다','프레임 패널: 길이','내보내기 전에 태그마다 fps로 일괄 설정하거나 프레임별 밀리초를 입력하세요']]},
+   alternatives:{rows:[
+    ['Aseprite의 File > Import Sprite Sheet','격자가 일정하고 Aseprite 안에서 작업하는 편이 좋을 때. 오프셋(x, y), 스프라이트 너비·높이, 패딩을 입력하면 시트 유형 순서대로 프레임을 가져옵니다. 태그·타이밍·슬라이스는 직접 추가합니다.'],
+    ['패킹·내보내기 › .aseprite file','크기가 다른 아일랜드를 자른 뒤처럼, 모든 프레임이 이미 피벗에 맞춰져 있기를 원할 때.'],
+    ['[[sprite-slicer|스프라이트 슬라이서]]','Aseprite 문서가 아니라 프레임별 PNG만 필요할 때.']]},
+   limits:['흩어진 태그와 사각형이 아닌 박스는 알려 줄 뿐 기록하지 않습니다.','키 색 위에서 반투명하게 섞인 가장자리 픽셀은 그대로 남습니다.'],
+   versions:{body:['스프라이트 › .aseprite 내보내기…는 실제 파일 231개로 확인한 기록기를 씁니다. 가져와서 다시 쓰고 Aseprite 1.3.18.6에서 열었을 때 231개 모두 경고 없이 태그·길이·픽셀이 같았습니다. 패킹·내보내기의 `.aseprite` 대상은 Aseprite 1.3.18 명령줄이 열어 프레임마다 렌더링했습니다. 위의 Aseprite 단계는 Aseprite 공식 문서를 따릅니다.'],sources:[ASE_SHEET,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  },
+  ja:{
+   answer:'PNGのスプライトシートは1枚の絵なので、フレームの境界、タイミング、アニメーション名、ピボットがありません。`.aseprite`を作るために、Nerulioはグリッドを測る（またはスプライトを島として見つける）、単色の背景を透明にする、行ごとにタグを1つ、1フレーム100 msで作る、という下ごしらえをします。タグ・タイミング・ピボット・当たり判定を直したら、スプライト › .aseprite書き出し…がフレーム、タグ、長さ、スライスを書き込みます。同じ書き出し処理で作った231ファイルは、すべてAseprite 1.3.18.6で警告なく開けました。',
+   concept:{title:'シートにあるものと、.asepriteに必要なもの',body:[
+    'シートにあるのはピクセルだけです。セルサイズ、マージン（シート周囲の空白）、スペーシング（セル同士の隙間）は配置から推し量るしかなく、アニメーションの区切りは作者が一貫していれば行に表れます。フレームのタイミング、アニメーション名、ループ設定、ピボットはファイルのどこにもなく、ゲームのコードや作者のメモの中にあります。',
+    '`.aseprite`ではそれらをすべて明示する必要があります。キャンバスサイズ、ミリ秒の長さを持つフレーム、`from`–`to`・方向・繰り返し回数を持つタグ、点やボックスのためのスライスです。Nerulioは測れるもの（グリッド、島、キーカラー、行ごとのタグ）を埋め、推定ごとに信頼度を示し、本当のタイミングを決めるまでは1フレーム100 ms（Asepriteの既定値）を使います。',
+    'Asepriteのタグは範囲なので、1つのタグは連続したフレームでなければなりません。Nerulioはタイムライン順に続く範囲はそのまま、逆向きに続く範囲は逆方向のタグとして書き、フレームが飛び飛びのタグは誤った範囲にねじ曲げず、名前を知らせます。'],
+    terms:[['セル','グリッド内の1フレーム分の矩形。'],['マージン／スペーシング','シート全体の周囲の空白ピクセル／隣り合うセル間の空白ピクセル。'],['島（アイランド）','不透明ピクセルがまとまった塊。規則的なグリッドのないシートを切るときに使います。'],['スライス','Asepriteの名前付き矩形。Nerulioはピボットと矩形ボックスをそれぞれスライスとして書きます。']]},
+   example:{title:'具体例：マージンとスペーシングのある8 × 4シート',lines:[
+    'シート        267 × 135 px、マゼンタ背景',
+    'グリッド      32 × 32 セル、マージン 2 px、スペーシング 1 px',
+    '横の検算      2 + 8 × 32 + 7 × 1 + 2 = 267 px',
+    '縦の検算      2 + 4 × 32 + 3 × 1 + 2 = 135 px',
+    'フレーム      8 × 4 = 32 → タグ row_1 … row_4、各8フレーム',
+    'タイミング    row_2 を 12 fps に: 1000 / 12 = 83.33 ms → 83 ms で記録',
+    '.aseprite     32 × 32 キャンバス、32フレーム、レイヤー1、タグ4、マゼンタ → 透明'],
+    after:'書き出し前にタイムラインで`row_1` … `row_4`をidle、walk、jump、hurtのように改名してください。Asepriteはタグ名を書いたとおりに表示します。'},
+   mapping:{head:['シート／Studioでは','.asepriteに書かれるもの','知っておくこと'],rows:[
+    ['グリッドや島で切ったフレーム','最大のフレームと同じ大きさのキャンバスに1フレームずつ','各フレームは左上基準のオフセットを保持。サイズの違うフレーム同士はピボットで揃えません'],
+    ['連続したフレームのタグ','`from`、`to`、方向、繰り返しを持つタグ','逆向きの範囲は逆方向に、ピンポンはピンポンのまま'],
+    ['飛び飛びのフレームのタグ','書かれない','書き出しメッセージに名前が出ます。フレームを並べ直して書き出し直してください'],
+    ['フレームの長さ','整数ミリ秒、最小1','83.33 ms → 83 ms、触っていないフレームは100 ms'],
+    ['ピボット','ピボット点を持つ`pivot`スライス、変わるフレームにキー','全フレームが既定の下中央なら省略'],
+    ['矩形ボックス','種類と番号ごとにスライス1つ（`hit`、`hit2`、`hurt` …）','ボックスがなくなるフレームに空のキーを入れて持ち越さない'],
+    ['円・ポリゴンのボックス、コリジョンポリゴン','書かれない','Asepriteのスライスは矩形だけ。省いたボックスは書き出しメッセージに出ます'],
+    ['キーカラー','透明ピクセル、RGBAカラーモード','元のシートは取り消し用にStudioに残ります'],
+    ['レイヤー','Studioのレイヤー（切ったシートなら1枚）','同じレイヤーの同一セルはリンクセルとして保存']]},
+   outputs:{rows:[
+    ['hero.aseprite','スプライト › .aseprite書き出し…：フレームごとのオフセット、Studioのレイヤー、タグ、長さ、ピボットとボックスのスライス。'],
+    ['hero_aseprite.zip › hero_aseprite/hero.aseprite','パック＆書き出し › .aseprite file：全フレームをピボットで揃えた1つのキャンバスに置き、2つのタグが共有するフレームは繰り返して各タグを1つの範囲に保ちます。検証ではAseprite 1.3.18のコマンドラインが開いて全フレームをレンダリングしました。']]},
+   target:{title:'Asepriteで続ける',steps:[
+    'Asepriteで`hero.aseprite`を開きます。キャンバスはシートではなくフレームのサイズ（例では32 × 32）です。',
+    'フレームの上のタグを確認します。名前・範囲・方向はNerulioで決めたとおりです。書き出しメッセージで省略と出たタグは入っていないので、Nerulioでフレーム順を直して書き出し直してください。',
+    'スライスツールを選ぶと`pivot`スライスとボックスのスライスが見えます。それぞれフレームごとのキーを保っています。',
+    'アニメーションを仕上げます。エンジン用のシートが要るならFile > Export Sprite Sheetを使うか、`.aseprite`をNerulioに戻して[[game/aseprite-to-godot|Godot]]、[[game/aseprite-to-unity|Unity]]、[[game/aseprite-to-phaser|Phaser]]向けに書き出してください。']},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags`がタグ名を最初から最後まで出力します。タイムラインと比べてください。',
+    'Asepriteでタグを再生します。1フレーム83 msの`row_2`は8 × 83 = 664 msごとにループします。',
+    '市松模様の背景を表示します。マゼンタだった部分はピンクではなく透明のはずです。']},
+   trouble:{rows:[
+    ['Asepriteにタグがない','そのタグのフレームがタイムライン上で連続していません','書き出しメッセージに省略したタグ名が出ます','フレームを隣り合わせに並べ（共有フレームはAlt+Nで複製）、書き出し直してください'],
+    ['Asepriteで再生するとフレームが跳ねる・ずれる','サイズの違う島として切ったフレームが、共通キャンバス上で別々のオフセットにあります','フレームを送りながらフレームパネルでサイズを比べます','書き出し前に整列 › アンカー指定でキャンバスサイズを統一するか、パック＆書き出しのピボット揃えのファイルを使ってください。[[game/sprite-jitter-after-trim|トリム後のガタつき]]も参照'],
+    ['円やポリゴンの当たり判定が消える','Asepriteのスライスは矩形だけです','書き出しメッセージに省いたボックスがすべて出ます','矩形（B）で描き直すか、GodotやジェネリックJSONの書き出しで保持してください'],
+    ['絵の周りにピンクや緑のピクセルが残る','キーカラーが適用されていない（信頼度が高未満）か、絵がキーカラーの上でアンチエイリアスされています','インポートパネル：背景色の判断','検出された色を適用してください。混ざった縁のピクセルは手直しが必要です。[[game/remove-sprite-background|スプライト背景の除去]]を参照'],
+    ['全フレームが100 ms','PNGにはタイミングがないので、読み込み時は100 msから始まります','フレームパネル：長さ','書き出し前にタグごとにfpsで一括設定するか、フレームごとにミリ秒を入力してください']]},
+   alternatives:{rows:[
+    ['AsepriteのFile > Import Sprite Sheet','グリッドが規則的で、Aseprite内で作業したいとき。オフセット（x, y）、スプライトの幅・高さ、パディングを指定すると、シートの種類の順にフレームを取り込みます。タグ・タイミング・スライスは手で追加します。'],
+    ['パック＆書き出し › .aseprite file','サイズの違う島を切ったあとなど、全フレームが最初からピボットで揃っていてほしいとき。'],
+    ['[[sprite-slicer|スプライトスライサー]]','Aseprite文書ではなく、フレームごとのPNGだけが欲しいとき。']]},
+   limits:['飛び飛びのタグと矩形以外のボックスは、知らせるだけで書き込みません。','キーカラーの上で半透明に混ざった縁のピクセルはそのまま残ります。'],
+   versions:{body:['スプライト › .aseprite書き出し…は、実ファイル231個で確認した書き出し処理を使います。読み込んで書き直し、Aseprite 1.3.18.6で開いたところ、231個すべてが警告なしでタグ・長さ・ピクセルとも一致しました。パック＆書き出しの`.aseprite`ターゲットは、Aseprite 1.3.18のコマンドラインで開いて全フレームをレンダリングしました。上のAsepriteの手順はAsepriteの公式ドキュメントに基づきます。'],sources:[ASE_SHEET,ASE_TAGS,ASE_SLICES,ASE_CLI]}
+  }
+ },
+/* ============================================================================ sprite-sheet-to-video */
+ 'game/sprite-sheet-to-video':{
+  type:'conversion',
+  intent:{primary:'turn a sprite sheet animation into a video file',secondary:['sprite sheet to MP4','pixel art video without blur','devlog or trailer clip of a sprite animation'],
+   goal:'a crisp video of each animation, enlarged without blur, with the frame timing of the sheet, ready to post or to convert to MP4',input:'sprite sheet (or any Studio sprite) cut into animations',output:'ZIP with one .webm (VP9, or VP8) per animation; no MP4, no audio',target:'video posts, trailers, store pages (via ffmpeg for MP4)',support:'partial',
+   evidence:['src/game/export/webm.js (VideoEncoder vp09.00.10.08 → vp8, scale ≤ 4 with sides ≤ 1920, even size, background rgb(32,34,40), bitrate max(500k, W·H·8), own muxer)','src/studio/pack-worker.js (one .webm per animation, one cycle from animationFrames)','tests/studio-pack-browser.py (EBML header, ffprobe, Chromium plays 0.6 s)','docs/STUDIO-PACK.md'],
+   external:['MDN: VideoEncoder availability (limited, secure context, workers)','ffmpeg docs: -c:v, -pix_fmt, -stream_loop; ffmpeg codecs: libx264']},
+  en:{
+   answer:"Nerulio turns each animation of a sprite sheet into its own WebM video (VP9, or VP8 where the browser has no VP9 encoder), encoded by the browser's WebCodecs `VideoEncoder`. Frames are enlarged 4× with nearest-neighbour (less when a side would pass 1920 px), drawn on a solid dark background, and each keeps its own duration; one file holds one cycle. It does not write MP4 or audio: convert the WebM with a tool such as ffmpeg when a platform wants MP4.",
+   concept:{title:'Why pixel art needs care in a video',body:[
+    "Video codecs such as VP9 and VP8 are lossy and normally store colour at half resolution in both directions (4:2:0): one colour sample per 2 × 2 pixels. A one-pixel outline in a 32 × 32 sprite would smear into its neighbours. Enlarging every pixel to a 4 × 4 block with nearest-neighbour before encoding gives each source pixel whole colour samples, so edges stay square after compression.",
+    "There is no transparency in this export. VP9 can carry alpha in WebM, but many players ignore it, so every frame is blended onto a solid rgb(32, 34, 40) background; a semi-transparent pixel is mixed with that colour in proportion to its alpha.",
+    "Timing is stored as timestamps, not as one fixed frame rate: each frame starts where the previous ones end (whole milliseconds in the file), so a 250 ms hold stays a hold. A file contains one cycle of the animation in playback order, ping-pong written out; looping is up to the player."],
+    terms:[['4:2:0','Chroma subsampling: colour at half width and half height, brightness at full size.'],
+     ['VP9 / VP8','Video codecs carried in WebM. Nerulio asks the browser for VP9 (`vp09.00.10.08`) and falls back to VP8.'],
+     ['VideoEncoder','The WebCodecs browser API that encodes the frames. It is not available in every browser and only works on secure (HTTPS) pages.'],
+     ['Nearest-neighbour','Scaling that copies each pixel into a k × k block without blending.']]},
+   example:{title:'Example: sizes, bitrate and length',lines:[
+    'frames 64 × 64, walk = 6 frames × 100 ms',
+    'scale     4× → 256 × 256 px   (largest factor ≤ 4 with both sides ≤ 1920 px)',
+    'bitrate   max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    'length    6 × 100 ms = 0.6 s, one cycle',
+    'file      hero_webm/hero_walk.webm',
+    '',
+    'boss 700 × 300:  4× = 2800 px wide (too wide), 3× = 2100 (too wide) → 2× = 1400 × 600',
+    'odd  545 × 201:  4× = 2180 (too wide) → 3× = 1635 × 603 → padded to 1636 × 604 (even sides)'],
+    after:'The export notes repeat this per animation, for example “walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).”'},
+   mapping:{head:['In the Studio','In the WebM','Note'],rows:[
+    ['Animation (tag)','One `.webm` file','Export name + animation name, e.g. `hero_walk.webm`'],
+    ['Frame duration','Timestamp of the next frame','Whole milliseconds; uneven timing is kept'],
+    ['Direction, ping-pong','Frames in playback order','One cycle; the repeat count is not stored'],
+    ['Pixel','k × k block, k = 4 unless the frame is large','Nearest-neighbour, then lossy compression'],
+    ['Transparency','Blended onto rgb(32, 34, 40)','No alpha channel in the file'],
+    ['Frames of different sizes','One cell per animation, frames aligned on their pivots','Same alignment as the GIF export']]},
+   outputs:{rows:[
+    ['hero_webm.zip','The download, with a folder `hero_webm/` (named after the export name).'],
+    ['hero_webm/hero_walk.webm','One cycle of `walk`: VP9 (or VP8) video in a WebM container, no audio track.']]},
+   target:{title:'After export: MP4, longer clips, posting',steps:[
+    'Unzip; there is one `.webm` per animation. Chromium played these files in our checks.',
+    'Need MP4? Re-encode with ffmpeg, for example `ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`. The enlargement is already in the pixels, so the MP4 keeps the square blocks.',
+    'A 0.6 s clip is short for a post. `-stream_loop` repeats the input before encoding: `ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4` gives ten cycles, 6 s.',
+    'Keep the sheet or an APNG next to the video: the WebM is lossy and meant for showing the animation, not for loading into an engine.']},
+   verify:{steps:[
+    'Play the file and time one cycle: 6 frames × 100 ms should last 0.6 s.',
+    'Pause and zoom in: each source pixel is a 4 × 4 block, with slightly soft colour edges from compression.',
+    '`ffprobe hero_walk.webm` reports the codec (vp9 or vp8) and the width and height given in the notes.']},
+   trouble:{rows:[
+    ['The WebM button is disabled','This browser has no WebCodecs `VideoEncoder`, or the page is not served over HTTPS','The button\'s tooltip says so','Use a current Chrome or Edge; GIF and APNG export work without it'],
+    ['The video ends after a fraction of a second','A file holds one cycle; looping is the player\'s job','Its length equals the sum of the frame times','Loop it in the player, or repeat the input with ffmpeg `-stream_loop` before posting'],
+    ['A dark fringe around soft edges','Semi-transparent pixels were blended with the dark background','Look at glows and anti-aliased edges','Export APNG to keep transparency; the background colour is fixed in this export'],
+    ['Large sprites look soft','The scale drops below 4× to keep both sides ≤ 1920 px, so fewer pixels per source pixel survive compression','The notes show the factor, for example “(2× nearest)”','Export smaller animations separately, or accept 2×'],
+    ['A site rejects the file','It accepts MP4 (H.264) but not WebM','Its upload help lists the formats','Convert with ffmpeg as above']]},
+   alternatives:{rows:[
+    ['[[game/sprite-sheet-to-gif|Animated GIF]] or APNG from the same panel','Chat or forum posts where transparency matters; APNG keeps soft edges and exact colours.'],
+    ['Screen-record the floating preview (F7, up to 8×)','You want your own background, several animations side by side, or a long take.'],
+    ['Export PNG frames and build the video in a video editor','You need MP4 directly, a custom frame rate or sound; see [[game/sprite-sheet-to-png-frames|sprite sheet to PNG frames]].']]},
+   limits:['WebM only: no MP4 and no audio track.','The background colour and the scale are fixed: rgb(32, 34, 40), 4× whenever both sides stay within 1920 px.','One cycle per file; repeat counts are not stored.'],
+   versions:{body:['The WebM export was checked in Chromium: the file starts with the WebM (EBML) header, ffprobe reads the video stream and its frames, and Chromium plays a 6 × 100 ms animation in 0.6 s at 4× size. The encoder is the browser\'s own, so whether you get VP9 or VP8 depends on that browser. Browser availability of VideoEncoder follows MDN; the ffmpeg options follow the ffmpeg documentation.'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  },
+  ko:{
+   answer:'Nerulio는 스프라이트 시트의 애니메이션마다 WebM 동영상을 하나씩 만듭니다(VP9, 브라우저에 VP9 인코더가 없으면 VP8). 인코딩은 브라우저의 WebCodecs `VideoEncoder`가 합니다. 프레임은 최근접 이웃으로 4배 키우고(한 변이 1920 px를 넘으면 그보다 작게), 단색 어두운 배경 위에 그리며, 프레임마다 자기 길이를 유지합니다. 파일 하나에 한 사이클이 들어갑니다. MP4나 오디오는 쓰지 않으니, MP4가 필요한 곳에는 ffmpeg 같은 도구로 WebM을 변환하세요.',
+   concept:{title:'픽셀아트를 동영상으로 만들 때 조심할 점',body:[
+    'VP9·VP8 같은 동영상 코덱은 손실 압축이고 보통 색을 가로세로 절반 해상도(4:2:0)로 저장합니다. 2 × 2 픽셀마다 색 샘플이 하나입니다. 32 × 32 스프라이트의 1픽셀 외곽선은 옆 픽셀로 번집니다. 인코딩 전에 최근접 이웃으로 모든 픽셀을 4 × 4 블록으로 키우면 원래 픽셀 하나가 색 샘플을 온전히 가지게 되어, 압축 뒤에도 가장자리가 네모로 남습니다.',
+    '이 내보내기에는 투명이 없습니다. VP9는 WebM에서 알파를 담을 수 있지만 무시하는 재생기가 많아서, 모든 프레임을 단색 rgb(32, 34, 40) 배경 위에 섞습니다. 반투명 픽셀은 알파 비율만큼 이 색과 섞입니다.',
+    '타이밍은 고정 프레임레이트가 아니라 타임스탬프로 저장됩니다. 각 프레임은 앞 프레임들이 끝나는 시점에 시작하고(파일 안에서는 정수 밀리초), 250 ms 멈춤 동작도 그대로 멈춥니다. 파일에는 재생 순서(핑퐁은 펼친 순서)로 애니메이션 한 사이클이 들어가며, 반복은 재생기가 맡습니다.'],
+    terms:[['4:2:0','크로마 서브샘플링. 색은 가로·세로 절반 해상도, 밝기는 원래 해상도로 저장합니다.'],
+     ['VP9 / VP8','WebM에 담기는 동영상 코덱. Nerulio는 브라우저에 VP9(`vp09.00.10.08`)를 요청하고, 안 되면 VP8을 씁니다.'],
+     ['VideoEncoder','프레임을 인코딩하는 WebCodecs 브라우저 API. 모든 브라우저에 있지는 않고 보안(HTTPS) 페이지에서만 동작합니다.'],
+     ['최근접 이웃','픽셀을 섞지 않고 k × k 블록으로 복사하는 확대 방식.']]},
+   example:{title:'예시: 크기, 비트레이트, 길이',lines:[
+    '프레임 64 × 64, walk = 6프레임 × 100 ms',
+    '배율      4× → 256 × 256 px   (두 변 모두 1920 px 이하인 4 이하 최대 배율)',
+    '비트레이트 max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    '길이      6 × 100 ms = 0.6 s, 한 사이클',
+    '파일      hero_webm/hero_walk.webm',
+    '',
+    '보스 700 × 300:  4× = 가로 2800 (초과), 3× = 2100 (초과) → 2× = 1400 × 600',
+    '홀수 545 × 201:  4× = 2180 (초과) → 3× = 1635 × 603 → 1636 × 604로 채움 (짝수 변)'],
+    after:'내보내기 안내가 애니메이션마다 이 내용을 알려 줍니다. 예: “walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).”'},
+   mapping:{head:['Studio에서','WebM에서','참고'],rows:[
+    ['애니메이션(태그)','`.webm` 파일 하나','내보내기 이름 + 애니메이션 이름, 예: `hero_walk.webm`'],
+    ['프레임 길이','다음 프레임의 타임스탬프','정수 밀리초, 들쭉날쭉한 타이밍 유지'],
+    ['방향, 핑퐁','재생 순서대로 프레임','한 사이클, 반복 횟수는 저장 안 됨'],
+    ['픽셀','k × k 블록, 프레임이 크지 않으면 k = 4','최근접 이웃 확대 후 손실 압축'],
+    ['투명','rgb(32, 34, 40) 위에 섞음','파일에 알파 채널 없음'],
+    ['크기가 다른 프레임','애니메이션마다 한 칸, 프레임을 피벗에 맞춤','GIF 내보내기와 같은 정렬']]},
+   outputs:{rows:[
+    ['hero_webm.zip','내려받는 파일. 안에 `hero_webm/` 폴더가 있습니다(내보내기 이름을 따름).'],
+    ['hero_webm/hero_walk.webm','`walk` 한 사이클: WebM 컨테이너의 VP9(또는 VP8) 동영상, 오디오 트랙 없음.']]},
+   target:{title:'내보낸 뒤: MP4, 더 긴 클립, 게시',steps:[
+    'ZIP을 풉니다. 애니메이션마다 `.webm`이 하나 있습니다. 검증에서 Chromium이 이 파일을 재생했습니다.',
+    'MP4가 필요하면 ffmpeg로 다시 인코딩하세요. 예: `ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`. 확대는 이미 픽셀에 들어가 있어 MP4에서도 네모 블록이 유지됩니다.',
+    '0.6초짜리 클립은 게시물로는 짧습니다. `-stream_loop`은 인코딩 전에 입력을 반복합니다. `ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4`면 열 사이클, 6초가 됩니다.',
+    '동영상 옆에 시트나 APNG를 함께 보관하세요. WebM은 손실 압축이라 애니메이션을 보여 주는 용도이지 엔진에 넣는 용도가 아닙니다.']},
+   verify:{steps:[
+    '재생해서 한 사이클 시간을 재 보세요. 6프레임 × 100 ms면 0.6초입니다.',
+    '멈추고 확대해 보세요. 원래 픽셀 하나가 4 × 4 블록이고, 압축 때문에 색 경계가 약간 부드럽습니다.',
+    '`ffprobe hero_walk.webm`이 코덱(vp9 또는 vp8)과, 안내에 나온 너비·높이를 보여 줍니다.']},
+   trouble:{rows:[
+    ['WebM 버튼이 꺼져 있음','이 브라우저에 WebCodecs `VideoEncoder`가 없거나, 페이지가 HTTPS가 아닙니다','버튼 툴팁이 알려 줍니다','최신 Chrome이나 Edge를 쓰세요. GIF와 APNG 내보내기는 없이도 됩니다'],
+    ['동영상이 1초도 안 돼 끝남','파일 하나는 한 사이클이고, 반복은 재생기 몫입니다','길이가 프레임 시간의 합과 같습니다','재생기에서 반복하거나, 게시 전에 ffmpeg `-stream_loop`로 입력을 반복하세요'],
+    ['부드러운 가장자리에 어두운 테두리','반투명 픽셀이 어두운 배경과 섞였습니다','빛 번짐이나 안티에일리어싱된 가장자리를 봅니다','투명이 필요하면 APNG로 내보내세요. 이 내보내기의 배경색은 고정입니다'],
+    ['큰 스프라이트가 흐릿함','두 변을 1920 px 이하로 맞추려고 배율이 4배 아래로 내려가, 원래 픽셀당 남는 픽셀이 적어졌습니다','안내에 “(2× nearest)”처럼 배율이 나옵니다','애니메이션을 작게 나눠 내보내거나 2배를 받아들이세요'],
+    ['사이트가 파일을 거부함','WebM이 아니라 MP4(H.264)만 받습니다','업로드 도움말의 형식 목록','위처럼 ffmpeg로 변환하세요']]},
+   alternatives:{rows:[
+    ['같은 패널의 [[game/sprite-sheet-to-gif|Animated GIF]]나 APNG','투명이 중요한 채팅·커뮤니티 게시물. APNG는 부드러운 가장자리와 정확한 색을 유지합니다.'],
+    ['플로팅 미리보기(F7, 최대 8배)를 화면 녹화','원하는 배경, 여러 애니메이션 나란히, 긴 녹화가 필요할 때.'],
+    ['PNG 프레임을 내보내 영상 편집기에서 만들기','MP4를 바로, 원하는 프레임레이트나 소리와 함께 만들어야 할 때. [[game/sprite-sheet-to-png-frames|스프라이트 시트를 PNG 프레임으로]] 참고.']]},
+   limits:['WebM만 씁니다. MP4와 오디오 트랙은 없습니다.','배경색과 배율은 고정입니다. rgb(32, 34, 40), 두 변이 1920 px 안이면 4배.','파일마다 한 사이클이며 반복 횟수는 저장하지 않습니다.'],
+   versions:{body:['WebM 내보내기는 Chromium에서 확인했습니다. 파일이 WebM(EBML) 헤더로 시작하고, ffprobe가 동영상 스트림과 프레임을 읽고, Chromium이 6 × 100 ms 애니메이션을 4배 크기로 0.6초 동안 재생했습니다. 인코더는 브라우저 자체의 것이라 VP9가 나올지 VP8이 나올지는 브라우저에 달려 있습니다. VideoEncoder 지원 범위는 MDN, ffmpeg 옵션은 ffmpeg 공식 문서를 따릅니다.'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  },
+  ja:{
+   answer:'Nerulioはスプライトシートのアニメーションごとに、WebM動画を1本ずつ作ります（VP9、ブラウザにVP9エンコーダがなければVP8）。エンコードはブラウザのWebCodecs `VideoEncoder`が行います。フレームはニアレストネイバーで4倍に拡大し（一辺が1920 pxを超えるならそれより小さく）、暗い単色の背景に描き、フレームごとの長さを保ちます。1ファイルに1サイクルが入ります。MP4や音声は書き出さないので、MP4が必要な場所にはffmpegなどでWebMを変換してください。',
+   concept:{title:'ピクセルアートを動画にするときの注意点',body:[
+    'VP9やVP8などの動画コーデックは非可逆で、通常は色を縦横半分の解像度（4:2:0）で保存します。2 × 2ピクセルごとに色のサンプルが1つです。32 × 32スプライトの1ピクセルの輪郭線は隣へにじみます。エンコード前にニアレストネイバーで全ピクセルを4 × 4ブロックに拡大すれば、元の1ピクセルが色のサンプルを丸ごと持つので、圧縮後も縁が四角いまま残ります。',
+    'この書き出しに透明はありません。VP9はWebMでアルファを持てますが無視するプレーヤーが多いため、全フレームを単色のrgb(32, 34, 40)の背景に合成します。半透明のピクセルはアルファの割合でこの色と混ざります。',
+    'タイミングは固定フレームレートではなく、タイムスタンプとして保存されます。各フレームは前のフレームが終わる時点から始まり（ファイル内では整数ミリ秒）、250 msの溜めは溜めのまま残ります。ファイルには再生順（ピンポンは展開済み）で1サイクルが入り、ループはプレーヤー側の仕事です。'],
+    terms:[['4:2:0','クロマサブサンプリング。色は縦横半分の解像度、明るさは元の解像度で保存します。'],
+     ['VP9 / VP8','WebMに入る動画コーデック。NerulioはブラウザにVP9（`vp09.00.10.08`）を求め、だめならVP8にします。'],
+     ['VideoEncoder','フレームをエンコードするWebCodecsのブラウザAPI。すべてのブラウザにあるわけではなく、安全な（HTTPS）ページでのみ動きます。'],
+     ['ニアレストネイバー','ピクセルを混ぜずにk × kブロックへ複製する拡大方法。']]},
+   example:{title:'具体例：サイズ、ビットレート、長さ',lines:[
+    'フレーム 64 × 64、walk = 6フレーム × 100 ms',
+    '倍率      4× → 256 × 256 px   (両辺とも1920 px以下になる4以下の最大倍率)',
+    'ビットレート max(500 000, 256 × 256 × 8) = 524 288 bit/s',
+    '長さ      6 × 100 ms = 0.6 s、1サイクル',
+    'ファイル  hero_webm/hero_walk.webm',
+    '',
+    'ボス 700 × 300:  4× = 横2800 (超過)、3× = 2100 (超過) → 2× = 1400 × 600',
+    '奇数 545 × 201:  4× = 2180 (超過) → 3× = 1635 × 603 → 1636 × 604 に拡張 (偶数辺)'],
+    after:'書き出し後のメモがアニメーションごとにこの内容を示します。例：「walk: WebM VP9 256×256 (4× nearest), lossy, background rgb(32,34,40).」'},
+   mapping:{head:['Studioでは','WebMでは','補足'],rows:[
+    ['アニメーション（タグ）','`.webm`ファイル1つ','書き出し名＋アニメーション名、例：`hero_walk.webm`'],
+    ['フレームの長さ','次のフレームのタイムスタンプ','整数ミリ秒、不均一なタイミングも保持'],
+    ['方向、ピンポン','再生順のフレーム','1サイクル、繰り返し回数は保存されない'],
+    ['ピクセル','k × kブロック、フレームが大きくなければ k = 4','ニアレストネイバー拡大のあと非可逆圧縮'],
+    ['透明','rgb(32, 34, 40)の上に合成','ファイルにアルファチャンネルなし'],
+    ['サイズの違うフレーム','アニメーションごとに1セル、フレームをピボットで揃える','GIF書き出しと同じ揃え方']]},
+   outputs:{rows:[
+    ['hero_webm.zip','ダウンロードされるファイル。中に`hero_webm/`フォルダがあります（書き出し名に従います）。'],
+    ['hero_webm/hero_walk.webm','`walk`の1サイクル：WebMコンテナのVP9（またはVP8）動画、音声トラックなし。']]},
+   target:{title:'書き出したあと：MP4、長いクリップ、投稿',steps:[
+    'ZIPを展開します。アニメーションごとに`.webm`が1本あります。検証ではChromiumがこれらのファイルを再生しました。',
+    'MP4が必要ならffmpegで再エンコードします。例：`ffmpeg -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk.mp4`。拡大はすでにピクセルに入っているので、MP4でも四角いブロックが保たれます。',
+    '0.6秒のクリップは投稿には短すぎます。`-stream_loop`はエンコード前に入力を繰り返します。`ffmpeg -stream_loop 9 -i hero_walk.webm -c:v libx264 -pix_fmt yuv420p hero_walk_x10.mp4`で10サイクル、6秒になります。',
+    '動画の横にシートやAPNGも残しておいてください。WebMは非可逆で、アニメーションを見せるためのもので、エンジンに読み込むものではありません。']},
+   verify:{steps:[
+    '再生して1サイクルの時間を測ります。6フレーム × 100 msなら0.6秒です。',
+    '一時停止して拡大します。元の1ピクセルが4 × 4ブロックになり、圧縮のため色の境目がわずかに柔らかくなります。',
+    '`ffprobe hero_walk.webm`がコーデック（vp9またはvp8）と、メモにある幅・高さを表示します。']},
+   trouble:{rows:[
+    ['WebMのボタンが無効','このブラウザにWebCodecsの`VideoEncoder`がないか、ページがHTTPSで配信されていません','ボタンのツールチップに理由が出ます','最新のChromeかEdgeを使ってください。GIFとAPNGの書き出しはなくても動きます'],
+    ['動画が1秒足らずで終わる','1ファイルは1サイクルで、ループはプレーヤーの役目です','長さがフレーム時間の合計と一致します','プレーヤーでループするか、投稿前にffmpegの`-stream_loop`で入力を繰り返してください'],
+    ['柔らかい縁に暗い縁取りが出る','半透明のピクセルが暗い背景と混ざりました','グローやアンチエイリアスされた縁を見ます','透明が必要ならAPNGで書き出してください。この書き出しの背景色は固定です'],
+    ['大きなスプライトがぼやける','両辺を1920 px以内にするため倍率が4倍未満に下がり、元の1ピクセルあたりのピクセルが減りました','メモに「(2× nearest)」のように倍率が出ます','アニメーションを小さく分けて書き出すか、2倍で妥協してください'],
+    ['サイトがファイルを受け付けない','WebMではなくMP4（H.264）しか受け付けません','アップロードのヘルプにある形式一覧','上のとおりffmpegで変換してください']]},
+   alternatives:{rows:[
+    ['同じパネルの[[game/sprite-sheet-to-gif|Animated GIF]]やAPNG','透明が大事なチャットや掲示板への投稿。APNGは柔らかい縁と正確な色を保ちます。'],
+    ['フローティングプレビュー（F7、最大8倍）を画面録画','好きな背景、複数のアニメーションを並べる、長い録画が必要なとき。'],
+    ['PNGフレームを書き出して動画編集ソフトで作る','MP4を直接、好きなフレームレートや音付きで作りたいとき。[[game/sprite-sheet-to-png-frames|スプライトシートをPNGフレームに]]を参照。']]},
+   limits:['WebMのみです。MP4と音声トラックはありません。','背景色と倍率は固定です：rgb(32, 34, 40)、両辺が1920 px以内なら4倍。','1ファイル1サイクルで、繰り返し回数は保存しません。'],
+   versions:{body:['WebM書き出しはChromiumで確認しました。ファイルがWebM（EBML）ヘッダーで始まり、ffprobeが動画ストリームとフレームを読み、Chromiumが6 × 100 msのアニメーションを4倍サイズで0.6秒再生しました。エンコーダはブラウザ自身のものなので、VP9になるかVP8になるかはブラウザ次第です。VideoEncoderの対応状況はMDN、ffmpegのオプションはffmpeg公式ドキュメントに基づきます。'],sources:[MDN_ENCODER,FFMPEG,FFMPEG_CODECS]}
+  }
+ },
+/* ============================================================================ fnf-spritesheet-to-gif */
+ 'game/fnf-spritesheet-to-gif':{
+  type:'conversion',
+  intent:{primary:'convert a Friday Night Funkin\' character spritesheet (PNG + XML) into animated GIFs',secondary:['FNF sprite XML to GIF','preview FNF animations','set the right FNF frame rate'],
+   goal:'one GIF per character animation at the game\'s frame rate, frames aligned by their trim offsets',input:'character PNG + its Sparrow/Starling XML',output:'ZIP with one GIF (or APNG, or WebM) per animation prefix',target:'sharing a preview of an FNF character (browsers, chats, wikis)',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js (Starling XML: frameX/Y negated, frameWidth/Height, pivotX/Y, rotated flag, 100 ms, name grouping)','src/studio/sprite/import-plan.js frameKey (trailing digits = frame number)','src/game/export/anim.js + bundle.js (GIF per animation, pivot cell, file names via stemOf)','docs/STUDIO-SPRITE.md (rotated atlas frames UNVERIFIED)'],
+   external:['Starling TextureAtlas XML (frameX/Y, rotated 90° clockwise)','FNF modding docs: renderType sparrow, assetPath, prefix, frameRate default 24, frameIndices, looped, offsets']},
+  en:{
+   answer:"A Friday Night Funkin' character is a PNG plus a Sparrow (Starling) XML atlas: each `SubTexture` is one frame, and frames that share a name prefix (`BF idle dance0000`, `…0001`) form one animation. Drop both files: Nerulio groups the prefixes into animations, keeps the trim offsets, and exports one GIF (or APNG, or WebM) per animation. The XML has no timing, so set each animation to the character's `frameRate` (24 fps when the character file gives none); a GIF stores 41.67 ms as 40 ms.",
+   concept:{title:'How FNF describes a character\'s frames',body:[
+    "The XML format comes from the Sparrow and Starling frameworks. Each `SubTexture` names a rectangle of the PNG (`x`, `y`, `width`, `height`). A trimmed frame adds `frameX`, `frameY`, `frameWidth` and `frameHeight`: the full frame size and where the trimmed rectangle sits inside it, written as negative numbers, so `frameX=\"-3\"` means 3 px from the left. `rotated=\"true\"` means the region was turned 90° clockwise on the sheet.",
+    "The game adds a JSON file per character in `data/characters`. With `renderType` `sparrow`, `assetPath` points at the PNG and XML (same name, no extension), and each animation lists a `prefix` (the SubTexture name without its frame number), a `frameRate` (24 by default) and optionally `frameIndices`, `looped` and `offsets`. The timing is therefore not in the XML.",
+    "Nerulio reads only the PNG and the XML. It groups names by stripping the trailing frame number, keeps every frame at its place inside `frameWidth` × `frameHeight`, and starts at 100 ms per frame. The character JSON is not read, so the rate, the frame subset and the loop setting are yours to set."],
+    terms:[['SubTexture','One frame: its name and its rectangle on the PNG.'],['Prefix','The animation name the game looks up: the SubTexture name without the trailing frame number.'],['frameX / frameY','Negative offsets of the trimmed rectangle inside the full frame.'],['frameRate','Frames per second of an animation in the character JSON; 24 when not given.']]},
+   example:{title:'Example: one SubTexture and the timing maths',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    'animation   "BF idle dance", 4th frame (0003)',
+    'region      402 × 390 at (1024, 0) on the PNG',
+    'full frame  408 × 394, region drawn at (3, 2)',
+    'timing      24 fps → 1000 / 24 = 41.67 ms per frame',
+    'GIF         41.67 ms → 4 /100 s = 40 ms',
+    '14 frames   583 ms in the game → 560 ms in the GIF (4 % faster); APNG writes 42 ms → 588 ms'],
+    after:'The numbers are an illustration; your character\'s XML has its own. The rounding rule is fixed: GIF keeps whole hundredths, APNG whole milliseconds.'},
+   mapping:{head:['In the XML / character JSON','In Nerulio','In the GIF'],rows:[
+    ['SubTexture name prefix','One animation per prefix, frames in natural order','One file per animation'],
+    ['x, y, width, height','The frame\'s region on the PNG','Frame pixels'],
+    ['frameX, frameY, frameWidth, frameHeight','Offset inside the full frame','Trimmed frames stay in place'],
+    ['pivotX, pivotY (if present)','Frame pivot; otherwise the bottom centre of the full frame','Frames aligned on the pivot'],
+    ['rotated="true"','Imported still turned; its export is UNVERIFIED','—'],
+    ['frameRate (character JSON)','Not read: frames start at 100 ms','Set it with Set all to fps before export'],
+    ['frameIndices, looped, offsets (character JSON)','Not read','Make a tag over the frames you need; repeat ×1 for a non-looping animation']]},
+   outputs:{rows:[
+    ['bf_gif.zip','The download for the export name `bf`, with a folder `bf_gif/`.'],
+    ['bf_gif/bf_BF_idle_dance.gif','One animation. Spaces and other characters outside letters, digits, dot and hyphen become `_` in the file name.']]},
+   target:{title:'Match the game\'s timing, then export',steps:[
+    'Open the character\'s JSON in `data/characters/` and note, per animation, the `prefix`, `frameRate` (24 if missing), `frameIndices` and `looped`.',
+    'In Nerulio select the tag with that prefix and use Set all to fps with the `frameRate`: 24 fps gives 41.67 ms per frame.',
+    'If the animation uses `frameIndices`, drag a new tag over just those frames; if `looped` is false, set its repeat to ×1.',
+    'Press Enter to preview; onion skin (F3) shows whether the trimmed frames line up.',
+    'Open Pack & Export, choose Animated GIF (or APNG for exact colours and soft edges) and export: one file per animation.']},
+   verify:{steps:[
+    'The number of frames in a GIF equals the number of SubTextures with that prefix, or the length of `frameIndices`.',
+    'A 14-frame animation at 24 fps loops about every 0.56 s in the GIF (14 × 40 ms).',
+    'Step with `,` and `.`: the character\'s feet stay in place when the offsets were read correctly.']},
+   trouble:{rows:[
+    ['The GIF plays at the wrong speed','Sparrow XML has no timing, so every frame started at 100 ms','The Frame panel shows 100 ms','Set all to fps with the JSON\'s `frameRate` (24 by default)'],
+    ['Two animations merged into one','Their prefixes differ only by a trailing digit: `left20000` reads as prefix `left`, frame 20000','Import panel: how the names were grouped','Drag tags on the Timeline to split the frames by hand'],
+    ['Some frames are sideways','Their SubTexture has `rotated="true"`; the Studio keeps them as they lie on the sheet','Search the XML for `rotated`','Repack the character without rotation in the tool that made it; exporting rotated frames is UNVERIFIED'],
+    ['Frames are missing','Their rectangles lie outside the PNG, usually an XML from another version of the sheet','The Import panel counts frames outside the image','Use the PNG that belongs to this XML'],
+    ['Colours band or look posterised','Hi-res FNF art has far more than 255 colours; GIF\'s palette is reduced by median cut without dithering','The export note “More than 255 colours”','Export APNG (exact) or WebM video']]},
+   alternatives:{rows:[
+    ['APNG from the same export','Exact colours, soft edges and millisecond timing: 24 fps becomes 42 ms per frame instead of 40.'],
+    ['[[game/sparrow-xml-spritesheet|Repack as Sparrow XML]]','You want to change or repack the character for the game rather than share a preview.'],
+    ['Record the game itself','You need the character with in-game offsets, camera and music.']]},
+   limits:['The character JSON (`frameRate`, `frameIndices`, `looped`, `offsets`) is not read.','Adobe Animate texture atlases (`animateatlas`) and Packer TXT sheets are not read; only Sparrow XML.','No real FNF character is part of the recorded checks.'],
+   versions:{body:['The XML reader is the Studio\'s general atlas importer, run on real assets through the UI (atlas data included); no actual FNF character is part of the recorded checks, and rotated frames stay UNVERIFIED. GIF output is checked by decoding with Pillow. The format description follows the Starling documentation; the character fields follow the official Friday Night Funkin\' modding documentation.'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  },
+  ko:{
+   answer:'프라이데이 나이트 펑킨(FNF) 캐릭터는 PNG와 Sparrow(Starling) XML 아틀라스로 되어 있습니다. `SubTexture` 하나가 프레임 하나이고, 이름 앞부분이 같은 프레임(`BF idle dance0000`, `…0001`)이 애니메이션 하나를 이룹니다. 두 파일을 함께 넣으면 Nerulio가 앞부분별로 애니메이션을 묶고 트림 오프셋을 유지해, 애니메이션마다 GIF(또는 APNG, WebM)를 하나씩 내보냅니다. XML에는 타이밍이 없으니 애니메이션마다 캐릭터의 `frameRate`(캐릭터 파일에 없으면 24 fps)를 설정하세요. GIF는 41.67 ms를 40 ms로 저장합니다.',
+   concept:{title:'FNF가 캐릭터 프레임을 적는 방식',body:[
+    '이 XML 형식은 Sparrow와 Starling 프레임워크에서 왔습니다. `SubTexture`마다 PNG의 사각형(`x`, `y`, `width`, `height`)을 가리킵니다. 트림된 프레임에는 `frameX`, `frameY`, `frameWidth`, `frameHeight`가 더 붙습니다. 원래 프레임 크기와 그 안에서 잘린 사각형의 위치이며, 음수로 적으므로 `frameX="-3"`은 왼쪽에서 3 px 떨어졌다는 뜻입니다. `rotated="true"`는 시트에서 그 영역을 시계 방향으로 90° 돌려 놓았다는 뜻입니다.',
+    '게임은 캐릭터마다 `data/characters`에 JSON 파일을 둡니다. `renderType`이 `sparrow`면 `assetPath`가 PNG와 XML(같은 이름, 확장자 없이)을 가리키고, 애니메이션마다 `prefix`(프레임 번호를 뺀 SubTexture 이름), `frameRate`(기본 24), 그리고 선택적으로 `frameIndices`, `looped`, `offsets`가 있습니다. 즉 타이밍은 XML에 없습니다.',
+    'Nerulio는 PNG와 XML만 읽습니다. 이름 끝의 프레임 번호를 떼어 묶고, 모든 프레임을 `frameWidth` × `frameHeight` 안의 제자리에 두며, 프레임당 100 ms로 시작합니다. 캐릭터 JSON은 읽지 않으므로 속도, 프레임 부분 집합, 반복 설정은 직접 정해야 합니다.'],
+    terms:[['SubTexture','프레임 하나. 이름과 PNG 위의 사각형.'],['접두사(prefix)','게임이 찾는 애니메이션 이름. SubTexture 이름에서 끝의 프레임 번호를 뺀 부분.'],['frameX / frameY','원래 프레임 안에서 잘린 사각형의 위치를 나타내는 음수 오프셋.'],['frameRate','캐릭터 JSON에 적힌 애니메이션의 초당 프레임 수. 없으면 24.']]},
+   example:{title:'예시: SubTexture 하나와 타이밍 계산',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    '애니메이션  "BF idle dance", 4번째 프레임 (0003)',
+    '영역        PNG의 (1024, 0)에서 402 × 390',
+    '원래 프레임 408 × 394, 영역을 (3, 2)에 그림',
+    '타이밍      24 fps → 1000 / 24 = 41.67 ms / 프레임',
+    'GIF         41.67 ms → 4 /100 s = 40 ms',
+    '14프레임    게임 583 ms → GIF 560 ms (4 % 빠름), APNG는 42 ms → 588 ms'],
+    after:'숫자는 설명용이며 실제 캐릭터 XML에는 제 값이 있습니다. 반올림 규칙은 고정입니다. GIF는 1/100초 단위, APNG는 밀리초 단위로 저장합니다.'},
+   mapping:{head:['XML / 캐릭터 JSON에서','Nerulio에서','GIF에서'],rows:[
+    ['SubTexture 이름 접두사','접두사마다 애니메이션 하나, 자연 정렬 순서','애니메이션마다 파일 하나'],
+    ['x, y, width, height','PNG 위 프레임 영역','프레임 픽셀'],
+    ['frameX, frameY, frameWidth, frameHeight','원래 프레임 안의 오프셋','트림된 프레임이 제자리에 있음'],
+    ['pivotX, pivotY (있을 때)','프레임 피벗, 없으면 원래 프레임의 아래 가운데','피벗에 맞춰 정렬'],
+    ['rotated="true"','돌아간 채로 가져옴, 내보내기는 미검증(UNVERIFIED)','—'],
+    ['frameRate (캐릭터 JSON)','읽지 않음: 프레임당 100 ms로 시작','내보내기 전에 fps로 일괄 설정'],
+    ['frameIndices, looped, offsets (캐릭터 JSON)','읽지 않음','필요한 프레임에 태그를 만들고, 반복하지 않는 애니메이션은 반복 ×1']]},
+   outputs:{rows:[
+    ['bf_gif.zip','내보내기 이름이 `bf`일 때 내려받는 파일. 안에 `bf_gif/` 폴더가 있습니다.'],
+    ['bf_gif/bf_BF_idle_dance.gif','애니메이션 하나. 파일 이름에서 영문자·숫자·점·하이픈이 아닌 문자는 `_`가 됩니다.']]},
+   target:{title:'게임 타이밍에 맞춘 뒤 내보내기',steps:[
+    '`data/characters/`의 캐릭터 JSON을 열어 애니메이션마다 `prefix`, `frameRate`(없으면 24), `frameIndices`, `looped`를 적어 둡니다.',
+    'Nerulio에서 그 접두사의 태그를 고르고 `frameRate` 값으로 fps 일괄 설정을 합니다. 24 fps면 프레임당 41.67 ms입니다.',
+    '`frameIndices`를 쓰는 애니메이션이면 해당 프레임에만 새 태그를 드래그해 만들고, `looped`가 false면 반복을 ×1로 합니다.',
+    'Enter로 미리 보세요. 어니언 스킨(F3)으로 트림된 프레임이 제자리에 맞는지 볼 수 있습니다.',
+    '패킹·내보내기에서 Animated GIF(정확한 색과 부드러운 가장자리가 필요하면 APNG)를 골라 내보내면 애니메이션마다 파일이 하나씩 나옵니다.']},
+   verify:{steps:[
+    'GIF의 프레임 수는 그 접두사를 가진 SubTexture 수, 또는 `frameIndices`의 길이와 같아야 합니다.',
+    '24 fps인 14프레임 애니메이션은 GIF에서 약 0.56초마다 반복됩니다(14 × 40 ms).',
+    '`,`와 `.`로 넘겨 보세요. 오프셋이 제대로 읽혔다면 캐릭터의 발이 제자리에 있습니다.']},
+   trouble:{rows:[
+    ['GIF 속도가 틀림','Sparrow XML에는 타이밍이 없어 모든 프레임이 100 ms로 시작했습니다','프레임 패널에 100 ms가 보입니다','JSON의 `frameRate`(기본 24)로 fps 일괄 설정을 하세요'],
+    ['애니메이션 두 개가 하나로 합쳐짐','접두사가 끝자리 숫자만 다릅니다. `left20000`은 접두사 `left`, 프레임 20000으로 읽힙니다','가져오기 패널: 이름을 어떻게 묶었는지','타임라인에서 태그를 드래그해 직접 나누세요'],
+    ['일부 프레임이 옆으로 누움','SubTexture에 `rotated="true"`가 있어 Studio가 시트에 놓인 그대로 둡니다','XML에서 `rotated`를 검색합니다','만든 도구에서 회전 없이 다시 패킹하세요. 회전된 프레임 내보내기는 미검증입니다'],
+    ['프레임이 빠짐','사각형이 PNG 밖에 있습니다. 보통 다른 버전 시트의 XML입니다','가져오기 패널이 이미지 밖 프레임 수를 알려 줍니다','이 XML과 짝인 PNG를 쓰세요'],
+    ['색 띠가 생기거나 포스터처럼 보임','고해상도 FNF 그림은 색이 255개보다 훨씬 많아, GIF 팔레트를 디더링 없는 메디안 컷으로 줄였습니다','“More than 255 colours” 안내','APNG(정확)나 WebM 동영상으로 내보내세요']]},
+   alternatives:{rows:[
+    ['같은 내보내기의 APNG','정확한 색, 부드러운 가장자리, 밀리초 타이밍. 24 fps는 프레임당 40 ms가 아니라 42 ms가 됩니다.'],
+    ['[[game/sparrow-xml-spritesheet|Sparrow XML로 다시 패킹]]','미리보기 공유가 아니라 게임용으로 캐릭터를 고치거나 다시 묶고 싶을 때.'],
+    ['게임 화면을 직접 녹화','게임 안의 오프셋, 카메라, 음악까지 함께 보여 줘야 할 때.']]},
+   limits:['캐릭터 JSON(`frameRate`, `frameIndices`, `looped`, `offsets`)은 읽지 않습니다.','Adobe Animate 텍스처 아틀라스(`animateatlas`)와 Packer TXT 시트는 읽지 않고, Sparrow XML만 읽습니다.','실제 FNF 캐릭터는 기록된 검증에 포함되지 않았습니다.'],
+   versions:{body:['XML 읽기는 Studio의 범용 아틀라스 가져오기로, 실제 에셋을 UI로 가져오는 검증(아틀라스 데이터 포함)을 거쳤습니다. 실제 FNF 캐릭터는 기록된 검증에 없고, 회전된 프레임은 미검증입니다. GIF 결과는 Pillow로 디코딩해 확인합니다. 형식 설명은 Starling 문서, 캐릭터 필드는 FNF 공식 모딩 문서를 따릅니다.'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  },
+  ja:{
+   answer:'Friday Night Funkin\'（FNF）のキャラクターは、PNGとSparrow（Starling）形式のXMLアトラスでできています。`SubTexture`1つが1フレームで、名前の前半が同じフレーム（`BF idle dance0000`、`…0001`）が1つのアニメーションになります。2つのファイルを一緒にドロップすると、Nerulioが前半部分ごとにアニメーションをまとめ、トリムのオフセットを保ったまま、アニメーションごとにGIF（またはAPNG、WebM）を1つ書き出します。XMLにタイミングはないので、アニメーションごとにキャラクターの`frameRate`（キャラクターファイルになければ24 fps）を設定してください。GIFでは41.67 msが40 msになります。',
+   concept:{title:'FNFがキャラクターのフレームを記述する方法',body:[
+    'このXML形式はSparrowとStarlingフレームワークに由来します。各`SubTexture`はPNG上の矩形（`x`、`y`、`width`、`height`）を指します。トリムされたフレームには`frameX`、`frameY`、`frameWidth`、`frameHeight`が加わります。元のフレームサイズと、その中での切り抜き矩形の位置で、負の数で書くので`frameX="-3"`は左から3 pxという意味です。`rotated="true"`はその領域がシート上で時計回りに90°回されていることを示します。',
+    'ゲーム側はキャラクターごとに`data/characters`にJSONを置きます。`renderType`が`sparrow`なら`assetPath`がPNGとXML（同名、拡張子なし）を指し、アニメーションごとに`prefix`（フレーム番号を除いたSubTexture名）、`frameRate`（既定24）、任意で`frameIndices`、`looped`、`offsets`を持ちます。つまりタイミングはXMLにはありません。',
+    'Nerulioが読むのはPNGとXMLだけです。名前の末尾のフレーム番号を外してまとめ、全フレームを`frameWidth` × `frameHeight`の中の元の位置に置き、1フレーム100 msから始めます。キャラクターJSONは読まないので、速度、使うフレーム、ループ設定は自分で決めます。'],
+    terms:[['SubTexture','1フレーム。名前とPNG上の矩形。'],['プレフィックス','ゲームが探すアニメーション名。SubTexture名から末尾のフレーム番号を除いた部分。'],['frameX / frameY','元のフレーム内での切り抜き矩形の位置を示す負のオフセット。'],['frameRate','キャラクターJSONにあるアニメーションの毎秒フレーム数。なければ24。']]},
+   example:{title:'具体例：SubTexture 1つとタイミングの計算',lines:[
+    '<SubTexture name="BF idle dance0003" x="1024" y="0" width="402" height="390"',
+    '            frameX="-3" frameY="-2" frameWidth="408" frameHeight="394"/>',
+    '',
+    'アニメーション "BF idle dance"、4番目のフレーム (0003)',
+    '領域          PNG の (1024, 0) から 402 × 390',
+    '元のフレーム  408 × 394、領域を (3, 2) に描く',
+    'タイミング    24 fps → 1000 / 24 = 41.67 ms / フレーム',
+    'GIF           41.67 ms → 4 /100 s = 40 ms',
+    '14フレーム    ゲーム 583 ms → GIF 560 ms (4 % 速い)、APNG は 42 ms → 588 ms'],
+    after:'数値は説明用で、実際のキャラクターのXMLには固有の値があります。丸めの規則は固定です。GIFは1/100秒単位、APNGはミリ秒単位で保存します。'},
+   mapping:{head:['XML／キャラクターJSONでは','Nerulioでは','GIFでは'],rows:[
+    ['SubTexture名のプレフィックス','プレフィックスごとに1アニメーション、自然順','アニメーションごとに1ファイル'],
+    ['x, y, width, height','PNG上のフレーム領域','フレームのピクセル'],
+    ['frameX, frameY, frameWidth, frameHeight','元のフレーム内のオフセット','トリムされたフレームが元の位置に'],
+    ['pivotX, pivotY（あれば）','フレームのピボット、なければ元フレームの下中央','ピボットで揃える'],
+    ['rotated="true"','回転したまま読み込み、書き出しは未検証（UNVERIFIED）','—'],
+    ['frameRate（キャラクターJSON）','読まない：1フレーム100 msから開始','書き出し前にfpsで一括設定'],
+    ['frameIndices, looped, offsets（キャラクターJSON）','読まない','必要なフレームにタグを作り、ループしないものは繰り返し×1']]},
+   outputs:{rows:[
+    ['bf_gif.zip','書き出し名が`bf`のときのダウンロード。中に`bf_gif/`フォルダがあります。'],
+    ['bf_gif/bf_BF_idle_dance.gif','アニメーション1つ。ファイル名では英数字・ドット・ハイフン以外の文字が`_`になります。']]},
+   target:{title:'ゲームのタイミングに合わせて書き出す',steps:[
+    '`data/characters/`のキャラクターJSONを開き、アニメーションごとに`prefix`、`frameRate`（なければ24）、`frameIndices`、`looped`を控えます。',
+    'Nerulioでそのプレフィックスのタグを選び、`frameRate`の値でfps一括設定をします。24 fpsなら1フレーム41.67 msです。',
+    '`frameIndices`を使うアニメーションなら、そのフレームだけに新しいタグをドラッグで作り、`looped`がfalseなら繰り返しを×1にします。',
+    'Enterでプレビューします。オニオンスキン（F3）でトリムされたフレームが揃っているか確認できます。',
+    'パック＆書き出しでAnimated GIF（正確な色と柔らかい縁が要るならAPNG）を選んで書き出すと、アニメーションごとに1ファイルになります。']},
+   verify:{steps:[
+    'GIFのフレーム数は、そのプレフィックスを持つSubTextureの数、または`frameIndices`の長さと同じはずです。',
+    '24 fpsの14フレームのアニメーションは、GIFでは約0.56秒ごとにループします（14 × 40 ms）。',
+    '`,`と`.`で送ってみます。オフセットが正しく読めていればキャラクターの足元は動きません。']},
+   trouble:{rows:[
+    ['GIFの速度が違う','Sparrow XMLにはタイミングがなく、全フレームが100 msで始まりました','フレームパネルに100 msと出ます','JSONの`frameRate`（既定24）でfps一括設定をしてください'],
+    ['2つのアニメーションが1つにまとまる','プレフィックスが末尾の数字しか違いません。`left20000`はプレフィックス`left`、フレーム20000と読まれます','インポートパネル：名前のまとめ方','タイムラインでタグをドラッグして手で分けてください'],
+    ['一部のフレームが横倒しになる','SubTextureに`rotated="true"`があり、Studioはシート上の向きのまま保持します','XMLで`rotated`を検索します','作ったツールで回転なしにパックし直してください。回転フレームの書き出しは未検証です'],
+    ['フレームが足りない','矩形がPNGの外にあります。多くは別バージョンのシートのXMLです','インポートパネルが画像外のフレーム数を示します','このXMLと対になるPNGを使ってください'],
+    ['色の帯やポスタリゼーションが出る','高解像度のFNFの絵は255色をはるかに超え、GIFのパレットをディザなしのメディアンカットで減らしました','「More than 255 colours」のメモ','APNG（正確）かWebM動画で書き出してください']]},
+   alternatives:{rows:[
+    ['同じ書き出しのAPNG','正確な色、柔らかい縁、ミリ秒のタイミング。24 fpsは1フレーム40 msではなく42 msになります。'],
+    ['[[game/sparrow-xml-spritesheet|Sparrow XMLとしてパックし直す]]','プレビューの共有ではなく、ゲーム用にキャラクターを直したり詰め直したりしたいとき。'],
+    ['ゲーム画面を直接録画','ゲーム内のオフセット、カメラ、音楽まで一緒に見せたいとき。']]},
+   limits:['キャラクターJSON（`frameRate`、`frameIndices`、`looped`、`offsets`）は読みません。','Adobe Animateのテクスチャアトラス（`animateatlas`）とPackerのTXTシートは読まず、Sparrow XMLだけを読みます。','実際のFNFキャラクターは記録された検証に含まれていません。'],
+   versions:{body:['XMLの読み込みはStudio共通のアトラス取り込みで、実際のアセットをUIから読み込む検証（アトラスデータを含む）を経ています。実際のFNFキャラクターは記録された検証になく、回転フレームは未検証です。GIFの出力はPillowでデコードして確認しています。形式の説明はStarlingのドキュメント、キャラクターの項目はFNF公式のModdingドキュメントに基づきます。'],sources:[STARLING,FNF_CHAR,GIF_SPEC]}
+  }
+ },
+/* ============================================================================ sprite-sheet-to-gif */
+ 'game/sprite-sheet-to-gif':{
+  type:'conversion',
+  intent:{primary:'make an animated GIF from a PNG sprite sheet',secondary:['one GIF per row or animation','choose a frame rate a GIF can store','transparent background from a keyed sheet'],
+   goal:'one looping GIF per animation of the sheet, cut on the right grid, at a speed GIF can represent',input:'PNG sprite sheet (grid or irregular, transparent or key-coloured)',output:'ZIP with one .gif per animation',target:'browsers, chats and forums that play GIF',support:'full',
+   evidence:['src/studio/sprite/import-plan.js (grid cells, empty cells skipped, row_n tags, 100 ms timing decision)','src/game/color-key.js','src/game/export/anim.js (delay rounding, 1-bit alpha, palette)','src/game/model.js playbackOrder (ping-pong)','docs/STUDIO-PACK.md (GIF decoded by Pillow)'],
+   external:['W3C GIF89a: delay in 1/100 s, colour table ≤ 256, transparency index','Aseprite docs: Import Sprite Sheet (alternative)']},
+  en:{
+   answer:"Cut the sheet into frames (Nerulio measures the grid or finds each sprite as an island), make each row an animation, give it a speed, and export Animated GIF: one GIF per animation, each frame with its own delay. The sheet itself has no timing, so you choose the frame rate; GIF stores 1/100 s, so 10, 20, 25 or 50 fps come out exact while 12 fps (83.3 ms) becomes 80 ms. Transparency is on/off, and up to 255 colours stay exact.",
+   concept:{title:'From a still sheet to a timed GIF',body:[
+    "A sprite sheet is a grid of poses in one PNG. To animate it you need three things the image does not say: where each frame is (cell size, margin, spacing), which frames belong together (usually one row per animation), and how long each frame shows. Nerulio measures the first from the pixels, proposes the second from the rows, and starts the third at 100 ms per frame.",
+    "A GIF can only wait whole hundredths of a second. A frame rate is stored exactly when 100 divided by it is a whole number: 10 fps (10), 20 fps (5), 25 fps (4), 50 fps (2). Any other rate is rounded frame by frame, and no frame is written shorter than 20 ms.",
+    "If the sheet sits on a flat colour instead of transparency, key it out during the import, or the GIF shows the colour. Frames are placed on one cell per animation, aligned on their pivots, so rows cut as islands of different sizes do not wobble."],
+    terms:[['Frame rate (fps)','Frames per second; frame time = 1000 ÷ fps milliseconds.'],['Delay','GIF\'s wait per frame, in 1/100 s.'],['Grid','Cell size, margin and spacing of the sheet.'],['Ping-pong','Forward then back without repeating the end frames: 0-1-2-3-2-1.']]},
+   example:{title:'Example: a 384 × 256 sheet at four speeds',lines:[
+    'sheet   384 × 256 px, 6 columns × 4 rows',
+    'cell    384 / 6 = 64 px wide, 256 / 4 = 64 px high',
+    'rows    row_1 … row_4, 6 frames each',
+    '',
+    'fps   frame time   GIF delay          one cycle of 6 frames',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (750 intended)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (exact)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (500 intended)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (exact)'],
+    after:'Ping-pong on a 6-frame row plays 10 steps per cycle (0-1-2-3-4-5-4-3-2-1), so at 10 fps one cycle lasts 1.0 s.'},
+   mapping:{head:['Sheet / Studio','Nerulio','GIF'],rows:[
+    ['Grid cell (or island)','One frame; empty cells are left out','One GIF frame'],
+    ['Row','One animation `row_n`, renamed on the Timeline','One file per animation'],
+    ['Key colour (magenta, green …)','Made transparent at import','The transparent index'],
+    ['Frame rate or ms per frame','A duration per frame','Delay in 1/100 s, at least 2'],
+    ['Direction, repeat','Written out as frame order; repeat kept','Frame order; loop count'],
+    ['Frames of different sizes','One cell per animation, pivots aligned','One frame size per GIF']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','The download for a sheet named `sheet.png`, with a folder `sheet_gif/`.'],
+    ['sheet_gif/sheet_row_1.gif','The first row\'s animation; rename the tag first for a readable name such as `sheet_walk.gif`.']]},
+   target:{title:'Use the GIF',steps:[
+    'Unzip; each animation is its own GIF.',
+    'Open one in a browser to check the speed: a 6-frame row at 10 fps loops every 0.6 s.',
+    'Check the edges on the background where the GIF will appear; if they need soft alpha, export APNG from the same panel.',
+    'For a video post, export [[game/sprite-sheet-to-video|WebM video]] (4× nearest) instead; for the opposite direction see [[game/gif-to-sprite-sheet|GIF to sprite sheet]].']},
+   verify:{steps:[
+    'The GIF of a 6-frame row has 6 frames, or 10 for ping-pong.',
+    'No frame shows the old background colour; if one does, the key colour was not applied at import.',
+    'The export notes list rounded delays; there are none at 10, 20, 25 or 50 fps.']},
+   trouble:{rows:[
+    ['The GIF shows half frames or two frames at once','The grid guess is off (margin, spacing, or a cell size a few pixels wrong)','Sheet view: the grid lines over the art','Pick another grid proposal or type cell size, margin and spacing; see [[game/sprite-sheet-slicing-off|slicing that is off]]'],
+    ['Magenta or green behind the sprite','The key colour was not applied','Import panel: Background colour','Switch it to the detected colour and apply again; see [[game/remove-sprite-background|removing a sprite background]]'],
+    ['The animation wobbles','Frames were cut as islands and their pivots differ','Onion skin (F3)','Set one pivot for the tag, or align the frames; see [[game/sprite-jitter-after-trim|jitter after trimming]]'],
+    ['The speed is slightly off','The frame time is not a whole number of hundredths','Compare with the table above','Use 10, 20, 25 or 50 fps, or export APNG'],
+    ['Soft shadows became solid or vanished','1-bit transparency: alpha ≥ 128 became opaque, lower alpha transparent','The export note about semi-transparent pixels','Export APNG']]},
+   alternatives:{rows:[
+    ['APNG from the same panel','Soft edges and millisecond timing matter; every pixel is exact.'],
+    ['[[game/ezgif-sprite-cutter-alternative|An online GIF maker such as ezgif]]','You already have loose frame images and want a quick GIF without per-animation tags.'],
+    ['Aseprite: File > Import Sprite Sheet, then export','You own Aseprite and want to keep editing the animation there.']]},
+   limits:['A sheet stores no timing: the speed is always your choice, starting at 100 ms per frame.','The GIF keeps the sheet\'s pixel size; there is no scale option for GIF export.'],
+   versions:{body:['GIF output is checked by decoding exported files with Pillow: every frame and delay as written. Grid and key detection are the Studio importer, run on real asset sheets through the UI with correct frames on the default choices. GIF\'s limits follow the W3C GIF89a specification.'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  },
+  ko:{
+   answer:'시트를 프레임으로 자르고(Nerulio가 격자를 재거나 스프라이트를 아일랜드로 찾음), 행마다 애니메이션으로 만들고, 속도를 정한 뒤 Animated GIF로 내보내면 애니메이션마다 GIF가 하나씩, 프레임마다 자기 지연을 가진 채로 나옵니다. 시트 자체에는 타이밍이 없으니 프레임레이트는 직접 고릅니다. GIF는 1/100초 단위라 10·20·25·50 fps는 정확히, 12 fps(83.3 ms)는 80 ms가 됩니다. 투명은 켜짐/꺼짐이고 255색까지는 색이 정확합니다.',
+   concept:{title:'멈춘 시트에서 시간이 있는 GIF로',body:[
+    '스프라이트 시트는 PNG 한 장에 포즈를 격자로 늘어놓은 것입니다. 움직이게 하려면 그림이 말해 주지 않는 세 가지가 필요합니다. 프레임이 어디 있는지(칸 크기, 여백, 간격), 어떤 프레임끼리 한 동작인지(보통 행 하나가 애니메이션 하나), 프레임마다 얼마나 보여 줄지입니다. Nerulio는 첫째를 픽셀에서 재고, 둘째를 행으로 제안하고, 셋째는 프레임당 100 ms로 시작합니다.',
+    'GIF는 1/100초의 정수배만큼만 기다릴 수 있습니다. 100을 프레임레이트로 나눠 정수가 되면 정확히 저장됩니다. 10 fps(10), 20 fps(5), 25 fps(4), 50 fps(2)입니다. 그 밖의 속도는 프레임마다 반올림되고, 20 ms보다 짧은 프레임은 쓰지 않습니다.',
+    '시트가 투명이 아니라 단색 위에 있다면 가져올 때 그 색을 빼야 합니다. 안 그러면 GIF에 그 색이 보입니다. 프레임은 애니메이션마다 한 칸에 피벗을 맞춰 놓기 때문에, 크기가 다른 아일랜드로 자른 행도 흔들리지 않습니다.'],
+    terms:[['프레임레이트(fps)','초당 프레임 수. 프레임 시간 = 1000 ÷ fps 밀리초.'],['지연','GIF의 프레임별 대기 시간, 1/100초 단위.'],['격자','시트의 칸 크기, 여백, 간격.'],['핑퐁','끝 프레임을 반복하지 않고 앞으로 갔다 돌아오는 순서: 0-1-2-3-2-1.']]},
+   example:{title:'예시: 384 × 256 시트를 네 가지 속도로',lines:[
+    '시트    384 × 256 px, 6열 × 4행',
+    '칸      384 / 6 = 가로 64 px, 256 / 4 = 세로 64 px',
+    '행      row_1 … row_4, 각 6프레임',
+    '',
+    'fps   프레임 시간  GIF 지연           6프레임 한 사이클',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (의도 750)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (정확)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (의도 500)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (정확)'],
+    after:'6프레임 행을 핑퐁으로 하면 한 사이클이 10단계(0-1-2-3-4-5-4-3-2-1)라서 10 fps에서 1.0초입니다.'},
+   mapping:{head:['시트 / Studio','Nerulio','GIF'],rows:[
+    ['격자 칸(또는 아일랜드)','프레임 하나, 빈 칸은 제외','GIF 프레임 하나'],
+    ['행','애니메이션 `row_n`, 타임라인에서 이름 변경','애니메이션마다 파일 하나'],
+    ['키 색(마젠타, 초록 …)','가져올 때 투명 처리','투명 색 번호'],
+    ['프레임레이트 또는 프레임당 ms','프레임마다 길이','1/100초 단위 지연, 최소 2'],
+    ['방향, 반복','프레임 순서로 펼쳐 기록, 반복 유지','프레임 순서, 반복 횟수'],
+    ['크기가 다른 프레임','애니메이션마다 한 칸, 피벗 정렬','GIF마다 프레임 크기 하나']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','`sheet.png`라는 시트를 내보낼 때 받는 파일. 안에 `sheet_gif/` 폴더가 있습니다.'],
+    ['sheet_gif/sheet_row_1.gif','첫 행의 애니메이션. 태그 이름을 먼저 바꾸면 `sheet_walk.gif`처럼 알아보기 쉬운 이름이 됩니다.']]},
+   target:{title:'GIF 쓰기',steps:[
+    'ZIP을 풉니다. 애니메이션마다 GIF가 하나입니다.',
+    '브라우저에서 하나를 열어 속도를 확인하세요. 10 fps인 6프레임 행은 0.6초마다 반복됩니다.',
+    'GIF가 올라갈 배경 위에서 가장자리를 보세요. 부드러운 알파가 필요하면 같은 패널에서 APNG로 내보내세요.',
+    '동영상 게시물이라면 [[game/sprite-sheet-to-video|WebM 동영상]](최근접 4배)으로 내보내세요. 반대 방향은 [[game/gif-to-sprite-sheet|GIF를 스프라이트 시트로]]를 보세요.']},
+   verify:{steps:[
+    '6프레임 행의 GIF는 프레임이 6개, 핑퐁이면 10개입니다.',
+    '어느 프레임에도 원래 배경색이 보이면 안 됩니다. 보인다면 가져올 때 키 색이 적용되지 않은 것입니다.',
+    '내보내기 안내에 반올림한 지연이 나옵니다. 10·20·25·50 fps에서는 없습니다.']},
+   trouble:{rows:[
+    ['GIF에 프레임이 반쯤 잘리거나 두 개가 함께 보임','격자 추정이 어긋났습니다(여백, 간격, 몇 픽셀 틀린 칸 크기)','시트 보기: 그림 위의 격자선','다른 격자 제안을 고르거나 칸 크기·여백·간격을 입력하세요. [[game/sprite-sheet-slicing-off|자르기가 어긋날 때]] 참고'],
+    ['스프라이트 뒤에 마젠타나 초록이 보임','키 색이 적용되지 않았습니다','가져오기 패널: 배경색','감지된 색으로 바꾸고 다시 적용하세요. [[game/remove-sprite-background|스프라이트 배경 제거]] 참고'],
+    ['애니메이션이 흔들림','아일랜드로 잘린 프레임의 피벗이 서로 다릅니다','어니언 스킨(F3)','태그에 피벗을 하나로 정하거나 프레임을 정렬하세요. [[game/sprite-jitter-after-trim|트림 후 흔들림]] 참고'],
+    ['속도가 조금 다름','프레임 시간이 1/100초의 정수배가 아닙니다','위 표와 비교합니다','10·20·25·50 fps를 쓰거나 APNG로 내보내세요'],
+    ['부드러운 그림자가 진해지거나 사라짐','1비트 투명: 알파 128 이상은 불투명, 그보다 낮으면 투명','반투명 픽셀에 관한 내보내기 안내','APNG로 내보내세요']]},
+   alternatives:{rows:[
+    ['같은 패널의 APNG','부드러운 가장자리와 밀리초 타이밍이 중요할 때. 모든 픽셀이 정확합니다.'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgif 같은 온라인 GIF 도구]]','이미 프레임별 이미지가 있고 애니메이션 태그 없이 빠르게 GIF만 필요할 때.'],
+    ['Aseprite: File > Import Sprite Sheet 후 내보내기','Aseprite가 있고 그 안에서 애니메이션을 계속 다듬고 싶을 때.']]},
+   limits:['시트에는 타이밍이 없어서 속도는 늘 직접 정하며, 프레임당 100 ms에서 시작합니다.','GIF는 시트의 픽셀 크기 그대로이며 GIF 내보내기에는 확대 옵션이 없습니다.'],
+   versions:{body:['GIF 결과는 내보낸 파일을 Pillow로 디코딩해 모든 프레임과 지연이 쓴 그대로인지 확인합니다. 격자와 키 색 감지는 Studio 가져오기 기능으로, 실제 에셋 시트를 UI로 가져와 기본 선택만으로 프레임이 맞게 잘리는지 확인했습니다. GIF의 한계는 W3C GIF89a 명세를 따릅니다.'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  },
+  ja:{
+   answer:'シートをフレームに切り（Nerulioがグリッドを測るか、スプライトを島として見つけます）、行ごとにアニメーションにし、速度を決めてAnimated GIFで書き出すと、アニメーションごとにGIFが1つ、フレームごとのディレイ付きでできます。シート自体にタイミングはないので、フレームレートは自分で選びます。GIFは1/100秒単位なので、10・20・25・50 fpsは正確に、12 fps（83.3 ms）は80 msになります。透明はオン／オフで、255色までは色が正確です。',
+   concept:{title:'止まったシートから時間のあるGIFへ',body:[
+    'スプライトシートは1枚のPNGにポーズを格子状に並べたものです。動かすには、画像が教えてくれない3つの情報が要ります。各フレームの位置（セルサイズ、マージン、スペーシング）、どのフレームが同じ動作か（普通は1行が1アニメーション）、各フレームをどれだけ表示するか。Nerulioは1つ目をピクセルから測り、2つ目を行から提案し、3つ目は1フレーム100 msから始めます。',
+    'GIFは1/100秒の整数倍しか待てません。100をフレームレートで割って整数になれば正確に保存されます。10 fps（10）、20 fps（5）、25 fps（4）、50 fps（2）です。それ以外の速度はフレームごとに丸められ、20 msより短いフレームは書きません。',
+    'シートが透明ではなく単色の上にあるなら、読み込み時にその色を抜いてください。抜かないとGIFにその色が出ます。フレームはアニメーションごとに1つのセルにピボットで揃えて置くので、サイズの違う島として切った行もガタつきません。'],
+    terms:[['フレームレート（fps）','毎秒のフレーム数。フレーム時間 = 1000 ÷ fps ミリ秒。'],['ディレイ','GIFのフレームごとの待ち時間、1/100秒単位。'],['グリッド','シートのセルサイズ、マージン、スペーシング。'],['ピンポン','端のフレームを繰り返さずに往復する順序：0-1-2-3-2-1。']]},
+   example:{title:'具体例：384 × 256のシートを4つの速度で',lines:[
+    'シート  384 × 256 px、6列 × 4行',
+    'セル    384 / 6 = 幅 64 px、256 / 4 = 高さ 64 px',
+    '行      row_1 … row_4、各6フレーム',
+    '',
+    'fps   フレーム時間 GIFのディレイ       6フレーム1サイクル',
+    ' 8    125 ms       13 /100 → 130 ms   780 ms (意図 750)',
+    '10    100 ms       10 /100 → 100 ms   600 ms (一致)',
+    '12     83.3 ms      8 /100 →  80 ms   480 ms (意図 500)',
+    '25     40 ms        4 /100 →  40 ms   240 ms (一致)'],
+    after:'6フレームの行をピンポンにすると1サイクルは10ステップ（0-1-2-3-4-5-4-3-2-1）なので、10 fpsで1.0秒です。'},
+   mapping:{head:['シート／Studio','Nerulio','GIF'],rows:[
+    ['グリッドのセル（または島）','1フレーム、空のセルは除外','GIFの1フレーム'],
+    ['行','アニメーション`row_n`、タイムラインで改名','アニメーションごとに1ファイル'],
+    ['キーカラー（マゼンタ、緑 …）','読み込み時に透明化','透明色インデックス'],
+    ['フレームレートまたは1フレームのms','フレームごとの長さ','1/100秒単位のディレイ、最小2'],
+    ['方向、繰り返し','フレーム順に展開して記録、繰り返しは保持','フレーム順、ループ回数'],
+    ['サイズの違うフレーム','アニメーションごとに1セル、ピボットで揃える','GIFごとにフレームサイズ1つ']]},
+   outputs:{rows:[
+    ['sheet_gif.zip','`sheet.png`というシートを書き出したときのダウンロード。中に`sheet_gif/`フォルダがあります。'],
+    ['sheet_gif/sheet_row_1.gif','1行目のアニメーション。先にタグ名を変えると`sheet_walk.gif`のような分かりやすい名前になります。']]},
+   target:{title:'GIFを使う',steps:[
+    'ZIPを展開します。アニメーションごとにGIFが1つです。',
+    '1つをブラウザで開いて速度を確かめます。10 fpsの6フレームの行は0.6秒ごとにループします。',
+    'GIFを載せる背景の上で縁を確認します。柔らかいアルファが必要なら同じパネルからAPNGで書き出してください。',
+    '動画投稿なら[[game/sprite-sheet-to-video|WebM動画]]（ニアレスト4倍）で書き出してください。逆方向は[[game/gif-to-sprite-sheet|GIFからスプライトシートへ]]を参照。']},
+   verify:{steps:[
+    '6フレームの行のGIFはフレームが6つ、ピンポンなら10です。',
+    'どのフレームにも元の背景色が出ていないこと。出ていれば読み込み時にキーカラーが適用されていません。',
+    '書き出しメモに丸めたディレイが出ます。10・20・25・50 fpsでは出ません。']},
+   trouble:{rows:[
+    ['GIFにフレームが半分だけ、または2つ同時に映る','グリッドの推定がずれています（マージン、スペーシング、数ピクセル違うセルサイズ）','シート表示：絵に重なるグリッド線','別のグリッド候補を選ぶか、セルサイズ・マージン・スペーシングを入力してください。[[game/sprite-sheet-slicing-off|切り出しがずれるとき]]を参照'],
+    ['スプライトの後ろにマゼンタや緑が見える','キーカラーが適用されていません','インポートパネル：背景色','検出された色に切り替えて適用し直してください。[[game/remove-sprite-background|スプライト背景の除去]]を参照'],
+    ['アニメーションがガタつく','島として切ったフレームのピボットがばらばらです','オニオンスキン（F3）','タグのピボットを1つに決めるか、フレームを揃えてください。[[game/sprite-jitter-after-trim|トリム後のガタつき]]を参照'],
+    ['速度が少し違う','フレーム時間が1/100秒の整数倍ではありません','上の表と比べます','10・20・25・50 fpsにするか、APNGで書き出してください'],
+    ['柔らかい影が濃くなる・消える','1ビット透明：アルファ128以上は不透明、それ未満は透明になりました','半透明ピクセルについての書き出しメモ','APNGで書き出してください']]},
+   alternatives:{rows:[
+    ['同じパネルのAPNG','柔らかい縁とミリ秒のタイミングが大事なとき。全ピクセルが正確です。'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgifなどのオンラインGIFツール]]','すでにフレームごとの画像があり、アニメーションのタグなしで手早くGIFだけ欲しいとき。'],
+    ['Aseprite：File > Import Sprite Sheetのあと書き出し','Asepriteを持っていて、その中でアニメーションを仕上げ続けたいとき。']]},
+   limits:['シートにはタイミングがないので、速度は常に自分で決め、1フレーム100 msから始まります。','GIFはシートのピクセルサイズのままで、GIF書き出しに拡大オプションはありません。'],
+   versions:{body:['GIFの出力は、書き出したファイルをPillowでデコードし、全フレームとディレイが書いたとおりか確認しています。グリッドとキーカラーの検出はStudioの取り込み機能で、実際のアセットのシートをUIから読み込み、既定の選択のままでフレームが正しく切れることを確認しました。GIFの制約はW3CのGIF89a仕様に基づきます。'],sources:[GIF_SPEC,MDN_IMAGES,ASE_SHEET]}
+  }
+ },
+/* ============================================================================ remove-sprite-background */
+ 'game/remove-sprite-background':{
+  type:'create',
+  intent:{primary:'remove the solid (magenta, green, flat colour) background of a sprite sheet',secondary:['colour key to transparency','magenta background to transparent PNG','JPEG sprite sheet background'],
+   goal:'a sheet whose key-coloured background is fully transparent, frames cut afterwards, original kept',input:'PNG or JPEG sprite sheet on a flat key colour',output:'the keyed sheet inside the Studio (then frames, PNG sheet, GIF, .aseprite or engine export)',target:'any export of the Studio',support:'partial',
+   evidence:['src/game/color-key.js (border/sheet/lines/alpha evidence, high ≥ 75 % border or ≥ 40 % + 4 lines, tolerance ceil(p95 spread)+2 ≤ 64, global key, RGB kept)','src/studio/sprite/sprite-worker.js + import-plan.js (applied only when high; alternatives detected colour or none)','tests/game-real-assets.test.mjs (magenta 2 px margin / 1 px spacing sheet, Kenney roguelike dungeon, alpha sheet gets no key)'],
+   external:[]},
+  en:{
+   answer:"Many old sheets use a key colour, often magenta #ff00ff, instead of transparency. Drop the sheet: Nerulio measures its border, proposes the key colour with a confidence, and applies it on its own only when the evidence is strong. Every pixel of that colour then gets alpha 0, exactly for a clean PNG or within a tolerance measured from the border for a JPEG-damaged one. The original stays stored for undo, and the frames are cut afterwards.",
+   concept:{title:'How the key colour is found',body:[
+    "A backdrop surrounds the art, so the detector starts at the border: the most common border colour is the candidate. It then checks how much of the border has that colour, how much of the whole sheet has it (it must be between 10 % and 97 %), whether it appears on all four sides, and whether whole rows or columns are that colour, as the spacing lines of a keyed grid are.",
+    "Confidence is high when at least 75 % of the border is the colour, or at least 40 % together with four or more full lines; only then is it applied automatically. Medium and low results are shown with the colour so you can apply it yourself. A sheet whose border is already more than half transparent gets no key: it uses alpha, and a key would erase content.",
+    "The tolerance comes from the border too. A PNG key is one exact colour (tolerance 0). JPEG compression spreads it, so the detector measures how far near-key border pixels drift (95th percentile, within 48 RGB levels) and allows that plus 2, at most 64. The key is global: key-coloured pixels inside a sprite become transparent as well, and every keyed pixel keeps its RGB under alpha 0."],
+    terms:[['Key colour','A colour that means “nothing here”; conventional ones are magenta, cyan, green, red, blue and yellow.'],['Tolerance','Allowed RGB distance from the key colour; 0 means exact.'],['Alpha','Opacity per pixel; keyed pixels get alpha 0.'],['Fringe','Edge pixels blended between the art and the key colour. They are not the key colour, so they stay.']]},
+   example:{title:'Example: a magenta sheet with margin and spacing',lines:[
+    'sheet          267 × 135 px: 8 × 4 cells of 32 × 32, 2 px margin, 1 px spacing',
+    'border         100 % #ff00ff             → ≥ 75 %: confidence high, applied',
+    'full lines     margin and spacing rows and columns are all #ff00ff',
+    'tolerance      0: every border pixel is exactly #ff00ff',
+    'result         every #ff00ff pixel → alpha 0; the grid then finds 32 frames',
+    '',
+    'JPEG version   near-key border pixels drift up to 9 levels → tolerance 9 + 2 = 11',
+    '               pixel (250, 6, 247): distance √(5² + 6² + 8²) ≈ 11.2 > 11 → kept'],
+    after:'That last pixel is the typical fringe case: close to magenta, but not close enough, so it stays opaque and pink. The tolerance is measured, not typed in.'},
+   verify:{steps:[
+    'Import panel: the Background colour decision shows the colour, the confidence and the reasons (border share, sheet share, full lines, tolerance).',
+    'Open the floating preview (F7) on a contrasting background: no key-coloured pixels should remain between frames or around outlines.',
+    'Undo once to compare with the untouched original; the import is a single undo step.']},
+   trouble:{rows:[
+    ['A pink or green outline remains','The art was anti-aliased or resized against the key colour, so the edge pixels are blends, not the key','Zoom in on an edge: the outline pixels are mixtures of art and key','Nerulio does not un-blend keyed edges on import; recolour the edge in the [[game/pixel-art-editor|pixel editor]] or export the source again with real transparency'],
+    ['Holes inside the sprite','The sprite uses the key colour itself, and the key applies to the whole sheet','The holes have exactly the key colour','Choose “no key colour”, or recolour those pixels in the source first'],
+    ['The background was not removed','Confidence was medium or low: the colour is missing on one side, the sheet already uses transparency, or too little of the border has it','The decision\'s reasons','Click the detected colour (the alternative) to apply it anyway'],
+    ['The wrong colour was detected','The most common border colour is not the backdrop, for example a scene that runs to the edges','The decision names the colour','Choose “no key colour”; the Studio offers only the detected colour or none, so fix the backdrop in an image editor first'],
+    ['Speckles remain on a JPEG sheet','Compression noise beyond the measured tolerance, or beyond the maximum of 64','The tolerance in the reasons','Use a PNG original if there is one; JPEG noise cannot be keyed cleanly']]},
+   alternatives:{rows:[
+    ['Export the source with transparency','You have the original project (Aseprite, Photoshop …): real alpha is better than any key.'],
+    ['An image editor\'s select-by-colour and delete','You need to key one region only, pick the colour yourself, or clean a fringe by hand.'],
+    ['[[game/sprite-sheet-to-aseprite|Continue to an .aseprite file]]','After keying you want frames, tags and timing in Aseprite.']]},
+   limits:['Only the colour detected from the border can be applied; there is no colour picker for the key.','The key applies to the whole sheet, not to one region.','Soft anti-aliased edges against the key are not repaired.'],
+   versions:{body:['Key detection is tested on synthetic keyed sheets (a magenta grid with 2 px margin and 1 px spacing is keyed and cut into 32 frames exactly) and on real Kenney sheets such as a magenta roguelike dungeon set with 16 px tiles and 1 px spacing; a sheet that already uses alpha, and an opaque noise texture, get no key.']}
+  },
+  ko:{
+   answer:'오래된 시트는 투명 대신 키 색, 흔히 마젠타 #ff00ff를 씁니다. 시트를 넣으면 Nerulio가 테두리를 재서 키 색과 신뢰도를 제안하고, 근거가 충분할 때만 스스로 적용합니다. 그러면 그 색의 모든 픽셀이 알파 0이 됩니다. 깨끗한 PNG면 정확히 그 색만, JPEG로 뭉개진 키면 테두리에서 잰 허용 범위 안의 색까지입니다. 원본은 되돌리기용으로 보관되고, 프레임은 그다음에 자릅니다.',
+   concept:{title:'키 색을 찾는 방법',body:[
+    '배경은 그림을 둘러싸므로 감지는 테두리에서 시작합니다. 테두리에서 가장 많은 색이 후보입니다. 그다음 테두리의 몇 %가 그 색인지, 시트 전체의 몇 %가 그 색인지(10 %~97 % 사이여야 함), 네 변 모두에 나오는지, 키 색 격자의 간격선처럼 한 줄 전체가 그 색인 행·열이 있는지 확인합니다.',
+    '테두리의 75 % 이상이 그 색이거나, 40 % 이상이면서 꽉 찬 줄이 4개 이상이면 신뢰도가 높음이고, 이때만 자동으로 적용합니다. 중간·낮음이면 색을 보여 주고 직접 적용할 수 있게 합니다. 테두리의 절반 넘게 이미 투명한 시트에는 키를 쓰지 않습니다. 알파를 쓰는 시트라 키를 적용하면 그림이 지워지기 때문입니다.',
+    '허용 범위도 테두리에서 정합니다. PNG의 키는 정확히 한 색이라 허용 범위 0입니다. JPEG 압축은 색을 흩뜨리므로, 키에 가까운 테두리 픽셀이 얼마나 벗어났는지(RGB 48 단계 안, 95번째 백분위수)를 재고 거기에 2를 더해 최대 64까지 허용합니다. 키는 시트 전체에 적용됩니다. 스프라이트 안쪽의 키 색 픽셀도 투명해지고, 키로 뺀 픽셀은 알파 0 아래에 RGB를 그대로 둡니다.'],
+    terms:[['키 색','“여기엔 아무것도 없음”을 뜻하는 색. 흔히 마젠타, 시안, 초록, 빨강, 파랑, 노랑을 씁니다.'],['허용 범위','키 색과의 RGB 거리 허용치. 0이면 정확히 같은 색만.'],['알파','픽셀별 불투명도. 키로 뺀 픽셀은 알파 0이 됩니다.'],['프린지','그림과 키 색이 섞인 가장자리 픽셀. 키 색 자체가 아니라서 남습니다.']]},
+   example:{title:'예시: 여백과 간격이 있는 마젠타 시트',lines:[
+    '시트        267 × 135 px: 32 × 32 칸 8 × 4개, 여백 2 px, 간격 1 px',
+    '테두리      100 % #ff00ff            → 75 % 이상: 신뢰도 높음, 적용',
+    '꽉 찬 줄    여백과 간격의 행·열이 모두 #ff00ff',
+    '허용 범위   0: 테두리 픽셀이 모두 정확히 #ff00ff',
+    '결과        #ff00ff 픽셀 → 알파 0, 이어서 격자가 프레임 32개를 찾음',
+    '',
+    'JPEG 버전   키에 가까운 테두리 픽셀이 최대 9단계 벗어남 → 허용 범위 9 + 2 = 11',
+    '            픽셀 (250, 6, 247): 거리 √(5² + 6² + 8²) ≈ 11.2 > 11 → 남음'],
+    after:'마지막 픽셀이 전형적인 프린지입니다. 마젠타에 가깝지만 충분히 가깝지는 않아 불투명한 분홍으로 남습니다. 허용 범위는 입력하는 값이 아니라 재서 정하는 값입니다.'},
+   verify:{steps:[
+    '가져오기 패널: 배경색 결정에 색, 신뢰도, 근거(테두리 비율, 시트 비율, 꽉 찬 줄, 허용 범위)가 나옵니다.',
+    '플로팅 미리보기(F7)를 대비되는 배경으로 여세요. 프레임 사이나 외곽선 둘레에 키 색 픽셀이 남으면 안 됩니다.',
+    '한 번 되돌려 손대지 않은 원본과 비교하세요. 가져오기는 되돌리기 한 단계입니다.']},
+   trouble:{rows:[
+    ['분홍·초록 외곽선이 남음','그림이 키 색 위에서 안티에일리어싱되거나 크기가 바뀌어, 가장자리 픽셀이 키 색이 아니라 섞인 색입니다','가장자리를 확대하면 외곽 픽셀이 그림과 키의 중간색입니다','Nerulio는 가져올 때 섞인 가장자리를 풀지 않습니다. [[game/pixel-art-editor|픽셀 편집기]]에서 가장자리 색을 고치거나, 원본을 진짜 투명으로 다시 내보내세요'],
+    ['스프라이트 안에 구멍이 생김','스프라이트가 키 색을 직접 쓰고, 키는 시트 전체에 적용됩니다','구멍의 색이 정확히 키 색입니다','“키 색 없음”을 고르거나, 원본에서 그 픽셀 색을 먼저 바꾸세요'],
+    ['배경이 빠지지 않음','신뢰도가 중간이나 낮음입니다. 한 변에 그 색이 없거나, 시트가 이미 투명을 쓰거나, 테두리에서 그 색 비율이 낮습니다','결정의 근거','감지된 색(대안)을 클릭해 그래도 적용하세요'],
+    ['엉뚱한 색이 감지됨','테두리에서 가장 많은 색이 배경이 아닙니다. 예: 가장자리까지 그려진 장면','결정에 색이 나옵니다','“키 색 없음”을 고르세요. Studio는 감지된 색 또는 없음만 제공하므로, 이미지 편집기에서 배경부터 정리하세요'],
+    ['JPEG 시트에 점이 남음','측정된 허용 범위나 최대치 64를 넘는 압축 잡음입니다','근거에 적힌 허용 범위','PNG 원본이 있으면 그것을 쓰세요. JPEG 잡음은 깨끗하게 키로 뺄 수 없습니다']]},
+   alternatives:{rows:[
+    ['원본을 투명으로 다시 내보내기','원래 프로젝트(Aseprite, Photoshop …)가 있다면 진짜 알파가 어떤 키보다 낫습니다.'],
+    ['이미지 편집기의 색 기준 선택 후 삭제','한 영역만 빼거나, 색을 직접 고르거나, 프린지를 손으로 정리해야 할 때.'],
+    ['[[game/sprite-sheet-to-aseprite|.aseprite 파일로 이어 가기]]','배경을 뺀 뒤 Aseprite에서 프레임·태그·타이밍을 다루고 싶을 때.']]},
+   limits:['테두리에서 감지한 색만 적용할 수 있고, 키 색을 고르는 색상 선택기는 없습니다.','키는 한 영역이 아니라 시트 전체에 적용됩니다.','키 색 위에서 부드럽게 안티에일리어싱된 가장자리는 복구하지 않습니다.'],
+   versions:{body:['키 감지는 합성한 키 색 시트(여백 2 px·간격 1 px 마젠타 격자를 키로 빼고 정확히 32프레임으로 자름)와, 16 px 타일·1 px 간격의 마젠타 로그라이크 던전 세트 같은 실제 Kenney 시트로 시험합니다. 이미 알파를 쓰는 시트와 불투명한 잡음 텍스처에는 키가 적용되지 않습니다.']}
+  },
+  ja:{
+   answer:'古いシートの多くは透明の代わりにキーカラー、よくあるのはマゼンタ#ff00ffを使っています。シートをドロップすると、Nerulioが縁を測ってキーカラーと信頼度を提案し、根拠が十分なときだけ自動で適用します。するとその色のピクセルがすべてアルファ0になります。きれいなPNGなら完全一致の色だけ、JPEGで崩れたキーなら縁から測った許容範囲内の色までです。元の画像は取り消し用に保存され、フレームはそのあとで切ります。',
+   concept:{title:'キーカラーの見つけ方',body:[
+    '背景は絵を囲んでいるので、検出は縁から始めます。縁でいちばん多い色が候補です。次に、縁の何%がその色か、シート全体の何%がその色か（10 %〜97 %の間であること）、4辺すべてに現れるか、キーカラーのグリッドの区切り線のように行や列がまるごとその色になっているかを調べます。',
+    '縁の75 %以上がその色、または40 %以上かつ全面がその色の線が4本以上なら信頼度は高で、このときだけ自動適用します。中・低の場合は色を示し、自分で適用できるようにします。縁の半分以上がすでに透明なシートにはキーを使いません。アルファを使っているシートなので、キーを適用すると絵が消えてしまうからです。',
+    '許容範囲も縁から決めます。PNGのキーは完全に1色なので許容範囲は0です。JPEG圧縮は色を散らすので、キーに近い縁のピクセルがどれだけずれているか（RGBで48段階以内、95パーセンタイル）を測り、それに2を足して最大64まで許します。キーはシート全体に効きます。スプライト内部のキーカラーのピクセルも透明になり、抜いたピクセルはアルファ0の下にRGBを残します。'],
+    terms:[['キーカラー','「ここには何もない」を表す色。よく使われるのはマゼンタ、シアン、緑、赤、青、黄。'],['許容範囲','キーカラーとのRGB距離の許容値。0なら完全一致のみ。'],['アルファ','ピクセルごとの不透明度。キーで抜いたピクセルはアルファ0になります。'],['フリンジ','絵とキーカラーが混ざった縁のピクセル。キーカラーそのものではないので残ります。']]},
+   example:{title:'具体例：マージンとスペーシングのあるマゼンタのシート',lines:[
+    'シート      267 × 135 px：32 × 32 のセルが 8 × 4、マージン 2 px、スペーシング 1 px',
+    '縁          100 % #ff00ff             → 75 % 以上：信頼度 高、適用',
+    '全面の線    マージンとスペーシングの行・列はすべて #ff00ff',
+    '許容範囲    0：縁のピクセルはすべて完全に #ff00ff',
+    '結果        #ff00ff のピクセル → アルファ 0、続いてグリッドが32フレームを検出',
+    '',
+    'JPEG版      キーに近い縁のピクセルが最大9段階ずれる → 許容範囲 9 + 2 = 11',
+    '            ピクセル (250, 6, 247)：距離 √(5² + 6² + 8²) ≈ 11.2 > 11 → 残る'],
+    after:'最後のピクセルが典型的なフリンジです。マゼンタに近いものの十分には近くないので、不透明なピンクのまま残ります。許容範囲は入力する値ではなく、測って決まる値です。'},
+   verify:{steps:[
+    'インポートパネル：背景色の判断に、色、信頼度、根拠（縁の割合、シートの割合、全面の線、許容範囲）が出ます。',
+    'フローティングプレビュー（F7）を対照的な背景で開きます。フレームの間や輪郭の周りにキーカラーのピクセルが残っていないこと。',
+    '1回取り消して元の画像と比べます。読み込みは1回の取り消し単位です。']},
+   trouble:{rows:[
+    ['ピンクや緑の輪郭が残る','絵がキーカラーの上でアンチエイリアスまたは拡縮されていて、縁のピクセルがキーではなく混色です','縁を拡大すると、輪郭のピクセルが絵とキーの中間色です','Nerulioは読み込み時に混ざった縁を分離しません。[[game/pixel-art-editor|ピクセルエディタ]]で縁の色を直すか、元データを本物の透明で書き出し直してください'],
+    ['スプライトの中に穴が開く','スプライト自体がキーカラーを使っていて、キーはシート全体に効きます','穴の色がキーカラーと完全に一致します','「キーカラーなし」を選ぶか、元データでそのピクセルの色を先に変えてください'],
+    ['背景が抜けない','信頼度が中か低です。ある辺にその色がない、シートがすでに透明を使っている、縁に占めるその色の割合が低い、など','判断の根拠','検出された色（代替案）をクリックして、それでも適用してください'],
+    ['違う色が検出される','縁でいちばん多い色が背景ではありません。例：端まで描かれた場面','判断に色が出ます','「キーカラーなし」を選んでください。Studioは検出した色かなしのどちらかしか出さないので、画像エディタで背景を先に整えてください'],
+    ['JPEGのシートに点が残る','測った許容範囲や上限64を超える圧縮ノイズです','根拠にある許容範囲','PNGの元画像があればそれを使ってください。JPEGのノイズはきれいにキーで抜けません']]},
+   alternatives:{rows:[
+    ['元データを透明付きで書き出し直す','元のプロジェクト（Aseprite、Photoshop …）があるなら、本物のアルファはどんなキーより確実です。'],
+    ['画像エディタの色で選択して削除','一部の領域だけ抜きたい、色を自分で選びたい、フリンジを手で掃除したいとき。'],
+    ['[[game/sprite-sheet-to-aseprite|.asepriteファイルへ進む]]','背景を抜いたあと、Asepriteでフレーム・タグ・タイミングを扱いたいとき。']]},
+   limits:['縁から検出した色しか適用できず、キーカラーを選ぶカラーピッカーはありません。','キーは一部の領域ではなくシート全体に効きます。','キーカラーの上で柔らかくアンチエイリアスされた縁は修復しません。'],
+   versions:{body:['キーの検出は、合成したキーカラーのシート（マージン2 px・スペーシング1 pxのマゼンタのグリッドをキーで抜き、正確に32フレームに切る）と、16 pxタイル・1 px間隔のマゼンタのローグライク用ダンジョンセットのような実際のKenneyのシートでテストしています。すでにアルファを使うシートと、不透明なノイズテクスチャにはキーが適用されません。']}
+  }
+ },
+/* ============================================================================ aseprite-to-sprite-sheet */
+ 'game/aseprite-to-sprite-sheet':{
+  type:'conversion',
+  intent:{primary:'export an .aseprite file as a packed sprite sheet PNG with JSON data',secondary:['Aseprite JSON hash vs array','frameTags, slices and duration in the JSON','load it in Phaser','without Aseprite installed'],
+   goal:'one packed PNG plus a data file (Aseprite JSON or an engine format) that keeps tags, per-frame timing and pivots',input:'.aseprite / .ase',output:'PNG sheet + Aseprite JSON (hash or array) + README, or an engine bundle',target:'Phaser 3/4 (Aseprite JSON); other engines via their own targets',support:'full',
+   evidence:['src/game/export/atlas-json.js (asepriteJson: one page, keys "0".."n", frameTags with repeat string, pivot and box slices, repeated entries)','docs/STUDIO-PACK.md (Aseprite JSON: Phaser 3.90/4.2 load.aseprite + createFromAseprite, PixiJS 8.21 frames)','docs/ENGINE-VERIFY.md (reference Aseprite-made JSON passes Phaser 3/4 and Pixi 8)'],
+   external:['Aseprite docs: CLI --sheet, --data, --format json-hash/json-array, --list-tags, --list-slices, --sheet-type, --trim','Phaser docs: load.aseprite, createFromAseprite export settings, pixelArt']},
+  en:{
+   answer:"Drop the `.aseprite` file and open Pack & Export: the frames are packed into a PNG (trimmed, identical frames stored once) and written with the data file your engine reads. The Aseprite JSON target gives the layout of Aseprite's own File > Export Sprite Sheet: `frames` with `duration`, `meta.frameTags` and `meta.slices`, as hash or array, on one page, with frame keys `0`, `1`, … that Phaser's `createFromAseprite` expects. Godot, Unity, PixiJS and other targets carry the tags and timing in their own form.",
+   concept:{title:'What a sprite sheet with Aseprite JSON contains',body:[
+    "A sprite sheet is one image with every frame on it plus a data file that says where each frame is. In Aseprite's JSON each frame entry has `frame` (the rectangle on the sheet), `rotated`, `trimmed`, `spriteSourceSize` (where the trimmed rectangle sits in the original canvas), `sourceSize` (the canvas) and `duration` in milliseconds. `meta` holds the image name, size and scale and, when requested, `frameTags` (`name`, `from`, `to`, `direction`) and `slices`.",
+    "Hash and array differ only in `frames`: the hash layout is an object keyed by frame name, the array layout a list whose entries carry a `filename`. Frame names come from Aseprite's filename format; Phaser's `createFromAseprite` expects the item filename to be just `{frame}`, so the keys are `0`, `1`, `2` …",
+    "Tags are `from`–`to` ranges over the frame list, so every tag must be one contiguous run. Nerulio keeps that true while packing: a frame used by two tags, or a tag whose frames are out of order, gets a second entry pointing at the same region, and the export note says how many entries were repeated."],
+    terms:[['spriteSourceSize','Position and size of the trimmed pixels inside the original frame.'],['sourceSize','The original frame (canvas) size before trimming.'],['frameTags','Aseprite\'s animations: name, first and last frame, direction, and a repeat count when one is set.'],['Alias','A frame whose visible pixels equal another frame\'s is stored once; both entries point at it.']]},
+   example:{title:'Example: the JSON written for a trimmed frame and two tags',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    'trim: 32 × 32 = 1024 px² → 18 × 29 = 522 px² stored (−49 %), drawn back at (7, 3)'],
+    after:'An endless tag has no `repeat`; a tag that plays once has `"repeat": "1"`. The pivot (16, 32) is the bottom centre of the 32 × 32 canvas, used when the file has no pivot slice. Keys are positions in this list, not in the original file.'},
+   mapping:{head:['In the .aseprite','In the Aseprite JSON','Note'],rows:[
+    ['Frame pixels (all visible layers)','A trimmed region on the PNG: `frame` + `spriteSourceSize`','Layers are composited; identical frames are stored once'],
+    ['Frame duration','`duration` in ms','Whole milliseconds'],
+    ['Tag','A `meta.frameTags` entry with `from`, `to`, `direction`','Shared or out-of-order frames get extra entries'],
+    ['Repeat','`repeat` as a string when finite','Absent for endless tags'],
+    ['Pivot slice (or the bottom centre)','A `pivot` slice in `meta.slices`, keyed where it changes','Bounds = the frame canvas'],
+    ['Hit / hurt boxes','One slice per type and slot, with an empty key where a box stops','Rectangles only'],
+    ['Layers','One entry in `meta.layers` (`Layer 1`)','The sheet holds composited frames'],
+    ['Pages','Exactly one PNG','This target re-packs onto one page']]},
+   outputs:{rows:[
+    ['hero.png','The packed sheet: one page for this target.'],
+    ['hero.json','Aseprite JSON, hash or array, with `frameTags` and `slices`.'],
+    ['README-ASEPRITE-JSON.md','The Phaser loading code for these files and what PixiJS reads from them.']]},
+   target:{title:'Load it in Phaser 3 or 4',steps:[
+    'Copy `hero.png` and `hero.json` into your game\'s assets folder.',
+    'In `preload()`: `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`.',
+    'In `create()`: `this.anims.createFromAseprite(\'hero\')` creates one animation per tag, named after the tag.',
+    'Add and play: `this.add.sprite(100, 100, \'hero\').play(\'walk\')`. For pixel art, create the game with `pixelArt: true`.'],
+    note:'For Godot, Unity or PixiJS choose their own target instead of Aseprite JSON: see [[game/aseprite-to-godot|Aseprite to Godot]], [[game/aseprite-to-unity|Aseprite to Unity]] and [[game/aseprite-json-to-pixi|Aseprite JSON to PixiJS]].'},
+   verify:{steps:[
+    'The number of entries in `frames` equals the frame count plus the repeated entries the export note mentions.',
+    'Play each tag in the game and time one cycle against Aseprite (walk: 6 × 100 ms = 0.6 s).',
+    'Open `hero.png`: trimmed frames sit tightly packed, so the sheet is smaller than a grid export of the same frames.']},
+   trouble:{rows:[
+    ['“Aseprite JSON describes one sheet image” error','The frames do not fit on one page at the current page limit','The page size setting in Pack & Export','Raise the page limit, or use the Phaser preset (multiatlas) or PixiJS 8 (linked pages)'],
+    ['Phaser creates no animations','The JSON has no `frameTags`, or its keys are not plain frame numbers','Look at the first key in `frames` and for `meta.frameTags`','Use Nerulio\'s Aseprite JSON; from Aseprite itself, set Item Filename to `{frame}` and tick Tags in the Meta options'],
+    ['Frames jump in your own loader','It ignores `spriteSourceSize`, so trimmed frames lose their offset','Compare a trimmed frame\'s position with `spriteSourceSize`','Draw each frame at `spriteSourceSize.x/y` inside `sourceSize`, or turn trim off'],
+    ['A reader shows frames sideways','Rotation was allowed while packing; Aseprite itself never writes rotated frames','`"rotated": true` in `frames`','Turn rotation off for this export'],
+    ['Pixel art is blurry in the game','The engine filters the texture linearly','Zoom in on an edge','Phaser: `pixelArt: true` in the game config; other engines: nearest filtering']]},
+   alternatives:{rows:[
+    ['Aseprite\'s File > Export Sprite Sheet, or `aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','You have Aseprite and want its own layout options; `--sheet-type packed` packs and `--trim` trims.'],
+    ['An engine target instead of Aseprite JSON','The engine does not build animations from Aseprite JSON (PixiJS, Godot, Unity): see [[game/keep-aseprite-tags-when-packing|which target keeps what]].']]},
+   limits:['Aseprite JSON is one page; very large sets need an engine preset with multipack.','Layers are not exported as separate sheets.'],
+   versions:{body:['Nerulio\'s Aseprite JSON was loaded by Phaser 3.90 and 4.2 with `load.aseprite` and `createFromAseprite`, and its frames by PixiJS 8.21; a JSON made by Aseprite itself passed the same checks as a reference. The `.aseprite` reader behind it was checked on 231 real files. The Aseprite and Phaser details above follow their documentation.'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  },
+  ko:{
+   answer:'`.aseprite` 파일을 넣고 패킹·내보내기를 열면 프레임이 PNG 한 장에 패킹되고(트림, 같은 프레임은 한 번만 저장) 엔진이 읽는 데이터 파일과 함께 나옵니다. Aseprite JSON 대상은 Aseprite 자체 File > Export Sprite Sheet와 같은 구조입니다. `duration`이 있는 `frames`, `meta.frameTags`, `meta.slices`를 해시나 배열로, 한 페이지에, Phaser의 `createFromAseprite`가 기대하는 `0`, `1`, … 프레임 키로 씁니다. Godot, Unity, PixiJS 등 다른 대상은 태그와 타이밍을 각자 형식으로 담습니다.',
+   concept:{title:'Aseprite JSON이 딸린 스프라이트 시트의 구성',body:[
+    '스프라이트 시트는 모든 프레임을 담은 이미지 한 장과 각 프레임의 위치를 알려 주는 데이터 파일입니다. Aseprite JSON의 프레임 항목에는 `frame`(시트 위 사각형), `rotated`, `trimmed`, `spriteSourceSize`(원래 캔버스 안에서 잘린 사각형의 위치), `sourceSize`(캔버스), 밀리초 단위 `duration`이 있습니다. `meta`에는 이미지 이름·크기·배율이 있고, 요청하면 `frameTags`(`name`, `from`, `to`, `direction`)와 `slices`가 들어갑니다.',
+    '해시와 배열은 `frames`만 다릅니다. 해시는 프레임 이름을 키로 하는 객체, 배열은 항목마다 `filename`이 있는 목록입니다. 프레임 이름은 Aseprite의 파일 이름 형식에서 오며, Phaser의 `createFromAseprite`는 항목 파일 이름이 `{frame}`뿐이기를 기대하므로 키가 `0`, `1`, `2` …가 됩니다.',
+    '태그는 프레임 목록 위의 `from`–`to` 구간이라 태그마다 한 줄로 이어져 있어야 합니다. Nerulio는 패킹하면서도 이를 지킵니다. 두 태그가 함께 쓰는 프레임이나 순서가 뒤섞인 태그의 프레임은 같은 영역을 가리키는 항목을 하나 더 만들고, 내보내기 안내에 반복한 항목 수를 적습니다.'],
+    terms:[['spriteSourceSize','원래 프레임 안에서 트림된 픽셀의 위치와 크기.'],['sourceSize','트림 전 원래 프레임(캔버스) 크기.'],['frameTags','Aseprite의 애니메이션: 이름, 첫·마지막 프레임, 방향, 설정돼 있으면 반복 횟수.'],['별칭(Alias)','보이는 픽셀이 다른 프레임과 같은 프레임은 한 번만 저장하고 두 항목이 같은 곳을 가리킵니다.']]},
+   example:{title:'예시: 트림된 프레임 하나와 태그 두 개의 JSON',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    '트림: 32 × 32 = 1024 px² → 18 × 29 = 522 px²만 저장 (−49 %), (7, 3)에 다시 그림'],
+    after:'무한 반복 태그에는 `repeat`가 없고, 한 번 재생하는 태그는 `"repeat": "1"`입니다. 피벗 (16, 32)는 32 × 32 캔버스의 아래 가운데로, 파일에 피벗 슬라이스가 없을 때 씁니다. 키는 원래 파일이 아니라 이 목록에서의 위치입니다.'},
+   mapping:{head:['.aseprite에서','Aseprite JSON에서','참고'],rows:[
+    ['프레임 픽셀(보이는 레이어 전부)','PNG 위 트림된 영역: `frame` + `spriteSourceSize`','레이어는 합성, 같은 프레임은 한 번만 저장'],
+    ['프레임 길이','ms 단위 `duration`','정수 밀리초'],
+    ['태그','`from`, `to`, `direction`이 있는 `meta.frameTags` 항목','함께 쓰거나 순서가 뒤섞인 프레임은 항목 추가'],
+    ['반복','유한하면 문자열 `repeat`','무한 반복 태그에는 없음'],
+    ['피벗 슬라이스(없으면 아래 가운데)','`meta.slices`의 `pivot` 슬라이스, 바뀌는 곳에 키','경계 = 프레임 캔버스'],
+    ['히트·허트 박스','종류와 순번마다 슬라이스 하나, 박스가 끝나는 곳에 빈 키','사각형만'],
+    ['레이어','`meta.layers`에 항목 하나(`Layer 1`)','시트에는 합성된 프레임'],
+    ['페이지','PNG 정확히 한 장','이 대상은 한 페이지로 다시 패킹']]},
+   outputs:{rows:[
+    ['hero.png','패킹된 시트. 이 대상은 한 페이지입니다.'],
+    ['hero.json','`frameTags`와 `slices`가 있는 Aseprite JSON(해시 또는 배열).'],
+    ['README-ASEPRITE-JSON.md','이 파일들을 Phaser에서 불러오는 코드와, PixiJS가 여기서 무엇을 읽는지.']]},
+   target:{title:'Phaser 3·4에서 불러오기',steps:[
+    '`hero.png`와 `hero.json`을 게임의 에셋 폴더에 복사합니다.',
+    '`preload()`에서: `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`.',
+    '`create()`에서: `this.anims.createFromAseprite(\'hero\')`가 태그마다 태그 이름의 애니메이션을 만듭니다.',
+    '추가하고 재생: `this.add.sprite(100, 100, \'hero\').play(\'walk\')`. 픽셀아트라면 게임을 `pixelArt: true`로 만드세요.'],
+    note:'Godot, Unity, PixiJS에는 Aseprite JSON 대신 각자의 대상을 고르세요. [[game/aseprite-to-godot|Aseprite를 Godot로]], [[game/aseprite-to-unity|Aseprite를 Unity로]], [[game/aseprite-json-to-pixi|Aseprite JSON을 PixiJS로]] 참고.'},
+   verify:{steps:[
+    '`frames`의 항목 수는 프레임 수에 내보내기 안내가 말한 반복 항목 수를 더한 값입니다.',
+    '게임에서 태그를 재생해 한 사이클 시간을 Aseprite와 비교하세요(walk: 6 × 100 ms = 0.6초).',
+    '`hero.png`를 열어 보세요. 트림된 프레임이 빽빽하게 패킹되어 같은 프레임을 격자로 내보낼 때보다 시트가 작습니다.']},
+   trouble:{rows:[
+    ['“Aseprite JSON describes one sheet image” 오류','현재 페이지 크기 한도로는 프레임이 한 페이지에 다 들어가지 않습니다','패킹·내보내기의 페이지 크기 설정','페이지 한도를 올리거나, Phaser 프리셋(멀티아틀라스)이나 PixiJS 8(연결된 페이지)을 쓰세요'],
+    ['Phaser에서 애니메이션이 안 생김','JSON에 `frameTags`가 없거나, 키가 단순한 프레임 번호가 아닙니다','`frames`의 첫 키와 `meta.frameTags`가 있는지 봅니다','Nerulio의 Aseprite JSON을 쓰거나, Aseprite에서 내보낼 때 Item Filename을 `{frame}`으로 두고 Meta의 Tags를 켜세요'],
+    ['직접 만든 로더에서 프레임이 튐','`spriteSourceSize`를 무시해서 트림된 프레임이 오프셋을 잃었습니다','트림된 프레임의 위치를 `spriteSourceSize`와 비교합니다','각 프레임을 `sourceSize` 안의 `spriteSourceSize.x/y`에 그리거나 트림을 끄세요'],
+    ['읽는 프로그램에서 프레임이 옆으로 누움','패킹 때 회전을 허용했습니다. Aseprite 자체는 회전된 프레임을 쓰지 않습니다','`frames`에 `"rotated": true`','이 내보내기에서는 회전을 끄세요'],
+    ['게임에서 픽셀아트가 흐릿함','엔진이 텍스처를 선형 필터로 그립니다','가장자리를 확대해 봅니다','Phaser는 게임 설정에 `pixelArt: true`, 다른 엔진은 최근접 필터']]},
+   alternatives:{rows:[
+    ['Aseprite의 File > Export Sprite Sheet, 또는 `aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','Aseprite가 있고 그 자체의 배치 옵션을 쓰고 싶을 때. `--sheet-type packed`는 패킹, `--trim`은 트림합니다.'],
+    ['Aseprite JSON 대신 엔진 대상','엔진이 Aseprite JSON으로 애니메이션을 만들지 않을 때(PixiJS, Godot, Unity). [[game/keep-aseprite-tags-when-packing|대상별로 무엇이 남는지]] 참고.']]},
+   limits:['Aseprite JSON은 한 페이지입니다. 아주 큰 세트는 멀티팩이 되는 엔진 프리셋이 필요합니다.','레이어를 따로 시트로 내보내지는 않습니다.'],
+   versions:{body:['Nerulio의 Aseprite JSON은 Phaser 3.90과 4.2가 `load.aseprite`와 `createFromAseprite`로 불러왔고, PixiJS 8.21이 프레임을 읽었습니다. Aseprite가 직접 만든 JSON도 기준으로 같은 검사를 통과했습니다. 바탕이 되는 `.aseprite` 읽기는 실제 파일 231개로 확인했습니다. 위의 Aseprite·Phaser 내용은 각 공식 문서를 따릅니다.'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  },
+  ja:{
+   answer:'`.aseprite`ファイルをドロップしてパック＆書き出しを開くと、フレームがPNGにパックされ（トリム、同一フレームは1回だけ保存）、エンジンが読むデータファイルと一緒に書き出されます。Aseprite JSONターゲットはAseprite自身のFile > Export Sprite Sheetと同じ構造です。`duration`付きの`frames`、`meta.frameTags`、`meta.slices`を、ハッシュか配列で、1ページに、Phaserの`createFromAseprite`が前提とする`0`、`1`、…のフレームキーで書きます。Godot、Unity、PixiJSなど他のターゲットは、タグとタイミングをそれぞれの形式で持たせます。',
+   concept:{title:'Aseprite JSON付きスプライトシートの中身',body:[
+    'スプライトシートは、全フレームを載せた画像1枚と、各フレームの位置を示すデータファイルです。Aseprite JSONのフレーム項目には、`frame`（シート上の矩形）、`rotated`、`trimmed`、`spriteSourceSize`（元のキャンバス内でのトリム後の矩形の位置）、`sourceSize`（キャンバス）、ミリ秒の`duration`があります。`meta`には画像名・サイズ・スケールがあり、指定すれば`frameTags`（`name`、`from`、`to`、`direction`）と`slices`が入ります。',
+    'ハッシュと配列の違いは`frames`だけです。ハッシュはフレーム名をキーにしたオブジェクト、配列は各項目に`filename`を持つリストです。フレーム名はAsepriteのファイル名形式から決まり、Phaserの`createFromAseprite`はアイテムのファイル名が`{frame}`だけであることを前提にしているので、キーは`0`、`1`、`2` …になります。',
+    'タグはフレームリスト上の`from`–`to`の範囲なので、各タグは1つの連続した並びでなければなりません。Nerulioはパックしてもこれを守ります。2つのタグが共有するフレームや、順番の乱れたタグのフレームには同じ領域を指す項目をもう1つ作り、書き出しメモに繰り返した項目の数を書きます。'],
+    terms:[['spriteSourceSize','元のフレーム内での、トリム後のピクセルの位置とサイズ。'],['sourceSize','トリム前の元のフレーム（キャンバス）サイズ。'],['frameTags','Asepriteのアニメーション：名前、最初と最後のフレーム、方向、設定されていれば繰り返し回数。'],['エイリアス','見えるピクセルが他のフレームと同じフレームは1回だけ保存し、両方の項目がそこを指します。']]},
+   example:{title:'具体例：トリムされたフレーム1つとタグ2つのJSON',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    'トリム: 32 × 32 = 1024 px² → 18 × 29 = 522 px² だけ保存 (−49 %)、(7, 3) に描き戻す'],
+    after:'無限ループのタグには`repeat`がなく、1回再生のタグは`"repeat": "1"`です。ピボット(16, 32)は32 × 32キャンバスの下中央で、ファイルにピボットスライスがないときに使います。キーは元ファイルではなく、このリストでの位置です。'},
+   mapping:{head:['.asepriteでは','Aseprite JSONでは','補足'],rows:[
+    ['フレームのピクセル（表示中の全レイヤー）','PNG上のトリム後の領域：`frame` + `spriteSourceSize`','レイヤーは合成、同一フレームは1回だけ保存'],
+    ['フレームの長さ','msの`duration`','整数ミリ秒'],
+    ['タグ','`from`、`to`、`direction`を持つ`meta.frameTags`の項目','共有・順不同のフレームは項目を追加'],
+    ['繰り返し','有限なら文字列の`repeat`','無限ループのタグにはない'],
+    ['ピボットスライス（なければ下中央）','`meta.slices`の`pivot`スライス、変わる位置にキー','範囲 = フレームのキャンバス'],
+    ['ヒット・ハートボックス','種類と番号ごとにスライス1つ、ボックスが終わる位置に空のキー','矩形のみ'],
+    ['レイヤー','`meta.layers`に1項目（`Layer 1`）','シートには合成済みのフレーム'],
+    ['ページ','PNGちょうど1枚','このターゲットは1ページにパックし直す']]},
+   outputs:{rows:[
+    ['hero.png','パック済みのシート。このターゲットでは1ページです。'],
+    ['hero.json','`frameTags`と`slices`を持つAseprite JSON（ハッシュまたは配列）。'],
+    ['README-ASEPRITE-JSON.md','これらのファイルをPhaserで読み込むコードと、PixiJSがここから何を読むか。']]},
+   target:{title:'Phaser 3・4で読み込む',steps:[
+    '`hero.png`と`hero.json`をゲームのアセットフォルダにコピーします。',
+    '`preload()`で：`this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`。',
+    '`create()`で：`this.anims.createFromAseprite(\'hero\')`がタグごとにタグ名のアニメーションを作ります。',
+    '追加して再生：`this.add.sprite(100, 100, \'hero\').play(\'walk\')`。ピクセルアートならゲームを`pixelArt: true`で作成してください。'],
+    note:'Godot、Unity、PixiJSにはAseprite JSONではなくそれぞれのターゲットを選んでください。[[game/aseprite-to-godot|AsepriteからGodotへ]]、[[game/aseprite-to-unity|AsepriteからUnityへ]]、[[game/aseprite-json-to-pixi|Aseprite JSONからPixiJSへ]]を参照。'},
+   verify:{steps:[
+    '`frames`の項目数は、フレーム数に書き出しメモが示す繰り返し項目数を足した数です。',
+    'ゲームでタグを再生し、1サイクルの時間をAsepriteと比べます（walk：6 × 100 ms = 0.6秒）。',
+    '`hero.png`を開きます。トリムされたフレームが詰めてパックされ、同じフレームをグリッドで書き出すよりシートが小さくなっています。']},
+   trouble:{rows:[
+    ['「Aseprite JSON describes one sheet image」エラー','現在のページサイズ上限では、フレームが1ページに収まりません','パック＆書き出しのページサイズ設定','ページ上限を上げるか、Phaserプリセット（マルチアトラス）かPixiJS 8（リンクされたページ）を使ってください'],
+    ['Phaserでアニメーションができない','JSONに`frameTags`がないか、キーが単純なフレーム番号ではありません','`frames`の最初のキーと`meta.frameTags`の有無を見ます','NerulioのAseprite JSONを使うか、Asepriteから書き出すときにItem Filenameを`{frame}`にし、MetaのTagsをオンにしてください'],
+    ['自作ローダーでフレームが跳ねる','`spriteSourceSize`を無視しているため、トリムされたフレームがオフセットを失っています','トリムされたフレームの位置を`spriteSourceSize`と比べます','各フレームを`sourceSize`内の`spriteSourceSize.x/y`に描くか、トリムをオフにしてください'],
+    ['読み込み側でフレームが横倒しになる','パック時に回転を許可しました。Aseprite自身は回転したフレームを書きません','`frames`に`"rotated": true`','この書き出しでは回転をオフにしてください'],
+    ['ゲームでピクセルアートがぼやける','エンジンがテクスチャを線形フィルタで描いています','縁を拡大してみます','Phaserはゲーム設定で`pixelArt: true`、他のエンジンはニアレストのフィルタ']]},
+   alternatives:{rows:[
+    ['AsepriteのFile > Export Sprite Sheet、または`aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','Asepriteがあり、その配置オプションを使いたいとき。`--sheet-type packed`でパック、`--trim`でトリムします。'],
+    ['Aseprite JSONではなくエンジンのターゲット','エンジンがAseprite JSONからアニメーションを作らないとき（PixiJS、Godot、Unity）。[[game/keep-aseprite-tags-when-packing|ターゲットごとに何が残るか]]を参照。']]},
+   limits:['Aseprite JSONは1ページです。非常に大きなセットにはマルチパック対応のエンジンプリセットが必要です。','レイヤーを別々のシートとしては書き出しません。'],
+   versions:{body:['NerulioのAseprite JSONは、Phaser 3.90と4.2が`load.aseprite`と`createFromAseprite`で読み込み、PixiJS 8.21がフレームを読みました。Aseprite自身が作ったJSONも基準として同じ検査に通っています。元になる`.aseprite`の読み込みは実ファイル231個で確認済みです。上のAsepriteとPhaserの内容はそれぞれの公式ドキュメントに基づきます。'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  }
+ },
+/* ============================================================================ aseprite-json-to-pixi */
+ 'game/aseprite-json-to-pixi':{
+  type:'conversion',
+  intent:{primary:'play Aseprite JSON animations (frameTags, durations) in PixiJS 8',secondary:['PixiJS ignores frameTags','AnimatedSprite with per-frame time','spritesheet animations map from Aseprite tags'],
+   goal:'an AnimatedSprite per Aseprite tag that plays in the tag\'s direction at each frame\'s own duration',input:'Aseprite JSON (hash or array) + its PNG',output:'PixiJS 8 spritesheet JSON (animations map, anchors, meta.nerulio.animations) + PNG + README',target:'PixiJS 8 (verified 8.21)',support:'full',
+   evidence:['src/studio/sprite/atlas-data.js (Aseprite JSON import: frames, duration, frameTags direction/repeat; meta.slices not read)','src/game/export/atlas-json.js pixiFiles (animations in playback order, anchor = pivot, meta.nerulio.animations durationsMs, related_multi_packs)','docs/STUDIO-PACK.md (PixiJS 8.21 loads rotated and multi-page)','docs/ENGINE-VERIFY.md (Pixi builds no animations from frameTags)'],
+   external:['PixiJS docs: Spritesheet (frames, animations, anchor only from TexturePacker-style data, meta.scale → resolution)','AnimatedSprite FrameObject {texture, time ms}, loop, updateAnchor','SCALE_MODE nearest']},
+  en:{
+   answer:"PixiJS 8 loads an Aseprite JSON as a spritesheet, but it reads only the frames: `meta.frameTags` and each frame's `duration` are ignored, so `sheet.animations` stays empty. Drop the JSON with its PNG into Nerulio and export PixiJS 8: the file gets an `animations` map (one entry per tag, frames in playback order), an `anchor` per frame, and the milliseconds in `meta.nerulio.animations`, which you pass to `AnimatedSprite` as `{texture, time}`. Verified with PixiJS 8.21.",
+   concept:{title:'What PixiJS reads from a spritesheet JSON',body:[
+    "PixiJS's `Spritesheet` takes the TexturePacker layout: `frames` (each with `frame`, `spriteSourceSize`, `sourceSize` and an optional `anchor`), an optional `animations` object that maps a name to a list of frame names, and `meta` with the image and `scale`. The PixiJS docs say default anchors and animation groups are only supported in TexturePacker-style data; Aseprite's `frameTags` are not part of that format, and the verification runs confirm that PixiJS builds no animations from them.",
+    "`AnimatedSprite` plays a list of textures at one speed, or a list of `{texture, time}` objects where `time` is in milliseconds. It has `loop`, `updateAnchor` and callbacks such as `onComplete`, but no ping-pong and no repeat count, so the direction has to be written into the frame order.",
+    "Nerulio's PixiJS 8 export does both. `animations[tag]` lists the frame keys in the order one cycle plays (reverse and ping-pong written out), and `meta.nerulio.animations[tag]` holds `fps`, `loop`, `direction` and `durationsMs`, one number per step, ready to pair with the textures."],
+    terms:[['Spritesheet','The PixiJS class that turns the JSON into `textures` and `animations`.'],['FrameObject','`{texture, time}`: one step of an AnimatedSprite, time in milliseconds.'],['anchor','A frame texture\'s default anchor, 0–1 of its size; Nerulio writes the frame pivot.'],['related_multi_packs','The other JSON pages that load together with this one.']]},
+   example:{title:'Example: a ping-pong walk tag from Aseprite JSON to PixiJS',lines:[
+    'Aseprite JSON  frames "4" … "9", "duration": 100 each',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 10 values]',
+    '               one cycle: 6 + 4 = 10 steps × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'Frame keys come from the frame names in your JSON: with Aseprite\'s default names such as `hero 4.aseprite` they become `hero_4`.'},
+   mapping:{head:['In the exported JSON','PixiJS API','What to do'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`: an array of textures','Map it to `{texture, time}` objects'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','One value per step, same order'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','Set it; a finite repeat count has no PixiJS equivalent'],
+    ['`frames[key].anchor` (the pivot)','The texture\'s default anchor','Set `updateAnchor = true` when pivots differ per frame'],
+    ['`meta.scale`','`sheet.resolution`','An @2x sheet draws at the @1x size'],
+    ['`meta.related_multi_packs`','Loaded with the first page (`linkedSheets`)','Textures of other pages come from the cache']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8 spritesheet: `frames` with `anchor`, `animations`, `meta.nerulio.animations`; several pages give `hero-0.json`, `hero-1.json` … linked by `related_multi_packs`.'],
+    ['hero.png','The packed page (rotation is allowed for this target).'],
+    ['README-PIXI.md','The loading and AnimatedSprite code for this bundle.']]},
+   target:{title:'Play it in PixiJS 8',steps:[
+    'Put `hero.json` and `hero.png` next to each other where your app serves assets.',
+    'For pixel art, before loading: `TextureSource.defaultOptions.scaleMode = \'nearest\'`.',
+    '`const sheet = await Assets.load(\'hero.json\')` loads the page(s) and builds `sheet.textures` and `sheet.animations`.',
+    'Build each animation from `sheet.animations[tag]` and `durationsMs` as in the example, set `loop`, then `play()` and add it to the stage.',
+    'If the pivot moves between frames, set `updateAnchor = true` on the AnimatedSprite so each frame uses its own anchor.']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)` lists every Aseprite tag name.',
+    'A 10-step ping-pong walk at 100 ms per step loops once per second; `onLoop` fires at that rhythm.',
+    'Zoom the canvas: with `nearest` scaling the pixel edges stay square.']},
+   trouble:{rows:[
+    ['`sheet.animations` is empty','The original Aseprite JSON was loaded instead of the exported one; PixiJS ignores `frameTags`','Check which JSON `Assets.load` receives','Load Nerulio\'s PixiJS 8 export'],
+    ['Every frame plays at the same speed','The textures were passed without times, so `animationSpeed` applies','Look at the AnimatedSprite constructor call','Pass `{texture, time}` objects built from `durationsMs`'],
+    ['The sprite jumps or slides between frames','Pivots differ per frame but the sprite keeps the first frame\'s anchor','Compare `frames[key].anchor` values','Set `updateAnchor = true`, or give the tag one pivot in Nerulio (P)'],
+    ['Anchors are all bottom centre','The Aseprite JSON\'s `meta.slices` are not read on import, so frames start with the default pivot','Look at `anchor` in the export','Place the pivot with P in Nerulio, or import the `.aseprite` file itself, whose pivot slice is read'],
+    ['The @2x sheet draws at double size','`meta.scale` says 1, so PixiJS treats it as resolution 1','`sheet.resolution`','Export the @2x variant from Nerulio; it writes `meta.scale` "2"']]},
+   alternatives:{rows:[
+    ['Write your own loader for `frameTags` and `duration`','You must keep the Aseprite JSON unchanged in your pipeline; read `meta.frameTags` and the durations and build FrameObjects yourself.'],
+    ['[[game/aseprite-to-sprite-sheet|Export from the .aseprite file]]','You have the `.aseprite` source: its slices (pivot, boxes) are read too, which an Aseprite JSON import does not do.'],
+    ['[[game/pixi-spritesheet-json|A PixiJS spritesheet from loose frames]]','Your frames are separate PNGs rather than an Aseprite export.']]},
+   limits:['`meta.slices` in an Aseprite JSON are not read; pivots from slices need the `.aseprite` file.','PixiJS has no repeat count: an animation either loops or plays once.'],
+   versions:{body:['The PixiJS 8 target was loaded and drawn by PixiJS 8.21, rotated and multi-page atlases included, and an @2x variant drew at the @1x size from `meta.scale`. The PixiJS behaviour described here follows the PixiJS 8 API documentation.'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  },
+  ko:{
+   answer:'PixiJS 8은 Aseprite JSON을 스프라이트시트로 불러오지만 프레임만 읽습니다. `meta.frameTags`와 프레임별 `duration`은 무시되어 `sheet.animations`가 비어 있습니다. JSON과 PNG를 함께 Nerulio에 넣고 PixiJS 8로 내보내면, 파일에 `animations` 맵(태그마다 항목 하나, 재생 순서의 프레임), 프레임별 `anchor`, `meta.nerulio.animations`의 밀리초가 들어갑니다. 이 밀리초를 `{texture, time}`으로 `AnimatedSprite`에 넘기면 됩니다. PixiJS 8.21로 확인했습니다.',
+   concept:{title:'PixiJS가 스프라이트시트 JSON에서 읽는 것',body:[
+    'PixiJS의 `Spritesheet`는 TexturePacker 구조를 받습니다. `frames`(각각 `frame`, `spriteSourceSize`, `sourceSize`, 선택적 `anchor`), 이름을 프레임 이름 목록에 연결하는 선택적 `animations` 객체, 이미지와 `scale`이 있는 `meta`입니다. PixiJS 문서는 기본 앵커와 애니메이션 묶음이 TexturePacker 형식 데이터에서만 지원된다고 설명하며, Aseprite의 `frameTags`는 이 형식에 없습니다. 검증에서도 PixiJS는 frameTags로 애니메이션을 만들지 않았습니다.',
+    '`AnimatedSprite`는 텍스처 목록을 한 속도로 재생하거나, `time`이 밀리초인 `{texture, time}` 객체 목록을 재생합니다. `loop`, `updateAnchor`, `onComplete` 같은 콜백은 있지만 핑퐁과 반복 횟수는 없으므로, 방향은 프레임 순서에 풀어 써야 합니다.',
+    'Nerulio의 PixiJS 8 내보내기는 두 가지를 모두 합니다. `animations[tag]`에 한 사이클의 재생 순서대로 프레임 키를 적고(역방향·핑퐁을 펼쳐서), `meta.nerulio.animations[tag]`에 `fps`, `loop`, `direction`, 단계마다 숫자 하나인 `durationsMs`를 넣어 텍스처와 바로 짝지을 수 있게 합니다.'],
+    terms:[['Spritesheet','JSON을 `textures`와 `animations`로 바꾸는 PixiJS 클래스.'],['FrameObject','`{texture, time}`: AnimatedSprite의 한 단계, 시간은 밀리초.'],['anchor','프레임 텍스처의 기본 앵커(크기 대비 0–1). Nerulio는 프레임 피벗을 씁니다.'],['related_multi_packs','이 페이지와 함께 불러오는 다른 JSON 페이지 목록.']]},
+   example:{title:'예시: 핑퐁 walk 태그를 Aseprite JSON에서 PixiJS로',lines:[
+    'Aseprite JSON  프레임 "4" … "9", 각각 "duration": 100',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 값 10개]',
+    '               한 사이클: 6 + 4 = 10단계 × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'프레임 키는 JSON의 프레임 이름에서 옵니다. `hero 4.aseprite` 같은 Aseprite 기본 이름이면 `hero_4`가 됩니다.'},
+   mapping:{head:['내보낸 JSON에서','PixiJS API','할 일'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`: 텍스처 배열','`{texture, time}` 객체로 변환'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','단계마다 값 하나, 같은 순서'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','설정하세요. 유한 반복 횟수는 PixiJS에 대응 항목이 없습니다'],
+    ['`frames[key].anchor`(피벗)','텍스처의 기본 앵커','프레임마다 피벗이 다르면 `updateAnchor = true`'],
+    ['`meta.scale`','`sheet.resolution`','@2x 시트가 @1x 크기로 그려집니다'],
+    ['`meta.related_multi_packs`','첫 페이지와 함께 로드(`linkedSheets`)','다른 페이지의 텍스처는 캐시에서 가져옵니다']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8 스프라이트시트: `anchor`가 있는 `frames`, `animations`, `meta.nerulio.animations`. 페이지가 여럿이면 `hero-0.json`, `hero-1.json` …이 `related_multi_packs`로 연결됩니다.'],
+    ['hero.png','패킹된 페이지(이 대상은 회전을 허용합니다).'],
+    ['README-PIXI.md','이 묶음을 불러오고 AnimatedSprite를 만드는 코드.']]},
+   target:{title:'PixiJS 8에서 재생하기',steps:[
+    '`hero.json`과 `hero.png`를 앱이 에셋을 제공하는 곳에 나란히 둡니다.',
+    '픽셀아트라면 불러오기 전에: `TextureSource.defaultOptions.scaleMode = \'nearest\'`.',
+    '`const sheet = await Assets.load(\'hero.json\')`가 페이지를 불러오고 `sheet.textures`와 `sheet.animations`를 만듭니다.',
+    '예시처럼 `sheet.animations[tag]`와 `durationsMs`로 애니메이션을 만들고 `loop`를 설정한 뒤 `play()`하고 스테이지에 추가합니다.',
+    '프레임마다 피벗이 움직이면 AnimatedSprite에 `updateAnchor = true`를 설정해 프레임마다 자기 앵커를 쓰게 하세요.']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)`에 Aseprite 태그 이름이 모두 나옵니다.',
+    '단계당 100 ms인 10단계 핑퐁 walk는 1초에 한 번 돌고, `onLoop`가 그 간격으로 호출됩니다.',
+    '캔버스를 확대하세요. `nearest` 배율이면 픽셀 가장자리가 네모로 남습니다.']},
+   trouble:{rows:[
+    ['`sheet.animations`가 비어 있음','내보낸 파일이 아니라 원래 Aseprite JSON을 불러왔습니다. PixiJS는 `frameTags`를 무시합니다','`Assets.load`가 어떤 JSON을 받는지 확인합니다','Nerulio의 PixiJS 8 내보내기를 불러오세요'],
+    ['모든 프레임이 같은 속도로 재생됨','시간 없이 텍스처만 넘겨서 `animationSpeed`가 적용됩니다','AnimatedSprite 생성 코드를 봅니다','`durationsMs`로 만든 `{texture, time}` 객체를 넘기세요'],
+    ['프레임 사이에 스프라이트가 튀거나 미끄러짐','프레임마다 피벗이 다른데 스프라이트가 첫 프레임의 앵커를 유지합니다','`frames[key].anchor` 값을 비교합니다','`updateAnchor = true`로 하거나, Nerulio에서 태그에 피벗을 하나로(P) 정하세요'],
+    ['앵커가 전부 아래 가운데','가져올 때 Aseprite JSON의 `meta.slices`를 읽지 않아 기본 피벗으로 시작합니다','내보낸 파일의 `anchor`를 봅니다','Nerulio에서 P로 피벗을 놓거나, 피벗 슬라이스를 읽는 `.aseprite` 파일 자체를 가져오세요'],
+    ['@2x 시트가 두 배 크기로 그려짐','`meta.scale`이 1이라 PixiJS가 해상도 1로 봅니다','`sheet.resolution`','Nerulio에서 @2x 변형을 내보내세요. `meta.scale`을 "2"로 씁니다']]},
+   alternatives:{rows:[
+    ['`frameTags`와 `duration`을 읽는 로더를 직접 작성','파이프라인에서 Aseprite JSON을 그대로 써야 할 때. `meta.frameTags`와 길이를 읽어 FrameObject를 직접 만드세요.'],
+    ['[[game/aseprite-to-sprite-sheet|.aseprite 파일에서 내보내기]]','`.aseprite` 원본이 있을 때. Aseprite JSON 가져오기와 달리 슬라이스(피벗, 박스)도 읽습니다.'],
+    ['[[game/pixi-spritesheet-json|낱장 프레임으로 PixiJS 스프라이트시트 만들기]]','프레임이 Aseprite 내보내기가 아니라 따로 된 PNG일 때.']]},
+   limits:['Aseprite JSON의 `meta.slices`는 읽지 않습니다. 슬라이스 피벗은 `.aseprite` 파일이 필요합니다.','PixiJS에는 반복 횟수가 없어 애니메이션은 반복하거나 한 번 재생하거나 둘 중 하나입니다.'],
+   versions:{body:['PixiJS 8 대상은 PixiJS 8.21이 회전·다중 페이지 아틀라스까지 불러와 그렸고, @2x 변형은 `meta.scale`에 따라 @1x 크기로 그렸습니다. 여기 적은 PixiJS 동작은 PixiJS 8 API 문서를 따릅니다.'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  },
+  ja:{
+   answer:'PixiJS 8はAseprite JSONをスプライトシートとして読み込みますが、読むのはフレームだけです。`meta.frameTags`と各フレームの`duration`は無視され、`sheet.animations`は空のままです。JSONとPNGを一緒にNerulioへドロップしてPixiJS 8で書き出すと、`animations`マップ（タグごとに1項目、再生順のフレーム）、フレームごとの`anchor`、`meta.nerulio.animations`のミリ秒が入ります。このミリ秒を`{texture, time}`として`AnimatedSprite`に渡します。PixiJS 8.21で確認済みです。',
+   concept:{title:'PixiJSがスプライトシートJSONから読むもの',body:[
+    'PixiJSの`Spritesheet`はTexturePackerの構造を受け取ります。`frames`（それぞれ`frame`、`spriteSourceSize`、`sourceSize`、任意の`anchor`）、名前をフレーム名のリストに結びつける任意の`animations`オブジェクト、画像と`scale`を持つ`meta`です。PixiJSのドキュメントによれば既定のアンカーとアニメーションのグループはTexturePacker形式のデータでのみサポートされ、Asepriteの`frameTags`はこの形式にありません。検証でもPixiJSはframeTagsからアニメーションを作りませんでした。',
+    '`AnimatedSprite`はテクスチャのリストを1つの速度で再生するか、`time`がミリ秒の`{texture, time}`オブジェクトのリストを再生します。`loop`、`updateAnchor`、`onComplete`などのコールバックはありますが、ピンポンや繰り返し回数はないので、方向はフレーム順に展開して書く必要があります。',
+    'NerulioのPixiJS 8書き出しはその両方を行います。`animations[tag]`に1サイクルの再生順でフレームキーを並べ（逆方向・ピンポンは展開）、`meta.nerulio.animations[tag]`に`fps`、`loop`、`direction`、ステップごとに1つの数値を持つ`durationsMs`を入れ、テクスチャとそのまま組み合わせられるようにします。'],
+    terms:[['Spritesheet','JSONを`textures`と`animations`に変換するPixiJSのクラス。'],['FrameObject','`{texture, time}`：AnimatedSpriteの1ステップ、時間はミリ秒。'],['anchor','フレームのテクスチャの既定アンカー（サイズに対する0–1）。Nerulioはフレームのピボットを書きます。'],['related_multi_packs','このページと一緒に読み込まれる他のJSONページ。']]},
+   example:{title:'具体例：ピンポンのwalkタグをAseprite JSONからPixiJSへ',lines:[
+    'Aseprite JSON  フレーム "4" … "9"、それぞれ "duration": 100',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 10個]',
+    '               1サイクル: 6 + 4 = 10ステップ × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'フレームキーはJSONのフレーム名から作られます。`hero 4.aseprite`のようなAsepriteの既定の名前なら`hero_4`になります。'},
+   mapping:{head:['書き出したJSONでは','PixiJSのAPI','すること'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`：テクスチャの配列','`{texture, time}`オブジェクトに変換'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','ステップごとに1つ、同じ順'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','設定する。有限の繰り返し回数はPixiJSに対応がない'],
+    ['`frames[key].anchor`（ピボット）','テクスチャの既定アンカー','フレームごとにピボットが違うなら`updateAnchor = true`'],
+    ['`meta.scale`','`sheet.resolution`','@2xのシートが@1xのサイズで描かれる'],
+    ['`meta.related_multi_packs`','最初のページと一緒に読み込み（`linkedSheets`）','他のページのテクスチャはキャッシュから取得']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8スプライトシート：`anchor`付きの`frames`、`animations`、`meta.nerulio.animations`。複数ページなら`hero-0.json`、`hero-1.json` …が`related_multi_packs`でつながります。'],
+    ['hero.png','パック済みのページ（このターゲットは回転を許可します）。'],
+    ['README-PIXI.md','このバンドルを読み込み、AnimatedSpriteを作るコード。']]},
+   target:{title:'PixiJS 8で再生する',steps:[
+    '`hero.json`と`hero.png`を、アプリがアセットを配信する場所に並べて置きます。',
+    'ピクセルアートなら読み込み前に：`TextureSource.defaultOptions.scaleMode = \'nearest\'`。',
+    '`const sheet = await Assets.load(\'hero.json\')`がページを読み込み、`sheet.textures`と`sheet.animations`を作ります。',
+    '例のように`sheet.animations[tag]`と`durationsMs`からアニメーションを作り、`loop`を設定して`play()`し、ステージに追加します。',
+    'フレームごとにピボットが動くなら、AnimatedSpriteに`updateAnchor = true`を設定して各フレームが自分のアンカーを使うようにします。']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)`にAsepriteのタグ名がすべて出ます。',
+    '1ステップ100 msの10ステップのピンポンwalkは1秒に1回ループし、`onLoop`がその間隔で呼ばれます。',
+    'キャンバスを拡大します。`nearest`ならピクセルの縁が四角いままです。']},
+   trouble:{rows:[
+    ['`sheet.animations`が空','書き出したファイルではなく元のAseprite JSONを読み込んでいます。PixiJSは`frameTags`を無視します','`Assets.load`がどのJSONを受け取っているか確認します','NerulioのPixiJS 8書き出しを読み込んでください'],
+    ['全フレームが同じ速度で再生される','時間なしでテクスチャだけ渡したため、`animationSpeed`が使われています','AnimatedSpriteの生成コードを見ます','`durationsMs`から作った`{texture, time}`オブジェクトを渡してください'],
+    ['フレーム間でスプライトが跳ねる・滑る','フレームごとにピボットが違うのに、スプライトが最初のフレームのアンカーのままです','`frames[key].anchor`の値を比べます','`updateAnchor = true`にするか、Nerulioでタグのピボットを1つ（P）に揃えてください'],
+    ['アンカーがすべて下中央','読み込み時にAseprite JSONの`meta.slices`を読まないため、既定のピボットから始まっています','書き出したファイルの`anchor`を見ます','NerulioでPキーでピボットを置くか、ピボットスライスを読める`.aseprite`ファイル自体を読み込んでください'],
+    ['@2xのシートが2倍の大きさで描かれる','`meta.scale`が1なので、PixiJSが解像度1として扱っています','`sheet.resolution`','Nerulioから@2xのバリアントを書き出してください。`meta.scale`を"2"で書きます']]},
+   alternatives:{rows:[
+    ['`frameTags`と`duration`を読むローダーを自作する','パイプラインでAseprite JSONをそのまま使う必要があるとき。`meta.frameTags`と長さを読み、FrameObjectを自分で作ります。'],
+    ['[[game/aseprite-to-sprite-sheet|.asepriteファイルから書き出す]]','`.aseprite`の元データがあるとき。Aseprite JSONの読み込みと違い、スライス（ピボット、ボックス）も読みます。'],
+    ['[[game/pixi-spritesheet-json|バラのフレームからPixiJSスプライトシートを作る]]','フレームがAsepriteの書き出しではなく、別々のPNGのとき。']]},
+   limits:['Aseprite JSONの`meta.slices`は読みません。スライスのピボットには`.aseprite`ファイルが必要です。','PixiJSには繰り返し回数がなく、アニメーションはループするか1回再生するかのどちらかです。'],
+   versions:{body:['PixiJS 8ターゲットは、回転・複数ページのアトラスも含めてPixiJS 8.21が読み込んで描画し、@2xのバリアントは`meta.scale`に従って@1xのサイズで描かれました。ここに書いたPixiJSの挙動はPixiJS 8のAPIドキュメントに基づきます。'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  }
+ },
+/* ============================================================================ keep-aseprite-tags-when-packing */
+ 'game/keep-aseprite-tags-when-packing':{
+  type:'troubleshoot',
+  intent:{primary:'Aseprite tags and frame durations are lost after packing a sprite sheet',secondary:['Aseprite JSON has no frameTags','all frames became one animation','which packer targets keep tags and timing'],
+   goal:'understand where the tags were dropped and get a packed atlas whose engine file still has every tag, duration and pivot',input:'.aseprite, or Aseprite JSON + PNG, or loose PNG frames exported from Aseprite',output:'an engine bundle (Godot, Unity, Phaser, PixiJS, Aseprite JSON …) with tags and timing',target:'the engine loader',support:'partial',
+   evidence:['src/studio/sprite/atlas-data.js (frameTags when present, else grouping by names; no timing → 100 ms)','src/studio/sprite/import-plan.js frameKey / groupFrameFiles','src/game/export/atlas-json.js asepriteSequence (contiguous runs, repeated entries)','docs/STUDIO-PACK.md (per-target table, Defold one fps, GameMaker UNVERIFIED)','docs/STUDIO-SPRITE.md §10 (231/231 tags and durations)'],
+   external:['Aseprite CLI: --list-tags adds frameTags to --data','Phaser createFromAseprite: Tags must be ticked in Meta, Item Filename {frame}']},
+  en:{
+   answer:"Tags and frame durations disappear when the packer never receives them: PNG frames carry no tags or timing, and an Aseprite JSON exported without Tags in its Meta options (or without `--list-tags` on the command line) has no `meta.frameTags`. Check what went into the packer first. Packing the `.aseprite` file itself in Nerulio, or its JSON with `frameTags`, keeps every tag, direction, repeat, per-frame duration and pivot, and writes them in each engine's own form; where a format has no field for them, the export note says so.",
+   concept:{title:'Where tags get lost',body:[
+    "An Aseprite tag is metadata: a name, a `from`–`to` range, a direction and a repeat count, stored in the `.aseprite` file next to each frame's duration. As soon as the frames leave Aseprite as PNG files, that metadata is gone; a packer can only guess animations from file names (`walk_01`, `walk_02` → `walk`) and has no durations, direction or repeat to write.",
+    "The JSON route keeps them only if you asked for them. Aseprite writes `meta.frameTags` when Tags is ticked in the export's Meta options, or with `--list-tags` together with `--data` on the command line. Without it the JSON still has every frame and its `duration`, but no animation names, and a loader such as Phaser's `createFromAseprite` has nothing to create.",
+    "The third place is the engine format. Some formats have no field for animations at all (a Spine/libGDX atlas lists regions only), some keep one speed per animation (Defold), and PixiJS reads animation names but no per-frame time. Nerulio writes what each format can hold and bakes direction into frame order where there is no field for it. It cannot recreate tags that are in none of its inputs: from bare PNG frames it groups by name, and you rebuild the rest on the Timeline."],
+    terms:[['frameTags','The `meta` array of an Aseprite JSON holding each tag\'s name, range and direction.'],['--list-tags','The Aseprite CLI option that adds the tags to the `--data` JSON.'],['Contiguous run','A tag\'s frames must be consecutive, because a tag is a `from`–`to` range.'],['Playback order','The frame sequence of one cycle with reverse or ping-pong written out.']]},
+   example:{title:'Example: the same file exported with and without tags',lines:[
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json',
+    '  → "frames": { "hero 0.aseprite": {…, "duration": 125}, … "hero 15.aseprite": {…} }',
+    '  → "meta": { "image": "hero.png", … }                      no "frameTags"',
+    '  → Nerulio import: names differ only by number → 1 animation "hero", 16 frames',
+    '',
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json --list-tags',
+    '  → "meta": { …, "frameTags": [ { "name": "idle", "from": 0, "to": 3, "direction": "forward" }, … ] }',
+    '  → Nerulio import: idle 0–3, walk 4–9, attack 10–15, durations kept',
+    '',
+    'hero.aseprite dropped directly → the same 3 tags + repeat counts + pivot and box slices'],
+    after:'In both JSON cases the per-frame `duration` survives; only the grouping into tags depends on `frameTags`. The key names follow the filename format of the export (`{title}`, `{frame}` …), so yours may differ.'},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags` prints the tag names; the Timeline in Nerulio should show the same tag lanes before you pack.',
+    'After export, count the animations in the engine file (Phaser `.anims.json`, PixiJS `animations`, Godot SpriteFrames panel) against that list.',
+    'Pick one tag and add up its frame times in the engine file; the sum should equal the tag\'s cycle in Aseprite (walk: 6 × 100 ms = 600 ms).',
+    'Read the export notes: repeated entries (a frame shared by two tags) and anything the target cannot store are listed there.']},
+   trouble:{rows:[
+    ['No animations after packing PNG frames','PNG files carry no tags or timing; the packer only saw file names','Your packer input is a folder of PNGs','Pack the `.aseprite` file (or its JSON with `frameTags`) instead; see [[game/aseprite-to-sprite-sheet|Aseprite to sprite sheet]]'],
+    ['The Aseprite JSON has no `frameTags`','Exported without Tags in the Meta options, or without `--list-tags` on the command line','Search the JSON for `frameTags`','Export again with Tags ticked or `--list-tags`, or drop the `.aseprite` itself'],
+    ['Every frame ended up in one animation','No `frameTags`, so Nerulio grouped by name, and the frame names differ only by their number (`hero 0`, `hero 1` …)','The Import panel\'s animations decision says the frames were grouped by name','Re-export with tags, or drag tags over the frames on the Timeline'],
+    ['A tag plays the wrong frames','A tool re-sorted the frames (for example `hero 10` before `hero 2`), so the `from`–`to` ranges point at other frames','Compare the frame order in `frames` with the tag ranges','Keep the original order; Nerulio sorts numbers naturally and keeps each tag one run, repeating shared frames'],
+    ['Tags survive but all frames play at the same speed','The target keeps one speed per animation (Defold), or the engine code ignores the stored times (PixiJS without `durationsMs`)','The target\'s row in the table above; your animation code','Use a target that stores per-frame time, or pass the times in code as in [[game/aseprite-json-to-pixi|Aseprite JSON to PixiJS]]'],
+    ['A ping-pong or play-three-times tag loops normally','The format has no field for direction or repeat: Godot keeps a loop flag, PixiJS only `loop`','Direction is written out as frame order; the repeat count is gone','Handle the count in code (for example on `animation_finished` in Godot)'],
+    ['The atlas has no animations at all','Spine/libGDX `.atlas` and CSS sprites list regions only','Open the file: no animation section','Use an engine target (Godot, Unity, Phaser, PixiJS) or Aseprite JSON']]},
+   alternatives:{rows:[
+    ['Aseprite\'s own sheet export with `--list-tags`','You only need Aseprite JSON for Phaser and have Aseprite installed.'],
+    ['[[game/texture-packer-free|A free texture packer in the browser]]','You pack many sprites into one atlas and still want Aseprite tags to reach the engine.']]},
+   limits:['Tags that exist in no input (bare PNG frames) cannot be recovered, only rebuilt by hand.','GameMaker strip timing is written but UNVERIFIED in GameMaker itself.'],
+   versions:{body:['The `.aseprite` round trip kept tags and durations on all 231 corpus files (reopened in Aseprite 1.3.18.6). Per-target results are from engine runs: Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90 and 4.2, PixiJS 8.21, Defold 1.13.1. The Aseprite export options and Phaser\'s requirements follow their documentation.'],sources:[ASE_CLI,ASE_TAGS,PHASER_ANIMS]}
+  },
+  ko:{
+   answer:'태그와 프레임 길이는 패커가 그것을 받지 못했을 때 사라집니다. PNG 프레임에는 태그도 타이밍도 없고, 내보내기 Meta 옵션에서 Tags를 켜지 않았거나(명령줄에서는 `--list-tags` 없이) 만든 Aseprite JSON에는 `meta.frameTags`가 없습니다. 먼저 패커에 무엇이 들어갔는지 확인하세요. Nerulio에서 `.aseprite` 파일 자체나 `frameTags`가 있는 JSON을 패킹하면 모든 태그·방향·반복·프레임별 길이·피벗을 유지해 엔진마다 그 엔진의 형식으로 씁니다. 형식에 해당 필드가 없으면 내보내기 안내가 알려 줍니다.',
+   concept:{title:'태그가 사라지는 곳',body:[
+    'Aseprite 태그는 메타데이터입니다. 이름, `from`–`to` 구간, 방향, 반복 횟수가 프레임별 길이와 함께 `.aseprite` 파일에 들어 있습니다. 프레임이 PNG 파일로 Aseprite를 떠나는 순간 이 정보는 사라지고, 패커는 파일 이름(`walk_01`, `walk_02` → `walk`)으로 애니메이션을 짐작할 뿐 길이·방향·반복은 쓸 수 없습니다.',
+    'JSON 경로는 요청했을 때만 태그를 남깁니다. Aseprite는 내보내기 Meta 옵션에서 Tags를 켜거나, 명령줄에서 `--data`와 함께 `--list-tags`를 주면 `meta.frameTags`를 씁니다. 없으면 JSON에 모든 프레임과 `duration`은 있지만 애니메이션 이름이 없어, Phaser의 `createFromAseprite` 같은 로더가 만들 것이 없습니다.',
+    '세 번째는 엔진 형식입니다. 애니메이션 필드가 아예 없는 형식(Spine/libGDX 아틀라스는 영역만 나열), 애니메이션마다 속도 하나만 두는 형식(Defold), 애니메이션 이름은 읽지만 프레임별 시간은 읽지 않는 PixiJS가 있습니다. Nerulio는 형식이 담을 수 있는 만큼 쓰고, 방향 필드가 없으면 프레임 순서에 방향을 풀어 넣습니다. 다만 어떤 입력에도 없는 태그는 되살릴 수 없습니다. 맨 PNG 프레임은 이름으로 묶고, 나머지는 타임라인에서 다시 만들어야 합니다.'],
+    terms:[['frameTags','Aseprite JSON의 `meta` 배열. 태그마다 이름, 구간, 방향이 있습니다.'],['--list-tags','`--data` JSON에 태그를 넣는 Aseprite 명령줄 옵션.'],['연속 구간','태그는 `from`–`to` 구간이라 프레임이 이어져 있어야 합니다.'],['재생 순서','역방향·핑퐁을 펼친 한 사이클의 프레임 순서.']]},
+   example:{title:'예시: 같은 파일을 태그 있이·없이 내보냈을 때',lines:[
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json',
+    '  → "frames": { "hero 0.aseprite": {…, "duration": 125}, … "hero 15.aseprite": {…} }',
+    '  → "meta": { "image": "hero.png", … }                      "frameTags" 없음',
+    '  → Nerulio 가져오기: 이름이 번호만 다름 → 애니메이션 "hero" 1개, 16프레임',
+    '',
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json --list-tags',
+    '  → "meta": { …, "frameTags": [ { "name": "idle", "from": 0, "to": 3, "direction": "forward" }, … ] }',
+    '  → Nerulio 가져오기: idle 0–3, walk 4–9, attack 10–15, 길이 유지',
+    '',
+    'hero.aseprite를 바로 넣으면 → 같은 태그 3개 + 반복 횟수 + 피벗·박스 슬라이스'],
+    after:'두 JSON 모두 프레임별 `duration`은 남습니다. 태그로 묶이는지만 `frameTags`에 달려 있습니다. 키 이름은 내보내기의 파일 이름 형식(`{title}`, `{frame}` …)을 따르므로 다를 수 있습니다.'},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags`가 태그 이름을 출력합니다. 패킹하기 전에 Nerulio 타임라인에도 같은 태그 줄이 보여야 합니다.',
+    '내보낸 뒤 엔진 파일의 애니메이션 수(Phaser `.anims.json`, PixiJS `animations`, Godot SpriteFrames 패널)를 그 목록과 비교하세요.',
+    '태그 하나를 골라 엔진 파일의 프레임 시간을 더해 보세요. Aseprite에서의 한 사이클과 같아야 합니다(walk: 6 × 100 ms = 600 ms).',
+    '내보내기 안내를 읽으세요. 반복된 항목(두 태그가 함께 쓰는 프레임)과 대상이 저장하지 못하는 것이 나옵니다.']},
+   trouble:{rows:[
+    ['PNG 프레임을 패킹했더니 애니메이션이 없음','PNG 파일에는 태그와 타이밍이 없고, 패커는 파일 이름만 봤습니다','패커 입력이 PNG 폴더입니다','`.aseprite` 파일(또는 `frameTags`가 있는 JSON)을 패킹하세요. [[game/aseprite-to-sprite-sheet|Aseprite를 스프라이트 시트로]] 참고'],
+    ['Aseprite JSON에 `frameTags`가 없음','Meta 옵션에서 Tags를 켜지 않았거나, 명령줄에서 `--list-tags` 없이 내보냈습니다','JSON에서 `frameTags`를 검색합니다','Tags를 켜거나 `--list-tags`로 다시 내보내거나, `.aseprite`를 바로 넣으세요'],
+    ['모든 프레임이 애니메이션 하나가 됨','`frameTags`가 없어 이름으로 묶었는데, 프레임 이름이 번호만 다릅니다(`hero 0`, `hero 1` …)','가져오기 패널의 애니메이션 결정이 “이름 기준”입니다','태그를 넣어 다시 내보내거나, 타임라인에서 프레임 위로 태그를 드래그하세요'],
+    ['태그가 엉뚱한 프레임을 재생함','어떤 도구가 프레임을 다시 정렬해(예: `hero 10`이 `hero 2`보다 앞) `from`–`to` 구간이 다른 프레임을 가리킵니다','`frames`의 순서를 태그 구간과 비교합니다','원래 순서를 유지하세요. Nerulio는 숫자를 자연 정렬하고, 태그마다 한 구간을 유지하며 공유 프레임은 반복합니다'],
+    ['태그는 남았지만 모든 프레임이 같은 속도','대상이 애니메이션마다 속도 하나만 두거나(Defold), 엔진 코드가 저장된 시간을 무시합니다(`durationsMs` 없는 PixiJS)','위 표의 대상 행과 애니메이션 코드','프레임별 시간을 저장하는 대상을 쓰거나, [[game/aseprite-json-to-pixi|Aseprite JSON을 PixiJS로]]처럼 코드에서 시간을 넘기세요'],
+    ['핑퐁이나 세 번 재생 태그가 그냥 반복됨','형식에 방향·반복 필드가 없습니다. Godot는 반복 여부, PixiJS는 `loop`만 있습니다','방향은 프레임 순서로 풀려 있고, 반복 횟수는 사라졌습니다','횟수는 코드에서 처리하세요(예: Godot의 `animation_finished`)'],
+    ['아틀라스에 애니메이션이 전혀 없음','Spine/libGDX `.atlas`와 CSS 스프라이트는 영역만 나열합니다','파일을 열면 애니메이션 부분이 없습니다','엔진 대상(Godot, Unity, Phaser, PixiJS)이나 Aseprite JSON을 쓰세요']]},
+   alternatives:{rows:[
+    ['`--list-tags`를 붙인 Aseprite 자체 시트 내보내기','Phaser용 Aseprite JSON만 필요하고 Aseprite가 설치돼 있을 때.'],
+    ['[[game/texture-packer-free|브라우저용 무료 텍스처 패커]]','많은 스프라이트를 아틀라스 하나로 묶으면서 Aseprite 태그가 엔진까지 가야 할 때.']]},
+   limits:['어떤 입력에도 없는 태그(맨 PNG 프레임)는 되살릴 수 없고 손으로 다시 만들어야 합니다.','GameMaker 스트립 타이밍은 기록하지만 GameMaker 안에서는 미검증입니다.'],
+   versions:{body:['`.aseprite` 왕복은 테스트 파일 231개 모두에서 태그와 길이를 유지했습니다(Aseprite 1.3.18.6에서 다시 열어 확인). 대상별 결과는 엔진 실행에서 나왔습니다: Godot 4.7.2, Unity 6000.5.3f1, Phaser 3.90·4.2, PixiJS 8.21, Defold 1.13.1. Aseprite 내보내기 옵션과 Phaser의 요구 사항은 각 공식 문서를 따릅니다.'],sources:[ASE_CLI,ASE_TAGS,PHASER_ANIMS]}
+  },
+  ja:{
+   answer:'タグとフレームの長さが消えるのは、パッカーがそれを受け取っていないときです。PNGフレームにはタグもタイミングもなく、書き出しのMetaオプションでTagsをオンにしなかった（コマンドラインなら`--list-tags`なしの）Aseprite JSONには`meta.frameTags`がありません。まずパッカーに何を渡したか確認してください。Nerulioで`.aseprite`ファイル自体か、`frameTags`付きのJSONをパックすれば、すべてのタグ・方向・繰り返し・フレームごとの長さ・ピボットを保ち、エンジンごとにその形式で書き出します。形式に該当するフィールドがなければ、書き出しメモがそう伝えます。',
+   concept:{title:'タグが消える場所',body:[
+    'Asepriteのタグはメタデータです。名前、`from`–`to`の範囲、方向、繰り返し回数が、フレームごとの長さと一緒に`.aseprite`ファイルに入っています。フレームがPNGファイルとしてAsepriteを出た時点でこの情報は失われ、パッカーはファイル名（`walk_01`、`walk_02` → `walk`）からアニメーションを推測できても、長さ・方向・繰り返しは書けません。',
+    'JSONの経路は、頼んだときだけタグを残します。Asepriteは書き出しのMetaオプションでTagsをオンにするか、コマンドラインで`--data`と一緒に`--list-tags`を指定すると`meta.frameTags`を書きます。なければJSONには全フレームと`duration`はあってもアニメーション名がなく、Phaserの`createFromAseprite`のようなローダーは作るものがありません。',
+    '3つ目はエンジンの形式です。アニメーションのフィールドがまったくない形式（Spine/libGDXのアトラスは領域の一覧だけ）、アニメーションごとに速度を1つしか持たない形式（Defold）、アニメーション名は読んでもフレームごとの時間は読まないPixiJSがあります。Nerulioは形式が持てるだけ書き、方向のフィールドがなければフレーム順に展開します。ただし、どの入力にもないタグは復元できません。素のPNGフレームは名前でまとめ、残りはタイムラインで作り直すことになります。'],
+    terms:[['frameTags','Aseprite JSONの`meta`にある配列。タグごとの名前、範囲、方向を持ちます。'],['--list-tags','`--data`のJSONにタグを加えるAsepriteのコマンドラインオプション。'],['連続した範囲','タグは`from`–`to`の範囲なので、フレームが連続している必要があります。'],['再生順','逆方向・ピンポンを展開した1サイクル分のフレーム順。']]},
+   example:{title:'具体例：同じファイルをタグあり・なしで書き出す',lines:[
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json',
+    '  → "frames": { "hero 0.aseprite": {…, "duration": 125}, … "hero 15.aseprite": {…} }',
+    '  → "meta": { "image": "hero.png", … }                      "frameTags" なし',
+    '  → Nerulio 読み込み: 名前が番号しか違わない → アニメーション "hero" 1つ、16フレーム',
+    '',
+    'aseprite -b hero.aseprite --sheet hero.png --data hero.json --list-tags',
+    '  → "meta": { …, "frameTags": [ { "name": "idle", "from": 0, "to": 3, "direction": "forward" }, … ] }',
+    '  → Nerulio 読み込み: idle 0–3、walk 4–9、attack 10–15、長さも保持',
+    '',
+    'hero.aseprite を直接ドロップ → 同じタグ3つ + 繰り返し回数 + ピボット・ボックスのスライス'],
+    after:'どちらのJSONでもフレームごとの`duration`は残ります。タグにまとまるかどうかだけが`frameTags`次第です。キー名は書き出しのファイル名形式（`{title}`、`{frame}` …）に従うので、異なる場合があります。'},
+   verify:{steps:[
+    '`aseprite -b hero.aseprite --list-tags`がタグ名を出力します。パックする前に、Nerulioのタイムラインにも同じタグのレーンが見えるはずです。',
+    '書き出し後、エンジンのファイルのアニメーション数（Phaserの`.anims.json`、PixiJSの`animations`、GodotのSpriteFramesパネル）をその一覧と比べます。',
+    'タグを1つ選び、エンジンのファイルでフレーム時間を足します。Asepriteでの1サイクルと同じはずです（walk：6 × 100 ms = 600 ms）。',
+    '書き出しメモを読みます。繰り返した項目（2つのタグが共有するフレーム）や、ターゲットが保存できないものが書かれています。']},
+   trouble:{rows:[
+    ['PNGフレームをパックしたらアニメーションがない','PNGファイルにはタグもタイミングもなく、パッカーはファイル名しか見ていません','パッカーへの入力がPNGのフォルダです','`.aseprite`ファイル（または`frameTags`付きのJSON）をパックしてください。[[game/aseprite-to-sprite-sheet|Asepriteからスプライトシートへ]]を参照'],
+    ['Aseprite JSONに`frameTags`がない','MetaオプションでTagsをオンにせず、またはコマンドラインで`--list-tags`なしで書き出しました','JSONで`frameTags`を検索します','Tagsをオンにするか`--list-tags`で書き出し直すか、`.aseprite`を直接ドロップしてください'],
+    ['全フレームが1つのアニメーションになった','`frameTags`がないので名前でまとめましたが、フレーム名が番号しか違いません（`hero 0`、`hero 1` …）','インポートパネルのアニメーションの判断が「名前から」です','タグ付きで書き出し直すか、タイムラインでフレームの上にタグをドラッグしてください'],
+    ['タグが違うフレームを再生する','どこかのツールがフレームを並べ替え（例：`hero 10`が`hero 2`より前）、`from`–`to`の範囲が別のフレームを指しています','`frames`の順とタグの範囲を比べます','元の順序を保ってください。Nerulioは数字を自然順で並べ、各タグを1つの範囲に保ち、共有フレームは繰り返します'],
+    ['タグは残ったが全フレームが同じ速度','ターゲットがアニメーションごとに速度1つしか持たない（Defold）か、エンジン側のコードが保存された時間を無視しています（`durationsMs`を使わないPixiJS）','上の表のターゲットの行と、アニメーションのコード','フレームごとの時間を保存するターゲットを使うか、[[game/aseprite-json-to-pixi|Aseprite JSONからPixiJSへ]]のようにコードで時間を渡してください'],
+    ['ピンポンや3回再生のタグが普通にループする','形式に方向・繰り返しのフィールドがありません。Godotはループのオン／オフ、PixiJSは`loop`だけです','方向はフレーム順に展開済みで、繰り返し回数は失われています','回数はコードで扱ってください（例：Godotの`animation_finished`）'],
+    ['アトラスにアニメーションがまったくない','Spine/libGDXの`.atlas`とCSSスプライトは領域の一覧だけです','ファイルを開くとアニメーションの部分がありません','エンジンのターゲット（Godot、Unity、Phaser、PixiJS）かAseprite JSONを使ってください']]},
+   alternatives:{rows:[
+    ['`--list-tags`を付けたAseprite自身のシート書き出し','Phaser用のAseprite JSONだけが必要で、Asepriteがインストールされているとき。'],
+    ['[[game/texture-packer-free|ブラウザで使える無料のテクスチャパッカー]]','多くのスプライトを1つのアトラスにまとめつつ、Asepriteのタグをエンジンまで届けたいとき。']]},
+   limits:['どの入力にもないタグ（素のPNGフレーム）は復元できず、手で作り直すしかありません。','GameMakerのストリップのタイミングは書き出しますが、GameMaker上では未検証です。'],
+   versions:{body:['`.aseprite`の往復は、テスト用の231ファイルすべてでタグと長さを保ちました（Aseprite 1.3.18.6で開き直して確認）。ターゲットごとの結果はエンジンでの実行によるものです：Godot 4.7.2、Unity 6000.5.3f1、Phaser 3.90と4.2、PixiJS 8.21、Defold 1.13.1。Asepriteの書き出しオプションとPhaserの要件はそれぞれの公式ドキュメントに基づきます。'],sources:[ASE_CLI,ASE_TAGS,PHASER_ANIMS]}
+  }
+ },
+/* ============================================================================ gif-to-sprite-sheet */
+ 'game/gif-to-sprite-sheet':{
+  type:'conversion',
+  intent:{primary:'convert an animated GIF (or APNG) into a sprite sheet with frame timing',secondary:['GIF frames to PNG sheet + JSON','keep GIF frame delays in the engine','GIF disposal and partial frames'],
+   goal:'a packed sheet plus engine data whose animation plays at the GIF\'s own delays',input:'animated GIF or APNG',output:'PNG sheet + engine data (Phaser, PixiJS, Godot, Unity, Aseprite JSON …)',target:'Phaser 3/4 (example); any Studio export target',support:'full',
+   evidence:['src/studio/sprite/gif-decode.js (disposal 0-3, delay cs × 10, ≤ 1 cs → 100 ms, rawDelay, limits 4096 frames)','src/studio/sprite/apng-decode.js','src/studio/sprite/importers.js (one tag per file, NETSCAPE n → n + 1 plays, delays decision)','src/game/export/atlas-json.js phaserFiles (ms per frame, repeat −1 / n − 1)','docs/STUDIO-SPRITE.md §10 (29 GIFs 408/408, 16 APNGs 132/132 vs Pillow)'],
+   external:['W3C GIF89a: delay 1/100 s, disposal methods','W3C PNG 3: APNG fcTL delay_num/delay_den, dispose_op, num_plays','WebKit: ≤ 10 ms plays as 100 ms']},
+  en:{
+   answer:"Drop a GIF or APNG: Nerulio decodes every frame with its delay and disposal into a full picture, turns each delay into a frame duration (GIF hundredths × 10 = ms), and packs the frames into a sheet, trimming empty borders and storing identical frames once. Pick your engine's target and the timing travels with it: per-frame milliseconds for Phaser and Aseprite JSON, relative durations for Godot, clip keys for Unity. Delays of 0 or 1 hundredth play as 100 ms, like in a browser, unless you choose the file's own values.",
+   concept:{title:'Why a GIF frame is not yet a sprite frame',body:[
+    "A GIF stores changes, not always whole pictures. Each image can cover only part of the screen, and its disposal method says what happens before the next one: 0 or 1 leave it in place, 2 clears its rectangle to the background, 3 restores what was there before. The frame you see is the result of drawing all of that in order. Nerulio replays the file the same way and keeps each result as a full-canvas frame, so a sprite frame never misses the parts an earlier image drew.",
+    "Timing is in hundredths of a second per frame, so a delay of 4 means 40 ms. Delays of 0 or 1 are special: WebKit plays any frame of 10 ms or less as 100 ms, and the GIF was probably made to look right that way. Nerulio does the same by default and shows it as a decision, with the alternative of using the stored values. APNG stores each delay as a fraction (`delay_num`/`delay_den` seconds), so it arrives to the millisecond.",
+    "Looping comes from the NETSCAPE2.0 block: 0 means forever, and a count n is read as n + 1 plays; without the block the GIF plays once. The whole file becomes one animation named after the file, with that repeat count, ready for the engine's loop setting."],
+    terms:[['Disposal method','What happens to a GIF image before the next one: keep (0/1), clear to background (2), restore previous (3).'],['Delay','GIF: hundredths of a second. APNG: `delay_num`/`delay_den` seconds.'],['Full-canvas frame','The picture after compositing, as large as the GIF\'s logical screen.'],['Alias','Two frames with identical visible pixels are stored once in the sheet.']]},
+   example:{title:'Example: a 12-frame explosion',lines:[
+    'explosion.gif  96 × 96, 12 frames, delays 4 4 4 4 8 8 8 8 8 8 8 8 (1/100 s), loop 0',
+    'durations      4 × 40 ms + 8 × 80 ms = 160 + 640 = 800 ms per cycle',
+    'frames         12 full 96 × 96 pictures (disposal applied), trimmed and packed',
+    'loop           NETSCAPE 0 → repeat ∞',
+    '',
+    'Phaser  anims.json  duration 40 × 4, 80 × 8 (ms)   repeat -1',
+    'Godot   FPS = 1000 / (800 / 12) = 1000 / 66.67 = 15   relative 0.6 × 4, 1.2 × 8',
+    '        check 0.6 / 15 = 0.040 s   1.2 / 15 = 0.080 s'],
+    after:'If the first frame had a delay of 0, it would be imported as 100 ms and the Import panel would offer “use the file\'s delays” instead.'},
+   mapping:{head:['In the GIF / APNG','In Nerulio','In the sheet and data'],rows:[
+    ['Image + disposal (possibly a partial rectangle)','One full-canvas frame after compositing','A trimmed region on the PNG with its offset'],
+    ['Delay (GIF 1/100 s, APNG fraction)','Frame duration in ms; 0–1 cs → 100 ms unless you pick the file\'s values','Per-frame ms (Phaser, Aseprite JSON, PixiJS meta), relative durations (Godot), key times (Unity)'],
+    ['NETSCAPE loop 0 / n / none (APNG `num_plays`)','Repeat ∞ / n + 1 plays / once (APNG: the count as stored)','Phaser `repeat` −1 / n / 0; Godot loop on or off'],
+    ['The whole file','One animation named after the file','One animation in the engine file'],
+    ['Identical frames (holds)','Stored once as an alias','Two entries, one region'],
+    ['Transparent index','Alpha 0','Transparent pixels in the PNG'],
+    ['Palette colours','Exact RGBA','Exact colours in the PNG']]},
+   outputs:{title:'Files you get (Phaser 3/4 target)',rows:[
+    ['explosion.png','The packed sheet.'],
+    ['explosion.json','Atlas JSON (hash) with each frame\'s region, trim offset and pivot.'],
+    ['explosion.anims.json','The animation for `anims.fromJSON`: frame order, per-frame `duration` in ms, `repeat`.'],
+    ['README-PHASER.md','The loading code for this bundle.']]},
+   target:{title:'Play it in Phaser 3 or 4',steps:[
+    'Copy the PNG and both JSON files into your assets folder.',
+    'In `preload()`: `this.load.atlas(\'explosion\', \'explosion.png\', \'explosion.json\')` and `this.load.json(\'explosion-anims\', \'explosion.anims.json\')`.',
+    'In `create()`: `this.anims.fromJSON(this.cache.json.get(\'explosion-anims\'))`, then `this.add.sprite(100, 100, \'explosion\').play(\'explosion\')`.',
+    'For pixel art create the game with `pixelArt: true`. For another engine pick its target instead: [[game/godot-sprite-sheet|Godot]], [[game/unity-sprite-sheet|Unity]], [[game/pixi-spritesheet-json|PixiJS]].']},
+   verify:{steps:[
+    'The Sprite timeline shows as many frames as the GIF, each with its delay × 10 in ms.',
+    'One cycle in the engine lasts the sum of the delays (800 ms in the example).',
+    'The Packed frames list shows how many frames were trimmed or stored once; a GIF with long holds shrinks the most.']},
+   trouble:{rows:[
+    ['Some frames play much slower than expected','Their delay is 0 or 1 hundredth, played as 100 ms like in a browser','Import panel: the delays decision names how many frames','Choose the file\'s own delays if your engine should play them fast (a 0 becomes 1 ms)'],
+    ['The animation plays once and stops','The GIF has no NETSCAPE loop block, so it was read as “play once”','Animation panel: repeat','Set the repeat to ∞ before export'],
+    ['The sheet is larger than the GIF','Every frame becomes a full picture; GIF compression of unchanged areas does not carry over','Packed frames: trimmed and aliased counts','Keep trim on; identical frames are stored once, but dithered frames are rarely identical'],
+    ['Edges are hard or have a light or dark rim','GIF has 1-bit transparency, and edges were often blended against a background colour when the GIF was made','Zoom in on the outline','Nerulio cannot restore soft alpha that the GIF never stored; use the original frames if you have them'],
+    ['“More than 4096 frames” or “too large to decode”','The decoder stops at 4096 frames or about 268 million decoded pixels','Frame count × width × height','Split the GIF, or cut it to the part you need first']]},
+   alternatives:{rows:[
+    ['The frames the GIF was made from','You have the source PNGs or the project: real alpha and exact timing beat any GIF.'],
+    ['[[game/ezgif-sprite-cutter-alternative|An online splitter such as ezgif]]','You only want the separate frame images, without packing or engine data.'],
+    ['[[game/sprite-sheet-to-gif|The other direction: sprite sheet to GIF]]','You have a sheet and need a GIF for sharing.']]},
+   limits:['The whole GIF becomes one animation; split it into tags on the Timeline if it holds several.','Soft edges that the GIF never stored cannot be recovered.'],
+   versions:{body:['The GIF decoder was checked against Pillow on 29 real GIFs (408 of 408 frames exact) and matches Chromium\'s ImageDecoder; the APNG decoder on 16 files covering every dispose and blend mode (132 of 132 frames). The Phaser target was loaded by Phaser 3.90 and 4.2. The GIF and APNG fields follow the W3C specifications; the short-delay rule follows WebKit\'s source.'],sources:[GIF_SPEC,PNG3,WEBKIT_DELAY]}
+  },
+  ko:{
+   answer:'GIF나 APNG를 넣으면 Nerulio가 모든 프레임을 지연과 폐기 방식을 적용한 완전한 그림으로 디코딩하고, 지연을 프레임 길이로 바꾸고(GIF의 1/100초 × 10 = ms), 빈 테두리를 트림하고 같은 프레임은 한 번만 저장하며 시트로 패킹합니다. 엔진 대상을 고르면 타이밍도 함께 갑니다. Phaser와 Aseprite JSON에는 프레임별 밀리초, Godot에는 상대 길이, Unity에는 클립 키로 들어갑니다. 지연이 0이나 1(1/100초)인 프레임은 파일 값을 쓰기로 고르지 않는 한 브라우저처럼 100 ms로 재생됩니다.',
+   concept:{title:'GIF 프레임이 아직 스프라이트 프레임이 아닌 이유',body:[
+    'GIF는 늘 완성된 그림이 아니라 바뀐 부분을 저장합니다. 이미지 하나가 화면 일부만 덮을 수 있고, 폐기 방식이 다음 이미지 전에 할 일을 정합니다. 0이나 1은 그대로 두고, 2는 그 사각형을 배경으로 지우고, 3은 이전 상태로 되돌립니다. 눈에 보이는 프레임은 이것을 순서대로 모두 그린 결과입니다. Nerulio는 파일을 같은 방식으로 재생해 결과마다 캔버스 전체 크기의 프레임으로 저장하므로, 앞 이미지가 그린 부분이 스프라이트 프레임에서 빠지지 않습니다.',
+    '타이밍은 프레임마다 1/100초 단위라 지연 4는 40 ms입니다. 0이나 1은 특별합니다. WebKit은 10 ms 이하 프레임을 100 ms로 재생하고, GIF는 아마 그렇게 보이도록 만들어졌을 것입니다. Nerulio도 기본적으로 같게 처리하고 이를 결정 항목으로 보여 주며, 저장된 값을 쓰는 대안을 둡니다. APNG는 지연을 분수(`delay_num`/`delay_den`초)로 저장하므로 밀리초까지 그대로 옵니다.',
+    '반복은 NETSCAPE2.0 블록에서 옵니다. 0이면 무한이고, 횟수 n은 n + 1번 재생으로 읽습니다. 블록이 없으면 한 번 재생합니다. 파일 전체가 파일 이름을 딴 애니메이션 하나가 되고, 이 반복 횟수가 엔진의 반복 설정으로 이어집니다.'],
+    terms:[['폐기 방식','다음 이미지 전에 GIF 이미지를 어떻게 할지: 유지(0/1), 배경으로 지움(2), 이전 상태로 복원(3).'],['지연','GIF: 1/100초 단위. APNG: `delay_num`/`delay_den`초.'],['전체 캔버스 프레임','합성한 뒤의 그림. GIF 논리 화면 크기와 같습니다.'],['별칭(Alias)','보이는 픽셀이 같은 두 프레임은 시트에 한 번만 저장합니다.']]},
+   example:{title:'예시: 12프레임 폭발',lines:[
+    'explosion.gif  96 × 96, 12프레임, 지연 4 4 4 4 8 8 8 8 8 8 8 8 (1/100 s), loop 0',
+    '길이           4 × 40 ms + 8 × 80 ms = 160 + 640 = 한 사이클 800 ms',
+    '프레임         96 × 96 전체 그림 12장(폐기 방식 적용), 트림 후 패킹',
+    '반복           NETSCAPE 0 → 반복 ∞',
+    '',
+    'Phaser  anims.json  duration 40 × 4, 80 × 8 (ms)   repeat -1',
+    'Godot   FPS = 1000 / (800 / 12) = 1000 / 66.67 = 15   상대 길이 0.6 × 4, 1.2 × 8',
+    '        검산 0.6 / 15 = 0.040 s   1.2 / 15 = 0.080 s'],
+    after:'첫 프레임의 지연이 0이었다면 100 ms로 가져오고, 가져오기 패널이 “파일의 지연 사용”을 대안으로 보여 줍니다.'},
+   mapping:{head:['GIF / APNG에서','Nerulio에서','시트와 데이터에서'],rows:[
+    ['이미지 + 폐기 방식(일부 사각형일 수 있음)','합성 후 전체 캔버스 프레임 하나','오프셋이 있는 PNG 위 트림 영역'],
+    ['지연(GIF 1/100초, APNG 분수)','ms 단위 프레임 길이. 0–1은 파일 값을 고르지 않으면 100 ms','프레임별 ms(Phaser, Aseprite JSON, PixiJS meta), 상대 길이(Godot), 키 시간(Unity)'],
+    ['NETSCAPE 반복 0 / n / 없음 (APNG `num_plays`)','반복 ∞ / n + 1번 / 한 번(APNG는 저장된 횟수)','Phaser `repeat` −1 / n / 0, Godot 반복 켜짐·꺼짐'],
+    ['파일 전체','파일 이름의 애니메이션 하나','엔진 파일의 애니메이션 하나'],
+    ['같은 프레임(멈춤 동작)','별칭으로 한 번만 저장','항목 두 개, 영역 하나'],
+    ['투명 색 번호','알파 0','PNG의 투명 픽셀'],
+    ['팔레트 색','정확한 RGBA','PNG에 정확한 색']]},
+   outputs:{title:'받게 되는 파일(Phaser 3/4 대상)',rows:[
+    ['explosion.png','패킹된 시트.'],
+    ['explosion.json','프레임마다 영역, 트림 오프셋, 피벗이 있는 아틀라스 JSON(해시).'],
+    ['explosion.anims.json','`anims.fromJSON`용 애니메이션: 프레임 순서, 프레임별 ms `duration`, `repeat`.'],
+    ['README-PHASER.md','이 묶음을 불러오는 코드.']]},
+   target:{title:'Phaser 3·4에서 재생하기',steps:[
+    'PNG와 JSON 두 파일을 에셋 폴더에 복사합니다.',
+    '`preload()`에서: `this.load.atlas(\'explosion\', \'explosion.png\', \'explosion.json\')`와 `this.load.json(\'explosion-anims\', \'explosion.anims.json\')`.',
+    '`create()`에서: `this.anims.fromJSON(this.cache.json.get(\'explosion-anims\'))` 후 `this.add.sprite(100, 100, \'explosion\').play(\'explosion\')`.',
+    '픽셀아트는 게임을 `pixelArt: true`로 만드세요. 다른 엔진이면 그 대상을 고르세요: [[game/godot-sprite-sheet|Godot]], [[game/unity-sprite-sheet|Unity]], [[game/pixi-spritesheet-json|PixiJS]].']},
+   verify:{steps:[
+    '스프라이트 타임라인에 GIF와 같은 수의 프레임이 보이고, 각각 지연 × 10 ms입니다.',
+    '엔진에서 한 사이클은 지연의 합만큼 걸립니다(예시는 800 ms).',
+    '패킹된 프레임 목록에 트림되거나 한 번만 저장된 프레임 수가 나옵니다. 멈춤 동작이 긴 GIF일수록 많이 줄어듭니다.']},
+   trouble:{rows:[
+    ['일부 프레임이 예상보다 훨씬 느림','지연이 0이나 1(1/100초)이라 브라우저처럼 100 ms로 재생됩니다','가져오기 패널: 지연 결정에 해당 프레임 수가 나옵니다','엔진에서 빠르게 재생해야 한다면 파일의 지연을 고르세요(0은 1 ms가 됩니다)'],
+    ['애니메이션이 한 번 재생하고 멈춤','GIF에 NETSCAPE 반복 블록이 없어 “한 번 재생”으로 읽었습니다','애니메이션 패널: 반복','내보내기 전에 반복을 ∞로 바꾸세요'],
+    ['시트가 GIF보다 큼','모든 프레임이 완전한 그림이 되며, 바뀌지 않은 부분을 줄이던 GIF 압축은 이어지지 않습니다','패킹된 프레임: 트림·별칭 개수','트림을 켜 두세요. 같은 프레임은 한 번만 저장하지만, 디더링된 프레임은 거의 같지 않습니다'],
+    ['가장자리가 딱딱하거나 밝은·어두운 테두리가 있음','GIF는 1비트 투명이고, 만들 때 가장자리를 배경색과 섞은 경우가 많습니다','외곽선을 확대합니다','GIF가 저장하지 않은 부드러운 알파는 Nerulio가 되살릴 수 없습니다. 원본 프레임이 있으면 그것을 쓰세요'],
+    ['“More than 4096 frames” 또는 “too large to decode”','디코더는 4096프레임이나 디코딩 픽셀 약 2억 6,800만 개에서 멈춥니다','프레임 수 × 너비 × 높이','GIF를 나누거나 필요한 부분만 먼저 잘라 내세요']]},
+   alternatives:{rows:[
+    ['GIF를 만든 원본 프레임','원본 PNG나 프로젝트가 있을 때. 진짜 알파와 정확한 타이밍이 어떤 GIF보다 낫습니다.'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgif 같은 온라인 분할 도구]]','패킹이나 엔진 데이터 없이 프레임 이미지만 따로 필요할 때.'],
+    ['[[game/sprite-sheet-to-gif|반대 방향: 스프라이트 시트를 GIF로]]','시트가 있고 공유용 GIF가 필요할 때.']]},
+   limits:['GIF 전체가 애니메이션 하나가 됩니다. 여러 동작이 들어 있다면 타임라인에서 태그로 나누세요.','GIF가 저장하지 않은 부드러운 가장자리는 되살릴 수 없습니다.'],
+   versions:{body:['GIF 디코더는 실제 GIF 29개로 Pillow와 비교해 408개 프레임이 모두 같았고 Chromium의 ImageDecoder와도 일치합니다. APNG 디코더는 모든 폐기·블렌드 방식을 포함한 파일 16개에서 132개 프레임이 모두 같았습니다. Phaser 대상은 Phaser 3.90과 4.2가 불러왔습니다. GIF·APNG 필드는 W3C 명세, 짧은 지연 규칙은 WebKit 소스를 따릅니다.'],sources:[GIF_SPEC,PNG3,WEBKIT_DELAY]}
+  },
+  ja:{
+   answer:'GIFやAPNGをドロップすると、Nerulioが全フレームをディレイと廃棄方法を適用した完全な絵としてデコードし、ディレイをフレームの長さに変換し（GIFの1/100秒 × 10 = ms）、空の縁をトリムし、同一フレームは1回だけ保存してシートにパックします。エンジンのターゲットを選べばタイミングも一緒に渡ります。PhaserとAseprite JSONにはフレームごとのミリ秒、Godotには相対的な長さ、Unityにはクリップのキーとして入ります。ディレイ0または1（1/100秒）のフレームは、ファイルの値を使うと選ばない限り、ブラウザと同じく100 msで再生します。',
+   concept:{title:'GIFのフレームがまだスプライトのフレームではない理由',body:[
+    'GIFは常に完成した絵ではなく、変化した部分を保存します。1つの画像が画面の一部しか覆わないこともあり、廃棄方法が次の画像の前にすることを決めます。0や1はそのまま残し、2はその矩形を背景に消し、3は以前の状態に戻します。目に見えるフレームは、これをすべて順番に描いた結果です。Nerulioはファイルを同じように再生し、結果ごとにキャンバス全体のフレームとして保存するので、前の画像が描いた部分がスプライトのフレームから抜け落ちません。',
+    'タイミングはフレームごとに1/100秒単位なので、ディレイ4は40 msです。0と1は特別です。WebKitは10 ms以下のフレームを100 msで再生し、GIFはおそらくそう見える前提で作られています。Nerulioも既定では同じ扱いにし、判断項目として示して、保存された値を使う代替案を用意します。APNGはディレイを分数（`delay_num`/`delay_den`秒）で持つので、ミリ秒単位でそのまま入ります。',
+    'ループはNETSCAPE2.0ブロックから来ます。0なら無限、回数nはn + 1回の再生として読みます。ブロックがなければ1回再生です。ファイル全体がファイル名のアニメーション1つになり、この繰り返し回数がエンジンのループ設定につながります。'],
+    terms:[['廃棄方法','次の画像の前にGIFの画像をどうするか：残す（0/1）、背景に消す（2）、以前の状態に戻す（3）。'],['ディレイ','GIF：1/100秒単位。APNG：`delay_num`/`delay_den`秒。'],['キャンバス全体のフレーム','合成後の絵。GIFの論理画面と同じ大きさです。'],['エイリアス','見えるピクセルが同じ2つのフレームは、シートに1回だけ保存します。']]},
+   example:{title:'具体例：12フレームの爆発',lines:[
+    'explosion.gif  96 × 96、12フレーム、ディレイ 4 4 4 4 8 8 8 8 8 8 8 8 (1/100 s)、loop 0',
+    '長さ           4 × 40 ms + 8 × 80 ms = 160 + 640 = 1サイクル 800 ms',
+    'フレーム       96 × 96 の完全な絵 12枚（廃棄方法を適用）、トリムしてパック',
+    'ループ         NETSCAPE 0 → 繰り返し ∞',
+    '',
+    'Phaser  anims.json  duration 40 × 4, 80 × 8 (ms)   repeat -1',
+    'Godot   FPS = 1000 / (800 / 12) = 1000 / 66.67 = 15   相対 0.6 × 4, 1.2 × 8',
+    '        検算 0.6 / 15 = 0.040 s   1.2 / 15 = 0.080 s'],
+    after:'最初のフレームのディレイが0なら100 msとして読み込み、インポートパネルが「ファイルのディレイを使う」を代替案として示します。'},
+   mapping:{head:['GIF／APNGでは','Nerulioでは','シートとデータでは'],rows:[
+    ['画像 + 廃棄方法（部分的な矩形のこともある）','合成後のキャンバス全体のフレーム1つ','オフセット付きのPNG上のトリム領域'],
+    ['ディレイ（GIFは1/100秒、APNGは分数）','ms単位のフレームの長さ。0–1はファイルの値を選ばなければ100 ms','フレームごとのms（Phaser、Aseprite JSON、PixiJSのmeta）、相対的な長さ（Godot）、キーの時刻（Unity）'],
+    ['NETSCAPEループ 0 / n / なし（APNGは`num_plays`）','繰り返し ∞ / n + 1回 / 1回（APNGは保存された回数）','Phaserの`repeat` −1 / n / 0、Godotのループ オン／オフ'],
+    ['ファイル全体','ファイル名のアニメーション1つ','エンジンのファイルのアニメーション1つ'],
+    ['同一フレーム（溜め）','エイリアスとして1回だけ保存','項目2つ、領域1つ'],
+    ['透明色インデックス','アルファ0','PNGの透明ピクセル'],
+    ['パレットの色','正確なRGBA','PNGに正確な色']]},
+   outputs:{title:'出力されるファイル（Phaser 3/4ターゲット）',rows:[
+    ['explosion.png','パック済みのシート。'],
+    ['explosion.json','各フレームの領域、トリムのオフセット、ピボットを持つアトラスJSON（ハッシュ）。'],
+    ['explosion.anims.json','`anims.fromJSON`用のアニメーション：フレーム順、フレームごとのms単位の`duration`、`repeat`。'],
+    ['README-PHASER.md','このバンドルを読み込むコード。']]},
+   target:{title:'Phaser 3・4で再生する',steps:[
+    'PNGと2つのJSONファイルをアセットフォルダにコピーします。',
+    '`preload()`で：`this.load.atlas(\'explosion\', \'explosion.png\', \'explosion.json\')`と`this.load.json(\'explosion-anims\', \'explosion.anims.json\')`。',
+    '`create()`で：`this.anims.fromJSON(this.cache.json.get(\'explosion-anims\'))`のあと`this.add.sprite(100, 100, \'explosion\').play(\'explosion\')`。',
+    'ピクセルアートならゲームを`pixelArt: true`で作成します。他のエンジンならそのターゲットを選んでください：[[game/godot-sprite-sheet|Godot]]、[[game/unity-sprite-sheet|Unity]]、[[game/pixi-spritesheet-json|PixiJS]]。']},
+   verify:{steps:[
+    'スプライトのタイムラインにGIFと同じ数のフレームがあり、それぞれディレイ × 10 msです。',
+    'エンジンでの1サイクルはディレイの合計です（例では800 ms）。',
+    'パック済みフレームの一覧に、トリムされた数と1回だけ保存された数が出ます。溜めの長いGIFほど小さくなります。']},
+   trouble:{rows:[
+    ['一部のフレームが思ったよりずっと遅い','ディレイが0か1（1/100秒）で、ブラウザと同じく100 msで再生しています','インポートパネル：ディレイの判断に該当フレーム数が出ます','エンジンで速く再生すべきなら、ファイルのディレイを選んでください（0は1 msになります）'],
+    ['アニメーションが1回再生して止まる','GIFにNETSCAPEのループブロックがなく、「1回再生」と読みました','アニメーションパネル：繰り返し','書き出し前に繰り返しを∞にしてください'],
+    ['シートがGIFより大きい','全フレームが完全な絵になり、変化のない部分を省いていたGIFの圧縮は引き継がれません','パック済みフレーム：トリムとエイリアスの数','トリムをオンのままに。同一フレームは1回だけ保存しますが、ディザのかかったフレームはまず一致しません'],
+    ['縁が硬い、明るい・暗い縁取りがある','GIFは1ビット透明で、作成時に縁を背景色と混ぜていることが多いためです','輪郭を拡大します','GIFが保存していない柔らかいアルファはNerulioには復元できません。元のフレームがあればそれを使ってください'],
+    ['「More than 4096 frames」「too large to decode」','デコーダは4096フレーム、またはデコード後約2億6800万ピクセルで止まります','フレーム数 × 幅 × 高さ','GIFを分割するか、必要な部分だけ先に切り出してください']]},
+   alternatives:{rows:[
+    ['GIFの元になったフレーム','元のPNGやプロジェクトがあるとき。本物のアルファと正確なタイミングはどのGIFにも勝ります。'],
+    ['[[game/ezgif-sprite-cutter-alternative|ezgifなどのオンライン分割ツール]]','パックやエンジン用データなしで、フレーム画像だけが別々に欲しいとき。'],
+    ['[[game/sprite-sheet-to-gif|逆方向：スプライトシートからGIFへ]]','シートがあって、共有用のGIFが必要なとき。']]},
+   limits:['GIF全体が1つのアニメーションになります。複数の動作が入っているならタイムラインでタグに分けてください。','GIFが保存していない柔らかい縁は復元できません。'],
+   versions:{body:['GIFデコーダは実際のGIF 29個でPillowと比較し、408フレームすべてが一致し、ChromiumのImageDecoderとも一致します。APNGデコーダはすべての廃棄・ブレンド方法を含む16ファイルで132フレームすべてが一致しました。PhaserターゲットはPhaser 3.90と4.2が読み込みました。GIFとAPNGの項目はW3Cの仕様、短いディレイの規則はWebKitのソースに基づきます。'],sources:[GIF_SPEC,PNG3,WEBKIT_DELAY]}
+  }
+ }
+};

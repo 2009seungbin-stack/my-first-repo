@@ -8,6 +8,8 @@ import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
 import {isTask} from '../src/task/registry.js';
 import {homePage,taskPage} from './task-build.mjs';
 import {languageEntryPage} from './language-entry-build.mjs';
+import {DEPTH} from '../src/seo-depth/index.js';
+import {answerHTML,depthSlot} from '../src/seo-depth/render.js';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -19,7 +21,7 @@ import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigat
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
-import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths} from './game-landing-build.mjs';
+import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths,resolveLink} from './game-landing-build.mjs';
 import {gameHead} from './game-seo-build.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
 export {ROUTES};
@@ -33,6 +35,15 @@ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
  * The site publishes no e-mail addresses, so every page opts out. Applied after entry(), so the
  * content hashes behind <lastmod> (tools/lastmod.mjs) are unchanged. tools/live-check.mjs verifies it live. */
 export const noEmailObfuscation=html=>html.replace(/(<html\b[^>]*>)/i,'$1<!--email_off-->').replace(/\s*$/,'<!--/email_off-->\n');
+/** Intent content of a file-tool page (src/seo-depth): static HTML only, marked [data-sd] with its
+ * language. The browser re-renders #siteContent on a language switch but leaves .sd-depth alone
+ * (src/site-content.js hides it when the language shown differs), so the content never ships as JS. */
+export function toolDepth(key,locale){
+ const d=DEPTH[key]?.[locale];if(!d)return {answer:'',sections:''};
+ const o={prefix:`${locale}/`,resolve:resolveLink},html=['lead','after-how','after-table','end'].flatMap(s=>depthSlot(s,d,locale,o,'sd-block')).map(x=>x[2]).join('');
+ return {answer:answerHTML(d,o).replace('<p class="sd-answer"',`<p class="sd-answer" lang="${locale}" data-sd`),sections:html?`<div class="sd-depth" lang="${locale}" data-sd>${html}</div>`:''};
+}
+const withDepth=(contentHTML,sections)=>sections?contentHTML.replace('<article>',sections+'<article>'):contentHTML;
 /** Icons every page links, for browsers and for the favicon Google shows next to search results
  * (a crawlable square bitmap, a multiple of 48 px, plus /favicon.ico at the root). The SVG stays for
  * browsers that prefer it; PNG/ICO files are rendered from the same logo (assets/brand/). */
@@ -67,7 +78,8 @@ export function entry(html,route='',siteURL='',config={}){
   // / is the language entry (tools/language-entry-build.mjs), not a second copy of the English home.
   // No AdSense loader there (client:'' above): it is a redirect page without content of its own.
   if(neutralHome)return languageEntryPage({base,headHTML});
-  return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
+  const dep=toolDepth(landing||intent.path,locale);
+  return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML:withDepth(contentHTML,dep.sections),landing,answer:dep.answer}):homePage({locale,prefix,base,headHTML,contentHTML});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);
  out=out.replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(title)}</title>`);
@@ -81,7 +93,8 @@ export function entry(html,route='',siteURL='',config={}){
   out=out.replace(new RegExp(`(<[a-z][^>]*\\bid="${elementId}"[^>]*>)[\\s\\S]*?(<\\/[a-z][\\w-]*>)`),(whole,a,b)=>a+escape(text)+b);
  }
  out=out.replace('<option value="auto">Auto-detect</option>',`<option value="auto">${escape(t('language.auto',{},locale))}</option>`);
- out=out.replace('<!--site-content-->',toolContent(id,locale,landing));
+ const dep=toolDepth(landing||intent.path,locale);
+ out=out.replace('<!--site-content-->',withDepth(toolContent(id,locale,landing),dep.answer+dep.sections));
  out=out.replace('</head>',head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing)+'\n</head>');
  return out;
 }

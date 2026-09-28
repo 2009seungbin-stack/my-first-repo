@@ -377,7 +377,7 @@ const records = [
   ["intent.pixel.action","도트 에셋 만들기","Create pixel asset","ドット素材を作成"],
   ["intent.pdf.title","PDF 편집","PDF editor","PDF編集"],
   ["intent.pdf.headline","페이지를 한곳에, 간단하게.","Your pages, all together.","ページをひとつの場所に。"],
-  ["intent.pdf.description", "PDF 페이지를 합치고 정렬·회전·분할하거나 글자·그림 주석을 추가하세요. 브라우저에서 처리하며 기존 PDF 본문 편집과는 다릅니다.", "Merge, reorder, rotate and split PDF pages in your browser. Add text or drawing annotations and export a new PDF; existing document text is not edited.", "ブラウザでPDFページを結合、並べ替え、回転、分割。文字や図形の注釈を追加して新しいPDFに保存します。既存の本文を編集する機能ではありません。"],
+  ["intent.pdf.description", "PDF에 글자·서명·그림·도형을 올리고, 가리기(화이트아웃)·가림 처리(Redact), 양식 입력, 페이지 회전·복제·삭제·자르기를 브라우저에서 합니다. 기존 본문 글자를 고쳐 쓰는 기능은 아닙니다.", "Add text, signatures, pictures and shapes to a PDF, white out or redact areas, fill its form fields, and rotate, duplicate, delete or crop pages in your browser. Existing text is not retyped.", "PDFに文字・署名・画像・図形を追加し、ホワイトアウトや墨消し（Redact）、フォーム入力、ページの回転・複製・削除・トリミングをブラウザで行います。既存の本文を書き換える機能ではありません。"],
   ["intent.pdf.action","PDF 저장하기","Export PDF","PDFを保存"],
   ["intent.pdf-merge.title","PDF 합치기","Merge PDF","PDFを結合"],
   ["intent.pdf-merge.headline","합칠 PDF를 넣으세요","Bring your PDFs together","結合するPDFを追加"],
@@ -429,7 +429,7 @@ const records = [
   ["intent.video-gif.action","GIF 만들기","Create GIF","GIFを作成"],
   ["intent.video-compress.title","영상 용량 줄이기","Reduce video size","動画の容量を削減"],
   ["intent.video-compress.headline","영상을 더 작게","A smaller video copy","動画をもっと小さく"],
-  ["intent.video-compress.description","해상도·FPS·비트레이트와 목표 크기를 설정하세요. 실제 결과를 확인합니다.","Control resolution, FPS, bitrate and target size. Inspect measured results.","解像度・FPS・ビットレート・目標サイズを指定し、実際の結果を確認。"],
+  ["intent.video-compress.description","화질 단계나 목표 용량(MB)과 해상도 상한을 정하면 브라우저에서 다시 인코딩하고 실제 결과 크기를 확인합니다.","Pick a quality or a target size in MB and a resolution cap; the video is re-encoded in your browser and the measured size is shown.","画質の段階か目標容量（MB）と解像度の上限を決めると、ブラウザで再エンコードし実際のサイズを確認できます。"],
   ["intent.video-compress.action","영상 만들기","Create video","動画を作成"]
 ];
 export const MESSAGES=brandCopy({...Object.fromEntries(records.map(([key,...values])=>[key,values.length===2?[key,...values]:values])),...TOOL_MESSAGES});

@@ -107,9 +107,9 @@ function withFooterBrand(html,locale,prefix){
  const brand=footerBrand({locale,prefix,attrs:{'data-ui':'gh.footerLine'},linkAttrs:{'data-home-link':true},line:ui(locale,'gh.footerLine')});
  return html.includes('<footer class="site-footer">')?html.replace('<footer class="site-footer">',brand+'<footer class="site-footer">'):html+brand;
 }
-export function taskPage({id,locale,prefix,base,title,heading,description,headHTML,contentHTML,landing=''}){
+export function taskPage({id,locale,prefix,base,title,heading,description,headHTML,contentHTML,landing='',answer=''}){
  const kinds=TASK_TOOLS[id].kinds.map(k=>ui(locale,'kinds.'+k)).join(' · ');
- const body=`${header(locale,prefix,false)}<main class="page" id="task" data-ad-exclude data-tool="${id}" data-landing="${esc(landing)}"><nav class="crumb"><a data-home-link href="${prefix}">← <span data-ui="allTools">${esc(ui(locale,'allTools'))}</span></a> / ${esc(ui(locale,'cat.'+category(id)))}</nav><h1 id="taskTitle">${esc(heading)}</h1><p class="page-lead" id="taskLead">${esc(description)}</p>
+ const body=`${header(locale,prefix,false)}<main class="page" id="task" data-ad-exclude data-tool="${id}" data-landing="${esc(landing)}"><nav class="crumb"><a data-home-link href="${prefix}">← <span data-ui="allTools">${esc(ui(locale,'allTools'))}</span></a> / ${esc(ui(locale,'cat.'+category(id)))}</nav><h1 id="taskTitle">${esc(heading)}</h1><p class="page-lead" id="taskLead">${esc(description)}</p>${answer}
 <div id="taskApp"><div class="dropzone" data-action="pick" role="button" tabindex="0"><strong>${esc(ui(locale,'taskDrop',{kind:kinds}))}</strong><span>${esc(ui(locale,'multi'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(ui(locale,'pick'))}</button></div><small class="local-note">${esc(ui(locale,'local'))}</small></div></div></main><div id="siteContent">${contentHTML}</div>`;
  return shell({locale,base,title,description,headHTML,body,pageClass:'task-page'});
 }

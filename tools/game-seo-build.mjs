@@ -4,7 +4,8 @@ import {BRAND} from '../src/brand.js';
 import {verificationHead} from './growth-build.mjs';
 import {serviceMeta} from './service-build.mjs';
 import {GAME_HUB_PATH,HUB,SHOTS,STATUS,UI} from '../src/game-seo.js';
-import {exportsFor,gameFaq} from './game-landing-build.mjs';
+import {exportsFor,gameFaq,depthOf} from './game-landing-build.mjs';
+import {plain} from '../src/seo-depth/render.js';
 /** <head> of the game landing pages: robots decision, canonical + hreflang, SoftwareApplication,
  * BreadcrumbList, FAQPage and HowTo JSON-LD (the last two only for what the page shows), and social cards (assets/social/<locale>-<stem>.png). */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -39,12 +40,15 @@ export function gameFaqData(game,locale){
  const items=gameFaq(game,locale);
  return items.length?json({'@context':'https://schema.org','@type':'FAQPage',inLanguage:locale,mainEntity:items.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))}):'';
 }
-/** HowTo from the steps the page shows under "How it works" (the hub has no steps, so none). */
+/** HowTo from the steps the page shows, in page order: "How it works" (#how), then the steps in the
+ * target engine or application (#target, src/seo-depth) when the page has them. The hub has none. */
 export function gameHowTo(game,locale,siteURL){
  if(game.kind==='hub')return '';
  const c=game.page.copy[locale];if(!c.steps?.length)return '';
- const data={'@context':'https://schema.org','@type':'HowTo',name:c.title,description:c.lead,inLanguage:locale,tool:[{'@type':'HowToTool',name:BRAND.name}],step:c.steps.map((text,i)=>({'@type':'HowToStep',position:i+1,name:text,text}))};
- if(siteURL)data.step.forEach(st=>{st.url=new URL(pagePath(game.canonical,locale),siteURL).href+'#how';});
+ const target=depthOf(game.canonical,locale)?.target?.steps||[];
+ const steps=[...c.steps.map(text=>[text,'#how']),...target.map(text=>[plain(text),'#target'])];
+ const data={'@context':'https://schema.org','@type':'HowTo',name:c.title,description:c.lead,inLanguage:locale,tool:[{'@type':'HowToTool',name:BRAND.name}],step:steps.map(([text],i)=>({'@type':'HowToStep',position:i+1,name:text,text}))};
+ if(siteURL)data.step.forEach((st,i)=>{st.url=new URL(pagePath(game.canonical,locale),siteURL).href+steps[i][1];});
  return json(data);
 }
 export function gameSocial(game,locale,siteURL){
