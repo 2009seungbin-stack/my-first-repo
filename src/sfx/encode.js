@@ -1,0 +1,5 @@
+/** In-browser Ogg Vorbis and MP3. The WASM module is self-contained and never fetches a CDN.
+ * wasm-media-encoders 0.7.0 is MIT; underlying libvorbis/libogg BSD and LAME LGPL notices
+ * are recorded in docs/TOOL-SFX-GENERATOR.md. https://github.com/arseneyr/wasm-media-encoders */
+import {createOggEncoder,createMp3Encoder} from '../../assets/vendor/wasm-media-encoders-0.7.0/dist/esnext/index.mjs';
+export async function encodeCompressed(channels,rate,format){if(!['ogg','mp3'].includes(format))throw Error('Use ogg or mp3');if(channels.length<1||channels.length>2||channels.some(c=>c.length!==channels[0].length))throw Error('Invalid PCM channels');const encoder=await (format==='ogg'?createOggEncoder():createMp3Encoder());encoder.configure({sampleRate:rate,channels:channels.length,...(format==='ogg'?{vbrQuality:4}:{bitrate:192})});const parts=[],n=channels[0].length,chunk=8192;for(let i=0;i<n;i+=chunk){const packet=encoder.encode(channels.map(c=>c.subarray(i,Math.min(i+chunk,n))));if(packet.length)parts.push(packet.slice());}const tail=encoder.finalize();if(tail.length)parts.push(tail.slice());return new Uint8Array(await new Blob(parts).arrayBuffer());}
