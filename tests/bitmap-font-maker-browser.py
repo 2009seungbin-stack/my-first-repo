@@ -128,7 +128,8 @@ def main():
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         for locale in ('en', 'ko', 'ja'):
-            ctx = browser.new_context(viewport={'width': 390, 'height': 844}, accept_downloads=True)
+            ctx = browser.new_context(viewport={'width': 390, 'height': 844}, accept_downloads=True,
+                                      has_touch=locale == 'ko', is_mobile=locale == 'ko')
             page = ctx.new_page()
             errors = []
             page.on('pageerror', lambda error: errors.append(str(error)))
@@ -141,10 +142,20 @@ def main():
             assert 'U+25A1' in page.locator('#fontCoverage').inner_text()
             page.screenshot(path=str(OUT / f'font-{locale}-390.png'), full_page=True)
             assert not errors, errors
+            if locale == 'ko':
+                box = page.locator('#fontEditCanvas').bounding_box()
+                page.touchscreen.tap(box['x'] + 5, box['y'] + 5)
+                assert page.locator('[data-action="ui-font-undo"]').is_enabled()
             if locale == 'en':
                 page.locator('#fontGlyph').select_option('65')
                 page.locator('#fontEditCanvas').click(position={'x': 5, 'y': 5})
                 assert page.locator('[data-action="ui-font-undo"]').is_enabled()
+                page.locator('#fontEditCanvas').focus()
+                page.keyboard.press('ArrowRight')
+                page.keyboard.press('Space')
+                assert page.locator('#fontEditCanvas').evaluate('(element) => document.activeElement === element')
+                page.keyboard.press('Control+z')
+                assert page.locator('#fontEditCanvas').evaluate('(element) => document.activeElement === element')
                 page.locator('[data-action="ui-font-undo"]').click()
                 page.locator('[data-action="ui-font-redo"]').click()
                 page.locator('#optionsAdvanced').evaluate('(element) => { element.open = true }')

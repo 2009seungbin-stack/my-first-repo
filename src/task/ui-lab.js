@@ -1067,9 +1067,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
     if(f.tool==='rectangle'){FP.rectangleGlyph(f.project,g.codepoint,f.rectStart.x,f.rectStart.y,f.editX,f.editY,f.ink);f.rectStart=null;}
     else if(f.tool==='fill')FP.fillGlyph(f.project,g.codepoint,f.editX,f.editY,f.ink);
     else fontPaint(f.editX,f.editY);
-    refresh();return;
+    refresh();$('#fontEditCanvas')?.focus();return;
    }
-   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?stepFont(S.font.future,S.font.past):stepFont(S.font.past,S.font.future);return;}
+   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?stepFont(S.font.future,S.font.past):stepFont(S.font.past,S.font.future);$('#fontEditCanvas')?.focus();return;}
   }
   const guide=e.target.closest?.('.ns-guide');
   if(!guide||!source)return;
