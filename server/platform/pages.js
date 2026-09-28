@@ -103,7 +103,7 @@ export async function renderPlatformPage(request,env,site){
  if(!route||!env.DB)return null;
  const search=canonicalQuery(route.page,url.searchParams);
  // Compare in URLSearchParams' own encoding (":" → "%3A"), so an already canonical URL never redirects.
- const given=url.searchParams.toString();
+ const given=url.searchParams.toString().replace(/%2C/gi,',');
  if(search!==(given?`?${given}`:''))return redirect(new URL(url.pathname+search,url).href);
  const q=new URLSearchParams(search);
  const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin};
