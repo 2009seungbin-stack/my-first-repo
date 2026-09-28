@@ -21,13 +21,40 @@ Branch `nerulio/n2-platform` (worktree `C:\Users\2009s\Desktop\SITE-n2`). Baseli
   - `tools/platform/preview.mjs` renders a local preview (real seed facts + SAMPLE boards from `tools/platform/demo-posts.mjs`, never used in production). Published: https://claude.ai/artifact/6VHYBiwFzrznBeAYNwdU2T
   - Tests: `tests/n2-render.test.mjs` (escaping, formats, every entity type renders ko/en, panels, post, front, routes); `service-build` platform build test. Fixed the admin user count, which counted the Radar bot.
 
-## Not built on purpose (no data source yet)
-- Steam concurrent players, "people viewing now", and the Claude usage-limit poll from the v3 mockup: no collector/table yet, so they are left out instead of showing invented numbers.
+## Overnight autonomous session (2026-09-29 01:50–07:00 KST)
+Research first (`docs/n2/research/`: MARKET, COMPETITORS, SITE-AUDIT, CODE-REVIEW, UX-WALKTHROUGH),
+backlog in `docs/n2/BACKLOG.md`, then built and tested (all on `claude/epic-heisenberg-ey2d3p`):
+- Community that works end to end: `/api/v2` (follow, posts, threaded comments, votes, edit/delete
+  own content, accepted answers, compat/issue/benchmark reports, rollout votes, flags, nickname,
+  My Radar), page islands `src/platform/islands.js`, write page with a ProtonDB-style report form.
+- Moderation before boards open: 신고 queue, 임시조치/복구/기각/이용 제한 with a logged reason and a
+  role hierarchy, `/community/transparency` (monthly aggregates), `/community/policy`.
+- Search-entry pages: "지금 {service} 장애?" (official incidents + user reports per hour, spike
+  badge), "{GPU}에서 돌아가는 로컬 LLM" (estimate vs measured), AI plan / model API price / GPU spec
+  comparisons, change history per channel, vertical hubs (games: Korean patches to re-check after an
+  update; subculture: this week's broadcasts in KST, pre-order deadlines), search, Radar, 념글, RSS.
+- New channel panels: AI model (price + history, availability, local-run estimate), Korean patch.
+- SEO: content gate (`platform/seo.js`), entity sitemaps from D1, canonical query normalization,
+  typed JSON-LD (VideoGame, Product, SoftwareApplication, QAPage, DiscussionForumPosting, Breadcrumb).
+- Correctness/safety: cache-key normalization, status panels never claim "no incident" without a
+  fresh collector run, security headers/CSP on SSR, indexes (0005), unique nicknames (0006), event
+  identity fix (9 seed events had been merged), WCAG A/AA clean (axe-core), strict type check.
+- Operations: seed export for D1 (`npm run seed-sql:platform`), collectors → D1 REST on GitHub Actions
+  (off until `PLATFORM_COLLECTORS=on`), `NERULIO_2_MIGRATION_PLAN.md`, `docs/NERULIO_2_SCHEMA.md`.
+- Checks: `npm test` (2,430+ pass), `npm run typecheck` (0), `npm run test:platform` (browser E2E incl.
+  moderation), local `npm run dev:platform`, preview https://claude.ai/artifact/6VHYBiwFzrznBeAYNwdU2T
 
-## Next
-1. Islands (`src/platform/*`): follow, vote (post/compat/rollout/driver issue), new-post bar, countdown tick, comment form; API v2 write endpoints they call.
-2. Write page (글쓰기, report forms), search page, Radar feed, My Radar.
-3. D1 provisioning + seeding via D1 REST, collectors on GitHub Actions, per-vertical sitemaps, E2E with wrangler; docs `NERULIO_2_MIGRATION_PLAN.md`, `docs/NERULIO_2_SCHEMA.md`.
+## Not built on purpose
+- Steam concurrent players, "people viewing now", the Claude usage-limit poll: no data source yet.
+- Image uploads: wait until the illegal-image filtering duty is covered (MARKET §law).
+- Wiki free-text editing: the wiki box stays "sourced fact rows" (COMPETITORS: free-text channel wikis go unused).
+
+## Next (owner decisions and accounts)
+1. D1 + `PLATFORM=on` on preview (migration plan §2–4), then collectors (§5).
+2. Which channels open boards first (research: AI, 한글패치, GPU; studio/anime panels only at first).
+3. Naver Search Advisor / Search Console: submit `sitemap.xml` (lists the `sitemap-n2-*` files) and RSS.
+4. GitHub/Discord sign-in (OAuth apps), GeForce driver collector, Korean names for games (Steam koreana
+   via the steam-store collector).
 
 ## Known risks
 - Workers Free plan: 10 ms CPU + 100k requests/day for SSR pages → Workers Paid ($5/mo) likely at launch.
