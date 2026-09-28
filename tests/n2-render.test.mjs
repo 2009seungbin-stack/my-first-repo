@@ -331,6 +331,8 @@ test('works hub shows this week\'s broadcasts by weekday in Korea time',{skip:!s
 });
 
 test('community rules page and the wiki box\'s last-checked date',{skip:!sqliteAvailable},async()=>{
+ {const {renderPolicy}=await import('../platform/render/policy.js');const out=String(renderPolicy({l:'ko'},SITE));
+  assert(out.includes('id="ratings"')&&out.includes('3배 이상')&&out.includes('60일마다'),'the formulas behind the numbers are published');}
  const d=await seeded();
  const go=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  const pol=await go('/ko/community/policy');
