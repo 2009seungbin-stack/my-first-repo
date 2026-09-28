@@ -3,14 +3,21 @@
 PORT=4701 node tools/serve.mjs; TEST_URL=http://127.0.0.1:4701 python tests/pixel-converter-browser.py
 """
 from pathlib import Path
+from io import BytesIO
+from PIL import Image
+import base64
 from playwright.sync_api import sync_playwright
-import os,sys
+import os,sys,subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173').rstrip('/')
 SHOTS=Path(os.environ.get('PIXEL_CONVERTER_SHOTS',ROOT/'test-results'/'pixel-converter'))
 SHOTS.mkdir(parents=True,exist_ok=True)
 FIX=ROOT/'tests'/'fixtures'/'pixel'/'old_hero__nn_x7.png'
+PHOTO=ROOT/'tests'/'fixtures'/'pixel-converter'/'flower-landscape.jpg'
+GIF=ROOT/'tests'/'fixtures'/'sprite'/'trooper_run.gif'
+APNG=ROOT/'tests'/'fixtures'/'sprite'/'trooper_run.apng.png'
+ASEPRITE=Path(os.environ.get('ASEPRITE',r'C:\Users\2009s\asebuild\b\bin\aseprite.exe'))
 sys.stdout.reconfigure(encoding='utf-8',errors='replace')
 checks=[];errors=[];outside=[]
 def check(name,value):
@@ -20,6 +27,10 @@ def ready(p):p.wait_for_function('()=>document.documentElement.dataset.studioSta
 def state(p,s):p.wait_for_function('s=>document.querySelector("[data-px=cleanup]")?.dataset.state===s',arg=s,timeout=60000)
 with sync_playwright() as pw:
     browser=pw.chromium.launch()
+    ctx=browser.new_context(viewport={'width':1440,'height':900})
+    p=ctx.new_page();p.goto(BASE+'/en/image-to-pixel-art/')
+    check('existing image-to-pixel-art route opens the photo converter with Studio follow-on',p.title().startswith('Image to pixel art converter') and p.locator('a[href*="ws=pixel"][href*="mode=convert"]').count()>=1)
+    ctx.close()
     for locale in ['en','ko','ja']:
         ctx=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True)
         p=ctx.new_page()
@@ -60,7 +71,68 @@ with sync_playwright() as pw:
     p.set_input_files('input[type=file][multiple]',str(FIX));p.wait_for_function('()=>window.nerulioStudio.doc.assets.length>0',timeout=20000)
     p.evaluate("()=>window.nerulioStudio.runCommand('pixel.cleanup')")
     check('390px: converter controls fit without page overflow',p.evaluate('()=>document.documentElement.scrollWidth<=innerWidth+1'))
+    p.locator('[data-px="clean-measure"]').click();state(p,'measured')
+    p.locator('[data-px="clean-preview"]').click();state(p,'done')
+    check('390px: preview and apply stay inside the viewport',p.evaluate('()=>document.documentElement.scrollWidth<=innerWidth+1') and p.locator('[data-px="clean-apply"]').count()==1)
     p.screenshot(path=str(SHOTS/'converter-390.png'))
+    ctx.close()
+    ctx=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True)
+    p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
+    p.on('request',lambda r:outside.append(r.url) if not r.url.startswith(BASE) and not r.url.startswith('blob:') and not r.url.startswith('data:') else None)
+    p.goto(BASE+'/en/game/studio/?ws=pixel&mode=convert');ready(p)
+    p.set_input_files('input[type=file][multiple]',str(PHOTO));p.wait_for_function('()=>window.nerulioStudio.doc.assets.length>0',timeout=20000)
+    p.evaluate("()=>window.nerulioStudio.runCommand('pixel.cleanup')")
+    p.locator('[data-px="clean-measure"]').click();state(p,'measured')
+    p.locator('[data-px="clean-preview"]').click();state(p,'done')
+    data=p.evaluate('''()=>{const f=window.__pixel.cleanupUI.state().result.frames[0];const c=document.createElement('canvas');c.width=f.width;c.height=f.height;c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(f.data),f.width,f.height),0,0);return {png:c.toDataURL('image/png').split(',')[1],rgba:Array.from(f.data),width:f.width,height:f.height};}''')
+    decoded=Image.open(BytesIO(base64.b64decode(data['png']))).convert('RGBA')
+    check('CC0 photograph output independently reopens at 32×32 with matching pixels',decoded.size==(32,32) and decoded.tobytes()==bytes(data['rgba']))
+    p.screenshot(path=str(SHOTS/'photo-1440.png'))
+    (SHOTS/'photo-32.png').write_bytes(base64.b64decode(data['png']))
+    ctx.close()
+    ctx=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True)
+    p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
+    p.goto(BASE+'/en/game/studio/?ws=pixel&mode=convert');ready(p)
+    p.set_input_files('input[type=file][multiple]',str(GIF))
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.some(a=>a.frames.length===6)',timeout=30000)
+    p.evaluate("()=>window.nerulioStudio.runCommand('pixel.cleanup')")
+    p.locator('[data-px="clean-scope-all"]').click()
+    p.locator('[data-px="clean-measure"]').click();state(p,'measured')
+    if p.locator('.px-clean-opts').get_attribute('open') is None:p.locator('.px-clean-opts summary').click()
+    p.locator('[data-px="clean-indexed"]').check()
+    p.locator('[data-px="clean-preview"]').click();state(p,'done')
+    expected=p.evaluate('()=>window.__pixel.cleanupUI.state().result.frames.map(f=>Array.from(f.data))')
+    check('CC0 GIF import converts all six frames with one palette',len(expected)==6 and p.locator('[data-px="clean-palette"] span').count()<=16)
+    p.locator('[data-px="clean-apply"]').click()
+    p.wait_for_function('()=>{const s=window.nerulioStudio,w=window.__pixel;return s.doc.assets.length===2&&s.activeAssetId===s.doc.assets[1].id&&w.asset()?.id===s.doc.assets[1].id&&w.session.rect?.w===32}',timeout=20000)
+    with p.expect_download() as download:p.evaluate("()=>window.nerulioStudio.runCommand('pixel.exportPNG')")
+    png_path=SHOTS/'trooper-converted-indexed.png';download.value.save_as(png_path)
+    png=Image.open(png_path)
+    check('converted PNG-8 independently reopens with indexed palette and matching pixels',png.mode=='P' and png.size==(32,32) and png.convert('RGBA').tobytes()==bytes(expected[0]))
+    with p.expect_download() as download:p.evaluate("()=>window.nerulioStudio.runCommand('pixel.exportAseprite')")
+    ase_path=SHOTS/'trooper-converted.aseprite';download.value.save_as(ase_path)
+    if ASEPRITE.exists():
+        run=subprocess.run([str(ASEPRITE),'-b',str(ase_path),'--color-mode','rgb','--save-as',str(SHOTS/'trooper-ase-{frame}.png')],capture_output=True,text=True,timeout=120)
+        ase_frames=[Image.open(SHOTS/f'trooper-ase-{i}.png').convert('RGBA').tobytes() for i in range(6)] if run.returncode==0 else []
+        check('converted .aseprite independently reopens in Aseprite with six matching frames',ase_frames==[bytes(e) for e in expected])
+    else:print(f'SKIP Aseprite CLI unavailable: {ASEPRITE}',flush=True)
+    with p.expect_download() as download:p.evaluate("()=>window.nerulioStudio.runCommand('pixel.exportGIF')")
+    gif_path=SHOTS/'trooper-converted.gif';download.value.save_as(gif_path)
+    reopened=Image.open(gif_path)
+    decoded=[reopened.seek(i) or reopened.convert('RGBA').tobytes() for i in range(reopened.n_frames)]
+    check('GIF output independently reopens with frame order, timing, loop and matching pixels',reopened.size==(32,32) and reopened.n_frames==6 and reopened.info.get('loop')==0 and all(bytes(e)==d for e,d in zip(expected,decoded)))
+    ctx.close()
+    ctx=browser.new_context(viewport={'width':1440,'height':900},accept_downloads=True)
+    p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
+    p.goto(BASE+'/en/game/studio/?ws=pixel&mode=convert');ready(p)
+    p.set_input_files('input[type=file][multiple]',str(APNG))
+    p.wait_for_function('()=>window.nerulioStudio.doc.assets.some(a=>a.frames.length===6)',timeout=30000)
+    p.evaluate("()=>window.nerulioStudio.runCommand('pixel.cleanup')")
+    p.locator('[data-px="clean-scope-all"]').click()
+    p.locator('[data-px="clean-measure"]').click();state(p,'measured')
+    p.locator('[data-px="clean-preview"]').click();state(p,'done')
+    dimensions=p.evaluate('()=>window.__pixel.cleanupUI.state().result.frames.map(f=>[f.width,f.height])')
+    check('CC0 APNG import converts all six composited frames at one output size',dimensions==[[32,32]]*6)
     ctx.close();browser.close()
 check('no page errors',not errors)
 check('processing sent no outside request',not outside)

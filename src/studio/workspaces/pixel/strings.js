@@ -127,4 +127,9 @@ const CONVERTER_STRINGS={
 };
 export const PIXEL_GROUP={en:'Pixel',ko:'픽셀',ja:'ピクセル'};
 for(const l of Object.keys(CONVERTER_STRINGS))PIXEL_STRINGS[l].conv=CONVERTER_STRINGS[l];
+for(const [l,label,saved] of [
+ ['en','Export GIF (256 colours, binary alpha)','Saved {name} with {n} frames. GIF rounds timing to 10 ms and transparency to on/off.'],
+ ['ko','GIF 내보내기(256색·이진 투명도)','{n}프레임을 {name}으로 저장했습니다. GIF 시간은 10ms 단위, 투명도는 켜짐/꺼짐으로 반올림됩니다.'],
+ ['ja','GIFを書き出す（256色・2値透明）','{n}フレームを {name} に保存しました。GIFの時間は10ms単位、透明度は有無に丸められます。']
+]){PIXEL_STRINGS[l].cmd.exportGIF=label;PIXEL_STRINGS[l].conv.gifSaved=saved;}
 for(const l of Object.keys(PIXEL_STRINGS)){if(!STUDIO_STRINGS[l])continue;STUDIO_STRINGS[l].px=PIXEL_STRINGS[l];STUDIO_STRINGS[l].group={...(STUDIO_STRINGS[l].group||{}),pixel:PIXEL_GROUP[l]};}

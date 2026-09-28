@@ -32,6 +32,7 @@ import {createCleanup} from './cleanup-ui.js';
 import {PIXEL_ICONS} from './icons.js';
 import {matcher,keyOf,DB32,indicesFromRGBA,rgbaFromIndices} from '../../pixel/indexed.js';
 import {encodeIndexedPNG} from '../../pixel/png8.js';
+import {encodePixelGIF} from '../../pixel/gif-export.js';
 const PREFS='nerulio.studio.pixel.v1';
 const DEFAULTS={size:1,brush:'square',ink:'simple',pixelPerfect:true,symmetry:{mode:'none',axisX:null,axisY:null},ditherPattern:'bayer4',ditherDensity:50,ditherSecond:'bg',
  contiguous:true,tolerance:0,sampleMerged:false,shapeFill:false,onion:{on:false,before:1,after:1,opacity:.45,tint:true},loopTag:true,cw:26,preview:false,previewZoom:2,previewBg:'checker',previewPos:null,
@@ -386,11 +387,12 @@ export default {
   cmd('pixel.cleanup',()=>ctx.showPanel('px-cleanup'),{});
   cmd('pixel.exportAseprite',()=>exportAseprite(),{group:'file'});
   cmd('pixel.exportPNG',()=>exportFramePNG(),{group:'file'});
+  cmd('pixel.exportGIF',()=>exportGIF(),{group:'file',enabled:()=>asset()?.frames.length>1});
   cmd('pixel.animate',()=>{const a=asset();exec(t('px.cmd.animate'),d=>PD.frameFromCanvas(d,a.id));refreshAll();},{enabled:()=>!!asset()&&!asset().frames.length});
   ctx.menu({id:'pixel',title:'px.menu',items:()=>['pixel.newSprite','pixel.colorMode','pixel.canvasSize','-','pixel.copy','pixel.cut','pixel.paste','pixel.drop','-','pixel.reselect','pixel.invertSelection','pixel.selectLayer','-',
    'pixel.flipH','pixel.flipV','pixel.rotateCW','pixel.rotateCCW','pixel.replaceColor','pixel.outline','pixel.shadow','-','pixel.newLayer','pixel.duplicateLayer','pixel.mergeDown','pixel.deleteLayer','-',
    'pixel.swapColors','pixel.pixelPerfect','pixel.symmetryX','pixel.symmetryY','-','pixel.lospec','pixel.ramp','pixel.variants','pixel.audit','pixel.cleanup','-',
-   'sprite.play','sprite.onion','sprite.preview','pixel.animate','-','pixel.exportPNG','pixel.exportAseprite']});
+   'sprite.play','sprite.onion','sprite.preview','pixel.animate','-','pixel.exportPNG','pixel.exportGIF','pixel.exportAseprite']});
   // ------------------------------------------------------------ export
   async function exportAseprite(){
    const a0=asset();if(!a0)return;await commitChain;
@@ -410,6 +412,14 @@ export default {
     if(!offPalette)blob=new Blob([encodeIndexedPNG(indices,w,hh,a.palette.colors,{transparentIndex:PD.transparentIndexOf(a)})],{type:'image/png'});}
    if(!blob){const {encodeRGBAPNG}=await import('../../../game/texture-png.js');const png=await encodeRGBAPNG(d,w,hh);blob=png instanceof Blob?png:new Blob([png],{type:'image/png'});}
    const f=frame(),name=`${String(a.name).replace(/\.[^.]+$/,'')}${f?'_'+(S.cur+1):''}.png`;download(blob,name);ctx.toast(t('px.toast.png',{name,w,h:hh}));
+  }
+  async function exportGIF(){
+   const a=asset();if(!a||a.frames.length<2)return;await commitChain;
+   const rgbaOf=await rgbaGetter(images,a,a.frames),frames=a.frames.map(f=>composeCanvas(a,f,rgbaOf));
+   const result=await encodePixelGIF(frames,{durations:a.frames.map(f=>f.duration),palette:a.palette?.colors?.filter((_,i)=>!PD.isIndexed(a)||i!==PD.transparentIndexOf(a))});
+   const name=String(a.name).replace(/\.[^.]+$/,'')+'.gif';
+   download(new Blob([result.bytes],{type:'image/gif'}),name);
+   ctx.toast(t('px.conv.gifSaved',{name,n:frames.length}));
   }
   function download(blob,name){const link=h('a',{href:URL.createObjectURL(blob),download:name});document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),30000);}
   const importer=createImporter(ctx,{onChange:()=>refreshAll()});
