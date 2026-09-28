@@ -3,6 +3,12 @@ const clamp=(v,min,max,fallback)=>Number.isFinite(Number(v))?Math.max(min,Math.m
 const xml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const frame=(width,height,body)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${body}</svg>`;
 const size=(o)=>({width:Math.round(clamp(o.width,64,4096,800)),height:Math.round(clamp(o.height,64,4096,600))});
+function clipOverlay(body,w,h,o){
+ const left=clamp(o.clipLeft,0,1,0),top=clamp(o.clipTop,0,1,0),right=clamp(o.clipRight,0,1,1),bottom=clamp(o.clipBottom,0,1,1);
+ if(right<=left||bottom<=top)throw new RangeError('Clip right/bottom must exceed left/top');
+ if(left===0&&top===0&&right===1&&bottom===1)return body;
+ return `<defs><clipPath id="panel-clip"><rect x="${(left*w).toFixed(2)}" y="${(top*h).toFixed(2)}" width="${((right-left)*w).toFixed(2)}" height="${((bottom-top)*h).toFixed(2)}"/></clipPath></defs><g clip-path="url(#panel-clip)">${body}</g>`;
+}
 function rng(seed){let s=(Math.floor(Number(seed)||1)>>>0)||1;return ()=>((s^=s<<13,s^=s>>>17,s^=s<<5)>>>0)/4294967296;}
 export function speedLines(options={}){
  const {width:w,height:h}=size(options),count=Math.round(clamp(options.count,8,400,90)),gap=clamp(options.gap,0,0.8,0.15),inner=clamp(options.inner,0.03,0.75,0.18),cx=clamp(options.cx,0,1,0.5)*w,cy=clamp(options.cy,0,1,0.5)*h,stroke=clamp(options.stroke,0.25,24,2),angle=clamp(options.angle,-180,180,0)*Math.PI/180,random=rng(options.seed);
@@ -13,7 +19,7 @@ export function speedLines(options={}){
   const x1=cx+Math.cos(a)*start,y1=cy+Math.sin(a)*start,x2=cx+Math.cos(a)*len,y2=cy+Math.sin(a)*len;
   paths.push(`<path d="M${x1.toFixed(2)} ${y1.toFixed(2)}L${x2.toFixed(2)} ${y2.toFixed(2)}" stroke="#111" stroke-width="${(stroke*(.55+random()*.9)).toFixed(2)}" stroke-linecap="round"/>`);
  }
- return frame(w,h,paths.join(''));
+ return frame(w,h,clipOverlay(paths.join(''),w,h,options));
 }
 function balloonPath(shape,w,h,pad){
  const x=pad,y=pad,r=Math.min(35,w*.08,h*.16),bw=w-pad*2,bh=h-pad*2,tailX=w*.52,tailY=h-pad;
@@ -37,6 +43,6 @@ export function screentone(options={}){
  const {width:w,height:h}=size(options),ppi=clamp(options.ppi,72,1200,300),lpi=clamp(options.lpi,10,150,60),pitch=ppi/lpi,density=clamp(options.density,0,0.85,0.25),angle=clamp(options.angle,-180,180,45),shape=options.shape==='line'?'line':'dot';
  if(pitch<2)throw new RangeError('PPI/LPI yields a cell smaller than 2 px; choose a lower LPI');
  const radius=Math.min(pitch*.48,pitch*Math.sqrt(density/Math.PI)),cell=shape==='dot'?`<circle cx="${(pitch/2).toFixed(3)}" cy="${(pitch/2).toFixed(3)}" r="${radius.toFixed(3)}" fill="#111"/>`:`<rect x="0" y="0" width="${pitch.toFixed(3)}" height="${(pitch*density).toFixed(3)}" fill="#111"/>`;
- return frame(w,h,`<defs><pattern id="tone" patternUnits="userSpaceOnUse" width="${pitch.toFixed(3)}" height="${pitch.toFixed(3)}" patternTransform="rotate(${angle})">${cell}</pattern></defs><rect width="${w}" height="${h}" fill="url(#tone)"/>`);
+ return frame(w,h,`<defs><pattern id="tone" patternUnits="userSpaceOnUse" width="${pitch.toFixed(3)}" height="${pitch.toFixed(3)}" patternTransform="rotate(${angle})">${cell}</pattern></defs>${clipOverlay(`<rect width="${w}" height="${h}" fill="url(#tone)"/>`,w,h,options)}`);
 }
 export const EFFECTS=Object.freeze({speed:speedLines,balloon:speechBalloon,tone:screentone});

@@ -13,16 +13,16 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import cairosvg
-from PIL import Image, ImageChops, ImageDraw, ImageOps
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 't8' / 'offline-visual'
 OUT.mkdir(parents=True, exist_ok=True)
 COMIC = Image.open(ROOT / 'tests' / 'fixtures' / 'webtoon' / 'comic-page.png').convert('RGBA')
 JS = """import {speedLines,speechBalloon,screentone} from './src/webtoon/effects.js';
-console.log(JSON.stringify({speed:speedLines({width:800,height:1000,count:95,inner:.25,cx:.65,cy:.16,seed:74}),
+console.log(JSON.stringify({speed:speedLines({width:800,height:1000,count:95,inner:.25,cx:.65,cy:.16,seed:74,clipLeft:.03,clipTop:.062,clipRight:.97,clipBottom:.909}),
 balloon:speechBalloon({width:400,height:180,text:'STILL HERE!',shape:'shout',fontSize:32}),
-tone:screentone({width:800,height:1000,ppi:300,lpi:60,density:.1,angle:45})}));"""
+tone:screentone({width:800,height:1000,ppi:300,lpi:25,density:.1,angle:45,clipLeft:.03,clipTop:.062,clipRight:.97,clipBottom:.909})}));"""
 vectors = json.loads(subprocess.check_output(['node', '--input-type=module', '-e', JS], cwd=ROOT).decode('utf-8'))
 members = {}
 for kind, svg in vectors.items():
@@ -33,12 +33,10 @@ for kind, svg in vectors.items():
     assert overlay.size == {'speed': (800, 1000), 'balloon': (400, 180), 'tone': (800, 1000)}[kind]
     assert overlay.getextrema()[3][0] == 0
     composite = COMIC.copy()
-    # Demonstrate the masking a creator would do in their editor: the generator
-    # exports a transparent overlay, not a claim that it auto-detects panel edges.
     if kind in ('speed', 'tone'):
-        mask = Image.new('L', overlay.size, 0)
-        ImageDraw.Draw(mask).rectangle((24, 62, 775, 929 if kind == 'speed' else 909), fill=255)
-        overlay.putalpha(ImageChops.multiply(overlay.getchannel('A'), mask))
+        # The generator's explicit manual SVG clip keeps gutters transparent.
+        for xy in ((0, 0), (799, 999), (10, 300), (790, 300)):
+            assert overlay.getpixel(xy)[3] == 0, (kind, xy)
     composite.alpha_composite(overlay, {'speed': (0, 1000), 'balloon': (350, 2150), 'tone': (0, 2000)}[kind])
     merged = io.BytesIO()
     composite.convert('RGB').save(merged, format='PNG', optimize=True)
