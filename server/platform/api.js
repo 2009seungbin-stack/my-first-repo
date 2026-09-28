@@ -523,10 +523,11 @@ async function modQueue(db,_p){
   FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`).all()).results||[];
  const proposals=[];
  for(const r of props){
-  const cur=await db.prepare("SELECT value,unit,verification FROM facts WHERE entity_id=? AND property=? AND is_current=1 AND plan='*' ORDER BY CASE region WHEN 'KR' THEN 0 WHEN '*' THEN 1 ELSE 2 END LIMIT 1").bind(r.entity_id,r.property).first();
+  // The most trusted current value (an official one for any region), so the moderator compares against it.
+  const cur=await db.prepare("SELECT value,unit,verification,region FROM facts WHERE entity_id=? AND property=? AND is_current=1 AND plan='*' ORDER BY CASE verification WHEN 'OFFICIAL' THEN 0 WHEN 'AUTOMATED' THEN 1 WHEN 'COMMUNITY_VERIFIED' THEN 2 ELSE 3 END,CASE region WHEN 'KR' THEN 0 WHEN '*' THEN 1 ELSE 2 END LIMIT 1").bind(r.entity_id,r.property).first();
   const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
   const def=propertyDef(e.vertical,String(r.property));
-  proposals.push({target:`proposal:${r.id}`,channel:nameOf(e,'ko'),url:channelUrl('ko',e),property:def?.label?.ko||r.property,value:JSON.parse(String(r.value)),unit:r.unit??null,current:cur?{value:JSON.parse(String(cur.value)),unit:cur.unit??null,verification:String(cur.verification)}:null,source:String(r.source_url),note:r.note??null,author:String(r.author),at:Number(r.created_at)});
+  proposals.push({target:`proposal:${r.id}`,channel:nameOf(e,'ko'),url:channelUrl('ko',e),property:def?.label?.ko||r.property,value:JSON.parse(String(r.value)),unit:r.unit??null,current:cur?{value:JSON.parse(String(cur.value)),unit:cur.unit??null,verification:String(cur.verification),region:String(cur.region)}:null,source:String(r.source_url),note:r.note??null,author:String(r.author),at:Number(r.created_at)});
  }
  const logRows=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
  // The log names what was acted on (title or comment excerpt), not an internal id.

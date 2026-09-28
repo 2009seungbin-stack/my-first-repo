@@ -443,7 +443,7 @@ async function main(){
     for(const it of proposals){
      const li=document.createElement('li');li.className='mq';
      const top=document.createElement('p');top.className='mqh';const a=document.createElement('a');a.className='tt';a.href=it.url;a.textContent=`${it.channel} · ${it.property}`;top.append(a);li.append(top);
-     const v=document.createElement('p');v.className='mqx';v.textContent=`${ko?'제안':'Proposed'}: ${show(it.value)}${it.unit?' '+it.unit:''}   ←   ${ko?'현재':'Now'}: ${it.current?show(it.current.value)+(it.current.unit?' '+it.current.unit:'')+` (${it.current.verification})`:'—'}`;li.append(v);
+     const v=document.createElement('p');v.className='mqx';v.textContent=`${ko?'제안':'Proposed'}: ${show(it.value)}${it.unit?' '+it.unit:''}   ←   ${ko?'현재':'Now'}: ${it.current?show(it.current.value)+(it.current.unit?' '+it.current.unit:'')+` (${it.current.verification}${it.current.region&&it.current.region!=='*'?' · '+it.current.region:''})`:'—'}`;li.append(v);
      const src=document.createElement('p');src.className='fine';const sa=document.createElement('a');sa.href=it.source;sa.target='_blank';sa.rel='noopener nofollow';sa.textContent=(ko?'출처: ':'Source: ')+it.source;src.append(sa,` · ${it.author} · ${when(it.at)}`);li.append(src);
      if(it.note){const n=document.createElement('p');n.className='mqn';n.textContent=it.note;li.append(n);}
      const bar=document.createElement('p');bar.className='mqa';

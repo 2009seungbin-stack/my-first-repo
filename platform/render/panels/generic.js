@@ -1,6 +1,7 @@
 // @ts-check
 /** Fallback for channels without a dedicated panel (companies, plans, voice actors …): recent
  * changes and upcoming dates on top, the entity's facts in the wiki box. */
+import {pickFact} from '../../db/channel.js';
 import {html} from '../html.js';
 import {t} from '../strings.js';
 import {box,badge,nameOf} from '../ui.js';
@@ -31,7 +32,7 @@ export function factRows(ctx,only){
  for(const p of order){
   const lr=(/** @type {any} */ x)=>x.language===l?0:!x.language||x.language==='*'?1:2;
   const cand=facts.filter(x=>x.property===p&&x.plan==='*').sort((a,b)=>lr(a)-lr(b));
-  const f=cand.find(x=>x.region===ctx.region||x.region==='*'||x.region==='GLOBAL')||cand[0];
+  const f=pickFact(cand,p,{region:ctx.region,language:l});
   const def=propertyDef(e.vertical,p);
   if(!f||p==='homepage'||def?.public===false)continue;
   rows.push(html`<tr><th>${def?label(def.label,l):p}</th><td>${factText(e.vertical,f,l)}${f.verification!=='OFFICIAL'?html` ${badge(f.verification,l)}`:''}</td></tr>`);

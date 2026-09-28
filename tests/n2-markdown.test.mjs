@@ -42,3 +42,6 @@ test('GFM tables (benchmark posts) render escaped, with alignment; a lone pipe l
 test('a bare URL at the start of a later line is a link',()=>{
  assert(renderMarkdown('출처\nhttps://example.com/a').includes('<br><a href="https://example.com/a"'));
 });
+test('a pipe line that is not a table row never stalls the renderer',()=>{
+ for(const md of ['| a | b\n|---|---|','|x\n|---|\n|y','| a |\n|---|\n| b','|\n|--|','text\n| a | b\n|---|---|'])assert.equal(typeof renderMarkdown(md),'string',md);
+});

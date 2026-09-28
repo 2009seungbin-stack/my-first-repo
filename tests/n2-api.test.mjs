@@ -189,6 +189,11 @@ test('fact proposals: validated like seed facts, reviewed by a moderator, never 
  assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.proposals.length,0);
  assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:q.proposals[0].target,action:'accept',reason:'again'}})).status,409,'reviewed once');
  assert.equal((await h.call('POST','/mod/action',{as:'a',body:{target:q.proposals[0].target,action:'accept',reason:'me'}})).status,404,'members cannot review');
+ // An official value for one region stays what readers see after a community value for all regions.
+ const {pickFact}=await import('../platform/db/channel.js');
+ const rows=[{property:'price',plan:'*',platform:'*',region:'JP',language:'*',verification:'OFFICIAL',value:16500},{property:'price',plan:'*',platform:'*',region:'*',language:'*',verification:'COMMUNITY_VERIFIED',value:1}];
+ assert.equal(pickFact(rows,'price',{region:'KR'}).value,16500);
+ assert.equal(pickFact([...rows,{...rows[0],region:'KR',value:9900,verification:'COMMUNITY'}],'price',{region:'KR'}).value,9900,'the reader\'s own region still comes first');
 });
 
 test('reply alerts: comments on my posts and replies to my comments, unread until seen',{skip},async()=>{

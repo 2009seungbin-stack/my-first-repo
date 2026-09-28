@@ -7,6 +7,8 @@
 /** @typedef {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>,descriptions:Record<string,string>,official_urls:{label:string,url:string}[],image_url:string|null,status:string,index_state:string,updated_at:number}} Entity */
 /** @typedef {{entity_id:string,property:string,value:any,unit:string|null,verification:string,region:string,language:string,platform:string,plan:string,source_id:string|null,observed_at:number,note:string|null}} Fact */
 
+import {VERIFICATION} from '../schema.js';
+
 const CHUNK=40;
 const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
 /** @param {string|null|undefined} s @param {any} fallback */
@@ -42,6 +44,8 @@ export async function factsFor(db,ids){
  for(const r of rows){const list=out.get(r.entity_id)||[];list.push({...r,value:json(r.value,null),observed_at:Number(r.observed_at)});out.set(r.entity_id,list);}
  return out;
 }
+const verRank=(/** @type {string} */ v)=>{const i=VERIFICATION.indexOf(/** @type {any} */(v));return i<0?99:i;};
+const neutral=(/** @type {{region:string}} */ f)=>f.region==='*'||f.region==='GLOBAL'?1:0;
 /**
  * The fact to show for a property: the reader's region first (KR on Korean pages), then the global
  * row, then any row. Plan/platform-scoped rows are only used when asked for.
@@ -54,7 +58,11 @@ export function pickFact(facts,property,scope={}){
  // language-neutral row, then any other.
  const lr=(/** @type {any} */ f)=>scope.language&&f.language===scope.language?0:!f.language||f.language==='*'?1:2;
  rows.sort((a,b)=>lr(a)-lr(b));
- return rows.find(f=>scope.region&&f.region===scope.region)||rows.find(f=>f.region==='*'||f.region==='GLOBAL')||rows[0];
+ const own=rows.find(f=>scope.region&&f.region===scope.region);if(own)return own;
+ // No row for the reader's region: the most trusted row, the region-neutral one on a tie (a
+ // community value for all regions never hides an official value for one region).
+ const lang=lr(rows[0]);
+ return rows.filter(f=>lr(f)===lang).sort((a,b)=>verRank(a.verification)-verRank(b.verification)||neutral(b)-neutral(a))[0];
 }
 /** Relations of an entity, with the entity on the other side. dir 'out' = entity is subject.
  * @param {D1} db @param {string} id @param {'out'|'in'} dir @param {string[]} predicates */

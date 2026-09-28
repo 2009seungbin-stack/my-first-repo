@@ -30,6 +30,8 @@ function inline(t){
  t=t.replace(/\*\*([^*\n]{1,500})\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]{1,500})\*/g,'$1<em>$2</em>').replace(/~~([^~\n]{1,500})~~/g,'<del>$1</del>');
  return t.replace(/\u0000(\d+)\u0000/g,(_,i)=>`<code>${codes[Number(i)]}</code>`);
 }
+/** A table starts here: a |row| line followed by a |---| separator (the same test everywhere). @param {string[]} lines @param {number} i */
+const tableAt=(lines,i)=>/^\s*\|.*\|\s*$/.test(lines[i]||'')&&TABLE_SEP.test(lines[i+1]||'');
 const TABLE_SEP=/^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
 /** @param {string} md @param {{headingBase?:number}} [o] */
 export function renderMarkdown(md,o={}){
@@ -45,7 +47,7 @@ export function renderMarkdown(md,o={}){
   if(/^\s*[-*]\s+/.test(line)){const buf=[];while(i<lines.length&&/^\s*[-*]\s+/.test(lines[i]))buf.push(`<li>${inline(lines[i++].replace(/^\s*[-*]\s+/,''))}</li>`);out.push(`<ul>${buf.join('')}</ul>`);continue;}
   if(/^\s*\d+[.)]\s+/.test(line)){const buf=[];while(i<lines.length&&/^\s*\d+[.)]\s+/.test(lines[i]))buf.push(`<li>${inline(lines[i++].replace(/^\s*\d+[.)]\s+/,''))}</li>`);out.push(`<ol>${buf.join('')}</ol>`);continue;}
   // GFM table: a header row, a |---|:---:| separator, then rows (benchmark posts need these).
-  if(/^\s*\|.*\|\s*$/.test(line)&&i+1<lines.length&&TABLE_SEP.test(lines[i+1])){
+  if(tableAt(lines,i)){
    const cells=(/** @type {string} */ r)=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim());
    const head=cells(line),align=cells(lines[i+1]).map(c=>/^:-+:$/.test(c)?'center':/-:$/.test(c)?'right':'');
    i+=2;const rows=[];
@@ -55,7 +57,8 @@ export function renderMarkdown(md,o={}){
    continue;
   }
   if(!line.trim()){i++;continue;}
-  const buf=[];while(i<lines.length&&lines[i].trim()&&!/^(```|#{1,3}\s|&gt;|\s*[-*]\s+|\s*\d+[.)]\s+)/.test(lines[i])&&!(/^\s*\|/.test(lines[i])&&TABLE_SEP.test(lines[i+1]||'')))buf.push(lines[i++]);
+  // The first line always goes in, so the loop moves forward whatever the line looks like.
+  const buf=[lines[i++]];while(i<lines.length&&lines[i].trim()&&!/^(```|#{1,3}\s|&gt;|\s*[-*]\s+|\s*\d+[.)]\s+)/.test(lines[i])&&!tableAt(lines,i))buf.push(lines[i++]);
   out.push(`<p>${inline(buf.join('<br>'))}</p>`);
  }
  return out.join('');
