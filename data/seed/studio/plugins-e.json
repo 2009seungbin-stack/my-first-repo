@@ -1,0 +1,4614 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:waves-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/support/tech-specs/system-requirements",
+   "title": "Waves System Requirements",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28",
+   "note": "Version 17 (latest): macOS Sonoma 14, Sequoia 15, Tahoe 26, Golden Gate 27; only M-series Apple Silicon officially supported on Mac; Windows 10 64-bit (22H2 only) and Windows 11. V16: macOS 13 (13.7+)-26; V15: macOS 12-15; V14: macOS 10.15-14."
+  },
+  {
+   "id": "src:waves-ssl-g-master-buss-compressor-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/ssl-g-master-buss-compressor",
+   "title": "Waves SSL G-Master Buss Compressor",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-ssl-e-channel-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/ssl-e-channel",
+   "title": "Waves SSL E-Channel",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-cla-76-compressor-limiter-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/cla-76-compressor-limiter",
+   "title": "Waves CLA-76",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-cla-2a-compressor-limiter-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/cla-2a-compressor-limiter",
+   "title": "Waves CLA-2A",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-h-delay-hybrid-delay-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/h-delay-hybrid-delay",
+   "title": "Waves H-Delay",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-renaissance-vox-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/renaissance-vox",
+   "title": "Waves Renaissance Vox",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-l2-ultramaximizer-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/l2-ultramaximizer",
+   "title": "Waves L2 Ultramaximizer",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-vocal-rider-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/vocal-rider",
+   "title": "Waves Vocal Rider",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-abbey-road-chambers-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/abbey-road-chambers",
+   "title": "Waves Abbey Road Chambers",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-clarity-vx-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/clarity-vx",
+   "title": "Waves Clarity Vx",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-waves-tune-real-time-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/waves-tune-real-time",
+   "title": "Waves Tune Real-Time",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:waves-curves-equator-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.waves.com/plugins/curves-equator",
+   "title": "Waves Curves Equator",
+   "publisher": "Waves Audio",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:eventide-blackhole-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/blackhole/",
+   "title": "Blackhole® - Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, x64 | AAX 64-bit, VST2 64-bit, VST3 64-bit, NKS Integration | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit | AUv3 64-bit, Standalone 64-bit"
+  },
+  {
+   "id": "src:eventide-h3000-factory-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/h3000-factory/",
+   "title": "H3000 Factory - Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 8+ | AAX 64-bit, VST2 64-bit, VST3 64-bit | macOS 10.9+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit"
+  },
+  {
+   "id": "src:eventide-ultratap-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/ultratap/",
+   "title": "UltraTap - Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, x64 | AAX 64-bit, VST2 64-bit, VST3 64-bit | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit | AUv3 64-bit, Standalone 64-bit"
+  },
+  {
+   "id": "src:eventide-sp2016-reverb-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/sp2016-reverb/",
+   "title": "SP2016 Reverb | Lush Classic Stereo Reverb Plug-in | Eventide",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, x64 | AAX 64-bit, VST2 64-bit, VST3 64-bit | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit"
+  },
+  {
+   "id": "src:eventide-physion-mk-ii-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/physion-mk-ii/",
+   "title": "Physion Mk II - Transient/Tonal Multi-Effects Plugin Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, x64 | AAX 64-bit, VST2 64-bit, VST3 64-bit | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit"
+  },
+  {
+   "id": "src:eventide-mangledverb-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/mangledverb/",
+   "title": "MangledVerb - Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, Intel | AAX 64-bit, VST2 64-bit, VST3 64-bit | Windows 10+, x64 | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit | AUv3 64-bit, Standalone 64-bit"
+  },
+  {
+   "id": "src:eventide-instant-phaser-mk-ii-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.eventideaudio.com/plug-ins/instant-phaser-mk-ii/",
+   "title": "Instant Phaser Mk II Classic Tape Flanging Plug-in | Eventide Audio",
+   "publisher": "Eventide",
+   "retrieved": "2026-09-28",
+   "note": "Windows 10+, x64 | AAX 64-bit, VST2 64-bit, VST3 64-bit | macOS 10.14+, Intel and Apple Silicon | AAX 64-bit, AU 64-bit, VST2 64-bit, VST3 64-bit"
+  },
+  {
+   "id": "src:softube-tape-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.softube.com/plug-ins/tape",
+   "title": "Tape Plugin - Softube",
+   "publisher": "Softube",
+   "retrieved": "2026-09-28",
+   "note": "macOS Sonoma 14, Sequoia 15, Tahoe 26 | Windows 10 (64-bit), Windows 11 | Computer with AU, VST, VST3 and/or AAX compatible DAW host software"
+  },
+  {
+   "id": "src:softube-tube-tech-cl-1b-mk-ii-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.softube.com/plug-ins/tube-tech-cl-1b-mk-ii",
+   "title": "Tube-Tech CL 1B mk II - Softube",
+   "publisher": "Softube",
+   "retrieved": "2026-09-28",
+   "note": "macOS Sonoma 14, Sequoia 15, Tahoe 26 | Windows 10 (64-bit), Windows 11 | Computer with AU, VST, VST3 and/or AAX compatible DAW host software"
+  },
+  {
+   "id": "src:softube-weiss-ds1-mk3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.softube.com/plug-ins/weiss-ds1-mk3",
+   "title": "Weiss DS1-MK3 Mastering Plugin - Softube",
+   "publisher": "Softube",
+   "retrieved": "2026-09-28",
+   "note": "macOS Sonoma 14, Sequoia 15, Tahoe 26 | Windows 10 (64-bit), Windows 11 | Computer with AU, VST, VST3 and/or AAX compatible DAW host software"
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:waves",
+   "type": "vendor",
+   "slug": "waves",
+   "names": {
+    "en": "Waves Audio",
+    "ko": "웨이브즈"
+   },
+   "aliases": [
+    "Waves",
+    "Waves Audio Ltd"
+   ],
+   "description": {
+    "en": "Plug-in maker whose products are versioned together (V14 to V17); requirements are published per software version.",
+    "ko": "제품 전체가 V14~V17처럼 버전 단위로 관리되는 플러그인 회사로, 버전별 요구 사양을 공개합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.waves.com/"
+    },
+    {
+     "label": "System requirements",
+     "url": "https://www.waves.com/support/tech-specs/system-requirements"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-ssl-g-master-buss-compressor",
+   "type": "plugin",
+   "slug": "waves-ssl-g-master-buss-compressor",
+   "names": {
+    "en": "Waves SSL G-Master Buss Compressor"
+   },
+   "aliases": [
+    "SSL G-Master Buss Compressor",
+    "SSL G-Master",
+    "SSL Comp",
+    "SSLComp"
+   ],
+   "description": {
+    "en": "Bus compressor modelled on the SSL G-series.",
+    "ko": "SSL G 시리즈 버스 컴프레서 모델링 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/ssl-g-master-buss-compressor"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/ssl-g-master-buss-compressor",
+     "ver": "OFFICIAL",
+     "src": "src:waves-ssl-g-master-buss-compressor-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-ssl-g-master-buss-compressor-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-ssl-e-channel",
+   "type": "plugin",
+   "slug": "waves-ssl-e-channel",
+   "names": {
+    "en": "Waves SSL E-Channel"
+   },
+   "aliases": [
+    "SSL E-Channel",
+    "SSLChannel"
+   ],
+   "description": {
+    "en": "Channel strip modelled on the SSL E-series.",
+    "ko": "SSL E 시리즈 채널 스트립 모델링 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/ssl-e-channel"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/ssl-e-channel",
+     "ver": "OFFICIAL",
+     "src": "src:waves-ssl-e-channel-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-ssl-e-channel-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-cla-76-compressor-limiter",
+   "type": "plugin",
+   "slug": "waves-cla-76-compressor-limiter",
+   "names": {
+    "en": "Waves CLA-76"
+   },
+   "aliases": [
+    "CLA-76",
+    "CLA-76 Compressor Limiter"
+   ],
+   "description": {
+    "en": "Compressor/limiter modelled on the 1176.",
+    "ko": "1176을 모델링한 컴프레서·리미터입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/cla-76-compressor-limiter"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/cla-76-compressor-limiter",
+     "ver": "OFFICIAL",
+     "src": "src:waves-cla-76-compressor-limiter-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-cla-76-compressor-limiter-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-cla-2a-compressor-limiter",
+   "type": "plugin",
+   "slug": "waves-cla-2a-compressor-limiter",
+   "names": {
+    "en": "Waves CLA-2A"
+   },
+   "aliases": [
+    "CLA-2A",
+    "CLA-2A Compressor Limiter"
+   ],
+   "description": {
+    "en": "Optical compressor modelled on the LA-2A.",
+    "ko": "LA-2A를 모델링한 옵티컬 컴프레서입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/cla-2a-compressor-limiter"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/cla-2a-compressor-limiter",
+     "ver": "OFFICIAL",
+     "src": "src:waves-cla-2a-compressor-limiter-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-cla-2a-compressor-limiter-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-h-delay-hybrid-delay",
+   "type": "plugin",
+   "slug": "waves-h-delay-hybrid-delay",
+   "names": {
+    "en": "Waves H-Delay"
+   },
+   "aliases": [
+    "H-Delay",
+    "H-Delay Hybrid Delay"
+   ],
+   "description": {
+    "en": "Hybrid analog-style delay.",
+    "ko": "하이브리드 아날로그 스타일 딜레이입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/h-delay-hybrid-delay"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/h-delay-hybrid-delay",
+     "ver": "OFFICIAL",
+     "src": "src:waves-h-delay-hybrid-delay-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-h-delay-hybrid-delay-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-renaissance-vox",
+   "type": "plugin",
+   "slug": "waves-renaissance-vox",
+   "names": {
+    "en": "Waves Renaissance Vox"
+   },
+   "aliases": [
+    "Renaissance Vox",
+    "RVox",
+    "R-Vox"
+   ],
+   "description": {
+    "en": "Vocal compressor.",
+    "ko": "보컬 컴프레서입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/renaissance-vox"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/renaissance-vox",
+     "ver": "OFFICIAL",
+     "src": "src:waves-renaissance-vox-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-renaissance-vox-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-l2-ultramaximizer",
+   "type": "plugin",
+   "slug": "waves-l2-ultramaximizer",
+   "names": {
+    "en": "Waves L2 Ultramaximizer"
+   },
+   "aliases": [
+    "L2 Ultramaximizer",
+    "L2"
+   ],
+   "description": {
+    "en": "Peak limiter.",
+    "ko": "피크 리미터입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/l2-ultramaximizer"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/l2-ultramaximizer",
+     "ver": "OFFICIAL",
+     "src": "src:waves-l2-ultramaximizer-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-l2-ultramaximizer-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-vocal-rider",
+   "type": "plugin",
+   "slug": "waves-vocal-rider",
+   "names": {
+    "en": "Waves Vocal Rider"
+   },
+   "aliases": [
+    "Vocal Rider"
+   ],
+   "description": {
+    "en": "Automatic vocal level rider.",
+    "ko": "보컬 레벨 자동 조절 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/vocal-rider"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/vocal-rider",
+     "ver": "OFFICIAL",
+     "src": "src:waves-vocal-rider-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-vocal-rider-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-abbey-road-chambers",
+   "type": "plugin",
+   "slug": "waves-abbey-road-chambers",
+   "names": {
+    "en": "Waves Abbey Road Chambers"
+   },
+   "aliases": [
+    "Abbey Road Chambers"
+   ],
+   "description": {
+    "en": "Echo-chamber reverb.",
+    "ko": "에코 챔버 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/abbey-road-chambers"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/abbey-road-chambers",
+     "ver": "OFFICIAL",
+     "src": "src:waves-abbey-road-chambers-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-abbey-road-chambers-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-clarity-vx",
+   "type": "plugin",
+   "slug": "waves-clarity-vx",
+   "names": {
+    "en": "Waves Clarity Vx"
+   },
+   "aliases": [
+    "Clarity Vx"
+   ],
+   "description": {
+    "en": "Vocal noise-reduction plug-in.",
+    "ko": "보컬 노이즈 리덕션 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/clarity-vx"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/clarity-vx",
+     "ver": "OFFICIAL",
+     "src": "src:waves-clarity-vx-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-clarity-vx-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-waves-tune-real-time",
+   "type": "plugin",
+   "slug": "waves-waves-tune-real-time",
+   "names": {
+    "en": "Waves Tune Real-Time"
+   },
+   "aliases": [
+    "WTRT"
+   ],
+   "description": {
+    "en": "Real-time pitch correction.",
+    "ko": "실시간 피치 보정 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/waves-tune-real-time"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/waves-tune-real-time",
+     "ver": "OFFICIAL",
+     "src": "src:waves-waves-tune-real-time-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-waves-tune-real-time-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:waves-curves-equator",
+   "type": "plugin",
+   "slug": "waves-curves-equator",
+   "names": {
+    "en": "Waves Curves Equator"
+   },
+   "aliases": [
+    "Curves Equator"
+   ],
+   "description": {
+    "en": "Resonance suppression and unmasking plug-in.",
+    "ko": "공진 억제·언마스킹 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.waves.com/plugins/curves-equator"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "latest_version",
+     "v": "V17",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "Waves versions all plug-ins together; Version 17 is listed as the latest."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements",
+     "note": "V16: macOS 13.7; V15: macOS 12."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 22H2 (V17)",
+     "ver": "OFFICIAL",
+     "src": "src:waves-system-requirements"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.waves.com/plugins/curves-equator",
+     "ver": "OFFICIAL",
+     "src": "src:waves-curves-equator-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:waves",
+     "src": "src:waves-curves-equator-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:eventide",
+   "type": "vendor",
+   "slug": "eventide",
+   "names": {
+    "en": "Eventide",
+    "ko": "이븐타이드"
+   },
+   "aliases": [
+    "Eventide Audio",
+    "Eventide Inc."
+   ],
+   "description": {
+    "en": "US maker of the H3000 harmonizer and effect plug-ins such as Blackhole and UltraTap.",
+    "ko": "H3000 하모나이저와 Blackhole·UltraTap 등 이펙트 플러그인을 만드는 미국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.eventideaudio.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-blackhole",
+   "type": "plugin",
+   "slug": "eventide-blackhole",
+   "names": {
+    "en": "Eventide Blackhole"
+   },
+   "aliases": [
+    "Blackhole"
+   ],
+   "description": {
+    "en": "Large-space reverb.",
+    "ko": "대공간 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/blackhole/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AUv3",
+      "Standalone"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/blackhole/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-blackhole-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-blackhole-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-h3000-factory",
+   "type": "plugin",
+   "slug": "eventide-h3000-factory",
+   "names": {
+    "en": "Eventide H3000 Factory"
+   },
+   "aliases": [
+    "H3000 Factory",
+    "H3000"
+   ],
+   "description": {
+    "en": "Emulation of the H3000 Ultra-Harmonizer.",
+    "ko": "H3000 울트라 하모나이저 에뮬레이션입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/h3000-factory/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.9",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 8",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/h3000-factory/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-h3000-factory-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-h3000-factory-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-ultratap",
+   "type": "plugin",
+   "slug": "eventide-ultratap",
+   "names": {
+    "en": "Eventide UltraTap"
+   },
+   "aliases": [
+    "UltraTap"
+   ],
+   "description": {
+    "en": "Multi-tap delay.",
+    "ko": "멀티탭 딜레이입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/ultratap/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AUv3",
+      "Standalone"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/ultratap/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-ultratap-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-ultratap-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-sp2016-reverb",
+   "type": "plugin",
+   "slug": "eventide-sp2016-reverb",
+   "names": {
+    "en": "Eventide SP2016 Reverb"
+   },
+   "aliases": [
+    "SP2016 Reverb",
+    "SP2016"
+   ],
+   "description": {
+    "en": "Stereo reverb based on the SP2016.",
+    "ko": "SP2016 기반 스테레오 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/sp2016-reverb/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/sp2016-reverb/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-sp2016-reverb-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-sp2016-reverb-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-physion-mk-ii",
+   "type": "plugin",
+   "slug": "eventide-physion-mk-ii",
+   "names": {
+    "en": "Eventide Physion Mk II"
+   },
+   "aliases": [
+    "Physion Mk II",
+    "Physion"
+   ],
+   "description": {
+    "en": "Transient/tonal split multi-effect.",
+    "ko": "트랜지언트·톤 분리 멀티 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/physion-mk-ii/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/physion-mk-ii/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-physion-mk-ii-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-physion-mk-ii-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-mangledverb",
+   "type": "plugin",
+   "slug": "eventide-mangledverb",
+   "names": {
+    "en": "Eventide MangledVerb"
+   },
+   "aliases": [
+    "MangledVerb"
+   ],
+   "description": {
+    "en": "Distorted reverb effect.",
+    "ko": "디스토션 리버브 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/mangledverb/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX",
+      "AUv3",
+      "Standalone"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/mangledverb/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-mangledverb-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-mangledverb-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:eventide-instant-phaser-mk-ii",
+   "type": "plugin",
+   "slug": "eventide-instant-phaser-mk-ii",
+   "names": {
+    "en": "Eventide Instant Phaser Mk II"
+   },
+   "aliases": [
+    "Instant Phaser Mk II",
+    "Instant Phaser"
+   ],
+   "description": {
+    "en": "Phaser/flanger effect.",
+    "ko": "페이저·플랜저 이펙트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.eventideaudio.com/plug-ins/instant-phaser-mk-ii/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product",
+     "note": "AU/AUv3 on macOS."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.14",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product",
+     "note": "\"Intel and Apple Silicon\"."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.eventideaudio.com/plug-ins/instant-phaser-mk-ii/",
+     "ver": "OFFICIAL",
+     "src": "src:eventide-instant-phaser-mk-ii-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:eventide",
+     "src": "src:eventide-instant-phaser-mk-ii-product"
+    }
+   ]
+  },
+  {
+   "id": "vendor:softube",
+   "type": "vendor",
+   "slug": "softube",
+   "names": {
+    "en": "Softube",
+    "ko": "소프트튜브"
+   },
+   "aliases": [
+    "Softube AB"
+   ],
+   "description": {
+    "en": "Swedish maker of modelled hardware plug-ins and the Console 1 system.",
+    "ko": "하드웨어 모델링 플러그인과 Console 1 시스템을 만드는 스웨덴 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.softube.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.softube.com/",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:softube-tape",
+   "type": "plugin",
+   "slug": "softube-tape",
+   "names": {
+    "en": "Softube Tape"
+   },
+   "aliases": [
+    "Tape"
+   ],
+   "description": {
+    "en": "Tape machine emulation.",
+    "ko": "테이프 머신 에뮬레이션입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.softube.com/plug-ins/tape"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product",
+     "note": "\"AU, VST, VST3 and/or AAX compatible DAW host software\"."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.softube.com/plug-ins/tape",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tape-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:softube",
+     "src": "src:softube-tape-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "type": "plugin",
+   "slug": "softube-tube-tech-cl-1b-mk-ii",
+   "names": {
+    "en": "Softube Tube-Tech CL 1B mk II"
+   },
+   "aliases": [
+    "Tube-Tech CL 1B mk II",
+    "CL 1B"
+   ],
+   "description": {
+    "en": "Optical compressor model.",
+    "ko": "옵티컬 컴프레서 모델입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.softube.com/plug-ins/tube-tech-cl-1b-mk-ii"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product",
+     "note": "\"AU, VST, VST3 and/or AAX compatible DAW host software\"."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.softube.com/plug-ins/tube-tech-cl-1b-mk-ii",
+     "ver": "OFFICIAL",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:softube",
+     "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+    }
+   ]
+  },
+  {
+   "id": "plugin:softube-weiss-ds1-mk3",
+   "type": "plugin",
+   "slug": "softube-weiss-ds1-mk3",
+   "names": {
+    "en": "Softube Weiss DS1-MK3"
+   },
+   "aliases": [
+    "Weiss DS1-MK3",
+    "DS1-MK3"
+   ],
+   "description": {
+    "en": "Mastering dynamics processor model.",
+    "ko": "마스터링 다이내믹스 프로세서 모델입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.softube.com/plug-ins/weiss-ds1-mk3"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-weiss-ds1-mk3-product",
+     "note": "\"AU, VST, VST3 and/or AAX compatible DAW host software\"."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:softube-weiss-ds1-mk3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 14 Sonoma",
+     "ver": "OFFICIAL",
+     "src": "src:softube-weiss-ds1-mk3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:softube-weiss-ds1-mk3-product"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.softube.com/plug-ins/weiss-ds1-mk3",
+     "ver": "OFFICIAL",
+     "src": "src:softube-weiss-ds1-mk3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:softube",
+     "src": "src:softube-weiss-ds1-mk3-product"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-ssl-g-master-buss-compressor",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-ssl-e-channel",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-cla-76-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-cla-2a-compressor-limiter",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-h-delay-hybrid-delay",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-renaissance-vox",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-l2-ultramaximizer",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-vocal-rider",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-abbey-road-chambers",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-clarity-vx",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-waves-tune-real-time",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-27",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17 lists this macOS version; only M-series Apple Silicon is officially supported on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V17: \"Only M-series Apple Silicon processors are officially supported\" on Mac."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:macos-13",
+   "target_version": ">=13.7",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version (Ventura 13.7 minimum)."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V16 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "15.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "15.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "15.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V15 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "14.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "14.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Waves V14 lists this macOS version."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "17.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements",
+   "note": "Only Windows 10 version 22H2 is supported."
+  },
+  {
+   "subject": "plugin:waves-curves-equator",
+   "subject_version": "16.*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:waves-system-requirements"
+  },
+  {
+   "subject": "plugin:softube-tape",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tape-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tape",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tape-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tape",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tape-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tape",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tape-product"
+  },
+  {
+   "subject": "plugin:softube-tape",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tape-product"
+  },
+  {
+   "subject": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tube-tech-cl-1b-mk-ii-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tube-tech-cl-1b-mk-ii-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tube-tech-cl-1b-mk-ii-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+  },
+  {
+   "subject": "plugin:softube-tube-tech-cl-1b-mk-ii",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-tube-tech-cl-1b-mk-ii-product"
+  },
+  {
+   "subject": "plugin:softube-weiss-ds1-mk3",
+   "subject_version": "*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-weiss-ds1-mk3-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-weiss-ds1-mk3",
+   "subject_version": "*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-weiss-ds1-mk3-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-weiss-ds1-mk3",
+   "subject_version": "*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-weiss-ds1-mk3-product",
+   "note": "Softube lists macOS Sonoma 14, Sequoia 15 and Tahoe 26."
+  },
+  {
+   "subject": "plugin:softube-weiss-ds1-mk3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-weiss-ds1-mk3-product"
+  },
+  {
+   "subject": "plugin:softube-weiss-ds1-mk3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:softube-weiss-ds1-mk3-product"
+  }
+ ]
+}

@@ -1,0 +1,82 @@
+[
+ {
+  "name": "v5.2.2",
+  "id": "d13f752e3b9c4f8c261cda552b1021f8bcc0382c",
+  "commit": {
+   "sha": "d13f752e3b9c4f8c261cda552b1021f8bcc0382c",
+   "created": "2026-09-14T17:14:06+02:00"
+  }
+ },
+ {
+  "name": "v4.5.14",
+  "id": "62c1db4208e862312bc36db5bc15d4a6dbcfa3e3",
+  "commit": {
+   "sha": "62c1db4208e862312bc36db5bc15d4a6dbcfa3e3",
+   "created": "2026-09-14T16:54:09+02:00"
+  }
+ },
+ {
+  "name": "v5.2.1",
+  "id": "9e2066aef7ef7e20c142ad7bd3303138a4304c93",
+  "commit": {
+   "sha": "9e2066aef7ef7e20c142ad7bd3303138a4304c93",
+   "created": "2026-08-24T18:50:52+02:00"
+  }
+ },
+ {
+  "name": "v4.5.13",
+  "id": "daeeeca98fb0b6f0994b374d0069893186197a44",
+  "commit": {
+   "sha": "daeeeca98fb0b6f0994b374d0069893186197a44",
+   "created": "2026-08-24T13:28:34+02:00"
+  }
+ },
+ {
+  "name": "v4.2.23",
+  "id": "d0cbe84903e8550c66247e96f9703f60e4b7c3b7",
+  "commit": {
+   "sha": "d0cbe84903e8550c66247e96f9703f60e4b7c3b7",
+   "created": "2026-07-20T15:44:51+02:00"
+  }
+ },
+ {
+  "name": "v4.5.12",
+  "id": "84afd5f785f7569b97cf3257000403e7847120a8",
+  "commit": {
+   "sha": "84afd5f785f7569b97cf3257000403e7847120a8",
+   "created": "2026-07-20T15:37:55+02:00"
+  }
+ },
+ {
+  "name": "v5.2.0",
+  "id": "fbe6228777e7d9afefcd61a413844e790ae75db7",
+  "commit": {
+   "sha": "fbe6228777e7d9afefcd61a413844e790ae75db7",
+   "created": "2026-07-13T17:20:11+02:00"
+  }
+ },
+ {
+  "name": "v4.2.22",
+  "id": "88937221abfcc2f114694db3aef9950de1ad5bc7",
+  "commit": {
+   "sha": "88937221abfcc2f114694db3aef9950de1ad5bc7",
+   "created": "2026-06-22T13:10:51+02:00"
+  }
+ },
+ {
+  "name": "v4.5.11",
+  "id": "4db51e9d1e1e2e7f9e96e9305607824c39f7b554",
+  "commit": {
+   "sha": "4db51e9d1e1e2e7f9e96e9305607824c39f7b554",
+   "created": "2026-06-22T13:08:31+02:00"
+  }
+ },
+ {
+  "name": "v5.1.2",
+  "id": "ec6e62d40fa9e9d1bea33ad5d00148c99a4f0832",
+  "commit": {
+   "sha": "ec6e62d40fa9e9d1bea33ad5d00148c99a4f0832",
+   "created": "2026-05-18T15:43:39+02:00"
+  }
+ }
+]

@@ -1,0 +1,3986 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:fabfilter-about",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/about",
+   "title": "About FabFilter",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "FabFilter B.V., Amsterdam, The Netherlands."
+  },
+  {
+   "id": "src:fabfilter-download",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/download",
+   "title": "FabFilter Download",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Current version and release date per plug-in."
+  },
+  {
+   "id": "src:fabfilter-pro-q-4-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in",
+   "title": "FabFilter Pro-Q 4",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-c-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-c-3-compressor-plug-in",
+   "title": "FabFilter Pro-C 3",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-l-2-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-l-2-limiter-plug-in",
+   "title": "FabFilter Pro-L 2",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-r-2-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-r-2-reverb-plug-in",
+   "title": "FabFilter Pro-R 2",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-mb-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-mb-multiband-compressor-plug-in",
+   "title": "FabFilter Pro-MB",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-ds-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-ds-de-esser-plug-in",
+   "title": "FabFilter Pro-DS",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-pro-g-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/pro-g-gate-expander-plug-in",
+   "title": "FabFilter Pro-G",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-saturn-2-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/saturn-2-multiband-distortion-saturation-plug-in",
+   "title": "FabFilter Saturn 2",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-timeless-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/timeless-3-delay-plug-in",
+   "title": "FabFilter Timeless 3",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-volcano-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/volcano-3-filter-plug-in",
+   "title": "FabFilter Volcano 3",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-twin-3-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/twin-3-synthesizer-plug-in",
+   "title": "FabFilter Twin 3",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-one-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/one-basic-synthesizer-plug-in",
+   "title": "FabFilter One",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-simplon-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/simplon-basic-filter-plug-in",
+   "title": "FabFilter Simplon",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:fabfilter-micro-product",
+   "kind": "OFFICIAL",
+   "url": "https://www.fabfilter.com/products/micro-mini-filter-plug-in",
+   "title": "FabFilter Micro",
+   "publisher": "FabFilter",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Windows 11, 10, 8, 7 or Vista (64/32-bit); macOS 10.13 or higher (64-bit only), Apple Silicon or Intel processor; formats VST, VST3, AU, CLAP, AAX Native, AudioSuite."
+  },
+  {
+   "id": "src:u-he-products",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/",
+   "title": "u-he Products",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-ace-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/ace/",
+   "title": "ACE: Gateway into modular",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-ace-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/ace/releasenotes.html",
+   "title": "ACE Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-bazille-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/bazille/",
+   "title": "Bazille: Modular Synthesizer",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-bazille-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/bazille/releasenotes.html",
+   "title": "Bazille Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-colourcopy-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/colourcopy/",
+   "title": "Colour Copy: Bucket Brigade Delay",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-colourcopy-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/colourcopy/releasenotes.html",
+   "title": "Colour Copy Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-diva-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/diva/",
+   "title": "Diva: The spirit of analogue",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-diva-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/diva/releasenotes.html",
+   "title": "Diva Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-filterscape-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/filterscape/",
+   "title": "Filterscape: The creative multi-talent",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-filterscape-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/filterscape/releasenotes.html",
+   "title": "Filterscape Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-hive-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/hive/",
+   "title": "Hive 2: Sleek, streamlined, supercharged",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-hive-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/hive/releasenotes.html",
+   "title": "Hive 2 Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-presswerk-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/presswerk/",
+   "title": "Presswerk: Compression with musical soul",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-presswerk-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/presswerk/releasenotes.html",
+   "title": "Presswerk Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-repro-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/repro/",
+   "title": "Repro: Two classics, recreated",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-repro-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/repro/releasenotes.html",
+   "title": "Repro Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-satin-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/satin/",
+   "title": "Satin: Tape simulation",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-satin-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/satin/releasenotes.html",
+   "title": "Satin Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-twangstrom-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/twangstrom/",
+   "title": "Twangström: Spring Reverberator",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-twangstrom-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/twangstrom/releasenotes.html",
+   "title": "Twangström Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-uhbik-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/uhbik/",
+   "title": "Uhbik 2: Ten effects, endless possibilities",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: CLAP, VST3, AAX* 64-bit * AAX requires Pro Tools 10.3.7 or later"
+  },
+  {
+   "id": "src:u-he-uhbik-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/uhbik/releasenotes.html",
+   "title": "Uhbik 2 Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-zebra-legacy-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/zebra-legacy/",
+   "title": "Zebra Legacy: The workhorse synth",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-zebra-legacy-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/zebra-legacy/releasenotes.html",
+   "title": "Zebra Legacy Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-podolski-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/podolski/",
+   "title": "Podolski: Nice and easy",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: AUv2, VST3, 64-bit only temporarily no AAX ( [read more](<#aax-note>) ) Windows: VST3, AAX* 32-/64-bit * AAX requires Pro Tools 10.3.7 or later"
+  },
+  {
+   "id": "src:u-he-podolski-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/podolski/releasenotes.html",
+   "title": "Podolski Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-tyrelln6-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/tyrelln6/",
+   "title": "TyrellN6 Beta: A classic racer",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.7 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-tyrelln6-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/tyrelln6/releasenotes.html",
+   "title": "TyrellN6 Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-triplecheese-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/triplecheese/",
+   "title": "Triple Cheese: Luscious and cheesy",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: AUv2, VST3, 64-bit only temporarily no AAX ( [read more](<#aax-note>) ) Windows: VST3, AAX* 32-/64-bit * AAX requires Pro Tools 10.3.7 or later"
+  },
+  {
+   "id": "src:u-he-triplecheese-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/triplecheese/releasenotes.html",
+   "title": "Triple Cheese Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-zebralette-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/zebralette/",
+   "title": "Zebralette: Easy spectral synth",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: CLAP, AUv2, VST3, AAX* 64-bit Windows: VST3 32-/64-bit CLAP, AAX*"
+  },
+  {
+   "id": "src:u-he-zebralette-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/zebralette/releasenotes.html",
+   "title": "Zebralette Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:u-he-protoverb-product",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/protoverb/",
+   "title": "Protoverb: Experimental research reverb",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28",
+   "note": "Requirements: Mac OS X 10.10 or newer; Windows 7 or newer; Linux. Formats: macOS: AUv2, VST3, 64-bit only temporarily no AAX ( [read more](<#aax-note>) ) Windows: VST3, AAX* 32-/64-bit * AAX requires Pro Tools 10.3.7 or later"
+  },
+  {
+   "id": "src:u-he-protoverb-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://u-he.com/products/protoverb/releasenotes.html",
+   "title": "Protoverb Release Notes",
+   "publisher": "u-he",
+   "retrieved": "2026-09-28"
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:fabfilter",
+   "type": "vendor",
+   "slug": "fabfilter",
+   "names": {
+    "en": "FabFilter",
+    "ko": "팹필터"
+   },
+   "aliases": [
+    "FabFilter B.V.",
+    "Fab Filter"
+   ],
+   "description": {
+    "en": "Amsterdam-based developer of the Pro-Q, Pro-C, Pro-L and Saturn plug-ins.",
+    "ko": "Pro-Q·Pro-C·Pro-L·Saturn 플러그인을 만드는 암스테르담의 개발사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.fabfilter.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-about"
+    },
+    {
+     "p": "hq_country",
+     "v": "Netherlands",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-about"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-q-4",
+   "type": "plugin",
+   "slug": "fabfilter-pro-q-4",
+   "names": {
+    "en": "FabFilter Pro-Q 4"
+   },
+   "aliases": [
+    "Pro-Q 4",
+    "ProQ4",
+    "Pro-Q",
+    "FabFilter Pro-Q"
+   ],
+   "description": {
+    "en": "FabFilter equalizer plug-in.",
+    "ko": "FabFilter의 이퀄라이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "4.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-06-25."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-q-4-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-q-4-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "4.13",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-06-25",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-c-3",
+   "type": "plugin",
+   "slug": "fabfilter-pro-c-3",
+   "names": {
+    "en": "FabFilter Pro-C 3"
+   },
+   "aliases": [
+    "Pro-C 3",
+    "ProC3",
+    "Pro-C"
+   ],
+   "description": {
+    "en": "FabFilter compressor plug-in.",
+    "ko": "FabFilter의 컴프레서 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-c-3-compressor-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "3.02",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-c-3-compressor-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-c-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-c-3-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.02",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-l-2",
+   "type": "plugin",
+   "slug": "fabfilter-pro-l-2",
+   "names": {
+    "en": "FabFilter Pro-L 2"
+   },
+   "aliases": [
+    "Pro-L 2",
+    "ProL2",
+    "Pro-L"
+   ],
+   "description": {
+    "en": "FabFilter true-peak limiter plug-in.",
+    "ko": "FabFilter의 트루 피크 리미터 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-l-2-limiter-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "2.26",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-l-2-limiter-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-l-2-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-l-2-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.26",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-r-2",
+   "type": "plugin",
+   "slug": "fabfilter-pro-r-2",
+   "names": {
+    "en": "FabFilter Pro-R 2"
+   },
+   "aliases": [
+    "Pro-R 2",
+    "ProR2",
+    "Pro-R"
+   ],
+   "description": {
+    "en": "FabFilter reverb plug-in.",
+    "ko": "FabFilter의 리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-r-2-reverb-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "2.06",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-r-2-reverb-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-r-2-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-r-2-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.06",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-mb",
+   "type": "plugin",
+   "slug": "fabfilter-pro-mb",
+   "names": {
+    "en": "FabFilter Pro-MB"
+   },
+   "aliases": [
+    "Pro-MB",
+    "ProMB"
+   ],
+   "description": {
+    "en": "FabFilter multiband compressor/expander plug-in.",
+    "ko": "FabFilter의 멀티밴드 컴프레서·익스팬더 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-mb-multiband-compressor-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.33",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-mb-multiband-compressor-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-mb-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-mb-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.33",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-ds",
+   "type": "plugin",
+   "slug": "fabfilter-pro-ds",
+   "names": {
+    "en": "FabFilter Pro-DS"
+   },
+   "aliases": [
+    "Pro-DS",
+    "ProDS"
+   ],
+   "description": {
+    "en": "FabFilter de-esser plug-in.",
+    "ko": "FabFilter의 디에서 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-ds-de-esser-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.32",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-ds-de-esser-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-ds-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-ds-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.32",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-pro-g",
+   "type": "plugin",
+   "slug": "fabfilter-pro-g",
+   "names": {
+    "en": "FabFilter Pro-G"
+   },
+   "aliases": [
+    "Pro-G",
+    "ProG"
+   ],
+   "description": {
+    "en": "FabFilter gate/expander plug-in.",
+    "ko": "FabFilter의 게이트·익스팬더 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/pro-g-gate-expander-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.42",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/pro-g-gate-expander-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-pro-g-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-pro-g-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.42",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-saturn-2",
+   "type": "plugin",
+   "slug": "fabfilter-saturn-2",
+   "names": {
+    "en": "FabFilter Saturn 2"
+   },
+   "aliases": [
+    "Saturn 2",
+    "Saturn"
+   ],
+   "description": {
+    "en": "FabFilter multiband distortion and saturation plug-in.",
+    "ko": "FabFilter의 멀티밴드 디스토션·새추레이션 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/saturn-2-multiband-distortion-saturation-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "2.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/saturn-2-multiband-distortion-saturation-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-saturn-2-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-saturn-2-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.13",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-timeless-3",
+   "type": "plugin",
+   "slug": "fabfilter-timeless-3",
+   "names": {
+    "en": "FabFilter Timeless 3"
+   },
+   "aliases": [
+    "Timeless 3",
+    "Timeless"
+   ],
+   "description": {
+    "en": "FabFilter tape-style delay plug-in.",
+    "ko": "FabFilter의 테이프 스타일 딜레이 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/timeless-3-delay-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "3.10",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/timeless-3-delay-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-timeless-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-timeless-3-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.10",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-volcano-3",
+   "type": "plugin",
+   "slug": "fabfilter-volcano-3",
+   "names": {
+    "en": "FabFilter Volcano 3"
+   },
+   "aliases": [
+    "Volcano 3",
+    "Volcano"
+   ],
+   "description": {
+    "en": "FabFilter filter effect plug-in.",
+    "ko": "FabFilter의 필터 이펙트 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/volcano-3-filter-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "3.09",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/volcano-3-filter-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-volcano-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-volcano-3-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.09",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-twin-3",
+   "type": "plugin",
+   "slug": "fabfilter-twin-3",
+   "names": {
+    "en": "FabFilter Twin 3"
+   },
+   "aliases": [
+    "Twin 3",
+    "Twin"
+   ],
+   "description": {
+    "en": "FabFilter synthesizer plug-in.",
+    "ko": "FabFilter의 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/twin-3-synthesizer-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "3.07",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/twin-3-synthesizer-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-twin-3-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-twin-3-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.07",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-one",
+   "type": "plugin",
+   "slug": "fabfilter-one",
+   "names": {
+    "en": "FabFilter One"
+   },
+   "aliases": [],
+   "description": {
+    "en": "FabFilter basic synthesizer plug-in.",
+    "ko": "FabFilter의 기본 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/one-basic-synthesizer-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "3.52",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/one-basic-synthesizer-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-one-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-one-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.52",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-simplon",
+   "type": "plugin",
+   "slug": "fabfilter-simplon",
+   "names": {
+    "en": "FabFilter Simplon"
+   },
+   "aliases": [
+    "Simplon"
+   ],
+   "description": {
+    "en": "FabFilter basic filter plug-in.",
+    "ko": "FabFilter의 기본 필터 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/simplon-basic-filter-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.42",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/simplon-basic-filter-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-simplon-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-simplon-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.42",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "plugin:fabfilter-micro",
+   "type": "plugin",
+   "slug": "fabfilter-micro",
+   "names": {
+    "en": "FabFilter Micro"
+   },
+   "aliases": [],
+   "description": {
+    "en": "FabFilter mini filter plug-in.",
+    "ko": "FabFilter의 미니 필터 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://www.fabfilter.com/products/micro-mini-filter-plug-in"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "AAX",
+      "AudioSuite"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows Vista",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product",
+     "note": "Requirements list \"Apple Silicon or Intel processor\"."
+    },
+    {
+     "p": "latest_version",
+     "v": "1.32",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-download",
+     "note": "Released 2026-04-16."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fabfilter.com/products/micro-mini-filter-plug-in",
+     "ver": "OFFICIAL",
+     "src": "src:fabfilter-micro-product"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fabfilter",
+     "src": "src:fabfilter-micro-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.32",
+     "channel": "stable",
+     "src": "src:fabfilter-download",
+     "released": "2026-04-16",
+     "notes_url": "https://www.fabfilter.com/download"
+    }
+   ]
+  },
+  {
+   "id": "vendor:u-he",
+   "type": "vendor",
+   "slug": "u-he",
+   "names": {
+    "en": "u-he",
+    "ko": "유헤"
+   },
+   "aliases": [
+    "uhe",
+    "Heckmann Audio"
+   ],
+   "description": {
+    "en": "Berlin-based developer of the Diva, Zebra, Hive and Repro synthesizers; publishes Linux builds (beta) alongside macOS and Windows.",
+    "ko": "Diva·Zebra·Hive·Repro 신시사이저를 만드는 베를린의 개발사로, macOS·Windows와 함께 Linux(베타) 버전도 배포합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://u-he.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-products"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-ace",
+   "type": "plugin",
+   "slug": "u-he-ace",
+   "names": {
+    "en": "u-he ACE"
+   },
+   "aliases": [
+    "ACE"
+   ],
+   "description": {
+    "en": "u-he semi-modular synthesizer plug-in.",
+    "ko": "u-he의 세미 모듈러 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/ace/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/ace/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/ace/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.4.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-ace-release-notes",
+     "note": "ACE 1.4.3 (revision 16518), released 2024-08-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-ace-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.4.3",
+     "channel": "stable",
+     "src": "src:u-he-ace-release-notes",
+     "released": "2024-08-27",
+     "notes_url": "https://u-he.com/products/ace/releasenotes.html"
+    },
+    {
+     "version": "1.4.2",
+     "channel": "stable",
+     "src": "src:u-he-ace-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/ace/releasenotes.html"
+    },
+    {
+     "version": "1.4.1",
+     "channel": "stable",
+     "src": "src:u-he-ace-release-notes",
+     "released": "2020-01-27",
+     "notes_url": "https://u-he.com/products/ace/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-bazille",
+   "type": "plugin",
+   "slug": "u-he-bazille",
+   "names": {
+    "en": "u-he Bazille"
+   },
+   "aliases": [
+    "Bazille"
+   ],
+   "description": {
+    "en": "u-he modular synthesizer plug-in.",
+    "ko": "u-he의 모듈러 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/bazille/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/bazille/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/bazille/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.1.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-bazille-release-notes",
+     "note": "Bazille 1.1.3 (revision 16518), released 2024-08-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-bazille-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.1.3",
+     "channel": "stable",
+     "src": "src:u-he-bazille-release-notes",
+     "released": "2024-08-27",
+     "notes_url": "https://u-he.com/products/bazille/releasenotes.html"
+    },
+    {
+     "version": "1.1.2",
+     "channel": "stable",
+     "src": "src:u-he-bazille-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/bazille/releasenotes.html"
+    },
+    {
+     "version": "1.1.1",
+     "channel": "stable",
+     "src": "src:u-he-bazille-release-notes",
+     "released": "2020-12-14",
+     "notes_url": "https://u-he.com/products/bazille/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-colourcopy",
+   "type": "plugin",
+   "slug": "u-he-colourcopy",
+   "names": {
+    "en": "u-he Colour Copy"
+   },
+   "aliases": [
+    "Colour Copy"
+   ],
+   "description": {
+    "en": "u-he bucket-brigade style delay plug-in.",
+    "ko": "u-he의 BBD 방식 딜레이 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/colourcopy/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/colourcopy/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/colourcopy/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.0.2",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-colourcopy-release-notes",
+     "note": "Colour Copy 1.0.2 (revision 16742), released 2024-10-15."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-colourcopy-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0.2",
+     "channel": "stable",
+     "src": "src:u-he-colourcopy-release-notes",
+     "released": "2024-10-15",
+     "notes_url": "https://u-he.com/products/colourcopy/releasenotes.html"
+    },
+    {
+     "version": "1.0.1",
+     "channel": "stable",
+     "src": "src:u-he-colourcopy-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/colourcopy/releasenotes.html"
+    },
+    {
+     "version": "1.0",
+     "channel": "stable",
+     "src": "src:u-he-colourcopy-release-notes",
+     "released": "2018-08-14",
+     "notes_url": "https://u-he.com/products/colourcopy/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-diva",
+   "type": "plugin",
+   "slug": "u-he-diva",
+   "names": {
+    "en": "u-he Diva"
+   },
+   "aliases": [
+    "Diva"
+   ],
+   "description": {
+    "en": "u-he virtual-analogue synthesizer plug-in modelled on analogue circuits.",
+    "ko": "u-he의 아날로그 회로를 모델링한 버추얼 아날로그 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/diva/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/diva/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/diva/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.4.8",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-diva-release-notes",
+     "note": "Diva 1.4.8 (revision 16519), released 2024-08-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-diva-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.4.8",
+     "channel": "stable",
+     "src": "src:u-he-diva-release-notes",
+     "released": "2024-08-27",
+     "notes_url": "https://u-he.com/products/diva/releasenotes.html"
+    },
+    {
+     "version": "1.4.7",
+     "channel": "stable",
+     "src": "src:u-he-diva-release-notes",
+     "released": "2023-10-18",
+     "notes_url": "https://u-he.com/products/diva/releasenotes.html"
+    },
+    {
+     "version": "1.4.6",
+     "channel": "stable",
+     "src": "src:u-he-diva-release-notes",
+     "released": "2023-09-12",
+     "notes_url": "https://u-he.com/products/diva/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-filterscape",
+   "type": "plugin",
+   "slug": "u-he-filterscape",
+   "names": {
+    "en": "u-he Filterscape"
+   },
+   "aliases": [
+    "Filterscape"
+   ],
+   "description": {
+    "en": "u-he filter-based synthesizer and effect plug-in.",
+    "ko": "u-he의 필터 기반 신시사이저·이펙트 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/filterscape/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/filterscape/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/filterscape/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.5.1",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-filterscape-release-notes",
+     "note": "Filterscape 1.5.1 (revision 15664), released 2024-03-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-filterscape-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.5.1",
+     "channel": "stable",
+     "src": "src:u-he-filterscape-release-notes",
+     "released": "2024-03-27",
+     "notes_url": "https://u-he.com/products/filterscape/releasenotes.html"
+    },
+    {
+     "version": "1.5.0",
+     "channel": "stable",
+     "src": "src:u-he-filterscape-release-notes",
+     "released": "2023-09-12",
+     "notes_url": "https://u-he.com/products/filterscape/releasenotes.html"
+    },
+    {
+     "version": "1.4.1",
+     "channel": "stable",
+     "src": "src:u-he-filterscape-release-notes",
+     "released": "2015-10-08",
+     "notes_url": "https://u-he.com/products/filterscape/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-hive",
+   "type": "plugin",
+   "slug": "u-he-hive",
+   "names": {
+    "en": "u-he Hive 2"
+   },
+   "aliases": [
+    "Hive 2"
+   ],
+   "description": {
+    "en": "u-he streamlined synthesizer plug-in.",
+    "ko": "u-he의 간결한 구조의 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/hive/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/hive/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/hive/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "2.1.2",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-hive-release-notes",
+     "note": "Hive 2.1.2 (revision 16520), released 2024-08-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-hive-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.1.2",
+     "channel": "stable",
+     "src": "src:u-he-hive-release-notes",
+     "released": "2024-08-27",
+     "notes_url": "https://u-he.com/products/hive/releasenotes.html"
+    },
+    {
+     "version": "2.1.1",
+     "channel": "stable",
+     "src": "src:u-he-hive-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/hive/releasenotes.html"
+    },
+    {
+     "version": "2.1",
+     "channel": "stable",
+     "src": "src:u-he-hive-release-notes",
+     "released": "2021-03-10",
+     "notes_url": "https://u-he.com/products/hive/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-presswerk",
+   "type": "plugin",
+   "slug": "u-he-presswerk",
+   "names": {
+    "en": "u-he Presswerk"
+   },
+   "aliases": [
+    "Presswerk"
+   ],
+   "description": {
+    "en": "u-he compressor plug-in.",
+    "ko": "u-he의 컴프레서 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/presswerk/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/presswerk/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/presswerk/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.1.6",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-presswerk-release-notes",
+     "note": "Presswerk 1.1.6 (revision 16960), released 2025-03-04."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-presswerk-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.1.6",
+     "channel": "stable",
+     "src": "src:u-he-presswerk-release-notes",
+     "released": "2025-03-04",
+     "notes_url": "https://u-he.com/products/presswerk/releasenotes.html"
+    },
+    {
+     "version": "1.1.5",
+     "channel": "stable",
+     "src": "src:u-he-presswerk-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/presswerk/releasenotes.html"
+    },
+    {
+     "version": "1.1.4",
+     "channel": "stable",
+     "src": "src:u-he-presswerk-release-notes",
+     "released": "2019-03-05",
+     "notes_url": "https://u-he.com/products/presswerk/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-repro",
+   "type": "plugin",
+   "slug": "u-he-repro",
+   "names": {
+    "en": "u-he Repro"
+   },
+   "aliases": [
+    "Repro"
+   ],
+   "description": {
+    "en": "u-he synthesizer plug-in recreating two classic monophonic/polyphonic synths.",
+    "ko": "u-he의 클래식 신시사이저 두 종을 재현한 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/repro/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/repro/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/repro/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.1.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-repro-release-notes",
+     "note": "Repro 1.1.3 (revision 16797), released 2024-12-10."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-repro-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.1.3",
+     "channel": "stable",
+     "src": "src:u-he-repro-release-notes",
+     "released": "2024-12-10",
+     "notes_url": "https://u-he.com/products/repro/releasenotes.html"
+    },
+    {
+     "version": "1.1.2",
+     "channel": "stable",
+     "src": "src:u-he-repro-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/repro/releasenotes.html"
+    },
+    {
+     "version": "1.1.1",
+     "channel": "stable",
+     "src": "src:u-he-repro-release-notes",
+     "released": "2020-01-27",
+     "notes_url": "https://u-he.com/products/repro/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-satin",
+   "type": "plugin",
+   "slug": "u-he-satin",
+   "names": {
+    "en": "u-he Satin"
+   },
+   "aliases": [
+    "Satin"
+   ],
+   "description": {
+    "en": "u-he tape simulation plug-in.",
+    "ko": "u-he의 테이프 시뮬레이션 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/satin/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/satin/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/satin/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.3.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-satin-release-notes",
+     "note": "Satin 1.3.3 (revision 15721), released 2024-03-27."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-satin-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.3.3",
+     "channel": "stable",
+     "src": "src:u-he-satin-release-notes",
+     "released": "2024-03-27",
+     "notes_url": "https://u-he.com/products/satin/releasenotes.html"
+    },
+    {
+     "version": "1.3.2",
+     "channel": "stable",
+     "src": "src:u-he-satin-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/satin/releasenotes.html"
+    },
+    {
+     "version": "1.3.1",
+     "channel": "stable",
+     "src": "src:u-he-satin-release-notes",
+     "released": "2018-06-01",
+     "notes_url": "https://u-he.com/products/satin/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-twangstrom",
+   "type": "plugin",
+   "slug": "u-he-twangstrom",
+   "names": {
+    "en": "u-he Twangström"
+   },
+   "aliases": [
+    "Twangström"
+   ],
+   "description": {
+    "en": "u-he spring reverb plug-in.",
+    "ko": "u-he의 스프링 리버브 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/twangstrom/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/twangstrom/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/twangstrom/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.0.2",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-twangstrom-release-notes",
+     "note": "Twangström 1.0.2 (revision 16742), released 2024-10-15."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-twangstrom-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0.2",
+     "channel": "stable",
+     "src": "src:u-he-twangstrom-release-notes",
+     "released": "2024-10-15",
+     "notes_url": "https://u-he.com/products/twangstrom/releasenotes.html"
+    },
+    {
+     "version": "1.0.1",
+     "channel": "stable",
+     "src": "src:u-he-twangstrom-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/twangstrom/releasenotes.html"
+    },
+    {
+     "version": "1.0",
+     "channel": "stable",
+     "src": "src:u-he-twangstrom-release-notes",
+     "released": "2019-01-10",
+     "notes_url": "https://u-he.com/products/twangstrom/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-uhbik",
+   "type": "plugin",
+   "slug": "u-he-uhbik",
+   "names": {
+    "en": "u-he Uhbik 2"
+   },
+   "aliases": [
+    "Uhbik 2"
+   ],
+   "description": {
+    "en": "u-he bundle of ten effect plug-ins.",
+    "ko": "u-he의 이펙트 플러그인 10종 번들입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/uhbik/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/uhbik/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/uhbik/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "2.0.0",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-uhbik-release-notes",
+     "note": "Uhbik 2.0.0 (revision 19684), released 2025-10-15."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-uhbik-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.0.0",
+     "channel": "stable",
+     "src": "src:u-he-uhbik-release-notes",
+     "released": "2025-10-15",
+     "notes_url": "https://u-he.com/products/uhbik/releasenotes.html"
+    },
+    {
+     "version": "1.3.1",
+     "channel": "stable",
+     "src": "src:u-he-uhbik-release-notes",
+     "released": "2015-10-08",
+     "notes_url": "https://u-he.com/products/uhbik/releasenotes.html"
+    },
+    {
+     "version": "1.3",
+     "channel": "stable",
+     "src": "src:u-he-uhbik-release-notes",
+     "released": "2013-05-01",
+     "notes_url": "https://u-he.com/products/uhbik/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-zebra-legacy",
+   "type": "plugin",
+   "slug": "u-he-zebra-legacy",
+   "names": {
+    "en": "u-he Zebra Legacy"
+   },
+   "aliases": [
+    "Zebra Legacy"
+   ],
+   "description": {
+    "en": "u-he modular-style workhorse synthesizer (Zebra 2).",
+    "ko": "u-he의 모듈러 방식의 신시사이저(Zebra 2)입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/zebra-legacy/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/zebra-legacy/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/zebra-legacy/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "2.9.4",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebra-legacy-release-notes",
+     "note": "Zebra 2.9.4 (revision 16765), released 2024-11-11."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-zebra-legacy-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.9.4",
+     "channel": "stable",
+     "src": "src:u-he-zebra-legacy-release-notes",
+     "released": "2024-11-11",
+     "notes_url": "https://u-he.com/products/zebra-legacy/releasenotes.html"
+    },
+    {
+     "version": "2.9.3",
+     "channel": "stable",
+     "src": "src:u-he-zebra-legacy-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/zebra-legacy/releasenotes.html"
+    },
+    {
+     "version": "2.9.2",
+     "channel": "stable",
+     "src": "src:u-he-zebra-legacy-release-notes",
+     "released": "2020-10-15",
+     "notes_url": "https://u-he.com/products/zebra-legacy/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-podolski",
+   "type": "plugin",
+   "slug": "u-he-podolski",
+   "names": {
+    "en": "u-he Podolski"
+   },
+   "aliases": [
+    "Podolski"
+   ],
+   "description": {
+    "en": "u-he free virtual-analogue synthesizer.",
+    "ko": "u-he의 무료 버추얼 아날로그 신시사이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/podolski/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/podolski/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product",
+     "note": "No AAX on macOS at the moment (per product page)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/podolski/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.2.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-podolski-release-notes",
+     "note": "Podolski 1.2.3 (revision 12092), released 2021-08-10."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-podolski-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.2.3",
+     "channel": "stable",
+     "src": "src:u-he-podolski-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/podolski/releasenotes.html"
+    },
+    {
+     "version": "1.2.2",
+     "channel": "stable",
+     "src": "src:u-he-podolski-release-notes",
+     "released": "2020-01-30",
+     "notes_url": "https://u-he.com/products/podolski/releasenotes.html"
+    },
+    {
+     "version": "1.2.1",
+     "channel": "stable",
+     "src": "src:u-he-podolski-release-notes",
+     "released": "2015-10-08",
+     "notes_url": "https://u-he.com/products/podolski/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-tyrelln6",
+   "type": "plugin",
+   "slug": "u-he-tyrelln6",
+   "names": {
+    "en": "u-he TyrellN6"
+   },
+   "aliases": [
+    "TyrellN6"
+   ],
+   "description": {
+    "en": "u-he free synthesizer (beta).",
+    "ko": "u-he의 무료 신시사이저(베타)입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/tyrelln6/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/tyrelln6/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/tyrelln6/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "3.0.0",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-tyrelln6-release-notes",
+     "note": "TyrellN6 3.0.0 (revision 16976), released 2025-03-18."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-tyrelln6-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.0.0",
+     "channel": "stable",
+     "src": "src:u-he-tyrelln6-release-notes",
+     "released": "2025-03-18",
+     "notes_url": "https://u-he.com/products/tyrelln6/releasenotes.html"
+    },
+    {
+     "version": "3.0",
+     "channel": "stable",
+     "src": "src:u-he-tyrelln6-release-notes",
+     "released": "2016-10-03",
+     "notes_url": "https://u-he.com/products/tyrelln6/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-triplecheese",
+   "type": "plugin",
+   "slug": "u-he-triplecheese",
+   "names": {
+    "en": "u-he Triple Cheese"
+   },
+   "aliases": [
+    "Triple Cheese"
+   ],
+   "description": {
+    "en": "u-he free synthesizer plug-in.",
+    "ko": "u-he의 무료 신시사이저 플러그인입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/triplecheese/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/triplecheese/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product",
+     "note": "No AAX on macOS at the moment (per product page)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/triplecheese/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.3",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-triplecheese-release-notes",
+     "note": "Triple Cheese 1.3 (revision 12092), released 2021-08-10."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-triplecheese-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.3",
+     "channel": "stable",
+     "src": "src:u-he-triplecheese-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/triplecheese/releasenotes.html"
+    },
+    {
+     "version": "1.2.1",
+     "channel": "stable",
+     "src": "src:u-he-triplecheese-release-notes",
+     "released": "2015-10-08",
+     "notes_url": "https://u-he.com/products/triplecheese/releasenotes.html"
+    },
+    {
+     "version": "1.0",
+     "channel": "stable",
+     "src": "src:u-he-triplecheese-release-notes",
+     "released": "2006-10-02",
+     "notes_url": "https://u-he.com/products/triplecheese/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-zebralette",
+   "type": "plugin",
+   "slug": "u-he-zebralette",
+   "names": {
+    "en": "u-he Zebralette"
+   },
+   "aliases": [
+    "Zebralette"
+   ],
+   "description": {
+    "en": "u-he free spectral synthesizer.",
+    "ko": "u-he의 무료 스펙트럴 신시사이저입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/zebralette/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/zebralette/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "CLAP",
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product"
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/zebralette/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "2.9.4",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-zebralette-release-notes",
+     "note": "Zebralette 2.9.4 (revision 16765), released 2024-11-11."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-zebralette-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "2.9.4",
+     "channel": "stable",
+     "src": "src:u-he-zebralette-release-notes",
+     "released": "2024-11-11",
+     "notes_url": "https://u-he.com/products/zebralette/releasenotes.html"
+    },
+    {
+     "version": "2.9.3",
+     "channel": "stable",
+     "src": "src:u-he-zebralette-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/zebralette/releasenotes.html"
+    },
+    {
+     "version": "2.9.2",
+     "channel": "stable",
+     "src": "src:u-he-zebralette-release-notes",
+     "released": "2020-10-13",
+     "notes_url": "https://u-he.com/products/zebralette/releasenotes.html"
+    }
+   ]
+  },
+  {
+   "id": "plugin:u-he-protoverb",
+   "type": "plugin",
+   "slug": "u-he-protoverb",
+   "names": {
+    "en": "u-he Protoverb"
+   },
+   "aliases": [
+    "Protoverb"
+   ],
+   "description": {
+    "en": "u-he free experimental reverb.",
+    "ko": "u-he의 무료 실험적 리버브입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Product page",
+     "url": "https://u-he.com/products/protoverb/"
+    },
+    {
+     "label": "Release notes",
+     "url": "https://u-he.com/products/protoverb/releasenotes.html"
+    }
+   ],
+   "facts": [
+    {
+     "p": "formats",
+     "v": [
+      "AU",
+      "VST3",
+      "AAX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product",
+     "note": "No AAX on macOS at the moment (per product page)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product",
+     "note": "u-he states the Linux versions are still considered beta."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.10",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 7",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product",
+     "note": "Supported Mac CPUs: Intel Nehalem or newer, Apple silicon M1 or newer."
+    },
+    {
+     "p": "homepage",
+     "v": "https://u-he.com/products/protoverb/",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-product"
+    },
+    {
+     "p": "latest_version",
+     "v": "1.0.1",
+     "ver": "OFFICIAL",
+     "src": "src:u-he-protoverb-release-notes",
+     "note": "Protoverb 1.0.1 (revision 12092), released 2021-08-10."
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:u-he",
+     "src": "src:u-he-protoverb-product"
+    }
+   ],
+   "versions": [
+    {
+     "version": "1.0.1",
+     "channel": "stable",
+     "src": "src:u-he-protoverb-release-notes",
+     "released": "2021-08-10",
+     "notes_url": "https://u-he.com/products/protoverb/releasenotes.html"
+    },
+    {
+     "version": "1.0",
+     "channel": "stable",
+     "src": "src:u-he-protoverb-release-notes",
+     "released": "2015-12-15",
+     "notes_url": "https://u-he.com/products/protoverb/releasenotes.html"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "plugin:fabfilter-pro-q-4",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-q-4-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-q-4",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-q-4-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-c-3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-c-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-c-3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-c-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-l-2",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-l-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-l-2",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-l-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-r-2",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-r-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-r-2",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-r-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-mb",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-mb-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-mb",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-mb-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-ds",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-ds-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-ds",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-ds-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-g",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-g-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-pro-g",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-pro-g-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-saturn-2",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-saturn-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-saturn-2",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-saturn-2-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-timeless-3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-timeless-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-timeless-3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-timeless-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-volcano-3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-volcano-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-volcano-3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-volcano-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-twin-3",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-twin-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-twin-3",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-twin-3-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-one",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-one-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-one",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-one-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-simplon",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-simplon-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-simplon",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-simplon-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-micro",
+   "subject_version": "*",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-micro-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  },
+  {
+   "subject": "plugin:fabfilter-micro",
+   "subject_version": "*",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fabfilter-micro-product",
+   "note": "FabFilter requirements list Windows 11, 10, 8, 7 or Vista."
+  }
+ ]
+}

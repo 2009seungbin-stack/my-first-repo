@@ -8,7 +8,7 @@ export default defineVertical({
  types:{
   app:{label:{en:'App',ko:'앱'},plural:{en:'Apps',ko:'앱'},icon:'app',props:['latest_version','release_date','os_support','min_macos','min_windows','apple_silicon','plugin_formats','license_model','homepage'],sections:['overview','compat','versions','changes','community'],reportKinds:['compat','issue'],indexMin:3},
   plugin:{label:{en:'Plugin',ko:'플러그인'},plural:{en:'Plugins',ko:'플러그인'},icon:'plug',props:['latest_version','formats','os_support','min_macos','min_windows','apple_silicon','homepage'],sections:['overview','compat','versions','changes','community'],reportKinds:['compat','issue'],indexMin:3},
-  os_release:{label:{en:'OS release',ko:'OS 버전'},plural:{en:'OS releases',ko:'OS 버전'},icon:'monitor',props:['release_date','os_family','version_number'],sections:['overview','compat','changes'],indexMin:2},
+  os_release:{label:{en:'OS release',ko:'OS 버전'},plural:{en:'OS releases',ko:'OS 버전'},icon:'monitor',props:['release_date','os_family','version_number','cpu_arch','status'],sections:['overview','compat','changes'],indexMin:2},
   vendor:{label:{en:'Developer',ko:'개발사'},plural:{en:'Developers',ko:'개발사'},icon:'building',props:['hq_country','homepage'],sections:['overview','products','changes'],indexMin:3},
   audio_device:{label:{en:'Audio interface',ko:'오디오 인터페이스'},plural:{en:'Audio interfaces',ko:'오디오 인터페이스'},icon:'speaker',props:['latest_driver','os_support','homepage'],sections:['overview','compat','versions','changes','community'],reportKinds:['compat','issue'],indexMin:3},
  },
@@ -26,5 +26,6 @@ export default defineVertical({
   license_model:prop({en:'License',ko:'라이선스'},'text',{volatility:'slow'}),
   os_family:prop({en:'OS family',ko:'OS 계열'},'enum',{values:values({macos:['macOS','macOS'],windows:['Windows','Windows'],linux:['Linux','Linux']}),volatility:'static'}),
   version_number:prop({en:'Version',ko:'버전'},'text',{volatility:'static'}),
+ cpu_arch:prop({en:'CPU architectures',ko:'CPU 아키텍처'},'list',{volatility:'static'}),
  },
 });
