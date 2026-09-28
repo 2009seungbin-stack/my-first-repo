@@ -1001,5 +1001,188 @@ export default {
    limits:['レイヤーはフレームごとに1つのスプライトへ統合されます。','2回以上の繰り返し回数は保たれず、クリップは1回再生になります。','ヒット・ハートボックスはUnity向けには書き出しません。'],
    versions:{body:['NerulioのUnityバンドルはUnity 6000.5.3f1のバッチモードで確認しました（スプライト範囲、ピボット、ピクセル、Point・無圧縮・Multiple、クリップのキーと時間）。実行時にAnimatorでクリップが再生されるかは確認していません。.asepriteの読み込みは、実在の231ファイルがAseprite 1.3.18で同じタグ・長さ・ピクセルのまま開き直せることで確認しました。Unity自体のAseprite Importerについての記述は、そのバージョン4.0のドキュメントに基づきます。'],sources:[...UNITY_ASE,UNITY_DOCS[2],UNITY_DOCS[3],'[Asepriteドキュメント：Tags](https://www.aseprite.org/docs/tags/)']}
   }
+ },
+ // ------------------------------------------------------------------ Aseprite → Phaser
+ // Nerulio: src/game/export/atlas-json.js (phaserFiles: hash / multiatlas + .anims.json, repeat -1 or n-1, yoyo, reverse
+ // baked, per-frame ms; asepriteJson: keys "0".."n", frameTags, slices, one page), targets.js (rotation refused),
+ // tools/engine-verify/web/harness.js (fromJSON / createFromAseprite read back). Phaser source 3.90 / 4.2:
+ // createFromAseprite reads direction but not repeat; JSONHash reads `pivot`; AnimationState uses frame.duration.
+ 'game/aseprite-to-phaser':{
+  type:'conversion',
+  intent:{primary:'use an .aseprite animation in Phaser 3 or Phaser 4',secondary:['atlas + anims.fromJSON or load.aseprite + createFromAseprite','keep per-frame durations, ping-pong and loop','pixel-art config'],
+   goal:'Phaser animations named after the Aseprite tags, with each frame\'s own duration, loop and ping-pong, drawn sharp',input:'.aseprite / .ase file',output:'TexturePacker atlas JSON + .anims.json + PNG, or Aseprite JSON (hash/array) + PNG',target:'Phaser 3.90 and 4.2',support:'full',
+   evidence:['src/game/export/atlas-json.js','src/game/export/targets.js','tools/engine-verify/web/harness.js','docs/STUDIO-PACK.md (Phaser 3.90 + 4.2 runs)'],
+   external:['Phaser docs: LoaderPlugin atlas/aseprite, AnimationManager create/createFromAseprite/fromJSON, Animation config, pixelArt','Phaser 3.90 / 4.2 source: createFromAseprite ignores the tag repeat']},
+  en:{
+   answer:'Phaser 3 and 4 do not read `.aseprite` files; they read a PNG plus JSON. Nerulio turns the file into either of the two JSON routes Phaser supports: a TexturePacker atlas with an `.anims.json` for `this.anims.fromJSON()` (loop, ping-pong and per-frame milliseconds written in), or Aseprite JSON for `this.load.aseprite()` and `this.anims.createFromAseprite()`. Both were loaded and drawn by Phaser 3.90 and 4.2. Set `pixelArt: true` in the game config so the frames stay sharp.',
+   concept:{title:'Two ways Phaser builds animations from JSON',body:[
+    'Phaser draws frames from a texture atlas: a PNG plus JSON listing each frame\'s rectangle, trim and pivot. Animations are separate objects with a key, a list of frames, a frame rate, a repeat count (−1 = forever) and an optional yoyo that plays back down to the start. Each animation frame may carry its own duration in milliseconds, which Phaser uses as that frame\'s time as long as you do not override the frame rate when you play it.',
+    'Route 1, atlas + animations file: `load.atlas` (or `load.multiatlas` for several pages) reads the TexturePacker-style JSON, and `anims.fromJSON` creates the animations from a JSON file that already holds every setting. Route 2, Aseprite JSON: `load.aseprite` reads the JSON Aseprite writes with File › Export Sprite Sheet, and `createFromAseprite` makes one animation per tag, reading each frame\'s duration and the tag direction (reverse, ping-pong as yoyo). In the Phaser 3.90 and 4.2 source it does not read the tag\'s repeat count, so those animations play once unless you ask for a repeat when you play them.',
+    'Nerulio reads the .aseprite file in the browser, composites the visible layers per frame and packs the frames. For route 1 it writes each tag as an animation with `repeat: -1` for ∞ or n − 1 for a count, reverse written out, ping-pong as `yoyo`, and every frame\'s milliseconds. For route 2 it writes frame keys "0" … "n" (what `createFromAseprite` expects), `frameTags` with direction and repeat, and slices for the pivot and boxes; this route needs all frames on one page. Rotation stays off because both Phaser versions drew rotated TexturePacker frames mirrored in the verification runs.'],
+    terms:[['Atlas JSON','TexturePacker-style frame list (hash, or multiatlas for several pages) with rects, trim and pivot.'],['anims.fromJSON','Creates animations from a JSON file of animation configs.'],['createFromAseprite','Creates one animation per frameTag of a loaded Aseprite JSON.'],['repeat','Extra plays after the first; −1 repeats forever.'],['yoyo','Plays the frames forward, then back to the start.']]},
+   example:{title:'Example: three tags, both routes',lines:[
+    'Aseprite tag                          hero.anims.json (route 1)',
+    'idle    4 × 125 ms, ∞                 frameRate 10, repeat -1, durations 125 ×4',
+    'attack  100, 100, 150, 250 ms, ×1     repeat 0 (plays once), durations 100, 100, 150, 250',
+    'jump    3 × 80 ms, ping-pong, ∞       frames 0, 1, 2 + yoyo: true, repeat -1',
+    '',
+    'Aseprite JSON (route 2): frameTags  idle 0–3, attack 4–7 (repeat "1"), jump 8–10 pingpong',
+    '  createFromAseprite → idle, attack, jump, each with repeat 0',
+    '  sprite.play({ key: \'idle\', repeat: -1 })   ← needed for looping tags'],
+    after:'The attack animation lasts 100 + 100 + 150 + 250 = 600 ms in both routes, because Phaser takes each frame\'s duration as that frame\'s time.'},
+   mapping:{title:'What survives the conversion',head:['In Aseprite','In Nerulio','In Phaser 3 / 4'],rows:[
+    ['Frame pixels (visible layers)','Composited frame, packed into the PNG','Atlas frame with trim offsets'],
+    ['Frame duration (ms)','Kept per frame','AnimationFrame `duration` in ms, the frame\'s own time'],
+    ['Tag','One animation of the same name','Animation key (anims.json) or frameTag (Aseprite JSON)'],
+    ['Direction reverse','Frame order written reversed','Frames in reverse order'],
+    ['Direction ping-pong','Frames listed forward','`yoyo: true`'],
+    ['Repeat ∞ / repeat n','Loop / play n times','Route 1: `repeat: -1` / n − 1. Route 2: set `repeat` yourself when playing'],
+    ['Pivot slice or P pivot','Frame pivot','Route 1: frame `pivot`, which Phaser reads as the frame\'s custom pivot. Route 2: a `pivot` slice Phaser does not use'],
+    ['Hit / hurt slices','Boxes','Route 2 only, as slices in `meta` for your own code']]},
+   outputs:{lead:'Route 1 (Pack & Export › Phaser 3 / 4) and route 2 (Aseprite JSON hash or array):',rows:[
+    ['hero.png','The packed frames (trimmed, 2 px apart, never rotated).'],
+    ['hero.json','Route 1: atlas JSON hash (`hero.multiatlas.json` when there are several pages). Route 2: Aseprite JSON with `frames` "0"…"n", `meta.frameTags` and `meta.slices`.'],
+    ['hero.anims.json','Route 1 only: every tag as an animation config for `anims.fromJSON`.'],
+    ['README-PHASER.md / README-ASEPRITE-JSON.md','The loading code for this bundle.']]},
+   target:{title:'Load it in Phaser',steps:[
+    'Copy the PNG and JSON files into your game\'s assets folder.',
+    'Create the game with `pixelArt: true` in the config; it turns antialiasing off and rounds positions.',
+    'Route 1, in `preload()`: `this.load.atlas(\'hero\', \'hero.png\', \'hero.json\')` and `this.load.json(\'hero-anims\', \'hero.anims.json\')`.',
+    'Route 1, in `create()`: `this.anims.fromJSON(this.cache.json.get(\'hero-anims\'))`, then `this.add.sprite(100, 100, \'hero\').play(\'idle\')`.',
+    'Route 2: `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')` in `preload()`, then `this.anims.createFromAseprite(\'hero\')` and `sprite.play({ key: \'idle\', repeat: -1 })` for tags that should loop.',
+    'Switch animations with `sprite.play(\'attack\')` and listen to `animationcomplete` to go back to `idle` after a one-shot.']},
+   verify:{steps:[
+    'In `create()`, log `this.anims.get(\'attack\').frames.map(f => f.duration)`: it prints 100, 100, 150, 250.',
+    '`this.anims.get(\'idle\').repeat` is −1 on route 1.',
+    'The jump animation plays forward and then back towards the start: `this.anims.get(\'jump\').yoyo` is true.',
+    'At 4× zoom the pixel edges stay hard with `pixelArt: true`.']},
+   trouble:{rows:[
+    ['An animation plays once and stops (route 2)','`createFromAseprite` does not read the tag\'s repeat, so every animation gets repeat 0','`this.anims.get(\'idle\').repeat` is 0','Play with `{ key, repeat: -1 }`, or use route 1, where the repeat is written in'],
+    ['Animations are empty or miss frames','The Aseprite JSON uses title-style frame keys, not "0"…"n"; `createFromAseprite` skips frames it cannot find','Look at the keys of `frames` in the JSON','Export again from Nerulio (it writes "0"…"n"), or run the Aseprite CLI with `--filename-format "{frame}"`'],
+    ['Sprites are blurry','The game runs with antialiasing','Game config','Set `pixelArt: true`'],
+    ['Some frames appear mirrored or scrambled','An atlas from another packer with rotated frames: Phaser draws rotated TexturePacker frames mirrored','`"rotated": true` in the JSON','Pack without rotation; see [[game/phaser-atlas-frames-wrong|wrong frames in a Phaser atlas]]'],
+    ['Per-frame durations are ignored','`play()` was called with a custom `frameRate`, which switches Phaser to one time per frame','Look at the play config','Do not override the frame rate; change the durations instead'],
+    ['Nerulio refuses the Aseprite JSON export','The frames need more than one page and Aseprite JSON describes one sheet','The export note names the page count','Raise the page size or use route 1, which writes a multiatlas']]},
+   alternatives:{rows:[
+    ['Aseprite\'s own File › Export Sprite Sheet (JSON Data, tags) + `load.aseprite`','You own Aseprite and prefer its exporter; the Phaser docs list the export settings it expects.'],
+    ['A plain grid sheet with `load.spritesheet` and `anims.create`','One animation at an even frame rate; you need the frame size, see [[game/sprite-sheet-frame-size|measuring frame size]].'],
+    ['PixiJS instead of Phaser','[[game/aseprite-json-to-pixi|Aseprite JSON to PixiJS]].']]},
+   limits:['Layers arrive flattened; blend modes are baked into the frames.','Hitboxes are data only: Phaser creates no physics bodies from them.','Route 2 needs all frames on one page.'],
+   versions:{body:['Both routes were loaded by Phaser 3.90 and Phaser 4.2 in the verification runs: every frame was drawn and compared with the source, and the animations created by `anims.fromJSON` and `createFromAseprite` were read back. That `createFromAseprite` ignores the tag repeat was read in the Phaser 3.90 and 4.2 source; the rest follows the Phaser API documentation.'],sources:[...PHASER_DOCS,'[Phaser 3.90 source: AnimationManager.createFromAseprite](https://github.com/phaserjs/phaser/blob/v3.90.0/src/animations/AnimationManager.js)','[Aseprite docs: Sprite sheets](https://www.aseprite.org/docs/sprite-sheet/)']}
+  },
+  ko:{
+   answer:'Phaser 3·4는 `.aseprite` 파일을 읽지 않고 PNG와 JSON을 읽습니다. Nerulio는 파일을 Phaser가 지원하는 두 가지 JSON 경로 중 하나로 바꿉니다. `this.anims.fromJSON()`용 `.anims.json`이 딸린 TexturePacker 아틀라스(반복·핑퐁·프레임별 밀리초가 들어 있음), 또는 `this.load.aseprite()`와 `this.anims.createFromAseprite()`용 Aseprite JSON입니다. 둘 다 Phaser 3.90과 4.2가 불러와 그렸습니다. 프레임이 선명하게 보이도록 게임 설정에 `pixelArt: true`를 넣으세요.',
+   concept:{title:'Phaser가 JSON으로 애니메이션을 만드는 두 가지 방법',body:[
+    'Phaser는 텍스처 아틀라스에서 프레임을 그립니다. PNG와, 프레임마다 사각형·트림·피벗을 적은 JSON입니다. 애니메이션은 따로 만드는 객체로 키, 프레임 목록, 프레임 속도, 반복 횟수(−1은 무한), 처음으로 되돌아가며 재생하는 yoyo를 가집니다. 애니메이션 프레임마다 밀리초 길이를 줄 수 있고, 재생할 때 프레임 속도를 덮어쓰지 않는 한 Phaser는 그 값을 그 프레임의 시간으로 씁니다.',
+    '경로 1, 아틀라스 + 애니메이션 파일: `load.atlas`(페이지가 여럿이면 `load.multiatlas`)가 TexturePacker 형식 JSON을 읽고, `anims.fromJSON`이 모든 설정이 이미 들어 있는 JSON에서 애니메이션을 만듭니다. 경로 2, Aseprite JSON: `load.aseprite`가 Aseprite의 File › Export Sprite Sheet가 쓰는 JSON을 읽고, `createFromAseprite`가 태그마다 애니메이션을 만들며 프레임별 길이와 방향(역방향, 핑퐁은 yoyo)을 읽습니다. Phaser 3.90과 4.2 소스를 보면 태그의 반복 횟수는 읽지 않으므로, 재생할 때 반복을 지정하지 않으면 한 번만 재생됩니다.',
+    'Nerulio는 브라우저에서 .aseprite를 읽고 프레임마다 보이는 레이어를 합성해 패킹합니다. 경로 1에서는 태그마다 ∞면 `repeat: -1`, 횟수면 n − 1을 쓰고, 역방향은 순서를 뒤집어 쓰고, 핑퐁은 `yoyo`로, 프레임마다 밀리초를 씁니다. 경로 2에서는 `createFromAseprite`가 기대하는 "0" … "n" 프레임 키, 방향과 반복이 든 `frameTags`, 피벗과 박스용 슬라이스를 씁니다. 이 경로는 모든 프레임이 한 페이지에 있어야 합니다. 검증에서 두 Phaser 버전 모두 회전된 TexturePacker 프레임을 거울처럼 뒤집어 그렸기 때문에 회전은 끕니다.'],
+    terms:[['아틀라스 JSON','사각형·트림·피벗이 든 TexturePacker 형식 프레임 목록(해시, 페이지가 여럿이면 multiatlas).'],['anims.fromJSON','애니메이션 설정이 든 JSON 파일로 애니메이션을 만드는 함수.'],['createFromAseprite','불러온 Aseprite JSON의 frameTag마다 애니메이션을 하나씩 만드는 함수.'],['repeat','첫 재생 뒤 추가로 반복하는 횟수. −1은 무한 반복.'],['yoyo','프레임을 앞으로 재생한 뒤 처음까지 거꾸로 재생.']]},
+   example:{title:'예시: 태그 3개, 두 가지 경로',lines:[
+    'Aseprite 태그                          hero.anims.json (경로 1)',
+    'idle    4 × 125 ms, ∞                  frameRate 10, repeat -1, duration 125 ×4',
+    'attack  100, 100, 150, 250 ms, ×1      repeat 0(한 번 재생), duration 100, 100, 150, 250',
+    'jump    3 × 80 ms, 핑퐁, ∞             프레임 0, 1, 2 + yoyo: true, repeat -1',
+    '',
+    'Aseprite JSON (경로 2): frameTags  idle 0–3, attack 4–7 (repeat "1"), jump 8–10 pingpong',
+    '  createFromAseprite → idle, attack, jump 모두 repeat 0',
+    '  sprite.play({ key: \'idle\', repeat: -1 })   ← 반복 태그에 필요'],
+    after:'두 경로 모두 attack은 100 + 100 + 150 + 250 = 600ms 동안 재생됩니다. Phaser가 프레임마다 duration을 그 프레임의 시간으로 쓰기 때문입니다.'},
+   mapping:{title:'변환 후에도 남는 것',head:['Aseprite','Nerulio','Phaser 3 / 4'],rows:[
+    ['프레임 픽셀(보이는 레이어)','합성한 프레임을 PNG에 패킹','트림 오프셋이 있는 아틀라스 프레임'],
+    ['프레임 길이(ms)','프레임마다 유지','AnimationFrame의 `duration`(ms), 그 프레임의 시간'],
+    ['태그','같은 이름의 애니메이션 하나','애니메이션 키(anims.json) 또는 frameTag(Aseprite JSON)'],
+    ['방향: 역방향','프레임 순서를 뒤집어 기록','역순으로 놓인 프레임'],
+    ['방향: 핑퐁','프레임은 정방향으로 나열','`yoyo: true`'],
+    ['반복 ∞ / 반복 n','반복 / n번 재생','경로 1: `repeat: -1` / n − 1. 경로 2: 재생할 때 `repeat`를 직접 지정'],
+    ['피벗 슬라이스나 P 피벗','프레임 피벗','경로 1: 프레임 `pivot`, Phaser가 사용자 피벗으로 읽음. 경로 2: Phaser가 쓰지 않는 `pivot` 슬라이스'],
+    ['hit / hurt 슬라이스','박스','경로 2에서만, 직접 쓸 수 있게 `meta`의 슬라이스로']]},
+   outputs:{lead:'경로 1(패킹·내보내기 › Phaser 3 / 4)과 경로 2(Aseprite JSON 해시·배열)의 파일입니다.',rows:[
+    ['hero.png','패킹된 프레임(트림, 2px 간격, 회전 없음).'],
+    ['hero.json','경로 1: 아틀라스 JSON 해시(페이지가 여럿이면 `hero.multiatlas.json`). 경로 2: "0"…"n" `frames`, `meta.frameTags`, `meta.slices`가 든 Aseprite JSON.'],
+    ['hero.anims.json','경로 1 전용: 태그마다 `anims.fromJSON`용 애니메이션 설정.'],
+    ['README-PHASER.md / README-ASEPRITE-JSON.md','이 번들을 불러오는 코드.']]},
+   target:{title:'Phaser에서 불러오기',steps:[
+    'PNG와 JSON 파일을 게임의 에셋 폴더에 복사합니다.',
+    '게임 설정에 `pixelArt: true`를 넣어 만듭니다. 안티에일리어싱을 끄고 위치를 정수로 맞춥니다.',
+    '경로 1, `preload()`에서: `this.load.atlas(\'hero\', \'hero.png\', \'hero.json\')`과 `this.load.json(\'hero-anims\', \'hero.anims.json\')`.',
+    '경로 1, `create()`에서: `this.anims.fromJSON(this.cache.json.get(\'hero-anims\'))` 다음 `this.add.sprite(100, 100, \'hero\').play(\'idle\')`.',
+    '경로 2: `preload()`에서 `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`, 그다음 `this.anims.createFromAseprite(\'hero\')`, 반복해야 할 태그는 `sprite.play({ key: \'idle\', repeat: -1 })`.',
+    '`sprite.play(\'attack\')`으로 애니메이션을 바꾸고, 한 번만 나오는 동작 뒤에는 `animationcomplete`를 받아 `idle`로 돌아갑니다.']},
+   verify:{steps:[
+    '`create()`에서 `this.anims.get(\'attack\').frames.map(f => f.duration)`을 출력하면 100, 100, 150, 250이 나와야 합니다.',
+    '경로 1에서 `this.anims.get(\'idle\').repeat`는 −1이어야 합니다.',
+    'jump는 앞으로 재생한 뒤 처음 쪽으로 되돌아가야 합니다. `this.anims.get(\'jump\').yoyo`가 true입니다.',
+    '`pixelArt: true`면 4배로 확대해도 픽셀 경계가 선명해야 합니다.']},
+   trouble:{rows:[
+    ['애니메이션이 한 번 재생되고 멈춤(경로 2)','`createFromAseprite`가 태그의 반복을 읽지 않아 모든 애니메이션이 repeat 0','`this.anims.get(\'idle\').repeat`가 0','`{ key, repeat: -1 }`로 재생하거나, 반복이 기록되는 경로 1 사용'],
+    ['애니메이션이 비었거나 프레임이 빠짐','Aseprite JSON의 프레임 키가 "0"…"n"이 아닌 제목 형식이라 `createFromAseprite`가 찾지 못한 프레임을 건너뜀','JSON `frames`의 키 확인','Nerulio로 다시 내보내거나("0"…"n"으로 씀) Aseprite CLI를 `--filename-format "{frame}"`로 실행'],
+    ['스프라이트가 흐림','게임이 안티에일리어싱으로 실행됨','게임 설정','`pixelArt: true` 설정'],
+    ['일부 프레임이 뒤집히거나 뒤섞여 보임','다른 패커의 회전된 프레임: Phaser는 회전된 TexturePacker 프레임을 거울처럼 그림','JSON의 `"rotated": true`','회전 없이 패킹. [[game/phaser-atlas-frames-wrong|Phaser 아틀라스 프레임 오류]] 참고'],
+    ['프레임별 길이가 무시됨','`play()`에 사용자 `frameRate`를 넘겨 Phaser가 모든 프레임에 같은 시간을 씀','재생 설정 확인','프레임 속도를 덮어쓰지 말고 길이를 바꾸기'],
+    ['Nerulio가 Aseprite JSON 내보내기를 거부함','프레임이 한 페이지에 다 들어가지 않는데 Aseprite JSON은 시트 한 장만 설명함','내보내기 안내에 페이지 수가 나옴','페이지 크기를 키우거나 multiatlas를 쓰는 경로 1 사용']]},
+   alternatives:{rows:[
+    ['Aseprite 자체 File › Export Sprite Sheet(JSON Data, 태그) + `load.aseprite`','Aseprite가 있고 그 내보내기를 선호할 때. 필요한 내보내기 설정은 Phaser 문서에 나와 있습니다.'],
+    ['`load.spritesheet`와 `anims.create`로 쓰는 격자 시트','프레임 속도가 일정한 애니메이션 하나. 프레임 크기가 필요합니다: [[game/sprite-sheet-frame-size|프레임 크기 재기]].'],
+    ['Phaser 대신 PixiJS','[[game/aseprite-json-to-pixi|Aseprite JSON을 PixiJS로]].']]},
+   limits:['레이어는 합쳐지고 블렌드 모드는 프레임에 구워집니다.','히트박스는 데이터일 뿐이며 Phaser가 물리 바디를 만들지는 않습니다.','경로 2는 모든 프레임이 한 페이지에 있어야 합니다.'],
+   versions:{body:['검증 실행에서 두 경로 모두 Phaser 3.90과 Phaser 4.2가 불러왔습니다. 모든 프레임을 그려 원본과 비교했고, `anims.fromJSON`과 `createFromAseprite`가 만든 애니메이션을 다시 읽었습니다. `createFromAseprite`가 태그의 반복을 무시한다는 점은 Phaser 3.90·4.2 소스에서 확인했고, 나머지는 Phaser API 문서를 따릅니다.'],sources:[...PHASER_DOCS,'[Phaser 3.90 source: AnimationManager.createFromAseprite](https://github.com/phaserjs/phaser/blob/v3.90.0/src/animations/AnimationManager.js)','[Aseprite 문서: Sprite sheets](https://www.aseprite.org/docs/sprite-sheet/)']}
+  },
+  ja:{
+   answer:'Phaser 3・4は`.aseprite`ファイルを読まず、PNGとJSONを読みます。NerulioはファイルをPhaserが対応する2つのJSONの経路のどちらかに変換します。`this.anims.fromJSON()`用の`.anims.json`付きTexturePackerアトラス（ループ・ピンポン・フレームごとのミリ秒入り）か、`this.load.aseprite()`と`this.anims.createFromAseprite()`用のAseprite JSONです。どちらもPhaser 3.90と4.2で読み込んで描画しました。フレームをくっきり保つため、ゲーム設定に`pixelArt: true`を入れてください。',
+   concept:{title:'PhaserがJSONからアニメーションを作る2つの方法',body:[
+    'Phaserはテクスチャアトラスからフレームを描きます。PNGと、フレームごとの矩形・トリム・ピボットを並べたJSONです。アニメーションは別のオブジェクトで、キー、フレーム一覧、フレームレート、繰り返し回数（−1は無限）、先頭まで逆に戻るyoyoを持ちます。アニメーションのフレームごとにミリ秒の長さを持たせることができ、再生時にフレームレートを上書きしない限り、Phaserはそれをそのフレームの時間として使います。',
+    '経路1、アトラス＋アニメーションファイル：`load.atlas`（複数ページなら`load.multiatlas`）がTexturePacker形式のJSONを読み、`anims.fromJSON`が設定をすべて含むJSONからアニメーションを作ります。経路2、Aseprite JSON：`load.aseprite`がAsepriteのFile › Export Sprite Sheetの書き出すJSONを読み、`createFromAseprite`がタグごとにアニメーションを作り、フレームごとの長さと方向（逆方向、ピンポンはyoyo）を読みます。Phaser 3.90と4.2のソースでは、タグの繰り返し回数は読まないため、再生時に繰り返しを指定しなければ1回だけ再生されます。',
+    'Nerulioはブラウザで.asepriteを読み、フレームごとに表示中のレイヤーを合成してパックします。経路1では、タグごとに∞なら`repeat: -1`、回数ならn − 1を書き、逆方向は順序を逆にして書き、ピンポンは`yoyo`にし、フレームごとのミリ秒を書きます。経路2では、`createFromAseprite`が求める"0" … "n"のフレームキー、方向と繰り返しを持つ`frameTags`、ピボットとボックス用のスライスを書きます。この経路は全フレームが1ページに収まる必要があります。検証で両バージョンとも回転したTexturePackerフレームを鏡像で描いたため、回転はオフにします。'],
+    terms:[['アトラスJSON','矩形・トリム・ピボットを持つTexturePacker形式のフレーム一覧（ハッシュ、複数ページならmultiatlas）。'],['anims.fromJSON','アニメーション設定のJSONファイルからアニメーションを作る関数。'],['createFromAseprite','読み込んだAseprite JSONのframeTagごとにアニメーションを1つ作る関数。'],['repeat','最初の再生の後に追加で繰り返す回数。−1は無限。'],['yoyo','フレームを順に再生したあと、先頭まで逆順に戻る。']]},
+   example:{title:'例：タグ3つ、2つの経路',lines:[
+    'Asepriteのタグ                         hero.anims.json（経路1）',
+    'idle    4 × 125 ms、∞                  frameRate 10、repeat -1、duration 125 ×4',
+    'attack  100, 100, 150, 250 ms、×1      repeat 0（1回再生）、duration 100, 100, 150, 250',
+    'jump    3 × 80 ms、ピンポン、∞          フレーム0, 1, 2 + yoyo: true、repeat -1',
+    '',
+    'Aseprite JSON（経路2）：frameTags  idle 0–3、attack 4–7（repeat "1"）、jump 8–10 pingpong',
+    '  createFromAseprite → idle・attack・jump、すべてrepeat 0',
+    '  sprite.play({ key: \'idle\', repeat: -1 })   ← ループするタグに必要'],
+    after:'どちらの経路でもattackは100 + 100 + 150 + 250 = 600ms再生されます。Phaserがフレームごとのdurationをそのフレームの時間として使うからです。'},
+   mapping:{title:'変換後に残るもの',head:['Aseprite','Nerulio','Phaser 3 / 4'],rows:[
+    ['フレームのピクセル（表示中のレイヤー）','合成したフレームをPNGにパック','トリムのオフセット付きのアトラスフレーム'],
+    ['フレームの長さ（ms）','フレームごとに保持','AnimationFrameの`duration`（ms）、そのフレームの時間'],
+    ['タグ','同じ名前のアニメーション1つ','アニメーションキー（anims.json）またはframeTag（Aseprite JSON）'],
+    ['方向：逆方向','フレーム順を逆にして記録','逆順に並んだフレーム'],
+    ['方向：ピンポン','フレームは順方向で並べる','`yoyo: true`'],
+    ['繰り返し ∞ / 繰り返し n','ループ / n回再生','経路1：`repeat: -1` / n − 1。経路2：再生時に`repeat`を自分で指定'],
+    ['ピボットスライスかPのピボット','フレームのピボット','経路1：フレームの`pivot`、Phaserはカスタムピボットとして読む。経路2：Phaserが使わない`pivot`スライス'],
+    ['hit / hurtのスライス','ボックス','経路2のみ、自分のコード用に`meta`のスライスとして']]},
+   outputs:{lead:'経路1（パック＆書き出し › Phaser 3 / 4）と経路2（Aseprite JSONのハッシュ・配列）のファイルです。',rows:[
+    ['hero.png','パックしたフレーム（トリム、2px間隔、回転なし）。'],
+    ['hero.json','経路1：アトラスJSONハッシュ（複数ページなら`hero.multiatlas.json`）。経路2："0"…"n"の`frames`、`meta.frameTags`、`meta.slices`を持つAseprite JSON。'],
+    ['hero.anims.json','経路1のみ：タグごとの`anims.fromJSON`用アニメーション設定。'],
+    ['README-PHASER.md / README-ASEPRITE-JSON.md','このバンドルを読み込むコード。']]},
+   target:{title:'Phaserで読み込む',steps:[
+    'PNGとJSONのファイルをゲームのアセットフォルダーにコピーします。',
+    'ゲーム設定に`pixelArt: true`を入れて作成します。アンチエイリアスを切り、位置を整数に丸めます。',
+    '経路1、`preload()`で：`this.load.atlas(\'hero\', \'hero.png\', \'hero.json\')`と`this.load.json(\'hero-anims\', \'hero.anims.json\')`。',
+    '経路1、`create()`で：`this.anims.fromJSON(this.cache.json.get(\'hero-anims\'))`、続いて`this.add.sprite(100, 100, \'hero\').play(\'idle\')`。',
+    '経路2：`preload()`で`this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`、続いて`this.anims.createFromAseprite(\'hero\')`、ループすべきタグは`sprite.play({ key: \'idle\', repeat: -1 })`。',
+    '`sprite.play(\'attack\')`でアニメーションを切り替え、1回きりの動作のあとは`animationcomplete`を受けて`idle`に戻します。']},
+   verify:{steps:[
+    '`create()`で`this.anims.get(\'attack\').frames.map(f => f.duration)`を出力すると、100, 100, 150, 250になるはずです。',
+    '経路1では`this.anims.get(\'idle\').repeat`が−1のはずです。',
+    'jumpは順に再生したあと先頭へ戻るように動くはずです。`this.anims.get(\'jump\').yoyo`がtrueです。',
+    '`pixelArt: true`なら、4倍に拡大してもピクセルの境界がくっきりしているはずです。']},
+   trouble:{rows:[
+    ['アニメーションが1回再生して止まる（経路2）','`createFromAseprite`はタグの繰り返しを読まず、すべてrepeat 0になる','`this.anims.get(\'idle\').repeat`が0','`{ key, repeat: -1 }`で再生するか、繰り返しが書き込まれる経路1を使う'],
+    ['アニメーションが空、またはフレームが欠ける','Aseprite JSONのフレームキーが"0"…"n"ではなくタイトル形式で、`createFromAseprite`は見つからないフレームを飛ばす','JSONの`frames`のキーを確認','Nerulioで書き出し直す（"0"…"n"で書く）か、Aseprite CLIを`--filename-format "{frame}"`で実行'],
+    ['スプライトがぼやける','ゲームがアンチエイリアスありで動いている','ゲーム設定','`pixelArt: true`にする'],
+    ['一部のフレームが反転したり崩れたりする','別のパッカーの回転フレーム：Phaserは回転したTexturePackerフレームを鏡像で描く','JSONの`"rotated": true`','回転なしでパックする。[[game/phaser-atlas-frames-wrong|Phaserアトラスのフレームの乱れ]]を参照'],
+    ['フレームごとの長さが無視される','`play()`にカスタムの`frameRate`を渡し、Phaserが全フレームに同じ時間を使っている','再生の設定を確認','フレームレートを上書きせず、長さのほうを変える'],
+    ['NerulioがAseprite JSONの書き出しを拒否する','フレームが1ページに収まらず、Aseprite JSONはシート1枚しか表せない','書き出しの注意にページ数が出る','ページサイズを上げるか、multiatlasを書く経路1を使う']]},
+   alternatives:{rows:[
+    ['Aseprite自体のFile › Export Sprite Sheet（JSON Data、タグ）＋`load.aseprite`','Asepriteを持っていて、その書き出しを使いたいとき。必要な書き出し設定はPhaserのドキュメントに載っています。'],
+    ['`load.spritesheet`と`anims.create`で使うグリッドのシート','フレームレートが一定のアニメーション1つ。フレームサイズが必要です：[[game/sprite-sheet-frame-size|フレームサイズの測り方]]。'],
+    ['Phaserの代わりにPixiJS','[[game/aseprite-json-to-pixi|Aseprite JSONをPixiJSへ]]。']]},
+   limits:['レイヤーは統合され、合成モードはフレームに焼き込まれます。','ヒットボックスはデータだけで、Phaserが物理ボディを作るわけではありません。','経路2は全フレームが1ページに収まる必要があります。'],
+   versions:{body:['検証の実行では、両方の経路をPhaser 3.90とPhaser 4.2が読み込みました。全フレームを描いて元画像と比べ、`anims.fromJSON`と`createFromAseprite`が作ったアニメーションを読み戻しています。`createFromAseprite`がタグの繰り返しを無視することはPhaser 3.90・4.2のソースで確認し、それ以外はPhaser APIドキュメントに基づきます。'],sources:[...PHASER_DOCS,'[Phaser 3.90 source: AnimationManager.createFromAseprite](https://github.com/phaserjs/phaser/blob/v3.90.0/src/animations/AnimationManager.js)','[Asepriteドキュメント：Sprite sheets](https://www.aseprite.org/docs/sprite-sheet/)']}
+  }
  }
 };
