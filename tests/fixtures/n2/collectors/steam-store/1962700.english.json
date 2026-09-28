@@ -1,0 +1,41 @@
+{
+ "1962700": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "Subnautica 2",
+   "steam_appid": 1962700,
+   "supported_languages": "English<strong>*</strong>, German, Korean, Portuguese - Brazil, Spanish - Latin America, French, Japanese, Simplified Chinese, Italian, Russian, Ukrainian<br><strong>*</strong>languages with full audio support",
+   "developers": [
+    "Unknown Worlds Entertainment"
+   ],
+   "publishers": [
+    "Unknown Worlds Entertainment"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "May 14, 2026"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": false,
+    "linux": false
+   },
+   "genres": [
+    {
+     "id": "1",
+     "description": "Action"
+    },
+    {
+     "id": "25",
+     "description": "Adventure"
+    },
+    {
+     "id": "70",
+     "description": "Early Access"
+    }
+   ],
+   "website": "https://subnautica.com"
+  }
+ }
+}

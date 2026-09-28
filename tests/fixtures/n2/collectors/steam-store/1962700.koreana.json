@@ -1,0 +1,41 @@
+{
+ "1962700": {
+  "success": true,
+  "data": {
+   "type": "game",
+   "name": "서브노티카 2",
+   "steam_appid": 1962700,
+   "supported_languages": "영어<strong>*</strong>, 독일어, 한국어, 포르투갈어 - 브라질, 스페인어 - 중남미, 프랑스어, 일본어, 중국어 간체, 이탈리아어, 러시아어, 우크라이나어<br><strong>*</strong>음성이 지원되는 언어",
+   "developers": [
+    "Unknown Worlds Entertainment"
+   ],
+   "publishers": [
+    "Unknown Worlds Entertainment"
+   ],
+   "release_date": {
+    "coming_soon": false,
+    "date": "2026년 5월 14일"
+   },
+   "platforms": {
+    "windows": true,
+    "mac": false,
+    "linux": false
+   },
+   "genres": [
+    {
+     "id": "1",
+     "description": "액션"
+    },
+    {
+     "id": "25",
+     "description": "어드벤처"
+    },
+    {
+     "id": "70",
+     "description": "앞서 해보기"
+    }
+   ],
+   "website": "https://subnautica.com"
+  }
+ }
+}
