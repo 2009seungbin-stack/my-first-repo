@@ -1049,5 +1049,247 @@ export default {
    versions:{body:['公式のSpineランタイムspine-canvas 4.2.120がNerulioの.atlasを読み、SkeletonRendererで全領域を領域アタッチメントとして描きました。トリムした忍者のフレームと回転した弓兵のフレームで、ピクセルが元画像と一致しています。libGDX（Java）は実行していません。フィールドの意味はSpineのアトラス形式のドキュメントに従います。'],sources:[S.spineAtlas,S.spinePacker]}
   }
  },
+ 'game/sparrow-xml-spritesheet':{
+  type:'format',
+  intent:{primary:'make a spritesheet with Starling / Sparrow XML (the FNF-style "spritesheet and XML")',secondary:['what SubTexture, frameX and frameY mean','the Phaser 3.90 trimmed-XML bug and the Phaser 3 preset','animations from frame-name prefixes'],
+   goal:'a PNG + XML pair whose frames an engine cuts and places correctly',input:'numbered frames, a GIF, an .aseprite file or a sheet',output:'one XML per page + PNG page(s)',target:'Phaser 4.2 (both presets), Phaser 3.90 (Phaser 3 preset); HaxeFlixel / FNF engines not tested',support:'partial',
+   evidence:['src/game/export/engines.js (starlingFiles)','src/game/export/targets.js (starling and sparrow-phaser3 presets)','docs/STUDIO-PACK.md (2 of 49 runs fail: trimmed XML in Phaser 3.90)','docs/ENGINE-VERIFY.md'],
+   external:['Phaser 3.90 source: AtlasXML passes (width, height, frameX, frameY, frameWidth, frameHeight) to setTrim; setTrim(actualWidth, actualHeight, destX, destY, destWidth, destHeight)','Phaser LoaderPlugin: atlasXML']},
+  en:{
+   answer:'Sparrow / Starling XML (the "spritesheet and XML" of many FNF mods) describes a packed PNG as a `TextureAtlas` element (`imagePath="…"`) with one `SubTexture` per frame: `name`, `x`, `y`, `width`, `height`, and for trimmed frames `frameX`, `frameY` (negative offsets) with `frameWidth`, `frameHeight` (the original size). Nerulio writes one XML per page and never rotates. Phaser 4.2 draws trimmed frames correctly; Phaser 3.90 does not, so for Phaser 3 use the "Sparrow XML (Phaser 3)" preset, which turns trim off. HaxeFlixel and FNF engines were not tested.',
+   concept:{title:'Reading a SubTexture',body:[
+    'Every frame is one element. `x`, `y`, `width` and `height` cut the stored pixels out of the page. If the frame was trimmed, `frameX` and `frameY` say where the full frame begins relative to those pixels, as negative numbers because the full frame starts up and to the left, and `frameWidth`, `frameHeight` give its size.',
+    'Animations are not stored in the file; they are built from frame names, for example every SubTexture whose name starts with `run_`. Phaser does this with `generateFrameNames` and a prefix, so the names matter more here than in JSON atlases that carry an animation list.',
+    'The bug to know: Phaser 3.90\'s AtlasXML parser passes the trimmed size and the full size to `setTrim` in the wrong order, so trimmed XML frames are drawn wrong in Phaser 3.90. The same files are drawn correctly in Phaser 4.2. The "Sparrow XML (Phaser 3)" preset turns trim off, so no frame carries `frameX`/`frameY`, and it passes in both versions. In Nerulio\'s engine runs these were the only 2 failures among 49.'],
+    terms:[['TextureAtlas','The root element; `imagePath` names the PNG page, with its width and height.'],['SubTexture','One frame: its name and rectangle on the page.'],['frameX, frameY','Negative offset of the full frame from the stored pixels (trimmed frames only).'],['frameWidth, frameHeight','Size of the untrimmed frame.'],['pivotX, pivotY','Pivot in pixels on the full frame; Nerulio writes it, Phaser\'s XML loader does not read it.']]},
+   example:{title:'Example: one frame in both presets, and the Phaser 3.90 bug',lines:[
+    'Starling / Sparrow XML preset (trim on), page 38 × 50',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15"',
+    '            frameX="-10" frameY="-10" frameWidth="40" frameHeight="29" pivotX="20" pivotY="29"',
+    '',
+    '"Sparrow XML (Phaser 3)" preset (trim off), page 82 × 91',
+    'SubTexture name="run_0" x="0" y="0" width="40" height="29" pivotX="20" pivotY="29"',
+    '',
+    'Phaser 3.90 AtlasXML calls   setTrim(18, 15, 10, 10, 40, 29)',
+    'Frame.setTrim expects        setTrim(40, 29, 10, 10, 18, 15)  (full size first, trimmed size last)',
+    '',
+    'cost of trim off here: 82 × 91 = 7,462 px² instead of 38 × 50 = 1,900 px² (3.9×)'],
+    after:'Phaser\'s JSON parser passes `sourceSize` first and `spriteSourceSize` last, which is why a trimmed JSON atlas is fine in Phaser 3.90 while the same frames in XML are not.'},
+   outputs:{rows:[
+    ['run.xml','`TextureAtlas` element (`imagePath="run.png"`, width, height) with one `SubTexture` per frame; frameX, frameY, frameWidth and frameHeight only on trimmed frames; pivotX and pivotY in pixels.'],
+    ['run.png','The page. With several pages: run-0.png with run-0.xml, run-1.png with run-1.xml, and so on.']]},
+   target:{title:'Load it',steps:[
+    'Phaser 4.2: `this.load.atlasXML("run", "run.png", "run.xml")`, then `this.add.sprite(x, y, "run", "run_0")`; either XML preset works.',
+    'Phaser 3.90: export with "Sparrow XML (Phaser 3)" and load it the same way.',
+    'Build the animation from the names: `this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`.',
+    'Other engines (HaxeFlixel, FNF engines, Starling) read the same SubTexture layout, but they were not run here: compare one trimmed frame with its source image before relying on it.']},
+   trouble:{rows:[
+    ['Trimmed frames drawn shifted or at the wrong size, only in Phaser 3.90','Phaser 3.90\'s AtlasXML passes the trimmed and full sizes to `setTrim` in the wrong order','The XML has `frameX` on those frames, and the same files look right in Phaser 4.2','Use the "Sparrow XML (Phaser 3)" preset (trim off), the JSON atlas (trim works there), or Phaser 4'],
+    ['Frames turned or mirrored','The XML came from a packer that rotated frames (`rotated="true"`), which Phaser\'s XML parser does not read','Search the XML for `rotated`','Repack without rotation; Nerulio\'s XML export refuses a rotated pack'],
+    ['An animation picks up the wrong frames','The prefix is too broad: `run_` also matches `run_attack_0`','List the frame names in the XML','Give each animation a unique prefix before exporting'],
+    ['The sprite\'s origin ignores the pivot','Phaser\'s XML loader reads only the rectangle and trim attributes, not pivotX/pivotY','The sprite origin stays at the centre','Call `sprite.setOrigin(0.5, 1)`, or use the JSON atlas, whose `pivot` Phaser applies as the origin']]},
+   alternatives:{rows:[
+    ['Phaser JSON atlas','For a Phaser game: trim works in 3.90 and 4.2, pivots become sprite origins and an animations file comes with it. See [[game/phaser-texture-atlas|Phaser texture atlas]].'],
+    ['Preview or convert an existing FNF sheet','To turn a spritesheet + XML you already have into a GIF, see [[game/fnf-spritesheet-to-gif|FNF spritesheet to GIF]].']]},
+   versions:{body:['Loaded and drawn by Phaser 3.90.0 and 4.2.1 on the ninja and archer frame sets: the trimmed Starling preset failed only in 3.90 (2 of 49 engine runs), the Phaser 3 preset passed in both. The setTrim argument order is quoted from the Phaser 3.90 source. HaxeFlixel, Starling and FNF engines were not run.'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader,S.phaserAnims]}
+  },
+  ko:{
+   answer:'Sparrow / Starling XML(여러 FNF 모드의 "spritesheet and XML")은 패킹된 PNG를 `TextureAtlas` element (`imagePath="…"`)로, 프레임마다 `SubTexture` 하나로 설명합니다. `name`, `x`, `y`, `width`, `height`가 있고, 트림된 프레임에는 `frameX`, `frameY`(음수 오프셋)와 `frameWidth`, `frameHeight`(원래 크기)가 붙습니다. Nerulio는 페이지마다 XML 하나를 쓰고 회전하지 않습니다. Phaser 4.2는 트림된 프레임을 제대로 그리지만 Phaser 3.90은 그렇지 못하므로, Phaser 3에서는 트림을 끄는 "Sparrow XML (Phaser 3)" 프리셋을 쓰세요. HaxeFlixel과 FNF 엔진은 시험하지 않았습니다.',
+   concept:{title:'SubTexture 읽는 법',body:[
+    '프레임 하나가 요소 하나입니다. `x`, `y`, `width`, `height`로 페이지에서 저장된 픽셀을 잘라 냅니다. 트림된 프레임이면 `frameX`와 `frameY`가 전체 프레임이 그 픽셀 기준으로 어디서 시작하는지 알려 주는데, 전체 프레임이 왼쪽 위에서 시작하므로 음수입니다. `frameWidth`, `frameHeight`는 그 크기입니다.',
+    '애니메이션은 파일에 저장되지 않고 프레임 이름으로 만듭니다. 예를 들어 이름이 `run_`으로 시작하는 모든 SubTexture입니다. Phaser는 접두어와 `generateFrameNames`로 이렇게 하므로, 애니메이션 목록이 있는 JSON 아틀라스보다 이름이 더 중요합니다.',
+    '알아 둘 버그: Phaser 3.90의 AtlasXML 파서는 트림된 크기와 전체 크기를 `setTrim`에 거꾸로 넘깁니다. 그래서 Phaser 3.90에서는 트림된 XML 프레임이 잘못 그려집니다. 같은 파일이 Phaser 4.2에서는 제대로 그려집니다. "Sparrow XML (Phaser 3)" 프리셋은 트림을 꺼서 어떤 프레임에도 `frameX`/`frameY`가 없고, 두 버전 모두 통과합니다. Nerulio 엔진 검증 49회 중 실패는 이 2회뿐이었습니다.'],
+    terms:[['TextureAtlas','루트 요소. `imagePath`가 PNG 페이지 이름이고 너비와 높이가 함께 있습니다.'],['SubTexture','프레임 하나: 이름과 페이지 위 사각형.'],['frameX, frameY','저장된 픽셀에서 본 전체 프레임의 음수 오프셋(트림된 프레임만).'],['frameWidth, frameHeight','트림 전 프레임 크기.'],['pivotX, pivotY','전체 프레임 위 픽셀 단위 피벗. Nerulio는 쓰지만 Phaser XML 로더는 읽지 않습니다.']]},
+   example:{title:'예시: 두 프리셋의 같은 프레임과 Phaser 3.90 버그',lines:[
+    'Starling / Sparrow XML 프리셋(트림 켬), 페이지 38 × 50',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15"',
+    '            frameX="-10" frameY="-10" frameWidth="40" frameHeight="29" pivotX="20" pivotY="29"',
+    '',
+    '"Sparrow XML (Phaser 3)" 프리셋(트림 끔), 페이지 82 × 91',
+    'SubTexture name="run_0" x="0" y="0" width="40" height="29" pivotX="20" pivotY="29"',
+    '',
+    'Phaser 3.90 AtlasXML 호출     setTrim(18, 15, 10, 10, 40, 29)',
+    'Frame.setTrim이 기대하는 순서  setTrim(40, 29, 10, 10, 18, 15)  (전체 크기가 먼저, 트림 크기가 마지막)',
+    '',
+    '여기서 트림을 끈 대가: 38 × 50 = 1,900 px² 대신 82 × 91 = 7,462 px² (3.9배)'],
+    after:'Phaser의 JSON 파서는 `sourceSize`를 먼저, `spriteSourceSize`를 나중에 넘깁니다. 그래서 트림된 JSON 아틀라스는 Phaser 3.90에서도 괜찮고, 같은 프레임을 XML로 주면 잘못 그려집니다.'},
+   outputs:{rows:[
+    ['run.xml','`TextureAtlas` element (`imagePath="run.png"`, width, height)와 프레임마다 `SubTexture` 하나. frameX·frameY·frameWidth·frameHeight는 트림된 프레임에만, pivotX·pivotY는 픽셀 단위.'],
+    ['run.png','페이지. 여러 페이지면 run-0.png와 run-0.xml, run-1.png와 run-1.xml 식.']]},
+   target:{title:'불러오기',steps:[
+    'Phaser 4.2: `this.load.atlasXML("run", "run.png", "run.xml")` 후 `this.add.sprite(x, y, "run", "run_0")`. 어느 XML 프리셋이든 됩니다.',
+    'Phaser 3.90: "Sparrow XML (Phaser 3)"으로 내보내고 같은 방법으로 불러옵니다.',
+    '이름으로 애니메이션 만들기: `this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`.',
+    '다른 엔진(HaxeFlixel, FNF 엔진, Starling)도 같은 SubTexture 구조를 읽지만 여기서는 실행하지 않았습니다. 믿고 쓰기 전에 트림된 프레임 하나를 원본 이미지와 비교하세요.']},
+   trouble:{rows:[
+    ['Phaser 3.90에서만 트림된 프레임이 밀리거나 크기가 틀리게 그려짐','Phaser 3.90의 AtlasXML이 트림 크기와 전체 크기를 `setTrim`에 거꾸로 넘김','그 프레임에 `frameX`가 있고, 같은 파일이 Phaser 4.2에서는 정상','"Sparrow XML (Phaser 3)" 프리셋(트림 끔), JSON 아틀라스(여기선 트림 정상), 또는 Phaser 4 사용'],
+    ['프레임이 돌아가거나 뒤집힘','프레임을 회전시킨 패커의 XML(`rotated="true"`)인데 Phaser XML 파서는 이를 읽지 않음','XML에서 `rotated` 검색','회전 없이 다시 패킹. Nerulio XML 내보내기는 회전된 패킹을 거부함'],
+    ['애니메이션에 엉뚱한 프레임이 섞임','접두어가 너무 넓음: `run_`이 `run_attack_0`에도 걸림','XML의 프레임 이름 목록 확인','내보내기 전에 애니메이션마다 고유한 접두어를 줌'],
+    ['스프라이트 원점이 피벗을 무시함','Phaser XML 로더는 사각형과 트림 속성만 읽고 pivotX/pivotY는 읽지 않음','스프라이트 원점이 가운데에 머묾','`sprite.setOrigin(0.5, 1)` 호출, 또는 Phaser가 `pivot`을 원점으로 쓰는 JSON 아틀라스 사용']]},
+   alternatives:{rows:[
+    ['Phaser JSON 아틀라스','Phaser 게임이라면: 3.90과 4.2 모두 트림이 정상이고 피벗이 스프라이트 원점이 되며 애니메이션 파일도 함께 옵니다. [[game/phaser-texture-atlas|Phaser 텍스처 아틀라스]] 참고.'],
+    ['기존 FNF 시트 미리보기·변환','이미 있는 spritesheet + XML을 GIF로 바꾸려면 [[game/fnf-spritesheet-to-gif|FNF 스프라이트시트를 GIF로]] 참고.']]},
+   versions:{body:['닌자와 궁수 프레임 세트로 Phaser 3.90.0과 4.2.1에서 불러와 그렸습니다. 트림을 켠 Starling 프리셋은 3.90에서만 실패했고(엔진 실행 49회 중 2회), Phaser 3 프리셋은 두 버전 모두 통과했습니다. setTrim 인수 순서는 Phaser 3.90 소스에서 인용했습니다. HaxeFlixel, Starling, FNF 엔진은 실행하지 않았습니다.'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader,S.phaserAnims]}
+  },
+  ja:{
+   answer:'Sparrow / Starling XML（多くのFNF modの「spritesheet and XML」）は、パックしたPNGを`TextureAtlas` element (`imagePath="…"`)で、フレームごとに`SubTexture`1つで記述します。`name`、`x`、`y`、`width`、`height`があり、トリムしたフレームには`frameX`、`frameY`（負のオフセット）と`frameWidth`、`frameHeight`（元の大きさ）が付きます。Nerulioはページごとに1つのXMLを書き、回転はしません。Phaser 4.2はトリムしたフレームを正しく描きますが、Phaser 3.90は描けないため、Phaser 3ではトリムをオフにする「Sparrow XML (Phaser 3)」プリセットを使ってください。HaxeFlixelとFNFのエンジンは試していません。',
+   concept:{title:'SubTextureの読み方',body:[
+    'フレーム1つが要素1つです。`x`、`y`、`width`、`height`でページから保存ピクセルを切り出します。トリムしたフレームなら、`frameX`と`frameY`がそのピクセルから見てフレーム全体がどこから始まるかを示します。フレーム全体は左上から始まるので負の値です。`frameWidth`、`frameHeight`はその大きさです。',
+    'アニメーションはファイルに保存されず、フレーム名から組み立てます。たとえば名前が`run_`で始まるすべてのSubTextureです。Phaserは接頭辞と`generateFrameNames`でこれを行うので、アニメーション一覧を持つJSONアトラスより名前が重要になります。',
+    '知っておくべきバグ：Phaser 3.90のAtlasXMLパーサーは、トリム後の大きさと元の大きさを逆の順で`setTrim`に渡します。そのためPhaser 3.90ではトリムしたXMLのフレームが正しく描かれません。同じファイルはPhaser 4.2では正しく描かれます。「Sparrow XML (Phaser 3)」プリセットはトリムをオフにするので、どのフレームにも`frameX`/`frameY`がなく、両バージョンで合格します。Nerulioのエンジン検証49回のうち、失敗はこの2回だけでした。'],
+    terms:[['TextureAtlas','ルート要素。`imagePath`がPNGページの名前で、幅と高さも持ちます。'],['SubTexture','1フレーム：名前とページ上の矩形。'],['frameX, frameY','保存ピクセルから見たフレーム全体の負のオフセット（トリムしたフレームのみ）。'],['frameWidth, frameHeight','トリム前のフレームの大きさ。'],['pivotX, pivotY','フレーム全体の上のピクセル単位のピボット。Nerulioは書きますが、PhaserのXMLローダーは読みません。']]},
+   example:{title:'例：2つのプリセットでの同じフレームと、Phaser 3.90のバグ',lines:[
+    'Starling / Sparrow XMLプリセット（トリムあり）、ページ38 × 50',
+    'SubTexture name="run_0" x="0" y="34" width="18" height="15"',
+    '            frameX="-10" frameY="-10" frameWidth="40" frameHeight="29" pivotX="20" pivotY="29"',
+    '',
+    '「Sparrow XML (Phaser 3)」プリセット（トリムなし）、ページ82 × 91',
+    'SubTexture name="run_0" x="0" y="0" width="40" height="29" pivotX="20" pivotY="29"',
+    '',
+    'Phaser 3.90 AtlasXMLの呼び出し   setTrim(18, 15, 10, 10, 40, 29)',
+    'Frame.setTrimが期待する順        setTrim(40, 29, 10, 10, 18, 15)  （元の大きさが先、トリム後が最後）',
+    '',
+    'ここでトリムをオフにする代償：38 × 50 = 1,900 px²ではなく82 × 91 = 7,462 px²（3.9倍）'],
+    after:'PhaserのJSONパーサーは`sourceSize`を先に、`spriteSourceSize`を後に渡します。だからトリムしたJSONアトラスはPhaser 3.90でも問題なく、同じフレームをXMLにすると崩れます。'},
+   outputs:{rows:[
+    ['run.xml','`TextureAtlas` element (`imagePath="run.png"`, width, height)と、フレームごとの`SubTexture`。frameX・frameY・frameWidth・frameHeightはトリムしたフレームにだけ、pivotX・pivotYはピクセル単位。'],
+    ['run.png','ページ。複数ページならrun-0.pngとrun-0.xml、run-1.pngとrun-1.xmlのように。']]},
+   target:{title:'読み込む',steps:[
+    'Phaser 4.2：`this.load.atlasXML("run", "run.png", "run.xml")`のあと`this.add.sprite(x, y, "run", "run_0")`。どちらのXMLプリセットでも動きます。',
+    'Phaser 3.90：「Sparrow XML (Phaser 3)」で書き出し、同じ方法で読み込みます。',
+    '名前からアニメーションを作る：`this.anims.create({ key: "run", frames: this.anims.generateFrameNames("run", { prefix: "run_", start: 0, end: 5 }), frameRate: 10, repeat: -1 })`。',
+    'ほかのエンジン（HaxeFlixel、FNFのエンジン、Starling）も同じSubTextureの構造を読みますが、ここでは実行していません。頼る前に、トリムしたフレームを1つ元画像と比べてください。']},
+   trouble:{rows:[
+    ['Phaser 3.90でだけ、トリムしたフレームがずれる・大きさが違う','Phaser 3.90のAtlasXMLが、トリム後と元の大きさを逆順で`setTrim`に渡す','そのフレームに`frameX`があり、同じファイルがPhaser 4.2では正常','「Sparrow XML (Phaser 3)」プリセット（トリムなし）、JSONアトラス（こちらはトリムが正常）、またはPhaser 4を使う'],
+    ['フレームが回転・反転する','フレームを回転させたパッカーのXML（`rotated="true"`）で、PhaserのXMLパーサーはこれを読まない','XMLで`rotated`を検索','回転なしでパックし直す。NerulioのXML書き出しは回転したパックを拒否する'],
+    ['アニメーションに違うフレームが混ざる','接頭辞が広すぎる：`run_`が`run_attack_0`にも一致する','XMLのフレーム名を一覧する','書き出し前に、アニメーションごとに一意の接頭辞を付ける'],
+    ['スプライトの原点がピボットを無視する','PhaserのXMLローダーは矩形とトリムの属性だけを読み、pivotX/pivotYは読まない','スプライトの原点が中央のまま','`sprite.setOrigin(0.5, 1)`を呼ぶか、Phaserが`pivot`を原点にするJSONアトラスを使う']]},
+   alternatives:{rows:[
+    ['PhaserのJSONアトラス','Phaserのゲームなら：3.90でも4.2でもトリムが正常で、ピボットがスプライトの原点になり、アニメーションのファイルも付きます。[[game/phaser-texture-atlas|Phaserのテクスチャアトラス]]を参照。'],
+    ['既存のFNFシートのプレビュー・変換','手元のspritesheet + XMLをGIFにしたいなら、[[game/fnf-spritesheet-to-gif|FNFスプライトシートをGIFに]]を参照。']]},
+   versions:{body:['忍者と弓兵のフレームセットで、Phaser 3.90.0と4.2.1に読み込んで描画しました。トリムありのStarlingプリセットは3.90でだけ失敗し（エンジン実行49回中2回）、Phaser 3プリセットは両方で合格しました。setTrimの引数の順はPhaser 3.90のソースから引用しています。HaxeFlixel、Starling、FNFのエンジンは実行していません。'],sources:[S.phaserXmlSrc,S.phaserHashSrc,S.phaserLoader,S.phaserAnims]}
+  }
+ },
+ 'game/css-sprite-generator':{
+  type:'create',
+  intent:{primary:'generate a CSS sprite sheet (one PNG + classes with background-position)',secondary:['how background-position selects a piece','keeping pixel art sharp with image-rendering','scaling sprites without showing neighbours'],
+   goal:'one PNG and a stylesheet whose classes show each image at its size in the browser',input:'icons, game frames or any images',output:'PNG page(s) + .css with one class per image + preview .html',target:'web browsers (checked in Chromium)',support:'full',
+   evidence:['src/game/export/engines.js (cssFiles)','src/game/export/targets.js (CSS preset: trim and rotation off)','docs/STUDIO-PACK.md (Chromium draws every class, screenshot compared)'],
+   external:['MDN: image-rendering (pixelated)','MDN: background-position']},
+  en:{
+   answer:'A CSS sprite is one image that holds many icons or frames; each element shows its piece by being exactly that piece\'s size and moving the sheet with `background-position` set to minus the piece\'s position. Nerulio packs your images into one PNG and writes a `.css` with one class per image plus a preview `.html`. Trim and rotation stay off, because an element\'s box cannot restore a trim offset or turn a piece back, and `image-rendering: pixelated` keeps pixel art sharp when scaled. Every class was drawn in Chromium and compared.',
+   concept:{title:'How a CSS sprite shows one piece',body:[
+    'The element is exactly as large as one piece, and the sheet is its background, shifted left and up so the piece lands inside the box: a piece at x = 42, y = 31 needs `background-position: -42px -31px`. The rest of the sheet lies outside the box and is not painted.',
+    'Because the box is the whole visible area, a trimmed piece would lose its transparent margin and shift, and a rotated piece cannot be turned back with background properties alone. The CSS preset therefore packs full, upright images, with 2 px of padding so that scaling does not reach into a neighbour.',
+    'To draw a sprite larger, scale all of its numbers together (width, height, `background-size`, `background-position`), or scale the element as the preview page does with `zoom: 4`. `image-rendering: pixelated` tells the browser to scale by nearest neighbour to whole multiples instead of smoothing.'],
+    terms:[['background-position','Offset of the sheet inside the element: the negative position of the piece.'],['background-size','The sheet\'s size in CSS pixels; written per page, so scaling stays predictable.'],['image-rendering: pixelated','Nearest-neighbour scaling for pixel art; it also applies to background images.']]},
+   example:{title:'Example: six 40 × 29 frames as CSS classes',lines:[
+    'run.png 82 × 91 (6 frames of 40 × 29, trim off, padding 2)',
+    '',
+    '.sprite{display:inline-block;background-repeat:no-repeat;image-rendering:pixelated;}',
+    '.sprite-page-0{background-image:url("run.png");background-size:82px 91px;}',
+    '.sprite-run_3{width:40px;height:29px;background-position:-42px -31px;}',
+    '',
+    'HTML element: class="sprite sprite-page-0 sprite-run_3"',
+    '',
+    'the same frame at 2× without zoom:',
+    '  width 80px   height 58px   background-size 164px 182px   background-position -84px -62px'],
+    after:'run_3 starts 42 px from the left (40 px of run_2 plus 2 px padding) and 31 px from the top (29 px of the first row plus 2 px), so those are its negative offsets.'},
+   target:{title:'Use it on a page',steps:[
+    'Copy `run.png` and `run.css` to your site and link `run.css` from the page head with a stylesheet link element.',
+    'Give each element three classes: `sprite`, the page class such as `sprite-page-0`, and the image class such as `sprite-run_3`.',
+    'For a frame animation, switch the image class from JavaScript on a timer, one class per frame.',
+    'When a sprite is a button icon, give the button an accessible label; the sprite element itself has no text.']},
+   verify:{steps:[
+    'Open the exported `run.html`: every class is drawn at 4× with its name below it.',
+    'Zoom the browser: with `image-rendering: pixelated` the edges stay square; a sliver of a neighbour at the border means `background-size` was changed without the positions, or padding was set to 0.']},
+   trouble:{rows:[
+    ['A piece shows part of its neighbour','The element is larger than the piece, or `background-size` changed without the positions','Compare the element\'s width and height with its class','Scale every number by the same factor, or scale the element with `zoom` or `transform`'],
+    ['Pixel art looks blurry','`image-rendering` is not applied because the element lacks the `sprite` class','DevTools: the computed `image-rendering`','Add the `sprite` class'],
+    ['Nothing shows','The image path is wrong: `url("run.png")` is resolved relative to the CSS file','The network panel shows a 404 for run.png','Keep the PNG next to the CSS, or edit the url'],
+    ['A frame shows a piece of another frame','The element has `sprite-page-0` but its frame is on page 1','The page class used for that frame in the preview HTML','Use the page class the preview gives for that frame']]},
+   alternatives:{rows:[
+    ['Separate PNG files, or SVG for icons','A few images that change often are simpler to update as separate files; vector icons belong in SVG, not in a PNG sprite.'],
+    ['A game engine atlas','For a canvas or WebGL game, load a JSON atlas instead: [[game/phaser-texture-atlas|Phaser]] or [[game/pixi-spritesheet-json|PixiJS]].'],
+    ['Upscale the art first','If the pixel art must appear at a fixed larger size without CSS scaling, [[game/pixel-art-upscaler|upscale it]] by a whole factor before packing.']]},
+   versions:{body:['Chromium (Playwright) linked the exported stylesheet as is, drew one element per `.sprite-…` rule and the screenshot was compared with the source images. Other browsers were not part of that run; `image-rendering` and `background-position` behave as described by MDN.'],sources:[S.mdnRendering,S.mdnPosition]}
+  },
+  ko:{
+   answer:'CSS 스프라이트는 아이콘이나 프레임 여러 개를 담은 이미지 한 장입니다. 요소 하나를 조각 하나의 크기로 만들고, `background-position`을 조각 위치의 음수로 두어 시트를 옮기면 그 조각만 보입니다. Nerulio는 이미지들을 PNG 한 장으로 패킹하고, 이미지마다 클래스가 하나씩 있는 `.css`와 미리보기 `.html`을 씁니다. 요소 상자로는 트림 오프셋을 되살리거나 조각을 되돌려 세울 수 없으므로 트림과 회전은 끄며, `image-rendering: pixelated`로 확대해도 도트 그림이 선명합니다. 모든 클래스를 Chromium에서 그려 비교했습니다.',
+   concept:{title:'CSS 스프라이트가 조각 하나를 보여 주는 방식',body:[
+    '요소는 조각 하나와 정확히 같은 크기이고, 시트는 그 배경입니다. 조각이 상자 안에 들어오도록 시트를 왼쪽 위로 옮깁니다. x = 42, y = 31에 있는 조각이면 `background-position: -42px -31px`입니다. 나머지 시트는 상자 밖에 있어 그려지지 않습니다.',
+    '상자가 보이는 영역의 전부이므로, 트림된 조각은 투명 여백을 잃고 밀리며, 회전된 조각은 배경 속성만으로 되돌릴 수 없습니다. 그래서 CSS 프리셋은 원래 크기의 똑바른 이미지를 패킹하고, 확대할 때 이웃에 닿지 않도록 2px 간격을 둡니다.',
+    '크게 그리려면 모든 숫자(너비, 높이, `background-size`, `background-position`)를 함께 곱하거나, 미리보기 페이지처럼 `zoom: 4`로 요소 자체를 키웁니다. `image-rendering: pixelated`는 브라우저에 부드럽게 보간하지 말고 최근접 이웃으로 정수배 확대하라고 알립니다.'],
+    terms:[['background-position','요소 안에서 시트를 옮기는 양. 조각 위치의 음수.'],['background-size','CSS 픽셀 단위의 시트 크기. 페이지마다 적혀 있어 확대 결과를 예측할 수 있음.'],['image-rendering: pixelated','도트 그림용 최근접 이웃 확대. 배경 이미지에도 적용됨.']]},
+   example:{title:'예시: 40 × 29 프레임 6장을 CSS 클래스로',lines:[
+    'run.png 82 × 91 (40 × 29 프레임 6장, 트림 끔, 간격 2)',
+    '',
+    '.sprite{display:inline-block;background-repeat:no-repeat;image-rendering:pixelated;}',
+    '.sprite-page-0{background-image:url("run.png");background-size:82px 91px;}',
+    '.sprite-run_3{width:40px;height:29px;background-position:-42px -31px;}',
+    '',
+    'HTML element: class="sprite sprite-page-0 sprite-run_3"',
+    '',
+    'zoom 없이 같은 프레임을 2배로:',
+    '  width 80px   height 58px   background-size 164px 182px   background-position -84px -62px'],
+    after:'run_3은 왼쪽에서 42px(run_2의 40px + 간격 2px), 위에서 31px(첫 줄 29px + 간격 2px) 떨어져 있으므로 그 음수가 오프셋입니다.'},
+   target:{title:'웹 페이지에서 쓰기',steps:[
+    '`run.png`와 `run.css`를 사이트에 복사하고 페이지 head에서 stylesheet link 요소로 `run.css`를 연결합니다.',
+    '요소마다 클래스 세 개를 줍니다. `sprite`, `sprite-page-0` 같은 페이지 클래스, `sprite-run_3` 같은 이미지 클래스.',
+    '프레임 애니메이션은 JavaScript 타이머로 프레임마다 이미지 클래스를 바꿔 줍니다.',
+    '스프라이트가 버튼 아이콘이면 버튼에 접근 가능한 레이블을 주세요. 스프라이트 요소 자체에는 글자가 없습니다.']},
+   verify:{steps:[
+    '내보낸 `run.html`을 엽니다. 모든 클래스가 4배로, 아래에 이름과 함께 그려집니다.',
+    '브라우저를 확대합니다. `image-rendering: pixelated`면 가장자리가 네모납니다. 가장자리에 이웃 조각이 살짝 보이면 위치 없이 `background-size`만 바꿨거나 간격을 0으로 둔 것입니다.']},
+   trouble:{rows:[
+    ['조각에 이웃 조각 일부가 보임','요소가 조각보다 크거나, 위치는 그대로 두고 `background-size`만 바꿈','요소의 너비·높이를 클래스와 비교','모든 숫자를 같은 배율로 바꾸거나 `zoom`·`transform`으로 요소를 키움'],
+    ['도트 그림이 흐림','요소에 `sprite` 클래스가 없어 `image-rendering`이 적용되지 않음','개발자 도구에서 계산된 `image-rendering` 확인','`sprite` 클래스 추가'],
+    ['아무것도 안 보임','이미지 경로가 틀림: `url("run.png")`은 CSS 파일 기준 상대 경로','네트워크 패널에 run.png 404','PNG를 CSS 옆에 두거나 url 수정'],
+    ['프레임에 다른 프레임 조각이 보임','요소에 `sprite-page-0`이 있는데 그 프레임은 페이지 1에 있음','미리보기 HTML에서 그 프레임에 쓴 페이지 클래스','미리보기가 그 프레임에 준 페이지 클래스를 사용']]},
+   alternatives:{rows:[
+    ['PNG 낱장 파일이나 아이콘용 SVG','자주 바뀌는 몇 장의 이미지는 낱장 파일이 고치기 쉽고, 벡터 아이콘은 PNG 스프라이트가 아니라 SVG가 맞습니다.'],
+    ['게임 엔진 아틀라스','캔버스나 WebGL 게임이면 JSON 아틀라스를 불러오세요: [[game/phaser-texture-atlas|Phaser]], [[game/pixi-spritesheet-json|PixiJS]].'],
+    ['그림을 먼저 확대','CSS 확대 없이 정해진 큰 크기로 보여야 하면 패킹 전에 정수배로 [[game/pixel-art-upscaler|확대하세요]].']]},
+   versions:{body:['Chromium(Playwright)에서 내보낸 스타일시트를 그대로 연결해 `.sprite-…` 규칙마다 요소 하나를 그리고, 스크린샷을 원본 이미지와 비교했습니다. 다른 브라우저는 이 실행에 포함되지 않았습니다. `image-rendering`과 `background-position`의 동작은 MDN 설명을 따릅니다.'],sources:[S.mdnRendering,S.mdnPosition]}
+  },
+  ja:{
+   answer:'CSSスプライトは、多数のアイコンやフレームをまとめた1枚の画像です。要素を1つの断片とちょうど同じ大きさにし、`background-position`を断片の位置のマイナスにしてシートをずらすと、その断片だけが見えます。Nerulioは画像を1枚のPNGにパックし、画像ごとに1つのクラスを持つ`.css`とプレビュー用の`.html`を書き出します。要素の枠ではトリムのオフセットを戻せず、回転した断片も戻せないので、トリムと回転はオフにします。`image-rendering: pixelated`で拡大してもドット絵がくっきりします。全クラスをChromiumで描いて比較しました。',
+   concept:{title:'CSSスプライトが1つの断片を見せる仕組み',body:[
+    '要素は1つの断片とちょうど同じ大きさで、シートはその背景です。断片が枠の中に来るように、シートを左上へずらします。x = 42、y = 31にある断片なら`background-position: -42px -31px`です。シートの残りは枠の外にあり、描かれません。',
+    '枠が見える範囲のすべてなので、トリムした断片は透明な余白を失ってずれ、回転した断片は背景のプロパティだけでは戻せません。そのためCSSプリセットは元の大きさの正立した画像をパックし、拡大しても隣に届かないよう2pxの間隔を空けます。',
+    '大きく描くには、すべての数値（幅、高さ、`background-size`、`background-position`）を同じ倍率で掛けるか、プレビューページのように`zoom: 4`で要素ごと拡大します。`image-rendering: pixelated`は、滑らかに補間せず最近傍で整数倍に拡大するようブラウザに伝えます。'],
+    terms:[['background-position','要素内でシートをずらす量。断片の位置のマイナス。'],['background-size','CSSピクセルでのシートの大きさ。ページごとに書かれているので拡大の結果が予測できる。'],['image-rendering: pixelated','ドット絵向けの最近傍拡大。背景画像にも効く。']]},
+   example:{title:'例：40 × 29のフレーム6枚をCSSクラスに',lines:[
+    'run.png 82 × 91（40 × 29のフレーム6枚、トリムなし、間隔2）',
+    '',
+    '.sprite{display:inline-block;background-repeat:no-repeat;image-rendering:pixelated;}',
+    '.sprite-page-0{background-image:url("run.png");background-size:82px 91px;}',
+    '.sprite-run_3{width:40px;height:29px;background-position:-42px -31px;}',
+    '',
+    'HTML element: class="sprite sprite-page-0 sprite-run_3"',
+    '',
+    'zoomなしで同じフレームを2倍に：',
+    '  width 80px   height 58px   background-size 164px 182px   background-position -84px -62px'],
+    after:'run_3は左から42px（run_2の40px＋間隔2px）、上から31px（1行目の29px＋間隔2px）の位置にあるので、そのマイナスがオフセットになります。'},
+   target:{title:'Webページで使う',steps:[
+    '`run.png`と`run.css`をサイトにコピーし、ページのheadでstylesheetのlink要素から`run.css`を読み込みます。',
+    '要素ごとにクラスを3つ付けます。`sprite`、`sprite-page-0`のようなページのクラス、`sprite-run_3`のような画像のクラスです。',
+    'フレームアニメーションは、JavaScriptのタイマーでフレームごとに画像のクラスを切り替えます。',
+    'スプライトがボタンのアイコンなら、ボタンにアクセシブルなラベルを付けてください。スプライトの要素自体には文字がありません。']},
+   verify:{steps:[
+    '書き出した`run.html`を開きます。全クラスが4倍で、下に名前付きで描かれます。',
+    'ブラウザを拡大します。`image-rendering: pixelated`なら縁は四角いままです。縁に隣の断片が少し見えるなら、位置を変えずに`background-size`だけを変えたか、間隔を0にしています。']},
+   trouble:{rows:[
+    ['断片に隣の断片の一部が見える','要素が断片より大きい、または位置を変えずに`background-size`だけ変えた','要素の幅と高さをクラスと比べる','すべての数値を同じ倍率で変えるか、`zoom`や`transform`で要素を拡大'],
+    ['ドット絵がぼやける','要素に`sprite`クラスがなく、`image-rendering`が効いていない','開発者ツールで計算済みの`image-rendering`を見る','`sprite`クラスを付ける'],
+    ['何も表示されない','画像のパスが違う：`url("run.png")`はCSSファイルからの相対パス','ネットワークパネルでrun.pngが404','PNGをCSSの隣に置くか、urlを直す'],
+    ['フレームに別のフレームの断片が見える','要素が`sprite-page-0`なのに、そのフレームはページ1にある','プレビューのHTMLでそのフレームに使われているページのクラス','プレビューがそのフレームに付けているページのクラスを使う']]},
+   alternatives:{rows:[
+    ['個別のPNGファイル、アイコンならSVG','頻繁に変わる数枚の画像は個別のファイルのほうが更新しやすく、ベクターのアイコンはPNGスプライトではなくSVGが向いています。'],
+    ['ゲームエンジンのアトラス','canvasやWebGLのゲームなら、JSONアトラスを読み込みます：[[game/phaser-texture-atlas|Phaser]]、[[game/pixi-spritesheet-json|PixiJS]]。'],
+    ['先に絵を拡大する','CSSの拡大なしで決まった大きなサイズで見せたいなら、パックの前に整数倍で[[game/pixel-art-upscaler|拡大]]します。']]},
+   versions:{body:['Chromium（Playwright）で書き出したスタイルシートをそのままリンクし、`.sprite-…`のルールごとに要素を1つ描いて、スクリーンショットを元画像と比較しました。ほかのブラウザはこの実行に含まれていません。`image-rendering`と`background-position`の動作はMDNの説明に従います。'],sources:[S.mdnRendering,S.mdnPosition]}
+  }
+ },
  // @@PAGES@@
 };
