@@ -48,7 +48,7 @@ export function createCleanup(W){
   else if(key==='sampleMethod'&&['nearest','median','mode','k-centroid'].includes(v))o[key]=v;
   else if(key==='paletteAlgorithm'&&['median-cut','k-means','wu'].includes(v))o[key]=v;
   else if(key==='palettePreset'&&(v==='auto'||Object.hasOwn(PALETTES,v)))o[key]=v;
-  else if(key==='dither'&&['none','bayer2','bayer4','bayer8','floyd-steinberg','atkinson'].includes(v))o[key]=v;
+  else if(key==='dither'&&['none','bayer2','bayer4','bayer8','floyd-steinberg','atkinson','blue-noise'].includes(v))o[key]=v;
  }
  if(o.intent==='convert'&&!o.maxColors)o.maxColors=16;
  const shareOpts=()=>{const u=new URL(location.href);for(const [key,name] of Object.entries(shareKeys))u.searchParams.set(name,String(o[key]));history.replaceState(history.state,'',u);};
@@ -192,7 +192,7 @@ export function createCleanup(W){
    const sampler=select('sampleMethod',o.sampleMethod,[['nearest',t('px.conv.sampleNearest')],['median',t('px.conv.sampleMedian')],['mode',t('px.conv.sampleMode')],['k-centroid',t('px.conv.sampleCentroid')]],v2=>setOpt('sampleMethod',v2));
    const quantizer=select('paletteAlgorithm',o.paletteAlgorithm,[['median-cut',t('px.conv.quantMedian')],['k-means',t('px.conv.quantKmeans')],['wu',t('px.conv.quantWu')]],v2=>setOpt('paletteAlgorithm',v2));
    const presets=select('palettePreset',o.palettePreset,[['auto',t('px.conv.autoPalette')],['gameboy','Game Boy'],['nes','NES'],['pico8','PICO-8']],v2=>{setOpt('palettePreset',v2);render();});
-   const dithers=[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8'],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson']];
+   const dithers=[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8'],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson'],['blue-noise',t('px.conv.blueNoise')]];
    const strength=h('input.st-input.px-num',{type:'number',min:'0',max:'100',step:'1',value:String(o.ditherStrength),'data-px':'clean-ditherStrength','aria-label':t('px.conv.strength')});strength.addEventListener('change',()=>setOpt('ditherStrength',Math.max(0,Math.min(100,Math.round(Number(strength.value)||0)))));
    const opts=h('details.st-sec.px-clean-opts',{open:storage.get(PREFS+'.open',false)||null},h('summary',{},t('px.clean.options')),
     ...(o.intent==='convert'?[field(t('px.conv.sampler'),sampler),field(t('px.conv.quantizer'),quantizer),field(t('px.conv.preset'),presets),field(t('px.clean.opt.maxColors'),maxC,t('px.clean.maxHint')),hasPal?check('usePalette',()=>render()):'',field(t('px.clean.opt.dither'),select('dither',o.dither,dithers,v2=>setOpt('dither',v2))),field(t('px.conv.strength'),strength),check('orphans'),check('outline'),check('indexed')]:[

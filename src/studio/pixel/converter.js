@@ -99,37 +99,52 @@ function kmeans(points,count,seeds){
  return represent(points,labels,centers.length);
 }
 
-/** Wu-style variance partition on an Oklab histogram. Each candidate split minimizes within-box
- * squared error via between-class variance; 3D moments would be faster for very large histograms,
- * but the 5-bit source histogram bounds this variant to at most 32,768 occupied cells. */
+/** Wu's 3D summed-moment quantizer in Oklab space. The histogram occupies a 32³ cube;
+ * prefix moments make any box's weight, colour mean and squared error available in O(1).
+ * We split the box with the largest reduction in within-box Oklab variance. RGB moments
+ * produce in-gamut representative colours without a lossy Lab → RGB conversion. */
 function wuOklab(points,count){
- const boxes=[points.map((_,i)=>i)];
- const stats=ids=>{let w=0,s=[0,0,0],q=0;for(const i of ids){const p=points[i],m=p.weight;w+=m;for(let j=0;j<3;j++)s[j]+=p.lab[j]*m;q+=m*(p.lab[0]**2+p.lab[1]**2+p.lab[2]**2);}return {w,s,q,error:w?q-s.reduce((a,v)=>a+v*v,0)/w:0};};
- while(boxes.length<count){let choice=null;
-  for(let b=0;b<boxes.length;b++){
-   const ids=boxes[b];if(ids.length<2)continue;const total=stats(ids);
-   for(let axis=0;axis<3;axis++){
-    const sorted=[...ids].sort((a,c)=>points[a].lab[axis]-points[c].lab[axis]||a-c);
-    let lw=0,ls=[0,0,0],lq=0;for(let at=1;at<sorted.length;at++){
-     const p=points[sorted[at-1]],m=p.weight;lw+=m;lq+=m*p.lab.reduce((v,x)=>v+x*x,0);for(let j=0;j<3;j++)ls[j]+=p.lab[j]*m;
-     if(points[sorted[at-1]].lab[axis]===points[sorted[at]].lab[axis])continue;
-     const rw=total.w-lw;if(!rw)continue;const rs=total.s.map((v,j)=>v-ls[j]);
-     const err=lq-ls.reduce((a,v)=>a+v*v,0)/lw+(total.q-lq)-rs.reduce((a,v)=>a+v*v,0)/rw;
-     const gain=total.error-err;if(gain>1e-10&&(!choice||gain>choice.gain))choice={b,at,sorted,gain};
-    }
-   }
-  }
-  if(!choice)break;boxes.splice(choice.b,1,choice.sorted.slice(0,choice.at),choice.sorted.slice(choice.at));
+ const N=33,size=N*N*N,at=(x,y,z)=>(x*N+y)*N+z;
+ const moments=Array.from({length:8},()=>new Float64Array(size));
+ const bin=(v,lo,span)=>Math.max(1,Math.min(32,1+Math.floor((v-lo)/span*32)));
+ for(const p of points){const [l,a,b]=p.lab,m=p.weight,i=at(bin(l,0,1),bin(a,-.4,.8),bin(b,-.4,.8));
+  const values=[m,l*m,a*m,b*m,(l*l+a*a+b*b)*m,...p.rgb.map(v=>v*m)];
+  for(let j=0;j<8;j++)moments[j][i]+=values[j];
  }
- return boxes.map(ids=>{let mass=0,s=[0,0,0];for(const i of ids){const p=points[i];mass+=p.weight;for(let j=0;j<3;j++)s[j]+=p.rgb[j]*p.weight;}return s.map(v=>clamp(v/mass));});
+ // Three one-dimensional prefix passes are equivalent to a full 3D summed-volume table.
+ for(const M of moments){
+  for(let x=1;x<=32;x++)for(let y=1;y<=32;y++)for(let z=1;z<=32;z++)M[at(x,y,z)]+=M[at(x,y,z-1)];
+  for(let x=1;x<=32;x++)for(let y=1;y<=32;y++)for(let z=1;z<=32;z++)M[at(x,y,z)]+=M[at(x,y-1,z)];
+  for(let x=1;x<=32;x++)for(let y=1;y<=32;y++)for(let z=1;z<=32;z++)M[at(x,y,z)]+=M[at(x-1,y,z)];
+ }
+ const volume=(M,lo,hi)=>{let n=0;for(let mask=0;mask<8;mask++){
+  const x=mask&1?lo[0]:hi[0],y=mask&2?lo[1]:hi[1],z=mask&4?lo[2]:hi[2];
+  n+=((((mask&1)+((mask>>1)&1)+((mask>>2)&1))&1)?-1:1)*M[at(x,y,z)];
+ }return n;};
+ const stats=b=>moments.map(M=>volume(M,b.lo,b.hi));
+ const magnitude=s=>s[0]>0?(s[1]*s[1]+s[2]*s[2]+s[3]*s[3])/s[0]:0;
+ const candidate=b=>{const whole=stats(b);if(whole[0]<=0)return null;let best=null;
+  for(let axis=0;axis<3;axis++)for(let cut=b.lo[axis]+1;cut<b.hi[axis];cut++){
+   const left={lo:b.lo,hi:b.hi.map((v,i)=>i===axis?cut:v)},right={lo:b.lo.map((v,i)=>i===axis?cut:v),hi:b.hi};
+   const L=stats(left),R=stats(right);if(L[0]<=0||R[0]<=0)continue;
+   const gain=magnitude(L)+magnitude(R)-magnitude(whole);
+   if(gain>1e-10&&(!best||gain>best.gain))best={left,right,gain};
+  }return best;};
+ const boxes=[{lo:[0,0,0],hi:[32,32,32]}];
+ while(boxes.length<count){let best=null,index=-1;
+  for(let i=0;i<boxes.length;i++){const c=candidate(boxes[i]);if(c&&(!best||c.gain>best.gain)){best=c;index=i;}}
+  if(!best)break;boxes.splice(index,1,best.left,best.right);
+ }
+ return boxes.map(b=>{const s=stats(b);return [5,6,7].map(i=>clamp(s[i]/s[0]));});
 }
 function represent(points,labels,n){
  const sums=Array.from({length:n},()=>[0,0,0,0]);for(let i=0;i<points.length;i++){const p=points[i],s=sums[labels[i]];for(let j=0;j<3;j++)s[j]+=p.rgb[j]*p.weight;s[3]+=p.weight;}
  return sums.filter(s=>s[3]).map(s=>s.slice(0,3).map(v=>clamp(v/s[3])));
 }
 
-/** Existing pixel-engine quantizer supplies Bayer, Floyd–Steinberg and Atkinson. An optional fixed
- * blue-noise threshold uses a seeded void-like tile; the seed is stable across all frames. */
+/** Existing pixel-engine quantizer supplies Bayer, Floyd–Steinberg and Atkinson. The fixed
+ * blue-noise threshold tile is stable across all frames; its low-frequency suppression is checked
+ * at five fill levels by tests/pixel-blue-noise-quality.py. */
 export function quantizeFrames(frames,palette,{dither='none',strength=1}={}){
  if(dither!=='blue-noise')return frames.map(f=>({...f,...quantizeIndexed(f.data,f.width,f.height,palette,{mode:dither,amount:strength})}));
  const labs=palette.map(c=>oklab(...c)),tile=blueTile();
@@ -139,10 +154,10 @@ export function quantizeFrames(frames,palette,{dither='none',strength=1}={}){
  }return {data,width:f.width,height:f.height,indices};});
 }
 let cachedTile=null;
-function blueTile(){
+export function blueTile(){
  if(cachedTile)return cachedTile;
- // Fixed high-pass ranked noise: each placement maximizes distance to prior points in its 8×8
- // neighbourhood. This is an ordered blue-noise-like mask, not a calibrated spectral blue noise.
+ // Fixed high-pass ranked noise: each placement avoids prior points in its 8×8 neighbourhood.
+ // This spatial threshold tile is spectrally checked, but not a perceptual quality guarantee.
  const n=64,out=new Float32Array(n*n),used=new Uint8Array(n*n);let seed=0x6e657275;
  const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  for(let rank=0;rank<n*n;rank++){

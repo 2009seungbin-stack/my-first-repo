@@ -61,6 +61,11 @@ with sync_playwright() as pw:
         p.locator('[data-px="clean-preview"]').click();state(p,'done')
         dims=p.evaluate('()=>{const r=window.__pixel.cleanupUI.state().result;return r.frames.map(f=>[f.width,f.height]);}')
         check(f'{locale}: preview is 24×24 with one shared fixed palette',dims==[[24,24]] and p.locator('[data-px="clean-palette"] span').count()<=16)
+        if locale=='en':
+            p.locator('[data-px="clean-dither"]').select_option('blue-noise')
+            p.locator('[data-px="clean-preview"]').click();state(p,'done')
+            check('en: blue-noise threshold previews and survives the settings URL',
+                  'dither=blue-noise' in p.url and p.evaluate('()=>window.__pixel.cleanupUI.state().result.frames[0].data.length')==24*24*4)
         if locale=='en':p.screenshot(path=str(SHOTS/'converter-1440.png'))
         before=p.evaluate('()=>window.nerulioStudio.doc.assets.length')
         p.locator('[data-px="clean-apply"]').click()
