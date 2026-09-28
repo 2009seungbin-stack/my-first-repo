@@ -178,8 +178,29 @@ def main():
                 p2.screenshot(path=str(OUT / 'font-en-1440.png'), full_page=True)
                 ctx2.close()
             ctx.close()
+        mulmaru = ROOT / 'test-results/t7-research/mulmaru/unpacked/Mulmaru.ttf'
+        if mulmaru.exists():
+            ctx = browser.new_context(viewport={'width': 390, 'height': 844}, accept_downloads=True)
+            page = ctx.new_page()
+            page.goto(f'{BASE}/ko/bitmap-font-maker/app/', wait_until='networkidle')
+            page.locator('#fontFile').set_input_files(str(mulmaru))
+            page.locator('#rc-chars').fill('가각힣')
+            page.locator('#fontSummary').get_by_text('3', exact=True).wait_for()
+            page.locator('[data-action="ui-font-new"]').click()
+            assert page.locator('#fontGlyph option').count() == 3
+            with page.expect_download() as got:
+                page.locator('[data-action="ui-export-font"]').click()
+            target = OUT / 'mulmaru-ko3-edited.zip'
+            got.value.save_as(target)
+            with zipfile.ZipFile(target) as saved:
+                font = TTFont(io.BytesIO(saved.read('font.ttf')))
+                assert set(font.getBestCmap()) == {0xac00, 0xac01, 0xd7a3}
+                font.close()
+                assert len(json.loads(saved.read('font-project.json'))['glyphs']) == 3
+            page.screenshot(path=str(OUT / 'font-ko-mulmaru-390.png'), full_page=True)
+            ctx.close()
         browser.close()
-    print('PASS: ko/en/ja BDF UI, edit/undo/redo/kerning/coverage, independent PNG/text/XML/binary/TTF re-open, v2 reload')
+    print('PASS: ko/en/ja BDF UI, edit/undo/redo/kerning/coverage, independent PNG/text/XML/binary/TTF re-open, v2 reload; optional OFL Hangul subset')
 
 
 if __name__ == '__main__':
