@@ -98,7 +98,7 @@ export default {
     '높이 보기로 바꿉니다. 어두운 망토나 외곽선이 움푹 파여 보이면 밝기를 형태로 읽은 것입니다.',
     '`_n.png`를 아무 뷰어로 열어 보세요. 투명한 부분이 알파가 꽉 찬 (128, 128, 255)인 것은 의도된 것이고, 가장자리 노멀을 2px 밖으로 복사해 실루엣에서 필터링해도 엉뚱한 벡터가 섞이지 않습니다.']},
    trouble:{rows:[
-    ['어두운 칠(망토, 외곽선)이 구멍처럼 보임','밝기 디테일이 어두운 곳을 낮은 곳으로 읽음','높이 보기에서 그 부분이 파여 있음','밝기 높이를 낮추거나 "넓은 음영 무시" 값을 줄이거나, 높이 브러시(B)로 올리기'],
+    ['어두운 칠(망토, 외곽선)이 구멍처럼 보임','밝기 디테일이 어두운 곳을 낮은 곳으로 읽음','높이 보기에서 그 부분이 파여 있음','밝기 높이를 낮추거나 "이보다 넓은 명암 무시" 값을 줄이거나, 높이 브러시(B)로 올리기'],
     ['스프라이트가 테두리만 빛나는 납작한 판처럼 보임','큰 채색 스프라이트에 도트용 1.5px 테두리가 적용됨','노멀 보기에서 1~2px 고리에만 색이 있음','베벨을 내접 반지름의 약 0.9배로 넓히거나 둥근 모양 선택'],
     ['엔진에서 반대쪽이 밝아짐','엔진이 다른 초록 규약을 읽거나, 다른 툴이 빨강을 뒤집어 저장함','조명을 위에 두면 윗가장자리가 밝아져야 함','Godot·Unity에는 `_n.png` 사용. 다른 곳에서 받은 맵은 [[game/normal-map-opengl-or-directx|OpenGL·DirectX 판별]] 참고'],
     ['엔진에서 아무 변화가 없음','렌더러가 읽는 자리에 맵이 없거나, 조명이 노멀맵을 무시함','Godot는 CanvasTexture의 노멀 칸, Unity는 `_NormalMap`과 Light 2D 품질','내보낸 씬이나 임포터를 쓰거나 엔진별 페이지를 따라 하기'],
@@ -140,7 +140,7 @@ export default {
     '高さ表示に切り替えます。暗いマントや輪郭がくぼんで見えたら、明るさを形として読んでいます。',
     '`_n.png` を任意のビューアーで開きます。透明部分がアルファ最大の (128, 128, 255) なのは意図どおりで、縁のノーマルを2px外側へ複製しているので、シルエットでフィルタリングしても誤ったベクトルが混ざりません。']},
    trouble:{rows:[
-    ['暗い塗り（マント、輪郭）が穴に見える','明るさの細部が暗い所を低いと読んだ','高さ表示でその部分がくぼんでいる','明るさの高さを下げる、「広い陰影を無視」の値を小さくする、または高さブラシ（B）で持ち上げる'],
+    ['暗い塗り（マント、輪郭）が穴に見える','明るさの細部が暗い所を低いと読んだ','高さ表示でその部分がくぼんでいる','明るさの高さを下げる、「これより広い陰影は無視」の値を小さくする、または高さブラシ（B）で持ち上げる'],
     ['スプライトが縁だけ光る平たい板に見える','大きな塗りのスプライトにドット絵向けの1.5pxの縁が使われた','ノーマル表示で色があるのが1〜2pxの輪だけ','面取りを内接半径の約0.9倍へ広げるか、丸形を選ぶ'],
     ['エンジンで反対側が明るくなる','エンジンが別の緑の規約を読む、またはほかのツールが赤を反転して保存した','ライトを上に置くと上の縁が明るくなるはず','GodotとUnityには `_n.png`。よそで作ったマップは[[game/normal-map-opengl-or-directx|OpenGL・DirectXの判定]]へ'],
     ['エンジンで何も変わらない','レンダラーが読む場所にマップがない、またはライトがノーマルマップを無視している','GodotはCanvasTextureのノーマル欄、Unityは `_NormalMap` とLight 2Dの品質','書き出したシーンやインポーターを使うか、エンジン別のページどおりに設定'],
@@ -179,7 +179,7 @@ export default {
     'For a tileable texture, check the joins with Wrap on, for example with [[game/tiling-normal-map-seams|the tiling seam check]].',
     'Light it before you ship: in your engine, or in the Lab\'s material preview, which is labelled an approximation (one light, GGX).']},
    trouble:{rows:[
-    ['Bumps look like dents','In this picture dark is raised, but the Lab reads dark as low','A known bump: its lit side faces away from the light','Tick both Invert X and Invert Y (the same as inverting the height); if only up–down is wrong, switch the convention instead'],
+    ['Bumps look like dents','In this picture dark is raised, but the Lab reads dark as low','A known bump: its lit side faces away from the light','Tick both Invert X (red) and Invert Y (green) (the same as inverting the height); if only up–down is wrong, switch the convention instead'],
     ['A line appears where the texture repeats','Wrap was off, so the border pixels were clamped','Tile the result 2 × 2 and look at the joins','Turn Wrap on and export again'],
     ['Grainy, noisy relief','JPEG artefacts or painted texture read as height','Zoom into areas that should be smooth','Use a PNG source, Sobel 5×5 or a lower strength'],
     ['A sprite\'s outline stays flat while its inside is bumpy','Brightness has no bevel: the silhouette is height only when alpha is the source','Switch the source to Alpha and compare','Use alpha as height, or the bevel in [[game/sprite-normal-map|the sprite normal map generator]]']]},
@@ -209,7 +209,7 @@ export default {
     '반복 텍스처라면 Wrap을 켠 상태에서 이음새를 확인하세요. 예를 들어 [[game/tiling-normal-map-seams|반복 노멀맵 이음새 점검]]으로.',
     '쓰기 전에 조명으로 비춰 보세요. 엔진에서, 또는 근사치(조명 1개, GGX)라고 표시된 랩의 재질 미리보기에서.']},
    trouble:{rows:[
-    ['볼록한 곳이 오목하게 보임','이 그림은 어두운 곳이 솟은 부분인데 랩은 어두운 곳을 낮게 읽음','확실한 볼록부의 밝은 면이 조명 반대쪽을 향함','Invert X와 Invert Y를 둘 다 켜기(높이 반전과 같음). 위아래만 틀리면 규약만 바꾸기'],
+    ['볼록한 곳이 오목하게 보임','이 그림은 어두운 곳이 솟은 부분인데 랩은 어두운 곳을 낮게 읽음','확실한 볼록부의 밝은 면이 조명 반대쪽을 향함','X 반전 (빨강)과 Y 반전 (초록)을 둘 다 켜기(높이 반전과 같음). 위아래만 틀리면 규약만 바꾸기'],
     ['반복되는 자리에 선이 생김','Wrap이 꺼져 있어 가장자리 픽셀을 늘려 씀','결과를 2 × 2로 이어 붙여 경계 확인','Wrap을 켜고 다시 내보내기'],
     ['입체가 자글자글하고 잡음이 많음','JPEG 압축 흔적이나 칠의 질감을 높이로 읽음','매끈해야 할 곳을 확대','PNG 원본, Sobel 5×5, 또는 낮은 강도 사용'],
     ['스프라이트 외곽은 납작하고 안쪽만 울퉁불퉁함','밝기에는 베벨이 없어, 알파를 소스로 할 때만 실루엣이 높이가 됨','소스를 알파로 바꿔 비교','알파를 높이로 쓰거나 [[game/sprite-normal-map|스프라이트 노멀맵 생성기]]의 베벨 사용']]},
@@ -239,7 +239,7 @@ export default {
     '繰り返しテクスチャなら、Wrapをオンにした状態で継ぎ目を確認します。たとえば[[game/tiling-normal-map-seams|タイル状ノーマルマップの継ぎ目チェック]]で。',
     '使う前にライトで照らしてみます。エンジンで、または近似（ライト1灯、GGX）と明記されたラボの材質プレビューで。']},
    trouble:{rows:[
-    ['凸が凹に見える','この絵は暗い所が盛り上がっているのに、ラボは暗い所を低いと読む','確実な凸部の明るい面がライトと反対を向いている','Invert XとInvert Yを両方オン（高さの反転と同じ）。上下だけおかしいなら規約だけを切り替える'],
+    ['凸が凹に見える','この絵は暗い所が盛り上がっているのに、ラボは暗い所を低いと読む','確実な凸部の明るい面がライトと反対を向いている','「Xを反転（赤）」と「Yを反転（緑）」を両方オン（高さの反転と同じ）。上下だけおかしいなら規約だけを切り替える'],
     ['繰り返す所に線が出る','Wrapがオフで、縁のピクセルが引き延ばされた','結果を2 × 2に並べて境目を見る','Wrapをオンにして書き出し直す'],
     ['凹凸がざらざらしてノイズが多い','JPEGの圧縮ノイズや塗りの質感を高さとして読んだ','なめらかなはずの所を拡大','PNGの元画像、Sobel 5×5、または低い強さを使う'],
     ['スプライトの輪郭は平らで内側だけでこぼこ','明るさには面取りがなく、アルファをソースにしたときだけシルエットが高さになる','ソースをアルファに切り替えて比べる','アルファを高さに使うか、[[game/sprite-normal-map|スプライト用ノーマルマップ生成]]の面取りを使う']]},
@@ -380,7 +380,7 @@ export default {
     'radius 128 px → texture_scale 1.0     radius 256 px → texture_scale 2.0',
     '',
     'DirectionalLight2D: Height 0 = parallel to the plane, 1 = straight down onto it'],
-    after:'A low light exaggerates relief and a high one flattens it; most scenes land between 30° and 60° of elevation. Change Height before you change the normal map\'s strength.'},
+    after:'A low light exaggerates relief and a high one flattens it, so change Height before you change the normal map\'s strength.'},
    outputs:{lead:'For a sprite called torch.png the `godot/` folder holds:',rows:[
     ['torch_lit.tscn','Node2D with the Ambient CanvasModulate, the Sprite2D (region on, Nearest for pixel art), one PointLight2D per light and, for frames, an AnimationPlayer.'],
     ['torch_canvas_texture.tres','The CanvasTexture alone (diffuse, normal, optional specular and shininess) for your own Sprite2D.'],
@@ -430,7 +430,7 @@ export default {
     '반경 128px → texture_scale 1.0     반경 256px → texture_scale 2.0',
     '',
     'DirectionalLight2D: Height 0 = 평면과 평행, 1 = 바로 위에서 수직'],
-    after:'낮은 조명은 입체를 과장하고 높은 조명은 평평하게 만듭니다. 대부분의 장면은 앙각 30°~60° 사이에 들어옵니다. 노멀맵 강도를 바꾸기 전에 Height부터 조절하세요.'},
+    after:'낮은 조명은 입체를 과장하고 높은 조명은 평평하게 만드니, 노멀맵 강도를 바꾸기 전에 Height부터 조절하세요.'},
    outputs:{lead:'torch.png라는 스프라이트라면 `godot/` 폴더에 다음이 들어 있습니다.',rows:[
     ['torch_lit.tscn','주변광 CanvasModulate, Sprite2D(region 사용, 도트면 Nearest), 조명마다 PointLight2D, 프레임이 있으면 AnimationPlayer가 든 Node2D.'],
     ['torch_canvas_texture.tres','내 Sprite2D에 쓸 CanvasTexture 단독 파일(디퓨즈, 노멀, 필요하면 스페큘러와 광택).'],
@@ -480,7 +480,7 @@ export default {
     '半径128px → texture_scale 1.0     半径256px → texture_scale 2.0',
     '',
     'DirectionalLight2D：Height 0 = 平面と平行、1 = 真上から垂直'],
-    after:'低いライトは立体を強調し、高いライトは平らにします。多くの場面は仰角30°〜60°に収まります。ノーマルマップの強さを変える前に、まずHeightを調整してください。'},
+    after:'低いライトは立体を強調し、高いライトは平らにするので、ノーマルマップの強さを変える前に、まずHeightを調整してください。'},
    outputs:{lead:'torch.pngというスプライトなら、`godot/` フォルダーの中身は次のとおりです。',rows:[
     ['torch_lit.tscn','環境光のCanvasModulate、Sprite2D（region有効、ドット絵ならNearest）、ライトごとのPointLight2D、フレームがあればAnimationPlayerを持つNode2D。'],
     ['torch_canvas_texture.tres','自分のSprite2D用のCanvasTexture単体（ディフューズ、ノーマル、必要ならスペキュラーと光沢）。'],
@@ -843,10 +843,10 @@ export default {
     '왕복 시험: 초록을 두 번 뒤집어 원본과 비교하면 바이트가 똑같아야 합니다.']},
    trouble:{rows:[
     ['조명이 위에 있는데 아래에서 비친 듯하고 좌우는 멀쩡함','엔진이 읽는 것과 다른 초록 규약','바로 위에 조명을 두면 윗가장자리가 밝아지는지','초록 뒤집기. Godot라면 Import 독에서 Process › Normal Map Invert Y를 켜고 다시 가져오기'],
-    ['조명이 왼쪽인데 오른쪽이 밝고 위아래는 멀쩡함','생성기가 빨강을 뒤집어 저장함','한쪽에서 비춰 보기. 스프라이트라면 점검 패널이 "빨강 뒤집힘" 표시','점검 패널의 Flip red(X−), 또는 그 툴의 빨강 반전을 끄고 다시 생성'],
+    ['조명이 왼쪽인데 오른쪽이 밝고 위아래는 멀쩡함','생성기가 빨강을 뒤집어 저장함','한쪽에서 비춰 보기. 스프라이트라면 점검 패널이 "빨강 뒤집힘" 표시','점검 패널의 빨강 뒤집기 (X−), 또는 그 툴의 빨강 반전을 끄고 다시 생성'],
     ['어느 방향이든 반대: 볼록이 오목','높이 자체가 반전됨(빨강·초록 모두 뒤집힘)','위 두 시험이 동시에 실패','반전한 높이로 다시 만들거나 빨강과 초록을 함께 뒤집기'],
     ['패널이 "판별 불가"라고 함','대각선 입체가 없음. 곧은 홈, 단일 경사, 평면에는 방향성 정보가 없음','맵에 둥글거나 대각선인 모양이 있는지','출처로 판단(ambientCG·Poly Haven은 파일 이름에 표시)하거나 비춰 보고 판단'],
-    ['손으로 그린 도트 스프라이트에서 신뢰도가 낮음','양식화된 맵에서는 두 검사가 서로 다른 답을 냄','판정 아래의 근거 줄','위에서 비춰 눈으로 확인. It is OpenGL이나 It is DirectX를 누르기 전에는 적용되지 않음'],
+    ['손으로 그린 도트 스프라이트에서 신뢰도가 낮음','양식화된 맵에서는 두 검사가 서로 다른 답을 냄','판정 아래의 근거 줄','위에서 비춰 눈으로 확인. "OpenGL입니다"나 "DirectX입니다"를 누르기 전에는 적용되지 않음'],
     ['초록을 뒤집었는데도 Unity에서 틀림','sRGB(Color Texture)가 켜져 맵이 감마 변환됨','노멀맵의 가져오기 설정','sRGB 끄기. [[game/unity-2d-normal-map|Unity 2D 노멀맵]] 참고']]},
    alternatives:{rows:[
     ['[[game/normal-map-converter|OpenGL ↔ DirectX 변환기]](텍스처 랩)','규약을 이미 알고 파일 전체 초록만 한 번에 뒤집으면 될 때.'],
@@ -880,10 +880,10 @@ export default {
     '往復の試験：緑を2回反転して元のファイルと比べると、バイトが完全に一致するはずです。']},
    trouble:{rows:[
     ['ライトが上なのに下から照らされたようで、左右は正しい','エンジンが読むのと別の緑の規約','真上にライトを置くと上の縁が明るくなるか','緑を反転。GodotならImportドックでProcess › Normal Map Invert Yをオンにして再インポート'],
-    ['ライトが左なのに右が明るく、上下は正しい','生成ツールが赤を反転して保存した','片側から照らす。スプライトならチェックパネルが「赤が反転」と表示','チェックパネルのFlip red（X−）、またはそのツールの赤の反転をオフにして作り直す'],
+    ['ライトが左なのに右が明るく、上下は正しい','生成ツールが赤を反転して保存した','片側から照らす。スプライトならチェックパネルが「赤が反転」と表示','チェックパネルの赤を反転（X−）、またはそのツールの赤の反転をオフにして作り直す'],
     ['どの方向からも逆：凸が凹','高さそのものが反転している（赤と緑の両方が反転）','上の2つの試験が同時に失敗','反転した高さから作り直すか、赤と緑を一緒に反転'],
     ['パネルが「判定できない」と出す','斜めの凹凸がない。まっすぐな溝、単一の坂、平面には向きの情報がない','マップに丸い形や斜めの形があるか','配布元で判断する（ambientCG・Poly Havenはファイル名に表記）か、照らして見る'],
-    ['手描きのドット絵スプライトで信頼度が低い','様式化したマップでは2つの検査の答えが食い違う','判定の下の根拠の行','上から照らして目で確かめる。It is OpenGLかIt is DirectXを押すまで適用されない'],
+    ['手描きのドット絵スプライトで信頼度が低い','様式化したマップでは2つの検査の答えが食い違う','判定の下の根拠の行','上から照らして目で確かめる。「OpenGL です」か「DirectX です」を押すまで適用されない'],
     ['緑を反転してもUnityでおかしい','sRGB（Color Texture）がオンで、マップがガンマ変換されている','ノーマルマップのインポート設定','sRGBをオフに。[[game/unity-2d-normal-map|Unity 2Dのノーマルマップ]]を参照']]},
    alternatives:{rows:[
     ['[[game/normal-map-converter|OpenGL ↔ DirectX変換]]（テクスチャラボ）','規約がすでに分かっていて、ファイル全体の緑を一度に反転すればよいとき。'],
@@ -972,7 +972,7 @@ export default {
    answer:'NormalMap-Online(MIT, 브라우저 안에서 처리)은 그림을 노멀·변위·앰비언트 오클루전·스페큘러 맵으로 바꾸며 Strength, Level, Blur/Sharp, Sobel·Scharr 필터, R·G·높이 반전 스위치가 있고, 결과를 3D 도형에 입혀 보여 주며, 서로 다른 방향에서 비춘 사진 네 장으로 노멀맵을 만들 수도 있습니다. Studio 텍스처 작업 공간은 2D 스프라이트용입니다. 실루엣 베벨, Godot를 따르는 2D 조명 미리보기, GL·DX 판별, 검증된 Godot 4·Unity 6 내보내기가 있습니다. 같은 CC0 스프라이트를 기본 설정으로 비교하면 그쪽 출력은 실제 노멀에서 훨씬 멀었고 빨강이 뒤집혀 있었습니다.',
    concept:{title:'서로 다른 두 작업: 표면과 스프라이트',body:[
     'NormalMap-Online은 그림을 높이 맵으로 봅니다. 밝기가 높이이고, 고른 필터가 기울기를 구하며, Strength·Level·Blur/Sharp가 결과를 다듬습니다. 사진으로 찍은 표면이나 반복 텍스처에 어울립니다. 스프라이트는 실루엣에서 밝기에 높이 정보가 없어 베벨이 없으면 가장자리가 평평하게 남습니다. 3D로 렌더한 소행성에서 그 기본값은 실제 노멀과 61.1°, Studio는 20.0° 차이였습니다.',
-    '측정 때 그 기본 출력은 빨강 채널이 뒤집혀 있었고(실제 노멀과 상관 −0.58) z가 매우 낮았습니다. 페이지에 Invert R·Invert G 스위치와 Z Range 옵션이 있으니, 그걸로 만든 스프라이트가 좌우 반대쪽에서 비치면 먼저 Invert R을 확인하세요. Studio 점검 패널은 스프라이트에서 이런 맵을 "빨강 뒤집힘"으로 알려 주고 Flip red(X−)로 고칩니다.',
+    '측정 때 그 기본 출력은 빨강 채널이 뒤집혀 있었고(실제 노멀과 상관 −0.58) z가 매우 낮았습니다. 페이지에 Invert R·Invert G 스위치와 Z Range 옵션이 있으니, 그걸로 만든 스프라이트가 좌우 반대쪽에서 비치면 먼저 Invert R을 확인하세요. Studio 점검 패널은 스프라이트에서 이런 맵을 "빨강 뒤집힘"으로 알려 주고 빨강 뒤집기 (X−)로 고칩니다.',
     '벽돌 텍스처에서는 두 툴 모두 반복이 정확했으므로(롤 오차 0), 단순 반복 텍스처라면 차이는 추측이 얼마나 가까운지(색 이미지에서 만든 벽돌 65.6° 대 14.7°)와 각 툴이 주는 추가 맵입니다.',
     '맵 다음 단계에서 Studio는 2D 게임에 필요한 것을 더합니다. 스프라이트 위로 끄는 조명, 프레임별 시트, `_n`·`_n_dx` 파일, 엔진 번들입니다. NormalMap-Online은 내려받기에서 끝납니다.'],
     terms:[['포토메트릭 스테레오','같은 표면을 여러 방향에서 비춘 사진들로 노멀을 복원하는 방법.'],['Invert R / G','X나 Y의 부호를 바꾸는 스위치. 잘못 켜면 스프라이트가 반대쪽에서 비칩니다.'],['베벨','투명한 가장자리에서 올라오는 높이. 스프라이트 외곽선에 입체를 주는 부분.']]},
@@ -987,7 +987,7 @@ export default {
    answer:'NormalMap-Online（MIT、ブラウザ内で処理）は、画像をノーマル・ディスプレイスメント・アンビエントオクルージョン・スペキュラーのマップに変換します。Strength、Level、Blur/Sharp、Sobel・Scharrのフィルター、R・G・高さの反転スイッチがあり、結果を3Dの形状に貼って見せ、別々の方向から照らした写真4枚からノーマルマップを作ることもできます。Studioのテクスチャ作業画面は2Dスプライト向けで、シルエットからの面取り、Godotに従う2Dライトのプレビュー、GL・DXの判定、検証済みのGodot 4・Unity 6書き出しがあります。同じCC0のスプライトを既定設定で比べると、あちらの出力は実際の法線からかなり遠く、赤が反転していました。',
    concept:{title:'別々の2つの仕事：表面とスプライト',body:[
     'NormalMap-Onlineは画像を高さマップとして扱います。明るさが高さで、選んだフィルターが勾配を求め、Strength・Level・Blur/Sharpで結果を整えます。写真に撮った表面やタイル状のテクスチャに向いています。スプライトはシルエットの所で明るさに高さの情報がないため、面取りがないと縁が平らなまま残ります。3Dから描画した小惑星では、その既定値は実際の法線から61.1°、Studioは20.0°でした。',
-    '測定では、その既定の出力は赤チャンネルが反転しており（実際の法線との相関 −0.58）、zがとても低いものでした。ページにはInvert R・Invert GのスイッチとZ Rangeの設定があるので、それで作ったスプライトが左右逆から照らされるなら、まずInvert Rを確認してください。Studioのチェックパネルは、スプライトではこうしたマップを「赤が反転」と報告し、Flip red（X−）で直します。',
+    '測定では、その既定の出力は赤チャンネルが反転しており（実際の法線との相関 −0.58）、zがとても低いものでした。ページにはInvert R・Invert GのスイッチとZ Rangeの設定があるので、それで作ったスプライトが左右逆から照らされるなら、まずInvert Rを確認してください。Studioのチェックパネルは、スプライトではこうしたマップを「赤が反転」と報告し、赤を反転（X−）で直します。',
     'レンガのテクスチャでは両ツールとも繰り返しが正確でした（ロール誤差0）。単純なタイル状テクスチャなら、違いは推定の近さ（色の画像から作ったレンガで65.6°対14.7°）と、各ツールが出せる追加のマップです。',
     'マップの後、Studioは2Dゲームに必要なものを足します。スプライトの上でドラッグするライト、フレームごとのシート、`_n` と `_n_dx` のファイル、エンジン用バンドルです。NormalMap-Onlineはダウンロードで終わります。'],
     terms:[['フォトメトリックステレオ','同じ表面を複数の方向から照らした写真から法線を復元する方法。'],['Invert R / G','XやYの符号を変えるスイッチ。誤るとスプライトが逆側から照らされます。'],['面取り（ベベル）','透明な縁から立ち上がる高さ。スプライトの輪郭に立体を与える部分。']]},
