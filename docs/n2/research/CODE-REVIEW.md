@@ -257,5 +257,5 @@ created before the verdict and a concurrent recompute retries once, #7 flags nee
 restriction applies, #9 feed redirect, #10 sitemaps go through the edge cache with a LIMIT, #12 one
 benchmark per user per model × GPU × runtime × quantization, #14 the status headline states the
 official status and the user-report count separately.
-Not changed: #11 (the moderator queue is capped at 100 items; one extra query per item is acceptable
-until the queue is busy).
+#11 fixed later the same night: the queue (open flags and the new 임시조치 중 list) loads every target
+with one query per kind, chunked under D1's 100-parameter limit (`modTargets` in server/platform/api.js).

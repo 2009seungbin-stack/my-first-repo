@@ -428,33 +428,33 @@ const RANK=/** @type {Record<string,number>} */({user:0,moderator:1,curator:2,ad
  * action log. @param {any} db @param {any} _p */
 async function modQueue(db,_p){
  const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,GROUP_CONCAT(note,' / ') AS notes FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
- const items=[];
- for(const r of rows){
-  const t=await modTarget(db,String(r.target_kind),String(r.target_id));
-  items.push({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...t});
- }
  const hiddenRows=(await db.prepare(`SELECT kind,id,updated_at FROM (SELECT 'discussion' AS kind,id,updated_at FROM discussions WHERE status='hidden' UNION ALL SELECT 'comment',id,updated_at FROM comments WHERE status='hidden') ORDER BY updated_at DESC LIMIT 50`).all()).results||[];
- const hidden=[];
- for(const r of hiddenRows){
-  const a=await db.prepare("SELECT reason,created_at FROM moderation_actions WHERE target_kind=? AND target_id=? AND action='hide' ORDER BY id DESC LIMIT 1").bind(r.kind,r.id).first();
-  hidden.push({target:`${r.kind}:${r.id}`,hiddenAt:Number(a?.created_at??r.updated_at),reason:a?.reason??null,...await modTarget(db,String(r.kind),String(r.id))});
- }
+ // One query per kind for every target on the page (no per-row lookups).
+ const targets=await modTargets(db,[...rows.map((/** @type {any} */ r)=>[String(r.target_kind),String(r.target_id)]),...hiddenRows.map((/** @type {any} */ r)=>[String(r.kind),String(r.id)])]);
+ const items=rows.map((/** @type {any} */ r)=>({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...(targets.get(`${r.target_kind}:${r.target_id}`)||EMPTY_TARGET)}));
+ /** @type {Map<string,{reason:string,created_at:number}>} */const hides=new Map();
+ const hk=hiddenRows.map((/** @type {any} */ r)=>`${r.kind}:${r.id}`);
+ if(hk.length)for(const a of (await db.prepare(`SELECT target_kind,target_id,reason,created_at FROM moderation_actions WHERE action='hide' AND (target_kind||':'||target_id) IN (${hk.map(()=>'?').join(',')}) ORDER BY id`).bind(...hk).all()).results||[])
+  hides.set(`${a.target_kind}:${a.target_id}`,{reason:String(a.reason),created_at:Number(a.created_at)});   // the latest hide wins
+ const hidden=hiddenRows.map((/** @type {any} */ r)=>{const k=`${r.kind}:${r.id}`,a=hides.get(k);return {target:k,hiddenAt:a?.created_at??Number(r.updated_at),reason:a?.reason??null,...(targets.get(k)||EMPTY_TARGET)};});
  const log=((await db.prepare('SELECT actor_id,action,target_kind,target_id,reason,created_at FROM moderation_actions ORDER BY id DESC LIMIT 30').all()).results||[]);
  return {items,hidden,log};
 }
+const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null});
 /** What a moderator needs to judge a flagged or hidden target without opening it (a hidden post is
  * 404 on the public page): title or excerpt, author, status, and the post it belongs to.
- * @param {any} db @param {string} kind @param {string} id */
-async function modTarget(db,kind,id){
- if(kind==='discussion'){
-  const d=await db.prepare(`SELECT d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id=?`).bind(id).first();
-  if(d)return {preview:String(d.title),excerpt:String(d.body_md).slice(0,300),status:String(d.status),author:String(d.author),authorId:String(d.author_id),url:postUrl('ko',{vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no))};
- }
- if(kind==='comment'){
-  const c=await db.prepare(`SELECT c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id=?`).bind(id).first();
-  if(c)return {preview:String(c.body_md).slice(0,200),excerpt:null,status:String(c.status),author:String(c.author),authorId:String(c.author_id),url:postUrl('ko',{vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)),context:String(c.title)};
- }
- return {preview:null,excerpt:null,status:null,author:null,authorId:null,url:null};
+ * @param {any} db @param {[string,string][]} list @returns {Promise<Map<string,any>>} */
+async function modTargets(db,list){
+ const out=new Map();
+ /** D1 binds at most 100 parameters per statement. @param {string} sql @param {string[]} xs */
+ const rowsIn=async(sql,xs)=>{const all=[];for(let i=0;i<xs.length;i+=90){const part=xs.slice(i,i+90);all.push(...((await db.prepare(sql.replace('(?*)',`(${part.map(()=>'?').join(',')})`)).bind(...part).all()).results||[]));}return all;};
+ const ids=(/** @type {string} */ kind)=>[...new Set(list.filter(([k])=>k===kind).map(([,id])=>id))];
+ const d=ids('discussion'),c=ids('comment');
+ for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d))
+  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,300),status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no))});
+ for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c))
+  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title)});
+ return out;
 }
 const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict']);
 /** Apply one moderator action; always logged in moderation_actions with its reason.
