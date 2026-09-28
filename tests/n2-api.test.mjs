@@ -238,3 +238,21 @@ test('review fixes: role hierarchy, reserved and case-insensitive nicknames, no 
  h.db.raw.prepare("UPDATE discussions SET status='deleted' WHERE id=?").run(p.id);
  assert.equal((await act('adm',`discussion:${p.id}`,'hide')).status,409,'an author-deleted post is not hidden (and so never republished)');
 });
+
+test('authors edit and delete their own posts and comments; nobody else can',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'처음 제목',body:'처음'}})).json;
+ assert.equal((await h.call('GET',`/posts/source?id=${p.id}`,{as:'b'})).status,404);
+ assert.equal((await h.call('GET',`/posts/source?id=${p.id}`,{as:'a'})).json.body,'처음');
+ assert.equal((await h.call('POST','/posts/edit',{as:'b',body:{postId:p.id,title:'남의 글 수정',body:'x'}})).status,404);
+ assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'고친 제목',body:'고침'}})).status,200);
+ assert.ok(h.db.raw.prepare('SELECT edited_at FROM discussions WHERE id=?').get(p.id).edited_at);
+ const c=(await h.call('POST','/comments',{as:'b',body:{postId:p.id,body:'댓글'}})).json;
+ assert.equal((await h.call('POST','/comments/delete',{as:'a',body:{commentId:c.id}})).status,404,'the post author cannot delete others\' comments');
+ assert.equal((await h.call('POST','/comments/delete',{as:'b',body:{commentId:c.id}})).status,200);
+ assert.equal(h.db.raw.prepare('SELECT comment_count FROM discussions WHERE id=?').get(p.id).comment_count,0);
+ const st=(await h.call('GET',`/state?post=${p.id}`,{as:'a'})).json;assert.equal(st.mine.post,true);
+ assert.equal((await h.call('POST','/posts/delete',{as:'a',body:{postId:p.id}})).status,200);
+ assert.equal(h.db.raw.prepare('SELECT status FROM discussions WHERE id=?').get(p.id).status,'deleted');
+ assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'되살리기',body:'x'}})).status,404,'deleted stays deleted');
+});

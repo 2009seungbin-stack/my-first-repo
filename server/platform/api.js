@@ -17,7 +17,7 @@ import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
 import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /follows':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -98,6 +98,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    const rows=(await db.prepare("SELECT e.id,e.vertical,e.slug,e.names FROM follows f JOIN entities e ON e.id=f.entity_id WHERE f.user_id=? AND e.status='active' ORDER BY f.created_at DESC LIMIT 500").bind(context.user.id).all()).results||[];
    return done({follows:rows.map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {id:String(r.id),name:nameOf(e,l),url:channelUrl(l,e)};})});
   }
+  if(key==='GET /posts/source'){
+   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+   const p=await db.prepare("SELECT title,body_md,author_id,status FROM discussions WHERE id=?").bind(String(url.searchParams.get('id')||'')).first();
+   if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+   return done({title:String(p.title),body:String(p.body_md)});
+  }
   if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
   if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko'));}
   // Writes.
@@ -171,6 +177,30 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
     return done(r);
    }
+   case 'POST /posts/edit':case 'POST /posts/delete':{
+    only(body,key==='POST /posts/edit'?['postId','title','body']:['postId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    // Only the author, and only while the post is visible (a moderator-hidden post stays as the moderator left it).
+    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
+    await limit('post-edit',10);
+    if(key==='POST /posts/edit'){
+     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
+     await db.prepare('UPDATE discussions SET title=?,body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,now,now,p.id).run();
+    }else await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    return done({ok:true});
+   }
+   case 'POST /comments/edit':case 'POST /comments/delete':{
+    only(body,key==='POST /comments/edit'?['commentId','body']:['commentId']);
+    const c=await db.prepare("SELECT c.id,c.author_id,c.status,c.discussion_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(body.commentId||'')).first();
+    if(!c||c.author_id!==context.user.id||c.status!=='published')throw new ApiError('NOT_FOUND');
+    await limit('post-edit',10);
+    if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
+    else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,c.id),
+     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(c.discussion_id,c.discussion_id)]);
+    await purge(origin,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
+    return done({ok:true});
+   }
    case 'POST /mod/action':{
     const me=await moderator(db,context);
     return done(await modAction(db,context.user.id,String(me.role),body,now,origin));
@@ -231,6 +261,8 @@ async function state(db,context,q){
  if(entityId&&ENTITY_ID.test(entityId))out.following=!!(await db.prepare('SELECT 1 FROM follows WHERE user_id=? AND entity_id=?').bind(user.id,entityId).first());
  const post=q.get('post');
  if(post&&/^[\w-]{1,64}$/.test(post)){
+  const own=await db.prepare('SELECT author_id FROM discussions WHERE id=?').bind(post).first();
+  out.mine={post:own?.author_id===user.id,comments:((await db.prepare("SELECT id FROM comments WHERE discussion_id=? AND author_id=? AND status='published'").bind(post,user.id).all()).results||[]).map((/** @type {any} */ r)=>String(r.id))};
   const rows=(await db.prepare(`SELECT target_kind,target_id,value FROM votes WHERE user_id=? AND ((target_kind='discussion' AND target_id=?) OR (target_kind='comment' AND target_id IN (SELECT id FROM comments WHERE discussion_id=?)))`).bind(user.id,post,post).all()).results||[];
   for(const r of rows)out.votes[r.target_id]=Number(r.value);
  }

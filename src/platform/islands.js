@@ -133,6 +133,26 @@ async function main(){
   });});
  }
 
+ // The author's own post and comments: edit / delete
+ const own=$('[data-island="own-post"]');
+ if(own&&st.mine?.post){
+  own.hidden=false;
+  $('[data-delete]',own).addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 글을 삭제할까요?':'Delete this post?'))return;const r=await write('/posts/delete',{postId:own.dataset.post},signedIn);if(r)location.href=location.pathname.replace(/\d+$/,'');});
+  $('[data-edit]',own).addEventListener('click',async()=>{
+   const src=await api(`/posts/source?id=${encodeURIComponent(own.dataset.post)}`);if(!src.ok)return explain(src);
+   const art=$('article.post');const f=document.createElement('form');f.className='wform';
+   const ti=document.createElement('input');ti.name='title';ti.value=src.data.title;ti.maxLength=120;ti.setAttribute('aria-label',L==='ko'?'제목':'Title');
+   const ta=document.createElement('textarea');ta.name='body';ta.value=src.data.body;ta.maxLength=20000;ta.setAttribute('aria-label',L==='ko'?'본문':'Body');
+   const b=document.createElement('button');b.type='submit';b.className='btn p';b.textContent=L==='ko'?'수정 저장':'Save';
+   f.append(ti,ta,b);art.replaceChildren(f);ti.focus();
+   f.addEventListener('submit',async e=>{e.preventDefault();const r=await write('/posts/edit',{postId:own.dataset.post,title:ti.value,body:ta.value},signedIn);if(r)location.reload();});
+  });
+ }
+ for(const b of $$('[data-own-comment]')){
+  if(!st.mine?.comments?.includes(b.dataset.ownComment))continue;b.hidden=false;
+  b.addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 댓글을 삭제할까요?':'Delete this comment?'))return;const r=await write('/comments/delete',{commentId:b.dataset.ownComment},signedIn);if(r)location.reload();});
+ }
+
  // Comments and replies
  const form=$('form[data-island="comment-form"]');
  if(form){

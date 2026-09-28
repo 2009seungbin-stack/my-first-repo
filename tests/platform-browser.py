@@ -44,6 +44,10 @@ def main():
             pg.click('button[type=submit]'); pg.wait_for_url(re.compile(r'/ko/ai/claude/\d+$'))
             assert 'E2E 질문' in pg.locator('h1').inner_text()
             assert pg.locator('.pbody strong').inner_text() == '굵게' and pg.locator('.pbody script').count() == 0
+            # the author edits the post in place
+            pg.locator('[data-island=own-post] [data-edit]').click(); pg.wait_for_timeout(500)
+            pg.fill('article.post input[name=title]', 'E2E 질문 (수정됨)'); pg.click('article.post button[type=submit]'); pg.wait_for_timeout(1200)
+            assert '수정됨' in pg.locator('h1').inner_text()
             pg.fill('#comment-form textarea', '첫 댓글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             pg.locator('[data-reply]').first.click(); pg.fill('#comment-form textarea', '답글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             assert pg.locator('.co.re').count() == 1, 'reply is threaded'
