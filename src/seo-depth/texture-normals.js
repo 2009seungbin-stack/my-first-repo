@@ -774,5 +774,229 @@ export default {
    versions:{body:['`tests/normals.test.mjs` は、フレームのマップが隣に左右されず、スプライトと一緒に動くことを示しています。Godot 4.7.2は60フレームの侍と720 × 330の冒険者を含め、書き出したAnimationPlayerのフレームを1/255以内で描画し、同じ6ケースがUnity 6000.5.3f1で12回中12回合格しました。ノーマルマップがスプライトとUVを共有する必要があることはUnityのマニュアルに書かれています。'],sources:[U_SECONDARY,G_CANVAS,G_LIGHTS]}
   }
  },
-//PAGE7
+ 'game/normal-map-opengl-or-directx':{
+  type:'troubleshoot',
+  intent:{primary:'tell whether a normal map is OpenGL or DirectX and fix lighting that comes from the wrong side',secondary:['bumps look like dents','which convention Godot / Unity expect','flip green channel','inverted red channel'],
+   goal:'a normal map in the convention the engine reads, confirmed by a measurement or a light test',input:'a normal map of unknown convention (optionally with its sprite)',output:'the same map confirmed or flipped: _n.png (OpenGL) and _n_dx.png (DirectX)',target:'Godot 4, Unity (Y+) and DirectX-style engines',support:'full',
+   evidence:['src/game/normals/convention.js (curl + silhouette + red test)','docs/STUDIO-TEXTURE.md GL/DX detection (128 maps 100 %, 1,562 samples, 0 wrong high)','src/game/normals/lighting.js (renderLit, used for the worked example)','src/game/texture-normal.js flipGreen'],
+   external:['Godot CanvasTexture: X+, Y+, Z+','Godot import option Normal Map Invert Y','Unity: Y+ normal maps']},
+  en:{
+   answer:'OpenGL and DirectX normal maps differ only in the green channel: OpenGL-style green (Y+) means "facing up", which Godot and Unity read, and DirectX-style green (Y−) means "facing down". A map in the wrong convention shades top and bottom edges the wrong way round, so under a light from above bumps half read as dents, while left and right still look right. Flip green (255 − g, lossless) or use the engine\'s import flip; if you do not know which one you have, the Studio\'s Check panel measures it and changes nothing until you confirm.',
+   concept:{title:'What the green channel means, and why a flip is easy to miss',body:[
+    'In a tangent-space normal map red is X (towards the image\'s right), blue is Z (out of the surface) and green is Y. The two conventions agree on red and blue and disagree on which way Y points. Godot\'s CanvasTexture reference says Godot expects X+, Y+ and Z+ coordinates, and Unity\'s manual says Unity uses Y+ normal maps, "sometimes known as OpenGL format".',
+    'Nothing in a PNG says which convention it uses, and both are valid maps. A flip is easy to miss because horizontal lighting is still correct: only the vertical half of the shading swaps, so a light moving left and right looks fine and a light moving up and down looks wrong. File names help when the source uses them (ambientCG ships NormalGL and NormalDX), and are guesses otherwise.',
+    'Nerulio\'s Check panel measures it. Read as OpenGL, a real surface\'s slopes must be consistent with each other (the cross derivatives of a height field are equal); a DirectX map breaks that with the opposite sign. On sprites a second test checks that normals at the silhouette face outward. Each verdict carries a confidence and its evidence, and a map without diagonal relief gets "cannot tell" rather than a guess.',
+    'A flipped red channel is the other half of the problem: some generators write X inverted, as NormalMap-Online\'s default output did in our comparison. On a sprite the silhouette test measures red on its own and reports "red flipped"; on an opaque texture a red flip and a green flip look the same to any test, and the panel says so.'],
+    terms:[['Y+ (OpenGL)','Green above 128 = facing the top of the image. Godot, Unity.'],['Y− (DirectX)','Green above 128 = facing the bottom. For example ambientCG\'s NormalDX files.'],['Flip green','g → 255 − g; applying it twice gives the original bytes.']]},
+   example:{title:'Example: one pixel that faces up, read both ways',lead:'Computed with Nerulio\'s copy of Godot\'s 2D light model, a white pixel and one point light, no ambient:',lines:[
+    'face tilted 45° towards the top of the image',
+    '  OpenGL bytes  (128, 218, 218)      DirectX bytes (128, 37, 218)',
+    '',
+    'light 64 px above the pixel, 64 px high:',
+    '  OpenGL map read as OpenGL    N·L = 1.00  → 255 (fully lit)',
+    '  DirectX map read as OpenGL   N·L = 0.00  →   0 (dark)',
+    'the same light 64 px BELOW the pixel:',
+    '  DirectX map read as OpenGL   N·L = 1.00  → 255: lit from the wrong side',
+    '',
+    'flip: 255 − 37 = 218,  255 − 218 = 37   (twice = the original bytes)'],
+    after:'Horizontal faces are untouched by the flip, which is why a quick left-right light test can pass while the map is still wrong. Always test with a light above or below.'},
+   verify:{steps:[
+    'Light test: a light straight above the object must brighten the edges that face up; one straight to the left must brighten the edges that face left.',
+    'Byte test on a known shape: on the upper half of a dome or a bevelled button, green is above 128 in an OpenGL map.',
+    'Round trip: flip green twice and compare with the original file; the bytes must be identical.']},
+   trouble:{rows:[
+    ['Lit from below when the light is above; left and right look fine','The map is in the other green convention than the engine reads','Put a light straight above: do the top edges brighten?','Flip green, or in Godot enable Process › Normal Map Invert Y in the Import dock and reimport'],
+    ['Lit from the right when the light is on the left; up and down look fine','The generator wrote red inverted','Light from one side; on a sprite the Check panel reports "red flipped"','Flip red (X−) in the Check panel, or regenerate with the tool\'s red invert off'],
+    ['Reversed from every side: bumps are dents','The height itself was inverted (red and green both flipped)','Both tests above fail at once','Regenerate from an inverted height, or flip red and green together'],
+    ['The panel says "cannot tell"','No diagonal relief: straight grooves, a single ramp or a flat area carry no handedness','Look for rounded or diagonal shapes in the map','Go by the source (ambientCG and Poly Haven name their files), or light it and look'],
+    ['Low confidence on a hand-painted pixel sprite','The two tests disagree, as they do on stylised maps','The evidence lines under the verdict','Confirm by eye with a light above; nothing is applied until you press It is OpenGL or It is DirectX'],
+    ['Still wrong in Unity after flipping green','The map is also gamma-decoded because sRGB (Color Texture) is on','The normal map\'s import settings','Turn sRGB off; see [[game/unity-2d-normal-map|Unity 2D normal maps]]']]},
+   alternatives:{rows:[
+    ['[[game/normal-map-converter|OpenGL ↔ DirectX converter]] (Texture Lab)','You already know the convention and only need a one-step green flip for the whole file.'],
+    ['The engine\'s import flip','Godot\'s Process › Normal Map Invert Y leaves the file as it is and flips on import; handy when the same file is shared with a DirectX-style engine.']]},
+   limits:['On an opaque texture a flipped red cannot be told apart from a flipped green; the panel says so next to a DirectX verdict.','A verdict is a measurement with a confidence, not a guarantee, and nothing is applied until you confirm it.','Nerulio cannot repair a map whose shape is wrong, such as one generated from a height that was guessed badly.'],
+   versions:{body:['Detector accuracy (`convention_eval.mjs`, 2026-09-24): 128 full 1K maps 100 % right; 256² crops 100 % of the verdicts given (a verdict on 99.2 %); 64² crops 99.6 %; 213 real sprite frames 100 %, and with their red flipped green was still 100 % right with red reported flipped on 213 of 213. No wrong "high" verdict in 1,562 samples; a naive "mostly green-high means OpenGL" rule scored 46 %. The engines\' conventions follow the Godot and Unity documentation.'],sources:[G_CANVAS,G_IMPORT,U_NORMAL]}
+  },
+  ko:{
+   answer:'OpenGL과 DirectX 노멀맵은 초록 채널만 다릅니다. OpenGL 방식 초록(Y+)은 "위를 향함"이고 Godot와 Unity가 이것을 읽으며, DirectX 방식(Y−)은 "아래를 향함"입니다. 규약이 틀린 맵은 위아래 가장자리 음영이 뒤바뀌어, 위에서 비추면 볼록한 곳이 반쯤 오목하게 보이고 좌우는 멀쩡해 보입니다. 초록을 뒤집거나(255 − g, 손실 없음) 엔진의 가져오기 반전을 쓰세요. 어느 쪽인지 모르면 Studio 점검 패널이 측정해 주며, 확인을 누르기 전에는 아무것도 바꾸지 않습니다.',
+   concept:{title:'초록 채널의 의미와 뒤집힘을 놓치기 쉬운 이유',body:[
+    '탄젠트 공간 노멀맵에서 빨강은 X(이미지 오른쪽), 파랑은 Z(표면 바깥), 초록은 Y입니다. 두 규약은 빨강·파랑은 같고 Y가 어느 쪽인지만 다릅니다. Godot의 CanvasTexture 레퍼런스는 Godot가 X+, Y+, Z+ 좌표를 기대한다고 하고, Unity 매뉴얼은 Unity가 Y+ 노멀맵("OpenGL 형식이라고도 함")을 쓴다고 합니다.',
+    'PNG 안에는 어느 규약인지 적혀 있지 않고 둘 다 올바른 맵입니다. 좌우 조명은 그대로 맞기 때문에 뒤집힘을 놓치기 쉽습니다. 음영의 위아래 절반만 바뀌므로 조명을 좌우로 움직이면 멀쩡하고 위아래로 움직여야 어색합니다. 출처가 파일 이름에 표시한다면(ambientCG의 NormalGL·NormalDX) 도움이 되지만, 아니면 추측일 뿐입니다.',
+    'Nerulio 점검 패널은 이것을 측정합니다. OpenGL로 읽었을 때 실제 표면의 기울기는 서로 모순이 없어야 하는데(높이장의 교차 미분이 같음), DirectX 맵은 반대 부호로 이를 깹니다. 스프라이트에서는 실루엣의 노멀이 바깥을 향하는지 보는 두 번째 검사도 합니다. 판정마다 신뢰도와 근거가 붙고, 대각선 입체가 없는 맵은 추측 대신 "판별 불가"가 나옵니다.',
+    '빨강이 뒤집힌 경우가 문제의 나머지 절반입니다. 어떤 생성기는 X를 반대로 쓰며, 비교 측정에서 NormalMap-Online의 기본 출력이 그랬습니다. 스프라이트라면 실루엣 검사가 빨강을 따로 재서 "빨강 뒤집힘"을 알려 주지만, 불투명 텍스처에서는 빨강 뒤집힘과 초록 뒤집힘이 어떤 검사로도 똑같아 보이고 패널도 그렇게 표시합니다.'],
+    terms:[['Y+ (OpenGL)','초록이 128보다 크면 이미지 위쪽을 향함. Godot, Unity.'],['Y− (DirectX)','초록이 128보다 크면 아래쪽을 향함. 예: ambientCG의 NormalDX 파일.'],['초록 뒤집기','g → 255 − g. 두 번 하면 원래 바이트로 돌아옵니다.']]},
+   example:{title:'예시: 위를 향한 픽셀 하나를 두 방식으로 읽기',lead:'Nerulio가 옮겨 놓은 Godot 2D 조명 모델로 계산, 흰 픽셀 하나와 점광원 하나, 주변광 없음:',lines:[
+    '이미지 위쪽으로 45° 기운 면',
+    '  OpenGL 바이트 (128, 218, 218)      DirectX 바이트 (128, 37, 218)',
+    '',
+    '조명이 픽셀 위 64px, 높이 64px:',
+    '  OpenGL 맵을 OpenGL로 읽음    N·L = 1.00  → 255 (가장 밝음)',
+    '  DirectX 맵을 OpenGL로 읽음   N·L = 0.00  →   0 (어두움)',
+    '같은 조명을 픽셀 아래 64px에 두면:',
+    '  DirectX 맵을 OpenGL로 읽음   N·L = 1.00  → 255: 반대쪽에서 밝아짐',
+    '',
+    '뒤집기: 255 − 37 = 218,  255 − 218 = 37   (두 번 = 원래 바이트)'],
+    after:'가로 방향 면은 뒤집어도 변하지 않으므로, 맵이 틀렸는데도 좌우 조명 시험은 통과할 수 있습니다. 반드시 위나 아래에 조명을 두고 시험하세요.'},
+   verify:{steps:[
+    '조명 시험: 바로 위의 조명은 위를 향한 가장자리를, 바로 왼쪽의 조명은 왼쪽을 향한 가장자리를 밝혀야 합니다.',
+    '알려진 모양으로 바이트 시험: 돔이나 베벨 버튼의 위쪽 절반은 OpenGL 맵에서 초록이 128보다 큽니다.',
+    '왕복 시험: 초록을 두 번 뒤집어 원본과 비교하면 바이트가 똑같아야 합니다.']},
+   trouble:{rows:[
+    ['조명이 위에 있는데 아래에서 비친 듯하고 좌우는 멀쩡함','엔진이 읽는 것과 다른 초록 규약','바로 위에 조명을 두면 윗가장자리가 밝아지는지','초록 뒤집기. Godot라면 Import 독에서 Process › Normal Map Invert Y를 켜고 다시 가져오기'],
+    ['조명이 왼쪽인데 오른쪽이 밝고 위아래는 멀쩡함','생성기가 빨강을 뒤집어 저장함','한쪽에서 비춰 보기. 스프라이트라면 점검 패널이 "빨강 뒤집힘" 표시','점검 패널의 Flip red(X−), 또는 그 툴의 빨강 반전을 끄고 다시 생성'],
+    ['어느 방향이든 반대: 볼록이 오목','높이 자체가 반전됨(빨강·초록 모두 뒤집힘)','위 두 시험이 동시에 실패','반전한 높이로 다시 만들거나 빨강과 초록을 함께 뒤집기'],
+    ['패널이 "판별 불가"라고 함','대각선 입체가 없음. 곧은 홈, 단일 경사, 평면에는 방향성 정보가 없음','맵에 둥글거나 대각선인 모양이 있는지','출처로 판단(ambientCG·Poly Haven은 파일 이름에 표시)하거나 비춰 보고 판단'],
+    ['손으로 그린 도트 스프라이트에서 신뢰도가 낮음','양식화된 맵에서는 두 검사가 서로 다른 답을 냄','판정 아래의 근거 줄','위에서 비춰 눈으로 확인. It is OpenGL이나 It is DirectX를 누르기 전에는 적용되지 않음'],
+    ['초록을 뒤집었는데도 Unity에서 틀림','sRGB(Color Texture)가 켜져 맵이 감마 변환됨','노멀맵의 가져오기 설정','sRGB 끄기. [[game/unity-2d-normal-map|Unity 2D 노멀맵]] 참고']]},
+   alternatives:{rows:[
+    ['[[game/normal-map-converter|OpenGL ↔ DirectX 변환기]](텍스처 랩)','규약을 이미 알고 파일 전체 초록만 한 번에 뒤집으면 될 때.'],
+    ['엔진의 가져오기 반전','Godot의 Process › Normal Map Invert Y는 파일은 그대로 두고 가져올 때 뒤집습니다. 같은 파일을 DirectX 방식 엔진과 함께 쓸 때 편합니다.']]},
+   limits:['불투명 텍스처에서는 빨강 뒤집힘과 초록 뒤집힘을 구별할 수 없으며, 패널이 DirectX 판정 옆에 그렇게 표시합니다.','판정은 신뢰도가 붙은 측정이지 보증이 아니며, 확인하기 전에는 아무것도 적용하지 않습니다.','높이를 잘못 추측해 만든 맵처럼 형태 자체가 틀린 맵은 Nerulio가 고칠 수 없습니다.'],
+   versions:{body:['판별 정확도(`convention_eval.mjs`, 2026-09-24): 1K 전체 맵 128장 100% 정답, 256² 조각은 판정을 낸 것의 100%(판정률 99.2%), 64² 조각 99.6%, 실제 스프라이트 프레임 213개 100%. 빨강을 뒤집은 같은 프레임에서도 초록은 100% 맞았고 213개 모두 빨강 뒤집힘을 보고했습니다. 표본 1,562개에서 틀린 "높음" 판정은 0개였고, "초록이 대부분 높으면 OpenGL"이라는 단순 규칙은 46%였습니다. 엔진 규약은 Godot·Unity 문서를 따릅니다.'],sources:[G_CANVAS,G_IMPORT,U_NORMAL]}
+  },
+  ja:{
+   answer:'OpenGLとDirectXのノーマルマップの違いは緑チャンネルだけです。OpenGL方式の緑（Y+）は「上向き」でGodotとUnityが読み、DirectX方式（Y−）は「下向き」です。規約を間違えたマップは上下の縁の陰影が入れ替わり、上から照らすと凸が半分凹に見える一方、左右は正しく見えます。緑を反転する（255 − g、劣化なし）か、エンジンのインポート時の反転を使ってください。どちらか分からないときはStudioのチェックパネルが測定し、確定するまで何も変えません。',
+   concept:{title:'緑チャンネルの意味と、反転を見落としやすい理由',body:[
+    '接空間ノーマルマップでは、赤がX（画像の右）、青がZ（面の外側）、緑がYです。2つの規約は赤と青では一致し、Yがどちらを向くかだけが違います。GodotのCanvasTextureのリファレンスはGodotがX+、Y+、Z+の座標を期待するとし、UnityのマニュアルはUnityがY+のノーマルマップ（「OpenGL形式とも呼ばれる」）を使うとしています。',
+    'PNGにはどちらの規約かが書かれておらず、どちらも正しいマップです。左右のライティングは正しいままなので、反転は見落としやすいものです。入れ替わるのは陰影の上下半分だけなので、ライトを左右に動かしても問題なく、上下に動かすとおかしくなります。配布元がファイル名で示していれば（ambientCGのNormalGL・NormalDX）手がかりになりますが、そうでなければ推測にすぎません。',
+    'Nerulioのチェックパネルはこれを測定します。OpenGLとして読むと、実在する面の傾きは互いに矛盾しないはずで（高さ場の交差微分が等しい）、DirectXのマップは逆の符号でそれを崩します。スプライトでは、シルエットの法線が外を向いているかを見る2つ目の検査も行います。判定にはそれぞれ信頼度と根拠が付き、斜めの凹凸がないマップには推測ではなく「判定できない」が出ます。',
+    '赤の反転が問題の残り半分です。Xを逆に書く生成ツールがあり、比較測定ではNormalMap-Onlineの既定の出力がそうでした。スプライトならシルエットの検査が赤を単独で測り「赤が反転」と報告しますが、不透明なテクスチャでは赤の反転と緑の反転はどんな検査でも同じに見え、パネルもそう表示します。'],
+    terms:[['Y+（OpenGL）','緑が128より大きい＝画像の上を向く。Godot、Unity。'],['Y−（DirectX）','緑が128より大きい＝下を向く。例：ambientCGのNormalDXファイル。'],['緑の反転','g → 255 − g。2回行うと元のバイトに戻ります。']]},
+   example:{title:'具体例：上を向いたピクセル1つを2通りに読む',lead:'Nerulioが写したGodotの2Dライトのモデルで計算。白いピクセル1つと点光源1つ、環境光なし：',lines:[
+    '画像の上へ45°傾いた面',
+    '  OpenGLのバイト (128, 218, 218)      DirectXのバイト (128, 37, 218)',
+    '',
+    'ライトがピクセルの上64px、高さ64px：',
+    '  OpenGLのマップをOpenGLとして読む    N·L = 1.00  → 255（最も明るい）',
+    '  DirectXのマップをOpenGLとして読む   N·L = 0.00  →   0（暗い）',
+    '同じライトをピクセルの下64pxに置くと：',
+    '  DirectXのマップをOpenGLとして読む   N·L = 1.00  → 255：逆側から照らされる',
+    '',
+    '反転：255 − 37 = 218、255 − 218 = 37   （2回で元のバイト）'],
+    after:'横向きの面は反転しても変わらないので、マップが間違っていても左右のライトの試験は通ってしまいます。必ずライトを上か下に置いて試してください。'},
+   verify:{steps:[
+    'ライトの試験：真上のライトは上を向いた縁を、真左のライトは左を向いた縁を明るくするはずです。',
+    '形の分かっているものでバイトを確認：ドームや面取りしたボタンの上半分は、OpenGLのマップなら緑が128より大きくなります。',
+    '往復の試験：緑を2回反転して元のファイルと比べると、バイトが完全に一致するはずです。']},
+   trouble:{rows:[
+    ['ライトが上なのに下から照らされたようで、左右は正しい','エンジンが読むのと別の緑の規約','真上にライトを置くと上の縁が明るくなるか','緑を反転。GodotならImportドックでProcess › Normal Map Invert Yをオンにして再インポート'],
+    ['ライトが左なのに右が明るく、上下は正しい','生成ツールが赤を反転して保存した','片側から照らす。スプライトならチェックパネルが「赤が反転」と表示','チェックパネルのFlip red（X−）、またはそのツールの赤の反転をオフにして作り直す'],
+    ['どの方向からも逆：凸が凹','高さそのものが反転している（赤と緑の両方が反転）','上の2つの試験が同時に失敗','反転した高さから作り直すか、赤と緑を一緒に反転'],
+    ['パネルが「判定できない」と出す','斜めの凹凸がない。まっすぐな溝、単一の坂、平面には向きの情報がない','マップに丸い形や斜めの形があるか','配布元で判断する（ambientCG・Poly Havenはファイル名に表記）か、照らして見る'],
+    ['手描きのドット絵スプライトで信頼度が低い','様式化したマップでは2つの検査の答えが食い違う','判定の下の根拠の行','上から照らして目で確かめる。It is OpenGLかIt is DirectXを押すまで適用されない'],
+    ['緑を反転してもUnityでおかしい','sRGB（Color Texture）がオンで、マップがガンマ変換されている','ノーマルマップのインポート設定','sRGBをオフに。[[game/unity-2d-normal-map|Unity 2Dのノーマルマップ]]を参照']]},
+   alternatives:{rows:[
+    ['[[game/normal-map-converter|OpenGL ↔ DirectX変換]]（テクスチャラボ）','規約がすでに分かっていて、ファイル全体の緑を一度に反転すればよいとき。'],
+    ['エンジンのインポート時の反転','GodotのProcess › Normal Map Invert Yはファイルをそのままにして読み込み時に反転します。同じファイルをDirectX方式のエンジンと共有するときに便利です。']]},
+   limits:['不透明なテクスチャでは赤の反転と緑の反転を区別できず、パネルはDirectXの判定の横にそう表示します。','判定は信頼度付きの測定で保証ではなく、確定するまで何も適用しません。','高さの推定を誤って作ったマップのように、形そのものが間違っているマップはNerulioでは直せません。'],
+   versions:{body:['判定の精度（`convention_eval.mjs`、2026-09-24）：1Kの全体マップ128枚で100%正解、256²の切り抜きは判定を出したものの100%（判定率99.2%）、64²の切り抜きは99.6%、実在するスプライトのフレーム213枚で100%。赤を反転した同じフレームでも緑は100%正しく、213枚すべてで赤の反転を報告しました。1,562サンプルで誤った「高」判定は0件で、「緑が大半で高ければOpenGL」という単純な規則は46%でした。エンジンの規約はGodot・Unityのドキュメントに従います。'],sources:[G_CANVAS,G_IMPORT,U_NORMAL]}
+  }
+ },
+ 'game/laigter-alternative':{
+  type:'compare',
+  intent:{primary:'find an alternative to Laigter for 2D sprite normal maps, or decide between Laigter and Nerulio',secondary:['Laigter online / in the browser','Laigter vs other generators accuracy','Laigter maps in Godot'],
+   goal:'pick the tool that fits the job (desktop batch and extra maps vs browser, engine export and checks) with measured differences',input:'sprite or texture PNG',output:'normal map (and, in Nerulio, a Godot 4 / Unity 6 bundle)',target:'2D games, Godot and Unity',support:'partial',
+   evidence:['docs/STUDIO-TEXTURE.md Head-to-head (Laigter 1.14.0 CLI, default and Tile preset)','docs/H2H-PAID.md §2 (lit in Godot 4.7.2)'],
+   external:['Laigter README (maps, CLI flags, GPL-3)','Laigter release notes 1.6, 1.11.0, 1.12.0, 1.13.0, 1.14.0']},
+  en:{
+   answer:'Laigter is a free-software desktop app (GPL-3, builds on GitHub, paid builds on itch.io) that generates normal, specular, occlusion and parallax maps for 2D sprites, previews them under several lights and runs headless with `--no-gui`. Nerulio\'s Studio Texture workspace makes the normal map in a browser tab and continues into a verified Godot 4 scene or Unity 6 importer. On the same CC0 assets with default settings Laigter was closer on 3D-rendered sprites (18.3° against 20.0°), the Studio on tileable bricks and height maps; the right choice depends on the job.',
+   concept:{title:'What each tool does with a sprite',body:[
+    'Both tools guess a height field from the picture and take its slope. Laigter\'s default builds a dome from the alpha outline, a good start for rounded objects, and adds detail from the colours. Its presets store the settings (and, since release 1.6, the lights); release 1.12.0 lets its app split a sprite sheet by frame count or grid size; 1.13.0 added light animations. Its README lists normal, parallax, specular and occlusion maps and command-line switches for each.',
+    'Nerulio\'s Studio suggests a bevel sized to the sprite (1.5 px for frames up to 128 px, about 0.9 × the typical inscribed radius above that), processes cut frames one by one, and lights the result with Godot 4\'s 2D formula, so the preview equals Godot\'s output within 1/255. It adds OpenGL/DirectX detection for maps from elsewhere, a height brush, quantised pixel-art normals and 16-bit height input.',
+    'On tileable textures the difference is the border. Laigter\'s default treats the image edge like a sprite edge and tilts a 3 px band on every side (roll error 63.8 on the bricks); its Tile preset removes that (roll 0, 16.5° from the reference, against the Studio\'s 14.7° with Wrap).',
+    'Lit in Godot 4.7.2 against the reference normals, the sprite gap is small: on the 3D-rendered asteroids Laigter\'s default was 6.32 levels off and the Studio 6.98. On the hand-painted torch every generator was worse than a flat map (flat 26.6, Studio 36.2, Laigter 51.0), so neither replaces painting stylised normals by hand.'],
+    terms:[['Roll error','Generate, roll the texture by half, generate again, roll back and compare the border band; 0 means the map tiles without a seam.'],['Mean angle','The average angle between a tool\'s normals and the real reference normals; lower is closer.'],['Tile preset','Laigter\'s preset for repeating textures, which stops the border from being bevelled.']]},
+   alternatives:{rows:[
+    ['Laigter','Batch generation in a build script (`--no-gui`), parallax and occlusion maps, light animations, a desktop app with no browser, and 3D-rendered sprites, where its default dome came closest (18.3°).'],
+    ['Nerulio Studio Texture','A lit Godot 4 scene or Unity 6 URP 2D setup without wiring by hand, tileable textures with Wrap suggested automatically, sheets processed per frame, convention checks for maps from other tools, nothing to install.'],
+    ['SpriteIlluminator (paid, desktop)','You want to paint normals: its Angle and Structure brushes and selection tools have no counterpart in the Studio, which has a height brush only.'],
+    ['Bake from 3D, or paint by hand','Rendered sprites (a bake is the truth) or stylised pixel art (no generator matched the artist\'s torch).']]},
+   limits:['No command line or batch mode: the Studio processes one picture at a time in the browser.','No parallax map, and the specular map is exported for Godot only.','No light animation; lights are static in the preview and the export.','On the 3D-rendered asteroids Laigter\'s default was 1.7° closer to the true normals.','Checked in Chromium only; Firefox and WebKit were not run.'],
+   versions:{body:['Laigter 1.14.0 (the Windows build from GitHub, run through `--no-gui` with its default and its Tile preset) and Nerulio were measured on 2026-09-24 against real reference normals; the Godot-lit comparison ran in Godot 4.7.2 on 2026-09-25. Neither side was tuned per asset. Laigter\'s features above are taken from its README and release notes.'],sources:[LAIGTER,LAIGTER_REL,G_CANVAS]}
+  },
+  ko:{
+   answer:'Laigter는 2D 스프라이트용 노멀·스페큘러·오클루전·패럴랙스 맵을 만들고, 여러 조명 아래서 미리 보며, `--no-gui`로 창 없이도 돌아가는 자유 소프트웨어 데스크톱 앱입니다(GPL-3, GitHub 빌드, itch.io 유료 빌드). Nerulio Studio 텍스처 작업 공간은 브라우저 탭에서 노멀맵을 만들고 검증된 Godot 4 씬이나 Unity 6 임포터까지 이어집니다. 같은 CC0 에셋을 기본 설정으로 측정하니 3D로 렌더한 스프라이트는 Laigter가(18.3° 대 20.0°), 반복 벽돌과 높이 맵은 Studio가 더 가까웠습니다. 어느 쪽이 맞는지는 작업에 달렸습니다.',
+   concept:{title:'두 툴이 스프라이트로 하는 일',body:[
+    '두 툴 모두 그림에서 높이를 추측해 기울기를 구합니다. Laigter의 기본값은 알파 외곽선에서 돔 모양을 세우는데, 둥근 물체에는 좋은 출발점이며 색에서 디테일도 더합니다. 프리셋에 설정(1.6 릴리스부터는 조명까지)을 저장하고, 1.12.0부터 앱에서 프레임 수나 격자 크기로 시트를 나눌 수 있으며, 1.13.0에서 조명 애니메이션이 추가됐습니다. README에는 노멀·패럴랙스·스페큘러·오클루전 맵과 각각의 명령줄 옵션이 나옵니다.',
+    'Nerulio Studio는 스프라이트 크기에 맞춘 베벨(128px 이하 프레임은 1.5px, 그보다 크면 대표 내접 반지름의 약 0.9배)을 제안하고, 자른 프레임을 하나씩 처리하며, Godot 4의 2D 계산식으로 비춰 미리보기가 Godot 결과와 1/255 이내로 같습니다. 다른 곳에서 온 맵의 OpenGL·DirectX 판별, 높이 브러시, 양자화한 도트 노멀, 16비트 높이 입력도 있습니다.',
+    '반복 텍스처에서는 가장자리가 차이를 만듭니다. Laigter 기본값은 이미지 가장자리를 스프라이트 가장자리처럼 다뤄 네 변에 3px 띠를 기울입니다(벽돌에서 롤 오차 63.8). Tile 프리셋을 쓰면 사라지며(롤 0, 기준과 16.5°), Wrap을 쓴 Studio는 14.7°였습니다.',
+    'Godot 4.7.2에서 기준 노멀과 비교해 비춰 보면 스프라이트 차이는 작습니다. 3D로 렌더한 소행성에서 Laigter 기본값은 6.32단계, Studio는 6.98단계 차이였습니다. 손으로 칠한 횃불에서는 모든 생성기가 평평한 맵보다 나빴으므로(평평 26.6, Studio 36.2, Laigter 51.0), 어느 쪽도 양식화된 노멀을 손으로 그리는 일을 대신하지 못합니다.'],
+    terms:[['롤 오차','생성하고, 텍스처를 절반 굴려 다시 생성해 되돌린 뒤 가장자리 띠를 비교한 값. 0이면 이음새 없이 반복됩니다.'],['평균 각도','툴의 노멀과 실제 기준 노멀 사이 평균 각도. 낮을수록 가깝습니다.'],['Tile 프리셋','반복 텍스처용 Laigter 프리셋으로, 가장자리에 베벨이 생기지 않게 합니다.']]},
+   alternatives:{rows:[
+    ['Laigter','빌드 스크립트에서의 일괄 생성(`--no-gui`), 패럴랙스·오클루전 맵, 조명 애니메이션, 브라우저 없는 데스크톱 앱, 그리고 기본 돔이 가장 가까웠던(18.3°) 3D 렌더 스프라이트.'],
+    ['Nerulio Studio 텍스처','손으로 연결할 필요 없는 Godot 4 조명 씬이나 Unity 6 URP 2D 설정, 자동으로 Wrap을 제안하는 반복 텍스처, 프레임별 시트 처리, 다른 툴에서 온 맵의 규약 점검, 설치 불필요.'],
+    ['SpriteIlluminator(유료, 데스크톱)','노멀을 직접 칠하고 싶을 때. Angle·Structure 브러시와 선택 도구에 해당하는 기능이 Studio에는 없고 높이 브러시뿐입니다.'],
+    ['3D에서 굽기 또는 손으로 그리기','렌더한 스프라이트(굽기가 정답)나 양식화된 도트(작가의 횃불에 가까운 생성기는 없었음).']]},
+   limits:['명령줄이나 일괄 처리가 없습니다. Studio는 브라우저에서 그림을 하나씩 처리합니다.','패럴랙스 맵이 없고, 스페큘러 맵은 Godot용으로만 내보냅니다.','조명 애니메이션이 없습니다. 미리보기와 내보내기의 조명은 고정입니다.','3D로 렌더한 소행성에서는 Laigter 기본값이 실제 노멀에 1.7° 더 가까웠습니다.','Chromium에서만 확인했고 Firefox·WebKit은 돌려 보지 않았습니다.'],
+   versions:{body:['Laigter 1.14.0(GitHub의 Windows 빌드, `--no-gui`로 기본값과 Tile 프리셋 실행)과 Nerulio를 2026-09-24에 실제 기준 노멀과 비교했고, Godot 조명 비교는 2026-09-25 Godot 4.7.2에서 했습니다. 어느 쪽도 에셋별로 조정하지 않았습니다. 위의 Laigter 기능은 README와 릴리스 노트에서 가져왔습니다.'],sources:[LAIGTER,LAIGTER_REL,G_CANVAS]}
+  },
+  ja:{
+   answer:'Laigterは、2Dスプライト用のノーマル・スペキュラー・オクルージョン・パララックスのマップを作り、複数のライトでプレビューし、`--no-gui` で画面なしでも動くフリーソフトウェアのデスクトップアプリです（GPL-3、GitHubにビルド、itch.ioに有料ビルド）。Nerulio Studioのテクスチャ作業画面はブラウザのタブでノーマルマップを作り、検証済みのGodot 4シーンやUnity 6インポーターまでつなげます。同じCC0素材を既定設定で測ると、3Dから描画したスプライトではLaigter（18.3°対20.0°）、タイル状のレンガと高さマップではStudioのほうが近い結果でした。どちらが合うかは作業しだいです。',
+   concept:{title:'2つのツールがスプライトに対して行うこと',body:[
+    'どちらのツールも絵から高さを推定し、その傾きを求めます。Laigterの既定はアルファの輪郭からドーム形を立ち上げるもので、丸い物体にはよい出発点であり、色からの細部も加えます。プリセットに設定（1.6リリース以降はライトも）を保存でき、1.12.0からアプリでフレーム数かグリッドサイズでシートを分割でき、1.13.0でライトのアニメーションが加わりました。READMEにはノーマル・パララックス・スペキュラー・オクルージョンの各マップと、それぞれのコマンドラインの指定が載っています。',
+    'Nerulio Studioはスプライトの大きさに合わせた面取り（128px以下のフレームは1.5px、それより大きければ代表的な内接半径の約0.9倍）を提案し、切ったフレームを1枚ずつ処理し、Godot 4の2Dの式で照らすので、プレビューがGodotの出力と1/255以内で一致します。よそで作ったマップのOpenGL・DirectXの判定、高さブラシ、量子化したドット絵向けの法線、16ビットの高さ入力もあります。',
+    'タイル状のテクスチャでは縁が違いを生みます。Laigterの既定は画像の縁をスプライトの縁のように扱い、四辺に3pxの帯を傾けます（レンガでロール誤差63.8）。Tileプリセットで消え（ロール0、正解との差16.5°）、Wrapを使ったStudioは14.7°でした。',
+    'Godot 4.7.2で正解の法線と比べて照らすと、スプライトでの差は小さいものです。3Dから描画した小惑星ではLaigterの既定が6.32段階、Studioが6.98段階のずれでした。手描きのたいまつではどの生成ツールも平らなマップより悪く（平ら26.6、Studio 36.2、Laigter 51.0）、どちらも様式化した法線を手で描く作業の代わりにはなりません。'],
+    terms:[['ロール誤差','生成し、テクスチャを半分ずらして再生成して戻し、縁の帯を比べた値。0なら継ぎ目なく繰り返せます。'],['平均角度','ツールの法線と実際の正解の法線がなす角の平均。低いほど近い。'],['Tileプリセット','繰り返しテクスチャ用のLaigterのプリセット。縁に面取りが付かないようにします。']]},
+   alternatives:{rows:[
+    ['Laigter','ビルドスクリプトでの一括生成（`--no-gui`）、パララックスとオクルージョンのマップ、ライトのアニメーション、ブラウザ不要のデスクトップアプリ、そして既定のドームが最も近かった（18.3°）3D描画のスプライト。'],
+    ['Nerulio Studioのテクスチャ','手作業の配線なしのGodot 4ライト付きシーンやUnity 6 URP 2Dの設定、Wrapを自動で提案するタイル状テクスチャ、フレームごとのシート処理、よそで作ったマップの規約チェック、インストール不要。'],
+    ['SpriteIlluminator（有料、デスクトップ）','法線を塗りたいとき。AngleとStructureのブラシや選択ツールに当たる機能はStudioになく、あるのは高さブラシだけです。'],
+    ['3Dからベイク、または手描き','描画したスプライト（ベイクが正解）や様式化したドット絵（作者のたいまつに近い生成ツールはなかった）。']]},
+   limits:['コマンドラインや一括処理はありません。Studioはブラウザで絵を1枚ずつ処理します。','パララックスマップはなく、スペキュラーマップの書き出しはGodot向けだけです。','ライトのアニメーションはありません。プレビューと書き出しのライトは固定です。','3Dから描画した小惑星では、Laigterの既定のほうが実際の法線に1.7°近い結果でした。','確認したのはChromiumだけで、Firefox・WebKitは試していません。'],
+   versions:{body:['Laigter 1.14.0（GitHubのWindows版を `--no-gui` で既定とTileプリセットで実行）とNerulioを2026-09-24に実際の正解の法線と比べ、Godotで照らした比較は2026-09-25にGodot 4.7.2で行いました。どちらも素材ごとの調整はしていません。上のLaigterの機能はREADMEとリリースノートによるものです。'],sources:[LAIGTER,LAIGTER_REL,G_CANVAS]}
+  }
+ },
+ 'game/normalmap-online-alternative':{
+  type:'compare',
+  intent:{primary:'find an alternative to NormalMap-Online for 2D sprite normal maps, or decide between the two',secondary:['NormalMap-Online sprite lit from the wrong side','seamless textures','engine setup'],
+   goal:'pick the tool that fits (texture/photo maps vs sprites with engine export) with measured differences and known pitfalls',input:'texture, sprite or photos',output:'normal map (and, in Nerulio, engine bundles)',target:'2D games, Godot and Unity',support:'partial',
+   evidence:['docs/STUDIO-TEXTURE.md Head-to-head (NormalMap-Online driven on its live site, default settings) and Red flip rule'],
+   external:['NormalMap-Online GitHub README (MIT, runs locally)','NormalMap-Online page controls read 2026-09-28: Normal/Displacement/AmbientOcc/Specular tabs, Strength, Level, Blur/Sharp, Sobel/Scharr, Invert R/G/Height, Z Range, 3D models incl. Custom, PNG/JPG/TIFF, Batch Mode, photometric stereo inputs']},
+  en:{
+   answer:'NormalMap-Online (MIT, runs locally in the browser) turns a picture into normal, displacement, ambient-occlusion and specular maps with Strength, Level, Blur/Sharp, a Sobel or Scharr filter and R, G and height invert switches, shows them on 3D shapes, and can build a normal map from four photos lit from different sides. The Studio\'s Texture workspace is made for 2D sprites: a bevel from the silhouette, a 2D light preview that follows Godot, GL/DX detection and verified Godot 4 and Unity 6 exports. On the same CC0 sprites with default settings, its output was much further from the true normals, with red inverted.',
+   concept:{title:'Two different jobs: surfaces and sprites',body:[
+    'NormalMap-Online treats the picture as a height map: brightness is height, the chosen filter takes its gradient, and Strength, Level and Blur/Sharp shape the result. That suits photographed or tileable surfaces. A sprite has no height in its brightness at the silhouette, so without a bevel its edges stay flat; on the 3D-rendered asteroids its default was 61.1° from the true normals, against 20.0° for the Studio.',
+    'Its default output in our run had the red channel inverted (correlation −0.58 with the true normals) and a very low z. The page has Invert R and Invert G switches and a Z Range option; if a sprite made with it is lit from the wrong side horizontally, check Invert R first. The Studio\'s Check panel reports such a map as "red flipped" on sprites and fixes it with Flip red (X−).',
+    'On the brick texture both tools were exactly wrap-consistent (roll error 0), so for plain tileable textures the difference is how close the guess is (bricks from the colour image: 65.6° against 14.7°) and which extra maps each tool offers.',
+    'After the map, the Studio adds what a 2D game needs: lights you drag over the sprite, per-frame sheets, `_n` and `_n_dx` files and engine bundles; NormalMap-Online ends at the download.'],
+    terms:[['Photometric stereo','Recovering normals from several photos of the same surface lit from different directions.'],['Invert R / G','Switches that negate X or Y; a wrong one lights the sprite from the opposite side.'],['Bevel','Height grown from the transparent edge; what gives a sprite\'s outline its relief.']]},
+   alternatives:{rows:[
+    ['NormalMap-Online','Photos of a real surface (four shots lit from above, left, right and below), displacement, AO and specular tabs in one place, a quick look on a sphere, teapot or your own model, batch mode, JPG or TIFF output, or an MIT project you can host yourself.'],
+    ['Nerulio Studio Texture','Sprites with transparency, animated sheets, a result ready for Godot or Unity, or a map from elsewhere whose convention you need to check.'],
+    ['[[normal-map-generator|Texture Lab height → normal]]','A plain gradient normal map from a height image with Sobel, Scharr or Sobel 5×5, Wrap and OpenGL or DirectX, close to NormalMap-Online\'s core job.']]},
+   limits:['No photometric stereo: the Studio cannot build a normal map from photos.','No preview on your own 3D model; the Studio\'s 3D view is a sphere or plane.','No batch mode for a folder of textures.','Maps are written as PNG only (no JPG or TIFF).'],
+   versions:{body:['NormalMap-Online was driven with Playwright on its live site on 2026-09-24: the picture loaded as its height input, default settings, the result downloaded and compared with real reference normals, next to Nerulio with the settings it suggests. The control names above were read from its page on 2026-09-28; its licence and local processing are stated in its repository.'],sources:[NMO,U_NORMAL,G_CANVAS]}
+  },
+  ko:{
+   answer:'NormalMap-Online(MIT, 브라우저 안에서 처리)은 그림을 노멀·변위·앰비언트 오클루전·스페큘러 맵으로 바꾸며 Strength, Level, Blur/Sharp, Sobel·Scharr 필터, R·G·높이 반전 스위치가 있고, 결과를 3D 도형에 입혀 보여 주며, 서로 다른 방향에서 비춘 사진 네 장으로 노멀맵을 만들 수도 있습니다. Studio 텍스처 작업 공간은 2D 스프라이트용입니다. 실루엣 베벨, Godot를 따르는 2D 조명 미리보기, GL·DX 판별, 검증된 Godot 4·Unity 6 내보내기가 있습니다. 같은 CC0 스프라이트를 기본 설정으로 비교하면 그쪽 출력은 실제 노멀에서 훨씬 멀었고 빨강이 뒤집혀 있었습니다.',
+   concept:{title:'서로 다른 두 작업: 표면과 스프라이트',body:[
+    'NormalMap-Online은 그림을 높이 맵으로 봅니다. 밝기가 높이이고, 고른 필터가 기울기를 구하며, Strength·Level·Blur/Sharp가 결과를 다듬습니다. 사진으로 찍은 표면이나 반복 텍스처에 어울립니다. 스프라이트는 실루엣에서 밝기에 높이 정보가 없어 베벨이 없으면 가장자리가 평평하게 남습니다. 3D로 렌더한 소행성에서 그 기본값은 실제 노멀과 61.1°, Studio는 20.0° 차이였습니다.',
+    '측정 때 그 기본 출력은 빨강 채널이 뒤집혀 있었고(실제 노멀과 상관 −0.58) z가 매우 낮았습니다. 페이지에 Invert R·Invert G 스위치와 Z Range 옵션이 있으니, 그걸로 만든 스프라이트가 좌우 반대쪽에서 비치면 먼저 Invert R을 확인하세요. Studio 점검 패널은 스프라이트에서 이런 맵을 "빨강 뒤집힘"으로 알려 주고 Flip red(X−)로 고칩니다.',
+    '벽돌 텍스처에서는 두 툴 모두 반복이 정확했으므로(롤 오차 0), 단순 반복 텍스처라면 차이는 추측이 얼마나 가까운지(색 이미지에서 만든 벽돌 65.6° 대 14.7°)와 각 툴이 주는 추가 맵입니다.',
+    '맵 다음 단계에서 Studio는 2D 게임에 필요한 것을 더합니다. 스프라이트 위로 끄는 조명, 프레임별 시트, `_n`·`_n_dx` 파일, 엔진 번들입니다. NormalMap-Online은 내려받기에서 끝납니다.'],
+    terms:[['포토메트릭 스테레오','같은 표면을 여러 방향에서 비춘 사진들로 노멀을 복원하는 방법.'],['Invert R / G','X나 Y의 부호를 바꾸는 스위치. 잘못 켜면 스프라이트가 반대쪽에서 비칩니다.'],['베벨','투명한 가장자리에서 올라오는 높이. 스프라이트 외곽선에 입체를 주는 부분.']]},
+   alternatives:{rows:[
+    ['NormalMap-Online','실제 표면 사진(위·왼쪽·오른쪽·아래에서 비춘 네 장), 변위·AO·스페큘러 탭을 한곳에서, 구·주전자·내 모델에 입혀 빠르게 보기, 일괄 처리, JPG·TIFF 출력, 직접 호스팅할 수 있는 MIT 프로젝트가 필요할 때.'],
+    ['Nerulio Studio 텍스처','투명 배경 스프라이트, 애니메이션 시트, Godot·Unity에 바로 쓸 결과, 규약을 확인해야 하는 다른 곳의 맵.'],
+    ['[[normal-map-generator|텍스처 랩 높이 → 노멀]]','Sobel·Scharr·Sobel 5×5, Wrap, OpenGL·DirectX로 높이 이미지에서 단순한 기울기 노멀맵을 만들 때. NormalMap-Online의 핵심 기능에 가깝습니다.']]},
+   limits:['포토메트릭 스테레오가 없어 사진으로 노멀맵을 만들 수 없습니다.','내 3D 모델로 미리 볼 수 없으며, Studio의 3D 보기는 구나 평면뿐입니다.','폴더 단위 일괄 처리가 없습니다.','맵은 PNG로만 저장합니다(JPG·TIFF 없음).'],
+   versions:{body:['2026-09-24에 NormalMap-Online 실제 사이트를 Playwright로 조작해, 그림을 높이 입력으로 넣고 기본 설정으로 결과를 받아 실제 기준 노멀과 비교했으며, Nerulio는 제안 설정 그대로 옆에서 측정했습니다. 위의 컨트롤 이름은 2026-09-28에 그 페이지에서 읽었고, 라이선스와 로컬 처리는 저장소에 적혀 있습니다.'],sources:[NMO,U_NORMAL,G_CANVAS]}
+  },
+  ja:{
+   answer:'NormalMap-Online（MIT、ブラウザ内で処理）は、画像をノーマル・ディスプレイスメント・アンビエントオクルージョン・スペキュラーのマップに変換します。Strength、Level、Blur/Sharp、Sobel・Scharrのフィルター、R・G・高さの反転スイッチがあり、結果を3Dの形状に貼って見せ、別々の方向から照らした写真4枚からノーマルマップを作ることもできます。Studioのテクスチャ作業画面は2Dスプライト向けで、シルエットからの面取り、Godotに従う2Dライトのプレビュー、GL・DXの判定、検証済みのGodot 4・Unity 6書き出しがあります。同じCC0のスプライトを既定設定で比べると、あちらの出力は実際の法線からかなり遠く、赤が反転していました。',
+   concept:{title:'別々の2つの仕事：表面とスプライト',body:[
+    'NormalMap-Onlineは画像を高さマップとして扱います。明るさが高さで、選んだフィルターが勾配を求め、Strength・Level・Blur/Sharpで結果を整えます。写真に撮った表面やタイル状のテクスチャに向いています。スプライトはシルエットの所で明るさに高さの情報がないため、面取りがないと縁が平らなまま残ります。3Dから描画した小惑星では、その既定値は実際の法線から61.1°、Studioは20.0°でした。',
+    '測定では、その既定の出力は赤チャンネルが反転しており（実際の法線との相関 −0.58）、zがとても低いものでした。ページにはInvert R・Invert GのスイッチとZ Rangeの設定があるので、それで作ったスプライトが左右逆から照らされるなら、まずInvert Rを確認してください。Studioのチェックパネルは、スプライトではこうしたマップを「赤が反転」と報告し、Flip red（X−）で直します。',
+    'レンガのテクスチャでは両ツールとも繰り返しが正確でした（ロール誤差0）。単純なタイル状テクスチャなら、違いは推定の近さ（色の画像から作ったレンガで65.6°対14.7°）と、各ツールが出せる追加のマップです。',
+    'マップの後、Studioは2Dゲームに必要なものを足します。スプライトの上でドラッグするライト、フレームごとのシート、`_n` と `_n_dx` のファイル、エンジン用バンドルです。NormalMap-Onlineはダウンロードで終わります。'],
+    terms:[['フォトメトリックステレオ','同じ表面を複数の方向から照らした写真から法線を復元する方法。'],['Invert R / G','XやYの符号を変えるスイッチ。誤るとスプライトが逆側から照らされます。'],['面取り（ベベル）','透明な縁から立ち上がる高さ。スプライトの輪郭に立体を与える部分。']]},
+   alternatives:{rows:[
+    ['NormalMap-Online','実際の表面の写真（上・左・右・下から照らした4枚）、ディスプレイスメント・AO・スペキュラーのタブを1か所で、球・ティーポット・自分のモデルに貼ってすぐ確認、バッチモード、JPG・TIFFでの出力、自分でホストできるMITのプロジェクトがほしいとき。'],
+    ['Nerulio Studioのテクスチャ','透過付きのスプライト、アニメーションのシート、GodotやUnityですぐ使える結果、規約を確かめたいよそのマップ。'],
+    ['[[normal-map-generator|テクスチャラボの高さ → ノーマル]]','Sobel・Scharr・Sobel 5×5、Wrap、OpenGL・DirectXで、高さ画像から単純な勾配のノーマルマップを作るとき。NormalMap-Onlineの中心的な機能に近いものです。']]},
+   limits:['フォトメトリックステレオはなく、写真からノーマルマップは作れません。','自分の3Dモデルでのプレビューはなく、Studioの3D表示は球か平面だけです。','フォルダー単位のバッチ処理はありません。','マップはPNGでのみ保存します（JPG・TIFFなし）。'],
+   versions:{body:['2026-09-24にNormalMap-Onlineの実際のサイトをPlaywrightで操作し、画像を高さの入力として読み込み、既定設定で結果をダウンロードして実際の正解の法線と比べました。Nerulioは推奨設定のまま並べて測定しています。上のコントロール名は2026-09-28にそのページで読んだもので、ライセンスとローカル処理はリポジトリに記載されています。'],sources:[NMO,U_NORMAL,G_CANVAS]}
+  }
+ }
 };
