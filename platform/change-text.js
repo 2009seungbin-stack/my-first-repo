@@ -5,13 +5,16 @@
 import {verticalOf} from './verticals/index.js';
 import {COMPAT_STATUS_LABEL,AVAILABILITY_LABEL,label} from './labels.js';
 
+/** Same display names as the wiki (platform/render/format.js PLATFORM_NAMES). */
+const LIST_NAMES=/** @type {Record<string,string>} */({web:'Web',ios:'iOS',android:'Android',windows:'Windows',macos:'macOS',linux:'Linux',api:'API'});
 /** @param {unknown} v @param {any} def @param {string|null|undefined} unit @param {'ko'|'en'} l */
 export function formatValue(v,def,unit,l){
  if(v===null||v===undefined)return '—';
  const type=def?.type;
  if(type==='bool')return v?(l==='ko'?'예':'Yes'):(l==='ko'?'아니오':'No');
  if(type==='enum'&&def.values?.[/** @type {string} */(v)])return label(def.values[/** @type {string} */(v)],l);
- if(type==='list'&&Array.isArray(v))return v.join(', ');
+ if(type==='list'&&Array.isArray(v))return v.map(x=>LIST_NAMES[x]||x).join(' · ');
+ if(type==='date'&&typeof v==='string'&&/^\d{4}-\d{2}(-\d{2})?$/.test(v))return v.replace(/-/g,'.');
  if(type==='tokens'&&typeof v==='number')return v>=1e6?`${+(v/1e6).toFixed(2)}M`:v>=1e3?`${+(v/1e3).toFixed(1)}K`:String(v);
  if(type==='money'&&typeof v==='number'){
   const cur=def.unit||unit||'';

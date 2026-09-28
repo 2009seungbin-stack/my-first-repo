@@ -5,7 +5,7 @@
  * same feed limited to followed channels, served to signed-in readers by an island later. */
 import {html,safeHref} from './html.js';
 import {page,nameOf,channelUrl,box,badge,monogram,TILE} from './ui.js';
-import {boardTime,dateText,dday,eventTime} from './format.js';
+import {boardTime,dateText,dday,eventTime,collapseVersions} from './format.js';
 import {radarChanges,recentVersions,upcomingEvents} from '../db/channel.js';
 import {describeChange} from '../change-text.js';
 import {VERTICALS} from '../schema.js';
@@ -19,7 +19,7 @@ export async function loadRadar(db,o){
  // One line per entity and kind of change (several schedule edits to one work read as one).
  const seen=new Set();
  const changes=(await radarChanges(db,{limit:60,minImportance:2})).filter(c=>!vertical||c.vertical===vertical).filter(c=>{const k=`${c.entity_id}|${c.kind}|${c.property||''}`;return seen.has(k)?false:(seen.add(k),true);}).slice(0,25);
- const releases=await recentVersions(db,{since:now-30*DAY,until:now,vertical,limit:40});
+ const releases=collapseVersions(await recentVersions(db,{since:now-30*DAY,until:now,vertical,limit:60}),o.l).slice(0,40);
  const upcoming=await upcomingEvents(db,{from:now,to:now+30*DAY,vertical,limit:30});
  return {vertical,changes,releases,upcoming,l:o.l,now,channels:o.channels||[]};
 }

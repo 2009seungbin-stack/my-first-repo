@@ -55,7 +55,7 @@ export function trendingTerms(titles,channelName){
  const skip=new Set(channelName.toLowerCase().split(/\s+/));
  /** @type {Map<string,{w:number,n:number,label:string}>} */const score=new Map();
  for(const {title,weight} of titles){
-  const words=title.replace(/[\[\](){}"'“”‘’!?.,:;~…|/]+/g,' ').split(/\s+/).filter(Boolean).map(w=>{const x=w.replace(/(은|는|이|가|을|를|에|에서|로|으로|도|만|의|랑|과|와|요)$/,'');return [...x].length>=2?x:w;});
+  const words=title.replace(/(\d)[.,](?=\d)/g,'$1\u2024').replace(/[\[\](){}"'“”‘’!?.,:;~…|/]+/g,' ').replace(/\u2024/g,'.').split(/\s+/).filter(Boolean).map(w=>{const x=w.replace(/(은|는|이|가|을|를|에|에서|로|으로|도|만|의|랑|과|와|요)$/,'');return [...x].length>=2?x:w;});
   const seen=new Set();
   for(let i=0;i<words.length;i++){
    for(const n of [1,2]){

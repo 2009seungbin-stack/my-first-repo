@@ -191,7 +191,8 @@ export async function channelStats(db,id,dayStart){
 }
 /** Titles of the channel's recent posts (for "지금 많이 말하는 것"). @param {D1} db @param {string} id @param {number} since */
 export async function recentTitles(db,id,since){
- return (await all(db,`SELECT title,up_count,comment_count FROM discussions WHERE entity_id=? AND status='published' AND created_at>=? ORDER BY id DESC LIMIT 300`,[id,since])).map(r=>({title:String(r.title),weight:1+Number(r.comment_count)/5+Number(r.up_count)/5}));
+ // People's own titles only: generated ones (report posts, Radar bot news) would dominate the terms.
+ return (await all(db,`SELECT title,up_count,comment_count FROM discussions WHERE entity_id=? AND status='published' AND created_at>=? AND report_id IS NULL AND author_id NOT LIKE 'system:%' ORDER BY id DESC LIMIT 300`,[id,since])).map(r=>({title:String(r.title),weight:1+Number(r.comment_count)/5+Number(r.up_count)/5}));
 }
 const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id JOIN entities e ON e.id=d.entity_id`;
 /** Cross-channel lists for the community front. @param {D1} db

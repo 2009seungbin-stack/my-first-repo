@@ -5,7 +5,7 @@
 import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,frontUrl,kindChip,monogram,TILE,badge,signInUrl} from './ui.js';
-import {boardTime,compact} from './format.js';
+import {boardTime,compact,collapseVersions} from './format.js';
 import {frontPosts,activeChannels,radarChanges,recentVersions,upcomingEvents} from '../db/channel.js';
 import {dday,eventTime} from './format.js';
 import {VERTICALS} from '../schema.js';
@@ -26,7 +26,7 @@ export async function loadFront(db,o){
  const questions=await frontPosts(db,{mode:'kind',kind:'question',unanswered:true,limit:6});
  const popular=await activeChannels(db,o.now-7*DAY,10);
  // Facts that make the front useful before the boards fill up.
- const releases=await recentVersions(db,{since:o.now-7*DAY,until:o.now,vertical,limit:8});
+ const releases=collapseVersions(await recentVersions(db,{since:o.now-7*DAY,until:o.now,vertical,limit:16}),o.l).slice(0,8);
  const upcoming=await upcomingEvents(db,{from:o.now,to:o.now+7*DAY,vertical,limit:6});
  return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,releases,upcoming,channels:o.channels||[]};
 }

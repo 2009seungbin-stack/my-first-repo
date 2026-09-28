@@ -3,7 +3,7 @@
  * channel directory behind "전체 채널" and the crawl path to every channel page. */
 import {html} from './html.js';
 import {page,nameOf,channelUrl,box,monogram,TILE} from './ui.js';
-import {compact} from './format.js';
+import {compact,collapseVersions} from './format.js';
 import {hubEntities,typeCounts,factsFor,pickFact,relatedMany,relatedManyIn,stalePatches,preorderDeadlines,upcomingEvents,recentVersions} from '../db/channel.js';
 import {dday,eventTime,boardTime} from './format.js';
 import {money,tokens,isoDateText,int} from './format.js';
@@ -40,7 +40,7 @@ export async function loadHub(db,vertical,o){
  // "Right now" boxes on the vertical's front page (no type filter).
  const now=o.now??Date.now();
  /** @type {any} */const now_={};
- if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:10});}
+ if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=collapseVersions(await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:20}),o.l).slice(0,10);}
  if(type==='work'&&vertical==='subculture')now_.week=(await upcomingEvents(db,{from:now,to:now+7*864e5,vertical:'subculture',limit:60})).filter((/** @type {any} */ e)=>e.kind==='broadcast'||e.kind==='release');
  if(!type&&vertical==='subculture'){now_.events=await upcomingEvents(db,{from:now,to:now+14*864e5,vertical:'subculture',limit:10});now_.preorders=await preorderDeadlines(db,now,8);}
  return {vertical,v,type,page:pageNo,counts,groups,compare,now:now_,at:now,l:o.l,channels:o.channels||[]};
