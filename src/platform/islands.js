@@ -231,9 +231,16 @@ async function main(){
  const wf=$('form[data-island="write-form"]');
  if(wf){
   if(!signedIn){const n=$('.needlogin',wf);if(n)n.hidden=false;}
+  // Draft kept in this browser (title, body) so signing in or a closed tab does not lose it.
+  const dkey='n2-draft:'+location.pathname,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
+  const store={get(){try{return JSON.parse(localStorage.getItem(dkey)||'null');}catch{return null;}},set(v){try{v?localStorage.setItem(dkey,JSON.stringify(v)):localStorage.removeItem(dkey);}catch{}}};
+  const saved=store.get();
+  if(saved&&ti&&ta&&!ti.value&&!ta.value){ti.value=saved.title||'';ta.value=saved.body||'';toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
+  let dt=0;wf.addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||''}:null),400);});
   wf.addEventListener('submit',async e=>{
    e.preventDefault();
    const fd=new FormData(wf),btn=$('button[type="submit"]',wf);
+   if(String(fd.get('kind'))!=='report'&&!String(fd.get('body')||'').trim()){toast(T.empty);ta?.focus();return;}
    const kind=String(fd.get('kind')||'');
    btn.disabled=true;btn.textContent=T.posting;
    let r;
@@ -244,7 +251,7 @@ async function main(){
     r=await write('/posts?l='+L,{entityId:wf.dataset.entity,kind,title:String(fd.get('title')||''),body:String(fd.get('body')||'')},signedIn);
    }
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
-   if(r?.url)location.href=r.url;
+   if(r?.url){store.set(null);location.href=r.url;}
   });
   const kindSel=$('select[name="kind"]',wf),rep=$('.repf',wf);
   const title=$('input[name="title"]',wf);
