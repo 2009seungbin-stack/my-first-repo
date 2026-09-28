@@ -1,0 +1,4935 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-merch-gsc-1143946",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1143946",
+   "title": "Nendoroid Fern: Winter Clothes Ver. [Basic] | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1142519",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1142519",
+   "title": "Nendoroid Doll Makima | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1142517",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1142517",
+   "title": "Nendoroid Doll Aki Hayakawa | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1144811",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1144811",
+   "title": "Nendoroid Power: Casual Outfit Ver. [Basic] | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1142194",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1142194",
+   "title": "Nendoroid Doll Jinshi | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1143294",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1143294",
+   "title": "Nendoroid Surprise The Apothecary Diaries: Maomao & Jinshi Collection | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1137995",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1137995",
+   "title": "figma Noa Ushio | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1137828",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1137828",
+   "title": "G.S. Collection Nagisa: Radiance in Bloom | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1137827",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1137827",
+   "title": "G.S. Collection Noa: Classified Record | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1137829",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1137829",
+   "title": "G.S. Collection Kisaki: Memorial Lobby Ver. | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1141869",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1141869",
+   "title": "Nendoroid Doll Arona | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1141871",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1141871",
+   "title": "Nendoroid Doll Plana | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1146337",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1146337",
+   "title": "Neru (School): Memorial Lobby Ver. | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1145707",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1145707",
+   "title": "Kirara | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-12485",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/12485",
+   "title": "figma Umamusume: Pretty Derby Nice Nature (Rerelease) | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1145711",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1145711",
+   "title": "Mejiro Ardan | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1146115",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1146115",
+   "title": "[Glacialis Vega] Admire Vega | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1145954",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1145954",
+   "title": "Mejiro McQueen [Bring 'Em Home, Please!] Ver. 1/7 Scale Figure | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1145947",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1145947",
+   "title": "figma Anis: Sparkling Summer | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1138213",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1138213",
+   "title": "Hyper Body Dorothy | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1142649",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1142649",
+   "title": "Nendoroid Doll Yuta Okkotsu: Execution Ver. | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-34792",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/34792",
+   "title": "Nendoroid Sung Jinwoo (Rerelease) | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1146565",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1146565",
+   "title": "KADOKAWA PLASTIC MODEL SERIES 【OSHI NO KO】 - Ruby | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1144169",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1144169",
+   "title": "Nendoroid Aria | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1144113",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1144113",
+   "title": "Nendoroid Mon3tr | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-1144549",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/1144549",
+   "title": "PLAMATEA Shielder/Mash Kyrielight (Ortinax) | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-gsc-61723",
+   "kind": "OFFICIAL",
+   "url": "https://www.goodsmile.com/en/product/61723",
+   "title": "POP UP PARADE SP Assassin/\"First Hassan\" | Good Smile Company",
+   "publisher": "Good Smile Company (official online store)",
+   "retrieved": "2026-09-28",
+   "note": "Product page read in EN and JA; price, pre-order period and shipping month taken from the page (schema.org Product/Offer data and visible text)."
+  },
+  {
+   "id": "src:sc-merch-alter-643",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/643/",
+   "title": "ブラックスワン | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-656",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/656/",
+   "title": "イチカ（水着） | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-657",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/657/",
+   "title": "ウマ娘 プリティーダービー [Yummy Dreamy Fairy]ライスシャワー | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-642",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/642/",
+   "title": "ウマ娘 プリティーダービー アストンマーチャン | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-639",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/639/",
+   "title": "ウマ娘 プリティーダービー スマートファルコン | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-633",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/633/",
+   "title": "セイバー／沖田 総司〔オルタ〕 最終再臨Ver. | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-632",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/632/",
+   "title": "フォーリナー／アビゲイル・ウィリアムズ〔夏〕 | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-alter-654",
+   "kind": "OFFICIAL",
+   "url": "https://www.alter-web.jp/products/654/",
+   "title": "バーサーカー／モルガン 最終再臨Ver. | ALTER",
+   "publisher": "ALTER (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives release month and tax-included price. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-6003",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/6003/",
+   "title": "葬送のフリーレン フリーレン【再販】｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-6004",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/6004/",
+   "title": "劇場版『チェンソーマン レゼ篇』 レゼ【再販】｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-6005",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/6005/",
+   "title": "TVアニメ『チェンソーマン』 デンジ【再販】｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-6078",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/6078/",
+   "title": "WALLSTAR ONE PIECE ロロノア・ゾロ｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-6079",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/6079/",
+   "title": "WALLSTAR ONE PIECE モンキー・D・ルフィ ギア5｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  },
+  {
+   "id": "src:sc-merch-megahouse-3754",
+   "kind": "OFFICIAL",
+   "url": "https://www.megahobby.jp/products/item/3754/",
+   "title": "ONE PIECE ポートガス・D・エース【再販】｜商品情報｜メガホビ",
+   "publisher": "MegaHouse (MEGA HOBBY STATION, official product site)",
+   "retrieved": "2026-09-28",
+   "note": "Official product page; gives tax-included price and release timing. No pre-order window is stated on the page."
+  }
+ ],
+ "entities": [
+  {
+   "id": "merchandise:gsc-nendoroid-fern-winter-clothes-basic",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-fern-winter-clothes-basic",
+   "names": {
+    "en": "Nendoroid Fern: Winter Clothes Ver. [Basic]",
+    "ja": "ねんどろいど フェルン 冬服Ver. べーしっく"
+   },
+   "description": {
+    "en": "Nendoroid [Basic] of Fern in her winter clothes from the TV anime Frieren: Beyond Journey's End, made by Good Smile Company; scheduled to ship 2027-01.",
+    "ko": "TV 애니메이션 『장송의 프리렌』의 겨울옷 차림 페른의 넨도로이드 [베이직]이다. 제조사는 굿스마일컴퍼니이며 2027년 1월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1143946"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1143946"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946"
+    },
+    {
+     "p": "price",
+     "v": 3900,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-11",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1143946",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143946"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:frieren",
+     "src": "src:sc-merch-gsc-1143946"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:frieren-fern",
+     "src": "src:sc-merch-gsc-1143946"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-makima",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-makima",
+   "names": {
+    "en": "Nendoroid Doll Makima",
+    "ja": "ねんどろいどどーる マキマ"
+   },
+   "description": {
+    "en": "Nendoroid Doll of Makima, listed under Chainsaw Man - The Movie: Reze Arc, made by Good Smile Company; scheduled to ship 2027-02.",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 마키마의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 2월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1142519"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1142519"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519"
+    },
+    {
+     "p": "price",
+     "v": 9800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-01",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1142519",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142519"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1142519"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:chainsaw-man-makima",
+     "src": "src:sc-merch-gsc-1142519"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-aki-hayakawa",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-aki-hayakawa",
+   "names": {
+    "en": "Nendoroid Doll Aki Hayakawa",
+    "ja": "ねんどろいどどーる 早川アキ"
+   },
+   "description": {
+    "en": "Nendoroid Doll of Aki Hayakawa, listed under Chainsaw Man - The Movie: Reze Arc, made by Good Smile Company; scheduled to ship 2027-02.",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 하야카와 아키의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 2월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1142517"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1142517"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517"
+    },
+    {
+     "p": "price",
+     "v": 10000,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-18",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1142517",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142517"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1142517"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:chainsaw-man-aki",
+     "src": "src:sc-merch-gsc-1142517"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-power-casual-outfit-basic",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-power-casual-outfit-basic",
+   "names": {
+    "en": "Nendoroid Power: Casual Outfit Ver. [Basic]",
+    "ja": "ねんどろいど パワー 私服Ver. べーしっく"
+   },
+   "description": {
+    "en": "Nendoroid [Basic] of Power in casual clothes from the Chainsaw Man TV anime, made by Good Smile Company; scheduled to ship 2027-01.",
+    "ko": "TV 애니메이션 『체인소 맨』의 사복 차림 파워의 넨도로이드 [베이직]이다. 제조사는 굿스마일컴퍼니이며 2027년 1월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1144811"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1144811"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811"
+    },
+    {
+     "p": "price",
+     "v": 3900,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-04",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-14",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1144811",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144811"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1144811"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:chainsaw-man-power",
+     "src": "src:sc-merch-gsc-1144811"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-jinshi",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-jinshi",
+   "names": {
+    "en": "Nendoroid Doll Jinshi",
+    "ja": "ねんどろいどどーる 壬氏"
+   },
+   "description": {
+    "en": "Nendoroid Doll of Jinshi from The Apothecary Diaries, made by Good Smile Company; scheduled to ship 2027-03.",
+    "ko": "『약사의 혼잣말』의 진시의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 3월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1142194"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1142194"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194"
+    },
+    {
+     "p": "price",
+     "v": 9200,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-25",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1142194",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142194"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-merch-gsc-1142194"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:the-apothecary-diaries-jinshi",
+     "src": "src:sc-merch-gsc-1142194"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-surprise-maomao-jinshi-collection",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-surprise-maomao-jinshi-collection",
+   "names": {
+    "en": "Nendoroid Surprise The Apothecary Diaries: Maomao & Jinshi Collection",
+    "ja": "ねんどろいどさぷらいず 薬屋のひとりごと 猫猫&壬氏コレクション"
+   },
+   "description": {
+    "en": "Nendoroid Surprise blind-box collection of Maomao and Jinshi from The Apothecary Diaries, made by Good Smile Company; scheduled to ship 2027-03. Price is per single blind box; a 6-piece box is listed separately.",
+    "ko": "『약사의 혼잣말』의 마오마오와 진시의 넨도로이드 서프라이즈 블라인드 박스이다. 제조사는 굿스마일컴퍼니이며 2027년 3월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1143294"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1143294"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294"
+    },
+    {
+     "p": "price",
+     "v": 1800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-04",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-14",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1143294",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1143294"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:the-apothecary-diaries",
+     "src": "src:sc-merch-gsc-1143294"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:the-apothecary-diaries-maomao",
+     "src": "src:sc-merch-gsc-1143294"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:the-apothecary-diaries-jinshi",
+     "src": "src:sc-merch-gsc-1143294"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-figma-noa-ushio",
+   "type": "merchandise",
+   "slug": "gsc-figma-noa-ushio",
+   "names": {
+    "en": "figma Noa Ushio",
+    "ja": "figma 生塩ノア"
+   },
+   "description": {
+    "en": "figma action figure of Noa Ushio from Blue Archive, made by Good Smile Company; scheduled to ship 2027-08.",
+    "ko": "『블루 아카이브』의 우시오 노아의 figma 액션 피규어이다. 제조사는 굿스마일컴퍼니이며 2027년 8월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1137995"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1137995"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995"
+    },
+    {
+     "p": "price",
+     "v": 11800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-08",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1137995",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137995"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137995"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-noa",
+     "src": "src:sc-merch-gsc-1137995"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-gs-collection-nagisa-radiance-in-bloom",
+   "type": "merchandise",
+   "slug": "gsc-gs-collection-nagisa-radiance-in-bloom",
+   "names": {
+    "en": "G.S. Collection Nagisa: Radiance in Bloom",
+    "ja": "G.S.Collection ナギサ ～花薫る微笑み～"
+   },
+   "description": {
+    "en": "G.S. Collection scale figure of Nagisa from Blue Archive, made by Good Smile Company; scheduled to ship 2027-09.",
+    "ko": "『블루 아카이브』의 나기사의 G.S. Collection 스케일 피규어이다. 제조사는 굿스마일컴퍼니이며 2027년 9월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1137828"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1137828"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828"
+    },
+    {
+     "p": "price",
+     "v": 26000,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-09",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1137828",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137828"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137828"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-nagisa",
+     "src": "src:sc-merch-gsc-1137828"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-gs-collection-noa-classified-record",
+   "type": "merchandise",
+   "slug": "gsc-gs-collection-noa-classified-record",
+   "names": {
+    "en": "G.S. Collection Noa: Classified Record",
+    "ja": "G.S.Collection ノア ～内緒の記録～"
+   },
+   "description": {
+    "en": "G.S. Collection scale figure of Noa from Blue Archive, made by Good Smile Company; scheduled to ship 2027-09.",
+    "ko": "『블루 아카이브』의 노아의 G.S. Collection 스케일 피규어이다. 제조사는 굿스마일컴퍼니이며 2027년 9월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1137827"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1137827"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827"
+    },
+    {
+     "p": "price",
+     "v": 22000,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-07-24",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-09",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1137827",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137827"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137827"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-noa",
+     "src": "src:sc-merch-gsc-1137827"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-gs-collection-kisaki-memorial-lobby",
+   "type": "merchandise",
+   "slug": "gsc-gs-collection-kisaki-memorial-lobby",
+   "names": {
+    "en": "G.S. Collection Kisaki: Memorial Lobby Ver.",
+    "ja": "G.S.Collection キサキ メモリアルロビーVer."
+   },
+   "description": {
+    "en": "G.S. Collection scale figure of Kisaki from Blue Archive, based on her Memorial Lobby, made by Good Smile Company; scheduled to ship 2027-08.",
+    "ko": "『블루 아카이브』의 키사키(메모리얼 로비 버전)의 G.S. Collection 스케일 피규어이다. 제조사는 굿스마일컴퍼니이며 2027년 8월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1137829"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1137829"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829"
+    },
+    {
+     "p": "price",
+     "v": 19800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-07-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-08",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1137829",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1137829"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1137829"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-kisaki",
+     "src": "src:sc-merch-gsc-1137829"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-arona",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-arona",
+   "names": {
+    "en": "Nendoroid Doll Arona",
+    "ja": "ねんどろいどどーる アロナ"
+   },
+   "description": {
+    "en": "Nendoroid Doll of Arona from Blue Archive, made by Good Smile Company; scheduled to ship 2027-04.",
+    "ko": "『블루 아카이브』의 아로나의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1141869"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1141869"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869"
+    },
+    {
+     "p": "price",
+     "v": 9800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-17",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-28",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1141869",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141869"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1141869"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-arona",
+     "src": "src:sc-merch-gsc-1141869"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-plana",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-plana",
+   "names": {
+    "en": "Nendoroid Doll Plana",
+    "ja": "ねんどろいどどーる プラナ"
+   },
+   "description": {
+    "en": "Nendoroid Doll of Plana from Blue Archive, made by Good Smile Company; scheduled to ship 2027-04.",
+    "ko": "『블루 아카이브』의 프라나의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1141871"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1141871"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871"
+    },
+    {
+     "p": "price",
+     "v": 9800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-17",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-28",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1141871",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1141871"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1141871"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-plana",
+     "src": "src:sc-merch-gsc-1141871"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:wing-neru-school-memorial-lobby",
+   "type": "merchandise",
+   "slug": "wing-neru-school-memorial-lobby",
+   "names": {
+    "en": "Neru (School): Memorial Lobby Ver.",
+    "ja": "ネル（制服） メモリアルロビーVer."
+   },
+   "description": {
+    "en": "scale figure by WING of Neru (School) from Blue Archive, based on her Memorial Lobby, made by WING; scheduled to ship 2027-03. Manufactured by WING, distributed by Good Smile Company. A limited bonus edition is listed separately.",
+    "ko": "『블루 아카이브』의 네루(교복, 메모리얼 로비 버전)의 WING 제작 피규어이다. 제조사는 WING이며 2027년 3월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1146337"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1146337"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "WING",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337"
+    },
+    {
+     "p": "price",
+     "v": 25300,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-25",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1146337",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146337"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1146337"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-neru",
+     "src": "src:sc-merch-gsc-1146337"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:max-factory-kirara",
+   "type": "merchandise",
+   "slug": "max-factory-kirara",
+   "names": {
+    "en": "Kirara",
+    "ja": "キララ"
+   },
+   "description": {
+    "en": "figure by Max Factory of Kirara from Blue Archive, made by Max Factory; scheduled to ship 2027-09. Manufactured by Max Factory, distributed by Good Smile Company.",
+    "ko": "『블루 아카이브』의 키라라의 맥스팩토리 제작 피규어이다. 제조사는 맥스팩토리이며 2027년 9월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1145707"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1145707"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Max Factory",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707"
+    },
+    {
+     "p": "price",
+     "v": 28800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-10",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-09",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1145707",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145707"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-gsc-1145707"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-kirara",
+     "src": "src:sc-merch-gsc-1145707"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:max-factory-figma-nice-nature-rerelease",
+   "type": "merchandise",
+   "slug": "max-factory-figma-nice-nature-rerelease",
+   "names": {
+    "en": "figma Umamusume: Pretty Derby Nice Nature (Rerelease)",
+    "ja": "figma ウマ娘 プリティーダービー ナイスネイチャ（再販）"
+   },
+   "description": {
+    "en": "figma action figure (rerelease) of Nice Nature from Umamusume: Pretty Derby, made by Max Factory; scheduled to ship 2027-04. Rerelease. Manufactured by Max Factory, distributed by Good Smile Company.",
+    "ko": "『우마무스메 프리티 더비』의 나이스 네이처의 figma 액션 피규어(재판)이다. 제조사는 맥스팩토리이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/12485"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/12485"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Max Factory",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485"
+    },
+    {
+     "p": "price",
+     "v": 11800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-20",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/12485",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-12485"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-12485"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-nice-nature",
+     "src": "src:sc-merch-gsc-12485"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:phat-mejiro-ardan",
+   "type": "merchandise",
+   "slug": "phat-mejiro-ardan",
+   "names": {
+    "en": "Mejiro Ardan",
+    "ja": "メジロアルダン"
+   },
+   "description": {
+    "en": "figure by Phat! Company of Mejiro Ardan, listed under Umamusume: Cinderella Gray, made by Phat! Company; scheduled to ship 2027-08. Manufactured by Phat! Company, distributed by Good Smile Company.",
+    "ko": "『우마무스메 신데렐라 그레이』 라인의 메지로 아르당의 Phat! Company 제작 피규어이다. 제조사는 Phat! Company이며 2027년 8월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1145711"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1145711"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Phat! Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711"
+    },
+    {
+     "p": "price",
+     "v": 27800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-07-29",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-08",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1145711",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145711"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1145711"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-mejiro-ardan",
+     "src": "src:sc-merch-gsc-1145711"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:phat-admire-vega-glacialis-vega",
+   "type": "merchandise",
+   "slug": "phat-admire-vega-glacialis-vega",
+   "names": {
+    "en": "[Glacialis Vega] Admire Vega",
+    "ja": "［Glacialis Vega］アドマイヤベガ"
+   },
+   "description": {
+    "en": "figure by Phat! Company of Admire Vega ([Glacialis Vega] outfit) from Umamusume: Pretty Derby, made by Phat! Company; scheduled to ship 2027-08. Manufactured by Phat! Company, distributed by Good Smile Company.",
+    "ko": "『우마무스메 프리티 더비』의 어드마이어 베가([Glacialis Vega] 의상)의 Phat! Company 제작 피규어이다. 제조사는 Phat! Company이며 2027년 8월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1146115"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1146115"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Phat! Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115"
+    },
+    {
+     "p": "price",
+     "v": 28800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-08",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1146115",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146115"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1146115"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-admire-vega",
+     "src": "src:sc-merch-gsc-1146115"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:claynel-mejiro-mcqueen-bring-em-home",
+   "type": "merchandise",
+   "slug": "claynel-mejiro-mcqueen-bring-em-home",
+   "names": {
+    "en": "Mejiro McQueen [Bring 'Em Home, Please!] Ver. 1/7 Scale Figure",
+    "ja": "メジロマックイーン [かっとばせー！ですわ！？]Ver. 1/7スケールフィギュア"
+   },
+   "description": {
+    "en": "1/7 scale figure by Claynel of Mejiro McQueen from Umamusume: Pretty Derby, made by Claynel; scheduled to ship 2027-03. Manufactured by Claynel, distributed by Good Smile Company.",
+    "ko": "『우마무스메 프리티 더비』의 메지로 맥퀸의 Claynel 제작 1/7 스케일 피규어이다. 제조사는 Claynel이며 2027년 3월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1145954"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1145954"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Claynel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954"
+    },
+    {
+     "p": "price",
+     "v": 27500,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-07-27",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1145954",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145954"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-gsc-1145954"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-mejiro-mcqueen",
+     "src": "src:sc-merch-gsc-1145954"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:max-factory-figma-anis-sparkling-summer",
+   "type": "merchandise",
+   "slug": "max-factory-figma-anis-sparkling-summer",
+   "names": {
+    "en": "figma Anis: Sparkling Summer",
+    "ja": "figma アニス：スパークリングサマー"
+   },
+   "description": {
+    "en": "figma action figure of Anis (Sparkling Summer) from GODDESS OF VICTORY: NIKKE, made by Max Factory; scheduled to ship 2027-06. Manufactured by Max Factory, distributed by Good Smile Company.",
+    "ko": "『승리의 여신: 니케』의 아니스(스파클링 서머)의 figma 액션 피규어이다. 제조사는 맥스팩토리이며 2027년 6월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1145947"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1145947"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Max Factory",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947"
+    },
+    {
+     "p": "price",
+     "v": 14800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-06",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1145947",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1145947"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-merch-gsc-1145947"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:goddess-of-victory-nikke-anis",
+     "src": "src:sc-merch-gsc-1145947"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsas-hyper-body-dorothy",
+   "type": "merchandise",
+   "slug": "gsas-hyper-body-dorothy",
+   "names": {
+    "en": "Hyper Body Dorothy",
+    "ja": "Hyper Body ドロシー"
+   },
+   "description": {
+    "en": "Hyper Body figure of Dorothy from GODDESS OF VICTORY: NIKKE, made by Good Smile Arts Shanghai; scheduled to ship 2027-10. Manufactured by Good Smile Arts Shanghai, distributed by Good Smile Company.",
+    "ko": "『승리의 여신: 니케』의 도로시의 Hyper Body 피규어이다. 제조사는 Good Smile Arts Shanghai이며 2027년 10월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1138213"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1138213"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Arts Shanghai",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213"
+    },
+    {
+     "p": "price",
+     "v": 18500,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-31",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-14",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-10",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1138213",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1138213"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:goddess-of-victory-nikke",
+     "src": "src:sc-merch-gsc-1138213"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:goddess-of-victory-nikke-dorothy",
+     "src": "src:sc-merch-gsc-1138213"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-nendoroid-doll-yuta-okkotsu-execution",
+   "type": "merchandise",
+   "slug": "gsc-nendoroid-doll-yuta-okkotsu-execution",
+   "names": {
+    "en": "Nendoroid Doll Yuta Okkotsu: Execution Ver.",
+    "ja": "ねんどろいどどーる 乙骨憂太 死滅回游Ver."
+   },
+   "description": {
+    "en": "Nendoroid Doll of Yuta Okkotsu in his Culling Game (死滅回游) look from the Jujutsu Kaisen TV anime, made by Good Smile Company; scheduled to ship 2027-04.",
+    "ko": "TV 애니메이션 『주술회전』의 사멸회유 버전 옷코츠 유타의 넨도로이드 돌이다. 제조사는 굿스마일컴퍼니이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1142649"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1142649"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649"
+    },
+    {
+     "p": "price",
+     "v": 9500,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-27",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1142649",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1142649"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-merch-gsc-1142649"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:jujutsu-kaisen-yuta",
+     "src": "src:sc-merch-gsc-1142649"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsas-nendoroid-sung-jinwoo-rerelease",
+   "type": "merchandise",
+   "slug": "gsas-nendoroid-sung-jinwoo-rerelease",
+   "names": {
+    "en": "Nendoroid Sung Jinwoo (Rerelease)",
+    "ja": "ねんどろいど 水篠旬（再販）"
+   },
+   "description": {
+    "en": "Nendoroid (rerelease) of Sung Jinwoo from the Solo Leveling TV anime, made by Good Smile Arts Shanghai; scheduled to ship 2027-03. Rerelease. Manufactured by Good Smile Arts Shanghai, distributed by Good Smile Company.",
+    "ko": "TV 애니메이션 『나 혼자만 레벨업』의 성진우의 넨도로이드(재판)이다. 제조사는 Good Smile Arts Shanghai이며 2027년 3월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/34792"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/34792"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Arts Shanghai",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792"
+    },
+    {
+     "p": "price",
+     "v": 7200,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-15",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-28",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/34792",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-34792"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:solo-leveling",
+     "src": "src:sc-merch-gsc-34792"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:solo-leveling-sung-jinwoo",
+     "src": "src:sc-merch-gsc-34792"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:kadokawa-plastic-model-oshi-no-ko-ruby",
+   "type": "merchandise",
+   "slug": "kadokawa-plastic-model-oshi-no-ko-ruby",
+   "names": {
+    "en": "KADOKAWA PLASTIC MODEL SERIES 【OSHI NO KO】 - Ruby",
+    "ja": "KADOKAWA PLASTIC MODEL SERIES 【推しの子】 ルビー"
+   },
+   "description": {
+    "en": "plastic model kit of Ruby from [Oshi no Ko], made by KADOKAWA; scheduled to ship 2027-02. KADOKAWA PLASTIC MODEL SERIES; manufactured by KADOKAWA, distributed by Good Smile Company.",
+    "ko": "『최애의 아이』의 루비의 프라모델 키트이다. 제조사는 KADOKAWA이며 2027년 2월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1146565"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1146565"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "KADOKAWA",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565"
+    },
+    {
+     "p": "price",
+     "v": 9350,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-15",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-28",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1146565",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1146565"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:oshi-no-ko",
+     "src": "src:sc-merch-gsc-1146565"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:oshi-no-ko-ruby",
+     "src": "src:sc-merch-gsc-1146565"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsas-nendoroid-aria",
+   "type": "merchandise",
+   "slug": "gsas-nendoroid-aria",
+   "names": {
+    "en": "Nendoroid Aria",
+    "ja": "ねんどろいど アリア"
+   },
+   "description": {
+    "en": "Nendoroid of Aria from Zenless Zone Zero, made by Good Smile Arts Shanghai; scheduled to ship 2027-04. Manufactured by Good Smile Arts Shanghai, distributed by Good Smile Company.",
+    "ko": "『젠레스 존 제로』의 아리아의 넨도로이드이다. 제조사는 Good Smile Arts Shanghai이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1144169"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1144169"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Arts Shanghai",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169"
+    },
+    {
+     "p": "price",
+     "v": 7700,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-04",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-14",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1144169",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144169"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:zenless-zone-zero",
+     "src": "src:sc-merch-gsc-1144169"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:zenless-zone-zero-aria",
+     "src": "src:sc-merch-gsc-1144169"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsas-nendoroid-mon3tr",
+   "type": "merchandise",
+   "slug": "gsas-nendoroid-mon3tr",
+   "names": {
+    "en": "Nendoroid Mon3tr",
+    "ja": "ねんどろいど Mon3tr"
+   },
+   "description": {
+    "en": "Nendoroid of Mon3tr from Arknights, made by Good Smile Arts Shanghai; scheduled to ship 2027-07. Manufactured by Good Smile Arts Shanghai, distributed by Good Smile Company.",
+    "ko": "『명일방주』의 Mon3tr의 넨도로이드이다. 제조사는 Good Smile Arts Shanghai이며 2027년 7월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1144113"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1144113"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Arts Shanghai",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113"
+    },
+    {
+     "p": "price",
+     "v": 8400,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-09-11",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-21",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-07",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1144113",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144113"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:arknights",
+     "src": "src:sc-merch-gsc-1144113"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:arknights-mon3tr",
+     "src": "src:sc-merch-gsc-1144113"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:max-factory-plamatea-mash-kyrielight-ortinax",
+   "type": "merchandise",
+   "slug": "max-factory-plamatea-mash-kyrielight-ortinax",
+   "names": {
+    "en": "PLAMATEA Shielder/Mash Kyrielight (Ortinax)",
+    "ja": "PLAMATEA シールダー/マシュ・キリエライト〔オルテナウス〕"
+   },
+   "description": {
+    "en": "PLAMATEA plastic model kit of Shielder/Mash Kyrielight (Ortinax) from Fate/Grand Order, made by Max Factory; scheduled to ship 2027-04. Manufactured by Max Factory, distributed by Good Smile Company. A Black Barrel Edition is listed separately.",
+    "ko": "『Fate/Grand Order』의 실더/마슈 키리에라이트(오르테나우스)의 PLAMATEA 프라모델 키트이다. 제조사는 맥스팩토리이며 2027년 4월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/1144549"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/1144549"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Max Factory",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549"
+    },
+    {
+     "p": "price",
+     "v": 8800,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-08-01",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-10-07",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/1144549",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-1144549"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-gsc-1144549"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:fate-mash",
+     "src": "src:sc-merch-gsc-1144549"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:gsc-pop-up-parade-sp-first-hassan",
+   "type": "merchandise",
+   "slug": "gsc-pop-up-parade-sp-first-hassan",
+   "names": {
+    "en": "POP UP PARADE SP Assassin/\"First Hassan\"",
+    "ja": "POP UP PARADE SP アサシン/\"山の翁\""
+   },
+   "description": {
+    "en": "POP UP PARADE SP figure of Assassin/\"First Hassan\" from Fate/Grand Order, made by Good Smile Company; scheduled to ship 2027-02.",
+    "ko": "『Fate/Grand Order』의 어새신/\"산의 노인\"의 POP UP PARADE SP 피규어이다. 제조사는 굿스마일컴퍼니이며 2027년 2월 발송 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (EN)",
+     "url": "https://www.goodsmile.com/en/product/61723"
+    },
+    {
+     "label": "Product page (JA)",
+     "url": "https://www.goodsmile.com/ja/product/61723"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "Good Smile Company",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723"
+    },
+    {
+     "p": "price",
+     "v": 24000,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723",
+     "note": "Good Smile Company Online Store (Japan) price shown on the product page; the page does not state tax treatment."
+    },
+    {
+     "p": "preorder_start",
+     "v": "2026-07-31",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723",
+     "note": "GSC Online Store pre-order period (JST)."
+    },
+    {
+     "p": "preorder_end",
+     "v": "2026-09-30",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723",
+     "note": "GSC Online Store pre-order period (JST); pre-orders may close early per the page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723",
+     "note": "Scheduled shipping month per the GSC Online Store (発送予定)."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.goodsmile.com/en/product/61723",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-gsc-61723"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-gsc-61723"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:fate-first-hassan",
+     "src": "src:sc-merch-gsc-61723"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-black-swan",
+   "type": "merchandise",
+   "slug": "alter-black-swan",
+   "names": {
+    "en": "Honkai: Star Rail Black Swan 1/7 Scale Figure",
+    "ja": "ブラックスワン"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Black Swan from Honkai: Star Rail by ALTER; release scheduled for 2027-07.",
+    "ko": "『붕괴: 스타레일』의 블랙 스완의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 7월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/643/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-643"
+    },
+    {
+     "p": "price",
+     "v": 40480,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-643",
+     "note": "Tax-included list price (税抜 36,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-07",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-643",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/643/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-643"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:honkai-star-rail",
+     "src": "src:sc-merch-alter-643"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:honkai-star-rail-black-swan",
+     "src": "src:sc-merch-alter-643"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-ichika-swimsuit",
+   "type": "merchandise",
+   "slug": "alter-ichika-swimsuit",
+   "names": {
+    "en": "Blue Archive Ichika (Swimsuit) 1/7 Scale Figure",
+    "ja": "イチカ（水着）"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Ichika (Swimsuit) from Blue Archive by ALTER; release scheduled for 2027-08.",
+    "ko": "『블루 아카이브』의 이치카(수영복)의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 8월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/656/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-656"
+    },
+    {
+     "p": "price",
+     "v": 23980,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-656",
+     "note": "Tax-included list price (税抜 21,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-08",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-656",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/656/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-656"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:blue-archive",
+     "src": "src:sc-merch-alter-656"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:blue-archive-ichika",
+     "src": "src:sc-merch-alter-656"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-rice-shower-yummy-dreamy-fairy",
+   "type": "merchandise",
+   "slug": "alter-rice-shower-yummy-dreamy-fairy",
+   "names": {
+    "en": "Umamusume: Pretty Derby [Yummy Dreamy Fairy] Rice Shower 1/7 Scale Figure",
+    "ja": "ウマ娘 プリティーダービー [Yummy Dreamy Fairy]ライスシャワー"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Rice Shower ([Yummy Dreamy Fairy] outfit) from Umamusume: Pretty Derby by ALTER; release scheduled for 2027-09.",
+    "ko": "『우마무스메 프리티 더비』의 라이스 샤워([Yummy Dreamy Fairy] 의상)의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 9월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/657/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-657"
+    },
+    {
+     "p": "price",
+     "v": 28380,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-657",
+     "note": "Tax-included list price (税抜 25,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-09",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-657",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/657/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-657"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-657"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-rice-shower",
+     "src": "src:sc-merch-alter-657"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-aston-machan",
+   "type": "merchandise",
+   "slug": "alter-aston-machan",
+   "names": {
+    "en": "Umamusume: Pretty Derby Aston Machan 1/7 Scale Figure",
+    "ja": "ウマ娘 プリティーダービー アストンマーチャン"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Aston Machan from Umamusume: Pretty Derby by ALTER; release scheduled for 2027-05.",
+    "ko": "『우마무스메 프리티 더비』의 아스턴 마짱의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 5월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/642/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-642"
+    },
+    {
+     "p": "price",
+     "v": 27280,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-642",
+     "note": "Tax-included list price (税抜 24,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-05",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-642",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/642/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-642"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-642"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-aston-machan",
+     "src": "src:sc-merch-alter-642"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-smart-falcon",
+   "type": "merchandise",
+   "slug": "alter-smart-falcon",
+   "names": {
+    "en": "Umamusume: Pretty Derby Smart Falcon 1/7 Scale Figure",
+    "ja": "ウマ娘 プリティーダービー スマートファルコン"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Smart Falcon from Umamusume: Pretty Derby by ALTER; release scheduled for 2027-03.",
+    "ko": "『우마무스메 프리티 더비』의 스마트 팔콘의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 3월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/639/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-639"
+    },
+    {
+     "p": "price",
+     "v": 26180,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-639",
+     "note": "Tax-included list price (税抜 23,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-03",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-639",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/639/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-639"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:uma-musume-pretty-derby",
+     "src": "src:sc-merch-alter-639"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:uma-musume-pretty-derby-smart-falcon",
+     "src": "src:sc-merch-alter-639"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-okita-souji-alter-final-ascension",
+   "type": "merchandise",
+   "slug": "alter-okita-souji-alter-final-ascension",
+   "names": {
+    "en": "Fate/Grand Order Saber/Okita Souji (Alter) Final Ascension Ver. 1/7 Scale Figure",
+    "ja": "セイバー／沖田 総司〔オルタ〕 最終再臨Ver."
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Saber/Okita Souji (Alter), final ascension, from Fate/Grand Order by ALTER; release scheduled for 2027-02.",
+    "ko": "『Fate/Grand Order』의 세이버/오키타 소지(얼터) 최종재림의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 2월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/633/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-633"
+    },
+    {
+     "p": "price",
+     "v": 32780,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-633",
+     "note": "Tax-included list price (税抜 29,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-633",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/633/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-633"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-633"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:fate-okita-souji-alter",
+     "src": "src:sc-merch-alter-633"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-abigail-williams-summer",
+   "type": "merchandise",
+   "slug": "alter-abigail-williams-summer",
+   "names": {
+    "en": "Fate/Grand Order Foreigner/Abigail Williams (Summer) 1/7 Scale Figure",
+    "ja": "フォーリナー／アビゲイル・ウィリアムズ〔夏〕"
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Foreigner/Abigail Williams (Summer) from Fate/Grand Order by ALTER; release scheduled for 2027-01.",
+    "ko": "『Fate/Grand Order』의 포리너/아비게일 윌리엄즈(여름)의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 1월 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/632/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-632"
+    },
+    {
+     "p": "price",
+     "v": 34980,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-632",
+     "note": "Tax-included list price (税抜 31,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-01",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-632",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/632/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-632"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-632"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:fate-abigail-williams",
+     "src": "src:sc-merch-alter-632"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:alter-morgan-final-ascension",
+   "type": "merchandise",
+   "slug": "alter-morgan-final-ascension",
+   "names": {
+    "en": "Fate/Grand Order Berserker/Morgan Final Ascension Ver. 1/7 Scale Figure",
+    "ja": "バーサーカー／モルガン 最終再臨Ver."
+   },
+   "description": {
+    "en": "1/7 scale PVC/ABS figure of Berserker/Morgan, final ascension, from Fate/Grand Order by ALTER; release scheduled for 2027-10. Sold only through AmiAmi per the Alter product page.",
+    "ko": "『Fate/Grand Order』의 버서커/모르간 최종재림의 1/7 스케일 PVC/ABS 피규어로, 알터가 제조하며 2027년 10월 발매 예정이다. 알터 제품 페이지 기준 아미아미 한정 판매."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (ALTER)",
+     "url": "https://www.alter-web.jp/products/654/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "ALTER",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-654"
+    },
+    {
+     "p": "price",
+     "v": 48180,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-654",
+     "note": "Tax-included list price (税抜 43,800 JPY) per the Alter product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-10",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-654",
+     "note": "Release month (発売月) per the Alter product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.alter-web.jp/products/654/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-alter-654"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:fate",
+     "src": "src:sc-merch-alter-654"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:fate-morgan",
+     "src": "src:sc-merch-alter-654"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-lookup-frieren-rerelease",
+   "type": "merchandise",
+   "slug": "megahouse-lookup-frieren-rerelease",
+   "names": {
+    "en": "Lookup Frieren (Rerelease) — Frieren: Beyond Journey's End",
+    "ja": "葬送のフリーレン フリーレン【再販】"
+   },
+   "description": {
+    "en": "\"Lookup\" seated deformed figure of Frieren (rerelease) by MegaHouse; release scheduled for late 2027-04.",
+    "ko": "『장송의 프리렌』 프리렌의 룩업(Lookup) 좌상 데포르메 피규어 재판이다. 메가하우스가 제조하며 2027년 4월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/6003/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6003"
+    },
+    {
+     "p": "price",
+     "v": 4620,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6003",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6003",
+     "note": "Release scheduled for late 2027-04 (2027年4月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/6003/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6003"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:frieren",
+     "src": "src:sc-merch-megahouse-6003"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:frieren-frieren",
+     "src": "src:sc-merch-megahouse-6003"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-lookup-reze-rerelease",
+   "type": "merchandise",
+   "slug": "megahouse-lookup-reze-rerelease",
+   "names": {
+    "en": "Lookup Reze (Rerelease) — Chainsaw Man - The Movie: Reze Arc",
+    "ja": "劇場版『チェンソーマン レゼ篇』 レゼ【再販】"
+   },
+   "description": {
+    "en": "\"Lookup\" seated deformed figure of Reze from Chainsaw Man - The Movie: Reze Arc (rerelease) by MegaHouse; release scheduled for late 2027-04.",
+    "ko": "극장판 『체인소 맨 레제편』 레제의 룩업(Lookup) 좌상 데포르메 피규어 재판이다. 메가하우스가 제조하며 2027년 4월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/6004/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6004"
+    },
+    {
+     "p": "price",
+     "v": 4620,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6004",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6004",
+     "note": "Release scheduled for late 2027-04 (2027年4月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/6004/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6004"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-megahouse-6004"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:chainsaw-man-reze",
+     "src": "src:sc-merch-megahouse-6004"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-lookup-denji-rerelease",
+   "type": "merchandise",
+   "slug": "megahouse-lookup-denji-rerelease",
+   "names": {
+    "en": "Lookup Denji (Rerelease) — Chainsaw Man",
+    "ja": "TVアニメ『チェンソーマン』 デンジ【再販】"
+   },
+   "description": {
+    "en": "\"Lookup\" seated deformed figure of Denji from the Chainsaw Man TV anime (rerelease) by MegaHouse; release scheduled for late 2027-04.",
+    "ko": "TV 애니메이션 『체인소 맨』 덴지의 룩업(Lookup) 좌상 데포르메 피규어 재판이다. 메가하우스가 제조하며 2027년 4월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/6005/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6005"
+    },
+    {
+     "p": "price",
+     "v": 4620,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6005",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-04",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6005",
+     "note": "Release scheduled for late 2027-04 (2027年4月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/6005/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6005"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-megahouse-6005"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:chainsaw-man-denji",
+     "src": "src:sc-merch-megahouse-6005"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-wallstar-one-piece-zoro",
+   "type": "merchandise",
+   "slug": "megahouse-wallstar-one-piece-zoro",
+   "names": {
+    "en": "WALLSTAR ONE PIECE Roronoa Zoro",
+    "ja": "WALLSTAR ONE PIECE ロロノア・ゾロ"
+   },
+   "description": {
+    "en": "WALLSTAR wall-display collectible figure of Roronoa Zoro from ONE PIECE by MegaHouse; release scheduled for late 2027-02.",
+    "ko": "『원피스』 롤로노아 조로의 WALLSTAR 벽걸이 디스플레이 컬렉터블 피규어이다. 메가하우스가 제조하며 2027년 2월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/6078/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6078"
+    },
+    {
+     "p": "price",
+     "v": 2970,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6078",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6078",
+     "note": "Release scheduled for late 2027-02 (2027年2月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/6078/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6078"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:one-piece",
+     "src": "src:sc-merch-megahouse-6078"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:one-piece-zoro",
+     "src": "src:sc-merch-megahouse-6078"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-wallstar-one-piece-luffy-gear-5",
+   "type": "merchandise",
+   "slug": "megahouse-wallstar-one-piece-luffy-gear-5",
+   "names": {
+    "en": "WALLSTAR ONE PIECE Monkey D. Luffy Gear 5",
+    "ja": "WALLSTAR ONE PIECE モンキー・D・ルフィ ギア5"
+   },
+   "description": {
+    "en": "WALLSTAR wall-display collectible figure of Monkey D. Luffy (Gear 5) from ONE PIECE by MegaHouse; release scheduled for late 2027-02.",
+    "ko": "『원피스』 몽키 D. 루피(기어 5)의 WALLSTAR 벽걸이 디스플레이 컬렉터블 피규어이다. 메가하우스가 제조하며 2027년 2월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/6079/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6079"
+    },
+    {
+     "p": "price",
+     "v": 2970,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6079",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6079",
+     "note": "Release scheduled for late 2027-02 (2027年2月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/6079/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-6079"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:one-piece",
+     "src": "src:sc-merch-megahouse-6079"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:one-piece-luffy",
+     "src": "src:sc-merch-megahouse-6079"
+    }
+   ]
+  },
+  {
+   "id": "merchandise:megahouse-variable-action-heroes-ace-rerelease",
+   "type": "merchandise",
+   "slug": "megahouse-variable-action-heroes-ace-rerelease",
+   "names": {
+    "en": "Variable Action Heroes ONE PIECE Portgas D. Ace (Rerelease)",
+    "ja": "ONE PIECE ポートガス・D・エース【再販】"
+   },
+   "description": {
+    "en": "Variable Action Heroes articulated figure (about 180 mm) of Portgas D. Ace from ONE PIECE (rerelease) by MegaHouse; release scheduled for late 2027-02.",
+    "ko": "『원피스』 포트거스 D. 에이스의 버라이어블 액션 히어로즈 가동 피규어(약 180mm) 재판이다. 메가하우스가 제조하며 2027년 2월 하순 발매 예정이다."
+   },
+   "regions": [
+    "JP"
+   ],
+   "official_urls": [
+    {
+     "label": "Product page (MegaHouse)",
+     "url": "https://www.megahobby.jp/products/item/3754/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "manufacturer_name",
+     "v": "MegaHouse",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-3754"
+    },
+    {
+     "p": "price",
+     "v": 10450,
+     "unit": "JPY",
+     "region": "JP",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-3754",
+     "note": "Tax-included (税込) price per the MegaHouse product page."
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-3754",
+     "note": "Release scheduled for late 2027-02 (2027年2月下旬) per the MegaHouse product page."
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.megahobby.jp/products/item/3754/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-merch-megahouse-3754"
+    }
+   ],
+   "relations": [
+    {
+     "p": "merchandise_of",
+     "o": "franchise:one-piece",
+     "src": "src:sc-merch-megahouse-3754"
+    },
+    {
+     "p": "merchandise_of",
+     "o": "character:one-piece-ace",
+     "src": "src:sc-merch-megahouse-3754"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Fern: Winter Clothes Ver. [Basic] ships",
+    "ko": "TV 애니메이션 『장송의 프리렌』의 겨울옷 차림 페른 넨도로이드 [베이직] 발송 예정"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1143946",
+   "entities": [
+    "merchandise:gsc-nendoroid-fern-winter-clothes-basic",
+    "franchise:frieren"
+   ],
+   "entity": "merchandise:gsc-nendoroid-fern-winter-clothes-basic",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1143946",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Fern: Winter Clothes Ver. [Basic] pre-orders (GSC Online Store)",
+    "ko": "TV 애니메이션 『장송의 프리렌』의 겨울옷 차림 페른 넨도로이드 [베이직] 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-11",
+   "ends": "2026-10-21",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1143946",
+   "entities": [
+    "merchandise:gsc-nendoroid-fern-winter-clothes-basic",
+    "franchise:frieren"
+   ],
+   "entity": "merchandise:gsc-nendoroid-fern-winter-clothes-basic",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1143946",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Makima ships",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 마키마 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142519",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-makima",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-makima",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142519",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Makima pre-orders (GSC Online Store)",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 마키마 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-01",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142519",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-makima",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-makima",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142519",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Aki Hayakawa ships",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 하야카와 아키 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142517",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-aki-hayakawa",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-aki-hayakawa",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142517",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Aki Hayakawa pre-orders (GSC Online Store)",
+    "ko": "『체인소 맨 레제편』 극장판 라인의 하야카와 아키 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-18",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142517",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-aki-hayakawa",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-aki-hayakawa",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142517",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Power: Casual Outfit Ver. [Basic] ships",
+    "ko": "TV 애니메이션 『체인소 맨』의 사복 차림 파워 넨도로이드 [베이직] 발송 예정"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144811",
+   "entities": [
+    "merchandise:gsc-nendoroid-power-casual-outfit-basic",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-power-casual-outfit-basic",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144811",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Power: Casual Outfit Ver. [Basic] pre-orders (GSC Online Store)",
+    "ko": "TV 애니메이션 『체인소 맨』의 사복 차림 파워 넨도로이드 [베이직] 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-04",
+   "ends": "2026-10-14",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144811",
+   "entities": [
+    "merchandise:gsc-nendoroid-power-casual-outfit-basic",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:gsc-nendoroid-power-casual-outfit-basic",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144811",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Jinshi ships",
+    "ko": "『약사의 혼잣말』의 진시 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142194",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-jinshi",
+    "franchise:the-apothecary-diaries"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-jinshi",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142194",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Jinshi pre-orders (GSC Online Store)",
+    "ko": "『약사의 혼잣말』의 진시 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-25",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142194",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-jinshi",
+    "franchise:the-apothecary-diaries"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-jinshi",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142194",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Surprise The Apothecary Diaries: Maomao & Jinshi Collection ships",
+    "ko": "『약사의 혼잣말』의 마오마오와 진시 넨도로이드 서프라이즈 블라인드 박스 발송 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1143294",
+   "entities": [
+    "merchandise:gsc-nendoroid-surprise-maomao-jinshi-collection",
+    "franchise:the-apothecary-diaries"
+   ],
+   "entity": "merchandise:gsc-nendoroid-surprise-maomao-jinshi-collection",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1143294",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Surprise The Apothecary Diaries: Maomao & Jinshi Collection pre-orders (GSC Online Store)",
+    "ko": "『약사의 혼잣말』의 마오마오와 진시 넨도로이드 서프라이즈 블라인드 박스 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-04",
+   "ends": "2026-10-14",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1143294",
+   "entities": [
+    "merchandise:gsc-nendoroid-surprise-maomao-jinshi-collection",
+    "franchise:the-apothecary-diaries"
+   ],
+   "entity": "merchandise:gsc-nendoroid-surprise-maomao-jinshi-collection",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1143294",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "figma Noa Ushio ships",
+    "ko": "『블루 아카이브』의 우시오 노아 figma 액션 피규어 발송 예정"
+   },
+   "starts": "2027-08",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137995",
+   "entities": [
+    "merchandise:gsc-figma-noa-ushio",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-figma-noa-ushio",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137995",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "figma Noa Ushio pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 우시오 노아 figma 액션 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-21",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137995",
+   "entities": [
+    "merchandise:gsc-figma-noa-ushio",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-figma-noa-ushio",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137995",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "G.S. Collection Nagisa: Radiance in Bloom ships",
+    "ko": "『블루 아카이브』의 나기사 G.S. Collection 스케일 피규어 발송 예정"
+   },
+   "starts": "2027-09",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137828",
+   "entities": [
+    "merchandise:gsc-gs-collection-nagisa-radiance-in-bloom",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-nagisa-radiance-in-bloom",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137828",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "G.S. Collection Nagisa: Radiance in Bloom pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 나기사 G.S. Collection 스케일 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-07",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137828",
+   "entities": [
+    "merchandise:gsc-gs-collection-nagisa-radiance-in-bloom",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-nagisa-radiance-in-bloom",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137828",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "G.S. Collection Noa: Classified Record ships",
+    "ko": "『블루 아카이브』의 노아 G.S. Collection 스케일 피규어 발송 예정"
+   },
+   "starts": "2027-09",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137827",
+   "entities": [
+    "merchandise:gsc-gs-collection-noa-classified-record",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-noa-classified-record",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137827",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "G.S. Collection Noa: Classified Record pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 노아 G.S. Collection 스케일 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-07-24",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137827",
+   "entities": [
+    "merchandise:gsc-gs-collection-noa-classified-record",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-noa-classified-record",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137827",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "G.S. Collection Kisaki: Memorial Lobby Ver. ships",
+    "ko": "『블루 아카이브』의 키사키(메모리얼 로비 버전) G.S. Collection 스케일 피규어 발송 예정"
+   },
+   "starts": "2027-08",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137829",
+   "entities": [
+    "merchandise:gsc-gs-collection-kisaki-memorial-lobby",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-kisaki-memorial-lobby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137829",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "G.S. Collection Kisaki: Memorial Lobby Ver. pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 키사키(메모리얼 로비 버전) G.S. Collection 스케일 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-07-07",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1137829",
+   "entities": [
+    "merchandise:gsc-gs-collection-kisaki-memorial-lobby",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-gs-collection-kisaki-memorial-lobby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1137829",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Arona ships",
+    "ko": "『블루 아카이브』의 아로나 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1141869",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-arona",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-arona",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1141869",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Arona pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 아로나 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-17",
+   "ends": "2026-10-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1141869",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-arona",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-arona",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1141869",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Plana ships",
+    "ko": "『블루 아카이브』의 프라나 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1141871",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-plana",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-plana",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1141871",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Plana pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 프라나 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-17",
+   "ends": "2026-10-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1141871",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-plana",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-plana",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1141871",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Neru (School): Memorial Lobby Ver. ships",
+    "ko": "『블루 아카이브』의 네루(교복, 메모리얼 로비 버전) WING 제작 피규어 발송 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146337",
+   "entities": [
+    "merchandise:wing-neru-school-memorial-lobby",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:wing-neru-school-memorial-lobby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146337",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Neru (School): Memorial Lobby Ver. pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 네루(교복, 메모리얼 로비 버전) WING 제작 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-25",
+   "ends": "2026-10-21",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146337",
+   "entities": [
+    "merchandise:wing-neru-school-memorial-lobby",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:wing-neru-school-memorial-lobby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146337",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Kirara ships",
+    "ko": "『블루 아카이브』의 키라라 맥스팩토리 제작 피규어 발송 예정"
+   },
+   "starts": "2027-09",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145707",
+   "entities": [
+    "merchandise:max-factory-kirara",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:max-factory-kirara",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145707",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Kirara pre-orders (GSC Online Store)",
+    "ko": "『블루 아카이브』의 키라라 맥스팩토리 제작 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-10",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145707",
+   "entities": [
+    "merchandise:max-factory-kirara",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:max-factory-kirara",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145707",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "figma Umamusume: Pretty Derby Nice Nature (Rerelease) ships",
+    "ko": "『우마무스메 프리티 더비』의 나이스 네이처 figma 액션 피규어(재판) 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/12485",
+   "entities": [
+    "merchandise:max-factory-figma-nice-nature-rerelease",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:max-factory-figma-nice-nature-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-12485",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "figma Umamusume: Pretty Derby Nice Nature (Rerelease) pre-orders (GSC Online Store)",
+    "ko": "『우마무스메 프리티 더비』의 나이스 네이처 figma 액션 피규어(재판) 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-20",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/12485",
+   "entities": [
+    "merchandise:max-factory-figma-nice-nature-rerelease",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:max-factory-figma-nice-nature-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-12485",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Mejiro Ardan ships",
+    "ko": "『우마무스메 신데렐라 그레이』 라인의 메지로 아르당 Phat! Company 제작 피규어 발송 예정"
+   },
+   "starts": "2027-08",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145711",
+   "entities": [
+    "merchandise:phat-mejiro-ardan",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:phat-mejiro-ardan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145711",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Mejiro Ardan pre-orders (GSC Online Store)",
+    "ko": "『우마무스메 신데렐라 그레이』 라인의 메지로 아르당 Phat! Company 제작 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-07-29",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145711",
+   "entities": [
+    "merchandise:phat-mejiro-ardan",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:phat-mejiro-ardan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145711",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "[Glacialis Vega] Admire Vega ships",
+    "ko": "『우마무스메 프리티 더비』의 어드마이어 베가([Glacialis Vega] 의상) Phat! Company 제작 피규어 발송 예정"
+   },
+   "starts": "2027-08",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146115",
+   "entities": [
+    "merchandise:phat-admire-vega-glacialis-vega",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:phat-admire-vega-glacialis-vega",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146115",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "[Glacialis Vega] Admire Vega pre-orders (GSC Online Store)",
+    "ko": "『우마무스메 프리티 더비』의 어드마이어 베가([Glacialis Vega] 의상) Phat! Company 제작 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-21",
+   "ends": "2026-10-21",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146115",
+   "entities": [
+    "merchandise:phat-admire-vega-glacialis-vega",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:phat-admire-vega-glacialis-vega",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146115",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Mejiro McQueen [Bring 'Em Home, Please!] Ver. 1/7 Scale Figure ships",
+    "ko": "『우마무스메 프리티 더비』의 메지로 맥퀸 Claynel 제작 1/7 스케일 피규어 발송 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145954",
+   "entities": [
+    "merchandise:claynel-mejiro-mcqueen-bring-em-home",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:claynel-mejiro-mcqueen-bring-em-home",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145954",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Mejiro McQueen [Bring 'Em Home, Please!] Ver. 1/7 Scale Figure pre-orders (GSC Online Store)",
+    "ko": "『우마무스메 프리티 더비』의 메지로 맥퀸 Claynel 제작 1/7 스케일 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-07-27",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145954",
+   "entities": [
+    "merchandise:claynel-mejiro-mcqueen-bring-em-home",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:claynel-mejiro-mcqueen-bring-em-home",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145954",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "figma Anis: Sparkling Summer ships",
+    "ko": "『승리의 여신: 니케』의 아니스(스파클링 서머) figma 액션 피규어 발송 예정"
+   },
+   "starts": "2027-06",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145947",
+   "entities": [
+    "merchandise:max-factory-figma-anis-sparkling-summer",
+    "franchise:goddess-of-victory-nikke"
+   ],
+   "entity": "merchandise:max-factory-figma-anis-sparkling-summer",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145947",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "figma Anis: Sparkling Summer pre-orders (GSC Online Store)",
+    "ko": "『승리의 여신: 니케』의 아니스(스파클링 서머) figma 액션 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-21",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1145947",
+   "entities": [
+    "merchandise:max-factory-figma-anis-sparkling-summer",
+    "franchise:goddess-of-victory-nikke"
+   ],
+   "entity": "merchandise:max-factory-figma-anis-sparkling-summer",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1145947",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Hyper Body Dorothy ships",
+    "ko": "『승리의 여신: 니케』의 도로시 Hyper Body 피규어 발송 예정"
+   },
+   "starts": "2027-10",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1138213",
+   "entities": [
+    "merchandise:gsas-hyper-body-dorothy",
+    "franchise:goddess-of-victory-nikke"
+   ],
+   "entity": "merchandise:gsas-hyper-body-dorothy",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1138213",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Hyper Body Dorothy pre-orders (GSC Online Store)",
+    "ko": "『승리의 여신: 니케』의 도로시 Hyper Body 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-31",
+   "ends": "2026-10-14",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1138213",
+   "entities": [
+    "merchandise:gsas-hyper-body-dorothy",
+    "franchise:goddess-of-victory-nikke"
+   ],
+   "entity": "merchandise:gsas-hyper-body-dorothy",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1138213",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Doll Yuta Okkotsu: Execution Ver. ships",
+    "ko": "TV 애니메이션 『주술회전』의 사멸회유 버전 옷코츠 유타 넨도로이드 돌 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142649",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-yuta-okkotsu-execution",
+    "franchise:jujutsu-kaisen"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-yuta-okkotsu-execution",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142649",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Doll Yuta Okkotsu: Execution Ver. pre-orders (GSC Online Store)",
+    "ko": "TV 애니메이션 『주술회전』의 사멸회유 버전 옷코츠 유타 넨도로이드 돌 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-27",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1142649",
+   "entities": [
+    "merchandise:gsc-nendoroid-doll-yuta-okkotsu-execution",
+    "franchise:jujutsu-kaisen"
+   ],
+   "entity": "merchandise:gsc-nendoroid-doll-yuta-okkotsu-execution",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1142649",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Sung Jinwoo (Rerelease) ships",
+    "ko": "TV 애니메이션 『나 혼자만 레벨업』의 성진우 넨도로이드(재판) 발송 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/34792",
+   "entities": [
+    "merchandise:gsas-nendoroid-sung-jinwoo-rerelease",
+    "franchise:solo-leveling"
+   ],
+   "entity": "merchandise:gsas-nendoroid-sung-jinwoo-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-34792",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Sung Jinwoo (Rerelease) pre-orders (GSC Online Store)",
+    "ko": "TV 애니메이션 『나 혼자만 레벨업』의 성진우 넨도로이드(재판) 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-15",
+   "ends": "2026-10-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/34792",
+   "entities": [
+    "merchandise:gsas-nendoroid-sung-jinwoo-rerelease",
+    "franchise:solo-leveling"
+   ],
+   "entity": "merchandise:gsas-nendoroid-sung-jinwoo-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-34792",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "KADOKAWA PLASTIC MODEL SERIES 【OSHI NO KO】 - Ruby ships",
+    "ko": "『최애의 아이』의 루비 프라모델 키트 발송 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146565",
+   "entities": [
+    "merchandise:kadokawa-plastic-model-oshi-no-ko-ruby",
+    "franchise:oshi-no-ko"
+   ],
+   "entity": "merchandise:kadokawa-plastic-model-oshi-no-ko-ruby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146565",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "KADOKAWA PLASTIC MODEL SERIES 【OSHI NO KO】 - Ruby pre-orders (GSC Online Store)",
+    "ko": "『최애의 아이』의 루비 프라모델 키트 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-15",
+   "ends": "2026-10-28",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1146565",
+   "entities": [
+    "merchandise:kadokawa-plastic-model-oshi-no-ko-ruby",
+    "franchise:oshi-no-ko"
+   ],
+   "entity": "merchandise:kadokawa-plastic-model-oshi-no-ko-ruby",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1146565",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Aria ships",
+    "ko": "『젠레스 존 제로』의 아리아 넨도로이드 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144169",
+   "entities": [
+    "merchandise:gsas-nendoroid-aria",
+    "franchise:zenless-zone-zero"
+   ],
+   "entity": "merchandise:gsas-nendoroid-aria",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144169",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Aria pre-orders (GSC Online Store)",
+    "ko": "『젠레스 존 제로』의 아리아 넨도로이드 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-04",
+   "ends": "2026-10-14",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144169",
+   "entities": [
+    "merchandise:gsas-nendoroid-aria",
+    "franchise:zenless-zone-zero"
+   ],
+   "entity": "merchandise:gsas-nendoroid-aria",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144169",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Nendoroid Mon3tr ships",
+    "ko": "『명일방주』의 Mon3tr 넨도로이드 발송 예정"
+   },
+   "starts": "2027-07",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144113",
+   "entities": [
+    "merchandise:gsas-nendoroid-mon3tr",
+    "franchise:arknights"
+   ],
+   "entity": "merchandise:gsas-nendoroid-mon3tr",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144113",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "Nendoroid Mon3tr pre-orders (GSC Online Store)",
+    "ko": "『명일방주』의 Mon3tr 넨도로이드 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-09-11",
+   "ends": "2026-10-21",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144113",
+   "entities": [
+    "merchandise:gsas-nendoroid-mon3tr",
+    "franchise:arknights"
+   ],
+   "entity": "merchandise:gsas-nendoroid-mon3tr",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144113",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "PLAMATEA Shielder/Mash Kyrielight (Ortinax) ships",
+    "ko": "『Fate/Grand Order』의 실더/마슈 키리에라이트(오르테나우스) PLAMATEA 프라모델 키트 발송 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144549",
+   "entities": [
+    "merchandise:max-factory-plamatea-mash-kyrielight-ortinax",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:max-factory-plamatea-mash-kyrielight-ortinax",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144549",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "PLAMATEA Shielder/Mash Kyrielight (Ortinax) pre-orders (GSC Online Store)",
+    "ko": "『Fate/Grand Order』의 실더/마슈 키리에라이트(오르테나우스) PLAMATEA 프라모델 키트 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-08-01",
+   "ends": "2026-10-07",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/1144549",
+   "entities": [
+    "merchandise:max-factory-plamatea-mash-kyrielight-ortinax",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:max-factory-plamatea-mash-kyrielight-ortinax",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-1144549",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "POP UP PARADE SP Assassin/\"First Hassan\" ships",
+    "ko": "『Fate/Grand Order』의 어새신/\"산의 노인\" POP UP PARADE SP 피규어 발송 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/61723",
+   "entities": [
+    "merchandise:gsc-pop-up-parade-sp-first-hassan",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:gsc-pop-up-parade-sp-first-hassan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-61723",
+   "note": "Scheduled shipping month (GSC Online Store)."
+  },
+  {
+   "kind": "sale",
+   "title": {
+    "en": "POP UP PARADE SP Assassin/\"First Hassan\" pre-orders (GSC Online Store)",
+    "ko": "『Fate/Grand Order』의 어새신/\"산의 노인\" POP UP PARADE SP 피규어 예약 판매(굿스마일 공식 스토어)"
+   },
+   "starts": "2026-07-31",
+   "ends": "2026-09-30",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.goodsmile.com/en/product/61723",
+   "entities": [
+    "merchandise:gsc-pop-up-parade-sp-first-hassan",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:gsc-pop-up-parade-sp-first-hassan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-gsc-61723",
+   "note": "Pre-order window on the Good Smile Company Online Store (JST); may close early."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Honkai: Star Rail Black Swan 1/7 Scale Figure (ALTER) release",
+    "ko": "『붕괴: 스타레일』의 블랙 스완 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-07",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/643/",
+   "entities": [
+    "merchandise:alter-black-swan",
+    "franchise:honkai-star-rail"
+   ],
+   "entity": "merchandise:alter-black-swan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-643",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Blue Archive Ichika (Swimsuit) 1/7 Scale Figure (ALTER) release",
+    "ko": "『블루 아카이브』의 이치카(수영복) 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-08",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/656/",
+   "entities": [
+    "merchandise:alter-ichika-swimsuit",
+    "franchise:blue-archive"
+   ],
+   "entity": "merchandise:alter-ichika-swimsuit",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-656",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Umamusume: Pretty Derby [Yummy Dreamy Fairy] Rice Shower 1/7 Scale Figure (ALTER) release",
+    "ko": "『우마무스메 프리티 더비』의 라이스 샤워([Yummy Dreamy Fairy] 의상) 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-09",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/657/",
+   "entities": [
+    "merchandise:alter-rice-shower-yummy-dreamy-fairy",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:alter-rice-shower-yummy-dreamy-fairy",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-657",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Umamusume: Pretty Derby Aston Machan 1/7 Scale Figure (ALTER) release",
+    "ko": "『우마무스메 프리티 더비』의 아스턴 마짱 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-05",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/642/",
+   "entities": [
+    "merchandise:alter-aston-machan",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:alter-aston-machan",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-642",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Umamusume: Pretty Derby Smart Falcon 1/7 Scale Figure (ALTER) release",
+    "ko": "『우마무스메 프리티 더비』의 스마트 팔콘 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-03",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/639/",
+   "entities": [
+    "merchandise:alter-smart-falcon",
+    "franchise:uma-musume-pretty-derby"
+   ],
+   "entity": "merchandise:alter-smart-falcon",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-639",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Fate/Grand Order Saber/Okita Souji (Alter) Final Ascension Ver. 1/7 Scale Figure (ALTER) release",
+    "ko": "『Fate/Grand Order』의 세이버/오키타 소지(얼터) 최종재림 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/633/",
+   "entities": [
+    "merchandise:alter-okita-souji-alter-final-ascension",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:alter-okita-souji-alter-final-ascension",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-633",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Fate/Grand Order Foreigner/Abigail Williams (Summer) 1/7 Scale Figure (ALTER) release",
+    "ko": "『Fate/Grand Order』의 포리너/아비게일 윌리엄즈(여름) 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-01",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/632/",
+   "entities": [
+    "merchandise:alter-abigail-williams-summer",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:alter-abigail-williams-summer",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-632",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Fate/Grand Order Berserker/Morgan Final Ascension Ver. 1/7 Scale Figure (ALTER) release",
+    "ko": "『Fate/Grand Order』의 버서커/모르간 최종재림 알터 스케일 피규어 발매 예정"
+   },
+   "starts": "2027-10",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.alter-web.jp/products/654/",
+   "entities": [
+    "merchandise:alter-morgan-final-ascension",
+    "franchise:fate"
+   ],
+   "entity": "merchandise:alter-morgan-final-ascension",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-alter-654",
+   "note": "Release month per the Alter product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Lookup Frieren (Rerelease) — Frieren: Beyond Journey's End release",
+    "ko": "『장송의 프리렌』 프리렌의 룩업(Lookup) 좌상 데포르메 피규어 재판 발매 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/6003/",
+   "entities": [
+    "merchandise:megahouse-lookup-frieren-rerelease",
+    "franchise:frieren"
+   ],
+   "entity": "merchandise:megahouse-lookup-frieren-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-6003",
+   "note": "Late 2027-04 per the MegaHouse product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Lookup Reze (Rerelease) — Chainsaw Man - The Movie: Reze Arc release",
+    "ko": "극장판 『체인소 맨 레제편』 레제의 룩업(Lookup) 좌상 데포르메 피규어 재판 발매 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/6004/",
+   "entities": [
+    "merchandise:megahouse-lookup-reze-rerelease",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:megahouse-lookup-reze-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-6004",
+   "note": "Late 2027-04 per the MegaHouse product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Lookup Denji (Rerelease) — Chainsaw Man release",
+    "ko": "TV 애니메이션 『체인소 맨』 덴지의 룩업(Lookup) 좌상 데포르메 피규어 재판 발매 예정"
+   },
+   "starts": "2027-04",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/6005/",
+   "entities": [
+    "merchandise:megahouse-lookup-denji-rerelease",
+    "franchise:chainsaw-man"
+   ],
+   "entity": "merchandise:megahouse-lookup-denji-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-6005",
+   "note": "Late 2027-04 per the MegaHouse product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "WALLSTAR ONE PIECE Roronoa Zoro release",
+    "ko": "『원피스』 롤로노아 조로의 WALLSTAR 벽걸이 디스플레이 컬렉터블 피규어 발매 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/6078/",
+   "entities": [
+    "merchandise:megahouse-wallstar-one-piece-zoro",
+    "franchise:one-piece"
+   ],
+   "entity": "merchandise:megahouse-wallstar-one-piece-zoro",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-6078",
+   "note": "Late 2027-02 per the MegaHouse product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "WALLSTAR ONE PIECE Monkey D. Luffy Gear 5 release",
+    "ko": "『원피스』 몽키 D. 루피(기어 5)의 WALLSTAR 벽걸이 디스플레이 컬렉터블 피규어 발매 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/6079/",
+   "entities": [
+    "merchandise:megahouse-wallstar-one-piece-luffy-gear-5",
+    "franchise:one-piece"
+   ],
+   "entity": "merchandise:megahouse-wallstar-one-piece-luffy-gear-5",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-6079",
+   "note": "Late 2027-02 per the MegaHouse product page."
+  },
+  {
+   "kind": "merch_release",
+   "title": {
+    "en": "Variable Action Heroes ONE PIECE Portgas D. Ace (Rerelease) release",
+    "ko": "『원피스』 포트거스 D. 에이스의 버라이어블 액션 히어로즈 가동 피규어(약 180mm) 재판 발매 예정"
+   },
+   "starts": "2027-02",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://www.megahobby.jp/products/item/3754/",
+   "entities": [
+    "merchandise:megahouse-variable-action-heroes-ace-rerelease",
+    "franchise:one-piece"
+   ],
+   "entity": "merchandise:megahouse-variable-action-heroes-ace-rerelease",
+   "ver": "OFFICIAL",
+   "src": "src:sc-merch-megahouse-3754",
+   "note": "Late 2027-02 per the MegaHouse product page."
+  }
+ ]
+}
