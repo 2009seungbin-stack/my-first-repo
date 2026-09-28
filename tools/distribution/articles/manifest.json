@@ -1,0 +1,85 @@
+{
+  "game/godot-pixel-art-blurry": {
+    "file": "godot-pixels.md",
+    "topicCluster": "pixel-rendering",
+    "tags": [
+      "godot",
+      "gamedev",
+      "pixelart"
+    ],
+    "cta": "Nerulio can prepare a Godot bundle with pixel-art import settings; camera and viewport decisions still belong to your project.",
+    "sourceDigest": "06dfe04beb31efe11e48c43de16f97e1bea7975a6f8e4cdb39dfdde0dccba10d"
+  },
+  "game/sprite-jitter-after-trim": {
+    "file": "trim-jitter.md",
+    "topicCluster": "sprite-placement",
+    "tags": [
+      "gamedev",
+      "sprites"
+    ],
+    "cta": "Nerulio provides sprite placement and jitter inspection alongside engine export; keep intended motion when choosing a correction.",
+    "sourceDigest": "37a5675d60187a0c4af7cc7a9f20b0796c51de3838cd168f596ce2d386cbae65"
+  },
+  "game/aseprite-to-godot": {
+    "file": "aseprite-godot.md",
+    "topicCluster": "aseprite-timing",
+    "tags": [
+      "godot",
+      "aseprite",
+      "gamedev"
+    ],
+    "cta": "Nerulio reads Aseprite files in the browser and exports a Godot 4 SpriteFrames resource, atlas and scene with timing conversion.",
+    "sourceDigest": "00d0d63d2527b195d1337f425c7dc4d7c113a7a43dda190f5002209faf99bece"
+  },
+  "game/sprite-sheet-frame-size": {
+    "file": "frame-size.md",
+    "topicCluster": "sprite-grid",
+    "tags": [
+      "gamedev",
+      "sprites"
+    ],
+    "cta": "Nerulio previews detected grid candidates and custom cell, offset and gap values before slicing a sprite sheet.",
+    "sourceDigest": "149d4a6808fb8b03e59fb1788c9da1b073c9d4fecfb04c6eaca63b752dc7a5dc"
+  },
+  "game/normal-map-opengl-or-directx": {
+    "file": "normal-convention.md",
+    "topicCluster": "normal-conventions",
+    "tags": [
+      "gamedev",
+      "graphics"
+    ],
+    "cta": "Nerulio can inspect normal-map conventions and preview lighting; uncertain classifications still need a known-shape light test.",
+    "sourceDigest": "2a101d02286b9add6929c456d2ea04a36b8f5d2a7323844752f085140585133c"
+  },
+  "game/godot-terrain-wrong-tiles": {
+    "file": "terrain.md",
+    "topicCluster": "terrain-coverage",
+    "tags": [
+      "godot",
+      "gamedev"
+    ],
+    "cta": "Nerulio checks tile-pattern coverage and previews terrain rules; rebuilding from an image does not import an existing Godot TileSet resource.",
+    "sourceDigest": "0168554b9395b2b29373ac54a95cfd1d40b2bb85f548cde2f0614ab9ff2c0489"
+  },
+  "game/pixel-art-cleanup": {
+    "file": "cleanup.md",
+    "topicCluster": "pixel-cleanup",
+    "tags": [
+      "pixelart",
+      "gamedev"
+    ],
+    "cta": "Nerulio offers shared-palette cleanup and candidate review; compare the silhouette and animation before accepting changes.",
+    "sourceDigest": "e7c55263e1b7c7db16c1488d96b441418fe17a18fafb829f48ae6c5bf525e8a9"
+  },
+  "game/keep-aseprite-tags-when-packing": {
+    "file": "tags.md",
+    "topicCluster": "aseprite-timing",
+    "tags": [
+      "aseprite",
+      "gamedev",
+      "sprites"
+    ],
+    "cta": "Nerulio imports Aseprite sources or supported JSON metadata and writes engine-specific animation data with target-specific limitations.",
+    "sourceDigest": "7a5ca204a2855a1d3e89de99174d1e110a654606b61f59875dc35a58c2249b08"
+  }
+}

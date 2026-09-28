@@ -6,4 +6,6 @@ __pycache__/
 .DS_Store
 .env
 .env.*
+ops/distribution-ledger.json.lock
+ops/distribution-ledger.json.tmp
 *.log
