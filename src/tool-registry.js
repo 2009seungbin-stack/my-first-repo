@@ -1,5 +1,12 @@
 /** Catalog metadata only: imported by both static build and runtime. ko/en/ja. */
 export const TOOLS = Object.freeze({
+  "store-art-pack": {
+    "path": "game/store-art-pack", "category": "game", "icon": "pack",
+    "title": ["스토어 아트 팩", "Store Art Pack", "ストア画像パック"],
+    "description": ["키아트와 로고로 Steam·itch.io·모바일 스토어 이미지를 규격별로 만드세요.", "Make separate Steam, itch.io and mobile-store images from your key art and logo.", "キーアートとロゴからSteam・itch.io・モバイルストア用画像を規格別に作成します。"],
+    "limit": ["플랫폼 심사는 보장하지 않습니다. 게임 화면과 이미지 안의 문구는 직접 검토하세요.", "Platform approval is not guaranteed. Review genuine gameplay and any text already in your art.", "ストア審査の通過は保証しません。実際のゲーム画面と画像内の文言を確認してください。"],
+    "next": ["compress", "crop"]
+  },
   "refiner": {
     "path": "game-asset-pixelizer",
     "category": "game",

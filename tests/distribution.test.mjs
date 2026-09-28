@@ -33,6 +33,7 @@ const raw=(overrides={})=>({id:101,url:'https://dev.to/operator/example-101',can
 
 test('inventory derives every game source from indexable registries, with English canonical and real evidence',()=>{
  const expected=sitemapGroups().game.filter(p=>DEPTH[p]?.en&&gamePageFor(p));
+ // Direct game-named task tools are not editorial game landings.
  assert.equal(pages.length,expected.length);assert(pages.length>100);
  for(const p of pages){assert(validCanonical(p.canonical));assert(expected.includes(p.route.slice(4,-1)));assert(p.primaryTopic);assert(p.priorityReason);assert(p.sourceEvidence.length);assert(p.assets.length);}
  assert(!pages.some(p=>/\/classic\/|\/app\/|\/studio\/|\/image\/|\/privacy\//.test(p.route)));

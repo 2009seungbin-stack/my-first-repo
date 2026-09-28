@@ -19,6 +19,7 @@ import toolsImage from './tools-image.js';
 import toolsMedia from './tools-media.js';
 import characterCounter from './character-counter.js';
 import sfx from './sfx.js';
+import storeArt from './store-art.js';
 
 export const GROUPS=Object.freeze({
  sfx:['game/sfx-generator'],
@@ -36,9 +37,10 @@ export const GROUPS=Object.freeze({
  'ui':['game/ui-lab','game/9-slice-editor','game/button-state-generator','game/missing-glyph-checker','game/ui-scale-preview','bitmap-font-maker','game/seamless-tile-checker','tile-grid-slicer','atlas-padding'],
  'tools-image':['image/editor','image/compress','image/convert','image/resize','image/png-to-jpg','image/jpg-to-png','image/png-to-webp','image/webp-to-png','image/jpg-to-webp','image/webp-to-jpg','image/avif-to-jpg','image/avif-to-png','image/bmp-to-png','image/bmp-to-jpg','image/compress-to-20kb','image/compress-to-50kb','image/compress-to-100kb','image/compress-to-200kb','image/compress-to-500kb','image/compress-to-1mb','image/resize/instagram-post','image/resize/instagram-portrait','image/resize/instagram-story','image/resize/youtube-thumbnail','image/resize/youtube-banner','image/resize/x-header','image/resize/linkedin-banner','image/resize/discord-banner'],
  'tools-media':['pdf/editor','pdf/split','pdf/compress','media','video/trim','video/frame','video/to-mp3','video/to-gif','video/compress','video/mp4-to-gif','video/mov-to-gif','video/webm-to-gif','video/mp4-to-mp3','video/mov-to-mp3','video/webm-to-mp3'],
+ 'store-art':['game/store-art-pack'],
  'character-counter':['character-counter']
 });
-const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'pixel-convert':pixelConvert,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia,'character-counter':characterCounter,sfx};
+const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'pixel-convert':pixelConvert,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia,'character-counter':characterCounter,sfx,'store-art':storeArt};
 export const DEPTH=Object.freeze(Object.assign({},...Object.values(FILES)));
 export const groupFile=Object.freeze(FILES);
 /** The intent types (docs/SEO-CONTENT-MODEL.md §Types). */

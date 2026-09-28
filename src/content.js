@@ -122,6 +122,11 @@ export const guides={
 };
 
 export function guide(id,locale){
+ if(id==='store-art-pack')return {
+  en:['Add key art and an optional transparent PNG logo|Set each store slot crop and logo placement; add genuine game captures|Export the ZIP and inspect every image at its actual and display size','Renders separately composed Steam, itch.io, Google Play and Apple Xcode icon source images in a worker. The screenshots you select are copied unchanged.','No platform approval is implied. Steam needs at least five genuine gameplay captures, and Google Play icon files must be at most 1024 KB.','Can I submit the whole ZIP directly?','No. Inspect each image and submit the correct file in each platform’s own interface. The Apple icon is an Xcode source.'],
+  ko:['키아트와 선택적인 투명 PNG 로고 넣기|규격별 초점·로고를 조정하고 실제 게임 화면 추가|ZIP을 저장하고 출력 크기와 표시 크기에서 각각 확인','워커에서 Steam·itch.io·Google Play·Apple Xcode 아이콘 소스를 규격별로 만듭니다. 게임 화면 파일은 원본 그대로 복사합니다.','플랫폼 승인을 보증하지 않습니다. Steam은 실제 게임 화면 5장 이상이 필요하고 Google Play 아이콘은 1024 KB 이하여야 합니다.','ZIP 전체를 곧바로 제출할 수 있나요?','아니요. 이미지마다 확인한 후 해당 스토어의 올바른 위치에 개별 제출하세요. Apple 이미지는 Xcode용 소스입니다.'],
+  ja:['キーアートと任意の透過PNGロゴを追加|規格ごとの位置とロゴを調整し、実際のゲーム画面を追加|ZIPを保存して画像の原寸と表示寸法を確認','ワーカーがSteam・itch.io・Google Play・Apple Xcode用アイコン素材を個別に作ります。ゲーム画面は元ファイルのままコピーします。','ストアでの承認は保証しません。Steamには実際のゲーム画面が5枚以上必要で、Google Playアイコンは1024 KB以下です。','ZIPをそのまま提出できますか？','いいえ。画像を一つずつ確認して各ストアの正しい場所に提出してください。Apple画像はXcode用の素材です。']
+ }[locale];
  const current=capabilityGuide(id,locale);if(current)return current;
  if(TOOLS[id]){const d=TOOLS[id],i={ko:0,en:1,ja:2}[locale];return [
   ["이미지 넣기|필요한 설정을 조정하고 결과 확인|다운로드로 새 파일 저장","Add images|Adjust settings and review the result|Download a new file","画像を追加|設定を調整して結果を確認|新しいファイルを保存"][i],d.description[i],d.limit[i],
@@ -130,6 +135,7 @@ export function guide(id,locale){
 }
 export function formats(id,locale){
  if(id==='character-counter')return {ko:'UTF-8 텍스트(.txt, .md, .text) → 화면에서 계산. 파일 내보내기 없음.',en:'UTF-8 text (.txt, .md, .text) → on-screen counts. No file export.',ja:'UTF-8テキスト（.txt、.md、.text）→ 画面上で集計。ファイル書き出しなし。'}[locale];
+  if(id==='store-art-pack')return {en:'Key art: PNG / JPG / WebP; logo: transparent PNG; gameplay: PNG / JPG → per-slot PNG / JPG + unchanged captures + checklist JSON (ZIP).',ko:'키아트: PNG / JPG / WebP, 로고: 투명 PNG, 게임 화면: PNG / JPG → 규격별 PNG / JPG + 원본 캡처 + 점검 JSON (ZIP).',ja:'キーアート: PNG / JPG / WebP、ロゴ: 透過PNG、ゲーム画面: PNG / JPG → 規格別PNG / JPG + 元の画像 + 確認JSON (ZIP)。'}[locale];
  if(TOOLS[id]){const output={refiner:'PNG / ZIP','palette-swap':'PNG','logo-bg':'PNG','texture-map':'PNG','texture-lab':'PNG / JSON / ZIP','channel-unpacker':'PNG (ZIP)','normal-map-converter':'PNG','pbr-texture-validator':'JSON','texture-edge-bleed':'PNG','mask-packer':'PNG','margin-crop':'PNG','marketplace-pack':'JPG + JSON (ZIP)','print-pack':'JPG + JSON (ZIP)','bitmap-font':'PNG + FNT + JSON (ZIP)','favicon-pack':'ICO + PNG + HTML + Webmanifest (ZIP)'}[id]||'PNG + JSON (ZIP)';return 'PNG / JPG / WebP / AVIF / HEIC → '+output+' — '+{ko:'입력 디코딩은 브라우저 지원과 추가 엔진 사용 여부에 따라 다릅니다.',en:'Input decoding depends on browser support and optional engines.',ja:'入力のデコードはブラウザ対応と追加エンジンに依存します。'}[locale];}
  const editor=INTENTS[id].editor;
  const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'MP4 / WebM','video-compress':'MP4 / WebM',media:'MP4 / WebM / GIF / PNG / WAV / MP3'};
