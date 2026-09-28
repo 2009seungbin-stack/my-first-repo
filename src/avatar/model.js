@@ -13,8 +13,8 @@ export function normalize(input={}){
  for(const key of URL_KEYS)if(ALLOWED[key].includes(input?.[key]))state[key]=input[key];
  if(input?.v===CATALOG_VERSION||Number(input?.v)===CATALOG_VERSION)state.v=CATALOG_VERSION;
  if(input?.seed!==null&&input?.seed!==undefined&&input?.seed!==''){
-  const seed=Number(input.seed);
-  if(Number.isSafeInteger(seed)&&seed>=0&&seed<=0xffffffff)state.seed=seed;
+  const raw=String(input.seed),seed=Number(raw);
+  if(/^\d{1,10}$/.test(raw)&&Number.isSafeInteger(seed)&&seed<=0xffffffff)state.seed=seed;
  }
  if(EXPORT_SIZES.includes(Number(input?.size)))state.size=Number(input.size);
  if(MOTIONS.includes(input?.motion))state.motion=input.motion;

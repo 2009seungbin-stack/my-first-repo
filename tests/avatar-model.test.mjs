@@ -11,6 +11,7 @@ test('avatar URL round trip keeps a versioned, bounded state',()=>{
  assert.equal(hostile.state.face,DEFAULT.face);
  assert.equal(hostile.state.hair,DEFAULT.hair);
  assert.equal(hostile.state.seed,DEFAULT.seed);
+ assert.equal(parse('?v=1&seed=1e2').state.seed,DEFAULT.seed);
  assert.equal(parse('?v=99').versionMismatch,true);
  assert.equal(parse('?v=1&size=33&motion=spin&delay=-1').valid,false);
  assert.equal(parse('?'+ 'x'.repeat(3000)).valid,false);
