@@ -20,6 +20,7 @@ import {loadStatus,renderStatus} from '../../platform/render/status.js';
 import {loadSearch,renderSearch} from '../../platform/render/search.js';
 import {loadRadar,renderRadar} from '../../platform/render/radar.js';
 import {renderFlag,FLAG_TARGET} from '../../platform/render/flag.js';
+import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {channelUrl,nameOf} from '../../platform/render/ui.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
@@ -27,7 +28,7 @@ import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report))?|(search|radar)/|(${V})/([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status))?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report))?|(search|radar)/|(${V})/([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm))?)$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=600';
 /** Channel bar for anonymous readers: the week's most active channels, topped up with featured ones. */
 export const FEATURED=Object.freeze(['service:claude','service:chatgpt','service:gemini-app','service:claude-code','gpu:rtx-5070','app:blender','app:ableton-live']);
@@ -38,7 +39,7 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'best'|'flag'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status',vertical?:string,slug?:string,no?:number|null}} Route */
+/** @typedef {{l:string,page:'front'|'best'|'flag'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm',vertical?:string,slug?:string,no?:number|null}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const m=ROUTE.exec(pathname);
@@ -46,7 +47,7 @@ export function matchPlatformRoute(pathname){
  const [,l,community,best,report,top,vertical,slug,no,sub]=m;
  if(community)return {l,page:best?'best':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
- return {l,page:no?'post':/** @type {'write'|'history'|'status'|undefined} */(sub)||'channel',vertical,slug,no:no?Number(no):null};
+ return {l,page:no?'post':/** @type {'write'|'history'|'status'|'local-llm'|undefined} */(sub)||'channel',vertical,slug,no:no?Number(no):null};
 }
 
 const hasOwn=(/** @type {object} */ o,/** @type {string} */ k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -110,6 +111,7 @@ export async function renderPlatformPage(request,env,site){
  const channels=await bar();
  switch(route.page){
   case 'history':return html(String(renderHistory(await loadHistory(db,entity,{l,now,channels}),s)));
+  case 'local-llm':return entity.type==='gpu'?html(String(renderLocalLlm(await loadLocalLlm(db,entity,{l,now,channels}),s))):null;
   case 'status':return entity.type==='service'?html(String(renderStatus(await loadStatus(db,entity,{l,now,channels}),s))):null;
   case 'write':return html(String(renderWrite(await loadWrite(db,entity,{l,kind:q.get('kind'),channels}),s)));
   case 'post':{const m=await loadPost(db,entity,/** @type {number} */(route.no),{l,now,channels});return m?html(String(renderPost(m,s))):null;}
@@ -130,7 +132,7 @@ export async function renderSitemap(db,vertical,origin){
  const rows=(await sitemapEntities(db,vertical)).filter(e=>indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
  const urls=[];
  for(const e of rows){
-  const paths=[''];if(e.type==='service')paths.push('status');
+  const paths=[''];if(e.type==='service')paths.push('status');if(e.type==='gpu')paths.push('local-llm');
   for(const p of paths){
    const alt={ko:origin+channelUrl('ko',e)+p,en:origin+channelUrl('en',e)+p};
    for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc>${e.lastmod?`<lastmod>${new Date(e.lastmod).toISOString().slice(0,10)}</lastmod>`:''}<xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(alt.en)}"/></url>`);

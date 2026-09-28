@@ -157,6 +157,12 @@ async function main(){
   const sync=()=>{const r=kindSel.value==='report'&&!!rep;if(rep){rep.hidden=!r;for(const el of $$('select,input',rep))el.disabled=!r;}if(title)title.required=!r;};kindSel?.addEventListener('change',sync);sync();
  }
 
+ // Benchmark (GPU local-LLM page)
+ const bf=$('form[data-island="bench-form"]');
+ if(bf)bf.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(bf);
+  const r=await write('/reports',{kind:'benchmark',entityId:String(fd.get('model')),targetId:bf.dataset.gpu,metrics:{tokens_per_s:Number(fd.get('tps'))},env:Object.fromEntries([['runtime',fd.get('runtime')],['quant',fd.get('quant')],['ctx',fd.get('ctx')],['os',fd.get('os')]].filter(([,v])=>v).map(([k,v])=>[k,String(v)]))},signedIn);
+  if(r){toast(T.thanks);setTimeout(()=>location.reload(),900);}});
+
  // 신고 form
  const ff=$('form[data-island="flag-form"]');
  if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);

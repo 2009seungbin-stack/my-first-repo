@@ -212,8 +212,9 @@ async function state(db,context,q){
  * community verdict, and becomes a 리포트 post so it can be discussed.
  * @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
 async function report(db,context,body,now,limit,origin){
- only(body,['kind','entityId','subjectVersion','targetId','targetVersion','result','env','comment','title']);
- if(body.kind!=='compat'&&body.kind!=='issue')throw new ApiError('BAD_REQUEST','kind must be compat or issue.');
+ only(body,['kind','entityId','subjectVersion','targetId','targetVersion','result','env','comment','title','metrics']);
+ if(body.kind==='benchmark')return benchmark(db,context,body,now,limit,origin);
+ if(body.kind!=='compat'&&body.kind!=='issue')throw new ApiError('BAD_REQUEST','kind must be compat, issue or benchmark.');
  const subject=await entity(db,body.entityId);
  const target=body.targetId?await entity(db,body.targetId):null;
  if(body.kind==='compat'&&!target)throw new ApiError('BAD_REQUEST','A compatibility report needs a target.',{field:'targetId'});
@@ -243,4 +244,21 @@ async function report(db,context,body,now,limit,origin){
  const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
  await purge(origin,[...bothLocales(l=>channelUrl(l,board)),...(board.id!==subject.id?bothLocales(l=>channelUrl(l,subject)):[])]);
  return {id,verdict,postNo:no,url:postUrl('ko',board,no)};
+}
+
+/** A measured benchmark (model × GPU): tokens/s with runtime, quantization and context. Never an
+ * estimate; the GPU page shows the median and the count. @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
+async function benchmark(db,context,body,now,limit,origin){
+ const model=await entity(db,body.entityId),gpu=await entity(db,body.targetId);
+ if(!model.id.startsWith('model:')||!gpu.id.startsWith('gpu:'))throw new ApiError('BAD_REQUEST','A benchmark is a model measured on a GPU.');
+ const tps=body.metrics&&typeof body.metrics==='object'?Number(body.metrics.tokens_per_s):NaN;
+ if(!Number.isFinite(tps)||tps<=0||tps>5000)throw new ApiError('BAD_REQUEST','tokens_per_s must be between 0 and 5000.',{field:'tokens_per_s'});
+ /** @type {Record<string,string>} */const env={};
+ for(const [k,v] of Object.entries(body.env&&typeof body.env==='object'?body.env:{}).slice(0,6)){if(!/^[a-z_]{1,20}$/.test(k)||typeof v!=='string'||v.length>60)throw new ApiError('BAD_REQUEST','Invalid env field.');env[k]=v.trim();}
+ await limit('report',LIMITS.postsPerMinute);
+ const id=randomToken(12);
+ await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,target_id,env,metrics,user_id,created_at,updated_at) VALUES (?,'benchmark',?,?,?,?,?,?,?)`)
+  .bind(id,model.id,gpu.id,JSON.stringify(env),JSON.stringify({tokens_per_s:Math.round(tps*100)/100}),context.user.id,now,now).run();
+ await purge(origin,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
+ return {id};
 }

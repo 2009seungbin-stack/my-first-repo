@@ -16,7 +16,9 @@ const DAY=864e5;
 /** @param {any} db @param {{l:string,now:number,vertical?:string|null,channels?:{name:string,href:string}[]}} o */
 export async function loadRadar(db,o){
  const vertical=o.vertical&&VERTICALS.includes(/** @type {any} */(o.vertical))?o.vertical:null,now=o.now;
- const changes=(await radarChanges(db,{limit:40,minImportance:2})).filter(c=>!vertical||c.vertical===vertical);
+ // One line per entity and kind of change (several schedule edits to one work read as one).
+ const seen=new Set();
+ const changes=(await radarChanges(db,{limit:60,minImportance:2})).filter(c=>!vertical||c.vertical===vertical).filter(c=>{const k=`${c.entity_id}|${c.kind}|${c.property||''}`;return seen.has(k)?false:(seen.add(k),true);}).slice(0,25);
  const releases=await recentVersions(db,{since:now-30*DAY,until:now,vertical,limit:40});
  const upcoming=await upcomingEvents(db,{from:now,to:now+30*DAY,vertical,limit:30});
  return {vertical,changes,releases,upcoming,l:o.l,now,channels:o.channels||[]};

@@ -150,3 +150,18 @@ test('flags: one open flag per reporter and target, validated reason and target'
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'comment:x',reason:'because'}})).status,400);
  assert.equal((await h.call('POST','/flags',{body:{target:'comment:x',reason:'spam'}})).status,401);
 });
+
+test('benchmarks: a model measured on a GPU, tokens/s bounded, shown as a median',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ await ingest(h.db,{schema:'nerulio.seed/1',vertical:'hardware',sources:[{id:'src:h',kind:'OFFICIAL',url:'https://example.com/g',retrieved:'2026-09-01'}],entities:[{id:'gpu:test-12',type:'gpu',slug:'test-12',names:{en:'Test 12'},facts:[{p:'vram_gb',v:12,ver:'OFFICIAL',src:'src:h'}]}]},{mode:'seed',actor:'seed',now:T0});
+ await ingest(h.db,{schema:'nerulio.seed/1',vertical:'ai',sources:[],entities:[{id:'model:open-8b',type:'model',slug:'open-8b',names:{en:'Open 8B'},facts:[{p:'parameters_b',v:8,ver:'OFFICIAL',src:'src:h'},{p:'open_weights',v:true,ver:'OFFICIAL',src:'src:h'}]}]},{mode:'seed',actor:'seed',now:T0});
+ for(const [who,tps] of [['a',40],['b',50]])assert.equal((await h.call('POST','/reports',{as:who,body:{kind:'benchmark',entityId:'model:open-8b',targetId:'gpu:test-12',metrics:{tokens_per_s:tps},env:{runtime:'llama.cpp',quant:'Q4_K_M'}}})).status,201);
+ assert.equal((await h.call('POST','/reports',{as:'a',body:{kind:'benchmark',entityId:'model:open-8b',targetId:'gpu:test-12',metrics:{tokens_per_s:99999}}})).status,400);
+ assert.equal((await h.call('POST','/reports',{as:'a',body:{kind:'benchmark',entityId:'gpu:test-12',targetId:'model:open-8b',metrics:{tokens_per_s:5}}})).status,400,'model on GPU, not the reverse');
+ const {loadLocalLlm,renderLocalLlm}=await import('../platform/render/localllm.js');
+ const {entitiesByIds}=await import('../platform/db/channel.js');
+ const gpu=(await entitiesByIds(h.db,['gpu:test-12'])).get('gpu:test-12');
+ const out=String(renderLocalLlm(await loadLocalLlm(h.db,gpu,{l:'ko',now:T0}),{origin:ORIGIN}));
+ assert(out.includes('Test 12에서 돌아가는 로컬 LLM')&&out.includes('<b>45</b> tok/s')&&out.includes('추정 방법'));
+ assert(/class="fy"><b>여유<\/b>/.test(out),'8B at Q4_K_M fits in 12 GB (estimate)');
+});

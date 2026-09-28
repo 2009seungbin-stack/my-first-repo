@@ -15,7 +15,8 @@ const QUANT='Q4_K_M';
 async function load(ctx){
  const {db,entity:e}=ctx;
  const vendor=(await related(db,e.id,'out',['made_by']))[0]?.entity||null;
- const drivers=vendor?(await related(db,vendor.id,'in',['made_by'])).map(r=>r.entity).filter(x=>x.type==='driver'):[];
+ // Only drivers linked to this card (a data-center branch is not a GeForce card's driver).
+ const drivers=(await related(db,e.id,'in',['related_to','runs_on'])).map(r=>r.entity).filter(x=>x.type==='driver');
  const df=await factsFor(db,drivers.map(x=>x.id));
  let driver=null;
  for(const dr of drivers){
@@ -58,7 +59,7 @@ function top(d,ctx){
 <div class="vbs" data-island="issue-vote" data-entity="${dr.entity.id}" data-version="${dr.version}"><button class="vb" type="button" disabled>${s.noProblem}</button><button class="vb" type="button" disabled>${s.problem}</button></div></div>`:html`<p class="empty">${s.noDriver}</p>`);
  const VERDICT=/** @type {Record<string,[string,string]>} */({fits:[s.fits,'fy'],tight:[s.tight,'fm'],does_not_fit:[s.noFit,'fn']});
  const fit=d.fit.length?box({title:s.localAi,extra:html`<a class="st e" href="#estimate-method">${s.estimateMethod}</a>`,note:`${QUANT} · ${l==='ko'?'KV 캐시 제외':'KV cache excluded'}`},html`<ul class="fitg">${d.fit.map(x=>{const [lab,cls]=VERDICT[/** @type {string} */(x.r.verdict)];return html`<li class="fit"><a class="fine" href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a><b class="${cls}">${lab}</b><span class="fine">≈ ${x.r.gib.total.low.toFixed(1)}–${x.r.gib.total.high.toFixed(1)} GiB</span><span class="fine">${x.measured.length?html`${l==='ko'?'측정 중앙값':'measured median'} <b>${int(Math.round(median(x.measured)*10)/10,l)}</b> tok/s · ${s.measured(x.measured.length)}`:s.noMeasure}</span></li>`;})}</ul>
-<details class="method" id="estimate-method"><summary>${l==='ko'?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`):'';
+<p class="fine pad"><a href="${channelUrl(l,ctx.entity)}local-llm">${l==='ko'?'모든 모델 보기 · 내 측정값 올리기 ›':'All models · post a measurement ›'}</a></p><details class="method" id="estimate-method"><summary>${l==='ko'?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`):'';
  const board=box({title:s.benchBoard,extra:badge('COMMUNITY',l),note:s.benchNote},d.board.length?html`<div class="tw"><table class="mt"><thead><tr><th>${s.task}</th><th>${s.setting}</th><th>${s.median}</th><th>${s.count}</th></tr></thead><tbody>${d.board.map(b=>html`<tr><td>${b.name}</td><td>${[b.runtime,b.quant].filter(Boolean).join(' · ')}</td><td><b>${int(Math.round(b.median*10)/10,l)} tok/s</b></td><td>${b.values.length}</td></tr>`)}</tbody></table></div>`:html`<p class="empty">${s.benchEmpty}</p>`);
  return html`<div class="g2 c">${driver}${fit}</div>${board}`;
 }
