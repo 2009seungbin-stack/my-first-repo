@@ -871,6 +871,74 @@
      "ver": "OFFICIAL"
     }
    ]
+  },
+  {
+   "id": "character:chainsaw-man-aki",
+   "type": "character",
+   "slug": "chainsaw-man-aki",
+   "names": {
+    "en": "Aki Hayakawa",
+    "ja": "早川アキ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1142517",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:chainsaw-man-power",
+   "type": "character",
+   "slug": "chainsaw-man-power",
+   "names": {
+    "en": "Power",
+    "ja": "パワー"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:chainsaw-man",
+     "src": "src:sc-merch-gsc-1144811",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:jujutsu-kaisen-yuta",
+   "type": "character",
+   "slug": "jujutsu-kaisen-yuta",
+   "names": {
+    "en": "Yuta Okkotsu",
+    "ja": "乙骨憂太"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:jujutsu-kaisen",
+     "src": "src:sc-merch-gsc-1142649",
+     "ver": "OFFICIAL"
+    }
+   ]
+  },
+  {
+   "id": "character:one-piece-ace",
+   "type": "character",
+   "slug": "one-piece-ace",
+   "names": {
+    "en": "Portgas D. Ace",
+    "ja": "ポートガス・D・エース"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:one-piece",
+     "src": "src:sc-merch-megahouse-3754",
+     "ver": "OFFICIAL"
+    }
+   ]
   }
  ],
  "events": [

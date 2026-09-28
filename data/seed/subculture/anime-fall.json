@@ -640,6 +640,30 @@
    "title": "Talent profile",
    "publisher": "株式会社アトミックモンキー",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-toei-animation",
+   "kind": "OFFICIAL",
+   "url": "https://www.toei-anim.co.jp/",
+   "title": "Toei Animation official website",
+   "publisher": "Toei Animation",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-mappa",
+   "kind": "OFFICIAL",
+   "url": "https://www.mappa.co.jp/",
+   "title": "MAPPA official website",
+   "publisher": "MAPPA",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-jump-studio-tms-entertainment",
+   "kind": "OFFICIAL",
+   "url": "https://www.tms-e.co.jp/",
+   "title": "TMS Entertainment official website",
+   "publisher": "TMS Entertainment",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -741,6 +765,12 @@
      "ver": "OFFICIAL",
      "src": "src:sc-anime-fall-toei-animation-top"
     }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.toei-anim.co.jp/"
+    }
    ]
   },
   {
@@ -767,7 +797,21 @@
    "description": {
     "en": "Animation studio credited with production of the 2024 Ranma1/2 TV series.",
     "ko": "2024년판 란마1/2 TV 시리즈의 제작 스튜디오."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.mappa.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-mappa"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.mappa.co.jp/"
+    }
+   ]
   },
   {
    "id": "studio_org:trigger",
@@ -793,7 +837,21 @@
    "description": {
     "en": "Animation company credited with Aoashi Season 2.",
     "ko": "아오아시 2기의 애니메이션 제작사."
-   }
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.tms-e.co.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-jump-studio-tms-entertainment"
+    }
+   ],
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.tms-e.co.jp/"
+    }
+   ]
   },
   {
    "id": "studio_org:silver-link",

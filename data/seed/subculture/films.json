@@ -1,0 +1,2281 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "subculture",
+ "sources": [
+  {
+   "id": "src:sc-films-mia-top",
+   "kind": "OFFICIAL",
+   "url": "https://miabyss.com/",
+   "title": "「メイドインアビス」目覚める神秘 | 公式サイト",
+   "publisher": "劇場シリーズ「メイドインアビス」製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-mia-theaters",
+   "kind": "OFFICIAL",
+   "url": "https://eigakan.org/theaterpage/schedule.php?t=miabyss1shinpi",
+   "title": "劇場シリーズ【第一部】メイドインアビス 目覚める神秘 劇場情報",
+   "publisher": "Official theater list (linked from miabyss.com news, 2026-07-03)",
+   "retrieved": "2026-09-28",
+   "note": "Theater list page states 2026年10月23日（金）公開."
+  },
+  {
+   "id": "src:sc-films-mia-staff",
+   "kind": "OFFICIAL",
+   "url": "https://miabyss.com/movie_part1/staff.html",
+   "title": "STAFF&CAST スタッフ＆キャスト",
+   "publisher": "劇場シリーズ「メイドインアビス」製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-mia-chara",
+   "kind": "OFFICIAL",
+   "url": "https://miabyss.com/movie_part1/chara.html",
+   "title": "CHARACTER キャラクター",
+   "publisher": "劇場シリーズ「メイドインアビス」製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-mia-greeting",
+   "kind": "OFFICIAL",
+   "url": "https://miabyss.com/movie_part1/greeting.html",
+   "title": "TALK SESSION 舞台挨拶",
+   "publisher": "劇場シリーズ「メイドインアビス」製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-mia-announce",
+   "kind": "OFFICIAL",
+   "url": "https://miabyss.com/news_movie/article005.html",
+   "title": "劇場シリーズ【第1部】「メイドインアビス 目覚める神秘」2026年秋公開決定！",
+   "publisher": "劇場シリーズ「メイドインアビス」製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-mahoyo-top",
+   "kind": "OFFICIAL",
+   "url": "https://mahoyo-movie.com/",
+   "title": "劇場アニメーション『魔法使いの夜』公式サイト",
+   "publisher": "Aniplex (official film site)",
+   "retrieved": "2026-09-28",
+   "note": "News list includes 2026.07.08 「公開日が11月20日(金)に決定」."
+  },
+  {
+   "id": "src:sc-films-mahoyo-fgofes",
+   "kind": "OFFICIAL",
+   "url": "https://mahoyo-movie.com/news/?article_id=70999",
+   "title": "劇場アニメーション『魔法使いの夜』Fate/Grand Order Fes.2026ステージオフィシャルレポート到着",
+   "publisher": "Aniplex (official film site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-08-10; names cast roles and the smartphone app release date."
+  },
+  {
+   "id": "src:sc-films-mahoyo-announce",
+   "kind": "OFFICIAL",
+   "url": "https://mahoyo-movie.com/news/?article_id=59567",
+   "title": "『魔法使いの夜』劇場アニメーション化決定",
+   "publisher": "Aniplex (official film site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2021-12-27."
+  },
+  {
+   "id": "src:sc-films-aobuta-top",
+   "kind": "OFFICIAL",
+   "url": "https://ao-buta.com/dearfriend/",
+   "title": "アニメ「青春ブタ野郎はディアフレンドの夢を見ない」2026年10月16日（金）公開",
+   "publisher": "青ブタ Project (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-aobuta-enoden",
+   "kind": "OFFICIAL",
+   "url": "https://ao-buta.com/dearfriend/news/?id=71351",
+   "title": "江ノ島電鉄 ✕『青春ブタ野郎はディアフレンドの夢を見ない』コラボ開催決定！",
+   "publisher": "青ブタ Project (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-09-27."
+  },
+  {
+   "id": "src:sc-films-aobuta-eve-live",
+   "kind": "OFFICIAL",
+   "url": "https://ao-buta.com/dearfriend/news/?id=71356",
+   "title": "公開前夜祭ライブ開催決定！",
+   "publisher": "青ブタ Project (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-09-28."
+  },
+  {
+   "id": "src:sc-films-takopi-release",
+   "kind": "OFFICIAL",
+   "url": "https://www.tbs.co.jp/anime/takopi_project/news/news20260818.html",
+   "title": "映画『タコピーの原罪 -ありがとう、また明日-』11月27日（金）公開決定！",
+   "publisher": "TBSテレビ (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-08-18; lists staff and cast."
+  },
+  {
+   "id": "src:sc-films-takopi-top",
+   "kind": "OFFICIAL",
+   "url": "https://www.tbs.co.jp/anime/takopi_project/",
+   "title": "映画『タコピーの原罪』公式サイト",
+   "publisher": "TBSテレビ (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-medalist-top",
+   "kind": "OFFICIAL",
+   "url": "https://medalist-pr.com/",
+   "title": "劇場版『メダリスト』公式サイト",
+   "publisher": "メダリスト製作委員会 (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Meta description and header state 2027年2月19日(金) 公開; staff & cast listed on the page."
+  },
+  {
+   "id": "src:sc-films-medalist-news",
+   "kind": "OFFICIAL",
+   "url": "https://medalist-pr.com/news.html",
+   "title": "NEWS｜劇場版『メダリスト』公式サイト",
+   "publisher": "メダリスト製作委員会 (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-conan-2026-top",
+   "kind": "OFFICIAL",
+   "url": "https://www.conan-movie.jp/",
+   "title": "劇場版『名探偵コナン ハイウェイの堕天使』",
+   "publisher": "名探偵コナン製作委員会 / TOHO (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Meta description: 2026年4月10日（金）公開."
+  },
+  {
+   "id": "src:sc-films-conan-2026-news",
+   "kind": "OFFICIAL",
+   "url": "https://www.conan-movie.jp/2026/news/index.html",
+   "title": "NEWS┃劇場版『名探偵コナン ハイウェイの堕天使』",
+   "publisher": "名探偵コナン製作委員会 / TOHO (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-conan-2026-staffcast",
+   "kind": "OFFICIAL",
+   "url": "https://www.conan-movie.jp/2026/atm/staffcast.html",
+   "title": "STAFF・CAST┃劇場版『名探偵コナン ハイウェイの堕天使』",
+   "publisher": "名探偵コナン製作委員会 / TOHO (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-conan-2026-megabox",
+   "kind": "OFFICIAL",
+   "url": "https://www.megabox.co.kr/movie-detail?rpstMovieNo=26042500",
+   "title": "명탐정 코난: 하이웨이의 타천사 — 메가박스 영화 상세",
+   "publisher": "Megabox (Korean cinema chain)",
+   "retrieved": "2026-09-28",
+   "note": "Movie info block: 개봉일 2026.08.12, 12세이상관람가, 2D(더빙)/2D(자막)."
+  },
+  {
+   "id": "src:sc-films-conan-30th-exhibition",
+   "kind": "OFFICIAL",
+   "url": "https://tvconanten-30th.jp/",
+   "title": "放送30周年記念TVアニメ「名探偵コナン」展",
+   "publisher": "放送30周年記念TVアニメ「名探偵コナン」展製作委員会 (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Venue list includes AK PLAZA 弘大 4F, OHMUSEUM 2026.8.12–11.29."
+  },
+  {
+   "id": "src:sc-films-haikyu-movie",
+   "kind": "OFFICIAL",
+   "url": "https://haikyu.jp/movie/",
+   "title": "劇場版ハイキュー!! VS 小さな巨人｜アニメ『ハイキュー!!』公式サイト",
+   "publisher": "「ハイキュー!!」製作委員会 (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Read in a browser (site blocks non-browser clients)."
+  },
+  {
+   "id": "src:sc-films-haikyu-concept-visual",
+   "kind": "OFFICIAL",
+   "url": "https://haikyu.jp/news/5693/",
+   "title": "『劇場版ハイキュー!! VS 小さな巨人』コンセプトビジュアル解禁！",
+   "publisher": "「ハイキュー!!」製作委員会 (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-08-19; states 2027年、劇場にて公開."
+  },
+  {
+   "id": "src:sc-films-madoka-wr",
+   "kind": "OFFICIAL",
+   "url": "https://www.madoka-magica.com/wr/",
+   "title": "『劇場版 魔法少女まどか☆マギカ〈ワルプルギスの廻天〉』公式サイト",
+   "publisher": "Aniplex / Madoka Project (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Title bar: 2026年8月28日(金)公開; share text credits 新房昭之×虚淵玄（ニトロプラス）×蒼樹うめ×シャフト."
+  },
+  {
+   "id": "src:sc-films-madoka-chara",
+   "kind": "OFFICIAL",
+   "url": "https://www.madoka-magica.com/wr/chara/",
+   "title": "CHARACTER｜『劇場版 魔法少女まどか☆マギカ〈ワルプルギスの廻天〉』公式サイト",
+   "publisher": "Aniplex / Madoka Project (official site)",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:sc-films-madoka-4dx",
+   "kind": "OFFICIAL",
+   "url": "https://www.madoka-magica.com/wr/news/?id=71324",
+   "title": "10/3より4DX・MX4D上映決定",
+   "publisher": "Aniplex / Madoka Project (official site)",
+   "retrieved": "2026-09-28",
+   "note": "Published 2026-09-22."
+  },
+  {
+   "id": "src:sc-films-madoka-kr-x",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/Animovie_ofc/status/2101234845691122015",
+   "title": "<극장판 마법소녀 마도카☆마기카 〈발푸르기스의 회천〉> 11월 롯데시네마 단독 개봉 확정",
+   "publisher": "애니무비(ANI MOVIE) X account (@Animovie_ofc)",
+   "retrieved": "2026-09-28",
+   "note": "Posted 2026-09-19, tagged #애니플러스 #ANIPLUS (Korean importer/distributor); read via the documented X oEmbed endpoint. Account 애니무비(ANI MOVIE) tags its posts #애니플러스 #ANIPLUS; no link from aniplustv.com to the account was found, so treat as the distributor label's account pending confirmation."
+  },
+  {
+   "id": "src:sc-films-madoka-kr-lotte",
+   "kind": "OFFICIAL",
+   "url": "https://www.lottecinema.co.kr/NLCHS/Movie/MovieDetailView?movie=25030",
+   "title": "극장판 마법소녀 마도카 마기카 <발푸르기스의 회천> — 롯데시네마",
+   "publisher": "Lotte Cinema (Korean cinema chain)",
+   "retrieved": "2026-09-28",
+   "note": "Listed under upcoming films (movie code 25030); the listed date 2026-11-30 looks like a placeholder, so only the month is used."
+  },
+  {
+   "id": "src:sc-films-laftel-takopi",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42947",
+   "title": "타코피의 원죄 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-medalist",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42615",
+   "title": "메달리스트 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-mia",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/37612",
+   "title": "메이드 인 어비스 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-aobuta",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/38921",
+   "title": "청춘 돼지는 바니걸 선배의 꿈을 꾸지 않는다 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-madoka",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40977",
+   "title": "마법소녀 마도카 마기카 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-haikyu",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/23661",
+   "title": "하이큐!! 1기 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  },
+  {
+   "id": "src:sc-films-laftel-conan",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41278",
+   "title": "(자막) 명탐정 코난 1기 — 라프텔",
+   "publisher": "Laftel (Korean streaming service)",
+   "retrieved": "2026-09-28",
+   "note": "Korean title as listed by Laftel (item data via laftel.net API)."
+  }
+ ],
+ "entities": [
+  {
+   "id": "studio_org:kinema-citrus",
+   "type": "studio_org",
+   "slug": "kinema-citrus",
+   "names": {
+    "en": "Kinema Citrus",
+    "ja": "キネマシトラス"
+   },
+   "description": {
+    "en": "Japanese animation studio that produces the Made in Abyss anime.",
+    "ko": "메이드 인 어비스 애니메이션을 제작하는 일본 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:enishiya",
+   "type": "studio_org",
+   "slug": "enishiya",
+   "names": {
+    "en": "ENISHIYA",
+    "ja": "ENISHIYA"
+   },
+   "description": {
+    "en": "Japanese animation studio that produced the Takopi's Original Sin anime.",
+    "ko": "타코피의 원죄 애니메이션을 제작한 일본 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:engi",
+   "type": "studio_org",
+   "slug": "engi",
+   "names": {
+    "en": "ENGI",
+    "ja": "ENGI"
+   },
+   "description": {
+    "en": "Japanese animation studio producing the Medalist anime.",
+    "ko": "메달리스트 애니메이션을 제작하는 일본 애니메이션 스튜디오."
+   }
+  },
+  {
+   "id": "studio_org:shaft",
+   "type": "studio_org",
+   "slug": "shaft",
+   "names": {
+    "en": "SHAFT",
+    "ja": "シャフト"
+   },
+   "description": {
+    "en": "Japanese animation studio that produces the Puella Magi Madoka Magica anime.",
+    "ko": "마법소녀 마도카 마기카 애니메이션을 제작하는 일본 애니메이션 스튜디오."
+   },
+   "official_urls": [
+    {
+     "label": "Laftel (Korean credit)",
+     "url": "https://laftel.net/item/40977"
+    }
+   ]
+  },
+  {
+   "id": "creator:akihito-tsukushi",
+   "type": "creator",
+   "slug": "akihito-tsukushi",
+   "names": {
+    "en": "Akihito Tsukushi",
+    "ja": "つくしあきひと"
+   },
+   "description": {
+    "en": "Manga artist and author of Made in Abyss.",
+    "ko": "메이드 인 어비스의 원작 만화가."
+   }
+  },
+  {
+   "id": "creator:kinoko-nasu",
+   "type": "creator",
+   "slug": "kinoko-nasu",
+   "names": {
+    "en": "Kinoko Nasu",
+    "ja": "奈須きのこ"
+   },
+   "description": {
+    "en": "TYPE-MOON writer who created Witch on the Holy Night and the Fate series.",
+    "ko": "마법사의 밤과 Fate 시리즈를 만든 TYPE-MOON의 시나리오 작가."
+   }
+  },
+  {
+   "id": "creator:hajime-kamoshida",
+   "type": "creator",
+   "slug": "hajime-kamoshida",
+   "names": {
+    "en": "Hajime Kamoshida",
+    "ja": "鴨志田一"
+   },
+   "description": {
+    "en": "Author of the Rascal Does Not Dream light novel series (Dengeki Bunko).",
+    "ko": "라이트노벨 청춘 돼지 시리즈(전격문고)의 작가."
+   }
+  },
+  {
+   "id": "creator:taizan5",
+   "type": "creator",
+   "slug": "taizan5",
+   "names": {
+    "en": "Taizan5",
+    "ja": "タイザン5"
+   },
+   "description": {
+    "en": "Manga artist who created Takopi's Original Sin for Shonen Jump+.",
+    "ko": "소년 점프+에서 타코피의 원죄를 연재한 만화가."
+   }
+  },
+  {
+   "id": "creator:tsurumaikada",
+   "type": "creator",
+   "slug": "tsurumaikada",
+   "names": {
+    "en": "Tsurumaikada",
+    "ja": "つるまいかだ"
+   },
+   "description": {
+    "en": "Manga artist of Medalist, serialized in Kodansha's monthly Afternoon.",
+    "ko": "고단샤 월간 애프터눈에 메달리스트를 연재하는 만화가."
+   }
+  },
+  {
+   "id": "creator:haruichi-furudate",
+   "type": "creator",
+   "slug": "haruichi-furudate",
+   "names": {
+    "en": "Haruichi Furudate",
+    "ja": "古舘春一"
+   },
+   "description": {
+    "en": "Manga artist of Haikyu!!, published by Shueisha.",
+    "ko": "슈에이샤에서 출간된 하이큐!!의 원작 만화가."
+   }
+  },
+  {
+   "id": "franchise:made-in-abyss",
+   "type": "franchise",
+   "slug": "made-in-abyss",
+   "names": {
+    "en": "Made in Abyss",
+    "ja": "メイドインアビス",
+    "ko": "메이드 인 어비스"
+   },
+   "description": {
+    "en": "Manga by Akihito Tsukushi about children descending into a giant vertical pit; adapted by Kinema Citrus into TV series and films.",
+    "ko": "거대한 구멍 '어비스'를 탐험하는 아이들을 그린 츠쿠시 아키히토의 만화로, 키네마 시트러스가 TV 시리즈와 극장판으로 애니메이션화했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://miabyss.com/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/37612"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://miabyss.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-top"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-staff"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:akihito-tsukushi",
+     "src": "src:sc-films-mia-staff"
+    }
+   ]
+  },
+  {
+   "id": "work:made-in-abyss-film-2026",
+   "type": "work",
+   "slug": "made-in-abyss-film-2026",
+   "names": {
+    "en": "Made in Abyss Film Series Part 1: Mezameru Shinpi",
+    "ja": "劇場シリーズ【第一部】メイドインアビス 目覚める神秘"
+   },
+   "aliases": [
+    "目覚める神秘",
+    "Made in Abyss Mezameru Shinpi"
+   ],
+   "description": {
+    "en": "First part of a new theatrical series of Made in Abyss, directed by Masayuki Kojima and animated by Kinema Citrus.",
+    "ko": "코지마 마사유키 감독, 키네마 시트러스 제작의 메이드 인 어비스 새 극장 시리즈 제1부."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://miabyss.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-staff"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-23",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-theaters",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-theaters"
+    },
+    {
+     "p": "homepage",
+     "v": "https://miabyss.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mia-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:made-in-abyss",
+     "src": "src:sc-films-mia-staff"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:kinema-citrus",
+     "src": "src:sc-films-mia-staff"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:akihito-tsukushi",
+     "src": "src:sc-films-mia-staff"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:miyu-tomita",
+   "type": "voice_actor",
+   "slug": "miyu-tomita",
+   "names": {
+    "en": "Miyu Tomita",
+    "ja": "富田美憂"
+   }
+  },
+  {
+   "id": "voice_actor:mariya-ise",
+   "type": "voice_actor",
+   "slug": "mariya-ise",
+   "names": {
+    "en": "Mariya Ise",
+    "ja": "伊瀬茉莉也"
+   }
+  },
+  {
+   "id": "voice_actor:shiori-izawa",
+   "type": "voice_actor",
+   "slug": "shiori-izawa",
+   "names": {
+    "en": "Shiori Izawa",
+    "ja": "井澤詩織"
+   }
+  },
+  {
+   "id": "character:made-in-abyss-riko",
+   "type": "character",
+   "slug": "made-in-abyss-riko",
+   "names": {
+    "en": "Riko",
+    "ja": "リコ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:made-in-abyss",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:made-in-abyss-film-2026",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:miyu-tomita",
+     "src": "src:sc-films-mia-chara",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:made-in-abyss-reg",
+   "type": "character",
+   "slug": "made-in-abyss-reg",
+   "names": {
+    "en": "Reg",
+    "ja": "レグ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:made-in-abyss",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:made-in-abyss-film-2026",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:mariya-ise",
+     "src": "src:sc-films-mia-chara",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:made-in-abyss-nanachi",
+   "type": "character",
+   "slug": "made-in-abyss-nanachi",
+   "names": {
+    "en": "Nanachi",
+    "ja": "ナナチ"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:made-in-abyss",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:made-in-abyss-film-2026",
+     "src": "src:sc-films-mia-chara"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:shiori-izawa",
+     "src": "src:sc-films-mia-chara",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:witch-on-the-holy-night",
+   "type": "franchise",
+   "slug": "witch-on-the-holy-night",
+   "names": {
+    "en": "Witch on the Holy Night",
+    "ja": "魔法使いの夜"
+   },
+   "description": {
+    "en": "TYPE-MOON visual novel written by Kinoko Nasu, released in 2012 and set in the late 1980s.",
+    "ko": "나스 키노코가 쓴 TYPE-MOON의 비주얼 노벨로 2012년 발매되었으며 1980년대 후반을 배경으로 한다."
+   },
+   "official_urls": [
+    {
+     "label": "Film official site (JP)",
+     "url": "https://mahoyo-movie.com/"
+    },
+    {
+     "label": "TYPE-MOON product page",
+     "url": "http://typemoon.com/products/mahoyo/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Visual novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-announce"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:kinoko-nasu",
+     "src": "src:sc-films-mahoyo-announce"
+    }
+   ]
+  },
+  {
+   "id": "work:witch-on-the-holy-night-vn",
+   "type": "work",
+   "slug": "witch-on-the-holy-night-vn",
+   "names": {
+    "en": "Witch on the Holy Night (visual novel)",
+    "ja": "魔法使いの夜"
+   },
+   "description": {
+    "en": "The original TYPE-MOON visual novel for PC.",
+    "ko": "TYPE-MOON의 PC용 원작 비주얼 노벨."
+   },
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "game",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "release_date",
+     "v": "2012-04-12",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-announce",
+     "region": "JP"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:witch-on-the-holy-night",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:kinoko-nasu",
+     "src": "src:sc-films-mahoyo-announce"
+    }
+   ]
+  },
+  {
+   "id": "work:witch-on-the-holy-night-film",
+   "type": "work",
+   "slug": "witch-on-the-holy-night-film",
+   "names": {
+    "en": "Witch on the Holy Night (animated film)",
+    "ja": "劇場アニメーション『魔法使いの夜』"
+   },
+   "aliases": [
+    "Mahoyo movie",
+    "まほよ"
+   ],
+   "description": {
+    "en": "ufotable's theatrical adaptation of the TYPE-MOON visual novel, announced in 2021.",
+    "ko": "2021년에 발표된 ufotable의 TYPE-MOON 비주얼 노벨 극장 애니메이션화 작품."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://mahoyo-movie.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-11-20",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-top",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-top"
+    },
+    {
+     "p": "homepage",
+     "v": "https://mahoyo-movie.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-mahoyo-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:witch-on-the-holy-night",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:ufotable",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "adapted_from",
+     "o": "work:witch-on-the-holy-night-vn",
+     "src": "src:sc-films-mahoyo-announce"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:kinoko-nasu",
+     "src": "src:sc-films-mahoyo-announce"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:haruka-tomatsu",
+   "type": "voice_actor",
+   "slug": "haruka-tomatsu",
+   "names": {
+    "en": "Haruka Tomatsu",
+    "ja": "戸松遥"
+   }
+  },
+  {
+   "id": "voice_actor:kana-hanazawa",
+   "type": "voice_actor",
+   "slug": "kana-hanazawa",
+   "names": {
+    "en": "Kana Hanazawa",
+    "ja": "花澤香菜"
+   }
+  },
+  {
+   "id": "voice_actor:yusuke-kobayashi",
+   "type": "voice_actor",
+   "slug": "yusuke-kobayashi",
+   "names": {
+    "en": "Yusuke Kobayashi",
+    "ja": "小林裕介"
+   }
+  },
+  {
+   "id": "character:witch-on-the-holy-night-aoko",
+   "type": "character",
+   "slug": "witch-on-the-holy-night-aoko",
+   "names": {
+    "en": "Aoko Aozaki",
+    "ja": "蒼崎青子"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:witch-on-the-holy-night",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:witch-on-the-holy-night-film",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:haruka-tomatsu",
+     "src": "src:sc-films-mahoyo-fgofes",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:witch-on-the-holy-night-alice",
+   "type": "character",
+   "slug": "witch-on-the-holy-night-alice",
+   "names": {
+    "en": "Alice Kuonji",
+    "ja": "久遠寺有珠"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:witch-on-the-holy-night",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:witch-on-the-holy-night-film",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kana-hanazawa",
+     "src": "src:sc-films-mahoyo-fgofes",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:witch-on-the-holy-night-soujuurou",
+   "type": "character",
+   "slug": "witch-on-the-holy-night-soujuurou",
+   "names": {
+    "en": "Soujuurou Shizuki",
+    "ja": "静希草十郎"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:witch-on-the-holy-night",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:witch-on-the-holy-night-film",
+     "src": "src:sc-films-mahoyo-fgofes"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:yusuke-kobayashi",
+     "src": "src:sc-films-mahoyo-fgofes",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:rascal-does-not-dream",
+   "type": "franchise",
+   "slug": "rascal-does-not-dream",
+   "names": {
+    "en": "Rascal Does Not Dream",
+    "ja": "青春ブタ野郎",
+    "ko": "청춘 돼지"
+   },
+   "aliases": [
+    "Aobuta",
+    "青ブタ",
+    "청춘 돼지는 바니걸 선배의 꿈을 꾸지 않는다",
+    "Rascal Does Not Dream of Bunny Girl Senpai"
+   ],
+   "description": {
+    "en": "Light novel series by Hajime Kamoshida about 'Adolescence Syndrome'; animated by CloverWorks as TV series and films.",
+    "ko": "카모시다 하지메의 라이트노벨로 '사춘기 증후군'을 다루며, CloverWorks가 TV 시리즈와 극장판으로 애니메이션화했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://ao-buta.com/dearfriend/"
+    },
+    {
+     "label": "Laftel (Korean title of TV series 1)",
+     "url": "https://laftel.net/item/38921"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Light novel",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-aobuta-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:hajime-kamoshida",
+     "src": "src:sc-films-aobuta-top"
+    }
+   ]
+  },
+  {
+   "id": "work:rascal-does-not-dream-film-dear-friend",
+   "type": "work",
+   "slug": "rascal-does-not-dream-film-dear-friend",
+   "names": {
+    "en": "Rascal Does Not Dream of a Dear Friend",
+    "ja": "青春ブタ野郎はディアフレンドの夢を見ない"
+   },
+   "description": {
+    "en": "Final animated film of the Rascal Does Not Dream series, directed by Soichi Masui and animated by CloverWorks.",
+    "ko": "청춘 돼지 시리즈 애니메이션의 완결편 극장판으로, 마스이 소이치 감독과 CloverWorks가 제작했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://ao-buta.com/dearfriend/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-10-16",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-aobuta-top",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "homepage",
+     "v": "https://ao-buta.com/dearfriend/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-aobuta-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:rascal-does-not-dream",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:cloverworks",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:hajime-kamoshida",
+     "src": "src:sc-films-aobuta-top"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:manaka-iwami",
+   "type": "voice_actor",
+   "slug": "manaka-iwami",
+   "names": {
+    "en": "Manaka Iwami",
+    "ja": "石見舞菜香"
+   }
+  },
+  {
+   "id": "character:rascal-does-not-dream-sakuta",
+   "type": "character",
+   "slug": "rascal-does-not-dream-sakuta",
+   "names": {
+    "en": "Sakuta Azusagawa",
+    "ja": "梓川咲太"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:rascal-does-not-dream",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:rascal-does-not-dream-film-dear-friend",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kaito-ishikawa",
+     "src": "src:sc-films-aobuta-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:rascal-does-not-dream-mai",
+   "type": "character",
+   "slug": "rascal-does-not-dream-mai",
+   "names": {
+    "en": "Mai Sakurajima",
+    "ja": "桜島麻衣"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:rascal-does-not-dream",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:rascal-does-not-dream-film-dear-friend",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:asami-seto",
+     "src": "src:sc-films-aobuta-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:rascal-does-not-dream-miori",
+   "type": "character",
+   "slug": "rascal-does-not-dream-miori",
+   "names": {
+    "en": "Miori Mito",
+    "ja": "美東美織"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:rascal-does-not-dream",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:rascal-does-not-dream-film-dear-friend",
+     "src": "src:sc-films-aobuta-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:manaka-iwami",
+     "src": "src:sc-films-aobuta-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:takopis-original-sin",
+   "type": "franchise",
+   "slug": "takopis-original-sin",
+   "names": {
+    "en": "Takopi's Original Sin",
+    "ja": "タコピーの原罪",
+    "ko": "타코피의 원죄"
+   },
+   "description": {
+    "en": "Two-volume manga by Taizan5 serialized on Shonen Jump+ from December 2021; adapted as a six-episode streaming anime in 2025.",
+    "ko": "타이잔5가 2021년 12월부터 소년 점프+에 연재한 2권 완결 만화로, 2025년 6화 분량의 스트리밍 애니메이션으로 제작되었다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://www.tbs.co.jp/anime/takopi_project/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/42947"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-takopi-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:taizan5",
+     "src": "src:sc-films-takopi-release"
+    }
+   ]
+  },
+  {
+   "id": "work:takopis-original-sin-film",
+   "type": "work",
+   "slug": "takopis-original-sin-film",
+   "names": {
+    "en": "Takopi's Original Sin The Movie: Thank You, See You Tomorrow",
+    "ja": "映画『タコピーの原罪 -ありがとう、また明日-』"
+   },
+   "description": {
+    "en": "Theatrical re-edit of the six-episode anime with added scenes, directed by Shinya Iino.",
+    "ko": "6화 분량의 애니메이션을 극장용으로 재편집하고 새 장면을 추가한 작품으로, 이이노 신야가 감독했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://www.tbs.co.jp/anime/takopi_project/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-11-27",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-takopi-release",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.tbs.co.jp/anime/takopi_project/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-takopi-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:takopis-original-sin",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:enishiya",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:taizan5",
+     "src": "src:sc-films-takopi-release"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:kurumi-mamiya",
+   "type": "voice_actor",
+   "slug": "kurumi-mamiya",
+   "names": {
+    "en": "Kurumi Mamiya",
+    "ja": "間宮くるみ"
+   }
+  },
+  {
+   "id": "voice_actor:konomi-kohara",
+   "type": "voice_actor",
+   "slug": "konomi-kohara",
+   "names": {
+    "en": "Konomi Kohara",
+    "ja": "小原好美"
+   }
+  },
+  {
+   "id": "character:takopis-original-sin-takopi",
+   "type": "character",
+   "slug": "takopis-original-sin-takopi",
+   "names": {
+    "en": "Takopi",
+    "ja": "タコピー",
+    "ko": "타코피"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:takopis-original-sin",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:takopis-original-sin-film",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kurumi-mamiya",
+     "src": "src:sc-films-takopi-release",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:takopis-original-sin-shizuka",
+   "type": "character",
+   "slug": "takopis-original-sin-shizuka",
+   "names": {
+    "en": "Shizuka",
+    "ja": "しずか"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:takopis-original-sin",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:takopis-original-sin-film",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:reina-ueda",
+     "src": "src:sc-films-takopi-release",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:takopis-original-sin-marina",
+   "type": "character",
+   "slug": "takopis-original-sin-marina",
+   "names": {
+    "en": "Marina",
+    "ja": "まりな"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:takopis-original-sin",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:takopis-original-sin-film",
+     "src": "src:sc-films-takopi-release"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:konomi-kohara",
+     "src": "src:sc-films-takopi-release",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:medalist",
+   "type": "franchise",
+   "slug": "medalist",
+   "names": {
+    "en": "Medalist",
+    "ja": "メダリスト",
+    "ko": "메달리스트"
+   },
+   "description": {
+    "en": "Figure skating manga by Tsurumaikada serialized in Kodansha's Afternoon, following skater Inori Yuitsuka and coach Tsukasa Akeuraji.",
+    "ko": "츠루마이카다가 고단샤 애프터눈에 연재하는 피겨스케이팅 만화로, 선수 유이츠카 이노리와 코치 아케우라지 츠카사를 그린다."
+   },
+   "official_urls": [
+    {
+     "label": "Film official site (JP)",
+     "url": "https://medalist-pr.com/"
+    },
+    {
+     "label": "Afternoon (publisher page)",
+     "url": "https://afternoon.kodansha.co.jp/c/medalist/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/42615"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-medalist-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:tsurumaikada",
+     "src": "src:sc-films-medalist-top"
+    }
+   ]
+  },
+  {
+   "id": "work:medalist-film",
+   "type": "work",
+   "slug": "medalist-film",
+   "names": {
+    "en": "Medalist the Movie",
+    "ja": "劇場版『メダリスト』"
+   },
+   "description": {
+    "en": "Theatrical anime covering the All-Japan Novice Championships arc, directed by Yasutaka Yamamoto and animated by ENGI.",
+    "ko": "전일본 노비스 대회 편을 다루는 극장 애니메이션으로, 야마모토 야스타카 감독과 ENGI가 제작한다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://medalist-pr.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2027-02-19",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-medalist-top",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "homepage",
+     "v": "https://medalist-pr.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-medalist-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:medalist",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:engi",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:tsurumaikada",
+     "src": "src:sc-films-medalist-top"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:natsumi-haruse",
+   "type": "voice_actor",
+   "slug": "natsumi-haruse",
+   "names": {
+    "en": "Natsumi Haruse",
+    "ja": "春瀬なつみ"
+   }
+  },
+  {
+   "id": "character:medalist-inori",
+   "type": "character",
+   "slug": "medalist-inori",
+   "names": {
+    "en": "Inori Yuitsuka",
+    "ja": "結束いのり"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:medalist",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:medalist-film",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:natsumi-haruse",
+     "src": "src:sc-films-medalist-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:medalist-tsukasa",
+   "type": "character",
+   "slug": "medalist-tsukasa",
+   "names": {
+    "en": "Tsukasa Akeuraji",
+    "ja": "明浦路司"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:medalist",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:medalist-film",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:takeo-otsuka",
+     "src": "src:sc-films-medalist-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:medalist-hikaru",
+   "type": "character",
+   "slug": "medalist-hikaru",
+   "names": {
+    "en": "Hikaru Kamisaki",
+    "ja": "狼嵜光"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:medalist",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:medalist-film",
+     "src": "src:sc-films-medalist-top"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:kana-ichinose",
+     "src": "src:sc-films-medalist-top",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "franchise:detective-conan",
+   "type": "franchise",
+   "slug": "detective-conan",
+   "names": {
+    "en": "Detective Conan",
+    "ja": "名探偵コナン",
+    "ko": "명탐정 코난"
+   },
+   "aliases": [
+    "Case Closed"
+   ],
+   "description": {
+    "en": "Mystery manga by Gosho Aoyama with a long-running TV anime by TMS Entertainment and an annual theatrical film series.",
+    "ko": "아오야마 고쇼의 추리 만화로, TMS 엔터테인먼트의 장기 TV 애니메이션과 매년 개봉하는 극장판 시리즈가 있다."
+   },
+   "official_urls": [
+    {
+     "label": "Film official site (JP)",
+     "url": "https://www.conan-movie.jp/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/41278"
+    }
+   ],
+   "facts": [
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-conan-2026-staffcast"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:gosho-aoyama",
+     "src": "src:sc-films-conan-2026-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "creator:gosho-aoyama",
+   "type": "creator",
+   "slug": "gosho-aoyama",
+   "names": {
+    "en": "Gosho Aoyama",
+    "ja": "青山剛昌",
+    "ko": "아오야마 고쇼"
+   },
+   "description": {
+    "en": "Manga artist who created Detective Conan.",
+    "ko": "명탐정 코난을 그린 만화가."
+   }
+  },
+  {
+   "id": "work:detective-conan-film-2026",
+   "type": "work",
+   "slug": "detective-conan-film-2026",
+   "names": {
+    "en": "Detective Conan: Fallen Angel of the Highway",
+    "ja": "名探偵コナン ハイウェイの堕天使",
+    "ko": "명탐정 코난: 하이웨이의 타천사"
+   },
+   "description": {
+    "en": "The 29th Detective Conan film, a motorcycle action story set in Kanagawa and centred on police officer Chihaya Hagiwara.",
+    "ko": "가나가와현을 무대로 하기와라 치하야 경부보를 중심으로 한 바이크 액션을 그린 명탐정 코난 29번째 극장판."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://www.conan-movie.jp/2026/index.html"
+    },
+    {
+     "label": "Megabox (KR)",
+     "url": "https://www.megabox.co.kr/movie-detail?rpstMovieNo=26042500"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-conan-2026-top"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-04-10",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-conan-2026-top",
+     "region": "JP"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-08-12",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-conan-2026-megabox",
+     "region": "KR",
+     "note": "Subtitled and Korean-dubbed 2D screenings; rated 12+"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.conan-movie.jp/2026/index.html",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-conan-2026-top"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:detective-conan",
+     "src": "src:sc-films-conan-2026-top"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:gosho-aoyama",
+     "src": "src:sc-films-conan-2026-staffcast"
+    }
+   ]
+  },
+  {
+   "id": "franchise:haikyu",
+   "type": "franchise",
+   "slug": "haikyu",
+   "names": {
+    "en": "Haikyu!!",
+    "ja": "ハイキュー!!",
+    "ko": "하이큐!!"
+   },
+   "description": {
+    "en": "Volleyball manga by Haruichi Furudate (Shueisha); the anime by Production I.G concludes with a two-part theatrical finale.",
+    "ko": "후루다테 하루이치의 배구 만화(슈에이샤)로, 프로덕션 I.G의 애니메이션은 2부작 극장판으로 완결된다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://haikyu.jp/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/23661"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://haikyu.jp/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-movie"
+    },
+    {
+     "p": "origin_media",
+     "v": "Manga",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-movie"
+    }
+   ],
+   "relations": [
+    {
+     "p": "created_by",
+     "o": "creator:haruichi-furudate",
+     "src": "src:sc-films-haikyu-movie"
+    }
+   ]
+  },
+  {
+   "id": "work:haikyu-film-vs-little-giant",
+   "type": "work",
+   "slug": "haikyu-film-vs-little-giant",
+   "names": {
+    "en": "Haikyu!! The Movie: VS Little Giant",
+    "ja": "劇場版ハイキュー!! VS 小さな巨人"
+   },
+   "description": {
+    "en": "Second part of the Haikyu!! theatrical finale, pitting Karasuno's Shoyo Hinata against Kamomedai's Korai Hoshiumi; directed and written by Susumu Mitsunaka.",
+    "ko": "하이큐!! 극장판 완결편 2부로, 카라스노의 히나타 쇼요와 카모메다이의 호시우미 코라이의 대결을 그린다. 감독·각본은 미츠나카 스스무."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://haikyu.jp/movie/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-movie"
+    },
+    {
+     "p": "release_date",
+     "v": "2027",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-concept-visual",
+     "region": "JP"
+    },
+    {
+     "p": "airing_status",
+     "v": "upcoming",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-concept-visual"
+    },
+    {
+     "p": "homepage",
+     "v": "https://haikyu.jp/movie/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-haikyu-movie"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:haikyu",
+     "src": "src:sc-films-haikyu-movie"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:production-ig",
+     "src": "src:sc-films-haikyu-movie"
+    },
+    {
+     "p": "created_by",
+     "o": "creator:haruichi-furudate",
+     "src": "src:sc-films-haikyu-movie"
+    }
+   ]
+  },
+  {
+   "id": "franchise:puella-magi-madoka-magica",
+   "type": "franchise",
+   "slug": "puella-magi-madoka-magica",
+   "names": {
+    "en": "Puella Magi Madoka Magica",
+    "ja": "魔法少女まどか☆マギカ",
+    "ko": "마법소녀 마도카 마기카"
+   },
+   "aliases": [
+    "Madoka Magica",
+    "まどマギ",
+    "마마마"
+   ],
+   "description": {
+    "en": "Original anime by Magica Quartet and studio SHAFT about girls who contract with Kyubey to become magical girls.",
+    "ko": "마기카 쿼텟과 샤프트의 오리지널 애니메이션으로, 큐베와 계약해 마법소녀가 된 소녀들의 이야기다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://www.madoka-magica.com/"
+    },
+    {
+     "label": "Laftel (Korean title)",
+     "url": "https://laftel.net/item/40977"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.madoka-magica.com/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-madoka-wr"
+    }
+   ]
+  },
+  {
+   "id": "work:puella-magi-madoka-magica-film-walpurgisnacht",
+   "type": "work",
+   "slug": "puella-magi-madoka-magica-film-walpurgisnacht",
+   "names": {
+    "en": "Puella Magi Madoka Magica the Movie: Walpurgisnacht: Rising",
+    "ja": "劇場版 魔法少女まどか☆マギカ〈ワルプルギスの廻天〉",
+    "ko": "극장판 마법소녀 마도카☆마기카 〈발푸르기스의 회천〉"
+   },
+   "aliases": [
+    "ワルプルギスの廻天",
+    "발푸르기스의 회천",
+    "Walpurgisnacht Rising"
+   ],
+   "description": {
+    "en": "Sequel to the 2013 film Rebellion, produced by SHAFT; it opened in Japan on 28 August 2026.",
+    "ko": "2013년 극장판 「반역의 이야기」의 정식 속편으로, 샤프트가 제작해 2026년 8월 28일 일본에서 개봉했다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site (JP)",
+     "url": "https://www.madoka-magica.com/wr/"
+    },
+    {
+     "label": "Lotte Cinema (KR)",
+     "url": "https://www.lottecinema.co.kr/NLCHS/Movie/MovieDetailView?movie=25030"
+    }
+   ],
+   "facts": [
+    {
+     "p": "media_type",
+     "v": "film",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-madoka-wr"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-08-28",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-madoka-wr",
+     "region": "JP"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-11",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-madoka-kr-x",
+     "region": "KR",
+     "note": "Lotte Cinema exclusive release; exact day not announced"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.madoka-magica.com/wr/",
+     "ver": "OFFICIAL",
+     "src": "src:sc-films-madoka-wr"
+    }
+   ],
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:puella-magi-madoka-magica",
+     "src": "src:sc-films-madoka-wr"
+    },
+    {
+     "p": "produced_by",
+     "o": "studio_org:shaft",
+     "src": "src:sc-films-madoka-wr"
+    }
+   ]
+  },
+  {
+   "id": "voice_actor:chiwa-saito",
+   "type": "voice_actor",
+   "slug": "chiwa-saito",
+   "names": {
+    "en": "Chiwa Saito",
+    "ja": "斎藤千和"
+   }
+  },
+  {
+   "id": "character:puella-magi-madoka-magica-madoka",
+   "type": "character",
+   "slug": "puella-magi-madoka-magica-madoka",
+   "names": {
+    "en": "Madoka Kaname",
+    "ja": "鹿目まどか"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:puella-magi-madoka-magica",
+     "src": "src:sc-films-madoka-chara"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:puella-magi-madoka-magica-film-walpurgisnacht",
+     "src": "src:sc-films-madoka-chara"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:aoi-yuki",
+     "src": "src:sc-films-madoka-chara",
+     "note": "Japanese voice"
+    }
+   ]
+  },
+  {
+   "id": "character:puella-magi-madoka-magica-homura",
+   "type": "character",
+   "slug": "puella-magi-madoka-magica-homura",
+   "names": {
+    "en": "Homura Akemi",
+    "ja": "暁美ほむら"
+   },
+   "relations": [
+    {
+     "p": "belongs_to",
+     "o": "franchise:puella-magi-madoka-magica",
+     "src": "src:sc-films-madoka-chara"
+    },
+    {
+     "p": "appears_in",
+     "o": "work:puella-magi-madoka-magica-film-walpurgisnacht",
+     "src": "src:sc-films-madoka-chara"
+    },
+    {
+     "p": "voiced_by",
+     "o": "voice_actor:chiwa-saito",
+     "src": "src:sc-films-madoka-chara",
+     "note": "Japanese voice"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "kind": "release",
+   "title": {
+    "en": "Made in Abyss: Mezameru Shinpi opens in Japan",
+    "ko": "메이드 인 어비스 극장 시리즈 제1부 「目覚める神秘」 일본 개봉"
+   },
+   "starts": "2026-10-23",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://miabyss.com/",
+   "entities": [
+    "work:made-in-abyss-film-2026",
+    "franchise:made-in-abyss"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mia-theaters"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Made in Abyss: Mezameru Shinpi opening stage greetings (staff 10/24, cast 10/25)",
+    "ko": "메이드 인 어비스 「目覚める神秘」 개봉 기념 무대인사 (10/24 스태프, 10/25 성우)"
+   },
+   "starts": "2026-10-24",
+   "ends": "2026-10-25",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "新宿バルト9 / 立川シネマシティ (Tokyo)",
+   "url": "https://miabyss.com/movie_part1/greeting.html",
+   "entities": [
+    "work:made-in-abyss-film-2026",
+    "franchise:made-in-abyss"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mia-greeting"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Made in Abyss: The Golden City of the Scorching Sun TV series theatrical screening (Part 1, eps 1-6)",
+    "ko": "메이드 인 어비스 열일의 황금향 TV 시리즈 극장 상영 (전편, 1~6화)"
+   },
+   "starts": "2026-09-18",
+   "ends": "2026-10-01",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://miabyss.com/",
+   "entities": [
+    "franchise:made-in-abyss"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mia-top",
+   "note": "Two-week limited screening"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Made in Abyss: The Golden City of the Scorching Sun TV series theatrical screening (Part 2, eps 7-12)",
+    "ko": "메이드 인 어비스 열일의 황금향 TV 시리즈 극장 상영 (후편, 7~12화)"
+   },
+   "starts": "2026-09-25",
+   "ends": "2026-10-08",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://miabyss.com/",
+   "entities": [
+    "franchise:made-in-abyss"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mia-top",
+   "note": "Two-week limited screening"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Witch on the Holy Night (ufotable film) opens in Japan",
+    "ko": "ufotable 극장 애니메이션 「마법사의 밤(魔法使いの夜)」 일본 개봉"
+   },
+   "starts": "2026-11-20",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://mahoyo-movie.com/",
+   "entities": [
+    "work:witch-on-the-holy-night-film",
+    "franchise:witch-on-the-holy-night"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mahoyo-top"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Witch on the Holy Night smartphone app release",
+    "ko": "「마법사의 밤(魔法使いの夜)」 스마트폰 앱판 발매"
+   },
+   "starts": "2026-11-20",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://mahoyo-movie.com/news/?article_id=70999",
+   "entities": [
+    "franchise:witch-on-the-holy-night"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-mahoyo-fgofes",
+   "note": "Announced at the FGO Fes. 2026 stage on 2026-08-01."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Rascal Does Not Dream of a Dear Friend opens in Japan",
+    "ko": "「청춘 돼지는 디어 프렌드의 꿈을 꾸지 않는다」 일본 개봉"
+   },
+   "starts": "2026-10-16",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://ao-buta.com/dearfriend/",
+   "entities": [
+    "work:rascal-does-not-dream-film-dear-friend",
+    "franchise:rascal-does-not-dream"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-aobuta-top",
+   "note": "Korean release not announced as of 2026-09-28."
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Aobuta series finale eve-of-release live",
+    "ko": "청춘 돼지 완결 기념 개봉 전야제 라이브"
+   },
+   "starts": "2026-10-15T19:00+09:00",
+   "date_precision": "time",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "東急歌舞伎町タワー前 シネシティ広場 (Shinjuku, Tokyo)",
+   "url": "https://ao-buta.com/dearfriend/news/?id=71356",
+   "entities": [
+    "work:rascal-does-not-dream-film-dear-friend",
+    "franchise:rascal-does-not-dream"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-aobuta-eve-live"
+  },
+  {
+   "kind": "collab",
+   "title": {
+    "en": "Enoshima Electric Railway x Rascal Does Not Dream of a Dear Friend",
+    "ko": "에노시마 전철 × 청춘 돼지 디어 프렌드 콜라보"
+   },
+   "starts": "2026-09-30",
+   "ends": "2027-01",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "江ノ電 鎌倉駅－藤沢駅",
+   "url": "https://ao-buta.com/dearfriend/news/?id=71351",
+   "entities": [
+    "work:rascal-does-not-dream-film-dear-friend",
+    "franchise:rascal-does-not-dream"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-aobuta-enoden",
+   "note": "Headmark train from 2026-09-30; station decorations from 2026-10-06; runs until early January 2027."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Takopi's Original Sin The Movie opens in Japan",
+    "ko": "영화 「타코피의 원죄 -ありがとう、また明日-」 일본 개봉"
+   },
+   "starts": "2026-11-27",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "新宿バルト9ほか",
+   "url": "https://www.tbs.co.jp/anime/takopi_project/news/news20260818.html",
+   "entities": [
+    "work:takopis-original-sin-film",
+    "franchise:takopis-original-sin"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-takopi-release",
+   "note": "Distributed by Klockworx / TBS. Korean release not announced as of 2026-09-28."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Medalist the Movie opens in Japan",
+    "ko": "극장판 「메달리스트」 일본 개봉"
+   },
+   "starts": "2027-02-19",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://medalist-pr.com/",
+   "entities": [
+    "work:medalist-film",
+    "franchise:medalist"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-medalist-top"
+  },
+  {
+   "kind": "event",
+   "title": {
+    "en": "Medalist the Movie special stage at Kyoto International Manga Anime Fair 2026",
+    "ko": "극장판 메달리스트 교토 국제 만화·애니메이션 페어 2026 스페셜 스테이지"
+   },
+   "starts": "2026-09-19T11:10+09:00",
+   "date_precision": "time",
+   "status": "ended",
+   "region": "JP",
+   "location": "ロームシアター京都サウスホール (Kyoto)",
+   "url": "https://medalist-pr.com/news.html",
+   "entities": [
+    "work:medalist-film",
+    "franchise:medalist"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-medalist-news",
+   "note": "Cast: 春瀬なつみ, 大塚剛央, 伊藤彩沙; streamed on YouTube and ABEMA."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Detective Conan: Fallen Angel of the Highway opens in Korea",
+    "ko": "「명탐정 코난: 하이웨이의 타천사」 국내 개봉"
+   },
+   "starts": "2026-08-12",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "KR",
+   "url": "https://www.megabox.co.kr/movie-detail?rpstMovieNo=26042500",
+   "entities": [
+    "work:detective-conan-film-2026",
+    "franchise:detective-conan"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-conan-2026-megabox",
+   "note": "Released 2026-04-10 in Japan."
+  },
+  {
+   "kind": "exhibition",
+   "title": {
+    "en": "Detective Conan TV Anime 30th Anniversary Exhibition — Seoul",
+    "ko": "TV 애니메이션 「명탐정 코난」 방송 30주년 기념전 — 서울"
+   },
+   "starts": "2026-08-12",
+   "ends": "2026-11-29",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "KR",
+   "location": "AK PLAZA 홍대 4F, OHMUSEUM (Seoul)",
+   "url": "https://tvconanten-30th.jp/",
+   "entities": [
+    "franchise:detective-conan"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-conan-30th-exhibition"
+  },
+  {
+   "kind": "exhibition",
+   "title": {
+    "en": "Detective Conan TV Anime 30th Anniversary Exhibition — Yokohama",
+    "ko": "TV 애니메이션 「명탐정 코난」 방송 30주년 기념전 — 요코하마"
+   },
+   "starts": "2026-11-14",
+   "ends": "2026-12-06",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "location": "横浜赤レンガ倉庫1号館",
+   "url": "https://tvconanten-30th.jp/",
+   "entities": [
+    "franchise:detective-conan"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-conan-30th-exhibition"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Haikyu!! The Movie: VS Little Giant opens in Japan",
+    "ko": "「극장판 하이큐!! VS 小さな巨人」 일본 개봉"
+   },
+   "starts": "2027",
+   "date_precision": "year",
+   "status": "announced",
+   "region": "JP",
+   "url": "https://haikyu.jp/news/5693/",
+   "entities": [
+    "work:haikyu-film-vs-little-giant",
+    "franchise:haikyu"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-haikyu-concept-visual"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Madoka Magica the Movie: Walpurgisnacht: Rising — Korean release (Lotte Cinema exclusive)",
+    "ko": "「극장판 마법소녀 마도카☆마기카 〈발푸르기스의 회천〉」 11월 롯데시네마 단독 개봉"
+   },
+   "starts": "2026-11",
+   "date_precision": "month",
+   "status": "announced",
+   "region": "KR",
+   "url": "https://x.com/Animovie_ofc/status/2101234845691122015",
+   "entities": [
+    "work:puella-magi-madoka-magica-film-walpurgisnacht",
+    "franchise:puella-magi-madoka-magica"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-madoka-kr-x",
+   "note": "Lotte Cinema lists the film as upcoming (movie code 25030) without a confirmed day."
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Walpurgisnacht: Rising opens in Japan",
+    "ko": "「발푸르기스의 회천」 일본 개봉"
+   },
+   "starts": "2026-08-28",
+   "date_precision": "day",
+   "status": "ended",
+   "region": "JP",
+   "url": "https://www.madoka-magica.com/wr/",
+   "entities": [
+    "work:puella-magi-madoka-magica-film-walpurgisnacht",
+    "franchise:puella-magi-madoka-magica"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-madoka-wr"
+  },
+  {
+   "kind": "release",
+   "title": {
+    "en": "Walpurgisnacht: Rising 4DX / MX4D screenings in Japan",
+    "ko": "「발푸르기스의 회천」 일본 4DX·MX4D 상영"
+   },
+   "starts": "2026-10-03",
+   "date_precision": "day",
+   "status": "confirmed",
+   "region": "JP",
+   "url": "https://www.madoka-magica.com/wr/news/?id=71324",
+   "entities": [
+    "work:puella-magi-madoka-magica-film-walpurgisnacht"
+   ],
+   "ver": "OFFICIAL",
+   "src": "src:sc-films-madoka-4dx"
+  }
+ ]
+}
