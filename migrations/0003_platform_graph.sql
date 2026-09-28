@@ -182,7 +182,7 @@ CREATE INDEX versions_entity ON versions (entity_id, released_at);
 CREATE TABLE events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   entity_id TEXT REFERENCES entities(id) ON DELETE SET NULL, -- the event's own page, if any
-  kind TEXT NOT NULL CHECK (kind IN ('release','event','collab','popup','merch_release','broadcast','exhibition','sale','update','other')),
+  kind TEXT NOT NULL CHECK (kind IN ('release','event','collab','popup','merch_release','broadcast','exhibition','sale','update','incident','other')),
   title TEXT NOT NULL,                       -- {"en":"…","ko":"…"}
   starts_at INTEGER,
   ends_at INTEGER,
