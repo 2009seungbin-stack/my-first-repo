@@ -468,6 +468,7 @@ button.primary,a.primary{border-radius:12px;font-size:14px;font-weight:800;paddi
 .ui-font-editor{display:flex;justify-content:center;overflow:auto;max-width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;background:#e8edf4}
 .ui-font-editor canvas{display:block;max-width:100%;height:auto;touch-action:none;cursor:crosshair;outline-offset:3px}
 .ui-font-editor canvas:focus-visible{outline:3px solid #1769bd}
+#fontHangulPreview{cursor:default;image-rendering:pixelated}
 .ui-font-import{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:min(100%,760px);margin:16px auto 0;text-align:left}
 /* Glyphs are white on transparent; a checkerboard would hide them, so this host is dark. */
 #fontHost{background-color:#101726;background-image:none}

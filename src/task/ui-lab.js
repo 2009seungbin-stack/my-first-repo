@@ -325,6 +325,7 @@ ${f.mode==='draw'&&f.project?`<label class="field"><span>${esc(T('fontGlyph'))}<
 <label class="field"><span>${esc(T('fontHangulSyllable'))}</span><input id="fontHangulSyllable" type="text" maxlength="1" value="${esc(String.fromCodePoint(f.hangulCp))}" lang="ko"></label>
 <label class="field"><span>${esc(T('fontHangulPartLabel'))}</span><select id="fontHangulPart">${(hangulParts(f.hangulCp).trailing?HC.HANGUL_PARTS:HC.HANGUL_PARTS.slice(0,2)).map(part=>`<option value="${part}" ${f.hangulPart===part?'selected':''}>${esc(T('fontHangulPart.'+part))}</option>`).join('')}</select></label>
 <div class="ui-font-editor"><canvas id="fontHangulCanvas" tabindex="0" aria-label="${esc(T('fontHangulCanvasHelp'))}"></canvas></div>
+<p class="hint">${esc(T('fontHangulPreview'))}</p>
 <div class="ui-font-editor"><canvas id="fontHangulPreview" aria-label="${esc(T('fontHangulPreview'))}"></canvas></div>
 <p class="hint" id="fontHangulStatus" role="status" aria-live="polite"></p>
 <div class="field-row"><button type="button" class="mini-button" data-action="ui-font-hangul-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button><button type="button" class="mini-button" data-action="ui-font-hangul-apply" ${f.project.hangulTemplates&&!HC.missingHangulTemplates(f.project.hangulTemplates,f.hangulCp).length?'':'disabled'}>${esc(T('fontHangulApply'))}</button></div>
