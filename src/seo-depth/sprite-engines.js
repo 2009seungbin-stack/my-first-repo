@@ -1184,5 +1184,333 @@ export default {
    limits:['レイヤーは統合され、合成モードはフレームに焼き込まれます。','ヒットボックスはデータだけで、Phaserが物理ボディを作るわけではありません。','経路2は全フレームが1ページに収まる必要があります。'],
    versions:{body:['検証の実行では、両方の経路をPhaser 3.90とPhaser 4.2が読み込みました。全フレームを描いて元画像と比べ、`anims.fromJSON`と`createFromAseprite`が作ったアニメーションを読み戻しています。`createFromAseprite`がタグの繰り返しを無視することはPhaser 3.90・4.2のソースで確認し、それ以外はPhaser APIドキュメントに基づきます。'],sources:[...PHASER_DOCS,'[Phaser 3.90 source: AnimationManager.createFromAseprite](https://github.com/phaserjs/phaser/blob/v3.90.0/src/animations/AnimationManager.js)','[Asepriteドキュメント：Sprite sheets](https://www.aseprite.org/docs/sprite-sheet/)']}
   }
+ },
+ // ------------------------------------------------------------------ GameMaker: strips
+ // Nerulio: src/game/export/engines.js gamemakerFiles (spr_<base>_<tag>_strip<N>.png, pivotCell, playbackSpeed =
+ // 1000/ms when uniform else the tag fps + a note, gamemaker.json verified:false), targets.js (verify 'unverified'),
+ // docs/STUDIO-PACK.md (strips decoded by Pillow only). GameMaker behaviour: manual.gamemaker.io (Strip Images,
+ // Sprite Editor, Image Editor Convert to Frames, Windows Game Options › Graphics).
+ 'game/gamemaker-sprite-strip':{
+  type:'engine',
+  intent:{primary:'turn a sprite sheet into GameMaker _stripN sprite strips',secondary:['GameMaker strip naming and import','one sprite per animation with origin and speed','pixel art settings in GameMaker'],
+   goal:'one GameMaker sprite per animation, cut into the right number of frames, with a stable origin and the intended speed',input:'sprite sheet PNG (or frames, GIF, .aseprite)',output:'spr_<name>_<anim>_stripN.png per animation + gamemaker.json + README-GAMEMAKER.md',target:'GameMaker (UNVERIFIED: never loaded in GameMaker)',support:'partial',
+   evidence:['src/game/export/engines.js (gamemakerFiles, pivotCell)','src/game/export/targets.js (verify: unverified)','docs/STUDIO-PACK.md (sp-samurai-gamemaker: strips decoded by Pillow; GameMaker UNVERIFIED)'],
+   external:['GameMaker Manual: Strip Images (_stripN, horizontal from the left, width ÷ N)','The Sprite Editor (Import, origin, Frames per second / per game frame)','The Image Editor (Convert to Frames, Import Strip Image)','Windows Game Options: Interpolate colours between pixels']},
+  en:{
+   answer:'GameMaker imports a horizontal strip whose file name ends in `_stripN` as a sprite of N frames, each strip width ÷ N wide: `spr_hero_run_strip6.png` at 384 × 64 becomes six 64 × 64 frames. It wants one sprite per animation, each with one origin and one speed. Nerulio cuts a sprite sheet (or GIF, loose frames, .aseprite) into one such strip per animation, every frame aligned on its pivot, plus `gamemaker.json` with origin and speed. UNVERIFIED in GameMaker: these files were never loaded in GameMaker; the naming and the steps follow the GameMaker manual.',
+   concept:{title:'How GameMaker reads a strip',body:[
+    'In GameMaker a sprite asset is one animation: its frames, an origin (top-left by default, or a preset or custom point), a playback speed in Frames per second or Frames per game frame, and a collision mask. The manual\'s strip rule: frames laid out horizontally from the left, the file name ending in `_stripN`, and each frame the strip width divided by N. A strip can be brought in with the Sprite Editor\'s Import button or by dragging it into the IDE.',
+    'A full sheet with several rows is not a strip. GameMaker\'s Image Editor can split one image itself (Convert to Frames, or Import Strip Image), where you give the number of frames, the frame width and height and offsets. That is the manual route; it takes the numbers you type and places nothing on a pivot.',
+    'A sprite has one origin, so every frame must have its anchor point on the same pixel of its cell, or the character hops when the frames change. Nerulio draws every frame\'s full canvas onto one common cell per animation, shifted so its pivot lands on the same point, and that point becomes the origin in `gamemaker.json` and the README. The cell is as wide as the largest distance left of the pivot plus the largest distance right of it.',
+    'A sprite also has one speed. When all frames of an animation last the same, Nerulio writes speed = 1000 ÷ ms; when they differ it writes the animation\'s rate (10 FPS for Studio tags), warns you and keeps every frame\'s milliseconds in `durationsMs` for your own code.'],
+    terms:[['_stripN','File name suffix telling GameMaker to cut the image into N frames.'],['Origin','The sprite\'s anchor point, set as a preset or custom x / y in the Sprite Editor.'],['Frames per second / per game frame','The two speed modes of a GameMaker sprite.'],['Convert to Frames','GameMaker Image Editor command that splits one image by frame count, size and offset.']]},
+   example:{title:'Worked example: one row becomes one strip',lines:[
+    'Sheet row "run": 6 frames of 64 × 64, 125 ms each, pivot bottom centre (32, 64)',
+    '  Nerulio strip:  spr_hero_run_strip6.png    6 × 64 = 384 px wide, 64 px high',
+    '  GameMaker cut:  384 / 6 = 64 px per frame (the manual\'s strip rule)',
+    '  Origin x 32, y 64          Speed 1000 / 125 = 8 frames per second',
+    '',
+    'Row "attack": 4 frames, 100, 100, 150, 250 ms → a sprite has one speed',
+    '  playbackSpeed 10 (the tag rate) + a warning; durationsMs keeps 100, 100, 150, 250',
+    '  at 10 frames per second GameMaker shows 4 × 100 = 400 ms instead of 600 ms'],
+    after:'If the whole attack must keep its rhythm, time the frames yourself from `durationsMs`, or give all its frames the same length before export.'},
+   outputs:{lead:'Pack & Export › GameMaker writes (for a file called `hero`):',rows:[
+    ['spr_hero_run_strip6.png','One horizontal strip per animation; the name carries the frame count.'],
+    ['gamemaker.json','Per sprite: file, frames, cell width and height, `xorigin`, `yorigin`, `playbackSpeed` in frames per second, loop, `durationsMs`, and `verified: false`.'],
+    ['README-GAMEMAKER.md','The import steps and, for every strip, its frame count, cell size, origin and speed.']]},
+   target:{title:'In GameMaker (from the GameMaker manual; not run here)',steps:[
+    'For each strip, create a sprite and use Import in the Sprite Editor, or drag the PNG into the IDE. Keep the file name: the `_stripN` suffix is what makes GameMaker cut it into N frames.',
+    'Check that the sprite shows the frame count and cell size listed in the README, for example 6 frames of 64 × 64.',
+    'Set the origin to the custom x and y from the README or `gamemaker.json`, for example x 32, y 64.',
+    'Set the speed to Frames per second and enter the value from the README, for example 8.',
+    'Choose the collision mask mode the sprite needs (Automatic, Full Image or Manual).',
+    'For pixel art, turn off Interpolate colours between pixels in the Graphics section of your target platform\'s Game Options; the manual lists it as on by default.']},
+   verify:{steps:[
+    'The Sprite Editor shows N frames, each the strip width ÷ N wide.',
+    'The origin cross sits on the feet in every frame of the sprite.',
+    'The preview runs at the speed from the README, and one cycle of `run` takes 6 × 125 = 750 ms.']},
+   trouble:{rows:[
+    ['The whole strip arrives as one wide frame','The file was renamed and lost `_stripN` (a download may add " (1)")','Look at the file name before importing','Rename it back to `…_stripN.png` with the frame count'],
+    ['Frames are cut through the middle','The N in the name does not match the frames in the image','Strip width ÷ N should equal the cell width in the README','Use the name Nerulio wrote; it carries the real count'],
+    ['The character hops when the frames change','The origin was left at the default top-left or set per frame by eye','Origin fields in the Sprite Editor','Enter the README origin; Nerulio already put every pivot on that point'],
+    ['An uneven animation plays evenly','A GameMaker sprite has one speed; the export used the tag rate and warned','The export notes and `uniformTiming: false` in `gamemaker.json`','Drive the frames from `durationsMs` in code, or even out the durations before export'],
+    ['The animation races','Speed set as Frames per game frame instead of Frames per second','The speed mode next to the value','Switch to Frames per second'],
+    ['Pixel art looks soft in the game','Interpolate colours between pixels is on','Game Options › your platform › Graphics','Turn it off. Nerulio cannot test any of these GameMaker settings: it has no GameMaker to run']]},
+   alternatives:{rows:[
+    ['GameMaker\'s Image Editor: Convert to Frames or Import Strip Image','An even grid whose frames already share one anchor; you type the frame count, size and offsets in GameMaker.'],
+    ['Start from the .aseprite file','Tags become strips and their timing is kept in the JSON: [[game/aseprite-to-gamemaker|Aseprite to GameMaker]].'],
+    ['Separate PNG frames','Another tool or engine wants one file per frame: [[game/sprite-sheet-to-png-frames|sprite sheet to PNG frames]].']]},
+   limits:['UNVERIFIED in GameMaker: no GameMaker ran on these files; only the strips were decoded (Pillow) and compared with the source frames.','Hitboxes and collision polygons are not written for GameMaker.','One speed per sprite: per-frame durations only survive as data in gamemaker.json.'],
+   versions:{body:['What was checked: the GameMaker strips of a 288 × 480 samurai sheet decoded with Pillow, with every cell equal to its source frame. GameMaker itself was not run: there is no headless GameMaker in the verification setup, so the Studio labels this target UNVERIFIED. The `_stripN` rule, the import routes, the origin and speed settings and the interpolation option come from the GameMaker manual.'],sources:GM_DOCS}
+  },
+  ko:{
+   answer:'GameMaker는 파일 이름이 `_stripN`으로 끝나는 가로 띠 이미지를 N프레임짜리 스프라이트로 가져오며, 프레임 하나의 너비는 띠 너비 ÷ N입니다. 384 × 64인 `spr_hero_run_strip6.png`는 64 × 64 프레임 6개가 됩니다. GameMaker는 애니메이션마다 스프라이트 하나를 원하고, 스프라이트마다 원점과 속도가 하나씩입니다. Nerulio는 스프라이트 시트(또는 GIF, 낱장 프레임, .aseprite)를 애니메이션마다 이런 띠 하나로 자르고, 모든 프레임을 피벗에 맞춘 뒤 원점과 속도가 든 `gamemaker.json`을 붙입니다. GameMaker에서는 미검증입니다. GameMaker로 불러온 적이 없으며, 이름 규칙과 단계는 GameMaker 매뉴얼을 따릅니다.',
+   concept:{title:'GameMaker가 띠 이미지를 읽는 방식',body:[
+    'GameMaker에서 스프라이트 에셋 하나는 애니메이션 하나입니다. 프레임들, 원점(기본은 왼쪽 위, 또는 프리셋이나 직접 지정한 점), Frames per second 또는 Frames per game frame 단위의 재생 속도, 충돌 마스크를 가집니다. 매뉴얼의 띠 규칙은 프레임을 왼쪽부터 가로로 늘어놓고, 파일 이름이 `_stripN`으로 끝나며, 프레임 하나가 띠 너비 ÷ N이라는 것입니다. 띠는 Sprite Editor의 Import 버튼이나 IDE로 끌어다 놓는 방법으로 가져옵니다.',
+    '여러 행이 있는 시트 전체는 띠가 아닙니다. GameMaker의 Image Editor는 이미지 한 장을 직접 나눌 수 있으며(Convert to Frames 또는 Import Strip Image), 프레임 수·프레임 너비와 높이·오프셋을 입력합니다. 이것이 수동 방법이고, 입력한 숫자대로 자를 뿐 피벗에 맞춰 주지는 않습니다.',
+    '스프라이트에는 원점이 하나뿐이라서 모든 프레임의 기준점이 칸 안의 같은 픽셀에 있어야 합니다. 그렇지 않으면 프레임이 바뀔 때 캐릭터가 튑니다. Nerulio는 애니메이션마다 공통 칸 하나에 각 프레임의 전체 캔버스를 피벗이 같은 점에 오도록 옮겨 그리고, 그 점을 `gamemaker.json`과 README의 원점으로 적습니다. 칸 너비는 피벗 왼쪽의 최대 거리와 오른쪽의 최대 거리를 더한 값입니다.',
+    '스프라이트에는 속도도 하나뿐입니다. 애니메이션의 모든 프레임 길이가 같으면 속도 = 1000 ÷ ms로 쓰고, 다르면 애니메이션 속도(Studio 태그는 10 FPS)를 쓰면서 경고하고, 직접 코드로 쓸 수 있도록 프레임별 밀리초를 `durationsMs`에 남깁니다.'],
+    terms:[['_stripN','이미지를 N프레임으로 자르라고 GameMaker에 알려 주는 파일 이름 접미사.'],['원점(Origin)','스프라이트의 기준점. Sprite Editor에서 프리셋이나 x·y 직접 입력으로 정함.'],['Frames per second / per game frame','GameMaker 스프라이트의 두 가지 속도 방식.'],['Convert to Frames','프레임 수·크기·오프셋으로 이미지 한 장을 나누는 GameMaker Image Editor 명령.']]},
+   example:{title:'예시: 한 행이 띠 하나가 됨',lines:[
+    '시트의 "run" 행: 64 × 64 프레임 6개, 각 125 ms, 피벗 하단 중앙 (32, 64)',
+    '  Nerulio 띠:      spr_hero_run_strip6.png    6 × 64 = 너비 384 px, 높이 64 px',
+    '  GameMaker 자르기: 384 / 6 = 프레임당 64 px (매뉴얼의 띠 규칙)',
+    '  원점 x 32, y 64          속도 1000 / 125 = 초당 8프레임',
+    '',
+    '"attack" 행: 4프레임, 100, 100, 150, 250 ms → 스프라이트 속도는 하나뿐',
+    '  playbackSpeed 10(태그 속도) + 경고, durationsMs에 100, 100, 150, 250 유지',
+    '  초당 10프레임이면 GameMaker는 600 ms가 아니라 4 × 100 = 400 ms로 재생'],
+    after:'공격 동작의 리듬을 꼭 지켜야 한다면 `durationsMs`로 프레임 시간을 직접 제어하거나, 내보내기 전에 모든 프레임 길이를 같게 맞추세요.'},
+   outputs:{lead:'패킹·내보내기 › GameMaker가 쓰는 파일(`hero`라는 파일 기준)입니다.',rows:[
+    ['spr_hero_run_strip6.png','애니메이션마다 가로 띠 하나. 이름에 프레임 수가 들어 있습니다.'],
+    ['gamemaker.json','스프라이트마다 파일, 프레임 수, 칸 너비·높이, `xorigin`, `yorigin`, 초당 프레임 단위 `playbackSpeed`, 반복, `durationsMs`, `verified: false`.'],
+    ['README-GAMEMAKER.md','가져오기 순서와 띠마다 프레임 수·칸 크기·원점·속도.']]},
+   target:{title:'GameMaker에서(GameMaker 매뉴얼 기준, 여기서 실행하지 않음)',steps:[
+    '띠마다 스프라이트를 만들고 Sprite Editor의 Import를 쓰거나 PNG를 IDE로 끌어다 놓습니다. 파일 이름은 그대로 두세요. `_stripN` 접미사가 있어야 GameMaker가 N프레임으로 자릅니다.',
+    '스프라이트의 프레임 수와 칸 크기가 README와 같은지 확인합니다(예: 64 × 64 프레임 6개).',
+    '원점을 README나 `gamemaker.json`의 x·y로 직접 지정합니다(예: x 32, y 64).',
+    '속도 방식을 Frames per second로 하고 README의 값을 넣습니다(예: 8).',
+    '스프라이트에 필요한 충돌 마스크 방식(Automatic, Full Image, Manual)을 고릅니다.',
+    '도트 그림이라면 대상 플랫폼 Game Options의 Graphics 항목에서 Interpolate colours between pixels를 끕니다. 매뉴얼에는 기본값이 켜짐으로 나와 있습니다.']},
+   verify:{steps:[
+    'Sprite Editor에 N프레임이 보이고, 프레임마다 너비가 띠 너비 ÷ N이어야 합니다.',
+    '모든 프레임에서 원점 십자 표시가 발에 있어야 합니다.',
+    '미리보기가 README의 속도로 재생되고, `run` 한 바퀴가 6 × 125 = 750ms여야 합니다.']},
+   trouble:{rows:[
+    ['띠 전체가 넓은 프레임 하나로 들어옴','파일 이름이 바뀌어 `_stripN`이 사라짐(내려받을 때 " (1)"이 붙기도 함)','가져오기 전에 파일 이름 확인','프레임 수를 넣어 `…_stripN.png`로 되돌리기'],
+    ['프레임이 가운데에서 잘림','이름의 N이 이미지의 실제 프레임 수와 다름','띠 너비 ÷ N이 README의 칸 너비와 같은지','실제 개수가 들어 있는 Nerulio의 파일 이름 그대로 사용'],
+    ['프레임이 바뀔 때 캐릭터가 튐','원점을 기본값(왼쪽 위)으로 두었거나 눈대중으로 정함','Sprite Editor의 원점 입력 칸','README의 원점을 입력. Nerulio가 이미 모든 피벗을 그 점에 맞춰 두었음'],
+    ['길이가 들쭉날쭉한 애니메이션이 일정하게 재생됨','GameMaker 스프라이트는 속도가 하나라 내보내기가 태그 속도를 쓰고 경고함','내보내기 안내와 `gamemaker.json`의 `uniformTiming: false`','코드에서 `durationsMs`로 프레임을 넘기거나, 내보내기 전에 길이를 맞추기'],
+    ['애니메이션이 너무 빠름','속도 방식이 Frames per second가 아니라 Frames per game frame','값 옆의 속도 방식','Frames per second로 바꾸기'],
+    ['게임 안에서 도트가 흐리게 보임','Interpolate colours between pixels가 켜져 있음','Game Options › 해당 플랫폼 › Graphics','끄기. Nerulio는 실행할 GameMaker가 없어 이런 GameMaker 설정을 전혀 시험할 수 없음']]},
+   alternatives:{rows:[
+    ['GameMaker Image Editor의 Convert to Frames나 Import Strip Image','프레임들이 이미 같은 기준점을 가진 고른 격자일 때. 프레임 수·크기·오프셋을 GameMaker에서 입력합니다.'],
+    ['.aseprite 파일에서 시작','태그가 띠가 되고 시간은 JSON에 남습니다: [[game/aseprite-to-gamemaker|Aseprite를 GameMaker로]].'],
+    ['낱장 PNG 프레임','다른 도구나 엔진이 프레임마다 파일 하나를 원할 때: [[game/sprite-sheet-to-png-frames|스프라이트 시트를 PNG 프레임으로]].']]},
+   limits:['GameMaker에서 미검증: 이 파일로 GameMaker를 실행한 적이 없고, 띠를 디코딩(Pillow)해 원본 프레임과 비교했을 뿐입니다.','히트박스와 충돌 폴리곤은 GameMaker용으로 쓰지 않습니다.','스프라이트마다 속도가 하나라 프레임별 길이는 gamemaker.json의 데이터로만 남습니다.'],
+   versions:{body:['확인한 것: 288 × 480 사무라이 시트의 GameMaker 띠를 Pillow로 디코딩했고, 모든 칸이 원래 프레임과 같았습니다. GameMaker 자체는 실행하지 않았습니다. 검증 환경에 헤드리스 GameMaker가 없어 Studio는 이 대상을 미검증으로 표시합니다. `_stripN` 규칙, 가져오기 방법, 원점과 속도 설정, 보간 옵션은 GameMaker 매뉴얼에서 가져왔습니다.'],sources:GM_DOCS}
+  },
+  ja:{
+   answer:'GameMakerは、ファイル名が`_stripN`で終わる横長の帯画像をNフレームのスプライトとして取り込み、1フレームの幅は帯の幅 ÷ Nです。384 × 64の`spr_hero_run_strip6.png`は64 × 64のフレーム6枚になります。GameMakerはアニメーションごとに1スプライトを求め、スプライトごとに原点と速度は1つずつです。Nerulioはスプライトシート（またはGIF、個別のフレーム、.aseprite）をアニメーションごとにこうした帯1本に切り、全フレームをピボットにそろえ、原点と速度入りの`gamemaker.json`を添えます。GameMaker上では未検証です。GameMakerで読み込んだことはなく、命名と手順はGameMakerのマニュアルに従っています。',
+   concept:{title:'GameMakerが帯画像を読む仕組み',body:[
+    'GameMakerではスプライトアセット1つが1つのアニメーションです。フレーム群、原点（既定は左上、またはプリセットや任意の点）、Frames per secondかFrames per game frame単位の再生速度、コリジョンマスクを持ちます。マニュアルの帯の決まりは、フレームを左から横に並べ、ファイル名を`_stripN`で終え、1フレームを帯の幅 ÷ Nとすることです。帯はSprite EditorのImportボタンか、IDEへのドラッグで取り込みます。',
+    '複数行あるシート全体は帯ではありません。GameMakerのImage Editorは1枚の画像を自分で分割でき（Convert to FramesまたはImport Strip Image）、フレーム数・フレームの幅と高さ・オフセットを指定します。これが手作業の方法で、入力した数値どおりに切るだけで、ピボットにはそろえません。',
+    'スプライトの原点は1つなので、全フレームの基準点がセル内の同じピクセルにないと、フレームが変わるたびにキャラクターが跳ねます。Nerulioはアニメーションごとに共通のセル1つへ、各フレームのキャンバス全体をピボットが同じ点に来るようずらして描き、その点を`gamemaker.json`とREADMEの原点として書きます。セルの幅は、ピボットより左の最大距離と右の最大距離の和です。',
+    'スプライトの速度も1つだけです。アニメーションの全フレームが同じ長さなら速度 = 1000 ÷ msを書き、違えばアニメーションの速度（Studioのタグは10 FPS）を書いて警告し、自分のコードで使えるようフレームごとのミリ秒を`durationsMs`に残します。'],
+    terms:[['_stripN','画像をNフレームに切るようGameMakerに伝えるファイル名の接尾辞。'],['原点（Origin）','スプライトの基準点。Sprite Editorでプリセットかx・yの直接入力で決める。'],['Frames per second / per game frame','GameMakerのスプライトの2つの速度の方式。'],['Convert to Frames','フレーム数・大きさ・オフセットで1枚の画像を分けるGameMakerのImage Editorのコマンド。']]},
+   example:{title:'例：1行が1本の帯になる',lines:[
+    'シートの"run"行：64 × 64のフレーム6枚、各125 ms、ピボット下中央 (32, 64)',
+    '  Nerulioの帯：    spr_hero_run_strip6.png    6 × 64 = 幅384 px、高さ64 px',
+    '  GameMakerの分割：384 / 6 = 1フレーム64 px（マニュアルの帯の決まり）',
+    '  原点 x 32、y 64          速度 1000 / 125 = 毎秒8フレーム',
+    '',
+    '"attack"行：4フレーム、100, 100, 150, 250 ms → スプライトの速度は1つだけ',
+    '  playbackSpeed 10（タグの速度）＋警告、durationsMsに100, 100, 150, 250を保持',
+    '  毎秒10フレームだとGameMakerは600 msではなく4 × 100 = 400 msで再生'],
+    after:'攻撃のリズムを守る必要があるなら、`durationsMs`を使ってコードでフレームの時間を制御するか、書き出す前に全フレームの長さをそろえてください。'},
+   outputs:{lead:'パック＆書き出し › GameMakerが書き出すファイル（`hero`というファイルの場合）です。',rows:[
+    ['spr_hero_run_strip6.png','アニメーションごとの横長の帯1本。名前にフレーム数が入っています。'],
+    ['gamemaker.json','スプライトごとにファイル、フレーム数、セルの幅と高さ、`xorigin`、`yorigin`、毎秒フレーム単位の`playbackSpeed`、ループ、`durationsMs`、`verified: false`。'],
+    ['README-GAMEMAKER.md','取り込み手順と、帯ごとのフレーム数・セルの大きさ・原点・速度。']]},
+   target:{title:'GameMakerで（GameMakerのマニュアルに基づく。ここでは未実行）',steps:[
+    '帯ごとにスプライトを作り、Sprite EditorのImportを使うか、PNGをIDEへドラッグします。ファイル名は変えないでください。`_stripN`の接尾辞があるからGameMakerがNフレームに切ります。',
+    'スプライトのフレーム数とセルの大きさがREADMEと同じか確認します（例：64 × 64のフレーム6枚）。',
+    '原点をREADMEか`gamemaker.json`のx・yで直接指定します（例：x 32、y 64）。',
+    '速度の方式をFrames per secondにし、READMEの値を入れます（例：8）。',
+    'スプライトに必要なコリジョンマスクの方式（Automatic、Full Image、Manual）を選びます。',
+    'ドット絵なら、対象プラットフォームのGame OptionsのGraphicsでInterpolate colours between pixelsを切ります。マニュアルでは既定でオンとされています。']},
+   verify:{steps:[
+    'Sprite EditorにNフレームが表示され、各フレームの幅が帯の幅 ÷ Nのはずです。',
+    'すべてのフレームで原点の十字が足元にあるはずです。',
+    'プレビューがREADMEの速度で再生され、`run`の1周が6 × 125 = 750msのはずです。']},
+   trouble:{rows:[
+    ['帯全体が1枚の横長フレームとして入る','ファイル名が変わって`_stripN`が消えた（ダウンロード時に「 (1)」が付くことも）','取り込む前にファイル名を確認','フレーム数を入れた`…_stripN.png`に戻す'],
+    ['フレームが途中で切れる','名前のNが画像の実際のフレーム数と違う','帯の幅 ÷ NがREADMEのセル幅と同じか','実際の数が入ったNerulioのファイル名をそのまま使う'],
+    ['フレームが変わるとキャラクターが跳ねる','原点を既定（左上）のままにしたか、目分量で決めた','Sprite Editorの原点の入力欄','READMEの原点を入れる。Nerulioはすでに全ピボットをその点にそろえている'],
+    ['長さが不ぞろいなアニメーションが均等に再生される','GameMakerのスプライトは速度が1つなので、書き出しはタグの速度を使い警告している','書き出しの注意と`gamemaker.json`の`uniformTiming: false`','コードで`durationsMs`に従ってフレームを進めるか、書き出し前に長さをそろえる'],
+    ['アニメーションが速すぎる','速度の方式がFrames per secondではなくFrames per game frameになっている','値の横の速度の方式','Frames per secondに切り替える'],
+    ['ゲーム内でドット絵がぼやける','Interpolate colours between pixelsがオン','Game Options › 対象プラットフォーム › Graphics','オフにする。Nerulioには動かせるGameMakerがなく、こうしたGameMakerの設定は一切試せない']]},
+   alternatives:{rows:[
+    ['GameMakerのImage EditorのConvert to FramesやImport Strip Image','フレームがすでに同じ基準点を持つ均一なグリッドのとき。フレーム数・大きさ・オフセットはGameMakerで入力します。'],
+    ['.asepriteファイルから始める','タグが帯になり、時間はJSONに残ります：[[game/aseprite-to-gamemaker|AsepriteをGameMakerへ]]。'],
+    ['個別のPNGフレーム','別のツールやエンジンが1フレーム1ファイルを求めるとき：[[game/sprite-sheet-to-png-frames|スプライトシートをPNGフレームへ]]。']]},
+   limits:['GameMakerでは未検証：これらのファイルでGameMakerを動かしたことはなく、帯をデコード（Pillow）して元のフレームと比べただけです。','ヒットボックスと当たり判定のポリゴンはGameMaker向けには書き出しません。','スプライトごとに速度は1つなので、フレームごとの長さはgamemaker.jsonのデータとしてのみ残ります。'],
+   versions:{body:['確認したこと：288 × 480のサムライのシートから作ったGameMaker用の帯をPillowでデコードし、全セルが元のフレームと一致しました。GameMaker自体は動かしていません。検証環境にヘッドレスのGameMakerがないため、Studioはこの書き出し先を未検証と表示します。`_stripN`の決まり、取り込み方法、原点と速度の設定、補間のオプションはGameMakerのマニュアルに基づきます。'],sources:GM_DOCS}
+  }
+ },
+ // ------------------------------------------------------------------ Aseprite → GameMaker
+ // Nerulio: aseprite import (tags, repeat, visible layers), export/engines.js gamemakerFiles (ident(): lower-case,
+ // non-alphanumerics → "_"; N = playback steps; pivotCell; speed rule), common.js playback (ping-pong 0-1-2-1).
+ 'game/aseprite-to-gamemaker':{
+  type:'conversion',
+  intent:{primary:'bring an .aseprite animation into GameMaker',secondary:['one sprite strip per tag with _stripN','origin from the Aseprite pivot','what happens to per-frame durations'],
+   goal:'one GameMaker sprite per Aseprite tag with the right frame count, a stable origin and the closest speed GameMaker can express',input:'.aseprite / .ase file with tags',output:'spr_<file>_<tag>_stripN.png per tag + gamemaker.json + README-GAMEMAKER.md',target:'GameMaker (UNVERIFIED: never loaded in GameMaker)',support:'partial',
+   evidence:['src/game/export/engines.js (gamemakerFiles, pivotCell, ident)','src/game/export/common.js playback()','src/studio/sprite/aseprite-bridge.js','docs/STUDIO-PACK.md (GameMaker UNVERIFIED; strips decoded by Pillow)'],
+   external:['GameMaker Manual: Strip Images, The Sprite Editor, Windows Game Options','Aseprite docs: Tags']},
+  en:{
+   answer:'GameMaker does not open `.aseprite` files; it imports images, and a PNG named `…_stripN` becomes a sprite of N frames. Drop the file into Nerulio, check the tags and export for GameMaker: every tag becomes its own strip (`spr_hero_attack_strip4.png`), with reverse and ping-pong written out, every frame placed on its pivot so one origin fits all, and `gamemaker.json` with the origin, the speed and each frame\'s milliseconds. A GameMaker sprite has one speed, so uneven timing is kept only as data. UNVERIFIED in GameMaker: the strips were decoded and compared with the source, never loaded in GameMaker.',
+   concept:{title:'From tags with timing to sprites with one speed',body:[
+    'Aseprite keeps a whole character in one file: frames with their own durations, tags for each action with a direction and a repeat count, layers, and slices that can hold a pivot. GameMaker keeps each action as a separate sprite asset with frames, one origin and one playback speed, and the manual\'s strip rule lets one PNG carry all frames of that sprite.',
+    'Nerulio composites the visible layers per frame and walks each tag in playback order: a reverse tag is written backwards and a ping-pong tag of 3 frames becomes 0-1-2-1, so N counts the steps of one cycle. All frames of a tag are drawn on one common cell with the pivot on the same pixel; that pixel is the origin. File names are lower-cased with anything but letters, digits and underscores turned into `_`.',
+    'Timing is where the formats differ most. If every frame of a tag lasts the same, the speed is exactly 1000 ÷ ms frames per second. If not, the strip gets the tag\'s rate (10 FPS for Studio tags), the export warns you, and the true milliseconds stay in `durationsMs`. The repeat count becomes a `loop` flag in the JSON; the strip itself carries no timing or loop setting.'],
+    terms:[['Tag','A named frame range in Aseprite with a direction and a repeat count.'],['Strip','One horizontal PNG with all frames of a sprite, named `…_stripN`.'],['Common cell','The frame box shared by all frames of a strip, sized so every pivot lands on one point.'],['durationsMs','The exact milliseconds of every frame, kept in gamemaker.json.']]},
+   example:{title:'Example: three tags of a 32 × 32 hero',lines:[
+    'idle    4 × 125 ms, ∞         → spr_hero_idle_strip4.png     speed 1000 / 125 = 8, loop true',
+    'jump    3 × 80 ms, ping-pong   → order 0-1-2-1 → spr_hero_jump_strip4.png   speed 12.5',
+    'attack  100, 100, 150, 250 ms  → spr_hero_attack_strip4.png   speed 10 + warning, loop false',
+    '',
+    'attack pivots on the 32 × 32 frames: x = 16, 16, 20, 12 (a lunge), y = 31',
+    '  cell width  = max left 20 + max right (32 − 12) 20 = 40',
+    '  cell height = 31 + (32 − 31) = 32        origin x 20, y 31',
+    '  strip = 4 × 40 = 160 × 32 px'],
+    after:'The attack cell is wider than the 32 px frame because the pivot moves inside the drawing; placing every pivot on x 20 is what keeps the body still while the arm lunges.'},
+   mapping:{title:'What survives the conversion',head:['In Aseprite','In Nerulio\'s GameMaker files','In GameMaker'],rows:[
+    ['Tag','One strip per tag, e.g. `spr_hero_attack_strip4.png`','One sprite, cut into N frames on import'],
+    ['Direction reverse / ping-pong','Frame order written out; N = steps of one cycle','N frames in that order'],
+    ['Equal frame durations','`playbackSpeed` = 1000 ÷ ms','Speed in Frames per second'],
+    ['Mixed frame durations','Tag rate + a warning; exact ms in `durationsMs`','One speed; per-frame time only through your code'],
+    ['Pivot slice or P pivot','Every frame on a common cell; `xorigin`, `yorigin`','Custom origin'],
+    ['Repeat ∞ / a count','`loop: true` / `loop: false` in the JSON','Not set by the import; stop play-once sprites in code'],
+    ['Visible layers','Composited; hidden layers left out','Flattened frames'],
+    ['Hit / hurt slices','Not written (use the Generic JSON export)','Collision mask set in GameMaker']]},
+   outputs:{rows:[
+    ['spr_hero_attack_strip4.png','One strip per tag, cells of equal size with the pivot on one point.'],
+    ['gamemaker.json','For each sprite: file, frame count, cell size, origin, speed in frames per second, loop, `durationsMs`, `uniformTiming`, `verified: false`.'],
+    ['README-GAMEMAKER.md','Import steps and the origin and speed of every strip.']]},
+   target:{title:'Bring the strips into GameMaker (manual-based; not run here)',steps:[
+    'Unzip the bundle: one PNG per tag. Import each one into its own sprite with the Sprite Editor\'s Import button, or drag it into the IDE, without renaming it.',
+    'Name the sprite asset after the file without the suffix (`spr_hero_attack`), so your code can refer to it.',
+    'Set the origin to the custom x and y from the README; for the attack above, x 20 and y 31.',
+    'Set the speed to Frames per second with the README value: 8 for idle, 12.5 for jump, 10 for attack.',
+    'For play-once tags (`loop: false`), switch back to the idle sprite in your code after the last frame.',
+    'For pixel art, switch off Interpolate colours between pixels in your platform\'s Game Options › Graphics.']},
+   verify:{steps:[
+    '`spr_hero_jump` has 4 frames in the order 0-1-2-1 and `spr_hero_attack` 4 frames of 40 × 32.',
+    'The origin cross stays on the feet through every frame of attack.',
+    'Idle cycles in 4 × 125 = 500 ms, the same as Aseprite\'s preview.']},
+   trouble:{rows:[
+    ['The attack plays faster than in Aseprite','Mixed durations: the sprite has one speed (10), so the 150 and 250 ms frames last 100 ms','`uniformTiming: false` and the export warning','Time the frames from `durationsMs` in code, or give the tag equal durations in Aseprite'],
+    ['A ping-pong sprite has more frames than the tag','The back-and-forth order is written into the strip (3 frames → 4)','Frame order 0-1-2-1','Expected; play the sprite forwards and do not reverse it again'],
+    ['Idle and attack have different origins','Each strip has its own cell, so the numbers differ even when the anchor is the same point of the art','Compare the README values per strip','Enter each sprite\'s own origin; do not copy one origin to all'],
+    ['A layer is missing or a hidden one appears','Only the layers visible in the file are composited','Layer visibility in Aseprite','Show or hide the layer in Aseprite (or on Nerulio\'s timeline) and export again'],
+    ['The file name differs from the tag name','Names are lower-cased and spaces or symbols become `_` ("Attack 2" → `attack_2`)','The README lists every file','Use the file name as written, or rename the tag in Aseprite'],
+    ['Something is off in GameMaker itself','This export was never loaded in GameMaker','—','Nerulio cannot check GameMaker behaviour; compare with the manual, and report the case so it can be fixed']]},
+   alternatives:{rows:[
+    ['Aseprite\'s File › Export Sprite Sheet as a horizontal strip per tag, renamed to `_stripN`','You already own Aseprite and a tag has one pivot and even timing; you set origin and speed by hand.'],
+    ['A sprite sheet you already have','[[game/gamemaker-sprite-strip|GameMaker strips from a sprite sheet]].'],
+    ['Another engine with per-frame timing','[[game/aseprite-to-godot|Aseprite to Godot]] keeps every frame\'s duration.']]},
+   limits:['UNVERIFIED in GameMaker: the strips were decoded and compared with the source frames only.','One speed per sprite: uneven timing survives only in gamemaker.json.','No hitboxes or collision shapes in the GameMaker files.'],
+   versions:{body:['Checked: the GameMaker strips decode with Pillow and every cell equals its source frame; the .aseprite reader reopened 231 real files in Aseprite 1.3.18 with the same tags, durations and pixels. Not checked: loading anything in GameMaker, which has no headless mode in the verification setup. The strip naming, import routes, origin, speed modes and the interpolation option follow the GameMaker manual.'],sources:[...GM_DOCS,'[Aseprite docs: Tags](https://www.aseprite.org/docs/tags/)']}
+  },
+  ko:{
+   answer:'GameMaker는 `.aseprite` 파일을 열지 못하고 이미지를 가져오며, 이름이 `…_stripN`인 PNG는 N프레임 스프라이트가 됩니다. 파일을 Nerulio에 넣고 태그를 확인한 뒤 GameMaker로 내보내면 태그마다 띠 이미지 하나(`spr_hero_attack_strip4.png`)가 생깁니다. 역재생·핑퐁은 풀어 쓰고, 모든 프레임을 피벗에 맞춰 원점 하나로 충분하게 하고, 원점·속도·프레임별 밀리초를 `gamemaker.json`에 적습니다. GameMaker 스프라이트는 속도가 하나라서 들쭉날쭉한 시간은 데이터로만 남습니다. GameMaker에서는 미검증입니다. 띠를 디코딩해 원본과 비교했을 뿐 GameMaker로 불러온 적은 없습니다.',
+   concept:{title:'시간이 있는 태그에서 속도가 하나인 스프라이트로',body:[
+    'Aseprite는 캐릭터 전체를 파일 하나에 담습니다. 길이가 제각각인 프레임, 방향과 반복 횟수가 있는 동작별 태그, 레이어, 피벗을 담을 수 있는 슬라이스입니다. GameMaker는 동작마다 따로 된 스프라이트 에셋에 프레임, 원점 하나, 재생 속도 하나를 두며, 매뉴얼의 띠 규칙 덕분에 PNG 한 장이 그 스프라이트의 모든 프레임을 담을 수 있습니다.',
+    'Nerulio는 프레임마다 보이는 레이어를 합성하고 태그를 재생 순서대로 따라갑니다. 역재생 태그는 거꾸로 쓰고, 3프레임 핑퐁 태그는 0-1-2-1이 되므로 N은 한 바퀴의 단계 수입니다. 한 태그의 모든 프레임은 피벗이 같은 픽셀에 오도록 공통 칸 하나에 그려지고, 그 픽셀이 원점입니다. 파일 이름은 소문자로 바뀌고 영문자·숫자·밑줄이 아닌 문자는 `_`가 됩니다.',
+    '두 형식이 가장 다른 곳은 시간입니다. 태그의 모든 프레임 길이가 같으면 속도는 정확히 초당 1000 ÷ ms프레임입니다. 다르면 띠에 태그 속도(Studio 태그는 10 FPS)를 쓰고 경고하며, 실제 밀리초는 `durationsMs`에 남습니다. 반복 횟수는 JSON의 `loop` 값이 되고, 띠 자체에는 시간이나 반복 설정이 없습니다.'],
+    terms:[['태그','Aseprite에서 방향과 반복 횟수가 있는, 이름 붙은 프레임 구간.'],['띠(Strip)','스프라이트의 모든 프레임을 담은 가로 PNG 한 장, 이름은 `…_stripN`.'],['공통 칸','한 띠의 모든 프레임이 공유하는 칸. 모든 피벗이 한 점에 오도록 크기를 정함.'],['durationsMs','프레임마다 정확한 밀리초. gamemaker.json에 남음.']]},
+   example:{title:'예시: 32 × 32 캐릭터의 태그 세 개',lines:[
+    'idle    4 × 125 ms, ∞          → spr_hero_idle_strip4.png     속도 1000 / 125 = 8, loop true',
+    'jump    3 × 80 ms, 핑퐁         → 순서 0-1-2-1 → spr_hero_jump_strip4.png   속도 12.5',
+    'attack  100, 100, 150, 250 ms   → spr_hero_attack_strip4.png   속도 10 + 경고, loop false',
+    '',
+    'attack의 32 × 32 프레임 피벗: x = 16, 16, 20, 12(찌르기), y = 31',
+    '  칸 너비 = 왼쪽 최대 20 + 오른쪽 최대 (32 − 12) 20 = 40',
+    '  칸 높이 = 31 + (32 − 31) = 32        원점 x 20, y 31',
+    '  띠 = 4 × 40 = 160 × 32 px'],
+    after:'그림 안에서 피벗이 움직이기 때문에 attack 칸은 32px 프레임보다 넓습니다. 모든 피벗을 x 20에 두어야 팔이 찌르는 동안 몸이 제자리에 있습니다.'},
+   mapping:{title:'변환 후에도 남는 것',head:['Aseprite','Nerulio의 GameMaker 파일','GameMaker'],rows:[
+    ['태그','태그마다 띠 하나(예: `spr_hero_attack_strip4.png`)','가져올 때 N프레임으로 잘리는 스프라이트 하나'],
+    ['방향: 역방향·핑퐁','프레임 순서를 풀어 씀. N = 한 바퀴의 단계 수','그 순서의 N프레임'],
+    ['프레임 길이가 모두 같음','`playbackSpeed` = 1000 ÷ ms','Frames per second 단위 속도'],
+    ['프레임 길이가 섞임','태그 속도 + 경고, 실제 ms는 `durationsMs`','속도 하나. 프레임별 시간은 코드로만'],
+    ['피벗 슬라이스나 P 피벗','모든 프레임을 공통 칸에 배치, `xorigin`·`yorigin`','직접 지정한 원점'],
+    ['반복 ∞ / 횟수','JSON의 `loop: true` / `loop: false`','가져오기로 설정되지 않음. 한 번 재생할 스프라이트는 코드로 멈춤'],
+    ['보이는 레이어','합성, 숨긴 레이어는 제외','합쳐진 프레임'],
+    ['hit / hurt 슬라이스','쓰지 않음(범용 JSON 내보내기 사용)','충돌 마스크는 GameMaker에서 설정']]},
+   outputs:{rows:[
+    ['spr_hero_attack_strip4.png','태그마다 띠 하나. 칸 크기가 같고 피벗이 한 점에 있음.'],
+    ['gamemaker.json','스프라이트마다 파일, 프레임 수, 칸 크기, 원점, 초당 프레임 단위 속도, 반복, `durationsMs`, `uniformTiming`, `verified: false`.'],
+    ['README-GAMEMAKER.md','가져오기 순서와 띠마다 원점·속도.']]},
+   target:{title:'띠를 GameMaker로 가져오기(매뉴얼 기준, 여기서 실행하지 않음)',steps:[
+    '번들 압축을 풉니다. 태그마다 PNG가 하나씩 있습니다. 각각을 이름을 바꾸지 말고 Sprite Editor의 Import 버튼이나 IDE로 끌어다 놓기로 별도 스프라이트에 가져옵니다.',
+    '코드에서 부를 수 있게 스프라이트 에셋 이름을 접미사를 뺀 파일 이름(`spr_hero_attack`)으로 짓습니다.',
+    '원점을 README의 x·y로 직접 지정합니다. 위 attack이라면 x 20, y 31입니다.',
+    '속도 방식을 Frames per second로 하고 README 값을 넣습니다. idle 8, jump 12.5, attack 10입니다.',
+    '한 번만 재생하는 태그(`loop: false`)는 마지막 프레임 뒤에 코드에서 idle 스프라이트로 돌려놓습니다.',
+    '도트 그림이면 해당 플랫폼 Game Options › Graphics의 Interpolate colours between pixels를 끕니다.']},
+   verify:{steps:[
+    '`spr_hero_jump`는 0-1-2-1 순서의 4프레임, `spr_hero_attack`은 40 × 32 프레임 4개여야 합니다.',
+    'attack의 모든 프레임에서 원점 십자 표시가 발에 머물러야 합니다.',
+    'idle 한 바퀴는 4 × 125 = 500ms로 Aseprite 미리보기와 같아야 합니다.']},
+   trouble:{rows:[
+    ['공격이 Aseprite보다 빠르게 재생됨','길이가 섞여 있는데 스프라이트 속도는 하나(10)라서 150·250ms 프레임도 100ms가 됨','`uniformTiming: false`와 내보내기 경고','코드에서 `durationsMs`로 프레임 시간을 맞추거나, Aseprite에서 태그 길이를 같게'],
+    ['핑퐁 스프라이트의 프레임이 태그보다 많음','왕복 순서를 띠에 풀어 썼기 때문(3프레임 → 4)','프레임 순서 0-1-2-1','정상입니다. 정방향으로 재생하고 다시 뒤집지 마세요'],
+    ['idle과 attack의 원점이 다름','띠마다 칸이 따로라서, 그림에서는 같은 기준점이어도 숫자가 다름','README의 띠별 값 비교','스프라이트마다 제 원점을 입력. 원점 하나를 모두에 복사하지 않기'],
+    ['레이어가 빠지거나 숨긴 레이어가 보임','파일에서 보이는 레이어만 합성함','Aseprite의 레이어 표시 상태','Aseprite(또는 Nerulio 타임라인)에서 레이어를 켜거나 끄고 다시 내보내기'],
+    ['파일 이름이 태그 이름과 다름','이름을 소문자로 바꾸고 공백·기호는 `_`로 바꿈("Attack 2" → `attack_2`)','README에 모든 파일이 나옴','적힌 파일 이름을 쓰거나 Aseprite에서 태그 이름 변경'],
+    ['GameMaker 안에서 무언가 어긋남','이 내보내기는 GameMaker로 불러온 적이 없음','—','Nerulio는 GameMaker 동작을 확인할 수 없습니다. 매뉴얼과 대조하고, 고칠 수 있도록 사례를 알려 주세요']]},
+   alternatives:{rows:[
+    ['Aseprite의 File › Export Sprite Sheet로 태그마다 가로 띠를 내보내고 `_stripN`으로 이름 변경','이미 Aseprite가 있고 태그의 피벗이 하나, 시간이 일정할 때. 원점과 속도는 직접 넣습니다.'],
+    ['이미 가진 스프라이트 시트','[[game/gamemaker-sprite-strip|스프라이트 시트로 GameMaker 띠 만들기]].'],
+    ['프레임별 시간이 있는 다른 엔진','[[game/aseprite-to-godot|Aseprite를 Godot로]]는 프레임마다 길이를 지킵니다.']]},
+   limits:['GameMaker에서 미검증: 띠를 디코딩해 원본 프레임과 비교했을 뿐입니다.','스프라이트마다 속도가 하나라 들쭉날쭉한 시간은 gamemaker.json에만 남습니다.','GameMaker 파일에는 히트박스나 충돌 모양이 없습니다.'],
+   versions:{body:['확인한 것: GameMaker 띠가 Pillow로 디코딩되고 모든 칸이 원래 프레임과 같습니다. .aseprite 읽기는 실제 파일 231개가 Aseprite 1.3.18에서 같은 태그·길이·픽셀로 다시 열리는 것으로 확인했습니다. 확인하지 않은 것: GameMaker로 무엇이든 불러오는 일입니다. 검증 환경에는 헤드리스 GameMaker가 없습니다. 띠 이름 규칙, 가져오기 방법, 원점, 속도 방식, 보간 옵션은 GameMaker 매뉴얼을 따릅니다.'],sources:[...GM_DOCS,'[Aseprite 문서: Tags](https://www.aseprite.org/docs/tags/)']}
+  },
+  ja:{
+   answer:'GameMakerは`.aseprite`ファイルを開けず、画像を取り込みます。名前が`…_stripN`のPNGはNフレームのスプライトになります。ファイルをNerulioに入れてタグを確認し、GameMaker向けに書き出すと、タグごとに帯画像1枚（`spr_hero_attack_strip4.png`）ができます。逆再生・ピンポンは展開し、全フレームをピボットにそろえて原点1つで足りるようにし、原点・速度・フレームごとのミリ秒を`gamemaker.json`に書きます。GameMakerのスプライトは速度が1つなので、不ぞろいな時間はデータとしてだけ残ります。GameMaker上では未検証です。帯をデコードして元と比べただけで、GameMakerで読み込んだことはありません。',
+   concept:{title:'時間を持つタグから、速度が1つのスプライトへ',body:[
+    'Asepriteはキャラクター全体を1ファイルに持ちます。長さがばらばらのフレーム、方向と繰り返し回数を持つ動作ごとのタグ、レイヤー、ピボットを持てるスライスです。GameMakerは動作ごとに別のスプライトアセットにフレーム、原点1つ、再生速度1つを持ち、マニュアルの帯の決まりによってPNG 1枚にそのスプライトの全フレームを入れられます。',
+    'Nerulioはフレームごとに表示中のレイヤーを合成し、タグを再生順にたどります。逆再生のタグは逆順に書き、3フレームのピンポンのタグは0-1-2-1になるので、Nは1周のステップ数です。1つのタグの全フレームは、ピボットが同じピクセルに来るよう共通のセル1つに描かれ、そのピクセルが原点です。ファイル名は小文字になり、英字・数字・アンダースコア以外は`_`になります。',
+    '2つの形式がいちばん違うのは時間です。タグの全フレームが同じ長さなら、速度はちょうど毎秒 1000 ÷ ms フレームです。違えば帯にはタグの速度（Studioのタグは10 FPS）を書いて警告し、実際のミリ秒は`durationsMs`に残ります。繰り返し回数はJSONの`loop`になり、帯そのものには時間もループの設定もありません。'],
+    terms:[['タグ','Asepriteで方向と繰り返し回数を持つ、名前付きのフレーム範囲。'],['帯（Strip）','スプライトの全フレームを並べた横長のPNG 1枚。名前は`…_stripN`。'],['共通のセル','1本の帯の全フレームが共有するセル。全ピボットが1点に来るように大きさを決める。'],['durationsMs','フレームごとの正確なミリ秒。gamemaker.jsonに残る。']]},
+   example:{title:'例：32 × 32のキャラクターのタグ3つ',lines:[
+    'idle    4 × 125 ms、∞          → spr_hero_idle_strip4.png     速度 1000 / 125 = 8、loop true',
+    'jump    3 × 80 ms、ピンポン     → 順序0-1-2-1 → spr_hero_jump_strip4.png   速度 12.5',
+    'attack  100, 100, 150, 250 ms   → spr_hero_attack_strip4.png   速度 10 ＋警告、loop false',
+    '',
+    'attackの32 × 32フレームのピボット：x = 16, 16, 20, 12（突き）、y = 31',
+    '  セルの幅   = 左の最大 20 + 右の最大 (32 − 12) 20 = 40',
+    '  セルの高さ = 31 + (32 − 31) = 32        原点 x 20、y 31',
+    '  帯 = 4 × 40 = 160 × 32 px'],
+    after:'絵の中でピボットが動くため、attackのセルは32pxのフレームより広くなります。全ピボットをx 20に置くからこそ、腕が突き出る間も体がその場にとどまります。'},
+   mapping:{title:'変換後に残るもの',head:['Aseprite','NerulioのGameMaker用ファイル','GameMaker'],rows:[
+    ['タグ','タグごとに帯1本（例：`spr_hero_attack_strip4.png`）','取り込み時にNフレームに切られるスプライト1つ'],
+    ['方向：逆方向・ピンポン','フレーム順を展開。N = 1周のステップ数','その順のNフレーム'],
+    ['フレームの長さがすべて同じ','`playbackSpeed` = 1000 ÷ ms','Frames per second単位の速度'],
+    ['フレームの長さが混在','タグの速度＋警告、実際のmsは`durationsMs`','速度は1つ。フレームごとの時間はコードでのみ'],
+    ['ピボットスライスかPのピボット','全フレームを共通のセルに配置、`xorigin`・`yorigin`','任意指定の原点'],
+    ['繰り返し ∞ / 回数','JSONの`loop: true` / `loop: false`','取り込みでは設定されない。1回再生のスプライトはコードで止める'],
+    ['表示中のレイヤー','合成、非表示のレイヤーは除外','統合されたフレーム'],
+    ['hit / hurtのスライス','書かない（汎用JSONの書き出しを使う）','コリジョンマスクはGameMakerで設定']]},
+   outputs:{rows:[
+    ['spr_hero_attack_strip4.png','タグごとの帯1本。セルの大きさがそろい、ピボットが1点にある。'],
+    ['gamemaker.json','スプライトごとにファイル、フレーム数、セルの大きさ、原点、毎秒フレーム単位の速度、ループ、`durationsMs`、`uniformTiming`、`verified: false`。'],
+    ['README-GAMEMAKER.md','取り込み手順と、帯ごとの原点・速度。']]},
+   target:{title:'帯をGameMakerに取り込む（マニュアルに基づく。ここでは未実行）',steps:[
+    'バンドルを展開します。タグごとにPNGが1枚あります。それぞれを名前を変えずに、Sprite EditorのImportボタンかIDEへのドラッグで別々のスプライトに取り込みます。',
+    'コードから呼べるよう、スプライトアセットの名前を接尾辞を除いたファイル名（`spr_hero_attack`）にします。',
+    '原点をREADMEのx・yで直接指定します。上のattackならx 20、y 31です。',
+    '速度の方式をFrames per secondにし、READMEの値を入れます。idleは8、jumpは12.5、attackは10です。',
+    '1回だけ再生するタグ（`loop: false`）は、最後のフレームのあとにコードでidleのスプライトに戻します。',
+    'ドット絵なら、対象プラットフォームのGame Options › GraphicsでInterpolate colours between pixelsを切ります。']},
+   verify:{steps:[
+    '`spr_hero_jump`は0-1-2-1の順の4フレーム、`spr_hero_attack`は40 × 32のフレーム4枚のはずです。',
+    'attackの全フレームで原点の十字が足元にとどまるはずです。',
+    'idleの1周は4 × 125 = 500msで、Asepriteのプレビューと同じはずです。']},
+   trouble:{rows:[
+    ['攻撃がAsepriteより速く再生される','長さが混在しているのにスプライトの速度は1つ（10）なので、150・250msのフレームも100msになる','`uniformTiming: false`と書き出しの警告','コードで`durationsMs`に従ってフレームの時間を合わせるか、Asepriteでタグの長さをそろえる'],
+    ['ピンポンのスプライトのフレームがタグより多い','往復の順序を帯に展開して書いたため（3フレーム → 4）','フレーム順0-1-2-1','正常です。順方向に再生し、さらに反転させないでください'],
+    ['idleとattackで原点が違う','帯ごとにセルが別なので、絵の上では同じ基準点でも数値が違う','READMEの帯ごとの値を比べる','スプライトごとにそれぞれの原点を入れる。1つの原点を全部にコピーしない'],
+    ['レイヤーが欠ける、非表示のはずのレイヤーが見える','ファイルで表示中のレイヤーだけを合成する','Asepriteのレイヤーの表示状態','Aseprite（またはNerulioのタイムライン）でレイヤーの表示を切り替えて書き出し直す'],
+    ['ファイル名がタグ名と違う','名前は小文字にし、空白や記号は`_`にする（"Attack 2" → `attack_2`）','READMEに全ファイルが載っている','書かれたファイル名を使うか、Asepriteでタグ名を変える'],
+    ['GameMakerの中で何かがおかしい','この書き出しはGameMakerで読み込んだことがない','—','NerulioはGameMakerの動作を確認できません。マニュアルと照らし合わせ、直せるよう事例を知らせてください']]},
+   alternatives:{rows:[
+    ['AsepriteのFile › Export Sprite Sheetでタグごとに横長の帯を書き出し、`_stripN`に改名','すでにAsepriteがあり、タグのピボットが1つで時間が均一なとき。原点と速度は手で入れます。'],
+    ['手元にあるスプライトシート','[[game/gamemaker-sprite-strip|スプライトシートからGameMakerの帯を作る]]。'],
+    ['フレームごとの時間を持てる別のエンジン','[[game/aseprite-to-godot|AsepriteをGodotへ]]はフレームごとの長さを保ちます。']]},
+   limits:['GameMakerでは未検証：帯をデコードして元のフレームと比べただけです。','スプライトごとに速度は1つなので、不ぞろいな時間はgamemaker.jsonにだけ残ります。','GameMaker用のファイルにはヒットボックスも当たり判定の形もありません。'],
+   versions:{body:['確認したこと：GameMaker用の帯がPillowでデコードでき、全セルが元のフレームと一致すること。.asepriteの読み込みは、実在の231ファイルがAseprite 1.3.18で同じタグ・長さ・ピクセルのまま開き直せることで確認しました。確認していないこと：GameMakerで何かを読み込むこと。検証環境にヘッドレスのGameMakerはありません。帯の命名、取り込み方法、原点、速度の方式、補間のオプションはGameMakerのマニュアルに基づきます。'],sources:[...GM_DOCS,'[Asepriteドキュメント：Tags](https://www.aseprite.org/docs/tags/)']}
+  }
  }
 };
