@@ -65,6 +65,10 @@ with sync_playwright() as p:
         page.locator('#avatarMotion').select_option('breathe')
         page.locator('#avatarDelay').select_option('200')
         assert 'motion=breathe' in page.url and 'delay=200' in page.url
+        page.locator('#avatarDelay').focus()
+        page.locator('#avatarDelay').select_option('300')
+        assert page.evaluate('document.activeElement.id')=='avatarDelay'
+        page.locator('#avatarDelay').select_option('200')
         times['breatheGif256']=saved(page,'gif',OUT/f'{engine}-breathe.gif')
         with Image.open(OUT/f'{engine}-breathe.gif') as gif:
             assert gif.n_frames==8 and gif.info.get('loop')==0

@@ -19,3 +19,6 @@ Object.assign(COPY.ja,{gif:'アニメGIFを保存',motionLabel:'GIFの動き',bl
 Object.assign(COPY.en,{motionDisabled:'Preview animation follows your reduced-motion system setting.'});
 Object.assign(COPY.ko,{motionDisabled:'미리보기 애니메이션은 기기의 움직임 줄이기 설정을 따릅니다.'});
 Object.assign(COPY.ja,{motionDisabled:'プレビューのアニメーションは端末の動きを減らす設定に従います。'});
+Object.assign(COPY.en,{parts:'Avatar parts',export:'Export'});
+Object.assign(COPY.ko,{parts:'아바타 파츠',export:'내보내기'});
+Object.assign(COPY.ja,{parts:'アバターパーツ',export:'書き出し'});
