@@ -79,14 +79,6 @@
    "retrieved": "2026-09-28"
   },
   {
-   "id": "src:anthropic-help-team-seats",
-   "kind": "OFFICIAL",
-   "url": "https://support.claude.com/en/articles/12004354-purchase-and-manage-seats-on-team-plans",
-   "title": "Purchase and manage seats on Team plans (Claude Help Center)",
-   "publisher": "Anthropic",
-   "retrieved": "2026-09-28"
-  },
-  {
    "id": "src:anthropic-blog-cowork-is-now-claude",
    "kind": "OFFICIAL",
    "url": "https://claude.com/blog/cowork-is-now-claude",
@@ -213,6 +205,138 @@
    "title": "Claude Opus 4.1 (Anthropic news, 2025-08-05)",
    "publisher": "Anthropic",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-news-claude-2",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/claude-2",
+   "title": "Claude 2 (Anthropic news, 2023-07-11)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28",
+   "note": "Announces the claude.ai public beta website alongside API access."
+  },
+  {
+   "id": "src:anthropic-news-introducing-claude",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/introducing-claude",
+   "title": "Introducing Claude (Anthropic news, 2023-03-14)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-claude-code-docs-overview",
+   "kind": "OFFICIAL",
+   "url": "https://code.claude.com/docs/en/overview",
+   "title": "Claude Code overview (Claude Code docs)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-claude-code-docs-cloud",
+   "kind": "OFFICIAL",
+   "url": "https://code.claude.com/docs/en/claude-code-on-the-web",
+   "title": "Use Claude Code in the cloud (Claude Code docs)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-news-claude-3-7-sonnet",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+   "title": "Claude 3.7 Sonnet and Claude Code (Anthropic news, 2025-02-24)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-news-claude-4",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/claude-4",
+   "title": "Introducing Claude 4 (Anthropic news, 2025-05-22)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28",
+   "note": "States Claude Code is now generally available."
+  },
+  {
+   "id": "src:anthropic-help-release-notes",
+   "kind": "OFFICIAL",
+   "url": "https://support.claude.com/en/articles/12138966-release-notes",
+   "title": "Release notes (Claude Help Center, Claude apps)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-claude-cowork-page",
+   "kind": "OFFICIAL",
+   "url": "https://claude.com/product/cowork",
+   "title": "Claude Cowork product page",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28",
+   "note": "https://claude.com/blog/cowork-research-preview redirects here."
+  },
+  {
+   "id": "src:anthropic-help-fable-on-your-plan",
+   "kind": "OFFICIAL",
+   "url": "https://support.claude.com/en/articles/15424964-claude-fable-models-on-your-plan",
+   "title": "Claude Fable models on your plan (Claude Help Center)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-blog-research",
+   "kind": "OFFICIAL",
+   "url": "https://claude.com/blog/research",
+   "title": "Claude takes research to new places (Claude blog, 2025-04-15)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-news-projects",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/projects",
+   "title": "Collaborate with Claude on Projects (Anthropic news, 2024-06-25)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-blog-web-search",
+   "kind": "OFFICIAL",
+   "url": "https://claude.com/blog/web-search",
+   "title": "Claude web search now available globally on all plans (Claude blog)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28",
+   "note": "Page dated March 20, 2025 with a later May 27, 2025 update; https://www.anthropic.com/news/web-search redirects here."
+  },
+  {
+   "id": "src:anthropic-blog-web-search-api",
+   "kind": "OFFICIAL",
+   "url": "https://claude.com/blog/web-search-api",
+   "title": "Introducing web search on the Anthropic API (Claude blog, 2025-05-07)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-news-computer-use",
+   "kind": "OFFICIAL",
+   "url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
+   "title": "Introducing computer use, a new Claude 3.5 Sonnet, and Claude 3.5 Haiku (Anthropic news, 2024-10-22)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-docs-fast-mode",
+   "kind": "OFFICIAL",
+   "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+   "title": "Fast mode (research preview) (Claude Platform docs)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:anthropic-docs-computer-use-tool",
+   "kind": "OFFICIAL",
+   "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
+   "title": "Computer use tool (Claude Platform docs)",
+   "publisher": "Anthropic",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -258,7 +382,28 @@
      "src": "src:anthropic-privacy-policy"
     }
    ],
-   "relations": []
+   "relations": [
+    {
+     "p": "offers",
+     "o": "service:claude",
+     "src": "src:anthropic-status-components"
+    },
+    {
+     "p": "offers",
+     "o": "service:claude-api",
+     "src": "src:anthropic-status-components"
+    },
+    {
+     "p": "offers",
+     "o": "service:claude-code",
+     "src": "src:anthropic-status-components"
+    },
+    {
+     "p": "offers",
+     "o": "service:claude-cowork",
+     "src": "src:anthropic-status-components"
+    }
+   ]
   },
   {
    "id": "model:claude-fable-5-1",
@@ -1968,7 +2113,1997 @@
      "src": "src:anthropic-news-claude-opus-4-1"
     }
    ]
+  },
+  {
+   "id": "service:claude",
+   "type": "service",
+   "slug": "claude",
+   "names": {
+    "en": "Claude",
+    "ko": "Claude"
+   },
+   "description": {
+    "en": "Anthropic's Claude assistant apps on the web, desktop and mobile, sold as Free, Pro, Max, Team and Enterprise plans.",
+    "ko": "웹·데스크톱·모바일에서 쓰는 Anthropic의 Claude 어시스턴트 앱으로, Free·Pro·Max·Team·Enterprise 요금제로 제공됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Claude",
+     "url": "https://claude.ai/"
+    },
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023-07-11",
+     "note": "claude.ai launched as a public beta website with Claude 2.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-news-claude-2"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "web",
+      "ios",
+      "android",
+      "macos",
+      "windows"
+     ],
+     "note": "Pricing page: chat on web, iOS, Android and Desktop. Desktop downloads for macOS and Windows per the Claude Code docs; the Linux (Ubuntu/Debian) desktop app is in beta.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "homepage",
+     "v": "https://claude.com/",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.claude.com/",
+     "note": "Status component: claude.ai.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-status-components"
+    }
+   ],
+   "relations": [
+    {
+     "p": "has_plan",
+     "o": "plan:claude-free",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-pro",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-max-5x",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-max-20x",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-team-standard",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-team-premium",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "has_plan",
+     "o": "plan:claude-enterprise",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "aliases": [
+    "claude.ai",
+    "Claude app",
+    "Claude apps",
+    "클로드"
+   ]
+  },
+  {
+   "id": "service:claude-api",
+   "type": "service",
+   "slug": "claude-api",
+   "names": {
+    "en": "Claude API (Claude Platform)",
+    "ko": "Claude API (Claude Platform)"
+   },
+   "description": {
+    "en": "Anthropic's developer platform: the Claude API (Messages API, tools, batch processing) and the Claude Console, billed per token.",
+    "ko": "Anthropic의 개발자 플랫폼으로, Claude API(Messages API·도구·배치 처리)와 Claude Console을 토큰 단위 과금으로 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Claude Console",
+     "url": "https://platform.claude.com/"
+    },
+    {
+     "label": "Docs",
+     "url": "https://platform.claude.com/docs/en/intro"
+    },
+    {
+     "label": "API pricing",
+     "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2023-03-14",
+     "note": "Claude made broadly available through a chat interface and the API in the developer console.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-news-introducing-claude"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "api",
+      "web"
+     ],
+     "note": "API plus the browser-based Claude Console at platform.claude.com.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-docs-models-overview"
+    },
+    {
+     "p": "homepage",
+     "v": "https://platform.claude.com/",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-docs-models-overview"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.claude.com/",
+     "note": "Status components: Claude API (api.anthropic.com) and Claude Console (platform.claude.com).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-status-components"
+    }
+   ],
+   "relations": [],
+   "aliases": [
+    "Anthropic API",
+    "Claude Platform",
+    "Claude Console",
+    "Claude Developer Platform"
+   ]
+  },
+  {
+   "id": "service:claude-code",
+   "type": "service",
+   "slug": "claude-code",
+   "names": {
+    "en": "Claude Code",
+    "ko": "Claude Code"
+   },
+   "description": {
+    "en": "Anthropic's agentic coding tool that reads a codebase, edits files and runs commands, available as a terminal CLI, IDE extensions, a desktop app and in the browser.",
+    "ko": "코드베이스를 읽고 파일을 수정하며 명령을 실행하는 Anthropic의 에이전트형 코딩 도구로, 터미널 CLI·IDE 확장·데스크톱 앱·브라우저에서 쓸 수 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Claude Code",
+     "url": "https://claude.com/product/claude-code"
+    },
+    {
+     "label": "Docs",
+     "url": "https://code.claude.com/docs/en/overview"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-02-24",
+     "note": "Launched as a limited research preview; generally available from 2025-05-22 (Introducing Claude 4).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-news-claude-3-7-sonnet"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "cli",
+      "ide",
+      "web",
+      "macos",
+      "windows",
+      "linux",
+      "ios",
+      "android"
+     ],
+     "note": "Terminal CLI on macOS, Linux, WSL and Windows; VS Code and JetBrains; desktop app (macOS, Windows; Linux beta); web and the Claude iOS/Android app for cloud sessions.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-code-docs-overview"
+    },
+    {
+     "p": "homepage",
+     "v": "https://claude.com/product/claude-code",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.claude.com/",
+     "note": "Status component: Claude Code.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-status-components"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "service:claude-cowork",
+   "type": "service",
+   "slug": "claude-cowork",
+   "names": {
+    "en": "Claude Cowork",
+    "ko": "Claude Cowork"
+   },
+   "description": {
+    "en": "Agentic mode of the Claude apps for multi-step knowledge work on files and connected tools; since 2026-09-16 it is being merged into the regular Claude conversation experience, starting with Pro and Max.",
+    "ko": "파일과 연결된 도구를 다루는 다단계 지식 업무용 Claude 앱의 에이전트 모드로, 2026년 9월 16일부터 Pro·Max를 시작으로 일반 Claude 대화 경험에 통합되고 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Claude Cowork",
+     "url": "https://claude.com/product/cowork"
+    },
+    {
+     "label": "Cowork is now Claude (blog)",
+     "url": "https://claude.com/blog/cowork-is-now-claude"
+    }
+   ],
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2026-01-12",
+     "note": "Research preview on Claude Desktop (macOS) for Max; generally available on macOS and Windows 2026-04-09; web and mobile from 2026-07-07; merged into Claude from 2026-09-16 (rolling out).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-release-notes"
+    },
+    {
+     "p": "platforms",
+     "v": [
+      "macos",
+      "windows",
+      "web",
+      "ios",
+      "android"
+     ],
+     "note": "Product page: runs on desktop, with web and mobile in beta.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-cowork-page"
+    },
+    {
+     "p": "homepage",
+     "v": "https://claude.com/product/cowork",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-cowork-page"
+    },
+    {
+     "p": "status_page",
+     "v": "https://status.claude.com/",
+     "note": "Status component: Claude Cowork.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-status-components"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-blog-cowork-is-now-claude"
+    }
+   ],
+   "aliases": [
+    "Cowork"
+   ]
+  },
+  {
+   "id": "plan:claude-free",
+   "type": "plan",
+   "slug": "claude-free",
+   "names": {
+    "en": "Claude Free",
+    "ko": "Claude Free"
+   },
+   "description": {
+    "en": "Free Claude plan with chat on web, desktop and mobile, web search, file creation, memory and artifacts.",
+    "ko": "웹·데스크톱·모바일 채팅, 웹 검색, 파일 생성, 메모리, 아티팩트를 제공하는 무료 Claude 요금제입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 0,
+     "unit": "USD",
+     "region": "US",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "price_monthly",
+     "v": 0,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "plan:claude-pro",
+   "type": "plan",
+   "slug": "claude-pro",
+   "names": {
+    "en": "Claude Pro",
+    "ko": "Claude Pro"
+   },
+   "description": {
+    "en": "Individual paid plan with more usage than Free plus Claude Code, Research, Claude in Chrome and more models.",
+    "ko": "Free보다 많은 사용량과 Claude Code, 리서치, Claude in Chrome, 더 많은 모델을 제공하는 개인 유료 요금제입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 20,
+     "unit": "USD",
+     "region": "US",
+     "note": "Billed monthly. Pricing page: prices shown don't include applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "price_yearly",
+     "v": 200,
+     "unit": "USD",
+     "region": "US",
+     "note": "Annual subscription billed up front ($17/month equivalent). Pricing page: prices shown don't include applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "price_monthly",
+     "v": 20,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Billed monthly. Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    },
+    {
+     "p": "price_yearly",
+     "v": 200,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Annual, billed up front ($17/month equivalent). Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    },
+    {
+     "p": "price_note",
+     "v": "$17/month with annual billing ($200 billed up front) or $20 billed monthly; applicable tax not included.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "plan:claude-max-5x",
+   "type": "plan",
+   "slug": "claude-max-5x",
+   "names": {
+    "en": "Claude Max 5x",
+    "ko": "Claude Max 5x"
+   },
+   "description": {
+    "en": "Max plan tier with five times the per-session usage of Pro, higher output limits and priority access; billed monthly only.",
+    "ko": "Pro 대비 세션당 5배 사용량, 더 높은 출력 한도, 우선 접근을 제공하는 Max 요금제 등급으로, 월간 결제만 가능합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 100,
+     "unit": "USD",
+     "region": "US",
+     "note": "Help Center: web subscription price; mobile pricing may vary by app platform. Pricing page: tax not included.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-max-plan"
+    },
+    {
+     "p": "price_monthly",
+     "v": 100,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Korean page shows Max 'from $100' per month. Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    },
+    {
+     "p": "price_note",
+     "v": "Monthly subscription only; web price, mobile app pricing may differ.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-max-plan"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5-1",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    }
+   ]
+  },
+  {
+   "id": "plan:claude-max-20x",
+   "type": "plan",
+   "slug": "claude-max-20x",
+   "names": {
+    "en": "Claude Max 20x",
+    "ko": "Claude Max 20x"
+   },
+   "description": {
+    "en": "Highest individual Max tier with twenty times the per-session usage of Pro; billed monthly only.",
+    "ko": "Pro 대비 세션당 20배 사용량을 제공하는 최상위 개인 Max 등급으로, 월간 결제만 가능합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 200,
+     "unit": "USD",
+     "region": "US",
+     "note": "Help Center: web subscription price; mobile pricing may vary by app platform.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-max-plan"
+    },
+    {
+     "p": "price_note",
+     "v": "Monthly subscription only; web price, mobile app pricing may differ.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-max-plan"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5-1",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    }
+   ]
+  },
+  {
+   "id": "plan:claude-team-standard",
+   "type": "plan",
+   "slug": "claude-team-standard",
+   "names": {
+    "en": "Claude Team (Standard seat)",
+    "ko": "Claude Team (스탠다드 시트)"
+   },
+   "description": {
+    "en": "Team plan seat for organizations of 2 to 150 people, with all Claude features, admin controls and more usage than Pro.",
+    "ko": "2~150명 조직용 Team 요금제의 기본 시트로, 모든 Claude 기능과 관리자 제어, Pro보다 많은 사용량을 제공합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 25,
+     "unit": "USD",
+     "region": "US",
+     "note": "Per seat, billed monthly. Pricing page: prices shown don't include applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "price_monthly",
+     "v": 25,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Per seat, billed monthly. Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    },
+    {
+     "p": "price_note",
+     "v": "$20 per seat/month billed annually, or $25 billed monthly. Standard and Premium seats can be mixed.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "seats_min",
+     "v": 2,
+     "note": "Pricing page: 'For teams of 2 to 150'.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "plan:claude-team-premium",
+   "type": "plan",
+   "slug": "claude-team-premium",
+   "names": {
+    "en": "Claude Team (Premium seat)",
+    "ko": "Claude Team (프리미엄 시트)"
+   },
+   "description": {
+    "en": "Team plan seat type with five times the usage of a Standard seat.",
+    "ko": "스탠다드 시트보다 5배 많은 사용량을 제공하는 Team 요금제 시트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_monthly",
+     "v": 125,
+     "unit": "USD",
+     "region": "US",
+     "note": "Per seat, billed monthly. Pricing page: prices shown don't include applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "price_monthly",
+     "v": 125,
+     "unit": "USD",
+     "region": "KR",
+     "note": "Per seat, billed monthly. Korean-language pricing page viewed from South Korea displays USD (no KRW); it states prices exclude applicable tax.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing-ko"
+    },
+    {
+     "p": "price_note",
+     "v": "$100 per seat/month billed annually, or $125 billed monthly.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    },
+    {
+     "p": "seats_min",
+     "v": 2,
+     "note": "Team plan is for teams of 2 to 150 (all seat types combined).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5-1",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    },
+    {
+     "p": "includes_model",
+     "o": "model:claude-fable-5",
+     "src": "src:anthropic-help-fable-on-your-plan"
+    }
+   ]
+  },
+  {
+   "id": "plan:claude-enterprise",
+   "type": "plan",
+   "slug": "claude-enterprise",
+   "names": {
+    "en": "Claude Enterprise",
+    "ko": "Claude Enterprise"
+   },
+   "description": {
+    "en": "Plan for large organizations billed annually as a per-seat fee plus usage at API rates, adding SCIM, audit logs and other admin controls to Team.",
+    "ko": "시트 요금에 API 요금 기준 사용료를 더해 연간 청구되는 대규모 조직용 요금제로, Team 기능에 SCIM·감사 로그 등 관리 기능을 더합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Pricing",
+     "url": "https://claude.com/pricing"
+    }
+   ],
+   "facts": [
+    {
+     "p": "price_note",
+     "v": "US$20 per seat/month, billed annually, plus usage billed at API rates. Self-serve or sales-assisted.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": []
+  },
+  {
+   "id": "feature:claude-research",
+   "type": "feature",
+   "slug": "claude-research",
+   "names": {
+    "en": "Research",
+    "ko": "리서치"
+   },
+   "description": {
+    "en": "Claude mode that searches the web and connected work sources over multiple steps and returns a cited report.",
+    "ko": "웹과 연결된 업무 자료를 여러 단계에 걸쳐 검색해 출처가 달린 결과를 돌려주는 Claude 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-04-15",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-blog-research"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-projects",
+   "type": "feature",
+   "slug": "claude-projects",
+   "names": {
+    "en": "Projects",
+    "ko": "프로젝트"
+   },
+   "description": {
+    "en": "Workspaces in Claude that group chats with shared knowledge files and instructions.",
+    "ko": "대화와 공유 지식 파일·지침을 한데 묶는 Claude의 작업 공간입니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2024-06-25",
+     "note": "Launched for Claude.ai Pro and Team users.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-news-projects"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-memory",
+   "type": "feature",
+   "slug": "claude-memory",
+   "names": {
+    "en": "Memory",
+    "ko": "메모리"
+   },
+   "description": {
+    "en": "Lets Claude remember information across conversations as editable, categorized entries.",
+    "ko": "대화 간 정보를 편집 가능한 항목으로 기억하게 하는 Claude 기능입니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-artifacts",
+   "type": "feature",
+   "slug": "claude-artifacts",
+   "names": {
+    "en": "Artifacts",
+    "ko": "아티팩트"
+   },
+   "description": {
+    "en": "Standalone outputs such as documents, code, apps and designs that Claude creates beside the chat and that can be edited and shared.",
+    "ko": "Claude가 대화 옆에 만드는 문서·코드·앱·디자인 등 독립 결과물로, 편집하고 공유할 수 있습니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-voice-mode",
+   "type": "feature",
+   "slug": "claude-voice-mode",
+   "names": {
+    "en": "Voice mode",
+    "ko": "음성 모드"
+   },
+   "description": {
+    "en": "Spoken conversation with Claude in the Claude apps.",
+    "ko": "Claude 앱에서 음성으로 대화하는 기능입니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-web-search",
+   "type": "feature",
+   "slug": "claude-web-search",
+   "names": {
+    "en": "Web search",
+    "ko": "웹 검색"
+   },
+   "description": {
+    "en": "Lets Claude search the web and cite sources in its answers in the Claude apps.",
+    "ko": "Claude 앱에서 Claude가 웹을 검색하고 답변에 출처를 표시하게 하는 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-03-20",
+     "note": "Initial launch date of the announcement; the page was later updated when web search reached all plans globally.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-blog-web-search"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-file-creation",
+   "type": "feature",
+   "slug": "claude-file-creation",
+   "names": {
+    "en": "File creation with code execution",
+    "ko": "코드 실행으로 파일 생성 및 편집"
+   },
+   "description": {
+    "en": "Claude creates and edits files such as spreadsheets, documents and presentations by running code in a sandbox.",
+    "ko": "Claude가 샌드박스에서 코드를 실행해 스프레드시트·문서·프레젠테이션 등 파일을 만들고 편집하는 기능입니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-skills",
+   "type": "feature",
+   "slug": "claude-skills",
+   "names": {
+    "en": "Skills",
+    "ko": "Skills"
+   },
+   "description": {
+    "en": "Packaged instructions and resources that teach Claude repeatable workflows, usable across the Claude apps.",
+    "ko": "반복 작업 방식을 Claude에게 가르치는 지침·리소스 묶음으로, Claude 앱 전반에서 쓸 수 있습니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-connectors",
+   "type": "feature",
+   "slug": "claude-connectors",
+   "names": {
+    "en": "Connectors",
+    "ko": "커넥터"
+   },
+   "description": {
+    "en": "Integrations that connect Claude to external apps and data sources.",
+    "ko": "Claude를 외부 앱과 데이터 소스에 연결하는 통합 기능입니다."
+   },
+   "facts": [],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-in-chrome",
+   "type": "feature",
+   "slug": "claude-in-chrome",
+   "names": {
+    "en": "Claude in Chrome",
+    "ko": "Claude in Chrome"
+   },
+   "description": {
+    "en": "Browser extension that lets Claude read, click and navigate websites in Chrome on the user's behalf.",
+    "ko": "Claude가 Chrome에서 웹사이트를 읽고 클릭·이동하며 작업하게 하는 브라우저 확장 프로그램입니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-08-26",
+     "note": "Launched as an experimental extension; beta for all paid plans from 2025-12-18.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-release-notes"
+    },
+    {
+     "p": "homepage",
+     "v": "https://claude.com/claude-in-chrome",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-design",
+   "type": "feature",
+   "slug": "claude-design",
+   "names": {
+    "en": "Claude Design",
+    "ko": "Claude Design"
+   },
+   "description": {
+    "en": "Anthropic Labs product for creating visual designs, slides and prototypes with Claude, now also usable inside conversations.",
+    "ko": "Claude로 시각 디자인·슬라이드·프로토타입을 만드는 Anthropic Labs 제품으로, 이제 대화 안에서도 쓸 수 있습니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2026-04-17",
+     "note": "Launched by Anthropic Labs alongside Claude Opus 4.7.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-help-release-notes"
+    },
+    {
+     "p": "homepage",
+     "v": "https://claude.com/product/design",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude",
+     "src": "src:anthropic-claude-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-code-on-the-web",
+   "type": "feature",
+   "slug": "claude-code-on-the-web",
+   "names": {
+    "en": "Claude Code on the web (cloud sessions)",
+    "ko": "웹용 Claude Code (클라우드 세션)"
+   },
+   "description": {
+    "en": "Runs Claude Code sessions on Anthropic-managed cloud infrastructure, started from claude.ai/code, the mobile app, the desktop app or the terminal.",
+    "ko": "claude.ai/code, 모바일 앱, 데스크톱 앱, 터미널에서 시작해 Anthropic 관리 클라우드에서 Claude Code 세션을 실행하는 기능입니다."
+   },
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://claude.ai/code",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-claude-code-docs-cloud"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude-code",
+     "src": "src:anthropic-claude-code-docs-cloud"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-api-computer-use",
+   "type": "feature",
+   "slug": "claude-api-computer-use",
+   "names": {
+    "en": "Computer use tool",
+    "ko": "컴퓨터 사용 도구"
+   },
+   "description": {
+    "en": "Claude API toolset that lets Claude operate a desktop environment through screenshots, mouse and keyboard actions.",
+    "ko": "스크린샷과 마우스·키보드 동작으로 Claude가 데스크톱 환경을 조작하게 하는 Claude API 도구 모음입니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2024-10-22",
+     "note": "Introduced as a public beta.",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-news-computer-use"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "note": "Out of beta on the Claude API as computer_toolset_20260801 (2026-08-19).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-docs-release-notes"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude-api",
+     "src": "src:anthropic-docs-computer-use-tool"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-api-web-search",
+   "type": "feature",
+   "slug": "claude-api-web-search",
+   "names": {
+    "en": "Web search tool (API)",
+    "ko": "웹 검색 도구 (API)"
+   },
+   "description": {
+    "en": "Server-side Claude API tool that runs web searches, charged at $10 per 1,000 searches plus tokens.",
+    "ko": "웹 검색을 수행하는 Claude API 서버 측 도구로, 검색 1,000회당 10달러와 토큰 비용이 청구됩니다."
+   },
+   "facts": [
+    {
+     "p": "release_date",
+     "v": "2025-05-07",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-blog-web-search-api"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude-api",
+     "src": "src:anthropic-docs-pricing"
+    }
+   ]
+  },
+  {
+   "id": "feature:claude-api-fast-mode",
+   "type": "feature",
+   "slug": "claude-api-fast-mode",
+   "names": {
+    "en": "Fast mode",
+    "ko": "Fast mode"
+   },
+   "description": {
+    "en": "Research-preview option on the Claude API for faster output from supported Opus models at premium per-token prices.",
+    "ko": "지원되는 Opus 모델의 출력 속도를 높이는 대신 더 높은 토큰 가격을 받는 Claude API 연구 미리보기 옵션입니다."
+   },
+   "facts": [
+    {
+     "p": "status",
+     "v": "preview",
+     "note": "Research preview; access by request/waitlist. Opus 5.5: $8/$40 per MTok; Opus 5 and 4.8: $10/$50 per MTok (pricing page).",
+     "ver": "OFFICIAL",
+     "src": "src:anthropic-docs-fast-mode"
+    }
+   ],
+   "relations": [
+    {
+     "p": "part_of",
+     "o": "service:claude-api",
+     "src": "src:anthropic-docs-fast-mode"
+    }
+   ]
   }
  ],
- "availability": []
+ "availability": [
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-memory",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-artifacts",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-voice-mode",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-web-search",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-file-creation",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-skills",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-connectors",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-research",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-in-chrome",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-design",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-projects",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "service:claude-code",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-pricing"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "feature:claude-code-on-the-web",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-claude-code-docs-cloud"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5-1",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-free",
+   "platform": "*",
+   "region": "*",
+   "state": "unavailable",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-max-5x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-max-20x",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-team-premium",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-pro",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-team-standard",
+   "platform": "*",
+   "region": "*",
+   "state": "limited",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  },
+  {
+   "entity": "model:claude-fable-5",
+   "plan": "plan:claude-enterprise",
+   "platform": "*",
+   "region": "*",
+   "state": "available",
+   "ver": "OFFICIAL",
+   "src": "src:anthropic-help-fable-on-your-plan"
+  }
+ ]
 }
