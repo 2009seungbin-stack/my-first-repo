@@ -65,6 +65,18 @@ status table). Fixed:
   (`/api/v2/open-data/compat`, ODbL), published formulas on the policy page.
 - Speed: independent D1 reads run in parallel (Claude channel 226 → 88 ms at 10 ms per query).
 
+### Review and SEO rounds (04:35–05:30 KST)
+- `research/CODE-REVIEW-2.md`: 12 findings on tonight's code (2 High: a markdown input that looped
+  forever; a community value for all regions hiding a regional official value), all fixed with tests.
+- `research/SEO-AUDIT.md`: 18 findings on the rendered pages; fixed og/twitter cards, Korean spellings
+  in titles ('Claude(클로드)'), status and GPU-pair pages that stand alone, sitemaps (tables, Radar,
+  real histories), nofollow on filter links, structured data without unearned rich-result types,
+  fuller descriptions from sourced facts, hub links to entry pages, no orphan model channels, RSS.
+- New checks: a link crawl test (no internal link may 4xx/5xx), axe on 11 pages including the new
+  ones, E2E for votes, proposals, comment edit, reply alerts and 360/390 px headers.
+- Also: reply alerts (0008), 정보 제안 (0007) from channels and posts, open data (ODbL),
+  `docs/n2/API.md`. Worker bundle 716 KB (164 KB gzip).
+
 ## Not built on purpose
 - Steam concurrent players, "people viewing now", the Claude usage-limit poll: no data source yet.
 - Image uploads: wait until the illegal-image filtering duty is covered (MARKET §law).
