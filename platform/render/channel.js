@@ -105,7 +105,10 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const rel=m.relatedList.length?box({title:s.related},html`<ul class="rows">${m.relatedList.map(r=>{const pd=/** @type {any} */(PREDICATES)[r.predicate];const how=pd?label(r.dir==='out'?pd:pd.inverse,l):'';return html`<li><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)}</a><span class="fine">${how}</span></li>`;})}</ul>`):'';
  const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${rel}${tools}</aside></div>`;
  // The Korean spelling people type ("클로드") goes into the title and description too.
- const shown=m.alias?`${name}(${m.alias})`:name;
+ // A feature is named with its product in the title ("음성" → "ChatGPT 음성"): the bare word is ambiguous.
+ const parent=e.type==='feature'?m.relatedList.find(r=>r.predicate==='part_of'&&r.dir==='out')?.entity:null;
+ const pname=parent?nameOf(parent,l):'';
+ const shown=(pname&&!name.startsWith(pname)?`${pname} `:'')+(m.alias?`${name}(${m.alias})`:name);
  const title=l==='ko'?`${shown} 채널 — ${td?label(td.label,l)+' · ':''}소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
  let description=(m.alias&&desc?`${shown}: ${desc}`:desc)||(l==='ko'?`${shown}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
  // A short description is filled out with the channel's own sourced facts (no invented text).
