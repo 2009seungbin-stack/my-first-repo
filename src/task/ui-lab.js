@@ -1010,10 +1010,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    else if(action==='ui-font-hangul-apply'){
     const f=S.font,kit=f.project.hangulTemplates;
     if(!kit||HC.missingHangulTemplates(kit,f.hangulCp).length)throw Error(T('fontHangulNeedMasks'));
-    const made=HC.composeHangulMask(f.hangulCp,kit);rememberFont();
-    let glyph=f.project.glyphs.find(g=>g.codepoint===f.hangulCp);
-    if(!glyph){FP.addGlyph(f.project,f.hangulCp,{w:made.width,h:made.height,xAdvance:made.width});glyph=f.project.glyphs.find(g=>g.codepoint===f.hangulCp);}
-    glyph.w=made.width;glyph.h=made.height;glyph.pixels=made.pixels;glyph.xOffset=0;glyph.yOffset=0;glyph.xAdvance=made.width;
+    rememberFont();FP.applyHangulComposition(f.project,f.hangulCp);
     f.selected=f.hangulCp;f.editX=0;f.editY=0;refresh();
    }
    else if(action==='ui-font-tool'){S.font.tool=button.dataset.tool;S.font.rectStart=null;refresh();}

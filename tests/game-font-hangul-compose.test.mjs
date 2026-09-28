@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {composeHangulMask,vowelLayout,blankHangulTemplates,hangulTemplateSlot,paintHangulTemplate,missingHangulTemplates,validateHangulTemplates} from '../src/game/font-hangul-compose.js';
-import {blankFontProject,validateFontProject} from '../src/game/font-project.js';
+import {blankFontProject,validateFontProject,applyHangulComposition} from '../src/game/font-project.js';
 
 const one=index=>Array.from({length:16},(_,at)=>at===index?1:0);
 const templates={width:4,height:4,leading:Array.from({length:19},()=>({})),vowel:Array.from({length:21},()=>({})),trailing:Array.from({length:28},()=>({}))};
@@ -47,6 +47,15 @@ test('an editable template kit selects position variants and survives project va
  assert.deepEqual(made.pixels.flatMap((value,i)=>value?[i]:[]),[8,21]);
  const project=blankFontProject('A');project.hangulTemplates=kit;
  assert.equal(validateFontProject(structuredClone(project)).hangulTemplates.width,8);
+ const original=structuredClone(project.glyphs[0]);
+ const applied=applyHangulComposition(project,0xac00);
+ assert.equal(applied.collisions,0);
+ assert.deepEqual(project.glyphs[0],original);
+ assert.deepEqual(project.glyphs.at(-1).pixels.flatMap((value,i)=>value?[i]:[]),[8,21]);
+ assert.equal(project.glyphs.at(-1).codepoint,0xac00);
+ paintHangulTemplate(kit,0xac00,'vowel',0,1,1);
+ assert.equal(applyHangulComposition(project,0xac00).collisions,1);
+ assert.equal(project.glyphs.length,2);
  assert.throws(()=>paintHangulTemplate(kit,0xac00,'trailing',1,1,1),/no trailing/);
  kit.leading[0]['vertical-open'][0]=2;
  assert.throws(()=>validateHangulTemplates(kit),/Invalid Hangul template/);

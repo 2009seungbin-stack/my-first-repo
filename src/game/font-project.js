@@ -1,5 +1,5 @@
 import {FORMAT as FONT_FORMAT} from './bmfont.js';
-import {validateHangulTemplates} from './font-hangul-compose.js';
+import {validateHangulTemplates,missingHangulTemplates,composeHangulMask} from './font-hangul-compose.js';
 
 export const PROJECT_FORMAT='nerulio-bitmap-font-project-v2';
 const cp=ch=>ch.codePointAt(0);
@@ -68,6 +68,16 @@ export function addGlyph(project,codepoint,{w=8,h=8,xAdvance=w}={}){
  if(project.glyphs.length>=1024)throw Error('Editable glyph limit is 1,024; large sets require a separately verified export');
  if(project.glyphs.some(g=>g.codepoint===codepoint))throw Error('Character already exists in this project');
  project.glyphs.push(glyph(codepoint,w,h,0,0,xAdvance));return project;
+}
+export function applyHangulComposition(project,codepoint){
+ const templates=project.hangulTemplates;
+ if(!templates||missingHangulTemplates(templates,codepoint).length)throw Error('Hangul component masks are incomplete');
+ const made=composeHangulMask(codepoint,templates);
+ let target=project.glyphs.find(g=>g.codepoint===codepoint);
+ if(!target){addGlyph(project,codepoint,{w:made.width,h:made.height,xAdvance:made.width});target=project.glyphs.at(-1);}
+ target.w=made.width;target.h=made.height;target.pixels=made.pixels;
+ target.xOffset=0;target.yOffset=0;target.xAdvance=made.width;
+ return made;
 }
 export function resizeGlyph(project,codepoint,width,height){
  const g=project.glyphs.find(item=>item.codepoint===codepoint);if(!g)throw Error('Glyph not in project');
