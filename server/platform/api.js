@@ -143,7 +143,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    return done({posts,comments});
   }
   if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
-  if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko'));}
+  if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko',now));}
   // Writes.
   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
   const limit=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await allowRequest({env,limiter:deps.limiter,key:`v2:${name}|u:${context.user.id}`,limit:n,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});};
@@ -453,12 +453,17 @@ async function benchmark(db,context,body,now,limit,origin){
 }
 
 /** My Radar: changes and new posts in the channels the reader follows, with an unread count.
- * @param {any} db @param {string} userId @param {'ko'|'en'} l */
-async function myRadar(db,userId,l){
+ * @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} [now] */
+async function myRadar(db,userId,l,now=Date.now()){
  const ids=((await db.prepare('SELECT entity_id FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 200').bind(userId).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
  const st=await db.prepare('SELECT last_seen_change_id AS n,replies_seen_at AS r FROM radar_state WHERE user_id=?').bind(userId).first();
  const seen=Number(st?.n||0),repliesSeen=Number(st?.r||0);
  const replies=await repliesTo(db,userId,l,repliesSeen);
+ // The fate of my 정보 제안 (last 30 days) shows up with the replies.
+ const reviewed=((await db.prepare(`SELECT f.id,f.property,f.status,f.reason,f.reviewed_at,e.vertical,e.slug,e.names FROM fact_proposals f JOIN entities e ON e.id=f.entity_id WHERE f.user_id=? AND f.status<>'open' AND f.reviewed_at>? ORDER BY f.reviewed_at DESC LIMIT 10`).bind(userId,now-30*864e5).all()).results||[]);
+ for(const r of reviewed){const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};const def=propertyDef(e.vertical,String(r.property));
+  replies.push({at:Number(r.reviewed_at),author:l==='ko'?'운영자':'Moderator',text:r.status==='accepted'?(l==='ko'?`정보 제안을 반영했어요 (${def?.label?.ko||r.property})`:`Your proposal was accepted (${def?.label?.en||r.property})`):(l==='ko'?`정보 제안을 반려했어요: ${r.reason||''}`:`Your proposal was declined: ${r.reason||''}`),on:nameOf(e,l),why:'proposal',url:channelUrl(l,e),unread:Number(r.reviewed_at)>repliesSeen});}
+ replies.sort((a,b)=>b.at-a.at);
  const unreadReplies=replies.filter(r=>r.unread).length;
  if(!ids.length)return {following:0,unread:unreadReplies,unreadReplies,lastChangeId:seen,changes:[],posts:[],replies};
  const ents=await entitiesByIds(db,ids);

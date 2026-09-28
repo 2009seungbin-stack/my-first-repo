@@ -192,6 +192,8 @@ test('fact proposals: validated like seed facts, reviewed by a moderator, never 
  const f=h.db.raw.prepare('SELECT value,verification FROM facts WHERE entity_id=? AND property=? AND is_current=1').get('game:steam-1',prop);
  assert.deepEqual({...f},{value:'"2026-10-20"',verification:'COMMUNITY_VERIFIED'});
  assert.equal((await h.call('GET','/mod/queue',{as:'mod'})).json.proposals.length,0);
+ const radar=(await h.call('GET','/my-radar?l=ko',{as:'a'})).json;
+ assert(radar.replies.some(x=>x.why==='proposal'&&/반영/.test(x.text)),'the proposer hears the outcome');
  assert.equal((await h.call('POST','/mod/action',{as:'mod',body:{target:q.proposals[0].target,action:'accept',reason:'again'}})).status,409,'reviewed once');
  assert.equal((await h.call('POST','/mod/action',{as:'a',body:{target:q.proposals[0].target,action:'accept',reason:'me'}})).status,404,'members cannot review');
  // An official value for one region stays what readers see after a community value for all regions.

@@ -104,7 +104,7 @@ async function main(){
      for(const x of d.replies.slice(0,8)){const li=document.createElement('li');li.className='mr';
       const t=document.createElement('span');t.className='tm';const dt=new Date(x.at);t.textContent=`${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;
       const a=document.createElement('a');a.className='tt'+(x.unread?' unread':'');a.href=x.url;a.textContent=`${x.author}: ${x.text}`;
-      const c=document.createElement('span');c.className='chn fine';c.textContent=(x.why==='comment'?(L==='ko'?'내 댓글에 답글 · ':'reply · '):(L==='ko'?'내 글에 댓글 · ':'on your post · '))+x.on;
+      const c=document.createElement('span');c.className='chn fine';c.textContent=(x.why==='comment'?(L==='ko'?'내 댓글에 답글 · ':'reply · '):x.why==='proposal'?(L==='ko'?'정보 제안 · ':'proposal · '):(L==='ko'?'내 글에 댓글 · ':'on your post · '))+x.on;
       li.append(t,a,c);ru.append(li);}
      if(d.unreadReplies>0)api('/my-radar/seen',{lastChangeId:0,repliesSeenAt:Math.max(...d.replies.map(r=>r.at))});
     }
