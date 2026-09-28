@@ -17,6 +17,7 @@ ko/ja → keyboard → 390 px layout. Screenshots go to SHOTS.
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import base64, io, json, os, sys, tempfile, zipfile, struct
+from texture_race import run_texture_races
 ROOT=Path(__file__).resolve().parents[1]
 BASE=os.environ.get('TEST_URL','http://127.0.0.1:4173').rstrip('/')
 SHOTS=Path(os.environ.get('TEXTURE_SHOTS',ROOT/'test-results'/'studio-texture'));SHOTS.mkdir(parents=True,exist_ok=True)
@@ -224,6 +225,7 @@ with sync_playwright() as pw:
     shot(q,'09-m-panels-390.png')
     ok('390 px: the panels open in the sheet and the normal-map controls are usable',q.locator('[data-k="normal.strength"]').is_visible())
     m.close()
+    ok('delayed worker results cannot repopulate a newly selected picture',run_texture_races(browser,BASE,FIX)==2)
     ok('no page errors',not errors,str(errors[:5]))
     browser.close()
 print(f'{len(checks)} checks passed')

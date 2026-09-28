@@ -16,10 +16,19 @@ Executed in the isolated `codex/nerulio-distribution` worktree, based on product
 | Workflow YAML | Parsed successfully; branch/event/concurrency/defaults asserted in tests |
 | Credentials/API | Tests use fake HTTP; no real credentialed DEV request or external post |
 
-Local runtime was Node v24.15.0 on Windows. CI specifies Node 22; the GitHub-hosted run is a
-separate result. The existing browser, engine-rendering, service and benchmark suites were not
-rerun locally: this change adds offline tooling, article text and a new workflow, and does not
-change application UI, SEO registries, engine exports or deployment configuration.
+Local runtime was Node v24.15.0 on Windows. CI specifies Node 22. The first GitHub run passed
+syntax, all Node tests, build, SEO audits and browser suites through Studio Tile, then exposed a
+pre-existing Texture worker race during asset selection. The last successful production-main
+run had passed, and the original Texture suite also passed locally, so a deterministic regression
+was added that holds an old generation response until the next picture is loading. It fails
+against the original implementation and passes after invalidating old work at selection time.
+
+The fix also prevents stale convention/seam results after selection or workspace deactivation,
+and clears the previous convention before rendering a newly generated map. The extended local
+Texture browser suite passes 42 checks, including the forced worker race, pixel readback, export,
+undo, project recovery, translations and mobile layout. No SEO registry or export format changed.
+The updated GitHub run is a separate result; service and engine-rendering benchmarks have not
+been rerun locally.
 
 Failure-path coverage includes POST success with a lost response, post creation followed by a
 failed final journal save, absent remote reconciliation, malformed JSON/article objects, hostile

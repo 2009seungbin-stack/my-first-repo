@@ -123,7 +123,7 @@ export default {
     if(token!==genToken)return;
     let normal=r.normal,imported=null;
     if(e.normalFrom){imported=await importedNormal(e.normalFrom,pic);if(token!==genToken)return;if(imported)normal=e.normalRedFlipped?flipRed(imported.data):imported.data;}
-    S.gen={...r,normal,imported:!!imported,importedName:imported?.name||'',w:pic.w,h:pic.h};S.genKey=key;S.error='';S.maps={};S.mips=null;
+    S.gen={...r,normal,imported:!!imported,importedName:imported?.name||'',w:pic.w,h:pic.h};S.genKey=key;S.error='';S.maps={};S.mips=null;S.detect=null;
     if(lit){lit.upload('nrm',normal,pic.w,pic.h);}
     uploadMap();present2d();
     if(e.normalFrom&&imported)runDetect(imported.data,pic.w,pic.h,'imported');
@@ -152,13 +152,13 @@ export default {
    // a sprite's own alpha tells the silhouette test where the edge is
    let data=rgba;if(source==='imported'&&S.pic){data=new Uint8Array(rgba);for(let p=0;p<w*hh;p++)data[p*4+3]=S.pic.rgba[p*4+3];}
    // the result belongs to the maps it was measured on: drop it if the picture or its maps changed meanwhile
-   const key=S.genKey;
-   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});if(S.genKey!==key)return;S.detect={...r,source};panels.render();renderHud();}catch{}
+   const key=S.genKey,token=genToken;
+   try{const r=await work({op:'detect',rgba:data.slice(),w,h:hh});if(token!==genToken||S.genKey!==key)return;S.detect={...r,source};panels.render();renderHud();}catch{}
   }
   async function runSeam(){
    const e=entry();if(!S.gen||!S.pic)return;
-   const key=S.genKey;
-   try{const r=await work({op:'seam',key:S.pic.key,params:e.params,normal:S.gen.normal.slice()});if(S.genKey!==key)return;S.seam=r;panels.render();}catch{}
+   const key=S.genKey,token=genToken;
+   try{const r=await work({op:'seam',key:S.pic.key,params:e.params,normal:S.gen.normal.slice()});if(token!==genToken||S.genKey!==key)return;S.seam=r;panels.render();}catch{}
   }
   const needAO=()=>prefs.view==='ao'||threeD.visible();
   /** Occlusion is computed when something shows or exports it (it is the slowest map). */
@@ -370,11 +370,14 @@ export default {
   // ---------------------------------------------------------------- selecting an asset
   let selToken=0;
   async function select(id,{fit=false}={}){
+   // Cancel old work before loadPicture awaits. Waiting until runGen starts leaves a window
+   // where a previous picture's result can repopulate the newly selected asset's state.
    const token=++selToken;play(false);
    const a=id?P.assetById(ctx.doc,id):null;
-   if(!a){S.assetId=null;S.pic=null;S.gen=null;lit?.set(null);panels.render();renderHud();return;}
+   if(!a||S.assetId!==a.id||S.pic?.sig!==picSignature(a)){++genToken;clearTimeout(genTimer);S.busy=false;}
+   if(!a){S.assetId=null;S.pic=null;S.gen=null;S.genKey='';S.detect=null;S.seam=null;lit?.set(null);panels.render();renderHud();return;}
    const changed=S.assetId!==a.id;S.assetId=a.id;
-   if(changed){S.frame=0;S.gen=null;S.genKey='';S.detect=null;S.seam=null;S.maps={};S.split=null;S.selLight=null;S.importedNormal=null;S.heightPlane=null;S.drawn='';}
+   if(changed){S.frame=0;S.pic=null;S.gen=null;S.genKey='';S.detect=null;S.seam=null;S.maps={};S.split=null;S.selLight=null;S.importedNormal=null;S.heightPlane=null;S.drawn='';}
    try{const pic=await loadPicture(a);if(token!==selToken)return;S.pic=pic;}
    catch(err){S.error=String(err.message||err);renderStatus();return;}
    if(lit)lit.upload('alb',S.pic.rgba,S.pic.w,S.pic.h);
@@ -460,7 +463,7 @@ export default {
    deselect(){S.selLight=null;panels.render();overlay.view?.invalidate();},
    onAsset(id){if(id&&id!==S.assetId)select(id);},
    deactivate(){
-    play(false);clearTimeout(genTimer);lit?.destroy();hud.remove();threeD.destroy();panels.destroy();delete window.nerulioTexture;ctx.status('selection','');
+    ++selToken;++genToken;play(false);clearTimeout(genTimer);lit?.destroy();hud.remove();threeD.destroy();panels.destroy();delete window.nerulioTexture;ctx.status('selection','');
     const a=ctx.activeAsset;setTimeout(()=>{if(a)ctx.showAsset(a.id,{restoreView:true});else view.clearImage();},0);
    }
   };
