@@ -35,7 +35,17 @@ function repeatPhrases(text,locale){
  }
  return [...found].slice(0,20).map(([phrase,count])=>({phrase,count}));
 }
-export function countText(text,{locale='en',readRate=250}={}){
+function forbiddenPhrases(text,terms,locale){
+ const source=text.toLocaleLowerCase(locale),out=[];
+ for(const term of terms.slice(0,20)){
+  const needle=String(term).trim().slice(0,64).toLocaleLowerCase(locale);
+  if(!needle)continue;
+  let count=0,at=0;while((at=source.indexOf(needle,at))!==-1){count++;at+=needle.length;}
+  if(count)out.push({phrase:term,count});
+ }
+ return out;
+}
+export function countText(text,{locale='en',readRate=250,forbidden=[]}={}){
  const seg=new Intl.Segmenter(locale,{granularity:'grapheme'});
  let graphemes=0,noSpaces=0,noLineBreaks=0,content=0,half=0,full=0;
  for(const {segment:g} of seg.segment(text)){
@@ -55,5 +65,5 @@ export function countText(text,{locale='en',readRate=250}={}){
   utf8:new TextEncoder().encode(text).length,legacy,x:{weighted:x.weightedLength,remaining:xConfig.maxWeightedTweetLength-x.weightedLength,valid:x.valid,rule:X_RULE},
   paper:{ja:content?Math.ceil(content/400):0,ko:content?Math.ceil(content/200):0},
   readSeconds:words?Math.max(1,Math.ceil(words/Math.max(1,readRate)*60)):0,
-  scripts:scripts(text),width:{half,full,other:graphemes-half-full},repetitions:repeatPhrases(text,locale)};
+  scripts:scripts(text),width:{half,full,other:graphemes-half-full},repetitions:repeatPhrases(text,locale),forbidden:forbiddenPhrases(text,forbidden,locale)};
 }
