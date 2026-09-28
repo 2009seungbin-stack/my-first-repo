@@ -60,3 +60,11 @@ test('an editable template kit selects position variants and survives project va
  kit.leading[0]['vertical-open'][0]=2;
  assert.throws(()=>validateHangulTemplates(kit),/Invalid Hangul template/);
 });
+
+test('overlap status counts unique cells when three components touch the same pixel',()=>{
+ const kit=blankHangulTemplates(2,2);
+ for(const part of ['leading','vowel','trailing'])paintHangulTemplate(kit,0xac01,part,0,0,1);
+ const made=composeHangulMask(0xac01,kit);
+ assert.equal(made.collisions,1);
+ assert.deepEqual(made.pixels,[1,0,0,0]);
+});

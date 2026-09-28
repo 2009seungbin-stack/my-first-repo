@@ -28,9 +28,9 @@ export function composeHangulMask(codepoint,templates,{override=null}={}){
   mask(templates.vowel?.[vowel]?.[occupancy],length,`vowel ${vowel} ${occupancy}`)
  ];
  if(trailing)parts.push(mask(templates.trailing?.[trailing]?.[layout],length,`trailing ${trailing} ${layout}`));
- const pixels=Array(length).fill(0);let collisions=0;
- for(const part of parts)for(let i=0;i<length;i++)if(part[i]){if(pixels[i])collisions++;pixels[i]=1;}
- return {codepoint,width,height,pixels,layout,overridden:false,collisions};
+ const pixels=Array(length).fill(0),overlaps=new Set();
+ for(const part of parts)for(let i=0;i<length;i++)if(part[i]){if(pixels[i])overlaps.add(i);pixels[i]=1;}
+ return {codepoint,width,height,pixels,layout,overridden:false,collisions:overlaps.size};
 }
 
 export const HANGUL_PARTS=Object.freeze(['leading','vowel','trailing']);
