@@ -65,12 +65,12 @@ export default {
     '',
     ...RUN0],
     after:'Only 18 × 15 pixels of run_0 are stored; the engine draws them 10 px right and 10 px down inside a 40 × 29 box, exactly where they were. Trim does the saving here: without it the packed page is slightly larger than a plain strip, because padding is added between frames.'},
-   target:{title:'Load the sheet in your engine',steps:[
-    'Export for the engine you use and keep the PNG and its data file together; the data names its image (`meta.image` in JSON, `imagePath` in XML, the page line in a Spine .atlas).',
-    'Phaser: `this.load.atlas("run", "run.png", "run.json")`, then `this.add.sprite(x, y, "run", "run_0")`; details on [[game/phaser-texture-atlas|the Phaser atlas page]].',
-    'PixiJS 8: `const sheet = await Assets.load("run.json")`, then `sheet.textures["run_0"]` or `sheet.animations["run"]`; see [[game/pixi-spritesheet-json|PixiJS spritesheet JSON]].',
-    'Godot 4 and Unity 6 get a ready resource or an importer script instead of a bare atlas: see [[game/godot-sprite-sheet|sprite sheets in Godot]] and [[game/unity-sprite-sheet|sprite sheets in Unity]].',
-    'LÖVE, Defold, Spine / libGDX and CSS each have their own format: [[game/love2d-quads|LÖVE quads]], [[game/defold-atlas|Defold atlas]], [[game/spine-atlas|Spine atlas]], [[game/css-sprite-generator|CSS sprites]].']},
+   outputs:{title:'What each engine receives, and how it loads the sheet',lead:'Keep every PNG next to its data file: the data names its image (`meta.image` in JSON, `imagePath` in XML, the page line in a Spine .atlas).',rows:[
+    ['run.png + run.json (Phaser 3 / 4)','`this.load.atlas("run", "run.png", "run.json")`, then `this.add.sprite(x, y, "run", "run_0")`; details on [[game/phaser-texture-atlas|the Phaser atlas page]].'],
+    ['run.png + run.json (PixiJS 8)','`const sheet = await Assets.load("run.json")`, then `sheet.textures["run_0"]` or `sheet.animations["run"]`; see [[game/pixi-spritesheet-json|PixiJS spritesheet JSON]].'],
+    ['run.tres + run.tscn (Godot 4)','A ready SpriteFrames resource and scene instead of a bare atlas; see [[game/godot-sprite-sheet|sprite sheets in Godot]].'],
+    ['run.unity.json + importer script (Unity 6)','An editor script slices the texture and builds clips; see [[game/unity-sprite-sheet|sprite sheets in Unity]].'],
+    ['run.lua, run.atlas, run.xml, run.css','LÖVE quads, a Defold or Spine atlas, Sparrow XML or CSS classes: [[game/love2d-quads|LÖVE]], [[game/defold-atlas|Defold]], [[game/spine-atlas|Spine]], [[game/css-sprite-generator|CSS sprites]].']]},
    verify:{steps:[
     'Read the used share in Pack & Export: 0.84 means 84 % of the page is visible frame area. A low figure usually means trim is off or one frame is much larger than the rest.',
     'Hover the rows of the Packed frames list: each shows canvas → stored size, its page and flags such as trimmed, rotated or "same as" (an alias).',
@@ -106,12 +106,12 @@ export default {
     '',
     ...RUN0],
     after:'run_0은 18 × 15픽셀만 저장됩니다. 엔진은 이 조각을 40 × 29 상자 안에서 오른쪽으로 10px, 아래로 10px 옮겨 원래 자리에 그립니다. 절약은 트림 덕분입니다. 트림 없이 패킹하면 프레임 사이 간격 때문에 오히려 가로 띠보다 조금 커집니다.'},
-   target:{title:'엔진에서 시트 불러오기',steps:[
-    '쓰는 엔진용으로 내보내고 PNG와 데이터 파일을 함께 둡니다. 데이터 파일이 이미지 이름을 적고 있습니다(JSON의 `meta.image`, XML의 `imagePath`, Spine .atlas의 페이지 줄).',
-    'Phaser: `this.load.atlas("run", "run.png", "run.json")` 후 `this.add.sprite(x, y, "run", "run_0")`. 자세한 내용은 [[game/phaser-texture-atlas|Phaser 아틀라스 페이지]].',
-    'PixiJS 8: `const sheet = await Assets.load("run.json")` 후 `sheet.textures["run_0"]`이나 `sheet.animations["run"]`. [[game/pixi-spritesheet-json|PixiJS 스프라이트시트 JSON]] 참고.',
-    'Godot 4와 Unity 6은 아틀라스 대신 바로 쓰는 리소스나 가져오기 스크립트를 받습니다. [[game/godot-sprite-sheet|Godot에서 스프라이트 시트]], [[game/unity-sprite-sheet|Unity에서 스프라이트 시트]] 참고.',
-    'LÖVE, Defold, Spine / libGDX, CSS는 각자 형식이 있습니다. [[game/love2d-quads|LÖVE 쿼드]], [[game/defold-atlas|Defold 아틀라스]], [[game/spine-atlas|Spine 아틀라스]], [[game/css-sprite-generator|CSS 스프라이트]].']},
+   outputs:{title:'엔진마다 받는 파일과 시트를 불러오는 법',lead:'PNG는 늘 데이터 파일 옆에 두세요. 데이터 파일이 이미지 이름을 적고 있습니다(JSON의 `meta.image`, XML의 `imagePath`, Spine .atlas의 페이지 줄).',rows:[
+    ['run.png + run.json (Phaser 3 / 4)','`this.load.atlas("run", "run.png", "run.json")` 후 `this.add.sprite(x, y, "run", "run_0")`. 자세한 내용은 [[game/phaser-texture-atlas|Phaser 아틀라스 페이지]].'],
+    ['run.png + run.json (PixiJS 8)','`const sheet = await Assets.load("run.json")` 후 `sheet.textures["run_0"]`이나 `sheet.animations["run"]`. [[game/pixi-spritesheet-json|PixiJS 스프라이트시트 JSON]] 참고.'],
+    ['run.tres + run.tscn (Godot 4)','아틀라스 대신 바로 쓰는 SpriteFrames 리소스와 씬. [[game/godot-sprite-sheet|Godot에서 스프라이트 시트]] 참고.'],
+    ['run.unity.json + importer script (Unity 6)','편집기 스크립트가 텍스처를 자르고 클립을 만듭니다. [[game/unity-sprite-sheet|Unity에서 스프라이트 시트]] 참고.'],
+    ['run.lua, run.atlas, run.xml, run.css','LÖVE 쿼드, Defold·Spine 아틀라스, Sparrow XML, CSS 클래스: [[game/love2d-quads|LÖVE]], [[game/defold-atlas|Defold]], [[game/spine-atlas|Spine]], [[game/css-sprite-generator|CSS 스프라이트]].']]},
    verify:{steps:[
     '패킹·내보내기의 사용 비율을 봅니다. 0.84는 페이지의 84%가 보이는 프레임 면적이라는 뜻입니다. 낮으면 대개 트림이 꺼져 있거나 프레임 하나가 유난히 큽니다.',
     '패킹된 프레임 목록의 줄에 마우스를 올리면 캔버스 → 저장 크기, 페이지, 트림·회전·"같은 프레임"(별칭) 표시가 보입니다.',
@@ -147,12 +147,12 @@ export default {
     '',
     ...RUN0],
     after:'run_0は18 × 15ピクセルだけが保存されます。エンジンはこの断片を40 × 29の枠の中で右へ10px、下へ10pxずらし、元の位置に描きます。節約できたのはトリムのおかげです。トリムなしでパックすると、フレーム間の間隔のぶん横一列より少し大きくなります。'},
-   target:{title:'エンジンでシートを読み込む',steps:[
-    '使うエンジン向けに書き出し、PNGとデータファイルは一緒に置きます。データ側が画像名を持っています（JSONの`meta.image`、XMLの`imagePath`、Spine .atlasのページ行）。',
-    'Phaser：`this.load.atlas("run", "run.png", "run.json")`のあと`this.add.sprite(x, y, "run", "run_0")`。詳しくは[[game/phaser-texture-atlas|Phaserアトラスのページ]]。',
-    'PixiJS 8：`const sheet = await Assets.load("run.json")`のあと`sheet.textures["run_0"]`または`sheet.animations["run"]`。[[game/pixi-spritesheet-json|PixiJSのスプライトシートJSON]]を参照。',
-    'Godot 4とUnity 6には、アトラスの代わりにそのまま使えるリソースやインポートスクリプトが入ります。[[game/godot-sprite-sheet|Godotでスプライトシート]]、[[game/unity-sprite-sheet|Unityでスプライトシート]]を参照。',
-    'LÖVE、Defold、Spine / libGDX、CSSはそれぞれ独自の形式です。[[game/love2d-quads|LÖVEのQuad]]、[[game/defold-atlas|Defoldアトラス]]、[[game/spine-atlas|Spineアトラス]]、[[game/css-sprite-generator|CSSスプライト]]。']},
+   outputs:{title:'エンジンごとに受け取るファイルと、シートの読み込み方',lead:'PNGは必ずデータファイルの隣に置いてください。データ側が画像名を持っています（JSONの`meta.image`、XMLの`imagePath`、Spine .atlasのページ行）。',rows:[
+    ['run.png + run.json (Phaser 3 / 4)','`this.load.atlas("run", "run.png", "run.json")`のあと`this.add.sprite(x, y, "run", "run_0")`。詳しくは[[game/phaser-texture-atlas|Phaserアトラスのページ]]。'],
+    ['run.png + run.json (PixiJS 8)','`const sheet = await Assets.load("run.json")`のあと`sheet.textures["run_0"]`または`sheet.animations["run"]`。[[game/pixi-spritesheet-json|PixiJSのスプライトシートJSON]]を参照。'],
+    ['run.tres + run.tscn (Godot 4)','アトラスの代わりに、そのまま使えるSpriteFramesリソースとシーン。[[game/godot-sprite-sheet|Godotでスプライトシート]]を参照。'],
+    ['run.unity.json + importer script (Unity 6)','エディタースクリプトがテクスチャを切り分け、クリップを作ります。[[game/unity-sprite-sheet|Unityでスプライトシート]]を参照。'],
+    ['run.lua, run.atlas, run.xml, run.css','LÖVEのQuad、Defold・Spineのアトラス、Sparrow XML、CSSクラス：[[game/love2d-quads|LÖVE]]、[[game/defold-atlas|Defold]]、[[game/spine-atlas|Spine]]、[[game/css-sprite-generator|CSSスプライト]]。']]},
    verify:{steps:[
     'パック＆書き出しの使用率を見ます。0.84はページの84%が見えるフレーム面積という意味です。低いときは、たいていトリムがオフか、1枚だけ極端に大きなフレームがあります。',
     'パック済みフレーム一覧の行にカーソルを合わせると、キャンバス → 保存サイズ、ページ、トリム・回転・「同じフレーム」（エイリアス）の印が出ます。',
