@@ -20,7 +20,7 @@ export function seedTargets(seeds=loadSeeds()){
 function args(argv){const o={};for(let i=0;i<argv.length;i++){const a=argv[i];if(a.startsWith('--')){const k=a.slice(2),n=argv[i+1];if(n===undefined||n.startsWith('--'))o[k]=true;else{o[k]=n;i++;}}}return o;}
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const o=args(process.argv.slice(2)),ids=o.all?adapterIds():[o.adapter].filter(Boolean);
- if(!ids.length){console.log('adapters:',adapterIds().join(', '));process.exit(2);}
+ if(!ids.length){console.log('adapters:',adapterIds().join(', '));process.exitCode=2;}
  const seeds=loadSeeds(),targets=seedTargets(seeds),known={entities:new Set(targets.map(t=>t.id)),sources:new Set(seeds.flatMap(s=>(s.doc.sources||[]).map(x=>x.id)))};
  let failed=0;
  for(const id of ids){
@@ -40,5 +40,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
    if(!res.ok)failed++;
   }
  }
- process.exit(failed?1:0);
+
+ // exitCode instead of process.exit(): exiting while fetch sockets close trips a libuv assertion on Windows.
+ process.exitCode=failed?1:ids.length?0:2;
 }

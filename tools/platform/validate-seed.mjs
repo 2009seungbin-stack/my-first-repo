@@ -7,10 +7,16 @@ import {fileURLToPath} from 'node:url';
 import {validateSeed} from '../../platform/seed.js';
 const ROOT=fileURLToPath(new URL('../../data/seed/',import.meta.url));
 export function seedFiles(dir=ROOT){
- const out=[];for(const name of readdirSync(dir).sort()){const p=path.join(dir,name);if(statSync(p).isDirectory())out.push(...seedFiles(p));else if(name.endsWith('.json'))out.push(p);}
+ dir=path.resolve(dir);const out=[];for(const name of readdirSync(dir).sort()){const p=path.join(dir,name);if(statSync(p).isDirectory())out.push(...seedFiles(p));else if(name.endsWith('.json'))out.push(p);}
  return out;
 }
-export function loadSeeds(files=seedFiles()){return files.map(f=>({file:f,doc:JSON.parse(readFileSync(f,'utf8'))}));}
+/** A UTF-8 BOM (e.g. from a PowerShell write) is refused with a clear message, not a JSON error. */
+export function readSeed(file){
+ const text=readFileSync(file,'utf8');
+ if(text.charCodeAt(0)===0xfeff)throw Error(`${file}: remove the UTF-8 byte order mark (save as UTF-8 without BOM)`);
+ try{return JSON.parse(text);}catch(e){throw Error(`${file}: invalid JSON: ${e.message}`);}
+}
+export function loadSeeds(files=seedFiles()){return files.map(f=>({file:path.resolve(f),doc:readSeed(f)}));}
 export function validateAll(seeds=loadSeeds()){
  const entities=new Set(),sources=new Set(),results=[];
  for(const {doc} of seeds){for(const e of doc.entities||[])entities.add(e.id);for(const s of doc.sources||[])sources.add(s.id);}
@@ -30,5 +36,5 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  let bad=0,count=0;
  for(const r of results){count+=r.entities;if(r.errors.length){bad++;console.log(`✗ ${path.relative(process.cwd(),r.file)}`);for(const e of r.errors)console.log('   '+e);}else console.log(`✓ ${path.relative(process.cwd(),r.file)} (${r.entities} entities)`);}
  console.log(`${results.length} files, ${count} entities, ${bad} invalid`);
- process.exit(bad?1:0);
+ process.exitCode=bad?1:0;
 }
