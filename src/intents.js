@@ -6,6 +6,7 @@ const spec=(path,editor,tool,icon,action,accept,next=[])=>({path,editor,tool,ico
 export const INTENTS=Object.freeze({
  ...RECIPE_INTENTS,
  home:spec('','image','','image','open','auto'),
+ 'character-counter':spec('character-counter','text','counter','text','count','text'),
  image:spec('image/editor','image','','image','export','image',['upscale','remove-bg','compress','pixel']),
  upscale:spec('image/upscale','image','upscale','upscale','upscale','image',['remove-bg','crop','pixel']),
  'remove-bg':spec('image/remove-bg','image','background','background','background','image',['margin-crop','refiner','favicon-pack']),

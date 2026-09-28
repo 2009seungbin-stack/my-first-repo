@@ -819,6 +819,12 @@ Object.assign(TOOL_MESSAGES,Object.fromEntries(Object.entries({
  'button-state-generator':["이미지 만들기","Create images","画像を作成"],
  'missing-glyph-checker':["검사하기","Check","チェック"],'ui-scale-preview':["미리보기","Preview","プレビュー"]
 }).flatMap(([id,action])=>[[`intent.${id}.title`,TOOLS[id].title],[`intent.${id}.headline`,TOOLS[id].title],[`intent.${id}.description`,TOOLS[id].description],[`intent.${id}.action`,action]])));
+Object.assign(TOOL_MESSAGES,{
+ 'intent.character-counter.title':['글자수 세기','Character Counter','文字数カウント'],
+ 'intent.character-counter.headline':['글을 붙여넣으면 바로 셉니다','Count text as you type','入力と同時に文字数を計算'],
+ 'intent.character-counter.description':['공백 포함·제외, UTF-8·한글 바이트, X 가중치까지 기기 안에서 계산하세요.','Count graphemes, spaces, bytes, and X weighted length locally in your browser.','文字・空白・バイト数・Xの加重文字数をブラウザ内で計算します。'],
+ 'intent.character-counter.action':['계산하기','Count','カウント']
+});
 
 Object.assign(TOOL_MESSAGES,{"kit.n":["출력 크기","Output size","出力サイズ"],"kit.cellW":["셀 너비","Cell width","セル幅"],"kit.cellH":["셀 높이","Cell height","セル高"],"kit.autoSize":["너비·높이 0은 가장 큰 프레임에 자동 맞춤입니다.","Width/height 0 automatically fit the largest frame.","幅・高さ0は最大フレームに自動調整します。"]});
 

@@ -1,4 +1,5 @@
 export const SEARCH_TERMS = Object.freeze({
+ 'character-counter':['글자수 세기','자소서 글자수','文字数カウント','word counter','character count'],
  'remove-bg':['remove bg','background remover','transparent background','배경 제거','누끼','背景削除'],
  'logo-bg':['white background remover','transparent logo','로고 배경','白背景'],
  pixel:['pixelate','pixel art','pixel converter','도트','ピクセルアート'],

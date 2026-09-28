@@ -19,6 +19,10 @@ export const labels=brandCopy({
 // Each tuple is [steps separated by |, feature, limitation, specific question, answer].
 // Copy describes the actual Canvas / PDF / MediaRecorder implementations.
 export const guides={
+ 'character-counter':[
+ ['Type or paste text, or choose a UTF-8 file|Choose the visible-character or no-space count|Open details for bytes, X and manuscript estimates','Counts grapheme clusters locally and also shows code points, UTF-16 units, UTF-8 and strictly encodable legacy bytes. The X meter uses twitter-text 3.1.0 config v3.','Paper figures are arithmetic estimates, not exact manuscript layout. An unencodable character makes that legacy byte result unavailable. Saramin and JobKorea compatibility is not claimed.','Is this the same as a job application form?','Check the form’s own definition of spaces, line breaks and bytes. Use the custom limit; the employer’s counter is authoritative.'],
+ ['글을 입력·붙여넣거나 UTF-8 파일 선택|보이는 글자 또는 공백 제외 기준 확인|상세 항목에서 바이트·X·원고지 추정치 확인','문자소를 기기 안에서 세고 코드 포인트, UTF-16 단위, UTF-8 및 인코딩 가능한 기존 문자셋 바이트도 보여 줍니다. X는 twitter-text 3.1.0 설정 v3을 씁니다.','원고지 수는 단순 분량 추정치로 실제 배치와 다릅니다. 표현할 수 없는 문자가 있으면 해당 바이트 수는 표시하지 않습니다. 사람인·잡코리아 호환성을 주장하지 않습니다.','지원서 입력 칸과 같은 기준인가요?','지원서의 공백·줄바꿈·바이트 기준을 확인하고 사용자 지정 한도를 쓰세요. 실제 접수 화면의 계산기가 우선입니다.'],
+ ['文章を入力・貼り付けるかUTF-8ファイルを選択|見た目の文字数または空白除外の数を確認|詳細でバイト数・X・原稿用紙の目安を見る','書記素を端末内で数え、コードポイント、UTF-16単位、UTF-8、符号化可能な旧来の文字コードのバイト数も表示します。Xはtwitter-text 3.1.0の設定v3を使用します。','原稿用紙の枚数は単純な分量の目安で、実際の改行や句読点の配置とは異なります。符号化できない文字がある場合、そのバイト数は表示しません。','応募フォームの数え方と同じですか？','応募先が指定する空白・改行・バイトの条件を確認し、任意の上限を設定してください。応募フォーム側の表示が優先です。']],
  home:[
  ['Drop a sprite sheet, frames, a GIF, an .aseprite file or a tileset|Check the detected grid, animations or autotile layout, then Apply|Pack an atlas and export for your engine in one click','One studio covers the whole 2D asset pipeline: slicing, animation tags and timing, pivots and hitboxes, trimmed and rotated atlas packing, and autotile tilesets with terrain rules. Exports load in Godot 4, Unity 6, Phaser, PixiJS, Defold, LÖVE, Spine, Tiled and Aseprite, and each was checked by loading it back into that engine.','Pixel, texture and UI work still uses the Lab tools while their Studio workspaces are built. GameMaker and LDtk exports are format-checked, not run in the engine. Browser evidence so far is Chromium.','Do I need Aseprite or TexturePacker installed?','No. .aseprite files are read and written in the browser (checked against the real Aseprite on 231 files), and the packer, exporters and tileset tools run on your device with nothing uploaded.'],
  ['스프라이트 시트·프레임·GIF·.aseprite·타일셋을 놓기|감지된 격자·애니메이션·오토타일 배치를 확인하고 적용|아틀라스로 패킹하고 원하는 엔진용으로 한 번에 내보내기','2D 에셋 작업 전체를 스튜디오 하나에서 합니다. 시트 자르기, 애니메이션 태그와 타이밍, 피벗과 히트박스, 트림·회전 아틀라스 패킹, 지형 규칙이 들어간 오토타일 타일셋까지. 내보낸 결과는 Godot 4·Unity 6·Phaser·PixiJS·Defold·LÖVE·Spine·Tiled·Aseprite에서 실제로 다시 불러와 확인했습니다.','픽셀·텍스처·UI 작업은 스튜디오 작업 공간이 완성될 때까지 Lab 도구를 사용합니다. GameMaker와 LDtk 내보내기는 형식 검사까지만 했습니다. 브라우저 검증은 현재 Chromium 기준입니다.','Aseprite나 TexturePacker를 설치해야 하나요?','아니요. .aseprite 파일은 브라우저에서 직접 읽고 씁니다(실제 Aseprite와 231개 파일로 대조). 패커·내보내기·타일셋 도구도 모두 기기 안에서 실행되며 아무것도 업로드하지 않습니다.'],
@@ -125,6 +129,7 @@ export function guide(id,locale){
  return guides[id][{en:0,ko:1,ja:2}[locale]];
 }
 export function formats(id,locale){
+ if(id==='character-counter')return {ko:'UTF-8 텍스트(.txt, .md, .text) → 화면에서 계산. 파일 내보내기 없음.',en:'UTF-8 text (.txt, .md, .text) → on-screen counts. No file export.',ja:'UTF-8テキスト（.txt、.md、.text）→ 画面上で集計。ファイル書き出しなし。'}[locale];
  if(TOOLS[id]){const output={refiner:'PNG / ZIP','palette-swap':'PNG','logo-bg':'PNG','texture-map':'PNG','texture-lab':'PNG / JSON / ZIP','channel-unpacker':'PNG (ZIP)','normal-map-converter':'PNG','pbr-texture-validator':'JSON','texture-edge-bleed':'PNG','mask-packer':'PNG','margin-crop':'PNG','marketplace-pack':'JPG + JSON (ZIP)','print-pack':'JPG + JSON (ZIP)','bitmap-font':'PNG + FNT + JSON (ZIP)','favicon-pack':'ICO + PNG + HTML + Webmanifest (ZIP)'}[id]||'PNG + JSON (ZIP)';return 'PNG / JPG / WebP / AVIF / HEIC → '+output+' — '+{ko:'입력 디코딩은 브라우저 지원과 추가 엔진 사용 여부에 따라 다릅니다.',en:'Input decoding depends on browser support and optional engines.',ja:'入力のデコードはブラウザ対応と追加エンジンに依存します。'}[locale];}
  const editor=INTENTS[id].editor;
  const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'MP4 / WebM','video-compress':'MP4 / WebM',media:'MP4 / WebM / GIF / PNG / WAV / MP3'};
@@ -156,7 +161,7 @@ const GAME_PICKS=Object.freeze({
 const FILE_FAMILY=new Map(DIRECTORY.filter(([c])=>c!=='game').flatMap(([c,ids])=>ids.map(id=>[id,c])));
 /** `data-chrome`: site navigation, not page content (tools/lastmod.mjs does not date pages by it). */
 function gameCrossLink(id,locale){
- const family=FILE_FAMILY.get(id);if(!family)return '';
+ const family=FILE_FAMILY.get(id);if(!family||!GAME_PICKS[family])return '';
  const x=GAME_XLINK[locale]||GAME_XLINK.en;
  return `<section class="game-xlink" data-chrome aria-label="${esc(x.h)}"><h2>${esc(x.h)}</h2><p>${esc(x.p)}</p><p><a class="game-xlink-studio" href="${locale}/game/studio/">${esc(x.studio)} →</a><a href="${locale}/game/">${esc(x.hub)}</a>${GAME_PICKS[family].map(([path,name])=>`<a href="${locale}/${path}/">${esc(name[locale]||name.en)}</a>`).join('')}</p></section>`;
 }
