@@ -163,6 +163,9 @@ invite a community report (which never overrides the official row).
 | macOS 15 → 26, x86_64 | Clarett Thunderbolt | works_with_issues (MIDI I/O) | READY + warning |
 | Win 11 24H2, arm64 | Kontakt | unsupported arm64 (NI: Windows ARM not supported) | KNOWN_INCOMPATIBLE |
 | macOS 15 → 26 | Pro Tools 2025.6 | min 2025.10 (Avid: 2025.10+ on Tahoe) | UPDATE_FIRST |
+| macOS 26 → 27, arm64 | Waves CLA-76 V17 | supported `17.*` arm64 (Waves V17 lists Golden Gate 27) | READY |
+| macOS 26 → 27, arm64 | Waves CLA-76 V15 | no V15 row for macOS 27 | UNKNOWN (`no_statement`) |
+| macOS 15 → 26, x86_64 | oeksound soothe3 | unsupported x86_64 (Intel only up to macOS 15) | KNOWN_INCOMPATIBLE |
 | macOS 15 → 26 | FabFilter Pro-Q 4 | no macOS row (only "macOS 10.13 or higher") | UNKNOWN (`no_statement`) |
 
 The last line is intentional: an open-ended minimum requirement is not a compatibility statement
