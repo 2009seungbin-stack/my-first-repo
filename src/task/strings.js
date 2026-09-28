@@ -994,6 +994,9 @@ S.ja.uiLab.fontBdfNote='BDFからは白黒の画素だけを読み込みます�
 S.ko.uiLab.fontCell='셀 {x}열 {y}행';
 S.en.uiLab.fontCell='cell column {x}, row {y}';
 S.ja.uiLab.fontCell='セル {x}列 {y}行';
+S.ko.uiLab.fontAdvanced='글자 크기·간격 설정';
+S.en.uiLab.fontAdvanced='Glyph size and spacing';
+S.ja.uiLab.fontAdvanced='文字サイズと間隔の設定';
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

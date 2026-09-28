@@ -147,6 +147,7 @@ def main():
                 assert page.locator('[data-action="ui-font-undo"]').is_enabled()
                 page.locator('[data-action="ui-font-undo"]').click()
                 page.locator('[data-action="ui-font-redo"]').click()
+                page.locator('#optionsAdvanced').evaluate('(element) => { element.open = true }')
                 page.locator('#fontKerningPair').fill('AV')
                 page.locator('#fontKerningAmount').fill('-2')
                 page.locator('[data-action="ui-font-kerning"]').click()
