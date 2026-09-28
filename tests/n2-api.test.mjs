@@ -194,7 +194,7 @@ test('benchmarks: a model measured on a GPU, tokens/s bounded, shown as a median
  const gpu=(await entitiesByIds(h.db,['gpu:test-12'])).get('gpu:test-12');
  const out=String(renderLocalLlm(await loadLocalLlm(h.db,gpu,{l:'ko',now:T0}),{origin:ORIGIN}));
  assert(out.includes('Test 12에서 돌아가는 로컬 LLM')&&out.includes('<b>45</b> tok/s')&&out.includes('추정 방법'));
- assert(/class="fy"><b>여유<\/b>/.test(out),'8B at Q4_K_M fits in 12 GB (estimate)');
+ assert(/class="fy"><b>맞음<\/b>/.test(out),'8B at Q4_K_M fits in 12 GB (estimate)');
 });
 
 test('My Radar: changes and posts of followed channels, unread until seen',{skip},async()=>{

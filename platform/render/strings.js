@@ -45,7 +45,7 @@ const S={
    compatTable:'한글패치 호환표',lastUpdate:'마지막 업데이트',
    // gpu
    driver:'최신 드라이버',driverOk:'업데이트 후 괜찮나요?',noProblem:'문제 없음',problem:'문제 있음',noDriver:'드라이버 정보 없음',
-   localAi:'이 카드로 로컬 AI',estimateMethod:'≈ 추정 · 방법 보기',fits:'여유',tight:'빠듯',noFit:'불가',measured:(/** @type {number} */ n)=>`측정 ${n}건`,noMeasure:'측정 리포트 없음',
+   localAi:'이 카드로 로컬 AI',estimateMethod:'≈ 추정 · 방법 보기',fits:'맞음',tight:'빠듯함',noFit:'안 맞음',measured:(/** @type {number} */ n)=>`측정 ${n}건`,noMeasure:'측정 리포트 없음',
    benchBoard:'커뮤니티 벤치 보드',benchNote:'환경이 제각각 — 중앙값과 건수를 함께 봄',benchEmpty:'아직 벤치 리포트가 없습니다. 첫 측정을 올려 주세요.',task:'모델',setting:'설정',median:'중앙값',count:'건수',
    similar:'비슷한 카드',postBench:'벤치 올리기',
    // studio

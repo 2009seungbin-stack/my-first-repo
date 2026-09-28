@@ -25,15 +25,18 @@ export async function loadLocalLlm(db,gpu,o){
 /** @param {Awaited<ReturnType<typeof loadLocalLlm>>} m @param {{origin:string}} site */
 export function renderLocalLlm(m,site){
  const {gpu,l}=m,ko=l==='ko',name=nameOf(gpu,l),base=channelUrl(l,gpu),url=base+'local-llm';
- const V=/** @type {Record<string,[string,string]>} */({fits:[ko?'여유':'Fits','fy'],tight:[ko?'빠듯':'Tight','fm'],does_not_fit:[ko?'불가':'No','fn']});
+ // The same words as the method text below (맞음 / 빠듯함 / 안 맞음).
+ const V=/** @type {Record<string,[string,string]>} */({fits:[ko?'맞음':'Fits','fy'],tight:[ko?'빠듯함':'Tight','fm'],does_not_fit:[ko?'안 맞음':'No','fn']});
  const cell=(/** @type {any} */ r)=>r?html`<td class="${V[r.verdict][1]}"><b>${V[r.verdict][0]}</b> <span class="fine">≈ ${r.gib.total.low.toFixed(1)}–${r.gib.total.high.toFixed(1)} GiB</span></td>`:html`<td>–</td>`;
  const fitsQ4=m.models.filter(x=>x.est.Q4_K_M?.verdict==='fits');
  const biggest=fitsQ4[fitsQ4.length-1];
  const summary=html`<section class="box chh rh"><div class="chm"><div class="chn1"><h1>${ko?`${name}에서 돌아가는 로컬 LLM`:`Local LLMs on the ${name}`}</h1>${badge('ESTIMATE',l,ko?'≈ 메모리 추정':'≈ memory estimate')}</div>
 <p class="desc">${ko?`VRAM ${m.vram} GB 기준으로 공개 가중치 모델 ${m.models.length}개가 들어가는지 추정했습니다. Q4_K_M에서 여유 있게 들어가는 가장 큰 모델은 ${biggest?nameOf(biggest.entity,l)+` (${biggest.paramsB}B)`:'없음'}입니다. 속도(tok/s)는 추정하지 않고 커뮤니티 실측만 보여줍니다.`:`${m.models.length} open-weight models estimated against ${m.vram} GB of VRAM. Largest comfortable fit at Q4_K_M: ${biggest?nameOf(biggest.entity,l)+` (${biggest.paramsB}B)`:'none'}. Speed is never estimated; only community measurements are shown.`}</p></div></section>`;
+ const noFit=(/** @type {any} */ x)=>x.est.Q4_K_M?.verdict==='does_not_fit'&&!x.measured;
+ const row=(/** @type {any} */ x)=>html`<tr><td><a href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a></td><td>${x.paramsB}B</td>${cell(x.est.Q4_K_M)}${cell(x.est.Q8_0)}<td>${x.measured?html`<b>${int(Math.round(x.measured.median*10)/10,l)}</b> tok/s <span class="fine">· ${x.measured.n}${ko?'건':''}</span>`:html`<span class="fine">${ko?'리포트 없음':'none yet'}</span>`}</td></tr>`;
  const table=box({title:ko?'모델별 적합성':'Fit by model',note:ko?'KV 캐시 제외 · 여유분 10% · 방법은 아래':'KV cache excluded · 10% headroom · method below'},html`<div class="tw"><table class="mt"><thead><tr><th>${ko?'모델':'Model'}</th><th>${ko?'파라미터':'Params'}</th><th>Q4_K_M</th><th>Q8_0</th><th>${ko?'실측 (중앙값)':'Measured (median)'}</th></tr></thead><tbody>
-${m.models.map(x=>html`<tr><td><a href="${channelUrl(l,x.entity)}">${nameOf(x.entity,l)}</a></td><td>${x.paramsB}B</td>${cell(x.est.Q4_K_M)}${cell(x.est.Q8_0)}<td>${x.measured?html`<b>${int(Math.round(x.measured.median*10)/10,l)}</b> tok/s <span class="fine">· ${x.measured.n}${ko?'건':''}</span>`:html`<span class="fine">${ko?'리포트 없음':'none yet'}</span>`}</td></tr>`)}
-</tbody></table></div><details class="method" open><summary>${ko?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`);
+${m.models.filter(x=>!noFit(x)).map(row)}
+</tbody></table></div>${m.models.some(noFit)?html`<details class="more"><summary>${ko?`Q4_K_M에서도 안 맞는 모델 ${m.models.filter(noFit).length}개 보기`:`${m.models.filter(noFit).length} models that do not fit even at Q4_K_M`}</summary><div class="tw"><table class="mt"><tbody>${m.models.filter(noFit).map(row)}</tbody></table></div></details>`:''}<details class="method" open><summary>${ko?'추정 방법':'How this is estimated'}</summary><p>${METHOD.method[/** @type {'ko'|'en'} */(l)]||METHOD.method.en}</p></details>`);
  const form=box({id:'bench',title:ko?'내 측정값 올리기':'Post your measurement',extra:badge('COMMUNITY',l)},html`<form class="wform" data-island="bench-form" data-gpu="${gpu.id}">
 <div class="row"><label>${ko?'모델':'Model'}<select name="model" required>${m.models.filter(x=>x.est.Q4_K_M?.verdict!=='does_not_fit').map(x=>html`<option value="${x.entity.id}">${nameOf(x.entity,l)}</option>`)}</select></label>
 <label>${ko?'실행기':'Runtime'}<select name="runtime"><option>llama.cpp</option><option>Ollama</option><option>LM Studio</option><option>vLLM</option><option>ExLlamaV2</option></select></label>
