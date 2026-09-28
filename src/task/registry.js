@@ -3,6 +3,7 @@
  * A tool moves here only when its task page is a superset of the old editor flow for that
  * job; until then its route keeps the classic editor (docs/PRODUCT-ROADMAP.md). */
 export const TASK_TOOLS=Object.freeze({
+ 'store-art-pack':{module:'store-art-pack',kinds:['image'],next:['crop','compress']},
  compress:{module:'compress',kinds:['image'],next:['convert','resize','image']},
  convert:{module:'convert',kinds:['image'],next:['compress','resize','image']},
  heic:{module:'convert',kinds:['image'],next:['compress','resize','image']},
@@ -62,7 +63,7 @@ export const DIRECTORY=Object.freeze([
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
  // Labs first, then each Lab's focused stage routes, then the single-shot recipes.
- ['game',['sprite-lab','pixel-lab','tile-lab','texture-lab','ui-lab','sprite-slicer','frame-normalize','sprite-animation-preview','sprite-pivot-editor','hitbox-editor','collision-polygon-generator','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','tileset-slicer','autotile-tester','seamless-tile-checker','tile-helper','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed','texture-map','9-slice-editor','button-state-generator','missing-glyph-checker','ui-scale-preview','bitmap-font','pixel','refiner','palette-swap','sprite-sheet-maker','atlas-padding','mask-packer','favicon-pack']]
+ ['game',['sprite-lab','pixel-lab','tile-lab','texture-lab','ui-lab','store-art-pack','sprite-slicer','frame-normalize','sprite-animation-preview','sprite-pivot-editor','hitbox-editor','collision-polygon-generator','palette-extractor','palette-swap-ramp','pixel-art-cleanup','pixel-perfect-checker','tileset-slicer','autotile-tester','seamless-tile-checker','tile-helper','channel-unpacker','normal-map-converter','pbr-texture-validator','texture-edge-bleed','texture-map','9-slice-editor','button-state-generator','missing-glyph-checker','ui-scale-preview','bitmap-font','pixel','refiner','palette-swap','sprite-sheet-maker','atlas-padding','mask-packer','favicon-pack']]
 ]);
 /** Short format-style badge per tool; falls back to the category badge. */
 export const BADGES=Object.freeze({compress:'−%',convert:'JPG',resize:'↔',crop:'CROP','remove-bg':'BG',upscale:'2×',heic:'HEIC',image:'EDIT','pdf-merge':'+','pdf-split':'÷','pdf-compress':'−%','pdf-to-jpg':'JPG','jpg-to-pdf':'PDF','pdf-protect':'LOCK','pdf-unlock':'OPEN',pdf:'EDIT',

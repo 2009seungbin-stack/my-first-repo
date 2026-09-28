@@ -1,5 +1,9 @@
 import {TOOLS} from './tool-registry.js';
 export const TOOL_MESSAGES = {
+  'intent.store-art-pack.title':TOOLS['store-art-pack'].title,
+  'intent.store-art-pack.headline':TOOLS['store-art-pack'].title,
+  'intent.store-art-pack.description':TOOLS['store-art-pack'].description,
+  'intent.store-art-pack.action':['팩 만들기','Make pack','パックを作成'],
   "kit.search": [
     "도구 검색",
     "Search tools",

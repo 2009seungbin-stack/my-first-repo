@@ -1,5 +1,6 @@
 import {STORE_SLOTS,SPEC_DATE,validateSlotSpec} from './spec.js';
 import {zip} from '../core.js';
+const STEAM_SCREENSHOT_SOURCE='https://partner.steamgames.com/doc/store/assets/standard';
 
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,Number.isFinite(+v)?+v:a));
 const clean=s=>String(s||'').replace(/[\u0000-\u001f]/g,' ').slice(0,100);
@@ -51,14 +52,14 @@ export async function renderSlot(slot,art,logo,settings){
  const type=slot.format==='jpeg'?'image/jpeg':'image/png',blob=await c.convertToBlob({type,quality:.94});
  return {blob,geometry:slot.id==='library-logo'?null:cropGeometry(art.width,art.height,slot.w,slot.h,o,settings.pixel),composedLogo:!!(logo&&slot.logo),hasText:!logo&&!!settings.title&&slot.text!=='none'};
 }
-export async function buildPack({artFile,logoFile,rawSettings,onProgress=()=>{}}){
+export async function buildPack({artFile,logoFile,screenshotFiles=[],rawSettings,onProgress=()=>{}}){
  if(!artFile)throw Error('Key art is required');
  const settings=normalizedSettings(rawSettings),art=await createImageBitmap(artFile),logo=logoFile?await createImageBitmap(logoFile):null;
  const entries=[],report={tool:'Nerulio Store Art Pack',specCheckedAt:SPEC_DATE,platformApproval:'Not checked by platforms',source:{art:artFile.name,artWidth:art.width,artHeight:art.height,logo:logoFile?.name||null},files:[],warnings:[]};
  try{
   const chosen=STORE_SLOTS.filter(s=>settings.platforms.includes(s.platform)&&(s.required||settings.optional));
   if(!logo)report.warnings.push('No original transparent logo supplied. Typed title is a placeholder; visually review every Steam capsule and the separate library logo.');
-  if(settings.platforms.includes('steam'))report.warnings.push('Steam requires at least five genuine gameplay screenshots; this pack does not synthesize them.');
+  if(settings.platforms.includes('steam')&&screenshotFiles.length<5)report.warnings.push(`Steam requires at least five genuine gameplay screenshots; ${screenshotFiles.length} supplied. This pack does not synthesize them.`);
   for(let i=0;i<chosen.length;i++){
    const slot=chosen[i],r=await renderSlot(slot,art,logo,settings);entries.push({name:slot.path,blob:r.blob});
    report.files.push({path:slot.path,slot:slot.id,platform:slot.platform,width:slot.w,height:slot.h,mime:r.blob.type,bytes:r.blob.size,required:slot.required,source:slot.source,notes:slot.notes||undefined,geometry:r.geometry,composedLogo:r.composedLogo,typedTitle:r.hasText,alphaExpected:slot.alpha});
@@ -67,6 +68,13 @@ export async function buildPack({artFile,logoFile,rawSettings,onProgress=()=>{}}
    if(slot.id==='icon-source')report.warnings.push('Apple icon is an Xcode source image, not a standalone App Store upload.');
    if(r.geometry?.downsampleNearest)report.warnings.push(`${slot.id}: nearest downsampling used; integer enlargement was impossible at this output size.`);
    onProgress({done:i+1,total:chosen.length,slot:slot.id});
+  }
+  if(settings.platforms.includes('steam'))for(let i=0;i<screenshotFiles.length;i++){
+   const file=screenshotFiles[i];if(!['image/png','image/jpeg'].includes(file.type)){report.warnings.push(`Screenshot ${i+1}: use a PNG or JPEG capture.`);continue;}
+   const bitmap=await createImageBitmap(file),w=bitmap.width,h=bitmap.height;bitmap.close();
+   if(w<1920||h<1080||Math.abs(w/h-16/9)>.01)report.warnings.push(`Screenshot ${i+1}: ${w}×${h} does not meet Steam's 1920×1080 minimum 16:9 specification.`);
+   const name=`steam/screenshots/gameplay-${String(i+1).padStart(2,'0')}.${file.type==='image/png'?'png':'jpg'}`;
+   entries.push({name,blob:file});report.files.push({path:name,slot:'screenshot',platform:'steam',width:w,height:h,mime:file.type,bytes:file.size,source:STEAM_SCREENSHOT_SOURCE,originalCapture:true});
   }
   entries.push({name:'checklist.json',blob:new Blob([JSON.stringify(report,null,2)],{type:'application/json'})});
   const archive=await zip(entries,{paths:true});return {archive,report,entries};
