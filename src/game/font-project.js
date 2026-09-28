@@ -67,6 +67,13 @@ export function addGlyph(project,codepoint,{w=8,h=8,xAdvance=w}={}){
  if(project.glyphs.some(g=>g.codepoint===codepoint))throw Error('Character already exists in this project');
  project.glyphs.push(glyph(codepoint,w,h,0,0,xAdvance));return project;
 }
+export function resizeGlyph(project,codepoint,width,height){
+ const g=project.glyphs.find(item=>item.codepoint===codepoint);if(!g)throw Error('Glyph not in project');
+ validInt(width,1,128,'glyph width');validInt(height,1,128,'glyph height');
+ const pixels=Array(width*height).fill(0);
+ for(let y=0;y<Math.min(g.h,height);y++)for(let x=0;x<Math.min(g.w,width);x++)pixels[y*width+x]=g.pixels[y*g.w+x];
+ g.w=width;g.h=height;g.pixels=pixels;return project;
+}
 export function fillGlyph(project,codepoint,x,y,ink){
  const g=project.glyphs.find(item=>item.codepoint===codepoint);if(!g)throw Error('Glyph not in project');
  validInt(x,0,g.w-1,'pixel x');validInt(y,0,g.h-1,'pixel y');

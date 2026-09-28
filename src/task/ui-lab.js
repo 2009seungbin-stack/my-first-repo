@@ -301,6 +301,7 @@ ${f.mode!=='ttf'&&d!==undefined?(d?`<p class="hint" id="fontDetected" data-cell=
 <label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label>
 ${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>${esc(T('fontGlyph'))}</span><select id="fontGlyph">${f.project.glyphs.map(g=>`<option value="${g.codepoint}" ${g.codepoint===f.selected?'selected':''}>${esc(g.codepoint<32?'U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'):String.fromCodePoint(g.codepoint)+' · U+'+g.codepoint.toString(16).toUpperCase().padStart(4,'0'))}</option>`).join('')}</select></label><label class="field"><span>${esc(T('fontAdvance'))}</span><input id="fontAdvance" type="number" min="0" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xAdvance??0}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontAddGlyph'))}</span><input id="fontAddGlyph" type="text" maxlength="8" placeholder="あ / U+3042"></label><button type="button" class="mini-button" data-action="ui-font-add">${esc(T('fontAdd'))}</button></div>
+<div class="field-row"><label class="field"><span>${esc(T('fontGlyphW'))}</span><input id="fontGlyphW" type="number" min="1" max="128" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.w||1}"></label><label class="field"><span>${esc(T('fontGlyphH'))}</span><input id="fontGlyphH" type="number" min="1" max="128" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.h||1}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontBearingX'))}</span><input id="fontBearingX" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xOffset??0}"></label><label class="field"><span>${esc(T('fontBearingY'))}</span><input id="fontBearingY" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.yOffset??0}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
@@ -1016,16 +1017,19 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   else if(e.target.id==='fntFile')loadLocalFile(e.target,'fnt');
   else if(e.target.id==='localeFile')loadLocalFile(e.target,'locale');
   else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;S.font.rectStart=null;refresh();}
-  else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent'].includes(e.target.id)){
+  else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent','fontGlyphW','fontGlyphH'].includes(e.target.id)){
    const f=S.font,g=selectedGlyph();if(!g)return;
    const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
    if((e.target.id==='fontAscent'&&n+f.project.descent<1)||(e.target.id==='fontDescent'&&n+f.project.ascent<1)){toast(T('fontLineHeightError'),{error:true});refresh();return;}
    rememberFont();
-   if(e.target.id==='fontAdvance')g.xAdvance=n;
+   if(e.target.id==='fontGlyphW')FP.resizeGlyph(f.project,g.codepoint,n,g.h||1);
+   else if(e.target.id==='fontGlyphH')FP.resizeGlyph(f.project,g.codepoint,g.w||1,n);
+   else if(e.target.id==='fontAdvance')g.xAdvance=n;
    else if(e.target.id==='fontBearingX')g.xOffset=n;
    else if(e.target.id==='fontBearingY')g.yOffset=n;
    else if(e.target.id==='fontAscent')f.project.ascent=n;
    else f.project.descent=n;
+   f.editX=Math.min(f.editX,Math.max(0,g.w-1));f.editY=Math.min(f.editY,Math.max(0,g.h-1));
    f.project.lineHeight=f.project.ascent+f.project.descent;refresh();
   }
  });

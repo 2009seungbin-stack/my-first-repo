@@ -985,6 +985,9 @@ Object.assign(S.ja.uiLab,{fontAddGlyph:'追加する文字またはコードポ�
 S.ko.uiLab.fontEditHelp='화살표로 셀 이동, Space로 칠하기, Ctrl+Z로 되돌리기. 사각형 도구는 Space 두 번으로 시작·완료합니다. 마우스나 손가락으로도 그릴 수 있습니다.';
 S.en.uiLab.fontEditHelp='Arrow keys move the cell, Space paints, Ctrl+Z undoes. With the rectangle tool, press Space twice for its corners. Mouse and touch also work.';
 S.ja.uiLab.fontEditHelp='矢印キーでセル移動、Spaceで描画、Ctrl+Zで元に戻します。矩形ツールではSpaceを2回押して両角を指定します。マウスとタッチにも対応します。';
+Object.assign(S.ko.uiLab,{fontGlyphW:'글리프 너비(px)',fontGlyphH:'글리프 높이(px)'});
+Object.assign(S.en.uiLab,{fontGlyphW:'Glyph width (px)',fontGlyphH:'Glyph height (px)'});
+Object.assign(S.ja.uiLab,{fontGlyphW:'グリフ幅(px)',fontGlyphH:'グリフ高さ(px)'});
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

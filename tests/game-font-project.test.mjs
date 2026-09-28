@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseBdf} from '../src/game/font-bdf.js';
-import {blankFontProject,projectFromBdf,projectFromGrid,projectFromAtlas,renderFontProject,setGlyphPixel,setKerning,validateFontProject,addGlyph,fillGlyph,rectangleGlyph,PROJECT_FORMAT} from '../src/game/font-project.js';
+import {blankFontProject,projectFromBdf,projectFromGrid,projectFromAtlas,renderFontProject,setGlyphPixel,setKerning,validateFontProject,addGlyph,resizeGlyph,fillGlyph,rectangleGlyph,PROJECT_FORMAT} from '../src/game/font-project.js';
 
 test('editable project renders its own pixels and metrics, including kerning',()=>{
  const project=blankFontProject('AB',{cellW:4,cellH:5,baseline:4});
@@ -61,4 +61,14 @@ test('v1 measured atlas becomes editable with metrics and source pixels intact',
  assert.deepEqual(project.kernings,font.kernings);
  rectangleGlyph(project,65,0,0,0,0,0);
  assert.equal(source[(1*8+2)*4+3],255);
+});
+
+test('resizing one glyph keeps overlapping pixels and does not alter its advance',()=>{
+ const project=blankFontProject('A',{cellW:3,cellH:2,baseline:1});
+ setGlyphPixel(project,65,2,1,1);
+ resizeGlyph(project,65,4,3);
+ assert.deepEqual(project.glyphs[0].pixels,[0,0,0,0,0,0,1,0,0,0,0,0]);
+ assert.equal(project.glyphs[0].xAdvance,3);
+ resizeGlyph(project,65,2,2);
+ assert.deepEqual(project.glyphs[0].pixels,[0,0,0,0]);
 });
