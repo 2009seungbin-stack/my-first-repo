@@ -843,5 +843,199 @@ export default {
    versions:{body:['動作はsrc/game/tiles/generator.jsとdocs/STUDIO-TILE.mdに基づきます。2026-09-23に同じ基本ブロックでBlobsmith Lite 1.0.4と比べ、洞窟の絵で47枚中46枚、RPGツクールA2の床で47枚すべてがバイト単位で一致し、生成したcoolschoolのセットをGodot 4.7.2が485マスすべて予測どおりに塗りました。Blobsmithの機能と価格は、2026-09-28に確認した同ツールのitch.ioページの内容です。'],sources:[S.ja.godotTilesets]}
   }
  },
-/*END*/
+ 'game/tilemap-editor':{
+  type:'create',
+  intent:{primary:'find a tilemap editor (online) to paint maps with a tileset',secondary:['free tilemap editor in the browser','test autotile rules on a map','Tiled vs LDtk vs engine editor','타일맵 에디터 / タイルマップエディタ'],
+   goal:'know which editor fits the job: Nerulio\'s test map to prove a tileset\'s rules, or a level editor (Tiled, LDtk, Godot, Sprite Fusion) to build the levels',input:'a tileset with autotile rules (or a sheet whose layout the Studio recognises)',output:'a checked tileset exported with its rules (+ a sample map in the Tiled and LDtk bundles); levels are built elsewhere',target:'Godot 4, Tiled, Unity, LDtk (levels built there)',support:'partial',
+   evidence:['src/studio/workspaces/tile/state.js (cells = terrain characters, 24×16 default, MAX_MAP 128, layers per tileset, islandCells)','src/studio/workspaces/tile/resolve.js (Godot / Tiled rule)','docs/STUDIO-TILE.md (test map tools; sample.tmx; LDtk sample level)'],
+   external:['Tiled home page: features, 1.12.2','LDtk home page: entities, worlds, auto-layers, 1.5.3','Godot 4.7 Using TileMaps: Terrains tab, Connect / Path','Sprite Fusion export overview: engines, 5 MB web export']},
+  en:{
+   answer:'If you need to build game levels — hand-placed tiles, objects, spawn points, level files — use a level editor: Tiled, LDtk, Godot\'s own TileMapLayer editor or Sprite Fusion. Nerulio\'s tilemap is a test painter: you paint terrain, not individual tiles, on a map of 24 × 16 cells by default (up to 128 × 128), and every cell\'s tile is chosen live by Godot\'s or Tiled\'s autotile rule, with each wrong or missing cell outlined. Use it to prove a tileset\'s rules, then export the tileset (plus a sample map in the Tiled and LDtk bundles) and draw the real levels in the editor your engine reads.',
+   concept:{title:'Tileset, tile map, level: what each editor stores',body:[
+    'A tileset is the tiles plus the rules that say which one fits where. A tile map is a grid that records which tile sits in each cell. A level adds what the game needs on top: objects, entities, spawn points, properties. Editors differ in which of these you edit by hand.',
+    'Nerulio\'s test map stores only terrain: one character per cell, empty or one of up to 16 terrains. It never stores a tile. The tile you see is worked out again from the rule every time the map changes, and that is exactly what makes it a rule tester — and why you cannot put one particular tile, a flower variant or a sign, into one particular cell.',
+    'Tiled, LDtk and Godot store the placed tiles themselves (their autotiling is a tool that writes tiles into the map) and add object layers or entities. Sprite Fusion keeps its own map and writes the chosen tiles into its exports. Each of them is the place where a level lives.',
+    'So the two fit together: check the rules on Nerulio\'s map, export the tileset with its rules — a Godot 4 terrain set, a Tiled Wang set, Unity Rule Tiles or LDtk rules — and keep painting the real levels with the same autotiling inside the editor.'],
+    terms:[['Tileset','The tile images and their autotile rules (peering bits, Wang IDs, Rule Tile neighbours).'],['Tile map','Which tile sits in which cell of a layer.'],['Level','A tile map plus objects, entities and properties the game reads.'],['Terrain painting','Painting "grass here" and letting a rule choose the tiles, instead of placing tiles one by one.']]},
+   example:{title:'What the test map is made for',lead:'A new map arrives pre-painted so the rules show at once:',lines:[
+    'new test map        24 × 16 cells = 384   (resize from 2 × 2 up to 128 × 128)',
+    'starter island      outer corners and a straight coast   → tiles with two or three sides',
+    'lake inside it      the four inner corners                → masks 127, 253, 247, 223',
+    'two-wide peninsula  a narrow run and its end',
+    '2 × 2 islet         four outer corners side by side',
+    '',
+    'each cell stores    "." (empty) or a … p (terrain 0 … 15), never a tile number',
+    'layers              one tileset each, e.g. ground plus a second terrain on top',
+    'tools               brush P (sizes), eraser E, fill G, pick I, random fill, resize, clear'],
+    after:'Everything on that list is about the rules; there is no object layer, no entity, no property panel and no level export beyond the sample map written into the Tiled and LDtk bundles.'},
+   verify:{title:'From test map to real levels',steps:[
+    'Paint with the Godot rule and the Tiled rule: when neither outlines a cell on the starter island, a random fill and the shapes your game uses, the rules hold ([[game/autotile-tester|what the outlines mean]]).',
+    'Export for your editor. Tiled: open the `.tsx` and `sample.tmx` (Tiled 1.12.2 read every Wang ID as written). LDtk: open the `.ldtk` (checked against the 1.5.3 schema and loader, not opened in the LDtk app).',
+    'Godot 4: run the shipped importer, assign the saved TileSet to a TileMapLayer and paint with the Terrains tab ([[game/godot-autotile|Godot 4 autotile]]).',
+    'Paint one of the test shapes in the editor: its tiles should match the test map.']},
+   trouble:{rows:[
+    ['You want one particular tile in one cell (a decoration, a variant)','The test map stores terrain, not tiles','The pick tool (I) picks a terrain, never a tile','Place such tiles in Tiled, LDtk or Godot, on a layer above the terrain'],
+    ['You need objects, spawn points or per-level properties','The test map has no objects or entities','—','Use LDtk entities or Tiled object layers; Godot scenes place nodes on top of TileMapLayers'],
+    ['The level painted in Godot\'s editor looks different from the test map','Godot\'s editor paints stroke by stroke and its result depends on stroke order','Repaint the area in one Connect stroke','Nothing to fix in the tileset; see [[game/godot-terrain-wrong-tiles|wrong tiles in Godot]]'],
+    ['The map will not grow beyond 128 × 128','The test map is capped at 128 cells per side','Resize stops at 128','Test a representative area; build the full level in a level editor']]},
+   alternatives:{rows:[
+    ['Tiled (free, open source, desktop)','Levels with objects, orthogonal, isometric or hexagonal maps, rule-based Automapping, infinite maps, scripting, and exports to JSON, Lua, GameMaker, Defold and more. The exported Wang set keeps the autotiling: [[game/tiled-wang-set|Tiled Wang sets]].'],
+    ['LDtk (free, open source, desktop)','Levels built from IntGrid logic plus entities with typed fields, organised in worlds (Grid-vania, linear or free), with auto-layer rules skinning them; JSON export, optional TMX. See [[game/ldtk-autotile-rules|LDtk autotile rules]].'],
+    ['Godot\'s TileMapLayer editor','Your game is in Godot: paint with the Terrains tab (Connect or Path mode), one TileMapLayer node per layer, no file round-trip. See [[game/godot-autotile|Godot 4 autotile]].'],
+    ['Sprite Fusion (browser)','A quick level in the browser with layers and 3×3 autotile rules, exported with its tiles already chosen to Unity, Godot 3 and 4, Phaser, Defold and others; the web export is capped at 5 MB. Compared in [[game/sprite-fusion-alternative|Sprite Fusion vs Nerulio]].']]},
+   limits:['No objects, entities, spawn points or level properties.','No hand-placed tiles: every tile follows from the terrain and the rule.','No level export beyond the sample map in the Tiled and LDtk bundles; maps up to 128 × 128 cells, square tiles only.'],
+   versions:{body:['The test map\'s behaviour comes from src/studio/workspaces/tile/ (state.js, resolve.js); its Godot rule equalled Godot 4.7.2 cell for cell on the corpus (docs/STUDIO-TILE.md, 2026-09-23). Features of Tiled (1.12.2), LDtk (1.5.3), Godot 4.7 and Sprite Fusion are as their own pages describe them, read on 2026-09-28.'],sources:[S.en.tiledHome,S.en.ldtkHome,S.en.godotTilemaps,S.en.sfExport]}
+  },
+  ko:{
+   answer:'게임 레벨을 만들어야 한다면(손으로 놓는 타일, 오브젝트, 스폰 지점, 레벨 파일) 레벨 에디터를 쓰세요. Tiled, LDtk, 고도 자체의 TileMapLayer 편집기, Sprite Fusion이 있습니다. Nerulio의 타일맵은 시험용 캔버스입니다. 타일 하나하나가 아니라 지형을 칠하며, 맵은 기본 24 × 16칸(최대 128 × 128)이고, 각 칸의 타일은 고도나 Tiled의 오토타일 규칙이 실시간으로 고르고, 틀리거나 빠진 칸마다 윤곽선이 쳐집니다. 타일셋 규칙을 증명하는 데 쓰고, 타일셋(Tiled·LDtk 번들에는 샘플 맵 포함)을 내보낸 뒤 실제 레벨은 엔진이 읽는 에디터에서 그리세요.',
+   concept:{title:'타일셋, 타일맵, 레벨: 에디터마다 저장하는 것',body:[
+    '타일셋은 타일과, 어느 타일이 어디에 맞는지 정하는 규칙입니다. 타일맵은 칸마다 어떤 타일이 놓였는지 적은 격자입니다. 레벨은 그 위에 게임이 필요로 하는 것, 즉 오브젝트, 엔티티, 스폰 지점, 속성을 더합니다. 에디터마다 이 중 무엇을 손으로 편집하는지가 다릅니다.',
+    'Nerulio 테스트 맵은 지형만 저장합니다. 칸마다 문자 하나로, 비었거나 최대 16가지 지형 중 하나입니다. 타일은 저장하지 않습니다. 보이는 타일은 맵이 바뀔 때마다 규칙으로 다시 계산되며, 바로 이 점이 규칙 시험기인 이유이자 특정 칸에 꽃 변형이나 표지판 같은 특정 타일을 놓을 수 없는 이유입니다.',
+    'Tiled, LDtk, 고도는 놓인 타일 자체를 저장하고(이들의 오토타일은 맵에 타일을 써 넣는 도구입니다) 오브젝트 레이어나 엔티티를 더합니다. Sprite Fusion은 자체 맵을 두고 고른 타일을 내보내기에 기록합니다. 레벨이 사는 곳은 이들 각각입니다.',
+    '그래서 둘은 이렇게 맞물립니다. Nerulio 맵에서 규칙을 확인하고, 규칙이 든 타일셋(고도 4 지형 세트, Tiled Wang 세트, 유니티 룰 타일, LDtk 규칙)을 내보낸 뒤, 에디터 안에서 같은 오토타일로 실제 레벨을 계속 칠합니다.'],
+    terms:[['타일셋','타일 이미지와 그 오토타일 규칙(피어링 비트, Wang ID, 룰 타일 이웃).'],['타일맵','레이어의 어느 칸에 어느 타일이 있는지.'],['레벨','타일맵에 게임이 읽는 오브젝트·엔티티·속성을 더한 것.'],['지형 칠하기','타일을 하나씩 놓는 대신 "여기는 풀"이라고 칠하고 규칙이 타일을 고르게 하는 방식.']]},
+   example:{title:'테스트 맵은 무엇을 위해 있나',lead:'새 맵은 규칙이 바로 보이도록 미리 칠해진 채로 시작합니다.',lines:[
+    '새 테스트 맵        24 × 16칸 = 384   (2 × 2부터 128 × 128까지 크기 조절)',
+    '시작 섬             바깥 모서리와 곧은 해안   → 변이 둘이나 셋인 타일',
+    '섬 안의 호수        안쪽 모서리 네 개          → 마스크 127, 253, 247, 223',
+    '두 칸 폭 반도       좁은 줄기와 그 끝',
+    '2 × 2 작은 섬       바깥 모서리 넷이 나란히',
+    '',
+    '칸마다 저장하는 것  "." (빈칸) 또는 a … p (지형 0 … 15). 타일 번호는 저장하지 않음',
+    '레이어              각자 타일셋 하나. 예: 바닥 + 그 위의 두 번째 지형',
+    '도구                브러시 P(크기), 지우개 E, 채우기 G, 스포이트 I, 무작위 채우기, 크기 조절, 지우기'],
+    after:'목록의 모든 것이 규칙을 위한 것입니다. 오브젝트 레이어, 엔티티, 속성 패널은 없고, Tiled·LDtk 번들에 들어가는 샘플 맵 말고는 레벨을 내보내지 않습니다.'},
+   verify:{title:'테스트 맵에서 실제 레벨로',steps:[
+    '고도 규칙과 Tiled 규칙으로 칠해 봅니다. 시작 섬, 무작위 채우기, 게임에 쓰는 모양에서 어느 규칙도 윤곽선을 치지 않으면 규칙이 맞는 것입니다([[game/autotile-tester|윤곽선의 의미]]).',
+    '쓰는 에디터용으로 내보냅니다. Tiled: `.tsx`와 `sample.tmx`를 엽니다(Tiled 1.12.2가 모든 Wang ID를 쓴 그대로 읽음). LDtk: `.ldtk`를 엽니다(1.5.3 스키마와 로더로 확인, LDtk 앱에서 열지는 않음).',
+    '고도 4: 함께 온 가져오기 스크립트를 실행하고, 저장된 TileSet을 TileMapLayer에 지정해 Terrains 탭으로 칠합니다([[game/godot-autotile|고도 4 오토타일]]).',
+    '테스트한 모양 하나를 에디터에서 칠해 봅니다. 타일이 테스트 맵과 같아야 합니다.']},
+   trouble:{rows:[
+    ['특정 칸에 특정 타일(장식, 변형)을 놓고 싶음','테스트 맵은 타일이 아니라 지형을 저장함','스포이트(I)는 타일이 아니라 지형을 집음','그런 타일은 Tiled·LDtk·고도에서 지형 위 레이어에 놓음'],
+    ['오브젝트, 스폰 지점, 레벨별 속성이 필요함','테스트 맵에는 오브젝트나 엔티티가 없음','—','LDtk 엔티티나 Tiled 오브젝트 레이어를 사용. 고도에서는 씬이 TileMapLayer 위에 노드를 놓음'],
+    ['고도 편집기에서 칠한 레벨이 테스트 맵과 다름','고도 편집기는 한 획씩 칠하고 결과가 획 순서에 따라 달라짐','그 구역을 Connect 한 획으로 다시 칠해 봄','타일셋에서 고칠 것은 없음. [[game/godot-terrain-wrong-tiles|고도에서 틀린 타일]] 참고'],
+    ['맵이 128 × 128보다 커지지 않음','테스트 맵은 한 변 128칸이 최대','크기 조절이 128에서 멈춤','대표적인 구역만 시험하고, 전체 레벨은 레벨 에디터에서 만듦']]},
+   alternatives:{rows:[
+    ['Tiled(무료, 오픈 소스, 데스크톱)','오브젝트가 있는 레벨, 직교·아이소메트릭·육각 맵, 규칙 기반 Automapping, 무한 맵, 스크립팅, JSON·Lua·게임메이커·Defold 등으로 내보내기가 필요할 때. 내보낸 Wang 세트가 오토타일을 그대로 유지합니다: [[game/tiled-wang-set|Tiled Wang 세트]].'],
+    ['LDtk(무료, 오픈 소스, 데스크톱)','IntGrid 논리와 타입이 있는 필드를 가진 엔티티로 레벨을 짜고, 월드(Grid-vania, 선형, 자유)로 정리하고, 오토 레이어 규칙이 겉모습을 입힐 때. JSON 내보내기, TMX는 선택. [[game/ldtk-autotile-rules|LDtk 오토타일 규칙]] 참고.'],
+    ['고도 TileMapLayer 편집기','게임이 고도일 때. Terrains 탭(Connect 또는 Path 모드)으로 칠하고, 레이어마다 TileMapLayer 노드 하나, 파일을 오갈 필요가 없습니다. [[game/godot-autotile|고도 4 오토타일]] 참고.'],
+    ['Sprite Fusion(브라우저)','레이어와 3×3 오토타일 규칙으로 브라우저에서 빠르게 레벨을 만들고, 타일이 이미 골라진 채로 유니티, 고도 3·4, Phaser, Defold 등으로 내보낼 때. 웹 내보내기는 5MB까지입니다. [[game/sprite-fusion-alternative|Sprite Fusion과 Nerulio 비교]]에 정리돼 있습니다.']]},
+   limits:['오브젝트, 엔티티, 스폰 지점, 레벨 속성이 없습니다.','손으로 놓는 타일이 없습니다. 모든 타일은 지형과 규칙에서 나옵니다.','Tiled·LDtk 번들의 샘플 맵 말고는 레벨을 내보내지 않습니다. 맵은 최대 128 × 128칸, 정사각형 타일만 다룹니다.'],
+   versions:{body:['테스트 맵의 동작은 src/studio/workspaces/tile/(state.js, resolve.js)를 따르며, 고도 규칙은 코퍼스에서 Godot 4.7.2와 칸 단위로 같았습니다(docs/STUDIO-TILE.md, 2026-09-23). Tiled(1.12.2), LDtk(1.5.3), 고도 4.7, Sprite Fusion의 기능은 2026-09-28에 읽은 각자의 공식 페이지 설명을 따릅니다.'],sources:[S.ko.tiledHome,S.ko.ldtkHome,S.ko.godotTilemaps,S.ko.sfExport]}
+  },
+  ja:{
+   answer:'ゲームのレベルを作るなら（手で置くタイル、オブジェクト、スポーン地点、レベルファイル）、レベルエディターを使ってください。Tiled、LDtk、Godot自身のTileMapLayerエディター、Sprite Fusionがあります。Nerulioのタイルマップは試し塗り用です。タイルを1枚ずつではなく地形を塗り、マップは初期状態で24 × 16マス（最大128 × 128）、各マスのタイルはGodotかTiledのオートタイルルールがその場で選び、誤ったセルや欠けたセルには枠が付きます。タイルセットのルールを確かめるのに使い、タイルセット（TiledとLDtkのバンドルにはサンプルマップ付き）を書き出してから、本番のレベルはエンジンが読むエディターで描いてください。',
+   concept:{title:'タイルセット・タイルマップ・レベル：各エディターが保存するもの',body:[
+    'タイルセットはタイルと、どのタイルがどこに合うかを決めるルールです。タイルマップは、マスごとにどのタイルが置かれたかを記録するグリッドです。レベルはその上に、ゲームが必要とするオブジェクト、エンティティ、スポーン地点、プロパティを加えます。エディターごとに、このうち何を手で編集するかが違います。',
+    'Nerulioのテストマップが保存するのは地形だけです。マスごとに1文字で、空か最大16種類の地形のどれかです。タイルは保存しません。見えているタイルはマップが変わるたびにルールから計算し直されます。これこそがルールのテスターである理由で、特定のマスに花の差分や看板のような特定のタイルを置けない理由でもあります。',
+    'Tiled・LDtk・Godotは置かれたタイルそのものを保存し（それぞれのオートタイルはマップにタイルを書き込む道具です）、オブジェクトレイヤーやエンティティを加えます。Sprite Fusionは独自のマップを持ち、選んだタイルを書き出しに記録します。レベルが住む場所はこれらのほうです。',
+    'つまり両者はこう組み合わさります。Nerulioのマップでルールを確かめ、ルール付きのタイルセット（Godot 4の地形セット、TiledのWangセット、UnityのRule Tile、LDtkのルール）を書き出し、エディターの中で同じオートタイルを使って本番のレベルを塗り続けます。'],
+    terms:[['タイルセット','タイル画像と、そのオートタイルのルール（ピアリングビット、Wang ID、Rule Tileの隣接）。'],['タイルマップ','レイヤーのどのマスにどのタイルがあるか。'],['レベル','タイルマップに、ゲームが読むオブジェクト・エンティティ・プロパティを加えたもの。'],['地形塗り','タイルを1枚ずつ置く代わりに「ここは草」と塗り、ルールにタイルを選ばせる方法。']]},
+   example:{title:'テストマップは何のためにあるか',lead:'新しいマップは、ルールがすぐ見えるように最初から塗られた状態で始まります。',lines:[
+    '新しいテストマップ  24 × 16マス = 384   （2 × 2から128 × 128までサイズ変更）',
+    '最初の島            外側の角とまっすぐな海岸   → 辺が2つか3つのタイル',
+    '島の中の湖          内側の角4つ                → マスク127・253・247・223',
+    '2マス幅の半島       細い部分とその先端',
+    '2 × 2の小島         外側の角4つが隣り合う',
+    '',
+    'マスごとの保存内容  "."（空）か a … p（地形0 … 15）。タイル番号は保存しない',
+    'レイヤー            それぞれにタイルセット1つ。例：地面＋その上の2つ目の地形',
+    'ツール              ブラシP（サイズ）、消しゴムE、塗りつぶしG、スポイトI、ランダム塗り、サイズ変更、クリア'],
+    after:'一覧のすべてがルールのためのものです。オブジェクトレイヤー、エンティティ、プロパティのパネルはなく、TiledとLDtkのバンドルに入るサンプルマップ以外にレベルは書き出しません。'},
+   verify:{title:'テストマップから本番のレベルへ',steps:[
+    'GodotルールとTiledルールで塗ります。最初の島、ランダム塗り、ゲームで使う形のどれでも、どちらのルールも枠を付けなければルールは成り立っています（[[game/autotile-tester|枠の意味]]）。',
+    '使うエディター向けに書き出します。Tiled：`.tsx`と`sample.tmx`を開く（Tiled 1.12.2がすべてのWang IDを書いたとおりに読みました）。LDtk：`.ldtk`を開く（1.5.3のスキーマとローダーで確認、LDtkアプリでは未確認）。',
+    'Godot 4：同梱のインポーターを実行し、保存されたTileSetをTileMapLayerに設定してTerrainsタブで塗ります（[[game/godot-autotile|Godot 4のオートタイル]]）。',
+    'テストした形を1つエディターで塗ります。タイルがテストマップと同じになるはずです。']},
+   trouble:{rows:[
+    ['特定のマスに特定のタイル（飾り、差分）を置きたい','テストマップはタイルではなく地形を保存する','スポイト（I）が拾うのは地形で、タイルではない','そうしたタイルはTiled・LDtk・Godotで地形の上のレイヤーに置く'],
+    ['オブジェクト、スポーン地点、レベルごとのプロパティが要る','テストマップにはオブジェクトもエンティティもない','—','LDtkのエンティティかTiledのオブジェクトレイヤーを使う。GodotではシーンがTileMapLayerの上にノードを置く'],
+    ['Godotのエディターで塗ったレベルがテストマップと違う','Godotのエディターは1ストロークずつ塗り、結果がストロークの順で変わる','その範囲をConnectの1ストロークで塗り直してみる','タイルセット側で直すものはない。[[game/godot-terrain-wrong-tiles|Godotで違うタイルになる]]を参照'],
+    ['マップが128 × 128より大きくならない','テストマップは1辺128マスが上限','サイズ変更が128で止まる','代表的な範囲だけを試し、レベル全体はレベルエディターで作る']]},
+   alternatives:{rows:[
+    ['Tiled（無料、オープンソース、デスクトップ）','オブジェクトのあるレベル、直交・アイソメトリック・六角形のマップ、ルールベースのAutomapping、無限マップ、スクリプト、JSON・Lua・GameMaker・Defoldなどへの書き出しが要るとき。書き出したWangセットがオートタイルをそのまま保ちます：[[game/tiled-wang-set|TiledのWangセット]]。'],
+    ['LDtk（無料、オープンソース、デスクトップ）','IntGridのロジックと型付きフィールドを持つエンティティでレベルを組み、ワールド（Grid-vania・リニア・フリー）で整理し、オートレイヤーのルールで見た目を付けたいとき。JSONで書き出し、TMXは任意。[[game/ldtk-autotile-rules|LDtkのオートタイルルール]]を参照。'],
+    ['GodotのTileMapLayerエディター','ゲームがGodotのとき。Terrainsタブ（ConnectかPathモード）で塗り、レイヤーごとにTileMapLayerノードを1つ、ファイルの行き来は不要です。[[game/godot-autotile|Godot 4のオートタイル]]を参照。'],
+    ['Sprite Fusion（ブラウザ）','レイヤーと3×3のオートタイルルールでブラウザ上で手早くレベルを作り、タイルを選んだ状態でUnity、Godot 3・4、Phaser、Defoldなどへ書き出したいとき。Web版の書き出しは5MBまでです。[[game/sprite-fusion-alternative|Sprite FusionとNerulioの比較]]にまとめています。']]},
+   limits:['オブジェクト、エンティティ、スポーン地点、レベルのプロパティはありません。','手で置くタイルはありません。すべてのタイルは地形とルールから決まります。','TiledとLDtkのバンドルのサンプルマップ以外にレベルは書き出しません。マップは最大128 × 128マス、正方形のタイルのみです。'],
+   versions:{body:['テストマップの動作はsrc/studio/workspaces/tile/（state.js、resolve.js）に基づき、Godotルールはコーパスで Godot 4.7.2とセル単位で一致しました（docs/STUDIO-TILE.md、2026-09-23）。Tiled（1.12.2）、LDtk（1.5.3）、Godot 4.7、Sprite Fusionの機能は、2026-09-28に読んだそれぞれの公式ページの説明に基づきます。'],sources:[S.ja.tiledHome,S.ja.ldtkHome,S.ja.godotTilemaps,S.ja.sfExport]}
+  }
+ },
+ 'game/sprite-fusion-alternative':{
+  type:'compare',
+  intent:{primary:'compare Sprite Fusion with an alternative for autotile tilemaps, and know when to use which',secondary:['sprite fusion alternative free','keep autotile rules in Godot after export','sprite fusion godot export terrain','sprite fusion vs Tiled vs LDtk'],
+   goal:'a clear choice: Sprite Fusion to finish a level in the browser, or Nerulio (then Godot / Tiled / Unity / LDtk) when the engine must keep autotiling',input:'the same tileset (a 47-tile blob sheet in the test)',output:'either a finished map with baked tiles (Sprite Fusion) or a tileset with engine autotile rules (Nerulio)',target:'Godot 4, Tiled, Unity, LDtk',support:'partial',
+   evidence:['docs/STUDIO-TILE.md (Competitors, 2026-09-23: 537 clicks computed, 3/47 wrong, Godot export 0 terrain sets, TMX without Wang set)','src/game/tiles/godot-export.js (probability, collision)','src/game/tile-grid.js (margin, spacing)'],
+   external:['Sprite Fusion docs: autotile system (3×3 Required / Empty / Ignored, default tiles, weights, presets)','Sprite Fusion docs: export overview (targets, 5 MB web export)','Sprite Fusion docs: importing tilesets (size must be a multiple of the tile size)','Sprite Fusion docs: layers and collisions (collision per layer)','spritefusion.com: web free, desktop $14.99 (2026-09-28)']},
+  en:{
+   answer:'Sprite Fusion is a browser tilemap editor: you paint whole levels with regular and autotile layers and export the finished map to about ten engines; the web edition is free and its site listed the desktop edition at $14.99 (a limited-time price) on 2026-09-28. Nerulio Studio\'s Tile workspace is not a level editor — it turns a tileset into autotile rules the engine keeps using after export: a Godot 4 terrain set, a Tiled Wang set, Unity Rule Tiles or LDtk rules. Choose Sprite Fusion to finish a map in the browser; choose Nerulio when you will keep painting levels in the engine with its own autotiling.',
+   concept:{title:'Where the autotile rules live',body:[
+    'In Sprite Fusion the rules live in the editor. An autotile layer holds rules, each a 3×3 pattern around the tile being resolved whose cells are Required, Empty or Ignored; the layer recalculates its tiles when you draw, fill or move content, falls back to Default tiles when no rule matches, and can pick among weighted variants. Rule sets can be saved and loaded as JSON presets. The export writes the map with the tiles already chosen.',
+    'Nerulio writes the rules into the tileset the engine loads. Each tile gets its terrain bits — recognised from the sheet\'s layout when it is a known one — and the export turns them into what the engine\'s own autotiling reads. Painting then happens in Godot, Tiled, Unity or LDtk, and the engine picks the tiles.',
+    'On the same 64 px cave blob-47 sheet (2026-09-23) that difference showed up concretely: Sprite Fusion\'s Godot 4 export loaded with 0 terrain sets and 58 cells baked into the map, and its TMX had no Wang set, while Nerulio\'s export was built by its importer into a terrain set of 47 tiles and 188 peering bits that Godot 4.7.2 painted exactly as predicted.',
+    'So the question is where the level gets finished. If the map is done in the editor and only needs to be loaded, baked tiles are fine. If designers keep editing levels in the engine, the rules must travel with the tileset.'],
+    terms:[['Autotile layer (Sprite Fusion)','A layer whose tiles are recalculated from its 3×3 rules as you draw.'],['Default tiles (Sprite Fusion)','The fallback used when no rule matches a neighbourhood.'],['Terrain set (Godot 4)','The engine-side rules: tiles with peering bits that TileMapLayer painting and `set_cells_terrain_connect` use.'],['Baked tiles','A map exported with each cell\'s tile fixed; the engine does no autotiling on it.']]},
+   mapping:{title:'The same ideas in both tools',head:['In Sprite Fusion','In Nerulio Studio','In the engine after export'],rows:[
+    ['3×3 rules per autotile layer (Required / Empty / Ignored)','Terrain bits per tile, from the recognised layout or the 3×3 bit editor','Godot peering bits, Tiled Wang IDs, Unity Rule Tile neighbours, LDtk 3×3 rules'],
+    ['Default tiles when no rule matches','No fallback: missing combinations are listed and outlined on the test map','Unity: Default Sprite; Godot: best-fitting tile or empty cell'],
+    ['Weighted variants in rules and defaults','A probability per tile','Godot: tile probability, set by the importer'],
+    ['Collision flag per layer','Collision polygons per tile, traced from alpha','Godot physics polygons (read back point for point in Godot 4.7.2)'],
+    ['Tileset width and height must be multiples of the tile size','Tile size, margin and spacing measured from the sheet','Margins and separation written into the Godot and Tiled tilesets'],
+    ['Export: the finished map with its tiles chosen','Export: the tileset with its rules, plus a sample map for Tiled and LDtk','Levels are painted in the engine with the same autotiling']]},
+   alternatives:{rows:[
+    ['Sprite Fusion','You want to finish a level in the browser and ship it: regular and autotile layers, draw modes, tile attributes, a GB Studio mode, and map exports to Unity, Godot 3 and 4, Phaser, Defold, GDevelop, Bevy, Cocos, LÖVE and GB Studio, plus TMX, JSON, PNG and UVTT for virtual tabletops.'],
+    ['Nerulio Studio, then your engine','You keep painting levels in Godot, Tiled, Unity or LDtk and want the engine\'s autotiling to work there; your sheet has margins or 1 px spacing; you want to be told which combination is missing before it shows up as a hole.'],
+    ['Tiled or LDtk','You want a full desktop level editor whose own files keep the rules: objects, entities, worlds and automapping ([[game/tilemap-editor|choosing a tilemap editor]]).'],
+    ['Godot\'s own TileMapLayer editor','The game is in Godot and you are happy to set the terrain bits by hand in the TileSet editor ([[game/godot-autotile|Godot 4 autotile]]).']]},
+   limits:['Nerulio is not a level editor: no hand-placed tiles, objects, entities or tile attributes, and no level export beyond the sample map in the Tiled and LDtk bundles.','Map targets are Godot 4, Tiled, Unity, LDtk and generic JSON only; no Phaser, Defold, GDevelop, Bevy, Cocos, LÖVE, GB Studio or UVTT exports.','No default-tile fallback and no weighted variants inside a rule, only one probability per tile; no GB Studio mode.','No desktop application; the Tile workspace was tested in Chromium only.'],
+   versions:{body:['Nerulio side: docs/STUDIO-TILE.md, both tools driven in Chromium on 2026-09-23 with the same CC0 cave sheet; the 537-click figure is computed from the 47 rule masks, not timed. Sprite Fusion side: its own documentation and home page as read on 2026-09-28 (features, export targets, the 5 MB limit of the browser export, the tile-size rule for imports, prices). Features change; check its pages before deciding.'],sources:[S.en.sfAutotile,S.en.sfExport,S.en.sfImport,S.en.sfLayers,S.en.sfHome,S.en.godotTilesets]}
+  },
+  ko:{
+   answer:'Sprite Fusion은 브라우저 타일맵 에디터입니다. 일반 레이어와 오토타일 레이어로 레벨 전체를 칠하고, 완성한 맵을 열 개 남짓한 엔진으로 내보냅니다. 웹판은 무료이고, 2026-09-28 기준 사이트에 데스크톱판이 14.99달러(기간 한정 가격)로 올라 있었습니다. Nerulio Studio의 타일 작업 공간은 레벨 에디터가 아닙니다. 타일셋을 내보낸 뒤에도 엔진이 계속 쓰는 오토타일 규칙, 즉 고도 4 지형 세트, Tiled Wang 세트, 유니티 룰 타일, LDtk 규칙으로 바꿉니다. 브라우저에서 맵을 완성하려면 Sprite Fusion을, 엔진 자체 오토타일로 레벨을 계속 칠할 거라면 Nerulio를 고르세요.',
+   concept:{title:'오토타일 규칙이 사는 곳',body:[
+    'Sprite Fusion에서는 규칙이 에디터 안에 있습니다. 오토타일 레이어가 규칙을 갖고, 규칙마다 계산할 타일 주변의 3×3 패턴이며 칸마다 Required(있어야 함), Empty(없어야 함), Ignored(상관없음) 중 하나입니다. 그리거나 채우거나 옮기면 레이어가 타일을 다시 계산하고, 맞는 규칙이 없으면 Default 타일로 대신하며, 가중치가 있는 변형 중에서 고를 수 있습니다. 규칙 세트는 JSON 프리셋으로 저장하고 불러옵니다. 내보내기는 타일이 이미 골라진 맵을 씁니다.',
+    'Nerulio는 규칙을 엔진이 불러오는 타일셋 안에 씁니다. 타일마다 지형 비트가 붙고(알려진 배치의 시트면 배치에서 읽음), 내보내기가 이것을 엔진 자체 오토타일이 읽는 형식으로 바꿉니다. 칠하기는 고도·Tiled·유니티·LDtk에서 하고, 타일은 엔진이 고릅니다.',
+    '같은 64px 동굴 블롭 47 시트(2026-09-23)에서 이 차이가 구체적으로 드러났습니다. Sprite Fusion의 고도 4 내보내기는 지형 세트 0개, 맵에 고정된 칸 58개로 들어왔고 TMX에는 Wang 세트가 없었습니다. Nerulio 내보내기는 가져오기 스크립트가 타일 47장·피어링 비트 188개짜리 지형 세트로 만들었고, Godot 4.7.2가 예측대로 칠했습니다.',
+    '결국 질문은 레벨을 어디서 완성하느냐입니다. 에디터에서 맵을 끝내고 불러오기만 하면 된다면 고정된 타일로 충분합니다. 기획자가 엔진에서 레벨을 계속 고친다면 규칙이 타일셋과 함께 가야 합니다.'],
+    terms:[['오토타일 레이어(Sprite Fusion)','그릴 때 3×3 규칙으로 타일을 다시 계산하는 레이어.'],['Default 타일(Sprite Fusion)','주변 모양에 맞는 규칙이 없을 때 쓰는 대체 타일.'],['지형 세트(고도 4)','엔진 쪽 규칙. TileMapLayer 칠하기와 `set_cells_terrain_connect`가 쓰는 피어링 비트 달린 타일.'],['고정된 타일','칸마다 타일이 정해진 채로 내보낸 맵. 엔진은 오토타일을 하지 않습니다.']]},
+   mapping:{title:'두 도구에서 같은 개념',head:['Sprite Fusion','Nerulio Studio','내보낸 뒤 엔진에서'],rows:[
+    ['오토타일 레이어마다 3×3 규칙(Required / Empty / Ignored)','타일마다 지형 비트. 인식한 배치나 3×3 비트 편집기에서','고도 피어링 비트, Tiled Wang ID, 유니티 룰 타일 이웃, LDtk 3×3 규칙'],
+    ['맞는 규칙이 없을 때 Default 타일','대체 타일 없음: 빠진 조합을 목록과 테스트 맵 윤곽선으로 보여 줌','유니티: 기본 스프라이트. 고도: 가장 잘 맞는 타일이나 빈칸'],
+    ['규칙과 기본값 안의 가중치 변형','타일마다 확률 하나','고도: 가져오기 스크립트가 설정하는 타일 확률'],
+    ['레이어마다 충돌 플래그','알파에서 따낸 타일별 충돌 폴리곤','고도 물리 폴리곤(Godot 4.7.2에서 점 단위로 다시 읽음)'],
+    ['타일셋 너비와 높이가 타일 크기의 배수여야 함','타일 크기·여백·간격을 시트에서 잼','고도·Tiled 타일셋에 여백과 간격이 기록됨'],
+    ['내보내기: 타일이 골라진 완성 맵','내보내기: 규칙이 든 타일셋, Tiled·LDtk용 샘플 맵','레벨은 엔진에서 같은 오토타일로 칠함']]},
+   alternatives:{rows:[
+    ['Sprite Fusion','브라우저에서 레벨을 완성해 바로 쓰고 싶을 때. 일반·오토타일 레이어, 그리기 모드, 타일 속성, GB Studio 모드, 유니티·고도 3·4·Phaser·Defold·GDevelop·Bevy·Cocos·LÖVE·GB Studio용 맵 내보내기와 TMX·JSON·PNG, 온라인 테이블탑용 UVTT가 있습니다.'],
+    ['Nerulio Studio 다음 엔진','고도·Tiled·유니티·LDtk에서 레벨을 계속 칠하며 엔진의 오토타일이 거기서 동작해야 할 때, 시트에 여백이나 1px 간격이 있을 때, 빠진 조합을 구멍으로 보기 전에 알고 싶을 때.'],
+    ['Tiled 또는 LDtk','자기 파일에 규칙을 담는 데스크톱 레벨 에디터가 필요할 때. 오브젝트, 엔티티, 월드, 자동 매핑([[game/tilemap-editor|타일맵 에디터 고르기]]).'],
+    ['고도 자체 TileMapLayer 편집기','게임이 고도이고, TileSet 편집기에서 지형 비트를 손으로 정해도 괜찮을 때([[game/godot-autotile|고도 4 오토타일]]).']]},
+   limits:['Nerulio는 레벨 에디터가 아닙니다. 손으로 놓는 타일, 오브젝트, 엔티티, 타일 속성이 없고, Tiled·LDtk 번들의 샘플 맵 말고는 레벨을 내보내지 않습니다.','내보내기 대상은 고도 4, Tiled, 유니티, LDtk, 범용 JSON뿐입니다. Phaser, Defold, GDevelop, Bevy, Cocos, LÖVE, GB Studio, UVTT용 내보내기는 없습니다.','Default 타일 같은 대체 타일도, 규칙 안의 가중치 변형도 없고 타일마다 확률 하나뿐입니다. GB Studio 모드도 없습니다.','데스크톱 앱이 없으며, 타일 작업 공간은 Chromium에서만 시험했습니다.'],
+   versions:{body:['Nerulio 쪽: docs/STUDIO-TILE.md. 2026-09-23에 같은 CC0 동굴 시트로 두 도구를 Chromium에서 조작했습니다. 537번 클릭은 규칙 마스크 47개에서 계산한 값이며 시간을 잰 것이 아닙니다. Sprite Fusion 쪽: 2026-09-28에 읽은 자체 문서와 홈페이지(기능, 내보내기 대상, 브라우저 내보내기 5MB 제한, 가져오기의 타일 크기 규칙, 가격). 기능은 바뀔 수 있으니 결정하기 전에 해당 페이지를 확인하세요.'],sources:[S.ko.sfAutotile,S.ko.sfExport,S.ko.sfImport,S.ko.sfLayers,S.ko.sfHome,S.ko.godotTilesets]}
+  },
+  ja:{
+   answer:'Sprite Fusionはブラウザのタイルマップエディターです。通常のレイヤーとオートタイルのレイヤーでレベル全体を塗り、完成したマップを10ほどのエンジンへ書き出せます。Web版は無料で、2026-09-28時点のサイトではデスクトップ版が14.99ドル（期間限定価格）でした。Nerulio StudioのTileワークスペースはレベルエディターではありません。タイルセットを、書き出した後もエンジンが使い続けるオートタイルのルール、つまりGodot 4の地形セット、TiledのWangセット、UnityのRule Tile、LDtkのルールに変えます。ブラウザでマップを仕上げるならSprite Fusion、エンジン自身のオートタイルでレベルを塗り続けるならNerulioを選んでください。',
+   concept:{title:'オートタイルのルールはどこにあるか',body:[
+    'Sprite Fusionではルールはエディターの中にあります。オートタイルレイヤーがルールを持ち、各ルールは解決するタイルの周りの3×3のパターンで、マスごとにRequired（必要）、Empty（空であること）、Ignored（問わない）のいずれかです。描く・塗りつぶす・動かすとレイヤーがタイルを計算し直し、合うルールがなければDefaultタイルで代用し、重み付きの差分から選ぶこともできます。ルールセットはJSONのプリセットとして保存・読み込みできます。書き出しはタイルを選び終えたマップを書きます。',
+    'Nerulioはルールを、エンジンが読み込むタイルセットの中に書きます。タイルごとに地形ビットが付き（既知の配置のシートなら配置から読み取り）、書き出しがそれをエンジン自身のオートタイルが読む形式に変えます。塗るのはGodot・Tiled・Unity・LDtkの中で、タイルを選ぶのはエンジンです。',
+    '同じ64pxの洞窟ブロブ47シート（2026-09-23）で、この違いは具体的に表れました。Sprite FusionのGodot 4書き出しは地形セット0個、マップに固定された58セルで読み込まれ、TMXにはWangセットがありませんでした。Nerulioの書き出しはインポーターが47タイル・ピアリングビット188個の地形セットを作り、Godot 4.7.2が予測どおりに塗りました。',
+    '結局の問いは、レベルをどこで仕上げるかです。エディターでマップを完成させて読み込むだけなら、固定されたタイルで十分です。企画担当がエンジンでレベルを直し続けるなら、ルールがタイルセットと一緒に移る必要があります。'],
+    terms:[['オートタイルレイヤー（Sprite Fusion）','描くたびに3×3のルールでタイルを計算し直すレイヤー。'],['Defaultタイル（Sprite Fusion）','周りに合うルールがないときの代用タイル。'],['地形セット（Godot 4）','エンジン側のルール。TileMapLayerの塗りと`set_cells_terrain_connect`が使う、ピアリングビット付きのタイル。'],['固定されたタイル','マスごとのタイルが決まった状態で書き出したマップ。エンジンはオートタイルを行いません。']]},
+   mapping:{title:'2つのツールでの同じ考え方',head:['Sprite Fusion','Nerulio Studio','書き出し後のエンジン'],rows:[
+    ['オートタイルレイヤーごとの3×3ルール（Required / Empty / Ignored）','タイルごとの地形ビット。判定した配置か3×3ビットエディターから','Godotのピアリングビット、TiledのWang ID、UnityのRule Tileの隣接、LDtkの3×3ルール'],
+    ['合うルールがないときのDefaultタイル','代用なし：足りない組み合わせを一覧とテストマップの枠で示す','Unity：Default Sprite。Godot：最もよく合うタイルか空きセル'],
+    ['ルールと既定値の中の重み付き差分','タイルごとの確率1つ','Godot：インポーターが設定するタイルの確率'],
+    ['レイヤーごとの当たり判定フラグ','アルファからなぞったタイルごとの衝突ポリゴン','Godotの物理ポリゴン（Godot 4.7.2で点ごとに読み戻し）'],
+    ['タイルセットの幅と高さはタイルサイズの倍数であること','タイルサイズ・余白・間隔をシートから計測','GodotとTiledのタイルセットに余白と間隔を記録'],
+    ['書き出し：タイルを選び終えた完成マップ','書き出し：ルール入りのタイルセットと、Tiled・LDtk用のサンプルマップ','レベルはエンジンで同じオートタイルを使って塗る']]},
+   alternatives:{rows:[
+    ['Sprite Fusion','ブラウザでレベルを仕上げてそのまま使いたいとき。通常・オートタイルのレイヤー、描画モード、タイル属性、GB Studioモード、Unity・Godot 3と4・Phaser・Defold・GDevelop・Bevy・Cocos・LÖVE・GB Studio向けのマップ書き出しと、TMX・JSON・PNG、オンラインTRPG用のUVTTがあります。'],
+    ['Nerulio Studio、その後エンジン','Godot・Tiled・Unity・LDtkでレベルを塗り続け、そこでエンジンのオートタイルを効かせたいとき。シートに余白や1pxの間隔があるとき。足りない組み合わせを、穴として見つける前に知りたいとき。'],
+    ['TiledかLDtk','自分のファイルにルールを持つデスクトップのレベルエディターが欲しいとき。オブジェクト、エンティティ、ワールド、自動マッピング（[[game/tilemap-editor|タイルマップエディターの選び方]]）。'],
+    ['Godot自身のTileMapLayerエディター','ゲームがGodotで、TileSetエディターで地形ビットを手で設定してもかまわないとき（[[game/godot-autotile|Godot 4のオートタイル]]）。']]},
+   limits:['Nerulioはレベルエディターではありません。手で置くタイル、オブジェクト、エンティティ、タイル属性はなく、TiledとLDtkのバンドルのサンプルマップ以外にレベルは書き出しません。','書き出し先はGodot 4、Tiled、Unity、LDtk、汎用JSONだけです。Phaser、Defold、GDevelop、Bevy、Cocos、LÖVE、GB Studio、UVTT向けの書き出しはありません。','Defaultタイルのような代用もルール内の重み付き差分もなく、タイルごとの確率が1つあるだけです。GB Studioモードもありません。','デスクトップアプリはなく、TileワークスペースはChromiumでのみ試験しています。'],
+   versions:{body:['Nerulio側：docs/STUDIO-TILE.md。2026-09-23に同じCC0の洞窟シートで両ツールをChromiumで操作しました。537クリックは47個のルールマスクから計算した値で、時間を計ったものではありません。Sprite Fusion側：2026-09-28に読んだ同ツールのドキュメントとトップページ（機能、書き出し先、ブラウザ版書き出しの5MB制限、読み込み時のタイルサイズの決まり、価格）。機能は変わることがあるので、決める前に各ページを確認してください。'],sources:[S.ja.sfAutotile,S.ja.sfExport,S.ja.sfImport,S.ja.sfLayers,S.ja.sfHome,S.ja.godotTilesets]}
+  }
+ },
+
 };
