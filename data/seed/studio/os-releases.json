@@ -1,0 +1,666 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:apple-security-releases",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/100100",
+   "title": "Apple security releases",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Lists each macOS release with its release date (2024 onward)."
+  },
+  {
+   "id": "src:apple-security-releases-2022-2023",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/121012",
+   "title": "Apple security releases (2022 to 2023)",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:apple-which-macos",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/109033",
+   "title": "Find out which macOS your Mac is using",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Table of macOS names and latest version numbers (page dated 2026-09-14)."
+  },
+  {
+   "id": "src:apple-macos-27-compatible",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/127255",
+   "title": "macOS 27 Golden Gate is compatible with these computers",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Only Apple silicon Mac models are listed."
+  },
+  {
+   "id": "src:apple-macos-26-compatible",
+   "kind": "OFFICIAL",
+   "url": "https://support.apple.com/en-us/122867",
+   "title": "macOS Tahoe 26 is compatible with these computers",
+   "publisher": "Apple",
+   "retrieved": "2026-09-28",
+   "note": "Lists Apple silicon Macs plus a few Intel models (e.g. MacBook Pro 16-inch 2019, Mac Pro 2019, iMac 27-inch 2020)."
+  },
+  {
+   "id": "src:ms-win11-release-info",
+   "kind": "OFFICIAL",
+   "url": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information",
+   "title": "Windows 11 - release information",
+   "publisher": "Microsoft",
+   "retrieved": "2026-09-28",
+   "note": "Page updated 2026-09-22. Availability dates, end-of-updates dates and latest builds per version."
+  },
+  {
+   "id": "src:ms-win10-release-info",
+   "kind": "OFFICIAL",
+   "url": "https://learn.microsoft.com/en-us/windows/release-health/release-information",
+   "title": "Windows 10 - release information",
+   "publisher": "Microsoft",
+   "retrieved": "2026-09-28",
+   "note": "States Windows 10 reached end of support on 2025-10-14; ESU program available."
+  }
+ ],
+ "entities": [
+  {
+   "id": "os_release:macos-13",
+   "type": "os_release",
+   "slug": "macos-13",
+   "names": {
+    "en": "macOS Ventura 13",
+    "ko": "macOS Ventura 13"
+   },
+   "aliases": [
+    "macOS 13",
+    "macOS Ventura",
+    "Ventura",
+    "macOS Ventura 13",
+    "macOS 13 Ventura"
+   ],
+   "official_urls": [
+    {
+     "label": "Apple: which macOS is my Mac using",
+     "url": "https://support.apple.com/en-us/109033"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "macos",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "version_number",
+     "v": "13",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "release_date",
+     "v": "2022-10-24",
+     "ver": "OFFICIAL",
+     "src": "src:apple-security-releases-2022-2023"
+    }
+   ],
+   "versions": [
+    {
+     "version": "13.0",
+     "released": "2022-10-24",
+     "channel": "stable",
+     "src": "src:apple-security-releases-2022-2023"
+    },
+    {
+     "version": "13.7.8",
+     "channel": "stable",
+     "src": "src:apple-which-macos"
+    }
+   ],
+   "description": {
+    "en": "macOS 13 Ventura, released by Apple in October 2022.",
+    "ko": "2022년 10월 Apple이 출시한 macOS 13 Ventura입니다."
+   }
+  },
+  {
+   "id": "os_release:macos-14",
+   "type": "os_release",
+   "slug": "macos-14",
+   "names": {
+    "en": "macOS Sonoma 14",
+    "ko": "macOS Sonoma 14"
+   },
+   "aliases": [
+    "macOS 14",
+    "macOS Sonoma",
+    "Sonoma",
+    "macOS Sonoma 14",
+    "macOS 14 Sonoma"
+   ],
+   "official_urls": [
+    {
+     "label": "Apple: which macOS is my Mac using",
+     "url": "https://support.apple.com/en-us/109033"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "macos",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "version_number",
+     "v": "14",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "release_date",
+     "v": "2023-09-26",
+     "ver": "OFFICIAL",
+     "src": "src:apple-security-releases-2022-2023"
+    }
+   ],
+   "versions": [
+    {
+     "version": "14.0",
+     "released": "2023-09-26",
+     "channel": "stable",
+     "src": "src:apple-security-releases-2022-2023"
+    },
+    {
+     "version": "14.8.9",
+     "channel": "stable",
+     "src": "src:apple-security-releases",
+     "released": "2026-08-06"
+    }
+   ],
+   "description": {
+    "en": "macOS 14 Sonoma, released by Apple in September 2023; it still received security updates in 2026.",
+    "ko": "2023년 9월 출시된 macOS 14 Sonoma로, 2026년에도 보안 업데이트가 제공되었습니다."
+   }
+  },
+  {
+   "id": "os_release:macos-15",
+   "type": "os_release",
+   "slug": "macos-15",
+   "names": {
+    "en": "macOS Sequoia 15",
+    "ko": "macOS Sequoia 15"
+   },
+   "aliases": [
+    "macOS 15",
+    "macOS Sequoia",
+    "Sequoia",
+    "macOS Sequoia 15",
+    "macOS 15 Sequoia"
+   ],
+   "official_urls": [
+    {
+     "label": "Apple: which macOS is my Mac using",
+     "url": "https://support.apple.com/en-us/109033"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "macos",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "version_number",
+     "v": "15",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "release_date",
+     "v": "2024-09-16",
+     "ver": "OFFICIAL",
+     "src": "src:apple-security-releases"
+    }
+   ],
+   "versions": [
+    {
+     "version": "15.0",
+     "released": "2024-09-16",
+     "channel": "stable",
+     "src": "src:apple-security-releases"
+    },
+    {
+     "version": "15.8",
+     "channel": "stable",
+     "src": "src:apple-security-releases",
+     "released": "2026-09-14"
+    }
+   ],
+   "description": {
+    "en": "macOS 15 Sequoia, released by Apple in September 2024.",
+    "ko": "2024년 9월 Apple이 출시한 macOS 15 Sequoia입니다."
+   }
+  },
+  {
+   "id": "os_release:macos-26",
+   "type": "os_release",
+   "slug": "macos-26",
+   "names": {
+    "en": "macOS Tahoe 26",
+    "ko": "macOS Tahoe 26"
+   },
+   "aliases": [
+    "macOS 26",
+    "macOS Tahoe",
+    "Tahoe",
+    "macOS Tahoe 26",
+    "macOS 26 Tahoe"
+   ],
+   "official_urls": [
+    {
+     "label": "Apple: which macOS is my Mac using",
+     "url": "https://support.apple.com/en-us/109033"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "macos",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "version_number",
+     "v": "26",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-09-15",
+     "ver": "OFFICIAL",
+     "src": "src:apple-security-releases"
+    },
+    {
+     "p": "cpu_arch",
+     "v": [
+      "arm64",
+      "x86_64"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:apple-macos-26-compatible"
+    }
+   ],
+   "versions": [
+    {
+     "version": "26.0",
+     "released": "2025-09-15",
+     "channel": "stable",
+     "src": "src:apple-security-releases"
+    },
+    {
+     "version": "26.7",
+     "channel": "stable",
+     "src": "src:apple-security-releases",
+     "released": "2026-09-14"
+    }
+   ],
+   "description": {
+    "en": "macOS 26 Tahoe, released in September 2025. Its compatibility list still includes a few Intel-based Macs.",
+    "ko": "2025년 9월 출시된 macOS 26 Tahoe로, 호환 기종 목록에 일부 Intel Mac이 포함되어 있습니다."
+   }
+  },
+  {
+   "id": "os_release:macos-27",
+   "type": "os_release",
+   "slug": "macos-27",
+   "names": {
+    "en": "macOS 27 Golden Gate",
+    "ko": "macOS 27 Golden Gate"
+   },
+   "aliases": [
+    "macOS 27",
+    "macOS Golden Gate",
+    "Golden Gate",
+    "macOS Golden Gate 27",
+    "macOS 27 Golden Gate"
+   ],
+   "official_urls": [
+    {
+     "label": "Apple: which macOS is my Mac using",
+     "url": "https://support.apple.com/en-us/109033"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "macos",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "version_number",
+     "v": "27",
+     "ver": "OFFICIAL",
+     "src": "src:apple-which-macos"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-09-14",
+     "ver": "OFFICIAL",
+     "src": "src:apple-security-releases"
+    },
+    {
+     "p": "cpu_arch",
+     "v": [
+      "arm64"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:apple-macos-27-compatible"
+    }
+   ],
+   "versions": [
+    {
+     "version": "27.0",
+     "released": "2026-09-14",
+     "channel": "stable",
+     "src": "src:apple-security-releases"
+    }
+   ],
+   "description": {
+    "en": "macOS 27 Golden Gate, released on 14 September 2026. Apple lists only Apple silicon Macs as compatible, so Intel Macs cannot install it.",
+    "ko": "2026년 9월 14일 출시된 macOS 27 Golden Gate입니다. Apple 호환 기종 목록에는 Apple Silicon Mac만 있어 Intel Mac에는 설치할 수 없습니다."
+   }
+  },
+  {
+   "id": "os_release:windows-10-22h2",
+   "type": "os_release",
+   "slug": "windows-10-22h2",
+   "names": {
+    "en": "Windows 10, version 22H2",
+    "ko": "Windows 10 버전 22H2"
+   },
+   "aliases": [
+    "Windows 10",
+    "Win10",
+    "Windows 10 22H2"
+   ],
+   "official_urls": [
+    {
+     "label": "Microsoft release information",
+     "url": "https://learn.microsoft.com/en-us/windows/release-health/release-information"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win10-release-info"
+    },
+    {
+     "p": "version_number",
+     "v": "22H2",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win10-release-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2022-10-18",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win10-release-info"
+    },
+    {
+     "p": "status",
+     "v": "retired",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win10-release-info",
+     "note": "Windows 10 reached end of support on 2025-10-14; the Extended Security Updates (ESU) program continues to ship security updates."
+    }
+   ],
+   "versions": [
+    {
+     "version": "19045.7727",
+     "channel": "stable",
+     "src": "src:ms-win10-release-info"
+    }
+   ],
+   "description": {
+    "en": "The final Windows 10 feature update. Microsoft ended Windows 10 support on 14 October 2025; security fixes continue only through the ESU program.",
+    "ko": "Windows 10의 마지막 기능 업데이트입니다. Microsoft는 2025년 10월 14일 Windows 10 지원을 종료했으며, 이후 보안 업데이트는 ESU 프로그램으로만 제공됩니다."
+   }
+  },
+  {
+   "id": "os_release:windows-11-23h2",
+   "type": "os_release",
+   "slug": "windows-11-23h2",
+   "names": {
+    "en": "Windows 11, version 23H2",
+    "ko": "Windows 11 버전 23H2"
+   },
+   "aliases": [
+    "Windows 11 23H2",
+    "Win11 23H2"
+   ],
+   "official_urls": [
+    {
+     "label": "Microsoft release information",
+     "url": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "version_number",
+     "v": "23H2",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2023-10-31",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "status",
+     "v": "retired",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info",
+     "note": "End of updates for Home/Pro editions; Enterprise/Education editions receive updates until 2026-11-10."
+    }
+   ],
+   "versions": [
+    {
+     "version": "22631.7584",
+     "channel": "stable",
+     "src": "src:ms-win11-release-info"
+    }
+   ],
+   "description": {
+    "en": "Windows 11 feature update released on 31 October 2023 (OS build 22631). Home and Pro editions no longer receive updates.",
+    "ko": "2023년 10월 31일 배포된 Windows 11 기능 업데이트(OS 빌드 22631)입니다. Home·Pro 에디션은 업데이트가 종료되었습니다."
+   }
+  },
+  {
+   "id": "os_release:windows-11-24h2",
+   "type": "os_release",
+   "slug": "windows-11-24h2",
+   "names": {
+    "en": "Windows 11, version 24H2",
+    "ko": "Windows 11 버전 24H2"
+   },
+   "aliases": [
+    "Windows 11 24H2",
+    "Win11 24H2"
+   ],
+   "official_urls": [
+    {
+     "label": "Microsoft release information",
+     "url": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "version_number",
+     "v": "24H2",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2024-10-01",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "status",
+     "v": "deprecated",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info",
+     "note": "Home/Pro editions reach end of updates on 2026-10-13; Enterprise/Education on 2027-10-12."
+    }
+   ],
+   "versions": [
+    {
+     "version": "26100.9550",
+     "channel": "stable",
+     "src": "src:ms-win11-release-info"
+    }
+   ],
+   "description": {
+    "en": "Windows 11 feature update released on 1 October 2024 (OS build 26100). Home and Pro editions stop receiving updates on 13 October 2026.",
+    "ko": "2024년 10월 1일 배포된 Windows 11 기능 업데이트(OS 빌드 26100)입니다. Home·Pro 에디션은 2026년 10월 13일 업데이트가 종료됩니다."
+   }
+  },
+  {
+   "id": "os_release:windows-11-25h2",
+   "type": "os_release",
+   "slug": "windows-11-25h2",
+   "names": {
+    "en": "Windows 11, version 25H2",
+    "ko": "Windows 11 버전 25H2"
+   },
+   "aliases": [
+    "Windows 11 25H2",
+    "Win11 25H2"
+   ],
+   "official_urls": [
+    {
+     "label": "Microsoft release information",
+     "url": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "version_number",
+     "v": "25H2",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2025-09-30",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info",
+     "note": "Home/Pro end of updates 2027-10-12; Enterprise/Education 2028-10-10."
+    }
+   ],
+   "versions": [
+    {
+     "version": "26200.9550",
+     "channel": "stable",
+     "src": "src:ms-win11-release-info"
+    }
+   ],
+   "description": {
+    "en": "Windows 11 feature update released on 30 September 2025 (OS build 26200); the current in-place feature update for existing PCs.",
+    "ko": "2025년 9월 30일 배포된 Windows 11 기능 업데이트(OS 빌드 26200)로, 기존 PC에 제공되는 현재 기능 업데이트입니다."
+   }
+  },
+  {
+   "id": "os_release:windows-11-26h1",
+   "type": "os_release",
+   "slug": "windows-11-26h1",
+   "names": {
+    "en": "Windows 11, version 26H1",
+    "ko": "Windows 11 버전 26H1"
+   },
+   "aliases": [
+    "Windows 11 26H1",
+    "Win11 26H1"
+   ],
+   "official_urls": [
+    {
+     "label": "Microsoft release information",
+     "url": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_family",
+     "v": "windows",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "version_number",
+     "v": "26H1",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "release_date",
+     "v": "2026-02-10",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info"
+    },
+    {
+     "p": "status",
+     "v": "active",
+     "ver": "OFFICIAL",
+     "src": "src:ms-win11-release-info",
+     "note": "Scoped to new devices released in early 2026; Microsoft states it is not offered as an in-place update from 24H2 or 25H2."
+    }
+   ],
+   "versions": [
+    {
+     "version": "28000.3086",
+     "channel": "stable",
+     "src": "src:ms-win11-release-info"
+    }
+   ],
+   "description": {
+    "en": "Windows 11 release (OS build 28000) made for new devices that shipped in early 2026. Microsoft does not offer it as an in-place update from 24H2 or 25H2.",
+    "ko": "2026년 초 출시된 신규 기기용 Windows 11 버전(OS 빌드 28000)입니다. Microsoft는 24H2·25H2에서 제자리 업그레이드로 제공하지 않습니다."
+   }
+  }
+ ]
+}
