@@ -8,6 +8,8 @@ export default defineVertical({
  types:{
   gpu:{label:{en:'GPU',ko:'그래픽카드'},plural:{en:'GPUs',ko:'그래픽카드'},icon:'chip',props:['release_date','segment','architecture','vram_gb','memory_type','memory_bus_bits','memory_bandwidth_gbs','shader_units','boost_clock_mhz','board_power_w','launch_price_usd','pcie','fp16_tflops'],sections:['overview','specs','ai','benchmarks','changes','community'],reportKinds:['benchmark','issue'],tools:['vram-fit'],indexMin:4},
   vendor:{label:{en:'Vendor',ko:'제조사'},plural:{en:'Vendors',ko:'제조사'},icon:'building',props:['hq_country','homepage'],sections:['overview','products','changes'],indexMin:3},
+  // n2-data-hardware: GPU driver release branches (collector nvidia-datacenter-drivers).
+  driver:{label:{en:'Driver',ko:'드라이버'},plural:{en:'Drivers',ko:'드라이버'},icon:'chip',props:['branch_type','latest_version','release_date','homepage'],sections:['overview','versions','changes'],indexMin:2},
  },
  properties:{
   ...COMMON_PROPS,
@@ -23,6 +25,8 @@ export default defineVertical({
   board_power_w:prop({en:'Board power',ko:'보드 전력'},'number',{unit:'W',volatility:'static',group:'specs'}),
   launch_price_usd:prop({en:'Launch price (MSRP)',ko:'출시가 (MSRP)'},'money',{unit:'USD',volatility:'static',group:'specs'}),
   pcie:prop({en:'Interface',ko:'인터페이스'},'text',{volatility:'static',group:'specs'}),
+  latest_version:prop({en:'Latest version',ko:'최신 버전'},'text',{volatility:'fast'}),
+  branch_type:prop({en:'Branch type',ko:'브랜치 유형'},'enum',{values:values({production:['Production branch','프로덕션 브랜치'],lts:['Long-term support branch','장기 지원(LTS) 브랜치'],new_feature:['New feature branch','신기능 브랜치']}),volatility:'slow'}),
   fp16_tflops:prop({en:'FP16',ko:'FP16'},'number',{unit:'TFLOPS',volatility:'static',group:'specs'}),
  },
 });
