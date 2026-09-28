@@ -393,7 +393,7 @@ export default {
    alternatives:{rows:[
     ['[[game/texture-lab|The full Texture Lab]]','You also need to fix what the check finds: convert normals, unpack or pack channels, bleed edges, resize, and export a batch.'],
     ['Checking in the engine','One material and one engine: import settings and missing slots show up in the material inspector, but sizes, grey-stored-as-RGB and normal validity are not measured there.']]},
-   limits:['Colour space is not detected: no ICC profile or gamma is read; the report states which roles an engine expects as sRGB or linear and whether a PNG has an sRGB chunk.','The OpenGL/DirectX convention of a normal map is not detected here (only a `_NormalGL`/`_NormalDX` name is read); the Studio\'s Texture workspace has a detector.','Name rules know English tokens only; files are never renamed.','The report is generic JSON; no engine imports it.'],
+   limits:['Colour space is not detected: no ICC profile or gamma is read; the report states which roles an engine expects as sRGB or linear and whether a PNG has an sRGB chunk.','The OpenGL/DirectX convention of a normal map is not detected here; the Studio\'s Texture workspace has a detector.','Name rules know English tokens only; files are never renamed.','The report is generic JSON; no engine imports it.'],
    versions:{body:['The check report was verified on the Texture Lab (docs/TEXTURE-LAB.md): `schemaVersion` 1, `engineTarget` generic, `alpha.zeroPixels` = 2048 matching the fixture, `exactChannels` true; a JPEG input gives `exactChannels: false`. The numbers on this page are the thresholds in `src/game/texture-set.js` and `src/game/texture-normal.js`.'],
     sources:[S.gltf,S.unityImport,S.godotShading]}
   },
@@ -432,7 +432,7 @@ export default {
    alternatives:{rows:[
     ['[[game/texture-lab|텍스처 랩 전체]]','점검에서 나온 문제를 고치는 것까지 필요할 때: 노멀 변환, 채널 분리·패킹, 가장자리 번짐, 크기 변경, 일괄 내보내기.'],
     ['엔진에서 점검하기','머티리얼 하나, 엔진 하나일 때. 가져오기 설정과 빈 슬롯은 머티리얼 인스펙터에서 보이지만, 크기·RGB로 저장된 회색·노멀 유효성은 거기서 측정되지 않습니다.']]},
-   limits:['색 공간은 감지하지 않습니다. ICC 프로필이나 감마를 읽지 않고, 엔진이 역할별로 sRGB와 리니어 중 무엇을 기대하는지와 PNG에 sRGB 청크가 있는지만 알립니다.','노멀맵의 OpenGL·DirectX 규약은 여기서 감지하지 않습니다(`_NormalGL`·`_NormalDX` 이름만 읽음). 감지기는 Studio 텍스처 작업 공간에 있습니다.','이름 규칙은 영어 토큰만 알며, 파일 이름은 절대 바꾸지 않습니다.','보고서는 일반 JSON이며 엔진이 가져가는 형식이 아닙니다.'],
+   limits:['색 공간은 감지하지 않습니다. ICC 프로필이나 감마를 읽지 않고, 엔진이 역할별로 sRGB와 리니어 중 무엇을 기대하는지와 PNG에 sRGB 청크가 있는지만 알립니다.','노멀맵의 OpenGL·DirectX 규약은 여기서 감지하지 않습니다. 감지기는 Studio 텍스처 작업 공간에 있습니다.','이름 규칙은 영어 토큰만 알며, 파일 이름은 절대 바꾸지 않습니다.','보고서는 일반 JSON이며 엔진이 가져가는 형식이 아닙니다.'],
    versions:{body:['점검 보고서는 텍스처 랩에서 확인했습니다(docs/TEXTURE-LAB.md): `schemaVersion` 1, `engineTarget` generic, 시험 파일과 같은 `alpha.zeroPixels` = 2048, `exactChannels` true. JPEG 입력은 `exactChannels: false`. 이 페이지의 수치는 `src/game/texture-set.js`와 `src/game/texture-normal.js`의 기준값입니다.'],
     sources:[S.gltf,S.unityImport,S.godotShading]}
   },
@@ -471,7 +471,7 @@ export default {
    alternatives:{rows:[
     ['[[game/texture-lab|テクスチャラボ全体]]','チェックで見つかった問題の修正まで必要なとき：ノーマル変換、チャンネルの分解・パック、エッジブリード、リサイズ、一括書き出し。'],
     ['エンジン上で確認する','マテリアル1つ、エンジン1つのとき。インポート設定や空きスロットはマテリアルのインスペクターで分かりますが、サイズ・RGBで保存されたグレー・ノーマルの妥当性はそこでは測定されません。']]},
-   limits:['色空間は判定しません。ICCプロファイルやガンマを読まず、エンジンが役割ごとにsRGBとリニアのどちらを期待するかと、PNGにsRGBチャンクがあるかだけを示します。','ノーマルマップのOpenGL・DirectXの規約はここでは判定しません（`_NormalGL`・`_NormalDX`の名前だけを読む）。判定機能はStudioのテクスチャ作業画面にあります。','名前のルールは英語のトークンだけで、ファイル名は決して変更しません。','レポートは汎用JSONで、エンジンが読み込む形式ではありません。'],
+   limits:['色空間は判定しません。ICCプロファイルやガンマを読まず、エンジンが役割ごとにsRGBとリニアのどちらを期待するかと、PNGにsRGBチャンクがあるかだけを示します。','ノーマルマップのOpenGL・DirectXの規約はここでは判定しません。判定機能はStudioのテクスチャ作業画面にあります。','名前のルールは英語のトークンだけで、ファイル名は決して変更しません。','レポートは汎用JSONで、エンジンが読み込む形式ではありません。'],
    versions:{body:['チェックレポートはテクスチャラボで確認しました（docs/TEXTURE-LAB.md）：`schemaVersion` 1、`engineTarget` generic、テスト用ファイルと一致する`alpha.zeroPixels` = 2048、`exactChannels` true。JPEG入力では`exactChannels: false`。このページの数値は`src/game/texture-set.js`と`src/game/texture-normal.js`の基準値です。'],
     sources:[S.gltf,S.unityImport,S.godotShading]}
   }
@@ -900,6 +900,283 @@ export default {
     ['[[game/channel-unpacker|チャンネル分解]]','ラフネスが別のパックテクスチャ（ORMのG）の中にあり、先に取り出す必要があるとき。']]},
    versions:{body:['テクスチャラボで測定（docs/TEXTURE-LAB.md）：ラフネスマップのGを反転してダウンロードすると、平面は正確に255 − ラフネスで、ステージには元 → 結果が並んで表示されました。パッカーのR反転のチェックはAO 10から(245, 80, 220, 255)を出しました。1 − スムースネスの関係はUnityのレンダーパイプラインのソース、チャンネルの位置とインポート設定は下記のUnityのページに基づきます。Unityへの読み込みは実行していません。'],
     sources:[S.unitySmooth,S.urpLit,S.urpPacked,S.hdrpMask,S.unityMetallic,S.unityImport]}
+  }
+ },
+ // ------------------------------------------------------------------ Normal map converter
+ 'game/normal-map-converter':{
+  type:'conversion',
+  intent:{primary:'convert a normal map between OpenGL (Y+) and DirectX (Y−)',secondary:['flip the green channel','which engine expects which convention','is the conversion lossless','engine import flags that do the same'],
+   goal:'a normal map in the convention the target engine expects, with red, blue and alpha untouched',input:'a tangent-space normal map (PNG exact)',output:'NAME-directx.png or NAME-opengl.png',target:'Unity 6, Godot 4, glTF 2.0 (OpenGL +Y); DirectX-style targets (documentation; import not run)',support:'partial',
+   evidence:['src/game/texture-normal.js (flipGreen 255 − g; validateNormalMap)','docs/TEXTURE-LAB.md (dx.g == 255 − gl.g; mean length 1.0001, worst 0.0002)','src/task/texture-lab-maps.js (convert mode, output name)','docs/STUDIO-TEXTURE.md (GL/DX detection accuracy)'],
+   external:['Unity: Y+ normal maps; Flip Green Channel','Godot 4.7: OpenGL style, Normal Map Invert Y','glTF 2.0 normalTexture +X right +Y up']},
+  en:{
+   answer:'OpenGL-style normal maps (Y+, green points up — what Unity, Godot and glTF expect) and DirectX-style maps (Y−, green points down) differ only in the green channel. Converting one into the other is g → 255 − g on every texel, with red, blue and alpha unchanged, and doing it twice returns the original bytes. Nerulio\'s converter applies exactly that to the PNG in your browser and shows a unit-length check; it does not guess which convention your file uses — the Studio\'s Texture workspace has a measured detector for that.',
+   concept:{title:'What the green channel means, and what flipping does',body:[
+    'A tangent-space normal map stores one unit vector per texel: red is X (towards the image\'s right), green is Y, blue is Z (out of the surface), each encoded as (n + 1) / 2 × 255. A flat texel is (128, 128, 255). The two conventions agree on X and Z and disagree only on which way +Y points in the image: up for OpenGL, down for DirectX.',
+    'Feeding a map in the wrong convention inverts every vertical slope: under a light from above, the lower edge of a bump is lit instead of the upper one, so bumps read as dents or the light seems to come from below. Horizontal slopes stay right, which is why the error can look like a lighting bug rather than a texture bug.',
+    'The fix is arithmetic, not a re-bake: y → −y is g → 255 − g, which is its own inverse. The Unity manual says Unity uses Y+ (OpenGL) normal maps; Godot\'s manual requires X+, Y+, Z+ ("OpenGL style"); glTF 2.0 fixes +X right and +Y up. For Unreal the Lab shows DirectX (−Y) marked "inferred", because Epic states it only indirectly.',
+    'Which convention is a given file? Both are valid normal maps, so the Lab does not guess. The Studio\'s Texture workspace estimates it from the surface itself (whether the slopes are consistent with each other, plus the silhouette on sprites) and shows a confidence; its verdict is never applied until you confirm it. See [[game/normal-map-opengl-or-directx|OpenGL or DirectX?]] for that check.'],
+    terms:[['Tangent space','Normals relative to the surface: X along the texture\'s U, Y along V, Z out of the surface.'],['OpenGL (Y+)','Green points up in the image. Unity, Godot, glTF.'],['DirectX (Y−)','Green points down in the image.'],['Unit length','A valid normal decodes to a vector of length 1; the Lab reports the mean and the worst deviation.']]},
+   example:{title:'Example: one texel, and how well detection works',lead:'A texel tilted towards the top of the image, normal (0, 0.6, 0.8), and a flat texel:',lines:[
+    'OpenGL   (0, 0.6, 0.8)  → (128, 204, 230)      flat (128, 128, 255)',
+    'DirectX  (0, −0.6, 0.8) → (128,  51, 230)      flat (128, 127, 255)',
+    'green    255 − 204 = 51 → (51 − 127.5) / 127.5 = −0.6',
+    '',
+    'Studio GL/DX detector on maps of known convention (2026-09-24):',
+    '  128 full 1K maps      verdict 100 %   accuracy 100 %    wrong "high" 0',
+    '  504 crops of 64²      verdict 99.6 %  accuracy 99.6 %   wrong "high" 0',
+    '  naive "mostly green-high = OpenGL" rule, 1562 samples: 46 %'],
+    after:'A flat texel becomes (128, 127, 255) and returns to (128, 128, 255) when converted back: the one-level difference is the 8-bit encoding\'s centre, not a loss. Without transparent edges, a map whose red is flipped reads as DirectX in the detector, and the Studio says so.'},
+   mapping:{title:'What changes in each channel',head:['Channel','OpenGL (Y+)','Converter','DirectX (Y−)'],rows:[
+    ['R (X)','Towards image right','Unchanged','Towards image right'],
+    ['G (Y)','Up the image','255 − g','Down the image'],
+    ['B (Z)','Out of the surface, ≥ 128','Unchanged','Out of the surface, ≥ 128'],
+    ['A','Whatever the file had','Unchanged','Unchanged'],
+    ['ambientCG file name','`_NormalGL`','—','`_NormalDX`']],
+    note:'The Studio\'s Texture workspace reads `_NormalGL` / `_NormalDX` in a file name as a declared convention; the Lab classifies both simply as normal maps, and any other name says nothing about the convention.'},
+   outputs:{rows:[
+    ['rock_normal-directx.png','The converted map. The name assumes the input was OpenGL; if you converted a DirectX map, the content is OpenGL — rename it to avoid confusion.'],
+    ['texture-report.json','Optional, from the Inspect stage: `normalCheck.meanLength`, `unitLength` and `blueNonNegative` for each normal map in the set.']]},
+   target:{title:'Use the converted map in the engine',lead:'Engine settings from their documentation; Nerulio did not run these imports.',steps:[
+    'Unity 6: import the OpenGL map and set Texture Type to `Normal map`. If you only have a DirectX map, you can skip the conversion and tick `Flip Green Channel` in the same importer.',
+    'Godot 4: use the OpenGL map on the material\'s Normal Map (enable it, then assign the texture). For a DirectX map, the alternative is Process › Normal Map Invert Y in the Import dock, then Reimport.',
+    'glTF 2.0: the normal texture must use +X right and +Y up, so convert DirectX maps before exporting.',
+    'DirectX-style targets: use the converted `-directx.png` and follow that engine\'s own import documentation.',
+    'Light the material from above and check that raised details are lit on their upper edge.']},
+   verify:{steps:[
+    'The Normal stage shows the mean vector length and the worst deviation: a valid map reads close to 1.',
+    'Compare the saved file with the source channel by channel (Channels stage): R, B and A identical, G = 255 − g.',
+    'Convert the result again: you get the original bytes back.']},
+   trouble:{rows:[
+    ['Bumps look like dents, light seems to come from below','The map is in the other convention','Light from above: which edge is bright?','Convert here, or use Unity\'s `Flip Green Channel` / Godot\'s Normal Map Invert Y'],
+    ['After converting, the lighting is still wrong sideways','Red is flipped, not green (NormalMap-Online\'s default output is such a map)','The Studio\'s Check panel flags a flipped red on sprites','Flip red (X−) in the Studio\'s Texture workspace; the Lab only converts green'],
+    ['It was right before and wrong after','The map was already in the target convention','Convert once more to undo (the operation is its own inverse)','Keep the original'],
+    ['Lighting looks flat or smeared in Unity','The map was imported as a Default colour texture','Texture Type in the Inspector','Set Texture Type to `Normal map`'],
+    ['The validator reports blue below 128 or vectors far from unit length','Not a tangent-space normal map (a height map, an object-space map, or a resized colour copy)','Mean length and lowest blue in the Normal stage','Flipping green will not fix it: generate a map from height with the [[normal-map-generator|normal map generator]]']]},
+   alternatives:{rows:[
+    ['Unity\'s `Flip Green Channel` / Godot\'s Normal Map Invert Y','One engine only: the import flag flips it without a second file.'],
+    ['Download the other variant','The asset site ships both (ambientCG has `_NormalGL` and `_NormalDX`): take the one your engine expects.'],
+    ['[[game/normal-map-opengl-or-directx|The Studio\'s convention check]]','You do not know which convention a map uses, or suspect a flipped red.']]},
+   versions:{body:['Measured on the Texture Lab (docs/TEXTURE-LAB.md): two downloads compared per channel gave `dx.g == 255 − gl.g` exactly with R, B and A identical; converted maps decoded to mean length 1.0001 with worst deviation 0.0002. Detection figures are from the Studio\'s evaluation on real maps of known convention (docs/STUDIO-TEXTURE.md, 2026-09-24). Engine conventions are quoted from the documentation below; no engine import of the converted file was run.'],
+    sources:[S.unityNormal,S.unityNormalImport,S.godotStd,S.godotImport,S.gltfMat]}
+  },
+  ko:{
+   answer:'OpenGL 방식 노멀맵(Y+, 초록이 위쪽 — Unity·Godot·glTF가 기대하는 방식)과 DirectX 방식(Y−, 초록이 아래쪽)은 초록 채널만 다릅니다. 한쪽을 다른 쪽으로 바꾸는 것은 모든 텍셀의 g → 255 − g이며 빨강·파랑·알파는 그대로이고, 두 번 하면 원래 바이트로 돌아옵니다. Nerulio 변환기는 브라우저에서 PNG에 정확히 이 계산을 적용하고 단위 길이 점검을 보여 줍니다. 파일이 어느 규약인지는 추측하지 않으며, 그 판별은 측정 근거가 있는 Studio 텍스처 작업 공간의 감지기가 합니다.',
+   concept:{title:'초록 채널의 의미와 반전의 효과',body:[
+    '탄젠트 공간 노멀맵은 텍셀마다 단위 벡터 하나를 저장합니다. 빨강은 X(이미지 오른쪽), 초록은 Y, 파랑은 Z(표면 바깥)이며 각각 (n + 1) / 2 × 255로 인코딩합니다. 평평한 텍셀은 (128, 128, 255)입니다. 두 규약은 X와 Z에서는 같고, 이미지에서 +Y가 어느 쪽인지만 다릅니다. OpenGL은 위, DirectX는 아래입니다.',
+    '반대 규약의 맵을 넣으면 세로 방향 기울기가 모두 뒤집힙니다. 위에서 비추면 요철의 위쪽이 아니라 아래쪽 가장자리가 밝아져 튀어나온 곳이 들어가 보이거나 빛이 아래에서 오는 듯 보입니다. 가로 기울기는 맞기 때문에 텍스처 문제가 아니라 조명 문제처럼 보이기도 합니다.',
+    '해결은 다시 굽는 것이 아니라 산수입니다. y → −y는 g → 255 − g이고, 이 연산은 자기 자신이 역연산입니다. Unity 매뉴얼은 Unity가 Y+(OpenGL) 노멀맵을 쓴다고, Godot 매뉴얼은 X+·Y+·Z+("OpenGL 방식")가 필요하다고 적고, glTF 2.0은 +X 오른쪽·+Y 위쪽으로 정합니다. Unreal은 Epic이 간접적으로만 밝히기 때문에 랩에서 DirectX(−Y)에 "추정" 표시를 붙입니다.',
+    '이 파일은 어느 규약일까? 둘 다 올바른 노멀맵이라 랩은 추측하지 않습니다. Studio 텍스처 작업 공간은 표면 자체(기울기들이 서로 모순 없는지, 스프라이트라면 실루엣까지)로 추정해 신뢰도와 함께 보여 주며, 확인하기 전에는 판정을 적용하지 않습니다. 이 점검은 [[game/normal-map-opengl-or-directx|OpenGL인가 DirectX인가]]를 보세요.'],
+    terms:[['탄젠트 공간','표면 기준의 노멀. X는 텍스처 U, Y는 V 방향, Z는 표면 바깥.'],['OpenGL (Y+)','이미지에서 초록이 위쪽. Unity·Godot·glTF.'],['DirectX (Y−)','이미지에서 초록이 아래쪽.'],['단위 길이','올바른 노멀은 길이 1인 벡터로 디코딩됩니다. 랩은 평균과 최대 오차를 보고합니다.']]},
+   example:{title:'예시: 텍셀 하나와 감지 성능',lead:'이미지 위쪽으로 기운 텍셀, 노멀 (0, 0.6, 0.8)과 평평한 텍셀:',lines:[
+    'OpenGL   (0, 0.6, 0.8)  → (128, 204, 230)      평평 (128, 128, 255)',
+    'DirectX  (0, −0.6, 0.8) → (128,  51, 230)      평평 (128, 127, 255)',
+    '초록     255 − 204 = 51 → (51 − 127.5) / 127.5 = −0.6',
+    '',
+    '규약을 아는 맵에서 Studio GL/DX 감지기 (2026-09-24):',
+    '  1K 전체 맵 128장      판정 100 %    정확도 100 %     틀린 "높음" 0',
+    '  64² 잘라낸 조각 504개  판정 99.6 %   정확도 99.6 %    틀린 "높음" 0',
+    '  단순 규칙 "초록이 대체로 높으면 OpenGL", 표본 1562개: 46 %'],
+    after:'평평한 텍셀은 (128, 127, 255)가 되고 다시 변환하면 (128, 128, 255)로 돌아옵니다. 한 단계 차이는 8비트 인코딩의 중심 때문이지 손실이 아닙니다. 투명한 가장자리가 없으면 빨강이 뒤집힌 맵은 감지기에서 DirectX로 읽히며, Studio는 그 사실을 알려 줍니다.'},
+   mapping:{title:'채널마다 바뀌는 것',head:['채널','OpenGL (Y+)','변환기','DirectX (Y−)'],rows:[
+    ['R (X)','이미지 오른쪽','그대로','이미지 오른쪽'],
+    ['G (Y)','이미지 위쪽','255 − g','이미지 아래쪽'],
+    ['B (Z)','표면 바깥, 128 이상','그대로','표면 바깥, 128 이상'],
+    ['A','파일에 있던 값','그대로','그대로'],
+    ['ambientCG 파일 이름','`_NormalGL`','—','`_NormalDX`']],
+    note:'Studio 텍스처 작업 공간은 파일 이름의 `_NormalGL`·`_NormalDX`를 선언된 규약으로 읽습니다. 랩은 둘 다 그냥 노멀맵으로 분류하며, 그 밖의 이름은 규약에 대해 아무것도 알려 주지 않습니다.'},
+   outputs:{rows:[
+    ['rock_normal-directx.png','변환한 맵. 이름은 입력이 OpenGL이라고 가정합니다. DirectX 맵을 변환했다면 내용은 OpenGL이므로 헷갈리지 않게 이름을 바꾸세요.'],
+    ['texture-report.json','선택: 점검 단계에서 세트의 노멀맵마다 `normalCheck.meanLength`, `unitLength`, `blueNonNegative`.']]},
+   target:{title:'변환한 맵을 엔진에서 쓰기',lead:'엔진 설정은 각 문서를 따른 것이며 Nerulio가 이 가져오기를 실행하지는 않았습니다.',steps:[
+    'Unity 6: OpenGL 맵을 가져와 Texture Type을 `Normal map`으로 둡니다. DirectX 맵만 있다면 변환하지 않고 같은 임포터의 `Flip Green Channel`을 체크해도 됩니다.',
+    'Godot 4: 머티리얼의 Normal Map을 켜고 OpenGL 맵을 지정합니다. DirectX 맵이라면 가져오기 독에서 Process › Normal Map Invert Y를 켜고 Reimport하는 방법도 있습니다.',
+    'glTF 2.0: 노멀 텍스처는 +X 오른쪽·+Y 위쪽이어야 하므로 DirectX 맵은 내보내기 전에 변환합니다.',
+    'DirectX 방식 대상: 변환한 `-directx.png`를 쓰고 그 엔진의 가져오기 문서를 따릅니다.',
+    '머티리얼을 위에서 비추고 튀어나온 부분의 위쪽 가장자리가 밝은지 확인합니다.']},
+   verify:{steps:[
+    '노멀 단계에 평균 벡터 길이와 최대 오차가 나옵니다. 올바른 맵은 1에 가깝습니다.',
+    '저장한 파일을 원본과 채널별로 비교합니다(채널 단계). R·B·A는 같고 G = 255 − g여야 합니다.',
+    '결과를 한 번 더 변환하면 원래 바이트가 돌아옵니다.']},
+   trouble:{rows:[
+    ['튀어나온 곳이 들어가 보이고 빛이 아래에서 오는 듯함','맵이 반대 규약','위에서 비출 때 어느 가장자리가 밝은가','여기서 변환하거나 Unity `Flip Green Channel`·Godot Normal Map Invert Y 사용'],
+    ['변환했는데 좌우 방향 조명이 여전히 틀림','초록이 아니라 빨강이 뒤집힘(NormalMap-Online 기본 출력이 이런 맵)','Studio 검사 패널이 스프라이트에서 빨강 반전을 알려 줌','Studio 텍스처 작업 공간의 Flip red (X−). 랩은 초록만 변환'],
+    ['원래 맞았는데 변환 후 틀어짐','맵이 이미 목표 규약이었음','한 번 더 변환하면 되돌아감(자기 자신이 역연산)','원본을 그대로 쓰기'],
+    ['Unity에서 조명이 밋밋하거나 번져 보임','맵을 Default 색 텍스처로 가져옴','인스펙터의 Texture Type','Texture Type을 `Normal map`으로'],
+    ['검사에서 파랑이 128 미만이거나 벡터 길이가 1에서 멀다고 나옴','탄젠트 공간 노멀맵이 아님(하이트 맵, 오브젝트 공간 맵, 크기를 바꾼 색 사본)','노멀 단계의 평균 길이와 가장 낮은 파랑','초록 반전으로는 안 고쳐짐. [[normal-map-generator|노멀맵 생성기]]로 하이트에서 만들기']]},
+   alternatives:{rows:[
+    ['Unity `Flip Green Channel` / Godot Normal Map Invert Y','엔진 하나에서만 쓸 때. 가져오기 옵션이 두 번째 파일 없이 반전합니다.'],
+    ['다른 버전 내려받기','에셋 사이트가 둘 다 줄 때(ambientCG는 `_NormalGL`과 `_NormalDX`). 엔진이 기대하는 쪽을 받으세요.'],
+    ['[[game/normal-map-opengl-or-directx|Studio의 규약 점검]]','맵이 어느 규약인지 모르거나 빨강 반전이 의심될 때.']]},
+   versions:{body:['텍스처 랩에서 측정(docs/TEXTURE-LAB.md): 두 다운로드를 채널별로 비교하면 정확히 `dx.g == 255 − gl.g`, R·B·A는 동일. 변환한 맵은 평균 길이 1.0001, 최대 오차 0.0002로 디코딩됐습니다. 감지 수치는 규약을 아는 실제 맵으로 한 Studio 평가에서 나왔습니다(docs/STUDIO-TEXTURE.md, 2026-09-24). 엔진 규약은 아래 문서에서 인용했으며, 변환한 파일의 엔진 가져오기는 실행하지 않았습니다.'],
+    sources:[S.unityNormal,S.unityNormalImport,S.godotStd,S.godotImport,S.gltfMat]}
+  },
+  ja:{
+   answer:'OpenGL方式のノーマルマップ（Y+、緑が上向き — Unity・Godot・glTFが期待する方式）とDirectX方式（Y−、緑が下向き）の違いは緑チャンネルだけです。一方から他方への変換は全テクセルでg → 255 − gとするだけで、赤・青・アルファは変わらず、2回行うと元のバイトに戻ります。Nerulioの変換はブラウザでPNGにまさにこの計算を適用し、単位長のチェックを表示します。ファイルがどちらの規約かは推測せず、その判定は測定の裏付けがあるStudioのテクスチャ作業画面の判定機能が行います。',
+   concept:{title:'緑チャンネルの意味と、反転で起きること',body:[
+    '接空間ノーマルマップはテクセルごとに単位ベクトルを1つ保存します。赤がX（画像の右方向）、緑がY、青がZ（面の外向き）で、それぞれ(n + 1) / 2 × 255でエンコードされます。平らなテクセルは(128, 128, 255)です。2つの規約はXとZでは一致し、画像上で+Yがどちらを向くかだけが違います。OpenGLは上、DirectXは下です。',
+    '逆の規約のマップを使うと、縦方向の傾きがすべて反転します。上から照らすと凹凸の上側ではなく下側の縁が明るくなり、凸が凹に見えたり、光が下から来ているように見えたりします。横方向の傾きは正しいので、テクスチャではなくライティングの不具合のように見えることもあります。',
+    '直し方は焼き直しではなく算数です。y → −yはg → 255 − gで、この操作はそれ自身が逆操作です。UnityのマニュアルはUnityがY+（OpenGL）のノーマルマップを使うと書き、GodotのマニュアルはX+・Y+・Z+（「OpenGL方式」）を求め、glTF 2.0は+Xを右・+Yを上と定めています。UnrealについてはEpicが間接的にしか示していないため、ラボはDirectX（−Y）に「推定」と表示します。',
+    'このファイルはどちらの規約？ どちらも正しいノーマルマップなので、ラボは推測しません。Studioのテクスチャ作業画面は面そのもの（傾き同士が矛盾しないか、スプライトならシルエットも）から推定して信頼度とともに表示し、確認するまで判定を適用しません。この確認は[[game/normal-map-opengl-or-directx|OpenGLかDirectXか]]を参照してください。'],
+    terms:[['接空間','面を基準にしたノーマル。XはテクスチャのU、YはV方向、Zは面の外向き。'],['OpenGL (Y+)','画像上で緑が上向き。Unity・Godot・glTF。'],['DirectX (Y−)','画像上で緑が下向き。'],['単位長','正しいノーマルは長さ1のベクトルにデコードされます。ラボは平均と最大誤差を報告します。']]},
+   example:{title:'例：1テクセルと、判定の精度',lead:'画像の上方向に傾いたテクセル、ノーマル(0, 0.6, 0.8)と、平らなテクセル：',lines:[
+    'OpenGL   (0, 0.6, 0.8)  → (128, 204, 230)      平ら (128, 128, 255)',
+    'DirectX  (0, −0.6, 0.8) → (128,  51, 230)      平ら (128, 127, 255)',
+    '緑       255 − 204 = 51 → (51 − 127.5) / 127.5 = −0.6',
+    '',
+    '規約が分かっているマップでのStudioのGL/DX判定（2026-09-24）：',
+    '  1Kの全体マップ 128枚    判定 100 %    正解率 100 %     誤った「高」0',
+    '  64²の切り出し 504枚     判定 99.6 %   正解率 99.6 %    誤った「高」0',
+    '  単純なルール「緑が高めならOpenGL」、サンプル1562個：46 %'],
+    after:'平らなテクセルは(128, 127, 255)になり、変換し直すと(128, 128, 255)に戻ります。1段階の差は8ビットのエンコードの中心によるもので、損失ではありません。透明な縁のないテクスチャでは、赤が反転したマップは判定でDirectXと読まれ、Studioはその旨を表示します。'},
+   mapping:{title:'チャンネルごとに変わるもの',head:['チャンネル','OpenGL (Y+)','変換','DirectX (Y−)'],rows:[
+    ['R (X)','画像の右向き','そのまま','画像の右向き'],
+    ['G (Y)','画像の上向き','255 − g','画像の下向き'],
+    ['B (Z)','面の外向き、128以上','そのまま','面の外向き、128以上'],
+    ['A','ファイルにあった値','そのまま','そのまま'],
+    ['ambientCGのファイル名','`_NormalGL`','—','`_NormalDX`']],
+    note:'Studioのテクスチャ作業画面はファイル名の`_NormalGL`・`_NormalDX`を宣言された規約として読みます。ラボはどちらも単にノーマルマップと分類し、それ以外の名前は規約について何も示しません。'},
+   outputs:{rows:[
+    ['rock_normal-directx.png','変換したマップ。名前は入力がOpenGLだと仮定しています。DirectXのマップを変換した場合、中身はOpenGLなので、混乱しないよう名前を変えてください。'],
+    ['texture-report.json','任意：点検ステージで、セット内の各ノーマルマップの`normalCheck.meanLength`・`unitLength`・`blueNonNegative`。']]},
+   target:{title:'変換したマップをエンジンで使う',lead:'エンジンの設定は各ドキュメントに従ったもので、Nerulioがこの読み込みを実行したわけではありません。',steps:[
+    'Unity 6：OpenGLのマップを読み込み、Texture Typeを`Normal map`にします。DirectXのマップしかない場合は、変換せず同じインポーターの`Flip Green Channel`をオンにしてもかまいません。',
+    'Godot 4：マテリアルのNormal Mapを有効にし、OpenGLのマップを割り当てます。DirectXのマップなら、インポートドックでProcess › Normal Map Invert Yをオンにして再インポートする方法もあります。',
+    'glTF 2.0：ノーマルテクスチャは+X右・+Y上でなければならないため、DirectXのマップは書き出す前に変換します。',
+    'DirectX方式の対象：変換した`-directx.png`を使い、そのエンジンのインポートのドキュメントに従います。',
+    'マテリアルを上から照らし、盛り上がった部分の上側の縁が明るいか確認します。']},
+   verify:{steps:[
+    'ノーマルステージに平均ベクトル長と最大誤差が出ます。正しいマップは1に近い値です。',
+    '保存したファイルを元とチャンネルごとに比べます（チャンネルステージ）。R・B・Aは同一で、G = 255 − gのはずです。',
+    '結果をもう一度変換すると、元のバイトが戻ります。']},
+   trouble:{rows:[
+    ['凸が凹に見え、光が下から来るように見える','マップの規約が逆','上から照らしたとき、どちらの縁が明るいか','ここで変換するか、Unityの`Flip Green Channel`・GodotのNormal Map Invert Yを使う'],
+    ['変換しても横方向のライティングが違う','緑ではなく赤が反転している（NormalMap-Onlineの既定の出力がこのタイプ）','Studioのチェックパネルがスプライトで赤の反転を警告する','StudioのテクスチャでFlip red (X−)。ラボが変換するのは緑だけ'],
+    ['変換前は正しかったのに変換後におかしい','マップがもともと目的の規約だった','もう一度変換すれば元に戻る（それ自身が逆操作）','元のファイルを使う'],
+    ['Unityでライティングが平坦・にじんで見える','マップをDefaultのカラーテクスチャとして読み込んだ','インスペクターのTexture Type','Texture Typeを`Normal map`にする'],
+    ['検証で青が128未満、またはベクトル長が1から遠いと出る','接空間ノーマルマップではない（ハイトマップ、オブジェクト空間のマップ、リサイズした色のコピー）','ノーマルステージの平均長と最小の青','緑の反転では直らない。[[normal-map-generator|ノーマルマップ生成]]でハイトから作る']]},
+   alternatives:{rows:[
+    ['Unityの`Flip Green Channel`・GodotのNormal Map Invert Y','1つのエンジンだけで使うとき。インポート設定が2つ目のファイルなしで反転します。'],
+    ['もう一方の版をダウンロード','素材サイトが両方を配布しているとき（ambientCGは`_NormalGL`と`_NormalDX`）。エンジンが期待する方を取ってください。'],
+    ['[[game/normal-map-opengl-or-directx|Studioの規約チェック]]','マップがどちらの規約か分からない、または赤の反転が疑われるとき。']]},
+   versions:{body:['テクスチャラボで測定（docs/TEXTURE-LAB.md）：2つのダウンロードをチャンネルごとに比べると正確に`dx.g == 255 − gl.g`で、R・B・Aは同一。変換したマップは平均長1.0001、最大誤差0.0002でデコードされました。判定の数値は、規約が分かっている実在のマップでのStudioの評価によるものです（docs/STUDIO-TEXTURE.md、2026-09-24）。エンジンの規約は下記のドキュメントから引用し、変換したファイルのエンジンへの読み込みは実行していません。'],
+    sources:[S.unityNormal,S.unityNormalImport,S.godotStd,S.godotImport,S.gltfMat]}
+  }
+ },
+ // ------------------------------------------------------------------ Tiling normal map seams (Studio)
+ 'game/tiling-normal-map-seams':{
+  type:'troubleshoot',
+  intent:{primary:'fix the visible seam where a tiling normal map repeats',secondary:['generate the normal map with wrap-around edges','tell a normal-map seam from a colour seam','engine wrap mode','how to check a texture tiles'],
+   goal:'a normal map whose border is computed from the next tile, checked with a shift test and a 3×3 lit view, repeating without a line in the engine',input:'a tileable albedo or height map (PNG, 8- or 16-bit height)',output:'normal map PNG (OpenGL and DirectX) or Godot 4 / Unity 6 bundle from the Studio Texture workspace',target:'Godot 4.7.2 and Unity 6 (Studio exports engine-verified); any engine for the diagnosis',support:'full',
+   evidence:['docs/STUDIO-TEXTURE.md (Edges Clamp/Wrap/Mirror, wrap test, albedo seam ratio, h2h 2026-09-24 roll errors, Godot 6/6 and Unity 12/12 PASS incl. bricks)','src/game/normals/normal.js (seamError, rollConsistency)','src/studio/workspaces/texture/panels.js (wrap test ok when border < 0.01)','src/game/texture-fix.js (seamMetrics: seamless when both ratios ≤ 1.5)'],
+   external:['Unity Wrap Mode Repeat/Clamp','Godot BaseMaterial3D texture_repeat','glTF 2.0 default sampler repeat']},
+  en:{
+   answer:'A line where a tiling normal map repeats has one of three causes: the normal map was generated as if the image border were an edge (the kernel clamped instead of reading the opposite side), the colour or height texture itself does not tile, or the engine does not repeat the texture. Generate the map with Wrap edges, check that the texture shifted by half gives the identical map, and look at it 3×3 under a moving light. In Nerulio\'s Studio Texture workspace, Wrap is suggested for pictures with no transparent pixels, and the wrap test reads 0 when the border is computed exactly like the inside.',
+   concept:{title:'Why the seam appears',body:[
+    'A normal map generator measures the slope at each pixel from its neighbours. At the image border half of those neighbours do not exist. Clamp repeats the border pixel instead, so the last one or two columns get a smaller or wrong slope; Wrap reads the pixels on the opposite side — exactly the ones that sit next to the border once the texture repeats. Kernels with a larger reach (Sobel 5×5 reads 2 px) or bevel and blur steps widen the damaged band: Laigter 1.14\'s default left a 3 px tilted band on every side of the ambientCG bricks.',
+    'Mismatched edges are a different problem. If the albedo\'s last column differs from its first column more than neighbouring columns differ inside the picture, the picture does not tile, and no normal map can hide that. Nerulio\'s albedo seam ratio compares exactly those two quantities: about 1 means no visible seam; the Lab and the Studio call a picture seamless when both directions stay at or below 1.5.',
+    'The engine has to repeat too. Unity\'s Wrap Mode `Clamp` "stretches the texture\'s edges" instead of repeating; Godot\'s `BaseMaterial3D.texture_repeat` is on by default; glTF 2.0 samplers default to repeat. A clamped texture shows a smeared edge rather than a thin line.',
+    'Not every line is in the texture. A seam that follows the model\'s UV seam instead of the tile border comes from the mesh (UVs or tangents); changing the texture cannot fix it.'],
+    terms:[['Clamp','Samples outside the image take the border pixel. Right for sprites, wrong for tiling textures.'],['Wrap','Samples outside the image come from the opposite side, like the next tile.'],['Wrap (roll) test','Generate the map from the texture shifted by half, shift the result back and compare the 2 px border band: 0 means wrap-correct.'],['Seam ratio','Step across the wrap border ÷ step between neighbours inside the image.']]},
+   example:{title:'Example: a slope that should continue across the border',lead:'A height ramp rising 10 levels per pixel runs straight through the wrap of a 256 px texture. Central differences (the Studio\'s Pixel kernel):',lines:[
+    'height   x=254: 100   x=255: 110  |  x=0: 120   x=1: 130      inside slope = 10 per px',
+    'Wrap     x=255: (h[0] − h[254]) / 2 = (120 − 100) / 2 = 10    x=0: (h[1] − h[255]) / 2 = 10',
+    'Clamp    x=255: (h[255] − h[254]) / 2 = (110 − 100) / 2 = 5   x=0: (h[1] − h[0]) / 2 = 5',
+    '→ Clamp halves the slope in the two columns at the join: a 2 px line at every repeat',
+    '',
+    'Roll error on the ambientCG bricks (0 = wrap-correct), 2026-09-24:',
+    'Nerulio (Wrap) 0 · Laigter 1.14 default 63.8, Tile preset 0 · PBR Forge 0.57, Tile 0.24 · NormalMap-Online 0'],
+    after:'On the same bricks, the step across the border of Nerulio\'s normal map was 1.19 times the step inside; Laigter\'s default gave 24.0. A texture that tiles and a wrap-correct generator keep that ratio near 1.'},
+   trouble:{rows:[
+    ['A lit or dark line exactly where the texture repeats, only with the normal map on','The map was generated with Clamp at the border','Studio › Check › Seams: the wrap test is above 0','Generate again with Edges = Wrap (Tileable texture); the test should show ✓ Wrap-correct'],
+    ['The line is still there with the normal map switched off','The albedo or height map itself does not tile','Albedo seam ratio well above 1, or the [[game/seamless-tile-checker|seamless tile checker]]','Fix the picture first; Nerulio cannot make a non-tiling picture tile'],
+    ['A band 2–3 px wide along all four borders','The generator treated the border as a sprite edge (bevel or edge detection)','Look at the normal map alone: the band tilts outward on every side','Use the generator\'s tile mode, or regenerate here with Wrap'],
+    ['The edge looks stretched and the texture does not repeat','The engine clamps the texture instead of repeating it','Unity: Wrap Mode; Godot: the material\'s `texture_repeat`','Set Wrap Mode to Repeat, or turn `texture_repeat` on'],
+    ['A faint line remains with Mirror edges','Mirror reads a reflection instead of the next tile','Edges setting in the Normal map panel','Use Wrap for textures that repeat'],
+    ['The line follows the model\'s UV seam, not the tile border','UV layout or tangents of the mesh','Show the UVs in your 3D app: the line sits on a UV island edge','Fix it in the mesh; the texture is not the cause'],
+    ['An existing normal map already has the seam','It was generated with clamped edges elsewhere','Run the Check panel on the imported map','Nerulio does not patch an existing map: regenerate from the albedo or height with Wrap']]},
+   verify:{steps:[
+    'Studio › Check › Seams: the wrap test reports the average and largest border difference; below 0.01 it shows ✓ Wrap-correct.',
+    'Press T for the 3×3 view, switch to Lit and drag a light across the border: no line should follow the tile edges.',
+    'In the engine, tile the material at least 3×3 and move the light across a repeat; do the same with the normal map off to separate a colour seam from a lighting seam.']},
+   alternatives:{rows:[
+    ['The Texture Lab\'s Normal stage with Wrap','A quick single height → normal conversion: tick Wrap under Advanced (or open it with `wrap=1`); its Fix › Seam check measures the albedo.'],
+    ['Laigter\'s Tile preset','You already use Laigter: its Tile preset brought the roll error on the bricks from 63.8 to 0.'],
+    ['Bake the normal map from geometry in a 3D application','The surface is modelled in 3D: a bake of a tiling mesh does not depend on image-border handling at all.']]},
+   versions:{body:['Studio Texture workspace exports were loaded and rendered in Godot 4.7.2 (6/6 cases PASS, max difference 1/255) and in Unity 6000.5.3f1 with URP 17.5 (12/12 PASS), including the tileable ambientCG bricks case generated with Wrap (docs/STUDIO-TEXTURE.md). Seam and roll figures are from the 2026-09-24 head-to-head on the same CC0 bricks. Engine wrap settings are quoted from the Unity 6, Godot 4.7 and glTF 2.0 documentation.'],
+    sources:[S.unityImport,S.godotBase,S.gltf]}
+  },
+  ko:{
+   answer:'반복되는 노멀맵의 이음매에 줄이 보이는 원인은 세 가지 중 하나입니다. 노멀맵을 만들 때 이미지 테두리를 가장자리로 취급했거나(커널이 반대편을 읽지 않고 고정(clamp)됨), 색이나 하이트 텍스처 자체가 반복되지 않거나, 엔진이 텍스처를 반복하지 않는 경우입니다. 반복(Wrap) 가장자리로 맵을 만들고, 반만큼 밀린 텍스처로 만든 맵이 같은지 확인한 뒤, 조명을 움직이며 3×3으로 보세요. Nerulio Studio 텍스처 작업 공간은 투명 픽셀이 없는 그림에 반복을 제안하며, 테두리가 안쪽과 똑같이 계산되면 반복 검사가 0을 표시합니다.',
+   concept:{title:'이음매가 생기는 이유',body:[
+    '노멀맵 생성기는 픽셀마다 이웃과의 차이로 기울기를 잽니다. 이미지 테두리에서는 이웃의 절반이 없습니다. 고정(Clamp)은 테두리 픽셀을 대신 되풀이하므로 마지막 한두 열의 기울기가 작아지거나 틀어지고, 반복(Wrap)은 반대편 픽셀, 곧 텍스처가 반복될 때 테두리 옆에 실제로 놓이는 픽셀을 읽습니다. 범위가 넓은 커널(Sobel 5×5는 2px)이나 경사·블러 단계는 손상된 띠를 넓힙니다. Laigter 1.14 기본값은 ambientCG 벽돌의 사방에 3px 기울어진 띠를 남겼습니다.',
+    '가장자리가 맞지 않는 것은 다른 문제입니다. 알베도의 마지막 열이 그림 안에서 이웃한 열끼리보다 첫 열과 더 크게 다르면 그림이 반복되지 않는 것이고, 어떤 노멀맵도 이를 가릴 수 없습니다. Nerulio의 알베도 이음새 비율이 바로 이 두 값을 비교합니다. 1 정도면 보이는 이음새가 없고, 랩과 Studio는 두 방향 모두 1.5 이하일 때 이음새 없음으로 봅니다.',
+    '엔진도 반복해야 합니다. Unity의 Wrap Mode `Clamp`는 반복하지 않고 "텍스처 가장자리를 늘리며", Godot의 `BaseMaterial3D.texture_repeat`는 기본으로 켜져 있고, glTF 2.0 샘플러의 기본값은 반복입니다. 고정된 텍스처는 가는 줄보다는 늘어난 가장자리로 보입니다.',
+    '모든 줄이 텍스처에 있는 것은 아닙니다. 타일 경계가 아니라 모델의 UV 이음새를 따라가는 줄은 메시(UV나 탄젠트)에서 생기며, 텍스처를 바꿔서는 고칠 수 없습니다.'],
+    terms:[['고정(Clamp)','이미지 밖의 샘플이 테두리 픽셀을 씀. 스프라이트에는 맞고 반복 텍스처에는 틀립니다.'],['반복(Wrap)','이미지 밖의 샘플을 다음 타일처럼 반대편에서 가져옴.'],['반복(롤) 검사','텍스처를 반만큼 밀어 맵을 만들고, 결과를 되돌려 2px 테두리 띠를 비교. 0이면 반복 정확.'],['이음새 비율','반복 경계를 건너는 차이 ÷ 이미지 안 이웃 사이의 차이.']]},
+   example:{title:'예시: 경계를 넘어 이어져야 할 기울기',lead:'픽셀마다 10단계씩 오르는 하이트 경사가 256px 텍스처의 반복 경계를 그대로 지나갑니다. 중앙 차분(Studio의 Pixel 커널)으로 계산하면:',lines:[
+    '하이트   x=254: 100   x=255: 110  |  x=0: 120   x=1: 130      안쪽 기울기 = 픽셀당 10',
+    'Wrap     x=255: (h[0] − h[254]) / 2 = (120 − 100) / 2 = 10    x=0: (h[1] − h[255]) / 2 = 10',
+    'Clamp    x=255: (h[255] − h[254]) / 2 = (110 − 100) / 2 = 5   x=0: (h[1] − h[0]) / 2 = 5',
+    '→ Clamp는 이음매 양쪽 두 열의 기울기를 절반으로 만듦: 반복마다 2px 줄',
+    '',
+    'ambientCG 벽돌의 롤 오차 (0 = 반복 정확), 2026-09-24:',
+    'Nerulio (Wrap) 0 · Laigter 1.14 기본 63.8, Tile 프리셋 0 · PBR Forge 0.57, Tile 0.24 · NormalMap-Online 0'],
+    after:'같은 벽돌에서 Nerulio 노멀맵의 경계를 건너는 차이는 안쪽 차이의 1.19배였고, Laigter 기본값은 24.0배였습니다. 반복되는 텍스처와 반복을 정확히 처리하는 생성기라면 이 비율이 1 가까이 유지됩니다.'},
+   trouble:{rows:[
+    ['텍스처가 반복되는 곳에만 밝거나 어두운 줄, 노멀맵을 켰을 때만','테두리에서 고정(Clamp)으로 맵을 만듦','Studio › 검사 › 이음새에서 반복 검사가 0보다 큼','가장자리 = 반복(타일 텍스처)으로 다시 만들기. ✓ 반복 정확이 나와야 함'],
+    ['노멀맵을 꺼도 줄이 남음','알베도나 하이트 맵 자체가 반복되지 않음','알베도 이음새 비율이 1보다 훨씬 크거나 [[game/seamless-tile-checker|심리스 타일 검사기]]로 확인','그림부터 고치기. Nerulio가 반복되지 않는 그림을 반복되게 만들 수는 없음'],
+    ['네 테두리 모두를 따라 2~3px 폭의 띠','생성기가 테두리를 스프라이트 가장자리로 봄(경사·가장자리 검출)','노멀맵만 보면 띠가 사방에서 바깥으로 기울어 있음','생성기의 타일 모드를 쓰거나 여기서 반복으로 다시 만들기'],
+    ['가장자리가 늘어나 보이고 텍스처가 반복되지 않음','엔진이 텍스처를 반복하지 않고 고정함','Unity: Wrap Mode, Godot: 머티리얼의 `texture_repeat`','Wrap Mode를 Repeat로, 또는 `texture_repeat`를 켜기'],
+    ['반사(Mirror) 가장자리로 만들었더니 희미한 줄','반사는 다음 타일 대신 뒤집힌 픽셀을 읽음','노멀 맵 패널의 가장자리 설정','반복되는 텍스처에는 반복(Wrap) 사용'],
+    ['줄이 타일 경계가 아니라 모델의 UV 이음새를 따라감','메시의 UV 배치나 탄젠트','3D 프로그램에서 UV를 보면 줄이 UV 섬 가장자리에 있음','메시에서 고치기. 원인은 텍스처가 아님'],
+    ['이미 있는 노멀맵에 이음새가 있음','다른 곳에서 고정 가장자리로 만든 맵','가져온 맵에 검사 패널 실행','Nerulio는 기존 맵을 덧대어 고치지 않음. 알베도나 하이트에서 반복으로 다시 만들기']]},
+   verify:{steps:[
+    'Studio › 검사 › 이음새: 반복 검사가 테두리 차이의 평균과 최대를 보여 주며, 0.01 미만이면 ✓ 반복 정확이 나옵니다.',
+    'T로 3×3 보기를 켜고 Lit으로 바꾼 뒤 조명을 경계 위로 끕니다. 타일 경계를 따라가는 줄이 없어야 합니다.',
+    '엔진에서 머티리얼을 3×3 이상 반복하고 조명을 반복 경계 위로 옮깁니다. 노멀맵을 끄고도 똑같이 해 보면 색 이음새와 조명 이음새를 구별할 수 있습니다.']},
+   alternatives:{rows:[
+    ['텍스처 랩 노멀 단계의 반복','하이트 → 노멀 변환 한 번만 빨리 할 때. 고급에서 반복(Wrap)을 체크하거나 `wrap=1`로 열며, 보정 › 이음선 검사로 알베도를 잽니다.'],
+    ['Laigter의 Tile 프리셋','이미 Laigter를 쓰고 있을 때. Tile 프리셋은 벽돌의 롤 오차를 63.8에서 0으로 줄였습니다.'],
+    ['3D 프로그램에서 형상으로 굽기','표면을 3D로 모델링했을 때. 반복 메시에서 구운 맵은 이미지 테두리 처리와 전혀 상관이 없습니다.']]},
+   versions:{body:['Studio 텍스처 작업 공간의 내보내기는 Godot 4.7.2(6/6 사례 통과, 최대 차이 1/255)와 Unity 6000.5.3f1·URP 17.5(12/12 통과)에서 불러와 렌더링했으며, 반복으로 만든 ambientCG 벽돌 타일 사례도 포함됩니다(docs/STUDIO-TEXTURE.md). 이음새와 롤 수치는 같은 CC0 벽돌로 한 2026-09-24 비교에서 나왔습니다. 엔진의 반복 설정은 Unity 6·Godot 4.7·glTF 2.0 문서에서 인용했습니다.'],
+    sources:[S.unityImport,S.godotBase,S.gltf]}
+  },
+  ja:{
+   answer:'繰り返すノーマルマップの境目に線が出る原因は、3つのうちどれかです。ノーマルマップを作るときに画像の縁を端として扱った（カーネルが反対側を読まずにクランプした）、色やハイトのテクスチャ自体がタイルになっていない、またはエンジンがテクスチャを繰り返していない、のいずれかです。ラップ（Wrap）の縁でマップを作り、半分ずらしたテクスチャから作ったマップが同一か確かめ、ライトを動かしながら3×3で見てください。NerulioのStudioのテクスチャ作業画面は透明ピクセルのない画像にラップを提案し、縁が内側とまったく同じように計算されていればラップ検査が0を示します。',
+   concept:{title:'継ぎ目ができる理由',body:[
+    'ノーマルマップの生成ツールは、各ピクセルの傾きを隣との差から測ります。画像の縁では隣の半分が存在しません。クランプ（Clamp）は代わりに縁のピクセルを繰り返すので、最後の1〜2列の傾きが小さく、または誤ったものになります。ラップ（Wrap）は反対側のピクセル、つまりテクスチャが繰り返されたときに実際に縁の隣に来るピクセルを読みます。範囲の広いカーネル（Sobel 5×5は2px）や面取り・ぼかしの処理は、壊れた帯を広げます。Laigter 1.14の既定では、ambientCGのレンガの四辺に3pxの傾いた帯が残りました。',
+    '縁が合っていないのは別の問題です。アルベドの最後の列が、画像内の隣り合う列同士よりも最初の列と大きく違えば、画像はタイルにならず、どのノーマルマップでも隠せません。Nerulioのアルベドの継ぎ目の比率はまさにこの2つを比べます。1程度なら見える継ぎ目はなく、ラボとStudioは両方向とも1.5以下のときに継ぎ目なしとみなします。',
+    'エンジン側も繰り返す必要があります。UnityのWrap Mode `Clamp`は繰り返さずに「テクスチャの縁を引き伸ばし」、Godotの`BaseMaterial3D.texture_repeat`は既定でオン、glTF 2.0のサンプラーの既定はリピートです。クランプされたテクスチャは細い線ではなく、引き伸ばされた縁として見えます。',
+    'すべての線がテクスチャにあるわけではありません。タイルの境目ではなくモデルのUVの継ぎ目に沿う線はメッシュ（UVや接線）から来ており、テクスチャを変えても直りません。'],
+    terms:[['クランプ（Clamp）','画像の外のサンプルが縁のピクセルになる。スプライトには正しく、タイルには誤り。'],['ラップ（Wrap）','画像の外のサンプルを、次のタイルのように反対側から取る。'],['ラップ（ロール）検査','テクスチャを半分ずらしてマップを作り、結果を戻して2pxの縁の帯を比べる。0ならラップ正確。'],['継ぎ目の比率','繰り返しの境目をまたぐ差 ÷ 画像内の隣同士の差。']]},
+   example:{title:'例：境目をまたいで続くべき傾き',lead:'1ピクセルごとに10段階上がるハイトの傾斜が、256pxのテクスチャの繰り返しの境目をそのまま通ります。中心差分（StudioのPixelカーネル）で計算すると：',lines:[
+    'ハイト   x=254: 100   x=255: 110  |  x=0: 120   x=1: 130      内側の傾き = 1pxあたり10',
+    'Wrap     x=255: (h[0] − h[254]) / 2 = (120 − 100) / 2 = 10    x=0: (h[1] − h[255]) / 2 = 10',
+    'Clamp    x=255: (h[255] − h[254]) / 2 = (110 − 100) / 2 = 5   x=0: (h[1] − h[0]) / 2 = 5',
+    '→ Clampは境目の両側2列の傾きを半分にする：繰り返しごとに2pxの線',
+    '',
+    'ambientCGのレンガでのロール誤差（0 = ラップ正確）、2026-09-24：',
+    'Nerulio (Wrap) 0 · Laigter 1.14 既定 63.8、Tileプリセット 0 · PBR Forge 0.57、Tile 0.24 · NormalMap-Online 0'],
+    after:'同じレンガで、Nerulioのノーマルマップの境目をまたぐ差は内側の差の1.19倍、Laigterの既定は24.0倍でした。タイルになるテクスチャと、ラップを正しく扱う生成ツールなら、この比率は1の近くに保たれます。'},
+   trouble:{rows:[
+    ['テクスチャが繰り返す所にだけ明るい・暗い線、ノーマルマップを有効にしたときだけ','縁でクランプしてマップを作った','Studio › チェック › 継ぎ目でラップ検査が0より大きい','端の扱い = ラップ（タイル テクスチャ）で作り直す。✓ ラップ正確と出るはず'],
+    ['ノーマルマップを切っても線が残る','アルベドやハイトマップ自体がタイルにならない','アルベドの継ぎ目の比率が1よりかなり大きい、または[[game/seamless-tile-checker|シームレスタイルチェッカー]]','先に画像を直す。Nerulioにタイルにならない画像をタイルにすることはできない'],
+    ['四辺すべてに沿って幅2〜3pxの帯','生成ツールが縁をスプライトの端とみなした（面取り・エッジ検出）','ノーマルマップだけを見ると、帯が四方で外向きに傾いている','生成ツールのタイルモードを使うか、ここでラップで作り直す'],
+    ['縁が引き伸ばされ、テクスチャが繰り返さない','エンジンがテクスチャを繰り返さずクランプしている','Unity：Wrap Mode、Godot：マテリアルの`texture_repeat`','Wrap ModeをRepeatにする、または`texture_repeat`をオンにする'],
+    ['ミラー（Mirror）の縁で作ったら薄い線が残る','ミラーは次のタイルではなく反転したピクセルを読む','法線マップパネルの端の扱い','繰り返すテクスチャにはラップを使う'],
+    ['線がタイルの境目ではなくモデルのUVの継ぎ目に沿っている','メッシュのUV配置や接線','3DソフトでUVを表示すると、線がUVアイランドの縁にある','メッシュ側で直す。原因はテクスチャではない'],
+    ['既存のノーマルマップにすでに継ぎ目がある','別の場所でクランプの縁で作られたマップ','読み込んだマップでチェックパネルを実行','Nerulioは既存のマップを継ぎはぎで直さない。アルベドかハイトからラップで作り直す']]},
+   verify:{steps:[
+    'Studio › チェック › 継ぎ目：ラップ検査が縁の差の平均と最大を表示し、0.01未満なら✓ ラップ正確と出ます。',
+    'Tで3×3表示にしてLitに切り替え、ライトを境目の上へドラッグします。タイルの境目に沿う線が出ないはずです。',
+    'エンジンでマテリアルを3×3以上繰り返し、ライトを繰り返しの境目の上で動かします。ノーマルマップを切っても同じことをすると、色の継ぎ目とライティングの継ぎ目を見分けられます。']},
+   alternatives:{rows:[
+    ['テクスチャラボのノーマルステージのラップ','ハイト → ノーマルの変換を1回だけ手早く行うとき。詳細設定でラップをオンにするか`wrap=1`で開き、補正 › 継ぎ目チェックでアルベドを測ります。'],
+    ['LaigterのTileプリセット','すでにLaigterを使っているとき。Tileプリセットはレンガのロール誤差を63.8から0にしました。'],
+    ['3Dソフトで形状からベイクする','面を3Dでモデリングしているとき。繰り返すメッシュからのベイクは、画像の縁の扱いにまったく左右されません。']]},
+   versions:{body:['Studioのテクスチャ作業画面の書き出しは、Godot 4.7.2（6/6ケース合格、最大差1/255）と、Unity 6000.5.3f1・URP 17.5（12/12合格）で読み込んで描画しており、ラップで作ったambientCGのレンガのタイルのケースも含みます（docs/STUDIO-TEXTURE.md）。継ぎ目とロールの数値は、同じCC0のレンガでの2026-09-24の比較によるものです。エンジンの繰り返し設定はUnity 6・Godot 4.7・glTF 2.0のドキュメントから引用しました。'],
+    sources:[S.unityImport,S.godotBase,S.gltf]}
   }
  },
 };

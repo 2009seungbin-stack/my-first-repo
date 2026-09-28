@@ -181,15 +181,15 @@ export const GAME_LAB_PAGES=Object.freeze({
  'normal-map-converter':page('texture','texture-lab',{
   en:{title:'Normal Map Converter — OpenGL ↔ DirectX (Flip Green)',description:'Convert a normal map between OpenGL (+Y: Unity, Godot, Blender) and DirectX (−Y) by flipping only the green channel, exactly reversible, and validate that the vectors stay unit length.',lead:'The two conventions differ in one thing: the green channel. The conversion is 255 − g, its own inverse, so a converted map converts back to the same bytes.',
    what:['OpenGL ↔ DirectX conversion that changes green and nothing else (checked per channel).','Which engine expects which convention, with the documentation it rests on (Unreal\'s −Y is labelled inferred).','Normal map validation: mean length, worst deviation, lowest blue.','Height → normal with Sobel, Scharr or Sobel 5×5 and wrap for tiling textures.'],
-   steps:['Drop the normal map.','Choose the target convention.','Check the validation numbers.','Download the converted map.'],
+   steps:['Drop the normal map.','Under What to do, choose OpenGL ↔ DirectX.','Check the validation numbers.','Download the converted map.'],
    faq:[['Can it tell which convention my map uses?','No. Both are valid normal maps; the Lab tells you which engine expects which and converts, but never claims to detect it.'],['Is the conversion lossless?','Yes. Green becomes 255 − g; converting twice gives the original bytes.']]},
   ko:{title:'노멀맵 변환 · OpenGL ↔ DirectX (초록 채널 반전)',description:'초록 채널만 뒤집어 노멀맵을 OpenGL(+Y: Unity·Godot·Blender)과 DirectX(−Y) 사이에서 변환하세요. 완전히 되돌릴 수 있고, 벡터가 단위 길이인지 검증합니다.',lead:'두 규약의 차이는 초록 채널 하나입니다. 변환은 255 − g이며 그 자체가 역변환이라, 변환한 맵을 다시 변환하면 같은 바이트가 됩니다.',
    what:['초록 채널만 바꾸는 OpenGL ↔ DirectX 변환(채널별로 확인).','어느 엔진이 어떤 규약을 기대하는지와 그 근거 문서(Unreal의 −Y는 추정으로 표시).','노멀맵 검증: 평균 길이, 최대 오차, 가장 낮은 파랑.','Sobel·Scharr·Sobel 5×5와 반복 텍스처용 wrap으로 높이 → 노멀 생성.'],
-   steps:['노멀맵을 끌어다 놓습니다.','목표 규약을 고릅니다.','검증 수치를 확인합니다.','변환한 맵을 받습니다.'],
+   steps:['노멀맵을 끌어다 놓습니다.','"무엇을 할까요"에서 OpenGL ↔ DirectX를 고릅니다.','검증 수치를 확인합니다.','변환한 맵을 받습니다.'],
    faq:[['내 맵이 어떤 규약인지 알 수 있나요?','아니요. 둘 다 올바른 노멀맵입니다. 랩은 어느 엔진이 무엇을 기대하는지 알려 주고 변환하지만, 감지한다고 주장하지 않습니다.'],['변환에 손실이 있나요?','없습니다. 초록이 255 − g가 되고, 두 번 변환하면 원래 바이트가 됩니다.']]},
   ja:{title:'ノーマルマップ変換 · OpenGL ↔ DirectX（緑を反転）',description:'緑チャンネルだけを反転して、ノーマルマップをOpenGL（+Y：Unity・Godot・Blender）とDirectX（−Y）の間で変換。完全に元に戻せ、ベクトルが単位長かを検証。',lead:'2つの規約の違いは緑チャンネルだけです。変換は255 − gで、それ自体が逆変換なので、変換したマップをもう一度変換すると同じバイトに戻ります。',
    what:['緑だけを変えるOpenGL ↔ DirectX変換（チャンネルごとに確認）。','どのエンジンがどの規約を期待するかと根拠のドキュメント（Unrealの−Yは推定と表示）。','ノーマルマップの検証：平均長、最大誤差、最小の青。','Sobel・Scharr・Sobel 5×5と、タイル用テクスチャのwrapで高さ → ノーマルを生成。'],
-   steps:['ノーマルマップをドロップ。','目標の規約を選ぶ。','検証の数値を確認。','変換したマップをダウンロード。'],
+   steps:['ノーマルマップをドロップ。','「処理」でOpenGL ↔ DirectXを選ぶ。','検証の数値を確認。','変換したマップをダウンロード。'],
    faq:[['自分のマップがどちらの規約か判定できますか？','いいえ。どちらも正しいノーマルマップです。ラボはどのエンジンが何を期待するかを示して変換しますが、判定できるとは言いません。'],['変換で劣化しますか？','しません。緑が255 − gになり、2回変換すると元のバイトに戻ります。']]}
  },{related:['texture-map','game/pixel-art-normal-map','texture-lab','channel-unpacker','game/normal-map-opengl-or-directx']}),
  'pbr-texture-validator':page('texture','texture-lab',{
