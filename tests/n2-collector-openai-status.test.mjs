@@ -59,3 +59,13 @@ test('openai-status: mapped entity ids exist in the AI seed',()=>{
  const ids=seedEntityIds();if(!ids.size)return;
  for(const id of [...Object.values(GROUP_ENTITY),...TITLE_PATTERNS.map(p=>p[1]),PROVIDER])assert.ok(ids.has(id),`${id} missing from data/seed/ai`);
 });
+
+test('shared matcher: names match whole, never inside a longer version or a named variant',async()=>{
+ const {entityMatcher}=await import('../collectors/_ai-shared/util.js');
+ const m=entityMatcher([{id:'model:gpt-6-astra',type:'model',names:{en:'GPT-6 Astra'},aliases:[],facts:{api_model_id:'gpt-6-astra'}},{id:'model:claude-opus-5',type:'model',names:{en:'Claude Opus 5'},aliases:[],facts:{}}]);
+ assert.deepEqual(m('Elevated errors on GPT-6 Astra for some users'),['model:gpt-6-astra']);
+ assert.deepEqual(m('Elevated Error Rates on GPT-6 Astra Pro'),[]);
+ assert.deepEqual(m('gpt-6-astra-pro is slow'),[]);
+ assert.deepEqual(m('Claude Opus 5.5 errors'),[]);
+ assert.deepEqual(m('Claude Opus 5 and Claude Opus 5.5'),['model:claude-opus-5']);
+});

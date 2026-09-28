@@ -67,7 +67,8 @@ export function entityMatcher(targets,o={}){
  for(const t of targets||[]){
   if(types&&!types.includes(t.type))continue;
   const terms=new Set([t.names?.en,...(t.aliases||[]),t.facts?.api_model_id].filter(x=>typeof x==='string'&&x.trim().length>=min).map(x=>x.trim()));
-  for(const term of terms)rules.push({id:t.id,re:new RegExp(`(?<![A-Za-z0-9._-])${esc(term)}(?![A-Za-z0-9]|[._-][A-Za-z0-9])`,'i')});
+  // …nor "GPT-6 Astra" inside "GPT-6 Astra Pro" (a different variant): common variant suffix words block a match.
+  for(const term of terms)rules.push({id:t.id,re:new RegExp(`(?<![A-Za-z0-9._-])${esc(term)}(?![A-Za-z0-9]|[._-][A-Za-z0-9]|\\s+(?:Pro|mini|nano|Instant|Thinking|Lite|Flash|Max|Turbo|Preview|Codex|Image|Live|TTS)\\b)`,'i')});
  }
  return text=>{const s=String(text||'');const ids=new Set();for(const r of rules)if(!ids.has(r.id)&&r.re.test(s))ids.add(r.id);return [...ids];};
 }
