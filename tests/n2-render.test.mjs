@@ -188,7 +188,7 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  const cheap=await (await go('/ko/ai/?type=model&org=anthropic&sort=cheap')).text();
  assert(cheap.indexOf('Claude Haiku 4.5')<cheap.indexOf('Claude Sonnet 5')&&!cheap.includes('GPT-'),'company filter and cheapest-first sort');
  assert.equal((await go('/ko/ai/?sort=cheap&org=anthropic&type=model')).headers.get('location'),'https://nerulio.com/ko/ai/?type=model&org=anthropic&sort=cheap');
- assert.equal((await go('/ko/hardware/?type=gpu&vs=rtx-5070,rtx-4070')).headers.get('location'),'https://nerulio.com/ko/hardware/?type=gpu&vs=rtx-4070%2Crtx-5070','one URL per pair');
+ assert.equal((await go('/ko/hardware/?type=gpu&vs=rtx-5070,rtx-4070')).headers.get('location'),'https://nerulio.com/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070','one URL per pair');
  const vs=await (await go('/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070')).text();
  assert(/<title>[^<]*RTX 4070 vs [^<]*RTX 5070 비교/.test(vs)&&vs.includes('<link rel="canonical" href="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070"'),'the pair is its own page');
  assert(/4070 vs [^<]*5070/.test(vs),'two cards side by side');

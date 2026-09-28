@@ -76,7 +76,8 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
 export function canonicalQuery(page,q){
  const spec=PARAMS[page]||{},out=new URLSearchParams();
  for(const k of Object.keys(spec)){const raw=q.get(k);if(raw===null)continue;const v=spec[k](raw);if(v!==null)out.set(k,v);}
- const s=out.toString();return s?`?${s}`:'';
+ // Commas stay literal (a GPU pair is ?vs=a,b in links, canonicals and sitemaps alike).
+ const s=out.toString().replace(/%2C/gi,',');return s?`?${s}`:'';
 }
 
 /** Channel bar, cached per isolate for a minute (it does not depend on the page). */

@@ -69,7 +69,7 @@ export function renderBest(m,site){
  const periods=html`<nav class="ftabs" aria-label="${ko?'기간':'Period'}">${Object.entries(BEST_PERIODS).map(([k,v])=>html`<a href="${qs({period:k==='day'?null:k})}"${m.period===k?html` class="on" aria-current="page"`:''}>${/** @type {any} */(v)[l]}</a>`)}</nav>`;
  const verts=html`<nav class="ftabs" aria-label="${ko?'분야':'Area'}"><a href="${qs({v:null})}"${!m.vertical?html` class="on"`:''}>${s.all}</a>${VERTICALS.map(v=>html`<a href="${qs({v})}"${m.vertical===v?html` class="on"`:''}>${label(/** @type {any} */(verticalOf(v)).label,l)}</a>`)}</nav>`;
  const list=box({title:ko?'★ 념글':'★ Best posts',extra:periods,note:s.bestRule},m.posts.length?html`<ol class="plist">${m.posts.map((p,i)=>html`<li class="lr"><span class="rank">${i+1}</span><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip(p.kind,l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${p.entity?html`<a class="chn" href="${channelUrl(l,p.entity)}">${nameOf(p.entity,l)}</a>`:''}<span class="up">▲ ${p.up}</span></li>`)}</ol>`:html`<p class="empty">${ko?'이 기간에 념글이 된 글이 없습니다.':'No best posts in this period.'}</p>`);
- const body=html`<div class="narrow"><section class="box kwb">${verts}</section>${list}</div>`;
+ const body=html`<div class="narrow"><h1 class="sr-only">${ko?'념글 — 채널별 베스트 글':'Best posts'}</h1><section class="box kwb">${verts}</section>${list}</div>`;
  return page({l,title:ko?'념글 — 채널별 베스트 글 | Nerulio':'Best posts | Nerulio',description:ko?'AI·게임·하드웨어·스튜디오·서브컬처 채널에서 추천을 많이 받은 글.':'Most upvoted posts across channels.',
   canonical:site.origin+qs({}),noindex:!!(m.vertical||m.period!=='day'),channels:m.channels,body});
 }

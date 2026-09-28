@@ -6,7 +6,7 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,signInUrl} from './ui.js';
 import {compact} from './format.js';
-import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,SORTS} from '../db/channel.js';
+import {pickFact,factsFor,channelPosts,channelStats,recentTitles,contentCounts,relatedChannels,koAlias,SORTS} from '../db/channel.js';
 import {PREDICATES} from '../schema.js';
 import {indexable} from '../seo.js';
 import {channelJsonLd} from './jsonld.js';
@@ -14,7 +14,7 @@ import {panelFor} from './panels/index.js';
 import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE} from '../community.js';
 import {typeDef,verticalOf,propertyDef} from '../verticals/index.js';
 import {label} from '../labels.js';
-import {TZ,dateText} from './format.js';
+import {TZ,dateText,factText} from './format.js';
 
 export const PAGE_SIZE=30;
 /** Start of the reader's day in ms (Korea time for ko). @param {number} now @param {string} l */
@@ -107,7 +107,15 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  // The Korean spelling people type ("클로드") goes into the title and description too.
  const shown=m.alias?`${name}(${m.alias})`:name;
  const title=l==='ko'?`${shown} 채널 — ${td?label(td.label,l)+' · ':''}소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
- const description=(m.alias&&desc?`${shown}: ${desc}`:desc)||(l==='ko'?`${shown}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
+ let description=(m.alias&&desc?`${shown}: ${desc}`:desc)||(l==='ko'?`${shown}의 최신 변경, 공식 정보와 커뮤니티 글.`:`Latest changes, official facts and community posts about ${name}.`);
+ // A short description is filled out with the channel's own sourced facts (no invented text).
+ if([...description].length<80){
+  const bits=[];
+  for(const p of td?.props||[]){const d=/** @type {any} */(propertyDef(e.vertical,p));if(!d||d.public===false||d.type==='url')continue;const f=pickFact(ctx.facts,p,{region:ctx.region,language:l});if(!f)continue;
+   bits.push(`${label(d.label,l)} ${factText(e.vertical,f,l)}`);if(bits.length===3)break;}
+  if(bits.length)description=`${description.replace(/[.。]?$/,'.')} ${bits.join(' · ')}.`;
+  description+=l==='ko'?' 변경 기록과 커뮤니티 글도 함께 봅니다.':' With change history and community posts.';
+ }
  const other=l==='ko'?'en':'ko';
  const canonical=site.origin+(m.kind||m.sort!=='new'||m.best||m.page>1?q({}):base);
  return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},
