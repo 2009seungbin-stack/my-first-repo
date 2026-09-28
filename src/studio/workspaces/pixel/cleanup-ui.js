@@ -37,6 +37,7 @@ export function createCleanup(W){
  if(queryMode==='convert'||queryMode==='restore')o.intent=queryMode;
  const S={scope:'frame',scale:'',analysis:null,inputs:null,frameIds:[],assetRef:null,assetId:null,state:'idle',result:null,error:'',view:0,showGrid:true,token:0};
  const root=h('div.px-clean',{'data-px':'cleanup','data-state':'idle'});
+ let optsOpen=storage.get(PREFS+'.open',false);
  const saveOpts=()=>storage.set(PREFS,Object.fromEntries(OPT_KEYS.map(k=>[k,o[k]])));
  const shareKeys={intent:'mode',targetWidth:'cw',targetHeight:'ch',sampleMethod:'sampler',paletteAlgorithm:'quantizer',palettePreset:'palette',maxColors:'colors',dither:'dither',ditherStrength:'strength'};
  for(const [key,name] of Object.entries(shareKeys)){
@@ -149,6 +150,8 @@ export function createCleanup(W){
  function invalidateResult(){if(S.result){S.result=null;setState('measured');render();}}
  function setOpt(k,v){o[k]=v;saveOpts();shareOpts();invalidateResult();}
  function render(){
+  const previousOpts=root.querySelector('details.px-clean-opts');
+  if(previousOpts)optsOpen=previousOpts.open;
   const a=W.asset();
   if(!a){root.replaceChildren(h('p.st-muted.st-pad',{},t('px.hint.noSprite')));return;}
   const stale=S.analysis&&(S.assetId!==a.id||S.assetRef!==a);
@@ -194,7 +197,7 @@ export function createCleanup(W){
    const presets=select('palettePreset',o.palettePreset,[['auto',t('px.conv.autoPalette')],['gameboy','Game Boy'],['nes','NES'],['pico8','PICO-8']],v2=>{setOpt('palettePreset',v2);render();});
    const dithers=[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8'],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson'],['blue-noise',t('px.conv.blueNoise')]];
    const strength=h('input.st-input.px-num',{type:'number',min:'0',max:'100',step:'1',value:String(o.ditherStrength),'data-px':'clean-ditherStrength','aria-label':t('px.conv.strength')});strength.addEventListener('change',()=>setOpt('ditherStrength',Math.max(0,Math.min(100,Math.round(Number(strength.value)||0)))));
-   const opts=h('details.st-sec.px-clean-opts',{open:storage.get(PREFS+'.open',false)||null},h('summary',{},t('px.clean.options')),
+   const opts=h('details.st-sec.px-clean-opts',{open:optsOpen||null},h('summary',{},t('px.clean.options')),
     ...(o.intent==='convert'?[field(t('px.conv.sampler'),sampler),field(t('px.conv.quantizer'),quantizer),field(t('px.conv.preset'),presets),field(t('px.clean.opt.maxColors'),maxC,t('px.clean.maxHint')),hasPal?check('usePalette',()=>render()):'',field(t('px.clean.opt.dither'),select('dither',o.dither,dithers,v2=>setOpt('dither',v2))),field(t('px.conv.strength'),strength),check('orphans'),check('outline'),check('indexed')]:[
     field(t('px.clean.opt.background'),select('background',o.background,[['auto',t('px.clean.bgAuto')],['keep',t('px.clean.bgKeep')]],v2=>{setOpt('background',v2);render();})),
     field(t('px.clean.opt.alphaCut'),alpha,t('px.clean.alphaHint')),
@@ -205,7 +208,7 @@ export function createCleanup(W){
     check('fringe'),check('orphans'),
     multi&&S.scope!=='frame'?field(t('px.clean.opt.align'),select('align',o.align,[['off',t('px.clean.alignOff')],['bounds',t('px.clean.alignBounds')],['overlap',t('px.clean.alignOverlap')]],v2=>setOpt('align',v2))):'',
     check('outline'),check('shadow'),check('indexed')]));
-   opts.addEventListener('toggle',()=>storage.set(PREFS+'.open',opts.open));
+   opts.addEventListener('toggle',()=>{if(!opts.isConnected)return;optsOpen=opts.open;storage.set(PREFS+'.open',optsOpen);});
    parts.push(opts);
    const run=h('button.st-btn'+(S.result?'':'.primary'),{type:'button','data-px':'clean-preview',disabled:busy||stale||null},S.state==='running'?t('px.clean.running'):t('px.clean.preview'));run.addEventListener('click',()=>preview());
    parts.push(h('div.st-sec',{},h('div.st-row.px-clean-actions',{},run)));

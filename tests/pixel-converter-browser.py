@@ -60,6 +60,7 @@ with sync_playwright() as pw:
         p.locator('[data-px="clean-sampleMethod"]').select_option('median')
         p.locator('[data-px="clean-paletteAlgorithm"]').select_option('wu')
         p.locator('[data-px="clean-palettePreset"]').select_option('pico8')
+        check(f'{locale}: advanced options stay open after a palette change',p.locator('.px-clean-opts').get_attribute('open') is not None)
         p.locator('[data-px="clean-dither"]').select_option('atkinson')
         p.locator('[data-px="clean-ditherStrength"]').fill('60')
         p.locator('[data-px="clean-ditherStrength"]').dispatch_event('change')
