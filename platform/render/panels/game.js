@@ -34,11 +34,14 @@ function top(d,ctx){
  const lastUpdate=pickFact(ctx.facts,'last_update_at');
  const primary=d.patches[0];
  const pc=primary?currentCompat(d.compat,primary.p.id,cur?.version):null;
+ // The last version a patch was confirmed on, when the game has moved past it (the most common
+ // Korean-patch problem: the game updates and nobody knows whether the patch still works).
+ const stale=primary&&cur?staleSince(d.compat,primary.p.id,cur.version):null;
  const tally=primary?tallyFor(primary.counts,cur?.version):null;
  const update=box({title:s.latestUpdate,extra:cur?badge(cur.verification==='OFFICIAL'?'AUTOMATED':cur.verification,l,`⚙ Steam${cur.released_at?' '+isoDateText(new Date(cur.released_at).toISOString().slice(0,10)).slice(5):''}`):'',note:cur?.notes_url?html`<a href="${safeHref(cur.notes_url)}" rel="noopener nofollow" target="_blank">${s.patchNotes}</a>`:'',cls:'hl'},
   cur?html`<div class="upd"><div class="kv"><span class="fine">${s.currentVersion}</span><span class="big">${cur.version}</span>${prev?html`<span class="fine">${s.previous(prev.version,Math.max(1,Math.round(((cur.released_at??cur.detected_at)-(prev.released_at??prev.detected_at))/DAY)))}</span>`:''}</div>
 <ul class="vl">${d.versions.slice(1,4).map(v=>html`<li>${v.version} <span class="fine">${v.released_at?isoDateText(new Date(v.released_at).toISOString().slice(0,10)):''}</span></li>`)}</ul></div>
-${primary?html`<div class="strip"><span class="tt"><a href="${channelUrl(l,primary.p)}"><b>${shortName(primary.p,e,l)}${pickFact(primary.facts,'patch_version')?' '+pickFact(primary.facts,'patch_version')?.value:''}</b></a> ${s.compatWith(cur.version)} ${statusChip(pc,l)}${tally?html` · <span class="fine">${s.works} ${tally.works} · ${s.partial} ${tally.works_with_issues} · ${s.broken} ${tally.broken}</span>`:''}</span>
+${primary?html`<div class="strip"><span class="tt"><a href="${channelUrl(l,primary.p)}"><b>${shortName(primary.p,e,l)}${pickFact(primary.facts,'patch_version')?' '+pickFact(primary.facts,'patch_version')?.value:''}</b></a> ${s.compatWith(cur.version)} ${stale&&(!pc||pc.target_version==='*')?html`<span class="st u" title="${l==='ko'?`마지막 확인 버전: ${stale}`:`Last confirmed on ${stale}`}">${l==='ko'?`업데이트 이후 미확인 · ${stale}에서 작동`:`Not re-checked since the update · worked on ${stale}`}</span>`:statusChip(pc,l)}${tally?html` · <span class="fine">${s.works} ${tally.works} · ${s.partial} ${tally.works_with_issues} · ${s.broken} ${tally.broken}</span>`:''}</span>
 <span class="vbs" data-island="compat-vote" data-subject="${primary.p.id}" data-target="${e.id}" data-target-version="${cur.version}"><button class="vb y" type="button" disabled>${s.works}</button><button class="vb p" type="button" disabled>${s.partial}</button><button class="vb n" type="button" disabled>${s.broken}</button></span></div>`:''}`
   :html`<p class="empty">${s.noVersion}${lastUpdate?html` ${s.lastUpdate}: ${factText('games',lastUpdate,l)}`:''}</p>`);
  const ko=pickFact(ctx.facts,'korean_official',{region:ctx.region});
@@ -52,6 +55,12 @@ ${primary?html`<div class="strip"><span class="tt"><a href="${channelUrl(l,prima
 function currentCompat(/** @type {any[]} */ rows,/** @type {string} */ patch,/** @type {string|undefined} */ version){
  const mine=rows.filter(r=>r.subject_id===patch);
  return mine.find(r=>r.target_version===version)||mine.find(r=>r.target_version==='*')||null;
+}
+/** Newest game version (other than the current one) the patch was reported working on. */
+export function staleSince(/** @type {any[]} */ rows,/** @type {string} */ patch,/** @type {string} */ current){
+ if(rows.some(r=>r.subject_id===patch&&r.target_version===current))return null;
+ const ok=rows.filter(r=>r.subject_id===patch&&r.target_version!=='*'&&(r.status==='works'||r.status==='works_with_issues'||r.status==='supported')).map(r=>r.target_version);
+ return ok.sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}))[0]||null;
 }
 function tallyFor(/** @type {{tv:string,result:string,n:number}[]} */ counts,/** @type {string|undefined} */ version){
  const rows=counts.filter(c=>c.tv===version);if(!rows.length)return null;

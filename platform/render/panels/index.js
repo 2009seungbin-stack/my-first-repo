@@ -8,6 +8,7 @@ import gpu from './gpu.js';
 import studio from './studio.js';
 import ip from './ip.js';
 import model from './model.js';
+import patch from './patch.js';
 import generic from './generic.js';
 
 /** @typedef {import('../../db/channel.js').Entity} Entity */
@@ -16,6 +17,6 @@ import generic from './generic.js';
 /** @typedef {{id:string,types:string[],load(ctx:PanelContext):Promise<any>,top(d:any,ctx:PanelContext):unknown,wiki(d:any,ctx:PanelContext):unknown,side?(d:any,ctx:PanelContext):unknown,live?(d:any,ctx:PanelContext):boolean}} Panel */
 
 /** @type {Panel[]} */
-export const PANELS=[ai,model,game,gpu,studio,ip];
+export const PANELS=[ai,model,game,patch,gpu,studio,ip];
 /** The panel for a channel ("vertical:type"), or the generic facts panel. @param {Entity} e @returns {Panel} */
 export function panelFor(e){return PANELS.find(p=>p.types.includes(`${e.vertical}:${e.type}`))||generic;}

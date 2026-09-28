@@ -249,3 +249,15 @@ test('model channels: official API price, price history area, local-run estimate
  assert.equal(ld['@graph'][0].about['@type'],'VideoGame');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
  assert(!(await channel('games','caves-of-qud')).out.includes('스프라이트 랩'),'game-asset tools are not linked from every game');
 });
+
+test('Korean patch: a game update past the last confirmed version is flagged; patch channel links to the author only',{skip:!sqliteAvailable},async()=>{
+ const {staleSince}=await import('../platform/render/panels/game.js');
+ const rows=[{subject_id:'p',target_version:'1.0.2',status:'works'},{subject_id:'p',target_version:'1.0.3',status:'works_with_issues'},{subject_id:'p',target_version:'*',status:'unknown'}];
+ assert.equal(staleSince(rows,'p','1.04'),'1.0.3');
+ assert.equal(staleSince([...rows,{subject_id:'p',target_version:'1.04',status:'broken'}],'p','1.04'),null,'current version has a row: no stale flag');
+ const d=await seeded();
+ const slug=(await d.prepare("SELECT slug FROM entities WHERE type='translation_patch' ORDER BY slug LIMIT 1").first()).slug;
+ const {m,out}=await channel('games',slug);
+ assert.equal(m.panel.id,'patch');
+ assert(out.includes('패치 정보')&&out.includes('Nerulio는 패치 파일을 올리거나 보관하지 않습니다'));
+});
