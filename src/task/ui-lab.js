@@ -516,7 +516,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
  }
  function stepFont(from,to){
   const f=S.font;if(!from.length)return;
-  to.push(structuredClone(f.project));f.project=from.pop();refresh();
+  to.push(structuredClone(f.project));f.project=from.pop();f.rectStart=null;refresh();
  }
  function paintFontEdit(){
   const canvas=$('#fontEditCanvas'),g=selectedGlyph();if(!canvas||!g)return;
@@ -851,7 +851,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    const chars=fontChars()||'ABCDEFGH';
    f.project=source?FP.projectFromGrid(rgba(f.keyed||source),source.width,source.height,{cellW:f.cellW,cellH:f.cellH,chars,baseline:f.baseline||f.cellH}):FP.blankFontProject(chars,{cellW:f.cellW,cellH:f.cellH,baseline:f.baseline||f.cellH});
    f.selected=f.project.glyphs.find(g=>g.codepoint===65)?.codepoint??f.project.glyphs[0].codepoint;
-   f.past.length=0;f.future.length=0;
+   f.past.length=0;f.future.length=0;f.rectStart=null;
   }
   f.mode='draw';frame();
  }
@@ -905,12 +905,12 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    if(kind==='bdf'){
     const bdf=parseBdf(await file.text());S.font.project=FP.projectFromBdf(bdf);
     S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
-    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;frame();return;
+    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;S.font.rectStart=null;frame();return;
    }
    if(kind==='fontProject'){
     S.font.project=FP.validateFontProject(JSON.parse(await file.text()));
     S.font.selected=S.font.project.glyphs.find(g=>g.codepoint===65)?.codepoint??S.font.project.glyphs[0].codepoint;
-    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;frame();return;
+    S.font.mode='draw';S.font.past.length=0;S.font.future.length=0;S.font.rectStart=null;frame();return;
    }
    const body=await file.text();
    if(kind==='fnt'){S.check.imported=BM.parseFnt(body);S.check.importedName=file.name;S.check.source='fnt';refresh();return;}
@@ -1002,7 +1002,7 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   else if(e.target.id==='fontProjectFile')loadLocalFile(e.target,'fontProject');
   else if(e.target.id==='fntFile')loadLocalFile(e.target,'fnt');
   else if(e.target.id==='localeFile')loadLocalFile(e.target,'locale');
-  else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;refresh();}
+  else if(e.target.id==='fontGlyph'){S.font.selected=Number(e.target.value);S.font.editX=0;S.font.editY=0;S.font.rectStart=null;refresh();}
   else if(['fontAdvance','fontBearingX','fontBearingY','fontAscent','fontDescent'].includes(e.target.id)){
    const f=S.font,g=selectedGlyph();if(!g)return;
    const n=int(e.target.value,Number(e.target.min),Number(e.target.max));
