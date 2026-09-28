@@ -9,11 +9,12 @@ import {page,nameOf,channelUrl,box,badge} from './ui.js';
 import {boardTime,ago,TZ} from './format.js';
 import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState} from '../db/channel.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
+import {reportSignal,SPIKE} from '../status-signal.js';
 
 const HOUR=36e5,DAY=864e5;
 export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
 /** Spike = last hour ≥ 3 reports and ≥ 3× the average hourly rate of the previous 7 days. */
-export const SPIKE=Object.freeze({minReports:3,factor:3});
+export {SPIKE};
 
 /** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
 export async function loadStatus(db,entity,o){
@@ -22,18 +23,13 @@ export async function loadStatus(db,entity,o){
  const siblings=provider?(await related(db,provider.id,'out',['offers'])).map(r=>r.entity).filter(x=>x.type==='service'&&x.id!==entity.id).slice(0,4):[];
  const incidents=(await eventsFor(db,[entity.id,...siblings.map(x=>x.id),...(provider?[provider.id]:[])],{kinds:['incident','other'],from:now-30*DAY,desc:true,limit:30})).filter(x=>x.url&&/status\./.test(x.url));
  const reports=await issueReportsSince(db,[entity.id],now-8*DAY);
- const hourStart=Math.floor(now/HOUR)*HOUR;
- const hours=Array.from({length:24},(_,i)=>{const from=hourStart-(23-i)*HOUR;return {from,n:reports.filter(r=>r.created_at>=from&&r.created_at<from+HOUR).length};});
- const week=reports.filter(r=>r.created_at<hourStart-23*HOUR&&r.created_at>=hourStart-23*HOUR-7*DAY).length;
- const baseline=week/(7*24);
- const last=hours[23].n+hours[22].n*((HOUR-(now-hourStart))/HOUR);   // a rolling hour across the boundary
- const spike=last>=SPIKE.minReports&&last>=SPIKE.factor*Math.max(baseline,0.34);
+ const {hours,baseline,spike,total24}=reportSignal(reports,now);
  /** @type {Record<string,number>} */const symptoms={};
  for(const r of reports)if(r.created_at>=now-DAY){const k=String(r.env.symptom||'other');symptoms[k]=(symptoms[k]||0)+1;}
  const statusPage=pickFact((await factsFor(db,[entity.id])).get(entity.id),'status_page')?.value||null;
  const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
  const checked=adapter?statusChecked((await collectorState(db,[adapter])).get(adapter),now):false;
- return {entity,provider,siblings,incidents,checked,hours,baseline,spike,total24:hours.reduce((a,h)=>a+h.n,0),symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
+ return {entity,provider,siblings,incidents,checked,hours,baseline,spike,total24,symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
 }
 
 /** 24 bars, one per hour; the dashed line is the week's usual hourly rate. @param {Awaited<ReturnType<typeof loadStatus>>} m */

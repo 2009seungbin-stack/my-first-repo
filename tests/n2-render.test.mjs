@@ -203,6 +203,9 @@ test('status, history and write pages render; status is only for services',{skip
  assert(html.includes('지금 Claude 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
+ const ch=await (await get('/ko/ai/claude/')).text();
+ assert(ch.includes('사용자 리포트 급증'),'the channel status box says what the status page says');
+ assert(!ch.includes('>확인 전<'),'no bare "not checked" when users are reporting');
  assert.equal(await get('/ko/hardware/rtx-5070/status'),null,'no status page for a GPU');
  const hist=await (await get('/ko/hardware/rtx-5070/history')).text();
  assert(hist.includes('변경 기록')&&hist.includes('출처'));

@@ -6,7 +6,8 @@ import {html,safeHref} from '../html.js';
 import {t} from '../strings.js';
 import {box,badge,nameOf,channelUrl} from '../ui.js';
 import {money,tokens,boardTime,isoDateText,factText,ago} from '../format.js';
-import {related,factsFor,pickFact,eventsFor,changesFor,versionsOf,availabilityFor,rolloutVotes,collectorState} from '../../db/channel.js';
+import {related,factsFor,pickFact,eventsFor,changesFor,versionsOf,availabilityFor,rolloutVotes,collectorState,issueReportsSince} from '../../db/channel.js';
+import {reportSignal} from '../../status-signal.js';
 import {describeChange} from '../../change-text.js';
 import {rolloutSummary} from '../../community.js';
 import {dateMs} from '../../schema.js';
@@ -43,6 +44,9 @@ async function load(ctx){
   .filter(x=>x.url&&/status\./.test(x.url));
  const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
  const collector=adapter?(await collectorState(db,[adapter])).get(adapter)||null:null;
+ // Nerulio users' outage reports per service: the same signal as the status page.
+ /** @type {Map<string,ReturnType<typeof reportSignal>>} */const signals=new Map();
+ for(const svc of services)signals.set(svc.id,reportSignal(await issueReportsSince(db,[svc.id],now-8*DAY),now));
  // Timeline: Radar changes + dated official facts (model releases, service versions) in 90 days.
  const family=[e,...services,...features,...models,...plans,...(provider?[provider]:[])];
  const names=Object.fromEntries(family.map(x=>[x.id,nameOf(x,ctx.l)]));
@@ -57,7 +61,12 @@ async function load(ctx){
  const rollingIds=[...new Set(avail.filter(a=>a.state==='rolling_out'||a.state==='preview').map(a=>a.entity_id))];
  const votes=await rolloutVotes(db,rollingIds);
  const rollouts=rollingIds.slice(0,3).map(id=>({feature:/** @type {any} */(features.find(x=>x.id===id)),summary:rolloutSummary(votes.get(id)||[],now),avail:avail.filter(a=>a.entity_id===id)}));
- return {provider,services,plans:planRows,models:modelRows.slice(0,6),incidents,collector,timeline:dedupe(timeline).slice(0,6),rollouts};
+ // The newest six, plus the cheapest current model when it is older: a table of only the newest
+ // made a mid-priced model look like the cheapest one.
+ const priced=modelRows.filter(r=>r.in&&(r.in.unit||'USD')==='USD').sort((a,b)=>Number(a.in?.value)-Number(b.in?.value));
+ const shown=modelRows.slice(0,6),cheapest=priced[0]||null;
+ if(cheapest&&!shown.includes(cheapest))shown.push(cheapest);
+ return {provider,services,plans:planRows,models:shown,cheapest:priced.length>1?cheapest?.m.id??null:null,modelCount:modelRows.length,incidents,collector,signals,timeline:dedupe(timeline).slice(0,6),rollouts};
 }
 /** @param {{title:string}[]} list */
 const dedupe=/** @template {{title:string}} T @param {T[]} list @returns {T[]} */ list=>{const seen=new Set();return list.filter(x=>seen.has(x.title)?false:(seen.add(x.title),true));};
@@ -70,15 +79,19 @@ function top(d,ctx){
  const serviceRow=(/** @type {import('../ui.js').Entity} */ svc)=>{
   const inc=open.find(x=>incidentMatches(x,svc,d.services.length));
   // Without a recent successful status check, "no incident" would be a claim nobody verified.
-  const state=inc?'warn':fresh?'ok':'unk',text=inc?s.incident:fresh?s.noIncident:(l==='ko'?'확인 전':'Not checked yet');
-  return html`<li class="srow"><span class="dot ${state}" aria-hidden="true"></span><a href="${channelUrl(l,svc)}">${nameOf(svc,l)}</a><span class="sv ${inc?'bad':''}">${text}</span></li>`;
+  // Users' reports speak even when the official status is unknown: a spike is shown on its own.
+  const sig=d.signals.get(svc.id),spike=!inc&&!!sig?.spike;
+  const state=inc?'warn':spike?'warn':fresh?'ok':'unk';
+  const text=inc?s.incident:spike?(l==='ko'?`사용자 리포트 급증 · 1시간 ${sig?.last}건`:`User reports spiking · ${sig?.last} in 1h`):fresh?s.noIncident:(l==='ko'?'공식 상태 확인 전':'Official status not checked yet');
+  const users=!spike&&sig?.total24?html`<a class="fine" href="${channelUrl(l,svc)}status">${l==='ko'?`리포트 ${sig.total24}건/24시간`:`${sig.total24} reports/24h`}</a>`:'';
+  return html`<li class="srow"><span class="dot ${state}" aria-hidden="true"></span><a href="${channelUrl(l,svc)}">${nameOf(svc,l)}</a>${users}<a class="sv ${inc||spike?'bad':''}" href="${channelUrl(l,svc)}status">${text}</a></li>`;
  };
  const status=box({title:s.status,extra:open.length?html`<span class="live"><i></i></span>`:'',note:html`${d.collector?.last_success_at?s.lastChecked(ago(d.collector.last_success_at,now,l))+' · ':(l==='ko'?'상태 수집 전 · ':'Not collected yet · ')}${statusUrl?html`<a href="${safeHref(statusUrl)}" rel="noopener" target="_blank">${s.statusOpen}</a>`:s.statusSrc}`},
   html`<ul class="rows">${d.services.map(serviceRow)}</ul>${open.slice(0,2).map(x=>html`<a class="alert" href="${safeHref(x.url)}" rel="noopener" target="_blank"><b>${x.starts_at?boardTime(x.starts_at,now,l):''}~</b> ${x.title[l]||x.title.en}</a>`)}<p class="fine">${s.statusNote} · <a href="${channelUrl(l,e)}status">${l==='ko'?'사용자 리포트 보기 ›':'User reports ›'}</a></p>`);
  const changed=box({title:s.justChanged,note:s.justChangedSrc},d.timeline.length?html`<ul class="rows tk">${d.timeline.map(x=>html`<li><span class="tm">${boardTime(x.at,now,l)}</span>${x.href?html`<a class="tt" href="${safeHref(x.href)}">${x.title}</a>`:html`<span class="tt">${x.title}</span>`}${badge(x.ver,l)}</li>`)}</ul>`:html`<p class="empty">${s.nothingNew}</p>`);
  const models=d.models.length?box({title:s.models,extra:badge('OFFICIAL',l),note:checked(d.models.map(r=>r.in?.observed_at||0),l)},html`<div class="tw"><table class="mt"><thead><tr><th>${s.modelCol}</th><th>${s.ctxCol}</th><th>${s.priceCol}</th><th>${s.releasedCol}</th></tr></thead><tbody>${d.models.map(r=>{
   const fresh=r.released&&now-dateMs(String(r.released))<=30*DAY&&dateMs(String(r.released))<=now;
-  return html`<tr><td><a href="${channelUrl(l,r.m)}"><b>${nameOf(r.m,l)}</b></a>${fresh?html` <span class="st new">${s.newBadge}</span>`:''}${r.status==='preview'?html` <span class="st u">${factText('ai',{property:'status',value:'preview'},l)}</span>`:''}</td><td>${r.ctx?tokens(Number(r.ctx)):'–'}</td><td>${r.in&&r.out?`${money(Number(r.in.value),r.in.unit||'USD',l)} / ${money(Number(r.out.value),r.out.unit||'USD',l)}`:'–'}</td><td>${r.released?isoDateText(String(r.released)).slice(2):'–'}</td></tr>`;})}</tbody></table></div>`):'';
+  return html`<tr><td><a href="${channelUrl(l,r.m)}"><b>${nameOf(r.m,l)}</b></a>${fresh?html` <span class="st new">${s.newBadge}</span>`:''}${r.status==='preview'?html` <span class="st u">${factText('ai',{property:'status',value:'preview'},l)}</span>`:''}${r.m.id===d.cheapest?html` <span class="st c">${l==='ko'?'최저가':'Cheapest'}</span>`:''}</td><td>${r.ctx?tokens(Number(r.ctx)):'–'}</td><td>${r.in&&r.out?`${money(Number(r.in.value),r.in.unit||'USD',l)} / ${money(Number(r.out.value),r.out.unit||'USD',l)}`:'–'}</td><td>${r.released?isoDateText(String(r.released)).slice(2):'–'}</td></tr>`;})}</tbody></table></div><p class="fine pad"><a href="/${l}/ai/?type=model">${l==='ko'?`모든 회사 모델 가격 비교 ›`:'Compare all model prices ›'}</a></p>`):'';
  return html`<div class="g2 a">${status}${changed}</div>${models}`;
 }
 /** An open incident is shown on a service row when its title names that service; otherwise on the first row. */
