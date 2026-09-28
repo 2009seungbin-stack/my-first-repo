@@ -50,6 +50,24 @@ async function main(){
  const acc=$('[data-island="account"]');
  if(acc&&signedIn&&st.user?.name&&acc.closest('.hd')){acc.innerHTML='';const a=document.createElement('a');a.className='hb solid';a.href=`/${L}/account/`;a.textContent=st.user.name;acc.append(a);}
 
+ // My Radar (radar page) and the unread count in the header
+ if(signedIn){
+  const mine=$('[data-island="my-radar"]');
+  const mr=await api(`/my-radar?l=${L}`);
+  if(mr.ok){
+   const d=mr.data;
+   const nav=$('.hd .hn');
+   if(nav&&d.unread>0){const a=document.createElement('a');a.className='hb';a.href=`/${L}/radar/#mine`;a.textContent=(L==='ko'?'알림 ':'Alerts ')+d.unread;nav.append(a);}
+   if(mine){
+    const ul=$('ul',mine);mine.hidden=false;
+    const items=[...d.changes.map(c=>({at:c.at,text:`${c.channel} · ${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,text:`${p.channel} · ${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))].sort((a,b)=>b.at-a.at).slice(0,30);
+    if(!items.length){const li=document.createElement('li');li.textContent=d.following?(L==='ko'?'구독한 채널에 아직 새 소식이 없어요.':'Nothing new in your channels yet.'):(L==='ko'?'채널을 구독하면 바뀐 것과 새 글이 여기에 모입니다.':'Follow channels to see their changes and posts here.');ul.append(li);}
+    for(const it of items){const li=document.createElement('li');const t=document.createElement('span');t.className='tm';t.textContent=new Date(it.at).toLocaleDateString(L==='ko'?'ko-KR':'en-US',{month:'2-digit',day:'2-digit'});const a=document.createElement('a');a.className='tt';a.href=it.url||'#';a.textContent=it.text;if(it.unread)a.classList.add('unread');li.append(t,a);ul.append(li);}
+    if(d.unread>0)api('/my-radar/seen',{lastChangeId:d.lastChangeId});
+   }
+  }
+ }
+
  // Follow
  for(const box of $$('[data-island="follow"]')){
   const link=box.querySelector('a.btn:not(.p)');if(!link)continue;

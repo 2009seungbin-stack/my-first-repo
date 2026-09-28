@@ -165,3 +165,16 @@ test('benchmarks: a model measured on a GPU, tokens/s bounded, shown as a median
  assert(out.includes('Test 12에서 돌아가는 로컬 LLM')&&out.includes('<b>45</b> tok/s')&&out.includes('추정 방법'));
  assert(/class="fy"><b>여유<\/b>/.test(out),'8B at Q4_K_M fits in 12 GB (estimate)');
 });
+
+test('My Radar: changes and posts of followed channels, unread until seen',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ assert.equal((await h.call('GET','/my-radar',{as:'a'})).json.following,0);
+ await h.call('POST','/follow',{as:'a',body:{entityId:'game:steam-1'}});
+ await ingest(h.db,{schema:'nerulio.seed/1',vertical:'games',sources:[],entities:[{id:'game:steam-1',versions:[{version:'2.4.0',released:'2026-09-28',src:'src:t'}]}]},{mode:'collector',actor:'collector:steam',now:T0});
+ await h.call('POST','/posts',{as:'b',body:{entityId:'game:steam-1',kind:'question',title:'2.4 패치 됨?',body:'x'}});
+ const r=(await h.call('GET','/my-radar?l=ko',{as:'a'})).json;
+ assert.equal(r.following,1);assert(r.unread>=1);assert(r.changes.some(c=>c.title.includes('2.4.0')));assert.equal(r.posts[0].url,'/ko/games/test-game/1');
+ await h.call('POST','/my-radar/seen',{as:'a',body:{lastChangeId:r.lastChangeId}});
+ assert.equal((await h.call('GET','/my-radar',{as:'a'})).json.unread,0);
+ assert.equal((await h.call('GET','/my-radar')).status,401);
+});

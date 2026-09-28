@@ -13,9 +13,11 @@ import {assertSameOrigin} from '../api.js';
 import {POST_KINDS,writableKinds,createPost,castVote,recomputeCompat,LIMITS} from '../../platform/community.js';
 export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
-import {channelUrl,postUrl} from '../../platform/render/ui.js';
+import {channelUrl,postUrl,nameOf} from '../../platform/render/ui.js';
+import {changesFor,entitiesByIds} from '../../platform/db/channel.js';
+import {describeChange} from '../../platform/change-text.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1});
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -86,6 +88,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    const r=await db.prepare("SELECT COUNT(*) AS n,MAX(post_no) AS last FROM discussions WHERE entity_id=? AND post_no>? AND status='published'").bind(e.id,after).first();
    return done({count:Number(r?.n||0),last:Number(r?.last||after)});
   }
+  if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko'));}
   // Writes.
   if(!context.user)throw new ApiError('LOGIN_REQUIRED');
   const limit=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await allowRequest({env,limiter:deps.limiter,key:`v2:${name}|u:${context.user.id}`,limit:n,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});};
@@ -153,6 +156,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     await limit('vote',LIMITS.votesPerMinute);
     const r=await castVote(db,{kind,id:body.id,userId:context.user.id,value},now);
     return done(r);
+   }
+   case 'POST /my-radar/seen':{
+    only(body,['lastChangeId']);
+    const id=Number(body.lastChangeId);if(!Number.isInteger(id)||id<0)throw new ApiError('BAD_REQUEST','Invalid lastChangeId.');
+    await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,updated_at) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),updated_at=excluded.updated_at').bind(context.user.id,id,now).run();
+    return done({ok:true});
    }
    case 'POST /flags':{
     only(body,['target','reason','note']);
@@ -261,4 +270,19 @@ async function benchmark(db,context,body,now,limit,origin){
   .bind(id,model.id,gpu.id,JSON.stringify(env),JSON.stringify({tokens_per_s:Math.round(tps*100)/100}),context.user.id,now,now).run();
  await purge(origin,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
  return {id};
+}
+
+/** My Radar: changes and new posts in the channels the reader follows, with an unread count.
+ * @param {any} db @param {string} userId @param {'ko'|'en'} l */
+async function myRadar(db,userId,l){
+ const ids=((await db.prepare('SELECT entity_id FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 200').bind(userId).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
+ const seen=Number((await db.prepare('SELECT last_seen_change_id AS n FROM radar_state WHERE user_id=?').bind(userId).first())?.n||0);
+ if(!ids.length)return {following:0,unread:0,lastChangeId:seen,changes:[],posts:[]};
+ const ents=await entitiesByIds(db,ids);
+ const changes=(await changesFor(db,ids,{minImportance:1,limit:30})).map(c=>{const e=ents.get(c.entity_id);const d=describeChange(c,{name:e?nameOf(e,l):''},l);
+  return {id:c.id,at:c.detected_at,title:d.title,detail:d.detail,unread:c.id>seen,url:e?channelUrl(l,e):null,channel:e?nameOf(e,l):''};});
+ const q=ids.slice(0,40);
+ const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
+  .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
+ return {following:ids.length,unread:changes.filter(c=>c.unread).length,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts};
 }

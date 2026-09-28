@@ -50,8 +50,10 @@ def main():
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_url(re.compile(r'/ko/games/caves-of-qud/\d+$'), timeout=8000)
             assert '작동' in pg.locator('h1').inner_text()
+            pg.goto(B + '/ko/radar/'); pg.wait_for_timeout(800)
+            assert pg.locator('#mine').is_visible(), 'My Radar shows for signed-in readers'
             m = b.new_page(viewport={'width': 390, 'height': 900})
-            for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/ai/claude/write']:
+            for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/ai/claude/write', '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
                 w = m.evaluate('document.documentElement.scrollWidth')
                 assert w <= 390, f'{path} scrolls sideways at 390px ({w})'
