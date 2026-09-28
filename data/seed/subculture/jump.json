@@ -2104,10 +2104,10 @@
      "p": "streaming_services",
      "v": [
       "ABEMA",
-      "Amazon Prime Video",
+      "Prime Video",
       "Disney+",
       "DMM TV",
-      "dアニメストア",
+      "dAnime Store",
       "Hulu",
       "Netflix",
       "U-NEXT"
@@ -3644,20 +3644,13 @@
     {
      "p": "streaming_services",
      "v": [
-      "Laftel"
-     ],
-     "ver": "OFFICIAL",
-     "src": "src:sc-jump-laftel-dd-s2",
-     "region": "KR"
-    },
-    {
-     "p": "streaming_services",
-     "v": [
+      "Laftel",
       "Netflix"
      ],
      "ver": "OFFICIAL",
-     "src": "src:sc-jump-netflix-kr-dandadan",
-     "region": "KR"
+     "src": "src:sc-jump-laftel-dd-s2",
+     "region": "KR",
+     "note": "Netflix per src:sc-jump-netflix-kr-dandadan."
     },
     {
      "p": "anilist_id",

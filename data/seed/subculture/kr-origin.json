@@ -646,8 +646,8 @@
     {
      "p": "platforms",
      "v": [
-      "Windows (Steam)",
-      "Xbox"
+      "windows",
+      "xbox"
      ],
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-overdrive-site",
@@ -745,8 +745,8 @@
     {
      "p": "platforms",
      "v": [
-      "Android",
-      "iOS"
+      "android",
+      "ios"
      ],
      "ver": "OFFICIAL",
      "src": "src:sc-kr-origin-karma-site",
@@ -1016,7 +1016,7 @@
       "ABEMA",
       "Disney+",
       "DMM TV",
-      "dアニメストア",
+      "dAnime Store",
       "FOD",
       "Hulu",
       "Lemino",
@@ -1388,9 +1388,9 @@
     {
      "p": "streaming_services",
      "v": [
-      "dアニメストア",
+      "dAnime Store",
       "U-NEXT",
-      "アニメ放題",
+      "Anime Hodai",
       "FOD",
       "ABEMA",
       "Hulu",
