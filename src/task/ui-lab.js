@@ -97,8 +97,8 @@ export function mount({el,def}){
  function empty(){
   el.innerHTML=`<div class="dropzone" data-action="pick" role="button" tabindex="0"><div class="dropzone-art" aria-hidden="true"><span></span><span></span><b>+</b></div><strong>${esc(T('drop'))}</strong><span>${esc(T('dropHint'))}</span>
 <div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(text('pick'))}</button><button type="button" class="ghost" data-action="ui-sample">${esc(text('sample'))}</button>${stage==='font'?`<button type="button" class="ghost" data-action="ui-font-new">${esc(T('fontNew'))}</button>`:''}<button type="button" class="ghost" data-action="ui-stage" data-stage="check">${esc(T('openCheck'))}</button></div>
-${stage==='font'?`<div class="ui-font-import" data-action="ui-font-input"><label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label><label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label><label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label></div>`:''}
-<small class="local-note">${esc(text('local'))}</small></div>`;
+<small class="local-note">${esc(text('local'))}</small></div>
+${stage==='font'?`<div class="ui-font-import"><label class="field"><span>${esc(T('fontBdf'))}</span><input type="file" id="fontBdf" accept=".bdf,text/plain" data-local-drop></label><label class="field"><span>${esc(T('fontProjectImport'))}</span><input type="file" id="fontProjectFile" accept=".json,application/json" data-local-drop></label><label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label></div>`:''}`;
  }
  function frame(){
   el.innerHTML=`<div class="ui-lab">
