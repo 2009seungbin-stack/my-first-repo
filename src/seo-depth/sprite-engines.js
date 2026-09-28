@@ -1,4 +1,5 @@
 /** Intent content for the sprite → engine pages (docs/SEO-CONTENT-MODEL.md). Keys are canonical paths.
+ * Each page has a comment naming the code and docs its Nerulio claims rest on.
  * Nerulio behaviour: src/game/export/godot.js, src/game/aseprite.js, src/game/model.js, docs/STUDIO-PACK.md,
  * docs/STUDIO-SPRITE.md. Engine behaviour: the official docs cited in each page's `versions.sources`. */
 const GODOT_DOCS=['[Godot 4.7 docs: AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html)','[Godot 4.7 docs: SpriteFrames](https://docs.godotengine.org/en/stable/classes/class_spriteframes.html)','[Godot 4.7 docs: 2D sprite animation](https://docs.godotengine.org/en/stable/tutorials/2d/2d_sprite_animation.html)'];
@@ -1511,6 +1512,162 @@ export default {
     ['フレームごとの時間を持てる別のエンジン','[[game/aseprite-to-godot|AsepriteをGodotへ]]はフレームごとの長さを保ちます。']]},
    limits:['GameMakerでは未検証：帯をデコードして元のフレームと比べただけです。','スプライトごとに速度は1つなので、不ぞろいな時間はgamemaker.jsonにだけ残ります。','GameMaker用のファイルにはヒットボックスも当たり判定の形もありません。'],
    versions:{body:['確認したこと：GameMaker用の帯がPillowでデコードでき、全セルが元のフレームと一致すること。.asepriteの読み込みは、実在の231ファイルがAseprite 1.3.18で同じタグ・長さ・ピクセルのまま開き直せることで確認しました。確認していないこと：GameMakerで何かを読み込むこと。検証環境にヘッドレスのGameMakerはありません。帯の命名、取り込み方法、原点、速度の方式、補間のオプションはGameMakerのマニュアルに基づきます。'],sources:[...GM_DOCS,'[Asepriteドキュメント：Tags](https://www.aseprite.org/docs/tags/)']}
+  }
+ },
+ // ------------------------------------------------------------------ GDevelop
+ // Nerulio has NO GDevelop export (grep: GDevelop appears only in SEO copy). What it offers is the classic Sprite Lab
+ // frames ZIP: src/task/sprite-lab.js framesZip (one PNG per frame at the frame canvas size), names from
+ // src/game/frame-ops.js framesFromRects + src/primitives.js frameNumber (<sheet>_001, ≥ 3 digits), ZIP <sheet>-frames.zip.
+ // GDevelop side: wiki.gdevelop.io (Sprite object, Piskel sheet import, Sprite Sheet Animations extension, Scale mode, points).
+ 'game/gdevelop-sprite-sheet':{
+  type:'engine',
+  intent:{primary:'use a sprite sheet for a GDevelop sprite animation',secondary:['cut the sheet into equal frame images','time between frames and loop in GDevelop','Piskel import and the Sprite Sheet Animations extension'],
+   goal:'a GDevelop sprite object with one animation per row of the sheet, frames in order, steady and sharp',input:'a sprite sheet PNG',output:'ZIP of one PNG per frame (<sheet>_001.png …), equal size when cut by grid',target:'GDevelop 5 (nothing was loaded in GDevelop)',support:'partial',
+   evidence:['src/task/sprite-lab.js (framesZip)','src/game/frame-ops.js (framesFromRects: names, canvas = cell)','src/primitives.js (frameNumber)','grep: no GDevelop exporter in src/'],
+   external:['GDevelop wiki: Sprite object (add images, time between frames 0.08 s default, loop off by default)','Import a sprite sheet using Piskel','Sprite Sheet Animations extension','Game properties: Scale mode nearest','Edit points (origin top-left, center)']},
+  en:{
+   answer:'A GDevelop sprite object builds each animation from separate images, one per frame, so a sprite sheet has to be cut first. Nerulio has no GDevelop export: what it gives you is plain PNG frames. Its Sprite Lab measures the grid and downloads a ZIP with one equal-size PNG per frame, numbered in reading order (`hero_001.png` …). In GDevelop you add one row\'s images to each animation, set the time between frames in seconds (1 ÷ FPS; the default is 0.08 s) and turn loop on. Nothing here was loaded in GDevelop; its steps come from the GDevelop wiki.',
+   concept:{title:'What GDevelop expects from a sheet',body:[
+    'In GDevelop a Sprite object has animations, and each animation is a list of images played in the order shown. Every animation has one value for the time between two frames, in seconds (0.08 s by default), and a loop toggle; without loop an animation plays once and stops on its last frame. Animations get names that your events use with "Change the animation (by name)".',
+    'The editor itself does not slice a PNG into frames. GDevelop offers two ways around that: the built-in Piskel editor can import a sprite sheet for one animation whose frames are evenly spaced, and the Sprite Sheet Animations extension animates a Tiled Sprite from a sheet by rows and columns or from a TexturePacker pixi.js-style JSON. Otherwise you import frame images.',
+    'Every sprite starts with an Origin point at the top-left corner of the image (it positions the object) and a Center point at half the image size (it rotates and flips around it). If the frame images of one animation differ in size, those points fall on different parts of the art and the character shifts; equal-size frames avoid that, and GDevelop can share the same points across all images of an animation.',
+    'Nerulio\'s part is the cutting. In Grid mode the Sprite Lab measures cell size, margin and spacing, so every PNG has the cell\'s size; Auto mode finds sprites separated by transparency on an uneven sheet, and its Normalize step puts them on one common canvas. Pixels are copied, not redrawn, and a colour key can clear an opaque backdrop first. The ZIP carries no timing, names or hitboxes.'],
+    terms:[['Time between frames','GDevelop\'s per-animation frame time in seconds; 1 ÷ FPS.'],['Loop','Off by default: the animation plays once. On: it repeats.'],['Origin / Center','Default sprite points: top-left corner, and half the image size.'],['Scale mode (Sampling)','Project setting; "nearest" keeps pixel art sharp.']]},
+   example:{title:'Worked example: a three-row sheet',lines:[
+    'hero.png 512 × 192 px: 3 rows (idle, run, attack) × 8 columns of 64 × 64',
+    '  Sprite Lab, Grid: cell 64 × 64 → hero-frames.zip with 24 PNGs of 64 × 64',
+    '  hero_001 … hero_008 = idle   hero_009 … hero_016 = run   hero_017 … hero_024 = attack',
+    '',
+    'GDevelop sprite object "Hero": 3 animations of 8 images',
+    '  run at 12 FPS   → time between frames = 1 / 12 = 0.083 s',
+    '  idle at 100 ms  → 0.1 s            GDevelop default 0.08 s = 12.5 FPS',
+    '  Origin (0, 0) top-left      Center (32, 32) = half of 64 × 64'],
+    after:'One run cycle then takes 8 × 0.083 ≈ 0.67 s. A frame that should hold twice as long can be added twice, because one animation has only one frame time.'},
+   outputs:{lead:'The classic Sprite Lab\'s frames download (not a GDevelop export):',rows:[
+    ['hero-frames.zip','One PNG per frame, named after the sheet.'],
+    ['hero_001.png …','Frames in reading order, zero-padded to at least three digits so a file picker keeps them in order; each PNG is the cell size in Grid mode.']]},
+   target:{title:'Build the animations in GDevelop (from the GDevelop wiki; not run here)',steps:[
+    'Unzip the frames. In GDevelop, add a new object, choose Sprite and name it.',
+    'Click Add an animation and give it a name (idle). Add images and select `hero_001` to `hero_008` together; GDevelop plays them in the order shown.',
+    'Set the time between frames next to the clock icon: 1 ÷ FPS in seconds, for example 0.1 for 10 FPS.',
+    'Turn loop on for idle and run; leave it off for a one-shot attack.',
+    'Repeat for each row, then switch animations in events with "Change the animation (by name)".',
+    'For pixel art, set the project\'s Scale mode (Sampling) to nearest in the game properties.',
+    'If the object should stand on its feet, move the Origin point in Edit points and keep the points shared by all images of the animation.']},
+   verify:{steps:[
+    'Each animation lists its images in file order: idle 001–008, run 009–016, attack 017–024.',
+    'In the preview the run cycle takes about 0.67 s at 0.083 s per frame.',
+    'The character does not shift between frames: all images are 64 × 64.',
+    'Zoomed in, pixel edges stay hard with Scale mode nearest.']},
+   trouble:{rows:[
+    ['The animation plays once and stops','Loop is off by default','The loop toggle of that animation','Turn loop on'],
+    ['Frames play in the wrong order','Files were picked in another order, or names without zero padding sort 1, 10, 2','Image order in the animation','Use the zero-padded names from the ZIP, and reorder images if needed'],
+    ['The character wobbles','The frames have different sizes (cut by Auto), so origin and center land on different art','Compare the image sizes','Cut with Grid, or run Normalize before downloading; share points across the animation'],
+    ['Sprites are blurry','Scale mode is linear','Game properties › Scale mode','Set it to nearest'],
+    ['An uneven GIF timing plays evenly','One animation has one time between frames','Compare with the source delays','Add long frames twice, or split the action into two animations'],
+    ['Piskel\'s import cuts the sheet wrong','Its frame size does not match, or the sheet holds several animations','The frame boxes in Piskel\'s Import and Merge window','Enter the real frame size for one animation, or cut with the Sprite Lab; see [[game/sprite-sheet-frame-size|frame size]]']]},
+   alternatives:{rows:[
+    ['GDevelop\'s built-in Piskel: Import as Sprite sheet','One animation with evenly spaced frames: no other tool, and the frames land in the animation directly.'],
+    ['The Sprite Sheet Animations extension','You want to keep one image on a Tiled Sprite and drive frames by row and column or from TexturePacker\'s pixi.js JSON. Nerulio\'s PixiJS export writes a similar `frames` + `animations` layout, but it was never tried with this extension.'],
+    ['Separate frames for any tool','The same cutting, explained for every engine: [[game/sprite-sheet-to-png-frames|sprite sheet to PNG frames]].']]},
+   limits:['Nerulio has no GDevelop export: only PNG frames, without timing, names or hitboxes.','Nothing was loaded in GDevelop; the GDevelop steps come from its wiki.','One time between frames per GDevelop animation: uneven timing needs repeated frames.'],
+   versions:{body:['Nerulio\'s part: the Sprite Lab cuts the sheet and every PNG in the ZIP was measured equal to its box on the sheet, with nothing scaled or smoothed. GDevelop was not run. The object, animation, loop, frame-time, points, Piskel and Scale mode details come from the GDevelop 5 wiki.'],sources:GD_DOCS}
+  },
+  ko:{
+   answer:'GDevelop 스프라이트 오브젝트는 애니메이션을 프레임마다 따로 된 이미지로 만들기 때문에 스프라이트 시트는 먼저 잘라야 합니다. Nerulio에는 GDevelop 전용 내보내기가 없고, 제공하는 것은 일반 PNG 프레임입니다. 스프라이트 랩이 격자를 재고 프레임마다 같은 크기의 PNG를 읽는 순서대로 번호 붙여(`hero_001.png` …) ZIP으로 내려받게 합니다. GDevelop에서는 애니메이션마다 한 행의 이미지를 넣고, 프레임 간 시간을 초 단위(1 ÷ FPS, 기본 0.08초)로 정하고 반복을 켭니다. 여기서 GDevelop으로 불러온 것은 없으며, GDevelop 단계는 GDevelop 위키를 따릅니다.',
+   concept:{title:'GDevelop이 시트에서 기대하는 것',body:[
+    'GDevelop의 스프라이트 오브젝트에는 애니메이션이 있고, 애니메이션은 보이는 순서대로 재생되는 이미지 목록입니다. 애니메이션마다 두 프레임 사이 시간이 초 단위로 하나(기본 0.08초)이고 반복 토글이 있으며, 반복을 켜지 않으면 한 번 재생된 뒤 마지막 프레임에서 멈춥니다. 애니메이션에 붙인 이름은 이벤트의 "Change the animation (by name)"에서 씁니다.',
+    '편집기 자체는 PNG를 프레임으로 자르지 않습니다. GDevelop에는 두 가지 우회로가 있습니다. 내장 Piskel 편집기는 프레임 간격이 고른 애니메이션 하나짜리 시트를 가져올 수 있고, Sprite Sheet Animations 확장은 Tiled Sprite를 행·열이나 TexturePacker pixi.js 형식 JSON으로 움직입니다. 그 밖에는 프레임 이미지를 가져와야 합니다.',
+    '모든 스프라이트는 이미지 왼쪽 위의 Origin 점(오브젝트 위치를 정함)과 이미지 크기의 절반 위치인 Center 점(회전·뒤집기의 중심)으로 시작합니다. 한 애니메이션의 프레임 크기가 제각각이면 이 점들이 그림의 다른 곳에 놓여 캐릭터가 흔들립니다. 프레임 크기를 같게 하면 이를 막을 수 있고, GDevelop은 애니메이션의 모든 이미지에 같은 점을 공유하게 할 수 있습니다.',
+    'Nerulio가 맡는 것은 자르기입니다. 격자 모드에서 스프라이트 랩이 칸 크기·여백·간격을 재므로 모든 PNG가 칸 크기가 됩니다. 자동 모드는 크기가 제각각인 시트에서 투명으로 떨어진 스프라이트를 찾고, 정렬(Normalize) 단계가 이를 공통 캔버스에 올립니다. 픽셀은 다시 그리지 않고 복사하며, 불투명 배경은 먼저 키 색으로 지울 수 있습니다. ZIP에는 시간, 이름, 히트박스가 들어 있지 않습니다.'],
+    terms:[['프레임 간 시간','GDevelop 애니메이션마다 하나인 프레임 시간(초). 1 ÷ FPS.'],['반복(Loop)','기본은 꺼짐: 한 번 재생. 켜면 반복.'],['Origin / Center','스프라이트 기본 점: 왼쪽 위 모서리, 이미지 크기의 절반.'],['Scale mode (Sampling)','프로젝트 설정. "nearest"면 픽셀아트가 선명하게 유지됨.']]},
+   example:{title:'예시: 세 행짜리 시트',lines:[
+    'hero.png 512 × 192 px: 64 × 64 칸이 3행(idle, run, attack) × 8열',
+    '  스프라이트 랩, 격자: 칸 64 × 64 → 64 × 64 PNG 24장이 든 hero-frames.zip',
+    '  hero_001 … hero_008 = idle   hero_009 … hero_016 = run   hero_017 … hero_024 = attack',
+    '',
+    'GDevelop 스프라이트 오브젝트 "Hero": 이미지 8장짜리 애니메이션 3개',
+    '  run 12 FPS    → 프레임 간 시간 = 1 / 12 = 0.083초',
+    '  idle 100 ms   → 0.1초             GDevelop 기본값 0.08초 = 12.5 FPS',
+    '  Origin (0, 0) 왼쪽 위      Center (32, 32) = 64 × 64의 절반'],
+    after:'그러면 run 한 바퀴는 8 × 0.083 ≈ 0.67초입니다. 애니메이션마다 프레임 시간이 하나뿐이므로, 두 배로 오래 머물러야 할 프레임은 두 번 넣으면 됩니다.'},
+   outputs:{lead:'기존 스프라이트 랩의 프레임 내려받기(GDevelop 전용 내보내기가 아님)입니다.',rows:[
+    ['hero-frames.zip','프레임마다 PNG 한 장, 이름은 시트를 따름.'],
+    ['hero_001.png …','읽는 순서대로 된 프레임. 파일 선택 창에서도 순서가 유지되도록 최소 세 자리로 0을 채우며, 격자 모드에서는 각 PNG가 칸 크기입니다.']]},
+   target:{title:'GDevelop에서 애니메이션 만들기(GDevelop 위키 기준, 여기서 실행하지 않음)',steps:[
+    '프레임 압축을 풉니다. GDevelop에서 새 오브젝트를 추가하고 Sprite를 고른 뒤 이름을 붙입니다.',
+    'Add an animation을 누르고 이름(idle)을 정합니다. 이미지 추가에서 `hero_001`부터 `hero_008`까지 한꺼번에 고릅니다. GDevelop은 보이는 순서대로 재생합니다.',
+    '시계 아이콘 옆에 프레임 간 시간을 넣습니다. 초 단위 1 ÷ FPS이며, 10 FPS면 0.1입니다.',
+    'idle과 run은 반복을 켜고, 한 번 나가는 attack은 끈 채로 둡니다.',
+    '행마다 반복한 뒤, 이벤트의 "Change the animation (by name)"으로 애니메이션을 바꿉니다.',
+    '픽셀아트라면 게임 속성에서 프로젝트 Scale mode(Sampling)를 nearest로 합니다.',
+    '오브젝트가 발을 기준으로 서야 한다면 Edit points에서 Origin 점을 옮기고, 애니메이션의 모든 이미지가 점을 공유하게 둡니다.']},
+   verify:{steps:[
+    '애니메이션마다 이미지가 파일 순서대로 있어야 합니다: idle 001–008, run 009–016, attack 017–024.',
+    '미리보기에서 run 한 바퀴가 프레임당 0.083초로 약 0.67초 걸려야 합니다.',
+    '모든 이미지가 64 × 64라서 프레임 사이에 캐릭터가 밀리지 않아야 합니다.',
+    'Scale mode가 nearest면 확대해도 픽셀 경계가 선명해야 합니다.']},
+   trouble:{rows:[
+    ['애니메이션이 한 번 재생되고 멈춤','반복이 기본적으로 꺼져 있음','해당 애니메이션의 반복 토글','반복 켜기'],
+    ['프레임 순서가 틀림','파일을 다른 순서로 골랐거나, 0을 채우지 않은 이름이 1, 10, 2 순으로 정렬됨','애니메이션 안의 이미지 순서','ZIP의 0 채운 이름을 쓰고 필요하면 이미지 순서 조정'],
+    ['캐릭터가 흔들림','프레임 크기가 제각각(자동 모드로 자름)이라 Origin과 Center가 그림의 다른 곳에 놓임','이미지 크기 비교','격자로 자르거나 내려받기 전에 정렬(Normalize) 실행. 애니메이션 전체에 점 공유'],
+    ['스프라이트가 흐림','Scale mode가 linear','게임 속성 › Scale mode','nearest로 설정'],
+    ['GIF의 들쭉날쭉한 시간이 일정하게 재생됨','애니메이션 하나에 프레임 간 시간이 하나뿐','원본 딜레이와 비교','오래 머물 프레임을 두 번 넣거나 동작을 애니메이션 두 개로 나누기'],
+    ['Piskel 가져오기가 시트를 잘못 자름','프레임 크기가 맞지 않거나 시트에 애니메이션이 여러 개 있음','Piskel Import and Merge 창의 프레임 상자','애니메이션 하나 기준으로 실제 프레임 크기를 넣거나 스프라이트 랩으로 자르기. [[game/sprite-sheet-frame-size|프레임 크기]] 참고']]},
+   alternatives:{rows:[
+    ['GDevelop 내장 Piskel: Import as Sprite sheet','프레임 간격이 고른 애니메이션 하나라면 다른 도구 없이 프레임이 바로 애니메이션에 들어갑니다.'],
+    ['Sprite Sheet Animations 확장','Tiled Sprite에 이미지 한 장을 두고 행·열이나 TexturePacker pixi.js JSON으로 프레임을 움직이고 싶을 때. Nerulio의 PixiJS 내보내기도 비슷한 `frames` + `animations` 구조를 쓰지만 이 확장으로 시험한 적은 없습니다.'],
+    ['어떤 도구에나 쓰는 낱장 프레임','같은 자르기를 엔진 전반에 맞춰 설명한 페이지: [[game/sprite-sheet-to-png-frames|스프라이트 시트를 PNG 프레임으로]].']]},
+   limits:['Nerulio에는 GDevelop 전용 내보내기가 없습니다. 시간·이름·히트박스 없이 PNG 프레임만 줍니다.','GDevelop으로 불러온 것은 없으며, GDevelop 단계는 위키를 따릅니다.','GDevelop 애니메이션마다 프레임 간 시간이 하나라서 들쭉날쭉한 시간은 프레임을 반복해 넣어야 합니다.'],
+   versions:{body:['Nerulio가 맡은 부분: 스프라이트 랩이 시트를 자르며, ZIP 안의 모든 PNG가 시트의 상자와 같고 확대나 보간이 없음을 측정했습니다. GDevelop은 실행하지 않았습니다. 오브젝트, 애니메이션, 반복, 프레임 시간, 점, Piskel, Scale mode에 관한 내용은 GDevelop 5 위키를 따릅니다.'],sources:GD_DOCS}
+  },
+  ja:{
+   answer:'GDevelopのスプライトオブジェクトは、アニメーションを1フレーム1枚の別々の画像で組み立てるので、スプライトシートは先に分割する必要があります。NerulioにはGDevelop専用の書き出しはなく、提供するのは普通のPNGフレームです。スプライトラボがグリッドを測り、フレームごとに同じ大きさのPNGを読み順に番号付き（`hero_001.png` …）でZIPにまとめて保存できます。GDevelopではアニメーションごとに1行分の画像を追加し、フレーム間の時間を秒（1 ÷ FPS、既定は0.08秒）で設定してループをオンにします。ここではGDevelopで何も読み込んでおらず、GDevelop側の手順はGDevelopのwikiに基づきます。',
+   concept:{title:'GDevelopがシートに求めるもの',body:[
+    'GDevelopのスプライトオブジェクトにはアニメーションがあり、アニメーションは表示されている順に再生される画像の一覧です。アニメーションごとに2フレーム間の時間が秒で1つ（既定0.08秒）あり、ループの切り替えがあります。ループしないと1回再生して最後のフレームで止まります。アニメーションに付けた名前は、イベントの「Change the animation (by name)」で使います。',
+    'エディター自体はPNGをフレームに分割しません。GDevelopには回り道が2つあります。内蔵のPiskelエディターはフレームが等間隔の1アニメーション分のシートを取り込めます。Sprite Sheet Animations拡張はTiled Spriteを行・列、またはTexturePackerのpixi.js形式のJSONで動かします。それ以外はフレームの画像を取り込みます。',
+    'どのスプライトも、画像の左上にあるOrigin点（オブジェクトの位置を決める）と、画像の大きさの半分の位置にあるCenter点（回転と反転の中心）から始まります。1つのアニメーションのフレームの大きさがばらばらだと、これらの点が絵の別の場所に来てキャラクターが揺れます。フレームの大きさをそろえれば防げますし、GDevelopはアニメーション内の全画像で同じ点を共有できます。',
+    'Nerulioが受け持つのは分割です。グリッドモードではスプライトラボがセルサイズ・余白・間隔を測るので、全PNGがセルの大きさになります。自動モードは大きさのばらばらなシートから透明で分かれたスプライトを見つけ、整列（Normalize）の段階で共通のキャンバスに載せます。ピクセルは描き直さずコピーし、不透明な背景は先にキーカラーで消せます。ZIPには時間・名前・ヒットボックスは入りません。'],
+    terms:[['フレーム間の時間','GDevelopのアニメーションごとに1つあるフレームの時間（秒）。1 ÷ FPS。'],['ループ','既定はオフで1回再生。オンで繰り返す。'],['Origin / Center','スプライトの既定の点：左上の角と、画像の大きさの半分。'],['Scale mode（Sampling）','プロジェクトの設定。"nearest"ならドット絵がくっきり保たれる。']]},
+   example:{title:'例：3行のシート',lines:[
+    'hero.png 512 × 192 px：64 × 64のセルが3行（idle、run、attack）× 8列',
+    '  スプライトラボ、グリッド：セル64 × 64 → 64 × 64のPNG 24枚入りのhero-frames.zip',
+    '  hero_001 … hero_008 = idle   hero_009 … hero_016 = run   hero_017 … hero_024 = attack',
+    '',
+    'GDevelopのスプライトオブジェクト「Hero」：画像8枚のアニメーション3つ',
+    '  run 12 FPS    → フレーム間の時間 = 1 / 12 = 0.083秒',
+    '  idle 100 ms   → 0.1秒             GDevelopの既定0.08秒 = 12.5 FPS',
+    '  Origin (0, 0) 左上      Center (32, 32) = 64 × 64の半分'],
+    after:'するとrunの1周は8 × 0.083 ≈ 0.67秒です。アニメーションごとにフレームの時間は1つだけなので、2倍長く止めたいフレームは2回追加します。'},
+   outputs:{lead:'従来のスプライトラボのフレーム保存（GDevelop専用の書き出しではありません）です。',rows:[
+    ['hero-frames.zip','フレームごとにPNG 1枚。名前はシートに由来。'],
+    ['hero_001.png …','読み順に並んだフレーム。ファイル選択画面でも順番が保たれるよう最低3桁にゼロ埋めし、グリッドモードでは各PNGがセルの大きさです。']]},
+   target:{title:'GDevelopでアニメーションを作る（GDevelopのwikiに基づく。ここでは未実行）',steps:[
+    'フレームを展開します。GDevelopで新しいオブジェクトを追加し、Spriteを選んで名前を付けます。',
+    'Add an animationを押して名前（idle）を付けます。画像の追加で`hero_001`から`hero_008`までをまとめて選びます。GDevelopは表示されている順に再生します。',
+    '時計のアイコンの横にフレーム間の時間を入れます。秒単位の1 ÷ FPSで、10 FPSなら0.1です。',
+    'idleとrunはループをオンにし、1回きりのattackはオフのままにします。',
+    '行ごとに繰り返し、イベントの「Change the animation (by name)」でアニメーションを切り替えます。',
+    'ドット絵なら、ゲームのプロパティでプロジェクトのScale mode（Sampling）をnearestにします。',
+    'オブジェクトを足元基準で立たせたいなら、Edit pointsでOrigin点を動かし、アニメーション内の全画像で点を共有したままにします。']},
+   verify:{steps:[
+    '各アニメーションの画像がファイルの順に並んでいるはずです：idle 001–008、run 009–016、attack 017–024。',
+    'プレビューでrunの1周が1フレーム0.083秒でおよそ0.67秒のはずです。',
+    '全画像が64 × 64なので、フレーム間でキャラクターがずれないはずです。',
+    'Scale modeがnearestなら、拡大してもピクセルの境界がくっきりしているはずです。']},
+   trouble:{rows:[
+    ['アニメーションが1回再生して止まる','ループは既定でオフ','そのアニメーションのループの切り替え','ループをオンにする'],
+    ['フレームの順番が違う','別の順番でファイルを選んだ、またはゼロ埋めしていない名前が1、10、2の順に並んだ','アニメーション内の画像の順序','ZIPのゼロ埋めの名前を使い、必要なら画像を並べ替える'],
+    ['キャラクターが揺れる','フレームの大きさがばらばら（自動モードで分割）で、OriginとCenterが絵の別の場所に来る','画像の大きさを比べる','グリッドで分割するか、保存前に整列（Normalize）を実行。アニメーション全体で点を共有'],
+    ['スプライトがぼやける','Scale modeがlinear','ゲームのプロパティ › Scale mode','nearestにする'],
+    ['GIFの不ぞろいな時間が均等に再生される','1つのアニメーションにフレーム間の時間は1つだけ','元のディレイと比べる','長く止めたいフレームを2回入れるか、動作を2つのアニメーションに分ける'],
+    ['Piskelの取り込みでシートがずれて切れる','フレームサイズが合っていない、またはシートに複数のアニメーションがある','PiskelのImport and Mergeウィンドウのフレームの枠','1アニメーション分の実際のフレームサイズを入れるか、スプライトラボで分割する。[[game/sprite-sheet-frame-size|フレームサイズ]]を参照']]},
+   alternatives:{rows:[
+    ['GDevelop内蔵のPiskel：Import as Sprite sheet','フレームが等間隔な1アニメーションなら、ほかのツールなしでフレームがそのままアニメーションに入ります。'],
+    ['Sprite Sheet Animations拡張','Tiled Spriteに画像1枚を置いたまま、行・列やTexturePackerのpixi.js JSONでフレームを動かしたいとき。NerulioのPixiJS書き出しも似た`frames` + `animations`の構造ですが、この拡張で試したことはありません。'],
+    ['どのツールにも使える個別フレーム','同じ分割をエンジン全般向けに説明したページ：[[game/sprite-sheet-to-png-frames|スプライトシートをPNGフレームへ]]。']]},
+   limits:['NerulioにはGDevelop専用の書き出しがありません。時間・名前・ヒットボックスなしのPNGフレームだけです。','GDevelopでは何も読み込んでおらず、GDevelopの手順はwikiに基づきます。','GDevelopのアニメーションはフレーム間の時間が1つなので、不ぞろいな時間はフレームの重複で表す必要があります。'],
+   versions:{body:['Nerulioが受け持つ部分：スプライトラボがシートを分割し、ZIP内の全PNGがシート上の枠と一致し、拡大や補間がないことを測定しました。GDevelopは動かしていません。オブジェクト、アニメーション、ループ、フレームの時間、点、Piskel、Scale modeについてはGDevelop 5のwikiに基づきます。'],sources:GD_DOCS}
   }
  }
 };
