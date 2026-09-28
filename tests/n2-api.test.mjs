@@ -279,6 +279,11 @@ test('authors edit and delete their own posts and comments; nobody else can',{sk
  assert.equal((await h.call('GET',`/posts/source?id=${p.id}`,{as:'a'})).json.body,'처음');
  assert.equal((await h.call('POST','/posts/edit',{as:'b',body:{postId:p.id,title:'남의 글 수정',body:'x'}})).status,404);
  assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'고친 제목',body:'고침'}})).status,200);
+ const src=(await h.call('GET',`/posts/source?id=${p.id}`,{as:'a'})).json;
+ assert(src.kinds.some(k=>k.id==='question')&&!src.kinds.some(k=>k.id==='report'),'tags the author may switch to');
+ assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'고친 제목',body:'고침',kind:'question'}})).status,200);
+ assert.equal(h.db.raw.prepare('SELECT kind FROM discussions WHERE id=?').get(p.id).kind,'question');
+ assert.equal((await h.call('POST','/posts/edit',{as:'a',body:{postId:p.id,title:'고친 제목',body:'고침',kind:'report'}})).status,400,'not into a 리포트');
  assert.ok(h.db.raw.prepare('SELECT edited_at FROM discussions WHERE id=?').get(p.id).edited_at);
  const c=(await h.call('POST','/comments',{as:'b',body:{postId:p.id,body:'댓글'}})).json;
  assert.equal((await h.call('POST','/comments/delete',{as:'a',body:{commentId:c.id}})).status,404,'the post author cannot delete others\' comments');

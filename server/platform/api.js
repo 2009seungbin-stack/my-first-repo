@@ -101,9 +101,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   }
   if(key==='GET /posts/source'){
    if(!context.user)throw new ApiError('LOGIN_REQUIRED');
-   const p=await db.prepare("SELECT title,body_md,author_id,status FROM discussions WHERE id=?").bind(String(url.searchParams.get('id')||'')).first();
+   const p=await db.prepare("SELECT d.title,d.body_md,d.author_id,d.status,d.kind,e.vertical FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(url.searchParams.get('id')||'')).first();
    if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
-   return done({title:String(p.title),body:String(p.body_md)});
+   // The tags the author may switch to (a 리포트 post stays one: it carries a structured report).
+   const l=url.searchParams.get('l')==='en'?'en':'ko';
+   const kinds=p.kind==='report'?[]:writableKinds(String(p.vertical)).filter(k=>k!=='report').map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][l]}));
+   return done({title:String(p.title),body:String(p.body_md),kind:String(p.kind),kinds});
   }
   if(key==='GET /mine'){
    // 내 글·댓글 for the 내 정보 page (the author's own, including locked posts).
@@ -190,14 +193,19 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done(r);
    }
    case 'POST /posts/edit':case 'POST /posts/delete':{
-    only(body,key==='POST /posts/edit'?['postId','title','body']:['postId']);
-    const p=await db.prepare("SELECT d.id,d.author_id,d.status,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+    only(body,key==='POST /posts/edit'?['postId','title','body','kind']:['postId']);
+    const p=await db.prepare("SELECT d.id,d.author_id,d.status,d.post_no,d.kind,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
     // Only the author, and only while the post is visible (a moderator-hidden post stays as the moderator left it).
     if(!p||p.author_id!==context.user.id||!(p.status==='published'||p.status==='locked'))throw new ApiError('NOT_FOUND');
     await limit('post-edit',10);
     if(key==='POST /posts/edit'){
      const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
-     await db.prepare('UPDATE discussions SET title=?,body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,now,now,p.id).run();
+     let kind=String(p.kind);
+     if(body.kind!==undefined&&body.kind!==kind){
+      if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+      kind=String(body.kind);
+     }
+     await db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,now,now,p.id).run();
     }else await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
     await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
     return done({ok:true});

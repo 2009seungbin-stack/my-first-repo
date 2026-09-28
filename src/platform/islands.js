@@ -193,7 +193,11 @@ async function main(){
  for(const box of $$('[data-island="outage-report"]')){
   $$('button',box).forEach(b=>{b.disabled=false;b.addEventListener('click',async()=>{
    const r=await write('/reports',{kind:'issue',entityId:box.dataset.entity,result:'broken',env:{symptom:b.dataset.symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn);
-   if(r){toast(T.thanks);b.classList.add('on');}
+   if(!r)return;
+   // Show it counted: one report per person per hour, so only the first click adds to the total.
+   const first=!$$('button.on',box).length;$$('button',box).forEach(x=>x.classList.toggle('on',x===b));
+   const tot=$('[data-total24]');if(tot&&first){const v=Number(tot.dataset.total24||0)+1;tot.dataset.total24=String(v);tot.textContent=String(v);}
+   toast(L==='ko'?'리포트를 반영했어요. 한 사람당 1시간에 한 번 셉니다.':'Counted. One report per person per hour.');
   });});
  }
 
@@ -206,13 +210,18 @@ async function main(){
   const pv=$('[data-island="post-vote"][data-report]');if(pv)for(const b of $$('button',pv).slice(1))b.hidden=true;
   $('[data-delete]',own).addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 글을 삭제할까요?':'Delete this post?'))return;const r=await write('/posts/delete',{postId:own.dataset.post},signedIn);if(r)location.href=location.pathname.replace(/\d+$/,'');});
   $('[data-edit]',own).addEventListener('click',async()=>{
-   const src=await api(`/posts/source?id=${encodeURIComponent(own.dataset.post)}`);if(!src.ok)return explain(src);
-   const art=$('article.post');const f=document.createElement('form');f.className='wform';
-   const ti=document.createElement('input');ti.name='title';ti.value=src.data.title;ti.maxLength=120;ti.setAttribute('aria-label',L==='ko'?'제목':'Title');
-   const ta=document.createElement('textarea');ta.name='body';ta.value=src.data.body;ta.maxLength=20000;ta.setAttribute('aria-label',L==='ko'?'본문':'Body');
-   const b=document.createElement('button');b.type='submit';b.className='btn p';b.textContent=L==='ko'?'수정 저장':'Save';
-   f.append(ti,ta,b);art.replaceChildren(f);ti.focus();
-   f.addEventListener('submit',async e=>{e.preventDefault();const r=await write('/posts/edit',{postId:own.dataset.post,title:ti.value,body:ta.value},signedIn);if(r)location.reload();});
+   const src=await api(`/posts/source?id=${encodeURIComponent(own.dataset.post)}&l=${L}`);if(!src.ok)return explain(src);
+   const art=$('article.post'),before=[...art.childNodes];const f=document.createElement('form');f.className='wform';
+   const field=(text,el)=>{const lb=document.createElement('label');lb.append(text,el);return lb;};
+   let sel=null;
+   if(src.data.kinds?.length){sel=document.createElement('select');sel.name='kind';for(const k of src.data.kinds){const o=document.createElement('option');o.value=k.id;o.textContent=k.label;o.selected=k.id===src.data.kind;sel.append(o);}}
+   const ti=document.createElement('input');ti.name='title';ti.value=src.data.title;ti.maxLength=120;ti.required=true;
+   const ta=document.createElement('textarea');ta.name='body';ta.value=src.data.body;ta.maxLength=20000;ta.rows=12;
+   const acts=document.createElement('div');acts.className='acts';
+   const c=document.createElement('button');c.type='button';c.className='btn';c.textContent=L==='ko'?'취소':'Cancel';c.addEventListener('click',()=>art.replaceChildren(...before));
+   const b=document.createElement('button');b.type='submit';b.className='btn p';b.textContent=L==='ko'?'수정 저장':'Save';acts.append(c,b);
+   f.append(...(sel?[field(L==='ko'?'말머리':'Tag',sel)]:[]),field(L==='ko'?'제목':'Title',ti),field(L==='ko'?'본문':'Body',ta),acts);art.replaceChildren(f);ti.focus();
+   f.addEventListener('submit',async e=>{e.preventDefault();if(!ta.value.trim())return toast(T.empty);const r=await write('/posts/edit',{postId:own.dataset.post,title:ti.value,body:ta.value,...(sel?{kind:sel.value}:{})},signedIn);if(r)location.reload();});
   });
  }
  // The question's author accepts an answer
