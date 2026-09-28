@@ -114,27 +114,21 @@
         {
           "p": "gpu_backends",
           "v": [
-            "BLAS",
-            "BLIS",
-            "CANN",
             "CUDA",
             "HIP",
-            "Hexagon",
-            "IBM zDNN",
-            "MUSA",
             "Metal",
-            "OpenCL",
-            "OpenVINO (in progress)",
-            "RPC",
-            "SYCL",
-            "VirtGPU",
             "Vulkan",
-            "WebGPU",
-            "ZenDNN"
+            "SYCL",
+            "MUSA",
+            "OpenCL",
+            "CANN",
+            "Hexagon",
+            "VirtGPU",
+            "WebGPU"
           ],
           "ver": "OFFICIAL",
           "src": "src:rt-llama-cpp-readme",
-          "note": "The README's 'Supported backends' table; CPU inference (x86 AVX/AVX2/AVX512/AMX, ARM NEON, RISC-V) is built in."
+          "note": "GPU/NPU rows of the README's 'Supported backends' table: CUDA (Nvidia GPU), HIP (AMD GPU), Metal (Apple Silicon), Vulkan (GPU), SYCL (Intel GPU), MUSA (Moore Threads GPU), OpenCL (Adreno GPU), CANN (Ascend NPU), Hexagon (Snapdragon), VirtGPU, WebGPU. The table also lists CPU/BLAS-type backends (BLAS, BLIS, ZenDNN, IBM zDNN), RPC and OpenVINO [In Progress]; CPU inference is built in."
         },
         {
           "p": "homepage",
