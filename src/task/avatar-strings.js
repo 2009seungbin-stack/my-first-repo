@@ -7,3 +7,6 @@ export const COPY={
 Object.assign(COPY.en,{pickBackground:'Choose local background',removeBackground:'Remove local background',backgroundLoaded:'Local background: ',backgroundHint:'A local image overrides the built-in background. It is reduced to the 16 px grid and never included in a settings link.',backgroundError:'Use a PNG, JPEG or WebP under 20 MiB and 8192 pixels per side.'});
 Object.assign(COPY.ko,{pickBackground:'로컬 배경 선택',removeBackground:'로컬 배경 제거',backgroundLoaded:'로컬 배경: ',backgroundHint:'로컬 이미지는 기본 배경보다 우선하며 16px 격자로 축소됩니다. 설정 링크에는 포함되지 않습니다.',backgroundError:'20MiB 이하, 한 변 8192px 이하의 PNG·JPEG·WebP를 선택하세요.'});
 Object.assign(COPY.ja,{pickBackground:'端末の背景を選択',removeBackground:'端末の背景を削除',backgroundLoaded:'端末の背景: ',backgroundHint:'端末の画像が標準背景より優先され、16pxグリッドに縮小されます。設定リンクには含まれません。',backgroundError:'20MiB以下、各辺8192px以下のPNG・JPEG・WebPを選んでください。'});
+Object.assign(COPY.en,{nativeShare:'Share card file',shareUnavailable:'This browser cannot share image files; download the card instead.',shareCanceled:'Sharing was canceled.'});
+Object.assign(COPY.ko,{nativeShare:'카드 파일 공유',shareUnavailable:'이 브라우저는 이미지 파일 공유를 지원하지 않습니다. 카드를 다운로드하세요.',shareCanceled:'공유를 취소했습니다.'});
+Object.assign(COPY.ja,{nativeShare:'カード画像を共有',shareUnavailable:'このブラウザは画像ファイルの共有に非対応です。カードを保存してください。',shareCanceled:'共有を中止しました。'});

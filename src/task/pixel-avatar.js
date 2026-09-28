@@ -43,7 +43,7 @@ export function mount({el}){
   <label>${esc(c.outfitPalette)}<select data-palette="outfitPalette">${PALETTES.outfit.map(id=>`<option value="${id}" ${state.outfitPalette===id?'selected':''}>${esc(c[id])}</option>`).join('')}</select></label></div>
   <div class="avatar-background"><button type="button" data-action="pick">${esc(c.pickBackground)}</button>${backgroundFile?`<button type="button" data-action="remove-background">${esc(c.removeBackground)}</button><span>${esc(c.backgroundLoaded+backgroundFile.name)}</span>`:''}<small>${esc(c.backgroundHint)}</small></div>
   <div class="avatar-export"><h2>${esc(c.png)}</h2><label>${esc(c.size)}<select id="avatarSize">${[32,48,64,128,256,512,1024,4096].map(n=>`<option value="${n}" ${size===n?'selected':''}>${n} × ${n}</option>`).join('')}</select></label>
-  <div class="avatar-export-buttons"><button type="button" class="primary" data-action="png" ${busy?'disabled':''}>${esc(c.png)}</button><button type="button" data-action="gif" ${busy?'disabled':''}>${esc(c.gif)}</button><button type="button" data-action="card" ${busy?'disabled':''}>${esc(c.card)}</button><button type="button" data-action="cancel" ${busy?'':'hidden'}>${esc(c.cancel)}</button></div></div></section></div>
+  <div class="avatar-export-buttons"><button type="button" class="primary" data-action="png" ${busy?'disabled':''}>${esc(c.png)}</button><button type="button" data-action="gif" ${busy?'disabled':''}>${esc(c.gif)}</button><button type="button" data-action="card" ${busy?'disabled':''}>${esc(c.card)}</button>${navigator.share&&navigator.canShare?`<button type="button" data-action="native-share" ${busy?'disabled':''}>${esc(c.nativeShare)}</button>`:''}<button type="button" data-action="cancel" ${busy?'':'hidden'}>${esc(c.cancel)}</button></div></div></section></div>
   <div class="avatar-share"><button type="button" data-action="link">${esc(c.link)}</button><a href="${esc(x)}" target="_blank" rel="noopener noreferrer">${esc(c.x)}</a><a href="${esc(line)}" target="_blank" rel="noopener noreferrer">${esc(c.line)}</a></div>
   <p class="avatar-note">${esc(c.local)}</p><p class="avatar-note">${esc(c.license)}</p><p class="avatar-note">${esc(c.gifNote)}</p></div>`;
   preview();
@@ -67,13 +67,18 @@ export function mount({el}){
    if(event.data?.id!==id||worker!==job)return;
    if(event.data.type==='result'){
     const ext=kind==='gif'?'gif':'png',suffix=kind==='card'?'card':String(outputSize);
-    download(event.data.blob,`${NAME}-${suffix}.${ext}`);say('statusDone');busy=false;worker.terminate();job=null;render();
+    if(kind==='native-share'){
+     const file=new File([event.data.blob],`${NAME}-card.png`,{type:'image/png'});
+     if(!navigator.canShare?.({files:[file]}))say('shareUnavailable');
+     else navigator.share({files:[file],title:'Nerulio Pixel Avatar'}).then(()=>say('statusDone')).catch(error=>say(error?.name==='AbortError'?'shareCanceled':'shareUnavailable'));
+    }else{download(event.data.blob,`${NAME}-${suffix}.${ext}`);say('statusDone');}
+    busy=false;worker.terminate();job=null;render();
    }else if(event.data.type==='error'){
     say('statusError',event.data.message);busy=false;worker.terminate();job=null;render();
    }
   };
   worker.onerror=e=>{say('statusError',e.message);busy=false;worker.terminate();job=null;render();};
-  worker.postMessage({id,kind,state,size:outputSize,delay:125,background:backgroundFile});
+  worker.postMessage({id,kind:kind==='native-share'?'card':kind,state,size:outputSize,delay:125,background:backgroundFile});
  }
  el.addEventListener('click',async event=>{
   const choice=event.target.closest('[data-choice]');if(choice){update({...state,[choice.dataset.category]:choice.dataset.choice});return;}
@@ -85,7 +90,7 @@ export function mount({el}){
   if(action==='redo')restore(future,past);
   if(action==='reset')update(DEFAULT);
   if(action==='remove-background'&&backgroundBitmap){backgroundBitmap.close();backgroundBitmap=null;backgroundFile=null;render();}
-  if(['png','gif','card'].includes(action))await exportFile(action);
+  if(['png','gif','card','native-share'].includes(action))await exportFile(action);
   if(action==='cancel'&&job){job.terminate();job=null;busy=false;say('statusCancel');render();}
   if(action==='link'){
    try{await navigator.clipboard.writeText(link());say('statusLink');}
