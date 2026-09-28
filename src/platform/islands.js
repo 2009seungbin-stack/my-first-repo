@@ -452,6 +452,7 @@ async function main(){
     }
    }
    const lg=$('[data-log]');
+   if(!log.length){const li=document.createElement('li');li.className='empty';li.textContent=ko?'아직 처리 기록이 없습니다.':'No actions yet.';lg.append(li);}
    for(const x of log){const li=document.createElement('li');li.className='fine';li.textContent=`${when(x.created_at)} · ${ACTION[x.action]||x.action} · ${KIND[x.target_kind]||x.target_kind} ${x.label?`「${x.label}」`:String(x.target_id).slice(0,14)} · ${x.reason||''}`;lg.append(li);}
   }
  }
