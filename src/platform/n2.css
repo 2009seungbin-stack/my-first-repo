@@ -409,3 +409,4 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .ha{font-size:.6em;font-weight:600;color:var(--mute)}.sthero .sth{margin:2px 0 4px;font-weight:700}
 .ph1tags{margin:0 0 4px;display:flex;gap:6px;align-items:center}
 @media (max-width:640px){.hchart{min-width:0;padding-inline:4px}}
+.mt.vs{width:100%;table-layout:fixed}.mt.vs th,.mt.vs td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.mt.vs thead th:first-child,.mt.vs tbody th{width:28%}
