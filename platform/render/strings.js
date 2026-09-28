@@ -40,13 +40,13 @@ const S={
    plans:'요금제 (월)',apps:'앱',developer:'개발자',provider:'제공사',priceNote:'세금 별도 · 공식 요금 페이지 기준',
    // game
    latestUpdate:'최신 업데이트',currentVersion:'현재 버전',previous:(/** @type {string} */ v,/** @type {number} */ d)=>`이전 ${v} · ${d}일 만`,patchNotes:'패치 노트 원문 ↗',noVersion:'수집된 업데이트 기록이 없습니다.',
-   koreanOfficial:'공식 한국어',koreanPatch:'한글패치',noPatch:'등록된 한글패치 없음',patchAuthor:'제작자',linkOnly:'배포처 링크만',
+   koreanOfficial:'공식 한국어',koreanPatch:'한글패치',noPatch:'등록된 한글패치 없음',patchAuthor:'제작자',linkOnly:'배포처로 이동',
    compatWith:(/** @type {string} */ v)=>`${v} 호환`,works:'✓ 작동',partial:'◐ 일부',broken:'✕ 안 됨',thisWeek:'이번 주',noEvents:'예정된 공식 일정 없음',
    compatTable:'한글패치 호환표',lastUpdate:'마지막 업데이트',
    // gpu
    driver:'최신 드라이버',driverOk:'업데이트 후 괜찮나요?',noProblem:'문제 없음',problem:'문제 있음',noDriver:'드라이버 정보 없음',
    localAi:'이 카드로 로컬 AI',estimateMethod:'≈ 추정 · 방법 보기',fits:'여유',tight:'빠듯',noFit:'불가',measured:(/** @type {number} */ n)=>`측정 ${n}건`,noMeasure:'측정 리포트 없음',
-   benchBoard:'커뮤니티 벤치 보드',benchNote:'환경이 제각각 — 중앙값과 건수를 함께 봄',benchEmpty:'아직 벤치 리포트가 없습니다. 첫 측정을 올려 주세요.',task:'작업',setting:'설정',median:'중앙값',count:'건수',
+   benchBoard:'커뮤니티 벤치 보드',benchNote:'환경이 제각각 — 중앙값과 건수를 함께 봄',benchEmpty:'아직 벤치 리포트가 없습니다. 첫 측정을 올려 주세요.',task:'모델',setting:'설정',median:'중앙값',count:'건수',
    similar:'비슷한 카드',postBench:'벤치 올리기',
    // studio
    upgrade:'업그레이드해도 될까?',osCompat:'OS 호환',pluginCompat:'플러그인 호환',latestVersion:'최신 버전',plugins:(/** @type {number} */ n)=>`이 앱에서 쓰는 플러그인 ${n}개`,
@@ -95,7 +95,7 @@ const S={
    compatTable:'Korean patch compatibility',lastUpdate:'Last update',
    driver:'Latest driver',driverOk:'Any problems after updating?',noProblem:'No problems',problem:'Problems',noDriver:'No driver data',
    localAi:'Local AI on this card',estimateMethod:'≈ Estimate · method',fits:'Fits',tight:'Tight',noFit:'No',measured:(/** @type {number} */ n)=>`${n} measured`,noMeasure:'No measurements yet',
-   benchBoard:'Community benchmarks',benchNote:'Setups differ — read the median with the count',benchEmpty:'No benchmark reports yet. Post the first measurement.',task:'Task',setting:'Setup',median:'Median',count:'Reports',
+   benchBoard:'Community benchmarks',benchNote:'Setups differ — read the median with the count',benchEmpty:'No benchmark reports yet. Post the first measurement.',task:'Model',setting:'Setup',median:'Median',count:'Reports',
    similar:'Similar cards',postBench:'Post a benchmark',
    upgrade:'Safe to upgrade?',osCompat:'OS compatibility',pluginCompat:'Plugin compatibility',latestVersion:'Latest version',plugins:(/** @type {number} */ n)=>`${n} plugins used in this app`,
    nextUp:'Next up',countdown:{d:'d',h:'h',m:'m'},schedule:'Upcoming',goods:'Merchandise & pre-orders',goodsNote:'Official product pages only',preorderEnds:(/** @type {string} */ d)=>`closes ${d}`,releases:(/** @type {string} */ d)=>`ships ${d}`,

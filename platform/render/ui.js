@@ -106,11 +106,27 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <a href="${frontUrl(o.l)}"${o.homeOn?html` class="on" aria-current="page"`:''}>${s.home}</a><a href="${frontUrl(o.l)}best/">${s.allBest}</a><span class="sep" aria-hidden="true"></span>
 ${o.channels.map(c=>html`<a href="${c.href}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}
 </div></nav>
-<div class="w pg" id="main">${o.body}</div>
+${String(o.body).includes('<main')?html`<div class="w pg" id="main">${o.body}</div>`:html`<main class="w pg" id="main">${o.body}</main>`}
 <footer class="ft"><div class="w"><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a> · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a></div></footer>
 </body>
 </html>`;
 }
 
 /** Official link list for the wiki box. @param {{label:string,url:string}[]} urls */
-export const officialLinks=urls=>urls.slice(0,6).map(u=>html`<a href="${safeHref(u.url)}" rel="noopener" target="_blank">${u.label} ↗</a>`);
+/** Korean names for the seed's English link labels ("Official site (JP)" → "공식 사이트 (일본)");
+ * names of services (Steam, GitHub, Laftel …) stay as they are. */
+const LINK_KO=/** @type {[RegExp,string][]} */([[/^Official site$/,'공식 사이트'],[/^Official website$/,'공식 사이트'],[/^Website$/,'웹사이트'],[/^Product page$/,'제품 페이지'],[/^Model page$/,'모델 페이지'],[/^Author page$/,'제작자 페이지'],
+ [/^Release notes$/,'릴리스 노트'],[/^Pricing$/,'요금 안내'],[/^Docs$/,'문서'],[/^API docs$/,'API 문서'],[/^Announcement$/,'발표'],[/^Datasheet$/,'데이터시트'],[/^Specifications$/,'사양'],[/^Downloads$/,'다운로드'],[/^Support$/,'지원'],
+ [/^Requirements$/,'요구 사항'],[/^macOS compatibility$/,'macOS 호환성'],[/^Korean official site$/,'한국 공식 사이트'],[/^Korean name credit$/,'한국어 이름 출처'],[/^Korean name source/,'한국어 이름 출처'],
+ [/^Anime official site$|^Official anime site$/,'애니 공식 사이트'],[/^Film official site$/,'극장판 공식 사이트'],[/^Official portal$/,'공식 포털']]);
+const PAREN_KO=/** @type {Record<string,string>} */({JP:'일본',JA:'일본어',EN:'영어',KR:'한국',KO:'한국어',docs:'문서',US:'미국'});
+/** @param {string} label @param {string} l */
+export function linkLabel(label,l){
+ if(l!=='ko')return label;
+ const m=/^(.*?)(?:\s*\(([^)]+)\))?$/.exec(label.trim());const base=m?.[1]||label,paren=m?.[2];
+ const hit=LINK_KO.find(([re])=>re.test(base));
+ if(!hit)return label;
+ return paren?`${hit[1]} (${PAREN_KO[paren]||paren})`:hit[1];
+}
+/** @param {{url:string,label:string}[]} urls @param {string} [l] */
+export const officialLinks=(urls,l='en')=>urls.slice(0,6).map(u=>html`<a href="${safeHref(u.url)}" rel="noopener" target="_blank">${linkLabel(u.label,l)} ↗</a>`);

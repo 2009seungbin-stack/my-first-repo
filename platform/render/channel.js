@@ -83,8 +83,8 @@ export function renderChannel(m,site){
  const subtitle=td?label(td.label,l):'';
  const desc=e.descriptions[l]||e.descriptions.en||'';
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
-<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${subtitle}${v?html` · <a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
-<span class="fine">${s.followers} ${compact(m.stats.followers,l)} · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
+<div class="chm"><div class="chn1"><h1>${s.channel(name)}</h1><span class="fine">${v&&label(v.label,l)===subtitle?'':subtitle}${v?html`${label(v.label,l)===subtitle?'':' · '}<a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
+<span class="fine">${s.followers} <span data-followers="${m.stats.followers}">${compact(m.stats.followers,l)}</span> · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
 <div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.follow}</a><a class="btn p" href="${base}write">${s.write}</a></div></section>`;
  const kinds=writableKinds(e.vertical).concat(['news']).filter((k,i,a)=>a.indexOf(k)===i);
  const tabOrder=Object.keys(POST_KINDS).filter(k=>kinds.includes(k));
@@ -97,7 +97,7 @@ export function renderChannel(m,site){
 ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard}</p>`}${pager}</section>`;
  const trending=m.trending.length?html`<section class="box kwb"><b>${s.trending}</b>${m.trending.map(k=>html`<a class="kw" href="/${l}/search/?in=${encodeURIComponent(e.id)}&amp;q=${encodeURIComponent(k)}">${k}</a>`)}</section>`:'';
  const wikiRows=m.panel.wiki(m.data,ctx);
- const links=officialLinks(e.official_urls);
+ const links=officialLinks(e.official_urls,l);
  const lastSeen=Math.max(0,...ctx.facts.map(f=>f.observed_at||0));
  const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${lastSeen?html`<span>${l==='ko'?`${dateText(lastSeen,'day',l).slice(5)} 확인`:`checked ${dateText(lastSeen,'day',l)}`}</span> · `:''}${s.history}</a></div>${wikiRows}
 ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;

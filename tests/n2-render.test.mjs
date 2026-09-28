@@ -121,7 +121,10 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  const row=await d.prepare("SELECT post_no FROM discussions WHERE entity_id=? AND title LIKE 'Opus 5.5로%'").bind(entity.id).first();
  const m=await loadPost(d,entity,Number(row.post_no),{l:'ko',now:NOW});
  const out=String(renderPost(m,SITE));
- assert(out.includes('댓글 2')&&out.includes('class="co bestc"')&&out.includes('class="co re"'));
+ assert(out.includes('댓글 2')&&out.includes('class="co re"'));
+ assert(!out.includes('class="co bestc"'),'with two comments the best one is not pinned twice');
+ const withThree={...m,comments:[...m.comments,{...m.comments[0],id:'c-extra',parent_id:null,up:0}]};
+ assert(String(renderPost(withThree,SITE)).includes('class="co bestc"'),'with three or more the best comment is pinned on top');
  assert(out.includes('aria-current="page"'),'current post marked in the list');
  assert(out.includes('"@type":"DiscussionForumPosting"'));
  assert.equal(await loadPost(d,entity,999999,{l:'ko',now:NOW}),null);

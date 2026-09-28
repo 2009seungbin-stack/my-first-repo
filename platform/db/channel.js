@@ -203,7 +203,7 @@ export async function frontPosts(db,o){
  if(o.mode==='best')where.push('d.best_at IS NOT NULL');
  if(o.mode==='news')where.push("d.kind='news'","d.author_id LIKE 'system:%'");
  if(o.mode==='kind'&&o.kind){where.push('d.kind=?');params.push(o.kind);}
- if(o.unanswered)where.push('d.solved_comment_id IS NULL');
+ if(o.unanswered)where.push('d.solved_comment_id IS NULL','d.comment_count=0');   // nobody has replied yet
  const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':'d.created_at DESC';
  return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow);
 }

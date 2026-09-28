@@ -346,7 +346,9 @@ async function report(db,context,body,now,limit,origin){
  const RESULT_KO=/** @type {Record<string,string>} */({works:'작동',works_with_issues:'일부 문제',broken:'안 됨'});
  // "테스트 게임 한글패치 1.7 × 테스트 게임 2.3.1: 작동" — names in Korean, the report language.
  const nm=(/** @type {{names:Record<string,string>}} */ x)=>x.names.ko||x.names.en||'';
- const title=body.title?text(body.title,[2,120],'title'):(target?`${nm(subject)}${sv?' '+sv:''} × ${nm(target)}${tv?' '+tv:''}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
+ // The game's name is not repeated: "Caves of Qud 한글패치 (qudkorean) × Caves of Qud 1.04" → "한글패치 (qudkorean) × 1.04".
+ const subj=target&&nm(subject).startsWith(nm(target)+' ')?nm(subject).slice(nm(target).length+1):nm(subject);
+ const title=body.title?text(body.title,[2,120],'title'):(target?`${subj}${sv?' '+sv:''} × ${subj===nm(subject)?nm(target)+(tv?' '+tv:''):(tv||nm(target))}: ${RESULT_KO[result]}`:`${nm(subject)}${sv?' '+sv:''}: ${RESULT_KO[result]}`).slice(0,120);
  const postId=randomToken(12);
  const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
  await recompute();

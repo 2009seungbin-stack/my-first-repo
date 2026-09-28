@@ -6,9 +6,9 @@
 const L=document.documentElement.lang==='en'?'en':'ko';
 const T={
  ko:{login:'로그인',needLogin:'로그인하면 참여할 수 있어요. 로그인 페이지로 이동할까요?',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
  en:{login:'Sign in',needLogin:'Sign in to take part. Go to the sign-in page?',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
 }[L];
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 async function api(path,body){
@@ -47,7 +47,8 @@ function explain(res){
 }
 /** Run a write; signed-out readers are sent to sign in first. */
 async function write(path,body,signedIn){
- if(!signedIn){location.href=loginUrl();return null;}
+ // Say why before leaving the page for sign-in.
+ if(!signedIn){if(confirm(T.needLogin))location.href=loginUrl();return null;}
  const res=await api(path,body);
  if(!res.ok){explain(res);return null;}
  return res.data||{};
@@ -113,6 +114,8 @@ async function main(){
    const want=btn.getAttribute('aria-pressed')!=='true';
    const r=await write('/follow',{entityId:box.dataset.entity,follow:want},signedIn);if(!r)return;
    btn.setAttribute('aria-pressed',String(want));btn.textContent=want?T.following:T.follow;btn.classList.toggle('on',want);
+   const n=$('[data-followers]');if(n){const v=Math.max(0,Number(n.dataset.followers||0)+(want?1:-1));n.dataset.followers=String(v);n.textContent=v.toLocaleString(L==='ko'?'ko-KR':'en-US');}
+   toast(want?T.followed:T.unfollowed);
   });
  }
 
@@ -182,6 +185,9 @@ async function main(){
  const own=$('[data-island="own-post"]');
  if(own&&st.mine?.post){
   own.hidden=false;
+  // No reporting or "same here" on one's own post.
+  for(const a of $$('.pact a[href*="/community/report"]'))a.hidden=true;
+  const pv=$('[data-island="post-vote"][data-report]');if(pv)for(const b of $$('button',pv).slice(1))b.hidden=true;
   $('[data-delete]',own).addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 글을 삭제할까요?':'Delete this post?'))return;const r=await write('/posts/delete',{postId:own.dataset.post},signedIn);if(r)location.href=location.pathname.replace(/\d+$/,'');});
   $('[data-edit]',own).addEventListener('click',async()=>{
    const src=await api(`/posts/source?id=${encodeURIComponent(own.dataset.post)}`);if(!src.ok)return explain(src);
@@ -248,7 +254,7 @@ async function main(){
  // Benchmark (GPU local-LLM page)
  const bf=$('form[data-island="bench-form"]');
  if(bf)bf.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(bf);
-  const r=await write('/reports',{kind:'benchmark',entityId:String(fd.get('model')),targetId:bf.dataset.gpu,metrics:{tokens_per_s:Number(fd.get('tps'))},env:Object.fromEntries([['runtime',fd.get('runtime')],['quant',fd.get('quant')],['ctx',fd.get('ctx')],['os',fd.get('os')]].filter(([,v])=>v).map(([k,v])=>[k,String(v)]))},signedIn);
+  const r=await write('/reports',{kind:'benchmark',entityId:String(fd.get('model')),targetId:bf.dataset.gpu,metrics:{tokens_per_s:Number(String(fd.get('tps')).replace(',','.'))},env:Object.fromEntries([['runtime',fd.get('runtime')],['quant',fd.get('quant')],['ctx',fd.get('ctx')],['os',fd.get('os')]].filter(([,v])=>v).map(([k,v])=>[k,String(v)]))},signedIn);
   if(r){toast(T.thanks);setTimeout(()=>location.reload(),900);}});
 
  // 신고 form

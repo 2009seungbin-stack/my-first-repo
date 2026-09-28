@@ -41,7 +41,9 @@ export function renderPost(m,site){
  const name=nameOf(e,l),base=channelUrl(l,e),url=postUrl(l,e,p.post_no);
  const top=m.comments.filter(c=>!c.deleted).sort((a,b)=>b.up-a.up);
  const accepted=p.solved?m.comments.find(c=>c.id===p.solved&&!c.deleted)||null:null;
- const best=accepted?null:top[0]&&top[0].up>=BEST_COMMENT_MIN&&(!top[1]||top[0].up>top[1].up)?top[0]:null;
+ // Pinned above the thread only when there is a thread to skip (3+ comments); with one or two it
+ // would show the same comment twice.
+ const best=accepted||top.length<3?null:top[0]&&top[0].up>=BEST_COMMENT_MIN&&(!top[1]||top[0].up>top[1].up)?top[0]:null;
  /** @type {Map<string|null,typeof m.comments>} */const kids=new Map();
  for(const c of m.comments){const k=c.parent_id;kids.set(k,[...(kids.get(k)||[]),c]);}
  const comment=(/** @type {(typeof m.comments)[number]} */ c,/** @type {number} */ depth,/** @type {boolean} */ pinned=false)=>html`<li class="co${depth?' re':''}${pinned?' bestc':''}${c.deleted?' del':''}" id="${pinned?'best-':''}c-${c.id}"><div class="h">${depth?'↳ ':''}${pinned&&accepted&&c.id===accepted.id?html`<span class="bb ok">${l==='ko'?'✓ 채택된 답변':'✓ Accepted answer'}</span>`:pinned?html`<span class="bb">${s.bestComment}</span>`:''}${author({author_name:c.author_name,author_tier:c.author_tier},l)}${c.author_id===p.author_id?html`<span class="op">${s.op}</span>`:''}<span class="fine">${boardTime(c.created_at,now,l)}</span></div>

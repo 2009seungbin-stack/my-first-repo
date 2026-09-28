@@ -38,8 +38,8 @@ ${m.models.map(x=>html`<tr><td><a href="${channelUrl(l,x.entity)}">${nameOf(x.en
 <div class="row"><label>${ko?'모델':'Model'}<select name="model" required>${m.models.filter(x=>x.est.Q4_K_M?.verdict!=='does_not_fit').map(x=>html`<option value="${x.entity.id}">${nameOf(x.entity,l)}</option>`)}</select></label>
 <label>${ko?'실행기':'Runtime'}<select name="runtime"><option>llama.cpp</option><option>Ollama</option><option>LM Studio</option><option>vLLM</option><option>ExLlamaV2</option></select></label>
 <label>${ko?'양자화':'Quantization'}<select name="quant"><option>Q4_K_M</option><option>Q5_K_M</option><option>Q6_K</option><option>Q8_0</option><option>FP16</option></select></label></div>
-<div class="row"><label>${ko?'컨텍스트':'Context'}<input name="ctx" inputmode="numeric" pattern="[0-9]{3,7}" placeholder="8192"></label>
-<label>${ko?'생성 속도 (tok/s)':'Generation (tok/s)'}<input name="tps" inputmode="decimal" required pattern="[0-9]{1,4}([.][0-9]{1,2})?" placeholder="42.5"></label>
+<div class="row"><label>${ko?'컨텍스트 (선택)':'Context (optional)'}<input name="ctx" inputmode="numeric" pattern="[0-9]{3,7}" placeholder="8192"></label>
+<label>${ko?'생성 속도 (tok/s)':'Generation (tok/s)'}<input name="tps" inputmode="decimal" required pattern="[0-9]{1,4}([.,][0-9]{1,2})?" placeholder="42.5" title="${ko?'숫자, 소수점 둘째 자리까지 (예: 42.5)':'A number, up to two decimals (e.g. 42.5)'}"></label>
 <label>${ko?'드라이버 / OS (선택)':'Driver / OS (optional)'}<input name="os" maxlength="60" placeholder="${ko?'예: 581.xx · Windows 11':'e.g. Windows 11'}"></label></div>
 <div class="acts"><button class="btn p" type="submit" data-label="${ko?'올리기':'Post'}">${ko?'올리기':'Post'}</button></div></form>`);
  const body=html`<div class="crumb"><a class="chl" href="${base}">${ko?`${name} 채널`:name}</a><span class="sp"></span><a class="btn" href="${base}">${ko?'채널로':'Channel'}</a></div>${summary}${table}${form}`;
