@@ -1,0 +1,1441 @@
+{
+ "schema": "nerulio.seed/1",
+ "vertical": "studio",
+ "sources": [
+  {
+   "id": "src:fender-studio-pro-8-quick-start",
+   "kind": "OFFICIAL",
+   "url": "https://www.fmicassets.com/sites/fender.com/fender-studio/QSG_Fender-Studio-Pro-8_EN.pdf",
+   "title": "Fender Studio Pro 8 Quick Start Guide (PDF)",
+   "publisher": "Fender / PreSonus",
+   "retrieved": "2026-09-28",
+   "note": "System requirements: macOS 13 Ventura or higher (support ends 2026-12-31); Windows 10 22H2 64-bit (support ends 2026-12-31) and Windows 11 22H2 or higher; Linux public beta (Ubuntu 24.04+); Intel Core i3 / Apple M1 / AMD A10 / Snapdragon X or better."
+  },
+  {
+   "id": "src:presonus-macos-26-compatibility",
+   "kind": "OFFICIAL",
+   "url": "https://support.presonus.com/hc/en-us/articles/39570418779277-macOS-26-Tahoe-iOS-26-iPadOS-26-Compatibility-with-PreSonus-products",
+   "title": "macOS 26 - Tahoe / iOS 26 / iPadOS 26 Compatibility with PreSonus products",
+   "publisher": "PreSonus",
+   "retrieved": "2026-09-28",
+   "note": "Supported systems: Apple M1-M4 native and Rosetta 2, Intel x64 native. Supported software: Fender Studio Pro 8.0, Studio One Pro 7.2.2."
+  },
+  {
+   "id": "src:presonus-upgrade-studio-one-to-fender-studio-pro",
+   "kind": "OFFICIAL",
+   "url": "https://support.presonus.com/hc/en-us/articles/43497761655565-Upgrading-Studio-One-to-Fender-Studio-Pro",
+   "title": "Upgrading Studio One to Fender Studio Pro",
+   "publisher": "PreSonus",
+   "retrieved": "2026-09-28",
+   "note": "Studio One upgrades lead to Fender Studio Pro 8 in the my.fender.com account."
+  },
+  {
+   "id": "src:cockos-reaper-download",
+   "kind": "OFFICIAL",
+   "url": "https://www.reaper.fm/download.php",
+   "title": "REAPER | Download",
+   "publisher": "Cockos",
+   "retrieved": "2026-09-28",
+   "note": "Version 7.80 (2026-09-13). Supports Windows XP to Windows 11 (Windows 11 arm64ec build in beta), Linux on Intel and ARM, macOS 10.5 to macOS 26; macOS Universal build for Intel and ARM64."
+  },
+  {
+   "id": "src:cockos-reaper-whatsnew",
+   "kind": "FEED",
+   "url": "https://www.reaper.fm/whatsnew.txt",
+   "title": "REAPER whatsnew.txt (full changelog)",
+   "publisher": "Cockos",
+   "retrieved": "2026-09-28",
+   "note": "Plain-text changelog with \"vX.YY - Month D YYYY\" headings."
+  },
+  {
+   "id": "src:cockos-reaper-about",
+   "kind": "OFFICIAL",
+   "url": "https://www.reaper.fm/about.php",
+   "title": "REAPER | About",
+   "publisher": "Cockos",
+   "retrieved": "2026-09-28",
+   "note": "Plug-in support: VST, VST3, LV2, CLAP, DX (Windows only), AU (macOS only), JSFX."
+  },
+  {
+   "id": "src:cockos-reaper-purchase",
+   "kind": "OFFICIAL",
+   "url": "https://www.reaper.fm/purchase.php",
+   "title": "REAPER | Purchase",
+   "publisher": "Cockos",
+   "retrieved": "2026-09-28",
+   "note": "$60 discounted / $225 commercial license; includes free upgrades through version 8.99; 60-day evaluation. Cockos Incorporated, Rosendale, New York."
+  },
+  {
+   "id": "src:bitwig-download",
+   "kind": "OFFICIAL",
+   "url": "https://www.bitwig.com/download/",
+   "title": "Try | Bitwig (download and system requirements)",
+   "publisher": "Bitwig",
+   "retrieved": "2026-09-28",
+   "note": "Bitwig Studio 6.1.1; macOS 12 or later (Apple silicon or 64-bit Intel with AVX2); Windows 10 or 11 64-bit (x86-64 and ARM 64-bit installers); Ubuntu 24.04+ or Flatpak."
+  },
+  {
+   "id": "src:bitwig-release-notes-6-1-1",
+   "kind": "OFFICIAL",
+   "url": "https://www.bitwig.com/dl/Bitwig%20Studio/6.1.1/release_notes/",
+   "title": "Bitwig Studio 6.1 release notes",
+   "publisher": "Bitwig",
+   "retrieved": "2026-09-28",
+   "note": "6.1.1 released 2026-09-03; 6.1 released 2026-08-26."
+  },
+  {
+   "id": "src:bitwig-overview",
+   "kind": "OFFICIAL",
+   "url": "https://www.bitwig.com/overview/",
+   "title": "Bitwig Studio overview",
+   "publisher": "Bitwig",
+   "retrieved": "2026-09-28",
+   "note": "\"Unlimited VST/CLAP plug-ins\"; supports CLAP and DAWproject. Footer: Bitwig GmbH."
+  },
+  {
+   "id": "src:bitwig-buy",
+   "kind": "OFFICIAL",
+   "url": "https://www.bitwig.com/buy/",
+   "title": "Buy | Bitwig",
+   "publisher": "Bitwig",
+   "retrieved": "2026-09-28",
+   "note": "Licenses with a renewable Upgrade Plan; editions 8-Track, Essentials, Producer, Studio."
+  },
+  {
+   "id": "src:blender-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://www.blender.org/download/requirements/",
+   "title": "Blender requirements",
+   "publisher": "Blender Foundation",
+   "retrieved": "2026-09-28",
+   "note": "Windows 8.1 64-bit minimum; macOS 13 Ventura minimum on Apple Silicon; Blender 4.5 LTS is the last release supporting Intel Macs and macOS 11.2; Linux glibc 2.28+."
+  },
+  {
+   "id": "src:blender-download",
+   "kind": "OFFICIAL",
+   "url": "https://www.blender.org/download/",
+   "title": "Download Blender",
+   "publisher": "Blender Foundation",
+   "retrieved": "2026-09-28",
+   "note": "Blender 5.2.2 LTS dated September 15, 2026; builds for Windows x64, Windows ARM, macOS Apple Silicon, Linux x64."
+  },
+  {
+   "id": "src:blender-license",
+   "kind": "OFFICIAL",
+   "url": "https://www.blender.org/about/license/",
+   "title": "Blender license",
+   "publisher": "Blender Foundation",
+   "retrieved": "2026-09-28",
+   "note": "Released under the GNU General Public License."
+  },
+  {
+   "id": "src:blender-forgejo-tags",
+   "kind": "OFFICIAL_API",
+   "url": "https://projects.blender.org/api/v1/repos/blender/blender/tags",
+   "title": "blender/blender tags (projects.blender.org Forgejo API)",
+   "publisher": "Blender Foundation",
+   "retrieved": "2026-09-28",
+   "note": "Release tags with tag commit timestamps; API documented at https://projects.blender.org/api/swagger."
+  },
+  {
+   "id": "src:godot-system-requirements",
+   "kind": "OFFICIAL",
+   "url": "https://docs.godotengine.org/en/stable/about/system_requirements.html",
+   "title": "System requirements — Godot Engine (stable) documentation",
+   "publisher": "Godot Engine",
+   "retrieved": "2026-09-28",
+   "note": "Native editor: Windows 10, macOS 10.13 (Compatibility renderer) or 10.15 (Forward+/Mobile), Linux distribution released after 2018; macOS on x86_64 or Apple Silicon; Windows x86_32/x86_64/ARMv8."
+  },
+  {
+   "id": "src:godot-github-releases",
+   "kind": "OFFICIAL_API",
+   "url": "https://github.com/godotengine/godot/releases",
+   "title": "godotengine/godot releases (GitHub)",
+   "publisher": "Godot Engine",
+   "retrieved": "2026-09-28",
+   "note": "GitHub Releases API: https://api.github.com/repos/godotengine/godot/releases"
+  },
+  {
+   "id": "src:godot-license",
+   "kind": "OFFICIAL",
+   "url": "https://godotengine.org/license/",
+   "title": "License – Godot Engine",
+   "publisher": "Godot Engine",
+   "retrieved": "2026-09-28",
+   "note": "MIT (Expat) license."
+  },
+  {
+   "id": "src:godot-governance",
+   "kind": "OFFICIAL",
+   "url": "https://godotengine.org/governance/",
+   "title": "Governance – Godot Engine",
+   "publisher": "Godot Engine",
+   "retrieved": "2026-09-28",
+   "note": "Financially supported by the Godot Foundation, a non-profit formed 2022-08-23 in the Netherlands (KVK 87351919)."
+  },
+  {
+   "id": "src:obs-download",
+   "kind": "OFFICIAL",
+   "url": "https://obsproject.com/download",
+   "title": "Download | OBS",
+   "publisher": "OBS Project",
+   "retrieved": "2026-09-28",
+   "note": "Version 32.2.2 released August 14; Windows 10 and 11; macOS 13.0 and newer (separate Intel and Apple Silicon installers); Flatpak and Ubuntu 24.04+ PPA."
+  },
+  {
+   "id": "src:obs-github-releases",
+   "kind": "OFFICIAL_API",
+   "url": "https://github.com/obsproject/obs-studio/releases",
+   "title": "obsproject/obs-studio releases (GitHub)",
+   "publisher": "OBS Project",
+   "retrieved": "2026-09-28",
+   "note": "GitHub Releases API: https://api.github.com/repos/obsproject/obs-studio/releases"
+  },
+  {
+   "id": "src:obs-license",
+   "kind": "OFFICIAL",
+   "url": "https://github.com/obsproject/obs-studio/blob/master/COPYING",
+   "title": "OBS Studio COPYING (GPL-2.0)",
+   "publisher": "OBS Project",
+   "retrieved": "2026-09-28",
+   "note": "GitHub license API reports GPL-2.0."
+  }
+ ],
+ "entities": [
+  {
+   "id": "vendor:fender",
+   "type": "vendor",
+   "slug": "fender",
+   "names": {
+    "en": "Fender",
+    "ko": "펜더"
+   },
+   "aliases": [
+    "Fender Musical Instruments Corporation",
+    "FMIC",
+    "PreSonus"
+   ],
+   "description": {
+    "en": "Fender Musical Instruments Corporation; since version 8 the former PreSonus Studio One DAW is sold as Fender Studio Pro.",
+    "ko": "Fender Musical Instruments Corporation으로, 버전 8부터 기존 PreSonus Studio One DAW를 Fender Studio Pro로 판매합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Fender Studio Pro",
+     "url": "https://www.fender.com/pages/fender-studio-pro-specs-resources"
+    },
+    {
+     "label": "PreSonus support",
+     "url": "https://support.presonus.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.fender.com/",
+     "ver": "OFFICIAL",
+     "src": "src:fender-studio-pro-8-quick-start"
+    }
+   ]
+  },
+  {
+   "id": "app:studio-one",
+   "type": "app",
+   "slug": "studio-one",
+   "names": {
+    "en": "Fender Studio Pro (formerly Studio One)"
+   },
+   "aliases": [
+    "Studio One",
+    "Studio One Pro",
+    "PreSonus Studio One",
+    "Studio One 7",
+    "Studio One Pro 7",
+    "Fender Studio Pro",
+    "Fender Studio Pro 8",
+    "Studio Pro 8",
+    "Studio Pro"
+   ],
+   "description": {
+    "en": "DAW originally developed by PreSonus as Studio One; version 8 is sold as Fender Studio Pro for macOS, Windows and (public beta) Linux.",
+    "ko": "PreSonus가 Studio One으로 개발한 DAW로, 버전 8부터 Fender Studio Pro라는 이름으로 macOS·Windows·Linux(공개 베타)용으로 판매됩니다."
+   },
+   "official_urls": [
+    {
+     "label": "Specs & resources",
+     "url": "https://www.fender.com/pages/fender-studio-pro-specs-resources"
+    },
+    {
+     "label": "Support",
+     "url": "https://support.presonus.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:fender-studio-pro-8-quick-start",
+     "note": "Linux is a public beta (Ubuntu 24.04 LTS or higher, Wayland session)."
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13 Ventura",
+     "ver": "OFFICIAL",
+     "src": "src:fender-studio-pro-8-quick-start",
+     "note": "Fender states macOS 13 support ends on 2026-12-31."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (22H2)",
+     "ver": "OFFICIAL",
+     "src": "src:fender-studio-pro-8-quick-start",
+     "note": "Windows 10 22H2 support ends on 2026-12-31; Windows 11 22H2 or higher."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:presonus-macos-26-compatibility"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.fender.com/pages/fender-studio-pro-specs-resources",
+     "ver": "OFFICIAL",
+     "src": "src:fender-studio-pro-8-quick-start"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:fender",
+     "src": "src:presonus-upgrade-studio-one-to-fender-studio-pro"
+    }
+   ],
+   "versions": [
+    {
+     "version": "8.0",
+     "channel": "stable",
+     "src": "src:presonus-macos-26-compatibility"
+    },
+    {
+     "version": "7.2.2",
+     "channel": "stable",
+     "src": "src:presonus-macos-26-compatibility"
+    }
+   ]
+  },
+  {
+   "id": "vendor:cockos",
+   "type": "vendor",
+   "slug": "cockos",
+   "names": {
+    "en": "Cockos"
+   },
+   "aliases": [
+    "Cockos Incorporated"
+   ],
+   "description": {
+    "en": "US developer of the REAPER DAW.",
+    "ko": "DAW REAPER를 개발하는 미국 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.reaper.fm/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.reaper.fm/",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-purchase"
+    },
+    {
+     "p": "hq_country",
+     "v": "United States",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-purchase"
+    }
+   ]
+  },
+  {
+   "id": "app:reaper",
+   "type": "app",
+   "slug": "reaper",
+   "names": {
+    "en": "REAPER",
+    "ko": "리퍼"
+   },
+   "aliases": [
+    "Reaper",
+    "REAPER 7",
+    "Cockos REAPER"
+   ],
+   "description": {
+    "en": "Cockos's DAW for Windows, macOS and Linux with a 60-day evaluation and discounted or commercial licenses.",
+    "ko": "Cockos의 Windows·macOS·Linux용 DAW로, 60일 평가판과 할인·상업용 라이선스가 있습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.reaper.fm/"
+    },
+    {
+     "label": "Changelog",
+     "url": "https://www.reaper.fm/whatsnew.txt"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "7.80",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download",
+     "note": "Released 2026-09-13."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.5",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download",
+     "note": "Some features require macOS 10.7+; Universal build recommended for 10.15 and later."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows XP",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download",
+     "note": "macOS Universal build for Intel and ARM64."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "VST2",
+      "VST3",
+      "AU",
+      "CLAP",
+      "LV2",
+      "DX",
+      "JSFX"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-about",
+     "note": "DX on Windows only, AU on macOS only."
+    },
+    {
+     "p": "license_model",
+     "v": "One-time license ($60 discounted / $225 commercial) with free upgrades through version 8.99; 60-day evaluation",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-purchase"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.reaper.fm/",
+     "ver": "OFFICIAL",
+     "src": "src:cockos-reaper-download"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:cockos",
+     "src": "src:cockos-reaper-purchase"
+    }
+   ],
+   "versions": [
+    {
+     "version": "7.80",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-09-13",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.79",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-08-17",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.78",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-07-18",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.77",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-07-07",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.76",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-06-29",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.75",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-06-23",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.74",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-06-08",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.73",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-05-15",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.72",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-05-07",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    },
+    {
+     "version": "7.71",
+     "channel": "stable",
+     "src": "src:cockos-reaper-whatsnew",
+     "released": "2026-04-30",
+     "notes_url": "https://www.reaper.fm/whatsnew.txt"
+    }
+   ]
+  },
+  {
+   "id": "vendor:bitwig",
+   "type": "vendor",
+   "slug": "bitwig",
+   "names": {
+    "en": "Bitwig"
+   },
+   "aliases": [
+    "Bitwig GmbH"
+   ],
+   "description": {
+    "en": "Berlin company that develops Bitwig Studio and co-created the CLAP plug-in standard.",
+    "ko": "Bitwig Studio를 개발하고 CLAP 플러그인 표준을 공동 개발한 회사입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.bitwig.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.bitwig.com/",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-overview"
+    }
+   ]
+  },
+  {
+   "id": "app:bitwig-studio",
+   "type": "app",
+   "slug": "bitwig-studio",
+   "names": {
+    "en": "Bitwig Studio",
+    "ko": "비트윅 스튜디오"
+   },
+   "aliases": [
+    "Bitwig",
+    "Bitwig Studio 6",
+    "Bitwig Studio Producer",
+    "Bitwig Studio Essentials",
+    "Bitwig 8-Track"
+   ],
+   "description": {
+    "en": "Bitwig's DAW for macOS, Windows (x86-64 and ARM) and Linux; one installer covers all editions.",
+    "ko": "Bitwig의 macOS·Windows(x86-64·ARM)·Linux용 DAW로, 하나의 설치 파일로 모든 에디션을 설치합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.bitwig.com/"
+    },
+    {
+     "label": "Download",
+     "url": "https://www.bitwig.com/download/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "6.1.1",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-release-notes-6-1-1",
+     "note": "Released 2026-09-03."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "macOS",
+      "Windows",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-download"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 12 Monterey",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-download"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-download",
+     "note": "Separate installers for x86 64-bit and ARM 64-bit; CPU must support AVX2 on x86."
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-download",
+     "note": "Requirements list \"An Apple silicon CPU or 64-bit Intel with AVX2 support\"."
+    },
+    {
+     "p": "plugin_formats",
+     "v": [
+      "VST3",
+      "CLAP"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-overview",
+     "note": "Overview says \"VST/CLAP plug-ins\"; the VST version(s) are not itemised there."
+    },
+    {
+     "p": "license_model",
+     "v": "License with a renewable Upgrade Plan for new versions; editions 8-Track, Essentials, Producer and Studio",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-buy"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.bitwig.com/",
+     "ver": "OFFICIAL",
+     "src": "src:bitwig-overview"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:bitwig",
+     "src": "src:bitwig-overview"
+    }
+   ],
+   "versions": [
+    {
+     "version": "6.1.1",
+     "channel": "stable",
+     "src": "src:bitwig-release-notes-6-1-1",
+     "released": "2026-09-03"
+    },
+    {
+     "version": "6.1",
+     "channel": "stable",
+     "src": "src:bitwig-release-notes-6-1-1",
+     "released": "2026-08-26"
+    }
+   ]
+  },
+  {
+   "id": "vendor:blender-foundation",
+   "type": "vendor",
+   "slug": "blender-foundation",
+   "names": {
+    "en": "Blender Foundation",
+    "ko": "블렌더 재단"
+   },
+   "aliases": [
+    "Blender Institute"
+   ],
+   "description": {
+    "en": "Non-profit organisation that coordinates development of the open-source 3D suite Blender.",
+    "ko": "오픈소스 3D 소프트웨어 Blender 개발을 이끄는 비영리 단체입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.blender.org/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://www.blender.org/",
+     "ver": "OFFICIAL",
+     "src": "src:blender-license"
+    }
+   ]
+  },
+  {
+   "id": "app:blender",
+   "type": "app",
+   "slug": "blender",
+   "names": {
+    "en": "Blender",
+    "ko": "블렌더"
+   },
+   "aliases": [
+    "Blender 5",
+    "Blender 5.2",
+    "Blender LTS",
+    "Blender 4.5 LTS"
+   ],
+   "description": {
+    "en": "Free, open-source 3D creation suite (GPL) for Windows, macOS on Apple Silicon and Linux. Blender 5.0 and later no longer run on Intel Macs.",
+    "ko": "무료 오픈소스(GPL) 3D 제작 도구로 Windows, Apple Silicon macOS, Linux를 지원합니다. Blender 5.0부터 Intel Mac은 지원하지 않습니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://www.blender.org/"
+    },
+    {
+     "label": "Requirements",
+     "url": "https://www.blender.org/download/requirements/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "5.2.2",
+     "ver": "OFFICIAL",
+     "src": "src:blender-download",
+     "note": "5.2.2 LTS, dated 2026-09-15 on the download page."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:blender-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13 Ventura",
+     "ver": "OFFICIAL",
+     "src": "src:blender-requirements",
+     "note": "Blender 5.0+: Apple Silicon only; Blender 4.5 LTS was the last release for Intel Macs and macOS 11.2."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 8.1 (64-bit)",
+     "ver": "OFFICIAL",
+     "src": "src:blender-requirements"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:blender-download"
+    },
+    {
+     "p": "license_model",
+     "v": "Free and open source (GNU GPL)",
+     "ver": "OFFICIAL",
+     "src": "src:blender-license"
+    },
+    {
+     "p": "homepage",
+     "v": "https://www.blender.org/",
+     "ver": "OFFICIAL",
+     "src": "src:blender-download"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:blender-foundation",
+     "src": "src:blender-license"
+    }
+   ],
+   "versions": [
+    {
+     "version": "5.2.2",
+     "channel": "stable",
+     "src": "src:blender-download",
+     "released": "2026-09-15",
+     "notes_url": "https://www.blender.org/download/releases/5-2/"
+    },
+    {
+     "version": "4.5.14",
+     "channel": "lts",
+     "src": "src:blender-forgejo-tags",
+     "released": "2026-09-14"
+    }
+   ]
+  },
+  {
+   "id": "vendor:godot-foundation",
+   "type": "vendor",
+   "slug": "godot-foundation",
+   "names": {
+    "en": "Godot Foundation",
+    "ko": "고도 재단"
+   },
+   "aliases": [
+    "Godot Engine"
+   ],
+   "description": {
+    "en": "Dutch non-profit that financially supports development of the open-source Godot game engine.",
+    "ko": "오픈소스 게임 엔진 Godot 개발을 재정적으로 지원하는 네덜란드 비영리 재단입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Godot Foundation",
+     "url": "https://godot.foundation"
+    },
+    {
+     "label": "Godot Engine",
+     "url": "https://godotengine.org/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://godot.foundation/",
+     "ver": "OFFICIAL",
+     "src": "src:godot-governance"
+    },
+    {
+     "p": "hq_country",
+     "v": "Netherlands",
+     "ver": "OFFICIAL",
+     "src": "src:godot-governance"
+    }
+   ]
+  },
+  {
+   "id": "app:godot",
+   "type": "app",
+   "slug": "godot",
+   "names": {
+    "en": "Godot Engine",
+    "ko": "고도 엔진"
+   },
+   "aliases": [
+    "Godot",
+    "Godot 4",
+    "Godot 4.7",
+    "Godot Engine 4",
+    "Godot 3"
+   ],
+   "description": {
+    "en": "Free, open-source (MIT) 2D/3D game engine and editor for Windows, macOS and Linux.",
+    "ko": "무료 오픈소스(MIT) 2D/3D 게임 엔진이자 에디터로 Windows·macOS·Linux를 지원합니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://godotengine.org/"
+    },
+    {
+     "label": "Releases",
+     "url": "https://github.com/godotengine/godot/releases"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "4.7.2",
+     "ver": "OFFICIAL",
+     "src": "src:godot-github-releases",
+     "note": "4.7.2-stable published 2026-08-18; the 3.x branch continues separately (3.6.3 on 2026-08-22)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:godot-system-requirements"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 10.13",
+     "ver": "OFFICIAL",
+     "src": "src:godot-system-requirements",
+     "note": "10.13 with the Compatibility renderer; 10.15 for Forward+/Mobile."
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:godot-system-requirements"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:godot-system-requirements",
+     "note": "Minimum CPU for macOS: x86_64 or ARM (Apple Silicon)."
+    },
+    {
+     "p": "license_model",
+     "v": "Free and open source (MIT license)",
+     "ver": "OFFICIAL",
+     "src": "src:godot-license"
+    },
+    {
+     "p": "homepage",
+     "v": "https://godotengine.org/",
+     "ver": "OFFICIAL",
+     "src": "src:godot-license"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:godot-foundation",
+     "src": "src:godot-governance"
+    }
+   ],
+   "versions": [
+    {
+     "version": "3.6.3",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-08-22",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/3.6.3-stable"
+    },
+    {
+     "version": "4.7.2",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-08-18",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.7.2-stable"
+    },
+    {
+     "version": "4.7.1",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-07-14",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.7.1-stable"
+    },
+    {
+     "version": "4.7",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-06-18",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.7-stable"
+    },
+    {
+     "version": "4.6.3",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-05-20",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.6.3-stable"
+    },
+    {
+     "version": "4.6.2",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-04-01",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.6.2-stable"
+    },
+    {
+     "version": "4.5.2",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-03-19",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.5.2-stable"
+    },
+    {
+     "version": "4.6.1",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-02-16",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.6.1-stable"
+    },
+    {
+     "version": "4.6",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2026-01-26",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/4.6-stable"
+    },
+    {
+     "version": "3.6.2",
+     "channel": "stable",
+     "src": "src:godot-github-releases",
+     "released": "2025-10-23",
+     "notes_url": "https://github.com/godotengine/godot/releases/tag/3.6.2-stable"
+    }
+   ]
+  },
+  {
+   "id": "vendor:obs-project",
+   "type": "vendor",
+   "slug": "obs-project",
+   "names": {
+    "en": "OBS Project"
+   },
+   "aliases": [
+    "Open Broadcaster Software"
+   ],
+   "description": {
+    "en": "Open-source project that develops OBS Studio.",
+    "ko": "OBS Studio를 개발하는 오픈소스 프로젝트입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://obsproject.com/"
+    }
+   ],
+   "facts": [
+    {
+     "p": "homepage",
+     "v": "https://obsproject.com/",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download"
+    }
+   ]
+  },
+  {
+   "id": "app:obs-studio",
+   "type": "app",
+   "slug": "obs-studio",
+   "names": {
+    "en": "OBS Studio",
+    "ko": "OBS 스튜디오"
+   },
+   "aliases": [
+    "OBS",
+    "Open Broadcaster Software",
+    "OBS Studio 32"
+   ],
+   "description": {
+    "en": "Free, open-source (GPL-2.0) software for screen recording and live streaming on Windows, macOS and Linux.",
+    "ko": "Windows·macOS·Linux용 무료 오픈소스(GPL-2.0) 화면 녹화·라이브 스트리밍 소프트웨어입니다."
+   },
+   "official_urls": [
+    {
+     "label": "Official site",
+     "url": "https://obsproject.com/"
+    },
+    {
+     "label": "Releases",
+     "url": "https://github.com/obsproject/obs-studio/releases"
+    }
+   ],
+   "facts": [
+    {
+     "p": "latest_version",
+     "v": "32.2.2",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download",
+     "note": "Released 2026-08-14; 33.0.0 is in beta (33.0.0-beta4 on 2026-09-25)."
+    },
+    {
+     "p": "os_support",
+     "v": [
+      "Windows",
+      "macOS",
+      "Linux"
+     ],
+     "ver": "OFFICIAL",
+     "src": "src:obs-download"
+    },
+    {
+     "p": "min_macos",
+     "v": "macOS 13.0",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download"
+    },
+    {
+     "p": "min_windows",
+     "v": "Windows 10",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download"
+    },
+    {
+     "p": "apple_silicon",
+     "v": "native",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download",
+     "note": "Separate arm64/Apple Silicon installer."
+    },
+    {
+     "p": "license_model",
+     "v": "Free and open source (GPL-2.0)",
+     "ver": "OFFICIAL",
+     "src": "src:obs-license"
+    },
+    {
+     "p": "homepage",
+     "v": "https://obsproject.com/",
+     "ver": "OFFICIAL",
+     "src": "src:obs-download"
+    }
+   ],
+   "relations": [
+    {
+     "p": "made_by",
+     "o": "vendor:obs-project",
+     "src": "src:obs-download"
+    }
+   ],
+   "versions": [
+    {
+     "version": "32.2.2",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-08-14",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.2.2"
+    },
+    {
+     "version": "32.2.1",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-07-24",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.2.1"
+    },
+    {
+     "version": "32.2.0",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-07-21",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.2.0"
+    },
+    {
+     "version": "32.1.2",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-04-21",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.1.2"
+    },
+    {
+     "version": "32.1.1",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-04-02",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.1.1"
+    },
+    {
+     "version": "32.1.0",
+     "channel": "stable",
+     "src": "src:obs-github-releases",
+     "released": "2026-03-11",
+     "notes_url": "https://github.com/obsproject/obs-studio/releases/tag/32.1.0"
+    }
+   ]
+  }
+ ],
+ "compatibility": [
+  {
+   "subject": "app:studio-one",
+   "subject_version": "8.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:presonus-macos-26-compatibility",
+   "note": "PreSonus lists Fender Studio Pro 8.0 as supported on macOS 26 Tahoe (Apple silicon native, Rosetta 2, Intel)."
+  },
+  {
+   "subject": "app:studio-one",
+   "subject_version": "7.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "min_subject_version": "7.2.2",
+   "ver": "OFFICIAL",
+   "src": "src:presonus-macos-26-compatibility",
+   "note": "PreSonus lists Studio One Pro 7.2.2 as supported on macOS 26 Tahoe."
+  },
+  {
+   "subject": "app:studio-one",
+   "subject_version": "8.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fender-studio-pro-8-quick-start",
+   "note": "Supported, but Fender ends macOS 13 support on 2026-12-31."
+  },
+  {
+   "subject": "app:studio-one",
+   "subject_version": "8.*",
+   "target": "os_release:windows-10-22h2",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fender-studio-pro-8-quick-start",
+   "note": "Supported, but Fender ends Windows 10 22H2 support on 2026-12-31."
+  },
+  {
+   "subject": "app:studio-one",
+   "subject_version": "8.*",
+   "target": "os_release:windows-11",
+   "target_version": ">=22H2",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:fender-studio-pro-8-quick-start",
+   "note": "Windows 11 22H2 or higher."
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: \"REAPER supports macOS 10.5 to macOS 26.\""
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: \"REAPER supports macOS 10.5 to macOS 26.\""
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: \"REAPER supports macOS 10.5 to macOS 26.\""
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: \"REAPER supports macOS 10.5 to macOS 26.\""
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: supports all Windows versions from Windows XP to Windows 11."
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Cockos: supports all Windows versions from Windows XP to Windows 11."
+  },
+  {
+   "subject": "app:reaper",
+   "subject_version": "7.80",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "works_with_issues",
+   "ver": "OFFICIAL",
+   "src": "src:cockos-reaper-download",
+   "note": "Windows 11 arm64ec build is offered as a BETA."
+  },
+  {
+   "subject": "app:bitwig-studio",
+   "subject_version": "6.1.1",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:bitwig-download"
+  },
+  {
+   "subject": "app:bitwig-studio",
+   "subject_version": "6.1.1",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:bitwig-download",
+   "note": "x86-64 and ARM 64-bit installers are offered."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.x: macOS 13 Ventura minimum, macOS 26 Tahoe recommended, Apple Silicon only."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.x: macOS 13 Ventura minimum, macOS 26 Tahoe recommended, Apple Silicon only."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.x: macOS 13 Ventura minimum, macOS 26 Tahoe recommended, Apple Silicon only."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "arm64"
+   },
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.x: macOS 13 Ventura minimum, macOS 26 Tahoe recommended, Apple Silicon only."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-13",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.0 and later require Apple Silicon; use Blender 4.5 LTS on Intel Macs."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-14",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.0 and later require Apple Silicon; use Blender 4.5 LTS on Intel Macs."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-15",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.0 and later require Apple Silicon; use Blender 4.5 LTS on Intel Macs."
+  },
+  {
+   "subject": "app:blender",
+   "subject_version": "5.*",
+   "target": "os_release:macos-26",
+   "target_version": "*",
+   "env": {
+    "arch": "x86_64"
+   },
+   "status": "unsupported",
+   "ver": "OFFICIAL",
+   "src": "src:blender-requirements",
+   "note": "Blender 5.0 and later require Apple Silicon; use Blender 4.5 LTS on Intel Macs."
+  },
+  {
+   "subject": "app:obs-studio",
+   "subject_version": "32.2.2",
+   "target": "os_release:windows-10",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:obs-download"
+  },
+  {
+   "subject": "app:obs-studio",
+   "subject_version": "32.2.2",
+   "target": "os_release:windows-11",
+   "target_version": "*",
+   "status": "supported",
+   "ver": "OFFICIAL",
+   "src": "src:obs-download"
+  }
+ ]
+}
