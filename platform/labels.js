@@ -29,3 +29,6 @@ export const AVAILABILITY_LABEL=Object.freeze({
  deprecated:{en:'deprecated',ko:'지원 종료 예정'},
  unknown:{en:'unknown',ko:'확인 안 됨'},
 });
+
+/** Schedule item kinds (events.kind), shown as a small tag on schedules. */
+export const EVENT_KIND_LABEL=Object.freeze({release:{en:'Release',ko:'출시'},event:{en:'Event',ko:'행사'},collab:{en:'Collab',ko:'콜라보'},popup:{en:'Pop-up',ko:'팝업'},merch_release:{en:'Goods',ko:'굿즈'},broadcast:{en:'On air',ko:'방송'},exhibition:{en:'Exhibition',ko:'전시'},sale:{en:'Sale',ko:'판매'},update:{en:'Update',ko:'업데이트'},incident:{en:'Incident',ko:'장애'},other:{en:'Other',ko:'기타'}});

@@ -6,6 +6,7 @@ import {html,safeHref} from '../html.js';
 import {t} from '../strings.js';
 import {box,badge,nameOf,channelUrl} from '../ui.js';
 import {eventTime,dday,daysUntil,isoDateText,money} from '../format.js';
+import {kindTag} from '../radar.js';
 import {related,relatedMany,factsFor,pickFact,eventsFor} from '../../db/channel.js';
 import {factRows} from './generic.js';
 import {dateMs} from '../../schema.js';
@@ -42,7 +43,7 @@ function top(d,ctx){
  const evs=[...d.events.filter(x=>!(x.starts_at!=null&&x.starts_at<now)),...d.events.filter(x=>x.starts_at!=null&&x.starts_at<now)];
  const when=(/** @type {any} */ ev)=>ev.starts_at>=now?html`<span class="dday${ev.starts_at-now>14*864e5?' g':''}">${dday(ev.starts_at,now,l)}</span>`
   :html`<span class="dday on">${l==='ko'?'진행 중':'Now'}</span>${ev.ends_at?html`<span class="fine">${l==='ko'?`마감 ${dday(ev.ends_at,now,l)}`:`ends ${dday(ev.ends_at,now,l)}`}</span>`:''}`;
- const sched=box({title:s.schedule},evs.length?html`<ul class="rows">${evs.slice(0,6).map(ev=>html`<li class="ev">${ev.starts_at?when(ev):''}${ev.url?html`<a class="tt" href="${safeHref(ev.url)}" rel="noopener" target="_blank">${ev.title[l]||ev.title.en}</a>`:html`<span class="tt">${ev.title[l]||ev.title.en}</span>`}${badge(ev.verification,l,'✓')}</li>`)}</ul>`:html`<p class="empty">${s.noUpcoming}</p>`);
+ const sched=box({title:s.schedule},evs.length?html`<ul class="rows">${evs.slice(0,6).map(ev=>html`<li class="ev">${ev.starts_at?when(ev):''}${ev.url?html`<a class="tt" href="${safeHref(ev.url)}" rel="noopener" target="_blank">${ev.kind!=='broadcast'?kindTag(ev.kind,l):''}${ev.title[l]||ev.title.en}</a>`:html`<span class="tt">${ev.title[l]||ev.title.en}</span>`}${badge(ev.verification,l,'✓')}</li>`)}</ul>`:html`<p class="empty">${s.noUpcoming}</p>`);
  const goods=d.goods.length?box({title:s.goods,note:s.goodsNote},html`<ul class="goods">${d.goods.map(g=>{const end=g.end?dateMs(String(g.end)):null;return html`<li><a href="${channelUrl(l,g.m)}"><b>${nameOf(g.m,l)}</b></a><span class="fine">${g.maker||''}</span><span>${end&&end>=now?html`<span class="st soon">${s.preorderEnds(dday(end,now,l))}</span> `:''}${g.release?html`<span class="fine">${s.releases(isoDateText(String(g.release)))}</span>`:''}</span>${g.price?html`<span class="fine">${money(Number(g.price.value),g.price.unit||'JPY',l)}</span>`:''}</li>`;})}</ul>`):'';
  return html`<div class="g2 a">${nextBox}${sched}</div>${goods}`;
 }
