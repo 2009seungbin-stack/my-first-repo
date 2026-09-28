@@ -27,6 +27,7 @@ export const TASK_TOOLS=Object.freeze({
  'remove-bg':{module:'remove-bg',kinds:['image'],next:['compress','resize','favicon-pack']},
  'sprite-sheet-maker':{module:'atlas',kinds:['image'],next:['compress','atlas-padding','sprite-slicer']},
  crop:{module:'crop',kinds:['image'],next:['compress','resize','remove-bg']},
+ 'webtoon-manga-toolkit':{module:'webtoon',kinds:['image'],next:['crop','compress','image']},
  ...Object.fromEntries(Object.entries({'refiner':['pixel-lab','sprite-sheet-maker','palette-swap'],'logo-bg':['margin-crop','favicon-pack','compress'],'margin-crop':['resize','compress','convert'],'scan-split':['jpg-to-pdf','margin-crop','compress'],'marketplace-pack':['compress','print-pack','resize'],'print-pack':['jpg-to-pdf','marketplace-pack','compress'],'favicon-pack':['logo-bg','compress','resize']}).map(([id,next])=>[id,{module:'recipe',kinds:['image'],next}])),
  // Palette swap has its own page: the image's palette, an eyedropper and several swaps per run.
  'palette-swap':{module:'palette-swap',kinds:['image'],next:['palette-swap-ramp','pixel-lab','refiner']},
@@ -58,7 +59,7 @@ export const TASK_TOOLS=Object.freeze({
 export const isTask=id=>Object.hasOwn(TASK_TOOLS,id);
 /** Home directory: category → tool ids, in the order people look for them. */
 export const DIRECTORY=Object.freeze([
- ['image',['compress','convert','resize','crop','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
+ ['image',['compress','convert','resize','crop','webtoon-manga-toolkit','remove-bg','upscale','heic','margin-crop','logo-bg','marketplace-pack','print-pack','scan-split','image']],
  ['pdf',['pdf-merge','pdf-split','pdf-compress','pdf-to-jpg','jpg-to-pdf','pdf-protect','pdf-unlock','pdf']],
  ['video',['video-gif','video-mp3','video-compress','video-trim','video-frame','media']],
  // Labs first, then each Lab's focused stage routes, then the single-shot recipes.

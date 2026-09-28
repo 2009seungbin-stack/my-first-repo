@@ -883,6 +883,15 @@ export const TOOLS = Object.freeze({
       "ui-scale-preview"
     ]
   },
+  "webtoon-manga-toolkit": {
+    "path": "image/webtoon-manga-toolkit",
+    "category": "image",
+    "icon": "crop",
+    "title": ["웹툰·만화 제작 도구", "Webtoon & Manga Toolkit", "Webtoon・漫画制作ツール"],
+    "description": ["내 원고를 순서대로 합치거나 플랫폼 근거를 보며 분할해 ZIP으로 저장하세요. 파일은 이 기기에서 처리합니다.", "Join your artwork in order or split it with source-scoped platform targets, then save a checked ZIP. Files stay on this device.", "原稿を順番に結合し、出典の範囲を示す目標で分割して検証済みZIPに保存。ファイルは端末内で処理します。"],
+    "limit": ["분할선은 대사·컷의 안전을 판단하지 않습니다. 플랫폼 업로드 수락은 미검증이며 WEBTOON 용량은 보수적 출력 목표입니다.", "Cut lines cannot judge dialogue or panel safety. Platform acceptance is unverified; WEBTOON byte budgets are conservative export targets.", "分割線はせりふやコマの安全性を判定しません。投稿先の受理は未検証で、WEBTOONの容量は保守的な出力目標です。"],
+    "next": ["crop", "compress", "image"]
+  },
   "ui-scale-preview": {
     "path": "game/ui-scale-preview",
     "category": "game",

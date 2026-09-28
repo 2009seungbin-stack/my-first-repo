@@ -9,6 +9,7 @@ export const profile=id=>PROFILES[id]||PROFILES.custom;
 export function checkOutput(profileId,parts){
  const p=profile(profileId),errors=[],total=parts.reduce((n,x)=>n+x.bytes,0);
  for(const [i,part] of parts.entries()){
+  if(p.id==='naver'&&part.format!=='jpeg')errors.push(`${i+1}: Naver Challenge export must be JPG`);
   if(p.width&&part.width!==p.width)errors.push(`${i+1}: width ${part.width} ≠ ${p.width}`);
   if(p.maxWidth&&part.width>p.maxWidth)errors.push(`${i+1}: width ${part.width} > ${p.maxWidth}`);
   if(p.maxHeight&&part.height>p.maxHeight)errors.push(`${i+1}: height ${part.height} > ${p.maxHeight}`);

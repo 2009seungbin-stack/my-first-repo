@@ -73,4 +73,9 @@ async function runJoin(id,files,opts){
  const blob=await encodeTile(c,'png',0);await verify(blob,layout.width,layout.height,'png');
  send(id,'done',{parts:[{blob,width:layout.width,height:layout.height,bytes:blob.size,format:'png',source:'joined'}],report:{ok:true,total:blob.size,scope:'Custom joined PNG; input order preserved',source:'',checked:'2026-09-29'}});
 }
-self.onmessage=async e=>{const {id,action,files=[],options={}}=e.data||{};if(action==='cancel'){cancelled.add(id);return;}try{if(action==='split')await runSplit(id,files,options);else if(action==='join')await runJoin(id,files,options);else throw new Error('Unknown action');}catch(error){fail(id,error);}finally{cancelled.delete(id);}};
+async function runInspect(id,files){
+ const sizes=[];for(const f of files){if(f.size>MAX_INPUT_BYTES)throw new Error(`${f.name}: input exceeds 80 MB safe budget`);const d=await dimensions(f);memoryGate(d);sizes.push({...d,name:f.name,bytes:f.size});}
+ const first=await createImageBitmap(files[0]);let preview;try{const width=Math.min(360,first.width),height=Math.max(1,Math.round(first.height*width/first.width));const c=canvas(width,Math.min(600,height)),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(first,0,0,c.width,c.height);preview=await c.convertToBlob({type:'image/png'});}finally{first.close();}
+ send(id,'inspect',{sizes,preview});
+}
+self.onmessage=async e=>{const {id,action,files=[],options={}}=e.data||{};if(action==='cancel'){cancelled.add(id);return;}try{if(action==='inspect')await runInspect(id,files);else if(action==='split')await runSplit(id,files,options);else if(action==='join')await runJoin(id,files,options);else throw new Error('Unknown action');}catch(error){fail(id,error);}finally{cancelled.delete(id);}};

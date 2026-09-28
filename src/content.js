@@ -125,6 +125,7 @@ export function guide(id,locale){
  return guides[id][{en:0,ko:1,ja:2}[locale]];
 }
 export function formats(id,locale){
+ if(id==='webtoon-manga-toolkit')return {en:'PNG / JPG / WebP → reopened JPG / PNG pieces + JSON report (ZIP). Local browser decoding and encoding; animated inputs are not supported.',ko:'PNG / JPG / WebP → 재열기한 JPG / PNG 조각 + JSON 보고서(ZIP). 브라우저에서 로컬로 읽고 저장하며 움직이는 입력은 지원하지 않습니다.',ja:'PNG / JPG / WebP → 再読み込みで確認したJPG / PNG画像 + JSON報告書（ZIP）。端末内で復号・保存し、アニメーション入力には非対応です。'}[locale];
  if(TOOLS[id]){const output={refiner:'PNG / ZIP','palette-swap':'PNG','logo-bg':'PNG','texture-map':'PNG','texture-lab':'PNG / JSON / ZIP','channel-unpacker':'PNG (ZIP)','normal-map-converter':'PNG','pbr-texture-validator':'JSON','texture-edge-bleed':'PNG','mask-packer':'PNG','margin-crop':'PNG','marketplace-pack':'JPG + JSON (ZIP)','print-pack':'JPG + JSON (ZIP)','bitmap-font':'PNG + FNT + JSON (ZIP)','favicon-pack':'ICO + PNG + HTML + Webmanifest (ZIP)'}[id]||'PNG + JSON (ZIP)';return 'PNG / JPG / WebP / AVIF / HEIC → '+output+' — '+{ko:'입력 디코딩은 브라우저 지원과 추가 엔진 사용 여부에 따라 다릅니다.',en:'Input decoding depends on browser support and optional engines.',ja:'入力のデコードはブラウザ対応と追加エンジンに依存します。'}[locale];}
  const editor=INTENTS[id].editor;
  const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'MP4 / WebM','video-compress':'MP4 / WebM',media:'MP4 / WebM / GIF / PNG / WAV / MP3'};
