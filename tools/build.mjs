@@ -7,6 +7,7 @@ import {logoMark,faviconSVG} from '../src/logo.js';
 import {LANDINGS,LANDING_PATHS,landingText} from '../src/landings.js';
 import {isTask} from '../src/task/registry.js';
 import {homePage,taskPage} from './task-build.mjs';
+import {languageEntryPage} from './language-entry-build.mjs';
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -57,7 +58,10 @@ export function entry(html,route='',siteURL='',config={}){
   const classic=isClassicPath(parts.path)?'<meta data-classic-robots name="robots" content="noindex,follow">':'';
   // The home page at / adapts to the visitor's language: its own canonical and the x-default (src/seo.js).
   const neutralHome=!parts.locale&&!parts.path;
-  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  const prefix=parts.locale?parts.locale+'/':'',headHTML=classic+head(landing||intent.path,neutralHome?null:locale,siteURL,neutralHome?{...config,client:''}:config)+structuredData(id,locale,siteURL,landing,neutralHome)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing),contentHTML=toolContent(id,locale,landing);
+  // / is the language entry (tools/language-entry-build.mjs), not a second copy of the English home.
+  // No AdSense loader there (client:'' above): it is a redirect page without content of its own.
+  if(neutralHome)return languageEntryPage({base,headHTML});
   return parts.path?taskPage({id,locale,prefix,base,title,heading:land?.title||t(`intent.${id}.title`,{},locale),description,headHTML,contentHTML,landing}):homePage({locale,prefix,base,headHTML,contentHTML});
  }
  let out=html.replace('<base href="./">',`<base href="${base}">`).replace(/<html lang="[^"]*"/,`<html lang="${locale}"`);

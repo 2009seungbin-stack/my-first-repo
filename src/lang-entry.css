@@ -1,0 +1,14 @@
+/* The language entry at / (tools/language-entry-build.mjs). Tokens from src/game-site.css. */
+.le-page{min-height:100vh;margin:0;display:grid;place-items:center;background:var(--gs-bg);color:var(--gs-text);font-family:var(--gs-font);padding:32px 16px;box-sizing:border-box}
+.le-card{width:100%;max-width:560px;text-align:center}
+.le-brand{display:inline-flex;align-items:center;gap:10px;color:var(--gs-head);text-decoration:none;font-size:15px}
+.le-brand strong{font-size:18px}
+.le-card h1{margin:28px 0 8px;font-family:var(--gs-font-display);font-size:clamp(28px,6vw,40px);line-height:1.15;color:var(--gs-head);letter-spacing:-.01em}
+.le-lead{margin:0 0 28px;color:var(--gs-text-2);font-size:16px;line-height:1.5}
+.le-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.le-list a{display:flex;flex-direction:column;gap:4px;padding:16px 20px;border:1px solid var(--gs-line-2);border-radius:var(--gs-radius);background:var(--gs-panel);color:var(--gs-text);text-decoration:none;text-align:left}
+.le-list a:hover,.le-list a:focus-visible{border-color:var(--gs-accent);background:var(--gs-panel-2)}
+.le-list a:focus-visible{outline:2px solid var(--gs-accent);outline-offset:2px}
+.le-list b{font-size:17px;color:var(--gs-head)}
+.le-list span{font-size:14px;color:var(--gs-text-2);line-height:1.45}
+.le-foot{margin:28px 0 0;font-size:13px;color:var(--gs-text-3)}
