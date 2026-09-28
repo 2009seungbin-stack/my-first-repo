@@ -1,5 +1,6 @@
 import {profile,checkOutput} from './specs.js';
 import {evenlySpaced,validateCuts,joinedLayout} from './geometry.js';
+import {EFFECTS} from './effects.js';
 
 const MAX_FILES=40,MAX_INPUT_BYTES=80_000_000,MAX_PIXELS=64_000_000,MAX_SIDE=32767;
 const send=(id,type,data={})=>postMessage({id,type,...data});
@@ -78,4 +79,12 @@ async function runInspect(id,files){
  const first=await createImageBitmap(files[0]);let preview;try{const width=Math.min(360,first.width),height=Math.max(1,Math.round(first.height*width/first.width));const c=canvas(width,Math.min(600,height)),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(first,0,0,c.width,c.height);preview=await c.convertToBlob({type:'image/png'});}finally{first.close();}
  send(id,'inspect',{sizes,preview});
 }
-self.onmessage=async e=>{const {id,action,files=[],options={}}=e.data||{};if(action==='cancel'){cancelled.add(id);return;}try{if(action==='inspect')await runInspect(id,files);else if(action==='split')await runSplit(id,files,options);else if(action==='join')await runJoin(id,files,options);else throw new Error('Unknown action');}catch(error){fail(id,error);}finally{cancelled.delete(id);}};
+async function runEffect(id,options){
+ const kind=options.kind,make=EFFECTS[kind];if(!make)throw new Error('Unknown effect');
+ const svg=make(options),vector=new Blob([svg],{type:'image/svg+xml'}),bitmap=await createImageBitmap(vector);try{
+  pending(id);const c=canvas(bitmap.width,bitmap.height),g=ctx(c);g.drawImage(bitmap,0,0);
+  const png=await c.convertToBlob({type:'image/png'});await verify(png,bitmap.width,bitmap.height,'png');
+  send(id,'done',{parts:[{blob:png,width:bitmap.width,height:bitmap.height,bytes:png.size,format:'png',source:kind},{blob:vector,width:bitmap.width,height:bitmap.height,bytes:vector.size,format:'svg',source:kind}],report:{ok:true,total:png.size+vector.size,scope:'Original deterministic effect; PNG re-decoded locally; SVG sanitised by construction.',source:'',checked:'2026-09-29'}});
+ }finally{bitmap.close();}
+}
+self.onmessage=async e=>{const {id,action,files=[],options={}}=e.data||{};if(action==='cancel'){cancelled.add(id);return;}try{if(action==='inspect')await runInspect(id,files);else if(action==='split')await runSplit(id,files,options);else if(action==='join')await runJoin(id,files,options);else if(action==='effect')await runEffect(id,options);else throw new Error('Unknown action');}catch(error){fail(id,error);}finally{cancelled.delete(id);}};

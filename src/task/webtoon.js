@@ -1,6 +1,7 @@
 import {zip} from '../core.js';
 import {profile,PROFILES} from '../webtoon/specs.js';
 import {evenlySpaced,validateCuts} from '../webtoon/geometry.js';
+import {mountEffects} from './webtoon-effects.js';
 import {text,toast,download,onLocale,locale,track} from './shell.js';
 export const accept='image/png,image/jpeg,image/webp';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -11,6 +12,7 @@ const copy={
 };
 const t=(k)=>copy[locale()]?.[k]||copy.en[k]||k;
 export function mount({el}){
+ if(['speed','balloon','tone'].includes(new URL(location.href).searchParams.get('mode')))return mountEffects({el});
  let files=[],sizes=[],preview='',cuts=[],cutHistory=[],job=0,busy=false,mode=new URL(location.href).searchParams.get('mode')==='join'?'join':'split';
  const url=new URL(location.href),q=url.searchParams;
  let preset=PROFILES[q.get('profile')]?q.get('profile'):'canvas',height=Math.min(10000,Math.max(128,Number(q.get('height'))||1280)),format=['png','jpeg'].includes(q.get('format'))?q.get('format'):'jpeg',matte=/^#[0-9a-f]{6}$/i.test(q.get('matte')||'')?q.get('matte'):'#ffffff';
@@ -20,6 +22,7 @@ export function mount({el}){
  const release=()=>{if(preview)URL.revokeObjectURL(preview);preview='';};
  const syncURL=()=>{const u=new URL(location.href);for(const key of ['profile','height','format','matte','mode','cuts'])u.searchParams.delete(key);u.searchParams.set('profile',preset);u.searchParams.set('height',String(height));u.searchParams.set('format',format);u.searchParams.set('mode',mode);if(matte!=='#ffffff')u.searchParams.set('matte',matte);if(cuts.length)u.searchParams.set('cuts',cuts.join(','));history.replaceState({},'',u);};
  function render(){
+  queueMicrotask(()=>{const tabs=el.querySelector('.webtoon-tabs');if(!tabs||tabs.querySelector('[data-effect-link]'))return;for(const [key,names] of [['speed',['집중선','Speed lines','集中線']],['balloon',['말풍선','Speech balloon','吹き出し']],['tone',['스크린톤','Screentone','スクリーントーン']]]){const a=document.createElement('a');a.dataset.effectLink=key;a.href='?mode='+key;a.textContent=names[{ko:0,en:1,ja:2}[locale()]||1];tabs.append(a);}});
   const p=profile(preset),first=sizes[0];
   el.innerHTML=`<div class="webtoon-work"><section class="webtoon-main"><div class="webtoon-tabs" role="group" aria-label="Mode"><button data-mode="split" aria-pressed="${mode==='split'}">${t('split')}</button><button data-mode="join" aria-pressed="${mode==='join'}">${t('join')}</button></div><h2>${t('files')}</h2><p class="webtoon-muted">${t('none')}</p><ol class="webtoon-files">${files.map((f,i)=>`<li><span>${esc(f.name)}</span><small>${sizes[i]?`${sizes[i].width}×${sizes[i].height} · ${(f.size/1e6).toFixed(2)} MB`:''}</small><span class="webtoon-order"><button data-move="-1" data-index="${i}" aria-label="${t('up')} ${esc(f.name)}" ${i===0?'disabled':''}>↑</button><button data-move="1" data-index="${i}" aria-label="${t('down')} ${esc(f.name)}" ${i===files.length-1?'disabled':''}>↓</button><button data-remove="${i}" aria-label="${t('remove')} ${esc(f.name)}">×</button></span></li>`).join('')}</ol><button type="button" data-action="pick" class="ghost">+ ${text('add')}</button>
   ${preview?`<h2>${t('preview')}</h2><div class="webtoon-preview"><img src="${preview}" alt="${esc(files[0]?.name||'')}">${mode==='split'&&first?cuts.map((y,i)=>`<span class="webtoon-cut" style="top:${(y/first.height*100).toFixed(3)}%" aria-hidden="true">${i+1}</span>`).join(''):''}</div><p class="webtoon-muted">${t('previewHint')}</p>`:''}
