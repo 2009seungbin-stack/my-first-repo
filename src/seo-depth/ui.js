@@ -775,5 +775,293 @@ export default {
    versions:{body:['docs/UI-LAB.mdのためにChromiumで測定しました。固定グリッドのフォントは16 × 8の`font.png`で、あを`char id=12354 x=8 y=0 width=8 height=8`と書き、テスト内の独立したパーサーが`.fnt`のヘッダーと全グリフの記録をJSONと同じ値で読み戻しました。実測モードはぴったりの矩形、3種類以上の送り幅、送り幅を持つ空のセルを作り、TTFからの32pxのASCII-95アトラスは28ms（350 × 380のシート）、SDFは1174msで作られました。上のフォントファイルモードの問題は、このリリースで未修正の既知の問題です。BMFontのフィールドはAngelCodeのドキュメント、エンジンでの読み込みはGodot 4.7・PixiJS 8・PhaserのAPIドキュメントに基づきます。'],sources:[S.bmfont,S.fonts,S.bmImporter,S.pixiBitmap,S.phaserLoader]}
   }
  },
-/*PAGES-BELOW*/
+ 'game/seamless-tile-checker':{
+  type:'tool',
+  intent:{primary:'check whether a texture or tile repeats without a visible seam, and fix it',secondary:['measure the wrap edges','seamless texture test with a 2×2 / 3×3 repeat','make a texture tileable'],
+   goal:'a per-axis verdict with numbers, and a healed PNG when the seam is real',input:'one texture or tile (PNG, WebP, JPEG, GIF), or a tile of a sheet',output:'on-screen measurements + <name>-<index>-seamless.png',target:'any engine or 3D tool that repeats a texture',support:'full',
+   evidence:['src/game/seams.js (seamReport, makeSeamless, edgeMatch, heatmap)','docs/TILE-LAB.md §6 and the seam verdict row of its verification table','tests/game-seams.test.mjs','src/task/tile-lab.js saveHealed'],
+   external:[]},
+  en:{
+   answer:'A texture tiles without a visible seam when its right column continues into its left column and its bottom row into its top row. The checker measures exactly those wrap pairs and reports each axis next to the same difference taken between ordinary neighbouring lines inside the tile, because "mean 23" only means something compared with the texture\'s own variation. It shows 2 × 2 and 3 × 3 repeats, a heatmap along each edge and a verdict per axis, and can make the tile seamless by offsetting it half a tile and cross-fading, which changes the art inside the blend bands.',
+   concept:{title:'How a seam is measured',body:[
+    'For every row the checker compares the last pixel with the first (the horizontal wrap), and for every column the bottom pixel with the top one (the vertical wrap). The difference of two pixels is the largest of their four channel differences, alpha included, on the 0–255 scale. Each axis gets a mean and a worst value, plus a per-line profile for the heatmap.',
+    'The reference is the mean difference between every pair of adjacent columns (or rows) inside the tile. An axis passes when its wrap mean is at most max(2, 1.25 × that neighbour mean), and the tile is called seamless when both axes pass. That is why a noisy stone texture whose wrap differs by 21 levels passes (its neighbours differ by 21 too) while a smooth gradient with a jump of 252 fails (its neighbours differ by 4). The heatmap is scaled against the same neighbour mean, so a seamless tile stays dark instead of being normalised to bright red.',
+    'Make seamless offsets the tile by half its width and height, so the old wrap edges meet in the middle, then cross-fades a band on each side of that middle line with the half-shifted copy, using smooth weights. The band defaults to 12 % of the tile (8 px on a 64 px tile) and can be set from 0 to 64 px. The new edges wrap by construction; the price is a blended cross through the middle, where large features can appear doubled. Nothing is synthesised.'],
+    terms:[['Wrap pair','The two lines that touch when the tile repeats: last column and first column, bottom row and top row.'],['Neighbour mean','The average difference between adjacent lines inside the tile, the texture\'s own variation.'],['Ratio','Wrap mean ÷ neighbour mean; around 1 is invisible, 63 is a hard seam.'],['Blend band','The strip on each side of the moved seam that is cross-faded by Make seamless.']]},
+   example:{title:'Example: a gradient that fails and a noise tile that passes',lead:'Both tiles are 64 × 64. The numbers are what the checker reports:',lines:[
+    'ramp tile       grey 0 → 252 from left to right (+4 per column), all rows identical',
+    'horizontal      column 63 (252) against column 0 (0): mean 252, worst 252',
+    'neighbour mean  4.00 → ratio 252 / 4 = 63; limit max(2, 4 × 1.25) = 5 → seam',
+    'vertical        rows identical: wrap 0, neighbours 0 → passes',
+    'make seamless   offset 32, 32; band round(64 × 0.12) = 8 px → wrap mean 4, neighbours 5.78, ratio 0.69 → seamless',
+    'noise tile      values 96–160: wrap mean 20.8 / 18.8, neighbour mean 21.5 → ratio 0.97 / 0.87 → seamless'],
+    after:'The noise tile has a larger wrap difference than the healed ramp and still passes, because its interior varies just as much. A single threshold on the raw number would get both of these wrong.'},
+   verify:{steps:[
+    'Look at the centre of the 3 × 3 repeat at 100 % and 200 %: no line, no step in brightness and no change of texture density along its borders.',
+    'Read both axes: each ratio near 1 or below; the heatmap has no bright band along a whole edge.',
+    'After Make seamless, compare before and after inside the blend bands for doubled features, and check the verdict again.',
+    'Put the downloaded PNG on a large repeating surface in your engine and move the camera across a seam.']},
+   trouble:{rows:[
+    ['The checker says seamless but a line shows in the game','The engine clamps instead of repeating, or mipmaps and compression change the edge texels','Compare the 3 × 3 preview with the game at the same zoom; test with mipmaps off','Set the texture to repeat/wrap in the engine\'s sampler settings; check the compressed texture'],
+    ['A seam is flagged on a sprite with a transparent border','Alpha counts in the difference, and a transparent edge against an opaque one is a real jump','Is the tile meant to repeat at all?','Ignore the result for sprites; the check is for repeating textures and tiles'],
+    ['Make seamless leaves a blurry or doubled cross in the middle','The cross-fade mixes two different parts of the texture inside the band','Compare before and after around the middle lines','Try a narrower band under Advanced, or repaint the middle in an image editor'],
+    ['The tile passes but the surface looks obviously repeated','Distinct features recur at the tile period: that is repetition, not a seam','Look at the 3 × 3 preview from a distance','Use a larger texture, several tile variants, or break the pattern with decals']]},
+   alternatives:{rows:[
+    ['Offset the image by half in an image editor and repaint the cross by hand','The seam needs real painting (a crack or a plank edge) rather than a blend.'],
+    ['Export the texture with tiling from the tool that generated it','A procedural or material tool made the texture: its own tiling option avoids healing afterwards. For normal maps see [[game/tiling-normal-map-seams|seams in tiling normal maps]].']]},
+   limits:['The verdict measures pixel differences at the wrap; it does not detect visible repetition or lighting that changes across the tile.','Only the healed PNG is written; the measurements stay on screen.'],
+   versions:{body:['Measured for docs/TILE-LAB.md and in `tests/game-seams.test.mjs`: a cosine tile that wraps gives a ratio below 1.3 and is reported seamless; a ramp gives a mean above 240 and a ratio above 20 and is reported as a seam; after Make seamless the mean falls below 8. The worked example above was recomputed with the same module (a 64 px ramp and a seeded noise tile).']}
+  },
+  ko:{
+   answer:'텍스처가 이음새 없이 반복되려면 오른쪽 끝 열이 왼쪽 첫 열로, 맨 아래 행이 맨 위 행으로 이어져야 합니다. 검사기는 바로 그 경계 쌍을 재고, 축마다 타일 안 평범한 이웃 줄 사이의 같은 차이와 나란히 보고합니다. "평균 23"은 텍스처 자체의 변화와 비교할 때만 의미가 있기 때문입니다. 2 × 2·3 × 3 반복, 가장자리 히트맵, 축별 판정을 보여 주고, 반 타일 이동 후 교차 혼합으로 이음새를 없앨 수도 있는데 이때 혼합 띠 안의 그림이 바뀝니다.',
+   concept:{title:'이음새를 재는 방법',body:[
+    '검사기는 행마다 마지막 픽셀과 첫 픽셀(가로 경계), 열마다 맨 아래 픽셀과 맨 위 픽셀(세로 경계)을 비교합니다. 두 픽셀의 차이는 알파를 포함한 네 채널 차이 중 가장 큰 값(0~255)입니다. 축마다 평균과 최대값, 히트맵용 줄별 값이 나옵니다.',
+    '기준은 타일 안에서 이웃한 모든 열(또는 행) 쌍 사이의 평균 차이입니다. 경계 평균이 max(2, 1.25 × 이웃 평균) 이하면 그 축은 통과이고, 두 축이 모두 통과하면 이음새 없음으로 판정합니다. 그래서 경계 차이가 21단계인 거친 돌 텍스처는 통과하고(이웃도 21만큼 다름), 252만큼 튀는 부드러운 그라데이션은 실패합니다(이웃은 4만큼 다름). 히트맵도 같은 이웃 평균으로 눈금을 맞추므로 이음새 없는 타일이 새빨갛게 칠해지지 않고 어둡게 남습니다.',
+    '이음새 없애기는 타일을 가로·세로 절반만큼 옮겨 기존 경계가 가운데에서 만나게 한 뒤, 그 가운데 선 양쪽 띠를 반 칸 옮긴 복사본과 부드러운 가중치로 교차 혼합합니다. 띠는 기본 타일의 12%(64px 타일이면 8px)이고 0~64px로 정할 수 있습니다. 새 경계는 구조상 이어지지만, 대신 가운데에 섞인 십자가 생기고 큰 무늬가 겹쳐 보일 수 있습니다. 새로 그려 넣는 것은 없습니다.'],
+    terms:[['경계 쌍','타일이 반복될 때 맞닿는 두 줄: 마지막 열과 첫 열, 맨 아래 행과 맨 위 행.'],['이웃 평균','타일 안 이웃한 줄 사이의 평균 차이. 텍스처 자체의 변화.'],['비율','경계 평균 ÷ 이웃 평균. 1 근처면 보이지 않고 63이면 뚜렷한 이음새.'],['혼합 띠','옮겨진 이음새 양쪽에서 이음새 없애기가 교차 혼합하는 띠.']]},
+   example:{title:'예시: 실패하는 그라데이션과 통과하는 노이즈 타일',lead:'두 타일 모두 64 × 64입니다. 검사기가 보고하는 숫자입니다.',lines:[
+    '램프 타일      회색 0 → 252, 왼쪽에서 오른쪽으로(열마다 +4), 모든 행 동일',
+    '가로           63번 열(252)과 0번 열(0): 평균 252, 최대 252',
+    '이웃 평균      4.00 → 비율 252 / 4 = 63; 한계 max(2, 4 × 1.25) = 5 → 이음새',
+    '세로           행이 모두 같음: 경계 0, 이웃 0 → 통과',
+    '이음새 없애기  이동 32, 32; 띠 round(64 × 0.12) = 8px → 경계 평균 4, 이웃 5.78, 비율 0.69 → 이음새 없음',
+    '노이즈 타일    값 96~160: 경계 평균 20.8 / 18.8, 이웃 평균 21.5 → 비율 0.97 / 0.87 → 이음새 없음'],
+    after:'노이즈 타일은 고친 램프보다 경계 차이가 크지만 내부도 그만큼 변하므로 통과합니다. 날것의 숫자 하나에 임계값을 걸면 두 경우를 모두 틀리게 판정합니다.'},
+   verify:{steps:[
+    '3 × 3 반복의 가운데를 100%와 200%로 봅니다. 경계를 따라 선, 밝기 단차, 질감 밀도 변화가 없어야 합니다.',
+    '두 축을 모두 읽습니다. 비율이 1 근처나 그 이하이고, 히트맵에 한 변 전체를 따라 밝은 띠가 없어야 합니다.',
+    '이음새 없애기 뒤에는 혼합 띠 안에서 무늬가 겹치지 않는지 전후를 비교하고 판정을 다시 확인합니다.',
+    '받은 PNG를 엔진의 넓은 반복 표면에 입히고 카메라를 이음새 위로 움직여 봅니다.']},
+   trouble:{rows:[
+    ['검사기는 이음새 없음인데 게임에서 선이 보임','엔진이 반복 대신 가장자리 고정(clamp)으로 샘플링하거나, 밉맵·압축이 가장자리 텍셀을 바꿈','같은 확대에서 3 × 3 미리보기와 게임 비교, 밉맵을 끄고 시험','엔진 샘플러 설정에서 텍스처를 반복(wrap)으로, 압축된 텍스처도 확인'],
+    ['가장자리가 투명한 스프라이트에 이음새가 잡힘','차이에 알파가 포함되고, 투명한 가장자리와 불투명한 가장자리는 실제로 크게 다름','이 타일이 반복될 용도인지 확인','스프라이트라면 결과를 무시. 이 검사는 반복 텍스처와 타일용'],
+    ['이음새 없애기 뒤 가운데에 흐리거나 겹친 십자가 남음','교차 혼합이 띠 안에서 텍스처의 서로 다른 부분을 섞음','가운데 선 주변의 전후 비교','고급 설정에서 띠를 좁히거나, 이미지 편집기에서 가운데를 다시 그리기'],
+    ['통과했는데 표면이 누가 봐도 반복돼 보임','눈에 띄는 무늬가 타일 주기로 되풀이됨. 이음새가 아니라 반복 문제','3 × 3 미리보기를 멀리서 보기','더 큰 텍스처, 여러 변형 타일, 데칼로 무늬를 깨기']]},
+   alternatives:{rows:[
+    ['이미지 편집기에서 절반 이동 후 십자 부분을 직접 다시 그리기','혼합이 아니라 실제로 그려야 하는 이음새(균열, 판자 경계)일 때.'],
+    ['텍스처를 만든 도구에서 타일링 옵션으로 내보내기','절차적 도구나 재질 도구로 만든 텍스처일 때. 도구 자체의 타일링으로 나중에 고칠 필요가 없습니다. 노멀맵은 [[game/tiling-normal-map-seams|반복 노멀맵의 이음새]] 참고.']]},
+   limits:['판정은 경계의 픽셀 차이를 잽니다. 눈에 띄는 반복이나 타일 안에서 바뀌는 조명은 찾지 못합니다.','고친 PNG만 저장되며 측정값은 화면에만 표시됩니다.'],
+   versions:{body:['docs/TILE-LAB.md와 `tests/game-seams.test.mjs`에서 측정했습니다. 이어지는 코사인 타일은 비율 1.3 미만으로 이음새 없음, 램프는 평균 240 초과·비율 20 초과로 이음새 있음이었고, 이음새 없애기 뒤 평균은 8 미만으로 떨어졌습니다. 위 예시는 같은 모듈로 다시 계산했습니다(64px 램프와 시드 고정 노이즈 타일).']}
+  },
+  ja:{
+   answer:'テクスチャが継ぎ目なく繰り返せるのは、右端の列が左端の列に、最下行が最上行につながるときです。チェッカーはまさにその境界のペアを測り、軸ごとにタイル内のふつうの隣接行どうしの差と並べて報告します。「平均23」はテクスチャ自体の変化と比べて初めて意味を持つからです。2 × 2・3 × 3のリピート、縁のヒートマップ、軸ごとの判定を表示し、半タイルずらしてクロスフェードすることで継ぎ目を消すこともできますが、その場合ブレンド帯の中の絵が変わります。',
+   concept:{title:'継ぎ目の測り方',body:[
+    'チェッカーは行ごとに最後のピクセルと最初のピクセル（横の境界）、列ごとに最下のピクセルと最上のピクセル（縦の境界）を比べます。2つのピクセルの差は、アルファを含む4チャンネルの差のうち最大の値（0〜255）です。軸ごとに平均と最大、ヒートマップ用の行ごとの値が出ます。',
+    '基準はタイル内で隣り合うすべての列（または行）のペアの平均差です。境界の平均がmax(2, 1.25 × 隣接の平均)以下ならその軸は合格で、両方の軸が合格すれば継ぎ目なしと判定します。だから境界の差が21段階ある粗い石のテクスチャは合格し（隣どうしも21違う）、252跳ぶなめらかなグラデーションは不合格になります（隣どうしは4しか違わない）。ヒートマップも同じ隣接の平均で目盛りを合わせるので、継ぎ目のないタイルが真っ赤に塗られず暗いままです。',
+    'シームレス化はタイルを幅と高さの半分ずらして元の境界を中央で出会わせ、その中央線の両側の帯を半分ずらしたコピーとなめらかな重みでクロスフェードします。帯の既定はタイルの12%（64pxのタイルなら8px）で、0〜64pxに設定できます。新しい境界は構造上つながりますが、代わりに中央にブレンドされた十字ができ、大きな模様が二重に見えることがあります。新たに描き足すものはありません。'],
+    terms:[['境界のペア','タイルを繰り返したときに接する2本の線：最後の列と最初の列、最下行と最上行。'],['隣接の平均','タイル内で隣り合う線どうしの平均差。テクスチャ自体の変化。'],['比','境界の平均 ÷ 隣接の平均。1前後なら見えず、63ならはっきりした継ぎ目。'],['ブレンド帯','移動した継ぎ目の両側で、シームレス化がクロスフェードする帯。']]},
+   example:{title:'例：不合格のグラデーションと合格のノイズタイル',lead:'どちらのタイルも64 × 64です。チェッカーが報告する数値です。',lines:[
+    'ランプタイル    グレー 0 → 252、左から右へ（列ごとに+4）、全行同じ',
+    '横              63列目(252)と0列目(0)：平均252、最大252',
+    '隣接の平均      4.00 → 比 252 / 4 = 63；上限 max(2, 4 × 1.25) = 5 → 継ぎ目あり',
+    '縦              全行同じ：境界0、隣接0 → 合格',
+    'シームレス化    ずらし32, 32；帯 round(64 × 0.12) = 8px → 境界平均4、隣接5.78、比0.69 → 継ぎ目なし',
+    'ノイズタイル    値96〜160：境界平均 20.8 / 18.8、隣接の平均21.5 → 比0.97 / 0.87 → 継ぎ目なし'],
+    after:'ノイズタイルは修正後のランプより境界の差が大きいのに、内部も同じくらい変化しているので合格します。生の数値1つにしきい値を置くと、この2つをどちらも誤判定します。'},
+   verify:{steps:[
+    '3 × 3リピートの中央を100%と200%で見ます。境界に沿って線、明るさの段差、質感の密度の変化がないはずです。',
+    '両方の軸を読みます。比が1前後かそれ以下で、ヒートマップに辺全体に沿った明るい帯がないはずです。',
+    'シームレス化の後は、ブレンド帯の中で模様が二重になっていないか前後を比べ、判定をもう一度確認します。',
+    'ダウンロードしたPNGをエンジンの広い繰り返し面に貼り、カメラを継ぎ目の上で動かしてみます。']},
+   trouble:{rows:[
+    ['チェッカーは継ぎ目なしなのにゲームで線が見える','エンジンが繰り返しではなく端の固定（clamp）でサンプリングしている、またはミップマップや圧縮が縁のテクセルを変えている','同じ拡大率で3 × 3プレビューとゲームを比べ、ミップマップを切って試す','エンジンのサンプラー設定でテクスチャを繰り返し（wrap）にし、圧縮後のテクスチャも確認する'],
+    ['縁が透明なスプライトに継ぎ目が出る','差にはアルファも含まれ、透明な縁と不透明な縁は実際に大きく違う','そのタイルが繰り返す用途かを確認','スプライトなら結果は無視する。このチェックは繰り返すテクスチャとタイル向け'],
+    ['シームレス化の後、中央にぼやけた・二重の十字が残る','クロスフェードが帯の中でテクスチャの別々の部分を混ぜている','中央線の周りで前後を比べる','詳細設定で帯を狭くするか、画像エディターで中央を描き直す'],
+    ['合格したのに面が明らかに繰り返して見える','目立つ模様がタイルの周期で繰り返されている。継ぎ目ではなく繰り返しの問題','3 × 3プレビューを離れて見る','大きいテクスチャ、複数のバリエーションタイル、デカールで模様を崩す']]},
+   alternatives:{rows:[
+    ['画像エディターで半分ずらし、十字の部分を手で描き直す','ブレンドではなく本当に描く必要がある継ぎ目（ひび、板の境目）のとき。'],
+    ['テクスチャを作ったツールのタイリング設定で書き出す','プロシージャルや素材のツールで作ったテクスチャのとき。ツール自身のタイリングなら後から直す必要がありません。ノーマルマップは[[game/tiling-normal-map-seams|繰り返すノーマルマップの継ぎ目]]を参照。']]},
+   limits:['判定は境界のピクセル差を測ります。目立つ繰り返しや、タイル内で変わるライティングは検出しません。','保存されるのは修正したPNGだけで、測定値は画面上に表示されます。'],
+   versions:{body:['docs/TILE-LAB.mdと`tests/game-seams.test.mjs`で測定しました。つながるコサインのタイルは比1.3未満で継ぎ目なし、ランプは平均240超・比20超で継ぎ目ありと判定され、シームレス化の後は平均が8未満に下がりました。上の例は同じモジュールで計算し直したものです（64pxのランプとシード固定のノイズタイル）。']}
+  }
+ },
+ 'tile-grid-slicer':{
+  type:'tool',
+  intent:{primary:'split a tileset or grid image into one PNG per tile',secondary:['find tile size, margin and spacing','tile position math','when engines need single tile files'],
+   goal:'tiles/tile-NNN.png exact region copies plus metadata.json with each tile\'s rect, column and row',input:'a tileset or any grid image',output:'ZIP: tiles/tile-NNN.png + metadata.json (+ variants/, padded-atlas.png)',target:'tools that take one file per tile; engines that read the whole sheet use the same margin and spacing',support:'full',
+   evidence:['src/game/tile-grid.js (tileRects, tileName, sliceMetadata, axis ranking)','src/task/tile-lab.js slice()','docs/TILE-LAB.md §1–2 and verification rows (grid detection 10/10, 13/13 tiles byte-identical, 1600 tiles in 2.2 s)'],
+   external:['Godot 4.7 TileSetAtlasSource margins/separation','Tiled tileset types','Phaser addTilesetImage tileMargin/tileSpacing','Unity Sprite Editor grid slicing']},
+  en:{
+   answer:'Cutting a tileset into single images takes three numbers per axis: the tile size, the margin (pixels before the first tile) and the spacing (pixels between tiles). The slicer measures them from the pixels and ranks the candidates, you confirm or type them, and it writes `tiles/tile-NNN.png` as exact region copies plus `metadata.json` with each tile\'s rect, column and row. Blank tiles are skipped by default and duplicates can be reported as aliases. Most engines read the whole sheet with the same margin and spacing, so single files are only needed when a tool asks for them.',
+   concept:{title:'Tile size, margin and spacing',body:[
+    'Tile n in column c and row r starts at x = margin + c × (tile width + spacing) and y = margin + r × (tile height + spacing). The number of columns that fit is floor((image width − margin + spacing) ÷ (tile width + spacing)); pixels left over at the right or bottom edge are ignored. Each tile is copied out of the decoded sheet as an exact rectangle, never resampled.',
+    'Measurement looks for the period of the art: per axis it builds the difference between each line and the one before, folds that profile at every period from 4 px to half the image and scores how well each fold explains it. Lines that a margin or spacing would reserve must be blank or flat, a blank first or last line inside every tile means the tile is smaller and that line is spacing ("16 px + 1 px gap" beats "17 px tiles"), and a multiple of the true period loses to its divisor. Above 4 megapixels nothing is measured and the size is typed in.',
+    'Engines take the same numbers for the whole sheet: Godot 4\'s `TileSetAtlasSource` has `margins`, `separation` and `texture_region_size`, Tiled\'s image-based tileset has margin and spacing, Phaser\'s `addTilesetImage` takes `tileMargin` and `tileSpacing`, and Unity\'s Sprite Editor grid slicing has Pixel Size, Offset and Padding. Only a Tiled "Collection of Images" tileset, where each tile refers to its own image file, needs the single PNGs.'],
+    terms:[['Margin','Pixels between the image edge and the first tile.'],['Spacing (separation)','Pixels between two neighbouring tiles.'],['Blank tile','A tile whose every pixel has alpha 0; skipped by default and counted in `skippedBlank`.'],['Alias','A tile identical to an earlier one; written once and mapped in `aliases`.']]},
+   example:{title:'Example: a 203 × 186 sheet with 16 px tiles and 1 px spacing',lead:'The numbers the slicer uses, and the same layout in three engines:',lines:[
+    'sheet     203 × 186, tiles 16 × 16, margin 0, spacing 1',
+    'columns   floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    'rows      floor((186 − 0 + 1) / 17) = floor(187 / 17) = 11   → 132 tiles',
+    'tile 13   column 1, row 1 → x = 0 + 1 × 17 = 17, y = 17, 16 × 16 → tiles/tile-013.png',
+    'names     3 digits up to 1000 tiles (tile-005); 4 digits above (tile-0005 in a 1600-tile sheet)',
+    'other     100 × 64 sheet, margin 1, spacing 2 → 5 × 3 tiles at x = 1, 19, 37, 55, 73; 11 px on the right are unused',
+    'engines   Godot margins (0, 0), separation (1, 1) · Tiled margin 0, spacing 1 · Phaser addTilesetImage(name, key, 16, 16, 0, 1)'],
+    after:'File names keep the tile\'s grid index, so when blank tiles are skipped the numbering has gaps on purpose: tile-013 is always column 1, row 1 of this sheet.'},
+   verify:{steps:[
+    'Turn on the grid lines: every line should fall in a gap or on a tile edge, never through the art.',
+    'Open `metadata.json`: `tileSet.columns × rows` is the grid, `count` the files written, `skippedBlank` and `deduplicated` explain any difference.',
+    'Open one tile PNG: it is exactly the tile size, and its `rect` in `frames` satisfies x = margin + col × (tile + spacing).']},
+   trouble:{rows:[
+    ['Every tile carries a line of its neighbour or is shifted by a pixel','Wrong margin or spacing, typically 17 px tiles instead of 16 + 1','Grid lines cross the art instead of the gaps','Pick the other candidate in the ranked list, or type the margin and spacing'],
+    ['Fewer files than tiles in the grid','Blank tiles are skipped, or duplicates were written once as aliases','`skippedBlank`, `deduplicated` and `aliases` in `metadata.json`','Turn blank skipping or duplicate detection off to get one file per grid cell'],
+    ['The period found is 32 px but the tiles are 16 px','The art repeats a larger pattern, so a multiple of the tile scores well','Compare the scores of the 16 px and 32 px candidates','Choose the 16 px candidate or type the size'],
+    ['The tile size is not suggested at all','The image is above 4 megapixels, where the grid is not measured','The field is empty and the note says to type it','Type the tile size, margin and spacing; slicing still works']]},
+   alternatives:{rows:[
+    ['Load the whole sheet in the engine with the margin and spacing','Almost every tilemap: Godot `TileSetAtlasSource`, a Tiled image-based tileset or Phaser `addTilesetImage` read one image and no tile files have to be managed.'],
+    ['[[game/tileset-slicer|Tileset slicer]]','You need an engine tileset with terrain rules for Godot, Tiled, Unity or LDtk rather than loose PNGs.'],
+    ['Unity Sprite Editor, Grid By Cell Size','The sheet is only used in Unity: Pixel Size, Offset and Padding create the sprite rects inside Unity\'s importer.']]},
+   limits:['At most 4096 tiles per slice; near-duplicate grouping is capped at 2048 tiles.','The ZIP carries no engine tileset; `metadata.json` is the generic envelope with rects, columns and rows.'],
+   versions:{body:['Measured for docs/TILE-LAB.md: the true grid ranked first on 10 of 10 synthetic sheets (margin 1 with spacing 2, odd 15 px, 16 × 32 tiles, outlined tiles); 13 of 13 sliced tiles byte-identical to their source regions (Chromium + Pillow); 47 of 48 tiles written with 1 blank skipped and 1 alias; 1600 tiles of 8 px sliced in 2.2 s with a working cancel. The engine parameter names follow the Godot 4.7, Tiled, Phaser and Unity documentation.'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.unityGrid]}
+  },
+  ko:{
+   answer:'타일셋을 낱장 이미지로 자르려면 축마다 세 숫자가 필요합니다. 타일 크기, 여백(첫 타일 앞의 픽셀), 간격(타일 사이 픽셀)입니다. 이 도구는 픽셀에서 그 값을 재고 후보에 순위를 매기며, 확인하거나 직접 입력하면 영역을 그대로 복사한 `tiles/tile-NNN.png`와 각 타일의 영역·열·행이 든 `metadata.json`을 씁니다. 빈 타일은 기본으로 건너뛰고 중복은 별칭으로 표시할 수 있습니다. 대부분의 엔진은 같은 여백·간격으로 시트 전체를 읽으므로, 낱장 파일은 도구가 요구할 때만 필요합니다.',
+   concept:{title:'타일 크기·여백·간격',body:[
+    '열 c, 행 r의 타일은 x = 여백 + c × (타일 너비 + 간격), y = 여백 + r × (타일 높이 + 간격)에서 시작합니다. 들어가는 열 수는 floor((이미지 너비 − 여백 + 간격) ÷ (타일 너비 + 간격))이고, 오른쪽·아래 가장자리에 남는 픽셀은 무시합니다. 각 타일은 디코딩한 시트에서 정확한 사각형으로 복사하며 리샘플링하지 않습니다.',
+    '측정은 그림의 주기를 찾습니다. 축마다 각 줄과 앞 줄의 차이로 윤곽을 만들고, 4px부터 이미지 절반까지 모든 주기로 접어 각 접기가 윤곽을 얼마나 잘 설명하는지 점수를 매깁니다. 여백이나 간격이 차지할 줄은 비어 있거나 단색이어야 하고, 모든 타일의 첫 줄이나 마지막 줄이 비어 있으면 타일이 더 작고 그 줄이 간격이며("16px + 1px 간격"이 "17px 타일"을 이김), 실제 주기의 배수는 약수에 집니다. 4메가픽셀을 넘으면 측정하지 않고 크기를 입력합니다.',
+    '엔진은 시트 전체에 같은 숫자를 씁니다. Godot 4의 `TileSetAtlasSource`에는 `margins`, `separation`, `texture_region_size`가, Tiled의 이미지 기반 타일셋에는 margin과 spacing이, Phaser `addTilesetImage`에는 `tileMargin`과 `tileSpacing`이, Unity Sprite Editor의 격자 자르기에는 Pixel Size·Offset·Padding이 있습니다. 타일마다 자기 이미지 파일을 가리키는 Tiled의 "Collection of Images" 타일셋만 낱장 PNG가 필요합니다.'],
+    terms:[['여백(margin)','이미지 가장자리와 첫 타일 사이의 픽셀.'],['간격(spacing, separation)','이웃한 두 타일 사이의 픽셀.'],['빈 타일','모든 픽셀의 알파가 0인 타일. 기본으로 건너뛰며 `skippedBlank`에 셉니다.'],['별칭','앞의 타일과 똑같은 타일. 한 번만 쓰고 `aliases`에 대응을 기록합니다.']]},
+   example:{title:'예시: 16px 타일, 간격 1px인 203 × 186 시트',lead:'도구가 쓰는 숫자와, 같은 배치를 세 엔진에 넣는 값입니다.',lines:[
+    '시트      203 × 186, 타일 16 × 16, 여백 0, 간격 1',
+    '열        floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    '행        floor((186 − 0 + 1) / 17) = floor(187 / 17) = 11   → 타일 132개',
+    '13번      1열, 1행 → x = 0 + 1 × 17 = 17, y = 17, 16 × 16 → tiles/tile-013.png',
+    '이름      1000개까지 3자리(tile-005), 그 이상은 4자리(1600타일 시트에서 tile-0005)',
+    '다른 예   100 × 64 시트, 여백 1, 간격 2 → 5 × 3 타일, x = 1, 19, 37, 55, 73; 오른쪽 11px 미사용',
+    '엔진      Godot margins (0, 0), separation (1, 1) · Tiled margin 0, spacing 1 · Phaser addTilesetImage(name, key, 16, 16, 0, 1)'],
+    after:'파일 이름은 타일의 격자 번호를 유지하므로, 빈 타일을 건너뛰면 번호에 일부러 빈자리가 생깁니다. tile-013은 이 시트에서 언제나 1열 1행입니다.'},
+   verify:{steps:[
+    '격자선을 켭니다. 모든 선이 틈이나 타일 경계에 있어야 하고 그림을 가로지르면 안 됩니다.',
+    '`metadata.json`을 엽니다. `tileSet.columns × rows`가 격자, `count`가 쓴 파일 수이고, 차이는 `skippedBlank`와 `deduplicated`로 설명됩니다.',
+    '타일 PNG 하나를 엽니다. 정확히 타일 크기이고, `frames`의 `rect`가 x = 여백 + 열 × (타일 + 간격)을 만족해야 합니다.']},
+   trouble:{rows:[
+    ['모든 타일에 이웃 타일의 선이 붙거나 한 픽셀 밀림','여백이나 간격이 틀림. 흔히 16 + 1 대신 17px 타일','격자선이 틈이 아니라 그림을 가로지름','순위 목록의 다른 후보를 고르거나 여백·간격을 입력'],
+    ['격자의 타일보다 파일이 적음','빈 타일을 건너뛰었거나, 중복을 별칭으로 한 번만 씀','`metadata.json`의 `skippedBlank`, `deduplicated`, `aliases`','격자 칸마다 파일이 필요하면 빈 타일 건너뛰기나 중복 찾기를 끄기'],
+    ['타일은 16px인데 32px 주기를 찾음','그림이 더 큰 무늬를 반복해 타일의 배수도 점수가 높음','16px와 32px 후보의 점수 비교','16px 후보를 고르거나 크기를 입력'],
+    ['타일 크기가 전혀 제안되지 않음','이미지가 4메가픽셀을 넘어 격자를 측정하지 않음','칸이 비어 있고 직접 입력하라는 안내가 나옴','타일 크기·여백·간격을 입력. 자르기는 그대로 작동']]},
+   alternatives:{rows:[
+    ['엔진에서 여백·간격을 지정해 시트 전체를 불러오기','거의 모든 타일맵. Godot `TileSetAtlasSource`, Tiled 이미지 기반 타일셋, Phaser `addTilesetImage`는 이미지 하나를 읽으므로 관리할 타일 파일이 없습니다.'],
+    ['[[game/tileset-slicer|타일셋 자르기]]','낱장 PNG가 아니라 Godot·Tiled·Unity·LDtk용 지형 규칙이 있는 엔진 타일셋이 필요할 때.'],
+    ['Unity Sprite Editor, Grid By Cell Size','시트를 Unity에서만 쓸 때. Pixel Size·Offset·Padding으로 Unity 가져오기 안에서 스프라이트 영역을 만듭니다.']]},
+   limits:['한 번에 최대 4096타일, 비슷한 타일 묶기는 2048타일까지입니다.','ZIP에 엔진 타일셋은 없습니다. `metadata.json`은 영역·열·행이 든 일반 형식입니다.'],
+   versions:{body:['docs/TILE-LAB.md를 위해 측정했습니다. 합성 시트 10개 중 10개에서 실제 격자가 1순위였고(여백 1·간격 2, 홀수 15px, 16 × 32 타일, 외곽선 타일), 잘라 낸 타일 13개 중 13개가 원본 영역과 바이트 동일했으며(Chromium + Pillow), 48개 중 47개를 쓰고 빈 타일 1개를 건너뛰고 별칭 1개를 만들었고, 8px 타일 1600개를 2.2초에 자르며 취소도 작동했습니다. 엔진 매개변수 이름은 Godot 4.7, Tiled, Phaser, Unity 공식 문서를 따릅니다.'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.unityGrid]}
+  },
+  ja:{
+   answer:'タイルセットを1枚ずつの画像に切るには、軸ごとに3つの数値が必要です。タイルサイズ、余白（最初のタイルの前のピクセル）、間隔（タイルの間のピクセル）です。このツールはピクセルからそれらを測って候補に順位を付け、確認か入力をすると、範囲をそのままコピーした`tiles/tile-NNN.png`と、各タイルの範囲・列・行を記した`metadata.json`を書き出します。空のタイルは既定で飛ばし、重複はエイリアスとして示せます。ほとんどのエンジンは同じ余白・間隔でシート全体を読むので、個別のファイルが必要なのはツールが求めるときだけです。',
+   concept:{title:'タイルサイズ・余白・間隔',body:[
+    '列c・行rのタイルはx = 余白 + c × (タイル幅 + 間隔)、y = 余白 + r × (タイル高さ + 間隔)から始まります。収まる列数はfloor((画像の幅 − 余白 + 間隔) ÷ (タイル幅 + 間隔))で、右端や下端に余ったピクセルは無視します。各タイルはデコードしたシートから正確な矩形としてコピーし、リサンプリングしません。',
+    '測定は絵の周期を探します。軸ごとに各行と前の行の差でプロファイルを作り、4pxから画像の半分までのすべての周期で折り返して、それぞれがプロファイルをどれだけ説明するかを採点します。余白や間隔が占める行は空か単色でなければならず、どのタイルも最初か最後の行が空ならタイルはもっと小さくその行が間隔です（「16px + 1pxの間隔」が「17pxのタイル」に勝つ）。本当の周期の倍数は約数に負けます。4メガピクセルを超えると測定せず、サイズを入力します。',
+    'エンジンはシート全体に同じ数値を使います。Godot 4の`TileSetAtlasSource`には`margins`、`separation`、`texture_region_size`、Tiledの画像ベースのタイルセットにはmarginとspacing、Phaserの`addTilesetImage`には`tileMargin`と`tileSpacing`、UnityのSprite Editorのグリッド分割にはPixel Size・Offset・Paddingがあります。タイルごとに自分の画像ファイルを指すTiledの「Collection of Images」タイルセットだけが個別のPNGを必要とします。'],
+    terms:[['余白（margin）','画像の端と最初のタイルの間のピクセル。'],['間隔（spacing、separation）','隣り合う2つのタイルの間のピクセル。'],['空のタイル','すべてのピクセルのアルファが0のタイル。既定で飛ばし、`skippedBlank`で数えます。'],['エイリアス','前のタイルとまったく同じタイル。1回だけ書き、対応を`aliases`に記録します。']]},
+   example:{title:'例：16pxのタイル、間隔1pxの203 × 186のシート',lead:'ツールが使う数値と、同じ配置を3つのエンジンに入れる値です。',lines:[
+    'シート    203 × 186、タイル 16 × 16、余白0、間隔1',
+    '列        floor((203 − 0 + 1) / (16 + 1)) = floor(204 / 17) = 12',
+    '行        floor((186 − 0 + 1) / 17) = floor(187 / 17) = 11   → タイル132枚',
+    '13番      1列、1行 → x = 0 + 1 × 17 = 17, y = 17、16 × 16 → tiles/tile-013.png',
+    '名前      1000枚までは3桁（tile-005）、それ以上は4桁（1600枚のシートでtile-0005）',
+    '別の例    100 × 64のシート、余白1、間隔2 → 5 × 3タイル、x = 1, 19, 37, 55, 73；右の11pxは未使用',
+    'エンジン  Godot margins (0, 0), separation (1, 1) · Tiled margin 0, spacing 1 · Phaser addTilesetImage(name, key, 16, 16, 0, 1)'],
+    after:'ファイル名はタイルのグリッド番号を保つので、空のタイルを飛ばすと番号に意図的な欠番ができます。tile-013はこのシートで常に1列1行です。'},
+   verify:{steps:[
+    'グリッド線を表示します。すべての線がすき間かタイルの境目にあり、絵を横切らないはずです。',
+    '`metadata.json`を開きます。`tileSet.columns × rows`がグリッド、`count`が書き出したファイル数で、差は`skippedBlank`と`deduplicated`で説明されます。',
+    'タイルのPNGを1つ開きます。ちょうどタイルサイズで、`frames`の`rect`がx = 余白 + 列 × (タイル + 間隔)を満たすはずです。']},
+   trouble:{rows:[
+    ['すべてのタイルに隣のタイルの線が付く・1ピクセルずれる','余白か間隔が違う。多いのは16 + 1ではなく17pxのタイル','グリッド線がすき間ではなく絵を横切っている','順位リストの別の候補を選ぶか、余白・間隔を入力する'],
+    ['グリッドのタイル数よりファイルが少ない','空のタイルを飛ばした、または重複をエイリアスとして1回だけ書いた','`metadata.json`の`skippedBlank`、`deduplicated`、`aliases`','グリッドのセルごとにファイルが要るなら、空タイルのスキップや重複検出を切る'],
+    ['タイルは16pxなのに32pxの周期が見つかる','絵がより大きな模様を繰り返し、タイルの倍数も高得点になる','16pxと32pxの候補の得点を比べる','16pxの候補を選ぶかサイズを入力する'],
+    ['タイルサイズがまったく提案されない','画像が4メガピクセルを超え、グリッドを測定しない','欄が空で、入力するよう案内が出る','タイルサイズ・余白・間隔を入力する。分割はそのまま動く']]},
+   alternatives:{rows:[
+    ['エンジンで余白・間隔を指定してシート全体を読み込む','ほぼすべてのタイルマップ。Godotの`TileSetAtlasSource`、Tiledの画像ベースのタイルセット、Phaserの`addTilesetImage`は画像1枚を読むので、管理するタイルファイルがありません。'],
+    ['[[game/tileset-slicer|タイルセット分割]]','個別のPNGではなく、Godot・Tiled・Unity・LDtk向けの地形ルールつきのエンジン用タイルセットが必要なとき。'],
+    ['UnityのSprite Editor、Grid By Cell Size','シートをUnityだけで使うとき。Pixel Size・Offset・PaddingでUnityのインポート内にスプライトの範囲を作ります。']]},
+   limits:['1回の分割は最大4096タイル、類似タイルのまとめは2048タイルまでです。','ZIPにエンジン用のタイルセットは入りません。`metadata.json`は範囲・列・行を持つ汎用の形式です。'],
+   versions:{body:['docs/TILE-LAB.mdのために測定しました。合成シート10枚中10枚で本当のグリッドが1位（余白1・間隔2、奇数の15px、16 × 32のタイル、アウトラインつきのタイル）、切り出したタイル13枚中13枚が元の範囲とバイト一致（Chromium + Pillow）、48枚中47枚を書き出して空タイル1枚を飛ばしエイリアス1つ、8pxのタイル1600枚を2.2秒で分割しキャンセルも動作しました。エンジンのパラメーター名はGodot 4.7、Tiled、Phaser、Unityの公式ドキュメントに基づきます。'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.unityGrid]}
+  }
+ },
+ 'atlas-padding':{
+  type:'troubleshoot',
+  intent:{primary:'stop lines and gaps between tiles by extruding each tile\'s edge pixels (tileset extruder)',secondary:['texture bleeding between tiles','padding vs extrude','new margin and spacing after extrusion','tilemap gaps in Phaser, Tiled, Unity'],
+   goal:'a padded atlas whose tiles are surrounded by copies of their own edge pixels, with the margin and spacing to enter in the engine',input:'a tileset on a regular grid (margin and spacing allowed)',output:'padded-atlas.png (+ tiles/*.png and metadata.json with the source rects)',target:'any tilemap that samples with filtering or mipmaps (Tiled, Phaser, Unity…); Godot 4 pads TileSets itself',support:'partial',
+   evidence:['src/atlas.js extrudeRegions','src/primitives.js sheetLayout','src/task/tile-lab.js (extrude 2 on the atlas-padding route, 0–16)','docs/TILE-LAB.md §2 padded atlas and its verification rows','src/capabilities.js atlas-padding quality evidence'],
+   external:['Godot 4.7 TileSetAtlasSource use_texture_padding','Tiled margin/spacing for extruded tilesets','Phaser addTilesetImage','TexturePacker padding vs extrude']},
+  en:{
+   answer:'Thin lines or gaps between tiles appear when the GPU samples a texel just outside a tile\'s rectangle: linear filtering, mipmaps or a camera at a fractional position read the neighbouring tile or the empty gap. Extrusion fixes that by copying each tile\'s outermost pixels outward into a ring, so a sample that lands outside the tile still reads the tile\'s own colour. This page extrudes every tile of a grid sheet (2 px by default, 0–16) into `padded-atlas.png`, where tiles sit at margin = extrude and spacing = 2 × extrude. Check your engine first: Godot 4 TileSets already add 1 px of padding internally.',
+   concept:{title:'Why lines appear between tiles',body:[
+    'A tilemap draws every tile from a rectangle of the atlas. With nearest filtering and the camera on whole pixels each screen pixel reads one texel inside that rectangle and nothing bleeds. Linear filtering blends the four nearest texels, so a sample at the very edge takes up to half its colour from the texel next door; mipmaps average 2 × 2 blocks per level, so at smaller sizes the neighbour mixes in further; and a zoom or camera position that is not a whole number moves samples onto those edges.',
+    'Padding and extrusion are different fixes. Padding (TexturePacker\'s shape padding) leaves transparent pixels between the rectangles: the neighbour is no longer read, but the empty gap is, which shows as a dark or see-through line. Extrusion repeats the edge pixels outward (TexturePacker: "repeats the sprite\'s pixels at the border; sprite\'s size is not changed"), so whatever leaks in has the tile\'s own colour. For tiles that must meet edge to edge, extrusion is the one that hides the line.',
+    'Some engines already do it. Godot 4\'s `TileSetAtlasSource.use_texture_padding` is on by default and generates an internal texture with one extra pixel around each tile, so a Godot 4 TileSet usually needs nothing here. Tiled supports margin and spacing precisely so that extruded tilesets can be used, and Phaser\'s `addTilesetImage` takes `tileMargin` and `tileSpacing`. After extruding, those two numbers change, and forgetting that is the most common new problem.']},
+   example:{title:'Example: extruding a 203 × 186 sheet by 2 px',lead:'The sheet has 12 × 11 tiles of 16 × 16 with 1 px spacing. Pixel positions in the output:',lines:[
+    'source    203 × 186: 12 × 11 tiles of 16 × 16, margin 0, spacing 1',
+    'extrude 2 → each cell 16 + 2 × 2 = 20 px → padded-atlas.png 12 × 20 = 240 by 11 × 20 = 220',
+    'tile 13   column 1, row 1: source 17,17 → atlas x = 1 × 20 + 2 = 22, y = 22 (pixels 22–37)',
+    'ring      x 20–21 repeat the tile\'s column 0, x 38–39 repeat column 15; each 2 × 2 corner repeats the corner pixel',
+    'engine    margin 2, spacing 4 → Tiled margin 2 / spacing 4 · Phaser addTilesetImage(name, key, 16, 16, 2, 4) · Godot margins (2, 2), separation (4, 4)',
+    'padding   the same 4 px left transparent: a linear sample halfway between texel 37 and 38 is 50 % tile, 50 % nothing'],
+    after:'The source sheet\'s own 1 px spacing disappears: the atlas is laid out again from the grid. `metadata.json` in the same ZIP keeps the source rects (tile 13 at 17,17), so use margin and spacing for the padded atlas.'},
+   verify:{steps:[
+    'Open `padded-atlas.png`: it is columns × (tile + 2 × extrude) by rows × (tile + 2 × extrude), and tile 0 starts at (extrude, extrude).',
+    'Zoom into the ring around one tile: every ring pixel equals the nearest edge pixel of that tile.',
+    'In the engine, set margin = extrude and spacing = 2 × extrude, then pan and zoom the camera by fractional amounts across a tile border: no line should appear.']},
+   trouble:{rows:[
+    ['Lines flicker only while the camera moves or zooms','Fractional positions plus linear filtering sample across tile borders','Stop the camera at a whole-pixel position: the lines disappear','Extrude the atlas, or use nearest filtering with whole-pixel camera positions'],
+    ['Lines appear only when the map is zoomed out','Mipmaps average blocks that include the neighbouring tile','Turn mipmaps off for the tileset texture: the lines vanish','Extrude more (2–4 px), or disable mipmaps for 2D tilemaps'],
+    ['After extruding, every tile shows part of its neighbour','The engine still uses the old margin and spacing','Tile 0 should start at (extrude, extrude) in the padded atlas','Set margin = extrude and spacing = 2 × extrude (extrude 2 → 2 and 4)'],
+    ['Dark fringes around transparent parts of tiles','The colour under fully transparent pixels is black and filtering blends it in; extrusion only adds pixels around tiles','Look at the RGB of transparent pixels near the edge','Fill the colour under transparent pixels with [[game/texture-edge-bleed|edge bleed]]'],
+    ['Gaps remain with nearest filtering and no mipmaps','The tiles themselves are placed apart: map positions or scale are not whole pixels','Check tile positions and the camera scale','Fix the map or camera; this is outside what an atlas can fix, and Nerulio cannot change it']]},
+   versions:{body:['Measured for docs/TILE-LAB.md and `tests/recipes-browser.py`: a 2 × 1 sheet of 1 px tiles with 1 px extrusion gives a 6 × 3 atlas with the edge pixels isolated; a sheet with 8 px tiles, margin 1 and separation 2 gives a 36 × 24 atlas whose 6 × 64 tile pixels and 6 × 8 left-edge pixels equal the source; the output is byte-identical to the reference extrusion for a 32 × 32 sheet at padding 3 and for 1 × 1, 1 × 16 and 16 × 1 cells at padding 2 (Chromium and Firefox). The example positions were recomputed with the same layout function. Engine behaviour follows the Godot 4.7, Tiled, Phaser and TexturePacker documentation.'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.tpSettings]}
+  },
+  ko:{
+   answer:'타일 사이의 가는 선이나 틈은 GPU가 타일 사각형 바로 바깥의 텍셀을 샘플링할 때 생깁니다. 선형 필터링, 밉맵, 정수가 아닌 위치의 카메라가 이웃 타일이나 빈 틈을 읽는 것입니다. 가장자리 확장은 각 타일의 맨 바깥 픽셀을 바깥 테두리로 복사해, 타일 밖에 떨어진 샘플도 타일 자신의 색을 읽게 해서 이를 고칩니다. 이 페이지는 격자 시트의 모든 타일을 확장해(기본 2px, 0~16) `padded-atlas.png`를 만들며, 타일은 여백 = 확장 폭, 간격 = 확장 폭 × 2에 놓입니다. 먼저 엔진을 확인하세요. Godot 4 TileSet은 이미 내부적으로 1px 여백을 둡니다.',
+   concept:{title:'타일 사이에 선이 생기는 이유',body:[
+    '타일맵은 모든 타일을 아틀라스의 사각형 하나에서 그립니다. 최근접 필터에 카메라가 정수 픽셀 위에 있으면 화면 픽셀마다 사각형 안 텍셀 하나를 읽어 번짐이 없습니다. 선형 필터는 가장 가까운 텍셀 네 개를 섞으므로 가장자리의 샘플은 색의 최대 절반을 옆 텍셀에서 가져옵니다. 밉맵은 단계마다 2 × 2 블록을 평균하므로 작게 그릴수록 이웃이 더 섞이고, 정수가 아닌 확대나 카메라 위치는 샘플을 그 가장자리로 옮깁니다.',
+    '여백(padding)과 확장(extrude)은 다른 해결책입니다. 여백(TexturePacker의 shape padding)은 사각형 사이에 투명 픽셀을 남겨 이웃은 읽지 않지만 빈 틈을 읽게 되고, 이것이 어둡거나 비쳐 보이는 선이 됩니다. 확장은 가장자리 픽셀을 바깥으로 반복하므로(TexturePacker: "repeats the sprite\'s pixels at the border; sprite\'s size is not changed") 새어 들어오는 것도 타일 자신의 색입니다. 모서리끼리 딱 붙어야 하는 타일이라면 선을 숨기는 것은 확장입니다.',
+    '이미 이것을 하는 엔진도 있습니다. Godot 4의 `TileSetAtlasSource.use_texture_padding`은 기본으로 켜져 있고 타일마다 1픽셀을 더 두른 내부 텍스처를 만들므로, Godot 4 TileSet에는 대개 이 작업이 필요 없습니다. Tiled는 확장된 타일셋을 쓰도록 margin과 spacing을 지원하고, Phaser `addTilesetImage`는 `tileMargin`과 `tileSpacing`을 받습니다. 확장하면 이 두 숫자가 바뀌며, 이를 잊는 것이 가장 흔한 새 문제입니다.']},
+   example:{title:'예시: 203 × 186 시트를 2px 확장',lead:'시트는 16 × 16 타일 12 × 11개, 간격 1px입니다. 결과의 픽셀 위치:',lines:[
+    '원본      203 × 186: 16 × 16 타일 12 × 11개, 여백 0, 간격 1',
+    '확장 2    → 칸마다 16 + 2 × 2 = 20px → padded-atlas.png 12 × 20 = 240, 11 × 20 = 220',
+    '13번      1열, 1행: 원본 17,17 → 아틀라스 x = 1 × 20 + 2 = 22, y = 22 (픽셀 22~37)',
+    '테두리    x 20~21은 타일의 0번 열 반복, x 38~39는 15번 열 반복; 2 × 2 모서리는 모서리 픽셀 반복',
+    '엔진      여백 2, 간격 4 → Tiled margin 2 / spacing 4 · Phaser addTilesetImage(name, key, 16, 16, 2, 4) · Godot margins (2, 2), separation (4, 4)',
+    '여백만    같은 4px를 투명으로 두면: 37번과 38번 텍셀 중간의 선형 샘플은 타일 50%, 빈 곳 50%'],
+    after:'원본 시트의 1px 간격은 사라집니다. 아틀라스를 격자에서 새로 배치하기 때문입니다. 같은 ZIP의 `metadata.json`은 원본 영역(13번은 17,17)을 유지하므로, 여백 아틀라스에는 여백·간격 값을 쓰세요.'},
+   verify:{steps:[
+    '`padded-atlas.png`를 엽니다. 크기가 열 수 × (타일 + 2 × 확장) × 행 수 × (타일 + 2 × 확장)이고, 0번 타일이 (확장, 확장)에서 시작해야 합니다.',
+    '타일 하나의 테두리를 확대합니다. 테두리 픽셀이 모두 그 타일의 가장 가까운 가장자리 픽셀과 같아야 합니다.',
+    '엔진에서 여백 = 확장, 간격 = 2 × 확장으로 두고, 카메라를 타일 경계 위로 소수 단위로 움직이고 확대해 봅니다. 선이 보이지 않아야 합니다.']},
+   trouble:{rows:[
+    ['카메라가 움직이거나 확대할 때만 선이 깜빡임','소수 위치와 선형 필터가 타일 경계 너머를 샘플링','카메라를 정수 픽셀 위치에 멈추면 선이 사라짐','아틀라스를 확장하거나, 최근접 필터와 정수 픽셀 카메라 위치 사용'],
+    ['맵을 축소했을 때만 선이 보임','밉맵이 이웃 타일을 포함한 블록을 평균함','타일셋 텍스처의 밉맵을 끄면 선이 사라짐','더 많이 확장하거나(2~4px), 2D 타일맵의 밉맵 끄기'],
+    ['확장한 뒤 모든 타일에 이웃 타일이 보임','엔진이 아직 예전 여백·간격을 씀','여백 아틀라스에서 0번 타일은 (확장, 확장)에서 시작해야 함','여백 = 확장, 간격 = 2 × 확장으로(확장 2 → 2와 4)'],
+    ['타일의 투명한 부분 둘레에 어두운 테두리','완전히 투명한 픽셀 아래 색이 검정이고 필터가 이를 섞음. 확장은 타일 바깥에만 픽셀을 더함','가장자리 근처 투명 픽셀의 RGB 확인','[[game/texture-edge-bleed|가장자리 번짐 채우기]]로 투명 픽셀 아래 색 채우기'],
+    ['최근접 필터에 밉맵이 없어도 틈이 남음','타일 자체가 떨어져 배치됨: 맵 위치나 배율이 정수 픽셀이 아님','타일 위치와 카메라 배율 확인','맵이나 카메라를 고치기. 아틀라스로 고칠 수 있는 범위가 아니며 Nerulio도 바꿀 수 없음']]},
+   versions:{body:['docs/TILE-LAB.md와 `tests/recipes-browser.py`에서 측정했습니다. 1px 타일 2 × 1개 시트를 1px 확장하면 가장자리 픽셀이 분리된 6 × 3 아틀라스가 되고, 8px 타일·여백 1·간격 2 시트는 36 × 24 아틀라스가 되며 타일 픽셀 6 × 64개와 왼쪽 가장자리 픽셀 6 × 8개가 원본과 같았습니다. 32 × 32 시트의 여백 3, 1 × 1·1 × 16·16 × 1 칸의 여백 2에서 기준 확장 결과와 바이트 동일했습니다(Chromium·Firefox). 예시 위치는 같은 배치 함수로 다시 계산했습니다. 엔진 동작은 Godot 4.7, Tiled, Phaser, TexturePacker 공식 문서를 따릅니다.'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.tpSettings]}
+  },
+  ja:{
+   answer:'タイルの間の細い線やすき間は、GPUがタイルの矩形のすぐ外のテクセルをサンプリングしたときに出ます。線形フィルタリング、ミップマップ、整数でない位置のカメラが、隣のタイルや空のすき間を読んでしまうのです。縁の拡張は各タイルのいちばん外側のピクセルを外側の縁にコピーし、タイルの外に落ちたサンプルもタイル自身の色を読むようにして直します。このページはグリッドのシートの全タイルを拡張し（既定2px、0〜16）`padded-atlas.png`を作り、タイルは余白 = 拡張幅、間隔 = 拡張幅 × 2に置かれます。先にエンジンを確認してください。Godot 4のTileSetはすでに内部で1pxの余白を付けています。',
+   concept:{title:'タイルの間に線が出る理由',body:[
+    'タイルマップはすべてのタイルをアトラスの矩形1つから描きます。最近傍フィルターでカメラが整数ピクセル上にあれば、画面の各ピクセルは矩形内のテクセル1つを読み、にじみません。線形フィルターは最も近い4つのテクセルを混ぜるので、縁のサンプルは色の最大半分を隣のテクセルから取ります。ミップマップは段階ごとに2 × 2のブロックを平均するので小さく描くほど隣が混ざり、整数でない拡大率やカメラ位置はサンプルをその縁に動かします。',
+    '余白（padding）と拡張（extrude）は別の対策です。余白（TexturePackerのshape padding）は矩形の間に透明なピクセルを残すので、隣は読まなくなりますが空のすき間を読み、それが暗い線や透けた線になります。拡張は縁のピクセルを外へ繰り返すので（TexturePacker："repeats the sprite\'s pixels at the border; sprite\'s size is not changed"）、入り込むのもタイル自身の色です。縁どうしがぴったり接するべきタイルなら、線を隠すのは拡張です。',
+    'すでにこれを行うエンジンもあります。Godot 4の`TileSetAtlasSource.use_texture_padding`は既定でオンで、タイルごとに1ピクセル余分に囲んだ内部テクスチャを作るので、Godot 4のTileSetにはたいていこの作業は不要です。Tiledは拡張済みのタイルセットを使えるようmarginとspacingに対応し、Phaserの`addTilesetImage`は`tileMargin`と`tileSpacing`を受け取ります。拡張するとこの2つの数値が変わり、それを忘れるのが最もよくある新しい問題です。']},
+   example:{title:'例：203 × 186のシートを2px拡張',lead:'シートは16 × 16のタイルが12 × 11枚、間隔1pxです。出力でのピクセル位置：',lines:[
+    '元        203 × 186：16 × 16のタイルが12 × 11枚、余白0、間隔1',
+    '拡張2     → セルごとに 16 + 2 × 2 = 20px → padded-atlas.png 12 × 20 = 240 × 11 × 20 = 220',
+    '13番      1列、1行：元 17,17 → アトラス x = 1 × 20 + 2 = 22, y = 22（ピクセル22〜37）',
+    '縁        x 20〜21はタイルの0列目を繰り返し、x 38〜39は15列目を繰り返す；2 × 2の角は角のピクセルを繰り返す',
+    'エンジン  余白2、間隔4 → Tiled margin 2 / spacing 4 · Phaser addTilesetImage(name, key, 16, 16, 2, 4) · Godot margins (2, 2), separation (4, 4)',
+    '余白だけ  同じ4pxを透明のままにすると：37番と38番のテクセルの中間の線形サンプルはタイル50%、空50%'],
+    after:'元のシートの1pxの間隔は消えます。アトラスをグリッドから配置し直すためです。同じZIPの`metadata.json`は元の範囲（13番は17,17）を保つので、余白アトラスには余白・間隔の値を使ってください。'},
+   verify:{steps:[
+    '`padded-atlas.png`を開きます。サイズは列数 × (タイル + 2 × 拡張) × 行数 × (タイル + 2 × 拡張)で、0番のタイルが(拡張, 拡張)から始まるはずです。',
+    'タイル1つの縁を拡大します。縁のピクセルはすべて、そのタイルの最も近い縁のピクセルと同じはずです。',
+    'エンジンで余白 = 拡張、間隔 = 2 × 拡張にし、カメラをタイルの境目の上で小数単位で動かしたり拡大したりします。線が出ないはずです。']},
+   trouble:{rows:[
+    ['カメラが動く・拡大するときだけ線がちらつく','小数の位置と線形フィルターがタイルの境目をまたいでサンプリングしている','カメラを整数ピクセルの位置で止めると線が消える','アトラスを拡張するか、最近傍フィルターと整数ピクセルのカメラ位置を使う'],
+    ['マップを縮小したときだけ線が出る','ミップマップが隣のタイルを含むブロックを平均している','タイルセットのテクスチャのミップマップを切ると線が消える','もっと拡張する（2〜4px）か、2Dタイルマップのミップマップを切る'],
+    ['拡張した後、すべてのタイルに隣のタイルが見える','エンジンがまだ古い余白・間隔を使っている','余白アトラスでは0番のタイルが(拡張, 拡張)から始まるはず','余白 = 拡張、間隔 = 2 × 拡張にする（拡張2 → 2と4）'],
+    ['タイルの透明な部分の周りに暗い縁が出る','完全に透明なピクセルの下の色が黒で、フィルターがそれを混ぜる。拡張はタイルの外側にピクセルを足すだけ','縁の近くの透明ピクセルのRGBを確認','[[game/texture-edge-bleed|エッジブリード]]で透明ピクセルの下の色を埋める'],
+    ['最近傍フィルターでミップマップなしでもすき間が残る','タイル自体が離れて配置されている：マップの位置や倍率が整数ピクセルでない','タイルの位置とカメラの倍率を確認','マップかカメラを直す。アトラスで直せる範囲外で、Nerulioでも変えられない']]},
+   versions:{body:['docs/TILE-LAB.mdと`tests/recipes-browser.py`で測定しました。1pxのタイル2 × 1枚のシートを1px拡張すると縁のピクセルが分離した6 × 3のアトラスになり、8pxのタイル・余白1・間隔2のシートは36 × 24のアトラスになってタイルのピクセル6 × 64個と左端のピクセル6 × 8個が元と一致しました。32 × 32のシートの余白3、1 × 1・1 × 16・16 × 1のセルの余白2で、基準の拡張結果とバイト一致しました（Chromium・Firefox）。例の位置は同じ配置関数で計算し直しています。エンジンの動作はGodot 4.7、Tiled、Phaser、TexturePackerの公式ドキュメントに基づきます。'],sources:[S.atlasSource,S.tiled,S.phaserTilemap,S.tpSettings]}
+  }
+ }
+
 };
