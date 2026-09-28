@@ -973,6 +973,9 @@ Object.assign(S.ja.uiLab,{fontExportV2:'PNG + BMFont 3形式 + 編集用プロ�
 S.ko.uiLab.fontExportV2='PNG + BMFont 3형식 받기';
 S.en.uiLab.fontExportV2='Download PNG + 3 BMFont formats';
 S.ja.uiLab.fontExportV2='PNG + BMFont 3形式を取得';
+Object.assign(S.ko.uiLab,{fontPreviewText:'미리 볼 문장',fontCoverage:'요청한 글자 {total}개 중 {present}개 포함 · 빠짐: {missing}',fontNone:'없음'});
+Object.assign(S.en.uiLab,{fontPreviewText:'Preview text',fontCoverage:'{present} of {total} requested characters present · missing: {missing}',fontNone:'none'});
+Object.assign(S.ja.uiLab,{fontPreviewText:'プレビュー文',fontCoverage:'指定した{total}文字のうち{present}文字を収録 · 不足: {missing}',fontNone:'なし'});
 export function ui(locale,key,vars={}){
  let v=key.split('.').reduce((o,k)=>o?.[k],S[locale]||S.en)??key.split('.').reduce((o,k)=>o?.[k],S.en)??key;
  return String(v).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');

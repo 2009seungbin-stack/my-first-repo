@@ -197,12 +197,14 @@ export function fontFromFnt(parsed,{image=''}={}){
 /** Pen positions for one line of text, using only the font's own metrics. */
 export function layoutLine(font,text){
  const by=new Map(font.glyphs.map(g=>[g.codepoint,g]));
- let pen=0;const out=[];
+ const pairs=new Map((font.kernings||[]).map(k=>[`${k.first}:${k.second}`,k.amount]));
+ let pen=0,previous=null;const out=[];
  for(const ch of String(text)){
-  const g=by.get(cp(ch));
-  if(!g){out.push({char:ch,missing:true,x:pen});continue;}
+  const codepoint=cp(ch),g=by.get(codepoint);
+  if(!g){out.push({char:ch,missing:true,x:pen});previous=null;continue;}
+  if(previous!==null)pen+=pairs.get(`${previous}:${codepoint}`)||0;
   out.push({char:ch,glyph:g,x:pen+g.xOffset,y:g.yOffset});
-  pen+=g.xAdvance;
+  pen+=g.xAdvance;previous=codepoint;
  }
  return {items:out,width:pen};
 }

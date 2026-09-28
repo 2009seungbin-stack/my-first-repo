@@ -61,7 +61,7 @@ export function mount({el,def}){
   states:{ops:JSON.parse(JSON.stringify(ST.DEFAULT_OPS)),selected:'hover',canvases:null,strip:null},
   atlas:{threshold:8,merge:4,minArea:16,padding:2,extrude:0,elements:null,packed:null,editing:null},
   font:{mode:'grid',cellW:8,cellH:8,baseline:0,spacing:1,chars:'',preset:'text',sample:'',sdf:false,spread:8,size:32,family:'',fileName:'',built:null,sheet:null,
-   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,past:[],future:[],stroke:false,strokeInkBefore:null},
+   detected:undefined,keyed:null,charsAuto:true,project:null,selected:65,editX:0,editY:0,ink:1,preview:'',past:[],future:[],stroke:false,strokeInkBefore:null},
   check:{tab:TAB_OF[route.id]||'glyphs',text:'',source:'lab',imported:null,importedName:'',screen:'1080p',aspect:'16:9',anchor:'bottom-center',safe:'none',insetX:0,insetY:0,
    strings:{ko:'',en:'',ja:''},boxW:220,boxH:56,fontSize:18,wrapMode:'single',fg:'#ffffff',bg:'#3182f6',fontPx:16,bold:false}
  };
@@ -303,7 +303,8 @@ ${f.mode==='draw'&&f.project?`<div class="field-row"><label class="field"><span>
 <div class="field-row"><label class="field"><span>${esc(T('fontBearingX'))}</span><input id="fontBearingX" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.xOffset??0}"></label><label class="field"><span>${esc(T('fontBearingY'))}</span><input id="fontBearingY" type="number" min="-4096" max="4096" value="${f.project.glyphs.find(g=>g.codepoint===f.selected)?.yOffset??0}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontAscender'))}</span><input id="fontAscent" type="number" min="0" max="4096" value="${f.project.ascent}"></label><label class="field"><span>${esc(T('fontDescender'))}</span><input id="fontDescent" type="number" min="0" max="4096" value="${f.project.descent}"></label></div>
 <div class="field-row"><label class="field"><span>${esc(T('fontKerningPair'))}</span><input id="fontKerningPair" type="text" maxlength="2" value="" placeholder="AV"></label><label class="field"><span>${esc(T('fontKerningAmount'))}</span><input id="fontKerningAmount" type="number" min="-128" max="128" value="0"></label></div><button type="button" class="mini-button" data-action="ui-font-kerning">${esc(T('fontApplyKerning'))}</button>
-<div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>`:''}
+<div class="field-row"><button type="button" class="mini-button" data-action="ui-font-undo" ${f.past.length?'':'disabled'}>${esc(T('undo'))}</button><button type="button" class="mini-button" data-action="ui-font-redo" ${f.future.length?'':'disabled'}>${esc(T('redo'))}</button><button type="button" class="mini-button" data-action="ui-font-erase" aria-pressed="${!f.ink}">${esc(T('fontEraser'))}</button></div>
+<label class="field"><span>${esc(T('fontPreviewText'))}</span><textarea id="fontPreviewText" rows="2" maxlength="500" spellcheck="false">${esc(f.preview)}</textarea></label><p class="hint" id="fontCoverage" role="status" aria-live="polite"></p>`:''}
 <form class="options" autocomplete="off">
 ${f.mode==='draw'?'' : f.mode==='ttf'?`<label class="field"><span>${esc(T('fontFile'))}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,font/ttf,font/otf" data-local-drop></label>
 <div class="field-row"><label class="field"><span>${esc(T('fontSize'))}</span><input type="number" data-opt="font.size" min="6" max="128" value="${f.size}" inputmode="numeric"></label><label class="field"><span>${esc(T('glyphSpacing'))}</span><input type="number" data-opt="font.spacing" min="0" max="16" value="${f.spacing}" inputmode="numeric"></label></div>
@@ -484,7 +485,8 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   $('#fontSvg').setAttribute('viewBox',`0 0 ${sheet.width} ${sheet.height}`);
   $('#fontSvg').innerHTML=font.glyphs.filter(g=>g.w&&g.h).map(g=>`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"/>`).join('');
   // A line of the font's own glyphs, placed with its own metrics: a wrong advance shows here.
-  const line=BM.layoutLine(font,font.glyphs.slice(0,24).map(g=>g.char).join('')),sample=$('#fontSampleCanvas');
+  const preview=S.font.mode==='draw'&&S.font.preview?Array.from(S.font.preview).slice(0,80).join(''):font.glyphs.slice(0,24).map(g=>g.char).join('');
+  const line=BM.layoutLine(font,preview),sample=$('#fontSampleCanvas');
   sample.width=Math.max(1,Math.ceil(line.width));sample.height=font.lineHeight;
   const sx=sample.getContext('2d');sx.imageSmoothingEnabled=false;
   for(const item of line.items)if(item.glyph?.w)sx.drawImage(sheet,item.glyph.x,item.glyph.y,item.glyph.w,item.glyph.h,Math.round(item.x),Math.round(item.y),item.glyph.w,item.glyph.h);
@@ -492,6 +494,10 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
   // the line height and the box is given the room that transform alone would not reserve.
   const zoom=clamp(Math.floor(72/Math.max(1,font.lineHeight)),1,4);
   sample.classList.add('px');sample.style.width=sample.width*zoom+'px';sample.style.height=sample.height*zoom+'px';
+  const coverage=$('#fontCoverage');if(coverage){
+   const present=new Set(font.glyphs.map(g=>g.codepoint)),requested=[...new Set([...S.font.preview].filter(ch=>!/[\r\n]/.test(ch)).map(ch=>ch.codePointAt(0)))];
+   const missing=requested.filter(code=>!present.has(code));coverage.textContent=T('fontCoverage',{present:requested.length-missing.length,total:requested.length,missing:missing.slice(0,12).map(code=>`U+${code.toString(16).toUpperCase().padStart(4,'0')}`).join(', ')||T('fontNone')});
+  }
  }
  function selectedGlyph(){return S.font.project?.glyphs.find(g=>g.codepoint===S.font.selected);}
  function rememberFont(){
@@ -987,6 +993,9 @@ ${['ko','en','ja'].map(l=>`<label class="field"><span>${esc(T('string.'+l))}</sp
    f.project.lineHeight=f.project.ascent+f.project.descent;refresh();
   }
  });
+ el.addEventListener('input',e=>{if(e.target.id==='fontPreviewText'){
+  S.font.preview=e.target.value;if(S.font.built)drawFontPreview(S.font.sheet||S.font.keyed||source,S.font.built);
+ }});
  el.addEventListener('submit',e=>e.preventDefault());
  el.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('.dropzone')){e.preventDefault();e.target.click();return;}

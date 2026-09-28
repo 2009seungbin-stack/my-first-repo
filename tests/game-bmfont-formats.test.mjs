@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {gridFont,fntText,fntXml,fntBinary} from '../src/game/bmfont.js';
+import {gridFont,fntText,fntXml,fntBinary,layoutLine} from '../src/game/bmfont.js';
 
 // The binary reader below is deliberately separate from the production writer.
 function readBmf(bytes){
@@ -39,4 +39,12 @@ test('binary writer refuses impossible BMFont values instead of wrapping',()=>{
  assert.throws(()=>fntBinary(font),/xoffset/);
  font.glyphs[0].xOffset=0;font.width=70000;
  assert.throws(()=>fntBinary(font),/width/);
+});
+
+test('preview layout applies kerning and resets a pair across a missing character',()=>{
+ const font=gridFont({width:16,height:8,cellW:8,cellH:8,chars:'AV'});
+ font.kernings=[{first:65,second:86,amount:-2}];
+ assert.deepEqual(layoutLine(font,'AV').items.map(item=>item.x),[0,6]);
+ assert.equal(layoutLine(font,'AV').width,14);
+ assert.deepEqual(layoutLine(font,'A?V').items.map(item=>item.x),[0,8,8]);
 });
