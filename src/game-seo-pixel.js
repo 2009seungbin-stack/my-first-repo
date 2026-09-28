@@ -162,7 +162,7 @@ export const PAGES=Object.freeze({
     ['What does the Lospec search send over the network?','Only the palette name you type, turned into a lospec.com/palette-list/<name>.json request without cookies or a referrer, after a consent dialog. It is the only network request in the whole workspace; declining sends nothing.'],
     ['Can it read palettes from Photoshop and Paint Shop Pro?','Yes: Adobe .ase swatch exchange and .act files, JASC and RIFF .pal, GIMP .gpl, plain .hex and Lospec JSON, plus the palette inside an .aseprite. Each format was written and read back identical, and a real Adobe .ase with 16 colours was read.']],
    table:{title:'Palette formats in and out',lead:'All are read and written by the Palette menu; "checked" means written and read back identical.',head:['Format','Made by','Read','Write'],rows:[
-    ['.gpl','GIMP, Lospec, Aseprite','Yes (RGBA as Lospec writes it)','Yes, checked'],
+    ['.gpl','GIMP, Lospec, Aseprite','Yes (also Aseprite\'s RGBA extension)','Yes, checked'],
     ['.pal','Paint Shop Pro (JASC), RIFF palettes','Both variants','Yes, checked'],
     ['.hex','Lospec','Yes','Yes, checked'],
     ['.ase (swatches)','Adobe Photoshop, Illustrator','Yes (a real 16-colour file read)','Yes, checked'],
@@ -184,7 +184,7 @@ export const PAGES=Object.freeze({
     ['Lospec 검색은 네트워크로 무엇을 보내나요?','입력한 팔레트 이름만 보냅니다. 동의 대화상자 뒤에 쿠키와 리퍼러 없이 lospec.com/palette-list/<이름>.json 요청 하나가 나가며, 작업 공간 전체에서 유일한 네트워크 요청입니다. 거절하면 아무것도 보내지 않습니다.'],
     ['포토샵·페인트샵 프로 팔레트도 읽나요?','네. Adobe .ase 스와치와 .act, JASC·RIFF .pal, 김프 .gpl, .hex, Lospec JSON, .aseprite 안의 팔레트를 읽습니다. 형식마다 쓰고 다시 읽어 같음을 확인했고, 실제 16색 Adobe .ase도 읽었습니다.']],
    table:{title:'팔레트 형식 읽기·쓰기',lead:'모두 팔레트 메뉴에서 읽고 씁니다. "확인"은 쓰고 다시 읽어 같았다는 뜻입니다.',head:['형식','만드는 곳','읽기','쓰기'],rows:[
-    ['.gpl','김프, Lospec, 에이스프라이트','가능(Lospec이 쓰는 RGBA 포함)','가능, 확인'],
+    ['.gpl','김프, Lospec, 에이스프라이트','가능(에이스프라이트의 RGBA 확장 포함)','가능, 확인'],
     ['.pal','페인트샵 프로(JASC), RIFF 팔레트','두 방식 모두','가능, 확인'],
     ['.hex','Lospec','가능','가능, 확인'],
     ['.ase(스와치)','어도비 포토샵·일러스트레이터','가능(실제 16색 파일로 확인)','가능, 확인'],
@@ -206,7 +206,7 @@ export const PAGES=Object.freeze({
     ['Lospec検索は何を送信しますか？','入力したパレット名だけです。同意ダイアログのあと、Cookieとリファラーなしでlospec.com/palette-list/<名前>.jsonへのリクエストが1つ出ます。作業画面全体で唯一の通信で、断れば何も送りません。'],
     ['PhotoshopやPaint Shop Proのパレットも読めますか？','はい。Adobeの.aseスウォッチと.act、JASC・RIFFの.pal、GIMPの.gpl、.hex、Lospec JSON、.aseprite内のパレットを読めます。各形式を書き出して読み戻し一致を確認し、実際の16色のAdobe .aseも読み込めました。']],
    table:{title:'パレット形式の読み書き',lead:'すべてパレットメニューから読み書きします。「確認済み」は書き出して読み戻し、一致したという意味です。',head:['形式','作られる場所','読み込み','書き出し'],rows:[
-    ['.gpl','GIMP、Lospec、Aseprite','可（Lospecが書くRGBAも）','可、確認済み'],
+    ['.gpl','GIMP、Lospec、Aseprite','可（AsepriteのRGBA拡張も）','可、確認済み'],
     ['.pal','Paint Shop Pro（JASC）、RIFFパレット','両方式','可、確認済み'],
     ['.hex','Lospec','可','可、確認済み'],
     ['.ase（スウォッチ）','Adobe Photoshop・Illustrator','可（実際の16色ファイルで確認）','可、確認済み'],
