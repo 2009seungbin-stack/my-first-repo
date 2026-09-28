@@ -8,14 +8,16 @@ import {modal} from '../../ui/dialogs.js';
 import * as P from '../../core/project.js';
 import * as PD from '../../pixel/pixel-doc.js';
 import {DEFAULTS} from '../../pixel/cleanup.js';
-import {indicesFromRGBA,hex} from '../../pixel/indexed.js';
+import {indicesFromRGBA,hex,parseHex} from '../../pixel/indexed.js';
 import {encodeIndexedPNG} from '../../pixel/png8.js';
+import {PALETTES} from '../../../task/pixel.js';
 import {rgbaGetter,storeRGBA} from '../../sprite/frame-render.js';
 import {composeFrame,composeCanvas} from '../../sprite/frame-image.js';
 import {animatedAsset,stem} from '../../sprite/import-build.js';
 import {SHARED} from '../../core/project.js';
 const PREFS='nerulio.studio.pixel.cleanup.v1';
 const MAX_PIXELS=48e6;// all frames of the scope together (the worker holds before + after)
+const MAX_PIXELS_MOBILE=8e6;
 let worker=null,seq=0;const waiting=new Map();
 function work(msg,transfer=[]){
  worker||=Object.assign(new Worker(new URL('./cleanup-worker.js',import.meta.url),{type:'module'}),{
@@ -26,14 +28,30 @@ function work(msg,transfer=[]){
 /** Stops a running job (a new measure replaces it; leaving the workspace ends it). */
 function stopWorker(){if(!worker)return;worker.terminate();worker=null;for(const w of waiting.values())w.reject(Object.assign(Error('stopped'),{stopped:true}));waiting.clear();}
 const copyFrame=f=>({data:new Uint8Array(f.data),width:f.width,height:f.height});
-const OPT_KEYS=['background','alphaCut','merge','maxColors','dither','fringe','orphans','align','usePalette','outline','shadow','indexed'];
+const OPT_KEYS=['intent','targetWidth','targetHeight','sampleMethod','paletteAlgorithm','palettePreset','ditherStrength','background','alphaCut','merge','maxColors','dither','fringe','orphans','align','usePalette','outline','shadow','indexed'];
 export function createCleanup(W){
  const {t,ctx,images}=W;
  const saved=storage.get(PREFS,{});
- const o={background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
+ const query=new URLSearchParams(location.search),queryMode=query.get('mode');
+ const o={intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'mode',paletteAlgorithm:'median-cut',palettePreset:'auto',ditherStrength:100,background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
+ if(queryMode==='convert'||queryMode==='restore')o.intent=queryMode;
  const S={scope:'frame',scale:'',analysis:null,inputs:null,frameIds:[],assetRef:null,assetId:null,state:'idle',result:null,error:'',view:0,showGrid:true,token:0};
  const root=h('div.px-clean',{'data-px':'cleanup','data-state':'idle'});
  const saveOpts=()=>storage.set(PREFS,Object.fromEntries(OPT_KEYS.map(k=>[k,o[k]])));
+ const shareKeys={intent:'mode',targetWidth:'cw',targetHeight:'ch',sampleMethod:'sampler',paletteAlgorithm:'quantizer',palettePreset:'palette',maxColors:'colors',dither:'dither',ditherStrength:'strength'};
+ for(const [key,name] of Object.entries(shareKeys)){
+  const v=query.get(name);if(v===null)continue;
+  if(key==='targetWidth'||key==='targetHeight')o[key]=Math.max(1,Math.min(512,Math.round(Number(v)||32)));
+  else if(key==='maxColors')o[key]=Math.max(2,Math.min(256,Math.round(Number(v)||16)));
+  else if(key==='ditherStrength')o[key]=Math.max(0,Math.min(100,Math.round(Number(v)||0)));
+  else if(key==='intent'&&['restore','convert'].includes(v))o[key]=v;
+  else if(key==='sampleMethod'&&['nearest','median','mode','k-centroid'].includes(v))o[key]=v;
+  else if(key==='paletteAlgorithm'&&['median-cut','k-means','wu'].includes(v))o[key]=v;
+  else if(key==='palettePreset'&&(v==='auto'||Object.hasOwn(PALETTES,v)))o[key]=v;
+  else if(key==='dither'&&['none','bayer2','bayer4','bayer8','floyd-steinberg','atkinson'].includes(v))o[key]=v;
+ }
+ if(o.intent==='convert'&&!o.maxColors)o.maxColors=16;
+ const shareOpts=()=>{const u=new URL(location.href);for(const [key,name] of Object.entries(shareKeys))u.searchParams.set(name,String(o[key]));history.replaceState(history.state,'',u);};
  // ------------------------------------------------------------------ what is cleaned
  function scopeFrames(a){
   if(!a.frames.length)return [{id:SHARED,frame:null}];
@@ -50,10 +68,11 @@ export function createCleanup(W){
  }
  const setState=s=>{S.state=s;root.dataset.state=s;};
  const workOpts=()=>{
-  const a=W.asset(),pal=o.usePalette&&a?.palette?.colors?.length?a.palette.colors.filter((c,i)=>!(PD.isIndexed(a)&&i===PD.transparentIndexOf(a))&&(c[3]??255)>0):null;
+  const a=W.asset(),projectPal=o.usePalette&&a?.palette?.colors?.length?a.palette.colors.filter((c,i)=>!(PD.isIndexed(a)&&i===PD.transparentIndexOf(a))&&(c[3]??255)>0):null;
+  const pal=o.intent==='convert'&&o.palettePreset!=='auto'?PALETTES[o.palettePreset]?.map(parseHex):projectPal;
   const scale=Number(S.scale);
-  return {...DEFAULTS,scale:scale>1?scale:'auto',background:o.background==='auto'?'auto':null,alphaCut:o.alphaCut>0?o.alphaCut:null,
-   merge:o.merge==='off'?0:o.merge==='auto'?'auto':Number(o.merge)||'auto',maxColors:o.maxColors||0,palette:pal,dither:pal?o.dither:'none',fringe:o.fringe,orphans:o.orphans,align:o.align,
+  return {...DEFAULTS,intent:o.intent,targetWidth:Number(o.targetWidth),targetHeight:Number(o.targetHeight),sampleMethod:o.sampleMethod,paletteAlgorithm:o.paletteAlgorithm,ditherStrength:Number(o.ditherStrength)/100,scale:scale>1?scale:'auto',background:o.intent==='convert'?null:o.background==='auto'?'auto':null,alphaCut:o.intent==='convert'?null:o.alphaCut>0?o.alphaCut:null,
+   merge:o.intent==='convert'?0:o.merge==='off'?0:o.merge==='auto'?'auto':Number(o.merge)||'auto',maxColors:o.intent==='convert'?o.maxColors||16:o.maxColors||0,palette:pal,dither:o.intent==='convert'||pal?o.dither:'none',fringe:o.intent==='convert'?false:o.fringe,orphans:o.orphans,align:o.align,
    outline:o.outline?{color:W.prefs.fg.slice(0,3),place:'outside',matrix:'circle'}:null,shadow:o.shadow?{color:W.prefs.bg.slice(0,3),dx:1,dy:1}:null};
  };
  async function measure(){
@@ -61,7 +80,7 @@ export function createCleanup(W){
   const token=++S.token;stopWorker();S.result=null;S.error='';setState('measuring');render();
   try{
    const {imgs,ids}=await gather(a);if(token!==S.token)return;
-   const px=imgs.reduce((s,f)=>s+f.width*f.height,0);if(px>MAX_PIXELS)throw Error(t('px.clean.tooBig',{mp:(px/1e6).toFixed(1),max:MAX_PIXELS/1e6}));
+   const px=imgs.reduce((s,f)=>s+f.width*f.height,0),limit=matchMedia('(max-width: 600px)').matches?MAX_PIXELS_MOBILE:MAX_PIXELS;if(px>limit)throw Error(t('px.clean.tooBig',{mp:(px/1e6).toFixed(1),max:limit/1e6}));
    S.inputs=imgs;S.frameIds=ids;S.assetRef=a;S.assetId=a.id;S.view=0;
    const copies=imgs.map(copyFrame);
    S.analysis=await work({op:'analyse',frames:copies,opts:workOpts()},copies.map(f=>f.data.buffer));
@@ -94,7 +113,7 @@ export function createCleanup(W){
   }
   const pos=new Map(S.frameIds.map((id,i)=>[id,i]));
   const tags=a.tags.map(tg=>({name:tg.name,positions:tg.frameIds.map(id=>pos.get(id)).filter(i=>i!=null),direction:tg.direction,repeat:tg.repeat,color:tg.color,fps:tg.fps})).filter(tg=>tg.positions.length);
-  let next=animatedAsset({name:`${stem(a.name)}_1x`,width,height,frames,tags});
+  let next=animatedAsset({name:`${stem(a.name)}_${o.intent==='convert'?'pixel':'1x'}`,width,height,frames,tags});
   if(pal)next={...next,palette:{colors:indexed?colors:pal.map(c=>[c[0],c[1],c[2],255])},...(indexed?{colorMode:'indexed',transparentIndex:0}:{})};
   W.exec(t('px.cmd.cleanupApply',{name:next.name}),d=>P.addAssets(d,[next]));
   ctx.toast(t('px.clean.applied',{name:next.name,w:width,h:height,n:frames.length}));
@@ -128,7 +147,7 @@ export function createCleanup(W){
  function select(id,value,options,on){const s=h('select.st-input.px-sel',{'data-px':'clean-'+id,'aria-label':t('px.clean.opt.'+id)},...options.map(([v,l])=>h('option',{value:v,selected:String(v)===String(value)||null},l)));s.addEventListener('change',()=>on(s.value));return s;}
  function check(id,on){const i=h('input',{type:'checkbox',checked:o[id]||null,'data-px':'clean-'+id});i.addEventListener('change',()=>{o[id]=i.checked;saveOpts();on?.();invalidateResult();});return h('label.st-check',{},i,t('px.clean.opt.'+id));}
  function invalidateResult(){if(S.result){S.result=null;setState('measured');render();}}
- function setOpt(k,v){o[k]=v;saveOpts();invalidateResult();}
+ function setOpt(k,v){o[k]=v;saveOpts();shareOpts();invalidateResult();}
  function render(){
   const a=W.asset();
   if(!a){root.replaceChildren(h('p.st-muted.st-pad',{},t('px.hint.noSprite')));return;}
@@ -138,12 +157,15 @@ export function createCleanup(W){
   if(S.scope==='tag'&&!tag||S.scope==='all'&&!multi)S.scope='frame';
   const scale=h('input.st-input.px-num',{type:'number',min:'1.5',max:'64',step:'0.01',value:S.scale,placeholder:t('px.clean.auto'),'data-px':'clean-scale','aria-label':t('px.clean.scale')});
   scale.addEventListener('change',()=>{S.scale=scale.value;if(S.analysis)measure();});
+  const intent=select('intent',o.intent,[['restore',t('px.conv.restore')],['convert',t('px.conv.convert')]],v2=>{o.intent=v2;if(v2==='convert'&&!o.maxColors)o.maxColors=16;saveOpts();shareOpts();S.analysis=null;S.result=null;setState('idle');W.overlay?.setGrid(null);render();});
+  const target=(key,label)=>{const input=h('input.st-input.px-num',{type:'number',min:'1',max:'512',step:'1',value:String(o[key]),'data-px':'clean-'+key,'aria-label':label});input.addEventListener('change',()=>{setOpt(key,Math.max(1,Math.min(512,Math.round(Number(input.value)||32))));render();});return field(label,input);};
   const busy=S.state==='measuring'||S.state==='running';
-  const go=h('button.st-btn'+(S.analysis&&!stale?'':'.primary'),{type:'button','data-px':'clean-measure',disabled:busy||null},S.state==='measuring'?t('px.clean.measuring'):S.analysis?t('px.clean.remeasure'):t('px.clean.measure'));go.addEventListener('click',()=>measure());
+  const go=h('button.st-btn'+(S.analysis&&!stale?'':'.primary'),{type:'button','data-px':'clean-measure',disabled:busy||null},S.state==='measuring'?t('px.clean.measuring'):o.intent==='convert'?t('px.conv.prepare'):S.analysis?t('px.clean.remeasure'):t('px.clean.measure'));go.addEventListener('click',()=>measure());
   const head=h('div.st-sec',{},
-   h('p.st-muted.px-note',{},t('px.clean.lead')),
+   h('p.st-muted.px-note',{},t(o.intent==='convert'?'px.conv.lead':'px.clean.lead')),
+   field(t('px.conv.goal'),intent),
    a.frames.length>1?h('div.px-seg',{role:'radiogroup','aria-label':t('px.clean.scope')},seg('frame',t('px.clean.scopeFrame')),seg('tag',tag?t('px.clean.scopeTag',{name:tag.name}):t('px.clean.scopeTagNone'),!!tag),seg('all',t('px.clean.scopeAll',{n:a.frames.length}),multi)):h('p.px-scope-one',{},t(a.frames.length?'px.clean.scopeFrame':'px.clean.scopeImage')),
-   h('div.px-clean-row',{},field(t('px.clean.scale'),scale,t('px.clean.scaleHint')),go));
+   o.intent==='convert'?h('div.px-clean-row',{},target('targetWidth',t('px.conv.width')),target('targetHeight',t('px.conv.height')),go):h('div.px-clean-row',{},field(t('px.clean.scale'),scale,t('px.clean.scaleHint')),go));
   const parts=[head];
   if(S.state==='error')parts.push(h('div.st-sec',{},h('p.st-error',{'data-px':'clean-error'},t('px.clean.failed',{reason:S.error}))));
   if(S.analysis){
@@ -151,7 +173,8 @@ export function createCleanup(W){
    const size=g?`${g.width}×${g.height}`:null,input=S.inputs?.[0];
    const bg=A.background?.color?h('span',{},h('i.px-clean-sw',{style:`--c:rgb(${A.background.color.slice(0,3).join(',')})`}),t(o.background==='keep'?'px.clean.bgKept':'px.clean.bg',{hex:hex(A.background.color),pct:Math.round(A.background.share*100)})):t('px.clean.noBg');
    const gridT=h('input',{type:'checkbox',checked:S.showGrid||null,'data-px':'clean-grid'});gridT.addEventListener('change',()=>{S.showGrid=gridT.checked;showGrid();});
-   parts.push(h('div.st-sec',{'data-px':'clean-analysis'},
+   if(o.intent==='convert')parts.push(h('div.st-sec',{'data-px':'clean-analysis'},h('p.px-verdict',{},t('px.conv.dimensions',{iw:input?.width,ih:input?.height,w:o.targetWidth,h:o.targetHeight,n:S.inputs?.length||0}))));
+   else parts.push(h('div.st-sec',{'data-px':'clean-analysis'},
     stale?h('p.px-warn',{},t('px.clean.stale')):'',
     h('p.px-verdict',{'data-px':'clean-verdict','data-kind':g?.kind||'none'},h('b',{},v),' ',c),
     h('ul.px-facts',{},
@@ -166,7 +189,13 @@ export function createCleanup(W){
    const maxC=h('input.st-input.px-num',{type:'number',min:'0',max:'256',value:String(o.maxColors),'data-px':'clean-maxColors','aria-label':t('px.clean.opt.maxColors')});maxC.addEventListener('change',()=>setOpt('maxColors',Math.max(0,Math.min(256,Number(maxC.value)||0))));
    const alpha=h('input.st-input.px-num',{type:'number',min:'0',max:'255',value:String(o.alphaCut),'data-px':'clean-alphaCut','aria-label':t('px.clean.opt.alphaCut')});alpha.addEventListener('change',()=>setOpt('alphaCut',Math.max(0,Math.min(255,Number(alpha.value)||0))));
    const hasPal=!!a.palette?.colors?.length;
+   const sampler=select('sampleMethod',o.sampleMethod,[['nearest',t('px.conv.sampleNearest')],['median',t('px.conv.sampleMedian')],['mode',t('px.conv.sampleMode')],['k-centroid',t('px.conv.sampleCentroid')]],v2=>setOpt('sampleMethod',v2));
+   const quantizer=select('paletteAlgorithm',o.paletteAlgorithm,[['median-cut',t('px.conv.quantMedian')],['k-means',t('px.conv.quantKmeans')],['wu',t('px.conv.quantWu')]],v2=>setOpt('paletteAlgorithm',v2));
+   const presets=select('palettePreset',o.palettePreset,[['auto',t('px.conv.autoPalette')],['gameboy','Game Boy'],['nes','NES'],['pico8','PICO-8']],v2=>{setOpt('palettePreset',v2);render();});
+   const dithers=[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8'],['floyd-steinberg','Floyd–Steinberg'],['atkinson','Atkinson']];
+   const strength=h('input.st-input.px-num',{type:'number',min:'0',max:'100',step:'1',value:String(o.ditherStrength),'data-px':'clean-ditherStrength','aria-label':t('px.conv.strength')});strength.addEventListener('change',()=>setOpt('ditherStrength',Math.max(0,Math.min(100,Math.round(Number(strength.value)||0)))));
    const opts=h('details.st-sec.px-clean-opts',{open:storage.get(PREFS+'.open',false)||null},h('summary',{},t('px.clean.options')),
+    ...(o.intent==='convert'?[field(t('px.conv.sampler'),sampler),field(t('px.conv.quantizer'),quantizer),field(t('px.conv.preset'),presets),field(t('px.clean.opt.maxColors'),maxC,t('px.clean.maxHint')),hasPal?check('usePalette',()=>render()):'',field(t('px.clean.opt.dither'),select('dither',o.dither,dithers,v2=>setOpt('dither',v2))),field(t('px.conv.strength'),strength),check('orphans'),check('outline'),check('indexed')]:[
     field(t('px.clean.opt.background'),select('background',o.background,[['auto',t('px.clean.bgAuto')],['keep',t('px.clean.bgKeep')]],v2=>{setOpt('background',v2);render();})),
     field(t('px.clean.opt.alphaCut'),alpha,t('px.clean.alphaHint')),
     field(t('px.clean.opt.merge'),mergeSel,t('px.clean.mergeHint')),
@@ -175,7 +204,7 @@ export function createCleanup(W){
     hasPal&&o.usePalette?field(t('px.clean.opt.dither'),select('dither',o.dither,[['none',t('px.dither.none')],['bayer2','Bayer 2×2'],['bayer4','Bayer 4×4'],['bayer8','Bayer 8×8']],v2=>setOpt('dither',v2)),t('px.clean.ditherHint')):'',
     check('fringe'),check('orphans'),
     multi&&S.scope!=='frame'?field(t('px.clean.opt.align'),select('align',o.align,[['off',t('px.clean.alignOff')],['bounds',t('px.clean.alignBounds')],['overlap',t('px.clean.alignOverlap')]],v2=>setOpt('align',v2))):'',
-    check('outline'),check('shadow'),check('indexed'));
+    check('outline'),check('shadow'),check('indexed')]));
    opts.addEventListener('toggle',()=>storage.set(PREFS+'.open',opts.open));
    parts.push(opts);
    const run=h('button.st-btn'+(S.result?'':'.primary'),{type:'button','data-px':'clean-preview',disabled:busy||stale||null},S.state==='running'?t('px.clean.running'):t('px.clean.preview'));run.addEventListener('click',()=>preview());
@@ -203,6 +232,7 @@ export function createCleanup(W){
  const navBtn=(label,d)=>{const b=h('button.st-icon-btn',{type:'button','aria-label':t(d<0?'px.clean.prevFrame':'px.clean.nextFrame')},label);b.addEventListener('click',()=>{const n=S.result.frames.length;S.view=(Math.min(S.view,n-1)+d+n)%n;render();});return b;};
  function stepLine(s){
   switch(s.id){
+   case 'convert':return t('px.conv.step',{method:t('px.conv.method.'+s.method),w:s.size[0],h:s.size[1]});
    case 'snap':return t('px.clean.step.snap',{kind:t('px.clean.kind.'+s.kind),s:fmt(s.scale),size:s.size[0].join('×')});
    case 'background':return t('px.clean.step.background',{hex:hex(s.color),n:s.removed});
    case 'alpha':return s.changed?t('px.clean.step.alpha',{n:s.changed,cut:s.cut}):null;

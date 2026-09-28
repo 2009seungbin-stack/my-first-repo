@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sampleToGrid,paletteFromFrames,quantizeFrames} from '../src/studio/pixel/converter.js';
+import {runCleanup} from '../src/studio/pixel/cleanup.js';
 
 const frame=(width,height,colors)=>({width,height,data:Uint8Array.from(colors.flat())});
 
@@ -39,4 +40,15 @@ test('dithers stay deterministic, share one palette, and preserve transparent pi
   assert.deepEqual(a.data,b.data,dither);assert.equal(a.data[3],0,dither);
   for(let i=4;i<a.data.length;i+=4)assert.ok(a.data[i]===0||a.data[i]===255,dither);
  }
+});
+
+test('photo conversion uses one palette across frames without changing source frames',()=>{
+ const a=frame(4,2,Array.from({length:8},(_,i)=>[i*25,20,100,255]));
+ const b=frame(4,2,Array.from({length:8},(_,i)=>[20,i*25,120,255]));
+ const original=a.data.slice();
+ const result=runCleanup([a,b],{intent:'convert',targetWidth:2,targetHeight:1,sampleMethod:'median',maxColors:3,paletteAlgorithm:'wu',background:null,alphaCut:null,fringe:false,merge:0});
+ assert.deepEqual(result.report.steps.map(s=>s.id).slice(0,2),['convert','quantize']);
+ assert.deepEqual(result.frames.map(f=>[f.width,f.height]),[[2,1],[2,1]]);
+ assert.ok(result.palette.length<=3);
+ assert.deepEqual(a.data,original);
 });
