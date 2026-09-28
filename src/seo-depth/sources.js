@@ -15,6 +15,7 @@ export const SOURCE_HOSTS=new Set([
  'developer.mozilla.org',
  'developers.google.com',
  'doc.mapeditor.org',
+ 'doc.starling-framework.org', // Starling framework API reference: owner of the Sparrow/Starling TextureAtlas XML format
  'docs.blender.org',
  'docs.godotengine.org',
  'docs.phaser.io',
