@@ -51,6 +51,9 @@ def main():
             pg.fill('#comment-form textarea', '첫 댓글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             pg.locator('[data-reply]').first.click(); pg.fill('#comment-form textarea', '답글'); pg.click('#comment-form button[type=submit]'); pg.wait_for_timeout(1200)
             assert pg.locator('.co.re').count() == 1, 'reply is threaded'
+            pg.locator('[data-edit-comment]').first.click(); pg.wait_for_timeout(500)
+            pg.fill('.cedit textarea', '첫 댓글 (수정)'); pg.click('.cedit button[type=submit]'); pg.wait_for_timeout(1200)
+            assert '첫 댓글 (수정)' in pg.locator('.cl').inner_text(), 'own comment edited in place'
             pg.goto(B + '/ko/games/caves-of-qud/'); pg.wait_for_timeout(500)
             posts_before = pg.locator('.plist .pr').count()
             for _ in range(2): pg.locator('[data-island=compat-vote] button').first.click(); pg.wait_for_timeout(500)

@@ -397,3 +397,4 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .chipf:hover{text-decoration:none;border-color:var(--brand)}.chipf.on{background:var(--brand);border-color:var(--brand);color:#fff}.chipf.on .fine{color:inherit}
 @media (max-width:640px){.mt .nm{display:none}}
 .more{padding:6px 16px 10px}.more summary{cursor:pointer;color:var(--brand);font-size:13px;font-weight:700;padding:6px 0}
+.cedit{display:flex;flex-wrap:wrap;gap:6px}.cedit textarea{flex:1 1 100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}

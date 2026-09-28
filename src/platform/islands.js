@@ -229,6 +229,19 @@ async function main(){
   if(st.mine.comments?.includes(b.dataset.accept))continue;b.hidden=false;
   b.addEventListener('click',async()=>{const r=await write('/posts/solve',{postId:own?.dataset.post,commentId:b.dataset.accept},signedIn);if(r)location.reload();});
  }
+ for(const b of $$('[data-edit-comment]')){
+  const id=b.dataset.editComment;if(!st.mine?.comments?.includes(id))continue;b.hidden=false;
+  b.addEventListener('click',async()=>{
+   const src=await api(`/comments/source?id=${encodeURIComponent(id)}`);if(!src.ok)return explain(src);
+   const cb=$('.cb',b.closest('li')),before=[...cb.childNodes];
+   const f=document.createElement('form');f.className='cedit';
+   const ta=document.createElement('textarea');ta.value=src.data.body;ta.maxLength=4000;ta.rows=3;ta.setAttribute('aria-label',L==='ko'?'댓글 수정':'Edit comment');
+   const c=document.createElement('button');c.type='button';c.className='btn';c.textContent=L==='ko'?'취소':'Cancel';c.addEventListener('click',()=>cb.replaceChildren(...before));
+   const s=document.createElement('button');s.type='submit';s.className='btn p';s.textContent=L==='ko'?'저장':'Save';
+   f.append(ta,c,s);cb.replaceChildren(f);ta.focus();
+   f.addEventListener('submit',async e=>{e.preventDefault();if(!ta.value.trim())return toast(T.empty);const r=await write('/comments/edit',{commentId:id,body:ta.value},signedIn);if(r)location.reload();});
+  });
+ }
  for(const b of $$('[data-own-comment]')){
   if(!st.mine?.comments?.includes(b.dataset.ownComment))continue;b.hidden=false;
   b.addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 댓글을 삭제할까요?':'Delete this comment?'))return;const r=await write('/comments/delete',{commentId:b.dataset.ownComment},signedIn);if(r)location.reload();});
