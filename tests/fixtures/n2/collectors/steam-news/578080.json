@@ -1,0 +1,47 @@
+{
+ "appnews": {
+  "appid": 578080,
+  "newsitems": [
+   {
+    "gid": "1844751498217560",
+    "title": "PUBG: BATTLEGROUNDS Weekly Bans Notice (09/14~09/20)",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844751498217560",
+    "is_external_url": true,
+    "author": "[****] UZI",
+    "contents": "{STEAM_CLAN_IMAGE}/27971017/6665b8db8893f3f61b8adffd82c7fa3705dd09be.png Read th",
+    "feedlabel": "Community Announcements",
+    "date": 1790146898,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 578080
+   },
+   {
+    "gid": "1843481262688119",
+    "title": "Patch Notes - Update 43.1",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1843481262688119",
+    "is_external_url": true,
+    "author": "[****] UZI",
+    "contents": "Read the full announcement here!",
+    "feedlabel": "Community Announcements",
+    "date": 1788933617,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 578080
+   },
+   {
+    "gid": "1843481262688118",
+    "title": "Map Service Report - Update 43.1",
+    "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1843481262688118",
+    "is_external_url": true,
+    "author": "[****] UZI",
+    "contents": "{STEAM_CLAN_IMAGE}/27971017/c6c8adc4d5670ed2aab016cc334af385eb01a5f7.png Read th",
+    "feedlabel": "Community Announcements",
+    "date": 1788933615,
+    "feedname": "steam_community_announcements",
+    "feed_type": 1,
+    "appid": 578080
+   }
+  ],
+  "count": 1363
+ }
+}
