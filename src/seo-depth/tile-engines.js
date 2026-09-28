@@ -657,5 +657,289 @@ export default {
    limits:['角・デュアルグリッドのセットはUnityへ書き出しません。','複数の地形は、互いに遷移のない別々のRuleTileになります。','衝突形状はありません。RuleTileはCollider Noneで書かれ、Nerulioで取ったポリゴンはGodotにだけ渡ります。'],
    versions:{body:['Unity 6000.5.3f1（バッチモード）と2D Tilemap Extras 8.0.3で確認しました。同梱のスクリプトがRuleTileを作り、塗ったTilemapがコーパス10セットの全セルでStudioの予測どおりのスプライトを返し、スプライトの矩形とピクセルも正確でした。ルールJSONでスプライトを2つ入れ替えるとこのチェックは失敗します。上のUnityのメニューパスはUnity 6のマニュアルとTilemap Extras 8.0.3のドキュメントに基づきます。'],sources:[UNITY_RULETILE,UNITY_INSPECTOR,UNITY_INSTALL,UNITY_TILEMAP,UNITY_PALETTE,UNITY_COLLIDER]}
   }
- }
+ },
+ 'game/ldtk-autotile-rules':{
+  type:'engine',
+  intent:{primary:'get LDtk auto-layer rules for an autotile sheet without writing 47 rules by hand',secondary:['how LDtk auto-layer rules and IntGrid values work','rule order and break on match','dual-grid tiles in LDtk'],
+   goal:'an LDtk project whose IntGrid layer paints the right tile in every cell through its rules',input:'autotile sheet PNG with square tiles (blob-47, 16-side, 16-corner / dual grid, 3×3 box) or painted bits',output:'<name>.ldtk (LDtk 1.5.3 JSON: IntGrid layer, rule group, sample level) + PNG + README.txt',target:'LDtk 1.5.3 JSON (not opened in the LDtk app)',support:'partial',
+   evidence:['src/game/tiles/ldtk.js (rulePattern, runRules, ldtkProject)','src/studio/workspaces/tile/verify-status.js (ldtk: partial, 12 corpus sets)','docs/STUDIO-TILE.md (schema + QuickType loader + rule re-run)'],
+   external:['LDtk docs: Auto layers, Rules, IntGrid layers','LDtk JSON 1.5.3: AutoRuleDef (pattern, size, breakOnMatch, tileXOffset, outOfBoundsValue), intGridCsv, autoLayerTiles']},
+  en:{
+   answer:'In LDtk, autotiling is an IntGrid layer with a tileset and auto-layer rules: each rule is a pattern of IntGrid values (1 × 1 up to 7 × 7) that paints a tile where it matches; rules run from the top and "break on match" stops later rules in that cell. Nerulio turns every tile of an autotile sheet into one 3 × 3 rule — 47 for a blob set — and writes an LDtk 1.5.3 project with a sample level. The file passes LDtk\'s JSON schema and official loader and re-running the rules reproduces its tiles, but it was not opened in the LDtk app.',
+   concept:{title:'IntGrid values, rules and their order',body:[
+    'The LDtk manual describes auto-layers as "IntGrid layers with a twist": a tileset linked to them and rules that paint tiles automatically. You paint integer values (the JSON reference: 0 is an empty cell, values start at 1), and the rules turn them into tiles; a pure auto-layer can instead read its values from another IntGrid layer.',
+    'A rule is a square pattern over the cell and its neighbours plus the tile it paints. In the file Nerulio writes, a pattern cell holds v (the neighbour must be value v), −v (it must not be v) or 0 (anything), row by row from the top-left, and the tile lands on the centre cell. Corners behind an open side are 0, so a blob rule checks between 5 and 9 cells. The JSON reference defines `breakOnMatch` ("prevent other rules to be applied in the same cell if it matches"), so Nerulio sorts the rules most specific first and keeps it on.',
+    'Corner (dual-grid) sets use LDtk\'s tile offset: each rule reads the cell, its right, bottom and bottom-right neighbours — the four cells that meet at one grid point — and draws its tile half a tile down and right, on that point.'],
+    terms:[['IntGrid value','An integer painted per cell; each terrain gets one (terrain 1 = value 1, and so on).'],['Auto-layer rule','A pattern of required and forbidden values plus the tile to paint where it matches.'],['Break on match','When a rule matches, later rules skip that cell (LDtk\'s default).'],['Tile offset','A per-rule pixel shift of the painted tile; half a tile for dual-grid sets.']]},
+   example:{title:'Example: the 3 × 3 rule for one blob tile (terrain = IntGrid value 1)',lines:[
+    'tile mask 31: N, NE, E, SE, S connected, W open',
+    'pattern, row by row from the top-left:',
+    '   0   1   1        1 = must be value 1',
+    '  -1   1   1       -1 = must not be value 1',
+    '   0   1   1        0 = anything (corners behind the open west side)',
+    'JSON  "size":3, "pattern":[0,1,1,-1,1,1,0,1,1], "breakOnMatch":true',
+    'rules  blob-47 → 47,  16-side → 16,  16-corner → 15 (the all-empty corner tile draws nothing)'],
+    after:'Cells outside the level count as empty (`outOfBoundsValue` 0), so terrain touching the level border gets its rim tiles.'},
+   outputs:{lead:'The `ldtk` folder of the export ZIP, for a sheet called cave.png:',rows:[
+    ['cave.ldtk','An LDtk 1.5.3 project: tileset definition, IntGrid layer `Terrain` with one value per terrain, rule group `Nerulio terrain`, and a level `Sample` whose `autoLayerTiles` are already filled.'],
+    ['cave.png','The tileset image, referenced by its file name.'],
+    ['README.txt','What the project contains and how many tiles the sample level places.']]},
+   target:{title:'Open and paint it in LDtk',steps:[
+    'Unzip the `ldtk` folder and keep the PNG next to the `.ldtk` file.',
+    'Open the `.ldtk` in LDtk. The level `Sample` already shows the tiles the rules place.',
+    'In the LAYERS panel select the IntGrid layer `Terrain`: its values are your terrains and its AUTO PAINT tileset is your PNG.',
+    'Click the RULES button of the layer to see the group `Nerulio terrain` with one rule per tile, in the order they are tested.',
+    'Paint values with the left mouse button, erase with the right, Shift + drag for rectangles and Shift + click to fill; LDtk re-runs the rules as you paint. Shift+R in the Rules panel shows the raw IntGrid.',
+    'In your game, read the level\'s `autoLayerTiles` (LDtk stores them already in display order) or `intGridCsv` if you run your own rules.']},
+   verify:{steps:[
+    'The Sample level shows complete terrain before you paint anything.',
+    'The rule group lists 47 rules for a blob set (16 for a side set, 15 for a corner set).',
+    'Paint a single cell and a 3 × 3 square: the isolated tile and 9 different tiles appear. We have not seen this inside the LDtk app — it is the check we could not run, so please report a difference.']},
+   trouble:{rows:[
+    ['The tileset image is missing','The PNG is not next to the `.ldtk` or was renamed','Tileset definition: path of the image','Put the PNG beside the project under its exported name'],
+    ['Painting shows values but no tiles','Painting on another layer, or the layer\'s rules are switched off','LAYERS panel selection; Render option in the Rules panel','Select `Terrain` and keep the rule group active'],
+    ['A generic tile shows where a specific one belongs','A rule of your own sits above the group, or Break on match was switched off','Rule order in the Rules panel','Move your rule below the group, or turn Break on match back on'],
+    ['Dual-grid tiles look half a tile off the IntGrid','By design: corner rules paint on grid points with a half-tile offset','Tile offset of any rule in the group','Keep it; the tiles line up with each other, not with the IntGrid cells'],
+    ['No `ldtk` folder in the ZIP','LDtk needs square tiles and one padding and spacing value','NOTES.txt says why it was skipped','Use a square grid with equal x and y margin and spacing'],
+    ['Two terrains meet without a transition','The sheet has no tiles that show both terrains','Studio Check panel for that pair','Generate A-over-B tiles in the [[game/tileset-generator|generator]]']]},
+   alternatives:{rows:[
+    ['Write the rules by hand in LDtk\'s rule editor','Fewer tiles with LDtk features the export does not use: flipped patterns, modulo, checker, random chance, several tiles per rule.'],
+    ['A Tiled Wang set: [[game/tiled-wang-set|Tiled Wang set]]','You edit maps in Tiled and want a terrain brush instead of IntGrid painting.'],
+    ['Godot terrains: [[game/godot-autotile|Godot 4 autotile]]','Godot is your engine and you do not need LDtk\'s level editor.']]},
+   limits:['Not opened in the LDtk app (it has no command line); the checks were the schema, the official loader and an independent re-run of the rules.','One rule per tile: flips, modulo, checker and Perlin options are left off.','Tiles must be square, with the same margin and spacing on both axes.'],
+   versions:{body:['Checked on 12 corpus sets: the project passed the LDtk 1.5.3 JSON schema and loaded with LDtk\'s official QuickType loader, and an independent re-run of the rules gave exactly the exported tiles. A changed tile id or an inverted rule makes the check fail. UI names above come from the LDtk documentation; the app itself was not driven.'],sources:[LDTK_AUTO,LDTK_RULES,LDTK_INTGRID,LDTK_JSON]}
+  },
+  ko:{
+   answer:'LDtk에서 오토타일은 타일셋과 자동 레이어 규칙이 붙은 IntGrid 레이어입니다. 규칙마다 IntGrid 값의 패턴(1 × 1부터 7 × 7까지)이 있어 맞는 곳에 타일을 칠하고, 규칙은 위에서부터 실행되며 "break on match"가 켜져 있으면 그 칸에서 뒤의 규칙은 멈춥니다. Nerulio는 오토타일 시트의 타일마다 3 × 3 규칙 하나를 만들어(블롭 세트면 47개) 샘플 레벨이 있는 LDtk 1.5.3 프로젝트로 씁니다. 파일은 LDtk JSON 스키마와 공식 로더를 통과했고 규칙을 다시 실행하면 같은 타일이 나오지만, LDtk 앱에서 열어 보지는 않았습니다.',
+   concept:{title:'IntGrid 값, 규칙, 그리고 순서',body:[
+    'LDtk 매뉴얼은 자동 레이어를 "한 가지가 더해진 IntGrid 레이어"라고 설명합니다. 타일셋이 연결되어 있고 규칙이 타일을 자동으로 칠합니다. 사용자는 정수 값을 칠하고(JSON 레퍼런스: 0은 빈칸, 값은 1부터), 규칙이 그 값을 타일로 바꿉니다. 순수 자동 레이어는 다른 IntGrid 레이어의 값을 읽어 올 수도 있습니다.',
+    '규칙은 칸과 이웃을 덮는 정사각형 패턴, 그리고 칠할 타일로 이뤄집니다. Nerulio가 쓰는 파일에서 패턴 칸은 v(이웃이 값 v여야 함), −v(v가 아니어야 함), 0(상관없음) 중 하나이고 왼쪽 위부터 행 단위로 적히며, 타일은 가운데 칸에 놓입니다. 열린 변 뒤의 모서리는 0이라 블롭 규칙은 5~9칸을 확인합니다. JSON 레퍼런스는 `breakOnMatch`를 "맞으면 같은 칸에 다른 규칙이 적용되지 않게 함"으로 정의하므로, Nerulio는 가장 구체적인 규칙부터 정렬하고 이 옵션을 켜 둡니다.',
+    '모서리(듀얼 그리드) 세트는 LDtk의 타일 오프셋을 씁니다. 규칙은 칸과 그 오른쪽·아래·오른쪽 아래, 즉 한 격자점에서 만나는 네 칸을 읽고, 타일을 반 칸 오른쪽 아래인 그 점 위에 그립니다.'],
+    terms:[['IntGrid 값','칸마다 칠하는 정수. 지형마다 하나씩(지형 1 = 값 1 …).'],['자동 레이어 규칙','있어야 할 값과 없어야 할 값의 패턴, 그리고 맞을 때 칠할 타일.'],['Break on match','규칙이 맞으면 뒤의 규칙은 그 칸을 건너뜀(LDtk 기본값).'],['타일 오프셋','규칙마다 칠한 타일을 픽셀 단위로 옮기는 값. 듀얼 그리드 세트는 반 타일.']]},
+   example:{title:'예시: 블롭 타일 하나의 3 × 3 규칙(지형 = IntGrid 값 1)',lines:[
+    '타일 마스크 31: N, NE, E, SE, S 연결, W 열림',
+    '패턴(왼쪽 위부터 행 단위):',
+    '   0   1   1        1 = 값 1이어야 함',
+    '  -1   1   1       -1 = 값 1이 아니어야 함',
+    '   0   1   1        0 = 상관없음(열린 서쪽 변 뒤의 모서리)',
+    'JSON  "size":3, "pattern":[0,1,1,-1,1,1,0,1,1], "breakOnMatch":true',
+    '규칙 수  블롭 47 → 47,  변 16 → 16,  모서리 16 → 15(모두 빈 모서리 타일은 아무것도 안 그림)'],
+    after:'레벨 밖의 칸은 빈칸으로 셉니다(`outOfBoundsValue` 0). 그래서 레벨 경계에 닿은 지형에도 테두리 타일이 붙습니다.'},
+   outputs:{lead:'cave.png라는 시트를 내보냈을 때 ZIP의 `ldtk` 폴더입니다.',rows:[
+    ['cave.ldtk','LDtk 1.5.3 프로젝트: 타일셋 정의, 지형마다 값 하나가 있는 IntGrid 레이어 `Terrain`, 규칙 그룹 `Nerulio terrain`, `autoLayerTiles`가 이미 채워진 레벨 `Sample`.'],
+    ['cave.png','타일셋 이미지. 파일 이름으로 참조됩니다.'],
+    ['README.txt','프로젝트 구성과 샘플 레벨에 놓이는 타일 수.']]},
+   target:{title:'LDtk에서 열고 칠하기',steps:[
+    '`ldtk` 폴더의 압축을 풀고 PNG를 `.ldtk` 파일 옆에 둡니다.',
+    'LDtk에서 `.ldtk`를 엽니다. `Sample` 레벨에 규칙이 놓은 타일이 이미 보입니다.',
+    'LAYERS 패널에서 IntGrid 레이어 `Terrain`을 고릅니다. 값은 내 지형이고 AUTO PAINT 타일셋은 내 PNG입니다.',
+    '레이어의 RULES 버튼을 누르면 타일마다 규칙 하나가 든 `Nerulio terrain` 그룹이 검사 순서대로 보입니다.',
+    '왼쪽 버튼으로 값을 칠하고 오른쪽 버튼으로 지우며, Shift + 드래그는 사각형, Shift + 클릭은 채우기입니다. 칠하는 동안 LDtk가 규칙을 다시 실행합니다. Rules 패널에서 Shift+R을 누르면 원래 IntGrid가 보입니다.',
+    '게임에서는 레벨의 `autoLayerTiles`(LDtk가 이미 표시 순서대로 저장)를 읽거나, 규칙을 직접 돌린다면 `intGridCsv`를 읽습니다.']},
+   verify:{steps:[
+    '아무것도 칠하기 전에 Sample 레벨에 지형이 완성되어 보여야 합니다.',
+    '규칙 그룹에 블롭 세트는 규칙 47개(변 세트 16개, 모서리 세트 15개)가 있어야 합니다.',
+    '외딴 한 칸과 3 × 3 사각형을 칠하면 고립 타일과 서로 다른 타일 9개가 나와야 합니다. LDtk 앱 안에서는 저희가 직접 보지 못한 부분이니, 다르게 나오면 알려 주세요.']},
+   trouble:{rows:[
+    ['타일셋 이미지가 없다고 나옴','PNG가 `.ldtk` 옆에 없거나 이름이 바뀜','타일셋 정의의 이미지 경로','내보낸 이름 그대로 PNG를 프로젝트 옆에 두기'],
+    ['칠하면 값만 보이고 타일이 안 나옴','다른 레이어에 칠하고 있거나 레이어의 규칙이 꺼짐','LAYERS 패널의 선택, Rules 패널의 Render 옵션','`Terrain`을 고르고 규칙 그룹을 켜 두기'],
+    ['특정 타일 자리에 일반 타일이 나옴','직접 만든 규칙이 그룹보다 위에 있거나 Break on match를 껐음','Rules 패널의 규칙 순서','내 규칙을 그룹 아래로 옮기거나 Break on match를 다시 켜기'],
+    ['듀얼 그리드 타일이 IntGrid와 반 칸 어긋남','설계상 그럼: 모서리 규칙은 반 칸 오프셋으로 격자점에 칠함','그룹 안 규칙의 타일 오프셋','그대로 두기. 타일끼리는 맞물리고 IntGrid 칸과는 반 칸 어긋나는 것이 정상'],
+    ['ZIP에 `ldtk` 폴더가 없음','LDtk는 정사각형 타일과 여백·간격 값이 하나씩만 필요함','NOTES.txt에 건너뛴 이유가 적힘','가로세로 여백·간격이 같은 정사각형 격자 사용'],
+    ['두 지형이 전환 없이 만남','두 지형이 함께 보이는 타일이 시트에 없음','그 쌍에 대한 Studio 점검 패널','[[game/tileset-generator|생성기]]에서 A 위 B 타일 생성']]},
+   alternatives:{rows:[
+    ['LDtk 규칙 편집기에서 직접 작성','타일이 적고 내보내기가 쓰지 않는 LDtk 기능이 필요할 때: 뒤집힌 패턴, modulo, checker, 확률, 규칙 하나에 타일 여러 개.'],
+    ['Tiled Wang 세트: [[game/tiled-wang-set|Tiled Wang 세트]]','맵을 Tiled에서 편집하고 IntGrid 대신 지형 브러시를 쓰고 싶을 때.'],
+    ['Godot 지형: [[game/godot-autotile|Godot 4 오토타일]]','엔진이 Godot이고 LDtk 레벨 편집기가 필요 없을 때.']]},
+   limits:['LDtk 앱에서 열지 않았습니다(명령줄이 없음). 점검은 스키마, 공식 로더, 독립적인 규칙 재실행이었습니다.','타일 하나에 규칙 하나: 뒤집기, modulo, checker, Perlin 옵션은 쓰지 않습니다.','타일은 정사각형이어야 하고 여백과 간격이 두 축에서 같아야 합니다.'],
+   versions:{body:['코퍼스 12세트에서 확인: 프로젝트가 LDtk 1.5.3 JSON 스키마를 통과하고 LDtk 공식 QuickType 로더로 읽혔으며, 규칙을 독립적으로 다시 실행하면 내보낸 타일과 정확히 같았습니다. 타일 id를 바꾸거나 규칙을 뒤집으면 점검이 실패합니다. 위의 UI 이름은 LDtk 공식 문서를 따르며, 앱 자체는 조작하지 않았습니다.'],sources:[LDTK_AUTO,LDTK_RULES,LDTK_INTGRID,LDTK_JSON]}
+  },
+  ja:{
+   answer:'LDtkのオートタイルは、タイルセットとオートレイヤールールを持つIntGridレイヤーです。ルールごとにIntGrid値のパターン（1 × 1〜7 × 7）があり、合った場所にタイルを塗ります。ルールは上から実行され、「break on match」が有効ならそのセルでは以降のルールが止まります。Nerulioはオートタイルシートのタイル1枚ごとに3 × 3のルールを1つ作り（ブロブセットなら47個）、サンプルレベル付きのLDtk 1.5.3プロジェクトとして書き出します。ファイルはLDtkのJSONスキーマと公式ローダーを通り、ルールを再実行すると同じタイルになりますが、LDtkアプリでは開いていません。',
+   concept:{title:'IntGrid値、ルール、そしてその順序',body:[
+    'LDtkのマニュアルはオートレイヤーを「ひと工夫したIntGridレイヤー」と説明しています。タイルセットがリンクされ、ルールが自動でタイルを塗ります。ユーザーは整数値を塗り（JSONリファレンス：0は空セル、値は1から）、ルールがそれをタイルに変えます。純粋なオートレイヤーは別のIntGridレイヤーから値を読むこともできます。',
+    'ルールは、セルと隣を覆う正方形のパターンと、塗るタイルからなります。Nerulioが書くファイルでは、パターンのセルはv（隣が値vであること）、−v（vでないこと）、0（何でもよい）のいずれかで、左上から行ごとに並び、タイルは中央のセルに置かれます。開いた辺の後ろの角は0なので、ブロブのルールは5〜9セルを確認します。JSONリファレンスは`breakOnMatch`を「合った場合、同じセルに他のルールを適用させない」と定義しているので、Nerulioは最も具体的なルールから並べ、この設定を有効にしています。',
+    '角（デュアルグリッド）セットはLDtkのタイルオフセットを使います。ルールはセルとその右・下・右下、つまり1つの格子点で接する4セルを読み、タイルを半タイル右下のその点の上に描きます。'],
+    terms:[['IntGrid値','セルごとに塗る整数。地形ごとに1つ（地形1 = 値1 …）。'],['オートレイヤールール','必要な値と禁止する値のパターンと、合ったときに塗るタイル。'],['Break on match','ルールが合うと、以降のルールはそのセルを飛ばす（LDtkの既定）。'],['タイルオフセット','ルールごとに塗ったタイルをピクセル単位でずらす値。デュアルグリッドでは半タイル。']]},
+   example:{title:'例：ブロブタイル1枚の3 × 3ルール（地形 = IntGrid値1）',lines:[
+    'タイルマスク31：N、NE、E、SE、Sがつながり、Wが開いている',
+    'パターン（左上から行ごと）：',
+    '   0   1   1        1 = 値1であること',
+    '  -1   1   1       -1 = 値1でないこと',
+    '   0   1   1        0 = 何でもよい（開いた西の辺の後ろの角）',
+    'JSON  "size":3, "pattern":[0,1,1,-1,1,1,0,1,1], "breakOnMatch":true',
+    'ルール数  ブロブ47 → 47、辺16 → 16、角16 → 15（すべて空の角タイルは何も描かない）'],
+    after:'レベル外のセルは空として数えます（`outOfBoundsValue` 0）。そのためレベルの端に接する地形にも縁のタイルが付きます。'},
+   outputs:{lead:'cave.pngというシートを書き出したときの、ZIP内の`ldtk`フォルダーです。',rows:[
+    ['cave.ldtk','LDtk 1.5.3プロジェクト：タイルセット定義、地形ごとに値を持つIntGridレイヤー`Terrain`、ルールグループ`Nerulio terrain`、`autoLayerTiles`が埋まったレベル`Sample`。'],
+    ['cave.png','タイルセット画像。ファイル名で参照されます。'],
+    ['README.txt','プロジェクトの内容と、サンプルレベルに置かれるタイル数。']]},
+   target:{title:'LDtkで開いて塗る',steps:[
+    '`ldtk`フォルダーを展開し、PNGを`.ldtk`ファイルの隣に置きます。',
+    'LDtkで`.ldtk`を開きます。レベル`Sample`にはルールが置いたタイルがすでに表示されています。',
+    'LAYERSパネルでIntGridレイヤー`Terrain`を選びます。値があなたの地形で、AUTO PAINTのタイルセットがあなたのPNGです。',
+    'レイヤーのRULESボタンを押すと、タイルごとに1ルールを持つグループ`Nerulio terrain`が、調べられる順に表示されます。',
+    '左ボタンで値を塗り、右ボタンで消し、Shift + ドラッグで矩形、Shift + クリックで塗りつぶしです。塗るたびにLDtkがルールを再実行します。RulesパネルでShift+Rを押すと元のIntGridが見えます。',
+    'ゲームでは、レベルの`autoLayerTiles`（LDtkが表示順に並べて保存）を読むか、自分でルールを回すなら`intGridCsv`を読みます。']},
+   verify:{steps:[
+    '何も塗る前から、Sampleレベルに完成した地形が表示されるはずです。',
+    'ルールグループには、ブロブセットならルール47個（辺のセットは16個、角のセットは15個）があるはずです。',
+    '孤立した1セルと3 × 3の四角を塗ると、孤立タイルと異なるタイル9枚が出るはずです。LDtkアプリ内では私たちが実際に確認できていない部分なので、違いがあれば知らせてください。']},
+   trouble:{rows:[
+    ['タイルセット画像が見つからない','PNGが`.ldtk`の隣にない、または名前が変わった','タイルセット定義の画像パス','書き出したときの名前のままPNGをプロジェクトの隣に置く'],
+    ['塗っても値だけでタイルが出ない','別のレイヤーに塗っている、またはレイヤーのルールがオフ','LAYERSパネルの選択、RulesパネルのRenderオプション','`Terrain`を選び、ルールグループを有効にしておく'],
+    ['専用タイルの位置に汎用のタイルが出る','自作のルールがグループより上にある、またはBreak on matchを切った','Rulesパネルのルールの順序','自作ルールをグループの下へ移すか、Break on matchを戻す'],
+    ['デュアルグリッドのタイルがIntGridと半タイルずれる','仕様：角のルールは半タイルのオフセットで格子点に塗る','グループ内のルールのタイルオフセット','そのままでよい。タイル同士はかみ合い、IntGridのセルとは半タイルずれるのが正常'],
+    ['ZIPに`ldtk`フォルダーがない','LDtkは正方形のタイルと、余白・間隔の値を1つずつしか持てない','NOTES.txtに省いた理由がある','縦横の余白と間隔が同じ正方形のグリッドを使う'],
+    ['2つの地形が遷移なしで接する','両方の地形が見えるタイルがシートにない','そのペアについてのStudioのチェックパネル','[[game/tileset-generator|ジェネレーター]]でAからBのタイルを生成']]},
+   alternatives:{rows:[
+    ['LDtkのルールエディターで手作業で書く','タイルが少なく、書き出しが使わないLDtkの機能が必要なとき：反転パターン、modulo、checker、確率、1ルールに複数タイル。'],
+    ['TiledのWangセット：[[game/tiled-wang-set|TiledのWangセット]]','マップをTiledで編集し、IntGridの代わりに地形ブラシを使いたいとき。'],
+    ['Godotの地形：[[game/godot-autotile|Godot 4のオートタイル]]','エンジンがGodotで、LDtkのレベルエディターが要らないとき。']]},
+   limits:['LDtkアプリでは開いていません（コマンドラインがないため）。チェックはスキーマ、公式ローダー、独立したルールの再実行です。','1タイルに1ルール：反転、modulo、checker、Perlinのオプションは使いません。','タイルは正方形で、余白と間隔が縦横で同じである必要があります。'],
+   versions:{body:['コーパス12セットで確認：プロジェクトはLDtk 1.5.3のJSONスキーマを通り、LDtk公式のQuickTypeローダーで読み込め、ルールを独立に再実行すると書き出したタイルと完全に一致しました。タイルidを変えたりルールを反転させたりするとチェックは失敗します。上のUI名はLDtkの公式ドキュメントに基づき、アプリ自体は操作していません。'],sources:[LDTK_AUTO,LDTK_RULES,LDTK_INTGRID,LDTK_JSON]}
+  }
+ },
+ 'game/godot-tileset-collision':{
+  type:'engine',
+  intent:{primary:'add collision to a Godot 4 TileSet: a physics layer and a polygon per tile',secondary:['collision polygons traced from tile alpha','why tile collision is offset by half a tile','player falls through the TileMapLayer','collision layer and mask of a tileset'],
+   goal:'a TileMapLayer whose tiles collide where the art is solid, with shapes that line up between neighbouring tiles',input:'tileset PNG with alpha, tiles with terrain bits in the Studio',output:'nerulio-tileset.json with physicsLayers + per-tile collision; the import script writes them into nerulio-tileset.tres',target:'Godot 4 (verified 4.7.2)',support:'full',
+   evidence:['src/game/tile-collision.js (box, rects, outline, 256-point cap)','src/game/godot-tileset.js (add_physics_layer, set_collision_polygon_points, half-tile shift)','src/studio/workspaces/tile/index.js (export collision option, default None)','docs/STUDIO-TILE.md (polygons read back in Godot 4.7.2)'],
+   external:['Godot 4.7 docs: Using TileSets (Physics Layers, collision editor, F)','TileData.set_collision_polygon_points, one-way','TileMapLayer.collision_enabled','Debug › Visible Collision Shapes']},
+  en:{
+   answer:'In Godot 4, tile collision lives in the TileSet: add a physics layer (its collision layer and mask), then give each tile one or more collision polygons; the points are measured from the tile\'s centre. Nerulio traces a polygon for every tile from its alpha (outline, exact rectangles or one box), lets you move the points, and its import script writes physics layer 0 with collision layer 1 and mask 1 and each polygon shifted by half a tile. Godot 4.7.2 read every polygon back point for point.',
+   concept:{title:'Physics layers, polygons and the tile centre',body:[
+    'A TileSet has a list of physics layers, each with a collision layer, a collision mask and optionally a physics material (the Godot docs: TileSet inspector › Physics Layers › Add Element). Per layer every tile can hold several polygons (`TileData.set_collision_polygon_points(layer, index, points)`), each optionally one-way. A `TileMapLayer` turns the painted tiles into static collision as long as its `collision_enabled` is on (the default).',
+    'Nerulio keeps shapes in tile pixels with the origin at the tile\'s top-left, the way you draw them. Godot measures a tile\'s polygon from the tile centre, so the importer subtracts half the tile size from every point. A tool that skips this shift puts every shape half a tile up and left.',
+    'Three readings of the alpha (a pixel counts as solid when its alpha is above 0): Outline follows the solid edge along pixel borders and keeps only outer loops, so a hole becomes solid; Exact rectangles covers exactly the solid pixels with a few boxes, holes stay open; Box is one rectangle around everything. A long outline is simplified until it has at most 256 points.'],
+    terms:[['Physics layer','A slot on the TileSet with collision layer, mask and material; tiles store polygons per slot.'],['Collision polygon','A list of points around the tile centre; everything inside counts as solid.'],['Collision layer / mask','Which layers the tiles are on, and which layers they detect; a body collides with the tiles when its mask includes their layer.'],['Half-tile shift','Top-left tile pixels minus (width ÷ 2, height ÷ 2) = Godot\'s centred coordinates.']]},
+   example:{title:'Example: a 64 px ground tile, from pixels to Godot',lines:[
+    '64 × 64 tile, solid ground in the lower 40 px (pixel rows 24–63)',
+    'Nerulio, tile pixels (origin top-left)   (0,24) (64,24) (64,64) (0,64)',
+    'half tile = (32, 32)',
+    'Godot, from the tile centre              (-32,-8) (32,-8) (32,32) (-32,32)',
+    'importer  TileData.set_collision_polygon_points(0, 0, points)   physics layer 0, polygon 0',
+    'TileSet   physics layer 0: collision_layer 1, collision_mask 1'],
+    after:'A `CharacterBody2D` stands on this tile only if its `collision_mask` includes layer 1; change the TileSet\'s layer numbers after import if your project uses others.'},
+   outputs:{lead:'Collision travels inside the Godot files of the export:',rows:[
+    ['nerulio-tileset.json','`physicsLayers` (collision layer 1, mask 1, the mode used) and, per tile, `collision`: polygons in tile pixels.'],
+    ['nerulio_tileset_import.gd','Adds the physics layer and writes each polygon with the half-tile shift; its Output line counts the polygons.'],
+    ['nerulio-tileset.tres','Saved by Godot when the script runs: the TileSet with terrains and collision.']]},
+   target:{title:'Get the collision into Godot and test it',steps:[
+    'In Nerulio\'s Export panel set Collision (Godot) to Outline polygon, Exact rectangles, Box or Only edited shapes. The default is None, which writes no physics layer at all — even for shapes you edited.',
+    'Copy the PNG, JSON and script to the project root, run the script with File › Run, and check the Output line, for example `… 47 tiles, 188 peering bits, 47 collision polygons …`.',
+    'Load `nerulio-tileset.tres` into a `TileMapLayer`\'s Tile Set property and paint.',
+    'Give your player body a `collision_mask` that includes layer 1 (or change physics layer 0\'s collision layer in the TileSet inspector to the layer your project uses).',
+    'Turn on Debug › Visible Collision Shapes and run the scene: the shapes are drawn over the tiles while the game runs.',
+    'One-way platforms or a physics material: in the TileSet editor, Select mode, click the tile and edit its Physics Layer 0 section; press F there for a quick full-tile rectangle.']},
+   verify:{steps:[
+    'The script\'s Output line counts as many collision polygons as you expect (one per tile for Box and most Outline shapes).',
+    'TileSet editor › Select mode › click a tile: the Physics Layer 0 section shows the polygon on the art.',
+    'With Visible Collision Shapes on, the top edges of neighbouring ground tiles form one continuous line, and a tile with a gap shows the gap when you used Exact rectangles.',
+    '`print($TileMapLayer.tile_set.get_physics_layer_collision_layer(0))` prints 1.']},
+   trouble:{rows:[
+    ['The TileSet has no physics layer','Collision (Godot) was left on None in the export','Output line: 0 collision polygons','Choose a collision mode and export again'],
+    ['The player falls through the tiles','The body\'s mask does not include layer 1, or the layer\'s `collision_enabled` is off','Inspector of the body and of the `TileMapLayer`','Add layer 1 to the mask, or set the TileSet\'s physics layer to your project\'s layer'],
+    ['Shapes sit half a tile up and left','The polygons came from a tool that wrote top-left coordinates without the shift','Visible Collision Shapes','Re-import with Nerulio\'s script, which applies the shift'],
+    ['A tile with an opening is fully solid','Outline keeps only the outer loop','The tile\'s polygon in the TileSet editor','Use Exact rectangles for that set, or edit that tile\'s points'],
+    ['The character catches on seams between tiles','Neighbouring polygons end at different heights by a pixel','Visible Collision Shapes, zoomed in on the seam','Use Box or Exact rectangles for full tiles, or drag the points level in the Studio\'s collision tool (C)'],
+    ['Some tiles have no shape','Only tiles with terrain bits are exported, and an alpha of 0 everywhere gives no shape','Studio: tiles without bits are dimmed','Paint bits for those tiles, or draw their shape by hand in Godot']]},
+   alternatives:{rows:[
+    ['Draw the polygons in Godot\'s TileSet editor (F for a full rectangle, then add or remove points; tile property painting copies one shape onto many tiles)','Full blocks and a few slopes; no extra tool, but each shape is placed by hand.'],
+    ['Sprite collision instead of tiles: [[game/collision-polygon-generator|collision polygon generator]]','The shape belongs to a character or prop, not to a tile in a TileSet.'],
+    ['Unity Rule Tiles with Collider set to Grid: [[game/unity-rule-tile|Unity Rule Tile]]','Your target is Unity; Nerulio\'s traced polygons are written for Godot only.']]},
+   limits:['One physics layer, plain polygons: one-way flags, extra layers and physics materials are set in Godot afterwards.','Holes are exact only with Exact rectangles.','Tiles without terrain bits get no collision in the export.'],
+   versions:{body:['Checked in Godot 4.7.2 by reading the saved TileSet back: every polygon matched point for point after the half-tile shift — 49/49, 48/48 and 47/47 tiles on the corpus blob sets, 16/16 on the edge and corner templates, 80/80 on a four-terrain dual-grid pack. Editor steps follow the Godot 4.7 documentation.'],sources:[GODOT_TILESETS,GODOT_TILEDATA,GODOT_TILESET,GODOT_LAYER,GODOT_DEBUG]}
+  },
+  ko:{
+   answer:'Godot 4에서 타일 충돌은 TileSet에 들어 있습니다. 물리 레이어(충돌 레이어와 마스크)를 추가하고 타일마다 충돌 폴리곤을 하나 이상 주며, 점 좌표는 타일 중심에서 잽니다. Nerulio는 타일마다 알파에서 폴리곤을 따고(외곽선, 정확한 사각형들, 상자 하나) 점을 옮길 수 있게 하며, 가져오기 스크립트가 충돌 레이어 1·마스크 1인 물리 레이어 0을 만들고 모든 폴리곤을 반 타일만큼 옮겨 씁니다. Godot 4.7.2에서 모든 폴리곤을 점 하나까지 다시 읽어 확인했습니다.',
+   concept:{title:'물리 레이어, 폴리곤, 그리고 타일 중심',body:[
+    'TileSet에는 물리 레이어 목록이 있고, 레이어마다 충돌 레이어·충돌 마스크·선택적인 물리 재질이 있습니다(Godot 문서: TileSet 인스펙터 › Physics Layers › Add Element). 레이어마다 타일 하나가 폴리곤 여러 개를 가질 수 있고(`TileData.set_collision_polygon_points(layer, index, points)`), 각각 단방향으로 만들 수도 있습니다. `TileMapLayer`는 `collision_enabled`가 켜져 있으면(기본값) 칠한 타일을 정적 충돌로 만듭니다.',
+    'Nerulio는 모양을 그리는 방식 그대로 타일 픽셀 단위, 원점은 타일 왼쪽 위로 저장합니다. Godot는 타일 폴리곤을 타일 중심에서 재므로, 가져오기 스크립트가 모든 점에서 타일 크기의 절반을 뺍니다. 이 이동을 빠뜨리는 도구를 쓰면 모든 모양이 왼쪽 위로 반 타일 밀립니다.',
+    '알파를 읽는 방식은 세 가지입니다(알파가 0보다 크면 불투명으로 봄). 외곽선은 픽셀 경계를 따라 불투명한 가장자리를 따가며 바깥 고리만 남기므로 구멍은 막힙니다. 정확한 사각형들은 불투명 픽셀만 사각형 몇 개로 덮어 구멍이 열린 채 남습니다. 상자는 전체를 사각형 하나로 감쌉니다. 긴 외곽선은 점이 256개 이하가 될 때까지 단순화합니다.'],
+    terms:[['물리 레이어','충돌 레이어·마스크·재질을 가진 TileSet의 칸. 타일은 칸마다 폴리곤을 저장합니다.'],['충돌 폴리곤','타일 중심 기준 점 목록. 안쪽 전체가 막힌 곳으로 취급됩니다.'],['충돌 레이어 / 마스크','타일이 속한 레이어와 감지하는 레이어. 몸체의 마스크에 타일의 레이어가 있어야 부딪힙니다.'],['반 타일 이동','왼쪽 위 기준 타일 픽셀 − (너비 ÷ 2, 높이 ÷ 2) = Godot의 중심 기준 좌표.']]},
+   example:{title:'예시: 64px 땅 타일, 픽셀에서 Godot까지',lines:[
+    '64 × 64 타일, 아래 40px이 땅(픽셀 행 24–63)',
+    'Nerulio, 타일 픽셀(원점 왼쪽 위)   (0,24) (64,24) (64,64) (0,64)',
+    '반 타일 = (32, 32)',
+    'Godot, 타일 중심 기준              (-32,-8) (32,-8) (32,32) (-32,32)',
+    '가져오기  TileData.set_collision_polygon_points(0, 0, points)   물리 레이어 0, 폴리곤 0',
+    'TileSet   물리 레이어 0: collision_layer 1, collision_mask 1'],
+    after:'`CharacterBody2D`는 `collision_mask`에 레이어 1이 있어야 이 타일 위에 섭니다. 프로젝트가 다른 레이어 번호를 쓰면 가져온 뒤 TileSet의 번호를 바꾸세요.'},
+   outputs:{lead:'충돌은 내보내기의 Godot 파일 안에 들어갑니다.',rows:[
+    ['nerulio-tileset.json','`physicsLayers`(충돌 레이어 1, 마스크 1, 사용한 방식)와 타일마다 `collision`: 타일 픽셀 단위 폴리곤.'],
+    ['nerulio_tileset_import.gd','물리 레이어를 추가하고 폴리곤마다 반 타일 이동을 적용해 씁니다. 출력 줄에 폴리곤 수가 나옵니다.'],
+    ['nerulio-tileset.tres','스크립트를 실행하면 Godot가 저장하는, 지형과 충돌이 든 TileSet.']]},
+   target:{title:'충돌을 Godot로 가져와 시험하기',steps:[
+    'Nerulio 내보내기 패널에서 Collision (Godot)를 외곽선 다각형, 정확한 사각형들, 상자, 직접 고친 모양만 중 하나로 고릅니다. 기본값 None은 물리 레이어를 전혀 쓰지 않으며, 직접 고친 모양도 빠집니다.',
+    'PNG·JSON·스크립트를 프로젝트 루트에 복사하고 File › Run으로 스크립트를 실행한 뒤 출력 줄을 확인합니다(예: `… 47 tiles, 188 peering bits, 47 collision polygons …`).',
+    '`TileMapLayer`의 Tile Set 속성에 `nerulio-tileset.tres`를 넣고 칠합니다.',
+    '플레이어 몸체의 `collision_mask`에 레이어 1을 넣습니다(또는 TileSet 인스펙터에서 물리 레이어 0의 충돌 레이어를 프로젝트가 쓰는 번호로 바꿈).',
+    'Debug › Visible Collision Shapes를 켜고 씬을 실행하면, 게임이 도는 동안 타일 위에 충돌 모양이 그려집니다.',
+    '단방향 발판이나 물리 재질은 TileSet 편집기 Select 모드에서 타일을 눌러 Physics Layer 0 섹션을 고칩니다. 거기서 F를 누르면 타일 전체 사각형이 바로 생깁니다.']},
+   verify:{steps:[
+    '스크립트 출력 줄의 충돌 폴리곤 수가 예상과 같아야 합니다(상자와 대부분의 외곽선은 타일마다 하나).',
+    'TileSet 편집기 › Select 모드에서 타일을 누르면 Physics Layer 0 섹션에 그림 위의 폴리곤이 보입니다.',
+    'Visible Collision Shapes를 켜면 이웃한 땅 타일들의 윗변이 한 줄로 이어지고, 정확한 사각형들을 쓴 틈 있는 타일은 틈이 보여야 합니다.',
+    '`print($TileMapLayer.tile_set.get_physics_layer_collision_layer(0))`가 1을 출력합니다.']},
+   trouble:{rows:[
+    ['TileSet에 물리 레이어가 없음','내보내기에서 Collision (Godot)를 None으로 둠','출력 줄의 0 collision polygons','충돌 방식을 골라 다시 내보내기'],
+    ['캐릭터가 타일을 통과해 떨어짐','몸체 마스크에 레이어 1이 없거나 레이어의 `collision_enabled`가 꺼짐','몸체와 `TileMapLayer`의 인스펙터','마스크에 레이어 1을 추가하거나 TileSet 물리 레이어를 프로젝트 레이어로 바꾸기'],
+    ['모양이 왼쪽 위로 반 타일 밀림','왼쪽 위 좌표를 이동 없이 쓴 도구에서 온 폴리곤','Visible Collision Shapes','이동을 적용하는 Nerulio 스크립트로 다시 가져오기'],
+    ['뚫린 타일이 전부 막힘','외곽선은 바깥 고리만 남김','TileSet 편집기의 타일 폴리곤','그 세트는 정확한 사각형들로 하거나 그 타일의 점을 고치기'],
+    ['캐릭터가 타일 이음새에 걸림','이웃 폴리곤의 높이가 1픽셀 차이 남','Visible Collision Shapes로 이음새를 확대','가득 찬 타일은 상자나 정확한 사각형들을 쓰거나, Studio 충돌 도구(C)에서 점 높이를 맞추기'],
+    ['일부 타일에 모양이 없음','지형 비트가 있는 타일만 내보내며, 알파가 모두 0이면 모양이 없음','Studio에서 비트 없는 타일은 흐리게 표시됨','그 타일에 비트를 칠하거나 Godot에서 직접 모양을 그리기']]},
+   alternatives:{rows:[
+    ['Godot TileSet 편집기에서 폴리곤 그리기(F로 전체 사각형, 점 추가·삭제, 타일 속성 칠하기로 한 모양을 여러 타일에 복사)','가득 찬 블록과 경사 몇 개일 때. 도구는 필요 없지만 모양마다 손으로 놓습니다.'],
+    ['타일이 아닌 스프라이트 충돌: [[game/collision-polygon-generator|충돌 폴리곤 생성기]]','모양이 TileSet 타일이 아니라 캐릭터나 소품에 속할 때.'],
+    ['Collider를 Grid로 둔 Unity Rule Tile: [[game/unity-rule-tile|Unity Rule Tile]]','대상이 Unity일 때. Nerulio가 딴 폴리곤은 Godot용으로만 씁니다.']]},
+   limits:['물리 레이어 하나, 단순 폴리곤: 단방향, 추가 레이어, 물리 재질은 나중에 Godot에서 설정합니다.','구멍은 정확한 사각형들에서만 정확합니다.','지형 비트가 없는 타일은 내보내기에서 충돌이 없습니다.'],
+   versions:{body:['Godot 4.7.2에서 저장된 TileSet을 다시 읽어 확인했습니다. 반 타일 이동 뒤 모든 폴리곤이 점 단위로 같았습니다. 코퍼스 블롭 세트에서 49/49, 48/48, 47/47타일, 변·모서리 템플릿에서 16/16, 지형 4개짜리 듀얼 그리드 팩에서 80/80. 편집기 단계는 Godot 4.7 공식 문서를 따릅니다.'],sources:[GODOT_TILESETS,GODOT_TILEDATA,GODOT_TILESET,GODOT_LAYER,GODOT_DEBUG]}
+  },
+  ja:{
+   answer:'Godot 4では、タイルの衝突はTileSetにあります。物理レイヤー（衝突レイヤーとマスク）を追加し、タイルごとに1つ以上の衝突ポリゴンを与えます。点の座標はタイルの中心から測ります。Nerulioはタイルごとにアルファからポリゴンを取り（外形、正確な矩形群、ボックス1つ）、点を動かせるようにし、インポートスクリプトが衝突レイヤー1・マスク1の物理レイヤー0を作り、各ポリゴンを半タイルずらして書き込みます。Godot 4.7.2で全ポリゴンを点単位で読み戻して確認しました。',
+   concept:{title:'物理レイヤー、ポリゴン、タイルの中心',body:[
+    'TileSetには物理レイヤーのリストがあり、レイヤーごとに衝突レイヤー・衝突マスク・任意の物理マテリアルを持ちます（Godotのドキュメント：TileSetインスペクター › Physics Layers › Add Element）。レイヤーごとに1枚のタイルが複数のポリゴンを持てて（`TileData.set_collision_polygon_points(layer, index, points)`）、それぞれ一方通行にもできます。`TileMapLayer`は`collision_enabled`が有効（既定）なら、塗ったタイルを静的な衝突にします。',
+    'Nerulioは形状を描いたとおりに、タイルのピクセル単位・原点はタイル左上で保存します。Godotはタイルのポリゴンを中心から測るので、インポートスクリプトが全点からタイルサイズの半分を引きます。このずらしを忘れるツールでは、すべての形状が左上に半タイルずれます。',
+    'アルファの読み方は3通りです（アルファが0より大きければ不透明とみなします）。外形はピクセルの境界に沿って不透明な縁をなぞり、外側のループだけを残すので穴は埋まります。正確な矩形群は不透明なピクセルだけを数個の矩形で覆い、穴は開いたままです。ボックスは全体を1つの矩形で囲みます。長い外形は点が256個以下になるまで単純化します。'],
+    terms:[['物理レイヤー','衝突レイヤー・マスク・マテリアルを持つTileSetの枠。タイルは枠ごとにポリゴンを持ちます。'],['衝突ポリゴン','タイル中心基準の点のリスト。内側全体がふさがった場所になります。'],['衝突レイヤー／マスク','タイルが属するレイヤーと検出するレイヤー。ボディのマスクにタイルのレイヤーが含まれていればぶつかります。'],['半タイルのずらし','左上基準のタイルピクセル −（幅 ÷ 2、高さ ÷ 2）= Godotの中心基準の座標。']]},
+   example:{title:'例：64pxの地面タイル、ピクセルからGodotまで',lines:[
+    '64 × 64タイル、下の40pxが地面（ピクセル行24–63）',
+    'Nerulio、タイルのピクセル（原点は左上）   (0,24) (64,24) (64,64) (0,64)',
+    '半タイル = (32, 32)',
+    'Godot、タイル中心基準                     (-32,-8) (32,-8) (32,32) (-32,32)',
+    'インポート  TileData.set_collision_polygon_points(0, 0, points)   物理レイヤー0、ポリゴン0',
+    'TileSet     物理レイヤー0: collision_layer 1, collision_mask 1'],
+    after:'`CharacterBody2D`は`collision_mask`にレイヤー1が含まれているときだけこのタイルの上に立ちます。プロジェクトが別のレイヤー番号を使うなら、インポート後にTileSetの番号を変えてください。'},
+   outputs:{lead:'衝突は書き出しのGodotファイルの中に入ります。',rows:[
+    ['nerulio-tileset.json','`physicsLayers`（衝突レイヤー1、マスク1、使った方式）と、タイルごとの`collision`：タイルピクセル単位のポリゴン。'],
+    ['nerulio_tileset_import.gd','物理レイヤーを追加し、各ポリゴンを半タイルずらして書き込みます。出力行にポリゴン数が出ます。'],
+    ['nerulio-tileset.tres','スクリプト実行時にGodotが保存する、地形と衝突入りのTileSet。']]},
+   target:{title:'衝突をGodotに取り込んで試す',steps:[
+    'Nerulioの書き出しパネルでCollision (Godot)を外形ポリゴン、正確な矩形群、ボックス、編集した形状のみのいずれかにします。既定のNoneでは物理レイヤーがまったく書かれず、編集した形状も含まれません。',
+    'PNG・JSON・スクリプトをプロジェクトのルートにコピーし、File › Runでスクリプトを実行して出力行を確認します（例：`… 47 tiles, 188 peering bits, 47 collision polygons …`）。',
+    '`TileMapLayer`のTile Setプロパティに`nerulio-tileset.tres`を設定して塗ります。',
+    'プレイヤーのボディの`collision_mask`にレイヤー1を含めます（またはTileSetインスペクターで物理レイヤー0の衝突レイヤーをプロジェクトの番号に変えます）。',
+    'Debug › Visible Collision Shapesを有効にしてシーンを実行すると、ゲーム実行中にタイルの上へ衝突形状が描かれます。',
+    '一方通行の足場や物理マテリアルは、TileSetエディターのSelectモードでタイルをクリックしてPhysics Layer 0セクションを編集します。そこでFを押すとタイル全体の矩形がすぐできます。']},
+   verify:{steps:[
+    'スクリプトの出力行の衝突ポリゴン数が想定どおりであること（ボックスとほとんどの外形はタイルごとに1つ）。',
+    'TileSetエディター › Selectモードでタイルをクリックすると、Physics Layer 0セクションに絵の上のポリゴンが表示されます。',
+    'Visible Collision Shapesを有効にすると、隣り合う地面タイルの上辺が1本の線につながり、正確な矩形群を使った隙間のあるタイルでは隙間が見えるはずです。',
+    '`print($TileMapLayer.tile_set.get_physics_layer_collision_layer(0))`が1を出力します。']},
+   trouble:{rows:[
+    ['TileSetに物理レイヤーがない','書き出しでCollision (Godot)をNoneのままにした','出力行の0 collision polygons','衝突の方式を選んで書き出し直す'],
+    ['キャラクターがタイルをすり抜けて落ちる','ボディのマスクにレイヤー1がない、またはレイヤーの`collision_enabled`がオフ','ボディと`TileMapLayer`のインスペクター','マスクにレイヤー1を加えるか、TileSetの物理レイヤーをプロジェクトのレイヤーにする'],
+    ['形状が左上に半タイルずれる','左上基準の座標をずらさずに書くツールから来たポリゴン','Visible Collision Shapes','ずらしを行うNerulioのスクリプトで取り込み直す'],
+    ['穴のあるタイルが全部ふさがる','外形は外側のループだけを残す','TileSetエディターのタイルのポリゴン','そのセットは正確な矩形群にするか、そのタイルの点を直す'],
+    ['キャラクターがタイルの継ぎ目に引っかかる','隣のポリゴンの高さが1ピクセル違う','Visible Collision Shapesで継ぎ目を拡大','全面タイルはボックスか正確な矩形群にするか、Studioの衝突ツール（C）で点の高さをそろえる'],
+    ['一部のタイルに形状がない','地形ビットのあるタイルだけを書き出し、アルファがすべて0だと形状はできない','Studioではビットのないタイルが暗く表示される','そのタイルにビットを塗るか、Godotで手で形状を描く']]},
+   alternatives:{rows:[
+    ['GodotのTileSetエディターでポリゴンを描く（Fで全体の矩形、点の追加・削除、タイルプロパティペイントで1つの形状を多数のタイルへ）','全面ブロックと少しの坂だけのとき。ツールは要りませんが、形状は1つずつ手で置きます。'],
+    ['タイルではなくスプライトの衝突：[[game/collision-polygon-generator|衝突ポリゴンジェネレーター]]','形状がTileSetのタイルではなく、キャラクターや小物のものであるとき。'],
+    ['ColliderをGridにしたUnityのRule Tile：[[game/unity-rule-tile|UnityのRule Tile]]','対象がUnityのとき。Nerulioで取ったポリゴンはGodot向けにだけ書かれます。']]},
+   limits:['物理レイヤーは1つ、単純なポリゴンのみ：一方通行、追加レイヤー、物理マテリアルは後でGodotで設定します。','穴が正確になるのは正確な矩形群だけです。','地形ビットのないタイルは、書き出しで衝突を持ちません。'],
+   versions:{body:['Godot 4.7.2で、保存したTileSetを読み戻して確認しました。半タイルのずらしの後、全ポリゴンが点単位で一致しました。コーパスのブロブセットで49/49、48/48、47/47タイル、辺・角のテンプレートで16/16、4地形のデュアルグリッドパックで80/80。エディターの手順はGodot 4.7の公式ドキュメントに基づきます。'],sources:[GODOT_TILESETS,GODOT_TILEDATA,GODOT_TILESET,GODOT_LAYER,GODOT_DEBUG]}
+  }
+ },
 };
