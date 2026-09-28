@@ -156,6 +156,17 @@ def main():
                 got.value.save_as(target)
                 project = verify_zip(target)
                 assert project['kernings'] == [{'first': 65, 'second': 86, 'amount': -2}]
+                with zipfile.ZipFile(target) as saved:
+                    ttf_base64 = base64.b64encode(saved.read('font.ttf')).decode()
+                loaded = page.evaluate('''async encoded => {
+                    const bytes=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
+                    const face=new FontFace('Nerulio T7 QA',bytes);await face.load();document.fonts.add(face);
+                    const canvas=document.createElement('canvas');canvas.width=80;canvas.height=32;
+                    const context=canvas.getContext('2d');context.font='15px "Nerulio T7 QA"';
+                    context.fillStyle='black';context.fillText('AV',0,16);
+                    return {status:face.status,ink:[...context.getImageData(0,0,80,32).data].filter((_,i)=>i%4===3).some(a=>a>0)};
+                }''', ttf_base64)
+                assert loaded == {'status': 'loaded', 'ink': True}, loaded
                 ctx2 = browser.new_context(viewport={'width': 1440, 'height': 900}, accept_downloads=True)
                 p2 = ctx2.new_page()
                 p2.goto(f'{BASE}/en/bitmap-font-maker/app/', wait_until='networkidle')
