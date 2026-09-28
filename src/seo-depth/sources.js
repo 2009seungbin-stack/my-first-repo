@@ -51,6 +51,7 @@ export const SOURCE_HOSTS=new Set([
  'tech.ebu.ch', // EBU R 95, the broadcast safe-area recommendation (ui group)
  'www.angelcode.com', // BMFont, the owner of the .fnt format (ui group)
  'www.gnu.org', // GNU gettext manual, the owner of the .po format (ui group)
+ 'xiph.org', // Xiph Foundation's own Ogg Vorbis specification
  'support.apple.com',
  'support.discord.com',
  'support.google.com',

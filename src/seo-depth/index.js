@@ -16,8 +16,10 @@ import textureNormals from './texture-normals.js';
 import ui from './ui.js';
 import toolsImage from './tools-image.js';
 import toolsMedia from './tools-media.js';
+import sfx from './sfx.js';
 
 export const GROUPS=Object.freeze({
+ sfx:['game/sfx-generator'],
  'sprite-core':['sprite-slicer','game/sprite-lab','normalize-sprite-frames','game/sprite-animation-preview','game/sprite-pivot-editor','game/hitbox-editor','game/collision-polygon-generator','game/sprite-editor','game/sprite-animator','game/sprite-atlas-viewer','game/sprite-sheet-to-png-frames','game/sprite-sheet-slicing-off','game/sprite-jitter-after-trim','game/ezgif-sprite-cutter-alternative'],
  'sprite-engines':['game/aseprite-to-godot','game/godot-sprite-sheet','game/aseprite-to-unity','game/aseprite-to-phaser','game/unity-sprite-sheet','game/gamemaker-sprite-strip','game/sprite-sheet-frame-size','game/godot-animation-frame-duration','game/gdevelop-sprite-sheet','game/aseprite-to-gamemaker'],
  'sprite-formats':['game/aseprite-viewer','game/aseprite-to-gif','game/sprite-sheet-to-aseprite','game/sprite-sheet-to-video','game/fnf-spritesheet-to-gif','game/sprite-sheet-to-gif','game/remove-sprite-background','game/aseprite-to-sprite-sheet','game/aseprite-json-to-pixi','game/keep-aseprite-tags-when-packing','game/gif-to-sprite-sheet'],
@@ -32,7 +34,7 @@ export const GROUPS=Object.freeze({
  'tools-image':['image/editor','image/compress','image/convert','image/resize','image/png-to-jpg','image/jpg-to-png','image/png-to-webp','image/webp-to-png','image/jpg-to-webp','image/webp-to-jpg','image/avif-to-jpg','image/avif-to-png','image/bmp-to-png','image/bmp-to-jpg','image/compress-to-20kb','image/compress-to-50kb','image/compress-to-100kb','image/compress-to-200kb','image/compress-to-500kb','image/compress-to-1mb','image/resize/instagram-post','image/resize/instagram-portrait','image/resize/instagram-story','image/resize/youtube-thumbnail','image/resize/youtube-banner','image/resize/x-header','image/resize/linkedin-banner','image/resize/discord-banner'],
  'tools-media':['pdf/editor','pdf/split','pdf/compress','media','video/trim','video/frame','video/to-mp3','video/to-gif','video/compress','video/mp4-to-gif','video/mov-to-gif','video/webm-to-gif','video/mp4-to-mp3','video/mov-to-mp3','video/webm-to-mp3']
 });
-const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia};
+const FILES={'sprite-core':spriteCore,'sprite-engines':spriteEngines,'sprite-formats':spriteFormats,pack,'pixel-fix':pixelFix,'pixel-edit':pixelEdit,'tile-core':tileCore,'tile-engines':tileEngines,'texture-pbr':texturePbr,'texture-normals':textureNormals,ui,'tools-image':toolsImage,'tools-media':toolsMedia,sfx};
 export const DEPTH=Object.freeze(Object.assign({},...Object.values(FILES)));
 export const groupFile=Object.freeze(FILES);
 /** The intent types (docs/SEO-CONTENT-MODEL.md §Types). */

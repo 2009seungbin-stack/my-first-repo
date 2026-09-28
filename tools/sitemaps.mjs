@@ -30,7 +30,7 @@ export const W3C_DATETIME=/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|[+-]\d\
 /** Language-neutral page paths per sitemap, in listing order. `extra` adds paths (pricing). */
 export function sitemapGroups(extra=[]){
  const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
- const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p))])];
+ const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p)),'game/sfx-generator'])];
  const inGame=new Set(game);
  const tools=[...new Set([...indexable,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
  return {game,guides:[...GUIDE_ROUTES],tools};
