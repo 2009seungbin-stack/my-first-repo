@@ -713,5 +713,135 @@ export default {
    versions:{body:['Nerulioの検証（docs/STUDIO-TILE.md、2026-09-23）：MITライセンスのGlitchedinOrbitのデュアルグリッドシートをcorner16ブロック5つ、地形4つとして読み（角の地形80/80、継ぎ目AUC 1.000）、Godot 4.7.2が251マスすべてを予測どおりに塗り、Tiled 1.12.2とLDtk 1.5.3の確認も通りました。エンジンの用語はリンク先の公式ドキュメントに基づきます。'],sources:[S.ja.tiledTerrain,S.ja.godotTilesets]}
   }
  },
+ 'game/tileset-generator':{
+  type:'create',
+  intent:{primary:'generate a full autotile tileset (47 blob or 16 dual-grid) from a few drawn pieces',secondary:['how autotiles are built from quarters','RPG Maker A2 to 47 tiles','autotile generator for Godot','オートタイル 作り方'],
+   goal:'a complete blob-47 or dual-grid 16 set, assembled pixel-exact from a small source block, with terrain bits already set and linked to the source',input:'a source block: RPG Maker MV/MZ A2 (2×3), Blobsmith base (2×3), A4 wall (2×2), five-tile strip (1×5) or one full tile (procedural rim)',output:'a new sheet in a published layout + its tileset (bits set), exportable to Godot 4, Tiled, Unity, LDtk',target:'any engine the Tile workspace exports to',support:'full',
+   evidence:['src/game/tiles/generator.js (QUADS × STATES = 4 × 5 quarters; quadState; A2 / Blobsmith / A4 maps; assembleDual; even tile size required)','src/game/tiles/identify.js (A2 size hint 768×576 at 48 px)','docs/STUDIO-TILE.md (Blobsmith Lite 1.0.4 comparison: 46/47 and 47/47 byte-identical; coolschool A2 → 485/485 in Godot)'],
+   external:['Blobsmith Lite itch.io page (features and price, 2026-09-28)']},
+  en:{
+   answer:'A blob autotile set needs 47 tiles, but every one of them is four quarters, and each quarter has only five possible looks — so 20 drawn quarters are enough for all 47, or for the 16 tiles of a dual grid. The generator takes a small source block (an RPG Maker MV/MZ A2 block, a Blobsmith base, an A4 wall, a five-tile strip, or one full tile with a drawn rim), copies the quarters into every tile without scaling, sets the terrain bits, and keeps the new set linked so an edit to the source rebuilds every tile that uses it. It rearranges your pixels; it does not invent art.',
+   concept:{title:'Why 20 quarters make 47 tiles',body:[
+    'Split a square tile into four quarters. The top-left quarter touches only three neighbours — the cell above, the cell to the left and the cell up-left — and those three decide its look: an outer corner when both sides are open, a rim along the top when only the cell above is open, a rim along the side when only the left is open, an inner corner when both sides connect but the diagonal is open, and full when all three connect. The other quarters work the same way with their own three neighbours.',
+    'Four quarters × five looks = 20 pieces. Every one of the 47 blob tiles is a particular choice of one look per quarter, so a source that contains those 20 pieces contains the whole set. A side-only source (an RPG Maker A4 wall) has no inner-corner look: 4 × 4 pieces, which give the 16 side tiles.',
+    'An RPG Maker MV/MZ A2 block is exactly such a source: 2 × 3 tiles where the top-left is a preview, the top-right holds the four inner corners, and the bottom 2 × 2 is a small box whose corners, edges and centre give the other looks. Blobsmith uses the same block with the two top tiles swapped. The generator knows both orders and a five-tile strip; the procedural rim kind draws a plain one-colour rim on one full tile instead.',
+    'Because pieces are copied, not resampled, every generated tile is byte-exact with its source quarters, and the Check panel says the art-vs-bits check does not apply. The same 20 pieces also build the 16 dual-grid tiles, since a dual-grid tile is four quarters of four different cells.'],
+    terms:[['Quarter','One quarter of a tile (half its width, half its height); tiles need an even size in pixels to split.'],['Look (state)','Outer corner, top/bottom rim, side rim, inner corner or full: what a quarter shows given its three neighbours.'],['Source block','The few tiles you draw: A2 (2×3), Blobsmith (2×3), A4 wall (2×2), five-tile strip (1×5) or one full tile.'],['Provenance','For every generated tile, which source quarter each of its quarters came from.']]},
+   example:{title:'Example: one tile, and the A2 numbers',lead:'The top-left quarter looks at N, W and NW; the other three quarters work the same way with their own neighbours:',lines:[
+    'N open,  W open               → outer corner',
+    'N open,  W land               → rim along the top',
+    'N land,  W open               → rim along the side',
+    'N land,  W land,  NW open     → inner corner',
+    'N, W, NW land                 → full',
+    '5 looks × 4 quarters = 20 pieces  → all 47 blob tiles, or the 16 dual-grid tiles',
+    '',
+    'mask 28 = E4 + SE8 + S16 (land to the right, below, and down-right):',
+    '  top-left = outer corner   top-right = rim along the top',
+    '  bottom-left = rim along the side   bottom-right = full',
+    '',
+    'RPG Maker MV/MZ A2 sheet 768 × 576 px = 8 × 4 blocks of 2 × 3 tiles at 48 px',
+    'one block = 96 × 144 px, one quarter = 24 × 24 px'],
+    after:'The Studio recognises a 768 × 576 sheet as an A2 sheet by its size and offers "Assemble from this block"; on the seamless CC0 coolschool floor the pixels alone said nothing (0.5), the size did, and Godot 4.7.2 painted all 485 test cells of the generated set as predicted.'},
+   verify:{title:'Check the generated set',steps:[
+    'Press M: the starter island should show outer corners, rims, inner corners and the peninsula without an outlined cell, with both the Godot and the Tiled rule.',
+    'Hover a quarter of the source block: it says how many generated tiles use it. Edit it and every one of them is rebuilt in one undo step.',
+    'The Check panel shows 47 of 47 (or 16 of 16) and says the art check does not apply, because the pixels come byte-exact from the source.',
+    'Look at the isolated tile: Nerulio builds it from the four outer-corner quarters, so it is a small island with the rim you drew.']},
+   trouble:{rows:[
+    ['Error: tile width and height must be even','Quarters are half a tile; an odd size cannot be split','The grid\'s tile size, e.g. 15 px','Use an even tile size (16, 32, 48 px); pad or redraw the source'],
+    ['Inner corners appear where outer corners should, or the reverse','The wrong source kind: RPG Maker keeps the inner corners top-right, Blobsmith top-left','Which tile of the 2 × 3 block shows four small corners?','Switch between the RPG Maker A2 and Blobsmith kinds; in the Blobsmith comparison the Studio told the two orders apart (0.964 vs 0.852)'],
+    ['Seams across the middle of generated tiles','Quarters are copied as drawn; the source\'s pieces do not line up at the quarter lines','Hover the quarter: the count shows every tile that inherits it','Edit that quarter in the source; all dependent tiles update together'],
+    ['An A4 wall block gives only 16 tiles and no dual grid','Wall blocks connect by their sides only; there is no inner-corner piece','The set mode is sides','Expected; draw an A2-style block if you need corners'],
+    ['The transitions to a second terrain are missing','The terrain-B option makes one pair at a time','The Check panel lists the pair\'s missing patterns','Generate each pair (grass over dirt, sand over water) as its own set']]},
+   alternatives:{rows:[
+    ['Blobsmith Lite (browser)','You want to draw the 2 × 3 base in a built-in pixel editor with a live playground. The free version exports a PNG sheet (47 blob or 16 sides); its itch.io page lists Godot .tres terrains and Tiled .tsx in the $9.95 full version (checked 2026-09-28).'],
+    ['RPG Maker\'s own autotiles','Your game is made in RPG Maker: it assembles A2 blocks itself, and there is nothing to generate. To take the art elsewhere, see [[game/rpg-maker-autotile-to-godot|RPG Maker autotiles in Godot]].'],
+    ['Drawing all 47 tiles by hand','Every tile needs its own variation (cracks, plants) that four shared quarters cannot give; draw them in a pixel editor and let the [[game/tile-lab|tile workspace]] identify and check them.']]},
+   limits:['It rearranges drawn pixels; only the procedural rim kind draws anything new, and that is a plain one-colour rim.','Square quarters from even tile sizes only; isometric and hex tiles are not generated.','Terrain transitions are generated one pair at a time.'],
+   versions:{body:['Behaviour from src/game/tiles/generator.js and docs/STUDIO-TILE.md. Measured on 2026-09-23 against Blobsmith Lite 1.0.4 on the same bases: 46 of 47 tiles byte-identical on the cave art and 47 of 47 on the RPG Maker A2 floor; Godot 4.7.2 painted the generated coolschool set 485 of 485 cells as predicted. Blobsmith\'s features and price are from its own itch.io page, read on 2026-09-28.'],sources:[S.en.godotTilesets]}
+  },
+  ko:{
+   answer:'블롭 오토타일 세트는 47장이 필요하지만, 한 장 한 장이 네 조각으로 되어 있고 조각마다 가능한 모양은 다섯 가지뿐입니다. 그래서 조각 20개만 그리면 47장 전부, 또는 듀얼 그리드 16장이 나옵니다. 생성기는 작은 원본 블록(알만툴 MV/MZ A2 블록, Blobsmith 기본형, A4 벽, 5칸 줄, 또는 테두리를 그려 넣을 가득 찬 타일 한 장)에서 조각을 크기 변경 없이 모든 타일로 복사하고, 지형 비트를 정하고, 새 세트를 원본과 연결해 둡니다. 원본을 고치면 그 조각을 쓰는 타일이 모두 다시 만들어집니다. 그린 픽셀을 재배치할 뿐 새 그림을 지어내지는 않습니다.',
+   concept:{title:'조각 20개로 47장이 되는 이유',body:[
+    '정사각형 타일을 네 조각으로 나눕니다. 왼쪽 위 조각은 이웃 셋, 즉 위 칸, 왼쪽 칸, 왼쪽 위 칸에만 닿고 이 셋이 모양을 정합니다. 두 변이 모두 열리면 바깥 모서리, 위만 열리면 위쪽 테두리, 왼쪽만 열리면 옆쪽 테두리, 두 변은 이어졌는데 대각선이 열리면 안쪽 모서리, 셋 다 이어지면 가득 참입니다. 나머지 조각도 자기 이웃 셋으로 똑같이 정해집니다.',
+    '조각 4개 × 모양 5가지 = 20개. 블롭 47장은 모두 조각마다 모양 하나씩을 고른 조합이므로, 이 20개를 가진 원본이면 세트 전체를 가진 셈입니다. 변만 있는 원본(알만툴 A4 벽)에는 안쪽 모서리 모양이 없어 4 × 4개이고, 변 타일 16장이 나옵니다.',
+    '알만툴 MV/MZ A2 블록이 바로 그런 원본입니다. 2 × 3 타일 중 왼쪽 위는 미리보기, 오른쪽 위는 안쪽 모서리 네 개, 아래 2 × 2는 모서리·변·가운데로 나머지 모양을 주는 작은 상자입니다. Blobsmith는 같은 블록에서 위 두 타일의 자리만 바꿉니다. 생성기는 두 순서와 5칸 줄을 모두 알고, 절차적 테두리 방식은 가득 찬 타일 한 장에 한 가지 색 테두리를 그려 줍니다.',
+    '조각은 다시 샘플링하지 않고 복사하므로 생성된 타일은 원본 조각과 바이트 단위로 같고, 점검 패널은 그림과 비트 점검이 해당되지 않는다고 알려 줍니다. 듀얼 그리드 타일도 서로 다른 네 칸의 조각 네 개로 이뤄지므로 같은 20개로 16장을 만듭니다.'],
+    terms:[['조각(4분할)','타일의 4분의 1(가로 절반, 세로 절반). 나누려면 타일 크기가 짝수 픽셀이어야 합니다.'],['모양(상태)','바깥 모서리, 위·아래 테두리, 옆 테두리, 안쪽 모서리, 가득 참. 이웃 셋에 따라 조각이 보여 주는 것.'],['원본 블록','직접 그리는 몇 장: A2(2×3), Blobsmith(2×3), A4 벽(2×2), 5칸 줄(1×5), 가득 찬 타일 한 장.'],['출처 기록','생성된 타일마다 각 조각이 원본의 어느 조각에서 왔는지.']]},
+   example:{title:'예시: 타일 한 장과 A2 숫자',lead:'왼쪽 위 조각은 N, W, NW를 봅니다. 나머지 세 조각도 자기 이웃으로 똑같이 정해집니다.',lines:[
+    'N 열림, W 열림                → 바깥 모서리',
+    'N 열림, W 땅                  → 위쪽 테두리',
+    'N 땅,   W 열림                → 옆쪽 테두리',
+    'N 땅,   W 땅,   NW 열림       → 안쪽 모서리',
+    'N, W, NW 모두 땅              → 가득 참',
+    '모양 5 × 조각 4 = 20개  → 블롭 47장 전부, 또는 듀얼 그리드 16장',
+    '',
+    '마스크 28 = E4 + SE8 + S16 (오른쪽, 아래, 오른쪽 아래가 땅):',
+    '  왼쪽 위 = 바깥 모서리   오른쪽 위 = 위쪽 테두리',
+    '  왼쪽 아래 = 옆쪽 테두리   오른쪽 아래 = 가득 참',
+    '',
+    '알만툴 MV/MZ A2 시트 768 × 576 px = 48px 타일 2 × 3짜리 블록이 8 × 4개',
+    '블록 하나 = 96 × 144 px, 조각 하나 = 24 × 24 px'],
+    after:'Studio는 768 × 576 시트를 크기로 A2라고 알아보고 "이 블록으로 조립"을 제안합니다. 이음새 없는 CC0 coolschool 바닥은 픽셀만으로는 아무것도 알 수 없었지만(0.5) 크기로 알아냈고, 생성된 세트를 Godot 4.7.2가 테스트 칸 485개 모두 예측대로 칠했습니다.'},
+   verify:{title:'생성된 세트 확인하기',steps:[
+    'M을 누릅니다. 시작 섬에서 바깥 모서리, 테두리, 안쪽 모서리, 반도가 고도 규칙과 Tiled 규칙 모두 윤곽선 없이 보여야 합니다.',
+    '원본 블록의 조각에 마우스를 올리면 그 조각을 쓰는 생성 타일 수가 나옵니다. 고치면 그 타일이 모두 한 번의 되돌리기 단위로 다시 만들어집니다.',
+    '점검 패널이 47/47(또는 16/16)을 보여 주고, 픽셀이 원본에서 바이트 그대로 왔으므로 그림 점검은 해당 없다고 알려 줍니다.',
+    '외딴 타일을 봅니다. Nerulio는 바깥 모서리 조각 네 개로 만들므로, 직접 그린 테두리를 가진 작은 섬이 됩니다.']},
+   trouble:{rows:[
+    ['오류: 타일 너비와 높이는 짝수여야 함','조각은 타일의 절반이라 홀수 크기는 나눌 수 없음','격자의 타일 크기(예: 15px)','짝수 크기(16, 32, 48px)를 쓰고, 원본을 늘리거나 다시 그림'],
+    ['바깥 모서리 자리에 안쪽 모서리가 나오거나 그 반대','원본 종류가 틀림: 알만툴은 안쪽 모서리가 오른쪽 위, Blobsmith는 왼쪽 위','2 × 3 블록에서 작은 모서리 네 개가 있는 타일은 어느 쪽인가','알만툴 A2와 Blobsmith 종류를 바꿔 봄. Blobsmith 비교에서 Studio는 두 순서를 구별했음(0.964 대 0.852)'],
+    ['생성된 타일 가운데를 가로지르는 이음새','조각은 그린 그대로 복사됨. 원본 조각이 4분할 선에서 맞지 않음','조각에 마우스를 올리면 그 조각을 물려받는 타일 수가 나옴','원본에서 그 조각을 고침. 딸린 타일이 한꺼번에 바뀜'],
+    ['A4 벽 블록은 16장만 나오고 듀얼 그리드가 안 됨','벽 블록은 변으로만 이어져 안쪽 모서리 조각이 없음','세트 모드가 sides','정상. 모서리가 필요하면 A2식 블록을 그림'],
+    ['두 번째 지형과의 전환이 없음','지형 B 옵션은 한 번에 한 쌍만 만듦','점검 패널이 그 쌍의 빠진 패턴을 보여 줌','쌍마다(흙 위 풀, 물 위 모래) 따로 세트를 생성']]},
+   alternatives:{rows:[
+    ['Blobsmith Lite(브라우저)','내장 픽셀 편집기와 실시간 놀이터에서 2 × 3 기본 블록을 그리고 싶을 때. 무료판은 PNG 시트(블롭 47 또는 변 16)를 내보내고, itch.io 페이지에 따르면 고도 .tres 지형과 Tiled .tsx는 9.95달러 정식판에 있습니다(2026-09-28 확인).'],
+    ['알만툴 자체 오토타일','게임을 알만툴로 만들 때. A2 블록은 알만툴이 직접 조립하므로 생성할 것이 없습니다. 그림을 다른 엔진으로 옮기려면 [[game/rpg-maker-autotile-to-godot|알만툴 오토타일을 고도로]] 참고.'],
+    ['47장을 모두 손으로 그리기','타일마다 금, 풀 같은 개별 변화가 필요해 공유 조각 네 개로는 부족할 때. 픽셀 편집기로 그린 뒤 [[game/tile-lab|타일 작업실]]에서 인식하고 점검하세요.']]},
+   limits:['그린 픽셀을 재배치합니다. 새로 그리는 것은 절차적 테두리뿐이며, 그것도 한 가지 색 테두리입니다.','짝수 크기 타일의 정사각형 조각만 다룹니다. 아이소메트릭·육각 타일은 생성하지 않습니다.','지형 사이 전환은 한 쌍씩 생성합니다.'],
+   versions:{body:['동작은 src/game/tiles/generator.js와 docs/STUDIO-TILE.md를 따릅니다. 2026-09-23에 같은 기본 블록으로 Blobsmith Lite 1.0.4와 비교해 동굴 그림에서 47장 중 46장, 알만툴 A2 바닥에서 47장 모두가 바이트 단위로 같았고, 생성한 coolschool 세트를 Godot 4.7.2가 485칸 모두 예측대로 칠했습니다. Blobsmith의 기능과 가격은 2026-09-28에 확인한 자체 itch.io 페이지 내용입니다.'],sources:[S.ko.godotTilesets]}
+  },
+  ja:{
+   answer:'ブロブのオートタイルは47枚必要ですが、どのタイルも4つのパーツでできていて、パーツごとの見た目は5種類しかありません。だから20個のパーツを描けば47枚すべて、あるいはデュアルグリッドの16枚が作れます。ジェネレーターは小さな素材ブロック（RPGツクールMV/MZのA2ブロック、Blobsmithの基本形、A4の壁、5タイルの帯、または縁を描き足す全面タイル1枚）からパーツを拡大縮小なしで全タイルにコピーし、地形ビットを設定し、新しいセットを素材とつないでおきます。素材を直せば、そのパーツを使うタイルがすべて作り直されます。描いたピクセルを並べ替えるだけで、新しい絵をでっち上げはしません。',
+   concept:{title:'20個のパーツで47枚になる理由',body:[
+    '正方形のタイルを4つに分けます。左上のパーツが接するのは3つの隣、つまり上のマス、左のマス、左上のマスだけで、この3つが見た目を決めます。両方の辺が開いていれば外側の角、上だけ開いていれば上の縁、左だけ開いていれば横の縁、両辺はつながるが斜めが開いていれば内側の角、3つともつながれば全面です。ほかのパーツも自分の3つの隣で同じように決まります。',
+    'パーツ4つ × 見た目5種類 = 20個。47枚のブロブはどれも、パーツごとに見た目を1つずつ選んだ組み合わせなので、この20個を持つ素材ならセット全体を持っていることになります。辺だけの素材（RPGツクールのA4の壁）には内側の角の見た目がなく4 × 4個で、辺タイル16枚になります。',
+    'RPGツクールMV/MZのA2ブロックがまさにそうした素材です。2 × 3タイルのうち左上はプレビュー、右上は内側の角4つ、下の2 × 2は角・辺・中央でほかの見た目を与える小さな箱です。Blobsmithは同じブロックで上の2枚の位置を入れ替えています。ジェネレーターは両方の並びと5タイルの帯を知っており、手続き的な縁の方式は全面タイル1枚に単色の縁を描きます。',
+    'パーツは再サンプリングせずにコピーするので、生成されたタイルは素材のパーツとバイト単位で一致し、チェックパネルは絵とビットの照合は対象外だと表示します。デュアルグリッドのタイルも異なる4マスのパーツ4つでできているので、同じ20個から16枚を作ります。'],
+    terms:[['パーツ（4分割）','タイルの4分の1（幅の半分・高さの半分）。分けるにはタイルサイズが偶数ピクセルである必要があります。'],['見た目（状態）','外側の角、上下の縁、横の縁、内側の角、全面。3つの隣に応じてパーツが見せるもの。'],['素材ブロック','自分で描く数枚：A2（2×3）、Blobsmith（2×3）、A4の壁（2×2）、5タイルの帯（1×5）、全面タイル1枚。'],['出どころの記録','生成したタイルごとに、各パーツが素材のどのパーツから来たか。']]},
+   example:{title:'例：タイル1枚と、A2の数値',lead:'左上のパーツはN・W・NWを見ます。残り3つのパーツも自分の隣で同じように決まります。',lines:[
+    'Nが空き、Wが空き              → 外側の角',
+    'Nが空き、Wが陸                → 上の縁',
+    'Nが陸、Wが空き                → 横の縁',
+    'Nが陸、Wが陸、NWが空き        → 内側の角',
+    'N・W・NWがすべて陸            → 全面',
+    '見た目5 × パーツ4 = 20個  → ブロブ47枚すべて、またはデュアルグリッド16枚',
+    '',
+    'マスク28 = E4 + SE8 + S16（右・下・右下が陸）：',
+    '  左上 = 外側の角   右上 = 上の縁',
+    '  左下 = 横の縁     右下 = 全面',
+    '',
+    'RPGツクールMV/MZのA2シート 768 × 576 px = 48pxタイルの2 × 3ブロックが8 × 4個',
+    '1ブロック = 96 × 144 px、1パーツ = 24 × 24 px'],
+    after:'Studioは768 × 576のシートをサイズからA2と見分け、「このブロックから組み立てる」を提案します。継ぎ目のないCC0のcoolschoolの床はピクセルだけでは何もわかりませんでしたが（0.5）、サイズでわかり、生成したセットをGodot 4.7.2がテストセル485個すべて予測どおりに塗りました。'},
+   verify:{title:'生成したセットを確かめる',steps:[
+    'Mを押します。最初の島で外側の角・縁・内側の角・半島が、GodotルールでもTiledルールでも枠なしで表示されること。',
+    '素材ブロックのパーツにカーソルを合わせると、それを使う生成タイルの数が出ます。直すと、それらがすべて取り消し1段階で作り直されます。',
+    'チェックパネルが47/47（または16/16）を示し、ピクセルが素材からバイトのまま来ているので絵の照合は対象外だと表示すること。',
+    '孤立タイルを見ます。Nerulioは外側の角のパーツ4つで作るので、自分で描いた縁を持つ小さな島になります。']},
+   trouble:{rows:[
+    ['エラー：タイルの幅と高さは偶数である必要','パーツはタイルの半分なので、奇数サイズは分けられない','グリッドのタイルサイズ（例：15px）','偶数サイズ（16・32・48px）を使い、素材を広げるか描き直す'],
+    ['外側の角の所に内側の角が出る、またはその逆','素材の種類の取り違え：RPGツクールは内側の角が右上、Blobsmithは左上','2 × 3ブロックのうち小さな角が4つあるタイルはどちらか','RPGツクールA2とBlobsmithの種類を切り替える。Blobsmithとの比較でStudioは2つの並びを見分けた（0.964対0.852）'],
+    ['生成したタイルの真ん中を横切る継ぎ目','パーツは描いたとおりにコピーされる。素材のパーツが4分割の線でかみ合っていない','パーツにカーソルを合わせると、それを受け継ぐタイルの数が出る','素材でそのパーツを直す。依存するタイルがまとめて更新される'],
+    ['A4の壁ブロックだと16枚だけでデュアルグリッドにならない','壁ブロックは辺だけでつながり、内側の角のパーツがない','セットのモードがsides','正常。角が要るならA2式のブロックを描く'],
+    ['2つ目の地形との遷移がない','地形Bのオプションは一度に1組だけ作る','チェックパネルがその組の足りないパターンを示す','組ごと（土の上の草、水の上の砂）に別のセットとして生成']]},
+   alternatives:{rows:[
+    ['Blobsmith Lite（ブラウザ）','内蔵のドット絵エディターとリアルタイムのプレイグラウンドで2 × 3の基本ブロックを描きたいとき。無料版はPNGシート（ブロブ47か辺16）を書き出し、itch.ioのページによるとGodotの.tres地形とTiledの.tsxは9.95ドルの製品版にあります（2026-09-28確認）。'],
+    ['RPGツクール自身のオートタイル','ゲームをRPGツクールで作るとき。A2ブロックはツクールが自分で組み立てるので、生成するものはありません。絵をほかのエンジンに持っていくなら[[game/rpg-maker-autotile-to-godot|RPGツクールのオートタイルをGodotへ]]を参照。'],
+    ['47枚をすべて手で描く','タイルごとにひびや草などの個別の変化が要り、共有パーツ4つでは足りないとき。ドット絵エディターで描いてから[[game/tile-lab|タイル工房]]で判定・チェックしてください。']]},
+   limits:['描いたピクセルを並べ替えます。新しく描くのは手続き的な縁だけで、それも単色の縁です。','偶数サイズのタイルの正方形パーツだけを扱います。アイソメトリック・六角形のタイルは生成しません。','地形間の遷移は1組ずつ生成します。'],
+   versions:{body:['動作はsrc/game/tiles/generator.jsとdocs/STUDIO-TILE.mdに基づきます。2026-09-23に同じ基本ブロックでBlobsmith Lite 1.0.4と比べ、洞窟の絵で47枚中46枚、RPGツクールA2の床で47枚すべてがバイト単位で一致し、生成したcoolschoolのセットをGodot 4.7.2が485マスすべて予測どおりに塗りました。Blobsmithの機能と価格は、2026-09-28に確認した同ツールのitch.ioページの内容です。'],sources:[S.ja.godotTilesets]}
+  }
+ },
 /*END*/
 };
