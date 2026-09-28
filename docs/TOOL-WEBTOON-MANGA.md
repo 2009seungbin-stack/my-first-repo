@@ -64,6 +64,13 @@ The competitor union includes multi-input ZIP, local operation, editable cuts, n
 
 ## Risks held for review
 
+### Implementation evidence, 2026-09-29
+
+- The committed `tests/fixtures/webtoon/comic-page.png` is a derived 800×3000 CC0 comic scene. Its source artwork, license and file hashes are recorded in `tests/fixtures/webtoon/SOURCE-LICENSE.md`. It is the real artwork used for the visual checks; the colored geometry fixture is kept separate.
+- `tests/webtoon-offline-visual.py` renders the actual effect SVG functions with independent CairoSVG 2.9.1, reparses SVG as XML, reopens raster output through Pillow, composites on the CC0 page, and independently reopens all 9 ZIP members. The offline output ZIP was 4,744,746 bytes. At 800 px and 390 px display widths, panel art and speech remained readable in the inspected composites. The sample applies a panel mask in Pillow to demonstrate editor placement; the product exports transparent overlays and does **not** automatically mask panels. Screentone has visible moiré at the reduced scale. This offline oracle does **not** validate the browser worker's SVG-to-PNG path, which remains pending browser QA.
+- `tests/webtoon-header-oracle.py` creates still and animated PNG, JPEG and both WebP encodings using Pillow, then checks the browser predecode header sniffer independently. Six variants pass. Animation is refused before full image decode. The WebP fields follow Google's [RIFF container](https://developers.google.com/speed/webp/docs/riff_container) and [lossless bitstream](https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification) documentation.
+- The page stays `noindex` until the actual browser effect ZIP, mobile/desktop visual review, performance measurements and full regression pass. Platform acceptance, physical mobile and print behavior remain **UNVERIFIED**.
+
 - Public Kakao/Lezhin upload dimensions are **UNVERIFIED**. Their custom profile must remain visibly custom even if competitor sites publish numbers. Naver 1280 px height and Postype 1600 px width are also unsupported as mandatory rules by the official pages checked here.
 - The French WEBTOON Academy's 2 MB-per-image guidance contradicts ToonSlicer's 20 MB-per-image copy. The 2025 contest FAQ has a narrower scope; the UI must make the conservative target and scope explicit. Applying a 20 MB-per-image target by mistake is a release-blocking test.
 - Browser decoding of a long page can exceed canvas or memory limits. Build a tiled pipeline and set measured caps; a 4K landscape benchmark alone is insufficient.

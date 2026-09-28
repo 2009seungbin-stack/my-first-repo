@@ -1,17 +1,14 @@
 import {profile,checkOutput} from './specs.js';
 import {evenlySpaced,validateCuts,joinedLayout} from './geometry.js';
 import {EFFECTS} from './effects.js';
+import {sniffImageHeader} from './headers.js';
 
 const MAX_FILES=40,MAX_INPUT_BYTES=80_000_000,MAX_PIXELS=64_000_000,MAX_SIDE=32767;
 const send=(id,type,data={})=>postMessage({id,type,...data});
 const fail=(id,error)=>send(id,'error',{error:error?.message||String(error)});
 let cancelled=new Set();
 async function dimensions(file){
- const b=new DataView(await file.slice(0,65536).arrayBuffer());
- if(b.byteLength>=24&&b.getUint32(0)===0x89504e47&&b.getUint32(4)===0x0d0a1a0a)return {width:b.getUint32(16),height:b.getUint32(20),type:'png'};
- if(b.byteLength>=4&&b.getUint16(0)===0xffd8){let at=2;while(at+9<b.byteLength){if(b.getUint8(at)!==0xff){at++;continue;}const mark=b.getUint8(at+1);if([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(mark))return {width:b.getUint16(at+7),height:b.getUint16(at+5),type:'jpeg'};const len=b.getUint16(at+2);if(len<2)break;at+=2+len;}}
- if(b.byteLength>=30&&b.getUint32(0,true)===0x46464952&&b.getUint32(8,true)===0x50424557){const chunk=b.getUint32(12,true);if(chunk===0x58385056)return {width:1+b.getUint8(24)+(b.getUint8(25)<<8)+(b.getUint8(26)<<16),height:1+b.getUint8(27)+(b.getUint8(28)<<8)+(b.getUint8(29)<<16),type:'webp'};if(chunk===0x20385056)return {width:b.getUint16(26,true)&0x3fff,height:b.getUint16(28,true)&0x3fff,type:'webp'};}
- throw new Error('Could not read PNG, JPEG or WebP dimensions before decoding. Re-save the image as PNG.');
+ return sniffImageHeader(new Uint8Array(await file.slice(0,65536).arrayBuffer()));
 }
 function memoryGate(d){if(d.width<1||d.height<1||d.width>MAX_SIDE||d.height>MAX_SIDE||d.width*d.height>MAX_PIXELS)throw new Error(`Image ${d.width}×${d.height} exceeds the safe 64 MP / 32,767 px side budget. Split it in your drawing app first.`);}
 function canvas(w,h){const c=new OffscreenCanvas(w,h);if(!c.getContext('2d'))throw new Error('Canvas unavailable');return c;}
@@ -78,6 +75,7 @@ async function runJoin(id,files,opts){
  send(id,'done',{parts:[{blob,width:layout.width,height:layout.height,bytes:blob.size,format:'png',source:'joined'}],report:{ok:true,total:blob.size,scope:'Custom joined PNG; input order preserved',source:'',checked:'2026-09-29'}});
 }
 async function runInspect(id,files){
+ if(files.length>MAX_FILES)throw new Error(`Choose at most ${MAX_FILES} images`);
  const sizes=[];for(const f of files){if(f.size>MAX_INPUT_BYTES)throw new Error(`${f.name}: input exceeds 80 MB safe budget`);const d=await dimensions(f);memoryGate(d);sizes.push({...d,name:f.name,bytes:f.size});}
  const first=await createImageBitmap(files[0]);let preview,rowInk;try{rowInk=inkRows(first);const width=Math.min(360,first.width),height=Math.max(1,Math.round(first.height*width/first.width));const c=canvas(width,Math.min(600,height)),g=ctx(c);g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(first,0,0,c.width,c.height);preview=await c.convertToBlob({type:'image/png'});}finally{first.close();}
  send(id,'inspect',{sizes,preview,rowInk});
