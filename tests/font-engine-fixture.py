@@ -37,7 +37,13 @@ def main():
             (folder / descriptor).write_bytes(archive.read(descriptor))
             (folder / 'expect.json').write_text(json.dumps({'font': {'chars': expected, 'size': 15,
                                                                   'sample': 'AVij!?'}}, indent=2), encoding='utf-8')
-    print('Prepared Godot BMFont text and Phaser XML bundles with eight independent BDF glyph references.')
+        binary = OUT / 'godot-binary'
+        binary.mkdir(exist_ok=True)
+        (binary / 'font.png').write_bytes(archive.read('font.png'))
+        (binary / 'font.fnt').write_bytes(archive.read('font-binary.fnt'))
+        (binary / 'expect.json').write_text(json.dumps({'font': {'chars': expected, 'size': 15,
+                                                                 'sample': 'AVij!?'}}, indent=2), encoding='utf-8')
+    print('Prepared Godot BMFont text/binary and Phaser XML bundles with eight independent BDF glyph references.')
 
 
 if __name__ == '__main__':
