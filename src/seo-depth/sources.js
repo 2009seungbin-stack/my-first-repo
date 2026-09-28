@@ -11,6 +11,8 @@ export const SOURCE_HOSTS=new Set([
  'datatracker.ietf.org',
  'defold.com',
  'developer.apple.com',
+ 'partner.steamgames.com', // Steamworks official graphical asset rules
+ 'itch.io', // itch.io creator documentation
  'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
  'developers.google.com',

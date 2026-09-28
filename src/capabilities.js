@@ -14,6 +14,7 @@ const engines = {
  media:'Mediabunny / WebCodecs / OPFS', 'video-trim':'keyframe remux / WebCodecs precise re-encode', 'video-frame':'WebCodecs source-resolution frame / video fallback',
  'video-mp3':'ranged demux / WebCodecs / LAME WASM', 'video-gif':'WebCodecs sequential frames / gifenc adaptive palettes / measured size targets', 'video-compress':'WebCodecs bitrate and resolution control with measured size targets',
  refiner:'Oklab palette / locked colors / serpentine FS / Bayer dither',
+ 'store-art-pack':'per-slot OffscreenCanvas crop and logo composition / worker ZIP with original gameplay captures',
  'sprite-slicer':'streaming run-length alpha components / box merge / margin-and-gutter grid / border colour key',
  'sprite-lab':'alpha components with an evidence-scored merge distance / ranked grid suggestions / integer-only normalize and jitter fix / lattice contour tracing / MaxRects multi-page packing / generic, Godot 4 and (unverified) Unity exporters',
  'sprite-pivot-editor':'normalised and pixel pivots carried through every integer frame shift',
@@ -120,6 +121,7 @@ const LAB_EVIDENCE={
  'atlas-padding':[gl('workflow','atlas-padding: the Kenney tilemap arrives in the Tile Lab with 16×16 tiles and a 1 px gap measured first'),gl('workflow','atlas-padding: the Tile Lab opens with extrusion on and writes a padded atlas')]
 };
 const EVIDENCE={
+ 'store-art-pack':[ev('workflow','tests/store-art-browser.py','CC0 4K key art and five genuine game captures exported to ZIP and reopened by Pillow in Chromium and Firefox'),ev('quality','tests/store-art-browser.py','17 outputs: dimensions, alpha, Google icon size and screenshot byte identity checked by Pillow and SHA-256')],
  image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
  resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],
  compress:[ev('workflow',IMG,'NASA portrait: decoded full-resolution quality and target'),ev('quality',IMG,'compression quality on illustration fixture'),ev('quality',IMG,'already-compressed source candidate avoids unnecessary growth')],
