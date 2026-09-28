@@ -1377,5 +1377,350 @@ export default {
    limits:['透過GIFは書き出しません。','AV1のWebMにはAV1デコーダーのあるブラウザが必要です。'],
    versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。音声なしの60fps VP9のWebMをデコードして60fpsで再エンコードし、存在しない音声トラックを作りませんでした。GIFのエンコードはgifenc 1.0.3です。WebMのコーデックはMDN、AV1のブラウザー対応はcaniuseに基づきます。'],sources:['[MDN：メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[MDN：Web動画コーデックガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)','[caniuse：AV1](https://caniuse.com/av1)']}
   }
+ },
+ 'video/mp4-to-mp3':{
+  type:'tool',
+  intent:{primary:'convert an MP4 video to MP3 audio',secondary:['extract AAC audio from MP4 as MP3','which bitrate for AAC to MP3','MP4 with several audio tracks'],
+   goal:'an MP3 of the MP4\'s audio at a bitrate matched to the AAC source',input:'MP4 with an audio track (usually AAC)',output:'MP3 (CBR 128–320 kbit/s) or WAV',support:'full',
+   evidence:['src/media-modern-worker.js convert (audioOnly: video discard, codec mp3 forceTranscode, tracks primary)','tests/media-browser.mjs (H.264/AAC MP4 → MP3 192 kbit/s, 4 s ±0.12 s)'],
+   external:['MDN containers: MP4 audio codecs','W3C WebCodecs codec registry (AAC)']},
+  en:{
+   answer:'Open the MP4, choose the section, and Nerulio decodes its audio track (usually AAC) and encodes an MP3 at 128–320 kbit/s, or a WAV. The MP4\'s video is not decoded, so an HEVC or AV1 MP4 works as long as the browser decodes the audio. AAC is already lossy, so pick an MP3 bitrate at or a little above the AAC bitrate: going higher only makes the file bigger, going much lower adds a second, audible loss.',
+   concept:{title:'AAC in, MP3 out',body:[
+    'An MP4 usually carries AAC audio; MDN lists AAC, MP3, Opus and FLAC as audio codecs an MP4 can hold. AAC is in the WebCodecs codec registry, so Nerulio decodes it with the browser\'s audio decoder and hands the samples to LAME 3.100 for the MP3.',
+    'AAC to MP3 is lossy-to-lossy: the MP3 encoder has to describe sound the AAC encoder already simplified, and it adds artefacts of its own. A higher MP3 bitrate than the source restores nothing, while one well below it adds audible loss. Read the source bitrate with ffprobe before choosing.',
+    'Even when an MP4 already contains MP3 audio, it is decoded and re-encoded; Nerulio has no copy-out for audio. An MP4 with several audio tracks (languages, commentary) gives the primary one only.'],
+    terms:[['AAC','Advanced Audio Coding, the usual MP4 audio codec.'],['Lossy-to-lossy','Re-encoding audio that was already compressed with loss; quality can only stay or drop.'],['Primary track','The audio track the reader selects first; other audio tracks are ignored.']]},
+   example:{title:'Example: check the source before choosing a bitrate',lead:'A 45-minute recorded talk:',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels,bit_rate -of default=nw=1 talk.mp4',
+    'codec_name=aac',
+    'sample_rate=48000',
+    'channels=2',
+    'bit_rate=128000   → AAC, 128 kbit/s, 48 kHz stereo',
+    'MP3 192 kbit/s (≥ source): 192,000 × 2,700 s ÷ 8 = 64,800,000 bytes ≈ 61.8 MB in the result box'],
+    after:'The sample rate stays 48 kHz unless you choose 44.1 kHz under Advanced. At 128 kbit/s the same talk would be 41.2 MB with a second lossy step at the same bitrate as the source.'},
+   mapping:{title:'From the MP4 to the MP3',head:['In the MP4','In Nerulio','In the MP3'],rows:[
+    ['AAC (or MP3, Opus) audio track','Decoded in the browser','LAME 3.100, constant 128–320 kbit/s'],
+    ['H.264, HEVC or AV1 video','Discarded without decoding','—'],
+    ['48 or 44.1 kHz sample rate','Kept unless you pick another','Same rate'],
+    ['Several audio tracks','Primary track only','One track'],
+    ['Title, artist, chapters','Not copied','No tags']]},
+   verify:{steps:[
+    'The result should be as long as the section; listen to the first second to check the start is not clipped.',
+    'Compare the size with bitrate × seconds ÷ 8.',
+    'Listen to cymbals, sibilants and quiet reverb tails, where lossy-to-lossy artefacts show first.']},
+   trouble:{rows:[
+    ['"This file has no audio track"','The MP4 was exported without sound, or the sound is in a separate file','ffprobe with `-select_streams a` prints nothing','There is nothing to extract from this file'],
+    ['A decoder error on the audio','The MP4 holds an audio codec this browser cannot decode, for example a surround codec','ffprobe shows codec_name','Use FFmpeg for this file'],
+    ['Voices sound swirly','Two lossy steps at a low bitrate add artefacts','Compare with the MP4 at the same moment','Use 192 kbit/s or more, or WAV'],
+    ['The MP3 is larger than the MP4\'s whole audio track','A higher MP3 bitrate than the AAC source','ffprobe bit_rate of the source','Pick the source bitrate or the next step up']]},
+   alternatives:{rows:[
+    ['Keep the AAC as an .m4a','Players that accept AAC keep the original quality with no second encode; FFmpeg copies it with `-vn -c:a copy out.m4a`.'],
+    ['FFmpeg with `-vn -c:a libmp3lame -b:a 192k`','Batch jobs, or audio codecs the browser does not decode.']]},
+   limits:['Audio is always re-encoded, even when the MP4 already holds MP3.','Only the primary audio track is used, and no tags or chapters are written.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155 with a 1920 × 1080 H.264/AAC MP4: a 4-second section at 192 kbit/s came out within 0.12 s of the requested length. MP4 audio codecs follow MDN; the codec list follows the W3C WebCodecs registry.'],sources:['[MDN: Media container formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C: WebCodecs Codec Registry](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ko:{
+   answer:'MP4를 열고 구간을 고르면 Nerulio가 음성 트랙(보통 AAC)을 디코딩해 128–320 kbit/s MP3나 WAV로 만듭니다. MP4의 영상은 디코딩하지 않으므로, 브라우저가 음성만 디코딩하면 HEVC·AV1 MP4도 됩니다. AAC는 이미 손실 압축이라 MP3 비트레이트는 AAC와 같거나 조금 높게 고르세요. 더 높이면 파일만 커지고, 훨씬 낮추면 들리는 손실이 한 번 더 생깁니다.',
+   concept:{title:'AAC를 받아 MP3로',body:[
+    'MP4에는 보통 AAC 음성이 들어 있습니다. MDN은 MP4가 담을 수 있는 음성 코덱으로 AAC·MP3·Opus·FLAC을 꼽습니다. AAC는 WebCodecs 코덱 레지스트리에 있으므로, Nerulio는 브라우저의 음성 디코더로 이를 디코딩해 샘플을 LAME 3.100에 넘겨 MP3를 만듭니다.',
+    'AAC에서 MP3로 가는 것은 손실에서 손실로의 변환입니다. MP3 인코더는 AAC 인코더가 이미 단순화한 소리를 다시 기술해야 하고, 자기만의 잡음도 더합니다. 원본보다 높은 MP3 비트레이트는 아무것도 되살리지 못하고, 훨씬 낮으면 들리는 손실이 생깁니다. 고르기 전에 ffprobe로 원본 비트레이트를 읽으세요.',
+    'MP4에 이미 MP3 음성이 들어 있어도 디코딩한 뒤 다시 인코딩합니다. Nerulio에는 음성만 그대로 복사해 내는 기능이 없습니다. 음성 트랙이 여러 개인 MP4(언어별, 해설)는 기본 트랙 하나만 나옵니다.'],
+    terms:[['AAC','Advanced Audio Coding. MP4의 일반적인 음성 코덱.'],['손실→손실 변환','이미 손실 압축된 음성을 다시 인코딩하는 것. 품질은 같거나 떨어질 뿐입니다.'],['기본 트랙','읽기 도구가 먼저 고르는 음성 트랙. 다른 음성 트랙은 무시합니다.']]},
+   example:{title:'예시: 비트레이트를 고르기 전에 원본 확인',lead:'45분짜리 강연 녹화:',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels,bit_rate -of default=nw=1 talk.mp4',
+    'codec_name=aac',
+    'sample_rate=48000',
+    'channels=2',
+    'bit_rate=128000   → AAC, 128 kbit/s, 48 kHz 스테레오',
+    'MP3 192 kbit/s(원본 이상): 192,000 × 2,700 s ÷ 8 = 64,800,000 bytes ≈ 결과 상자 61.8 MB'],
+    after:'고급 설정에서 44.1 kHz를 고르지 않는 한 샘플레이트는 48 kHz 그대로입니다. 128 kbit/s라면 같은 강연이 41.2 MB가 되며, 원본과 같은 비트레이트에서 손실 단계를 한 번 더 거칩니다.'},
+   mapping:{title:'MP4에서 MP3로',head:['MP4에서','Nerulio에서','MP3에서'],rows:[
+    ['AAC(또는 MP3·Opus) 음성 트랙','브라우저에서 디코딩','LAME 3.100, 고정 128–320 kbit/s'],
+    ['H.264·HEVC·AV1 영상','디코딩 없이 버림','—'],
+    ['48·44.1 kHz 샘플레이트','다른 값을 고르지 않으면 유지','같은 샘플레이트'],
+    ['여러 음성 트랙','기본 트랙만','트랙 하나'],
+    ['제목·아티스트·챕터','복사하지 않음','태그 없음']]},
+   verify:{steps:[
+    '결과는 구간과 같은 길이여야 합니다. 첫 1초를 들어 시작이 잘리지 않았는지 확인하세요.',
+    '용량을 비트레이트 × 초 ÷ 8과 비교하세요.',
+    '심벌즈, 치찰음, 조용한 잔향 꼬리를 들어 보세요. 손실→손실 변환의 흔적이 가장 먼저 드러나는 곳입니다.']},
+   trouble:{rows:[
+    ['"This file has no audio track"','MP4를 소리 없이 내보냈거나 소리가 별도 파일에 있음','`-select_streams a`로 ffprobe를 돌려도 아무것도 안 나옴','이 파일에서는 뽑을 것이 없습니다'],
+    ['음성에서 디코더 오류','MP4에 이 브라우저가 디코딩하지 못하는 음성 코덱(예: 서라운드 코덱)이 있음','ffprobe의 codec_name','이 파일은 FFmpeg로 변환'],
+    ['목소리가 물결치듯 들림','낮은 비트레이트에서 손실 단계를 두 번 거쳐 잡음이 생김','같은 순간의 MP4와 비교','192 kbit/s 이상이나 WAV 사용'],
+    ['MP3가 MP4의 음성 트랙 전체보다 큼','원본 AAC보다 높은 MP3 비트레이트','ffprobe로 원본 bit_rate 확인','원본 비트레이트나 그 바로 위 단계를 고르기']]},
+   alternatives:{rows:[
+    ['AAC를 .m4a로 그대로 두기','AAC를 받는 플레이어라면 다시 인코딩 없이 원래 품질이 유지됩니다. FFmpeg에서 `-vn -c:a copy out.m4a`로 복사할 수 있습니다.'],
+    ['`-vn -c:a libmp3lame -b:a 192k`를 쓴 FFmpeg','일괄 작업이나 브라우저가 디코딩하지 못하는 음성 코덱.']]},
+   limits:['MP4에 이미 MP3가 들어 있어도 음성은 항상 다시 인코딩합니다.','기본 음성 트랙 하나만 쓰며, 태그와 챕터는 쓰지 않습니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 1920 × 1080 H.264/AAC MP4를 써서 확인했습니다. 4초 구간을 192 kbit/s로 만들면 요청 길이와 0.12초 이내로 맞았습니다. MP4 음성 코덱은 MDN, 코덱 목록은 W3C WebCodecs 레지스트리를 따랐습니다.'],sources:['[MDN: 미디어 컨테이너 형식](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C: WebCodecs 코덱 레지스트리](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ja:{
+   answer:'MP4を開いて区間を選ぶと、Nerulioが音声トラック（たいていAAC）をデコードし、128–320 kbit/sのMP3かWAVにします。MP4の映像はデコードしないので、ブラウザが音声さえデコードできればHEVCやAV1のMP4でも使えます。AACはすでに非可逆なので、MP3のビットレートはAACと同じか少し高めに選んでください。それ以上はファイルが大きくなるだけで、大きく下げると聞き取れる劣化がもう一度加わります。',
+   concept:{title:'AACからMP3へ',body:[
+    'MP4には普通AACの音声が入っています。MDNはMP4に入る音声コーデックとしてAAC・MP3・Opus・FLACを挙げています。AACはWebCodecsのコーデックレジストリにあるので、Nerulioはブラウザの音声デコーダーでデコードし、そのサンプルをLAME 3.100に渡してMP3を作ります。',
+    'AACからMP3への変換は非可逆から非可逆への変換です。MP3エンコーダーは、AACがすでに単純化した音をもう一度表現しなければならず、独自のノイズも加えます。元より高いMP3のビットレートは何も取り戻さず、大きく低いと聞き取れる劣化が出ます。選ぶ前にffprobeで元のビットレートを読んでください。',
+    'MP4にすでにMP3の音声が入っていても、デコードして再エンコードします。Nerulioには音声だけをそのままコピーして取り出す機能はありません。音声トラックが複数あるMP4（言語違い、解説など）では、主なトラック1本だけが出ます。'],
+    terms:[['AAC','Advanced Audio Coding。MP4の一般的な音声コーデック。'],['非可逆→非可逆','すでに非可逆で圧縮された音声を再エンコードすること。品質は保たれるか下がるだけです。'],['主なトラック','読み込み側が最初に選ぶ音声トラック。ほかの音声トラックは無視します。']]},
+   example:{title:'例：ビットレートを選ぶ前に元を確認する',lead:'45分の講演の録画：',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels,bit_rate -of default=nw=1 talk.mp4',
+    'codec_name=aac',
+    'sample_rate=48000',
+    'channels=2',
+    'bit_rate=128000   → AAC、128 kbit/s、48 kHzステレオ',
+    'MP3 192 kbit/s（元以上）：192,000 × 2,700 s ÷ 8 = 64,800,000 bytes ≈ 結果の欄で61.8 MB'],
+    after:'詳細設定で44.1 kHzを選ばない限り、サンプルレートは48 kHzのままです。128 kbit/sなら同じ講演は41.2 MBになり、元と同じビットレートで非可逆の段階をもう一度通ります。'},
+   mapping:{title:'MP4からMP3へ',head:['MP4の中','Nerulioで','MP3では'],rows:[
+    ['AAC（またはMP3・Opus）の音声トラック','ブラウザでデコード','LAME 3.100、固定128–320 kbit/s'],
+    ['H.264・HEVC・AV1の映像','デコードせずに捨てる','—'],
+    ['48・44.1 kHzのサンプルレート','ほかを選ばなければそのまま','同じサンプルレート'],
+    ['複数の音声トラック','主なトラックだけ','1トラック'],
+    ['タイトル・アーティスト・チャプター','コピーしない','タグなし']]},
+   verify:{steps:[
+    '結果は区間と同じ長さのはずです。最初の1秒を聞き、始まりが欠けていないか確かめます。',
+    '容量をビットレート × 秒数 ÷ 8と比べます。',
+    'シンバル、歯擦音、静かな残響の尾を聞きます。非可逆→非可逆の跡が最初に出るところです。']},
+   trouble:{rows:[
+    ['「This file has no audio track」と出る','MP4が音声なしで書き出されたか、音が別ファイルにある','`-select_streams a`でffprobeを実行しても何も出ない','このファイルからは取り出せるものがありません'],
+    ['音声でデコーダーのエラー','このブラウザがデコードできない音声コーデック（サラウンドのコーデックなど）が入っている','ffprobeのcodec_name','このファイルはFFmpegで変換する'],
+    ['声がゆらゆらと聞こえる','低いビットレートで非可逆の段階を2回通りノイズが出た','同じ瞬間のMP4と比べる','192 kbit/s以上かWAVを使う'],
+    ['MP3がMP4の音声トラック全体より大きい','元のAACより高いMP3のビットレート','ffprobeで元のbit_rateを確認','元のビットレートか、その1つ上の段階を選ぶ']]},
+   alternatives:{rows:[
+    ['AACを.m4aのまま残す','AACを再生できるプレーヤーなら、再エンコードなしで元の品質のままです。FFmpegなら`-vn -c:a copy out.m4a`でコピーできます。'],
+    ['`-vn -c:a libmp3lame -b:a 192k`を使うFFmpeg','一括処理や、ブラウザがデコードできない音声コーデック。']]},
+   limits:['MP4にすでにMP3が入っていても、音声は常に再エンコードします。','使うのは主な音声トラック1本だけで、タグやチャプターは書き込みません。'],
+   versions:{body:['tests/media-browser.mjsで、1920 × 1080のH.264/AAC MP4を使いChromium 153とFirefox 155で確認しました。4秒の区間を192 kbit/sにすると、指定の長さと0.12秒以内で一致しました。MP4の音声コーデックはMDN、コーデックの一覧はW3CのWebCodecsレジストリに基づきます。'],sources:['[MDN：メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C：WebCodecsコーデックレジストリ](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  }
+ },
+ 'video/mov-to-mp3':{
+  type:'tool',
+  intent:{primary:'convert a MOV (iPhone, QuickTime or camera) video to MP3',secondary:['extract audio from a ProRes or HEVC MOV','MOV with PCM audio to MP3','large MOV file to MP3'],
+   goal:'an MP3 of the MOV\'s audio, even when the MOV\'s video codec cannot be decoded in the browser',input:'MOV (QuickTime) with AAC or PCM audio',output:'MP3 (CBR 128–320 kbit/s) or 16-bit WAV',support:'partial',
+   evidence:['src/media-modern-worker.js convert (audioOnly: video discard, never decoded; WAV pcm-s16)','assets/vendor/mediabunny-1.58.1/src/codec.ts (PCM variants; no ALAC) and media-sink.ts (PCM decoded in JS)','src/media-modern-worker.js inputOf (BlobSource, 8 MiB cache)','tests/media-browser.mjs has no MOV case'],
+   external:['W3C WebCodecs codec registry (no ALAC)','Apple: ProRes on iPhone']},
+  en:{
+   answer:'For an MP3 only the MOV\'s audio matters: Nerulio discards the video without decoding it, so HEVC and even ProRes MOVs work as long as the audio track can be decoded. MOV audio is commonly AAC or uncompressed PCM, and the reader decodes PCM itself without the browser. The file is read in pieces, so a MOV of several gigabytes does not have to fit in memory. Apple Lossless (ALAC) audio is the exception: it cannot be read here.',
+   concept:{title:'Only the audio track is decoded',body:[
+    'A MOV (QuickTime) file can hold many audio codecs. Nerulio\'s reader knows AAC, MP3, Opus, FLAC and the PCM variants (16, 24 and 32-bit integer, float, big- and little-endian, µ-law and A-law). It decodes PCM itself; compressed codecs such as AAC go to the browser\'s WebCodecs decoder.',
+    'Apple Lossless (ALAC) is in neither the reader\'s codec list nor the WebCodecs registry, so a MOV whose only audio is ALAC cannot be converted here.',
+    'Because the video is thrown away, the size of the MOV hardly matters. A ProRes clip is large because of its picture: Apple says ProRes files are up to 30 times larger than HEVC. Its PCM audio at 48 kHz, 24-bit stereo is only 2,304 kbit/s, and the reader fetches the parts of the file it needs rather than loading all of it.'],
+    terms:[['PCM','Uncompressed samples; in a MOV often 16- or 24-bit, big- or little-endian.'],['ALAC','Apple Lossless; not supported by this reader.'],['Ranged reading','Fetching only the byte ranges that are needed from a large file instead of loading it whole.']]},
+   example:{title:'Example: one minute of a ProRes MOV with PCM audio',lead:'Reading the audio track first:',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 take3.mov',
+    'codec_name=pcm_s24le',
+    'sample_rate=48000',
+    'channels=2',
+    'PCM in the MOV   48,000 × 24 bit × 2 = 2,304 kbit/s → 17.3 MB per minute',
+    'MP3 192 kbit/s   1.44 MB per minute · WAV here (16-bit) 1,536 kbit/s → 11.5 MB per minute'],
+    after:'Nerulio\'s WAV is 16-bit, so a 24-bit recording loses its last 8 bits of resolution. For editing at 24-bit, extract the audio with a desktop tool instead.'},
+   mapping:{title:'From the MOV to the MP3',head:['In the MOV','In Nerulio','In the MP3'],rows:[
+    ['AAC audio','Decoded by the browser (WebCodecs)','LAME 3.100, constant bitrate'],
+    ['PCM audio (16/24/32-bit, big- or little-endian)','Decoded by the reader itself','LAME 3.100, constant bitrate'],
+    ['ALAC audio','Not supported','—'],
+    ['H.264, HEVC or ProRes video','Discarded, never decoded','—'],
+    ['Timecode and other tracks','Ignored','—']]},
+   verify:{steps:[
+    'Open the MOV: even a ProRes file opens and shows its duration, although the preview may stay black.',
+    'Run the MP3 and check that the result is as long as the section.',
+    'Compare the MP3 size with bitrate × seconds ÷ 8 to confirm the chosen bitrate was used.']},
+   trouble:{rows:[
+    ['The export stops with an error about the audio track on a MOV that plays sound elsewhere','The audio is in a codec the reader does not know, such as ALAC','ffprobe shows codec_name=alac','Convert with FFmpeg, or export again from the editor with AAC or PCM'],
+    ['The MP3 has the wrong audio track','Nerulio takes the primary audio track only','ffprobe lists every audio stream','Extract the other track with FFmpeg (`-map 0:a:1`)'],
+    ['Progress is slow on a multi-gigabyte MOV','The audio packets are spread across the whole file and must be fetched','Progress still advances','Let it finish, or choose a shorter section; the video is still not decoded'],
+    ['A 24-bit recording must stay 24-bit','WAV output here is 16-bit','—','Extract with FFmpeg or your editor for 24-bit WAV']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i take3.mov -vn -c:a libmp3lame -b:a 192k take3.mp3`','ALAC audio, a specific audio track (`-map 0:a:1`), or batches.'],
+    ['The audio export of your editing app','When the MOV belongs to a project: export the audio at the project\'s bit depth.']]},
+   limits:['ALAC (Apple Lossless) audio is not supported.','WAV output is 16-bit; a 24-bit source loses depth.','Only the primary audio track is used.'],
+   versions:{body:['Nerulio\'s media suite (tests/media-browser.mjs) checks MP3 and WAV extraction on an H.264/AAC MP4; MOV input and PCM decoding are not part of it. The codec list and the PCM decoding described here come from the reader in Mediabunny 1.58.1, the WebCodecs codec registry and Apple\'s ProRes page.'],sources:['[W3C: WebCodecs Codec Registry](https://www.w3.org/TR/webcodecs-codec-registry/)','[Apple: About Apple ProRes on iPhone](https://support.apple.com/en-us/109041)']}
+  },
+  ko:{
+   answer:'MP3에는 MOV의 음성만 중요합니다. Nerulio는 영상을 디코딩하지 않고 버리므로, 음성 트랙만 디코딩되면 HEVC는 물론 ProRes MOV도 됩니다. MOV 음성은 흔히 AAC나 압축하지 않은 PCM이며, PCM은 브라우저 없이 읽기 도구가 직접 디코딩합니다. 파일을 조각씩 읽으므로 몇 기가바이트짜리 MOV도 메모리에 다 올릴 필요가 없습니다. 예외는 Apple 무손실(ALAC) 음성으로, 여기서는 읽을 수 없습니다.',
+   concept:{title:'음성 트랙만 디코딩한다',body:[
+    'MOV(QuickTime) 파일은 여러 음성 코덱을 담을 수 있습니다. Nerulio의 읽기 도구는 AAC, MP3, Opus, FLAC과 PCM 변형(16·24·32비트 정수, 부동소수점, 빅·리틀 엔디언, µ-law, A-law)을 압니다. PCM은 직접 디코딩하고, AAC 같은 압축 코덱은 브라우저의 WebCodecs 디코더로 보냅니다.',
+    'Apple 무손실(ALAC)은 읽기 도구의 코덱 목록에도, WebCodecs 레지스트리에도 없습니다. 그래서 음성이 ALAC뿐인 MOV는 여기서 변환할 수 없습니다.',
+    '영상은 버리므로 MOV의 크기는 거의 상관없습니다. ProRes 클립이 큰 것은 화면 때문이며, Apple에 따르면 ProRes 파일은 HEVC보다 최대 30배 큽니다. 그 안의 48 kHz·24비트 스테레오 PCM 음성은 2,304 kbit/s일 뿐이고, 읽기 도구는 파일 전체를 올리지 않고 필요한 부분만 가져옵니다.'],
+    terms:[['PCM','압축하지 않은 샘플. MOV에서는 16·24비트, 빅·리틀 엔디언인 경우가 많습니다.'],['ALAC','Apple 무손실. 이 읽기 도구는 지원하지 않습니다.'],['범위 읽기','큰 파일을 통째로 올리지 않고 필요한 바이트 범위만 가져오는 것.']]},
+   example:{title:'예시: PCM 음성이 든 ProRes MOV 1분',lead:'먼저 음성 트랙을 읽어 봅니다.',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 take3.mov',
+    'codec_name=pcm_s24le',
+    'sample_rate=48000',
+    'channels=2',
+    'MOV 안의 PCM    48,000 × 24 bit × 2 = 2,304 kbit/s → 1분에 17.3 MB',
+    'MP3 192 kbit/s  1분에 1.44 MB · 여기의 WAV(16비트) 1,536 kbit/s → 1분에 11.5 MB'],
+    after:'Nerulio의 WAV는 16비트라서 24비트 녹음은 마지막 8비트의 해상도를 잃습니다. 24비트로 편집하려면 데스크톱 도구로 음성을 뽑으세요.'},
+   mapping:{title:'MOV에서 MP3로',head:['MOV에서','Nerulio에서','MP3에서'],rows:[
+    ['AAC 음성','브라우저(WebCodecs)가 디코딩','LAME 3.100, 고정 비트레이트'],
+    ['PCM 음성(16/24/32비트, 빅·리틀 엔디언)','읽기 도구가 직접 디코딩','LAME 3.100, 고정 비트레이트'],
+    ['ALAC 음성','지원 안 함','—'],
+    ['H.264·HEVC·ProRes 영상','버림, 디코딩하지 않음','—'],
+    ['타임코드와 기타 트랙','무시','—']]},
+   verify:{steps:[
+    'MOV를 여세요. 미리보기가 검게 남더라도 ProRes 파일까지 열리고 길이가 표시됩니다.',
+    'MP3를 만들고 결과가 구간과 같은 길이인지 확인하세요.',
+    'MP3 용량을 비트레이트 × 초 ÷ 8과 비교해 고른 비트레이트가 쓰였는지 확인하세요.']},
+   trouble:{rows:[
+    ['다른 곳에서는 소리가 나는 MOV인데 음성 트랙 오류로 멈춤','읽기 도구가 모르는 코덱(ALAC 등)의 음성','ffprobe에 codec_name=alac','FFmpeg로 변환하거나 편집기에서 AAC·PCM으로 다시 내보내기'],
+    ['MP3에 엉뚱한 음성 트랙이 들어감','Nerulio는 기본 음성 트랙 하나만 씀','ffprobe로 모든 음성 스트림 확인','다른 트랙은 FFmpeg로 뽑기(`-map 0:a:1`)'],
+    ['몇 기가바이트짜리 MOV에서 진행이 느림','음성 패킷이 파일 전체에 흩어져 있어 모두 가져와야 함','진행 표시는 계속 올라감','끝날 때까지 두거나 구간을 줄이기. 영상은 여전히 디코딩하지 않음'],
+    ['24비트 녹음을 24비트로 남겨야 함','여기의 WAV 출력은 16비트','—','FFmpeg나 편집기로 24비트 WAV 뽑기']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i take3.mov -vn -c:a libmp3lame -b:a 192k take3.mp3`','ALAC 음성, 특정 음성 트랙(`-map 0:a:1`), 일괄 작업.'],
+    ['편집 앱의 음성 내보내기','MOV가 프로젝트의 일부라면 프로젝트의 비트 깊이로 음성을 내보내세요.']]},
+   limits:['ALAC(Apple 무손실) 음성은 지원하지 않습니다.','WAV 출력은 16비트라서 24비트 원본은 깊이를 잃습니다.','기본 음성 트랙 하나만 씁니다.'],
+   versions:{body:['Nerulio의 미디어 테스트(tests/media-browser.mjs)는 H.264/AAC MP4에서 MP3·WAV 추출을 확인하며, MOV 입력과 PCM 디코딩은 포함하지 않습니다. 여기의 코덱 목록과 PCM 디코딩 설명은 Mediabunny 1.58.1의 읽기 도구, WebCodecs 코덱 레지스트리, Apple의 ProRes 안내를 따른 것입니다.'],sources:['[W3C: WebCodecs 코덱 레지스트리](https://www.w3.org/TR/webcodecs-codec-registry/)','[Apple: iPhone의 Apple ProRes](https://support.apple.com/en-us/109041)']}
+  },
+  ja:{
+   answer:'MP3に必要なのはMOVの音声だけです。Nerulioは映像をデコードせずに捨てるので、音声トラックさえデコードできれば、HEVCはもちろんProResのMOVでも使えます。MOVの音声はAACか非圧縮のPCMが一般的で、PCMはブラウザを使わず読み込み側が自分でデコードします。ファイルは少しずつ読むので、数ギガバイトのMOVでもメモリにすべて載せる必要はありません。例外はApple Lossless（ALAC）の音声で、ここでは読めません。',
+   concept:{title:'デコードするのは音声トラックだけ',body:[
+    'MOV（QuickTime）ファイルは多くの音声コーデックを入れられます。Nerulioの読み込み側が知っているのは、AAC、MP3、Opus、FLACと、PCMの各種（16・24・32ビット整数、浮動小数点、ビッグ・リトルエンディアン、µ-law、A-law）です。PCMは自分でデコードし、AACなどの圧縮コーデックはブラウザのWebCodecsデコーダーに渡します。',
+    'Apple Lossless（ALAC）は、読み込み側のコーデック一覧にもWebCodecsのレジストリにもありません。そのため音声がALACだけのMOVは、ここでは変換できません。',
+    '映像は捨てるので、MOVの大きさはほとんど関係ありません。ProResのクリップが大きいのは映像のためで、AppleによればProResのファイルはHEVCの最大30倍の大きさです。その中の48 kHz・24ビット・ステレオのPCM音声は2,304 kbit/sにすぎず、読み込み側はファイル全体ではなく必要な部分だけを取り込みます。'],
+    terms:[['PCM','非圧縮のサンプル。MOVでは16・24ビット、ビッグ・リトルエンディアンのことが多いです。'],['ALAC','Apple Lossless。この読み込み側は対応していません。'],['範囲読み込み','大きなファイルを丸ごと読まず、必要なバイト範囲だけを取り込むこと。']]},
+   example:{title:'例：PCM音声入りのProRes MOVを1分',lead:'まず音声トラックを調べます。',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 take3.mov',
+    'codec_name=pcm_s24le',
+    'sample_rate=48000',
+    'channels=2',
+    'MOV内のPCM      48,000 × 24 bit × 2 = 2,304 kbit/s → 1分で17.3 MB',
+    'MP3 192 kbit/s  1分で1.44 MB · ここのWAV（16ビット）1,536 kbit/s → 1分で11.5 MB'],
+    after:'NerulioのWAVは16ビットなので、24ビットの録音は最後の8ビット分の分解能を失います。24ビットのまま編集するなら、デスクトップのツールで音声を取り出してください。'},
+   mapping:{title:'MOVからMP3へ',head:['MOVの中','Nerulioで','MP3では'],rows:[
+    ['AACの音声','ブラウザ（WebCodecs）がデコード','LAME 3.100、固定ビットレート'],
+    ['PCMの音声（16/24/32ビット、ビッグ・リトルエンディアン）','読み込み側が自分でデコード','LAME 3.100、固定ビットレート'],
+    ['ALACの音声','非対応','—'],
+    ['H.264・HEVC・ProResの映像','捨てる。デコードしない','—'],
+    ['タイムコードとその他のトラック','無視','—']]},
+   verify:{steps:[
+    'MOVを開きます。プレビューが黒いままでも、ProResのファイルまで開けて長さが表示されます。',
+    'MP3を作り、結果が区間と同じ長さか確認します。',
+    'MP3の容量をビットレート × 秒数 ÷ 8と比べ、選んだビットレートが使われたか確かめます。']},
+   trouble:{rows:[
+    ['ほかでは音が出るMOVなのに、音声トラックのエラーで止まる','読み込み側が知らないコーデック（ALACなど）の音声','ffprobeでcodec_name=alac','FFmpegで変換するか、編集ソフトからAAC・PCMで書き出し直す'],
+    ['MP3に違う音声トラックが入った','Nerulioは主な音声トラック1本だけを使う','ffprobeですべての音声ストリームを確認','別のトラックはFFmpegで取り出す（`-map 0:a:1`）'],
+    ['数ギガバイトのMOVで進みが遅い','音声のパケットがファイル全体に散らばっており、すべて取り込む必要がある','進行表示は進み続ける','終わるまで待つか、区間を短くする。映像はデコードしていない'],
+    ['24ビットの録音を24ビットのまま残したい','ここのWAV出力は16ビット','—','FFmpegか編集ソフトで24ビットのWAVを取り出す']]},
+   alternatives:{rows:[
+    ['FFmpeg：`ffmpeg -i take3.mov -vn -c:a libmp3lame -b:a 192k take3.mp3`','ALACの音声、特定の音声トラック（`-map 0:a:1`）、一括処理。'],
+    ['編集アプリの音声書き出し','MOVがプロジェクトの一部なら、プロジェクトのビット深度で音声を書き出してください。']]},
+   limits:['ALAC（Apple Lossless）の音声には対応していません。','WAV出力は16ビットで、24ビットの元は深度を失います。','使うのは主な音声トラック1本だけです。'],
+   versions:{body:['Nerulioのメディアテスト（tests/media-browser.mjs）はH.264/AAC MP4からのMP3・WAVの取り出しを確認するもので、MOVの入力とPCMのデコードは含みません。ここでのコーデック一覧とPCMのデコードの説明は、Mediabunny 1.58.1の読み込み側、WebCodecsのコーデックレジストリ、AppleのProResのページに基づきます。'],sources:['[W3C：WebCodecsコーデックレジストリ](https://www.w3.org/TR/webcodecs-codec-registry/)','[Apple：iPhoneのApple ProRes](https://support.apple.com/en-us/109041)']}
+  }
+ },
+ 'video/webm-to-mp3':{
+  type:'tool',
+  intent:{primary:'convert a WebM video or recording to MP3',secondary:['Opus audio to MP3','browser recording WebM to MP3','48 kHz or 44.1 kHz MP3'],
+   goal:'an MP3 of a WebM\'s Opus or Vorbis audio at a sensible bitrate and sample rate',input:'WebM with Opus or Vorbis audio',output:'MP3 (CBR 128–320 kbit/s) or WAV',support:'full',
+   evidence:['src/media-modern-worker.js convert (audioOnly; sampleRate option 44100/48000; duration from computeDuration)','src/task/media.js (rate choices original/44.1/48 kHz)','tests/media-browser.mjs (VP9 WebM decode; MP3 from MP4)'],
+   external:['MDN containers: WebM audio codecs','RFC 7845 §5.1: decode Opus at 48 kHz','W3C WebCodecs codec registry (opus, vorbis)']},
+  en:{
+   answer:'A WebM\'s audio is Opus or Vorbis. Nerulio decodes it in the browser and encodes an MP3 at 128–320 kbit/s (or a WAV), discarding the VP8, VP9 or AV1 video without decoding it. Opus is decoded at 48 kHz, so the MP3 is 48 kHz unless you pick 44.1 kHz under Advanced. Opus is efficient, so if the WebM holds low-bitrate speech, a high MP3 bitrate gains nothing; check the source first.',
+   concept:{title:'Opus and Vorbis in, MP3 out',body:[
+    'WebM allows only Opus or Vorbis audio (MDN). Both are in the WebCodecs codec registry, so Nerulio passes the packets to the browser\'s audio decoder and the decoded samples to LAME 3.100. The video track is never decoded, so an AV1 WebM works even where AV1 video does not.',
+    'Opus is decoded at 48 kHz. The Ogg Opus specification (RFC 7845) notes that the stored input sample rate is not the rate for playback and recommends decoding at 48 kHz when the hardware supports it. Nerulio keeps the decoded rate, so the MP3 is 48 kHz unless you choose 44.1 kHz, which resamples.',
+    'WebM files written by live recorders can lack a duration in the header; Nerulio measures it from the packets, so the section and the MP3 length are right. Opus is a very efficient codec: a speech track re-encoded as MP3 needs a higher bitrate to sound the same, but it will never sound better than the Opus.'],
+    terms:[['Opus','The low-latency audio codec used by WebM and browser recordings; decoded at 48 kHz.'],['Vorbis','The older open audio codec WebM also allows.'],['Resampling','Converting to another sample rate, here 48 kHz to 44.1 kHz when chosen.']]},
+   example:{title:'Example: a 30-minute browser recording in WebM',lead:'Reading the audio track first:',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 meeting.webm',
+    'codec_name=opus',
+    'sample_rate=48000',
+    'channels=1',
+    'MP3 128 kbit/s   128,000 × 1,800 s ÷ 8 = 28,800,000 bytes ≈ 27.5 MB in the result box, 48 kHz mono',
+    'MP3 192 kbit/s   43,200,000 bytes ≈ 41.2 MB: a larger file with the same source detail'],
+    after:'For a spoken recording, start with 128 kbit/s, the lowest choice offered; a mono track stays mono.'},
+   mapping:{title:'From the WebM to the MP3',head:['In the WebM','In Nerulio','In the MP3'],rows:[
+    ['Opus audio (48 kHz)','Decoded by the browser','LAME 3.100 at 48 kHz, or 44.1 kHz if chosen'],
+    ['Vorbis audio','Decoded by the browser','LAME 3.100 at the source rate, or the one chosen'],
+    ['VP8, VP9 or AV1 video','Discarded without decoding','—'],
+    ['Duration in the header (may be missing)','Measured from the packets','Correct section length'],
+    ['Mono or stereo','Kept','Same channel count']]},
+   verify:{steps:[
+    'Check the result length against the section; the timeline uses the duration measured from the packets.',
+    'Compare the size with bitrate × seconds ÷ 8.',
+    'Play the MP3 in the player or device that could not open the WebM.']},
+   trouble:{rows:[
+    ['A decoder error on the audio','This browser cannot decode the WebM\'s Opus or Vorbis track','ffprobe shows codec_name','Try another browser, or FFmpeg'],
+    ['An old device wants 44.1 kHz and the MP3 is 48 kHz','Opus decodes at 48 kHz and the rate is kept','ffprobe on the MP3 shows sample_rate=48000','Choose 44.1 kHz under Advanced and export again'],
+    ['Other apps show no length for the WebM','The recorder did not write a duration','The other app shows no duration','The MP3 made here has the measured length; convert the whole recording'],
+    ['The MP3 is bigger than the whole WebM','Opus is more efficient than MP3 at low bitrates','Compare the sizes','Use 128 kbit/s, or keep the Opus if the player supports it']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i meeting.webm -vn -c:a libmp3lame -b:a 128k meeting.mp3`','Batches, or when this browser lacks the decoder.'],
+    ['Keep the Opus audio','Players that accept Opus keep the original with no second encode.']]},
+   limits:['Only the primary audio track is used.','The sample-rate choices are the original, 44.1 kHz and 48 kHz.'],
+   versions:{body:['Nerulio\'s media suite checks MP3 extraction on an H.264/AAC MP4 and decodes a VP9 WebM in Chromium 153 and Firefox 155; Opus-to-MP3 from a WebM is not a separate test case. The 48 kHz rule for Opus is from RFC 7845, the WebM audio codecs from MDN and the codec list from the W3C WebCodecs registry.'],sources:['[IETF RFC 7845: Ogg Encapsulation for Opus](https://datatracker.ietf.org/doc/html/rfc7845)','[MDN: Media container formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C: WebCodecs Codec Registry](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ko:{
+   answer:'WebM의 음성은 Opus나 Vorbis입니다. Nerulio는 이를 브라우저에서 디코딩해 128–320 kbit/s MP3(또는 WAV)로 만들고, VP8·VP9·AV1 영상은 디코딩하지 않고 버립니다. Opus는 48 kHz로 디코딩되므로, 고급 설정에서 44.1 kHz를 고르지 않으면 MP3도 48 kHz입니다. Opus는 효율이 좋아서, WebM에 낮은 비트레이트의 말소리가 들어 있다면 높은 MP3 비트레이트는 얻는 것이 없습니다. 먼저 원본을 확인하세요.',
+   concept:{title:'Opus·Vorbis를 받아 MP3로',body:[
+    'WebM은 Opus나 Vorbis 음성만 허용합니다(MDN). 둘 다 WebCodecs 코덱 레지스트리에 있으므로, Nerulio는 패킷을 브라우저의 음성 디코더에 넘기고 디코딩된 샘플을 LAME 3.100에 넘깁니다. 영상 트랙은 디코딩하지 않으므로 AV1 영상이 안 되는 곳에서도 AV1 WebM이 됩니다.',
+    'Opus는 48 kHz로 디코딩됩니다. Ogg Opus 규격(RFC 7845)은 저장된 입력 샘플레이트가 재생용 값이 아니며, 하드웨어가 지원하면 48 kHz로 디코딩하라고 권합니다. Nerulio는 디코딩된 레이트를 유지하므로, 44.1 kHz를 고르지 않는 한 MP3도 48 kHz이고 44.1 kHz를 고르면 리샘플링합니다.',
+    '실시간 녹화기가 쓴 WebM은 헤더에 길이가 빠져 있기도 합니다. Nerulio는 패킷에서 길이를 재므로 구간과 MP3 길이가 맞습니다. Opus는 매우 효율적인 코덱이라, 말소리 트랙을 MP3로 다시 인코딩하면 같은 소리를 내기 위해 더 높은 비트레이트가 필요하지만 Opus보다 좋아지지는 않습니다.'],
+    terms:[['Opus','WebM과 브라우저 녹화에 쓰이는 지연이 짧은 음성 코덱. 48 kHz로 디코딩됩니다.'],['Vorbis','WebM이 함께 허용하는 예전 공개 음성 코덱.'],['리샘플링','다른 샘플레이트로 바꾸는 것. 여기서는 고르면 48 kHz를 44.1 kHz로.']]},
+   example:{title:'예시: 30분짜리 브라우저 녹화 WebM',lead:'먼저 음성 트랙을 읽어 봅니다.',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 meeting.webm',
+    'codec_name=opus',
+    'sample_rate=48000',
+    'channels=1',
+    'MP3 128 kbit/s   128,000 × 1,800 s ÷ 8 = 28,800,000 bytes ≈ 결과 상자 27.5 MB, 48 kHz 모노',
+    'MP3 192 kbit/s   43,200,000 bytes ≈ 41.2 MB: 원본 세부는 같고 파일만 더 큼'],
+    after:'말소리 녹음이라면 가장 낮은 선택지인 128 kbit/s부터 시작하세요. 모노 트랙은 모노로 남습니다.'},
+   mapping:{title:'WebM에서 MP3로',head:['WebM에서','Nerulio에서','MP3에서'],rows:[
+    ['Opus 음성(48 kHz)','브라우저가 디코딩','LAME 3.100, 48 kHz 또는 고르면 44.1 kHz'],
+    ['Vorbis 음성','브라우저가 디코딩','LAME 3.100, 원본 레이트 또는 고른 레이트'],
+    ['VP8·VP9·AV1 영상','디코딩 없이 버림','—'],
+    ['헤더의 길이(빠져 있을 수 있음)','패킷에서 잼','올바른 구간 길이'],
+    ['모노·스테레오','유지','같은 채널 수']]},
+   verify:{steps:[
+    '결과 길이를 구간과 비교하세요. 타임라인은 패킷에서 잰 길이를 씁니다.',
+    '용량을 비트레이트 × 초 ÷ 8과 비교하세요.',
+    'WebM을 열지 못하던 플레이어나 기기에서 MP3를 재생해 보세요.']},
+   trouble:{rows:[
+    ['음성에서 디코더 오류','이 브라우저가 WebM의 Opus·Vorbis 트랙을 디코딩하지 못함','ffprobe의 codec_name','다른 브라우저나 FFmpeg 사용'],
+    ['오래된 기기가 44.1 kHz를 원하는데 MP3가 48 kHz','Opus는 48 kHz로 디코딩되고 그 레이트를 유지함','MP3를 ffprobe로 보면 sample_rate=48000','고급 설정에서 44.1 kHz를 골라 다시 저장'],
+    ['다른 앱에서 WebM의 길이가 안 나옴','녹화기가 길이를 기록하지 않음','다른 앱에 길이가 표시되지 않음','여기서 만든 MP3는 잰 길이를 가짐. 녹화 전체를 변환'],
+    ['MP3가 WebM 전체보다 큼','낮은 비트레이트에서는 Opus가 MP3보다 효율적임','두 용량 비교','128 kbit/s를 쓰거나, 플레이어가 지원하면 Opus 그대로 두기']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -i meeting.webm -vn -c:a libmp3lame -b:a 128k meeting.mp3`','일괄 작업이나, 이 브라우저에 디코더가 없을 때.'],
+    ['Opus 음성 그대로 두기','Opus를 받는 플레이어라면 다시 인코딩 없이 원본이 유지됩니다.']]},
+   limits:['기본 음성 트랙 하나만 씁니다.','샘플레이트 선택지는 원본, 44.1 kHz, 48 kHz입니다.'],
+   versions:{body:['Nerulio의 미디어 테스트는 Chromium 153과 Firefox 155에서 H.264/AAC MP4의 MP3 추출과 VP9 WebM 디코딩을 확인하며, WebM의 Opus를 MP3로 바꾸는 경우는 따로 테스트하지 않았습니다. Opus의 48 kHz 규칙은 RFC 7845, WebM 음성 코덱은 MDN, 코덱 목록은 W3C WebCodecs 레지스트리를 따랐습니다.'],sources:['[IETF RFC 7845: Opus의 Ogg 캡슐화](https://datatracker.ietf.org/doc/html/rfc7845)','[MDN: 미디어 컨테이너 형식](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C: WebCodecs 코덱 레지스트리](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  },
+  ja:{
+   answer:'WebMの音声はOpusかVorbisです。Nerulioはそれをブラウザでデコードして128–320 kbit/sのMP3（またはWAV）にし、VP8・VP9・AV1の映像はデコードせずに捨てます。Opusは48 kHzでデコードされるので、詳細設定で44.1 kHzを選ばなければMP3も48 kHzです。Opusは効率がよいため、WebMに低ビットレートの話し声が入っているなら、高いMP3のビットレートに得はありません。まず元を確認してください。',
+   concept:{title:'Opus・VorbisからMP3へ',body:[
+    'WebMが認める音声はOpusかVorbisだけです（MDN）。どちらもWebCodecsのコーデックレジストリにあるので、Nerulioはパケットをブラウザの音声デコーダーに渡し、デコードしたサンプルをLAME 3.100に渡します。映像トラックはデコードしないため、AV1の映像が扱えない環境でもAV1のWebMから音声を取り出せます。',
+    'Opusは48 kHzでデコードされます。Ogg Opusの仕様（RFC 7845）は、保存された入力サンプルレートは再生用の値ではなく、ハードウェアが対応していれば48 kHzでデコードするよう勧めています。Nerulioはデコードしたレートを保つので、44.1 kHzを選ばない限りMP3も48 kHzで、選べばリサンプリングします。',
+    'リアルタイムの録画ツールが書いたWebMは、ヘッダーに長さがないこともあります。Nerulioはパケットから長さを測るので、区間とMP3の長さは正しくなります。Opusはとても効率のよいコーデックで、話し声のトラックをMP3に再エンコードすると同じ音にするにはより高いビットレートが要りますが、Opusより良くなることはありません。'],
+    terms:[['Opus','WebMやブラウザの録画で使われる低遅延の音声コーデック。48 kHzでデコードされます。'],['Vorbis','WebMが同じく認める、以前からのオープンな音声コーデック。'],['リサンプリング','別のサンプルレートに変換すること。ここでは選んだ場合に48 kHzから44.1 kHzへ。']]},
+   example:{title:'例：30分のブラウザ録画のWebM',lead:'まず音声トラックを調べます。',lines:[
+    '$ ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=nw=1 meeting.webm',
+    'codec_name=opus',
+    'sample_rate=48000',
+    'channels=1',
+    'MP3 128 kbit/s   128,000 × 1,800 s ÷ 8 = 28,800,000 bytes ≈ 結果の欄で27.5 MB、48 kHzモノラル',
+    'MP3 192 kbit/s   43,200,000 bytes ≈ 41.2 MB：元の細部は同じでファイルだけ大きい'],
+    after:'話し声の録音なら、いちばん低い選択肢の128 kbit/sから始めてください。モノラルのトラックはモノラルのままです。'},
+   mapping:{title:'WebMからMP3へ',head:['WebMの中','Nerulioで','MP3では'],rows:[
+    ['Opusの音声（48 kHz）','ブラウザがデコード','LAME 3.100、48 kHzまたは選べば44.1 kHz'],
+    ['Vorbisの音声','ブラウザがデコード','LAME 3.100、元のレートまたは選んだレート'],
+    ['VP8・VP9・AV1の映像','デコードせずに捨てる','—'],
+    ['ヘッダーの長さ（ないことがある）','パケットから測る','正しい区間の長さ'],
+    ['モノラル・ステレオ','そのまま','同じチャンネル数']]},
+   verify:{steps:[
+    '結果の長さを区間と比べます。タイムラインはパケットから測った長さを使います。',
+    '容量をビットレート × 秒数 ÷ 8と比べます。',
+    'WebMを開けなかったプレーヤーや端末でMP3を再生します。']},
+   trouble:{rows:[
+    ['音声でデコーダーのエラー','このブラウザがWebMのOpus・Vorbisのトラックをデコードできない','ffprobeのcodec_name','別のブラウザかFFmpegを使う'],
+    ['古い機器が44.1 kHzを求めるのにMP3が48 kHz','Opusは48 kHzでデコードされ、そのレートを保つ','MP3をffprobeで見るとsample_rate=48000','詳細設定で44.1 kHzを選んで保存し直す'],
+    ['ほかのアプリでWebMの長さが出ない','録画ツールが長さを書き込まなかった','ほかのアプリで長さが表示されない','ここで作るMP3は測った長さを持つ。録画全体を変換する'],
+    ['MP3がWebM全体より大きい','低いビットレートではOpusのほうがMP3より効率がよい','2つの容量を比べる','128 kbit/sを使うか、プレーヤーが対応していればOpusのまま使う']]},
+   alternatives:{rows:[
+    ['FFmpeg：`ffmpeg -i meeting.webm -vn -c:a libmp3lame -b:a 128k meeting.mp3`','一括処理や、このブラウザにデコーダーがないとき。'],
+    ['Opusの音声のまま使う','Opusを再生できるプレーヤーなら、再エンコードなしで元のままです。']]},
+   limits:['使うのは主な音声トラック1本だけです。','サンプルレートの選択肢は、元のまま、44.1 kHz、48 kHzです。'],
+   versions:{body:['Nerulioのメディアテストは、Chromium 153とFirefox 155でH.264/AAC MP4からのMP3の取り出しとVP9 WebMのデコードを確認しており、WebMのOpusからMP3への変換は個別のテストケースではありません。Opusの48 kHzの規則はRFC 7845、WebMの音声コーデックはMDN、コーデックの一覧はW3CのWebCodecsレジストリに基づきます。'],sources:['[IETF RFC 7845：OpusのOggカプセル化](https://datatracker.ietf.org/doc/html/rfc7845)','[MDN：メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)','[W3C：WebCodecsコーデックレジストリ](https://www.w3.org/TR/webcodecs-codec-registry/)']}
+  }
  }
 };
