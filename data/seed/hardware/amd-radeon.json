@@ -209,6 +209,126 @@
    "title": "AMD Radeon RX 6600 (AMD product page, specifications)",
    "publisher": "AMD",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-9000-series-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series.html",
+   "title": "AMD Radeon RX 9000 Series Graphics Cards (series page)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-7000-series-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series.html",
+   "title": "AMD Radeon RX 7000 Series Graphics Cards (series page)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-6000-series-page",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series.html",
+   "title": "AMD Radeon RX 6000 Series Graphics Cards (series page)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2025-02-28-rdna4",
+   "kind": "OFFICIAL",
+   "url": "https://newsroom.amd.com/news/amd-unveils-next-generation-amd-rdna-4-architectu/",
+   "title": "AMD Unveils Next-Generation AMD RDNA 4 Architecture with the Launch of AMD Radeon RX 9000 Series Graphics Cards (press release, 2025-02-28)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-blog-2026-05-31-computex",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/blogs/2026/amd-computex-2026-10-years-of-am4-am5-support-through.html",
+   "title": "AMD Computex 2026: 10 Years of AM4, AM5 Support Through 2029 and Expanded RDNA 4 Gaming (AMD blog, 2026-05-31)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2025-05-20-computex",
+   "kind": "OFFICIAL",
+   "url": "https://newsroom.amd.com/news/amd-introduces-new-radeon-graphics-cards-and-ryzen/",
+   "title": "AMD Introduces New Radeon Graphics Cards and Ryzen Threadripper Processors at COMPUTEX 2025 (press release, 2025-05-20)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2022-11-03-rdna3",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2022-11-3-amd-unveils-world-s-most-advanced-gaming-graphics-.html",
+   "title": "AMD Unveils World's Most Advanced Gaming Graphics Cards, Built on Groundbreaking AMD RDNA 3 Architecture with Chiplet Design (press release, 2022-11-03)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2023-08-25-gamescom",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2023-8-25-new-amd-radeon-rx-7800-xt-and-radeon-rx-7700-xt-gr.html",
+   "title": "New AMD Radeon RX 7800 XT and Radeon RX 7700 XT Graphics Cards Deliver High-Performance, Visually Stunning 1440p Gaming Experiences (press release, 2023-08-25)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2023-05-24-rx7600",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2023-5-24-amd-introduces-amd-radeon-rx-7600-graphics-card-f.html",
+   "title": "AMD Introduces AMD Radeon RX 7600 Graphics Card for Superb, Next-Gen 1080p Gaming (press release, 2023-05-24)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2024-01-08-rx7600xt",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2024-1-8-amd-unveils-amd-radeon-rx-7600-xt-graphics-card--.html",
+   "title": "AMD Unveils AMD Radeon RX 7600 XT Graphics Card (press release, 2024-01-08)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2020-10-28-rx6000",
+   "kind": "OFFICIAL",
+   "url": "https://ir.amd.com/news-events/press-releases/detail/978/amd-unveils-next-generation-pc-gaming-with-amd-radeon-rx-6000-series-bringing-leadership-4k-resolution-performance-to-aaa-gaming",
+   "title": "AMD Unveils Next-Generation PC Gaming with AMD Radeon RX 6000 Series (press release, 2020-10-28)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2021-03-03-rx6700xt",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2021-3-3-amd-unveils-amd-radeon-rx-6700-xt-graphics-card-d.html",
+   "title": "AMD Unveils AMD Radeon RX 6700 XT Graphics Card, Delivering Exceptional 1440p PC Gaming Experiences (press release, 2021-03-03)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2022-05-10-rx6x50",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2022-5-10-amd-announces-three-new-radeon-rx-6000-series-grap.html",
+   "title": "AMD Announces Three New Radeon RX 6000 Series Graphics Cards and First Games Adding Support for AMD FidelityFX Super Resolution 2.0 (press release, 2022-05-10)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2021-07-29-rx6600xt",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2021-7-29-amd-radeon-rx-6600-xt-graphics-card-sets-new-stand.html",
+   "title": "AMD Radeon RX 6600 XT Graphics Card Sets New Standard for High-Framerate, High-Fidelity 1080p PC Gaming (press release, 2021-07-29)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:amdrx-pr-2021-10-13-rx6600",
+   "kind": "OFFICIAL",
+   "url": "https://www.amd.com/en/newsroom/press-releases/2021-10-13-amd-radeon-rx-6600-graphics-card-delivers-incredib.html",
+   "title": "AMD Radeon RX 6600 Graphics Card Delivers Incredible High-Refresh Rate 1080p Gaming (press release, 2021-10-13)",
+   "publisher": "AMD",
+   "retrieved": "2026-09-28"
   }
  ],
  "entities": [
@@ -227,8 +347,8 @@
     "9070 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -238,11 +358,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2025-03-06",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-02-28-rdna4",
+     "note": "Availability from board partners \"beginning March 6th, 2025\" per the launch press release (announced 2025-02-28)"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9070-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -290,6 +423,13 @@
      "note": "AMD 'Typical Board Power (Desktop)'"
     },
     {
+     "p": "launch_price_usd",
+     "v": 599,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-02-28-rdna4",
+     "note": "AMD SEP (suggested etail price) at launch"
+    },
+    {
      "p": "pcie",
      "v": "PCIe 5.0 x16",
      "ver": "OFFICIAL",
@@ -319,8 +459,8 @@
     "9070"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -330,11 +470,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2025-03-06",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-02-28-rdna4",
+     "note": "Availability from board partners \"beginning March 6th, 2025\" per the launch press release (announced 2025-02-28)"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9070-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -382,6 +535,13 @@
      "note": "AMD 'Typical Board Power (Desktop)'"
     },
     {
+     "p": "launch_price_usd",
+     "v": 549,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-02-28-rdna4",
+     "note": "AMD SEP (suggested etail price) at launch"
+    },
+    {
      "p": "pcie",
      "v": "PCIe 5.0 x16",
      "ver": "OFFICIAL",
@@ -411,8 +571,8 @@
     "9070 GRE"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 12 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 12 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -422,11 +582,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2026-06-02",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-blog-2026-05-31-computex",
+     "note": "Global availability from board partners \"starting June 2\" (2026) per AMD; the card was sold earlier in China, which this source does not date"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9070-gre-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -474,6 +647,13 @@
      "note": "AMD 'Typical Board Power (Desktop)'"
     },
     {
+     "p": "launch_price_usd",
+     "v": 549,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-blog-2026-05-31-computex",
+     "note": "Suggested etail price at global launch (June 2026)"
+    },
+    {
      "p": "pcie",
      "v": "PCIe 5.0 x16",
      "ver": "OFFICIAL",
@@ -503,8 +683,8 @@
     "9060 XT 16GB"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -519,6 +699,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9060-xt-16gb-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -566,6 +752,13 @@
      "note": "AMD 'Typical Board Power (Desktop)'"
     },
     {
+     "p": "launch_price_usd",
+     "v": 349,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-05-20-computex",
+     "note": "AMD SEP at launch (RX 9060 XT 16GB)"
+    },
+    {
      "p": "pcie",
      "v": "PCIe 5.0 x16",
      "ver": "OFFICIAL",
@@ -595,8 +788,8 @@
     "9060 XT 8GB"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -611,6 +804,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9060-xt-8gb-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -658,6 +857,13 @@
      "note": "AMD 'Typical Board Power (Desktop)'"
     },
     {
+     "p": "launch_price_usd",
+     "v": 299,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2025-05-20-computex",
+     "note": "AMD SEP at launch (RX 9060 XT 8GB)"
+    },
+    {
      "p": "pcie",
      "v": "PCIe 5.0 x16",
      "ver": "OFFICIAL",
@@ -687,8 +893,8 @@
     "9060 XT LP"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -703,6 +909,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9060-xt-lp-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -772,8 +984,8 @@
     "9060"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -788,6 +1000,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9060-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -864,8 +1082,8 @@
     "9050 8GB"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -880,6 +1098,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9050-8gb-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -956,8 +1180,8 @@
     "9050 4GB"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, with 4 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 4GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 9000 series, built on the AMD RDNA 4 architecture, with 4 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 4 아키텍처 기반의 AMD 라데온 RX 9000 시리즈 데스크톱 그래픽카드로, 4GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -972,6 +1196,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-9050-4gb-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 4",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-9000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1048,8 +1278,8 @@
     "7900 XTX"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 24 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 24GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 24 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 24GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1062,8 +1292,8 @@
      "p": "release_date",
      "v": "2022-12-13",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-7900-xtx-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "Availability from AMD.com \"beginning December 13, 2022\" per the launch press release (announced 2022-11-03); matches the Launch Date on the product page"
     },
     {
      "p": "segment",
@@ -1071,6 +1301,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7900-xtx-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1110,6 +1346,20 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7900-xtx-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 999,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "AMD SEP at launch"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 384,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "From the launch press release spec table; the product page does not list the memory interface"
     }
    ],
    "relations": [
@@ -1135,8 +1385,8 @@
     "7900 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 20 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 20GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 20 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 20GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1149,8 +1399,8 @@
      "p": "release_date",
      "v": "2022-12-13",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-7900-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "Availability from AMD.com \"beginning December 13, 2022\" per the launch press release (announced 2022-11-03); matches the Launch Date on the product page"
     },
     {
      "p": "segment",
@@ -1158,6 +1408,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7900-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1196,7 +1452,21 @@
      "v": 315,
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7900-xt-page",
-     "note": "AMD 'Typical Board Power (Desktop)'"
+     "note": "AMD 'Typical Board Power (Desktop)'; the 2022-11-03 launch press release listed 300W TBP, the current product page states 315 W"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 899,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "AMD SEP at launch"
+    },
+    {
+     "p": "memory_bus_bits",
+     "v": 320,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-11-03-rdna3",
+     "note": "From the launch press release spec table; the product page does not list the memory interface"
     }
    ],
    "relations": [
@@ -1222,8 +1492,8 @@
     "7900 GRE"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1245,6 +1515,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7900-gre-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1315,8 +1591,8 @@
     "7800 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1326,11 +1602,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2023-09-06",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-08-25-gamescom",
+     "note": "Availability from board partners \"beginning September 6, 2023\" per the launch press release (announced 2023-08-25)"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7800-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1376,6 +1665,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7800-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 499,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-08-25-gamescom",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -1401,8 +1697,8 @@
     "7700 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 12 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 12 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1412,11 +1708,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2023-09-06",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-08-25-gamescom",
+     "note": "Availability from board partners \"beginning September 6, 2023\" per the launch press release (announced 2023-08-25)"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7700-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1462,6 +1771,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7700-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 449,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-08-25-gamescom",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -1487,8 +1803,8 @@
     "7700"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1503,6 +1819,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7700-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1566,8 +1888,8 @@
     "7600 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1577,11 +1899,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2024-01-24",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2024-01-08-rx7600xt",
+     "note": "Availability \"beginning January 24, 2024\" per the launch press release (announced 2024-01-08)"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7600-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1627,6 +1962,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7600-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 329,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2024-01-08-rx7600xt",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -1652,8 +1994,8 @@
     "7600"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 7000 series, built on the AMD RDNA 3 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 3 아키텍처 기반의 AMD 라데온 RX 7000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1663,11 +2005,24 @@
    ],
    "facts": [
     {
+     "p": "release_date",
+     "v": "2023-05-25",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-05-24-rx7600",
+     "note": "Availability \"beginning May 25\" per the launch press release dated 2023-05-24"
+    },
+    {
      "p": "segment",
      "v": "desktop",
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7600-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 3",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-7000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1713,6 +2068,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-7600-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 269,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2023-05-24-rx7600",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -1738,8 +2100,8 @@
     "6950 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1752,8 +2114,8 @@
      "p": "release_date",
      "v": "2022-05-10",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6950-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "Available \"starting today, May 10, 2022\" per the launch press release"
     },
     {
      "p": "segment",
@@ -1761,6 +2123,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6950-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1806,6 +2174,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6950-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 1099,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -1831,8 +2206,8 @@
     "6900 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1845,8 +2220,8 @@
      "p": "release_date",
      "v": "2020-12-08",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6900-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Expected availability date per the launch press release (announced 2020-10-28); matches the Launch Date on the product page"
     },
     {
      "p": "segment",
@@ -1854,6 +2229,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6900-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1899,6 +2280,20 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6900-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 999,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "AMD SEP at launch"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Press release states RX 6000 Series cards support PCIe 4.0; lane width not stated"
     }
    ],
    "relations": [
@@ -1924,8 +2319,8 @@
     "6800 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -1938,8 +2333,8 @@
      "p": "release_date",
      "v": "2020-11-18",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6800-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Expected availability date per the launch press release (announced 2020-10-28); matches the Launch Date on the product page"
     },
     {
      "p": "segment",
@@ -1947,6 +2342,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6800-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -1992,6 +2393,20 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6800-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 649,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "AMD SEP at launch"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Press release states RX 6000 Series cards support PCIe 4.0; lane width not stated"
     }
    ],
    "relations": [
@@ -2017,8 +2432,8 @@
     "6800"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 16 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 16 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 16GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2031,8 +2446,8 @@
      "p": "release_date",
      "v": "2020-11-18",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6800-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Expected availability date per the launch press release (announced 2020-10-28); matches the Launch Date on the product page"
     },
     {
      "p": "segment",
@@ -2040,6 +2455,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6800-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2085,6 +2506,20 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6800-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 579,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "AMD SEP at launch"
+    },
+    {
+     "p": "pcie",
+     "v": "PCIe 4.0",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2020-10-28-rx6000",
+     "note": "Press release states RX 6000 Series cards support PCIe 4.0; lane width not stated"
     }
    ],
    "relations": [
@@ -2110,8 +2545,8 @@
     "6750 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 12 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 12 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2124,8 +2559,8 @@
      "p": "release_date",
      "v": "2022-05-10",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6750-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "Available \"starting today, May 10, 2022\" per the launch press release"
     },
     {
      "p": "segment",
@@ -2133,6 +2568,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6750-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2178,6 +2619,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6750-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 549,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -2203,8 +2651,8 @@
     "6700 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 12 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 12 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 12GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2215,10 +2663,10 @@
    "facts": [
     {
      "p": "release_date",
-     "v": "2021-03-01",
+     "v": "2021-03-18",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6700-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2021-03-03-rx6700xt",
+     "note": "Expected availability \"on March 18, 2021\" per the launch press release (announced 2021-03-03); the product page lists Launch Date 3/1/2021"
     },
     {
      "p": "segment",
@@ -2226,6 +2674,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6700-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2271,6 +2725,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6700-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 479,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2021-03-03-rx6700xt",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -2296,8 +2757,8 @@
     "6650 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2310,8 +2771,8 @@
      "p": "release_date",
      "v": "2022-05-10",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6650-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "Available \"starting today, May 10, 2022\" per the launch press release"
     },
     {
      "p": "segment",
@@ -2319,6 +2780,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6650-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Desktop)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2364,6 +2831,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6650-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 399,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2022-05-10-rx6x50",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -2389,8 +2863,8 @@
     "6600 XT"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2403,8 +2877,8 @@
      "p": "release_date",
      "v": "2021-08-11",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6600-xt-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2021-07-29-rx6600xt",
+     "note": "Availability \"beginning August 11, 2021\" per the launch press release (announced 2021-07-29)"
     },
     {
      "p": "segment",
@@ -2412,6 +2886,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6600-xt-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2457,6 +2937,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6600-xt-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 379,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2021-07-29-rx6600xt",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
@@ -2482,8 +2969,8 @@
     "6600"
    ],
    "description": {
-    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, with 8 GB of GDDR6 memory.",
-    "ko": "AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
+    "en": "Desktop graphics card in AMD's Radeon RX 6000 series, built on the AMD RDNA 2 architecture, with 8 GB of GDDR6 memory.",
+    "ko": "AMD RDNA 2 아키텍처 기반의 AMD 라데온 RX 6000 시리즈 데스크톱 그래픽카드로, 8GB GDDR6 메모리를 탑재했습니다."
    },
    "official_urls": [
     {
@@ -2496,8 +2983,8 @@
      "p": "release_date",
      "v": "2021-10-13",
      "ver": "OFFICIAL",
-     "src": "src:amdrx-rx-6600-page",
-     "note": "'Launch Date' in AMD's product specifications"
+     "src": "src:amdrx-pr-2021-10-13-rx6600",
+     "note": "Available \"beginning today\" per the launch press release dated 2021-10-13"
     },
     {
      "p": "segment",
@@ -2505,6 +2992,12 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6600-page",
      "note": "Listed under AMD Radeon desktop graphics (Board Type: Component)"
+    },
+    {
+     "p": "architecture",
+     "v": "RDNA 2",
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-6000-series-page"
     },
     {
      "p": "vram_gb",
@@ -2550,6 +3043,13 @@
      "ver": "OFFICIAL",
      "src": "src:amdrx-rx-6600-page",
      "note": "AMD 'Typical Board Power (Desktop)'"
+    },
+    {
+     "p": "launch_price_usd",
+     "v": 329,
+     "ver": "OFFICIAL",
+     "src": "src:amdrx-pr-2021-10-13-rx6600",
+     "note": "AMD SEP at launch"
     }
    ],
    "relations": [
