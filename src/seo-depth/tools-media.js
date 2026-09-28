@@ -324,5 +324,353 @@ export default {
    limits:['CMYKのJPEG、16ビット画像、CFF・Type 1フォントは再圧縮もサブセット化もしません。','画像化モードはすべてのページから文字・リンク・ベクターを取り除きます。スキャンページだけを画像化するモードはありません。','出力ではフォームが平面化され、証明書による署名は保持されません。'],
    versions:{body:['tests/pdf-browser.mjsで、2400 pxのJPEG写真を含む320ページの文書を使って確認しました。構造を保つ処理が画像オブジェクトを再圧縮してファイルが小さくなり、先頭のページと320ページ目の文字が検索でき、回転とCropBoxが保たれ、画像化モードでは検索できる文字が残りませんでした（Chromium 153、Firefox 155、WebKit 26.6）。実際のファイルでの削減率は異なります。'],sources:[ADOBE_OPT]}
   }
+ },
+ 'media':{
+  type:'tool',
+  intent:{primary:'edit a video or audio file in the browser: GIF, audio, compress, trim or a still frame',secondary:['which files and codecs work','why a file opens but cannot be converted','compatibility mode'],
+   goal:'pick the right job for the file and understand in advance whether the browser can decode it',input:'one video or audio file (MP4, MOV, M4V, WebM, MKV, MP3, WAV, M4A, Ogg…)',output:'GIF, MP3/WAV, MP4/WebM or PNG/JPG/WebP',support:'partial',
+   evidence:['src/task/media.js (five jobs, blockers, compatibility notes)','src/media-modern-worker.js (probe, convert, gif, extract; tracks: primary; OPFS output)','src/media.js COMPAT (600 s video, 1200 s audio source, GIF 20 s / 480 px / 8 fps) and 7-day temp cleanup','tests/media-browser.mjs'],
+   external:['MDN: WebCodecs API (codec support is a subset per browser/device)','MDN: media container formats']},
+  en:{
+   answer:'The media page opens one video or audio file and runs one of five jobs on it: a GIF, audio as MP3 or WAV, a smaller video, a trimmed clip or a still frame. The file is read in pieces inside your browser; Mediabunny 1.58.1 splits the container (MP4, MOV, WebM, MKV, MP3, WAV, Ogg and others) into tracks, and the browser\'s WebCodecs decoders and encoders do the rest. Whether a file works therefore depends on the codec inside it and on your browser, not on its extension.',
+   concept:{title:'Container, codec, and which job needs which decoder',body:[
+    'A video file is a container (MP4, MOV, WebM, MKV) that holds separately compressed tracks: usually one video track (H.264, HEVC, VP9, AV1…) and one audio track (AAC, Opus, MP3, PCM…). Opening a file only reads the container. Decoding needs a decoder for each codec, which the browser provides through WebCodecs, and MDN notes that a browser or device may support only part of the codecs WebCodecs defines.',
+    'The five jobs need different things. A GIF and a still frame decode the video track. Audio export decodes only the audio track and discards the picture, so it works even when the video codec is not supported. A precise trim and compression decode and re-encode both tracks. A fast trim copies the compressed packets without decoding anything, so it only needs a container that accepts those codecs.',
+    'Results are written to a temporary file in the browser\'s private storage (OPFS) when it is available instead of piling up in memory; the file is removed when you clear the result and swept after seven days. Without WebCodecs the page falls back to a compatibility mode that records in real time with hard caps: 10 minutes of video, sources up to 20 minutes for audio, and 20 s, 8 fps and 480 px for GIFs.'],
+    terms:[['Container','The file format that holds the tracks and their timing: MP4, MOV, WebM, MKV, WAV.'],['Codec','How one track is compressed: H.264, HEVC, VP9, AV1 for video; AAC, Opus, MP3, PCM for audio.'],['Demux / mux','Splitting a container into its tracks, and writing tracks into a new container.'],['WebCodecs','The browser API that gives a web page the device\'s audio and video decoders and encoders.']]},
+   example:{title:'Example: one iPhone clip, five jobs',lead:'A 1920 × 1080 MOV recorded with the High Efficiency camera setting (HEVC video, AAC audio), opened in a browser without an HEVC decoder:',lines:[
+    'Open         container QuickTime, video hevc 1920 × 1080, audio aac  → opens',
+    'Audio        video track discarded, AAC decoded          → MP3 works',
+    'Trim · Fast  packets copied into MP4, nothing decoded    → copy path, no HEVC decoder needed',
+    'GIF, Frame   need decoded HEVC frames                    → stop with a decoder error',
+    'Compress     needs decoded HEVC frames                   → stops with a decoder error',
+    'Same file in a browser that decodes HEVC                 → all five jobs run'],
+    after:'That is why "not supported" usually means "this codec is not supported here". The [[video/mov-to-gif|MOV to GIF guide]] shows how to read the codec of a file and how to record in H.264 instead.'},
+   mapping:{title:'What each job reads and writes',head:['Job','Reads','Needs a decoder for','Writes'],rows:[
+    ['GIF','Video track only','The video codec','GIF, up to 256 colours per frame'],
+    ['Audio','Audio track only','The audio codec','MP3 (128–320 kbit/s) or 16-bit WAV'],
+    ['Compress','Video and audio','Both codecs','MP4 with H.264, or WebM with VP9, VP8 or AV1'],
+    ['Trim · Precise','Video and audio','Both codecs','MP4 or WebM, re-encoded'],
+    ['Trim · Fast','Compressed packets','Nothing (copy)','MP4 or WebM with the source codecs'],
+    ['Frame','One video frame','The video codec','PNG, JPG or WebP at source resolution']]},
+   verify:{steps:[
+    'After opening, the file line shows dimensions, duration and size; "audio only" means there is no video track to work on.',
+    'After a run, the result box shows the size before and after and, for video, the output dimensions. Play it in the Result tab before downloading.',
+    'Switch between the Result and Source tabs to compare the two at the same moment.']},
+   trouble:{rows:[
+    ['The file does not open at all','The container is not one the reader knows, or the file is damaged','Play it in another player; read its format with ffprobe','Export it again as MP4 (H.264 and AAC) from the app that made it'],
+    ['It opens, but GIF, frame or compress stops with a decoder error','The browser has no decoder for this video codec, often HEVC or ProRes','ffprobe shows the codec; try the same file in another browser','Use a browser that decodes it, record in H.264, or use audio export or fast trim, which do not decode the picture'],
+    ['A note says compatibility mode','This browser has no WebCodecs, so the older real-time path is used','The note under the options','Use a current Chrome, Edge or Firefox; in compatibility mode keep the tab visible'],
+    ['Only the audio job can run','The file has no video track','The file line says audio only','Expected: convert the audio, or open the video file instead'],
+    ['The result is bigger than the source','A well-compressed source was re-encoded at a higher quality','The result box shows the increase in percent','Use Small quality, a resolution cap or a target size; for pure cutting use Fast trim']]},
+   alternatives:{rows:[
+    ['FFmpeg on your computer','Batch jobs, scripted pipelines and codecs a browser does not decode (ProRes, most surround formats); no preview, command line only.'],
+    ['The single-job pages: [[video/to-gif|video to GIF]], [[video/to-mp3|video to MP3]], [[video/trim|trim]], [[video/compress|compress]], [[video/frame|frame]]','Same engine with the settings of one job already chosen.']]},
+   limits:['Codec support comes from your browser; nothing here adds decoders for HEVC, ProRes or surround audio codecs.','One file at a time, and only the primary video and audio track: extra audio tracks and subtitles are dropped.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155 with a 6-second 1920 × 1080 MP4 test signal with audio: fast and precise cuts keep their length and audio, MP3, WAV, GIF and frame jobs produce what was asked, and outputs were decoded again independently with FFprobe and Pillow. An optional run cuts the last minute of a 500 MB+ one-hour file. Codec availability depends on the browser and the device.'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)','[MDN: Media container formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)']}
+  },
+  ko:{
+   answer:'미디어 페이지는 영상이나 음성 파일 하나를 열어 다섯 가지 작업 중 하나를 합니다. GIF, MP3·WAV 음성, 더 작은 영상, 잘라낸 구간, 정지 프레임입니다. 파일은 브라우저 안에서 조각씩 읽고, Mediabunny 1.58.1이 컨테이너(MP4, MOV, WebM, MKV, MP3, WAV, Ogg 등)를 트랙으로 나누면 나머지는 브라우저의 WebCodecs 디코더·인코더가 처리합니다. 그래서 파일이 되는지는 확장자가 아니라 안에 든 코덱과 브라우저에 달려 있습니다.',
+   concept:{title:'컨테이너와 코덱, 작업별로 필요한 디코더',body:[
+    '영상 파일은 따로 압축된 트랙을 담은 컨테이너(MP4, MOV, WebM, MKV)입니다. 보통 영상 트랙 하나(H.264, HEVC, VP9, AV1 등)와 오디오 트랙 하나(AAC, Opus, MP3, PCM 등)가 들어 있습니다. 파일을 여는 것은 컨테이너만 읽는 일이고, 디코딩하려면 코덱마다 디코더가 있어야 합니다. 브라우저는 이를 WebCodecs로 제공하며, MDN에 따르면 브라우저나 기기마다 WebCodecs가 정의한 코덱 중 일부만 지원할 수 있습니다.',
+    '다섯 작업은 필요한 것이 다릅니다. GIF와 정지 프레임은 영상 트랙을 디코딩합니다. 음성 추출은 오디오 트랙만 디코딩하고 화면은 버리므로 영상 코덱을 지원하지 않아도 됩니다. 정밀 자르기와 압축은 두 트랙을 모두 디코딩해 다시 인코딩합니다. 빠른 자르기는 압축된 패킷을 디코딩 없이 복사하므로, 그 코덱을 받아 주는 컨테이너만 있으면 됩니다.',
+    '결과는 가능하면 메모리에 쌓지 않고 브라우저 전용 저장소(OPFS)의 임시 파일에 쓰며, 결과를 지우면 삭제되고 7일이 지나면 정리됩니다. WebCodecs가 없으면 실시간으로 녹화하는 호환 모드로 바뀌는데, 영상 10분, 음성은 원본 20분, GIF는 20초·8fps·480px이라는 상한이 있습니다.'],
+    terms:[['컨테이너','트랙과 그 타이밍을 담는 파일 형식. MP4, MOV, WebM, MKV, WAV 등.'],['코덱','트랙 하나를 압축하는 방식. 영상은 H.264·HEVC·VP9·AV1, 음성은 AAC·Opus·MP3·PCM 등.'],['디먹스·먹스','컨테이너를 트랙으로 나누는 것과, 트랙을 새 컨테이너에 쓰는 것.'],['WebCodecs','웹 페이지가 기기의 오디오·영상 디코더와 인코더를 쓸 수 있게 하는 브라우저 API.']]},
+   example:{title:'예시: 아이폰 영상 하나로 다섯 작업',lead:'카메라 설정 "고효율"로 찍은 1920 × 1080 MOV(HEVC 영상, AAC 음성)를 HEVC 디코더가 없는 브라우저에서 열었을 때:',lines:[
+    '열기         컨테이너 QuickTime, 영상 hevc 1920 × 1080, 음성 aac  → 열림',
+    '음성         영상 트랙은 버리고 AAC만 디코딩          → MP3 성공',
+    '자르기·빠르게 패킷을 MP4로 복사, 디코딩 없음          → 복사 경로라 HEVC 디코더가 필요 없음',
+    'GIF, 프레임  디코딩된 HEVC 프레임이 필요             → 디코더 오류로 멈춤',
+    '압축         디코딩된 HEVC 프레임이 필요             → 디코더 오류로 멈춤',
+    'HEVC를 디코딩하는 브라우저에서 같은 파일             → 다섯 작업 모두 실행'],
+    after:'그래서 "지원하지 않음"은 대개 "여기서는 이 코덱을 지원하지 않음"이라는 뜻입니다. 파일 코덱을 읽는 법과 H.264로 촬영하는 법은 [[video/mov-to-gif|MOV를 GIF로 안내]]에 있습니다.'},
+   mapping:{title:'작업별로 읽는 것과 쓰는 것',head:['작업','읽는 것','디코더가 필요한 코덱','결과'],rows:[
+    ['GIF','영상 트랙만','영상 코덱','GIF, 프레임당 최대 256색'],
+    ['음성','오디오 트랙만','오디오 코덱','MP3(128–320 kbit/s) 또는 16비트 WAV'],
+    ['압축','영상과 음성','두 코덱 모두','H.264의 MP4, 또는 VP9·VP8·AV1의 WebM'],
+    ['자르기 · 정밀','영상과 음성','두 코덱 모두','다시 인코딩한 MP4 또는 WebM'],
+    ['자르기 · 빠르게','압축된 패킷','없음(복사)','원본 코덱 그대로의 MP4 또는 WebM'],
+    ['프레임','영상 프레임 하나','영상 코덱','원본 해상도의 PNG·JPG·WebP']]},
+   verify:{steps:[
+    '파일을 열면 파일 줄에 해상도·길이·용량이 나옵니다. "오디오만"이면 다룰 영상 트랙이 없다는 뜻입니다.',
+    '실행 후 결과 상자에 전후 용량과, 영상이면 출력 해상도가 나옵니다. 내려받기 전에 결과 탭에서 재생해 보세요.',
+    '결과 탭과 원본 탭을 오가며 같은 순간을 비교하세요.']},
+   trouble:{rows:[
+    ['파일이 아예 열리지 않음','이 읽기 도구가 모르는 컨테이너이거나 파일이 손상됨','다른 플레이어로 재생해 보고 ffprobe로 형식 확인','만든 앱에서 MP4(H.264·AAC)로 다시 내보내기'],
+    ['열리지만 GIF·프레임·압축이 디코더 오류로 멈춤','브라우저에 이 영상 코덱의 디코더가 없음(주로 HEVC나 ProRes)','ffprobe로 코덱을 보거나 다른 브라우저에서 같은 파일 시도','디코딩되는 브라우저를 쓰거나 H.264로 촬영. 화면을 디코딩하지 않는 음성 추출·빠른 자르기는 가능'],
+    ['호환 모드라는 안내가 나옴','이 브라우저에 WebCodecs가 없어 예전 실시간 방식을 씀','옵션 아래의 안내 문구','최신 크롬·엣지·파이어폭스 사용. 호환 모드에서는 탭을 화면에 띄워 두기'],
+    ['음성 작업만 실행됨','파일에 영상 트랙이 없음','파일 줄에 오디오만이라고 표시','정상입니다. 음성을 변환하거나 영상 파일을 여세요'],
+    ['결과가 원본보다 큼','이미 잘 압축된 원본을 더 높은 화질로 다시 인코딩함','결과 상자에 증가율이 표시됨','작게 화질·해상도 상한·목표 용량을 쓰고, 자르기만 할 때는 빠른 자르기']]},
+   alternatives:{rows:[
+    ['내 컴퓨터의 FFmpeg','일괄 작업, 스크립트, 브라우저가 디코딩하지 못하는 코덱(ProRes, 대부분의 서라운드 형식)이 필요할 때. 미리보기 없이 명령줄로만 씁니다.'],
+    ['작업별 페이지: [[video/to-gif|영상을 GIF로]], [[video/to-mp3|영상을 MP3로]], [[video/trim|자르기]], [[video/compress|압축]], [[video/frame|프레임]]','같은 엔진에 한 작업의 설정을 미리 골라 둔 페이지입니다.']]},
+   limits:['코덱 지원은 브라우저가 정합니다. 여기서 HEVC·ProRes·서라운드 음성용 디코더를 따로 더하지 않습니다.','한 번에 파일 하나, 기본 영상·음성 트랙 하나씩만 다룹니다. 추가 음성 트랙과 자막은 빠집니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 음성이 있는 6초짜리 1920 × 1080 MP4 테스트 신호를 써서 확인했습니다. 빠른·정밀 자르기가 길이와 음성을 유지하고, MP3·WAV·GIF·프레임 작업이 요청한 결과를 내며, 결과물은 FFprobe와 Pillow로 따로 다시 디코딩해 검사했습니다. 선택 실행으로 500MB가 넘는 1시간 파일의 마지막 1분도 잘라 봅니다. 코덱 지원은 브라우저와 기기에 따라 다릅니다.'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)','[MDN: 미디어 컨테이너 형식](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)']}
+  },
+  ja:{
+   answer:'メディアページは動画または音声ファイルを1つ開き、5つの作業のうち1つを実行します。GIF、MP3・WAVの音声、小さくした動画、切り出した区間、静止フレームです。ファイルはブラウザ内で少しずつ読み込まれ、Mediabunny 1.58.1がコンテナ（MP4、MOV、WebM、MKV、MP3、WAV、Oggなど）をトラックに分け、残りはブラウザのWebCodecsのデコーダーとエンコーダーが処理します。そのため使えるかどうかは拡張子ではなく、中のコーデックとブラウザで決まります。',
+   concept:{title:'コンテナとコーデック、作業ごとに必要なデコーダー',body:[
+    '動画ファイルは、別々に圧縮されたトラックを入れたコンテナ（MP4、MOV、WebM、MKV）です。通常は映像トラック1本（H.264、HEVC、VP9、AV1など）と音声トラック1本（AAC、Opus、MP3、PCMなど）が入っています。ファイルを開くのはコンテナを読むだけで、デコードにはコーデックごとのデコーダーが必要です。ブラウザはそれをWebCodecsで提供しますが、MDNによればブラウザや端末がWebCodecsの定めるコーデックの一部しか対応しないこともあります。',
+    '5つの作業は必要なものが違います。GIFと静止フレームは映像トラックをデコードします。音声の書き出しは音声トラックだけをデコードして映像は捨てるので、映像コーデックに非対応でも動きます。精密カットと圧縮は両方のトラックをデコードして再エンコードします。高速カットは圧縮済みのパケットをデコードせずにコピーするので、そのコーデックを受け入れるコンテナさえあれば済みます。',
+    '結果は可能ならメモリにためず、ブラウザ専用の保存領域（OPFS）の一時ファイルに書き込みます。結果を消すと削除され、7日たつと整理されます。WebCodecsがない場合はリアルタイムで録画する互換モードになり、動画10分、音声は元ファイル20分まで、GIFは20秒・8fps・480pxという上限があります。'],
+    terms:[['コンテナ','トラックとそのタイミングを入れるファイル形式。MP4、MOV、WebM、MKV、WAVなど。'],['コーデック','1本のトラックの圧縮方式。映像はH.264・HEVC・VP9・AV1、音声はAAC・Opus・MP3・PCMなど。'],['デマックス・マックス','コンテナをトラックに分けること、トラックを新しいコンテナに書き込むこと。'],['WebCodecs','Webページが端末の音声・映像のデコーダーとエンコーダーを使えるようにするブラウザーAPI。']]},
+   example:{title:'例：iPhoneの動画1本で5つの作業',lead:'カメラ設定「高効率」で撮った1920 × 1080のMOV（HEVC映像、AAC音声）を、HEVCデコーダーのないブラウザで開いた場合：',lines:[
+    '開く         コンテナ QuickTime、映像 hevc 1920 × 1080、音声 aac  → 開ける',
+    '音声         映像トラックは捨て、AACだけデコード        → MP3は成功',
+    'カット・高速  パケットをMP4にコピー、デコードなし       → コピー経路なのでHEVCデコーダー不要',
+    'GIF、フレーム デコードしたHEVCのフレームが必要         → デコーダーのエラーで停止',
+    '圧縮         デコードしたHEVCのフレームが必要         → デコーダーのエラーで停止',
+    'HEVCをデコードできるブラウザで同じファイル             → 5つとも実行できる'],
+    after:'つまり「非対応」はたいてい「この環境ではこのコーデックに非対応」という意味です。ファイルのコーデックを調べる方法と、H.264で撮影する方法は[[video/mov-to-gif|MOVをGIFにするガイド]]にあります。'},
+   mapping:{title:'作業ごとに読むものと書くもの',head:['作業','読むもの','デコーダーが必要なコーデック','結果'],rows:[
+    ['GIF','映像トラックだけ','映像コーデック','GIF、1フレーム最大256色'],
+    ['音声','音声トラックだけ','音声コーデック','MP3（128–320 kbit/s）または16ビットWAV'],
+    ['圧縮','映像と音声','両方のコーデック','H.264のMP4、またはVP9・VP8・AV1のWebM'],
+    ['カット・精密','映像と音声','両方のコーデック','再エンコードしたMP4またはWebM'],
+    ['カット・高速','圧縮済みパケット','なし（コピー）','元のコーデックのままのMP4またはWebM'],
+    ['フレーム','映像の1フレーム','映像コーデック','元の解像度のPNG・JPG・WebP']]},
+   verify:{steps:[
+    '開くとファイルの行に解像度・長さ・容量が表示されます。「音声のみ」なら扱える映像トラックがありません。',
+    '実行後、結果の欄に前後の容量と、動画なら出力解像度が出ます。ダウンロード前に「結果」タブで再生してください。',
+    '「結果」と「元の動画」のタブを切り替えて、同じ瞬間を見比べます。']},
+   trouble:{rows:[
+    ['ファイルがまったく開かない','読み込み側が知らないコンテナか、ファイルの破損','別のプレーヤーで再生し、ffprobeで形式を確認','作ったアプリからMP4（H.264・AAC）で書き出し直す'],
+    ['開けるが、GIF・フレーム・圧縮がデコーダーのエラーで止まる','ブラウザにこの映像コーデックのデコーダーがない（主にHEVCやProRes）','ffprobeでコーデックを見るか、別のブラウザで同じファイルを試す','デコードできるブラウザを使うかH.264で撮影。映像をデコードしない音声書き出しと高速カットは可能'],
+    ['互換モードの案内が出る','このブラウザにWebCodecsがなく、以前のリアルタイム方式を使う','オプションの下の案内','最新のChrome・Edge・Firefoxを使う。互換モードではタブを表示したままにする'],
+    ['音声の作業しか実行できない','ファイルに映像トラックがない','ファイルの行に音声のみと出る','正常です。音声を変換するか、動画ファイルを開いてください'],
+    ['結果が元より大きい','よく圧縮された元の動画を、より高い画質で再エンコードした','結果の欄に増加率が出る','小さめの画質・解像度の上限・目標容量を使い、切り出すだけなら高速カット']]},
+   alternatives:{rows:[
+    ['パソコンのFFmpeg','一括処理、スクリプト、ブラウザがデコードできないコーデック（ProRes、多くのサラウンド形式）が必要なとき。プレビューはなく、コマンドラインだけです。'],
+    ['作業ごとのページ：[[video/to-gif|動画をGIFに]]、[[video/to-mp3|動画をMP3に]]、[[video/trim|切り出し]]、[[video/compress|圧縮]]、[[video/frame|フレーム]]','同じエンジンで、1つの作業の設定があらかじめ選ばれたページです。']]},
+   limits:['コーデック対応はブラウザが決めます。HEVC・ProRes・サラウンド音声のデコーダーをここで追加することはありません。','一度に1ファイル、主な映像と音声のトラック1本ずつだけを扱います。追加の音声トラックと字幕は外れます。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使い、音声付き6秒・1920 × 1080のMP4テスト信号で確認しました。高速・精密カットが長さと音声を保ち、MP3・WAV・GIF・フレームの作業が指定どおりの結果を出し、出力はFFprobeとPillowで別途デコードし直して検査しています。任意の実行で、500MBを超える1時間のファイルの最後の1分も切り出します。コーデック対応はブラウザと端末によって異なります。'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)','[MDN: メディアコンテナ形式](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)']}
+  }
+ },
+ 'video/trim':{
+  type:'tool',
+  intent:{primary:'trim or cut a video online without re-encoding, or precisely',secondary:['cut a clip from a long video','why the cut starts at a keyframe','lossless trim'],
+   goal:'a shorter MP4 or WebM with the intended start and end, knowing the fast/precise trade-off',input:'a video file (MP4, MOV, WebM, MKV…)',output:'MP4 or WebM (<name>-cut.mp4/.webm)',support:'full',
+   evidence:['src/media-modern-worker.js encodePass (fast: copy mode forced, boundaryPolicy shrink; precise: forceTranscode, avc for MP4, vp9/vp8/av1 for WebM)','assets/vendor/mediabunny-1.58.1/src/conversion.ts (shrink starts at the next key packet, ends before the out point)','tests/media-browser.mjs (fast duration ±1.1 s, precise ±0.12 s, 1 h file late remux)'],
+   external:['FFmpeg documentation: -ss seeks to the closest seek point before the position; stream copy preserves that segment','MDN video codec guide: key frames']},
+  en:{
+   answer:'Set the in and out points on the timeline and choose how to cut. Fast copies the compressed video and audio without re-encoding: it is almost instant and loses no quality, but a copy can only begin on a keyframe, so Nerulio starts the clip at the first keyframe inside your selection. Precise decodes and re-encodes the section, so it starts and ends exactly where you set them, at the cost of time and one more generation of compression. The result is MP4 (H.264 when your browser can encode it) or WebM.',
+   concept:{title:'Keyframes, and why a copy cannot start anywhere',body:[
+    'Compressed video stores a complete picture only now and then. These keyframes (I-frames) can be decoded on their own; the frames between them store only changes and need the frames before them. How far apart keyframes are depends on the encoder and its settings: a fraction of a second in some files, several seconds in others.',
+    'A cut that copies packets therefore has to start on a keyframe, and tools choose differently. FFmpeg documents that with stream copy it seeks to the closest seek point before the requested time and keeps that extra piece, so the clip starts early. Nerulio\'s Fast mode shrinks instead: the video starts at the first keyframe inside your selection, so nothing you excluded appears, but up to one keyframe interval at the start can be lost. The end stays at your out point.',
+    'Precise mode decodes every frame of the section and writes a new stream that begins with its own keyframe at your in point. It can also cap the resolution or remove the sound. Fast mode can remove the sound too, but it ignores the resolution cap because nothing is re-encoded.'],
+    terms:[['Keyframe (I-frame)','A frame stored as a complete picture; decoding can start there.'],['GOP','Group of pictures: a keyframe and the frames that depend on it, up to the next keyframe.'],['Stream copy (remux)','Moving compressed packets into a new container without decoding: fast, lossless, bound to keyframes.']]},
+   example:{title:'Example: keyframes every 2 s, selection from 3.40 s to 9.00 s',lead:'The same selection cut three ways:',lines:[
+    'Keyframes in the source        0.00  2.00  4.00  6.00  8.00  10.00 s',
+    'Your selection                 3.40 → 9.00 s   5.60 s',
+    'Nerulio Fast                   4.00 → 9.00 s   5.00 s   first 0.60 s dropped',
+    'Copy from the earlier keyframe 2.00 → 9.00 s   7.00 s   1.40 s extra at the start',
+    '  (FFmpeg -ss before -i, -c copy)',
+    'Nerulio Precise                3.40 → 9.00 s   5.60 s   re-encoded'],
+    after:'If the first 0.60 s matter, move the in point back onto the keyframe at 2.00 s or use Precise. Nerulio\'s test suite accepts a fast cut within 1.1 s of the requested length and a precise cut within 0.12 s.'},
+   mapping:{title:'Fast or Precise',head:['','Fast · keyframes','Precise · re-encode'],rows:[
+    ['Start point','First keyframe inside the selection','Exactly your in point'],
+    ['Speed','Copies packets; mostly limited by reading the file','Decodes and encodes every frame'],
+    ['Picture quality','Identical to the source','One more generation of compression'],
+    ['Codecs in the result','The source codecs','H.264 in MP4, or VP9, VP8 or AV1 in WebM'],
+    ['Resolution cap and mute','Mute works, the cap is ignored','Both apply'],
+    ['Needs a decoder','No','Yes, for the video and the audio codec']]},
+   verify:{steps:[
+    'Compare the result\'s length in the player with the span under the timeline: Fast may be shorter at the start, Precise should match.',
+    'Play the first second of a fast cut: it begins on a clean full frame, later than your in point when no keyframe was there.',
+    'Check that the sound is there (unless you chose Remove sound): the export stops with an error instead of silently dropping a track.']},
+   trouble:{rows:[
+    ['A fast cut to WebM stops with "A required video/audio track cannot be preserved"','WebM accepts only VP8, VP9 or AV1 video and Opus or Vorbis audio, so H.264, HEVC or AAC from an MP4 or MOV cannot be copied into it','The source is MP4 or MOV','Choose MP4 for fast cuts, or use Precise'],
+    ['The fast clip starts later than the in point','There is no keyframe at the in point, so the copy starts at the next one','Compare the result length with the selection','Move the in point earlier, or use Precise'],
+    ['MP4 is missing from the format list','The browser reports no H.264 encoder','Only WebM is offered under Advanced','Export WebM, or use a browser with an H.264 encoder'],
+    ['The export stopped when you switched tabs','Only the compatibility recorder, used without WebCodecs, needs a visible tab','The compatibility note is shown','Keep the tab visible, or use a browser with WebCodecs'],
+    ['A fast MP4 cut from a WebM will not play in some apps','The copied VP9 or AV1 video and Opus audio now sit in an MP4 container, which not every player expects','ffprobe shows the codecs','Cut WebM sources to WebM, or use Precise for H.264']]},
+   alternatives:{rows:[
+    ['FFmpeg with `-ss` before `-i` and `-c copy`','Scripted or batch cuts. Per its documentation, the copied cut keeps the part from the earlier keyframe, so it includes a little extra instead of losing it.'],
+    ['A desktop video editor','Several clips, transitions, or edits that must be frame-exact without re-encoding the whole section.'],
+    ['[[video/compress|Compress the clip]]','When the goal is a smaller file rather than a shorter one.']]},
+   limits:['Fast cuts start on a keyframe; there is no smart mode that re-encodes only the partial group of pictures at the start.','One continuous section per export; joining sections needs a desktop editor.','Only the primary video and audio track are kept.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155: a fast cut of 1–4 s from a 1920 × 1080 H.264/AAC MP4 keeps its audio and lands within 1.1 s of the requested length; a precise cut of 1.25–3.75 s lands within 0.12 s; in the optional large-file run, a fast cut of the last minute of a 500 MB+ one-hour file came out 60 s long, within 1 s, with audio. Engine: Mediabunny 1.58.1 with WebCodecs. The FFmpeg behaviour is quoted from its documentation.'],sources:['[FFmpeg documentation: -ss and stream copy](https://ffmpeg.org/ffmpeg.html)','[MDN: Web video codec guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  },
+  ko:{
+   answer:'타임라인에서 시작점과 끝점을 정하고 자르는 방식을 고르세요. 빠르게는 압축된 영상과 음성을 다시 인코딩하지 않고 복사하므로 거의 즉시 끝나고 화질 손실이 없지만, 복사는 키프레임에서만 시작할 수 있어 Nerulio는 선택 구간 안의 첫 키프레임부터 자릅니다. 정밀은 구간을 디코딩해 다시 인코딩하므로 정한 위치에서 정확히 시작하고 끝나며, 대신 시간이 걸리고 압축이 한 번 더 들어갑니다. 결과는 MP4(브라우저가 H.264를 인코딩할 수 있을 때) 또는 WebM입니다.',
+   concept:{title:'키프레임, 그리고 복사가 아무 데서나 시작할 수 없는 이유',body:[
+    '압축된 영상은 완전한 그림을 가끔씩만 저장합니다. 이 키프레임(I프레임)은 혼자 디코딩할 수 있고, 그 사이 프레임은 바뀐 부분만 담고 있어 앞 프레임이 있어야 디코딩됩니다. 키프레임 간격은 인코더와 설정에 따라 달라서 1초보다 짧은 파일도, 몇 초인 파일도 있습니다.',
+    '그래서 패킷을 복사하는 자르기는 키프레임에서 시작해야 하고, 도구마다 선택이 다릅니다. FFmpeg 문서에 따르면 스트림 복사에서는 요청한 시각 바로 앞의 탐색 지점으로 가서 그 여분을 남기므로 클립이 일찍 시작합니다. Nerulio의 빠르게는 반대로 줄입니다. 영상이 선택 구간 안의 첫 키프레임에서 시작하므로 뺀 부분은 나오지 않지만, 앞쪽에서 최대 키프레임 간격 하나만큼 잘려 나갈 수 있습니다. 끝은 정한 끝점 그대로입니다.',
+    '정밀은 구간의 모든 프레임을 디코딩해 시작점에 자체 키프레임이 있는 새 스트림을 씁니다. 해상도 상한과 소리 없애기도 적용됩니다. 빠르게도 소리는 없앨 수 있지만, 다시 인코딩하지 않으므로 해상도 상한은 무시합니다.'],
+    terms:[['키프레임(I프레임)','완전한 그림으로 저장된 프레임. 디코딩을 여기서 시작할 수 있습니다.'],['GOP','픽처 그룹. 키프레임과 그에 기대는 프레임들로, 다음 키프레임 직전까지입니다.'],['스트림 복사(리먹스)','압축된 패킷을 디코딩 없이 새 컨테이너로 옮기는 것. 빠르고 무손실이지만 키프레임에 묶입니다.']]},
+   example:{title:'예시: 2초마다 키프레임, 선택 구간 3.40초~9.00초',lead:'같은 구간을 세 가지 방법으로 자르면:',lines:[
+    '원본의 키프레임                0.00  2.00  4.00  6.00  8.00  10.00 s',
+    '선택 구간                      3.40 → 9.00 s   5.60 s',
+    'Nerulio 빠르게                 4.00 → 9.00 s   5.00 s   앞 0.60 s 빠짐',
+    '앞 키프레임부터 복사           2.00 → 9.00 s   7.00 s   앞에 1.40 s 추가',
+    '  (FFmpeg -i 앞에 -ss, -c copy)',
+    'Nerulio 정밀                   3.40 → 9.00 s   5.60 s   다시 인코딩'],
+    after:'앞의 0.60초가 중요하다면 시작점을 2.00초 키프레임으로 옮기거나 정밀을 쓰세요. Nerulio 테스트는 빠른 자르기가 요청 길이와 1.1초 이내, 정밀 자르기가 0.12초 이내이면 통과로 봅니다.'},
+   mapping:{title:'빠르게와 정밀 비교',head:['','빠르게 · 키프레임','정밀 · 재인코딩'],rows:[
+    ['시작 지점','선택 구간 안의 첫 키프레임','정한 시작점 그대로'],
+    ['속도','패킷 복사, 주로 파일 읽기 속도에 좌우','모든 프레임을 디코딩·인코딩'],
+    ['화질','원본과 같음','압축이 한 번 더 들어감'],
+    ['결과의 코덱','원본 코덱','MP4는 H.264, WebM은 VP9·VP8·AV1'],
+    ['해상도 상한·소리 없애기','소리 없애기만 적용, 상한은 무시','둘 다 적용'],
+    ['디코더 필요','아니요','예, 영상·음성 코덱 모두']]},
+   verify:{steps:[
+    '플레이어의 결과 길이를 타임라인 아래 구간 길이와 비교하세요. 빠르게는 앞이 짧을 수 있고, 정밀은 같아야 합니다.',
+    '빠르게 자른 결과의 첫 1초를 재생해 보세요. 깨끗한 온전한 프레임으로 시작하며, 시작점에 키프레임이 없었다면 그보다 늦게 시작합니다.',
+    '소리 없애기를 고르지 않았다면 소리가 있는지 확인하세요. 트랙이 빠질 상황이면 조용히 빼지 않고 오류로 멈춥니다.']},
+   trouble:{rows:[
+    ['WebM으로 빠르게 자르면 "A required video/audio track cannot be preserved"가 뜸','WebM은 VP8·VP9·AV1 영상과 Opus·Vorbis 음성만 받아서, MP4·MOV의 H.264·HEVC·AAC를 복사해 넣을 수 없음','원본이 MP4나 MOV임','빠른 자르기는 MP4로 저장하거나 정밀 사용'],
+    ['빠른 자르기 결과가 시작점보다 늦게 시작함','시작점에 키프레임이 없어 다음 키프레임부터 복사함','결과 길이와 선택 구간 비교','시작점을 앞으로 옮기거나 정밀 사용'],
+    ['형식 목록에 MP4가 없음','브라우저에 H.264 인코더가 없다고 보고됨','고급 설정에 WebM만 있음','WebM으로 저장하거나 H.264 인코더가 있는 브라우저 사용'],
+    ['탭을 바꾸자 저장이 멈춤','WebCodecs가 없을 때 쓰는 호환 녹화만 탭이 보여야 함','호환 모드 안내가 떠 있음','탭을 화면에 두거나 WebCodecs가 있는 브라우저 사용'],
+    ['WebM에서 빠르게 자른 MP4가 일부 앱에서 재생되지 않음','복사된 VP9·AV1 영상과 Opus 음성이 MP4 안에 들어가는데, 모든 플레이어가 이를 예상하지는 않음','ffprobe로 코덱 확인','WebM 원본은 WebM으로 자르거나, 정밀로 H.264를 만들기']]},
+   alternatives:{rows:[
+    ['`-i` 앞에 `-ss`, 그리고 `-c copy`를 쓴 FFmpeg','스크립트나 일괄 자르기. 문서에 따르면 복사 자르기는 앞 키프레임부터의 부분을 남기므로, 잃는 대신 조금 더 들어갑니다.'],
+    ['데스크톱 영상 편집기','여러 클립, 장면 전환, 구간 전체를 다시 인코딩하지 않고 프레임 단위로 정확해야 하는 편집.'],
+    ['[[video/compress|영상 압축]]','짧게가 아니라 작게 만드는 것이 목적일 때.']]},
+   limits:['빠른 자르기는 키프레임에서 시작합니다. 앞쪽의 불완전한 GOP만 다시 인코딩하는 스마트 모드는 없습니다.','한 번에 연속된 구간 하나만 저장합니다. 구간을 이어 붙이려면 데스크톱 편집기가 필요합니다.','기본 영상·음성 트랙 하나씩만 남습니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 확인했습니다. 1920 × 1080 H.264/AAC MP4에서 1~4초를 빠르게 자르면 음성이 유지되고 요청 길이와 1.1초 이내로 맞으며, 1.25~3.75초 정밀 자르기는 0.12초 이내입니다. 선택 실행인 대용량 테스트에서는 500MB가 넘는 1시간 파일의 마지막 1분을 빠르게 잘라 음성과 함께 60초 ±1초가 나왔습니다. 엔진은 Mediabunny 1.58.1과 WebCodecs입니다. FFmpeg의 동작은 공식 문서를 인용했습니다.'],sources:['[FFmpeg 문서: -ss와 스트림 복사](https://ffmpeg.org/ffmpeg.html)','[MDN: 웹 영상 코덱 안내](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  },
+  ja:{
+   answer:'タイムラインで開始点と終了点を決め、切り出し方を選びます。高速は圧縮された映像と音声を再エンコードせずにコピーするので、ほぼ一瞬で終わり画質も落ちません。ただしコピーはキーフレームからしか始められないため、Nerulioは選択範囲内の最初のキーフレームから切り出します。精密は区間をデコードして再エンコードするので、指定した位置で正確に始まり終わりますが、時間がかかり圧縮が1回増えます。結果はMP4（ブラウザがH.264をエンコードできる場合）またはWebMです。',
+   concept:{title:'キーフレームと、コピーがどこからでも始められない理由',body:[
+    '圧縮された動画は、完全な絵をときどきしか保存しません。このキーフレーム（Iフレーム）は単独でデコードでき、その間のフレームは変化だけを持つため、前のフレームがないとデコードできません。キーフレームの間隔はエンコーダーと設定次第で、1秒未満のファイルも数秒のファイルもあります。',
+    'そのためパケットをコピーする切り出しはキーフレームから始める必要があり、ツールによって選び方が違います。FFmpegのドキュメントでは、ストリームコピーでは指定時刻の手前のシーク位置へ移動し、その余分を残すため、クリップが早めに始まります。Nerulioの高速は逆に縮めます。映像は選択範囲内の最初のキーフレームから始まるので除いた部分は入りませんが、先頭でキーフレーム間隔1つ分までが失われることがあります。終わりは終了点のままです。',
+    '精密は区間の全フレームをデコードし、開始点に独自のキーフレームを置いた新しいストリームを書きます。解像度の上限と音声の削除も使えます。高速でも音声は削除できますが、再エンコードしないため解像度の上限は無視されます。'],
+    terms:[['キーフレーム（Iフレーム）','完全な絵として保存されたフレーム。ここからデコードを始められます。'],['GOP','グループ・オブ・ピクチャー。キーフレームとそれに依存するフレームで、次のキーフレームの直前までです。'],['ストリームコピー（リマックス）','圧縮済みのパケットをデコードせずに新しいコンテナへ移すこと。速く劣化しませんが、キーフレームに縛られます。']]},
+   example:{title:'例：2秒ごとのキーフレーム、選択範囲3.40秒〜9.00秒',lead:'同じ範囲を3通りに切り出すと：',lines:[
+    '元動画のキーフレーム           0.00  2.00  4.00  6.00  8.00  10.00 s',
+    '選択範囲                       3.40 → 9.00 s   5.60 s',
+    'Nerulio 高速                   4.00 → 9.00 s   5.00 s   先頭0.60 sが落ちる',
+    '手前のキーフレームからコピー   2.00 → 9.00 s   7.00 s   先頭に1.40 s余分',
+    '  （FFmpeg -iの前に-ss、-c copy）',
+    'Nerulio 精密                   3.40 → 9.00 s   5.60 s   再エンコード'],
+    after:'先頭の0.60秒が大事なら、開始点を2.00秒のキーフレームへずらすか精密を使ってください。Nerulioのテストでは、高速カットは指定の長さから1.1秒以内、精密カットは0.12秒以内を合格としています。'},
+   mapping:{title:'高速と精密の比較',head:['','高速 · キーフレーム','精密 · 再エンコード'],rows:[
+    ['開始位置','選択範囲内の最初のキーフレーム','指定した開始点どおり'],
+    ['速さ','パケットのコピー。主にファイルの読み込み速度で決まる','全フレームをデコード・エンコード'],
+    ['画質','元と同じ','圧縮が1回増える'],
+    ['結果のコーデック','元のコーデック','MP4はH.264、WebMはVP9・VP8・AV1'],
+    ['解像度の上限・音声の削除','音声の削除だけ有効、上限は無視','どちらも有効'],
+    ['デコーダーの要否','不要','必要（映像と音声の両方）']]},
+   verify:{steps:[
+    'プレーヤーで結果の長さを、タイムライン下の区間の長さと比べます。高速は先頭が短くなることがあり、精密は一致するはずです。',
+    '高速で切った結果の最初の1秒を再生します。きれいな完全なフレームから始まり、開始点にキーフレームがなければそれより遅れて始まります。',
+    '音声の削除を選んでいなければ、音があるか確認します。トラックが失われる場合は黙って外さず、エラーで止まります。']},
+   trouble:{rows:[
+    ['WebMへの高速カットで「A required video/audio track cannot be preserved」と出る','WebMはVP8・VP9・AV1の映像とOpus・Vorbisの音声しか受け付けず、MP4・MOVのH.264・HEVC・AACはコピーできない','元がMP4かMOV','高速カットはMP4で保存するか、精密を使う'],
+    ['高速カットが開始点より遅れて始まる','開始点にキーフレームがなく、次のキーフレームからコピーした','結果の長さと選択範囲を比べる','開始点を前にずらすか、精密を使う'],
+    ['形式の一覧にMP4がない','ブラウザがH.264エンコーダーなしと報告している','詳細設定にWebMしかない','WebMで保存するか、H.264エンコーダーのあるブラウザを使う'],
+    ['タブを切り替えたら保存が止まった','WebCodecsがない場合に使う互換録画だけは、タブの表示が必要','互換モードの案内が出ている','タブを表示したままにするか、WebCodecsのあるブラウザを使う'],
+    ['WebMから高速カットしたMP4が一部のアプリで再生できない','コピーしたVP9・AV1の映像とOpusの音声がMP4に入っており、すべてのプレーヤーが想定しているわけではない','ffprobeでコーデックを確認','WebMの元動画はWebMで切り出すか、精密でH.264にする']]},
+   alternatives:{rows:[
+    ['`-i`の前に`-ss`、そして`-c copy`を使うFFmpeg','スクリプトや一括の切り出し。ドキュメントによれば、コピーの切り出しは手前のキーフレームからの部分を残すので、失う代わりに少し余分に入ります。'],
+    ['デスクトップの動画編集ソフト','複数のクリップ、トランジション、区間全体を再エンコードせずにフレーム単位で正確さが必要な編集。'],
+    ['[[video/compress|動画を圧縮]]','短くするのではなく小さくするのが目的のとき。']]},
+   limits:['高速カットはキーフレームから始まります。先頭の不完全なGOPだけを再エンコードするスマートモードはありません。','1回の書き出しで連続した区間1つだけです。区間をつなぐにはデスクトップの編集ソフトが必要です。','主な映像と音声のトラック1本ずつだけが残ります。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。1920 × 1080のH.264/AAC MP4から1〜4秒を高速で切ると音声が保たれ、指定の長さと1.1秒以内で一致し、1.25〜3.75秒の精密カットは0.12秒以内です。任意の大容量テストでは、500MBを超える1時間のファイルの最後の1分を高速カットし、音声付きで60秒±1秒になりました。エンジンはMediabunny 1.58.1とWebCodecsです。FFmpegの動作は公式ドキュメントからの引用です。'],sources:['[FFmpegドキュメント：-ssとストリームコピー](https://ffmpeg.org/ffmpeg.html)','[MDN：Web動画コーデックガイド](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs)']}
+  }
+ },
+ 'video/frame':{
+  type:'tool',
+  intent:{primary:'save a frame of a video as an image (PNG, JPG) at full resolution',secondary:['video screenshot at original quality','extract a still from MP4','exact frame at a time'],
+   goal:'a still image of the exact frame, at the video\'s own resolution, upright',input:'a video file',output:'PNG, JPG or WebP (<name>-frame.png)',support:'full',
+   evidence:['src/media-modern-worker.js extract (CanvasSink getCanvas at the time; PNG/JPEG/WebP at 0.94; rotation from metadata)','src/task/media.js (STEP = 1/30 s; frame costs no quota)','tests/media-browser.mjs (3840 × 2160 PNG and JPEG at source size)'],
+   external:['MDN: WebCodecs API']},
+  en:{
+   answer:'Pause the video on the moment you want and save that frame as PNG, JPG or WebP at the video\'s own resolution: a 4K source gives a 3840 × 2160 image whatever size the preview has on screen. The frame is decoded again from the file with WebCodecs, so it is the real frame rather than a screenshot of the player, and a phone video\'s rotation is applied. Saving a still does not count as an encoded export.',
+   concept:{title:'Which frame you get, and at what size',body:[
+    'Every video frame covers a short span of time. When you save at time t, Nerulio decodes the last frame that starts at or before t, which is the frame on screen at that moment. At 29.97 fps a frame lasts 33.4 ms, so any time inside that span gives the same picture.',
+    'The image has the decoded frame\'s full size after the file\'s rotation metadata is applied, so a portrait phone clip that is stored sideways comes out upright. PNG keeps every pixel exactly; JPG and WebP are written at quality 0.94, which is far smaller for photographic frames.',
+    'The ⏮ and ⏭ buttons and the arrow keys on a trim handle move by 1/30 s (Shift moves 1 s). On 30 fps video that is one frame; on 60 fps video it skips every other frame, and on 24 fps video two presses can land on the same frame.'],
+    terms:[['Presentation time','When a frame is shown; it stays on screen until the next frame starts.'],['Source resolution','The coded picture size of the video track, such as 3840 × 2160, independent of the preview size.'],['Rotation metadata','A flag in phone videos saying the stored picture must be turned by 90°, 180° or 270° for display.']]},
+   example:{title:'Example: a 29.97 fps 4K clip, frame at 12.345 s',lead:'For a constant-rate clip that starts at 0 s:',lines:[
+    'Frame duration        1 ÷ 29.97 = 0.0334 s',
+    'Frame index           floor(12.345 × 29.97) = floor(369.98) = 369',
+    'That frame is shown   369 ÷ 29.97 = 12.312 s  until  370 ÷ 29.97 = 12.346 s',
+    'Saved image           3840 × 2160 px',
+    'Raw pixels            3840 × 2160 × 4 bytes = 33.2 MB before PNG/JPG encoding',
+    'One press of ⏭        12.345 + 0.0333 = 12.378 s → frame 370'],
+    after:'PNG keeps every pixel of that frame; for a detailed 4K frame JPG or WebP is much smaller, as the test suite confirms for JPG.'},
+   verify:{steps:[
+    'The result box shows the saved image\'s dimensions: they should equal the source dimensions in the file line.',
+    'Zoom into the saved image at 100 %: fine detail should match the video, not the smaller preview.',
+    'If the exact moment matters, step with ⏮ / ⏭ and save again; the time on the clock is the time used.']},
+   trouble:{rows:[
+    ['The frame looks blurred','Motion blur or compression in the source frame itself; the capture adds none','Step one frame forward and back; neighbouring frames may be sharper','Pick a frame where the motion pauses'],
+    ['Saving stops with "No frame at this timestamp" or a decoder error','The video codec cannot be decoded in this browser (for example HEVC or ProRes), or the time is after the last frame','ffprobe shows the codec; try a slightly earlier time','Use a browser that decodes the codec, or export the video again as H.264'],
+    ['The image is sideways','The file carries no rotation flag, or one the reader does not use','Compare with the phone\'s own player','Rotate the saved image in [[image/editor|the image editor]]'],
+    ['Colours look flatter than in the phone\'s gallery','An HDR recording is converted to an 8-bit image when it is drawn, and that conversion is the browser\'s','Check whether the clip was recorded in HDR','Record in SDR when stills matter, or adjust the image afterwards'],
+    ['The file is much larger than expected','A PNG of a detailed 4K frame','Result size in the result box','Choose JPG or WebP, or [[image/compress|compress the image]]']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -ss 12.345 -i in.mp4 -frames:v 1 frame.png`','Many frames at exact times, in a script.'],
+    ['A screenshot of the paused player','Quick for sharing, but limited to the player\'s size on your screen and scaled by it.'],
+    ['[[video/to-gif|Video to GIF]]','When one frame is not enough and a short loop is wanted.']]},
+   limits:['One frame per save; there is no batch export of every N seconds.','HDR frames become 8-bit images; no HDR still format is written.'],
+   versions:{body:['Checked in tests/media-browser.mjs in Chromium 153 and Firefox 155: the frame at 1 s of a 3840 × 2160 test video was saved as a 3840 × 2160 PNG, and the JPEG variant kept that size while using fewer bytes. Frames are decoded with Mediabunny 1.58.1 and WebCodecs; without WebCodecs the frame is drawn from the browser\'s own video player at its native size.'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)']}
+  },
+  ko:{
+   answer:'원하는 순간에서 영상을 멈추고 그 프레임을 영상 자체 해상도의 PNG·JPG·WebP로 저장하세요. 4K 원본이면 화면의 미리보기 크기와 상관없이 3840 × 2160 이미지가 나옵니다. 프레임은 WebCodecs로 파일에서 다시 디코딩하므로 플레이어를 캡처한 것이 아니라 실제 프레임이며, 휴대폰 영상의 회전 정보도 적용됩니다. 정지 이미지 저장은 인코딩 내보내기 횟수에 들어가지 않습니다.',
+   concept:{title:'어떤 프레임이, 어떤 크기로 저장되나',body:[
+    '영상의 각 프레임은 짧은 시간 동안 보입니다. 시각 t에서 저장하면 Nerulio는 t와 같거나 그보다 먼저 시작하는 마지막 프레임, 즉 그 순간 화면에 보이는 프레임을 디코딩합니다. 29.97fps에서는 한 프레임이 33.4ms이므로 그 안의 어느 시각을 골라도 같은 그림입니다.',
+    '이미지는 파일의 회전 정보를 적용한 뒤의 디코딩 프레임 전체 크기입니다. 그래서 옆으로 저장된 세로 휴대폰 영상도 똑바로 나옵니다. PNG는 모든 픽셀을 그대로 두고, JPG와 WebP는 품질 0.94로 쓰여 사진 같은 프레임에서는 훨씬 작습니다.',
+    '⏮·⏭ 버튼과 자르기 손잡이의 방향키는 1/30초씩 움직입니다(Shift는 1초). 30fps 영상에서는 한 프레임이지만, 60fps에서는 한 프레임씩 건너뛰고, 24fps에서는 두 번 눌러도 같은 프레임일 수 있습니다.'],
+    terms:[['표시 시각','프레임이 보이기 시작하는 시각. 다음 프레임이 시작될 때까지 화면에 남습니다.'],['원본 해상도','영상 트랙에 부호화된 그림 크기(예: 3840 × 2160). 미리보기 크기와 무관합니다.'],['회전 정보','저장된 그림을 90°·180°·270° 돌려 보여야 한다는 휴대폰 영상의 표시.']]},
+   example:{title:'예시: 29.97fps 4K 영상, 12.345초의 프레임',lead:'0초에서 시작하는 고정 프레임레이트 영상이라면:',lines:[
+    '프레임 길이           1 ÷ 29.97 = 0.0334 s',
+    '프레임 번호           floor(12.345 × 29.97) = floor(369.98) = 369',
+    '그 프레임이 보이는 때 369 ÷ 29.97 = 12.312 s  부터  370 ÷ 29.97 = 12.346 s 까지',
+    '저장되는 이미지       3840 × 2160 px',
+    '원시 픽셀             3840 × 2160 × 4 bytes = 33.2 MB (PNG·JPG 인코딩 전)',
+    '⏭ 한 번               12.345 + 0.0333 = 12.378 s → 370번 프레임'],
+    after:'PNG는 그 프레임의 모든 픽셀을 보존합니다. 세밀한 4K 프레임이라면 JPG나 WebP가 훨씬 작고, JPG는 테스트에서도 확인했습니다.'},
+   verify:{steps:[
+    '결과 상자에 저장한 이미지의 크기가 나옵니다. 파일 줄의 원본 크기와 같아야 합니다.',
+    '저장한 이미지를 100 %로 확대하세요. 작은 미리보기가 아니라 영상과 같은 세부가 보여야 합니다.',
+    '정확한 순간이 중요하면 ⏮·⏭로 움직여 다시 저장하세요. 시계에 표시된 시각이 사용됩니다.']},
+   trouble:{rows:[
+    ['프레임이 흐리게 보임','원본 프레임 자체의 모션 블러나 압축. 캡처가 흐림을 더하지는 않음','앞뒤로 한 프레임씩 움직여 보면 더 선명한 프레임이 있을 수 있음','움직임이 멈춘 프레임 고르기'],
+    ['"No frame at this timestamp"나 디코더 오류로 저장이 멈춤','이 브라우저가 영상 코덱을 디코딩하지 못하거나(HEVC·ProRes 등) 시각이 마지막 프레임 뒤임','ffprobe로 코덱을 보고, 조금 앞 시각으로 시도','코덱을 디코딩하는 브라우저를 쓰거나 H.264로 다시 내보내기'],
+    ['이미지가 옆으로 누워 있음','파일에 회전 정보가 없거나 읽기 도구가 쓰지 않는 방식','휴대폰 기본 플레이어와 비교','[[image/editor|이미지 편집기]]에서 저장한 이미지를 회전'],
+    ['휴대폰 갤러리보다 색이 밋밋함','HDR 영상은 그릴 때 8비트 이미지로 변환되며, 그 변환은 브라우저가 함','HDR로 촬영했는지 확인','정지 이미지가 중요하면 SDR로 촬영하거나 나중에 이미지를 보정'],
+    ['파일이 예상보다 훨씬 큼','세밀한 4K 프레임의 PNG','결과 상자의 용량','JPG·WebP를 고르거나 [[image/compress|이미지 압축]]']]},
+   alternatives:{rows:[
+    ['FFmpeg: `ffmpeg -ss 12.345 -i in.mp4 -frames:v 1 frame.png`','정해진 시각의 프레임을 스크립트로 많이 뽑을 때.'],
+    ['멈춘 플레이어의 화면 캡처','공유용으로는 빠르지만, 화면의 플레이어 크기로 제한되고 그 크기로 확대·축소됩니다.'],
+    ['[[video/to-gif|영상을 GIF로]]','프레임 하나로는 부족하고 짧은 반복 영상이 필요할 때.']]},
+   limits:['한 번에 프레임 하나만 저장합니다. N초마다 일괄로 뽑는 기능은 없습니다.','HDR 프레임은 8비트 이미지가 되며, HDR 정지 이미지 형식으로는 쓰지 않습니다.'],
+   versions:{body:['tests/media-browser.mjs로 Chromium 153과 Firefox 155에서 확인했습니다. 3840 × 2160 테스트 영상의 1초 프레임이 3840 × 2160 PNG로 저장되고, JPEG로 저장해도 크기는 같고 용량은 더 작았습니다. 프레임은 Mediabunny 1.58.1과 WebCodecs로 디코딩하며, WebCodecs가 없으면 브라우저 자체 영상 플레이어에서 원래 크기로 그립니다.'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)']}
+  },
+  ja:{
+   answer:'欲しい瞬間で動画を止め、そのフレームを動画自体の解像度でPNG・JPG・WebPとして保存します。4Kの元動画なら、画面上のプレビューの大きさに関係なく3840 × 2160の画像になります。フレームはWebCodecsでファイルから改めてデコードするので、プレーヤーのスクリーンショットではなく本物のフレームで、スマホ動画の回転情報も反映されます。静止画の保存はエンコードの書き出し回数に数えられません。',
+   concept:{title:'どのフレームが、どの大きさで保存されるか',body:[
+    '動画の各フレームは短い時間だけ表示されます。時刻tで保存すると、Nerulioはt以前に始まる最後のフレーム、つまりその瞬間に画面に出ているフレームをデコードします。29.97fpsでは1フレームが33.4msなので、その範囲内のどの時刻でも同じ絵になります。',
+    '画像は、ファイルの回転情報を適用した後のデコード済みフレームの全体サイズです。そのため横向きに保存された縦長のスマホ動画も正しい向きで出てきます。PNGはすべての画素をそのまま保ち、JPGとWebPは品質0.94で書かれ、写真のようなフレームではずっと小さくなります。',
+    '⏮・⏭ボタンと、切り出しハンドル上の矢印キーは1/30秒ずつ動きます（Shiftで1秒）。30fpsの動画なら1フレームですが、60fpsでは1フレームおきになり、24fpsでは2回押しても同じフレームのことがあります。'],
+    terms:[['表示時刻','フレームが表示され始める時刻。次のフレームが始まるまで画面に残ります。'],['元の解像度','映像トラックに符号化された絵の大きさ（例：3840 × 2160）。プレビューの大きさとは無関係です。'],['回転情報','保存された絵を90°・180°・270°回して表示するよう示すスマホ動画の情報。']]},
+   example:{title:'例：29.97fpsの4K動画、12.345秒のフレーム',lead:'0秒から始まる固定フレームレートの動画なら：',lines:[
+    'フレームの長さ        1 ÷ 29.97 = 0.0334 s',
+    'フレーム番号          floor(12.345 × 29.97) = floor(369.98) = 369',
+    'そのフレームの表示    369 ÷ 29.97 = 12.312 s  から  370 ÷ 29.97 = 12.346 s まで',
+    '保存される画像        3840 × 2160 px',
+    '生の画素              3840 × 2160 × 4 bytes = 33.2 MB（PNG・JPGのエンコード前）',
+    '⏭を1回               12.345 + 0.0333 = 12.378 s → 370番のフレーム'],
+    after:'PNGはそのフレームの全画素を保ちます。細かい4KのフレームならJPGやWebPのほうがずっと小さく、JPGはテストでも確認しています。'},
+   verify:{steps:[
+    '結果の欄に保存した画像のサイズが出ます。ファイルの行にある元の解像度と同じはずです。',
+    '保存した画像を100 %で拡大します。小さなプレビューではなく、動画と同じ細部が見えるはずです。',
+    '瞬間が重要なら⏮・⏭で動かして保存し直します。時計に表示された時刻が使われます。']},
+   trouble:{rows:[
+    ['フレームがぼやけている','元のフレーム自体のモーションブラーや圧縮。取り出しでぼけが加わることはない','前後に1フレームずつ動かすと、よりくっきりしたフレームがあるかもしれない','動きが止まったフレームを選ぶ'],
+    ['「No frame at this timestamp」やデコーダーのエラーで止まる','このブラウザが映像コーデックをデコードできない（HEVC・ProResなど）、または時刻が最後のフレームより後','ffprobeでコーデックを見て、少し前の時刻で試す','デコードできるブラウザを使うか、H.264で書き出し直す'],
+    ['画像が横向きになる','ファイルに回転情報がない、または読み込み側が使わない形式','スマホ標準のプレーヤーと比べる','保存した画像を[[image/editor|画像エディター]]で回転'],
+    ['スマホのギャラリーより色が平板','HDR動画は描画時に8ビット画像へ変換され、その変換はブラウザが行う','HDRで撮影したか確認','静止画が大事ならSDRで撮るか、後で画像を補正'],
+    ['ファイルが思ったより大きい','細かい4KフレームのPNG','結果の欄の容量','JPG・WebPを選ぶか、[[image/compress|画像を圧縮]]']]},
+   alternatives:{rows:[
+    ['FFmpeg：`ffmpeg -ss 12.345 -i in.mp4 -frames:v 1 frame.png`','決まった時刻のフレームをスクリプトでたくさん取り出すとき。'],
+    ['一時停止したプレーヤーのスクリーンショット','共有用には手早いが、画面上のプレーヤーの大きさに制限され、その大きさに拡大縮小される。'],
+    ['[[video/to-gif|動画をGIFに]]','1フレームでは足りず、短いループが欲しいとき。']]},
+   limits:['1回の保存で1フレームだけです。N秒ごとの一括書き出しはありません。','HDRのフレームは8ビット画像になり、HDRの静止画形式では書き出しません。'],
+   versions:{body:['tests/media-browser.mjsで、Chromium 153とFirefox 155を使って確認しました。3840 × 2160のテスト動画の1秒のフレームが3840 × 2160のPNGとして保存され、JPEGでもサイズは同じで容量は小さくなりました。フレームはMediabunny 1.58.1とWebCodecsでデコードし、WebCodecsがない場合はブラウザ自身の動画プレーヤーから元の大きさで描画します。'],sources:['[MDN: WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API)']}
+  }
  }
 };
