@@ -91,7 +91,17 @@ async function main(){
    const nav=$('.hd .hn');
    if(nav&&d.unread>0){const a=document.createElement('a');a.className='hb';a.href=`/${L}/radar/#mine`;a.textContent=(L==='ko'?'알림 ':'Alerts ')+d.unread;nav.append(a);}
    if(mine){
-    const ul=$('ul',mine);mine.hidden=false;
+    const ul=$(':scope > ul.rows',mine);mine.hidden=false;
+    // 내 글의 새 댓글 / 내 댓글에 달린 답글, above the channel news.
+    const rb=$('[data-replies]',mine);
+    if(rb&&d.replies?.length){rb.hidden=false;const ru=$('ul',rb);
+     for(const x of d.replies.slice(0,8)){const li=document.createElement('li');li.className='mr';
+      const t=document.createElement('span');t.className='tm';const dt=new Date(x.at);t.textContent=`${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;
+      const a=document.createElement('a');a.className='tt'+(x.unread?' unread':'');a.href=x.url;a.textContent=`${x.author}: ${x.text}`;
+      const c=document.createElement('span');c.className='chn fine';c.textContent=(x.why==='comment'?(L==='ko'?'내 댓글에 답글 · ':'reply · '):(L==='ko'?'내 글에 댓글 · ':'on your post · '))+x.on;
+      li.append(t,a,c);ru.append(li);}
+     if(d.unreadReplies>0)api('/my-radar/seen',{lastChangeId:0,repliesSeenAt:Math.max(...d.replies.map(r=>r.at))});
+    }
     const items=[...d.changes.map(c=>({at:c.at,eventAt:c.eventAt,channel:c.channel,text:`${c.title}${c.detail?' — '+c.detail:''}`,url:c.url,unread:c.unread})),...d.posts.map(p=>({at:p.at,channel:p.channel,text:`${p.title}${p.comments?` [${p.comments}]`:''}`,url:p.url,unread:false}))].sort((a,b)=>b.at-a.at).slice(0,30);
     if(!items.length){const li=document.createElement('li');li.textContent=d.following?(L==='ko'?'구독한 채널에 아직 새 소식이 없어요.':'Nothing new in your channels yet.'):(L==='ko'?'채널을 구독하면 바뀐 것과 새 글이 여기에 모입니다.':'Follow channels to see their changes and posts here.');ul.append(li);}
     const md=ms=>{const x=new Date(ms);return `${String(x.getMonth()+1).padStart(2,'0')}.${String(x.getDate()).padStart(2,'0')}`;};

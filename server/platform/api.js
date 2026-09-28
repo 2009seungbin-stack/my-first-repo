@@ -254,9 +254,11 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     return done(await modAction(db,context.user.id,String(me.role),body,now,origin));
    }
    case 'POST /my-radar/seen':{
-    only(body,['lastChangeId']);
-    const id=Number(body.lastChangeId);if(!Number.isInteger(id)||id<0)throw new ApiError('BAD_REQUEST','Invalid lastChangeId.');
-    await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,updated_at) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),updated_at=excluded.updated_at').bind(context.user.id,id,now).run();
+    only(body,['lastChangeId','repliesSeenAt']);
+    const id=Number(body.lastChangeId??0);if(!Number.isInteger(id)||id<0)throw new ApiError('BAD_REQUEST','Invalid lastChangeId.');
+    // Replies are marked seen up to a time the reader actually saw (never in the future).
+    const rs=Math.min(now,Math.max(0,Number(body.repliesSeenAt)||0));
+    await db.prepare('INSERT INTO radar_state (user_id,last_seen_change_id,replies_seen_at,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen_change_id=MAX(radar_state.last_seen_change_id,excluded.last_seen_change_id),replies_seen_at=MAX(radar_state.replies_seen_at,excluded.replies_seen_at),updated_at=excluded.updated_at').bind(context.user.id,id,rs,now).run();
     return done({ok:true});
    }
    case 'POST /facts/propose':{
@@ -423,8 +425,11 @@ async function benchmark(db,context,body,now,limit,origin){
  * @param {any} db @param {string} userId @param {'ko'|'en'} l */
 async function myRadar(db,userId,l){
  const ids=((await db.prepare('SELECT entity_id FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 200').bind(userId).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
- const seen=Number((await db.prepare('SELECT last_seen_change_id AS n FROM radar_state WHERE user_id=?').bind(userId).first())?.n||0);
- if(!ids.length)return {following:0,unread:0,lastChangeId:seen,changes:[],posts:[]};
+ const st=await db.prepare('SELECT last_seen_change_id AS n,replies_seen_at AS r FROM radar_state WHERE user_id=?').bind(userId).first();
+ const seen=Number(st?.n||0),repliesSeen=Number(st?.r||0);
+ const replies=await repliesTo(db,userId,l,repliesSeen);
+ const unreadReplies=replies.filter(r=>r.unread).length;
+ if(!ids.length)return {following:0,unread:unreadReplies,unreadReplies,lastChangeId:seen,changes:[],posts:[],replies};
  const ents=await entitiesByIds(db,ids);
  const raw=await changesFor(db,ids,{minImportance:1,limit:30});
  // Schedule items carry the event's own date (a broadcast on 10/20 is not "09/26", when it was found).
@@ -439,7 +444,21 @@ async function myRadar(db,userId,l){
  const q=ids.slice(0,40);
  const posts=((await db.prepare(`SELECT d.post_no,d.title,d.kind,d.comment_count,d.created_at,e.vertical,e.slug,e.names FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.entity_id IN (${q.map(()=>'?').join(',')}) ORDER BY d.created_at DESC LIMIT 20`).bind(...q).all()).results||[])
   .map((/** @type {any} */ r)=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};return {title:String(r.title),kind:String(r.kind),comments:Number(r.comment_count),at:Number(r.created_at),url:postUrl(l,e,Number(r.post_no)),channel:nameOf(e,l)};});
- return {following:ids.length,unread:changes.filter(c=>c.unread).length,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts};
+ return {following:ids.length,unread:changes.filter(c=>c.unread).length+unreadReplies,unreadReplies,lastChangeId:Math.max(seen,...changes.map(c=>c.id)),changes,posts,replies};
+}
+/** Comments on the reader's posts and replies to the reader's comments (not their own), newest first.
+ * Two indexed queries instead of one OR. @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} seenAt */
+async function repliesTo(db,userId,l,seenAt){
+ const COLS=`c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
+ const FROM=`FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id`;
+ const OK=`c.status='published' AND d.status IN ('published','locked') AND c.author_id<>?`;
+ const [onPosts,onComments]=await Promise.all([
+  db.prepare(`SELECT ${COLS},'post' AS why ${FROM} WHERE d.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all(),
+  db.prepare(`SELECT ${COLS},'comment' AS why ${FROM} JOIN comments pc ON pc.id=c.parent_id WHERE pc.author_id=? AND ${OK} ORDER BY c.created_at DESC LIMIT 20`).bind(userId,userId).all()]);
+ /** @type {Map<string,any>} */const byId=new Map();
+ for(const r of [...(onComments.results||[]),...(onPosts.results||[])])if(!byId.has(String(r.id)))byId.set(String(r.id),r);
+ return [...byId.values()].sort((a,b)=>Number(b.created_at)-Number(a.created_at)).slice(0,20).map(r=>{const e={vertical:String(r.vertical),slug:String(r.slug),names:JSON.parse(String(r.names||'{}'))};
+  return {at:Number(r.created_at),author:String(r.author),text:String(r.body_md).replace(/\s+/g,' ').slice(0,80),on:String(r.title),why:String(r.why),url:postUrl(l,e,Number(r.post_no))+`#c-${r.id}`,unread:Number(r.created_at)>seenAt};});
 }
 
 /* ---------- open data ---------- */

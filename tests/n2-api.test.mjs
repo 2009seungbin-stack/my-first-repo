@@ -186,6 +186,20 @@ test('fact proposals: validated like seed facts, reviewed by a moderator, never 
  assert.equal((await h.call('POST','/mod/action',{as:'a',body:{target:q.proposals[0].target,action:'accept',reason:'me'}})).status,404,'members cannot review');
 });
 
+test('reply alerts: comments on my posts and replies to my comments, unread until seen',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('b');
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'내 글',body:'x'}})).json;
+ const mine=(await h.call('POST','/comments',{as:'a',body:{postId:p.id,body:'내 댓글'}})).json;
+ h.clock.now+=1000;await h.call('POST','/comments',{as:'b',body:{postId:p.id,body:'글에 댓글'}});
+ h.clock.now+=1000;await h.call('POST','/comments',{as:'b',body:{postId:p.id,body:'답글',parentId:mine.id}});
+ const r=(await h.call('GET','/my-radar?l=ko',{as:'a'})).json;
+ assert.deepEqual(r.replies.map(x=>x.text),['답글','글에 댓글'],'newest first, own comments left out');
+ assert.equal(r.unreadReplies,2);assert.equal(r.unread,2,'the header count includes replies');
+ await h.call('POST','/my-radar/seen',{as:'a',body:{lastChangeId:0,repliesSeenAt:r.replies[0].at}});
+ assert.equal((await h.call('GET','/my-radar?l=ko',{as:'a'})).json.unreadReplies,0);
+ assert.equal((await h.call('GET','/my-radar?l=ko',{as:'b'})).json.replies.length,0,'b wrote them');
+});
+
 test('rollout votes: one per user per feature, features only',{skip},async()=>{
  const h=await harness();await h.signIn('a');
  assert.equal((await h.call('POST','/rollout',{as:'a',body:{featureId:'feature:feat',hasIt:true,country:'KR',platform:'ios'}})).status,200);
