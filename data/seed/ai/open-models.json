@@ -3689,7 +3689,8 @@
           "p": "deprecation_date",
           "v": "2026-05-22",
           "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-devstral-2"
+          "src": "src:open-mistral-doc-devstral-2",
+          "note": "Mistral's stated 'Deprecation date'; the model page shows no retirement date."
         },
         {
           "p": "api_model_id",
@@ -3790,7 +3791,8 @@
           "p": "deprecation_date",
           "v": "2026-02-27",
           "ver": "OFFICIAL",
-          "src": "src:open-mistral-doc-devstral-small-2"
+          "src": "src:open-mistral-doc-devstral-small-2",
+          "note": "Mistral's stated 'Deprecation date'; the model page shows no retirement date."
         },
         {
           "p": "api_model_id",

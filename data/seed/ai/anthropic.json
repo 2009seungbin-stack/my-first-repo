@@ -1775,8 +1775,8 @@
         },
         {
           "p": "deprecation_date",
-          "v": "2026-06-05",
-          "note": "Deprecation announced 2026-06-05; retirement date 2026-08-05. Recommended replacement: claude-opus-4-8.",
+          "v": "2026-08-05",
+          "note": "Retirement (shutdown) date per the model deprecations page; deprecation was announced 2026-06-05. Recommended replacement: claude-opus-4-8.",
           "ver": "OFFICIAL",
           "src": "src:anthropic-docs-model-deprecations"
         },
