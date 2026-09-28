@@ -9,6 +9,18 @@ const rgbaKey=(d,i)=>(d[i]|d[i+1]<<8|d[i+2]<<16|d[i+3]<<24)>>>0;
 const unpack=k=>[k&255,k>>>8&255,k>>>16&255,k>>>24&255];
 
 export const SAMPLE_METHODS=Object.freeze(['nearest','median','mode','k-centroid']);
+/** Integer-only nearest export; RGBA bytes (including alpha) repeat exactly. */
+export function scaleNearest(frame,factor,{maxPixels=48e6}={}){
+ if(!Number.isInteger(factor)||factor<1||factor>16)throw Error('Scale must be an integer from 1 to 16');
+ const {width,height,data}=frame,W=width*factor,H=height*factor;
+ if(!data||data.length!==width*height*4||W*H>maxPixels)throw Error('Scaled PNG exceeds the pixel budget');
+ const out=new Uint8Array(W*H*4);
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  const pixel=data.subarray((y*width+x)*4,(y*width+x+1)*4);
+  for(let dy=0;dy<factor;dy++)for(let dx=0;dx<factor;dx++)out.set(pixel,((y*factor+dy)*W+x*factor+dx)*4);
+ }
+ return {data:out,width:W,height:H};
+}
 /** Sample one pixel from each cell, including noninteger cells and an optional grid phase. Transparent
  * colours cannot dominate a cell only because their hidden RGB happens to be frequent. */
 export function sampleToGrid(frame,width,height,{method='mode',offsetX=0,offsetY=0}={}){
@@ -27,10 +39,19 @@ export function sampleToGrid(frame,width,height,{method='mode',offsetX=0,offsetY
   }else if(method==='mode'){
    const counts=new Map();for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){const i=(yy*sw+xx)*4,k=data[i+3]?rgbaKey(data,i):0;counts.set(k,(counts.get(k)||0)+1);}
    let best=0,n=-1;for(const [k,v] of counts)if(v>n){best=k;n=v;}c=unpack(best);
+  }else if(method==='median'){
+   // A 256-bin histogram per channel is linear in the cell area. Sorting four copies of an
+   // 8,000-pixel cell makes a 4K → 32px photo needlessly slow and allocates many short arrays.
+   const bins=new Uint32Array(1024);let count=0;
+   for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){
+    const i=(yy*sw+xx)*4;if(!data[i+3])continue;count++;
+    for(let k=0;k<4;k++)bins[k*256+data[i+k]]++;
+   }
+   if(!count)c=[0,0,0,0];
+   else{const rank=Math.floor((count-1)/2);c=[0,1,2,3].map(k=>{let n=0;for(let v=0;v<256;v++){n+=bins[k*256+v];if(n>rank)return v;}return 255;});}
   }else{
    const pixels=[];for(let yy=y0;yy<y1;yy++)for(let xx=x0;xx<x1;xx++){const i=(yy*sw+xx)*4;if(data[i+3])pixels.push([data[i],data[i+1],data[i+2],data[i+3]]);}
    if(!pixels.length)c=[0,0,0,0];
-   else if(method==='median')c=[0,1,2,3].map(k=>{const vals=pixels.map(p=>p[k]).sort((a,b)=>a-b);return vals[Math.floor((vals.length-1)/2)];});
    else c=dominantCentroid(pixels);
   }
   out.set(c,(y*width+x)*4);

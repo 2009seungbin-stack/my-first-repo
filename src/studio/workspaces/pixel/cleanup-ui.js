@@ -33,7 +33,7 @@ export function createCleanup(W){
  const {t,ctx,images}=W;
  const saved=storage.get(PREFS,{});
  const query=new URLSearchParams(location.search),queryMode=query.get('mode');
- const o={intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'mode',paletteAlgorithm:'median-cut',palettePreset:'auto',ditherStrength:100,background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
+ const o={intent:'restore',targetWidth:32,targetHeight:32,sampleMethod:'median',paletteAlgorithm:'median-cut',palettePreset:'auto',ditherStrength:100,background:'auto',alphaCut:128,merge:'auto',maxColors:0,dither:'none',fringe:true,orphans:false,align:'off',usePalette:false,outline:false,shadow:false,indexed:false,...Object.fromEntries(Object.entries(saved).filter(([k])=>OPT_KEYS.includes(k)))};
  if(queryMode==='convert'||queryMode==='restore')o.intent=queryMode;
  const S={scope:'frame',scale:'',analysis:null,inputs:null,frameIds:[],assetRef:null,assetId:null,state:'idle',result:null,error:'',view:0,showGrid:true,token:0};
  const root=h('div.px-clean',{'data-px':'cleanup','data-state':'idle'});
@@ -169,7 +169,7 @@ export function createCleanup(W){
   const parts=[head];
   if(S.state==='error')parts.push(h('div.st-sec',{},h('p.st-error',{'data-px':'clean-error'},t('px.clean.failed',{reason:S.error}))));
   if(S.analysis){
-   const A=S.analysis,[v,c]=verdict(A),g=A.grid;
+   const A=S.analysis,[v,c]=o.intent==='convert'?['',null]:verdict(A),g=A.grid;
    const size=g?`${g.width}×${g.height}`:null,input=S.inputs?.[0];
    const bg=A.background?.color?h('span',{},h('i.px-clean-sw',{style:`--c:rgb(${A.background.color.slice(0,3).join(',')})`}),t(o.background==='keep'?'px.clean.bgKept':'px.clean.bg',{hex:hex(A.background.color),pct:Math.round(A.background.share*100)})):t('px.clean.noBg');
    const gridT=h('input',{type:'checkbox',checked:S.showGrid||null,'data-px':'clean-grid'});gridT.addEventListener('change',()=>{S.showGrid=gridT.checked;showGrid();});

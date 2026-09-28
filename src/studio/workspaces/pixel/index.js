@@ -11,6 +11,7 @@ import * as D from '../../sprite/sprite-doc.js';
 import * as PD from '../../pixel/pixel-doc.js';
 import * as R from '../../pixel/raster.js';
 import {h,storage} from '../../ui/dom.js';
+import {modal} from '../../ui/dialogs.js';
 import {isTypingTarget} from '../../core/keymap.js';
 import {ICONS} from '../../ui/icons.js';
 import {createTimeline} from '../../sprite/timeline-ui.js';
@@ -33,6 +34,7 @@ import {PIXEL_ICONS} from './icons.js';
 import {matcher,keyOf,DB32,indicesFromRGBA,rgbaFromIndices} from '../../pixel/indexed.js';
 import {encodeIndexedPNG} from '../../pixel/png8.js';
 import {encodePixelGIF} from '../../pixel/gif-export.js';
+import {scaleNearest} from '../../pixel/converter.js';
 const PREFS='nerulio.studio.pixel.v1';
 const DEFAULTS={size:1,brush:'square',ink:'simple',pixelPerfect:true,symmetry:{mode:'none',axisX:null,axisY:null},ditherPattern:'bayer4',ditherDensity:50,ditherSecond:'bg',
  contiguous:true,tolerance:0,sampleMerged:false,shapeFill:false,onion:{on:false,before:1,after:1,opacity:.45,tint:true},loopTag:true,cw:26,preview:false,previewZoom:2,previewBg:'checker',previewPos:null,
@@ -387,12 +389,13 @@ export default {
   cmd('pixel.cleanup',()=>ctx.showPanel('px-cleanup'),{});
   cmd('pixel.exportAseprite',()=>exportAseprite(),{group:'file'});
   cmd('pixel.exportPNG',()=>exportFramePNG(),{group:'file'});
+  cmd('pixel.exportScaledPNG',()=>chooseScaledPNG(),{group:'file'});
   cmd('pixel.exportGIF',()=>exportGIF(),{group:'file',enabled:()=>asset()?.frames.length>1});
   cmd('pixel.animate',()=>{const a=asset();exec(t('px.cmd.animate'),d=>PD.frameFromCanvas(d,a.id));refreshAll();},{enabled:()=>!!asset()&&!asset().frames.length});
   ctx.menu({id:'pixel',title:'px.menu',items:()=>['pixel.newSprite','pixel.colorMode','pixel.canvasSize','-','pixel.copy','pixel.cut','pixel.paste','pixel.drop','-','pixel.reselect','pixel.invertSelection','pixel.selectLayer','-',
    'pixel.flipH','pixel.flipV','pixel.rotateCW','pixel.rotateCCW','pixel.replaceColor','pixel.outline','pixel.shadow','-','pixel.newLayer','pixel.duplicateLayer','pixel.mergeDown','pixel.deleteLayer','-',
    'pixel.swapColors','pixel.pixelPerfect','pixel.symmetryX','pixel.symmetryY','-','pixel.lospec','pixel.ramp','pixel.variants','pixel.audit','pixel.cleanup','-',
-   'sprite.play','sprite.onion','sprite.preview','pixel.animate','-','pixel.exportPNG','pixel.exportGIF','pixel.exportAseprite']});
+   'sprite.play','sprite.onion','sprite.preview','pixel.animate','-','pixel.exportPNG','pixel.exportScaledPNG','pixel.exportGIF','pixel.exportAseprite']});
   // ------------------------------------------------------------ export
   async function exportAseprite(){
    const a0=asset();if(!a0)return;await commitChain;
@@ -404,19 +407,31 @@ export default {
    ctx.toast(t('px.toast.aseprite',{name,layers:a.layers.length,frames:a.frames.length,mode:t(idx?'px.mode.indexed':'px.mode.rgb')})+(skipped.length?' · '+t('sp.export.skipped',{n:skipped.length,why:skipped[0].reason}):''));
    window.__pxLastExport={name,size:bytes.length,colorMode:doc.colorMode,layers:doc.layers.length,frames:doc.frames.length,skipped,bytes};
   }
-  async function exportFramePNG(){
+  async function chooseScaledPNG(){
+   const select=h('select.st-input',{'data-px':'png-scale','aria-label':t('px.conv.pngScale')},...[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(n=>h('option',{value:String(n),selected:n===4||null},`${n}×`)));
+   const choice=await modal(document.querySelector('.studio'),{title:t('px.conv.pngScale'),body:h('div.px-dlg',{},h('label.st-field',{},h('span',{},t('px.conv.pngScale')),select),h('p.st-muted',{},t('px.conv.pngScaleNote'))),buttons:[{label:t('confirm.cancel'),value:null},{label:t('px.conv.export'),value:'export',primary:true}]}).done;
+   if(choice==='export')await exportFramePNG(Number(select.value));
+  }
+  async function exportFramePNG(scale=1){
    const a=asset();if(!a)return;await commitChain;const d=session.compose(null,{onion:false}),{w,h:hh}=session.rect;
+   let output;
+   try{output=scaleNearest({data:d,width:w,height:hh},scale,{maxPixels:matchMedia('(max-width: 600px)').matches?8e6:48e6});}
+   catch(e){ctx.toast(t('px.conv.pngScaleError',{reason:e.message}));return;}
+   const pixels=output.data,ow=output.width,oh=output.height;
    let blob;
    // an indexed sprite whose frame uses only palette colours exports as PNG-8 with its palette
-   if(PD.isIndexed(a)){const {indices,offPalette}=indicesFromRGBA(d,w,hh,a.palette.colors,{transparentIndex:PD.transparentIndexOf(a)});
-    if(!offPalette)blob=new Blob([encodeIndexedPNG(indices,w,hh,a.palette.colors,{transparentIndex:PD.transparentIndexOf(a)})],{type:'image/png'});}
-   if(!blob){const {encodeRGBAPNG}=await import('../../../game/texture-png.js');const png=await encodeRGBAPNG(d,w,hh);blob=png instanceof Blob?png:new Blob([png],{type:'image/png'});}
-   const f=frame(),name=`${String(a.name).replace(/\.[^.]+$/,'')}${f?'_'+(S.cur+1):''}.png`;download(blob,name);ctx.toast(t('px.toast.png',{name,w,h:hh}));
+   if(PD.isIndexed(a)){const {indices,offPalette}=indicesFromRGBA(pixels,ow,oh,a.palette.colors,{transparentIndex:PD.transparentIndexOf(a)});
+    if(!offPalette)blob=new Blob([encodeIndexedPNG(indices,ow,oh,a.palette.colors,{transparentIndex:PD.transparentIndexOf(a)})],{type:'image/png'});}
+   if(!blob){const {encodeRGBAPNG}=await import('../../../game/texture-png.js');const png=await encodeRGBAPNG(pixels,ow,oh);blob=png instanceof Blob?png:new Blob([png],{type:'image/png'});}
+   const f=frame(),name=`${String(a.name).replace(/\.[^.]+$/,'')}${f?'_'+(S.cur+1):''}${scale>1?`@${scale}x`:''}.png`;download(blob,name);ctx.toast(t('px.toast.png',{name,w:ow,h:oh}));
   }
   async function exportGIF(){
    const a=asset();if(!a||a.frames.length<2)return;await commitChain;
+   const select=h('select.st-input',{'data-px':'gif-loop','aria-label':t('px.conv.gifLoop')},...[['0',t('px.conv.gifForever')],['-1',t('px.conv.gifOnce')],['1',t('px.conv.gifTwice')],['2',t('px.conv.gifThrice')]].map(([value,label])=>h('option',{value},label)));
+   const choice=await modal(document.querySelector('.studio'),{title:t('px.conv.gifExport'),body:h('div.px-dlg',{},h('label.st-field',{},h('span',{},t('px.conv.gifLoop')),select),h('p.st-muted',{},t('px.conv.gifLimits'))),buttons:[{label:t('confirm.cancel'),value:null},{label:t('px.conv.export'),value:'export',primary:true}]}).done;
+   if(choice!=='export')return;
    const rgbaOf=await rgbaGetter(images,a,a.frames),frames=a.frames.map(f=>composeCanvas(a,f,rgbaOf));
-   const result=await encodePixelGIF(frames,{durations:a.frames.map(f=>f.duration),palette:a.palette?.colors?.filter((_,i)=>!PD.isIndexed(a)||i!==PD.transparentIndexOf(a))});
+   const result=await encodePixelGIF(frames,{durations:a.frames.map(f=>f.duration),loop:Number(select.value),palette:a.palette?.colors?.filter((_,i)=>!PD.isIndexed(a)||i!==PD.transparentIndexOf(a))});
    const name=String(a.name).replace(/\.[^.]+$/,'')+'.gif';
    download(new Blob([result.bytes],{type:'image/gif'}),name);
    ctx.toast(t('px.conv.gifSaved',{name,n:frames.length}));

@@ -132,4 +132,9 @@ for(const [l,label,saved] of [
  ['ko','GIF 내보내기(256색·이진 투명도)','{n}프레임을 {name}으로 저장했습니다. GIF 시간은 10ms 단위, 투명도는 켜짐/꺼짐으로 반올림됩니다.'],
  ['ja','GIFを書き出す（256色・2値透明）','{n}フレームを {name} に保存しました。GIFの時間は10ms単位、透明度は有無に丸められます。']
 ]){PIXEL_STRINGS[l].cmd.exportGIF=label;PIXEL_STRINGS[l].conv.gifSaved=saved;}
+for(const [l,copy] of Object.entries({
+ en:{pngScale:'Export enlarged PNG',pngScaleNote:'Nearest-neighbour only: every source pixel becomes an exact integer block. Large results are limited by this device’s pixel budget.',pngScaleError:'Could not export enlarged PNG: {reason}',export:'Export',gifExport:'Export animated GIF',gifLoop:'Playback loop',gifForever:'Forever',gifOnce:'Once',gifTwice:'Twice',gifThrice:'Three times',gifLimits:'One shared palette, at most 256 colours. GIF rounds alpha to transparent/opaque and frame delays to 10 ms.'},
+ ko:{pngScale:'확대 PNG 내보내기',pngScaleNote:'최근접 확대만 사용합니다. 원본 픽셀 하나가 정확한 정수 크기 블록이 됩니다. 큰 결과는 기기별 픽셀 한도를 따릅니다.',pngScaleError:'확대 PNG를 저장하지 못했습니다: {reason}',export:'내보내기',gifExport:'애니메이션 GIF 내보내기',gifLoop:'재생 반복',gifForever:'계속 반복',gifOnce:'한 번',gifTwice:'두 번',gifThrice:'세 번',gifLimits:'모든 프레임에 공통 팔레트(최대 256색)를 씁니다. 투명도는 투명/불투명, 프레임 시간은 10ms 단위로 반올림됩니다.'},
+ ja:{pngScale:'拡大PNGを書き出す',pngScaleNote:'最近傍だけを使い、各ピクセルを正確な整数倍のブロックにします。大きな出力は端末のピクセル上限に従います。',pngScaleError:'拡大PNGを保存できませんでした：{reason}',export:'書き出す',gifExport:'アニメーションGIFを書き出す',gifLoop:'再生回数',gifForever:'無限に繰り返す',gifOnce:'1回',gifTwice:'2回',gifThrice:'3回',gifLimits:'全フレームで共通のパレット（最大256色）。透明度は有無に、フレーム時間は10ms単位に丸められます。'}
+})){Object.assign(PIXEL_STRINGS[l].conv,copy);PIXEL_STRINGS[l].cmd.exportScaledPNG=copy.pngScale;}
 for(const l of Object.keys(PIXEL_STRINGS)){if(!STUDIO_STRINGS[l])continue;STUDIO_STRINGS[l].px=PIXEL_STRINGS[l];STUDIO_STRINGS[l].group={...(STUDIO_STRINGS[l].group||{}),pixel:PIXEL_GROUP[l]};}

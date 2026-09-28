@@ -27,8 +27,10 @@ const copy=img=>({data:new Uint8Array(img.data),width:img.width,height:img.heigh
 /** What the frames are (no changes): the verdict of the first frame, the shared grid, background. */
 export function analyse(frames,opts={}){
  const o={...DEFAULTS,...opts},first=frames[0];
+ // Photo conversion has an explicit output grid. Inspecting a 4K photo for an inherited
+ // pixel lattice would spend CPU on a verdict that this workflow never uses.
+ if(o.intent==='convert')return {check:null,grid:null,candidate:null,background:null,noise:null,frames:frames.length};
  const check=inspect(first);
- if(o.intent==='convert')return {check,grid:null,candidate:null,background:null,noise:colorNoise(first),frames:frames.length};
  const forced=typeof o.scale==='number'&&o.scale>1?o.scale:null;
  let grid=null;
  let prof=null;if(frames.length>1)for(const f of frames)prof=addProfiles(prof,axisProfiles(f));

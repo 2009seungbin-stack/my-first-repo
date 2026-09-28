@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {sampleToGrid,paletteFromFrames,quantizeFrames} from '../src/studio/pixel/converter.js';
+import {sampleToGrid,paletteFromFrames,quantizeFrames,scaleNearest} from '../src/studio/pixel/converter.js';
+
+test('nearest integer export repeats RGBA and enforces the output budget',()=>{
+ const src={width:2,height:1,data:new Uint8Array([10,20,30,40,50,60,70,255])};
+ const out=scaleNearest(src,2);
+ assert.deepEqual([out.width,out.height],[4,2]);
+ assert.deepEqual(Array.from(out.data),[10,20,30,40,10,20,30,40,50,60,70,255,50,60,70,255,
+  10,20,30,40,10,20,30,40,50,60,70,255,50,60,70,255]);
+ assert.throws(()=>scaleNearest(src,16,{maxPixels:100}));
+});
 import {runCleanup} from '../src/studio/pixel/cleanup.js';
 
 const frame=(width,height,colors)=>({width,height,data:Uint8Array.from(colors.flat())});
