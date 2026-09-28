@@ -33,6 +33,11 @@ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
  * The site publishes no e-mail addresses, so every page opts out. Applied after entry(), so the
  * content hashes behind <lastmod> (tools/lastmod.mjs) are unchanged. tools/live-check.mjs verifies it live. */
 export const noEmailObfuscation=html=>html.replace(/(<html\b[^>]*>)/i,'$1<!--email_off-->').replace(/\s*$/,'<!--/email_off-->\n');
+/** Icons every page links, for browsers and for the favicon Google shows next to search results
+ * (a crawlable square bitmap, a multiple of 48 px, plus /favicon.ico at the root). The SVG stays for
+ * browsers that prefer it; PNG/ICO files are rendered from the same logo (assets/brand/). */
+export const ICON_LINKS='<link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="96x96" href="assets/brand/favicon-96.png"><link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">';
+export const withIcons=html=>html.replace(/<link rel="icon"(?: type="image\/svg\+xml")? href="favicon\.svg">/,ICON_LINKS);
 /** Localized static HTML remains meaningful before JavaScript runs. */
 export function entry(html,route='',siteURL='',config={}){
  html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
@@ -105,18 +110,23 @@ export async function build(options={}){
  for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
+ for(const f of ['favicon.ico','apple-touch-icon.png'])await cp(path.join(ROOT,'assets/brand',f),path.join(dist,f));
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
- for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(entry(html,route,siteURL,config)));}
+ for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(withIcons(entry(html,route,siteURL,config))));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
  for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
+ // The commit this build is made from (Cloudflare Pages / GitHub Actions), so tools/live-check.mjs can
+ // wait until production serves this build before it checks it.
+ const commit=(process.env.CF_PAGES_COMMIT_SHA||process.env.GITHUB_SHA||'').trim();
+ if(/^[0-9a-f]{7,40}$/.test(commit))await writeFile(path.join(dist,'build.txt'),commit+'\n');
  await writeFile(path.join(dist,'robots.txt'),`User-agent: *\n${config.preview?'Disallow: /':'Allow: /'}\n${siteURL&&!config.preview?'Sitemap: '+new URL(SITEMAP_INDEX,siteURL).href+'\n':''}`);
  if(config.verificationClient)await writeFile(path.join(dist,'ads.txt'),`google.com, ${config.verificationClient.slice(3)}, DIRECT, f08c47fec0942fa0\n`);
  if(config.client){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
-  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
+  await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/build.txt','/styles.css','/experience.css','/content.css','/favicon.svg','/favicon.ico','/apple-touch-icon.png','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
  }
  if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);

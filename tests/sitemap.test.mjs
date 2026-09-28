@@ -5,13 +5,13 @@ import {LOCALES} from '../src/i18n.js';
 import {INTENTS} from '../src/intents.js';
 import {mayPromote} from '../src/capabilities.js';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
-import {entry,ALL_ROUTES,noEmailObfuscation} from '../tools/build.mjs';
+import {entry,ALL_ROUTES,noEmailObfuscation,withIcons,ICON_LINKS} from '../tools/build.mjs';
 import {sitemapFiles,sitemapGroups,SITEMAP_FILES,SITEMAP_LIMITS,W3C_DATETIME} from '../tools/sitemaps.mjs';
 import {contentText,contentHash,pageHashes,lastmodResolver,readLedger,staleRoutes} from '../tools/lastmod.mjs';
 import {gamePageFor} from '../tools/game-landing-build.mjs';
 import {GUIDES} from '../tools/guides-registry.mjs';
 import {builtPages,changedSince,submission} from '../tools/indexnow.mjs';
-import {pageProblems,liveCheck} from '../tools/live-check.mjs';
+import {pageProblems,liveCheck,waitForCommit} from '../tools/live-check.mjs';
 /** Structural checks of what sitemaps.org's sitemap.xsd / siteindex.xsd require, without network or
  * lxml (CI). The full schema validation, with the official XSDs, is tools/validate-sitemaps.py. */
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),origin='https://nerulio.example.test/';
@@ -120,4 +120,21 @@ test('the live check reads the served site: canonical origin, noindex, edge rewr
   assert.equal(pages,1);
   assert.deepEqual(errors,[`${site}sitemap-game.xml: lists https://nerulio.pages.dev/ko/game/`,`https://stale.example.test/en/game/: expected a permanent redirect to ${url}, got HTTP 200 `]);
  }finally{globalThis.fetch=real;}
+});
+test('the live check waits until production serves the pushed commit',async()=>{
+ const real=globalThis.fetch;let calls=0;
+ globalThis.fetch=async()=>(++calls<3?new Response('abc1234old\n'):new Response('abc1234def\n'));
+ try{
+  await waitForCommit('https://nerulio.example.test/','abc1234def',{everyMs:1,timeoutMs:1000});assert.equal(calls,3);
+  globalThis.fetch=async()=>new Response('',{status:404});
+  await assert.rejects(waitForCommit('https://nerulio.example.test/','abc1234def',{everyMs:1,timeoutMs:5}),/did not finish/);
+ }finally{globalThis.fetch=real;}
+});
+test('every page links the favicon set Google can show next to results (48 px multiples + /favicon.ico)',async()=>{
+ const {existsSync}=await import('node:fs');
+ for(const route of ['','en/','ko/game/','en/game/aseprite-to-godot/','ja/image/compress/','en/about/','en/game/studio/','en/image/editor/']){
+  const page=withIcons(entry(html,route,origin,{}));
+  assert(page.includes(ICON_LINKS),route);assert.equal((page.match(/rel="icon"/g)||[]).length,4,route);
+ }
+ for(const f of ['favicon.ico','favicon-96.png','favicon-192.png','apple-touch-icon.png'])assert(existsSync(new URL('../assets/brand/'+f,import.meta.url)),f);
 });
