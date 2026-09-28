@@ -91,7 +91,7 @@ ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard
  const trending=m.trending.length?html`<section class="box kwb"><b>${s.trending}</b>${m.trending.map(k=>html`<a class="kw" href="/${l}/search/?in=${encodeURIComponent(e.id)}&amp;q=${encodeURIComponent(k)}">${k}</a>`)}</section>`:'';
  const wikiRows=m.panel.wiki(m.data,ctx);
  const links=officialLinks(e.official_urls);
- const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}wiki/history">${s.history}</a></div>${wikiRows}
+ const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${s.history}</a></div>${wikiRows}
 ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;
  const toolIds=(td?.tools||[]).filter(id=>id in TOOL_PATHS);
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';

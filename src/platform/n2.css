@@ -29,6 +29,7 @@
  color-scheme:dark;
 }
 *{box-sizing:border-box}
+.n2 [hidden]{display:none!important}
 body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR','Noto Sans KR',system-ui,-apple-system,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
 .n2 a{color:inherit;text-decoration:none}
 .n2 a:hover{text-decoration:underline}
@@ -293,6 +294,24 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .needlogin{margin:0;padding:10px 12px;background:var(--warn-bg);border-radius:6px;font-size:13px}
 .rules{margin:0;padding:0 0 0 18px;font-size:12.5px;color:var(--mute);line-height:1.6}
 .n2 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* history + status */
+.hist{list-style:none;margin:0;padding:0}
+.hd2{font-size:12.5px;font-weight:800;color:var(--mute);padding:10px 12px 4px;background:var(--bg);border-bottom:1px solid var(--line2)}
+.sthero{display:flex;gap:14px;align-items:center;padding:16px 18px}
+.sthero .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.sthero h1{font-size:20px;letter-spacing:-.3px}
+.sthero.bad{border-color:var(--bad)}.sthero.warn{border-color:var(--gold-line)}
+.sym{flex-wrap:wrap;padding:12px}
+.sym .vb{flex:1 1 110px}
+.hchart{display:block;width:100%;min-width:480px;height:auto;padding:8px 12px 0}
+.hchart .gl{stroke:var(--line2);stroke-width:1}
+.hchart .ax{fill:var(--mute);font-size:11px;font-family:inherit}
+.hchart .b{fill:var(--brand);opacity:.75}.hchart .b.now{opacity:1}
+.hchart .hit{fill:transparent}
+.hchart .bar:hover .b{opacity:1}
+.hchart .base{stroke:var(--mute);stroke-dasharray:4 4;stroke-width:1.5}
+.tm{font-size:12px;color:var(--mute2);width:40px;flex:none;font-variant-numeric:tabular-nums}
 
 /* narrow screens */
 @media (max-width:1000px){

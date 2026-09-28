@@ -229,3 +229,19 @@ export async function entitiesWithFact(db,type,property,value,limit=6){
   WHERE e.type=? AND e.status='active' ORDER BY e.updated_at DESC LIMIT ?`,[property,JSON.stringify(value),type,limit]);
  return rows.map(entityRow);
 }
+
+/* ---------- history and status ---------- */
+
+/** Everything recorded about an entity, newest first, with the source it came from (SteamDB-style
+ * history). Seed rows (importance 0) are included: history pages show all, the Radar does not.
+ * @param {D1} db @param {string} id @param {{limit?:number,before?:number}} [o] */
+export async function historyOf(db,id,o={}){
+ const rows=await all(db,`SELECT c.id,c.entity_id,c.vertical,c.kind,c.property,c.scope,c.old_value,c.new_value,c.summary,c.importance,c.effective_at,c.detected_at,s.url AS source_url,s.title AS source_title,s.kind AS source_kind
+  FROM changes c LEFT JOIN sources s ON s.id=c.source_id WHERE c.entity_id=? AND c.visibility='public' AND c.kind<>'entity_added'${o.before?' AND c.id<?':''} ORDER BY c.effective_at DESC,c.id DESC LIMIT ?`,[id,...(o.before?[o.before]:[]),o.limit??100]);
+ return rows.map(r=>({...r,id:Number(r.id),importance:Number(r.importance),effective_at:Number(r.effective_at),detected_at:Number(r.detected_at)}));
+}
+/** Issue reports (user outage/problem clicks) per hour since `since`. @param {D1} db @param {string[]} ids @param {number} since */
+export async function issueReportsSince(db,ids,since){
+ const rows=await inChunks(db,ids,ph=>`SELECT created_at,env FROM community_reports WHERE kind='issue' AND status='published' AND created_at>=? AND entity_id IN (${ph})`,[since]);
+ return rows.map(r=>({created_at:Number(r.created_at),env:json(r.env,{})}));
+}

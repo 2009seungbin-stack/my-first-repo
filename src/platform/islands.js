@@ -108,6 +108,13 @@ async function main(){
   });});
  }
 
+ for(const box of $$('[data-island="outage-report"]')){
+  $$('button',box).forEach(b=>{b.disabled=false;b.addEventListener('click',async()=>{
+   const r=await write('/reports',{kind:'issue',entityId:box.dataset.entity,result:'broken',env:{symptom:b.dataset.symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn);
+   if(r){toast(T.thanks);b.classList.add('on');}
+  });});
+ }
+
  // Comments and replies
  const form=$('form[data-island="comment-form"]');
  if(form){
@@ -146,7 +153,8 @@ async function main(){
    if(r?.url)location.href=r.url;
   });
   const kindSel=$('select[name="kind"]',wf),rep=$('.repf',wf);
-  const sync=()=>{if(rep)rep.hidden=kindSel.value!=='report';};kindSel?.addEventListener('change',sync);sync();
+  const title=$('input[name="title"]',wf);
+  const sync=()=>{const r=kindSel.value==='report'&&!!rep;if(rep){rep.hidden=!r;for(const el of $$('select,input',rep))el.disabled=!r;}if(title)title.required=!r;};kindSel?.addEventListener('change',sync);sync();
  }
 
  // New posts bar (polls once a minute while the tab is visible)

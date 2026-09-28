@@ -57,5 +57,12 @@ export async function insertDemoContent(db,now){
    ...cs.map(([a,text,cup,parent],i)=>db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,up_count,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').bind(`${id}-c${i}`,id,parent!==undefined?`${id}-c${parent-1}`:null,a,text,cup,created+(i+1)*5*MIN,created+(i+1)*5*MIN))]);
   c+=cs.length;
  }
+ // Sample "is it down?" clicks on Claude: a quiet week and a small bump in the last two hours.
+ if(await exists('service:claude')){
+  const sym=['slow','error','slow','down','limit'],rows=[];
+  for(let i=0;i<40;i++)rows.push(now-DAY-(i*4.1*HOUR)%(6*DAY));
+  for(let i=0;i<9;i++)rows.push(now-(i*13)*MIN);
+  await db.batch(rows.map((at,i)=>db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue','service:claude',?,'broken',?,?,?)").bind(`demo-issue-${i}`,JSON.stringify({symptom:sym[i%sym.length]}),USERS[i%USERS.length][0],at,at)));
+ }
  return {posts:n,comments:c};
 }

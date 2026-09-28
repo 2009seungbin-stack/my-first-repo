@@ -219,7 +219,8 @@ async function report(db,context,body,now,limit,origin){
   .bind(id,body.kind,subject.id,sv,target?.id??null,tv,JSON.stringify(env),result,comment,context.user.id,now,now).run();
  let verdict=null;
  if(body.kind==='compat'&&target)verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;
- // The report is also a post in the target's channel (a game's board for a patch report).
+ // A compat report (or any report with text) is also a post; a bare "it's down" click is only counted.
+ if(body.kind==='issue'&&!comment&&!body.title)return {id,verdict:null,postNo:null,url:null};
  const board=target&&body.kind==='compat'?target:subject;
  const RESULT_KO=/** @type {Record<string,string>} */({works:'작동',works_with_issues:'일부 문제',broken:'안 됨'});
  // "테스트 게임 한글패치 1.7 × 테스트 게임 2.3.1: 작동" — names in Korean, the report language.

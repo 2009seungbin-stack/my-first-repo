@@ -173,3 +173,21 @@ test('facts shown on a channel are the current rows',{skip:!sqliteAvailable},asy
  const f=(await factsFor(d,['gpu:rtx-5070'])).get('gpu:rtx-5070');
  assert(f.find(x=>x.property==='vram_gb'&&x.value===12));
 });
+
+test('status, history and write pages render; status is only for services',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const get=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const st=await get('/ko/ai/claude/status');
+ const html=await st.text();
+ assert(html.includes('지금 Claude 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
+ assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
+ assert.equal(await get('/ko/hardware/rtx-5070/status'),null,'no status page for a GPU');
+ const hist=await (await get('/ko/hardware/rtx-5070/history')).text();
+ assert(hist.includes('변경 기록')&&hist.includes('출처'));
+ const w=await (await get('/ko/games/caves-of-qud/write')).text();
+ assert(w.includes('구조화 리포트')&&w.includes('noindex')&&w.includes('data-island="write-form"'));
+ const w2=await (await get('/ko/ai/claude/write')).text();
+ assert(!w2.includes('구조화 리포트'),'no report form where there is nothing to report on');
+ assert(!w2.includes('value="patch"'),'한글패치 tag only on game channels');
+});
