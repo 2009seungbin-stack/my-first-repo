@@ -22,6 +22,7 @@ import {loadRadar,renderRadar} from '../../platform/render/radar.js';
 import {renderFlag,FLAG_TARGET} from '../../platform/render/flag.js';
 import {renderMod} from '../../platform/render/mod.js';
 import {renderMe} from '../../platform/render/me.js';
+import {loadTransparency,renderTransparency} from '../../platform/render/transparency.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
@@ -32,7 +33,7 @@ import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me))?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency))?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=600';
 /** Channel bar for anonymous readers: the week's most active channels, topped up with featured ones. */
 export const FEATURED=Object.freeze(['service:claude','service:chatgpt','service:gemini-app','service:claude-code','gpu:rtx-5070','app:blender','app:ableton-live']);
@@ -43,7 +44,7 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'best'|'flag'|'mod'|'me'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm',vertical?:string,slug?:string,no?:number|null}} Route */
+/** @typedef {{l:string,page:'front'|'best'|'flag'|'mod'|'me'|'transparency'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm',vertical?:string,slug?:string,no?:number|null}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  const m=ROUTE.exec(pathname);
@@ -51,7 +52,7 @@ export function matchPlatformRoute(pathname){
  const [,l,community,best,report,top,topFeed,vertical,slug,no,sub]=m;
  if(top==='radar'&&topFeed)return {l,page:'radar-feed'};
  if(sub==='feed.xml')return {l,page:'feed',vertical,slug,no:null};
- if(community)return {l,page:best?'best':report==='mod'?'mod':report==='me'?'me':report?'flag':'front'};
+ if(community)return {l,page:best?'best':report==='mod'?'mod':report==='me'?'me':report==='transparency'?'transparency':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
  if(!slug)return {l,page:'hub',vertical};
  return {l,page:no?'post':/** @type {'write'|'history'|'status'|'local-llm'|undefined} */(sub)||'channel',vertical,slug,no:no?Number(no):null};
@@ -108,6 +109,7 @@ export async function renderPlatformPage(request,env,site){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',vertical:q.get('v'),channels:await bar()}),s)));
   case 'flag':return html(String(renderFlag({l,target:q.get('target'),channels:await bar()},s)));
+  case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
   case 'me':return html(String(renderMe({l,channels:await bar()},s)));
   case 'mod':return html(String(renderMod({l,channels:await bar()},s)),'private, no-store');
   case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),channels:await bar()}),s)),'private, no-store');

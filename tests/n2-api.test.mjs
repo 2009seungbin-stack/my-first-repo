@@ -199,3 +199,15 @@ test('moderation: queue is hidden from members; hide = 임시조치 with a logge
  await h.signIn('b');
  assert.equal((await h.call('POST','/mod/action',{as:'b',body:{target:'user:u-mod',action:'restrict',reason:'보복'}})).status,404,'members cannot moderate');
 });
+
+test('transparency page shows monthly aggregates only',{skip},async()=>{
+ const h=await harness();await h.signIn('a');await h.signIn('mod');
+ h.db.raw.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('u-mod','운영자1','moderator',0,0)").run();
+ const p=(await h.call('POST','/posts',{as:'a',body:{entityId:'game:steam-1',kind:'free',title:'비밀 제목',body:'x'}})).json;
+ await h.call('POST','/flags',{as:'a',body:{target:`discussion:${p.id}`,reason:'spam'}});
+ await h.call('POST','/mod/action',{as:'mod',body:{target:`discussion:${p.id}`,action:'hide',reason:'도배'}});
+ const {loadTransparency,renderTransparency}=await import('../platform/render/transparency.js');
+ const out=String(renderTransparency(await loadTransparency(h.db,{l:'ko',now:T0+1000}),{origin:ORIGIN}));
+ assert(out.includes('2026-09')&&out.includes('임시조치(숨김)'));
+ assert(!out.includes('비밀 제목')&&!out.includes(p.id)&&!out.includes('운영자1'),'no targets or moderators');
+});
