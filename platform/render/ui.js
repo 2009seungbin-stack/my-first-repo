@@ -107,7 +107,7 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 ${o.channels.map(c=>html`<a href="${c.href}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}
 </div></nav>
 <div class="w pg" id="main">${o.body}</div>
-<footer class="ft"><div class="w"><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a></div></footer>
+<footer class="ft"><div class="w"><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a> · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a></div></footer>
 </body>
 </html>`;
 }

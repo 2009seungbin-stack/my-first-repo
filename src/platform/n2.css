@@ -347,6 +347,8 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .rows li.vtl{flex-direction:column;align-items:flex-start;gap:2px}
 .rows li.vtl .tt{flex:none}
 
+.pol ul,.pol ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;line-height:1.6;font-size:14px}
+
 /* narrow screens */
 @media (max-width:1000px){
  .cols,.front{grid-template-columns:minmax(0,1fr)}

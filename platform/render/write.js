@@ -42,7 +42,7 @@ export function renderWrite(m,site){
 ${rep}
 <label>${ko?'제목':'Title'}<input name="title" maxlength="${LIMITS.title[1]}" minlength="${LIMITS.title[0]}" required autocomplete="off"></label>
 <label>${ko?'본문':'Body'}<textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ko?'마크다운 일부 지원: **굵게**, `코드`, 목록, 링크. 이미지 업로드는 준비 중입니다.':'Markdown: **bold**, `code`, lists, links.'}"></textarea></label>
-<ul class="rules"><li>${ko?'공식 정보는 출처 링크와 함께 적어 주세요. 공식 수치는 위키 값이 우선합니다.':'Link sources for official information.'}</li><li>${ko?`${s.bestRule}`:s.bestRule}</li><li>${ko?'욕설·도배·불법 파일 공유는 숨김 처리됩니다.':'Abuse, spam and illegal file sharing are hidden.'}</li></ul>
+<ul class="rules"><li><a href="/${l}/community/policy">${ko?'게시판 운영정책':'Community rules'}</a></li><li>${ko?'공식 정보는 출처 링크와 함께 적어 주세요. 공식 수치는 위키 값이 우선합니다.':'Link sources for official information.'}</li><li>${ko?`${s.bestRule}`:s.bestRule}</li><li>${ko?'욕설·도배·불법 파일 공유는 숨김 처리됩니다.':'Abuse, spam and illegal file sharing are hidden.'}</li></ul>
 <div class="acts"><a class="btn" href="${base}">${ko?'취소':'Cancel'}</a><button class="btn p" type="submit" data-label="${ko?'등록':'Post'}">${ko?'등록':'Post'}</button></div>
 </form></section>`;
  return page({l,title:ko?`글쓰기 - ${name} 채널 | Nerulio`:`Write - ${name} | Nerulio`,description:ko?`${name} 채널에 글을 씁니다.`:`Write a post in ${name}.`,canonical:site.origin+base+'write',noindex:true,

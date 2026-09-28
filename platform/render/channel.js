@@ -13,7 +13,7 @@ import {panelFor} from './panels/index.js';
 import {POST_KINDS,writableKinds,channelBestThreshold,BEST_RULE} from '../community.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
 import {label} from '../labels.js';
-import {TZ} from './format.js';
+import {TZ,dateText} from './format.js';
 
 export const PAGE_SIZE=30;
 /** Start of the reader's day in ms (Korea time for ko). @param {number} now @param {string} l */
@@ -96,7 +96,8 @@ ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard
  const trending=m.trending.length?html`<section class="box kwb"><b>${s.trending}</b>${m.trending.map(k=>html`<a class="kw" href="/${l}/search/?in=${encodeURIComponent(e.id)}&amp;q=${encodeURIComponent(k)}">${k}</a>`)}</section>`:'';
  const wikiRows=m.panel.wiki(m.data,ctx);
  const links=officialLinks(e.official_urls);
- const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${s.history}</a></div>${wikiRows}
+ const lastSeen=Math.max(0,...ctx.facts.map(f=>f.observed_at||0));
+ const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${lastSeen?html`<span>${l==='ko'?`${dateText(lastSeen,'day',l).slice(5)} 확인`:`checked ${dateText(lastSeen,'day',l)}`}</span> · `:''}${s.history}</a></div>${wikiRows}
 ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;
  const toolIds=(ENTITY_TOOLS[e.id]||(e.type==='game'?[]:td?.tools||[])).filter(id=>id in TOOL_PATHS);
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';

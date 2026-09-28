@@ -304,3 +304,13 @@ test('works hub shows this week\'s broadcasts by weekday in Korea time',{skip:!s
  const html=await (await renderPlatformPage(new Request('https://nerulio.com/ko/subculture/?type=work'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  assert(html.includes('이번 주 방영·공개 시간표 (한국 시간)')&&(html.match(/<li( class="today")?><h3>/g)||[]).length===7);
 });
+
+test('community rules page and the wiki box\'s last-checked date',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const go=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const pol=await go('/ko/community/policy');
+ assert(pol.includes('게시판 운영정책')&&pol.includes('임시조치')&&pol.includes('한글패치·유료 소프트웨어 파일 자체'));
+ const ch=await go('/ko/hardware/rtx-5070/');
+ assert(/\d\d\.\d\d 확인<\/span> · 기록/.test(ch),'last-checked date next to the history link');
+ assert(ch.includes('href="/ko/community/policy"'),'footer links the rules');
+});
