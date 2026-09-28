@@ -308,3 +308,10 @@ export async function sitemapEntities(db,vertical){
  return rows.map(r=>({id:String(r.id),vertical:String(r.vertical),type:String(r.type),slug:String(r.slug),names:json(r.names,{}),descriptions:json(r.descriptions,{}),index_state:String(r.index_state||'auto'),
   lastmod:Math.max(Number(r.updated_at)||0,Number(r.active_at)||0),facts:Number(r.facts),relations:Number(r.relations),posts:Number(r.posts)}));
 }
+
+/** Every row (current and closed) of some properties of an entity, oldest first: price history.
+ * @param {D1} db @param {string} id @param {string[]} props */
+export async function factHistory(db,id,props){
+ const rows=await all(db,`SELECT property,value,unit,region,plan,verification,valid_from,valid_until,is_current,source_id FROM facts WHERE entity_id=? AND property IN (${qs(props.length)}) ORDER BY valid_from,id`,[id,...props]);
+ return rows.map(r=>({property:String(r.property),value:json(r.value,null),unit:r.unit??null,region:String(r.region),plan:String(r.plan),verification:String(r.verification),valid_from:Number(r.valid_from),valid_until:r.valid_until===null?null:Number(r.valid_until),current:!!r.is_current}));
+}

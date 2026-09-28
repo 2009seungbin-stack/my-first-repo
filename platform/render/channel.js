@@ -8,6 +8,7 @@ import {page,box,nameOf,channelUrl,postUrl,postRow,monogram,TILE,officialLinks,s
 import {compact} from './format.js';
 import {factsFor,channelPosts,channelStats,recentTitles,contentCounts,SORTS} from '../db/channel.js';
 import {indexable} from '../seo.js';
+import {channelJsonLd} from './jsonld.js';
 import {panelFor} from './panels/index.js';
 import {POST_KINDS,writableKinds} from '../community.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
@@ -96,7 +97,7 @@ ${rows.length?'':html`<p class="empty">${m.kind||m.best?s.emptyKind:s.emptyBoard
  const links=officialLinks(e.official_urls);
  const wiki=html`<section class="box wiki"><div class="bh wbh"><h2>${s.wiki(name)}</h2><a class="x" href="${base}history">${s.history}</a></div>${wikiRows}
 ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}</div>`:''}</section>`;
- const toolIds=(td?.tools||[]).filter(id=>id in TOOL_PATHS);
+ const toolIds=(ENTITY_TOOLS[e.id]||(e.type==='game'?[]:td?.tools||[])).filter(id=>id in TOOL_PATHS);
  const tools=toolIds.length?box({title:s.toolsBox},html`<ul class="rows">${toolIds.map(id=>html`<li><a class="tt" href="/${l}/${TOOL_PATHS[id]||id}/">${TOOL_NAMES[id]?.[/** @type {'ko'|'en'} */(l)]||id}</a></li>`)}</ul>`):'';
  const body=html`${header}<div class="cols"><main class="mainc">${m.panel.top(m.data,ctx)}${trending}${boardBox}</main><aside class="side">${wiki}${m.panel.side?.(m.data,ctx)}${tools}</aside></div>`;
  const title=l==='ko'?`${name} 채널 — 소식·정보·커뮤니티 | Nerulio`:`${name} — news, facts and community | Nerulio`;
@@ -105,8 +106,10 @@ ${links.length?html`<div class="links"><h3 class="wh">${s.official}</h3>${links}
  const canonical=site.origin+(m.kind||m.sort!=='new'||m.best||m.page>1?q({}):base);
  return page({l,title,description,canonical,alternates:{[l]:site.origin+base,[other]:site.origin+channelUrl(other,e),'x-default':site.origin+channelUrl('en',e)},
   noindex:!!(m.kind||m.sort!=='new'||m.best||m.page>1)||!m.index,channels:m.channels.map(c=>({...c,on:c.href===base})),scope:{name,id:e.id},body,
-  jsonld:{'@context':'https://schema.org','@type':'CollectionPage',name:title,url:site.origin+base,about:{'@type':'Thing',name}}});
+  jsonld:channelJsonLd(e,ctx.facts,l,site.origin+base,site.origin)});
 }
+/** Channels whose readers make things with Nerulio's game-asset tools. */
+const ENTITY_TOOLS=/** @type {Record<string,string[]>} */({'app:godot':['sprite-lab','tile-lab','pixel-lab','ui-lab'],'app:blender':['texture-lab'],'app:unity':['sprite-lab','texture-lab','ui-lab'],'app:aseprite':['pixel-lab','sprite-lab']});
 /** Tool ids used in vertical configs → existing tool pages (ids without a page yet are not linked). */
 const TOOL_PATHS=/** @type {Record<string,string>} */({'sprite-lab':'game/sprite-lab','pixel-lab':'game/pixel-lab','tile-lab':'game/tile-lab','texture-lab':'game/texture-lab','ui-lab':'game/ui-lab'});
 const TOOL_NAMES=/** @type {Record<string,{ko:string,en:string}>} */({'vram-fit':{ko:'VRAM 계산기',en:'VRAM calculator'},'sprite-lab':{ko:'스프라이트 랩',en:'Sprite Lab'},'pixel-lab':{ko:'픽셀 랩',en:'Pixel Lab'},'tile-lab':{ko:'타일 랩',en:'Tile Lab'},'texture-lab':{ko:'텍스처 랩',en:'Texture Lab'},'ui-lab':{ko:'UI 랩',en:'UI Lab'}});

@@ -237,3 +237,15 @@ test('per-page queries use indexes (D1 bills rows read)',{skip:!sqliteAvailable}
   ['releases','SELECT * FROM versions WHERE released_at BETWEEN ? AND ?',[0,1]],
  ]){const p=plan(sql,...params);assert(!/\bSCAN (d|discussions|entity_aliases|versions)\b/.test(p),`${name}: ${p}`);}
 });
+
+test('model channels: official API price, price history area, local-run estimate for open weights; typed structured data',{skip:!sqliteAvailable},async()=>{
+ const a=await channel('ai','claude-opus-5-5');
+ assert.equal(a.m.panel.id,'model');
+ assert(a.out.includes('API 가격')&&a.out.includes('$4')&&a.out.includes('가격 변경 이력'));
+ assert(!a.out.includes('로컬에서 돌리려면'),'closed models have no local-run box');
+ const g=await channel('ai','gemma-4-12b');
+ assert(g.out.includes('로컬에서 돌리려면')&&g.out.includes('12GB 카드부터'));
+ const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec((await channel('games','caves-of-qud')).out)[1]);
+ assert.equal(ld['@graph'][0].about['@type'],'VideoGame');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
+ assert(!(await channel('games','caves-of-qud')).out.includes('스프라이트 랩'),'game-asset tools are not linked from every game');
+});

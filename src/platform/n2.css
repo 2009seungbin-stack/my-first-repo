@@ -318,6 +318,11 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .sform input[type=search]{flex:1;min-width:0;font:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
 .rh{flex-direction:column;align-items:flex-start}
 
+.alertbox{padding:10px 14px;background:var(--warn-bg);border-color:var(--gold-line);font-size:14px}
+.specs{display:flex;flex-wrap:wrap;gap:8px 28px;padding:12px 16px}
+.spec{display:flex;flex-direction:column;gap:2px;font-size:15px}
+.spec code{font-size:13px;background:var(--bg);padding:1px 6px;border-radius:4px}
+
 /* narrow screens */
 @media (max-width:1000px){
  .cols,.front{grid-template-columns:minmax(0,1fr)}
