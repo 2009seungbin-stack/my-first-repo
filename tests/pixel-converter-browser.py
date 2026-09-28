@@ -40,6 +40,8 @@ with sync_playwright() as pw:
         p.on('request',lambda r:outside.append(r.url) if not r.url.startswith(BASE) and not r.url.startswith('blob:') and not r.url.startswith('data:') else None)
         p.goto(BASE+f'/{locale}/game/studio/?ws=pixel&mode=convert')
         ready(p)
+        if locale=='en':
+            check('Studio palette presets do not load the task-home intake',not p.evaluate('()=>performance.getEntriesByType("resource").some(r=>r.name.includes("/src/task/home.js"))'))
         p.set_input_files('input[type=file][multiple]',str(FIX))
         p.wait_for_function('()=>window.nerulioStudio.doc.assets.length>0',timeout=20000)
         p.evaluate("()=>window.nerulioStudio.runCommand('pixel.cleanup')")

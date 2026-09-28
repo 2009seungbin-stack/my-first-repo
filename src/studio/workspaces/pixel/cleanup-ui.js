@@ -10,7 +10,7 @@ import * as PD from '../../pixel/pixel-doc.js';
 import {DEFAULTS} from '../../pixel/cleanup.js';
 import {indicesFromRGBA,hex,parseHex} from '../../pixel/indexed.js';
 import {encodeIndexedPNG} from '../../pixel/png8.js';
-import {PALETTES} from '../../../task/pixel.js';
+import {PALETTES} from '../../../pixel-palettes.js';
 import {rgbaGetter,storeRGBA} from '../../sprite/frame-render.js';
 import {composeFrame,composeCanvas} from '../../sprite/frame-image.js';
 import {animatedAsset,stem} from '../../sprite/import-build.js';
