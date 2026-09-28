@@ -46,6 +46,9 @@ export const SOURCE_HOSTS=new Set([
  'rpgmakerofficial.com', // RPG Maker MZ official help (Gotcha Gotcha Games): Asset Standards
 
  'spec.lottiefiles.com',
+ 'tech.ebu.ch', // EBU R 95, the broadcast safe-area recommendation (ui group)
+ 'www.angelcode.com', // BMFont, the owner of the .fnt format (ui group)
+ 'www.gnu.org', // GNU gettext manual, the owner of the .po format (ui group)
  'support.apple.com',
  'support.discord.com',
  'support.google.com',
