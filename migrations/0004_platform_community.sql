@@ -126,24 +126,43 @@ CREATE TABLE wiki_pages (
   PRIMARY KEY (entity_id, section, locale)
 ) WITHOUT ROWID;
 
+-- Channel posts. Every entity is a channel (게시판); a post is a discussion attached to it.
+-- post_no is the per-channel number shown in lists. Radar changes become 'news' posts by the
+-- system user 'system:radar-bot' (change_id); structured reports link their report row.
 CREATE TABLE discussions (
   id TEXT PRIMARY KEY,
   entity_id TEXT NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
-  kind TEXT NOT NULL CHECK (kind IN ('question','discussion','guide','issue','benchmark')),
+  post_no INTEGER NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('notice','news','report','patch','question','guide','benchmark','screenshot','free')),
   title TEXT NOT NULL,
   body_md TEXT NOT NULL,
   locale TEXT NOT NULL,
   author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  change_id INTEGER REFERENCES changes(id) ON DELETE SET NULL,
+  report_id TEXT REFERENCES community_reports(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published','hidden','deleted','locked')),
-  score INTEGER NOT NULL DEFAULT 0,
+  pinned INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0,1)),
+  up_count INTEGER NOT NULL DEFAULT 0,
+  down_count INTEGER NOT NULL DEFAULT 0,
+  view_count INTEGER NOT NULL DEFAULT 0,
   comment_count INTEGER NOT NULL DEFAULT 0,
+  has_image INTEGER NOT NULL DEFAULT 0 CHECK (has_image IN (0,1)),
+  best_at INTEGER,                           -- set when the post reached ★ best (념글)
   solved_comment_id TEXT,
   created_at INTEGER NOT NULL,
+  edited_at INTEGER,
   updated_at INTEGER NOT NULL,
-  last_activity_at INTEGER NOT NULL
+  last_activity_at INTEGER NOT NULL,
+  UNIQUE (entity_id, post_no)
 );
-CREATE INDEX discussions_entity ON discussions (entity_id, status, last_activity_at);
+CREATE INDEX discussions_entity ON discussions (entity_id, status, post_no);
+CREATE INDEX discussions_entity_kind ON discussions (entity_id, kind, status, post_no);
 CREATE INDEX discussions_feed ON discussions (status, last_activity_at);
+CREATE INDEX discussions_best ON discussions (best_at) WHERE best_at IS NOT NULL;
+CREATE UNIQUE INDEX discussions_change ON discussions (change_id) WHERE change_id IS NOT NULL;
+
+-- The author of Radar news posts.
+INSERT INTO users (id, email, display_name, provider, provider_subject, created_at) VALUES ('system:radar-bot', NULL, 'Radar bot', 'system', 'radar-bot', 0);
 
 CREATE TABLE comments (
   id TEXT PRIMARY KEY,
@@ -152,8 +171,10 @@ CREATE TABLE comments (
   author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   body_md TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published','hidden','deleted')),
-  score INTEGER NOT NULL DEFAULT 0,
+  up_count INTEGER NOT NULL DEFAULT 0,
+  down_count INTEGER NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL,
+  edited_at INTEGER,
   updated_at INTEGER NOT NULL
 );
 CREATE INDEX comments_discussion ON comments (discussion_id, created_at);
