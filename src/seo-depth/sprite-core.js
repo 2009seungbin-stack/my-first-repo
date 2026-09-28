@@ -464,5 +464,365 @@ export default {
    limits:['これはプレーヤーです。ピクセルの修正はピクセル作業画面で行います。','アニメーションごとにFPSが1つのエンジン（Defold、GameMaker）は、1つのタグ内の異なる長さを再現できず、書き出しの注記がそれを知らせます。'],
    versions:{body:['GIFのデコードは実在のGIF 29件・408フレームすべて、APNGは16ファイル（dispose・blendの全組み合わせ）・132フレームすべてでPillowと一致しました。GIFのディレイの単位とdisposalはGIF89a仕様に従います。'],sources:[S.gif,S.aseTags]}
   }
+ },
+ // ------------------------------------------------------------------ game/sprite-pivot-editor
+ 'game/sprite-pivot-editor':{
+  type:'create',
+  intent:{primary:'set a sprite pivot (origin, anchor) per frame and get it into the engine',secondary:['pivot units per engine','per-frame pivots vs one node offset','pivots of trimmed frames'],
+   goal:'the pivot sits on the same spot of the character in the engine, for every frame and after trimming',input:'imported frames (sheet, frames, GIF, .aseprite)',output:'the pivot written in each target\'s own field',support:'partial',
+   evidence:['src/game/export/godot.js (offset = −first pivot, notes)','src/game/export/unity.js (pivot normalised in the rect, y up)','src/game/export/atlas-json.js (Phaser pivot, Pixi anchor, Aseprite pivot slice)','src/game/export/engines.js (LÖVE px/py, Starling pivotX/Y, GameMaker pivotCell)','docs/ENGINE-VERIFY.md frames.anchor (Unity)'],
+   external:['Unity 6 Sprite Editor Pivot / Pivot Unit Mode','Godot AnimatedSprite2D offset, centered','Phaser 3.90 source: JSONHash pivot, AnimationState setOrigin','PixiJS AnimatedSprite.updateAnchor, Texture.defaultAnchor','GameMaker sprite origin']},
+  en:{
+   answer:'A pivot (also called origin or anchor) is the point of a frame that sits on the game object\'s position: rotation turns around it, and frames of different sizes line up on it. In Nerulio you click it onto the pixel grid (P) for one frame, the selection, a tag or every frame; it is stored as 0–1 of the frame canvas and written into each engine\'s own field on export. Unity, Phaser and PixiJS can follow a pivot per frame; a Godot node has one offset, so the table below says what each target really gets.',
+   concept:{title:'One pivot value, many engine conventions',body:[
+    'Engines count pivots differently. Unity measures a sprite\'s pivot from the bottom-left of that sprite\'s rect, as 0–1 (Normalized) or in pixels. Phaser and PixiJS use 0–1 of the frame with y pointing down. Godot\'s AnimatedSprite2D has no pivot at all, only a drawing offset in pixels for the whole node. Nerulio keeps one value, 0–1 of the frame canvas with y down (bottom-centre 0.5, 1.0 unless you set it), and converts it per target, so a pivot set once survives trimming, packing and a change of engine.',
+    'Per-frame pivots matter when frames differ in size or are trimmed. The Godot scene therefore uses the first frame\'s pivot as the node offset, keeps every frame\'s pivot in the resource metadata, and warns when one animation has differing pivots. The robust setup for any engine is frames on one canvas and one pivot per tag at the feet.',
+    'The pivot tool snaps to whole pixels, and pivots travel with the art when frames are aligned, mirrored or fixed for jitter.'],
+    terms:[['Pivot / origin / anchor','The point of a frame placed on the object\'s position; the name depends on the engine.'],['Normalized pivot','0–1 across the frame or sprite rect; Unity counts y from the bottom, Phaser and PixiJS from the top.'],['Node offset (Godot)','Pixels by which an AnimatedSprite2D draws its texture away from the node origin; one value for every frame.']]},
+   example:{title:'Example: one pivot, written for five engines',lead:'A 48 × 64 frame canvas with the pivot at bottom-centre. The packer trims a standing frame to 20 × 30 at (14, 34) and a jumping frame to 20 × 30 at (14, 20).',lines:[
+    'Nerulio           pivot (0.5, 1.0) of 48 × 64   → pixel (24, 64)',
+    'Godot .tscn       centered = false, offset = (−24, −64)',
+    'Phaser / PixiJS   pivot / anchor (0.5, 1.0) of the 48 × 64 source frame',
+    'LÖVE              px = 24, py = 64',
+    'Unity, stand      ((24 − 14) ÷ 20, (30 − (64 − 34)) ÷ 30) = (0.5, 0.0)',
+    'Unity, jump       ((24 − 14) ÷ 20, (30 − (64 − 20)) ÷ 30) = (0.5, −0.467)'],
+    after:'The jump frame\'s Unity pivot lies below its own rect; that is exactly what keeps the feet on the same spot. Why trimming moves pivots is explained on [[game/sprite-jitter-after-trim|sprite jitter after trimming]].'},
+   mapping:{title:'What each target receives',head:['Target','What Nerulio writes','What the engine does with it'],rows:[
+    ['Godot 4','Scene: `centered = false`, `offset` = −pivot of the first frame of the first animation; every frame\'s pivot in `metadata/nerulio`','AnimatedSprite2D draws every frame with that one offset; per-frame pivots need your own script'],
+    ['Unity 6','A custom pivot per sprite, 0–1 inside the sprite rect with y up (outside 0–1 for some trimmed frames)','Each sprite keeps its own pivot, so a clip changes pivot with the frame (read back in Unity 6000.5.3f1)'],
+    ['Phaser 3 / 4','`pivot` {x, y} per frame in the atlas JSON','Phaser 3.90 marks it as the frame\'s custom pivot and calls setOrigin with it on every frame change, animation frames included'],
+    ['PixiJS 8','`anchor` {x, y} per frame','It becomes the texture\'s default anchor: a Sprite takes it when created; an AnimatedSprite follows it per frame only with `updateAnchor = true`'],
+    ['Aseprite JSON, .aseprite','A `pivot` slice keyed on the frames where the pivot changes','Aseprite shows a slice with a pivot point'],
+    ['LÖVE 11','`px`, `py` in the Lua frame table','The shipped `nerulio_atlas.lua` draws each frame with its pivot on (x, y)'],
+    ['GameMaker','One strip per tag with every pivot on one point; that point is the origin in `gamemaker.json` and the README','Type it as the sprite\'s Origin in the Sprite Editor (UNVERIFIED in GameMaker)'],
+    ['Defold, Spine / libGDX, CSS','No pivot','Set it in the engine']],
+    note:'Starling / Sparrow XML also gets `pivotX` and `pivotY` in pixels; whether a reader uses them depends on that reader.'},
+   verify:{steps:[
+    'Turn on onion skin (F3) and step through the tag: the pivot cross should stay on the same spot of the body.',
+    'Godot: read the export notes (they warn about differing pivots) and `print($Hero.sprite_frames.get_meta("nerulio"))` for every frame\'s pivot.',
+    'Unity: open the texture in the Sprite Editor; each sprite\'s Pivot is Custom with the normalized value from the example.',
+    'Phaser: after `sprite.play(\'run\')`, `sprite.originX` and `sprite.originY` equal the current frame\'s pivot.']},
+   trouble:{rows:[
+    ['The Godot character jumps between animations','The node has one offset, taken from the first frame of the first animation, and other animations use other pivots','The Godot export notes; compare pivots in `metadata/nerulio`','Give all tags of the character one pivot, or set `offset` from the metadata in a script when the animation changes'],
+    ['A PixiJS AnimatedSprite ignores per-frame pivots','`updateAnchor` is false by default, so the anchor of the first texture stays','Log `sprite.updateAnchor`','Set `updateAnchor = true`, or keep one pivot for the tag'],
+    ['Unity pivots below 0 or above 1','The frame was trimmed and the full-canvas pivot lies outside the smaller rect','Sprite Editor: the Custom Pivot value','Nothing to fix: it keeps the art aligned. Pack with trim off if a tool demands 0–1']]},
+   alternatives:{rows:[
+    ['Set the pivot in the engine (Unity Sprite Editor Pivot, GameMaker Origin, Godot node offset)','One sprite with one pivot that you rarely re-export.'],
+    ['Pivot slices in Aseprite','You keep pivots in the .aseprite source; Nerulio reads a pivot slice on import and writes it back to .aseprite and Aseprite JSON.']]},
+   limits:['Godot gets one pivot per node, not per frame, unless you script it.','Defold, Spine / libGDX and CSS exports carry no pivot.','GameMaker origins are UNVERIFIED in GameMaker itself.'],
+   versions:{body:['Unity 6000.5.3f1 read back every sprite\'s pivot and it put the art where it was relative to one common anchor. Godot 4.7.2 loaded the scene with its offset. What Phaser and PixiJS do with the pivot comes from the Phaser 3.90 source and the PixiJS 8 documentation, not from a Nerulio run.'],sources:[S.unityEditor,S.godotAnim,S.phaserJson,S.phaserAnim,S.pixiAnim,S.pixiTex,S.aseSlices,S.gmSprites]}
+  },
+  ko:{
+   answer:'피벗(오리진, 앵커라고도 함)은 게임 오브젝트의 위치에 놓이는 프레임의 점입니다. 회전은 이 점을 중심으로 돌고, 크기가 다른 프레임은 이 점에서 맞춰집니다. Nerulio에서는 한 프레임, 선택, 태그, 전체 프레임을 대상으로 픽셀 격자 위를 클릭(P)해 정하고, 프레임 캔버스 기준 0~1로 저장했다가 내보낼 때 엔진마다의 필드로 씁니다. Unity, Phaser, PixiJS는 프레임별 피벗을 따를 수 있지만 Godot 노드는 오프셋이 하나뿐이므로, 대상마다 실제로 무엇을 받는지 아래 표에 정리했습니다.',
+   concept:{title:'피벗 값은 하나, 엔진 규칙은 여럿',body:[
+    '엔진마다 피벗을 세는 방식이 다릅니다. Unity는 스프라이트 사각형의 왼쪽 아래에서 0~1(Normalized) 또는 픽셀로 잽니다. Phaser와 PixiJS는 y가 아래로 가는 프레임 기준 0~1입니다. Godot의 AnimatedSprite2D에는 피벗이 없고 노드 전체에 대한 픽셀 단위 그리기 오프셋만 있습니다. Nerulio는 값 하나(프레임 캔버스 기준 0~1, y는 아래 방향, 따로 정하지 않으면 아래 가운데 0.5, 1.0)만 저장하고 대상마다 변환하므로, 한 번 정한 피벗이 트림·패킹·엔진 변경 뒤에도 유지됩니다.',
+    '프레임 크기가 다르거나 트림되면 프레임별 피벗이 중요해집니다. 그래서 Godot 씬은 첫 프레임의 피벗을 노드 오프셋으로 쓰고, 모든 프레임의 피벗을 리소스 메타데이터에 남기며, 한 애니메이션 안에서 피벗이 다르면 경고합니다. 어느 엔진에서든 튼튼한 구성은 프레임을 한 캔버스에 두고 태그마다 발에 피벗 하나를 두는 것입니다.',
+    '피벗 도구는 정수 픽셀에 맞춰지고, 프레임을 정렬·반전·흔들림 보정할 때 그림과 함께 움직입니다.'],
+    terms:[['피벗 / 오리진 / 앵커','오브젝트 위치에 놓이는 프레임의 점. 엔진에 따라 이름이 다릅니다.'],['정규화 피벗','프레임이나 스프라이트 사각형 기준 0~1. Unity는 y를 아래에서, Phaser와 PixiJS는 위에서 셉니다.'],['노드 오프셋(Godot)','AnimatedSprite2D가 텍스처를 노드 원점에서 떨어뜨려 그리는 픽셀 값. 모든 프레임에 하나.']]},
+   example:{title:'예시: 피벗 하나를 엔진 다섯 곳에 쓰기',lead:'48 × 64 프레임 캔버스, 피벗은 아래 가운데. 패커가 서 있는 프레임을 (14, 34)의 20 × 30으로, 점프 프레임을 (14, 20)의 20 × 30으로 트림합니다.',lines:[
+    'Nerulio           피벗 (0.5, 1.0), 48 × 64 기준  → 픽셀 (24, 64)',
+    'Godot .tscn       centered = false, offset = (−24, −64)',
+    'Phaser / PixiJS   pivot / anchor (0.5, 1.0), 48 × 64 원본 프레임 기준',
+    'LÖVE              px = 24, py = 64',
+    'Unity, 서기       ((24 − 14) ÷ 20, (30 − (64 − 34)) ÷ 30) = (0.5, 0.0)',
+    'Unity, 점프       ((24 − 14) ÷ 20, (30 − (64 − 20)) ÷ 30) = (0.5, −0.467)'],
+    after:'점프 프레임의 Unity 피벗은 자기 사각형보다 아래에 있습니다. 바로 그 덕분에 발이 같은 자리에 머뭅니다. 트림이 피벗을 옮기는 이유는 [[game/sprite-jitter-after-trim|트림 후 스프라이트 흔들림]]에서 설명합니다.'},
+   mapping:{title:'대상마다 받는 것',head:['대상','Nerulio가 쓰는 것','엔진이 하는 일'],rows:[
+    ['Godot 4','씬: `centered = false`, `offset` = 첫 애니메이션 첫 프레임의 −피벗. 모든 프레임의 피벗은 `metadata/nerulio`','AnimatedSprite2D는 모든 프레임을 그 오프셋 하나로 그림. 프레임별 피벗은 직접 스크립트 필요'],
+    ['Unity 6','스프라이트마다 사용자 피벗, 스프라이트 사각형 기준 0~1, y는 위 방향(트림된 프레임은 0~1 밖일 수 있음)','스프라이트마다 피벗을 가지므로 클립이 프레임과 함께 피벗을 바꿈(Unity 6000.5.3f1에서 다시 읽어 확인)'],
+    ['Phaser 3 / 4','아틀라스 JSON의 프레임별 `pivot` {x, y}','Phaser 3.90은 프레임의 사용자 피벗으로 표시하고, 애니메이션 프레임을 포함해 프레임이 바뀔 때마다 setOrigin을 호출'],
+    ['PixiJS 8','프레임별 `anchor` {x, y}','텍스처의 기본 앵커가 됨. Sprite는 만들 때 가져가고, AnimatedSprite는 `updateAnchor = true`일 때만 프레임마다 따름'],
+    ['Aseprite JSON, .aseprite','피벗이 바뀌는 프레임에 키가 있는 `pivot` 슬라이스','Aseprite에서 피벗 점이 있는 슬라이스로 보임'],
+    ['LÖVE 11','Lua 프레임 표의 `px`, `py`','함께 온 `nerulio_atlas.lua`가 각 프레임의 피벗을 (x, y)에 맞춰 그림'],
+    ['GameMaker','태그마다 스트립 하나, 모든 피벗을 한 점에 맞춤. 그 점이 `gamemaker.json`과 README의 오리진','Sprite Editor에서 스프라이트의 Origin으로 입력(GameMaker에서는 UNVERIFIED)'],
+    ['Defold, Spine / libGDX, CSS','피벗 없음','엔진에서 설정']],
+    note:'Starling / Sparrow XML에도 픽셀 단위 `pivotX`, `pivotY`가 들어가지만, 쓰는지는 읽는 쪽에 달려 있습니다.'},
+   verify:{steps:[
+    '어니언 스킨(F3)을 켜고 태그를 넘겨 봅니다. 피벗 십자가 몸의 같은 자리에 머물러야 합니다.',
+    'Godot: 내보내기 안내(피벗 불일치 경고)를 읽고, `print($Hero.sprite_frames.get_meta("nerulio"))`로 프레임마다의 피벗을 봅니다.',
+    'Unity: Sprite Editor에서 텍스처를 열면 스프라이트마다 Pivot이 Custom이고 값은 예시의 정규화 값입니다.',
+    'Phaser: `sprite.play(\'run\')` 뒤에 `sprite.originX`, `sprite.originY`가 현재 프레임의 피벗과 같습니다.']},
+   trouble:{rows:[
+    ['Godot에서 애니메이션이 바뀔 때 캐릭터가 튐','노드 오프셋은 첫 애니메이션 첫 프레임에서 온 하나뿐인데 다른 애니메이션은 피벗이 다름','Godot 내보내기 안내, `metadata/nerulio`의 피벗 비교','캐릭터의 모든 태그에 피벗 하나를 쓰거나, 애니메이션이 바뀔 때 스크립트로 메타데이터에서 `offset`을 설정'],
+    ['PixiJS AnimatedSprite가 프레임별 피벗을 무시함','`updateAnchor`가 기본값 false라 첫 텍스처의 앵커가 유지됨','`sprite.updateAnchor` 값을 출력','`updateAnchor = true`로 두거나 태그에 피벗 하나만 쓰기'],
+    ['Unity 피벗이 0보다 작거나 1보다 큼','트림된 프레임이라 전체 캔버스 기준 피벗이 작아진 사각형 밖에 있음','Sprite Editor의 Custom Pivot 값','고칠 필요 없음. 그래야 그림이 맞춰짐. 0~1이 꼭 필요한 도구라면 트림을 끄고 패킹']]},
+   alternatives:{rows:[
+    ['엔진에서 피벗 설정(Unity Sprite Editor Pivot, GameMaker Origin, Godot 노드 오프셋)','피벗이 하나뿐인 스프라이트를 거의 다시 내보내지 않을 때.'],
+    ['Aseprite의 피벗 슬라이스','피벗을 .aseprite 원본에 두고 싶을 때. Nerulio는 가져올 때 피벗 슬라이스를 읽고 .aseprite와 Aseprite JSON에 다시 씁니다.']]},
+   limits:['Godot는 스크립트를 쓰지 않는 한 프레임별이 아니라 노드마다 피벗 하나를 받습니다.','Defold, Spine / libGDX, CSS 내보내기에는 피벗이 없습니다.','GameMaker 오리진은 GameMaker 자체에서 UNVERIFIED입니다.'],
+   versions:{body:['Unity 6000.5.3f1이 모든 스프라이트의 피벗을 다시 읽었고, 공통 기준점에 대해 그림이 원래 자리에 놓였습니다. Godot 4.7.2는 오프셋이 있는 씬을 불러왔습니다. Phaser와 PixiJS가 피벗으로 하는 일은 Phaser 3.90 소스와 PixiJS 8 문서에 따른 것이며, Nerulio가 실행해 본 결과는 아닙니다.'],sources:[S.unityEditor,S.godotAnim,S.phaserJson,S.phaserAnim,S.pixiAnim,S.pixiTex,S.aseSlices,S.gmSprites]}
+  },
+  ja:{
+   answer:'ピボット（オリジン、アンカーとも呼ぶ）は、ゲームオブジェクトの位置に置かれるフレーム上の点です。回転はこの点を中心に行われ、大きさの違うフレームはこの点でそろいます。Nerulioでは、1フレーム・選択・タグ・全フレームを対象に、ピクセルグリッド上をクリック（P）して決め、フレームキャンバスに対する0〜1で保存し、書き出し時に各エンジンの項目へ変換します。Unity・Phaser・PixiJSはフレームごとのピボットに従えますが、Godotのノードはオフセットが1つだけなので、書き出し先ごとに実際に何が渡るかを下の表にまとめました。',
+   concept:{title:'ピボットの値は1つ、エンジンの流儀はいろいろ',body:[
+    'ピボットの数え方はエンジンごとに違います。Unityはスプライト矩形の左下から0〜1（Normalized）かピクセルで測ります。PhaserとPixiJSはyが下向きのフレームに対する0〜1です。GodotのAnimatedSprite2Dにはピボットがなく、ノード全体に対するピクセル単位の描画オフセットがあるだけです。Nerulioは値を1つ（フレームキャンバスに対する0〜1、yは下向き、指定しなければ下中央0.5, 1.0）だけ持ち、書き出し先ごとに変換するので、一度決めたピボットはトリム・パック・エンジンの変更を経ても保たれます。',
+    'フレームの大きさが違ったりトリムされたりすると、フレームごとのピボットが効いてきます。そのためGodotのシーンは最初のフレームのピボットをノードのオフセットにし、全フレームのピボットをリソースのメタデータに残し、1つのアニメーション内でピボットが違えば警告します。どのエンジンでも堅実なのは、フレームを1つのキャンバスに載せ、タグごとに足元へピボットを1つ置く構成です。',
+    'ピボットツールは整数ピクセルにスナップし、フレームをそろえる・反転する・ブレを補正するときに絵と一緒に動きます。'],
+    terms:[['ピボット／オリジン／アンカー','オブジェクトの位置に置かれるフレーム上の点。呼び名はエンジンによって違います。'],['正規化ピボット','フレームやスプライト矩形に対する0〜1。Unityはyを下から、PhaserとPixiJSは上から数えます。'],['ノードのオフセット（Godot）','AnimatedSprite2Dがテクスチャをノードの原点からずらして描くピクセル値。全フレームで1つ。']]},
+   example:{title:'例：1つのピボットを5つのエンジン向けに書く',lead:'48 × 64のフレームキャンバスで、ピボットは下中央。パッカーは立ちフレームを (14, 34) の 20 × 30 に、ジャンプフレームを (14, 20) の 20 × 30 にトリムします。',lines:[
+    'Nerulio           ピボット (0.5, 1.0)、48 × 64 基準 → ピクセル (24, 64)',
+    'Godot .tscn       centered = false、offset = (−24, −64)',
+    'Phaser / PixiJS   pivot / anchor (0.5, 1.0)、48 × 64 の元フレーム基準',
+    'LÖVE              px = 24、py = 64',
+    'Unity 立ち        ((24 − 14) ÷ 20, (30 − (64 − 34)) ÷ 30) = (0.5, 0.0)',
+    'Unity ジャンプ    ((24 − 14) ÷ 20, (30 − (64 − 20)) ÷ 30) = (0.5, −0.467)'],
+    after:'ジャンプフレームのUnityのピボットは自分の矩形より下にあります。だからこそ足が同じ位置に留まります。トリムでピボットが動く理由は[[game/sprite-jitter-after-trim|トリム後のスプライトのブレ]]で説明しています。'},
+   mapping:{title:'書き出し先ごとに渡るもの',head:['書き出し先','Nerulioが書くもの','エンジン側の扱い'],rows:[
+    ['Godot 4','シーン：`centered = false`、`offset` = 最初のアニメーションの最初のフレームの −ピボット。全フレームのピボットは `metadata/nerulio`','AnimatedSprite2Dは全フレームをそのオフセット1つで描く。フレームごとのピボットには自作のスクリプトが必要'],
+    ['Unity 6','スプライトごとのカスタムピボット。スプライト矩形に対する0〜1、yは上向き（トリムしたフレームでは0〜1の外もある）','スプライトごとにピボットを持つので、クリップはフレームとともにピボットも切り替える（Unity 6000.5.3f1で読み戻し確認）'],
+    ['Phaser 3 / 4','アトラスJSONのフレームごとの `pivot` {x, y}','Phaser 3.90はフレームのカスタムピボットとして扱い、アニメーションのフレームも含めてフレームが変わるたびにsetOriginを呼ぶ'],
+    ['PixiJS 8','フレームごとの `anchor` {x, y}','テクスチャの既定アンカーになる。Spriteは作成時に取り込み、AnimatedSpriteは `updateAnchor = true` のときだけフレームごとに従う'],
+    ['Aseprite JSON、.aseprite','ピボットが変わるフレームにキーを持つ `pivot` スライス','Asepriteではピボット点つきのスライスとして見える'],
+    ['LÖVE 11','Luaのフレーム表の `px`、`py`','同梱の `nerulio_atlas.lua` が各フレームのピボットを (x, y) に合わせて描く'],
+    ['GameMaker','タグごとに1本のストリップで、全ピボットを1点に合わせる。その点が `gamemaker.json` とREADMEのオリジン','Sprite EditorでスプライトのOriginとして入力（GameMakerではUNVERIFIED）'],
+    ['Defold、Spine / libGDX、CSS','ピボットなし','エンジン側で設定']],
+    note:'Starling / Sparrow XMLにもピクセル単位の `pivotX`・`pivotY` が入りますが、使うかどうかは読み込む側しだいです。'},
+   verify:{steps:[
+    'オニオンスキン（F3）を付けてタグをコマ送りします。ピボットの十字が体の同じ位置に留まるはずです。',
+    'Godot：書き出しの注記（ピボット不一致の警告）を読み、`print($Hero.sprite_frames.get_meta("nerulio"))` でフレームごとのピボットを見ます。',
+    'Unity：Sprite Editorでテクスチャを開くと、各スプライトのPivotはCustomで、値は例の正規化値です。',
+    'Phaser：`sprite.play(\'run\')` のあと、`sprite.originX`・`sprite.originY` が現在のフレームのピボットと同じです。']},
+   trouble:{rows:[
+    ['Godotでアニメーションが切り替わるとキャラが跳ねる','ノードのオフセットは最初のアニメーションの最初のフレームから取った1つだけで、ほかのアニメーションはピボットが違う','Godot書き出しの注記、`metadata/nerulio` のピボットを比べる','キャラの全タグでピボットを1つにするか、アニメーション切り替え時にスクリプトでメタデータから `offset` を設定する'],
+    ['PixiJSのAnimatedSpriteがフレームごとのピボットを無視する','`updateAnchor` の既定値がfalseで、最初のテクスチャのアンカーのままになる','`sprite.updateAnchor` を出力する','`updateAnchor = true` にするか、タグのピボットを1つにする'],
+    ['Unityのピボットが0未満や1超えになる','トリムしたフレームで、キャンバス全体に対するピボットが小さくなった矩形の外にある','Sprite EditorのCustom Pivotの値','直す必要はない。それで絵がそろう。0〜1が必須のツールならトリムなしでパックする']]},
+   alternatives:{rows:[
+    ['エンジン側でピボットを設定（UnityのSprite EditorのPivot、GameMakerのOrigin、Godotのノードのオフセット）','ピボットが1つのスプライトを、めったに書き出し直さないとき。'],
+    ['Asepriteのピボットスライス','ピボットを.asepriteの元データで管理したいとき。Nerulioは読み込み時にピボットスライスを読み、.asepriteとAseprite JSONに書き戻します。']]},
+   limits:['Godotには、スクリプトを書かないかぎりフレームごとではなくノードごとに1つのピボットが渡ります。','Defold、Spine / libGDX、CSSの書き出しにはピボットがありません。','GameMakerのオリジンはGameMaker本体ではUNVERIFIEDです。'],
+   versions:{body:['Unity 6000.5.3f1が全スプライトのピボットを読み戻し、共通の基準点に対して絵が元の位置に置かれました。Godot 4.7.2はオフセット付きのシーンを読み込みました。PhaserとPixiJSがピボットをどう扱うかはPhaser 3.90のソースとPixiJS 8のドキュメントによるもので、Nerulioで実行した結果ではありません。'],sources:[S.unityEditor,S.godotAnim,S.phaserJson,S.phaserAnim,S.pixiAnim,S.pixiTex,S.aseSlices,S.gmSprites]}
+  }
+ },
+ // ------------------------------------------------------------------ game/hitbox-editor
+ 'game/hitbox-editor':{
+  type:'create',
+  intent:{primary:'draw hitboxes and hurtboxes per animation frame and use them in a game engine',secondary:['hit vs hurt boxes','box coordinates relative to the pivot','which export carries boxes'],
+   goal:'per-frame boxes with stable ids, in a file the game can read, placed correctly relative to the object',input:'imported frames with tags',output:'boxes in the Godot bundle metadata, the generic JSON and (rectangles) Aseprite slices',support:'partial',
+   evidence:['src/game/export/godot.js (metadata nerulio boxes)','src/game/export/atlas-json.js (Aseprite JSON: rect boxes only; generic JSON: all)','src/studio/sprite/aseprite-bridge.js (.aseprite: circle/polygon skipped with a reason)','src/game/export/unity.js (no boxes, note)','docs/STUDIO-PACK.md rows 48–49, docs/ENGINE-VERIFY.md meta.boxes / slice keys'],
+   external:['Godot Area2D, CollisionShape2D, RectangleShape2D, get_meta','Unity BoxCollider2D size and offset','Phaser Arcade Body setSize / setOffset / setCircle','Aseprite slices']},
+  en:{
+   answer:'A hitbox (the area that deals damage) and a hurtbox (the area that can be hit) are per-frame shapes that game code checks; they are not part of the image. Nerulio lets you draw rectangle, circle or polygon boxes typed hit, hurt, interact or any custom word on each frame, copy one box along a tag with the same id, and nudge it frame by frame. Every box is exported into the Godot bundle\'s metadata and the generic JSON, rectangles also as Aseprite slices; no engine nodes or colliders are generated, so you build Area2D shapes, Unity colliders or Phaser bodies from that data.',
+   concept:{title:'Boxes belong to frames, and engines build them from data',body:[
+    'Action games switch boxes with the animation: an attack\'s hitbox exists only on its active frames, while the hurtbox follows the body on every frame. So boxes belong to frames, not to the sprite, and the same logical box needs one identity across frames. In Nerulio a box has an id, a type and a shape in frame-canvas pixels (origin top-left, y down); drawing or copying it with the tag scope keeps the id, so code can track the sword box from frame to frame.',
+    'Engines do not read boxes from images. Godot detects overlaps with Area2D nodes that carry CollisionShape2D or CollisionPolygon2D children; Unity uses Collider2D components such as BoxCollider2D, which has a size and an offset in local units; a Phaser Arcade body is sized with setSize, setOffset or setCircle and otherwise uses the frame size. In all three you update the shape per frame yourself, in code or an animation track. The export gives you the numbers; it does not create those nodes or components.',
+    'Box coordinates are relative to the frame canvas. To place a box on the object, subtract the pivot: in the Godot scene, where the offset is −pivot, a box at (x, y) on the frame sits at (x − pivot x, y − pivot y) in node space. Unity counts y upwards and in units, so divide by Pixels Per Unit (100 in the Unity export).'],
+    terms:[['Hitbox','The area of an attack frame that deals damage.'],['Hurtbox','The area of the body that can be hit.'],['Box id','Stays the same on every frame the box was copied to, so code can follow one box.'],['Frame-canvas pixels','Coordinates from the top-left corner of the frame\'s full canvas, y down.']]},
+   example:{title:'Example: one hitbox, placed in Godot and Unity',lead:'Frame canvas 48 × 64 with the pivot at (24, 64). On attack frames 4–6 a hit box at x 34, y 30, 16 × 12 px.',lines:[
+    'Nerulio (frame canvas, y down)   x 34, y 30, w 16, h 12',
+    'relative to the pivot            left 34 − 24 = 10, top 30 − 64 = −34',
+    'Godot node space (y down)        rectangle 10, −34, 16 × 12, centre (18, −28)',
+    'Unity (y up, 100 px per unit)    centre ((34 + 8 − 24) ÷ 100, (64 − (30 + 6)) ÷ 100) = (0.18, 0.28)',
+    '                                 size (0.16, 0.12)',
+    'Godot metadata                   get_meta("nerulio")["frames"]["attack_004"]["boxes"]',
+    '                                 [{"id": …, "type": "hit", "shape": "rect", "x": 34, "y": 30, "w": 16, "h": 12}]'],
+    after:'Circles are stored as cx, cy, r and polygons as a list of points, in the same pixels. For solid collision outlines rather than attack boxes, see the [[game/collision-polygon-generator|collision polygon generator]].'},
+   mapping:{title:'Which export carries the boxes',head:['Target','Boxes in the export','What you build in the engine'],rows:[
+    ['Godot 4','Every box (rectangle, circle, polygon) with id and type, per frame, in the SpriteFrames `metadata/nerulio`','Area2D with CollisionShape2D or CollisionPolygon2D children, moved per frame by your script (the metadata was read back by Godot 4.7.2)'],
+    ['Generic JSON','Every box per frame, with the pivot and the collision polygons','Any engine: read `frames[key].boxes`'],
+    ['.aseprite, Aseprite JSON','Rectangles only: one slice per box type and slot, keyed where the box changes; circles and polygons are skipped','Aseprite shows slices (read back by Aseprite 1.3.18); JSON readers get `meta.slices`'],
+    ['Unity 6','None; the export notes say so','Colliders built by your own script from the generic JSON'],
+    ['Phaser, PixiJS, LÖVE, Spine, Starling, Defold, GameMaker, CSS','None','Load the generic JSON next to the atlas']]},
+   verify:{steps:[
+    'Step through the attack with , and . and watch the box on each frame; boxes that reach past the frame canvas are kept and marked.',
+    'After a Godot export, `print($Hero.sprite_frames.get_meta("nerulio")["frames"].keys())` lists the frame keys, and each entry\'s `boxes` holds your boxes.',
+    'After an .aseprite export, open the file in Aseprite: each rectangle box type is a slice whose keys change on the frames where the box moves.']},
+   trouble:{rows:[
+    ['Circle or polygon boxes are missing in Aseprite','Aseprite slices are rectangles, so the .aseprite export skips other shapes and names them','The export message lists the skipped boxes','Use rectangles for boxes that must reach Aseprite, or read circles and polygons from the generic JSON'],
+    ['Boxes appear in the wrong place in the engine','Box coordinates start at the frame canvas\'s top-left corner, not at the pivot','Compare one box with the worked example above','Subtract the pivot; in Unity also flip y and divide by Pixels Per Unit'],
+    ['A box shows up on frames where it should not','It was drawn or copied with the scope set to the tag or all frames','Step through the frames: the same id appears on each','Delete it on those frames, or redraw it with the scope set to this frame'],
+    ['The Unity import has no boxes','The Unity export writes sprite rects, pivots and clips only','The export notes: hitboxes have no Unity sprite field','Export the generic JSON as well and create colliders from it']]},
+   alternatives:{rows:[
+    ['Draw the shapes in the engine (Godot CollisionShape2D, Unity BoxCollider2D, Phaser body setSize and setOffset)','One or two boxes that do not change from frame to frame.'],
+    ['Slices in Aseprite','Rectangle boxes drawn next to the art; Nerulio imports named slices as boxes (hit, hurt …) and writes them back.']]},
+   limits:['No engine nodes, colliders or physics bodies are generated; the export carries data only.','Aseprite formats carry rectangle boxes only.','Box coordinates are whole pixels on the frame canvas.'],
+   versions:{body:['Boxes in the Godot bundle were read back by Godot 4.7.2, and rectangle slices by Aseprite 1.3.18, including boxes that reach past the frame canvas. The node and component names follow the Godot 4.7, Unity 6 and Phaser documentation.'],sources:[S.godotArea,S.godotRect,S.godotMeta,S.unityBox,S.phaserBody,S.aseSlices]}
+  },
+  ko:{
+   answer:'히트박스(피해를 주는 영역)와 허트박스(맞을 수 있는 영역)는 게임 코드가 검사하는 프레임별 도형이며 그림의 일부가 아닙니다. Nerulio에서는 프레임마다 hit, hurt, interact나 원하는 이름의 사각형·원·폴리곤 박스를 그리고, 박스 하나를 같은 id로 태그 전체에 복사하고, 프레임마다 미세 조정할 수 있습니다. 모든 박스는 Godot 번들의 메타데이터와 일반 JSON으로, 사각형은 Aseprite 슬라이스로도 내보냅니다. 엔진 노드나 콜라이더는 만들어지지 않으므로 Area2D 도형, Unity 콜라이더, Phaser 바디는 이 데이터로 직접 구성합니다.',
+   concept:{title:'박스는 프레임에 속하고, 엔진은 데이터로 만든다',body:[
+    '액션 게임은 애니메이션에 따라 박스를 켜고 끕니다. 공격의 히트박스는 유효 프레임에만 있고, 허트박스는 매 프레임 몸을 따라갑니다. 그래서 박스는 스프라이트가 아니라 프레임에 속하고, 같은 논리적 박스는 프레임이 바뀌어도 하나의 정체성을 가져야 합니다. Nerulio의 박스는 id, 유형, 프레임 캔버스 픽셀(원점 왼쪽 위, y는 아래) 단위의 도형을 가지며, 태그 범위로 그리거나 복사하면 id가 유지돼 코드가 칼 박스를 프레임마다 추적할 수 있습니다.',
+    '엔진은 이미지에서 박스를 읽지 않습니다. Godot는 CollisionShape2D나 CollisionPolygon2D 자식을 가진 Area2D 노드로 겹침을 감지하고, Unity는 로컬 단위의 크기와 오프셋을 가진 BoxCollider2D 같은 Collider2D 컴포넌트를 쓰며, Phaser Arcade 바디는 setSize, setOffset, setCircle로 크기를 정하고 아니면 프레임 크기를 씁니다. 세 엔진 모두 프레임마다 도형을 코드나 애니메이션 트랙으로 직접 바꿔야 합니다. 내보내기는 숫자를 줄 뿐, 그런 노드나 컴포넌트를 만들지 않습니다.',
+    '박스 좌표는 프레임 캔버스 기준입니다. 오브젝트에 놓으려면 피벗을 빼세요. 오프셋이 −피벗인 Godot 씬에서 프레임의 (x, y)에 있는 박스는 노드 공간의 (x − 피벗 x, y − 피벗 y)에 있습니다. Unity는 y가 위로 가고 단위가 유닛이므로 Pixels Per Unit(Unity 내보내기에서는 100)으로 나눕니다.'],
+    terms:[['히트박스','공격 프레임에서 피해를 주는 영역.'],['허트박스','몸에서 맞을 수 있는 영역.'],['박스 id','박스를 복사한 모든 프레임에서 같아서, 코드가 박스 하나를 따라갈 수 있음.'],['프레임 캔버스 픽셀','프레임 전체 캔버스의 왼쪽 위 모서리부터의 좌표, y는 아래 방향.']]},
+   example:{title:'예시: 히트박스 하나를 Godot와 Unity에 놓기',lead:'프레임 캔버스 48 × 64, 피벗 (24, 64). attack 4~6번 프레임에 x 34, y 30, 16 × 12px 히트 박스.',lines:[
+    'Nerulio(프레임 캔버스, y 아래)    x 34, y 30, w 16, h 12',
+    '피벗 기준                         왼쪽 34 − 24 = 10, 위 30 − 64 = −34',
+    'Godot 노드 공간(y 아래)           사각형 10, −34, 16 × 12, 중심 (18, −28)',
+    'Unity(y 위, 유닛당 100px)         중심 ((34 + 8 − 24) ÷ 100, (64 − (30 + 6)) ÷ 100) = (0.18, 0.28)',
+    '                                  크기 (0.16, 0.12)',
+    'Godot 메타데이터                  get_meta("nerulio")["frames"]["attack_004"]["boxes"]',
+    '                                  [{"id": …, "type": "hit", "shape": "rect", "x": 34, "y": 30, "w": 16, "h": 12}]'],
+    after:'원은 cx, cy, r로, 폴리곤은 점 목록으로 같은 픽셀 단위로 저장됩니다. 공격 박스가 아니라 단단한 충돌 윤곽이 필요하면 [[game/collision-polygon-generator|충돌 폴리곤 생성기]]를 보세요.'},
+   mapping:{title:'박스가 들어가는 내보내기',head:['대상','내보내기에 든 박스','엔진에서 만들 것'],rows:[
+    ['Godot 4','모든 박스(사각형·원·폴리곤)를 id·유형과 함께 프레임별로 SpriteFrames `metadata/nerulio`에','CollisionShape2D나 CollisionPolygon2D 자식을 가진 Area2D, 스크립트로 프레임마다 이동(메타데이터는 Godot 4.7.2에서 다시 읽어 확인)'],
+    ['일반 JSON','프레임별 모든 박스, 피벗, 충돌 폴리곤','어느 엔진이든 `frames[key].boxes`를 읽기'],
+    ['.aseprite, Aseprite JSON','사각형만: 박스 유형·순번마다 슬라이스 하나, 박스가 바뀌는 프레임에 키. 원과 폴리곤은 빠짐','Aseprite에서 슬라이스로 보임(Aseprite 1.3.18에서 확인). JSON을 읽는 쪽은 `meta.slices`'],
+    ['Unity 6','없음. 내보내기 안내에 표시됨','일반 JSON을 읽는 직접 만든 스크립트로 콜라이더 구성'],
+    ['Phaser, PixiJS, LÖVE, Spine, Starling, Defold, GameMaker, CSS','없음','아틀라스 옆에 일반 JSON을 함께 불러오기']]},
+   verify:{steps:[
+    ', 와 . 로 공격을 넘기며 프레임마다 박스를 봅니다. 프레임 캔버스 밖으로 나간 박스도 유지되고 표시됩니다.',
+    'Godot로 내보낸 뒤 `print($Hero.sprite_frames.get_meta("nerulio")["frames"].keys())`로 프레임 키를 보고, 각 항목의 `boxes`에 박스가 있는지 확인합니다.',
+    '.aseprite로 내보낸 뒤 Aseprite에서 엽니다. 사각형 박스 유형마다 슬라이스가 있고, 박스가 움직이는 프레임에서 키가 바뀝니다.']},
+   trouble:{rows:[
+    ['Aseprite에 원이나 폴리곤 박스가 없음','Aseprite 슬라이스는 사각형이라 .aseprite 내보내기가 다른 도형을 건너뛰고 이름을 알려 줌','내보내기 메시지에 건너뛴 박스가 나옴','Aseprite까지 가야 하는 박스는 사각형으로 그리거나, 원·폴리곤은 일반 JSON에서 읽기'],
+    ['엔진에서 박스 위치가 틀림','박스 좌표는 피벗이 아니라 프레임 캔버스의 왼쪽 위 모서리에서 시작함','위 예시와 박스 하나를 비교','피벗을 빼기. Unity라면 y를 뒤집고 Pixels Per Unit으로도 나누기'],
+    ['박스가 있으면 안 되는 프레임에 나옴','범위를 태그나 전체 프레임으로 두고 그리거나 복사함','프레임을 넘겨 보면 같은 id가 모두 있음','그 프레임에서 지우거나, 범위를 이 프레임으로 두고 다시 그리기'],
+    ['Unity로 가져온 결과에 박스가 없음','Unity 내보내기는 스프라이트 사각형, 피벗, 클립만 씀','내보내기 안내: 히트박스를 넣을 Unity 스프라이트 필드가 없음','일반 JSON도 내보내 그걸로 콜라이더 만들기']]},
+   alternatives:{rows:[
+    ['엔진에서 도형 그리기(Godot CollisionShape2D, Unity BoxCollider2D, Phaser 바디 setSize·setOffset)','프레임마다 바뀌지 않는 박스가 한두 개일 때.'],
+    ['Aseprite의 슬라이스','그림 옆에 사각형 박스를 그릴 때. Nerulio는 이름 있는 슬라이스(hit, hurt …)를 박스로 가져오고 다시 씁니다.']]},
+   limits:['엔진 노드, 콜라이더, 물리 바디는 만들지 않습니다. 내보내기에는 데이터만 들어갑니다.','Aseprite 형식에는 사각형 박스만 들어갑니다.','박스 좌표는 프레임 캔버스의 정수 픽셀입니다.'],
+   versions:{body:['Godot 번들의 박스는 Godot 4.7.2가, 사각형 슬라이스는 Aseprite 1.3.18이 다시 읽었습니다(프레임 캔버스 밖으로 나간 박스 포함). 노드와 컴포넌트 이름은 Godot 4.7, Unity 6, Phaser 문서를 따릅니다.'],sources:[S.godotArea,S.godotRect,S.godotMeta,S.unityBox,S.phaserBody,S.aseSlices]}
+  },
+  ja:{
+   answer:'ヒットボックス（ダメージを与える範囲）とハートボックス（攻撃を受ける範囲）は、ゲームのコードが判定に使うフレームごとの図形で、画像の一部ではありません。Nerulioでは、フレームごとにhit・hurt・interactや任意の名前の矩形・円・ポリゴンのボックスを描き、1つのボックスを同じIDのままタグ全体にコピーし、フレームごとに微調整できます。すべてのボックスはGodotバンドルのメタデータと汎用JSONに、矩形はAsepriteのスライスにも書き出されます。エンジンのノードやコライダーは生成しないので、Area2Dの形状やUnityのコライダー、Phaserのボディはこのデータから組み立てます。',
+   concept:{title:'ボックスはフレームに属し、エンジンはデータから作る',body:[
+    'アクションゲームはアニメーションに合わせてボックスを出し入れします。攻撃のヒットボックスは有効なフレームにだけあり、ハートボックスは毎フレーム体を追います。そのためボックスはスプライトではなくフレームに属し、同じ論理的なボックスはフレームをまたいで1つの身元を持つ必要があります。Nerulioのボックスは、ID・種類・フレームキャンバスのピクセル（原点は左上、yは下向き）での図形を持ち、タグ範囲で描いたりコピーしたりするとIDが保たれるので、コードは剣のボックスをフレームごとに追えます。',
+    'エンジンは画像からボックスを読みません。GodotはCollisionShape2DやCollisionPolygon2Dを子に持つArea2Dノードで重なりを検出し、Unityはローカル単位のサイズとオフセットを持つBoxCollider2DなどのCollider2Dコンポーネントを使い、PhaserのArcadeボディはsetSize・setOffset・setCircleで大きさを決め、指定しなければフレームの大きさになります。どれもフレームごとの形状の更新は、コードかアニメーショントラックで自分で行います。書き出しは数値を渡すだけで、そうしたノードやコンポーネントは作りません。',
+    'ボックスの座標はフレームキャンバス基準です。オブジェクトに置くにはピボットを引きます。オフセットが −ピボットのGodotのシーンでは、フレーム上 (x, y) のボックスはノード空間の (x − ピボットx, y − ピボットy) にあります。Unityはyが上向きで単位はユニットなので、Pixels Per Unit（Unity書き出しでは100）で割ります。'],
+    terms:[['ヒットボックス','攻撃フレームでダメージを与える範囲。'],['ハートボックス','体のうち攻撃を受ける範囲。'],['ボックスID','ボックスをコピーした全フレームで同じなので、コードが1つのボックスを追える。'],['フレームキャンバスのピクセル','フレーム全体のキャンバスの左上角からの座標。yは下向き。']]},
+   example:{title:'例：1つのヒットボックスをGodotとUnityに置く',lead:'フレームキャンバス48 × 64、ピボット (24, 64)。attackの4〜6フレーム目に x 34、y 30、16 × 12pxのヒットボックス。',lines:[
+    'Nerulio（キャンバス、y下向き）   x 34、y 30、w 16、h 12',
+    'ピボット基準                     左 34 − 24 = 10、上 30 − 64 = −34',
+    'Godotのノード空間（y下向き）     矩形 10, −34, 16 × 12、中心 (18, −28)',
+    'Unity（y上向き、100px/ユニット）  中心 ((34 + 8 − 24) ÷ 100, (64 − (30 + 6)) ÷ 100) = (0.18, 0.28)',
+    '                                 サイズ (0.16, 0.12)',
+    'Godotのメタデータ                get_meta("nerulio")["frames"]["attack_004"]["boxes"]',
+    '                                 [{"id": …, "type": "hit", "shape": "rect", "x": 34, "y": 30, "w": 16, "h": 12}]'],
+    after:'円はcx・cy・r、ポリゴンは点のリストとして、同じピクセル単位で保存されます。攻撃判定ではなく体の衝突形状が欲しい場合は[[game/collision-polygon-generator|衝突ポリゴン生成]]を参照してください。'},
+   mapping:{title:'ボックスが入る書き出し',head:['書き出し先','書き出しに入るボックス','エンジンで作るもの'],rows:[
+    ['Godot 4','すべてのボックス（矩形・円・ポリゴン）をID・種類つきでフレームごとにSpriteFramesの `metadata/nerulio` へ','CollisionShape2DかCollisionPolygon2Dを子に持つArea2Dを、スクリプトでフレームごとに動かす（メタデータはGodot 4.7.2で読み戻し確認）'],
+    ['汎用JSON','フレームごとの全ボックス、ピボット、衝突ポリゴン','どのエンジンでも `frames[key].boxes` を読む'],
+    ['.aseprite、Aseprite JSON','矩形のみ：ボックスの種類と順番ごとに1スライス、ボックスが変わるフレームにキー。円とポリゴンは除外','Asepriteでスライスとして見える（Aseprite 1.3.18で確認）。JSONを読む側は `meta.slices`'],
+    ['Unity 6','なし。書き出しの注記に出る','汎用JSONを読む自作スクリプトでコライダーを作る'],
+    ['Phaser、PixiJS、LÖVE、Spine、Starling、Defold、GameMaker、CSS','なし','アトラスの隣に汎用JSONも読み込む']]},
+   verify:{steps:[
+    ', と . で攻撃をコマ送りし、フレームごとのボックスを見ます。フレームキャンバスの外にはみ出したボックスも保持され、印が付きます。',
+    'Godotに書き出したら、`print($Hero.sprite_frames.get_meta("nerulio")["frames"].keys())` でフレームキーを確認し、各項目の `boxes` にボックスがあるか見ます。',
+    '.asepriteに書き出したらAsepriteで開きます。矩形ボックスの種類ごとにスライスがあり、ボックスが動くフレームでキーが変わります。']},
+   trouble:{rows:[
+    ['Asepriteで円やポリゴンのボックスがない','Asepriteのスライスは矩形なので、.aseprite書き出しはほかの図形を飛ばし、その名前を知らせる','書き出しメッセージに飛ばしたボックスが出る','Asepriteまで届けたいボックスは矩形で描くか、円とポリゴンは汎用JSONから読む'],
+    ['エンジンでボックスの位置がずれる','ボックスの座標はピボットではなくフレームキャンバスの左上角から始まる','上の例とボックスを1つ比べる','ピボットを引く。Unityではさらにyを反転しPixels Per Unitで割る'],
+    ['あってはいけないフレームにボックスが出る','範囲をタグか全フレームにして描いた、またはコピーした','コマ送りすると同じIDが各フレームにある','そのフレームで削除するか、範囲を「このフレーム」にして描き直す'],
+    ['Unityに取り込んだ結果にボックスがない','Unity書き出しはスプライト矩形・ピボット・クリップだけを書く','書き出しの注記：ヒットボックスを入れるUnityのスプライト項目がない','汎用JSONも書き出し、そこからコライダーを作る']]},
+   alternatives:{rows:[
+    ['エンジン側で形状を描く（GodotのCollisionShape2D、UnityのBoxCollider2D、PhaserのボディのsetSize・setOffset）','フレームごとに変わらないボックスが1〜2個のとき。'],
+    ['Asepriteのスライス','絵の横で矩形のボックスを描くとき。Nerulioは名前付きスライス（hit、hurt …）をボックスとして読み込み、書き戻します。']]},
+   limits:['エンジンのノード・コライダー・物理ボディは生成しません。書き出しに入るのはデータだけです。','Aseprite形式に入るのは矩形のボックスだけです。','ボックスの座標はフレームキャンバス上の整数ピクセルです。'],
+   versions:{body:['Godotバンドルのボックスは Godot 4.7.2 が、矩形のスライスは Aseprite 1.3.18 が読み戻しました（フレームキャンバスからはみ出したボックスを含む）。ノードとコンポーネントの名前は Godot 4.7、Unity 6、Phaser のドキュメントに従います。'],sources:[S.godotArea,S.godotRect,S.godotMeta,S.unityBox,S.phaserBody,S.aseSlices]}
+  }
+ },
+ // ------------------------------------------------------------------ game/collision-polygon-generator
+ 'game/collision-polygon-generator':{
+  type:'create',
+  intent:{primary:'generate a collision polygon from a sprite\'s transparency and use it in an engine',secondary:['alpha threshold','vertex cap and simplification','per-frame polygons','Godot CollisionPolygon2D, Unity PolygonCollider2D'],
+   goal:'a simple, non-self-crossing polygon per frame that follows the silhouette, placed correctly on the object',input:'imported frames with transparency',output:'polygons per frame in the Godot bundle metadata and the generic JSON',support:'partial',
+   evidence:['src/game/contour.js collisionPolygons (lattice tracing, RDP, self-intersection rejected, maxPolygons 8, minArea 4)','src/studio/workspaces/sprite.js DEFAULTS (maxVertices 12, alphaThreshold 127), panels-ui.js (3–64, 0–254)','src/game/export/godot.js / atlas-json.js genericJson (collision)','src/game/export/unity.js (not written, note); the worked numbers were computed with collisionPolygons'],
+   external:['Godot CollisionPolygon2D (concave, build mode)','Unity PolygonCollider2D.points local space; Custom Physics Shape']},
+  en:{
+   answer:'A collision polygon traced from a sprite\'s alpha follows its silhouette more closely than a box. Nerulio traces each frame\'s outline along pixel edges at an alpha threshold (127 by default, so pixels at least half opaque count), simplifies it until it fits a vertex cap (12 by default, 3–64) without letting the outline cross itself, and keeps up to 8 polygons per frame in frame-canvas pixels. The polygons are exported in the Godot bundle\'s metadata and the generic JSON; Nerulio does not create CollisionPolygon2D nodes or Unity colliders.',
+   concept:{title:'Tracing, simplifying, and handing the points to an engine',body:[
+    'The outline runs along the edges between opaque and transparent pixels, not through pixel centres, so every vertex sits on a whole pixel corner: a 16 × 16 opaque square becomes exactly (0, 0), (16, 0), (16, 16), (0, 16). Outer outlines come back clockwise on screen (y down), and specks smaller than 4 px² are dropped.',
+    'Simplification (Ramer–Douglas–Peucker) removes points that lie close to a straight line. The tolerance starts at 1 px and is raised until the polygon has no more vertices than the cap; a tolerance that would make the outline cross itself is rejected, because a self-crossing outline is not a usable physics shape. Raising the tolerance happens in steps, so a cap can be met with fewer vertices than it allows, and a low cap can round away gaps such as the space between two legs.',
+    'Engines take such polygons as point lists relative to the object. Godot\'s CollisionPolygon2D accepts concave polygons and, in its default solids mode, splits them into convex parts itself; it must be the child of an Area2D or a physics body. Unity\'s PolygonCollider2D takes points in local space, and Unity can also build its own outline from a sprite\'s Custom Physics Shape. In both, subtract the frame\'s pivot first; in Unity also flip y and divide by Pixels Per Unit.'],
+    terms:[['Alpha threshold','The highest alpha still counted as transparent; 127 keeps pixels that are at least half opaque.'],['Vertex cap','The most points a polygon may have after simplification.'],['Tolerance','How far (in pixels) simplification may move the outline.']]},
+   example:{title:'Example: one 32 × 48 character frame at three settings',lead:'A head, a body and two legs with a 4 px gap between them, plus a faint glow (alpha 60) around the head. Numbers from Nerulio\'s tracer:',lines:[
+    'traced outline (alpha > 127)            48 vertices, area 544 px²',
+    'cap 64   tolerance 1 px     16 vertices, area 540 px² (−0.7 %), max deviation 1.0 px, legs kept apart',
+    'cap 12   tolerance 3.8 px    5 vertices, area 428 px² (−21 %), max deviation 3.8 px, leg gap gone',
+    'threshold 40, cap 12        glow counted: area 628 px², 12 vertices at tolerance 2.0 px',
+    '',
+    'Godot, pivot (16, 48)       polygon point (22, 48) → node space (22 − 16, 48 − 48) = (6, 0)'],
+    after:'A cap of 12 did not give 12 points here: the next tolerance step already went down to 5. If the shape matters, raise the cap and compare the vertex count the Studio reports after Auto from alpha.'},
+   mapping:{title:'Where the polygons go',head:['Target','Polygons in the export','What you build in the engine'],rows:[
+    ['Godot 4','`collision` per frame in `metadata/nerulio`, each polygon as a flat list x0, y0, x1, y1 …','A CollisionPolygon2D under an Area2D or a body, its `polygon` set from the list minus the pivot, per frame by your script'],
+    ['Generic JSON','`frames[key].collision`: each polygon as [[x, y], …]','Any engine that takes a point list'],
+    ['Unity 6','None; the export notes point to the generic JSON','PolygonCollider2D points from the generic JSON, or Unity\'s own Custom Physics Shape'],
+    ['Aseprite, Phaser, PixiJS, LÖVE, Spine, Starling, Defold, GameMaker, CSS','None','Load the generic JSON next to the atlas']]},
+   verify:{steps:[
+    'After Auto from alpha the toast reports how many frames and vertices were made; step through the tag and look at the outline on each frame.',
+    'Toggle the threshold between 127 and a low value on a frame with glow or smoke and compare the outlines.',
+    'In Godot, add a CollisionPolygon2D under an Area2D with the converted points and turn on Debug › Visible Collision Shapes to see it over the sprite.']},
+   trouble:{rows:[
+    ['The polygon swallows gaps such as the space between the legs','The vertex cap forced a tolerance larger than the gap','The vertex count after Auto is far below the cap, or the outline bridges the gap','Raise the cap (for example to 24) and run Auto again'],
+    ['Glow or smoke is inside the collision shape','Its alpha is above the threshold','Lower and raise the threshold and compare','Raise the threshold so faint pixels count as transparent'],
+    ['The shape is offset in the engine','Points are frame-canvas pixels from the top-left, not relative to the pivot','Compare one point with the worked example','Subtract the pivot; in Unity also flip y and divide by Pixels Per Unit'],
+    ['Only some parts got a polygon','Up to 8 separate shapes per frame are kept, and specks under 4 px² are dropped','The Auto message mentions dropped specks or extra shapes','Join the parts in the art, or draw the missing polygon by hand']]},
+   alternatives:{rows:[
+    ['Unity\'s Custom Physics Shape in the Sprite Editor','Unity only: Unity generates and edits the outline itself, and a Polygon Collider 2D uses it for new instances of the sprite.'],
+    ['A box or circle per frame','Most platformer bodies; cheaper and steadier than a detailed polygon. Draw it with the [[game/hitbox-editor|hitbox editor]], or use the convex hull, rectangle and circle options of the classic Sprite Lab.']]},
+   limits:['Polygons are data in the export: no CollisionPolygon2D nodes or Unity colliders are created.','Collision polygons do not reach Unity, Aseprite or the atlas formats; use the generic JSON.','Holes inside a shape are not part of the Studio\'s polygons.'],
+   versions:{body:['The tracer and the numbers in the example come from Nerulio\'s own module (src/game/contour.js). The Godot bundle that carries the metadata was loaded by Godot 4.7.2; the collision polygons in it were not used as physics shapes in that run. Engine behaviour follows the Godot 4.7 and Unity 6 documentation.'],sources:[S.godotPoly,S.godotArea,S.unityPoints,S.unityPhys]}
+  },
+  ko:{
+   answer:'스프라이트의 알파로 따낸 충돌 폴리곤은 박스보다 실루엣을 더 가깝게 따릅니다. Nerulio는 프레임마다 알파 임계값(기본 127, 즉 절반 이상 불투명한 픽셀이 포함)으로 픽셀 가장자리를 따라 윤곽을 따고, 윤곽이 스스로 교차하지 않게 하면서 꼭짓점 상한(기본 12, 3~64)에 맞을 때까지 단순화하며, 프레임마다 폴리곤을 최대 8개까지 프레임 캔버스 픽셀로 저장합니다. 폴리곤은 Godot 번들의 메타데이터와 일반 JSON으로 내보내며, CollisionPolygon2D 노드나 Unity 콜라이더를 만들지는 않습니다.',
+   concept:{title:'윤곽 따기, 단순화, 엔진에 점 넘기기',body:[
+    '윤곽은 픽셀 중심이 아니라 불투명 픽셀과 투명 픽셀 사이의 경계를 따라가므로, 모든 꼭짓점이 정수 픽셀 모서리에 놓입니다. 16 × 16 불투명 정사각형은 정확히 (0, 0), (16, 0), (16, 16), (0, 16)이 됩니다. 바깥 윤곽은 화면 기준 시계 방향(y 아래)으로 나오고, 4px²보다 작은 점 조각은 버립니다.',
+    '단순화(Ramer–Douglas–Peucker)는 직선에 가까운 점을 지웁니다. 허용 오차는 1px에서 시작해 꼭짓점 수가 상한 이하가 될 때까지 올라가고, 윤곽이 스스로 교차하게 만드는 오차는 거부합니다. 스스로 교차하는 윤곽은 물리 도형으로 쓸 수 없기 때문입니다. 오차는 단계적으로 오르므로 상한보다 적은 꼭짓점으로 끝날 수 있고, 상한이 낮으면 두 다리 사이 같은 틈이 뭉개질 수 있습니다.',
+    '엔진은 이런 폴리곤을 오브젝트 기준 점 목록으로 받습니다. Godot의 CollisionPolygon2D는 오목한 폴리곤도 받으며, 기본 솔리드 모드에서는 스스로 볼록 조각으로 나눕니다. Area2D나 물리 바디의 자식이어야 합니다. Unity의 PolygonCollider2D는 로컬 공간의 점을 받고, 스프라이트의 Custom Physics Shape로 자체 윤곽을 만들 수도 있습니다. 두 엔진 모두 먼저 프레임의 피벗을 빼고, Unity라면 y를 뒤집고 Pixels Per Unit으로 나눕니다.'],
+    terms:[['알파 임계값','투명으로 치는 가장 높은 알파 값. 127이면 절반 이상 불투명한 픽셀이 남음.'],['꼭짓점 상한','단순화 후 폴리곤이 가질 수 있는 최대 점 수.'],['허용 오차','단순화가 윤곽을 옮겨도 되는 거리(픽셀).']]},
+   example:{title:'예시: 32 × 48 캐릭터 프레임 하나, 설정 세 가지',lead:'머리, 몸, 4px 틈을 둔 두 다리, 머리 둘레의 옅은 빛(알파 60). Nerulio 윤곽 추적기로 계산한 값:',lines:[
+    '따낸 윤곽(알파 > 127)                  꼭짓점 48개, 면적 544px²',
+    '상한 64   오차 1px       꼭짓점 16개, 면적 540px²(−0.7%), 최대 편차 1.0px, 다리 사이 유지',
+    '상한 12   오차 3.8px     꼭짓점 5개, 면적 428px²(−21%), 최대 편차 3.8px, 다리 사이 틈 사라짐',
+    '임계값 40, 상한 12      빛까지 포함: 면적 628px², 오차 2.0px에서 꼭짓점 12개',
+    '',
+    'Godot, 피벗 (16, 48)    폴리곤 점 (22, 48) → 노드 공간 (22 − 16, 48 − 48) = (6, 0)'],
+    after:'여기서는 상한 12가 꼭짓점 12개를 주지 않았습니다. 다음 오차 단계에서 이미 5개로 줄었기 때문입니다. 모양이 중요하면 상한을 올리고, 알파로 자동 생성 뒤 Studio가 알려 주는 꼭짓점 수를 비교하세요.'},
+   mapping:{title:'폴리곤이 가는 곳',head:['대상','내보내기에 든 폴리곤','엔진에서 만들 것'],rows:[
+    ['Godot 4','`metadata/nerulio`의 프레임별 `collision`, 폴리곤마다 x0, y0, x1, y1 … 평탄한 목록','Area2D나 바디 아래 CollisionPolygon2D. 스크립트로 프레임마다 목록에서 피벗을 뺀 값을 `polygon`에 설정'],
+    ['일반 JSON','`frames[key].collision`: 폴리곤마다 [[x, y], …]','점 목록을 받는 어느 엔진이든'],
+    ['Unity 6','없음. 내보내기 안내가 일반 JSON을 가리킴','일반 JSON의 점으로 PolygonCollider2D, 또는 Unity 자체 Custom Physics Shape'],
+    ['Aseprite, Phaser, PixiJS, LÖVE, Spine, Starling, Defold, GameMaker, CSS','없음','아틀라스 옆에 일반 JSON을 함께 불러오기']]},
+   verify:{steps:[
+    '알파로 자동 생성하면 알림에 만든 프레임 수와 꼭짓점 수가 나옵니다. 태그를 넘기며 프레임마다 윤곽을 봅니다.',
+    '빛이나 연기가 있는 프레임에서 임계값을 127과 낮은 값 사이로 바꿔 윤곽을 비교합니다.',
+    'Godot에서 Area2D 아래에 변환한 점으로 CollisionPolygon2D를 추가하고, Debug › Visible Collision Shapes를 켜서 스프라이트 위에 겹쳐 봅니다.']},
+   trouble:{rows:[
+    ['폴리곤이 다리 사이 같은 틈을 메움','꼭짓점 상한 때문에 틈보다 큰 오차가 쓰임','자동 생성 후 꼭짓점 수가 상한보다 훨씬 적거나, 윤곽이 틈을 건너감','상한을 올리고(예: 24) 다시 자동 생성'],
+    ['빛이나 연기가 충돌 도형 안에 들어감','그 픽셀의 알파가 임계값보다 높음','임계값을 낮췄다 올리며 비교','임계값을 올려 옅은 픽셀을 투명으로 취급'],
+    ['엔진에서 도형이 어긋남','점은 피벗이 아니라 프레임 캔버스 왼쪽 위 기준 픽셀','예시와 점 하나를 비교','피벗을 빼기. Unity라면 y를 뒤집고 Pixels Per Unit으로도 나누기'],
+    ['일부 부분에만 폴리곤이 생김','프레임마다 떨어진 도형은 8개까지만 남고, 4px² 미만 조각은 버림','자동 생성 메시지에 버린 조각이나 초과 도형이 나옴','그림에서 부분을 잇거나, 빠진 폴리곤을 직접 그리기']]},
+   alternatives:{rows:[
+    ['Unity Sprite Editor의 Custom Physics Shape','Unity 전용. Unity가 윤곽을 만들고 편집하며, Polygon Collider 2D가 스프라이트의 새 인스턴스에 그 윤곽을 씁니다.'],
+    ['프레임마다 박스나 원 하나','대부분의 플랫포머 몸체. 복잡한 폴리곤보다 가볍고 안정적입니다. [[game/hitbox-editor|히트박스 편집기]]로 그리거나, 기존 스프라이트 랩의 볼록 껍질·사각형·원 옵션을 쓰세요.']]},
+   limits:['폴리곤은 내보내기에 데이터로만 들어갑니다. CollisionPolygon2D 노드나 Unity 콜라이더는 만들지 않습니다.','충돌 폴리곤은 Unity, Aseprite, 아틀라스 형식으로 가지 않습니다. 일반 JSON을 쓰세요.','도형 안의 구멍은 Studio 폴리곤에 포함되지 않습니다.'],
+   versions:{body:['윤곽 추적과 예시의 숫자는 Nerulio 자체 모듈(src/game/contour.js)에서 나왔습니다. 메타데이터가 든 Godot 번들은 Godot 4.7.2가 불러왔지만, 그 실행에서 충돌 폴리곤을 물리 도형으로 쓰지는 않았습니다. 엔진 동작은 Godot 4.7과 Unity 6 문서를 따릅니다.'],sources:[S.godotPoly,S.godotArea,S.unityPoints,S.unityPhys]}
+  },
+  ja:{
+   answer:'スプライトのアルファからなぞった衝突ポリゴンは、ボックスよりもシルエットに沿います。Nerulioはフレームごとに、アルファのしきい値（既定127、つまり半分以上不透明なピクセルが対象）でピクセルの境界に沿って輪郭をなぞり、輪郭が自己交差しないようにしながら頂点数の上限（既定12、3〜64）に収まるまで単純化し、フレームごとに最大8個のポリゴンをフレームキャンバスのピクセルで保存します。ポリゴンはGodotバンドルのメタデータと汎用JSONに書き出され、CollisionPolygon2DノードやUnityのコライダーは作りません。',
+   concept:{title:'なぞる、単純化する、エンジンに点を渡す',body:[
+    '輪郭はピクセルの中心ではなく、不透明と透明のピクセルの境目をたどるので、どの頂点も整数ピクセルの角に乗ります。16 × 16の不透明な正方形は、ちょうど (0, 0)、(16, 0)、(16, 16)、(0, 16) になります。外側の輪郭は画面上で時計回り（yは下向き）になり、4px²未満の粒は捨てます。',
+    '単純化（Ramer–Douglas–Peucker）は直線に近い点を取り除きます。許容誤差は1pxから始まり、頂点数が上限以下になるまで引き上げられ、輪郭を自己交差させる誤差は採用しません。自己交差した輪郭は物理形状として使えないからです。誤差は段階的に上がるので、上限より少ない頂点数で止まることがあり、上限が低いと両脚のあいだのようなすき間がつぶれます。',
+    'エンジンはこうしたポリゴンを、オブジェクト基準の点のリストとして受け取ります。GodotのCollisionPolygon2Dは凹ポリゴンも受け付け、既定のソリッドモードでは自分で凸の部品に分けます。Area2Dか物理ボディの子である必要があります。UnityのPolygonCollider2Dはローカル空間の点を受け取り、スプライトのCustom Physics Shapeから独自の輪郭を作ることもできます。どちらもまずフレームのピボットを引き、Unityではさらにyを反転してPixels Per Unitで割ります。'],
+    terms:[['アルファしきい値','透明とみなす最大のアルファ値。127なら半分以上不透明なピクセルが残る。'],['頂点数の上限','単純化後のポリゴンが持てる点の最大数。'],['許容誤差','単純化で輪郭を動かしてよい距離（ピクセル）。']]},
+   example:{title:'例：32 × 48のキャラクター1フレーム、3つの設定',lead:'頭・胴・4pxのすき間をあけた両脚と、頭のまわりの淡い光（アルファ60）。Nerulioの輪郭追跡で計算した値：',lines:[
+    'なぞった輪郭（アルファ > 127）          頂点48、面積544px²',
+    '上限64   誤差1px      頂点16、面積540px²（−0.7%）、最大偏差1.0px、両脚は分かれたまま',
+    '上限12   誤差3.8px    頂点5、面積428px²（−21%）、最大偏差3.8px、脚のすき間が消える',
+    'しきい値40、上限12   光も含む：面積628px²、誤差2.0pxで頂点12',
+    '',
+    'Godot、ピボット (16, 48)  ポリゴンの点 (22, 48) → ノード空間 (22 − 16, 48 − 48) = (6, 0)'],
+    after:'この例では上限12でも頂点は12になりませんでした。次の誤差の段階で一気に5まで減ったからです。形が大事なら上限を上げ、アルファから自動生成したあとにStudioが示す頂点数を比べてください。'},
+   mapping:{title:'ポリゴンの行き先',head:['書き出し先','書き出しに入るポリゴン','エンジンで作るもの'],rows:[
+    ['Godot 4','`metadata/nerulio` のフレームごとの `collision`。ポリゴンごとに x0, y0, x1, y1 … の平らなリスト','Area2Dかボディの下のCollisionPolygon2D。スクリプトでフレームごとに、リストからピボットを引いた値を `polygon` に設定'],
+    ['汎用JSON','`frames[key].collision`：ポリゴンごとに [[x, y], …]','点のリストを受け取るどのエンジンでも'],
+    ['Unity 6','なし。書き出しの注記が汎用JSONを案内する','汎用JSONの点でPolygonCollider2D、またはUnity独自のCustom Physics Shape'],
+    ['Aseprite、Phaser、PixiJS、LÖVE、Spine、Starling、Defold、GameMaker、CSS','なし','アトラスの隣に汎用JSONも読み込む']]},
+   verify:{steps:[
+    'アルファから自動生成すると、通知に作ったフレーム数と頂点数が出ます。タグをコマ送りしてフレームごとの輪郭を見ます。',
+    '光や煙のあるフレームで、しきい値を127と低い値のあいだで切り替えて輪郭を比べます。',
+    'GodotでArea2Dの下に変換した点でCollisionPolygon2Dを追加し、Debug › Visible Collision Shapesをオンにしてスプライトに重ねて確認します。']},
+   trouble:{rows:[
+    ['ポリゴンが両脚のあいだなどのすき間を埋める','頂点数の上限のせいで、すき間より大きな誤差が使われた','自動生成後の頂点数が上限よりかなり少ない、または輪郭がすき間をまたぐ','上限を上げて（例：24）自動生成し直す'],
+    ['光や煙が衝突形状に入る','そのピクセルのアルファがしきい値より高い','しきい値を上げ下げして比べる','しきい値を上げて、淡いピクセルを透明扱いにする'],
+    ['エンジンで形状がずれる','点はピボットではなくフレームキャンバスの左上を基準にしたピクセル','例と点を1つ比べる','ピボットを引く。Unityではさらにyを反転しPixels Per Unitで割る'],
+    ['一部の部位にしかポリゴンがない','離れた形状はフレームごとに8個まで、4px²未満の粒は捨てる','自動生成のメッセージに捨てた粒や超過した形状が出る','絵の上で部位をつなぐか、足りないポリゴンを手で描く']]},
+   alternatives:{rows:[
+    ['UnityのSprite EditorのCustom Physics Shape','Unity専用。Unityが輪郭を作って編集し、Polygon Collider 2Dがスプライトの新しいインスタンスでそれを使います。'],
+    ['フレームごとにボックスか円を1つ','多くのプラットフォーマーの体。細かいポリゴンより軽く安定します。[[game/hitbox-editor|ヒットボックスエディター]]で描くか、従来のスプライトラボの凸包・矩形・円の選択肢を使ってください。']]},
+   limits:['ポリゴンは書き出しにデータとして入るだけで、CollisionPolygon2DノードやUnityのコライダーは作りません。','衝突ポリゴンはUnity、Aseprite、アトラス形式には入りません。汎用JSONを使ってください。','形状の中の穴はStudioのポリゴンに含まれません。'],
+   versions:{body:['輪郭の追跡と例の数値はNerulio自身のモジュール（src/game/contour.js）によるものです。メタデータ入りのGodotバンドルはGodot 4.7.2で読み込みましたが、その実行で衝突ポリゴンを物理形状として使ったわけではありません。エンジンの動作はGodot 4.7とUnity 6のドキュメントに従います。'],sources:[S.godotPoly,S.godotArea,S.unityPoints,S.unityPhys]}
+  }
  }
 };
