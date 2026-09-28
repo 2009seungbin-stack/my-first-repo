@@ -5,6 +5,7 @@ const gain=dB=>10**(dB/20);
 export function validateAudio(channels,sampleRate){
  if(!Array.isArray(channels)||!channels.length||channels.length>2||channels.some(c=>!(c instanceof Float32Array)||c.length!==channels[0].length)||!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>192000)throw Error('invalid audio');
  if(channels[0].length>sampleRate*180)throw Error('audio exceeds 3 minute limit');
+ for(const channel of channels)for(const sample of channel)if(!Number.isFinite(sample))throw Error('audio contains non-finite samples');
  return channels[0].length;
 }
 /** 4-point interpolation keeps the resampling path bounded and dependency-free. */

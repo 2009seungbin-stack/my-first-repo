@@ -21,6 +21,7 @@ test('CC0 WAV corpus is intact and constructed tempo/key cases meet the stated s
  }
 });
 test('silent and short inputs report uncertainty',()=>{assert.equal(estimateTempo(new Float32Array(sr),sr).reason,'too-short');assert.equal(estimateKey(new Float32Array(sr*3),sr).key,null);assert.throws(()=>validateAudio([new Float32Array(sr*181)],sr),/3 minute/);});
+test('non-finite decoded samples fail before analysis or export',()=>{const x=Float32Array.of(0,NaN,1);assert.throws(()=>validateAudio([x],sr),/non-finite/);assert.throws(()=>edit([x],sr),/non-finite/);});
 test('a single sustained pitch is not assigned a major or minor key',()=>{const result=estimateKey(tone(440,4),sr);assert.equal(result.key,null);assert.equal(result.reason,'insufficient-harmony');});
 test('opposed stereo channels keep an analyzable signal',()=>{const left=tone(440,2),right=Float32Array.from(left,v=>-v),mono=monoView([left,right]);assert.ok(mono.reduce((p,v)=>p+v*v,0)>100);});
 test('speed changes length while preserving a steady tone',()=>{const out=shift([tone()],{speed:1.5,semitones:0})[0];assert.ok(Math.abs(out.length/sr-2/1.5)<.001);assert.ok(Math.abs(1200*Math.log2(frequency(out.subarray(4000,15000),sr)/440))<10);});
