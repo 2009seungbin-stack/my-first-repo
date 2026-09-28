@@ -7,12 +7,19 @@ import {siteHeader,footerBrand} from './game-chrome.mjs';
 import {DIRECTORY} from '../src/task/registry.js';
 import {GAME_INTENT_PAGES,GAME_LAB_PAGES,GAME_KEYWORD_PAGES,GAME_HUB_PATH,STUDIO_ROUTE,SHOTS,STATUS,SPRITE_EXPORTS,TILE_EXPORTS,TEXTURE_EXPORTS,PIXEL_EXPORTS,FAMILIES,UI,WORKSPACES,COMMON_FAQ,HUB,HUB_GROUPS,CLASSIC_SUFFIX,APP_SUFFIX,classicPath,appPath,gameCopy,shotCaption,kindOf,isStudioKind,isGameIntentPage,isGameLabPage} from '../src/game-seo.js';
 import {GUIDES,GUIDE_INDEX_PATH,guidesFor,guidePath} from './guides-registry.mjs';
+import {DEPTH} from '../src/seo-depth/index.js';
+import {answerHTML,depthSlot,inline} from '../src/seo-depth/render.js';
 /** Static HTML of the game landing pages (src/game-seo.js) and of the /game/ hub.
  * Dark, editor-looking pages whose primary action hands the dropped files to the Studio
  * (src/game-landing.js → src/task/handoff.js → /game/studio/?ws=…). Everything a crawler
  * needs is in the markup; the script only adds the drop/hand-off and the language switch. */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/** Pages an in-copy [[key|label]] link may point to: every intent route, landing and the hub. */
+const LINKABLE=new Set([...Object.values(INTENTS).map(i=>i.path),...Object.keys(LANDINGS),GAME_HUB_PATH,STUDIO_ROUTE].filter(Boolean));
+export const resolveLink=key=>LINKABLE.has(key)?key:null;
+/** The intent content (src/seo-depth) of a page in one language, or null. */
+export const depthOf=(canonical,locale)=>DEPTH[canonical]?.[locale]||null;
 /** Which game page a route is, if any. Intent aliases (e.g. sprite-normalizer) show their
  * intent's landing; <route>/classic (old Lab behind a Studio landing) and <route>/app (the Lab behind
  * a Lab landing) are tool pages, not landings. */
@@ -145,17 +152,22 @@ export function gameLandingPage({game,locale,prefix,base,headHTML}){
  const title=`${c.title} · ${BRAND.name}`,classic=kind==='intent'&&page.classic?`${prefix}${classicPath(INTENTS[key].path)}/`:'';
  const tool=kind==='keyword'?toolRoute(page.intent):toolRoute(key);
  const crumb=`<nav class="gl-crumb" aria-label="Breadcrumb"><a href="${prefix}">${esc(BRAND.name)}</a><span aria-hidden="true">/</span><a href="${prefix}${GAME_HUB_PATH}/">${esc(UI.hub[locale])}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(k.name[locale])}</span></nav>`;
- const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</div></section>`;
+ const d=depthOf(game.canonical,locale),o={prefix,resolve:resolveLink},slot=s=>depthSlot(s,d,locale,o);
+ const hero=`<section class="gl-hero" data-ad-exclude><div class="gs-wrap"><div class="gl-hero-copy">${crumb}<h1>${esc(c.title)}</h1><p class="gl-lead">${esc(c.lead)}</p>${answerHTML(d,o)}${dropZone({game,locale,prefix})}</div>${shot(page.shot,locale,{priority:true})}</div></section>`;
+ const [lead,afterHow,afterTable,end]=['lead','after-how','after-table','end'].map(slot),html=list=>list.map(x=>x[2]).join('');
+ // The page's own limits come first in the Limits section, then the workspace's.
+ const ownLimits=(d?.limits?.items||d?.limits||[]),versions=end.filter(([id])=>id==='versions');
  const what=`<section class="gl-section" id="what"><h2>${esc(UI.what[locale])}</h2><ul class="gl-cards">${c.what.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
  const how=`<section class="gl-section" id="how"><h2>${esc(UI.how[locale])}</h2><ol class="gl-steps">${c.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>`;
  const cmp=c.compare?compareHTML(page,c,locale):'',table=c.table?tableHTML(c.table,'settings'):'';
  const exp=`<section class="gl-section" id="exports"><h2>${esc(studio?UI.exports[locale]:LAB_UI.outputs[locale])}</h2><p class="gl-muted">${esc(studio?UI.exportsLead[locale]:LAB_UI.outputsLead[locale])}</p>${exportTable(ws,locale)}<h3>${esc(UI.evidence[locale])}</h3><p class="gl-evidence">${esc((EVIDENCE[ws]||k.evidence)[locale])}</p></section>`;
- const limits=`<section class="gl-section" id="limits"><h2>${esc(UI.limits[locale])}</h2><ul class="gl-limits">${k.limits[locale].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`;
+ const limits=`<section class="gl-section" id="limits"><h2>${esc(UI.limits[locale])}</h2><ul class="gl-limits">${[...ownLimits.map(x=>`<li>${inline(x,o)}</li>`),...k.limits[locale].map(x=>`<li>${esc(x)}</li>`)].join('')}</ul></section>`;
  const classicHTML=classic?`<section class="gl-section gl-classic" data-gl-classic><h2>${esc(UI.classic[locale])}</h2><p>${esc(page.classic[locale])}</p><a href="${classic}" rel="nofollow">${esc(UI.classicLink[locale])} →</a></section>`:'';
  const faq=faqHTML(gameFaq(game,locale),locale);
  const rel=related(page.related||[],locale,prefix,{id:kind==='keyword'?page.intent:key,ws});
- const items=[['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...(table?[['settings',c.table.title]]:[]),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
- const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${what}${cmp}${how}${table}<!--ad:content-1-->${exp}${limits}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
+ const ids=list=>list.map(([id,label])=>[id,label]);
+ const items=[...ids(lead),['what',UI.what[locale]],...(cmp?[['compare',c.compare.title]]:[]),['how',UI.how[locale]],...ids(afterHow),...(table?[['settings',c.table.title]]:[]),...ids(afterTable),['exports',studio?UI.exports[locale]:LAB_UI.outputs[locale]],['limits',UI.limits[locale]],...ids(versions),['faq',UI.faq[locale]],...(rel?[['related',UI.related[locale]]]:[])];
+ const body=`${header(locale,prefix)}<main class="gl-main" id="main" data-game-landing${targetAttrs(game,prefix)} data-key="${esc(key)}" data-kind="${kind}"${page.family?` data-family="${esc(page.family)}"`:''} data-accept="${esc(k.accept)}"${tool?` data-classic="${esc(tool)}"`:''}>${hero}<div class="gs-wrap">${badges(ws,locale,page.highlight||[])}</div><div class="gs-wrap gl-layout">${toc(items,locale)}<div class="gl-body" data-ad-host>${html(lead)}${what}${cmp}${how}${html(afterHow)}${table}${html(afterTable)}<!--ad:content-1-->${exp}${limits}${html(versions)}${classicHTML}${faq}<!--ad:content-2-->${rel}</div></div></main>${footerHTML(locale,prefix)}`;
  return shell({locale,base,title,description:c.description,headHTML,body,shotKey:page.shot});
 }
 /** The questions a page shows (and its FAQPage data states): its own, then the common ones. */
