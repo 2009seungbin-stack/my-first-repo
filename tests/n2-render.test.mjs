@@ -298,3 +298,9 @@ test('games hub lists Korean patches a game update left unconfirmed (real versio
  const html=await (await renderPlatformPage(new Request('https://nerulio.com/ko/games/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  assert(html.includes('업데이트로 한글패치 확인이 필요한 게임'));
 });
+
+test('works hub shows this week\'s broadcasts by weekday in Korea time',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const html=await (await renderPlatformPage(new Request('https://nerulio.com/ko/subculture/?type=work'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ assert(html.includes('이번 주 방영·공개 시간표 (한국 시간)')&&(html.match(/<li( class="today")?><h3>/g)||[]).length===7);
+});

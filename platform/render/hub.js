@@ -40,6 +40,7 @@ export async function loadHub(db,vertical,o){
  const now=o.now??Date.now();
  /** @type {any} */const now_={};
  if(!type&&vertical==='games'){now_.stale=await stalePatches(db,10);now_.updates=await recentVersions(db,{since:now-7*864e5,until:now,vertical:'games',limit:10});}
+ if(type==='work'&&vertical==='subculture')now_.week=(await upcomingEvents(db,{from:now,to:now+7*864e5,vertical:'subculture',limit:60})).filter((/** @type {any} */ e)=>e.kind==='broadcast'||e.kind==='release');
  if(!type&&vertical==='subculture'){now_.events=await upcomingEvents(db,{from:now,to:now+14*864e5,vertical:'subculture',limit:10});now_.preorders=await preorderDeadlines(db,now,8);}
  return {vertical,v,type,page:pageNo,counts,groups,compare,now:now_,at:now,l:o.l,channels:o.channels||[]};
 }
@@ -86,9 +87,22 @@ ${list.map((/** @type {any} */ r)=>{const i=r.f('api_input_price'),o=r.f('api_ou
 function nowBoxes(m){
  const {l,at}=m,ko=l==='ko',n=m.now||{};
  const out=[];
+ if(n.week)return weekTable(m);
  if(n.stale?.length)out.push(box({title:ko?'업데이트로 한글패치 확인이 필요한 게임':'Korean patches to re-check after an update',extra:html`<span class="st u">${ko?'미확인':'unchecked'}</span>`},html`<ul class="rows">${n.stale.map((/** @type {any} */ s)=>html`<li><a class="tt" href="${channelUrl(l,s.game)}">${nameOf(s.game,l)} <b>${s.current}</b></a><span class="fine">${ko?`패치는 ${s.lastOk}에서 작동`:`patch worked on ${s.lastOk}`}</span><a class="fine" href="${channelUrl(l,s.patch)}">${ko?'패치 채널 ›':'patch ›'}</a></li>`)}</ul>`));
  if(n.updates?.length)out.push(box({title:ko?'이번 주 업데이트된 게임':'Updated this week',extra:badge('AUTOMATED',l)},html`<ul class="rows">${n.updates.map((/** @type {any} */ r)=>html`<li><span class="tm">${boardTime(r.released_at,at,l)}</span><a class="tt" href="${channelUrl(l,r.entity)}">${nameOf(r.entity,l)} <b>${r.version}</b></a></li>`)}</ul>`));
  if(n.events?.length)out.push(box({title:ko?'2주 안의 방송·이벤트':'Next two weeks',extra:badge('OFFICIAL',l)},html`<ul class="rows">${n.events.map((/** @type {any} */ ev)=>html`<li class="ev"><span class="dday">${dday(ev.starts_at,at,l)}</span><a class="tt" href="${channelUrl(l,ev.entity)}">${ev.title[l]||ev.title.en}</a><span class="fine">${eventTime(ev.starts_at,ev.precision,l)}</span></li>`)}</ul>`));
  if(n.preorders?.length)out.push(box({title:ko?'예약 마감 임박 굿즈':'Pre-orders closing soon',note:ko?'제조사 공식 상품 페이지 기준':'official product pages'},html`<ul class="rows">${n.preorders.map((/** @type {any} */ p)=>html`<li><span class="st soon">${ko?'마감':'closes'} ${isoDateText(p.ends).slice(5)}</span><a class="tt" href="${channelUrl(l,p.entity)}">${nameOf(p.entity,l)}</a></li>`)}</ul>`));
  return out.length?html`<div class="g2">${out}</div>`:'';
+}
+
+const WD=/** @type {Record<string,string[]>} */({ko:['일','월','화','수','목','금','토'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']});
+/** Broadcasts and releases of the next 7 days by weekday, in Korea time on Korean pages. @param {any} m */
+function weekTable(m){
+ const {l,at}=m,ko=l==='ko',tz=ko?'Asia/Seoul':'UTC';
+ const parts=(/** @type {number} */ ms)=>Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:tz,weekday:'short',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ms)).map(p=>[p.type,p.value]));
+ const days=Array.from({length:7},(_,i)=>{const p=parts(at+i*864e5);return {key:`${p.month}.${p.day}`,wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday)};});
+ /** @type {Record<string,any[]>} */const by={};
+ for(const e of m.now.week){const p=parts(e.starts_at);(by[`${p.month}.${p.day}`]??=[]).push({...e,hm:e.precision==='time'?`${p.hour}:${p.minute}`:''});}
+ const body=html`<ol class="week">${days.map((d,i)=>html`<li${i===0?html` class="today"`:''}><h3>${WD[l][d.wd]} <span class="fine">${d.key}</span></h3>${(by[d.key]||[]).length?html`<ul>${(by[d.key]||[]).sort((a,b)=>a.starts_at-b.starts_at).map(e=>html`<li><span class="tm">${e.hm||'–'}</span><a href="${channelUrl(l,e.entity)}">${e.title[l]||e.title.en}</a></li>`)}</ul>`:html`<p class="fine">${ko?'편성 없음':'Nothing scheduled'}</p>`}</li>`)}</ol>`;
+ return box({title:ko?'이번 주 방영·공개 시간표 (한국 시간)':'This week\'s broadcasts (UTC)',extra:badge('OFFICIAL',l),note:ko?'공식 편성 발표 기준 · 시간 미정은 –':'official schedules'},body);
 }
