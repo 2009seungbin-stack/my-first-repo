@@ -1102,5 +1102,342 @@ export default {
    versions:{body:['キーの検出は、合成したキーカラーのシート（マージン2 px・スペーシング1 pxのマゼンタのグリッドをキーで抜き、正確に32フレームに切る）と、16 pxタイル・1 px間隔のマゼンタのローグライク用ダンジョンセットのような実際のKenneyのシートでテストしています。すでにアルファを使うシートと、不透明なノイズテクスチャにはキーが適用されません。']}
   }
  },
+/* ============================================================================ aseprite-to-sprite-sheet */
+ 'game/aseprite-to-sprite-sheet':{
+  type:'conversion',
+  intent:{primary:'export an .aseprite file as a packed sprite sheet PNG with JSON data',secondary:['Aseprite JSON hash vs array','frameTags, slices and duration in the JSON','load it in Phaser','without Aseprite installed'],
+   goal:'one packed PNG plus a data file (Aseprite JSON or an engine format) that keeps tags, per-frame timing and pivots',input:'.aseprite / .ase',output:'PNG sheet + Aseprite JSON (hash or array) + README, or an engine bundle',target:'Phaser 3/4 (Aseprite JSON); other engines via their own targets',support:'full',
+   evidence:['src/game/export/atlas-json.js (asepriteJson: one page, keys "0".."n", frameTags with repeat string, pivot and box slices, repeated entries)','docs/STUDIO-PACK.md (Aseprite JSON: Phaser 3.90/4.2 load.aseprite + createFromAseprite, PixiJS 8.21 frames)','docs/ENGINE-VERIFY.md (reference Aseprite-made JSON passes Phaser 3/4 and Pixi 8)'],
+   external:['Aseprite docs: CLI --sheet, --data, --format json-hash/json-array, --list-tags, --list-slices, --sheet-type, --trim','Phaser docs: load.aseprite, createFromAseprite export settings, pixelArt']},
+  en:{
+   answer:"Drop the `.aseprite` file and open Pack & Export: the frames are packed into a PNG (trimmed, identical frames stored once) and written with the data file your engine reads. The Aseprite JSON target gives the layout of Aseprite's own File > Export Sprite Sheet: `frames` with `duration`, `meta.frameTags` and `meta.slices`, as hash or array, on one page, with frame keys `0`, `1`, … that Phaser's `createFromAseprite` expects. Godot, Unity, PixiJS and other targets carry the tags and timing in their own form.",
+   concept:{title:'What a sprite sheet with Aseprite JSON contains',body:[
+    "A sprite sheet is one image with every frame on it plus a data file that says where each frame is. In Aseprite's JSON each frame entry has `frame` (the rectangle on the sheet), `rotated`, `trimmed`, `spriteSourceSize` (where the trimmed rectangle sits in the original canvas), `sourceSize` (the canvas) and `duration` in milliseconds. `meta` holds the image name, size and scale and, when requested, `frameTags` (`name`, `from`, `to`, `direction`) and `slices`.",
+    "Hash and array differ only in `frames`: the hash layout is an object keyed by frame name, the array layout a list whose entries carry a `filename`. Frame names come from Aseprite's filename format; Phaser's `createFromAseprite` expects the item filename to be just `{frame}`, so the keys are `0`, `1`, `2` …",
+    "Tags are `from`–`to` ranges over the frame list, so every tag must be one contiguous run. Nerulio keeps that true while packing: a frame used by two tags, or a tag whose frames are out of order, gets a second entry pointing at the same region, and the export note says how many entries were repeated."],
+    terms:[['spriteSourceSize','Position and size of the trimmed pixels inside the original frame.'],['sourceSize','The original frame (canvas) size before trimming.'],['frameTags','Aseprite\'s animations: name, first and last frame, direction, and a repeat count when one is set.'],['Alias','A frame whose visible pixels equal another frame\'s is stored once; both entries point at it.']]},
+   example:{title:'Example: the JSON written for a trimmed frame and two tags',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    'trim: 32 × 32 = 1024 px² → 18 × 29 = 522 px² stored (−49 %), drawn back at (7, 3)'],
+    after:'An endless tag has no `repeat`; a tag that plays once has `"repeat": "1"`. The pivot (16, 32) is the bottom centre of the 32 × 32 canvas, used when the file has no pivot slice. Keys are positions in this list, not in the original file.'},
+   mapping:{head:['In the .aseprite','In the Aseprite JSON','Note'],rows:[
+    ['Frame pixels (all visible layers)','A trimmed region on the PNG: `frame` + `spriteSourceSize`','Layers are composited; identical frames are stored once'],
+    ['Frame duration','`duration` in ms','Whole milliseconds'],
+    ['Tag','A `meta.frameTags` entry with `from`, `to`, `direction`','Shared or out-of-order frames get extra entries'],
+    ['Repeat','`repeat` as a string when finite','Absent for endless tags'],
+    ['Pivot slice (or the bottom centre)','A `pivot` slice in `meta.slices`, keyed where it changes','Bounds = the frame canvas'],
+    ['Hit / hurt boxes','One slice per type and slot, with an empty key where a box stops','Rectangles only'],
+    ['Layers','One entry in `meta.layers` (`Layer 1`)','The sheet holds composited frames'],
+    ['Pages','Exactly one PNG','This target re-packs onto one page']]},
+   outputs:{rows:[
+    ['hero.png','The packed sheet: one page for this target.'],
+    ['hero.json','Aseprite JSON, hash or array, with `frameTags` and `slices`.'],
+    ['README-ASEPRITE-JSON.md','The Phaser loading code for these files and what PixiJS reads from them.']]},
+   target:{title:'Load it in Phaser 3 or 4',steps:[
+    'Copy `hero.png` and `hero.json` into your game\'s assets folder.',
+    'In `preload()`: `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`.',
+    'In `create()`: `this.anims.createFromAseprite(\'hero\')` creates one animation per tag, named after the tag.',
+    'Add and play: `this.add.sprite(100, 100, \'hero\').play(\'walk\')`. For pixel art, create the game with `pixelArt: true`.'],
+    note:'For Godot, Unity or PixiJS choose their own target instead of Aseprite JSON: see [[game/aseprite-to-godot|Aseprite to Godot]], [[game/aseprite-to-unity|Aseprite to Unity]] and [[game/aseprite-json-to-pixi|Aseprite JSON to PixiJS]].'},
+   verify:{steps:[
+    'The number of entries in `frames` equals the frame count plus the repeated entries the export note mentions.',
+    'Play each tag in the game and time one cycle against Aseprite (walk: 6 × 100 ms = 0.6 s).',
+    'Open `hero.png`: trimmed frames sit tightly packed, so the sheet is smaller than a grid export of the same frames.']},
+   trouble:{rows:[
+    ['“Aseprite JSON describes one sheet image” error','The frames do not fit on one page at the current page limit','The page size setting in Pack & Export','Raise the page limit, or use the Phaser preset (multiatlas) or PixiJS 8 (linked pages)'],
+    ['Phaser creates no animations','The JSON has no `frameTags`, or its keys are not plain frame numbers','Look at the first key in `frames` and for `meta.frameTags`','Use Nerulio\'s Aseprite JSON; from Aseprite itself, set Item Filename to `{frame}` and tick Tags in the Meta options'],
+    ['Frames jump in your own loader','It ignores `spriteSourceSize`, so trimmed frames lose their offset','Compare a trimmed frame\'s position with `spriteSourceSize`','Draw each frame at `spriteSourceSize.x/y` inside `sourceSize`, or turn trim off'],
+    ['A reader shows frames sideways','Rotation was allowed while packing; Aseprite itself never writes rotated frames','`"rotated": true` in `frames`','Turn rotation off for this export'],
+    ['Pixel art is blurry in the game','The engine filters the texture linearly','Zoom in on an edge','Phaser: `pixelArt: true` in the game config; other engines: nearest filtering']]},
+   alternatives:{rows:[
+    ['Aseprite\'s File > Export Sprite Sheet, or `aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','You have Aseprite and want its own layout options; `--sheet-type packed` packs and `--trim` trims.'],
+    ['An engine target instead of Aseprite JSON','The engine does not build animations from Aseprite JSON (PixiJS, Godot, Unity): see [[game/keep-aseprite-tags-when-packing|which target keeps what]].']]},
+   limits:['Aseprite JSON is one page; very large sets need an engine preset with multipack.','Layers are not exported as separate sheets.'],
+   versions:{body:['Nerulio\'s Aseprite JSON was loaded by Phaser 3.90 and 4.2 with `load.aseprite` and `createFromAseprite`, and its frames by PixiJS 8.21; a JSON made by Aseprite itself passed the same checks as a reference. The `.aseprite` reader behind it was checked on 231 real files. The Aseprite and Phaser details above follow their documentation.'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  },
+  ko:{
+   answer:'`.aseprite` 파일을 넣고 패킹·내보내기를 열면 프레임이 PNG 한 장에 패킹되고(트림, 같은 프레임은 한 번만 저장) 엔진이 읽는 데이터 파일과 함께 나옵니다. Aseprite JSON 대상은 Aseprite 자체 File > Export Sprite Sheet와 같은 구조입니다. `duration`이 있는 `frames`, `meta.frameTags`, `meta.slices`를 해시나 배열로, 한 페이지에, Phaser의 `createFromAseprite`가 기대하는 `0`, `1`, … 프레임 키로 씁니다. Godot, Unity, PixiJS 등 다른 대상은 태그와 타이밍을 각자 형식으로 담습니다.',
+   concept:{title:'Aseprite JSON이 딸린 스프라이트 시트의 구성',body:[
+    '스프라이트 시트는 모든 프레임을 담은 이미지 한 장과 각 프레임의 위치를 알려 주는 데이터 파일입니다. Aseprite JSON의 프레임 항목에는 `frame`(시트 위 사각형), `rotated`, `trimmed`, `spriteSourceSize`(원래 캔버스 안에서 잘린 사각형의 위치), `sourceSize`(캔버스), 밀리초 단위 `duration`이 있습니다. `meta`에는 이미지 이름·크기·배율이 있고, 요청하면 `frameTags`(`name`, `from`, `to`, `direction`)와 `slices`가 들어갑니다.',
+    '해시와 배열은 `frames`만 다릅니다. 해시는 프레임 이름을 키로 하는 객체, 배열은 항목마다 `filename`이 있는 목록입니다. 프레임 이름은 Aseprite의 파일 이름 형식에서 오며, Phaser의 `createFromAseprite`는 항목 파일 이름이 `{frame}`뿐이기를 기대하므로 키가 `0`, `1`, `2` …가 됩니다.',
+    '태그는 프레임 목록 위의 `from`–`to` 구간이라 태그마다 한 줄로 이어져 있어야 합니다. Nerulio는 패킹하면서도 이를 지킵니다. 두 태그가 함께 쓰는 프레임이나 순서가 뒤섞인 태그의 프레임은 같은 영역을 가리키는 항목을 하나 더 만들고, 내보내기 안내에 반복한 항목 수를 적습니다.'],
+    terms:[['spriteSourceSize','원래 프레임 안에서 트림된 픽셀의 위치와 크기.'],['sourceSize','트림 전 원래 프레임(캔버스) 크기.'],['frameTags','Aseprite의 애니메이션: 이름, 첫·마지막 프레임, 방향, 설정돼 있으면 반복 횟수.'],['별칭(Alias)','보이는 픽셀이 다른 프레임과 같은 프레임은 한 번만 저장하고 두 항목이 같은 곳을 가리킵니다.']]},
+   example:{title:'예시: 트림된 프레임 하나와 태그 두 개의 JSON',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    '트림: 32 × 32 = 1024 px² → 18 × 29 = 522 px²만 저장 (−49 %), (7, 3)에 다시 그림'],
+    after:'무한 반복 태그에는 `repeat`가 없고, 한 번 재생하는 태그는 `"repeat": "1"`입니다. 피벗 (16, 32)는 32 × 32 캔버스의 아래 가운데로, 파일에 피벗 슬라이스가 없을 때 씁니다. 키는 원래 파일이 아니라 이 목록에서의 위치입니다.'},
+   mapping:{head:['.aseprite에서','Aseprite JSON에서','참고'],rows:[
+    ['프레임 픽셀(보이는 레이어 전부)','PNG 위 트림된 영역: `frame` + `spriteSourceSize`','레이어는 합성, 같은 프레임은 한 번만 저장'],
+    ['프레임 길이','ms 단위 `duration`','정수 밀리초'],
+    ['태그','`from`, `to`, `direction`이 있는 `meta.frameTags` 항목','함께 쓰거나 순서가 뒤섞인 프레임은 항목 추가'],
+    ['반복','유한하면 문자열 `repeat`','무한 반복 태그에는 없음'],
+    ['피벗 슬라이스(없으면 아래 가운데)','`meta.slices`의 `pivot` 슬라이스, 바뀌는 곳에 키','경계 = 프레임 캔버스'],
+    ['히트·허트 박스','종류와 순번마다 슬라이스 하나, 박스가 끝나는 곳에 빈 키','사각형만'],
+    ['레이어','`meta.layers`에 항목 하나(`Layer 1`)','시트에는 합성된 프레임'],
+    ['페이지','PNG 정확히 한 장','이 대상은 한 페이지로 다시 패킹']]},
+   outputs:{rows:[
+    ['hero.png','패킹된 시트. 이 대상은 한 페이지입니다.'],
+    ['hero.json','`frameTags`와 `slices`가 있는 Aseprite JSON(해시 또는 배열).'],
+    ['README-ASEPRITE-JSON.md','이 파일들을 Phaser에서 불러오는 코드와, PixiJS가 여기서 무엇을 읽는지.']]},
+   target:{title:'Phaser 3·4에서 불러오기',steps:[
+    '`hero.png`와 `hero.json`을 게임의 에셋 폴더에 복사합니다.',
+    '`preload()`에서: `this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`.',
+    '`create()`에서: `this.anims.createFromAseprite(\'hero\')`가 태그마다 태그 이름의 애니메이션을 만듭니다.',
+    '추가하고 재생: `this.add.sprite(100, 100, \'hero\').play(\'walk\')`. 픽셀아트라면 게임을 `pixelArt: true`로 만드세요.'],
+    note:'Godot, Unity, PixiJS에는 Aseprite JSON 대신 각자의 대상을 고르세요. [[game/aseprite-to-godot|Aseprite를 Godot로]], [[game/aseprite-to-unity|Aseprite를 Unity로]], [[game/aseprite-json-to-pixi|Aseprite JSON을 PixiJS로]] 참고.'},
+   verify:{steps:[
+    '`frames`의 항목 수는 프레임 수에 내보내기 안내가 말한 반복 항목 수를 더한 값입니다.',
+    '게임에서 태그를 재생해 한 사이클 시간을 Aseprite와 비교하세요(walk: 6 × 100 ms = 0.6초).',
+    '`hero.png`를 열어 보세요. 트림된 프레임이 빽빽하게 패킹되어 같은 프레임을 격자로 내보낼 때보다 시트가 작습니다.']},
+   trouble:{rows:[
+    ['“Aseprite JSON describes one sheet image” 오류','현재 페이지 크기 한도로는 프레임이 한 페이지에 다 들어가지 않습니다','패킹·내보내기의 페이지 크기 설정','페이지 한도를 올리거나, Phaser 프리셋(멀티아틀라스)이나 PixiJS 8(연결된 페이지)을 쓰세요'],
+    ['Phaser에서 애니메이션이 안 생김','JSON에 `frameTags`가 없거나, 키가 단순한 프레임 번호가 아닙니다','`frames`의 첫 키와 `meta.frameTags`가 있는지 봅니다','Nerulio의 Aseprite JSON을 쓰거나, Aseprite에서 내보낼 때 Item Filename을 `{frame}`으로 두고 Meta의 Tags를 켜세요'],
+    ['직접 만든 로더에서 프레임이 튐','`spriteSourceSize`를 무시해서 트림된 프레임이 오프셋을 잃었습니다','트림된 프레임의 위치를 `spriteSourceSize`와 비교합니다','각 프레임을 `sourceSize` 안의 `spriteSourceSize.x/y`에 그리거나 트림을 끄세요'],
+    ['읽는 프로그램에서 프레임이 옆으로 누움','패킹 때 회전을 허용했습니다. Aseprite 자체는 회전된 프레임을 쓰지 않습니다','`frames`에 `"rotated": true`','이 내보내기에서는 회전을 끄세요'],
+    ['게임에서 픽셀아트가 흐릿함','엔진이 텍스처를 선형 필터로 그립니다','가장자리를 확대해 봅니다','Phaser는 게임 설정에 `pixelArt: true`, 다른 엔진은 최근접 필터']]},
+   alternatives:{rows:[
+    ['Aseprite의 File > Export Sprite Sheet, 또는 `aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','Aseprite가 있고 그 자체의 배치 옵션을 쓰고 싶을 때. `--sheet-type packed`는 패킹, `--trim`은 트림합니다.'],
+    ['Aseprite JSON 대신 엔진 대상','엔진이 Aseprite JSON으로 애니메이션을 만들지 않을 때(PixiJS, Godot, Unity). [[game/keep-aseprite-tags-when-packing|대상별로 무엇이 남는지]] 참고.']]},
+   limits:['Aseprite JSON은 한 페이지입니다. 아주 큰 세트는 멀티팩이 되는 엔진 프리셋이 필요합니다.','레이어를 따로 시트로 내보내지는 않습니다.'],
+   versions:{body:['Nerulio의 Aseprite JSON은 Phaser 3.90과 4.2가 `load.aseprite`와 `createFromAseprite`로 불러왔고, PixiJS 8.21이 프레임을 읽었습니다. Aseprite가 직접 만든 JSON도 기준으로 같은 검사를 통과했습니다. 바탕이 되는 `.aseprite` 읽기는 실제 파일 231개로 확인했습니다. 위의 Aseprite·Phaser 내용은 각 공식 문서를 따릅니다.'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  },
+  ja:{
+   answer:'`.aseprite`ファイルをドロップしてパック＆書き出しを開くと、フレームがPNGにパックされ（トリム、同一フレームは1回だけ保存）、エンジンが読むデータファイルと一緒に書き出されます。Aseprite JSONターゲットはAseprite自身のFile > Export Sprite Sheetと同じ構造です。`duration`付きの`frames`、`meta.frameTags`、`meta.slices`を、ハッシュか配列で、1ページに、Phaserの`createFromAseprite`が前提とする`0`、`1`、…のフレームキーで書きます。Godot、Unity、PixiJSなど他のターゲットは、タグとタイミングをそれぞれの形式で持たせます。',
+   concept:{title:'Aseprite JSON付きスプライトシートの中身',body:[
+    'スプライトシートは、全フレームを載せた画像1枚と、各フレームの位置を示すデータファイルです。Aseprite JSONのフレーム項目には、`frame`（シート上の矩形）、`rotated`、`trimmed`、`spriteSourceSize`（元のキャンバス内でのトリム後の矩形の位置）、`sourceSize`（キャンバス）、ミリ秒の`duration`があります。`meta`には画像名・サイズ・スケールがあり、指定すれば`frameTags`（`name`、`from`、`to`、`direction`）と`slices`が入ります。',
+    'ハッシュと配列の違いは`frames`だけです。ハッシュはフレーム名をキーにしたオブジェクト、配列は各項目に`filename`を持つリストです。フレーム名はAsepriteのファイル名形式から決まり、Phaserの`createFromAseprite`はアイテムのファイル名が`{frame}`だけであることを前提にしているので、キーは`0`、`1`、`2` …になります。',
+    'タグはフレームリスト上の`from`–`to`の範囲なので、各タグは1つの連続した並びでなければなりません。Nerulioはパックしてもこれを守ります。2つのタグが共有するフレームや、順番の乱れたタグのフレームには同じ領域を指す項目をもう1つ作り、書き出しメモに繰り返した項目の数を書きます。'],
+    terms:[['spriteSourceSize','元のフレーム内での、トリム後のピクセルの位置とサイズ。'],['sourceSize','トリム前の元のフレーム（キャンバス）サイズ。'],['frameTags','Asepriteのアニメーション：名前、最初と最後のフレーム、方向、設定されていれば繰り返し回数。'],['エイリアス','見えるピクセルが他のフレームと同じフレームは1回だけ保存し、両方の項目がそこを指します。']]},
+   example:{title:'具体例：トリムされたフレーム1つとタグ2つのJSON',lines:[
+    '"0": { "frame": { "x": 0, "y": 0, "w": 18, "h": 29 }, "rotated": false, "trimmed": true,',
+    '       "spriteSourceSize": { "x": 7, "y": 3, "w": 18, "h": 29 },',
+    '       "sourceSize": { "w": 32, "h": 32 }, "duration": 125 }',
+    '"frameTags": [',
+    '  { "name": "idle",   "from": 0,  "to": 3,  "direction": "forward", "color": "#6acd5bff" },',
+    '  { "name": "attack", "from": 10, "to": 15, "direction": "forward", "color": "#fe5b59ff", "repeat": "1" } ]',
+    '"slices": [ { "name": "pivot", "color": "#0000ffff", "keys": [',
+    '  { "frame": 0, "bounds": { "x": 0, "y": 0, "w": 32, "h": 32 }, "pivot": { "x": 16, "y": 32 } } ] } ]',
+    '',
+    'トリム: 32 × 32 = 1024 px² → 18 × 29 = 522 px² だけ保存 (−49 %)、(7, 3) に描き戻す'],
+    after:'無限ループのタグには`repeat`がなく、1回再生のタグは`"repeat": "1"`です。ピボット(16, 32)は32 × 32キャンバスの下中央で、ファイルにピボットスライスがないときに使います。キーは元ファイルではなく、このリストでの位置です。'},
+   mapping:{head:['.asepriteでは','Aseprite JSONでは','補足'],rows:[
+    ['フレームのピクセル（表示中の全レイヤー）','PNG上のトリム後の領域：`frame` + `spriteSourceSize`','レイヤーは合成、同一フレームは1回だけ保存'],
+    ['フレームの長さ','msの`duration`','整数ミリ秒'],
+    ['タグ','`from`、`to`、`direction`を持つ`meta.frameTags`の項目','共有・順不同のフレームは項目を追加'],
+    ['繰り返し','有限なら文字列の`repeat`','無限ループのタグにはない'],
+    ['ピボットスライス（なければ下中央）','`meta.slices`の`pivot`スライス、変わる位置にキー','範囲 = フレームのキャンバス'],
+    ['ヒット・ハートボックス','種類と番号ごとにスライス1つ、ボックスが終わる位置に空のキー','矩形のみ'],
+    ['レイヤー','`meta.layers`に1項目（`Layer 1`）','シートには合成済みのフレーム'],
+    ['ページ','PNGちょうど1枚','このターゲットは1ページにパックし直す']]},
+   outputs:{rows:[
+    ['hero.png','パック済みのシート。このターゲットでは1ページです。'],
+    ['hero.json','`frameTags`と`slices`を持つAseprite JSON（ハッシュまたは配列）。'],
+    ['README-ASEPRITE-JSON.md','これらのファイルをPhaserで読み込むコードと、PixiJSがここから何を読むか。']]},
+   target:{title:'Phaser 3・4で読み込む',steps:[
+    '`hero.png`と`hero.json`をゲームのアセットフォルダにコピーします。',
+    '`preload()`で：`this.load.aseprite(\'hero\', \'hero.png\', \'hero.json\')`。',
+    '`create()`で：`this.anims.createFromAseprite(\'hero\')`がタグごとにタグ名のアニメーションを作ります。',
+    '追加して再生：`this.add.sprite(100, 100, \'hero\').play(\'walk\')`。ピクセルアートならゲームを`pixelArt: true`で作成してください。'],
+    note:'Godot、Unity、PixiJSにはAseprite JSONではなくそれぞれのターゲットを選んでください。[[game/aseprite-to-godot|AsepriteからGodotへ]]、[[game/aseprite-to-unity|AsepriteからUnityへ]]、[[game/aseprite-json-to-pixi|Aseprite JSONからPixiJSへ]]を参照。'},
+   verify:{steps:[
+    '`frames`の項目数は、フレーム数に書き出しメモが示す繰り返し項目数を足した数です。',
+    'ゲームでタグを再生し、1サイクルの時間をAsepriteと比べます（walk：6 × 100 ms = 0.6秒）。',
+    '`hero.png`を開きます。トリムされたフレームが詰めてパックされ、同じフレームをグリッドで書き出すよりシートが小さくなっています。']},
+   trouble:{rows:[
+    ['「Aseprite JSON describes one sheet image」エラー','現在のページサイズ上限では、フレームが1ページに収まりません','パック＆書き出しのページサイズ設定','ページ上限を上げるか、Phaserプリセット（マルチアトラス）かPixiJS 8（リンクされたページ）を使ってください'],
+    ['Phaserでアニメーションができない','JSONに`frameTags`がないか、キーが単純なフレーム番号ではありません','`frames`の最初のキーと`meta.frameTags`の有無を見ます','NerulioのAseprite JSONを使うか、Asepriteから書き出すときにItem Filenameを`{frame}`にし、MetaのTagsをオンにしてください'],
+    ['自作ローダーでフレームが跳ねる','`spriteSourceSize`を無視しているため、トリムされたフレームがオフセットを失っています','トリムされたフレームの位置を`spriteSourceSize`と比べます','各フレームを`sourceSize`内の`spriteSourceSize.x/y`に描くか、トリムをオフにしてください'],
+    ['読み込み側でフレームが横倒しになる','パック時に回転を許可しました。Aseprite自身は回転したフレームを書きません','`frames`に`"rotated": true`','この書き出しでは回転をオフにしてください'],
+    ['ゲームでピクセルアートがぼやける','エンジンがテクスチャを線形フィルタで描いています','縁を拡大してみます','Phaserはゲーム設定で`pixelArt: true`、他のエンジンはニアレストのフィルタ']]},
+   alternatives:{rows:[
+    ['AsepriteのFile > Export Sprite Sheet、または`aseprite -b hero.aseprite --sheet hero.png --data hero.json --format json-array --list-tags --list-slices`','Asepriteがあり、その配置オプションを使いたいとき。`--sheet-type packed`でパック、`--trim`でトリムします。'],
+    ['Aseprite JSONではなくエンジンのターゲット','エンジンがAseprite JSONからアニメーションを作らないとき（PixiJS、Godot、Unity）。[[game/keep-aseprite-tags-when-packing|ターゲットごとに何が残るか]]を参照。']]},
+   limits:['Aseprite JSONは1ページです。非常に大きなセットにはマルチパック対応のエンジンプリセットが必要です。','レイヤーを別々のシートとしては書き出しません。'],
+   versions:{body:['NerulioのAseprite JSONは、Phaser 3.90と4.2が`load.aseprite`と`createFromAseprite`で読み込み、PixiJS 8.21がフレームを読みました。Aseprite自身が作ったJSONも基準として同じ検査に通っています。元になる`.aseprite`の読み込みは実ファイル231個で確認済みです。上のAsepriteとPhaserの内容はそれぞれの公式ドキュメントに基づきます。'],sources:[ASE_CLI,ASE_SHEET,PHASER_LOADER,PHASER_ANIMS,PHASER_CONFIG]}
+  }
+ },
+/* ============================================================================ aseprite-json-to-pixi */
+ 'game/aseprite-json-to-pixi':{
+  type:'conversion',
+  intent:{primary:'play Aseprite JSON animations (frameTags, durations) in PixiJS 8',secondary:['PixiJS ignores frameTags','AnimatedSprite with per-frame time','spritesheet animations map from Aseprite tags'],
+   goal:'an AnimatedSprite per Aseprite tag that plays in the tag\'s direction at each frame\'s own duration',input:'Aseprite JSON (hash or array) + its PNG',output:'PixiJS 8 spritesheet JSON (animations map, anchors, meta.nerulio.animations) + PNG + README',target:'PixiJS 8 (verified 8.21)',support:'full',
+   evidence:['src/studio/sprite/atlas-data.js (Aseprite JSON import: frames, duration, frameTags direction/repeat; meta.slices not read)','src/game/export/atlas-json.js pixiFiles (animations in playback order, anchor = pivot, meta.nerulio.animations durationsMs, related_multi_packs)','docs/STUDIO-PACK.md (PixiJS 8.21 loads rotated and multi-page)','docs/ENGINE-VERIFY.md (Pixi builds no animations from frameTags)'],
+   external:['PixiJS docs: Spritesheet (frames, animations, anchor only from TexturePacker-style data, meta.scale → resolution)','AnimatedSprite FrameObject {texture, time ms}, loop, updateAnchor','SCALE_MODE nearest']},
+  en:{
+   answer:"PixiJS 8 loads an Aseprite JSON as a spritesheet, but it reads only the frames: `meta.frameTags` and each frame's `duration` are ignored, so `sheet.animations` stays empty. Drop the JSON with its PNG into Nerulio and export PixiJS 8: the file gets an `animations` map (one entry per tag, frames in playback order), an `anchor` per frame, and the milliseconds in `meta.nerulio.animations`, which you pass to `AnimatedSprite` as `{texture, time}`. Verified with PixiJS 8.21.",
+   concept:{title:'What PixiJS reads from a spritesheet JSON',body:[
+    "PixiJS's `Spritesheet` takes the TexturePacker layout: `frames` (each with `frame`, `spriteSourceSize`, `sourceSize` and an optional `anchor`), an optional `animations` object that maps a name to a list of frame names, and `meta` with the image and `scale`. The PixiJS docs say default anchors and animation groups are only supported in TexturePacker-style data; Aseprite's `frameTags` are not part of that format, and the verification runs confirm that PixiJS builds no animations from them.",
+    "`AnimatedSprite` plays a list of textures at one speed, or a list of `{texture, time}` objects where `time` is in milliseconds. It has `loop`, `updateAnchor` and callbacks such as `onComplete`, but no ping-pong and no repeat count, so the direction has to be written into the frame order.",
+    "Nerulio's PixiJS 8 export does both. `animations[tag]` lists the frame keys in the order one cycle plays (reverse and ping-pong written out), and `meta.nerulio.animations[tag]` holds `fps`, `loop`, `direction` and `durationsMs`, one number per step, ready to pair with the textures."],
+    terms:[['Spritesheet','The PixiJS class that turns the JSON into `textures` and `animations`.'],['FrameObject','`{texture, time}`: one step of an AnimatedSprite, time in milliseconds.'],['anchor','A frame texture\'s default anchor, 0–1 of its size; Nerulio writes the frame pivot.'],['related_multi_packs','The other JSON pages that load together with this one.']]},
+   example:{title:'Example: a ping-pong walk tag from Aseprite JSON to PixiJS',lines:[
+    'Aseprite JSON  frames "4" … "9", "duration": 100 each',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 10 values]',
+    '               one cycle: 6 + 4 = 10 steps × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'Frame keys come from the frame names in your JSON: with Aseprite\'s default names such as `hero 4.aseprite` they become `hero_4`.'},
+   mapping:{head:['In the exported JSON','PixiJS API','What to do'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`: an array of textures','Map it to `{texture, time}` objects'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','One value per step, same order'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','Set it; a finite repeat count has no PixiJS equivalent'],
+    ['`frames[key].anchor` (the pivot)','The texture\'s default anchor','Set `updateAnchor = true` when pivots differ per frame'],
+    ['`meta.scale`','`sheet.resolution`','An @2x sheet draws at the @1x size'],
+    ['`meta.related_multi_packs`','Loaded with the first page (`linkedSheets`)','Textures of other pages come from the cache']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8 spritesheet: `frames` with `anchor`, `animations`, `meta.nerulio.animations`; several pages give `hero-0.json`, `hero-1.json` … linked by `related_multi_packs`.'],
+    ['hero.png','The packed page (rotation is allowed for this target).'],
+    ['README-PIXI.md','The loading and AnimatedSprite code for this bundle.']]},
+   target:{title:'Play it in PixiJS 8',steps:[
+    'Put `hero.json` and `hero.png` next to each other where your app serves assets.',
+    'For pixel art, before loading: `TextureSource.defaultOptions.scaleMode = \'nearest\'`.',
+    '`const sheet = await Assets.load(\'hero.json\')` loads the page(s) and builds `sheet.textures` and `sheet.animations`.',
+    'Build each animation from `sheet.animations[tag]` and `durationsMs` as in the example, set `loop`, then `play()` and add it to the stage.',
+    'If the pivot moves between frames, set `updateAnchor = true` on the AnimatedSprite so each frame uses its own anchor.']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)` lists every Aseprite tag name.',
+    'A 10-step ping-pong walk at 100 ms per step loops once per second; `onLoop` fires at that rhythm.',
+    'Zoom the canvas: with `nearest` scaling the pixel edges stay square.']},
+   trouble:{rows:[
+    ['`sheet.animations` is empty','The original Aseprite JSON was loaded instead of the exported one; PixiJS ignores `frameTags`','Check which JSON `Assets.load` receives','Load Nerulio\'s PixiJS 8 export'],
+    ['Every frame plays at the same speed','The textures were passed without times, so `animationSpeed` applies','Look at the AnimatedSprite constructor call','Pass `{texture, time}` objects built from `durationsMs`'],
+    ['The sprite jumps or slides between frames','Pivots differ per frame but the sprite keeps the first frame\'s anchor','Compare `frames[key].anchor` values','Set `updateAnchor = true`, or give the tag one pivot in Nerulio (P)'],
+    ['Anchors are all bottom centre','The Aseprite JSON\'s `meta.slices` are not read on import, so frames start with the default pivot','Look at `anchor` in the export','Place the pivot with P in Nerulio, or import the `.aseprite` file itself, whose pivot slice is read'],
+    ['The @2x sheet draws at double size','`meta.scale` says 1, so PixiJS treats it as resolution 1','`sheet.resolution`','Export the @2x variant from Nerulio; it writes `meta.scale` "2"']]},
+   alternatives:{rows:[
+    ['Write your own loader for `frameTags` and `duration`','You must keep the Aseprite JSON unchanged in your pipeline; read `meta.frameTags` and the durations and build FrameObjects yourself.'],
+    ['[[game/aseprite-to-sprite-sheet|Export from the .aseprite file]]','You have the `.aseprite` source: its slices (pivot, boxes) are read too, which an Aseprite JSON import does not do.'],
+    ['[[game/pixi-spritesheet-json|A PixiJS spritesheet from loose frames]]','Your frames are separate PNGs rather than an Aseprite export.']]},
+   limits:['`meta.slices` in an Aseprite JSON are not read; pivots from slices need the `.aseprite` file.','PixiJS has no repeat count: an animation either loops or plays once.'],
+   versions:{body:['The PixiJS 8 target was loaded and drawn by PixiJS 8.21, rotated and multi-page atlases included, and an @2x variant drew at the @1x size from `meta.scale`. The PixiJS behaviour described here follows the PixiJS 8 API documentation.'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  },
+  ko:{
+   answer:'PixiJS 8은 Aseprite JSON을 스프라이트시트로 불러오지만 프레임만 읽습니다. `meta.frameTags`와 프레임별 `duration`은 무시되어 `sheet.animations`가 비어 있습니다. JSON과 PNG를 함께 Nerulio에 넣고 PixiJS 8로 내보내면, 파일에 `animations` 맵(태그마다 항목 하나, 재생 순서의 프레임), 프레임별 `anchor`, `meta.nerulio.animations`의 밀리초가 들어갑니다. 이 밀리초를 `{texture, time}`으로 `AnimatedSprite`에 넘기면 됩니다. PixiJS 8.21로 확인했습니다.',
+   concept:{title:'PixiJS가 스프라이트시트 JSON에서 읽는 것',body:[
+    'PixiJS의 `Spritesheet`는 TexturePacker 구조를 받습니다. `frames`(각각 `frame`, `spriteSourceSize`, `sourceSize`, 선택적 `anchor`), 이름을 프레임 이름 목록에 연결하는 선택적 `animations` 객체, 이미지와 `scale`이 있는 `meta`입니다. PixiJS 문서는 기본 앵커와 애니메이션 묶음이 TexturePacker 형식 데이터에서만 지원된다고 설명하며, Aseprite의 `frameTags`는 이 형식에 없습니다. 검증에서도 PixiJS는 frameTags로 애니메이션을 만들지 않았습니다.',
+    '`AnimatedSprite`는 텍스처 목록을 한 속도로 재생하거나, `time`이 밀리초인 `{texture, time}` 객체 목록을 재생합니다. `loop`, `updateAnchor`, `onComplete` 같은 콜백은 있지만 핑퐁과 반복 횟수는 없으므로, 방향은 프레임 순서에 풀어 써야 합니다.',
+    'Nerulio의 PixiJS 8 내보내기는 두 가지를 모두 합니다. `animations[tag]`에 한 사이클의 재생 순서대로 프레임 키를 적고(역방향·핑퐁을 펼쳐서), `meta.nerulio.animations[tag]`에 `fps`, `loop`, `direction`, 단계마다 숫자 하나인 `durationsMs`를 넣어 텍스처와 바로 짝지을 수 있게 합니다.'],
+    terms:[['Spritesheet','JSON을 `textures`와 `animations`로 바꾸는 PixiJS 클래스.'],['FrameObject','`{texture, time}`: AnimatedSprite의 한 단계, 시간은 밀리초.'],['anchor','프레임 텍스처의 기본 앵커(크기 대비 0–1). Nerulio는 프레임 피벗을 씁니다.'],['related_multi_packs','이 페이지와 함께 불러오는 다른 JSON 페이지 목록.']]},
+   example:{title:'예시: 핑퐁 walk 태그를 Aseprite JSON에서 PixiJS로',lines:[
+    'Aseprite JSON  프레임 "4" … "9", 각각 "duration": 100',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 값 10개]',
+    '               한 사이클: 6 + 4 = 10단계 × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'프레임 키는 JSON의 프레임 이름에서 옵니다. `hero 4.aseprite` 같은 Aseprite 기본 이름이면 `hero_4`가 됩니다.'},
+   mapping:{head:['내보낸 JSON에서','PixiJS API','할 일'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`: 텍스처 배열','`{texture, time}` 객체로 변환'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','단계마다 값 하나, 같은 순서'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','설정하세요. 유한 반복 횟수는 PixiJS에 대응 항목이 없습니다'],
+    ['`frames[key].anchor`(피벗)','텍스처의 기본 앵커','프레임마다 피벗이 다르면 `updateAnchor = true`'],
+    ['`meta.scale`','`sheet.resolution`','@2x 시트가 @1x 크기로 그려집니다'],
+    ['`meta.related_multi_packs`','첫 페이지와 함께 로드(`linkedSheets`)','다른 페이지의 텍스처는 캐시에서 가져옵니다']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8 스프라이트시트: `anchor`가 있는 `frames`, `animations`, `meta.nerulio.animations`. 페이지가 여럿이면 `hero-0.json`, `hero-1.json` …이 `related_multi_packs`로 연결됩니다.'],
+    ['hero.png','패킹된 페이지(이 대상은 회전을 허용합니다).'],
+    ['README-PIXI.md','이 묶음을 불러오고 AnimatedSprite를 만드는 코드.']]},
+   target:{title:'PixiJS 8에서 재생하기',steps:[
+    '`hero.json`과 `hero.png`를 앱이 에셋을 제공하는 곳에 나란히 둡니다.',
+    '픽셀아트라면 불러오기 전에: `TextureSource.defaultOptions.scaleMode = \'nearest\'`.',
+    '`const sheet = await Assets.load(\'hero.json\')`가 페이지를 불러오고 `sheet.textures`와 `sheet.animations`를 만듭니다.',
+    '예시처럼 `sheet.animations[tag]`와 `durationsMs`로 애니메이션을 만들고 `loop`를 설정한 뒤 `play()`하고 스테이지에 추가합니다.',
+    '프레임마다 피벗이 움직이면 AnimatedSprite에 `updateAnchor = true`를 설정해 프레임마다 자기 앵커를 쓰게 하세요.']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)`에 Aseprite 태그 이름이 모두 나옵니다.',
+    '단계당 100 ms인 10단계 핑퐁 walk는 1초에 한 번 돌고, `onLoop`가 그 간격으로 호출됩니다.',
+    '캔버스를 확대하세요. `nearest` 배율이면 픽셀 가장자리가 네모로 남습니다.']},
+   trouble:{rows:[
+    ['`sheet.animations`가 비어 있음','내보낸 파일이 아니라 원래 Aseprite JSON을 불러왔습니다. PixiJS는 `frameTags`를 무시합니다','`Assets.load`가 어떤 JSON을 받는지 확인합니다','Nerulio의 PixiJS 8 내보내기를 불러오세요'],
+    ['모든 프레임이 같은 속도로 재생됨','시간 없이 텍스처만 넘겨서 `animationSpeed`가 적용됩니다','AnimatedSprite 생성 코드를 봅니다','`durationsMs`로 만든 `{texture, time}` 객체를 넘기세요'],
+    ['프레임 사이에 스프라이트가 튀거나 미끄러짐','프레임마다 피벗이 다른데 스프라이트가 첫 프레임의 앵커를 유지합니다','`frames[key].anchor` 값을 비교합니다','`updateAnchor = true`로 하거나, Nerulio에서 태그에 피벗을 하나로(P) 정하세요'],
+    ['앵커가 전부 아래 가운데','가져올 때 Aseprite JSON의 `meta.slices`를 읽지 않아 기본 피벗으로 시작합니다','내보낸 파일의 `anchor`를 봅니다','Nerulio에서 P로 피벗을 놓거나, 피벗 슬라이스를 읽는 `.aseprite` 파일 자체를 가져오세요'],
+    ['@2x 시트가 두 배 크기로 그려짐','`meta.scale`이 1이라 PixiJS가 해상도 1로 봅니다','`sheet.resolution`','Nerulio에서 @2x 변형을 내보내세요. `meta.scale`을 "2"로 씁니다']]},
+   alternatives:{rows:[
+    ['`frameTags`와 `duration`을 읽는 로더를 직접 작성','파이프라인에서 Aseprite JSON을 그대로 써야 할 때. `meta.frameTags`와 길이를 읽어 FrameObject를 직접 만드세요.'],
+    ['[[game/aseprite-to-sprite-sheet|.aseprite 파일에서 내보내기]]','`.aseprite` 원본이 있을 때. Aseprite JSON 가져오기와 달리 슬라이스(피벗, 박스)도 읽습니다.'],
+    ['[[game/pixi-spritesheet-json|낱장 프레임으로 PixiJS 스프라이트시트 만들기]]','프레임이 Aseprite 내보내기가 아니라 따로 된 PNG일 때.']]},
+   limits:['Aseprite JSON의 `meta.slices`는 읽지 않습니다. 슬라이스 피벗은 `.aseprite` 파일이 필요합니다.','PixiJS에는 반복 횟수가 없어 애니메이션은 반복하거나 한 번 재생하거나 둘 중 하나입니다.'],
+   versions:{body:['PixiJS 8 대상은 PixiJS 8.21이 회전·다중 페이지 아틀라스까지 불러와 그렸고, @2x 변형은 `meta.scale`에 따라 @1x 크기로 그렸습니다. 여기 적은 PixiJS 동작은 PixiJS 8 API 문서를 따릅니다.'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  },
+  ja:{
+   answer:'PixiJS 8はAseprite JSONをスプライトシートとして読み込みますが、読むのはフレームだけです。`meta.frameTags`と各フレームの`duration`は無視され、`sheet.animations`は空のままです。JSONとPNGを一緒にNerulioへドロップしてPixiJS 8で書き出すと、`animations`マップ（タグごとに1項目、再生順のフレーム）、フレームごとの`anchor`、`meta.nerulio.animations`のミリ秒が入ります。このミリ秒を`{texture, time}`として`AnimatedSprite`に渡します。PixiJS 8.21で確認済みです。',
+   concept:{title:'PixiJSがスプライトシートJSONから読むもの',body:[
+    'PixiJSの`Spritesheet`はTexturePackerの構造を受け取ります。`frames`（それぞれ`frame`、`spriteSourceSize`、`sourceSize`、任意の`anchor`）、名前をフレーム名のリストに結びつける任意の`animations`オブジェクト、画像と`scale`を持つ`meta`です。PixiJSのドキュメントによれば既定のアンカーとアニメーションのグループはTexturePacker形式のデータでのみサポートされ、Asepriteの`frameTags`はこの形式にありません。検証でもPixiJSはframeTagsからアニメーションを作りませんでした。',
+    '`AnimatedSprite`はテクスチャのリストを1つの速度で再生するか、`time`がミリ秒の`{texture, time}`オブジェクトのリストを再生します。`loop`、`updateAnchor`、`onComplete`などのコールバックはありますが、ピンポンや繰り返し回数はないので、方向はフレーム順に展開して書く必要があります。',
+    'NerulioのPixiJS 8書き出しはその両方を行います。`animations[tag]`に1サイクルの再生順でフレームキーを並べ（逆方向・ピンポンは展開）、`meta.nerulio.animations[tag]`に`fps`、`loop`、`direction`、ステップごとに1つの数値を持つ`durationsMs`を入れ、テクスチャとそのまま組み合わせられるようにします。'],
+    terms:[['Spritesheet','JSONを`textures`と`animations`に変換するPixiJSのクラス。'],['FrameObject','`{texture, time}`：AnimatedSpriteの1ステップ、時間はミリ秒。'],['anchor','フレームのテクスチャの既定アンカー（サイズに対する0–1）。Nerulioはフレームのピボットを書きます。'],['related_multi_packs','このページと一緒に読み込まれる他のJSONページ。']]},
+   example:{title:'具体例：ピンポンのwalkタグをAseprite JSONからPixiJSへ',lines:[
+    'Aseprite JSON  フレーム "4" … "9"、それぞれ "duration": 100',
+    '               { "name": "walk", "from": 4, "to": 9, "direction": "pingpong" }',
+    '',
+    'PixiJS 8 JSON  "animations": { "walk": ["4","5","6","7","8","9","8","7","6","5"] }',
+    '               meta.nerulio.animations.walk.durationsMs = [100, 100, … 10個]',
+    '               1サイクル: 6 + 4 = 10ステップ × 100 ms = 1.0 s',
+    '',
+    "const { durationsMs, loop } = sheet.data.meta.nerulio.animations.walk;",
+    "const walk = new AnimatedSprite(sheet.animations.walk.map((texture, i) => ({ texture, time: durationsMs[i] })));",
+    "walk.loop = loop; walk.play();"],
+    after:'フレームキーはJSONのフレーム名から作られます。`hero 4.aseprite`のようなAsepriteの既定の名前なら`hero_4`になります。'},
+   mapping:{head:['書き出したJSONでは','PixiJSのAPI','すること'],rows:[
+    ['`animations[tag]`','`sheet.animations[tag]`：テクスチャの配列','`{texture, time}`オブジェクトに変換'],
+    ['`meta.nerulio.animations[tag].durationsMs`','`FrameObject.time`','ステップごとに1つ、同じ順'],
+    ['`meta.nerulio.animations[tag].loop`','`AnimatedSprite.loop`','設定する。有限の繰り返し回数はPixiJSに対応がない'],
+    ['`frames[key].anchor`（ピボット）','テクスチャの既定アンカー','フレームごとにピボットが違うなら`updateAnchor = true`'],
+    ['`meta.scale`','`sheet.resolution`','@2xのシートが@1xのサイズで描かれる'],
+    ['`meta.related_multi_packs`','最初のページと一緒に読み込み（`linkedSheets`）','他のページのテクスチャはキャッシュから取得']]},
+   outputs:{rows:[
+    ['hero.json','PixiJS 8スプライトシート：`anchor`付きの`frames`、`animations`、`meta.nerulio.animations`。複数ページなら`hero-0.json`、`hero-1.json` …が`related_multi_packs`でつながります。'],
+    ['hero.png','パック済みのページ（このターゲットは回転を許可します）。'],
+    ['README-PIXI.md','このバンドルを読み込み、AnimatedSpriteを作るコード。']]},
+   target:{title:'PixiJS 8で再生する',steps:[
+    '`hero.json`と`hero.png`を、アプリがアセットを配信する場所に並べて置きます。',
+    'ピクセルアートなら読み込み前に：`TextureSource.defaultOptions.scaleMode = \'nearest\'`。',
+    '`const sheet = await Assets.load(\'hero.json\')`がページを読み込み、`sheet.textures`と`sheet.animations`を作ります。',
+    '例のように`sheet.animations[tag]`と`durationsMs`からアニメーションを作り、`loop`を設定して`play()`し、ステージに追加します。',
+    'フレームごとにピボットが動くなら、AnimatedSpriteに`updateAnchor = true`を設定して各フレームが自分のアンカーを使うようにします。']},
+   verify:{steps:[
+    '`Object.keys(sheet.animations)`にAsepriteのタグ名がすべて出ます。',
+    '1ステップ100 msの10ステップのピンポンwalkは1秒に1回ループし、`onLoop`がその間隔で呼ばれます。',
+    'キャンバスを拡大します。`nearest`ならピクセルの縁が四角いままです。']},
+   trouble:{rows:[
+    ['`sheet.animations`が空','書き出したファイルではなく元のAseprite JSONを読み込んでいます。PixiJSは`frameTags`を無視します','`Assets.load`がどのJSONを受け取っているか確認します','NerulioのPixiJS 8書き出しを読み込んでください'],
+    ['全フレームが同じ速度で再生される','時間なしでテクスチャだけ渡したため、`animationSpeed`が使われています','AnimatedSpriteの生成コードを見ます','`durationsMs`から作った`{texture, time}`オブジェクトを渡してください'],
+    ['フレーム間でスプライトが跳ねる・滑る','フレームごとにピボットが違うのに、スプライトが最初のフレームのアンカーのままです','`frames[key].anchor`の値を比べます','`updateAnchor = true`にするか、Nerulioでタグのピボットを1つ（P）に揃えてください'],
+    ['アンカーがすべて下中央','読み込み時にAseprite JSONの`meta.slices`を読まないため、既定のピボットから始まっています','書き出したファイルの`anchor`を見ます','NerulioでPキーでピボットを置くか、ピボットスライスを読める`.aseprite`ファイル自体を読み込んでください'],
+    ['@2xのシートが2倍の大きさで描かれる','`meta.scale`が1なので、PixiJSが解像度1として扱っています','`sheet.resolution`','Nerulioから@2xのバリアントを書き出してください。`meta.scale`を"2"で書きます']]},
+   alternatives:{rows:[
+    ['`frameTags`と`duration`を読むローダーを自作する','パイプラインでAseprite JSONをそのまま使う必要があるとき。`meta.frameTags`と長さを読み、FrameObjectを自分で作ります。'],
+    ['[[game/aseprite-to-sprite-sheet|.asepriteファイルから書き出す]]','`.aseprite`の元データがあるとき。Aseprite JSONの読み込みと違い、スライス（ピボット、ボックス）も読みます。'],
+    ['[[game/pixi-spritesheet-json|バラのフレームからPixiJSスプライトシートを作る]]','フレームがAsepriteの書き出しではなく、別々のPNGのとき。']]},
+   limits:['Aseprite JSONの`meta.slices`は読みません。スライスのピボットには`.aseprite`ファイルが必要です。','PixiJSには繰り返し回数がなく、アニメーションはループするか1回再生するかのどちらかです。'],
+   versions:{body:['PixiJS 8ターゲットは、回転・複数ページのアトラスも含めてPixiJS 8.21が読み込んで描画し、@2xのバリアントは`meta.scale`に従って@1xのサイズで描かれました。ここに書いたPixiJSの挙動はPixiJS 8のAPIドキュメントに基づきます。'],sources:[PIXI_SHEET,PIXI_ANIM,PIXI_SCALE,ASE_CLI]}
+  }
+ },
 //@@NEXT
 };
