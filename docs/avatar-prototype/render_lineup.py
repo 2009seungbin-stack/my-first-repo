@@ -44,20 +44,23 @@ def render(face, hair, eyes, outfit):
 
     # Round face has stepped cheeks; angular face has a broad chin.
     if face == "round":
-        rect(d, (4, 4, 11, 9), skin[0]); rect(d, (5, 10, 10, 11), skin[0])
-        rect(d, (4, 5, 11, 8), skin[2]); rect(d, (5, 9, 10, 10), skin[2])
-        rect(d, (5, 5, 9, 6), skin[3]); rect(d, (10, 7, 11, 8), skin[1])
+        rect(d, (4, 4, 11, 8), skin[0]); rect(d, (5, 9, 10, 10), skin[0])
+        rect(d, (6, 11, 9, 11), skin[0])
+        rect(d, (4, 5, 11, 7), skin[2]); rect(d, (5, 8, 10, 9), skin[2])
+        rect(d, (6, 10, 9, 10), skin[2]); rect(d, (5, 5, 9, 6), skin[3])
+        d.point((10, 8), fill=skin[1])
     else:
         rect(d, (3, 4, 12, 10), skin[0]); rect(d, (4, 11, 11, 11), skin[0])
-        rect(d, (4, 5, 11, 9), skin[2]); rect(d, (5, 10, 10, 10), skin[2])
+        rect(d, (4, 5, 11, 9), skin[2]); rect(d, (4, 10, 11, 10), skin[2])
         rect(d, (4, 5, 9, 6), skin[3]); rect(d, (11, 7, 11, 9), skin[1])
     rect(d, (7, 11, 8, 12), skin[1])
 
     if eyes == "bright":
-        rect(d, (5, 7, 5, 8), RAMPS["eye"][0]); rect(d, (10, 7, 10, 8), RAMPS["eye"][0])
-        d.point((5, 7), fill=RAMPS["eye"][3]); d.point((10, 7), fill=RAMPS["eye"][3])
+        rect(d, (5, 7, 6, 8), RAMPS["eye"][0]); rect(d, (9, 7, 10, 8), RAMPS["eye"][0])
+        d.point((5, 7), fill=RAMPS["eye"][3]); d.point((9, 7), fill=RAMPS["eye"][3])
     else:
         rect(d, (5, 8, 6, 8), RAMPS["eye"][0]); rect(d, (9, 8, 10, 8), RAMPS["eye"][0])
+        rect(d, (5, 7, 6, 7), skin[1]); rect(d, (9, 7, 10, 7), skin[1])
     d.point((7, 10), fill=skin[0]); d.point((8, 10), fill=skin[0])
 
     # Visible torso silhouette and center seam at even the smallest export.
@@ -84,9 +87,9 @@ def render(face, hair, eyes, outfit):
 
 COMBOS = [
     ("round", "bob", "bright", "hoodie"),
-    ("angular", "swept", "sleepy", "jacket"),
+    ("angular", "bob", "bright", "hoodie"),
     ("round", "swept", "bright", "jacket"),
-    ("angular", "bob", "sleepy", "hoodie"),
+    ("round", "swept", "sleepy", "jacket"),
 ]
 
 font = ImageFont.load_default()
@@ -97,10 +100,18 @@ for row, size in enumerate((32, 48, 64)):
     sd.text((20, 52 + row * 116), f"{size} px", font=font, fill=(25, 32, 46))
     for col, combo in enumerate(COMBOS):
         source = render(*combo)
+        allowed = {(0, 0, 0, 0), RAMPS["ink"]} | {
+            color for ramp in RAMPS.values() if isinstance(ramp[0], tuple) for color in ramp
+        }
+        assert {source.getpixel((x, y)) for y in range(16) for x in range(16)} <= allowed
+        assert source.getpixel((0, 0))[3] == 0
         if row == 0:
             source.save(OUT / f"avatar-{col + 1}-16.png")
         scaled = source.resize((size, size), Image.Resampling.NEAREST)
         scaled.save(OUT / f"avatar-{col + 1}-{size}.png")
+        with Image.open(OUT / f"avatar-{col + 1}-{size}.png") as reopened:
+            assert reopened.mode == "RGBA" and reopened.size == (size, size)
+            assert reopened.getpixel((0, 0))[3] == 0
         # Independently assert every output pixel is an exact replicated source pixel.
         factor = size // 16
         for y in range(size):
