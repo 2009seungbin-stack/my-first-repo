@@ -81,10 +81,45 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | --- | --- | --- | --- |
 | 서비스만 | `/api/*`, `/_worker.js/*` | — | API 호출 시에만. HTML·JS·CSS·이미지·예제는 정적 제공 |
 | 서비스 + 광고 | `/*` | `/src/*`, `/assets/*`, `/ai-runtime/*`, `/verify/*`, CSS, favicon, robots, sitemap들, ads.txt | HTML(응답별 nonce CSP 필요)과 API만 |
+| 서비스 + 플랫폼 (`PLATFORM=on`, 기본 `TRAFFIC_HTML` on) | `/*` | 위 정적 목록에서 robots·sitemap을 뺀 것 + `/favicon.ico`, `/apple-touch-icon.png`, `/build.txt`, `/404.html` | 모든 HTML·robots·sitemap·API (방문자·봇 통계) |
+| 서비스 + 플랫폼, `TRAFFIC_HTML=off` | `/api/*`, `/_worker.js/*`, 플랫폼 경로들, `/robots.txt`, `/sitemap*` | — | 플랫폼 페이지·robots·sitemap·API만. 도구 HTML은 정적 |
 
 호출량 추정: 페이지 보기 1회 = `/me` 1회 (+ 광고 빌드에서는 HTML 1회). heavy 작업 1회 = `authorize` 1회. 진행률 폴링은 없다(진행률은 로컬 엔진이 관리). 결제 후 활성화 확인만 최대 5회 재조회한다.
 
 D1 사용량(대략): 익명 `/me`는 쿠키가 있으면 1행 읽기, 첫 방문은 0. heavy 작업 1회는 한 트랜잭션에서 약 4행 쓰기(작업 기록 삽입·확정, 일일 카운터, 네트워크 버킷). 요금·무료 한도(작성 시점 Workers Free 일 10만 요청, D1 Free 일 500만 행 읽기·10만 행 쓰기)는 변경될 수 있으므로 대시보드의 현재 요금표로 확인한다. 파일 크기는 API 비용과 무관하다(2 GB 영상도 `{toolId, operationId}` 한 번).
+
+## 방문자·봇 통계 (Workers Analytics Engine)
+
+관리자 앱의 방문자 화면(`GET /api/v2/admin/traffic`)과 개요의 `traffic` 블록이 쓰는 데이터다. 코드: `server/traffic.js`, 비콘 `src/hit.js`. **요청마다 D1 행을 쓰지 않는다** — 이벤트는 전부 Analytics Engine 데이터 포인트이고 D1 사용량은 0이다. `SERVICE_API=on` + `PLATFORM=on` 빌드에만 들어간다(그 외 빌드는 바이트 단위로 그대로).
+
+무엇을 세는가:
+
+- **사람**: 모든 페이지(정적 페이지·플랫폼 페이지·요금/계정 페이지)에 `<script src="/src/hit.js" defer>`가 들어간다. 페이지가 약 1초 이상 보이거나 첫 조작이 있을 때 `navigator.sendBeacon('/api/v2/hit')` 한 번. 전송 내용은 경로(쿼리 제거, 게시판 `kind`·`sort`만 유지), 유입 분류(search/social/ai/direct/internal/other), 기기 종류, 브라우저 언어, 방문 첫 페이지 여부뿐이다. 쿠키·식별자 없음. 사이트 전체가 `Referrer-Policy: no-referrer`라 내부 이동은 referrer가 비어 있으므로, 탭의 sessionStorage 플래그 `nerulio.hit`로 내부 이동과 방문 시작을 구분한다. 비콘 요청의 UA가 봇(예: 자바스크립트를 실행하는 Googlebot 렌더러)이거나 `navigator.webdriver`면 사람이 아니라 봇으로 센다.
+- **봇**: Worker가 받는 HTML·`/robots.txt`·`/sitemap*.xml`·피드 요청마다 데이터 포인트 1개. 분류는 순수 함수 `classify()` — Cloudflare `cf.verifiedBotCategory`/`cf.botManagement`(Enterprise 전용, Free·Paid에는 없음) → 공식 UA 문서 기반 표(검색·AI·SEO·소셜·모니터링) + 운영사 ASN 일치 시 `verified`, 불일치 시 `declared`(위조 가능) → HTTP 라이브러리·헤드리스·빈 UA·비브라우저 UA·호스팅 ASN·`Accept-Language`/`Sec-Fetch-Mode` 없는 브라우저 탐색은 `suspected` → 나머지는 사람 후보(`candidate`, 비콘이 오면 사람으로 확정).
+- 저장하지 않는 것: IP(분당 버스트 제한이 메모리에서 1분만 쓴다), 사람의 UA 문자열(브라우저 계열·기기 종류만), 쿼리 문자열. DNT/GPC는 따로 존중하지 않는다 — 식별자·쿠키·교차 사이트 추적이 없는 1st-party 합계라서. 개인정보처리방침(`/privacy/`)에 한·영·일로 표시된다(`TRAFFIC_NOTE`).
+
+### 운영자 설정 (소유자 작업, Production·Preview 각각)
+
+1. **바인딩**: Workers & Pages → 프로젝트 → Settings → Bindings → Add → **Analytics engine** → Variable name `TRAFFIC`, Dataset `nerulio_traffic` → 저장 후 재배포. Production과 Preview에 같은 데이터셋을 써도 된다(각 포인트에 `production`/`preview`가 기록되고 조회가 자기 환경만 본다). 바인딩이 없으면 쓰기는 조용히 건너뛰고 비콘은 204를 받는다.
+2. **토큰**: My Profile → API Tokens → Create Custom Token → 권한 **Account · Account Analytics · Read**, Account Resources는 이 계정만 → Pages secret `CF_ANALYTICS_TOKEN`. 같은 토큰을 D1 사용량 화면도 쓴다.
+3. **계정 ID**: Pages 변수 `CF_ACCOUNT_ID`(대시보드 오른쪽의 32자리 hex). 데이터셋 이름을 바꿨다면 변수 `TRAFFIC_DATASET`.
+4. 셋 중 하나라도 없으면 `/api/v2/admin/traffic`은 `503 {need, error:{code:'NOT_CONFIGURED'}}`를 주고 앱은 "설정 필요"를 표시한다. `need`는 `TRAFFIC` → `CF_ACCOUNT_ID` → `CF_ANALYTICS_TOKEN` 순서로 첫 번째 빠진 것.
+
+### `TRAFFIC_HTML` 플래그와 비용
+
+플랫폼 빌드의 기본값은 **on**: 모든 HTML이 Worker를 거쳐(`env.ASSETS.fetch`로 그대로 전달) 도구 페이지의 봇까지 보인다. 빌드 변수 `TRAFFIC_HTML=off`면 정적 HTML은 Worker를 거치지 않아 봇은 robots·sitemap·플랫폼 페이지에서만 보인다(사람은 비콘으로 계속 집계). 화면의 `coverage.workerSeesHtml`/`note`가 현재 상태를 알려 준다.
+
+계정은 **Workers Paid**다(2026-09 기준 포함량, 대시보드 요금표로 재확인):
+
+| 항목 | 포함량 / 월 | 초과 | 통계가 쓰는 양 |
+| --- | --- | --- | --- |
+| Workers 요청 (Pages Functions 포함) | 1,000만 | 100만당 $0.30 | HTML 요청 1 + 사람 페이지뷰당 비콘 1 + robots/sitemap |
+| Workers CPU | 3,000만 CPU-ms | 100만 CPU-ms당 $0.02 | 요청당 약 1 ms 미만(분류 + 전달) |
+| Analytics Engine 쓰기 | 1,000만 데이터 포인트 | 100만당 $0.25 | 위 요청 1개당 1개 |
+| Analytics Engine 읽기 | 100만 쿼리 | 100만당 $1.00 | 화면 새로고침 1회당 5쿼리(분 단위 캐시) |
+| D1 | 읽기 250억·쓰기 5,000만 행 | — | **0** (통계는 D1을 쓰지 않는다) |
+
+계산 예: 사람 페이지뷰 하루 1만 + 봇 HTML 하루 2만 → Worker 요청 ≈ 1만(HTML) + 1만(비콘) + 2만(봇) = 하루 4만 = 월 120만 — 포함량의 12%. 포함량을 넘기는 지점은 하루 약 33만 요청이며, 그 두 배(하루 66만, 월 2,000만)여도 초과 요금은 약 $3다. Analytics Engine은 작성 시점에 과금이 시작되지 않았다. 데이터 보관은 3개월(30일 범위까지 조회).
 
 ## Rate limiting
 

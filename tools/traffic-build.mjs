@@ -13,5 +13,5 @@ export function withBeacon(html,config){
 export const TRAFFIC_ROUTES=Object.freeze(['/robots.txt','/sitemap*']);
 /** @param {string} rule an _routes.json rule */
 export const crawlerFile=rule=>rule==='/robots.txt'||rule.startsWith('/sitemap');
-/** Root files that stay off the Worker when TRAFFIC_HTML=on routes everything else through it. */
+/** Root files that stay off the Worker when TRAFFIC_HTML routes everything else through it. */
 export const TRAFFIC_HTML_EXCLUDES=Object.freeze(['/favicon.ico','/apple-touch-icon.png','/build.txt','/404.html']);

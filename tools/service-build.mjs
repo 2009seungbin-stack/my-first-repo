@@ -22,7 +22,7 @@ export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*'
 export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*']);
 export function serviceRoutes(config){
  // Traffic statistics (PLATFORM builds): robots.txt and sitemaps always wake the Worker (crawler signal);
- // TRAFFIC_HTML=on routes every page like the ads build does (tools/traffic-build.mjs).
+ // TRAFFIC_HTML (default on; off to opt out) routes every page like the ads build does (tools/traffic-build.mjs).
  if(config.traffic&&(config.client||config.trafficHtml))return {version:1,include:['/*'],exclude:[...STATIC_EXCLUDES.filter(p=>!crawlerFile(p)),...(config.trafficHtml?TRAFFIC_HTML_EXCLUDES:[])]};
  if(config.traffic)return {version:1,include:['/api/*','/_worker.js/*',...(config.platform?PLATFORM_ROUTES:[]),...TRAFFIC_ROUTES],exclude:[]};
  // Without ads only /api/* (and, with PLATFORM=on, the platform pages) is dynamic. With ads, HTML also

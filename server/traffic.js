@@ -7,7 +7,7 @@
  *    visible for ~1 s or on the first interaction. Bots rarely run JavaScript, so a hit whose
  *    request is not itself a bot is a confirmed human pageview.
  *  - 'req': requests the Worker itself sees — robots.txt, sitemaps, the platform pages and, with
- *    TRAFFIC_HTML=on, every static HTML page. This is where crawlers are visible.
+ *    TRAFFIC_HTML (default on in platform builds), every static HTML page. This is where crawlers are visible.
  * Reads go through the Analytics Engine SQL API (CF_ACCOUNT_ID + CF_ANALYTICS_TOKEN with
  * Account Analytics:Read), a handful of queries per range, cached briefly per isolate.
  *
@@ -227,7 +227,7 @@ export function localeOf(header){const l=String(header||'').trim().slice(0,2).to
 
 /**
  * Worker middleware: count one request the Worker is already handling (robots, sitemaps,
- * platform pages, and all HTML with TRAFFIC_HTML=on). Synchronous and never throws;
+ * platform pages, and all HTML unless TRAFFIC_HTML=off). Synchronous and never throws;
  * writeDataPoint does not block the response.
  * @param {Request} request @param {any} env @param {URL} [url] @param {{build?:any}} [o]
  */
@@ -319,7 +319,7 @@ export function coverage(build=BUILD,env={}){
  const html=!!(build.trafficHtml||build.adsHtml);
  const note=html
   ?'모든 HTML 요청이 Worker를 거쳐 봇까지 집계됩니다. 사람은 비콘(페이지 1초 이상 표시)으로 확인합니다.'
-  :'정적 HTML은 Worker를 거치지 않아 봇은 robots.txt·사이트맵·커뮤니티/채널 페이지에서만 보입니다. 사람은 비콘으로 모든 페이지에서 집계됩니다. 전체 봇 집계는 TRAFFIC_HTML=on.';
+  :'정적 HTML은 Worker를 거치지 않아 봇은 robots.txt·사이트맵·커뮤니티/채널 페이지에서만 보입니다. 사람은 비콘으로 모든 페이지에서 집계됩니다. 전체 봇 집계는 TRAFFIC_HTML=off를 지우고 다시 배포하세요.';
  return {workerSeesHtml:html,note,recording:!!env?.TRAFFIC,seen:['beacon','robots.txt','sitemaps','platform pages',...(html?['static HTML']:[])],unseen:html?['JS/CSS/images (assets)']:['static HTML without JavaScript (bots on tool pages)','JS/CSS/images (assets)']};
 }
 /**

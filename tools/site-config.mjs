@@ -41,11 +41,12 @@ export function configuration(env=process.env){
  if(!['','on','off'].includes(env.PLATFORM||''))throw Error('PLATFORM must be on or off');
  const platform=env.PLATFORM==='on';
  // Visitor/bot statistics (server/traffic.js) ship with the platform Worker: the beacon on every page,
- // robots.txt and sitemaps through the Worker. TRAFFIC_HTML=on also routes all HTML through it so bots
- // on static pages are counted (one Worker request per HTML request — docs/CLOUDFLARE.md).
+ // robots.txt and sitemaps through the Worker. TRAFFIC_HTML (default on in those builds; the account is on
+ // Workers Paid) also routes all HTML through it so bots on static pages are counted — one Worker request per
+ // HTML request (docs/CLOUDFLARE.md). TRAFFIC_HTML=off keeps static pages off the Worker.
  if(!['','on','off'].includes(env.TRAFFIC_HTML||''))throw Error('TRAFFIC_HTML must be on or off');
- const traffic=platform,trafficHtml=env.TRAFFIC_HTML==='on';
- if(trafficHtml&&!traffic)throw Error('TRAFFIC_HTML=on needs SERVICE_API=on and PLATFORM=on');
+ const traffic=platform,trafficHtml=traffic&&env.TRAFFIC_HTML!=='off';
+ if(env.TRAFFIC_HTML==='on'&&!traffic)throw Error('TRAFFIC_HTML=on needs SERVICE_API=on and PLATFORM=on');
  if(platform&&!service)throw Error('PLATFORM=on needs SERVICE_API=on (the pages are rendered by the service Worker)');
  // Pro is sold monthly and yearly. PRO_PRICE_MONTHLY_AMOUNT (alias PRO_PRICE_AMOUNT) and
  // PRO_PRICE_YEARLY_AMOUNT are display prices in PRO_PRICE_CURRENCY; what is charged is the provider

@@ -314,14 +314,17 @@ async function withBuild(env,fn){
  const temp=await mkdtemp(path.join(os.tmpdir(),'nerulio-traffic-')),outDir=path.join(temp,'dist');
  try{await build({outDir,env});await fn(outDir,f=>readFile(path.join(outDir,f),'utf8'));}finally{await rm(temp,{recursive:true,force:true});}
 }
-test('TRAFFIC_HTML is validated and needs the platform Worker',()=>{
+test('TRAFFIC_HTML is validated, needs the platform Worker and defaults to on there',()=>{
  assert.throws(()=>configuration({TRAFFIC_HTML:'yes'}),/TRAFFIC_HTML must be on or off/);
  assert.throws(()=>configuration({SERVICE_API:'on',TRAFFIC_HTML:'on'}),/PLATFORM=on/);
  assert.equal(configuration({SERVICE_API:'on',PLATFORM:'on'}).traffic,true);
  assert.equal(configuration({SERVICE_API:'on'}).traffic,false);
  assert.equal(configuration({}).trafficHtml,false);
+ assert.equal(configuration({SERVICE_API:'on'}).trafficHtml,false);
+ assert.equal(configuration({SERVICE_API:'on',PLATFORM:'on'}).trafficHtml,true,'default on (Workers Paid)');
+ assert.equal(configuration({SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'}).trafficHtml,false);
 });
-test('_routes.json: crawler files always, HTML only with TRAFFIC_HTML=on; other builds unchanged',()=>{
+test('_routes.json: crawler files always, HTML unless TRAFFIC_HTML=off; other builds unchanged',()=>{
  assert.deepEqual(serviceRoutes({service:true}),{version:1,include:['/api/*','/_worker.js/*'],exclude:[]});
  const plain=serviceRoutes({service:true,platform:true,traffic:true});
  assert.deepEqual(plain.include,['/api/*','/_worker.js/*',...PLATFORM_ROUTES,'/robots.txt','/sitemap*']);assert(!plain.include.includes('/*'));
@@ -335,7 +338,7 @@ test('_routes.json: crawler files always, HTML only with TRAFFIC_HTML=on; other 
  for(const r of [plain,html,ads])assert(r.include.length+r.exclude.length<=100&&[...r.include,...r.exclude].every(x=>x.length<=100),'_routes.json limits');
 });
 test('platform build: beacon on every static page, Worker flags, privacy text; default build has none',async()=>{
- await withBuild({SITE_URL:origin+'/',SERVICE_API:'on',PLATFORM:'on'},async(out,read)=>{
+ await withBuild({SITE_URL:origin+'/',SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'},async(out,read)=>{
   for(const f of ['ko/index.html','en/image/compress/index.html','ko/privacy/index.html','ko/game/index.html','ko/pricing/index.html','index.html'])assert.equal((await read(f)).split(BEACON_TAG).length,2,f);
   assert((await read('src/hit.js')).includes("sendBeacon('/api/v2/hit'"));
   assert.match(await read('_worker.js/server/build-info.js'),/"traffic":true,"trafficHtml":false/);
@@ -350,8 +353,8 @@ test('platform build: beacon on every static page, Worker flags, privacy text; d
   const hit=await worker.fetch(hitReq({p:'/ko/',r:'direct',d:'desktop',l:'ko',e:1,w:0}),env,{waitUntil(){}});
   assert.equal(hit.status,204);assert.equal(blob(ds.points[1],'cls'),'human');
  });
- await withBuild({SITE_URL:origin+'/',SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'on'},async(out,read)=>{
-  assert.deepEqual(JSON.parse(await read('_routes.json')).include,['/*']);
+ await withBuild({SITE_URL:origin+'/',SERVICE_API:'on',PLATFORM:'on'},async(out,read)=>{
+  assert.deepEqual(JSON.parse(await read('_routes.json')).include,['/*'],'default: every HTML page through the Worker');
   assert.match(await read('_worker.js/server/build-info.js'),/"trafficHtml":true/);
  });
  await withBuild({SITE_URL:origin+'/',SERVICE_API:'on'},async(out,read)=>{

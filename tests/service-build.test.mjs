@@ -103,7 +103,8 @@ test('REDIRECT_TO builds a redirect-only deployment for a retired address',async
 test('platform build: PLATFORM=on routes the channel/community prefixes to the Worker and ships the renderers',async()=>{
  assert.throws(()=>configuration({SITE_URL:origin,PLATFORM:'on'}),/SERVICE_API=on/);
  assert.throws(()=>configuration({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'yes'}),/PLATFORM must be on or off/);
- await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on'},async(out,read)=>{
+ // TRAFFIC_HTML=off: only the platform prefixes are dynamic (the default routes all HTML for bot statistics; tests/traffic.test.mjs).
+ await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'},async(out,read)=>{
   const routes=JSON.parse(await read('_routes.json'));
   for(const p of ['/api/*','/ko/community/*','/en/ai/*','/ko/games/*','/ko/subculture/*'])assert(routes.include.includes(p),p);
   assert(!routes.include.includes('/*')&&!routes.include.some(r=>r.startsWith('/ko/image')),'tool pages stay static');
