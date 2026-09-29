@@ -75,9 +75,11 @@ export const BOTS=Object.freeze([
  [/AhrefsSiteAudit/i,'AhrefsSiteAudit','seo'],[/AhrefsBot/i,'AhrefsBot','seo'],[/SemrushBot|SiteAuditBot/i,'SemrushBot','seo'],[/MJ12bot/i,'MJ12bot','seo'],
  [/DotBot/,'DotBot','seo'],[/rogerbot/i,'rogerbot','seo'],[/DataForSeoBot/i,'DataForSeoBot','seo'],[/BLEXBot/i,'BLEXBot','seo'],[/serpstatbot/i,'serpstatbot','seo'],
  [/Screaming Frog/i,'Screaming Frog','seo'],[/Barkrowler/i,'Barkrowler','seo'],[/SEOkicks/i,'SEOkicks','seo'],[/SenutoBot/i,'SenutoBot','seo'],[/Sitebulb/i,'Sitebulb','seo'],
- // Link previews and social.
+ // Link previews and social. Kakao's scraper also says facebookexternalhit and Telegram's says
+ // "like TwitterBot", so both come before those two.
+ [/kakaotalk-scrap/i,'kakaotalk-scrap','social'],[/TelegramBot/i,'TelegramBot','social'],
  [/facebookexternalhit|facebookcatalog/i,'facebookexternalhit','social',ASN.meta],[/Twitterbot/i,'Twitterbot','social',ASN.x],[/Slackbot/i,'Slackbot','social'],
- [/Discordbot/i,'Discordbot','social'],[/kakaotalk-scrap/i,'kakaotalk-scrap','social'],[/TelegramBot/i,'TelegramBot','social'],[/WhatsApp\//,'WhatsApp','social'],
+ [/Discordbot/i,'Discordbot','social'],[/WhatsApp\//,'WhatsApp','social'],
  [/LinkedInBot/i,'LinkedInBot','social'],[/Pinterestbot|Pinterest\/0\./i,'Pinterestbot','social'],[/redditbot/i,'redditbot','social'],[/Embedly/i,'Embedly','social'],
  [/Iframely/i,'Iframely','social'],[/SkypeUriPreview/i,'SkypeUriPreview','social'],[/Mastodon\//,'Mastodon','social'],[/Bluesky Cardyb/i,'Bluesky','social'],[/vkShare/i,'vkShare','social'],
  // Monitoring and performance tools.
@@ -157,7 +159,8 @@ export function classify({ua,acceptLanguage=null,secFetchMode=null,cf=null,kind=
  if(!s.trim())return bot('suspected','No user agent','library','empty-ua');
  const lib=LIBRARIES.find(([re])=>re.test(s));
  if(lib)return bot('suspected',lib[1],'library',/Headless|PhantomJS|Puppeteer|Playwright|Selenium|webdriver/i.test(lib[1])?'headless':'library');
- if(GENERIC_BOT.test(s)){
+ // CUBOT is a phone brand, not a bot.
+ if(GENERIC_BOT.test(s.replace(/cubot/gi,''))){
   const m=/([A-Za-z][\w.-]{1,40}?(?:bot|crawler|spider))\b/i.exec(s)||/([A-Za-z][\w.-]{1,40})\//.exec(s);
   return bot('declared',m?m[1]:'Unknown bot','other','ua');
  }
