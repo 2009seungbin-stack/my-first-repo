@@ -418,6 +418,10 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .n2 .sib-google{background:#fff;border-color:#747775;color:#1f1f1f}.n2 .sib-google:hover{background:#f2f2f2}
 .n2 .sib-github{background:#24292f;color:#fff}.n2 .sib-github:hover{background:#32383f}
 .n2 .sib-discord{background:#5865f2;color:#fff}.n2 .sib-discord:hover{background:#4752c4}
+.n2 .sib-passkey{width:100%;background:var(--brand);color:#fff;cursor:pointer;font-family:inherit}.n2 .sib-passkey:hover{filter:brightness(.93)}.n2 .sib-passkey:disabled{opacity:.6;cursor:progress}
+dialog.signin .pk-new{margin:10px 0 0;font-size:13px}dialog.signin .pk-new summary{cursor:pointer;color:var(--brand);font-weight:600}
+dialog.signin .pk-form{display:flex;flex-direction:column;gap:6px;margin-top:8px}dialog.signin .pk-form input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-height:40px}
+dialog.signin .pk-form .btn{justify-content:center}dialog.signin .pk-warn,dialog.signin .pk-msg{margin:6px 0 0;font-size:12px;line-height:1.6}dialog.signin .pk-msg{color:var(--down,#c0392b)}dialog.signin .pk-or{margin:12px 0 8px;text-align:center}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .n2 .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root:not([data-theme="light"]) .n2 .sib-github{border-color:#3d444d}}
 :root[data-theme="dark"] .n2 .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root[data-theme="dark"] .n2 .sib-github{border-color:#3d444d}
 /* Sign-in sheet (islands): shown instead of leaving the page when a signed-out reader acts. */
@@ -426,3 +430,38 @@ dialog.signin::backdrop{background:rgba(10,14,20,.45)}
 dialog.signin h2{font-size:16px;margin:0 0 4px}
 dialog.signin p{margin:0 0 14px;color:var(--mute);font-size:13px}
 dialog.signin .x{margin-top:12px;width:100%;justify-content:center}
+/* Authors: anonymous (유동) "ㅇㅇ (a3F9)" muted with a monospace daily ID; members (고정닉) with ✓. */
+.nick.anon{color:var(--mute)}.nick.anon .aid{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--mute2)}
+.meta1 .nick.anon{color:var(--mute)}
+.nick.mem{font-weight:600}.nick.mem .ck{font-size:10px;color:var(--ok);margin-left:3px}
+/* Writing without an account: nickname + password row under the textarea, notices, the human check. */
+.anonf{display:flex;flex-direction:column;gap:6px}
+.anonr{display:flex;gap:8px;flex-wrap:wrap}
+.wform .anonl,.anonl{display:flex;flex-direction:row;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mute)}
+.anonl input{font:inherit;font-size:14px;font-weight:400;width:9.5em;max-width:40vw;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 8px}
+.anonn,.anonw{margin:0;font-size:12px;line-height:1.5}
+.anonw{color:var(--warn);background:var(--warn-bg);padding:6px 8px;border-radius:6px}
+.cform .anonf{margin-top:2px}
+dialog.hc{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:14px;width:min(340px,calc(100vw - 32px));box-sizing:border-box}
+dialog.hc::backdrop{background:rgba(10,14,20,.45)}
+dialog.hc p{margin:0 0 10px;font-size:13px}
+dialog.hc iframe{border:0;width:100%;height:80px;display:block}
+dialog.hc .x{margin-top:10px;width:100%;justify-content:center}
+dialog.pw{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:16px;width:min(340px,calc(100vw - 32px));box-sizing:border-box}
+dialog.pw::backdrop{background:rgba(10,14,20,.45)}
+dialog.pw form{display:flex;flex-direction:column;gap:10px}
+dialog.pw label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}
+dialog.pw input{font:inherit;font-size:15px;border:1px solid var(--line);border-radius:6px;padding:9px 10px;background:var(--card);color:var(--ink)}
+dialog.pw .acts{display:flex;justify-content:flex-end;gap:8px}
+/* Image picker (write page): previews with progress and remove. */
+.imgpick{display:flex;flex-direction:column;gap:8px}
+.imgbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.imgbar .btn{cursor:pointer}
+.imgs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.imgs li{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)}
+.imgs li img{width:100%;height:100%;object-fit:cover;display:block}
+.imgs li .bar{position:absolute;left:0;bottom:0;height:4px;background:var(--brand);transition:width .2s}
+.imgs li.err{border-color:var(--bad)}.imgs li .msg{position:absolute;inset:auto 0 0 0;background:var(--bad-bg);color:var(--bad);font-size:11px;padding:3px 4px}
+.imgs li .rm{position:absolute;top:4px;right:4px;border:0;border-radius:50%;width:24px;height:24px;background:rgba(10,14,20,.6);color:#fff;font-size:14px;line-height:24px;padding:0;cursor:pointer}
+.pbody img{border-radius:6px;display:block;margin:.4em 0}
+.mqi{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.mqi img{width:96px;height:96px;object-fit:cover;border-radius:6px;border:1px solid var(--line);display:block}

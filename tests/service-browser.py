@@ -526,13 +526,15 @@ def scenario_social(browser):
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
         page=context.new_page();instrument(page,log)
         page.goto(post,wait_until='networkidle')
-        page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form button[type="submit"]')
+        page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form a[data-signin]')
         sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
-        ok('social: a signed-out comment opens the sign-in sheet with the configured providers only',sheet.locator('.sib').count()==2 and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
+        ok('social: the comment box\'s sign-in link opens the sign-in sheet: passkey first, then the configured providers only',sheet.locator('.sib').count()==3 and sheet.locator('.sib').first.get_attribute('data-provider')=='passkey' and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
         page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
         with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]').inner_text().startswith('user-'),page.url)
+        # The islands restore the draft after the signed-in state (account, alerts) has loaded: wait for it.
+        page.wait_for_function('()=>document.querySelector("#comment-form textarea").value==="로그인 전 댓글"',timeout=15000)
         ok('social: the comment typed before signing in is still in the box',page.locator('#comment-form textarea').input_value()=='로그인 전 댓글')
         page.fill('#comment-form textarea','GitHub로 로그인해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
         page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("GitHub로 로그인해서 남긴 댓글")',timeout=15000)
@@ -587,6 +589,68 @@ def scenario_social(browser):
     finally:
         stack.close();mock.close()
 
+# ------------------------------------------------------------------ member passkeys (고정닉)
+def scenario_passkey(browser):
+    """PLATFORM build on the real Pages runtime with Cloudflare's always-pass Turnstile testing keys and Chromium's
+    virtual authenticator: a reader signs up with a nickname and a passkey from the sign-in sheet (Turnstile, then
+    navigator.credentials.create), comments under the fixed nickname, signs out, signs in with 지문으로 로그인, and
+    sees the device on the account page. WebAuthn needs a domain RP id, so this stack is served as localhost."""
+    port=PORT or free_port();origin=f'http://localhost:{port}'
+    stack=Stack('passkey',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port)
+    try:
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','패스키 테스트','ko','system:radar-bot',{now},{now},{now});")
+        health=json.load(urllib.request.urlopen(origin+'/api/v1/health',timeout=20))
+        ok('passkey: health offers passkey sign-up and sign-in (Turnstile configured)',health['passkey']=={'signin':True,'signup':True} and health['turnstile'],health)
+        post=origin+'/ko/ai/e2e-chat/1'
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=origin;log=[]
+        page=context.new_page();instrument(page,log)
+        cdp=context.new_cdp_session(page);cdp.send('WebAuthn.enable')
+        auth=cdp.send('WebAuthn.addVirtualAuthenticator',{'options':{'protocol':'ctap2','transport':'internal','hasResidentKey':True,'hasUserVerification':True,'isUserVerified':True,'automaticPresenceSimulation':True}})['authenticatorId']
+        page.goto(post,wait_until='networkidle')
+        page.locator('.hd [data-island="account"] a[data-signin]').click()
+        sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
+        ok('passkey: with no OAuth provider configured the sheet still opens, 지문으로 로그인 first',sheet.locator('.sib').count()==1 and sheet.locator('.sib-passkey').inner_text().strip()=='지문으로 로그인')
+        sheet.locator('details.pk-new summary').click()
+        ok('passkey: the sign-up form warns that losing every device loses the account','기기를 모두 잃어버리면' in sheet.locator('.pk-form').inner_text())
+        page.screenshot(path=str(SHOTS/'passkey-sheet-ko.png'))
+        sheet.locator('.pk-form input[name="displayName"]').fill('지문테스터')
+        with page.expect_navigation(timeout=60000):sheet.locator('.pk-form button[type="submit"]').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.textContent.trim()==="지문테스터"}',timeout=20000)
+        ok('passkey: Turnstile (testing key) + virtual authenticator → signed up and signed in with the fixed nickname',True)
+        creds=cdp.send('WebAuthn.getCredentials',{'authenticatorId':auth})['credentials']
+        rows=stack.sql("SELECT u.provider,p.display_name,p.role,(SELECT COUNT(*) FROM member_credentials) AS creds,(SELECT COUNT(*) FROM admin_credentials) AS admins FROM users u JOIN user_profiles p ON p.user_id=u.id WHERE u.provider='passkey'")
+        ok('passkey: a resident credential on the authenticator; one member account, no admin credential',len(creds)==1 and creds[0]['isResidentCredential'] and rows==[{'provider':'passkey','display_name':'지문테스터','role':'user','creds':1,'admins':0}],rows)
+        ok('passkey: the Turnstile token went to sign-up options',any('/api/v1/auth/passkey/register/options' in r['url'] and 'turnstileToken' in r['body'] for r in log))
+        page.fill('#comment-form textarea','지문으로 가입해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("지문으로 가입해서 남긴 댓글")',timeout=15000)
+        nk=page.locator('.cl .co').last.locator('.nick')
+        ok('passkey: the comment shows the fixed nickname with the member check mark (not a daily ID)',nk.inner_text().startswith('지문테스터') and nk.locator('.ck').inner_text()=='✓' and 'anon' not in (nk.get_attribute('class') or ''),nk.inner_text())
+        page.goto(origin+'/ko/community/me',wait_until='networkidle');page.locator('[data-logout]:not([hidden])').wait_for(timeout=10000)
+        with page.expect_navigation(timeout=30000):page.click('[data-logout]')
+        page.goto(post,wait_until='networkidle')
+        ok('passkey: signed out',page.locator('.hd [data-island="account"] a[data-signin]').count()==1)
+        page.locator('.hd [data-island="account"] a[data-signin]').click();sheet.wait_for(state='visible',timeout=10000)
+        with page.expect_navigation(timeout=60000):sheet.locator('.sib-passkey').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.textContent.trim()==="지문테스터"}',timeout=20000)
+        ok('passkey: 지문으로 로그인 (discoverable credential) signs the member back in',True)
+        page.goto(origin+'/ko/account/',wait_until='networkidle')
+        page.locator('[data-identities] [data-passkey-device]').wait_for(timeout=15000)
+        ok('passkey: the account page lists the device (not removable: the only way in) and offers 이 기기 추가',page.locator('[data-remove-passkey]').is_disabled() and page.locator('[data-passkey-add]').count()==1 and '잃어버리면' in page.locator('[data-passkey-warn]').inner_text())
+        page.screenshot(path=str(SHOTS/'passkey-account-ko.png'),full_page=True)
+        w=page.evaluate('document.documentElement.scrollWidth');ok('passkey: no sideways scroll at 390px',w<=390,w)
+        context.close()
+        # A fresh browser on the Japanese account page: passkey sign-in and the sign-up form come first.
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=origin
+        page=context.new_page();page.goto(origin+'/ja/account/',wait_until='networkidle');page.locator('[data-passkey]').wait_for(timeout=15000)
+        ok('passkey: the Japanese account page offers passkey sign-in (ja label) and the sign-up form',page.locator('[data-passkey-signin]').inner_text().strip()=='パスキーでログイン' and page.locator('form[data-passkey-signup] input').count()==1)
+        context.close()
+    finally:
+        stack.close()
+
 # ------------------------------------------------------------------ visitor/bot statistics (server/traffic.js)
 def scenario_traffic(browser):
     """PLATFORM + TRAFFIC_HTML build on the real Pages runtime: HTML, robots.txt and sitemaps go through the
@@ -617,6 +681,76 @@ def scenario_traffic(browser):
         ok('traffic: exactly one beacon with path, source, device, language only',len(beacons)==1 and set(body)=={'p','r','d','l','e','w'} and body['p']=='/ko/image/crop/' and body['r']=='direct')
         context.close()
     finally:stack.close()
+
+# ------------------------------------------------------------------ writing without an account (유동) + images
+def scenario_anon(browser):
+    """PLATFORM build on the real Pages runtime with a local R2 bucket (binding UPLOADS) and Cloudflare's
+    always-pass Turnstile testing keys: a signed-out reader uploads an image (the human check runs in the
+    /verify/ frame), posts, comments; the image is served by the Worker without EXIF; a 개인정보 report hides
+    the post at once; a moderator restores it. Needs network access to challenges.cloudflare.com."""
+    port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    stack=Stack('anon',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port,
+                toml=['[[r2_buckets]]','binding = "UPLOADS"','bucket_name = "nerulio-uploads-e2e"',''])
+    try:
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});")
+        routes=json.loads((stack.dir/'dist'/'_routes.json').read_text())
+        ok('anon: /u/* (community images) reaches the Worker','/u/*' in routes['include'] or routes['include']==['/*'],routes['include'])
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        page.goto(stack.url+'/ko/ai/e2e-chat/write',wait_until='networkidle')
+        page.locator('[data-anon-fields]:not([hidden])').wait_for(timeout=10000)
+        ok('anon: signed out, the write page offers nickname + password and the image picker',page.locator('[data-image-picker]').is_visible() and page.locator('.needlogin').is_hidden())
+        page.fill('input[name=anonName]','유동테스터');page.fill('input[name=anonPassword]','e2e-pass')
+        page.fill('input[name=title]','E2E 유동 사진 글');page.fill('textarea[name=body]','사진 한 장')
+        page.set_input_files('[data-image-input]',str(ROOT/'tests'/'fixtures'/'anon'/'gps.jpg'))
+        page.locator('dialog.hc iframe').wait_for(timeout=15000)
+        ok('anon: the first upload asks for the human check in the /verify/ frame',page.locator('dialog.hc iframe').get_attribute('src').startswith('/verify/?sitekey=1x00000000000000000000AA&action=community'))
+        page.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")',timeout=60000)
+        page.click('button[type=submit]')
+        page.wait_for_url(re.compile(r'/ko/ai/e2e-chat/\d+$'),timeout=90000)
+        post=page.url
+        ok('anon: posted with the nickname and today\'s ID',re.match(r'^유동테스터 \([0-9A-Za-z]{4}\)$',page.locator('.meta1 .nick.anon').inner_text()) is not None,page.locator('.meta1').inner_text())
+        page.wait_for_function('()=>{const i=document.querySelector(".pbody img");return i&&i.complete&&i.naturalWidth>0}',timeout=15000)
+        src=page.locator('.pbody img').get_attribute('src')
+        img=urllib.request.urlopen(stack.url+src,timeout=20)
+        body=img.read()
+        ok('anon: the image comes from the Worker on our origin: nosniff, inline, long cache, no EXIF/GPS',img.headers['X-Content-Type-Options']=='nosniff' and img.headers['Content-Disposition'].startswith('inline') and 'max-age=604800' in img.headers['Cache-Control'] and b'Exif' not in body and b'NeruCam' not in body,dict(img.headers))
+        rows=stack.sql("SELECT author_id,anon_name,anon_pw,anon_net FROM discussions WHERE anon_name IS NOT NULL")
+        ok('anon: stored as the anonymous account with a hashed password and a network key, no address',len(rows)==1 and rows[0]['author_id']=='anon' and rows[0]['anon_pw'].startswith('pbkdf2-sha256$100000$') and '127.0.0' not in json.dumps(rows),rows)
+        page.fill('#comment-form textarea','유동 댓글');page.fill('#comment-form input[name=anonPassword]','c-pass')
+        page.click('#comment-form button[type=submit]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("유동 댓글")',timeout=60000)
+        ok('anon: a comment within the 10-minute pass needs no second check',True)
+        page.screenshot(path=str(SHOTS/'anon-post-ko.png'),full_page=True)
+        w=page.evaluate('document.documentElement.scrollWidth');ok('anon: no sideways scroll at 390px',w<=390,w)
+        # 개인정보 노출: one report hides it at once
+        rp=context.new_page();instrument(rp,log)
+        rp.goto(post,wait_until='networkidle');rp.goto(stack.url+rp.locator('.pact a',has_text='신고').get_attribute('href'),wait_until='networkidle')
+        rp.select_option('select[name=reason]','privacy');rp.click('form[data-island=flag-form] button[type=submit]')
+        rp.wait_for_url(re.compile(r'/ko/ai/e2e-chat/$'),timeout=60000)
+        try:hidden=urllib.request.urlopen(post,timeout=20).status
+        except urllib.error.HTTPError as e:hidden=e.code
+        try:himg=urllib.request.urlopen(stack.url+src,timeout=20).status
+        except urllib.error.HTTPError as e:himg=e.code
+        ok('anon: a 개인정보 report hides the post and its image at once',hidden==404 and himg==404,(hidden,himg))
+        context.close()
+        # a moderator restores it
+        uid,token=create_user(stack,'e2e-mod')
+        stack.sql(f"INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('{uid}','e2e모더','moderator',{now},{now});")
+        mc=browser.new_context();mc._nerulio_base=stack.url
+        mc.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url}])
+        mp=mc.new_page();instrument(mp,[]);mp.on('dialog',lambda d:d.accept('개인정보 없음 확인'))
+        mp.goto(stack.url+'/ko/community/mod',wait_until='networkidle')
+        row=mp.locator('[data-hidden] .mq',has_text='E2E 유동 사진 글');row.wait_for(timeout=15000)
+        ok('anon: the moderator sees the hidden post with its image and the ID ban buttons',row.locator('.mqi img').count()==1 and row.locator('button',has_text='이 ID 차단 1일').count()==1)
+        row.locator('button',has_text='복구').click();mp.wait_for_timeout(2500)
+        ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
+        mc.close()
+    finally:stack.close()
+
 
 # ------------------------------------------------------------------ TOOL_METERING=off (accounts without tool metering)
 def scenario_meteroff(browser):
@@ -702,13 +836,16 @@ def scenario_meteroff(browser):
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon').split(',')
         only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic,meteroff').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
         if 'signin' in only:scenario_signin(browser)
         if 'social' in only:scenario_social(browser)
+        if 'passkey' in only:scenario_passkey(browser)
         if 'traffic' in only:scenario_traffic(browser)
+        if 'anon' in only:scenario_anon(browser)
         if 'meteroff' in only:scenario_meteroff(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))

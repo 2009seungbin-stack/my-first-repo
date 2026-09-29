@@ -37,6 +37,8 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | `SESSION_SECRET` | **secret** | 32자 이상 무작위. production/preview 서로 다르게. 바꾸면 모든 익명 식별자와 OAuth 진행 중 상태가 무효화됨(세션은 유지) |
 | `TURNSTILE_SITE_KEY` | 변수 | 공개 site key |
 | `TURNSTILE_SECRET_KEY` | **secret** | |
+| `ANON_ID_SECRET` | **secret** | (권장) 비로그인 글의 오늘의 ID·네트워크 키·비밀번호 페퍼용 32자 이상. 없으면 `SESSION_SECRET`. 한 번 정하면 바꾸지 않는다([익명 글쓰기](#익명-글쓰기와-이미지-유동--r2--turnstile--csam)) |
+| `UPLOADS` | **R2 바인딩** | 커뮤니티 이미지 버킷(Preview `nerulio-uploads-preview`, Production `nerulio-uploads`). 없으면 이미지 올리기만 꺼진다 |
 | `BILLING_PROVIDER` | 변수 | `none`(기본) / `sandbox`(preview 전용) / `paddle` |
 | `BILLING_MODE` | 변수 | `sandbox` / `live` (live는 production만) |
 | `BILLING_PRICE_ID` | 변수 | 결제사 가격 ID |
@@ -288,6 +290,83 @@ GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NO
 - 상태 수집 멈춤: Claude·OpenAI 상태 수집기가 2시간 넘게 성공하지 못하면 1번. 공식 장애가 새로 열리면 1번.
 - 신고: 즉시(신고 접수 순간) / 1시간마다 모아서 / 끔. 정보 제안·사실 충돌: 09:00(KST) 이후 하루 1번. 새 가입자: 30분마다 모아서.
 - 방해 금지(기본 23:00–07:00 KST): 수집기 실패와 사용량 95% 이상만 보낸다. 나머지는 방해 금지가 끝난 뒤 첫 확인 때 간다.
+
+## 익명 글쓰기와 이미지 (유동 · R2 · Turnstile · CSAM)
+
+로그인하지 않은 사람도 글·댓글·추천·신고·이미지를 올릴 수 있다(닉네임 + 오늘의 ID, 예: `ㅇㅇ (a3F9)`). 회원(고정닉 ✓) 경로는 그대로다. 코드: `server/platform/anon.js`(ID·비밀번호·한도·차단), `server/platform/images.js`(이미지 검사), `server/platform/uploads.js`(R2 업로드·서빙), `server/platform/api.js`(쓰기·신고·자동 임시조치).
+
+### 정해 둔 값
+
+| 항목 | 값 |
+|---|---|
+| 네트워크 단위 | IPv4 /24, IPv6 /48 (`::ffff:a.b.c.d`는 IPv4로 본다). IP 주소 자체는 저장하지 않는다 |
+| 하루 경계 | 한국 시간(KST) 자정. 오늘의 ID는 매일 바뀌고, 차단·한도용 네트워크 키는 바뀌지 않는다 |
+| 오늘의 ID | HMAC-SHA256(비밀 키, 날짜 + 네트워크) 앞 32비트 → base62 4자 |
+| 네트워크 키 | HMAC-SHA256(비밀 키, 네트워크) 128비트. 글·댓글·이미지에 90일만 보관(이후 자동 삭제) |
+| 비밀 키 | `ANON_ID_SECRET`(32자 이상, 선택) — 없으면 `SESSION_SECRET` |
+| 수정·삭제 비밀번호 | 4~32자, PBKDF2-SHA256 100,000회(Workers 최대치, 약 16ms) + 항목마다 16바이트 솔트 + 비밀 키 페퍼 |
+| 비밀번호 시도 | 한 항목 8회/시간, 한 네트워크 20회/시간(봇 확인 없는 환경 10회) → 초과 시 1시간 잠김 |
+| 봇 확인 | Turnstile. 새 글은 매번 새 토큰, 댓글·추천·신고·이미지·수정은 확인 후 10분 동안 통과(같은 브라우저 + 같은 오늘의 ID) |
+| 네트워크 한도 (Turnstile 있음) | 글 2/분·20/일, 댓글 6/분·150/일, 이미지 40/일, 신고 30/일, 추천 30/분·300/일 |
+| 네트워크 한도 (Turnstile 없음, preview·개발만) | 글 1/분·5/일, 댓글 3/분·30/일, 이미지 10/일, 신고 10/일, 추천 10/분·50/일 |
+| 링크 | 글 2개, 댓글 1개까지. 그날 처음 쓰는 글·댓글에는 링크 금지 |
+| 같은 내용 반복 | 같은 네트워크 24시간, 누구든 10분 안 같은 글 거절(짧은 댓글은 예외) |
+| 이미지 | JPEG·PNG·WebP만(매직 바이트로 판별), 5MB·4096px 이하, 글 하나에 10장, 움직이는 이미지·GIF 거절(브라우저가 GIF 첫 장면을 WebP로 바꿔 올림). 브라우저가 2560px로 줄여 WebP(안 되면 JPEG)로 다시 저장해 EXIF·GPS가 지워지고, 서버도 메타데이터와 끝에 붙은 데이터(폴리글랏)를 한 번 더 지운다. 댓글에는 이미지 없음. 다른 사이트 이미지 주소는 본문에 못 넣는다 |
+| 회원 이미지 | 계정당 60장/일 |
+| 자동 임시조치 | 서로 다른 신고자 3명(비로그인은 오늘의 ID 하나가 한 명)이면 숨김. 개인정보 노출·불법촬영물·아동·청소년 성착취물은 신고 1건으로 즉시 숨김 + 관리 앱에 바로 푸시(시간당 요약 기기·방해 금지 시간에도) |
+| 차단 | 관리 앱·`/community/mod`의 "이 ID 차단 1일/7일/30일" → 그 네트워크의 비로그인 쓰기 전체 차단. 회원 활동은 막지 않는다 |
+| Turnstile 키가 없을 때 | preview·개발: 봇 확인 없이 허용 + 더 낮은 한도 + 글쓰기 화면에 안내. **production: 익명 쓰기 503 `NOT_CONFIGURED`(need `TURNSTILE_SECRET_KEY`)**, 화면은 로그인 안내 |
+| R2 바인딩이 없을 때 | 이미지 올리기 503 `NOT_CONFIGURED`(need `UPLOADS`), 이미지 선택 버튼 숨김. 글쓰기는 그대로 된다 |
+
+이미지는 `https://nerulio.com/u/<id>/full.<ext>`로 Worker가 R2에서 읽어 준다(`X-Content-Type-Options: nosniff`, `Content-Disposition: inline`, `Cross-Origin-Resource-Policy: same-origin`, `sandbox` CSP, 브라우저 7일·엣지 1시간 캐시). 글에 쓰이지 않은 업로드는 하루 뒤 R2에서 지운다. 숨긴 글의 이미지는 404(운영자에게는 보임), 운영자가 삭제한 이미지는 R2에서 지워지고 451.
+
+### 운영자 작업 순서 (소유자·코디네이터, Preview 먼저)
+
+1. **D1 migration** `migrations/0012_anonymous.sql`(추가만 함)을 코드 배포 전에 적용한다.
+   ```sh
+   npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml
+   # preview 확인이 끝난 뒤
+   npx wrangler d1 migrations apply nerulio-prod --remote --config ops/d1.wrangler.toml
+   ```
+2. **R2 버킷 두 개**: 대시보드 R2 → Create bucket → `nerulio-uploads-preview`, `nerulio-uploads`. 공개 접근(r2.dev, 커스텀 도메인)은 **켜지 않는다** — 이미지는 Worker만 읽는다.
+3. **Pages 바인딩**: Workers & Pages → nerulio → Settings → Bindings → Add → R2 bucket, 변수 이름 `UPLOADS`. Preview 환경 = `nerulio-uploads-preview`, Production 환경 = `nerulio-uploads`.
+4. **Turnstile 위젯**: 대시보드 Turnstile → Add widget → 이름 `nerulio-community`, 호스트 이름 `n2-preview.nerulio.pages.dev`, `nerulio.com`(필요하면 `www.nerulio.com`), 모드 **Managed**. 만든 뒤 Pages 설정에 환경마다:
+   - `TURNSTILE_SITE_KEY` — **변수**(공개 값)
+   - `TURNSTILE_SECRET_KEY` — **secret**
+   (이미 `/verify/` 쿼터 확인용으로 같은 이름의 키를 쓰고 있다면 그 위젯에 호스트 이름만 추가해도 된다. 액션 이름은 `community`.)
+5. **(권장) `ANON_ID_SECRET`** — secret, 32자 이상 임의 문자열(`openssl rand -base64 48`). 없으면 `SESSION_SECRET`을 쓰는데, 그러면 `SESSION_SECRET`을 바꾸는 순간 오늘의 ID와 네트워크 차단 목록이 모두 새로 시작된다. 한 번 정하면 바꾸지 않는다.
+6. **CSAM Scanning Tool**: 대시보드 → nerulio.com 존 → Caching → Configuration → CSAM Scanning Tool → Enable, 알림 받을 이메일 입력(NCMEC 신고 절차 안내를 받는 주소). 이미지는 nerulio.com 존을 거쳐 나가므로 이 도구의 대상이 된다. 탐지되면 Cloudflare가 해당 URL을 막고 이메일로 알린다 → 관리 앱에서 그 글을 **영구 삭제**한다.
+7. 재배포 후 확인: preview에서 로그아웃 상태로 글쓰기 → 닉네임·비밀번호 칸과 이미지 버튼이 보이는지, 이미지 올리기 → 본문에 `![이미지](/u/…)`가 들어가는지, 다른 기기에서 "개인정보 노출"로 신고 → 글이 바로 404가 되고 관리 앱에 푸시가 오는지, 관리 앱 신고 처리 → 임시조치 중 → 복구.
+
+### 운영 메모
+
+- **급한 이미지 내리기**: 관리 앱에서 글을 영구 삭제하면 R2에서 지워지고 그 데이터센터의 엣지 캐시도 비운다. 다른 데이터센터의 캐시는 최대 1시간 남을 수 있으니, 불법촬영물·아동 성착취물은 대시보드 → Caching → Configuration → **Purge Cache → Custom Purge → URL** 에 `https://nerulio.com/u/<id>/full.webp`(관리 앱 카드의 이미지 주소)를 넣어 바로 지운다. 이미 본 사람 브라우저의 사본은 지울 수 없다.
+- **금지어·도메인**: `blocklist` 표(관리 화면은 아직 없음). D1 콘솔에서
+  ```sql
+  INSERT INTO blocklist (kind,pattern,action,note,created_at) VALUES ('domain','spam.example','reject','도박 홍보',strftime('%s','now')*1000);
+  INSERT INTO blocklist (kind,pattern,action,note,created_at) VALUES ('keyword','카지노','hide','검토 후 공개',strftime('%s','now')*1000);
+  ```
+  `reject` = 쓰기 거절, `hide` = 숨긴 채 등록되고 신고 처리 화면에 뜬다. 키워드는 공백·대소문자를 무시하고 비교하며, 1분 안에 모든 Worker에 반영된다.
+- **법적 대응**: 불법촬영물·아동 성착취물로 확인되면 복구하지 말고 삭제한다. 관계 기관(경찰청 사이버수사, 방송통신심의위원회 등)에 신고할지는 소유자가 판단한다. 필요한 경우를 위해 삭제 전 관리 앱의 처리 기록(사유·시각)이 남는다. 저장된 네트워크 키로 IP 주소를 되돌릴 수는 없다.
+- **테스트**: `npm test`(`tests/anon.test.mjs`), `npm run test:platform`(비로그인 글·이미지·비밀번호 수정·신고 → 자동 숨김 → 복구), `SERVICE_SCENARIOS=anon python tests/service-browser.py`(실제 workerd + 로컬 R2 + Cloudflare Turnstile **테스트 키**: 사이트 키 `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA` — 이 키의 응답은 production에서는 거절된다. 인터넷 연결 필요).
+
+## 고정닉(패스키) 가입
+
+회원 가입은 이메일·외부 계정 없이 **닉네임 + 패스키(지문·얼굴·화면 잠금)** 로 한다. 익명 유동("ㅇㅇ (a3F9)")과 달리 닉네임이 고정되고, 글·댓글에 ✓ 표시로 구별된다. GitHub·Discord·Google 로그인은 그대로 쓸 수 있고, 한 계정에 둘 다 연결할 수 있다.
+
+- 구현: `server/member-passkey.js` (서버, `server/webauthn.js` 재사용), `src/passkey-client.js` (브라우저), 계정 페이지(`/{ko,en,ja}/account/`)와 채널 페이지의 로그인 시트. 테이블: `member_credentials` (migration `0013_member_passkeys.sql`).
+- API (`/api/v1`): `POST auth/passkey/register/options|verify` (가입), `login/options|verify` (지문으로 로그인, discoverable credential), `add/options|verify` (로그인한 회원이 기기 추가, 로그인 12시간 이내만), `remove` (로그인 수단이 하나 이상 남을 때만).
+- **관리 앱과 분리**: 회원 패스키는 `member_credentials`에만 저장되고 관리 앱은 `admin_credentials`만 읽는다. challenge 목적값도 다르다(`m-reg`/`m-auth` ↔ `reg`/`auth`). role이 admin인 계정은 회원 패스키를 추가하거나 그걸로 로그인할 수 없다.
+- **봇 확인**: `TURNSTILE_SECRET_KEY`가 있으면 가입 전에 Turnstile(action `signup`)을 통과해야 한다. Production에 secret이 없으면 가입은 `503 NOT_CONFIGURED {need:'TURNSTILE_SECRET_KEY'}`로 닫히고(로그인은 됨), Preview는 가입을 허용하되 한도가 더 낮다. Cloudflare 테스트 키(항상 통과) 응답은 production이 아닌 빌드에서만 인정한다.
+- **한도**: 네트워크(/24 · /48)당 하루 가입 5회(Turnstile 없을 때 2회, `MEMBER_SIGNUPS_PER_NETWORK` 변수로 조정), 패스키 요청은 네트워크당 분당 20회.
+- **닉네임 규칙**: 2~20자, 대소문자 무시 중복 불가, 운영자·관리자·레이더봇·admin·nerulio로 시작하는 이름과 `user-xxxx` 형식은 쓸 수 없다(내 정보의 닉네임 변경과 같은 규칙).
+- **복구 없음**: 패스키는 기기(또는 휴대폰·비밀번호 관리자)에 저장된다. 등록한 기기를 모두 잃으면 계정을 되찾을 수 없다(이메일이 없으므로). 가입 화면과 계정 페이지가 이를 알리고 기기 추가나 GitHub·Discord 연결을 권한다.
+
+### 운영자 작업 순서
+
+1. D1 migration `0013_member_passkeys.sql`을 preview → production 순서로 적용한다.
+2. Turnstile 위젯(Managed)에 호스트 이름 `n2-preview.nerulio.pages.dev`, `nerulio.com`을 등록하고 `TURNSTILE_SITE_KEY`(변수)·`TURNSTILE_SECRET_KEY`(secret)를 Preview/Production 각각 설정한다. 설정 전에는 production 가입이 닫혀 있다.
+3. 배포 후 `/api/v1/health`의 `passkey`가 `{"signin":true,"signup":true}`인지 확인하고, 휴대폰에서 `/ko/account/`의 "지문으로 가입"으로 한 번 가입해 본다. 패스키의 RP ID는 요청한 호스트 이름이므로 preview(`*.pages.dev`)에서 만든 패스키는 `nerulio.com`에서 쓸 수 없다(정상).
 
 ## 로컬 검증
 

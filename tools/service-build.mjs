@@ -23,8 +23,8 @@ export function serviceMeta(config){
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
-/** Server-rendered platform prefixes (PLATFORM=on): community front and the vertical channels. */
-export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*']);
+/** Server-rendered platform prefixes (PLATFORM=on): community front, the vertical channels and community images (/u/). */
+export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);
 export function serviceRoutes(config){
  // Traffic statistics (PLATFORM builds): robots.txt and sitemaps always wake the Worker (crawler signal);
  // TRAFFIC_HTML (default on; off to opt out) routes every page like the ads build does (tools/traffic-build.mjs).

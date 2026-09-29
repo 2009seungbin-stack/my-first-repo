@@ -8,7 +8,7 @@
  * - `return` is a same-site relative path only (safeReturnPath): no open redirect.
  * - identity = (provider, provider subject) in user_identities; e-mail never links accounts. A signed-in
  *   member links another provider explicitly (link=1), and may unlink one while another way to sign in
- *   (identity or admin passkey) remains.
+ *   (identity, member passkey or admin passkey) remains.
  * - provider access tokens are used inside the callback and dropped; only the session token's SHA-256 is stored. */
 import {base64url,fromBase64url,randomToken,sha256,sha256Bytes,sign,unsign,safeEqual} from '../crypto.js';
 import {ApiError,cookie,clearCookie,redirect} from '../http.js';
@@ -174,6 +174,9 @@ export async function identitiesOf(db,user,now){
 }
 /** Admin passkeys also sign in to an account (server/platform/admin.js). @param {any} db @param {string} userId */
 const passkeysOf=async(db,userId)=>Number((await db.prepare('SELECT COUNT(*) AS n FROM admin_credentials WHERE user_id=?1').bind(userId).first())?.n||0);
+/** Member passkeys (server/member-passkey.js), oldest first. @param {any} db @param {string} userId */
+const devicesOf=async(db,userId)=>(/** @type {any[]} */((await db.prepare('SELECT id,name,created_at,last_used_at FROM member_credentials WHERE user_id=?1 ORDER BY created_at,id').bind(userId).all()).results||[]))
+ .map(r=>({id:String(r.id),name:String(r.name),createdAt:new Date(Number(r.created_at)).toISOString(),lastUsedAt:r.last_used_at==null?null:new Date(Number(r.last_used_at)).toISOString()}));
 
 /** Link (provider, subject) to the signed-in account. Returns '' or why it was refused:
  * linked_elsewhere (another Nerulio account signs in with it — accounts are never merged silently),
@@ -188,29 +191,32 @@ export async function linkIdentity(db,user,id,profile,now){
  return '';
 }
 
-/** What the account page shows under 연결된 로그인. @param {any} db @param {SessionUser} user @param {number} now */
+/** What the account page shows under 연결된 로그인: provider identities, the member passkeys (devices) and
+ * the admin passkey count. The 'passkey' identity row is not a way in by itself — its devices are.
+ * @param {any} db @param {SessionUser} user @param {number} now */
 export async function signInMethods(db,user,now){
- const [identities,passkeys]=await Promise.all([identitiesOf(db,user,now),passkeysOf(db,user.id)]);
- return {identities:identities.map(i=>({provider:i.provider,email:i.email,since:new Date(i.since).toISOString()})),passkeys,canUnlink:identities.length+passkeys>1};
+ const [all,passkeys,devices]=await Promise.all([identitiesOf(db,user,now),passkeysOf(db,user.id),devicesOf(db,user.id)]);
+ const identities=all.filter(i=>i.provider!=='passkey');
+ return {identities:identities.map(i=>({provider:i.provider,email:i.email,since:new Date(i.since).toISOString()})),passkeys,devices,canUnlink:identities.length+devices.length+passkeys>1};
 }
 
 /** Remove one provider from the signed-in account, only while another way to sign in remains.
  * @param {any} db @param {SessionUser} user @param {unknown} provider @param {number} now */
 export async function unlinkIdentity(db,user,provider,now){
  if(!isProvider(provider))throw new ApiError('BAD_REQUEST','Unknown provider.');
- const list=await identitiesOf(db,user,now),target=list.find(i=>i.provider===provider);
+ const all=await identitiesOf(db,user,now),list=all.filter(i=>i.provider!=='passkey'),target=list.find(i=>i.provider===provider);
  if(!target)throw new ApiError('NOT_FOUND','This sign-in method is not linked.');
  const rest=list.filter(i=>i!==target);
- if(rest.length+await passkeysOf(db,user.id)<1)throw new ApiError('OPERATION_CONFLICT','This is the only way to sign in to this account.',{reason:'last_method'});
+ if(rest.length+await passkeysOf(db,user.id)+(await devicesOf(db,user.id)).length<1)throw new ApiError('OPERATION_CONFLICT','This is the only way to sign in to this account.',{reason:'last_method'});
  const statements=[db.prepare('DELETE FROM user_identities WHERE provider=?1 AND provider_subject=?2 AND user_id=?3').bind(target.provider,target.subject,user.id)];
  // users.provider/provider_subject names the account's first identity (and is UNIQUE): hand it to the next
- // one, so the unlinked provider account can later sign up on its own without colliding.
- if(user.provider===target.provider&&user.provider_subject===target.subject){
-  const next=rest[0];
+ // one (a provider, else the member passkey handle), so the unlinked provider account can later sign up on
+ // its own without colliding.
+ const next=rest[0]||all.find(i=>i.provider==='passkey');
+ if(user.provider===target.provider&&user.provider_subject===target.subject)
   statements.push(db.prepare('UPDATE users SET provider=?2,provider_subject=?3 WHERE id=?1').bind(user.id,next?next.provider:'unlinked',next?next.subject:user.id));
- }
  await db.batch(statements);
- return signInMethods(db,{...user,...(statements.length>1?{provider:rest[0]?.provider||'unlinked',provider_subject:rest[0]?.subject||user.id}:{})},now);
+ return signInMethods(db,{...user,...(statements.length>1?{provider:next?.provider||'unlinked',provider_subject:next?.subject||user.id}:{})},now);
 }
 
 /** Signing out deletes the session and moves today's counters back onto this browser's

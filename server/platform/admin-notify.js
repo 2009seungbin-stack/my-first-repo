@@ -224,20 +224,27 @@ export async function checkNewUsers(c){
  if(!c.subs.some(s=>s.prefs.newUsers))return null;
  const last=await markerAt(c.db,'digest:users');
  if(last===null){await mark(c.db,['digest:users'],c.now);return null;}
- const n=Number((await c.db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>? AND provider NOT IN ('system','passkey')").bind(last).first())?.n||0);
+ const n=Number((await c.db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>? AND provider<>'system' AND id NOT IN (SELECT user_id FROM admin_credentials)").bind(last).first())?.n||0);
  if(!n)return null;
  return alert(c,{key:'digest:users',wants:p=>p.newUsers,topic:'users',message:{kind:'new_users',title:`새 가입자 ${n}명`,body:'커뮤니티 화면에서 확인하세요.',url:'/admin/#/community',tag:'users'}});
 }
 
-/** A new content flag (POST /api/v2/flags) → an instant push for devices with flags:'instant'.
- * Runs in ctx.waitUntil; never throws. @param {any} env @param {{target:string,reason:string}} flag @param {{now:number,fetch?:typeof fetch,origin:string}} o */
+/** A new content flag (POST /api/v2/flags) → an instant push for devices with flags:'instant'. When the
+ * report hid the item at once (auto temporary-hide: enough reporters, or a category such as 불법촬영물,
+ * 아동·청소년 성착취물 or 개인정보 노출) the push is critical: it also reaches devices with flags:'hourly' and
+ * ignores quiet hours, because the owner has to confirm or restore the item.
+ * Runs in ctx.waitUntil; never throws. @param {any} env @param {{target:string,reason:string,category?:string|null,autoHidden?:boolean,reports?:number}} flag @param {{now:number,fetch?:typeof fetch,origin:string}} o */
 export async function notifyNewFlag(env,flag,o){
  try{
   if(!env?.DB||!vapidFromEnv(env,o.origin))return;
-  const subs=(await adminSubscriptions(env.DB)).filter(s=>s.prefs.flags==='instant');
+  const urgent=!!flag.autoHidden;
+  const subs=(await adminSubscriptions(env.DB)).filter(s=>s.prefs.flags==='instant'||(urgent&&s.prefs.flags==='hourly'));
   if(!subs.length)return;
-  const REASON=/** @type {Record<string,string>} */({spam:'스팸·광고',abuse:'욕설·비하',wrong_info:'잘못된 정보',source_dispute:'출처 이의',duplicate:'중복',copyright:'저작권',other:'기타'});
+  const REASON=/** @type {Record<string,string>} */({spam:'스팸·광고',abuse:'욕설·비하',wrong_info:'잘못된 정보',source_dispute:'출처 이의',duplicate:'중복',copyright:'저작권',other:'기타',csam:'아동·청소년 성착취물',illegal_filming:'불법촬영물',privacy:'개인정보 노출',sexual:'음란물',violence:'폭력·자해'});
   const KIND=/** @type {Record<string,string>} */({discussion:'글',comment:'댓글',report:'리포트',wiki_revision:'위키',fact:'사실값',entity:'채널',user:'사용자'});
-  await alert({env,db:env.DB,now:o.now,fetch:o.fetch,origin:o.origin,subs},{key:null,wants:()=>true,topic:'flags',message:{kind:'flag',title:'새 신고',body:`${KIND[flag.target.split(':')[0]]||'항목'} · ${REASON[flag.reason]||flag.reason}`,url:'/admin/#/flags',tag:'flags'}});
+  const why=REASON[flag.category||'']||REASON[flag.reason]||flag.reason;
+  const message=urgent?{kind:'flag',title:'자동 숨김 · 확인 필요',body:`${KIND[flag.target.split(':')[0]]||'항목'} · ${why}${flag.reports?` · 신고 ${flag.reports}명`:''} — 복구하거나 삭제하세요.`,url:'/admin/#/mod',tag:'flags'}
+   :{kind:'flag',title:'새 신고',body:`${KIND[flag.target.split(':')[0]]||'항목'} · ${why}`,url:'/admin/#/flags',tag:'flags'};
+  await alert({env,db:env.DB,now:o.now,fetch:o.fetch,origin:o.origin,subs},{key:null,wants:()=>true,critical:urgent,topic:'flags',message});
  }catch(e){console.error('admin/notify flag',/** @type {any} */(e)?.message);}
 }

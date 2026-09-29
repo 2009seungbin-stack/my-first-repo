@@ -36,12 +36,16 @@ async function harness(){
  return h;
 }
 
-test('reading state is anonymous; every write needs an account',{skip},async()=>{
+test('reading state is anonymous; member-only writes need an account, anonymous posts need a password',{skip},async()=>{
  const h=await harness();
  const s=await h.call('GET','/state?entity=game:steam-1');
  assert.equal(s.status,200);assert.equal(s.json.signedIn,false);
  const w=await h.call('POST','/posts',{body:{entityId:'game:steam-1',kind:'question',title:'질문 있어요',body:'본문'}});
- assert.equal(w.status,401);assert.equal(w.json.error.code,'LOGIN_REQUIRED');
+ assert.equal(w.status,400);assert.equal(w.json.error.field,'password','writing without an account needs an edit password');
+ for(const [path,body] of [['/follow',{entityId:'game:steam-1'}],['/profile',{displayName:'누구'}],['/rollout',{featureId:'feature:feat',hasIt:true}],['/reports',{kind:'issue',entityId:'service:svc',result:'broken'}]]){
+  const r=await h.call('POST',path,{body});
+  assert.equal(r.status,401,path);assert.equal(r.json.error.code,'LOGIN_REQUIRED');
+ }
 });
 
 test('cross-site POSTs are refused before anything is read',{skip},async()=>{
@@ -252,7 +256,7 @@ test('flags: one open flag per reporter and target, validated reason and target'
  assert.deepEqual(rows.map(r=>r.reason),['spam'],'the repeat updates the open flag');
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'javascript:alert(1)',reason:'spam'}})).status,400);
  assert.equal((await h.call('POST','/flags',{as:'a',body:{target:'comment:x',reason:'because'}})).status,400);
- assert.equal((await h.call('POST','/flags',{body:{target:'comment:x',reason:'spam'}})).status,401);
+ assert.equal((await h.call('POST','/flags',{body:{target:'comment:x',reason:'spam'}})).status,404,'signed-out reports work too (the target must exist)');
 });
 
 test('benchmarks: a model measured on a GPU, tokens/s bounded, shown as a median',{skip},async()=>{

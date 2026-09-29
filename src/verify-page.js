@@ -4,7 +4,7 @@
 const q=new URLSearchParams(location.search);
 const siteKey=q.get('sitekey')||'',action=q.get('action')||'';
 const post=data=>{if(window.parent!==window)window.parent.postMessage({type:'nerulio-turnstile',...data},location.origin);};
-if(/^[0-9A-Za-z_-]{1,100}$/.test(siteKey)&&['quota','checkout'].includes(action)&&window.parent!==window){
+if(/^[0-9A-Za-z_-]{1,100}$/.test(siteKey)&&['quota','checkout','community','signup'].includes(action)&&window.parent!==window){
  window.__nerulioTurnstile=()=>window.turnstile.render('#turnstile',{sitekey:siteKey,action,language:['ko','en','ja'].includes(q.get('lang'))?q.get('lang'):'auto',
   callback:token=>post({token}),'error-callback':()=>post({error:true}),'expired-callback':()=>post({error:true})});
  const script=document.createElement('script');

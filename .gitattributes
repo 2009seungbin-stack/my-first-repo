@@ -12,3 +12,4 @@ tests/fixtures/texture/*.png -text
 
 # Pixel workspace fixtures are compared pixel for pixel
 tests/fixtures/pixel/*.png -text
+tests/fixtures/anon/** -text
