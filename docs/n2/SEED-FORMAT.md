@@ -29,6 +29,8 @@ node tools/platform/validate-seed.mjs data/seed/hardware
 6. Prices: the official list price for the stated region and currency, with the date retrieved. Taxes,
    promotions and regional conversions are not facts — put them in `note` or omit.
 7. Dates: ISO `YYYY`, `YYYY-MM` or `YYYY-MM-DD` — use the precision the source gives.
+   A day is the local calendar day of the place it happens (a Japanese broadcast "Friday 25:23" is
+   Saturday in JST — see `docs/n2/sources-subculture.md`, "Dates of Japanese broadcasts"), never UTC.
 
 ## Shape
 

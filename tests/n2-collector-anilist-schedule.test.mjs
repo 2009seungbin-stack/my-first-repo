@@ -92,3 +92,22 @@ test('past next-episode times are not emitted as upcoming events', ()=>{
  const doc=toSeed(media,new Map([[195516,targets[0]]]),'2026-12-01',Date.parse('2026-12-01'));
  assert.equal(doc.events.length,0);
 });
+
+test('release dates use the seed convention: JST calendar date of the first airing, in the seeded scope', async()=>{
+ const {jstDate,seededRegion}=await import('../collectors/anilist-schedule/index.js');
+ // Tokyo Revengers: "2026年10月2日から毎週金曜深夜1:23" = Saturday 3 October 01:23 JST (16:23 UTC on the 2nd).
+ assert.equal(jstDate(Date.parse('2026-10-02T16:23:00Z')/1000),'2026-10-03');
+ assert.equal(jstDate(Date.parse('2026-10-03T15:55:00Z')/1000),'2026-10-04');   // Ranma: 土曜24:55
+ assert.equal(seededRegion({factRegions:{release_date:['*']}},'release_date'),undefined);
+ assert.equal(seededRegion({factRegions:{release_date:['JP','KR']}},'release_date'),'JP');
+ assert.equal(seededRegion({factRegions:{release_date:['GLOBAL','KR']}},'release_date'),'GLOBAL');
+ assert.equal(seededRegion({factRegions:{}},'release_date'),undefined);
+ const media=[{id:178083,format:'TV',status:'NOT_YET_RELEASED',episodes:null,startDate:{year:2026,month:10,day:2},endDate:{},nextAiringEpisode:{episode:1,airingAt:Date.parse('2026-10-02T16:53:00Z')/1000},siteUrl:'https://anilist.co/anime/178083'},
+  {id:151807,format:'TV',status:'FINISHED',episodes:12,startDate:{year:2024,month:1,day:7},endDate:{year:2024,month:3,day:31},nextAiringEpisode:null,siteUrl:'https://anilist.co/anime/151807'}];
+ const by=new Map([[178083,{id:'work:tokyo-revengers-santen-sensou',names:{en:'Tokyo Revengers'},factRegions:{release_date:['*']}}],[151807,{id:'work:solo-leveling-tv-s1',names:{en:'Solo Leveling'},factRegions:{release_date:['JP']}}]]);
+ const doc=toSeed(media,by,'2026-09-29',NOW);
+ const tr=doc.entities.find(e=>e.id==='work:tokyo-revengers-santen-sensou').facts.find(x=>x.p==='release_date');
+ assert.deepEqual([tr.v,tr.region],['2026-10-03',undefined],"episode 1's airingAt decides, not a startDate typed in by hand");
+ const sl=doc.entities.find(e=>e.id==='work:solo-leveling-tv-s1').facts;
+ assert.deepEqual(sl.filter(x=>x.p.endsWith('_date')).map(x=>[x.p,x.v,x.region]),[['release_date','2024-01-07','JP'],['end_date','2024-03-31','JP']],'written into the scope the seed uses');
+});

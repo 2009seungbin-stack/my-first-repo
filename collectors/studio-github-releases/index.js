@@ -6,8 +6,9 @@
  *   this adapter makes one request per repository per run). Observed responding 2026-09-28.
  * Releases are published by the projects themselves (godotengine/godot, obsproject/obs-studio,
  * surge-synthesizer/releases-xt),
- * so they are the projects' own release records; values are labelled AUTOMATED because they are
- * collected by a machine, not checked by a curator.
+ * so they are the projects' own release records and are labelled OFFICIAL, like github-releases
+ * (AI runtimes): the label states who made the statement, not who copied it (platform/schema.js
+ * `supersedes`); AUTOMATED is for machine interpretation of free text, e.g. steam-news.
  *
  * Output: partial entities (id + facts + versions) for app entities defined in
  * data/seed/studio/apps-b.json — latest_version (highest non-prerelease, non-draft version) and
@@ -57,7 +58,7 @@ export function toEntity(repo,releases,o){
  versions.sort((a,b)=>compareVersions(b.version,a.version));
  const stable=versions.filter(v=>v.channel==='stable');
  const facts=[];
- if(stable.length)facts.push({p:'latest_version',v:stable[0].version,ver:'AUTOMATED',src,...(stable[0].released?{note:`Published ${stable[0].released}`}:{})});
+ if(stable.length)facts.push({p:'latest_version',v:stable[0].version,ver:'OFFICIAL',src,...(stable[0].released?{note:`Published ${stable[0].released}`}:{})});
  else log(`${repo}: no stable release in the response`);
  return {
   source:{id:src,kind:'OFFICIAL_API',url:`https://api.github.com/repos/${repo}/releases`,title:`${repo} releases (GitHub REST API)`,publisher:repo.split('/')[0],retrieved:o.retrieved,adapter:'studio-github-releases',note:'Documented at https://docs.github.com/en/rest/releases/releases#list-releases'},

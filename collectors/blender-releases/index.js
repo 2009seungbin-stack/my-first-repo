@@ -9,7 +9,9 @@
  * Why not blender.org/download: that page is HTML; the tag API is structured and official.
  *
  * Output: partial entity app:blender with latest_version (highest vX.Y.Z tag) and the newest
- * MAX_VERSIONS release tags as versions (Blender LTS lines, e.g. 4.5.x, keep receiving tags).
+ * MAX_VERSIONS release tags as versions (Blender LTS lines, e.g. 4.5.x, keep receiving tags; ingest
+ * treats channel 'stable' and 'lts' as the same release, so a seeded LTS row is not duplicated).
+ * latest_version is OFFICIAL: the Blender Foundation's own release tags (see reaper-whatsnew).
  */
 
 export const TAGS_URL='https://projects.blender.org/api/v1/repos/blender/blender/tags?limit=50';
@@ -40,7 +42,7 @@ export function toSeed(tags,o){
  }
  versions.sort((a,b)=>compareVersions(b.version,a.version));
  const entity={id:'app:blender',facts:/** @type {any[]} */([]),versions:versions.slice(0,MAX_VERSIONS)};
- if(versions.length)entity.facts.push({p:'latest_version',v:versions[0].version,ver:'AUTOMATED',src:SOURCE_ID,...(versions[0].released?{note:`Release tag commit dated ${versions[0].released}`}:{})});
+ if(versions.length)entity.facts.push({p:'latest_version',v:versions[0].version,ver:'OFFICIAL',src:SOURCE_ID,...(versions[0].released?{note:`Release tag commit dated ${versions[0].released}`}:{})});
  else log('no release tags found');
  return {
   schema:'nerulio.seed/1',vertical:'studio',

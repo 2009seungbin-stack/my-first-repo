@@ -59,6 +59,23 @@ Adapter id note: `steam-news-subculture` is deliberately distinct from the games
 Tests: `node --test tests/n2-collector-anilist-schedule.test.mjs tests/n2-collector-steam-news-subculture.test.mjs tests/n2-collector-subculture-manual.test.mjs`
 (recorded fixtures under `tests/fixtures/n2/collectors/<adapter>/`, no network).
 
+### Dates of Japanese broadcasts (seed and collectors agree)
+
+`release_date` / `end_date` of a work are the **calendar date in Japan (JST = KST) of the first (last)
+broadcast or stream**. Japanese sites write late-night slots on the previous day's clock
+("2026年10月2日より毎週金曜深夜1:23", "土曜日24:55"); Nerulio converts them: Friday 25:23 → **Saturday**.
+Reasons: it is the day a viewer in Japan or Korea can actually watch it, it matches the time-precise
+premiere `broadcast` event of the same work (`starts: "2026-10-03T01:23+09:00"`), and it is what
+AniList (`startDate`, `airingAt`), MyAnimeList and Wikipedia list. UTC is never used for a day: 01:23 JST
+is the previous day in UTC. Keep the official wording in `note` ("Friday late night 25:23 JST (= Saturday 01:23)").
+
+`anilist-schedule` produces the same convention: episode 1's `airingAt` (converted to JST) when known,
+else AniList `startDate`, written into the scope the seed uses for that work (`*`, else `JP`, else
+`GLOBAL`), so a work never shows two release dates. Corrected on 2026-09-29 (they used the late-night
+listing day): Tokyo Revengers: Three Titans War 2026-10-02 → 10-03, Ranma1/2 S3 2026-10-03 → 10-04,
+Solo Leveling S1 (JP) 2024-01-06 → 01-07, S2 (JP) 2025-01-04 → 01-05, A Returner's Magic Should Be
+Special S1 (JP) 2023-10-07 → 10-08, S2 (JP) 2026-10-07 → 10-08.
+
 ## 3. Manual workflows
 
 ### Official news (anime/game) — `subculture-official-news`
