@@ -5,7 +5,7 @@ import {h,icon} from '../lib/dom.js';
 import {box,st,dot,needCard,failure,fill,skeleton} from '../lib/ui.js';
 import {meter,spark} from '../lib/charts.js';
 import {num,compact,relTime,dayClock,shortDate,pct} from '../lib/format.js';
-import {homeAlert,usageView,trafficTile} from '../lib/model.js';
+import {homeAlert,usageView,trafficTile,rerunIds} from '../lib/model.js';
 import {statusState} from '../lib/labels.js';
 import {runSheet} from './collectors.js';
 
@@ -29,9 +29,16 @@ function alertCard(ctx,ov,now){
    ...a.parts.map((p,i)=>h('p',p.title?h('b',p.title):null,p.title&&p.body?' · ':'',p.body)),
    h('span.l2',[a.at?`${dayClock(a.at,now)} (${relTime(a.at,now)})`:'',a.dailyReset?'한도는 매일 09:00(KST)에 초기화됨':''].filter(Boolean).join(' · ')))),
   h('div.btns',
-   a.rerun.length?h('button.btn.p',{type:'button',onclick:()=>runSheet(ctx,a.rerun,{usage:ov.usage})},`${a.rerun.length}개 다시 실행`):null,
+   rerunCount(ov,a.rerun)?h('button.btn.p',{type:'button',onclick:async()=>{
+    // The overview lists only the first few problem collectors: take the ids from the full list.
+    let ids=a.rerun;
+    if(ids.length<rerunCount(ov,ids))try{ids=rerunIds((await ctx.api.get('/api/v2/admin/collectors'))?.items)||ids;}catch{}
+    runSheet(ctx,ids,{usage:ov.usage});
+   }},`${rerunCount(ov,a.rerun)}개 다시 실행`):null,
    h('a.btn',{href:'#/collectors'},'자세히')));
 }
+/** Problem collectors to re-run: the overview's counts (its item list is capped). @param {any} ov @param {string[]} ids */
+const rerunCount=(ov,ids)=>Math.max(ids.length,(Number(ov.collectors?.failing)||0)+(Number(ov.collectors?.never)||0)+(Number(ov.collectors?.stale)||0));
 /** The overview carries usage, or null when it is not configured or Cloudflare did not answer:
  * then /usage is asked once for the exact reason (which settings are missing). @param {any} ctx @param {any} usage @param {number} now */
 function usageSlot(ctx,usage,now){
