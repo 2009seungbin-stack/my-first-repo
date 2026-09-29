@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {entry} from '../tools/build.mjs';
+import {sitemapGroups} from '../tools/sitemaps.mjs';
+const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const origin='https://nerulio.example.test/';
+for(const locale of ['ko','en','ja'])test(`${locale} Audio Lab is indexable, local, ad-free and truthfully gated`,()=>{
+ const page=entry(shell,`${locale}/audio-lab`,origin,{});
+ assert.match(page,new RegExp(`<html lang="${locale}"`));
+ assert.ok(page.includes(`rel="canonical" href="${origin}${locale}/audio-lab/"`),'localized canonical');
+ assert.match(page,/<script type="application\/ld\+json">/);
+ assert.match(page,/<button id="analyze"/);
+ assert.match(page,/<canvas id="wave"/);
+ assert.match(page,/<option value="m4r" disabled>/);
+ assert.match(page,/id="lufs"/);assert.match(page,/id="momentary"/);assert.match(page,/id="shortTerm"/);
+ assert.match(page,/class="sd-answer"/);
+ assert.doesNotMatch(page,/adsbygoogle|data-ad-host|pagead2|<script[^>]+ads/);
+ assert.doesNotMatch(page,/name="robots"/);
+ assert.ok(['ko','en','ja'].every(lang=>page.includes(`hreflang="${lang}"`)));
+ const preview=entry(shell,`${locale}/audio-lab`,origin,{preview:true});assert.match(preview,/name="robots" content="noindex,nofollow"/);
+});
+for(const locale of ['ko','en','ja'])test(`${locale} media guide links to Audio Lab`,()=>{
+ const page=entry(shell,`${locale}/media`,origin,{});
+ assert.ok(page.includes(`href="${locale}/audio-lab/"`));
+});
+test('Audio Lab belongs to the tools sitemap',()=>assert.ok(sitemapGroups().tools.includes('audio-lab')));
