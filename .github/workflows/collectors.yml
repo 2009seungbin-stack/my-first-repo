@@ -76,3 +76,25 @@ jobs:
           CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: node tools/platform/fx.mjs --d1
+  notify:
+    # Push to the admin app (server/platform/admin.js): a failed run → "collector_failed"; every
+    # 30-minute run → "tick" (D1 usage vs the device's thresholds, stale status collectors, incidents,
+    # digests). Each alert is sent once. Skipped silently until the variable NOTIFY_URL and the secret
+    # NOTIFY_TOKEN (same value as the Pages secret) are set. See docs/CLOUDFLARE.md "관리 앱".
+    needs: [collect]
+    if: ${{ always() && needs.collect.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Notify the admin app
+        env:
+          NOTIFY_URL: ${{ vars.NOTIFY_URL }}
+          NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+          FAILED: ${{ contains(needs.*.result, 'failure') }}
+          SCHEDULE: ${{ github.event.schedule }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$NOTIFY_URL" ] || [ -z "$NOTIFY_TOKEN" ]; then echo 'NOTIFY_URL / NOTIFY_TOKEN not set: skipped'; exit 0; fi
+          post() { curl -sS -m 30 -o /dev/null -w "notify $1: HTTP %{http_code}\n" -X POST "${NOTIFY_URL%/}/api/v2/admin/notify" -H "authorization: Bearer $NOTIFY_TOKEN" -H 'content-type: application/json' --data "$2" || true; }
+          if [ "$FAILED" = 'true' ]; then post collector_failed "{\"kind\":\"collector_failed\",\"payload\":{\"runUrl\":\"$RUN_URL\"}}"; fi
+          if [ "$SCHEDULE" = '*/30 * * * *' ]; then post tick '{"kind":"tick"}'; fi

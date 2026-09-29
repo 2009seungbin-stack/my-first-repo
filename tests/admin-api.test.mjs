@@ -193,6 +193,11 @@ test('collector registry matches the adapters and the workflow',{skip},async()=>
  const wf=readFileSync(new URL('../.github/workflows/collectors.yml',import.meta.url),'utf8');
  assert.match(wf,/\*\/30 \* \* \* \*/);assert.match(wf,/17 \*\/6 \* \* \*/);
  assert(!RUNNABLE.includes('ecb-fx')&&!RUNNABLE.includes('gpu-specs-manual'));
+ // The notify job: its own job, after the collectors, silent without NOTIFY_URL / NOTIFY_TOKEN.
+ const job=wf.slice(wf.search(/^  notify:/m));
+ assert(job.length>10,'notify job exists');
+ assert.match(job,/always\(\)/);assert.match(job,/secrets\.NOTIFY_TOKEN/);assert.match(job,/vars\.NOTIFY_URL/);
+ assert.match(job,/\/api\/v2\/admin\/notify/);assert.match(job,/"kind":"tick"/);assert.match(job,/collector_failed/);assert.match(job,/exit 0/);
  // Next runs (UTC): :00/:30, and :17 past 00/06/12/18.
  assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,31)),Date.UTC(2026,8,29,9,0));
  assert.equal(nextRun('6h',Date.UTC(2026,8,29,8,50)),Date.UTC(2026,8,29,12,17));
