@@ -52,7 +52,7 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
 - Status panels say "확인 전" until the status collectors run (step 5): intended.
 
 ## 5. Collectors (owner: GitHub secrets + one variable)
-`.github/workflows/collectors.yml` runs `tools/platform/collect.mjs --d1`: official feeds → the ingest
+`.github/workflows/collectors.yml` runs `tools/platform/collect.mjs --d1` once per adapter (a matrix planned by `tools/platform/collector-plan.mjs`, so one slow collector cannot time out the rest): official feeds → the ingest
 pipeline → D1 through the REST API (`platform/db/d1-rest.js`), with every run recorded in
 `collectors`/`collector_runs`. Status pages every 30 minutes, everything else every 6 hours.
 1. Cloudflare API token with **D1 Edit** on the production database only.
