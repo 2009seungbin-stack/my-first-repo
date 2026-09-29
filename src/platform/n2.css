@@ -711,3 +711,33 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .pstat dt{font-size:12px;color:var(--mute)}.pstat dd{margin:0;font:700 20px/1.2 ui-monospace,'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
 .ptags{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;font-weight:700}.ptags .ftag{color:var(--brand)}
 .pcom .pcb{margin:0;font-size:15px;line-height:1.55}.pcom .fm a{font-weight:700;color:var(--ink2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* icons (platform/render/icons.js): line icons in the text color */
+.n2 svg.i{flex:none;display:inline-block;vertical-align:-3px}
+.tile .i{width:55%;height:55%;min-width:14px;min-height:14px;max-width:26px;max-height:26px}
+.rail .tile .i,.rail .rt .i{width:20px;height:20px}
+.ln .i{color:var(--mute)}.ln.on .i{color:var(--brand)}
+.lg .ic{width:26px;display:inline-flex;align-items:center}.lg .ic .i{color:var(--brand)}
+.nick .ck,.nick .tb{display:inline-flex;align-items:center;margin-left:3px;vertical-align:-1px}
+.nick .ck{color:var(--mute)}.nick .tb{color:var(--mute)}.nick .tb.t-trusted{color:var(--brand)}.nick .tb.t-maintainer{color:var(--hot)}.nick .tb.t-curator{color:var(--vio-ink)}
+.nick.bot .tb{color:var(--news-ink)}
+.fv,.fa .up,.fa .cm{display:inline-flex;align-items:center;gap:4px}
+.fti .star{display:inline-flex;vertical-align:-2px;margin-right:4px;color:#d9a21b}
+.feedtabs a{gap:6px}.feedtabs a .i{color:inherit}
+.rbh h2{display:flex;align-items:center;gap:7px}.rbh h2 .i{color:var(--brand)}
+.sti{display:inline-flex;flex:none;color:var(--mute)}.sti.ok{color:var(--ok)}.sti.warn{color:var(--warn)}.sti.bad{color:var(--bad)}
+.vote button .i{flex:none}
+.pact .btn .i{color:var(--ink2)}
+.post .star{display:inline-flex;align-items:center;gap:3px;color:#b98200;font-weight:800;font-size:12.5px}
+@media (max-width:640px){.pact .btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.pact .btn{width:40px;justify-content:center;padding:0}}
+/* generated avatars: a 5×5 mirrored pattern in one of the tile colors */
+.av{background:none;overflow:hidden}.av svg{width:100%;height:100%}.av.bot{background:var(--news-bg);color:var(--news-ink)}
+.idc .bg{fill:var(--t-ai)}.idc .fg{fill:var(--t-ai-ink)}
+.idc.t1 .bg{fill:var(--t-games)}.idc.t1 .fg{fill:var(--t-games-ink)}.idc.t2 .bg{fill:var(--t-hw)}.idc.t2 .fg{fill:var(--t-hw-ink)}
+.idc.t3 .bg{fill:var(--t-studio)}.idc.t3 .fg{fill:var(--t-studio-ink)}.idc.t4 .bg{fill:var(--t-sub)}.idc.t4 .fg{fill:var(--t-sub-ink)}.idc.t5 .bg{fill:var(--brand-soft)}.idc.t5 .fg{fill:var(--brand)}
+.pav{background:var(--card);padding:0;overflow:hidden}.pav svg{width:100%;height:100%}
+.ptier{display:inline-flex;align-items:center;gap:5px}
+/* empty states */
+.emptyv{display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px 16px;text-align:center;color:var(--mute)}.emptyv p{margin:0}
+.empty-art{color:var(--line)}
+.co .a .cv{display:inline-flex;align-items:center;gap:3px}.co .a .cv b{font-weight:800}

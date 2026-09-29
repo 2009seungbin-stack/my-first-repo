@@ -8,6 +8,7 @@ import {boardTime,dday} from './format.js';
 import {entitiesByIds,eventsFor,issueReportsSince,collectorState,frontPosts,upcomingEvents} from '../db/channel.js';
 import {reportSignal} from '../status-signal.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
+import {icon,STATUS_ICON} from './icons.js';
 
 const DAY=864e5;
 /** The services on the status box, with their provider (whose incidents count too) and a short name. */
@@ -57,14 +58,14 @@ export async function loadRail(db,o){
 /** @param {Awaited<ReturnType<typeof loadRail>>} r @param {string} l */
 export function renderRail(r,l){
  const ko=l==='ko',now=r.now;
- const status=html`<section class="rbox" aria-labelledby="rail-status"><div class="rbh"><h2 id="rail-status">${ko?'AI 서비스 상태':'AI service status'}</h2><a href="/${l}/ai/">${ko?'AI 채널':'AI'} ›</a></div>
-<ul class="svc">${r.status.map(x=>html`<li><a class="svr" href="${channelUrl(l,/** @type {any} */(x.entity))}status"><span class="dot ${x.state}" aria-hidden="true"></span><b>${x.short}</b><span class="svs ${x.state}">${statusText(x.state,x.total24,l)}</span></a></li>`)}</ul>
+ const status=html`<section class="rbox" aria-labelledby="rail-status"><div class="rbh"><h2 id="rail-status">${icon('pulse',16)}${ko?'AI 서비스 상태':'AI service status'}</h2><a href="/${l}/ai/">${ko?'AI 채널':'AI'} ›</a></div>
+<ul class="svc">${r.status.map(x=>html`<li><a class="svr" href="${channelUrl(l,/** @type {any} */(x.entity))}status"><span class="sti ${x.state}">${icon(STATUS_ICON[x.state],16)}</span><b>${x.short}</b><span class="svs ${x.state}">${statusText(x.state,x.total24,l)}</span></a></li>`)}</ul>
 <p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트 기준':'Official incidents and Nerulio user reports'}</p></section>`;
- const news=r.news.length?html`<section class="rbox" aria-labelledby="rail-news"><div class="rbh"><h2 id="rail-news">${ko?'새 소식':'News'}</h2><a href="/${l}/radar/">${ko?'레이더':'Radar'} ›</a></div>
+ const news=r.news.length?html`<section class="rbox" aria-labelledby="rail-news"><div class="rbh"><h2 id="rail-news">${icon('news',16)}${ko?'새 소식':'News'}</h2><a href="/${l}/radar/">${ko?'레이더':'Radar'} ›</a></div>
 <ul class="rnews">${r.news.map(p=>html`<li><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time><a href="${postHref(l,p)}">${p.title}</a></li>`)}</ul></section>`:'';
- const upcoming=r.upcoming.length?html`<section class="rbox" aria-labelledby="rail-week"><div class="rbh"><h2 id="rail-week">${ko?'이번 주 일정':'This week'}</h2></div>
+ const upcoming=r.upcoming.length?html`<section class="rbox" aria-labelledby="rail-week"><div class="rbh"><h2 id="rail-week">${icon('calendar',16)}${ko?'이번 주 일정':'This week'}</h2></div>
 <ul class="rev">${r.upcoming.map(ev=>html`<li><span class="dday">${dday(ev.starts_at,now,l)}</span><a href="${channelUrl(l,/** @type {any} */(ev.entity))}">${ev.title[l]||ev.title.en}</a></li>`)}</ul></section>`:'';
- const best=r.best.length?html`<section class="rbox" aria-labelledby="rail-best"><div class="rbh"><h2 id="rail-best">${ko?'★ 념글':'★ Best'}</h2><a href="${frontUrl(l)}best/">${ko?'더보기':'More'} ›</a></div>
+ const best=r.best.length?html`<section class="rbox" aria-labelledby="rail-best"><div class="rbh"><h2 id="rail-best">${icon('star',16)}${ko?'념글':'Best'}</h2><a href="${frontUrl(l)}best/">${ko?'더보기':'More'} ›</a></div>
 <ol class="rbest">${r.best.map((p,i)=>html`<li><span class="rk">${i+1}</span><a href="${postHref(l,p)}">${p.title}</a></li>`)}</ol></section>`:'';
  return html`<aside class="rrail" aria-label="${ko?'상태와 소식':'Status and news'}">${status}${news}${upcoming}${best}<p class="rfoot"><a href="/${l}/about/">Nerulio</a> · <a href="/${l}/terms/">${ko?'이용약관':'Terms'}</a> · <a href="/${l}/privacy/">${ko?'개인정보 처리방침':'Privacy'}</a> · <a href="/${l}/community/policy">${ko?'운영정책':'Rules'}</a> · <a href="/${l}/community/transparency">${ko?'투명성':'Transparency'}</a></p></aside>`;
 }
@@ -72,5 +73,5 @@ export function renderRail(r,l){
 /** The status line above the feed on phones (the right column moves below the feed there). @param {Awaited<ReturnType<typeof loadRail>>} r @param {string} l */
 export function statusStrip(r,l){
  const ko=l==='ko';
- return html`<nav class="mstat" aria-label="${ko?'AI 서비스 상태':'AI service status'}">${r.status.map(x=>html`<a href="${channelUrl(l,/** @type {any} */(x.entity))}status"><span class="dot ${x.state}" aria-hidden="true"></span><b>${x.short}</b> <span class="svs ${x.state}">${statusText(x.state,x.total24,l)}</span></a>`)}</nav>`;
+ return html`<nav class="mstat" aria-label="${ko?'AI 서비스 상태':'AI service status'}">${r.status.map(x=>html`<a href="${channelUrl(l,/** @type {any} */(x.entity))}status"><span class="sti ${x.state}">${icon(STATUS_ICON[x.state],15)}</span><b>${x.short}</b> <span class="svs ${x.state}">${statusText(x.state,x.total24,l)}</span></a>`)}</nav>`;
 }

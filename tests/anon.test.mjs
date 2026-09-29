@@ -674,9 +674,12 @@ test('takedown: auto-hide after reports (a severe category at once) takes the im
 
 test('board display: anonymous "닉네임 (ID)" muted, members with ✓, the Radar bot with ⚙',()=>{
  const a=String(author({author_name:'ㅇㅇ',author_tier:'new',anon_id:'a3F9'},'ko'));
- assert.match(a,/class="nick anon"/);assert.match(a,/ㅇㅇ<span class="aid"> \(a3F9\)<\/span>/);assert(!a.includes('✓'));
+ assert.match(a,/class="nick anon"/);assert.match(a,/ㅇㅇ<span class="aid"> \(a3F9\)<\/span>/);assert(!a.includes('class="ck"'));
  const m=String(author({author_name:'지문테스터',author_tier:'new'},'ko'));
- assert.match(m,/class="nick mem"/);assert.match(m,/<a href="\/ko\/community\/u\/%EC%A7%80%EB%AC%B8%ED%85%8C%EC%8A%A4%ED%84%B0">지문테스터<\/a><b class="ck"[^>]*>✓<\/b>/,'a member\'s name links to their profile');
+ assert.match(m,/class="nick mem"/);assert.match(m,/<a href="\/ko\/community\/u\/%EC%A7%80%EB%AC%B8%ED%85%8C%EC%8A%A4%ED%84%B0">지문테스터<\/a><b class="ck" title="고정닉 \(로그인 회원\)" role="img" aria-label="고정닉 \(로그인 회원\)"><svg class="i"/,'a member\'s name links to their profile, with the member check (an icon, not the ✓ glyph)');
+ const t=String(author({author_name:'측정러',author_tier:'trusted'},'ko'));
+ assert.match(t,/<b class="tb t-trusted" title="◆ 신뢰" role="img" aria-label="◆ 신뢰"><svg class="i"/,'tier badge as an icon with its name');
+ assert(!/[⚙✎⚑◆◇✓](?![^<]*")/.test(t.replace(/"[^"]*"/g,'""')),'no emoji-prone glyph in the visible text');
  assert.match(String(author({author_name:'<b>x</b>',author_tier:'new',anon_id:'zz00'},'ko')),/&lt;b&gt;x&lt;\/b&gt;/,'names are escaped');
- assert.match(String(author({author_name:null,author_tier:'new',bot:true},'ko')),/nick bot/);
+ assert.match(String(author({author_name:null,author_tier:'new',bot:true},'ko')),/nick bot[\s\S]*<svg class="i"/);
 });

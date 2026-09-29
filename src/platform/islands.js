@@ -525,7 +525,7 @@ async function main(){
  // Comment votes
  for(const a of $$('[data-vote-comment]')){
   a.addEventListener('click',async e=>{e.preventDefault();const id=a.dataset.voteComment,cur=st.votes?.[id]||0;
-   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
+   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;const n=a.querySelector('b');if(n)n.textContent=String(r.up);else a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
  }
 
  // Compat strip (game → Korean patch), driver issue, rollout

@@ -8,6 +8,7 @@ import {VERIFICATION_LABEL,label} from '../labels.js';
 import {boardTime,compact} from './format.js';
 import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath} from '../channels.js';
 import {FILE_TOOLS,GAME_TOOLS,toolHref,toolsHome} from '../tools-nav.js';
+import {icon,CHANNEL_ICON,TIER_ICON} from './icons.js';
 
 export const CSS_HREF='/src/platform/n2.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -59,11 +60,11 @@ export const box=(h,body)=>html`<section class="box ${h.cls||''}"${h.id?html` id
  * @param {{author_name:string|null,author_tier:string,bot?:boolean,anon_id?:string|null}} p @param {string} l */
 export function author(p,l){
  const s=t(l);
- if(p.bot)return html`<span class="nick bot">${s.bot}<b aria-hidden="true"> ⚙</b></span>`;
+ if(p.bot)return html`<span class="nick bot">${s.bot}<b class="tb">${icon('gear',13)}</b></span>`;
  if(p.anon_id)return html`<span class="nick anon" title="${s.anonTitle}">${p.author_name||'ㅇㅇ'}<span class="aid"> (${p.anon_id})</span></span>`;
  const tier=/** @type {Record<string,string>} */(s.tier)[p.author_tier]||'';
  const name=p.author_name&&hasProfile(p.author_name)?html`<a href="${profilePath(l,p.author_name)}">${p.author_name}</a>`:p.author_name||s.anonymous;
- return html`<span class="nick mem">${name}<b class="ck" title="${s.memberTitle}" aria-label="${s.memberTitle}">✓</b>${tier?html`<b title="${tier}"> ${tier.split(' ')[0]}</b>`:''}</span>`;
+ return html`<span class="nick mem">${name}<b class="ck" title="${s.memberTitle}" role="img" aria-label="${s.memberTitle}">${icon('check',12)}</b>${tier?html`<b class="tb t-${p.author_tier}" title="${tier}" role="img" aria-label="${tier}">${icon(TIER_ICON[p.author_tier]||'diamond',12)}</b>`:''}</span>`;
 }
 /** Plain-text author for data attributes and JSON-LD. @param {{author_name:string|null,anon_id?:string|null}} p @param {string} fallback */
 export const authorText=(p,fallback)=>p.anon_id?`${p.author_name||'ㅇㅇ'} (${p.anon_id})`:p.author_name||fallback;
@@ -72,8 +73,8 @@ const KIND_CLASS=/** @type {Record<string,string>} */({news:'news',report:'rep',
 export const kindChip=(kind,l,channel=null)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${flairLabel(channel,kind,l)}</span>`;
 /** A tag chip (the entity page of the tag). @param {Entity} e @param {string} l @param {boolean} [on] */
 export const tagChip=(e,l,on=false)=>html`<a class="rtag${on?' on':''}" href="${channelUrl(l,e)}">${nameOf(e,l)}</a>`;
-/** A channel's tile (the letters of its name). @param {string} ch @param {string} l */
-export const channelTile=(ch,l)=>{const c=channelById(ch);return html`<span class="tile ch-${ch}" aria-hidden="true">${c?c.tile[l==='ko'?'ko':'en']:'?'}</span>`;};
+/** A channel's tile (its icon on the channel's color). @param {string} ch @param {string} [_l] */
+export const channelTile=(ch,_l)=>html`<span class="tile ch-${ch}" aria-hidden="true">${icon(CHANNEL_ICON[ch]||'chat',20)}</span>`;
 /** @param {string} ch @param {string} l */
 export const channelName=(ch,l)=>channelById(ch)?.names[l==='ko'?'ko':'en']||ch;
 
@@ -101,18 +102,18 @@ const CHEV=html`<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fil
 function shellRail(l){
  const lang=l==='ko'?'ko':'en';
  return html`<nav class="rail" aria-label="${l==='ko'?'채널 바로가기':'Channel shortcuts'}"><a class="rh" href="${homeUrl(l)}" aria-label="${l==='ko'?'Nerulio 홈':'Nerulio home'}">${LOGO}</a><span class="rsep" aria-hidden="true"></span>
-${CHANNELS.filter(c=>c.inBar).map(c=>html`<a class="tile ch-${c.id}" href="${channelPath(l,c.id)}" title="${c.names[lang]}" aria-label="${c.names[lang]}">${c.tile[lang]}</a>`)}<span class="rsep" aria-hidden="true"></span>
-<a class="rt" href="#nav-file" title="${l==='ko'?'파일 도구':'File tools'}" aria-label="${l==='ko'?'파일 도구':'File tools'}">FILE</a><a class="rt" href="#nav-game" title="${l==='ko'?'게임 도구':'Game tools'}" aria-label="${l==='ko'?'게임 도구':'Game tools'}">GAME</a></nav>`;
+${CHANNELS.filter(c=>c.inBar).map(c=>html`<a class="tile ch-${c.id}" href="${channelPath(l,c.id)}" title="${c.names[lang]}" aria-label="${c.names[lang]}">${icon(CHANNEL_ICON[c.id],20)}</a>`)}<span class="rsep" aria-hidden="true"></span>
+<a class="rt" href="#nav-file" title="${l==='ko'?'파일 도구':'File tools'}" aria-label="${l==='ko'?'파일 도구':'File tools'}">${icon('folder',20)}</a><a class="rt" href="#nav-game" title="${l==='ko'?'게임 도구':'Game tools'}" aria-label="${l==='ko'?'게임 도구':'Game tools'}">${icon('gamepad',20)}</a></nav>`;
 }
 /** The menu column (desktop) and the drawer (mobile): pages, the channels, and the file and game tools,
  * each group folding open on a click (<details>, no script needed). @param {{l:string,homeOn?:boolean,bestOn?:boolean,patchOn?:boolean}} o */
 function shellNav(o){
  const l=o.l,ko=l==='ko',lang=ko?'ko':'en';
- const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}><span class="lnd" aria-hidden="true"></span>${label}</a>`;
- const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic">${x.ic}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
+ const item=(/** @type {string} */ href,/** @type {string} */ label,/** @type {boolean|undefined} */ on,/** @type {string} */ ic)=>html`<a class="ln${on?' on':''}" href="${href}"${on?html` aria-current="page"`:''}>${icon(ic,18)}${label}</a>`;
+ const tools=(/** @type {string} */ id,/** @type {string} */ title,/** @type {readonly import('../tools-nav.js').NavTool[]} */ list,/** @type {boolean} */ open)=>html`<details class="lg" id="${id}"${open?html` open`:''}><summary>${CHEV}${title}<span class="lgn">${list.length}</span></summary><ul>${list.map(x=>html`<li><a href="${toolHref(l,x)}"><span class="ic" title="${x.ic}">${icon(x.svg,18)}</span>${x[lang]}</a></li>`)}<li><a class="all" href="${toolsHome(l)}">${ko?'도구 전체 보기 ›':'All tools ›'}</a></li></ul></details>`;
  return html`<aside class="lnav" id="lnav" aria-label="${ko?'메뉴와 도구':'Menu and tools'}"><div class="lnh"><a class="brand" href="${homeUrl(l)}">${LOGO}<span>nerulio</span></a><a class="lnx" href="#" data-drawer-close aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
-<nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn)}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn)}${item(`/${l}/radar/`,ko?'레이더':'Radar',false)}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn)}</nav>
-<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${c.tile[lang]}</span>${c.names[lang]}</a></li>`)}</ul></details>
+<nav aria-label="${ko?'페이지':'Pages'}">${item(homeUrl(l),ko?'홈':'Home',o.homeOn,'home')}${item(`${frontUrl(l)}best/`,ko?'전체 베스트':'Best everywhere',o.bestOn,'star')}${item(`/${l}/radar/`,ko?'레이더':'Radar',false,'radar')}${item(patchCollectionPath(l),ko?'한글패치 모음':'Korean patches',o.patchOn,'pin')}</nav>
+<details class="lg lch"><summary>${CHEV}${ko?'채널':'Channels'}<span class="lgn">${CHANNELS.length}</span></summary><ul>${CHANNELS.map(c=>html`<li><a href="${channelPath(l,c.id)}"><span class="tile sm ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],14)}</span>${c.names[lang]}</a></li>`)}</ul></details>
 <span class="lsep" aria-hidden="true"></span>
 ${tools('nav-file',ko?'파일 도구':'File tools',FILE_TOOLS,true)}${tools('nav-game',ko?'게임 도구':'Game tools',GAME_TOOLS,false)}
 <p class="lnote fine">${ko?'도구는 파일을 서버에 올리지 않고 이 기기에서 처리해요.':'Tools process files on this device; nothing is uploaded.'}</p></aside>`;
@@ -128,8 +129,8 @@ export function channelSheet(l){
  return html`<dialog class="chsheet" id="chsheet" aria-labelledby="chsheet-h" data-island="channel-sheet"><div class="shh"><span class="grab" aria-hidden="true"></span><h2 id="chsheet-h">${ko?'채널':'Channels'}</h2><button type="button" class="shx" data-close-sheet aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
 <div class="shs"><label class="sr-only" for="chsheet-q">${ko?'채널·태그 찾기':'Find a channel or tag'}</label><input id="chsheet-q" type="search" data-sheet-q placeholder="${ko?'채널·태그 찾기 (예: 클로드, 5070)':'Find a channel or tag (e.g. Claude, 5070)'}" autocomplete="off"><ul class="shr" data-sheet-results hidden></ul></div>
 <section class="shg" data-my-channels hidden><h3>${ko?'내 채널 · 채널 바에 이 순서로':'My channels · in this order on the bar'}</h3><ul data-my-list></ul></section>
-<section class="shg"><h3>${ko?'전체 채널':'All channels'}</h3><ul>${CHANNELS.map(c=>html`<li><span class="tile ch-${c.id}" aria-hidden="true">${c.tile[lang]}</span><span class="shn"><a href="${channelPath(l,c.id)}">${c.names[lang]}</a><span class="fine">${c.desc[lang]}</span></span>${c.inBar?html`<button type="button" class="pin" data-pin="${c.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}</li>`)}
-<li><span class="tile ch-patch" aria-hidden="true">${ko?'패':'KP'}</span><span class="shn"><a href="${patchCollectionPath(l)}">${ko?'한글패치 모음':'Korean patches'}</a><span class="fine">${ko?'게임 · [한글패치]':'Games · [Korean patch]'}</span></span></li></ul></section>
+<section class="shg"><h3>${ko?'전체 채널':'All channels'}</h3><ul>${CHANNELS.map(c=>html`<li><span class="tile ch-${c.id}" aria-hidden="true">${icon(CHANNEL_ICON[c.id],16)}</span><span class="shn"><a href="${channelPath(l,c.id)}">${c.names[lang]}</a><span class="fine">${c.desc[lang]}</span></span>${c.inBar?html`<button type="button" class="pin" data-pin="${c.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}</li>`)}
+<li><span class="tile ch-patch" aria-hidden="true">${icon('pin',16)}</span><span class="shn"><a href="${patchCollectionPath(l)}">${ko?'한글패치 모음':'Korean patches'}</a><span class="fine">${ko?'게임 · [한글패치]':'Games · [Korean patch]'}</span></span></li></ul></section>
 <section class="shg" data-recent-tags hidden><h3>${ko?'최근 본 태그':'Tags you viewed'}</h3><div class="rtags" data-recent-list></div></section>
 <p class="fine shf">${ko?'로그인 없이 고정한 채널은 이 브라우저에 저장되고, 로그인하면 계정으로 옮겨져요.':'Pins without an account stay in this browser and move to your account when you sign in.'}</p></dialog>`;
 }

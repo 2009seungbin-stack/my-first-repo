@@ -41,3 +41,14 @@ test('AI status wording: incident, report spike, checked, or only the report cou
  assert.equal(statusText('warn',9,'ko'),'리포트 급증');assert.equal(statusText('ok',0,'ko'),'정상');
  assert.equal(statusText('unk',0,'ko'),'리포트 없음');assert.equal(statusText('unk',3,'ko'),'리포트 3건');assert.equal(statusText('bad',0,'en'),'Incident');
 });
+
+test('icons: every name used by the menu, channels, tiers and status exists; avatars are stable per name',async()=>{
+ const {icon,ICON_NAMES,CHANNEL_ICON,TIER_ICON,STATUS_ICON,identicon}=await import('../platform/render/icons.js');
+ const {CHANNELS}=await import('../platform/channels.js');
+ for(const n of [...FILE_TOOLS,...GAME_TOOLS].map(x=>x.svg))assert(ICON_NAMES.includes(n),n);
+ for(const c of CHANNELS)assert(ICON_NAMES.includes(CHANNEL_ICON[c.id]),c.id);
+ for(const n of [...Object.values(TIER_ICON),...Object.values(STATUS_ICON)])assert(ICON_NAMES.includes(n),n);
+ const svg=String(icon('eye'));assert(svg.includes('aria-hidden="true"')&&svg.includes('stroke="currentColor"'));
+ assert.throws(()=>icon('nope'));
+ assert.equal(String(identicon('코드장인')),String(identicon('코드장인')));assert.notEqual(String(identicon('코드장인')),String(identicon('측정러')));
+});
