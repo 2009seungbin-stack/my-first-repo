@@ -62,8 +62,18 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
 `.github/workflows/collectors.yml` runs `tools/platform/collect.mjs --d1` once per adapter (a matrix planned by `tools/platform/collector-plan.mjs`, so one slow collector cannot time out the rest): official feeds → the ingest
 pipeline → D1 through the REST API (`platform/db/d1-rest.js`), with every run recorded in
 `collectors`/`collector_runs`. Status pages every 30 minutes, everything else every 6 hours.
-1. Cloudflare API token with **D1 Edit** on the production database only.
-2. GitHub → Settings → Secrets: `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `CF_API_TOKEN`.
+1. Cloudflare API token with **D1 Edit** (account-scoped: one token covers the preview and production
+   databases of the account).
+2. GitHub → Settings → Secrets: `CF_ACCOUNT_ID`, `CF_D1_DATABASE_ID` (the preview database), `CF_API_TOKEN`.
+   Optional `CF_D1_DATABASE_ID_PROD` adds production (step 6). The workflows pass
+   `CF_D1_DATABASE_IDS=preview:<id>[,prod:<id>]` to `collect.mjs`, `seed-sync.mjs` and `fx.mjs`
+   (`platform/db/d1-targets.js`; a bare `CF_D1_DATABASE_ID` still works for one database): each source is
+   fetched **once** and the same document is ingested into each database in turn, logged as
+   `d1[preview] <adapter>: ok, N changes, Q queries, R rows written` and recorded in each database's
+   `collector_runs`. A failing database never skips the other; the job fails at the end (→ notify).
+   Sequential, not parallel: parallel halves the wall time (measured on the local shim) but doubles the request
+   rate against the per-user Cloudflare API limit that all six matrix jobs share, so the collect/sync jobs
+   get 90 minutes instead (a Steam ingest takes 10–30 min per database).
 3. GitHub → Settings → Variables: `PLATFORM_COLLECTORS=on` (until then the workflow does nothing).
 4. Run it once by hand (Actions → Nerulio 2.0 collectors → Run workflow) and check
    `SELECT adapter,last_success_at,last_error FROM collectors`.
@@ -72,7 +82,13 @@ The same workflow fetches the ECB reference rate (`tools/platform/fx.mjs`) every
 next to USD plan prices once a rate is stored (hidden again if it is more than 10 days old).
 
 ## 6. Production (owner)
-Same as steps 2–3 on production, then:
+Same as steps 2–3 on production (migrations + first seed load into `nerulio-prod`), then add the secret
+`CF_D1_DATABASE_ID_PROD` = `bc890e90-fca6-4837-82ad-0574c2378293` (the `nerulio-prod` id; ids are
+identifiers, not secrets — the existing token already covers it). From the next run every collector,
+seed sync and FX update writes production too, so it needs no separate collector backfill; the first
+Steam runs into production are a full ingest (slow, write-heavy). Both databases count against the same
+account-wide daily D1 write budget (step 2.4): with two databases, the collectors write about twice as many rows.
+Remove the secret to stop writing production. Then:
 - Search Console + Naver Search Advisor: submit `sitemap.xml` (it lists the `sitemap-n2-*` files).
 - Keep boards low-key at first: the market research recommends opening AI, 한글패치 and GPU channels
   first and having the 신고 → 임시조치 → 처리 기록 flow staffed before any promotion.

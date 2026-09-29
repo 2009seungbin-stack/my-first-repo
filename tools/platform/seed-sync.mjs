@@ -6,8 +6,11 @@
  *   node tools/platform/seed-sync.mjs --sqlite local.sqlite [...]      (a local D1 copy, e.g. a dry run)
  *   node tools/platform/seed-sync.mjs --plan [--verticals …] [--changed-since <ref>]   → JSON array
  *
- * --d1 writes through the D1 REST API (CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_API_TOKEN) and records
- * each vertical as a run of "seed-sync-<vertical>" in collectors/collector_runs (admin app, alerts).
+ * --d1 writes through the D1 REST API (CF_ACCOUNT_ID, CF_API_TOKEN, and CF_D1_DATABASE_IDS=preview:<id>,prod:<id>
+ * or the older single CF_D1_DATABASE_ID) and records each vertical as a run of "seed-sync-<vertical>" in
+ * collectors/collector_runs (admin app, alerts) of every database. The seed is read once and synced into
+ * each database in turn with the same timestamp (platform/db/d1-targets.js); a failed database never
+ * skips the next one, and the exit code is 1 if any failed.
  * --changed-since keeps only verticals whose data/seed/<vertical>/ files changed since that ref
  * (an unknown ref, e.g. the all-zero "before" of a new branch, means every vertical).
  * --radar ingests in 'admin' mode (a curated correction worth showing on the Radar); the default
@@ -21,7 +24,7 @@ import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ingest,SEED_ACTOR} from '../../platform/ingest.js';
-import {D1Rest} from '../../platform/db/d1-rest.js';
+import {openD1Targets,counters,targetLine} from '../../platform/db/d1-targets.js';
 import {recordRun} from '../../platform/collector-health.js';
 import {VERTICALS} from '../../platform/schema.js';
 import {loadSeeds,validateAll} from './validate-seed.mjs';
@@ -117,29 +120,54 @@ export async function syncSeeds(db,o){
 /** @param {string[]} argv */
 function args(argv){/** @type {Record<string,string|true>} */const o={};for(let i=0;i<argv.length;i++){const a=argv[i];if(a.startsWith('--')){const k=a.slice(2),n=argv[i+1];if(n===undefined||n.startsWith('--'))o[k]=true;else{o[k]=n;i++;}}}return o;}
 
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const o=args(process.argv.slice(2));
- const verticals=planVerticals({verticals:typeof o.verticals==='string'?o.verticals:undefined,changedSince:typeof o['changed-since']==='string'?o['changed-since']:undefined});
- if(o.plan){console.log(JSON.stringify(verticals));}
- else{
-  /** @type {any} */let db;
-  if(o.d1)db=new D1Rest({accountId:process.env.CF_ACCOUNT_ID||'',databaseId:process.env.CF_D1_DATABASE_ID||'',token:process.env.CF_API_TOKEN||''});
-  else if(typeof o.sqlite==='string'){const {D1Shim}=await import('../../tests/d1-shim.mjs');db=new D1Shim(o.sqlite);db.raw.exec('PRAGMA foreign_keys=ON');}
-  else{console.error('usage: seed-sync.mjs (--d1 | --sqlite <file> | --plan) [--verticals a,b] [--changed-since <ref>] [--radar]');process.exitCode=2;}
-  if(db){
-   if(!verticals.length)console.log('seed-sync: no seed changes to sync');
-   let failed=0;
-   for(const v of verticals){
-    const started=Date.now();/** @type {any} */let r=null,error=null;
-    const c0={q:Number(db.queries)||0,w:Number(db.rowsWritten)||0};
-    try{r=(await syncSeeds(db,{verticals:[v],radar:!!o.radar,log:m=>console.log(m)}))[v];}
-    catch(e){error=String(/** @type {any} */(e)?.stack||e).slice(0,2000);failed++;console.error(`seed-sync ${v}: ${error}`);}
-    if(o.d1){
-     try{await recordRun(db,{id:runId(v),vertical:v,mode:'auto',freshnessHours:SEED_SYNC_FRESHNESS_HOURS},{started,finished:Date.now(),error,observations:r?.entities||0,changes:r?.changes||0,rowsWritten:(Number(db.rowsWritten)||0)-c0.w,queries:(Number(db.queries)||0)-c0.q});}
-     catch(e){console.error(`seed-sync ${v}: could not record the run: ${e}`);failed++;}
-    }
+/**
+ * Sync `verticals` into every target in order, recording each vertical as a run in each target when
+ * `record` is set. Never throws: a failed vertical or run record is logged and counted, and the
+ * remaining verticals and targets still run.
+ * @param {{label:string,db:any}[]} targets
+ * @param {{verticals:string[],radar?:boolean,record?:boolean,now?:number,seeds?:{file:string,doc:any}[],log?:(m:string)=>void,logErr?:(m:string)=>void}} o
+ * @returns {Promise<number>} failures
+ */
+export async function syncTargets(targets,o){
+ const log=o.log||console.log,seeds=o.seeds||loadSeeds(),now=o.now??Date.now();
+ let failed=0;
+ for(const {label,db} of targets){
+  for(const v of o.verticals){
+   const started=Date.now(),c0=counters(db);/** @type {any} */let r=null,error=null;
+   try{r=(await syncSeeds(db,{verticals:[v],radar:!!o.radar,seeds,now,log:m=>log(`d1[${label}] ${m}`)}))[v];}
+   catch(e){error=String(/** @type {any} */(e)?.stack||e).slice(0,2000);(o.logErr||console.error)(`d1[${label}] seed-sync ${v}: ${error}`);}
+   const c1=counters(db),queries=c1.queries-c0.queries,rowsWritten=c1.rowsWritten-c0.rowsWritten;
+   if(o.record){
+    try{await recordRun(db,{id:runId(v),vertical:v,mode:'auto',freshnessHours:SEED_SYNC_FRESHNESS_HOURS},{started,finished:Date.now(),error,observations:r?.entities||0,changes:r?.changes||0,rowsWritten,queries});}
+    catch(e){error=error?`${error}; run record: ${e}`:`could not record the run: ${e}`;}
    }
-   process.exitCode=failed?1:0;
+   log(targetLine(label,runId(v),{error,changes:r?.changes||0,queries,rowsWritten}));
+   if(error)failed++;
   }
  }
+ return failed;
+}
+
+/**
+ * The command line. Returns the exit code.
+ * @param {string[]} argv
+ * @param {{env?:Record<string,string|undefined>,open?:(spec:{label:string,databaseId:string},env:any)=>any,seeds?:{file:string,doc:any}[],now?:number,log?:(m:string)=>void,logErr?:(m:string)=>void}} [deps]
+ */
+export async function main(argv,deps={}){
+ const o=args(argv),log=deps.log||console.log;
+ const verticals=planVerticals({verticals:typeof o.verticals==='string'?o.verticals:undefined,changedSince:typeof o['changed-since']==='string'?o['changed-since']:undefined});
+ if(o.plan){log(JSON.stringify(verticals));return 0;}
+ /** @type {{label:string,db:any}[]} */let targets;
+ if(o.d1)targets=openD1Targets(deps.env||process.env,deps.open);
+ else if(typeof o.sqlite==='string'){const {D1Shim}=await import('../../tests/d1-shim.mjs');const db=new D1Shim(o.sqlite);db.raw.exec('PRAGMA foreign_keys=ON');targets=[{label:'sqlite',db}];}
+ else{console.error('usage: seed-sync.mjs (--d1 | --sqlite <file> | --plan) [--verticals a,b] [--changed-since <ref>] [--radar]');return 2;}
+ log(`d1 targets: ${targets.map(t=>t.label).join(', ')}`);
+ if(!verticals.length){log('seed-sync: no seed changes to sync');return 0;}
+ const failed=await syncTargets(targets,{verticals,radar:!!o.radar,record:!!o.d1,seeds:deps.seeds,now:deps.now,log,logErr:deps.logErr});
+ return failed?1:0;
+}
+
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ try{process.exitCode=await main(process.argv.slice(2));}
+ catch(e){console.error(String(/** @type {any} */(e)?.stack||e));process.exitCode=1;}
 }

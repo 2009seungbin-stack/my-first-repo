@@ -2,7 +2,8 @@ name: Nerulio 2.0 seed sync
 # Curated seed edits (data/seed/**) → ingest pipeline → D1 (REST API), after the first load from
 # export-sql.mjs. One job per changed vertical (tools/platform/seed-sync.mjs --plan). Safe to repeat:
 # an unchanged seed writes ~0 rows and never reverts collector/admin/community data. Off until the
-# repository variable PLATFORM_COLLECTORS=on; same secrets as collectors.yml. See
+# repository variable PLATFORM_COLLECTORS=on; same secrets as collectors.yml (preview, plus production when
+# CF_D1_DATABASE_ID_PROD is set: the seed is synced into each database in turn). See
 # NERULIO_2_MIGRATION_PLAN.md §2.
 on:
   push:
@@ -51,7 +52,7 @@ jobs:
     needs: plan
     if: ${{ needs.plan.outputs.verticals != '[]' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90   # one vertical per database, the databases one after the other
     strategy:
       fail-fast: false
       max-parallel: 1   # verticals reference each other's entities: one at a time
@@ -66,7 +67,7 @@ jobs:
       - name: Sync data/seed/${{ matrix.vertical }} into D1
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_D1_DATABASE_ID: ${{ secrets.CF_D1_DATABASE_ID }}
+          CF_D1_DATABASE_IDS: preview:${{ secrets.CF_D1_DATABASE_ID }}${{ secrets.CF_D1_DATABASE_ID_PROD != '' && format(',prod:{0}', secrets.CF_D1_DATABASE_ID_PROD) || '' }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           RADAR: ${{ github.event.inputs.radar }}
           VERTICAL: ${{ matrix.vertical }}
