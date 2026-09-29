@@ -178,6 +178,15 @@
    "publisher": "Solid State Logic",
    "retrieved": "2026-09-28",
    "note": "SSL 1 is ARM compatible on Windows."
+  },
+  {
+   "id": "src:ko-ai-studio-focusrite-userguides-ko",
+   "kind": "OFFICIAL",
+   "url": "https://userguides.focusrite.com/hc/ko",
+   "title": "Focusrite 사용자 가이드",
+   "publisher": "Focusrite Audio Engineering Ltd.",
+   "retrieved": "2026-09-29",
+   "note": "Vendor Korean help-centre category titles: \"스칼렛 4세대 사용 설명서\", \"Scarlett 3rd Gen 사용자 가이드\", \"Clarett⁺ 사용자 가이드\", \"보캐스터 사용자 가이드\" (page is behind Cloudflare; read in a real browser)"
   }
  ],
  "entities": [
@@ -221,7 +230,11 @@
    "type": "audio_device",
    "slug": "focusrite-scarlett-4th-gen",
    "names": {
-    "en": "Focusrite Scarlett 4th Gen"
+    "en": "Focusrite Scarlett 4th Gen",
+    "ko": "스칼렛 4세대"
+   },
+   "names_src": {
+    "ko": "src:ko-ai-studio-focusrite-userguides-ko"
    },
    "aliases": [
     "Scarlett 4th Gen",
@@ -524,7 +537,11 @@
    "type": "audio_device",
    "slug": "focusrite-vocaster",
    "names": {
-    "en": "Focusrite Vocaster"
+    "en": "Focusrite Vocaster",
+    "ko": "보캐스터"
+   },
+   "names_src": {
+    "ko": "src:ko-ai-studio-focusrite-userguides-ko"
    },
    "aliases": [
     "Vocaster One",
