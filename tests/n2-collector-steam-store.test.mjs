@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runAdapter} from '../collectors/_runtime.js';
 import {createSteamStoreAdapter} from '../collectors/steam-store/index.js';
-import {parseLanguages,koreanSupport,parseReleaseDate,parsePlatforms,slugify,cleanName,parseWebsite} from '../collectors/steam-store/parse.js';
+import {parseLanguages,koreanSupport,parseReleaseDate,parsePlatforms,slugify,cleanName,parseWebsite,koreanStoreName} from '../collectors/steam-store/parse.js';
+import {normName} from '../platform/schema.js';
 import {validateSeed} from '../platform/seed.js';
 
 const FX=new URL('./fixtures/n2/collectors/steam-store/',import.meta.url);
@@ -121,6 +122,40 @@ test('a run where nothing can be read reports an error for health tracking',asyn
  const fetch=async()=>new Response('',{status:503});
  const run=await runAdapter(createSteamStoreAdapter({retryDelays:[]}),{fetch,now,targets:[target(367520)]});
  assert.match(run.error,/no game could be read/);
+});
+
+test('koreanStoreName drops only the English duplicate and rejects non-Korean titles',()=>{
+ const k=(ko,en)=>koreanStoreName(ko,en,normName);
+ assert.equal(k('에이스 컴뱃 8: 시브의 날개 (ACE COMBAT 8: WINGS OF THEVE)','ACE COMBAT 8: WINGS OF THEVE'),'에이스 컴뱃 8: 시브의 날개');
+ assert.equal(k('P의 거짓 (Lies of P)','Lies of P'),'P의 거짓');
+ assert.equal(k('inZOI (인조이)','inZOI'),'인조이');
+ assert.equal(k('Palworld / 팰월드','Palworld'),'팰월드');
+ assert.equal(k('아세토 코르사 Assetto Corsa','Assetto Corsa'),'아세토 코르사');
+ assert.equal(k('RuneScape: Dragonwilds 룬스케이프: 드래곤와일즈','RuneScape: Dragonwilds'),'룬스케이프: 드래곤와일즈');
+ assert.equal(k('Grand Theft Auto V 인핸스드','Grand Theft Auto V Enhanced'),'Grand Theft Auto V 인핸스드','a different English base is not stripped');
+ assert.equal(k('붉은사막 Enhanced','Crimson Desert Enhanced'),'붉은사막 Enhanced');
+ assert.equal(k('BIOHAZARD RE:4','Resident Evil 4'),'BIOHAZARD RE:4','Latin Korean-market title is official');
+ assert.equal(k('咎狗の血 True Blood NITRO ARCHIVE','Togainu no Chi: True Blood NITRO ARCHIVE'),null,'a Japanese title in the Korean slot is not Korean');
+ assert.equal(k('Hollow Knight','Hollow Knight'),null);
+ assert.equal(k('','Hollow Knight'),null);
+});
+
+test('a Korean name the store does not show is kept from the target, with its source',async()=>{
+ const fetch=fakeFetch({'1962700:koreana':[{status:429,body:''}]});
+ const prev={names:{en:'Subnautica 2',ko:'서브노티카 2'},names_src:{ko:'src:steam-store-app-1962700'}};
+ const run=await runAdapter(createSteamStoreAdapter({retryDelays:[]}),{fetch,now,targets:[target(1962700,prev),target(367520,{names:{en:'Hollow Knight',ko:'할로우 나이트'},names_src:{ko:'src:x'}})]});
+ assert.equal(run.error,null);
+ const byId=Object.fromEntries(run.doc.entities.map(e=>[e.id,e]));
+ assert.deepEqual(byId['game:steam-1962700'].names,{en:'Subnautica 2',ko:'서브노티카 2'},'Korean request failed: previous ko kept');
+ assert.deepEqual(byId['game:steam-1962700'].names_src,{ko:'src:steam-store-app-1962700'});
+ assert.deepEqual(byId['game:steam-367520'].names,{en:'Hollow Knight',ko:'할로우 나이트'},'store shows no Korean name: curated ko kept');
+ assert.deepEqual(byId['game:steam-367520'].names_src,{ko:'src:x'});
+});
+
+test('a store Korean name is recorded with the store source',async()=>{
+ const run=await runAdapter(createSteamStoreAdapter({retryDelays:[0]}),{fetch:fakeFetch(),now,targets:[target(1962700)]});
+ assert.deepEqual(run.doc.entities[0].names_src,{ko:'src:steam-store-app-1962700'});
+ assert.deepEqual(validateSeed(run.doc),[]);
 });
 
 test('only allowlisted hosts are reachable',async()=>{

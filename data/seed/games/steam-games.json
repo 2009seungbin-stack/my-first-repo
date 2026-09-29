@@ -5235,8 +5235,14 @@
    "slug": "ace-combat-8-wings-of-theve",
    "names": {
     "en": "ACE COMBAT 8: WINGS OF THEVE",
-    "ko": "에이스 컴뱃 8: 시브의 날개 (ACE COMBAT 8: WINGS OF THEVE)"
+    "ko": "에이스 컴뱃 8: 시브의 날개"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2288340"
+   },
+   "aliases": [
+    "에이스 컴뱃 8: 시브의 날개 (ACE COMBAT 8: WINGS OF THEVE)"
+   ],
    "description": {
     "en": "Action game for PC developed by Bandai Namco Aces Inc. and published by Bandai Namco Entertainment Inc., planned for Steam release on 1 October 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Bandai Namco Aces Inc. 개발, Bandai Namco Entertainment Inc. 배급의 PC 액션 게임으로 2026년 10월 1일 Steam에 출시될 예정입니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -6043,6 +6049,9 @@
     "en": "Aniimo",
     "ko": "애니모"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4126040"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Pawprint Studio, released on Steam on 15 September 2026. The Steam store lists Korean with full audio support.",
     "ko": "Pawprint Studio 개발의 PC 액션/어드벤처 게임으로 2026년 9월 15일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -6269,6 +6278,9 @@
    "names": {
     "en": "Apex Legends",
     "ko": "Apex 레전드"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1172470"
    },
    "aliases": [
     "Apex Legends™",
@@ -6798,6 +6810,9 @@
     "en": "ARMORED CORE VI FIRES OF RUBICON",
     "ko": "아머드 코어 VI 루비콘의 화염"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1888160"
+   },
    "aliases": [
     "ARMORED CORE™ VI FIRES OF RUBICON™"
    ],
@@ -7169,6 +7184,9 @@
     "en": "Assassin’s Creed Shadows",
     "ko": "어쌔신 크리드 섀도우스"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3159330"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Ubisoft Quebec, Ubisoft Belgrade, Ubisoft Bordeaux, Ubisoft Bucharest & Craiova, Ubisoft Chengdu, Ubisoft Montpellier, Ubisoft Montreal, Ubisoft Osaka, Ubisoft Philippines, Ubisoft Shanghai, Ubisoft Singapore, Ubisoft Sofia and Ubisoft Ukraine and published by Ubisoft, released on Steam on 19 March 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Ubisoft Quebec, Ubisoft Belgrade, Ubisoft Bordeaux, Ubisoft Bucharest & Craiova, Ubisoft Chengdu, Ubisoft Montpellier, Ubisoft Montreal, Ubisoft Osaka, Ubisoft Philippines, Ubisoft Shanghai, Ubisoft Singapore, Ubisoft Sofia, Ubisoft Ukraine 개발, Ubisoft 배급의 PC 액션/어드벤처 게임으로 2025년 3월 19일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -7421,8 +7439,14 @@
    "slug": "assetto-corsa",
    "names": {
     "en": "Assetto Corsa",
-    "ko": "아세토 코르사 Assetto Corsa"
+    "ko": "아세토 코르사"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-244210"
+   },
+   "aliases": [
+    "아세토 코르사 Assetto Corsa"
+   ],
    "description": {
     "en": "Racing/Simulation game for PC developed by Kunos Simulazioni and published by 505 Games, released on Steam on 19 December 2014. The Steam store lists no official Korean support.",
     "ko": "Kunos Simulazioni 개발, 505 Games 배급의 PC 레이싱/시뮬레이션 게임으로 2014년 12월 19일 Steam에 출시되었습니다. Steam 스토어 기준 공식 한국어를 지원하지 않습니다."
@@ -7595,9 +7619,6 @@
    "names": {
     "en": "Astral Party"
    },
-   "aliases": [
-    "Astral Party"
-   ],
    "description": {
     "en": "Casual/RPG game for PC developed by STAR ENGINE PROJECT and published by Neverland Entertainment, released on Steam on 28 February 2024. The Steam store lists no official Korean support.",
     "ko": "STAR ENGINE PROJECT 개발, Neverland Entertainment 배급의 PC 캐주얼/RPG 게임으로 2024년 2월 28일 Steam에 출시되었습니다. Steam 스토어 기준 공식 한국어를 지원하지 않습니다."
@@ -8839,6 +8860,9 @@
     "en": "Black Myth: Wukong",
     "ko": "검은 신화: 오공"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2358720"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Game Science, released on Steam on 19 August 2024. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Game Science 개발의 PC 액션/어드벤처 게임으로 2024년 8월 19일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -9211,6 +9235,9 @@
     "en": "Blue Archive",
     "ko": "블루 아카이브"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3557620"
+   },
    "description": {
     "en": "Adventure/Casual game for PC developed by NEXON Games and published by NEXON Korea, released on Steam on 3 July 2025. The Steam store lists Korean with full audio support.",
     "ko": "NEXON Games 개발, NEXON Korea 배급의 PC 어드벤처/캐주얼 게임으로 2025년 7월 3일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -9559,6 +9586,9 @@
    "names": {
     "en": "Borderlands 4",
     "ko": "보더랜드 4"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1285190"
    },
    "aliases": [
     "보더랜드® 4"
@@ -10064,6 +10094,9 @@
    "names": {
     "en": "Call of Duty",
     "ko": "콜 오브 듀티"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1938090"
    },
    "aliases": [
     "Call of Duty®",
@@ -10876,6 +10909,9 @@
     "en": "Clair Obscur: Expedition 33",
     "ko": "클레르 옵스퀴르: 33 원정대"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1903340"
+   },
    "description": {
     "en": "Action/RPG game for PC developed by Sandfall Interactive and published by Kepler Interactive, released on Steam on 24 April 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Sandfall Interactive 개발, Kepler Interactive 배급의 PC 액션/RPG 게임으로 2025년 4월 24일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -11062,8 +11098,14 @@
    "slug": "control-resonant",
    "names": {
     "en": "CONTROL Resonant",
-    "ko": "CONTROL Resonant (컨트롤：레조넌트)"
+    "ko": "컨트롤：레조넌트"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3669870"
+   },
+   "aliases": [
+    "CONTROL Resonant (컨트롤：레조넌트)"
+   ],
    "description": {
     "en": "Action/Adventure game for PC developed by Remedy Entertainment, released on Steam on 24 September 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Remedy Entertainment 개발의 PC 액션/어드벤처 게임으로 2026년 9월 24일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -11288,6 +11330,9 @@
    "names": {
     "en": "Crimson Desert Enhanced",
     "ko": "붉은사막 Enhanced"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3321460"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Pearl Abyss, released on Steam on 19 March 2026. The Steam store lists Korean with full audio support.",
@@ -12694,6 +12739,9 @@
     "en": "DAVE THE DIVER",
     "ko": "데이브 더 다이버"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1868140"
+   },
    "description": {
     "en": "Adventure/Casual game for PC developed by MINTROCKET, released on Steam on 28 June 2023. The Steam store lists Korean text support without full Korean audio.",
     "ko": "MINTROCKET 개발의 PC 어드벤처/캐주얼 게임으로 2023년 6월 28일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -13709,6 +13757,9 @@
     "en": "Destiny 2",
     "ko": "데스티니 가디언즈"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1085660"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Bungie, released on Steam on 1 October 2019. The Steam store lists Korean with full audio support.",
     "ko": "Bungie 개발의 PC 액션/어드벤처 게임으로 2019년 10월 1일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -13810,6 +13861,9 @@
    "names": {
     "en": "Diablo IV",
     "ko": "디아블로 IV"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-2344520"
    },
    "aliases": [
     "Diablo® IV",
@@ -13984,6 +14038,9 @@
     "en": "Digimon Story Time Stranger",
     "ko": "디지몬 스토리 타임 스트레인저"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1984270"
+   },
    "description": {
     "en": "RPG game for PC developed by Media.Vision Inc. and published by Bandai Namco Entertainment Inc., released on Steam on 2 October 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Media.Vision Inc. 개발, Bandai Namco Entertainment Inc. 배급의 PC RPG 게임으로 2025년 10월 2일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -14088,6 +14145,9 @@
    "names": {
     "en": "Dimraeth",
     "ko": "딤레이스"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-2402680"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Mudtek, released on Steam on 15 September 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -16161,6 +16221,9 @@
     "en": "ELDEN RING NIGHTREIGN",
     "ko": "ELDEN RING 밤의 통치자"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2622380"
+   },
    "description": {
     "en": "Action/RPG game for PC developed by FromSoftware, Inc. and published by FromSoftware, Inc. and Bandai Namco Entertainment, released on Steam on 29 May 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "FromSoftware, Inc. 개발, FromSoftware, Inc., Bandai Namco Entertainment 배급의 PC 액션/RPG 게임으로 2025년 5월 29일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -16519,10 +16582,14 @@
    "slug": "enshrouded",
    "names": {
     "en": "Enshrouded",
-    "ko": "인슈라오디드 (Enshrouded)"
+    "ko": "인슈라오디드"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1203620"
    },
    "aliases": [
-    "인슈라오디드 (Enshrouded)"
+    "인슈라오디드 (Enshrouded)",
+    "인슈라오디드 (Enshrouded)"
    ],
    "description": {
     "en": "Action/Adventure game for PC developed by Keen Games GmbH, released on Steam on 24 January 2024. The Steam store lists Korean text support without full Korean audio.",
@@ -17055,6 +17122,9 @@
     "en": "Escape Simulator 2",
     "ko": "방 탈출 시뮬레이터2"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2879840"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Pine Studio, released on Steam on 27 October 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Pine Studio 개발의 PC 액션/어드벤처 게임으로 2025년 10월 27일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -17384,6 +17454,9 @@
    "names": {
     "en": "Eternal Return",
     "ko": "이터널 리턴"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1049590"
    },
    "description": {
     "en": "Game for PC developed by Nimble Neuron and published by Nimble Neuron, SapStaR Games and KRAFTON, Inc., released on Steam on 19 July 2023. The Steam store lists Korean with full audio support.",
@@ -19493,6 +19566,9 @@
     "en": "Ghost of Tsushima DIRECTOR'S CUT",
     "ko": "Ghost of Tsushima 디렉터스 컷"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2215430"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Sucker Punch Productions and Nixxes Software and published by PlayStation Publishing LLC, released on Steam on 16 May 2024. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Sucker Punch Productions, Nixxes Software 개발, PlayStation Publishing LLC 배급의 PC 액션/어드벤처 게임으로 2024년 5월 16일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -19669,6 +19745,9 @@
    "names": {
     "en": "GIRLS' FRONTLINE 2: EXILIUM",
     "ko": "소녀전선2: 망명"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3308670"
    },
    "description": {
     "en": "RPG/Strategy game for PC developed by SUNBORN Information Co., Ltd. and published by HAOPLAY Limited, released on Steam on 10 February 2025. The Steam store lists Korean with full audio support.",
@@ -19951,6 +20030,9 @@
     "en": "God of War Ragnarök",
     "ko": "갓 오브 워 라그나로크"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2322010"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Santa Monica Studio and Jetpack Interactive and published by PlayStation Publishing LLC, released on Steam on 19 September 2024. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Santa Monica Studio, Jetpack Interactive 개발, PlayStation Publishing LLC 배급의 PC 액션/어드벤처 게임으로 2024년 9월 19일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -20148,6 +20230,9 @@
     "en": "Godius Eternal War",
     "ko": "가디우스"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4559140"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by playinworld, released on Steam on 27 June 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "playinworld 개발의 PC 액션/어드벤처 게임으로 2026년 6월 27일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -20250,6 +20335,9 @@
     "en": "Grand Theft Auto V Enhanced",
     "ko": "Grand Theft Auto V 인핸스드"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3240220"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Rockstar North and published by Rockstar Games, released on Steam on 4 March 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Rockstar North 개발, Rockstar Games 배급의 PC 액션/어드벤처 게임으로 2025년 3월 4일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -20351,6 +20439,9 @@
    "names": {
     "en": "Grand Theft Auto V Legacy",
     "ko": "Grand Theft Auto V 레거시"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-271590"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Rockstar North and published by Rockstar Games, released on Steam on 13 April 2015. The Steam store lists Korean text support without full Korean audio.",
@@ -21395,6 +21486,9 @@
     "en": "Heartopia",
     "ko": "두근두근타운"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4025700"
+   },
    "description": {
     "en": "Casual/Simulation game for PC developed by XD, released on Steam on 16 January 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "XD 개발의 PC 캐주얼/시뮬레이션 게임으로 2026년 1월 16일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -22423,6 +22517,9 @@
     "en": "How to Fish",
     "ko": "낚시 방법"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4001890"
+   },
    "description": {
     "en": "Action/Casual game for PC developed by Dazed Games, released on Steam on 20 August 2026. The Steam store lists Korean with full audio support.",
     "ko": "Dazed Games 개발의 PC 액션/캐주얼 게임으로 2026년 8월 20일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -22923,9 +23020,9 @@
     "en": "Indiana Jones and the Great Circle",
     "ko": "인디아나 존스: 그레이트 서클"
    },
-   "aliases": [
-    "인디아나 존스: 그레이트 서클"
-   ],
+   "names_src": {
+    "ko": "src:steam-store-app-2677660"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by MachineGames and published by Bethesda Softworks, released on Steam on 8 December 2024. The Steam store lists Korean text support without full Korean audio.",
     "ko": "MachineGames 개발, Bethesda Softworks 배급의 PC 액션/어드벤처 게임으로 2024년 12월 8일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -23240,8 +23337,14 @@
    "slug": "inzoi",
    "names": {
     "en": "inZOI",
-    "ko": "inZOI (인조이)"
+    "ko": "인조이"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2456740"
+   },
+   "aliases": [
+    "inZOI (인조이)"
+   ],
    "description": {
     "en": "Adventure/Casual game for PC developed by inZOI Studio and published by KRAFTON, Inc., released on Steam on 27 March 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "inZOI Studio 개발, KRAFTON, Inc. 배급의 PC 어드벤처/캐주얼 게임으로 2025년 3월 27일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -24438,8 +24541,14 @@
    "slug": "lies-of-p",
    "names": {
     "en": "Lies of P",
-    "ko": "P의 거짓 (Lies of P)"
+    "ko": "P의 거짓"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1627720"
+   },
+   "aliases": [
+    "P의 거짓 (Lies of P)"
+   ],
    "description": {
     "en": "Action/Adventure game for PC developed by NEOWIZ, released on Steam on 18 September 2023. The Steam store lists Korean text support without full Korean audio.",
     "ko": "NEOWIZ 개발의 PC 액션/어드벤처 게임으로 2023년 9월 18일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -25250,6 +25359,9 @@
    "names": {
     "en": "Marvel Rivals",
     "ko": "마블 라이벌즈"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-2767030"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by NetEase Games, released on Steam on 5 December 2024. The Steam store lists Korean text support without full Korean audio.",
@@ -27218,6 +27330,9 @@
     "en": "NTE: Neverness to Everness",
     "ko": "이환"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4508340"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Hotta Studio and published by Perfect World Games, released on Steam on 7 July 2026. The Steam store lists Korean with full audio support.",
     "ko": "Hotta Studio 개발, Perfect World Games 배급의 PC 액션/어드벤처 게임으로 2026년 7월 7일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -27825,6 +27940,9 @@
    "names": {
     "en": "Onimusha: Way of the Sword",
     "ko": "귀무자 Way of the Sword"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-2638890"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by CAPCOM Co., Ltd., released on Steam on 3 September 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -28492,8 +28610,14 @@
    "slug": "palworld",
    "names": {
     "en": "Palworld",
-    "ko": "Palworld / 팰월드"
+    "ko": "팰월드"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1623730"
+   },
+   "aliases": [
+    "Palworld / 팰월드"
+   ],
    "description": {
     "en": "Action/Adventure game for PC developed by Pocketpair, released on Steam on 9 July 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Pocketpair 개발의 PC 액션/어드벤처 게임으로 2026년 7월 9일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -29549,6 +29673,9 @@
     "en": "Persona 3 Reload",
     "ko": "페르소나3 리로드"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2161700"
+   },
    "description": {
     "en": "Adventure/RPG game for PC developed by ATLUS and published by SEGA, released on Steam on 1 February 2024. The Steam store lists Korean text support without full Korean audio.",
     "ko": "ATLUS 개발, SEGA 배급의 PC 어드벤처/RPG 게임으로 2024년 2월 1일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -29690,6 +29817,9 @@
    "names": {
     "en": "Persona 5 Royal",
     "ko": "페르소나 5 더 로열"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1687950"
    },
    "description": {
     "en": "RPG game for PC developed by ATLUS and published by SEGA, released on Steam on 20 October 2022. The Steam store lists Korean text support without full Korean audio.",
@@ -30903,6 +31033,9 @@
     "en": "R.I.P. - Reincarnation Insurance Program",
     "ko": "윤회 보험사 R.I.P."
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3985950"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by WarmCore Studio and published by 2P Games, released on Steam on 15 September 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "WarmCore Studio 개발, 2P Games 배급의 PC 액션/어드벤처 게임으로 2026년 9월 15일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -31532,6 +31665,9 @@
     "en": "Resident Evil 4",
     "ko": "BIOHAZARD RE:4"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2050650"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by CAPCOM Co., Ltd., released on Steam on 23 March 2023. The Steam store lists Korean text support without full Korean audio.",
     "ko": "CAPCOM Co., Ltd. 개발의 PC 액션/어드벤처 게임으로 2023년 3월 23일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -31633,6 +31769,9 @@
    "names": {
     "en": "Resident Evil Requiem",
     "ko": "BIOHAZARD requiem"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3764200"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by CAPCOM Co., Ltd., released on Steam on 26 February 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -31742,6 +31881,9 @@
    "names": {
     "en": "Resident Evil Village",
     "ko": "Biohazard Village"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1196590"
    },
    "description": {
     "en": "Action game for PC developed by CAPCOM Co., Ltd., released on Steam on 6 May 2021. The Steam store lists Korean text support without full Korean audio.",
@@ -32739,6 +32881,9 @@
     "en": "ROMANCE OF THE THREE KINGDOMS XIV",
     "ko": "삼국지14"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-872410"
+   },
    "description": {
     "en": "Simulation game for PC developed by KOEI TECMO GAMES CO., LTD., released on Steam on 15 January 2020. The Steam store lists Korean text support without full Korean audio.",
     "ko": "KOEI TECMO GAMES CO., LTD. 개발의 PC 시뮬레이션 게임으로 2020년 1월 15일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -32862,8 +33007,14 @@
    "slug": "runescape-dragonwilds",
    "names": {
     "en": "RuneScape: Dragonwilds",
-    "ko": "RuneScape: Dragonwilds 룬스케이프: 드래곤와일즈"
+    "ko": "룬스케이프: 드래곤와일즈"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-1374490"
+   },
+   "aliases": [
+    "RuneScape: Dragonwilds 룬스케이프: 드래곤와일즈"
+   ],
    "description": {
     "en": "Action/Adventure game for PC developed by Jagex Ltd and published by Jagex Ltd, H2 Interactive Co., Ltd. and Graph, released on Steam on 15 September 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Jagex Ltd 개발, Jagex Ltd, H2 Interactive Co., Ltd., Graph 배급의 PC 액션/어드벤처 게임으로 2026년 9월 15일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -33859,6 +34010,9 @@
     "en": "Sephiria",
     "ko": "세피리아"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2436940"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by TEAM HORAY, released on Steam on 31 July 2026. The Steam store lists Korean text support without full Korean audio.",
     "ko": "TEAM HORAY 개발의 PC 액션/어드벤처 게임으로 2026년 7월 31일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -34699,6 +34853,9 @@
    "names": {
     "en": "Sid Meier's Civilization VII",
     "ko": "시드 마이어의 문명 VII"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1295660"
    },
    "description": {
     "en": "Simulation/Strategy game for PC developed by Firaxis Games and published by 2K, released on Steam on 10 February 2025. The Steam store lists Korean with full audio support.",
@@ -35693,6 +35850,9 @@
     "en": "Sora no Kiseki the 1st",
     "ko": "하늘의 궤적 the 1st"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3447040"
+   },
    "description": {
     "en": "RPG game for PC developed by Nihon Falcom and published by Clouded Leopard Entertainment, released on Steam on 19 September 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Nihon Falcom 개발, Clouded Leopard Entertainment 배급의 PC RPG 게임으로 2025년 9월 19일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -35828,6 +35988,9 @@
    "names": {
     "en": "Soulworker : Your Destiny Awaits",
     "ko": "소울워커"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1825750"
    },
    "description": {
     "en": "Action/RPG game for PC developed by VALOFE, released on Steam on 16 March 2022. The Steam store lists Korean with full audio support.",
@@ -36712,6 +36875,9 @@
     "en": "StarSavior",
     "ko": "스타세이비어"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3609080"
+   },
    "description": {
     "en": "RPG/Simulation game for PC developed by Studiobside, released on Steam on 10 December 2025. The Steam store lists Korean with full audio support.",
     "ko": "Studiobside 개발의 PC RPG/시뮬레이션 게임으로 2025년 12월 10일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -36820,6 +36986,9 @@
    "names": {
     "en": "Stellar Blade",
     "ko": "스텔라 블레이드"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3489700"
    },
    "aliases": [
     "Stellar Blade™",
@@ -37475,6 +37644,9 @@
     "en": "Subnautica",
     "ko": "서브노티카"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-264710"
+   },
    "description": {
     "en": "Adventure game for PC developed by Unknown Worlds Entertainment, released on Steam on 23 January 2018. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Unknown Worlds Entertainment 개발의 PC 어드벤처 게임으로 2018년 1월 23일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -37597,6 +37769,9 @@
    "names": {
     "en": "Subnautica 2",
     "ko": "서브노티카 2"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1962700"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Unknown Worlds Entertainment, released on Steam on 14 May 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -37745,6 +37920,9 @@
    "names": {
     "en": "Subnautica: Below Zero",
     "ko": "서브노티카: 빌로우 제로"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-848450"
    },
    "description": {
     "en": "Adventure game for PC developed by Unknown Worlds Entertainment, released on Steam on 13 May 2021. The Steam store lists Korean text support without full Korean audio.",
@@ -37995,6 +38173,9 @@
    "names": {
     "en": "TBH: Task Bar Hero",
     "ko": "TBH: 태스크바 히어로"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3678970"
    },
    "description": {
     "en": "Casual/RPG game for PC developed by Nugem Studio and Tesseract Studio and published by Nugem Studio, released on Steam on 27 May 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -38309,6 +38490,9 @@
    "names": {
     "en": "TEKKEN 8",
     "ko": "철권 8"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1778820"
    },
    "description": {
     "en": "Action game for PC developed by Bandai Namco Studios Inc. and published by Bandai Namco Entertainment, released on Steam on 25 January 2024. The Steam store lists Korean text support without full Korean audio.",
@@ -39223,6 +39407,9 @@
     "en": "The First Descendant",
     "ko": "퍼스트 디센던트"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-2074920"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by NEXON Games Co., Ltd. and published by NEXON, released on Steam on 30 June 2024. The Steam store lists Korean with full audio support.",
     "ko": "NEXON Games Co., Ltd. 개발, NEXON 배급의 PC 액션/어드벤처 게임으로 2024년 6월 30일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -39954,6 +40141,9 @@
     "en": "The Rhapsody of Zephyr Remastered",
     "ko": "창세기전 외전: 서풍의 광시곡 리마스터"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-5099430"
+   },
    "description": {
     "en": "RPG game for PC developed by Nine Circles Corporation, released on Steam on 18 September 2026. The Steam store lists Korean with full audio support.",
     "ko": "Nine Circles Corporation 개발의 PC RPG 게임으로 2026년 9월 18일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 인터페이스·자막·음성을 지원합니다."
@@ -40055,6 +40245,9 @@
    "names": {
     "en": "The Seven Deadly Sins: Origin",
     "ko": "일곱 개의 대죄: Origin"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-3679080"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Netmarble F&C and published by Netmarble, released on Steam on 16 March 2026. The Steam store lists Korean with full audio support.",
@@ -40326,6 +40519,9 @@
    "names": {
     "en": "The Witcher 3: Wild Hunt - Complete Edition",
     "ko": "더 위쳐 3: 와일드 헌트 - 컴플리트 에디션"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-292030"
    },
    "description": {
     "en": "RPG game for PC developed by CD PROJEKT RED, released on Steam on 18 May 2015. The Steam store lists Korean with full audio support.",
@@ -40605,9 +40801,11 @@
    "type": "game",
    "slug": "togainu-no-chi-true-blood-nitro-archive",
    "names": {
-    "en": "Togainu no Chi: True Blood NITRO ARCHIVE",
-    "ko": "咎狗の血 True Blood NITRO ARCHIVE"
+    "en": "Togainu no Chi: True Blood NITRO ARCHIVE"
    },
+   "aliases": [
+    "咎狗の血 True Blood NITRO ARCHIVE"
+   ],
    "description": {
     "en": "Action/Adventure game for PC developed by NITRO PLUS and NITRO CHiRAL and published by NITRO PLUS, released on Steam on 23 July 2025. The Steam store lists no official Korean support.",
     "ko": "NITRO PLUS, NITRO CHiRAL 개발, NITRO PLUS 배급의 PC 액션/어드벤처 게임으로 2025년 7월 23일 Steam에 출시되었습니다. Steam 스토어 기준 공식 한국어를 지원하지 않습니다."
@@ -40728,6 +40926,9 @@
     "en": "Tom Clancy's Rainbow Six Siege",
     "ko": "톰 클랜시의 레인보우식스 시즈"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-359550"
+   },
    "description": {
     "en": "Action game for PC developed by Ubisoft Montreal and published by Ubisoft, released on Steam on 1 December 2015. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Ubisoft Montreal 개발, Ubisoft 배급의 PC 액션 게임으로 2015년 12월 1일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -40838,6 +41039,9 @@
    "names": {
     "en": "Total War: WARHAMMER III",
     "ko": "토탈워: 워해머 3"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-1142710"
    },
    "description": {
     "en": "Action/Strategy game for PC developed by CREATIVE ASSEMBLY and Feral Interactive and published by SEGA and Feral Interactive, released on Steam on 16 February 2022. The Steam store lists Korean text support without full Korean audio.",
@@ -41034,6 +41238,9 @@
     "en": "Touhou Koumakyou: New Classic - the Embodiment of Scarlet Devil",
     "ko": "동방홍마향: New Classic ～ the Embodiment of Scarlet Devil"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-4659620"
+   },
    "aliases": [
     "동방홍마향: New Classic　～ the Embodiment of Scarlet Devil"
    ],
@@ -41139,6 +41346,9 @@
    "names": {
     "en": "Trails in the Sky 2nd Chapter",
     "ko": "하늘의 궤적 the 2nd"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-4225980"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Nihon Falcom and published by Nihon Falcom, GungHo Online Entertainment America, Inc. and Clouded Leopard Entertainment, released on Steam on 16 September 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -43225,6 +43435,9 @@
     "en": "Where Winds Meet",
     "ko": "연운"
    },
+   "names_src": {
+    "ko": "src:steam-store-app-3564740"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by Everstone Studio and published by NetEase Games, released on Steam on 14 November 2025. The Steam store lists Korean text support without full Korean audio.",
     "ko": "Everstone Studio 개발, NetEase Games 배급의 PC 액션/어드벤처 게임으로 2025년 11월 14일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -44053,6 +44266,9 @@
    "names": {
     "en": "Zenless Zone Zero",
     "ko": "젠레스 존 제로"
+   },
+   "names_src": {
+    "ko": "src:steam-store-app-4162040"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by COGNOSPHERE PTE. LTD., released on Steam on 16 June 2026. The Steam store lists Korean with full audio support.",

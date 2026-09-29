@@ -13,7 +13,7 @@
  * Facts are `AUTOMATED` (machine-read from Valve's store data by this collector); the source kind is
  * `OFFICIAL` (the official store page, data entered by the developer/publisher on Steamworks),
  * never `OFFICIAL_API`, because the endpoint is undocumented. */
-import {parseLanguages,koreanSupport,parseReleaseDate,parsePlatforms,parseGenres,cleanName,slugify,shortHash,parseCompanies,parseWebsite,humanDate} from './parse.js';
+import {parseLanguages,koreanSupport,parseReleaseDate,parsePlatforms,parseGenres,cleanName,slugify,shortHash,parseCompanies,parseWebsite,humanDate,koreanStoreName} from './parse.js';
 import {normName} from '../../platform/schema.js';
 
 const HOST='store.steampowered.com';
@@ -56,15 +56,21 @@ const joinEn=a=>a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.leng
 
 /**
  * Build the game entity from the English (+ optional Korean) details. Pure; exported for tests.
+ * Korean name: the Korean store name when the developer set one (names_src.ko → this store source).
+ * Without one — the Korean store shows the English name, or the Korean request failed — the target's
+ * existing `names.ko` (from another official source, or an earlier run) is kept with its `names_src`,
+ * so a collector run never drops a curated Korean name (ingest replaces `names` as a whole).
  * @param {any} en English `data` @param {any|null} ko Korean `data`
- * @param {{appid:number,id:string,slug:string,src:string,orgId:(name:string)=>string}} o
+ * @param {{appid:number,id:string,slug:string,src:string,orgId:(name:string)=>string,prev?:{names?:any,names_src?:any}}} o
  */
 export function gameEntity(en,ko,o){
  const f=(/** @type {string} */ p,/** @type {unknown} */ v,/** @type {Record<string,unknown>} */ more={})=>({p,v,ver:'AUTOMATED',src:o.src,...more});
- const nameEn=cleanName(en.name),rawKo=ko?.name?String(ko.name):'',nameKo=cleanName(rawKo);
+ const nameEn=cleanName(en.name),rawKo=ko?.name?String(ko.name):'',storeKo=cleanName(rawKo),nameKo=koreanStoreName(storeKo,nameEn,normName);
  const names=/** @type {{en:string,ko?:string}} */({en:nameEn});
- if(nameKo&&normName(nameKo)!==normName(nameEn))names.ko=nameKo;
- const aliases=[...new Set([en.name!==nameEn?String(en.name).trim():'',rawKo&&rawKo!==nameKo&&names.ko?rawKo.trim():''].filter(Boolean))];
+ /** @type {Record<string,string>} */const names_src={};
+ if(nameKo){names.ko=nameKo;names_src.ko=o.src;}
+ else if(o.prev?.names?.ko&&normName(o.prev.names.ko)!==normName(nameEn)){names.ko=o.prev.names.ko;if(o.prev.names_src?.ko)names_src.ko=o.prev.names_src.ko;}
+ const aliases=[...new Set([en.name!==nameEn?String(en.name).trim():'',...(storeKo&&normName(storeKo)!==normName(nameEn)?[rawKo.trim(),storeKo]:[])].filter(a=>a&&a!==names.ko&&a!==nameEn))];
  const langs=parseLanguages(en.supported_languages),korean=koreanSupport(langs);
  const upcoming=!!en.release_date?.coming_soon,released=parseReleaseDate(en.release_date?.date);
  const platforms=parsePlatforms(en.platforms),genres=parseGenres(en.genres),website=parseWebsite(en.website);
@@ -92,7 +98,7 @@ export function gameEntity(en,ko,o){
   ko:`${who.ko?who.ko+'의 ':''}PC ${genreKo&&ko?genreKo+' ':''}게임으로${when.ko?when.ko+'습니다':upcoming?' Steam에 출시될 예정입니다':', Steam에서 판매됩니다'}. ${kor.ko}`.replace('예정습니다','예정입니다').replace('으로, Steam','으로 Steam').trim(),
  }:undefined;
  const official_urls=[{label:'Steam',url:storeUrl(o.appid)},...(website?[{label:'Official site',url:website}]:[])];
- return {id:o.id,type:'game',slug:o.slug,names,...(aliases.length?{aliases}:{}),...(description?{description}:{}),official_urls,facts,relations};
+ return {id:o.id,type:'game',slug:o.slug,names,...(Object.keys(names_src).length?{names_src}:{}),...(aliases.length?{aliases}:{}),...(description?{description}:{}),official_urls,facts,relations};
 }
 
 /** @param {{retryDelays?:number[]}} [opts] */
@@ -116,9 +122,9 @@ export function createSteamStoreAdapter(opts={}){
     slugOwner.set(s,id);return s;
    };
    // Companies: reuse existing org entities by normalised name/alias, otherwise mint org:<slug>.
-   /** @type {Map<string,{id:string,slug:string,names:any,aliases:Set<string>,existing:boolean}>} */const orgs=new Map();
+   /** @type {Map<string,{id:string,slug:string,names:any,names_src?:any,aliases_src?:any,aliases:Set<string>,existing:boolean}>} */const orgs=new Map();
    for(const t of targets.filter(t=>t.type==='org')){
-    const o={id:t.id,slug:t.slug,names:t.names,aliases:new Set(t.aliases||[]),existing:true};
+    const o={id:t.id,slug:t.slug,names:t.names,names_src:t.names_src,aliases_src:t.aliases_src,aliases:new Set(t.aliases||[]),existing:true};
     for(const n of [t.names?.en,t.names?.ko,...(t.aliases||[])].filter(Boolean))orgs.set(normName(n),o);
    }
    /** @type {Set<any>} */const usedOrgs=new Set();
@@ -150,14 +156,14 @@ export function createSteamStoreAdapter(opts={}){
     const name=cleanName(en.data.name);
     const slug=t.slug||claim(slugify(name)||`steam-${appid}`,t.id,String(appid));
     if(t.slug)slugOwner.set(t.slug,t.id);
-    entities.push(gameEntity(en.data,ko,{appid,id:t.id,slug,src:sourceId(appid),orgId}));
+    entities.push(gameEntity(en.data,ko,{appid,id:t.id,slug,src:sourceId(appid),orgId,prev:t}));
     sources.push({id:sourceId(appid),kind:'OFFICIAL',url:storeUrl(appid),title:`${name} on Steam`,publisher:'Valve Corporation (Steam store)',retrieved,adapter:'steam-store',
      note:`Machine-read from ${detailsUrl(appid,'english',enCc)} and ${detailsUrl(appid,'koreana','kr')} (undocumented store JSON endpoint behind this page).`});
     ok++;
    }
    if(games.length&&!ok)throw Error(`steam-store: no game could be read (${failed} failed, ${skipped} skipped)`);
    ctx.log(`steam-store: ${ok} games, ${skipped} skipped, ${failed} failed`);
-   const orgEntities=[...usedOrgs].sort((a,b)=>a.id<b.id?-1:1).map(o=>({id:o.id,type:'org',slug:o.slug,names:o.names,...(o.aliases.size?{aliases:[...o.aliases].sort()}:{})}));
+   const orgEntities=[...usedOrgs].sort((a,b)=>a.id<b.id?-1:1).map(o=>({id:o.id,type:'org',slug:o.slug,names:o.names,...(o.names_src?{names_src:o.names_src}:{}),...(o.aliases.size?{aliases:[...o.aliases].sort()}:{}),...(o.aliases_src?{aliases_src:o.aliases_src}:{})}));
    return {schema:'nerulio.seed/1',vertical:'games',sources,entities:[...entities,...orgEntities],stats:{ok,failed,skipped}};
   },
  };
