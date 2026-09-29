@@ -533,6 +533,8 @@ def scenario_social(browser):
         with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]').inner_text().startswith('user-'),page.url)
+        # The islands restore the draft after the signed-in state (account, alerts) has loaded: wait for it.
+        page.wait_for_function('()=>document.querySelector("#comment-form textarea").value==="로그인 전 댓글"',timeout=15000)
         ok('social: the comment typed before signing in is still in the box',page.locator('#comment-form textarea').input_value()=='로그인 전 댓글')
         page.fill('#comment-form textarea','GitHub로 로그인해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
         page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("GitHub로 로그인해서 남긴 댓글")',timeout=15000)
@@ -626,7 +628,7 @@ def scenario_passkey(browser):
         page.fill('#comment-form textarea','지문으로 가입해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
         page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("지문으로 가입해서 남긴 댓글")',timeout=15000)
         nk=page.locator('.cl .co').last.locator('.nick')
-        ok('passkey: the comment shows the fixed nickname with the member ✓ (not a daily ID)',nk.inner_text().startswith('지문테스터') and nk.locator('.ck').inner_text()=='✓' and 'anon' not in (nk.get_attribute('class') or ''),nk.inner_text())
+        ok('passkey: the comment shows the fixed nickname with the member check mark (not a daily ID)',nk.inner_text().startswith('지문테스터') and nk.locator('.ck').inner_text()=='✓' and 'anon' not in (nk.get_attribute('class') or ''),nk.inner_text())
         page.goto(origin+'/ko/community/me',wait_until='networkidle');page.locator('[data-logout]:not([hidden])').wait_for(timeout=10000)
         with page.expect_navigation(timeout=30000):page.click('[data-logout]')
         page.goto(post,wait_until='networkidle')
