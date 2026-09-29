@@ -87,17 +87,20 @@ function challengeCheck(c,p){
 const credentialCount=async c=>Number((await c.db.prepare('SELECT COUNT(*) AS n FROM admin_credentials').first())?.n||0);
 
 /** Sign-in statements: a new session (the browser's previous one is replaced), the account's oldest
- * sessions beyond MAX_SESSIONS_PER_USER signed out. @param {C} c @param {string} userId */
+ * sessions beyond MAX_SESSIONS_PER_USER signed out. `signIn()` sets the cookie: call it only after the
+ * batch committed, so a refused sign-in never hands out a cookie. @param {C} c @param {string} userId */
 async function sessionStatements(c,userId){
  const token=randomToken(),db=c.db;
  const w=[db.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?1,?2,?3,?4)').bind(await sha256(token),userId,c.now,c.now+SESSION_TTL_MS)];
  const prev=c.context.cookies[SESSION_COOKIE];
  if(prev&&/^[A-Za-z0-9_-]{43}$/.test(prev))w.push(db.prepare('DELETE FROM sessions WHERE token_hash=?1').bind(await sha256(prev)));
  w.push(db.prepare('DELETE FROM sessions WHERE user_id=?1 AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id=?1 ORDER BY created_at DESC,token_hash LIMIT ?2)').bind(userId,c.cfg.maxSessionsPerUser||5));
- // The auth cookie replaces whatever resolveContext decided about the old one.
- c.context.setCookies=c.context.setCookies.filter((/** @type {string} */ s)=>!s.startsWith(SESSION_COOKIE+'='));
- c.cookies.push(cookie(SESSION_COOKIE,token,/** @type {any} */({maxAge:SESSION_TTL_MS/1000,secure:c.context.secure})),clearCookie(WEBAUTHN_COOKIE,{path:WEBAUTHN_PATH,secure:c.context.secure}));
- return w;
+ const signIn=()=>{
+  // The auth cookie replaces whatever resolveContext decided about the old one.
+  c.context.setCookies=c.context.setCookies.filter((/** @type {string} */ s)=>!s.startsWith(SESSION_COOKIE+'='));
+  c.cookies.push(cookie(SESSION_COOKIE,token,/** @type {any} */({maxAge:SESSION_TTL_MS/1000,secure:c.context.secure})),clearCookie(WEBAUTHN_COOKIE,{path:WEBAUTHN_PATH,secure:c.context.secure}));
+ };
+ return {w,signIn};
 }
 /** @param {C} c @param {any} v */
 async function usedStatements(c,v){
@@ -165,12 +168,13 @@ async function registerVerify(c){
  }
  if(d.m!=='setup'||typeof d.h!=='string')throw new ApiError('BAD_REQUEST');
  if(await credentialCount(c))throw new ApiError('NOT_FOUND');
- const uid=randomToken(16);
+ const uid=randomToken(16),session=await sessionStatements(c,uid);
  await batchOnce(db,[...await usedStatements(c,v),
   db.prepare("INSERT INTO users (id,email,display_name,provider,provider_subject,created_at) VALUES (?,NULL,'Nerulio 관리자','passkey',?,?)").bind(uid,d.h,c.now),
   // Public nickname: 운영자 (reserved for staff), unless some account already holds it.
   db.prepare("INSERT INTO user_profiles (user_id,display_name,role,tier,created_at,updated_at) VALUES (?,CASE WHEN EXISTS (SELECT 1 FROM user_profiles WHERE lower(display_name)='운영자') THEN ? ELSE '운영자' END,'admin','curator',?,?)").bind(uid,`운영자-${uid.slice(0,4).toLowerCase()}`,c.now,c.now),
-  cred(uid),...await sessionStatements(c,uid)]);
+  cred(uid),...session.w]);
+ session.signIn();
  return {ok:true};
 }
 /** @param {C} c */
@@ -195,9 +199,11 @@ async function loginVerify(c){
     return row&&row.role==='admin'?{publicKey:String(row.public_key),signCount:Number(row.sign_count)}:null;
    }});
  }catch(e){throw passkeyError(e);}
+ const session=await sessionStatements(c,String(row.user_id));
  await batchOnce(c.db,[...await usedStatements(c,v),
   c.db.prepare('UPDATE admin_credentials SET sign_count=?,last_used_at=? WHERE id=?').bind(v.signCount,c.now,v.credentialId),
-  ...await sessionStatements(c,String(row.user_id))]);
+  ...session.w]);
+ session.signIn();
  return {ok:true};
 }
 /** Remove one of my passkeys (a lost phone); the last one cannot be removed. @param {C} c */
@@ -306,15 +312,32 @@ const USAGE_QUERY=`query AdminD1Usage($accountTag: string!, $start: Date, $end: 
  } }
 }`;
 /** @type {{key:string,at:number,value:any}|null} */let usageMemo=null;
-/** Account-wide D1 rows read/written per UTC day (all databases: the free limit is per account).
- * @param {{env:any,now:number,fetch:typeof fetch}} c */
+/** Workers Paid: D1 includes 25 billion rows read and 50 million rows written per month (billing
+ * period, from the subscription date); Workers Free: 5 million / 100,000 per day, reset 00:00 UTC.
+ * developers.cloudflare.com/d1/platform/pricing (checked 2026-09-29). */
+export const D1_PAID_INCLUDED=Object.freeze({rowsReadMonth:25_000_000_000,rowsWrittenMonth:50_000_000});
+/** First day (UTC, YYYY-MM-DD) of the billing period containing `now`. CF_BILLING_DAY is the day of
+ * the month the Workers Paid subscription renews (1–28, default 1). @param {number} now @param {number} billingDay */
+export function periodStart(now,billingDay){
+ const d=new Date(now),y=d.getUTCFullYear(),m=d.getUTCMonth();
+ return new Date(Date.UTC(y,d.getUTCDate()>=billingDay?m:m-1,billingDay)).toISOString().slice(0,10);
+}
+/**
+ * Account-wide D1 rows read/written (all databases: limits and included amounts are per account).
+ * plan 'paid' (default; CF_PLAN=free for the old daily limits): month-to-date against the monthly
+ * included amounts. `limit` mirrors the amounts the percentage is measured against.
+ * @param {{env:any,now:number,fetch:typeof fetch}} c
+ */
 export async function getUsage(c){
  const token=String(c.env.CF_ANALYTICS_TOKEN||''),account=String(c.env.CF_ACCOUNT_ID||'');
  if(!token)throw notConfigured('CF_ANALYTICS_TOKEN');
  if(!/^[0-9a-f]{32}$/.test(account))throw notConfigured('CF_ACCOUNT_ID');
- const key=await sha256(account+'\n'+token);
+ const plan=String(c.env.CF_PLAN||'paid').toLowerCase()==='free'?'free':'paid';
+ const bd=Number(c.env.CF_BILLING_DAY),billingDay=Number.isInteger(bd)&&bd>=1&&bd<=28?bd:1;
+ const key=await sha256([account,token,plan,billingDay].join('|'));
  if(usageMemo&&usageMemo.key===key&&c.now-usageMemo.at<120e3)return usageMemo.value;
- const day=(/** @type {number} */ t)=>new Date(t).toISOString().slice(0,10),today=day(c.now),start=day(c.now-6*DAY);
+ const day=(/** @type {number} */ t)=>new Date(t).toISOString().slice(0,10),today=day(c.now),week=day(c.now-6*DAY);
+ const period=periodStart(c.now,billingDay),start=plan==='paid'&&period<week?period:week;
  let body;
  try{
   const res=await c.fetch('https://api.cloudflare.com/client/v4/graphql',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({query:USAGE_QUERY,variables:{accountTag:account,start,end:today}})});
@@ -324,12 +347,25 @@ export async function getUsage(c){
  const groups=body.data?.viewer?.accounts?.[0]?.d1AnalyticsAdaptiveGroups;
  if(!Array.isArray(groups))throw new ApiError('UPSTREAM_FAILED','Unexpected analytics response.');
  /** @type {Map<string,{rowsRead:number,rowsWritten:number}>} */const by=new Map();
- for(let t=c.now-6*DAY;day(t)<=today;t+=DAY)by.set(day(t),{rowsRead:0,rowsWritten:0});
+ for(let t=Date.parse(start+'T00:00:00Z');day(t)<=today;t+=DAY)by.set(day(t),{rowsRead:0,rowsWritten:0});
  for(const g of groups){const d=by.get(String(g?.dimensions?.date));if(!d)continue;d.rowsRead+=Number(g.sum?.rowsRead)||0;d.rowsWritten+=Number(g.sum?.rowsWritten)||0;}
  const days=[...by].map(([d,v])=>({day:d,...v}));
- const value={today:{...(by.get(today)||{rowsRead:0,rowsWritten:0})},limit:{...D1_FREE_LIMIT},days,resetAt:Math.floor(c.now/DAY)*DAY+DAY,databases:new Set(groups.map((/** @type {any} */ g)=>g?.dimensions?.databaseId)).size};
+ const todayRow={...(by.get(today)||{rowsRead:0,rowsWritten:0})},databases=new Set(groups.map((/** @type {any} */ g)=>g?.dimensions?.databaseId)).size;
+ let value;
+ if(plan==='free')value={plan,period:'day',today:todayRow,limit:{...D1_FREE_LIMIT},days,resetAt:Math.floor(c.now/DAY)*DAY+DAY,databases};
+ else{
+  const month={rowsRead:0,rowsWritten:0,from:period};
+  for(const d of days)if(d.day>=period){month.rowsRead+=d.rowsRead;month.rowsWritten+=d.rowsWritten;}
+  const p=new Date(period+'T00:00:00Z'),next=Date.UTC(p.getUTCFullYear(),p.getUTCMonth()+1,billingDay);
+  value={plan,period:'month',today:todayRow,month,included:{...D1_PAID_INCLUDED},limit:{rowsRead:D1_PAID_INCLUDED.rowsReadMonth,rowsWritten:D1_PAID_INCLUDED.rowsWrittenMonth},days,resetAt:next,databases};
+ }
  usageMemo={key,at:c.now,value};
  return value;
+}
+/** The numbers a usage alert compares (month-to-date on Workers Paid, today on Free). @param {any} u */
+export function usageLevel(u){
+ const used=u.plan==='free'||!u.month?u.today:u.month;
+ return {rowsWritten:used.rowsWritten,rowsRead:used.rowsRead,limitWritten:u.limit.rowsWritten,limitRead:u.limit.rowsRead,day:u.plan==='free'||!u.month?u.days.at(-1)?.day:u.month.from,period:/** @type {'day'|'month'} */(u.plan==='free'||!u.month?'day':'month')};
 }
 
 /* ---------- radar / data ---------- */
@@ -547,7 +583,7 @@ async function notify(c){
  /** @type {Record<string,unknown>} */const results={};
  /** @param {string} name @param {()=>Promise<unknown>} f */
  const step=async(name,f)=>{try{results[name]=await f();}catch(e){results[name]={error:e instanceof ApiError?e.code:'INTERNAL'};if(!(e instanceof ApiError))console.error('admin/notify',name,/** @type {any} */(e)?.message);}};
- const usage=async()=>{const u=await getUsage(x);return checkUsage(x,{rowsWritten:u.today.rowsWritten,rowsRead:u.today.rowsRead,limitWritten:u.limit.rowsWritten,limitRead:u.limit.rowsRead,day:new Date(c.now).toISOString().slice(0,10)});};
+ const usage=async()=>checkUsage(x,usageLevel(await getUsage(x)));
  if(kind==='collector_failed')await step('collectors',()=>checkCollectorFailures(x,body.payload&&typeof body.payload==='object'?body.payload:{}));
  if(kind==='usage'||kind==='tick')await step('usage',usage);
  if(kind==='status_stale'||kind==='tick')await step('status',()=>checkStatusStale(x));

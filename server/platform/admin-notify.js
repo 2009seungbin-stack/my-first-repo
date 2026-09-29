@@ -132,9 +132,11 @@ export async function checkCollectorFailures(c,payload){
  return out;
 }
 
-/** D1 usage (account-wide rows written today, UTC): the highest newly crossed threshold per device.
- * ≥ 95% is critical. @param {{env:any,db:any,now:number,fetch?:typeof fetch,origin:string,subs:Sub[]}} c
- * @param {{rowsWritten:number,rowsRead:number,limitWritten:number,limitRead:number,day:string}} u */
+/** D1 usage (account-wide; month-to-date against the Workers Paid included amounts, or today against
+ * the Free daily limits): the newly crossed threshold per device, once per period (`day` = the
+ * period's first day). ≥ 95% is critical.
+ * @param {{env:any,db:any,now:number,fetch?:typeof fetch,origin:string,subs:Sub[]}} c
+ * @param {{rowsWritten:number,rowsRead:number,limitWritten:number,limitRead:number,day:string,period?:'day'|'month'}} u */
 export async function checkUsage(c,u){
  const pct=Math.max(u.rowsWritten/u.limitWritten,u.rowsRead/u.limitRead)*100;
  const levels=[...new Set(c.subs.flatMap(s=>s.prefs.usageThresholds))].filter(l=>pct>=l).sort((a,b)=>b-a);
@@ -146,7 +148,7 @@ export async function checkUsage(c,u){
   // A device that already got a higher level today, or has a higher new level, gets only that one.
   const wants=(/** @type {Prefs} */ p)=>p.usageThresholds.includes(l)&&!levels.some(h=>h>l&&p.usageThresholds.includes(h));
   const w=u.rowsWritten/u.limitWritten>=u.rowsRead/u.limitRead;
-  const r=await alert(c,{key:null,wants,critical:l>=95,topic:'usage',message:{kind:'usage',title:`D1 ${w?'쓰기':'읽기'} ${Math.floor(pct)}%`,body:`오늘(UTC) ${w?`쓰기 ${u.rowsWritten.toLocaleString('en-US')} / ${u.limitWritten.toLocaleString('en-US')}행`:`읽기 ${u.rowsRead.toLocaleString('en-US')} / ${u.limitRead.toLocaleString('en-US')}행`} · 09:00(KST)에 초기화`,url:'/admin/#/usage',tag:'usage'}});
+  const r=await alert(c,{key:null,wants,critical:l>=95,topic:'usage',message:{kind:'usage',title:`D1 ${w?'쓰기':'읽기'} ${Math.floor(pct)}%`,body:`${u.period==='month'?'이번 달':'오늘(UTC)'} ${w?`쓰기 ${u.rowsWritten.toLocaleString('en-US')} / ${u.limitWritten.toLocaleString('en-US')}행`:`읽기 ${u.rowsRead.toLocaleString('en-US')} / ${u.limitRead.toLocaleString('en-US')}행`}${u.period==='month'?' · 포함량 대비':' · 09:00(KST)에 초기화'}`,url:'/admin/#/usage',tag:'usage'}});
   // Delivered, or no device wants this level (they got a higher one): done for today. Held back by
   // quiet hours: not marked, so it goes out on the first check after them.
   if(r.sent||!r.held)await mark(c.db,[keys[i]],c.now);
