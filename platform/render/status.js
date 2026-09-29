@@ -5,32 +5,82 @@
  * labelled as such and never presented as the official status. */
 import {html,safeHref} from './html.js';
 import {t} from './strings.js';
-import {page,nameOf,channelUrl,box,badge} from './ui.js';
-import {boardTime,ago,TZ} from './format.js';
+import {page,nameOf,channelUrl,box,badge,signInUrl} from './ui.js';
+import {boardTime,TZ} from './format.js';
 import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState,koAlias} from '../db/channel.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
-import {reportSignal,SPIKE} from '../status-signal.js';
+import {reportSignal,SPIKE,SYMPTOMS} from '../status-signal.js';
+import {RAIL_SERVICES,isStatusIncident,statusState} from './rail.js';
+import {icon,STATUS_ICON,REPORT_ICON,FEED_ICON} from './icons.js';
+import {statusCardPath,cardAlt} from '../status-card.js';
 
 const HOUR=36e5,DAY=864e5;
-export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
 /** Spike = last hour ≥ 3 reports and ≥ 3× the average hourly rate of the previous 7 days. */
-export {SPIKE};
+export {SPIKE,SYMPTOMS};
+
+/** The Korean name people search with ("클로드", "챗GPT", "제미나이"): the curated one of the home status
+ * services, else the entity's Korean alias. @param {any} db @param {import('../db/channel.js').Entity} entity @param {string} name */
+async function searchAlias(db,entity,name){
+ const curated=RAIL_SERVICES.find(s=>s.id===entity.id)?.ko;
+ if(curated)return curated===name?(/[가-힣]/.test(name)?entity.names.en||null:null):curated;
+ return koAlias(db,entity.id,name);
+}
 
 /** @param {any} db @param {import('../db/channel.js').Entity} entity @param {{l:string,now:number,channels?:{name:string,href:string}[]}} o */
 export async function loadStatus(db,entity,o){
  const {now}=o;
  const provider=(await related(db,entity.id,'in',['offers']))[0]?.entity||null;
  const siblings=provider?(await related(db,provider.id,'out',['offers'])).map(r=>r.entity).filter(x=>x.type==='service'&&x.id!==entity.id).slice(0,4):[];
- const incidents=(await eventsFor(db,[entity.id,...siblings.map(x=>x.id),...(provider?[provider.id]:[])],{kinds:['incident','other'],from:now-30*DAY,desc:true,limit:30})).filter(x=>x.url&&/status\./.test(x.url));
- const reports=await issueReportsSince(db,[entity.id],now-8*DAY);
+ const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
+ const q={kinds:['incident','other'],from:now-30*DAY,desc:true,limit:30};
+ const [own,bySibling,reports,facts,collectors,alias]=await Promise.all([
+  eventsFor(db,[entity.id,...(provider?[provider.id]:[])],q),
+  Promise.all(siblings.map(x=>eventsFor(db,[x.id],{...q,limit:10}))),
+  issueReportsSince(db,[entity.id],now-8*DAY),
+  factsFor(db,[entity.id]),
+  adapter?collectorState(db,[adapter]):Promise.resolve(new Map()),
+  o.l==='ko'?searchAlias(db,entity,nameOf(entity,'ko')):Promise.resolve(null)]);
+ // The service's own incidents and its provider's decide its state (as on the home status box); a
+ // sister service's incident (Claude Code under Claude) is listed with its name but does not.
+ const seen=new Set();
+ /** @type {(ReturnType<typeof eventsFor> extends Promise<(infer E)[]> ? E & {about:import('../db/channel.js').Entity|null} : never)[]} */
+ const incidents=[...own.filter(isStatusIncident).map(x=>({...x,about:null})),...siblings.flatMap((sib,i)=>bySibling[i].filter(isStatusIncident).map(x=>({...x,about:sib})))]
+  .filter(x=>seen.has(x.id)?false:(seen.add(x.id),true)).sort((a,b)=>(b.starts_at??0)-(a.starts_at??0)).slice(0,30);
  const {hours,baseline,spike,total24}=reportSignal(reports,now);
  /** @type {Record<string,number>} */const symptoms={};
  for(const r of reports)if(r.created_at>=now-DAY){const k=String(r.env.symptom||'other');symptoms[k]=(symptoms[k]||0)+1;}
- const statusPage=pickFact((await factsFor(db,[entity.id])).get(entity.id),'status_page')?.value||null;
- const adapter=provider?STATUS_ADAPTER[provider.id]:undefined;
- const checked=adapter?statusChecked((await collectorState(db,[adapter])).get(adapter),now):false;
- const alias=o.l==='ko'?await koAlias(db,entity.id,nameOf(entity,'ko')):null;
- return {entity,alias,provider,siblings,incidents,checked,hours,baseline,spike,total24,symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
+ const statusPage=pickFact(facts.get(entity.id),'status_page')?.value||null;
+ const collector=adapter?collectors.get(adapter):undefined;
+ const checked=adapter?statusChecked(collector,now):false;
+ const open=incidents.filter(x=>!x.about&&x.status!=='ended');
+ const siblingOpen=incidents.filter(x=>x.about&&x.status!=='ended');
+ const state=statusState({open:open.length>0,spike,checked,total24});
+ return {entity,alias,provider,siblings,incidents,open,siblingOpen,state,checked,checkedAt:collector?.last_success_at??null,hasCollector:!!adapter,hours,baseline,spike,total24,symptoms,statusPage,l:o.l,now,channels:o.channels||[]};
+}
+
+/** Title, description and heading in the words people search with when it breaks: "Claude 지금 안
+ * 돼요?", "클로드 안 됨·먹통·오류". They never state the status itself: search results keep a snippet for
+ * days, and a stale "정상" there would be a false claim. @param {string} name @param {string|null} alias @param {string} l */
+export function statusSeo(name,alias,l){
+ if(l!=='ko')return {h1:`Is ${name} down right now?`,title:`Is ${name} down right now? Live outage and error check | Nerulio`,
+  description:`Is ${name} not working? Official status-page incidents and Nerulio users’ “not working” reports from the last 24 hours, hour by hour and shown separately.`};
+ const label=alias?`${name}(${alias})`:name,word=/[가-힣]/.test(name)?name:alias||name;
+ return {h1:`${label} 지금 안 돼요?`,title:`${label} 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio`,
+  description:`${word} 안 됨·먹통·오류가 나나요? 공식 상태 페이지의 장애 기록과 Nerulio 사용자들의 ‘안 돼요’ 리포트(최근 24시간, 시간별)를 따로 보여줍니다.`};
+}
+
+/** "HH:MM" in the page language's time zone (KST for ko). @param {number} ms @param {string} l */
+const hhmm=(ms,l)=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ[l]||'UTC',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ms));
+/** When the official status was last checked and when the user reports were counted. "정상" is only ever
+ * said within STATUS_FRESH_MS of a successful check (statusChecked); an older check is shown as such.
+ * @param {{checked:boolean,checkedAt:number|null,hasCollector:boolean,now:number,l:string}} m */
+export function freshness(m){
+ const ko=m.l==='ko',at=(/** @type {number} */ ms)=>html`<time datetime="${new Date(ms).toISOString()}">${boardTime(ms,m.now,m.l)}</time>`;
+ const official=!m.hasCollector?(ko?'공식 상태는 자동 확인하지 않아요':'Official status is not checked automatically')
+  :m.checkedAt===null?(ko?'공식 상태 아직 확인 전':'Official status not checked yet')
+  :m.checked?html`${ko?'공식 상태 마지막 확인':'Official status last checked'} ${at(m.checkedAt)}`
+  :html`${ko?'공식 상태 마지막 확인':'Official status last checked'} ${at(m.checkedAt)} ${ko?'(2시간 넘게 지나 ‘정상’으로 표시하지 않아요)':'(over 2 hours ago, so not shown as operational)'}`;
+ return html`<span class="stfo">${official}</span> · <span>${ko?'사용자 리포트':'User reports as of'} <time datetime="${new Date(m.now).toISOString()}">${hhmm(m.now,m.l)}</time>${ko?' 기준':''}${m.l==='en'?' UTC':''}</span>`;
 }
 
 /** 24 bars, one per hour; the dashed line is the week's usual hourly rate. @param {Awaited<ReturnType<typeof loadStatus>>} m */
@@ -47,24 +97,37 @@ ${m.hours.map((h,i)=>i%6===0||i===23?html`<text class="ax" x="${PL+i*bw+bw/2}" y
 </svg></div>`;
 }
 
+/** The one-tap report at the top of the status page: "안 돼요" (won't load) at once, or the symptom. A
+ * click is a vote, never a post; the islands send it with or without an account (/api/v2/reports).
+ * @param {string} id @param {string} name @param {string} l */
+export function reportBox(id,name,l){
+ const ko=l==='ko',[first,...rest]=Object.entries(SYMPTOMS);
+ return html`<div class="stq" id="report" data-island="outage-report" data-entity="${id}"><button class="stbig" type="button" data-symptom="${first[0]}" disabled>${icon(REPORT_ICON,20)}<span>${ko?`${name} 안 돼요`:`${name} isn’t working`}</span></button>
+<div class="stsym" role="group" aria-label="${ko?'다른 증상':'Other symptoms'}">${rest.map(([k,v])=>html`<button class="vb" type="button" data-symptom="${k}" disabled>${v[/** @type {'ko'|'en'} */(l)]}</button>`)}</div>
+<p class="fine" data-report-note>${ko?'누르면 바로 사용자 리포트로 집계돼요 · 한 사람당 1시간에 한 번 · 공식 상태와 따로 셉니다':'One tap counts as a user report · once per person per hour · counted apart from the official status'}</p></div>`;
+}
+
 /** @param {Awaited<ReturnType<typeof loadStatus>>} m @param {{origin:string}} site */
 export function renderStatus(m,site){
- const {entity:e,l,now}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e);
- const open=m.incidents.filter(x=>x.status!=='ended');
- const headline=open.length?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):m.spike?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):m.checked?(ko?`${name}: 공식 장애 없음${m.total24?` · 사용자 리포트 ${m.total24}건(평소 수준)`:''}`:`${name}: no official incident${m.total24?` · ${m.total24} user reports (usual level)`:''}`):(ko?`${name}: 공식 상태 확인 전`:`${name}: official status not checked yet`);
- const state=open.length?'bad':m.spike?'warn':m.checked?'ok':'unk';
- const top=html`<section class="box sthero ${state}"><span class="dot ${state}" aria-hidden="true"></span><div><h1>${ko?`지금 ${m.alias?`${name}(${m.alias})`:name} 장애?`:`Is ${name} down?`}</h1><p class="sth">${headline}</p>
-<p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div></section>`;
- const report=box({title:ko?'지금 문제가 있나요?':'Having problems now?',note:ko?'로그인한 사용자 리포트만 집계 · 한 사람당 1시간에 한 번':'Signed-in reports only · once per person per hour'},html`<div class="vbs sym" data-island="outage-report" data-entity="${e.id}">${Object.entries(SYMPTOMS).map(([k,v])=>html`<button class="vb" type="button" data-symptom="${k}" disabled>${v[/** @type {'ko'|'en'} */(l)]}</button>`)}</div>`);
+ const {entity:e,l,now,state}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e),seo=statusSeo(name,m.alias,l);
+ const headline=state==='bad'?(ko?`${name}: 공식 장애 조사 중`:`${name}: official incident open`):state==='warn'?(ko?`${name}: 사용자 리포트 급증`:`${name}: user reports spiking`):state==='ok'?(ko?`${name}: 공식 장애 없음${m.total24?` · 사용자 리포트 ${m.total24}건(평소 수준)`:''}`:`${name}: no official incident${m.total24?` · ${m.total24} user reports (usual level)`:''}`):(ko?`${name}: 공식 상태 확인 전${m.total24?` · 사용자 리포트 ${m.total24}건`:''}`:`${name}: official status not checked yet${m.total24?` · ${m.total24} user reports`:''}`);
+ const sib=m.siblingOpen.length?html`<p class="fine">${ko?`같은 회사의 다른 서비스에 공식 장애가 진행 중이에요: ${[...new Set(m.siblingOpen.map(x=>nameOf(/** @type {any} */(x.about),l)))].join(', ')}`:`An official incident is open on a related service: ${[...new Set(m.siblingOpen.map(x=>nameOf(/** @type {any} */(x.about),l)))].join(', ')}`}</p>`:'';
+ const top=html`<section class="box sthero ${state}"><span class="sti ${state}">${icon(STATUS_ICON[state],30)}</span><div class="sthb"><h1>${seo.h1}</h1><p class="sth">${headline}</p>${sib}
+<p class="stf fine">${freshness(m)}</p>
+<p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div>
+${reportBox(e.id,name,l)}</section>`;
  const reports=box({title:ko?'최근 24시간 사용자 리포트':'User reports, last 24 hours',extra:badge('COMMUNITY',l),note:ko?html`합계 <span data-total24="${m.total24}">${m.total24}</span>건 · 점선 = 지난 7일 평균`:html`<span data-total24="${m.total24}">${m.total24}</span> total · dashed = 7-day average`},
   html`${chart(m)}${Object.keys(m.symptoms).length?html`<ul class="rows">${Object.entries(m.symptoms).sort((a,b)=>b[1]-a[1]).map(([k,n])=>html`<li><span class="tt">${/** @type {any} */(SYMPTOMS)[k]?.[l]||k}</span><b>${n}</b></li>`)}</ul>`:''}
 <details class="method"><summary>${ko?'표로 보기':'Show as table'}</summary><table class="mt"><thead><tr><th>${ko?'시간':'Hour'}</th><th>${ko?'리포트':'Reports'}</th></tr></thead><tbody>${m.hours.map(h=>html`<tr><td>${boardTime(h.from,now,l)}</td><td>${h.n}</td></tr>`)}</tbody></table></details>`);
- const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${m.checked?(ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'):(ko?'공식 상태 페이지를 아직 수집하지 않았습니다. 위 링크에서 직접 확인해 주세요.':'The official status page has not been collected yet; check it via the link above.')}</p>`);
+ const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.about?html`<span class="chn">${nameOf(x.about,l)}</span> `:''}${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${m.checked?(ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'):(ko?'공식 상태 페이지를 아직 수집하지 않았습니다. 위 링크에서 직접 확인해 주세요.':'The official status page has not been collected yet; check it via the link above.')}</p>`);
  const others=m.siblings.length?box({title:ko?'같은 회사의 다른 서비스':'Other services by the same company'},html`<ul class="rows">${m.siblings.map(x=>html`<li><a class="tt" href="${channelUrl(l,x)}status">${nameOf(x,l)}</a></li>`)}</ul>`):'';
- const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${report}${reports}${inc}</main><aside class="side">${others}</aside></div>`;
- return page({l,title:ko?`지금 ${m.alias?`${name}(${m.alias})`:name} 장애? 실시간 상태와 사용자 리포트 | Nerulio`:`Is ${name} down? Status and user reports | Nerulio`,
-  description:ko?`${m.alias?`${name}(${m.alias})`:name} 지금 안 되나요? 접속 안 됨·느림·오류를 공식 상태 페이지의 장애 기록과 한국 사용자 리포트(최근 24시간, 시간별)로 한 번에 확인하세요.`:`Is ${name} down right now? Official incidents and user reports from the last 24 hours.`,
+ const feed=base+'status/feed.xml';
+ const alerts=box({title:ko?'장애 알림 받기':'Get outage alerts'},html`<div class="pad stn"><p class="fine">${ko?`${name} 채널을 구독하면 공식 장애가 올라오거나 사용자 리포트가 급증할 때 내 레이더로 알려 드려요. RSS로도 받아 볼 수 있어요.`:`Follow ${name} to get official incidents and user-report spikes in My Radar, or read them as RSS.`}</p>
+<div class="stna"><span data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base+'status')}" rel="nofollow" data-signin>${s.follow}</a></span><a class="btn" href="${feed}">${icon(FEED_ICON,16)}${ko?'RSS 피드':'RSS feed'}</a></div></div>`);
+ const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${reports}${inc}</main><aside class="side">${alerts}${others}</aside></div>`;
+ const card=statusCardPath(e.id,state,l);
+ return page({l,title:seo.title,description:seo.description,ogImage:card?{url:card,alt:cardAlt(name,state,l)}:null,feed,feedTitle:ko?`${name} 장애·상태 알림`:`${name} outages and status`,
   canonical:site.origin+base+'status',alternates:{[l]:site.origin+base+'status',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'status'},
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body,
-  jsonld:{'@context':'https://schema.org','@type':'WebPage',name:headline,url:site.origin+base+'status',dateModified:new Date(now).toISOString()}});
+  jsonld:{'@context':'https://schema.org','@type':'WebPage',name:seo.h1,headline,url:site.origin+base+'status',dateModified:new Date(now).toISOString()}});
 }

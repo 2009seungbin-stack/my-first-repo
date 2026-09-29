@@ -106,15 +106,38 @@ test('platform build: PLATFORM=on routes the channel/community prefixes to the W
  assert.throws(()=>configuration({SITE_URL:origin,PLATFORM:'on'}),/SERVICE_API=on/);
  assert.throws(()=>configuration({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'yes'}),/PLATFORM must be on or off/);
  // TRAFFIC_HTML=off: only the platform prefixes are dynamic (the default routes all HTML for bot statistics; tests/traffic.test.mjs).
- await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'},async(out,read)=>{
+ await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off',NAVER_SITE_VERIFICATION:'naverT0ken123'},async(out,read)=>{
   const routes=JSON.parse(await read('_routes.json'));
   for(const p of ['/api/*','/ko/community/*','/en/ai/*','/ko/games/*','/ko/subculture/*'])assert(routes.include.includes(p),p);
   assert(!routes.include.includes('/*')&&!routes.include.some(r=>r.startsWith('/ko/image')),'tool pages stay static');
   assert.match(await read('_worker.js/server/build-info.js'),/"platform":true/);
+  assert.match(await read('_worker.js/server/build-info.js'),/"naver":"naverT0ken123"/,'the Worker gets the ownership tokens for the portal home');
   assert((await read('_worker.js/platform/render/channel.js')).includes('renderChannel'));
   assert((await read('src/platform/n2.css')).includes('.pr{'));
   assert(routes.include.includes('/sitemap-n2-*'));
   assert((await read('sitemap.xml')).includes('sitemap-n2-games.xml'),'entity sitemaps are listed in the index');
   assert((await read('_worker.js/platform/seo.js')).includes('indexable'));
+  const site=origin.replace(/\/$/,'');
+  // The portal: / and /en/ are Worker pages (/ko/ redirects there); the tool home moves to /ko/tools/ and /en/tools/.
+  for(const p of ['/','/ko/','/en/'])assert(routes.include.includes(p),p);
+  for(const l of ['ko','en']){
+   const home=await read(`${l}/tools/index.html`);
+   assert(home.includes(`<link data-site-seo rel="canonical" href="${site}/${l}/tools/">`),`${l} tool home canonical`);
+   assert(home.includes(`hreflang="ja" href="${site}/ja/"`)&&home.includes(`hreflang="x-default" href="${site}/en/tools/"`)&&home.includes('<base href="../../">'));
+   assert(home.includes('<meta name="nerulio-portal" content="on">'));
+  }
+  assert((await read('ja/index.html')).includes(`hreflang="ko" href="${site}/ko/tools/"`),'the Japanese home points at the moved homes');
+  const task=await read('ko/image/compress/index.html');
+  assert(task.includes('data-tools-home href="ko/tools/"'),'← 모든 도구 goes to the tool home');
+  const game=await read('sitemap-game.xml');
+  assert(game.includes(`<loc>${site}/ko/tools/</loc>`)&&game.includes(`<loc>${site}/ja/</loc>`)&&!game.includes(`<loc>${site}/ko/</loc>`)&&!game.includes(`<loc>${site}/</loc>`),'the tool home in the sitemap, the portal in the n2 sitemap');
+ });
+ // Without the platform nothing moves.
+ await withBuild({SITE_URL:origin},async(out,read)=>{
+  const site=origin.replace(/\/$/,'');
+  await assert.rejects(read('ko/tools/index.html'));
+  assert((await read('ko/index.html')).includes(`<link data-site-seo rel="canonical" href="${site}/ko/">`));
+  assert(!(await read('ko/index.html')).includes('nerulio-portal'));
+  assert((await read('ko/image/compress/index.html')).includes('data-tools-home href="ko/"'));
  });
 });

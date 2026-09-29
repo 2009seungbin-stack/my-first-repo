@@ -7,6 +7,7 @@ import {TASK_TOOLS,DIRECTORY} from '../src/task/registry.js';
 import {ui} from '../src/task/strings.js';
 import {SPRITE_EXPORTS,TILE_EXPORTS} from '../src/game-seo.js';
 import {siteHeader,footerBrand,arrow} from './game-chrome.mjs';
+import {pagePath} from '../src/seo.js';
 /** Static HTML for the home directory and single-task pages. Everything a visitor or a
  * crawler needs is in the markup (real links, headings, drop zone); src/task/shell.js adds
  * behaviour. `prefix` is '' for the language-neutral URLs and 'ko/' etc. otherwise. */
@@ -109,7 +110,7 @@ function withFooterBrand(html,locale,prefix){
 }
 export function taskPage({id,locale,prefix,base,title,heading,description,headHTML,contentHTML,landing='',answer=''}){
  const kinds=TASK_TOOLS[id].kinds.map(k=>ui(locale,'kinds.'+k)).join(' · ');
- const body=`${header(locale,prefix,false)}<main class="page" id="task" data-ad-exclude data-tool="${id}" data-landing="${esc(landing)}"><nav class="crumb"><a data-home-link href="${prefix}">← <span data-ui="allTools">${esc(ui(locale,'allTools'))}</span></a> / ${esc(ui(locale,'cat.'+category(id)))}</nav><h1 id="taskTitle">${esc(heading)}</h1><p class="page-lead" id="taskLead">${esc(description)}</p>${answer}
+ const body=`${header(locale,prefix,false)}<main class="page" id="task" data-ad-exclude data-tool="${id}" data-landing="${esc(landing)}"><nav class="crumb"><a data-tools-home href="${prefix?pagePath('',prefix.slice(0,-1)):prefix}">← <span data-ui="allTools">${esc(ui(locale,'allTools'))}</span></a> / ${esc(ui(locale,'cat.'+category(id)))}</nav><h1 id="taskTitle">${esc(heading)}</h1><p class="page-lead" id="taskLead">${esc(description)}</p>${answer}
 <div id="taskApp"><div class="dropzone" data-action="pick" role="button" tabindex="0"><strong>${esc(ui(locale,'taskDrop',{kind:kinds}))}</strong><span>${esc(ui(locale,'multi'))}</span><div class="dropzone-actions"><button type="button" class="primary" data-action="pick">${esc(ui(locale,'pick'))}</button></div><small class="local-note">${esc(ui(locale,'local'))}</small></div></div></main><div id="siteContent">${contentHTML}</div>`;
  return shell({locale,base,title,description,headHTML,body,pageClass:'task-page'});
 }

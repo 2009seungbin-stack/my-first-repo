@@ -16,6 +16,7 @@ import {POLICY_ROUTES} from '../src/policies.js';
 import {policyContent} from '../src/policies.js';
 import {locationParts} from '../src/i18n.js';
 import {BEACON_TAG} from '../tools/traffic-build.mjs';
+const PORTAL_TAG='<meta name="nerulio-portal" content="on">';
 
 /** TOOL_METERING=off (docs/PRICING-MODEL.md, docs/CLOUDFLARE.md): a SERVICE_API + PLATFORM build whose
  * creator tools behave exactly like a build without accounts, while the account layer keeps working. */
@@ -81,11 +82,16 @@ test('SERVICE_API+PLATFORM+TOOL_METERING=off build: every tool page equals the n
   const read=(dir,f)=>readFile(path.join(dir,f),'utf8');
   let compared=0;
   for(const route of ALL_ROUTES){
-   if(POLICY_ROUTES.includes(locationParts('/'+route).path))continue;
+   const where=locationParts('/'+route);
+   if(POLICY_ROUTES.includes(where.path))continue;
+   // The home pages move with the portal (tests/service-build.test.mjs checks them).
+   if(!where.path)continue;
    const f=path.join(route,'index.html'),a=await read(plain,f),b=await read(off,f);
-   // The only addition is the platform's visitor-statistics beacon (TRAFFIC; not metering).
+   // The only additions are the platform's visitor-statistics beacon (TRAFFIC; not metering) and the
+   // portal: its marker and the Korean and English tool home at /{ko,en}/tools/ in links and hreflang.
    assert(b.includes(BEACON_TAG),`${f} has the traffic beacon`);
-   assert.equal(b.replace(BEACON_TAG,''),a,`${f} differs from the build without accounts`);
+   const unportal=(/** @type {string} */ x)=>x.replace(PORTAL_TAG,'').replace(/(\/|")(ko|en)\/tools\//g,'$1$2/');
+   assert.equal(unportal(b.replace(BEACON_TAG,'')),a,`${f} differs from the build without accounts`);
    compared++;
   }
   assert(compared>800,`compared ${compared} pages`);
@@ -100,7 +106,10 @@ test('SERVICE_API+PLATFORM+TOOL_METERING=off build: every tool page equals the n
   // Tool sitemaps and robots are unchanged; pricing is neither built nor listed.
   const areaSitemaps=(await readdir(plain)).filter(f=>/^sitemap-.*\.xml$/.test(f));
   assert(areaSitemaps.length>=2,areaSitemaps.join());
-  for(const f of [...areaSitemaps,'robots.txt'])assert.equal(await read(off,f),await read(plain,f),f);
+  // sitemap-game.xml lists the home, which moves to /{ko,en}/tools/ with the portal (tests/service-build.test.mjs).
+  // (Their <lastmod> follows each page's content hash, and the portal's breadcrumb root is the moved tool home.)
+  const noDates=(/** @type {string} */ x)=>x.replace(/<lastmod>[^<]*<\/lastmod>/g,'');
+  for(const f of [...areaSitemaps.filter(f=>f!=='sitemap-game.xml'),'robots.txt'])assert.equal(noDates(await read(off,f)),noDates(await read(plain,f)),f);
   for(const f of (await readdir(off)).filter(f=>/^sitemap.*\.xml$/.test(f)))assert(!(await read(off,f)).includes('/pricing/'),f);
   for(const l of ['','ko/','en/','ja/'])await assert.rejects(read(off,`${l}pricing/index.html`),`${l}pricing is not built`);
   // The account layer stays: account page (sign-in for the platform), Worker, admin app, verify frame.

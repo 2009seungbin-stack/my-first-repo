@@ -4,8 +4,8 @@
  * no CORS, session cookie auth, app-level burst limits, error codes as the client contract. Reading is
  * anonymous. Members write with their account; posts, comments, votes, reports and images also work
  * without one (유동: nickname + daily ID + edit password, behind Turnstile and per-network limits —
- * server/platform/anon.js). Follows, profile, proposals, compat/benchmark reports and rollout votes stay
- * member-only. After a write, the edge-cached page it changes is purged so the author sees it at once. */
+ * server/platform/anon.js), and so does the bare "안 돼요" outage click on a service. Follows, profile,
+ * proposals, compat/benchmark and written issue reports and rollout votes stay member-only. After a write, the edge-cached page it changes is purged so the author sees it at once. */
 import {runtimeConfig} from '../config.js';
 import {ApiError,json,errorResponse,readJSON} from '../http.js';
 import {resolveContext} from '../identity.js';
@@ -31,10 +31,13 @@ import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,a
 import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
+import {SYMPTOMS} from '../../platform/status-signal.js';
+import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {watchStatus} from './status-watch.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'GET /tags':1,'GET /pins':1,'POST /pins':1,'POST /tags/propose':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
 /** Writes that also work without an account. */
-const ANON_ROUTES=/** @type {Record<string,1>} */({'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /flags':1,'POST /anon/check':1,'POST /uploads':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
+const ANON_ROUTES=/** @type {Record<string,1>} */({'POST /reports':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /flags':1,'POST /anon/check':1,'POST /uploads':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
 /** Edits of an anonymous post or comment: by its password, signed in or not. */
 const ANON_EDITS=/** @type {Record<string,1>} */({'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
 /** 신고 categories: the 0004 reasons plus the ones that hide at once (REPORT.severe). */
@@ -254,6 +257,8 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   if(key==='POST /uploads'){const r=await uploadRoute(x);maybeCleanup(x);return r;}
   if(!context.user&&!ANON_ROUTES[key])throw new ApiError('LOGIN_REQUIRED');
   const body=await readJSON(request,key==='POST /posts'||key==='POST /posts/edit'?64*1024:8192);
+  // Without an account, only the bare "안 돼요" click on a service works; every other report needs one.
+  if(!context.user&&key==='POST /reports'&&!isOutageClick(body))throw new ApiError('LOGIN_REQUIRED');
   // Without an account, or with the password of an anonymous item (its edit works signed in too).
   if(!context.user||key==='POST /anon/check'||(ANON_EDITS[key]&&typeof body.password==='string')){
    const r=await anonRoute(key,body,x);
@@ -457,7 +462,11 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const r=await fileFlag(x,f,{id:context.user.id,key:null});
     return done(r,r.updated?200:201);
    }
-   case 'POST /reports':return done(await report(db,context,body,now,limit,origins),201);
+   case 'POST /reports':{
+    const r=await report(db,context,body,now,limit,origins);
+    if(body.kind==='issue')watchAfterReport(x,String(body.entityId));
+    return done(r,201);
+   }
    case 'POST /rollout':{
     only(body,['featureId','hasIt','country','planId','platform','appVersion']);
     const f=await entity(db,/** @type {string} */(body.featureId));
@@ -682,6 +691,24 @@ async function anonRoute(key,body,x){
    await daily('v',L.votesPerDay);
    return {status:200,body:await castVote(db,{kind,id:body.id,voter:ident.key,value},now)};
   }
+  case 'POST /reports':{
+   // "안 돼요" on a status page without an account: a bare outage click (no text, never a post), behind
+   // the same bot check, ban and vote limits as an anonymous vote. One per daily ID (the network, as for
+   // votes) per service per clock hour; a repeated click answers counted:false and writes nothing.
+   only(body,['kind','entityId','result','env','turnstileToken']);
+   const e=await entity(db,/** @type {string} */(body.entityId));
+   if(e.type!=='service')throw new ApiError('LOGIN_REQUIRED');
+   const env=outageEnv(body.env);
+   await assertNotBanned(db,ident.net,now);
+   await gate(false);
+   await minute('vote',L.votesPerMinute);
+   if(!await takeDaily(db,`issue:${e.id}:${ident.key}`,hourKey(now),1))return {status:200,body:{vote:true,counted:false}};
+   await daily('v',L.votesPerDay);
+   const id=randomToken(12);
+   await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,?,'broken',?,?,?)").bind(id,e.id,JSON.stringify(env),ANON_USER,now,now).run();
+   watchAfterReport(x,e.id);
+   return {status:201,body:{id,vote:true,counted:true,...strict}};
+  }
   case 'POST /flags':{
    only(body,['target','reason','note','turnstileToken']);
    const f=await flagInput(db,body);
@@ -836,6 +863,26 @@ async function purgeTarget(db,origins,kind,id){
  if(kind==='discussion')await purgeImages(origins,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
 }
 
+/** After an outage click on a home status service: is this the start of a spike? (In the background; the
+ * official incidents are the collectors' tick's to announce.) @param {WriteCtx} x @param {string} id */
+function watchAfterReport(x,id){
+ if(!RAIL_SERVICES.some(s=>s.id===id))return;
+ x.ctx?.waitUntil?.(watchStatus({env:x.env,db:x.db,now:x.now,fetch:x.deps.fetch,origin:x.origin},{ids:[id],incidents:false}));
+}
+/** A signed-out report the anonymous path takes: kind issue, result broken, nothing else but the symptom.
+ * @param {any} body */
+export const isOutageClick=body=>!!body&&body.kind==='issue'&&body.result==='broken'&&Object.keys(body).every(k=>['kind','entityId','result','env','turnstileToken'].includes(k));
+/** The symptom and device class of an outage click, from fixed lists only. @param {unknown} v @returns {Record<string,string>} */
+export function outageEnv(v){
+ if(v===undefined)return {};
+ if(!v||typeof v!=='object'||Array.isArray(v))throw new ApiError('BAD_REQUEST','env must be an object.');
+ const o=/** @type {Record<string,unknown>} */(v),out=/** @type {Record<string,string>} */({});
+ for(const k of Object.keys(o))if(k!=='symptom'&&k!=='platform')throw new ApiError('BAD_REQUEST','Invalid env field.');
+ if(o.symptom!==undefined){if(typeof o.symptom!=='string'||!hasOwnKey(SYMPTOMS,o.symptom))throw new ApiError('BAD_REQUEST','Invalid symptom.',{field:'symptom'});out.symptom=o.symptom;}
+ if(o.platform!==undefined){if(o.platform!=='mobile'&&o.platform!=='desktop')throw new ApiError('BAD_REQUEST','Invalid platform.',{field:'platform'});out.platform=o.platform;}
+ return out;
+}
+const hasOwnKey=(/** @type {object} */ o,/** @type {string} */ k)=>Object.prototype.hasOwnProperty.call(o,k);
 /** An outage click counts for an hour: a user who is still affected later can click again (the
  * status page shows reports per hour), but repeated clicks within the hour count once. */
 const ISSUE_VOTE_MS=36e5;

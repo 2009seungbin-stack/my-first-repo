@@ -1,6 +1,8 @@
 // @ts-check
 /** Server-rendered platform pages (architecture D4), only in builds with PLATFORM=on:
- *   /{l}/community/            community front
+ *   / · /en/                   the portal home (Korean · English): the feed, AI status, news (?sort=new)
+ *   /ko/ · /{l}/community/     → 301 to the portal home
+ *   /{l}/community/u/{name}    a member's profile (?tab=comments; noindex)
  *   /{l}/community/best/       전체 베스트 (?period=day|week|month&ch=)
  *   /{l}/community/{ch}/       a channel's board (?kind=&tag=&sort=&best=1&page=, 게임: &platform= | &genre=)
  *   /{l}/community/{ch}/{no} · …/write (?tag=&kind=) · …/best · …/feed.xml
@@ -9,7 +11,7 @@
  *   /{l}/radar/                what changed / what is coming (?v=)
  *   /{l}/{vertical}/{slug}/    tag page: facts and the tag's posts in every channel (?kind=&sort=&best=1&page=&sub=0)
  *   /{l}/{vertical}/{slug}/{no} → 301 to the post's channel address (legacy_posts); …/write → 302 to the
- *   channel's write page with the tag; …/history · …/status · …/local-llm · …/feed.xml
+ *   channel's write page with the tag; …/history · …/status (…/status/feed.xml) · …/local-llm · …/feed.xml
  * Anonymous HTML is identical for everyone (personal state comes from islands), so responses are
  * cached at the edge. Only known query parameters with valid values reach the renderers and the
  * cache key; anything else is redirected to the canonical URL (no cache-busting by ?x=random). */
@@ -26,21 +28,25 @@ import {loadRadar,renderRadar} from '../../platform/render/radar.js';
 import {renderFlag,loadFlagTarget,FLAG_TARGET} from '../../platform/render/flag.js';
 import {renderMod} from '../../platform/render/mod.js';
 import {renderMe} from '../../platform/render/me.js';
+import {loadProfile,renderProfile} from '../../platform/render/profile.js';
 import {loadTransparency,renderTransparency} from '../../platform/render/transparency.js';
 import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
-import {channelFeed,radarFeed,boardFeed} from '../../platform/render/feed.js';
+import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
-import {page,channelName,channelUrl} from '../../platform/render/ui.js';
+import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
 import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
+import {RAIL_SERVICES} from '../../platform/render/rail.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
+/** A member's profile: /{l}/community/u/{nickname} (the nickname URL-encoded). */
+const PROFILE=new RegExp(`^/(${L})/community/u/([^/]{1,160})$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=60';
 /** Security headers of every server-rendered page (the static site's _headers do not apply to Worker responses). */
 export const PAGE_HEADERS=Object.freeze({
@@ -49,9 +55,15 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
+ // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
+ if(pathname==='/')return {l:'ko',page:'front'};
+ if(pathname==='/en/')return {l:'en',page:'front'};
+ if(pathname==='/ko/')return {l:'ko',page:'home-moved'};
+ const pm=PROFILE.exec(pathname);
+ if(pm){let name='';try{name=decodeURIComponent(pm[2]);}catch{return null;}return name&&name.length<=40?{l:pm[1],page:'profile',name}:null;}
  const m=ROUTE.exec(pathname);
  if(!m)return null;
  const [,l,community,best,report,ch,chNo,chSub,top,topFeed,vertical,slug,no,sub]=m;
@@ -61,6 +73,7 @@ export function matchPlatformRoute(pathname){
   return {l,page:chSub==='write'?'board-write':chSub==='best'?'board-best':chSub==='feed.xml'?'board-feed':'board',ch};
  }
  if(sub==='feed.xml')return {l,page:'feed',vertical,slug,no:null};
+ if(sub==='status/feed.xml')return {l,page:'status-feed',vertical,slug,no:null};
  if(community)return {l,page:best?'best':report==='mod'?'mod':report==='me'?'me':report==='transparency'?'transparency':report==='policy'?'policy':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
  if(!slug)return {l,page:'hub',vertical};
@@ -78,6 +91,8 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  'board-best':{page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
  'board-write':{tag:v=>ENTITY_ID.test(v)?v:null,kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
  'legacy-write':{kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
+ front:{sort:v=>v==='new'?'new':null},
+ profile:{tab:v=>v==='comments'?'comments':null},
  best:{period:v=>hasOwn(BEST_PERIODS,v)&&v!=='day'?v:null,ch:v=>CHANNEL_IDS.includes(/** @type {any} */(v))?v:null},
  radar:{v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
  hub:{type:v=>/^[a-z_]{2,20}$/.test(v)?v:null,org:v=>/^[a-z0-9][a-z0-9-]{0,40}$/.test(v)?v:null,sort:v=>v==='cheap'||v==='new'?v:null,vs:v=>/^[a-z0-9][a-z0-9-]{0,60},[a-z0-9][a-z0-9-]{0,60}$/.test(v)&&v.split(',')[0]!==v.split(',')[1]?v.split(',').sort().join(','):null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
@@ -100,12 +115,12 @@ export const resetChannelBarCache=()=>{};
 
 /**
  * Render a platform page, or null when the path is not one (the static site handles it).
- * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[]}} site
+ * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
  */
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
  if(!route||!env.DB)return null;
- const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[]};
+ const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[],verify:site.verify||null};
  // Old addresses (the per-entity boards before the channels, 2026-09-29): 301 to where they live now.
  if(route.page==='front'&&url.searchParams.has('v')){const v=url.searchParams.get('v');if(VERTICALS.includes(/** @type {any} */(v)))return redirect(new URL(channelPath(l,channelOfVertical(String(v))),url).href);}
  if(route.page==='best'&&url.searchParams.has('v')){
@@ -113,6 +128,8 @@ export async function renderPlatformPage(request,env,site){
   if(VERTICALS.includes(/** @type {any} */(v)))q.set('ch',channelOfVertical(String(v)));
   return redirect(new URL(url.pathname+canonicalQuery('best',q),url).href);
  }
+ // /ko/ (the tool home before the portal; the tools are at /{l}/tools/ now) and /{l}/community/ → the portal home.
+ if(route.page==='home-moved'||(route.page==='front'&&url.pathname!==homeUrl(l)))return redirect(new URL(homeUrl(l)+canonicalQuery('front',url.searchParams),url).href);
  const search=canonicalQuery(route.page,url.searchParams);
  // Compare in URLSearchParams' own encoding (":" → "%3A"), so an already canonical URL never redirects.
  const given=url.searchParams.toString().replace(/%2C/gi,',').replace(/%3A/gi,':');
@@ -120,12 +137,13 @@ export async function renderPlatformPage(request,env,site){
  const q=new URLSearchParams(search);
  const bar=()=>channelBar(db,l,now);
  switch(route.page){
-  case 'front':return html(String(renderFront(await loadFront(db,{l,now,channels:await bar()}),s)));
+  case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
   case 'flag':return html(String(renderFlag({l,target:q.get('target'),about:await loadFlagTarget(db,q.get('target'),l),channels:await bar()},s)));
   case 'policy':return html(String(renderPolicy({l,channels:await bar()},s)));
   case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
   case 'me':return html(String(renderMe({l,channels:await bar()},s)));
+  case 'profile':{const m=await loadProfile(db,/** @type {string} */(route.name),{l,now,tab:q.get('tab')||'posts',channels:await bar()});return m?html(String(renderProfile(m,s))):null;}
   case 'mod':return html(String(renderMod({l,channels:await bar()},s)),'private, no-store');
   case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),more:q.get('more')==='1',channels:await bar()}),s)),'private, no-store');
   case 'radar-feed':return xml(await radarFeed(db,l,s.origin));
@@ -158,7 +176,7 @@ export async function renderPlatformPage(request,env,site){
  if(route.page==='hub'){const m=await loadHub(db,/** @type {string} */(route.vertical),{l,now,type:q.get('type'),org:q.get('org'),sort:q.get('sort'),vs:q.get('vs'),page:Number(q.get('page'))||1,channels:await bar()});return m?html(String(renderHub(m,s))):null;}
  const {entity,redirect:moved}=await entityBySlug(db,/** @type {string} */(route.vertical),/** @type {string} */(route.slug));
  if(!entity){
-  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'?'':route.page==='legacy-post'?route.no:route.page==='feed'?'feed.xml':route.page==='legacy-write'?'write':route.page}${search}`,url).href);
+  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'?'':route.page==='legacy-post'?route.no:route.page==='feed'?'feed.xml':route.page==='status-feed'?'status/feed.xml':route.page==='legacy-write'?'write':route.page}${search}`,url).href);
   return null;
  }
  if(route.page==='legacy-post'){
@@ -177,6 +195,7 @@ export async function renderPlatformPage(request,env,site){
   case 'history':return html(String(renderHistory(await loadHistory(db,entity,{l,now,channels}),s)));
   case 'local-llm':return entity.type==='gpu'?html(String(renderLocalLlm(await loadLocalLlm(db,entity,{l,now,channels}),s))):null;
   case 'status':return entity.type==='service'?html(String(renderStatus(await loadStatus(db,entity,{l,now,channels}),s))):null;
+  case 'status-feed':return entity.type==='service'?xml(await statusFeed(db,entity,l,s.origin,now),60):null;
  }
  return html(String(renderChannel(await loadChannel(db,entity,{l,now,kind:q.get('kind'),sort:q.get('sort')||'new',best:q.get('best')==='1',page:Number(q.get('page'))||1,children:q.get('sub')!=='0',channels}),s)));
 }
@@ -192,7 +211,10 @@ const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Recor
  * @param {any} db @param {string} vertical @param {string} origin
  */
 export async function renderSitemap(db,vertical,origin){
- const rows=(await sitemapEntities(db,vertical)).filter(e=>indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
+ // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
+ // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
+ const always=new Set(RAIL_SERVICES.map(x=>x.id));
+ const rows=(await sitemapEntities(db,vertical)).filter(e=>(always.has(e.id)&&e.index_state!=='noindex')||indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
  const urls=[];
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(hub[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(hub.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(hub.en)}"/></url>`);
@@ -200,7 +222,11 @@ export async function renderSitemap(db,vertical,origin){
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // The comparison tables, and (in the AI file) the community front and the Radar.
  // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/'],['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ if(vertical==='ai'){
+  const home={ko:`${origin}/`,en:`${origin}/en/`};
+  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
+ }
  for(const [p] of extra){
   const alt={ko:`${origin}/ko${p}`,en:`${origin}/en${p}`};
   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);
@@ -227,7 +253,7 @@ export async function renderSitemap(db,vertical,origin){
 
 /** Edge cache in front of renderPlatformPage (GET only). The key is the canonical URL, so junk
  * parameters are answered by a cacheable redirect instead of a fresh render.
- * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[]}} site */
+ * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);

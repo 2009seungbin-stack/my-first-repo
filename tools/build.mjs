@@ -18,7 +18,7 @@ import {LOCALES,locationParts,t} from '../src/i18n.js';
 import {INTENTS,intentFor,ROUTES} from '../src/intents.js';
 import {toolContent,labels,footer} from '../src/content.js';
 import {POLICY_ROUTES,policyContent,policies} from '../src/policies.js';
-import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigationData} from '../src/seo.js';
+import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigationData,setPortal,PORTAL_LOCALES} from '../src/seo.js';
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {withBeacon} from './traffic-build.mjs';
@@ -58,7 +58,10 @@ export const withIcons=html=>html.replace(/<link rel="icon"(?: type="image\/svg\
 export function entry(html,route='',siteURL='',config={}){
  html=html.replaceAll('{{brand}}',escape(BRAND.name)).replaceAll('{{initial}}',escape(BRAND.name[0].toLowerCase())).replaceAll('{{logo}}',logoMark());
  siteURL=normalizeSiteURL(siteURL);
- const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
+ const parts=locationParts('/'+route);
+ // PLATFORM=on: the tool home is built at /ko/tools/ and /en/tools/ (the portal owns / and /en/; src/seo.js pagePath).
+ if(config.platform&&parts.path==='tools'&&PORTAL_LOCALES.includes(parts.locale))parts.path='';
+ const locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
  if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL});
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
@@ -105,7 +108,7 @@ export function entry(html,route='',siteURL='',config={}){
  out=out.replace('</head>',head(landing||intent.path,locale,siteURL,config)+structuredData(id,locale,siteURL,landing)+socialMetadata(id,locale,siteURL,land?{title,description}:{})+navigationData(id,locale,siteURL,landing)+'\n</head>');
  return out;
 }
-function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+(config.webAnalytics?'<meta name="web-analytics" content="cloudflare">':'')+adHead(config);}
+function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.platform?'<meta name="nerulio-portal" content="on">':''}${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+(config.webAnalytics?'<meta name="web-analytics" content="cloudflare">':'')+adHead(config);}
 function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
  return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main"${config.service&&config.metering===false?' data-service="accounts"':''}>${policyContent(route,locale,!!config.client,config.service?(config.metering===false?'accounts':true):false,!!config.webAnalytics,!!config.traffic)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
@@ -133,7 +136,8 @@ export async function build(options={}){
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  for(const f of ['favicon.ico','apple-touch-icon.png'])await cp(path.join(ROOT,'assets/brand',f),path.join(dist,f));
  const html=await readFile(path.join(ROOT,'index.html'),'utf8');
- for(const route of ALL_ROUTES){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(withBeacon(withIcons(entry(html,route,siteURL,config)),config)));}
+ setPortal(!!config.platform);
+ for(const route of [...ALL_ROUTES,...(config.platform?PORTAL_LOCALES.map(l=>`${l}/tools`):[])]){const dir=path.join(dist,route);await mkdir(dir,{recursive:true});await writeFile(path.join(dir,'index.html'),noEmailObfuscation(withBeacon(withIcons(entry(html,route,siteURL,config)),config)));}
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));

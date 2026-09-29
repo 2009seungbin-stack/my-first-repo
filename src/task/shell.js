@@ -20,6 +20,11 @@ export const locale=getLocale;
 export const text=(key,vars)=>ui(getLocale(),key,vars);
 export const onLocale=fn=>{listeners.add(fn);return ()=>listeners.delete(fn);};
 export const pagePrefix=()=>page.auto?'':getLocale()+'/';
+const PORTAL_LOCALES=['ko','en'];
+/** PLATFORM=on builds say so in <meta name="nerulio-portal">: the tool home is then /{ko,en}/tools/. */
+const portal=()=>!!document.querySelector('meta[name="nerulio-portal"]');
+/** The tool home in the page's language. */
+export const toolsHomePrefix=()=>pagePrefix()+(portal()&&!page.auto&&PORTAL_LOCALES.includes(getLocale())?'tools/':'');
 export const toolURL=(id,query='')=>localizedURL(INTENTS[id].path,page.auto?null:getLocale(),root,query).href;
 let toastTimer=0;
 export function toast(message,{error=false}={}){
@@ -36,7 +41,8 @@ function applyLocation(){
  const url=new URL(location.href),parts=locationParts(url.pathname,root.pathname);
  page.auto=!parts.locale;page.path=parts.path;page.query=url.searchParams;
  setLocale(localeFromEnvironment(url,root,{storage,languages:navigator.languages||[]}));
- page.id=parts.path?intentFor(parts.path):'home';page.landing=landingFor(parts.path)?.intent===page.id?parts.path:'';
+ // PLATFORM=on builds put the Korean and English tool home at /ko/tools/ and /en/tools/ (the portal owns / and /en/).
+ page.id=parts.path&&!(parts.path==='tools'&&portal())?intentFor(parts.path):'home';page.landing=landingFor(parts.path)?.intent===page.id?parts.path:'';
 }
 function renderChrome(){
  const l=getLocale();document.documentElement.lang=l;
@@ -47,6 +53,7 @@ function renderChrome(){
  const select=$('#languageSelect');if(select){select.options[0].textContent=t('language.auto');select.value=page.auto?'auto':l;}
  for(const el of document.querySelectorAll('[data-ui]'))el.textContent=text(el.dataset.ui);
  for(const a of document.querySelectorAll('[data-home-link]'))a.setAttribute('href',pagePrefix());
+ for(const a of document.querySelectorAll('[data-tools-home]'))a.setAttribute('href',toolsHomePrefix());
  for(const a of document.querySelectorAll('[data-studio-link]'))a.setAttribute('href',pagePrefix()+'game/studio/'+(a.dataset.studioWs?'?ws='+a.dataset.studioWs:''));
  updateSiteContent(page.id,l,page.landing||page.path);
 }
@@ -54,7 +61,9 @@ function changeLanguage(value){
  page.auto=value==='auto';savePreference(page.auto?null:value,storage);
  const url=new URL(location.href);url.searchParams.delete('lang');
  setLocale(page.auto?localeFromEnvironment(new URL(root.href),root,{languages:navigator.languages||[]}):value);
- history.replaceState({},'',localizedURL(page.path,page.auto?null:getLocale(),root,url.search));
+ // The tool home: /ko/tools/ and /en/tools/ with the portal, /ja/ in Japanese.
+ const path=page.id==='home'&&portal()?(!page.auto&&PORTAL_LOCALES.includes(getLocale())?'tools':''):page.path;
+ history.replaceState({},'',localizedURL(path,page.auto?null:getLocale(),root,url.search));page.path=path;
  renderChrome();for(const fn of listeners)fn(getLocale());
  setAnalyticsContext({intent:page.id,language:getLocale()});track('language_change');
 }

@@ -5,6 +5,8 @@
  * on AI channels, so both say the same thing. */
 const HOUR=36e5,DAY=864e5;
 export const SPIKE=Object.freeze({minReports:3,factor:3});
+/** What an outage click can say went wrong (the status page's buttons; the API accepts only these). */
+export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
 
 /** @param {{created_at:number}[]} reports at least the last 8 days @param {number} now */
 export function reportSignal(reports,now){
@@ -15,4 +17,29 @@ export function reportSignal(reports,now){
  const last=hours[23].n+hours[22].n*((HOUR-(now-hourStart))/HOUR);   // a rolling hour across the boundary
  const spike=last>=SPIKE.minReports&&last>=SPIKE.factor*Math.max(baseline,0.34);
  return {hours,baseline,last:Math.round(last),spike,total24:hours.reduce((a,h)=>a+h.n,0)};
+}
+
+/** Spikes of the last `days` days as episodes, per clock hour: an hour is a spike hour when it has at least
+ * SPIKE.minReports reports and SPIKE.factor × the usual hourly rate of the 7 days before it. Consecutive
+ * spike hours make one episode; the one still going (its last hour is the current hour, or the rolling
+ * hour of reportSignal is a spike now) has no end. For the status feed: when a spike started and ended.
+ * @param {{created_at:number}[]} reports the last `days` + 7 days @param {number} now @param {number} [days]
+ * @returns {{start:number,end:number|null,peak:number}[]} oldest first */
+export function spikeEpisodes(reports,now,days=14){
+ const hourStart=Math.floor(now/HOUR)*HOUR,first=hourStart-(days*24-1)*HOUR;
+ const times=reports.map(r=>r.created_at).sort((a,b)=>a-b);
+ /** Reports in [from,to). @param {number} from @param {number} to */
+ const count=(from,to)=>{let lo=0,hi=times.length;while(lo<hi){const m=(lo+hi)>>1;if(times[m]<from)lo=m+1;else hi=m;}let n=0;for(let i=lo;i<times.length&&times[i]<to;i++)n++;return n;};
+ /** @type {{start:number,end:number|null,peak:number}[]} */const out=[];let cur=null;
+ for(let h=first;h<=hourStart;h+=HOUR){
+  const n=count(h,h+HOUR),base=count(h-7*DAY,h)/(7*24);
+  const hit=n>=SPIKE.minReports&&n>=SPIKE.factor*Math.max(base,0.34);
+  if(hit){if(!cur){cur={start:h,end:/** @type {number|null} */(null),peak:n};out.push(cur);}else cur.peak=Math.max(cur.peak,n);}
+  else if(cur){cur.end=h;cur=null;}
+ }
+ // The rolling hour can be a spike before the clock hour has enough reports: that is an episode too.
+ const sig=reportSignal(reports,now);
+ const last=out[out.length-1];
+ if(sig.spike&&!cur){if(last&&last.end===hourStart)last.end=null;else out.push({start:hourStart,end:null,peak:sig.last});}
+ return out;
 }

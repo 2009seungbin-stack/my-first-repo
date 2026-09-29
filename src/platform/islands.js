@@ -525,7 +525,7 @@ async function main(){
  // Comment votes
  for(const a of $$('[data-vote-comment]')){
   a.addEventListener('click',async e=>{e.preventDefault();const id=a.dataset.voteComment,cur=st.votes?.[id]||0;
-   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
+   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;const n=a.querySelector('b');if(n)n.textContent=String(r.up);else a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
  }
 
  // Compat strip (game → Korean patch), driver issue, rollout
@@ -560,16 +560,30 @@ async function main(){
   });});
  }
 
+ // "안 돼요": one tap, with or without an account (the anonymous path when this deployment allows it).
+ const outage=(entityId,symptom)=>write('/reports',{kind:'issue',entityId,result:'broken',env:{symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn,{anon:true});
+ const outageToast=r=>toast(r.counted===false?(L==='ko'?'이번 시간에는 이미 알렸어요. 한 사람당 1시간에 한 번 셉니다.':'Already counted this hour. One report per person per hour.'):(L==='ko'?'리포트를 반영했어요. 한 사람당 1시간에 한 번 셉니다.':'Counted. One report per person per hour.'));
  for(const box of $$('[data-island="outage-report"]')){
+  const note=$('[data-report-note]',box);
+  if(note&&!signedIn&&ANON.enabled)note.textContent=L==='ko'?'로그인 없이 한 번 누르면 사용자 리포트로 집계돼요 · 한 사람당 1시간에 한 번 · 공식 상태와 따로 셉니다':'One tap, no account needed · once per person per hour · counted apart from the official status';
   $$('button',box).forEach(b=>{b.disabled=false;b.addEventListener('click',async()=>{
-   const r=await write('/reports',{kind:'issue',entityId:box.dataset.entity,result:'broken',env:{symptom:b.dataset.symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn);
+   const r=await outage(box.dataset.entity,b.dataset.symptom);
    if(!r)return;
    // Show it counted: one report per person per hour, so only the first click adds to the total.
-   const first=!$$('button.on',box).length;$$('button',box).forEach(x=>x.classList.toggle('on',x===b));
+   const first=!$$('button.on',box).length&&r.counted!==false;$$('button',box).forEach(x=>x.classList.toggle('on',x===b));
    const tot=$('[data-total24]');if(tot&&first){const v=Number(tot.dataset.total24||0)+1;tot.dataset.total24=String(v);tot.textContent=String(v);}
-   toast(L==='ko'?'리포트를 반영했어요. 한 사람당 1시간에 한 번 셉니다.':'Counted. One report per person per hour.');
+   outageToast(r);
   });});
  }
+ // The compact "안 돼요" beside each service on the home status box and the phone strip (a link to the
+ // status page's report box without JavaScript).
+ for(const a of $$('a[data-outage]'))a.addEventListener('click',async e=>{
+  if(e.ctrlKey||e.metaKey||e.shiftKey)return;
+  e.preventDefault();if(a.classList.contains('on'))return outageToast({counted:false});
+  const r=await outage(a.dataset.outage,'down');if(!r)return;
+  for(const x of $$(`a[data-outage="${CSS.escape(a.dataset.outage)}"]`))x.classList.add('on');
+  outageToast(r);
+ });
 
  channels(signedIn);
 
@@ -788,7 +802,7 @@ async function main(){
   const lo=$('[data-logout]',me);lo.hidden=false;
   lo.addEventListener('click',async()=>{
    try{await fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{}'});}catch{}
-   location.href=`/${L}/community/`;});
+   location.href=L==='ko'?'/':`/${L}/`;});
   const [mr,fr0]=await Promise.all([api(`/mine?l=${L}`),api(`/follows?l=${L}`)]);
   if(mr.ok){
    for(const sec of $$('[data-mine]',me))sec.hidden=false;

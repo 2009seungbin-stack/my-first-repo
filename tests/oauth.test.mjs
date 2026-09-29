@@ -380,16 +380,16 @@ test('platform pages: the front box shows the configured buttons; every sign-in 
  const {renderFront}=await import('../platform/render/front.js');
  const {renderMe}=await import('../platform/render/me.js');
  const {signInUrl}=await import('../platform/render/ui.js');
- const m={l:'ko',now:NOW,best:[],latest:[],notice:null,news:[],changes:[],tags:[],upcoming:[],channels:[]};
+ const m={l:'ko',now:NOW,sort:'hot',posts:[],rail:{now:NOW,status:[],news:[],upcoming:[],best:[]},channels:[]};
  const on=String(renderFront(/** @type {any} */(m),{origin:ORIGIN,providers:['github','discord']}));
  const box=on.slice(on.indexOf('class="box login"'),on.indexOf('</section>',on.indexOf('class="box login"')));
  assert(box.includes('GitHub로 계속하기')&&box.includes('Discord로 계속하기')&&!box.includes('Google'),'configured providers only');
- assert(box.includes('/api/v1/auth/github/start?return=%2Fko%2Fcommunity%2F'));
+ assert(box.includes('/api/v1/auth/github/start?return=%2F'));
  const off=String(renderFront(/** @type {any} */(m),{origin:ORIGIN,providers:[]}));
- assert(off.includes(`href="/ko/account/?return=%2Fko%2Fcommunity%2F" rel="nofollow" data-signin`),'no provider: a plain link to the chooser');
+ assert(off.includes(`href="/ko/account/?return=%2F" rel="nofollow" data-signin`),'no provider: a plain link to the chooser');
  assert(!/auth\/google\/start/.test(on+off));
  // Header 로그인 comes back to the page it was clicked on.
- assert(on.includes('class="hb solid" href="/ko/account/?return=%2Fko%2Fcommunity%2F" rel="nofollow" data-signin'));
+ assert(on.includes('class="hb solid" href="/ko/account/?return=%2F" rel="nofollow" data-signin'));
  assert.equal(signInUrl('/en/ai/claude/write'),'/en/account/?return=%2Fen%2Fai%2Fclaude%2Fwrite');
  const me=String(renderMe({l:'ko'},{origin:ORIGIN}));
  assert(me.includes('data-suggested hidden')&&me.includes('Google·GitHub·Discord'));

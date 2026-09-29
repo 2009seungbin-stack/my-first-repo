@@ -134,15 +134,55 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  assert.equal(await loadPost(d,'ai',999999,{l:'ko',now:NOW}),null);
 });
 
-test('community front: overall best, the channel boxes, Radar bot news only, popular tags',{skip:!sqliteAvailable},async()=>{
+test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Radar news and the best on the right',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();
  const m=await loadFront(d,{l:'ko',now:NOW});
  const out=String(renderFront(m,SITE));
- assert(out.includes('★ 전체 베스트')&&out.includes('5070 vs 4070 SUPER'));
- assert(m.news.every(p=>p.bot),'radar news lists Radar bot posts only');
- for(const [id,name] of [['ai','AI'],['games','게임'],['hw','PC·하드웨어'],['studio','창작 도구'],['sub','애니·서브컬처'],['free','자유']])assert(out.includes(`<h2><a href="/ko/community/${id}/">${name}</a></h2>`),id);
- assert(out.includes('인기 태그')&&out.includes('공지·건의'));
- assert(!out.includes('게시판 준비 중')&&!out.includes('준비 중인 게시판'));
+ assert.equal(m.sort,'hot');
+ assert(m.posts.length>=8&&m.posts.every(p=>!p.bot),'the feed has members\' and ㅇㅇ posts, not the Radar bot');
+ const score=(/** @type {any} */ p)=>p.up-p.down+2*p.comments,week=m.posts.filter(p=>p.created_at>=NOW-7*864e5);
+ assert(week.every((p,i)=>i===0||score(week[i-1])>=score(p)),'popular = votes and comments, this week first');
+ assert(out.includes('<link rel="canonical" href="https://nerulio.com/">'),'the Korean home is the site root');
+ assert(out.includes('hreflang="en" href="https://nerulio.com/en/"')&&out.includes('hreflang="x-default" href="https://nerulio.com/"'));
+ assert(out.includes('5070 vs 4070 SUPER')&&out.includes('class="fx"'),'cards show the first lines');
+ assert(out.includes('AI 서비스 상태')&&['Claude','ChatGPT','Gemini'].every(n=>out.includes(`<b>${n}</b>`)));
+ assert(m.rail.news.every(p=>p.bot),'news lists Radar bot posts only');
+ assert(out.includes('파일 도구')&&out.includes('게임 도구')&&out.includes('href="/ko/image/compress/"')&&out.includes('href="/ko/tools/"'),'the menu lists the tools');
+ const latest=await loadFront(d,{l:'ko',now:NOW,sort:'new'});
+ assert(latest.posts.every((p,i)=>i===0||latest.posts[i-1].created_at>=p.created_at),'최신 = newest first');
+ assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
+ // The home is the site root now, so it carries the search engines' ownership tags (not the other pages).
+ const v={google:'g00gleT0ken',naver:'naverT0ken123',bing:'',};
+ const withTags=String(renderFront(m,{...SITE,verify:v}));
+ assert(withTags.includes('<meta name="google-site-verification" content="g00gleT0ken">')&&withTags.includes('<meta name="naver-site-verification" content="naverT0ken123">')&&!withTags.includes('msvalidate.01'));
+ assert(!String(renderFront(latest,{...SITE,verify:v})).includes('site-verification'),'only the canonical home');
+ assert(!String(renderFront(m,{...SITE,verify:{google:'bad token"'}})).includes('site-verification'),'invalid tokens are dropped');
+});
+
+test('member profile: nickname, tier, totals of what they wrote under it, never their ㅇㅇ posts',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const go=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const name='코드장인',url=`/ko/community/u/${encodeURIComponent(name)}`;
+ assert.deepEqual(matchPlatformRoute(url),{l:'ko',page:'profile',name});
+ assert.equal(matchPlatformRoute('/ko/community/u/%E0%A4%A'),null,'broken escapes are not a route');
+ const {profileByName,postsByAuthor}=await import('../platform/db/channel.js');
+ const p=await profileByName(d,name);
+ assert(p&&p.tier==='trusted'&&p.posts===2&&p.comments===1&&p.ups===72,JSON.stringify(p));
+ // A post written as ㅇㅇ by the same account stays off the profile.
+ const [one]=await postsByAuthor(d,p.user_id,1);
+ await d.prepare("INSERT INTO discussions (id,entity_id,post_no,channel_id,channel_no,kind,flair,title,body_md,locale,author_id,status,up_count,down_count,view_count,comment_count,has_image,created_at,last_activity_at,anon_name,anon_id,updated_at) SELECT 'anon-by-member',entity_id,post_no+900,channel_id,channel_no+900,kind,flair,'익명으로 쓴 글','본문',locale,author_id,'published',99,0,0,0,0,created_at,last_activity_at,'ㅇㅇ','a1B2',updated_at FROM discussions WHERE id=?").bind(one.id).run();
+ const again=await profileByName(d,name);
+ assert.equal(again?.posts,2,'ㅇㅇ posts are not counted');assert.equal(again?.ups,72);
+ const res=await go(url);assert.equal(res.status,200);
+ const out=await res.text();
+ assert(out.includes('<h1 id="prof-h">코드장인</h1>')&&out.includes('◆ 신뢰')&&out.includes('<dd>72</dd>'));
+ assert(!out.includes('익명으로 쓴 글'));assert(out.includes('<meta name="robots" content="noindex,follow">'));
+ assert((await (await go(url+'?tab=comments')).text()).includes('비교 프롬프트 공유 가능할까요?'));
+ assert.equal(await go('/ko/community/u/'+encodeURIComponent('없는사람')),null);
+ // Members' names link to their profile; ㅇㅇ and the generated user-xxxxxx do not.
+ const post=await (await go('/ko/community/ai/10')).text();
+ assert(post.includes(`<a href="${url}">코드장인</a>`));
+ assert(!/community\/u\/(%E3%85%87|user-)/.test(post));
 });
 
 test('every entity type renders a channel page in both languages',{skip:!sqliteAvailable},async()=>{
@@ -188,6 +228,12 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert.equal((await go('/ko/ai/claude/?x=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?page=1.5&kind=constructor&sort=new')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?sort=top&kind=question&utm=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/?kind=question&sort=top');
+ // The portal home: / (Korean) and /en/; /ko/ (the old tool home) and the community fronts move there.
+ assert.deepEqual(matchPlatformRoute('/'),{l:'ko',page:'front'});assert.deepEqual(matchPlatformRoute('/en/'),{l:'en',page:'front'});
+ assert.equal(matchPlatformRoute('/ja/'),null,'the Japanese tool home stays static');
+ assert.equal((await go('/')).status,200);assert.equal((await go('/en/')).status,200);
+ for(const [from,to] of [['/ko/','/'],['/ko/community/','/'],['/en/community/','/en/'],['/ko/community/?sort=new','/?sort=new'],['/?sort=hot&x=1','/']])assert.equal((await go(from)).headers.get('location'),'https://nerulio.com'+to,from);
+ assert.equal((await go('/ko/community/?v=games')).headers.get('location'),'https://nerulio.com/ko/community/games/','old ?v= links still reach their channel');
  // Channel boards: 말머리 of the channel only; platform/genre filters on 게임 only.
  assert.equal((await go('/ko/community/ai/')).status,200);
  assert.equal((await go('/ko/community/ai/?kind=patch')).headers.get('location'),'https://nerulio.com/ko/community/ai/');
@@ -247,7 +293,10 @@ test('status, history and write pages render; status is only for services',{skip
  const get=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
  const st=await get('/ko/ai/claude/status');
  const html=await st.text();
- assert(html.includes('지금 Claude(클로드) 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('<h1>Claude(클로드) 지금 안 돼요?</h1>')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('<title>Claude(클로드) 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio</title>'),'the title is what people search when it breaks');
+ assert(html.includes('사용자 리포트 <time')&&html.includes('공식 상태 아직 확인 전'),'freshness: when reports were counted, and that the official status was never checked');
+ assert(!html.includes('정상'),'no "정상" without a recent official check');
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
  // With a reference rate, USD plan prices get "≈ ₩" and the rate's date.
@@ -278,7 +327,7 @@ test('content gate: thin name-only channels are noindex and left out of the enti
  assert(xml.startsWith('<?xml')&&xml.includes('https://nerulio.com/ko/hardware/rtx-5070/')&&xml.includes('hreflang="en"'));
  assert(xml.includes('/ko/hardware/?type=gpu&amp;vs=rtx-3090,rtx-4090'),'successor GPU pairs are listed');
  const ai=await renderSitemap(d,'ai','https://nerulio.com');
- assert(ai.includes('/ko/ai/claude/status'),'service status pages are listed');
+ for(const slug of ['claude','chatgpt','gemini-app'])for(const l of ['ko','en'])assert(ai.includes(`https://nerulio.com/${l}/ai/${slug}/status<`),`${l} ${slug} status page is listed`);
  // A company page with only a name and a relation or two is not indexable.
  const thin=(await d.prepare("SELECT e.slug FROM entities e WHERE e.type='org' AND NOT EXISTS (SELECT 1 FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AND e.descriptions='{}' LIMIT 1").first());
  if(thin){
@@ -311,7 +360,7 @@ test('model channels: official API price, price history area, local-run estimate
  assert(g.out.includes('로컬에서 돌리려면')&&g.out.includes('12GB 카드부터'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec((await channel('games','caves-of-qud')).out)[1]);
  assert.equal(ld['@graph'][0].about.additionalType,'https://schema.org/VideoGame','typed without claiming a rich result it cannot fill');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
- assert(!(await channel('games','caves-of-qud')).out.includes('스프라이트 랩'),'game-asset tools are not linked from every game');
+ assert(!(await channel('games','caves-of-qud')).out.replace(/<aside class="lnav"[\s\S]*?<\/aside>/,'').includes('스프라이트 랩'),'game-asset tools are not linked from every game (the site menu lists them on every page)');
 });
 
 test('Korean patch: a game update past the last confirmed version is flagged; patch channel links to the author only',{skip:!sqliteAvailable},async()=>{
@@ -379,4 +428,98 @@ test('community rules page and the wiki box\'s last-checked date',{skip:!sqliteA
  const ch=await go('/ko/hardware/rtx-5070/');
  assert(/\d\d\.\d\d 확인<\/span> · 기록/.test(ch),'last-checked date next to the history link');
  assert(ch.includes('href="/ko/community/policy"'),'footer links the rules');
+});
+
+test('status page copy: search words, separate labels, and "정상" only after a recent official check',{skip:!sqliteAvailable},async()=>{
+ const {statusSeo,freshness}=await import('../platform/render/status.js');
+ const ko=statusSeo('Claude','클로드','ko');
+ assert.equal(ko.title,'Claude(클로드) 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio');
+ assert(ko.description.startsWith('클로드 안 됨·먹통·오류가 나나요?')&&ko.description.includes('공식 상태 페이지')&&ko.description.includes('사용자들의 ‘안 돼요’ 리포트'));
+ assert(statusSeo('제미나이','Gemini','ko').description.startsWith('제미나이 안 됨'),'the Korean name is the search word');
+ assert.equal(statusSeo('ChatGPT',null,'en').h1,'Is ChatGPT down right now?');
+ for(const x of [ko,statusSeo('ChatGPT','챗GPT','ko'),statusSeo('ChatGPT',null,'en')])assert(!/정상|operational|no incident/i.test(x.title+x.description),'search snippets never state the status');
+ const f=o=>String(freshness({l:'ko',now:NOW,hasCollector:true,checked:false,checkedAt:null,...o}));
+ assert(f({checked:true,checkedAt:NOW-20*6e4}).includes('공식 상태 마지막 확인 <time datetime="2026-09-28T05:40:00.000Z">14:40</time>'));
+ assert(f({checked:false,checkedAt:NOW-5*36e5}).includes('2시간 넘게 지나'),'a stale check says so');
+ assert(f({}).includes('공식 상태 아직 확인 전'));
+ assert(f({hasCollector:false}).includes('자동 확인하지 않아요'));
+ assert(f({}).includes('<time datetime="2026-09-28T06:00:00.000Z">15:00</time> 기준'),'user reports as of the render time, in Korea time');
+ // Checked recently and quiet: the page says "no official incident" and the ChatGPT page uses 챗GPT.
+ const d=await seeded();
+ await d.prepare("INSERT OR REPLACE INTO collectors (adapter,vertical,last_success_at) VALUES ('openai-status','ai',?)").bind(NOW-600e3).run();
+ const res=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/chatgpt/status'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const out=await res.text();
+ await d.prepare("DELETE FROM collectors WHERE adapter='openai-status'").run();
+ assert(out.includes('<h1>ChatGPT(챗GPT) 지금 안 돼요?</h1>')&&out.includes('공식 장애 없음')&&out.includes('공식 상태 마지막 확인'));
+ const gem=await (await renderPlatformPage(new Request('https://nerulio.com/ko/ai/gemini-app/status'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ assert(gem.includes('<h1>제미나이(Gemini) 지금 안 돼요?</h1>')&&gem.includes('자동 확인하지 않아요'),'Gemini has no status collector: said plainly');
+});
+
+test('"안 돼요" everywhere it matters: at the top of the status page, beside each service on the home box and the phone strip',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const st=await get('/ko/ai/claude/status');
+ const hero=st.slice(st.indexOf('class="box sthero'),st.indexOf('</section>',st.indexOf('class="box sthero')));
+ assert(hero.includes('id="report" data-island="outage-report" data-entity="service:claude"')&&hero.includes('class="stbig"')&&hero.includes('Claude 안 돼요'),'the one-tap report is in the first box');
+ assert.equal((st.match(/data-island="outage-report"/g)||[]).length,1,'one report box');
+ const home=await get('/');
+ for(const s of ['claude','chatgpt','gemini-app'])assert.equal((home.match(new RegExp(`data-outage="service:${s}"`,'g'))||[]).length,2,`${s}: on the right column and the phone strip`);
+ assert(home.includes('href="/ko/ai/claude/status#report"'),'without JavaScript it opens the report box');
+ assert((await get('/en/')).includes('aria-label="Report Claude not working"'));
+});
+
+test('share cards: one per service × state × language, 1200×630, and the status page picks the one for its state',{skip:!sqliteAvailable},async()=>{
+ const {readFileSync}=await import('node:fs');
+ const {CARD_SERVICES,CARD_STATES,statusCardPath,cardLabel}=await import('../platform/status-card.js');
+ const {ogImageUrl}=await import('../platform/render/ui.js');
+ const d=await seeded();
+ for(const s of CARD_SERVICES){
+  assert(await d.prepare("SELECT 1 FROM entities WHERE id=? AND slug=?").bind(s.id,s.slug).first(),`${s.id} is at /ai/${s.slug}/`);
+  for(const st of CARD_STATES)for(const l of ['ko','en']){
+   const png=readFileSync(new URL(`..${statusCardPath(s.id,st,l)}`,import.meta.url));
+   assert.equal(png.readUInt32BE(16),1200);assert.equal(png.readUInt32BE(20),630);assert(png.length<60e3,'small');
+  }
+ }
+ assert.equal(statusCardPath('service:claude-code','warn','ko'),null,'other services keep the site card');
+ assert.equal(statusCardPath('service:claude','maybe','ko'),null);
+ assert.equal(cardLabel('warn','ko'),'리포트 급증');assert.equal(cardLabel('unk','ko'),'지금 안 돼요?','no claim without data');
+ assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-home.png','only our own origin');
+ const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const claude=await get('/ko/ai/claude/status');
+ assert(claude.includes('<meta property="og:image" content="https://nerulio.com/assets/social/ko-status-claude-warn.png">')&&claude.includes('<meta property="og:image:alt" content="Claude · 리포트 급증">'),'a spike of reports: the spike card');
+ assert((await get('/en/ai/gemini-app/status')).includes('/assets/social/en-status-gemini-app-unk.png'),'no status collector for Gemini: the question card');
+ assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-home.png'));
+ assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-home.png'),'other pages keep the site card');
+});
+
+test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{
+ const {spikeEpisodes,SPIKE}=await import('../platform/status-signal.js');const H=36e5;
+ const now=Date.UTC(2026,8,28,6,30);
+ const at=(hoursAgo,n)=>Array.from({length:n},(_,i)=>({created_at:Math.floor(now/H)*H-hoursAgo*H+i*1000}));
+ // Quiet week (1 per day), a 3-hour spike two days ago, one now.
+ const quiet=Array.from({length:20},(_,i)=>({created_at:now-(i+3)*864e5+7*H}));
+ const eps=spikeEpisodes([...quiet,...at(50,4),...at(49,6),...at(48,SPIKE.minReports),...at(0,5)],now);
+ assert.equal(eps.length,2);
+ assert.equal(eps[0].start,Math.floor(now/H)*H-50*H);assert.equal(eps[0].end,Math.floor(now/H)*H-47*H);assert.equal(eps[0].peak,6);
+ assert.equal(eps[1].end,null,'the spike going on now has no end');
+ assert.deepEqual(spikeEpisodes(quiet,now),[],'a quiet week has no spike');
+ assert.deepEqual(spikeEpisodes([...quiet,...at(10,2)],now),[],'fewer than SPIKE.minReports is never a spike');
+ assert.equal(matchPlatformRoute('/ko/ai/claude/status/feed.xml').page,'status-feed');
+ const d=await seeded();
+ await d.prepare("INSERT INTO events (id,entity_id,kind,title,starts_at,ends_at,date_precision,region,url,status,verification,created_at,updated_at) VALUES (9901,NULL,'other',?,?,?,'time','*','https://status.claude.com/incidents/abc','ended','OFFICIAL',?,?)").bind(JSON.stringify({en:'Elevated errors on Claude.ai'}),NOW-5*H,NOW-4*H,NOW,NOW).run();
+ await d.prepare("INSERT INTO event_entities (event_id,entity_id,role) VALUES (9901,'service:claude','about')").run();
+ const get=p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const r=await get('/ko/ai/claude/status/feed.xml');
+ assert.equal(r.status,200);assert.match(r.headers.get('content-type'),/rss\+xml/);
+ const xml=await r.text();
+ await d.prepare("DELETE FROM event_entities WHERE event_id=9901").run();await d.prepare("DELETE FROM events WHERE id=9901").run();
+ assert(xml.includes('<title>Claude(클로드) 장애·상태 알림 — Nerulio</title>'));
+ assert(xml.includes('<title>Claude 공식 장애: Elevated errors on Claude.ai</title>')&&xml.includes('<title>Claude 공식 장애 해결: Elevated errors on Claude.ai</title>'),'official start and end');
+ assert(xml.includes('<guid isPermaLink="false">incident:9901:end</guid>'));
+ assert(xml.includes('<title>Claude 사용자 리포트 급증 시작</title>')&&xml.includes('<category>사용자 리포트</category>'),'the demo clicks of the last hour are a user-report spike, labelled as such');
+ assert(!xml.includes('정상'));
+ const page=await (await get('/ko/ai/claude/status')).text();
+ assert(page.includes('<link rel="alternate" type="application/rss+xml" href="/ko/ai/claude/status/feed.xml" title="Claude 장애·상태 알림">'));
+ assert.equal(await get('/ko/hardware/rtx-5070/status/feed.xml'),null,'services only');
+ assert.equal((await get('/ko/ai/claude/status/feed.xml?x=1')).status,301);
 });

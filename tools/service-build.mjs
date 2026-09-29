@@ -23,8 +23,9 @@ export function serviceMeta(config){
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
 export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
-/** Server-rendered platform prefixes (PLATFORM=on): community front, the vertical channels and community images (/u/). */
-export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);
+/** Server-rendered platform prefixes (PLATFORM=on): the portal home (/ and /en/; /ko/ redirects to /), the
+ * community, the vertical channels and community images (/u/). */
+export const PLATFORM_ROUTES=Object.freeze(['/','/ko/','/en/',...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*','/u/*']);
 export function serviceRoutes(config){
  // Traffic statistics (PLATFORM builds): robots.txt and sitemaps always wake the Worker (crawler signal);
  // TRAFFIC_HTML (default on; off to opt out) routes every page like the ads build does (tools/traffic-build.mjs).
@@ -74,7 +75,7 @@ export async function emitService(dist,config,head){
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});for(const f of ['quota.js','signin-brands.js'])await cp(new URL(`src/${f}`,root),path.join(worker,'src',f));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
- await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml,metering:config.metering!==false})});\n`);
+ await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',verify:{google:config.searchVerification||'',naver:config.naverVerification||'',bing:config.bingVerification||''},traffic:!!config.traffic,trafficHtml:!!config.trafficHtml,metering:config.metering!==false})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
  // The owner-only admin app (static; /admin/* never reaches the Worker) exists only with PLATFORM=on.

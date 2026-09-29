@@ -42,7 +42,7 @@ test('reading state is anonymous; member-only writes need an account, anonymous 
  assert.equal(s.status,200);assert.equal(s.json.signedIn,false);
  const w=await h.call('POST','/posts',{body:{entityId:'game:steam-1',kind:'question',title:'질문 있어요',body:'본문'}});
  assert.equal(w.status,400);assert.equal(w.json.error.field,'password','writing without an account needs an edit password');
- for(const [path,body] of [['/follow',{entityId:'game:steam-1'}],['/profile',{displayName:'누구'}],['/rollout',{featureId:'feature:feat',hasIt:true}],['/reports',{kind:'issue',entityId:'service:svc',result:'broken'}]]){
+ for(const [path,body] of [['/follow',{entityId:'game:steam-1'}],['/profile',{displayName:'누구'}],['/rollout',{featureId:'feature:feat',hasIt:true}],['/reports',{kind:'issue',entityId:'service:svc',result:'broken',comment:'자세히'}],['/reports',{kind:'compat',entityId:'translation_patch:test-game-ko',targetId:'game:steam-1',result:'works'}]]){
   const r=await h.call('POST',path,{body});
   assert.equal(r.status,401,path);assert.equal(r.json.error.code,'LOGIN_REQUIRED');
  }
