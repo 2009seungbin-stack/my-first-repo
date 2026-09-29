@@ -8,7 +8,7 @@
  *   Pro, an unreachable service or no answer in time → no Google request and no ad DOM for
  *   this page. The decision never changes during the page's life (no late layout shift).
  * - Accounts on: Studio exports are metered (meter.js) with the Studio's own limit dialog. */
-import {enabled,load,current,openSignIn,onSignIn} from '../../entitlement.js';
+import {enabled,meteringOn,load,current,openSignIn,onSignIn} from '../../entitlement.js';
 import {adsForSession} from './layout.js';
 import {mountAdColumn} from './ad-column.js';
 import {bindStudio} from './meter.js';
@@ -30,11 +30,12 @@ export async function prepareMonetization(){
  const decision=adsForSession(ad,entitlement);
  const out={decision,ad:null,attach(studio,root){
   if(!root)return out;
-  const pricingURL=enabled?l=>new URL(`${l}/pricing/`,document.baseURI).href:null;
+  // No Pro link when the Worker says the tools are not metered (TOOL_METERING=off): there is nothing to buy.
+  const pricingURL=enabled&&meteringOn()?l=>new URL(`${l}/pricing/`,document.baseURI).href:null;
   if(decision.ads)out.ad=mountAdColumn(root,{client:ad.client,slot:ad.slot,pricingURL});
   if(enabled){
    const refresh=startRemainingNotes(root,()=>studio.locale);
-   bindStudio(studio,{usageChanged:refresh,onLimit:info=>showStudioLimit(studio,root,{...info,pricingURL:pricingURL(studio.locale)}),
+   bindStudio(studio,{usageChanged:refresh,onLimit:info=>showStudioLimit(studio,root,{...info,pricingURL:pricingURL?.(studio.locale)||null}),
     onSignIn:info=>showStudioSignIn(studio,root,{...info,openSignIn})});
    // Sign-in finished in the other tab: say so quietly; the project was never touched.
    onSignIn(()=>{refresh();studio.toast(mt(studio.locale,'meter.signedIn'));});

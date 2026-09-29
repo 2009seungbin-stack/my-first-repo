@@ -72,12 +72,15 @@ async function counter(ctx,cfg,db,now,cls){
 const ANON_STUDIO='#anon-studio';
 const clientIP=request=>request.headers.get('cf-connecting-ip')||'';
 async function me(request,ctx,cfg,db,now){
- const [usage,studio]=ctx.plan==='pro'?[null,null]:await Promise.all([counter(ctx,cfg,db,now,'heavy'),counter(ctx,cfg,db,now,'studio')]);
+ // TOOL_METERING=off: no counters are read, no offline tokens exist and everyone sees ads (as on a build
+ // without accounts). usage is {unlimited:true} so pages built while metering was on show no counts.
+ const metered=cfg.metering,ads=!metered||ctx.plan!=='pro';
+ const [usage,studio]=ctx.plan==='pro'||!metered?[null,null]:await Promise.all([counter(ctx,cfg,db,now,'heavy'),counter(ctx,cfg,db,now,'studio')]);
  // Signed offline allowance: only for Free identities, never more than what is left today, and
  // only once the identity has done one counted job of that class today — so a fresh identity
  // (cleared site data) cannot collect uncounted tokens without first using its network's share.
  let grace;
- if(ctx.plan!=='pro'&&cfg.graceExports>0){
+ if(metered&&ctx.plan!=='pro'&&cfg.graceExports>0){
   const n=u=>u.used>0?Math.min(cfg.graceExports,u.remaining):0;
   grace={day:quotaDay(now),heavy:await graceTokens(cfg.secret,ctx.subject,'heavy',now,n(usage)),studio:await graceTokens(cfg.secret,ctx.subject,'studio',now,n(studio))};
  }
@@ -88,10 +91,11 @@ async function me(request,ctx,cfg,db,now){
  }
  // Signed plan, bound to the page's nonce for this request (a copied answer is useless).
  const nonce=ctx.url.searchParams.get('n')||'';
- const entitlement=NONCE.test(nonce)?await signTicket(cfg.ticketKey,{kind:'me',n:nonce,plan:ctx.plan,ads:ctx.plan!=='pro',loggedIn:!!ctx.user}):undefined;
+ const entitlement=NONCE.test(nonce)?await signTicket(cfg.ticketKey,{kind:'me',n:nonce,plan:ctx.plan,ads,loggedIn:!!ctx.user}):undefined;
  return {
   ...(entitlement?{entitlement}:{}),
-  loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),studioUsage:publicUsage(ctx.plan,studio),
+  loggedIn:!!ctx.user,plan:ctx.plan,ads,usage:metered?publicUsage(ctx.plan,usage):{unlimited:true},studioUsage:metered?publicUsage(ctx.plan,studio):{unlimited:true},
+  ...(metered?{}:{metering:false}),
   ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   ...(grace?{grace}:{}),
   billing:{mode:cfg.billing.mode,yearly:!!cfg.billing.prices.year},
@@ -140,6 +144,9 @@ async function authorize(request,ctx,cfg,env,now,deps){
  const op=body.operationId.toLowerCase();
  const ticket=plan=>signTicket(cfg.ticketKey,{kind:'job',op,tool:body.toolId,plan});
  if(ctx.plan==='pro')return {allowed:true,unlimited:true,plan:'pro',ticket:await ticket('pro')};
+ // TOOL_METERING=off: only a page built while metering was on still asks. Allow it, count nothing and
+ // write nothing; the numbers keep that page's usage display quiet (remaining = the full daily limit).
+ if(!cfg.metering){const limit=limitFor(cfg,cls);return {allowed:true,metered:false,plan:'free',kind:cls,used:0,limit,remaining:limit,resetAt:resetAt(now),ticket:await ticket('free')};}
  const nets=await networkSubjects(clientIP(request),cfg.secret,now);
  await rateLimit(request,ctx,env,deps,cfg,now,'authorize',nets);
  await networkGate(request,ctx,cfg,db,now,deps,nets,body,cls);
@@ -176,6 +183,8 @@ async function reconcile(request,ctx,cfg,env,now,deps){
  const body=fields(await readJSON(request,2048),['tokens']);
  const tokens=[...new Set(String(body.tokens||'').split(',').map(s=>s.trim()).filter(Boolean))].slice(0,20);
  if(ctx.plan==='pro')return {charged:0,invalid:0};
+ // Nothing is counted while the tools are not metered: tokens spent earlier are simply forgotten.
+ if(!cfg.metering)return {charged:0,invalid:0,metered:false};
  const nets=await networkSubjects(clientIP(request),cfg.secret,now);
  await rateLimit(request,ctx,env,deps,cfg,now,'reconcile',nets);
  let charged=0,invalid=0;
@@ -193,6 +202,8 @@ async function checkout(request,ctx,cfg,env,deps,now){
  if(!ctx.user)throw new ApiError('LOGIN_REQUIRED');
  if(ctx.user.flagged_at)throw new ApiError('ACCOUNT_FLAGGED','This account needs a review before a new purchase. Please contact support.');
  if(ctx.plan==='pro')throw new ApiError('ALREADY_PRO','You already have Nerulio Pro.');
+ // Pro lifts limits and ads; with TOOL_METERING=off there are neither, so it is not sold.
+ if(!cfg.metering)throw new ApiError('BILLING_UNAVAILABLE','Pro is not on sale while the tools have no daily limits.');
  const provider=billingProvider(cfg);if(!provider)throw new ApiError('BILLING_UNAVAILABLE','Purchases are not available yet.');
  const interval=body.interval==='year'?'year':'month',priceId=cfg.billing.prices[interval];
  if(!priceId&&provider.name!=='sandbox')throw new ApiError('PRICE_UNAVAILABLE','This billing interval is not offered.');
@@ -246,7 +257,7 @@ async function adminStats(ctx,cfg,db,now){
  return {day,users:users.results[0].n,proActive:pro.results[0].n,freeHeavyJobsToday:usage.results[0].n,freeStudioExportsToday:usage.results[0].studio,authorizationsToday:jobs.results[0].total,deniedToday:jobs.results[0].denied,
   refusalsToday:Object.fromEntries(refusals.results.map(r=>[r.kind,r.n])),flaggedAccounts:flags.results[0].n,pastDueSubscriptions:pastDue.results[0].n,
   sharingSuspects:sharing.results.map(r=>({userId:r.user_id,networks:r.networks,pro:!!r.pro})),sharingThreshold:cfg.sharingNetworks,
-  billingEvents24h:events.results[0].total,billingEventsIgnored24h:events.results[0].ignored,billing:cfg.billing.mode,environment:cfg.environment};
+  billingEvents24h:events.results[0].total,billingEventsIgnored24h:events.results[0].ignored,billing:cfg.billing.mode,toolMetering:cfg.metering,environment:cfg.environment};
 }
 const ROUTES={
  'GET /health':1,'GET /me':1,'GET /usage':1,'POST /jobs/authorize':1,'POST /jobs/reconcile':1,'GET /auth/google/start':1,'GET /auth/google/callback':1,
@@ -266,7 +277,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
   const cfg=runtimeConfig(env),now=deps.now(),db=env.DB;
   if(key==='GET /health'){
    let database=false;if(db)try{database=(await db.prepare('SELECT 1 AS ok').first())?.ok===1;}catch{}
-   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),github:!!(cfg.oauth.github.clientId&&cfg.oauth.github.clientSecret),discord:!!(cfg.oauth.discord.clientId&&cfg.oauth.discord.clientSecret),providers:configuredProviders(cfg),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
+   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,metering:cfg.metering,google:!!(cfg.google.clientId&&cfg.google.clientSecret),github:!!(cfg.oauth.github.clientId&&cfg.oauth.github.clientSecret),discord:!!(cfg.oauth.discord.clientId&&cfg.oauth.discord.clientSecret),providers:configuredProviders(cfg),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
     ...(cfg.environmentOverrideRefused?{warning:'NERULIO_ENV=development is ignored on this build'}:{})});
   }
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
@@ -278,6 +289,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
    case 'GET /me':return done(await me(request,context,cfg,db,now));
    case 'GET /usage':{
     if(context.plan==='pro')return done({plan:'pro',usage:{unlimited:true},studioUsage:{unlimited:true}});
+    if(!cfg.metering)return done({plan:context.plan,metering:false,usage:{unlimited:true},studioUsage:{unlimited:true}});
     const [usage,studioUsage]=await Promise.all([counter(context,cfg,db,now,'heavy'),counter(context,cfg,db,now,'studio')]);
     return done({plan:context.plan,usage,studioUsage});
    }

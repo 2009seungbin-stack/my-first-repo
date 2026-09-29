@@ -16,10 +16,16 @@ import {verifyTicket,newNonce} from './ticket-verify.js';
  *   Light tools never call the API and are never affected.
  * - Signed answers: when the build carries the service's public key (TICKET_PUBLIC_KEY), the plan
  *   in /me and every "allowed" are accepted only with a valid signature bound to the nonce this
- *   page chose for that request. A rewritten or replayed answer counts as no answer. */
+ *   page chose for that request. A rewritten or replayed answer counts as no answer.
+ * - TOOL_METERING=off: tool pages carry no service meta at all (the build omits it), so all of the
+ *   above is inert there. The account page's meta says {metering:false}; and a page built while
+ *   metering was on sees /me say metering:false once the Worker has it off — either way nothing is
+ *   authorized, counted or refused and ads are shown as in a build without accounts. */
 const meta=document.querySelector('meta[name="nerulio-service"]');
 let config=null;try{config=meta?JSON.parse(meta.content):null;}catch{config=null;}
 const API=config?new URL(config.api||'api/v1/',document.baseURI).pathname:'';
+/** Free/Pro metering of the tools is active on this page (SERVICE_API=on without TOOL_METERING=off). */
+const metered=!!config&&config.metering!==false;
 const GRACE_KEY='nerulio.grace.v2';
 let status=config?'idle':'disabled';// disabled | idle | loading | ready | unconfigured | offline
 let me=null,loading=null,inFlight=false,signInPending=false;
@@ -90,9 +96,9 @@ async function ensureLoaded(){
 /** Ads are shown only when the server says so. Accounts disabled or not configured keeps
  * the previous site-wide behaviour; if the service is unreachable we do not guess. */
 export async function adsAllowed(){
- if(!config)return true;
+ if(!metered)return true;
  await load();
- return status==='unconfigured'||(status==='ready'&&me?.ads===true);
+ return status==='unconfigured'||(status==='ready'&&(me?.ads===true||me?.metering===false));
 }
 // ------------------------------------------------------------------ sign-in (free, new tab)
 /** The sign-in chooser: the account page, which lists the configured providers (Google, GitHub,
@@ -137,12 +143,14 @@ const OUTAGE=r=>r.status===0||r.status>=500||['NETWORK','OFFLINE','SERVICE_NOT_C
  * {notice(key,vars), limit(info), signIn(info), lowAt}. */
 export async function authorize(toolId,options={},ui={}){
  const id=meteredTool(toolId,options);
- if(!id||!config)return true;
+ if(!id||!metered)return true;
  const kind=quotaClass(id),say=ui.notice||notice,lowAt=ui.lowAt??5;
  if(inFlight)return false;// a second click while the first check is pending
  inFlight=true;
  try{
   await ensureLoaded();
+  // The Worker has tool metering off (TOOL_METERING=off at runtime): nothing to authorize.
+  if(status==='ready'&&me?.metering===false)return true;
   if(status==='ready'&&me?.plan==='pro')return true;// Pro: direct local processing for this page session
   const operationId=crypto.randomUUID();
   let r=status==='ready'?await send(id,operationId):{ok:false,status:0,code:status==='unconfigured'?'SERVICE_NOT_CONFIGURED':'OFFLINE'};
@@ -196,6 +204,8 @@ export const onChange=fn=>{listeners.add(fn);return ()=>listeners.delete(fn);};
 export const current=snapshot;
 export const apiPath=path=>API+path;
 export const enabled=!!config;
+/** False when this deployment does not meter the tools (no accounts, or TOOL_METERING=off). */
+export const meteringOn=()=>metered&&me?.metering!==false;
 /** Header: "Sign in", "Account" or a Pro badge. Opens in a new tab so work in memory stays. */
 function renderHeader(){
  const link=document.getElementById('accountLink');if(!link)return;
@@ -205,7 +215,7 @@ function renderHeader(){
  link.classList.toggle('is-pro',me.plan==='pro');
  link.textContent=me.plan==='pro'?'Pro':me.loggedIn?L.account[l]:L.signIn[l];
 }
-export const entitlement=Object.freeze({enabled,load,adsAllowed,authorize,logout,onChange,current,apiPath,signInURL,openSignIn,onSignIn});
+export const entitlement=Object.freeze({enabled,meteringOn,load,adsAllowed,authorize,logout,onChange,current,apiPath,signInURL,openSignIn,onSignIn});
 if(config&&document.getElementById('accountLink')){
  new MutationObserver(renderHeader).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  // Off the critical path: the first paint and the tool UI never wait for the account call.
