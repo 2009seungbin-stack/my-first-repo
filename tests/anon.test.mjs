@@ -555,8 +555,8 @@ async function imagePost(h){
  const up=await b.call('POST','/uploads',{raw:FIX('gps.jpg'),type:'image/jpeg',host:PREVIEW});
  assert.equal(up.status,201,JSON.stringify(up.json));
  const p=await post(b,{body:`사진 ![](${up.json.url})`});assert.equal(p.status,201,JSON.stringify(p.json));
- const no=h.db.raw.prepare('SELECT post_no FROM discussions WHERE id=?').get(p.json.id).post_no;
- return {b,img:up.json.url,id:up.json.id,postId:p.json.id,postPath:`/ko/ai/svc/${no}`};
+ const {channel_id:ch,channel_no:no}=h.db.raw.prepare('SELECT channel_id,channel_no FROM discussions WHERE id=?').get(p.json.id);
+ return {b,img:up.json.url,id:up.json.id,postId:p.json.id,postPath:`/ko/community/${ch}/${no}`,board:`/ko/community/${ch}/`};
 }
 
 test('purge origins: the request host, SITE_URL and the build URL, without repeats',()=>{
@@ -592,7 +592,8 @@ test('takedown: an author\'s password delete stops the image and the post at onc
   assert.equal(h.db.raw.prepare('SELECT removed FROM uploads WHERE id=?').get(x.id).removed,'author');
   for(const host of [PREVIEW,ORIGIN]){
    assert(!cache.has(host+x.postPath),`page purged under ${host}`);assert(!cache.has(host+x.img),`image purged under ${host}`);
-   assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the board too');
+   assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the tag page too');
+   assert(!cache.has(host+x.board)&&!cache.has(host+x.board+'feed.xml'),'the channel board and its feed too');
    assert.equal((await page(h,host,x.postPath)).status,404,`post gone under ${host}`);
    assert.doesNotMatch(await (await page(h,host,'/ko/ai/svc/feed.xml')).text(),/익명 글 제목/,`feed under ${host}`);
    for(const path of [x.img,x.img+'?v=1',x.img+'?'+Math.random(),x.img.replace('/full.','/thumb.')]){

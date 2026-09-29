@@ -34,7 +34,7 @@ def ticket_keys():
 class Stack:
     """One isolated deployment: build + local D1 + wrangler pages dev. Every stack signs its answers
     (TICKET_PRIVATE_KEY in the Worker, TICKET_PUBLIC_KEY in the pages), as production should."""
-    def __init__(self,name,build_env,vars,port=None,toml=()):
+    def __init__(self,name,build_env,vars,port=None,toml=(),before=None):
         self.dir=Path(tempfile.mkdtemp(prefix=f'nerulio-{name}-'));self.port=port or int(os.environ.get('SERVICE_PORT','0')) or free_port();self.url=f'http://127.0.0.1:{self.port}'
         keys=ticket_keys();vars={'TICKET_PRIVATE_KEY':keys['privateKey'],**vars};build_env={'TICKET_PUBLIC_KEY':keys['publicKey'],**build_env}
         env={k:v for k,v in os.environ.items() if not k.startswith(('ADSENSE_','CF_PAGES','SITE_','SERVICE_','PRO_PRICE','FREE_DAILY','TICKET_'))}
@@ -42,12 +42,20 @@ class Stack:
         r=subprocess.run(['node','-e',"import('./tools/build.mjs').then(m=>m.build({outDir:process.argv[1],env:process.env}))",str(self.dir/'dist')],cwd=ROOT,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace')
         if r.returncode:raise RuntimeError(r.stderr)
         lines=[f'{k} = {json.dumps(v)}' for k,v in {'SESSION_SECRET':SECRET,'NERULIO_ENV':'development',**vars}.items()]
-        (self.dir/'wrangler.toml').write_text('\n'.join([
-            'name = "nerulio-e2e"','pages_build_output_dir = "./dist"','compatibility_date = "2026-09-18"','',
-            '[[d1_databases]]','binding = "DB"','database_name = "nerulio-e2e"','database_id = "00000000-0000-4000-8000-000000000001"',
-            f'migrations_dir = {json.dumps((ROOT/"migrations").as_posix())}','',*toml,'[vars]',*lines,'']),encoding='utf-8')
-        r=shell([*WRANGLER,'d1','migrations','apply','nerulio-e2e','--local'],self.dir)
-        if r.returncode:raise RuntimeError(r.stdout+r.stderr)
+        def config(migrations):
+            (self.dir/'wrangler.toml').write_text('\n'.join([
+                'name = "nerulio-e2e"','pages_build_output_dir = "./dist"','compatibility_date = "2026-09-18"','',
+                '[[d1_databases]]','binding = "DB"','database_name = "nerulio-e2e"','database_id = "00000000-0000-4000-8000-000000000001"',
+                f'migrations_dir = {json.dumps(Path(migrations).as_posix())}','',*toml,'[vars]',*lines,'']),encoding='utf-8')
+            r=shell([*WRANGLER,'d1','migrations','apply','nerulio-e2e','--local'],self.dir)
+            if r.returncode:raise RuntimeError(r.stdout+r.stderr)
+        if before:
+            # A database as production has it before one migration: apply the ones before it, add rows, then the rest.
+            upto,fill=before;pre=self.dir/'migrations-before';pre.mkdir()
+            for f in sorted((ROOT/'migrations').glob('*.sql')):
+                if f.name<upto:shutil.copy(f,pre/f.name)
+            config(pre);fill(self)
+        config(ROOT/'migrations')
         self.log=open(self.dir/'wrangler.log','w',encoding='utf-8')
         flags={'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP} if os.name=='nt' else {'start_new_session':True}
         self.proc=subprocess.Popen([*WRANGLER,'pages','dev','--port',str(self.port),'--ip','127.0.0.1'],cwd=self.dir,stdout=self.log,stderr=subprocess.STDOUT,shell=os.name=='nt',**flags)
@@ -518,10 +526,11 @@ def scenario_social(browser):
         now=int(time.time()*1000)
         names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
         stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
-                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','로그인 테스트','ko','system:radar-bot',{now},{now},{now});")
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,flair,channel_id,channel_no,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','question','ai',1,'E2E 질문','로그인 테스트','ko','system:radar-bot',{now},{now},{now});"
+                  f"INSERT INTO discussion_tags(discussion_id,entity_id,pos,created_at) VALUES('e2e-post','service:e2e-chat',0,{now});UPDATE channels SET post_seq=1 WHERE id='ai';")
         health=json.load(urllib.request.urlopen(stack.url+'/api/v1/health',timeout=20))
         ok('social: health lists GitHub and Discord, Google dormant',health['github'] and health['discord'] and not health['google'] and health['providers']==['github','discord'],health)
-        post=stack.url+'/ko/ai/e2e-chat/1'
+        post=stack.url+'/ko/community/ai/1'
         # --- GitHub, from the comment box of a post
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
         page=context.new_page();instrument(page,log)
@@ -530,7 +539,7 @@ def scenario_social(browser):
         sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
         ok('social: the comment box\'s sign-in link opens the sign-in sheet: passkey first, then the configured providers only',sheet.locator('.sib').count()==3 and sheet.locator('.sib').first.get_attribute('data-provider')=='passkey' and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
         page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
-        with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
+        with page.expect_navigation(url=re.compile(r'/ko/community/ai/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: GitHub sign-in returns to the post, signed in with an automatic nickname',page.url==post and page.locator('.hd [data-island="account"]').inner_text().startswith('user-'),page.url)
         # The islands restore the draft after the signed-in state (account, alerts) has loaded: wait for it.
@@ -564,7 +573,7 @@ def scenario_social(browser):
         w=page.evaluate('document.documentElement.scrollWidth');ok('social: no sideways scroll at 390px',w<=390,w)
         page.screenshot(path=str(SHOTS/'community-signin-box-ko.png'),full_page=True)
         with page.expect_navigation(url=re.compile(r'/ko/community/$'),timeout=30000):box.locator('.sib-discord').click()
-        page.wait_for_function('()=>document.querySelector(".box.login")&&document.querySelector(".box.login").textContent.includes("내 구독 채널")',timeout=15000)
+        page.wait_for_function('()=>document.querySelector(".box.login")&&document.querySelector(".box.login").textContent.includes("구독한 태그")',timeout=15000)
         ok('social: Discord sign-in returns to the community front, signed in',True)
         page.goto(post,wait_until='networkidle')
         page.fill('#comment-form textarea','Discord로 로그인해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
@@ -576,13 +585,13 @@ def scenario_social(browser):
         # --- denied consent: a Korean message and a retry that works
         mock.deny.add('github')
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url
-        page=context.new_page();page.goto(stack.url+'/ko/account/?return=%2Fko%2Fai%2Fe2e-chat%2F1',wait_until='networkidle')
+        page=context.new_page();page.goto(stack.url+'/ko/account/?return=%2Fko%2Fcommunity%2Fai%2F1',wait_until='networkidle')
         with page.expect_navigation(url=re.compile(r'/ko/account/'),timeout=30000):page.locator('.sibs .sib-github').click()
         err=page.locator('.service-error');err.wait_for(timeout=15000)
         ok('social: denied consent → a clear Korean message with 다시 시도','GitHub 로그인을 취소했어요' in err.inner_text() and err.locator('[data-retry]').inner_text()=='다시 시도',err.inner_text())
         page.screenshot(path=str(SHOTS/'signin-denied-ko.png'))
         mock.deny.clear()
-        with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):err.locator('[data-retry]').click()
+        with page.expect_navigation(url=re.compile(r'/ko/community/ai/1$'),timeout=30000):err.locator('[data-retry]').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('social: the retry signs in and comes back to the original page',page.url==post)
         context.close()
@@ -602,10 +611,11 @@ def scenario_passkey(browser):
         now=int(time.time()*1000)
         names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
         stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
-                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','패스키 테스트','ko','system:radar-bot',{now},{now},{now});")
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,flair,channel_id,channel_no,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','question','ai',1,'E2E 질문','패스키 테스트','ko','system:radar-bot',{now},{now},{now});"
+                  f"INSERT INTO discussion_tags(discussion_id,entity_id,pos,created_at) VALUES('e2e-post','service:e2e-chat',0,{now});UPDATE channels SET post_seq=1 WHERE id='ai';")
         health=json.load(urllib.request.urlopen(origin+'/api/v1/health',timeout=20))
         ok('passkey: health offers passkey sign-up and sign-in (Turnstile configured)',health['passkey']=={'signin':True,'signup':True} and health['turnstile'],health)
-        post=origin+'/ko/ai/e2e-chat/1'
+        post=origin+'/ko/community/ai/1'
         context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=origin;log=[]
         page=context.new_page();instrument(page,log)
         cdp=context.new_cdp_session(page);cdp.send('WebAuthn.enable')
@@ -703,7 +713,7 @@ def scenario_anon(browser):
         ok('anon: /u/* (community images) reaches the Worker','/u/*' in routes['include'] or routes['include']==['/*'],routes['include'])
         context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
         page=context.new_page();instrument(page,log)
-        page.goto(stack.url+'/ko/ai/e2e-chat/write',wait_until='networkidle')
+        page.goto(stack.url+'/ko/community/ai/write?tag=service:e2e-chat',wait_until='networkidle')
         page.locator('[data-anon-fields]:not([hidden])').wait_for(timeout=10000)
         ok('anon: signed out, the write page offers nickname + password and the image picker',page.locator('[data-image-picker]').is_visible() and page.locator('.needlogin').is_hidden())
         page.fill('input[name=anonName]','유동테스터');page.fill('input[name=anonPassword]','e2e-pass')
@@ -713,8 +723,9 @@ def scenario_anon(browser):
         ok('anon: the first upload asks for the human check in the /verify/ frame',page.locator('dialog.hc iframe').get_attribute('src').startswith('/verify/?sitekey=1x00000000000000000000AA&action=community'))
         page.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")',timeout=60000)
         page.click('button[type=submit]')
-        page.wait_for_url(re.compile(r'/ko/ai/e2e-chat/\d+$'),timeout=90000)
+        page.wait_for_url(re.compile(r'/ko/community/ai/\d+$'),timeout=90000)
         post=page.url
+        ok('anon: the post is in the AI channel with the E2E 챗 tag',page.locator('.crumb .chl').inner_text()=='AI 채널' and page.locator('.crumb .rtag').inner_text()=='E2E 챗')
         ok('anon: posted with the nickname and today\'s ID',re.match(r'^유동테스터 \([0-9A-Za-z]{4}\)$',page.locator('.meta1 .nick.anon').inner_text()) is not None,page.locator('.meta1').inner_text())
         page.wait_for_function('()=>{const i=document.querySelector(".pbody img");return i&&i.complete&&i.naturalWidth>0}',timeout=15000)
         src=page.locator('.pbody img').get_attribute('src')
@@ -733,7 +744,7 @@ def scenario_anon(browser):
         rp=context.new_page();instrument(rp,log)
         rp.goto(post,wait_until='networkidle');rp.goto(stack.url+rp.locator('.pact a',has_text='신고').get_attribute('href'),wait_until='networkidle')
         rp.select_option('select[name=reason]','privacy');rp.click('form[data-island=flag-form] button[type=submit]')
-        rp.wait_for_url(re.compile(r'/ko/ai/e2e-chat/$'),timeout=60000)
+        rp.wait_for_url(re.compile(r'/ko/community/ai/$'),timeout=60000)
         try:hidden=urllib.request.urlopen(post,timeout=20).status
         except urllib.error.HTTPError as e:hidden=e.code
         try:himg=urllib.request.urlopen(stack.url+src,timeout=20).status
@@ -752,7 +763,7 @@ def scenario_anon(browser):
         ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
         mc.close()
         # The author deletes it by password on another host name than SITE_URL; every cached copy must go.
-        alt=f'http://localhost:{port}';post_path=post[len(stack.url):];board='/ko/ai/e2e-chat/'
+        alt=f'http://localhost:{port}';post_path=post[len(stack.url):];board='/ko/community/ai/'
         def get(u):
             try:
                 r=urllib.request.urlopen(u,timeout=20);return r.status,r.read().decode('utf-8','replace'),dict(r.headers)
@@ -770,14 +781,86 @@ def scenario_anon(browser):
         dp.goto(alt+post_path,wait_until='networkidle')
         dp.locator('[data-anon-delete^="discussion:"]').click()
         dp.locator('dialog.pw input').fill('e2e-pass');dp.locator('dialog.pw button[type=submit]').click()
-        dp.wait_for_url(re.compile(r'/ko/ai/e2e-chat/$'),timeout=60000)
+        dp.wait_for_url(re.compile(r'/ko/community/ai/$'),timeout=60000)
         rows=stack.sql(f"SELECT u.status,u.removed,d.status AS post FROM uploads u JOIN discussions d ON d.id=u.attached_id WHERE u.id='{src.split('/')[2]}'")
         ok('anon: deleted by its password: the post is deleted and its image removed by the author',rows==[{'status':'deleted','removed':'author','post':'deleted'}],rows)
         after={base:[get(base+post_path)[0],get(base+src)[0],get(base+src+'?v=1')[0],get(base+src.replace('/full.','/thumb.'))[0]] for base in (stack.url,alt)}
         ok('anon: right after the delete the post and its image answer 404 under both hosts, query strings and variants too',all(v==[404,404,404,404] for v in after.values()),after)
-        boards={base:'E2E 유동 사진 글' in get(base+board)[1] for base in (stack.url,alt)}
-        ok('anon: the board no longer lists it under either host',not any(boards.values()),boards)
+        boards={base:[('E2E 유동 사진 글' in get(base+b)[1]) for b in (board,'/ko/ai/e2e-chat/')] for base in (stack.url,alt)}
+        ok('anon: the channel board and the tag page no longer list it under either host',not any(any(v) for v in boards.values()),boards)
         context.close()
+    finally:stack.close()
+
+
+# ------------------------------------------------------------------ channels (migration 0014 on existing posts)
+def no_redirect(url):
+    class H(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self,*a,**k):return None
+    try:
+        r=urllib.request.build_opener(H).open(url,timeout=20);return r.status,r.headers.get('Location')
+    except urllib.error.HTTPError as e:return e.code,e.headers.get('Location')
+def scenario_channels(browser):
+    """PLATFORM build on the real Pages runtime. The local D1 first gets the migrations before 0014 and old
+    per-entity posts (with a comment and a vote), then 0014: every post moves into its channel with a number,
+    keeps its comments and votes, and its old address answers 301. A member then writes into a channel with
+    tags from two areas; the post shows on both tag pages; pins follow the account; the bottom sheet at 390px."""
+    port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    t0=int(time.time()*1000)-3*86400000
+    def fill(stack):
+        ai=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False);gm=json.dumps({'ko':'E2E 게임','en':'E2E Game'},ensure_ascii=False)
+        rows=[('p1','service:e2e-chat',1,'question',t0),('p2','game:e2e',1,'patch',t0+1000),('p3','service:e2e-chat',2,'free',t0+2000),('p4','service:e2e-chat',3,'notice',t0+3000)]
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{ai}','{{}}',{t0},{t0}),('game:e2e','games','game','e2e-game','{gm}','{{}}',{t0},{t0});"
+                  f"INSERT INTO users(id,email,display_name,provider,provider_subject,created_at) VALUES('old-u','old@example.test','old','google','old',{t0}),('old-v','v@example.test','v','google','v',{t0});"
+                  +''.join(f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at,status,comment_count) VALUES('{i}','{e}',{n},'{k}','예전 글 {i}','본문','ko','old-u',{at},{at},{at},'published',{1 if i=='p3' else 0});" for i,e,n,k,at in rows)
+                  +"INSERT INTO entity_aliases(entity_id,norm,alias,locale,kind) VALUES('service:e2e-chat','e2e챗','E2E 챗','ko','name');"
+                  +f"INSERT INTO comments(id,discussion_id,author_id,body_md,status,created_at,updated_at) VALUES('c1','p3','old-v','예전 댓글','published',{t0+5000},{t0+5000});"
+                  +f"INSERT INTO votes(target_kind,target_id,user_id,value,created_at) VALUES('discussion','p3','old-v',1,{t0+6000});")
+    stack=Stack('channels',{'SITE_URL':origin,'PLATFORM':'on'},{'SITE_URL':origin},port=port,before=('0014',fill))
+    try:
+        counts=stack.sql("SELECT (SELECT COUNT(*) FROM discussions) d,(SELECT COUNT(*) FROM comments) c,(SELECT COUNT(*) FROM votes) v,(SELECT COUNT(*) FROM legacy_posts) l,(SELECT COUNT(*) FROM discussion_tags) t")[0]
+        ok('channels: 0014 keeps every post, comment and vote, with old numbers and tags',counts=={'d':4,'c':1,'v':1,'l':4,'t':4},counts)
+        moved=stack.sql("SELECT id,channel_id,channel_no,flair FROM discussions ORDER BY id")
+        ok('channels: posts numbered by date in their channel',[(r['id'],r['channel_id'],r['channel_no'],r['flair']) for r in moved]==[('p1','ai',1,'question'),('p2','games',1,'patch'),('p3','ai',2,'free'),('p4','ai',3,'notice')],moved)
+        st,loc=no_redirect(stack.url+'/ko/ai/e2e-chat/2')
+        ok('channels: an old post URL answers 301 to its channel address',st==301 and loc.endswith('/ko/community/ai/2'),(st,loc))
+        st,loc=no_redirect(stack.url+'/en/games/e2e-game/1')
+        ok('channels: in English too',st==301 and loc.endswith('/en/community/games/1'),(st,loc))
+        st,loc=no_redirect(stack.url+'/ko/ai/e2e-chat/write')
+        ok('channels: the old write address answers 302 with the channel and tag picked',st==302 and loc.endswith('/ko/community/ai/write?tag=service:e2e-chat'),(st,loc))
+        st,loc=no_redirect(stack.url+'/ko/community/best/?v=games')
+        ok('channels: best/?v= answers 301 to ?ch=',st==301 and loc.endswith('/ko/community/best/?ch=games'),(st,loc))
+        st,_=no_redirect(stack.url+'/ko/ai/e2e-chat/feed.xml')
+        ok('channels: the tag feed stays',st==200)
+        uid,token=create_user(stack,'e2e-writer')
+        context=browser.new_context();context._nerulio_base=stack.url
+        context.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url}])
+        page=context.new_page();instrument(page,[])
+        page.goto(stack.url+'/ko/community/ai/',wait_until='networkidle')
+        ok('channels: the board folds the 공지 into one row and lists the old posts',page.locator('.pr.nrow').count()==1 and page.locator('.plist a.tt',has_text='예전 글 p3').count()==1)
+        page.goto(stack.url+'/ko/community/ai/2',wait_until='networkidle')
+        ok('channels: the migrated post keeps its comment and vote',page.locator('.cl').inner_text().find('예전 댓글')>=0 and page.locator('.crumb .rtag').inner_text()=='E2E 챗')
+        page.goto(stack.url+'/ko/community/games/write?tag=game:e2e',wait_until='networkidle')
+        page.locator('label.wchip.r',has_text='질문').click()
+        page.fill('[data-tag-search]','E2E 챗');page.locator('[data-tag-results] button',has_text='E2E 챗').first.click()
+        page.fill('input[name=title]','E2E 채널 글: 게임 + AI 태그');page.fill('textarea[name=body]','두 분야 태그')
+        page.click('button[type=submit]');page.wait_for_url(re.compile(r'/ko/community/games/\d+$'),timeout=60000)
+        ok('channels: the new post continues the channel\'s numbers',page.url.endswith('/ko/community/games/2'),page.url)
+        for tag_page in ['/ko/games/e2e-game/','/ko/ai/e2e-chat/']:
+            page.goto(stack.url+tag_page,wait_until='networkidle')
+            ok(f'channels: {tag_page} lists the post of both tags',page.locator('.plist a.tt',has_text='E2E 채널 글').count()==1)
+        page.goto(stack.url+'/ko/community/games/',wait_until='networkidle')
+        page.locator('.chead [data-pin=games]').click();page.wait_for_timeout(800)
+        pins=page.evaluate("fetch('/api/v2/pins').then(r=>r.json())")
+        ok('channels: a member\'s pin is kept on the account',pins=={'pins':['games']},pins)
+        context.close()
+        m=browser.new_context(viewport={'width':390,'height':844});m._nerulio_base=stack.url;mp=m.new_page();instrument(mp,[])
+        mp.goto(stack.url+'/ko/community/ai/',wait_until='networkidle')
+        mp.locator('.cr .allch').click();mp.wait_for_selector('dialog#chsheet[open]',timeout=5000)
+        box=mp.locator('dialog#chsheet').bounding_box()
+        ok('channels: 전체 채널 is a bottom sheet at 390px',abs(box['y']+box['height']-844)<=2,box)
+        mp.screenshot(path=str(SHOTS/'channels-sheet-390.png'))
+        ok('channels: no sideways scroll at 390px',mp.evaluate('document.documentElement.scrollWidth')<=390)
+        m.close()
     finally:stack.close()
 
 
@@ -838,14 +921,15 @@ def scenario_meteroff(browser):
         now=int(time.time()*1000)
         names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
         stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
-                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','미터링 끔 테스트','ko','system:radar-bot',{now},{now},{now});")
-        post=acct.goto(stack.url+'/ko/ai/e2e-chat/1',wait_until='networkidle')
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,flair,channel_id,channel_no,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','question','ai',1,'E2E 질문','미터링 끔 테스트','ko','system:radar-bot',{now},{now},{now});"
+                  f"INSERT INTO discussion_tags(discussion_id,entity_id,pos,created_at) VALUES('e2e-post','service:e2e-chat',0,{now});UPDATE channels SET post_seq=1 WHERE id='ai';")
+        post=acct.goto(stack.url+'/ko/community/ai/1',wait_until='networkidle')
         ok('meteroff: a platform post page renders from D1',post.status==200 and 'E2E 질문' in acct.content())
         front=acct.goto(stack.url+'/ko/community/',wait_until='networkidle')
         ok('meteroff: the community front renders',front.status==200 and acct.locator('.box.login').count()==1)
         uid,token=create_user(stack,'meteroff-member')
         context.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url,'httpOnly':True,'sameSite':'Lax'}])
-        acct.goto(stack.url+'/ko/ai/e2e-chat/1',wait_until='networkidle')
+        acct.goto(stack.url+'/ko/community/ai/1',wait_until='networkidle')
         acct.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
         ok('meteroff: a session signs the member in on platform pages',True)
         acct.goto(stack.url+'/ko/account/',wait_until='networkidle');acct.locator('[data-identities]').wait_for(timeout=15000)
@@ -865,7 +949,7 @@ def scenario_meteroff(browser):
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon,meteroff').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon,meteroff,channels').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
@@ -875,6 +959,7 @@ with sync_playwright() as p:
         if 'traffic' in only:scenario_traffic(browser)
         if 'anon' in only:scenario_anon(browser)
         if 'meteroff' in only:scenario_meteroff(browser)
+        if 'channels' in only:scenario_channels(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

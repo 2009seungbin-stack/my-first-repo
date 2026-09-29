@@ -17,7 +17,7 @@ import {channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,isPl
 export {LIMITS};
 import {envKey,ENTITY_ID,PLATFORMS} from '../../platform/schema.js';
 import {channelUrl,nameOf,channelName} from '../../platform/render/ui.js';
-import {changesFor,entitiesByIds,factsFor,searchEntities} from '../../platform/db/channel.js';
+import {changesFor,entitiesByIds,factsFor,searchEntities,tagPagesOf} from '../../platform/db/channel.js';
 import {describeChange} from '../../platform/change-text.js';
 import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
 import {ingest} from '../../platform/ingest.js';
@@ -118,10 +118,12 @@ const pagesOf=e=>bothLocales(l=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml',`/${
  * expire on their own within a minute. @param {{channel_id:string,channel_no:number}|null} post @param {{vertical:string,slug:string}[]} tags */
 const pagesOfPost=(post,tags=[])=>bothLocales(l=>[...(post?[postPath(l,post.channel_id,post.channel_no),channelPath(l,post.channel_id),channelPath(l,post.channel_id)+'feed.xml',channelPath(l,post.channel_id)+'best']:[]),
  ...tags.flatMap(e=>[channelUrl(l,e),channelUrl(l,e)+'feed.xml']),`/${l}/community/`,`/${l}/community/best/`]).flat();
-/** Purge everything a post appears on. @param {string|string[]} origins @param {any} db @param {string} id */
+/** Purge everything a post appears on, the pages of the tags its tags are part of included (a Claude Code
+ * post is on the Claude page too). @param {string|string[]} origins @param {any} db @param {string} id */
 async function purgePost(origins,db,id){
  const p=await db.prepare('SELECT channel_id,channel_no FROM discussions WHERE id=?').bind(id).first();
- const tags=((await db.prepare('SELECT e.vertical,e.slug FROM discussion_tags t JOIN entities e ON e.id=t.entity_id WHERE t.discussion_id=?').bind(id).all()).results||[]).map((/** @type {any} */ r)=>({vertical:String(r.vertical),slug:String(r.slug)}));
+ const ids=((await db.prepare('SELECT entity_id FROM discussion_tags WHERE discussion_id=?').bind(id).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id));
+ const tags=await tagPagesOf(db,ids);
  await purge(origins,pagesOfPost(p?{channel_id:String(p.channel_id),channel_no:Number(p.channel_no)}:null,tags));
 }
 /**

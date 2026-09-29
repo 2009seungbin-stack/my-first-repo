@@ -143,6 +143,8 @@ test('a tag lists its posts from every channel, its parts included; the board fo
  await P('b1','ai','news',['service:claude'],8,{author:'system:radar-bot'});await P('b2','ai','news',[],9,{author:'system:radar-bot'});
  const ids=async o=>(await boardPosts(db,{now:T0+10,...o})).posts.map(p=>p.id).sort();
  assert.deepEqual((await tagChildren(db,'service:claude')).map(e=>e.id).sort(),['model:opus','plan:claude-pro','service:claude-code']);
+ const {tagPagesOf}=await import('../platform/db/channel.js');
+ assert.deepEqual((await tagPagesOf(db,['model:opus'])).map(e=>e.id).sort(),['model:opus','plan:claude-pro','service:claude'],'a takedown purges the pages of the wholes too');
  assert.deepEqual(await ids({tag:'service:claude'}),['a1','a2','a3','b1','h1'],'every channel, parts included (Claude Code, Pro → Opus)');
  assert.deepEqual(await ids({tag:'service:claude',children:false}),['a1','b1','h1'],'this tag only');
  assert.deepEqual(await ids({tag:'service:claude',channel:'hw'}),['h1'],'a tag inside one channel');

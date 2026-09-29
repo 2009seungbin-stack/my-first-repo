@@ -169,6 +169,14 @@ export const TAG_DEPTH=2;
 const inList=(/** @type {readonly string[]} */ a)=>a.map(x=>`'${x}'`).join(',');
 /** SQL of the tag and its parts (a recursive CTE named scope; one bound parameter: the tag). */
 const SCOPE_CTE=`WITH RECURSIVE scope(id,depth) AS (SELECT ?,0 UNION SELECT CASE WHEN r.object_id=scope.id THEN r.subject_id ELSE r.object_id END,scope.depth+1 FROM relations r JOIN scope ON ((r.object_id=scope.id AND r.predicate IN (${inList(TAG_CHILD_OF)})) OR (r.subject_id=scope.id AND r.predicate IN (${inList(TAG_PARENT_OF)}))) WHERE scope.depth<${TAG_DEPTH} AND r.valid_until IS NULL)`;
+/** The tags whose pages list a post of these tags (the tags and the wholes they are part of, two hops up):
+ * what a takedown must purge. @param {D1} db @param {string[]} ids @returns {Promise<{id:string,vertical:string,slug:string}[]>} */
+export async function tagPagesOf(db,ids){
+ if(!ids.length)return [];
+ const up=`WITH RECURSIVE up(id,depth) AS (SELECT value,0 FROM json_each(?) UNION SELECT CASE WHEN r.subject_id=up.id THEN r.object_id ELSE r.subject_id END,up.depth+1 FROM relations r JOIN up ON ((r.subject_id=up.id AND r.predicate IN (${inList(TAG_CHILD_OF)})) OR (r.object_id=up.id AND r.predicate IN (${inList(TAG_PARENT_OF)}))) WHERE up.depth<${TAG_DEPTH} AND r.valid_until IS NULL)`;
+ const rows=await all(db,`${up} SELECT DISTINCT e.id,e.vertical,e.slug FROM up JOIN entities e ON e.id=up.id WHERE e.status='active' LIMIT 60`,[JSON.stringify(ids)]);
+ return rows.map(r=>({id:String(r.id),vertical:String(r.vertical),slug:String(r.slug)}));
+}
 /** A tag's parts (without the tag itself), for "하위 태그" lists. @param {D1} db @param {string} id @param {number} [limit] */
 export async function tagChildren(db,id,limit=60){
  const rows=await all(db,`${SCOPE_CTE} SELECT DISTINCT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},MIN(scope.depth) AS depth FROM scope JOIN entities e ON e.id=scope.id WHERE scope.id<>? AND e.status='active' GROUP BY e.id ORDER BY depth,e.type,e.slug LIMIT ?`,[id,id,limit]);
