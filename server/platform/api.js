@@ -26,7 +26,8 @@ import {notifyNewFlag} from './admin-notify.js';
 import {handleHit} from '../traffic.js';
 import {configuredProviders} from '../oauth/providers.js';
 import {ANON,REPORT,ANON_USER,anonIdentity,anonSecret,anonMode,assertAnonEnabled,humanGate,takeDaily,readDaily,hourKey,assertNotBanned,countLinks,blocklistVerdict,textHash,anonCleanupStatements,hashPassword,verifyPassword,kstDay,normalizeText} from './anon.js';
-import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf} from './uploads.js';
+import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf,originList} from './uploads.js';
+import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
 
@@ -90,10 +91,21 @@ async function entity(db,id){
  let names={};try{names=JSON.parse(String(e.names));}catch{}
  return /** @type {{id:string,vertical:string,type:string,slug:string,names:Record<string,string>}} */({id:String(e.id),vertical:String(e.vertical),type:String(e.type),slug:String(e.slug),names});
 }
-/** Purge the cached HTML of pages a write changed (both languages). @param {string} origin @param {string[]} paths */
-async function purge(origin,paths){
+/** Purge the cached HTML of pages a write changed (both languages) under every origin they can be cached
+ * at. The Cache API only reaches this Cloudflare location; elsewhere pages expire within their s-maxage
+ * (60 s, server/platform/pages.js). @param {string|string[]} origins @param {string[]} paths */
+async function purge(origins,paths){
  const cache=/** @type {any} */(globalThis).caches?.default;if(!cache)return;
- await Promise.all(paths.map(p=>cache.delete(new Request(origin+p)).catch(()=>false)));
+ await Promise.all(originList(origins).flatMap(o=>paths.map(p=>cache.delete(new Request(o+p)).catch(()=>false))));
+}
+/** Every origin whose Cache API entries a write must purge: pages and images are cached under the host
+ * they were requested on (a preview alias such as n2-preview.nerulio.pages.dev, or nerulio.com), which is
+ * not always SITE_URL, so both are purged, plus the build's site URL.
+ * @param {URL} url @param {any} env @param {{siteOrigin?:string}} cfg */
+export function cacheOrigins(url,env,cfg){
+ const out=[url.origin,cfg?.siteOrigin||''];
+ for(const v of [env?.SITE_URL,BUILD.siteURL]){try{if(v)out.push(new URL(String(v)).origin);}catch{}}
+ return originList(out);
 }
 /** @template T @param {(l:string)=>T} f @returns {T[]} */
 const bothLocales=f=>['ko','en'].map(f);
@@ -134,7 +146,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   }
   context=await resolveContext(request,cfg,db,now);
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
-  const origin=cfg.siteOrigin||url.origin;
+  const origin=cfg.siteOrigin||url.origin,origins=cacheOrigins(url,env,cfg);
   // Reads (anonymous allowed).
   if(key==='GET /state')return done({...await state(db,context,url.searchParams,{env,cfg,now,ip:clientIp(request)}),providers:configuredProviders(cfg),passkey:passkeyAvailability(cfg)});
   if(key==='GET /new-posts'){
@@ -181,7 +193,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko',now));}
   // Writes.
   /** @type {WriteCtx} */
-  const x={request,env,ctx,deps,cfg,context,now,db,origin,url,l:url.searchParams.get('l')==='en'?'en':'ko'};
+  const x={request,env,ctx,deps,cfg,context,now,db,origin,origins,url,l:url.searchParams.get('l')==='en'?'en':'ko'};
   if(key==='POST /uploads'){const r=await uploadRoute(x);maybeCleanup(x);return r;}
   if(!context.user&&!ANON_ROUTES[key])throw new ApiError('LOGIN_REQUIRED');
   const body=await readJSON(request,key==='POST /posts'||key==='POST /posts/edit'?64*1024:8192);
@@ -231,7 +243,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published'},now);
     if(plan.statements.length)await db.batch(plan.statements);
     if(verdict==='hide')await autoHold(x,'discussion',id);
-    await purge(origin,pagesOf(e));
+    await purge(origins,pagesOf(e));
     return done({id,postNo:no,url:postUrl(x.l,e,no),...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /comments':{
@@ -255,7 +267,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,verdict==='hide'?'hidden':'published',now,now),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
     if(verdict==='hide')await autoHold(x,'comment',id);
-    await purge(origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+    await purge(origins,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
     return done({id,...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /votes':{
@@ -286,12 +298,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      if(await blocklistVerdict(db,`${title}\n${md}`,now)==='reject')throw blockedText();
      const plan=await attachPlan(db,{md,owner,kind:'discussion',id:String(p.id)});
      await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,now,now,p.id),...plan.statements]);
-     await deleteImages(env,db,plan.dropped,'author',origin);
+     await deleteImages(env,db,plan.dropped,'author',origins);
     }else{
      await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
-     await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',origin);
+     await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',origins);
     }
-    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    await purge(origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
     return done({ok:true});
    }
    case 'POST /posts/solve':{
@@ -307,7 +319,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      cid=String(c.id);
     }
     await db.prepare('UPDATE discussions SET solved_comment_id=?,updated_at=? WHERE id=?').bind(cid,now,p.id).run();
-    await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+    await purge(origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
     return done({solved:cid});
    }
    case 'POST /comments/edit':case 'POST /comments/delete':{
@@ -318,12 +330,12 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');if(hasImageSyntax(md))throw noCommentImages();if(await blocklistVerdict(db,md,now)==='reject')throw blockedText();await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
     else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,c.id),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(c.discussion_id,c.discussion_id)]);
-    await purge(origin,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
+    await purge(origins,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
     return done({ok:true});
    }
    case 'POST /mod/action':{
     const me=await moderator(db,context);
-    return done(await modAction(db,context.user.id,String(me.role),body,now,origin,env,ctx,deps));
+    return done(await modAction(db,context.user.id,String(me.role),body,now,origins,env,ctx,deps));
    }
    case 'POST /my-radar/seen':{
     only(body,['lastChangeId','repliesSeenAt']);
@@ -369,7 +381,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const r=await fileFlag(x,f,{id:context.user.id,key:null});
     return done(r,r.updated?200:201);
    }
-   case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
+   case 'POST /reports':return done(await report(db,context,body,now,limit,origins),201);
    case 'POST /rollout':{
     only(body,['featureId','hasIt','country','planId','platform','appVersion']);
     const f=await entity(db,/** @type {string} */(body.featureId));
@@ -439,7 +451,7 @@ async function state(db,context,q,o){
 
 /* ---------- writing without an account (유동), images, 신고 → 자동 임시조치 ---------- */
 
-/** @typedef {{request:Request,env:any,ctx:any,deps:{now?:()=>number,limiter?:any,fetch?:any,random?:()=>number},cfg:any,context:any,now:number,db:any,origin:string,url:URL,l:'ko'|'en'}} WriteCtx */
+/** @typedef {{request:Request,env:any,ctx:any,deps:{now?:()=>number,limiter?:any,fetch?:any,random?:()=>number},cfg:any,context:any,now:number,db:any,origin:string,origins:string[],url:URL,l:'ko'|'en'}} WriteCtx */
 /** @param {Request} r */
 const clientIp=r=>r.headers.get('cf-connecting-ip')||'';
 const blockedText=()=>new ApiError('BAD_REQUEST','This text contains a blocked word or link.',{field:'body',reason:'blocked'});
@@ -447,7 +459,7 @@ const noCommentImages=()=>new ApiError('BAD_REQUEST','Images can be added to pos
 /** Retention and unused-upload cleanup, on about 1 in 100 successful writes, after the response. @param {WriteCtx} x */
 function maybeCleanup(x){
  if(((x.deps.random||Math.random)())>=0.01)return;
- const run=async()=>{try{await x.db.batch(anonCleanupStatements(x.db,x.now));await expireUnattached(x.env,x.db,x.now,x.origin);}catch(e){console.error('anon cleanup',/** @type {any} */(e)?.message);}};
+ const run=async()=>{try{await x.db.batch(anonCleanupStatements(x.db,x.now));await expireUnattached(x.env,x.db,x.now,x.origins);}catch(e){console.error('anon cleanup',/** @type {any} */(e)?.message);}};
  const p=run();x.ctx?.waitUntil?.(p);
 }
 
@@ -555,7 +567,7 @@ async function anonRoute(key,body,x){
     anon:{name,id:ident.id,net:ident.net,pw:await hashPassword(password,secret)}},now);
    if(plan.statements.length)await db.batch(plan.statements);
    if(c.hide)await autoHold(x,'discussion',id);
-   await purge(x.origin,pagesOf(e));
+   await purge(x.origins,pagesOf(e));
    return {status:201,body:{id,postNo:no,url:postUrl(x.l,e,no),name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
   }
   case 'POST /comments':{
@@ -582,7 +594,7 @@ async function anonRoute(key,body,x){
      .bind(id,post.id,parent?parent.id:null,ANON_USER,md,c.hide?'hidden':'published',name,ident.id,ident.net,await hashPassword(password,secret),c.hash,now,now),
     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
    if(c.hide)await autoHold(x,'comment',id);
-   await purge(x.origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+   await purge(x.origins,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
    return {status:201,body:{id,name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
   }
   case 'POST /votes':{
@@ -626,13 +638,13 @@ async function anonRoute(key,body,x){
     // The images the post already has stay usable; new ones must be this browser's own uploads.
     const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id:String(p.id)});
     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,c.hash,now,now,p.id),...plan.statements]);
-    await deleteImages(env,db,plan.dropped,'author',x.origin);
+    await deleteImages(env,db,plan.dropped,'author',x.origins);
     if(c.hide)await autoHold(x,'discussion',String(p.id));
    }else{
     await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
-    await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',x.origin);
+    await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',x.origins);
    }
-   await purge(x.origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+   await purge(x.origins,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
    return {status:200,body:{ok:true}};
   }
   case 'POST /comments/edit':case 'POST /comments/delete':{
@@ -650,7 +662,7 @@ async function anonRoute(key,body,x){
     if(c.hide)await autoHold(x,'comment',String(cm.id));
    }else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,cm.id),
     db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(cm.discussion_id,cm.discussion_id)]);
-   await purge(x.origin,pagesOf({vertical:String(cm.vertical),slug:String(cm.slug)},Number(cm.post_no)));
+   await purge(x.origins,pagesOf({vertical:String(cm.vertical),slug:String(cm.slug)},Number(cm.post_no)));
    return {status:200,body:{ok:true}};
   }
  }
@@ -740,19 +752,19 @@ async function hideStatements(x,kind,id,previous,reason,meta){
   db.prepare("INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES ('system:automod','hide',?,?,?,?,?)").bind(kind,id,reason,JSON.stringify({previous,...meta}),now)];
  if(kind==='comment')w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
  await db.batch(w);
- await purgeTarget(x.db,x.origin,kind,id);
+ await purgeTarget(x.db,x.origins,kind,id);
 }
 /** A write the blocklist marked "hide": published hidden, waiting in the queue. @param {WriteCtx} x @param {'discussion'|'comment'} kind @param {string} id */
 async function autoHold(x,kind,id){
  await x.db.prepare("INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES ('system:automod','hide',?,?,?,?,?)").bind(kind,id,'자동 보류: 차단 목록 단어·링크',JSON.stringify({previous:'published',auto:true,blocklist:true}),x.now).run();
  x.ctx?.waitUntil?.(notifyNewFlag(x.env,{target:`${kind}:${id}`,reason:'spam',category:'spam',autoHidden:true},{now:x.now,fetch:x.deps.fetch,origin:x.origin}));
 }
-/** Purge the pages (and images) of a post or comment. @param {any} db @param {string} origin @param {string} kind @param {string} id */
-async function purgeTarget(db,origin,kind,id){
+/** Purge the pages (and images) of a post or comment under every origin. @param {any} db @param {string|string[]} origins @param {string} kind @param {string} id */
+async function purgeTarget(db,origins,kind,id){
  const d=await db.prepare(`SELECT d.id,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
  if(!d)return;
- await purge(origin,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
- if(kind==='discussion')await purgeImages(origin,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
+ await purge(origins,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+ if(kind==='discussion')await purgeImages(origins,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
 }
 
 /** An outage click counts for an hour: a user who is still affected later can click again (the
@@ -760,10 +772,10 @@ async function purgeTarget(db,origin,kind,id){
 const ISSUE_VOTE_MS=36e5;
 /** Structured compat/issue report (ProtonDB-style): stored as a community report, recomputes the
  * community verdict, and becomes a 리포트 post so it can be discussed.
- * @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
-async function report(db,context,body,now,limit,origin){
+ * @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string|string[]} origins */
+async function report(db,context,body,now,limit,origins){
  only(body,['kind','entityId','subjectVersion','targetId','targetVersion','result','env','comment','title','metrics']);
- if(body.kind==='benchmark')return benchmark(db,context,body,now,limit,origin);
+ if(body.kind==='benchmark')return benchmark(db,context,body,now,limit,origins);
  if(body.kind!=='compat'&&body.kind!=='issue')throw new ApiError('BAD_REQUEST','kind must be compat, issue or benchmark.');
  const subject=await entity(db,body.entityId);
  const target=body.targetId?await entity(db,body.targetId):null;
@@ -802,7 +814,7 @@ async function report(db,context,body,now,limit,origin){
   catch(e){if(!/UNIQUE/i.test(String(/** @type {any} */(e)?.message)))throw e;verdict=(await recomputeCompat(db,{subject:subject.id,subjectVersion:sv||'*',target:target.id,targetVersion:tv||'*',envKey:'',env:{}},now)).verdict;}}};
  if(quick){
   await recompute();
-  if(body.kind==='compat'&&target)await purge(origin,[...pagesOf(target),...pagesOf(subject)]);
+  if(body.kind==='compat'&&target)await purge(origins,[...pagesOf(target),...pagesOf(subject)]);
   return {id,verdict,postNo:null,url:null,vote:true};
  }
  const board=target&&body.kind==='compat'?target:subject;
@@ -815,13 +827,13 @@ async function report(db,context,body,now,limit,origin){
  const postId=randomToken(12);
  const no=await createPost(db,{id:postId,entityId:board.id,kind:'report',title,body:comment||RESULT_KO[result],locale:'ko',authorId:context.user.id,reportId:id},now);
  await recompute();
- await purge(origin,[...pagesOf(board),...(board.id!==subject.id?pagesOf(subject):[])]);
+ await purge(origins,[...pagesOf(board),...(board.id!==subject.id?pagesOf(subject):[])]);
  return {id,verdict,postNo:no,url:postUrl('ko',board,no)};
 }
 
 /** A measured benchmark (model × GPU): tokens/s with runtime, quantization and context. Never an
- * estimate; the GPU page shows the median and the count. @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string} origin */
-async function benchmark(db,context,body,now,limit,origin){
+ * estimate; the GPU page shows the median and the count. @param {any} db @param {any} context @param {any} body @param {number} now @param {(n:string,l:number)=>Promise<void>} limit @param {string|string[]} origins */
+async function benchmark(db,context,body,now,limit,origins){
  const model=await entity(db,body.entityId),gpu=await entity(db,body.targetId);
  if(!model.id.startsWith('model:')||!gpu.id.startsWith('gpu:'))throw new ApiError('BAD_REQUEST','A benchmark is a model measured on a GPU.');
  const tps=body.metrics&&typeof body.metrics==='object'?Number(body.metrics.tokens_per_s):NaN;
@@ -834,7 +846,7 @@ async function benchmark(db,context,body,now,limit,origin){
  await db.prepare("DELETE FROM community_reports WHERE kind='benchmark' AND user_id=? AND entity_id=? AND target_id=? AND COALESCE(json_extract(env,'$.runtime'),'')=? AND COALESCE(json_extract(env,'$.quant'),'')=?").bind(context.user.id,model.id,gpu.id,env.runtime||'',env.quant||'').run();
  await db.prepare(`INSERT INTO community_reports (id,kind,entity_id,target_id,env,metrics,user_id,created_at,updated_at) VALUES (?,'benchmark',?,?,?,?,?,?,?)`)
   .bind(id,model.id,gpu.id,JSON.stringify(env),JSON.stringify({tokens_per_s:Math.round(tps*100)/100}),context.user.id,now,now).run();
- await purge(origin,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
+ await purge(origins,[...bothLocales(l=>channelUrl(l,gpu)),...bothLocales(l=>channelUrl(l,gpu)+'local-llm')]);
  return {id};
 }
 
@@ -998,7 +1010,7 @@ const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestric
  * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action,
  * delete = removed for good (its images are deleted from R2 and answer 451), ban/unban = the anonymous
  * author's network may not write without an account for `days` (1–365) days.
- * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin
+ * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string|string[]} origin every origin to purge
  * @param {any} [env] @param {any} [ctx] @param {any} [deps] */
 export async function modAction(db,actor,actorRole,body,now,origin,env={},ctx=null,deps={}){
  only(body,['target','action','reason','days']);
