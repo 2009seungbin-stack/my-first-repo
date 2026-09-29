@@ -35,6 +35,7 @@ test('toSeed produces latest_version + dated versions; empty feed is an error', 
  const e=doc.entities[0];
  assert.equal(e.id,'app:reaper');
  assert.equal(e.facts[0].v,'7.80');
+ assert.equal(e.facts[0].ver,'OFFICIAL',"Cockos's own release record: a newer release replaces a stale seeded version");
  assert.equal(e.versions.length,4);
  assert.ok(e.versions.every(v=>v.src===SOURCE_ID&&/^\d{4}-\d\d-\d\d$/.test(v.released)));
  assert.equal(doc.sources[0].kind,'FEED');

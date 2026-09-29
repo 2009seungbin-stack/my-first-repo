@@ -19,9 +19,15 @@ import {recordRun} from '../../platform/collector-health.js';
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 export function adapterIds(){return readdirSync(path.join(ROOT,'collectors'),{withFileTypes:true}).filter(d=>d.isDirectory()&&!d.name.startsWith('_')&&existsSync(path.join(ROOT,'collectors',d.name,'index.js'))).map(d=>d.name).sort();}
 export async function loadAdapter(id){return (await import(pathToFileURL(path.join(ROOT,'collectors',id,'index.js')).href)).default;}
-/** Entities as collectors see them: {id,type,vertical,names,aliases,facts:{p:v}}. */
+/** Entities as collectors see them: {id,type,vertical,names,aliases,facts:{p:v},factRegions:{p:[region…]}}.
+ * `facts` holds the unscoped values; `factRegions` lists the regions each property is seeded in ('*' =
+ * unscoped), so an adapter can write into the scope the curated value uses (one release date, not two). */
 export function seedTargets(seeds=loadSeeds()){
- return seeds.flatMap(({doc})=>(doc.entities||[]).map(e=>({id:e.id,type:e.type,vertical:doc.vertical,slug:e.slug,names:e.names,aliases:e.aliases||[],facts:Object.fromEntries((e.facts||[]).filter(f=>!f.region&&!f.plan&&!f.platform).map(f=>[f.p,f.v])),versions:e.versions||[]})));
+ return seeds.flatMap(({doc})=>(doc.entities||[]).map(e=>{
+  /** @type {Record<string,string[]>} */const factRegions={};
+  for(const f of e.facts||[])if(!f.plan&&!f.platform)(factRegions[f.p]??=[]).includes(f.region||'*')||factRegions[f.p].push(f.region||'*');
+  return {id:e.id,type:e.type,vertical:doc.vertical,slug:e.slug,names:e.names,aliases:e.aliases||[],facts:Object.fromEntries((e.facts||[]).filter(f=>!f.region&&!f.plan&&!f.platform).map(f=>[f.p,f.v])),factRegions,versions:e.versions||[]};
+ }));
 }
 function args(argv){const o={};for(let i=0;i<argv.length;i++){const a=argv[i];if(a.startsWith('--')){const k=a.slice(2),n=argv[i+1];if(n===undefined||n.startsWith('--'))o[k]=true;else{o[k]=n;i++;}}}return o;}
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

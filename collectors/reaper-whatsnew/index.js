@@ -7,6 +7,9 @@
  * www.reaper.fm/robots.txt returns 404 (no crawl restrictions); one request per run (~1.5 MB).
  *
  * Output: partial entity app:reaper with latest_version and the newest MAX_VERSIONS releases.
+ * Labelled OFFICIAL: the file is Cockos's own release record, read structurally (a machine read of
+ * the vendor's channel is still the vendor's statement — platform/schema.js `supersedes`). A stale
+ * seeded version is therefore replaced as soon as Cockos ships, instead of raising a conflict.
  */
 
 export const FEED_URL='https://www.reaper.fm/whatsnew.txt';
@@ -40,7 +43,7 @@ export function toSeed(text,o){
  return {
   schema:'nerulio.seed/1',vertical:'studio',
   sources:[{id:SOURCE_ID,kind:'FEED',url:FEED_URL,title:'REAPER whatsnew.txt',publisher:'Cockos',retrieved:o.retrieved,adapter:'reaper-whatsnew'}],
-  entities:[{id:'app:reaper',facts:[{p:'latest_version',v:heads[0].version,ver:'AUTOMATED',src:SOURCE_ID,note:`Released ${heads[0].released}`}],versions}],
+  entities:[{id:'app:reaper',facts:[{p:'latest_version',v:heads[0].version,ver:'OFFICIAL',src:SOURCE_ID,note:`Released ${heads[0].released}`}],versions}],
  };
 }
 

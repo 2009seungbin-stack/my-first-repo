@@ -58,12 +58,15 @@ export function collectorState(def,row,now){
 /** Problems first (failing, never, stale), then ok, then manual; alphabetical within a group. */
 export const STATE_ORDER=/** @type {Record<CollectorStateName,number>} */({failing:0,never:1,stale:2,ok:3,manual:4});
 
+/** Runs recorded by tools/platform/seed-sync.mjs ("seed-sync-<vertical>"): started by pushes to
+ * data/seed, so they have no next scheduled run, but a failure still shows (and alerts) as failing. */
+export const SEED_SYNC_PREFIX='seed-sync-';
 /** Registry ∪ rows found in D1 (a collector D1 knows but the registry does not still shows up).
  * @param {any[]} rows @param {number} now */
 export function collectorItems(rows,now){
  const byId=new Map(rows.map(r=>[String(r.adapter),r]));
  /** @type {CollectorDef[]} */const defs=[...COLLECTORS];
- for(const r of rows)if(!COLLECTORS.some(c=>c.id===r.adapter))defs.push({id:String(r.adapter),vertical:String(r.vertical||''),mode:r.mode==='manual'?'manual':'auto',freshnessHours:Number(r.freshness_hours)||24,schedule:r.mode==='manual'?'manual':'6h'});
+ for(const r of rows)if(!COLLECTORS.some(c=>c.id===r.adapter))defs.push({id:String(r.adapter),vertical:String(r.vertical||''),mode:r.mode==='manual'?'manual':'auto',freshnessHours:Number(r.freshness_hours)||24,schedule:r.mode==='manual'||String(r.adapter).startsWith(SEED_SYNC_PREFIX)?'manual':'6h'});
  return defs.map(def=>{
   const r=byId.get(def.id)||null,state=collectorState(def,r,now);
   return {id:def.id,vertical:def.vertical,mode:def.mode,freshnessHours:def.freshnessHours,schedule:def.schedule,

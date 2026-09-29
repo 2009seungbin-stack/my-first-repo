@@ -29,6 +29,8 @@ node tools/platform/validate-seed.mjs data/seed/hardware
 6. Prices: the official list price for the stated region and currency, with the date retrieved. Taxes,
    promotions and regional conversions are not facts — put them in `note` or omit.
 7. Dates: ISO `YYYY`, `YYYY-MM` or `YYYY-MM-DD` — use the precision the source gives.
+   A day is the local calendar day of the place it happens (a Japanese broadcast "Friday 25:23" is
+   Saturday in JST — see `docs/n2/sources-subculture.md`, "Dates of Japanese broadcasts"), never UTC.
 
 ## Shape
 
@@ -98,3 +100,10 @@ node tools/platform/validate-seed.mjs data/seed/hardware
 - Entities may reference entities defined in other seed files of any vertical (e.g. a model in `ai`
   referenced by a benchmark in `hardware`).
 - Split large verticals into several files (`games/steam-top.json`, `games/patches.json`, …).
+- After the first load, edits reach D1 through `tools/platform/seed-sync.mjs` (on every push to `main`
+  that touches `data/seed/**`). Merge rules: `names` and `description` merge **per locale** (a locale you
+  leave out is kept — e.g. a Korean name a collector found; removing a locale is an admin edit), `official_urls`
+  merge per url, fields you leave out are kept, facts are never deleted by omission. A seed line you did
+  not change never overwrites a newer value a collector/admin/community wrote since; a line you did change
+  is applied (but a version property — `latest_version`, `current_build`, `current_version`, `latest_driver`,
+  `patch_version` — never moves backwards).

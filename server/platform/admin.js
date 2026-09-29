@@ -572,7 +572,7 @@ async function pushTest(c){
 /* ---------- notify (CI → push) ---------- */
 
 /** POST /api/v2/admin/notify, Authorization: Bearer NOTIFY_TOKEN.
- * kind: collector_failed {runUrl?} | usage | status_stale | tick (every periodic check at once).
+ * kind: collector_failed {runUrl?, label?: 'seed-sync'} | usage | status_stale | tick (every periodic check at once).
  * @param {C} c */
 async function notify(c){
  const token=String(c.env.NOTIFY_TOKEN||'');

@@ -25,7 +25,7 @@ test('toSeed: highest vX.Y.Z tag is latest; LTS tags kept; dates from tag commit
  const e=doc.entities[0];
  assert.equal(e.id,'app:blender');
  assert.equal(e.facts[0].v,'5.2.2');
- assert.equal(e.facts[0].ver,'AUTOMATED');
+ assert.equal(e.facts[0].ver,'OFFICIAL');
  assert.equal(e.versions[0].version,'5.2.2');
  assert.equal(e.versions[0].released,'2026-09-14');
  assert.ok(e.versions.some(v=>v.version==='4.5.14'));

@@ -33,7 +33,7 @@ test('Godot fixture: -stable tags normalised, highest stable is latest, 3.x kept
  assert.equal(entity.id,'app:godot');
  assert.equal(entity.facts[0].p,'latest_version');
  assert.equal(entity.facts[0].v,'4.7.2');
- assert.equal(entity.facts[0].ver,'AUTOMATED');
+ assert.equal(entity.facts[0].ver,'OFFICIAL');
  assert.ok(entity.versions.some(v=>v.version==='3.6.3'));
  assert.ok(entity.versions.every(v=>!/stable/.test(v.version)&&v.channel==='stable'&&/^https:\/\/github\.com\/godotengine\/godot\/releases\//.test(v.notes_url||'')));
  assert.equal(source.id,sourceId('godotengine/godot'));

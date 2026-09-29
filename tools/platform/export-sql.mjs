@@ -6,7 +6,7 @@
  * sample boards), then writes INSERT statements for the platform graph tables in dependency order.
  * The D1 schema itself comes from `wrangler d1 migrations apply`, not from this file.
  * Rows are INSERT OR IGNORE: re-running never deletes or overwrites (collector and community data
- * written since stays); later seed changes go through the ingest pipeline, not this file. */
+ * written since stays); later seed changes go through tools/platform/seed-sync.mjs, not this file. */
 import {writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';

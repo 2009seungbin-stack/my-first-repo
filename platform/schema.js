@@ -81,3 +81,32 @@ export function mayOverride(/** @type {string} */ a,/** @type {string} */ b){
  const ia=VERIFICATION.indexOf(/** @type {any} */(a)),ib=VERIFICATION.indexOf(/** @type {any} */(b));
  return ia>=0&&ib>=0&&ia<=ib;
 }
+
+/** Properties that name "the newest release of X". They only move forward in time, so a value
+ * that is older than reality is wrong however trusted its label was when it was written. */
+export const VERSION_PROPERTIES=Object.freeze(new Set(['latest_version','current_build','current_version','latest_driver','patch_version']));
+/** Compare two version strings by their dotted numeric part ("v7.81", "Ver.1.042.00.02", "b4567",
+ * "580.95.05"); a positive result means a is newer. null when either is not version-like or they
+ * differ only in a suffix ("7.80" vs "7.80a", "5.0-beta1") — then no order is assumed.
+ * @param {unknown} a @param {unknown} b @returns {number|null} */
+export function compareVersionStrings(a,b){
+ const parse=(/** @type {unknown} */ v)=>{
+  const m=/^[^\d]{0,12}?(\d+(?:[._]\d+)*)(.*)$/.exec(String(v??'').trim());
+  return m&&String(v).length<=64?{n:m[1].split(/[._]/).map(Number),rest:m[2]}:null;
+ };
+ const x=parse(a),y=parse(b);if(!x||!y)return null;
+ for(let i=0;i<Math.max(x.n.length,y.n.length);i++){const d=(x.n[i]||0)-(y.n[i]||0);if(d)return d>0?1:-1;}
+ return x.rest===y.rest?0:null;
+}
+/** May an incoming observation replace the current value of a fact? The trust ladder (mayOverride),
+ * plus one exception for VERSION_PROPERTIES: a collector's AUTOMATED reading of a strictly NEWER
+ * version supersedes an OFFICIAL value (typically curated seed data that has since gone stale).
+ * The older value stays in history; an older or unparseable automated value still only raises a
+ * conflict. Collectors that read the vendor's own release channel label their facts OFFICIAL and
+ * never need the exception.
+ * @param {{ver:string,value:unknown,property:string}} incoming @param {{verification:string,value:unknown}} current */
+export function supersedes(incoming,current){
+ if(mayOverride(incoming.ver,current.verification))return true;
+ return VERSION_PROPERTIES.has(incoming.property)&&incoming.ver==='AUTOMATED'&&current.verification==='OFFICIAL'
+  &&(compareVersionStrings(incoming.value,current.value)??0)>0;
+}
