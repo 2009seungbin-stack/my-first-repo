@@ -643,7 +643,7 @@ def scenario_passkey(browser):
         # A fresh browser on the Japanese account page: passkey sign-in and the sign-up form come first.
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=origin
         page=context.new_page();page.goto(origin+'/ja/account/',wait_until='networkidle');page.locator('[data-passkey]').wait_for(timeout=15000)
-        ok('passkey: the Japanese account page offers パスキーでログイン and the sign-up form',page.locator('[data-passkey-signin]').inner_text().strip()=='パスキーでログイン' and page.locator('form[data-passkey-signup] input').count()==1)
+        ok('passkey: the Japanese account page offers passkey sign-in (ja label) and the sign-up form',page.locator('[data-passkey-signin]').inner_text().strip()=='パスキーでログイン' and page.locator('form[data-passkey-signup] input').count()==1)
         context.close()
     finally:
         stack.close()
