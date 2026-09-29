@@ -307,6 +307,33 @@ export async function frontPosts(db,o){
  const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':o.mode==='hot'?'(d.up_count-d.down_count)+2*d.comment_count DESC,d.created_at DESC':'d.created_at DESC';
  return withTags(db,(await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow));
 }
+/** A member's public profile by nickname (고정닉): tier, since when, and totals of what they wrote under
+ * it. Posts and comments written as ㅇㅇ (anon_id) never count toward or appear on a profile; banned
+ * members have none. @param {D1} db @param {string} name */
+export async function profileByName(db,name){
+ const r=await db.prepare(`SELECT p.user_id,p.display_name,COALESCE(p.tier,'new') AS tier,COALESCE(p.role,'user') AS role,MIN(p.created_at,u.created_at) AS since,
+  (SELECT COUNT(*) FROM discussions d WHERE d.author_id=p.user_id AND d.status='published' AND d.anon_id IS NULL) AS posts,
+  (SELECT COUNT(*) FROM comments c WHERE c.author_id=p.user_id AND c.status='published' AND c.anon_id IS NULL) AS comments,
+  (SELECT COALESCE(SUM(d.up_count),0) FROM discussions d WHERE d.author_id=p.user_id AND d.status='published' AND d.anon_id IS NULL)+(SELECT COALESCE(SUM(c.up_count),0) FROM comments c WHERE c.author_id=p.user_id AND c.status='published' AND c.anon_id IS NULL) AS ups
+  FROM user_profiles p JOIN users u ON u.id=p.user_id WHERE p.display_name=? AND p.banned_at IS NULL AND u.provider<>'system'`).bind(name).first();
+ return r?{user_id:String(r.user_id),name:String(r.display_name),tier:String(r.tier),role:String(r.role),since:Number(r.since),posts:Number(r.posts),comments:Number(r.comments),ups:Number(r.ups)}:null;
+}
+/** A member's newest posts under their nickname. @param {D1} db @param {string} userId @param {number} [limit] */
+export async function postsByAuthor(db,userId,limit=20){
+ return withTags(db,(await all(db,`${XPOST} WHERE d.author_id=? AND d.status='published' AND d.anon_id IS NULL ORDER BY d.created_at DESC LIMIT ?`,[userId,limit])).map(postRow));
+}
+/** A member's newest comments under their nickname, with the post they are on. @param {D1} db @param {string} userId @param {number} [limit] */
+export async function commentsByAuthor(db,userId,limit=20){
+ const rows=await all(db,`SELECT c.id,substr(c.body_md,1,400) AS md,c.up_count,c.created_at,d.channel_id,d.channel_no,d.title FROM comments c JOIN discussions d ON d.id=c.discussion_id
+  WHERE c.author_id=? AND c.status='published' AND c.anon_id IS NULL AND d.status='published' ORDER BY c.created_at DESC LIMIT ?`,[userId,limit]);
+ return rows.map(r=>({id:String(r.id),excerpt:plainExcerpt(String(r.md||''),120),up:Number(r.up_count),created_at:Number(r.created_at),channel_id:String(r.channel_id||'free'),channel_no:Number(r.channel_no||0),title:String(r.title)}));
+}
+/** The tags a member writes about most (their posts' tags). @param {D1} db @param {string} userId @param {number} [limit] */
+export async function tagsByAuthor(db,userId,limit=5){
+ const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},COUNT(*) AS n FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id JOIN entities e ON e.id=t.entity_id
+  WHERE d.author_id=? AND d.status='published' AND d.anon_id IS NULL AND e.status='active' GROUP BY e.id ORDER BY n DESC,e.slug LIMIT ?`,[userId,limit]);
+ return rows.map(r=>entityRow(r));
+}
 /** The first lines of many posts as plain text (the home feed's cards). @param {D1} db @param {string[]} ids @param {number} [n] */
 export async function excerptsOf(db,ids,n=140){
  const rows=await inChunks(db,ids,ph=>`SELECT id,substr(body_md,1,600) AS md FROM discussions WHERE id IN (${ph})`);

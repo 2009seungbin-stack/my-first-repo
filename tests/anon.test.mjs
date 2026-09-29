@@ -676,7 +676,7 @@ test('board display: anonymous "닉네임 (ID)" muted, members with ✓, the Rad
  const a=String(author({author_name:'ㅇㅇ',author_tier:'new',anon_id:'a3F9'},'ko'));
  assert.match(a,/class="nick anon"/);assert.match(a,/ㅇㅇ<span class="aid"> \(a3F9\)<\/span>/);assert(!a.includes('✓'));
  const m=String(author({author_name:'지문테스터',author_tier:'new'},'ko'));
- assert.match(m,/class="nick mem"/);assert.match(m,/지문테스터<b class="ck"[^>]*>✓<\/b>/);
+ assert.match(m,/class="nick mem"/);assert.match(m,/<a href="\/ko\/community\/u\/%EC%A7%80%EB%AC%B8%ED%85%8C%EC%8A%A4%ED%84%B0">지문테스터<\/a><b class="ck"[^>]*>✓<\/b>/,'a member\'s name links to their profile');
  assert.match(String(author({author_name:'<b>x</b>',author_tier:'new',anon_id:'zz00'},'ko')),/&lt;b&gt;x&lt;\/b&gt;/,'names are escaped');
  assert.match(String(author({author_name:null,author_tier:'new',bot:true},'ko')),/nick bot/);
 });

@@ -153,6 +153,32 @@ test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Ra
  assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
 });
 
+test('member profile: nickname, tier, totals of what they wrote under it, never their ㅇㅇ posts',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const go=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const name='코드장인',url=`/ko/community/u/${encodeURIComponent(name)}`;
+ assert.deepEqual(matchPlatformRoute(url),{l:'ko',page:'profile',name});
+ assert.equal(matchPlatformRoute('/ko/community/u/%E0%A4%A'),null,'broken escapes are not a route');
+ const {profileByName,postsByAuthor}=await import('../platform/db/channel.js');
+ const p=await profileByName(d,name);
+ assert(p&&p.tier==='trusted'&&p.posts===2&&p.comments===1&&p.ups===72,JSON.stringify(p));
+ // A post written as ㅇㅇ by the same account stays off the profile.
+ const [one]=await postsByAuthor(d,p.user_id,1);
+ await d.prepare("INSERT INTO discussions (id,entity_id,post_no,channel_id,channel_no,kind,flair,title,body_md,locale,author_id,status,up_count,down_count,view_count,comment_count,has_image,created_at,last_activity_at,anon_name,anon_id,updated_at) SELECT 'anon-by-member',entity_id,post_no+900,channel_id,channel_no+900,kind,flair,'익명으로 쓴 글','본문',locale,author_id,'published',99,0,0,0,0,created_at,last_activity_at,'ㅇㅇ','a1B2',updated_at FROM discussions WHERE id=?").bind(one.id).run();
+ const again=await profileByName(d,name);
+ assert.equal(again?.posts,2,'ㅇㅇ posts are not counted');assert.equal(again?.ups,72);
+ const res=await go(url);assert.equal(res.status,200);
+ const out=await res.text();
+ assert(out.includes('<h1 id="prof-h">코드장인</h1>')&&out.includes('◆ 신뢰')&&out.includes('<dd>72</dd>'));
+ assert(!out.includes('익명으로 쓴 글'));assert(out.includes('<meta name="robots" content="noindex,follow">'));
+ assert((await (await go(url+'?tab=comments')).text()).includes('비교 프롬프트 공유 가능할까요?'));
+ assert.equal(await go('/ko/community/u/'+encodeURIComponent('없는사람')),null);
+ // Members' names link to their profile; ㅇㅇ and the generated user-xxxxxx do not.
+ const post=await (await go('/ko/community/ai/10')).text();
+ assert(post.includes(`<a href="${url}">코드장인</a>`));
+ assert(!/community\/u\/(%E3%85%87|user-)/.test(post));
+});
+
 test('every entity type renders a channel page in both languages',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();
  const types=(await d.prepare("SELECT vertical,type,MIN(slug) AS slug FROM entities WHERE status='active' GROUP BY vertical,type").all()).results;

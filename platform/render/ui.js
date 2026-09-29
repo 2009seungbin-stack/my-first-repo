@@ -23,6 +23,11 @@ export const channelUrl=(l,e)=>`/${l}/${e.vertical}/${e.slug}/`;
 /** A post's address: /{l}/community/{channel}/{no}. @param {string} l @param {{channel_id:string,channel_no:number}} p */
 export const postHref=(l,p)=>postPath(l,p.channel_id,p.channel_no);
 export const frontUrl=(/** @type {string} */ l)=>`/${l}/community/`;
+/** A member's profile (/{l}/community/u/{nickname}). @param {string} l @param {string} name */
+export const profilePath=(l,name)=>`/${l}/community/u/${encodeURIComponent(name)}`;
+/** Nicknames with a profile link: members' own nicknames, not the generated "user-xxxxxx" nor ㅇㅇ (read as
+ * the anonymous writer's name even when a member picked it). @param {string|null|undefined} name */
+export const hasProfile=name=>!!name&&name!=='ㅇㅇ'&&!/^user-[0-9a-z]{6}$/.test(name);
 /** The portal home: Korean at the site root, English at /en/ (the community front, PLATFORM=on). */
 export const homeUrl=(/** @type {string} */ l)=>l==='ko'?'/':`/${l}/`;
 /** The sign-in chooser (the account page lists the configured providers: Google, GitHub, Discord) that
@@ -57,7 +62,8 @@ export function author(p,l){
  if(p.bot)return html`<span class="nick bot">${s.bot}<b aria-hidden="true"> ⚙</b></span>`;
  if(p.anon_id)return html`<span class="nick anon" title="${s.anonTitle}">${p.author_name||'ㅇㅇ'}<span class="aid"> (${p.anon_id})</span></span>`;
  const tier=/** @type {Record<string,string>} */(s.tier)[p.author_tier]||'';
- return html`<span class="nick mem">${p.author_name||s.anonymous}<b class="ck" title="${s.memberTitle}" aria-label="${s.memberTitle}">✓</b>${tier?html`<b title="${tier}"> ${tier.split(' ')[0]}</b>`:''}</span>`;
+ const name=p.author_name&&hasProfile(p.author_name)?html`<a href="${profilePath(l,p.author_name)}">${p.author_name}</a>`:p.author_name||s.anonymous;
+ return html`<span class="nick mem">${name}<b class="ck" title="${s.memberTitle}" aria-label="${s.memberTitle}">✓</b>${tier?html`<b title="${tier}"> ${tier.split(' ')[0]}</b>`:''}</span>`;
 }
 /** Plain-text author for data attributes and JSON-LD. @param {{author_name:string|null,anon_id?:string|null}} p @param {string} fallback */
 export const authorText=(p,fallback)=>p.anon_id?`${p.author_name||'ㅇㅇ'} (${p.anon_id})`:p.author_name||fallback;

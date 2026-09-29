@@ -2,6 +2,7 @@
 /** Server-rendered platform pages (architecture D4), only in builds with PLATFORM=on:
  *   / · /en/                   the portal home (Korean · English): the feed, AI status, news (?sort=new)
  *   /ko/ · /{l}/community/     → 301 to the portal home
+ *   /{l}/community/u/{name}    a member's profile (?tab=comments; noindex)
  *   /{l}/community/best/       전체 베스트 (?period=day|week|month&ch=)
  *   /{l}/community/{ch}/       a channel's board (?kind=&tag=&sort=&best=1&page=, 게임: &platform= | &genre=)
  *   /{l}/community/{ch}/{no} · …/write (?tag=&kind=) · …/best · …/feed.xml
@@ -27,6 +28,7 @@ import {loadRadar,renderRadar} from '../../platform/render/radar.js';
 import {renderFlag,loadFlagTarget,FLAG_TARGET} from '../../platform/render/flag.js';
 import {renderMod} from '../../platform/render/mod.js';
 import {renderMe} from '../../platform/render/me.js';
+import {loadProfile,renderProfile} from '../../platform/render/profile.js';
 import {loadTransparency,renderTransparency} from '../../platform/render/transparency.js';
 import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
@@ -42,6 +44,8 @@ import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
+/** A member's profile: /{l}/community/u/{nickname} (the nickname URL-encoded). */
+const PROFILE=new RegExp(`^/(${L})/community/u/([^/]{1,160})$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=60';
 /** Security headers of every server-rendered page (the static site's _headers do not apply to Worker responses). */
 export const PAGE_HEADERS=Object.freeze({
@@ -50,13 +54,15 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
  if(pathname==='/')return {l:'ko',page:'front'};
  if(pathname==='/en/')return {l:'en',page:'front'};
  if(pathname==='/ko/')return {l:'ko',page:'home-moved'};
+ const pm=PROFILE.exec(pathname);
+ if(pm){let name='';try{name=decodeURIComponent(pm[2]);}catch{return null;}return name&&name.length<=40?{l:pm[1],page:'profile',name}:null;}
  const m=ROUTE.exec(pathname);
  if(!m)return null;
  const [,l,community,best,report,ch,chNo,chSub,top,topFeed,vertical,slug,no,sub]=m;
@@ -84,6 +90,7 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  'board-write':{tag:v=>ENTITY_ID.test(v)?v:null,kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
  'legacy-write':{kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
  front:{sort:v=>v==='new'?'new':null},
+ profile:{tab:v=>v==='comments'?'comments':null},
  best:{period:v=>hasOwn(BEST_PERIODS,v)&&v!=='day'?v:null,ch:v=>CHANNEL_IDS.includes(/** @type {any} */(v))?v:null},
  radar:{v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
  hub:{type:v=>/^[a-z_]{2,20}$/.test(v)?v:null,org:v=>/^[a-z0-9][a-z0-9-]{0,40}$/.test(v)?v:null,sort:v=>v==='cheap'||v==='new'?v:null,vs:v=>/^[a-z0-9][a-z0-9-]{0,60},[a-z0-9][a-z0-9-]{0,60}$/.test(v)&&v.split(',')[0]!==v.split(',')[1]?v.split(',').sort().join(','):null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
@@ -134,6 +141,7 @@ export async function renderPlatformPage(request,env,site){
   case 'policy':return html(String(renderPolicy({l,channels:await bar()},s)));
   case 'transparency':return html(String(renderTransparency(await loadTransparency(db,{l,now,channels:await bar()}),s)));
   case 'me':return html(String(renderMe({l,channels:await bar()},s)));
+  case 'profile':{const m=await loadProfile(db,/** @type {string} */(route.name),{l,now,tab:q.get('tab')||'posts',channels:await bar()});return m?html(String(renderProfile(m,s))):null;}
   case 'mod':return html(String(renderMod({l,channels:await bar()},s)),'private, no-store');
   case 'search':return html(String(renderSearch(await loadSearch(db,{l,now,q:q.get('q')||'',in:q.get('in'),more:q.get('more')==='1',channels:await bar()}),s)),'private, no-store');
   case 'radar-feed':return xml(await radarFeed(db,l,s.origin));
