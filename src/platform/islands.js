@@ -311,9 +311,13 @@ async function main(){
    a.addEventListener('click',e=>{e.preventDefault();parent.value=a.dataset.reply;label.hidden=false;$('span',label).textContent=T.replyTo(a.dataset.name||'');ta.focus();});
   }
   $('button[data-cancel]',form)?.addEventListener('click',()=>{parent.value='';label.hidden=true;});
+  // A comment typed before signing in survives the round trip to the provider (this tab only).
+  const draftKey=`n2-draft-c:${form.dataset.post}`;
+  try{const d=sessionStorage.getItem(draftKey);if(d&&signedIn){if(!ta.value)ta.value=d;sessionStorage.removeItem(draftKey);}}catch{}
   form.addEventListener('submit',async e=>{
    e.preventDefault();
    if(!ta.value.trim())return toast(T.empty);
+   if(!signedIn)try{sessionStorage.setItem(draftKey,ta.value);}catch{}
    const btn=$('button[type="submit"]',form);btn.disabled=true;
    const r=await write('/comments',{postId:form.dataset.post,parentId:parent.value||undefined,body:ta.value},signedIn);
    btn.disabled=false;

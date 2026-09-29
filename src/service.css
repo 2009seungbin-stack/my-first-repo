@@ -49,6 +49,6 @@
 .identities li{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #e6ebf2;font-size:14px}
 .identities .id-name{font-weight:650;color:var(--ink)}.identities .id-sub{color:#7b889a;font-size:12px}
 .identities .id-main{display:flex;flex-direction:column;flex:1;min-width:0;overflow-wrap:anywhere}
-.identities button{flex:none}
+.identities button.secondary{flex:0 0 auto;width:auto;margin:0;padding:9px 14px}
 .identities .sib{width:auto;min-height:36px;font-size:13px}
 .account-card h2{font-size:16px!important;margin:24px 0 4px!important}
