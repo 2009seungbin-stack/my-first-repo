@@ -81,8 +81,8 @@ jobs:
     # 30-minute run → "tick" (D1 usage vs the device's thresholds, stale status collectors, incidents,
     # digests). Each alert is sent once. Skipped silently until the variable NOTIFY_URL and the secret
     # NOTIFY_TOKEN (same value as the Pages secret) are set. See docs/CLOUDFLARE.md "관리 앱".
-    needs: [collect]
-    if: ${{ always() && needs.collect.result != 'skipped' }}
+    needs: [plan, collect, fx]
+    if: ${{ always() && needs.plan.result != 'skipped' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

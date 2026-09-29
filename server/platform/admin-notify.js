@@ -66,7 +66,7 @@ export async function adminSubscriptions(db,userId){
  */
 export async function deliver(env,db,subs,message,o){
  const vapid=vapidFromEnv(env,o.origin);
- if(!vapid)throw new ApiError('NOT_CONFIGURED','Web Push is not configured.',{need:'VAPID_PRIVATE_KEY'});
+ if(!vapid)throw new ApiError('NOT_CONFIGURED','Web Push is not configured.',{need:'VAPID_PRIVATE_KEY'},{need:'VAPID_PRIVATE_KEY',missing:['VAPID_PRIVATE_KEY']});
  let sent=0,failed=0;const w=[];
  for(const s of subs){
   let status=0;

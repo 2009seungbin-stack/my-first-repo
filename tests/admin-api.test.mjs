@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readdirSync,readFileSync} from 'node:fs';
 import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
 import {handlePlatformApi} from '../server/platform/api.js';
+import {requireAdmin} from '../server/platform/admin.js';
 import {COLLECTORS,RUNNABLE,STATUS_ADAPTERS,nextRun,collectorState} from '../server/platform/admin-collectors.js';
 import {normalizePrefs,inQuiet,DEFAULT_PREFS,seoulDayStart} from '../server/platform/admin-notify.js';
 import {recordRun} from '../platform/collector-health.js';
@@ -10,6 +11,7 @@ import {sha256,base64url} from '../server/crypto.js';
 import {createLimiter} from '../server/ratelimit.js';
 import {ingest} from '../platform/ingest.js';
 import {generateAdminKeys} from '../tools/admin-keys.mjs';
+import {STATUS_ADAPTERS as PLAN_STATUS,STATUS_SCHEDULE} from '../tools/platform/collector-plan.mjs';
 import {SoftAuthenticator} from './passkey-authenticator.mjs';
 
 const skip=!sqliteAvailable&&'node:sqlite is unavailable';
@@ -193,10 +195,11 @@ test('collector registry matches the adapters and the workflow',{skip},async()=>
  const wf=readFileSync(new URL('../.github/workflows/collectors.yml',import.meta.url),'utf8');
  assert.match(wf,/\*\/30 \* \* \* \*/);assert.match(wf,/17 \*\/6 \* \* \*/);
  assert(!RUNNABLE.includes('ecb-fx')&&!RUNNABLE.includes('gpu-specs-manual'));
+ assert.deepEqual([...STATUS_ADAPTERS],[...PLAN_STATUS],'the 30-minute adapters are the ones collector-plan runs');assert.equal(STATUS_SCHEDULE,'*/30 * * * *');
  // The notify job: its own job, after the collectors, silent without NOTIFY_URL / NOTIFY_TOKEN.
  const job=wf.slice(wf.search(/^  notify:/m));
  assert(job.length>10,'notify job exists');
- assert.match(job,/always\(\)/);assert.match(job,/secrets\.NOTIFY_TOKEN/);assert.match(job,/vars\.NOTIFY_URL/);
+ assert.match(job,/needs: \[plan, collect, fx\]/);assert.match(job,/always\(\)/);assert.match(job,/secrets\.NOTIFY_TOKEN/);assert.match(job,/vars\.NOTIFY_URL/);
  assert.match(job,/\/api\/v2\/admin\/notify/);assert.match(job,/"kind":"tick"/);assert.match(job,/collector_failed/);assert.match(job,/exit 0/);
  // Next runs (UTC): :00/:30, and :17 past 00/06/12/18.
  assert.equal(nextRun('30m',Date.UTC(2026,8,29,8,31)),Date.UTC(2026,8,29,9,0));
@@ -234,7 +237,7 @@ test('collectors: states (a collector without a run record is a problem), runs w
 test('collectors/run dispatches the workflow with the chosen adapters, or says what is missing',{skip},async()=>{
  const h=await harness();const admin=await h.admin();
  const nc=await admin.call('POST','/admin/collectors/run',{body:{adapters:['steam-news']}});
- assert.equal(nc.status,503);assert.deepEqual(nc.json.error.need,'GITHUB_DISPATCH_TOKEN');
+ assert.equal(nc.status,503);assert.deepEqual(nc.json.error.need,'GITHUB_DISPATCH_TOKEN');assert.deepEqual([nc.json.need,nc.json.missing],['GITHUB_DISPATCH_TOKEN',['GITHUB_DISPATCH_TOKEN']]);
  const token='github_pat_TESTTOKEN_0123456789';h.env.GITHUB_DISPATCH_TOKEN=token;
  for(const adapters of [[],['gpu-specs-manual'],['ecb-fx'],['nope'],'steam-news',[1]])assert.equal((await admin.call('POST','/admin/collectors/run',{body:{adapters}})).status,400,JSON.stringify(adapters));
  h.upstream=async()=>new Response(null,{status:204});
@@ -253,6 +256,8 @@ test('collectors/run dispatches the workflow with the chosen adapters, or says w
 test('usage: Cloudflare GraphQL summed over every database; Workers Paid month-to-date, Free per day',{skip},async()=>{
  const h=await harness();const admin=await h.admin();
  const nc=await admin.call('GET','/admin/usage');assert.equal(nc.status,503);assert.equal(nc.json.error.need,'CF_ANALYTICS_TOKEN');
+ // One shape for every 503 (the traffic module uses it too): top-level need + missing, and the error envelope.
+ assert.equal(nc.json.need,'CF_ANALYTICS_TOKEN');assert.deepEqual(nc.json.missing,['CF_ANALYTICS_TOKEN','CF_ACCOUNT_ID']);assert.equal(nc.json.error.code,'NOT_CONFIGURED');
  h.env.CF_ANALYTICS_TOKEN='cf-analytics-token-secret';
  assert.equal((await admin.call('GET','/admin/usage')).json.error.need,'CF_ACCOUNT_ID');
  h.env.CF_ACCOUNT_ID=ACCOUNT;
@@ -363,12 +368,19 @@ test('overview: one screen of numbers, traffic null until the traffic module is 
  assert.equal(r.json.usage,null);assert.equal(r.json.traffic,null);
  assert.deepEqual(r.json.status.map(s=>[s.service,s.state]),[['Claude','never'],['OpenAI','never']]);
  assert.equal(r.json.graph.entities,1);assert.equal(r.json.flags.open,0);
- const t=await admin.call('GET','/admin/traffic?range=7d');assert.equal(t.status,503);assert.equal(t.json.error.code,'NOT_CONFIGURED');
+ const t=await admin.call('GET','/admin/traffic?range=7d');assert.equal(t.status,503);assert.equal(t.json.error.code,'NOT_CONFIGURED');assert(Array.isArray(t.json.missing));
+ // The gate the traffic module calls: (request, env, ctx) → admin, or an ApiError.
+ const req=(cookie,method='GET')=>new Request(ORIGIN+'/api/v2/admin/traffic',{method,headers:{cookie,origin:'https://evil.example'}});
+ const cookie=[...admin.jar].map(([k,v])=>`${k}=${v}`).join('; ');
+ assert.equal((await requireAdmin(req(cookie),h.env,null,{now:()=>h.clock.now})).name,'운영자');
+ await assert.rejects(requireAdmin(req(''),h.env,null,{now:()=>h.clock.now}),e=>e.code==='NOT_FOUND');
+ await assert.rejects(requireAdmin(req(cookie,'POST'),h.env,null,{now:()=>h.clock.now}),e=>e.code==='FORBIDDEN_ORIGIN');
+ await assert.rejects(requireAdmin(req(cookie),h.env,null,{now:()=>h.clock.now+13*HOUR}),e=>e.code==='REAUTH');
 });
 
 test('push: key, subscribe (push services only), prefs, test push, gone subscriptions removed',{skip},async()=>{
  const h0=await harness();const a0=await h0.admin();
- const nk=await a0.call('GET','/admin/push/key');assert.equal(nk.status,503);assert.equal(nk.json.error.need,'VAPID_PUBLIC_KEY');
+ const nk=await a0.call('GET','/admin/push/key');assert.equal(nk.status,503);assert.equal(nk.json.error.need,'VAPID_PUBLIC_KEY');assert.deepEqual(nk.json.missing,['VAPID_PUBLIC_KEY','VAPID_PRIVATE_KEY']);
  const h=await harness(vapidEnv);const admin=await h.admin();
  const k=await admin.call('GET','/admin/push/key');assert.deepEqual(k.json,{publicKey:KEYS.VAPID_PUBLIC_KEY});
  assert(!k.text.includes(KEYS.VAPID_PRIVATE_KEY));

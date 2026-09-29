@@ -8,7 +8,8 @@
  * Every endpoint except the passkey ceremonies and /notify answers 404 to anyone who is not an admin
  * (the admin surface is not advertised), and 401 REAUTH when the admin's session is older than 12 h.
  * State-changing requests must come from the site's own origin; /notify instead takes the CI's bearer
- * token. Optional integrations that are not configured answer 503 NOT_CONFIGURED {need}.
+ * token. Optional integrations that are not configured answer 503
+ * {need, missing:[…], error:{code:'NOT_CONFIGURED', message, need}} (the same shape as server/traffic.js).
  * D1 reads stay small: every screen is one batch of index-range queries. */
 import {runtimeConfig,SESSION_TTL_MS} from '../config.js';
 import {ApiError,json,errorResponse,readJSON,cookie,clearCookie} from '../http.js';
@@ -18,7 +19,7 @@ import {randomToken,sha256,hmacHex,safeEqual,base64url} from '../crypto.js';
 import {assertSameOrigin} from '../api.js';
 import {makeChallenge,readChallenge,challengeHash,verifyRegistration,verifyAuthentication,WebAuthnError} from '../webauthn.js';
 import {parseSubscription,vapidFromEnv} from '../push.js';
-import {trafficSummary,trafficReport} from '../traffic.js';
+import {trafficSummary,handleTraffic} from '../traffic.js';
 import {RUNNABLE,STATUS_ADAPTERS,collectorItems} from './admin-collectors.js';
 import {normalizePrefs,storedPrefs,adminSubscriptions,deliver,seoulDayStart,seoulDay,checkCollectorFailures,checkUsage,checkStatusStale,checkIncidents,checkFlagDigest,checkReviewDigest,checkNewUsers,DEFAULT_PREFS} from './admin-notify.js';
 import {modAction} from './api.js';
@@ -45,7 +46,8 @@ function text(v,[min,max],field){
  return s;
 }
 /** @param {string} need @param {string} [message] */
-const notConfigured=(need,message)=>new ApiError('NOT_CONFIGURED',message||`${need} is not configured on this deployment.`,{need});
+/** 503 NOT_CONFIGURED: {need, missing, error:{code, message, need}} — one check for the app. @param {string} need @param {string} [message] @param {string[]} [missing] */
+export const notConfigured=(need,message,missing=[need])=>new ApiError('NOT_CONFIGURED',message||`${need} is not configured on this deployment.`,{need},{need,missing});
 const ip=(/** @type {Request} */ r)=>r.headers.get('cf-connecting-ip')||'';
 /** Per-minute burst limit keyed by client address (or account). @param {C} c @param {string} name @param {number} n @param {string} [who] */
 async function limit(c,name,n,who){
@@ -58,7 +60,7 @@ const fresh=(/** @type {any} */ user,/** @type {number} */ now)=>now-Number(user
 
 /** 404 for everyone who is not an admin; 401 REAUTH for an admin whose sign-in is older than 12 h.
  * @param {any} db @param {any} context @param {number} now */
-export async function requireAdmin(db,context,now){
+export async function assertAdmin(db,context,now){
  if(!context?.user)throw new ApiError('NOT_FOUND');
  const p=await profileOf(db,context.user.id);
  if(!p||p.role!=='admin')throw new ApiError('NOT_FOUND');
@@ -330,8 +332,8 @@ export function periodStart(now,billingDay){
  */
 export async function getUsage(c){
  const token=String(c.env.CF_ANALYTICS_TOKEN||''),account=String(c.env.CF_ACCOUNT_ID||'');
- if(!token)throw notConfigured('CF_ANALYTICS_TOKEN');
- if(!/^[0-9a-f]{32}$/.test(account))throw notConfigured('CF_ACCOUNT_ID');
+ const missing=[...(token?[]:['CF_ANALYTICS_TOKEN']),...(/^[0-9a-f]{32}$/.test(account)?[]:['CF_ACCOUNT_ID'])];
+ if(missing.length)throw notConfigured(missing[0],undefined,missing);
  const plan=String(c.env.CF_PLAN||'paid').toLowerCase()==='free'?'free':'paid';
  const bd=Number(c.env.CF_BILLING_DAY),billingDay=Number.isInteger(bd)&&bd>=1&&bd<=28?bd:1;
  const key=await sha256([account,token,plan,billingDay].join('|'));
@@ -494,14 +496,19 @@ async function community(c){
   newUsers:(newUsers.results||[]).map((/** @type {any} */ r)=>({id:String(r.id),name:String(r.name),created_at:Number(r.created_at),posts:Number(r.posts),comments:Number(r.comments)}))};
 }
 
-/* ---------- traffic (module owned by the traffic work; see server/traffic.js) ---------- */
+/* ---------- the gate other admin modules use (server/traffic.js handleTraffic) ---------- */
 
-/** @param {C} c */
-async function traffic(c){
- const range=/** @type {'today'|'7d'|'30d'} */(['today','7d','30d'].includes(String(c.url.searchParams.get('range')))?String(c.url.searchParams.get('range')):'today');
- const r=await trafficReport(c.env,{range,now:c.now});
- if(!r)throw notConfigured('TRAFFIC','Traffic analytics are not configured.');
- return r;
+/**
+ * Admin gate with the (request, env, ctx) signature: throws ApiError (404 for non-admins, 401 REAUTH,
+ * 403 FORBIDDEN_ORIGIN for a cross-site write, 503 when the service is not configured) or returns the
+ * admin. `deps` carries the test clock / limiter like handlePlatformApi's.
+ * @param {Request} request @param {any} env @param {any} _ctx @param {{now?:()=>number}} [deps]
+ */
+export async function requireAdmin(request,env,_ctx,deps={}){
+ const cfg=runtimeConfig(env),now=(deps.now||Date.now)();
+ if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
+ if(request.method!=='GET'&&request.method!=='HEAD')assertSameOrigin(request,cfg);
+ return assertAdmin(env.DB,await resolveContext(request,cfg,env.DB,now),now);
 }
 
 /* ---------- push ---------- */
@@ -509,7 +516,7 @@ async function traffic(c){
 /** @param {C} c */
 async function pushKey(c){
  const v=vapidFromEnv(c.env,c.origin);
- if(!v)throw notConfigured(c.env.VAPID_PUBLIC_KEY?'VAPID_PRIVATE_KEY':'VAPID_PUBLIC_KEY');
+ if(!v){const missing=[...(/^[A-Za-z0-9_-]{87}$/.test(String(c.env.VAPID_PUBLIC_KEY||''))?[]:['VAPID_PUBLIC_KEY']),...(/^[A-Za-z0-9_-]{43}$/.test(String(c.env.VAPID_PRIVATE_KEY||''))?[]:['VAPID_PRIVATE_KEY'])];throw notConfigured(missing[0],undefined,missing);}
  return {publicKey:v.publicKey};
 }
 /** @param {C} c */
@@ -614,7 +621,6 @@ const ROUTES=[
  {m:'GET',re:/^\/admin\/radar$/,fn:radar},
  {m:'POST',re:/^\/admin\/radar\/action$/,fn:radarAction},
  {m:'GET',re:/^\/admin\/community$/,fn:community},
- {m:'GET',re:/^\/admin\/traffic$/,fn:traffic},
  {m:'GET',re:/^\/admin\/push\/key$/,fn:pushKey},
  {m:'POST',re:/^\/admin\/push\/subscribe$/,fn:subscribe},
  {m:'DELETE',re:/^\/admin\/push\/subscribe$/,fn:unsubscribe},
@@ -639,7 +645,11 @@ export async function handleAdminApi(request,env,ctx,deps={}){
   let params=/** @type {string[]} */([]);
   // Unknown path or method: 404 like any other missing page (nothing about the admin surface leaks).
   const r=ROUTES.find(x=>{if(x.m!==request.method)return false;const mm=x.re.exec(route);if(mm)params=mm.slice(1).map(p=>{try{return decodeURIComponent(p);}catch{return "";}});return !!mm;});
-  if(!r)throw new ApiError('NOT_FOUND');
+  if(!r){
+   // GET /admin/traffic belongs to server/traffic.js; it asks this module's gate first.
+   if(route==='/admin/traffic')return handleTraffic(request,env,ctx,{requireAdmin:(/** @type {Request} */ rq,/** @type {any} */ e,/** @type {any} */ cx)=>requireAdmin(rq,e,cx,deps),now:deps.now,fetch:deps.fetch});
+   throw new ApiError('NOT_FOUND');
+  }
   const cfg=runtimeConfig(env),now=(deps.now||Date.now)(),db=env.DB;
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
   /** @type {C} */
@@ -647,7 +657,7 @@ export async function handleAdminApi(request,env,ctx,deps={}){
   if(r.fn===notify)return json(await notify(c));
   if(request.method!=='GET')assertSameOrigin(request,cfg);
   context=c.context=await resolveContext(request,cfg,db,now);
-  if(!r.public)c.admin=await requireAdmin(db,context,now);
+  if(!r.public)c.admin=await assertAdmin(db,context,now);
   if(request.method!=='GET')c.body=await readJSON(request,r.bodyLimit||8192);
   const out=await r.fn(c);
   return json(out,200,{'Set-Cookie':[...context.setCookies,...cookies]});
