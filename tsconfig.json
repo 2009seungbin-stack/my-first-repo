@@ -11,5 +11,6 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["platform/**/*.js", "server/platform/**/*.js"]
+  "include": ["platform/**/*.js", "server/platform/**/*.js", "src/admin/**/*.js"],
+  "exclude": ["src/admin/sw.js"]
 }

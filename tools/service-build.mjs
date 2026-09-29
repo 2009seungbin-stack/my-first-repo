@@ -7,6 +7,7 @@ import {footer} from '../src/content.js';
 import {socialMetadata} from '../src/seo.js';
 import {withBeacon,TRAFFIC_ROUTES,TRAFFIC_HTML_EXCLUDES,crawlerFile} from './traffic-build.mjs';
 import {SERVICE_ROUTES,text,pricingHTML,accountHTML} from '../src/service-content.js';
+import {emitAdmin} from './admin-build.mjs';
 /** Build outputs that exist only when SERVICE_API=on: the /api/v1 Worker, its routes,
  * the pricing/account pages and the Turnstile frame. A build without the flag is the
  * unchanged static site. */
@@ -17,7 +18,7 @@ export function serviceMeta(config){
  return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs,freeDailyStudio:config.freeDailyStudio,freeAnonStudio:config.freeAnonStudio,...(config.ticketPublicKey?{ticketKey:config.ticketPublicKey}:{})}))}">`;
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
-export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
+export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*','/verify/*','/admin/*','/styles.css','/experience.css','/content.css','/favicon.svg','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']);
 /** Server-rendered platform prefixes (PLATFORM=on): community front and the vertical channels. */
 export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*']);
 export function serviceRoutes(config){
@@ -68,4 +69,6 @@ export async function emitService(dist,config,head){
  await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
+ // The owner-only admin app (static; /admin/* never reaches the Worker) exists only with PLATFORM=on.
+ if(config.platform)await emitAdmin(dist);
 }
