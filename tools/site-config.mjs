@@ -48,6 +48,14 @@ export function configuration(env=process.env){
  const traffic=platform,trafficHtml=traffic&&env.TRAFFIC_HTML!=='off';
  if(env.TRAFFIC_HTML==='on'&&!traffic)throw Error('TRAFFIC_HTML=on needs SERVICE_API=on and PLATFORM=on');
  if(platform&&!service)throw Error('PLATFORM=on needs SERVICE_API=on (the pages are rendered by the service Worker)');
+ // TOOL_METERING (default on with SERVICE_API=on): the Free/Pro metering of the creator tools — daily heavy
+ // jobs, Studio engine exports, the sign-in-to-continue and upgrade dialogs, fail-closed checks and ad gating
+ // by plan. TOOL_METERING=off keeps the account layer (sessions, /api/v1 auth, /api/v2, admin, traffic) but
+ // builds every tool page exactly as a build without SERVICE_API: no account meta, no /me or authorize call,
+ // ads for everyone. The Worker reads the same variable at runtime (server/config.js).
+ if(!['','on','off'].includes(env.TOOL_METERING||''))throw Error('TOOL_METERING must be on or off');
+ if(env.TOOL_METERING==='on'&&!service)throw Error('TOOL_METERING=on needs SERVICE_API=on');
+ const metering=service&&env.TOOL_METERING!=='off';
  // Pro is sold monthly and yearly. PRO_PRICE_MONTHLY_AMOUNT (alias PRO_PRICE_AMOUNT) and
  // PRO_PRICE_YEARLY_AMOUNT are display prices in PRO_PRICE_CURRENCY; what is charged is the provider
  // price each is paired with (BILLING_PRICE_ID / BILLING_PRICE_ID_YEARLY). The yearly saving is
@@ -72,14 +80,15 @@ export function configuration(env=process.env){
  // Public half of the key that signs service answers (tools/ticket-keys.mjs). Not a secret.
  const ticketPublicKey=env.TICKET_PUBLIC_KEY||'';
  if(ticketPublicKey&&!/^[A-Za-z0-9_-]{87}$/.test(ticketPublicKey))throw Error('TICKET_PUBLIC_KEY must be the value printed by node tools/ticket-keys.mjs');
- return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics,platform,traffic,trafficHtml};
+ return {siteURL,preview,pagesBuild,ticketPublicKey,client,slots,studioAd,verificationClient,searchVerification,naverVerification,bingVerification,indexNowKey,service,pricing,freeDailyJobs:freeDailyLimit(env.FREE_DAILY_JOBS),freeDailyStudio:freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS),freeAnonStudio:freeAnonStudioLimit(env.FREE_ANON_STUDIO_EXPORTS,freeStudioLimit(env.FREE_DAILY_STUDIO_EXPORTS)),redirectTo,webAnalytics,platform,traffic,trafficHtml,metering};
 }
-export function adHead({client='',slots={},service=false}={}){
+export function adHead({client='',slots={},service=false,metering}={}){
  if(!client)return '';
- // With accounts enabled, src/ads.js asks /api/v1/me first and injects AdSense only for
+ // With tool metering on, src/ads.js asks /api/v1/me first and injects AdSense only for
  // Free visitors; Pro pages never request Google's script. 'strict-dynamic' in the
- // per-response nonce CSP lets the nonced loader add it.
- if(service)return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script type="module" src="src/ads.js"></script>`;
+ // per-response nonce CSP lets the nonced loader add it. TOOL_METERING=off: everyone is Free,
+ // so the head is the one a build without accounts has.
+ if(service&&metering!==false)return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script type="module" src="src/ads.js"></script>`;
  return `<meta name="adsense-config" content="${esc(JSON.stringify({client,slots}))}"><script async crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}"></script>${Object.keys(slots).length?'<script type="module" src="src/ads.js"></script>':''}`;
 }
 export const WEB_ANALYTICS=Object.freeze({script:'https://static.cloudflareinsights.com',connect:'https://cloudflareinsights.com'});

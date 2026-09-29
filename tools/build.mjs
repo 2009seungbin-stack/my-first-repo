@@ -26,12 +26,14 @@ import {STUDIO_PATH,studioPage} from './studio-build.mjs';
 import {ADMIN_HEADERS,isAdminSource} from './admin-build.mjs';
 import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths,resolveLink} from './game-landing-build.mjs';
 import {gameHead} from './game-seo-build.mjs';
+import {sfxPage} from './sfx-build.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
+import {AUDIO_LAB_PATH,audioLabPage} from './audio-lab-build.mjs';
 export {ROUTES};
 export const ROOT=fileURLToPath(new URL('../',import.meta.url));
 // The Studio app (/game/studio/) is an app shell, not an intent: no sitemap entry, noindex.
 // /game/ is the hub of the game landing pages (tools/game-landing-build.mjs).
-export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH].map(r=>`${l}/${r}`)])];
+export const ALL_ROUTES=['',...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',...LOCALES.flatMap(l=>[l,...[...ROUTES,...POLICY_ROUTES,STUDIO_PATH,GAME_HUB_PATH,'game/sfx-generator',AUDIO_LAB_PATH].map(r=>`${l}/${r}`)])];
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Cloudflare Email Address Obfuscation (on for the nerulio.com zone) rewrites anything shaped like
  * an address at the edge: "hero@2x.json" was served as "[email protected]" with a /cdn-cgi link that 404s.
@@ -58,8 +60,10 @@ export function entry(html,route='',siteURL='',config={}){
  siteURL=normalizeSiteURL(siteURL);
  const parts=locationParts('/'+route),locale=parts.locale||'en',id=intentFor(parts.path),intent=INTENTS[id];
  const depth=route.split('/').filter(Boolean).length,base='../'.repeat(depth)||'./';
+ if(parts.path==='game/sfx-generator')return sfxPage({locale,base,siteURL});
  if(POLICY_ROUTES.includes(parts.path))return policyEntry(parts.path,locale,base,siteURL,config);
  if(parts.path===STUDIO_PATH)return studioPage({locale,base,config});
+ if(parts.path===AUDIO_LAB_PATH)return audioLabPage({locale,base,siteURL,preview:config.preview});
  // Game routes the Studio covers, game keyword landings and /game/: dark landing pages that open the Studio.
  const game=gamePageFor(parts.path);
  if(game){
@@ -104,7 +108,7 @@ export function entry(html,route='',siteURL='',config={}){
 function head(route,locale,siteURL,config){return `<meta name="site-url" content="${escape(siteURL)}">${config.preview?'<meta name="robots" content="noindex,nofollow">':!mayPromote(intentFor(route))?'<meta data-quality-robots name="robots" content="noindex,follow">':''}`+seoLinks(route,locale,siteURL)+verificationHead(config)+serviceMeta(config)+(config.webAnalytics?'<meta name="web-analytics" content="cloudflare">':'')+adHead(config);}
 function policyEntry(route,locale,base,siteURL,config){
  const title=labels[locale][route]+' · '+BRAND.name,description=policies[locale][route][0][1];
- return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main">${policyContent(route,locale,!!config.client,!!config.service,!!config.webAnalytics,!!config.traffic)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
+ return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css">${head(route,locale,siteURL,{...config,slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/policy-page.js"></script></head><body><header class="policy-header"><span class="brand policy-brand">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></span><nav class="policy-languages" aria-label="${escape(labels[locale].language)}">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main"${config.service&&config.metering===false?' data-service="accounts"':''}>${policyContent(route,locale,!!config.client,config.service?(config.metering===false?'accounts':true):false,!!config.webAnalytics,!!config.traffic)}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
 /** Every indexable page URL in one urlset: home, game pages, guides, then the file tools (tests,
  * IndexNow). The published sitemap.xml is an index of per-area sitemaps (tools/sitemaps.mjs). */
@@ -133,7 +137,7 @@ export async function build(options={}){
  await writeFile(path.join(dist,'.nojekyll'),'');
  await writeFile(path.join(dist,'404.html'),notFound(siteURL));
  const lastmod=lastmodResolver(pageHashes(entry,ALL_ROUTES,html));
- for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service?['pricing']:[],lastmod,dynamic:config.platform?PLATFORM_SITEMAPS:[]})))await writeFile(path.join(dist,file),xml);
+ for(const [file,xml] of Object.entries(sitemapFiles(config.preview?'':siteURL,{extra:config.service&&config.metering!==false?['pricing']:[],lastmod,dynamic:config.platform?PLATFORM_SITEMAPS:[]})))await writeFile(path.join(dist,file),xml);
  if(config.indexNowKey)await writeFile(path.join(dist,config.indexNowKey+'.txt'),config.indexNowKey);
  // The commit this build is made from (Cloudflare Pages / GitHub Actions), so tools/live-check.mjs can
  // wait until production serves this build before it checks it.

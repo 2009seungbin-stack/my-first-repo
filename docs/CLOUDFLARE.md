@@ -21,6 +21,7 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | 이름 | 유형 | 용도 |
 | --- | --- | --- |
 | `SERVICE_API` | 변수(빌드) | `on`이어야 계정 계층이 빌드된다. 없으면 기존 정적 사이트 |
+| `TOOL_METERING` | 변수(빌드+런타임) | 기본 켜짐. `off`면 계정·플랫폼은 유지하고 도구의 Free/Pro 미터링(하루 한도·업그레이드/로그인 대화상자·fail-closed·요금제별 광고)을 끈다. 도구 페이지는 `SERVICE_API` 없는 빌드와 같고 `/pricing/`은 만들지 않는다. `on`은 `SERVICE_API=on`이 필요 ([아래](#도구-미터링-끄기-tool_meteringoff)) |
 | `SITE_URL` | 변수 | 기존과 동일 (canonical 등) |
 | `FREE_DAILY_JOBS` | 변수 | Free heavy 작업/일 (파일 도구). 기본 30 |
 | `FREE_DAILY_STUDIO_EXPORTS` | 변수(빌드+런타임) | Free 스튜디오 엔진 내보내기/일. 기본 10. 가격 페이지 문구와 Worker 한도가 같은 값을 쓴다 ([PRICING-MODEL.md](PRICING-MODEL.md)) |
@@ -78,6 +79,30 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
     ```
     헤더 Pro 배지, 광고 요청 0(스튜디오 포함: 광고 칸 없음, 캔버스가 전체 폭), heavy·스튜디오 내보내기 무제한을 확인한 뒤 행을 삭제한다. `provider='manual'`은 결제가 아니라 운영자 부여임을 기록으로 남긴다.
 11. **그 다음에만 결제 연결**: [BILLING.md](BILLING.md)의 출시 순서를 따른다.
+
+## 도구 미터링 끄기 (`TOOL_METERING=off`)
+
+로그인 제공자와 결제가 준비되기 전에 Nerulio 2.0 플랫폼을 운영에 켤 때 쓴다. `SERVICE_API=on`은 원래 도구의 Free/Pro 미터링도 함께 켜는데, 로그인·결제가 없으면 한도에 걸린 사용자가 막힌다. 이 변수로 미터링만 끈다. 규칙은 [PRICING-MODEL.md](PRICING-MODEL.md#도구-미터링-끄기-tool_meteringoff).
+
+| 항목 | `TOOL_METERING=off` | 기본(켜짐) |
+| --- | --- | --- |
+| 도구·스튜디오·랜딩·정책 페이지 HTML | `SERVICE_API` 없는 빌드와 같음(방문 통계 비콘만 추가) | 계정 meta + `/me` |
+| 도구 페이지의 `/api/v1` 호출 | 없음 | 페이지당 `/me` 1회 + heavy 작업마다 `authorize` |
+| 한도·업그레이드·로그인 대화상자·오프라인 토큰 | 없음 | 있음 |
+| 광고 | 모두에게 표시(광고 단위가 설정된 경우) | Free에게만, `/me` 뒤 |
+| `/pricing/` | 만들지 않음, 사이트맵에 없음 | 있음 |
+| 계정 페이지 | 로그인·연결된 로그인·로그아웃 | + 요금제·사용량·업그레이드 |
+| `/api/v1/jobs/authorize` (오래된 탭) | 항상 `allowed:true, metered:false`, D1 쓰기 없음 | 계량 |
+| `/api/v1/billing/checkout` | `503 BILLING_UNAVAILABLE` | 결제사로 |
+| 세션·`/api/v1/auth/*`·`/api/v2`·관리 앱·방문 통계 | 그대로 | 그대로 |
+
+설정: Production(과 확인용 Preview)의 Variables에 `TOOL_METERING=off`를 **변수 하나로** 넣는다(Pages는 같은 변수를 빌드와 Worker 런타임에 모두 준다). 재배포 후 확인:
+
+1. `/api/v1/health` → `"metering":false`.
+2. 도구 페이지 소스에 `nerulio-service`가 없고, DevTools 네트워크 탭에서 도구 실행 시 `/api/v1/` 요청이 0건.
+3. `/ko/pricing/` → 404, `/ko/account/`는 로그인 버튼만.
+
+나중에 로그인·결제가 준비되면 변수를 지우고(또는 `on`) 재배포하면 기존 미터링이 그대로 돌아온다. 이때 요금제 페이지가 다시 생기고 사이트맵에 추가된다.
 
 ## Worker 라우팅과 비용
 

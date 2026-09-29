@@ -749,12 +749,92 @@ def scenario_anon(browser):
         row.locator('button',has_text='복구').click();mp.wait_for_timeout(2500)
         ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
         mc.close()
+# ------------------------------------------------------------------ TOOL_METERING=off (accounts without tool metering)
+def scenario_meteroff(browser):
+    """SERVICE_API + PLATFORM + TOOL_METERING=off, with ads: the creator tools behave like the build without
+    accounts (no /api/v1 call from a tool page, never refused, ads for everyone), while the account page,
+    platform pages, sessions and the admin surface keep working. The Worker gets no runtime TOOL_METERING:
+    the build flag alone switches it off. The limits are tiny so any metering would show at once."""
+    # AdSense needs an https SITE_URL; nothing here writes to the platform, so no local origin is needed.
+    port=PORT or free_port();origin='https://nerulio.test'
+    limits={'FREE_DAILY_JOBS':'2','FREE_DAILY_STUDIO_EXPORTS':'2','FREE_ANON_STUDIO_EXPORTS':'1'}
+    stack=Stack('meteroff',{'SITE_URL':origin,'PLATFORM':'on','TOOL_METERING':'off','ADSENSE_CLIENT':AD_CLIENT,'ADSENSE_SLOT_CONTENT_1':'1234567890','ADSENSE_SLOT_STUDIO':'2345678901','ADSENSE_CMP_READY':'true',
+                 'PRO_PRICE_AMOUNT':'4.99','PRO_PRICE_CURRENCY':'USD',**limits},
+                {'SITE_URL':origin,**limits,'BILLING_PROVIDER':'sandbox','BILLING_WEBHOOK_SECRET':WEBHOOK},port=port)
+    try:
+        health=json.load(urllib.request.urlopen(stack.url+'/api/v1/health',timeout=20))
+        ok('meteroff: the Worker reports tool metering off (from the build alone)',health['metering'] is False and health['configured'],health)
+        # --- a heavy file tool, far past FREE_DAILY_JOBS=2
+        context=browser.new_context(accept_downloads=True);context._nerulio_base=stack.url;log=[];ad_requests=[]
+        context.route(re.compile('googlesyndication'),lambda route:(ad_requests.append(route.request.url),route.fulfill(status=200,content_type='text/javascript',body='/* stub */')))
+        page=context.new_page();instrument(page,log)
+        response=page.goto(stack.url+'/en/image/upscale/?mode=smooth',wait_until='networkidle');page.wait_for_timeout(500)
+        html=response.text()
+        ok('meteroff: tool HTML has no account meta and the static AdSense tag of the build without accounts','nerulio-service' not in html and 'adsbygoogle.js?client=' in html)
+        ok('meteroff: ads for everyone: Google requested without asking /me, slot mounted',len(ad_requests)>=1 and page.locator('.ad-slot').count()>=1,(ad_requests,page.locator('.ad-slot').count()))
+        ok('meteroff: no account link in the header (as in the build without accounts)',page.locator('#accountLink').count()==0 or page.locator('#accountLink').is_hidden())
+        load_file(page)
+        for i in range(5):
+            run_intent(page);ok(f'meteroff: heavy job {i+1} (limit would be 2) produces a result',download_ok(page))
+        ok('meteroff: no upgrade dialog, no toast',page.locator('#upgradeDialog').count()==0 and page.locator('#serviceToast').count()==0)
+        # --- the Studio, anonymous, far past FREE_ANON_STUDIO_EXPORTS=1 and FREE_DAILY_STUDIO_EXPORTS=2
+        studio=context.new_page();instrument(studio,log);studio.set_viewport_size({'width':1440,'height':900})
+        studio.goto(stack.url+'/en/game/studio/?ws=pack',wait_until='domcontentloaded');studio.wait_for_function(STUDIO_STARTED,timeout=60000)
+        ok('meteroff: Studio decides ads without accounts (everyone Free)',studio.evaluate('window.nerulioMonetization&&window.nerulioMonetization.decision.reason')=='no-accounts')
+        ok('meteroff: Studio ad column has no "Remove ads - Pro" link',studio.locator('.st-ad').count()==1 and studio.locator('.st-ad-pro').count()==0)
+        studio_import(studio)
+        for i in range(5):ok(f'meteroff: anonymous Studio engine export {i+1} downloads a bundle',studio_export(studio))
+        ok('meteroff: no sign-in prompt, no limit dialog, no remaining note',studio.locator('#studioSignInDialog,#studioLimitDialog').count()==0 and meter_note(studio)=='')
+        ok('meteroff: no tool or Studio page called /api/v1 (no /me, no authorize)',not [r for r in log if '/api/v1/' in r['url']],[r['url'] for r in log if '/api/v1/' in r['url']])
+        ok('meteroff: no signed offline tokens were stored',studio.evaluate("localStorage.getItem('nerulio.grace.v2')") is None)
+        # --- a page built while metering was on (a stale tab) still calls authorize: always allowed
+        stale=studio.evaluate("""async()=>{const out=[];for(const toolId of ['upscale','upscale','upscale','studio-pack-export','studio-pack-export','studio-pack-export']){
+            const r=await fetch('/api/v1/jobs/authorize',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({operationId:crypto.randomUUID(),toolId})});
+            const j=await r.json();out.push([r.status,j.allowed,j.metered]);}return out;}""")
+        ok('meteroff: stale-page authorize calls are allowed past every limit, marked metered:false',all(x==[200,True,False] for x in stale),stale)
+        ok('meteroff: nothing was counted',stack.sql("SELECT COUNT(*) n FROM daily_usage")[0]['n']==0 and stack.sql("SELECT COUNT(*) n FROM job_authorizations")[0]['n']==0)
+        context.close()
+        # --- account page: sign-in only, no plan/quota/pricing; pricing is not built
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
+        acct=context.new_page();instrument(acct,log);acct.goto(stack.url+'/ko/account/',wait_until='networkidle')
+        body=acct.locator('#accountBody');acct.wait_for_function('()=>document.getElementById("accountBody").getAttribute("aria-busy")==="false"',timeout=15000)
+        ok('meteroff: account page (signed out) promises no limits and shows no quota or pricing','하루 사용 제한 없이' in body.inner_text() and acct.locator('[data-usage],[data-studio-usage],a[href$="/pricing/"]').count()==0,body.inner_text())
+        try:urllib.request.urlopen(stack.url+'/ko/pricing/',timeout=20);code=200
+        except urllib.error.HTTPError as e:code=e.code
+        ok('meteroff: /ko/pricing/ is not published',code==404,code)
+        # --- platform pages and sessions
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','미터링 끔 테스트','ko','system:radar-bot',{now},{now},{now});")
+        post=acct.goto(stack.url+'/ko/ai/e2e-chat/1',wait_until='networkidle')
+        ok('meteroff: a platform post page renders from D1',post.status==200 and 'E2E 질문' in acct.content())
+        front=acct.goto(stack.url+'/ko/community/',wait_until='networkidle')
+        ok('meteroff: the community front renders',front.status==200 and acct.locator('.box.login').count()==1)
+        uid,token=create_user(stack,'meteroff-member')
+        context.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url,'httpOnly':True,'sameSite':'Lax'}])
+        acct.goto(stack.url+'/ko/ai/e2e-chat/1',wait_until='networkidle')
+        acct.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
+        ok('meteroff: a session signs the member in on platform pages',True)
+        acct.goto(stack.url+'/ko/account/',wait_until='networkidle');acct.locator('[data-identities]').wait_for(timeout=15000)
+        ok('meteroff: signed-in account page: e-mail, linked sign-ins, sign out; no plan or quota','meteroff-member@example.test' in acct.locator('#accountBody').inner_text() and acct.locator('[data-signout]').count()==1 and acct.locator('[data-usage],[data-studio-usage],[data-ads]').count()==0)
+        me=acct.evaluate('fetch("/api/v1/me").then(r=>r.json())')
+        ok('meteroff: /me says signed in, metering off, unlimited, ads on',me['loggedIn'] and me.get('metering') is False and me['usage']=={'unlimited':True} and me['ads'] is True,me)
+        checkout=acct.evaluate("fetch('/api/v1/billing/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(async r=>[r.status,(await r.json()).error.code])")
+        ok('meteroff: Pro is not on sale',checkout==[503,'BILLING_UNAVAILABLE'],checkout)
+        # --- admin surface
+        admin=acct.goto(stack.url+'/admin/',wait_until='domcontentloaded')
+        ok('meteroff: the admin app is published',admin.status==200)
+        gate=acct.evaluate("fetch('/api/v2/admin/overview').then(async r=>[r.status,(await r.json()).error.code])")
+        ok('meteroff: the admin API answers (hidden from non-admins)',gate==[404,'NOT_FOUND'],gate)
+        context.close()
     finally:stack.close()
 
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
         only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic,meteroff').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
@@ -763,6 +843,7 @@ with sync_playwright() as p:
         if 'passkey' in only:scenario_passkey(browser)
         if 'traffic' in only:scenario_traffic(browser)
         if 'anon' in only:scenario_anon(browser)
+        if 'meteroff' in only:scenario_meteroff(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

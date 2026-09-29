@@ -1,0 +1,170 @@
+{
+  "sourceRenderer": "src/avatar/render.js",
+  "sourceSha256": "873d2a2594d003facd462bbba55652d29edc88a0ad0f5c049c98b2ba0864ae1f",
+  "catalogSha256": "a654e6a64cadfe0e0d8d6a81e0ed859f2aa9a217cb024f36ebd4234690e99d52",
+  "logicalGrid": [
+    16,
+    16
+  ],
+  "previewSize": [
+    64,
+    64
+  ],
+  "scaling": "nearest integer 4x",
+  "parts": [
+    {
+      "category": "face",
+      "id": "round",
+      "preview": "face-round.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "face",
+      "id": "angular",
+      "preview": "face-angular.png",
+      "sha256": "1f6cd30cf286eb8a8c2d356b0d7be25a37fda2e8107e8a641e0553620f1a2e5b",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "hair",
+      "id": "bob",
+      "preview": "hair-bob.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "hair",
+      "id": "swept",
+      "preview": "hair-swept.png",
+      "sha256": "54cc79d261d6aa569f50c837f68208e44799740f0a246bd355a1416266b389cf",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "eyes",
+      "id": "bright",
+      "preview": "eyes-bright.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "eyes",
+      "id": "sleepy",
+      "preview": "eyes-sleepy.png",
+      "sha256": "b3dfa9e32c0de1228cbd3cb0d4ae62df8ef479aedeab31e37ff281d8946a1dc3",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "outfit",
+      "id": "hoodie",
+      "preview": "outfit-hoodie.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "outfit",
+      "id": "jacket",
+      "preview": "outfit-jacket.png",
+      "sha256": "5c4590cb2635a200e8a0c3cd49fc3cf24efdb66e8b03fdbf8455266341b1a08a",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "accessory",
+      "id": "none",
+      "preview": "accessory-none.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "accessory",
+      "id": "earring",
+      "preview": "accessory-earring.png",
+      "sha256": "ac2cd60fa33bdce06cdcb4859b46907c53090df3a5987d923b1a6563df8bf41f",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "accessory",
+      "id": "glasses",
+      "preview": "accessory-glasses.png",
+      "sha256": "896e4fd8470b451e7654e896b2632e5dd29198943c5cf56e030624c3943e6d9a",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "background",
+      "id": "transparent",
+      "preview": "background-transparent.png",
+      "sha256": "5f952bd2426221c941fb6347e15c5fc53cf310c4741dead337b46d879e00085c",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "background",
+      "id": "sky",
+      "preview": "background-sky.png",
+      "sha256": "ab72bfbf7baabfa364e276804e13af7108609ab9001bb882059cdfe99d35b650",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    },
+    {
+      "category": "background",
+      "id": "plum",
+      "preview": "background-plum.png",
+      "sha256": "6cc6fb6ab8570d69d8511e2bd0efacdd2e282c7f2ed740e0b52ad0db9f023d60",
+      "artist": "Nerulio original pixel art authored for this project",
+      "sourceUrl": "https://github.com/2009seungbin-stack/my-first-repo/blob/c9fc0cf39712a4e14551c849f57638db910bcb40/src/avatar/render.js",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "authoredDate": "2026-09-28"
+    }
+  ]
+}

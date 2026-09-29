@@ -23,7 +23,11 @@ export function classification(p,d,group){
 }
 export function inventory(ledger={entries:[]}){
  const groups=sitemapGroups(),catalog=recipes();
- const pages=groups.game.filter(p=>p&&p!=='game'&&DEPTH[p]?.en&&gameIndexable(gamePageFor(p))).map(p=>{
+ const pages=groups.game.filter(p=>{
+  if(!p||p==='game'||!DEPTH[p]?.en)return false;
+  const landing=gamePageFor(p);
+  return !!landing&&gameIndexable(landing);
+ }).map(p=>{
   const d=DEPTH[p],g=gamePageFor(p),group=Object.entries(GROUPS).find(([,ps])=>ps.includes(p))?.[0];
   const [contentType,priority,priorityReason]=classification(p,d,group),route='/en/'+p+'/';
   const recipe=catalog[p],digest=sourceDigest(p),articleReady=!!recipe&&recipe.sourceDigest===digest;

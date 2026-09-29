@@ -1,4 +1,4 @@
-import {entitlement,load,apiPath,current} from './entitlement.js';
+import {entitlement,load,apiPath,current,meteringOn} from './entitlement.js';
 import {text} from './service-content.js';
 import {track} from './analytics.js';
 import {buttonsHTML} from './signin-brands.js';
@@ -11,6 +11,8 @@ const note=key=>`<p class="plan-note">${esc(t(key))}</p>`;
 function render(){
  const {status,me}=current();
  if(status!=='ready'||!me){action.innerHTML=note(status==='offline'?'serviceDown':'purchasesClosed');return;}
+ // Built while metering was on but the Worker now has TOOL_METERING=off: Pro is not on sale.
+ if(!meteringOn()){action.innerHTML=note('purchasesClosed');return;}
  if(me.plan==='pro'){action.innerHTML=`${note('youArePro')}<a class="secondary" href="${locale}/account/">${esc(t('account'))}</a>`;return;}
  if(me.billing.mode==='off'){action.innerHTML=note('purchasesClosed');return;}
  // Signed out: one branded button per configured provider (Google, GitHub, Discord), back to this page.

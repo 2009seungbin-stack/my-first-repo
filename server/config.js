@@ -60,6 +60,10 @@ export function runtimeConfig(env={},build=BUILD){
   ticketKey:parsePrivateJwk(env.TICKET_PRIVATE_KEY),
   // Previous SESSION_SECRET, still accepted for anonymous cookies during a rotation.
   previousSecret:String(env.SESSION_SECRET_PREVIOUS||'').length>=32?String(env.SESSION_SECRET_PREVIOUS):'',
+  // Free/Pro metering of the creator tools (docs/PRICING-MODEL.md). Off when the build was made with
+  // TOOL_METERING=off or the Worker's own TOOL_METERING variable is off: /jobs/authorize then allows every
+  // job without counting, /me reports metering:false and unlimited usage, and Pro is not on sale.
+  metering:build.metering!==false&&String(env.TOOL_METERING||'').toLowerCase()!=='off',
   environment,environmentOverrideRefused:devRequested&&environment!=='development',siteOrigin,freeDailyJobs,freeDailyStudio,freeAnonStudio,
   configured:!!env.DB&&secret.length>=32,
   secret,

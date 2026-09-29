@@ -15,6 +15,10 @@ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 /** Public, non-secret configuration read by src/entitlement.js. */
 export function serviceMeta(config){
  if(!config.service)return '';
+ // TOOL_METERING=off: tool, Studio, landing and policy pages carry no account meta at all, so they
+ // run exactly like a build without SERVICE_API. Only the account page (sign-in for the platform)
+ // keeps the API path, marked unmetered so it shows no quotas and no upgrade.
+ if(config.metering===false)return config.accountPage?`<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',metering:false,...(config.ticketPublicKey?{ticketKey:config.ticketPublicKey}:{})}))}">`:'';
  return `<meta name="nerulio-service" content="${escape(JSON.stringify({api:'api/v1/',pricing:config.pricing,freeDailyJobs:config.freeDailyJobs,freeDailyStudio:config.freeDailyStudio,freeAnonStudio:config.freeAnonStudio,...(config.ticketPublicKey?{ticketKey:config.ticketPublicKey}:{})}))}">`;
 }
 /** Static assets that must never wake the Worker, even in advertising builds. */
@@ -41,17 +45,21 @@ export const SERVICE_HEADERS=`/verify/*
 /:lang/account/*
   X-Robots-Tag: noindex, nofollow
 `;
+/** Account-service pages this build publishes. With TOOL_METERING=off there is no plan to buy
+ * (nothing is limited and ads are shown to everyone), so /pricing/ is not built, linked or listed. */
+export const serviceRoutesFor=config=>config.metering===false?SERVICE_ROUTES.filter(r=>r!=='pricing'):SERVICE_ROUTES;
 function servicePage(route,locale,base,siteURL,config,head){
- const title=text(locale,route)+' · '+BRAND.name,description=route==='pricing'?text(locale,'pricingLead'):text(locale,'signedOutLead');
- const body=route==='pricing'?pricingHTML(locale,config):accountHTML(locale);
+ const open=config.metering===false;
+ const title=text(locale,route)+' · '+BRAND.name,description=route==='pricing'?text(locale,'pricingLead'):text(locale,open?'signedOutLeadOpen':'signedOutLead');
+ const body=route==='pricing'?pricingHTML(locale,config):accountHTML(locale,{metering:!open});
  const robots=route==='account'&&!config.preview?'<meta name="robots" content="noindex,nofollow">':'';
  // No advertising on account pages: head() receives a config without an ad client.
- return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css"><link rel="stylesheet" href="src/service.css">${robots}${head(route,locale,siteURL,{...config,client:'',slots:{}})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/${route}-page.js"></script></head><body class="service-page"><header class="policy-header"><a class="brand policy-brand" href="${locale}/">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></a><nav class="policy-languages" aria-label="Language">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main service-main" data-route="${route}">${body}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
+ return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>${escape(title)}</title><meta name="description" content="${escape(description)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="content.css"><link rel="stylesheet" href="src/service.css">${robots}${head(route,locale,siteURL,{...config,client:'',slots:{},accountPage:route==='account'})}${socialMetadata('home',locale,siteURL,{title,description})}<script type="module" src="src/${route}-page.js"></script></head><body class="service-page"><header class="policy-header"><a class="brand policy-brand" href="${locale}/">${logoMark({size:28})}<strong>${escape(BRAND.name)}<span class="brand-dot">.</span></strong></a><nav class="policy-languages" aria-label="Language">${LOCALES.map(l=>`<a href="${l}/${route}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${{ko:'한국어',en:'English',ja:'日本語'}[l]}</a>`).join('')}</nav></header><main class="policy-main service-main" data-route="${route}">${body}</main><div id="policyFooter">${footer(locale)}</div></body></html>`;
 }
 const VERIFY=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Verification</title><style>html,body{margin:0;background:transparent}body{display:flex;justify-content:center;padding:4px}</style><script type="module" src="../src/verify-page.js"></script></head><body><div id="turnstile"></div></body></html>`;
 export async function emitService(dist,config,head){
  if(!config.service)return;
- for(const route of SERVICE_ROUTES)for(const locale of [null,...LOCALES]){
+ for(const route of serviceRoutesFor(config))for(const locale of [null,...LOCALES]){
   const rel=locale?`${locale}/${route}`:route,dir=path.join(dist,rel);
   await mkdir(dir,{recursive:true});
   await writeFile(path.join(dir,'index.html'),withBeacon(servicePage(route,locale||'en',locale?'../../':'../',config.siteURL,config,head),config));
@@ -66,7 +74,7 @@ export async function emitService(dist,config,head){
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});for(const f of ['quota.js','signin-brands.js'])await cp(new URL(`src/${f}`,root),path.join(worker,'src',f));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
- await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml})});\n`);
+ await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml,metering:config.metering!==false})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
  // The owner-only admin app (static; /admin/* never reaches the Worker) exists only with PLATFORM=on.

@@ -5,6 +5,7 @@ import {GAME_INTENT_PAGES,GAME_LAB_PAGES,classicPath,appPath} from './game-seo.j
 const spec=(path,editor,tool,icon,action,accept,next=[])=>({path,editor,tool,icon,action,accept,next});
 export const INTENTS=Object.freeze({
  ...RECIPE_INTENTS,
+ 'store-art-pack':spec('game/store-art-pack','image','store-art-pack','pack','export','image',['crop','compress']),
  home:spec('','image','','image','open','auto'),
  'character-counter':spec('character-counter','text','counter','text','count','text'),
  image:spec('image/editor','image','','image','export','image',['upscale','remove-bg','compress','pixel']),
