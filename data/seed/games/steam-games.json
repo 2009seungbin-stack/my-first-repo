@@ -5299,6 +5299,359 @@
    "publisher": "2K / Firaxis Games",
    "retrieved": "2026-09-29",
    "note": "Korean site mixes English (Firaxis Games) and Hangul; the Hangul form appears in a news title linking /news/message-from-firaxis-games/"
+  },
+  {
+   "id": "src:ko-games-titles-maplestory",
+   "kind": "OFFICIAL",
+   "url": "https://maplestory.nexon.com/Home/Main",
+   "title": "메이플스토리",
+   "publisher": "NEXON Korea Corporation",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-blackdesert",
+   "kind": "OFFICIAL",
+   "url": "https://www.kr.playblackdesert.com/ko-KR/Main/Index",
+   "title": "검은사막 한국 – 하이퍼부스트로 초고속 성장 | Pearl Abyss",
+   "publisher": "Pearl Abyss",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-lostark",
+   "kind": "OFFICIAL",
+   "url": "https://lostark.game.onstove.com/Main",
+   "title": "로스트아크",
+   "publisher": "Smilegate RPG",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-overwatch",
+   "kind": "OFFICIAL",
+   "url": "https://overwatch.blizzard.com/ko-kr/",
+   "title": "오버워치",
+   "publisher": "Blizzard Entertainment",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-poe",
+   "kind": "OFFICIAL",
+   "url": "https://poe.game.daum.net/",
+   "title": "Path of Exile | 카카오게임즈",
+   "publisher": "Kakao Games (Korean service of Path of Exile)",
+   "retrieved": "2026-09-29",
+   "note": "rating footer of the Korean service page"
+  },
+  {
+   "id": "src:ko-games-titles-poe2",
+   "kind": "OFFICIAL",
+   "url": "https://pathofexile2.game.daum.net/main",
+   "title": "Path of Exile 2 | 카카오게임즈",
+   "publisher": "Kakao Games (Korean service of Path of Exile 2)",
+   "retrieved": "2026-09-29",
+   "note": "rating footer of the Korean service page"
+  },
+  {
+   "id": "src:ko-games-titles-pubg",
+   "kind": "OFFICIAL",
+   "url": "https://pubg.com/ko/main",
+   "title": "PUBG: 배틀그라운드",
+   "publisher": "KRAFTON, Inc.",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-kog-gcp",
+   "kind": "OFFICIAL",
+   "url": "https://www.kog.co.kr/games/gcp",
+   "title": "코그 홈페이지 – 그랜드체이스 클래식",
+   "publisher": "KOG Corporation",
+   "retrieved": "2026-09-29",
+   "note": "KOG Korean corporate site game page; the page links to store.steampowered.com/app/985810/GrandChase/"
+  },
+  {
+   "id": "src:ko-games-titles-ps-terraria",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/UP4040-CUSA00740_00-ASIA000000000000",
+   "title": "테라리아 (한국어, 영어)",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ps-darkestdungeon",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/EP2483-CUSA05967_00-RHSDDPS4BND00001",
+   "title": "다키스트 던전 (한국어, 중국어(간체자))",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29",
+   "note": "language suffix \"(한국어, 중국어(간체자))\" stripped"
+  },
+  {
+   "id": "src:ko-games-titles-ps-hollowknight",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/EP1805-CUSA13285_00-ASIA000000000000",
+   "title": "할로우 나이트",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ps-deadcells",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/EP3862-PPSA15554_00-DEADCELLSPS5SIEE",
+   "title": "데드 셀 Dead Cells (PS4® & PS5®)",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29",
+   "note": "English/platform suffix stripped"
+  },
+  {
+   "id": "src:ko-games-titles-ps-ck3",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/EP4139-PPSA02308_00-TTL0000000000002",
+   "title": "크루세이더 킹즈 III",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ps-farcry6",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/JP0001-PPSA01877_00-FC6EDSTANDARD000",
+   "title": "파 크라이 6",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ps-nierautomata",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/store/api/chihiro/00_09_000/container/KR/ko/999/JP0082-CUSA02517_00-ASIAPARENT000000",
+   "title": "니어 오토마타 (영어판/일어판)",
+   "publisher": "PlayStation Store Korea catalog (product JP0082-CUSA02517_00-ASIAPARENT000000, provider SQUARE ENIX CO., LTD.)",
+   "retrieved": "2026-09-29",
+   "note": "language-version suffix \"(영어판/일어판)\" stripped; store product page is client-rendered, name read from the PS Store KR catalog API"
+  },
+  {
+   "id": "src:ko-games-titles-xb-warframe",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/BPS3XF74B9V1",
+   "title": "워프레임 다운로드 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-civ6",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/9N4RSG99KV1X",
+   "title": "시드 마이어의 문명 VI 구입 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-dbd",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/C0N22P73QZ60",
+   "title": "데드 바이 데이라이트 구입 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-acodyssey",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/BW9TWC8L4JCS",
+   "title": "어쌔신 크리드 오디세이 구입 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-cyberpunk",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/BX3M8L83BBRW",
+   "title": "사이버펑크 2077 구입 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-fallguys",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/9PMXH5249DG5",
+   "title": "폴가이즈 다운로드 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-naraka",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/9P8SQQJ5T94B",
+   "title": "나라카: 블레이드포인트 다운로드 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-aoe4",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/9PHH1ZWRSZ41",
+   "title": "에이지 오브 엠파이어 IV: 기념일 에디션 구입 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-xb-wuwa",
+   "kind": "OFFICIAL",
+   "url": "https://www.xbox.com/ko-KR/games/store/x/9P41GS5W1C6L",
+   "title": "명조:워더링 웨이브 다운로드 | XBOX",
+   "publisher": "Microsoft Store / Xbox Korea",
+   "retrieved": "2026-09-29",
+   "note": "same spelling on Google Play KR (com.kurogame.wutheringwaves.global, HK KURO GAMES LIMITED)"
+  },
+  {
+   "id": "src:ko-games-titles-gp-stardew",
+   "kind": "OFFICIAL",
+   "url": "https://play.google.com/store/apps/details?id=com.chucklefish.stardewvalley&hl=ko&gl=KR",
+   "title": "스타듀 밸리 Stardew Valley - Google Play 앱",
+   "publisher": "Google Play Korea (developer ConcernedApe)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-gp-vampiresurvivors",
+   "kind": "OFFICIAL",
+   "url": "https://play.google.com/store/apps/details?id=com.poncle.vampiresurvivors&hl=ko&gl=KR",
+   "title": "Vampire Survivors (뱀파이어 서바이버즈) - Google Play 앱",
+   "publisher": "Google Play Korea (developer Poncle)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-gp-dungreed",
+   "kind": "OFFICIAL",
+   "url": "https://play.google.com/store/apps/details?id=com.teamhoray.dungreed&hl=ko&gl=KR",
+   "title": "던그리드 Dungreed - Google Play 앱",
+   "publisher": "Google Play Korea (developer TEAM HORAY Co.,Ltd)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ns-silksong",
+   "kind": "OFFICIAL",
+   "url": "https://store.nintendo.co.kr/70010000100203",
+   "title": "Hollow Knight: Silksong (할로우 나이트: 실크송)",
+   "publisher": "Nintendo Korea (My Nintendo Store)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-asw-lor",
+   "kind": "OFFICIAL",
+   "url": "https://www.arcsystemworks.jp/lor/kr/",
+   "title": "Library Of Ruina | ARC SYSTEM WORKS",
+   "publisher": "ARC SYSTEM WORKS (console publisher; official Korean site)",
+   "retrieved": "2026-09-29",
+   "note": "Nintendo KR listing 70010000057311 is titled \"라이브러리 오브 루이나 (Library Of Ruina)\""
+  },
+  {
+   "id": "src:ko-games-titles-warthunder",
+   "kind": "OFFICIAL",
+   "url": "https://warthunder.com/ko",
+   "title": "워 썬더는 현실감 넘치는 군사 장비를 사용하여 전투를 펼칠 수 있는 온라인 게임으로, PC, Xbox, PlayStation 에서 무료로 플레이할 수 있습니다.",
+   "publisher": "Gaijin Entertainment (official War Thunder site, Korean)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-wot",
+   "kind": "OFFICIAL",
+   "url": "https://worldoftanks.asia/ko/",
+   "title": "월드 오브 탱크 아시아 - 무료 온라인 전차 게임",
+   "publisher": "Wargaming (World of Tanks Asia official site, Korean)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-dota2",
+   "kind": "OFFICIAL",
+   "url": "https://www.dota2.com/home?l=koreana",
+   "title": "도타 2",
+   "publisher": "Valve Corporation (official Dota 2 site, Korean localisation)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-ps-cities",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/EP4139-CUSA06407_00-ASIA000000000007",
+   "title": "시티즈: 스카이라인 - 메이어 에디션 (한국어, 영어)",
+   "publisher": "PlayStation Store Korea (publisher Paradox Interactive)",
+   "retrieved": "2026-09-29",
+   "note": "edition suffix \" - 메이어 에디션\" stripped; same base title on the Remastered listing EP4139-PPSA09192_00-CITIESSKYLINESEU \"시티즈: 스카이라인 - 리마스터\""
+  },
+  {
+   "id": "src:ko-games-titles-ns-pizzatower",
+   "kind": "OFFICIAL",
+   "url": "https://store.nintendo.co.kr/70010000074090",
+   "title": "Pizza Tower (피자 타워 박살 작전)",
+   "publisher": "Nintendo Korea (My Nintendo Store); maker Tour De Pizza",
+   "retrieved": "2026-09-29",
+   "note": "English part of the listing title dropped"
+  },
+  {
+   "id": "src:ko-games-titles-ns-hollowknight",
+   "kind": "OFFICIAL",
+   "url": "https://store.nintendo.co.kr/70010000065700",
+   "title": "Hollow Knight (공허의 기사)",
+   "publisher": "Nintendo Korea (My Nintendo Store)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-games-titles-sf6",
+   "kind": "OFFICIAL",
+   "url": "https://www.streetfighter.com/6/ko-kr",
+   "title": "STREET FIGHTER 6 | CAPCOM",
+   "publisher": "CAPCOM (official Street Fighter 6 site, Korean)",
+   "retrieved": "2026-09-29",
+   "note": "store listings (Xbox KR, Nintendo KR) use the English product name \"Street Fighter 6\""
+  },
+  {
+   "id": "src:ko-games-titles-mhwilds",
+   "kind": "OFFICIAL",
+   "url": "https://www.monsterhunter.com/wilds/ko-kr/",
+   "title": "MONSTER HUNTER WILDS｜CAPCOM",
+   "publisher": "CAPCOM (official Monster Hunter Wilds site, Korean)",
+   "retrieved": "2026-09-29",
+   "note": "product name on Korean stores is English (\"Monster Hunter Wilds\")"
+  },
+  {
+   "id": "src:ko-games-titles-mhrise",
+   "kind": "OFFICIAL",
+   "url": "https://www.monsterhunter.com/rise/kr/",
+   "title": "MONSTER HUNTER RISE | CAPCOM",
+   "publisher": "CAPCOM (official Monster Hunter Rise site, Korean)",
+   "retrieved": "2026-09-29",
+   "note": "product name on Korean stores is English (\"MONSTER HUNTER RISE\")"
+  },
+  {
+   "id": "src:ko-games-titles-ps-wo3u",
+   "kind": "OFFICIAL",
+   "url": "https://store.playstation.com/ko-kr/product/KP5014-CUSA12715_00-ASIAFULLGAME0000",
+   "title": "무쌍OROCHI3 Ultimate (한국어판)",
+   "publisher": "PlayStation Store Korea",
+   "retrieved": "2026-09-29",
+   "note": "Korean title of the Ultimate release; the Definitive Edition itself has no Korean listing"
+  },
+  {
+   "id": "src:ko-games-titles-gp-btd6-netflix",
+   "kind": "OFFICIAL",
+   "url": "https://play.google.com/store/apps/details?id=com.netflix.NGP.BloonsTDSix&hl=ko&gl=KR",
+   "title": "블룬스 TD 6 NETFLIX - Google Play 앱",
+   "publisher": "Google Play Korea (licensed Netflix edition, Netflix, Inc.)",
+   "retrieved": "2026-09-29",
+   "note": "Ninja Kiwi's own listings are English-only"
+  },
+  {
+   "id": "src:ko-games-titles-psblog-nioh3",
+   "kind": "OFFICIAL",
+   "url": "https://blog.ko.playstation.com/2025/06/05/20250605-nioh/",
+   "title": "PS5용 인왕 3, 공식 발표 – PlayStation.Blog 한국어",
+   "publisher": "Sony Interactive Entertainment Korea (PlayStation.Blog 한국어)",
+   "retrieved": "2026-09-29",
+   "note": "PS Store KR product name is \"Nioh 3\""
+  },
+  {
+   "id": "src:ko-games-titles-ns-lor-lobotomy",
+   "kind": "OFFICIAL",
+   "url": "https://store.nintendo.co.kr/70010000057311",
+   "title": "라이브러리 오브 루이나 (Library Of Ruina)",
+   "publisher": "Nintendo Korea (My Nintendo Store); maker description by ARC SYSTEM WORKS",
+   "retrieved": "2026-09-29",
+   "note": "prequel named in the maker-provided product description"
   }
  ],
  "entities": [
@@ -5826,7 +6179,11 @@
    "type": "game",
    "slug": "age-of-empires-iv-anniversary-edition",
    "names": {
-    "en": "Age of Empires IV: Anniversary Edition"
+    "en": "Age of Empires IV: Anniversary Edition",
+    "ko": "에이지 오브 엠파이어 IV: 기념일 에디션"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-aoe4"
    },
    "description": {
     "en": "Strategy game for PC developed by World's Edge, Relic Entertainment, Forgotten Empires and Climax Studios and published by Xbox Game Studios, released on Steam on 28 October 2021. The Steam store lists Korean with full audio support.",
@@ -7320,7 +7677,11 @@
    "type": "game",
    "slug": "assassins-creed-odyssey",
    "names": {
-    "en": "Assassin's Creed Odyssey"
+    "en": "Assassin's Creed Odyssey",
+    "ko": "어쌔신 크리드 오디세이"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-acodyssey"
    },
    "aliases": [
     "Assassin's Creed® Odyssey"
@@ -9095,7 +9456,11 @@
    "type": "game",
    "slug": "black-desert",
    "names": {
-    "en": "Black Desert"
+    "en": "Black Desert",
+    "ko": "검은사막"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-blackdesert"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Pearl Abyss, released on Steam on 24 May 2017. The Steam store lists no official Korean support.",
@@ -9383,6 +9748,12 @@
    "slug": "bloons-td-6",
    "names": {
     "en": "Bloons TD 6"
+   },
+   "aliases": [
+    "블룬스 TD 6"
+   ],
+   "aliases_src": {
+    "블룬스 TD 6": "src:ko-games-titles-gp-btd6-netflix"
    },
    "description": {
     "en": "Strategy game for PC developed by Ninja Kiwi, released on Steam on 17 December 2018. The Steam store lists Korean text support without full Korean audio.",
@@ -10917,7 +11288,11 @@
    "type": "game",
    "slug": "cities-skylines",
    "names": {
-    "en": "Cities: Skylines"
+    "en": "Cities: Skylines",
+    "ko": "시티즈: 스카이라인"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-cities"
    },
    "description": {
     "en": "Simulation/Strategy game for PC developed by Colossal Order and published by Paradox Interactive, released on Steam on 10 March 2015. The Steam store lists Korean text support without full Korean audio.",
@@ -11965,7 +12340,11 @@
    "type": "game",
    "slug": "crusader-kings-iii",
    "names": {
-    "en": "Crusader Kings III"
+    "en": "Crusader Kings III",
+    "ko": "크루세이더 킹즈 III"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-ck3"
    },
    "description": {
     "en": "RPG/Simulation game for PC developed by Paradox Development Studio and published by Paradox Interactive, released on Steam on 1 September 2020. The Steam store lists Korean text support without full Korean audio.",
@@ -12419,7 +12798,11 @@
    "type": "game",
    "slug": "cyberpunk-2077",
    "names": {
-    "en": "Cyberpunk 2077"
+    "en": "Cyberpunk 2077",
+    "ko": "사이버펑크 2077"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-cyberpunk"
    },
    "description": {
     "en": "RPG game for PC developed by CD PROJEKT RED, released on Steam on 9 December 2020. The Steam store lists Korean with full audio support.",
@@ -12782,7 +13165,11 @@
    "type": "game",
    "slug": "darkest-dungeon",
    "names": {
-    "en": "Darkest Dungeon"
+    "en": "Darkest Dungeon",
+    "ko": "다키스트 던전"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-darkestdungeon"
    },
    "aliases": [
     "Darkest Dungeon®"
@@ -13312,7 +13699,11 @@
    "type": "game",
    "slug": "dead-by-daylight",
    "names": {
-    "en": "Dead by Daylight"
+    "en": "Dead by Daylight",
+    "ko": "데드 바이 데이라이트"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-dbd"
    },
    "description": {
     "en": "Action game for PC developed by Behaviour Interactive Inc., released on Steam on 14 June 2016. The Steam store lists Korean text support without full Korean audio.",
@@ -13493,7 +13884,11 @@
    "type": "game",
    "slug": "dead-cells",
    "names": {
-    "en": "Dead Cells"
+    "en": "Dead Cells",
+    "ko": "데드 셀"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-deadcells"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Motion Twin, released on Steam on 6 August 2018. The Steam store lists Korean with full audio support.",
@@ -15130,7 +15525,11 @@
    "type": "game",
    "slug": "dota-2",
    "names": {
-    "en": "Dota 2"
+    "en": "Dota 2",
+    "ko": "도타 2"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-dota2"
    },
    "description": {
     "en": "Action/Strategy game for PC developed by Valve, released on Steam on 9 July 2013. The Steam store lists Korean with full audio support.",
@@ -15370,7 +15769,11 @@
    "type": "game",
    "slug": "dungreed",
    "names": {
-    "en": "Dungreed"
+    "en": "Dungreed",
+    "ko": "던그리드"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-gp-dungreed"
    },
    "description": {
     "en": "Action game for PC developed by TEAM HORAY, released on Steam on 14 February 2018. The Steam store lists Korean text support without full Korean audio.",
@@ -18484,7 +18887,11 @@
    "type": "game",
    "slug": "fall-guys",
    "names": {
-    "en": "Fall Guys"
+    "en": "Fall Guys",
+    "ko": "폴가이즈"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-fallguys"
    },
    "description": {
     "en": "Action/Casual game for PC developed by Mediatonic, released on Steam on 3 August 2020. The Steam store lists Korean text support without full Korean audio.",
@@ -18837,7 +19244,11 @@
    "type": "game",
    "slug": "far-cry-6",
    "names": {
-    "en": "Far Cry 6"
+    "en": "Far Cry 6",
+    "ko": "파 크라이 6"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-farcry6"
    },
    "aliases": [
     "Far Cry® 6"
@@ -20879,7 +21290,11 @@
    "type": "game",
    "slug": "grandchase",
    "names": {
-    "en": "GrandChase"
+    "en": "GrandChase",
+    "ko": "그랜드체이스 클래식"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-kog-gcp"
    },
    "description": {
     "en": "Action/Casual game for PC developed by KOG, released on Steam on 27 July 2021. The Steam store lists Korean with full audio support.",
@@ -22514,7 +22929,17 @@
    "type": "game",
    "slug": "hollow-knight",
    "names": {
-    "en": "Hollow Knight"
+    "en": "Hollow Knight",
+    "ko": "할로우 나이트"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-hollowknight"
+   },
+   "aliases": [
+    "공허의 기사"
+   ],
+   "aliases_src": {
+    "공허의 기사": "src:ko-games-titles-ns-hollowknight"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Team Cherry, released on Steam on 24 February 2017. The Steam store lists Korean with full audio support.",
@@ -22695,7 +23120,11 @@
    "type": "game",
    "slug": "hollow-knight-silksong",
    "names": {
-    "en": "Hollow Knight: Silksong"
+    "en": "Hollow Knight: Silksong",
+    "ko": "할로우 나이트: 실크송"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ns-silksong"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Team Cherry, released on Steam on 4 September 2025. The Steam store lists Korean with full audio support.",
@@ -24706,7 +25135,11 @@
    "type": "game",
    "slug": "library-of-ruina",
    "names": {
-    "en": "Library Of Ruina"
+    "en": "Library Of Ruina",
+    "ko": "라이브러리 오브 루이나"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-asw-lor"
    },
    "description": {
     "en": "RPG/Strategy game for PC developed by ProjectMoon, released on Steam on 10 August 2021. The Steam store lists Korean with full audio support.",
@@ -25181,6 +25614,12 @@
    "names": {
     "en": "Lobotomy Corporation | Monster Management Simulation"
    },
+   "aliases": [
+    "로보토미 코퍼레이션"
+   ],
+   "aliases_src": {
+    "로보토미 코퍼레이션": "src:ko-games-titles-ns-lor-lobotomy"
+   },
    "description": {
     "en": "Simulation game for PC developed by ProjectMoon, released on Steam on 9 April 2018. The Steam store lists Korean text support without full Korean audio.",
     "ko": "ProjectMoon 개발의 PC 시뮬레이션 게임으로 2018년 4월 9일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -25357,7 +25796,11 @@
    "type": "game",
    "slug": "lost-ark",
    "names": {
-    "en": "Lost Ark"
+    "en": "Lost Ark",
+    "ko": "로스트아크"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-lostark"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Smilegate RPG and published by Amazon Game Studios, released on Steam on 11 February 2022. The Steam store lists no official Korean support.",
@@ -25596,7 +26039,11 @@
    "type": "game",
    "slug": "maplestory",
    "names": {
-    "en": "MapleStory"
+    "en": "MapleStory",
+    "ko": "메이플스토리"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-maplestory"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by NEXON Korea Corporation and published by Nexon America Inc., released on Steam on 9 August 2012. The Steam store lists no official Korean support.",
@@ -26078,6 +26525,12 @@
    "names": {
     "en": "MONSTER HUNTER RISE"
    },
+   "aliases": [
+    "몬스터헌터 라이즈"
+   ],
+   "aliases_src": {
+    "몬스터헌터 라이즈": "src:ko-games-titles-mhrise"
+   },
    "description": {
     "en": "Action game for PC developed by CAPCOM Co., Ltd., released on Steam on 12 January 2022. The Steam store lists Korean text support without full Korean audio.",
     "ko": "CAPCOM Co., Ltd. 개발의 PC 액션 게임으로 2022년 1월 12일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -26249,6 +26702,12 @@
    "slug": "monster-hunter-wilds",
    "names": {
     "en": "Monster Hunter Wilds"
+   },
+   "aliases": [
+    "몬스터헌터 와일즈"
+   ],
+   "aliases_src": {
+    "몬스터헌터 와일즈": "src:ko-games-titles-mhwilds"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by CAPCOM Co., Ltd., released on Steam on 27 February 2025. The Steam store lists Korean text support without full Korean audio.",
@@ -26714,7 +27173,11 @@
    "type": "game",
    "slug": "naraka-bladepoint",
    "names": {
-    "en": "NARAKA: BLADEPOINT"
+    "en": "NARAKA: BLADEPOINT",
+    "ko": "나라카: 블레이드포인트"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-naraka"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by 24 Entertainment and published by NetEase Games, released on Steam on 11 August 2021. The Steam store lists Korean with full audio support.",
@@ -27126,7 +27589,11 @@
    "type": "game",
    "slug": "nier-automata",
    "names": {
-    "en": "NieR:Automata"
+    "en": "NieR:Automata",
+    "ko": "니어 오토마타"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-nierautomata"
    },
    "aliases": [
     "NieR:Automata™"
@@ -27235,6 +27702,12 @@
    "slug": "nioh-3",
    "names": {
     "en": "Nioh 3"
+   },
+   "aliases": [
+    "인왕 3"
+   ],
+   "aliases_src": {
+    "인왕 3": "src:ko-games-titles-psblog-nioh3"
    },
    "description": {
     "en": "Action/RPG game for PC developed by KOEI TECMO GAMES CO., LTD., released on Steam on 5 February 2026. The Steam store lists Korean text support without full Korean audio.",
@@ -28744,7 +29217,11 @@
    "type": "game",
    "slug": "overwatch",
    "names": {
-    "en": "Overwatch"
+    "en": "Overwatch",
+    "ko": "오버워치"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-overwatch"
    },
    "aliases": [
     "Overwatch®"
@@ -29140,7 +29617,11 @@
    "type": "game",
    "slug": "path-of-exile",
    "names": {
-    "en": "Path of Exile"
+    "en": "Path of Exile",
+    "ko": "패스 오브 엑자일"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-poe"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Grinding Gear Games, released on Steam on 23 October 2013. The Steam store lists Korean text support without full Korean audio.",
@@ -29241,7 +29722,11 @@
    "type": "game",
    "slug": "path-of-exile-2",
    "names": {
-    "en": "Path of Exile 2"
+    "en": "Path of Exile 2",
+    "ko": "패스 오브 엑자일 2"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-poe2"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Grinding Gear Games, released on Steam on 6 December 2024. The Steam store lists Korean text support without full Korean audio.",
@@ -30494,7 +30979,11 @@
    "type": "game",
    "slug": "pizza-tower",
    "names": {
-    "en": "Pizza Tower"
+    "en": "Pizza Tower",
+    "ko": "피자 타워 박살 작전"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ns-pizzatower"
    },
    "description": {
     "en": "Action game for PC developed by Tour De Pizza, released on Steam on 26 January 2023. The Steam store lists Korean text support without full Korean audio.",
@@ -31081,7 +31570,11 @@
    "type": "game",
    "slug": "pubg-battlegrounds",
    "names": {
-    "en": "PUBG: BATTLEGROUNDS"
+    "en": "PUBG: BATTLEGROUNDS",
+    "ko": "PUBG: 배틀그라운드"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-pubg"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by PUBG Corporation and published by KRAFTON, Inc., released on Steam on 21 December 2017. The Steam store lists Korean text support without full Korean audio.",
@@ -35055,7 +35548,11 @@
    "type": "game",
    "slug": "sid-meiers-civilization-vi",
    "names": {
-    "en": "Sid Meier’s Civilization VI"
+    "en": "Sid Meier’s Civilization VI",
+    "ko": "시드 마이어의 문명 VI"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-civ6"
    },
    "aliases": [
     "Sid Meier’s Civilization® VI"
@@ -36864,7 +37361,11 @@
    "type": "game",
    "slug": "stardew-valley",
    "names": {
-    "en": "Stardew Valley"
+    "en": "Stardew Valley",
+    "ko": "스타듀 밸리"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-gp-stardew"
    },
    "description": {
     "en": "RPG/Simulation game for PC developed by ConcernedApe, released on Steam on 26 February 2016. The Steam store lists Korean text support without full Korean audio.",
@@ -37854,8 +38355,12 @@
     "en": "Street Fighter 6"
    },
    "aliases": [
-    "Street Fighter™ 6"
+    "Street Fighter™ 6",
+    "스트리트 파이터 6"
    ],
+   "aliases_src": {
+    "스트리트 파이터 6": "src:ko-games-titles-sf6"
+   },
    "description": {
     "en": "Action/Adventure game for PC developed by CAPCOM Co., Ltd., released on Steam on 1 June 2023. The Steam store lists Korean text support without full Korean audio.",
     "ko": "CAPCOM Co., Ltd. 개발의 PC 액션/어드벤처 게임으로 2023년 6월 1일 Steam에 출시되었습니다. Steam 스토어 기준 한국어 텍스트(인터페이스·자막)를 지원하며, 한국어 음성은 지원 목록에 없습니다."
@@ -38971,7 +39476,11 @@
    "type": "game",
    "slug": "terraria",
    "names": {
-    "en": "Terraria"
+    "en": "Terraria",
+    "ko": "테라리아"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-ps-terraria"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by Re-Logic, released on Steam on 16 May 2011. The Steam store lists no official Korean support.",
@@ -42255,7 +42764,11 @@
    "type": "game",
    "slug": "vampire-survivors",
    "names": {
-    "en": "Vampire Survivors"
+    "en": "Vampire Survivors",
+    "ko": "뱀파이어 서바이버즈"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-gp-vampiresurvivors"
    },
    "description": {
     "en": "Action/Casual game for PC developed by poncle, released on Steam on 20 October 2022. The Steam store lists Korean text support without full Korean audio.",
@@ -42701,7 +43214,11 @@
    "type": "game",
    "slug": "war-thunder",
    "names": {
-    "en": "War Thunder"
+    "en": "War Thunder",
+    "ko": "워 썬더"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-warthunder"
    },
    "description": {
     "en": "Action/Simulation game for PC developed by Gaijin Entertainment and published by Gaijin Network Ltd, released on Steam on 15 August 2013. The Steam store lists Korean text support without full Korean audio.",
@@ -43008,7 +43525,11 @@
    "type": "game",
    "slug": "warframe",
    "names": {
-    "en": "Warframe"
+    "en": "Warframe",
+    "ko": "워프레임"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-warframe"
    },
    "description": {
     "en": "Action/RPG game for PC developed by Digital Extremes, released on Steam on 25 March 2013. The Steam store lists Korean text support without full Korean audio.",
@@ -43475,6 +43996,12 @@
    "slug": "warriors-orochi-3-ultimate-definitive-edition",
    "names": {
     "en": "WARRIORS OROCHI 3 Ultimate Definitive Edition"
+   },
+   "aliases": [
+    "무쌍OROCHI3 Ultimate"
+   ],
+   "aliases_src": {
+    "무쌍OROCHI3 Ultimate": "src:ko-games-titles-ps-wo3u"
    },
    "description": {
     "en": "Action/Strategy game for PC developed by KOEI TECMO GAMES CO., LTD., released on Steam on 12 July 2022. The Steam store lists no official Korean support.",
@@ -44080,7 +44607,11 @@
    "type": "game",
    "slug": "world-of-tanks",
    "names": {
-    "en": "World of Tanks"
+    "en": "World of Tanks",
+    "ko": "월드 오브 탱크"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-wot"
    },
    "description": {
     "en": "Action/Simulation game for PC developed by Wargaming Group Limited, released on Steam on 28 April 2021. The Steam store lists Korean with full audio support.",
@@ -44245,7 +44776,11 @@
    "type": "game",
    "slug": "wuthering-waves",
    "names": {
-    "en": "Wuthering Waves"
+    "en": "Wuthering Waves",
+    "ko": "명조:워더링 웨이브"
+   },
+   "names_src": {
+    "ko": "src:ko-games-titles-xb-wuwa"
    },
    "description": {
     "en": "Action/Adventure game for PC developed by KURO GAMES, released on Steam on 28 April 2025. The Steam store lists Korean with full audio support.",
