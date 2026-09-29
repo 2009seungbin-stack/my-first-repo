@@ -75,6 +75,9 @@ const KO=/** @type {[RegExp,string][]} */([
  [/^Not hidden/,'숨겨진 상태가 아니에요. 새로 고침해 주세요.'],[/^Already hidden/,'이미 임시조치된 대상이에요.'],[/^Already deleted/,'작성자가 이미 삭제했어요.'],
  [/^Already reviewed/,'이미 처리된 항목이에요.'],[/^reason must be (\d+)–(\d+)/,'사유는 $1~$2자로 써 주세요.'],[/^Only a higher role/,'더 높은 권한만 이 계정을 처리할 수 있어요.'],
  [/^You cannot moderate your own/,'자기 계정은 처리할 수 없어요.'],[/^No such post or comment/,'글이나 댓글을 찾을 수 없어요.'],[/^Too many requests/,'요청이 너무 잦아요. 1분 뒤에 다시 해 주세요.'],
+ [/^The last passkey cannot be removed/,'마지막 남은 패스키는 지울 수 없어요. 다른 기기를 먼저 추가하세요.'],[/^No such passkey/,'이미 지워진 패스키예요.'],[/^Already resolved/,'이미 처리된 충돌이에요.'],[/^The current value changed since/,'그 사이 현재 값이 바뀌었어요. 새로 고침한 뒤 다시 보세요.'],
+ [/^This device has no push subscription/,'이 기기는 아직 알림을 켜지 않았어요.'],[/^GitHub refused the workflow dispatch/,'GitHub가 실행 요청을 거절했어요. 토큰 권한(Actions: write)을 확인하세요.'],[/^GitHub did not answer/,'GitHub가 응답하지 않았어요. 잠시 뒤 다시 해 주세요.'],[/^Cloudflare analytics did not answer|^Unexpected analytics response/,'Cloudflare 분석이 응답하지 않았어요. 잠시 뒤 다시 해 주세요.'],
+ [/^The passkey response was already used|already registered/,'이미 쓰인 응답이거나 이미 등록된 패스키예요. 다시 시도해 주세요.'],[/^The passkey response was rejected/,'서버가 패스키 응답을 받아들이지 않았어요. 다시 시도해 주세요.'],[/^Sign in again with your passkey/,'지문으로 다시 로그인해 주세요.'],
  [/^Cross-site request rejected/,'다른 사이트에서 온 요청으로 보여 막았어요. 앱을 다시 열어 주세요.'],
 ]);
 /** Korean text for a failed action, keeping the server's words visible. @param {unknown} e */

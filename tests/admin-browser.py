@@ -103,6 +103,10 @@ def main():
             ok('home: red card for the failing collector', 'steam-news 실패' in pg.locator('.alert').inner_text())
             ok('home: monthly D1 usage (Workers Paid)', '이번 달' in pg.locator('section.box', has_text='D1 쓰기').inner_text() and '5000만' in pg.locator('section.box', has_text='D1 쓰기').inner_text())
             ok('home: tiles and the traffic tile', pg.locator('.tiles .tile').count() == 4 and 'Googlebot' in pg.locator('.tile.traffic').inner_text())
+            mock({'notConfigured': ['usage']}); pg.click('button[aria-label="새로 고침"]'); settle(pg, 500)
+            ok('home: D1 usage not configured → every missing setting named', pg.locator('.need .need-item').count() == 2 and 'CF_ACCOUNT_ID' in pg.locator('.need').inner_text())
+            shot(pg, '03b-home-usage-not-configured')
+            mock({'notConfigured': []}); pg.click('button[aria-label="새로 고침"]'); settle(pg)
             ok('home: tab badges', pg.locator('[data-tab=collectors] .bdg').inner_text() == '5' and pg.locator('[data-tab=mod] .bdg').inner_text() == '2')
             ok('home: five tabs', pg.locator('nav.bn a').count() == 5 and '방문자' in pg.locator('nav.bn').inner_text())
             shot(pg, '03-home'); no_sideways(pg, 'home')
@@ -150,6 +154,7 @@ def main():
             # --- 데이터 ---
             pg.click('[data-tab=data]'); settle(pg)
             ok('data: conflicts, proposals, changes', pg.locator('.cf').count() == 3 and pg.locator('.flag').count() == 1 and pg.locator('.imp').count() == 5)
+            ok('data: backend shapes (label, channel link, detail, pending)', '최신 버전' in pg.locator('.cf').first.inner_text() and pg.locator('.cf a.chn').first.get_attribute('href') == '/ko/studio/reaper/' and '승인 대기' in pg.locator('main').inner_text() and '(JP)' in pg.locator('.cf').nth(2).inner_text())
             shot(pg, '08-data'); no_sideways(pg, 'data')
             pg.locator('.cf').first.locator('button', has_text='새 값 채택').click(); pg.wait_for_selector('dialog[open]')
             pg.locator('dialog .qr button').first.click(); pg.locator('dialog button[type=submit]').click(); pg.wait_for_selector('dialog', state='detached'); settle(pg)
@@ -200,7 +205,27 @@ def main():
             # --- 설정 ---
             pg.click('.ab a[href="#/"]'); settle(pg); pg.click('.ab a[href="#/settings"]'); settle(pg)
             ok('settings: this device listed and marked', '테스트 휴대폰' in pg.locator('main').inner_text() and '이 기기' in pg.locator('main').inner_text())
+            # This phone already holds the passkey (excludeCredentials): the browser refuses, the sheet says why.
+            pg.click('text=기기 추가'); pg.wait_for_selector('dialog[open]'); pg.locator('dialog button[type=submit]').click()
+            pg.locator('dialog .sheet-err', has_text='이미 등록된 패스키').wait_for()
+            ok('기기 추가 on the same phone: explained', True)
+            pg.locator('dialog button', has_text='취소').click()
+            # Another device (a second virtual authenticator) gets its own passkey; the first one is kept aside.
+            saved = cdp.send('WebAuthn.getCredentials', {'authenticatorId': auth['authenticatorId']})['credentials']
+            cdp.send('WebAuthn.removeVirtualAuthenticator', {'authenticatorId': auth['authenticatorId']})
+            opts = {'protocol': 'ctap2', 'transport': 'internal', 'hasResidentKey': True, 'hasUserVerification': True, 'isUserVerified': True, 'automaticPresenceSimulation': True}
+            other = cdp.send('WebAuthn.addVirtualAuthenticator', {'options': opts})
+            pg.click('text=기기 추가'); pg.wait_for_selector('dialog[open]'); pg.fill('#dev-name', '업무용 PC'); pg.locator('dialog button[type=submit]').click(); 
+            pg.wait_for_selector('dialog', state='detached'); settle(pg)
+            new_creds = cdp.send('WebAuthn.getCredentials', {'authenticatorId': other['authenticatorId']})['credentials']
+            cdp.send('WebAuthn.removeVirtualAuthenticator', {'authenticatorId': other['authenticatorId']})
+            auth = cdp.send('WebAuthn.addVirtualAuthenticator', {'options': opts})
+            for c in saved: cdp.send('WebAuthn.addCredential', {'authenticatorId': auth['authenticatorId'], 'credential': {k: c[k] for k in ('credentialId', 'isResidentCredential', 'rpId', 'privateKey', 'userHandle', 'signCount') if k in c}})
+            ok('기기 추가: a second passkey while signed in', pg.locator('.rows li', has_text='업무용 PC').count() == 1 and len(new_creds) == 1)
             shot(pg, '13-settings')
+            pg.locator('.rows li', has_text='업무용 PC').locator('button', has_text='삭제').click(); pg.locator('dialog button[type=submit]').click()
+            pg.wait_for_selector('dialog', state='detached'); settle(pg)
+            ok('passkey removed from the list', pg.locator('.rows li', has_text='업무용 PC').count() == 0)
 
             # --- REAUTH: one fingerprint, then the request is retried ---
             pg.click('.ab a[href="#/"]'); settle(pg)

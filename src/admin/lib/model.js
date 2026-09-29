@@ -41,7 +41,7 @@ export function homeAlert(ov,now=Date.now()){
  const c=ov.collectors||{},items=/** @type {any[]} */(Array.isArray(c.items)?c.items:[]);
  const failing=items.filter(x=>x.state==='failing');
  const u=usageView(ov.usage);
- const down=/** @type {any[]} */(Array.isArray(ov.status)?ov.status:[]).filter(s=>/major|outage|critical|down/i.test(String(s.state)));
+ const down=/** @type {any[]} */(Array.isArray(ov.status)?ov.status:[]).filter(s=>/incident|major|outage|critical|down/i.test(String(s.state)));
  const parts=[];
  if(failing.length||Number(c.failing)>0){
   const first=failing[0];

@@ -18,7 +18,7 @@ export async function render(ctx,main){
  let ov;
  try{ov=await ctx.loadOverview();}catch(e){fill(main,failure(e,()=>ctx.refresh()));return;}
  const now=ctx.now();
- fill(main,alertCard(ctx,ov,now),usageBox(ov.usage,now),tiles(ov),trafficBox(ov.traffic),statusBox(ov.status,now),graphLine(ov.graph),ctx.stamp(ov.generatedAt));
+ fill(main,alertCard(ctx,ov,now),usageSlot(ctx,ov.usage,now),tiles(ov),trafficBox(ov.traffic),statusBox(ov.status,now),graphLine(ov.graph),ctx.stamp(ov.generatedAt));
 }
 
 /** @param {any} ctx @param {any} ov @param {number} now */
@@ -32,6 +32,14 @@ function alertCard(ctx,ov,now){
    a.rerun.length?h('button.btn.p',{type:'button',onclick:()=>runSheet(ctx,a.rerun,{usage:ov.usage})},`${a.rerun.length}개 다시 실행`):null,
    h('a.btn',{href:'#/collectors'},'자세히')));
 }
+/** The overview carries usage, or null when it is not configured or Cloudflare did not answer:
+ * then /usage is asked once for the exact reason (which settings are missing). @param {any} ctx @param {any} usage @param {number} now */
+function usageSlot(ctx,usage,now){
+ if(usageView(usage))return usageBox(usage,now);
+ const slot=h('div.usage-slot',skeleton(1));
+ ctx.api.get('/api/v2/admin/usage').then((/** @type {any} */ u)=>fill(slot,usageBox(u,now)),(/** @type {any} */ e)=>fill(slot,failure(e,()=>ctx.refresh(),'CF_ANALYTICS_TOKEN')));
+ return slot;
+}
 /** D1 usage: month-to-date vs the monthly included amount (Workers Paid), or today vs the daily
  * free limit (older API shape). @param {any} usage @param {number} now */
 function usageBox(usage,now){
@@ -41,7 +49,7 @@ function usageBox(usage,now){
  const meterRow=[meter(u.ratio,{label:`${u.period==='month'?'이번 달':'오늘'} 쓰기 ${Math.round(u.ratio*1000)/10}%, 80% 알림선`}),h('div.mlab',h('span','0'),h('span.m80','80% 알림'),h('span',compact(u.limitW)))];
  if(u.period==='month'){
   const days=u.days.slice(-14),w=days.map((/** @type {any} */ d)=>Number(d.rowsWritten)||0);
-  return box('D1 쓰기 (이번 달 · 계정 전체)','매월 1일 초기화 (UTC)',h('div.pad',
+  return box('D1 쓰기 (이번 달 · 계정 전체)',usage?.resetAt?`${shortDate(usage.resetAt)} 초기화 (${relTime(usage.resetAt,now)})`:'매월 초기화',h('div.pad',
    h('div.big',num(u.written),' ',h('small',`/ ${compact(u.limitW)}행 포함 · 이번 달`)),
    ...meterRow,
    u.level==='bad'?h('p.badtxt.b','월 포함량을 넘었습니다. 넘은 만큼 요금이 붙습니다.'):null,

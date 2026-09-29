@@ -26,27 +26,29 @@ export function fixtures(now=Date.now()){
  const count=s=>collectors.filter(x=>x.state===s).length;
  // Workers Paid (coordinator 2026-09-29): month-to-date vs the monthly included amount.
  const days=Array.from({length:14},(_,i)=>({day:new Date(now-(13-i)*D).toISOString().slice(0,10),rowsRead:900000+i*41000,rowsWritten:i===7?107000:180000+(i%4)*52000}));
- const usage={plan:'paid',period:'month',today:{rowsRead:1380000,rowsWritten:212400},month:{rowsRead:38400000,rowsWritten:6120000},included:{rowsReadMonth:25000000000,rowsWrittenMonth:50000000},limit:{rowsRead:25000000000,rowsWritten:50000000},days};
+ const usage={plan:'paid',period:'month',resetAt:Date.UTC(new Date(now).getUTCFullYear(),new Date(now).getUTCMonth()+1,1),databases:2,today:{rowsRead:1380000,rowsWritten:212400},month:{rowsRead:38400000,rowsWritten:6120000},included:{rowsReadMonth:25000000000,rowsWrittenMonth:50000000},limit:{rowsRead:25000000000,rowsWritten:50000000},days};
  const usageDaily={today:{rowsRead:38400,rowsWritten:1240},limit:{rowsRead:5000000,rowsWritten:100000},days:days.slice(-2).map(d=>({...d,rowsWritten:Math.min(d.rowsWritten,107000)}))};
  const traffic={humanPageviews:1834,botRequests:5210,aiBotRequests:1488,topBot:{name:'Googlebot',category:'search',verified:true,requests:1622}};
  const overview={generatedAt:now,collectors:{ok:count('ok'),failing:count('failing'),stale:count('stale'),manual:count('manual'),never:count('never'),items:collectors.filter(x=>['failing','never','stale'].includes(x.state))},
   usage,radar:{today:381,importance2plus:29,conflicts:3},flags:{open:2},community:{postsToday:0,commentsToday:0,newUsersToday:0},
-  status:[{service:'Claude',state:'operational',since:now-51*M,url:'https://status.claude.com'},{service:'OpenAI · ChatGPT',state:'degraded',since:now-42*M,url:'https://status.openai.com'}],
+  status:[{service:'Claude',adapter:'claude-status',state:'ok',since:now-51*M,checkedAt:now-51*M,url:'https://status.claude.com/'},{service:'OpenAI',adapter:'openai-status',state:'stale',since:now-2.5*H,checkedAt:now-2.5*H,url:'https://status.openai.com/'}],
   graph:{entities:1600,facts:6559,events:409},traffic};
- const runs={'steam-news':{items:[]},'claude-status':{items:Array.from({length:6},(_,i)=>({started_at:now-51*M-i*30*M,finished_at:now-51*M-i*30*M+7600,error:i===3?'fetch https://status.claude.com/api/v2/summary.json: HTTP 503':null,observations:12,changes:i?0:47,rows_written:i?4:190,queries:31}))}};
- const radar={generatedAt:now,counts:{changes:381},next:'cursor-2',
+ const runs={'steam-news':{items:[]},'claude-status':{items:Array.from({length:6},(_,i)=>({id:600-i,started_at:now-51*M-i*30*M,finished_at:now-51*M-i*30*M+7600,status:i===3?'error':'ok',error:i===3?'fetch https://status.claude.com/api/v2/summary.json: HTTP 503':null,observations:12,changes:i?0:47,rows_written:i?4:190,queries:31}))}};
+ // server/platform/admin.js radar(): changes carry title/detail (describeChange, Korean), channel + url.
+ const ch=(id,vertical,channel,slug,title,detail,importance,ago,source,extra={})=>({id,entity_id:`${vertical}:${slug}`,channel,vertical,url:`/ko/${vertical}/${slug}/`,kind:'version_released',property:null,title,detail,importance,visibility:'public',source,detected_at:now-ago,effective_at:now-ago,...extra});
+ const radar={changes:[
+   ch(9005,'studio','리퍼','reaper','리퍼 7.81 출시','',2,41*M,'src:reaper-whatsnew'),
+   ch(9004,'ai','OpenAI API','openai-api','OpenAI API 일정 변경','시작 2026-05-05',2,44*M,'src:openai-api-changelog',{kind:'event_changed'}),
+   ch(9003,'ai','llama.cpp','llama-cpp','llama.cpp b11240','b11236–b11240 5건',2,48*M,'src:github-releases'),
+   ch(9002,'ai','Gemini API','gemini-api','Gemini API 일정 변경','같은 값이 3번 기록됨',2,49*M,'src:gemini-api-changelog',{kind:'event_changed',visibility:'pending'}),
+   ch(9001,'subculture','원피스','one-piece','원피스 1181화 방영','',1,56*M,'src:anilist-schedule',{kind:'event_announced'})],
   conflicts:[
-   {id:101,entity:'리퍼',vertical:'studio',property:'최신 버전',current:{value:'7.80',verification:'OFFICIAL'},proposed:{value:'7.81',verification:'AUTOMATED',source:'reaper-whatsnew'}},
-   {id:102,entity:'도쿄 리벤저스 삼천전쟁',vertical:'subculture',property:'방영일',current:{value:'2026-10-02',verification:'OFFICIAL'},proposed:{value:'2026-10-03',verification:'COMMUNITY_VERIFIED',source:'anilist-schedule'},note:'하루 차이: 일본 시간(JST)과 UTC 기준 차이일 수 있습니다.'},
-   {id:103,entity:'란마 1/2 (2024) 3기',vertical:'subculture',property:'방영일',current:{value:'2026-10-03',verification:'OFFICIAL'},proposed:{value:'2026-10-04',verification:'AUTOMATED',source:'anilist-schedule'}}],
-  proposals:[{id:'prop1',vertical:'hardware',channel:'RTX 5070',property:'전력(TGP)',value:245,unit:'W',current:{value:250,unit:'W',verification:'OFFICIAL'},source:'https://example.com/rtx-5070-spec',author:'회원A',at:now-3*H,note:'제조사 표 기준'}],
-  changes:[
-   {id:9001,vertical:'studio',kind:'version_released',text:'리퍼 7.81 출시',importance:2,detected_at:now-41*M,adapter:'reaper-whatsnew'},
-   {id:9002,vertical:'ai',kind:'event_changed',text:'OpenAI API 일정 변경',importance:2,detected_at:now-44*M,adapter:'openai-api-changelog'},
-   {id:9003,vertical:'ai',kind:'version_released',text:'llama.cpp b11236–b11240',importance:2,detected_at:now-48*M,adapter:'github-releases',count:5},
-   {id:9004,vertical:'ai',kind:'event_changed',text:'Gemini API 일정 변경',importance:2,detected_at:now-49*M,adapter:'gemini-api-changelog',count:3,note:'같은 값이 3번 기록됨 · 중복 확인'},
-   {id:9005,vertical:'subculture',kind:'event_announced',text:'원피스 1181화 방영',importance:1,detected_at:now-56*M,adapter:'anilist-schedule'}]};
- const radar2={changes:[{id:8990,vertical:'hardware',kind:'fact_changed',text:'RTX 5070 드라이버 580.95',importance:1,detected_at:now-2*H,adapter:'nvidia-datacenter-drivers'}],next:null};
+   {id:101,fact_id:5001,entity_id:'studio:reaper',channel:'리퍼',vertical:'studio',url:'/ko/studio/reaper/',property:'latest_version',label:'최신 버전',region:'*',current:{value:'7.80',unit:null,verification:'OFFICIAL',source:'src:reaper-site',isCurrent:true},proposed:{value:'7.81',verification:'AUTOMATED',source:'src:reaper-whatsnew',by:'collector:reaper-whatsnew'},created_at:now-41*M},
+   {id:102,fact_id:5002,entity_id:'subculture:tokyo-revengers-3',channel:'도쿄 리벤저스 삼천전쟁',vertical:'subculture',url:'/ko/subculture/tokyo-revengers-3/',property:'air_date',label:'방영일',region:'*',current:{value:'2026-10-02',unit:null,verification:'OFFICIAL',source:'src:official',isCurrent:true},proposed:{value:'2026-10-03',verification:'COMMUNITY_VERIFIED',source:'src:anilist-schedule',by:'collector:anilist-schedule'},created_at:now-2*H},
+   {id:103,fact_id:5003,entity_id:'subculture:ranma-3',channel:'란마 1/2 (2024) 3기',vertical:'subculture',url:'/ko/subculture/ranma-3/',property:'air_date',label:'방영일',region:'JP',current:{value:'2026-10-03',unit:null,verification:'OFFICIAL',source:null,isCurrent:true},proposed:{value:'2026-10-04',verification:'AUTOMATED',source:'src:anilist-schedule',by:'collector:anilist-schedule'},created_at:now-3*H}],
+  proposals:[{id:'prop1',entity_id:'hardware:rtx-5070',channel:'RTX 5070',vertical:'hardware',url:'/ko/hardware/rtx-5070/',property:'tgp',label:'전력(TGP)',value:245,unit:'W',current:250,source:'https://example.com/rtx-5070-spec',note:'제조사 표 기준',author:'회원A',created_at:now-3*H}],
+  next:9001};
+ const radar2={changes:[ch(8990,'hardware','RTX 5070','rtx-5070','RTX 5070 드라이버 580.95','',1,2*H,'src:nvidia-datacenter-drivers')],conflicts:[],proposals:[],next:null};
  const day=d=>new Date(now-d*D).toISOString().slice(0,10);
  const community={generatedAt:now,tiles:{posts:42,comments:318,users:9,flags:2},spark:[18,22,25,21,30,33,42].map((p,i)=>({day:day(6-i),posts:p,comments:p*7})),
   channels:[{entity_id:'ai:claude',name:'클로드',vertical:'ai',posts:12,comments:96},{entity_id:'subculture:one-piece',name:'원피스',vertical:'subculture',posts:6,comments:58},{entity_id:'hardware:rtx-5070',name:'RTX 5070',vertical:'hardware',posts:7,comments:41}],

@@ -40,7 +40,8 @@ export function setup(ctx,main){
   try{await register(ctx.rawApi,{setupCode:code.value.trim(),name:name.value.trim()||deviceName()});ctx.signedIn('등록했어요. 이제 지문으로 들어올 수 있어요.');}
   catch(x){
    if(x instanceof AdminError&&x.code==='NOT_CONFIGURED')err.replaceChildren(needCard(x.need||'ADMIN_SETUP_CODE'));
-   else if(x instanceof AdminError&&(x.code==='OPERATION_CONFLICT'||x.status===409))err.replaceChildren('이미 등록된 관리자 기기가 있어요. 그 기기에서 설정 › "기기 추가"로 이 기기를 추가하세요.');
+   // After the first admin passkey the setup path no longer exists (404), by design.
+   else if(x instanceof AdminError&&(x.status===404||(x.code==='OPERATION_CONFLICT'&&!/already used/i.test(x.serverMessage))))err.replaceChildren('이미 등록된 관리자 기기가 있어요. 그 기기에서 설정 › "기기 추가"로 이 기기를 추가하세요.');
    else err.replaceChildren(passkeyError(x));
    err.hidden=false;submit.disabled=false;submit.classList.remove('busy');
   }

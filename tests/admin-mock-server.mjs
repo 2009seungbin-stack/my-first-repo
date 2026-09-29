@@ -47,14 +47,14 @@ export async function createAdminMock({port=8795,now=()=>Date.now()}={}){
    const nc=k=>state.notConfigured.includes(k);
    if(p==='/api/v1/auth/logout'){state.signedIn=false;return json(res,200,{loggedIn:false},{'set-cookie':'nerulio_session=; Path=/; Max-Age=0'});}
    // ---- passkey ----
-   if(p.startsWith('/api/v2/admin/passkey/')){
+   if(p.startsWith('/api/v2/admin/passkey/')&&p!=='/api/v2/admin/passkey/remove'){
     const step=p.slice('/api/v2/admin/passkey/'.length);
     if(step==='register/options'){
      const signed=cookie(req)&&state.signedIn;
      if(!signed){
       if(nc('setup'))return err(res,503,'NOT_CONFIGURED','Admin setup is not configured.',{need:'ADMIN_SETUP_CODE'});
-      if(state.credentials.length)return err(res,409,'OPERATION_CONFLICT','An admin is already registered.');
-      if(body.setupCode!==state.setupCode)return err(res,403,'FORBIDDEN','Invalid setup code.');
+      if(state.credentials.length)return err(res,404,'NOT_FOUND','NOT_FOUND');   // as the backend: the setup path stops existing
+      if(body.setupCode!==state.setupCode)return err(res,403,'FORBIDDEN','Setup code rejected.',{field:'setupCode'});
      }
      state.challenge=b64u(randomBytes(32));
      return json(res,200,{challenge:state.challenge,rp:{id:'localhost',name:'Nerulio 관리'},user:{id:b64u(Buffer.from('admin-user-handle')),name:'owner',displayName:'운영자'},
@@ -93,12 +93,17 @@ export async function createAdminMock({port=8795,now=()=>Date.now()}={}){
    const runsM=/^\/api\/v2\/admin\/collectors\/([^/]+)\/runs$/.exec(p);
    if(req.method==='GET'&&runsM){const id=decodeURIComponent(runsM[1]);if(!f.collectors.items.some(c=>c.id===id))return err(res,404,'NOT_FOUND','No such collector.');return json(res,200,f.runs[id]||{items:[]});}
    switch(key){
-    case 'GET /api/v2/admin/me':return json(res,200,{admin:true,name:'운영자',devices:state.credentials.map(c=>({id:c.id,name:c.name,created_at:c.created_at,last_used_at:c.last_used_at})),push:state.prefs?{prefs:state.prefs}:undefined});
+    case 'GET /api/v2/admin/me':return json(res,200,{admin:true,name:'운영자',devices:state.credentials.map(c=>({id:c.id,name:c.name,created_at:c.created_at,last_used_at:c.last_used_at})),reauthAt:now()+11*36e5,push:{configured:!nc('push')}});
+    case 'POST /api/v2/admin/passkey/remove':{
+     if(!state.credentials.some(c=>c.id===body.id))return err(res,404,'NOT_FOUND','No such passkey.');
+     if(state.credentials.length<2)return err(res,409,'OPERATION_CONFLICT','The last passkey cannot be removed.');
+     state.credentials=state.credentials.filter(c=>c.id!==body.id);return json(res,200,{ok:true});}
+    case 'GET /api/v2/admin/push/prefs':return json(res,200,{prefs:state.prefs||f.prefs,subscribed:!!state.prefs,defaults:f.prefs});
     case 'GET /api/v2/admin/overview':{const ov=f.overview;if(nc('usage'))ov.usage=null;if(nc('traffic'))ov.traffic=null;if(state.usageShape==='day')ov.usage=f.usageDaily;return json(res,200,ov);}
     case 'GET /api/v2/admin/collectors':return json(res,200,f.collectors);
-    case 'GET /api/v2/admin/usage':return nc('usage')?err(res,503,'NOT_CONFIGURED','Usage needs a Cloudflare token.',{need:'CF_ANALYTICS_TOKEN'}):json(res,200,f.usage);
+    case 'GET /api/v2/admin/usage':return nc('usage')?json(res,503,{need:'CF_ANALYTICS_TOKEN',missing:['CF_ANALYTICS_TOKEN','CF_ACCOUNT_ID'],error:{code:'NOT_CONFIGURED',message:'CF_ANALYTICS_TOKEN is not configured on this deployment.',need:'CF_ANALYTICS_TOKEN'}}):json(res,200,f.usage);
     case 'POST /api/v2/admin/collectors/run':
-     if(nc('run'))return json(res,503,{error:'NOT_CONFIGURED',need:'GITHUB_DISPATCH_TOKEN'});   // shorthand shape on purpose
+     if(nc('run'))return json(res,503,{error:'NOT_CONFIGURED',need:'GITHUB_DISPATCH_TOKEN'});   // the contract's shorthand shape, on purpose (both shapes are understood)
      state.runs++;return json(res,200,{ok:true,runUrl:'https://github.com/example/actions/runs/1'});
     case 'GET /api/v2/admin/radar':return json(res,200,url.searchParams.get('cursor')?f.radar2:f.radar);
     case 'POST /api/v2/admin/radar/action':
@@ -106,7 +111,7 @@ export async function createAdminMock({port=8795,now=()=>Date.now()}={}){
      state.actions.push(body);return json(res,200,{ok:true});
     case 'GET /api/v2/admin/community':return json(res,200,f.community);
     case 'GET /api/v2/admin/traffic':return nc('traffic')?json(res,503,{need:'TRAFFIC',missing:['TRAFFIC','CF_ANALYTICS_TOKEN'],error:{code:'NOT_CONFIGURED',message:'Traffic analytics is not configured.',need:'TRAFFIC'}}):json(res,200,{...f.traffic,range:url.searchParams.get('range')||'today'});
-    case 'GET /api/v2/admin/push/key':return nc('push')?err(res,503,'NOT_CONFIGURED','Push is not configured.',{need:'VAPID_PUBLIC_KEY'}):json(res,200,{publicKey:'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'});
+    case 'GET /api/v2/admin/push/key':return nc('push')?json(res,503,{need:'VAPID_PUBLIC_KEY',missing:['VAPID_PUBLIC_KEY','VAPID_PRIVATE_KEY'],error:{code:'NOT_CONFIGURED',message:'VAPID_PUBLIC_KEY is not configured on this deployment.',need:'VAPID_PUBLIC_KEY'}}):json(res,200,{publicKey:'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'});
     case 'POST /api/v2/admin/push/subscribe':state.pushSubs.push(body.subscription);state.prefs=body.prefs;return json(res,200,{ok:true});
     case 'DELETE /api/v2/admin/push/subscribe':state.pushSubs=state.pushSubs.filter(s=>s?.endpoint!==body.endpoint);return json(res,200,{ok:true});
     case 'PUT /api/v2/admin/push/prefs':state.prefs=body.prefs;return json(res,200,{ok:true});

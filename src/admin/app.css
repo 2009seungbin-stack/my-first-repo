@@ -231,6 +231,8 @@ a.tile:active{background:var(--bg)}
 .vs>div.nw{border-color:var(--brand)}
 .vs a{min-height:28px;display:inline-flex;align-items:center}
 .morebtn{align-self:center}
+a.chn{color:inherit;text-decoration:underline dotted var(--mute2);text-underline-offset:3px}
+.rows li.dim .tt{opacity:.6}
 
 /* community */
 .daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}

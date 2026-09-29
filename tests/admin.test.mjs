@@ -167,6 +167,7 @@ test('home: alert card, badges, usage (Workers Paid monthly and the old daily sh
  const calm={...f.overview,collectors:{ok:10,failing:0,stale:0,never:0,manual:6,items:[]},status:[{service:'Claude',state:'operational'}]};
  assert.equal(homeAlert(calm,NOW),null);
  assert.equal(homeAlert({...calm,status:[{service:'Claude',state:'major_outage'}]},NOW).parts[0].title,'Claude 장애');
+ assert.equal(homeAlert({...calm,status:[{service:'OpenAI',state:'incident'}]},NOW).parts[0].title,'OpenAI 장애','the backend says incident');
  assert.deepEqual(badges(f.overview),{collectors:5,mod:2,data:3});
  const m=usageView(f.usage);
  assert.equal(m.period,'month');assert.equal(m.limitW,50_000_000);assert.equal(m.written,6_120_000);assert.equal(m.today.w,212400);assert.equal(m.level,'ok');

@@ -47,6 +47,7 @@ export function passkeyError(e){
  if(e instanceof AdminError){
   if(e.code==='UNSUPPORTED')return '이 브라우저는 패스키를 지원하지 않아요. 최신 Chrome에서 열어 주세요.';
   if(e.status===403&&/setup/i.test(e.serverMessage))return '설정 코드가 맞지 않아요.';
+  if(e.code==='PASSKEY_REJECTED')return '서버가 패스키 응답을 받아들이지 않았어요. 다시 시도해 주세요.';
   return errorText(e);
  }
  if(e instanceof TypeError)return '서버가 보낸 패스키 정보를 읽지 못했어요.';

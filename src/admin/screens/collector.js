@@ -51,7 +51,7 @@ function runsBox(runs,items,now){
  if(runs?.error)return box('최근 실행',null,failure(runs.error,null));
  if(!items.length)return box('최근 실행','collector_runs',empty('실행 기록 0건','쓰기 한도에 걸리면 실행 기록 자체가 남지 않을 수 있어, 홈에서는 "기록 없음"도 문제로 셉니다.'));
  return box('최근 실행',`${items.length}건`,h('ul.rows',...items.map(r=>h('li',
-  h('span.dotw',h(`span.dotc.${r.error?'bad':'ok'}`,{'aria-hidden':'true'}),h('span.sr-only',r.error?'실패':'성공')),
+  h('span.dotw',h(`span.dotc.${r.status==='error'||(!r.status&&r.error)?'bad':r.status==='partial'?'warn':r.status==='running'?'idle':'ok'}`,{'aria-hidden':'true'}),h('span.sr-only',({error:'실패',partial:'일부 실패',running:'실행 중',ok:'성공'})[/** @type {'ok'} */(r.status)]||(r.error?'실패':'성공'))),
   h('span.tt',h('b',`${dayClock(r.started_at,now)}`),r.finished_at?h('span.fine',` · ${duration(r.started_at,r.finished_at)}`):h('span.fine',' · 실행 중'),
    h('span.l2',[r.observations!=null&&`관측 ${num(r.observations)}`,r.changes!=null&&`변경 ${num(r.changes)}`,r.rows_written!=null&&`쓰기 ${num(r.rows_written)}행`,r.queries!=null&&`쿼리 ${num(r.queries)}`].filter(Boolean).join(' · ')),
    r.error?h('span.l2.badtxt',String(r.error).slice(0,160)):null),

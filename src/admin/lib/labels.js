@@ -48,6 +48,8 @@ export const BOT_CATEGORIES=Object.freeze(/** @type {Record<string,string>} */({
 export function statusState(s){
  const k=String(s||'').toLowerCase();
  if(/^(ok|operational|none|up|normal)$/.test(k))return {label:'정상',tone:'ok'};
+ if(k==='incident')return {label:'장애',tone:'bad'};
+ if(k==='never')return {label:'기록 없음',tone:'warn'};
  if(/degraded|minor|partial|maint/.test(k))return {label:k.includes('maint')?'점검':'일부 장애',tone:'warn'};
  if(/major|outage|critical|down/.test(k))return {label:'장애',tone:'bad'};
  if(/stale/.test(k))return {label:'오래된 값',tone:'warn'};

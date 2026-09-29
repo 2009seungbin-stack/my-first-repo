@@ -19,7 +19,9 @@ export async function render(ctx,main){
  /** @type {PushSubscription|null} */let sub=null;
  try{sub=await currentSubscription();}catch{}
  if(sup.supported)await ctx.api.get('/api/v2/admin/push/key').catch((/** @type {any} */ e)=>{keyErr=e;});
+ // The server keeps prefs per device: GET /push/prefs?endpoint= (this phone's), else the local copy.
  let prefs=loadPrefs(ctx.me?.push?.prefs??ctx.me?.prefs);
+ if(sub)try{const r=await ctx.api.get(`/api/v2/admin/push/prefs?endpoint=${encodeURIComponent(sub.endpoint)}`);if(r?.subscribed&&r.prefs){prefs=loadPrefs(r.prefs);stashPrefs(prefs);}}catch{}
  const status=h('span.fine.savestate',{role:'status','aria-live':'polite'});
  /** @type {number} */let timer=0;
  /** @type {HTMLElement|null} */let prefsEl=null;
@@ -33,7 +35,7 @@ export async function render(ctx,main){
   if(focused)document.getElementById(focused)?.focus();
   if(!sub){status.textContent='저장됨 · 알림을 켜면 이 설정으로 받아요';return;}
   status.textContent='저장 중…';clearTimeout(timer);
-  timer=window.setTimeout(async()=>{try{await ctx.api.put('/api/v2/admin/push/prefs',{prefs});status.textContent='저장됨';}catch(e){status.textContent='';toast(errorText(e));}},500);
+  timer=window.setTimeout(async()=>{try{await ctx.api.put('/api/v2/admin/push/prefs',{prefs,endpoint:sub?.endpoint});status.textContent='저장됨';}catch(e){status.textContent='';toast(errorText(e));}},500);
  };
  const draw=()=>{
   fill(main,
@@ -53,7 +55,7 @@ export async function render(ctx,main){
    }),
    prefsEl=prefsBox(prefs,save,status),
    quietEl=quietBox(prefs,save),
-   sub?h('button.btn.full',{type:'button',onclick:async(/** @type {Event} */ ev)=>{const b=/** @type {HTMLButtonElement} */(ev.currentTarget);b.disabled=true;try{await ctx.api.post('/api/v2/admin/push/test',{});toast('테스트 알림을 보냈어요. 몇 초 안에 도착해요.');}catch(e){toast(errorText(e),{ms:5000});}b.disabled=false;}},'테스트 알림 보내기'):null,
+   sub?h('button.btn.full',{type:'button',onclick:async(/** @type {Event} */ ev)=>{const b=/** @type {HTMLButtonElement} */(ev.currentTarget);b.disabled=true;try{const r=await ctx.api.post('/api/v2/admin/push/test',{endpoint:sub?.endpoint});toast(r&&r.ok===false?'보내지 못했어요. 알림을 껐다가 다시 켜 보세요.':'테스트 알림을 보냈어요. 몇 초 안에 도착해요.');}catch(e){toast(errorText(e),{ms:5000});}b.disabled=false;}},'테스트 알림 보내기'):null,
    h('p.fine','알림을 받는 기기: 알림을 켠 기기만. 기기를 바꾸면 거기서 다시 켜세요.'));
  };
  draw();
