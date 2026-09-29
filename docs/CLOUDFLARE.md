@@ -325,6 +325,24 @@ GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NO
 - **법적 대응**: 불법촬영물·아동 성착취물로 확인되면 복구하지 말고 삭제한다. 관계 기관(경찰청 사이버수사, 방송통신심의위원회 등)에 신고할지는 소유자가 판단한다. 필요한 경우를 위해 삭제 전 관리 앱의 처리 기록(사유·시각)이 남는다. 저장된 네트워크 키로 IP 주소를 되돌릴 수는 없다.
 - **테스트**: `npm test`(`tests/anon.test.mjs`), `npm run test:platform`(비로그인 글·이미지·비밀번호 수정·신고 → 자동 숨김 → 복구), `SERVICE_SCENARIOS=anon python tests/service-browser.py`(실제 workerd + 로컬 R2 + Cloudflare Turnstile **테스트 키**: 사이트 키 `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA` — 이 키의 응답은 production에서는 거절된다. 인터넷 연결 필요).
 
+## 고정닉(패스키) 가입
+
+회원 가입은 이메일·외부 계정 없이 **닉네임 + 패스키(지문·얼굴·화면 잠금)** 로 한다. 익명 유동("ㅇㅇ (a3F9)")과 달리 닉네임이 고정되고, 글·댓글에 ✓ 표시로 구별된다. GitHub·Discord·Google 로그인은 그대로 쓸 수 있고, 한 계정에 둘 다 연결할 수 있다.
+
+- 구현: `server/member-passkey.js` (서버, `server/webauthn.js` 재사용), `src/passkey-client.js` (브라우저), 계정 페이지(`/{ko,en,ja}/account/`)와 채널 페이지의 로그인 시트. 테이블: `member_credentials` (migration `0013_member_passkeys.sql`).
+- API (`/api/v1`): `POST auth/passkey/register/options|verify` (가입), `login/options|verify` (지문으로 로그인, discoverable credential), `add/options|verify` (로그인한 회원이 기기 추가, 로그인 12시간 이내만), `remove` (로그인 수단이 하나 이상 남을 때만).
+- **관리 앱과 분리**: 회원 패스키는 `member_credentials`에만 저장되고 관리 앱은 `admin_credentials`만 읽는다. challenge 목적값도 다르다(`m-reg`/`m-auth` ↔ `reg`/`auth`). role이 admin인 계정은 회원 패스키를 추가하거나 그걸로 로그인할 수 없다.
+- **봇 확인**: `TURNSTILE_SECRET_KEY`가 있으면 가입 전에 Turnstile(action `signup`)을 통과해야 한다. Production에 secret이 없으면 가입은 `503 NOT_CONFIGURED {need:'TURNSTILE_SECRET_KEY'}`로 닫히고(로그인은 됨), Preview는 가입을 허용하되 한도가 더 낮다. Cloudflare 테스트 키(항상 통과) 응답은 production이 아닌 빌드에서만 인정한다.
+- **한도**: 네트워크(/24 · /48)당 하루 가입 5회(Turnstile 없을 때 2회, `MEMBER_SIGNUPS_PER_NETWORK` 변수로 조정), 패스키 요청은 네트워크당 분당 20회.
+- **닉네임 규칙**: 2~20자, 대소문자 무시 중복 불가, 운영자·관리자·레이더봇·admin·nerulio로 시작하는 이름과 `user-xxxx` 형식은 쓸 수 없다(내 정보의 닉네임 변경과 같은 규칙).
+- **복구 없음**: 패스키는 기기(또는 휴대폰·비밀번호 관리자)에 저장된다. 등록한 기기를 모두 잃으면 계정을 되찾을 수 없다(이메일이 없으므로). 가입 화면과 계정 페이지가 이를 알리고 기기 추가나 GitHub·Discord 연결을 권한다.
+
+### 운영자 작업 순서
+
+1. D1 migration `0013_member_passkeys.sql`을 preview → production 순서로 적용한다.
+2. Turnstile 위젯(Managed)에 호스트 이름 `n2-preview.nerulio.pages.dev`, `nerulio.com`을 등록하고 `TURNSTILE_SITE_KEY`(변수)·`TURNSTILE_SECRET_KEY`(secret)를 Preview/Production 각각 설정한다. 설정 전에는 production 가입이 닫혀 있다.
+3. 배포 후 `/api/v1/health`의 `passkey`가 `{"signin":true,"signup":true}`인지 확인하고, 휴대폰에서 `/ko/account/`의 "지문으로 가입"으로 한 번 가입해 본다. 패스키의 RP ID는 요청한 호스트 이름이므로 preview(`*.pages.dev`)에서 만든 패스키는 `nerulio.com`에서 쓸 수 없다(정상).
+
 ## 로컬 검증
 
 ```sh

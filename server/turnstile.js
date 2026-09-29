@@ -1,9 +1,10 @@
 import {randomToken} from './crypto.js';
 /** Server-side Turnstile Siteverify. The secret never leaves the Worker; a token is
  * accepted only if Cloudflare confirms it (single-use, bound to our hostname).
- * Cloudflare's documented testing keys answer for hostname "example.com" with no action and
- * metadata.result_with_testing_key=true: such an answer is accepted only with allowTestingKey
- * (callers pass it outside production), and then without the hostname/action checks. */
+ * Cloudflare's testing keys (always-pass secret 1x0000000000000000000000000000000AA) answer with
+ * hostname "example.com", no action and metadata.result_with_testing_key:true. Such an answer counts
+ * only when `allowTestingKey` is set, which callers pass only outside production (local E2E, previews);
+ * on production a testing-key answer is refused. */
 export const SITEVERIFY='https://challenges.cloudflare.com/turnstile/v0/siteverify';
 export async function verifyTurnstile({token,secret,ip,expectedAction,hostname,allowTestingKey=false},fetcher=fetch){
  if(!secret||typeof token!=='string'||!token||token.length>2048)return false;

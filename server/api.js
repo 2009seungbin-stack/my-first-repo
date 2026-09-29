@@ -11,6 +11,7 @@ import {billingProvider} from './billing/index.js';
 import {applyBillingEvent} from './billing/webhook.js';
 import {allowRequest} from './ratelimit.js';
 import {signTicket,NONCE} from './tickets.js';
+import {PASSKEY_ROUTES,handlePasskey,passkeyAvailability} from './member-passkey.js';
 export const API_VERSION='1';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 /** State-changing browser endpoints accept only Nerulio's own origin. There is no CORS:
@@ -92,11 +93,14 @@ async function me(request,ctx,cfg,db,now){
  return {
   ...(entitlement?{entitlement}:{}),
   loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),studioUsage:publicUsage(ctx.plan,studio),
-  ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
+  // A passkey member has no provider name: the account shows its public nickname instead.
+  ...(ctx.user?{user:{name:ctx.user.display_name||String((await db.prepare('SELECT display_name FROM user_profiles WHERE user_id=?1').bind(ctx.user.id).first())?.display_name||''),email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   ...(grace?{grace}:{}),
   billing:{mode:cfg.billing.mode,yearly:!!cfg.billing.prices.year},
   // Sign-in buttons to show (configured providers only, in display order).
   providers:configuredProviders(cfg),
+  // Member passkeys (고정닉): sign-in always, sign-up where a bot check exists (or on previews).
+  passkey:passkeyAvailability(cfg),
   turnstileSiteKey:cfg.turnstile.siteKey&&cfg.turnstile.secret?cfg.turnstile.siteKey:''
  };
 }
@@ -251,7 +255,8 @@ async function adminStats(ctx,cfg,db,now){
 const ROUTES={
  'GET /health':1,'GET /me':1,'GET /usage':1,'POST /jobs/authorize':1,'POST /jobs/reconcile':1,'GET /auth/google/start':1,'GET /auth/google/callback':1,
  'GET /auth/github/start':1,'GET /auth/github/callback':1,'GET /auth/discord/start':1,'GET /auth/discord/callback':1,'GET /auth/identities':1,'POST /auth/unlink':1,
- 'POST /auth/logout':1,'POST /billing/checkout':1,'POST /billing/portal':1,'POST /billing/webhook':1,'GET /admin/stats':1,'POST /admin/cleanup':1
+ 'POST /auth/logout':1,'POST /billing/checkout':1,'POST /billing/portal':1,'POST /billing/webhook':1,'GET /admin/stats':1,'POST /admin/cleanup':1,
+ ...PASSKEY_ROUTES
 };
 export async function handleApi(request,env={},ctx=null,deps={}){
  deps={fetch:deps.fetch||((...a)=>fetch(...a)),now:deps.now||Date.now,random:deps.random||Math.random,limiter:deps.limiter,ctx};
@@ -266,7 +271,7 @@ export async function handleApi(request,env={},ctx=null,deps={}){
   const cfg=runtimeConfig(env),now=deps.now(),db=env.DB;
   if(key==='GET /health'){
    let database=false;if(db)try{database=(await db.prepare('SELECT 1 AS ok').first())?.ok===1;}catch{}
-   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),github:!!(cfg.oauth.github.clientId&&cfg.oauth.github.clientSecret),discord:!!(cfg.oauth.discord.clientId&&cfg.oauth.discord.clientSecret),providers:configuredProviders(cfg),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),tickets:!!cfg.ticketKey,
+   return json({ok:true,api:API_VERSION,environment:cfg.environment,configured:cfg.configured,database,billing:cfg.billing.mode,google:!!(cfg.google.clientId&&cfg.google.clientSecret),github:!!(cfg.oauth.github.clientId&&cfg.oauth.github.clientSecret),discord:!!(cfg.oauth.discord.clientId&&cfg.oauth.discord.clientSecret),providers:configuredProviders(cfg),turnstile:!!(cfg.turnstile.siteKey&&cfg.turnstile.secret),passkey:(({signin,signup})=>({signin,signup}))(passkeyAvailability(cfg)),tickets:!!cfg.ticketKey,
     ...(cfg.environmentOverrideRefused?{warning:'NERULIO_ENV=development is ignored on this build'}:{})});
   }
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
@@ -297,6 +302,17 @@ export async function handleApi(request,env={},ctx=null,deps={}){
     if(!context.user)throw new ApiError('LOGIN_REQUIRED');
     const body=fields(await readJSON(request,256),['provider']);
     return done({providers:configuredProviders(cfg),...await unlinkIdentity(db,context.user,body.provider,now)});
+   }
+   case 'POST /auth/passkey/register/options':case 'POST /auth/passkey/register/verify':case 'POST /auth/passkey/login/options':case 'POST /auth/passkey/login/verify':
+   case 'POST /auth/passkey/add/options':case 'POST /auth/passkey/add/verify':case 'POST /auth/passkey/remove':{
+    const nets=await networkSubjects(clientIP(request),cfg.secret,now);
+    // Burst limit per network (or browser): a passkey ceremony is two requests, a person needs a few.
+    if(!await allowRequest({env,limiter:deps.limiter,key:`passkey|${nets?.narrow||'a:'+context.anonId}`,limit:20,now})){
+     await bumpEvent(db,now,'rate_limited');
+     throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+    }
+    const body=await readJSON(request,key.endsWith('/verify')?32*1024:2048);
+    return done(await handlePasskey(key,{request,ctx:context,cfg,db,now,body,deps,nets,ip:clientIP(request)}));
    }
    case 'POST /auth/logout':context.setCookies.push(await logout(context,db,now));return done({loggedIn:false});
    case 'POST /billing/checkout':return done(await checkout(request,context,cfg,env,deps,now));

@@ -15,6 +15,7 @@ import {networkPrefix,kstDay,anonIdentity,dailyIdOf,hashPassword,verifyPassword,
 import {cleanImage,sniff,IMAGE_LIMITS} from '../server/platform/images.js';
 import {notifyNewFlag} from '../server/platform/admin-notify.js';
 import {generateAdminKeys} from '../tools/admin-keys.mjs';
+import {author} from '../platform/render/ui.js';
 
 const skip=!sqliteAvailable&&'node:sqlite is unavailable';
 const ORIGIN='https://nerulio.test',SECRET='test-session-secret-0123456789abcdef-0123456789';
@@ -483,4 +484,13 @@ test('uploads: limits, types, ownership on edit, deletion with the post, NOT_CON
  const nc=await none.browser().call('POST','/uploads',{raw:FIX('gps.webp')});
  assert.equal(nc.status,503);assert.deepEqual([nc.json.error.code,nc.json.need,nc.json.error.need],['NOT_CONFIGURED','UPLOADS','UPLOADS']);
  assert.equal((await none.browser().call('GET','/state')).json.uploads,null,'the picker stays hidden');
+});
+
+test('board display: anonymous "닉네임 (ID)" muted, members with ✓, the Radar bot with ⚙',()=>{
+ const a=String(author({author_name:'ㅇㅇ',author_tier:'new',anon_id:'a3F9'},'ko'));
+ assert.match(a,/class="nick anon"/);assert.match(a,/ㅇㅇ<span class="aid"> \(a3F9\)<\/span>/);assert(!a.includes('✓'));
+ const m=String(author({author_name:'지문테스터',author_tier:'new'},'ko'));
+ assert.match(m,/class="nick mem"/);assert.match(m,/지문테스터<b class="ck"[^>]*>✓<\/b>/);
+ assert.match(String(author({author_name:'<b>x</b>',author_tier:'new',anon_id:'zz00'},'ko')),/&lt;b&gt;x&lt;\/b&gt;/,'names are escaped');
+ assert.match(String(author({author_name:null,author_tier:'new',bot:true},'ko')),/nick bot/);
 });

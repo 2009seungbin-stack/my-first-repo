@@ -28,6 +28,7 @@ import {configuredProviders} from '../oauth/providers.js';
 import {ANON,REPORT,ANON_USER,anonIdentity,anonSecret,anonMode,assertAnonEnabled,humanGate,takeDaily,readDaily,hourKey,assertNotBanned,countLinks,blocklistVerdict,textHash,anonCleanupStatements,hashPassword,verifyPassword,kstDay,normalizeText} from './anon.js';
 import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf} from './uploads.js';
 import {IMAGE_LIMITS} from './images.js';
+import {passkeyAvailability} from '../member-passkey.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
 /** Writes that also work without an account. */
@@ -135,7 +136,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   const origin=cfg.siteOrigin||url.origin;
   // Reads (anonymous allowed).
-  if(key==='GET /state')return done({...await state(db,context,url.searchParams,{env,cfg,now,ip:clientIp(request)}),providers:configuredProviders(cfg)});
+  if(key==='GET /state')return done({...await state(db,context,url.searchParams,{env,cfg,now,ip:clientIp(request)}),providers:configuredProviders(cfg),passkey:passkeyAvailability(cfg)});
   if(key==='GET /new-posts'){
    const e=await entity(db,String(url.searchParams.get('entity')||''));
    const after=Number(url.searchParams.get('after'))||0;

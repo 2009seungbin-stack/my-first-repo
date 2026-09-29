@@ -418,6 +418,10 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .n2 .sib-google{background:#fff;border-color:#747775;color:#1f1f1f}.n2 .sib-google:hover{background:#f2f2f2}
 .n2 .sib-github{background:#24292f;color:#fff}.n2 .sib-github:hover{background:#32383f}
 .n2 .sib-discord{background:#5865f2;color:#fff}.n2 .sib-discord:hover{background:#4752c4}
+.n2 .sib-passkey{width:100%;background:var(--brand);color:#fff;cursor:pointer;font-family:inherit}.n2 .sib-passkey:hover{filter:brightness(.93)}.n2 .sib-passkey:disabled{opacity:.6;cursor:progress}
+dialog.signin .pk-new{margin:10px 0 0;font-size:13px}dialog.signin .pk-new summary{cursor:pointer;color:var(--brand);font-weight:600}
+dialog.signin .pk-form{display:flex;flex-direction:column;gap:6px;margin-top:8px}dialog.signin .pk-form input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-height:40px}
+dialog.signin .pk-form .btn{justify-content:center}dialog.signin .pk-warn,dialog.signin .pk-msg{margin:6px 0 0;font-size:12px;line-height:1.6}dialog.signin .pk-msg{color:var(--down,#c0392b)}dialog.signin .pk-or{margin:12px 0 8px;text-align:center}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .n2 .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root:not([data-theme="light"]) .n2 .sib-github{border-color:#3d444d}}
 :root[data-theme="dark"] .n2 .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root[data-theme="dark"] .n2 .sib-github{border-color:#3d444d}
 /* Sign-in sheet (islands): shown instead of leaving the page when a signed-out reader acts. */

@@ -250,7 +250,7 @@ async function overview(c){
   db.prepare("SELECT COUNT(*) AS n FROM content_flags WHERE status='open'"),
   db.prepare("SELECT COUNT(*) AS n FROM discussions WHERE status IN ('published','locked') AND created_at>=? AND author_id NOT LIKE 'system:%'").bind(since),
   db.prepare("SELECT COUNT(*) AS n FROM comments WHERE created_at>=? AND status='published'").bind(since),
-  db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>=? AND provider NOT IN ('system','passkey')").bind(since),
+  db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>=? AND provider<>'system' AND id NOT IN (SELECT user_id FROM admin_credentials)").bind(since),
   db.prepare("SELECT id,url,starts_at FROM events WHERE kind='incident' AND status NOT IN ('ended','cancelled') AND starts_at>=? AND (url LIKE 'https://status.claude.com/%' OR url LIKE 'https://status.openai.com/%') ORDER BY starts_at DESC LIMIT 10").bind(c.now-14*DAY),
   ...(graph?[]:[db.prepare("SELECT COUNT(*) AS n FROM entities WHERE status='active'"),db.prepare('SELECT COUNT(*) AS n FROM facts WHERE is_current=1'),db.prepare('SELECT COUNT(*) AS n FROM events')])
  ]);
@@ -476,7 +476,7 @@ async function community(c){
  const [posts,comments,users,flags,sp,sc,channels,verticals,newUsers]=await db.batch([
   db.prepare(`SELECT COUNT(*) AS n ${POSTS}`).bind(from,to),
   db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status='published' AND created_at>=? AND created_at<?").bind(from,to),
-  db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>=? AND created_at<? AND provider NOT IN ('system','passkey')").bind(from,to),
+  db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>=? AND created_at<? AND provider<>'system' AND id NOT IN (SELECT user_id FROM admin_credentials)").bind(from,to),
   db.prepare('SELECT COUNT(*) AS n FROM content_flags WHERE created_at>=? AND created_at<?').bind(from,to),
   db.prepare(`SELECT CAST((created_at+?)/86400000 AS INTEGER) AS d,COUNT(*) AS n ${POSTS} GROUP BY d`).bind(KST,from7,to),
   db.prepare("SELECT CAST((created_at+?)/86400000 AS INTEGER) AS d,COUNT(*) AS n FROM comments WHERE status='published' AND created_at>=? AND created_at<? GROUP BY d").bind(KST,from7,to),
@@ -484,7 +484,7 @@ async function community(c){
   db.prepare(`SELECT e.vertical,SUM(a.p) AS posts,SUM(a.c) AS comments FROM (${ACTIVITY}) a JOIN entities e ON e.id=a.entity_id GROUP BY e.vertical ORDER BY SUM(a.p) DESC,SUM(a.c) DESC`).bind(from,to,from,to),
   db.prepare(`SELECT u.id,u.created_at,COALESCE(p.display_name,'user-'||lower(substr(u.id,1,6))) AS name,
    (SELECT COUNT(*) FROM discussions d WHERE d.author_id=u.id AND d.status IN ('published','locked')) AS posts,(SELECT COUNT(*) FROM comments x WHERE x.author_id=u.id AND x.status='published') AS comments
-   FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id WHERE u.created_at>=? AND u.created_at<? AND u.provider NOT IN ('system','passkey') ORDER BY u.created_at DESC LIMIT 20`).bind(from,to)]);
+   FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id WHERE u.created_at>=? AND u.created_at<? AND u.provider<>'system' AND u.id NOT IN (SELECT user_id FROM admin_credentials) ORDER BY u.created_at DESC LIMIT 20`).bind(from,to)]);
  const n=(/** @type {any} */ r)=>Number(r.results?.[0]?.n||0);
  const byDay=(/** @type {any} */ r)=>new Map((r.results||[]).map((/** @type {any} */ x)=>[Number(x.d),Number(x.n)]));
  const ps=byDay(sp),cs=byDay(sc),d0=Math.floor((from+KST)/DAY);
