@@ -528,7 +528,7 @@ def scenario_social(browser):
         page.goto(post,wait_until='networkidle')
         page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form button[type="submit"]')
         sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
-        ok('social: a signed-out comment opens the sign-in sheet with the configured providers only',sheet.locator('.sib').count()==2 and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
+        ok('social: a signed-out comment opens the sign-in sheet: passkey first, then the configured providers only',sheet.locator('.sib').count()==3 and sheet.locator('.sib').first.get_attribute('data-provider')=='passkey' and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
         page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
         with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
@@ -587,6 +587,67 @@ def scenario_social(browser):
     finally:
         stack.close();mock.close()
 
+# ------------------------------------------------------------------ member passkeys (고정닉)
+def scenario_passkey(browser):
+    """PLATFORM build on the real Pages runtime with Cloudflare's always-pass Turnstile testing keys and Chromium's
+    virtual authenticator: a reader signs up with a nickname and a passkey from the sign-in sheet (Turnstile, then
+    navigator.credentials.create), comments under the fixed nickname, signs out, signs in with 지문으로 로그인, and
+    sees the device on the account page. WebAuthn needs a domain RP id, so this stack is served as localhost."""
+    port=PORT or free_port();origin=f'http://localhost:{port}'
+    stack=Stack('passkey',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port)
+    try:
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});"
+                  f"INSERT INTO discussions(id,entity_id,post_no,kind,title,body_md,locale,author_id,created_at,updated_at,last_activity_at) VALUES('e2e-post','service:e2e-chat',1,'question','E2E 질문','패스키 테스트','ko','system:radar-bot',{now},{now},{now});")
+        health=json.load(urllib.request.urlopen(origin+'/api/v1/health',timeout=20))
+        ok('passkey: health offers passkey sign-up and sign-in (Turnstile configured)',health['passkey']=={'signin':True,'signup':True} and health['turnstile'],health)
+        post=origin+'/ko/ai/e2e-chat/1'
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=origin;log=[]
+        page=context.new_page();instrument(page,log)
+        cdp=context.new_cdp_session(page);cdp.send('WebAuthn.enable')
+        auth=cdp.send('WebAuthn.addVirtualAuthenticator',{'options':{'protocol':'ctap2','transport':'internal','hasResidentKey':True,'hasUserVerification':True,'isUserVerified':True,'automaticPresenceSimulation':True}})['authenticatorId']
+        page.goto(post,wait_until='networkidle')
+        page.locator('.hd [data-island="account"] a[data-signin]').click()
+        sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
+        ok('passkey: with no OAuth provider configured the sheet still opens, 지문으로 로그인 first',sheet.locator('.sib').count()==1 and sheet.locator('.sib-passkey').inner_text().strip()=='지문으로 로그인')
+        sheet.locator('details.pk-new summary').click()
+        ok('passkey: the sign-up form warns that losing every device loses the account','기기를 모두 잃어버리면' in sheet.locator('.pk-form').inner_text())
+        page.screenshot(path=str(SHOTS/'passkey-sheet-ko.png'))
+        sheet.locator('.pk-form input[name="displayName"]').fill('지문테스터')
+        with page.expect_navigation(timeout=60000):sheet.locator('.pk-form button[type="submit"]').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.textContent.trim()==="지문테스터"}',timeout=20000)
+        ok('passkey: Turnstile (testing key) + virtual authenticator → signed up and signed in with the fixed nickname',True)
+        creds=cdp.send('WebAuthn.getCredentials',{'authenticatorId':auth})['credentials']
+        rows=stack.sql("SELECT u.provider,p.display_name,p.role,(SELECT COUNT(*) FROM member_credentials) AS creds,(SELECT COUNT(*) FROM admin_credentials) AS admins FROM users u JOIN user_profiles p ON p.user_id=u.id WHERE u.provider='passkey'")
+        ok('passkey: a resident credential on the authenticator; one member account, no admin credential',len(creds)==1 and creds[0]['isResidentCredential'] and rows==[{'provider':'passkey','display_name':'지문테스터','role':'user','creds':1,'admins':0}],rows)
+        ok('passkey: the Turnstile token went to sign-up options',any('/api/v1/auth/passkey/register/options' in r['url'] and 'turnstileToken' in r['body'] for r in log))
+        page.fill('#comment-form textarea','지문으로 가입해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("지문으로 가입해서 남긴 댓글")',timeout=15000)
+        ok('passkey: the comment shows the fixed nickname','지문테스터' in page.locator('.cl .co').last.inner_text())
+        page.goto(origin+'/ko/community/me',wait_until='networkidle');page.locator('[data-logout]:not([hidden])').wait_for(timeout=10000)
+        with page.expect_navigation(timeout=30000):page.click('[data-logout]')
+        page.goto(post,wait_until='networkidle')
+        ok('passkey: signed out',page.locator('.hd [data-island="account"] a[data-signin]').count()==1)
+        page.locator('.hd [data-island="account"] a[data-signin]').click();sheet.wait_for(state='visible',timeout=10000)
+        with page.expect_navigation(timeout=60000):sheet.locator('.sib-passkey').click()
+        page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.textContent.trim()==="지문테스터"}',timeout=20000)
+        ok('passkey: 지문으로 로그인 (discoverable credential) signs the member back in',True)
+        page.goto(origin+'/ko/account/',wait_until='networkidle')
+        page.locator('[data-identities] [data-passkey-device]').wait_for(timeout=15000)
+        ok('passkey: the account page lists the device (not removable: the only way in) and offers 이 기기 추가',page.locator('[data-remove-passkey]').is_disabled() and page.locator('[data-passkey-add]').count()==1 and '잃어버리면' in page.locator('[data-passkey-warn]').inner_text())
+        page.screenshot(path=str(SHOTS/'passkey-account-ko.png'),full_page=True)
+        w=page.evaluate('document.documentElement.scrollWidth');ok('passkey: no sideways scroll at 390px',w<=390,w)
+        context.close()
+        # A fresh browser on the Japanese account page: passkey sign-in and the sign-up form come first.
+        context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=origin
+        page=context.new_page();page.goto(origin+'/ja/account/',wait_until='networkidle');page.locator('[data-passkey]').wait_for(timeout=15000)
+        ok('passkey: the Japanese account page offers パスキーでログイン and the sign-up form',page.locator('[data-passkey-signin]').inner_text().strip()=='パスキーでログイン' and page.locator('form[data-passkey-signup] input').count()==1)
+        context.close()
+    finally:
+        stack.close()
+
 # ------------------------------------------------------------------ visitor/bot statistics (server/traffic.js)
 def scenario_traffic(browser):
     """PLATFORM + TRAFFIC_HTML build on the real Pages runtime: HTML, robots.txt and sitemaps go through the
@@ -621,12 +682,13 @@ def scenario_traffic(browser):
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
         if 'signin' in only:scenario_signin(browser)
         if 'social' in only:scenario_social(browser)
+        if 'passkey' in only:scenario_passkey(browser)
         if 'traffic' in only:scenario_traffic(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))

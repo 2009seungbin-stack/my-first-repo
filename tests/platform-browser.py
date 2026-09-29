@@ -38,7 +38,8 @@ def main():
             # Signed out: 구독 opens the sign-in sheet (configured providers only) instead of leaving the page.
             pg.locator('[data-island=follow] button').first.click()
             sheet = pg.locator('dialog#n2-signin'); sheet.wait_for(state='visible', timeout=5000)
-            assert [sheet.locator('.sib').nth(i).get_attribute('data-provider') for i in range(sheet.locator('.sib').count())] == ['github', 'discord'], 'GitHub then Discord, no Google'
+            assert [sheet.locator('.sib').nth(i).get_attribute('data-provider') for i in range(sheet.locator('.sib').count())] == ['passkey', 'github', 'discord'], '지문으로 로그인 first, then GitHub and Discord, no Google'
+            assert sheet.locator('.sib-passkey').inner_text().strip() == '지문으로 로그인' and sheet.locator('details.pk-new summary').inner_text().strip() == '처음이에요 · 지문으로 가입'
             assert sheet.locator('.sib-github').get_attribute('href') == '/api/v1/auth/github/start?return=%2Fko%2Fai%2Fclaude%2F'
             assert sheet.locator('.sib-discord').inner_text().strip() == 'Discord로 계속하기'
             sheet.locator('button.x').click(); pg.wait_for_timeout(200)

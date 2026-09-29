@@ -93,7 +93,8 @@ async function me(request,ctx,cfg,db,now){
  return {
   ...(entitlement?{entitlement}:{}),
   loggedIn:!!ctx.user,plan:ctx.plan,ads:ctx.plan!=='pro',usage:publicUsage(ctx.plan,usage),studioUsage:publicUsage(ctx.plan,studio),
-  ...(ctx.user?{user:{name:ctx.user.display_name||'',email:ctx.user.email||''},subscription:ctx.subscription}:{}),
+  // A passkey member has no provider name: the account shows its public nickname instead.
+  ...(ctx.user?{user:{name:ctx.user.display_name||String((await db.prepare('SELECT display_name FROM user_profiles WHERE user_id=?1').bind(ctx.user.id).first())?.display_name||''),email:ctx.user.email||''},subscription:ctx.subscription}:{}),
   ...(grace?{grace}:{}),
   billing:{mode:cfg.billing.mode,yearly:!!cfg.billing.prices.year},
   // Sign-in buttons to show (configured providers only, in display order).

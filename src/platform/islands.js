@@ -30,19 +30,58 @@ function toastNext(text){try{sessionStorage.setItem('n2-toast',text);}catch{}}
 function toastPending(){try{const t=sessionStorage.getItem('n2-toast');if(t){sessionStorage.removeItem('n2-toast');toast(t);}}catch{}}
 /** Configured sign-in providers (from /api/v2/state). */
 let providers=[];
+/** Member passkeys — the 고정닉 path (/api/v2/state `passkey`: {signin,signup,turnstileSiteKey}), or null. */
+let passkey=null;
+const passkeyOn=()=>!!passkey?.signin&&!!window.PublicKeyCredential;
 /** This page, as the place sign-in comes back to. */
 const here=()=>validReturn(location.pathname+location.search)?location.pathname+location.search:location.pathname;
-/** Sign in without leaving for a separate page first: a sheet with one branded button per configured
- * provider. With none configured the account page explains that sign-in is not available yet. */
-function signInSheet(){
- if(!providers.length){location.href=`/${L}/account/?return=${encodeURIComponent(here())}`;return;}
+/** Sign in without leaving the page: a sheet with 지문으로 로그인 (and 지문으로 가입 with a nickname) first,
+ * then one branded button per configured OAuth provider. With neither available the account page explains
+ * that sign-in is not available yet. The passkey code (src/passkey-client.js) loads only when the sheet opens. */
+async function signInSheet(){
+ if(!providers.length&&!passkeyOn()){location.href=`/${L}/account/?return=${encodeURIComponent(here())}`;return;}
  let d=$('#n2-signin');
  if(!d){
+  const pk=passkeyOn()?await import('../passkey-client.js').catch(()=>null):null;
+  if(!pk&&!providers.length){location.href=`/${L}/account/?return=${encodeURIComponent(here())}`;return;}
+  if($('#n2-signin'))return signInSheet();   // opened twice while the module loaded
   d=document.createElement('dialog');d.id='n2-signin';d.className='signin';d.setAttribute('aria-labelledby','n2-signin-t');
   const h=document.createElement('h2');h.id='n2-signin-t';h.textContent=T.signInTitle;
   const p=document.createElement('p');p.textContent=T.signInNote;
   const x=document.createElement('button');x.type='button';x.className='btn x';x.textContent=T.signInClose;x.addEventListener('click',()=>d.close());
-  d.append(h,p);d.insertAdjacentHTML('beforeend',buttonsHTML(providers,L,here()));d.append(x);
+  d.append(h,p);
+  if(pk){
+   const pt=(k,v)=>pk.passkeyText(L,k,v);
+   const msg=document.createElement('p');msg.className='pk-msg';msg.hidden=true;msg.setAttribute('role','alert');
+   const fail=r=>{const m=pk.passkeyMessage(L,r);msg.textContent=m;msg.hidden=!m;};
+   const done=text=>{toastNext(text);location.reload();};
+   const box=document.createElement('div');box.className='sibs';
+   const b=document.createElement('button');b.type='button';b.className='sib sib-passkey';b.dataset.provider='passkey';b.innerHTML=pk.PASSKEY_ICON;
+   const bl=document.createElement('span');bl.textContent=pt('signIn');b.append(bl);box.append(b);d.append(box);
+   b.addEventListener('click',async()=>{b.disabled=true;msg.hidden=true;const r=await pk.passkeySignIn();b.disabled=false;if(r.ok)done(pt('signedIn'));else fail(r);});
+   if(passkey.signup){
+    const det=document.createElement('details');det.className='pk-new';
+    const sm=document.createElement('summary');sm.textContent=pt('newHere');
+    const f=document.createElement('form');f.className='pk-form';
+    const lb=document.createElement('label');lb.textContent=pt('nickname');
+    const inp=document.createElement('input');inp.name='displayName';inp.minLength=2;inp.maxLength=20;inp.required=true;inp.autocomplete='nickname';lb.append(inp);
+    const hint=document.createElement('p');hint.className='pk-warn';hint.textContent=pt('nickHint');
+    const sb=document.createElement('button');sb.type='submit';sb.className='btn p';sb.textContent=pt('signUp');
+    const warn=document.createElement('p');warn.className='pk-warn';warn.textContent=pt('warn');
+    f.append(lb,hint,sb,warn);det.append(sm,f);d.append(det);
+    f.addEventListener('submit',async e=>{
+     e.preventDefault();const name=inp.value.trim();
+     if([...name].length<2||[...name].length>20)return fail({code:'BAD_REQUEST',field:'displayName'});
+     sb.disabled=true;msg.hidden=true;
+     const r=await pk.passkeySignUp({displayName:name,locale:L,getToken:k=>pk.turnstileToken(k||passkey.turnstileSiteKey,'signup',{base:'/',lang:L,title:pt('challenge'),close:pt('close')})});
+     sb.disabled=false;if(r.ok)done(pt('welcome',{n:r.data?.displayName||name}));else fail(r);
+    });
+   }
+   d.append(msg);
+   if(providers.length){const or=document.createElement('p');or.className='pk-or';or.textContent=pt('or');d.append(or);}
+  }
+  if(providers.length)d.insertAdjacentHTML('beforeend',buttonsHTML(providers,L,here()));
+  d.append(x);
   d.addEventListener('click',e=>{if(e.target===d)d.close();});
   document.body.append(d);
  }
@@ -85,9 +124,10 @@ async function main(){
  const st=(await api('/state?'+q)).data||{signedIn:false,votes:{}};
  const signedIn=!!st.signedIn;
  providers=Array.isArray(st.providers)?st.providers:[];
+ passkey=st.passkey&&typeof st.passkey==='object'?st.passkey:null;
  toastPending();
  // Server-rendered sign-in links (header, 구독, 글쓰기 notes) open the sheet instead of the account page.
- if(!signedIn)document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-signin]');if(a&&providers.length&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();signInSheet();}});
+ if(!signedIn)document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-signin]');if(a&&(providers.length||passkeyOn())&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();signInSheet();}});
 
  // Header search inside a channel: × drops the channel scope.
  for(const x of $$('[data-unscope]'))x.addEventListener('click',()=>{const f=x.closest('form');$('input[name="in"]',f)?.remove();x.parentElement.remove();const q=$('input[name="q"]',f);if(q){q.placeholder=L==='ko'?'검색':'Search';q.focus();}});

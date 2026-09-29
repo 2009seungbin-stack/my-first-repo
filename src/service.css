@@ -43,6 +43,14 @@
 .sib-google{background:#fff;border-color:#747775;color:#1f1f1f!important}.sib-google:hover{background:#f2f2f2}
 .sib-github{background:#24292f;color:#fff!important}.sib-github:hover{background:#32383f}
 .sib-discord{background:#5865f2;color:#fff!important}.sib-discord:hover{background:#4752c4}
+/* Member passkey (src/passkey-client.js): 지문으로 가입·로그인, first in every chooser. */
+.sib-passkey{background:#2b62d6;color:#fff!important;cursor:pointer}.sib-passkey:hover{background:#2453b8}.sib-passkey:disabled{opacity:.6;cursor:progress}
+.sib-passkey-new{background:#fff;border-color:#2b62d6;color:#2b62d6!important}.sib-passkey-new:hover{background:#f1f5fe}
+.pk-box{max-width:360px;margin:18px 0 6px}.pk-box h2{margin:0 0 6px!important}.pk-box .sibs{margin-top:8px}
+.pk-signup{display:flex;flex-direction:column;gap:6px;margin-top:16px}.pk-signup label{font-weight:650;font-size:13px}
+.pk-signup input{font:inherit;padding:10px 12px;border:1px solid #cfd8e3;border-radius:10px;min-height:44px;box-sizing:border-box;width:100%}
+.pk-warn{font-size:12px;line-height:1.7}.pk-or{margin:16px 0 0;color:#7b889a;font-size:12px}
+.identities li .sib-i{color:#2b62d6}.identities .sib-passkey .sib-i{color:#fff}
 .service-error{margin:14px 0;padding:12px 16px;border-radius:12px;background:#fff2f2;color:#a3404a;font-size:13px;line-height:1.7}
 .service-error a{color:#a3404a;font-weight:700;margin-left:6px}
 .identities{list-style:none;margin:18px 0 0;padding:0;border-top:1px solid #e6ebf2}

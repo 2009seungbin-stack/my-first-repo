@@ -2,8 +2,10 @@ import {entitlement,load,logout,apiPath,current} from './entitlement.js';
 import {text,duration} from './service-content.js';
 import {track} from './analytics.js';
 import {buttonsHTML,buttonHTML,startURL,iconHTML,isBrand,BRAND_NAME,validReturn} from './signin-brands.js';
-/** /account/ — the sign-in chooser (configured providers only), plan, today's usage, subscription
- * controls and 연결된 로그인 (link / unlink providers). No file history exists to show.
+import {passkeySupported,passkeySignUp,passkeySignIn,passkeyAddDevice,passkeyRemove,passkeyText,passkeyMessage,turnstileToken,PASSKEY_ICON} from './passkey-client.js';
+/** /account/ — the sign-in chooser (member passkey first — 지문으로 가입·로그인 — then the configured
+ * providers), plan, today's usage, subscription controls and 연결된 로그인 (link / unlink providers, the
+ * account's passkey devices). No file history exists to show.
  * ?return=/ko/… is where sign-in comes back to (channel pages send readers here). */
 const locale=document.documentElement.lang,t=(k,v)=>text(locale,k,v);
 const body=document.getElementById('accountBody'),status=document.getElementById('accountStatus');
@@ -18,6 +20,17 @@ const FAILURE_KEY={denied:'loginDenied',state:'loginExpired',code:'loginExpired'
 function say(key,error=false,vars){status.textContent=key?t(key,vars):'';status.classList.toggle('error',error);}
 const dateText=iso=>new Intl.DateTimeFormat(locale,{dateStyle:'medium'}).format(new Date(iso));
 const providerName=id=>BRAND_NAME[id]||id;
+const pt=(k,v)=>passkeyText(locale,k,v);
+/** Passkey sign-up / sign-in first (server/member-passkey.js); '' when the service offers neither. */
+function passkeyHTML(me){
+ const pk=me.passkey;if(!pk?.signin)return '';
+ if(!passkeySupported())return `<p class="service-hint" data-passkey-unsupported>${esc(pt('unsupported'))}</p>`;
+ const signup=pk.signup?`<form class="pk-signup" data-passkey-signup novalidate><label for="pkNick">${esc(pt('nickname'))}</label><input id="pkNick" name="displayName" minlength="2" maxlength="20" autocomplete="nickname" required><small class="service-hint">${esc(pt('nickHint'))}</small><button type="submit" class="sib sib-passkey sib-passkey-new" data-provider="passkey-signup">${PASSKEY_ICON}<span>${esc(pt('signUp'))}</span></button></form>`:`<p class="service-hint" data-passkey-signup-off>${esc(pt('signupOff'))}</p>`;
+ return `<section class="pk-box" data-passkey><h2>${esc(pt('title'))}</h2><div class="sibs"><button type="button" class="sib sib-passkey" data-passkey-signin>${PASSKEY_ICON}<span>${esc(pt('signIn'))}</span></button></div>${signup}<p class="service-hint pk-warn">${esc(pt('warn'))}</p></section>`;
+}
+/** After a passkey sign-in or sign-up: back where sign-in was asked for, like the OAuth callback does. */
+function signedInGo(){const target=new URL(returnTo,location.origin);target.searchParams.set('login','ok');location.assign(target.pathname+target.search);}
+function sayText(message,error){status.textContent=message;status.classList.toggle('error',!!error);}
 function failureHTML(providers,loggedIn){
  if(!failure)return '';
  const p=failure.provider,key=FAILURE_KEY[failure.reason]||(p?'loginProviderFailed':'loginFailed');
@@ -34,8 +47,9 @@ function render(){
  const providers=Array.isArray(me.providers)?me.providers:[];
  if(!me.loggedIn){
   const su=me.studioUsage,anonNote=su?.signInLimit?`<small class="service-hint" data-studio-anon>${esc(t('studioAnon',{a:su.limit,s:su.signInLimit}))}</small>`:'';
-  const buttons=providers.length?buttonsHTML(providers,locale,returnTo,{api:API}):`<p class="service-hint" data-signin-off>${esc(t('signInUnavailable'))}</p>`;
-  body.innerHTML=`${failureHTML(providers,false)}<p class="service-lead">${esc(t('signedOutLead'))}</p>${buttons}<dl style="margin-top:22px"><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd>${su?`<dt>${esc(t('studioExports'))}</dt><dd><span data-studio-usage>${su.used} / ${su.limit}</span>${anonNote}</dd>`:''}<dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
+  const pk=passkeyHTML(me);
+  const buttons=providers.length?(pk?`<p class="pk-or">${esc(pt('or'))}</p>`:'')+buttonsHTML(providers,locale,returnTo,{api:API}):pk?'':`<p class="service-hint" data-signin-off>${esc(t('signInUnavailable'))}</p>`;
+  body.innerHTML=`${failureHTML(providers,false)}<p class="service-lead">${esc(t('signedOutLead'))}</p>${pk}${buttons}<dl style="margin-top:22px"><dt>${esc(t('plan'))}</dt><dd>${esc(t('free'))}</dd><dt>${esc(t('heavyJobs'))}</dt><dd data-usage>${me.usage.used} / ${me.usage.limit}</dd>${su?`<dt>${esc(t('studioExports'))}</dt><dd><span data-studio-usage>${su.used} / ${su.limit}</span>${anonNote}</dd>`:''}<dt>${esc(t('reset'))}</dt><dd data-reset>${esc(duration(locale,Date.parse(me.usage.resetAt)-Date.now()))}</dd></dl>
 <div class="service-actions"><a class="secondary" href="${locale}/pricing/">${esc(t('pricing'))}</a></div>`;
  }else{
   const pro=me.plan==='pro',sub=me.subscription;
@@ -61,8 +75,12 @@ function renderIdentities(data){
   if(i)rows.push(`<li data-linked-provider="${id}">${iconHTML(id)}<span class="id-main"><span class="id-name">${esc(providerName(id))}</span><span class="id-sub">${esc([i.email,t('linkedSince',{date:dateText(i.since)})].filter(Boolean).join(' · '))}</span></span><button type="button" class="secondary" data-unlink="${id}"${data.canUnlink?'':' disabled'}>${esc(t('unlink'))}</button></li>`);
   else if(data.providers.includes(id))rows.push(`<li data-link-provider="${id}">${buttonHTML(id,locale,startURL(id,accountPath,{link:true,api:API}),{link:true})}</li>`);
  }
+ // Member passkeys (this account's devices), each removable while another way in remains.
+ for(const d of data.devices||[])rows.push(`<li data-passkey-device="${esc(d.id)}">${PASSKEY_ICON}<span class="id-main"><span class="id-name">${esc(d.name)}</span><span class="id-sub">${esc([pt('created',{date:dateText(d.createdAt)}),d.lastUsedAt?pt('used',{date:dateText(d.lastUsedAt)}):''].filter(Boolean).join(' · '))}</span></span><button type="button" class="secondary" data-remove-passkey="${esc(d.id)}" data-name="${esc(d.name)}"${data.canUnlink?'':' disabled'}>${esc(pt('remove'))}</button></li>`);
+ if(current().me?.passkey?.signin&&passkeySupported())rows.push(`<li data-passkey-add-row><button type="button" class="sib sib-passkey" data-passkey-add>${PASSKEY_ICON}<span>${esc(pt('add'))}</span></button></li>`);
  if(data.passkeys)rows.push(`<li><span class="id-main"><span class="id-name">${esc(t('passkeys'))}</span><span class="id-sub">${data.passkeys}</span></span></li>`);
- if(!data.canUnlink&&linked.size)rows.push(`<li class="id-sub" data-unlink-last>${esc(t('unlinkLast'))}</li>`);
+ if(!data.canUnlink&&(linked.size||(data.devices||[]).length))rows.push(`<li class="id-sub" data-unlink-last>${esc(t('unlinkLast'))}</li>`);
+ if((data.devices||[]).length)rows.push(`<li class="id-sub pk-warn" data-passkey-warn>${esc(pt('warn'))}</li>`);
  list.innerHTML=rows.join('');
 }
 async function loadIdentities(){
@@ -83,7 +101,30 @@ async function unlink(button){
   else say('serviceDown',true);
  }catch{say('serviceDown',true);}finally{button.disabled=false;}
 }
+/** Passkey buttons and the sign-up form. Errors stay on screen (status line); a closed prompt says nothing. */
+async function passkeyAction(button,run,onDone){
+ button.disabled=true;sayText('');
+ try{const r=await run();if(r.ok)return onDone(r.data||{});const m=passkeyMessage(locale,r);if(m)sayText(m,true);}
+ catch{say('serviceDown',true);}finally{button.disabled=false;}
+}
+body.addEventListener('submit',event=>{
+ const form=event.target.closest('form[data-passkey-signup]');if(!form)return;
+ event.preventDefault();
+ const input=form.querySelector('input[name="displayName"]'),name=input.value.trim();
+ if([...name].length<2||[...name].length>20){sayText(pt('length'),true);input.focus();return;}
+ const siteKey=current().me?.passkey?.turnstileSiteKey||'';
+ passkeyAction(form.querySelector('button[type="submit"]'),()=>passkeySignUp({api:API,displayName:name,locale,getToken:k=>turnstileToken(k||siteKey,'signup',{lang:locale,title:pt('challenge'),close:pt('close')})}),
+  data=>{track('login_completed',{provider:'passkey'});sayText(pt('welcome',{n:data.displayName||name}));signedInGo();});
+});
 body.addEventListener('click',async event=>{
+ const pk=event.target.closest('[data-passkey-signin],[data-passkey-add],[data-remove-passkey]');
+ if(pk){
+  event.preventDefault();
+  if(pk.matches('[data-passkey-signin]'))return passkeyAction(pk,()=>passkeySignIn({api:API}),()=>{sayText(pt('signedIn'));signedInGo();});
+  if(pk.matches('[data-passkey-add]'))return passkeyAction(pk,()=>passkeyAddDevice({api:API}),data=>{renderIdentities({providers:current().me?.providers||[],...data});sayText(pt('added'));});
+  if(!confirm(pt('removeConfirm',{n:pk.dataset.name||''})))return;
+  return passkeyAction(pk,()=>passkeyRemove({api:API,id:pk.dataset.removePasskey}),data=>{renderIdentities({providers:current().me?.providers||[],...data});sayText(pt('removed'));});
+ }
  const target=event.target.closest('[data-signout],[data-manage],[data-provider],[data-retry],[data-unlink]');if(!target)return;
  if(target.matches('[data-provider],[data-retry]')){track('login_started',{provider:target.dataset.provider||failure?.provider||''});return;}
  event.preventDefault();
