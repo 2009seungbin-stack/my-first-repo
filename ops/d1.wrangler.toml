@@ -13,11 +13,11 @@ name = "nerulio-d1-ops"
 [[d1_databases]]
 binding = "DB"
 database_name = "nerulio-prod"
-database_id = "REPLACE_WITH_NERULIO_PROD_DATABASE_ID"
+database_id = "bc890e90-fca6-4837-82ad-0574c2378293"
 migrations_dir = "../migrations"
 
 [[d1_databases]]
 binding = "DB_PREVIEW"
 database_name = "nerulio-preview"
-database_id = "REPLACE_WITH_NERULIO_PREVIEW_DATABASE_ID"
+database_id = "d9554f4a-6cbe-4ffc-af39-880ce61152ef"
 migrations_dir = "../migrations"
