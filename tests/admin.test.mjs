@@ -321,7 +321,8 @@ test('build: SERVICE_API=on + PLATFORM=on ships /admin statically, noindex, out 
   assert(headers.includes(ADMIN_HEADERS.trim()));
   assert(/\/admin\/\*\n  ! Content-Security-Policy\n  Content-Security-Policy: [^\n]*script-src 'self';[^\n]*\n  ! X-Robots-Tag\n  X-Robots-Tag: noindex, nofollow/.test(headers));
   const routes=JSON.parse(await read('_routes.json'));
-  assert(!routes.include.some(r=>r==='/*'||r.startsWith('/admin')),'/admin/* is static: no Worker invocation');
+  // Traffic builds route every page through the Worker ('/*'); /admin/* must then be excluded.
+  assert(!routes.include.some(r=>r.startsWith('/admin'))&&(!routes.include.includes('/*')||routes.exclude.includes('/admin/*')),'/admin/* is static: no Worker invocation');
   for(const f of (await readdir(out)).filter(f=>/^sitemap.*\.xml$/.test(f)))assert(!(await read(f)).includes('/admin'),`${f} lists no admin URL`);
   assert(!(await read('robots.txt')).includes('/admin'),'robots.txt does not advertise the path');
   const manifest=JSON.parse(await read('admin/manifest.webmanifest'));
