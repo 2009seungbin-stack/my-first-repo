@@ -30,7 +30,7 @@ export function channelJsonLd(e,facts,l,url,origin){
  return {'@context':'https://schema.org','@graph':[
   {'@type':'CollectionPage','@id':url,url,name,inLanguage:l,about:Object.fromEntries(Object.entries(thing).filter(([,x])=>x!==undefined&&x!==null))},
   {'@type':'BreadcrumbList',itemListElement:[
-   {'@type':'ListItem',position:1,name:'Nerulio',item:`${origin}/${l}/community/`},
+   {'@type':'ListItem',position:1,name:'Nerulio',item:`${origin}${l==='ko'?'/':`/${l}/`}`},
    {'@type':'ListItem',position:2,name:v?label(v.label,l):e.vertical,item:`${origin}/${l}/${e.vertical}/`},
    {'@type':'ListItem',position:3,name,item:url}]}]};
 }

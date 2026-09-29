@@ -72,7 +72,8 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .thm .i-sun{display:none}:root[data-theme="dark"] .thm .i-sun{display:block}:root[data-theme="dark"] .thm .i-moon{display:none}
 .hn,.hu{display:flex;gap:4px;flex:none}
 .hb{height:40px;padding:0 14px;border-radius:10px;font-size:14px;font-weight:800;display:inline-flex;align-items:center;color:var(--ink);white-space:nowrap}
-.hb.solid{background:var(--accent);color:var(--on-accent)}.n2 .hb:hover{text-decoration:none;filter:brightness(.97)}
+.hb.solid{background:var(--accent);color:var(--on-accent)}
+.hb.rdr{gap:6px;color:var(--ink2);padding:0 10px}.n2 .hb:hover{text-decoration:none;filter:brightness(.97)}
 .chbar{display:none;border-bottom:1px solid var(--line);background:var(--panel)}
 .cr{display:flex;align-items:center;height:42px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
 .cr::-webkit-scrollbar{display:none}
@@ -93,6 +94,7 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
  .hu{order:6}.hq{order:5;flex:0 0 40px;width:40px;padding:0;justify-content:center;border:0;background:none}
  .hq input,.hq .qchip{display:none}.hq:focus-within{flex:1 1 auto;width:auto;padding:0 10px;border:1px solid var(--line);background:var(--card);justify-content:flex-start}.hq:focus-within input{display:block}
  .thm{margin-left:auto;border:0;background:none}
+ .hn{order:5}.hb.rdr span{display:none}.hb.rdr{width:40px;padding:0;justify-content:center}
  .chbar{display:block}
 }
 @media (prefers-reduced-motion:reduce){.lnav{transition:none}}
@@ -143,7 +145,7 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .cha{display:flex;gap:6px;flex:none}
 
 /* layout */
-.cols{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
 .mainc,.side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .g2.a{grid-template-columns:300px minmax(0,1fr)}

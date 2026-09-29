@@ -788,7 +788,7 @@ async function main(){
   const lo=$('[data-logout]',me);lo.hidden=false;
   lo.addEventListener('click',async()=>{
    try{await fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{}'});}catch{}
-   location.href=`/${L}/community/`;});
+   location.href=L==='ko'?'/':`/${L}/`;});
   const [mr,fr0]=await Promise.all([api(`/mine?l=${L}`),api(`/follows?l=${L}`)]);
   if(mr.ok){
    for(const sec of $$('[data-mine]',me))sec.hidden=false;

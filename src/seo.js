@@ -13,7 +13,15 @@ export function normalizeSiteURL(value){
  if(!['https:','http:'].includes(u.protocol)||u.username||u.password||u.search||u.hash)throw Error('SITE_URL must be an HTTP(S) base URL without credentials, query or fragment');
  u.pathname=u.pathname.replace(/\/+$/,'')+'/';return u.href;
 }
-export function pagePath(path,locale){return `${locale?locale+'/':''}${path?path+'/':''}`;}
+/** PLATFORM=on builds: / and /en/ are the portal (Worker-rendered), so the Korean and English tool home
+ * moves to /ko/tools/ and /en/tools/; Japanese keeps /ja/. Set once per build by tools/build.mjs. */
+let portal=false;
+export const setPortal=(/** @type {boolean} */ on)=>{portal=!!on;};
+export const PORTAL_LOCALES=Object.freeze(['ko','en']);
+export function pagePath(path,locale){
+ if(portal&&!path&&PORTAL_LOCALES.includes(locale))return `${locale}/tools/`;
+ return `${locale?locale+'/':''}${path?path+'/':''}`;
+}
 /** Canonical, og:url and hreflang. Every hreflang target is itself a canonical URL:
  *  - the home page's language-neutral URL (/) is the language entry (tools/language-entry-build.mjs,
  *    src/lang-entry.js sends visitors on to /ko/, /en/ or /ja/), so it is its own canonical page and
@@ -21,7 +29,7 @@ export function pagePath(path,locale){return `${locale?locale+'/':''}${path?path
  *  - every other language-neutral URL is a duplicate whose canonical is the English page, so the
  *    English page is also that cluster's x-default.
  * `locale` null = the page is being served at its language-neutral URL. */
-export const X_DEFAULT_LOCALE=path=>path?'en':null;
+export const X_DEFAULT_LOCALE=path=>path||portal?'en':null;   // with the portal, / is the Korean portal, not the tool home's entry
 export function seoLinks(path,locale,siteURL){
  if(!siteURL)return '';
  const href=l=>esc(new URL(pagePath(path,l),siteURL).href);

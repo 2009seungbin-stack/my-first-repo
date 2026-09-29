@@ -196,6 +196,12 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert.equal((await go('/ko/ai/claude/?x=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?page=1.5&kind=constructor&sort=new')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?sort=top&kind=question&utm=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/?kind=question&sort=top');
+ // The portal home: / (Korean) and /en/; /ko/ (the old tool home) and the community fronts move there.
+ assert.deepEqual(matchPlatformRoute('/'),{l:'ko',page:'front'});assert.deepEqual(matchPlatformRoute('/en/'),{l:'en',page:'front'});
+ assert.equal(matchPlatformRoute('/ja/'),null,'the Japanese tool home stays static');
+ assert.equal((await go('/')).status,200);assert.equal((await go('/en/')).status,200);
+ for(const [from,to] of [['/ko/','/'],['/ko/community/','/'],['/en/community/','/en/'],['/ko/community/?sort=new','/?sort=new'],['/?sort=hot&x=1','/']])assert.equal((await go(from)).headers.get('location'),'https://nerulio.com'+to,from);
+ assert.equal((await go('/ko/community/?v=games')).headers.get('location'),'https://nerulio.com/ko/community/games/','old ?v= links still reach their channel');
  // Channel boards: 말머리 of the channel only; platform/genre filters on 게임 only.
  assert.equal((await go('/ko/community/ai/')).status,200);
  assert.equal((await go('/ko/community/ai/?kind=patch')).headers.get('location'),'https://nerulio.com/ko/community/ai/');
