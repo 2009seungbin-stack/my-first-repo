@@ -359,6 +359,13 @@ paid period; `past_due` → 7-day grace; Pro monthly (USD 4.99) + yearly (USD 40
 | API (in-process, D1 shim) | 12 WORKS · 4 PARTIAL · 16 BLOCKED | **0 WORKS · 0 PARTIAL · 32 BLOCKED · 6 ACCEPTED** (38 rows; new rows A1d, A7d, A10r, A15–A17) |
 | Browser (workerd + D1 + Chromium) | 10 WORKS · 1 PARTIAL · 2 BLOCKED | **0 WORKS · 0 PARTIAL · 11 BLOCKED · 6 ACCEPTED** (17 rows; new rows B2b, B3c, B6b, B12) |
 
+### Metering switched off (`TOOL_METERING=off`, 2026-09-29)
+
+The account layer can ship without tool metering (docs/PRICING-MODEL.md, "도구 미터링 끄기"). Tool pages
+then carry no account meta and never call `/api/v1`, and the Worker allows every `authorize` without
+counting. Nothing above is weakened by it: there is simply no limit to bypass, and Pro is not sold
+(`checkout` → `BILLING_UNAVAILABLE`). Turning metering back on restores every mechanism unchanged.
+
 ### Accepted residuals (documented, cannot or should not be closed)
 
 | Row | What still works | Why accepted |
