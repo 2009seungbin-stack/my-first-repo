@@ -32,6 +32,11 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
    It is for the first load: rows are `INSERT OR IGNORE`, so re-running adds nothing and never deletes
    collector or community data. Later seed edits go through the ingest pipeline.
 3. Check: `--command "SELECT vertical,COUNT(*) FROM entities GROUP BY 1"` → 5 rows, 1,580 total.
+4. Write budget: the seed load alone writes ≈107,000 D1 rows (FTS index included) — more than the Free plan's
+   100,000 rows written per day, which is shared by every database in the account. On Free, load the seed right
+   after 00:00 UTC and let the collectors start the next UTC day (they fail with "exceeded D1's free tier daily
+   row write limit" until then). Steady-state collector runs write only what changed (each run logs
+   `rows written`), so daily use after the first load is small.
 
 ## 3. Pages settings (owner)
 - Preview environment variables: `SERVICE_API=on`, `PLATFORM=on` (the service Worker renders the pages;

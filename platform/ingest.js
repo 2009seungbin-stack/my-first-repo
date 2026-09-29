@@ -28,6 +28,13 @@ const CHUNK=40;
 /** @template T @param {T[]} a @param {number} n @returns {T[][]} */
 const chunks=(a,n=CHUNK)=>{const out=[];for(let i=0;i<a.length;i+=n)out.push(a.slice(i,i+n));return out;};
 const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
+/** "Last verified" timestamps are shown per day ("9/28 확인", UTC or KST). A re-confirmation writes only
+ * when it moves that day, so collectors that run every 30 minutes / 6 hours do not rewrite unchanged
+ * rows (D1 bills rows written; the free tier allows 100k a day). @param {number|null|undefined} prev @param {number} now */
+export const newDay=(prev,now)=>{
+ if(prev==null)return true;const p=Number(prev),K=9*36e5;
+ return Math.floor(p/864e5)!==Math.floor(now/864e5)||Math.floor((p+K)/864e5)!==Math.floor((now+K)/864e5);
+};
 /** Scope columns of a fact row. */
 export const SCOPE=/** @type {const} */(['region','language','platform','plan','app_version']);
 /** @param {any} f */
@@ -59,20 +66,37 @@ export async function ingest(db,doc,opts){
  // 1. sources + snapshots
  for(const s of doc.sources||[]){
   W(`INSERT INTO sources (id,url,title,publisher,kind,adapter,note,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)
-     ON CONFLICT(id) DO UPDATE SET url=excluded.url,title=excluded.title,publisher=excluded.publisher,kind=excluded.kind,adapter=COALESCE(excluded.adapter,sources.adapter),note=excluded.note,updated_at=excluded.updated_at`,
+     ON CONFLICT(id) DO UPDATE SET url=excluded.url,title=excluded.title,publisher=excluded.publisher,kind=excluded.kind,adapter=COALESCE(excluded.adapter,sources.adapter),note=excluded.note,updated_at=excluded.updated_at
+     WHERE sources.url IS NOT excluded.url OR sources.title IS NOT excluded.title OR sources.publisher IS NOT excluded.publisher OR sources.kind IS NOT excluded.kind
+      OR (excluded.adapter IS NOT NULL AND sources.adapter IS NOT excluded.adapter) OR sources.note IS NOT excluded.note`,
    s.id,s.url??null,s.title??null,s.publisher??null,s.kind,s.adapter??opts.adapter??null,s.note??null,now,now);
  }
  await flush(db,writes);
  /** snapshot index in doc.snapshots → row id */
  /** @type {Map<number,number>} */const snapIds=new Map();
+ // An unchanged page (same checksum as the newest snapshot of that url) reuses that snapshot row:
+ // provenance stays exact and a collector that reads 265 pages does not write 265 rows every run.
+ /** @type {Map<string,Map<string,{id:number,checksum:string|null}>|null>} */const latestSnap=new Map();
  for(const [i,s] of (doc.snapshots||[]).entries()){
   if(!s?.source)continue;
-  const exists=await db.prepare('SELECT 1 FROM sources WHERE id=?').bind(s.source).first();
-  if(!exists)continue;
+  if(!latestSnap.has(s.source)){
+   const exists=await db.prepare('SELECT 1 FROM sources WHERE id=?').bind(s.source).first();
+   /** @type {Map<string,{id:number,checksum:string|null}>|null} */let m=null;
+   if(exists){
+    m=new Map();
+    const r=await db.prepare('SELECT id,url,checksum FROM snapshots WHERE id IN (SELECT MAX(id) FROM snapshots WHERE source_id=? GROUP BY url)').bind(s.source).all();
+    for(const row of r.results||[])m.set(row.url??'',{id:Number(row.id),checksum:row.checksum??null});
+   }
+   latestSnap.set(s.source,m);
+  }
+  const known=latestSnap.get(s.source);
+  if(!known)continue;
+  const prev=known.get(s.url??'');
+  if(prev&&s.checksum&&!s.error&&prev.checksum===s.checksum){snapIds.set(i,prev.id);continue;}
   const excerpt=s.excerpt===undefined?null:JSON.stringify(s.excerpt).slice(0,16384);
   const row=await db.prepare(`INSERT INTO snapshots (source_id,adapter,url,fetched_at,http_status,content_type,checksum,byte_size,r2_key,excerpt,parser_version,error) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`)
    .bind(s.source,opts.adapter??null,s.url??null,Date.parse(s.fetched_at)||now,s.http_status??null,s.content_type??null,s.checksum??null,s.byte_size??null,s.r2_key??null,excerpt,s.parser_version??null,s.error??null).first();
-  if(row)snapIds.set(i,Number(row.id));
+  if(row){snapIds.set(i,Number(row.id));known.set(s.url??'',{id:Number(row.id),checksum:s.error?null:s.checksum??null});}
  }
 
  // 2. entities
@@ -85,8 +109,17 @@ export async function ingest(db,doc,opts){
  // A merged entity forwards writes to its target.
  const resolveId=(/** @type {string} */ id)=>{const e=existing.get(id);return e?.status==='merged'&&e.merged_into?e.merged_into:id;};
  const createdNow=new Set();
+ /** Entities whose search rows must be rebuilt (names, descriptions, aliases or status changed). */
+ const reindex=new Set();
+ /** @type {Set<string>} existing alias keys entity\u0001norm */const aliasKnown=new Set();
+ const aliasOwners=[...new Set(list.filter((/** @type {any} */ e)=>e.names!==undefined||e.slug!==undefined).map((/** @type {any} */ e)=>resolveId(e.id)))];
+ for(const c of chunks(aliasOwners)){
+  const r=await db.prepare(`SELECT entity_id,norm FROM entity_aliases WHERE entity_id IN (${qs(c.length)})`).bind(...c).all();
+  for(const row of r.results||[])aliasKnown.add(row.entity_id+'\u0001'+row.norm);
+ }
  for(const e of list){
-  if(e.names===undefined&&e.slug===undefined){if(existing.has(e.id))touched.add(resolveId(e.id));continue;}
+  // A bare reference (facts/events only) changes nothing about the entity itself.
+  if(e.names===undefined&&e.slug===undefined)continue;
   stats.entities++;
   const names=JSON.stringify(e.names),desc=JSON.stringify(e.description||{}),urls=JSON.stringify(e.official_urls||[]),regions=JSON.stringify(e.regions||['GLOBAL']);
   const cur=existing.get(e.id);
@@ -95,13 +128,20 @@ export async function ingest(db,doc,opts){
     e.id,vertical,e.type,e.slug,names,desc,e.image_url??null,e.image_credit??null,regions,JSON.stringify(e.languages||[]),urls,now,now);
    createdNow.add(e.id);stats.created++;
    change({entity_id:e.id,vertical,kind:'entity_added',importance:quiet?0:1,effective_at:now});
+   touched.add(e.id);reindex.add(e.id);
   }else if(cur.status!=='merged'&&(cur.names!==names||cur.descriptions!==desc||cur.official_urls!==urls||cur.regions!==regions||cur.slug!==e.slug)){
    if(cur.slug!==e.slug)W(`INSERT OR IGNORE INTO entity_redirects (vertical,slug,entity_id,created_at) VALUES (?,?,?,?)`,cur.vertical,cur.slug,e.id,now);
    W(`UPDATE entities SET names=?,descriptions=?,official_urls=?,regions=?,slug=?,image_url=COALESCE(?,image_url),updated_at=? WHERE id=?`,names,desc,urls,regions,e.slug,e.image_url??null,now,e.id);
+   touched.add(e.id);reindex.add(e.id);
   }
-  touched.add(resolveId(e.id));
+  const owner=resolveId(e.id);
   const aliasList=[...Object.entries(e.names||{}).map(([l,n])=>[n,l,'name']),...(e.aliases||[]).map((/** @type {string} */ a)=>[a,'*','alias'])];
-  for(const [alias,locale,kind] of aliasList){const n=normName(alias);if(n)W(`INSERT OR IGNORE INTO entity_aliases (entity_id,norm,alias,locale,kind) VALUES (?,?,?,?,?)`,resolveId(e.id),n,alias,locale,kind);}
+  for(const [alias,locale,kind] of aliasList){
+   const n=normName(alias);if(!n||aliasKnown.has(owner+'\u0001'+n))continue;
+   aliasKnown.add(owner+'\u0001'+n);
+   W(`INSERT OR IGNORE INTO entity_aliases (entity_id,norm,alias,locale,kind) VALUES (?,?,?,?,?)`,owner,n,alias,locale,kind);
+   touched.add(owner);reindex.add(owner);
+  }
  }
  await flush(db,writes);
 
@@ -110,7 +150,7 @@ export async function ingest(db,doc,opts){
  /** @type {Map<string,any>} */const currentFacts=new Map();
  const factEntities=[...new Set(factInputs.map((/** @type {any} */ f)=>f.entity))];
  for(const c of chunks(factEntities)){
-  const r=await db.prepare(`SELECT id,entity_id,property,region,language,platform,plan,app_version,value,unit,verification,source_id FROM facts WHERE is_current=1 AND entity_id IN (${qs(c.length)})`).bind(...c).all();
+  const r=await db.prepare(`SELECT id,entity_id,property,region,language,platform,plan,app_version,value,unit,verification,source_id,observed_at FROM facts WHERE is_current=1 AND entity_id IN (${qs(c.length)})`).bind(...c).all();
   for(const row of r.results)currentFacts.set(scopeKey(row.entity_id,row.property,row),row);
  }
  const vOf=(/** @type {string} */ id)=>existing.get(id)?.vertical||vertical;
@@ -119,9 +159,9 @@ export async function ingest(db,doc,opts){
   const validFrom=f.from?dateMs(f.from):now,snap=f.snap!==undefined?snapIds.get(f.snap)??null:null;
   if(cur&&cur.value===value&&(cur.unit??null)===(f.unit??null)){
    stats.facts.confirmed++;
-   // Re-confirmation moves "last verified"; a more trusted source upgrades the label.
+   // Re-confirmation moves "last verified" (once per shown day); a more trusted source upgrades the label.
    if(mayOverride(f.ver,cur.verification)&&f.ver!==cur.verification)W(`UPDATE facts SET observed_at=?,verification=?,source_id=?,snapshot_id=COALESCE(?,snapshot_id) WHERE id=?`,now,f.ver,f.src??null,snap,cur.id);
-   else W(`UPDATE facts SET observed_at=MAX(observed_at,?),snapshot_id=COALESCE(?,snapshot_id) WHERE id=?`,now,snap,cur.id);
+   else if(cur.id!=null&&newDay(cur.observed_at,now)){W(`UPDATE facts SET observed_at=MAX(observed_at,?),snapshot_id=COALESCE(?,snapshot_id) WHERE id=?`,now,snap,cur.id);cur.observed_at=now;}
    continue;
   }
   if(cur&&!mayOverride(f.ver,cur.verification)){
@@ -145,8 +185,12 @@ export async function ingest(db,doc,opts){
  for(const e of list)for(const r of e.relations||[]){
   const subject=resolveId(e.id),object=resolveId(r.o),region=r.region||'*',relKey=[subject,r.p,object,region].join('\u0001');
   if(seenRel.has(relKey))continue;seenRel.add(relKey);
-  const cur=await db.prepare('SELECT id FROM relations WHERE subject_id=? AND predicate=? AND object_id=? AND region=?').bind(subject,r.p,object,region).first();
-  if(cur){W('UPDATE relations SET meta=?,verification=?,source_id=COALESCE(?,source_id),updated_at=? WHERE id=?',JSON.stringify(r.meta||{}),r.ver||'OFFICIAL',r.src??null,now,cur.id);continue;}
+  const cur=await db.prepare('SELECT id,meta,verification,source_id FROM relations WHERE subject_id=? AND predicate=? AND object_id=? AND region=?').bind(subject,r.p,object,region).first();
+  if(cur){
+   const meta=JSON.stringify(r.meta||{}),ver=r.ver||'OFFICIAL',src=r.src??cur.source_id??null;
+   if(cur.meta!==meta||cur.verification!==ver||(cur.source_id??null)!==src)W('UPDATE relations SET meta=?,verification=?,source_id=COALESCE(?,source_id),updated_at=? WHERE id=?',meta,ver,r.src??null,now,cur.id);
+   continue;
+  }
   W(`INSERT INTO relations (subject_id,predicate,object_id,meta,region,valid_from,verification,source_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)`,subject,r.p,object,JSON.stringify(r.meta||{}),region,r.from?dateMs(r.from):null,r.ver||'OFFICIAL',r.src??null,now,now);
   if(!quiet&&!createdNow.has(subject))change({entity_id:subject,vertical:vOf(subject),kind:'relation_added',property:r.p,new_value:JSON.stringify(object),importance:1,source_id:r.src??null,effective_at:now});
   touched.add(subject);touched.add(object);
@@ -212,8 +256,8 @@ export async function ingest(db,doc,opts){
  const availRows=[...new Map((doc.availability||[]).map((/** @type {any} */ a)=>[[a.entity,a.plan||'*',a.platform||'*',a.region||'*'].join('\u0001'),a])).values()];
  for(const a of availRows){
   const id=resolveId(a.entity),plan=a.plan||'*',platform=a.platform||'*',region=a.region||'*';
-  const cur=await db.prepare('SELECT id,state,verification FROM availability WHERE is_current=1 AND entity_id=? AND plan_id=? AND platform=? AND region=?').bind(id,plan,platform,region).first();
-  if(cur&&cur.state===a.state){W('UPDATE availability SET observed_at=? WHERE id=?',now,cur.id);continue;}
+  const cur=await db.prepare('SELECT id,state,verification,observed_at FROM availability WHERE is_current=1 AND entity_id=? AND plan_id=? AND platform=? AND region=?').bind(id,plan,platform,region).first();
+  if(cur&&cur.state===a.state){if(newDay(cur.observed_at,now))W('UPDATE availability SET observed_at=? WHERE id=?',now,cur.id);continue;}
   if(cur&&!mayOverride(a.ver,cur.verification))continue;
   const from=a.from?dateMs(a.from):now;
   if(cur)W('UPDATE availability SET is_current=0,valid_until=? WHERE id=?',Math.max(from,now),cur.id);
@@ -227,8 +271,8 @@ export async function ingest(db,doc,opts){
  const compatRows=[...new Map((doc.compatibility||[]).map((/** @type {any} */ c)=>[[c.subject,c.subject_version||'*',c.target,c.target_version||'*',envKey(c.env||{})].join('\u0001'),c])).values()];
  for(const c of compatRows){
   const subject=resolveId(c.subject),target=resolveId(c.target),sv=c.subject_version||'*',tv=c.target_version||'*',env=c.env||{},ek=envKey(env);
-  const cur=await db.prepare('SELECT id,status,verification FROM compatibility WHERE is_current=1 AND subject_id=? AND subject_version=? AND target_id=? AND target_version=? AND env_key=?').bind(subject,sv,target,tv,ek).first();
-  if(cur&&cur.status===c.status){W('UPDATE compatibility SET last_confirmed_at=?,updated_at=? WHERE id=?',now,now,cur.id);continue;}
+  const cur=await db.prepare('SELECT id,status,verification,last_confirmed_at FROM compatibility WHERE is_current=1 AND subject_id=? AND subject_version=? AND target_id=? AND target_version=? AND env_key=?').bind(subject,sv,target,tv,ek).first();
+  if(cur&&cur.status===c.status){if(newDay(cur.last_confirmed_at,now))W('UPDATE compatibility SET last_confirmed_at=?,updated_at=? WHERE id=?',now,now,cur.id);continue;}
   if(cur&&!mayOverride(c.ver,cur.verification))continue;
   if(cur)W('UPDATE compatibility SET is_current=0,valid_until=?,updated_at=? WHERE id=?',now,now,cur.id);
   W(`INSERT INTO compatibility (subject_id,subject_version,target_id,target_version,env,env_key,status,verification,source_id,note,min_subject_version,last_confirmed_at,valid_from,is_current,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,1,?,?)`,
@@ -247,7 +291,7 @@ export async function ingest(db,doc,opts){
  const ids=[...touched];
  for(const c of chunks(ids))W(`UPDATE entities SET version=version+1,updated_at=? WHERE id IN (${qs(c.length)})`,now,...c);
  await flush(db,writes);
- await reindexEntities(db,ids);
+ await reindexEntities(db,[...reindex]);
  stats.touched=ids;
  return stats;
 }

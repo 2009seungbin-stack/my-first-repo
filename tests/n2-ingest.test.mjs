@@ -99,3 +99,32 @@ test('two dates announced on one page stay two events; a retitled incident stays
  await ingest(db,inc('Elevated errors on API'),{mode:'collector',actor:'c',now:T0+1000});
  assert.equal(rows(db,"SELECT COUNT(*) n FROM events WHERE kind='incident'")[0].n,1);
 });
+
+test('an unchanged collector run writes nothing; "last verified" moves once per shown day',{skip:!sqliteAvailable},async()=>{
+ const db=D1Shim.migrated();await ingest(db,seedDoc(),{mode:'seed',actor:'seed',now:T0});
+ const tc=()=>Number(db.raw.prepare('SELECT total_changes() AS c').get().c);
+ const snap={source:'src:official',url:'https://example.com/spec',fetched_at:'2026-09-01T03:00:00Z',http_status:200,content_type:'text/html',checksum:'abc',byte_size:10};
+ const run=()=>({...seedDoc(),snapshots:[snap],entities:seedDoc().entities.map(e=>({...e,facts:(e.facts||[]).map(f=>({...f,snap:0}))}))});
+ const at=T0+3*36e5;                                         // 03:00 UTC = 12:00 KST
+ await ingest(db,run(),{mode:'collector',actor:'collector:x',adapter:'x',now:at});
+ const snaps=rows(db,'SELECT id FROM snapshots').length,versions=rows(db,'SELECT id,version FROM entities ORDER BY id');
+ const before=tc();
+ const s=await ingest(db,run(),{mode:'collector',actor:'collector:x',adapter:'x',now:at+6*36e5});   // same UTC and KST day
+ assert.equal(tc()-before,0,'no row is written when nothing changed');
+ assert.deepEqual(s.touched,[]);
+ assert.equal(rows(db,'SELECT id FROM snapshots').length,snaps,'the same page (checksum) reuses its snapshot');
+ assert.deepEqual(rows(db,'SELECT id,version FROM entities ORDER BY id'),versions,'edge-cache versions stay');
+ await ingest(db,run(),{mode:'collector',actor:'collector:x',adapter:'x',now:at+DAY});
+ assert.equal(rows(db,"SELECT observed_at FROM facts WHERE property='korean_official' AND is_current=1")[0].observed_at,at+DAY,'next day: re-confirmed');
+ snap.checksum='def';
+ await ingest(db,run(),{mode:'collector',actor:'collector:x',adapter:'x',now:at+DAY+36e5});
+ assert.equal(rows(db,'SELECT id FROM snapshots').length,snaps+1,'a changed page is a new snapshot');
+});
+
+test('a new alias re-indexes only that entity for search',{skip:!sqliteAvailable},async()=>{
+ const db=D1Shim.migrated();await ingest(db,seedDoc(),{mode:'seed',actor:'seed',now:T0});
+ const doc=seedDoc();doc.entities[0].aliases=['TG','Zyxwv Quest'];
+ const s=await ingest(db,doc,{mode:'collector',actor:'collector:x',now:T0+DAY});
+ assert.deepEqual(s.touched,['game:steam-1']);
+ assert.ok(rows(db,"SELECT doc_key FROM search_docs WHERE search_docs MATCH 'zyxwv'").length,'new alias is searchable');
+});
