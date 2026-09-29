@@ -49,7 +49,9 @@ export const reservedNickname=name=>/^(레이더봇|radar ?bot|운영자|관리�
  * pre-filled in the 내 정보 form; nothing is published until the member saves it. Null when the handle
  * breaks the nickname rules or someone already uses it. @param {any} db @param {string} userId */
 export async function nicknameSuggestion(db,userId){
- const row=await db.prepare("SELECT handle FROM user_identities WHERE user_id=? AND handle IS NOT NULL AND provider IN ('github','discord') ORDER BY COALESCE(last_login_at,created_at) DESC LIMIT 1").bind(userId).first();
+ let row=null;
+ // A deployment whose D1 has not had 0011 applied yet simply offers nothing.
+ try{row=await db.prepare("SELECT handle FROM user_identities WHERE user_id=? AND handle IS NOT NULL AND provider IN ('github','discord') ORDER BY COALESCE(last_login_at,created_at) DESC LIMIT 1").bind(userId).first();}catch{return null;}
  const name=typeof row?.handle==='string'?row.handle.trim():'';
  if([...name].length<LIMITS.nickname[0]||[...name].length>LIMITS.nickname[1]||reservedNickname(name))return null;
  const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?) AND user_id<>?').bind(name,userId).first();

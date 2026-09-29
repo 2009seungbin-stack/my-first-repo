@@ -27,8 +27,12 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | `ADSENSE_SLOT_STUDIO` | 변수(빌드) | 스튜디오 데스크톱 광고 칸의 광고 단위 ID(10자리). `ADSENSE_CLIENT`와 `ADSENSE_CMP_READY=true`가 있어야 켜진다 ([ADS.md](ADS.md)) |
 | `ANON_NETWORK_DAILY_JOBS` | 변수 | 익명 네트워크 버킷 Turnstile 기준. 기본 한도×4 |
 | `PRO_PRICE_AMOUNT`, `PRO_PRICE_CURRENCY`, `PRO_PRICE_INTERVAL` | 변수(빌드) | 가격 표시 (`4.99`, `USD`, `month`). 없으면 "가격은 출시 시 공개" |
-| `GOOGLE_OAUTH_CLIENT_ID` | 변수 | Google OAuth 클라이언트 ID |
+| `GOOGLE_OAUTH_CLIENT_ID` | 변수 | Google OAuth 클라이언트 ID. **보류 중**: ID와 secret이 둘 다 있을 때만 Google 버튼이 보인다 |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | **secret** | |
+| `GITHUB_OAUTH_CLIENT_ID` | 변수 | GitHub OAuth App의 Client ID. 환경마다 다른 앱([소셜 로그인](#소셜-로그인-github--discord--google)) |
+| `GITHUB_OAUTH_CLIENT_SECRET` | **secret** | 같은 앱의 client secret |
+| `DISCORD_OAUTH_CLIENT_ID` | 변수 | Discord 애플리케이션의 Client ID (preview·production 같은 앱 가능) |
+| `DISCORD_OAUTH_CLIENT_SECRET` | **secret** | 같은 애플리케이션의 Client Secret |
 | `SESSION_SECRET` | **secret** | 32자 이상 무작위. production/preview 서로 다르게. 바꾸면 모든 익명 식별자와 OAuth 진행 중 상태가 무효화됨(세션은 유지) |
 | `TURNSTILE_SITE_KEY` | 변수 | 공개 site key |
 | `TURNSTILE_SECRET_KEY` | **secret** | |
@@ -59,8 +63,8 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
    `npx wrangler d1 migrations list <db> --remote --config ops/d1.wrangler.toml`로 적용 상태 확인.
 3. **바인딩**: Pages → Settings → Bindings → Add → D1 database, Variable name `DB`. Production → `nerulio-prod`, Preview → `nerulio-preview`.
 4. **Turnstile**: 대시보드 Turnstile → Add widget → 호스트 이름 등록 → Managed → site key/secret을 위 변수에 설정.
-5. **Google OAuth**: Google Cloud Console → APIs & Services → OAuth consent screen(범위 `openid email profile`) → Credentials → OAuth client ID(Web application) → Authorized redirect URIs에 `https://<운영 도메인>/api/v1/auth/google/callback` 등록(pages.dev나 preview 호스트에서도 로그인하려면 각각 추가). JavaScript origin은 필요 없다.
-6. **Secret 설정**: `SESSION_SECRET`, `GOOGLE_OAUTH_CLIENT_SECRET`, `TURNSTILE_SECRET_KEY` (Production/Preview 각각).
+5. **소셜 로그인**: [아래 절](#소셜-로그인-github--discord--google) — GitHub·Discord 먼저. Google은 보류(키가 없으면 버튼이 숨는다). 참고로 Google 절차: Google Cloud Console → APIs & Services → OAuth consent screen(범위 `openid email profile`) → Credentials → OAuth client ID(Web application) → Authorized redirect URIs에 `https://<운영 도메인>/api/v1/auth/google/callback` 등록(pages.dev나 preview 호스트에서도 로그인하려면 각각 추가). JavaScript origin은 필요 없다.
+6. **Secret 설정**: `SESSION_SECRET`, `GITHUB_OAUTH_CLIENT_SECRET`, `DISCORD_OAUTH_CLIENT_SECRET`, (나중에) `GOOGLE_OAUTH_CLIENT_SECRET`, `TURNSTILE_SECRET_KEY` (Production/Preview 각각).
 7. **배포**: Preview 환경에 먼저 `SERVICE_API=on`을 설정하고 브랜치를 push. Production은 preview 검증 후.
 8. **`/api/v1/health` 확인**: `{"configured":true,"database":true,...}`. `configured:false`면 `DB` 바인딩 또는 `SESSION_SECRET`(32자 이상) 누락.
 9. **익명 quota 확인**: preview에 `FREE_DAILY_JOBS=2`로 배포 → 시크릿 창에서 heavy 도구(예: `/ko/image/upscale/`) 3회 → 3번째에 업그레이드 모달, 파일 유지 확인. 가벼운 도구는 계속 동작해야 한다. 이후 원래 값으로 되돌린다.
@@ -125,7 +129,7 @@ D1 사용량(대략): 익명 `/me`는 쿠키가 있으면 1행 읽기, 첫 방�
 
 Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 30회 계산은 D1이 한다. **커스텀 도메인(Cloudflare zone)** 이 필요하며 `*.pages.dev`에는 WAF 규칙을 걸 수 없다. 권장 규칙 예 (Security → WAF → Rate limiting rules): 커스텀 도메인이 생기기 전에는 Worker 안의 분당 제한(`API_RATE_PER_MINUTE`, 네트워크당, 격리 인스턴스 단위)이 폭주만 막는 임시 장치로 동작한다 — 도메인을 산 뒤 아래 규칙을 추가한다(소유자 작업).
 
-- `starts_with(http.request.uri.path, "/api/v1/auth/")` — IP당 10초 20회 초과 시 차단
+- `starts_with(http.request.uri.path, "/api/v1/auth/")` — IP당 10초 20회 초과 시 차단 (GitHub·Discord·Google 시작/콜백 모두 이 경로)
 - `starts_with(http.request.uri.path, "/api/v1/")` — IP당 10초 60회 초과 시 Managed Challenge
 
 ## Preview 환경
@@ -133,7 +137,87 @@ Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 
 - `CF_PAGES_BRANCH != main` 빌드는 기존대로 광고 off, `noindex`, robots Disallow.
 - `nerulio-preview` D1을 바인딩해 운영 구독 데이터를 건드리지 않는다.
 - `BILLING_PROVIDER=sandbox`는 preview에서만 동작하고, `BILLING_MODE=live`는 preview에서 자동 거부된다.
-- preview 호스트에서 Google 로그인을 쓰려면 그 호스트의 callback URI를 Google에 등록해야 한다(브랜치 별칭 URL 권장).
+- preview 호스트에서 로그인하려면 그 호스트의 callback URL을 각 제공자에 등록해야 한다. 등록한 호스트는 `https://n2-preview.nerulio.pages.dev` 하나(브랜치 별칭)이며, 다른 preview 주소(커밋별 `*.nerulio.pages.dev`)에서는 제공자가 redirect 불일치로 거부한다.
+
+## 소셜 로그인 (GitHub · Discord · Google)
+
+커뮤니티 회원 로그인. 코드: `server/oauth/` (공통 흐름 `flow.js`, 제공자별 `github.js`·`discord.js`·`google.js`), 설명은 [AUTH.md](AUTH.md). 각 제공자는 **client ID(변수)와 client secret(secret)이 둘 다 있을 때만** 버튼이 나타난다 — 하나라도 없으면 그 제공자는 모든 화면에서 숨고 `/api/v1/health`의 해당 값이 `false`다. Google은 코드가 준비되어 있지만 Google Cloud 약관 문제로 **보류**: `GOOGLE_OAUTH_*`를 넣지 않으면 계속 숨는다.
+
+callback URL은 로그인을 시작한 호스트의 `/api/v1/auth/{github|discord|google}/callback`이다(state 쿠키가 host-only라 같은 호스트로 돌아와야 한다).
+
+| 환경 | 호스트 | GitHub callback | Discord redirect |
+| --- | --- | --- | --- |
+| Preview | `https://n2-preview.nerulio.pages.dev` | `https://n2-preview.nerulio.pages.dev/api/v1/auth/github/callback` | `https://n2-preview.nerulio.pages.dev/api/v1/auth/discord/callback` |
+| Production | `https://nerulio.com` | `https://nerulio.com/api/v1/auth/github/callback` | `https://nerulio.com/api/v1/auth/discord/callback` |
+
+`*.pages.dev`의 운영 주소는 nerulio.com으로 301되므로 production은 nerulio.com만 등록한다.
+
+### 0. 먼저 D1 migration (preview → production)
+
+로그인 수단 표(`user_identities`)가 `migrations/0011_identities.sql`에 있다. **코드 배포 전에** 적용한다(기존 Google 계정은 자동으로 옮겨진다).
+
+```sh
+npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml
+npx wrangler d1 migrations list nerulio-preview --remote --config ops/d1.wrangler.toml   # 0011 적용 확인
+# preview 확인이 끝난 뒤
+npx wrangler d1 migrations apply nerulio-prod --remote --config ops/d1.wrangler.toml
+```
+
+### 1. GitHub OAuth App (환경마다 하나씩)
+
+GitHub OAuth App은 앱마다 client secret이 하나라서, preview secret이 새어도 production에 영향이 없도록 **preview용과 production용 앱을 따로** 만든다. (현재 GitHub은 앱 하나에 callback URL을 여러 개(최대 10개) 받지만, 앱을 나누는 편이 안전하고 동의 화면의 앱 이름으로 환경을 구분할 수 있다.)
+
+1. GitHub 오른쪽 위 프로필 사진 → **Settings** → 왼쪽 아래 **Developer settings** → **OAuth Apps** → **New OAuth App** (처음이면 **Register a new application**).
+2. 입력:
+   - **Application name**: `Nerulio (preview)` / production은 `Nerulio`
+   - **Homepage URL**: `https://n2-preview.nerulio.pages.dev` / `https://nerulio.com`
+   - **Application description**: 비워도 된다(동의 화면에 보인다)
+   - **Authorization callback URL**: 위 표의 GitHub callback (preview: `https://n2-preview.nerulio.pages.dev/api/v1/auth/github/callback`, production: `https://nerulio.com/api/v1/auth/github/callback`)
+   - **Enable Device Flow**: 끈 채로 둔다
+3. **Register application**.
+4. 앱 화면의 **Client ID**를 복사 → Pages 변수 `GITHUB_OAUTH_CLIENT_ID`.
+5. **Generate a new client secret** → 한 번만 보이는 값을 복사 → Pages secret `GITHUB_OAUTH_CLIENT_SECRET`.
+6. (선택) 로고: 앱 화면 **Upload new logo**에 `assets/brand`의 아이콘. 동의 화면에만 쓰인다.
+
+권한 범위는 코드가 요청한다: `read:user user:email`(읽기 전용). 저장하는 것은 GitHub **숫자 사용자 ID**(로그인 이름은 바뀔 수 있어 키로 쓰지 않음), 표시 이름, 로그인 이름(닉네임 제안용), **인증된 기본 이메일**(없을 수 있음)뿐이다. 액세스 토큰은 콜백 안에서 두 번 읽고 버린다.
+
+### 2. Discord 애플리케이션 (preview·production 공용 하나)
+
+Discord는 애플리케이션 하나에 redirect를 여러 개 등록할 수 있다.
+
+1. <https://discord.com/developers/applications> → 오른쪽 위 **New Application** → 이름 `Nerulio` → 약관 동의 → **Create**.
+2. 왼쪽 **OAuth2** 메뉴.
+3. **Client information**의 **Client ID** 복사 → Pages 변수 `DISCORD_OAUTH_CLIENT_ID` (Production·Preview 둘 다 같은 값).
+4. **Client Secret** → **Reset Secret** → 확인 후 나타난 값 복사 → Pages secret `DISCORD_OAUTH_CLIENT_SECRET` (둘 다 같은 값).
+5. **Redirects** → **Add Redirect** 두 번: `https://n2-preview.nerulio.pages.dev/api/v1/auth/discord/callback`, `https://nerulio.com/api/v1/auth/discord/callback` → 아래 **Save Changes**.
+6. **Public Client**는 끈 채로 둔다(서버가 secret을 쓰는 confidential client이고, PKCE도 함께 쓴다). OAuth2 URL Generator는 쓰지 않는다 — 로그인 URL은 코드가 만든다(scope `identify email`).
+7. (선택) **General Information**에서 앱 아이콘·설명. 동의 화면에 보인다.
+
+저장하는 것: Discord **사용자 ID**(snowflake), 표시 이름(`global_name`, 없으면 username), username(닉네임 제안용), **`verified`일 때만** 이메일.
+
+### 3. Pages 변수·secret (환경별)
+
+Workers & Pages → 프로젝트 → **Settings** → **Variables and Secrets** → 환경(**Production** / **Preview**) 선택 → **Add** → 이름·값 입력, secret은 Type을 **Secret**으로 → **Save**. 변수는 **다음 배포부터** 적용되므로 저장 후 재배포(Deployments → 최신 배포 **Retry deployment**, 또는 브랜치 push)한다.
+
+| 이름 | 유형 | Preview 값 | Production 값 |
+| --- | --- | --- | --- |
+| `GITHUB_OAUTH_CLIENT_ID` | Text | preview 앱의 Client ID | production 앱의 Client ID |
+| `GITHUB_OAUTH_CLIENT_SECRET` | Secret | preview 앱의 secret | production 앱의 secret |
+| `DISCORD_OAUTH_CLIENT_ID` | Text | Discord Client ID | 같은 값 |
+| `DISCORD_OAUTH_CLIENT_SECRET` | Secret | Discord Client Secret | 같은 값 |
+| `GOOGLE_OAUTH_CLIENT_ID` / `_SECRET` | Text / Secret | 넣지 않는다(보류) | 넣지 않는다(보류) |
+
+`OAUTH_TEST_ORIGIN`은 로컬 E2E 전용이다. Pages 빌드에서는 값이 있어도 무시된다 — 넣지 않는다.
+
+### 4. 확인
+
+1. `https://n2-preview.nerulio.pages.dev/api/v1/health` → `"github":true,"discord":true,"google":false,"providers":["github","discord"]`.
+2. 시크릿 창에서 채널 글(`/ko/ai/claude/` 등)의 댓글 칸에 쓰고 **등록** → "로그인하고 참여하기" 창에 **GitHub로 계속하기**, **Discord로 계속하기**만 보이는지 → GitHub로 로그인 → 같은 글로 돌아와 댓글이 등록되는지.
+3. `/ko/account/` → **연결된 로그인**에 GitHub가 있고 **Discord 연결하기** → 연결 후 두 줄, 다시 **연결 해제**.
+4. 새 시크릿 창에서 GitHub 동의 화면의 **Cancel** → 계정 페이지에 "GitHub 로그인을 취소했어요. 다시 시도"가 보이는지.
+5. 제공자 쪽에서 앱을 지우거나 secret을 바꾸면 로그인은 `reason=exchange`로 실패한다 — 새 secret을 Pages에 넣고 재배포.
+
+계정 연결 규칙: 로그인 수단(제공자, 제공자 ID)마다 Nerulio 계정 하나. **이메일이 같아도 자동으로 합치지 않는다**(탈취 방지). 로그인한 회원만 계정 페이지에서 다른 제공자를 직접 연결할 수 있고, 다른 로그인 수단(또는 관리자 패스키)이 남아 있을 때만 해제할 수 있다.
 
 ## 관리 앱 (`/admin/`, `/api/v2/admin/*`)
 
