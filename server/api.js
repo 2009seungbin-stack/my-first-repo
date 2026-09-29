@@ -70,6 +70,8 @@ async function counter(ctx,cfg,db,now,cls){
  return usage;
 }
 const ANON_STUDIO='#anon-studio';
+/** What an unmetered authorize reports as limit/remaining (the maximum FREE_DAILY_* value). */
+export const UNMETERED_LIMIT=10000;
 const clientIP=request=>request.headers.get('cf-connecting-ip')||'';
 async function me(request,ctx,cfg,db,now){
  // TOOL_METERING=off: no counters are read, no offline tokens exist and everyone sees ads (as on a build
@@ -145,8 +147,9 @@ async function authorize(request,ctx,cfg,env,now,deps){
  const ticket=plan=>signTicket(cfg.ticketKey,{kind:'job',op,tool:body.toolId,plan});
  if(ctx.plan==='pro')return {allowed:true,unlimited:true,plan:'pro',ticket:await ticket('pro')};
  // TOOL_METERING=off: only a page built while metering was on still asks. Allow it, count nothing and
- // write nothing; the numbers keep that page's usage display quiet (remaining = the full daily limit).
- if(!cfg.metering){const limit=limitFor(cfg,cls);return {allowed:true,metered:false,plan:'free',kind:cls,used:0,limit,remaining:limit,resetAt:resetAt(now),ticket:await ticket('free')};}
+ // write nothing. limit/remaining report the largest configurable limit so such a page never shows a
+ // "few left" note (its /me already said usage is unlimited).
+ if(!cfg.metering)return {allowed:true,metered:false,plan:'free',kind:cls,used:0,limit:UNMETERED_LIMIT,remaining:UNMETERED_LIMIT,resetAt:resetAt(now),ticket:await ticket('free')};
  const nets=await networkSubjects(clientIP(request),cfg.secret,now);
  await rateLimit(request,ctx,env,deps,cfg,now,'authorize',nets);
  await networkGate(request,ctx,cfg,db,now,deps,nets,body,cls);
