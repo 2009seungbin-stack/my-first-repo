@@ -749,6 +749,9 @@ def scenario_anon(browser):
         row.locator('button',has_text='복구').click();mp.wait_for_timeout(2500)
         ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
         mc.close()
+    finally:stack.close()
+
+
 # ------------------------------------------------------------------ TOOL_METERING=off (accounts without tool metering)
 def scenario_meteroff(browser):
     """SERVICE_API + PLATFORM + TOOL_METERING=off, with ads: the creator tools behave like the build without
