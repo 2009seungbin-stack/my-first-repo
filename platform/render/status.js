@@ -5,7 +5,7 @@
  * labelled as such and never presented as the official status. */
 import {html,safeHref} from './html.js';
 import {t} from './strings.js';
-import {page,nameOf,channelUrl,box,badge} from './ui.js';
+import {page,nameOf,channelUrl,box,badge,signInUrl} from './ui.js';
 import {boardTime,TZ} from './format.js';
 import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState,koAlias} from '../db/channel.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
@@ -122,7 +122,8 @@ ${reportBox(e.id,name,l)}</section>`;
  const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.about?html`<span class="chn">${nameOf(x.about,l)}</span> `:''}${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${m.checked?(ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'):(ko?'공식 상태 페이지를 아직 수집하지 않았습니다. 위 링크에서 직접 확인해 주세요.':'The official status page has not been collected yet; check it via the link above.')}</p>`);
  const others=m.siblings.length?box({title:ko?'같은 회사의 다른 서비스':'Other services by the same company'},html`<ul class="rows">${m.siblings.map(x=>html`<li><a class="tt" href="${channelUrl(l,x)}status">${nameOf(x,l)}</a></li>`)}</ul>`):'';
  const feed=base+'status/feed.xml';
- const alerts=box({title:ko?'장애 알림 받기':'Get outage alerts'},html`<div class="pad stn"><p class="fine">${ko?'공식 장애가 올라오거나 사용자 리포트가 급증하면 시작과 해결을 RSS로 받아 볼 수 있어요.':'An RSS feed of official incidents and user-report spikes, when each starts and ends.'}</p><a class="btn" href="${feed}">${icon(FEED_ICON,16)}${ko?'RSS 피드':'RSS feed'}</a></div>`);
+ const alerts=box({title:ko?'장애 알림 받기':'Get outage alerts'},html`<div class="pad stn"><p class="fine">${ko?`${name} 채널을 구독하면 공식 장애가 올라오거나 사용자 리포트가 급증할 때 내 레이더로 알려 드려요. RSS로도 받아 볼 수 있어요.`:`Follow ${name} to get official incidents and user-report spikes in My Radar, or read them as RSS.`}</p>
+<div class="stna"><span data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base+'status')}" rel="nofollow" data-signin>${s.follow}</a></span><a class="btn" href="${feed}">${icon(FEED_ICON,16)}${ko?'RSS 피드':'RSS feed'}</a></div></div>`);
  const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${reports}${inc}</main><aside class="side">${alerts}${others}</aside></div>`;
  const card=statusCardPath(e.id,state,l);
  return page({l,title:seo.title,description:seo.description,ogImage:card?{url:card,alt:cardAlt(name,state,l)}:null,feed,feedTitle:ko?`${name} 장애·상태 알림`:`${name} outages and status`,

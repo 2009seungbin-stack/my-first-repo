@@ -754,3 +754,4 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .empty-art{color:var(--line)}
 .co .a .cv{display:inline-flex;align-items:center;gap:3px}.co .a .cv b{font-weight:800}
 .stn{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.stn .fine{margin:0}
+.stna{display:flex;gap:6px;flex-wrap:wrap}

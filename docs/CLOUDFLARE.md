@@ -271,6 +271,7 @@ Workers & Pages → 프로젝트 → **Settings** → **Variables and Secrets** 
 | `CF_PLAN` | 변수 | 선택 | `paid`(기본, Workers Paid: 이번 결제 주기 누적 ÷ 월 포함량 읽기 250억·쓰기 5천만 행) / `free`(하루 500만·10만 행, 00:00 UTC 초기화) |
 | `CF_BILLING_DAY` | 변수 | 선택 | Workers Paid 결제 갱신일(1–28, 기본 1). 포함량은 달력 월이 아니라 구독 시작일 기준으로 초기화된다 |
 | `GITHUB_REPO`, `GITHUB_DISPATCH_REF` | 변수 | 선택 | 기본 `2009seungbin-stack/my-first-repo`, `main` |
+| `STATUS_WEBHOOK_URL` | **secret** | 운영자(선택) | AI 장애 순간 알림(`server/platform/status-watch.js`): Claude·ChatGPT·Gemini에 공식 장애가 새로 열리거나 사용자 ‘안 돼요’ 리포트가 급증하기 시작하면 이 주소로 Discord 형식 메시지를 **한 번** POST(멘션 없음). Discord 채널 → 연동 → 웹후크 URL(`https://discord.com/api/webhooks/…`). 없으면 아무것도 보내지 않는다. 30분 tick(`NOTIFY_URL`·`NOTIFY_TOKEN` 필요)과 ‘안 돼요’ 클릭 직후에 확인한다 |
 
 GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NOTIFY_URL`(예: `https://nerulio.com` 또는 preview 주소)과 secret `NOTIFY_TOKEN`. 둘 중 하나라도 없으면 수집기 워크플로의 알림 단계는 조용히 건너뛴다.
 
@@ -288,6 +289,7 @@ GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NO
 - 수집기 실패: 연속 실패 횟수가 기기 설정(1·2·3회)에 닿을 때 실패 연속 구간마다 1번. 실행 기록조차 남지 못한 워크플로 실패(D1 한도 등)는 실행마다 1번.
 - D1 사용량(30분마다): 80·90·95% 등 설정한 기준을 처음 넘을 때 기간(Paid: 결제 주기, Free: UTC 하루)마다 1번.
 - 상태 수집 멈춤: Claude·OpenAI 상태 수집기가 2시간 넘게 성공하지 못하면 1번. 공식 장애가 새로 열리면 1번.
+- AI 장애 순간(관리자 기기와 별개): 공식 장애가 열리거나(최근 6시간 안에 시작, 아직 진행 중) 사용자 리포트 급증이 시작되면 그 서비스를 구독한 사람의 내 레이더에 1번 올리고, `STATUS_WEBHOOK_URL`이 있으면 웹후크에 1번 보낸다. 급증은 2시간 넘게 잠잠했다가 다시 오면 새 급증으로 센다. 중복 방지는 `admin_alerts`의 `status:*` 행.
 - 신고: 즉시(신고 접수 순간) / 1시간마다 모아서 / 끔. 정보 제안·사실 충돌: 09:00(KST) 이후 하루 1번. 새 가입자: 30분마다 모아서.
 - 방해 금지(기본 23:00–07:00 KST): 수집기 실패와 사용량 95% 이상만 보낸다. 나머지는 방해 금지가 끝난 뒤 첫 확인 때 간다.
 

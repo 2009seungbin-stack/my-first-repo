@@ -32,6 +32,8 @@ import BUILD from '../build-info.js';
 import {IMAGE_LIMITS} from './images.js';
 import {passkeyAvailability} from '../member-passkey.js';
 import {SYMPTOMS} from '../../platform/status-signal.js';
+import {RAIL_SERVICES} from '../../platform/render/rail.js';
+import {watchStatus} from './status-watch.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'GET /tags':1,'GET /pins':1,'POST /pins':1,'POST /tags/propose':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
 /** Writes that also work without an account. */
@@ -460,7 +462,11 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const r=await fileFlag(x,f,{id:context.user.id,key:null});
     return done(r,r.updated?200:201);
    }
-   case 'POST /reports':return done(await report(db,context,body,now,limit,origins),201);
+   case 'POST /reports':{
+    const r=await report(db,context,body,now,limit,origins);
+    if(body.kind==='issue')watchAfterReport(x,String(body.entityId));
+    return done(r,201);
+   }
    case 'POST /rollout':{
     only(body,['featureId','hasIt','country','planId','platform','appVersion']);
     const f=await entity(db,/** @type {string} */(body.featureId));
@@ -700,6 +706,7 @@ async function anonRoute(key,body,x){
    await daily('v',L.votesPerDay);
    const id=randomToken(12);
    await db.prepare("INSERT INTO community_reports (id,kind,entity_id,env,result,user_id,created_at,updated_at) VALUES (?,'issue',?,?,'broken',?,?,?)").bind(id,e.id,JSON.stringify(env),ANON_USER,now,now).run();
+   watchAfterReport(x,e.id);
    return {status:201,body:{id,vote:true,counted:true,...strict}};
   }
   case 'POST /flags':{
@@ -856,6 +863,12 @@ async function purgeTarget(db,origins,kind,id){
  if(kind==='discussion')await purgeImages(origins,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
 }
 
+/** After an outage click on a home status service: is this the start of a spike? (In the background; the
+ * official incidents are the collectors' tick's to announce.) @param {WriteCtx} x @param {string} id */
+function watchAfterReport(x,id){
+ if(!RAIL_SERVICES.some(s=>s.id===id))return;
+ x.ctx?.waitUntil?.(watchStatus({env:x.env,db:x.db,now:x.now,fetch:x.deps.fetch,origin:x.origin},{ids:[id],incidents:false}));
+}
 /** A signed-out report the anonymous path takes: kind issue, result broken, nothing else but the symptom.
  * @param {any} body */
 export const isOutageClick=body=>!!body&&body.kind==='issue'&&body.result==='broken'&&Object.keys(body).every(k=>['kind','entityId','result','env','turnstileToken'].includes(k));

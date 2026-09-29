@@ -21,6 +21,7 @@ import {makeChallenge,readChallenge,challengeHash,verifyRegistration,verifyAuthe
 import {parseSubscription,vapidFromEnv} from '../push.js';
 import {trafficSummary,handleTraffic} from '../traffic.js';
 import {RUNNABLE,STATUS_ADAPTERS,collectorItems} from './admin-collectors.js';
+import {watchStatus} from './status-watch.js';
 import {normalizePrefs,storedPrefs,adminSubscriptions,deliver,seoulDayStart,seoulDay,checkCollectorFailures,checkUsage,checkStatusStale,checkIncidents,checkFlagDigest,checkReviewDigest,checkNewUsers,DEFAULT_PREFS} from './admin-notify.js';
 import {modAction,cacheOrigins} from './api.js';
 import {describeChange} from '../../platform/change-text.js';
@@ -625,9 +626,12 @@ async function notify(c){
  const body=await readJSON(c.request,4096);only(body,['kind','payload']);
  const kind=String(body.kind||'');
  if(!['collector_failed','usage','status_stale','tick'].includes(kind))throw new ApiError('BAD_REQUEST','Unknown kind.',{field:'kind'});
+ // The AI status moment (server/platform/status-watch.js): followers and STATUS_WEBHOOK_URL, on every
+ // tick, whether or not push to the admin's devices is set up.
+ const status=kind==='tick'?await watchStatus({env:c.env,db:c.db,now:c.now,fetch:c.fetch,origin:c.origin}):undefined;
  if(!vapidFromEnv(c.env,c.origin))throw notConfigured('VAPID_PRIVATE_KEY');
  const subs=await adminSubscriptions(c.db);
- if(!subs.length)return {ok:true,devices:0,results:{}};
+ if(!subs.length)return {ok:true,devices:0,results:{},...(status?{status}:{})};
  const x={env:c.env,db:c.db,now:c.now,fetch:c.fetch,origin:c.origin,subs};
  /** @type {Record<string,unknown>} */const results={};
  /** @param {string} name @param {()=>Promise<unknown>} f */
@@ -642,7 +646,7 @@ async function notify(c){
   await step('review',()=>checkReviewDigest(x));
   await step('users',()=>checkNewUsers(x));
  }
- return {ok:true,devices:subs.length,day:seoulDay(c.now),results};
+ return {ok:true,devices:subs.length,day:seoulDay(c.now),results,...(status?{status}:{})};
 }
 
 /* ---------- router ---------- */
