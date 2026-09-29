@@ -21,6 +21,74 @@ def launch(p):
     exe = os.environ.get('CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') else None)
     return p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
 
+FIX = os.path.join(ROOT, 'tests', 'fixtures', 'anon')
+
+def anon_flow(b, errors):
+    """Signed out (유동): write a post with an image and a comment, edit it with the password, three other
+    networks report it → hidden, a moderator restores it. Each context stands for another network."""
+    def ctx(ip, **kw):
+        c = b.new_context(extra_http_headers={'cf-connecting-ip': ip}, **kw); pg = c.new_page()
+        pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' and 'status of 404' not in m.text and 'status of 403' not in m.text else None)
+        pg.on('pageerror', lambda e: errors.append(str(e)))
+        return c, pg
+    ca, a = ctx('203.0.113.7')
+    a.goto(B + '/ko/ai/claude/write'); a.wait_for_selector('[data-anon-fields]:not([hidden])', timeout=5000)
+    assert a.locator('.needlogin').is_hidden(), 'signed out with anonymous writing on: no sign-in wall'
+    assert a.locator('[data-anon-notice]').is_visible() and '봇 확인이 꺼져' in a.locator('[data-anon-notice]').inner_text(), 'no bot check on this deployment: say so'
+    assert a.locator('[data-image-picker]').is_visible(), 'image picker (R2 bound)'
+    a.fill('input[name=anonName]', '테스트유동'); a.fill('input[name=anonPassword]', 'pw1234')
+    a.fill('input[name=title]', 'E2E 익명 글: 사진 첨부'); a.fill('textarea[name=body]', '사진 올려요')
+    a.set_input_files('[data-image-input]', os.path.join(FIX, 'gps.jpg'))
+    a.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")', timeout=15000)
+    assert a.locator('[data-image-list] li').count() == 1 and a.locator('[data-image-list] li.err').count() == 0
+    assert re.search(r'!\[이미지\]\(/u/[0-9a-f]{24}/full\.(webp|jpg)\)', a.locator('textarea[name=body]').input_value()), 'the image is in the body'
+    a.click('button[type=submit]'); a.wait_for_url(re.compile(r'/ko/ai/claude/\d+$'), timeout=15000)
+    post_url = a.url.replace(B, '')
+    meta = a.locator('.meta1 .nick.anon').inner_text()
+    assert re.match(r'^테스트유동 \([0-9A-Za-z]{4}\)$', meta), meta
+    a.wait_for_function('()=>{const i=document.querySelector(".pbody img");return i&&i.complete&&i.naturalWidth>0}', timeout=10000)
+    src = a.locator('.pbody img').get_attribute('src')
+    r = a.request.get(B + src)
+    assert r.status == 200 and r.headers['x-content-type-options'] == 'nosniff' and b'Exif' not in r.body(), 'served on our origin without EXIF'
+    # comment, name remembered
+    assert a.locator('#comment-form input[name=anonName]').input_value() == '테스트유동', 'nickname remembered in this browser'
+    a.fill('#comment-form textarea', '익명 댓글입니다'); a.fill('#comment-form input[name=anonPassword]', 'c0mment')
+    a.click('#comment-form button[type=submit]'); a.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("익명 댓글입니다")', timeout=10000)
+    assert a.locator('.cl .nick.anon').count() >= 1
+    # edit with the password
+    a.locator('[data-anon-edit^="discussion:"]').click()
+    a.locator('dialog.pw input').fill('pw1234'); a.locator('dialog.pw button[type=submit]').click()
+    a.wait_for_selector('article.post input[name=title]', timeout=5000)
+    a.fill('article.post input[name=title]', 'E2E 익명 글 (수정됨)'); a.click('article.post button[type=submit]')
+    a.wait_for_function('()=>(document.querySelector("h1")?.textContent||"").includes("수정됨")', timeout=10000)
+    # a wrong password is refused with a Korean message
+    a.locator('[data-anon-delete^="discussion:"]').click()
+    a.locator('dialog.pw input').fill('wrong!'); a.locator('dialog.pw button[type=submit]').click()
+    a.wait_for_function('()=>document.querySelector("#n2-toast")&&document.querySelector("#n2-toast").textContent.includes("비밀번호가 맞지 않아요")', timeout=5000)
+    # three other networks report it → hidden automatically
+    for ip in ['198.51.100.10', '192.0.2.20', '198.18.0.30']:
+        c, pg = ctx(ip)
+        pg.goto(B + post_url); pg.wait_for_timeout(300)
+        pg.goto(B + pg.locator('.pact a', has_text='신고').get_attribute('href')); pg.wait_for_selector('form[data-island=flag-form]')
+        pg.select_option('select[name=reason]', 'spam'); pg.click('form[data-island=flag-form] button[type=submit]'); pg.wait_for_timeout(900)
+        c.close()
+    assert a.request.get(B + post_url).status == 404, 'hidden after 3 different reporters'
+    assert a.request.get(B + src).status == 404, 'its image is hidden too'
+    # a moderator sees it (with the image) and restores it
+    cm, m = ctx('192.0.2.200')
+    m.goto(B + '/__dev/login?as=mod2&role=moderator&next=/ko/community/mod'); m.wait_for_selector('[data-hidden] .mq', timeout=8000)
+    row = m.locator('[data-hidden] .mq', has_text='E2E 익명 글')
+    assert row.count() == 1 and row.locator('.mqi img').count() == 1, 'the hidden post and its image in the queue'
+    assert row.locator('button', has_text='이 ID 차단 7일').count() == 1
+    m.on('dialog', lambda d: d.accept('신고 오인'))
+    row.locator('button', has_text='복구').click(); m.wait_for_timeout(1200)
+    assert a.request.get(B + post_url).status == 200, 'restored'
+    # phone width: the anonymous fields fit
+    cp, ph = ctx('203.0.113.99', viewport={'width': 390, 'height': 900})
+    ph.goto(B + post_url); ph.wait_for_selector('#comment-form [data-anon-fields]:not([hidden])')
+    w = ph.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'anon comment box scrolls sideways ({w})'
+    for c in (ca, cm, cp): c.close()
+
 def main():
     # GitHub and Discord sign-in buttons are shown (placeholder credentials; the round trip is in service-browser.py).
     proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env={**os.environ, 'DEV_SIGNIN_PROVIDERS': 'github,discord'})
@@ -117,6 +185,7 @@ def main():
             assert pg.locator('.box.mf .bh button[aria-pressed=true]').count() == 1, '내 구독만 filter toggles'
             pg.goto(B + '/ko/community/'); pg.wait_for_timeout(800)
             assert '내 구독 채널' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s channels'
+            anon_flow(b, errors)
             m = b.new_page(viewport={'width': 390, 'height': 900})
             for path in ['/ko/community/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/ai/claude/write', '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:
                 m.goto(B + path); m.wait_for_timeout(300)
