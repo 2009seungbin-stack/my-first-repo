@@ -365,6 +365,9 @@ The account layer can ship without tool metering (docs/PRICING-MODEL.md, "도구
 then carry no account meta and never call `/api/v1`, and the Worker allows every `authorize` without
 counting. Nothing above is weakened by it: there is simply no limit to bypass, and Pro is not sold
 (`checkout` → `BILLING_UNAVAILABLE`). Turning metering back on restores every mechanism unchanged.
+A page built with metering on trusts `/me`'s `metering:false` only when it is inside the signed `me`
+ticket (`TICKET_PUBLIC_KEY` builds), so rewriting the answer cannot switch the limits off on a metered
+deployment (`tests/tool-metering.test.mjs`).
 
 ### Accepted residuals (documented, cannot or should not be closed)
 
