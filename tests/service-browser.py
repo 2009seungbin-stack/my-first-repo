@@ -526,9 +526,9 @@ def scenario_social(browser):
         context=browser.new_context(viewport={'width':1280,'height':900});context._nerulio_base=stack.url;log=[]
         page=context.new_page();instrument(page,log)
         page.goto(post,wait_until='networkidle')
-        page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form button[type="submit"]')
+        page.fill('#comment-form textarea','로그인 전 댓글');page.click('#comment-form a[data-signin]')
         sheet=page.locator('dialog#n2-signin');sheet.wait_for(state='visible',timeout=10000)
-        ok('social: a signed-out comment opens the sign-in sheet with the configured providers only',sheet.locator('.sib').count()==2 and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
+        ok('social: the comment box\'s sign-in link opens the sign-in sheet with the configured providers only',sheet.locator('.sib').count()==2 and sheet.locator('.sib-github').inner_text().strip()=='GitHub로 계속하기' and sheet.locator('.sib-discord').inner_text().strip()=='Discord로 계속하기' and sheet.locator('.sib-google').count()==0)
         page.screenshot(path=str(SHOTS/'signin-sheet-ko.png'))
         with page.expect_navigation(url=re.compile(r'/ko/ai/e2e-chat/1$'),timeout=30000):sheet.locator('.sib-github').click()
         page.wait_for_function('()=>{const a=document.querySelector(".hd [data-island=account] a");return a&&a.getAttribute("href").endsWith("/community/me")}',timeout=15000)
@@ -618,16 +618,86 @@ def scenario_traffic(browser):
         context.close()
     finally:stack.close()
 
+# ------------------------------------------------------------------ writing without an account (유동) + images
+def scenario_anon(browser):
+    """PLATFORM build on the real Pages runtime with a local R2 bucket (binding UPLOADS) and Cloudflare's
+    always-pass Turnstile testing keys: a signed-out reader uploads an image (the human check runs in the
+    /verify/ frame), posts, comments; the image is served by the Worker without EXIF; a 개인정보 report hides
+    the post at once; a moderator restores it. Needs network access to challenges.cloudflare.com."""
+    port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
+    stack=Stack('anon',{'SITE_URL':origin,'PLATFORM':'on'},
+                {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port,
+                toml=['[[r2_buckets]]','binding = "UPLOADS"','bucket_name = "nerulio-uploads-e2e"',''])
+    try:
+        now=int(time.time()*1000)
+        names=json.dumps({'ko':'E2E 챗','en':'E2E Chat'},ensure_ascii=False).replace("'","''")
+        stack.sql(f"INSERT INTO entities(id,vertical,type,slug,names,descriptions,created_at,updated_at) VALUES('service:e2e-chat','ai','service','e2e-chat','{names}','{{}}',{now},{now});")
+        routes=json.loads((stack.dir/'dist'/'_routes.json').read_text())
+        ok('anon: /u/* (community images) reaches the Worker','/u/*' in routes['include'] or routes['include']==['/*'],routes['include'])
+        context=browser.new_context(viewport={'width':390,'height':900});context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        page.goto(stack.url+'/ko/ai/e2e-chat/write',wait_until='networkidle')
+        page.locator('[data-anon-fields]:not([hidden])').wait_for(timeout=10000)
+        ok('anon: signed out, the write page offers nickname + password and the image picker',page.locator('[data-image-picker]').is_visible() and page.locator('.needlogin').is_hidden())
+        page.fill('input[name=anonName]','유동테스터');page.fill('input[name=anonPassword]','e2e-pass')
+        page.fill('input[name=title]','E2E 유동 사진 글');page.fill('textarea[name=body]','사진 한 장')
+        page.set_input_files('[data-image-input]',str(ROOT/'tests'/'fixtures'/'anon'/'gps.jpg'))
+        page.locator('dialog.hc iframe').wait_for(timeout=15000)
+        ok('anon: the first upload asks for the human check in the /verify/ frame',page.locator('dialog.hc iframe').get_attribute('src').startswith('/verify/?sitekey=1x00000000000000000000AA&action=community'))
+        page.wait_for_function('()=>document.querySelector("textarea[name=body]").value.includes("/u/")',timeout=60000)
+        page.click('button[type=submit]')
+        page.wait_for_url(re.compile(r'/ko/ai/e2e-chat/\d+$'),timeout=90000)
+        post=page.url
+        ok('anon: posted with the nickname and today\'s ID',re.match(r'^유동테스터 \([0-9A-Za-z]{4}\)$',page.locator('.meta1 .nick.anon').inner_text()) is not None,page.locator('.meta1').inner_text())
+        page.wait_for_function('()=>{const i=document.querySelector(".pbody img");return i&&i.complete&&i.naturalWidth>0}',timeout=15000)
+        src=page.locator('.pbody img').get_attribute('src')
+        img=urllib.request.urlopen(stack.url+src,timeout=20)
+        body=img.read()
+        ok('anon: the image comes from the Worker on our origin: nosniff, inline, long cache, no EXIF/GPS',img.headers['X-Content-Type-Options']=='nosniff' and img.headers['Content-Disposition'].startswith('inline') and 'max-age=604800' in img.headers['Cache-Control'] and b'Exif' not in body and b'NeruCam' not in body,dict(img.headers))
+        rows=stack.sql("SELECT author_id,anon_name,anon_pw,anon_net FROM discussions WHERE anon_name IS NOT NULL")
+        ok('anon: stored as the anonymous account with a hashed password and a network key, no address',len(rows)==1 and rows[0]['author_id']=='anon' and rows[0]['anon_pw'].startswith('pbkdf2-sha256$100000$') and '127.0.0' not in json.dumps(rows),rows)
+        page.fill('#comment-form textarea','유동 댓글');page.fill('#comment-form input[name=anonPassword]','c-pass')
+        page.click('#comment-form button[type=submit]')
+        page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("유동 댓글")',timeout=60000)
+        ok('anon: a comment within the 10-minute pass needs no second check',True)
+        page.screenshot(path=str(SHOTS/'anon-post-ko.png'),full_page=True)
+        w=page.evaluate('document.documentElement.scrollWidth');ok('anon: no sideways scroll at 390px',w<=390,w)
+        # 개인정보 노출: one report hides it at once
+        rp=context.new_page();instrument(rp,log)
+        rp.goto(post,wait_until='networkidle');rp.goto(stack.url+rp.locator('.pact a',has_text='신고').get_attribute('href'),wait_until='networkidle')
+        rp.select_option('select[name=reason]','privacy');rp.click('form[data-island=flag-form] button[type=submit]')
+        rp.wait_for_url(re.compile(r'/ko/ai/e2e-chat/$'),timeout=60000)
+        try:hidden=urllib.request.urlopen(post,timeout=20).status
+        except urllib.error.HTTPError as e:hidden=e.code
+        try:himg=urllib.request.urlopen(stack.url+src,timeout=20).status
+        except urllib.error.HTTPError as e:himg=e.code
+        ok('anon: a 개인정보 report hides the post and its image at once',hidden==404 and himg==404,(hidden,himg))
+        context.close()
+        # a moderator restores it
+        uid,token=create_user(stack,'e2e-mod')
+        stack.sql(f"INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('{uid}','e2e모더','moderator',{now},{now});")
+        mc=browser.new_context();mc._nerulio_base=stack.url
+        mc.add_cookies([{'name':'nerulio_session','value':token,'url':stack.url}])
+        mp=mc.new_page();instrument(mp,[]);mp.on('dialog',lambda d:d.accept('개인정보 없음 확인'))
+        mp.goto(stack.url+'/ko/community/mod',wait_until='networkidle')
+        row=mp.locator('[data-hidden] .mq',has_text='E2E 유동 사진 글');row.wait_for(timeout=15000)
+        ok('anon: the moderator sees the hidden post with its image and the ID ban buttons',row.locator('.mqi img').count()==1 and row.locator('button',has_text='이 ID 차단 1일').count()==1)
+        row.locator('button',has_text='복구').click();mp.wait_for_timeout(2500)
+        ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
+        mc.close()
+    finally:stack.close()
+
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic,anon').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
         if 'signin' in only:scenario_signin(browser)
         if 'social' in only:scenario_social(browser)
         if 'traffic' in only:scenario_traffic(browser)
+        if 'anon' in only:scenario_anon(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')
