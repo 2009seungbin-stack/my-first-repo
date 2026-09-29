@@ -3,7 +3,8 @@ import {errorResponse,ApiError} from './http.js';
 import {secureResponse} from '../tools/ads-worker.mjs';
 import BUILD from './build-info.js';
 import {handlePlatformPage} from './platform/pages.js';
-import {handlePlatformApi} from './platform/api.js';
+import {handlePlatformApi,isModeratorRequest} from './platform/api.js';
+import {serveUpload} from './platform/uploads.js';
 import {observeRequest} from './traffic.js';
 import {configuredProviders,providerCredentials} from './oauth/providers.js';
 /** Cloudflare Pages advanced-mode entry (dist/_worker.js/index.js).
@@ -21,6 +22,8 @@ export default {
   if(url.pathname==='/api'||url.pathname.startsWith('/api/')||url.pathname.startsWith('/_worker.js'))return errorResponse(new ApiError('NOT_FOUND'));
   // Visitor/bot statistics: one Analytics Engine data point for pages, robots.txt and sitemaps (server/traffic.js).
   if(BUILD.traffic)observeRequest(request,env,url);
+  // Community images (R2, binding UPLOADS) on the site's own origin (PLATFORM=on builds only).
+  if(BUILD.platform&&url.pathname.startsWith('/u/')){const img=await serveUpload(request,env,ctx,{isModerator:()=>isModeratorRequest(request,env)});if(img)return img;}
   // Nerulio 2.0 channel/community pages (PLATFORM=on builds only); anything else is the static site.
   if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
   const response=await env.ASSETS.fetch(request);

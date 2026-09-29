@@ -2,15 +2,33 @@
  * Pages are complete without it (server-rendered, edge-cached, identical for everyone); this module
  * adds the reader's own state and the write actions through /api/v2:
  *  account · follow · post/comment votes · compat/issue/rollout reports · comments and replies ·
- *  write form · new-posts bar · countdown · share · the sign-in sheet (configured providers only). */
+ *  write form · new-posts bar · countdown · share · the sign-in sheet (configured providers only).
+ * Signed out, posts, comments, votes, reports and images go through the anonymous path (nickname + edit
+ * password; the server adds today's ID) when the deployment allows it: /api/v2/state says how (anon, uploads).
+ * The Turnstile check runs in the /verify/ frame (its own CSP) only when a write asks for it. */
 import {buttonsHTML,validReturn} from '../signin-brands.js';
-const L=document.documentElement.lang==='en'?'en':'ko';
+const L=document.documentElement.lang==='en'?'en':document.documentElement.lang==='ja'?'ja':'ko';
 const T={
  ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
-  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
+  rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기',
+  challenge:'사람인지 확인할게요. 잠시만 기다려 주세요.',challengeFailed:'사람 확인이 끝나지 않았어요. 다시 시도해 주세요.',close:'닫기',needPassword:'비밀번호(4~32자)를 입력해 주세요. 나중에 수정·삭제할 때 필요해요.',
+  noBotCheck:'테스트 환경이라 봇 확인이 꺼져 있어요. 대신 로그인 없이 쓰는 한도가 더 낮아요.',anonOff:'로그인 없이 쓰기는 아직 준비 중이에요. 로그인하면 쓸 수 있어요.',
+  pwTitle:'비밀번호 확인',pwLabel:'글을 쓸 때 정한 비밀번호',pwOk:'확인',deleted:'삭제했어요.',posted:'등록했어요.',held:'등록했어요. 금지어 검사로 운영자 확인 뒤에 보입니다.',hiddenNow:'신고가 접수되어 이 글은 확인 전까지 숨겨졌어요.',
+  imgTooMany:n=>`이미지는 글 하나에 ${n}장까지예요.`,imgFail:'이미지를 올리지 못했어요.',imgBadType:'이 형식은 읽을 수 없어요. JPEG·PNG·WebP로 저장해 올려 주세요.',imgUploading:'이미지를 올리는 중이에요. 끝나면 등록해 주세요.',imgRemove:'이미지 빼기',imgAlt:'이미지',
+  reportNeedsLogin:'구조화 리포트는 로그인하고 쓸 수 있어요. 다른 말머리로는 로그인 없이 쓸 수 있어요.',editSave:'수정 저장'},
  en:{login:'Sign in',signInTitle:'Sign in to take part',signInNote:'Posts, comments, follows, votes and reports need an account. Reading does not.',signInClose:'Close',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
-  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
-}[L];
+  rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post',
+  challenge:'Checking that you are human. One moment, please.',challengeFailed:'The human check did not finish. Please try again.',close:'Close',needPassword:'Enter a password (4–32 characters). You need it to edit or delete later.',
+  noBotCheck:'Test deployment: the bot check is off, so the limits for writing without an account are lower.',anonOff:'Writing without an account is not available yet. Sign in to write.',
+  pwTitle:'Password',pwLabel:'The password you set when writing',pwOk:'OK',deleted:'Deleted.',posted:'Posted.',held:'Posted. It shows after a moderator checks it (blocked-word filter).',hiddenNow:'Reported: this is hidden until a moderator checks it.',
+  imgTooMany:n=>`At most ${n} images per post.`,imgFail:'The image could not be uploaded.',imgBadType:'This format cannot be read. Save it as JPEG, PNG or WebP.',imgUploading:'Images are still uploading. Post when they are done.',imgRemove:'Remove image',imgAlt:'image',
+  reportNeedsLogin:'Structured reports need an account; other tags work without one.',editSave:'Save'},
+}[L==='ja'?'en':L];
+// Japanese strings for what anonymous writing adds (the platform pages are ko/en today; ready for /ja/).
+if(L==='ja')Object.assign(T,{challenge:'人間であることを確認しています。少々お待ちください。',challengeFailed:'確認が完了しませんでした。もう一度お試しください。',close:'閉じる',needPassword:'パスワード（4〜32文字）を入力してください。編集・削除に使います。',
+ noBotCheck:'テスト環境のためボット確認がオフです。代わりにログインなしの上限が低くなっています。',anonOff:'ログインなしの投稿はまだ準備中です。ログインしてください。',pwTitle:'パスワード確認',pwLabel:'投稿時に決めたパスワード',pwOk:'確認',deleted:'削除しました。',posted:'投稿しました。',
+ held:'投稿しました。禁止語チェックのため、運営の確認後に表示されます。',hiddenNow:'通報を受け、確認が終わるまで非表示になりました。',imgTooMany:n=>`画像は1投稿につき${n}枚までです。`,imgFail:'画像をアップロードできませんでした。',imgBadType:'この形式は読み込めません。JPEG・PNG・WebPで保存してください。',
+ imgUploading:'画像をアップロード中です。完了してから投稿してください。',imgRemove:'画像を外す',imgAlt:'画像',reportNeedsLogin:'構造化レポートはログインが必要です。',editSave:'保存',error:'しばらくしてからもう一度お試しください。',rate:'操作が速すぎます。1分後にもう一度お試しください。',empty:'内容を入力してください。',flagged:'通報を受け付けました。運営が確認します。',voted:'反映しました。1人1票です。'});
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 async function api(path,body){
  try{
@@ -57,7 +75,19 @@ const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다�
  [/^This tag cannot be used/,'이 채널에서는 쓸 수 없는 말머리예요.'],[/^Not hidden/,'숨겨진 상태가 아니에요. 새로고침해 주세요.'],[/^Already hidden/,'이미 임시조치된 대상이에요.'],[/^Already deleted/,'작성자가 이미 삭제했어요.'],
  [/^Only a higher role/,'더 높은 권한만 이 계정을 처리할 수 있어요.'],[/^You cannot moderate your own/,'자기 계정은 처리할 수 없어요.'],[/^This action does not apply/,'이 대상에는 쓸 수 없는 조치예요.'],
  [/^Only questions have an accepted/,'질문 글만 답변을 채택할 수 있어요.'],[/^Invalid reason/,'사유를 선택해 주세요.'],[/^Nothing to report at this address/,'신고할 대상을 찾을 수 없어요.'],[/^tokens_per_s must be/,'토큰/초는 0~5000 사이로 적어 주세요.'],
- [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^This property cannot be proposed/,'이 항목은 제안할 수 없어요.'],[/^A source link/,'출처 링크(https://…)를 넣어 주세요.'],[/^The value does not fit/,'값의 형식이 이 항목과 맞지 않아요. (날짜는 2026-10-20, 숫자는 숫자만)'],[/^Already reviewed/,'이미 처리된 제안이에요.'],[/board is not open yet/,'이 채널 게시판은 아직 준비 중이에요.'],[/^Too many open proposals/,'검토를 기다리는 제안이 많아요. 처리된 뒤에 다시 보내 주세요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.']];
+ [/^A benchmark is a model measured on a GPU/,'모델과 GPU를 골라 주세요.'],[/^This property cannot be proposed/,'이 항목은 제안할 수 없어요.'],[/^A source link/,'출처 링크(https://…)를 넣어 주세요.'],[/^The value does not fit/,'값의 형식이 이 항목과 맞지 않아요. (날짜는 2026-10-20, 숫자는 숫자만)'],[/^Already reviewed/,'이미 처리된 제안이에요.'],[/board is not open yet/,'이 채널 게시판은 아직 준비 중이에요.'],[/^Too many open proposals/,'검토를 기다리는 제안이 많아요. 처리된 뒤에 다시 보내 주세요.'],[/^A compatibility report needs a target/,'호환 대상을 골라 주세요.'],[/^Invalid version/,'버전 형식이 올바르지 않아요.'],
+ [/^password must be (\d+)–(\d+)/,'비밀번호는 $1~$2자로 써 주세요.'],[/^name must be (\d+)–(\d+)/,'닉네임은 $1~$2자로 써 주세요.'],[/^This nickname belongs to a member/,'회원(고정닉)이 쓰는 닉네임이에요. 다른 닉네임을 써 주세요.'],
+ [/^Wrong password/,'비밀번호가 맞지 않아요.'],[/^Too many wrong passwords/,'비밀번호를 여러 번 틀렸어요. 1시간 뒤에 다시 해 주세요.'],
+ [/^Without an account a (post|comment) may contain at most (\d+) link/,(m,k,n)=>`로그인 없이 쓰는 ${k==='post'?'글':'댓글'}에는 링크를 ${n}개까지 넣을 수 있어요.`],
+ [/^Links are allowed from your second/,'오늘 처음 쓰는 글·댓글에는 링크를 넣을 수 없어요. 링크 없이 한 번 쓴 뒤에 넣어 주세요.'],[/^The same text was just posted/,'방금 같은 내용이 올라왔어요. 다른 내용으로 써 주세요.'],
+ [/^This text contains a blocked/,'금지된 단어나 링크가 들어 있어요.'],[/^Anonymous writing from this network is blocked/,'이 네트워크에서는 로그인 없이 쓰기가 잠시 차단되었어요.'],
+ [/^Today's limit for writing without an account/,'이 네트워크에서 오늘 로그인 없이 쓸 수 있는 양을 다 썼어요. 로그인하거나 내일 다시 써 주세요.'],[/^Today's image limit/,'오늘 올릴 수 있는 이미지 수를 다 썼어요.'],
+ [/^At most (\d+) images per post/,'이미지는 글 하나에 $1장까지예요.'],[/^An image in the text is not one you uploaded/,'본문에 직접 올리지 않았거나 삭제된 이미지가 있어요.'],[/^Images can be added to posts/,'이미지는 글에만 넣을 수 있어요.'],
+ [/^Images must be at most (\d+) MB/,'이미지는 $1MB까지 올릴 수 있어요.'],[/^Images must be at most (\d+)×/,'이미지는 가로·세로 $1픽셀까지예요.'],[/^Only JPEG, PNG and WebP|^GIF files are not accepted|^Send the image bytes/,'JPEG·PNG·WebP 이미지만 올릴 수 있어요.'],
+ [/^Animated images are not accepted/,'움직이는 이미지는 올릴 수 없어요.'],[/^This file does not look like|^Broken|^JPEG |^PNG |^WebP |^Empty file|^The image has no size/,'이미지 파일을 읽을 수 없어요.'],
+ [/^The human check failed|^Please confirm you are human/,'사람 확인에 실패했어요. 다시 시도해 주세요.'],[/^Anonymous writing needs Turnstile/,'로그인 없이 쓰기는 아직 준비 중이에요. 로그인해 주세요.'],[/^Image uploads need/,'이미지 올리기는 아직 준비 중이에요.'],
+ [/^Report the post or comment instead/,'글이나 댓글을 신고해 주세요.'],[/^Only anonymous writers are banned/,'회원은 차단 대신 이용 제한을 써 주세요.'],[/^This item is older than 90 days/,'90일이 지난 글이라 네트워크 정보가 없어 차단할 수 없어요.'],[/^Already deleted/,'이미 삭제된 대상이에요.'],
+ [/^Anonymous writers are banned by network/,'비로그인 작성자는 글·댓글의 차단 버튼으로 막아 주세요.']];
 function message(m){
  if(L!=='ko')return m;
  for(const [re,ko] of KO_ERR){const x=re.exec(m);if(x)return typeof ko==='function'?ko(...x):ko.replace(/\$(\d)/g,(_,i)=>x[i]);}
@@ -69,13 +99,140 @@ function explain(res){
  if(res.data?.error?.message&&res.status<500)return toast(message(res.data.error.message));
  toast(T.error);
 }
-/** Run a write; signed-out readers are sent to sign in first. */
-async function write(path,body,signedIn){
- // Say why before leaving the page for sign-in.
- if(!signedIn){signInSheet();return null;}
+/** How writing without an account works here (from /api/v2/state): {enabled, check:'turnstile'|'none'|'off', siteKey}. */
+let ANON={enabled:false,check:'off',siteKey:''};
+/** Turnstile inside the /verify/ frame (strict CSP there; this page only frames its own origin). Resolves
+ * to a single-use token, or '' when the reader closes it. The Worker verifies the token. */
+function challenge(siteKey){
+ if(!/^[0-9A-Za-z_-]{1,100}$/.test(siteKey||''))return Promise.resolve('');
+ const d=document.createElement('dialog');d.className='hc';
+ const p=document.createElement('p');p.textContent=T.challenge;
+ const f=document.createElement('iframe');f.title='Turnstile';f.src=`/verify/?sitekey=${encodeURIComponent(siteKey)}&action=community&lang=${L}`;
+ const x=document.createElement('button');x.type='button';x.className='btn x';x.textContent=T.close;
+ d.append(p,f,x);document.body.append(d);
+ return new Promise(resolve=>{
+  let token='';
+  const onMessage=e=>{if(e.origin!==location.origin||e.source!==f.contentWindow||e.data?.type!=='nerulio-turnstile')return;if(typeof e.data.token==='string'&&e.data.token.length<=2048)token=e.data.token;d.close();};
+  const timer=setTimeout(()=>d.open&&d.close(),180e3);
+  addEventListener('message',onMessage);x.addEventListener('click',()=>d.close());
+  d.addEventListener('close',()=>{clearTimeout(timer);removeEventListener('message',onMessage);d.remove();resolve(token);},{once:true});
+  if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');
+ });
+}
+/** A write without an account: when the server asks for the human check, run it once and retry with the token. */
+async function anonApi(path,body){
+ let res=await api(path,body);
+ if(res.code==='CHALLENGE_REQUIRED'||res.code==='CHALLENGE_FAILED'){
+  const token=await challenge(res.data?.error?.siteKey||ANON.siteKey);
+  if(!token){toast(T.challengeFailed);return null;}
+  res=await api(path,{...body,turnstileToken:token});
+ }
+ if(!res.ok){if(res.code==='NOT_CONFIGURED'){toast(T.anonOff);signInSheet();return null;}explain(res);return null;}
+ return res.data||{};
+}
+/** Run a write. Signed out: writes that work without an account (anon:true) go the anonymous way when this
+ * deployment allows it; everything else asks the reader to sign in first. */
+async function write(path,body,signedIn,o={}){
+ if(!signedIn){
+  if(o.anon&&ANON.enabled)return anonApi(path,body);
+  // Say why before leaving the page for sign-in.
+  signInSheet();return null;
+ }
  const res=await api(path,body);
  if(!res.ok){explain(res);return null;}
  return res.data||{};
+}
+/** Remembered nickname (this browser only). */
+const nick={get(){try{return localStorage.getItem('n2-anon-name')||'';}catch{return '';}},set(v){try{v?localStorage.setItem('n2-anon-name',v):localStorage.removeItem('n2-anon-name');}catch{}}};
+/** The nickname/password fields of a form: shown for signed-out readers when anonymous writing is on. */
+function anonForm(form,signedIn){
+ const box=$('[data-anon-fields]',form);if(!box)return null;
+ if(signedIn||!ANON.enabled){box.hidden=true;return null;}
+ box.hidden=false;
+ const name=$('input[name="anonName"]',box),pw=$('input[name="anonPassword"]',box);
+ if(name&&!name.value)name.value=nick.get();
+ const note=$('[data-anon-notice]',box);if(note&&ANON.check==='none'){note.hidden=false;note.textContent=T.noBotCheck;}
+ return {fields(){const v=(name?.value||'').trim();return {name:v||undefined,password:pw?.value||''};},
+  valid(){if(!pw||pw.value.length<4||pw.value.length>32){toast(T.needPassword);pw?.focus();return false;}return true;},
+  remember(){nick.set((name?.value||'').trim());if(pw)pw.value='';}};
+}
+/** Ask for an anonymous item's password; resolves to it or ''. */
+function askPassword(){
+ const d=document.createElement('dialog');d.className='pw';
+ const f=document.createElement('form');f.method='dialog';
+ const h=document.createElement('b');h.textContent=T.pwTitle;
+ const lb=document.createElement('label');lb.textContent=T.pwLabel;const i=document.createElement('input');i.type='password';i.minLength=4;i.maxLength=32;i.required=true;i.autocomplete='current-password';lb.append(i);
+ const acts=document.createElement('div');acts.className='acts';
+ const c=document.createElement('button');c.type='button';c.className='btn';c.textContent=T.cancel;
+ const ok=document.createElement('button');ok.type='submit';ok.className='btn p';ok.textContent=T.pwOk;acts.append(c,ok);
+ f.append(h,lb,acts);d.append(f);document.body.append(d);
+ return new Promise(resolve=>{
+  let v='';c.addEventListener('click',()=>d.close());
+  f.addEventListener('submit',e=>{e.preventDefault();v=i.value;d.close();});
+  d.addEventListener('close',()=>{d.remove();resolve(v);},{once:true});
+  if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');i.focus();
+ });
+}
+
+/** Downscale and re-encode a picked image on this device: canvas → WebP (JPEG where the browser cannot
+ * encode WebP). Re-encoding drops EXIF, including GPS location. A GIF becomes its first frame. */
+async function prepareImage(file,maxSide=2560,maxBytes=5*1024*1024){
+ const bmp=await createImageBitmap(file,{imageOrientation:'from-image'});
+ let scale=Math.min(1,maxSide/Math.max(bmp.width,bmp.height));
+ for(let attempt=0;attempt<4;attempt++){
+  const w=Math.max(1,Math.round(bmp.width*scale)),h=Math.max(1,Math.round(bmp.height*scale));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  const toBlob=(type,q)=>new Promise(r=>c.toBlob(r,type,q));
+  g.drawImage(bmp,0,0,w,h);
+  let blob=await toBlob('image/webp',attempt?0.75:0.85);
+  if(!blob||blob.type!=='image/webp'){g.fillStyle='#fff';g.globalCompositeOperation='destination-over';g.fillRect(0,0,w,h);g.globalCompositeOperation='source-over';blob=await toBlob('image/jpeg',attempt?0.75:0.88);}
+  if(blob&&blob.size<=maxBytes){bmp.close?.();return blob;}
+  scale*=0.75;
+ }
+ bmp.close?.();throw Error('too large');
+}
+/** Upload one prepared image with progress (XHR); the human check is asked once and passed as a header. */
+function sendImage(blob,token,onProgress){
+ return new Promise(resolve=>{
+  const x=new XMLHttpRequest();x.open('POST','/api/v2/uploads');x.withCredentials=true;x.setRequestHeader('content-type',blob.type);
+  if(token)x.setRequestHeader('x-turnstile-token',token);
+  x.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded/e.total);};
+  x.onload=()=>{let data=null;try{data=JSON.parse(x.responseText);}catch{}resolve({ok:x.status>=200&&x.status<300,status:x.status,data,code:data?.error?.code||''});};
+  x.onerror=()=>resolve({ok:false,status:0,data:null,code:'NETWORK'});
+  x.send(blob);
+ });
+}
+/** The write page's image picker: previews, progress, remove; each finished image is inserted into the body
+ * as ![이미지](/u/<id>/full.webp). Hidden when this deployment has no image storage. */
+function imagePicker(wf,cfg,signedIn){
+ const box=$('[data-image-picker]',wf),input=box&&$('[data-image-input]',box),list=box&&$('[data-image-list]',box),ta=$('textarea[name="body"]',wf);
+ if(!box||!input||!list||!ta||!cfg||(!signedIn&&!ANON.enabled))return null;
+ box.hidden=false;let pending=0;
+ const max=Number(cfg.perPost)||10;
+ const count=()=>$$('li',list).length;
+ const insert=md=>{const at=ta.selectionStart??ta.value.length;const before=ta.value.slice(0,at),after=ta.value.slice(at);const pre=before&&!before.endsWith('\n')?'\n':'';ta.value=`${before}${pre}${md}\n${after}`;ta.dispatchEvent(new Event('input',{bubbles:true}));};
+ input.addEventListener('change',async()=>{
+  const files=[...input.files||[]];input.value='';
+  if(count()+files.length>max)toast(T.imgTooMany(max));
+  for(const file of files.slice(0,Math.max(0,max-count()))){
+   const li=document.createElement('li'),img=document.createElement('img'),bar=document.createElement('span'),rm=document.createElement('button');
+   img.alt='';bar.className='bar';bar.style.width='0%';rm.type='button';rm.className='rm';rm.textContent='×';rm.setAttribute('aria-label',T.imgRemove);
+   li.append(img,bar,rm);list.append(li);pending++;
+   rm.addEventListener('click',()=>{const md=li.dataset.md;if(md){ta.value=ta.value.split('\n').filter(line=>line.trim()!==md).join('\n');ta.dispatchEvent(new Event('input',{bubbles:true}));}if(li.dataset.busy){pending--;}URL.revokeObjectURL(img.src);li.remove();});
+   li.dataset.busy='1';
+   const fail=msg=>{li.classList.add('err');const m=document.createElement('span');m.className='msg';m.textContent=msg;li.append(m);if(li.dataset.busy){delete li.dataset.busy;pending--;}};
+   let blob;
+   try{blob=await prepareImage(file,2560,Number(cfg.maxBytes)||5*1024*1024);}catch{fail(T.imgBadType);continue;}
+   img.src=URL.createObjectURL(blob);
+   let res=await sendImage(blob,'',p=>{bar.style.width=`${Math.round(p*100)}%`;});
+   if(res.code==='CHALLENGE_REQUIRED'||res.code==='CHALLENGE_FAILED'){const token=await challenge(res.data?.error?.siteKey||ANON.siteKey);if(token)res=await sendImage(blob,token,p=>{bar.style.width=`${Math.round(p*100)}%`;});}
+   if(!li.isConnected)continue;
+   if(!res.ok){fail(res.data?.error?.message?message(res.data.error.message):T.imgFail);if(res.code==='NOT_CONFIGURED')box.hidden=true;continue;}
+   bar.style.width='100%';delete li.dataset.busy;pending--;
+   const md=`![${T.imgAlt}](${res.data.url})`;li.dataset.md=md;li.dataset.id=res.data.id;insert(md);
+  }
+ });
+ return {busy:()=>pending>0};
 }
 
 async function main(){
@@ -85,6 +242,7 @@ async function main(){
  const st=(await api('/state?'+q)).data||{signedIn:false,votes:{}};
  const signedIn=!!st.signedIn;
  providers=Array.isArray(st.providers)?st.providers:[];
+ if(st.anon)ANON={enabled:!!st.anon.enabled,check:String(st.anon.check||'off'),siteKey:String(st.anon.siteKey||'')};
  toastPending();
  // Server-rendered sign-in links (header, 구독, 글쓰기 notes) open the sheet instead of the account page.
  if(!signedIn)document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-signin]');if(a&&providers.length&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();signInSheet();}});
@@ -194,7 +352,7 @@ async function main(){
    b.addEventListener('click',async()=>{
     if(i===0||(!rep&&i===1)){
      const value=i===0?1:-1,cur=st.votes?.[box.dataset.post]||0,next=cur===value?0:value;
-     const r=await write('/votes',{kind:'discussion',id:box.dataset.post,value:next},signedIn);if(!r)return;
+     const r=await write('/votes',{kind:'discussion',id:box.dataset.post,value:next},signedIn,{anon:true});if(!r)return;
      st.votes[box.dataset.post]=next;buttons[0].querySelector('b').textContent=r.up;if(!rep)buttons[1].querySelector('b').textContent=r.down;
      buttons[0].classList.toggle('on',next===1);
     }else{
@@ -211,7 +369,7 @@ async function main(){
  // Comment votes
  for(const a of $$('[data-vote-comment]')){
   a.addEventListener('click',async e=>{e.preventDefault();const id=a.dataset.voteComment,cur=st.votes?.[id]||0;
-   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn);if(!r)return;st.votes[id]=cur===1?0:1;a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
+   const r=await write('/votes',{kind:'comment',id,value:cur===1?0:1},signedIn,{anon:true});if(!r)return;st.votes[id]=cur===1?0:1;a.textContent=`▲ ${r.up}`;a.classList.toggle('on',cur!==1);});
  }
 
  // Compat strip (game → Korean patch), driver issue, rollout
@@ -303,6 +461,42 @@ async function main(){
   b.addEventListener('click',async()=>{if(!confirm(L==='ko'?'이 댓글을 삭제할까요?':'Delete this comment?'))return;const r=await write('/comments/delete',{commentId:b.dataset.ownComment},signedIn);if(r)location.reload();});
  }
 
+ // Anonymous posts and comments: edit / delete with the password set when writing.
+ for(const b of $$('[data-anon-edit],[data-anon-delete]')){
+  b.hidden=false;const box=b.closest('[data-island="anon-own"]');if(box)box.hidden=false;
+  b.addEventListener('click',async()=>{
+   const target=b.dataset.anonEdit||b.dataset.anonDelete,[kind,id]=target.split(':'),del=!!b.dataset.anonDelete;
+   const password=await askPassword();if(!password)return;
+   const chk=await api('/anon/check',{target,password});if(!chk.ok)return explain(chk);
+   if(del){
+    if(!confirm(kind==='discussion'?(L==='ko'?'이 글을 삭제할까요?':'Delete this post?'):(L==='ko'?'이 댓글을 삭제할까요?':'Delete this comment?')))return;
+    const r=await anonApi(kind==='discussion'?'/posts/delete':'/comments/delete',kind==='discussion'?{postId:id,password}:{commentId:id,password});
+    if(!r)return;toastNext(T.deleted);if(kind==='discussion')location.href=location.pathname.replace(/\d+$/,'');else location.reload();return;
+   }
+   if(kind==='comment'){
+    const cb=$('.cb',b.closest('li')),before=[...cb.childNodes];
+    const f=document.createElement('form');f.className='cedit';
+    const ta=document.createElement('textarea');ta.value=chk.data.body;ta.maxLength=4000;ta.rows=3;ta.setAttribute('aria-label',L==='ko'?'댓글 수정':'Edit comment');
+    const c=document.createElement('button');c.type='button';c.className='btn';c.textContent=T.cancel;c.addEventListener('click',()=>cb.replaceChildren(...before));
+    const sv=document.createElement('button');sv.type='submit';sv.className='btn p';sv.textContent=T.editSave;
+    f.append(ta,c,sv);cb.replaceChildren(f);ta.focus();
+    f.addEventListener('submit',async e=>{e.preventDefault();if(!ta.value.trim())return toast(T.empty);const r=await anonApi('/comments/edit',{commentId:id,body:ta.value,password});if(r)location.reload();});
+    return;
+   }
+   const art=$('article.post'),before=[...art.childNodes];const f=document.createElement('form');f.className='wform';
+   const field=(text,el)=>{const lb=document.createElement('label');lb.append(text,el);return lb;};
+   let sel=null;
+   if(chk.data.kinds?.length){sel=document.createElement('select');sel.name='kind';for(const k of chk.data.kinds){const o=document.createElement('option');o.value=k.id;o.textContent=k.label;o.selected=k.id===chk.data.kind;sel.append(o);}}
+   const ti=document.createElement('input');ti.name='title';ti.value=chk.data.title;ti.maxLength=120;ti.required=true;
+   const ta=document.createElement('textarea');ta.name='body';ta.value=chk.data.body;ta.maxLength=20000;ta.rows=12;
+   const acts=document.createElement('div');acts.className='acts';
+   const c=document.createElement('button');c.type='button';c.className='btn';c.textContent=T.cancel;c.addEventListener('click',()=>art.replaceChildren(...before));
+   const sv=document.createElement('button');sv.type='submit';sv.className='btn p';sv.textContent=T.editSave;acts.append(c,sv);
+   f.append(...(sel?[field(L==='ko'?'말머리':'Tag',sel)]:[]),field(L==='ko'?'제목':'Title',ti),field(L==='ko'?'본문':'Body',ta),acts);art.replaceChildren(f);ti.focus();
+   f.addEventListener('submit',async e=>{e.preventDefault();if(!ta.value.trim())return toast(T.empty);const r=await anonApi('/posts/edit',{postId:id,title:ti.value,body:ta.value,password,...(sel?{kind:sel.value}:{})});if(r)location.reload();});
+  });
+ }
+
  // Comments and replies
  const form=$('form[data-island="comment-form"]');
  if(form){
@@ -314,21 +508,28 @@ async function main(){
   // A comment typed before signing in survives the round trip to the provider (this tab only).
   const draftKey=`n2-draft-c:${form.dataset.post}`;
   try{const d=sessionStorage.getItem(draftKey);if(d&&signedIn){if(!ta.value)ta.value=d;sessionStorage.removeItem(draftKey);}}catch{}
+  if(!signedIn)for(const a of $$('a[data-signin]',form))a.addEventListener('click',()=>{try{sessionStorage.setItem(draftKey,ta.value);}catch{}});
+  const af=anonForm(form,signedIn);
   form.addEventListener('submit',async e=>{
    e.preventDefault();
    if(!ta.value.trim())return toast(T.empty);
-   if(!signedIn)try{sessionStorage.setItem(draftKey,ta.value);}catch{}
+   if(!signedIn&&!af)try{sessionStorage.setItem(draftKey,ta.value);}catch{}
+   if(af&&!af.valid())return;
    const btn=$('button[type="submit"]',form);btn.disabled=true;
-   const r=await write('/comments',{postId:form.dataset.post,parentId:parent.value||undefined,body:ta.value},signedIn);
+   const r=await write('/comments',{postId:form.dataset.post,parentId:parent.value||undefined,body:ta.value,...(af?af.fields():{})},signedIn,{anon:true});
    btn.disabled=false;
-   if(r){ta.value='';location.hash=`c-${r.id}`;location.reload();}
+   if(r){af?.remember();if(r.held)toastNext(T.held);ta.value='';location.hash=`c-${r.id}`;location.reload();}
   });
  }
 
  // Write page
  const wf=$('form[data-island="write-form"]');
  if(wf){
-  if(!signedIn){const n=$('.needlogin',wf);if(n)n.hidden=false;}
+  const af=anonForm(wf,signedIn);
+  if(!signedIn&&!af){const n=$('.needlogin',wf);if(n)n.hidden=false;}
+  // Structured reports (리포트 on a game) are member-only.
+  if(!signedIn&&af){const ro=$('select[name="kind"] option[value="report"]',wf);if(ro){ro.disabled=true;ro.textContent+=L==='ko'?' (로그인 필요)':' (sign-in)';if(ro.selected){const first=$('select[name="kind"] option:not([disabled])',wf);if(first)first.selected=true;}}}
+  const pick=imagePicker(wf,st.uploads,signedIn);
   // Draft kept in this browser (title, body) so signing in or a closed tab does not lose it.
   const dkey='n2-draft:'+location.pathname,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
   const store={get(){try{return JSON.parse(localStorage.getItem(dkey)||'null');}catch{return null;}},set(v){try{v?localStorage.setItem(dkey,JSON.stringify(v)):localStorage.removeItem(dkey);}catch{}}};
@@ -340,16 +541,20 @@ async function main(){
    const fd=new FormData(wf),btn=$('button[type="submit"]',wf);
    if(String(fd.get('kind'))!=='report'&&!String(fd.get('body')||'').trim()){toast(T.empty);ta?.focus();return;}
    const kind=String(fd.get('kind')||'');
+   if(pick?.busy())return toast(T.imgUploading);
+   if(!signedIn&&kind==='report'){toast(T.reportNeedsLogin);return;}
+   if(af&&!af.valid())return;
    btn.disabled=true;btn.textContent=T.posting;
    let r;
    if(kind==='report'&&fd.get('targetId')){
     r=await write('/reports',{kind:'compat',entityId:String(fd.get('subjectId')),subjectVersion:String(fd.get('subjectVersion')||'')||undefined,targetId:String(fd.get('targetId')),targetVersion:String(fd.get('targetVersion')||'')||undefined,
      result:String(fd.get('result')),env:Object.fromEntries(['os','device','note'].map(k=>[k,String(fd.get('env_'+k)||'')]).filter(([,v])=>v)),title:String(fd.get('title')||'')||undefined,comment:String(fd.get('body')||'')||undefined},signedIn);
    }else{
-    r=await write('/posts?l='+L,{entityId:wf.dataset.entity,kind,title:String(fd.get('title')||''),body:String(fd.get('body')||'')},signedIn);
+    r=await write('/posts?l='+L,{entityId:wf.dataset.entity,kind,title:String(fd.get('title')||''),body:String(fd.get('body')||''),...(af?af.fields():{})},signedIn,{anon:true});
    }
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
-   if(r?.url){store.set(null);toastNext(L==='ko'?'등록했어요.':'Posted.');location.href=r.url;}
+   if(r?.held){af?.remember();store.set(null);toastNext(T.held);location.href=location.pathname.replace(/write$/,'');return;}
+   if(r?.url){af?.remember();store.set(null);toastNext(T.posted);location.href=r.url;}
   });
   const subj=$('select[name="subjectId"]',wf),sv=$('input[name="subjectVersion"]',wf);
   // Picking a patch fills in its latest known version (the reader can still change it).
@@ -381,13 +586,16 @@ async function main(){
  // 신고 form
  const ff=$('form[data-island="flag-form"]');
  if(ff)ff.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(ff);
-  const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn);
+  const r=await write('/flags',{target:ff.dataset.target,reason:String(fd.get('reason')),note:String(fd.get('note')||'')||undefined},signedIn,{anon:true});
   if(!r)return;
+  if(r.hidden){$('button[type="submit"]',ff).disabled=true;const back=ff.dataset.back;if(!back)return toast(T.hiddenNow);toastNext(T.hiddenNow);
+   // The hidden post is gone from the site: back to its channel (a hidden comment: back to its post).
+   location.href=ff.dataset.target.startsWith('comment:')?back.replace(/#.*$/,''):back.replace(/#.*$/,'').replace(/\/\d+$/,'/');return;}
   const reasons=[...$('select[name="reason"]',ff).options].reduce((o,x)=>(o[x.value]=x.textContent,o),{});
   const msg=r.updated?T.flagUpdated(reasons[r.previousReason]||r.previousReason):T.flagged;$('button[type="submit"]',ff).disabled=true;
   const back=ff.dataset.back;if(back){toastNext(msg);location.href=back;}else toast(msg);});
  // Already reported this? Say so before the form is filled in again.
- if(ff&&signedIn){const fs=await api(`/state?flag=${encodeURIComponent(ff.dataset.target)}`);const prev=fs.data?.flagged;
+ if(ff&&(signedIn||ANON.enabled)){const fs=await api(`/state?flag=${encodeURIComponent(ff.dataset.target)}`);const prev=fs.data?.flagged;
   if(prev){const sel=$('select[name="reason"]',ff);const lab=[...sel.options].find(o=>o.value===prev.reason)?.textContent||prev.reason;const p=document.createElement('p');p.className='needlogin';p.textContent=L==='ko'?`이미 “${lab}” 사유로 신고했어요. 다시 보내면 사유가 바뀝니다.`:`You already reported this (${lab}). Sending again changes the reason.`;ff.prepend(p);}}
 
  // 내 정보: nickname and followed channels
@@ -427,13 +635,13 @@ async function main(){
   const r=await api('/mod/queue');
   if(r.ok){
    const {items,hidden=[],log}=r.data,ko=L==='ko';
-   const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타'}:{};
+   const REASON=ko?{spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타',privacy:'개인정보 노출',illegal_filming:'불법촬영물',csam:'아동·청소년 성착취물',sexual:'음란물',violence:'폭력·자해'}:{};
    const STATUS=ko?{hidden:'임시조치 중',deleted:'작성자가 삭제',locked:'댓글 잠김'}:{};
-   const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려'}:{};
+   const ACTION=ko?{hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려',delete:'영구 삭제',ban:'ID 차단',unban:'차단 해제'}:{};
    const KIND=ko?{discussion:'글',comment:'댓글',user:'계정',proposal:'정보 제안'}:{};
    const when=t=>new Date(t).toLocaleString(ko?'ko-KR':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false,...(ko?{timeZone:'Asia/Seoul'}:{})});
    const act_=async(...a)=>act(...a);
-   const act=async(target,action,label)=>{const reason=prompt(`${label} — ${ko?'사유(처리 기록에 남습니다)':'reason (kept in the log)'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason});if(x.ok){toast(ko?`${label} 처리했어요`:'Done');setTimeout(()=>location.reload(),700);}else explain(x);};
+   const act=async(target,action,label,extra={})=>{const reason=prompt(`${label} — ${ko?'사유(처리 기록에 남습니다)':'reason (kept in the log)'}`);if(!reason)return;const x=await api('/mod/action',{target,action,reason,...extra});if(x.ok){toast(ko?`${label} 처리했어요`:'Done');setTimeout(()=>location.reload(),700);}else explain(x);};
    /** One row: title (linked while it is public), who wrote it and where, the excerpt, then the actions that apply. */
    const row=(it,head,actions)=>{
     const li=document.createElement('li');li.className='mq';
@@ -448,15 +656,23 @@ async function main(){
      if(it.excerpt.length>300){const dt=document.createElement('details');const sm=document.createElement('summary');sm.textContent=ko?'본문 전체 보기':'Full text';const pre=document.createElement('p');pre.className='mqx full';pre.textContent=it.excerpt;dt.append(sm,pre);const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt.slice(0,300)+'…';li.append(ex,dt);}
      else{const ex=document.createElement('p');ex.className='mqx';ex.textContent=it.excerpt;li.append(ex);}}
     if(it.note){const n=document.createElement('p');n.className='mqn';n.textContent=(ko?'신고자 설명: ':'Reporter: ')+it.note;li.append(n);}
+    // The post's images (moderators see them even while hidden).
+    if(it.images?.length){const g=document.createElement('p');g.className='mqi';for(const src of it.images){const a=document.createElement('a');a.href=src;a.target='_blank';a.rel='noopener';const im=document.createElement('img');im.src=src;im.alt='';im.loading='lazy';im.width=96;im.height=96;a.append(im);g.append(a);}li.append(g);}
     const bar=document.createElement('p');bar.className='mqa';
     for(const [a,lab] of actions){const b=document.createElement('button');b.type='button';b.className='btn'+(a==='hide'?' p':'');b.textContent=lab;b.addEventListener('click',()=>act(it.target,a,lab));bar.append(b);}
+    if(it.status!=='deleted'&&/^(discussion|comment):/.test(it.target)){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=ACTION.delete||'Delete';b.addEventListener('click',()=>{if(confirm(ko?'되돌릴 수 없어요. 이미지도 저장소에서 지워집니다. 삭제할까요?':'This cannot be undone; images are deleted too. Delete?'))act(it.target,'delete',ACTION.delete||'Delete');});bar.append(b);}
     if(it.authorId){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=ACTION.restrict||'Restrict author';b.addEventListener('click',()=>act('user:'+it.authorId,'restrict',ACTION.restrict||'Restrict'));bar.append(b);}
+    // An anonymous author: ban the network behind today's ID (1, 7 or 30 days), or lift the ban.
+    if(it.anon?.bannable){
+     if(it.anon.bannedUntil){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=`${ACTION.unban||'Unban'} (${when(it.anon.bannedUntil)})`;b.addEventListener('click',()=>act(it.target,'unban',ACTION.unban||'Unban'));bar.append(b);}
+     else for(const d of [1,7,30]){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=ko?`이 ID 차단 ${d}일`:`Ban ID ${d}d`;b.addEventListener('click',()=>act(it.target,'ban',b.textContent,{days:d}));bar.append(b);}
+    }
     li.append(bar);return li;
    };
    const ul=$('[data-items]',mq),empty=$('[data-empty]',mq);
    empty.textContent=items.length?'':(ko?'열린 신고가 없습니다.':'No open reports.');empty.hidden=!!items.length;
    for(const it of items){
-    const head=`${it.reasons.map(x=>REASON[x]||x).join(', ')}${it.count>1?` ×${it.count}`:''} · ${when(it.firstAt)}`;
+    const head=`${it.severe?'⚠ ':''}${it.reasons.map(x=>REASON[x]||x).join(', ')}${it.count>1?` ×${it.count}`:''} · ${when(it.firstAt)}`;
     const acts=it.status==='hidden'?[['unhide',ACTION.unhide||'Restore'],['dismiss',ACTION.dismiss||'Dismiss']]:it.status==='deleted'?[['dismiss',ACTION.dismiss||'Dismiss']]:[['hide',ACTION.hide||'Hide'],['dismiss',ACTION.dismiss||'Dismiss']];
     ul.append(row(it,head,acts));
    }

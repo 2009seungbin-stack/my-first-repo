@@ -4,7 +4,11 @@
  *   node tools/platform/dev-server.mjs [port]      → http://localhost:8788/ko/community/
  * Sign in locally with /__dev/login?as=<name>[&role=moderator] (creates a test account and a session cookie; this
  * route exists only in this dev server, never in the Worker). DEV_SIGNIN_PROVIDERS=github,discord shows those
- * providers' sign-in buttons (placeholder credentials: the buttons render, the provider round trip does not). */
+ * providers' sign-in buttons (placeholder credentials: the buttons render, the provider round trip does not).
+ * Community images go to an in-memory R2 bucket (tests/r2-shim.mjs; DEV_UPLOADS=off leaves UPLOADS unbound).
+ * Anonymous writing runs without a bot check here (no Turnstile keys: the stricter limits apply);
+ * DEV_TURNSTILE=testing uses Cloudflare's always-pass testing keys instead (needs network). A request
+ * header cf-connecting-ip stands for the client address (tests use it to act from different networks). */
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -17,8 +21,13 @@ import {handlePlatformApi} from '../../server/platform/api.js';
 import {sha256,base64url} from '../../server/crypto.js';
 import {configuredProviders,providerCredentials} from '../../server/oauth/providers.js';
 import {adminBundle,ADMIN_CSP} from '../admin-build.mjs';
+import {R2Shim} from '../../tests/r2-shim.mjs';
+import {serveUpload} from '../../server/platform/uploads.js';
+import {isModeratorRequest} from '../../server/platform/api.js';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
+const VERIFY_HTML=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Verification</title><style>html,body{margin:0;background:transparent}body{display:flex;justify-content:center;padding:4px}</style><script type="module" src="/src/verify-page.js"></script></head><body><div id="turnstile"></div></body></html>`;
+const VERIFY_CSP="default-src 'none'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";
 const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.html':'text/html; charset=utf-8','.json':'application/json'});
 
 export async function createDevServer({port=8788,now=Date.now()}={}){
@@ -27,6 +36,8 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
  await insertDemoContent(db,now);
  const origin=`http://localhost:${port}`;
  const env={DB:db,SESSION_SECRET:'dev-only-session-secret-0123456789abcdef-0123',NERULIO_ENV:'development',SITE_URL:origin,
+  ...(process.env.DEV_UPLOADS==='off'?{}:{UPLOADS:new R2Shim()}),
+  ...(process.env.DEV_TURNSTILE==='testing'?{TURNSTILE_SITE_KEY:'1x00000000000000000000AA',TURNSTILE_SECRET_KEY:'1x0000000000000000000000000000000AA'}:{}),
   ...Object.fromEntries(String(process.env.DEV_SIGNIN_PROVIDERS||'').split(',').map(p=>p.trim().toUpperCase()).filter(p=>['GOOGLE','GITHUB','DISCORD'].includes(p)).flatMap(p=>[[`${p}_OAUTH_CLIENT_ID`,`dev-${p.toLowerCase()}`],[`${p}_OAUTH_CLIENT_SECRET`,'dev-placeholder']]))};
  const providers=configuredProviders({oauth:providerCredentials(env)});
  const server=http.createServer(async(req,res)=>{
@@ -45,6 +56,8 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
    const request=new Request(url,{method:req.method,headers:/** @type {any} */(req.headers),body});
    let response=null;
    if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);
+   else if(url.pathname.startsWith('/u/'))response=await serveUpload(request,env,null,{isModerator:()=>isModeratorRequest(request,env)});
+   else if(url.pathname==='/verify/')response=new Response(VERIFY_HTML,{headers:{'content-type':'text/html; charset=utf-8','content-security-policy':VERIFY_CSP}});
    else response=await handlePlatformPage(request,env,null,{origin,providers});
    // The admin PWA (src/admin, as built for PLATFORM=on) with its production CSP; its API comes from the handlers above.
    if(!response&&(url.pathname==='/admin'||url.pathname.startsWith('/admin/'))){
@@ -62,7 +75,7 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
   }catch(e){res.writeHead(500);res.end(String(/** @type {any} */(e)?.stack||e));}
  });
  await new Promise(r=>server.listen(port,()=>r(null)));
- return {server,db,origin};
+ return {server,db,origin,env};
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

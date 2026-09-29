@@ -29,10 +29,12 @@ export const COLLECTOR_STATE=Object.freeze(/** @type {Record<string,{label:strin
 }));
 export const SCHEDULE=Object.freeze(/** @type {Record<string,string>} */({'30m':'30분마다 · 상태 페이지','6h':'6시간마다 · 릴리스·뉴스·일정',manual:'수동 입력'}));
 
-export const FLAG_REASONS=Object.freeze(/** @type {Record<string,string>} */({spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타'}));
-export const MOD_ACTIONS=Object.freeze(/** @type {Record<string,string>} */({hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려',adopt:'새 값 채택',keep:'현재 값 유지',approve:'승인',importance:'중요도 조정'}));
+export const FLAG_REASONS=Object.freeze(/** @type {Record<string,string>} */({spam:'스팸·도배',abuse:'욕설·혐오',wrong_info:'틀린 정보',source_dispute:'출처 이의',copyright:'권리 침해',duplicate:'중복',other:'기타',privacy:'개인정보 노출',illegal_filming:'불법촬영물',csam:'아동·청소년 성착취물',sexual:'음란물',violence:'폭력·자해'}));
+/** Categories that hide the item on the first report (server/platform/anon.js REPORT.severe). */
+export const SEVERE_REASONS=Object.freeze(['csam','illegal_filming','privacy']);
+export const MOD_ACTIONS=Object.freeze(/** @type {Record<string,string>} */({hide:'임시조치',unhide:'복구',dismiss:'기각',restrict:'이용 제한',unrestrict:'제한 해제',accept:'정보 제안 반영',reject:'정보 제안 반려',adopt:'새 값 채택',keep:'현재 값 유지',approve:'승인',importance:'중요도 조정',delete:'영구 삭제',ban:'ID 차단',unban:'차단 해제'}));
 export const TARGET_KIND=Object.freeze(/** @type {Record<string,string>} */({discussion:'글',comment:'댓글',user:'계정',proposal:'정보 제안',fact:'사실값',report:'리포트',entity:'채널'}));
-export const QUICK_REASONS=Object.freeze(['외부 홍보 링크','욕설·비하','잘못된 정보','중복 글']);
+export const QUICK_REASONS=Object.freeze(['외부 홍보 링크','욕설·비하','잘못된 정보','중복 글','도배','불법촬영물 확인','개인정보 노출']);
 
 export const SOURCES=Object.freeze(/** @type {Record<string,string>} */({search:'검색',social:'소셜',ai:'AI 서비스',direct:'직접 방문',internal:'사이트 안 이동',other:'기타'}));
 export const DEVICES=Object.freeze(/** @type {Record<string,string>} */({mobile:'휴대폰',tablet:'태블릿',desktop:'데스크톱'}));

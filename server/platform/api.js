@@ -905,6 +905,17 @@ async function openCompat(db,month){
 
 /* ---------- moderation (신고 → 임시조치 → 처리 기록) ---------- */
 
+/** Is the request a signed-in moderator's (curator, admin)? Used to show hidden images to moderators only.
+ * @param {Request} request @param {any} env */
+export async function isModeratorRequest(request,env){
+ try{
+  const cfg=runtimeConfig(env);if(!cfg.configured)return false;
+  const context=await resolveContext(request,cfg,env.DB,Date.now());
+  if(!context.user)return false;
+  const p=await env.DB.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(context.user.id).first();
+  return !!p&&['moderator','curator','admin'].includes(String(p.role));
+ }catch{return false;}
+}
 /** Moderators, curators and admins only; everyone else gets 404 (the queue's existence is not advertised). @param {any} db @param {any} context */
 async function moderator(db,context){
  if(!context.user)throw new ApiError('NOT_FOUND');

@@ -5,8 +5,9 @@
 --              after 90 days by the cleanup statements (server/platform/anon.js anonCleanupStatements).
 -- The network prefix is the IPv4 /24 or the IPv6 /48 of the client address.
 
--- Every anonymous post, comment and upload belongs to this one account row (the FKs to users stay intact).
-INSERT INTO users (id, email, display_name, provider, provider_subject, created_at) VALUES ('anon', NULL, '익명', 'anonymous', 'anonymous', 0);
+-- Every anonymous post, comment and upload belongs to this one system account row (the FKs to users stay
+-- intact; provider 'system' keeps it out of member counts).
+INSERT INTO users (id, email, display_name, provider, provider_subject, created_at) VALUES ('anon', NULL, '익명', 'system', 'anonymous', 0);
 
 ALTER TABLE discussions ADD COLUMN anon_name TEXT;          -- nickname typed by the writer (default ㅇㅇ)
 ALTER TABLE discussions ADD COLUMN anon_id TEXT;            -- public daily ID
