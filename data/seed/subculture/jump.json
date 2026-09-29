@@ -640,6 +640,249 @@
    "title": "高橋 李依 - （た行）：株式会社81プロデュース‐声優プロダクション",
    "publisher": "81プロデュース",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-41666",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41666",
+   "title": "(자막) 장송의 프리렌 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41666/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-39431",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/39431",
+   "title": "(무삭제) 귀멸의 칼날 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/39431/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-23661",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/23661",
+   "title": "하이큐!! 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/23661/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42430",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42430",
+   "title": "단다단 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42430/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-41389",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41389",
+   "title": "【최애의 아이】 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41389/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42836",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42836",
+   "title": "원피스 에그헤드 편 총집편 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42836/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-41105",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41105",
+   "title": "체인소 맨 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41105/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-kobis-20256757",
+   "kind": "OFFICIAL",
+   "url": "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do?code=20256757",
+   "title": "극장판 체인소 맨: 레제편 (Chainsaw Man The Movie: Reze Arc) - KOBIS 영화정보",
+   "publisher": "영화진흥위원회 KOBIS",
+   "retrieved": "2026-09-29",
+   "note": "synopsis supplied by Korean distributor 소니픽쳐스엔터테인먼트코리아"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-44282",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/44282",
+   "title": "주술회전 3기 : 사멸회유 전편 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/44282/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-41149",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41149",
+   "title": "극장판 주술회전 0 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v3/41149/ (content synopsis)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42047",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42047",
+   "title": "(자막) 괴수 8호 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42047/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-43393",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/43393",
+   "title": "(자막) SPY×FAMILY Season 3 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/43393/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2022005003",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/book/2022005003",
+   "title": "만화 아카이브 - 체인소 맨 11",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (학산문화사)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2019002601",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2019002601",
+   "title": "만화 아카이브 - 주술회전 1 : 양면 스쿠나",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (서울미디어코믹스)"
+  },
+  {
+   "id": "src:ko-sub-b-mrblue-c000059770",
+   "kind": "OFFICIAL",
+   "url": "https://m.mrblue.com/comic/detail/C000059770",
+   "title": "장송의 프리렌 [단행본] - 만화 - 미스터블루",
+   "publisher": "미스터블루 (Mr.Blue)",
+   "retrieved": "2026-09-29",
+   "note": "licensed Korean e-comic distributor listing of the 학산문화사 edition; used because Haksan's own page credits the writer only in Latin script and the KMAS record mislabels the writer"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2021014998",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2021014998",
+   "title": "만화 아카이브 - 장송의 프리렌 1",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (학산문화사)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2023082980",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2023082980",
+   "title": "만화 아카이브 - [전자책]귀멸의 칼날 12권",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (학산문화사)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2021016790",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2021016790",
+   "title": "만화 아카이브 - 사카모토 데이즈 1",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (대원씨아이)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2021009251",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2021009251",
+   "title": "만화 아카이브 - 괴수 8호 1",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (서울미디어코믹스)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2020016587",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2020016587",
+   "title": "만화 아카이브 - 스파이 패밀리 Spy Family 4",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (학산문화사)"
+  },
+  {
+   "id": "src:ko-sub-b-haksan-107406",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/107406?&cate01=C100&cate02=C110",
+   "title": "체인소 맨 1권 | HAKSAN",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "publisher product page; server-rendered productData JSON"
+  },
+  {
+   "id": "src:ko-sub-b-haksan-107850",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/107850?&cate01=C100&cate02=C110",
+   "title": "장송의 프리렌 1권 | HAKSAN",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "publisher product page; server-rendered productData JSON"
+  },
+  {
+   "id": "src:ko-sub-b-haksan-106984",
+   "kind": "OFFICIAL",
+   "url": "https://www.haksanpub.co.kr/ko/product/detail/106984?&cate01=C100&cate02=C110",
+   "title": "귀멸의 칼날 1권 | HAKSAN",
+   "publisher": "학산문화사 (Haksan Publishing)",
+   "retrieved": "2026-09-29",
+   "note": "publisher product page; server-rendered productData JSON"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-40032",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40032",
+   "title": "(자막) 반요 야샤히메 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40032/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-16075",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/16075",
+   "title": "은혼 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/16075/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42212",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42212",
+   "title": "(더빙) 괴수 8호 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42212/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-39431-v1",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/39431",
+   "title": "(무삭제) 귀멸의 칼날 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v1/39431/ (illustrators field)"
   }
  ],
  "entities": [
@@ -676,7 +919,11 @@
    "slug": "madhouse",
    "names": {
     "en": "Madhouse",
-    "ja": "マッドハウス"
+    "ja": "マッドハウス",
+    "ko": "매드하우스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41666"
    },
    "description": {
     "en": "Japanese animation studio that produces the Frieren: Beyond Journey's End TV anime.",
@@ -703,7 +950,11 @@
    "slug": "ufotable",
    "names": {
     "en": "ufotable",
-    "ja": "ufotable"
+    "ja": "ufotable",
+    "ko": "유포테이블"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-39431"
    },
    "description": {
     "en": "Japanese animation studio that has produced every Demon Slayer anime series and film.",
@@ -730,7 +981,11 @@
    "slug": "production-ig",
    "names": {
     "en": "Production I.G",
-    "ja": "Production I.G"
+    "ja": "Production I.G",
+    "ko": "프로덕션 I.G"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-23661"
    },
    "description": {
     "en": "Japanese animation studio producing the Kaiju No. 8 anime.",
@@ -788,7 +1043,11 @@
    "slug": "science-saru",
    "names": {
     "en": "Science SARU",
-    "ja": "サイエンスSARU"
+    "ja": "サイエンスSARU",
+    "ko": "사이언스 SARU"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42430"
    },
    "description": {
     "en": "Japanese animation studio producing the DAN DA DAN TV anime.",
@@ -815,7 +1074,11 @@
    "slug": "doga-kobo",
    "names": {
     "en": "Doga Kobo",
-    "ja": "動画工房"
+    "ja": "動画工房",
+    "ko": "동화공방"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41389"
    },
    "description": {
     "en": "Japanese animation studio producing the [Oshi no Ko] TV anime.",
@@ -842,7 +1105,11 @@
    "slug": "eiichiro-oda",
    "names": {
     "en": "Eiichiro Oda",
-    "ja": "尾田栄一郎"
+    "ja": "尾田栄一郎",
+    "ko": "오다 에이치로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Japanese manga artist, creator of ONE PIECE, serialized in Weekly Shonen Jump since 1997.",
@@ -855,7 +1122,11 @@
    "slug": "tatsuki-fujimoto",
    "names": {
     "en": "Tatsuki Fujimoto",
-    "ja": "藤本タツキ"
+    "ja": "藤本タツキ",
+    "ko": "후지모토 타츠키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2022005003"
    },
    "description": {
     "en": "Japanese manga artist, creator of Chainsaw Man (Shueisha).",
@@ -868,7 +1139,11 @@
    "slug": "gege-akutami",
    "names": {
     "en": "Gege Akutami",
-    "ja": "芥見下々"
+    "ja": "芥見下々",
+    "ko": "아쿠타미 게게"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2019002601"
    },
    "description": {
     "en": "Japanese manga artist, creator of Jujutsu Kaisen (Shueisha Jump Comics).",
@@ -881,7 +1156,11 @@
    "slug": "kanehito-yamada",
    "names": {
     "en": "Kanehito Yamada",
-    "ja": "山田鐘人"
+    "ja": "山田鐘人",
+    "ko": "야마다 카네히토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-mrblue-c000059770"
    },
    "description": {
     "en": "Japanese manga writer of Frieren: Beyond Journey's End, serialized in Shogakukan's Weekly Shonen Sunday with artist Tsukasa Abe.",
@@ -894,7 +1173,11 @@
    "slug": "tsukasa-abe",
    "names": {
     "en": "Tsukasa Abe",
-    "ja": "アベツカサ"
+    "ja": "アベツカサ",
+    "ko": "아베 츠카사"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021014998"
    },
    "description": {
     "en": "Japanese manga artist who draws Frieren: Beyond Journey's End, written by Kanehito Yamada.",
@@ -907,7 +1190,17 @@
    "slug": "koyoharu-gotouge",
    "names": {
     "en": "Koyoharu Gotouge",
-    "ja": "吾峠呼世晴"
+    "ja": "吾峠呼世晴",
+    "ko": "고토우게 코요하루"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2023082980"
+   },
+   "aliases": [
+    "고토게 코요하루"
+   ],
+   "aliases_src": {
+    "고토게 코요하루": "src:ko-sub-b-laftel-39431-v1"
    },
    "description": {
     "en": "Japanese manga artist, creator of Demon Slayer: Kimetsu no Yaiba, serialized in Weekly Shonen Jump from 2016 to 2020.",
@@ -920,7 +1213,11 @@
    "slug": "yuto-suzuki",
    "names": {
     "en": "Yuto Suzuki",
-    "ja": "鈴木祐斗"
+    "ja": "鈴木祐斗",
+    "ko": "스즈키 유우토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021016790"
    },
    "description": {
     "en": "Japanese manga artist, creator of SAKAMOTO DAYS (Shueisha).",
@@ -933,7 +1230,11 @@
    "slug": "naoya-matsumoto",
    "names": {
     "en": "Naoya Matsumoto",
-    "ja": "松本直也"
+    "ja": "松本直也",
+    "ko": "마츠모토 나오야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021009251"
    },
    "description": {
     "en": "Japanese manga artist, creator of Kaiju No. 8, serialized on Shonen Jump+.",
@@ -946,7 +1247,11 @@
    "slug": "tatsuya-endo",
    "names": {
     "en": "Tatsuya Endo",
-    "ja": "遠藤達哉"
+    "ja": "遠藤達哉",
+    "ko": "엔도 타츠야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2020016587"
    },
    "description": {
     "en": "Japanese manga artist, creator of SPY×FAMILY, serialized on Shonen Jump+.",
@@ -959,7 +1264,11 @@
    "slug": "yukinobu-tatsu",
    "names": {
     "en": "Yukinobu Tatsu",
-    "ja": "龍幸伸"
+    "ja": "龍幸伸",
+    "ko": "타츠 유키노부"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Japanese manga artist, creator of DAN DA DAN, serialized on Shonen Jump+.",
@@ -972,7 +1281,11 @@
    "slug": "aka-akasaka",
    "names": {
     "en": "Aka Akasaka",
-    "ja": "赤坂アカ"
+    "ja": "赤坂アカ",
+    "ko": "아카사카 아카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Japanese manga writer of [Oshi no Ko], drawn by Mengo Yokoyari (Shueisha Young Jump Comics).",
@@ -985,7 +1298,11 @@
    "slug": "mengo-yokoyari",
    "names": {
     "en": "Mengo Yokoyari",
-    "ja": "横槍メンゴ"
+    "ja": "横槍メンゴ",
+    "ko": "요코야리 멘고"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Japanese manga artist who draws [Oshi no Ko], written by Aka Akasaka.",
@@ -1353,7 +1670,11 @@
    "slug": "mayumi-tanaka",
    "names": {
     "en": "Mayumi Tanaka",
-    "ja": "田中真弓"
+    "ja": "田中真弓",
+    "ko": "타나카 마유미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42836"
    }
   },
   {
@@ -1401,7 +1722,11 @@
    "slug": "kazuya-nakai",
    "names": {
     "en": "Kazuya Nakai",
-    "ja": "中井和哉"
+    "ja": "中井和哉",
+    "ko": "나카이 카즈야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42836"
    },
    "facts": [
     {
@@ -1458,7 +1783,11 @@
    "slug": "akemi-okamura",
    "names": {
     "en": "Akemi Okamura",
-    "ja": "岡村明美"
+    "ja": "岡村明美",
+    "ko": "오카무라 아케미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42836"
    },
    "facts": [
     {
@@ -1564,7 +1893,11 @@
    "slug": "chainsaw-man-manga",
    "names": {
     "en": "Chainsaw Man (manga)",
-    "ja": "チェンソーマン"
+    "ja": "チェンソーマン",
+    "ko": "체인소 맨"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-haksan-107406"
    },
    "facts": [
     {
@@ -1698,7 +2031,11 @@
    "slug": "kikunosuke-toya",
    "names": {
     "en": "Kikunosuke Toya",
-    "ja": "戸谷菊之介"
+    "ja": "戸谷菊之介",
+    "ko": "토야 키쿠노스케"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41105"
    },
    "facts": [
     {
@@ -1721,7 +2058,11 @@
    "slug": "chainsaw-man-denji",
    "names": {
     "en": "Denji",
-    "ja": "デンジ"
+    "ja": "デンジ",
+    "ko": "덴지"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41105"
    },
    "relations": [
     {
@@ -1748,7 +2089,11 @@
    "slug": "tomori-kusunoki",
    "names": {
     "en": "Tomori Kusunoki",
-    "ja": "楠木ともり"
+    "ja": "楠木ともり",
+    "ko": "쿠스노키 토모리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41105"
    },
    "facts": [
     {
@@ -1771,7 +2116,11 @@
    "slug": "chainsaw-man-makima",
    "names": {
     "en": "Makima",
-    "ja": "マキマ"
+    "ja": "マキマ",
+    "ko": "마키마"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41105"
    },
    "relations": [
     {
@@ -1798,7 +2147,11 @@
    "slug": "chainsaw-man-reze",
    "names": {
     "en": "Reze",
-    "ja": "レゼ"
+    "ja": "レゼ",
+    "ko": "레제"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kobis-20256757"
    },
    "relations": [
     {
@@ -1874,7 +2227,11 @@
    "slug": "jujutsu-kaisen-manga",
    "names": {
     "en": "Jujutsu Kaisen (manga)",
-    "ja": "呪術廻戦"
+    "ja": "呪術廻戦",
+    "ko": "주술회전"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2019002601"
    },
    "description": {
     "en": "Gege Akutami's completed manga; a \"completion exhibition\" closing its touring exhibition runs in Shinjuku from December 2026.",
@@ -2025,7 +2382,11 @@
    "slug": "junya-enoki",
    "names": {
     "en": "Junya Enoki",
-    "ja": "榎木淳弥"
+    "ja": "榎木淳弥",
+    "ko": "에노키 준야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-44282"
    },
    "facts": [
     {
@@ -2087,7 +2448,11 @@
    "slug": "yuma-uchida",
    "names": {
     "en": "Yuma Uchida",
-    "ja": "内田雄馬"
+    "ja": "内田雄馬",
+    "ko": "우치다 유우마"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-44282"
    },
    "facts": [
     {
@@ -2110,7 +2475,11 @@
    "slug": "jujutsu-kaisen-megumi",
    "names": {
     "en": "Megumi Fushiguro",
-    "ja": "伏黒恵"
+    "ja": "伏黒恵",
+    "ko": "후시구로 메구미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-44282"
    },
    "relations": [
     {
@@ -2142,7 +2511,11 @@
    "slug": "mikako-komatsu",
    "names": {
     "en": "Mikako Komatsu",
-    "ja": "小松未可子"
+    "ja": "小松未可子",
+    "ko": "코마츠 미카코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-40032"
    },
    "facts": [
     {
@@ -2165,7 +2538,11 @@
    "slug": "jujutsu-kaisen-maki",
    "names": {
     "en": "Maki Zen'in",
-    "ja": "禪院真希"
+    "ja": "禪院真希",
+    "ko": "젠인 마키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41149"
    },
    "relations": [
     {
@@ -2247,7 +2624,11 @@
    "slug": "frieren-manga",
    "names": {
     "en": "Frieren: Beyond Journey's End (manga)",
-    "ja": "葬送のフリーレン"
+    "ja": "葬送のフリーレン",
+    "ko": "장송의 프리렌"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-haksan-107850"
    },
    "facts": [
     {
@@ -2425,7 +2806,11 @@
    "slug": "atsumi-tanezaki",
    "names": {
     "en": "Atsumi Tanezaki",
-    "ja": "種﨑敦美"
+    "ja": "種﨑敦美",
+    "ko": "타네자키 아츠미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41666"
    }
   },
   {
@@ -2467,7 +2852,11 @@
    "slug": "kana-ichinose",
    "names": {
     "en": "Kana Ichinose",
-    "ja": "市ノ瀬加那"
+    "ja": "市ノ瀬加那",
+    "ko": "이치노세 카나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41666"
    }
   },
   {
@@ -2515,7 +2904,11 @@
    "slug": "chiaki-kobayashi",
    "names": {
     "en": "Chiaki Kobayashi",
-    "ja": "小林千晃"
+    "ja": "小林千晃",
+    "ko": "코바야시 치아키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41666"
    },
    "official_urls": [
     {
@@ -2633,7 +3026,11 @@
    "slug": "demon-slayer-manga",
    "names": {
     "en": "Demon Slayer: Kimetsu no Yaiba (manga)",
-    "ja": "鬼滅の刃"
+    "ja": "鬼滅の刃",
+    "ko": "귀멸의 칼날"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-haksan-106984"
    },
    "facts": [
     {
@@ -2742,7 +3139,11 @@
    "slug": "natsuki-hanae",
    "names": {
     "en": "Natsuki Hanae",
-    "ja": "花江夏樹"
+    "ja": "花江夏樹",
+    "ko": "하나에 나츠키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-39431"
    }
   },
   {
@@ -2779,7 +3180,11 @@
    "slug": "demon-slayer-nezuko",
    "names": {
     "en": "Nezuko Kamado",
-    "ja": "竈門禰豆子"
+    "ja": "竈門禰豆子",
+    "ko": "카마도 네즈코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-39431"
    },
    "relations": [
     {
@@ -2812,7 +3217,11 @@
    "slug": "hiro-shimono",
    "names": {
     "en": "Hiro Shimono",
-    "ja": "下野紘"
+    "ja": "下野紘",
+    "ko": "시모노 히로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-39431"
    },
    "facts": [
     {
@@ -2918,7 +3327,11 @@
    "slug": "sakamoto-days-manga",
    "names": {
     "en": "SAKAMOTO DAYS (manga)",
-    "ja": "SAKAMOTO DAYS"
+    "ja": "SAKAMOTO DAYS",
+    "ko": "사카모토 데이즈"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021016790"
    },
    "facts": [
     {
@@ -3086,7 +3499,11 @@
    "slug": "tomokazu-sugita",
    "names": {
     "en": "Tomokazu Sugita",
-    "ja": "杉田智和"
+    "ja": "杉田智和",
+    "ko": "스기타 토모카즈"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-16075"
    },
    "facts": [
     {
@@ -3103,7 +3520,11 @@
    "slug": "sakamoto-days-taro",
    "names": {
     "en": "Taro Sakamoto",
-    "ja": "坂本太郎"
+    "ja": "坂本太郎",
+    "ko": "사카모토 타로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021016790"
    },
    "relations": [
     {
@@ -3234,7 +3655,11 @@
    "slug": "kaiju-no-8-manga",
    "names": {
     "en": "Kaiju No. 8 (manga)",
-    "ja": "怪獣8号"
+    "ja": "怪獣8号",
+    "ko": "괴수 8호"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2021009251"
    },
    "facts": [
     {
@@ -3441,7 +3866,11 @@
    "slug": "kaiju-no-8-kafka",
    "names": {
     "en": "Kafka Hibino",
-    "ja": "日比野カフカ"
+    "ja": "日比野カフカ",
+    "ko": "히비노 카프카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42047"
    },
    "relations": [
     {
@@ -3468,7 +3897,11 @@
    "slug": "kaiju-no-8-mina",
    "names": {
     "en": "Mina Ashiro",
-    "ja": "亜白ミナ"
+    "ja": "亜白ミナ",
+    "ko": "아시로 미나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42212"
    },
    "relations": [
     {
@@ -3588,7 +4021,11 @@
    "slug": "spy-x-family-manga",
    "names": {
     "en": "SPY×FAMILY (manga)",
-    "ja": "SPY×FAMILY"
+    "ja": "SPY×FAMILY",
+    "ko": "스파이 패밀리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2020016587"
    },
    "facts": [
     {
@@ -3678,7 +4115,11 @@
    "slug": "takuya-eguchi",
    "names": {
     "en": "Takuya Eguchi",
-    "ja": "江口拓也"
+    "ja": "江口拓也",
+    "ko": "에구치 타쿠야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-43393"
    },
    "facts": [
     {
@@ -3735,7 +4176,11 @@
    "slug": "spy-x-family-anya",
    "names": {
     "en": "Anya Forger",
-    "ja": "アーニャ・フォージャー"
+    "ja": "アーニャ・フォージャー",
+    "ko": "아냐 포저"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-43393"
    },
    "relations": [
     {
@@ -3762,7 +4207,11 @@
    "slug": "saori-hayami",
    "names": {
     "en": "Saori Hayami",
-    "ja": "早見沙織"
+    "ja": "早見沙織",
+    "ko": "하야미 사오리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-43393"
    },
    "facts": [
     {
@@ -3785,7 +4234,11 @@
    "slug": "spy-x-family-yor",
    "names": {
     "en": "Yor Forger",
-    "ja": "ヨル・フォージャー"
+    "ja": "ヨル・フォージャー",
+    "ko": "요르 포저"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-43393"
    },
    "relations": [
     {
@@ -3865,7 +4318,11 @@
    "slug": "dandadan-manga",
    "names": {
     "en": "DAN DA DAN (manga)",
-    "ja": "ダンダダン"
+    "ja": "ダンダダン",
+    "ko": "단다단"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "facts": [
     {
@@ -4015,7 +4472,11 @@
    "slug": "shion-wakayama",
    "names": {
     "en": "Shion Wakayama",
-    "ja": "若山詩音"
+    "ja": "若山詩音",
+    "ko": "와카야마 시온"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42430"
    },
    "facts": [
     {
@@ -4161,7 +4622,11 @@
    "slug": "oshi-no-ko-manga",
    "names": {
     "en": "[Oshi no Ko] (manga)",
-    "ja": "【推しの子】"
+    "ja": "【推しの子】",
+    "ko": "【최애의 아이】"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "facts": [
     {
@@ -4347,7 +4812,11 @@
    "slug": "yurie-igoma",
    "names": {
     "en": "Yurie Igoma",
-    "ja": "伊駒ゆりえ"
+    "ja": "伊駒ゆりえ",
+    "ko": "이고마 유리에"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41389"
    },
    "facts": [
     {
@@ -4409,7 +4878,11 @@
    "slug": "rie-takahashi",
    "names": {
     "en": "Rie Takahashi",
-    "ja": "高橋李依"
+    "ja": "高橋李依",
+    "ko": "타카하시 리에"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41389"
    },
    "official_urls": [
     {

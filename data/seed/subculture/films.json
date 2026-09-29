@@ -434,6 +434,159 @@
    "title": "SHAFT Animation Studio",
    "publisher": "株式会社シャフト",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-40977",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40977",
+   "title": "마법소녀 마도카 마기카 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40977/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-37612",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/37612",
+   "title": "메이드 인 어비스 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/37612/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42927",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42927",
+   "title": "청춘 돼지는 산타클로스의 꿈을 꾸지 않는다 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42927/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42947",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42947",
+   "title": "타코피의 원죄 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42947/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42615",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42615",
+   "title": "메달리스트 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42615/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-dwci-boylist",
+   "kind": "OFFICIAL",
+   "url": "https://www.dwci.co.kr/front/comics/boyList",
+   "title": "대원씨아이 소년만화 신간 목록",
+   "publisher": "대원씨아이 (Daewon C.I.)",
+   "retrieved": "2026-09-29",
+   "note": "대원씨아이 official comics release list; data from the site's own JSON endpoint https://www.dwci.co.kr/front/comics/boyListAjax?iPage=N&dStartDate=1990-01-01&dEndDate=2026-12-31 (fields Title/Writer/Artist; evidence shows those field values)"
+  },
+  {
+   "id": "src:ko-sub-b-fgo-kr-876",
+   "kind": "OFFICIAL",
+   "url": "https://fgo.netmarble.com/notice/detail/876",
+   "title": "<마법사의 밤×FGO 콜라보레이션 이벤트 마법사의 밤 애프터 나이트/쿠마노 온천 살인사건 ~울새는 보았다! 마법사는 두 번 죽는다~> (12/30 ~ 1/20)",
+   "publisher": "넷마블 (Netmarble) - 페이트/그랜드 오더 공식",
+   "retrieved": "2026-09-29",
+   "note": "Netmarble FGO Korea official notice (SPA); data via https://fgo.netmarble.com/proxy/forumservice/api/game/fgok/official/forum/branding_fgok/article/876?menuSeq=1; body text is an image, names read from it"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2015008195",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2015008195",
+   "title": "만화 아카이브 - 청춘 돼지는 바니걸 선배의 꿈을 꾸지 않는다 1",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (디앤씨미디어)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2023001901",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2023001901",
+   "title": "만화 아카이브 - 타코피의 원죄 : 하",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (대원씨아이)"
+  },
+  {
+   "id": "src:ko-sub-b-kmas-2022010148",
+   "kind": "OFFICIAL",
+   "url": "https://www.kmas.or.kr/archive/comics/2022010148",
+   "title": "만화 아카이브 - 메달리스트 2",
+   "publisher": "한국만화영상진흥원 만화규장각",
+   "retrieved": "2026-09-29",
+   "note": "만화규장각 archive of 한국만화영상진흥원 (public agency); bibliographic record of the licensed Korean edition as registered by its publisher (학산문화사)"
+  },
+  {
+   "id": "src:ko-sub-b-steam-2052410-ko",
+   "kind": "OFFICIAL",
+   "url": "https://store.steampowered.com/app/2052410/?l=koreana",
+   "title": "WITCH ON THE HOLY NIGHT (Steam, Korean store page)",
+   "publisher": "Aniplex Inc. via Steam",
+   "retrieved": "2026-09-29",
+   "note": "Korean-language store description supplied by publisher Aniplex (appdetails API l=koreana); store title itself stays English and the game has no Korean language support"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-22643",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/22643",
+   "title": "소드 아트 온라인 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/22643/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-41395",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41395",
+   "title": "극장판 PSYCHO-PASS PROVIDENCE - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41395/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-42429",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42429",
+   "title": "Re : 제로부터 시작하는 이세계 생활 3기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42429/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-b-fgo-kr-875",
+   "kind": "OFFICIAL",
+   "url": "https://fgo.netmarble.com/notice/detail/875",
+   "title": "<마법사의 밤×FGO 콜라보레이션 이벤트 아오자키 아오코 픽업> (12/30 ~ 1/20)",
+   "publisher": "넷마블 (Netmarble) - 페이트/그랜드 오더 공식",
+   "retrieved": "2026-09-29",
+   "note": "Netmarble FGO Korea official notice (SPA); data via https://fgo.netmarble.com/proxy/forumservice/api/game/fgok/official/forum/branding_fgok/article/875?menuSeq=1"
+  },
+  {
+   "id": "src:ko-sub-b-fgo-kr-880",
+   "kind": "OFFICIAL",
+   "url": "https://fgo.netmarble.com/notice/detail/880",
+   "title": "<마법사의 밤×Fate/Grand Order 콜라보레이션 이벤트 쿠온지 아리스 픽업> (1/4 ~ 1/20)",
+   "publisher": "넷마블 (Netmarble) - 페이트/그랜드 오더 공식",
+   "retrieved": "2026-09-29",
+   "note": "Netmarble FGO Korea official notice (SPA); data via https://fgo.netmarble.com/proxy/forumservice/api/game/fgok/official/forum/branding_fgok/article/880?menuSeq=1"
+  },
+  {
+   "id": "src:ko-sub-b-laftel-39268",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/39268",
+   "title": "후르츠 바스켓 1기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/39268/ (casts/production fields)"
   }
  ],
  "entities": [
@@ -506,7 +659,11 @@
    "slug": "shaft",
    "names": {
     "en": "SHAFT",
-    "ja": "シャフト"
+    "ja": "シャフト",
+    "ko": "샤프트"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-40977"
    },
    "description": {
     "en": "Japanese animation studio that produces the Puella Magi Madoka Magica anime.",
@@ -533,7 +690,11 @@
    "slug": "akihito-tsukushi",
    "names": {
     "en": "Akihito Tsukushi",
-    "ja": "つくしあきひと"
+    "ja": "つくしあきひと",
+    "ko": "츠쿠시 아키히토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Manga artist and author of Made in Abyss.",
@@ -546,7 +707,11 @@
    "slug": "kinoko-nasu",
    "names": {
     "en": "Kinoko Nasu",
-    "ja": "奈須きのこ"
+    "ja": "奈須きのこ",
+    "ko": "나스 키노코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-fgo-kr-876"
    },
    "description": {
     "en": "TYPE-MOON writer who created Witch on the Holy Night and the Fate series.",
@@ -559,7 +724,11 @@
    "slug": "hajime-kamoshida",
    "names": {
     "en": "Hajime Kamoshida",
-    "ja": "鴨志田一"
+    "ja": "鴨志田一",
+    "ko": "카모시다 하지메"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2015008195"
    },
    "description": {
     "en": "Author of the Rascal Does Not Dream light novel series (Dengeki Bunko).",
@@ -572,7 +741,11 @@
    "slug": "taizan5",
    "names": {
     "en": "Taizan5",
-    "ja": "タイザン5"
+    "ja": "タイザン5",
+    "ko": "타이잔5"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2023001901"
    },
    "description": {
     "en": "Manga artist who created Takopi's Original Sin for Shonen Jump+.",
@@ -585,7 +758,11 @@
    "slug": "tsurumaikada",
    "names": {
     "en": "Tsurumaikada",
-    "ja": "つるまいかだ"
+    "ja": "つるまいかだ",
+    "ko": "츠루마이카다"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-kmas-2022010148"
    },
    "description": {
     "en": "Manga artist of Medalist, serialized in Kodansha's monthly Afternoon.",
@@ -598,7 +775,11 @@
    "slug": "haruichi-furudate",
    "names": {
     "en": "Haruichi Furudate",
-    "ja": "古舘春一"
+    "ja": "古舘春一",
+    "ko": "후루다테 하루이치"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-dwci-boylist"
    },
    "description": {
     "en": "Manga artist of Haikyu!!, published by Shueisha.",
@@ -730,7 +911,11 @@
    "slug": "miyu-tomita",
    "names": {
     "en": "Miyu Tomita",
-    "ja": "富田美憂"
+    "ja": "富田美憂",
+    "ko": "토미타 미유"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "facts": [
     {
@@ -753,7 +938,11 @@
    "slug": "mariya-ise",
    "names": {
     "en": "Mariya Ise",
-    "ja": "伊瀬茉莉也"
+    "ja": "伊瀬茉莉也",
+    "ko": "이세 마리야"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "facts": [
     {
@@ -776,7 +965,11 @@
    "slug": "shiori-izawa",
    "names": {
     "en": "Shiori Izawa",
-    "ja": "井澤詩織"
+    "ja": "井澤詩織",
+    "ko": "이자와 시오리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "facts": [
     {
@@ -799,7 +992,11 @@
    "slug": "made-in-abyss-riko",
    "names": {
     "en": "Riko",
-    "ja": "リコ"
+    "ja": "リコ",
+    "ko": "리코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "relations": [
     {
@@ -826,7 +1023,11 @@
    "slug": "made-in-abyss-reg",
    "names": {
     "en": "Reg",
-    "ja": "レグ"
+    "ja": "レグ",
+    "ko": "레그"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "relations": [
     {
@@ -853,7 +1054,11 @@
    "slug": "made-in-abyss-nanachi",
    "names": {
     "en": "Nanachi",
-    "ja": "ナナチ"
+    "ja": "ナナチ",
+    "ko": "나나치"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-37612"
    },
    "relations": [
     {
@@ -880,7 +1085,11 @@
    "slug": "witch-on-the-holy-night",
    "names": {
     "en": "Witch on the Holy Night",
-    "ja": "魔法使いの夜"
+    "ja": "魔法使いの夜",
+    "ko": "마법사의 밤"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-fgo-kr-876"
    },
    "description": {
     "en": "TYPE-MOON visual novel written by Kinoko Nasu, released in 2012 and set in the late 1980s.",
@@ -918,7 +1127,11 @@
    "slug": "witch-on-the-holy-night-vn",
    "names": {
     "en": "Witch on the Holy Night (visual novel)",
-    "ja": "魔法使いの夜"
+    "ja": "魔法使いの夜",
+    "ko": "마법사의 밤"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-steam-2052410-ko"
    },
    "description": {
     "en": "The original TYPE-MOON visual novel for PC.",
@@ -1037,7 +1250,11 @@
    "slug": "haruka-tomatsu",
    "names": {
     "en": "Haruka Tomatsu",
-    "ja": "戸松遥"
+    "ja": "戸松遥",
+    "ko": "토마츠 하루카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-22643"
    },
    "facts": [
     {
@@ -1060,7 +1277,11 @@
    "slug": "kana-hanazawa",
    "names": {
     "en": "Kana Hanazawa",
-    "ja": "花澤香菜"
+    "ja": "花澤香菜",
+    "ko": "하나자와 카나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-41395"
    },
    "facts": [
     {
@@ -1083,7 +1304,11 @@
    "slug": "yusuke-kobayashi",
    "names": {
     "en": "Yusuke Kobayashi",
-    "ja": "小林裕介"
+    "ja": "小林裕介",
+    "ko": "코바야시 유스케"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42429"
    },
    "facts": [
     {
@@ -1106,7 +1331,11 @@
    "slug": "witch-on-the-holy-night-aoko",
    "names": {
     "en": "Aoko Aozaki",
-    "ja": "蒼崎青子"
+    "ja": "蒼崎青子",
+    "ko": "아오자키 아오코"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-fgo-kr-875"
    },
    "relations": [
     {
@@ -1133,7 +1362,11 @@
    "slug": "witch-on-the-holy-night-alice",
    "names": {
     "en": "Alice Kuonji",
-    "ja": "久遠寺有珠"
+    "ja": "久遠寺有珠",
+    "ko": "쿠온지 아리스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-fgo-kr-880"
    },
    "relations": [
     {
@@ -1160,7 +1393,11 @@
    "slug": "witch-on-the-holy-night-soujuurou",
    "names": {
     "en": "Soujuurou Shizuki",
-    "ja": "静希草十郎"
+    "ja": "静希草十郎",
+    "ko": "시즈키 소쥬로"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-fgo-kr-876"
    },
    "relations": [
     {
@@ -1302,7 +1539,11 @@
    "slug": "manaka-iwami",
    "names": {
     "en": "Manaka Iwami",
-    "ja": "石見舞菜香"
+    "ja": "石見舞菜香",
+    "ko": "이와미 마나카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-39268"
    },
    "facts": [
     {
@@ -1325,7 +1566,11 @@
    "slug": "rascal-does-not-dream-sakuta",
    "names": {
     "en": "Sakuta Azusagawa",
-    "ja": "梓川咲太"
+    "ja": "梓川咲太",
+    "ko": "아즈사가와 사쿠타"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42927"
    },
    "relations": [
     {
@@ -1352,7 +1597,11 @@
    "slug": "rascal-does-not-dream-mai",
    "names": {
     "en": "Mai Sakurajima",
-    "ja": "桜島麻衣"
+    "ja": "桜島麻衣",
+    "ko": "사쿠라지마 마이"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42927"
    },
    "relations": [
     {
@@ -1515,7 +1764,11 @@
    "slug": "kurumi-mamiya",
    "names": {
     "en": "Kurumi Mamiya",
-    "ja": "間宮くるみ"
+    "ja": "間宮くるみ",
+    "ko": "마미야 쿠루미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42947"
    },
    "facts": [
     {
@@ -1538,7 +1791,11 @@
    "slug": "konomi-kohara",
    "names": {
     "en": "Konomi Kohara",
-    "ja": "小原好美"
+    "ja": "小原好美",
+    "ko": "코하라 코노미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42947"
    },
    "facts": [
     {
@@ -1589,7 +1846,11 @@
    "slug": "takopis-original-sin-shizuka",
    "names": {
     "en": "Shizuka",
-    "ja": "しずか"
+    "ja": "しずか",
+    "ko": "쿠제 시즈카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42947"
    },
    "relations": [
     {
@@ -1616,7 +1877,11 @@
    "slug": "takopis-original-sin-marina",
    "names": {
     "en": "Marina",
-    "ja": "まりな"
+    "ja": "まりな",
+    "ko": "키라라자카 마리나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42947"
    },
    "relations": [
     {
@@ -1756,7 +2021,11 @@
    "slug": "natsumi-haruse",
    "names": {
     "en": "Natsumi Haruse",
-    "ja": "春瀬なつみ"
+    "ja": "春瀬なつみ",
+    "ko": "하루세 나츠미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42615"
    },
    "facts": [
     {
@@ -1779,7 +2048,11 @@
    "slug": "medalist-inori",
    "names": {
     "en": "Inori Yuitsuka",
-    "ja": "結束いのり"
+    "ja": "結束いのり",
+    "ko": "유이츠카 이노리"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42615"
    },
    "relations": [
     {
@@ -1806,7 +2079,11 @@
    "slug": "medalist-tsukasa",
    "names": {
     "en": "Tsukasa Akeuraji",
-    "ja": "明浦路司"
+    "ja": "明浦路司",
+    "ko": "아케우라지 츠카사"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42615"
    },
    "relations": [
     {
@@ -1833,7 +2110,11 @@
    "slug": "medalist-hikaru",
    "names": {
     "en": "Hikaru Kamisaki",
-    "ja": "狼嵜光"
+    "ja": "狼嵜光",
+    "ko": "카미사키 히카루"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-42615"
    },
    "relations": [
     {
@@ -2210,7 +2491,11 @@
    "slug": "chiwa-saito",
    "names": {
     "en": "Chiwa Saito",
-    "ja": "斎藤千和"
+    "ja": "斎藤千和",
+    "ko": "사이토 치와"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-40977"
    },
    "facts": [
     {
@@ -2233,7 +2518,11 @@
    "slug": "puella-magi-madoka-magica-madoka",
    "names": {
     "en": "Madoka Kaname",
-    "ja": "鹿目まどか"
+    "ja": "鹿目まどか",
+    "ko": "카나메 마도카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-40977"
    },
    "relations": [
     {
@@ -2260,7 +2549,11 @@
    "slug": "puella-magi-madoka-magica-homura",
    "names": {
     "en": "Homura Akemi",
-    "ja": "暁美ほむら"
+    "ja": "暁美ほむら",
+    "ko": "아케미 호무라"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-b-laftel-40977"
    },
    "relations": [
     {
