@@ -100,6 +100,51 @@ Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 
 - `BILLING_PROVIDER=sandbox`는 preview에서만 동작하고, `BILLING_MODE=live`는 preview에서 자동 거부된다.
 - preview 호스트에서 Google 로그인을 쓰려면 그 호스트의 callback URI를 Google에 등록해야 한다(브랜치 별칭 URL 권장).
 
+## 관리 앱 (`/admin/`, `/api/v2/admin/*`)
+
+운영자 1인용 휴대폰 관리 앱(PWA)의 서버 쪽. `SERVICE_API=on`과 `PLATFORM=on`이 모두 켜진 빌드에서만 존재한다. 로그인은 **패스키**(WebAuthn: 휴대폰 화면 잠금·지문)다. Google 로그인은 쓰지 않는다.
+
+- 관리자는 보통의 `users` 행(provider `passkey`)에 `user_profiles.role='admin'`이 붙은 계정이다. 같은 세션 쿠키를 쓰므로 신고 처리(`/api/v2/mod/*`)와 커뮤니티 기능도 그대로 쓴다. 공개 닉네임은 `운영자`.
+- 관리 API는 관리자가 아니면 모두 **404**(존재 자체를 알리지 않음). 관리자라도 로그인한 지 **12시간**이 지나면 `401 REAUTH` → 앱이 패스키 로그인을 다시 띄운다.
+- 첫 패스키 등록에만 `ADMIN_SETUP_CODE`가 필요하다. 패스키가 하나라도 생기면 이 경로는 닫힌다(코드를 알아도 404). 다른 기기는 로그인한 관리자만 추가할 수 있고, 마지막 패스키는 지울 수 없다.
+- 설정되지 않은 선택 기능(GitHub 실행, D1 사용량, 푸시)은 `503 NOT_CONFIGURED {need:"<이름>"}`으로 답하고 앱은 "설정 필요"로 표시한다.
+- D1 쓰기를 최소화했다: 패스키 로그인 1회 = 세션 1행 + 패스키 사용 기록 2행. 30분마다 도는 알림 확인은 **실제로 푸시를 보낸 경우에만** 작은 기록 1행을 쓴다.
+
+### 변수와 secret (Production / Preview 각각)
+
+| 이름 | 유형 | 누가 | 용도 |
+| --- | --- | --- | --- |
+| `ADMIN_SETUP_CODE` | **secret** | 운영자 | 첫 패스키 등록 코드. 16자 이상 무작위. 등록이 끝나면 지워도 된다(다시 필요하면 새로 설정) |
+| `VAPID_PUBLIC_KEY` | 변수 | 코디네이터 | Web Push 공개 키. `node tools/admin-keys.mjs --json`으로 생성 |
+| `VAPID_PRIVATE_KEY` | **secret** | 코디네이터 | 같은 도구의 개인 키. 바꾸면 모든 기기에서 알림을 다시 켜야 한다 |
+| `VAPID_SUBJECT` | 변수 | 운영자 | `mailto:운영자메일` (푸시 서비스가 문제 시 연락하는 주소). 없으면 사이트 주소 |
+| `NOTIFY_TOKEN` | **secret** | 코디네이터 | CI → `POST /api/v2/admin/notify` 인증(32자 이상). **GitHub Actions secret `NOTIFY_TOKEN`에도 같은 값** |
+| `GITHUB_DISPATCH_TOKEN` | **secret** | 운영자(선택) | "지금 실행" 버튼. fine-grained PAT, 저장소 `2009seungbin-stack/my-first-repo` 하나만, 권한 **Actions: Read and write** |
+| `CF_ANALYTICS_TOKEN` | **secret** | 운영자(선택) | D1 사용량 화면·한도 알림. API 토큰, 권한 **Account → Account Analytics → Read** |
+| `CF_ACCOUNT_ID` | 변수 | 운영자(선택) | Cloudflare 계정 ID(32자리 16진수). 사용량은 계정 안의 **모든 D1(prod+preview) 합계** |
+| `CF_PLAN` | 변수 | 선택 | `paid`(기본, Workers Paid: 이번 결제 주기 누적 ÷ 월 포함량 읽기 250억·쓰기 5천만 행) / `free`(하루 500만·10만 행, 00:00 UTC 초기화) |
+| `CF_BILLING_DAY` | 변수 | 선택 | Workers Paid 결제 갱신일(1–28, 기본 1). 포함량은 달력 월이 아니라 구독 시작일 기준으로 초기화된다 |
+| `GITHUB_REPO`, `GITHUB_DISPATCH_REF` | 변수 | 선택 | 기본 `2009seungbin-stack/my-first-repo`, `main` |
+
+GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NOTIFY_URL`(예: `https://nerulio.com` 또는 preview 주소)과 secret `NOTIFY_TOKEN`. 둘 중 하나라도 없으면 수집기 워크플로의 알림 단계는 조용히 건너뛴다.
+
+### 운영자 작업 순서
+
+1. `migrations/0010_admin.sql` 적용: preview 먼저 `npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml`, 확인 후 prod. (수집기는 이 migration 전에도 동작한다: 실행 기록의 쓰기 행 수만 빠진다.)
+2. `ADMIN_SETUP_CODE` 설정: 예 `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"` → Pages secret(Preview). 재배포.
+3. 휴대폰에서 `https://<preview 주소>/admin/` → "처음 설정" → 코드 입력 → 화면 잠금으로 패스키 만들기. 패스키는 **호스트마다 따로**다(preview와 nerulio.com은 각각 등록).
+4. 등록 뒤 `ADMIN_SETUP_CODE`는 지워도 된다(권장).
+5. 알림: 코디네이터가 `VAPID_*`, `NOTIFY_TOKEN`을 넣고, 운영자는 GitHub에 `NOTIFY_URL`을 설정 → 앱의 알림 설정에서 "알림 켜기" → "테스트 알림 보내기".
+6. 선택: `GITHUB_DISPATCH_TOKEN`(GitHub → Settings → Developer settings → Fine-grained tokens → Repository access: Only select → my-first-repo → Permissions: Actions **Read and write**, 만료일 설정), `CF_ANALYTICS_TOKEN`(Cloudflare → My Profile → API Tokens → Create Custom Token → Account / Account Analytics / Read) + `CF_ACCOUNT_ID`.
+
+### 알림 규칙
+
+- 수집기 실패: 연속 실패 횟수가 기기 설정(1·2·3회)에 닿을 때 실패 연속 구간마다 1번. 실행 기록조차 남지 못한 워크플로 실패(D1 한도 등)는 실행마다 1번.
+- D1 사용량(30분마다): 80·90·95% 등 설정한 기준을 처음 넘을 때 기간(Paid: 결제 주기, Free: UTC 하루)마다 1번.
+- 상태 수집 멈춤: Claude·OpenAI 상태 수집기가 2시간 넘게 성공하지 못하면 1번. 공식 장애가 새로 열리면 1번.
+- 신고: 즉시(신고 접수 순간) / 1시간마다 모아서 / 끔. 정보 제안·사실 충돌: 09:00(KST) 이후 하루 1번. 새 가입자: 30분마다 모아서.
+- 방해 금지(기본 23:00–07:00 KST): 수집기 실패와 사용량 95% 이상만 보낸다. 나머지는 방해 금지가 끝난 뒤 첫 확인 때 간다.
+
 ## 로컬 검증
 
 ```sh
