@@ -128,7 +128,8 @@ export async function renderPlatformPage(request,env,site){
  }
  const channels=await bar();
  switch(route.page){
-  case 'feed':return xml(await channelFeed(db,entity,l,s.origin));
+  // Post titles: expires with the pages (a hidden or deleted post leaves every copy within a minute).
+  case 'feed':return xml(await channelFeed(db,entity,l,s.origin),60);
   case 'history':return html(String(renderHistory(await loadHistory(db,entity,{l,now,channels}),s)));
   case 'local-llm':return entity.type==='gpu'?html(String(renderLocalLlm(await loadLocalLlm(db,entity,{l,now,channels}),s))):null;
   case 'status':return entity.type==='service'?html(String(renderStatus(await loadStatus(db,entity,{l,now,channels}),s))):null;
@@ -147,7 +148,7 @@ export async function renderPlatformPage(request,env,site){
  return html(String(renderChannel(await loadChannel(db,entity,{l,now,kind:q.get('kind'),sort:q.get('sort')||'new',best:q.get('best')==='1',page:Number(q.get('page'))||1,channels}),s)));
 }
 const html=(/** @type {string} */ body,cache=CACHE_CONTROL)=>new Response(body,{headers:{...PAGE_HEADERS,'cache-control':cache}});
-const xml=(/** @type {string} */ body)=>new Response(body,{headers:{'content-type':'application/rss+xml; charset=utf-8','cache-control':'public, max-age=0, s-maxage=600','x-content-type-options':'nosniff'}});
+const xml=(/** @type {string} */ body,edge=600)=>new Response(body,{headers:{'content-type':'application/rss+xml; charset=utf-8','cache-control':`public, max-age=0, s-maxage=${edge}`,'x-content-type-options':'nosniff'}});
 const redirect=(/** @type {string} */ to)=>new Response(null,{status:301,headers:{location:to,'cache-control':'public, max-age=3600'}});
 
 const SITEMAP=/^\/sitemap-n2-([a-z]+)\.xml$/;

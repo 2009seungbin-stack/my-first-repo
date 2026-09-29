@@ -318,7 +318,7 @@ GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NO
 | Turnstile 키가 없을 때 | preview·개발: 봇 확인 없이 허용 + 더 낮은 한도 + 글쓰기 화면에 안내. **production: 익명 쓰기 503 `NOT_CONFIGURED`(need `TURNSTILE_SECRET_KEY`)**, 화면은 로그인 안내 |
 | R2 바인딩이 없을 때 | 이미지 올리기 503 `NOT_CONFIGURED`(need `UPLOADS`), 이미지 선택 버튼 숨김. 글쓰기는 그대로 된다 |
 
-이미지는 `https://nerulio.com/u/<id>/full.<ext>`로 Worker가 R2에서 읽어 준다(`X-Content-Type-Options: nosniff`, `Content-Disposition: inline`, `Cross-Origin-Resource-Policy: same-origin`, `sandbox` CSP, 브라우저 7일·엣지 1시간 캐시). 글에 쓰이지 않은 업로드는 하루 뒤 R2에서 지운다. 숨긴 글의 이미지는 404(운영자에게는 보임), 운영자가 삭제한 이미지는 R2에서 지워지고 451.
+이미지는 `https://nerulio.com/u/<id>/full.<ext>`로 Worker가 R2에서 읽어 준다(`X-Content-Type-Options: nosniff`, `Content-Disposition: inline`, `Cross-Origin-Resource-Policy: same-origin`, `sandbox` CSP, 브라우저 `private, max-age=3600` + ETag). 글에 쓰이지 않은 업로드는 하루 뒤 R2에서 지운다. 숨긴 글·작성자가 지운 글의 이미지는 404(숨긴 글은 운영자에게는 보임), 운영자가 삭제한 이미지는 R2에서 지워지고 451. 내리기가 반영되는 시간은 아래 [캐시와 내리기](#캐시와-내리기-takedown)를 본다.
 
 ### 운영자 작업 순서 (소유자·코디네이터, Preview 먼저)
 
@@ -338,9 +338,23 @@ GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NO
 6. **CSAM Scanning Tool**: 대시보드 → nerulio.com 존 → Caching → Configuration → CSAM Scanning Tool → Enable, 알림 받을 이메일 입력(NCMEC 신고 절차 안내를 받는 주소). 이미지는 nerulio.com 존을 거쳐 나가므로 이 도구의 대상이 된다. 탐지되면 Cloudflare가 해당 URL을 막고 이메일로 알린다 → 관리 앱에서 그 글을 **영구 삭제**한다.
 7. 재배포 후 확인: preview에서 로그아웃 상태로 글쓰기 → 닉네임·비밀번호 칸과 이미지 버튼이 보이는지, 이미지 올리기 → 본문에 `![이미지](/u/…)`가 들어가는지, 다른 기기에서 "개인정보 노출"로 신고 → 글이 바로 404가 되고 관리 앱에 푸시가 오는지, 관리 앱 신고 처리 → 임시조치 중 → 복구.
 
+### 캐시와 내리기 (takedown)
+
+글 삭제(작성자·비밀번호), 숨김(운영자, 신고 3건 자동 임시조치, 심각한 분류 신고 1건 즉시), 운영자 영구 삭제, 복구가 반영되는 시간:
+
+| 대상 | 캐시 | 내린 뒤 |
+|---|---|---|
+| 이미지 `/u/<id>/…` | 매 요청(캐시 적중·쿼리 문자열·thumb/medium 변형 포함)마다 D1에서 상태를 먼저 확인. Worker 인스턴스는 "공개"와 "삭제됨"(되돌릴 수 없음) 답만 최대 **10초** 기억하고, 숨김·첨부 전 상태는 기억하지 않는다. 바이트 사본은 Cache API에 1시간(`/u/<id>/full.<ext>` 하나, R2 읽기만 줄임) | 처리한 인스턴스는 즉시, 다른 인스턴스·데이터센터는 최대 10초. 숨김·작성자 삭제 404, 운영자 삭제 451. 복구는 즉시 |
+| 글·게시판·커뮤니티 첫 화면·념글·채널 RSS | Cache API, `s-maxage=60`(Cache API는 `stale-while-revalidate`를 쓰지 않는다. 채널 RSS도 글 제목이 들어 있어 60초, 레이더 RSS만 10분) | 처리한 데이터센터는 즉시 비움, 다른 데이터센터는 최대 60초. 지운·숨긴 글은 404이며 404는 캐시하지 않는다 |
+| 브라우저 | 이미지 `private, max-age=3600`(공유 캐시·프록시에는 저장 안 됨), 1시간 뒤 ETag 재검증 → 304 또는 404/451. 페이지 `max-age=0` | 이미 받은 이미지는 그 브라우저에 최대 1시간 |
+
+- **어느 호스트 아래를 비우나**: 페이지·이미지는 요청한 호스트 이름으로 캐시된다. 쓰기·숨김·삭제·복구는 **요청 호스트, `SITE_URL`, 빌드의 사이트 주소** 모두에서 비운다(`cacheOrigins`, `server/platform/api.js`). 예: preview에서 `SITE_URL=https://nerulio.pages.dev`인데 `https://n2-preview.nerulio.pages.dev`에서 지운 경우 둘 다. 그 밖의 별칭(예: 다른 커밋별 preview 주소)에 캐시된 페이지는 60초 안에 만료되고, 이미지는 호스트와 상관없이 상태 확인이 막는다.
+- Cache API는 그 데이터센터만 비운다. 전역 퍼지(API 토큰·존 퍼지)는 쓰지 않는다 — 위 시간 제한이 그 대신이다.
+- `/u/*`나 커뮤니티 페이지에 Cache Rules("Cache Everything", Edge TTL, Browser Cache TTL 덮어쓰기)를 **걸지 않는다**. 걸면 위 확인을 건너뛴 사본이 생길 수 있다.
+
 ### 운영 메모
 
-- **급한 이미지 내리기**: 관리 앱에서 글을 영구 삭제하면 R2에서 지워지고 그 데이터센터의 엣지 캐시도 비운다. 다른 데이터센터의 캐시는 최대 1시간 남을 수 있으니, 불법촬영물·아동 성착취물은 대시보드 → Caching → Configuration → **Purge Cache → Custom Purge → URL** 에 `https://nerulio.com/u/<id>/full.webp`(관리 앱 카드의 이미지 주소)를 넣어 바로 지운다. 이미 본 사람 브라우저의 사본은 지울 수 없다.
+- **급한 이미지 내리기**: 관리 앱에서 글을 영구 삭제하면 R2에서 지워지고, 모든 데이터센터에서 **10초 안에** 이미지가 451이 된다(아래 표). 대시보드 Custom Purge는 필요 없다 — Worker 응답은 존의 CDN 캐시에 들어가지 않고 Worker의 Cache API 사본은 상태 확인 없이 나가지 않는다(해도 해롭지는 않다). 이미 본 사람 브라우저의 사본은 지울 수 없고 최대 1시간 남는다.
 - **금지어·도메인**: `blocklist` 표(관리 화면은 아직 없음). D1 콘솔에서
   ```sql
   INSERT INTO blocklist (kind,pattern,action,note,created_at) VALUES ('domain','spam.example','reject','도박 홍보',strftime('%s','now')*1000);

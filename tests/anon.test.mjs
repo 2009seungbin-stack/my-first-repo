@@ -560,6 +560,8 @@ test('takedown: an author\'s password delete stops the image and the post at onc
   // Readers on both hosts: the page and the image are now edge-cached under each.
   for(const host of [PREVIEW,ORIGIN]){
    assert.equal((await page(h,host,x.postPath)).status,200);
+   const feed=await page(h,host,'/ko/ai/svc/feed.xml');assert.match(await feed.text(),/익명 글 제목/);
+   assert.equal(feed.headers.get('cache-control'),'public, max-age=0, s-maxage=60','post titles leave the feed within a minute');
    const r=await view(viewer,x.img,{host});assert.equal(r.status,200);
    assert.equal(r.headers.get('cache-control'),'private, max-age=3600','browsers keep it an hour, shared caches not at all');
    assert.equal((await view(viewer,x.img+'?v=1',{host})).status,200);
@@ -576,6 +578,7 @@ test('takedown: an author\'s password delete stops the image and the post at onc
    assert(!cache.has(host+x.postPath),`page purged under ${host}`);assert(!cache.has(host+x.img),`image purged under ${host}`);
    assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the board too');
    assert.equal((await page(h,host,x.postPath)).status,404,`post gone under ${host}`);
+   assert.doesNotMatch(await (await page(h,host,'/ko/ai/svc/feed.xml')).text(),/익명 글 제목/,`feed under ${host}`);
    for(const path of [x.img,x.img+'?v=1',x.img+'?'+Math.random(),x.img.replace('/full.','/thumb.')]){
     const r=await viewer.image(path,{host});assert.equal(r.status,404,`${host}${path}`);assert.equal(r.headers.get('cache-control'),'no-store');
    }
