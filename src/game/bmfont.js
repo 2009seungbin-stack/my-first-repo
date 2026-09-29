@@ -134,8 +134,34 @@ export function fntText(font){
   `common lineHeight=${font.lineHeight} base=${font.baseline} scaleW=${font.width} scaleH=${font.height} pages=1 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0`,
   `page id=0 file=${quote(font.image)}`,
   `chars count=${g.length}`,
-  ...g.map(c=>`char id=${c.codepoint} x=${c.x} y=${c.y} width=${c.w} height=${c.h} xoffset=${c.xOffset} yoffset=${c.yOffset} xadvance=${c.xAdvance} page=0 chnl=15`),
-  'kernings count=0',''].join('\n');
+  ...g.map(c=>`char id=${c.codepoint} x=${c.x} y=${c.y} width=${c.w} height=${c.h} xoffset=${c.xOffset} yoffset=${c.yOffset} xadvance=${c.xAdvance} page=${c.page||0} chnl=15`),
+  `kernings count=${font.kernings?.length||0}`,
+  ...(font.kernings||[]).map(k=>`kerning first=${k.first} second=${k.second} amount=${k.amount}`),''].join('\n');
+}
+/** XML descriptor with the same metrics as the text descriptor. Phaser's bitmap loader reads XML. */
+export function fntXml(font){
+ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ const g=font.glyphs,k=font.kernings||[];
+ const attrs=o=>Object.entries(o).map(([key,value])=>` ${key}="${esc(value)}"`).join('');
+ const info={face:font.face,size:font.size,bold:0,italic:0,charset:'',unicode:1,stretchH:100,smooth:0,aa:1,padding:'0,0,0,0',spacing:`${font.spacing||0},${font.spacing||0}`,outline:0};
+ const common={lineHeight:font.lineHeight,base:font.baseline,scaleW:font.width,scaleH:font.height,pages:1,packed:0,alphaChnl:0,redChnl:0,greenChnl:0,blueChnl:0};
+ return ['<?xml version="1.0" encoding="utf-8"?>','<font>',`  <info${attrs(info)}/>` ,`  <common${attrs(common)}/>`,'  <pages>',`    <page${attrs({id:0,file:font.image})}/>`,'  </pages>',`  <chars count="${g.length}">`,...g.map(c=>`    <char${attrs({id:c.codepoint,x:c.x,y:c.y,width:c.w,height:c.h,xoffset:c.xOffset,yoffset:c.yOffset,xadvance:c.xAdvance,page:c.page||0,chnl:15})}/>`),'  </chars>',`  <kernings count="${k.length}">`,...k.map(v=>`    <kerning${attrs(v)}/>`),'  </kernings>','</font>',''].join('\n');
+}
+/** AngelCode BMF binary version 3. One atlas page, 32-bit Unicode IDs. */
+export function fntBinary(font){
+ const check=(value,min,max,name)=>{if(!Number.isInteger(value)||value<min||value>max)throw Error(`BMFont ${name} outside ${min}..${max}`);return value;};
+ const u8=(v,n)=>check(v,0,255,n),u16=(v,n)=>check(v,0,65535,n),i16=(v,n)=>check(v,-32768,32767,n),u32=(v,n)=>check(v,0,0x10ffff,n);
+ const enc=new TextEncoder();const face=enc.encode(font.face),image=enc.encode(font.image);
+ if(face.includes(0)||image.includes(0))throw Error('BMFont names cannot contain NUL');
+ u16(font.size,'size');u16(font.lineHeight,'lineHeight');u16(font.baseline,'baseline');u16(font.width,'width');u16(font.height,'height');
+ const g=font.glyphs,k=font.kernings||[],blocks=[];
+ const block=(type,length,write)=>{const bytes=new Uint8Array(5+length),v=new DataView(bytes.buffer);v.setUint8(0,type);v.setUint32(1,length,true);write(v,bytes);blocks.push(bytes);};
+ block(1,14+face.length+1,(v,b)=>{v.setInt16(5,font.size,true);v.setUint8(7,2);v.setUint8(8,0);v.setUint16(9,100,true);v.setUint8(11,1);v.setUint8(16,u8(font.spacing||0,'spacing'));v.setUint8(17,u8(font.spacing||0,'spacing'));b.set(face,19);b[19+face.length]=0;});
+ block(2,15,(v)=>{v.setUint16(5,font.lineHeight,true);v.setUint16(7,font.baseline,true);v.setUint16(9,font.width,true);v.setUint16(11,font.height,true);v.setUint16(13,1,true);});
+ block(3,image.length+1,(_,b)=>{b.set(image,5);b[5+image.length]=0;});
+ block(4,g.length*20,(v)=>{g.forEach((c,i)=>{const o=5+i*20;v.setUint32(o,u32(c.codepoint,'char id'),true);v.setUint16(o+4,u16(c.x,'x'),true);v.setUint16(o+6,u16(c.y,'y'),true);v.setUint16(o+8,u16(c.w,'width'),true);v.setUint16(o+10,u16(c.h,'height'),true);v.setInt16(o+12,i16(c.xOffset,'xoffset'),true);v.setInt16(o+14,i16(c.yOffset,'yoffset'),true);v.setInt16(o+16,i16(c.xAdvance,'xadvance'),true);v.setUint8(o+18,u8(c.page||0,'page'));v.setUint8(o+19,15);});});
+ block(5,k.length*10,(v)=>{k.forEach((pair,i)=>{const o=5+i*10;v.setUint32(o,u32(pair.first,'kerning first'),true);v.setUint32(o+4,u32(pair.second,'kerning second'),true);v.setInt16(o+8,i16(pair.amount,'kerning amount'),true);});});
+ const bytes=new Uint8Array(4+blocks.reduce((n,b)=>n+b.length,0));bytes.set([66,77,70,3]);let offset=4;for(const b of blocks){bytes.set(b,offset);offset+=b.length;}return bytes;
 }
 /** Reads the format back. Used by the missing-glyph checker on a .fnt the user already has,
  * and by the tests to prove the writer and the reader agree. */
@@ -171,12 +197,14 @@ export function fontFromFnt(parsed,{image=''}={}){
 /** Pen positions for one line of text, using only the font's own metrics. */
 export function layoutLine(font,text){
  const by=new Map(font.glyphs.map(g=>[g.codepoint,g]));
- let pen=0;const out=[];
+ const pairs=new Map((font.kernings||[]).map(k=>[`${k.first}:${k.second}`,k.amount]));
+ let pen=0,previous=null;const out=[];
  for(const ch of String(text)){
-  const g=by.get(cp(ch));
-  if(!g){out.push({char:ch,missing:true,x:pen});continue;}
+  const codepoint=cp(ch),g=by.get(codepoint);
+  if(!g){out.push({char:ch,missing:true,x:pen});previous=null;continue;}
+  if(previous!==null)pen+=pairs.get(`${previous}:${codepoint}`)||0;
   out.push({char:ch,glyph:g,x:pen+g.xOffset,y:g.yOffset});
-  pen+=g.xAdvance;
+  pen+=g.xAdvance;previous=codepoint;
  }
  return {items:out,width:pen};
 }
