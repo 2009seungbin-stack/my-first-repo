@@ -123,6 +123,11 @@ export const guides={
 
 export function guide(id,locale){
  const current=capabilityGuide(id,locale);if(current)return current;
+ if(id==='pixel-avatar-maker')return {
+  en:['Choose original parts|Adjust hair and outfit colors, or randomize with locks|Export exact-pixel PNG, blink GIF or a local share card','A 16 px original CC0 catalog is rendered on a whole-number pixel grid. The optional local background is reduced to that grid and never enters a settings link.','X and LINE controls share a settings link with a generic site preview; they do not attach the generated image. A custom per-avatar Open Graph card is not available on this static site.','Can I sell an avatar made here?','Yes. The original part shapes are CC0 and may be used commercially. You must clear rights for any background image you add.'],
+  ko:['오리지널 파츠 선택|머리·의상 색을 조정하거나 잠금 상태로 랜덤 조합|정수 픽셀 PNG·깜박임 GIF·로컬 공유 카드 저장','직접 만든 16px CC0 카탈로그를 정수 픽셀 격자로 출력합니다. 로컬 배경은 16px로 축소되며 설정 링크에는 들어가지 않습니다.','X·LINE은 공통 사이트 미리보기가 붙은 설정 링크만 공유하며 생성 이미지를 첨부하지 않습니다. 정적 사이트에서 아바타별 Open Graph 카드는 만들지 않습니다.','만든 아바타를 판매해도 되나요?','예. 직접 만든 파츠는 CC0로 상업적 이용이 가능합니다. 추가한 배경 이미지의 권리는 직접 확인해야 합니다.'],
+  ja:['オリジナルパーツを選ぶ|髪・服の色を調整、または固定してランダム作成|整数ピクセルPNG・まばたきGIF・端末の共有カードを保存','オリジナル16px CC0カタログを整数ピクセルグリッドで出力します。端末の背景は16pxに縮小され、設定リンクには入りません。','XとLINEは共通サイトプレビュー付きの設定リンクだけを共有し、生成画像は添付しません。静的サイトではアバター別Open Graphカードを生成しません。','作ったアバターを販売できますか？','はい。オリジナルパーツはCC0で商用利用できます。追加する背景画像の権利はご自身で確認してください。']
+ }[locale];
  if(TOOLS[id]){const d=TOOLS[id],i={ko:0,en:1,ja:2}[locale];return [
   ["이미지 넣기|필요한 설정을 조정하고 결과 확인|다운로드로 새 파일 저장","Add images|Adjust settings and review the result|Download a new file","画像を追加|設定を調整して結果を確認|新しいファイルを保存"][i],d.description[i],d.limit[i],
   ["이 도구의 한계는 무엇인가요?","What are this tool’s limitations?","このツールにはどのような制限がありますか？"][i],d.limit[i]];}
@@ -131,6 +136,7 @@ export function guide(id,locale){
 export function formats(id,locale){
  if(id==='character-counter')return {ko:'UTF-8 텍스트(.txt, .md, .text) → 화면에서 계산. 파일 내보내기 없음.',en:'UTF-8 text (.txt, .md, .text) → on-screen counts. No file export.',ja:'UTF-8テキスト（.txt、.md、.text）→ 画面上で集計。ファイル書き出しなし。'}[locale];
  if(id==='webtoon-manga-toolkit')return {en:'PNG / JPG / WebP → reopened JPG / PNG pieces + JSON report (ZIP). Local browser decoding and encoding; animated inputs are not supported.',ko:'PNG / JPG / WebP → 재열기한 JPG / PNG 조각 + JSON 보고서(ZIP). 브라우저에서 로컬로 읽고 저장하며 움직이는 입력은 지원하지 않습니다.',ja:'PNG / JPG / WebP → 再読み込みで確認したJPG / PNG画像 + JSON報告書（ZIP）。端末内で復号・保存し、アニメーション入力には非対応です。'}[locale];
+ if(id==='pixel-avatar-maker')return {en:'No file required; optional local PNG / JPG / WebP background → 32–4096 px PNG, 32–1024 px GIF, or 1200 × 630 PNG card.',ko:'파일 없이 시작 가능. 선택적 로컬 PNG·JPG·WebP 배경 → 32–4096px PNG, 32–1024px GIF, 1200×630 PNG 카드.',ja:'ファイルなしで開始。任意の端末PNG・JPG・WebP背景 → 32–4096px PNG、32–1024px GIF、1200×630 PNGカード。'}[locale];
  if(TOOLS[id]){const output={refiner:'PNG / ZIP','palette-swap':'PNG','logo-bg':'PNG','texture-map':'PNG','texture-lab':'PNG / JSON / ZIP','channel-unpacker':'PNG (ZIP)','normal-map-converter':'PNG','pbr-texture-validator':'JSON','texture-edge-bleed':'PNG','mask-packer':'PNG','margin-crop':'PNG','marketplace-pack':'JPG + JSON (ZIP)','print-pack':'JPG + JSON (ZIP)','bitmap-font':'PNG + FNT + JSON (ZIP)','favicon-pack':'ICO + PNG + HTML + Webmanifest (ZIP)'}[id]||'PNG + JSON (ZIP)';return 'PNG / JPG / WebP / AVIF / HEIC → '+output+' — '+{ko:'입력 디코딩은 브라우저 지원과 추가 엔진 사용 여부에 따라 다릅니다.',en:'Input decoding depends on browser support and optional engines.',ja:'入力のデコードはブラウザ対応と追加エンジンに依存します。'}[locale];}
  const editor=INTENTS[id].editor;
  const mediaOutput={'video-mp3':'MP3 / WAV','video-gif':'GIF','video-frame':'PNG','video-trim':'MP4 / WebM','video-compress':'MP4 / WebM',media:'MP4 / WebM / GIF / PNG / WAV / MP3'};
