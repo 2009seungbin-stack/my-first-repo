@@ -16,6 +16,7 @@ const engines = {
  media:'Mediabunny / WebCodecs / OPFS', 'video-trim':'keyframe remux / WebCodecs precise re-encode', 'video-frame':'WebCodecs source-resolution frame / video fallback',
  'video-mp3':'ranged demux / WebCodecs / LAME WASM', 'video-gif':'WebCodecs sequential frames / gifenc adaptive palettes / measured size targets', 'video-compress':'WebCodecs bitrate and resolution control with measured size targets',
  refiner:'Oklab palette / locked colors / serpentine FS / Bayer dither',
+ 'store-art-pack':'per-slot OffscreenCanvas crop and logo composition / worker ZIP with original gameplay captures',
  'sprite-slicer':'streaming run-length alpha components / box merge / margin-and-gutter grid / border colour key',
  'sprite-lab':'alpha components with an evidence-scored merge distance / ranked grid suggestions / integer-only normalize and jitter fix / lattice contour tracing / MaxRects multi-page packing / generic, Godot 4 and (unverified) Unity exporters',
  'sprite-pivot-editor':'normalised and pixel pivots carried through every integer frame shift',
@@ -129,6 +130,7 @@ const EVIDENCE={
   Object.freeze({kind:'workflow',suite:'tests/pixel-converter-firefox.py',check:'Firefox CC0 photograph converts with default Box and Wu and independently reopened PNG matches all RGBA pixels',engines:['firefox']}),
   Object.freeze({kind:'quality',suite:'tests/pixel-converter-firefox.py',check:'Firefox conversion preserves source asset, adds output asset, and makes no outside requests',engines:['firefox']})
  ],
+  'store-art-pack':[ev('workflow','tests/store-art-browser.py','CC0 4K key art and five genuine game captures exported to ZIP and reopened by Pillow in Chromium and Firefox'),ev('quality','tests/store-art-browser.py','17 outputs: dimensions, alpha, Google icon size and screenshot byte identity checked by Pillow and SHA-256')],
  'pixel-avatar-maker':[ev('workflow','tests/avatar-browser.py','Chromium and Firefox: no-input avatar page exports PNG, GIF and card; a local CC0 background stays out of a replayed settings URL'),ev('quality','tests/avatar-browser.py','Pillow reopens 32/48/64/4096 PNGs and verifies exact 16 px blocks, GIF eight-frame timing/disposal/loop and 1200×630 card dimensions')],
  image:[ev('workflow',IMG,'operation history replays without re-encoding source'),ev('quality',IMG,'overlapped outline tiles equal whole-image reference')],
  resize:[ev('workflow',IMG,'mks2013: tile-grid-independent output'),ev('quality',IMG,'lanczos3: opaque/transparent and partial alpha')],

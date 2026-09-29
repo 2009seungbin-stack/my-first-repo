@@ -33,7 +33,7 @@ export function sitemapGroups(extra=[]){
  const indexable=[...Object.entries(INTENTS).filter(([id])=>mayPromote(id)).map(([,i])=>i.path),...LANDING_PATHS.filter(p=>mayPromote(LANDINGS[p].intent))];
  // Some game-related task tools (for example /pixel/) are not game landing pages. Keep their
  // canonical URL in the tools sitemap; the game renderer has no gamePageFor record for them.
- const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p)&&gamePageFor(p))])];
+ const game=[...new Set([...(indexable.includes('')?['']:[]),...gameSitemapPaths().filter(p=>p===GAME_HUB_PATH||indexable.includes(p)&&gamePageFor(p)),'game/sfx-generator'])];
  const inGame=new Set(game);
  const tools=[...new Set([...indexable,AUDIO_LAB_PATH,...POLICY_ROUTES,...extra])].filter(p=>!inGame.has(p));
  return {game,guides:[...GUIDE_ROUTES],tools};

@@ -12,6 +12,8 @@ export const SOURCE_HOSTS=new Set([
  'datatracker.ietf.org',
  'defold.com',
  'developer.apple.com',
+ 'partner.steamgames.com', // Steamworks official graphical asset rules
+ 'itch.io', // itch.io creator documentation
  'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
  'developers.kakao.com', // Kakao JavaScript Share setup and app key/domain requirements
@@ -56,6 +58,7 @@ export const SOURCE_HOSTS=new Set([
  'tech.ebu.ch', // EBU R 95, the broadcast safe-area recommendation (ui group)
  'www.angelcode.com', // BMFont, the owner of the .fnt format (ui group)
  'www.gnu.org', // GNU gettext manual, the owner of the .po format (ui group)
+ 'xiph.org', // Xiph Foundation's own Ogg Vorbis specification
  'support.apple.com',
  'support.discord.com',
  'support.google.com',

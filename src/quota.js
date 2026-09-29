@@ -7,6 +7,7 @@
  */
 export const QUOTA_CLASSES=Object.freeze({
  // Game-asset recipes: palette/grid/crop helpers are light; full pipelines and batch packs are heavy.
+ 'store-art-pack':'none',
  'pixel-avatar-maker':'none',
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',

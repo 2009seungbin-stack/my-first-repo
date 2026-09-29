@@ -31,7 +31,7 @@ try:
             except OSError:time.sleep(.1)
         else:raise RuntimeError(f'Server {port} did not start')
     env['COUNTER_BASE']='http://127.0.0.1:4173'
-    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','character-counter-browser','avatar-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-pixel-browser','pixel-converter-browser','studio-monetization-browser','game-landing-browser','design-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
+    for suite in ['browser','recipes-browser','growth-browser','seo-browser','landings-browser','task-browser','character-counter-browser','avatar-browser','studio-browser','studio-sprite-browser','studio-pack-browser','studio-tile-browser','studio-texture-browser','studio-pixel-browser','pixel-converter-browser','studio-monetization-browser','game-landing-browser','design-browser','sfx-browser','store-art-browser']:run(suite,[sys.executable,'tests/'+suite+'.py'])
     # Opt-in (REDTEAM=1): the monetization red-team corpus against the real Pages runtime
     # (docs/MONETIZATION-SECURITY.md). The API corpus also runs in `npm test` (tests/redteam.test.mjs).
     if os.environ.get('REDTEAM')=='1':
