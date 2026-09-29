@@ -96,8 +96,9 @@ test('seed-sync workflow: seed pushes and manual runs, gated, one job per vertic
  assert.match(y,/if: \$\{\{ vars\.PLATFORM_COLLECTORS == 'on' \}\}/);
  assert.match(y,/seed-sync\.mjs --plan/);assert.match(y,/--changed-since "\$BEFORE"/);assert.match(y,/fetch-depth: 0/);
  assert.match(y,/vertical: \$\{\{ fromJSON\(needs\.plan\.outputs\.verticals\) \}\}/);
- assert.match(y,/timeout-minutes: 45/);
- for(const s of ['CF_ACCOUNT_ID','CF_D1_DATABASE_ID','CF_API_TOKEN'])assert.ok(y.includes(s+': ${{ secrets.'+s+' }}'),s);
+ assert.match(y,/timeout-minutes: 90/);
+ for(const s of ['CF_ACCOUNT_ID','CF_API_TOKEN'])assert.ok(y.includes(s+': ${{ secrets.'+s+' }}'),s);
+ assert.ok(y.includes('CF_D1_DATABASE_IDS: preview:${{ secrets.CF_D1_DATABASE_ID }}'),'databases: preview (+ prod, tests/n2-multi-d1.test.mjs)');
  assert.ok(y.includes('{\\"kind\\":\\"collector_failed\\",\\"payload\\":{\\"runUrl\\":\\"$RUN_URL\\",\\"label\\":\\"seed-sync\\"}}'));
  assert.match(y,/NOTIFY_URL: \$\{\{ vars\.NOTIFY_URL \}\}/);
  // The planner prints a JSON array the matrix can use.
