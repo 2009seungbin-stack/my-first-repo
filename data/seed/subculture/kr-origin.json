@@ -374,6 +374,51 @@
    "title": "スタジオ fu｜STUDIO fu",
    "publisher": "STUDIO fu Inc.",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-47285",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47285",
+   "title": "귀환자의 마법은 특별해야 합니다 2기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/47285/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-42291",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/42291",
+   "title": "(자막) 신의 탑 2기 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/42291/ (casts/production fields); studio credit as spelled on official Korean licensee Laftel (production_companies field); the studio has no Korean-language site of its own"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-41919",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41919",
+   "title": "(자막) 나 혼자만 레벨업 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/41919/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-47088",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/47088",
+   "title": "템빨 ~아이템의 힘~ - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/47088/ (casts/production fields)"
+  },
+  {
+   "id": "src:ko-sub-a-dnc-yt-solo-leveling-film",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=3JCWXEAxHUA",
+   "title": "애니메이션 『극장판 나 혼자만 레벨업 -Beyond the System-』제작 결정 PV 공개 [자막]",
+   "publisher": "D&C WEBTOON (official YouTube channel @DNCWEBTOON; Korean publisher/rights holder of the Solo Leveling webtoon)",
+   "retrieved": "2026-09-29",
+   "note": "title verified via YouTube oEmbed author_name \"D&C WEBTOON\""
   }
  ],
  "entities": [
@@ -622,7 +667,11 @@
    "slug": "solo-leveling-film-beyond-the-system",
    "names": {
     "en": "Solo Leveling -Beyond the System- (film)",
-    "ja": "劇場版 俺だけレベルアップな件 -Beyond the System-"
+    "ja": "劇場版 俺だけレベルアップな件 -Beyond the System-",
+    "ko": "극장판 나 혼자만 레벨업 -Beyond the System-"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dnc-yt-solo-leveling-film"
    },
    "description": {
     "en": "Theatrical anime announced on 4 July 2026 as the sequel to TV season 2; no release date has been announced on the official site.",
@@ -897,7 +946,11 @@
    "slug": "taito-ban",
    "names": {
     "en": "Taito Ban",
-    "ja": "坂 泰斗"
+    "ja": "坂 泰斗",
+    "ko": "반 타이토"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-41919"
    },
    "facts": [
     {
@@ -1199,7 +1252,11 @@
    "slug": "tatsumaru-tachibana",
    "names": {
     "en": "Tatsumaru Tachibana",
-    "ja": "橘 龍丸"
+    "ja": "橘 龍丸",
+    "ko": "타치바나 타츠마루"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47088"
    },
    "facts": [
     {
@@ -1222,7 +1279,11 @@
    "slug": "asami-seto",
    "names": {
     "en": "Asami Seto",
-    "ja": "瀬戸麻沙美"
+    "ja": "瀬戸麻沙美",
+    "ko": "세토 아사미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47088"
    }
   },
   {
@@ -1434,7 +1495,11 @@
    "slug": "a-returners-magic-should-be-special-tv-s2",
    "names": {
     "en": "A Returner's Magic Should Be Special (TV anime season 2)",
-    "ja": "帰還者の魔法は特別です 第二期"
+    "ja": "帰還者の魔法は特別です 第二期",
+    "ko": "귀환자의 마법은 특별해야 합니다 2기"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47285"
    },
    "description": {
     "en": "Second season (from episode 13) directed by Taishi Kawaguchi at Arvo Animation; it starts on Fuji TV's +Ultra block on 7 October 2026 with streaming on d Anime Store, U-NEXT and Anime Hodai the same night.",
@@ -1589,7 +1654,11 @@
    "slug": "takuma-terashima",
    "names": {
     "en": "Takuma Terashima",
-    "ja": "寺島拓篤"
+    "ja": "寺島拓篤",
+    "ko": "테라시마 타쿠마"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47285"
    },
    "facts": [
     {
@@ -1612,7 +1681,11 @@
    "slug": "sayumi-suzushiro",
    "names": {
     "en": "Sayumi Suzushiro",
-    "ja": "鈴代紗弓"
+    "ja": "鈴代紗弓",
+    "ko": "스즈시로 사유미"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47285"
    },
    "facts": [
     {
@@ -1927,7 +2000,11 @@
    "slug": "tower-of-god-tv-s2",
    "names": {
     "en": "Tower of God Season 2",
-    "ja": "神之塔 -Tower of God- 第2期"
+    "ja": "神之塔 -Tower of God- 第2期",
+    "ko": "신의 탑 2기"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42291"
    },
    "description": {
     "en": "Second TV anime season, animated by The Answer Studio, released in two parts in Japan (from July and October 2024).",
@@ -2202,7 +2279,11 @@
    "slug": "arvo-animation",
    "names": {
     "en": "Arvo Animation",
-    "ja": "アルボアニメーション"
+    "ja": "アルボアニメーション",
+    "ko": "아르보 애니메이션"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-47285"
    },
    "description": {
     "en": "Japanese animation studio credited with both seasons of the A Returner's Magic Should Be Special TV anime.",
@@ -2236,7 +2317,11 @@
    "slug": "the-answer-studio",
    "names": {
     "en": "The Answer Studio",
-    "ja": "アンサー・スタジオ"
+    "ja": "アンサー・スタジオ",
+    "ko": "앤서 스튜디오"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-42291"
    },
    "description": {
     "en": "Animation studio credited with Tower of God season 2.",

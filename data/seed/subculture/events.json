@@ -130,6 +130,24 @@
    "publisher": "東宝 / 2026「映画ちいかわ」製作委員会",
    "note": "Staff/cast credits: original story & screenplay ナガノ, director 及川啓, animation production サイピク, distribution 東宝.",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-a-kobis-20261807",
+   "kind": "OFFICIAL",
+   "url": "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do?code=20261807",
+   "title": "극장판 치이카와: 인어 섬의 비밀 - KOBIS 영화정보",
+   "publisher": "Korean Film Council (KOBIS)",
+   "retrieved": "2026-09-29",
+   "note": "Korean theatrical release 2026-09-30; distributor CJ ENM, importer 대원미디어"
+  },
+  {
+   "id": "src:ko-sub-a-laftel-40822",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/40822",
+   "title": "치이카와 - 라프텔",
+   "publisher": "Laftel (라프텔)",
+   "retrieved": "2026-09-29",
+   "note": "Laftel item API https://api.laftel.net/api/items/v4/40822/ (casts/production fields)"
   }
  ],
  "entities": [
@@ -684,14 +702,22 @@
    "slug": "chiikawa",
    "names": {
     "en": "Chiikawa",
-    "ja": "ちいかわ"
+    "ja": "ちいかわ",
+    "ko": "치이카와"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-kobis-20261807"
    },
    "aliases": [
     "ちいかわ",
     "치이카와",
     "먼작귀",
-    "なんか小さくてかわいいやつ"
+    "なんか小さくてかわいいやつ",
+    "먼가 작고 귀여운 녀석"
    ],
+   "aliases_src": {
+    "먼가 작고 귀여운 녀석": "src:ko-sub-a-dwci-comics"
+   },
    "description": {
     "en": "Chiikawa is a manga series by illustrator Nagano that began as posts on X; it has a TV anime inside Fuji TV's Mezamashi TV since April 2022 and a theatrical film released in Japan in July 2026.",
     "ko": "치이카와는 일러스트레이터 나가노가 X에 연재하며 시작한 만화로, 2022년 4월부터 후지TV '메자마시 TV' 안에서 TV 애니메이션이 방송되고 있으며 2026년 7월 일본에서 극장판이 개봉했다."
@@ -742,7 +768,11 @@
    "slug": "nagano",
    "names": {
     "en": "Nagano",
-    "ja": "ナガノ"
+    "ja": "ナガノ",
+    "ko": "나가노"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-dwci-comics"
    },
    "aliases": [
     "ナガノ",
@@ -759,7 +789,11 @@
    "slug": "chiikawa-tv",
    "names": {
     "en": "Chiikawa (TV anime)",
-    "ja": "ちいかわ"
+    "ja": "ちいかわ",
+    "ko": "치이카와"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-laftel-40822"
    },
    "facts": [
     {
@@ -802,7 +836,11 @@
    "slug": "chiikawa-film-2026",
    "names": {
     "en": "Chiikawa the Movie: The Secret of Mermaid Island",
-    "ja": "映画ちいかわ 人魚の島のひみつ"
+    "ja": "映画ちいかわ 人魚の島のひみつ",
+    "ko": "극장판 치이카와: 인어 섬의 비밀"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-kobis-20261807"
    },
    "aliases": [
     "映画ちいかわ",

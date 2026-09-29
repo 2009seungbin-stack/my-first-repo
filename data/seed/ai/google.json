@@ -58,7 +58,21 @@
     {"id":"src:google-help-gemini-spark","kind":"OFFICIAL","url":"https://support.google.com/gemini/answer/17094507?hl=en","title":"Use Gemini Spark to manage your tasks & workflows in Gemini Apps - Gemini Apps Help","publisher":"Google","retrieved":"2026-09-28"},
     {"id":"src:google-feature-gemini-in-chrome","kind":"OFFICIAL","url":"https://gemini.google/us/overview/gemini-in-chrome/?hl=en","title":"Gemini in Chrome","publisher":"Google","retrieved":"2026-09-28"},
     {"id":"src:google-api-deep-research","kind":"OFFICIAL","url":"https://ai.google.dev/gemini-api/docs/deep-research","title":"Gemini Deep Research agent (Gemini API)","publisher":"Google","retrieved":"2026-09-28"},
-    {"id":"src:google-api-antigravity-agent","kind":"OFFICIAL","url":"https://ai.google.dev/gemini-api/docs/antigravity-agent","title":"Antigravity Agent (Gemini API)","publisher":"Google","retrieved":"2026-09-28"}
+    {"id":"src:google-api-antigravity-agent","kind":"OFFICIAL","url":"https://ai.google.dev/gemini-api/docs/antigravity-agent","title":"Antigravity Agent (Gemini API)","publisher":"Google","retrieved":"2026-09-28"},
+    {"id":"src:ko-ai-studio-gemini-3-8-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/3-8-flash-and-3-8-flash-cyber-kr/","title":"‘제미나이 3.8 플래시’와 ‘3.8 플래시 사이버’를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-7-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/introducing-gemini-3-7-flash-kr/","title":"제미나이 3.7 플래시를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-6-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemini-3-6-flash-3-5-flash-lite-3-5-flash-cyber/","title":"구글이 ‘제미나이 3.6 플래시(Flash)’, ‘3.5 플래시-라이트(Flash-Lite)’, 그리고 ‘3.5 플래시 사이버(Flash Cyber)’를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-5-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/next-evolution-gemini-app-kr/","title":"[I/O 2026] 제미나이 앱이 더욱 능동적인 에이전트로 진화했습니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-1-pro","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/products/gemini-3-1-pro-kr/","title":"복잡한 과제 해결을 위해 더욱 스마트해진 ‘제미나이 3.1 프로’","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/products/gemini-3-flash-kr/","title":"제미나이 3 플래시: 속도를 위해 설계된 최첨단 인텔리전스","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-3-8-live","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemini-3-8-live-gemini-3-8-live-extended-thinking-kr/","title":"‘제미나이 3.8 라이브’ 및 ‘3.8 라이브 익스텐디드 씽킹’ 모델을 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-in-chrome-kr","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/products/android-play-hardware/gemini-in-chrome-launch-korea/","title":"AI로 더욱 스마트하고 편리해진 크롬이 한국에 출시됩니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-nano-banana-pro","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/nano-banana-pro/","title":"나노 바나나 프로(Nano Banana Pro)를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-2-5-io-2025","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/google-deepmindgoogle-gemini-updates-io-2025-kr/","title":"[I/O 2025] 제미나이 2.5: 구글의 가장 뛰어난 모델이 발전을 거듭하고 있습니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-2-5-flash","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemini-2-5-flash-preview-kr/","title":"개발자를 위한 제미나이 2.5 플래시를 소개합니다!","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-omni","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemini-omni-kr/","title":"[I/O 2026] ‘제미나이 옴니(Gemini Omni)’를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-google-ai-pro-students","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/google-ai-pro-students-learning/","title":"한국의 대학생들도 구글의 최첨단 AI 기술을 무료로 경험할 수 있게 됐습니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29"},
+    {"id":"src:ko-ai-studio-gemini-hackathon-3","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/inside-google/gemini-seoul-hackathon-third/","title":"제미나이 해커톤 신재호 님: \"문장 몇 줄이 30컷 스토리보드로!\"","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29","note":"Hackathon-winner interview on the official Google Korea blog; the phrase is the participant's words, so used for an alias only"}
   ],
   "entities": [
     {
@@ -142,7 +156,11 @@
       "type": "model",
       "slug": "gemini-3-8-flash",
       "names": {
-        "en": "Gemini 3.8 Flash"
+        "en": "Gemini 3.8 Flash",
+        "ko": "제미나이 3.8 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-8-flash"
       },
       "aliases": [],
       "description": {
@@ -245,7 +263,11 @@
       "type": "model",
       "slug": "gemini-3-7-flash",
       "names": {
-        "en": "Gemini 3.7 Flash"
+        "en": "Gemini 3.7 Flash",
+        "ko": "제미나이 3.7 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-7-flash"
       },
       "aliases": [],
       "description": {
@@ -348,7 +370,11 @@
       "type": "model",
       "slug": "gemini-3-6-flash",
       "names": {
-        "en": "Gemini 3.6 Flash"
+        "en": "Gemini 3.6 Flash",
+        "ko": "제미나이 3.6 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-6-flash"
       },
       "aliases": [],
       "description": {
@@ -457,7 +483,11 @@
       "type": "model",
       "slug": "gemini-3-5-flash",
       "names": {
-        "en": "Gemini 3.5 Flash"
+        "en": "Gemini 3.5 Flash",
+        "ko": "제미나이 3.5 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-5-flash"
       },
       "aliases": [],
       "description": {
@@ -553,7 +583,11 @@
       "type": "model",
       "slug": "gemini-3-5-flash-lite",
       "names": {
-        "en": "Gemini 3.5 Flash-Lite"
+        "en": "Gemini 3.5 Flash-Lite",
+        "ko": "제미나이 3.5 플래시-라이트"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-6-flash"
       },
       "aliases": [],
       "description": {
@@ -766,7 +800,11 @@
       "type": "model",
       "slug": "gemini-3-1-pro",
       "names": {
-        "en": "Gemini 3.1 Pro"
+        "en": "Gemini 3.1 Pro",
+        "ko": "제미나이 3.1 프로"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-1-pro"
       },
       "aliases": [
         "gemini-3.1-pro-preview"
@@ -865,7 +903,11 @@
       "type": "model",
       "slug": "gemini-3-flash",
       "names": {
-        "en": "Gemini 3 Flash"
+        "en": "Gemini 3 Flash",
+        "ko": "제미나이 3 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-flash"
       },
       "aliases": [
         "gemini-3-flash-preview"
@@ -964,7 +1006,11 @@
       "type": "model",
       "slug": "gemini-3-8-live",
       "names": {
-        "en": "Gemini 3.8 Live"
+        "en": "Gemini 3.8 Live",
+        "ko": "제미나이 3.8 라이브"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-8-live"
       },
       "aliases": [],
       "description": {
@@ -1059,7 +1105,11 @@
       "type": "model",
       "slug": "gemini-3-8-live-extended-thinking",
       "names": {
-        "en": "Gemini 3.8 Live Extended Thinking"
+        "en": "Gemini 3.8 Live Extended Thinking",
+        "ko": "제미나이 3.8 라이브 익스텐디드 씽킹"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-8-live"
       },
       "aliases": [],
       "description": {
@@ -1342,11 +1392,19 @@
       "type": "model",
       "slug": "gemini-3-1-flash-image",
       "names": {
-        "en": "Gemini 3.1 Flash Image (Nano Banana 2)"
+        "en": "Gemini 3.1 Flash Image (Nano Banana 2)",
+        "ko": "나노 바나나 2"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-in-chrome-kr"
       },
       "aliases": [
-        "Nano Banana 2"
+        "Nano Banana 2",
+        "제미나이 3.1 플래시 이미지"
       ],
+      "aliases_src": {
+        "제미나이 3.1 플래시 이미지": "src:ko-ai-studio-gemini-hackathon-3"
+      },
       "description": {
         "en": "Image generation and editing model marketed as Nano Banana 2; a preview appeared in February 2026 and the stable version on May 28, 2026. Accepts text, image, video and PDF and returns images and text.",
         "ko": "Nano Banana 2라는 이름으로 소개된 이미지 생성·편집 모델로, 2026년 2월 프리뷰를 거쳐 2026년 5월 28일 정식 버전이 나왔습니다. 텍스트·이미지·동영상·PDF를 입력받아 이미지와 텍스트를 출력합니다."
@@ -1446,11 +1504,19 @@
       "type": "model",
       "slug": "gemini-3-pro-image",
       "names": {
-        "en": "Gemini 3 Pro Image (Nano Banana Pro)"
+        "en": "Gemini 3 Pro Image (Nano Banana Pro)",
+        "ko": "제미나이 3 프로 이미지"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-nano-banana-pro"
       },
       "aliases": [
-        "Nano Banana Pro"
+        "Nano Banana Pro",
+        "나노 바나나 프로"
       ],
+      "aliases_src": {
+        "나노 바나나 프로": "src:ko-ai-studio-nano-banana-pro"
+      },
       "description": {
         "en": "Higher-end image generation and editing model marketed as Nano Banana Pro; preview since November 2025, stable version released on May 28, 2026. Accepts images and text and returns images and text.",
         "ko": "Nano Banana Pro라는 이름으로 소개된 상위 이미지 생성·편집 모델로, 2025년 11월 프리뷰를 거쳐 2026년 5월 28일 정식 버전이 나왔습니다. 이미지와 텍스트를 입력받아 이미지와 텍스트를 출력합니다."
@@ -1536,7 +1602,11 @@
       "type": "model",
       "slug": "gemini-2-5-pro",
       "names": {
-        "en": "Gemini 2.5 Pro"
+        "en": "Gemini 2.5 Pro",
+        "ko": "제미나이 2.5 프로"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-2-5-io-2025"
       },
       "aliases": [],
       "description": {
@@ -1640,7 +1710,11 @@
       "type": "model",
       "slug": "gemini-2-5-flash",
       "names": {
-        "en": "Gemini 2.5 Flash"
+        "en": "Gemini 2.5 Flash",
+        "ko": "제미나이 2.5 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-2-5-flash"
       },
       "aliases": [],
       "description": {
@@ -1847,7 +1921,11 @@
       "type": "model",
       "slug": "gemini-2-5-flash-image",
       "names": {
-        "en": "Gemini 2.5 Flash Image (Nano Banana)"
+        "en": "Gemini 2.5 Flash Image (Nano Banana)",
+        "ko": "나노 바나나"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-nano-banana-pro"
       },
       "aliases": [
         "Nano Banana"
@@ -1949,7 +2027,11 @@
       "type": "model",
       "slug": "gemini-omni-flash",
       "names": {
-        "en": "Gemini Omni Flash"
+        "en": "Gemini Omni Flash",
+        "ko": "제미나이 옴니 플래시"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-omni"
       },
       "aliases": [
         "gemini-omni-1.1-flash"
@@ -2122,7 +2204,11 @@
       "type": "service",
       "slug": "gemini-api",
       "names": {
-        "en": "Gemini API"
+        "en": "Gemini API",
+        "ko": "제미나이 API"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-1-pro"
       },
       "aliases": [
         "Gemini Developer API"
@@ -2176,11 +2262,19 @@
       "type": "service",
       "slug": "google-ai-studio",
       "names": {
-        "en": "Google AI Studio"
+        "en": "Google AI Studio",
+        "ko": "구글 AI 스튜디오"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-1-pro"
       },
       "aliases": [
-        "AI Studio"
+        "AI Studio",
+        "AI 스튜디오"
       ],
+      "aliases_src": {
+        "AI 스튜디오": "src:ko-ai-studio-gemini-3-1-pro"
+      },
       "description": {
         "en": "Google's web tool for trying Gemini models, creating Gemini API keys and building prototypes. The Gemini API free tier is used through it.",
         "ko": "Gemini 모델을 시험하고 Gemini API 키를 발급하며 프로토타입을 만드는 Google의 웹 도구입니다. Gemini API 무료 등급도 이곳을 통해 이용합니다."
@@ -2220,7 +2314,11 @@
       "type": "service",
       "slug": "jules",
       "names": {
-        "en": "Jules"
+        "en": "Jules",
+        "ko": "줄스"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-google-ai-pro-students"
       },
       "aliases": [],
       "description": {
@@ -2266,7 +2364,11 @@
       "type": "service",
       "slug": "gemini-cli",
       "names": {
-        "en": "Gemini CLI"
+        "en": "Gemini CLI",
+        "ko": "제미나이 CLI"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-1-pro"
       },
       "aliases": [],
       "description": {
@@ -2308,11 +2410,19 @@
       "type": "service",
       "slug": "google-antigravity",
       "names": {
-        "en": "Google Antigravity"
+        "en": "Google Antigravity",
+        "ko": "구글 안티그래비티"
+      },
+      "names_src": {
+        "ko": "src:ko-ai-studio-gemini-3-1-pro"
       },
       "aliases": [
-        "Antigravity"
+        "Antigravity",
+        "안티그래비티"
       ],
+      "aliases_src": {
+        "안티그래비티": "src:ko-ai-studio-gemini-3-1-pro"
+      },
       "description": {
         "en": "Google's agentic development platform, with desktop downloads for macOS, Windows and Linux; Google AI Pro and Ultra plans raise its agent usage limits.",
         "ko": "Google의 에이전트형 개발 플랫폼으로 macOS·Windows·Linux용 데스크톱 앱을 제공하며, Google AI Pro·Ultra 요금제에서 에이전트 사용 한도가 높아집니다."

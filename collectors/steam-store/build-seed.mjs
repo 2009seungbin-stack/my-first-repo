@@ -28,8 +28,9 @@ const prevById=new Map(prev.entities.map(e=>[e.id,e]));
 const others=loadSeeds(seedFiles().filter(f=>f.replace(/\\/g,'/')!==OUT.replace(/\\/g,'/')));
 // Other files' games entities reserve their slugs; previous orgs are reused by name.
 const reserved=others.filter(s=>s.doc.vertical==='games').flatMap(s=>s.doc.entities||[]).map(e=>({id:e.id,type:e.type,vertical:'games',slug:e.slug,names:e.names,aliases:e.aliases||[],facts:{}}));
-const prevOrgs=prev.entities.filter(e=>e.type==='org').map(e=>({id:e.id,type:'org',vertical:'games',slug:e.slug,names:e.names,aliases:e.aliases||[],facts:{}}));
-const stubs=targets.map(t=>({id:`game:steam-${t.appid}`,type:'game',vertical:'games',slug:prevById.get(`game:steam-${t.appid}`)?.slug,facts:{steam_appid:t.appid}}));
+const prevOrgs=prev.entities.filter(e=>e.type==='org').map(e=>({id:e.id,type:'org',vertical:'games',slug:e.slug,names:e.names,names_src:e.names_src,aliases:e.aliases||[],aliases_src:e.aliases_src,facts:{}}));
+// Previous names (and where they came from) let the adapter keep a Korean name the store does not show.
+const stubs=targets.map(t=>{const p=prevById.get(`game:steam-${t.appid}`);return {id:`game:steam-${t.appid}`,type:'game',vertical:'games',slug:p?.slug,names:p?.names,names_src:p?.names_src,facts:{steam_appid:t.appid}};});
 
 const store=await runAdapter(createSteamStoreAdapter(),{targets:[...stubs,...prevOrgs,...reserved],log});
 if(store.error)throw Error(store.error);
@@ -64,6 +65,12 @@ const orgs=doc.entities.filter(e=>e.type==='org').sort((a,b)=>a.id<b.id?-1:1);
 const out={schema:'nerulio.seed/1',vertical:'games',
  sources:[...new Map(doc.sources.map(s=>[s.id,s])).values()].sort((a,b)=>a.id<b.id?-1:1),
  entities:[...games,...orgs].map(e=>({...e,facts:(e.facts||[]).map(strip)}))};
+// Sources that back a kept Korean name (names_src/aliases_src) stay in the file.
+{const have=new Set(out.sources.map(s=>s.id));
+ for(const e of out.entities)for(const id of [...Object.values(e.names_src||{}),...Object.values(e.aliases_src||{})]){
+  const s=prev.sources.find(x=>x.id===id);if(s&&!have.has(id)){out.sources.push(s);have.add(id);}
+ }
+ out.sources.sort((a,b)=>a.id<b.id?-1:1);}
 const results=validateAll([...others,{file:OUT,doc:out}]).filter(r=>r.file===OUT);
 const errors=results.flatMap(r=>r.errors);
 if(errors.length){console.error(errors.slice(0,40).join('\n'));process.exit(1);}

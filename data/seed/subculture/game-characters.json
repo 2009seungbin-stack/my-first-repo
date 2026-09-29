@@ -59,6 +59,158 @@
    "title": "페이트/그랜드 오더 - 넷마블",
    "publisher": "Netmarble (Fate/Grand Order Korean service)",
    "retrieved": "2026-09-28"
+  },
+  {
+   "id": "src:ko-sub-c-ba-brand-chardata",
+   "kind": "OFFICIAL",
+   "url": "https://ssl.nexon.com/s1/Game/m_ba/brand/char_kr.js",
+   "title": "블루 아카이브 공식 브랜드 사이트 학생명부 데이터 (char_kr.js, loaded by bluearchive.nexon.com/home)",
+   "publisher": "NEXON Korea",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-ba-prob-regular",
+   "kind": "OFFICIAL",
+   "url": "https://m.nexon.com/probability/7799?client_id=MjcwOA&language=ko",
+   "title": "Nexon 확률 정보 — 블루 아카이브 상시 모집",
+   "publisher": "NEXON Korea",
+   "retrieved": "2026-09-29",
+   "note": "Linked from official forum notice https://forum.nexon.com/bluearchive/board_view?board=4606&thread=2480089"
+  },
+  {
+   "id": "src:ko-sub-c-ba-forum-2253348",
+   "kind": "OFFICIAL",
+   "url": "https://forum.nexon.com/bluearchive/board_view?board=1018&thread=2253348",
+   "title": "8/22(화) 토키, 나기사 특별 픽업 모집 안내",
+   "publisher": "NEXON Korea (블루 아카이브 공식 포럼 공지사항)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-ba-forum-2679540",
+   "kind": "OFFICIAL",
+   "url": "https://forum.nexon.com/bluearchive/board_view?board=1018&thread=2679540",
+   "title": "[영상/축전] 블루 아카이브 3주년 기념! 아로나 & 프라나의 감사 인사를 전해 드립니다.",
+   "publisher": "NEXON Korea (블루 아카이브 공식 포럼 공지사항)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-uma-brand-data",
+   "kind": "OFFICIAL",
+   "url": "https://umamusume.kakaogames.com/assets/js/data.v5.js?v=20260909",
+   "title": "우마무스메 프리티 더비 공식 사이트 캐릭터 데이터 (umamusume.kakaogames.com)",
+   "publisher": "Kakao Games",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-nikke-yt-anis-summer",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=-jMRHdWgzCU",
+   "title": "《승리의 여신: 니케》 【NIKKE 모션 VIEW】 아니스 : 스파클링 서머(Anis: Sparkling Summer)",
+   "publisher": "승리의 여신: 니케 공식 한국 YouTube (@nikkekr)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-nikke-x-dorothy",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/NIKKE_kr/status/1943626334317736077",
+   "title": "【NIKKE 프로필】 도로시 : 세렌디피티(Dorothy: Serendipity)",
+   "publisher": "승리의 여신: 니케 공식 한국 X (@NIKKE_kr)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror of the official post"
+  },
+  {
+   "id": "src:ko-sub-c-zzz-yt-aria",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/shorts/hTbu6FGvtNg",
+   "title": "[성우 공개] 아리아",
+   "publisher": "젠레스 존 제로 공식 한국 YouTube (@ZZZ_KO)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-hsr-yt-blackswan",
+   "kind": "OFFICIAL",
+   "url": "https://www.youtube.com/watch?v=4Lw1dp-iCzA",
+   "title": "블랙 스완 캐릭터 PV —— 「자장가」 | 〈붕괴: 스타레일〉",
+   "publisher": "붕괴: 스타레일 공식 한국 YouTube (@Honkaistarrail_kr)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-morgan",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1991116938559557871",
+   "title": "11/21(금) <8주년 기념 메모리얼 픽업> 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-okita-alter",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/2013172449731596435",
+   "title": "1/21(수) <복각 칼데아 서머 어드벤처! 오키타 소지(얼터)(세이버) 픽업> 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-abigail-summer",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1649244479860408320",
+   "title": "4/25(화) 복각 <서번트 서머 캠프!> 애비게일 윌리엄스(여름) 픽업 개최 예정!",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-mash",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1638362595441922053",
+   "title": "Fate/Grand Order Waltz in the MOONLIGHT/LOSTROOM X Fate/Grand Order 콜라보레이션 이벤트 신규 영의 소개",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror"
+  },
+  {
+   "id": "src:ko-sub-c-fgo-x-old-man",
+   "kind": "OFFICIAL",
+   "url": "https://x.com/FateGO_KR/status/1083205072324943872",
+   "title": "#페그오_이벤트_안내 '산의 노인' 픽업 소환",
+   "publisher": "페이트/그랜드 오더 공식 한국 X (@FateGO_KR, Netmarble)",
+   "retrieved": "2026-09-29",
+   "note": "Read via api.fxtwitter.com mirror. KR servant name for the Assassin 'First Hassan' (JP 山の翁 / EN King Hassan)"
+  },
+  {
+   "id": "src:ko-sub-c-laftel-csm",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41105",
+   "title": "체인소 맨 — 라프텔 (episode list via https://laftel.net/api/episodes/v2/list/?item_id=41105)",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-laftel-jjk0",
+   "kind": "OFFICIAL",
+   "url": "https://laftel.net/item/41149",
+   "title": "극장판 주술회전 0 — 라프텔",
+   "publisher": "Laftel",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-opcg-kr-stk22",
+   "kind": "OFFICIAL",
+   "url": "https://onepiece-cardgame.kr/cardlist.do?series=%5BSTK-22%5D%20%EC%8A%A4%ED%83%80%ED%8A%B8%20%EB%8D%B1%20%EC%97%90%EC%9D%B4%EC%8A%A4%20%26%20%EB%89%B4%EA%B2%8C%EC%9D%B4%ED%8A%B8",
+   "title": "ONE PIECE 원피스 카드게임 — 카드 리스트 [STK-22] 스타트 덱 에이스 & 뉴게이트",
+   "publisher": "BANDAI Korea (official Korean ONE PIECE Card Game site)",
+   "retrieved": "2026-09-29"
+  },
+  {
+   "id": "src:ko-sub-c-endfield-ko",
+   "kind": "OFFICIAL",
+   "url": "https://endfield.gryphline.com/ko-kr",
+   "title": "명일방주: 엔드필드 - 변경을 넘어 최전방으로",
+   "publisher": "GRYPHLINE",
+   "retrieved": "2026-09-29",
+   "note": "'하이퍼그리프' appears only in the page's meta keywords; visible branding is Latin 'GRYPHLINE'/'HYPERGRYPH'"
   }
  ],
  "entities": [
@@ -69,6 +221,12 @@
    "names": {
     "en": "Hypergryph",
     "ja": "Hypergryph"
+   },
+   "aliases": [
+    "하이퍼그리프"
+   ],
+   "aliases_src": {
+    "하이퍼그리프": "src:ko-sub-c-endfield-ko"
    },
    "description": {
     "en": "Chinese developer of Arknights and Arknights: Endfield.",
@@ -346,7 +504,11 @@
    "slug": "blue-archive-noa",
    "names": {
     "en": "Noa Ushio",
-    "ja": "生塩ノア"
+    "ja": "生塩ノア",
+    "ko": "노아"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
    },
    "relations": [
     {
@@ -369,7 +531,11 @@
    "slug": "blue-archive-nagisa",
    "names": {
     "en": "Nagisa",
-    "ja": "ナギサ"
+    "ja": "ナギサ",
+    "ko": "나기사"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2253348"
    },
    "relations": [
     {
@@ -392,7 +558,11 @@
    "slug": "blue-archive-kisaki",
    "names": {
     "en": "Kisaki",
-    "ja": "キサキ"
+    "ja": "キサキ",
+    "ko": "키사키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
    },
    "relations": [
     {
@@ -415,7 +585,11 @@
    "slug": "blue-archive-arona",
    "names": {
     "en": "Arona",
-    "ja": "アロナ"
+    "ja": "アロナ",
+    "ko": "아로나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2679540"
    },
    "relations": [
     {
@@ -438,7 +612,11 @@
    "slug": "blue-archive-plana",
    "names": {
     "en": "Plana",
-    "ja": "プラナ"
+    "ja": "プラナ",
+    "ko": "프라나"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-forum-2679540"
    },
    "relations": [
     {
@@ -461,7 +639,11 @@
    "slug": "blue-archive-neru",
    "names": {
     "en": "Neru",
-    "ja": "ネル"
+    "ja": "ネル",
+    "ko": "네루"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-brand-chardata"
    },
    "relations": [
     {
@@ -484,7 +666,11 @@
    "slug": "blue-archive-kirara",
    "names": {
     "en": "Kirara",
-    "ja": "キララ"
+    "ja": "キララ",
+    "ko": "키라라"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
    },
    "relations": [
     {
@@ -507,7 +693,11 @@
    "slug": "blue-archive-ichika",
    "names": {
     "en": "Ichika",
-    "ja": "イチカ"
+    "ja": "イチカ",
+    "ko": "이치카"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-ba-prob-regular"
    },
    "relations": [
     {
@@ -530,7 +720,11 @@
    "slug": "uma-musume-pretty-derby-nice-nature",
    "names": {
     "en": "Nice Nature",
-    "ja": "ナイスネイチャ"
+    "ja": "ナイスネイチャ",
+    "ko": "나이스 네이처"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -547,7 +741,11 @@
    "slug": "uma-musume-pretty-derby-mejiro-ardan",
    "names": {
     "en": "Mejiro Ardan",
-    "ja": "メジロアルダン"
+    "ja": "メジロアルダン",
+    "ko": "메지로 아르당"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -564,7 +762,11 @@
    "slug": "uma-musume-pretty-derby-admire-vega",
    "names": {
     "en": "Admire Vega",
-    "ja": "アドマイヤベガ"
+    "ja": "アドマイヤベガ",
+    "ko": "어드마이어 베가"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -581,7 +783,11 @@
    "slug": "uma-musume-pretty-derby-mejiro-mcqueen",
    "names": {
     "en": "Mejiro McQueen",
-    "ja": "メジロマックイーン"
+    "ja": "メジロマックイーン",
+    "ko": "메지로 맥퀸"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -598,7 +804,11 @@
    "slug": "uma-musume-pretty-derby-rice-shower",
    "names": {
     "en": "Rice Shower",
-    "ja": "ライスシャワー"
+    "ja": "ライスシャワー",
+    "ko": "라이스 샤워"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -615,7 +825,11 @@
    "slug": "uma-musume-pretty-derby-aston-machan",
    "names": {
     "en": "Aston Machan",
-    "ja": "アストンマーチャン"
+    "ja": "アストンマーチャン",
+    "ko": "애스턴 마짱"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -632,7 +846,11 @@
    "slug": "uma-musume-pretty-derby-smart-falcon",
    "names": {
     "en": "Smart Falcon",
-    "ja": "スマートファルコン"
+    "ja": "スマートファルコン",
+    "ko": "스마트 팔콘"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-uma-brand-data"
    },
    "relations": [
     {
@@ -649,7 +867,11 @@
    "slug": "goddess-of-victory-nikke-anis",
    "names": {
     "en": "Anis",
-    "ja": "アニス"
+    "ja": "アニス",
+    "ko": "아니스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-nikke-yt-anis-summer"
    },
    "relations": [
     {
@@ -672,7 +894,11 @@
    "slug": "goddess-of-victory-nikke-dorothy",
    "names": {
     "en": "Dorothy",
-    "ja": "ドロシー"
+    "ja": "ドロシー",
+    "ko": "도로시"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-nikke-x-dorothy"
    },
    "relations": [
     {
@@ -695,7 +921,11 @@
    "slug": "zenless-zone-zero-aria",
    "names": {
     "en": "Aria",
-    "ja": "アリア"
+    "ja": "アリア",
+    "ko": "아리아"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-zzz-yt-aria"
    },
    "relations": [
     {
@@ -718,7 +948,11 @@
    "slug": "honkai-star-rail-black-swan",
    "names": {
     "en": "Black Swan",
-    "ja": "ブラックスワン"
+    "ja": "ブラックスワン",
+    "ko": "블랙 스완"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-hsr-yt-blackswan"
    },
    "relations": [
     {
@@ -763,7 +997,11 @@
    "slug": "fate-mash",
    "names": {
     "en": "Mash Kyrielight",
-    "ja": "マシュ・キリエライト"
+    "ja": "マシュ・キリエライト",
+    "ko": "마슈 키리에라이트"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-mash"
    },
    "relations": [
     {
@@ -786,7 +1024,11 @@
    "slug": "fate-first-hassan",
    "names": {
     "en": "First Hassan",
-    "ja": "山の翁"
+    "ja": "山の翁",
+    "ko": "산의 노인"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-old-man"
    },
    "relations": [
     {
@@ -809,7 +1051,11 @@
    "slug": "fate-okita-souji-alter",
    "names": {
     "en": "Okita Souji (Alter)",
-    "ja": "沖田総司〔オルタ〕"
+    "ja": "沖田総司〔オルタ〕",
+    "ko": "오키타 소지(얼터)"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-okita-alter"
    },
    "relations": [
     {
@@ -832,7 +1078,11 @@
    "slug": "fate-abigail-williams",
    "names": {
     "en": "Abigail Williams",
-    "ja": "アビゲイル・ウィリアムズ"
+    "ja": "アビゲイル・ウィリアムズ",
+    "ko": "애비게일 윌리엄스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-abigail-summer"
    },
    "relations": [
     {
@@ -855,7 +1105,11 @@
    "slug": "fate-morgan",
    "names": {
     "en": "Morgan",
-    "ja": "モルガン"
+    "ja": "モルガン",
+    "ko": "모르간"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-fgo-x-morgan"
    },
    "relations": [
     {
@@ -878,7 +1132,11 @@
    "slug": "chainsaw-man-aki",
    "names": {
     "en": "Aki Hayakawa",
-    "ja": "早川アキ"
+    "ja": "早川アキ",
+    "ko": "하야카와 아키"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-csm"
    },
    "relations": [
     {
@@ -895,7 +1153,11 @@
    "slug": "chainsaw-man-power",
    "names": {
     "en": "Power",
-    "ja": "パワー"
+    "ja": "パワー",
+    "ko": "파워"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-csm"
    },
    "relations": [
     {
@@ -912,7 +1174,11 @@
    "slug": "jujutsu-kaisen-yuta",
    "names": {
     "en": "Yuta Okkotsu",
-    "ja": "乙骨憂太"
+    "ja": "乙骨憂太",
+    "ko": "옷코츠 유타"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-laftel-jjk0"
    },
    "relations": [
     {
@@ -929,7 +1195,17 @@
    "slug": "one-piece-ace",
    "names": {
     "en": "Portgas D. Ace",
-    "ja": "ポートガス・D・エース"
+    "ja": "ポートガス・D・エース",
+    "ko": "포트거스 D. 에이스"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-c-opcg-kr-stk22"
+   },
+   "aliases": [
+    "에이스"
+   ],
+   "aliases_src": {
+    "에이스": "src:ko-sub-c-opcg-kr-stk22"
    },
    "relations": [
     {

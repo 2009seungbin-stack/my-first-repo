@@ -61,7 +61,12 @@
     {"id":"src:open-xai-release-notes","kind":"OFFICIAL","url":"https://docs.x.ai/developers/release-notes","title":"Release notes","publisher":"xAI","retrieved":"2026-09-28"},
     {"id":"src:open-xai-model-grok-4-7","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.7","title":"Grok 4.7 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
     {"id":"src:open-xai-model-grok-4-6","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.6","title":"Grok 4.6 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
-    {"id":"src:open-xai-model-grok-4-3","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.3","title":"Grok 4.3 (model page)","publisher":"xAI","retrieved":"2026-09-28"}
+    {"id":"src:open-xai-model-grok-4-3","kind":"OFFICIAL","url":"https://docs.x.ai/developers/models/grok-4.3","title":"Grok 4.3 (model page)","publisher":"xAI","retrieved":"2026-09-28"},
+    {"id":"src:ko-ai-studio-zdnet-llama-3-3","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20241208123618","title":"\"운영 비용 8분의 1\"...메타, 신형 AI '라마 3.3 70B' 출시 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); Meta's own Korean newsroom uses Latin \"Llama\""},
+    {"id":"src:ko-ai-studio-zdnet-deepseek-r1","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20250306163231","title":"크기는 '딥시크 R1' 20분의 1, 성능은 비슷…비결은 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); DeepSeek has no Korean official page"},
+    {"id":"src:ko-ai-studio-zdnet-grok-4-6","kind":"CURATED","url":"https://zdnet.co.kr/view/?no=20260723220142","title":"머스크, xAI '그록 4.6' 예고…2조 매개변수로 키미 K3보다 낫다고 주장 - ZDNet korea","publisher":"ZDNet Korea","retrieved":"2026-09-29","note":"Korean press spelling (alias only); xAI has no Korean official page"},
+    {"id":"src:ko-ai-studio-ddaily-grok-4-7","kind":"CURATED","url":"https://www.ddaily.co.kr/page/view/2026092211233160132","title":"xAI, ‘그록 4.7’ 출시… 가격 대비 성능 앞세워 - 디지털데일리","publisher":"디지털데일리 (Digital Daily)","retrieved":"2026-09-29","note":"Korean press spelling (alias only); xAI has no Korean official page"},
+    {"id":"src:ko-ai-studio-gemma-4","kind":"OFFICIAL","url":"https://blog.google/intl/ko-kr/company-news/technology/gemma-4-kr/","title":"용량 대비(Byte for byte) 가장 강력한 성능의 오픈 모델 ‘젬마 4(Gemma 4)’를 소개합니다","publisher":"Google Korea (구글코리아 블로그, blog.google/intl/ko-kr)","retrieved":"2026-09-29","note":"Family name written 젬마 4 in Hangul; size designations (E2B/E4B/26B/31B) are written in Latin by Google Korea"}
   ],
   "entities": [
     {
@@ -576,8 +581,12 @@
       "aliases": [
         "Llama-3.3-70B-Instruct",
         "meta-llama/Llama-3.3-70B-Instruct",
-        "Llama 3.3"
+        "Llama 3.3",
+        "라마 3.3 70B"
       ],
+      "aliases_src": {
+        "라마 3.3 70B": "src:ko-ai-studio-zdnet-llama-3-3"
+      },
       "description": {
         "en": "Text-only multilingual instruction-tuned 70B Llama model released in December 2024.",
         "ko": "2024년 12월에 공개된 텍스트 전용 다국어 지시 튜닝 70B Llama 모델입니다."
@@ -1022,8 +1031,12 @@
       },
       "aliases": [
         "Llama-3.1-405B-Instruct",
-        "meta-llama/Llama-3.1-405B-Instruct"
+        "meta-llama/Llama-3.1-405B-Instruct",
+        "라마 3.1 405B"
       ],
+      "aliases_src": {
+        "라마 3.1 405B": "src:ko-ai-studio-zdnet-llama-3-3"
+      },
       "description": {
         "en": "The largest dense Llama 3.1 text model; Meta also publishes an FP8 version of the weights.",
         "ko": "Llama 3.1 텍스트 모델 중 가장 큰 덴스 모델로, Meta는 FP8 가중치도 함께 공개했습니다."
@@ -2331,8 +2344,12 @@
         "en": "Gemma 4 31B"
       },
       "aliases": [
-        "google/gemma-4-31B-it"
+        "google/gemma-4-31B-it",
+        "젬마 4"
       ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
       "description": {
         "en": "The largest dense Gemma 4 model, taking text and image input.",
         "ko": "텍스트와 이미지 입력을 받는 가장 큰 덴스 Gemma 4 모델입니다."
@@ -2428,8 +2445,12 @@
         "en": "Gemma 4 26B A4B"
       },
       "aliases": [
-        "google/gemma-4-26B-A4B-it"
+        "google/gemma-4-26B-A4B-it",
+        "젬마 4"
       ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
       "description": {
         "en": "Mixture-of-experts Gemma 4 model that activates about 4B of its parameters per token.",
         "ko": "토큰당 약 4B 파라미터만 활성화하는 MoE 방식의 Gemma 4 모델입니다."
@@ -2635,8 +2656,12 @@
         "en": "Gemma 4 E4B"
       },
       "aliases": [
-        "google/gemma-4-E4B-it"
+        "google/gemma-4-E4B-it",
+        "젬마 4"
       ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
       "description": {
         "en": "Small on-device Gemma 4 model; \"E\" means effective parameters, with Per-Layer Embeddings making the stored size larger than the effective size.",
         "ko": "온디바이스용 소형 Gemma 4 모델로, \"E\"는 유효 파라미터를 뜻하며 레이어별 임베딩 때문에 저장 크기는 유효 크기보다 큽니다."
@@ -2733,8 +2758,12 @@
         "en": "Gemma 4 E2B"
       },
       "aliases": [
-        "google/gemma-4-E2B-it"
+        "google/gemma-4-E2B-it",
+        "젬마 4"
       ],
+      "aliases_src": {
+        "젬마 4": "src:ko-ai-studio-gemma-4"
+      },
       "description": {
         "en": "The smallest Gemma 4 model, built for on-device use with text, image and audio input.",
         "ko": "가장 작은 Gemma 4 모델로, 텍스트·이미지·오디오 입력을 받는 온디바이스용입니다."
@@ -4198,8 +4227,12 @@
       },
       "aliases": [
         "deepseek-ai/DeepSeek-R1",
-        "R1"
+        "R1",
+        "딥시크 R1"
       ],
+      "aliases_src": {
+        "딥시크 R1": "src:ko-ai-studio-zdnet-deepseek-r1"
+      },
       "description": {
         "en": "DeepSeek's first open-weight reasoning model, released under the MIT License together with six smaller distilled models.",
         "ko": "DeepSeek의 첫 오픈 웨이트 추론 모델로, 소형 증류 모델 6종과 함께 MIT 라이선스로 공개되었습니다."
@@ -4294,8 +4327,12 @@
         "en": "Grok 4.7"
       },
       "aliases": [
-        "grok-4.7"
+        "grok-4.7",
+        "그록 4.7"
       ],
+      "aliases_src": {
+        "그록 4.7": "src:ko-ai-studio-ddaily-grok-4-7"
+      },
       "description": {
         "en": "xAI's current frontier API model for coding, agentic tasks and knowledge work, taking text and image input.",
         "ko": "코딩·에이전트·지식 작업용 xAI의 현행 최상위 API 모델로, 텍스트와 이미지 입력을 받습니다."
@@ -4390,8 +4427,12 @@
         "en": "Grok 4.6"
       },
       "aliases": [
-        "grok-4.6"
+        "grok-4.6",
+        "그록 4.6"
       ],
+      "aliases_src": {
+        "그록 4.6": "src:ko-ai-studio-zdnet-grok-4-6"
+      },
       "description": {
         "en": "xAI API model released in August 2026, one month before Grok 4.7, at the same list prices.",
         "ko": "Grok 4.7보다 한 달 앞선 2026년 8월 공개된 xAI API 모델로, 가격은 같습니다."

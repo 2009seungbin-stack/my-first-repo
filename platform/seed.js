@@ -59,6 +59,16 @@ export function validateSeed(doc,known={}){
    if(!isLabel(e.names)||!e.names.en)err(`${where}: names.en required`);
   }
   if(e.description!==undefined&&!isLabel(e.description))err(`${where}: description must be {en,ko} text`);
+  // Where a (Korean) name comes from: {ko:'src:…'} — a locale of `names` → the source that shows it.
+  if(e.names_src!==undefined){
+   if(!isObject(e.names_src))err(`${where}: names_src must map a locale to a source id`);
+   else for(const [l,s] of Object.entries(e.names_src)){if(!LOCALE_KEYS.includes(l)||!e.names?.[l])err(`${where}: names_src.${l} has no names.${l}`);src(s,`${where} names_src.${l}`);}
+  }
+  // Sourced search spellings: {'<alias>':'src:…'} — every key must be one of `aliases`.
+  if(e.aliases_src!==undefined){
+   if(!isObject(e.aliases_src))err(`${where}: aliases_src must map an alias to a source id`);
+   else for(const [a,s] of Object.entries(e.aliases_src)){if(!(e.aliases||[]).includes(a))err(`${where}: aliases_src "${a}" is not in aliases`);src(s,`${where} aliases_src`);}
+  }
   if(e.aliases!==undefined&&(!Array.isArray(e.aliases)||e.aliases.some((/** @type {unknown} */ a)=>typeof a!=='string'||!a.trim()||a.length>120)))err(`${where}: aliases must be strings`);
   if(e.regions!==undefined&&(!Array.isArray(e.regions)||e.regions.some((/** @type {string} */ r)=>!REGION.test(r))))err(`${where}: regions invalid`);
   for(const u of e.official_urls||[])if(!isHttpURL(u?.url)||typeof u.label!=='string')err(`${where}: official_urls entries need {label,url}`);

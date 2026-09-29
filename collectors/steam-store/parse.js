@@ -111,3 +111,37 @@ export function humanDate(iso,l){
  if(l==='ko')return d?`${y}년 ${m}월 ${d}일`:m?`${y}년 ${m}월`:`${y}년`;
  return d?`${d} ${EN_MONTH[m-1]} ${y}`:m?`${EN_MONTH[m-1]} ${y}`:String(y);
 }
+
+const HANGUL=/[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/;
+const KANA_HAN=/[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]/;
+/**
+ * The Korean display name from the Korean store name (`l=koreana`), or null when the developer did
+ * not set one. Only the English duplicate the store name sometimes carries is removed — "에이스 컴뱃 8:
+ * 시브의 날개 (ACE COMBAT 8: WINGS OF THEVE)", "Palworld / 팰월드", "아세토 코르사 Assetto Corsa" —
+ * and only when what remains is written in Hangul; the raw store name stays an alias. A name
+ * without Hangul written in Japanese/Chinese script (a Japanese title placed in the Korean slot) is
+ * not a Korean name.
+ * @param {string} rawKo cleaned Korean store name @param {string} nameEn cleaned English store name
+ * @param {(s:string)=>string} norm name normaliser (platform/schema.js normName)
+ * @returns {string|null}
+ */
+export function koreanStoreName(rawKo,nameEn,norm){
+ const ko=String(rawKo||'').trim(),en=String(nameEn||'').trim();
+ if(!ko||norm(ko)===norm(en))return null;
+ if(!HANGUL.test(ko)&&KANA_HAN.test(ko))return null;
+ if(!HANGUL.test(ko))return ko; // e.g. "BIOHAZARD RE:4": the official Korean-market title in Latin letters
+ const isEn=(/** @type {string} */ s)=>norm(s)===norm(en);
+ /** @type {[string,string,boolean][]} */const splits=[];   // [part, part, strict: remainder must be Latin-free]
+ const paren=/^(.*?)\s*[(（]([^()（）]*)[)）]$/.exec(ko);   // 한국어 (English) · English (한국어)
+ if(paren)splits.push([paren[1],paren[2],false]);
+ const sep=/^(.*?)\s+[/|]\s+(.*)$/.exec(ko);                // 한국어 / English · English / 한국어
+ if(sep)splits.push([sep[1],sep[2],false]);
+ const lo=ko.toLowerCase(),le=en.toLowerCase();             // 한국어 English · English 한국어
+ if(lo.startsWith(le+' '))splits.push([ko.slice(0,en.length),ko.slice(en.length),true]);
+ if(lo.endsWith(' '+le))splits.push([ko.slice(0,ko.length-en.length),ko.slice(ko.length-en.length),true]);
+ for(const [a,b,strict] of splits){
+  const rest=(isEn(a)?b:isEn(b)?a:'').trim();
+  if(rest&&HANGUL.test(rest)&&!(strict&&/[A-Za-z]/.test(rest)))return rest;
+ }
+ return ko;
+}

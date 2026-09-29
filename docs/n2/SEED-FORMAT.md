@@ -21,9 +21,15 @@ node tools/platform/validate-seed.mjs data/seed/hardware
    - `UNKNOWN` is never written as a fact; omit instead.
 3. Descriptions are 1–2 factual sentences in **both en and ko**, written by you, no marketing, no
    copying of source text. Omit when you have nothing factual to say.
-4. Korean names: use the name officially used in Korea (Korean store page / Korean official site).
-   If there is no official Korean name, use the common Korean transliteration **only** if widely used;
-   otherwise give only `en`.
+4. Korean names: `names.ko` is the name **officially** used in Korea — the rights holder's Korean
+   site/store listing, its official Korean licensee/distributor (Laftel, Aniplus, Netflix KR, Korean
+   manga publishers, KOBIS for theatrical titles, PlayStation Store KR, Nintendo Korea, Steam
+   `l=koreana`), a company's own Korean site/DART filing. Cite it with `names_src.ko` (a source id).
+   Never a translation or transliteration you made up; wikis (Namuwiki, Wikipedia) are hints, not
+   sources. No official Korean name → give only `en` (the UI falls back to it). Model/product/version
+   names stay in their original form unless the vendor itself writes them in Hangul. A widely used
+   Korean spelling may be an **alias** (search term; shown beside the English name on /ko/ pages) when
+   a reputable page uses it — cite it in `aliases_src`.
 5. Never link to or describe unauthorized downloads (cracks, ripped assets, pirate mirrors). Translation
    patches: link to the author's own page only; Nerulio never hosts patch files.
 6. Prices: the official list price for the stated region and currency, with the date retrieved. Taxes,
@@ -55,7 +61,9 @@ node tools/platform/validate-seed.mjs data/seed/hardware
       "type": "gpu",
       "slug": "rtx-5070",                 // URL /{ko,en}/hardware/rtx-5070/ — unique within the vertical
       "names": {"en": "NVIDIA GeForce RTX 5070", "ko": "엔비디아 지포스 RTX 5070"},
+      "names_src": {"ko": "src:nvidia-kr-rtx-5070"},              // optional: where names.ko comes from
       "aliases": ["RTX 5070", "GeForce RTX 5070", "5070"],
+      "aliases_src": {"지포스 RTX 5070": "src:…"},                    // optional: sourced Korean spellings
       "description": {"en": "…", "ko": "…"},                       // optional
       "regions": ["GLOBAL"],                                         // optional
       "official_urls": [{"label": "Product page", "url": "https://…"}],
