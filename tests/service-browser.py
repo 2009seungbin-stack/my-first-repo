@@ -638,7 +638,7 @@ def scenario_passkey(browser):
         page.fill('#comment-form textarea','지문으로 가입해서 남긴 댓글');page.click('#comment-form button[type="submit"]')
         page.wait_for_function('()=>document.querySelector(".cl")&&document.querySelector(".cl").textContent.includes("지문으로 가입해서 남긴 댓글")',timeout=15000)
         nk=page.locator('.cl .co').last.locator('.nick')
-        ok('passkey: the comment shows the fixed nickname with the member check mark (not a daily ID)',nk.inner_text().startswith('지문테스터') and nk.locator('.ck').inner_text()=='✓' and 'anon' not in (nk.get_attribute('class') or ''),nk.inner_text())
+        ok('passkey: the comment shows the fixed nickname with the member check mark (not a daily ID)',nk.inner_text().startswith('지문테스터') and nk.locator('.ck svg').count()==1 and nk.locator('.ck').get_attribute('aria-label')=='고정닉 (로그인 회원)' and 'anon' not in (nk.get_attribute('class') or ''),nk.inner_text())
         page.goto(origin+'/ko/community/me',wait_until='networkidle');page.locator('[data-logout]:not([hidden])').wait_for(timeout=10000)
         with page.expect_navigation(timeout=30000):page.click('[data-logout]')
         page.goto(post,wait_until='networkidle')
