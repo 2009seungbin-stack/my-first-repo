@@ -1,9 +1,11 @@
 // @ts-check
 /** /api/v2 — the platform's write API for the page islands (PLATFORM=on builds only).
- * Same conventions as /api/v1: JSON bodies only, same-origin POSTs, no CORS, session cookie auth,
- * app-level burst limits, error codes as the client contract. Reading is anonymous; every write
- * needs a signed-in account (architecture D7). After a write, the edge-cached page it changes is
- * purged so the author sees it at once. */
+ * Same conventions as /api/v1: JSON bodies only (image uploads send the image bytes), same-origin POSTs,
+ * no CORS, session cookie auth, app-level burst limits, error codes as the client contract. Reading is
+ * anonymous. Members write with their account; posts, comments, votes, reports and images also work
+ * without one (유동: nickname + daily ID + edit password, behind Turnstile and per-network limits —
+ * server/platform/anon.js). Follows, profile, proposals, compat/benchmark reports and rollout votes stay
+ * member-only. After a write, the edge-cached page it changes is purged so the author sees it at once. */
 import {runtimeConfig} from '../config.js';
 import {ApiError,json,errorResponse,readJSON} from '../http.js';
 import {resolveContext} from '../identity.js';
@@ -23,8 +25,17 @@ import {handleAdminApi,isAdminRoute} from './admin.js';
 import {notifyNewFlag} from './admin-notify.js';
 import {handleHit} from '../traffic.js';
 import {configuredProviders} from '../oauth/providers.js';
+import {ANON,REPORT,ANON_USER,anonIdentity,anonSecret,anonMode,assertAnonEnabled,humanGate,takeDaily,readDaily,hourKey,assertNotBanned,countLinks,blocklistVerdict,textHash,anonCleanupStatements,hashPassword,verifyPassword,kstDay,normalizeText} from './anon.js';
+import {uploadsConfigured,uploadsNotConfigured,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf} from './uploads.js';
+import {IMAGE_LIMITS} from './images.js';
 
-const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
+const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
+/** Writes that also work without an account. */
+const ANON_ROUTES=/** @type {Record<string,1>} */({'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /flags':1,'POST /anon/check':1,'POST /uploads':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
+/** Edits of an anonymous post or comment: by its password, signed in or not. */
+const ANON_EDITS=/** @type {Record<string,1>} */({'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1});
+/** 신고 categories: the 0004 reasons plus the ones that hide at once (REPORT.severe). */
+export const FLAG_CATEGORIES=Object.freeze(Object.keys(REPORT.reasonOf));
 
 /** @param {unknown} v @param {[number,number]} range @param {string} field */
 function text(v,[min,max],field){
@@ -43,7 +54,7 @@ function only(body,allowed){for(const k of Object.keys(body))if(!allowed.include
 /** Until a member picks a nickname: "user-" + the first characters of the account id. @param {string} id */
 export const defaultNickname=id=>`user-${String(id).replace(/[^A-Za-z0-9]/g,'').slice(0,6).toLowerCase()}`;
 /** Reserved: staff-looking names and the "user-xxxxxx" form every new account starts with. @param {string} name */
-export const reservedNickname=name=>/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name);
+export const reservedNickname=name=>/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name)||/^(ㅇㅇ|익명|유동|anonymous)$/i.test(name.trim());
 /** A nickname to offer a member who still has the automatic one: the handle of their GitHub or Discord
  * account (a public handle there; never a Google or display name, which can be a legal name). It is only
  * pre-filled in the 내 정보 form; nothing is published until the member saves it. Null when the handle
@@ -124,7 +135,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   const origin=cfg.siteOrigin||url.origin;
   // Reads (anonymous allowed).
-  if(key==='GET /state')return done({...await state(db,context,url.searchParams),providers:configuredProviders(cfg)});
+  if(key==='GET /state')return done({...await state(db,context,url.searchParams,{env,cfg,now,ip:clientIp(request)}),providers:configuredProviders(cfg)});
   if(key==='GET /new-posts'){
    const e=await entity(db,String(url.searchParams.get('entity')||''));
    const after=Number(url.searchParams.get('after'))||0;
@@ -168,11 +179,21 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   if(key==='GET /mod/queue'){const p=await moderator(db,context);return done(await modQueue(db,p));}
   if(key==='GET /my-radar'){if(!context.user)throw new ApiError('LOGIN_REQUIRED');return done(await myRadar(db,context.user.id,url.searchParams.get('l')==='en'?'en':'ko',now));}
   // Writes.
-  if(!context.user)throw new ApiError('LOGIN_REQUIRED');
+  /** @type {WriteCtx} */
+  const x={request,env,ctx,deps,cfg,context,now,db,origin,url,l:url.searchParams.get('l')==='en'?'en':'ko'};
+  if(key==='POST /uploads'){const r=await uploadRoute(x);maybeCleanup(x);return r;}
+  if(!context.user&&!ANON_ROUTES[key])throw new ApiError('LOGIN_REQUIRED');
+  const body=await readJSON(request,key==='POST /posts'||key==='POST /posts/edit'?64*1024:8192);
+  // Without an account, or with the password of an anonymous item (its edit works signed in too).
+  if(!context.user||key==='POST /anon/check'||(ANON_EDITS[key]&&typeof body.password==='string')){
+   const r=await anonRoute(key,body,x);
+   if(r.status===201)maybeCleanup(x);
+   return done(r.body,r.status);
+  }
   const limit=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await allowRequest({env,limiter:deps.limiter,key:`v2:${name}|u:${context.user.id}`,limit:n,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});};
   const profile=await ensureProfile(db,context.user,now);
   assertMayWrite(profile,now);
-  const body=await readJSON(request,key==='POST /posts'?64*1024:8192);
+  const owner=await ownerOf(context,anonSecret(env,cfg));
   switch(key){
    case 'POST /profile':{
     only(body,['displayName']);
@@ -202,10 +223,15 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     if(!staff&&!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
     const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
     await limit('post',LIMITS.postsPerMinute);
+    const verdict=staff?null:await blocklistVerdict(db,`${title}\n${md}`,now);
+    if(verdict==='reject')throw blockedText();
     const id=randomToken(12);
-    const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:url.searchParams.get('l')==='en'?'en':'ko',authorId:context.user.id},now);
+    const plan=await attachPlan(db,{md,owner,kind:'discussion',id});
+    const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:x.l,authorId:context.user.id,hasImage:plan.ids.length>0,status:verdict==='hide'?'hidden':'published'},now);
+    if(plan.statements.length)await db.batch(plan.statements);
+    if(verdict==='hide')await autoHold(x,'discussion',id);
     await purge(origin,pagesOf(e));
-    return done({id,postNo:no,url:postUrl(url.searchParams.get('l')==='en'?'en':'ko',e,no)},201);
+    return done({id,postNo:no,url:postUrl(x.l,e,no),...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /comments':{
     only(body,['postId','parentId','body']);
@@ -219,13 +245,17 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      if(!parent)throw new ApiError('BAD_REQUEST','The comment you replied to is gone.',{field:'parentId'});
     }
     const md=text(body.body,LIMITS.comment,'body');
+    if(hasImageSyntax(md))throw noCommentImages();
     await limit('comment',LIMITS.commentsPerMinute);
+    const verdict=await blocklistVerdict(db,md,now);
+    if(verdict==='reject')throw blockedText();
     const id=randomToken(12);
     await db.batch([
-     db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,created_at,updated_at) VALUES (?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,now,now),
+     db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').bind(id,post.id,parent?parent.id:null,context.user.id,md,verdict==='hide'?'hidden':'published',now,now),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
+    if(verdict==='hide')await autoHold(x,'comment',id);
     await purge(origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
-    return done({id},201);
+    return done({id,...(verdict==='hide'?{held:true}:{})},201);
    }
    case 'POST /votes':{
     only(body,['kind','id','value']);
@@ -252,8 +282,14 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
       if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
       kind=String(body.kind);
      }
-     await db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,now,now,p.id).run();
-    }else await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+     if(await blocklistVerdict(db,`${title}\n${md}`,now)==='reject')throw blockedText();
+     const plan=await attachPlan(db,{md,owner,kind:'discussion',id:String(p.id)});
+     await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,now,now,p.id),...plan.statements]);
+     await deleteImages(env,db,plan.dropped,'author',origin);
+    }else{
+     await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+     await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',origin);
+    }
     await purge(origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
     return done({ok:true});
    }
@@ -278,7 +314,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     const c=await db.prepare("SELECT c.id,c.author_id,c.status,c.discussion_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(body.commentId||'')).first();
     if(!c||c.author_id!==context.user.id||c.status!=='published')throw new ApiError('NOT_FOUND');
     await limit('post-edit',10);
-    if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
+    if(key==='POST /comments/edit'){const md=text(body.body,LIMITS.comment,'body');if(hasImageSyntax(md))throw noCommentImages();if(await blocklistVerdict(db,md,now)==='reject')throw blockedText();await db.prepare('UPDATE comments SET body_md=?,edited_at=?,updated_at=? WHERE id=?').bind(md,now,now,c.id).run();}
     else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,c.id),
      db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(c.discussion_id,c.discussion_id)]);
     await purge(origin,pagesOf({vertical:String(c.vertical),slug:String(c.slug)},Number(c.post_no)));
@@ -286,7 +322,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    }
    case 'POST /mod/action':{
     const me=await moderator(db,context);
-    return done(await modAction(db,context.user.id,String(me.role),body,now,origin));
+    return done(await modAction(db,context.user.id,String(me.role),body,now,origin,env,ctx,deps));
    }
    case 'POST /my-radar/seen':{
     only(body,['lastChangeId','repliesSeenAt']);
@@ -327,24 +363,10 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    }
    case 'POST /flags':{
     only(body,['target','reason','note']);
-    const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
-    if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
-    if(!['spam','abuse','wrong_info','source_dispute','duplicate','copyright','other'].includes(String(body.reason)))throw new ApiError('BAD_REQUEST','Invalid reason.',{field:'reason'});
-    const note=body.note===undefined||body.note===''?null:text(body.note,[1,1000],'note');
-    const TABLE=/** @type {Record<string,string>} */({discussion:'discussions',comment:'comments',report:'community_reports',wiki_revision:'wiki_revisions',fact:'facts',entity:'entities',user:'users'});
-    if(!await db.prepare(`SELECT 1 FROM ${TABLE[m[1]]} WHERE ${m[1]==='user'?'id':'id'}=?`).bind(m[1]==='wiki_revision'||m[1]==='fact'?Number(m[2])||-1:m[2]).first())throw new ApiError('NOT_FOUND','Nothing to report at this address.',{field:'target'});
+    const f=await flagInput(db,body);
     await limit('flag',10);
-    // One open flag per reporter and target; repeats update the reason instead of piling up.
-    const open=await db.prepare("SELECT id,reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],context.user.id).first();
-    if(open){
-     // Tell the reporter instead of silently replacing the reason they gave before.
-     await db.prepare('UPDATE content_flags SET reason=?,note=COALESCE(?,note) WHERE id=?').bind(body.reason,note,open.id).run();
-     return done({ok:true,updated:true,previousReason:String(open.reason)});
-    }
-    await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
-    // A new flag reaches the admin's phone at once (devices with flags:'instant'), after the response.
-    ctx?.waitUntil?.(notifyNewFlag(env,{target:`${m[1]}:${m[2]}`,reason:String(body.reason)},{now,fetch:deps.fetch,origin}));
-    return done({ok:true},201);
+    const r=await fileFlag(x,f,{id:context.user.id,key:null});
+    return done(r,r.updated?200:201);
    }
    case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
    case 'POST /rollout':{
@@ -369,12 +391,30 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
  }
 }
 
-/** What the islands need for one page: who is signed in, follow state, the reader's votes.
- * @param {any} db @param {any} context @param {URLSearchParams} q */
-async function state(db,context,q){
- const user=context.user;
- const out=/** @type {any} */({signedIn:!!user,user:null,following:false,votes:{}});
- if(!user)return out;
+/** What the islands need for one page: who is signed in, follow state, the reader's votes, and how
+ * writing without an account works here (anon: on/off, bot check, image uploads, limits).
+ * @param {any} db @param {any} context @param {URLSearchParams} q @param {{env:any,cfg:any,now:number,ip:string}} o */
+async function state(db,context,q,o){
+ const user=context.user,mode=anonMode(o.cfg);
+ const out=/** @type {any} */({signedIn:!!user,user:null,following:false,votes:{},
+  anon:{enabled:mode.enabled,check:mode.mode==='turnstile'?'turnstile':mode.mode==='strict'?'none':'off',siteKey:mode.siteKey,
+   name:ANON.name,defaultName:ANON.defaultName,password:ANON.password,links:ANON.links},
+  uploads:uploadsConfigured(o.env)?{maxBytes:IMAGE_LIMITS.maxBytes,maxSide:IMAGE_LIMITS.maxSide,perPost:ANON.imagesPerPost,types:['image/webp','image/jpeg','image/png']}:null});
+ const post=q.get('post'),flag=q.get('flag');
+ const FLAG=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/;
+ if(!user){
+  // A signed-out reader's votes and reports are keyed by today's network key: show them back.
+  if((post&&/^[\w-]{1,64}$/.test(post))||flag){
+   const ident=await anonIdentity(o.ip,anonSecret(o.env,o.cfg),o.now);
+   if(post&&/^[\w-]{1,64}$/.test(post)){
+    const rows=(await db.prepare(`SELECT target_id,value FROM anon_votes WHERE voter=? AND ((target_kind='discussion' AND target_id=?) OR (target_kind='comment' AND target_id IN (SELECT id FROM comments WHERE discussion_id=?)))`).bind(ident.key,post,post).all()).results||[];
+    for(const r of rows)out.votes[r.target_id]=Number(r.value);
+   }
+   const m=flag?FLAG.exec(flag):null;
+   if(m){const f=await db.prepare("SELECT reason,category FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_key=? AND status='open'").bind(m[1],m[2],ident.key).first();out.flagged=f?{reason:String(f.category||f.reason)}:null;}
+  }
+  return out;
+ }
  const p=await db.prepare('SELECT display_name,tier FROM user_profiles WHERE user_id=?').bind(user.id).first();
  out.user={name:p?.display_name||defaultNickname(user.id),tier:p?.tier||'new'};
  if(/^user-[0-9a-z]{1,6}$/.test(out.user.name)){const suggest=await nicknameSuggestion(db,user.id);if(suggest)out.user.suggest=suggest;}
@@ -385,10 +425,8 @@ async function state(db,context,q){
   const cv=(await db.prepare(`SELECT entity_id,COALESCE(target_version,'*') AS tv,result FROM community_reports WHERE kind='compat' AND user_id=? AND target_id=? AND status='published' ORDER BY created_at DESC,rowid DESC LIMIT 20`).bind(user.id,entityId).all()).results||[];
   out.compat={};for(const r of cv){const k=`${r.entity_id}|${r.tv}`;if(!(k in out.compat))out.compat[k]=String(r.result);}
  }
- const flag=q.get('flag');
- if(flag){const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(flag);
-  if(m){const f=await db.prepare("SELECT reason FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],user.id).first();out.flagged=f?{reason:String(f.reason)}:null;}}
- const post=q.get('post');
+ if(flag){const m=FLAG.exec(flag);
+  if(m){const f=await db.prepare("SELECT reason,category FROM content_flags WHERE target_kind=? AND target_id=? AND reporter_id=? AND status='open'").bind(m[1],m[2],user.id).first();out.flagged=f?{reason:String(f.category||f.reason)}:null;}}
  if(post&&/^[\w-]{1,64}$/.test(post)){
   const own=await db.prepare('SELECT author_id FROM discussions WHERE id=?').bind(post).first();
   out.mine={post:own?.author_id===user.id,comments:((await db.prepare("SELECT id FROM comments WHERE discussion_id=? AND author_id=? AND status='published'").bind(post,user.id).all()).results||[]).map((/** @type {any} */ r)=>String(r.id))};
@@ -396,6 +434,319 @@ async function state(db,context,q){
   for(const r of rows)out.votes[r.target_id]=Number(r.value);
  }
  return out;
+}
+
+/* ---------- writing without an account (유동), images, 신고 → 자동 임시조치 ---------- */
+
+/** @typedef {{request:Request,env:any,ctx:any,deps:{now?:()=>number,limiter?:any,fetch?:any,random?:()=>number},cfg:any,context:any,now:number,db:any,origin:string,url:URL,l:'ko'|'en'}} WriteCtx */
+/** @param {Request} r */
+const clientIp=r=>r.headers.get('cf-connecting-ip')||'';
+const blockedText=()=>new ApiError('BAD_REQUEST','This text contains a blocked word or link.',{field:'body',reason:'blocked'});
+const noCommentImages=()=>new ApiError('BAD_REQUEST','Images can be added to posts, not comments.',{field:'body',reason:'images'});
+/** Retention and unused-upload cleanup, on about 1 in 100 successful writes, after the response. @param {WriteCtx} x */
+function maybeCleanup(x){
+ if(((x.deps.random||Math.random)())>=0.01)return;
+ const run=async()=>{try{await x.db.batch(anonCleanupStatements(x.db,x.now));await expireUnattached(x.env,x.db,x.now,x.origin);}catch(e){console.error('anon cleanup',/** @type {any} */(e)?.message);}};
+ const p=run();x.ctx?.waitUntil?.(p);
+}
+
+/** The typed nickname: 1–12 characters, ㅇㅇ when empty; never a reserved or staff-looking name, a
+ * member's nickname (고정닉), or characters that imitate the ID or badges. @param {any} db @param {unknown} v */
+async function anonName(db,v){
+ if(v!==undefined&&v!==null&&typeof v!=='string')throw new ApiError('BAD_REQUEST','name must be text.',{field:'name'});
+ const s=String(v??'').replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2060\ufeff]/g,'').replace(/\s+/g,' ').trim();
+ if(!s)return ANON.defaultName;
+ if([...s].length>ANON.name[1])throw new ApiError('BAD_REQUEST',`name must be ${ANON.name[0]}–${ANON.name[1]} characters.`,{field:'name'});
+ if(s===ANON.defaultName)return s;
+ if(/[()（）\[\]<>✓✔☑⚙★]/.test(s)||reservedNickname(s))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'name'});
+ if(await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?)').bind(s).first())throw new ApiError('BAD_REQUEST','This nickname belongs to a member.',{field:'name'});
+ return s;
+}
+/** @param {unknown} v */
+function anonPassword(v){
+ if(typeof v!=='string'||[...v].length<ANON.password[0]||[...v].length>ANON.password[1]||/[\u0000-\u001f\u007f]/.test(v))throw new ApiError('BAD_REQUEST',`password must be ${ANON.password[0]}–${ANON.password[1]} characters.`,{field:'password'});
+ return v;
+}
+/** Password of an anonymous item, with attempt limits (per item and per network, per hour).
+ * @param {WriteCtx} x @param {{kind:string,id:string,password:unknown,stored:unknown,ident:import('./anon.js').AnonIdentity,max:number}} o */
+async function checkPassword(x,o){
+ const hk=hourKey(x.now),itemKey=`pwf:${o.kind}:${o.id}`,netKey=`pwn:${o.ident.net}`;
+ const [a,b]=await Promise.all([readDaily(x.db,itemKey,hk),readDaily(x.db,netKey,hk)]);
+ if(a>=ANON.passwordFailuresPerItem||b>=o.max)throw new ApiError('RATE_LIMITED','Too many wrong passwords. Please try again later.',{retryAfter:3600,reason:'password'});
+ if(typeof o.password==='string'&&await verifyPassword(o.password,String(o.stored||''),anonSecret(x.env,x.cfg)))return;
+ const bump=(/** @type {string} */ k)=>x.db.prepare('INSERT INTO anon_counters (key,day,n) VALUES (?,?,1) ON CONFLICT(key,day) DO UPDATE SET n=n+1').bind(k,hk);
+ await x.db.batch([bump(itemKey),bump(netKey)]);
+ throw new ApiError('FORBIDDEN','Wrong password.',{field:'password',reason:'password'});
+}
+/** Links, the first-write link rule, identical-text floods and the blocklist for an anonymous text.
+ * @param {WriteCtx} x @param {{text:string,kind:'post'|'comment',ident:import('./anon.js').AnonIdentity,edit?:boolean}} o */
+async function anonContentChecks(x,o){
+ const links=countLinks(o.text),max=o.kind==='post'?ANON.links.post:ANON.links.comment;
+ if(links>max)throw new ApiError('BAD_REQUEST',`Without an account a ${o.kind} may contain at most ${max} link${max>1?'s':''}.`,{field:'body',reason:'links',max});
+ if(links&&!o.edit&&(await readDaily(x.db,`p:${o.ident.net}`,o.ident.day))+(await readDaily(x.db,`c:${o.ident.net}`,o.ident.day))===0)
+  throw new ApiError('BAD_REQUEST','Links are allowed from your second post or comment of the day.',{field:'body',reason:'first_links'});
+ const verdict=await blocklistVerdict(x.db,o.text,x.now);
+ if(verdict==='reject')throw blockedText();
+ const hash=await textHash(o.text);
+ if(!o.edit){
+  const table=o.kind==='post'?'discussions':'comments',len=normalizeText(o.text).length;
+  const rows=(await x.db.prepare(`SELECT anon_net,created_at FROM ${table} WHERE text_hash=? AND created_at>? AND status<>'deleted' LIMIT 50`).bind(hash,x.now-ANON.duplicateSameNetworkMs).all()).results||[];
+  const recent=(/** @type {any} */ r)=>Number(r.created_at)>x.now-ANON.duplicateAnyMs;
+  const dup=o.kind==='post'
+   ?rows.some((/** @type {any} */ r)=>r.anon_net===o.ident.net||recent(r))
+   :rows.some((/** @type {any} */ r)=>(r.anon_net===o.ident.net&&(recent(r)||len>=20))||(recent(r)&&len>=30));
+  if(dup)throw new ApiError('DUPLICATE_CONTENT','The same text was just posted. Please write something new.',{field:'body'});
+ }
+ return {hash,hide:verdict==='hide'};
+}
+/** The anonymous post or comment an edit, delete or password check is about. @param {any} db @param {'discussion'|'comment'} kind @param {unknown} id */
+async function anonItem(db,kind,id){
+ const row=kind==='discussion'
+  ?await db.prepare("SELECT d.id,d.title,d.body_md,d.kind,d.author_id,d.status,d.post_no,d.anon_pw,d.anon_id,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(id||'')).first()
+  :await db.prepare("SELECT c.id,c.body_md,c.author_id,c.status,c.discussion_id,c.anon_pw,c.anon_id,d.post_no,e.vertical,e.slug FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id WHERE c.id=?").bind(String(id||'')).first();
+ const visible=row&&(kind==='discussion'?row.status==='published'||row.status==='locked':row.status==='published');
+ if(!row||row.author_id!==ANON_USER||!visible||!row.anon_pw)throw new ApiError('NOT_FOUND');
+ return row;
+}
+
+/**
+ * Signed-out writes (and password edits of anonymous items). Order: input → ban → bot check → burst
+ * limit → content checks → daily limit → write, so a refused request costs the network nothing.
+ * @param {string} key @param {any} body @param {WriteCtx} x @returns {Promise<{status:number,body:any}>}
+ */
+async function anonRoute(key,body,x){
+ const {db,cfg,env,now,context}=x;
+ const mode=anonMode(cfg);assertAnonEnabled(mode,cfg);
+ const secret=anonSecret(env,cfg),ip=clientIp(x.request);
+ const ident=await anonIdentity(ip,secret,now);
+ const L=ANON.limits[mode.mode==='strict'?'strict':'normal'];
+ const minute=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await allowRequest({env,limiter:x.deps.limiter,key:`v2anon:${name}|${ident.net}`,limit:n,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});};
+ const daily=async(/** @type {string} */ name,/** @type {number} */ n)=>{if(!await takeDaily(db,`${name}:${ident.net}`,ident.day,n))throw new ApiError('RATE_LIMITED','Today\'s limit for writing without an account is used up on this network. Sign in, or try again tomorrow.',{retryAfter:3600,reason:'daily',limit:n});};
+ const gate=(/** @type {boolean} */ fresh)=>humanGate({cfg,context,ident,token:body.turnstileToken,fresh,ip,now,fetch:x.deps.fetch,mode});
+ const strict=mode.mode==='strict'?{check:'none'}:{};
+ switch(key){
+  case 'POST /anon/check':{
+   only(body,['target','password']);
+   const m=/^(discussion|comment):([\w-]{1,64})$/.exec(String(body.target||''));if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+   const kind=/** @type {'discussion'|'comment'} */(m[1]),row=await anonItem(db,kind,m[2]);
+   await checkPassword(x,{kind,id:String(row.id),password:body.password,stored:row.anon_pw,ident,max:L.passwordFailuresPerHour});
+   if(kind==='comment')return {status:200,body:{ok:true,body:String(row.body_md)}};
+   const ids=row.kind==='report'?[]:[...new Set([String(row.kind),...writableKinds(String(row.vertical)).filter(k=>k!=='report')])];
+   return {status:200,body:{ok:true,title:String(row.title),body:String(row.body_md),kind:String(row.kind),kinds:ids.filter(k=>k in POST_KINDS).map(k=>({id:k,label:/** @type {any} */(POST_KINDS)[k][x.l]}))}};
+  }
+  case 'POST /posts':{
+   only(body,['entityId','kind','title','body','name','password','turnstileToken']);
+   const e=await entity(db,/** @type {string} */(body.entityId));
+   const kind=String(body.kind||'');
+   if(!(kind in POST_KINDS)||!writableKinds(e.vertical).includes(kind))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+   if(!boardOpen(/** @type {any} */(e)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+   const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body'),password=anonPassword(body.password),name=await anonName(db,body.name);
+   await assertNotBanned(db,ident.net,now);
+   await gate(true);
+   await minute('post',L.postsPerMinute);
+   const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident});
+   const id=randomToken(12);
+   const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id});
+   await daily('p',L.postsPerDay);
+   const no=await createPost(db,{id,entityId:e.id,kind,title,body:md,locale:x.l,authorId:ANON_USER,hasImage:plan.ids.length>0,status:c.hide?'hidden':'published',textHash:c.hash,
+    anon:{name,id:ident.id,net:ident.net,pw:await hashPassword(password,secret)}},now);
+   if(plan.statements.length)await db.batch(plan.statements);
+   if(c.hide)await autoHold(x,'discussion',id);
+   await purge(x.origin,pagesOf(e));
+   return {status:201,body:{id,postNo:no,url:postUrl(x.l,e,no),name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
+  }
+  case 'POST /comments':{
+   only(body,['postId','parentId','body','name','password','turnstileToken']);
+   const post=await db.prepare("SELECT d.id,d.entity_id,d.post_no,d.status,e.vertical,e.type,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=?").bind(String(body.postId||'')).first();
+   if(!post||post.status==='hidden'||post.status==='deleted')throw new ApiError('NOT_FOUND','Post not found.');
+   if(!boardOpen(/** @type {any} */(post)))throw new ApiError('FORBIDDEN','This channel\'s board is not open yet.');
+   if(post.status==='locked')throw new ApiError('FORBIDDEN','Comments are closed on this post.');
+   let parent=null;
+   if(body.parentId!==undefined&&body.parentId!==null&&body.parentId!==''){
+    parent=await db.prepare("SELECT id FROM comments WHERE id=? AND discussion_id=? AND status<>'hidden'").bind(String(body.parentId),post.id).first();
+    if(!parent)throw new ApiError('BAD_REQUEST','The comment you replied to is gone.',{field:'parentId'});
+   }
+   const md=text(body.body,LIMITS.comment,'body'),password=anonPassword(body.password),name=await anonName(db,body.name);
+   if(hasImageSyntax(md))throw noCommentImages();
+   await assertNotBanned(db,ident.net,now);
+   await gate(false);
+   await minute('comment',L.commentsPerMinute);
+   const c=await anonContentChecks(x,{text:md,kind:'comment',ident});
+   await daily('c',L.commentsPerDay);
+   const id=randomToken(12);
+   await db.batch([
+    db.prepare('INSERT INTO comments (id,discussion_id,parent_id,author_id,body_md,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)')
+     .bind(id,post.id,parent?parent.id:null,ANON_USER,md,c.hide?'hidden':'published',name,ident.id,ident.net,await hashPassword(password,secret),c.hash,now,now),
+    db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published'),last_activity_at=? WHERE id=?").bind(post.id,now,post.id)]);
+   if(c.hide)await autoHold(x,'comment',id);
+   await purge(x.origin,pagesOf({vertical:String(post.vertical),slug:String(post.slug)},Number(post.post_no)));
+   return {status:201,body:{id,name,anonId:ident.id,...strict,...(c.hide?{held:true}:{})}};
+  }
+  case 'POST /votes':{
+   only(body,['kind','id','value','turnstileToken']);
+   const kind=body.kind==='comment'?'comment':body.kind==='discussion'?'discussion':null;
+   const value=body.value===1||body.value===-1||body.value===0?body.value:null;
+   if(!kind||value===null||typeof body.id!=='string')throw new ApiError('BAD_REQUEST','Invalid vote.');
+   const own=await db.prepare(`SELECT status,anon_id,created_at FROM ${kind==='discussion'?'discussions':'comments'} WHERE id=?`).bind(body.id).first();
+   if(!own||!(own.status==='published'||(kind==='discussion'&&own.status==='locked')))throw new ApiError('NOT_FOUND');
+   if(own.anon_id&&own.anon_id===ident.id&&kstDay(Number(own.created_at))===ident.day)throw new ApiError('FORBIDDEN','You cannot vote on your own writing.');
+   await assertNotBanned(db,ident.net,now);
+   await gate(false);
+   await minute('vote',L.votesPerMinute);
+   await daily('v',L.votesPerDay);
+   return {status:200,body:await castVote(db,{kind,id:body.id,voter:ident.key,value},now)};
+  }
+  case 'POST /flags':{
+   only(body,['target','reason','note','turnstileToken']);
+   const f=await flagInput(db,body);
+   await gate(false);
+   await minute('flag',10);
+   await daily('r',L.reportsPerDay);
+   const r=await fileFlag(x,f,{id:null,key:ident.key});
+   return {status:r.updated?200:201,body:r};
+  }
+  case 'POST /posts/edit':case 'POST /posts/delete':{
+   only(body,key==='POST /posts/edit'?['postId','title','body','kind','password','turnstileToken']:['postId','password','turnstileToken']);
+   const p=await anonItem(db,'discussion',body.postId);
+   await checkPassword(x,{kind:'discussion',id:String(p.id),password:body.password,stored:p.anon_pw,ident,max:L.passwordFailuresPerHour});
+   await gate(false);
+   await minute('post-edit',10);
+   if(key==='POST /posts/edit'){
+    await assertNotBanned(db,ident.net,now);
+    const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body');
+    let kind=String(p.kind);
+    if(body.kind!==undefined&&body.kind!==kind){
+     if(kind==='report'||body.kind==='report'||!writableKinds(String(p.vertical)).includes(String(body.kind)))throw new ApiError('BAD_REQUEST','This tag cannot be used in this channel.',{field:'kind'});
+     kind=String(body.kind);
+    }
+    const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident,edit:true});
+    // The images the post already has stay usable; new ones must be this browser's own uploads.
+    const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id:String(p.id)});
+    await db.batch([db.prepare('UPDATE discussions SET title=?,body_md=?,kind=?,has_image=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(title,md,kind,plan.ids.length?1:0,c.hash,now,now,p.id),...plan.statements]);
+    await deleteImages(env,db,plan.dropped,'author',x.origin);
+    if(c.hide)await autoHold(x,'discussion',String(p.id));
+   }else{
+    await db.prepare("UPDATE discussions SET status='deleted',updated_at=? WHERE id=?").bind(now,p.id).run();
+    await deleteImages(env,db,(await imagesOf(db,'discussion',String(p.id))).filter(i=>i.status!=='deleted'),'author',x.origin);
+   }
+   await purge(x.origin,pagesOf({vertical:String(p.vertical),slug:String(p.slug)},Number(p.post_no)));
+   return {status:200,body:{ok:true}};
+  }
+  case 'POST /comments/edit':case 'POST /comments/delete':{
+   only(body,key==='POST /comments/edit'?['commentId','body','password','turnstileToken']:['commentId','password','turnstileToken']);
+   const cm=await anonItem(db,'comment',body.commentId);
+   await checkPassword(x,{kind:'comment',id:String(cm.id),password:body.password,stored:cm.anon_pw,ident,max:L.passwordFailuresPerHour});
+   await gate(false);
+   await minute('post-edit',10);
+   if(key==='POST /comments/edit'){
+    await assertNotBanned(db,ident.net,now);
+    const md=text(body.body,LIMITS.comment,'body');
+    if(hasImageSyntax(md))throw noCommentImages();
+    const c=await anonContentChecks(x,{text:md,kind:'comment',ident,edit:true});
+    await db.prepare('UPDATE comments SET body_md=?,text_hash=?,edited_at=?,updated_at=? WHERE id=?').bind(md,c.hash,now,now,cm.id).run();
+    if(c.hide)await autoHold(x,'comment',String(cm.id));
+   }else await db.batch([db.prepare("UPDATE comments SET status='deleted',updated_at=? WHERE id=?").bind(now,cm.id),
+    db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=? AND status='published') WHERE id=?").bind(cm.discussion_id,cm.discussion_id)]);
+   await purge(x.origin,pagesOf({vertical:String(cm.vertical),slug:String(cm.slug)},Number(cm.post_no)));
+   return {status:200,body:{ok:true}};
+  }
+ }
+ throw new ApiError('LOGIN_REQUIRED');
+}
+
+/** POST /api/v2/uploads: one image (the body), for a member or an anonymous writer. @param {WriteCtx} x */
+async function uploadRoute(x){
+ const {env,db,cfg,context,now}=x;
+ if(!uploadsConfigured(env))throw uploadsNotConfigured();
+ const secret=anonSecret(env,cfg),owner=await ownerOf(context,secret);
+ const tooMany=()=>new ApiError('RATE_LIMITED','Today\'s image limit is used up. Please try again tomorrow.',{retryAfter:3600,reason:'daily'});
+ if(context.user){
+  assertMayWrite(await ensureProfile(db,context.user,now),now);
+  if(!await allowRequest({env,limiter:x.deps.limiter,key:`v2:upload|u:${context.user.id}`,limit:20,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+  if(!await takeDaily(db,`img:u:${context.user.id}`,kstDay(now),ANON.memberImagesPerDay))throw tooMany();
+  return uploaded(await storeUpload({env,db,request:x.request,owner,userId:String(context.user.id),anonNet:null,now}),context.setCookies);
+ }
+ const mode=anonMode(cfg);assertAnonEnabled(mode,cfg);
+ const ip=clientIp(x.request),ident=await anonIdentity(ip,secret,now),L=ANON.limits[mode.mode==='strict'?'strict':'normal'];
+ await assertNotBanned(db,ident.net,now);
+ await humanGate({cfg,context,ident,token:x.request.headers.get('x-turnstile-token'),fresh:false,ip,now,fetch:x.deps.fetch,mode});
+ if(!await allowRequest({env,limiter:x.deps.limiter,key:`v2anon:upload|${ident.net}`,limit:12,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+ if(!await takeDaily(db,`img:${ident.net}`,ident.day,L.imagesPerDay))throw tooMany();
+ return uploaded(await storeUpload({env,db,request:x.request,owner,userId:ANON_USER,anonNet:ident.net,now}),context.setCookies);
+}
+
+/** @typedef {{kind:string,id:string,category:string,reason:string,note:string|null}} FlagInput */
+/** Validate a 신고: target, category (FLAG_CATEGORIES), note. @param {any} db @param {any} body @returns {Promise<FlagInput>} */
+async function flagInput(db,body){
+ const m=/^(discussion|comment|report|wiki_revision|fact|entity|user):([\w:.-]{1,100})$/.exec(String(body.target||''));
+ if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
+ const category=String(body.reason||'');
+ if(!FLAG_CATEGORIES.includes(category))throw new ApiError('BAD_REQUEST','Invalid reason.',{field:'reason'});
+ const note=body.note===undefined||body.note===''?null:text(body.note,[1,1000],'note');
+ const TABLE=/** @type {Record<string,string>} */({discussion:'discussions',comment:'comments',report:'community_reports',wiki_revision:'wiki_revisions',fact:'facts',entity:'entities',user:'users'});
+ if(m[1]==='user'&&m[2]===ANON_USER)throw new ApiError('BAD_REQUEST','Report the post or comment instead.',{field:'target'});
+ if(!await db.prepare(`SELECT 1 FROM ${TABLE[m[1]]} WHERE id=?`).bind(m[1]==='wiki_revision'||m[1]==='fact'?Number(m[2])||-1:m[2]).first())throw new ApiError('NOT_FOUND','Nothing to report at this address.',{field:'target'});
+ return {kind:m[1],id:m[2],category,reason:REPORT.reasonOf[category],note};
+}
+/**
+ * Record a 신고 (one open flag per reporter and target: a member by account, a signed-out reader by today's
+ * network key; a repeat changes the reason), then hide the post or comment at once when enough different
+ * people reported it (REPORT.threshold) or the category is one that must not stay up while it is checked
+ * (REPORT.severe). The admin's phone gets a push either way.
+ * @param {WriteCtx} x @param {FlagInput} f @param {{id:string|null,key:string|null}} who
+ * @returns {Promise<{ok:boolean,updated?:boolean,previousReason?:string,hidden?:boolean}>}
+ */
+async function fileFlag(x,f,who){
+ const {db,now}=x;
+ const col=who.id?'reporter_id':'reporter_key',val=who.id||who.key;
+ const open=await db.prepare(`SELECT id,reason,category FROM content_flags WHERE target_kind=? AND target_id=? AND ${col}=? AND status='open'`).bind(f.kind,f.id,val).first();
+ if(open){
+  await db.prepare('UPDATE content_flags SET reason=?,category=?,note=COALESCE(?,note) WHERE id=?').bind(f.reason,f.category,f.note,open.id).run();
+ }else{
+  await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reporter_key,reason,category,note,created_at) VALUES (?,?,?,?,?,?,?,?,?)')
+   .bind(randomToken(12),f.kind,f.id,who.id,who.id?null:who.key,f.reason,f.category,f.note,now).run();
+ }
+ const hidden=await autoHide(x,f);
+ // A new flag (or one that hid the item) reaches the admin's phone at once, after the response.
+ if(!open||hidden)x.ctx?.waitUntil?.(notifyNewFlag(x.env,{target:`${f.kind}:${f.id}`,reason:f.reason,category:f.category,autoHidden:!!hidden,reports:hidden?hidden.reports:undefined},{now,fetch:x.deps.fetch,origin:x.origin}));
+ if(open)return {ok:true,updated:true,previousReason:String(open.category||open.reason),...(hidden?{hidden:true}:{})};
+ return {ok:true,...(hidden?{hidden:true}:{})};
+}
+/** Auto temporary-hide (자동 임시조치) of a reported post or comment. Returns the report count when it hid it.
+ * @param {WriteCtx} x @param {FlagInput} f @returns {Promise<{reports:number}|null>} */
+async function autoHide(x,f){
+ if(f.kind!=='discussion'&&f.kind!=='comment')return null;
+ const {db,now}=x,table=f.kind==='discussion'?'discussions':'comments';
+ const cur=await db.prepare(`SELECT status FROM ${table} WHERE id=?`).bind(f.id).first();
+ if(!cur||!(cur.status==='published'||cur.status==='locked'))return null;
+ const reporters=Number((await db.prepare("SELECT COUNT(DISTINCT COALESCE(reporter_id,'k:'||reporter_key)) AS n FROM content_flags WHERE target_kind=? AND target_id=? AND status='open'").bind(f.kind,f.id).first())?.n||0);
+ const severe=REPORT.severe.includes(f.category);
+ if(!severe&&reporters<REPORT.threshold)return null;
+ const reason=severe?`자동 임시조치: ${f.category} 신고 (확인 전까지 숨김)`:`자동 임시조치: 서로 다른 ${reporters}명 신고`;
+ await hideStatements(x,f.kind,f.id,String(cur.status),reason,{auto:true,reports:reporters,category:f.category});
+ return {reports:reporters};
+}
+/** Hide (임시조치) by the system: status hidden, logged like a moderator's hide (so 복구 restores the previous
+ * state), pages and images purged. @param {WriteCtx} x @param {string} kind @param {string} id @param {string} previous @param {string} reason @param {Record<string,unknown>} meta */
+async function hideStatements(x,kind,id,previous,reason,meta){
+ const {db,now}=x,table=kind==='discussion'?'discussions':'comments';
+ const w=[db.prepare(`UPDATE ${table} SET status='hidden',updated_at=? WHERE id=? AND status IN ('published','locked')`).bind(now,id),
+  db.prepare("INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES ('system:automod','hide',?,?,?,?,?)").bind(kind,id,reason,JSON.stringify({previous,...meta}),now)];
+ if(kind==='comment')w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+ await db.batch(w);
+ await purgeTarget(x.db,x.origin,kind,id);
+}
+/** A write the blocklist marked "hide": published hidden, waiting in the queue. @param {WriteCtx} x @param {'discussion'|'comment'} kind @param {string} id */
+async function autoHold(x,kind,id){
+ await x.db.prepare("INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES ('system:automod','hide',?,?,?,?,?)").bind(kind,id,'자동 보류: 차단 목록 단어·링크',JSON.stringify({previous:'published',auto:true,blocklist:true}),x.now).run();
+ x.ctx?.waitUntil?.(notifyNewFlag(x.env,{target:`${kind}:${id}`,reason:'spam',category:'spam',autoHidden:true},{now:x.now,fetch:x.deps.fetch,origin:x.origin}));
+}
+/** Purge the pages (and images) of a post or comment. @param {any} db @param {string} origin @param {string} kind @param {string} id */
+async function purgeTarget(db,origin,kind,id){
+ const d=await db.prepare(`SELECT d.id,d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
+ if(!d)return;
+ await purge(origin,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+ if(kind==='discussion')await purgeImages(origin,(await imagesOf(db,'discussion',String(d.id))).map(i=>i.id));
 }
 
 /** An outage click counts for an hour: a user who is still affected later can click again (the
@@ -514,7 +865,7 @@ async function myRadar(db,userId,l,now=Date.now()){
 /** Comments on the reader's posts and replies to the reader's comments (not their own), newest first.
  * Two indexed queries instead of one OR. @param {any} db @param {string} userId @param {'ko'|'en'} l @param {number} seenAt */
 async function repliesTo(db,userId,l,seenAt){
- const COLS=`c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
+ const COLS=`c.id,c.body_md,c.created_at,d.post_no,d.title,e.vertical,e.slug,e.names,COALESCE(c.anon_name||' ('||c.anon_id||')',p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author`;
  const FROM=`FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id`;
  const OK=`c.status='published' AND d.status IN ('published','locked') AND c.author_id<>?`;
  const [onPosts,onComments]=await Promise.all([
@@ -567,16 +918,16 @@ const RANK=/** @type {Record<string,number>} */({user:0,moderator:1,curator:2,ad
  * currently hidden (임시조치 중) with the reason it was hidden, so a moderator can restore it; and the
  * action log. @param {any} db @param {any} _p */
 async function modQueue(db,_p){
- const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(reason) AS reasons,COUNT(*) AS n,MIN(created_at) AS first_at,GROUP_CONCAT(note,' / ') AS notes FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
+ const rows=(await db.prepare(`SELECT target_kind,target_id,GROUP_CONCAT(COALESCE(category,reason)) AS reasons,COUNT(*) AS n,COUNT(DISTINCT COALESCE(reporter_id,'k:'||reporter_key)) AS people,MIN(created_at) AS first_at,GROUP_CONCAT(note,' / ') AS notes FROM content_flags WHERE status='open' GROUP BY target_kind,target_id ORDER BY first_at LIMIT 100`).all()).results||[];
  const hiddenRows=(await db.prepare(`SELECT kind,id,updated_at FROM (SELECT 'discussion' AS kind,id,updated_at FROM discussions WHERE status='hidden' UNION ALL SELECT 'comment',id,updated_at FROM comments WHERE status='hidden') ORDER BY updated_at DESC LIMIT 50`).all()).results||[];
  // One query per kind for every target on the page (no per-row lookups).
  const targets=await modTargets(db,[...rows.map((/** @type {any} */ r)=>[String(r.target_kind),String(r.target_id)]),...hiddenRows.map((/** @type {any} */ r)=>[String(r.kind),String(r.id)])]);
- const items=rows.map((/** @type {any} */ r)=>({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...(targets.get(`${r.target_kind}:${r.target_id}`)||EMPTY_TARGET)}));
- /** @type {Map<string,{reason:string,created_at:number}>} */const hides=new Map();
+ const items=rows.map((/** @type {any} */ r)=>({target:`${r.target_kind}:${r.target_id}`,reasons:[...new Set(String(r.reasons).split(','))],count:Number(r.n),people:Number(r.people),severe:String(r.reasons).split(',').some(x=>REPORT.severe.includes(x)),firstAt:Number(r.first_at),note:r.notes?String(r.notes).slice(0,600):null,...(targets.get(`${r.target_kind}:${r.target_id}`)||EMPTY_TARGET)}));
+ /** @type {Map<string,{reason:string,created_at:number,auto:boolean}>} */const hides=new Map();
  const hk=hiddenRows.map((/** @type {any} */ r)=>`${r.kind}:${r.id}`);
- if(hk.length)for(const a of (await db.prepare(`SELECT target_kind,target_id,reason,created_at FROM moderation_actions WHERE action='hide' AND (target_kind||':'||target_id) IN (${hk.map(()=>'?').join(',')}) ORDER BY id`).bind(...hk).all()).results||[])
-  hides.set(`${a.target_kind}:${a.target_id}`,{reason:String(a.reason),created_at:Number(a.created_at)});   // the latest hide wins
- const hidden=hiddenRows.map((/** @type {any} */ r)=>{const k=`${r.kind}:${r.id}`,a=hides.get(k);return {target:k,hiddenAt:a?.created_at??Number(r.updated_at),reason:a?.reason??null,...(targets.get(k)||EMPTY_TARGET)};});
+ if(hk.length)for(const a of (await db.prepare(`SELECT actor_id,target_kind,target_id,reason,created_at FROM moderation_actions WHERE action='hide' AND (target_kind||':'||target_id) IN (${hk.map(()=>'?').join(',')}) ORDER BY id`).bind(...hk).all()).results||[])
+  hides.set(`${a.target_kind}:${a.target_id}`,{reason:String(a.reason),created_at:Number(a.created_at),auto:a.actor_id==='system:automod'});   // the latest hide wins
+ const hidden=hiddenRows.map((/** @type {any} */ r)=>{const k=`${r.kind}:${r.id}`,a=hides.get(k);return {target:k,hiddenAt:a?.created_at??Number(r.updated_at),reason:a?.reason??null,auto:!!a?.auto,...(targets.get(k)||EMPTY_TARGET)};});
  // Fact proposals waiting for review, with the value the wiki shows now.
  const props=(await db.prepare(`SELECT f.id,f.entity_id,f.property,f.value,f.unit,f.source_url,f.note,f.discussion_id,f.created_at,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(f.user_id,1,6))) AS author
   FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`).all()).results||[];
@@ -594,7 +945,7 @@ async function modQueue(db,_p){
  const log=logRows.map((/** @type {any} */ r)=>({...r,label:logTargets.get(`${r.target_kind}:${r.target_id}`)?.preview?.slice(0,40)??null}));
  return {items,hidden,proposals,log};
 }
-const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null});
+const EMPTY_TARGET=Object.freeze({preview:null,excerpt:null,status:null,author:null,authorId:null,url:null,anon:null,images:[]});
 /** What a moderator needs to judge a flagged or hidden target without opening it (a hidden post is
  * 404 on the public page): title or excerpt, author, status, and the post it belongs to.
  * @param {any} db @param {[string,string][]} list @returns {Promise<Map<string,any>>} */
@@ -604,17 +955,35 @@ async function modTargets(db,list){
  const rowsIn=async(sql,xs)=>{const all=[];for(let i=0;i<xs.length;i+=90){const part=xs.slice(i,i+90);all.push(...((await db.prepare(sql.replace('(?*)',`(${part.map(()=>'?').join(',')})`)).bind(...part).all()).results||[]));}return all;};
  const ids=(/** @type {string} */ kind)=>[...new Set(list.filter(([k])=>k===kind).map(([,id])=>id))];
  const d=ids('discussion'),c=ids('comment');
- for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(d.author_id,1,6))) AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d))
-  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no))});
- for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,d.title,d.post_no,e.vertical,e.slug,COALESCE(p.display_name,'user-'||lower(substr(c.author_id,1,6))) AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c))
-  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title)});
+ const AUTHOR=(/** @type {string} */ a)=>`COALESCE(${a}.anon_name||' ('||${a}.anon_id||')',p.display_name,'user-'||lower(substr(${a}.author_id,1,6)))`;
+ /** @type {Map<string,{id:string,net:string|null}>} */const anonOf=new Map();
+ for(const r of await rowsIn(`SELECT d.id,d.title,d.body_md,d.status,d.post_no,d.author_id,d.anon_id,d.anon_net,e.vertical,e.slug,${AUTHOR('d')} AS author FROM discussions d JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=d.author_id WHERE d.id IN (?*)`,d)){
+  if(r.anon_id)anonOf.set(`discussion:${r.id}`,{id:String(r.anon_id),net:r.anon_net??null});
+  out.set(`discussion:${r.id}`,{preview:String(r.title),excerpt:String(r.body_md).slice(0,4000),status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),anon:null,images:[]});
+ }
+ for(const r of await rowsIn(`SELECT c.id,c.body_md,c.status,c.author_id,c.anon_id,c.anon_net,d.title,d.post_no,e.vertical,e.slug,${AUTHOR('c')} AS author FROM comments c JOIN discussions d ON d.id=c.discussion_id JOIN entities e ON e.id=d.entity_id LEFT JOIN user_profiles p ON p.user_id=c.author_id WHERE c.id IN (?*)`,c)){
+  if(r.anon_id)anonOf.set(`comment:${r.id}`,{id:String(r.anon_id),net:r.anon_net??null});
+  out.set(`comment:${r.id}`,{preview:String(r.body_md).slice(0,200),excerpt:null,status:String(r.status),author:String(r.author),authorId:r.author_id===ANON_USER?null:String(r.author_id),url:postUrl('ko',{vertical:String(r.vertical),slug:String(r.slug)},Number(r.post_no)),context:String(r.title),anon:null,images:[]});
+ }
+ // Anonymous authors: their daily ID and whether their network is banned now (the key itself stays on the server).
+ const nets=[...new Set([...anonOf.values()].map(a=>a.net).filter(Boolean))];
+ /** @type {Map<string,number>} */const bans=new Map();
+ for(const b of await rowsIn('SELECT net,until FROM anon_bans WHERE net IN (?*)',/** @type {string[]} */(nets)))bans.set(String(b.net),Number(b.until));
+ for(const [k,a] of anonOf){const t=out.get(k);if(t)t.anon={id:a.id,bannable:!!a.net,bannedUntil:a.net?bans.get(a.net)??null:null};}
+ // The images of listed posts (moderators see them even while the post is hidden).
+ for(const r of await rowsIn(`SELECT id,mime,attached_id,status FROM uploads WHERE attached_kind='discussion' AND attached_id IN (?*)`,d)){
+  const t=out.get(`discussion:${r.attached_id}`);if(t&&r.status!=='deleted')t.images.push(`/u/${r.id}/full.${({'image/webp':'webp','image/png':'png','image/jpeg':'jpg'})[/** @type {'image/webp'} */(String(r.mime))]||'webp'}`);
+ }
  return out;
 }
-const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict','accept','reject']);
+const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestrict','accept','reject','delete','ban','unban']);
 /** Apply one moderator action; always logged in moderation_actions with its reason.
- * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
- * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin */
-export async function modAction(db,actor,actorRole,body,now,origin){
+ * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action,
+ * delete = removed for good (its images are deleted from R2 and answer 451), ban/unban = the anonymous
+ * author's network may not write without an account for `days` (1–365) days.
+ * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin
+ * @param {any} [env] @param {any} [ctx] @param {any} [deps] */
+export async function modAction(db,actor,actorRole,body,now,origin,env={},ctx=null,deps={}){
  only(body,['target','action','reason','days']);
  const m=/^(discussion|comment|user|proposal):([\w:.-]{1,100})$/.exec(String(body.target||''));
  if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});
@@ -637,7 +1006,22 @@ export async function modAction(db,actor,actorRole,body,now,origin){
    let prev='published';try{const p=JSON.parse(String(last?.meta||'{}')).previous;if(p==='published'||p==='locked')prev=p;}catch{}
    w.push(db.prepare(`UPDATE ${table} SET status=?,updated_at=? WHERE id=? AND status='hidden'`).bind(prev,now,id));
   }
-  if(kind==='comment'&&(action==='hide'||action==='unhide'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
+  if(action==='delete'){
+   if(cur.status==='deleted')throw new ApiError('OPERATION_CONFLICT','Already deleted.');
+   meta={previous:cur.status};
+   w.push(db.prepare(`UPDATE ${table} SET status='deleted',updated_at=? WHERE id=?`).bind(now,id));
+  }
+  if(action==='ban'||action==='unban'){
+   const a=await db.prepare(`SELECT anon_id,anon_net FROM ${table} WHERE id=?`).bind(id).first();
+   if(!a?.anon_id)throw new ApiError('BAD_REQUEST','Only anonymous writers are banned by network; restrict a member instead.');
+   if(!a.anon_net)throw new ApiError('OPERATION_CONFLICT','This item is older than 90 days; its network is no longer kept.');
+   const days=Math.min(365,Math.max(1,Math.round(Number(body.days)||1)));
+   meta={anonId:String(a.anon_id),...(action==='ban'?{days}:{})};
+   w.push(action==='ban'
+    ?db.prepare('INSERT INTO anon_bans (net,until,anon_id,reason,actor_id,created_at) VALUES (?,?,?,?,?,?) ON CONFLICT(net) DO UPDATE SET until=MAX(anon_bans.until,excluded.until),anon_id=excluded.anon_id,reason=excluded.reason,actor_id=excluded.actor_id,created_at=excluded.created_at').bind(a.anon_net,now+days*864e5,a.anon_id,reason,actor,now)
+    :db.prepare('DELETE FROM anon_bans WHERE net=?').bind(a.anon_net));
+  }
+  if(kind==='comment'&&(action==='hide'||action==='unhide'||action==='delete'))w.push(db.prepare("UPDATE discussions SET comment_count=(SELECT COUNT(*) FROM comments WHERE discussion_id=discussions.id AND status='published') WHERE id=(SELECT discussion_id FROM comments WHERE id=?)").bind(id));
  }
  if(kind==='proposal'){
   // accept = the value goes into the graph through the ingest pipeline (COMMUNITY_VERIFIED, so an
@@ -657,6 +1041,7 @@ export async function modAction(db,actor,actorRole,body,now,origin){
  }
  if(kind==='user'){
   if(id===actor)throw new ApiError('FORBIDDEN','You cannot moderate your own account.');
+  if(id===ANON_USER)throw new ApiError('BAD_REQUEST','Anonymous writers are banned by network: use 차단 on their post or comment.');
   if(!await db.prepare('SELECT 1 FROM users WHERE id=?').bind(id).first())throw new ApiError('NOT_FOUND','No such account.');
   const target=await db.prepare('SELECT role FROM user_profiles WHERE user_id=?').bind(id).first();
   if((RANK[String(target?.role||'user')]??0)>=(RANK[actorRole]??0))throw new ApiError('FORBIDDEN','Only a higher role can act on this account.');
@@ -667,12 +1052,14 @@ export async function modAction(db,actor,actorRole,body,now,origin){
   if(action==='unrestrict')w.push(db.prepare('UPDATE user_profiles SET restricted_until=NULL,updated_at=? WHERE user_id=?').bind(now,id));
  }
  if(!w.length&&action!=='dismiss'&&kind!=='proposal')throw new ApiError('BAD_REQUEST','This action does not apply to this target.');
- w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
+ // A ban leaves the reports open: the post or comment itself still needs a decision.
+ if(action!=='ban'&&action!=='unban')w.push(db.prepare("UPDATE content_flags SET status=?,resolved_by=?,resolved_at=? WHERE target_kind=? AND target_id=? AND status='open'").bind(action==='dismiss'?'dismissed':'resolved',actor,now,kind,id));
  w.push(db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(actor,action,kind,id,reason,JSON.stringify(kind==='user'&&action==='restrict'?{days:Number(body.days)||7}:meta),now));
  await db.batch(w);
  if(kind==='discussion'||kind==='comment'){
-  const d=await db.prepare(`SELECT d.post_no,e.vertical,e.slug FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.id=${kind==='discussion'?'?':'(SELECT discussion_id FROM comments WHERE id=?)'}`).bind(id).first();
-  if(d)await purge(origin,pagesOf({vertical:String(d.vertical),slug:String(d.slug)},Number(d.post_no)));
+  // A deleted post's images are removed from R2 for good (and answer 451 from now on).
+  if(action==='delete'&&kind==='discussion')await deleteImages(env,db,(await imagesOf(db,'discussion',id)).filter(i=>i.status!=='deleted'),'mod',origin);
+  await purgeTarget(db,origin,kind,id);
  }
  return {ok:true};
 }

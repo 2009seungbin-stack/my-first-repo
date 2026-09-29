@@ -6,6 +6,7 @@
 import {html} from './html.js';
 import {t} from './strings.js';
 import {page,nameOf,channelUrl,signInUrl} from './ui.js';
+import {anonFields} from './post.js';
 import {related,versionsOf} from '../db/channel.js';
 import {POST_KINDS,writableKinds,LIMITS,boardOpen} from '../community.js';
 
@@ -43,11 +44,13 @@ export function renderWrite(m,site){
 <section class="box"><div class="bh"><h1 class="wt">${ko?`${name} 채널에 글쓰기`:`Write in ${name}`}</h1></div>
 <form class="wform" data-island="write-form" data-entity="${e.id}">
 <p class="needlogin" hidden>${ko?'글을 등록하려면 로그인이 필요합니다. 쓰던 내용은 이 브라우저에 임시저장되어 로그인 후에도 남아 있어요.':'Sign in to post.'} <a href="${signInUrl(base+'write')}" rel="nofollow" data-signin>${s.login} ›</a></p>
+${anonFields(l,base+'write')}
 <div class="row"><label>${ko?'말머리':'Tag'}<select name="kind">${kinds.map(k=>html`<option value="${k}"${k===chosen?html` selected`:''}>${/** @type {any} */(s.kind)[k]}</option>`)}</select></label></div>
 ${rep}
 <label>${ko?'제목':'Title'}<input name="title" maxlength="${LIMITS.title[1]}" minlength="${LIMITS.title[0]}" required autocomplete="off"></label>
-<label>${ko?'본문':'Body'}<textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ko?'마크다운 일부 지원: **굵게**, `코드`, 목록, 링크. 이미지 업로드는 준비 중입니다.':'Markdown: **bold**, `code`, lists, links.'}"></textarea></label>
-<ul class="rules"><li><a href="/${l}/community/policy">${ko?'게시판 운영정책':'Community rules'}</a></li><li>${ko?'공식 정보는 출처 링크와 함께 적어 주세요. 공식 수치는 위키 값이 우선합니다.':'Link sources for official information.'}</li><li>${ko?`${s.bestRule}`:s.bestRule}</li><li>${ko?'욕설·도배·불법 파일 공유는 숨김 처리됩니다.':'Abuse, spam and illegal file sharing are hidden.'}</li></ul>
+<label>${ko?'본문':'Body'}<textarea name="body" maxlength="${LIMITS.body[1]}" placeholder="${ko?'마크다운 일부 지원: **굵게**, `코드`, 목록, 링크.':'Markdown: **bold**, `code`, lists, links.'}"></textarea></label>
+<div class="imgpick" data-image-picker hidden><div class="imgbar"><label class="btn"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif" multiple hidden data-image-input>${ko?'📷 이미지 추가':'📷 Add images'}</label><span class="fine">${ko?'최대 10장 · 올리기 전에 이 기기에서 크기를 줄이고 위치 정보(EXIF)를 지웁니다 · 움짤(GIF)은 첫 장면만 올라가요':'Up to 10 · resized on this device and location data (EXIF) removed before upload · a GIF becomes a still image'}</span></div><ul class="imgs" data-image-list></ul></div>
+<ul class="rules"><li><a href="/${l}/community/policy">${ko?'게시판 운영정책':'Community rules'}</a></li><li>${ko?'공식 정보는 출처 링크와 함께 적어 주세요. 공식 수치는 위키 값이 우선합니다.':'Link sources for official information.'}</li><li>${ko?`${s.bestRule}`:s.bestRule}</li><li>${ko?'욕설·도배·불법 파일 공유는 숨김 처리됩니다. 불법촬영물·아동 성착취물은 즉시 삭제하고 관계 기관에 신고할 수 있어요.':'Abuse, spam and illegal file sharing are hidden. Illegal intimate images and child sexual abuse material are removed at once and may be reported to the authorities.'}</li></ul>
 <div class="acts"><a class="btn" href="${base}">${ko?'취소':'Cancel'}</a><button class="btn p" type="submit" data-label="${ko?'등록':'Post'}">${ko?'등록':'Post'}</button></div>
 </form></section>`;
  return page({l,title:ko?`글쓰기 - ${name} 채널 | Nerulio`:`Write - ${name} | Nerulio`,description:ko?`${name} 채널에 글을 씁니다.`:`Write a post in ${name}.`,canonical:site.origin+base+'write',noindex:true,

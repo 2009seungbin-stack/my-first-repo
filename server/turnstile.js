@@ -1,8 +1,11 @@
 import {randomToken} from './crypto.js';
 /** Server-side Turnstile Siteverify. The secret never leaves the Worker; a token is
- * accepted only if Cloudflare confirms it (single-use, bound to our hostname). */
+ * accepted only if Cloudflare confirms it (single-use, bound to our hostname).
+ * Cloudflare's documented testing keys answer for hostname "example.com" with no action and
+ * metadata.result_with_testing_key=true: such an answer is accepted only with allowTestingKey
+ * (callers pass it outside production), and then without the hostname/action checks. */
 export const SITEVERIFY='https://challenges.cloudflare.com/turnstile/v0/siteverify';
-export async function verifyTurnstile({token,secret,ip,expectedAction,hostname},fetcher=fetch){
+export async function verifyTurnstile({token,secret,ip,expectedAction,hostname,allowTestingKey=false},fetcher=fetch){
  if(!secret||typeof token!=='string'||!token||token.length>2048)return false;
  const form=new FormData();
  form.append('secret',secret);form.append('response',token);form.append('idempotency_key',crypto.randomUUID?.()||randomToken(16));
@@ -12,6 +15,7 @@ export async function verifyTurnstile({token,secret,ip,expectedAction,hostname},
   if(!response.ok)return false;
   const result=await response.json();
   if(result.success!==true)return false;
+  if(result.metadata?.result_with_testing_key===true)return !!allowTestingKey;
   if(expectedAction&&result.action!==expectedAction)return false;
   if(hostname&&result.hostname&&result.hostname!==hostname)return false;
   return true;

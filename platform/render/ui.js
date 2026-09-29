@@ -42,13 +42,18 @@ export const badge=(v,l,text)=>html`<span class="st ${VCLASS[v]||'u'}">${text??l
 /** A section box with a header row. @param {{title:unknown,extra?:unknown,note?:unknown,cls?:string,id?:string}} h @param {unknown} body */
 export const box=(h,body)=>html`<section class="box ${h.cls||''}"${h.id?html` id="${h.id}"`:''}><div class="bh"><h2>${h.title}</h2>${h.extra}${h.note?html`<span class="x">${h.note}</span>`:''}</div>${body}</section>`;
 
-/** Author with tier badge (◇ ◆ ⚑ ✎) or the Radar bot gear. @param {{author_name:string|null,author_tier:string,bot?:boolean}} p @param {string} l */
+/** Author: the Radar bot gear; an anonymous writer as "ㅇㅇ (a3F9)" (nickname + daily ID, muted); a member
+ * (고정닉) with ✓ and the tier badge (◇ ◆ ⚑ ✎).
+ * @param {{author_name:string|null,author_tier:string,bot?:boolean,anon_id?:string|null}} p @param {string} l */
 export function author(p,l){
  const s=t(l);
  if(p.bot)return html`<span class="nick bot">${s.bot}<b aria-hidden="true"> ⚙</b></span>`;
+ if(p.anon_id)return html`<span class="nick anon" title="${s.anonTitle}">${p.author_name||'ㅇㅇ'}<span class="aid"> (${p.anon_id})</span></span>`;
  const tier=/** @type {Record<string,string>} */(s.tier)[p.author_tier]||'';
- return html`<span class="nick">${p.author_name||s.anonymous}${tier?html`<b title="${tier}"> ${tier.split(' ')[0]}</b>`:''}</span>`;
+ return html`<span class="nick mem">${p.author_name||s.anonymous}<b class="ck" title="${s.memberTitle}" aria-label="${s.memberTitle}">✓</b>${tier?html`<b title="${tier}"> ${tier.split(' ')[0]}</b>`:''}</span>`;
 }
+/** Plain-text author for data attributes and JSON-LD. @param {{author_name:string|null,anon_id?:string|null}} p @param {string} fallback */
+export const authorText=(p,fallback)=>p.anon_id?`${p.author_name||'ㅇㅇ'} (${p.anon_id})`:p.author_name||fallback;
 const KIND_CLASS=/** @type {Record<string,string>} */({news:'news',report:'rep',patch:'ko',question:'q',guide:'gd',benchmark:'ben',notice:'nt'});
 /** 말머리 chip. @param {string} kind @param {string} l */
 export const kindChip=(kind,l)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${/** @type {Record<string,string>} */(t(l).kind)[kind]||kind}</span>`;

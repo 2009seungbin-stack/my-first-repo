@@ -131,26 +131,34 @@ export function rolloutSummary(votes,now){
 
 /**
  * Create a post with the next per-channel number in one statement (no read-then-write race).
- * @param {any} db @param {{id:string,entityId:string,kind:string,title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean}} p @param {number} now
+ * `anon` = an anonymous (유동) post: author 'anon' with the typed nickname, the daily ID, the network key
+ * and the edit-password hash (server/platform/anon.js).
+ * @param {any} db @param {{id:string,entityId:string,kind:string,title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean,status?:'published'|'hidden',textHash?:string|null,anon?:{name:string,id:string,net:string,pw:string}|null}} p @param {number} now
  */
 export async function createPost(db,p,now){
  if(!(p.kind in POST_KINDS))throw Error('unknown post kind');
- const row=await db.prepare(`INSERT INTO discussions (id,entity_id,post_no,kind,title,body_md,locale,author_id,change_id,report_id,has_image,created_at,updated_at,last_activity_at)
-  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,?,?,?,?,?,?,?,?,?,? FROM discussions WHERE entity_id=? RETURNING post_no`)
-  .bind(p.id,p.entityId,p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,now,now,now,p.entityId).first();
+ const a=p.anon||null;
+ const row=await db.prepare(`INSERT INTO discussions (id,entity_id,post_no,kind,title,body_md,locale,author_id,change_id,report_id,has_image,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at,last_activity_at)
+  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? FROM discussions WHERE entity_id=? RETURNING post_no`)
+  .bind(p.id,p.entityId,p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,p.status||'published',a?.name??null,a?.id??null,a?.net??null,a?.pw??null,p.textHash??null,now,now,now,p.entityId).first();
  return Number(row?.post_no);
 }
 
 /**
- * Up/down vote on a post or comment; one vote per user, changeable. Updates counters and ★ best.
- * @param {any} db @param {{kind:'discussion'|'comment',id:string,userId:string,value:1|-1|0}} v @param {number} now
+ * Up/down vote on a post or comment; one vote per member (votes) or per anonymous daily key (anon_votes),
+ * changeable. Counts both tables, updates counters and ★ best.
+ * @param {any} db @param {{kind:'discussion'|'comment',id:string,userId?:string|null,voter?:string|null,value:1|-1|0}} v @param {number} now
  */
 export async function castVote(db,v,now){
  const table=v.kind==='discussion'?'discussions':'comments';
+ const anon=!v.userId;
+ if(anon&&!v.voter)throw Error('castVote: userId or voter required');
+ const who=anon?v.voter:v.userId,t=anon?'anon_votes':'votes',col=anon?'voter':'user_id';
+ const count=(/** @type {number} */ val)=>`(SELECT COUNT(*) FROM votes WHERE target_kind=?1 AND target_id=?2 AND value=${val})+(SELECT COUNT(*) FROM anon_votes WHERE target_kind=?1 AND target_id=?2 AND value=${val})`;
  const stmts=[v.value===0
-  ?db.prepare('DELETE FROM votes WHERE target_kind=? AND target_id=? AND user_id=?').bind(v.kind,v.id,v.userId)
-  :db.prepare('INSERT INTO votes (target_kind,target_id,user_id,value,created_at) VALUES (?,?,?,?,?) ON CONFLICT(target_kind,target_id,user_id) DO UPDATE SET value=excluded.value').bind(v.kind,v.id,v.userId,v.value,now),
-  db.prepare(`UPDATE ${table} SET up_count=(SELECT COUNT(*) FROM votes WHERE target_kind=? AND target_id=? AND value=1),down_count=(SELECT COUNT(*) FROM votes WHERE target_kind=? AND target_id=? AND value=-1) WHERE id=?`).bind(v.kind,v.id,v.kind,v.id,v.id)];
+  ?db.prepare(`DELETE FROM ${t} WHERE target_kind=? AND target_id=? AND ${col}=?`).bind(v.kind,v.id,who)
+  :db.prepare(`INSERT INTO ${t} (target_kind,target_id,${col},value,created_at) VALUES (?,?,?,?,?) ON CONFLICT(target_kind,target_id,${col}) DO UPDATE SET value=excluded.value`).bind(v.kind,v.id,who,v.value,now),
+  db.prepare(`UPDATE ${table} SET up_count=${count(1)},down_count=${count(-1)} WHERE id=?2`).bind(v.kind,v.id)];
  await db.batch(stmts);
  const row=await db.prepare(`SELECT up_count,down_count,created_at${v.kind==='discussion'?',best_at,entity_id':''} FROM ${table} WHERE id=?`).bind(v.id).first();
  const minUp=row&&v.kind==='discussion'&&!row.best_at?await channelBestThreshold(db,String(row.entity_id),now):BEST_RULE.minUp;
