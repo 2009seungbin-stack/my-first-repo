@@ -17,6 +17,12 @@ test('claude-status: update timestamps get the year from the entry',()=>{
  assert.deepEqual(u.map(x=>[x.at,x.status]),[['2026-12-31T23:50:00Z','Investigating'],['2027-01-01T00:20:00Z','Resolved']]);
 });
 
+test('claude-status: one-digit days padded inside <var> still parse, so the incident ends',()=>{
+ const html="<p> <small>Sep <var data-var='date'> 3</var>, <var data-var='time'>16:23</var> UTC</small><br> <strong>Resolved</strong> - fixed. </p> <p> <small>Sep <var data-var='date'> 3</var>, <var data-var='time'>15:25</var> UTC</small><br> <strong>Investigating</strong> - looking. </p>";
+ const u=parseUpdates(html,'2026-09-03T16:23:12Z');
+ assert.deepEqual(u.map(x=>[x.at,x.status]),[['2026-09-03T15:25:00Z','Investigating'],['2026-09-03T16:23:00Z','Resolved']]);
+});
+
 test('claude-status: feed entries become valid events linked to models/services',async()=>{
  const r=await run(adapter,routes);
  assert.equal(r.error,null);
