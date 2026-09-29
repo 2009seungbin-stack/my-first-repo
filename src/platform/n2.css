@@ -755,3 +755,5 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .co .a .cv{display:inline-flex;align-items:center;gap:3px}.co .a .cv b{font-weight:800}
 .stn{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.stn .fine{margin:0}
 .stna{display:flex;gap:6px;flex-wrap:wrap}
+/* the narrowest phones (≤400px): tighter top bar, icon-only 글쓰기 on the feed tabs */
+@media (max-width:400px){.top{padding:0 8px;gap:0}.top .brand{font-size:16px;gap:6px}.top .brand svg{width:26px;height:26px}.hu .hb.solid{padding:0 10px;font-size:13px}.feedtabs a{padding:0 9px}.feedtabs .btn.p span{display:none}.feedtabs .btn.p{width:40px;padding:0;justify-content:center}}
