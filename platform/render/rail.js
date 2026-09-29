@@ -11,12 +11,15 @@ import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
 import {icon,STATUS_ICON} from './icons.js';
 
 const DAY=864e5;
-/** The services on the status box, with their provider (whose incidents count too) and a short name. */
+/** The services on the status box, with their provider (whose incidents count too), a short name and the
+ * Korean name people type when it breaks ("클로드 안 됨", "챗GPT 먹통", "제미나이 오류"). */
 export const RAIL_SERVICES=Object.freeze([
- {id:'service:claude',provider:'provider:anthropic',short:'Claude'},
- {id:'service:chatgpt',provider:'provider:openai',short:'ChatGPT'},
- {id:'service:gemini-app',provider:'provider:google',short:'Gemini'},
+ {id:'service:claude',provider:'provider:anthropic',short:'Claude',ko:'클로드'},
+ {id:'service:chatgpt',provider:'provider:openai',short:'ChatGPT',ko:'챗GPT'},
+ {id:'service:gemini-app',provider:'provider:google',short:'Gemini',ko:'제미나이'},
 ]);
+/** An official incident: an event from a status page (status.claude.com, status.openai.com …). @param {{url:string|null}} x */
+export const isStatusIncident=x=>!!x.url&&/status\./.test(x.url);
 
 /** @typedef {'bad'|'warn'|'ok'|'unk'} StatusState */
 /** Status of one service: an open official incident, a spike of user reports, a checked "no incident",
@@ -46,7 +49,7 @@ export async function loadRail(db,o){
   frontPosts(db,{mode:'best',since:now-DAY,limit:5})]);
  const status=RAIL_SERVICES.map((s,i)=>{
   const e=entities.get(s.id)||null;
-  const open=incidents[i].some(x=>x.url&&/status\./.test(x.url)&&x.status!=='ended');
+  const open=incidents[i].some(x=>isStatusIncident(x)&&x.status!=='ended');
   const sig=reportSignal(reports.filter(r=>r.entity_id===s.id),now);
   const adapter=STATUS_ADAPTER[s.provider];
   const checked=adapter?statusChecked(collectors.get(adapter),now):false;

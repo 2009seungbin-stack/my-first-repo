@@ -287,7 +287,10 @@ test('status, history and write pages render; status is only for services',{skip
  const get=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
  const st=await get('/ko/ai/claude/status');
  const html=await st.text();
- assert(html.includes('지금 Claude(클로드) 장애?')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('<h1>Claude(클로드) 지금 안 돼요?</h1>')&&html.includes('최근 24시간 사용자 리포트')&&html.includes('<svg class="hchart"'));
+ assert(html.includes('<title>Claude(클로드) 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio</title>'),'the title is what people search when it breaks');
+ assert(html.includes('사용자 리포트 <time')&&html.includes('공식 상태 아직 확인 전'),'freshness: when reports were counted, and that the official status was never checked');
+ assert(!html.includes('정상'),'no "정상" without a recent official check');
  assert(html.includes('사용자 리포트 급증'),'sample clicks in the last hour are a spike against the quiet week');
  assert(html.includes('커뮤니티 리포트'),'user reports are labelled as community reports');
  // With a reference rate, USD plan prices get "≈ ₩" and the rate's date.
@@ -318,7 +321,7 @@ test('content gate: thin name-only channels are noindex and left out of the enti
  assert(xml.startsWith('<?xml')&&xml.includes('https://nerulio.com/ko/hardware/rtx-5070/')&&xml.includes('hreflang="en"'));
  assert(xml.includes('/ko/hardware/?type=gpu&amp;vs=rtx-3090,rtx-4090'),'successor GPU pairs are listed');
  const ai=await renderSitemap(d,'ai','https://nerulio.com');
- assert(ai.includes('/ko/ai/claude/status'),'service status pages are listed');
+ for(const slug of ['claude','chatgpt','gemini-app'])for(const l of ['ko','en'])assert(ai.includes(`https://nerulio.com/${l}/ai/${slug}/status<`),`${l} ${slug} status page is listed`);
  // A company page with only a name and a relation or two is not indexable.
  const thin=(await d.prepare("SELECT e.slug FROM entities e WHERE e.type='org' AND NOT EXISTS (SELECT 1 FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AND e.descriptions='{}' LIMIT 1").first());
  if(thin){
@@ -419,4 +422,29 @@ test('community rules page and the wiki box\'s last-checked date',{skip:!sqliteA
  const ch=await go('/ko/hardware/rtx-5070/');
  assert(/\d\d\.\d\d 확인<\/span> · 기록/.test(ch),'last-checked date next to the history link');
  assert(ch.includes('href="/ko/community/policy"'),'footer links the rules');
+});
+
+test('status page copy: search words, separate labels, and "정상" only after a recent official check',{skip:!sqliteAvailable},async()=>{
+ const {statusSeo,freshness}=await import('../platform/render/status.js');
+ const ko=statusSeo('Claude','클로드','ko');
+ assert.equal(ko.title,'Claude(클로드) 지금 안 돼요? 실시간 장애·접속 오류 확인 | Nerulio');
+ assert(ko.description.startsWith('클로드 안 됨·먹통·오류가 나나요?')&&ko.description.includes('공식 상태 페이지')&&ko.description.includes('사용자들의 ‘안 돼요’ 리포트'));
+ assert(statusSeo('제미나이','Gemini','ko').description.startsWith('제미나이 안 됨'),'the Korean name is the search word');
+ assert.equal(statusSeo('ChatGPT',null,'en').h1,'Is ChatGPT down right now?');
+ for(const x of [ko,statusSeo('ChatGPT','챗GPT','ko'),statusSeo('ChatGPT',null,'en')])assert(!/정상|operational|no incident/i.test(x.title+x.description),'search snippets never state the status');
+ const f=o=>String(freshness({l:'ko',now:NOW,hasCollector:true,checked:false,checkedAt:null,...o}));
+ assert(f({checked:true,checkedAt:NOW-20*6e4}).includes('공식 상태 마지막 확인 <time datetime="2026-09-28T05:40:00.000Z">14:40</time>'));
+ assert(f({checked:false,checkedAt:NOW-5*36e5}).includes('2시간 넘게 지나'),'a stale check says so');
+ assert(f({}).includes('공식 상태 아직 확인 전'));
+ assert(f({hasCollector:false}).includes('자동 확인하지 않아요'));
+ assert(f({}).includes('<time datetime="2026-09-28T06:00:00.000Z">15:00</time> 기준'),'user reports as of the render time, in Korea time');
+ // Checked recently and quiet: the page says "no official incident" and the ChatGPT page uses 챗GPT.
+ const d=await seeded();
+ await d.prepare("INSERT OR REPLACE INTO collectors (adapter,vertical,last_success_at) VALUES ('openai-status','ai',?)").bind(NOW-600e3).run();
+ const res=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/chatgpt/status'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const out=await res.text();
+ await d.prepare("DELETE FROM collectors WHERE adapter='openai-status'").run();
+ assert(out.includes('<h1>ChatGPT(챗GPT) 지금 안 돼요?</h1>')&&out.includes('공식 장애 없음')&&out.includes('공식 상태 마지막 확인'));
+ const gem=await (await renderPlatformPage(new Request('https://nerulio.com/ko/ai/gemini-app/status'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ assert(gem.includes('<h1>제미나이(Gemini) 지금 안 돼요?</h1>')&&gem.includes('자동 확인하지 않아요'),'Gemini has no status collector: said plainly');
 });

@@ -41,6 +41,7 @@ import {POST_KINDS} from '../../platform/community.js';
 import {CHANNEL_IDS,channelById,channelOfVertical,defaultChannelOf,channelPath,postPath,writePath,channelBarLinks} from '../../platform/channels.js';
 import {sitemapEntities} from '../../platform/db/channel.js';
 import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
+import {RAIL_SERVICES} from '../../platform/render/rail.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
 const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
@@ -208,7 +209,10 @@ const xmlEsc=(/** @type {string} */ s)=>s.replace(/[&<>"']/g,c=>/** @type {Recor
  * @param {any} db @param {string} vertical @param {string} origin
  */
 export async function renderSitemap(db,vertical,origin){
- const rows=(await sitemapEntities(db,vertical)).filter(e=>indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
+ // The home status box's services (Claude, ChatGPT, Gemini) are always listed: their status pages are
+ // what people land on when the service breaks ("클로드 안 됨"), whatever the content gate says.
+ const always=new Set(RAIL_SERVICES.map(x=>x.id));
+ const rows=(await sitemapEntities(db,vertical)).filter(e=>(always.has(e.id)&&e.index_state!=='noindex')||indexable(e,{facts:e.facts,relations:e.relations,posts:e.posts,description:!!(e.descriptions.ko||e.descriptions.en)}));
  const urls=[];
  const hub={ko:`${origin}/ko/${vertical}/`,en:`${origin}/en/${vertical}/`};
  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(hub[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(hub.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(hub.en)}"/></url>`);
