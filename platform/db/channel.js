@@ -8,6 +8,7 @@
 /** @typedef {{entity_id:string,property:string,value:any,unit:string|null,verification:string,region:string,language:string,platform:string,plan:string,source_id:string|null,observed_at:number,note:string|null}} Fact */
 
 import {VERIFICATION} from '../schema.js';
+import {plainExcerpt} from '../markdown.js';
 
 const CHUNK=40;
 const qs=(/** @type {number} */ n)=>Array(n).fill('?').join(',');
@@ -293,17 +294,23 @@ export async function recentTitles(db,scope,since){
 }
 const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id LEFT JOIN entities e ON e.id=d.entity_id AND e.status='active'`;
 /** Cross-channel lists for the community front and 전체 베스트. @param {D1} db
- * @param {{mode:'best'|'news'|'kind',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean}} o */
+ * @param {{mode:'best'|'news'|'kind'|'hot'|'latest',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean,people?:boolean}} o */
 export async function frontPosts(db,o){
  const where=["d.status='published'"],params=[];
+ if(o.people)where.push("d.author_id NOT LIKE 'system:%'");   // the home feed: members' and ㅇㅇ posts, not the Radar bot
  if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
  if(o.since!==undefined){where.push('d.created_at>=?');params.push(o.since);}
  if(o.mode==='best')where.push('d.best_at IS NOT NULL');
  if(o.mode==='news')where.push("d.flair='news'","d.author_id LIKE 'system:%'");
  if(o.mode==='kind'&&o.kind){where.push('d.flair=?');params.push(o.kind);}
  if(o.unanswered)where.push('d.solved_comment_id IS NULL','d.comment_count=0');   // nobody has replied yet
- const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':'d.created_at DESC';
+ const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':o.mode==='hot'?'(d.up_count-d.down_count)+2*d.comment_count DESC,d.created_at DESC':'d.created_at DESC';
  return withTags(db,(await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow));
+}
+/** The first lines of many posts as plain text (the home feed's cards). @param {D1} db @param {string[]} ids @param {number} [n] */
+export async function excerptsOf(db,ids,n=140){
+ const rows=await inChunks(db,ids,ph=>`SELECT id,substr(body_md,1,600) AS md FROM discussions WHERE id IN (${ph})`);
+ return new Map(rows.map(r=>[String(r.id),plainExcerpt(String(r.md||''),n)]));
 }
 /** Tags with the most posts since a time (인기 태그). @param {D1} db @param {number} since @param {number} [limit] */
 export async function activeChannels(db,since,limit=10){

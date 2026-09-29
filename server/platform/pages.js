@@ -1,6 +1,7 @@
 // @ts-check
 /** Server-rendered platform pages (architecture D4), only in builds with PLATFORM=on:
- *   /{l}/community/            community front
+ *   / · /en/                   the portal home (Korean · English): the feed, AI status, news (?sort=new)
+ *   /ko/ · /{l}/community/     → 301 to the portal home
  *   /{l}/community/best/       전체 베스트 (?period=day|week|month&ch=)
  *   /{l}/community/{ch}/       a channel's board (?kind=&tag=&sort=&best=1&page=, 게임: &platform= | &genre=)
  *   /{l}/community/{ch}/{no} · …/write (?tag=&kind=) · …/best · …/feed.xml
@@ -31,7 +32,7 @@ import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed,boardFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
-import {page,channelName,channelUrl} from '../../platform/render/ui.js';
+import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';
@@ -49,9 +50,13 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,page:'front'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,page:'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
+ // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
+ if(pathname==='/')return {l:'ko',page:'front'};
+ if(pathname==='/en/')return {l:'en',page:'front'};
+ if(pathname==='/ko/')return {l:'ko',page:'home-moved'};
  const m=ROUTE.exec(pathname);
  if(!m)return null;
  const [,l,community,best,report,ch,chNo,chSub,top,topFeed,vertical,slug,no,sub]=m;
@@ -78,6 +83,7 @@ const PARAMS=/** @type {Record<string,Record<string,(v:string)=>string|null>>} *
  'board-best':{page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
  'board-write':{tag:v=>ENTITY_ID.test(v)?v:null,kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
  'legacy-write':{kind:v=>hasOwn(POST_KINDS,v)?v:null,result:v=>v==='works'||v==='works_with_issues'||v==='broken'?v:null},
+ front:{sort:v=>v==='new'?'new':null},
  best:{period:v=>hasOwn(BEST_PERIODS,v)&&v!=='day'?v:null,ch:v=>CHANNEL_IDS.includes(/** @type {any} */(v))?v:null},
  radar:{v:v=>VERTICALS.includes(/** @type {any} */(v))?v:null},
  hub:{type:v=>/^[a-z_]{2,20}$/.test(v)?v:null,org:v=>/^[a-z0-9][a-z0-9-]{0,40}$/.test(v)?v:null,sort:v=>v==='cheap'||v==='new'?v:null,vs:v=>/^[a-z0-9][a-z0-9-]{0,60},[a-z0-9][a-z0-9-]{0,60}$/.test(v)&&v.split(',')[0]!==v.split(',')[1]?v.split(',').sort().join(','):null,page:v=>/^[1-9]\d{0,3}$/.test(v)&&v!=='1'?v:null},
@@ -113,6 +119,8 @@ export async function renderPlatformPage(request,env,site){
   if(VERTICALS.includes(/** @type {any} */(v)))q.set('ch',channelOfVertical(String(v)));
   return redirect(new URL(url.pathname+canonicalQuery('best',q),url).href);
  }
+ // /ko/ (the tool home before the portal; the tools are at /{l}/tools/ now) and /{l}/community/ → the portal home.
+ if(route.page==='home-moved'||(route.page==='front'&&url.pathname!==homeUrl(l)))return redirect(new URL(homeUrl(l)+canonicalQuery('front',url.searchParams),url).href);
  const search=canonicalQuery(route.page,url.searchParams);
  // Compare in URLSearchParams' own encoding (":" → "%3A"), so an already canonical URL never redirects.
  const given=url.searchParams.toString().replace(/%2C/gi,',').replace(/%3A/gi,':');
@@ -120,7 +128,7 @@ export async function renderPlatformPage(request,env,site){
  const q=new URLSearchParams(search);
  const bar=()=>channelBar(db,l,now);
  switch(route.page){
-  case 'front':return html(String(renderFront(await loadFront(db,{l,now,channels:await bar()}),s)));
+  case 'front':return html(String(renderFront(await loadFront(db,{l,now,sort:q.get('sort')||'hot',channels:await bar()}),s)));
   case 'best':return html(String(renderBest(await loadBest(db,{l,now,period:q.get('period')||'day',channel:q.get('ch'),channels:await bar()}),s)));
   case 'flag':return html(String(renderFlag({l,target:q.get('target'),about:await loadFlagTarget(db,q.get('target'),l),channels:await bar()},s)));
   case 'policy':return html(String(renderPolicy({l,channels:await bar()},s)));
@@ -200,7 +208,11 @@ export async function renderSitemap(db,vertical,origin){
  const hist=new Set(((await db.prepare(`SELECT entity_id FROM changes WHERE vertical=? AND visibility='public' AND kind NOT IN ('entity_added','fact_added') GROUP BY entity_id HAVING COUNT(*)>=3`).bind(vertical).all()).results||[]).map((/** @type {any} */ r)=>String(r.entity_id)));
  // The comparison tables, and (in the AI file) the community front and the Radar.
  // The community front, its 전체 베스트 and every channel board are in the AI file (the first one).
- const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/'],['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ const extra=[...({ai:['?type=plan','?type=model'],hardware:['?type=gpu']}[vertical]||[]).map(q=>[`/${vertical}/${q}`]),...(vertical==='ai'?[['/community/best/'],...CHANNEL_IDS.map(c=>[`/community/${c}/`]),['/radar/']]:[])];
+ if(vertical==='ai'){
+  const home={ko:`${origin}/`,en:`${origin}/en/`};
+  for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(home[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(home.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(home.en)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(home.ko)}"/></url>`);
+ }
  for(const [p] of extra){
   const alt={ko:`${origin}/ko${p}`,en:`${origin}/en${p}`};
   for(const l of /** @type {const} */(['ko','en']))urls.push(`<url><loc>${xmlEsc(alt[l])}</loc><xhtml:link rel="alternate" hreflang="ko" href="${xmlEsc(alt.ko)}"/><xhtml:link rel="alternate" hreflang="en" href="${xmlEsc(alt.en)}"/></url>`);

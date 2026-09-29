@@ -134,15 +134,23 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  assert.equal(await loadPost(d,'ai',999999,{l:'ko',now:NOW}),null);
 });
 
-test('community front: overall best, the channel boxes, Radar bot news only, popular tags',{skip:!sqliteAvailable},async()=>{
+test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Radar news and the best on the right',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();
  const m=await loadFront(d,{l:'ko',now:NOW});
  const out=String(renderFront(m,SITE));
- assert(out.includes('★ 전체 베스트')&&out.includes('5070 vs 4070 SUPER'));
- assert(m.news.every(p=>p.bot),'radar news lists Radar bot posts only');
- for(const [id,name] of [['ai','AI'],['games','게임'],['hw','PC·하드웨어'],['studio','창작 도구'],['sub','애니·서브컬처'],['free','자유']])assert(out.includes(`<h2><a href="/ko/community/${id}/">${name}</a></h2>`),id);
- assert(out.includes('인기 태그')&&out.includes('공지·건의'));
- assert(!out.includes('게시판 준비 중')&&!out.includes('준비 중인 게시판'));
+ assert.equal(m.sort,'hot');
+ assert(m.posts.length>=8&&m.posts.every(p=>!p.bot),'the feed has members\' and ㅇㅇ posts, not the Radar bot');
+ const score=(/** @type {any} */ p)=>p.up-p.down+2*p.comments,week=m.posts.filter(p=>p.created_at>=NOW-7*864e5);
+ assert(week.every((p,i)=>i===0||score(week[i-1])>=score(p)),'popular = votes and comments, this week first');
+ assert(out.includes('<link rel="canonical" href="https://nerulio.com/">'),'the Korean home is the site root');
+ assert(out.includes('hreflang="en" href="https://nerulio.com/en/"')&&out.includes('hreflang="x-default" href="https://nerulio.com/"'));
+ assert(out.includes('5070 vs 4070 SUPER')&&out.includes('class="fx"'),'cards show the first lines');
+ assert(out.includes('AI 서비스 상태')&&['Claude','ChatGPT','Gemini'].every(n=>out.includes(`<b>${n}</b>`)));
+ assert(m.rail.news.every(p=>p.bot),'news lists Radar bot posts only');
+ assert(out.includes('파일 도구')&&out.includes('게임 도구')&&out.includes('href="/ko/image/compress/"')&&out.includes('href="/ko/tools/"'),'the menu lists the tools');
+ const latest=await loadFront(d,{l:'ko',now:NOW,sort:'new'});
+ assert(latest.posts.every((p,i)=>i===0||latest.posts[i-1].created_at>=p.created_at),'최신 = newest first');
+ assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
 });
 
 test('every entity type renders a channel page in both languages',{skip:!sqliteAvailable},async()=>{
@@ -311,7 +319,7 @@ test('model channels: official API price, price history area, local-run estimate
  assert(g.out.includes('로컬에서 돌리려면')&&g.out.includes('12GB 카드부터'));
  const ld=JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec((await channel('games','caves-of-qud')).out)[1]);
  assert.equal(ld['@graph'][0].about.additionalType,'https://schema.org/VideoGame','typed without claiming a rich result it cannot fill');assert.equal(ld['@graph'][1]['@type'],'BreadcrumbList');
- assert(!(await channel('games','caves-of-qud')).out.includes('스프라이트 랩'),'game-asset tools are not linked from every game');
+ assert(!(await channel('games','caves-of-qud')).out.replace(/<aside class="lnav"[\s\S]*?<\/aside>/,'').includes('스프라이트 랩'),'game-asset tools are not linked from every game (the site menu lists them on every page)');
 });
 
 test('Korean patch: a game update past the last confirmed version is flagged; patch channel links to the author only',{skip:!sqliteAvailable},async()=>{
