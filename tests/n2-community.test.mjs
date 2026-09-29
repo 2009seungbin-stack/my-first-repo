@@ -35,7 +35,8 @@ test('★ best rule, tiers and writable kinds',()=>{
  assert.equal(computeTier({...base,tier:'maintainer'},NOW),'maintainer');
  assert.ok(writableKinds('games').includes('patch'));
  assert.ok(!writableKinds('ai').includes('patch'));
- assert.ok(!writableKinds('games').includes('notice')&&!writableKinds('games').includes('news'));
+ assert.ok(!writableKinds('games').includes('notice')&&writableKinds('games').includes('news'),'소식 is a 게임 말머리; 공지 is staff-only');
+ assert.ok(writableKinds('games',{staff:true}).includes('notice'));
 });
 
 test('rollout summary never shows a percentage for tiny cells and separates new accounts',()=>{
@@ -53,10 +54,11 @@ test('posts get per-channel numbers, votes update counters and ★ best',{skip:!
  const db=D1Shim.migrated();
  await ingest(db,{schema:'nerulio.seed/1',vertical:'games',sources:[],entities:[{id:'game:steam-1',type:'game',slug:'g1',names:{en:'G1'}},{id:'game:steam-2',type:'game',slug:'g2',names:{en:'G2'}}]},{mode:'seed',actor:'seed',now:NOW});
  db.raw.exec("INSERT INTO users (id,provider,provider_subject,created_at) VALUES ('u1','google','1',0),('u2','google','2',0)");
- assert.equal(await createPost(db,{id:'p1',entityId:'game:steam-1',kind:'question',title:'q',body:'b',locale:'ko',authorId:'u1'},NOW),1);
- assert.equal(await createPost(db,{id:'p2',entityId:'game:steam-1',kind:'free',title:'f',body:'b',locale:'ko',authorId:'u1'},NOW),2);
- assert.equal(await createPost(db,{id:'p3',entityId:'game:steam-2',kind:'free',title:'f',body:'b',locale:'ko',authorId:'system:radar-bot'},NOW),1,'numbers are per channel');
- await assert.rejects(createPost(db,{id:'p4',entityId:'game:steam-1',kind:'bogus',title:'x',body:'b',locale:'ko',authorId:'u1'},NOW));
+ assert.equal(await createPost(db,{id:'p1',channel:'games',tags:['game:steam-1'],kind:'question',title:'q',body:'b',locale:'ko',authorId:'u1'},NOW),1);
+ assert.equal(await createPost(db,{id:'p2',channel:'games',tags:['game:steam-1'],kind:'free',title:'f',body:'b',locale:'ko',authorId:'u1'},NOW),2);
+ assert.equal(await createPost(db,{id:'p3',channel:'games',tags:['game:steam-2'],kind:'free',title:'f',body:'b',locale:'ko',authorId:'system:radar-bot'},NOW),3,'numbers are per channel, not per tag');
+ assert.equal(await createPost(db,{id:'p3b',channel:'free',tags:['game:steam-2'],kind:'free',title:'f',body:'b',locale:'ko',authorId:'u1'},NOW),1,'another channel counts on its own');
+ await assert.rejects(createPost(db,{id:'p4',channel:'games',tags:['game:steam-1'],kind:'bogus',title:'x',body:'b',locale:'ko',authorId:'u1'},NOW));
  let r=await castVote(db,{kind:'discussion',id:'p1',userId:'u2',value:1},NOW);
  assert.deepEqual({up:r.up,down:r.down,best:r.best},{up:1,down:0,best:false});assert.equal(r.bestThreshold,10,'default threshold under 20 recent posts');
  r=await castVote(db,{kind:'discussion',id:'p1',userId:'u2',value:-1},NOW);

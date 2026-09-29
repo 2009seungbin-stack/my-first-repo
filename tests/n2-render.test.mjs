@@ -60,7 +60,8 @@ test('seed import loads every seed file through the ingest pipeline',{skip:!sqli
 test('AI service channel: status, models with official API prices, plans in the wiki',{skip:!sqliteAvailable},async()=>{
  const {m,out}=await channel('ai','claude');
  assert.equal(m.panel.id,'ai-service');
- assert.match(out,/<h1>Claude 채널 <span class="ha">클로드<\/span><\/h1>/);
+ assert.match(out,/<h1>Claude <span class="ha">클로드<\/span><\/h1>/);
+ assert(out.includes('<a href="/ko/community/ai/">AI 채널</a>의 태그'),'a tag page names its home channel');
  assert(out.includes('서비스 상태')&&out.includes('확인 전')&&!out.includes('보고된 장애 없음'),'no status claim before the status collector has run');
  const d=await seeded();
  await d.prepare("INSERT OR REPLACE INTO collectors (adapter,vertical,last_success_at) VALUES ('claude-status','ai',?)").bind(NOW-600e3).run();
@@ -71,7 +72,8 @@ test('AI service channel: status, models with official API prices, plans in the 
  assert(out.includes('Claude 위키')&&out.includes('>Pro<')&&out.includes('$20'),'plans table');
  assert(out.includes('rel="canonical" href="https://nerulio.com/ko/ai/claude/"'));
  assert(out.includes('hreflang="en" href="https://nerulio.com/en/ai/claude/"'));
- assert(/class="pr[^"]*"><span class="no">\d+<\/span><a class="tt" href="\/ko\/ai\/claude\/\d+">/.test(out),'board rows link to posts');
+ assert(/class="pr[^"]*"><span class="no">\d+<\/span><span class="tc"><a class="tt" href="\/ko\/community\/ai\/\d+">/.test(out),'tag rows link to posts in their channel');
+ assert(out.includes('Claude 태그 글')&&out.includes('href="/ko/community/ai/write?tag=service:claude"'),'이 태그 글 and the write button with the channel and tag picked');
 });
 
 test('game channel: latest Steam update, Korean patch compatibility, official Korean',{skip:!sqliteAvailable},async()=>{
@@ -108,18 +110,19 @@ test('filtered/paged board views are noindex and keep the filter in links',{skip
 
 test('user text is escaped in board rows and on the post page',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();const {entity}=await entityBySlug(d,'ai','claude');
- const no=await createPost(d,{id:'xss-1',entityId:entity.id,kind:'free',title:'<script>alert(1)</script>',body:'<img src=x onerror=alert(1)> **굵게**',locale:'ko',authorId:'demo:u3'},NOW-1000);
+ const no=await createPost(d,{id:'xss-1',channel:'ai',tags:[entity.id],kind:'free',title:'<script>alert(1)</script>',body:'<img src=x onerror=alert(1)> **굵게**',locale:'ko',authorId:'demo:u3'},NOW-1000);
  const {out}=await channel('ai','claude');
  assert(!out.includes('<script>alert(1)</script>')&&out.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
- const page=String(renderPost(await loadPost(d,entity,no,{l:'ko',now:NOW}),SITE));
+ const page=String(renderPost(await loadPost(d,'ai',no,{l:'ko',now:NOW}),SITE));
  assert(!page.includes('<img src=x')&&page.includes('<strong>굵게</strong>'));
  await d.prepare("DELETE FROM discussions WHERE id='xss-1'").run();
 });
 
 test('post page: meta, threaded comments with the best comment on top, board around it',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();const {entity}=await entityBySlug(d,'ai','claude');
- const row=await d.prepare("SELECT post_no FROM discussions WHERE entity_id=? AND title LIKE 'Opus 5.5로%'").bind(entity.id).first();
- const m=await loadPost(d,entity,Number(row.post_no),{l:'ko',now:NOW});
+ const row=await d.prepare("SELECT channel_no FROM discussions WHERE channel_id='ai' AND title LIKE 'Opus 5.5로%'").first();
+ const m=await loadPost(d,'ai',Number(row.channel_no),{l:'ko',now:NOW});
+ assert.equal(m.entity?.id,entity.id,'the first tag scopes the post');
  const out=String(renderPost(m,SITE));
  assert(out.includes('댓글 2')&&out.includes('class="co re"'));
  assert(!out.includes('class="co bestc"'),'with two comments the best one is not pinned twice');
@@ -127,16 +130,19 @@ test('post page: meta, threaded comments with the best comment on top, board aro
  assert(String(renderPost(withThree,SITE)).includes('class="co bestc"'),'with three or more the best comment is pinned on top');
  assert(out.includes('aria-current="page"'),'current post marked in the list');
  assert(out.includes('"@type":"DiscussionForumPosting"'));
- assert.equal(await loadPost(d,entity,999999,{l:'ko',now:NOW}),null);
+ assert(out.includes('<link rel="canonical" href="https://nerulio.com/ko/community/ai/'+row.channel_no+'">'));
+ assert.equal(await loadPost(d,'ai',999999,{l:'ko',now:NOW}),null);
 });
 
-test('community front: best, Radar bot news only, questions, popular channels',{skip:!sqliteAvailable},async()=>{
+test('community front: overall best, the channel boxes, Radar bot news only, popular tags',{skip:!sqliteAvailable},async()=>{
  const d=await seeded();
  const m=await loadFront(d,{l:'ko',now:NOW});
  const out=String(renderFront(m,SITE));
- assert(out.includes('실시간 베스트')&&out.includes('5070 vs 4070 SUPER'));
- assert(m.news.every(p=>p.bot),'"changing now" lists Radar bot posts only');
- assert(out.includes('답을 기다리는 질문')&&out.includes('인기 채널'));
+ assert(out.includes('★ 전체 베스트')&&out.includes('5070 vs 4070 SUPER'));
+ assert(m.news.every(p=>p.bot),'radar news lists Radar bot posts only');
+ for(const [id,name] of [['ai','AI'],['games','게임'],['hw','PC·하드웨어'],['studio','창작 도구'],['sub','애니·서브컬처'],['free','자유']])assert(out.includes(`<h2><a href="/ko/community/${id}/">${name}</a></h2>`),id);
+ assert(out.includes('인기 태그')&&out.includes('공지·건의'));
+ assert(!out.includes('게시판 준비 중')&&!out.includes('준비 중인 게시판'));
 });
 
 test('every entity type renders a channel page in both languages',{skip:!sqliteAvailable},async()=>{
@@ -163,22 +169,35 @@ test('panel registry picks a panel per channel kind',()=>{
 
 test('Worker routes: platform paths only, renamed slugs redirect, unknown channels fall through',{skip:!sqliteAvailable},async()=>{
  assert.deepEqual(matchPlatformRoute('/ko/ai/claude/'),{l:'ko',page:'channel',vertical:'ai',slug:'claude',no:null});
- assert.deepEqual(matchPlatformRoute('/en/games/caves-of-qud/12'),{l:'en',page:'post',vertical:'games',slug:'caves-of-qud',no:12});
+ assert.deepEqual(matchPlatformRoute('/en/games/caves-of-qud/12'),{l:'en',page:'legacy-post',vertical:'games',slug:'caves-of-qud',no:12});
+ assert.deepEqual(matchPlatformRoute('/ko/community/ai/12'),{l:'ko',page:'board-post',ch:'ai',no:12});
+ assert.deepEqual(matchPlatformRoute('/ko/community/games/'),{l:'ko',page:'board',ch:'games'});
+ for(const p of ['/ko/community/xyz/','/ko/community/ai/0x1','/ko/community/ai'])assert.equal(matchPlatformRoute(p),null,p);
  assert.deepEqual(matchPlatformRoute('/ko/community/'),{l:'ko',page:'front'});
  for(const p of ['/ko/ai/claude','/ja/ai/claude/','/ko/image/compress/','/ko/ai/Claude/','/ko/ai/claude/x'])assert.equal(matchPlatformRoute(p),null,p);
  const d=await seeded();
  const res=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
  assert.equal(res.status,200);assert.match(res.headers.get('cache-control'),/s-maxage=60/);
- assert((await res.text()).includes('Claude 채널'));
+ assert((await res.text()).includes('<h1>Claude'));
  assert.equal(await renderPlatformPage(new Request('https://nerulio.com/ko/ai/no-such-channel/'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW}),null);
  await d.prepare("INSERT INTO entity_redirects (vertical,slug,entity_id,created_at) VALUES ('ai','claude-ai','service:claude',0)").run();
  const r=await renderPlatformPage(new Request('https://nerulio.com/ko/ai/claude-ai/3'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
- assert.equal(r.status,301);assert.equal(r.headers.get('location'),'https://nerulio.com/ko/ai/claude/3');
+ assert.equal(r.status,301);assert.match(r.headers.get('location'),/^https:\/\/nerulio\.com\/ko\/(ai\/claude\/3|community\/ai\/\d+)$/);
  const go=async p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
  // Junk or invalid parameters are redirected to the canonical URL (no cache-busting renders).
  assert.equal((await go('/ko/ai/claude/?x=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?page=1.5&kind=constructor&sort=new')).headers.get('location'),'https://nerulio.com/ko/ai/claude/');
  assert.equal((await go('/ko/ai/claude/?sort=top&kind=question&utm=1')).headers.get('location'),'https://nerulio.com/ko/ai/claude/?kind=question&sort=top');
+ // Channel boards: 말머리 of the channel only; platform/genre filters on 게임 only.
+ assert.equal((await go('/ko/community/ai/')).status,200);
+ assert.equal((await go('/ko/community/ai/?kind=patch')).headers.get('location'),'https://nerulio.com/ko/community/ai/');
+ assert.equal((await go('/ko/community/ai/?platform=windows')).headers.get('location'),'https://nerulio.com/ko/community/ai/');
+ assert.equal((await go('/ko/community/games/?kind=patch')).status,200);
+ assert.equal((await go('/ko/community/ai/?tag=service:claude&kind=question')).headers.get('location'),'https://nerulio.com/ko/community/ai/?kind=question&tag=service:claude','one URL per filter set');
+ assert.equal((await go('/ko/community/ai/?kind=question&tag=service:claude')).status,200);
+ assert.equal((await go('/ko/community/ai/feed.xml')).status,200);
+ assert.equal((await go('/ko/community/best/?v=hardware')).headers.get('location'),'https://nerulio.com/ko/community/best/?ch=hw');
+ assert.equal((await go('/ko/community/?v=games')).headers.get('location'),'https://nerulio.com/ko/community/games/');
  assert.equal((await go('/ko/ai/claude/?kind=question&sort=top')).status,200);
  const page=await go('/ko/ai/claude/');
  assert.match(page.headers.get('content-security-policy'),/form-action 'self'/);assert.equal(page.headers.get('x-content-type-options'),'nosniff');
@@ -193,13 +212,18 @@ test('Worker routes: platform paths only, renamed slugs redirect, unknown channe
  assert(/<title>[^<]*RTX 4070 vs [^<]*RTX 5070 비교/.test(vs)&&vs.includes('<link rel="canonical" href="https://nerulio.com/ko/hardware/?type=gpu&amp;vs=rtx-4070,rtx-5070"'),'the pair is its own page');
  assert(/4070 vs [^<]*5070/.test(vs),'two cards side by side');
  assert(vs.includes('class="mt vs"'));
- // Boards open first on AI, 한글패치 and GPU channels (OPEN_BOARDS); others read "준비 중".
+ // Every channel is open: an entity page writes into its default channel with the tag picked.
  const studio=await (await go('/ko/studio/ableton-live/')).text();
- assert(studio.includes('게시판은 준비 중')&&!studio.includes('href="/ko/studio/ableton-live/write"'),'closed board: no write button');
- assert((await (await go('/ko/studio/ableton-live/write')).text()).includes('게시판 준비 중'));
- assert((await (await go('/ko/hardware/rtx-5070/')).text()).includes('href="/ko/hardware/rtx-5070/write"'),'GPU boards are open');
+ assert(!studio.includes('준비 중')&&studio.includes('href="/ko/community/studio/write?tag=app:ableton-live"'),'studio tags are open too');
+ const lw=await go('/ko/studio/ableton-live/write');
+ assert.equal(lw.status,302);assert.equal(lw.headers.get('location'),'https://nerulio.com/ko/community/studio/write?tag=app:ableton-live');
+ assert((await (await go('/ko/hardware/rtx-5070/')).text()).includes('href="/ko/community/hw/write?tag=gpu:rtx-5070"'));
+ // Old post URLs answer 301 to the post's channel address; an unknown number goes to the tag page.
+ const old=await d.prepare("SELECT l.post_no,d.channel_no FROM legacy_posts l JOIN discussions d ON d.id=l.discussion_id WHERE l.entity_id='service:claude' ORDER BY l.post_no LIMIT 1").first();
+ if(old){const r2=await go(`/ko/ai/claude/${old.post_no}`);assert.equal(r2.status,301);assert.equal(r2.headers.get('location'),`https://nerulio.com/ko/community/ai/${old.channel_no}`);}
  const gone=await go('/ko/ai/claude/999999');
- assert.equal(gone.status,404);assert((await gone.text()).includes('href="/ko/ai/claude/"'),'a missing post leads back to its channel');
+ assert.equal(gone.status,301);assert.equal(gone.headers.get('location'),'https://nerulio.com/ko/ai/claude/','a missing old number leads back to the tag page');
+ assert.equal((await go('/ko/community/ai/999999')).status,404);
  const both=await (await go('/ko/search/?q=5070+4070')).text();
  assert(both.includes('/ko/hardware/rtx-5070/')&&both.includes('/ko/hardware/rtx-4070/'),'several words: each word finds its channel');
  const claudeAll=await (await go('/ko/search/?q=claude')).text();
@@ -240,9 +264,9 @@ test('status, history and write pages render; status is only for services',{skip
  assert.equal(await get('/ko/hardware/rtx-5070/status'),null,'no status page for a GPU');
  const hist=await (await get('/ko/hardware/rtx-5070/history')).text();
  assert(hist.includes('변경 기록')&&hist.includes('출처'));
- const w=await (await get('/ko/games/caves-of-qud/write')).text();
- assert(w.includes('구조화 리포트')&&w.includes('noindex')&&w.includes('data-island="write-form"'));
- const w2=await (await get('/ko/ai/claude/write')).text();
+ const w=await (await get('/ko/community/games/write?tag=game:steam-333640&kind=report')).text();
+ assert(w.includes('구조화 리포트')&&w.includes('noindex')&&w.includes('data-island="write-form"')&&w.includes('value="game:steam-333640"'));
+ const w2=await (await get('/ko/community/ai/write?tag=service:claude')).text();
  assert(!w2.includes('구조화 리포트'),'no report form where there is nothing to report on');
  assert(!w2.includes('value="patch"'),'한글패치 tag only on game channels');
 });

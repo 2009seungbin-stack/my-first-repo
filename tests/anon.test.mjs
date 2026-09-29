@@ -161,6 +161,22 @@ test('boards, tags and member-only features stay as they are for anonymous write
  assert.equal((await b.call('POST','/mod/action',{body:{target:'discussion:x',action:'hide',reason:'xx'}})).status,401);
 });
 
+test('유동 in a channel: 말머리 of that channel, tags from any area, the post URL is the channel number',{skip},async()=>{
+ const h=await harness();
+ const r=await post(h.browser('203.0.113.20'),{entityId:undefined,channel:'free',kind:'question',tags:['service:svc'],name:'지나가던 사람'});
+ assert.equal(r.status,201,JSON.stringify(r.json));
+ assert.match(r.json.url,/^\/ko\/community\/free\/\d+$/);assert.equal(r.json.channel,'free');
+ const row=h.db.raw.prepare('SELECT author_id,anon_name,channel_id,flair FROM discussions WHERE id=?').get(r.json.id);
+ assert.deepEqual({...row},{author_id:'anon',anon_name:'지나가던 사람',channel_id:'free',flair:'question'});
+ assert.deepEqual(h.db.raw.prepare('SELECT entity_id FROM discussion_tags WHERE discussion_id=?').all(r.json.id).map(x=>x.entity_id),['service:svc']);
+ assert.equal((await post(h.browser('203.0.113.21'),{entityId:undefined,channel:'free',kind:'notice',tags:[]})).status,400,'공지 stays staff-only');
+ assert.equal((await post(h.browser('192.0.2.22'),{entityId:undefined,channel:'notice',kind:'feedback',tags:[],title:'건의 드립니다'})).status,201,'유동 may leave 건의');
+ // 유동 cannot propose tags or keep pins on the server.
+ assert.equal((await h.browser('203.0.113.23').call('POST','/tags/propose',{body:{name:'새 게임',channel:'games'}})).status,401);
+ assert.equal((await h.browser('203.0.113.24').call('POST','/pins',{body:{channels:['ai']}})).status,401);
+ assert.deepEqual((await h.browser('203.0.113.25').call('GET','/pins')).json,{pins:null},'signed out: pins live in the browser');
+});
+
 test('per-network limits: burst per minute, daily cap; stricter without a bot check',{skip},async()=>{
  const h=await harness(),b=h.browser('203.0.113.7');
  assert.equal((await post(b,{title:'첫 번째 글'})).status,201);

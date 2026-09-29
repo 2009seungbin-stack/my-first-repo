@@ -353,7 +353,7 @@ test('community stats for a Seoul day: tiles, 7-day spark, channels, verticals, 
  assert.deepEqual(r.json.tiles,{posts:1,comments:1,users:0,flags:0});
  assert.deepEqual(r.json.spark.slice(-2),[{day:'2026-09-28',posts:1,comments:0},{day:'2026-09-29',posts:1,comments:1}]);
  assert.deepEqual(r.json.channels.map(x=>[x.name,x.posts,x.comments]),[['테스트 게임',1,1]]);
- assert.deepEqual(r.json.verticals,[{vertical:'games',posts:1,comments:1}]);
+ assert.deepEqual(r.json.verticals,[{vertical:'games',name:'게임',url:'/ko/community/games/',posts:1,comments:1}],'posts per channel');
  const y=await admin.call('GET','/admin/community?day=2026-09-28');
  assert.equal(y.json.tiles.users,2,'members created 2026-09-28 (KST)');
  assert(y.json.newUsers.every(u=>!('email' in u))&&!y.text.includes('@example.test'));
@@ -496,4 +496,30 @@ test('recordRun stays compatible with a database that has no rows_written column
 test('malformed path parameters are a 404, not a crash',{skip},async()=>{
  const h=await harness();const admin=await h.admin();
  assert.equal((await admin.call('GET','/admin/collectors/%E0%A4%A/runs')).status,404);
+});
+
+test('new tags: a member proposes, the admin picks the kind and approves (entity + alias, noindex) or rejects',{skip},async()=>{
+ const h=await harness();const admin=await h.admin();const db=h.db;
+ const m=await h.member('p');
+ const a=await m.call('POST','/tags/propose',{body:{name:'Hollow Knight Silksong',channel:'games',sourceUrl:'https://store.steampowered.com/app/1030300/'}});
+ assert.equal(a.status,201,a.text);
+ const b=await m.call('POST','/tags/propose',{body:{name:'이상한 태그',channel:'games'}});
+ const r=await admin.call('GET','/admin/radar');
+ assert.equal(r.status,200,r.text);
+ const t=r.json.tags.find(x=>x.id===a.json.id);
+ assert(t&&t.name==='Hollow Knight Silksong'&&t.types.some(x=>x.id==='game'),JSON.stringify(r.json.tags));
+ const act=body=>admin.call('POST','/admin/radar/action',{body:{kind:'tag',...body}});
+ assert.equal((await act({id:a.json.id,action:'approve',value:'gpu',reason:'확인'})).status,400,'a kind of the proposal\'s channel only');
+ assert.equal((await act({id:a.json.id,action:'approve',value:'game'})).status,400,'reason required');
+ const ok=await act({id:a.json.id,action:'approve',value:'game',reason:'공식 스토어 확인'});
+ assert.equal(ok.status,200,ok.text);assert.equal(ok.json.entity,'game:hollow-knight-silksong');
+ const e=db.raw.prepare("SELECT vertical,type,slug,status,index_state FROM entities WHERE id='game:hollow-knight-silksong'").get();
+ assert.deepEqual({...e},{vertical:'games',type:'game',slug:'hollow-knight-silksong',status:'active',index_state:'noindex'});
+ assert.equal(db.raw.prepare("SELECT status FROM tag_proposals WHERE id=?").get(a.json.id).status,'accepted');
+ assert.equal((await act({id:a.json.id,action:'approve',value:'game',reason:'다시'})).status,409);
+ assert.equal((await act({id:b.json.id,action:'reject',reason:'대상이 불분명'})).status,200);
+ assert.equal(db.raw.prepare("SELECT status FROM tag_proposals WHERE id=?").get(b.json.id).status,'rejected');
+ // The new tag can be used at once.
+ const p=await m.call('POST','/posts',{body:{channel:'games',kind:'question',tags:['game:hollow-knight-silksong'],title:'실크송 질문',body:'본문'}});
+ assert.equal(p.status,201,p.text);
 });

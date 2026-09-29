@@ -205,7 +205,8 @@ export async function boardPosts(db,o){
  if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
  if(o.kind){where.push('d.flair=?');params.push(o.kind);}
  if(o.best)where.push('d.best_at IS NOT NULL');
- if(o.fold)where.push("NOT (d.flair='news' AND d.author_id LIKE 'system:%')","d.flair<>'notice'");
+ // Folded: the bot's 소식 of the last 7 days (botNews counts them) and every 공지 (noticesOf lists them).
+ if(o.fold){where.push("NOT (d.flair='news' AND d.author_id LIKE 'system:%' AND d.created_at>=?)","d.flair<>'notice'");params.push((o.now??Date.now())-BOT_FOLD_MS);}
  if(o.facet){where.push(`d.id IN (SELECT t.discussion_id FROM discussion_tags t JOIN facts f ON f.entity_id=t.entity_id AND f.is_current=1 AND f.property=? WHERE f.value LIKE ? ESCAPE '\\')`);params.push(o.facet.property,'%'+likeEscape(JSON.stringify(o.facet.value))+'%');}
  const order=o.sort==='top'?'d.up_count DESC,d.created_at DESC':o.sort==='activity'?'d.last_activity_at DESC':o.sort==='hot'?'(d.up_count*3+d.comment_count*2+d.view_count/50.0)/((?-d.created_at)/3600000.0+2) DESC':'d.created_at DESC,d.id DESC';
  const orderParams=o.sort==='hot'?[o.now??Date.now()]:[];
@@ -231,6 +232,8 @@ export async function noticesOf(db,channel,limit=5){
  return withTags(db,(await all(db,`SELECT ${POST_COLS} FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
   WHERE d.channel_id=? AND d.flair='notice' AND d.status IN ('published','locked') ORDER BY d.pinned DESC,d.created_at DESC LIMIT ?`,[channel,limit])).map(postRow));
 }
+/** How far back the board folds the Radar bot's 소식 into one row. */
+export const BOT_FOLD_MS=7*864e5;
 /** The Radar bot's 소식 in a channel since a time: how many, and the newest title (folded into one row). @param {D1} db @param {string} channel @param {number} since */
 export async function botNews(db,channel,since){
  const r=await db.prepare(`SELECT COUNT(*) AS n,(SELECT title FROM discussions WHERE channel_id=?1 AND flair='news' AND author_id LIKE 'system:%' AND status='published' AND created_at>=?2 ORDER BY created_at DESC LIMIT 1) AS title

@@ -7,7 +7,7 @@ import {html} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postHref,postRow,boardHead,kindChip,channelTile,signInUrl} from './ui.js';
 import {compact,PLATFORM_NAMES} from './format.js';
-import {boardPosts,noticesOf,botNews,channelCounts,popularTags,entitiesByIds,frontPosts,tagChildren,typeCounts,factValues,SORTS} from '../db/channel.js';
+import {BOT_FOLD_MS,boardPosts,noticesOf,botNews,channelCounts,popularTags,entitiesByIds,frontPosts,tagChildren,typeCounts,factValues,SORTS} from '../db/channel.js';
 import {channelBestThreshold,BEST_RULE} from '../community.js';
 import {channelById,channelPath,writePath,flairLabel,FEATURED_TAGS,patchCollectionPath} from '../channels.js';
 import {typeDef,verticalOf} from '../verticals/index.js';
@@ -35,7 +35,7 @@ export async function loadBoard(db,o){
  const [board,notices,bots,counts,popular,bestMin,bestList,children,types,platforms,genres]=await Promise.all([
   boardPosts(db,{channel:ch.id,tag:tagEntity?.id||null,kind,sort,best,page,limit:BOARD_PAGE_SIZE,now:o.now,fold,facet}),
   fold&&page===1?noticesOf(db,ch.id,5):Promise.resolve([]),
-  fold&&page===1?botNews(db,ch.id,o.now-7*DAY):Promise.resolve({count:0,title:null}),
+  fold&&page===1?botNews(db,ch.id,o.now-BOT_FOLD_MS):Promise.resolve({count:0,title:null}),
   channelCounts(db,ch.id,dayStart(o.now,o.l)),
   popularTags(db,{channel:ch.id,since:o.now-30*DAY,limit:12}),
   channelBestThreshold(db,ch.id,o.now),

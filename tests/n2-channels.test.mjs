@@ -124,3 +124,52 @@ test('new posts: channel numbers are consecutive and unique, tags ≤3 in order,
  const r=await castVote(db,{kind:'discussion',id:'a1',userId:'u2',value:1},T0+13);
  assert.equal(r?.bestThreshold,10);
 });
+
+test('a tag lists its posts from every channel, its parts included; the board folds 공지 and the bot\'s 소식',{skip:!sqliteAvailable},async()=>{
+ const {boardPosts,tagChildren,noticesOf,botNews,frontPosts,postByChannelNo,legacyPost}=await import('../platform/db/channel.js');
+ const db=D1Shim.migrated();
+ await user(db,'u1');
+ for(const [id,v,t,s] of [['service:claude','ai','service','claude'],['service:claude-code','ai','service','claude-code'],['plan:claude-pro','ai','plan','claude-pro'],['model:opus','ai','model','opus'],['gpu:rtx-5070','hardware','gpu','rtx-5070']])await entity(db,id,v,t,s);
+ // Claude Code is part of Claude; Claude offers the Pro plan; Pro includes the model (depth 2).
+ const rel=(s,p,o)=>db.prepare('INSERT INTO relations (subject_id,predicate,object_id,created_at,updated_at) VALUES (?,?,?,0,0)').bind(s,p,o).run();
+ await rel('service:claude-code','part_of','service:claude');await rel('service:claude','offers','plan:claude-pro');await rel('plan:claude-pro','includes_model','model:opus');
+ const P=(id,channel,kind,tags,at,o={})=>createPost(db,{id,channel,kind,tags,title:`t-${id}`,body:'b',locale:'ko',authorId:o.author||'u1'},T0+at);
+ await P('a1','ai','question',['service:claude'],1);
+ await P('a2','ai','guide',['service:claude-code'],2);
+ await P('h1','hw','review',['gpu:rtx-5070','service:claude'],3);
+ await P('a3','ai','free',['model:opus'],4);
+ await P('a4','ai','free',['gpu:rtx-5070'],5);
+ await P('n1','ai','notice',[],6);await P('n2','ai','notice',[],7);
+ await P('b1','ai','news',['service:claude'],8,{author:'system:radar-bot'});await P('b2','ai','news',[],9,{author:'system:radar-bot'});
+ const ids=async o=>(await boardPosts(db,{now:T0+10,...o})).posts.map(p=>p.id).sort();
+ assert.deepEqual((await tagChildren(db,'service:claude')).map(e=>e.id).sort(),['model:opus','plan:claude-pro','service:claude-code']);
+ assert.deepEqual(await ids({tag:'service:claude'}),['a1','a2','a3','b1','h1'],'every channel, parts included (Claude Code, Pro → Opus)');
+ assert.deepEqual(await ids({tag:'service:claude',children:false}),['a1','b1','h1'],'this tag only');
+ assert.deepEqual(await ids({tag:'service:claude',channel:'hw'}),['h1'],'a tag inside one channel');
+ assert.deepEqual(await ids({tag:'gpu:rtx-5070'}),['a4','h1'],'an AI post tagged with a GPU shows on the GPU');
+ assert.deepEqual(await ids({channel:'ai',fold:true}),['a1','a2','a3','a4'],'공지 and the bot\'s 소식 are folded out of the list');
+ assert.deepEqual(await ids({channel:'ai',kind:'news'}),['b1','b2'],'the 소식 tab shows them');
+ assert.deepEqual((await noticesOf(db,'ai')).map(p=>p.id),['n2','n1'],'newest 공지 first');
+ assert.deepEqual(await botNews(db,'ai',T0),{count:2,title:'t-b2'});
+ // Old bot news (past the fold window) is an ordinary row again.
+ assert.deepEqual(await ids({channel:'ai',fold:true,now:T0+30*864e5}),['a1','a2','a3','a4','b1','b2']);
+ // Rows carry their tags in order; a post is found by channel and number; a new post has no old address.
+ const h1=await postByChannelNo(db,'hw',1);
+ assert.deepEqual(h1.tags.map(e=>e.id),['gpu:rtx-5070','service:claude']);
+ assert.equal(await legacyPost(db,'gpu:rtx-5070',1),null);
+ // ★ 념글 per channel and overall.
+ await db.prepare("UPDATE discussions SET best_at=? WHERE id IN ('a1','h1')").bind(T0+11).run();
+ assert.deepEqual((await boardPosts(db,{channel:'ai',best:true,now:T0+12})).posts.map(p=>p.id),['a1']);
+ assert.deepEqual((await frontPosts(db,{mode:'best',since:T0,limit:10})).map(p=>p.id).sort(),['a1','h1'],'전체 베스트 spans channels');
+ assert.deepEqual((await frontPosts(db,{mode:'best',channel:'hw',since:T0,limit:10})).map(p=>p.id),['h1']);
+});
+
+test('per-channel ★ threshold: a busy channel does not raise a quiet one\'s bar',{skip:!sqliteAvailable},async()=>{
+ const {channelBestThreshold}=await import('../platform/community.js');
+ const db=D1Shim.migrated();
+ await user(db,'u1');
+ for(let i=0;i<30;i++)await createPost(db,{id:`g${i}`,channel:'games',kind:'free',tags:[],title:'t',body:'b',locale:'ko',authorId:'u1'},T0+i);
+ await db.prepare("UPDATE discussions SET up_count=80 WHERE channel_id='games'").run();
+ assert.equal(await channelBestThreshold(db,'games',T0+100),80);
+ assert.equal(await channelBestThreshold(db,'studio',T0+100),10,'a quiet channel keeps the default');
+});
