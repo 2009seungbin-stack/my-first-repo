@@ -41,7 +41,7 @@ export function feedCard(p,l,now){
 <div class="fa"><span class="up" aria-label="${ko?`추천 ${p.up}`:`${p.up} upvotes`}">${icon('up',14)}${p.up}</span>${p.comments?html`<a class="cm" href="${postHref(l,p)}#comments" aria-label="${ko?`댓글 ${p.comments}`:`${p.comments} comments`}">${icon('bubble',14)}${p.comments}</a>`:''}${p.tags.slice(0,2).map(e=>html`<a class="ftag" href="${channelUrl(l,e)}">#${nameOf(e,l)}</a>`)}</div></article></li>`;
 }
 
-/** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string,providers?:string[]}} site */
+/** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
 export function renderFront(m,site){
  const {l,now}=m,s=t(l),ko=l==='ko',home=homeUrl(l);
  const tabs=html`<nav class="feedtabs" aria-label="${ko?'정렬':'Sort'}"><a href="${home}"${m.sort==='hot'?html` class="on" aria-current="page"`:''}>${icon('flame',16)}${ko?'인기':'Popular'}</a><a href="${home}?sort=new" rel="nofollow"${m.sort==='new'?html` class="on" aria-current="page"`:''}>${icon('clock',16)}${ko?'최신':'Latest'}</a><a href="${frontUrl(l)}best/">${icon('star',16)}${ko?'념글':'Best'}</a><span class="sp"></span><a class="btn p" href="${frontUrl(l)}free/write" aria-label="${s.write}">${icon('pencil',16)}<span>${s.write}</span></a></nav>`;
@@ -51,7 +51,7 @@ export function renderFront(m,site){
  const title=ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티와 파일 도구':'Nerulio — community for AI, games, PC, creator tools and anime, plus file tools';
  const other=ko?'en':'ko';
  return page({l,title,description:ko?'AI 서비스 상태와 새 소식, 게임·PC·창작 도구·애니 채널의 인기 글, 그리고 서버에 올리지 않는 파일·게임 도구.':'AI service status and news, popular posts from game, PC, creator-tool and anime channels, and file and game tools that never upload your files.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
-  alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body});
+  alternates:m.sort==='new'?{}:{[l]:site.origin+home,[other]:site.origin+homeUrl(other),'x-default':site.origin+homeUrl('ko')},channels:m.channels,homeOn:true,body,verify:m.sort==='hot'?site.verify:null});
 }
 
 /** @param {any} db @param {{l:string,now:number,period:string,channel?:string|null,channels?:{name:string,href:string,id?:string}[]}} o */

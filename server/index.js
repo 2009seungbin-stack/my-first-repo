@@ -25,7 +25,7 @@ export default {
   // Community images (R2, binding UPLOADS) on the site's own origin (PLATFORM=on builds only).
   if(BUILD.platform&&url.pathname.startsWith('/u/')){const img=await serveUpload(request,env,ctx,{isModerator:()=>isModeratorRequest(request,env)});if(img)return img;}
   // Nerulio 2.0 channel/community pages (PLATFORM=on builds only); anything else is the static site.
-  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
+  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,verify:/** @type {any} */(BUILD).verify,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
   const response=await env.ASSETS.fetch(request);
   return BUILD.adsHtml?secureResponse(response):response;
  }

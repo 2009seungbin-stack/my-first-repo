@@ -151,6 +151,12 @@ test('portal home: one feed of people\'s posts (인기 · 최신), AI status, Ra
  const latest=await loadFront(d,{l:'ko',now:NOW,sort:'new'});
  assert(latest.posts.every((p,i)=>i===0||latest.posts[i-1].created_at>=p.created_at),'최신 = newest first');
  assert(String(renderFront(latest,SITE)).includes('<meta name="robots" content="noindex,follow">'),'the latest tab is not a second indexed home');
+ // The home is the site root now, so it carries the search engines' ownership tags (not the other pages).
+ const v={google:'g00gleT0ken',naver:'naverT0ken123',bing:'',};
+ const withTags=String(renderFront(m,{...SITE,verify:v}));
+ assert(withTags.includes('<meta name="google-site-verification" content="g00gleT0ken">')&&withTags.includes('<meta name="naver-site-verification" content="naverT0ken123">')&&!withTags.includes('msvalidate.01'));
+ assert(!String(renderFront(latest,{...SITE,verify:v})).includes('site-verification'),'only the canonical home');
+ assert(!String(renderFront(m,{...SITE,verify:{google:'bad token"'}})).includes('site-verification'),'invalid tokens are dropped');
 });
 
 test('member profile: nickname, tier, totals of what they wrote under it, never their ㅇㅇ posts',{skip:!sqliteAvailable},async()=>{

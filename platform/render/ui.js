@@ -36,6 +36,11 @@ export const homeUrl=(/** @type {string} */ l)=>l==='ko'?'/':`/${l}/`;
  * open the sign-in sheet in place instead. @param {string} path */
 export const signInUrl=path=>`/${/^\/(ko|en|ja)\//.exec(path)?.[1]||'ko'}/account/?return=${encodeURIComponent(path)}`;
 
+/** Search-engine ownership tags (Google, Naver, Bing) on the portal home, which is the site root: the
+ * tokens come from the build (GOOGLE_/NAVER_/BING_SITE_VERIFICATION) like on the static pages.
+ * @param {{google?:string,naver?:string,bing?:string}|null|undefined} v */
+export const verifyMeta=v=>v?[['google-site-verification',v.google],['naver-site-verification',v.naver],['msvalidate.01',v.bing]].filter(([,x])=>x&&/^[A-Za-z0-9_-]{1,256}$/.test(String(x))).map(([n,x])=>html`<meta name="${n}" content="${x}">
+`):'';
 /** Two-letter tile for a channel without an image ("C", "5070", "GX"). @param {Entity} e @param {string} l */
 export function monogram(e,l){
  const n=nameOf(e,l);
@@ -147,6 +152,7 @@ export function ogImageUrl(o){
  * Page shell. `channels` = the channel bar (popular channels for anonymous visitors; an island swaps in
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
+ *  verify?:{google?:string,naver?:string,bing?:string}|null,
  *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
  *  ogImage?:{url:string,alt?:string}|null}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
  */
@@ -176,6 +182,7 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 ${o.ogImage?.alt?html`<meta property="og:image:alt" content="${o.ogImage.alt}">
 `:''}<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+${verifyMeta(o.verify)}
 ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="${o.feedTitle||'RSS'}">
 `:''}
 <script src="${THEME_SRC}"></script>

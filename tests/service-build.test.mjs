@@ -106,11 +106,12 @@ test('platform build: PLATFORM=on routes the channel/community prefixes to the W
  assert.throws(()=>configuration({SITE_URL:origin,PLATFORM:'on'}),/SERVICE_API=on/);
  assert.throws(()=>configuration({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'yes'}),/PLATFORM must be on or off/);
  // TRAFFIC_HTML=off: only the platform prefixes are dynamic (the default routes all HTML for bot statistics; tests/traffic.test.mjs).
- await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off'},async(out,read)=>{
+ await withBuild({SITE_URL:origin,SERVICE_API:'on',PLATFORM:'on',TRAFFIC_HTML:'off',NAVER_SITE_VERIFICATION:'naverT0ken123'},async(out,read)=>{
   const routes=JSON.parse(await read('_routes.json'));
   for(const p of ['/api/*','/ko/community/*','/en/ai/*','/ko/games/*','/ko/subculture/*'])assert(routes.include.includes(p),p);
   assert(!routes.include.includes('/*')&&!routes.include.some(r=>r.startsWith('/ko/image')),'tool pages stay static');
   assert.match(await read('_worker.js/server/build-info.js'),/"platform":true/);
+  assert.match(await read('_worker.js/server/build-info.js'),/"naver":"naverT0ken123"/,'the Worker gets the ownership tokens for the portal home');
   assert((await read('_worker.js/platform/render/channel.js')).includes('renderChannel'));
   assert((await read('src/platform/n2.css')).includes('.pr{'));
   assert(routes.include.includes('/sitemap-n2-*'));

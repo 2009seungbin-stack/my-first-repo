@@ -115,12 +115,12 @@ export const resetChannelBarCache=()=>{};
 
 /**
  * Render a platform page, or null when the path is not one (the static site handles it).
- * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[]}} site
+ * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site
  */
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
  if(!route||!env.DB)return null;
- const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[]};
+ const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[],verify:site.verify||null};
  // Old addresses (the per-entity boards before the channels, 2026-09-29): 301 to where they live now.
  if(route.page==='front'&&url.searchParams.has('v')){const v=url.searchParams.get('v');if(VERTICALS.includes(/** @type {any} */(v)))return redirect(new URL(channelPath(l,channelOfVertical(String(v))),url).href);}
  if(route.page==='best'&&url.searchParams.has('v')){
@@ -253,7 +253,7 @@ export async function renderSitemap(db,vertical,origin){
 
 /** Edge cache in front of renderPlatformPage (GET only). The key is the canonical URL, so junk
  * parameters are answered by a cacheable redirect instead of a fresh render.
- * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[]}} site */
+ * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[],verify?:{google?:string,naver?:string,bing?:string}|null}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);
