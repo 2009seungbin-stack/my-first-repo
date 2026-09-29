@@ -22,6 +22,7 @@ import {normalizeSiteURL,seoLinks,structuredData,pagePath,socialMetadata,navigat
 import {configuration,adHead,headers} from './site-config.mjs';
 import {serviceMeta,emitService,SERVICE_HEADERS} from './service-build.mjs';
 import {STUDIO_PATH,studioPage} from './studio-build.mjs';
+import {ADMIN_HEADERS,isAdminSource} from './admin-build.mjs';
 import {gamePageFor,gameLandingPage,gameHubPage,isClassicPath,gameSitemapPaths,resolveLink} from './game-landing-build.mjs';
 import {gameHead} from './game-seo-build.mjs';
 import {GAME_HUB_PATH} from '../src/game-seo.js';
@@ -121,7 +122,8 @@ export async function build(options={}){
   console.log(`Built redirect-only site → ${config.redirectTo}`);
   return;
  }
- for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true});
+ // src/admin is the owner-only admin app: published as dist/admin only in admin builds (tools/admin-build.mjs).
+ for(const f of ['styles.css','experience.css','content.css','src','assets','ai-runtime'])await cp(path.join(ROOT,f),path.join(dist,f),{recursive:true,filter:p=>!isAdminSource(p)});
  await writeFile(path.join(dist,'_headers'),headers(await readFile(path.join(ROOT,'_headers'),'utf8'),config));
  await writeFile(path.join(dist,'favicon.svg'),faviconSVG());
  for(const f of ['favicon.ico','apple-touch-icon.png'])await cp(path.join(ROOT,'assets/brand',f),path.join(dist,f));
@@ -142,7 +144,7 @@ export async function build(options={}){
   await cp(path.join(ROOT,'tools/ads-worker.mjs'),path.join(dist,'_worker.js'));
   await writeFile(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/src/*','/ai-runtime/*','/build.txt','/styles.css','/experience.css','/content.css','/favicon.svg','/favicon.ico','/apple-touch-icon.png','/robots.txt','/sitemap.xml','/sitemap-game.xml','/sitemap-guides.xml','/sitemap-tools.xml','/sitemap-images.xml','/ads.txt']},null,2));
  }
- if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS);}
+ if(config.service){await emitService(dist,config,head);await writeFile(path.join(dist,'_headers'),(await readFile(path.join(dist,'_headers'),'utf8')).replace(/\n*$/,'\n')+SERVICE_HEADERS+(config.platform?ADMIN_HEADERS:''));}
  console.log(`Built ${ALL_ROUTES.length} static entry pages → dist/`);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await build();
