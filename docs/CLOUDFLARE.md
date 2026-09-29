@@ -81,10 +81,45 @@ Pages → Settings → Variables and Secrets. **Production과 Preview에 따로*
 | --- | --- | --- | --- |
 | 서비스만 | `/api/*`, `/_worker.js/*` | — | API 호출 시에만. HTML·JS·CSS·이미지·예제는 정적 제공 |
 | 서비스 + 광고 | `/*` | `/src/*`, `/assets/*`, `/ai-runtime/*`, `/verify/*`, CSS, favicon, robots, sitemap들, ads.txt | HTML(응답별 nonce CSP 필요)과 API만 |
+| 서비스 + 플랫폼 (`PLATFORM=on`, 기본 `TRAFFIC_HTML` on) | `/*` | 위 정적 목록에서 robots·sitemap을 뺀 것 + `/favicon.ico`, `/apple-touch-icon.png`, `/build.txt`, `/404.html` | 모든 HTML·robots·sitemap·API (방문자·봇 통계) |
+| 서비스 + 플랫폼, `TRAFFIC_HTML=off` | `/api/*`, `/_worker.js/*`, 플랫폼 경로들, `/robots.txt`, `/sitemap*` | — | 플랫폼 페이지·robots·sitemap·API만. 도구 HTML은 정적 |
 
 호출량 추정: 페이지 보기 1회 = `/me` 1회 (+ 광고 빌드에서는 HTML 1회). heavy 작업 1회 = `authorize` 1회. 진행률 폴링은 없다(진행률은 로컬 엔진이 관리). 결제 후 활성화 확인만 최대 5회 재조회한다.
 
 D1 사용량(대략): 익명 `/me`는 쿠키가 있으면 1행 읽기, 첫 방문은 0. heavy 작업 1회는 한 트랜잭션에서 약 4행 쓰기(작업 기록 삽입·확정, 일일 카운터, 네트워크 버킷). 요금·무료 한도(작성 시점 Workers Free 일 10만 요청, D1 Free 일 500만 행 읽기·10만 행 쓰기)는 변경될 수 있으므로 대시보드의 현재 요금표로 확인한다. 파일 크기는 API 비용과 무관하다(2 GB 영상도 `{toolId, operationId}` 한 번).
+
+## 방문자·봇 통계 (Workers Analytics Engine)
+
+관리자 앱의 방문자 화면(`GET /api/v2/admin/traffic`)과 개요의 `traffic` 블록이 쓰는 데이터다. 코드: `server/traffic.js`, 비콘 `src/hit.js`. **요청마다 D1 행을 쓰지 않는다** — 이벤트는 전부 Analytics Engine 데이터 포인트이고 D1 사용량은 0이다. `SERVICE_API=on` + `PLATFORM=on` 빌드에만 들어간다(그 외 빌드는 바이트 단위로 그대로).
+
+무엇을 세는가:
+
+- **사람**: 모든 페이지(정적 페이지·플랫폼 페이지·요금/계정 페이지)에 `<script src="/src/hit.js" defer>`가 들어간다. 페이지가 약 1초 이상 보이거나 첫 조작이 있을 때 `navigator.sendBeacon('/api/v2/hit')` 한 번. 전송 내용은 경로(쿼리 제거, 게시판 `kind`·`sort`만 유지), 유입 분류(search/social/ai/direct/internal/other), 기기 종류, 브라우저 언어, 방문 첫 페이지 여부뿐이다. 쿠키·식별자 없음. 사이트 전체가 `Referrer-Policy: no-referrer`라 내부 이동은 referrer가 비어 있으므로, 탭의 sessionStorage 플래그 `nerulio.hit`로 내부 이동과 방문 시작을 구분한다. 비콘 요청의 UA가 봇(예: 자바스크립트를 실행하는 Googlebot 렌더러)이거나 `navigator.webdriver`면 사람이 아니라 봇으로 센다.
+- **봇**: Worker가 받는 HTML·`/robots.txt`·`/sitemap*.xml`·피드 요청마다 데이터 포인트 1개. 분류는 순수 함수 `classify()` — Cloudflare `cf.verifiedBotCategory`/`cf.botManagement`(Enterprise 전용, Free·Paid에는 없음) → 공식 UA 문서 기반 표(검색·AI·SEO·소셜·모니터링) + 운영사 ASN 일치 시 `verified`, 불일치 시 `declared`(위조 가능) → HTTP 라이브러리·헤드리스·빈 UA·비브라우저 UA·호스팅 ASN·`Accept-Language`/`Sec-Fetch-Mode` 없는 브라우저 탐색은 `suspected` → 나머지는 사람 후보(`candidate`, 비콘이 오면 사람으로 확정).
+- 저장하지 않는 것: IP(분당 버스트 제한이 메모리에서 1분만 쓴다), 사람의 UA 문자열(브라우저 계열·기기 종류만), 쿼리 문자열. DNT/GPC는 따로 존중하지 않는다 — 식별자·쿠키·교차 사이트 추적이 없는 1st-party 합계라서. 개인정보처리방침(`/privacy/`)에 한·영·일로 표시된다(`TRAFFIC_NOTE`).
+
+### 운영자 설정 (소유자 작업, Production·Preview 각각)
+
+1. **바인딩**: Workers & Pages → 프로젝트 → Settings → Bindings → Add → **Analytics engine** → Variable name `TRAFFIC`, Dataset `nerulio_traffic` → 저장 후 재배포. Production과 Preview에 같은 데이터셋을 써도 된다(각 포인트에 `production`/`preview`가 기록되고 조회가 자기 환경만 본다). 바인딩이 없으면 쓰기는 조용히 건너뛰고 비콘은 204를 받는다.
+2. **토큰**: My Profile → API Tokens → Create Custom Token → 권한 **Account · Account Analytics · Read**, Account Resources는 이 계정만 → Pages secret `CF_ANALYTICS_TOKEN`. 같은 토큰을 D1 사용량 화면도 쓴다.
+3. **계정 ID**: Pages 변수 `CF_ACCOUNT_ID`(대시보드 오른쪽의 32자리 hex). 데이터셋 이름을 바꿨다면 변수 `TRAFFIC_DATASET`.
+4. 셋 중 하나라도 없으면 `/api/v2/admin/traffic`은 `503 {need, error:{code:'NOT_CONFIGURED'}}`를 주고 앱은 "설정 필요"를 표시한다. `need`는 `TRAFFIC` → `CF_ACCOUNT_ID` → `CF_ANALYTICS_TOKEN` 순서로 첫 번째 빠진 것.
+
+### `TRAFFIC_HTML` 플래그와 비용
+
+플랫폼 빌드의 기본값은 **on**: 모든 HTML이 Worker를 거쳐(`env.ASSETS.fetch`로 그대로 전달) 도구 페이지의 봇까지 보인다. 빌드 변수 `TRAFFIC_HTML=off`면 정적 HTML은 Worker를 거치지 않아 봇은 robots·sitemap·플랫폼 페이지에서만 보인다(사람은 비콘으로 계속 집계). 화면의 `coverage.workerSeesHtml`/`note`가 현재 상태를 알려 준다.
+
+계정은 **Workers Paid**다(2026-09 기준 포함량, 대시보드 요금표로 재확인):
+
+| 항목 | 포함량 / 월 | 초과 | 통계가 쓰는 양 |
+| --- | --- | --- | --- |
+| Workers 요청 (Pages Functions 포함) | 1,000만 | 100만당 $0.30 | HTML 요청 1 + 사람 페이지뷰당 비콘 1 + robots/sitemap |
+| Workers CPU | 3,000만 CPU-ms | 100만 CPU-ms당 $0.02 | 요청당 약 1 ms 미만(분류 + 전달) |
+| Analytics Engine 쓰기 | 1,000만 데이터 포인트 | 100만당 $0.25 | 위 요청 1개당 1개 |
+| Analytics Engine 읽기 | 100만 쿼리 | 100만당 $1.00 | 화면 새로고침 1회당 5쿼리(분 단위 캐시) |
+| D1 | 읽기 250억·쓰기 5,000만 행 | — | **0** (통계는 D1을 쓰지 않는다) |
+
+계산 예: 사람 페이지뷰 하루 1만 + 봇 HTML 하루 2만 → Worker 요청 ≈ 1만(HTML) + 1만(비콘) + 2만(봇) = 하루 4만 = 월 120만 — 포함량의 12%. 포함량을 넘기는 지점은 하루 약 33만 요청이며, 그 두 배(하루 66만, 월 2,000만)여도 초과 요금은 약 $3다. Analytics Engine은 작성 시점에 과금이 시작되지 않았다. 데이터 보관은 3개월(30일 범위까지 조회).
 
 ## Rate limiting
 
@@ -99,6 +134,51 @@ Cloudflare Rate Limiting은 스팸·버스트 방지용이다. 정확한 하루 
 - `nerulio-preview` D1을 바인딩해 운영 구독 데이터를 건드리지 않는다.
 - `BILLING_PROVIDER=sandbox`는 preview에서만 동작하고, `BILLING_MODE=live`는 preview에서 자동 거부된다.
 - preview 호스트에서 Google 로그인을 쓰려면 그 호스트의 callback URI를 Google에 등록해야 한다(브랜치 별칭 URL 권장).
+
+## 관리 앱 (`/admin/`, `/api/v2/admin/*`)
+
+운영자 1인용 휴대폰 관리 앱(PWA)의 서버 쪽. `SERVICE_API=on`과 `PLATFORM=on`이 모두 켜진 빌드에서만 존재한다. 로그인은 **패스키**(WebAuthn: 휴대폰 화면 잠금·지문)다. Google 로그인은 쓰지 않는다.
+
+- 관리자는 보통의 `users` 행(provider `passkey`)에 `user_profiles.role='admin'`이 붙은 계정이다. 같은 세션 쿠키를 쓰므로 신고 처리(`/api/v2/mod/*`)와 커뮤니티 기능도 그대로 쓴다. 공개 닉네임은 `운영자`.
+- 관리 API는 관리자가 아니면 모두 **404**(존재 자체를 알리지 않음). 관리자라도 로그인한 지 **12시간**이 지나면 `401 REAUTH` → 앱이 패스키 로그인을 다시 띄운다.
+- 첫 패스키 등록에만 `ADMIN_SETUP_CODE`가 필요하다. 패스키가 하나라도 생기면 이 경로는 닫힌다(코드를 알아도 404). 다른 기기는 로그인한 관리자만 추가할 수 있고, 마지막 패스키는 지울 수 없다.
+- 설정되지 않은 선택 기능(GitHub 실행, D1 사용량, 푸시)은 `503 NOT_CONFIGURED {need:"<이름>"}`으로 답하고 앱은 "설정 필요"로 표시한다.
+- D1 쓰기를 최소화했다: 패스키 로그인 1회 = 세션 1행 + 패스키 사용 기록 2행. 30분마다 도는 알림 확인은 **실제로 푸시를 보낸 경우에만** 작은 기록 1행을 쓴다.
+
+### 변수와 secret (Production / Preview 각각)
+
+| 이름 | 유형 | 누가 | 용도 |
+| --- | --- | --- | --- |
+| `ADMIN_SETUP_CODE` | **secret** | 운영자 | 첫 패스키 등록 코드. 16자 이상 무작위. 등록이 끝나면 지워도 된다(다시 필요하면 새로 설정) |
+| `VAPID_PUBLIC_KEY` | 변수 | 코디네이터 | Web Push 공개 키. `node tools/admin-keys.mjs --json`으로 생성 |
+| `VAPID_PRIVATE_KEY` | **secret** | 코디네이터 | 같은 도구의 개인 키. 바꾸면 모든 기기에서 알림을 다시 켜야 한다 |
+| `VAPID_SUBJECT` | 변수 | 운영자 | `mailto:운영자메일` (푸시 서비스가 문제 시 연락하는 주소). 없으면 사이트 주소 |
+| `NOTIFY_TOKEN` | **secret** | 코디네이터 | CI → `POST /api/v2/admin/notify` 인증(32자 이상). **GitHub Actions secret `NOTIFY_TOKEN`에도 같은 값** |
+| `GITHUB_DISPATCH_TOKEN` | **secret** | 운영자(선택) | "지금 실행" 버튼. fine-grained PAT, 저장소 `2009seungbin-stack/my-first-repo` 하나만, 권한 **Actions: Read and write** |
+| `CF_ANALYTICS_TOKEN` | **secret** | 운영자(선택) | D1 사용량 화면·한도 알림. API 토큰, 권한 **Account → Account Analytics → Read** |
+| `CF_ACCOUNT_ID` | 변수 | 운영자(선택) | Cloudflare 계정 ID(32자리 16진수). 사용량은 계정 안의 **모든 D1(prod+preview) 합계** |
+| `CF_PLAN` | 변수 | 선택 | `paid`(기본, Workers Paid: 이번 결제 주기 누적 ÷ 월 포함량 읽기 250억·쓰기 5천만 행) / `free`(하루 500만·10만 행, 00:00 UTC 초기화) |
+| `CF_BILLING_DAY` | 변수 | 선택 | Workers Paid 결제 갱신일(1–28, 기본 1). 포함량은 달력 월이 아니라 구독 시작일 기준으로 초기화된다 |
+| `GITHUB_REPO`, `GITHUB_DISPATCH_REF` | 변수 | 선택 | 기본 `2009seungbin-stack/my-first-repo`, `main` |
+
+GitHub 저장소 쪽(Settings → Secrets and variables → Actions): 변수 `NOTIFY_URL`(예: `https://nerulio.com` 또는 preview 주소)과 secret `NOTIFY_TOKEN`. 둘 중 하나라도 없으면 수집기 워크플로의 알림 단계는 조용히 건너뛴다.
+
+### 운영자 작업 순서
+
+1. `migrations/0010_admin.sql` 적용: preview 먼저 `npx wrangler d1 migrations apply nerulio-preview --remote --config ops/d1.wrangler.toml`, 확인 후 prod. (수집기는 이 migration 전에도 동작한다: 실행 기록의 쓰기 행 수만 빠진다.)
+2. `ADMIN_SETUP_CODE` 설정: 예 `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"` → Pages secret(Preview). 재배포.
+3. 휴대폰에서 `https://<preview 주소>/admin/` → "처음 설정" → 코드 입력 → 화면 잠금으로 패스키 만들기. 패스키는 **호스트마다 따로**다(preview와 nerulio.com은 각각 등록).
+4. 등록 뒤 `ADMIN_SETUP_CODE`는 지워도 된다(권장).
+5. 알림: 코디네이터가 `VAPID_*`, `NOTIFY_TOKEN`을 넣고, 운영자는 GitHub에 `NOTIFY_URL`을 설정 → 앱의 알림 설정에서 "알림 켜기" → "테스트 알림 보내기".
+6. 선택: `GITHUB_DISPATCH_TOKEN`(GitHub → Settings → Developer settings → Fine-grained tokens → Repository access: Only select → my-first-repo → Permissions: Actions **Read and write**, 만료일 설정), `CF_ANALYTICS_TOKEN`(Cloudflare → My Profile → API Tokens → Create Custom Token → Account / Account Analytics / Read) + `CF_ACCOUNT_ID`.
+
+### 알림 규칙
+
+- 수집기 실패: 연속 실패 횟수가 기기 설정(1·2·3회)에 닿을 때 실패 연속 구간마다 1번. 실행 기록조차 남지 못한 워크플로 실패(D1 한도 등)는 실행마다 1번.
+- D1 사용량(30분마다): 80·90·95% 등 설정한 기준을 처음 넘을 때 기간(Paid: 결제 주기, Free: UTC 하루)마다 1번.
+- 상태 수집 멈춤: Claude·OpenAI 상태 수집기가 2시간 넘게 성공하지 못하면 1번. 공식 장애가 새로 열리면 1번.
+- 신고: 즉시(신고 접수 순간) / 1시간마다 모아서 / 끔. 정보 제안·사실 충돌: 09:00(KST) 이후 하루 1번. 새 가입자: 30분마다 모아서.
+- 방해 금지(기본 23:00–07:00 KST): 수집기 실패와 사용량 95% 이상만 보낸다. 나머지는 방해 금지가 끝난 뒤 첫 확인 때 간다.
 
 ## 로컬 검증
 

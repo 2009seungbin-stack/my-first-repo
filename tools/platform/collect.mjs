@@ -44,8 +44,10 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
    const q0=d1.queries,w0=d1.rowsWritten;
    let stats=null,error=run.error||(errors.length?`validation: ${errors.slice(0,3).join('; ')}`:null);
    if(run.doc&&!errors.length){try{stats=await ingest(d1,{...run.doc,snapshots:run.snapshots},{mode:'collector',actor:`collector:${id}`,adapter:id,now:run.finished});}catch(e){error=`ingest: ${e}`;}}
-   await recordRun(d1,{id,vertical:adapter.vertical,mode:adapter.mode,freshnessHours:adapter.freshnessHours},{started:run.started,finished:run.finished,error,observations:run.doc?.entities?.length||0,changes:stats?.changes||0});
-   console.log(`d1 ${id}: ${error?'error '+error.slice(0,200):`ok, ${stats?.changes||0} changes, ${d1.queries-q0} queries, ${d1.rowsWritten-w0} rows written`}`);
+   // What this run cost (before its own run record): shown per run in the admin app.
+   const queries=d1.queries-q0,rowsWritten=d1.rowsWritten-w0;
+   await recordRun(d1,{id,vertical:adapter.vertical,mode:adapter.mode,freshnessHours:adapter.freshnessHours},{started:run.started,finished:run.finished,error,observations:run.doc?.entities?.length||0,changes:stats?.changes||0,rowsWritten,queries});
+   console.log(`d1 ${id}: ${error?'error '+error.slice(0,200):`ok, ${stats?.changes||0} changes, ${queries} queries, ${rowsWritten} rows written`}`);
    if(error)failed++;
   }
   if(o.ingest&&run.doc&&!errors.length){
