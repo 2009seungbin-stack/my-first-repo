@@ -7,6 +7,7 @@
  */
 export const QUOTA_CLASSES=Object.freeze({
  // Game-asset recipes: palette/grid/crop helpers are light; full pipelines and batch packs are heavy.
+ 'pixel-avatar-maker':'none',
  refiner:'heavy','sprite-slicer':'none','frame-normalize':'none','sprite-sheet-maker':'none','palette-swap':'none',
  'marketplace-pack':'heavy','print-pack':'heavy','logo-bg':'none','bitmap-font':'none','mask-packer':'none',
  // Texture Lab and its routes are local pixel work: no metering.
@@ -22,6 +23,7 @@ export const QUOTA_CLASSES=Object.freeze({
  'ui-lab':'none','9-slice-editor':'none','button-state-generator':'none','missing-glyph-checker':'none','ui-scale-preview':'none',
  // Image
  home:'none','character-counter':'none',image:'none',upscale:'heavy','remove-bg':'heavy',compress:'heavy',convert:'none',heic:'none',crop:'none',resize:'none',pixel:'none',
+ 'webtoon-manga-toolkit':'none',
  // PDF: page editing, merge, split and rasterization stay free of quota; compression is heavy.
  pdf:'none','pdf-merge':'none','pdf-split':'none','pdf-compress':'heavy','jpg-to-pdf':'none','pdf-to-jpg':'none','pdf-protect':'none','pdf-unlock':'none',
  // Media: every encoded export is heavy; a single still frame is not.

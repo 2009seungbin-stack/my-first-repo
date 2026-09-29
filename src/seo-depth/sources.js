@@ -3,6 +3,7 @@
  * documentation (engine, tool, format owner, standards body, platform help centre), with a comment
  * when the reason is not obvious. github.com only for the official repository of that project. */
 export const SOURCE_HOSTS=new Set([
+ 'creativecommons.org', // CC0 1.0 legal and human-readable terms for original avatar parts
  'ambientcg.com',
  'aomedia.org',
  'aseprite.org',
@@ -13,6 +14,8 @@ export const SOURCE_HOSTS=new Set([
  'developer.apple.com',
  'developer.gimp.org', // GIMP's own specification of the .gpl palette format
  'developer.mozilla.org',
+ 'developers.kakao.com', // Kakao JavaScript Share setup and app key/domain requirements
+ 'developers.line.biz', // LINE's own share URL and media restrictions
  'developers.google.com',
  'doc.mapeditor.org',
  'doc.starling-framework.org', // Starling framework API reference: owner of the Sparrow/Starling TextureAtlas XML format
@@ -31,6 +34,8 @@ export const SOURCE_HOSTS=new Set([
  'github.com',
  'godotengine.org',
  'help.instagram.com',
+ 'help.naver.com', // Naver Challenge Comics upload help
+ 'help.postype.com', // Postype image upload help
  'help.x.com',
  'helpx.adobe.com',
  'ldtk.io',
@@ -59,6 +64,7 @@ export const SOURCE_HOSTS=new Set([
  'web.dev',
  'wiki.gdevelop.io',
  'www.adobe.com',
+ 'www.webtoons.com', // WEBTOON CANVAS notices and Creator Academy
  'www.adobe.io',
  'www.aseprite.org',
  'www.blender.org',
