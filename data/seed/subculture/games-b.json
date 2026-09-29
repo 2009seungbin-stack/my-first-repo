@@ -78,6 +78,15 @@
    "publisher": "EPIDGames (트릭컬 리바이브 공식 사이트)",
    "retrieved": "2026-09-28",
    "note": "Read in a browser; event details are partly given as image alt text on the official page."
+  },
+  {
+   "id": "src:ko-sub-a-kakaogames-press-2249",
+   "kind": "OFFICIAL",
+   "url": "https://www.kakaogamescorp.com/news/press/detail/2249",
+   "title": "인기 게임 '우마무스메 프리티 더비' 서비스 3.5주년 기념 … - 카카오게임즈 컴퍼니 뉴스룸",
+   "publisher": "Kakao Games (카카오게임즈; Korean publisher of Uma Musume)",
+   "retrieved": "2026-09-29",
+   "note": "official press release on the Korean publishing partner's newsroom"
   }
  ],
  "entities": [
@@ -399,7 +408,11 @@
    "slug": "cygames",
    "names": {
     "en": "Cygames",
-    "ja": "Cygames"
+    "ja": "Cygames",
+    "ko": "사이게임즈"
+   },
+   "names_src": {
+    "ko": "src:ko-sub-a-kakaogames-press-2249"
    },
    "description": {
     "en": "Japanese developer and rights holder of Uma Musume Pretty Derby.",
