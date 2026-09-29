@@ -5,6 +5,7 @@ import {BRAND} from '../src/brand.js';
 import {logoMark} from '../src/logo.js';
 import {footer} from '../src/content.js';
 import {socialMetadata} from '../src/seo.js';
+import {withBeacon,TRAFFIC_ROUTES,TRAFFIC_HTML_EXCLUDES,crawlerFile} from './traffic-build.mjs';
 import {SERVICE_ROUTES,text,pricingHTML,accountHTML} from '../src/service-content.js';
 /** Build outputs that exist only when SERVICE_API=on: the /api/v1 Worker, its routes,
  * the pricing/account pages and the Turnstile frame. A build without the flag is the
@@ -20,6 +21,10 @@ export const STATIC_EXCLUDES=Object.freeze(['/src/*','/assets/*','/ai-runtime/*'
 /** Server-rendered platform prefixes (PLATFORM=on): community front and the vertical channels. */
 export const PLATFORM_ROUTES=Object.freeze([...['ko','en'].flatMap(l=>['community','search','radar','ai','games','hardware','studio','subculture'].map(p=>`/${l}/${p}/*`)),'/sitemap-n2-*']);
 export function serviceRoutes(config){
+ // Traffic statistics (PLATFORM builds): robots.txt and sitemaps always wake the Worker (crawler signal);
+ // TRAFFIC_HTML=on routes every page like the ads build does (tools/traffic-build.mjs).
+ if(config.traffic&&(config.client||config.trafficHtml))return {version:1,include:['/*'],exclude:[...STATIC_EXCLUDES.filter(p=>!crawlerFile(p)),...(config.trafficHtml?TRAFFIC_HTML_EXCLUDES:[])]};
+ if(config.traffic)return {version:1,include:['/api/*','/_worker.js/*',...(config.platform?PLATFORM_ROUTES:[]),...TRAFFIC_ROUTES],exclude:[]};
  // Without ads only /api/* (and, with PLATFORM=on, the platform pages) is dynamic. With ads, HTML also
  // needs a per-response nonce. /_worker.js/* is routed only so the Worker can refuse to serve its own source.
  return config.client?{version:1,include:['/*'],exclude:[...STATIC_EXCLUDES]}:{version:1,include:['/api/*','/_worker.js/*',...(config.platform?PLATFORM_ROUTES:[])],exclude:[]};
@@ -48,7 +53,7 @@ export async function emitService(dist,config,head){
  for(const route of SERVICE_ROUTES)for(const locale of [null,...LOCALES]){
   const rel=locale?`${locale}/${route}`:route,dir=path.join(dist,rel);
   await mkdir(dir,{recursive:true});
-  await writeFile(path.join(dir,'index.html'),servicePage(route,locale||'en',locale?'../../':'../',config.siteURL,config,head));
+  await writeFile(path.join(dir,'index.html'),withBeacon(servicePage(route,locale||'en',locale?'../../':'../',config.siteURL,config,head),config));
  }
  await mkdir(path.join(dist,'verify'),{recursive:true});await writeFile(path.join(dist,'verify','index.html'),VERIFY);
  // Pages advanced mode: a _worker.js directory whose index.js is the entry module.
@@ -60,7 +65,7 @@ export async function emitService(dist,config,head){
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
  await mkdir(path.join(worker,'src'),{recursive:true});await cp(new URL('src/quota.js',root),path.join(worker,'src','quota.js'));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
- await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||''})});\n`);
+ await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");
  await writeFile(path.join(dist,'_routes.json'),JSON.stringify(serviceRoutes(config),null,2));
 }

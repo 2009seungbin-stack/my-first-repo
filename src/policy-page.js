@@ -12,7 +12,7 @@ function render(){
  document.title=labels[locale][page]+' · '+BRAND.name;
  for(const selector of ['meta[name="description"]','meta[property="og:description"]'])document.querySelector(selector).content=policies[locale][page][0][1];
  document.querySelector('meta[property="og:title"]').content=document.title;
- document.querySelector('main').innerHTML=policyContent(page,locale,!!document.querySelector('meta[name="adsense-config"]'),!!document.querySelector('meta[name="nerulio-service"]'),!!document.querySelector('meta[name="web-analytics"]'));
+ document.querySelector('main').innerHTML=policyContent(page,locale,!!document.querySelector('meta[name="adsense-config"]'),!!document.querySelector('meta[name="nerulio-service"]'),!!document.querySelector('meta[name="web-analytics"]'),!!document.querySelector('script[src="/src/hit.js"]'));
  document.getElementById('policyFooter').innerHTML=footer(locale);
  const nav=document.querySelector('.policy-languages');nav.setAttribute('aria-label',labels[locale].language);
  nav.innerHTML=LOCALES.map(l=>`<a href="${l}/${page}/" lang="${l}" ${l===locale?'aria-current="page"':''}>${LANGUAGE_NAMES[l]}</a>`).join('');

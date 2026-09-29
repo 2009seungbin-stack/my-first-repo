@@ -99,6 +99,7 @@ ${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" 
 `:''}
 <link rel="stylesheet" href="${CSS_HREF}">
 <script type="module" src="${ISLANDS_SRC}"></script>
+<script src="/src/hit.js" defer></script>
 ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld).replace(/</g,'\\u003c'))}</script>
 `:''}</head>
 <body class="n2">
