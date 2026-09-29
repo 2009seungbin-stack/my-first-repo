@@ -68,3 +68,9 @@ export function renderRail(r,l){
 <ol class="rbest">${r.best.map((p,i)=>html`<li><span class="rk">${i+1}</span><a href="${postHref(l,p)}">${p.title}</a></li>`)}</ol></section>`:'';
  return html`<aside class="rrail" aria-label="${ko?'상태와 소식':'Status and news'}">${status}${news}${upcoming}${best}<p class="rfoot"><a href="/${l}/about/">Nerulio</a> · <a href="/${l}/terms/">${ko?'이용약관':'Terms'}</a> · <a href="/${l}/privacy/">${ko?'개인정보 처리방침':'Privacy'}</a> · <a href="/${l}/community/policy">${ko?'운영정책':'Rules'}</a> · <a href="/${l}/community/transparency">${ko?'투명성':'Transparency'}</a></p></aside>`;
 }
+
+/** The status line above the feed on phones (the right column moves below the feed there). @param {Awaited<ReturnType<typeof loadRail>>} r @param {string} l */
+export function statusStrip(r,l){
+ const ko=l==='ko';
+ return html`<nav class="mstat" aria-label="${ko?'AI 서비스 상태':'AI service status'}">${r.status.map(x=>html`<a href="${channelUrl(l,/** @type {any} */(x.entity))}status"><span class="dot ${x.state}" aria-hidden="true"></span><b>${x.short}</b> <span class="svs ${x.state}">${statusText(x.state,x.total24,l)}</span></a>`)}</nav>`;
+}

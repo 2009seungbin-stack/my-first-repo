@@ -11,7 +11,7 @@ export const FILE_TOOLS=Object.freeze(/** @type {NavTool[]} */([
  {id:'remove-bg',path:'image/remove-bg',ic:'BG',ko:'배경 제거',en:'Remove background'},
  {id:'video-gif',path:'video/to-gif',ic:'GIF',ko:'영상 → GIF',en:'Video to GIF'},
  {id:'pdf-merge',path:'pdf/merge',ic:'PDF',ko:'PDF 합치기',en:'Merge PDF'},
- {id:'favicon-pack',path:'favicon-generator',ic:'ICO',ko:'파비콘·아이콘 묶음',en:'Favicon pack'},
+ {id:'heic',path:'image/heic-to-jpg',ic:'HEIC',ko:'HEIC → JPG',en:'HEIC to JPG'},
 ]));
 export const GAME_TOOLS=Object.freeze(/** @type {NavTool[]} */([
  {id:'sprite-lab',path:'game/sprite-lab',ic:'SPR',ko:'스프라이트 랩',en:'Sprite Lab'},

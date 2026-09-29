@@ -74,8 +74,8 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .hb{height:40px;padding:0 14px;border-radius:10px;font-size:14px;font-weight:800;display:inline-flex;align-items:center;color:var(--ink);white-space:nowrap}
 .hb.solid{background:var(--accent);color:var(--on-accent)}
 .hb.rdr{gap:6px;color:var(--ink2);padding:0 10px}.n2 .hb:hover{text-decoration:none;filter:brightness(.97)}
-.chbar{display:none;border-bottom:1px solid var(--line);background:var(--panel)}
-.cr{display:flex;align-items:center;height:42px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+.chbar{border-bottom:1px solid var(--line);background:var(--panel)}
+.cr{display:flex;align-items:center;height:42px;padding:0 10px;overflow-x:auto;scrollbar-width:none}
 .cr::-webkit-scrollbar{display:none}
 .cr a{height:42px;padding:0 10px;display:inline-flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
 .cr a.on{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
@@ -95,7 +95,6 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
  .hq input,.hq .qchip{display:none}.hq:focus-within{flex:1 1 auto;width:auto;padding:0 10px;border:1px solid var(--line);background:var(--card);justify-content:flex-start}.hq:focus-within input{display:block}
  .thm{margin-left:auto;border:0;background:none}
  .hn{order:5}.hb.rdr span{display:none}.hb.rdr{width:40px;padding:0;justify-content:center}
- .chbar{display:block}
 }
 @media (prefers-reduced-motion:reduce){.lnav{transition:none}}
 .pg{width:100%;max-width:1040px;padding:16px 20px 40px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
@@ -663,9 +662,12 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .rbest a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rfoot{margin:0;padding:0 4px;font-size:12px;color:var(--mute);line-height:1.8}
 @media (max-width:1000px){
- .front .side{order:-1}.front .side .box.login,.front .rrail .rbox:not(:first-child),.front .rfoot{display:none}
- .svc{flex-direction:row;gap:6px}.svc li{flex:1 1 0;min-width:0}.svr{height:auto;min-height:40px;padding:6px 8px;flex-wrap:wrap;gap:2px 6px}.svs{margin-left:0;flex:1 1 100%;font-size:11px}
+ .mstat{display:flex}
 }
+.mstat{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;font-size:12.5px}
+.mstat a{flex:1 0 auto;min-height:40px;padding:0 10px;border-radius:9px;background:var(--card);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.n2 .mstat a:hover{text-decoration:none}.mstat .svs{margin-left:0}
+.mstat .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--mute)}.mstat .dot.ok{background:#22c55e}.mstat .dot.warn{background:#f59e0b}.mstat .dot.bad{background:#e5484d}
 
 /* post view (v4): rounded cards, the writer's initial, big vote buttons, the comment box above the thread */
 .postv .box{border-radius:14px}

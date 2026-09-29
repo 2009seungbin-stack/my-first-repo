@@ -5,7 +5,7 @@
 import {html,raw} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postHref,frontUrl,homeUrl,kindChip,signInUrl,channelTile,channelName,author} from './ui.js';
-import {loadRail,renderRail} from './rail.js';
+import {loadRail,renderRail,statusStrip} from './rail.js';
 import {buttonsHTML} from '../../src/signin-brands.js';
 import {boardTime,compact} from './format.js';
 import {frontPosts,excerptsOf} from '../db/channel.js';
@@ -46,7 +46,7 @@ export function renderFront(m,site){
  const tabs=html`<nav class="feedtabs" aria-label="${ko?'정렬':'Sort'}"><a href="${home}"${m.sort==='hot'?html` class="on" aria-current="page"`:''}>${ko?'인기':'Popular'}</a><a href="${home}?sort=new" rel="nofollow"${m.sort==='new'?html` class="on" aria-current="page"`:''}>${ko?'최신':'Latest'}</a><a href="${frontUrl(l)}best/">${ko?'★ 념글':'★ Best'}</a><span class="sp"></span><a class="btn p" href="${frontUrl(l)}free/write">${s.write}</a></nav>`;
  const feed=m.posts.length?html`<ol class="feed">${m.posts.map(p=>feedCard(p,l,now))}</ol>`:html`<p class="empty box">${s.frontEmpty}</p>`;
  const login=html`<section class="box login" data-island="account"><b>${ko?'로그인하면 구독·알림·고정닉':s.loginTitle}</b><span class="fine">${ko?'로그인 없이도 ㅇㅇ (오늘의 ID)로 글과 댓글을 쓸 수 있어요.':'Without an account you can still post as ㅇㅇ (today\'s ID).'}</span>${site.providers?.length?raw(buttonsHTML(site.providers,l,home)):html`<a class="btn" href="${signInUrl(home)}" rel="nofollow" data-signin>${s.login}</a>`}</section>`;
- const body=html`<div class="front"><main class="mainc"><h1 class="sr-only">${ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티':'Nerulio — community for AI, games, PC, creator tools and anime'}</h1>${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
+ const body=html`<div class="front"><main class="mainc"><h1 class="sr-only">${ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티':'Nerulio — community for AI, games, PC, creator tools and anime'}</h1>${statusStrip(m.rail,l)}${tabs}${feed}<p class="more2"><a class="btn" href="${frontUrl(l)}free/">${ko?'채널에서 더 보기':'More in the channels'} ›</a></p></main><div class="side">${login}${renderRail(m.rail,l)}</div></div>`;
  const title=ko?'Nerulio — AI·게임·PC·창작 도구·애니 커뮤니티와 파일 도구':'Nerulio — community for AI, games, PC, creator tools and anime, plus file tools';
  const other=ko?'en':'ko';
  return page({l,title,description:ko?'AI 서비스 상태와 새 소식, 게임·PC·창작 도구·애니 채널의 인기 글, 그리고 서버에 올리지 않는 파일·게임 도구.':'AI service status and news, popular posts from game, PC, creator-tool and anime channels, and file and game tools that never upload your files.',canonical:site.origin+home+(m.sort==='new'?'?sort=new':''),noindex:m.sort==='new',
