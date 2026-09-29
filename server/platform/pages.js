@@ -11,7 +11,7 @@
  *   /{l}/radar/                what changed / what is coming (?v=)
  *   /{l}/{vertical}/{slug}/    tag page: facts and the tag's posts in every channel (?kind=&sort=&best=1&page=&sub=0)
  *   /{l}/{vertical}/{slug}/{no} → 301 to the post's channel address (legacy_posts); …/write → 302 to the
- *   channel's write page with the tag; …/history · …/status · …/local-llm · …/feed.xml
+ *   channel's write page with the tag; …/history · …/status (…/status/feed.xml) · …/local-llm · …/feed.xml
  * Anonymous HTML is identical for everyone (personal state comes from islands), so responses are
  * cached at the edge. Only known query parameters with valid values reach the renderers and the
  * cache key; anything else is redirected to the canonical URL (no cache-busting by ?x=random). */
@@ -32,7 +32,7 @@ import {loadProfile,renderProfile} from '../../platform/render/profile.js';
 import {loadTransparency,renderTransparency} from '../../platform/render/transparency.js';
 import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
-import {channelFeed,radarFeed,boardFeed} from '../../platform/render/feed.js';
+import {channelFeed,radarFeed,boardFeed,statusFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
 import {page,channelName,channelUrl,homeUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
@@ -44,7 +44,7 @@ import {indexable,PLATFORM_SITEMAPS} from '../../platform/seo.js';
 import {RAIL_SERVICES} from '../../platform/render/rail.js';
 
 const L=PLATFORM_LOCALES.join('|'),V=VERTICALS.join('|'),CH=CHANNEL_IDS.join('|');
-const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status|local-llm|feed\\.xml))?)?)$`);
+const ROUTE=new RegExp(`^/(${L})/(?:(community)/(?:(best)/|(report|mod|me|transparency|policy)|(${CH})/(?:(\\d{1,9})|(write|best|feed\\.xml))?)?|(search|radar)/(feed\\.xml)?|(${V})/(?:([a-z0-9][a-z0-9-]{0,95})/(?:(\\d{1,9})|(write|history|status/feed\\.xml|status|local-llm|feed\\.xml))?)?)$`);
 /** A member's profile: /{l}/community/u/{nickname} (the nickname URL-encoded). */
 const PROFILE=new RegExp(`^/(${L})/community/u/([^/]{1,160})$`);
 export const CACHE_CONTROL='public, max-age=0, s-maxage=60, stale-while-revalidate=60';
@@ -55,7 +55,7 @@ export const PAGE_HEADERS=Object.freeze({
  'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 });
 
-/** @typedef {{l:string,name?:string,page:'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
+/** @typedef {{l:string,name?:string,page:'profile'|'front'|'home-moved'|'best'|'flag'|'mod'|'me'|'transparency'|'policy'|'hub'|'feed'|'radar-feed'|'search'|'radar'|'channel'|'post'|'write'|'history'|'status'|'status-feed'|'local-llm'|'board'|'board-best'|'board-post'|'board-write'|'board-feed'|'legacy-post'|'legacy-write',vertical?:string,slug?:string,no?:number|null,ch?:string}} Route */
 /** @param {string} pathname @returns {Route|null} */
 export function matchPlatformRoute(pathname){
  // The portal home: Korean at the site root, English at /en/; /ko/ and the old community fronts move there.
@@ -73,6 +73,7 @@ export function matchPlatformRoute(pathname){
   return {l,page:chSub==='write'?'board-write':chSub==='best'?'board-best':chSub==='feed.xml'?'board-feed':'board',ch};
  }
  if(sub==='feed.xml')return {l,page:'feed',vertical,slug,no:null};
+ if(sub==='status/feed.xml')return {l,page:'status-feed',vertical,slug,no:null};
  if(community)return {l,page:best?'best':report==='mod'?'mod':report==='me'?'me':report==='transparency'?'transparency':report==='policy'?'policy':report?'flag':'front'};
  if(top)return {l,page:/** @type {'search'|'radar'} */(top)};
  if(!slug)return {l,page:'hub',vertical};
@@ -175,7 +176,7 @@ export async function renderPlatformPage(request,env,site){
  if(route.page==='hub'){const m=await loadHub(db,/** @type {string} */(route.vertical),{l,now,type:q.get('type'),org:q.get('org'),sort:q.get('sort'),vs:q.get('vs'),page:Number(q.get('page'))||1,channels:await bar()});return m?html(String(renderHub(m,s))):null;}
  const {entity,redirect:moved}=await entityBySlug(db,/** @type {string} */(route.vertical),/** @type {string} */(route.slug));
  if(!entity){
-  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'?'':route.page==='legacy-post'?route.no:route.page==='feed'?'feed.xml':route.page==='legacy-write'?'write':route.page}${search}`,url).href);
+  if(moved)return redirect(new URL(`/${l}/${route.vertical}/${moved}/${route.page==='channel'?'':route.page==='legacy-post'?route.no:route.page==='feed'?'feed.xml':route.page==='status-feed'?'status/feed.xml':route.page==='legacy-write'?'write':route.page}${search}`,url).href);
   return null;
  }
  if(route.page==='legacy-post'){
@@ -194,6 +195,7 @@ export async function renderPlatformPage(request,env,site){
   case 'history':return html(String(renderHistory(await loadHistory(db,entity,{l,now,channels}),s)));
   case 'local-llm':return entity.type==='gpu'?html(String(renderLocalLlm(await loadLocalLlm(db,entity,{l,now,channels}),s))):null;
   case 'status':return entity.type==='service'?html(String(renderStatus(await loadStatus(db,entity,{l,now,channels}),s))):null;
+  case 'status-feed':return entity.type==='service'?xml(await statusFeed(db,entity,l,s.origin,now),60):null;
  }
  return html(String(renderChannel(await loadChannel(db,entity,{l,now,kind:q.get('kind'),sort:q.get('sort')||'new',best:q.get('best')==='1',page:Number(q.get('page'))||1,children:q.get('sub')!=='0',channels}),s)));
 }

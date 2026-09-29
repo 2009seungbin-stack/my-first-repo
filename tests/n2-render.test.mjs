@@ -485,3 +485,35 @@ test('share cards: one per service × state × language, 1200×630, and the stat
  assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-home.png'));
  assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-home.png'),'other pages keep the site card');
 });
+
+test('status feed: official incidents and user-report spikes, each start and end, labelled apart',{skip:!sqliteAvailable},async()=>{
+ const {spikeEpisodes,SPIKE}=await import('../platform/status-signal.js');const H=36e5;
+ const now=Date.UTC(2026,8,28,6,30);
+ const at=(hoursAgo,n)=>Array.from({length:n},(_,i)=>({created_at:Math.floor(now/H)*H-hoursAgo*H+i*1000}));
+ // Quiet week (1 per day), a 3-hour spike two days ago, one now.
+ const quiet=Array.from({length:20},(_,i)=>({created_at:now-(i+3)*864e5+7*H}));
+ const eps=spikeEpisodes([...quiet,...at(50,4),...at(49,6),...at(48,SPIKE.minReports),...at(0,5)],now);
+ assert.equal(eps.length,2);
+ assert.equal(eps[0].start,Math.floor(now/H)*H-50*H);assert.equal(eps[0].end,Math.floor(now/H)*H-47*H);assert.equal(eps[0].peak,6);
+ assert.equal(eps[1].end,null,'the spike going on now has no end');
+ assert.deepEqual(spikeEpisodes(quiet,now),[],'a quiet week has no spike');
+ assert.deepEqual(spikeEpisodes([...quiet,...at(10,2)],now),[],'fewer than SPIKE.minReports is never a spike');
+ assert.equal(matchPlatformRoute('/ko/ai/claude/status/feed.xml').page,'status-feed');
+ const d=await seeded();
+ await d.prepare("INSERT INTO events (id,entity_id,kind,title,starts_at,ends_at,date_precision,region,url,status,verification,created_at,updated_at) VALUES (9901,NULL,'other',?,?,?,'time','*','https://status.claude.com/incidents/abc','ended','OFFICIAL',?,?)").bind(JSON.stringify({en:'Elevated errors on Claude.ai'}),NOW-5*H,NOW-4*H,NOW,NOW).run();
+ await d.prepare("INSERT INTO event_entities (event_id,entity_id,role) VALUES (9901,'service:claude','about')").run();
+ const get=p=>renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW});
+ const r=await get('/ko/ai/claude/status/feed.xml');
+ assert.equal(r.status,200);assert.match(r.headers.get('content-type'),/rss\+xml/);
+ const xml=await r.text();
+ await d.prepare("DELETE FROM event_entities WHERE event_id=9901").run();await d.prepare("DELETE FROM events WHERE id=9901").run();
+ assert(xml.includes('<title>Claude(클로드) 장애·상태 알림 — Nerulio</title>'));
+ assert(xml.includes('<title>Claude 공식 장애: Elevated errors on Claude.ai</title>')&&xml.includes('<title>Claude 공식 장애 해결: Elevated errors on Claude.ai</title>'),'official start and end');
+ assert(xml.includes('<guid isPermaLink="false">incident:9901:end</guid>'));
+ assert(xml.includes('<title>Claude 사용자 리포트 급증 시작</title>')&&xml.includes('<category>사용자 리포트</category>'),'the demo clicks of the last hour are a user-report spike, labelled as such');
+ assert(!xml.includes('정상'));
+ const page=await (await get('/ko/ai/claude/status')).text();
+ assert(page.includes('<link rel="alternate" type="application/rss+xml" href="/ko/ai/claude/status/feed.xml" title="Claude 장애·상태 알림">'));
+ assert.equal(await get('/ko/hardware/rtx-5070/status/feed.xml'),null,'services only');
+ assert.equal((await get('/ko/ai/claude/status/feed.xml?x=1')).status,301);
+});

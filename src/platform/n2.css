@@ -753,3 +753,4 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .emptyv{display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px 16px;text-align:center;color:var(--mute)}.emptyv p{margin:0}
 .empty-art{color:var(--line)}
 .co .a .cv{display:inline-flex;align-items:center;gap:3px}.co .a .cv b{font-weight:800}
+.stn{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.stn .fine{margin:0}
