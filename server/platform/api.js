@@ -408,7 +408,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
     // A new tag (a game, a model, a work … the seed does not have yet): members only; the owner decides in /admin/.
     only(body,['name','channel','note','sourceUrl']);
     const name=text(body.name,[2,60],'name'),ch=channelById(typeof body.channel==='string'?body.channel:null);
-    if(!ch||!ch.inBar)throw new ApiError('BAD_REQUEST','Pick a channel.',{field:'channel'});
+    if(!ch?.vertical)throw new ApiError('BAD_REQUEST','Pick a topic channel (AI, games, PC, creative tools or anime).',{field:'channel'});
     const note=body.note===undefined||body.note===''?null:text(body.note,[1,300],'note');
     const src=body.sourceUrl===undefined||body.sourceUrl===''?null:String(body.sourceUrl);
     if(src!==null&&!/^https?:\/\/[^\s]{4,300}$/.test(src))throw new ApiError('BAD_REQUEST','A source link must be http(s).',{field:'sourceUrl'});

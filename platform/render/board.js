@@ -60,7 +60,7 @@ export function renderBoard(m,site){
  /** A link to this board with some parameters changed (tabs, chips, sort, pages). */
  const q=(/** @type {Record<string,string|number|null>} */ p)=>{
   const u=new URLSearchParams();
-  /** @type {Record<string,string|number|null>} */const all={kind:m.kind,tag:m.tag?.id||null,sort:m.sort==='new'?null:m.sort,best:m.best&&!m.bestPage?1:null,platform:m.platform,genre:m.genre,...p};
+  /** @type {Record<string,string|number|null>} */const all={kind:m.kind,tag:m.tag?.id||null,sort:m.sort==='new'?null:m.sort,best:m.best&&!m.bestPage?1:null,platform:m.platform??null,genre:m.genre??null,...p};
   for(const [k,x] of Object.entries(all))if(x!==null&&x!==undefined&&x!=='')u.set(k,String(x));
   const str=u.toString().replace(/%3A/gi,':');return str?`${base}?${str}`:base;
  };

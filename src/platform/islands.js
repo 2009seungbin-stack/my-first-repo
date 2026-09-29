@@ -274,6 +274,122 @@ function imagePicker(wf,cfg,signedIn){
  return {busy:()=>pending>0};
 }
 
+/** Tag search (/api/v2/tags): calls `show` with the matches, debounced; an older answer never replaces a newer one. */
+function tagSearch(input,show){
+ let timer=0,seq=0;
+ input.addEventListener('input',()=>{
+  clearTimeout(timer);const q=input.value.trim();
+  if(!q){seq++;show([],q);return;}
+  timer=setTimeout(async()=>{const n=++seq;const r=await api(`/tags?q=${encodeURIComponent(q)}&l=${L}`);if(n===seq)show(r.ok?r.data.tags||[]:[],q);},200);
+ });
+}
+/** The write form's tags: up to data-limit entities, as hidden `tags` inputs in the writer's order. */
+function tagPicker(wf){
+ const box=$('[data-tag-picker]',wf);if(!box)return null;
+ const max=Number(box.dataset.limit)||3,sel=$('[data-tag-selected]',box),count=$('[data-tag-count]',box),line=$('[data-tag-line]',box);
+ const wrap=$('[data-tag-search-wrap]',box),input=$('[data-tag-search]',box),results=$('[data-tag-results]',box);
+ const list=()=>$$('.wtag',sel).map(s=>({id:$('input',s).value,name:s.dataset.name||s.firstChild?.nextSibling?.textContent||''}));
+ const render=()=>{
+  const now=list();
+  if(count)count.textContent=`${now.length}/${max}`;
+  const full=now.length>=max;
+  for(const b of $$('[data-add-tag]',box)){const on=now.some(x=>x.id===b.dataset.addTag);b.hidden=on;b.disabled=full;}
+  if(input){input.disabled=full;input.placeholder=full?(L==='ko'?`태그는 ${max}개까지예요`:`Up to ${max} tags`):input.dataset.ph||input.placeholder;}
+  if(line)line.textContent=now.length?(L==='ko'?`${now.map(x=>x.name).join(', ')} 태그 페이지에도 보여요.`:`Also shows on ${now.map(x=>x.name).join(', ')}.`):(L==='ko'?'태그 없이도 등록돼요. 달면 그 대상 페이지에도 보여요.':'Tags are optional; a tagged post also shows on that page.');
+ };
+ const add=(/** @type {{id:string,name:string}} */ x)=>{
+  if(!x?.id||list().some(y=>y.id===x.id))return;
+  if(list().length>=max){toast(L==='ko'?`태그는 ${max}개까지 달 수 있어요.`:`Up to ${max} tags.`);return;}
+  const s=document.createElement('span');s.className='wtag';s.dataset.name=x.name;
+  const h=document.createElement('input');h.type='hidden';h.name='tags';h.value=x.id;
+  const b=document.createElement('button');b.type='button';b.dataset.tagRemove='';b.setAttribute('aria-label',L==='ko'?'태그 빼기':'Remove tag');b.textContent='×';
+  s.append(h,document.createTextNode(x.name),b);sel.append(s);render();wf.dispatchEvent(new Event('input',{bubbles:true}));
+ };
+ for(const s of $$('.wtag',sel))s.dataset.name=s.textContent.replace(/×$/,'').trim();
+ sel.addEventListener('click',e=>{const b=e.target.closest?.('[data-tag-remove]');if(b){b.closest('.wtag').remove();render();wf.dispatchEvent(new Event('input',{bubbles:true}));}});
+ box.addEventListener('click',e=>{const b=e.target.closest?.('[data-add-tag]');if(b)add({id:b.dataset.addTag,name:b.dataset.name||b.textContent});});
+ if(wrap&&input&&results){
+  wrap.hidden=false;input.dataset.ph=input.placeholder;
+  tagSearch(input,(tags,q)=>{
+   results.textContent='';results.hidden=!q;
+   if(!q)return;
+   if(!tags.length){const li=document.createElement('li');li.className='fine';li.textContent=L==='ko'?'찾는 태그가 없어요. 아래에서 새 태그를 제안할 수 있어요.':'No match. You can propose a new tag below.';results.append(li);return;}
+   for(const t of tags){const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.textContent=t.name;const v=document.createElement('span');v.className='fine';v.textContent=` · ${t.type}`;b.append(v);
+    b.addEventListener('click',()=>{add({id:t.id,name:t.name});input.value='';results.hidden=true;results.textContent='';input.focus();});li.append(b);results.append(li);}
+  });
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('button',results)?.click();}if(e.key==='Escape'){results.hidden=true;}});
+ }
+ render();
+ return {add,list};
+}
+/** Pinned channels: kept in this browser without an account and moved to the account on sign-in. */
+const localPins={get(){try{const v=JSON.parse(localStorage.getItem('n2-pins')||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string').slice(0,10):[];}catch{return [];}},set(v){try{v.length?localStorage.setItem('n2-pins',JSON.stringify(v)):localStorage.removeItem('n2-pins');}catch{}}};
+/** Tags the reader looked at lately (this browser), for the channel sheet. */
+const recentTags={get(){try{const v=JSON.parse(localStorage.getItem('n2-recent-tags')||'[]');return Array.isArray(v)?v.filter(x=>x&&typeof x.id==='string'&&typeof x.url==='string'&&x.url.startsWith('/')):[];}catch{return [];}},
+ add(x){try{localStorage.setItem('n2-recent-tags',JSON.stringify([x,...recentTags.get().filter(y=>y.id!==x.id)].slice(0,8)));}catch{}}};
+/** The channel bar in the reader's order (pinned first), the pin buttons, 내 채널 lists and the channel sheet. */
+async function channels(signedIn){
+ const barLinks=$('[data-channel-links]');
+ const known=$$('a[data-ch]',barLinks||document).map(a=>a.dataset.ch).filter(Boolean);
+ const valid=(/** @type {string[]} */ v)=>v.filter((c,i)=>known.includes(c)&&v.indexOf(c)===i);
+ let pins=valid(localPins.get());
+ if(signedIn){
+  const r=await api('/pins');
+  if(r.ok&&Array.isArray(r.data?.pins)){
+   const server=valid(r.data.pins),merged=[...server,...pins.filter(c=>!server.includes(c))];
+   if(merged.length>server.length){const w=await api('/pins',{channels:merged});if(w.ok)localPins.set([]);}else localPins.set([]);
+   pins=merged;
+  }
+ }
+ const nameOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.textContent||id;
+ const hrefOf=id=>$(`a[data-ch="${id}"]`,barLinks||document)?.getAttribute('href')||'#';
+ const apply=()=>{
+  if(barLinks){const links=$$('a[data-ch]',barLinks);for(const id of [...pins].reverse()){const a=links.find(x=>x.dataset.ch===id);if(a){a.classList.add('pinned');barLinks.prepend(a);}}for(const a of links)if(!pins.includes(a.dataset.ch)){a.classList.remove('pinned');}
+   const rest=links.filter(a=>!pins.includes(a.dataset.ch)).sort((a,b)=>known.indexOf(a.dataset.ch)-known.indexOf(b.dataset.ch));for(const a of rest)barLinks.append(a);}
+  for(const b of $$('[data-pin]'))b.setAttribute('aria-pressed',String(pins.includes(b.dataset.pin)));
+  const my=$('[data-my-channels]'),ml=$('[data-my-list]');
+  if(my&&ml){my.hidden=!pins.length;ml.textContent='';for(const id of pins){const li=document.createElement('li'),a=document.createElement('a');a.href=hrefOf(id);a.textContent=nameOf(id);const up=document.createElement('button');up.type='button';up.className='lnk';up.textContent='↑';up.setAttribute('aria-label',L==='ko'?'앞으로':'Move up');up.hidden=pins[0]===id;up.addEventListener('click',()=>{const i=pins.indexOf(id);if(i>0){pins.splice(i,1);pins.splice(i-1,0,id);save();}});li.append(a,up);ml.append(li);}}
+  const side=$('[data-my-channels-side]');
+  if(side){for(const li of $$('li[data-pinned]',side))li.remove();for(const id of [...pins].reverse()){const li=document.createElement('li');li.dataset.pinned=id;const a=document.createElement('a');a.className='tt';a.href=hrefOf(id);a.textContent=nameOf(id);li.append(a);side.prepend(li);}}
+ };
+ const save=async()=>{
+  apply();
+  if(signedIn){const r=await api('/pins',{channels:pins});if(!r.ok)explain(r);}else localPins.set(pins);
+ };
+ document.addEventListener('click',e=>{
+  const b=e.target.closest?.('[data-pin]');if(!b)return;
+  const id=b.dataset.pin;if(!known.includes(id))return;
+  pins=pins.includes(id)?pins.filter(x=>x!==id):[...pins,id];
+  toast(pins.includes(id)?(L==='ko'?`${nameOf(id)} 채널을 고정했어요. 채널 바 앞에 와요.`:`Pinned ${nameOf(id)}.`):(L==='ko'?'고정을 풀었어요.':'Unpinned.'));
+  save();
+ });
+ apply();
+ // The sheet (전체 채널): a bottom sheet on phones, a dialog on wide screens.
+ const sheet=$('#chsheet');
+ if(sheet){
+  const open=()=>{
+   const rt=$('[data-recent-tags]',sheet),rl=$('[data-recent-list]',sheet),list=recentTags.get();
+   if(rt&&rl){rt.hidden=!list.length;rl.textContent='';for(const x of list){const a=document.createElement('a');a.className='rtag';a.href=x.url;a.textContent=x.name;rl.append(a);}}
+   if(typeof sheet.showModal==='function'){if(!sheet.open)sheet.showModal();}else sheet.setAttribute('open','');
+  };
+  for(const a of $$('[data-open-sheet]'))a.addEventListener('click',e=>{if(e.ctrlKey||e.metaKey||e.shiftKey)return;e.preventDefault();open();});
+  for(const b of $$('[data-close-sheet]',sheet))b.addEventListener('click',()=>sheet.close());
+  sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close();});
+  const q=$('[data-sheet-q]',sheet),res=$('[data-sheet-results]',sheet);
+  if(q&&res)tagSearch(q,(tags,text)=>{
+   res.textContent='';res.hidden=!text;if(!text)return;
+   const low=text.toLowerCase();
+   const chs=$$('.shg li a',sheet).filter(a=>a.textContent.toLowerCase().includes(low)||a.nextElementSibling?.textContent.toLowerCase().includes(low));
+   for(const a of chs){const li=document.createElement('li'),x=document.createElement('a');x.href=a.getAttribute('href');x.textContent=a.textContent;const f=document.createElement('span');f.className='fine';f.textContent=L==='ko'?' · 채널':' · channel';x.append(f);li.append(x);res.append(li);}
+   for(const t of tags){const li=document.createElement('li'),x=document.createElement('a');x.href=t.url;x.textContent=t.name;const f=document.createElement('span');f.className='fine';f.textContent=L==='ko'?' · 태그':' · tag';x.append(f);li.append(x);res.append(li);}
+   if(!res.children.length){const li=document.createElement('li');li.className='fine';li.textContent=L==='ko'?'찾는 채널·태그가 없어요.':'No match.';res.append(li);}
+  });
+ }
+ // A tag page the reader opened goes to the sheet's 최근 본 태그.
+ const tagHead=$('[data-tag-name][data-entity]');
+ if(tagHead)recentTags.add({id:tagHead.dataset.entity,name:tagHead.dataset.tagName,url:location.pathname});
+}
+
 async function main(){
  const entity=$('[data-entity]')?.dataset.entity||'';
  const post=$('[data-post]')?.dataset.post||'';
@@ -455,6 +571,8 @@ async function main(){
   });});
  }
 
+ channels(signedIn);
+
  // The author's own post and comments: edit / delete
  const own=$('[data-island="own-post"]');
  if(own&&st.mine?.post){
@@ -562,35 +680,40 @@ async function main(){
   });
  }
 
- // Write page
+ // Write page: channel, 말머리, 0–3 tags, then the post.
  const wf=$('form[data-island="write-form"]');
  if(wf){
   const af=anonForm(wf,signedIn);
   if(!signedIn&&!af){const n=$('.needlogin',wf);if(n)n.hidden=false;}
   // Structured reports (리포트 on a game) are member-only.
-  if(!signedIn&&af){const ro=$('select[name="kind"] option[value="report"]',wf);if(ro){ro.disabled=true;ro.textContent+=L==='ko'?' (로그인 필요)':' (sign-in)';if(ro.selected){const first=$('select[name="kind"] option:not([disabled])',wf);if(first)first.selected=true;}}}
+  const repRadio=$('input[name="kind"][value="report"]',wf);
+  if(!signedIn&&af&&repRadio&&$('[data-report-fields]',wf)){repRadio.disabled=true;const sp=repRadio.nextElementSibling;if(sp)sp.textContent+=L==='ko'?' (로그인)':' (sign-in)';if(repRadio.checked){const first=$('input[name="kind"]:not([disabled])',wf);if(first)first.checked=true;}}
   const pick=imagePicker(wf,st.uploads,signedIn);
-  // Draft kept in this browser (title, body) so signing in or a closed tab does not lose it.
-  const dkey='n2-draft:'+location.pathname,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
+  const picker=tagPicker(wf);
+  // Draft kept in this browser (title, body, tags) so switching channels, signing in or a closed tab does not lose it.
+  const dkey=`n2-draft:${L}:write`,ti=$('input[name="title"]',wf),ta=$('textarea[name="body"]',wf);
   const store={get(){try{return JSON.parse(localStorage.getItem(dkey)||'null');}catch{return null;}},set(v){try{v?localStorage.setItem(dkey,JSON.stringify(v)):localStorage.removeItem(dkey);}catch{}}};
   const saved=store.get();
-  if(saved&&ti&&ta&&!ti.value&&!ta.value){ti.value=saved.title||'';ta.value=saved.body||'';toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
-  let dt=0;wf.addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||''}:null),400);});
+  if(saved&&ti&&ta&&!ti.value&&!ta.value&&(saved.title||saved.body)){ti.value=saved.title||'';ta.value=saved.body||'';for(const x of Array.isArray(saved.tags)?saved.tags:[])picker?.add(x);toast(L==='ko'?'임시저장한 글을 불러왔어요.':'Draft restored.');}
+  const keep=()=>store.set(ti?.value||ta?.value?{title:ti?.value||'',body:ta?.value||'',tags:picker?.list()||[]}:null);
+  let dt=0;wf.addEventListener('input',()=>{clearTimeout(dt);dt=setTimeout(keep,400);});
+  // Another channel keeps what was written (and the picked tags).
+  for(const a of $$('[data-channel-link]',wf))a.addEventListener('click',()=>{clearTimeout(dt);keep();});
   wf.addEventListener('submit',async e=>{
    e.preventDefault();
    const fd=new FormData(wf),btn=$('button[type="submit"]',wf);
-   if(String(fd.get('kind'))!=='report'&&!String(fd.get('body')||'').trim()){toast(T.empty);ta?.focus();return;}
    const kind=String(fd.get('kind')||'');
+   if(kind!=='report'&&!String(fd.get('body')||'').trim()){toast(T.empty);ta?.focus();return;}
    if(pick?.busy())return toast(T.imgUploading);
-   if(!signedIn&&kind==='report'){toast(T.reportNeedsLogin);return;}
+   if(!signedIn&&kind==='report'&&$('[data-report-fields]',wf)){toast(T.reportNeedsLogin);return;}
    if(af&&!af.valid())return;
    btn.disabled=true;btn.textContent=T.posting;
    let r;
-   if(kind==='report'&&fd.get('targetId')){
+   if(kind==='report'&&fd.get('targetId')&&$('[data-report-fields]:not([hidden])',wf)){
     r=await write('/reports',{kind:'compat',entityId:String(fd.get('subjectId')),subjectVersion:String(fd.get('subjectVersion')||'')||undefined,targetId:String(fd.get('targetId')),targetVersion:String(fd.get('targetVersion')||'')||undefined,
      result:String(fd.get('result')),env:Object.fromEntries(['os','device','note'].map(k=>[k,String(fd.get('env_'+k)||'')]).filter(([,v])=>v)),title:String(fd.get('title')||'')||undefined,comment:String(fd.get('body')||'')||undefined},signedIn);
    }else{
-    r=await write('/posts?l='+L,{entityId:wf.dataset.entity,kind,title:String(fd.get('title')||''),body:String(fd.get('body')||''),...(af?af.fields():{})},signedIn,{anon:true});
+    r=await write('/posts?l='+L,{channel:wf.dataset.channel,kind,tags:fd.getAll('tags').map(String),title:String(fd.get('title')||''),body:String(fd.get('body')||''),...(af?af.fields():{})},signedIn,{anon:true});
    }
    btn.disabled=false;btn.textContent=btn.dataset.label||btn.textContent;
    if(r?.held){af?.remember();store.set(null);toastNext(T.held);location.href=location.pathname.replace(/write$/,'');return;}
@@ -599,9 +722,23 @@ async function main(){
   const subj=$('select[name="subjectId"]',wf),sv=$('input[name="subjectVersion"]',wf);
   // Picking a patch fills in its latest known version (the reader can still change it).
   subj?.addEventListener('change',()=>{const v=subj.selectedOptions[0]?.dataset.v;if(sv&&v)sv.value=v;});
-  const kindSel=$('select[name="kind"]',wf),rep=$('.repf',wf);
-  const title=$('input[name="title"]',wf);
-  const sync=()=>{const r=kindSel.value==='report'&&!!rep;if(rep){rep.hidden=!r;for(const el of $$('select,input',rep))el.disabled=!r;}if(title)title.required=!r;};kindSel?.addEventListener('change',sync);sync();
+  const rep=$('[data-report-fields]',wf),title=$('input[name="title"]',wf);
+  const sync=()=>{const on=$('input[name="kind"]:checked',wf)?.value==='report'&&!!rep;if(rep){rep.hidden=!on;for(const el of $$('select,input',rep))el.disabled=!on;}if(title)title.required=!on;};
+  for(const r of $$('input[name="kind"]',wf))r.addEventListener('change',sync);sync();
+ }
+ // New tag proposals (members only; the owner decides in /admin/).
+ const tp=$('[data-island="tag-propose"]');
+ if(tp){
+  const st2=$('[data-propose-status]',tp),send=$('[data-propose-send]',tp);
+  send?.addEventListener('click',async()=>{
+   const name=$('input[name="proposeName"]',tp),url=$('input[name="proposeUrl"]',tp),note=$('input[name="proposeNote"]',tp);
+   if(!signedIn){if(st2)st2.textContent=L==='ko'?'새 태그 제안은 로그인한 회원(고정닉)만 할 수 있어요.':'Only members can propose tags.';signInSheet();return;}
+   if(!name?.value.trim()||name.value.trim().length<2){name?.focus();return toast(L==='ko'?'태그 이름을 2자 이상 적어 주세요.':'Enter a tag name (2+ characters).');}
+   send.disabled=true;
+   const r=await write('/tags/propose',{name:name.value.trim(),channel:tp.dataset.channel,sourceUrl:url?.value.trim()||undefined,note:note?.value.trim()||undefined},signedIn);
+   send.disabled=false;
+   if(r){if(st2)st2.textContent=L==='ko'?`“${name.value.trim()}” 제안을 보냈어요. 운영자가 확인하면 태그로 추가돼요.`:'Sent. The owner reviews each proposal.';name.value='';if(url)url.value='';if(note)note.value='';}
+  });
  }
 
  // Benchmark (GPU local-LLM page)
@@ -743,16 +880,16 @@ async function main(){
   }
  }
 
- // New posts bar (polls once a minute while the tab is visible)
+ // New posts bar on a channel board (polls once a minute while the tab is visible)
  const bar=$('[data-island="new-posts"]');
- if(bar){
-  const last=Math.max(0,...$$('.plist .pr .no').map(n=>Number(n.textContent)||0));
+ if(bar&&bar.dataset.channel){
+  const last=Number(bar.dataset.after)||0;
   const poll=async()=>{
    if(document.hidden)return;
-   const r=await api(`/new-posts?entity=${encodeURIComponent(bar.dataset.entity)}&after=${last}`);
+   const r=await api(`/new-posts?channel=${encodeURIComponent(bar.dataset.channel)}&after=${last}`);
    if(r.ok&&r.data.count>0){bar.hidden=false;bar.textContent='';const a=document.createElement('a');a.href=location.pathname+location.search;a.textContent=T.newPosts(r.data.count);bar.append(a);}
   };
-  if(last)setInterval(poll,60e3);
+  setInterval(poll,60e3);
  }
 
  // Countdown

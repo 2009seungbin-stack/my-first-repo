@@ -31,7 +31,7 @@ import {renderPolicy} from '../../platform/render/policy.js';
 import {loadHub,renderHub} from '../../platform/render/hub.js';
 import {channelFeed,radarFeed,boardFeed} from '../../platform/render/feed.js';
 import {loadLocalLlm,renderLocalLlm} from '../../platform/render/localllm.js';
-import {page,channelName} from '../../platform/render/ui.js';
+import {page,channelName,channelUrl} from '../../platform/render/ui.js';
 import {html as rawHtml} from '../../platform/render/html.js';
 import {VERTICALS,PLATFORM_LOCALES,ENTITY_ID} from '../../platform/schema.js';
 import {POST_KINDS} from '../../platform/community.js';

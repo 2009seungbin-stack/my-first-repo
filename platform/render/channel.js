@@ -87,7 +87,7 @@ export function renderChannel(m,site){
  const header=html`<section class="box chh"><span class="tile ${TILE[e.vertical]||''}" aria-hidden="true">${monogram(e,l)}</span>
 <div class="chm"><div class="chn1"><h1>${s.channel(name)}${m.alias?html` <span class="ha">${m.alias}</span>`:''}</h1><span class="fine">${v&&label(v.label,l)===subtitle?'':subtitle}${v?html`${label(v.label,l)===subtitle?'':' · '}<a href="/${l}/${e.vertical}/">${label(v.label,l)}</a>`:''}</span>${live?html`<span class="live"><i></i>${s.live}</span>`:''}</div>
 <span class="fine">${s.followers} <span data-followers="${m.stats.followers}">${compact(m.stats.followers,l)}</span> · ${s.today} ${compact(m.stats.today,l)} · ${s.posts} ${compact(m.stats.total,l)}</span>${desc?html`<p class="desc">${desc}</p>`:''}</div>
-<div class="cha" data-island="follow" data-entity="${e.id}"><a class="btn" href="${signInUrl(base)}" rel="nofollow" data-signin>${s.follow}</a><a class="btn p" href="${writePath(l,m.home,{tag:e.id})}">${l==='ko'?'이 태그로 글쓰기':'Write with this tag'}</a></div></section>`;
+<div class="cha" data-island="follow" data-entity="${e.id}" data-tag-name="${name}"><a class="btn" href="${signInUrl(base)}" rel="nofollow" data-signin>${s.follow}</a><a class="btn p" href="${writePath(l,m.home,{tag:e.id})}">${l==='ko'?'이 태그로 글쓰기':'Write with this tag'}</a></div></section>`;
  // 말머리 of the tag's home channel (a post from any channel still shows; the tab filters all of them).
  const home=/** @type {import('../channels.js').Channel} */(channelById(m.home));
  // Tag, sort, 념글 and page links are noindex views: nofollow keeps crawlers on the tag pages.

@@ -8,7 +8,7 @@
 /** @typedef {{id:ChannelId,vertical:string|null,names:{ko:string,en:string},tile:{ko:string,en:string},desc:{ko:string,en:string},flairs:string[],inBar:boolean,labels?:Record<string,{ko:string,en:string}>}} Channel */
 
 /** @type {readonly Channel[]} */
-export const CHANNELS=Object.freeze([
+export const CHANNELS=Object.freeze(/** @type {Channel[]} */([
  {id:'ai',vertical:'ai',names:{ko:'AI',en:'AI'},tile:{ko:'AI',en:'AI'},inBar:true,
   desc:{ko:'Claude·ChatGPT·제미나이부터 로컬 LLM까지',en:'Claude, ChatGPT and Gemini to local LLMs'},
   flairs:['news','info','question','review','guide','benchmark','free'],
@@ -33,7 +33,7 @@ export const CHANNELS=Object.freeze([
  {id:'notice',vertical:null,names:{ko:'공지·건의',en:'Notices & feedback'},tile:{ko:'공',en:'N'},inBar:false,
   desc:{ko:'운영 공지 · 사이트·도구 건의',en:'Announcements and site feedback'},
   flairs:['notice','feedback']},
-]);
+]));
 export const CHANNEL_IDS=/** @type {readonly ChannelId[]} */(Object.freeze(CHANNELS.map(c=>c.id)));
 /** @param {string|null|undefined} id @returns {Channel|null} */
 export const channelById=id=>CHANNELS.find(c=>c.id===id)||null;

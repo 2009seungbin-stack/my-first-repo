@@ -125,7 +125,7 @@ async function changeSheet(ctx,c){
  });
  if(done){toast('적용했어요');ctx.refresh();}
 }
-/** @param {any} ctx @param {{kind:string,id:any,action:string}} body @param {string} label @param {string} text */
+/** @param {any} ctx @param {{kind:string,id:any,action:string,value?:string}} body @param {string} label @param {string} text */
 async function radarAct(ctx,body,label,text){
  const done=await confirmSheet({
   title:`${label} 할까요?`,body:[h('p',text)],
