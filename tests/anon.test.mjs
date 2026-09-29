@@ -7,7 +7,9 @@ import {readFileSync} from 'node:fs';
 import {D1Shim,sqliteAvailable} from './d1-shim.mjs';
 import {R2Shim} from './r2-shim.mjs';
 import {handlePlatformApi} from '../server/platform/api.js';
-import {serveUpload} from '../server/platform/uploads.js';
+import {serveUpload,resetImageStateCache,IMAGE_CACHE,imageCacheKeys} from '../server/platform/uploads.js';
+import {cacheOrigins} from '../server/platform/api.js';
+import {handlePlatformPage} from '../server/platform/pages.js';
 import {sha256,base64url} from '../server/crypto.js';
 import {createLimiter} from '../server/ratelimit.js';
 import {ingest} from '../platform/ingest.js';
@@ -48,20 +50,20 @@ async function harness(o={}){
   browser(ip='203.0.113.7',as=null){
    const jar=new Map();if(as)jar.set('nerulio_session',sessions[as]);
    const b={ip,jar,
-    async call(method,path,{body,raw,type,headers={},origin=ORIGIN}={}){
+    async call(method,path,{body,raw,type,headers={},host=ORIGIN,origin=host}={}){
      const hd=new Headers(headers);
      if(jar.size)hd.set('cookie',[...jar].map(([k,v])=>`${k}=${v}`).join('; '));
      if(ip)hd.set('cf-connecting-ip',ip);
      if(method==='POST'&&origin)hd.set('origin',origin);
      if(body!==undefined)hd.set('content-type','application/json');
      if(raw!==undefined)hd.set('content-type',type||'image/webp');
-     const r=await handlePlatformApi(new Request(ORIGIN+'/api/v2'+path,{method,headers:hd,body:raw!==undefined?raw:body!==undefined?JSON.stringify(body):undefined}),env,null,{now:()=>clock.now,limiter,fetch,random:()=>1});
+     const r=await handlePlatformApi(new Request(host+'/api/v2'+path,{method,headers:hd,body:raw!==undefined?raw:body!==undefined?JSON.stringify(body):undefined}),env,null,{now:()=>clock.now,limiter,fetch,random:()=>1});
      for(const c of r.headers.getSetCookie?.()||[]){const [kv]=c.split(';');const i=kv.indexOf('=');const k=kv.slice(0,i),v=kv.slice(i+1);if(/Max-Age=0/.test(c))jar.delete(k);else jar.set(k,v);}
      return {status:r.status,headers:r.headers,json:await r.json()};
     },
-    async image(path){
-     const hd=new Headers();if(jar.size)hd.set('cookie',[...jar].map(([k,v])=>`${k}=${v}`).join('; '));
-     return serveUpload(new Request(ORIGIN+path,{headers:hd}),env,null,{isModerator:async()=>!!as&&!!(await db.prepare("SELECT 1 FROM user_profiles WHERE user_id=? AND role IN ('moderator','curator','admin')").bind('u-'+as).first())});
+    async image(path,{host=ORIGIN,headers={},method='GET',ctx=null,now}={}){
+     const hd=new Headers(headers);if(jar.size)hd.set('cookie',[...jar].map(([k,v])=>`${k}=${v}`).join('; '));
+     return serveUpload(new Request(host+path,{headers:hd,method}),env,ctx,{...(now?{now}:{}),isModerator:async()=>!!as&&!!(await db.prepare("SELECT 1 FROM user_profiles WHERE user_id=? AND role IN ('moderator','curator','admin')").bind('u-'+as).first())});
     }};
    return b;
   }};
@@ -435,7 +437,7 @@ test('uploads: stored in R2, served only as part of a visible post, hidden → 4
  assert.equal((await b.call('POST','/comments',{body:{postId:p.json.id,body:md,password:'1234'}})).json.error.reason,'images');
  const img=await h.browser('192.0.2.1').image(up.json.url);
  assert.equal(img.status,200);assert.equal(img.headers.get('content-type'),'image/jpeg');assert.equal(img.headers.get('x-content-type-options'),'nosniff');
- assert.match(img.headers.get('content-disposition'),/^inline/);assert.match(img.headers.get('cache-control'),/max-age=604800/);assert.equal(img.headers.get('cross-origin-resource-policy'),'same-origin');
+ assert.match(img.headers.get('content-disposition'),/^inline/);assert.equal(img.headers.get('cache-control'),IMAGE_CACHE.control);assert.equal(img.headers.get('cross-origin-resource-policy'),'same-origin');
  assert.match(img.headers.get('content-security-policy'),/sandbox/);
  assert.equal((await b.image(up.json.url.replace('.jpg','.webp'))).status,404,'extension must match the stored type');
  // Hidden: 404 for everyone but moderators (uncached).
@@ -484,6 +486,173 @@ test('uploads: limits, types, ownership on edit, deletion with the post, NOT_CON
  const nc=await none.browser().call('POST','/uploads',{raw:FIX('gps.webp')});
  assert.equal(nc.status,503);assert.deepEqual([nc.json.error.code,nc.json.need,nc.json.error.need],['NOT_CONFIGURED','UPLOADS','UPLOADS']);
  assert.equal((await none.browser().call('GET','/state')).json.uploads,null,'the picker stays hidden');
+});
+
+/* ---------- takedown: deleted, hidden and removed images and posts stop being served ---------- */
+
+/** Cloudflare's Cache API (caches.default) in memory: keyed by the full URL (query included), honours
+ * s-maxage/max-age and no-store/private on put, answers a hit with CF-Cache-Status: HIT. One instance is
+ * one Cloudflare location. */
+class CacheShim{
+ constructor(clock){this.clock=clock;this.entries=new Map();}
+ async match(req){
+  const k=typeof req==='string'?req:req.url,e=this.entries.get(k);
+  if(!e)return undefined;
+  if(this.clock.now>=e.expires){this.entries.delete(k);return undefined;}
+  const h=new Headers(e.headers);h.set('cf-cache-status','HIT');
+  return new Response(e.bytes.slice(),{status:e.status,headers:h});
+ }
+ async put(req,res){
+  const cc=res.headers.get('cache-control')||'';
+  if(/no-store|private/.test(cc))return;
+  const ttl=Number((/s-maxage=(\d+)/.exec(cc)||/max-age=(\d+)/.exec(cc)||[])[1]||0);
+  if(!ttl)return;
+  this.entries.set(typeof req==='string'?req:req.url,{bytes:new Uint8Array(await res.arrayBuffer()),status:res.status,headers:[...res.headers],expires:this.clock.now+ttl*1000});
+ }
+ async delete(req){return this.entries.delete(typeof req==='string'?req:req.url);}
+ has(url){return this.entries.has(url);}
+}
+/** Run a test body with caches.default installed (and the image state memo empty). */
+async function withCache(clock,fn){
+ const before=Object.getOwnPropertyDescriptor(globalThis,'caches'),cache=new CacheShim(clock);
+ Object.defineProperty(globalThis,'caches',{value:{default:cache},configurable:true,writable:true});
+ resetImageStateCache();
+ try{return await fn(cache);}
+ finally{resetImageStateCache();if(before)Object.defineProperty(globalThis,'caches',before);else delete globalThis.caches;}
+}
+/** The preview alias a request arrives on, while SITE_URL (ORIGIN) names another host: the live bug. */
+const PREVIEW='https://n2-preview.nerulio.test';
+/** GET a platform page through its edge cache, as the Worker does. @returns {Promise<Response>} */
+async function page(h,host,path){
+ const pending=[],ctx={waitUntil:p=>pending.push(p)};
+ const r=await handlePlatformPage(new Request(host+path),h.env,ctx,{origin:ORIGIN,now:()=>h.clock.now});
+ await Promise.all(pending);return r;
+}
+/** GET an image, waiting for the edge copy to be stored. */
+async function view(b,path,o={}){
+ const pending=[],ctx={waitUntil:p=>pending.push(p)};
+ const r=await b.image(path,{...o,ctx});await Promise.all(pending);return r;
+}
+/** An anonymous post with one image, posted on the preview host. */
+async function imagePost(h){
+ const b=h.browser('203.0.113.7');
+ const up=await b.call('POST','/uploads',{raw:FIX('gps.jpg'),type:'image/jpeg',host:PREVIEW});
+ assert.equal(up.status,201,JSON.stringify(up.json));
+ const p=await post(b,{body:`사진 ![](${up.json.url})`});assert.equal(p.status,201,JSON.stringify(p.json));
+ const no=h.db.raw.prepare('SELECT post_no FROM discussions WHERE id=?').get(p.json.id).post_no;
+ return {b,img:up.json.url,id:up.json.id,postId:p.json.id,postPath:`/ko/ai/svc/${no}`};
+}
+
+test('purge origins: the request host, SITE_URL and the build URL, without repeats',()=>{
+ assert.deepEqual(cacheOrigins(new URL('https://n2-preview.nerulio.pages.dev/api/v2/posts/delete'),{SITE_URL:'https://nerulio.pages.dev/'},{siteOrigin:'https://nerulio.pages.dev'}),
+  ['https://n2-preview.nerulio.pages.dev','https://nerulio.pages.dev']);
+ assert.deepEqual(cacheOrigins(new URL('https://nerulio.com/api/v2/mod/action'),{SITE_URL:'https://nerulio.com'},{siteOrigin:'https://nerulio.com'}),['https://nerulio.com']);
+ assert.deepEqual(cacheOrigins(new URL('http://127.0.0.1:8788/api/v2/x'),{SITE_URL:'not a url'},{siteOrigin:''}),['http://127.0.0.1:8788']);
+ const keys=imageCacheKeys(['https://a.test','https://b.test'],['abc12345']);
+ assert.equal(keys.length,2*3*3,'every variant and extension under every origin');
+ assert(keys.includes('https://b.test/u/abc12345/thumb.png')&&keys.includes('https://a.test/u/abc12345/full.webp'));
+});
+
+test('takedown: an author\'s password delete stops the image and the post at once under the request host and SITE_URL, query strings too',{skip},async()=>{
+ const h=await harness();
+ await withCache(h.clock,async cache=>{
+  const x=await imagePost(h),viewer=h.browser('192.0.2.1');
+  // Readers on both hosts: the page and the image are now edge-cached under each.
+  for(const host of [PREVIEW,ORIGIN]){
+   assert.equal((await page(h,host,x.postPath)).status,200);
+   const feed=await page(h,host,'/ko/ai/svc/feed.xml');assert.match(await feed.text(),/익명 글 제목/);
+   assert.equal(feed.headers.get('cache-control'),'public, max-age=0, s-maxage=60','post titles leave the feed within a minute');
+   const r=await view(viewer,x.img,{host});assert.equal(r.status,200);
+   assert.equal(r.headers.get('cache-control'),'private, max-age=3600','browsers keep it an hour, shared caches not at all');
+   assert.equal((await view(viewer,x.img+'?v=1',{host})).status,200);
+   assert(cache.has(host+x.postPath),`page cached under ${host}`);assert(cache.has(host+x.img),`image cached under ${host}`);
+   assert(!cache.has(host+x.img+'?v=1'),'one edge copy per image, whatever the query string');
+  }
+  assert.match(cache.entries.get(ORIGIN+x.img).headers.find(([k])=>k==='cache-control')[1],/max-age=3600/,'the edge copy has its own lifetime');
+  assert.equal((await page(h,PREVIEW,x.postPath)).headers.get('cf-cache-status'),'HIT','served from the edge cache');
+  // The author deletes it by password on the preview host (SITE_URL is the other host).
+  const del=await x.b.call('POST','/posts/delete',{body:{postId:x.postId,password:'1234'},host:PREVIEW});
+  assert.equal(del.status,200,JSON.stringify(del.json));
+  assert.equal(h.db.raw.prepare('SELECT removed FROM uploads WHERE id=?').get(x.id).removed,'author');
+  for(const host of [PREVIEW,ORIGIN]){
+   assert(!cache.has(host+x.postPath),`page purged under ${host}`);assert(!cache.has(host+x.img),`image purged under ${host}`);
+   assert(!cache.has(host+'/ko/ai/svc/')&&!cache.has(host+'/en/ai/svc/'),'the board too');
+   assert.equal((await page(h,host,x.postPath)).status,404,`post gone under ${host}`);
+   assert.doesNotMatch(await (await page(h,host,'/ko/ai/svc/feed.xml')).text(),/익명 글 제목/,`feed under ${host}`);
+   for(const path of [x.img,x.img+'?v=1',x.img+'?'+Math.random(),x.img.replace('/full.','/thumb.')]){
+    const r=await viewer.image(path,{host});assert.equal(r.status,404,`${host}${path}`);assert.equal(r.headers.get('cache-control'),'no-store');
+   }
+  }
+ });
+});
+
+test('takedown: an edge copy is never served without the state check (another location, another isolate)',{skip},async()=>{
+ const h=await harness();
+ await withCache(h.clock,async cache=>{
+  const x=await imagePost(h),viewer=h.browser('192.0.2.1'),at=()=>h.clock.now;
+  assert.equal((await view(viewer,x.img,{now:at})).status,200);assert(cache.has(ORIGIN+x.img));
+  // Hidden where this location's cache and this isolate's memo were not told (no purge reaches here).
+  h.db.raw.prepare("UPDATE discussions SET status='hidden' WHERE id=?").run(x.postId);
+  h.clock.now+=IMAGE_CACHE.stateTtlMs;
+  assert(cache.has(ORIGIN+x.img),'the edge copy is still there');
+  assert.equal((await viewer.image(x.img,{now:at})).status,404,'the state check wins over the edge copy');
+  assert.equal((await viewer.image(x.img+'?cache=bust',{now:at})).status,404,'a query string does not skip the check');
+  // Restored: visible again at once (a hidden answer is never remembered).
+  h.db.raw.prepare("UPDATE discussions SET status='published' WHERE id=?").run(x.postId);
+  assert.equal((await viewer.image(x.img,{now:at})).status,200);
+  // Removed by a moderator elsewhere: 451 once the remembered public answer is older than stateTtlMs.
+  h.db.raw.prepare("UPDATE uploads SET status='deleted',removed='mod' WHERE id=?").run(x.id);
+  h.clock.now+=IMAGE_CACHE.stateTtlMs-1;
+  assert.equal((await viewer.image(x.img,{now:at})).status,200,'within the documented bound an isolate may still answer from its memo');
+  h.clock.now+=1;
+  const gone=await viewer.image(x.img,{now:at});assert.equal(gone.status,451);assert.equal(await gone.text(),'Unavailable for legal reasons');
+  assert(IMAGE_CACHE.stateTtlMs<=60e3,'within a minute everywhere');
+ });
+});
+
+test('takedown: a moderator\'s hide, restore and delete act at once on both hosts; 304 and HEAD keep the check',{skip},async()=>{
+ const h=await harness();
+ await withCache(h.clock,async cache=>{
+  const x=await imagePost(h),viewer=h.browser('192.0.2.1');
+  await h.member('mod','moderator');const mod=h.browser('192.0.2.9','mod');
+  const warm=async()=>{for(const host of [PREVIEW,ORIGIN]){assert.equal((await page(h,host,x.postPath)).status,200);assert.equal((await view(viewer,x.img,{host})).status,200);}};
+  await warm();
+  // A browser revalidating gets a 304 without the bytes; HEAD answers without a body.
+  const nm=await viewer.image(x.img,{headers:{'if-none-match':`"${x.id}"`}});assert.equal(nm.status,304);assert.equal(nm.body,null);
+  const hd=await viewer.image(x.img,{method:'HEAD'});assert.equal(hd.status,200);assert.equal(await hd.text(),'');
+  const act=async action=>{const r=await mod.call('POST','/mod/action',{body:{target:`discussion:${x.postId}`,action,reason:'확인 절차'},host:PREVIEW});assert.equal(r.status,200,JSON.stringify(r.json));};
+  await act('hide');
+  for(const host of [PREVIEW,ORIGIN]){
+   assert(!cache.has(host+x.postPath)&&!cache.has(host+x.img),`purged under ${host}`);
+   assert.equal((await page(h,host,x.postPath)).status,404);
+   assert.equal((await viewer.image(x.img,{host})).status,404);assert.equal((await viewer.image(x.img+'?v=2',{host})).status,404);
+  }
+  assert.equal((await viewer.image(x.img,{headers:{'if-none-match':`"${x.id}"`}})).status,404,'no 304 for a hidden image');
+  assert.equal((await mod.image(x.img)).status,200,'moderators still see it');
+  await act('unhide');
+  for(const host of [PREVIEW,ORIGIN]){assert.equal((await page(h,host,x.postPath)).status,200,'restored at once');assert.equal((await viewer.image(x.img,{host})).status,200);}
+  await warm();
+  await act('delete');
+  for(const host of [PREVIEW,ORIGIN]){
+   assert(!cache.has(host+x.postPath)&&!cache.has(host+x.img),`purged under ${host}`);
+   assert.equal((await page(h,host,x.postPath)).status,404);
+   for(const path of [x.img,x.img+'?v=1'])assert.equal((await viewer.image(path,{host})).status,451,`${host}${path}`);
+  }
+ });
+});
+
+test('takedown: auto-hide after reports (a severe category at once) takes the image and the page down on both hosts',{skip},async()=>{
+ const h=await harness();
+ await withCache(h.clock,async cache=>{
+  const x=await imagePost(h),viewer=h.browser('192.0.2.1');
+  for(const host of [PREVIEW,ORIGIN]){await page(h,host,x.postPath);await view(viewer,x.img,{host});}
+  const r=await h.browser('198.51.100.20').call('POST','/flags',{body:{target:`discussion:${x.postId}`,reason:REPORT.severe[0]},host:PREVIEW});
+  assert.equal(r.json.hidden,true,JSON.stringify(r.json));
+  for(const host of [PREVIEW,ORIGIN]){
+   assert(!cache.has(host+x.postPath)&&!cache.has(host+x.img),`purged under ${host}`);
+   assert.equal((await page(h,host,x.postPath)).status,404);assert.equal((await viewer.image(x.img,{host})).status,404);
+  }
+ });
 });
 
 test('board display: anonymous "닉네임 (ID)" muted, members with ✓, the Radar bot with ⚙',()=>{

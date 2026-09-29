@@ -22,7 +22,7 @@ import {parseSubscription,vapidFromEnv} from '../push.js';
 import {trafficSummary,handleTraffic} from '../traffic.js';
 import {RUNNABLE,STATUS_ADAPTERS,collectorItems} from './admin-collectors.js';
 import {normalizePrefs,storedPrefs,adminSubscriptions,deliver,seoulDayStart,seoulDay,checkCollectorFailures,checkUsage,checkStatusStale,checkIncidents,checkFlagDigest,checkReviewDigest,checkNewUsers,DEFAULT_PREFS} from './admin-notify.js';
-import {modAction} from './api.js';
+import {modAction,cacheOrigins} from './api.js';
 import {describeChange} from '../../platform/change-text.js';
 import {channelUrl,nameOf} from '../../platform/render/ui.js';
 import {propertyDef} from '../../platform/verticals/index.js';
@@ -402,7 +402,7 @@ async function radar(c){
 /** @param {C} c @param {{vertical:string,slug:string}} e */
 async function purgeChannel(c,e){
  const cache=/** @type {any} */(globalThis).caches?.default;if(!cache)return;
- await Promise.all(['ko','en'].map(l=>cache.delete(new Request(c.origin+channelUrl(l,e))).catch(()=>false)));
+ await Promise.all(cacheOrigins(c.url,c.env,c.cfg).flatMap(o=>['ko','en'].map(l=>cache.delete(new Request(o+channelUrl(l,e))).catch(()=>false))));
 }
 /** @param {C} c @param {string} action @param {string} kind @param {string|number} id @param {string} reason @param {unknown} [meta] */
 const logAction=(c,action,kind,id,reason,meta={})=>c.db.prepare('INSERT INTO moderation_actions (actor_id,action,target_kind,target_id,reason,meta,created_at) VALUES (?,?,?,?,?,?,?)').bind(c.admin.user_id,action,kind,String(id),reason,JSON.stringify(meta),c.now);

@@ -687,7 +687,10 @@ def scenario_anon(browser):
     """PLATFORM build on the real Pages runtime with a local R2 bucket (binding UPLOADS) and Cloudflare's
     always-pass Turnstile testing keys: a signed-out reader uploads an image (the human check runs in the
     /verify/ frame), posts, comments; the image is served by the Worker without EXIF; a 개인정보 report hides
-    the post at once; a moderator restores it. Needs network access to challenges.cloudflare.com."""
+    the post at once; a moderator restores it; the author deletes it by password on another host name than
+    SITE_URL (localhost vs 127.0.0.1, like n2-preview.nerulio.pages.dev vs nerulio.pages.dev) and the post, its
+    board and its image stop being served at once under both hosts, cached copies and query strings included.
+    Needs network access to challenges.cloudflare.com."""
     port=PORT or free_port();origin=f'http://127.0.0.1:{port}'
     stack=Stack('anon',{'SITE_URL':origin,'PLATFORM':'on'},
                 {'SITE_URL':origin,'TURNSTILE_SITE_KEY':'1x00000000000000000000AA','TURNSTILE_SECRET_KEY':'1x0000000000000000000000000000000AA'},port=port,
@@ -717,7 +720,7 @@ def scenario_anon(browser):
         src=page.locator('.pbody img').get_attribute('src')
         img=urllib.request.urlopen(stack.url+src,timeout=20)
         body=img.read()
-        ok('anon: the image comes from the Worker on our origin: nosniff, inline, long cache, no EXIF/GPS',img.headers['X-Content-Type-Options']=='nosniff' and img.headers['Content-Disposition'].startswith('inline') and 'max-age=604800' in img.headers['Cache-Control'] and b'Exif' not in body and b'NeruCam' not in body,dict(img.headers))
+        ok('anon: the image comes from the Worker on our origin: nosniff, inline, a private one-hour cache, no EXIF/GPS',img.headers['X-Content-Type-Options']=='nosniff' and img.headers['Content-Disposition'].startswith('inline') and img.headers['Cache-Control']=='private, max-age=3600' and b'Exif' not in body and b'NeruCam' not in body,dict(img.headers))
         rows=stack.sql("SELECT author_id,anon_name,anon_pw,anon_net FROM discussions WHERE anon_name IS NOT NULL")
         ok('anon: stored as the anonymous account with a hashed password and a network key, no address',len(rows)==1 and rows[0]['author_id']=='anon' and rows[0]['anon_pw'].startswith('pbkdf2-sha256$100000$') and '127.0.0' not in json.dumps(rows),rows)
         page.fill('#comment-form textarea','유동 댓글');page.fill('#comment-form input[name=anonPassword]','c-pass')
@@ -736,7 +739,6 @@ def scenario_anon(browser):
         try:himg=urllib.request.urlopen(stack.url+src,timeout=20).status
         except urllib.error.HTTPError as e:himg=e.code
         ok('anon: a 개인정보 report hides the post and its image at once',hidden==404 and himg==404,(hidden,himg))
-        context.close()
         # a moderator restores it
         uid,token=create_user(stack,'e2e-mod')
         stack.sql(f"INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES ('{uid}','e2e모더','moderator',{now},{now});")
@@ -749,6 +751,33 @@ def scenario_anon(browser):
         row.locator('button',has_text='복구').click();mp.wait_for_timeout(2500)
         ok('anon: restored',urllib.request.urlopen(post,timeout=20).status==200)
         mc.close()
+        # The author deletes it by password on another host name than SITE_URL; every cached copy must go.
+        alt=f'http://localhost:{port}';post_path=post[len(stack.url):];board='/ko/ai/e2e-chat/'
+        def get(u):
+            try:
+                r=urllib.request.urlopen(u,timeout=20);return r.status,r.read().decode('utf-8','replace'),dict(r.headers)
+            except urllib.error.HTTPError as e:return e.code,'',dict(e.headers)
+        warm=[]
+        for base in (stack.url,alt):
+            for _ in range(2):w=[get(base+post_path),get(base+board),get(base+src),get(base+src+'?v=1')]
+            warm.append([x[0] for x in w]+['E2E 유동 사진 글' in w[1][1]])
+        ok('anon: before the delete the post, its board and its image are served under both hosts',warm==[[200,200,200,200,True]]*2,warm)
+        cached={base:get(base+post_path)[2].get('CF-Cache-Status') for base in (stack.url,alt)}
+        ok('anon: the post page is edge-cached under each host (the local Cache API is active)',all(v=='HIT' for v in cached.values()),cached)
+        for c in context.cookies():
+            if c['domain'] in ('127.0.0.1',''):context.add_cookies([{'name':c['name'],'value':c['value'],'url':alt}])
+        dp=context.new_page();context._nerulio_base=alt;instrument(dp,log);dp.on('dialog',lambda d:d.accept())
+        dp.goto(alt+post_path,wait_until='networkidle')
+        dp.locator('[data-anon-delete^="discussion:"]').click()
+        dp.locator('dialog.pw input').fill('e2e-pass');dp.locator('dialog.pw button[type=submit]').click()
+        dp.wait_for_url(re.compile(r'/ko/ai/e2e-chat/$'),timeout=60000)
+        rows=stack.sql(f"SELECT u.status,u.removed,d.status AS post FROM uploads u JOIN discussions d ON d.id=u.attached_id WHERE u.id='{src.split('/')[2]}'")
+        ok('anon: deleted by its password: the post is deleted and its image removed by the author',rows==[{'status':'deleted','removed':'author','post':'deleted'}],rows)
+        after={base:[get(base+post_path)[0],get(base+src)[0],get(base+src+'?v=1')[0],get(base+src.replace('/full.','/thumb.'))[0]] for base in (stack.url,alt)}
+        ok('anon: right after the delete the post and its image answer 404 under both hosts, query strings and variants too',all(v==[404,404,404,404] for v in after.values()),after)
+        boards={base:'E2E 유동 사진 글' in get(base+board)[1] for base in (stack.url,alt)}
+        ok('anon: the board no longer lists it under either host',not any(boards.values()),boards)
+        context.close()
     finally:stack.close()
 
 
@@ -836,8 +865,7 @@ def scenario_meteroff(browser):
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon').split(',')
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,traffic,meteroff').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,social,passkey,traffic,anon,meteroff').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)

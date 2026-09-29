@@ -8,6 +8,10 @@
  * - An upload belongs to its uploader (owner) until a post uses it; only images that are part of a visible
  *   post are served. Unattached uploads are deleted after a day; an image of a hidden post answers 404
  *   (moderators still see it, uncached), an image removed by a moderator 451.
+ * - Takedown: every request (cache hit or not, any query string) first checks the image's state in D1,
+ *   remembered in the isolate for at most IMAGE_CACHE.stateTtlMs, so a deleted or hidden image stops being
+ *   served everywhere within seconds; a purge (Cache API: one Cloudflare location only) is not needed for
+ *   that. The edge copy (Cache API) only saves the R2 read; browsers keep an image an hour, privately.
  * - Without the UPLOADS binding the API answers 503 NOT_CONFIGURED {need:'UPLOADS'} and the pages hide the
  *   image picker. */
 import {ApiError,json} from '../http.js';
@@ -18,10 +22,15 @@ import {ANON} from './anon.js';
 export const UPLOAD_PATH=/^\/u\/([a-z0-9]{8,64})\/(?:thumb|medium|full)\.(webp|png|jpg)$/;
 const IMAGE_REF=/!\[[^\]\n]{0,200}\]\(\/u\/([a-z0-9]{8,64})\/(?:thumb|medium|full)\.(?:webp|png|jpg)\)/g;
 const EXT=/** @type {Record<string,string>} */({'image/webp':'webp','image/png':'png','image/jpeg':'jpg'});
-/** Browsers keep a served image a week (an id never changes content); the edge copy (Cache API, s-maxage)
- * lives an hour, so an image of a post hidden later disappears from every Cloudflare location within the
- * hour even where the purge (Cache API: this location only) did not reach. */
-export const IMAGE_CACHE=Object.freeze({control:'public, max-age=604800, s-maxage=3600, immutable'});
+/** Caching of community images, chosen so a takedown is fast everywhere:
+ * - control: what browsers get. `private` keeps shared caches (proxies, a CDN rule) out of it; an hour is the
+ *   longest a viewer who already loaded an image keeps seeing it from their own cache (that copy cannot be
+ *   revoked). After the hour the browser revalidates with If-None-Match and gets a 304 without the bytes.
+ * - edge: the Worker's Cache API copy of the bytes (key: the request origin + /u/<id>/full.<ext>). It is never
+ *   served without the state check, so its lifetime only bounds how long removed bytes sit unserved.
+ * - stateTtlMs: how long an isolate trusts a "public" (or "deleted", which is final) answer from D1 before it
+ *   asks again: the worst case for an isolate that did not handle the takedown itself. */
+export const IMAGE_CACHE=Object.freeze({control:'private, max-age=3600',edge:'public, max-age=3600',stateTtlMs:10e3});
 
 /** @param {any} env */
 export const uploadsConfigured=env=>!!(env?.UPLOADS&&typeof env.UPLOADS.put==='function'&&typeof env.UPLOADS.get==='function');
@@ -105,11 +114,20 @@ export async function attachPlan(db,o){
  return {ids,statements,dropped};
 }
 
-/** Purge the edge copies of images (this Cloudflare location; the edge copy expires within the hour
- * everywhere else). @param {string} origin @param {string[]} ids */
-export async function purgeImages(origin,ids){
- const cache=/** @type {any} */(globalThis).caches?.default;if(!cache||!ids.length)return;
- await Promise.all(ids.flatMap(id=>['webp','png','jpg'].map(ext=>cache.delete(new Request(`${origin}/u/${id}/full.${ext}`)).catch(()=>false))));
+/** Where images and pages can sit in the Cache API: every origin the site answers on (the request's own,
+ * SITE_URL, the build's site URL). @param {string|string[]} origins */
+export const originList=origins=>[...new Set((Array.isArray(origins)?origins:[origins]).filter(Boolean))];
+/** Every cache key an image can have under the given origins (all variants and extensions; today only
+ * /u/<id>/full.<ext> is stored, older deployments stored the requested variant). @param {string|string[]} origins @param {string[]} ids */
+export const imageCacheKeys=(origins,ids)=>originList(origins).flatMap(o=>ids.flatMap(id=>['thumb','medium','full'].flatMap(v=>['webp','png','jpg'].map(ext=>`${o}/u/${id}/${v}.${ext}`))));
+/** Forget the images' remembered state in this isolate and purge their edge copies at this Cloudflare
+ * location, under every origin. Other isolates and locations re-check D1 within IMAGE_CACHE.stateTtlMs.
+ * @param {string|string[]} origins @param {string[]} ids */
+export async function purgeImages(origins,ids){
+ if(!ids.length)return;
+ for(const id of ids)stateMemo.delete(id);
+ const cache=/** @type {any} */(globalThis).caches?.default;if(!cache)return;
+ await Promise.all(imageCacheKeys(origins,ids).map(k=>cache.delete(new Request(k)).catch(()=>false)));
 }
 /** Images of a post or comment (for hide/restore/delete). @param {any} db @param {'discussion'|'comment'} kind @param {string} id
  * @returns {Promise<{id:string,r2_key:string,status:string,url:string,width:number,height:number}[]>} */
@@ -118,61 +136,97 @@ export async function imagesOf(db,kind,id){
   .map((/** @type {any} */ r)=>({id:String(r.id),r2_key:String(r.r2_key),status:String(r.status),url:`/u/${r.id}/full.${EXT[String(r.mime)]||'webp'}`,width:Number(r.width),height:Number(r.height)}));
 }
 /** Delete image bytes from R2 and mark the rows deleted. removed: author | mod | expired.
- * @param {any} env @param {any} db @param {{id:string,r2_key:string}[]} list @param {string} removed @param {string} origin */
-export async function deleteImages(env,db,list,removed,origin){
+ * @param {any} env @param {any} db @param {{id:string,r2_key:string}[]} list @param {string} removed @param {string|string[]} origins */
+export async function deleteImages(env,db,list,removed,origins){
  if(!list.length)return;
  if(uploadsConfigured(env))await env.UPLOADS.delete(list.map(x=>x.r2_key)).catch(()=>Promise.all(list.map(x=>env.UPLOADS.delete(x.r2_key).catch(()=>{}))));
  await db.prepare(`UPDATE uploads SET status='deleted',removed=? WHERE id IN (${list.map(()=>'?').join(',')})`).bind(removed,...list.map(x=>x.id)).run();
- await purgeImages(origin,list.map(x=>x.id));
+ await purgeImages(origins,list.map(x=>x.id));
 }
 /** Uploads nobody used within a day: bytes deleted, rows marked expired (a few per run).
- * @param {any} env @param {any} db @param {number} now @param {string} origin */
-export async function expireUnattached(env,db,now,origin){
+ * @param {any} env @param {any} db @param {number} now @param {string|string[]} origins */
+export async function expireUnattached(env,db,now,origins){
  if(!uploadsConfigured(env))return;
  const rows=((await db.prepare("SELECT id,r2_key FROM uploads WHERE attached_id IS NULL AND status='active' AND purpose='community' AND created_at<? LIMIT 50").bind(now-864e5).all()).results||[]);
- await deleteImages(env,db,rows.map((/** @type {any} */ r)=>({id:String(r.id),r2_key:String(r.r2_key)})),'expired',origin);
+ await deleteImages(env,db,rows.map((/** @type {any} */ r)=>({id:String(r.id),r2_key:String(r.r2_key)})),'expired',origins);
 }
 
 const IMAGE_HEADERS=Object.freeze({'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",'cross-origin-resource-policy':'same-origin','referrer-policy':'no-referrer'});
 /** @param {number} status @param {string} [cache] */
-const refuse=(status,cache='public, max-age=60')=>new Response(status===451?'Unavailable for legal reasons':'Not found',{status,headers:{...IMAGE_HEADERS,'content-type':'text/plain; charset=utf-8','cache-control':cache}});
+const refuse=(status,cache='no-store')=>new Response(status===451?'Unavailable for legal reasons':'Not found',{status,headers:{...IMAGE_HEADERS,'content-type':'text/plain; charset=utf-8','cache-control':cache}});
+
+/** @typedef {{id:string,r2_key:string,mime:string,status:string,removed:string|null,attached_id:string|null,parent:string|null}} ImageRow */
+/** An image's state per id, remembered in this isolate. Only answers that cannot surprise a viewer are kept
+ * (public, and deleted, which is final); hidden, unattached and unknown ids are asked every time, so a
+ * restore or a fresh post shows at once. @type {Map<string,{at:number,row:ImageRow}>} */
+const stateMemo=new Map();
+export const resetImageStateCache=()=>stateMemo.clear();
+/** @param {ImageRow} r */
+const isPublic=r=>r.status==='active'&&r.attached_id!=null&&(r.parent==='published'||r.parent==='locked');
+/** @param {any} db @param {string} id @param {number} now @returns {Promise<ImageRow|null>} */
+async function imageState(db,id,now){
+ const hit=stateMemo.get(id);
+ if(hit&&now>=hit.at&&now-hit.at<IMAGE_CACHE.stateTtlMs)return hit.row;
+ const r=await db.prepare(`SELECT u.id,u.r2_key,u.mime,u.status,u.removed,u.attached_id,
+  CASE u.attached_kind WHEN 'discussion' THEN (SELECT status FROM discussions WHERE id=u.attached_id)
+   WHEN 'comment' THEN (SELECT CASE WHEN c.status='published' AND d.status IN ('published','locked') THEN 'published' ELSE 'hidden' END FROM comments c JOIN discussions d ON d.id=c.discussion_id WHERE c.id=u.attached_id) END AS parent
+  FROM uploads u WHERE u.id=?`).bind(id).first();
+ if(!r){stateMemo.delete(id);return null;}
+ /** @type {ImageRow} */
+ const row={id:String(r.id),r2_key:String(r.r2_key),mime:String(r.mime),status:String(r.status),removed:r.removed==null?null:String(r.removed),attached_id:r.attached_id==null?null:String(r.attached_id),parent:r.parent==null?null:String(r.parent)};
+ if(isPublic(row)||row.status==='deleted'){
+  if(stateMemo.size>=5000)stateMemo.clear();
+  stateMemo.set(id,{at:now,row});
+ }else stateMemo.delete(id);
+ return row;
+}
 
 /**
- * GET/HEAD /u/<id>/full.<ext>. `isModerator` is asked only for an image that is not public (hidden post),
- * so ordinary views never read the session. @param {Request} request @param {any} env @param {any} ctx
- * @param {{isModerator?:()=>Promise<boolean>}} [o] @returns {Promise<Response|null>}
+ * GET/HEAD /u/<id>/{thumb,medium,full}.<ext>. The image's state is checked on every request before the edge
+ * copy is used, so neither a query string nor a cached copy ever serves a removed image. `isModerator` is
+ * asked only for an image that is not public (hidden post), so ordinary views never read the session.
+ * @param {Request} request @param {any} env @param {any} ctx
+ * @param {{isModerator?:()=>Promise<boolean>,now?:()=>number}} [o] @returns {Promise<Response|null>}
  */
 export async function serveUpload(request,env,ctx,o={}){
  const url=new URL(request.url),m=UPLOAD_PATH.exec(url.pathname);
  if(!m)return null;
  if(request.method!=='GET'&&request.method!=='HEAD')return new Response(null,{status:405,headers:{allow:'GET, HEAD'}});
  if(!uploadsConfigured(env)||!env.DB)return refuse(404);
- const cache=/** @type {any} */(globalThis).caches?.default,key=new Request(url.origin+url.pathname);
- const hit=cache?await cache.match(key):null;
- if(hit)return hit;
- const row=await env.DB.prepare(`SELECT u.id,u.r2_key,u.mime,u.status,u.removed,u.attached_kind,u.attached_id,
-  CASE u.attached_kind WHEN 'discussion' THEN (SELECT status FROM discussions WHERE id=u.attached_id)
-   WHEN 'comment' THEN (SELECT CASE WHEN c.status='published' AND d.status IN ('published','locked') THEN 'published' ELSE 'hidden' END FROM comments c JOIN discussions d ON d.id=c.discussion_id WHERE c.id=u.attached_id) END AS parent
-  FROM uploads u WHERE u.id=?`).bind(m[1]).first();
- if(!row||EXT[String(row.mime)]!==m[2])return refuse(404);
- if(row.status==='deleted')return refuse(row.removed==='mod'?451:404);
- const visible=row.status==='active'&&row.attached_id!=null&&(row.parent==='published'||row.parent==='locked');
+ const row=await imageState(env.DB,m[1],(o.now||Date.now)());
+ // An id that never existed (or the wrong extension) never becomes an image: that answer may be cached briefly.
+ if(!row||EXT[row.mime]!==m[2])return refuse(404,'public, max-age=60');
+ if(row.status==='deleted')return row.removed==='mod'?refuse(451,'public, max-age=300'):refuse(404);
  let privateView=false;
- if(!visible){
+ if(!isPublic(row)){
   // Hidden (임시조치) images stay visible to moderators so they can judge them; never cached.
-  if(row.status==='deleted'||!o.isModerator||!(await o.isModerator()))return refuse(404,'no-store');
+  if(!o.isModerator||!(await o.isModerator()))return refuse(404);
   privateView=true;
  }
- const obj=await env.UPLOADS.get(String(row.r2_key));
- if(!obj)return refuse(404);
- const body=request.method==='HEAD'?null:(obj.body??await obj.arrayBuffer());
- const headers={...IMAGE_HEADERS,'content-type':String(row.mime),'content-disposition':`inline; filename="${row.id}.${m[2]}"`,etag:`"${row.id}"`,
-  'cache-control':privateView?'private, no-store':IMAGE_CACHE.control,...(obj.size!=null?{'content-length':String(obj.size)}:{})};
- const res=new Response(body,{headers});
- if(!privateView&&cache&&request.method==='GET'){
-  const p=cache.put(key,res.clone()).catch(()=>{});ctx?.waitUntil?.(p);
+ const etag=`"${row.id}"`;
+ const headers=/** @type {Record<string,string>} */({...IMAGE_HEADERS,'content-type':row.mime,'content-disposition':`inline; filename="${row.id}.${m[2]}"`,etag,
+  'cache-control':privateView?'private, no-store':IMAGE_CACHE.control});
+ // The bytes of an id never change: a browser revalidating a public image gets a 304 without them.
+ if(!privateView&&(request.headers.get('if-none-match')||'').split(',').map(v=>v.trim().replace(/^W\//,'')).includes(etag))return new Response(null,{status:304,headers});
+ const cache=privateView?null:/** @type {any} */(globalThis).caches?.default;
+ // One edge copy per image and origin, whatever variant or query string was asked for.
+ const key=new Request(`${url.origin}/u/${row.id}/full.${m[2]}`);
+ const hit=cache?await cache.match(key).catch(()=>null):null;
+ if(hit){
+  const len=hit.headers.get('content-length');
+  if(request.method==='HEAD')await hit.body?.cancel?.().catch(()=>{});
+  return new Response(request.method==='HEAD'?null:hit.body,{headers:{...headers,...(len?{'content-length':len}:{})}});
  }
- return res;
+ const obj=await env.UPLOADS.get(row.r2_key);
+ if(!obj)return refuse(404);
+ if(obj.size!=null)headers['content-length']=String(obj.size);
+ if(request.method==='HEAD'){await obj.body?.cancel?.().catch(()=>{});return new Response(null,{headers});}
+ const body=obj.body??await obj.arrayBuffer();
+ if(!cache)return new Response(body,{headers});
+ // The edge copy carries its own lifetime (IMAGE_CACHE.edge); what a browser gets is decided above.
+ const edge=new Response(body,{headers:{...headers,'cache-control':IMAGE_CACHE.edge}}),res=edge.clone();
+ const p=cache.put(key,edge).catch(()=>{});ctx?.waitUntil?.(p);
+ return new Response(res.body,{headers});
 }
 
 /** Response for a successful upload. @param {Awaited<ReturnType<typeof storeUpload>>} r @param {string[]} cookies */
