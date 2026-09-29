@@ -2,9 +2,10 @@
 /** Community front (/{l}/community/): best posts across channels (tab per vertical), what is
  * changing now (Radar bot news posts, or Radar changes before any post exists), new reports,
  * unanswered questions; sign-in, popular channels and tools on the right. */
-import {html} from './html.js';
+import {html,raw} from './html.js';
 import {t} from './strings.js';
 import {page,box,nameOf,channelUrl,postUrl,frontUrl,kindChip,monogram,TILE,badge,signInUrl} from './ui.js';
+import {buttonsHTML} from '../../src/signin-brands.js';
 import {boardTime,compact,collapseVersions} from './format.js';
 import {frontPosts,activeChannels,radarChanges,recentVersions,upcomingEvents} from '../db/channel.js';
 import {dday,eventTime} from './format.js';
@@ -30,7 +31,7 @@ export async function loadFront(db,o){
  return {l:o.l,now:o.now,vertical,best,news,changes,reports,questions,popular,releases,upcoming,channels:o.channels||[]};
 }
 
-/** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string}} site */
+/** @param {Awaited<ReturnType<typeof loadFront>>} m @param {{origin:string,providers?:string[]}} site */
 export function renderFront(m,site){
  const {l,now}=m,s=t(l),base=frontUrl(l);
  const chName=(/** @type {any} */ p)=>p.entity?html`<a class="chn" href="${channelUrl(l,p.entity)}">${nameOf(p.entity,l)}</a>`:'';
@@ -39,7 +40,7 @@ export function renderFront(m,site){
  const radar=box({title:s.changingNow,note:html`<a href="/${l}/radar/">${s.radar} ›</a>`},m.news.length?html`<ol class="plist">${m.news.map(p=>html`<li class="lr"><span class="fine">${boardTime(p.created_at,now,l)}</span><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip('news',l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="fine">⚙</span></li>`)}</ol>`
   :m.changes.length?html`<ol class="plist">${m.changes.map(c=>{const d=describeChange(c,{name:nameOf(c.entity,l)},/** @type {'ko'|'en'} */(l));return html`<li class="lr"><span class="fine">${boardTime(c.detected_at,now,l)}</span><a class="tt" href="${channelUrl(l,c.entity)}">${d.title}${d.detail?` — ${d.detail}`:''}</a><a class="chn" href="${channelUrl(l,c.entity)}">${nameOf(c.entity,l)}</a><span class="fine" title="${l==='ko'?'공식·자동 감지':'official / auto-detected'}">⚙ ${l==='ko'?'자동':'auto'}</span></li>`;})}</ol>`:html`<p class="empty">${s.frontEmpty}</p>`);
  const small=(/** @type {string} */ title,/** @type {typeof m.reports} */ list)=>box({title},list.length?html`<ol class="rows">${list.map(p=>html`<li><a class="tt" href="${p.entity?postUrl(l,p.entity,p.post_no):'#'}">${kindChip(p.kind,l)}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}</a>${chName(p)}<span class="fine">${boardTime(p.created_at,now,l)}</span></li>`)}</ol>`:html`<p class="empty">${s.frontEmpty}</p>`);
- const side=html`<section class="box login" data-island="account"><b>${s.loginTitle}</b><span class="fine">${s.loginNote}</span><a class="btn" href="${signInUrl(base)}" rel="nofollow">${s.continueWith('Google')}</a></section>
+ const side=html`<section class="box login" data-island="account"><b>${s.loginTitle}</b><span class="fine">${s.loginNote}</span>${site.providers?.length?raw(buttonsHTML(site.providers,l,base)):html`<a class="btn" href="${signInUrl(base)}" rel="nofollow" data-signin>${s.login}</a>`}</section>
 ${box({title:s.popularChannels},m.popular.length?html`<ol class="rows">${m.popular.map((c,i)=>html`<li><span class="rank">${i+1}</span><span class="tile sm ${TILE[c.entity.vertical]||''}" aria-hidden="true">${monogram(c.entity,l)}</span><a class="tt" href="${channelUrl(l,c.entity)}">${nameOf(c.entity,l)}</a><span class="fine">${compact(c.posts,l)}</span></li>`)}</ol>`:html`<ol class="rows">${m.channels.map(c=>html`<li><a class="tt" href="${c.href}">${c.name}</a></li>`)}</ol>`)}
 ${box({title:l==='ko'?'분야별 채널':'Channels by area'},html`<ul class="rows">${VERTICALS.map(v=>html`<li class="vtl"><a class="tt" href="/${l}/${v}/">${label(/** @type {any} */(verticalOf(v)).label,l)}</a><span class="fine">${label(/** @type {any} */(verticalOf(v)).tagline,l)}</span></li>`)}</ul>`)}
 ${box({title:s.toolsBox,note:html`<a href="/${l}/">${l==='ko'?'전체 ›':'All ›'}</a>`},html`<div class="toolsg"><a href="/${l}/image/compress/">${l==='ko'?'이미지 압축':'Compress images'}</a><a href="/${l}/game/sprite-lab/">${l==='ko'?'스프라이트 랩':'Sprite Lab'}</a><a href="/${l}/game/pixel-lab/">${l==='ko'?'픽셀 랩':'Pixel Lab'}</a><a href="/${l}/game/tile-lab/">${l==='ko'?'타일 랩':'Tile Lab'}</a></div>`)}`;

@@ -46,7 +46,8 @@ export function parseCookies(header){
  }
  return out;
 }
-/** HttpOnly + SameSite=Lax + Path=/ by default; Secure except on plain-http localhost dev. */
+/** HttpOnly + SameSite=Lax + Path=/ by default; Secure except on plain-http localhost dev.
+ * @param {string} name @param {string} value @param {{maxAge?:number,path?:string,secure?:boolean,httpOnly?:boolean}} [options] */
 export function cookie(name,value,{maxAge,path='/',secure=true,httpOnly=true}={}){
  return [`${name}=${value}`,`Path=${path}`,maxAge!==undefined&&`Max-Age=${Math.max(0,Math.floor(maxAge))}`,httpOnly&&'HttpOnly',secure&&'Secure','SameSite=Lax'].filter(Boolean).join('; ');
 }

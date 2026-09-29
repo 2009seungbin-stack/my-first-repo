@@ -44,10 +44,12 @@ Billing provider ── 서명된 webhook → /api/v1/billing/webhook → subscr
 | Method | Path | 설명 |
 | --- | --- | --- |
 | GET | `/health` | 구성 여부(boolean)만. secret·사유 문자열 없음 |
-| GET | `/me` | `{loggedIn, plan, ads, usage, user?, subscription?, billing:{mode}, turnstileSiteKey}` |
+| GET | `/me` | `{loggedIn, plan, ads, usage, user?, subscription?, billing:{mode}, providers, turnstileSiteKey}` (`providers` = 설정된 로그인 제공자) |
 | GET | `/usage` | 오늘 사용량 |
 | POST | `/jobs/authorize` | `{operationId(UUID), toolId, turnstileToken?}` → 허용 시 `{allowed:true, used, limit, remaining, resetAt}`; 한도 초과 시 HTTP 429 `{allowed:false, reason:"daily_limit", resetAt, error:{code:"DAILY_LIMIT"}}` |
-| GET | `/auth/google/start`, `/auth/google/callback` | Google OIDC |
+| GET | `/auth/{google,github,discord}/start`, `…/callback` | 로그인 제공자 (docs/AUTH.md). `start?link=1`은 로그인한 계정에 연결 |
+| GET | `/auth/identities` | 연결된 로그인 수단 (로그인 필요) |
+| POST | `/auth/unlink` | `{provider}` 연결 해제 (다른 수단이 남을 때만) |
 | POST | `/auth/logout` | 서버 세션 삭제 |
 | POST | `/billing/checkout`, `/billing/portal` | 로그인 필요 |
 | POST | `/billing/webhook` | 결제사 서명 검증 후 처리 (origin 검사 없음) |

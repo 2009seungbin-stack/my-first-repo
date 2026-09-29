@@ -22,7 +22,8 @@ def launch(p):
     return p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
 
 def main():
-    proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # GitHub and Discord sign-in buttons are shown (placeholder credentials; the round trip is in service-browser.py).
+    proc = subprocess.Popen(['node', 'tools/platform/dev-server.mjs', str(PORT)], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env={**os.environ, 'DEV_SIGNIN_PROVIDERS': 'github,discord'})
     errors = []
     try:
         wait_up(proc)
@@ -34,6 +35,16 @@ def main():
             pg.on('dialog', lambda d: d.accept())
             pg.goto(B + '/ko/ai/claude/'); pg.wait_for_timeout(600)
             assert pg.locator('[data-island=follow] button').first.inner_text() == '구독'
+            # Signed out: 구독 opens the sign-in sheet (configured providers only) instead of leaving the page.
+            pg.locator('[data-island=follow] button').first.click()
+            sheet = pg.locator('dialog#n2-signin'); sheet.wait_for(state='visible', timeout=5000)
+            assert [sheet.locator('.sib').nth(i).get_attribute('data-provider') for i in range(sheet.locator('.sib').count())] == ['github', 'discord'], 'GitHub then Discord, no Google'
+            assert sheet.locator('.sib-github').get_attribute('href') == '/api/v1/auth/github/start?return=%2Fko%2Fai%2Fclaude%2F'
+            assert sheet.locator('.sib-discord').inner_text().strip() == 'Discord로 계속하기'
+            sheet.locator('button.x').click(); pg.wait_for_timeout(200)
+            assert not sheet.is_visible(), 'the sheet closes'
+            pg.goto(B + '/ko/community/'); pg.wait_for_timeout(400)
+            assert pg.locator('.box.login .sib').count() == 2, 'front page box: branded buttons'
             pg.goto(B + '/__dev/login?as=e2e&next=/ko/ai/claude/'); pg.wait_for_timeout(600)
             assert pg.locator('.hd [data-island=account]').inner_text().startswith('user-')
             pg.locator('[data-island=follow] button').first.click(); pg.wait_for_timeout(500)

@@ -22,6 +22,7 @@ import {typeDef,propertyDef} from '../../platform/verticals/index.js';
 import {handleAdminApi,isAdminRoute} from './admin.js';
 import {notifyNewFlag} from './admin-notify.js';
 import {handleHit} from '../traffic.js';
+import {configuredProviders} from '../oauth/providers.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
@@ -41,7 +42,22 @@ function only(body,allowed){for(const k of Object.keys(body))if(!allowed.include
 
 /** Until a member picks a nickname: "user-" + the first characters of the account id. @param {string} id */
 export const defaultNickname=id=>`user-${String(id).replace(/[^A-Za-z0-9]/g,'').slice(0,6).toLowerCase()}`;
-/** Public nickname: never the Google account name. Created on first write. @param {any} db @param {any} user @param {number} now */
+/** Reserved: staff-looking names and the "user-xxxxxx" form every new account starts with. @param {string} name */
+export const reservedNickname=name=>/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name);
+/** A nickname to offer a member who still has the automatic one: the handle of their GitHub or Discord
+ * account (a public handle there; never a Google or display name, which can be a legal name). It is only
+ * pre-filled in the 내 정보 form; nothing is published until the member saves it. Null when the handle
+ * breaks the nickname rules or someone already uses it. @param {any} db @param {string} userId */
+export async function nicknameSuggestion(db,userId){
+ let row=null;
+ // A deployment whose D1 has not had 0011 applied yet simply offers nothing.
+ try{row=await db.prepare("SELECT handle FROM user_identities WHERE user_id=? AND handle IS NOT NULL AND provider IN ('github','discord') ORDER BY COALESCE(last_login_at,created_at) DESC LIMIT 1").bind(userId).first();}catch{return null;}
+ const name=typeof row?.handle==='string'?row.handle.trim():'';
+ if([...name].length<LIMITS.nickname[0]||[...name].length>LIMITS.nickname[1]||reservedNickname(name))return null;
+ const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?) AND user_id<>?').bind(name,userId).first();
+ return taken?null:name;
+}
+/** Public nickname: never the provider account's name. Created on first write. @param {any} db @param {any} user @param {number} now */
 export async function ensureProfile(db,user,now){
  const row=await db.prepare('SELECT user_id,display_name,tier,role,banned_at,restricted_until FROM user_profiles WHERE user_id=?').bind(user.id).first();
  if(row)return row;
@@ -108,7 +124,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
   const done=(/** @type {any} */ body,status=200)=>json(body,status,{'Set-Cookie':context.setCookies});
   const origin=cfg.siteOrigin||url.origin;
   // Reads (anonymous allowed).
-  if(key==='GET /state')return done(await state(db,context,url.searchParams));
+  if(key==='GET /state')return done({...await state(db,context,url.searchParams),providers:configuredProviders(cfg)});
   if(key==='GET /new-posts'){
    const e=await entity(db,String(url.searchParams.get('entity')||''));
    const after=Number(url.searchParams.get('after'))||0;
@@ -161,8 +177,7 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
    case 'POST /profile':{
     only(body,['displayName']);
     const name=text(body.displayName,LIMITS.nickname,'displayName');
-    // Reserved: staff-looking names and the "user-xxxxxx" form every new account starts with.
-    if(/^(레이더봇|radar ?bot|운영자|관리자|admin|nerulio)/i.test(name)||/^user-[a-z0-9]{1,12}$/i.test(name))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'displayName'});
+    if(reservedNickname(name))throw new ApiError('BAD_REQUEST','This nickname is reserved.',{field:'displayName'});
     await limit('profile',5);
     const taken=await db.prepare('SELECT 1 FROM user_profiles WHERE lower(display_name)=lower(?) AND user_id<>?').bind(name,context.user.id).first();
     if(taken)throw new ApiError('OPERATION_CONFLICT','This nickname is taken.',{field:'displayName'});
@@ -362,6 +377,7 @@ async function state(db,context,q){
  if(!user)return out;
  const p=await db.prepare('SELECT display_name,tier FROM user_profiles WHERE user_id=?').bind(user.id).first();
  out.user={name:p?.display_name||defaultNickname(user.id),tier:p?.tier||'new'};
+ if(/^user-[0-9a-z]{1,6}$/.test(out.user.name)){const suggest=await nicknameSuggestion(db,user.id);if(suggest)out.user.suggest=suggest;}
  const entityId=q.get('entity');
  if(entityId&&ENTITY_ID.test(entityId)){
   out.following=!!(await db.prepare('SELECT 1 FROM follows WHERE user_id=? AND entity_id=?').bind(user.id,entityId).first());

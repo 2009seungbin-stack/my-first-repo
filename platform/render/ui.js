@@ -18,8 +18,10 @@ export const channelUrl=(l,e)=>`/${l}/${e.vertical}/${e.slug}/`;
 /** @param {string} l @param {{vertical:string,slug:string}} e @param {number} no */
 export const postUrl=(l,e,no)=>`${channelUrl(l,e)}${no}`;
 export const frontUrl=(/** @type {string} */ l)=>`/${l}/community/`;
-/** Google sign-in that comes back to `path` (server/auth-google.js safeReturnPath). @param {string} path */
-export const signInUrl=path=>`/api/v1/auth/google/start?return=${encodeURIComponent(path)}`;
+/** The sign-in chooser (the account page lists the configured providers: Google, GitHub, Discord) that
+ * comes back to `path` (server/oauth/flow.js safeReturnPath). Links carry data-signin so the islands can
+ * open the sign-in sheet in place instead. @param {string} path */
+export const signInUrl=path=>`/${/^\/(ko|en|ja)\//.exec(path)?.[1]||'ko'}/account/?return=${encodeURIComponent(path)}`;
 
 /** Two-letter tile for a channel without an image ("C", "5070", "GX"). @param {Entity} e @param {string} l */
 export function monogram(e,l){
@@ -108,7 +110,7 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <a class="brand" href="${frontUrl(o.l)}">${LOGO}<span>Nerulio</span></a>
 <form class="hq" role="search" action="/${o.l}/search/" method="get"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>${o.scope?html`<input type="hidden" name="in" value="${o.scope.id}"><span class="qchip" title="${o.scope.name}"><span class="qn">${o.scope.name}</span><button type="button" class="qx" data-unscope aria-label="${o.l==='ko'?'전체에서 검색':'Search everywhere'}">×</button></span>`:''}<input type="search" name="q" placeholder="${o.scope?s.searchIn(o.scope.name):s.search}" aria-label="${o.scope?s.searchIn(o.scope.name):s.search}"></form>
 <nav class="hn" aria-label="Nerulio"><a class="hb" href="/${o.l}/radar/">${s.radar}</a><a class="hb tl" href="/${o.l}/">${s.tools}</a></nav>
-<div class="hu" data-island="account"><a class="hb solid" href="/${o.l}/account/">${s.login}</a></div>
+<div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>
 </div></header>
 <nav class="chbar" aria-label="${s.allChannels}"><div class="w cr" data-island="channel-bar">
 <a href="${frontUrl(o.l)}"${o.homeOn?html` class="on" aria-current="page"`:''}>${s.home}</a><a href="${frontUrl(o.l)}best/">${s.allBest}</a><span class="sep" aria-hidden="true"></span>

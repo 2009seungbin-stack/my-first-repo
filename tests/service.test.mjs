@@ -95,7 +95,7 @@ test('anonymous identity: secure random cookie issued once, then reused',{skip},
  // No database rows exist for an anonymous visitor who never ran a heavy job.
  assert.equal(h.db.raw.prepare('SELECT COUNT(*) n FROM daily_usage').get().n,0);
  const {grace,...rest}=first.json;
- assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},turnstileSiteKey:''});
+ assert.deepEqual(rest,{loggedIn:false,plan:'free',ads:true,usage:{used:0,limit:30,remaining:30,resetAt:new Date(Date.UTC(2026,8,22)).toISOString()},studioUsage:{used:0,limit:3,remaining:3,resetAt:new Date(Date.UTC(2026,8,22)).toISOString(),signInLimit:10,signInRequired:false},billing:{mode:'off',yearly:false},providers:[],turnstileSiteKey:''});
  // Signed offline allowance: none before the identity's first counted job of the day…
  assert.equal(grace.day,'2026-09-21');assert.deepEqual([grace.heavy,grace.studio],[[],[]]);
  await h.authorize('studio-pack-export');
