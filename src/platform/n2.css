@@ -10,7 +10,7 @@
  --ok:#166534;--ok-bg:#dcfce7;--warn:#a14a04;--warn-bg:#fef3c7;--bad:#b42828;--bad-bg:#fdecec;--est:#3346a6;--est-bg:#f3f5ff;
  --t-ai:#fff1e6;--t-ai-ink:#b4520a;--t-games:#e6f5ec;--t-games-ink:#17683a;--t-hw:#fff6d6;--t-hw-ink:#835c00;--t-studio:#eaf0ff;--t-studio-ink:#2f56c9;--t-sub:#f2ecff;--t-sub-ink:#6a3fcf;
  --bot-bg:#fffcf6;--news-bg:#fff1e6;--news-ink:#b4520a;--vio-bg:#f1eefe;--vio-ink:#5b3fc4;--soon-bg:#fdeef4;--soon-ink:#b0245e;--gold:#e3b75c;--gold-line:#e3c27f;--chip-ink:#5a6577;--partial-bg:#fff1d6;--btn-line:#d6dacf;
- --rail:#eceee8;--panel:#fff;--hover:#f1f3ed;--soft:#f1f2ee;--scrim:rgba(21,23,26,.42);
+ --page:#fff;--rail:#eceee8;--panel:#fff;--hover:#f1f3ed;--soft:#f1f2ee;--scrim:rgba(21,23,26,.42);
  color-scheme:light;
 }
 :root[data-theme="dark"]{
@@ -19,7 +19,7 @@
  --ok:#4ade80;--ok-bg:#123020;--warn:#ffb35c;--warn-bg:#3a2410;--bad:#f07474;--bad-bg:#3a1b1b;--est:#9fb0ff;--est-bg:#1c2140;
  --t-ai:#2a1f14;--t-ai-ink:#ffb67a;--t-games:#12291c;--t-games-ink:#6ee7a0;--t-hw:#2a2210;--t-hw-ink:#ffd166;--t-studio:#151e36;--t-studio-ink:#8fb0ff;--t-sub:#241a36;--t-sub-ink:#c4a8ff;
  --bot-bg:#221f17;--news-bg:#2a1f14;--news-ink:#ffb67a;--vio-bg:#241a36;--vio-ink:#c4a8ff;--soon-bg:#3a1f2b;--soon-ink:#f08bb3;--gold:#b98a2e;--gold-line:#6b5626;--chip-ink:#c3cad6;--partial-bg:#33270f;--btn-line:#343945;
- --rail:#0b0c10;--panel:#16181d;--hover:#1d2026;--soft:#23262e;--scrim:rgba(5,6,8,.62);
+ --page:#0f1115;--rail:#0b0c10;--panel:#16181d;--hover:#1d2026;--soft:#23262e;--scrim:rgba(5,6,8,.62);
  color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -757,3 +757,70 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .stna{display:flex;gap:6px;flex-wrap:wrap}
 /* the narrowest phones (≤400px): tighter top bar, icon-only 글쓰기 on the feed tabs */
 @media (max-width:400px){.top{padding:0 8px;gap:0}.top .brand{font-size:16px;gap:6px}.top .brand svg{width:26px;height:26px}.hu .hb.solid{padding:0 10px;font-size:13px}.feedtabs a{padding:0 9px}.feedtabs .btn.p span{display:none}.feedtabs .btn.p{width:40px;padding:0;justify-content:center}}
+
+/* v5 (2026-09-29, owner: "색 블록 말고 레딧처럼 선으로 구분"): one white page. The menu, the feed, the right
+   column, the post and the profile sit on the page itself and are divided by 1px lines — no filled or bordered
+   cards. Pills (votes, comments, sort) stay as the only filled shapes. */
+body.n2{background:var(--page)}
+.rail,.lnav,.chbar{background:var(--page)}
+.top{background:color-mix(in srgb,var(--page) 92%,transparent)}
+.hq{background:var(--soft);border-color:transparent;border-radius:999px}
+.thm{border-color:transparent;background:none;border-radius:50%}
+.hb{border-radius:999px}
+/* feed: rows between lines, a soft highlight on hover */
+.feed{gap:0}
+.feed>li+li{border-top:1px solid var(--line)}
+.fc{background:none;border:0;border-radius:12px;padding:12px 14px;margin:4px 0}
+.fc:hover{background:var(--hover)}
+.fti{font-size:17px}
+.fa{gap:6px}
+.fa .up,.fa .cm{height:32px;padding:0 12px;border-radius:999px;background:var(--soft);color:var(--ink)}
+.fa .up{color:var(--ink)}
+.n2 .fa .cm:hover{text-decoration:none;background:var(--line)}
+.fa .ftag{margin-left:4px}
+.feedtabs{border-bottom-color:var(--line)}
+/* right column: sections one under another, divided by lines */
+.rrail{gap:0}
+.rbox,.side .box.login{background:none;border:0;border-radius:0;padding:16px 4px;border-bottom:1px solid var(--line)}
+.rrail .rbox:first-child{padding-top:4px}
+.side{gap:0}
+.side .box.login{padding-top:4px}
+.svc{gap:2px}
+.svr{background:none;padding:0 8px;border-radius:8px}
+.n2 .svr:hover{background:var(--hover)}
+.nb{height:32px;border-radius:999px;align-self:center}
+.rfoot{padding:16px 4px 0}
+.msc{border-radius:12px;background:none}
+/* post: no card, the thread on the page */
+.postv .box{background:none;border:0;border-radius:0}
+.postv .box+.box{border-top:1px solid var(--line)}
+.post .ph1{padding:8px 4px 12px;border-bottom:0}
+.pbody{padding:4px 4px 12px}
+.vote{padding:4px 4px 6px;gap:8px}
+.vote button{height:36px;min-width:0;padding:0 14px;border-radius:999px;border:0;background:var(--soft);font-size:13px;color:var(--ink)}
+.vote .up{border:0;background:var(--soft);color:var(--ink)}.vote .up b{color:var(--ink)}
+.vote button.on{background:var(--accent);color:var(--on-accent)}
+.vote button b{font-size:14px}
+.pact{padding:6px 4px 16px}
+.pact .btn{border-radius:999px;border:0;background:var(--soft)}
+.cmh{padding:16px 4px 10px;border-bottom:0}
+.cform{padding:4px 4px 14px;border-bottom:0}
+.cform textarea{border-radius:20px;padding:10px 16px;min-height:44px}
+.co{padding:10px 4px;border-bottom:0}
+.co.re{padding-left:40px}.co.re::before{left:17px;width:1px}
+.postv .plist{border-top:1px solid var(--line)}
+@media (max-width:640px){.post .ph1,.pbody,.vote,.pact,.cmh,.cform,.co{padding-left:0;padding-right:0}.co.re{padding-left:32px}.co.re::before{left:13px}}
+/* profile */
+.prof-page .box{background:none;border:0;border-radius:0}
+.prof .pban{border-radius:12px}
+.pbody2{padding:0 4px 16px;border-bottom:1px solid var(--line)}
+.pstat{gap:0}
+.pstat div{background:none;border-radius:0;padding:4px 12px}
+.pstat div+div{border-left:1px solid var(--line)}
+.pstat div:first-child{padding-left:0}
+.prof-page .emptyv{border-top:1px solid var(--line)}
+.front .box.emptyv{background:none;border:0}
+.mstat{gap:0;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.msc{border:0;border-radius:0}.msc+.msc{border-left:1px solid var(--line)}
+.nb.c{border-top:0;height:28px}
+@media (max-width:1000px){.hq{background:none}.hq:focus-within{background:var(--soft)}}
