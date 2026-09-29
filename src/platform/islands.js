@@ -416,9 +416,9 @@ async function main(){
   const lb=$('.box.login[data-island="account"]');
   if(lb){
    const fr=await api(`/follows?l=${L}`);
-   lb.textContent='';const h=document.createElement('b');h.textContent=L==='ko'?'내 구독 채널':'My channels';lb.append(h);
+   lb.textContent='';const h=document.createElement('b');h.textContent=L==='ko'?'구독한 태그':'Followed tags';lb.append(h);
    const list=fr.ok?fr.data.follows.slice(0,8):[];
-   if(!list.length){const p=document.createElement('span');p.className='fine';p.textContent=L==='ko'?'채널 화면의 “구독”을 누르면 여기와 내 레이더에 모입니다.':'Follow channels to see them here and in My Radar.';lb.append(p);}
+   if(!list.length){const p=document.createElement('span');p.className='fine';p.textContent=L==='ko'?'태그 페이지(Claude, RTX 5070 …)의 “구독”을 누르면 여기와 내 레이더에 모입니다.':'Follow tags to see them here and in My Radar.';lb.append(p);}
    else{const ul=document.createElement('ul');ul.className='rows';for(const f of list){const li=document.createElement('li');const a=document.createElement('a');a.className='tt';a.href=f.url;a.textContent=f.name;li.append(a);ul.append(li);}lb.append(ul);}
    const r=document.createElement('a');r.className='btn';r.href=`/${L}/radar/#mine`;r.textContent=L==='ko'?'내 레이더 ›':'My Radar ›';lb.append(r);
   }

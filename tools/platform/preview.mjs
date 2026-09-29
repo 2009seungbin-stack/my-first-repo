@@ -18,26 +18,17 @@ const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 export const SHOWCASE=[['ai','claude'],['games','caves-of-qud'],['hardware','rtx-5070'],['studio','ableton-live'],['subculture','bleach-tybw-the-calamity']];
 /** [path, title] of every previewed page. */
 export const PREVIEW_PATHS=Object.freeze([
- ['/ko/community/','커뮤니티 홈'],['/ko/ai/claude/','Claude 채널'],['/ko/ai/claude/status','지금 Claude 장애?'],['/ko/ai/claude/history','Claude 변경 기록'],
+ ['/ko/community/','커뮤니티 홈'],['/ko/ai/claude/','Claude (태그 페이지)'],['/ko/ai/claude/status','지금 Claude 장애?'],['/ko/ai/claude/history','Claude 변경 기록'],
  ['/ko/ai/claude-opus-5-5/','Claude Opus 5.5 (모델 채널)'],['/ko/ai/gemma-4-12b/','Gemma 4 12B (공개 모델 채널)'],
  ['/ko/games/caves-of-qud/','Caves of Qud (게임 채널)'],['/ko/games/wasteland-3-korean-patch/','Wasteland 3 한글패치 (패치 채널)'],
  ['/ko/hardware/rtx-5070/','RTX 5070 채널'],['/ko/hardware/rtx-5070/local-llm','RTX 5070에서 돌아가는 로컬 LLM'],
  ['/ko/studio/ableton-live/','에이블톤 라이브 채널'],['/ko/subculture/bleach-tybw-the-calamity/','블리치 천년혈전 채널'],
  ['/ko/radar/','레이더'],['/ko/games/','게임 채널 모음 (허브)'],['/ko/search/?q=5070','검색: 5070'],['/ko/community/best/','념글'],
- ['/ko/games/caves-of-qud/write','글쓰기 (구조화 리포트)'],['/ko/community/transparency','운영 투명성'],['/en/ai/claude/','Claude channel (English)'],
+ ['/ko/community/games/write?tag=game:steam-333640&kind=report','글쓰기 (구조화 리포트)'],['/ko/community/ai/','AI 채널'],['/ko/community/games/','게임 채널'],['/ko/community/games/?kind=patch','한글패치 모음'],['/ko/community/hw/','PC·하드웨어 채널'],['/ko/community/studio/','창작 도구 채널'],['/ko/community/sub/','애니·서브컬처 채널'],['/ko/community/free/','자유 채널'],['/ko/community/notice/','공지·건의'],['/ko/community/ai/?kind=question&tag=service:claude','AI 채널: Claude 태그 질문'],['/ko/community/ai/write?tag=service:claude','글쓰기 (AI · Claude 태그)'],['/en/community/ai/','AI channel (English)'],['/ko/community/transparency','운영 투명성'],['/en/ai/claude/','Claude channel (English)'],
  ['/ko/hardware/?type=gpu&vs=rtx-4070,rtx-5070','RTX 4070 vs RTX 5070 비교'],['/ko/ai/?type=model&org=anthropic&sort=cheap','AI 모델 API 가격 비교 (회사·정렬)'],['/ko/ai/?type=plan','AI 요금제 비교'],
  ['/ko/search/?q=Claude+%EC%9E%A5%EC%95%A0','검색: Claude 장애'],['/ko/community/policy','운영정책 (계산식 공개)'],['/ko/ai/claude-pro/','Claude Pro (요금제 채널)'],
 ]);
 const SITE={origin:'https://nerulio.com'};
-
-/** Channel bar for anonymous readers (an island replaces it with the reader's subscriptions). */
-export async function channelBar(db,l){
- const out=[];
- for(const [v,slug] of [['ai','claude'],['ai','claude-code'],['ai','chatgpt'],['ai','gemini-app'],['hardware','rtx-5070'],['games','caves-of-qud'],['studio','ableton-live'],['studio','blender'],['subculture','bleach-tybw-the-calamity']]){
-  const {entity}=await entityBySlug(db,v,slug);if(entity)out.push({name:entity.names[l]||entity.names.en,href:channelUrl(l,entity)});
- }
- return out;
-}
 
 export async function buildPreview(outDir=path.join(ROOT,'.n2/preview'),now=Date.now()){
  const db=D1Shim.migrated();
@@ -49,8 +40,8 @@ export async function buildPreview(outDir=path.join(ROOT,'.n2/preview'),now=Date
  const paths=[...PREVIEW_PATHS];
  for(const [v,slug] of [['ai','claude'],['games','caves-of-qud']]){
   const {entity}=await entityBySlug(db,v,slug);
-  const top=entity?(await db.prepare('SELECT post_no FROM discussions WHERE entity_id=? AND comment_count>0 ORDER BY post_no DESC LIMIT 1').bind(entity.id).first())?.post_no:null;
-  if(top)paths.push([`/ko/${v}/${slug}/${top}`,`글 보기 — ${slug}`]);
+  const top=entity?await db.prepare('SELECT channel_id,channel_no FROM discussions WHERE entity_id=? AND comment_count>0 ORDER BY created_at DESC LIMIT 1').bind(entity.id).first():null;
+  if(top)paths.push([`/ko/community/${top.channel_id}/${top.channel_no}`,`글 보기 — ${slug}`]);
  }
  for(const [url,title] of paths){
   const res=await renderPlatformPage(new Request(SITE.origin+url),{DB:db},{origin:SITE.origin,now:()=>now});
