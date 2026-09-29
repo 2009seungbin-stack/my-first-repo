@@ -31,6 +31,8 @@ export const SOURCE_HOSTS=new Set([
  'github.com',
  'godotengine.org',
  'help.instagram.com',
+ 'help.naver.com', // Naver Challenge Comics upload help
+ 'help.postype.com', // Postype image upload help
  'help.x.com',
  'helpx.adobe.com',
  'ldtk.io',
@@ -59,6 +61,7 @@ export const SOURCE_HOSTS=new Set([
  'web.dev',
  'wiki.gdevelop.io',
  'www.adobe.com',
+ 'www.webtoons.com', // WEBTOON CANVAS notices and Creator Academy
  'www.adobe.io',
  'www.aseprite.org',
  'www.blender.org',

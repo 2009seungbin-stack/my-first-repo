@@ -7,6 +7,7 @@ const engines = {
  home:'local browser dispatch', image:'Canvas / immutable transforms / proxy preview', upscale:'Pica / nearest; optional experimental tiled Swin2SR',
  'remove-bg':'border flood fill / BiRefNet general foreground (experimental)', compress:'browser codecs / proxy SSIM candidate search',
  convert:'browser image codecs', heic:'browser / heic2any', crop:'Canvas region copy', resize:'Pica tiled mks2013 / Lanczos',
+ 'webtoon-manga-toolkit':'local image worker / source-row partition / re-decoded PNG or JPEG / stored ZIP',
  pixel:'browser Pixel Studio: area-average cells / Wu palette / ordered, error-diffusion and blue-noise dithers / indexed and animation export', pdf:'PDF worker / ranged PDF.js / native annotations',
  'pdf-merge':'PDF worker / native page objects', 'pdf-split':'PDF worker / ranges, groups, odd-even', 'pdf-compress':'placement-aware image resampling / reference-resolved recompression / TrueType glyph trimming / object dedupe / optional raster mode',
  'jpg-to-pdf':'pdf-lib image embedding', 'pdf-to-jpg':'PDF.js rasterizer',
