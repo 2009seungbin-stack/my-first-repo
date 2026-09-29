@@ -38,10 +38,10 @@ export const rerunIds=items=>(Array.isArray(items)?items:[]).filter(c=>isProblem
  * @param {any} ov overview payload @param {number} [now] */
 export function homeAlert(ov,now=Date.now()){
  if(!ov)return null;
- const c=ov.collectors||{},items=Array.isArray(c.items)?c.items:[];
+ const c=ov.collectors||{},items=/** @type {any[]} */(Array.isArray(c.items)?c.items:[]);
  const failing=items.filter(x=>x.state==='failing');
  const u=usageView(ov.usage);
- const down=(Array.isArray(ov.status)?ov.status:[]).filter(s=>/major|outage|critical|down/i.test(String(s.state)));
+ const down=/** @type {any[]} */(Array.isArray(ov.status)?ov.status:[]).filter(s=>/major|outage|critical|down/i.test(String(s.state)));
  const parts=[];
  if(failing.length||Number(c.failing)>0){
   const first=failing[0];
@@ -111,7 +111,7 @@ const HHMM=/^([01]\d|2[0-3]):[0-5]\d$/;
 export function normalizePrefs(p){
  const d=DEFAULT_PREFS,o=p&&typeof p==='object'?p:{};
  const n=Number(o.collectorFailN);
- const th=Array.isArray(o.usageThresholds)?[...new Set(o.usageThresholds.map(Number).filter(x=>x===80||x===90||x===95))].sort((a,b)=>a-b):[...d.usageThresholds];
+ const th=Array.isArray(o.usageThresholds)?[...new Set(/** @type {number[]} */(o.usageThresholds.map(Number)).filter(x=>x===80||x===90||x===95))].sort((a,b)=>a-b):[...d.usageThresholds];
  const q=o.quiet===null?null:o.quiet&&HHMM.test(o.quiet.from)&&HHMM.test(o.quiet.to)?{from:o.quiet.from,to:o.quiet.to}:{...d.quiet};
  return {
   collectorFailN:n===1||n===2||n===3?n:d.collectorFailN,
@@ -132,8 +132,9 @@ export function trafficView(t){
  const tot=t?.totals||{};
  const human=Number(tot.human)||0,verified=Number(tot.verifiedBot)||0,declared=Number(tot.declaredBot)||0,suspected=Number(tot.suspectedBot)||0;
  const bot=verified+declared+suspected,all=human+bot;
- const bots=(Array.isArray(t?.bots)?t.bots:[]).map((/** @type {any} */ b)=>({name:String(b.name||'?'),category:String(b.category||'other'),verified:!!b.verified,suspected:!b.verified&&!!b.suspected,requests:Number(b.requests)||0}))
-  .map(b=>({...b,cls:b.verified?'verified':b.suspected?'suspected':'declared'})).sort((a,b)=>b.requests-a.requests);
+ /** @typedef {{name:string,category:string,verified:boolean,suspected:boolean,requests:number,cls:'verified'|'declared'|'suspected'}} BotRow */
+ const bots=/** @type {BotRow[]} */((Array.isArray(t?.bots)?t.bots:[]).map((/** @type {any} */ b)=>({name:String(b.name||'?'),category:String(b.category||'other'),verified:!!b.verified,suspected:!b.verified&&!!b.suspected,requests:Number(b.requests)||0}))
+  .map((/** @type {any} */ b)=>({...b,cls:b.verified?'verified':b.suspected?'suspected':'declared'})).sort((/** @type {any} */ a,/** @type {any} */ b)=>b.requests-a.requests));
  /** @type {Record<string,number>} */const byCategory={};
  for(const b of bots)byCategory[b.category]=(byCategory[b.category]||0)+b.requests;
  const series=(Array.isArray(t?.series)?t.series:[]).map((/** @type {any} */ s)=>({t:s.t,human:Number(s.human)||0,bot:Number(s.bot)||0}));

@@ -26,7 +26,7 @@ export function h(sel,attrs,...kids){
  append(el,kids);
  return el;
 }
-/** @param {Node} el @param {Child[]} kids */
+/** @param {Element|DocumentFragment} el @param {Child[]} kids */
 export function append(el,kids){
  for(const k of kids.flat(Infinity)){
   if(k===null||k===undefined||k===false)continue;

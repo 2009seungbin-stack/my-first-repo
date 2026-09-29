@@ -16,13 +16,14 @@ export async function render(ctx,main){
  fill(main,skeleton(4));
  const sup=pushSupport();
  /** @type {any} */let keyErr=null;
- let sub=null;
+ /** @type {PushSubscription|null} */let sub=null;
  try{sub=await currentSubscription();}catch{}
  if(sup.supported)await ctx.api.get('/api/v2/admin/push/key').catch((/** @type {any} */ e)=>{keyErr=e;});
  let prefs=loadPrefs(ctx.me?.push?.prefs??ctx.me?.prefs);
  const status=h('span.fine.savestate',{role:'status','aria-live':'polite'});
  /** @type {number} */let timer=0;
- /** @type {HTMLElement|null} */let prefsEl=null;/** @type {HTMLElement|null} */let quietEl=null;
+ /** @type {HTMLElement|null} */let prefsEl=null;
+ /** @type {HTMLElement|null} */let quietEl=null;
  const save=(/** @type {any} */ patch)=>{
   prefs=normalizePrefs({...prefs,...patch});stashPrefs(prefs);
   // Redraw the two boxes in place and keep focus on the control that was used.

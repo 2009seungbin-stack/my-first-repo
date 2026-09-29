@@ -14,6 +14,7 @@ import {insertDemoContent} from './demo-posts.mjs';
 import {handlePlatformPage} from '../../server/platform/pages.js';
 import {handlePlatformApi} from '../../server/platform/api.js';
 import {sha256,base64url} from '../../server/crypto.js';
+import {adminBundle,ADMIN_CSP} from '../admin-build.mjs';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 const TYPES=/** @type {Record<string,string>} */({'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.html':'text/html; charset=utf-8','.json':'application/json'});
@@ -41,6 +42,11 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
    let response=null;
    if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);
    else response=await handlePlatformPage(request,env,null,{origin});
+   // The admin PWA (src/admin, as built for PLATFORM=on) with its production CSP; its API comes from the handlers above.
+   if(!response&&(url.pathname==='/admin'||url.pathname.startsWith('/admin/'))){
+    const {files}=await adminBundle(),rel=url.pathname==='/admin'||url.pathname==='/admin/'?'index.html':decodeURIComponent(url.pathname.slice(7)),data=files.get(rel);
+    response=data===undefined?new Response('Not found',{status:404}):new Response(data,{headers:{'content-type':TYPES[path.extname(rel)]||(rel.endsWith('.webmanifest')?'application/manifest+json':'application/octet-stream'),'content-security-policy':ADMIN_CSP,'x-robots-tag':'noindex, nofollow'}});
+   }
    if(!response){
     const file=path.join(ROOT,decodeURIComponent(url.pathname));
     if(!file.startsWith(ROOT)||!/^\/(src|assets)\/|^\/favicon\.svg$/.test(url.pathname))response=new Response('Not found',{status:404});

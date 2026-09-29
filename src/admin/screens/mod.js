@@ -15,7 +15,7 @@ export async function render(ctx,main){
  fill(main,skeleton(4));
  let q;
  try{q=await ctx.api.get('/api/v2/mod/queue');}catch(e){fill(main,failure(e,()=>ctx.refresh()));return;}
- const items=Array.isArray(q?.items)?q.items:[],hidden=Array.isArray(q?.hidden)?q.hidden:[],log=Array.isArray(q?.log)?q.log:[];
+ const items=/** @type {any[]} */(Array.isArray(q?.items)?q.items:[]),hidden=/** @type {any[]} */(Array.isArray(q?.hidden)?q.hidden:[]),log=/** @type {any[]} */(Array.isArray(q?.log)?q.log:[]);
  const now=ctx.now();
  const draw=()=>{
   const bar=chips([{value:'open',label:`대기 ${items.length}`},{value:'hidden',label:`임시조치 중 ${hidden.length}`},{value:'log',label:'처리 기록'}],view,v=>{view=/** @type {any} */(v);draw();},'신고 보기');

@@ -37,7 +37,7 @@ export async function enablePush(api,prefs){
  // A subscription made with another key (the key was rotated) must be replaced.
  const key=sub?.options?.applicationServerKey;
  if(sub&&key&&toB64url(key)!==String(publicKey).replace(/=+$/,'')){await sub.unsubscribe().catch(()=>{});sub=null;}
- if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidKey(publicKey)});
+ if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:/** @type {Uint8Array<ArrayBuffer>} */(vapidKey(publicKey))});
  await api.post('/api/v2/admin/push/subscribe',{subscription:sub.toJSON(),prefs});
  await stashPrefs(prefs);
  return sub;

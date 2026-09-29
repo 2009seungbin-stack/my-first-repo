@@ -32,7 +32,7 @@ export const gated=path=>/^\/api\/v2\/(admin\/|mod\/)/.test(path)&&!/\/passkey\/
  * @param {{fetch?:typeof fetch,reauth?:()=>Promise<void>,signedOut?:(e:AdminError)=>void,stillAdmin?:()=>Promise<boolean>,served?:(path:string,offlineAt:number|null)=>void}} hooks
  */
 export function createApi(hooks={}){
- const f=hooks.fetch||((/** @type {any} */ ...a)=>globalThis.fetch(...a));
+ const f=hooks.fetch||((/** @type {RequestInfo|URL} */ input,/** @type {RequestInit} */ init)=>globalThis.fetch(input,init));
  /** @type {Promise<void>|null} */let reauthing=null;
  /** @param {string} method @param {string} path @param {any} [body] @param {boolean} [retried] @returns {Promise<any>} */
  async function call(method,path,body,retried=false){
