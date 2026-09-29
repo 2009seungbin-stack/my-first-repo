@@ -2,12 +2,13 @@
  * Pages are complete without it (server-rendered, edge-cached, identical for everyone); this module
  * adds the reader's own state and the write actions through /api/v2:
  *  account · follow · post/comment votes · compat/issue/rollout reports · comments and replies ·
- *  write form · new-posts bar · countdown · share. */
+ *  write form · new-posts bar · countdown · share · the sign-in sheet (configured providers only). */
+import {buttonsHTML,validReturn} from '../signin-brands.js';
 const L=document.documentElement.lang==='en'?'en':'ko';
 const T={
- ko:{login:'로그인',needLogin:'로그인하면 참여할 수 있어요. 로그인 페이지로 이동할까요?',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
+ ko:{login:'로그인',signInTitle:'로그인하고 참여하기',signInNote:'글·댓글·구독·추천·신고는 로그인하면 할 수 있어요. 읽기는 로그인 없이 됩니다.',signInClose:'닫기',follow:'구독',following:'✓ 구독 중',sent:'반영했어요',thanks:'리포트를 남겼어요. 고마워요!',error:'잠시 후 다시 시도해 주세요.',
   rate:'너무 빨라요. 1분 뒤에 다시 해 주세요.',own:'내 글에는 추천할 수 없어요.',newPosts:n=>`↑ 새 글 ${n}개 · 눌러서 보기`,replyTo:n=>`↳ ${n}님에게 답글`,cancel:'취소',copied:'링크를 복사했어요',posting:'등록 중…',empty:'내용을 입력해 주세요.',flagged:'신고를 접수했어요. 운영자가 확인합니다.',voted:'반영했어요. 한 사람당 한 표로 셉니다.',commentPh:'댓글 입력',followed:'구독했어요. 바뀐 것과 새 글은 내 레이더에 모입니다.',unfollowed:'구독을 취소했어요.',addDetails:'환경·증상까지 리포트로 남기기 ›',flagUpdated:r=>`이미 신고한 대상이에요. 사유를 “${r}”에서 바꿨어요.`,backToPost:'원래 글로 돌아가기'},
- en:{login:'Sign in',needLogin:'Sign in to take part. Go to the sign-in page?',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
+ en:{login:'Sign in',signInTitle:'Sign in to take part',signInNote:'Posts, comments, follows, votes and reports need an account. Reading does not.',signInClose:'Close',follow:'Follow',following:'✓ Following',sent:'Saved',thanks:'Report saved. Thank you!',error:'Please try again in a moment.',
   rate:'Too fast. Please wait a minute.',own:'You cannot vote on your own post.',newPosts:n=>`↑ ${n} new posts · show`,replyTo:n=>`↳ Reply to ${n}`,cancel:'Cancel',copied:'Link copied',posting:'Posting…',empty:'Please write something.',flagged:'Report received. A moderator will review it.',voted:'Counted. One vote per person.',commentPh:'Write a comment',followed:'Following. Changes and posts go to My Radar.',unfollowed:'Unfollowed.',addDetails:'Add details in a report ›',flagUpdated:r=>`You had already reported this; the reason was changed from “${r}”.`,backToPost:'Back to the post'},
 }[L];
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -27,7 +28,27 @@ function toast(text){
 /** A message that must survive the reload or redirect right after an action. */
 function toastNext(text){try{sessionStorage.setItem('n2-toast',text);}catch{}}
 function toastPending(){try{const t=sessionStorage.getItem('n2-toast');if(t){sessionStorage.removeItem('n2-toast');toast(t);}}catch{}}
-const loginUrl=()=>`/api/v1/auth/google/start?return=${encodeURIComponent(location.pathname+location.search)}`;
+/** Configured sign-in providers (from /api/v2/state). */
+let providers=[];
+/** This page, as the place sign-in comes back to. */
+const here=()=>validReturn(location.pathname+location.search)?location.pathname+location.search:location.pathname;
+/** Sign in without leaving for a separate page first: a sheet with one branded button per configured
+ * provider. With none configured the account page explains that sign-in is not available yet. */
+function signInSheet(){
+ if(!providers.length){location.href=`/${L}/account/?return=${encodeURIComponent(here())}`;return;}
+ let d=$('#n2-signin');
+ if(!d){
+  d=document.createElement('dialog');d.id='n2-signin';d.className='signin';d.setAttribute('aria-labelledby','n2-signin-t');
+  const h=document.createElement('h2');h.id='n2-signin-t';h.textContent=T.signInTitle;
+  const p=document.createElement('p');p.textContent=T.signInNote;
+  const x=document.createElement('button');x.type='button';x.className='btn x';x.textContent=T.signInClose;x.addEventListener('click',()=>d.close());
+  d.append(h,p);d.insertAdjacentHTML('beforeend',buttonsHTML(providers,L,here()));d.append(x);
+  d.addEventListener('click',e=>{if(e.target===d)d.close();});
+  document.body.append(d);
+ }
+ if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');
+ d.querySelector('.sib')?.focus();
+}
 /** The API's messages are English; Korean pages show these instead (unknown ones fall back to T.error). */
 const KO_ERR=[[/^This nickname is taken/,'이미 쓰는 닉네임이에요. 다른 닉네임을 골라 주세요.'],[/^This nickname is reserved/,'사용할 수 없는 닉네임이에요.'],[/^displayName must be (\d+)–(\d+)/,'닉네임은 $1~$2자로 써 주세요.'],
  [/^(title|body|reason|note) must be (\d+)–(\d+)/,(m,f,a,b)=>`${{title:'제목은',body:'내용은',reason:'사유는',note:'설명은'}[f]} ${a}~${b}자로 써 주세요.`],[/^(\w+) is required/,'필수 항목을 입력해 주세요.'],
@@ -43,7 +64,7 @@ function message(m){
  return T.error;
 }
 function explain(res){
- if(res.code==='LOGIN_REQUIRED'){if(confirm(T.needLogin))location.href=loginUrl();return;}
+ if(res.code==='LOGIN_REQUIRED'){signInSheet();return;}
  if(res.code==='RATE_LIMITED'&&!/open proposals/.test(res.data?.error?.message||''))return toast(T.rate);
  if(res.data?.error?.message&&res.status<500)return toast(message(res.data.error.message));
  toast(T.error);
@@ -51,7 +72,7 @@ function explain(res){
 /** Run a write; signed-out readers are sent to sign in first. */
 async function write(path,body,signedIn){
  // Say why before leaving the page for sign-in.
- if(!signedIn){if(confirm(T.needLogin))location.href=loginUrl();return null;}
+ if(!signedIn){signInSheet();return null;}
  const res=await api(path,body);
  if(!res.ok){explain(res);return null;}
  return res.data||{};
@@ -63,7 +84,10 @@ async function main(){
  const q=new URLSearchParams();if(entity)q.set('entity',entity);if(post)q.set('post',post);
  const st=(await api('/state?'+q)).data||{signedIn:false,votes:{}};
  const signedIn=!!st.signedIn;
+ providers=Array.isArray(st.providers)?st.providers:[];
  toastPending();
+ // Server-rendered sign-in links (header, 구독, 글쓰기 notes) open the sheet instead of the account page.
+ if(!signedIn)document.addEventListener('click',e=>{const a=e.target.closest?.('a[data-signin]');if(a&&providers.length&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();signInSheet();}});
 
  // Header search inside a channel: × drops the channel scope.
  for(const x of $$('[data-unscope]'))x.addEventListener('click',()=>{const f=x.closest('form');$('input[name="in"]',f)?.remove();x.parentElement.remove();const q=$('input[name="q"]',f);if(q){q.placeholder=L==='ko'?'검색':'Search';q.focus();}});
@@ -368,6 +392,8 @@ async function main(){
   $('[data-signed-out]',me).hidden=true;
   const nf=$('form[data-nickname]',me);nf.hidden=false;$('input',nf).value=st.user?.name||'';
   const auto=/^user-[0-9a-z]{1,6}$/.test(st.user?.name||'');$('[data-autonick]',nf).hidden=!auto;
+  // A GitHub/Discord handle is offered as the nickname; it is used only once the member saves it.
+  if(auto&&st.user?.suggest){$('input',nf).value=st.user.suggest;const sg=$('[data-suggested]',nf);if(sg)sg.hidden=false;}
   nf.addEventListener('submit',async e=>{e.preventDefault();const name=$('input',nf).value.trim();const r=await write('/profile',{displayName:name},signedIn);
    if(r){toast(T.sent);$('[data-autonick]',nf).hidden=true;const h=$('.hd [data-island="account"] a');if(h)h.textContent=name;}});
   const lo=$('[data-logout]',me);lo.hidden=false;

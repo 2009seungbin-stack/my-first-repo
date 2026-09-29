@@ -64,7 +64,7 @@ export async function emitService(dist,config,head){
  await cp(new URL('server/',root),path.join(worker,'server'),{recursive:true});
  // Platform renderers/repositories (server/platform/pages.js imports them; they run only with PLATFORM=on).
  await cp(new URL('platform/',root),path.join(worker,'platform'),{recursive:true});
- await mkdir(path.join(worker,'src'),{recursive:true});await cp(new URL('src/quota.js',root),path.join(worker,'src','quota.js'));
+ await mkdir(path.join(worker,'src'),{recursive:true});for(const f of ['quota.js','signin-brands.js'])await cp(new URL(`src/${f}`,root),path.join(worker,'src',f));
  await mkdir(path.join(worker,'tools'),{recursive:true});await cp(new URL('tools/ads-worker.mjs',root),path.join(worker,'tools','ads-worker.mjs'));
  await writeFile(path.join(worker,'server','build-info.js'),`export default Object.freeze(${JSON.stringify({service:true,adsHtml:!!config.client,preview:!!config.preview,pages:!!config.pagesBuild,platform:!!config.platform,siteURL:config.siteURL||'',traffic:!!config.traffic,trafficHtml:!!config.trafficHtml})});\n`);
  await writeFile(path.join(worker,'index.js'),"export {default} from './server/index.js';\n");

@@ -96,7 +96,7 @@ export const resetChannelBarCache=()=>barCache.clear();
 
 /**
  * Render a platform page, or null when the path is not one (the static site handles it).
- * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number}} site
+ * @param {Request} request @param {{DB:any}} env @param {{origin:string,now?:()=>number,providers?:string[]}} site
  */
 export async function renderPlatformPage(request,env,site){
  const url=new URL(request.url),route=matchPlatformRoute(url.pathname);
@@ -106,7 +106,7 @@ export async function renderPlatformPage(request,env,site){
  const given=url.searchParams.toString().replace(/%2C/gi,',');
  if(search!==(given?`?${given}`:''))return redirect(new URL(url.pathname+search,url).href);
  const q=new URLSearchParams(search);
- const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin};
+ const now=(site.now||Date.now)(),db=env.DB,l=route.l,s={origin:site.origin||url.origin,providers:site.providers||[]};
  const bar=()=>channelBar(db,l,now);
  switch(route.page){
   case 'front':return html(String(renderFront(await loadFront(db,{l,now,vertical:q.get('v'),channels:await bar()}),s)));
@@ -192,7 +192,7 @@ export async function renderSitemap(db,vertical,origin){
 
 /** Edge cache in front of renderPlatformPage (GET only). The key is the canonical URL, so junk
  * parameters are answered by a cacheable redirect instead of a fresh render.
- * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string}} site */
+ * @param {Request} request @param {any} env @param {any} ctx @param {{origin:string,providers?:string[]}} site */
 export async function handlePlatformPage(request,env,ctx,site){
  if(request.method!=='GET'&&request.method!=='HEAD')return null;
  const path=new URL(request.url).pathname,sm=SITEMAP.exec(path);

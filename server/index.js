@@ -5,6 +5,7 @@ import BUILD from './build-info.js';
 import {handlePlatformPage} from './platform/pages.js';
 import {handlePlatformApi} from './platform/api.js';
 import {observeRequest} from './traffic.js';
+import {configuredProviders,providerCredentials} from './oauth/providers.js';
 /** Cloudflare Pages advanced-mode entry (dist/_worker.js/index.js).
  * The control plane only: accounts, sessions, entitlement, daily usage and billing
  * webhooks. It never receives, stores or processes user files.
@@ -21,7 +22,7 @@ export default {
   // Visitor/bot statistics: one Analytics Engine data point for pages, robots.txt and sitemaps (server/traffic.js).
   if(BUILD.traffic)observeRequest(request,env,url);
   // Nerulio 2.0 channel/community pages (PLATFORM=on builds only); anything else is the static site.
-  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
+  if(BUILD.platform){const page=await handlePlatformPage(request,env,ctx,{origin:BUILD.siteURL||url.origin,providers:configuredProviders({oauth:providerCredentials(env)})});if(page)return BUILD.adsHtml?allowForms(await secureResponse(page)):page;}
   const response=await env.ASSETS.fetch(request);
   return BUILD.adsHtml?secureResponse(response):response;
  }

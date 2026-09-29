@@ -410,3 +410,19 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .ph1tags{margin:0 0 4px;display:flex;gap:6px;align-items:center}
 @media (max-width:640px){.hchart{min-width:0;padding-inline:4px}}
 .mt.vs{width:100%;table-layout:fixed}.mt.vs th,.mt.vs td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.mt.vs thead th:first-child,.mt.vs tbody th{width:28%}
+/* Provider-branded sign-in buttons (src/signin-brands.js): Google white/#747775 (dark #131314/#8e918f), GitHub #24292f, Discord Blurple #5865f2. */
+.sibs{display:flex;flex-direction:column;gap:8px}
+.sib{display:flex;align-items:center;justify-content:center;gap:10px;min-height:42px;padding:0 14px;border-radius:6px;border:1px solid transparent;font-weight:600;font-size:14px;text-decoration:none;box-sizing:border-box}
+.sib:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.sib-i{flex:none}
+.sib-google{background:#fff;border-color:#747775;color:#1f1f1f}.sib-google:hover{background:#f2f2f2}
+.sib-github{background:#24292f;color:#fff}.sib-github:hover{background:#32383f}
+.sib-discord{background:#5865f2;color:#fff}.sib-discord:hover{background:#4752c4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root:not([data-theme="light"]) .sib-github{border-color:#3d444d}}
+:root[data-theme="dark"] .sib-google{background:#131314;border-color:#8e918f;color:#e3e3e3}:root[data-theme="dark"] .sib-github{border-color:#3d444d}
+/* Sign-in sheet (islands): shown instead of leaving the page when a signed-out reader acts. */
+dialog.signin{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:18px;width:min(360px,calc(100vw - 32px));box-sizing:border-box}
+dialog.signin::backdrop{background:rgba(10,14,20,.45)}
+dialog.signin h2{font-size:16px;margin:0 0 4px}
+dialog.signin p{margin:0 0 14px;color:var(--mute);font-size:13px}
+dialog.signin .x{margin-top:12px;width:100%;justify-content:center}

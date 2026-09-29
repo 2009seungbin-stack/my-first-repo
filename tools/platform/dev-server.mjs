@@ -3,7 +3,8 @@
  * database with every seed file and the SAMPLE boards, plus the repository's static files.
  *   node tools/platform/dev-server.mjs [port]      → http://localhost:8788/ko/community/
  * Sign in locally with /__dev/login?as=<name>[&role=moderator] (creates a test account and a session cookie; this
- * route exists only in this dev server, never in the Worker). */
+ * route exists only in this dev server, never in the Worker). DEV_SIGNIN_PROVIDERS=github,discord shows those
+ * providers' sign-in buttons (placeholder credentials: the buttons render, the provider round trip does not). */
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -14,6 +15,7 @@ import {insertDemoContent} from './demo-posts.mjs';
 import {handlePlatformPage} from '../../server/platform/pages.js';
 import {handlePlatformApi} from '../../server/platform/api.js';
 import {sha256,base64url} from '../../server/crypto.js';
+import {configuredProviders,providerCredentials} from '../../server/oauth/providers.js';
 import {adminBundle,ADMIN_CSP} from '../admin-build.mjs';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
@@ -24,7 +26,9 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
  await seedDatabase(db,undefined,now-2*864e5);
  await insertDemoContent(db,now);
  const origin=`http://localhost:${port}`;
- const env={DB:db,SESSION_SECRET:'dev-only-session-secret-0123456789abcdef-0123',NERULIO_ENV:'development',SITE_URL:origin};
+ const env={DB:db,SESSION_SECRET:'dev-only-session-secret-0123456789abcdef-0123',NERULIO_ENV:'development',SITE_URL:origin,
+  ...Object.fromEntries(String(process.env.DEV_SIGNIN_PROVIDERS||'').split(',').map(p=>p.trim().toUpperCase()).filter(p=>['GOOGLE','GITHUB','DISCORD'].includes(p)).flatMap(p=>[[`${p}_OAUTH_CLIENT_ID`,`dev-${p.toLowerCase()}`],[`${p}_OAUTH_CLIENT_SECRET`,'dev-placeholder']]))};
+ const providers=configuredProviders({oauth:providerCredentials(env)});
  const server=http.createServer(async(req,res)=>{
   try{
    const url=new URL(req.url||'/',origin);
@@ -41,7 +45,7 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
    const request=new Request(url,{method:req.method,headers:/** @type {any} */(req.headers),body});
    let response=null;
    if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);
-   else response=await handlePlatformPage(request,env,null,{origin});
+   else response=await handlePlatformPage(request,env,null,{origin,providers});
    // The admin PWA (src/admin, as built for PLATFORM=on) with its production CSP; its API comes from the handlers above.
    if(!response&&(url.pathname==='/admin'||url.pathname.startsWith('/admin/'))){
     const {files}=await adminBundle(),rel=url.pathname==='/admin'||url.pathname==='/admin/'?'index.html':decodeURIComponent(url.pathname.slice(7)),data=files.get(rel);
