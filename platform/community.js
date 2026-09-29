@@ -3,29 +3,13 @@
  * (념글) rule, contributor tiers, the compatibility verification score and rollout aggregation.
  * Pure functions first; the few DB helpers at the bottom use the D1 binding API. */
 
-/** 말머리. `verticals` limits a kind to some channels (e.g. translation patches → games). */
-export const POST_KINDS=Object.freeze({
- notice:{ko:'공지',en:'Notice',staff:true},
- news:{ko:'소식',en:'News'},
- report:{ko:'리포트',en:'Report'},
- patch:{ko:'한글패치',en:'Korean patch',verticals:['games']},
- question:{ko:'질문',en:'Question'},
- guide:{ko:'공략',en:'Guide'},
- benchmark:{ko:'벤치',en:'Benchmark',verticals:['hardware','ai']},
- screenshot:{ko:'스샷',en:'Screenshot'},
- free:{ko:'자유',en:'Talk'},
-});
-/** Channels whose boards are open for members' posts and comments (owner decision 2026-09-29, after
- * docs/n2/research/MARKET.md: AI, 한글패치 and GPU first). Other channels keep their facts, history
- * and one-click reports; their boards say "준비 중". Staff may post notices anywhere.
- * Change this map to open more boards. */
-export const OPEN_BOARDS=Object.freeze(/** @type {Record<string,'*'|string[]>} */({ai:'*',games:['game','translation_patch'],hardware:['gpu']}));
-/** @param {{vertical:string,type:string}} e */
-export function boardOpen(e){const v=OPEN_BOARDS[e.vertical];return v==='*'||(Array.isArray(v)&&v.includes(e.type));}
-/** Kinds a member may pick when writing in a channel of this vertical. @param {string} vertical */
-export function writableKinds(vertical){
- return Object.entries(POST_KINDS).filter(([,k])=>!('staff' in k)&&(!('verticals' in k)||/** @type {string[]} */(k.verticals).includes(vertical))).map(([id])=>id).filter(id=>id!=='news');
-}
+import {FLAIR_LABELS,writableFlairs,storedKind,placeholderEntity,channelById,TAG_LIMIT} from './channels.js';
+
+/** 말머리 (flairs), keyed as stored in discussions.flair. Which ones a channel offers, and what it calls them
+ * (팁 for guide in AI …), is platform/channels.js. 공지 is staff-only. */
+export const POST_KINDS=Object.freeze(Object.fromEntries(Object.entries(FLAIR_LABELS).map(([k,v])=>[k,k==='notice'?{...v,staff:true}:{...v}])));
+/** 말머리 a writer may pick in a channel (staff also 공지). @param {string} channel @param {{staff?:boolean}} [o] */
+export const writableKinds=(channel,o={})=>writableFlairs(channel,o);
 
 /** Input limits shared by the write API and the write form. */
 export const LIMITS=Object.freeze({title:/** @type {[number,number]} */([2,120]),body:/** @type {[number,number]} */([1,20000]),comment:/** @type {[number,number]} */([1,4000]),nickname:/** @type {[number,number]} */([2,20]),version:40,postsPerMinute:3,commentsPerMinute:10,votesPerMinute:60});
@@ -49,9 +33,9 @@ export function qualifiesBest(p,now,minUp=BEST_RULE.minUp){
  const total=p.up_count+p.down_count;
  return now-p.created_at<=BEST_RULE.windowMs&&p.up_count>=minUp&&total>0&&p.up_count/total>=BEST_RULE.minRatio;
 }
-/** @param {any} db @param {string} entityId @param {number} now */
-export async function channelBestThreshold(db,entityId,now){
- const rows=(await db.prepare("SELECT up_count FROM discussions WHERE entity_id=? AND status='published' AND created_at>=? LIMIT 2000").bind(entityId,now-BEST_RULE.sampleDays*864e5).all()).results||[];
+/** The ★ threshold of a channel (념글 are per channel; best_at is kept once set). @param {any} db @param {string} channelId @param {number} now */
+export async function channelBestThreshold(db,channelId,now){
+ const rows=(await db.prepare("SELECT up_count FROM discussions WHERE channel_id=? AND status='published' AND created_at>=? LIMIT 2000").bind(channelId,now-BEST_RULE.sampleDays*864e5).all()).results||[];
  return bestThreshold(rows.map((/** @type {any} */ r)=>Number(r.up_count)));
 }
 
@@ -130,18 +114,35 @@ export function rolloutSummary(votes,now){
 /* ---------- DB helpers (D1 binding API) ---------- */
 
 /**
- * Create a post with the next per-channel number in one statement (no read-then-write race).
+ * Create a post in a channel with its next number, and its tags. The number comes from one UPDATE …
+ * RETURNING (atomic, so two writers never get the same one); the per-entity post_no is kept for the
+ * UNIQUE (entity_id, post_no) of migrations/0004. entity_id = the first tag, or the channel's hidden
+ * placeholder for a post without tags.
  * `anon` = an anonymous (유동) post: author 'anon' with the typed nickname, the daily ID, the network key
  * and the edit-password hash (server/platform/anon.js).
- * @param {any} db @param {{id:string,entityId:string,kind:string,title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean,status?:'published'|'hidden',textHash?:string|null,anon?:{name:string,id:string,net:string,pw:string}|null}} p @param {number} now
+ * @param {any} db @param {{id:string,channel:string,kind:string,tags?:string[],title:string,body:string,locale:string,authorId:string,changeId?:number|null,reportId?:string|null,hasImage?:boolean,status?:'published'|'hidden',textHash?:string|null,anon?:{name:string,id:string,net:string,pw:string}|null}} p @param {number} now
+ * @returns {Promise<number>} the post's number in its channel
  */
 export async function createPost(db,p,now){
  if(!(p.kind in POST_KINDS))throw Error('unknown post kind');
+ if(!channelById(p.channel))throw Error('unknown channel');
+ const tags=[...new Set(p.tags||[])].slice(0,TAG_LIMIT),entityId=tags[0]||placeholderEntity(p.channel);
  const a=p.anon||null;
- const row=await db.prepare(`INSERT INTO discussions (id,entity_id,post_no,kind,title,body_md,locale,author_id,change_id,report_id,has_image,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at,last_activity_at)
-  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? FROM discussions WHERE entity_id=? RETURNING post_no`)
-  .bind(p.id,p.entityId,p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,p.status||'published',a?.name??null,a?.id??null,a?.net??null,a?.pw??null,p.textHash??null,now,now,now,p.entityId).first();
- return Number(row?.post_no);
+ // One transaction: the number goes up and the post takes it, so a failed insert leaves no gap and two
+ // writers never share a number.
+ const out=await db.batch([
+  db.prepare('UPDATE channels SET post_seq=post_seq+1 WHERE id=?').bind(p.channel),
+  db.prepare(`INSERT INTO discussions (id,entity_id,post_no,channel_id,channel_no,kind,flair,title,body_md,locale,author_id,change_id,report_id,has_image,status,anon_name,anon_id,anon_net,anon_pw,text_hash,created_at,updated_at,last_activity_at)
+  SELECT ?,?,COALESCE(MAX(post_no),0)+1,?,(SELECT post_seq FROM channels WHERE id=?),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? FROM discussions WHERE entity_id=? RETURNING channel_no`)
+  .bind(p.id,entityId,p.channel,p.channel,storedKind(p.kind),p.kind,p.title,p.body,p.locale,p.authorId,p.changeId??null,p.reportId??null,p.hasImage?1:0,p.status||'published',a?.name??null,a?.id??null,a?.net??null,a?.pw??null,p.textHash??null,now,now,now,entityId),
+  ...tags.map((t,i)=>db.prepare('INSERT INTO discussion_tags (discussion_id,entity_id,pos,created_at) VALUES (?,?,?,?)').bind(p.id,t,i,now))]);
+ return Number(out[1]?.results?.[0]?.channel_no);
+}
+/** Replace a post's tags (edit). The first tag does not move the post: entity_id and post_no stay.
+ * @param {any} db @param {string} id @param {string[]} tags @param {number} now */
+export function setTagsStatements(db,id,tags,now){
+ const list=[...new Set(tags)].slice(0,TAG_LIMIT);
+ return [db.prepare('DELETE FROM discussion_tags WHERE discussion_id=?').bind(id),...list.map((t,i)=>db.prepare('INSERT INTO discussion_tags (discussion_id,entity_id,pos,created_at) VALUES (?,?,?,?)').bind(id,t,i,now))];
 }
 
 /**
@@ -160,8 +161,8 @@ export async function castVote(db,v,now){
   :db.prepare(`INSERT INTO ${t} (target_kind,target_id,${col},value,created_at) VALUES (?,?,?,?,?) ON CONFLICT(target_kind,target_id,${col}) DO UPDATE SET value=excluded.value`).bind(v.kind,v.id,who,v.value,now),
   db.prepare(`UPDATE ${table} SET up_count=${count(1)},down_count=${count(-1)} WHERE id=?2`).bind(v.kind,v.id)];
  await db.batch(stmts);
- const row=await db.prepare(`SELECT up_count,down_count,created_at${v.kind==='discussion'?',best_at,entity_id':''} FROM ${table} WHERE id=?`).bind(v.id).first();
- const minUp=row&&v.kind==='discussion'&&!row.best_at?await channelBestThreshold(db,String(row.entity_id),now):BEST_RULE.minUp;
+ const row=await db.prepare(`SELECT up_count,down_count,created_at${v.kind==='discussion'?',best_at,channel_id':''} FROM ${table} WHERE id=?`).bind(v.id).first();
+ const minUp=row&&v.kind==='discussion'&&!row.best_at?await channelBestThreshold(db,String(row.channel_id),now):BEST_RULE.minUp;
  if(row&&v.kind==='discussion'&&!row.best_at&&qualifiesBest(row,now,minUp))await db.prepare('UPDATE discussions SET best_at=? WHERE id=? AND best_at IS NULL').bind(now,v.id).run();
  return row?{up:Number(row.up_count),down:Number(row.down_count),best:v.kind==='discussion'?!!(row.best_at||qualifiesBest(row,now,minUp)):false,bestThreshold:minUp}:null;
 }
