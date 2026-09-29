@@ -59,14 +59,19 @@ function imageApiError(e){
  return new ApiError('BAD_REQUEST',e.message,{field:'image',reason:e.code});
 }
 
+/** Read and check one uploaded image (the request body) before anything is counted or stored.
+ * @param {Request} request @returns {Promise<import('./images.js').CleanImage>} */
+export async function readUpload(request){
+ if(!/^image\/(webp|jpeg|png|gif|avif|heic|heif)$|^application\/octet-stream$/i.test(request.headers.get('content-type')||''))throw new ApiError('UNSUPPORTED_MEDIA_TYPE','Send the image bytes with an image Content-Type.',{field:'image'});
+ const raw=await readRaw(request,IMAGE_LIMITS.maxBytes);
+ try{return cleanImage(raw);}catch(e){throw imageApiError(e);}
+}
 /**
- * Validate, clean and store one image. The caller has already done the bot check and the limits.
- * @param {{env:any,db:any,request:Request,owner:string,userId:string,anonNet:string|null,now:number}} o
+ * Store one checked image in R2 and D1. The caller has already done the bot check and the limits.
+ * @param {{env:any,db:any,img:import('./images.js').CleanImage,owner:string,userId:string,anonNet:string|null,now:number}} o
  */
 export async function storeUpload(o){
- if(!/^image\/(webp|jpeg|png|gif|avif|heic|heif)$|^application\/octet-stream$/i.test(o.request.headers.get('content-type')||''))throw new ApiError('UNSUPPORTED_MEDIA_TYPE','Send the image bytes with an image Content-Type.',{field:'image'});
- const raw=await readRaw(o.request,IMAGE_LIMITS.maxBytes);
- let img;try{img=cleanImage(raw);}catch(e){throw imageApiError(e);}
+ const img=o.img;
  const id=hex(crypto.getRandomValues(new Uint8Array(12))),key=`c/${id}.${img.ext}`;
  const digest=hex(await crypto.subtle.digest('SHA-256',/** @type {BufferSource} */(/** @type {unknown} */(img.bytes))));
  await o.env.UPLOADS.put(key,img.bytes,{httpMetadata:{contentType:img.mime,cacheControl:IMAGE_CACHE.control,contentDisposition:`inline; filename="${id}.${img.ext}"`}});

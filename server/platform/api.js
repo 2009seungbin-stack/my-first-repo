@@ -26,7 +26,7 @@ import {notifyNewFlag} from './admin-notify.js';
 import {handleHit} from '../traffic.js';
 import {configuredProviders} from '../oauth/providers.js';
 import {ANON,REPORT,ANON_USER,anonIdentity,anonSecret,anonMode,assertAnonEnabled,humanGate,takeDaily,readDaily,hourKey,assertNotBanned,countLinks,blocklistVerdict,textHash,anonCleanupStatements,hashPassword,verifyPassword,kstDay,normalizeText} from './anon.js';
-import {uploadsConfigured,uploadsNotConfigured,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf} from './uploads.js';
+import {uploadsConfigured,uploadsNotConfigured,readUpload,storeUpload,uploaded,attachPlan,hasImageSyntax,imagesOf,deleteImages,purgeImages,expireUnattached,ownerOf} from './uploads.js';
 import {IMAGE_LIMITS} from './images.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1,'POST /anon/check':1,'POST /uploads':1});
@@ -510,8 +510,9 @@ async function anonItem(db,kind,id){
 }
 
 /**
- * Signed-out writes (and password edits of anonymous items). Order: input → ban → bot check → burst
- * limit → content checks → daily limit → write, so a refused request costs the network nothing.
+ * Signed-out writes (and password edits of anonymous items). Order: input → ban → bot check → content
+ * checks → burst limit → daily limit → write: a bot without a token costs nothing, and a writer whose text
+ * was refused (a link in the first post, a blocked word) can fix it and send it again at once.
  * @param {string} key @param {any} body @param {WriteCtx} x @returns {Promise<{status:number,body:any}>}
  */
 async function anonRoute(key,body,x){
@@ -543,8 +544,9 @@ async function anonRoute(key,body,x){
    const title=text(body.title,LIMITS.title,'title'),md=text(body.body,LIMITS.body,'body'),password=anonPassword(body.password),name=await anonName(db,body.name);
    await assertNotBanned(db,ident.net,now);
    await gate(true);
-   await minute('post',L.postsPerMinute);
+   // Content checks before the burst limit: a writer who fixes a refused text can send it again at once.
    const c=await anonContentChecks(x,{text:`${title}\n${md}`,kind:'post',ident});
+   await minute('post',L.postsPerMinute);
    const id=randomToken(12);
    const plan=await attachPlan(db,{md,owner:await ownerOf(context,secret),kind:'discussion',id});
    await daily('p',L.postsPerDay);
@@ -570,8 +572,8 @@ async function anonRoute(key,body,x){
    if(hasImageSyntax(md))throw noCommentImages();
    await assertNotBanned(db,ident.net,now);
    await gate(false);
-   await minute('comment',L.commentsPerMinute);
    const c=await anonContentChecks(x,{text:md,kind:'comment',ident});
+   await minute('comment',L.commentsPerMinute);
    await daily('c',L.commentsPerDay);
    const id=randomToken(12);
    await db.batch([
@@ -663,16 +665,19 @@ async function uploadRoute(x){
  if(context.user){
   assertMayWrite(await ensureProfile(db,context.user,now),now);
   if(!await allowRequest({env,limiter:x.deps.limiter,key:`v2:upload|u:${context.user.id}`,limit:20,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+  const img=await readUpload(x.request);
   if(!await takeDaily(db,`img:u:${context.user.id}`,kstDay(now),ANON.memberImagesPerDay))throw tooMany();
-  return uploaded(await storeUpload({env,db,request:x.request,owner,userId:String(context.user.id),anonNet:null,now}),context.setCookies);
+  return uploaded(await storeUpload({env,db,img,owner,userId:String(context.user.id),anonNet:null,now}),context.setCookies);
  }
  const mode=anonMode(cfg);assertAnonEnabled(mode,cfg);
  const ip=clientIp(x.request),ident=await anonIdentity(ip,secret,now),L=ANON.limits[mode.mode==='strict'?'strict':'normal'];
  await assertNotBanned(db,ident.net,now);
  await humanGate({cfg,context,ident,token:x.request.headers.get('x-turnstile-token'),fresh:false,ip,now,fetch:x.deps.fetch,mode});
  if(!await allowRequest({env,limiter:x.deps.limiter,key:`v2anon:upload|${ident.net}`,limit:12,now}))throw new ApiError('RATE_LIMITED','Too many requests. Please wait a minute.',{retryAfter:60});
+ // A file that is not an acceptable image is refused before it counts against the network's quota.
+ const img=await readUpload(x.request);
  if(!await takeDaily(db,`img:${ident.net}`,ident.day,L.imagesPerDay))throw tooMany();
- return uploaded(await storeUpload({env,db,request:x.request,owner,userId:ANON_USER,anonNet:ident.net,now}),context.setCookies);
+ return uploaded(await storeUpload({env,db,img,owner,userId:ANON_USER,anonNet:ident.net,now}),context.setCookies);
 }
 
 /** @typedef {{kind:string,id:string,category:string,reason:string,note:string|null}} FlagInput */
