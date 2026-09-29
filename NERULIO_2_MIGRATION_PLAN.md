@@ -30,7 +30,14 @@ Uses the existing D1 setup of the service layer (`docs/CLOUDFLARE.md`, `ops/d1.w
    npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --file dist-seed.sql
    ```
    It is for the first load: rows are `INSERT OR IGNORE`, so re-running adds nothing and never deletes
-   collector or community data. Later seed edits go through the ingest pipeline.
+   collector or community data. Later seed edits go through the ingest pipeline:
+   `.github/workflows/seed-sync.yml` runs `node tools/platform/seed-sync.mjs --d1 --verticals <v>` for every
+   vertical whose `data/seed/<v>/` changed in a push to `main` (same variable and secrets as step 5; Actions →
+   "Nerulio 2.0 seed sync" → Run workflow for a manual run, `radar` = show the edit on the Radar). It writes
+   under the seed identity: an unchanged seed writes ~0 rows and never moves "last verified" or reverts what
+   collectors, admins or the community wrote since; names/descriptions merge per locale (a collector's `ko`
+   name survives a seed without one). Each run is recorded as `seed-sync-<vertical>` in the admin app.
+   Locally / against a copy: `node tools/platform/seed-sync.mjs --sqlite copy.sqlite [--verticals games]`.
 3. Check: `--command "SELECT vertical,COUNT(*) FROM entities GROUP BY 1"` → 5 rows, 1,580 total.
 4. Write budget: the seed load alone writes ≈107,000 D1 rows (FTS index included) — more than the Free plan's
    100,000 rows written per day, which is shared by every database in the account. On Free, load the seed right

@@ -105,6 +105,14 @@ async function alert(c,a){
 
 /* ---------- the checks ---------- */
 
+/** The alert for a failed workflow run that recorded nothing (a D1 write limit can stop the run
+ * record too). payload.label 'seed-sync' = the seed sync workflow (.github/workflows/seed-sync.yml).
+ * @param {any} payload @returns {Message} */
+export function workflowFailedMessage(payload){
+ const seed=payload&&payload.label==='seed-sync';
+ return {kind:'collector_failed',title:seed?'시드 동기화 워크플로 실패':'수집기 워크플로 실패',body:`실행 기록이 남지 않았습니다 (D1 쓰기 한도일 수 있음). GitHub 로그를 확인하세요.${seed?' 시드 수정이 D1에 반영되지 않았을 수 있습니다.':''}`,url:'/admin/#/collectors',tag:'collectors'};
+}
+
 /** Collector failures: once per failure streak per threshold, when a collector's consecutive failures
  * reach the device's collectorFailN. When the run failed but nothing was recorded (a D1 write limit
  * can stop the run record too), devices with N=1 get one "workflow failed" alert per run.
@@ -127,7 +135,7 @@ export async function checkCollectorFailures(c,payload){
  if(!out.length&&payload&&payload.failed!==false&&!rows.length){
   const run=typeof payload.runUrl==='string'&&/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+/.test(payload.runUrl)?payload.runUrl:null;
   const key=`cfrun:${run?run.replace(/\D+/g,'').slice(-20):Math.floor(c.now/HOUR)}`;
-  if(!(await delivered(c.db,[key])).has(key))out.push(await alert(c,{key,wants:p=>p.collectorFailN===1,critical:true,topic:'collectors',message:{kind:'collector_failed',title:'수집기 워크플로 실패',body:'실행 기록이 남지 않았습니다 (D1 쓰기 한도일 수 있음). GitHub 로그를 확인하세요.',url:'/admin/#/collectors',tag:'collectors'}}));
+  if(!(await delivered(c.db,[key])).has(key))out.push(await alert(c,{key,wants:p=>p.collectorFailN===1,critical:true,topic:'collectors',message:workflowFailedMessage(payload)}));
  }
  return out;
 }

@@ -15,9 +15,12 @@ class Statement{
  constructor(db,sql,params=[]){this.db=db;this.sql=sql;this.params=params;}
  bind(...params){return new Statement(this.db,this.sql,params.map(value));}
  execute(){
+  this.db.queries++;
   const rows=this.db.raw.prepare(this.sql).all(...this.params).map(r=>({...r}));
   const changes=/^\s*(insert|update|delete)/i.test(this.sql)?Number(this.db.raw.prepare('SELECT changes() AS c').get().c):0;
-  return {results:rows,success:true,meta:{changes}};
+  // Like D1Rest.rowsWritten (D1 also counts index rows, so real D1 reports more; 0 stays 0).
+  this.db.rowsWritten+=changes;
+  return {results:rows,success:true,meta:{changes,rows_written:changes}};
  }
  async first(column){const row=this.execute().results[0];return row?column?row[column]:row:null;}
  async all(){return this.execute();}
@@ -27,6 +30,8 @@ export class D1Shim{
  constructor(file=':memory:'){
   if(!DatabaseSync)throw Error('node:sqlite unavailable');
   this.raw=new DatabaseSync(file);this.raw.exec('PRAGMA foreign_keys=ON');
+  /** Rows changed by prepared INSERT/UPDATE/DELETE statements (a lower bound of D1's rows_written). */
+  this.rowsWritten=0;this.queries=0;
  }
  static migrated(file=':memory:'){const db=new D1Shim(file);for(const f of migrationFiles())db.raw.exec(readFileSync(new URL(f,MIGRATIONS),'utf8'));return db;}
  prepare(sql){return new Statement(this,sql);}
