@@ -5,6 +5,8 @@
  * on AI channels, so both say the same thing. */
 const HOUR=36e5,DAY=864e5;
 export const SPIKE=Object.freeze({minReports:3,factor:3});
+/** What an outage click can say went wrong (the status page's buttons; the API accepts only these). */
+export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
 
 /** @param {{created_at:number}[]} reports at least the last 8 days @param {number} now */
 export function reportSignal(reports,now){

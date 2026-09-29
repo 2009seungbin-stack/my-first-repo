@@ -343,7 +343,11 @@ body.n2{margin:0;background:var(--bg);font-family:Pretendard,'IBM Plex Sans KR',
 .hd2{font-size:12.5px;font-weight:800;color:var(--mute);padding:10px 12px 4px;background:var(--bg);border-bottom:1px solid var(--line2)}
 .sthero{display:flex;gap:14px;align-items:flex-start;padding:16px 18px}
 .sthero .dot{width:14px;height:14px;border-radius:50%;flex:none}
-.sthero>.sti{margin-top:2px}.sthb{min-width:0;flex:1}.sthb .fine{margin:2px 0}.stf{color:var(--ink2)}
+.sthero{flex-wrap:wrap}.sthero>.sti{margin-top:2px}
+.stq{flex-basis:100%;display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line2)}
+.stbig{height:52px;border-radius:12px;border:0;background:var(--bad);color:var(--card);font:inherit;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.stbig:disabled{cursor:default;opacity:.9}.stbig.on{background:var(--ok)}
+.stsym{display:flex;flex-wrap:wrap;gap:6px}.stsym .vb{flex:1 1 90px}.stq .fine{margin:0}.sthb{min-width:0;flex:1}.sthb .fine{margin:2px 0}.stf{color:var(--ink2)}
 .sthero h1{font-size:20px;letter-spacing:-.3px}
 .sthero.bad{border-color:var(--bad)}.sthero.warn{border-color:var(--gold-line)}
 .sym{flex-wrap:wrap;padding:12px}
@@ -662,12 +666,19 @@ button.pin[aria-pressed="true"]{border-color:var(--brand);background:var(--brand
 .rbest li{display:flex;gap:10px;min-width:0}.rbest .rk{width:16px;flex:none;font:700 13px/1.4 ui-monospace,'JetBrains Mono',monospace;color:var(--brand)}
 .rbest a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rfoot{margin:0;padding:0 4px;font-size:12px;color:var(--mute);line-height:1.8}
+.mstat{display:none;gap:6px;font-size:12.5px}
 @media (max-width:1000px){
  .mstat{display:flex}
 }
-.mstat{display:none;gap:6px;overflow-x:auto;scrollbar-width:none;font-size:12.5px}
-.mstat a{flex:1 0 auto;min-height:40px;padding:0 10px;border-radius:9px;background:var(--card);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.msc{flex:1 1 0;min-width:0;display:flex;flex-direction:column;border-radius:9px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.msc>a:first-child{min-width:0;min-height:42px;padding:4px 8px;display:grid;grid-template-columns:auto 1fr;align-content:center;align-items:center;column-gap:5px;white-space:nowrap}
+.msc>a:first-child b,.msc>a:first-child .svs{overflow:hidden;text-overflow:ellipsis}.msc>a:first-child .svs{grid-column:1/3;font-size:11.5px}
 .n2 .mstat a:hover{text-decoration:none}.mstat .svs{margin-left:0}
+/* the one-tap "안 돼요" beside a service (home status box and the phone strip) */
+.svc li{display:flex;gap:6px}.svc .svr{flex:1;min-width:0;gap:8px}.svc .svr b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.svc .svs{white-space:nowrap}
+.nb{flex:none;height:40px;padding:0 9px;border-radius:9px;border:1px solid var(--btn-line);background:var(--card);color:var(--bad);display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;white-space:nowrap;cursor:pointer}
+.n2 .nb:hover{text-decoration:none;background:var(--bad-bg)}.nb.on{color:var(--ok);border-color:var(--ok)}
+.nb.c{height:30px;padding:0 6px;border:0;border-top:1px solid var(--line2);border-radius:0;justify-content:center;gap:4px;font-size:12px}
 .mstat .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--mute)}.mstat .dot.ok{background:#22c55e}.mstat .dot.warn{background:#f59e0b}.mstat .dot.bad{background:#e5484d}
 
 /* post view (v4): rounded cards, the writer's initial, big vote buttons, the comment box above the thread */

@@ -683,3 +683,38 @@ test('board display: anonymous "닉네임 (ID)" muted, members with ✓, the Rad
  assert.match(String(author({author_name:'<b>x</b>',author_tier:'new',anon_id:'zz00'},'ko')),/&lt;b&gt;x&lt;\/b&gt;/,'names are escaped');
  assert.match(String(author({author_name:null,author_tier:'new',bot:true},'ko')),/nick bot[\s\S]*<svg class="i"/);
 });
+
+test('"안 돼요" without an account: one tap on a service, once per network per hour, behind the bot check and limits',{skip},async()=>{
+ const h=await harness(),a=h.browser('203.0.113.7');
+ const click=(b,extra={})=>b.call('POST','/reports',{body:{kind:'issue',entityId:'service:svc',result:'broken',env:{symptom:'down',platform:'mobile'},...extra}});
+ const r=await click(a);
+ assert.equal(r.status,201);assert.equal(r.json.counted,true);assert.equal(r.json.check,'none','strict mode says so');
+ const row=h.db.raw.prepare("SELECT kind,entity_id,user_id,result,env,comment FROM community_reports WHERE id=?").get(r.json.id);
+ assert.deepEqual({...row},{kind:'issue',entity_id:'service:svc',user_id:'anon',result:'broken',env:'{"symptom":"down","platform":"mobile"}',comment:null});
+ const again=await click(h.browser('203.0.113.99'),{env:{symptom:'slow'}});
+ assert.equal(again.status,200);assert.equal(again.json.counted,false,'same network (the daily ID), same hour: counted once');
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) AS n FROM community_reports WHERE kind='issue'").get().n,1);
+ assert.equal((await click(h.browser('198.51.100.7'))).json.counted,true,'another network counts');
+ assert.equal((await click(a,{entityId:'service:two'})).json.counted,true,'another service counts');
+ h.clock.now+=36e5;
+ assert.equal((await click(a)).json.counted,true,'the next hour counts again');
+ // Only the bare click on a service works without an account; nothing else is accepted.
+ for(const body of [{kind:'issue',entityId:'service:svc',result:'broken',comment:'글로 남기기'},{kind:'issue',entityId:'service:svc',result:'works'},{kind:'compat',entityId:'service:svc',targetId:'service:two',result:'works'}]){
+  const x=await a.call('POST','/reports',{body});assert.equal(x.status,401,JSON.stringify(body));assert.equal(x.json.error.code,'LOGIN_REQUIRED');
+ }
+ assert.equal((await click(a,{env:{symptom:'<b>'}})).status,400,'symptoms from the fixed list only');
+ assert.equal((await click(a,{env:{os:'x'}})).status,400);
+ // Bans and the bot check apply as for any anonymous write.
+ const t=await harness({turnstile:true}),tb=t.browser();
+ const need=await click(tb);assert.equal(need.status,403);assert.equal(need.json.error.code,'CHALLENGE_REQUIRED');
+ assert.equal((await click(tb,{turnstileToken:'tok-1'})).status,201);
+ const prod=await harness({production:true});
+ assert.equal((await click(prod.browser())).json.error.code,'NOT_CONFIGURED','production without Turnstile: no anonymous clicks');
+ const ip=h.browser('192.0.2.50'),ident=await anonIdentity('192.0.2.50',SECRET,h.clock.now);
+ await h.db.prepare('INSERT INTO anon_bans (net,until,reason,created_at) VALUES (?,?,?,?)').bind(ident.net,h.clock.now+864e5,'x',h.clock.now).run();
+ assert.equal((await click(ip)).status,403,'a banned network cannot report');
+ // Members keep their path: a click replaces their own within the hour.
+ await h.member('m');const m=h.browser('192.0.2.1','m');
+ assert.equal((await click(m)).status,201);assert.equal((await click(m,{env:{symptom:'slow'}})).status,201);
+ assert.equal(h.db.raw.prepare("SELECT COUNT(*) AS n FROM community_reports WHERE kind='issue' AND user_id='u-m'").get().n,1);
+});

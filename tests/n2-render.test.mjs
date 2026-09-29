@@ -448,3 +448,16 @@ test('status page copy: search words, separate labels, and "정상" only after a
  const gem=await (await renderPlatformPage(new Request('https://nerulio.com/ko/ai/gemini-app/status'),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
  assert(gem.includes('<h1>제미나이(Gemini) 지금 안 돼요?</h1>')&&gem.includes('자동 확인하지 않아요'),'Gemini has no status collector: said plainly');
 });
+
+test('"안 돼요" everywhere it matters: at the top of the status page, beside each service on the home box and the phone strip',{skip:!sqliteAvailable},async()=>{
+ const d=await seeded();
+ const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const st=await get('/ko/ai/claude/status');
+ const hero=st.slice(st.indexOf('class="box sthero'),st.indexOf('</section>',st.indexOf('class="box sthero')));
+ assert(hero.includes('id="report" data-island="outage-report" data-entity="service:claude"')&&hero.includes('class="stbig"')&&hero.includes('Claude 안 돼요'),'the one-tap report is in the first box');
+ assert.equal((st.match(/data-island="outage-report"/g)||[]).length,1,'one report box');
+ const home=await get('/');
+ for(const s of ['claude','chatgpt','gemini-app'])assert.equal((home.match(new RegExp(`data-outage="service:${s}"`,'g'))||[]).length,2,`${s}: on the right column and the phone strip`);
+ assert(home.includes('href="/ko/ai/claude/status#report"'),'without JavaScript it opens the report box');
+ assert((await get('/en/')).includes('aria-label="Report Claude not working"'));
+});

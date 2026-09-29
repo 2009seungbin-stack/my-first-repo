@@ -43,7 +43,8 @@ test('AI status wording: incident, report spike, checked, or only the report cou
 });
 
 test('icons: every name used by the menu, channels, tiers and status exists; avatars are stable per name',async()=>{
- const {icon,ICON_NAMES,CHANNEL_ICON,TIER_ICON,STATUS_ICON,identicon}=await import('../platform/render/icons.js');
+ const {icon,ICON_NAMES,CHANNEL_ICON,TIER_ICON,STATUS_ICON,REPORT_ICON,FEED_ICON,identicon}=await import('../platform/render/icons.js');
+ assert(ICON_NAMES.includes(REPORT_ICON)&&ICON_NAMES.includes(FEED_ICON),'the 안 돼요 and feed icons');
  const {CHANNELS}=await import('../platform/channels.js');
  for(const n of [...FILE_TOOLS,...GAME_TOOLS].map(x=>x.svg))assert(ICON_NAMES.includes(n),n);
  for(const c of CHANNELS)assert(ICON_NAMES.includes(CHANNEL_ICON[c.id]),c.id);

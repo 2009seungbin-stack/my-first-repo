@@ -560,16 +560,30 @@ async function main(){
   });});
  }
 
+ // "안 돼요": one tap, with or without an account (the anonymous path when this deployment allows it).
+ const outage=(entityId,symptom)=>write('/reports',{kind:'issue',entityId,result:'broken',env:{symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn,{anon:true});
+ const outageToast=r=>toast(r.counted===false?(L==='ko'?'이번 시간에는 이미 알렸어요. 한 사람당 1시간에 한 번 셉니다.':'Already counted this hour. One report per person per hour.'):(L==='ko'?'리포트를 반영했어요. 한 사람당 1시간에 한 번 셉니다.':'Counted. One report per person per hour.'));
  for(const box of $$('[data-island="outage-report"]')){
+  const note=$('[data-report-note]',box);
+  if(note&&!signedIn&&ANON.enabled)note.textContent=L==='ko'?'로그인 없이 한 번 누르면 사용자 리포트로 집계돼요 · 한 사람당 1시간에 한 번 · 공식 상태와 따로 셉니다':'One tap, no account needed · once per person per hour · counted apart from the official status';
   $$('button',box).forEach(b=>{b.disabled=false;b.addEventListener('click',async()=>{
-   const r=await write('/reports',{kind:'issue',entityId:box.dataset.entity,result:'broken',env:{symptom:b.dataset.symptom,platform:/Android|iPhone|iPad/.test(navigator.userAgent)?'mobile':'desktop'}},signedIn);
+   const r=await outage(box.dataset.entity,b.dataset.symptom);
    if(!r)return;
    // Show it counted: one report per person per hour, so only the first click adds to the total.
-   const first=!$$('button.on',box).length;$$('button',box).forEach(x=>x.classList.toggle('on',x===b));
+   const first=!$$('button.on',box).length&&r.counted!==false;$$('button',box).forEach(x=>x.classList.toggle('on',x===b));
    const tot=$('[data-total24]');if(tot&&first){const v=Number(tot.dataset.total24||0)+1;tot.dataset.total24=String(v);tot.textContent=String(v);}
-   toast(L==='ko'?'리포트를 반영했어요. 한 사람당 1시간에 한 번 셉니다.':'Counted. One report per person per hour.');
+   outageToast(r);
   });});
  }
+ // The compact "안 돼요" beside each service on the home status box and the phone strip (a link to the
+ // status page's report box without JavaScript).
+ for(const a of $$('a[data-outage]'))a.addEventListener('click',async e=>{
+  if(e.ctrlKey||e.metaKey||e.shiftKey)return;
+  e.preventDefault();if(a.classList.contains('on'))return outageToast({counted:false});
+  const r=await outage(a.dataset.outage,'down');if(!r)return;
+  for(const x of $$(`a[data-outage="${CSS.escape(a.dataset.outage)}"]`))x.classList.add('on');
+  outageToast(r);
+ });
 
  channels(signedIn);
 

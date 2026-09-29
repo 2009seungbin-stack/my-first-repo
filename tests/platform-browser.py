@@ -89,6 +89,30 @@ def anon_flow(b, errors):
     w = ph.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'anon comment box scrolls sideways ({w})'
     for c in (ca, cm, cp): c.close()
 
+def outage_flow(b, errors):
+    """"안 돼요" without an account: the big button on the status page counts once per network and hour;
+    the compact one beside each service on the home status box (and the phone strip) is one tap too."""
+    c = b.new_context(extra_http_headers={'cf-connecting-ip': '198.51.100.150'}); pg = c.new_page()
+    pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
+    pg.on('pageerror', lambda e: errors.append(str(e)))
+    pg.goto(B + '/ko/ai/claude/status'); pg.wait_for_selector('.stbig:not([disabled])', timeout=5000)
+    assert '로그인 없이' in pg.locator('[data-report-note]').inner_text(), 'signed out with anonymous writing on: say no account is needed'
+    before = int(pg.locator('[data-total24]').get_attribute('data-total24'))
+    pg.locator('.stbig').click(); pg.wait_for_function('()=>document.querySelector("#n2-toast")?.textContent.includes("반영했어요")', timeout=5000)
+    assert int(pg.locator('[data-total24]').inner_text()) == before + 1, 'the first tap adds to the total'
+    pg.locator('.stsym button', has_text='느림').click(); pg.wait_for_function('()=>document.querySelector("#n2-toast")?.textContent.includes("이미 알렸어요")', timeout=5000)
+    assert int(pg.locator('[data-total24]').inner_text()) == before + 1, 'counted once per hour'
+    pg.goto(B + '/'); pg.wait_for_timeout(400)
+    btn = pg.locator('.rrail a[data-outage="service:chatgpt"]')
+    assert btn.is_visible() and btn.get_attribute('href').endswith('/ko/ai/chatgpt/status#report')
+    btn.click(); pg.wait_for_function('()=>document.querySelector("#n2-toast")?.textContent.includes("반영했어요")', timeout=5000)
+    assert pg.url == B + '/', 'one tap: stays on the page'
+    assert 'on' in (btn.get_attribute('class') or '')
+    m = c.new_page(); m.set_viewport_size({'width': 390, 'height': 900}); m.goto(B + '/'); m.wait_for_timeout(300)
+    assert m.locator('.mstat a[data-outage]').count() == 3 and m.locator('.mstat a[data-outage]').first.is_visible(), 'the phone strip has 안 돼요 per service'
+    w = m.evaluate('document.documentElement.scrollWidth'); assert w <= 390, f'the status strip scrolls sideways ({w})'
+    c.close()
+
 def channel_flow(b, errors):
     """Channels without an account: pin a channel (kept in this browser), the channel bar puts it first, the
     전체 채널 sheet (a bottom sheet at phone width) lists it; signing in moves the pins to the account. Old
@@ -247,6 +271,7 @@ def main():
             pg.goto(B + '/ko/community/'); pg.wait_for_timeout(800)
             assert '구독한 태그' in pg.locator('.box.login').inner_text(), 'the sign-in box becomes the reader\'s followed tags'
             anon_flow(b, errors)
+            outage_flow(b, errors)
             channel_flow(b, errors)
             m = b.new_page(viewport={'width': 390, 'height': 900})
             for path in ['/ko/community/', '/ko/community/ai/', '/ko/community/games/?kind=patch', '/ko/community/free/', '/ko/community/best/', '/ko/ai/claude/', '/ko/games/caves-of-qud/', '/ko/hardware/rtx-5070/', '/ko/community/ai/write?tag=service:claude', '/ko/community/games/write?tag=game:steam-333640', e2e_post, '/ko/ai/claude/status', '/ko/hardware/rtx-5070/local-llm', '/ko/radar/', '/ko/search/?q=claude', '/ko/ai/claude-opus-5-5/']:

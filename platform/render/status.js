@@ -9,14 +9,13 @@ import {page,nameOf,channelUrl,box,badge} from './ui.js';
 import {boardTime,TZ} from './format.js';
 import {related,eventsFor,issueReportsSince,factsFor,pickFact,collectorState,koAlias} from '../db/channel.js';
 import {STATUS_ADAPTER,statusChecked} from './panels/ai.js';
-import {reportSignal,SPIKE} from '../status-signal.js';
+import {reportSignal,SPIKE,SYMPTOMS} from '../status-signal.js';
 import {RAIL_SERVICES,isStatusIncident,statusState} from './rail.js';
-import {icon,STATUS_ICON} from './icons.js';
+import {icon,STATUS_ICON,REPORT_ICON} from './icons.js';
 
 const HOUR=36e5,DAY=864e5;
-export const SYMPTOMS=Object.freeze({down:{ko:'접속 안 됨',en:'Won’t load'},slow:{ko:'느림',en:'Slow'},error:{ko:'오류 메시지',en:'Errors'},login:{ko:'로그인 안 됨',en:'Can’t sign in'},limit:{ko:'한도 오류',en:'Limit errors'}});
 /** Spike = last hour ≥ 3 reports and ≥ 3× the average hourly rate of the previous 7 days. */
-export {SPIKE};
+export {SPIKE,SYMPTOMS};
 
 /** The Korean name people search with ("클로드", "챗GPT", "제미나이"): the curated one of the home status
  * services, else the entity's Korean alias. @param {any} db @param {import('../db/channel.js').Entity} entity @param {string} name */
@@ -97,6 +96,16 @@ ${m.hours.map((h,i)=>i%6===0||i===23?html`<text class="ax" x="${PL+i*bw+bw/2}" y
 </svg></div>`;
 }
 
+/** The one-tap report at the top of the status page: "안 돼요" (won't load) at once, or the symptom. A
+ * click is a vote, never a post; the islands send it with or without an account (/api/v2/reports).
+ * @param {string} id @param {string} name @param {string} l */
+export function reportBox(id,name,l){
+ const ko=l==='ko',[first,...rest]=Object.entries(SYMPTOMS);
+ return html`<div class="stq" id="report" data-island="outage-report" data-entity="${id}"><button class="stbig" type="button" data-symptom="${first[0]}" disabled>${icon(REPORT_ICON,20)}<span>${ko?`${name} 안 돼요`:`${name} isn’t working`}</span></button>
+<div class="stsym" role="group" aria-label="${ko?'다른 증상':'Other symptoms'}">${rest.map(([k,v])=>html`<button class="vb" type="button" data-symptom="${k}" disabled>${v[/** @type {'ko'|'en'} */(l)]}</button>`)}</div>
+<p class="fine" data-report-note>${ko?'누르면 바로 사용자 리포트로 집계돼요 · 한 사람당 1시간에 한 번 · 공식 상태와 따로 셉니다':'One tap counts as a user report · once per person per hour · counted apart from the official status'}</p></div>`;
+}
+
 /** @param {Awaited<ReturnType<typeof loadStatus>>} m @param {{origin:string}} site */
 export function renderStatus(m,site){
  const {entity:e,l,now,state}=m,s=t(l),ko=l==='ko',name=nameOf(e,l),base=channelUrl(l,e),seo=statusSeo(name,m.alias,l);
@@ -104,14 +113,14 @@ export function renderStatus(m,site){
  const sib=m.siblingOpen.length?html`<p class="fine">${ko?`같은 회사의 다른 서비스에 공식 장애가 진행 중이에요: ${[...new Set(m.siblingOpen.map(x=>nameOf(/** @type {any} */(x.about),l)))].join(', ')}`:`An official incident is open on a related service: ${[...new Set(m.siblingOpen.map(x=>nameOf(/** @type {any} */(x.about),l)))].join(', ')}`}</p>`:'';
  const top=html`<section class="box sthero ${state}"><span class="sti ${state}">${icon(STATUS_ICON[state],30)}</span><div class="sthb"><h1>${seo.h1}</h1><p class="sth">${headline}</p>${sib}
 <p class="stf fine">${freshness(m)}</p>
-<p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div></section>`;
- const report=box({title:ko?'지금 문제가 있나요?':'Having problems now?',note:ko?'로그인한 사용자 리포트만 집계 · 한 사람당 1시간에 한 번':'Signed-in reports only · once per person per hour'},html`<div class="vbs sym" data-island="outage-report" data-entity="${e.id}">${Object.entries(SYMPTOMS).map(([k,v])=>html`<button class="vb" type="button" data-symptom="${k}" disabled>${v[/** @type {'ko'|'en'} */(l)]}</button>`)}</div>`);
+<p class="fine">${ko?'공식 상태 페이지의 장애 기록과 Nerulio 사용자 리포트를 따로 보여줍니다.':'Official incidents and Nerulio user reports, shown separately.'} ${m.statusPage?html`<a href="${safeHref(m.statusPage)}" rel="noopener" target="_blank">${ko?'공식 상태 페이지':'Official status page'} ↗</a>`:''}</p></div>
+${reportBox(e.id,name,l)}</section>`;
  const reports=box({title:ko?'최근 24시간 사용자 리포트':'User reports, last 24 hours',extra:badge('COMMUNITY',l),note:ko?html`합계 <span data-total24="${m.total24}">${m.total24}</span>건 · 점선 = 지난 7일 평균`:html`<span data-total24="${m.total24}">${m.total24}</span> total · dashed = 7-day average`},
   html`${chart(m)}${Object.keys(m.symptoms).length?html`<ul class="rows">${Object.entries(m.symptoms).sort((a,b)=>b[1]-a[1]).map(([k,n])=>html`<li><span class="tt">${/** @type {any} */(SYMPTOMS)[k]?.[l]||k}</span><b>${n}</b></li>`)}</ul>`:''}
 <details class="method"><summary>${ko?'표로 보기':'Show as table'}</summary><table class="mt"><thead><tr><th>${ko?'시간':'Hour'}</th><th>${ko?'리포트':'Reports'}</th></tr></thead><tbody>${m.hours.map(h=>html`<tr><td>${boardTime(h.from,now,l)}</td><td>${h.n}</td></tr>`)}</tbody></table></details>`);
  const inc=box({title:ko?'공식 장애 기록 (30일)':'Official incidents (30 days)',extra:badge('AUTOMATED',l)},m.incidents.length?html`<ul class="rows">${m.incidents.map(x=>html`<li><span class="tm">${x.starts_at?boardTime(x.starts_at,now,l):''}</span><a class="tt" href="${safeHref(x.url)}" rel="noopener" target="_blank">${x.about?html`<span class="chn">${nameOf(x.about,l)}</span> `:''}${x.title[l]||x.title.en}</a><span class="st ${x.status==='ended'?'c':'u'}">${x.status==='ended'?(ko?'해결':'resolved'):(ko?'진행 중':'open')}</span></li>`)}</ul>`:html`<p class="empty">${m.checked?(ko?'최근 30일 동안 공식 상태 페이지에 기록된 장애가 없습니다.':'No incident on the official status page in the last 30 days.'):(ko?'공식 상태 페이지를 아직 수집하지 않았습니다. 위 링크에서 직접 확인해 주세요.':'The official status page has not been collected yet; check it via the link above.')}</p>`);
  const others=m.siblings.length?box({title:ko?'같은 회사의 다른 서비스':'Other services by the same company'},html`<ul class="rows">${m.siblings.map(x=>html`<li><a class="tt" href="${channelUrl(l,x)}status">${nameOf(x,l)}</a></li>`)}</ul>`):'';
- const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${report}${reports}${inc}</main><aside class="side">${others}</aside></div>`;
+ const body=html`<div class="crumb"><a class="chl" href="${base}">${s.channel(name)}</a><span class="sp"></span><a class="btn" href="${base}">${s.list}</a></div>${top}<div class="cols"><main class="mainc">${reports}${inc}</main><aside class="side">${others}</aside></div>`;
  return page({l,title:seo.title,description:seo.description,
   canonical:site.origin+base+'status',alternates:{[l]:site.origin+base+'status',[ko?'en':'ko']:site.origin+channelUrl(ko?'en':'ko',e)+'status'},
   channels:m.channels.map(x=>({...x,on:x.href===base})),scope:{name,id:e.id},body,
