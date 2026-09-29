@@ -36,7 +36,7 @@ export async function createDevServer({port=8788,now=Date.now()}={}){
     if(role==='moderator'||role==='admin')await db.prepare("INSERT INTO user_profiles (user_id,display_name,role,created_at,updated_at) VALUES (?1,?2,?3,?4,?4) ON CONFLICT(user_id) DO UPDATE SET role=excluded.role").bind(id,name,role,Date.now()).run();
     res.writeHead(302,{'set-cookie':`nerulio_session=${token}; Path=/; HttpOnly; SameSite=Lax`,location:url.searchParams.get('next')||'/ko/community/'});return res.end();
    }
-   const body=req.method==='POST'?await new Promise(r=>{const c=[];req.on('data',d=>c.push(d));req.on('end',()=>r(Buffer.concat(c)));}):undefined;
+   const body=req.method!=='GET'&&req.method!=='HEAD'?await new Promise(r=>{const c=[];req.on('data',d=>c.push(d));req.on('end',()=>r(Buffer.concat(c)));}):undefined;
    const request=new Request(url,{method:req.method,headers:/** @type {any} */(req.headers),body});
    let response=null;
    if(url.pathname.startsWith('/api/v2/'))response=await handlePlatformApi(request,env,null);

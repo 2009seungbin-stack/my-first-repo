@@ -475,3 +475,8 @@ test('recordRun stays compatible with a database that has no rows_written column
  await recordRun(db,{id:'x',vertical:'ai'},{started:1,finished:2,error:null,observations:1,changes:0,rowsWritten:5,queries:2});
  assert.equal(db.raw.prepare('SELECT COUNT(*) n FROM collector_runs').get().n,1);
 });
+
+test('malformed path parameters are a 404, not a crash',{skip},async()=>{
+ const h=await harness();const admin=await h.admin();
+ assert.equal((await admin.call('GET','/admin/collectors/%E0%A4%A/runs')).status,404);
+});

@@ -638,7 +638,7 @@ export async function handleAdminApi(request,env,ctx,deps={}){
  try{
   let params=/** @type {string[]} */([]);
   // Unknown path or method: 404 like any other missing page (nothing about the admin surface leaks).
-  const r=ROUTES.find(x=>{if(x.m!==request.method)return false;const mm=x.re.exec(route);if(mm)params=mm.slice(1).map(decodeURIComponent);return !!mm;});
+  const r=ROUTES.find(x=>{if(x.m!==request.method)return false;const mm=x.re.exec(route);if(mm)params=mm.slice(1).map(p=>{try{return decodeURIComponent(p);}catch{return "";}});return !!mm;});
   if(!r)throw new ApiError('NOT_FOUND');
   const cfg=runtimeConfig(env),now=(deps.now||Date.now)(),db=env.DB;
   if(!cfg.configured)throw new ApiError('SERVICE_NOT_CONFIGURED');
