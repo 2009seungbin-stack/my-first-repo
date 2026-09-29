@@ -22,7 +22,7 @@
 import {hmac,hmacHex,hex,base64url,fromBase64url,safeEqual,sign,unsign,sha256} from '../crypto.js';
 import {ApiError,cookie} from '../http.js';
 import {verifyTurnstile} from '../turnstile.js';
-import {ipv6Groups} from '../api.js';
+import {ipv6Groups} from '../net.js';
 
 export const ANON_USER='anon';
 export const ANON_PASS_COOKIE='nerulio_anonpass';
