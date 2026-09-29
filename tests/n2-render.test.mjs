@@ -461,3 +461,27 @@ test('"안 돼요" everywhere it matters: at the top of the status page, beside 
  assert(home.includes('href="/ko/ai/claude/status#report"'),'without JavaScript it opens the report box');
  assert((await get('/en/')).includes('aria-label="Report Claude not working"'));
 });
+
+test('share cards: one per service × state × language, 1200×630, and the status page picks the one for its state',{skip:!sqliteAvailable},async()=>{
+ const {readFileSync}=await import('node:fs');
+ const {CARD_SERVICES,CARD_STATES,statusCardPath,cardLabel}=await import('../platform/status-card.js');
+ const {ogImageUrl}=await import('../platform/render/ui.js');
+ const d=await seeded();
+ for(const s of CARD_SERVICES){
+  assert(await d.prepare("SELECT 1 FROM entities WHERE id=? AND slug=?").bind(s.id,s.slug).first(),`${s.id} is at /ai/${s.slug}/`);
+  for(const st of CARD_STATES)for(const l of ['ko','en']){
+   const png=readFileSync(new URL(`..${statusCardPath(s.id,st,l)}`,import.meta.url));
+   assert.equal(png.readUInt32BE(16),1200);assert.equal(png.readUInt32BE(20),630);assert(png.length<60e3,'small');
+  }
+ }
+ assert.equal(statusCardPath('service:claude-code','warn','ko'),null,'other services keep the site card');
+ assert.equal(statusCardPath('service:claude','maybe','ko'),null);
+ assert.equal(cardLabel('warn','ko'),'리포트 급증');assert.equal(cardLabel('unk','ko'),'지금 안 돼요?','no claim without data');
+ assert.equal(ogImageUrl({l:'ko',canonical:'https://nerulio.com/ko/x',ogImage:{url:'https://evil.example/a.png'}}),'https://nerulio.com/assets/social/ko-home.png','only our own origin');
+ const get=async p=>(await renderPlatformPage(new Request('https://nerulio.com'+p),{DB:d},{origin:'https://nerulio.com',now:()=>NOW})).text();
+ const claude=await get('/ko/ai/claude/status');
+ assert(claude.includes('<meta property="og:image" content="https://nerulio.com/assets/social/ko-status-claude-warn.png">')&&claude.includes('<meta property="og:image:alt" content="Claude · 리포트 급증">'),'a spike of reports: the spike card');
+ assert((await get('/en/ai/gemini-app/status')).includes('/assets/social/en-status-gemini-app-unk.png'),'no status collector for Gemini: the question card');
+ assert((await get('/ko/ai/claude-code/status')).includes('/assets/social/ko-home.png'));
+ assert((await get('/ko/ai/claude/')).includes('/assets/social/ko-home.png'),'other pages keep the site card');
+});

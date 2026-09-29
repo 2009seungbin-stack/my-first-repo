@@ -135,11 +135,20 @@ export function channelSheet(l){
 <p class="fine shf">${ko?'로그인 없이 고정한 채널은 이 브라우저에 저장되고, 로그인하면 계정으로 옮겨져요.':'Pins without an account stay in this browser and move to your account when you sign in.'}</p></dialog>`;
 }
 
+/** The share image of a page: its own card when it has one (a site path or an absolute URL on the site),
+ * else the site card of the language. @param {{l:string,canonical:string,ogImage?:{url:string}|null}} o */
+export function ogImageUrl(o){
+ const origin=new URL(o.canonical).origin;
+ if(o.ogImage?.url){const u=new URL(o.ogImage.url,origin);if(u.origin===origin)return u.href;}
+ return `${origin}/assets/social/${o.l==='ko'?'ko':'en'}-home.png`;
+}
+
 /**
  * Page shell. `channels` = the channel bar (popular channels for anonymous visitors; an island swaps in
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
- *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,ogType?:string}} o
+ *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,feedTitle?:string,ogType?:string,
+ *  ogImage?:{url:string,alt?:string}|null}} o `ogImage` = a 1200×630 share card of this page (a site path), instead of the site card.
  */
 export function page(o){
  const s=t(o.l);
@@ -162,11 +171,12 @@ ${alt.map(([hl,href])=>html`<link rel="alternate" hreflang="${hl}" href="${href}
 <meta property="og:site_name" content="Nerulio">
 <meta property="og:type" content="${o.ogType||'website'}">
 <meta property="og:locale" content="${o.l==='ko'?'ko_KR':'en_US'}">
-<meta property="og:image" content="${new URL(o.canonical).origin}/assets/social/${o.l==='ko'?'ko':'en'}-home.png">
+<meta property="og:image" content="${ogImageUrl(o)}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
+${o.ogImage?.alt?html`<meta property="og:image:alt" content="${o.ogImage.alt}">
+`:''}<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="RSS">
+${o.feed?html`<link rel="alternate" type="application/rss+xml" href="${o.feed}" title="${o.feedTitle||'RSS'}">
 `:''}
 <script src="${THEME_SRC}"></script>
 <link rel="stylesheet" href="${CSS_HREF}">
