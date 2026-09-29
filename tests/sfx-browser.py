@@ -71,13 +71,21 @@ def run():
         expect(page.locator('#collection [data-choose="0"]')).to_contain_text('Laser One'); checks += 1
         page.locator('#keep').click(); page.locator('#collection [data-up="1"]').click()
         expect(page.locator('#collection [data-choose="1"]')).to_contain_text('Laser One'); checks += 1
-        # Reopen an actual WAV for each of Bfxr's twelve named wave choices.
-        for wave_name in ('triangle','sine','square','saw','breaker','tan','whistle','white','voice','bitnoise','rasp','fm'):
-            page.locator('#layers select[data-layer="0"][data-field="wave"]').select_option(wave_name)
-            with page.expect_download(timeout=30000) as item: page.locator('#saveAudio').click()
-            target=temp/('wave-'+wave_name+'.wav');item.value.save_as(target)
-            with wave.open(str(target),'rb') as w:assert w.getnframes()>1000 and w.getframerate()==44100
-            checks += 1
+        # Reopen an actual WAV for each of Bfxr's twelve named wave choices. Chromium drops the 11th
+        # download a tab starts from script, so the waves use fresh tabs of six and the main page keeps its budget.
+        all_waves=('triangle','sine','square','saw','breaker','tan','whistle','white','voice','bitnoise','rasp','fm')
+        for group in (all_waves[:6], all_waves[6:]):
+            waves=context.new_page(); waves.on('pageerror', lambda e: errors.append(str(e.stack or e)))
+            waves.goto(BASE + '/en/game/sfx-generator/', wait_until='domcontentloaded')
+            waves.locator('#metrics').filter(has_text='Duration').wait_for()
+            waves.locator('#advanced').evaluate('(x) => x.open = true')
+            for wave_name in group:
+                waves.locator('#layers select[data-layer="0"][data-field="wave"]').select_option(wave_name)
+                with waves.expect_download(timeout=30000) as item: waves.locator('#saveAudio').click()
+                target=temp/('wave-'+wave_name+'.wav');item.value.save_as(target)
+                with wave.open(str(target),'rb') as w:assert w.getnframes()>1000 and w.getframerate()==44100
+                checks += 1
+            waves.close()
 
         # Real CC0 Kenney audio when the local corpus is present, with a generated fallback for CI.
         sample = CORPUS if CORPUS.exists() else temp / 'input.wav'
