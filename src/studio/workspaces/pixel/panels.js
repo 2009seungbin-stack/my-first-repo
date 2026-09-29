@@ -95,7 +95,7 @@ export function createPanels(W){
  }
  // ------------------------------------------------------------------ Palette
  const palette=h('div.px-palette',{'data-px':'palette'});
- let palSel=new Set(),dragFrom=null,imageColors=null,lastClick=null;
+ let palSel=new Set(),dragFrom=null,imageColors=null,imageMany=false,imageTries=0,lastClick=null;
  function paletteActions(actions){
   actions.append(btn('plus',t('px.pal.add'),()=>addFg(),{id:'pal-add'}),btn('trash',t('px.pal.remove'),()=>removeSelected(),{id:'pal-remove'}),btn('pxSort',t('px.pal.sort'),e=>sortMenu(e.currentTarget),{id:'pal-sort'}),btn('pxMenu',t('px.pal.more'),e=>palMenu(e.currentTarget),{id:'pal-menu'}));
  }
@@ -103,7 +103,8 @@ export function createPanels(W){
  function renderPalette(){
   const a=asset();if(!a){palette.replaceChildren(h('p.st-muted.st-pad',{},t('px.hint.noSprite')));return;}
   const cols=currentColors(),ti=PD.transparentIndexOf(a),idx=PD.isIndexed(a),fromImage=!a.palette?.colors?.length;
-  if(fromImage&&!imageColors){imageColors=[];deriveImageColors();}
+  const pending=fromImage&&!imageColors;
+  if(pending)deriveImageColors();
   const fgKey=I.colorKey(prefs.fg),bgKey=I.colorKey(prefs.bg);
   const grid=h('div.px-pal-grid',{role:'listbox','aria-multiselectable':'true','aria-label':t('px.panel.palette'),'data-px':'pal-grid'});
   cols.forEach((c,i)=>{
@@ -111,13 +112,17 @@ export function createPanels(W){
    if(I.colorKey(c)===fgKey)sw.classList.add('is-fg');if(I.colorKey(c)===bgKey)sw.classList.add('is-bg');if(W.S.rampSel.includes(i))sw.classList.add('is-ramp');
    grid.append(sw);
   });
-  const info=h('p.st-muted.px-pal-info',{'data-px':'pal-info'},fromImage?t('px.pal.fromImage',{n:cols.length}):t(idx?'px.pal.infoIndexed':'px.pal.infoRgb',{n:cols.length,ti}));
+  const info=h('p.st-muted.px-pal-info',{'data-px':'pal-info'},pending?'':fromImage?(imageMany?t('px.pal.fromImageMany'):t('px.pal.fromImage',{n:cols.length})):t(idx?'px.pal.infoIndexed':'px.pal.infoRgb',{n:cols.length,ti}));
   const ramp=W.S.rampSel.length?h('p.st-muted.px-pal-info',{},t('px.pal.rampSel',{n:W.S.rampSel.length})):'';
   palette.replaceChildren(grid,info,ramp);
  }
  async function deriveImageColors(){
-  const a=asset();if(!a||!session.rect)return;const d=session.compose(null,{onion:false}),ex=I.exactPalette([{data:d}],{max:257});
-  imageColors=ex?ex.colors.slice(1):[];renderPalette();
+  // the frame region may not be ready yet (e.g. right after a multi-frame import): retry on the next
+  // frames instead of settling on an empty list, which read as "0 colours used"
+  const a=asset();if(!a)return;
+  if(!session.rect){if(imageTries++<60)requestAnimationFrame(()=>{if(!imageColors)renderPalette();});return;}
+  imageTries=0;const d=session.compose(null,{onion:false}),ex=I.exactPalette([{data:d}],{max:257});
+  imageMany=!ex;imageColors=ex?ex.colors.slice(1):[];renderPalette();
  }
  // palette pointer: click = FG, right-click = BG, Shift/Ctrl = select several (a shading ramp),
  // drag = move entries (the picture keeps its colours), double-click = edit the colour
@@ -138,7 +143,7 @@ export function createPanels(W){
  async function applyPalette(colors,{map=null,transparentIndex,label}){
   const a=asset();if(!a)return;
   const ti=transparentIndex===undefined?PD.transparentIndexOf(a):transparentIndex;
-  if(!PD.isIndexed(a)){W.exec(label,d=>PD.setPalette(d,a.id,{colors},{transparentIndex:a.transparentIndex}));imageColors=null;return;}
+  if(!PD.isIndexed(a)){W.exec(label,d=>PD.setPalette(d,a.id,{colors},{transparentIndex:a.transparentIndex}));imageColors=null;imageMany=false;return;}
   if(colors.length>256){ctx.toast(t('px.pal.tooMany'),{error:true});return;}
   await W.commitChain();const cels=[];
   for(const c of a.cels){const ind=await celIndices(a,c),next=map?I.remap(ind.indices,map):ind.indices;
@@ -401,7 +406,7 @@ export function createPanels(W){
   W.exec(t('px.cmd.toIndexed'),d=>PD.setColorMode(d,a.id,'indexed',{palette:{colors:pal},transparentIndex:T,cels}));
   ctx.toast(off?t('px.mode.convertedNearest',{n:off,colors:pal.length}):t('px.mode.converted',{colors:pal.length}));
  }
- function renderAll(){imageColors=null;renderColor();renderPalette();renderLayers();renderAudit();ctx.badge('px-palette');}
+ function renderAll(){imageColors=null;imageMany=false;imageTries=0;renderColor();renderPalette();renderLayers();renderAudit();ctx.badge('px-palette');}
  return {contextBar,color,palette,layers,audit,paletteActions,layerActions,layerOp,renderColor,renderPalette,renderLayers,renderAudit,renderAll,runAudit,newSprite,colorModeDialog,canvasSizeDialog,lospec,rampDialog,variantsDialog,applyPalette,useLoadedPalette};
 }
 // ------------------------------------------------------------------ HSV helpers
