@@ -151,35 +151,110 @@ export async function collectorState(db,adapters){
 
 /* ---------- community (게시판) ---------- */
 
-const POST_COLS=`d.id,d.entity_id,d.post_no,d.kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.solved_comment_id,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,d.anon_name,d.anon_id,
+const POST_COLS=`d.id,d.entity_id,d.post_no,d.channel_id,d.channel_no,COALESCE(d.flair,d.kind) AS kind,d.title,d.locale,d.author_id,d.change_id,d.report_id,d.status,d.pinned,d.solved_comment_id,d.up_count,d.down_count,d.view_count,d.comment_count,d.has_image,d.best_at,d.created_at,d.edited_at,d.last_activity_at,d.anon_name,d.anon_id,
  COALESCE(p.display_name,CASE WHEN u.provider='system' THEN u.display_name ELSE 'user-'||lower(substr(u.id,1,6)) END) AS author_name,COALESCE(p.tier,'new') AS author_tier,COALESCE(p.role,'user') AS author_role`;
 /** @param {any} r */
-const postRow=r=>({id:String(r.id),entity_id:String(r.entity_id),post_no:Number(r.post_no),kind:String(r.kind),title:String(r.title),locale:String(r.locale),author_id:String(r.author_id),author_name:r.anon_name??r.author_name??null,anon_id:r.anon_id==null?null:String(r.anon_id),anon:r.anon_id!=null,author_tier:String(r.author_tier),author_role:String(r.author_role),
+const postRow=r=>({id:String(r.id),entity_id:String(r.entity_id),post_no:Number(r.post_no),channel_id:String(r.channel_id||'free'),channel_no:Number(r.channel_no||0),tags:/** @type {Entity[]} */([]),kind:String(r.kind),title:String(r.title),locale:String(r.locale),author_id:String(r.author_id),author_name:r.anon_name??r.author_name??null,anon_id:r.anon_id==null?null:String(r.anon_id),anon:r.anon_id!=null,author_tier:String(r.author_tier),author_role:String(r.author_role),
  bot:String(r.author_id).startsWith('system:'),change_id:r.change_id??null,report_id:r.report_id??null,status:String(r.status),pinned:!!r.pinned,up:Number(r.up_count),down:Number(r.down_count),views:Number(r.view_count),comments:Number(r.comment_count),has_image:!!r.has_image,
  solved:r.solved_comment_id?String(r.solved_comment_id):null,best_at:r.best_at===null||r.best_at===undefined?null:Number(r.best_at),created_at:Number(r.created_at),edited_at:r.edited_at===null||r.edited_at===undefined?null:Number(r.edited_at),last_activity_at:Number(r.last_activity_at),
  entity:r.e_id?entityRow({id:r.e_id,vertical:r.e_vertical,type:r.e_type,slug:r.e_slug,names:r.e_names,descriptions:'{}',official_urls:'[]',image_url:null,status:'active',updated_at:0}):null});
 export const SORTS=/** @type {const} */(['new','hot','top','activity']);
-/**
- * One page of a channel's board.
- * @param {D1} db @param {string} entityId
- * @param {{kind?:string|null,sort?:string,best?:boolean,limit?:number,page?:number,now?:number}} [o]
- */
-export async function channelPosts(db,entityId,o={}){
- const limit=Math.min(o.limit??30,100),offset=Math.max(0,((o.page??1)-1)*limit);
- const where=['d.entity_id=?',"d.status IN ('published','locked')"],params=[entityId];
- if(o.kind){where.push('d.kind=?');params.push(o.kind);}
- if(o.best)where.push('d.best_at IS NOT NULL');
- const order=o.sort==='top'?'d.up_count DESC,d.post_no DESC':o.sort==='activity'?'d.last_activity_at DESC':o.sort==='hot'?'(d.up_count*3+d.comment_count*2+d.view_count/50.0)/((?-d.created_at)/3600000.0+2) DESC':'d.post_no DESC';
- const orderParams=o.sort==='hot'?[o.now??Date.now()]:[];
- const rows=await all(db,`SELECT ${POST_COLS} FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
-  WHERE ${where.join(' AND ')} ORDER BY d.pinned DESC,${order} LIMIT ? OFFSET ?`,[...params,...orderParams,limit+1,offset]);
- return {posts:rows.slice(0,limit).map(postRow),more:rows.length>limit};
+/** Relations that make one tag part of another. A post tagged with a part also shows under the whole:
+ * Claude → its plans, features and the models in its plans; Anthropic → Claude, Claude Code and its
+ * models; a game → its Korean patches; a franchise → its works, characters and goods; NVIDIA → its cards.
+ * CHILD_OF: the subject is the part; PARENT_OF: the object is the part. Two hops at most. */
+export const TAG_CHILD_OF=Object.freeze(['part_of','made_by','belongs_to','appears_in','translates','merchandise_of','variant_of','developed_by','published_by','produced_by']);
+export const TAG_PARENT_OF=Object.freeze(['has_plan','offers','includes_model']);
+export const TAG_DEPTH=2;
+const inList=(/** @type {readonly string[]} */ a)=>a.map(x=>`'${x}'`).join(',');
+/** SQL of the tag and its parts (a recursive CTE named scope; one bound parameter: the tag). */
+const SCOPE_CTE=`WITH RECURSIVE scope(id,depth) AS (SELECT ?,0 UNION SELECT CASE WHEN r.object_id=scope.id THEN r.subject_id ELSE r.object_id END,scope.depth+1 FROM relations r JOIN scope ON ((r.object_id=scope.id AND r.predicate IN (${inList(TAG_CHILD_OF)})) OR (r.subject_id=scope.id AND r.predicate IN (${inList(TAG_PARENT_OF)}))) WHERE scope.depth<${TAG_DEPTH} AND r.valid_until IS NULL)`;
+/** A tag's parts (without the tag itself), for "하위 태그" lists. @param {D1} db @param {string} id @param {number} [limit] */
+export async function tagChildren(db,id,limit=60){
+ const rows=await all(db,`${SCOPE_CTE} SELECT DISTINCT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},MIN(scope.depth) AS depth FROM scope JOIN entities e ON e.id=scope.id WHERE scope.id<>? AND e.status='active' GROUP BY e.id ORDER BY depth,e.type,e.slug LIMIT ?`,[id,id,limit]);
+ return rows.map(r=>entityRow(r));
 }
-/** @param {D1} db @param {string} entityId @param {number} postNo */
-export async function postByNo(db,entityId,postNo){
+/** The tags (in the writer's order) of many posts. @param {D1} db @param {string[]} ids @returns {Promise<Map<string,Entity[]>>} */
+export async function tagsOf(db,ids){
+ const rows=await inChunks(db,ids,ph=>`SELECT t.discussion_id,t.pos,${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')} FROM discussion_tags t JOIN entities e ON e.id=t.entity_id WHERE e.status='active' AND t.discussion_id IN (${ph}) ORDER BY t.pos`);
+ /** @type {Map<string,Entity[]>} */const out=new Map();
+ for(const r of rows){const l=out.get(String(r.discussion_id))||[];l.push(entityRow(r));out.set(String(r.discussion_id),l);}
+ return out;
+}
+/** @template {{id:string,tags:Entity[]}} P @param {D1} db @param {P[]} posts @returns {Promise<P[]>} */
+async function withTags(db,posts){
+ if(!posts.length)return posts;
+ const t=await tagsOf(db,posts.map(p=>p.id));
+ for(const p of posts)p.tags=t.get(p.id)||[];
+ return posts;
+}
+/**
+ * One page of a board: a channel (/{l}/community/{ch}/), a tag across channels (an entity page), or both
+ * (a channel filtered by a tag). A tag includes its parts unless `children` is false.
+ * `fold` hides the Radar bot's 소식 and the 공지 (the board shows them folded in their own rows).
+ * `facet` filters by a fact of the tagged entities (the 게임 channel's platform and genre filter).
+ * @param {D1} db
+ * @param {{channel?:string|null,tag?:string|null,children?:boolean,kind?:string|null,sort?:string,best?:boolean,limit?:number,page?:number,now?:number,fold?:boolean,facet?:{property:string,value:string}|null}} o
+ */
+export async function boardPosts(db,o){
+ const limit=Math.min(o.limit??30,100),offset=Math.max(0,((o.page??1)-1)*limit);
+ const where=["d.status IN ('published','locked')"],params=[];
+ let cte='',cteParams=/** @type {any[]} */([]);
+ if(o.tag&&o.children!==false){cte=SCOPE_CTE;cteParams=[o.tag];where.push('d.id IN (SELECT t.discussion_id FROM discussion_tags t WHERE t.entity_id IN (SELECT id FROM scope))');}
+ else if(o.tag){where.push('d.id IN (SELECT discussion_id FROM discussion_tags WHERE entity_id=?)');params.push(o.tag);}
+ if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
+ if(o.kind){where.push('d.flair=?');params.push(o.kind);}
+ if(o.best)where.push('d.best_at IS NOT NULL');
+ if(o.fold)where.push("NOT (d.flair='news' AND d.author_id LIKE 'system:%')","d.flair<>'notice'");
+ if(o.facet){where.push(`d.id IN (SELECT t.discussion_id FROM discussion_tags t JOIN facts f ON f.entity_id=t.entity_id AND f.is_current=1 AND f.property=? WHERE f.value LIKE ? ESCAPE '\\')`);params.push(o.facet.property,'%'+likeEscape(JSON.stringify(o.facet.value))+'%');}
+ const order=o.sort==='top'?'d.up_count DESC,d.created_at DESC':o.sort==='activity'?'d.last_activity_at DESC':o.sort==='hot'?'(d.up_count*3+d.comment_count*2+d.view_count/50.0)/((?-d.created_at)/3600000.0+2) DESC':'d.created_at DESC,d.id DESC';
+ const orderParams=o.sort==='hot'?[o.now??Date.now()]:[];
+ const rows=await all(db,`${cte} SELECT ${POST_COLS} FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
+  WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ? OFFSET ?`,[...cteParams,...params,...orderParams,limit+1,offset]);
+ return {posts:await withTags(db,rows.slice(0,limit).map(postRow)),more:rows.length>limit};
+}
+/** A post by its channel number (published or locked). @param {D1} db @param {string} channel @param {number} no */
+export async function postByChannelNo(db,channel,no){
  const r=await db.prepare(`SELECT ${POST_COLS},d.body_md FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
-  WHERE d.entity_id=? AND d.post_no=? AND d.status IN ('published','locked')`).bind(entityId,postNo).first();
- return r?{...postRow(r),body_md:String(r.body_md)}:null;
+  WHERE d.channel_id=? AND d.channel_no=? AND d.status IN ('published','locked')`).bind(channel,no).first();
+ if(!r)return null;
+ const [post]=await withTags(db,[{...postRow(r),body_md:String(r.body_md)}]);
+ return post;
+}
+/** Where an old per-entity post number (/{l}/{vertical}/{slug}/{no}) lives now. @param {D1} db @param {string} entityId @param {number} no */
+export async function legacyPost(db,entityId,no){
+ const r=await db.prepare('SELECT d.channel_id,d.channel_no FROM legacy_posts l JOIN discussions d ON d.id=l.discussion_id WHERE l.entity_id=? AND l.post_no=?').bind(entityId,no).first();
+ return r?{channel:String(r.channel_id),no:Number(r.channel_no)}:null;
+}
+/** A channel's 공지, newest first (the board shows the first and folds the rest). @param {D1} db @param {string} channel @param {number} [limit] */
+export async function noticesOf(db,channel,limit=5){
+ return withTags(db,(await all(db,`SELECT ${POST_COLS} FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id
+  WHERE d.channel_id=? AND d.flair='notice' AND d.status IN ('published','locked') ORDER BY d.pinned DESC,d.created_at DESC LIMIT ?`,[channel,limit])).map(postRow));
+}
+/** The Radar bot's 소식 in a channel since a time: how many, and the newest title (folded into one row). @param {D1} db @param {string} channel @param {number} since */
+export async function botNews(db,channel,since){
+ const r=await db.prepare(`SELECT COUNT(*) AS n,(SELECT title FROM discussions WHERE channel_id=?1 AND flair='news' AND author_id LIKE 'system:%' AND status='published' AND created_at>=?2 ORDER BY created_at DESC LIMIT 1) AS title
+  FROM discussions WHERE channel_id=?1 AND flair='news' AND author_id LIKE 'system:%' AND status='published' AND created_at>=?2`).bind(channel,since).first();
+ return {count:Number(r?.n||0),title:r?.title?String(r.title):null};
+}
+/** Today's and all posts of a channel, and how many tags it has. @param {D1} db @param {string} channel @param {number} dayStart */
+export async function channelCounts(db,channel,dayStart){
+ const r=await db.prepare(`SELECT (SELECT COUNT(*) FROM discussions WHERE channel_id=?1 AND status='published' AND created_at>=?2) AS today,(SELECT COUNT(*) FROM discussions WHERE channel_id=?1 AND status='published') AS total`).bind(channel,dayStart).first();
+ return {today:Number(r?.today||0),total:Number(r?.total||0)};
+}
+/** Tags used most in a channel (or everywhere) since a time: the channel's tag chips. @param {D1} db @param {{channel?:string|null,since:number,limit?:number}} o */
+export async function popularTags(db,o){
+ const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},COUNT(*) AS n FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id JOIN entities e ON e.id=t.entity_id
+  WHERE d.status='published' AND e.status='active' AND d.created_at>=?${o.channel?' AND d.channel_id=?':''} GROUP BY e.id ORDER BY n DESC LIMIT ?`,[o.since,...(o.channel?[o.channel]:[]),o.limit??12]);
+ return rows.map(r=>({entity:entityRow(r),posts:Number(r.n)}));
+}
+/** Values of a list fact over one entity type, most common first (the 게임 channel's platform and genre
+ * filter comes from the games' own facts). @param {D1} db @param {string} type @param {string} property @param {number} [limit] */
+export async function factValues(db,type,property,limit=12){
+ const rows=await all(db,`SELECT f.value FROM facts f JOIN entities e ON e.id=f.entity_id WHERE e.type=? AND e.status='active' AND f.property=? AND f.is_current=1`,[type,property]);
+ /** @type {Map<string,number>} */const n=new Map();
+ for(const r of rows){const v=json(r.value,null);for(const x of Array.isArray(v)?v:v===null?[]:[v])if(typeof x==='string')n.set(x,(n.get(x)||0)+1);}
+ return [...n.entries()].sort((a,b)=>b[1]-a[1]).slice(0,limit).map(([value,count])=>({value,count}));
 }
 /** Oldest first; the renderer threads replies under their parents. @param {D1} db @param {string} discussionId */
 export async function commentsOf(db,discussionId){
@@ -192,34 +267,36 @@ export async function reportById(db,id){
  const r=await db.prepare(`SELECT id,kind,entity_id,subject_version,target_id,target_version,env,result,metrics FROM community_reports WHERE id=? AND status='published'`).bind(id).first();
  return r?{...r,env:json(r.env,{}),metrics:json(r.metrics,{})}:null;
 }
-/** Followers and today's posts. dayStart = start of the reader's day (ms). @param {D1} db @param {string} id @param {number} dayStart */
+/** Followers of a tag and its posts (today and all, in every channel). dayStart = start of the reader's
+ * day (ms). @param {D1} db @param {string} id @param {number} dayStart */
 export async function channelStats(db,id,dayStart){
- const r=await db.prepare(`SELECT (SELECT COUNT(*) FROM follows WHERE entity_id=?) AS followers,(SELECT COUNT(*) FROM discussions WHERE entity_id=? AND status='published' AND created_at>=?) AS today,(SELECT COUNT(*) FROM discussions WHERE entity_id=? AND status='published') AS total`).bind(id,id,dayStart,id).first();
+ const r=await db.prepare(`SELECT (SELECT COUNT(*) FROM follows WHERE entity_id=?1) AS followers,(SELECT COUNT(*) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=?1 AND d.status='published' AND d.created_at>=?2) AS today,(SELECT COUNT(*) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=?1 AND d.status='published') AS total`).bind(id,dayStart).first();
  return {followers:Number(r?.followers||0),today:Number(r?.today||0),total:Number(r?.total||0)};
 }
-/** Titles of the channel's recent posts (for "지금 많이 말하는 것"). @param {D1} db @param {string} id @param {number} since */
-export async function recentTitles(db,id,since){
+/** Titles of a tag's (or a channel's) recent posts (for "지금 많이 말하는 것").
+ * @param {D1} db @param {{tag?:string,channel?:string}|string} scope @param {number} since */
+export async function recentTitles(db,scope,since){
+ const s=typeof scope==='string'?{tag:scope}:scope;
  // People's own titles only: generated ones (report posts, Radar bot news) would dominate the terms.
- return (await all(db,`SELECT title,up_count,comment_count FROM discussions WHERE entity_id=? AND status='published' AND created_at>=? AND report_id IS NULL AND author_id NOT LIKE 'system:%' ORDER BY id DESC LIMIT 300`,[id,since])).map(r=>({title:String(r.title),weight:1+Number(r.comment_count)/5+Number(r.up_count)/5}));
+ return (await all(db,`SELECT d.title,d.up_count,d.comment_count FROM discussions d WHERE ${s.tag?'d.id IN (SELECT discussion_id FROM discussion_tags WHERE entity_id=?)':'d.channel_id=?'} AND d.status='published' AND d.created_at>=? AND d.report_id IS NULL AND d.author_id NOT LIKE 'system:%' ORDER BY d.created_at DESC LIMIT 300`,[s.tag||s.channel,since])).map(r=>({title:String(r.title),weight:1+Number(r.comment_count)/5+Number(r.up_count)/5}));
 }
-const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id JOIN entities e ON e.id=d.entity_id`;
-/** Cross-channel lists for the community front. @param {D1} db
- * @param {{mode:'best'|'news'|'kind',kind?:string,vertical?:string|null,since?:number,limit?:number,unanswered?:boolean}} o */
+const XPOST=`SELECT ${POST_COLS},e.id AS e_id,e.vertical AS e_vertical,e.type AS e_type,e.slug AS e_slug,e.names AS e_names FROM discussions d JOIN users u ON u.id=d.author_id LEFT JOIN user_profiles p ON p.user_id=d.author_id LEFT JOIN entities e ON e.id=d.entity_id AND e.status='active'`;
+/** Cross-channel lists for the community front and 전체 베스트. @param {D1} db
+ * @param {{mode:'best'|'news'|'kind',kind?:string,channel?:string|null,since?:number,limit?:number,unanswered?:boolean}} o */
 export async function frontPosts(db,o){
- const where=["d.status='published'","e.status='active'"],params=[];
- if(o.vertical){where.push('e.vertical=?');params.push(o.vertical);}
+ const where=["d.status='published'"],params=[];
+ if(o.channel){where.push('d.channel_id=?');params.push(o.channel);}
  if(o.since!==undefined){where.push('d.created_at>=?');params.push(o.since);}
  if(o.mode==='best')where.push('d.best_at IS NOT NULL');
- if(o.mode==='news')where.push("d.kind='news'","d.author_id LIKE 'system:%'");
- if(o.mode==='kind'&&o.kind){where.push('d.kind=?');params.push(o.kind);}
+ if(o.mode==='news')where.push("d.flair='news'","d.author_id LIKE 'system:%'");
+ if(o.mode==='kind'&&o.kind){where.push('d.flair=?');params.push(o.kind);}
  if(o.unanswered)where.push('d.solved_comment_id IS NULL','d.comment_count=0');   // nobody has replied yet
  const order=o.mode==='best'?'d.up_count DESC,d.best_at DESC':'d.created_at DESC';
- return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow);
+ return withTags(db,(await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT ?`,[...params,o.limit??15])).map(postRow));
 }
-/** Channels with the most posts since a time (인기 채널). @param {D1} db @param {number} since @param {number} [limit] */
+/** Tags with the most posts since a time (인기 태그). @param {D1} db @param {number} since @param {number} [limit] */
 export async function activeChannels(db,since,limit=10){
- const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},COUNT(d.id) AS n FROM discussions d JOIN entities e ON e.id=d.entity_id WHERE d.status='published' AND d.created_at>=? AND e.status='active' GROUP BY e.id ORDER BY n DESC LIMIT ?`,[since,limit]);
- return rows.map(r=>({entity:entityRow(r),posts:Number(r.n)}));
+ return (await popularTags(db,{since,limit})).map(r=>({entity:r.entity,posts:r.posts}));
 }
 /** Recent Radar changes across the site (for the front when no bot posts exist yet). @param {D1} db @param {{limit?:number,minImportance?:number}} [o] */
 export async function radarChanges(db,o={}){
@@ -307,10 +384,10 @@ export function searchTokens(q){
  * @param {D1} db @param {string} q @param {{entityId?:string|null,limit?:number}} [o] */
 export async function searchPosts(db,q,o={}){
  const words=String(q).trim().split(/\s+/).filter(Boolean).slice(0,6);if(!words.length)return [];
- const where=["d.status='published'","e.status='active'"],params=[];
+ const where=["d.status='published'"],params=[];
  for(const w of words){where.push("d.title LIKE ? ESCAPE '\\'");params.push('%'+likeEscape(w)+'%');}
- if(o.entityId){where.push('d.entity_id=?');params.push(o.entityId);}
- return (await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY d.created_at DESC LIMIT ?`,[...params,o.limit??30])).map(postRow);
+ if(o.entityId){where.push('d.id IN (SELECT discussion_id FROM discussion_tags WHERE entity_id=?)');params.push(o.entityId);}
+ return withTags(db,(await all(db,`${XPOST} WHERE ${where.join(' AND ')} ORDER BY d.created_at DESC LIMIT ?`,[...params,o.limit??30])).map(postRow));
 }
 /** Channels an item belongs to, two relation hops out (goods → character → work), for the Radar's
  * "내 구독만" filter. @param {D1} db @param {string[]} ids @returns {Promise<Map<string,Set<string>>>} */
@@ -361,7 +438,7 @@ export async function upcomingEvents(db,o){
 /** Content counts of one entity for the content gate (platform/seo.js). @param {D1} db @param {string} id */
 export async function contentCounts(db,id){
  const r=await db.prepare(`SELECT (SELECT COUNT(*) FROM facts WHERE entity_id=?1 AND is_current=1) AS facts,(SELECT COUNT(*) FROM relations WHERE subject_id=?1 AND valid_until IS NULL)+(SELECT COUNT(*) FROM relations WHERE object_id=?1 AND valid_until IS NULL) AS relations,
-  (SELECT COUNT(*) FROM discussions WHERE entity_id=?1 AND status='published') AS posts`).bind(id).first();
+  (SELECT COUNT(*) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=?1 AND d.status='published') AS posts`).bind(id).first();
  return {facts:Number(r?.facts||0),relations:Number(r?.relations||0),posts:Number(r?.posts||0)};
 }
 /** Every active entity of a vertical with its content counts and last change (entity sitemaps). @param {D1} db @param {string} vertical */
@@ -369,8 +446,8 @@ export async function sitemapEntities(db,vertical){
  const rows=await all(db,`SELECT e.id,e.vertical,e.type,e.slug,e.names,e.descriptions,e.index_state,e.updated_at,
   (SELECT COUNT(*) FROM facts f WHERE f.entity_id=e.id AND f.is_current=1) AS facts,
   (SELECT COUNT(*) FROM relations r WHERE r.subject_id=e.id AND r.valid_until IS NULL)+(SELECT COUNT(*) FROM relations r WHERE r.object_id=e.id AND r.valid_until IS NULL) AS relations,
-  (SELECT COUNT(*) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS posts,
-  (SELECT MAX(d.last_activity_at) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS active_at
+  (SELECT COUNT(*) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=e.id AND d.status='published') AS posts,
+  (SELECT MAX(d.last_activity_at) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=e.id AND d.status='published') AS active_at
   FROM entities e WHERE e.vertical=? AND e.status='active' ORDER BY e.id LIMIT 20000`,[vertical]);
  return rows.map(r=>({id:String(r.id),vertical:String(r.vertical),type:String(r.type),slug:String(r.slug),names:json(r.names,{}),descriptions:json(r.descriptions,{}),index_state:String(r.index_state||'auto'),
   lastmod:Math.max(Number(r.updated_at)||0,Number(r.active_at)||0),facts:Number(r.facts),relations:Number(r.relations),posts:Number(r.posts)}));
@@ -386,7 +463,7 @@ export async function factHistory(db,id,props){
 /** Channels of a vertical for its hub page, most active first, then by name; with post counts.
  * @param {D1} db @param {string} vertical @param {{type?:string|null,limit?:number,offset?:number}} [o] */
 export async function hubEntities(db,vertical,o={}){
- const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},(SELECT COUNT(*) FROM discussions d WHERE d.entity_id=e.id AND d.status='published') AS posts,(SELECT COUNT(*) FROM follows f WHERE f.entity_id=e.id) AS followers
+ const rows=await all(db,`SELECT ${ENTITY_COLS.split(',').map(c=>'e.'+c).join(',')},(SELECT COUNT(*) FROM discussion_tags t JOIN discussions d ON d.id=t.discussion_id WHERE t.entity_id=e.id AND d.status='published') AS posts,(SELECT COUNT(*) FROM follows f WHERE f.entity_id=e.id) AS followers
   FROM entities e WHERE e.vertical=? AND e.status='active'${o.type?' AND e.type=?':''} ORDER BY posts DESC,followers DESC,e.updated_at DESC LIMIT ? OFFSET ?`,[vertical,...(o.type?[o.type]:[]),o.limit??60,o.offset??0]);
  return rows.map(r=>({entity:entityRow(r),posts:Number(r.posts),followers:Number(r.followers)}));
 }

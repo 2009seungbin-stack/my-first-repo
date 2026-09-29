@@ -1,20 +1,20 @@
 // @ts-check
-/** 데이터 (레이더): fact conflicts (adopt / keep), member proposals (approve / reject) and recent
- * changes (hide / importance). Data: GET /api/v2/admin/radar?cursor=; actions POST /radar/action. */
+/** 데이터 (레이더): fact conflicts (adopt / keep), member proposals (approve / reject), new-tag proposals
+ * (create the tag / reject) and recent changes (hide / importance). Data: GET /api/v2/admin/radar?cursor=; actions POST /radar/action. */
 import {h} from '../lib/dom.js';
 import {box,vt,chips,failure,fill,skeleton,empty,confirmSheet,toast} from '../lib/ui.js';
 import {dayClock,num,relTime} from '../lib/format.js';
 
 export const title='데이터';
 export const tab='data';
-/** @type {'all'|'conflicts'|'proposals'|'changes'} */let view='all';
+/** @type {'all'|'conflicts'|'proposals'|'tags'|'changes'} */let view='all';
 
 /** @param {any} ctx @param {HTMLElement} main */
 export async function render(ctx,main){
  fill(main,skeleton(5));
  let d;
  try{d=await ctx.api.get('/api/v2/admin/radar');}catch(e){fill(main,failure(e,()=>ctx.refresh()));return;}
- const conflicts=list(d?.conflicts),proposals=list(d?.proposals),changes=list(d?.changes);
+ const conflicts=list(d?.conflicts),proposals=list(d?.proposals),tags=list(d?.tags),changes=list(d?.changes);
  let next=d?.next||null;
  const now=ctx.now();
  const changeRows=h('ul.rows');
@@ -28,11 +28,12 @@ export async function render(ctx,main){
  const total=Number(d?.counts?.changes)||0;
  const changeCount=()=>total?num(total):`${changes.length}${next?'+':''}`;
  const draw=()=>{
-  const bar=chips([{value:'all',label:'전체'},{value:'conflicts',label:`충돌 ${conflicts.length}`},{value:'proposals',label:`제안 ${proposals.length}`},{value:'changes',label:`변경 ${changeCount()}`}],view,v=>{view=/** @type {any} */(v);draw();},'데이터 보기');
+  const bar=chips([{value:'all',label:'전체'},{value:'conflicts',label:`충돌 ${conflicts.length}`},{value:'proposals',label:`제안 ${proposals.length}`},{value:'tags',label:`새 태그 ${tags.length}`},{value:'changes',label:`변경 ${changeCount()}`}],view,v=>{view=/** @type {any} */(v);draw();},'데이터 보기');
   const show=(/** @type {string} */ k)=>view==='all'||view===k;
   fill(main,bar,
    show('conflicts')?box('사실 충돌','공식 값은 자동으로 바뀌지 않음',conflicts.length?h('div',...conflicts.map(c=>conflictCard(ctx,c))):empty('열린 충돌이 없습니다','자동 수집 값이 공식 값과 다르면 여기에 모입니다.')):null,
    show('proposals')?box('정보 제안','fact_proposals',proposals.length?h('div',...proposals.map(p=>proposalCard(ctx,p,now))):empty('검토할 제안이 없습니다','회원이 출처와 함께 값을 제안하면 여기서 승인(커뮤니티 검증 값으로 반영)하거나 사유를 적어 반려합니다.')):null,
+   show('tags')?box('새 태그 제안','고정닉이 요청한 태그',tags.length?h('div',...tags.map(t=>tagCard(ctx,t,now))):empty('검토할 태그 제안이 없습니다','회원이 글쓰기에서 없는 태그를 제안하면 여기서 종류를 골라 만들어요.')):null,
    show('changes')?box('최근 변경',changes.length?`${changeCount()}건`:null,changes.length?[changeRows,h('div.pad.center',more)]:empty('최근 변경이 없습니다')):null,
    ctx.stamp(d?.generatedAt));
  };
@@ -63,6 +64,20 @@ function conflictCard(ctx,c){
   h('div.btns',
    h('button.btn.sm.p',{type:'button',disabled:cur?.isCurrent===false,onclick:()=>radarAct(ctx,{kind:'conflict',id:c.id,action:'adopt'},'새 값 채택',`${c.channel||c.entity||''} ${prop}을(를) ${nwText}(으)로 바꿉니다. 레이더에 변경으로 기록돼요.`)},'새 값 채택'),
    h('button.btn.sm',{type:'button',onclick:()=>radarAct(ctx,{kind:'conflict',id:c.id,action:'keep'},'현재 값 유지',`현재 값 ${show(cur?.value,unit)}을(를) 유지하고 충돌을 닫습니다.`)},'현재 값 유지')));
+}
+/** A new-tag proposal: the owner picks what kind of thing it is (in the channel's area) and creates it.
+ * @param {any} ctx @param {any} t @param {number} now */
+function tagCard(ctx,t,now){
+ const types=Array.isArray(t.types)?t.types:[];
+ const pick=h('select',{'aria-label':'태그 종류'},...types.map((/** @type {any} */ x)=>h('option',{value:x.id},x.label)));
+ return h('div.flag',
+  h('div.meta',h('a.chn',{href:t.url,target:'_blank',rel:'noopener'},t.channel),h('span',`${t.author||'회원'}`),t.created_at?h('span.push',relTime(t.created_at,now)):null),
+  h('div.vs',h('div.nw',h('span.fine','새 태그'),h('b',t.name),t.source?h('a.fine',{href:t.source,target:'_blank',rel:'noopener nofollow noreferrer'},'출처 열기'):null)),
+  t.note?h('p.note',t.note):null,
+  types.length?h('label.fine','종류 ',pick):h('p.fine.warntxt','이 채널은 태그 종류가 없어 만들 수 없어요. 반려해 주세요.'),
+  h('div.btns',
+   h('button.btn.sm.p',{type:'button',disabled:!types.length,onclick:()=>radarAct(ctx,{kind:'tag',id:t.id,action:'approve',value:/** @type {HTMLSelectElement} */(pick).value},'태그 만들기',`“${t.name}” 태그를 만듭니다. 검색에 바로 나오고, 사실 정보가 모이기 전까지 검색엔진 색인에서는 빠져요.`)},'태그 만들기'),
+   h('button.btn.sm',{type:'button',onclick:()=>radarAct(ctx,{kind:'tag',id:t.id,action:'reject'},'반려','제안을 닫습니다. 사유는 처리 기록에 남아요.')},'반려')));
 }
 /** @param {any} ctx @param {any} p @param {number} now */
 function proposalCard(ctx,p,now){

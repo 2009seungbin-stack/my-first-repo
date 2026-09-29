@@ -77,6 +77,16 @@ const LEGACY_KIND=/** @type {Record<string,string>} */({info:'guide',review:'fre
 /** @param {string} flair */
 export const storedKind=flair=>LEGACY_KIND[flair]||flair;
 
+/** Tag chips of a quiet channel (topped up by the channel's own most used tags once it has posts). */
+export const FEATURED_TAGS=Object.freeze(/** @type {Record<string,string[]>} */({
+ ai:['service:claude','service:chatgpt','service:gemini-app','service:claude-code','service:codex','runtime:ollama','runtime:llama-cpp','runtime:lm-studio','gpu:rtx-5070'],
+ games:['game:steam-2379780','game:steam-1086940','game:steam-1285190','game:steam-377160','game:steam-1030300','work:blue-archive-game','event:g-star-2026'],
+ hw:['gpu:rtx-5070','gpu:rtx-5090','gpu:rx-9070-xt','vendor:nvidia','vendor:amd','runtime:llama-cpp'],
+ studio:['app:logic-pro','app:ableton-live','plugin:fabfilter-pro-q-4','app:blender','app:godot','app:obs-studio'],
+ sub:['work:the-apothecary-diaries-tv-s3','work:jojos-bizarre-adventure-steel-ball-run','franchise:chiikawa','franchise:frieren','event:g-star-2026'],
+ free:['service:claude','game:steam-2379780','gpu:rtx-5070'],
+ notice:[],
+}));
 /** Tag rules. */
 export const TAG_LIMIT=3;
 

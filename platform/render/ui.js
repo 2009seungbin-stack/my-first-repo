@@ -6,6 +6,7 @@ import {html,raw,safeHref} from './html.js';
 import {t} from './strings.js';
 import {VERIFICATION_LABEL,label} from '../labels.js';
 import {boardTime,compact} from './format.js';
+import {CHANNELS,channelById,channelPath,postPath,flairLabel,patchCollectionPath} from '../channels.js';
 
 export const CSS_HREF='/src/platform/n2.css';
 export const ISLANDS_SRC='/src/platform/islands.js';
@@ -15,8 +16,8 @@ export const ISLANDS_SRC='/src/platform/islands.js';
 export const nameOf=(e,l)=>e.names[l]||e.names.en||Object.values(e.names)[0]||'';
 /** @param {string} l @param {{vertical:string,slug:string}} e */
 export const channelUrl=(l,e)=>`/${l}/${e.vertical}/${e.slug}/`;
-/** @param {string} l @param {{vertical:string,slug:string}} e @param {number} no */
-export const postUrl=(l,e,no)=>`${channelUrl(l,e)}${no}`;
+/** A post's address: /{l}/community/{channel}/{no}. @param {string} l @param {{channel_id:string,channel_no:number}} p */
+export const postHref=(l,p)=>postPath(l,p.channel_id,p.channel_no);
 export const frontUrl=(/** @type {string} */ l)=>`/${l}/community/`;
 /** The sign-in chooser (the account page lists the configured providers: Google, GitHub, Discord) that
  * comes back to `path` (server/oauth/flow.js safeReturnPath). Links carry data-signin so the islands can
@@ -54,28 +55,56 @@ export function author(p,l){
 }
 /** Plain-text author for data attributes and JSON-LD. @param {{author_name:string|null,anon_id?:string|null}} p @param {string} fallback */
 export const authorText=(p,fallback)=>p.anon_id?`${p.author_name||'ㅇㅇ'} (${p.anon_id})`:p.author_name||fallback;
-const KIND_CLASS=/** @type {Record<string,string>} */({news:'news',report:'rep',patch:'ko',question:'q',guide:'gd',benchmark:'ben',notice:'nt'});
-/** 말머리 chip. @param {string} kind @param {string} l */
-export const kindChip=(kind,l)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${/** @type {Record<string,string>} */(t(l).kind)[kind]||kind}</span>`;
+const KIND_CLASS=/** @type {Record<string,string>} */({news:'news',report:'rep',patch:'ko',question:'q',guide:'gd',benchmark:'ben',notice:'nt',info:'inf',review:'rv',buy:'buy',event:'buy',feedback:''});
+/** 말머리 chip, named as the post's channel calls it (팁 for guide in AI). @param {string} kind @param {string} l @param {string|null} [channel] */
+export const kindChip=(kind,l,channel=null)=>html`<span class="mh ${KIND_CLASS[kind]||''}">${flairLabel(channel,kind,l)}</span>`;
+/** A tag chip (the entity page of the tag). @param {Entity} e @param {string} l @param {boolean} [on] */
+export const tagChip=(e,l,on=false)=>html`<a class="rtag${on?' on':''}" href="${channelUrl(l,e)}">${nameOf(e,l)}</a>`;
+/** A channel's tile (the letters of its name). @param {string} ch @param {string} l */
+export const channelTile=(ch,l)=>{const c=channelById(ch);return html`<span class="tile ch-${ch}" aria-hidden="true">${c?c.tile[l==='ko'?'ko':'en']:'?'}</span>`;};
+/** @param {string} ch @param {string} l */
+export const channelName=(ch,l)=>channelById(ch)?.names[l==='ko'?'ko':'en']||ch;
 
 /**
- * One board row: number · [말머리] title [comments] · author · time · views · up.
- * @param {ReturnType<typeof import('../db/channel.js').channelPosts> extends Promise<infer R> ? R extends {posts:(infer P)[]} ? P : never : never} p
- * @param {{l:string,now:number,href:string,current?:boolean,channel?:string}} o
+ * One board row: number · [말머리] title [comments] tags · author · time · views · up.
+ * @param {ReturnType<typeof import('../db/channel.js').boardPosts> extends Promise<infer R> ? R extends {posts:(infer P)[]} ? P : never : never} p
+ * @param {{l:string,now:number,current?:boolean,channel?:boolean,tagOn?:Set<string>}} o
  */
 export function postRow(p,o){
- const {l,now}=o;
- const title=html`${kindChip(p.kind,l)}${/** @type {any} */(p).solved?html`<span class="solved">${l==='ko'?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
- return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.post_no}</span>${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${o.href}">${title}</a>`}${o.channel?html`<span class="chn">${o.channel}</span>`:''}${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
+ const {l,now}=o,href=postHref(l,p);
+ const title=html`${kindChip(p.kind,l,p.channel_id)}${/** @type {any} */(p).solved?html`<span class="solved">${l==='ko'?'해결':'solved'}</span>`:''}${p.best_at?html`<span class="star" title="${t(l).bestRule}">★ </span>`:''}${p.title}${p.comments?html`<span class="cmt">[${p.comments}]</span>`:''}${p.has_image?html`<span class="img" aria-label="image"> ▣</span>`:''}`;
+ const tags=p.tags.length?html`<span class="rtags">${p.tags.map(e=>tagChip(e,l,!!o.tagOn?.has(e.id)))}</span>`:'';
+ return html`<li class="pr${p.bot?' bot':''}${p.pinned?' pin':''}${o.current?' cur':''}"><span class="no">${p.bot?'⚙':p.channel_no}</span><span class="tc">${o.current?html`<span class="tt" aria-current="page">${title}</span>`:html`<a class="tt" href="${href}">${title}</a>`}${o.channel?html`<a class="chn" href="${channelPath(l,p.channel_id)}">${channelName(p.channel_id,l)}</a>`:''}${tags}</span>${author(p,l)}<span class="num w"><time datetime="${new Date(p.created_at).toISOString()}">${boardTime(p.created_at,now,l)}</time></span><span class="num v">${compact(p.views,l)}</span><span class="num u">${p.up||''}</span></li>`;
+}
+/** The header row of a board list. @param {string} l */
+export function boardHead(l){
+ const s=t(l);
+ return html`<li class="pr ph" aria-hidden="true"><span class="no">${s.colNo}</span><span class="tc"><span class="tt">${s.colTitle}</span></span><span class="nick">${s.colAuthor}</span><span class="num w">${s.colDate}</span><span class="num v">${s.colViews}</span><span class="num u">${s.colUp}</span></li>`;
 }
 
 const LOGO=html`<svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#fff"/><path d="M21 47V31a11 11 0 0 1 22 0v16" fill="none" stroke="#2b62d6" stroke-width="8.5" stroke-linecap="round"/><circle cx="47.5" cy="16.5" r="5" fill="#8fbaff"/></svg>`;
 
 /**
+ * 채널 이동 (mobile bottom sheet, desktop dialog): pinned channels (islands fill them from this browser or
+ * the account), every channel with a pin button, and the tags seen lately. Opened by "전체 채널"; without
+ * JavaScript that link goes to the channel list on the community front.
+ * @param {string} l */
+export function channelSheet(l){
+ const ko=l==='ko',lang=ko?'ko':'en';
+ return html`<dialog class="chsheet" id="chsheet" aria-labelledby="chsheet-h" data-island="channel-sheet"><div class="shh"><span class="grab" aria-hidden="true"></span><h2 id="chsheet-h">${ko?'채널':'Channels'}</h2><button type="button" class="shx" data-close-sheet aria-label="${ko?'닫기':'Close'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<div class="shs"><label class="sr-only" for="chsheet-q">${ko?'채널·태그 찾기':'Find a channel or tag'}</label><input id="chsheet-q" type="search" data-sheet-q placeholder="${ko?'채널·태그 찾기 (예: 클로드, 5070)':'Find a channel or tag (e.g. Claude, 5070)'}" autocomplete="off"><ul class="shr" data-sheet-results hidden></ul></div>
+<section class="shg" data-my-channels hidden><h3>${ko?'내 채널 · 채널 바에 이 순서로':'My channels · in this order on the bar'}</h3><ul data-my-list></ul></section>
+<section class="shg"><h3>${ko?'전체 채널':'All channels'}</h3><ul>${CHANNELS.map(c=>html`<li><span class="tile ch-${c.id}" aria-hidden="true">${c.tile[lang]}</span><span class="shn"><a href="${channelPath(l,c.id)}">${c.names[lang]}</a><span class="fine">${c.desc[lang]}</span></span>${c.inBar?html`<button type="button" class="pin" data-pin="${c.id}" aria-pressed="false"><span class="p0">${ko?'고정':'Pin'}</span><span class="p1">✓ ${ko?'고정됨':'Pinned'}</span></button>`:''}</li>`)}
+<li><span class="tile ch-patch" aria-hidden="true">${ko?'패':'KP'}</span><span class="shn"><a href="${patchCollectionPath(l)}">${ko?'한글패치 모음':'Korean patches'}</a><span class="fine">${ko?'게임 · [한글패치]':'Games · [Korean patch]'}</span></span></li></ul></section>
+<section class="shg" data-recent-tags hidden><h3>${ko?'최근 본 태그':'Tags you viewed'}</h3><div class="rtags" data-recent-list></div></section>
+<p class="fine shf">${ko?'로그인 없이 고정한 채널은 이 브라우저에 저장되고, 로그인하면 계정으로 옮겨져요.':'Pins without an account stay in this browser and move to your account when you sign in.'}</p></dialog>`;
+}
+
+/**
  * Page shell. `channels` = the channel bar (popular channels for anonymous visitors; an island swaps in
  * the reader's subscriptions). `scope` = the channel a search is limited to.
  * @param {{l:string,title:string,description:string,canonical:string,alternates?:Record<string,string>,noindex?:boolean,
- *  channels:{name:string,href:string,on?:boolean}[],homeOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,ogType?:string}} o
+ *  channels:{name:string,href:string,on?:boolean,id?:string}[],homeOn?:boolean,bestOn?:boolean,patchOn?:boolean,scope?:{name:string,id:string}|null,body:unknown,jsonld?:object|null,feed?:string|null,ogType?:string}} o
  */
 export function page(o){
  const s=t(o.l);
@@ -118,9 +147,12 @@ ${o.jsonld?html`<script type="application/ld+json">${raw(JSON.stringify(o.jsonld
 <div class="hu" data-island="account"><a class="hb solid" href="${signInUrl(new URL(o.canonical).pathname)}" rel="nofollow" data-signin>${s.login}</a></div>
 </div></header>
 <nav class="chbar" aria-label="${s.allChannels}"><div class="w cr" data-island="channel-bar">
-<a href="${frontUrl(o.l)}"${o.homeOn?html` class="on" aria-current="page"`:''}>${s.home}</a><a href="${frontUrl(o.l)}best/">${s.allBest}</a><span class="sep" aria-hidden="true"></span>
-${o.channels.map(c=>html`<a href="${c.href}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}
+<a href="${frontUrl(o.l)}"${o.homeOn?html` class="on" aria-current="page"`:''}>${s.home}</a><a href="${frontUrl(o.l)}best/"${o.bestOn?html` class="on" aria-current="page"`:''}>${s.allBest}</a><span class="sep" aria-hidden="true"></span>
+<span class="chs" data-channel-links>${o.channels.map(c=>html`<a href="${c.href}" data-ch="${/** @type {any} */(c).id||''}"${c.on?html` class="on" aria-current="page"`:''}>${c.name}</a>`)}</span><span class="sep" aria-hidden="true"></span>
+<a class="patch${o.patchOn?' on':''}" href="${patchCollectionPath(o.l)}"${o.patchOn?html` aria-current="page"`:''}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4h6v6.8l3 3.2H6Z"/></svg>${o.l==='ko'?'한글패치 모음':'Korean patches'}</a>
+<span class="sp" aria-hidden="true"></span><a class="allch" href="${frontUrl(o.l)}#channels" data-open-sheet aria-haspopup="dialog" aria-controls="chsheet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>${o.l==='ko'?'전체 채널':'All channels'}</span></a>
 </div></nav>
+${channelSheet(o.l)}
 ${String(o.body).includes('<main')?html`<div class="w pg" id="main">${o.body}</div>`:html`<main class="w pg" id="main">${o.body}</main>`}
 <footer class="ft"><div class="w"><a href="/${o.l}/about/">Nerulio</a> · <a href="/${o.l}/terms/">${o.l==='ko'?'이용약관':'Terms'}</a> · <a href="/${o.l}/privacy/">${o.l==='ko'?'개인정보 처리방침':'Privacy'}</a> · <a href="/${o.l}/community/policy">${o.l==='ko'?'게시판 운영정책':'Community rules'}</a> · <a href="/${o.l}/community/transparency">${o.l==='ko'?'운영 투명성':'Transparency'}</a></div></footer>
 </body>

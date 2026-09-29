@@ -25,7 +25,10 @@ import {normalizePrefs,storedPrefs,adminSubscriptions,deliver,seoulDayStart,seou
 import {modAction,cacheOrigins} from './api.js';
 import {describeChange} from '../../platform/change-text.js';
 import {channelUrl,nameOf} from '../../platform/render/ui.js';
-import {propertyDef} from '../../platform/verticals/index.js';
+import {propertyDef,typeDef,verticalOf} from '../../platform/verticals/index.js';
+import {channelById,channelPath} from '../../platform/channels.js';
+import {normName} from '../../platform/schema.js';
+import {reindexEntities} from '../../platform/ingest.js';
 
 export const REAUTH_MS=12*36e5;
 export const D1_FREE_LIMIT=Object.freeze({rowsRead:5_000_000,rowsWritten:100_000});
@@ -379,13 +382,14 @@ const js=(/** @type {unknown} */ v)=>{if(v==null)return null;try{return JSON.par
 async function radar(c){
  const cursor=Number(c.url.searchParams.get('cursor'))||0,min=Math.min(3,Math.max(0,Number(c.url.searchParams.get('min'))||0));
  const db=c.db,first=!cursor;
- const [ch,cf,pr]=await db.batch([
+ const [ch,cf,pr,tg]=await db.batch([
   db.prepare(`SELECT c.id,c.entity_id,c.vertical,c.kind,c.property,c.scope,c.old_value,c.new_value,c.summary,c.importance,c.visibility,c.source_id,c.detected_at,c.effective_at,e.slug,e.names FROM changes c JOIN entities e ON e.id=c.entity_id WHERE c.id<?${min?' AND c.importance>=?':''} ORDER BY c.id DESC LIMIT 51`).bind(cursor||Number.MAX_SAFE_INTEGER,...(min?[min]:[])),
   first?db.prepare(`SELECT k.id,k.value,k.verification,k.source_id,k.created_by,k.created_at,f.id AS fact_id,f.property,f.value AS cur_value,f.unit,f.verification AS cur_verification,f.source_id AS cur_source,f.region,f.is_current,e.id AS entity_id,e.vertical,e.slug,e.names
    FROM fact_conflicts k JOIN facts f ON f.id=k.fact_id JOIN entities e ON e.id=f.entity_id WHERE k.status='open' ORDER BY k.created_at DESC LIMIT 50`):db.prepare('SELECT 1 WHERE 0'),
   first?db.prepare(`SELECT f.id,f.entity_id,f.property,f.value,f.unit,f.source_url,f.note,f.created_at,e.vertical,e.slug,e.names,COALESCE(p.display_name,'user-'||lower(substr(f.user_id,1,6))) AS author,
    (SELECT x.value FROM facts x WHERE x.entity_id=f.entity_id AND x.property=f.property AND x.is_current=1 AND x.plan='*' ORDER BY CASE x.verification WHEN 'OFFICIAL' THEN 0 WHEN 'AUTOMATED' THEN 1 WHEN 'COMMUNITY_VERIFIED' THEN 2 ELSE 3 END,CASE x.region WHEN 'KR' THEN 0 WHEN '*' THEN 1 ELSE 2 END LIMIT 1) AS cur_value
-   FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`):db.prepare('SELECT 1 WHERE 0')]);
+   FROM fact_proposals f JOIN entities e ON e.id=f.entity_id LEFT JOIN user_profiles p ON p.user_id=f.user_id WHERE f.status='open' ORDER BY f.created_at LIMIT 50`):db.prepare('SELECT 1 WHERE 0'),
+  first?db.prepare(`SELECT t.id,t.channel_id,t.name,t.note,t.source_url,t.created_at,COALESCE(p.display_name,'user-'||lower(substr(t.user_id,1,6))) AS author FROM tag_proposals t LEFT JOIN user_profiles p ON p.user_id=t.user_id WHERE t.status='open' ORDER BY t.created_at LIMIT 50`):db.prepare('SELECT 1 WHERE 0')]);
  const rows=ch.results||[],more=rows.length>50;if(more)rows.length=50;
  const label=(/** @type {string} */ v,/** @type {string} */ p)=>propertyDef(v,p)?.label?.ko||p;
  const changes=rows.map((/** @type {any} */ r)=>{const e=ent(r),name=nameOf(e,'ko'),d=describeChange(r,{name},'ko');
@@ -396,7 +400,11 @@ async function radar(c){
    proposed:{value:js(r.value),verification:String(r.verification),source:r.source_id??null,by:String(r.created_by)},created_at:Number(r.created_at)};});
  const proposals=(pr.results||[]).map((/** @type {any} */ r)=>{const e=ent(r);
   return {id:String(r.id),entity_id:String(r.entity_id),channel:nameOf(e,'ko'),vertical:e.vertical,url:channelUrl('ko',e),property:String(r.property),label:label(e.vertical,String(r.property)),value:js(r.value),unit:r.unit??null,current:r.cur_value==null?null:js(r.cur_value),source:String(r.source_url),note:r.note??null,author:String(r.author),created_at:Number(r.created_at)};});
- return {changes,conflicts,proposals,next:more?changes[changes.length-1].id:null};
+ // New tags members asked for: the owner picks the kind (a game, a model …) of the channel's area on approval.
+ const tags=(tg.results||[]).map((/** @type {any} */ r)=>{const chn=channelById(String(r.channel_id)),v=chn?.vertical?verticalOf(chn.vertical):null;
+  return {id:String(r.id),name:String(r.name),channel:chn?chn.names.ko:String(r.channel_id),channelId:String(r.channel_id),url:channelPath('ko',String(r.channel_id)),note:r.note??null,source:r.source_url??null,author:String(r.author),created_at:Number(r.created_at),
+   types:v?Object.entries(v.types).map(([id,t])=>({id,label:/** @type {any} */(t).label?.ko||id})):[]};});
+ return {changes,conflicts,proposals,tags,next:more?changes[changes.length-1].id:null};
 }
 
 /** @param {C} c @param {{vertical:string,slug:string}} e */
@@ -412,6 +420,7 @@ async function radarAction(c){
  only(c.body,['kind','id','action','value','reason']);
  const {kind,action}=c.body,reason=text(c.body.reason,[2,500],'reason'),db=c.db,actor=`admin:${c.admin.user_id}`;
  await limit(c,'radar',60,c.admin.user_id);
+ if(kind==='tag')return tagAction(c,reason);
  if(kind==='proposal'){
   if(action!=='approve'&&action!=='reject')throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
   if(typeof c.body.id!=='string'||!/^[\w-]{1,64}$/.test(c.body.id))throw new ApiError('BAD_REQUEST','Invalid id.',{field:'id'});
@@ -459,7 +468,39 @@ async function radarAction(c){
   await purgeChannel(c,{vertical:String(r.vertical),slug:String(r.slug)});
   return {ok:true};
  }
- throw new ApiError('BAD_REQUEST','kind must be conflict, proposal or change.',{field:'kind'});
+ throw new ApiError('BAD_REQUEST','kind must be conflict, proposal, tag or change.',{field:'kind'});
+}
+/**
+ * A member's new-tag proposal: approve creates the entity in the channel's area (the kind the owner picked,
+ * hidden from search engines until it has facts) with its name as a searchable alias; reject closes it.
+ * @param {C} c @param {string} reason
+ */
+async function tagAction(c,reason){
+ const {action}=c.body,db=c.db;
+ if(action!=='approve'&&action!=='reject')throw new ApiError('BAD_REQUEST','Invalid action.',{field:'action'});
+ if(typeof c.body.id!=='string'||!/^[\w-]{1,64}$/.test(c.body.id))throw new ApiError('BAD_REQUEST','Invalid id.',{field:'id'});
+ const t=await db.prepare('SELECT id,channel_id,name,status FROM tag_proposals WHERE id=?').bind(c.body.id).first();
+ if(!t)throw new ApiError('NOT_FOUND','No such proposal.');
+ if(t.status!=='open')throw new ApiError('OPERATION_CONFLICT','Already resolved.');
+ if(action==='reject'){
+  await db.batch([db.prepare("UPDATE tag_proposals SET status='rejected',decided_by=?,decided_at=? WHERE id=? AND status='open'").bind(c.admin.user_id,c.now,t.id),logAction(c,'tag_reject','tag_proposal',String(t.id),reason)]);
+  return {ok:true};
+ }
+ const vertical=channelById(String(t.channel_id))?.vertical;
+ const type=typeof c.body.value==='string'?c.body.value:'';
+ if(!vertical||!typeDef(vertical,type))throw new ApiError('BAD_REQUEST','Pick a kind of this channel.',{field:'value'});
+ const name=String(t.name).trim(),hangul=/[\uac00-\ud7a3]/.test(name);
+ const base=name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||`tag-${randomToken(4).toLowerCase().replace(/[^a-z0-9]/g,'')}`;
+ let slug=base;
+ for(let i=2;await db.prepare('SELECT 1 FROM entities WHERE (vertical=? AND slug=?) OR id=?').bind(vertical,slug,`${type}:${slug}`).first();i++){if(i>50)throw new ApiError('OPERATION_CONFLICT','No free address for this tag.');slug=`${base}-${i}`;}
+ const id=`${type}:${slug}`;
+ await db.batch([
+  db.prepare("INSERT INTO entities (id,vertical,type,slug,names,status,index_state,created_at,updated_at) VALUES (?,?,?,?,?,'active','noindex',?,?)").bind(id,vertical,type,slug,JSON.stringify(hangul?{ko:name}:{en:name}),c.now,c.now),
+  db.prepare("INSERT OR IGNORE INTO entity_aliases (entity_id,norm,alias,locale,kind) VALUES (?,?,?,?,'name')").bind(id,normName(name),name,hangul?'ko':'*'),
+  db.prepare("UPDATE tag_proposals SET status='accepted',entity_id=?,decided_by=?,decided_at=? WHERE id=? AND status='open'").bind(id,c.admin.user_id,c.now,t.id),
+  logAction(c,'tag_accept','tag_proposal',String(t.id),reason,{entity:id})]);
+ await reindexEntities(db,[id]);
+ return {ok:true,entity:id,url:channelUrl('ko',{vertical,slug})};
 }
 
 /* ---------- community ---------- */
@@ -472,7 +513,7 @@ async function community(c){
  else from=seoulDayStart(c.now);
  const to=from+DAY,from7=from-6*DAY,db=c.db;
  const POSTS="FROM discussions WHERE status IN ('published','locked') AND author_id NOT LIKE 'system:%' AND created_at>=? AND created_at<?";
- const ACTIVITY=`SELECT entity_id,1 AS p,0 AS c ${POSTS} UNION ALL SELECT d.entity_id,0,1 FROM comments x JOIN discussions d ON d.id=x.discussion_id WHERE x.status='published' AND x.created_at>=? AND x.created_at<?`;
+ const ACTIVITY=`SELECT channel_id,1 AS p,0 AS c ${POSTS} UNION ALL SELECT d.channel_id,0,1 FROM comments x JOIN discussions d ON d.id=x.discussion_id WHERE x.status='published' AND x.created_at>=? AND x.created_at<?`;
  const [posts,comments,users,flags,sp,sc,channels,verticals,newUsers]=await db.batch([
   db.prepare(`SELECT COUNT(*) AS n ${POSTS}`).bind(from,to),
   db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status='published' AND created_at>=? AND created_at<?").bind(from,to),
@@ -480,8 +521,9 @@ async function community(c){
   db.prepare('SELECT COUNT(*) AS n FROM content_flags WHERE created_at>=? AND created_at<?').bind(from,to),
   db.prepare(`SELECT CAST((created_at+?)/86400000 AS INTEGER) AS d,COUNT(*) AS n ${POSTS} GROUP BY d`).bind(KST,from7,to),
   db.prepare("SELECT CAST((created_at+?)/86400000 AS INTEGER) AS d,COUNT(*) AS n FROM comments WHERE status='published' AND created_at>=? AND created_at<? GROUP BY d").bind(KST,from7,to),
-  db.prepare(`SELECT a.entity_id,SUM(a.p) AS posts,SUM(a.c) AS comments,e.vertical,e.slug,e.names FROM (${ACTIVITY}) a JOIN entities e ON e.id=a.entity_id GROUP BY a.entity_id ORDER BY SUM(a.p)+SUM(a.c) DESC,SUM(a.p) DESC LIMIT 10`).bind(from,to,from,to),
-  db.prepare(`SELECT e.vertical,SUM(a.p) AS posts,SUM(a.c) AS comments FROM (${ACTIVITY}) a JOIN entities e ON e.id=a.entity_id GROUP BY e.vertical ORDER BY SUM(a.p) DESC,SUM(a.c) DESC`).bind(from,to,from,to),
+  // Busiest tags (a post counts for each of its tags) and posts per channel.
+  db.prepare(`SELECT t.entity_id,SUM(a.p) AS posts,SUM(a.c) AS comments,e.vertical,e.slug,e.names FROM (SELECT d.id,1 AS p,0 AS c FROM discussions d WHERE d.status IN ('published','locked') AND d.author_id NOT LIKE 'system:%' AND d.created_at>=? AND d.created_at<? UNION ALL SELECT x.discussion_id,0,1 FROM comments x WHERE x.status='published' AND x.created_at>=? AND x.created_at<?) a JOIN discussion_tags t ON t.discussion_id=a.id JOIN entities e ON e.id=t.entity_id GROUP BY t.entity_id ORDER BY SUM(a.p)+SUM(a.c) DESC,SUM(a.p) DESC LIMIT 10`).bind(from,to,from,to),
+  db.prepare(`SELECT a.channel_id,SUM(a.p) AS posts,SUM(a.c) AS comments FROM (${ACTIVITY}) a GROUP BY a.channel_id ORDER BY SUM(a.p) DESC,SUM(a.c) DESC`).bind(from,to,from,to),
   db.prepare(`SELECT u.id,u.created_at,COALESCE(p.display_name,'user-'||lower(substr(u.id,1,6))) AS name,
    (SELECT COUNT(*) FROM discussions d WHERE d.author_id=u.id AND d.status IN ('published','locked')) AS posts,(SELECT COUNT(*) FROM comments x WHERE x.author_id=u.id AND x.status='published') AS comments
    FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id WHERE u.created_at>=? AND u.created_at<? AND u.provider<>'system' AND u.id NOT IN (SELECT user_id FROM admin_credentials) ORDER BY u.created_at DESC LIMIT 20`).bind(from,to)]);
@@ -492,7 +534,7 @@ async function community(c){
   tiles:{posts:n(posts),comments:n(comments),users:n(users),flags:n(flags)},
   spark:Array.from({length:7},(_,i)=>{const d=d0-6+i;return {day:new Date(d*DAY).toISOString().slice(0,10),posts:ps.get(d)||0,comments:cs.get(d)||0};}),
   channels:(channels.results||[]).map((/** @type {any} */ r)=>{const e=ent(r);return {entity_id:String(r.entity_id),name:nameOf(e,'ko'),vertical:e.vertical,url:channelUrl('ko',e),posts:Number(r.posts),comments:Number(r.comments)};}),
-  verticals:(verticals.results||[]).map((/** @type {any} */ r)=>({vertical:String(r.vertical),posts:Number(r.posts),comments:Number(r.comments)})),
+  verticals:(verticals.results||[]).map((/** @type {any} */ r)=>({vertical:String(r.channel_id),name:channelById(String(r.channel_id))?.names.ko||String(r.channel_id),url:channelPath('ko',String(r.channel_id)),posts:Number(r.posts),comments:Number(r.comments)})),
   newUsers:(newUsers.results||[]).map((/** @type {any} */ r)=>({id:String(r.id),name:String(r.name),created_at:Number(r.created_at),posts:Number(r.posts),comments:Number(r.comments)}))};
 }
 

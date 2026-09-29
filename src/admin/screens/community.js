@@ -33,8 +33,8 @@ export async function render(ctx,main){
    spark(sp.map((/** @type {any} */ x)=>Number(x.posts)||0),`최근 ${sp.length}일 글 수: ${sp.map((/** @type {any} */ x)=>Number(x.posts)||0).join(', ')}`),
    h('div.mlab',h('span',`${shortDate(sp[0].day)} ${num(sp[0].posts)}`),h('span',`${shortDate(sp[sp.length-1].day)} ${num(sp[sp.length-1].posts)}`)),
    h('p.fine',`같은 기간 댓글 ${num(sp.reduce((/** @type {number} */ n,/** @type {any} */ x)=>n+(Number(x.comments)||0),0))}개`))):null,
-  box('많이 쓴 채널','글 · 댓글',ch.length?h('ul.rows',...ch.map((/** @type {any} */ c)=>h('li',h('span.tt',h('b',c.name||c.entity_id),' ',vt(c.vertical||String(c.entity_id||'').split(':')[0])),h('span.r',`${num(c.posts)} · ${num(c.comments)}`)))):empty('이 날 글이 올라온 채널이 없습니다')),
-  vs.length?box('분야별 글',null,h('div.pad',hbars(vs.map((/** @type {any} */ v)=>({label:VERTICALS[v.vertical]||v.vertical,value:Number(v.posts??v.n)||0}))))):null,
+  box('많이 쓴 태그','글 · 댓글',ch.length?h('ul.rows',...ch.map((/** @type {any} */ c)=>h('li',h('span.tt',h('b',c.name||c.entity_id),' ',vt(c.vertical||String(c.entity_id||'').split(':')[0])),h('span.r',`${num(c.posts)} · ${num(c.comments)}`)))):empty('이 날 글이 올라온 채널이 없습니다')),
+  vs.length?box('채널별 글',null,h('div.pad',hbars(vs.map((/** @type {any} */ v)=>({label:v.name||VERTICALS[v.vertical]||v.vertical,value:Number(v.posts??v.n)||0}))))):null,
   box('새 가입자',nu.length?`${nu.length}명`:null,nu.length?h('ul.rows',...nu.map((/** @type {any} */ u)=>h('li',h('span.tt',h('b',u.name||u.display_name||'회원'),h('span.l2',[`${dayClock(u.created_at,ctx.now())} 가입`,u.posts!=null&&`글 ${num(u.posts)}`,u.comments!=null&&`댓글 ${num(u.comments)}`].filter(Boolean).join(' · ')))))):empty('이 날 새 가입자가 없습니다')),
   ctx.stamp(d?.generatedAt));
 }
