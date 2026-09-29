@@ -1,4 +1,4 @@
-import {entitlement,load,logout,apiPath,current} from './entitlement.js';
+import {entitlement,load,logout,apiPath,current,meteringOn} from './entitlement.js';
 import {text,duration} from './service-content.js';
 import {track} from './analytics.js';
 import {buttonsHTML,buttonHTML,startURL,iconHTML,isBrand,BRAND_NAME,validReturn} from './signin-brands.js';
@@ -32,6 +32,19 @@ function render(){
  if(state==='unconfigured'||state==='disabled'){body.innerHTML=`<p>${esc(t('serviceOff'))}</p>`;return;}
  if(state==='offline'||!me){body.innerHTML=`<p>${esc(t('serviceDown'))}</p>`;say('serviceDown',true);return;}
  const providers=Array.isArray(me.providers)?me.providers:[];
+ // TOOL_METERING=off: sign-in and linked logins only — no plan, no quotas, no upgrade.
+ if(!meteringOn()){
+  if(!me.loggedIn){
+   const buttons=providers.length?buttonsHTML(providers,locale,returnTo,{api:API}):`<p class="service-hint" data-signin-off>${esc(t('signInUnavailable'))}</p>`;
+   body.innerHTML=`${failureHTML(providers,false)}<p class="service-lead">${esc(t('signedOutLeadOpen'))}</p>${buttons}`;
+   return;
+  }
+  body.innerHTML=`${failureHTML(providers,true)}<dl>${[[t('name'),me.user.name||'—'],[t('email'),me.user.email||'—']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+<div class="service-actions"><button type="button" class="secondary" data-signout>${esc(t('signOut'))}</button></div>
+<section data-linked><h2>${esc(t('linkedTitle'))}</h2><p class="service-hint">${esc(t('linkedHint'))}</p><ul class="identities" data-identities aria-busy="true"><li class="id-sub">${esc(t('linkedLoading'))}</li></ul></section>`;
+  loadIdentities();
+  return;
+ }
  if(!me.loggedIn){
   const su=me.studioUsage,anonNote=su?.signInLimit?`<small class="service-hint" data-studio-anon>${esc(t('studioAnon',{a:su.limit,s:su.signInLimit}))}</small>`:'';
   const buttons=providers.length?buttonsHTML(providers,locale,returnTo,{api:API}):`<p class="service-hint" data-signin-off>${esc(t('signInUnavailable'))}</p>`;
@@ -118,7 +131,7 @@ else{
  }
  if(isBrand(params.get('linked'))&&current().me?.loggedIn)say('linkedOk',false,{p:providerName(params.get('linked'))});
  if(params.get('checkout')==='sandbox')say('sandbox');
- if(params.get('checkout')==='success'&&current().me?.plan!=='pro')awaitActivation();
+ if(params.get('checkout')==='success'&&meteringOn()&&current().me?.plan!=='pro')awaitActivation();
  // One-time parameters leave the address bar (the error stays on screen until the next render);
  // ?return= stays, so a reload still comes back to the same page after sign-in.
  if(params.has('login')||params.has('linked')||params.has('checkout')||params.has('portal')){const clean=new URL(location.href);for(const k of ['login','reason','provider','link','linked','checkout','reference','portal','from'])clean.searchParams.delete(k);history.replaceState(null,'',clean);}
