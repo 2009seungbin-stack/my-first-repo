@@ -32,7 +32,7 @@ def ticket_keys():
 class Stack:
     """One isolated deployment: build + local D1 + wrangler pages dev. Every stack signs its answers
     (TICKET_PRIVATE_KEY in the Worker, TICKET_PUBLIC_KEY in the pages), as production should."""
-    def __init__(self,name,build_env,vars,port=None):
+    def __init__(self,name,build_env,vars,port=None,toml=()):
         self.dir=Path(tempfile.mkdtemp(prefix=f'nerulio-{name}-'));self.port=port or int(os.environ.get('SERVICE_PORT','0')) or free_port();self.url=f'http://127.0.0.1:{self.port}'
         keys=ticket_keys();vars={'TICKET_PRIVATE_KEY':keys['privateKey'],**vars};build_env={'TICKET_PUBLIC_KEY':keys['publicKey'],**build_env}
         env={k:v for k,v in os.environ.items() if not k.startswith(('ADSENSE_','CF_PAGES','SITE_','SERVICE_','PRO_PRICE','FREE_DAILY','TICKET_'))}
@@ -43,7 +43,7 @@ class Stack:
         (self.dir/'wrangler.toml').write_text('\n'.join([
             'name = "nerulio-e2e"','pages_build_output_dir = "./dist"','compatibility_date = "2026-09-18"','',
             '[[d1_databases]]','binding = "DB"','database_name = "nerulio-e2e"','database_id = "00000000-0000-4000-8000-000000000001"',
-            f'migrations_dir = {json.dumps((ROOT/"migrations").as_posix())}','','[vars]',*lines,'']),encoding='utf-8')
+            f'migrations_dir = {json.dumps((ROOT/"migrations").as_posix())}','',*toml,'[vars]',*lines,'']),encoding='utf-8')
         r=shell([*WRANGLER,'d1','migrations','apply','nerulio-e2e','--local'],self.dir)
         if r.returncode:raise RuntimeError(r.stdout+r.stderr)
         self.log=open(self.dir/'wrangler.log','w',encoding='utf-8')
@@ -457,14 +457,46 @@ def scenario_signin(browser):
         context.close()
     finally:stack.close()
 
+# ------------------------------------------------------------------ visitor/bot statistics (server/traffic.js)
+def scenario_traffic(browser):
+    """PLATFORM + TRAFFIC_HTML build on the real Pages runtime: HTML, robots.txt and sitemaps go through the
+    Worker (and are passed through unchanged), assets stay static, and a visible page sends one beacon."""
+    stack=Stack('traffic',{'SITE_URL':'https://nerulio.test','PLATFORM':'on'},{},toml=['[[analytics_engine_datasets]]','binding = "TRAFFIC"','dataset = "nerulio_traffic"',''])
+    try:
+        routes=json.loads((stack.dir/'dist'/'_routes.json').read_text())
+        ok('traffic: HTML routed through the Worker, assets excluded',routes['include']==['/*'] and all(p in routes['exclude'] for p in ['/src/*','/assets/*','/favicon.ico']) and '/robots.txt' not in routes['exclude'])
+        robots=urllib.request.urlopen(urllib.request.Request(stack.url+'/robots.txt',headers={'User-Agent':'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'}),timeout=20)
+        ok('traffic: robots.txt served through the Worker unchanged',robots.status==200 and robots.read().decode().startswith('User-agent: *'))
+        sm=urllib.request.urlopen(urllib.request.Request(stack.url+'/sitemap.xml',headers={'User-Agent':'Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)'}),timeout=20)
+        ok('traffic: sitemap served through the Worker',sm.status==200 and b'<sitemapindex' in sm.read())
+        js=urllib.request.urlopen(stack.url+'/src/hit.js',timeout=20)
+        ok('traffic: beacon script is a static asset','javascript' in js.headers.get('content-type','') and b'sendBeacon' in js.read())
+        try:
+            urllib.request.urlopen(urllib.request.Request(stack.url+'/api/v2/hit',data=b'{"p":"/ko/"}',method='POST',headers={'Content-Type':'text/plain','Origin':'https://evil.test','Sec-Fetch-Site':'cross-site'}),timeout=20);cross=200
+        except urllib.error.HTTPError as e:cross=e.code
+        ok('traffic: cross-site hits are refused',cross==403)
+        context=browser.new_context();context._nerulio_base=stack.url;log=[]
+        page=context.new_page();instrument(page,log)
+        with page.expect_response(lambda r:r.url.endswith('/api/v2/hit'),timeout=15000) as hit:
+            response=page.goto(stack.url+'/ko/image/crop/',wait_until='domcontentloaded')
+        ok('traffic: page HTML served through the Worker',response.status==200 and '/src/hit.js' in response.text())
+        ok('traffic: one beacon per visible pageview, answered 204',hit.value.status==204)
+        page.wait_for_timeout(1500)
+        beacons=[r for r in log if r['url'].endswith('/api/v2/hit')]
+        body=json.loads(beacons[0]['body']) if beacons else {}
+        ok('traffic: exactly one beacon with path, source, device, language only',len(beacons)==1 and set(body)=={'p','r','d','l','e','w'} and body['p']=='/ko/image/crop/' and body['r']=='direct')
+        context.close()
+    finally:stack.close()
+
 with sync_playwright() as p:
     browser=p.chromium.launch()
     try:
-        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin').split(',')
+        only=os.environ.get('SERVICE_SCENARIOS','free,ads,studio,signin,traffic').split(',')
         if 'free' in only:scenario_free(browser)
         if 'ads' in only:scenario_ads(browser)
         if 'studio' in only:scenario_studio(browser)
         if 'signin' in only:scenario_signin(browser)
+        if 'traffic' in only:scenario_traffic(browser)
     finally:browser.close()
 if errors:raise AssertionError('page errors: '+'; '.join(errors[:5]))
 (OUT/'service-browser-results.json').write_text(json.dumps({'checks':checks},indent=2),encoding='utf-8')

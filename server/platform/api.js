@@ -21,6 +21,7 @@ import {ingest} from '../../platform/ingest.js';
 import {typeDef,propertyDef} from '../../platform/verticals/index.js';
 import {handleAdminApi,isAdminRoute} from './admin.js';
 import {notifyNewFlag} from './admin-notify.js';
+import {handleHit} from '../traffic.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
@@ -79,6 +80,8 @@ const pagesOf=(e,no=null)=>bothLocales(l=>[...(no?[postUrl(l,e,no)]:[]),channelU
  */
 export async function handlePlatformApi(request,env,ctx,deps={}){
  const url=new URL(request.url),route=url.pathname.replace(/^\/api\/v2/,'').replace(/\/+$/,'')||'/',key=`${request.method} ${route}`;
+ // Visit beacon (src/hit.js → server/traffic.js): no session, no D1 — one Analytics Engine data point.
+ if(route==='/hit')return handleHit(request,env,ctx);
  /** @type {any} */let context=null;
  try{
   // The owner-only admin app has its own router, auth (passkeys) and origin rules.
