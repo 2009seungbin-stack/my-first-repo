@@ -14,6 +14,8 @@ export class D1Rest{
   if(!o.accountId||!o.databaseId||!o.token)throw Error('D1Rest needs accountId, databaseId and token');
   this.url=`${o.endpoint||'https://api.cloudflare.com/client/v4'}/accounts/${encodeURIComponent(o.accountId)}/d1/database/${encodeURIComponent(o.databaseId)}/query`;
   this.token=o.token;this.fetch=o.fetch||fetch;this.queries=0;
+  /** D1's own count of rows written (indexes included) — what the daily write limit is measured in. */
+  this.rowsWritten=0;
  }
  /** @param {string} sql @param {unknown[]} params */
  async query(sql,params){
@@ -22,6 +24,7 @@ export class D1Rest{
   const body=/** @type {any} */(await res.json().catch(()=>null));
   if(!res.ok||!body?.success){const msg=body?.errors?.map((/** @type {any} */ e)=>e.message).join('; ')||`HTTP ${res.status}`;throw Error(`D1 REST: ${msg}`);}
   const r=body.result?.[0]||{};
+  this.rowsWritten+=Number(r.meta?.rows_written)||0;
   return {results:r.results||[],success:true,meta:r.meta||{}};
  }
  /** @param {string} sql */
