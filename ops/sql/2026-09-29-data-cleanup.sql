@@ -2,7 +2,8 @@
 -- Branch nerulio/data-pipeline fixed the causes; this removes what they left behind.
 --
 -- Run AFTER the branch is merged to main (collectors run from main: step 5 would otherwise be undone by
--- the old anilist-schedule adapter on its next run), on preview first, then production:
+-- the old anilist-schedule adapter on its next run), before or after the seed sync that the merge
+-- triggers (either order ends in the same state), on preview first, then production:
 --   npx wrangler d1 execute nerulio-preview --remote --config ops/d1.wrangler.toml --file ops/sql/2026-09-29-data-cleanup.sql
 --
 -- Idempotent: every statement only matches rows that are still wrong; a second run changes nothing.
@@ -20,14 +21,14 @@
 --     gemini-/openai-api-changelog run inserts the missing dated event once (a past item: importance 0).
 
 -- 1. fact_conflicts: the same reading (fact, value, label, source) re-raised on every collector run.
---    Keep the earliest row of each group. Preview: ids 4–9 (6 rows); 1–3 stay (settled as above).
+--    Keep the earliest row of each group, whatever its status (the fixed pipeline may already have
+--    settled the whole group when the seed sync ran first). Preview: ids 4–9 (6 rows); 1–3 stay.
 DELETE FROM fact_conflicts
- WHERE status = 'open'
-   AND EXISTS (SELECT 1 FROM fact_conflicts e
+ WHERE EXISTS (SELECT 1 FROM fact_conflicts e
                 WHERE e.fact_id = fact_conflicts.fact_id AND e.value = fact_conflicts.value
                   AND e.verification = fact_conflicts.verification
                   AND COALESCE(e.source_id, '') = COALESCE(fact_conflicts.source_id, '')
-                  AND e.status IN ('open', 'rejected') AND e.id < fact_conflicts.id);
+                  AND e.id < fact_conflicts.id);
 
 -- 2. changes: exact duplicates (same entity, kind, property, scope, old → new, referenced row).
 --    Keep the earliest. Preview: 6 rows (service:gemini-api ×5, service:openai-api ×1).
