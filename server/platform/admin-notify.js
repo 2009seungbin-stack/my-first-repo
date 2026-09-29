@@ -224,7 +224,7 @@ export async function checkNewUsers(c){
  if(!c.subs.some(s=>s.prefs.newUsers))return null;
  const last=await markerAt(c.db,'digest:users');
  if(last===null){await mark(c.db,['digest:users'],c.now);return null;}
- const n=Number((await c.db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>? AND provider NOT IN ('system','passkey')").bind(last).first())?.n||0);
+ const n=Number((await c.db.prepare("SELECT COUNT(*) AS n FROM users WHERE created_at>? AND provider<>'system' AND id NOT IN (SELECT user_id FROM admin_credentials)").bind(last).first())?.n||0);
  if(!n)return null;
  return alert(c,{key:'digest:users',wants:p=>p.newUsers,topic:'users',message:{kind:'new_users',title:`새 가입자 ${n}명`,body:'커뮤니티 화면에서 확인하세요.',url:'/admin/#/community',tag:'users'}});
 }

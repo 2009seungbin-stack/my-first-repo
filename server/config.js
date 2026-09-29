@@ -78,6 +78,8 @@ export function runtimeConfig(env={},build=BUILD){
   // past_due keeps Pro this many days while the provider retries the card (3–7).
   pastDueGraceDays:between(env.PAST_DUE_GRACE_DAYS,7,3,7),
   sharingNetworks:positive(env.PRO_SHARING_NETWORKS,10,1000),
+  // Member passkey sign-ups per network (/24 · /48) per day; 0 = the default (5 with Turnstile, 2 without).
+  memberSignupsPerNetwork:between(env.MEMBER_SIGNUPS_PER_NETWORK,0,0,1000),
   billing:{provider:billingMode==='off'?'none':provider,mode:billingMode,reason:billingReason,
    prices:{month:env.BILLING_PRICE_ID||'',year:env.BILLING_PRICE_ID_YEARLY||''},proPriceIds:proPriceIds(env)},
   adminSubjects:String(env.ADMIN_GOOGLE_SUBJECTS||'').split(',').map(s=>s.trim()).filter(Boolean)
