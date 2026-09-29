@@ -19,6 +19,8 @@ import {describeChange} from '../../platform/change-text.js';
 import {validateSeed,SEED_SCHEMA} from '../../platform/seed.js';
 import {ingest} from '../../platform/ingest.js';
 import {typeDef,propertyDef} from '../../platform/verticals/index.js';
+import {handleAdminApi,isAdminRoute} from './admin.js';
+import {notifyNewFlag} from './admin-notify.js';
 
 const ROUTES=/** @type {Record<string,1>} */({'GET /state':1,'GET /new-posts':1,'POST /follow':1,'POST /posts':1,'POST /comments':1,'POST /votes':1,'POST /reports':1,'POST /rollout':1,'POST /profile':1,'POST /flags':1,'GET /my-radar':1,'POST /my-radar/seen':1,'GET /mod/queue':1,'GET /mine':1,'POST /facts/propose':1,'GET /open-data/compat':1,'GET /comments/source':1,'GET /follows':1,'GET /posts/source':1,'POST /posts/solve':1,'POST /posts/edit':1,'POST /posts/delete':1,'POST /comments/edit':1,'POST /comments/delete':1,'POST /mod/action':1});
 
@@ -79,6 +81,8 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
  const url=new URL(request.url),route=url.pathname.replace(/^\/api\/v2/,'').replace(/\/+$/,'')||'/',key=`${request.method} ${route}`;
  /** @type {any} */let context=null;
  try{
+  // The owner-only admin app has its own router, auth (passkeys) and origin rules.
+  if(isAdminRoute(route))return handleAdminApi(request,env,ctx,deps);
   if(!ROUTES[key]){
    const methods=['GET','POST'].filter(m=>ROUTES[`${m} ${route}`]);
    if(methods.length)return errorResponse(new ApiError('METHOD_NOT_ALLOWED'),{Allow:methods.join(', ')});
@@ -320,6 +324,8 @@ export async function handlePlatformApi(request,env,ctx,deps={}){
      return done({ok:true,updated:true,previousReason:String(open.reason)});
     }
     await db.prepare('INSERT INTO content_flags (id,target_kind,target_id,reporter_id,reason,note,created_at) VALUES (?,?,?,?,?,?,?)').bind(randomToken(12),m[1],m[2],context.user.id,body.reason,note,now).run();
+    // A new flag reaches the admin's phone at once (devices with flags:'instant'), after the response.
+    ctx?.waitUntil?.(notifyNewFlag(env,{target:`${m[1]}:${m[2]}`,reason:String(body.reason)},{now,fetch:deps.fetch,origin}));
     return done({ok:true},201);
    }
    case 'POST /reports':return done(await report(db,context,body,now,limit,origin),201);
@@ -589,7 +595,7 @@ const MOD_ACTIONS=Object.freeze(['hide','unhide','dismiss','restrict','unrestric
 /** Apply one moderator action; always logged in moderation_actions with its reason.
  * hide = 임시조치 (the content disappears from boards but is kept), unhide = restore, dismiss = no action.
  * @param {any} db @param {string} actor @param {string} actorRole @param {any} body @param {number} now @param {string} origin */
-async function modAction(db,actor,actorRole,body,now,origin){
+export async function modAction(db,actor,actorRole,body,now,origin){
  only(body,['target','action','reason','days']);
  const m=/^(discussion|comment|user|proposal):([\w:.-]{1,100})$/.exec(String(body.target||''));
  if(!m)throw new ApiError('BAD_REQUEST','Invalid target.',{field:'target'});

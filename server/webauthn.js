@@ -13,6 +13,8 @@ import {base64url,fromBase64url,sign,unsign,randomToken,sha256} from './crypto.j
 export const ALG=Object.freeze({ES256:-7,RS256:-257});
 export const CHALLENGE_TTL_MS=5*60e3;
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true});
+/** WebCrypto's typings want ArrayBuffer-backed views. @param {Uint8Array} u @returns {BufferSource} */
+const bs=u=>/** @type {BufferSource} */(/** @type {unknown} */(u));
 
 /* ---------- CBOR (RFC 8949), definite lengths only: all WebAuthn structures use them ---------- */
 
@@ -112,8 +114,8 @@ export function derToRaw(der){
 /** @param {Uint8Array} cose @param {Uint8Array} signature @param {Uint8Array} data */
 export async function verifySignature(cose,signature,data){
  const {key,alg}=await importCoseKey(cose);
- if(alg===ALG.ES256)return crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,derToRaw(signature),data);
- return crypto.subtle.verify({name:'RSASSA-PKCS1-v1_5'},key,signature,data);
+ if(alg===ALG.ES256)return crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,bs(derToRaw(signature)),bs(data));
+ return crypto.subtle.verify({name:'RSASSA-PKCS1-v1_5'},key,bs(signature),bs(data));
 }
 
 /* ---------- stateless challenges ---------- */
@@ -204,7 +206,7 @@ export async function verifyAuthentication(credential,o){
  if(!same(ad.rpIdHash,await rpHash(o.rpId)))throw new WebAuthnError('rpId mismatch');
  if(!(ad.flags&FLAGS.UP))throw new WebAuthnError('user not present');
  if(o.requireUV&&!(ad.flags&FLAGS.UV))throw new WebAuthnError('user not verified');
- const signed=new Uint8Array(authData.length+32);signed.set(authData,0);signed.set(new Uint8Array(await crypto.subtle.digest('SHA-256',cdBytes)),authData.length);
+ const signed=new Uint8Array(authData.length+32);signed.set(authData,0);signed.set(new Uint8Array(await crypto.subtle.digest('SHA-256',bs(cdBytes))),authData.length);
  let ok=false;try{ok=await verifySignature(fromBase64url(stored.publicKey),sig,signed);}catch{ok=false;}
  if(!ok)throw new WebAuthnError('bad signature');
  // §7.2 step 21: a counter that does not move forward means a cloned authenticator. Synced passkeys

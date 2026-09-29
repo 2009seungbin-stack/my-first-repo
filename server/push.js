@@ -8,8 +8,10 @@ import {base64url,fromBase64url} from './crypto.js';
 const enc=new TextEncoder();
 /** @param {...Uint8Array} parts */
 export function concat(...parts){const out=new Uint8Array(parts.reduce((n,p)=>n+p.length,0));let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
+/** WebCrypto's typings want ArrayBuffer-backed views. @param {Uint8Array} u @returns {BufferSource} */
+const bs=u=>/** @type {BufferSource} */(/** @type {unknown} */(u));
 /** @param {Uint8Array} key @param {Uint8Array} data */
-async function hmac(key,data){const k=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-256'},false,['sign']);return new Uint8Array(await crypto.subtle.sign('HMAC',k,data));}
+async function hmac(key,data){const k=await crypto.subtle.importKey('raw',bs(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);return new Uint8Array(await crypto.subtle.sign('HMAC',k,bs(data)));}
 
 /** An uncompressed P-256 point (65 bytes, 0x04‖x‖y) + optional private scalar → JWK. @param {Uint8Array} pub @param {Uint8Array} [d] */
 export function p256Jwk(pub,d){
@@ -33,7 +35,7 @@ export async function encryptPush(o){
  const salt=o.salt||crypto.getRandomValues(new Uint8Array(16));
  let as=o.serverKeys;
  if(!as){const kp=/** @type {CryptoKeyPair} */(await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']));as={privateKey:kp.privateKey,publicRaw:new Uint8Array(await crypto.subtle.exportKey('raw',kp.publicKey))};}
- const uaKey=await crypto.subtle.importKey('raw',o.uaPublic,{name:'ECDH',namedCurve:'P-256'},false,[]);
+ const uaKey=await crypto.subtle.importKey('raw',bs(o.uaPublic),{name:'ECDH',namedCurve:'P-256'},false,[]);
  const ecdh=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:uaKey},as.privateKey,256));
  // RFC 8291 §3.3–3.4: IKM from the ECDH secret and the auth secret, then RFC 8188 key and nonce.
  const prkKey=await hmac(o.authSecret,ecdh);
@@ -41,9 +43,9 @@ export async function encryptPush(o){
  const prk=await hmac(salt,ikm);
  const cek=(await hmac(prk,concat(enc.encode('Content-Encoding: aes128gcm\0'),new Uint8Array([1])))).slice(0,16);
  const nonce=(await hmac(prk,concat(enc.encode('Content-Encoding: nonce\0'),new Uint8Array([1])))).slice(0,12);
- const key=await crypto.subtle.importKey('raw',cek,{name:'AES-GCM'},false,['encrypt']);
+ const key=await crypto.subtle.importKey('raw',bs(cek),{name:'AES-GCM'},false,['encrypt']);
  // One record, so it is the last one: padding delimiter 0x02 and no further padding.
- const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce,tagLength:128},key,concat(o.plaintext,new Uint8Array([2]))));
+ const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:bs(nonce),tagLength:128},key,bs(concat(o.plaintext,new Uint8Array([2])))));
  const header=new Uint8Array(21+as.publicRaw.length);
  header.set(salt,0);new DataView(header.buffer).setUint32(16,4096);header[20]=as.publicRaw.length;header.set(as.publicRaw,21);
  return concat(header,ct);
